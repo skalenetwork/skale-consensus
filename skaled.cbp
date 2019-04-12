@@ -1,0 +1,1005 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6"/>
+	<Project>
+		<Option title="skaled"/>
+		<Option makefile_is_custom="1"/>
+		<Option compiler="gcc"/>
+		<Option virtualFolders="CMake Files\;CMake Files\cmake\;CMake Files\..\;CMake Files\..\..\;CMake Files\..\..\home\;CMake Files\..\..\home\stan\;CMake Files\..\..\home\stan\.hunter\;CMake Files\..\..\home\stan\.hunter\_Base\;CMake Files\..\..\home\stan\.hunter\_Base\Download\;CMake Files\..\..\home\stan\.hunter\_Base\Download\Hunter\;CMake Files\..\..\home\stan\.hunter\_Base\Download\Hunter\0.20.9\;CMake Files\..\..\home\stan\.hunter\_Base\Download\Hunter\0.20.9\8f7cf6d\;CMake Files\..\..\home\stan\.hunter\_Base\Download\Hunter\0.20.9\8f7cf6d\Unpacked\;CMake Files\..\..\home\stan\.hunter\_Base\Download\Hunter\0.20.9\8f7cf6d\Unpacked\cmake\;CMake Files\..\..\home\stan\.hunter\_Base\Download\Hunter\0.20.9\8f7cf6d\Unpacked\cmake\modules\;CMake Files\..\..\home\stan\.hunter\_Base\Download\Hunter\0.20.9\8f7cf6d\Unpacked\cmake\configs\;CMake Files\..\..\home\stan\.hunter\_Base\Download\Hunter\0.20.9\8f7cf6d\Unpacked\cmake\projects\;CMake Files\..\..\home\stan\.hunter\_Base\Download\Hunter\0.20.9\8f7cf6d\Unpacked\cmake\projects\cryptopp\;CMake Files\..\..\home\stan\.hunter\_Base\Download\Hunter\0.20.9\8f7cf6d\Unpacked\cmake\projects\Boost\;CMake Files\..\..\home\stan\.hunter\_Base\Download\Hunter\0.20.9\8f7cf6d\Unpacked\cmake\projects\Boost\filesystem\;CMake Files\..\..\home\stan\.hunter\_Base\Download\Hunter\0.20.9\8f7cf6d\Unpacked\cmake\projects\Boost\system\;CMake Files\..\..\home\stan\.hunter\_Base\Download\Hunter\0.20.9\8f7cf6d\Unpacked\cmake\projects\Boost\thread\;CMake Files\..\..\home\stan\.hunter\_Base\Download\Hunter\0.20.9\8f7cf6d\Unpacked\cmake\find\;CMake Files\..\..\home\stan\.hunter\_Base\Download\Hunter\0.20.9\8f7cf6d\Unpacked\scripts\;CMake Files\..\..\home\stan\.hunter\_Base\8f7cf6d\;CMake Files\..\..\home\stan\.hunter\_Base\8f7cf6d\0f0047a\;CMake Files\..\..\home\stan\.hunter\_Base\8f7cf6d\0f0047a\da58dde\;CMake Files\..\..\home\stan\.hunter\_Base\8f7cf6d\0f0047a\da58dde\Install\;CMake Files\..\..\home\stan\.hunter\_Base\8f7cf6d\0f0047a\da58dde\Install\lib\;CMake Files\..\..\home\stan\.hunter\_Base\8f7cf6d\0f0047a\da58dde\Install\lib\cmake\;CMake Files\..\..\home\stan\.hunter\_Base\8f7cf6d\0f0047a\da58dde\Install\lib\cmake\Boost\;CMake Files\..\..\home\stan\.hunter\_Base\8f7cf6d\0f0047a\da58dde\Install\lib\cmake\cryptopp\;"/>
+		<Build>
+			<Target title="all">
+				<Option working_dir="/d/mapreduce_consensus"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -f &quot;/d/mapreduce_consensus/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="/usr/bin/make -f &quot;/d/mapreduce_consensus/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -f &quot;/d/mapreduce_consensus/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -f &quot;/d/mapreduce_consensus/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="edit_cache">
+				<Option working_dir="/d/mapreduce_consensus"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -f &quot;/d/mapreduce_consensus/Makefile&quot;  VERBOSE=1 edit_cache"/>
+					<CompileFile command="/usr/bin/make -f &quot;/d/mapreduce_consensus/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -f &quot;/d/mapreduce_consensus/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -f &quot;/d/mapreduce_consensus/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="rebuild_cache">
+				<Option working_dir="/d/mapreduce_consensus"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -f &quot;/d/mapreduce_consensus/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
+					<CompileFile command="/usr/bin/make -f &quot;/d/mapreduce_consensus/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -f &quot;/d/mapreduce_consensus/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -f &quot;/d/mapreduce_consensus/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="consensus">
+				<Option output="/d/mapreduce_consensus/libconsensusd.a" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/d/mapreduce_consensus"/>
+				<Option object_output="./"/>
+				<Option type="2"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/home/stan/.hunter/_Base/8f7cf6d/0f0047a/da58dde/Install/include"/>
+					<Add directory="/home/stan/.hunter/_Base/8f7cf6d/0f0047a/da58dde/Install/include/cryptopp"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -f &quot;/d/mapreduce_consensus/Makefile&quot;  VERBOSE=1 consensus"/>
+					<CompileFile command="/usr/bin/make -f &quot;/d/mapreduce_consensus/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -f &quot;/d/mapreduce_consensus/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -f &quot;/d/mapreduce_consensus/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="consensus/fast">
+				<Option output="/d/mapreduce_consensus/libconsensusd.a" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/d/mapreduce_consensus"/>
+				<Option object_output="./"/>
+				<Option type="2"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/home/stan/.hunter/_Base/8f7cf6d/0f0047a/da58dde/Install/include"/>
+					<Add directory="/home/stan/.hunter/_Base/8f7cf6d/0f0047a/da58dde/Install/include/cryptopp"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -f &quot;/d/mapreduce_consensus/Makefile&quot;  VERBOSE=1 consensus/fast"/>
+					<CompileFile command="/usr/bin/make -f &quot;/d/mapreduce_consensus/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -f &quot;/d/mapreduce_consensus/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -f &quot;/d/mapreduce_consensus/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="consensusd">
+				<Option output="/d/mapreduce_consensus/consensusd" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/d/mapreduce_consensus"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/home/stan/.hunter/_Base/8f7cf6d/0f0047a/da58dde/Install/include"/>
+					<Add directory="/home/stan/.hunter/_Base/8f7cf6d/0f0047a/da58dde/Install/include/cryptopp"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -f &quot;/d/mapreduce_consensus/Makefile&quot;  VERBOSE=1 consensusd"/>
+					<CompileFile command="/usr/bin/make -f &quot;/d/mapreduce_consensus/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -f &quot;/d/mapreduce_consensus/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -f &quot;/d/mapreduce_consensus/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="consensusd/fast">
+				<Option output="/d/mapreduce_consensus/consensusd" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/d/mapreduce_consensus"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/home/stan/.hunter/_Base/8f7cf6d/0f0047a/da58dde/Install/include"/>
+					<Add directory="/home/stan/.hunter/_Base/8f7cf6d/0f0047a/da58dde/Install/include/cryptopp"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -f &quot;/d/mapreduce_consensus/Makefile&quot;  VERBOSE=1 consensusd/fast"/>
+					<CompileFile command="/usr/bin/make -f &quot;/d/mapreduce_consensus/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -f &quot;/d/mapreduce_consensus/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -f &quot;/d/mapreduce_consensus/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+		</Build>
+		<Unit filename="/d/mapreduce_consensus/Agent.cpp">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/Agent.h">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/Config.cpp">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/Config.h">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/Log.cpp">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/Log.h">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/Skaled.cpp">
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/Skaled.h">
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/abstracttcpserver/AbstractProposalServerAgent.cpp">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/abstracttcpserver/AbstractProposalServerAgent.h">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/abstracttcpserver/Header.cpp">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/abstracttcpserver/Header.h">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/abstracttcpserver/MissingTransactionsMessage.cpp">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/abstracttcpserver/MissingTransactionsMessage.h">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/abstracttcpserver/PartialHashesList.cpp">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/abstracttcpserver/PartialHashesList.h">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/blockproposal/BlockProposal.cpp">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/blockproposal/BlockProposal.h">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/blockproposal/BlockProposalRequestHeader.cpp">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/blockproposal/BlockProposalRequestHeader.h">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/blockproposal/BlockProposalResponseHeader.cpp">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/blockproposal/BlockProposalResponseHeader.h">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/blockproposal/BlockProposalSet.cpp">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/blockproposal/BlockProposalSet.h">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/blockproposal/BlockRetrievalRequestHeader.cpp">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/blockproposal/BlockRetrievalRequestHeader.h">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/blockproposal/MissingTransactionsRequestHeader.cpp">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/blockproposal/MissingTransactionsRequestHeader.h">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/blockproposal/MissingTransactionsResponseHeader.cpp">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/blockproposal/MissingTransactionsResponseHeader.h">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/blockproposal/pusher/BlockProposalPusherAgent.cpp">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/blockproposal/pusher/BlockProposalPusherAgent.h">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/blockproposal/pusher/BlockProposalPusherThreadPool.cpp">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/blockproposal/pusher/BlockProposalPusherThreadPool.h">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/blockproposal/received/KnownBlockProposalsEngine.cpp">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/blockproposal/received/KnownBlockProposalsEngine.h">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/blockproposal/retriever/BlockRetrieverAgent.cpp">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/blockproposal/retriever/BlockRetrieverAgent.h">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/blockproposal/retriever/BlockRetrieverThreadPool.cpp">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/blockproposal/retriever/BlockRetrieverThreadPool.h">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/blockproposal/server/BlockProposalServerAgent.cpp">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/blockproposal/server/BlockProposalServerAgent.h">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/blockproposal/server/BlockProposalWorkerThreadPool.cpp">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/blockproposal/server/BlockProposalWorkerThreadPool.h">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/chains/BottomSubChain.cpp">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/chains/BottomSubChain.h">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/chains/Schain.cpp">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/chains/Schain.h">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/chains/Schains.cpp">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/chains/Schains.h">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/chains/SubChain.cpp">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/chains/SubChain.h">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/chains/SubChainDispatchThreadPool.cpp">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/chains/SubChainDispatchThreadPool.h">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/chains/SubChainMessageThreadPool.cpp">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/chains/SubChainMessageThreadPool.h">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/chains/SubChainTest.cpp">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/chains/SubChainTest.h">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/chains/TopSubChain.cpp">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/chains/TopSubChain.h">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/crypto/Random.cpp">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/crypto/Random.h">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/crypto/Utils.cpp">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/crypto/Utils.h">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/exceptions/CouldNotReadPartialDataHashesException.cpp">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/exceptions/CouldNotReadPartialDataHashesException.h">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/exceptions/CouldNotSendMessageException.cpp">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/exceptions/CouldNotSendMessageException.h">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/exceptions/InvalidSubchainException.cpp">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/exceptions/InvalidSubchainException.h">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/exceptions/NetworkProtocolException.cpp">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/exceptions/NetworkProtocolException.h">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/exceptions/OldBlockIDException.cpp">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/exceptions/OldBlockIDException.h">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/exceptions/ProposalProtocolException.cpp">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/exceptions/ProposalProtocolException.h">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/json/JSONFactory.cpp">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/json/JSONFactory.h">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/messages/ChildCompletedMessage.cpp">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/messages/ChildCompletedMessage.h">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/messages/ChildMessage.cpp">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/messages/ChildMessage.h">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/messages/ConsensusProposalMessage.cpp">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/messages/ConsensusProposalMessage.h">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/messages/InternalMessage.cpp">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/messages/InternalMessage.h">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/messages/InternalMessageEnvelope.cpp">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/messages/InternalMessageEnvelope.h">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/messages/Message.cpp">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/messages/Message.h">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/messages/MessageEnvelope.cpp">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/messages/MessageEnvelope.h">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/messages/NetworkMessage.cpp">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/messages/NetworkMessage.h">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/messages/NetworkMessageEnvelope.cpp">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/messages/NetworkMessageEnvelope.h">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/messages/ParentCompletedMessage.cpp">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/messages/ParentCompletedMessage.h">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/messages/ParentMessage.cpp">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/messages/ParentMessage.h">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/messages/Transaction.cpp">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/messages/Transaction.h">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/network/Buffer.cpp">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/network/Buffer.h">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/network/Connection.cpp">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/network/Connection.h">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/network/IO.cpp">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/network/IO.h">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/network/IncomingSocket.cpp">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/network/IncomingSocket.h">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/network/OutgoingSocket.cpp">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/network/OutgoingSocket.h">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/network/Sockets.cpp">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/network/Sockets.h">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/network/TransportNetwork.cpp">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/network/TransportNetwork.h">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/network/UDPNetwork.cpp">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/network/UDPNetwork.h">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/network/Util.cpp">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/network/Util.h">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/node/ConsensusEngine.cpp">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/node/ConsensusEngine.h">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/node/Node.cpp">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/node/Node.h">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/node/NodeInfo.cpp">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/node/NodeInfo.h">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/node/Nodes.cpp">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/node/Nodes.h">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/pendingqueue/ExternalQueueSyncAgent.cpp">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/pendingqueue/ExternalQueueSyncAgent.h">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/pendingqueue/ExternalQueueSyncThread.cpp">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/pendingqueue/ExternalQueueSyncThread.h">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/pendingqueue/PendingTransactionsAgent.cpp">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/pendingqueue/PendingTransactionsAgent.h">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/pendingqueue/TestMessageGeneratorAgent.cpp">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/pendingqueue/TestMessageGeneratorAgent.h">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/pendingqueue/TestMessageGeneratorThreadPool.cpp">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/pendingqueue/TestMessageGeneratorThreadPool.h">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/protocols/InstanceGarbageCollectorAgent.cpp">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/protocols/InstanceGarbageCollectorAgent.h">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/protocols/ProtocolInstance.cpp">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/protocols/ProtocolInstance.h">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/protocols/ProtocolKey.cpp">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/protocols/ProtocolKey.h">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/protocols/ZeroProtocolInstance.cpp">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/protocols/ZeroProtocolInstance.h">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/protocols/binconsensus/AUXBroadcastMessage.cpp">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/protocols/binconsensus/AUXBroadcastMessage.h">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/protocols/binconsensus/BVBMessagePayload.cpp">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/protocols/binconsensus/BVBMessagePayload.h">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/protocols/binconsensus/BVBroadcastMessage.cpp">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/protocols/binconsensus/BVBroadcastMessage.h">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/protocols/binconsensus/BinConsensusInstance.cpp">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/protocols/binconsensus/BinConsensusInstance.h">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/protocols/binconsensus/ChildBVDecidedMessage.cpp">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/protocols/binconsensus/ChildBVDecidedMessage.h">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/protocols/blockconsensus/BlockConsensusInstance.cpp">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/protocols/blockconsensus/BlockConsensusInstance.h">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/protocols/blockconsensus/BlockConsensusParentConsensusInitMessage.cpp">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/protocols/blockconsensus/BlockConsensusParentConsensusInitMessage.h">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/threads/WorkerThreadPool.cpp">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/threads/WorkerThreadPool.h">
+			<Option target="consensus"/>
+			<Option target="consensusd"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/cmake/HunterGate.cmake">
+			<Option virtualFolder="CMake Files\cmake\"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/../../home/stan/.hunter/_Base/Download/Hunter/0.20.9/8f7cf6d/Unpacked/cmake/Hunter">
+			<Option virtualFolder="CMake Files\..\..\home\stan\.hunter\_Base\Download\Hunter\0.20.9\8f7cf6d\Unpacked\cmake\"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/../../home/stan/.hunter/_Base/Download/Hunter/0.20.9/8f7cf6d/Unpacked/cmake/modules/hunter_add_package.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\stan\.hunter\_Base\Download\Hunter\0.20.9\8f7cf6d\Unpacked\cmake\modules\"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/../../home/stan/.hunter/_Base/Download/Hunter/0.20.9/8f7cf6d/Unpacked/cmake/modules/hunter_add_version.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\stan\.hunter\_Base\Download\Hunter\0.20.9\8f7cf6d\Unpacked\cmake\modules\"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/../../home/stan/.hunter/_Base/Download/Hunter/0.20.9/8f7cf6d/Unpacked/cmake/modules/hunter_apply_copy_rules.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\stan\.hunter\_Base\Download\Hunter\0.20.9\8f7cf6d\Unpacked\cmake\modules\"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/../../home/stan/.hunter/_Base/Download/Hunter/0.20.9/8f7cf6d/Unpacked/cmake/modules/hunter_apply_gate_settings.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\stan\.hunter\_Base\Download\Hunter\0.20.9\8f7cf6d\Unpacked\cmake\modules\"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/../../home/stan/.hunter/_Base/Download/Hunter/0.20.9/8f7cf6d/Unpacked/cmake/modules/hunter_cache_run.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\stan\.hunter\_Base\Download\Hunter\0.20.9\8f7cf6d\Unpacked\cmake\modules\"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/../../home/stan/.hunter/_Base/Download/Hunter/0.20.9/8f7cf6d/Unpacked/cmake/modules/hunter_cacheable.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\stan\.hunter\_Base\Download\Hunter\0.20.9\8f7cf6d\Unpacked\cmake\modules\"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/../../home/stan/.hunter/_Base/Download/Hunter/0.20.9/8f7cf6d/Unpacked/cmake/modules/hunter_calculate_config_sha1.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\stan\.hunter\_Base\Download\Hunter\0.20.9\8f7cf6d\Unpacked\cmake\modules\"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/../../home/stan/.hunter/_Base/Download/Hunter/0.20.9/8f7cf6d/Unpacked/cmake/modules/hunter_calculate_self.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\stan\.hunter\_Base\Download\Hunter\0.20.9\8f7cf6d\Unpacked\cmake\modules\"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/../../home/stan/.hunter/_Base/Download/Hunter/0.20.9/8f7cf6d/Unpacked/cmake/modules/hunter_calculate_toolchain_sha1.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\stan\.hunter\_Base\Download\Hunter\0.20.9\8f7cf6d\Unpacked\cmake\modules\"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/../../home/stan/.hunter/_Base/Download/Hunter/0.20.9/8f7cf6d/Unpacked/cmake/modules/hunter_check_download_error_message.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\stan\.hunter\_Base\Download\Hunter\0.20.9\8f7cf6d\Unpacked\cmake\modules\"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/../../home/stan/.hunter/_Base/Download/Hunter/0.20.9/8f7cf6d/Unpacked/cmake/modules/hunter_check_flush_needed.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\stan\.hunter\_Base\Download\Hunter\0.20.9\8f7cf6d\Unpacked\cmake\modules\"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/../../home/stan/.hunter/_Base/Download/Hunter/0.20.9/8f7cf6d/Unpacked/cmake/modules/hunter_check_toolchain_definition.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\stan\.hunter\_Base\Download\Hunter\0.20.9\8f7cf6d\Unpacked\cmake\modules\"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/../../home/stan/.hunter/_Base/Download/Hunter/0.20.9/8f7cf6d/Unpacked/cmake/modules/hunter_cmake_args.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\stan\.hunter\_Base\Download\Hunter\0.20.9\8f7cf6d\Unpacked\cmake\modules\"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/../../home/stan/.hunter/_Base/Download/Hunter/0.20.9/8f7cf6d/Unpacked/cmake/modules/hunter_config.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\stan\.hunter\_Base\Download\Hunter\0.20.9\8f7cf6d\Unpacked\cmake\modules\"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/../../home/stan/.hunter/_Base/Download/Hunter/0.20.9/8f7cf6d/Unpacked/cmake/modules/hunter_create_args_file.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\stan\.hunter\_Base\Download\Hunter\0.20.9\8f7cf6d\Unpacked\cmake\modules\"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/../../home/stan/.hunter/_Base/Download/Hunter/0.20.9/8f7cf6d/Unpacked/cmake/modules/hunter_create_cache_file.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\stan\.hunter\_Base\Download\Hunter\0.20.9\8f7cf6d\Unpacked\cmake\modules\"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/../../home/stan/.hunter/_Base/Download/Hunter/0.20.9/8f7cf6d/Unpacked/cmake/modules/hunter_create_cache_meta_directory.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\stan\.hunter\_Base\Download\Hunter\0.20.9\8f7cf6d\Unpacked\cmake\modules\"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/../../home/stan/.hunter/_Base/Download/Hunter/0.20.9/8f7cf6d/Unpacked/cmake/modules/hunter_create_dependency_entry.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\stan\.hunter\_Base\Download\Hunter\0.20.9\8f7cf6d\Unpacked\cmake\modules\"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/../../home/stan/.hunter/_Base/Download/Hunter/0.20.9/8f7cf6d/Unpacked/cmake/modules/hunter_create_deps_info.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\stan\.hunter\_Base\Download\Hunter\0.20.9\8f7cf6d\Unpacked\cmake\modules\"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/../../home/stan/.hunter/_Base/Download/Hunter/0.20.9/8f7cf6d/Unpacked/cmake/modules/hunter_download.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\stan\.hunter\_Base\Download\Hunter\0.20.9\8f7cf6d\Unpacked\cmake\modules\"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/../../home/stan/.hunter/_Base/Download/Hunter/0.20.9/8f7cf6d/Unpacked/cmake/modules/hunter_download_cache_meta_file.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\stan\.hunter\_Base\Download\Hunter\0.20.9\8f7cf6d\Unpacked\cmake\modules\"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/../../home/stan/.hunter/_Base/Download/Hunter/0.20.9/8f7cf6d/Unpacked/cmake/modules/hunter_download_cache_raw_file.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\stan\.hunter\_Base\Download\Hunter\0.20.9\8f7cf6d\Unpacked\cmake\modules\"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/../../home/stan/.hunter/_Base/Download/Hunter/0.20.9/8f7cf6d/Unpacked/cmake/modules/hunter_download_server_url.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\stan\.hunter\_Base\Download\Hunter\0.20.9\8f7cf6d\Unpacked\cmake\modules\"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/../../home/stan/.hunter/_Base/Download/Hunter/0.20.9/8f7cf6d/Unpacked/cmake/modules/hunter_fatal_error.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\stan\.hunter\_Base\Download\Hunter\0.20.9\8f7cf6d\Unpacked\cmake\modules\"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/../../home/stan/.hunter/_Base/Download/Hunter/0.20.9/8f7cf6d/Unpacked/cmake/modules/hunter_finalize.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\stan\.hunter\_Base\Download\Hunter\0.20.9\8f7cf6d\Unpacked\cmake\modules\"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/../../home/stan/.hunter/_Base/Download/Hunter/0.20.9/8f7cf6d/Unpacked/cmake/modules/hunter_find_licenses.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\stan\.hunter\_Base\Download\Hunter\0.20.9\8f7cf6d\Unpacked\cmake\modules\"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/../../home/stan/.hunter/_Base/Download/Hunter/0.20.9/8f7cf6d/Unpacked/cmake/modules/hunter_find_stamps.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\stan\.hunter\_Base\Download\Hunter\0.20.9\8f7cf6d\Unpacked\cmake\modules\"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/../../home/stan/.hunter/_Base/Download/Hunter/0.20.9/8f7cf6d/Unpacked/cmake/modules/hunter_flush_cache_variables.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\stan\.hunter\_Base\Download\Hunter\0.20.9\8f7cf6d\Unpacked\cmake\modules\"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/../../home/stan/.hunter/_Base/Download/Hunter/0.20.9/8f7cf6d/Unpacked/cmake/modules/hunter_get_package_deps.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\stan\.hunter\_Base\Download\Hunter\0.20.9\8f7cf6d\Unpacked\cmake\modules\"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/../../home/stan/.hunter/_Base/Download/Hunter/0.20.9/8f7cf6d/Unpacked/cmake/modules/hunter_get_package_deps_recurse.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\stan\.hunter\_Base\Download\Hunter\0.20.9\8f7cf6d\Unpacked\cmake\modules\"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/../../home/stan/.hunter/_Base/Download/Hunter/0.20.9/8f7cf6d/Unpacked/cmake/modules/hunter_get_passwords_path.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\stan\.hunter\_Base\Download\Hunter\0.20.9\8f7cf6d\Unpacked\cmake\modules\"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/../../home/stan/.hunter/_Base/Download/Hunter/0.20.9/8f7cf6d/Unpacked/cmake/modules/hunter_get_project_files_to_load.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\stan\.hunter\_Base\Download\Hunter\0.20.9\8f7cf6d\Unpacked\cmake\modules\"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/../../home/stan/.hunter/_Base/Download/Hunter/0.20.9/8f7cf6d/Unpacked/cmake/modules/hunter_http_password.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\stan\.hunter\_Base\Download\Hunter\0.20.9\8f7cf6d\Unpacked\cmake\modules\"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/../../home/stan/.hunter/_Base/Download/Hunter/0.20.9/8f7cf6d/Unpacked/cmake/modules/hunter_init_not_found_counter.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\stan\.hunter\_Base\Download\Hunter\0.20.9\8f7cf6d\Unpacked\cmake\modules\"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/../../home/stan/.hunter/_Base/Download/Hunter/0.20.9/8f7cf6d/Unpacked/cmake/modules/hunter_initialize.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\stan\.hunter\_Base\Download\Hunter\0.20.9\8f7cf6d\Unpacked\cmake\modules\"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/../../home/stan/.hunter/_Base/Download/Hunter/0.20.9/8f7cf6d/Unpacked/cmake/modules/hunter_internal_error.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\stan\.hunter\_Base\Download\Hunter\0.20.9\8f7cf6d\Unpacked\cmake\modules\"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/../../home/stan/.hunter/_Base/Download/Hunter/0.20.9/8f7cf6d/Unpacked/cmake/modules/hunter_jobs_number.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\stan\.hunter\_Base\Download\Hunter\0.20.9\8f7cf6d\Unpacked\cmake\modules\"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/../../home/stan/.hunter/_Base/Download/Hunter/0.20.9/8f7cf6d/Unpacked/cmake/modules/hunter_load_from_cache.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\stan\.hunter\_Base\Download\Hunter\0.20.9\8f7cf6d\Unpacked\cmake\modules\"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/../../home/stan/.hunter/_Base/Download/Hunter/0.20.9/8f7cf6d/Unpacked/cmake/modules/hunter_lock_directory.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\stan\.hunter\_Base\Download\Hunter\0.20.9\8f7cf6d\Unpacked\cmake\modules\"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/../../home/stan/.hunter/_Base/Download/Hunter/0.20.9/8f7cf6d/Unpacked/cmake/modules/hunter_make_directory.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\stan\.hunter\_Base\Download\Hunter\0.20.9\8f7cf6d\Unpacked\cmake\modules\"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/../../home/stan/.hunter/_Base/Download/Hunter/0.20.9/8f7cf6d/Unpacked/cmake/modules/hunter_pack_directory.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\stan\.hunter\_Base\Download\Hunter\0.20.9\8f7cf6d\Unpacked\cmake\modules\"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/../../home/stan/.hunter/_Base/Download/Hunter/0.20.9/8f7cf6d/Unpacked/cmake/modules/hunter_pack_git_submodule.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\stan\.hunter\_Base\Download\Hunter\0.20.9\8f7cf6d\Unpacked\cmake\modules\"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/../../home/stan/.hunter/_Base/Download/Hunter/0.20.9/8f7cf6d/Unpacked/cmake/modules/hunter_parse_cmake_args_for_keyword.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\stan\.hunter\_Base\Download\Hunter\0.20.9\8f7cf6d\Unpacked\cmake\modules\"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/../../home/stan/.hunter/_Base/Download/Hunter/0.20.9/8f7cf6d/Unpacked/cmake/modules/hunter_patch_unrelocatable_text_files.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\stan\.hunter\_Base\Download\Hunter\0.20.9\8f7cf6d\Unpacked\cmake\modules\"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/../../home/stan/.hunter/_Base/Download/Hunter/0.20.9/8f7cf6d/Unpacked/cmake/modules/hunter_pick_scheme.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\stan\.hunter\_Base\Download\Hunter\0.20.9\8f7cf6d\Unpacked\cmake\modules\"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/../../home/stan/.hunter/_Base/Download/Hunter/0.20.9/8f7cf6d/Unpacked/cmake/modules/hunter_print_cmd.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\stan\.hunter\_Base\Download\Hunter\0.20.9\8f7cf6d\Unpacked\cmake\modules\"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/../../home/stan/.hunter/_Base/Download/Hunter/0.20.9/8f7cf6d/Unpacked/cmake/modules/hunter_private_data.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\stan\.hunter\_Base\Download\Hunter\0.20.9\8f7cf6d\Unpacked\cmake\modules\"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/../../home/stan/.hunter/_Base/Download/Hunter/0.20.9/8f7cf6d/Unpacked/cmake/modules/hunter_private_data_password.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\stan\.hunter\_Base\Download\Hunter\0.20.9\8f7cf6d\Unpacked\cmake\modules\"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/../../home/stan/.hunter/_Base/Download/Hunter/0.20.9/8f7cf6d/Unpacked/cmake/modules/hunter_read_http_credentials.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\stan\.hunter\_Base\Download\Hunter\0.20.9\8f7cf6d\Unpacked\cmake\modules\"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/../../home/stan/.hunter/_Base/Download/Hunter/0.20.9/8f7cf6d/Unpacked/cmake/modules/hunter_register_dependency.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\stan\.hunter\_Base\Download\Hunter\0.20.9\8f7cf6d\Unpacked\cmake\modules\"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/../../home/stan/.hunter/_Base/Download/Hunter/0.20.9/8f7cf6d/Unpacked/cmake/modules/hunter_sanity_checks.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\stan\.hunter\_Base\Download\Hunter\0.20.9\8f7cf6d\Unpacked\cmake\modules\"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/../../home/stan/.hunter/_Base/Download/Hunter/0.20.9/8f7cf6d/Unpacked/cmake/modules/hunter_save_to_cache.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\stan\.hunter\_Base\Download\Hunter\0.20.9\8f7cf6d\Unpacked\cmake\modules\"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/../../home/stan/.hunter/_Base/Download/Hunter/0.20.9/8f7cf6d/Unpacked/cmake/modules/hunter_set_config_location.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\stan\.hunter\_Base\Download\Hunter\0.20.9\8f7cf6d\Unpacked\cmake\modules\"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/../../home/stan/.hunter/_Base/Download/Hunter/0.20.9/8f7cf6d/Unpacked/cmake/modules/hunter_sleep_before_download.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\stan\.hunter\_Base\Download\Hunter\0.20.9\8f7cf6d\Unpacked\cmake\modules\"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/../../home/stan/.hunter/_Base/Download/Hunter/0.20.9/8f7cf6d/Unpacked/cmake/modules/hunter_status_debug.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\stan\.hunter\_Base\Download\Hunter\0.20.9\8f7cf6d\Unpacked\cmake\modules\"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/../../home/stan/.hunter/_Base/Download/Hunter/0.20.9/8f7cf6d/Unpacked/cmake/modules/hunter_status_print.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\stan\.hunter\_Base\Download\Hunter\0.20.9\8f7cf6d\Unpacked\cmake\modules\"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/../../home/stan/.hunter/_Base/Download/Hunter/0.20.9/8f7cf6d/Unpacked/cmake/modules/hunter_step_into_unpacked_directory.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\stan\.hunter\_Base\Download\Hunter\0.20.9\8f7cf6d\Unpacked\cmake\modules\"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/../../home/stan/.hunter/_Base/Download/Hunter/0.20.9/8f7cf6d/Unpacked/cmake/modules/hunter_test_string_not_empty.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\stan\.hunter\_Base\Download\Hunter\0.20.9\8f7cf6d\Unpacked\cmake\modules\"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/../../home/stan/.hunter/_Base/Download/Hunter/0.20.9/8f7cf6d/Unpacked/cmake/modules/hunter_unpack_directory.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\stan\.hunter\_Base\Download\Hunter\0.20.9\8f7cf6d\Unpacked\cmake\modules\"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/../../home/stan/.hunter/_Base/Download/Hunter/0.20.9/8f7cf6d/Unpacked/cmake/modules/hunter_unsetvar.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\stan\.hunter\_Base\Download\Hunter\0.20.9\8f7cf6d\Unpacked\cmake\modules\"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/../../home/stan/.hunter/_Base/Download/Hunter/0.20.9/8f7cf6d/Unpacked/cmake/modules/hunter_upload_cache.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\stan\.hunter\_Base\Download\Hunter\0.20.9\8f7cf6d\Unpacked\cmake\modules\"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/../../home/stan/.hunter/_Base/Download/Hunter/0.20.9/8f7cf6d/Unpacked/cmake/modules/hunter_upload_password.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\stan\.hunter\_Base\Download\Hunter\0.20.9\8f7cf6d\Unpacked\cmake\modules\"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/../../home/stan/.hunter/_Base/Download/Hunter/0.20.9/8f7cf6d/Unpacked/cmake/modules/hunter_user_error.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\stan\.hunter\_Base\Download\Hunter\0.20.9\8f7cf6d\Unpacked\cmake\modules\"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/../../home/stan/.hunter/_Base/Download/Hunter/0.20.9/8f7cf6d/Unpacked/cmake/modules/hunter_wiki.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\stan\.hunter\_Base\Download\Hunter\0.20.9\8f7cf6d\Unpacked\cmake\modules\"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/../../home/stan/.hunter/_Base/Download/Hunter/0.20.9/8f7cf6d/Unpacked/cmake/configs/default.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\stan\.hunter\_Base\Download\Hunter\0.20.9\8f7cf6d\Unpacked\cmake\configs\"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/../../home/stan/.hunter/_Base/Download/Hunter/0.20.9/8f7cf6d/Unpacked/cmake/projects/cryptopp/hunter.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\stan\.hunter\_Base\Download\Hunter\0.20.9\8f7cf6d\Unpacked\cmake\projects\cryptopp\"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/../../home/stan/.hunter/_Base/Download/Hunter/0.20.9/8f7cf6d/Unpacked/cmake/projects/Boost/hunter.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\stan\.hunter\_Base\Download\Hunter\0.20.9\8f7cf6d\Unpacked\cmake\projects\Boost\"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/../../home/stan/.hunter/_Base/Download/Hunter/0.20.9/8f7cf6d/Unpacked/cmake/projects/Boost/filesystem/hunter.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\stan\.hunter\_Base\Download\Hunter\0.20.9\8f7cf6d\Unpacked\cmake\projects\Boost\filesystem\"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/../../home/stan/.hunter/_Base/Download/Hunter/0.20.9/8f7cf6d/Unpacked/cmake/projects/Boost/system/hunter.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\stan\.hunter\_Base\Download\Hunter\0.20.9\8f7cf6d\Unpacked\cmake\projects\Boost\system\"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/../../home/stan/.hunter/_Base/Download/Hunter/0.20.9/8f7cf6d/Unpacked/cmake/projects/Boost/thread/hunter.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\stan\.hunter\_Base\Download\Hunter\0.20.9\8f7cf6d\Unpacked\cmake\projects\Boost\thread\"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/../../home/stan/.hunter/_Base/Download/Hunter/0.20.9/8f7cf6d/Unpacked/cmake/find/FindBoost.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\stan\.hunter\_Base\Download\Hunter\0.20.9\8f7cf6d\Unpacked\cmake\find\"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/../../home/stan/.hunter/_Base/Download/Hunter/0.20.9/8f7cf6d/Unpacked/scripts/create-toolchain-info.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\stan\.hunter\_Base\Download\Hunter\0.20.9\8f7cf6d\Unpacked\scripts\"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/../../home/stan/.hunter/_Base/8f7cf6d/0f0047a/da58dde/config.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\stan\.hunter\_Base\8f7cf6d\0f0047a\da58dde\"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/../../home/stan/.hunter/_Base/8f7cf6d/0f0047a/da58dde/Install/lib/cmake/Boost/BoostConfig.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\stan\.hunter\_Base\8f7cf6d\0f0047a\da58dde\Install\lib\cmake\Boost\"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/../../home/stan/.hunter/_Base/8f7cf6d/0f0047a/da58dde/Install/lib/cmake/Boost/BoostConfigVersion.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\stan\.hunter\_Base\8f7cf6d\0f0047a\da58dde\Install\lib\cmake\Boost\"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/../../home/stan/.hunter/_Base/8f7cf6d/0f0047a/da58dde/Install/lib/cmake/cryptopp/cryptopp-config-version.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\stan\.hunter\_Base\8f7cf6d\0f0047a\da58dde\Install\lib\cmake\cryptopp\"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/../../home/stan/.hunter/_Base/8f7cf6d/0f0047a/da58dde/Install/lib/cmake/cryptopp/cryptopp-config.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\stan\.hunter\_Base\8f7cf6d\0f0047a\da58dde\Install\lib\cmake\cryptopp\"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/../../home/stan/.hunter/_Base/8f7cf6d/0f0047a/da58dde/Install/lib/cmake/cryptopp/cryptopp-targets-debug.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\stan\.hunter\_Base\8f7cf6d\0f0047a\da58dde\Install\lib\cmake\cryptopp\"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/../../home/stan/.hunter/_Base/8f7cf6d/0f0047a/da58dde/Install/lib/cmake/cryptopp/cryptopp-targets-release.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\stan\.hunter\_Base\8f7cf6d\0f0047a\da58dde\Install\lib\cmake\cryptopp\"/>
+		</Unit>
+		<Unit filename="/d/mapreduce_consensus/../../home/stan/.hunter/_Base/8f7cf6d/0f0047a/da58dde/Install/lib/cmake/cryptopp/cryptopp-targets.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\stan\.hunter\_Base\8f7cf6d\0f0047a\da58dde\Install\lib\cmake\cryptopp\"/>
+		</Unit>
+	</Project>
+</CodeBlocks_project_file>

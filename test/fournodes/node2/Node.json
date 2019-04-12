@@ -1,0 +1,7 @@
+{
+  "nodeName":  "Node2",
+  "nodeID": 1113,
+  "bindIP": "127.0.0.2",
+  "basePort":1231,
+  "emptyBlockIntervalMs": 10000000
+}

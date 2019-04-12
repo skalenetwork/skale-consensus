@@ -1,0 +1,30 @@
+ {
+  "schainName": "TestChain",
+  "schainID": 1,
+  "nodes": [
+    { "nodeID": 1111, "ip": "127.0.0.1", "basePort": 1231, "schainIndex" : 0},
+    { "nodeID": 1112, "ip": "127.0.0.2", "basePort":1231, "schainIndex" : 1},
+    { "nodeID": 1113, "ip": "127.0.0.3", "basePort":1231, "schainIndex" : 2},
+    { "nodeID": 1114, "ip": "127.0.0.4", "basePort":1231, "schainIndex" : 3},
+    { "nodeID": 1115, "ip": "127.0.0.5", "basePort": 1231, "schainIndex" : 4},
+    { "nodeID": 1116, "ip": "127.0.0.6", "basePort":1231, "schainIndex" : 5},
+    { "nodeID": 1117, "ip": "127.0.0.7", "basePort":1231, "schainIndex" : 6},
+    { "nodeID": 1118, "ip": "127.0.0.8", "basePort":1231, "schainIndex" : 7},
+
+
+
+    { "nodeID": 1119, "ip": "127.0.0.9", "basePort": 1231, "schainIndex" : 8},
+    { "nodeID": 1120, "ip": "127.0.0.10", "basePort":1231, "schainIndex" : 9},
+    { "nodeID": 1121, "ip": "127.0.0.11", "basePort":1231, "schainIndex" : 10},
+    { "nodeID": 1122, "ip": "127.0.0.12", "basePort":1231, "schainIndex" : 11},
+    { "nodeID": 1123, "ip": "127.0.0.13", "basePort": 1231, "schainIndex" : 12},
+    { "nodeID": 1124, "ip": "127.0.0.14", "basePort":1231, "schainIndex" : 13},
+    { "nodeID": 1125, "ip": "127.0.0.15", "basePort":1231, "schainIndex" : 14},
+    { "nodeID": 1126, "ip": "127.0.0.16", "basePort":1231, "schainIndex" : 15}
+
+  ],
+
+
+   "blockProposalTest": "SLOW"
+
+ }
