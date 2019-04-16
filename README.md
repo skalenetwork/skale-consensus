@@ -50,7 +50,7 @@ Navigate to the testing directories and run `./consensusd .`
 [![Discord](https://img.shields.io/discord/534485763354787851.svg)](https://discord.gg/vvUtWJB)
 
 ## License
-[![License](https://img.shields.io/github/license/skalelabs/skale-consensus.svg)](LICENSE)
+![GitHub](https://img.shields.io/github/license/skalelabs/skale-consensus.svg)
 
 
 Copyright (C) 2018-present SKALE Labs
