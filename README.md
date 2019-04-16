@@ -1,6 +1,7 @@
 # SKALE Consensus: a BFT Consensus engine in C++
 
 [![Discord](https://img.shields.io/discord/534485763354787851.svg)](https://discord.gg/vvUtWJB)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fskalelabs%2Fskale-consensus.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fskalelabs%2Fskale-consensus?ref=badge_shield)
 
 SKALE Consensus uses an Asynchronous Binary Byzantine Agreement (ABBA) protocol. The current implementation uses ABBA from Mostefaoui *et al.* In general, any ABBA protocol can be used so long as it has the following properties:
 
@@ -54,3 +55,6 @@ Navigate to the testing directories and run `./consensusd .`
 
 
 Copyright (C) 2018-present SKALE Labs
+
+
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fskalelabs%2Fskale-consensus.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fskalelabs%2Fskale-consensus?ref=badge_large)
