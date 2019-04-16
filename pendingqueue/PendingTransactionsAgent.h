@@ -1,26 +1,3 @@
-/*
-    Copyright (C) 2018-2019 SKALE Labs
-
-    This file is part of skale-consensus.
-
-    skale-consensus is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    skale-consensus is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with skale-consensus.  If not, see <http://www.gnu.org/licenses/>.
-
-    @file PendingTransactionsAgent.h
-    @author Stan Kladko
-    @date 2018
-*/
-
 #pragma once
 
 #include <boost/functional/hash.hpp>
@@ -35,7 +12,6 @@ class Transaction;
 #include "../db/LevelDB.h"
 
 class PendingTransactionsAgent : Agent, LevelDB::KeyVisitor {
-
 
 public:
 private:
@@ -88,8 +64,6 @@ private:
         }
     };
 
-
-    unordered_map<ptr<partial_sha_hash>, ptr<Transaction>, Hasher, Equal> pendingTransactions;
     unordered_set<ptr<partial_sha_hash>, Hasher, Equal> committedTransactions;
     unordered_map<ptr<partial_sha_hash>, ptr<Transaction> , Hasher, Equal> knownTransactions;
 
@@ -111,13 +85,9 @@ public:
 
     transaction_count getTransactionCounter() const;
 
-    void pushTransaction(ptr<Transaction> _transaction);
-
     void pushKnownTransaction(ptr<Transaction> _transaction);
 
     void pushKnownTransactions(ptr<vector<ptr<Transaction>>> _transactions);
-
-    void pushTransactions(ptr<vector<ptr<Transaction>>> _transactions);
 
     void waitUntilPendingTransaction();
 
@@ -136,9 +106,6 @@ public:
     shared_ptr<vector<ptr<Transaction>>> createTransactionsListForProposal();
 
     ptr<Transaction> getKnownTransactionByPartialHash(ptr<partial_sha_hash> hash);
-
-
-    void cleanCommittedTransactionsFromQueue(ptr<BlockProposal> _committedBlockProposal);
 
     ptr<BlockProposal> buildBlockProposal(block_id _blockID, uint64_t  _previousBlockTimeStamp);
 

@@ -1,25 +1,6 @@
-/*
-    Copyright (C) 2019 SKALE Labs
-
-    This file is part of skale-consensus.
-
-    skale-consensus is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    skale-consensus is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with skale-consensus.  If not, see <http://www.gnu.org/licenses/>.
-
-    @file BLSPrivateKey.cpp
-    @author Stan Kladko
-    @date 2019
-*/
+//
+// Created by kladko on 3/29/19.
+//
 
 
 #include "../SkaleConfig.h"
@@ -87,12 +68,12 @@ BLSPrivateKey::BLSPrivateKey(const string& k, node_count _nodeCount) : nodeCount
 ptr<BLSSigShare>
 BLSPrivateKey::sign(ptr<string> _msg, block_id _blockId, schain_index _signerIndex, node_id _signerNodeId) {
 
-    ptr<signatures::Bls> obj;
+    ptr<signatures::bls> obj;
 
     if (nodeCount == 1 || nodeCount == 2) {
-        obj =  make_shared<signatures::Bls>(signatures::Bls(nodeCount, nodeCount)); // test
+        obj =  make_shared<signatures::bls>(signatures::bls(nodeCount, nodeCount)); // test
     } else {
-        obj =  make_shared<signatures::Bls>(signatures::Bls( 2 * (nodeCount  / 3)  , nodeCount));
+        obj =  make_shared<signatures::bls>(signatures::bls( 2 * (nodeCount  / 3)  , nodeCount));
     }
 
     libff::alt_bn128_G1 hash = obj->Hashing(*_msg);

@@ -1,26 +1,3 @@
-/*
-    Copyright (C) 2018-2019 SKALE Labs
-
-    This file is part of skale-consensus.
-
-    skale-consensus is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    skale-consensus is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with skale-consensus.  If not, see <http://www.gnu.org/licenses/>.
-
-    @file PendingTransactionsAgent.cpp
-    @author Stan Kladko
-    @date 2018
-*/
-
 #include <unordered_set>
 #include "../SkaleConfig.h"
 #include "../Log.h"
@@ -33,21 +10,23 @@
 #include "../datastructures/MyBlockProposal.h"
 #include "../node/Node.h"
 #include "../datastructures/PartialHashesList.h"
-#include "../datastructures/Transaction.h"
+#include "../datastructures/PendingTransaction.h"
 #include "../datastructures/TransactionList.h"
 
 #include "../chains/Schain.h"
 
-#include "../db/LevelDB.h"
-
+#include "../node/ConsensusEngine.h"
 
 #include "PendingTransactionsAgent.h"
+
+#include "leveldb/db.h"
+
 
 using namespace std;
 
 
 PendingTransactionsAgent::PendingTransactionsAgent( Schain& ref_sChain )
-    : Agent(ref_sChain, false) {
+    : Agent(ref_sChain, false)  {
 
 
     auto cfg = getSchain()->getNode()->getCfg();
@@ -84,25 +63,9 @@ void PendingTransactionsAgent::addToCommitted(ptr<partial_sha_hash> &s)  {
     committedTransactionsList.push_back(s);
 }
 
-
-void PendingTransactionsAgent::cleanCommittedTransactionsFromQueue(ptr<BlockProposal> _committedBlockProposal) {
-    lock_guard<recursive_mutex> lock(transactionsMutex);
-    auto transactions = _committedBlockProposal->getTransactionList()->getItems();
-    for (auto &&t : *transactions) {
-        ASSERT(!isCommitted(t->getPartialHash()));
-        pushCommittedTransaction(t);
-        pendingTransactions.erase(t->getPartialHash());
-        knownTransactions.erase(t->getPartialHash());
-    }
-}
-
-
-
 ptr<BlockProposal> PendingTransactionsAgent::buildBlockProposal(block_id _blockID, uint64_t _previousBlockTimeStamp) {
 
     usleep(getNode()->getMinBlockIntervalMs() * 1000);
-
-    waitUntilPendingTransaction();
 
     shared_ptr<vector<ptr<Transaction>>> transactions = createTransactionsListForProposal();
 
@@ -123,51 +86,31 @@ ptr<BlockProposal> PendingTransactionsAgent::buildBlockProposal(block_id _blockI
 }
 
 shared_ptr<vector<ptr<Transaction>>> PendingTransactionsAgent::createTransactionsListForProposal() {
-    auto transactions = make_shared<vector<ptr<Transaction>>>();
+    auto result = make_shared<vector<ptr<Transaction>>>();
 
-    {
-        lock_guard<recursive_mutex> lock(transactionsMutex);
+    size_t need_max = getNode()->getMaxTransactionsPerBlock();
+    ConsensusExtFace::transactions_vector tx_vec;
 
-        LOG(trace, "Out of wait, transactions:" + to_string(pendingTransactions.size()));
+    boost::posix_time::ptime t1 = boost::posix_time::microsec_clock::local_time();
 
-        auto iterator = pendingTransactions.cbegin();
-        while (iterator != pendingTransactions.cend()) {
-            if (isCommitted(iterator->first)) {
-                iterator = pendingTransactions.erase(iterator);
-            } else {
+    while(tx_vec.empty()){
 
-
-
-                ++iterator;;
-
-            }
-        }
-        uint64_t i = 0;
-        for (auto const &x : pendingTransactions) {
-
-
-
-            transactions->push_back(x.second);
-            if (++i == getNode()->getMaxTransactionsPerBlock())
-                break;
-        }
-    }
-    return transactions;
-}
-
-void PendingTransactionsAgent::waitUntilPendingTransaction() {
-    for (uint64_t i = 0; i < getNode()->getEmptyBlockIntervalMs(); i++) {
         getSchain()->getNode()->exitCheck();
-        // unlock before sleep
-        {
-            lock_guard<recursive_mutex> lock(transactionsMutex);
-            if (pendingTransactions.size() > 0) {
-                break;
-            }
-        }
+        boost::posix_time::ptime t2 = boost::posix_time::microsec_clock::local_time();
+        boost::posix_time::time_duration diff = t2 - t1;
+        if(diff.total_milliseconds() >= getSchain()->getNode()->getEmptyBlockIntervalMs())
+            break;
 
-        usleep(1000);
+        tx_vec = sChain->getExtFace()->pendingTransactions(need_max);
     }
+
+    for(const auto& e: tx_vec){
+        ptr<Transaction> pt = make_shared<PendingTransaction>( make_shared<std::vector<uint8_t>>(e) );
+        result->push_back(pt);
+        pushKnownTransaction(pt);
+    }
+
+    return result;
 }
 
 
@@ -177,48 +120,11 @@ void PendingTransactionsAgent::pushKnownTransactions(ptr<vector<ptr<Transaction>
     }
 }
 
-
-void PendingTransactionsAgent::pushTransactions(ptr<vector<ptr<Transaction>>> _transactions) {
-    lock_guard<recursive_mutex> lock(transactionsMutex);
-    for (auto &&t: *_transactions) {
-        pushTransaction(t);
-    }
-}
-
-
 ptr<Transaction> PendingTransactionsAgent::getKnownTransactionByPartialHash(ptr<partial_sha_hash> hash) {
     lock_guard<recursive_mutex> lock(transactionsMutex);
-    if (pendingTransactions.count(hash))
-        return pendingTransactions[hash];
     if (knownTransactions.count(hash))
         return knownTransactions[hash];
     return nullptr;
-}
-
-
-void PendingTransactionsAgent::pushTransaction(ptr<Transaction> _transaction) {
-
-    while (pendingTransactions.size() > getNode()->getMaxTransactionsPerBlock()) {
-        usleep(10000);
-        if(getNode()->isExitRequested()) {
-            return;
-        }
-    }
-
-    ASSERT(_transaction);
-    {
-
-        lock_guard<recursive_mutex> lock(transactionsMutex);
-        if (pendingTransactions.count(_transaction->getPartialHash())) {
-            LOG(info, "Duplicate transaction pushed to pending transactions");
-            return;
-        }
-        if (isCommitted(_transaction->getPartialHash())) {
-            LOG(info, "Committed transaction pushed to pending");
-            return;
-        }
-        pendingTransactions[_transaction->getPartialHash()] = _transaction;
-    }
 }
 
 void PendingTransactionsAgent::pushKnownTransaction(ptr<Transaction> _transaction) {
@@ -245,14 +151,6 @@ uint64_t PendingTransactionsAgent::getKnownTransactionsSize() {
     lock_guard<recursive_mutex> lock(transactionsMutex);
     return knownTransactions.size();
 }
-
-
-
-uint64_t PendingTransactionsAgent::getPendingTransactionsSize() {
-    lock_guard<recursive_mutex> lock(transactionsMutex);
-    return pendingTransactions.size();
-}
-
 
 uint64_t PendingTransactionsAgent::getCommittedTransactionsSize() {
     lock_guard<recursive_mutex> lock(transactionsMutex);
@@ -301,6 +199,5 @@ void PendingTransactionsAgent::pushCommittedTransaction(shared_ptr<Transaction> 
 uint64_t PendingTransactionsAgent::getCommittedTransactionCounter() const {
     return committedTransactionCounter;
 }
-
 
 
