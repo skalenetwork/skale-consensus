@@ -68,12 +68,12 @@ BLSPrivateKey::BLSPrivateKey(const string& k, node_count _nodeCount) : nodeCount
 ptr<BLSSigShare>
 BLSPrivateKey::sign(ptr<string> _msg, block_id _blockId, schain_index _signerIndex, node_id _signerNodeId) {
 
-    ptr<signatures::bls> obj;
+    ptr<signatures::Bls> obj;
 
     if (nodeCount == 1 || nodeCount == 2) {
-        obj =  make_shared<signatures::bls>(signatures::bls(nodeCount, nodeCount)); // test
+        obj =  make_shared<signatures::Bls>(signatures::Bls(nodeCount, nodeCount)); // test
     } else {
-        obj =  make_shared<signatures::bls>(signatures::bls( 2 * (nodeCount  / 3)  , nodeCount));
+        obj =  make_shared<signatures::Bls>(signatures::Bls( 2 * (nodeCount  / 3)  , nodeCount));
     }
 
     libff::alt_bn128_G1 hash = obj->Hashing(*_msg);

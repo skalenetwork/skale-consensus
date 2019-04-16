@@ -99,7 +99,7 @@ atomic<uint64_t>  SigShareSet::totalObjects(0);
 ptr<BLSSignature> SigShareSet::mergeSignature() {
 
 
-    signatures::bls obj = signatures::bls(2, 2);
+    signatures::Bls obj = signatures::Bls(2, 2);
 
     std::vector<size_t> participatingNodes;
     std::vector<libff::alt_bn128_G1> shares;
