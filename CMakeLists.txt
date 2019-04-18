@@ -147,6 +147,7 @@ SET(SRC_FILES
 
 
 include_directories(${BLS_INCLUDE_DIRS})
+link_directories( ${BLS_WITH_FF_INCLUDE_DIRS} )
 
 SET(LINK_LIBRARIES Threads::Threads Boost::log Boost::thread Boost::system Boost::filesystem ${LIB_NAME_cryptopp} ZeroMQ::libzmq-static leveldb::leveldb bls)
 
