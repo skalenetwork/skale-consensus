@@ -2,6 +2,13 @@
 
 [![Discord](https://img.shields.io/discord/534485763354787851.svg)](https://discord.gg/vvUtWJB)
 
+
+SKALE consensus utilizes multiple block proposers.  Block proposers distribute proposals to nodes and  
+collect a BLS-signature based data availability proofs. An Asynchronous Binary Byzantine Agreement is then
+executed for each block proposal to reach consensus on whether it is data-available.  If multiple block proposals
+are known to be data-available, a BLS-based common coin is used to select the winning proposal that is 
+committed to the chain.
+
 SKALE Consensus uses an Asynchronous Binary Byzantine Agreement (ABBA) protocol. The current implementation uses ABBA from Mostefaoui *et al.* In general, any ABBA protocol can be used so long as it has the following properties:
 
 - Network model: protocol assumes asynchronous network messaging model.
