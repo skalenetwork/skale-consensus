@@ -4,6 +4,8 @@
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/libBLS" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/libBLS/libff" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/libBLS/libff/depends/ate-pairing" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/libBLS/libff/depends/xbyak" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/libBLS/mpir" vcs="Git" />
   </component>
 </project>
