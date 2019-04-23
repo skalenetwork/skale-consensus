@@ -125,7 +125,8 @@ shared_ptr<vector<ptr<Transaction>>> PendingTransactionsAgent::createTransaction
         if((uint64_t ) diff.total_milliseconds() >= getSchain()->getNode()->getEmptyBlockIntervalMs())
             break;
 
-        tx_vec = sChain->getExtFace()->pendingTransactions(need_max);
+        if (sChain->getExtFace())
+            tx_vec = sChain->getExtFace()->pendingTransactions(need_max);
     }
 
     for(const auto& e: tx_vec){
