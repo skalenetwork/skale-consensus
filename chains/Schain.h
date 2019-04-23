@@ -46,7 +46,6 @@ class SchainMessageThreadPool;
 
 class TestMessageGeneratorAgent;
 class ConsensusExtFace;
-class ExternalQueueSyncAgent;
 
 class CatchupClientAgent;
 
@@ -87,8 +86,6 @@ private:
 
 
     ptr<TestMessageGeneratorAgent> testMessageGeneratorAgent;
-
-    ptr<ExternalQueueSyncAgent> externalQueueSyncAgent;
 
     chrono::milliseconds startTime;
 
@@ -170,7 +167,9 @@ public:
 
     void healthCheck();
 
-    ConsensusExtFace *getExtFace() const;
+    ConsensusExtFace *getExtFace() const {
+        return extFace;
+    }
 
 
     Schain(Node &_node, schain_index _schainIndex, const schain_id &_schainID, ConsensusExtFace *_extFace);
@@ -182,8 +181,6 @@ public:
 
     uint64_t getCommittedBlockTimeStamp();
 
-
-    const ptr<ExternalQueueSyncAgent> &getExternalQueueSyncAgent() const;
 
     void setBlockProposerTest(const string &blockProposerTest);
 

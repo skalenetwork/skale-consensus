@@ -85,7 +85,7 @@ void TestMessageGeneratorAgent::workerThreadMessagePushLoop(TestMessageGenerator
         auto message = make_shared<PendingTransaction>(transaction);
 
 
-        _agent->sChain->getPendingTransactionsAgent()->pushTransaction(message);
+//!!!        _agent->sChain->getPendingTransactionsAgent()->pushTransaction(message);
 
         _agent->counter++;
 

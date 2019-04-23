@@ -64,7 +64,6 @@
 #include "../network/ClientSocket.h"
 #include "../network/ZMQServerSocket.h"
 #include "SchainMessageThreadPool.h"
-#include "../pendingqueue/ExternalQueueSyncAgent.h"
 #include "../network/IO.h"
 
 #include "../crypto/SHAHash.h"
@@ -282,9 +281,9 @@ void Schain::constructChildAgents() {
     testMessageGeneratorAgent = make_shared<TestMessageGeneratorAgent>(*this);
 
 
-    if (extFace) {
-        externalQueueSyncAgent = make_shared<ExternalQueueSyncAgent>(*this, extFace);
-    }
+//    if (extFace) {
+//        externalQueueSyncAgent = make_shared<ExternalQueueSyncAgent>(*this, extFace);
+//    }
 
 
 }
@@ -423,7 +422,7 @@ void Schain::processCommittedBlock(ptr<CommittedBlock> _block) {
 
               ":PTXNS:" + to_string(PendingTransaction::getTotalObjects()) +
               ":RTXNS:" + to_string(ImportedTransaction::getTotalObjects()) +
-              ":PNDG:" + to_string(pendingTransactionsAgent->getPendingTransactionsSize()) +
+//              ":PNDG:" + to_string(pendingTransactionsAgent->getPendingTransactionsSize()) +
               ":KNWN:" + to_string(pendingTransactionsAgent->getKnownTransactionsSize()) +
               ":CMT:" + to_string(pendingTransactionsAgent->getCommittedTransactionsSize()) +
               ":MGS:" + to_string(Message::getTotalObjects()) +
@@ -432,8 +431,6 @@ void Schain::processCommittedBlock(ptr<CommittedBlock> _block) {
               ":TLS:" + to_string(TransactionList::getTotalObjects()) +
               ":HDRS:" + to_string(Header::getTotalObjects()));
 
-
-    pendingTransactionsAgent->cleanCommittedTransactionsFromQueue(_block);
 
     saveBlock(_block);
 
@@ -684,11 +681,6 @@ const ptr<TestMessageGeneratorAgent> &Schain::getTestMessageGeneratorAgent() con
 void Schain::setBlockProposerTest(const string &blockProposerTest) {
     Schain::blockProposerTest = make_shared<string>(blockProposerTest);
 }
-
-const ptr<ExternalQueueSyncAgent> &Schain::getExternalQueueSyncAgent() const {
-    return externalQueueSyncAgent;
-};
-
 
 void Schain::bootstrap(block_id _lastCommittedBlockID, uint64_t _lastCommittedBlockTimeStamp) {
     try {

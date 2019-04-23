@@ -36,7 +36,6 @@ class Transaction;
 
 class PendingTransactionsAgent : Agent, LevelDB::KeyVisitor {
 
-
 public:
 private:
     void visitDBKey(leveldb::Slice key) override;
@@ -88,8 +87,6 @@ private:
         }
     };
 
-
-    unordered_map<ptr<partial_sha_hash>, ptr<Transaction>, Hasher, Equal> pendingTransactions;
     unordered_set<ptr<partial_sha_hash>, Hasher, Equal> committedTransactions;
     unordered_map<ptr<partial_sha_hash>, ptr<Transaction> , Hasher, Equal> knownTransactions;
 
@@ -111,13 +108,9 @@ public:
 
     transaction_count getTransactionCounter() const;
 
-    void pushTransaction(ptr<Transaction> _transaction);
-
     void pushKnownTransaction(ptr<Transaction> _transaction);
 
     void pushKnownTransactions(ptr<vector<ptr<Transaction>>> _transactions);
-
-    void pushTransactions(ptr<vector<ptr<Transaction>>> _transactions);
 
     void waitUntilPendingTransaction();
 
@@ -136,9 +129,6 @@ public:
     shared_ptr<vector<ptr<Transaction>>> createTransactionsListForProposal();
 
     ptr<Transaction> getKnownTransactionByPartialHash(ptr<partial_sha_hash> hash);
-
-
-    void cleanCommittedTransactionsFromQueue(ptr<BlockProposal> _committedBlockProposal);
 
     ptr<BlockProposal> buildBlockProposal(block_id _blockID, uint64_t  _previousBlockTimeStamp);
 
