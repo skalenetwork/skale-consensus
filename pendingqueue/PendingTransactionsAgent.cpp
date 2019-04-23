@@ -121,7 +121,8 @@ shared_ptr<vector<ptr<Transaction>>> PendingTransactionsAgent::createTransaction
         getSchain()->getNode()->exitCheck();
         boost::posix_time::ptime t2 = boost::posix_time::microsec_clock::local_time();
         boost::posix_time::time_duration diff = t2 - t1;
-        if(diff.total_milliseconds() >= getSchain()->getNode()->getEmptyBlockIntervalMs())
+
+        if((uint64_t ) diff.total_milliseconds() >= getSchain()->getNode()->getEmptyBlockIntervalMs())
             break;
 
         tx_vec = sChain->getExtFace()->pendingTransactions(need_max);
