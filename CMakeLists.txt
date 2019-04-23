@@ -13,6 +13,7 @@ include("cmake/precompiledheader.cmake")
 HunterGate( URL "https://github.com/ruslo/hunter/archive/v0.23.76.tar.gz" SHA1 "c7b60993e841850e2c449afd454f5d5aa4ec04e4" )
 
 
+
 project(consensus)
 
 # zeromq
@@ -146,7 +147,8 @@ SET(SRC_FILES
 
 
 
-include_directories(libBLS/bls libBLS/deps/include libBLS/libff libBLS)
+include_directories(${BLS_INCLUDE_DIRS})
+link_directories( ${BLS_WITH_FF_INCLUDE_DIRS} )
 
 SET(LINK_LIBRARIES Threads::Threads Boost::log Boost::thread Boost::system Boost::filesystem ${LIB_NAME_cryptopp} ZeroMQ::libzmq-static leveldb::leveldb bls)
 
