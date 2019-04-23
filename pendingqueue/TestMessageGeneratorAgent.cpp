@@ -28,72 +28,53 @@
 #include "../node/Node.h"
 #include "../chains/Schain.h"
 #include "../chains/SchainTest.h"
-#include "TestMessageGeneratorThreadPool.h"
 #include "../datastructures/PendingTransaction.h"
 #include "../chains/Schain.h"
 #include "../pendingqueue/TestMessageGeneratorAgent.h"
 #include "../datastructures/Transaction.h"
+#include "../node/ConsensusEngine.h"
 #include "PendingTransactionsAgent.h"
 
 
 TestMessageGeneratorAgent::TestMessageGeneratorAgent(Schain& _sChain_) : Agent(_sChain_, false) {
 
     ASSERT(_sChain_.getNodeCount() > 0);
-
-
-    //counter = _sChain_.getPendingTransactionsAgent()->getCommittedTransactionCounter();
-
-    testMessageGeneratorThreadPool = make_shared<TestMessageGeneratorThreadPool>(num_threads(1), this);
-    testMessageGeneratorThreadPool->startService();
     LOG(info, "created");
 }
 
-Schain *TestMessageGeneratorAgent::getSChain() {
-    return sChain;
-}
 
 
-void TestMessageGeneratorAgent::workerThreadMessagePushLoop(TestMessageGeneratorAgent *_agent) {
-
-
-    setThreadName(__CLASS_NAME__);
-
-    _agent->waitOnGlobalStartBarrier();
-
-    if (*_agent->sChain->getBlockProposerTest() == SchainTest::NONE)
-        return;
+ConsensusExtFace::transactions_vector TestMessageGeneratorAgent::pendingTransactions( size_t _limit ) {
 
     uint64_t  messageSize = 200;
 
-
-    while (!_agent->getNode()->isExitRequested()) {
-
-        auto transaction = make_shared<vector<uint8_t>>(messageSize);
+    ConsensusExtFace::transactions_vector result;
 
 
-        uint64_t  dummy = _agent->counter;
+    if (*sChain->getBlockProposerTest() == SchainTest::NONE)
+        return result;
 
-        for (uint64_t i = 0; i < messageSize/8; i++) {
+    for (uint64_t i = 0; i < _limit; i++) {
+
+        vector<uint8_t> transaction(messageSize);
+
+        uint64_t  dummy = counter;
+
+        for (uint64_t j = 0; j < messageSize/8; j++) {
             auto bytes = (uint8_t*) & dummy;
-            for (int j = 0; j < 7; j++) {
-                transaction->data()[2 * i + j ] = bytes[j];
+            for (int k = 0; k < 7; k++) {
+                transaction.data()[2 * j + k ] = bytes[k];
             }
 
         }
 
+        result.push_back(transaction);
 
-        auto message = make_shared<PendingTransaction>(transaction);
+        counter++;
 
+    }
 
-//!!!        _agent->sChain->getPendingTransactionsAgent()->pushTransaction(message);
-
-        _agent->counter++;
-
-
-
-    };
-
-
+    return result;
 
 };
 

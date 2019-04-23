@@ -23,9 +23,10 @@
 
 #pragma  once
 
-#include "../Agent.h"
 
-class TestMessageGeneratorThreadPool;
+#include "../Agent.h"
+#include "../node/ConsensusEngine.h"
+
 class Schain;
 
 class TestMessageGeneratorAgent : Agent {
@@ -36,12 +37,9 @@ class TestMessageGeneratorAgent : Agent {
 
 public:
 
-    static void workerThreadMessagePushLoop(TestMessageGeneratorAgent *_agent);
-
-    ptr<TestMessageGeneratorThreadPool> testMessageGeneratorThreadPool = nullptr;
 
     TestMessageGeneratorAgent(Schain& _sChain);
 
-    Schain *getSChain();
+    ConsensusExtFace::transactions_vector pendingTransactions( size_t _limit);
 
 };

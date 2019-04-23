@@ -35,6 +35,7 @@
 #include "../datastructures/PartialHashesList.h"
 #include "../datastructures/PendingTransaction.h"
 #include "../datastructures/TransactionList.h"
+#include "../pendingqueue/TestMessageGeneratorAgent.h"
 
 #include "../chains/Schain.h"
 
@@ -125,8 +126,11 @@ shared_ptr<vector<ptr<Transaction>>> PendingTransactionsAgent::createTransaction
         if((uint64_t ) diff.total_milliseconds() >= getSchain()->getNode()->getEmptyBlockIntervalMs())
             break;
 
-        if (sChain->getExtFace())
+        if (sChain->getExtFace()) {
             tx_vec = sChain->getExtFace()->pendingTransactions(need_max);
+        } else {
+            tx_vec = sChain->getTestMessageGeneratorAgent()->pendingTransactions(need_max);
+        }
     }
 
     for(const auto& e: tx_vec){
