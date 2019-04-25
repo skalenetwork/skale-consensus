@@ -48,8 +48,14 @@ BLSSigShare::BLSSigShare(ptr<string> _s, schain_id _schainID, block_id _blockID,
                          node_id _nodeID) :
                          schainId(_schainID), blockId(_blockID), signerIndex(_signerIndex), signerNodeId(_nodeID) {
 
+
+
+    if (_s->size() < 10) {
+        BOOST_THROW_EXCEPTION(InvalidArgumentException("Signature too short:"  + to_string(_s->size()), __CLASS_NAME__));
+    }
+
     if (_s->size() > BLS_MAX_SIG_LEN) {
-        BOOST_THROW_EXCEPTION(InvalidArgumentException("Signature too long", __CLASS_NAME__));
+        BOOST_THROW_EXCEPTION(InvalidArgumentException("Signature too long:" + to_string(_s->size()) , __CLASS_NAME__));
     }
 
     auto position = _s->find(":");

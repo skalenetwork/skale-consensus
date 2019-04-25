@@ -24,6 +24,7 @@
 #include "../SkaleConfig.h"
 #include "../Log.h"
 #include "../exceptions/FatalError.h"
+#include "../exceptions/InvalidArgumentException.h"
 
 #include "../thirdparty/json.hpp"
 #include "leveldb/db.h"
@@ -569,12 +570,16 @@ ptr<BLSSigShare> Node::sign(ptr<SHAHash> _hash, block_id _blockId, schain_index 
 
 
 const ptr<BLSPublicKey> &Node::getBlsPublicKey() const {
-    ASSERT(blsPublicKey);
+    if (!blsPublicKey) {
+        BOOST_THROW_EXCEPTION(FatalError("Null BLS public key", __CLASS_NAME__));
+    }
     return blsPublicKey;
 }
 
 const ptr<BLSPrivateKey> &Node::getBlsPrivateKey() const {
-    ASSERT(blsPrivateKey)
+    if (!blsPrivateKey) {
+        BOOST_THROW_EXCEPTION(FatalError("Null BLS private key", __CLASS_NAME__));
+    }
     return blsPrivateKey;
 }
 

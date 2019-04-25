@@ -416,8 +416,6 @@ ptr<NetworkMessageEnvelope> TransportNetwork::receiveMessage() {
         BOOST_THROW_EXCEPTION(InvalidSourceIPException("NetworkMessage from unknown IP" + *ip));
     }
 
-    auto share = make_shared<BLSSigShare>(sig, (schain_id) sChainID, (block_id) blockID, realSender->getSchainIndex(), (node_id) srcNodeID);
-
 
     ptr<NetworkMessage> mptr;
 
@@ -429,11 +427,12 @@ ptr<NetworkMessageEnvelope> TransportNetwork::receiveMessage() {
                                                bin_consensus_value(value),
                                                schain_id(sChainID), msg_id(msgID), rawIP);
     } else if (msgType == MsgType::AUX_BROADCAST) {
+
         mptr = make_shared<AUXBroadcastMessage>(node_id(srcNodeID), node_id(dstNodeID),
                                                 block_id(blockID), schain_index(blockProposerIndex),
                                                 bin_consensus_round(round),
                                                 bin_consensus_value(value),
-                                                schain_id(sChainID), msg_id(msgID), rawIP, share->toString());
+                                                schain_id(sChainID), msg_id(msgID), rawIP, sig);
     } else {
         ASSERT(false);
     }

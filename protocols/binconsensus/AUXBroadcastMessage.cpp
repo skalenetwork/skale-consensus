@@ -63,9 +63,15 @@ AUXBroadcastMessage::AUXBroadcastMessage(bin_consensus_round round, bin_consensu
     sha3.Final(buf->data());
     auto hash = make_shared<SHAHash>(buf);
 
-    auto sigShare =  schain->getNode()->sign(hash, _blockID, 0, 0);
+    auto node = schain->getNode();
 
-    this->signature = sigShare->toString();
+    if (node->isBlsEnabled()) {
+        auto sigShare = node->sign(hash, _blockID, 0, 0);
+        this->signature = sigShare->toString();
+    } else {
+        this->signature = make_shared<string>("");
+    }
+
 }
 
 
