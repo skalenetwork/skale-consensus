@@ -425,14 +425,14 @@ ptr<NetworkMessageEnvelope> TransportNetwork::receiveMessage() {
                                                block_id(blockID), schain_index(blockProposerIndex),
                                                bin_consensus_round(round),
                                                bin_consensus_value(value),
-                                               schain_id(sChainID), msg_id(msgID), rawIP);
+                                               schain_id(sChainID), msg_id(msgID), rawIP, sig, realSender->getSchainIndex());
     } else if (msgType == MsgType::AUX_BROADCAST) {
 
         mptr = make_shared<AUXBroadcastMessage>(node_id(srcNodeID), node_id(dstNodeID),
                                                 block_id(blockID), schain_index(blockProposerIndex),
                                                 bin_consensus_round(round),
                                                 bin_consensus_value(value),
-                                                schain_id(sChainID), msg_id(msgID), rawIP, sig);
+                                                schain_id(sChainID), msg_id(msgID), rawIP, sig, realSender->getSchainIndex());
     } else {
         ASSERT(false);
     }

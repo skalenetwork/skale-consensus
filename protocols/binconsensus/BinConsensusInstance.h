@@ -30,6 +30,7 @@
 static const int MSG_HISTORY_SIZE = 2048;
 
 class BlockConsensusAgent;
+class BLSSigShare;
 
 class BVBroadcastMessage;
 class NetworkMessageEnvelope;
@@ -101,8 +102,8 @@ private:
     map<bin_consensus_round, set<schain_index>> bvbTrueVotes;
     map<bin_consensus_round, set<schain_index>> bvbFalseVotes;
 
-    map<bin_consensus_round, set<schain_index>> auxTrueVotes;
-    map<bin_consensus_round, set<schain_index>> auxFalseVotes;
+    map<bin_consensus_round, map<schain_index, ptr<BLSSigShare>>> auxTrueVotes;
+    map<bin_consensus_round, map<schain_index, ptr<BLSSigShare>>> auxFalseVotes;
 
 
 

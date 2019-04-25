@@ -26,6 +26,7 @@
 #include "../../exceptions/FatalError.h"
 #include "../../abstracttcpserver/ConnectionStatus.h"
 #include "../../thirdparty/json.hpp"
+#include "../../crypto/BLSSigShare.h"
 
 #include "AUXBroadcastMessage.h"
 
@@ -281,10 +282,10 @@ void BinConsensusInstance::auxVote(ptr<MessageEnvelope> me) {
     auto index = me->getSrcNodeInfo()->getSchainIndex();
     if (v) {
         assert(auxTrueVotes[r].count(index) == 0);
-        auxTrueVotes[r].insert(index);
+        auxTrueVotes[r][index] =  m->getSigShare();
     } else {
         assert(auxFalseVotes[r].count(index) == 0);
-        auxFalseVotes[r].insert(index);
+        auxFalseVotes[r][index] =  m->getSigShare();
     }
 
 }
@@ -298,10 +299,10 @@ void BinConsensusInstance::auxSelfVote(bin_consensus_round r, bin_consensus_valu
     addAUXSelfVoteToHistory(r, v);
     if (v) {
         assert(auxTrueVotes[r].count(getSchain()->getSchainIndex()) == 0);
-        auxTrueVotes[r].insert(getSchain()->getSchainIndex());
+        auxTrueVotes[r][getSchain()->getSchainIndex()] = nullptr;
     } else {
         assert(auxFalseVotes[r].count(getSchain()->getSchainIndex()) == 0);
-        auxFalseVotes[r].insert(getSchain()->getSchainIndex());
+        auxFalseVotes[r][getSchain()->getSchainIndex()] = nullptr;
     }
 
 }

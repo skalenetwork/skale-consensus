@@ -46,7 +46,7 @@ public:
     ptr< string > toString();
 
 
-    BLSSigShare(ptr<string> _s, schain_id _schainID, block_id _blockID, schain_index _signerIndex, node_id _nodeID);
+    BLSSigShare(ptr<string> _s, schain_id _schainID, block_id _blockID, schain_index _signerIndex, node_id _signerNodeID);
 
     BLSSigShare(ptr<libff::alt_bn128_G1> &_s, schain_id _schainId, block_id _blockID, schain_index _signerIndex,
                 node_id _nodeID);

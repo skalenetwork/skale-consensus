@@ -45,8 +45,8 @@ ptr<string> BLSSigShare::toString() {
 }
 
 BLSSigShare::BLSSigShare(ptr<string> _s, schain_id _schainID, block_id _blockID, schain_index _signerIndex,
-                         node_id _nodeID) :
-                         schainId(_schainID), blockId(_blockID), signerIndex(_signerIndex), signerNodeId(_nodeID) {
+                         node_id _signerNodeID) :
+                         schainId(_schainID), blockId(_blockID), signerIndex(_signerIndex), signerNodeId(_signerNodeID) {
 
 
 
