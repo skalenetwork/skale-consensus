@@ -506,7 +506,11 @@ void Node::exitOnFatalError(const string &_message) {
     exit();
 
 //    consensusEngine->joinAllThreads();
-    consensusEngine->getExtFace()->terminateApplication();
+    auto extFace = consensusEngine->getExtFace();
+
+    if (extFace) {
+        extFace->terminateApplication();
+    }
     LOG(critical, _message);
 }
 
@@ -559,7 +563,7 @@ set<node_id> Node::nodeIDs;
 
 ptr<BLSSigShare> Node::sign(ptr<SHAHash> _hash, block_id _blockId, schain_index _signerIndex, node_id _signerNodeId) {
 
-    return getBlsPrivateKey()->sign(_hash->toHex(), _blockId, _signerIndex, _signerNodeId);
+    return getBlsPrivateKey()->sign(_hash->toHex(), schain_id(), _blockId, _signerIndex, _signerNodeId);
 
 }
 

@@ -36,8 +36,8 @@ private:
 public:
     BLSPrivateKey( const string& k, node_count _nodeCount );
 
-    ptr< BLSSigShare > sign(
-        ptr< string > _msg, block_id _blockId, schain_index _signerIndex, node_id _signerNodeId );
+    ptr<BLSSigShare> sign(ptr<string> _msg, schain_id _schainId, block_id _blockId, schain_index _signerIndex,
+                          node_id _signerNodeId);
 
     ptr< string > convertSigToString( const libff::alt_bn128_G1& signature ) const;
 };

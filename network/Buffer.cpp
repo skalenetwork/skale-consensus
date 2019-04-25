@@ -40,7 +40,11 @@ void Buffer::write(void *data, size_t dataLen) {
 }
 
 void Buffer::read(void *data, size_t dataLen) {
-    ASSERT(counter + dataLen <= buf->size());
+
+    if (counter + dataLen > buf->size()) {
+        BOOST_THROW_EXCEPTION(FatalError("Overflowing buffer read:" +
+        to_string(counter + dataLen) + ":" + to_string(buf->size()), __CLASS_NAME__));
+    }
     memcpy(data, buf.get()->data() + counter, dataLen);
     counter += dataLen;
 }

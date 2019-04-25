@@ -146,7 +146,7 @@ ptr<string> ZMQNetwork::readMessageFromNetwork(ptr<Buffer> buf) {
 
     auto s = sChain->getNode()->getSockets()->consensusZMQSocket->getReceiveSocket();
 
-    auto rc = interruptableRecv(s, buf->getBuf()->data(), sizeof(NetworkMessage), 0);
+    auto rc = interruptableRecv(s, buf->getBuf()->data(), CONSENSUS_MESSAGE_LEN, 0);
 
 
     if (rc != CONSENSUS_MESSAGE_LEN) {

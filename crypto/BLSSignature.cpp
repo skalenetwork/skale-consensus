@@ -45,7 +45,7 @@ ptr<string> BLSSignature::toString() {
 BLSSignature::BLSSignature(ptr<string> _s, block_id _blockID) :
         blockId(_blockID) {
 
-    if (_s->size() > BLS_SIG_LEN) {
+    if (_s->size() > BLS_MAX_SIG_LEN) {
         BOOST_THROW_EXCEPTION(InvalidArgumentException("Signature too long", __CLASS_NAME__));
     }
 
@@ -55,7 +55,7 @@ BLSSignature::BLSSignature(ptr<string> _s, block_id _blockID) :
         BOOST_THROW_EXCEPTION(InvalidArgumentException("Misformatted sig:" + *_s, __CLASS_NAME__));
     }
 
-    if (position >= BLS_COMPONENT_LEN || _s->size() - position > BLS_COMPONENT_LEN) {
+    if (position >= BLS_MAX_COMPONENT_LEN || _s->size() - position > BLS_MAX_COMPONENT_LEN) {
         BOOST_THROW_EXCEPTION(InvalidArgumentException("Misformatted sig:" + *_s, __CLASS_NAME__));
     }
 

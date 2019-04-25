@@ -133,5 +133,5 @@ void BlockFinalizeClientAgent::sendItemImpl(ptr<BlockProposal> &_proposal, share
 ptr<BLSSigShare> BlockFinalizeClientAgent::getBLSSignatureShare(nlohmann::json _json,
                           block_id _blockID, schain_index _signerIndex, node_id _signerNodeId) {
     auto s = Header::getString(_json, "sigShare");
-    return make_shared<BLSSigShare>(s, _blockID, _signerIndex, _signerNodeId);
+    return make_shared<BLSSigShare>(s,  getSchain()->getSchainID(), _blockID, _signerIndex, _signerNodeId);
 }

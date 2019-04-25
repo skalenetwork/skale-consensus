@@ -48,6 +48,7 @@ BVBroadcastMessage::BVBroadcastMessage(node_id _srcNodeID, node_id _dstNodeID,
                                        bin_consensus_round _r,
                                        bin_consensus_value _value,
                                        schain_id _schainId, msg_id _msgID, uint32_t _ip) : NetworkMessage(
-        BVB_BROADCAST, _srcNodeID, _dstNodeID, _blockID, _blockProposerIndex, _r, _value, _schainId, _msgID, _ip) {
+        BVB_BROADCAST, _srcNodeID, _dstNodeID, _blockID, _blockProposerIndex, _r, _value, _schainId, _msgID, _ip,
+        ptr<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char>>>()) {
     printPrefix = "b";
 };

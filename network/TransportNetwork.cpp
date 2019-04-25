@@ -27,6 +27,7 @@
 #include "../exceptions/FatalError.h"
 #include "../thirdparty/json.hpp"
 #include "../crypto/SHAHash.h"
+#include "../crypto/BLSSigShare.h"
 #include "../abstracttcpserver/ConnectionStatus.h"
 #include "../datastructures/BlockProposal.h"
 #include "../chains/Schain.h"
@@ -219,9 +220,10 @@ void TransportNetwork::networkReadLoop() {
 
                 block_id currentBlockID = sChain->getCommittedBlockID() + 1;
 
-                postOrDefer(m, currentBlockID);}
-            catch(ExitRequestedException&) {return;}
-            catch (FatalError&)  {throw;}
+                postOrDefer(m, currentBlockID);
+            }
+            catch (ExitRequestedException &) { return; }
+            catch (FatalError &) { throw ;}
             catch (Exception &e) {
                 if (sChain->getNode()->isExitRequested()) {
                     sChain->getNode()->getSockets()->consensusZMQSocket->closeReceive();
@@ -231,11 +233,11 @@ void TransportNetwork::networkReadLoop() {
             }
 
         }// while
-    } catch (FatalError& e) {
+    } catch (FatalError &e) {
         sChain->getNode()->exitOnFatalError(e.getMessage());
     }
 
-        sChain->getNode()->getSockets()->consensusZMQSocket->closeReceive();
+    sChain->getNode()->getSockets()->consensusZMQSocket->closeReceive();
 
 
 }
@@ -342,7 +344,7 @@ ptr<string> TransportNetwork::ipToString(uint32_t _ip) {
 ptr<NetworkMessageEnvelope> TransportNetwork::receiveMessage() {
 
 
-    auto buf = make_shared<Buffer>(sizeof(NetworkMessage));
+    auto buf = make_shared<Buffer>(CONSENSUS_MESSAGE_LEN);
     auto ip = readMessageFromNetwork(buf);
 
 
@@ -362,12 +364,14 @@ ptr<NetworkMessageEnvelope> TransportNetwork::receiveMessage() {
     uint8_t value;
     uint32_t rawIP;
 
+    char sigShare[BLS_MAX_SIG_LEN + 1];
 
+    memset(sigShare, 0, BLS_MAX_SIG_LEN);
 
 
     READ(buf, magicNumber);
 
-    if (magicNumber != MAGIC_NUMBER )
+    if (magicNumber != MAGIC_NUMBER)
         return nullptr;
 
     READ(buf, sChainID);
@@ -382,6 +386,19 @@ ptr<NetworkMessageEnvelope> TransportNetwork::receiveMessage() {
     READ(buf, rawIP);
 
 
+    if (sChain->getSchainID() != sChainID) {
+        BOOST_THROW_EXCEPTION(
+                InvalidSchainException("unknown Schain id" + to_string(sChainID), __CLASS_NAME__));
+    }
+
+
+
+
+    buf->read(sigShare, BLS_MAX_SIG_LEN);
+
+    auto sig = make_shared<string>(sigShare);
+
+
     auto ip2 = ipToString(rawIP);
     if (ip->size() == 0) {
         ip = ip2;
@@ -389,6 +406,17 @@ ptr<NetworkMessageEnvelope> TransportNetwork::receiveMessage() {
         LOG(debug, (*ip + ":" + *ip2).c_str());
         ASSERT(*ip == *ip2);
     }
+
+
+
+    ptr<NodeInfo> realSender = sChain->getNode()->getNodeInfoByIP(ip);
+
+
+    if (realSender == nullptr) {
+        BOOST_THROW_EXCEPTION(InvalidSourceIPException("NetworkMessage from unknown IP" + *ip));
+    }
+
+    auto share = make_shared<BLSSigShare>(sig, (schain_id) sChainID, (block_id) blockID, realSender->getSchainIndex(), (node_id) srcNodeID);
 
 
     ptr<NetworkMessage> mptr;
@@ -405,32 +433,20 @@ ptr<NetworkMessageEnvelope> TransportNetwork::receiveMessage() {
                                                 block_id(blockID), schain_index(blockProposerIndex),
                                                 bin_consensus_round(round),
                                                 bin_consensus_value(value),
-                                                schain_id(sChainID), msg_id(msgID), rawIP);
+                                                schain_id(sChainID), msg_id(msgID), rawIP, share->toString());
     } else {
         ASSERT(false);
-    }
-
-
-    if (sChain->getSchainID() != mptr->getSchainID()) {
-        BOOST_THROW_EXCEPTION(InvalidSchainException("unknown Schain id" + to_string(mptr->getSchainID()), __CLASS_NAME__));
     }
 
 
     ASSERT(sChain);
 
 
-    ptr<NodeInfo> realSender = sChain->getNode()->getNodeInfoByIP(ip);
-
-
-    if (realSender == nullptr) {
-        BOOST_THROW_EXCEPTION(InvalidSourceIPException("NetworkMessage from unknown IP" + *ip));
-    }
-
-
     ptr<ProtocolKey> key = mptr->createDestinationProtocolKey();
 
     if (key == nullptr) {
-        BOOST_THROW_EXCEPTION(InvalidMessageFormatException("Network Message with corrupt protocol key", __CLASS_NAME__));
+        BOOST_THROW_EXCEPTION(
+                InvalidMessageFormatException("Network Message with corrupt protocol key", __CLASS_NAME__));
     };
 
     return make_shared<NetworkMessageEnvelope>(mptr, realSender);

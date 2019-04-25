@@ -23,9 +23,17 @@
 
 #include "../../SkaleConfig.h"
 #include "../../Log.h"
+#include "../../thirdparty/json.hpp"
 #include "../../exceptions/FatalError.h"
+#include "../crypto/bls_include.h"
+#include "../../crypto/BLSSignature.h"
+#include "../../crypto/SHAHash.h"
+
+#include "../../chains/Schain.h"
+#include "../../node/Node.h"
 
 #include "../../messages/NetworkMessage.h"
+#include "../../exceptions/InvalidArgumentException.h"
 #include "../ProtocolKey.h"
 #include "../ProtocolInstance.h"
 #include "BinConsensusInstance.h"
@@ -33,21 +41,47 @@
 #include "AUXBroadcastMessage.h"
 
 
-AUXBroadcastMessage::AUXBroadcastMessage( bin_consensus_round round, bin_consensus_value value,
-    node_id destinationNodeID, block_id _blockID, schain_index _blockProposer,
-    BinConsensusInstance& sourceProtocolInstance )
-    : NetworkMessage( AUX_BROADCAST, destinationNodeID, _blockID, _blockProposer, round, value,
-          sourceProtocolInstance ) {
+AUXBroadcastMessage::AUXBroadcastMessage(bin_consensus_round round, bin_consensus_value value,
+                                         node_id destinationNodeID, block_id _blockID, schain_index _blockProposer,
+                                         BinConsensusInstance &sourceProtocolInstance)
+        : NetworkMessage(AUX_BROADCAST, destinationNodeID, _blockID, _blockProposer, round, value,
+                         sourceProtocolInstance) {
     printPrefix = "a";
+
+    auto schain = sourceProtocolInstance.getSchain();
+
+
+    CryptoPP::SHA256 sha3;
+
+    sha3.Update(reinterpret_cast < uint8_t * > ( &this->blockProposerIndex), sizeof(blockProposerIndex));
+    sha3.Update(reinterpret_cast < uint8_t * > ( &this->r), sizeof(r));
+    sha3.Update(reinterpret_cast < uint8_t * > ( &this->blockID), sizeof(blockID));
+    sha3.Update(reinterpret_cast < uint8_t * > ( &this->schainID), sizeof(schainID));
+    sha3.Update(reinterpret_cast < uint8_t * > ( &this->msgType), sizeof(msgType));
+
+    auto buf = make_shared<array<uint8_t, SHA3_HASH_LEN>>();
+    sha3.Final(buf->data());
+    auto hash = make_shared<SHAHash>(buf);
+
+    auto sigShare =  schain->getNode()->sign(hash, _blockID, 0, 0);
+
+    this->signature = sigShare->toString();
 }
 
 
-AUXBroadcastMessage::AUXBroadcastMessage(node_id _srcNodeID, node_id _dstNodeID,
-                                       block_id _blockID, schain_index _blockProposerIndex,
-                                       bin_consensus_round _r,
-                                       bin_consensus_value _value,
-                                       schain_id _schainId, msg_id _msgID, uint32_t _ip) : NetworkMessage(
-        AUX_BROADCAST, _srcNodeID, _dstNodeID, _blockID, _blockProposerIndex, _r, _value, _schainId, _msgID, _ip) {
+AUXBroadcastMessage::AUXBroadcastMessage(node_id _srcNodeID, node_id _dstNodeID, block_id _blockID,
+                                         schain_index _blockProposerIndex,
+                                         bin_consensus_round _r, bin_consensus_value _value, schain_id _schainId,
+                                         msg_id _msgID,
+                                         uint32_t _ip, ptr<string> _signature) : NetworkMessage(
+        AUX_BROADCAST, _srcNodeID, _dstNodeID, _blockID, _blockProposerIndex, _r, _value, _schainId, _msgID, _ip,
+        ptr<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char>>>()) {
     printPrefix = "a";
+
+    if (_signature->size() > BLS_MAX_SIG_LEN) {
+        BOOST_THROW_EXCEPTION(InvalidArgumentException("Signature size too large:" + *_signature, __CLASS_NAME__));
+    }
+
+    signature = _signature;
 
 };

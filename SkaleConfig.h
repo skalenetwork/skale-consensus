@@ -176,7 +176,12 @@ static const int MODERN_TIME = 1547640182;
 
 static const int MAX_BUFFER_SIZE = 10000000;
 
-static constexpr uint32_t CONSENSUS_MESSAGE_LEN = 73;
+
+static constexpr size_t BLS_MAX_COMPONENT_LEN = 80;
+
+static constexpr size_t BLS_MAX_SIG_LEN = 160;
+
+static constexpr uint32_t CONSENSUS_MESSAGE_LEN = 73 + BLS_MAX_SIG_LEN;
 
 static constexpr uint64_t MAGIC_NUMBER = 0x1396A22050B30;
 

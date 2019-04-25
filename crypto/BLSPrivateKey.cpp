@@ -78,8 +78,9 @@ BLSPrivateKey::BLSPrivateKey( const string& k, node_count _nodeCount )
 }
 
 
-ptr< BLSSigShare > BLSPrivateKey::sign(
-    ptr< string > _msg, block_id _blockId, schain_index _signerIndex, node_id _signerNodeId ) {
+ptr<BLSSigShare>
+BLSPrivateKey::sign(ptr<string> _msg, schain_id _schainId, block_id _blockId, schain_index _signerIndex,
+                    node_id _signerNodeId) {
     ptr< signatures::Bls > obj;
 
     if ( nodeCount == 1 || nodeCount == 2 ) {
@@ -94,11 +95,11 @@ ptr< BLSSigShare > BLSPrivateKey::sign(
 
     ss->to_affine_coordinates();
 
-    auto s = make_shared< BLSSigShare >( ss, _blockId, _signerIndex, _signerNodeId );
+    auto s = make_shared< BLSSigShare >( ss, _schainId,  _blockId, _signerIndex, _signerNodeId );
 
     auto ts = s->toString();
 
-    auto sig2 = make_shared< BLSSigShare >( ts, _blockId, _signerIndex, _signerNodeId );
+    auto sig2 = make_shared< BLSSigShare >( ts, _schainId, _blockId, _signerIndex, _signerNodeId );
 
     assert( *s->getSig() == *sig2->getSig() );
 

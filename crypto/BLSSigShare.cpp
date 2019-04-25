@@ -44,10 +44,11 @@ ptr<string> BLSSigShare::toString() {
 
 }
 
-BLSSigShare::BLSSigShare(ptr<string> _s, block_id _blockID, schain_index _signerIndex, node_id _nodeId) :
-    blockId(_blockID), signerIndex(_signerIndex), signerNodeId(_nodeId) {
+BLSSigShare::BLSSigShare(ptr<string> _s, schain_id _schainID, block_id _blockID, schain_index _signerIndex,
+                         node_id _nodeID) :
+                         schainId(_schainID), blockId(_blockID), signerIndex(_signerIndex), signerNodeId(_nodeID) {
 
-    if (_s->size() > BLS_SIG_LEN) {
+    if (_s->size() > BLS_MAX_SIG_LEN) {
         BOOST_THROW_EXCEPTION(InvalidArgumentException("Signature too long", __CLASS_NAME__));
     }
 
@@ -57,7 +58,7 @@ BLSSigShare::BLSSigShare(ptr<string> _s, block_id _blockID, schain_index _signer
         BOOST_THROW_EXCEPTION(InvalidArgumentException("Misformatted sig:" + *_s, __CLASS_NAME__));
     }
 
-    if (position >= BLS_COMPONENT_LEN || _s->size() - position > BLS_COMPONENT_LEN) {
+    if (position >= BLS_MAX_COMPONENT_LEN || _s->size() - position > BLS_MAX_COMPONENT_LEN) {
         BOOST_THROW_EXCEPTION(InvalidArgumentException("Misformatted sig:" + *_s, __CLASS_NAME__));
     }
 
@@ -107,5 +108,7 @@ const node_id &BLSSigShare::getSignerNodeId() const {
     return signerNodeId;
 }
 
-BLSSigShare::BLSSigShare(ptr<libff::alt_bn128_G1> &_s, block_id _blockID, schain_index _signerIndex, node_id _nodeID) :
-    sig(_s), blockId(_blockID), signerIndex(_signerIndex), signerNodeId(_nodeID){}
+BLSSigShare::BLSSigShare(ptr<libff::alt_bn128_G1> &_s, schain_id _schainId, block_id _blockID,
+                         schain_index _signerIndex,
+                         node_id _nodeID) :
+    sig(_s), schainId(_schainId), blockId(_blockID), signerIndex(_signerIndex), signerNodeId(_nodeID){}
