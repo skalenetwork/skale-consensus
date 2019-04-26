@@ -295,14 +295,15 @@ uint64_t BinConsensusInstance::totalAUXVotes(bin_consensus_round r) {
     return auxTrueVotes[r].size() + auxFalseVotes[r].size();
 }
 
-void BinConsensusInstance::auxSelfVote(bin_consensus_round r, bin_consensus_value v) {
+void BinConsensusInstance::auxSelfVote(bin_consensus_round r, bin_consensus_value v, ptr<BLSSigShare> _sigShare) {
     addAUXSelfVoteToHistory(r, v);
+
     if (v) {
         assert(auxTrueVotes[r].count(getSchain()->getSchainIndex()) == 0);
-        auxTrueVotes[r][getSchain()->getSchainIndex()] = nullptr;
+        auxTrueVotes[r][getSchain()->getSchainIndex()] = _sigShare;
     } else {
         assert(auxFalseVotes[r].count(getSchain()->getSchainIndex()) == 0);
-        auxFalseVotes[r][getSchain()->getSchainIndex()] = nullptr;
+        auxFalseVotes[r][getSchain()->getSchainIndex()] = _sigShare;
     }
 
 }
@@ -390,9 +391,10 @@ void BinConsensusInstance::networkBroadcastValue(ptr<BVBroadcastMessage> m) {
 void BinConsensusInstance::auxBroadcastValue(bin_consensus_value v, bin_consensus_round r) {
 
 
-    auxSelfVote(r, v);
-
     auto m = make_shared<AUXBroadcastMessage>(r, v, node_id(0), blockID, blockProposerIndex, *this);
+
+
+    auxSelfVote(r, v, ptr<BLSSigShare>());
 
 
     getSchain()->getNode()->getNetwork()->broadcastMessage(*getSchain(), m);

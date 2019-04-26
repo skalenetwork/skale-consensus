@@ -164,7 +164,7 @@ private:
     uint64_t totalAUXVotes(bin_consensus_round r);
 
 
-    void auxSelfVote(bin_consensus_round r, bin_consensus_value v);
+    void auxSelfVote(bin_consensus_round r, bin_consensus_value v, ptr<BLSSigShare> _sigShare);
 
 
 
