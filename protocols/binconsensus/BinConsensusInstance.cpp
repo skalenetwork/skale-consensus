@@ -434,8 +434,10 @@ void BinConsensusInstance::proceedWithCommonCoinIfAUXTwoThird(bin_consensus_roun
         if (getSchain()->getNode()->isBlsEnabled()) {
             random = this->calculateBLSRandom(r);
         } else {
-            random = (uint64_t ) r;
+            srand((uint64_t ) r + (uint64_t ) getBlockID() * 123456);
+            random = rand();
         }
+
 
         proceedWithCommonCoin(hasTrue, hasFalse, random);
 
