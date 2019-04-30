@@ -41,6 +41,7 @@
 #include "../../blockproposal/pusher/BlockProposalClientAgent.h"
 #include "../../blockproposal/received/ReceivedBlockProposalsDatabase.h"
 #include "../../chains/Schain.h"
+#include "../../crypto/BLSSignature.h"
 #include "../../node/Node.h"
 
 #include "../../network/TransportNetwork.h"
@@ -53,6 +54,7 @@
 #include "BVBroadcastMessage.h"
 #include "../blockconsensus/BlockConsensusAgent.h"
 #include "BinConsensusInstance.h"
+#include "../../datastructures/SigShareSet.h"
 
 using namespace std;
 
@@ -296,6 +298,7 @@ uint64_t BinConsensusInstance::totalAUXVotes(bin_consensus_round r) {
 }
 
 void BinConsensusInstance::auxSelfVote(bin_consensus_round r, bin_consensus_value v, ptr<BLSSigShare> _sigShare) {
+    assert(_sigShare);
     addAUXSelfVoteToHistory(r, v);
 
     if (v) {
@@ -394,7 +397,7 @@ void BinConsensusInstance::auxBroadcastValue(bin_consensus_value v, bin_consensu
     auto m = make_shared<AUXBroadcastMessage>(r, v, node_id(0), blockID, blockProposerIndex, *this);
 
 
-    auxSelfVote(r, v, ptr<BLSSigShare>());
+    auxSelfVote(r, v, m->getSigShare());
 
 
     getSchain()->getNode()->getNetwork()->broadcastMessage(*getSchain(), m);
@@ -425,13 +428,24 @@ void BinConsensusInstance::proceedWithCommonCoinIfAUXTwoThird(bin_consensus_roun
     }
 
     if (isTwoThird(node_count(verifiedValuesSize))) {
-        proceedWithCommonCoin(hasTrue, hasFalse);
+
+        LOG(err, to_string(verifiedValuesSize));
+
+        uint64_t random;
+
+        if (getSchain()->getNode()->isBlsEnabled()) {
+            random = this->calculateBLSRandom(r);
+        } else {
+            random = (uint64_t ) r;
+        }
+
+        proceedWithCommonCoin(hasTrue, hasFalse, random);
+
     }
 
 }
 
-void BinConsensusInstance::proceedWithCommonCoin(bool _hasTrue, bool _hasFalse) {
-    // TODO GENERATE RANDOM Number
+void BinConsensusInstance::proceedWithCommonCoin(bool _hasTrue, bool _hasFalse, uint64_t _random) {
 
 
 
@@ -439,7 +453,7 @@ void BinConsensusInstance::proceedWithCommonCoin(bool _hasTrue, bool _hasFalse) 
 
     LOG(debug, "ROUND_COMPLETE:BLOCK:" + to_string(blockID) + ":ROUND:" + to_string(currentRound));
 
-    bin_consensus_value random((uint64_t) currentRound % 2 == 0);
+    bin_consensus_value random(_random % 2 == 0);
 
     addCommonCoinToHistory(currentRound, random);
 
@@ -632,6 +646,41 @@ BlockConsensusAgent *BinConsensusInstance::getBlockConsensusInstance() const {
 
 const node_count &BinConsensusInstance::getNodeCount() const {
     return nodeCount;
+}
+
+uint64_t BinConsensusInstance::calculateBLSRandom(bin_consensus_round _r) {
+
+
+    SigShareSet shares(getSchain(), getBlockID());
+
+    if (binValues[_r].count(bin_consensus_value(true)) > 0 && auxTrueVotes[_r].size() > 0) {
+        for (auto&& item: auxTrueVotes[_r]) {
+            assert(item.second);
+            shares.addSigShare(item.second);
+            if (shares.isTwoThird())
+                break;
+        }
+    }
+
+    if (binValues[_r].count(bin_consensus_value(false)) > 0 && auxFalseVotes[_r].size() > 0) {
+        for (auto&& item: auxFalseVotes[_r]) {
+            assert(item.second);
+            shares.addSigShare(item.second);
+            if (shares.isTwoThird())
+                break;
+        }
+    }
+
+    assert(shares.isTwoThird());
+
+
+    auto sig = shares.mergeSignature()->getSig();
+    sig->to_affine_coordinates();
+    auto result = sig->X.as_ulong() + sig->Y.as_ulong();
+
+    LOG(err, "Random for round: " + to_string(_r) + ":" + to_string(result));
+
+    return sig->X.as_ulong() + sig->Y.as_ulong();
 }
 
 recursive_mutex BinConsensusInstance::historyMutex;

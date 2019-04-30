@@ -143,7 +143,7 @@ private:
 
     bool isTwoThird(node_count count);
 
-    void proceedWithCommonCoin(bool _hasTrue, bool _hasFalse);
+    void proceedWithCommonCoin(bool _hasTrue, bool _hasFalse, uint64_t _random);
 
     void proceedWithNewRound(bin_consensus_value value);
 
@@ -214,6 +214,8 @@ public:
     static void initHistory();
 
     BlockConsensusAgent *getBlockConsensusInstance() const;
+
+    uint64_t calculateBLSRandom(bin_consensus_round _r);
 };
 
 

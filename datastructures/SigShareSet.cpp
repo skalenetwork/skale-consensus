@@ -60,12 +60,18 @@ bool SigShareSet::addSigShare( ptr< BLSSigShare > _sigShare ) {
 bool SigShareSet::isTwoThird() {
     lock_guard< recursive_mutex > lock( sigSharesMutex );
 
+
+
+    LOG(err, "s" + to_string(sigShares.size()));
+
+
     auto nodeCount = sChain->getNodeCount();
+
+
 
     if ( nodeCount <= 2 ) {
         return nodeCount == sigShares.size();
     }
-
     return ( 3 * sigShares.size() > 2 * nodeCount );
 }
 
