@@ -81,7 +81,7 @@ BlockProposal::BlockProposal(Schain &_sChain, block_id _blockID, schain_index _p
                                                                                         proposerIndex(_proposerIndex),
                                                                                         timeStamp(_timeStamp),
                                                                                         transactionList(_transactions) {
-    proposerNodeID = _sChain.getNodeID(_proposerIndex);
+    proposerNodeID = _sChain.getNodeIDByIndex(_proposerIndex);
 
     ASSERT(timeStamp > MODERN_TIME);
     transactionCount = transactionList->getItems()->size();

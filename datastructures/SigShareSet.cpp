@@ -61,10 +61,6 @@ bool SigShareSet::isTwoThird() {
     lock_guard< recursive_mutex > lock( sigSharesMutex );
 
 
-
-    LOG(err, "s" + to_string(sigShares.size()));
-
-
     auto nodeCount = sChain->getNodeCount();
 
 

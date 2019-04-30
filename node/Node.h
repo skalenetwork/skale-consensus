@@ -176,8 +176,6 @@ public:
     void cleanLevelDBs();
 
 
-    ptr<BLSSigShare> sign(ptr<SHAHash> _hash, block_id _blockId, schain_id _schainId, schain_index _signerIndex, node_id _signerNodeId);
-
     bool isStarted() const;
 
     static set<node_id> nodeIDs;

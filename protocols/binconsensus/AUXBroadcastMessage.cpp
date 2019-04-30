@@ -66,8 +66,7 @@ AUXBroadcastMessage::AUXBroadcastMessage(bin_consensus_round round, bin_consensu
     auto node = schain->getNode();
 
     if (node->isBlsEnabled()) {
-        this->sigShare = node->sign(hash, _blockID, schain->getSchainID(),  schain->getSchainIndex(),
-                node->getNodeID());
+        this->sigShare = schain->sign(hash, _blockID);
         this->sigShareString = sigShare->toString();
     } else {
         this->sigShareString = make_shared<string>("");

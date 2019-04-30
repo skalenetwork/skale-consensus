@@ -223,7 +223,7 @@ public:
 
 
 
-    node_id getNodeID(schain_index _index);
+    node_id getNodeIDByIndex(schain_index _index);
 
     schain_id getSchainID();
 
@@ -285,6 +285,6 @@ public:
 
     ptr<vector<uint8_t>> getSerializedBlockFromLevelDB(const block_id &_blockID);
 
-
+    ptr<BLSSigShare> sign(ptr<SHAHash> _hash, block_id _blockId);
 
 };

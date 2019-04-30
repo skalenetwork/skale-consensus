@@ -429,8 +429,6 @@ void BinConsensusInstance::proceedWithCommonCoinIfAUXTwoThird(bin_consensus_roun
 
     if (isTwoThird(node_count(verifiedValuesSize))) {
 
-        LOG(err, "V" + to_string(verifiedValuesSize));
-
         uint64_t random;
 
         if (getSchain()->getNode()->isBlsEnabled()) {

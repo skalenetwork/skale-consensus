@@ -577,9 +577,7 @@ ptr<Header> BlockProposalServerAgent::createFinalizeResponseHeader(
     ptr<BLSSigShare> sigShare;
 
     try {
-        sigShare = sChain->getNode()->sign(block->getHash(),
-                block->getBlockID(), getSchain()->getSchainID(), getSchain()->getSchainIndex(),
-                getNode()->getNodeID());
+        sigShare = sChain->sign(block->getHash(), block->getBlockID());
     } catch(...) {
         responseHeader->setStatus(CONNECTION_SERVER_ERROR);
         throw_with_nested(NetworkProtocolException("Could not sign block", __CLASS_NAME__));

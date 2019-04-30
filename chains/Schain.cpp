@@ -89,6 +89,7 @@
 
 
 #include "Schain.h"
+#include "../crypto/BLSPrivateKey.h"
 
 
 void Schain::postMessage(ptr<MessageEnvelope> m) {
@@ -652,7 +653,7 @@ schain_id Schain::getSchainID() {
     return schainID;
 }
 
-node_id Schain::getNodeID(schain_index _index) {
+node_id Schain::getNodeIDByIndex(schain_index _index) {
 
     if (((uint64_t )_index) >= (uint64_t ) this->getNodeCount()) {
         BOOST_THROW_EXCEPTION(InvalidArgumentException("Index exceeds node count - 1", __CLASS_NAME__));
@@ -766,9 +767,7 @@ void Schain::healthCheck() {
 void Schain::sigShareArrived(ptr<BLSSigShare> _sigShare) {
     if (sigSharesDatabase->addSigShare(_sigShare)) {
         auto blockId = _sigShare->getBlockId();
-        auto mySig = this->getNode()->sign(
-                getBlock(blockId)->getHash(), blockId, getSchainID(), getSchainIndex(),
-                                           getNode()->getNodeID());
+        auto mySig = sign(getBlock(blockId)->getHash(), blockId);
         sigSharesDatabase->addSigShare(mySig);
         assert(sigSharesDatabase->isTwoThird(blockId));
         sigSharesDatabase->mergeAndSaveBLSSignature(blockId);
@@ -776,4 +775,9 @@ void Schain::sigShareArrived(ptr<BLSSigShare> _sigShare) {
 }
 
 
+ptr<BLSSigShare> Schain::sign(ptr<SHAHash> _hash, block_id _blockId) {
 
+    return getNode()->getBlsPrivateKey()->sign(_hash->toHex(), getSchainID(), _blockId, getSchainIndex(),
+            getNode()->getNodeID());
+
+}

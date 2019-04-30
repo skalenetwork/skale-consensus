@@ -562,12 +562,6 @@ uint64_t Node::getCommittedTransactionHistoryLimit() const {
 set<node_id> Node::nodeIDs;
 
 
-ptr<BLSSigShare> Node::sign(ptr<SHAHash> _hash, block_id _blockId, schain_id _schainId, schain_index _signerIndex, node_id _signerNodeId) {
-
-    return getBlsPrivateKey()->sign(_hash->toHex(), _schainId, _blockId, _signerIndex, _signerNodeId);
-
-}
-
 
 const ptr<BLSPublicKey> &Node::getBlsPublicKey() const {
     if (!blsPublicKey) {
