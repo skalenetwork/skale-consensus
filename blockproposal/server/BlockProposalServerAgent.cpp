@@ -578,7 +578,7 @@ ptr<Header> BlockProposalServerAgent::createFinalizeResponseHeader(
 
     try {
         sigShare = sChain->getNode()->sign(block->getHash(),
-                block->getBlockID(), getSchain()->getSchainIndex(),
+                block->getBlockID(), getSchain()->getSchainID(), getSchain()->getSchainIndex(),
                 getNode()->getNodeID());
     } catch(...) {
         responseHeader->setStatus(CONNECTION_SERVER_ERROR);

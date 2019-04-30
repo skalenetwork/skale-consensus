@@ -767,7 +767,7 @@ void Schain::sigShareArrived(ptr<BLSSigShare> _sigShare) {
     if (sigSharesDatabase->addSigShare(_sigShare)) {
         auto blockId = _sigShare->getBlockId();
         auto mySig = this->getNode()->sign(
-                getBlock(blockId)->getHash(), blockId, getSchainIndex(),
+                getBlock(blockId)->getHash(), blockId, getSchainID(), getSchainIndex(),
                                            getNode()->getNodeID());
         sigSharesDatabase->addSigShare(mySig);
         assert(sigSharesDatabase->isTwoThird(blockId));

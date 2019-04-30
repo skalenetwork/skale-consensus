@@ -429,7 +429,7 @@ void BinConsensusInstance::proceedWithCommonCoinIfAUXTwoThird(bin_consensus_roun
 
     if (isTwoThird(node_count(verifiedValuesSize))) {
 
-        LOG(err, to_string(verifiedValuesSize));
+        LOG(err, "V" + to_string(verifiedValuesSize));
 
         uint64_t random;
 
