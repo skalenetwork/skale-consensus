@@ -135,7 +135,7 @@ private:
     bool isThirdVote(ptr<BVBroadcastMessage> m);
 
 
-    void proceedWithCommonCoinIfAUXTwoThird(bin_consensus_round round);
+    void proceedWithCommonCoinIfAUXTwoThird(bin_consensus_round _r);
 
     void auxBroadcastValue(bin_consensus_value v, bin_consensus_round round);
 

@@ -117,6 +117,8 @@ class Node {
 
     ptr<LevelDB> blocksDB = nullptr;
 
+    ptr<LevelDB> randomDB = nullptr;
+
     ptr<LevelDB> committedTransactionsDB = nullptr;
 
 
@@ -162,6 +164,8 @@ public:
 
 
     ptr<LevelDB> getBlocksDB();
+
+    ptr<LevelDB> getRandomDB();
 
 
     ptr<LevelDB> getCommittedTransactionsDB() const;

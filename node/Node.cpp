@@ -112,11 +112,13 @@ Node::Node(const nlohmann::json &_cfg, ConsensusEngine *_consensusEngine) {
 void Node::initLevelDBs() {
     string dataDir = *Log::getDataDir();
     string blockDBFilename = dataDir + "/blocks_" + to_string(nodeID) + ".db";
+    string randomDBFilename = dataDir + "/randoms_" + to_string(nodeID) + ".db";
     string committedTransactionsDBFilename = dataDir + "/transactions_" + to_string(nodeID) + ".db";
     string signaturesDBFilename = dataDir + "/sigs_" + to_string(nodeID) + ".db";
 
 
     blocksDB = make_shared<LevelDB>(blockDBFilename);
+    randomDB = make_shared<LevelDB>(randomDBFilename);
     committedTransactionsDB = make_shared<LevelDB>(committedTransactionsDBFilename);
     signaturesDB = make_shared<LevelDB>(signaturesDBFilename);
 
@@ -206,6 +208,7 @@ Node::~Node() {
 
 void Node::cleanLevelDBs() {
     blocksDB = nullptr;
+    randomDB = nullptr;
     committedTransactionsDB = nullptr;
     signaturesDB = nullptr;
 }
@@ -482,6 +485,11 @@ ptr<NodeInfo> Node::getNodeInfoByIP(ptr<string> ip) {
 ptr<LevelDB> Node::getBlocksDB() {
     assert(blocksDB);
     return blocksDB;
+}
+
+ptr<LevelDB> Node::getRandomDB() {
+    assert(randomDB);
+    return randomDB;
 }
 
 ptr<LevelDB> Node::getCommittedTransactionsDB() const {

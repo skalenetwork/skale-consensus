@@ -405,25 +405,25 @@ void BinConsensusInstance::auxBroadcastValue(bin_consensus_value v, bin_consensu
 }
 
 
-void BinConsensusInstance::proceedWithCommonCoinIfAUXTwoThird(bin_consensus_round r) {
+void BinConsensusInstance::proceedWithCommonCoinIfAUXTwoThird(bin_consensus_round _r) {
 
     if (decided())
         return;
 
-    ASSERT(r == currentRound);
+    ASSERT(_r == currentRound);
 
     uint64_t verifiedValuesSize = 0;
 
     bool hasTrue = false;
     bool hasFalse = false;
 
-    if (binValues[r].count(bin_consensus_value(true)) > 0 && auxTrueVotes[r].size() > 0) {
-        verifiedValuesSize += auxTrueVotes[r].size();
+    if (binValues[_r].count(bin_consensus_value(true)) > 0 && auxTrueVotes[_r].size() > 0) {
+        verifiedValuesSize += auxTrueVotes[_r].size();
         hasTrue = true;
     }
 
-    if (binValues[r].count(bin_consensus_value(false)) > 0 && auxFalseVotes[r].size() > 0) {
-        verifiedValuesSize += auxFalseVotes[r].size();
+    if (binValues[_r].count(bin_consensus_value(false)) > 0 && auxFalseVotes[_r].size() > 0) {
+        verifiedValuesSize += auxFalseVotes[_r].size();
         hasFalse = true;
     }
 
@@ -432,12 +432,37 @@ void BinConsensusInstance::proceedWithCommonCoinIfAUXTwoThird(bin_consensus_roun
         uint64_t random;
 
         if (getSchain()->getNode()->isBlsEnabled()) {
-            random = this->calculateBLSRandom(r);
+            random = this->calculateBLSRandom(_r);
         } else {
-            srand((uint64_t ) r + (uint64_t ) getBlockID() * 123456);
+            srand((uint64_t ) _r + (uint64_t ) getBlockID() * 123456);
             random = rand();
         }
 
+        auto randomDB = getSchain()->getNode()->getRandomDB();
+
+        stringstream key;
+
+        key << getSchain() << ":" << getBlockID() << ":" << getBlockProposerIndex() << ":" <<  _r;
+
+        auto k = key.str();
+
+        auto value = randomDB->readString(k);
+
+        if (value) {
+
+            uint64_t random1 = 0;
+            try {
+                random1 = stoul(*value);
+            } catch (...) {
+            }
+
+            if (random != random1) {
+                BOOST_THROW_EXCEPTION(FatalError("Incorrect random number:" + to_string(random1) + ":" +
+                to_string(random), __CLASS_NAME__));
+            }
+        } else {
+            randomDB->writeString(k, to_string(random));
+        }
 
         proceedWithCommonCoin(hasTrue, hasFalse, random);
 
@@ -678,7 +703,7 @@ uint64_t BinConsensusInstance::calculateBLSRandom(bin_consensus_round _r) {
     sig->to_affine_coordinates();
     auto result = sig->X.as_ulong() + sig->Y.as_ulong();
 
-    LOG(err, "Random for round: " + to_string(_r) + ":" + to_string(result));
+    LOG(trace, "Random for round: " + to_string(_r) + ":" + to_string(result));
 
     return sig->X.as_ulong() + sig->Y.as_ulong();
 }
