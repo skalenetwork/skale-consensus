@@ -83,7 +83,7 @@ class BlockConsensusAgent {
 
     void propose(bin_consensus_value _proposal, schain_index index, block_id _id);
 
-    void voteAndDecideIfNeded(ptr<ChildBVDecidedMessage> msg);
+    void reportConsensusAndDecideIfNeeded(ptr<ChildBVDecidedMessage> msg);
 
     void voteAndDecideIfNeded1(ptr<ChildBVDecidedMessage> msg);
 

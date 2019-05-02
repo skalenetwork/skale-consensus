@@ -53,6 +53,7 @@
 
 #include "../binconsensus/ChildBVDecidedMessage.h"
 #include "BlockConsensusAgent.h"
+#include "../../datastructures/CommittedBlock.h"
 
 
 BlockConsensusAgent::BlockConsensusAgent(Schain &_schain) : sChain(_schain) {
@@ -121,7 +122,7 @@ void BlockConsensusAgent::processChildMessageImpl(ptr<InternalMessageEnvelope> _
     auto m = dynamic_pointer_cast<ChildBVDecidedMessage>(_me->getMessage());
 
 
-    voteAndDecideIfNeded(m);
+    reportConsensusAndDecideIfNeeded(m);
 }
 
 void BlockConsensusAgent::propose(bin_consensus_value _proposal, schain_index _index, block_id _id) {
@@ -205,11 +206,13 @@ void BlockConsensusAgent::decideEmptyBlock(block_id blockNumber) {
 
 
 
-void BlockConsensusAgent::voteAndDecideIfNeded(ptr<ChildBVDecidedMessage> msg) {
+void BlockConsensusAgent::reportConsensusAndDecideIfNeeded(ptr<ChildBVDecidedMessage> msg) {
 
     auto nodeCount = (uint64_t) getSchain()->getNodeCount();
     auto blockProposerIndex = (uint64_t) msg->getBlockProposerIndex();
     auto blockID = msg->getBlockId();
+
+
 
 
 
@@ -219,11 +222,24 @@ void BlockConsensusAgent::voteAndDecideIfNeded(ptr<ChildBVDecidedMessage> msg) {
     if (decidedBlocks.count(blockID) > 0)
         return;
 
+    ptr<CommittedBlock> previousBlock = nullptr;
+
+    if (blockID > 1) {
+        previousBlock = getSchain()->getBlock(blockID -1);
+        if (previousBlock == nullptr) {
+            return;
+        }
+    }
+
+
+
     if (msg->getValue()) {
         trueDecisions[blockID].insert(blockProposerIndex);
     } else {
         falseDecisions[blockID].insert(blockProposerIndex);
     }
+
+
 
     if (trueDecisions[blockID].size() == 0) {
         if ((uint64_t) falseDecisions[blockID].size() == nodeCount) {
@@ -233,10 +249,18 @@ void BlockConsensusAgent::voteAndDecideIfNeded(ptr<ChildBVDecidedMessage> msg) {
     }
 
 
-    auto winner = ((uint64_t ) blockID) % nodeCount;
+    uint64_t seed;
+
+    if (blockID <=1) {
+        seed = 1;
+    } else {
+        seed = *((uint64_t *)previousBlock->getHash()->data());
+    }
+
+    auto random = ((uint64_t ) seed) % nodeCount;
 
 
-    for (uint64_t i = winner; i <  winner + nodeCount; i++) {
+    for (uint64_t i = random; i <  random + nodeCount; i++) {
         auto index = schain_index(i % nodeCount);
         if (trueDecisions[blockID].count(index) > 0) {
             decideBlock(blockID,index);

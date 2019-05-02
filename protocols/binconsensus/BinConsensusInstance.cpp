@@ -471,7 +471,7 @@ void BinConsensusInstance::proceedWithCommonCoinIfAUXTwoThird(bin_consensus_roun
 ptr<string>
 BinConsensusInstance::getRandomDBKey(const Schain *_sChain, const block_id &_blockId,
                                      const schain_index &_proposerIndex,
-                                     const bin_consensus_round &_round) const {
+                                     const bin_consensus_round &_round) {
     assert(_sChain);
 
     stringstream key;

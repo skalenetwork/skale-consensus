@@ -300,8 +300,8 @@ extern thread_local ptr<Log> logThreadLocal_;
 
 #define ASSERT(_EXPRESSION_) \
     if (!(_EXPRESSION_)) { \
-        auto msg = "Assert failed:: " + string(__FILE__) + ":" + to_string(__LINE__); \
-        cerr << msg << endl; \
+        auto __msg__ = "Assert failed:: " + string(__FILE__) + ":" + to_string(__LINE__); \
+        cerr << __msg__ << endl; \
         assert((_EXPRESSION_)); \
     }
 
