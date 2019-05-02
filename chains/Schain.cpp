@@ -56,7 +56,7 @@
 
 
 #include "../blockproposal/received/ReceivedBlockProposalsDatabase.h"
-#include "../blockfinalize/received/ReceivedSigSharesDatabase.h"
+#include "../blockfinalize/received/ReceivedBlockSigSharesDatabase.h"
 #include "../protocols/ProtocolInstance.h"
 #include "../protocols/blockconsensus/BlockConsensusAgent.h"
 #include "../network/Sockets.h"
@@ -276,7 +276,7 @@ void Schain::constructChildAgents() {
     catchupClientAgent = make_shared<CatchupClientAgent>(*this);
     blockConsensusInstance = make_shared<BlockConsensusAgent>(*this);
     blockProposalsDatabase = make_shared<ReceivedBlockProposalsDatabase>(*this);
-    sigSharesDatabase = make_shared<ReceivedSigSharesDatabase>(*this);
+    blockSigSharesDatabase = make_shared<ReceivedBlockSigSharesDatabase>(*this);
 
 
     testMessageGeneratorAgent = make_shared<TestMessageGeneratorAgent>(*this);
@@ -765,12 +765,12 @@ void Schain::healthCheck() {
 }
 
 void Schain::sigShareArrived(ptr<BLSSigShare> _sigShare) {
-    if (sigSharesDatabase->addSigShare(_sigShare)) {
+    if (blockSigSharesDatabase->addSigShare(_sigShare)) {
         auto blockId = _sigShare->getBlockId();
         auto mySig = sign(getBlock(blockId)->getHash(), blockId);
-        sigSharesDatabase->addSigShare(mySig);
-        assert(sigSharesDatabase->isTwoThird(blockId));
-        sigSharesDatabase->mergeAndSaveBLSSignature(blockId);
+        blockSigSharesDatabase->addSigShare(mySig);
+        assert(blockSigSharesDatabase->isTwoThird(blockId));
+        blockSigSharesDatabase->mergeAndSaveBLSSignature(blockId);
     };
 }
 

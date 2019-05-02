@@ -187,7 +187,7 @@ public:
 
     ptr<ReceivedBlockProposalsDatabase> blockProposalsDatabase;
 
-    ptr<ReceivedSigSharesDatabase> sigSharesDatabase;
+    ptr<ReceivedSigSharesDatabase> blockSigSharesDatabase;
 
     chrono::milliseconds getStartTime() const;
 

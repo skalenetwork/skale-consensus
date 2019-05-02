@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2019 SKALE Labs
+    Copyright (C) 2018-2019 SKALE Labs
 
     This file is part of skale-consensus.
 
@@ -16,44 +16,12 @@
     You should have received a copy of the GNU General Public License
     along with skale-consensus.  If not, see <http://www.gnu.org/licenses/>.
 
-    @file ReceivedSigSharesDatabase.h
+    @file BVBMessagePayload.h
     @author Stan Kladko
-    @date 2019
+    @date 2018
 */
 
-#pragma once
+#include "../../SkaleConfig.h"
+#include "ReceivedDASigShareDatabase.h"
 
-
-class SigShareSet;
-class BLSSignature;
-class Schain;
-
-class ReceivedSigSharesDatabase : Agent {
-
-
-    recursive_mutex sigShareDatabaseMutex;
-
-    map<block_id, ptr<SigShareSet>> sigShareSets;
-
-    map<block_id, ptr<BLSSignature>> blockSignatures;
-
-
-    ptr<SigShareSet> getSigShareSet(block_id _blockID);
-
-    ptr<BLSSignature> getBLSSignature(block_id _blockId);
-
-public:
-
-
-
-    ReceivedSigSharesDatabase(Schain &_sChain);
-
-    bool addSigShare(ptr<BLSSigShare> _proposal);
-
-    void mergeAndSaveBLSSignature(block_id _blockId);
-
-    bool isTwoThird(block_id _blockID);
-};
-
-
-
+ReceivedDASigShareDatabase::ReceivedDASigShareDatabase(Schain &sChain) : ReceivedSigSharesDatabase(sChain) {}

@@ -31,7 +31,6 @@
 
 #include "../chains/Schain.h"
 #include "../pendingqueue/PendingTransactionsAgent.h"
-#include "../blockfinalize/received/ReceivedSigSharesDatabase.h"
 #include "../crypto/BLSSigShare.h"
 
 #include "SigShareSet.h"

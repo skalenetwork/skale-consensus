@@ -212,10 +212,6 @@ void BlockConsensusAgent::reportConsensusAndDecideIfNeeded(ptr<ChildBVDecidedMes
     auto blockProposerIndex = (uint64_t) msg->getBlockProposerIndex();
     auto blockID = msg->getBlockId();
 
-
-
-
-
     ASSERT(blockProposerIndex < nodeCount);
 
 
