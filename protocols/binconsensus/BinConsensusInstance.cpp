@@ -440,13 +440,11 @@ void BinConsensusInstance::proceedWithCommonCoinIfAUXTwoThird(bin_consensus_roun
 
         auto randomDB = getSchain()->getNode()->getRandomDB();
 
-        stringstream key;
 
-        key << getSchain() << ":" << getBlockID() << ":" << getBlockProposerIndex() << ":" <<  _r;
 
-        auto k = key.str();
+        auto key = getRandomDBKey(getSchain(), getBlockID(), getBlockProposerIndex(), _r);
 
-        auto value = randomDB->readString(k);
+        auto value = randomDB->readString(*key);
 
         if (value) {
 
@@ -461,13 +459,27 @@ void BinConsensusInstance::proceedWithCommonCoinIfAUXTwoThird(bin_consensus_roun
                 to_string(random), __CLASS_NAME__));
             }
         } else {
-            randomDB->writeString(k, to_string(random));
+            randomDB->writeString(*key, to_string(random));
         }
 
         proceedWithCommonCoin(hasTrue, hasFalse, random);
 
     }
 
+}
+
+ptr<string>
+BinConsensusInstance::getRandomDBKey(const Schain *_sChain, const block_id &_blockId,
+                                     const schain_index &_proposerIndex,
+                                     const bin_consensus_round &_round) const {
+    assert(_sChain);
+
+    stringstream key;
+
+
+    key << _sChain << ":" << _blockId << ":" << _proposerIndex << ":" << _round;
+
+    return make_shared<string>(key.str());
 }
 
 void BinConsensusInstance::proceedWithCommonCoin(bool _hasTrue, bool _hasFalse, uint64_t _random) {
