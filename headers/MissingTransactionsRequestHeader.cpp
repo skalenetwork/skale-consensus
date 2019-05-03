@@ -37,13 +37,14 @@
 
 using namespace std;
 
-MissingTransactionsRequestHeader::MissingTransactionsRequestHeader() = default;
+MissingTransactionsRequestHeader::MissingTransactionsRequestHeader() :
+Header(Header::MISSING_TRANSACTIONS_REQ){};
 
 
-MissingTransactionsRequestHeader::MissingTransactionsRequestHeader(ptr<map<uint64_t, ptr<partial_sha_hash>>> missingMessages_)
-     {
+MissingTransactionsRequestHeader::MissingTransactionsRequestHeader(ptr<map<uint64_t, ptr<partial_sha_hash>>> _missingMessages)
+        : MissingTransactionsRequestHeader() {
 
-     this->missingTransactionsCount = missingMessages_->size();
+     this->missingTransactionsCount = _missingMessages->size();
      complete = true;
 
 }
@@ -56,8 +57,8 @@ uint64_t MissingTransactionsRequestHeader::getMissingTransactionsCount() const {
     return missingTransactionsCount;
 }
 
-void MissingTransactionsRequestHeader::setMissingTransactionsCount(uint64_t missingTransactionsCount) {
-    MissingTransactionsRequestHeader::missingTransactionsCount = missingTransactionsCount;
+void MissingTransactionsRequestHeader::setMissingTransactionsCount(uint64_t _missingTransactionsCount) {
+    MissingTransactionsRequestHeader::missingTransactionsCount = _missingTransactionsCount;
 }
 
 

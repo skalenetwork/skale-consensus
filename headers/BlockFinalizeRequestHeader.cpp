@@ -45,9 +45,10 @@
 using namespace std;
 
 
-BlockFinalizeRequestHeader::BlockFinalizeRequestHeader(Schain &_sChain, ptr<CommittedBlock> proposal, schain_index _proposerIndex) :
+BlockFinalizeRequestHeader::BlockFinalizeRequestHeader(Schain &_sChain, ptr<CommittedBlock> proposal,
+        schain_index _proposerIndex) :
         AbstractBlockRequestHeader(_sChain, static_pointer_cast<BlockProposal>(proposal),
-                FINALIZE_REQUEST_TYPE, _proposerIndex) {
+                Header::BLOCK_FINALIZE_REQ, _proposerIndex) {
 
     if (!proposal) {
         BOOST_THROW_EXCEPTION(InvalidArgumentException("Null proposal", __CLASS_NAME__));

@@ -39,12 +39,12 @@
 
 using namespace std;
 
-CommittedBlockHeader::CommittedBlockHeader() {
+CommittedBlockHeader::CommittedBlockHeader() : Header(Header::COMMITTED_BLOCK) {
 
 }
 
 
-CommittedBlockHeader::CommittedBlockHeader(CommittedBlock& _block) {
+CommittedBlockHeader::CommittedBlockHeader(CommittedBlock& _block) : Header(Header::COMMITTED_BLOCK) {
 
     this->proposerIndex = _block.getProposerIndex();
     this->proposerNodeID = _block.getProposerNodeID();
@@ -52,15 +52,14 @@ CommittedBlockHeader::CommittedBlockHeader(CommittedBlock& _block) {
     this->blockID = _block.getBlockID();
     this->blockHash = _block.getHash();
     this->timeStamp = _block.getTimeStamp();
+    this->transactionSizes = make_shared<list<uint32_t>>();
 
     auto items = _block.getTransactionList()->getItems();
 
     for (auto && t : *items) {
-        transactionSizes.push_back(t->getData()->size());
+        transactionSizes->push_back(t->getData()->size());
     }
-
     setComplete();
-
 }
 
 
@@ -87,7 +86,7 @@ void CommittedBlockHeader::addFields(nlohmann::basic_json<> &j) {
 
     j["hash"] = *(hash->toHex());
 
-    j["sizes"] = transactionSizes;
+    j["sizes"] = *transactionSizes;
 
     j["timeStamp"] = timeStamp;
 

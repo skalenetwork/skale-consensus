@@ -16,40 +16,13 @@
     You should have received a copy of the GNU General Public License
     along with skale-consensus.  If not, see <http://www.gnu.org/licenses/>.
 
-    @file MissingTransactionsRequestHeader.h
+    @file BlockConsensusAgent.h
     @author Stan Kladko
-    @date 2018
+    @date 2019
 */
 
-#pragma  once
+#include "../SkaleConfig.h"
+#include "../thirdparty/json.hpp"
+#include "BlockProposalResponseHeader.h"
 
-
-
-#include "Header.h"
-
-class NodeInfo;
-class BlockProposal;
-class Schain;
-
-class MissingTransactionsRequestHeader : public Header{
-
-
-    uint64_t missingTransactionsCount;
-
-public:
-
-
-    MissingTransactionsRequestHeader();
-
-    MissingTransactionsRequestHeader(ptr<map<uint64_t, ptr<partial_sha_hash>>> _missingMessages);
-
-    void addFields(nlohmann::basic_json<> &j_) override;
-
-    uint64_t getMissingTransactionsCount() const;
-
-    void setMissingTransactionsCount(uint64_t _missingTransactionsCount);
-
-};
-
-
-
+BlockProposalResponseHeader::BlockProposalResponseHeader() : Header(Header::BLOCK_PROPOSAL_RSP) {}

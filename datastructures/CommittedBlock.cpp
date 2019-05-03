@@ -57,9 +57,9 @@ ptr<vector<uint8_t>> CommittedBlock::serialize() {
 
     auto items = transactionList->getItems();
 
-    CommittedBlockHeader header(*this);
+    auto header = make_shared<CommittedBlockHeader>(*this);
 
-    auto buf = header.toBuffer();
+    auto buf = header->toBuffer();
 
     ASSERT((*buf->getBuf())[sizeof(uint64_t)] == '{');
     ASSERT((*buf->getBuf())[buf->getCounter() - 1] == '}');

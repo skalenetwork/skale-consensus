@@ -54,6 +54,7 @@
 #include "../../chains/Schain.h"
 #include "../../headers/Header.h"
 #include "../../headers/MissingTransactionsRequestHeader.h"
+#include "../../headers/BlockProposalResponseHeader.h"
 #include "../../network/Connection.h"
 #include "../../network/IO.h"
 #include "../../network/Sockets.h"
@@ -190,9 +191,9 @@ void BlockProposalServerAgent::processNextAvailableConnection(ptr<Connection> _c
 
     auto type = Header::getString(proposalRequest, "type");
 
-    if (strcmp(type->data(), PROPOSAL_REQUEST_TYPE) == 0) {
+    if (strcmp(type->data(), Header::BLOCK_PROPOSAL_REQ) == 0) {
         processProposalRequest(_connection, proposalRequest);
-    } else if (strcmp(type->data(), FINALIZE_REQUEST_TYPE) == 0) {
+    } else if (strcmp(type->data(), Header::BLOCK_FINALIZE_REQ) == 0) {
         processFinalizeRequest(_connection, proposalRequest);
     } else {
         throw_with_nested(NetworkProtocolException("Uknown request type:" + *type, __CLASS_NAME__));
@@ -313,10 +314,10 @@ BlockProposalServerAgent::processProposalRequest(ptr<Connection> _connection, nl
     auto transactionCount = partialHashesList->getTransactionCount();
 
     for (uint64_t i = 0; i < transactionCount; i++) {
-        auto hash = partialHashesList->getPartialHash(i);
-        ASSERT(hash);
+        auto h = partialHashesList->getPartialHash(i);
+        ASSERT(h);
 
-        if (getSchain()->getPendingTransactionsAgent()->isCommitted(hash)) {
+        if (getSchain()->getPendingTransactionsAgent()->isCommitted(h)) {
             checkForOldBlock(blockID);
             BOOST_THROW_EXCEPTION(
                     CouldNotReadPartialDataHashesException("Committed transaction", __CLASS_NAME__));
@@ -328,7 +329,7 @@ BlockProposalServerAgent::processProposalRequest(ptr<Connection> _connection, nl
             transaction = (*presentTransactions)[i];
         } else {
 
-            transaction = (*missingTransactions)[hash];
+            transaction = (*missingTransactions)[h];
         };
 
 
@@ -336,7 +337,7 @@ BlockProposalServerAgent::processProposalRequest(ptr<Connection> _connection, nl
             checkForOldBlock(blockID);
             ASSERT(missingTransactions);
 
-            if (missingTransactions->count(hash) > 0) {
+            if (missingTransactions->count(h) > 0) {
                 LOG(err, "Found in missing");
             }
 
@@ -411,7 +412,7 @@ void BlockProposalServerAgent::checkForOldBlock(const block_id &_blockID) {
 
 ptr<Header> BlockProposalServerAgent::createProposalResponseHeader(
         ptr<Connection> _connectionEnvelope, nlohmann::json _jsonRequest) {
-    ptr<Header> responseHeader = make_shared<Header>();
+    auto responseHeader = make_shared<BlockProposalResponseHeader>();
 
 
     block_id blockID;
@@ -514,7 +515,6 @@ ptr<Header> BlockProposalServerAgent::createFinalizeResponseHeader(
 
 
     block_id blockID;
-    node_id srcNodeID;
     schain_index proposerIndex;
     schain_id schainID;
     ptr<string> hash = nullptr;

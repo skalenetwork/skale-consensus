@@ -44,12 +44,11 @@
 
 using namespace std;
 
-CatchupRequestHeader::CatchupRequestHeader() : Header() {
-
+CatchupRequestHeader::CatchupRequestHeader() : Header(Header::CATCHUP_REQ) {
 }
 
 CatchupRequestHeader::CatchupRequestHeader(Schain &_sChain, schain_index _dstIndex) :
-        Header() {
+        CatchupRequestHeader() {
 
 
     this->srcNodeID = _sChain.getNode()->getNodeID();
