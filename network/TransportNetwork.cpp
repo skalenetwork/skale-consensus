@@ -394,7 +394,7 @@ ptr<NetworkMessageEnvelope> TransportNetwork::receiveMessage() {
 
 
 
-    buf->read(sigShare, BLS_MAX_SIG_LEN);
+    buf->read(sigShare, BLS_MAX_SIG_LEN);  /* Flawfinder: ignore */
 
     auto sig = make_shared<string>(sigShare);
 
