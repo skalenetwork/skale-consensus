@@ -132,6 +132,9 @@ Node *ConsensusEngine::readNodeConfigFileAndCreateNode(
 
 
 void ConsensusEngine::readSchainConfigFiles(Node &_node, const fs_path &_dirPath) {
+
+    try {
+
     checkExistsAndDirectory(_dirPath);
 
     // cycle through the directory
@@ -144,6 +147,11 @@ void ConsensusEngine::readSchainConfigFiles(Node &_node, const fs_path &_dirPath
 
         break;
     }
+
+    } catch (...) {
+        throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
+    }
+
 }
 
 

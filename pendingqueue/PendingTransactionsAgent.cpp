@@ -52,25 +52,28 @@ using namespace std;
 PendingTransactionsAgent::PendingTransactionsAgent( Schain& ref_sChain )
     : Agent(ref_sChain, false)  {
 
+    try {
 
-    auto cfg = getSchain()->getNode()->getCfg();
+        auto cfg = getSchain()->getNode()->getCfg();
 
 
-    auto db = getSchain()->getNode()->getBlocksDB();
+        auto db = getSchain()->getNode()->getBlocksDB();
 
-    static string count("COUNT");
+        static string count("COUNT");
 
-    auto value = db->readString(count);
+        auto value = db->readString(count);
 
-    if (value != nullptr) {
-        committedTransactionCounter = stoul(*value);
+        if (value != nullptr) {
+            committedTransactionCounter = stoul(*value);
+        }
+
+        auto cdb = getNode()->getCommittedTransactionsDB();
+
+
+        cdb->visitKeys(this, getNode()->getCommittedTransactionHistoryLimit() - committedTransactionCounter);
+    } catch (...) {
+        throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
     }
-
-    auto cdb = getNode()->getCommittedTransactionsDB();
-
-
-    cdb->visitKeys(this, getNode()->getCommittedTransactionHistoryLimit() - committedTransactionCounter);
-
 }
 
 void PendingTransactionsAgent::visitDBKey(leveldb::Slice _key) {

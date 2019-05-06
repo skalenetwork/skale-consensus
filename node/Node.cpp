@@ -29,38 +29,7 @@
 #include "../thirdparty/json.hpp"
 #include "leveldb/db.h"
 
-
-#pragma GCC diagnostic push
-// Suppress warnings: "unknown option after ‘#pragma GCC diagnostic’ kind [-Wpragmas]".
-// This is necessary because not all the compilers have the same warning options.
-#pragma GCC diagnostic ignored "-Wpragmas"
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#pragma GCC diagnostic ignored "-Wdeprecated-register"
-#pragma GCC diagnostic ignored "-Wignored-qualifiers"
-#pragma GCC diagnostic ignored "-Wmismatched-tags"
-#pragma GCC diagnostic ignored "-Wshadow"
-#pragma GCC diagnostic ignored "-Wsign-compare"
-#pragma GCC diagnostic ignored "-Wunused-parameter"
-#pragma GCC diagnostic ignored "-Wtautological-compare"
-#pragma GCC diagnostic ignored "-Wtype-limits"
-#pragma GCC diagnostic ignored "-Wunused-function"
-#pragma GCC diagnostic ignored "-Wunneeded-internal-declaration"
-#pragma GCC diagnostic ignored "-Wunused-private-field"
-#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
-#pragma GCC diagnostic ignored "-Wunused-variable"
-#pragma GCC diagnostic ignored "-Wunused-local-typedefs"
-#pragma GCC diagnostic ignored "-Wcast-align"
-#pragma GCC diagnostic ignored "-Wcast-qual"
-#pragma GCC diagnostic ignored "-Wignored-attributes"
-#pragma GCC diagnostic ignored "-Wmisleading-indentation"
-#pragma GCC diagnostic ignored "-Wchar-subscripts"
-#pragma GCC diagnostic ignored "-Wparentheses"
-#pragma GCC diagnostic ignored "-Wreorder"
-
-#include "bls.h"
-
-#pragma GCC diagnostic pop
-
+#include "../crypto/bls_include.h"
 
 #include "../blockproposal/server/BlockProposalServerAgent.h"
 #include "../messages/NetworkMessageEnvelope.h"
@@ -319,22 +288,26 @@ void Node::startClients() {
 void Node::initSchain(ptr<NodeInfo> _localNodeInfo, const vector<ptr<NodeInfo>> &remoteNodeInfos,
                       ConsensusExtFace *_extFace) {
 
+    try {
 
-    logThreadLocal_ = getLog();
+        logThreadLocal_ = getLog();
 
-    for (auto &rni : remoteNodeInfos) {
-        LOG(debug, "Adding Node Info:" + to_string(rni->getSchainIndex()));
-        nodeInfosByIndex[rni->getSchainIndex()] = rni;
-        nodeInfosByIP[rni->getBaseIP()] = rni;
-        LOG(debug, "Got IP" + *rni->getBaseIP());
+        for (auto &rni : remoteNodeInfos) {
+            LOG(debug, "Adding Node Info:" + to_string(rni->getSchainIndex()));
+            nodeInfosByIndex[rni->getSchainIndex()] = rni;
+            nodeInfosByIP[rni->getBaseIP()] = rni;
+            LOG(debug, "Got IP" + *rni->getBaseIP());
 
+        }
+
+        ASSERT(nodeInfosByIndex.size() > 0);
+        ASSERT(nodeInfosByIndex.count(0) > 0);
+
+        sChain = make_shared<Schain>(*this, _localNodeInfo->getSchainIndex(),
+                                     _localNodeInfo->getSchainID(), _extFace);
+    }   catch (...) {
+        throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
     }
-
-    ASSERT(nodeInfosByIndex.size() > 0);
-    ASSERT(nodeInfosByIndex.count(0) > 0);
-
-    sChain = make_shared<Schain>(*this, _localNodeInfo->getSchainIndex(),
-                                 _localNodeInfo->getSchainID(), _extFace);
 
 }
 
@@ -423,7 +396,6 @@ vector<Agent *> &Node::getAgents() {
 
 
 const map<schain_index, ptr<NodeInfo>> &Node::getNodeInfosByIndex() const {
-
     return nodeInfosByIndex;
 }
 
@@ -486,23 +458,23 @@ ptr<NodeInfo> Node::getNodeInfoByIP(ptr<string> ip) {
 
 
 ptr<LevelDB> Node::getBlocksDB() {
-    assert(blocksDB);
+    ASSERT(blocksDB);
     return blocksDB;
 }
 
 ptr<LevelDB> Node::getRandomDB() {
-    assert(randomDB);
+    ASSERT(randomDB);
     return randomDB;
 }
 
 ptr<LevelDB> Node::getCommittedTransactionsDB() const {
-    assert(committedTransactionsDB);
+    ASSERT(committedTransactionsDB);
     return committedTransactionsDB;
 }
 
 
 ptr<LevelDB> Node::getSignaturesDB() const {
-    assert(signaturesDB);
+    ASSERT(signaturesDB);
     return signaturesDB;
 }
 
@@ -591,5 +563,6 @@ bool Node::isBlsEnabled() const {
 }
 
 void Node::setBasePort(const network_port &_basePort) {
+    ASSERT(_basePort);
     basePort = _basePort;
 }

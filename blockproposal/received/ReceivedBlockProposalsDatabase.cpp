@@ -45,7 +45,11 @@ using namespace std;
 
 
 ReceivedBlockProposalsDatabase::ReceivedBlockProposalsDatabase(Schain &_sChain) : Agent(_sChain, true){
-    oldBlockID = _sChain.getBootstrapBlockID();
+    try {
+        oldBlockID = _sChain.getBootstrapBlockID();
+    }  catch (...) {
+    throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
+    }
 };
 
 
