@@ -101,8 +101,11 @@ Node::Node(const nlohmann::json &_cfg, ConsensusEngine *_consensusEngine) {
     this->exitRequested = false;
     this->cfg = _cfg;
 
-    initParamsFromConfig();
-
+    try {
+        initParamsFromConfig();
+    } catch (...) {
+        throw_with_nested(ParsingException("Could not parse params", __CLASS_NAME__));
+    }
     initLevelDBs();
 
     initLogging();
@@ -164,9 +167,6 @@ void Node::initParamsFromConfig() {
     name = make_shared<string>(cfg.at("nodeName").get<string>());
 
     bindIP = make_shared<string>(cfg.at("bindIP").get<string>());
-
-    basePort = network_port(cfg.at("basePort").get<uint16_t>());
-
 
     auto emptyBlockIntervalMsTmp = getParamInt64("emptyBlockIntervalMs", EMPTY_BLOCK_INTERVAL_MS);
 
@@ -456,10 +456,13 @@ const ptr<Log> &Node::getLog() const {
 
 
 const ptr<string> &Node::getBindIP() const {
+    ASSERT(bindIP != nullptr);
     return bindIP;
 }
 
 const network_port &Node::getBasePort() const {
+
+    ASSERT(basePort > 0);
     return basePort;
 }
 
@@ -566,9 +569,7 @@ uint64_t Node::getCommittedTransactionHistoryLimit() const {
     return committedTransactionsHistory;
 }
 
-
 set<node_id> Node::nodeIDs;
-
 
 
 const ptr<BLSPublicKey> &Node::getBlsPublicKey() const {
@@ -587,4 +588,8 @@ const ptr<BLSPrivateKey> &Node::getBlsPrivateKey() const {
 
 bool Node::isBlsEnabled() const {
     return isBLSEnabled;
+}
+
+void Node::setBasePort(const network_port &_basePort) {
+    basePort = _basePort;
 }

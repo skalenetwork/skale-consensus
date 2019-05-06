@@ -168,7 +168,7 @@ void AbstractClientAgent::workerThreadItemSendLoop(AbstractClientAgent *agent) {
                         agent->sendItem(proposal, destinationSubChainIndex, nodeId);
                         sent = true;
                     } catch (Exception &e) {
-                        Exception::log_exception(e);
+                        Exception::logNested(e);
                         if (agent->getNode()->isExitRequested())
                             return;
                         usleep(agent->getNode()->getWaitAfterNetworkErrorMs() * 1000);

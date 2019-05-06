@@ -53,7 +53,7 @@ protected:
 
 public:
 
-    static void log_exception(const std::exception& e, int level =  0);
+    static void logNested(const std::exception &e, int level = 0);
 
 
 };

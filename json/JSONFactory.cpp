@@ -68,13 +68,16 @@ _engine) {
         Log::setConfigLogLevel(*logLevel);
     }
 
-
     uint64_t nodeID = j.at("nodeID").get<uint64_t>();
 
     Node *node = nullptr;
 
     if (nodeIDs.empty() || nodeIDs.count(node_id(nodeID)) > 0) {
-        node = new Node(j, _engine);
+        try {
+            node = new Node(j, _engine);
+        } catch (...) {
+            throw_with_nested(FatalError("Could not init node", __CLASS_NAME__));
+        }
     }
 
     return node;

@@ -267,7 +267,7 @@ BlockProposalClientAgent::readMissingHashes(ptr<ClientSocket> _socket, uint64_t 
 
         result->
                 insert(hash);
-        assert(result->count(hash));
+        ASSERT(result->count(hash));
     }
 
 

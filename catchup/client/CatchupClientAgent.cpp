@@ -234,7 +234,7 @@ void CatchupClientAgent::workerThreadItemSendLoop( CatchupClientAgent* agent ) {
             } catch ( ExitRequestedException& ) {
                 return;
             } catch ( Exception& e ) {
-                Exception::log_exception( e );
+                Exception::logNested(e);
             }
 
             destinationSubChainIndex = nextSyncNodeIndex( agent, destinationSubChainIndex );

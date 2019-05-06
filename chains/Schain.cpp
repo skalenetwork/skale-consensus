@@ -164,7 +164,7 @@ void Schain::messageThreadProcessingLoop(Schain *s) {
                         s->getNode()->getSockets()->consensusZMQSocket->closeSend();
                         return;
                     }
-                    Exception::log_exception(e);
+                    Exception::logNested(e);
                 }
 
                 newQueue.pop();
@@ -690,7 +690,7 @@ void Schain::bootstrap(block_id _lastCommittedBlockID, uint64_t _lastCommittedBl
         bootstrapBlockID.store((uint64_t) _lastCommittedBlockID);
         blockCommitArrived(true, _lastCommittedBlockID, schain_index(0), _lastCommittedBlockTimeStamp);
     } catch (Exception &e) {
-        Exception::log_exception(e);
+        Exception::logNested(e);
         return;
     }
 }

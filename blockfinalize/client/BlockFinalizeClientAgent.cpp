@@ -83,7 +83,7 @@ void BlockFinalizeClientAgent::sendItemImpl(ptr<BlockProposal> &_proposal, share
 
     auto committedBlock = dynamic_pointer_cast<CommittedBlock>(_proposal);
 
-    assert(committedBlock);
+    ASSERT(committedBlock);
 
     ptr<Header> header = make_shared<BlockFinalizeRequestHeader>(*sChain, committedBlock, _proposal->getProposerIndex());
 

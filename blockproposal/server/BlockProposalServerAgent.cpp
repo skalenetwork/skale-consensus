@@ -476,7 +476,7 @@ ptr<Header> BlockProposalServerAgent::createProposalResponseHeader(
 
     auto t = Schain::getCurrentTimeSec();
 
-    assert(t < (uint64_t) MODERN_TIME * 2);
+    ASSERT(t < (uint64_t) MODERN_TIME * 2);
 
     if (Schain::getCurrentTimeSec() + 1 < timeStamp) {
         LOG(info,

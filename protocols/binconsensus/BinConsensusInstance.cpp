@@ -266,10 +266,10 @@ void BinConsensusInstance::bvbVote(ptr<MessageEnvelope> me) {
     schain_index index = me->getSrcNodeInfo()->getSchainIndex();
 
     if(v) {
-        assert(bvbTrueVotes[r].count(index) == 0);
+        ASSERT(bvbTrueVotes[r].count(index) == 0);
         bvbTrueVotes[r].insert(index);
     } else {
-        assert(bvbFalseVotes[r].count(index) == 0);
+        ASSERT(bvbFalseVotes[r].count(index) == 0);
         bvbFalseVotes[r].insert(index);
     }
 }
@@ -283,10 +283,10 @@ void BinConsensusInstance::auxVote(ptr<MessageEnvelope> me) {
 
     auto index = me->getSrcNodeInfo()->getSchainIndex();
     if (v) {
-        assert(auxTrueVotes[r].count(index) == 0);
+        ASSERT(auxTrueVotes[r].count(index) == 0);
         auxTrueVotes[r][index] =  m->getSigShare();
     } else {
-        assert(auxFalseVotes[r].count(index) == 0);
+        ASSERT(auxFalseVotes[r].count(index) == 0);
         auxFalseVotes[r][index] =  m->getSigShare();
     }
 
@@ -299,16 +299,16 @@ uint64_t BinConsensusInstance::totalAUXVotes(bin_consensus_round r) {
 
 void BinConsensusInstance::auxSelfVote(bin_consensus_round r, bin_consensus_value v, ptr<BLSSigShare> _sigShare) {
     if (getSchain()->getNode()->isBlsEnabled()) {
-        assert(_sigShare);
+        ASSERT(_sigShare);
     }
 
     addAUXSelfVoteToHistory(r, v);
 
     if (v) {
-        assert(auxTrueVotes[r].count(getSchain()->getSchainIndex()) == 0);
+        ASSERT(auxTrueVotes[r].count(getSchain()->getSchainIndex()) == 0);
         auxTrueVotes[r][getSchain()->getSchainIndex()] = _sigShare;
     } else {
-        assert(auxFalseVotes[r].count(getSchain()->getSchainIndex()) == 0);
+        ASSERT(auxFalseVotes[r].count(getSchain()->getSchainIndex()) == 0);
         auxFalseVotes[r][getSchain()->getSchainIndex()] = _sigShare;
     }
 
@@ -475,7 +475,7 @@ ptr<string>
 BinConsensusInstance::getRandomDBKey(const Schain *_sChain, const block_id &_blockId,
                                      const schain_index &_proposerIndex,
                                      const bin_consensus_round &_round) {
-    assert(_sChain);
+    ASSERT(_sChain);
 
     stringstream key;
 
@@ -521,8 +521,8 @@ void BinConsensusInstance::proceedWithCommonCoin(bool _hasTrue, bool _hasFalse, 
 void BinConsensusInstance::proceedWithNewRound(bin_consensus_value value) {
 
 
-    assert (currentRound < 10);
-    assert(isTwoThird(totalAUXVotes(currentRound)));
+    ASSERT(currentRound < 10);
+    ASSERT(isTwoThird(totalAUXVotes(currentRound)));
 
     currentRound += 1;
 
@@ -695,7 +695,7 @@ uint64_t BinConsensusInstance::calculateBLSRandom(bin_consensus_round _r) {
 
     if (binValues[_r].count(bin_consensus_value(true)) > 0 && auxTrueVotes[_r].size() > 0) {
         for (auto&& item: auxTrueVotes[_r]) {
-            assert(item.second);
+            ASSERT(item.second);
             shares.addSigShare(item.second);
             if (shares.isTwoThird())
                 break;
@@ -704,7 +704,7 @@ uint64_t BinConsensusInstance::calculateBLSRandom(bin_consensus_round _r) {
 
     if (binValues[_r].count(bin_consensus_value(false)) > 0 && auxFalseVotes[_r].size() > 0) {
         for (auto&& item: auxFalseVotes[_r]) {
-            assert(item.second);
+            ASSERT(item.second);
             shares.addSigShare(item.second);
             if (shares.isTwoThird())
                 break;
@@ -715,7 +715,7 @@ uint64_t BinConsensusInstance::calculateBLSRandom(bin_consensus_round _r) {
     bool isTwoThird = shares.isTwoThird();
 
 
-    assert(isTwoThird);
+    ASSERT(isTwoThird);
 
 
     auto sig = shares.mergeSignature()->getSig();

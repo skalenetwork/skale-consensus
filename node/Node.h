@@ -80,7 +80,7 @@ class Node {
 
     nlohmann::json cfg;
 
-    network_port basePort;
+    network_port basePort = 0;
 
 
     ptr<Sockets> sockets = nullptr;
@@ -237,6 +237,8 @@ public:
     const ptr<string> &getBindIP() const;
 
     const network_port &getBasePort() const;
+
+    void setBasePort(const network_port &_basePort);
 
     uint64_t getCommittedTransactionHistoryLimit() const;
 

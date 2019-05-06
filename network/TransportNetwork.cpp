@@ -229,7 +229,7 @@ void TransportNetwork::networkReadLoop() {
                     sChain->getNode()->getSockets()->consensusZMQSocket->closeReceive();
                     return;
                 }
-                Exception::log_exception(e);
+                Exception::logNested(e);
             }
 
         }// while
