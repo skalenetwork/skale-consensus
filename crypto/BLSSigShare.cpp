@@ -49,6 +49,10 @@ BLSSigShare::BLSSigShare(ptr<string> _s, schain_id _schainID, block_id _blockID,
                          schainId(_schainID), blockId(_blockID), signerIndex(_signerIndex), signerNodeId(_signerNodeID) {
 
 
+    if (!_s) {
+        BOOST_THROW_EXCEPTION(InvalidArgumentException("Null _s", __CLASS_NAME__));
+    }
+
 
     if (_s->size() < 10) {
         BOOST_THROW_EXCEPTION(InvalidArgumentException("Signature too short:"  + to_string(_s->size()), __CLASS_NAME__));
@@ -117,4 +121,14 @@ const node_id &BLSSigShare::getSignerNodeId() const {
 BLSSigShare::BLSSigShare(ptr<libff::alt_bn128_G1> &_s, schain_id _schainId, block_id _blockID,
                          schain_index _signerIndex,
                          node_id _nodeID) :
-    sig(_s), schainId(_schainId), blockId(_blockID), signerIndex(_signerIndex), signerNodeId(_nodeID){}
+    schainId(_schainId), blockId(_blockID), signerIndex(_signerIndex), signerNodeId(_nodeID){
+
+    if (!_s) {
+        BOOST_THROW_EXCEPTION(InvalidArgumentException("Null _s", __CLASS_NAME__));
+    }
+
+    sig = _s;
+
+
+
+}
