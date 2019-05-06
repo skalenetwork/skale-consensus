@@ -27,6 +27,9 @@
 #include "../../pendingqueue/PendingTransactionsAgent.h"
 
 class BlockProposalWorkerThreadPool;
+class BlockFinalizeResponseHeader;
+
+
 
 class Transaction;
 
@@ -93,4 +96,5 @@ public:
 
     void processNextAvailableConnection(ptr<Connection> _connection) override;
 
+    void signBlock(ptr<BlockFinalizeResponseHeader> &_responseHeader, ptr<CommittedBlock> &_block) const;
 };

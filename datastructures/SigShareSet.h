@@ -44,7 +44,7 @@ class SigShareSet : public DataStructure  {
 public:
     node_count getTotalSigSharesCount();
 
-    SigShareSet( Schain* subChain, block_id blockId );
+    SigShareSet( Schain* _sChain, block_id _blockId );
 
     bool addSigShare(ptr<BLSSigShare> _sigShare);
 

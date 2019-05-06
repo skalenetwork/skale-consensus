@@ -34,25 +34,21 @@
 
 
 AbstractBlockRequestHeader::AbstractBlockRequestHeader(Schain &_sChain, ptr<BlockProposal> proposal,
-                                                       const char *_type, schain_index _proposerIndex) :
-        Header() {
+                                                       const char* _type, schain_index _proposerIndex) :
+        Header(_type) {
 
     if (!proposal) {
         BOOST_THROW_EXCEPTION(InvalidArgumentException("Null proposal", __CLASS_NAME__));
     }
+
     this->proposerIndex = _proposerIndex;
     this->schainID = _sChain.getSchainID();
     this->blockID = proposal->getBlockID();
-    this->type = _type;
-
 }
 
 
 
 void AbstractBlockRequestHeader::addFields(nlohmann::basic_json<> &jsonRequest) {
-
-
-    jsonRequest["type"] = type;
 
     jsonRequest["schainID"] = (uint64_t ) schainID;
 

@@ -24,10 +24,12 @@
 #include "../SkaleConfig.h"
 #include "../Log.h"
 #include "../exceptions/FatalError.h"
+#include "../exceptions/InvalidArgumentException.h"
 #include "../thirdparty/json.hpp"
 #include "../protocols/ProtocolKey.h"
 #include "../protocols/binconsensus/BinConsensusInstance.h"
 #include "../chains/Schain.h"
+#include "../crypto/BLSSigShare.h"
 #include "../node/Node.h"
 #include "../node/NodeInfo.h"
 #include "../network/Buffer.h"
@@ -61,20 +63,37 @@ NetworkMessage::NetworkMessage(MsgType _messageType, node_id _destinationNodeID,
 
 
 
-NetworkMessage::NetworkMessage(MsgType messageType, node_id _srcNodeID, node_id _dstNodeID,
-                               block_id _blockID, schain_index _blockProposerIndex,
-                               bin_consensus_round _r,
-                               bin_consensus_value _value,
-                               schain_id _schainId, msg_id _msgID, uint32_t _ip)
+NetworkMessage::NetworkMessage(MsgType messageType, node_id _srcNodeID, node_id _dstNodeID, block_id _blockID,
+                               schain_index _blockProposerIndex, bin_consensus_round _r, bin_consensus_value _value,
+                               schain_id _schainId, msg_id _msgID, uint32_t _ip, ptr<string> _signature,
+                               schain_index _srcSchainIndex)
         : Message(_schainId, messageType, _msgID, _srcNodeID,_dstNodeID, _blockID, _blockProposerIndex) {
 
     this->r = _r;
     this->value = _value;
     this->ip = _ip;
+    this->sigShareString = _signature;
+
+
+    if (_signature->size() > BLS_MAX_SIG_LEN) {
+        BOOST_THROW_EXCEPTION(InvalidArgumentException("Signature size too large:" + *_signature, __CLASS_NAME__));
+    }
+
+
+
+
+    if (_signature->size() > 0 ) {
+       sigShare = make_shared<BLSSigShare>(_signature, _schainId, _blockID, _srcSchainIndex, _srcNodeID);
+    }
+
+
+
     ASSERT(messageType > 0);
 }
 
-
+const ptr<BLSSigShare> &NetworkMessage::getSigShare() const {
+    return sigShare;
+}
 
 
 bin_consensus_round NetworkMessage::getRound() const {
@@ -90,7 +109,7 @@ int32_t NetworkMessage::getIp() const {
 }
 
 msg_len NetworkMessage::getLen() {
-    return msg_len(sizeof(NetworkMessage));
+    return CONSENSUS_MESSAGE_LEN;
 }
 
 void NetworkMessage::printMessage() {
@@ -107,13 +126,17 @@ void NetworkMessage::setIp(int32_t _ip) {
     ip = _ip;
 }
 
+
+
+
 ptr<Buffer> NetworkMessage::toBuffer() {
+
+    static vector<uint8_t> ZERO_BUFFER(BLS_MAX_SIG_LEN, 0);
 
     ASSERT(getSrcNodeID() != getDstNodeID());
 
 
-
-    auto buf = make_shared<Buffer>(sizeof(NetworkMessage));
+    auto buf = make_shared<Buffer>(CONSENSUS_MESSAGE_LEN);
 
     static uint64_t magic = MAGIC_NUMBER;
 
@@ -128,6 +151,14 @@ ptr<Buffer> NetworkMessage::toBuffer() {
     WRITE(buf, r);
     WRITE(buf, value);
     WRITE(buf, ip);
+
+    if (sigShareString != nullptr) {
+        buf->write(sigShareString->data(), sigShareString->size());
+    }
+
+    if (buf->getCounter() < CONSENSUS_MESSAGE_LEN) {
+        buf->write(ZERO_BUFFER.data(), CONSENSUS_MESSAGE_LEN - buf->getCounter());
+    }
 
     return buf;
 }

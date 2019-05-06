@@ -30,6 +30,7 @@
 static const int MSG_HISTORY_SIZE = 2048;
 
 class BlockConsensusAgent;
+class BLSSigShare;
 
 class BVBroadcastMessage;
 class NetworkMessageEnvelope;
@@ -101,8 +102,8 @@ private:
     map<bin_consensus_round, set<schain_index>> bvbTrueVotes;
     map<bin_consensus_round, set<schain_index>> bvbFalseVotes;
 
-    map<bin_consensus_round, set<schain_index>> auxTrueVotes;
-    map<bin_consensus_round, set<schain_index>> auxFalseVotes;
+    map<bin_consensus_round, map<schain_index, ptr<BLSSigShare>>> auxTrueVotes;
+    map<bin_consensus_round, map<schain_index, ptr<BLSSigShare>>> auxFalseVotes;
 
 
 
@@ -134,7 +135,7 @@ private:
     bool isThirdVote(ptr<BVBroadcastMessage> m);
 
 
-    void proceedWithCommonCoinIfAUXTwoThird(bin_consensus_round round);
+    void proceedWithCommonCoinIfAUXTwoThird(bin_consensus_round _r);
 
     void auxBroadcastValue(bin_consensus_value v, bin_consensus_round round);
 
@@ -142,7 +143,7 @@ private:
 
     bool isTwoThird(node_count count);
 
-    void proceedWithCommonCoin(bool _hasTrue, bool _hasFalse);
+    void proceedWithCommonCoin(bool _hasTrue, bool _hasFalse, uint64_t _random);
 
     void proceedWithNewRound(bin_consensus_value value);
 
@@ -163,7 +164,7 @@ private:
     uint64_t totalAUXVotes(bin_consensus_round r);
 
 
-    void auxSelfVote(bin_consensus_round r, bin_consensus_value v);
+    void auxSelfVote(bin_consensus_round r, bin_consensus_value v, ptr<BLSSigShare> _sigShare);
 
 
 
@@ -213,6 +214,11 @@ public:
     static void initHistory();
 
     BlockConsensusAgent *getBlockConsensusInstance() const;
+
+    uint64_t calculateBLSRandom(bin_consensus_round _r);
+
+    static ptr<string> getRandomDBKey(const Schain *_sChain, const block_id &_blockId, const schain_index &_proposerIndex,
+                               const bin_consensus_round &_round);
 };
 
 

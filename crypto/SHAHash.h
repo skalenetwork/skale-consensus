@@ -52,6 +52,7 @@ public:
     static void cArrayFromHex(string& _str, uint8_t* data, size_t len);
 
     ptr< string > toHex();
+
 };
 
 

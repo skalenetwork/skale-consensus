@@ -30,6 +30,8 @@
 #include "AbstractBlockRequestHeader.h"
 #include "BlockFinalizeResponseHeader.h"
 
+BlockFinalizeResponseHeader::BlockFinalizeResponseHeader(): Header(Header::BLOCK_FINALIZE__RSP) {}
+
 void BlockFinalizeResponseHeader::setSigShare(const ptr<string> &_sigShare) {
 
     if (!_sigShare || _sigShare->size() < 10) {

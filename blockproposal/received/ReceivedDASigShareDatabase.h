@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2019 SKALE Labs
+    Copyright (C) 2018-2019 SKALE Labs
 
     This file is part of skale-consensus.
 
@@ -16,33 +16,21 @@
     You should have received a copy of the GNU General Public License
     along with skale-consensus.  If not, see <http://www.gnu.org/licenses/>.
 
-    @file BLSPrivateKey.h
+    @file BVBMessagePayload.h
     @author Stan Kladko
-    @date 2019
+    @date 2018
 */
 
-#ifndef SKALED_BLSPRIVATEKEY_H
-#define SKALED_BLSPRIVATEKEY_H 1
+#ifndef SKALED_RECEIVEDDASIGSHAREDATABASE_H
+#define SKALED_RECEIVEDDASIGSHAREDATABASE_H
 
-#include "BLSSigShare.h"
-
-class BLSPrivateKey {
-private:
-    size_t nodeCount;
-
-    ptr< libff::alt_bn128_Fr > sk;
+#include "../../crypto/ReceivedSigSharesDatabase.h"
 
 
+class ReceivedDASigShareDatabase : public ReceivedSigSharesDatabase {
 public:
-    BLSPrivateKey( const string& k, node_count _nodeCount );
-
-    ptr<BLSSigShare> sign(ptr<string> _msg, schain_id _schainId, block_id _blockId, schain_index _signerIndex,
-                          node_id _signerNodeId);
-
-    ptr< string > convertSigToString( const libff::alt_bn128_G1& signature ) const;
+    ReceivedDASigShareDatabase(Schain &sChain);
 };
 
 
-#endif
-
-
+#endif //SKALED_RECEIVEDDASIGSHAREDATABASE_H

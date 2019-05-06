@@ -47,6 +47,9 @@ ptr<Buffer> Header::toBuffer() {
     ASSERT(complete);
     nlohmann::json j;
 
+    assert(type);
+
+    j["type"] = type;
     j["status"] = status;
 
     j["substatus"] = substatus;
@@ -88,13 +91,8 @@ ptr<string> Header::getString(nlohmann::json &_js, const char *_name) {
     return make_shared<string>(result);
 }
 
-Header::Header() {
-
+Header::Header(const char *_type) : type(_type){
     totalObjects++;
-    status = CONNECTION_SERVER_ERROR;
-    substatus = CONNECTION_ERROR_UNKNOWN_SERVER_ERROR;
-
-
 }
 
 

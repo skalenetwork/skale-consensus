@@ -26,6 +26,7 @@
 #include "../../exceptions/FatalError.h"
 #include "../../abstracttcpserver/ConnectionStatus.h"
 #include "../../thirdparty/json.hpp"
+#include "../../crypto/BLSSigShare.h"
 
 #include "AUXBroadcastMessage.h"
 
@@ -40,6 +41,7 @@
 #include "../../blockproposal/pusher/BlockProposalClientAgent.h"
 #include "../../blockproposal/received/ReceivedBlockProposalsDatabase.h"
 #include "../../chains/Schain.h"
+#include "../../crypto/BLSSignature.h"
 #include "../../node/Node.h"
 
 #include "../../network/TransportNetwork.h"
@@ -52,6 +54,7 @@
 #include "BVBroadcastMessage.h"
 #include "../blockconsensus/BlockConsensusAgent.h"
 #include "BinConsensusInstance.h"
+#include "../../datastructures/SigShareSet.h"
 
 using namespace std;
 
@@ -281,10 +284,10 @@ void BinConsensusInstance::auxVote(ptr<MessageEnvelope> me) {
     auto index = me->getSrcNodeInfo()->getSchainIndex();
     if (v) {
         assert(auxTrueVotes[r].count(index) == 0);
-        auxTrueVotes[r].insert(index);
+        auxTrueVotes[r][index] =  m->getSigShare();
     } else {
         assert(auxFalseVotes[r].count(index) == 0);
-        auxFalseVotes[r].insert(index);
+        auxFalseVotes[r][index] =  m->getSigShare();
     }
 
 }
@@ -294,14 +297,19 @@ uint64_t BinConsensusInstance::totalAUXVotes(bin_consensus_round r) {
     return auxTrueVotes[r].size() + auxFalseVotes[r].size();
 }
 
-void BinConsensusInstance::auxSelfVote(bin_consensus_round r, bin_consensus_value v) {
+void BinConsensusInstance::auxSelfVote(bin_consensus_round r, bin_consensus_value v, ptr<BLSSigShare> _sigShare) {
+    if (getSchain()->getNode()->isBlsEnabled()) {
+        assert(_sigShare);
+    }
+
     addAUXSelfVoteToHistory(r, v);
+
     if (v) {
         assert(auxTrueVotes[r].count(getSchain()->getSchainIndex()) == 0);
-        auxTrueVotes[r].insert(getSchain()->getSchainIndex());
+        auxTrueVotes[r][getSchain()->getSchainIndex()] = _sigShare;
     } else {
         assert(auxFalseVotes[r].count(getSchain()->getSchainIndex()) == 0);
-        auxFalseVotes[r].insert(getSchain()->getSchainIndex());
+        auxFalseVotes[r][getSchain()->getSchainIndex()] = _sigShare;
     }
 
 }
@@ -389,9 +397,10 @@ void BinConsensusInstance::networkBroadcastValue(ptr<BVBroadcastMessage> m) {
 void BinConsensusInstance::auxBroadcastValue(bin_consensus_value v, bin_consensus_round r) {
 
 
-    auxSelfVote(r, v);
-
     auto m = make_shared<AUXBroadcastMessage>(r, v, node_id(0), blockID, blockProposerIndex, *this);
+
+
+    auxSelfVote(r, v, m->getSigShare());
 
 
     getSchain()->getNode()->getNetwork()->broadcastMessage(*getSchain(), m);
@@ -399,36 +408,84 @@ void BinConsensusInstance::auxBroadcastValue(bin_consensus_value v, bin_consensu
 }
 
 
-void BinConsensusInstance::proceedWithCommonCoinIfAUXTwoThird(bin_consensus_round r) {
+void BinConsensusInstance::proceedWithCommonCoinIfAUXTwoThird(bin_consensus_round _r) {
 
     if (decided())
         return;
 
-    ASSERT(r == currentRound);
+    ASSERT(_r == currentRound);
 
     uint64_t verifiedValuesSize = 0;
 
     bool hasTrue = false;
     bool hasFalse = false;
 
-    if (binValues[r].count(bin_consensus_value(true)) > 0 && auxTrueVotes[r].size() > 0) {
-        verifiedValuesSize += auxTrueVotes[r].size();
+    if (binValues[_r].count(bin_consensus_value(true)) > 0 && auxTrueVotes[_r].size() > 0) {
+        verifiedValuesSize += auxTrueVotes[_r].size();
         hasTrue = true;
     }
 
-    if (binValues[r].count(bin_consensus_value(false)) > 0 && auxFalseVotes[r].size() > 0) {
-        verifiedValuesSize += auxFalseVotes[r].size();
+    if (binValues[_r].count(bin_consensus_value(false)) > 0 && auxFalseVotes[_r].size() > 0) {
+        verifiedValuesSize += auxFalseVotes[_r].size();
         hasFalse = true;
     }
 
     if (isTwoThird(node_count(verifiedValuesSize))) {
-        proceedWithCommonCoin(hasTrue, hasFalse);
+
+        uint64_t random;
+
+        if (getSchain()->getNode()->isBlsEnabled()) {
+            random = this->calculateBLSRandom(_r);
+        } else {
+            srand((uint64_t ) _r + (uint64_t ) getBlockID() * 123456);
+            random = rand();
+        }
+
+        auto randomDB = getSchain()->getNode()->getRandomDB();
+
+
+
+        auto key = getRandomDBKey(getSchain(), getBlockID(), getBlockProposerIndex(), _r);
+
+        auto value = randomDB->readString(*key);
+
+        if (value) {
+
+            uint64_t random1 = 0;
+            try {
+                random1 = stoul(*value);
+            } catch (...) {
+            }
+
+            if (random != random1) {
+                BOOST_THROW_EXCEPTION(FatalError("Incorrect random number:" + to_string(random1) + ":" +
+                to_string(random), __CLASS_NAME__));
+            }
+        } else {
+            randomDB->writeString(*key, to_string(random));
+        }
+
+        proceedWithCommonCoin(hasTrue, hasFalse, random);
+
     }
 
 }
 
-void BinConsensusInstance::proceedWithCommonCoin(bool _hasTrue, bool _hasFalse) {
-    // TODO GENERATE RANDOM Number
+ptr<string>
+BinConsensusInstance::getRandomDBKey(const Schain *_sChain, const block_id &_blockId,
+                                     const schain_index &_proposerIndex,
+                                     const bin_consensus_round &_round) {
+    assert(_sChain);
+
+    stringstream key;
+
+
+    key << _sChain << ":" << _blockId << ":" << _proposerIndex << ":" << _round;
+
+    return make_shared<string>(key.str());
+}
+
+void BinConsensusInstance::proceedWithCommonCoin(bool _hasTrue, bool _hasFalse, uint64_t _random) {
 
 
 
@@ -436,7 +493,7 @@ void BinConsensusInstance::proceedWithCommonCoin(bool _hasTrue, bool _hasFalse) 
 
     LOG(debug, "ROUND_COMPLETE:BLOCK:" + to_string(blockID) + ":ROUND:" + to_string(currentRound));
 
-    bin_consensus_value random((uint64_t) currentRound % 2 == 0);
+    bin_consensus_value random(_random % 2 == 0);
 
     addCommonCoinToHistory(currentRound, random);
 
@@ -629,6 +686,45 @@ BlockConsensusAgent *BinConsensusInstance::getBlockConsensusInstance() const {
 
 const node_count &BinConsensusInstance::getNodeCount() const {
     return nodeCount;
+}
+
+uint64_t BinConsensusInstance::calculateBLSRandom(bin_consensus_round _r) {
+
+
+    SigShareSet shares(getSchain(), getBlockID());
+
+    if (binValues[_r].count(bin_consensus_value(true)) > 0 && auxTrueVotes[_r].size() > 0) {
+        for (auto&& item: auxTrueVotes[_r]) {
+            assert(item.second);
+            shares.addSigShare(item.second);
+            if (shares.isTwoThird())
+                break;
+        }
+    }
+
+    if (binValues[_r].count(bin_consensus_value(false)) > 0 && auxFalseVotes[_r].size() > 0) {
+        for (auto&& item: auxFalseVotes[_r]) {
+            assert(item.second);
+            shares.addSigShare(item.second);
+            if (shares.isTwoThird())
+                break;
+        }
+    }
+
+
+    bool isTwoThird = shares.isTwoThird();
+
+
+    assert(isTwoThird);
+
+
+    auto sig = shares.mergeSignature()->getSig();
+    sig->to_affine_coordinates();
+    auto result = sig->X.as_ulong() + sig->Y.as_ulong();
+
+    LOG(trace, "Random for round: " + to_string(_r) + ":" + to_string(result));
+
+    return sig->X.as_ulong() + sig->Y.as_ulong();
 }
 
 recursive_mutex BinConsensusInstance::historyMutex;

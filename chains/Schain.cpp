@@ -56,7 +56,7 @@
 
 
 #include "../blockproposal/received/ReceivedBlockProposalsDatabase.h"
-#include "../blockfinalize/received/ReceivedSigSharesDatabase.h"
+#include "../blockfinalize/received/ReceivedBlockSigSharesDatabase.h"
 #include "../protocols/ProtocolInstance.h"
 #include "../protocols/blockconsensus/BlockConsensusAgent.h"
 #include "../network/Sockets.h"
@@ -89,6 +89,7 @@
 
 
 #include "Schain.h"
+#include "../crypto/BLSPrivateKey.h"
 
 
 void Schain::postMessage(ptr<MessageEnvelope> m) {
@@ -275,7 +276,7 @@ void Schain::constructChildAgents() {
     catchupClientAgent = make_shared<CatchupClientAgent>(*this);
     blockConsensusInstance = make_shared<BlockConsensusAgent>(*this);
     blockProposalsDatabase = make_shared<ReceivedBlockProposalsDatabase>(*this);
-    sigSharesDatabase = make_shared<ReceivedSigSharesDatabase>(*this);
+    blockSigSharesDatabase = make_shared<ReceivedBlockSigSharesDatabase>(*this);
 
 
     testMessageGeneratorAgent = make_shared<TestMessageGeneratorAgent>(*this);
@@ -652,7 +653,7 @@ schain_id Schain::getSchainID() {
     return schainID;
 }
 
-node_id Schain::getNodeID(schain_index _index) {
+node_id Schain::getNodeIDByIndex(schain_index _index) {
 
     if (((uint64_t )_index) >= (uint64_t ) this->getNodeCount()) {
         BOOST_THROW_EXCEPTION(InvalidArgumentException("Index exceeds node count - 1", __CLASS_NAME__));
@@ -764,16 +765,19 @@ void Schain::healthCheck() {
 }
 
 void Schain::sigShareArrived(ptr<BLSSigShare> _sigShare) {
-    if (sigSharesDatabase->addSigShare(_sigShare)) {
+    if (blockSigSharesDatabase->addSigShare(_sigShare)) {
         auto blockId = _sigShare->getBlockId();
-        auto mySig = this->getNode()->sign(
-                getBlock(blockId)->getHash(), blockId, getSchainIndex(),
-                                           getNode()->getNodeID());
-        sigSharesDatabase->addSigShare(mySig);
-        assert(sigSharesDatabase->isTwoThird(blockId));
-        sigSharesDatabase->mergeAndSaveBLSSignature(blockId);
+        auto mySig = sign(getBlock(blockId)->getHash(), blockId);
+        blockSigSharesDatabase->addSigShare(mySig);
+        assert(blockSigSharesDatabase->isTwoThird(blockId));
+        blockSigSharesDatabase->mergeAndSaveBLSSignature(blockId);
     };
 }
 
 
+ptr<BLSSigShare> Schain::sign(ptr<SHAHash> _hash, block_id _blockId) {
 
+    return getNode()->getBlsPrivateKey()->sign(_hash->toHex(), getSchainID(), _blockId, getSchainIndex(),
+            getNode()->getNodeID());
+
+}

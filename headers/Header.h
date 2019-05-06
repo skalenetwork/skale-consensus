@@ -39,20 +39,29 @@ class SHAHash;
 class Header {
 protected:
 
-    ConnectionStatus status;
-    ConnectionSubStatus substatus;
-
+    const char* type = nullptr;
+    ConnectionStatus status = CONNECTION_SERVER_ERROR;
+    ConnectionSubStatus substatus = CONNECTION_ERROR_UNKNOWN_SERVER_ERROR;
 
     bool complete = false;
 
 public:
     bool isComplete() const;
 
-protected:
-    ptr< SHAHash > blockProposalHash;
+    static constexpr const char *BLOCK_PROPOSAL_REQ = "BlockProposalReq";
+    static constexpr const char *BLOCK_PROPOSAL_RSP = "BlockProposalRsp";
+    static constexpr const char *BLOCK_FINALIZE_REQ = "BlockFinalizeReq";
+    static constexpr const char *BLOCK_FINALIZE__RSP = "BlockFinalizeRsp";
+    static constexpr const char *DA_PROOF_REQ = "DAProof";
+    static constexpr const char *DA_PROOF_RSP = "DAProofRsp";
+    static constexpr const char *CATCHUP_REQ = "Catchup";
+    static constexpr const char *CATCHUP_RSP = "CatchupRsp";
+    static constexpr const char *COMMITTED_BLOCK = "CommittedBlock";
+    static constexpr const char *MISSING_TRANSACTIONS_REQ = "MissingTransactionsReq";
+    static constexpr const char *MISSING_TRANSACTIONS_RSP = "MissingTransactionsRsp";
 
-public:
-    Header();
+
+    Header(const char *_type);
 
     virtual ~Header();
 

@@ -21,23 +21,23 @@
     @date 2019
 */
 
-#include "../../SkaleConfig.h"
-#include "../../Agent.h"
-#include "../../Log.h"
-#include "../../exceptions/FatalError.h"
-#include "../../thirdparty/json.hpp"
+#include "../SkaleConfig.h"
+#include "../Agent.h"
+#include "../Log.h"
+#include "../exceptions/FatalError.h"
+#include "../thirdparty/json.hpp"
 
-#include "../../crypto/BLSSigShare.h"
-#include "../../crypto/BLSSignature.h"
+#include "BLSSigShare.h"
+#include "BLSSignature.h"
 
-#include "../../abstracttcpserver/ConnectionStatus.h"
+#include "../abstracttcpserver/ConnectionStatus.h"
 #include "leveldb/db.h"
-#include "../../node/Node.h"
-#include "../../chains/Schain.h"
-#include "../../crypto/SHAHash.h"
-#include "../../crypto/BLSSigShare.h"
-#include "../../pendingqueue/PendingTransactionsAgent.h"
-#include "../../datastructures/SigShareSet.h"
+#include "../node/Node.h"
+#include "../chains/Schain.h"
+#include "SHAHash.h"
+#include "BLSSigShare.h"
+#include "../pendingqueue/PendingTransactionsAgent.h"
+#include "../datastructures/SigShareSet.h"
 
 #include "ReceivedSigSharesDatabase.h"
 

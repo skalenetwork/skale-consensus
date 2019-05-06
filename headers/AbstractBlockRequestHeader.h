@@ -33,9 +33,6 @@ class BlockProposal;
 class Schain;
 
 
-#define PROPOSAL_REQUEST_TYPE "PROPOSAL"
-#define FINALIZE_REQUEST_TYPE "FINALIZE"
-
 
 
 
@@ -46,12 +43,11 @@ protected:
     schain_id schainID;
     schain_index proposerIndex;
     block_id blockID;
-    const char* type;
 
     void addFields(nlohmann::basic_json<> &jsonRequest) override;
 
     AbstractBlockRequestHeader(Schain &_sChain, ptr<BlockProposal> proposal,
-                               const char *_type, schain_index _proposerIndex);
+                               const char* _type, schain_index _proposerIndex);
 
     virtual ~AbstractBlockRequestHeader(){};
 

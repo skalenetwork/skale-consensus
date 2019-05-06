@@ -16,33 +16,48 @@
     You should have received a copy of the GNU General Public License
     along with skale-consensus.  If not, see <http://www.gnu.org/licenses/>.
 
-    @file BLSPrivateKey.h
+    @file ReceivedSigSharesDatabase.h
     @author Stan Kladko
     @date 2019
 */
 
-#ifndef SKALED_BLSPRIVATEKEY_H
-#define SKALED_BLSPRIVATEKEY_H 1
+#pragma once
 
-#include "BLSSigShare.h"
 
-class BLSPrivateKey {
-private:
-    size_t nodeCount;
 
-    ptr< libff::alt_bn128_Fr > sk;
+#include "../Agent.h"
 
+class SigShareSet;
+class BLSSignature;
+class Schain;
+class BLSSigShare;
+
+class ReceivedSigSharesDatabase : Agent {
+
+
+    recursive_mutex sigShareDatabaseMutex;
+
+    map<block_id, ptr<SigShareSet>> sigShareSets;
+
+    map<block_id, ptr<BLSSignature>> blockSignatures;
+
+
+    ptr<SigShareSet> getSigShareSet(block_id _blockID);
+
+    ptr<BLSSignature> getBLSSignature(block_id _blockId);
 
 public:
-    BLSPrivateKey( const string& k, node_count _nodeCount );
 
-    ptr<BLSSigShare> sign(ptr<string> _msg, schain_id _schainId, block_id _blockId, schain_index _signerIndex,
-                          node_id _signerNodeId);
 
-    ptr< string > convertSigToString( const libff::alt_bn128_G1& signature ) const;
+
+    explicit ReceivedSigSharesDatabase(Schain &_sChain);
+
+    bool addSigShare(ptr<BLSSigShare> _proposal);
+
+    void mergeAndSaveBLSSignature(block_id _blockId);
+
+    bool isTwoThird(block_id _blockID);
 };
 
-
-#endif
 
 

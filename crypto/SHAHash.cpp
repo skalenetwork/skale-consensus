@@ -98,3 +98,4 @@ SHAHash::SHAHash(ptr<array<uint8_t, SHA3_HASH_LEN>> _hash) {
     hash = _hash;
 
 }
+

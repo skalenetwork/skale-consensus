@@ -26,8 +26,6 @@
 
 #include <libff/algebra/curves/alt_bn128/alt_bn128_g1.hpp>
 
-constexpr size_t BLS_COMPONENT_LEN = 80;
-constexpr size_t BLS_SIG_LEN = 160;
 
 
 namespace libff {
@@ -36,6 +34,7 @@ class alt_bn128_G1;
 
 class BLSSigShare {
     ptr< libff::alt_bn128_G1 > sig;
+    schain_id schainId;
     block_id blockId;
     schain_index signerIndex;
     node_id signerNodeId;
@@ -47,10 +46,10 @@ public:
     ptr< string > toString();
 
 
-    BLSSigShare( ptr< string > _s, block_id _blockID, schain_index _signerIndex, node_id _nodeID );
+    BLSSigShare(ptr<string> _s, schain_id _schainID, block_id _blockID, schain_index _signerIndex, node_id _signerNodeID);
 
-    BLSSigShare( ptr< libff::alt_bn128_G1 >& _s, block_id _blockID, schain_index _signerIndex,
-        node_id _nodeID );
+    BLSSigShare(ptr<libff::alt_bn128_G1> &_s, schain_id _schainId, block_id _blockID, schain_index _signerIndex,
+                node_id _nodeID);
 
     const block_id& getBlockId() const;
 

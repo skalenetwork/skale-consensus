@@ -27,9 +27,12 @@
 
 class BlockFinalizeResponseHeader : public Header {
 
+
     ptr<string> sigShare;
 
 public:
+
+    BlockFinalizeResponseHeader();
 
     void addFields(nlohmann::json &jsonRequest) override;
     void setSigShare(const ptr<string> &_sigShare);

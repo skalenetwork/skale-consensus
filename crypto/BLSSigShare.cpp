@@ -44,11 +44,22 @@ ptr<string> BLSSigShare::toString() {
 
 }
 
-BLSSigShare::BLSSigShare(ptr<string> _s, block_id _blockID, schain_index _signerIndex, node_id _nodeId) :
-    blockId(_blockID), signerIndex(_signerIndex), signerNodeId(_nodeId) {
+BLSSigShare::BLSSigShare(ptr<string> _s, schain_id _schainID, block_id _blockID, schain_index _signerIndex,
+                         node_id _signerNodeID) :
+                         schainId(_schainID), blockId(_blockID), signerIndex(_signerIndex), signerNodeId(_signerNodeID) {
 
-    if (_s->size() > BLS_SIG_LEN) {
-        BOOST_THROW_EXCEPTION(InvalidArgumentException("Signature too long", __CLASS_NAME__));
+
+    if (!_s) {
+        BOOST_THROW_EXCEPTION(InvalidArgumentException("Null _s", __CLASS_NAME__));
+    }
+
+
+    if (_s->size() < 10) {
+        BOOST_THROW_EXCEPTION(InvalidArgumentException("Signature too short:"  + to_string(_s->size()), __CLASS_NAME__));
+    }
+
+    if (_s->size() > BLS_MAX_SIG_LEN) {
+        BOOST_THROW_EXCEPTION(InvalidArgumentException("Signature too long:" + to_string(_s->size()) , __CLASS_NAME__));
     }
 
     auto position = _s->find(":");
@@ -57,7 +68,7 @@ BLSSigShare::BLSSigShare(ptr<string> _s, block_id _blockID, schain_index _signer
         BOOST_THROW_EXCEPTION(InvalidArgumentException("Misformatted sig:" + *_s, __CLASS_NAME__));
     }
 
-    if (position >= BLS_COMPONENT_LEN || _s->size() - position > BLS_COMPONENT_LEN) {
+    if (position >= BLS_MAX_COMPONENT_LEN || _s->size() - position > BLS_MAX_COMPONENT_LEN) {
         BOOST_THROW_EXCEPTION(InvalidArgumentException("Misformatted sig:" + *_s, __CLASS_NAME__));
     }
 
@@ -107,5 +118,17 @@ const node_id &BLSSigShare::getSignerNodeId() const {
     return signerNodeId;
 }
 
-BLSSigShare::BLSSigShare(ptr<libff::alt_bn128_G1> &_s, block_id _blockID, schain_index _signerIndex, node_id _nodeID) :
-    sig(_s), blockId(_blockID), signerIndex(_signerIndex), signerNodeId(_nodeID){}
+BLSSigShare::BLSSigShare(ptr<libff::alt_bn128_G1> &_s, schain_id _schainId, block_id _blockID,
+                         schain_index _signerIndex,
+                         node_id _nodeID) :
+    schainId(_schainId), blockId(_blockID), signerIndex(_signerIndex), signerNodeId(_nodeID){
+
+    if (!_s) {
+        BOOST_THROW_EXCEPTION(InvalidArgumentException("Null _s", __CLASS_NAME__));
+    }
+
+    sig = _s;
+
+
+
+}

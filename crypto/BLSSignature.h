@@ -24,6 +24,7 @@
 #ifndef SKALED_BLSSIGNATURE_H
 #define SKALED_BLSSIGNATURE_H
 
+//constexpr uint64_t  MAX_BLS_SIGNATURE_SIZE = 64;
 
 
 class BLSSignature {

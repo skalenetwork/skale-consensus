@@ -34,7 +34,7 @@
 
 using namespace std;
 
-CatchupResponseHeader::CatchupResponseHeader() {
+CatchupResponseHeader::CatchupResponseHeader() : Header(Header::CATCHUP_RSP) {
 
 }
 
@@ -62,8 +62,8 @@ uint64_t CatchupResponseHeader::getBlockCount() const {
     return blockCount;
 }
 
-void CatchupResponseHeader::setBlockCount(uint64_t blockCount) {
-    CatchupResponseHeader::blockCount = blockCount;
+void CatchupResponseHeader::setBlockCount(uint64_t _blockCount) {
+    CatchupResponseHeader::blockCount = _blockCount;
 }
 
 

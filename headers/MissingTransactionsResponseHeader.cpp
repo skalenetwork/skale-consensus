@@ -32,14 +32,14 @@
 
 using namespace std;
 
-MissingTransactionsResponseHeader::MissingTransactionsResponseHeader() {
+MissingTransactionsResponseHeader::MissingTransactionsResponseHeader() : Header(MISSING_TRANSACTIONS_RSP) {
 
 }
 
 MissingTransactionsResponseHeader::MissingTransactionsResponseHeader(ptr<vector<uint64_t>> _missingTransactionSizes)
-        : missingTransactionSizes(_missingTransactionSizes) {
+        : MissingTransactionsResponseHeader() {
+    missingTransactionSizes = _missingTransactionSizes;
     complete = true;
-
 }
 
 void MissingTransactionsResponseHeader::addFields(nlohmann::basic_json<> &_j) {
@@ -50,5 +50,6 @@ void MissingTransactionsResponseHeader::addFields(nlohmann::basic_json<> &_j) {
     _j["sizes"] = l;
 
 }
+
 
 

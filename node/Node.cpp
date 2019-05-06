@@ -24,6 +24,7 @@
 #include "../SkaleConfig.h"
 #include "../Log.h"
 #include "../exceptions/FatalError.h"
+#include "../exceptions/InvalidArgumentException.h"
 
 #include "../thirdparty/json.hpp"
 #include "leveldb/db.h"
@@ -111,11 +112,13 @@ Node::Node(const nlohmann::json &_cfg, ConsensusEngine *_consensusEngine) {
 void Node::initLevelDBs() {
     string dataDir = *Log::getDataDir();
     string blockDBFilename = dataDir + "/blocks_" + to_string(nodeID) + ".db";
+    string randomDBFilename = dataDir + "/randoms_" + to_string(nodeID) + ".db";
     string committedTransactionsDBFilename = dataDir + "/transactions_" + to_string(nodeID) + ".db";
     string signaturesDBFilename = dataDir + "/sigs_" + to_string(nodeID) + ".db";
 
 
     blocksDB = make_shared<LevelDB>(blockDBFilename);
+    randomDB = make_shared<LevelDB>(randomDBFilename);
     committedTransactionsDB = make_shared<LevelDB>(committedTransactionsDBFilename);
     signaturesDB = make_shared<LevelDB>(signaturesDBFilename);
 
@@ -205,6 +208,7 @@ Node::~Node() {
 
 void Node::cleanLevelDBs() {
     blocksDB = nullptr;
+    randomDB = nullptr;
     committedTransactionsDB = nullptr;
     signaturesDB = nullptr;
 }
@@ -483,6 +487,11 @@ ptr<LevelDB> Node::getBlocksDB() {
     return blocksDB;
 }
 
+ptr<LevelDB> Node::getRandomDB() {
+    assert(randomDB);
+    return randomDB;
+}
+
 ptr<LevelDB> Node::getCommittedTransactionsDB() const {
     assert(committedTransactionsDB);
     return committedTransactionsDB;
@@ -506,7 +515,11 @@ void Node::exitOnFatalError(const string &_message) {
     exit();
 
 //    consensusEngine->joinAllThreads();
-    consensusEngine->getExtFace()->terminateApplication();
+    auto extFace = consensusEngine->getExtFace();
+
+    if (extFace) {
+        extFace->terminateApplication();
+    }
     LOG(critical, _message);
 }
 
@@ -557,20 +570,18 @@ uint64_t Node::getCommittedTransactionHistoryLimit() const {
 set<node_id> Node::nodeIDs;
 
 
-ptr<BLSSigShare> Node::sign(ptr<SHAHash> _hash, block_id _blockId, schain_index _signerIndex, node_id _signerNodeId) {
-
-    return getBlsPrivateKey()->sign(_hash->toHex(), _blockId, _signerIndex, _signerNodeId);
-
-}
-
 
 const ptr<BLSPublicKey> &Node::getBlsPublicKey() const {
-    ASSERT(blsPublicKey);
+    if (!blsPublicKey) {
+        BOOST_THROW_EXCEPTION(FatalError("Null BLS public key", __CLASS_NAME__));
+    }
     return blsPublicKey;
 }
 
 const ptr<BLSPrivateKey> &Node::getBlsPrivateKey() const {
-    ASSERT(blsPrivateKey)
+    if (!blsPrivateKey) {
+        BOOST_THROW_EXCEPTION(FatalError("Null BLS private key", __CLASS_NAME__));
+    }
     return blsPrivateKey;
 }
 
