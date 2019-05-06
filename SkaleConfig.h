@@ -275,21 +275,12 @@ inline std::string className(const std::string &prettyFunction) {
 }
 
 
-//typedef map<schain_index, ptr<SHA3Hash> > proposed_block_hashes;
-
 static const num_threads NUM_SCHAIN_THREADS = num_threads(1);
 
 
 static const num_threads NUM_DISPATCH_THREADS = num_threads(1);
 
 
-
-
-inline void printPartialHash(ptr<partial_sha_hash> hash) {
-    for (size_t i = 0; i < PARTIAL_SHA_HASH_LEN; i++) {
-        cerr << to_string((*hash)[i]);
-    }
-}
 
 extern void setThreadName(std::string const &_n);
 
@@ -300,16 +291,12 @@ extern thread_local ptr<Log> logThreadLocal_;
 
 #define ASSERT(_EXPRESSION_) \
     if (!(_EXPRESSION_)) { \
-        auto __msg__ = "Assert failed:: " + string(__FILE__) + ":" + to_string(__LINE__); \
-        cerr << __msg__ << endl; \
-        assert((_EXPRESSION_)); \
-    }
+        auto __msg__ = string("Assert failed::") + #_EXPRESSION_ +  " " + string(__FILE__) + ":" + to_string(__LINE__); \
+        throw FatalError(__msg__, __CLASS_NAME__);}
 
 
 #define ASSERT2(_EXPRESSION_, _MSG_) \
     if (!((_EXPRESSION_))) { \
-        auto msg = "Assert failed:: " + string(_MSG_) + ":" + string(__FILE__) + ":" + to_string(__LINE__); \
-        cerr << msg << endl; \
-        assert((_EXPRESSION_)); \
-    }
+        auto __msg__ = string("Assert failed::") + #_EXPRESSION_ + " " + string(_MSG_) + ":" + string(__FILE__) + ":" + to_string(__LINE__); \
+        throw FatalError(__msg__, __CLASS_NAME__);}
 #endif

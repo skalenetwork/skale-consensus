@@ -59,19 +59,21 @@
 
 
 BlockFinalizeClientAgent::BlockFinalizeClientAgent(Schain &_sChain) : AbstractClientAgent(_sChain, PROPOSAL) {
-    LOG(info, "Constructing blockProposalPushAgent");
+    try {
+        LOG(info, "Constructing blockProposalPushAgent");
 
-    this->blockFinalizeThreadPool = make_shared<BlockFinalizeClientThreadPool>(
-            num_threads((uint64_t) _sChain.getNodeCount()), this);
-    blockFinalizeThreadPool->startService();
+        this->blockFinalizeThreadPool = make_shared<BlockFinalizeClientThreadPool>(
+                num_threads((uint64_t) _sChain.getNodeCount()), this);
+        blockFinalizeThreadPool->startService();
+    } catch (...) {
+        throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
+    }
 }
 
 
 nlohmann::json BlockFinalizeClientAgent::readProposalResponseHeader(ptr<ClientSocket> _socket) {
     return sChain->getIo()->readJsonHeader(_socket->getDescriptor(), "Read proposal resp");
 }
-
-
 
 
 void BlockFinalizeClientAgent::sendItemImpl(ptr<BlockProposal> &_proposal, shared_ptr<ClientSocket> &socket,
@@ -83,9 +85,10 @@ void BlockFinalizeClientAgent::sendItemImpl(ptr<BlockProposal> &_proposal, share
 
     auto committedBlock = dynamic_pointer_cast<CommittedBlock>(_proposal);
 
-    assert(committedBlock);
+    ASSERT(committedBlock);
 
-    ptr<Header> header = make_shared<BlockFinalizeRequestHeader>(*sChain, committedBlock, _proposal->getProposerIndex());
+    ptr<Header> header = make_shared<BlockFinalizeRequestHeader>(*sChain, committedBlock,
+                                                                 _proposal->getProposerIndex());
 
 
     try {
@@ -119,8 +122,8 @@ void BlockFinalizeClientAgent::sendItemImpl(ptr<BlockProposal> &_proposal, share
     try {
 
         signatureShare = getBLSSignatureShare(response, committedBlock->getBlockID(), _destIndex,
-                _dstNodeId);
-    } catch(...) {
+                                              _dstNodeId);
+    } catch (...) {
         throw_with_nested(NetworkProtocolException("Could not read signature share from response", __CLASS_NAME__));
     }
 
@@ -131,7 +134,8 @@ void BlockFinalizeClientAgent::sendItemImpl(ptr<BlockProposal> &_proposal, share
 
 
 ptr<BLSSigShare> BlockFinalizeClientAgent::getBLSSignatureShare(nlohmann::json _json,
-                          block_id _blockID, schain_index _signerIndex, node_id _signerNodeId) {
+                                                                block_id _blockID, schain_index _signerIndex,
+                                                                node_id _signerNodeId) {
     auto s = Header::getString(_json, "sigShare");
-    return make_shared<BLSSigShare>(s,  getSchain()->getSchainID(), _blockID, _signerIndex, _signerNodeId);
+    return make_shared<BLSSigShare>(s, getSchain()->getSchainID(), _blockID, _signerIndex, _signerNodeId);
 }

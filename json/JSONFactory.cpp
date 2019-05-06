@@ -45,11 +45,16 @@
 Node *JSONFactory::createNodeFromJson(const fs_path &jsonFile, set<node_id> &nodeIDs, ConsensusEngine *
 _consensusEngine) {
 
-    nlohmann::json j;
+    try {
 
-    parseJsonFile(j, jsonFile);
+        nlohmann::json j;
 
-    return createNodeFromJsonObject(j, nodeIDs, _consensusEngine);
+        parseJsonFile(j, jsonFile);
+
+        return createNodeFromJsonObject(j, nodeIDs, _consensusEngine);
+    } catch (...) {
+        throw_with_nested(FatalError(__FUNCTION__ + to_string(__LINE__), __CLASS_NAME__));
+    }
 
 
 }
@@ -68,13 +73,16 @@ _engine) {
         Log::setConfigLogLevel(*logLevel);
     }
 
-
     uint64_t nodeID = j.at("nodeID").get<uint64_t>();
 
     Node *node = nullptr;
 
     if (nodeIDs.empty() || nodeIDs.count(node_id(nodeID)) > 0) {
-        node = new Node(j, _engine);
+        try {
+            node = new Node(j, _engine);
+        } catch (...) {
+            throw_with_nested(FatalError("Could not init node", __CLASS_NAME__));
+        }
     }
 
     return node;
@@ -82,77 +90,91 @@ _engine) {
 }
 
 void JSONFactory::createAndAddSChainFromJson(Node &node, const fs_path &jsonFile, ConsensusEngine *_engine) {
+    try {
 
-    nlohmann::json j;
 
-    parseJsonFile(j, jsonFile);
+        nlohmann::json j;
 
-    createAndAddSChainFromJsonObject(node, j, _engine);
+        parseJsonFile(j, jsonFile);
 
-    if (j.find("blockProposalTest") != j.end()) {
+        createAndAddSChainFromJsonObject(node, j, _engine);
 
-        string test = j["blockProposalTest"].get<string>();
+        if (j.find("blockProposalTest") != j.end()) {
 
-        if (test == SchainTest::NONE) {
+            string test = j["blockProposalTest"].get<string>();
 
-            node.getSchain()->setBlockProposerTest(SchainTest::NONE);
-        } else if (test == SchainTest::SLOW) {
-            node.getSchain()->setBlockProposerTest(SchainTest::SLOW);
-        } else {
-            BOOST_THROW_EXCEPTION(ParsingException("Unknown test type parsing schain config:" + test, __CLASS_NAME__));
+            if (test == SchainTest::NONE) {
+
+                node.getSchain()->setBlockProposerTest(SchainTest::NONE);
+            } else if (test == SchainTest::SLOW) {
+                node.getSchain()->setBlockProposerTest(SchainTest::SLOW);
+            } else {
+                BOOST_THROW_EXCEPTION(
+                        ParsingException("Unknown test type parsing schain config:" + test, __CLASS_NAME__));
+            }
         }
+    } catch (...) {
+        throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
     }
 
 }
 
 void JSONFactory::createAndAddSChainFromJsonObject(Node &node, const nlohmann::json &j, ConsensusEngine *_engine) {
 
-    string prefix = "/";
+    try {
 
-    if (j.count("skaleConfig") > 0) {
-        prefix = "/skaleConfig/nodeInfo/";
+        string prefix = "/";
 
+        if (j.count("skaleConfig") > 0) {
+            prefix = "/skaleConfig/nodeInfo/";
+
+        }
+
+        string schainName = j[nlohmann::json::json_pointer(prefix + "schainName")].get<string>();
+
+        schain_id schainID(j[nlohmann::json::json_pointer(prefix + "schainID")].get<uint64_t>());
+
+        ptr<NodeInfo> localNodeInfo = nullptr;
+
+        vector<ptr<NodeInfo>> remoteNodeInfos;
+
+        nlohmann::json nodes = j[nlohmann::json::json_pointer(prefix + "nodes")];
+
+        for (auto it = nodes.begin(); it != nodes.end(); ++it) {
+
+            node_id nodeID((*it)["nodeID"].get<uint64_t>());
+
+            LOG(info, "Adding node:" + to_string(nodeID));
+
+
+            ptr<string> ip = make_shared<string>((*it).at("ip").get<string>());
+
+            network_port port((*it)["basePort"].get<int>());
+
+            schain_index schainIndex((*it)["schainIndex"].get<uint64_t>());
+
+
+            auto rni = make_shared<NodeInfo>(nodeID, ip, port, schainID, schainIndex);
+
+            if (nodeID == node.getNodeID()) {
+                localNodeInfo = rni;
+                LOG(debug, "Comparing node info to information in schain ");
+                ASSERT(*rni->getBaseIP() == *node.getBindIP());
+
+                auto bp = rni->getPort();
+                node.setBasePort(bp);
+
+            };
+
+            remoteNodeInfos.push_back(rni);
+        }
+
+        ASSERT(localNodeInfo);
+
+        node.initSchain(localNodeInfo, remoteNodeInfos, _engine->getExtFace());
+    } catch (...) {
+        throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
     }
-
-    string schainName = j[nlohmann::json::json_pointer(prefix + "schainName")].get<string>();
-
-    schain_id schainID(j[nlohmann::json::json_pointer(prefix + "schainID")].get<uint64_t>());
-
-    ptr<NodeInfo> localNodeInfo = nullptr;
-
-    vector<ptr<NodeInfo>> remoteNodeInfos;
-
-    nlohmann::json nodes = j[nlohmann::json::json_pointer(prefix + "nodes")];
-
-    for (auto it = nodes.begin(); it != nodes.end(); ++it) {
-
-        node_id nodeID((*it)["nodeID"].get<uint64_t>());
-
-        LOG(info, "Adding node:" + to_string(nodeID));
-
-
-        ptr<string> ip = make_shared<string>((*it).at("ip").get<string>());
-
-        network_port port((*it)["basePort"].get<int>());
-
-        schain_index schainIndex((*it)["schainIndex"].get<uint64_t>());
-
-
-        auto rni = make_shared<NodeInfo>(nodeID, ip, port, schainID, schainIndex);
-
-        if (nodeID == node.getNodeID()) {
-            localNodeInfo = rni;
-            LOG(debug, "Comparing node info to information in schain ");
-            ASSERT(*rni->getBaseIP() == *node.getBindIP());
-            ASSERT(rni->getPort() == node.getBasePort());
-        };
-
-        remoteNodeInfos.push_back(rni);
-    }
-
-    ASSERT(localNodeInfo);
-
-    node.initSchain(localNodeInfo, remoteNodeInfos, _engine->getExtFace());
 
 }
 

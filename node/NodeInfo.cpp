@@ -33,8 +33,6 @@
 using namespace std;
 
 
-
-
 node_id NodeInfo::getNodeID() const {
     return nodeID;
 }
@@ -47,6 +45,7 @@ schain_index NodeInfo::getSchainIndex() const {
 }
 
 network_port NodeInfo::getPort() const {
+    ASSERT(port > 0);
     return port;
 }
 
@@ -54,10 +53,12 @@ network_port NodeInfo::getPort() const {
 
 
 ptr<sockaddr_in> NodeInfo::getSocketaddr() {
+    ASSERT(socketaddr);
     return socketaddr;
 }
 
 ptr<string> NodeInfo::getBaseIP() {
+    assert(ip);
     return ip;
 }
 

@@ -58,11 +58,15 @@
 
 
 BlockProposalClientAgent::BlockProposalClientAgent(Schain &_sChain) : AbstractClientAgent(_sChain, PROPOSAL) {
-    LOG(info, "Constructing blockProposalPushAgent");
+    try {
+        LOG(info, "Constructing blockProposalPushAgent");
 
-    this->blockProposalThreadPool = make_shared<BlockProposalPusherThreadPool>(
-            num_threads((uint64_t) _sChain.getNodeCount()), this);
-    blockProposalThreadPool->startService();
+        this->blockProposalThreadPool = make_shared<BlockProposalPusherThreadPool>(
+                num_threads((uint64_t) _sChain.getNodeCount()), this);
+        blockProposalThreadPool->startService();
+    }  catch (...) {
+        throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
+    }
 }
 
 
@@ -267,7 +271,7 @@ BlockProposalClientAgent::readMissingHashes(ptr<ClientSocket> _socket, uint64_t 
 
         result->
                 insert(hash);
-        assert(result->count(hash));
+        ASSERT(result->count(hash));
     }
 
 

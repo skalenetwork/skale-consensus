@@ -164,7 +164,7 @@ void Schain::messageThreadProcessingLoop(Schain *s) {
                         s->getNode()->getSockets()->consensusZMQSocket->closeSend();
                         return;
                     }
-                    Exception::log_exception(e);
+                    Exception::logNested(e);
                 }
 
                 newQueue.pop();
@@ -219,45 +219,48 @@ Schain::Schain(Node &_node, schain_index _schainIndex, const schain_id &_schainI
           node(_node),
           schainIndex(_schainIndex) {
 
-
-    committedBlockID.store(0);
-    bootstrapBlockID.store(0);
-    committedBlockTimeStamp.store(0);
+    try {
 
 
-    this->io = make_shared<IO>(this);
+        committedBlockID.store(0);
+        bootstrapBlockID.store(0);
+        committedBlockTimeStamp.store(0);
 
 
-    ASSERT(getNode()->getNodeInfosByIndex().size() > 0);
-
-    for (auto const &iterator : getNode()->getNodeInfosByIndex()) {
+        this->io = make_shared<IO>(this);
 
 
-        if (*iterator.second->getBaseIP() == *getNode()->getBindIP()) {
-            ASSERT(thisNodeInfo == nullptr && iterator.second != nullptr);
-            thisNodeInfo = iterator.second;
+        ASSERT(getNode()->getNodeInfosByIndex().size() > 0);
+
+        for (auto const &iterator : getNode()->getNodeInfosByIndex()) {
+
+
+            if (*iterator.second->getBaseIP() == *getNode()->getBindIP()) {
+                ASSERT(thisNodeInfo == nullptr && iterator.second != nullptr);
+                thisNodeInfo = iterator.second;
+            }
         }
+
+        if (thisNodeInfo == nullptr) {
+            throw EngineInitException("Schain: " + to_string((uint64_t) getSchainID()) +
+                                      " does not include " + "current node with IP " +
+                                      *getNode()->getBindIP() + "and node id " +
+                                      to_string(getNode()->getNodeID()), __CLASS_NAME__);
+        }
+
+        ASSERT(getNodeCount() > 0);
+
+        constructChildAgents();
+
+        string x = SchainTest::NONE;
+
+        blockProposerTest = make_shared<string>(x);
+
+
+        getNode()->getAgents().push_back(this);
+    } catch (...) {
+        throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
     }
-
-    if (thisNodeInfo == nullptr) {
-        throw EngineInitException("Schain: " + to_string((uint64_t) getSchainID()) +
-                                  " does not include " + "current node with IP " +
-                                  *getNode()->getBindIP() + "and node id " +
-                                  to_string(getNode()->getNodeID()), __CLASS_NAME__);
-    }
-
-    ASSERT(getNodeCount() > 0);
-
-    constructChildAgents();
-
-    string x = SchainTest::NONE;
-
-    blockProposerTest = make_shared<string>(x);
-
-
-    getNode()->getAgents().push_back(this);
-
-
 }
 
 const ptr<IO> &Schain::getIo() const {
@@ -267,26 +270,20 @@ const ptr<IO> &Schain::getIo() const {
 
 void Schain::constructChildAgents() {
 
-    std::lock_guard<std::recursive_mutex> aLock(getMainMutex());
+    try {
 
-
-    pendingTransactionsAgent = make_shared<PendingTransactionsAgent>(*this);
-    blockProposalClient = make_shared<BlockProposalClientAgent>(*this);
-    blockFinalizeClient =  make_shared<BlockFinalizeClientAgent>(*this);
-    catchupClientAgent = make_shared<CatchupClientAgent>(*this);
-    blockConsensusInstance = make_shared<BlockConsensusAgent>(*this);
-    blockProposalsDatabase = make_shared<ReceivedBlockProposalsDatabase>(*this);
-    blockSigSharesDatabase = make_shared<ReceivedBlockSigSharesDatabase>(*this);
-
-
-    testMessageGeneratorAgent = make_shared<TestMessageGeneratorAgent>(*this);
-
-
-//    if (extFace) {
-//        externalQueueSyncAgent = make_shared<ExternalQueueSyncAgent>(*this, extFace);
-//    }
-
-
+        std::lock_guard<std::recursive_mutex> aLock(getMainMutex());
+        pendingTransactionsAgent = make_shared<PendingTransactionsAgent>(*this);
+        blockProposalClient = make_shared<BlockProposalClientAgent>(*this);
+        blockFinalizeClient = make_shared<BlockFinalizeClientAgent>(*this);
+        catchupClientAgent = make_shared<CatchupClientAgent>(*this);
+        blockConsensusInstance = make_shared<BlockConsensusAgent>(*this);
+        blockProposalsDatabase = make_shared<ReceivedBlockProposalsDatabase>(*this);
+        blockSigSharesDatabase = make_shared<ReceivedBlockSigSharesDatabase>(*this);
+        testMessageGeneratorAgent = make_shared<TestMessageGeneratorAgent>(*this);
+    }  catch (...) {
+        throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
+    }
 }
 
 
@@ -690,7 +687,7 @@ void Schain::bootstrap(block_id _lastCommittedBlockID, uint64_t _lastCommittedBl
         bootstrapBlockID.store((uint64_t) _lastCommittedBlockID);
         blockCommitArrived(true, _lastCommittedBlockID, schain_index(0), _lastCommittedBlockTimeStamp);
     } catch (Exception &e) {
-        Exception::log_exception(e);
+        Exception::logNested(e);
         return;
     }
 }

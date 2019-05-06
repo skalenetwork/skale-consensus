@@ -97,36 +97,44 @@ void ConsensusEngine::parseFullConfigAndCreateNode(const string &configFileConte
 
 Node *ConsensusEngine::readNodeConfigFileAndCreateNode(
         const fs_path &path, set<node_id> &nodeIDs) {
-    fs_path nodeFileNamePath(path);
+    try {
+        fs_path nodeFileNamePath(path);
 
-    nodeFileNamePath /= string(SkaleConfig::NODE_FILE_NAME);
+        nodeFileNamePath /= string(SkaleConfig::NODE_FILE_NAME);
 
-    checkExistsAndFile(nodeFileNamePath.string());
+        checkExistsAndFile(nodeFileNamePath.string());
 
-    fs_path schainDirNamePath(path);
+        fs_path schainDirNamePath(path);
 
-    schainDirNamePath /= string(SkaleConfig::SCHAIN_DIR_NAME);
+        schainDirNamePath /= string(SkaleConfig::SCHAIN_DIR_NAME);
 
-    checkExistsAndDirectory(schainDirNamePath.string());
+        checkExistsAndDirectory(schainDirNamePath.string());
 
-    Node *node = JSONFactory::createNodeFromJson(nodeFileNamePath.string(), nodeIDs, this);
+        Node *node = JSONFactory::createNodeFromJson(nodeFileNamePath.string(), nodeIDs, this);
 
 
-    if (node == nullptr) {
-        return nullptr;
+        if (node == nullptr) {
+            return nullptr;
+        }
+
+        readSchainConfigFiles(*node, schainDirNamePath.string());
+
+        ASSERT(nodes.count(node->getNodeID()) == 0);
+
+        nodes[node->getNodeID()] = node;
+        return node;
+
+    } catch (Exception& e) {
+        Exception::logNested(e);
+        throw;
     }
-
-    readSchainConfigFiles(*node, schainDirNamePath.string());
-
-    ASSERT(nodes.count(node->getNodeID()) == 0);
-
-    nodes[node->getNodeID()] = node;
-
-    return node;
 }
 
 
 void ConsensusEngine::readSchainConfigFiles(Node &_node, const fs_path &_dirPath) {
+
+    try {
+
     checkExistsAndDirectory(_dirPath);
 
     // cycle through the directory
@@ -139,6 +147,11 @@ void ConsensusEngine::readSchainConfigFiles(Node &_node, const fs_path &_dirPath
 
         break;
     }
+
+    } catch (...) {
+        throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
+    }
+
 }
 
 
@@ -166,41 +179,46 @@ void ConsensusEngine::checkExistsAndFile(const fs_path &_filePath) {
 
 
 void ConsensusEngine::parseConfigsAndCreateAllNodes(const fs_path &dirname) {
+    try {
 
-    checkExistsAndDirectory(dirname);
-
-
-    // cycle through the directory
-
-    uint64_t nodeCount = 0;
+        checkExistsAndDirectory(dirname);
 
 
-    for (directory_iterator itr(dirname); itr != directory_iterator{}; ++itr) {
-        if (!is_directory(itr->path())) {
+        // cycle through the directory
 
-            BOOST_THROW_EXCEPTION(FatalError("Junk file found. Remove it: " + itr->path().string()));
+        uint64_t nodeCount = 0;
+
+
+        for (directory_iterator itr(dirname); itr != directory_iterator{}; ++itr) {
+            if (!is_directory(itr->path())) {
+
+                BOOST_THROW_EXCEPTION(FatalError("Junk file found. Remove it: " + itr->path().string()));
+            }
+
+            nodeCount++;
+        };
+
+
+        for (directory_iterator itr(dirname); itr != directory_iterator{}; ++itr) {
+            if (!is_directory(itr->path())) {
+                BOOST_THROW_EXCEPTION(FatalError("Junk file found. Remove it: " + itr->path().string()));
+            }
+
+            readNodeConfigFileAndCreateNode(itr->path(), Node::nodeIDs);
+        };
+
+        if (nodes.size() == 0) {
+            BOOST_THROW_EXCEPTION(FatalError("No valid node dirs found"));
         }
 
-        nodeCount++;
-    };
+        ASSERT(nodeCount == nodes.size());
 
-
-    for (directory_iterator itr(dirname); itr != directory_iterator{}; ++itr) {
-        if (!is_directory(itr->path())) {
-            BOOST_THROW_EXCEPTION(FatalError("Junk file found. Remove it: " + itr->path().string()));
-        }
-
-        readNodeConfigFileAndCreateNode(itr->path(), Node::nodeIDs);
-    };
-
-    if (nodes.size() == 0) {
-        BOOST_THROW_EXCEPTION(FatalError("No valid node dirs found"));
+        LOG(info, "INFO:Parsed configs and created " + to_string(ConsensusEngine::nodesCount()) +
+                  " nodes");
+    } catch (exception& e) {
+        Exception::logNested(e);
+        throw;
     }
-
-    ASSERT(nodeCount == nodes.size());
-
-    LOG(info, "INFO:Parsed configs and created " + to_string(ConsensusEngine::nodesCount()) +
-              " nodes");
 }
 
 void ConsensusEngine::startAll() {

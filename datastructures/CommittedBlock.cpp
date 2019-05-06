@@ -126,7 +126,6 @@ CommittedBlock::CommittedBlock(ptr<vector<uint8_t>> _serializedBlock) : BlockPro
 
 
     nlohmann::json js;
-    nlohmann::json jsonTransactionSizes;
     auto transactionSizes = make_shared<vector<size_t>>();
 
     size_t totalSize = 0;
@@ -149,9 +148,9 @@ CommittedBlock::CommittedBlock(ptr<vector<uint8_t>> _serializedBlock) : BlockPro
         nlohmann::json jsonTransactionSizes = js["sizes"];
         this->transactionCount = jsonTransactionSizes.size();
 
-        for (auto &&size : jsonTransactionSizes) {
-            transactionSizes->push_back(size);
-            totalSize += (size_t) size;
+        for (auto &&jsize : jsonTransactionSizes) {
+            transactionSizes->push_back(jsize);
+            totalSize += (size_t) jsize;
         }
 
     } catch (...) {

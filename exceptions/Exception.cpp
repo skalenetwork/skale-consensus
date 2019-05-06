@@ -25,7 +25,7 @@
 #include "../Log.h"
 #include "Exception.h"
 
-void Exception::log_exception(const std::exception& e, int level)
+void Exception::logNested(const std::exception &e, int level)
 {
     string prefix;
 
@@ -38,6 +38,6 @@ void Exception::log_exception(const std::exception& e, int level)
     try {
         std::rethrow_if_nested(e);
     } catch(const std::exception& e) {
-        log_exception(e, level+1);
+        logNested(e, level + 1);
     } catch(...) {}
 }
