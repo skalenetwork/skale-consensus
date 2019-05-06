@@ -57,6 +57,7 @@ bool SigShareSet::addSigShare( ptr< BLSSigShare > _sigShare ) {
 
 
 bool SigShareSet::isTwoThird() {
+
     lock_guard< recursive_mutex > lock( sigSharesMutex );
 
 

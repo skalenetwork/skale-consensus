@@ -38,7 +38,9 @@
 using namespace std;
 
 MissingTransactionsRequestHeader::MissingTransactionsRequestHeader() :
-Header(Header::MISSING_TRANSACTIONS_REQ){};
+Header(Header::MISSING_TRANSACTIONS_REQ){
+    missingTransactionsCount = 0;
+};
 
 
 MissingTransactionsRequestHeader::MissingTransactionsRequestHeader(ptr<map<uint64_t, ptr<partial_sha_hash>>> _missingMessages)

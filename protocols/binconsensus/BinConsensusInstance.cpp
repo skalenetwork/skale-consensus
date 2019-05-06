@@ -711,7 +711,11 @@ uint64_t BinConsensusInstance::calculateBLSRandom(bin_consensus_round _r) {
         }
     }
 
-    assert(shares.isTwoThird());
+
+    bool isTwoThird = shares.isTwoThird();
+
+
+    assert(isTwoThird);
 
 
     auto sig = shares.mergeSignature()->getSig();
