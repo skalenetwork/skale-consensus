@@ -574,25 +574,31 @@ ptr<Header> BlockProposalServerAgent::createFinalizeResponseHeader(
     }
 
 
-    ptr<BLSSigShare> sigShare;
+    signBlock(responseHeader, block);
 
-    try {
-        sigShare = sChain->sign(block->getHash(), block->getBlockID());
-    } catch(...) {
-        responseHeader->setStatus(CONNECTION_SERVER_ERROR);
-        throw_with_nested(NetworkProtocolException("Could not sign block", __CLASS_NAME__));
-    }
-
-
-    auto sigString = sigShare->toString();
-
-    responseHeader->setSigShare(sigString);
 
     responseHeader->setStatus(CONNECTION_SUCCESS);
 
     responseHeader->setComplete();
     return responseHeader;
 }
+
+void
+BlockProposalServerAgent::signBlock(ptr<BlockFinalizeResponseHeader> &_responseHeader, ptr<CommittedBlock> &_block) const {
+    ptr<BLSSigShare> sigShare;
+
+    try {
+        sigShare = sChain->sign(_block->getHash(), _block->getBlockID());
+    } catch (...) {
+        _responseHeader->setStatus(CONNECTION_SERVER_ERROR);
+        throw_with_nested(NetworkProtocolException("Could not sign block", __CLASS_NAME__));
+    }
+
+
+    auto sigString = sigShare->toString();
+
+    _responseHeader->setSigShare(sigString);
+    }
 
 
 nlohmann::json BlockProposalServerAgent::readMissingTransactionsResponseHeader(
