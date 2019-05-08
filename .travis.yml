@@ -38,18 +38,21 @@ matrix:
 addons:
   apt:
     packages:
-    - libprocps-dev
-    - g++-7
-    - valgrind
-    - gawk
-    - sed
-    - libboost-all-dev
-    - libffi-dev
-    - libssl-dev
-    - libprocps4-dev
-    - libgmp3-dev
+      - libprocps-dev
+      - g++-7
+      - valgrind
+      - gawk
+      - sed
+      - libboost-all-dev
+      - libffi-dev
+      - libssl-dev
+      - libprocps4-dev
+      - libgmp3-dev
+      - ccache
     sources:
-    - ubuntu-toolchain-r-test
+      - ubuntu-toolchain-r-test
+
+cache: ccache
 
 before_install:
   - eval "${MATRIX_EVAL}"
