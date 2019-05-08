@@ -46,7 +46,7 @@ addons:
     - libboost-all-dev
     - libffi-dev
     - libssl-dev
-    - libprocps3-dev
+    - libprocps4-dev
     - libgmp3-dev
     sources:
     - ubuntu-toolchain-r-test
