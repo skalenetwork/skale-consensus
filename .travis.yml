@@ -40,25 +40,4 @@ after_success:
   - codecov
 
 
-matrix:
-  include:
-    - os: linux
-      dist: trusty
-      sudo: required
-      node_js:
-        - "8"
-      env:
-        - ZIP_SUFFIX=ubuntu-trusty
-
-os: linux
-dist: xenial
-addons:
-  apt:
-    sources:
-      - ubuntu-toolchain-r-test
-    packages:
-      - g++-7
-      - texinfo
-      - lcov
-      - clang-format-6.0
 
