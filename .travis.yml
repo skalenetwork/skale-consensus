@@ -27,6 +27,29 @@ env:
   global:
     - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
     - TARGET=all
+    - TRAVIS_BUILD_TYPE=RelWithDebInfo
+
+
+before_script:
+  - travis_wait 150 ./scripts/build.sh $TRAVIS_BUILD_TYPE
+  - ./scripts/cleanup_ccache.sh
+script:
+  - cd $TRAVIS_BUILD_DIR/build && ../scripts/tests.sh $TRAVIS_TESTS
+after_success:
+  - pip install --user codecov
+  - codecov
+
+
+matrix:
+  include:
+    - os: linux
+      dist: trusty
+      sudo: required
+      node_js:
+        - "8"
+      env:
+        - ZIP_SUFFIX=ubuntu-trusty
+
 os: linux
 dist: xenial
 addons:
@@ -38,3 +61,4 @@ addons:
       - texinfo
       - lcov
       - clang-format-6.0
+
