@@ -24,9 +24,6 @@
 #ifndef SKALED_BLS_INCLUDE_H
 #define SKALED_BLS_INCLUDE_H
 
-
-#include <libff/algebra/curves/alt_bn128/alt_bn128_g1.hpp>
-
 #pragma GCC diagnostic push
 // Suppress warnings: "unknown option after ‘#pragma GCC diagnostic’ kind [-Wpragmas]".
 // This is necessary because not all the compilers have the same warning options.
@@ -53,6 +50,9 @@
 #pragma GCC diagnostic ignored "-Wchar-subscripts"
 #pragma GCC diagnostic ignored "-Wparentheses"
 #pragma GCC diagnostic ignored "-Wreorder"
+
+#include <libff/algebra/curves/alt_bn128/alt_bn128_g1.hpp>
+
 #include "bls.h"
 #pragma GCC diagnostic pop
 
