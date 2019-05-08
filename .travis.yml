@@ -29,6 +29,12 @@ env:
     - TARGET=all
     - TRAVIS_BUILD_TYPE=RelWithDebInfo
 
+matrix:
+  include:
+    - os: linux
+      dist: xenial
+      sudo: required
+
 
 before_script:
   - travis_wait 150 ./scripts/build.sh $TRAVIS_BUILD_TYPE
