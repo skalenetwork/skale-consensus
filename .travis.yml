@@ -36,6 +36,12 @@ matrix:
       sudo: required
 
 
+addons:
+  apt:
+    packages:
+    - libprocps-dev
+
+
 before_script:
   - travis_wait 150 ./scripts/build.sh $TRAVIS_BUILD_TYPE
   - ./scripts/cleanup_ccache.sh
