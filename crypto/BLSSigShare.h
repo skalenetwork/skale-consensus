@@ -24,7 +24,6 @@
 #ifndef SKALED_BLSSIGNATURE_SHARE_H
 #define SKALED_BLSSIGNATURE_SHARE_H
 
-#include <libff/algebra/curves/alt_bn128/alt_bn128_g1.hpp>
 
 
 
