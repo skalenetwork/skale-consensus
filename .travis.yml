@@ -35,12 +35,24 @@ matrix:
       dist: xenial
       sudo: required
 
-
 addons:
   apt:
     packages:
     - libprocps-dev
+    - g++-7
+    - valgrind
+    - gawk
+    - sed
+    - libboost-all-dev
+    - libffi-dev
+    - libssl-dev
+    - libprocps3-dev
+    - libgmp3-dev
+    sources:
+    - ubuntu-toolchain-r-test
 
+before_install:
+  - eval "${MATRIX_EVAL}"
 
 before_script:
   - travis_wait 150 ./scripts/build.sh $TRAVIS_BUILD_TYPE
