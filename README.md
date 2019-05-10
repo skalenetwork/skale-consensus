@@ -1,6 +1,7 @@
 # SKALE Consensus: a BFT Consensus engine in C++
 
 [![Discord](https://img.shields.io/discord/534485763354787851.svg)](https://discord.gg/vvUtWJB)
+[![Build Status](https://travis-ci.com/skalenetwork/filestorage.js.svg?branch=develop)](https://travis-ci.com/skalenetwork/skale-consensus)
 
 SKALE consensus utilizes multiple block proposers.  Block proposers distribute proposals to nodes and  
 collect a BLS-signature based data availability proofs. An Asynchronous Binary Byzantine Agreement is then
