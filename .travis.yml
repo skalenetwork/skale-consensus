@@ -27,7 +27,7 @@ env:
   global:
     - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
     - TARGET=all
-    - TRAVIS_BUILD_TYPE=RelWithDebInfo
+    - TRAVIS_BUILD_TYPE=Debug
 
 matrix:
   include:
