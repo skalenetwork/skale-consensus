@@ -49,6 +49,7 @@ addons:
       - libprocps4-dev
       - libgmp3-dev
       - ccache
+      - libgoogle-perftools-dev
     sources:
       - ubuntu-toolchain-r-test
 
