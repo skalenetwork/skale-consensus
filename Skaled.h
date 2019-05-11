@@ -23,9 +23,7 @@
 
 #pragma  once
 
-class ConsensusTest {
 
-};
 
 
 
