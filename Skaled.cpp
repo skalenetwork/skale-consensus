@@ -21,6 +21,8 @@
     @date 2018
 */
 
+
+#include <catch/catch.hpp>
 #include "SkaleConfig.h"
 
 #include "node/ConsensusEngine.h"

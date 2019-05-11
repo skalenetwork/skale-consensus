@@ -27,6 +27,8 @@ find_package(ZeroMQ CONFIG REQUIRED)
 hunter_add_package(leveldb)
 find_package(leveldb CONFIG REQUIRED)
 
+hunter_add_package(Catch)
+find_package(Catch2 CONFIG REQUIRED)
 
 
 #set (CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-Wreturn-type -Winit-self")
@@ -48,6 +50,8 @@ add_definitions("-DZMQ_EXPERIMENTAL")
 add_definitions("-DZMQ_NONBLOCKING")
 
 #add_definitions(-DGOOGLE_PROFILE) // uncomment to profile
+
+
 
 
 if(CMAKE_PROJECT_NAME STREQUAL "consensus" )
