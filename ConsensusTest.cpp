@@ -21,9 +21,12 @@
     @date 2018
 */
 
+//#include <folly/File.h>
 #include "SkaleConfig.h"
 
 #include "node/ConsensusEngine.h"
+
+void runTest(char *_testDir, const shared_ptr<set<node_id>> &_nodeIdstoRun);
 
 #ifdef GOOGLE_PROFILE
 #include <gperftools/heap-profiler.h>
@@ -33,49 +36,55 @@
 int main(int argc, char **argv) {
 
 #ifdef GOOGLE_PROFILE
-    HeapProfilerStart("/tmp/consensusd.profile");
+    HeapProfilerStart("/tmp/consensustest.profile");
 #endif
-
-    signal(SIGPIPE, SIG_IGN);
 
 
 
     if (argc < 2) {
-        printf("Usage: skaled nodes_dir node_id1 node_id2 \n");
+        printf("Usage: consensustest nodes_dir node_id1 node_id2 \n");
         exit(1);
     }
+
+    auto nodeIdstoRun = make_shared<set<node_id>>();
 
     for (int i = 2; i < argc; i++) {
 
         uint64_t ui64;
         ui64 = static_cast<uint64_t >(stoll(argv[i]));
 
-        Node::nodeIDs.insert(node_id(ui64));
-
+        nodeIdstoRun->insert(node_id(ui64));
         cerr << node_id(ui64) << endl;
     }
+    runTest(argv[1], nodeIdstoRun);
+}
 
-    fs_path dirPath(boost::filesystem::system_complete(fs_path(argv[1])));
-
-    ConsensusEngine engine;
-
-    engine.parseConfigsAndCreateAllNodes(dirPath);
+void runTest(char *_testDir, ptr<set<node_id>> &_nodeIdstoRun) {
 
 
-    engine.slowStartBootStrapTest();
 
-    sleep(10);
+        uint64_t runTimeMs = 30000;
 
-    engine.exitGracefully();
+        signal(SIGPIPE, SIG_IGN);
+        Node::nodeIDs = _nodeIdstoRun;
 
-    cerr << "Exited" << endl;
+        fs_path dirPath(boost::filesystem::system_complete(fs_path(_testDir)));
+
+        ConsensusEngine engine;
+
+        engine.parseConfigsAndCreateAllNodes(dirPath);
+        engine.slowStartBootStrapTest();
+
+        usleep(1000 * runTimeMs);
+
+        engine.exitGracefully();
+
+        cerr << "Test completed successfully" << endl;
 
 
 #ifdef GOOGLE_PROFILE
-    HeapProfilerStop();
+        HeapProfilerStop();
 #endif
 
 
-
-
-}
+    }

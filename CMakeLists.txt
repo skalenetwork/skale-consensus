@@ -27,6 +27,11 @@ find_package(ZeroMQ CONFIG REQUIRED)
 hunter_add_package(leveldb)
 find_package(leveldb CONFIG REQUIRED)
 
+#folly
+hunter_add_package(folly)
+find_package(folly CONFIG REQUIRED)
+
+
 
 
 #set (CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-Wreturn-type -Winit-self")
@@ -150,7 +155,8 @@ SET(SRC_FILES
 include_directories(${BLS_INCLUDE_DIRS})
 link_directories( ${BLS_WITH_FF_INCLUDE_DIRS} )
 
-SET(LINK_LIBRARIES Threads::Threads Boost::log Boost::thread Boost::system Boost::filesystem ${LIB_NAME_cryptopp} ZeroMQ::libzmq-static leveldb::leveldb bls gcov)
+SET(LINK_LIBRARIES Threads::Threads Boost::log Boost::thread Boost::system Boost::filesystem ${LIB_NAME_cryptopp}
+        ZeroMQ::libzmq-static leveldb::leveldb bls gcov Folly::Folly)
 
 
 
@@ -165,16 +171,16 @@ add_dependencies(consensus bls gmp secp256k1)
 
 # consensus test agent
 
-add_executable(consensusd Skaled.h Skaled.cpp)
+add_executable(consensustest ConsensusTest.h ConsensusTest.cpp)
 
 # libgoogle-perftools-dev
 if(CMAKE_PROJECT_NAME STREQUAL "consensus" )
 
 #  sudo apt-get install -qq -yy libgoogle-perftools-dev
 
-    target_link_libraries(consensusd consensus tcmalloc)
+    target_link_libraries(consensustest consensus tcmalloc)
 else()
-    target_link_libraries(consensusd consensus)
+    target_link_libraries(consensustest consensus)
 endif()
 
 

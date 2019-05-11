@@ -182,7 +182,7 @@ public:
 
     bool isStarted() const;
 
-    static set<node_id> nodeIDs;
+    static ptr<set<node_id>> nodeIDs;
 
 
     Node(const nlohmann::json &_cfg, ConsensusEngine* _consensusEngine);
