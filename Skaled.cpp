@@ -22,7 +22,7 @@
 */
 
 
-#include <catch/catch.hpp>
+#include "thirdparty/catch.hpp"
 #include "SkaleConfig.h"
 
 #include "node/ConsensusEngine.h"
