@@ -53,7 +53,14 @@ addons:
     sources:
       - ubuntu-toolchain-r-test
 
-cache: ccache
+cache:
+  ccache: true
+  directories:
+    - ~/.local
+    - ~/.hunter
+    # Cache whole deps dir hoping you will not need to download and
+    # build external dependencies next build.
+    - $TRAVIS_BUILD_DIR/cmake-build-debug
 
 before_install:
   - eval "${MATRIX_EVAL}"
