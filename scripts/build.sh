@@ -50,6 +50,6 @@ set -e -x
 
 # There is an implicit assumption here that we HAVE to run from repo root
 
-cd ..
+
 cmake .. -DCMAKE_BUILD_TYPE=$1 -DCOVERAGE=ON
 make -j2
