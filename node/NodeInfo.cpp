@@ -58,7 +58,7 @@ ptr<sockaddr_in> NodeInfo::getSocketaddr() {
 }
 
 ptr<string> NodeInfo::getBaseIP() {
-    assert(ip);
+    ASSERT(ip);
     return ip;
 }
 

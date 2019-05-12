@@ -52,7 +52,7 @@ ptr<string> LevelDB::readString(string &_key) {
 
     auto result = make_shared<string>();
 
-    assert(db);
+    ASSERT(db);
 
     auto status = db->Get(readOptions, _key, &*result);
 
@@ -126,7 +126,7 @@ LevelDB::LevelDB(string &filename) {
     ASSERT2(leveldb::DB::Open(options, filename, (leveldb::DB **) &db).ok(),
             "Unable to open blocks database");
 
-    assert(db);
+    ASSERT(db);
 
 }
 
