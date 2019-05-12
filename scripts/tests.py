@@ -33,6 +33,7 @@ print("Directory changed")
 
 
 os.system("rm  -rf core");
+
 os.system("rm  -rf /tmp/*.db");
 subprocess.call("../../cmake-build-debug/consensust")
 
