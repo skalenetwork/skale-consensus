@@ -30,7 +30,7 @@ import subprocess
 os.chdir("../test/fournodes")
 os.system("rm  -rf core");
 os.system("rm  -rf /tmp/*.db");
-
+subprocess.call(["ls", "../.."])
 subprocess.call("../../cmake-build-debug/consensust")
 
 
