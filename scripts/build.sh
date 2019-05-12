@@ -30,7 +30,7 @@
 #
 #    skale-consensus is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
-#    the Free Software Foundation, either version 3 of the License, or
+#    the Free Software Foundation, eithe    r version 3 of the License, or
 #    (at your option) any later version.
 #
 #    skale-consensus is distributed in the hope that it will be useful,
@@ -50,8 +50,6 @@ set -e -x
 
 # There is an implicit assumption here that we HAVE to run from repo root
 
-mkdir -p build
-cd build
+cd ..
 cmake .. -DCMAKE_BUILD_TYPE=$1 -DCOVERAGE=ON
-
 make -j2
