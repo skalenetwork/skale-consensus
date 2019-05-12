@@ -68,13 +68,12 @@ before_install:
   - eval "${MATRIX_EVAL}"
 
 install:
-  - cd $TRAVIS_BUILD_DIR/scripts
-  - echo $TRAVIS_BUILD_TYPE
-  - travis_wait 150 ./build.py $TRAVIS_BUILD_TYPE
+  - cd ${TRAVIS_BUILD_DIR}/scripts
+  - travis_wait 150 ./build.py ${TRAVIS_BUILD_TYPE}
 
 script:
-  - cd $TRAVIS_BUILD_DIR/scripts
-  - tests.py $TRAVIS_TESTS
+  - cd ${TRAVIS_BUILD_DIR}/scripts
+  - tests.py
 
 after_success:
   - pip install --user codecov
