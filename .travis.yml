@@ -67,13 +67,12 @@ cache:
 before_install:
   - eval "${MATRIX_EVAL}"
 
-before_script:
-  - travis_wait 150 ./scripts/build.sh $TRAVIS_BUILD_TYPE
-  - ./scripts/cleanup_ccache.sh
 install:
-  - cd $TRAVIS_BUILD_DIR/scripts && ./tests.sh $TRAVIS_TESTS
+  - cd $TRAVIS_BUILD_DIR/scripts && travis_wait 150 ./build.sh $TRAVIS_BUILD_TYPE
+
 script:
-  - ./scripts/tests.py
+  - cd $TRAVIS_BUILD_DIR/scripts && ./tests.py $TRAVIS_TESTS
+
 after_success:
   - pip install --user codecov
   - codecov
