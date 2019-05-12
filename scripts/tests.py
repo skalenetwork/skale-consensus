@@ -24,14 +24,16 @@
 
 import os
 import subprocess
+import sys;
 
 
+root = os.environ('TRAVIS_BUILD_DIR')
 
-os.chdir("../test/fournodes")
-os.system("rm  -rf core")
+os.chdir(root + "/test/fournodes")
+os.system("rm  -rf " + root + "/core")
 os.system("rm  -rf /tmp/*.db")
-subprocess.call(["ls", "../.."], shell=True)
-subprocess.call(["ls", "../../cmake-build-debug"], shell=True)
-subprocess.call("../../cmake-build-debug/consensust", shell=True)
+subprocess.call(["ls", root])
+subprocess.call(["ls", root + "/cmake-build-debug"])
+subprocess.call(root + "/cmake-build-debug/consensust")
 
 
