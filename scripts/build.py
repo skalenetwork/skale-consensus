@@ -55,6 +55,8 @@ os.chdir("..")
 
 print("Directory changed")
 
+subprocess.call(["which", "cmake"])
+
 subprocess.call(["cmake", ".",  "-DCMAKE_BUILD_TYPE=" +  sys.argv[1], "-DCOVERAGE=ON"])
 
 subprocess.call(["/usr/bin/make", "-j2"])
