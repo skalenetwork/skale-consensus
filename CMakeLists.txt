@@ -179,3 +179,15 @@ else()
 endif()
 
 
+
+add_executable(consensust Consensust.h Consensust.cpp)
+
+# libgoogle-perftools-dev
+if(CMAKE_PROJECT_NAME STREQUAL "consensus" )
+
+    #  sudo apt-get install -qq -yy libgoogle-perftools-dev
+
+    target_link_libraries(consensust consensus tcmalloc)
+else()
+    target_link_libraries(consensust consensus)
+endif()
