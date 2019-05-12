@@ -29,7 +29,7 @@ import subprocess
 
 os.chdir("../test/fournodes")
 os.system("rm  -rf core")
-os.system("rm  -rf /tmp/*.db", shell=True);
+os.system("rm  -rf /tmp/*.db")
 subprocess.call(["ls", "../.."], shell=True)
 subprocess.call(["ls", "../../cmake-build-debug"], shell=True)
 subprocess.call("../../cmake-build-debug/consensust", shell=True)
