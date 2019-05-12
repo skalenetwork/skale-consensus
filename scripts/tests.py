@@ -17,7 +17,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with skale-consensus.  If not, see <http://www.gnu.org/licenses/>.
 #
-#    @file  tests.sh
+#    @file  tests.py
 #    @author Stan Kladko
 #    @date 2019
 #
@@ -28,13 +28,9 @@ import subprocess
 
 
 os.chdir("../test/fournodes")
-
-print("Directory changed")
-
-
 os.system("rm  -rf core");
-
 os.system("rm  -rf /tmp/*.db");
+
 subprocess.call("../../cmake-build-debug/consensust")
 
 
