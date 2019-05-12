@@ -70,7 +70,7 @@ before_install:
 
 install:
   - cd ${TRAVIS_BUILD_DIR}/scripts
-  - travis_wait 150 ./build.py ${TRAVIS_BUILD_TYPE} ${TRAVIS_BUILD_DIR}
+  - ./build.py ${TRAVIS_BUILD_TYPE} ${TRAVIS_BUILD_DIR}
 
 script:
   - cd ${TRAVIS_BUILD_DIR}/scripts
