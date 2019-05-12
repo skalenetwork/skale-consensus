@@ -69,11 +69,11 @@ before_install:
 
 install:
   - cd ${TRAVIS_BUILD_DIR}/scripts
-  - travis_wait 150 ./build.py ${TRAVIS_BUILD_TYPE}
+  - travis_wait 150 ./build.py ${TRAVIS_BUILD_TYPE} ${TRAVIS_BUILD_DIR}
 
 script:
   - cd ${TRAVIS_BUILD_DIR}/scripts
-  - ./tests.py
+  - ./tests.py ${TRAVIS_BUILD_DIR}
 
 after_success:
   - pip install --user codecov

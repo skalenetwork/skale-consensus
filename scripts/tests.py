@@ -20,14 +20,14 @@
 #    @file  tests.py
 #    @author Stan Kladko
 #    @date 2019
-#
+
 
 import os
 import subprocess
 import sys;
 
 
-root = os.environ('TRAVIS_BUILD_DIR')
+root = sys.argv[1]
 
 os.chdir(root + "/test/fournodes")
 os.system("rm  -rf " + root + "/core")
