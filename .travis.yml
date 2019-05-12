@@ -29,6 +29,8 @@ env:
     - TARGET=all
     - TRAVIS_BUILD_TYPE=Debug
 
+
+
 matrix:
   include:
     - os: linux
@@ -68,8 +70,10 @@ before_install:
 before_script:
   - travis_wait 150 ./scripts/build.sh $TRAVIS_BUILD_TYPE
   - ./scripts/cleanup_ccache.sh
-script:
+install:
   - cd $TRAVIS_BUILD_DIR/build && ../scripts/tests.sh $TRAVIS_TESTS
+script:
+  - ./scripts/tests.py
 after_success:
   - pip install --user codecov
   - codecov
