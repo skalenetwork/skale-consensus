@@ -34,6 +34,11 @@ os.system("rm  -rf " + root + "/core")
 os.system("rm  -rf /tmp/*.db")
 subprocess.call(["ls", root])
 subprocess.call(["ls", root + "/cmake-build-debug"])
-subprocess.call(root + "/cmake-build-debug/consensust")
+consensust = root + '/cmake-build-debug/consensust'
+if not os.path.isfile(consensust):
+    consensust = root + "/consensust"
+    assert os.path.isfile(consensust)
+
+subprocess.call(consensust)
 
 
