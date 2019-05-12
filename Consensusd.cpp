@@ -24,7 +24,7 @@
 
 #include "thirdparty/catch.hpp"
 #include "SkaleConfig.h"
-
+#include "Consensusd.h"
 #include "node/ConsensusEngine.h"
 
 #ifdef GOOGLE_PROFILE
@@ -43,7 +43,7 @@ int main(int argc, char **argv) {
 
 
     if (argc < 2) {
-        printf("Usage: consensustest nodes_dir node_id1 node_id2 \n");
+        printf("Usage: consensusd nodes_dir node_id1 node_id2 \n");
         exit(1);
     }
 
@@ -66,7 +66,7 @@ int main(int argc, char **argv) {
 
     engine.slowStartBootStrapTest();
 
-    sleep(10);
+    sleep(60);
 
     engine.exitGracefully();
 

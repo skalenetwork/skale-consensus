@@ -166,16 +166,16 @@ add_dependencies(consensus bls gmp secp256k1)
 
 # consensus test agent
 
-add_executable(consensustest Skaled.h Skaled.cpp)
+add_executable(consensusd Consensusd.h Consensusd.cpp)
 
 # libgoogle-perftools-dev
 if(CMAKE_PROJECT_NAME STREQUAL "consensus" )
 
 #  sudo apt-get install -qq -yy libgoogle-perftools-dev
 
-    target_link_libraries(consensustest consensus tcmalloc)
+    target_link_libraries(consensusd consensus tcmalloc)
 else()
-    target_link_libraries(consensustest consensus)
+    target_link_libraries(consensusd consensus)
 endif()
 
 
