@@ -48,17 +48,16 @@
 
 import sys
 import os
-import subprocess # Flawfinder: ignore
-
+import subprocess
 
 os.chdir("..")
 
 print("Directory changed")
 
-subprocess.call(["which", "cmake"]) # pylint: disable=C0321
+subprocess.call(["which", "cmake"])
 
-subprocess.call(["cmake", ".",  "-DCMAKE_BUILD_TYPE=" +  sys.argv[1], "-DCOVERAGE=ON"]) # pylint: disable=C0321
+subprocess.call(["cmake", ".",  "-DCMAKE_BUILD_TYPE=" +  sys.argv[1], "-DCOVERAGE=ON"])
 
-subprocess.call(["/usr/bin/make", "-j2"]) # pylint: disable=C0321
 
+subprocess.call(["/usr/bin/make", "-j2"])
 
