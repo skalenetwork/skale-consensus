@@ -57,8 +57,10 @@ os.chdir("..")
 
 print("Directory changed")
 
-subprocess.call(["which", "cmake"])
+# pylint: disable=B607
+subprocess.call(["which", "cmake"]) # pylint: disable=B607
 
+# pylint: disable=B607
 subprocess.call(["cmake", ".",  "-DCMAKE_BUILD_TYPE=" +  sys.argv[1], "-DCOVERAGE=ON"])
 
 
