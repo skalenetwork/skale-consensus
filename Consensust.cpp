@@ -76,7 +76,7 @@ TEST_CASE( "Run basic consensus", "[basic-consensus]") {
     INFO("Running consensus");
 
 
-    usleep(Consensust::getRunningTime());
+    usleep(Consensust::getRunningTime()); /* Flawfinder: ignore */
 
 
     INFO("Exiting gracefully");
