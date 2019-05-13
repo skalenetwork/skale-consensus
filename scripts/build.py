@@ -48,7 +48,10 @@
 
 import sys
 import os
-import subprocess
+import subprocess # pylint: disable=C0321
+
+# pylint: disable=B607
+# pylint: disable=C0321
 
 os.chdir("..")
 
