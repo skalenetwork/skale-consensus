@@ -1,0 +1,86 @@
+#------------------------------------------------------------------------------
+# TravisCI configuration file for skaled.
+#
+# The documentation for skaled is hosted at http://skalelabs.org
+#
+# ------------------------------------------------------------------------------
+# This file is part of skaled.
+#
+# skaled is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# skaled is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with skaled.  If not, see <http://www.gnu.org/licenses/>
+#
+# (c) 2019 skaled contributors.
+#------------------------------------------------------------------------------
+
+language: cpp
+env:
+  global:
+    - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
+    - TARGET=all
+    - TRAVIS_BUILD_TYPE=Debug
+
+
+
+matrix:
+  include:
+    - os: linux
+      dist: xenial
+      sudo: required
+
+addons:
+  apt:
+    packages:
+      - libprocps-dev
+      - g++-7
+      - valgrind
+      - gawk
+      - sed
+      - libboost-all-dev
+      - libffi-dev
+      - libssl-dev
+      - libprocps4-dev
+      - libgmp3-dev
+      - ccache
+      - libgoogle-perftools-dev
+    sources:
+      - ubuntu-toolchain-r-test
+
+cache:
+  ccache: true
+  directories:
+    - ~/.local
+    - ~/.hunter
+    # Cache whole deps dir hoping you will not need to download and
+    # build external dependencies next build.
+    - ${TRAVIS_BUILD_DIR}/cmake-build-debug
+    - ${TRAVIS_BUILD_DIR}/CMakeFiles
+    - ${TRAVIS_BUILD_DIR}/libBLS
+
+
+before_install:
+  - eval "${MATRIX_EVAL}"
+
+install:
+  - cd ${TRAVIS_BUILD_DIR}/scripts
+  - ./build.script ${TRAVIS_BUILD_TYPE} ${TRAVIS_BUILD_DIR}
+
+script:
+  - cd ${TRAVIS_BUILD_DIR}/scripts
+  - ./tests.script ${TRAVIS_BUILD_DIR}
+
+after_success:
+  - pip install --user codecov
+  - codecov
+
+
+

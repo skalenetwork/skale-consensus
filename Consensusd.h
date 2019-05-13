@@ -16,7 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with skale-consensus.  If not, see <http://www.gnu.org/licenses/>.
 
-    @file Skaled.h
+    @file ConsensusTest.h
     @author Stan Kladko
     @date 2018
 */

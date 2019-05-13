@@ -333,7 +333,7 @@ ConsensusEngine::ConsensusEngine(ConsensusExtFace &_extFace, uint64_t _lastCommi
 
 
 
-    assert(_lastCommittedBlockTimeStamp < (uint64_t) 2 * MODERN_TIME);
+    ASSERT(_lastCommittedBlockTimeStamp < (uint64_t) 2 * MODERN_TIME);
 
     Log::init();
 

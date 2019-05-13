@@ -28,7 +28,6 @@ hunter_add_package(leveldb)
 find_package(leveldb CONFIG REQUIRED)
 
 
-
 #set (CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-Wreturn-type -Winit-self")
 
 if( SKALED_LATEST_STANDARD )
@@ -48,6 +47,8 @@ add_definitions("-DZMQ_EXPERIMENTAL")
 add_definitions("-DZMQ_NONBLOCKING")
 
 #add_definitions(-DGOOGLE_PROFILE) // uncomment to profile
+
+
 
 
 if(CMAKE_PROJECT_NAME STREQUAL "consensus" )
@@ -150,7 +151,7 @@ SET(SRC_FILES
 include_directories(${BLS_INCLUDE_DIRS})
 link_directories( ${BLS_WITH_FF_INCLUDE_DIRS} )
 
-SET(LINK_LIBRARIES Threads::Threads Boost::log Boost::thread Boost::system Boost::filesystem ${LIB_NAME_cryptopp} ZeroMQ::libzmq-static leveldb::leveldb bls)
+SET(LINK_LIBRARIES Threads::Threads Boost::log Boost::thread Boost::system Boost::filesystem ${LIB_NAME_cryptopp} ZeroMQ::libzmq-static leveldb::leveldb bls gcov)
 
 
 
@@ -165,7 +166,7 @@ add_dependencies(consensus bls gmp secp256k1)
 
 # consensus test agent
 
-add_executable(consensusd Skaled.h Skaled.cpp)
+add_executable(consensusd Consensusd.h Consensusd.cpp)
 
 # libgoogle-perftools-dev
 if(CMAKE_PROJECT_NAME STREQUAL "consensus" )
@@ -178,3 +179,15 @@ else()
 endif()
 
 
+
+add_executable(consensust Consensust.h Consensust.cpp)
+
+# libgoogle-perftools-dev
+if(CMAKE_PROJECT_NAME STREQUAL "consensus" )
+
+    #  sudo apt-get install -qq -yy libgoogle-perftools-dev
+
+    target_link_libraries(consensust consensus tcmalloc)
+else()
+    target_link_libraries(consensust consensus)
+endif()

@@ -1,6 +1,7 @@
 # SKALE Consensus: a BFT Consensus engine in C++
 
 [![Discord](https://img.shields.io/discord/534485763354787851.svg)](https://discord.gg/vvUtWJB)
+[![Build Status](https://travis-ci.com/skalenetwork/filestorage.js.svg?branch=develop)](https://travis-ci.com/skalenetwork/skale-consensus)
 
 SKALE consensus utilizes multiple block proposers.  Block proposers distribute proposals to nodes and  
 collect a BLS-signature based data availability proofs. An Asynchronous Binary Byzantine Agreement is then
@@ -32,7 +33,8 @@ Ensure that the required packages are installed by executing:
 
 ```
 sudo apt-get update
-sudo apt-get install -y cmake build-essential libgoogle-perftools-dev libboost-all-dev libgmp3-dev libssl-dev
+sudo apt-get install -y cmake build-essential libgoogle-perftools-dev libboost-all-dev libprocps-dev
+sudo apt-get install -y libffi-dev libssl-dev libprocps4-dev
 ```
 
 ### Building from source on Ubuntu (Development)

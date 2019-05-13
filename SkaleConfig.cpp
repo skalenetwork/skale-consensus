@@ -22,7 +22,9 @@
 */
 
 #include "SkaleConfig.h"
+
 #include "Log.h"
+#include "exceptions/FatalError.h"
 
 #include "thirdparty/json.hpp"
 #include "crypto/SHAHash.h"
@@ -63,7 +65,7 @@ void setThreadName( std::string const& _n ) {
 std::string getThreadName(){
     char buf[32];
     int ok = pthread_getname_np(pthread_self(), buf, sizeof(buf));
-    assert(ok == 0);
+    ASSERT(ok == 0);
     return std::string(buf);
 }
 

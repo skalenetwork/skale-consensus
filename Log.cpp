@@ -147,11 +147,11 @@ Log::Log( node_id _nodeID ) {
     loggers["Pending"] = pendingQueueLogger;
 }
 
-void Log::log( level_enum _severity, const string& _message ) {
+void Log::log( level_enum _severity, const string& _message, const string& _className ) {
     if ( logThreadLocal_ == nullptr ) {
         configLogger->log( _severity, _message );
     } else {
-        logThreadLocal_->loggerForClass( __CLASS_NAME__.c_str() )->log( _severity, _message );
+        logThreadLocal_->loggerForClass(_className.c_str())->log( _severity, _message );
     }
 }
 

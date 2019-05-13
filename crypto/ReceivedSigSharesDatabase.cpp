@@ -71,7 +71,7 @@ void ReceivedSigSharesDatabase::mergeAndSaveBLSSignature(block_id _blockId) {
     }
 
     auto sigSet = getSigShareSet(_blockId);
-    assert(sigSet->isTwoThird());
+    ASSERT(sigSet->isTwoThird());
     auto signature = sigSet->mergeSignature();
     blockSignatures[_blockId] = signature;
 

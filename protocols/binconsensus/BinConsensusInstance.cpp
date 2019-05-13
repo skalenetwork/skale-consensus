@@ -26,6 +26,8 @@
 #include "../../exceptions/FatalError.h"
 #include "../../abstracttcpserver/ConnectionStatus.h"
 #include "../../thirdparty/json.hpp"
+#include "../../crypto/bls_include.h"
+
 #include "../../crypto/BLSSigShare.h"
 
 #include "AUXBroadcastMessage.h"
@@ -53,8 +55,11 @@
 #include "ChildBVDecidedMessage.h"
 #include "BVBroadcastMessage.h"
 #include "../blockconsensus/BlockConsensusAgent.h"
-#include "BinConsensusInstance.h"
+
 #include "../../datastructures/SigShareSet.h"
+
+#include "BinConsensusInstance.h"
+
 
 using namespace std;
 

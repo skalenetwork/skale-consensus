@@ -21,16 +21,33 @@
     @date 2018
 */
 
+#define CATCH_CONFIG_MAIN
+#include "thirdparty/catch.hpp"
+#include "Log.h"
 #include "SkaleConfig.h"
-
 #include "node/ConsensusEngine.h"
+
+#include "Consensust.h"
 
 #ifdef GOOGLE_PROFILE
 #include <gperftools/heap-profiler.h>
 #endif
 
 
-int main(int argc, char **argv) {
+
+uint64_t Consensust::getRunningTime()  {
+    return runningTimeMs;
+}
+
+void Consensust::setRunningTime(uint64_t _runningTimeMs) {
+    Consensust::runningTimeMs = _runningTimeMs;
+}
+
+uint64_t Consensust::runningTimeMs = 60000000;
+
+
+
+TEST_CASE( "Run basic consensus", "[basic-consensus]") {
 
 #ifdef GOOGLE_PROFILE
     HeapProfilerStart("/tmp/consensusd.profile");
@@ -39,43 +56,39 @@ int main(int argc, char **argv) {
     signal(SIGPIPE, SIG_IGN);
 
 
-
-    if (argc < 2) {
-        printf("Usage: skaled nodes_dir node_id1 node_id2 \n");
-        exit(1);
-    }
-
-    for (int i = 2; i < argc; i++) {
-
-        uint64_t ui64;
-        ui64 = static_cast<uint64_t >(stoll(argv[i]));
-
-        Node::nodeIDs.insert(node_id(ui64));
-
-        cerr << node_id(ui64) << endl;
-    }
-
-    fs_path dirPath(boost::filesystem::system_complete(fs_path(argv[1])));
+    fs_path dirPath(boost::filesystem::system_complete("."));
 
     ConsensusEngine engine;
 
-    engine.parseConfigsAndCreateAllNodes(dirPath);
+
+    INFO("Parsing configs");
 
 
-    engine.slowStartBootStrapTest();
+    REQUIRE_NOTHROW(engine.parseConfigsAndCreateAllNodes(dirPath));
 
-    sleep(10);
 
-    engine.exitGracefully();
+    INFO("Starting nodes");
 
-    cerr << "Exited" << endl;
 
+    REQUIRE_NOTHROW(engine.slowStartBootStrapTest());
+
+
+    INFO("Running consensus");
+
+
+    usleep(Consensust::getRunningTime()); /* Flawfinder: ignore */
+
+
+    INFO("Exiting gracefully");
+
+
+    REQUIRE_NOTHROW(engine.exitGracefully());
 
 #ifdef GOOGLE_PROFILE
     HeapProfilerStop();
 #endif
 
 
-
+    SUCCEED();
 
 }

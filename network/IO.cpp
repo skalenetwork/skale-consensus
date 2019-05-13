@@ -207,7 +207,7 @@ void IO::writePartialHashes(
 }
 
 IO::IO(Schain *_sChain) : sChain(_sChain) {
-    assert(_sChain);
+    ASSERT(_sChain);
 };
 
 

@@ -493,7 +493,7 @@ void Schain::pushBlockToExtFace(ptr<CommittedBlock> &_block) {
 
     ConsensusExtFace::transactions_vector tv;
 
-    assert((returnedBlock + 1 == blockID) || returnedBlock == 0);
+    ASSERT((returnedBlock + 1 == blockID) || returnedBlock == 0);
 
     for (auto &&t: *_block->getTransactionList()->getItems()) {
 
@@ -515,7 +515,7 @@ void Schain::startConsensus(const block_id _blockID) {
 
         LOG(debug, "Got proposed block set for block:" + to_string(_blockID));
 
-        assert(blockProposalsDatabase->isTwoThird(_blockID));
+        ASSERT(blockProposalsDatabase->isTwoThird(_blockID));
 
         LOG(debug, "StartConsensusIfNeeded BLOCK NUMBER:" + to_string((_blockID)));
 
@@ -766,7 +766,7 @@ void Schain::sigShareArrived(ptr<BLSSigShare> _sigShare) {
         auto blockId = _sigShare->getBlockId();
         auto mySig = sign(getBlock(blockId)->getHash(), blockId);
         blockSigSharesDatabase->addSigShare(mySig);
-        assert(blockSigSharesDatabase->isTwoThird(blockId));
+        ASSERT(blockSigSharesDatabase->isTwoThird(blockId));
         blockSigSharesDatabase->mergeAndSaveBLSSignature(blockId);
     };
 }
