@@ -43,6 +43,7 @@ def getConsensustExecutive():
     consensustExecutive = root + '/cmake-build-debug/consensust'
     if not os.path.isfile(consensustExecutive):
         consensustExecutive = root + "/consensust"
+        print consensustExecutive
         assert os.path.isfile(consensustExecutive)
     return consensustExecutive
 
