@@ -45,6 +45,8 @@ void Consensust::setRunningTime(uint64_t _runningTimeMs) {
 
 uint64_t Consensust::runningTimeMs = 60000000;
 
+fs_path Consensust::configDirPath;
+
 const fs_path &Consensust::getConfigDirPath() {
     return configDirPath;
 }
