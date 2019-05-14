@@ -24,13 +24,25 @@
 #pragma once
 
 class Consensust {
+
+    static uint64_t runningTimeMs;
+    static fs_path configDirPath;
+
 public:
+    static const fs_path &getConfigDirPath();
+
+    static void setConfigDirPath(const fs_path &_configDirPath);
+
     static uint64_t getRunningTime();
 
-    static void setRunningTime(uint64_t runningTime);
+    static void setRunningTime(uint64_t _runningTime);
 
-private:
-    static uint64_t runningTimeMs;
+    static void testInit();
+
+    static void testFinalize();
+
+
+
 };
 
 

@@ -303,6 +303,7 @@ node_count ConsensusEngine::nodesCount() {
 
 ConsensusEngine::ConsensusEngine() {
 
+    signal(SIGPIPE, SIG_IGN);
 
     libff::init_alt_bn128_params();
 

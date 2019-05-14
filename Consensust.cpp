@@ -22,6 +22,7 @@
 */
 
 #define CATCH_CONFIG_MAIN
+
 #include "thirdparty/catch.hpp"
 #include "Log.h"
 #include "SkaleConfig.h"
@@ -34,8 +35,7 @@
 #endif
 
 
-
-uint64_t Consensust::getRunningTime()  {
+uint64_t Consensust::getRunningTime() {
     return runningTimeMs;
 }
 
@@ -45,18 +45,65 @@ void Consensust::setRunningTime(uint64_t _runningTimeMs) {
 
 uint64_t Consensust::runningTimeMs = 60000000;
 
+const fs_path &Consensust::getConfigDirPath() {
+    return configDirPath;
+}
+
+void Consensust::setConfigDirPath(const fs_path &_configDirPath) {
+    Consensust::configDirPath = _configDirPath;
+}
 
 
-TEST_CASE( "Run basic consensus", "[basic-consensus]") {
+TEST_CASE("Run basic consensus", "[basic-consensus]") {
+
+
+}
+
+void Consensust::testInit() {
+
+    setConfigDirPath(boost::filesystem::system_complete("."));
 
 #ifdef GOOGLE_PROFILE
     HeapProfilerStart("/tmp/consensusd.profile");
 #endif
+}
+
+void Consensust::testFinalize() {
 
     signal(SIGPIPE, SIG_IGN);
 
+#ifdef GOOGLE_PROFILE
+    HeapProfilerStop();
+#endif
+}
 
-    fs_path dirPath(boost::filesystem::system_complete("."));
+
+TEST_CASE("Run consensus init destroy", "[consensus start-destroy]") {
+    Consensust::testInit();
+
+    for (int i = 0; i < 10; i++) {
+
+
+        INFO("Parsing configs");
+
+        ConsensusEngine engine;
+
+
+        REQUIRE_NOTHROW(engine.parseConfigsAndCreateAllNodes(Consensust::getConfigDirPath()));
+
+
+        INFO("Starting nodes");
+
+
+    }
+
+    Consensust::testFinalize();
+}
+
+
+TEST_CASE("Run basic consensus", "[basic-consensus]") {
+
+    Consensust::testInit();
 
     ConsensusEngine engine;
 
@@ -64,8 +111,7 @@ TEST_CASE( "Run basic consensus", "[basic-consensus]") {
     INFO("Parsing configs");
 
 
-    REQUIRE_NOTHROW(engine.parseConfigsAndCreateAllNodes(dirPath));
-
+    REQUIRE_NOTHROW(engine.parseConfigsAndCreateAllNodes(Consensust::getConfigDirPath()));
 
     INFO("Starting nodes");
 
@@ -84,11 +130,8 @@ TEST_CASE( "Run basic consensus", "[basic-consensus]") {
 
     REQUIRE_NOTHROW(engine.exitGracefully());
 
-#ifdef GOOGLE_PROFILE
-    HeapProfilerStop();
-#endif
-
-
     SUCCEED();
+
+    Consensust::testFinalize();
 
 }
