@@ -44,4 +44,5 @@ public:
 
     ptr<vector<uint8_t>> serializedBlock = nullptr;
 
+    ptr<std::vector<unsigned long, std::allocator<unsigned long>>> parseBlockHeader(const shared_ptr<string> &header);
 };

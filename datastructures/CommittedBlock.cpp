@@ -21,6 +21,9 @@
     @date 2018
 */
 
+#include <boost/iostreams/device/array.hpp>
+#include <boost/iostreams/stream.hpp>
+
 #include "../SkaleConfig.h"
 #include "../Log.h"
 #include "../exceptions/FatalError.h"
@@ -96,69 +99,87 @@ CommittedBlock::CommittedBlock(ptr<vector<uint8_t>> _serializedBlock) : BlockPro
     auto size = _serializedBlock->size();
 
     if (size < sizeof(headerSize) + 2) {
-        BOOST_THROW_EXCEPTION(InvalidArgumentException("Serialized block size too small:" + to_string(size),
+        BOOST_THROW_EXCEPTION(InvalidArgumentException("Serialized block too small:" + to_string(size),
                                                        __CLASS_NAME__));
     }
 
     serializedBlock = _serializedBlock;
 
-    std::memcpy(&headerSize, _serializedBlock->data(), sizeof(headerSize));
+    using boost::iostreams::array_source;
+    using boost::iostreams::stream;
+
+    array_source src((char*)_serializedBlock->data(), _serializedBlock->size());
+
+    stream<array_source>  in(src);
+
+    in.read((char*)&headerSize, sizeof(headerSize)); /* Flawfinder: ignore */
 
 
-    if (headerSize < 3 || headerSize > _serializedBlock->size()) {
+    if (headerSize < 2 || headerSize + sizeof(headerSize) > _serializedBlock->size()) {
         BOOST_THROW_EXCEPTION(InvalidArgumentException("Invalid header size" + to_string(headerSize), __CLASS_NAME__));
     }
 
-    if ((*_serializedBlock)[sizeof(uint64_t)] != '{') {
-        BOOST_THROW_EXCEPTION(InvalidArgumentException("Block does header does not start with {", __CLASS_NAME__));
+    if (headerSize  > MAX_BUFFER_SIZE) {
+        BOOST_THROW_EXCEPTION(InvalidArgumentException("Header size too large", __CLASS_NAME__));
+    }
+
+
+
+    auto header = make_shared<string>(headerSize, ' ');
+
+    in.read((char*)header->c_str(), headerSize); /* Flawfinder: ignore */
+
+    if ((*header)[0] != '{') {
+        BOOST_THROW_EXCEPTION(InvalidArgumentException("Block header does not start with {", __CLASS_NAME__));
     }
 
     if ((*_serializedBlock)[headerSize + sizeof(uint64_t) - 1] != '}') {
         BOOST_THROW_EXCEPTION(InvalidArgumentException("Block header does not end with }", __CLASS_NAME__));
     }
 
-    if (headerSize > MAX_BUFFER_SIZE) {
-        BOOST_THROW_EXCEPTION(InvalidArgumentException("Header size too large", __CLASS_NAME__));
-    }
-
-    auto s = make_shared<string>((const char *) _serializedBlock->data() + sizeof(headerSize),
-                                 headerSize);
-
-
-    nlohmann::json js;
-    auto transactionSizes = make_shared<vector<size_t>>();
-
-    size_t totalSize = 0;
-
+    ptr<vector<size_t>> transactionSizes;
 
     try {
-        js = nlohmann::json::parse(*s);
-
-        this->proposerIndex = schain_index(Header::getUint64(js, "proposerIndex"));
-        this->proposerNodeID = node_id(Header::getUint64(js, "proposerNodeID"));
-        this->blockID = block_id(Header::getUint64(js, "blockID"));
-        this->schainID = schain_id(Header::getUint64(js, "schainID"));
-        this->timeStamp = Header::getUint64(js, "timeStamp");
-
-        this->transactionCount = js["sizes"].size();
-        this->hash = SHAHash::fromHex(Header::getString(js, "hash"));
-
-
-        Header::nullCheck(js, "sizes");
-        nlohmann::json jsonTransactionSizes = js["sizes"];
-        this->transactionCount = jsonTransactionSizes.size();
-
-        for (auto &&jsize : jsonTransactionSizes) {
-            transactionSizes->push_back(jsize);
-            totalSize += (size_t) jsize;
-        }
-
+        transactionSizes =  parseBlockHeader(header);
     } catch (...) {
-        throw_with_nested(ParsingException("Could not parse catchup block header: \n" + *s, __CLASS_NAME__));
+        throw_with_nested(ParsingException("Could not parse committed block header: \n" + *header, __CLASS_NAME__));
     }
 
     transactionList = make_shared<TransactionList>(transactionSizes, _serializedBlock, headerSize);
 
     calculateHash();
+
+}
+
+ptr<vector<size_t>> CommittedBlock::parseBlockHeader(
+        const shared_ptr<string> &header) {
+
+
+    auto transactionSizes = make_shared<vector<size_t>>();
+
+    size_t totalSize = 0;
+
+    auto js = nlohmann::json::parse(*header);
+
+    proposerIndex = schain_index(Header::getUint64(js, "proposerIndex"));
+    proposerNodeID = node_id(Header::getUint64(js, "proposerNodeID"));
+    blockID = block_id(Header::getUint64(js, "blockID"));
+    schainID = schain_id(Header::getUint64(js, "schainID"));
+    timeStamp = Header::getUint64(js, "timeStamp");
+
+    transactionCount = js["sizes"].size();
+    hash = SHAHash::fromHex(Header::getString(js, "hash"));
+
+
+    Header::nullCheck(js, "sizes");
+    nlohmann::json jsonTransactionSizes = js["sizes"];
+    transactionCount = jsonTransactionSizes.size();
+
+    for (auto &&jsize : jsonTransactionSizes) {
+        transactionSizes->push_back(jsize);
+        totalSize += (size_t) jsize;
+    }
+
+    return transactionSizes;
 
 };
