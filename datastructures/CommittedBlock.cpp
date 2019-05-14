@@ -112,7 +112,7 @@ CommittedBlock::CommittedBlock(ptr<vector<uint8_t>> _serializedBlock) : BlockPro
 
     stream<array_source>  in(src);
 
-    in.read((char*)&headerSize, sizeof(headerSize));
+    in.read((char*)&headerSize, sizeof(headerSize)); /* Flawfinder: ignore */
 
 
     if (headerSize < 2 || headerSize + sizeof(headerSize) > _serializedBlock->size()) {
@@ -126,7 +126,7 @@ CommittedBlock::CommittedBlock(ptr<vector<uint8_t>> _serializedBlock) : BlockPro
 
     auto header = make_shared<string>(headerSize, ' ');
 
-    in.read((char*)header->c_str(), headerSize);
+    in.read((char*)header->c_str(), headerSize); /* Flawfinder: ignore */
 
     if ((*header)[0] != '{') {
         BOOST_THROW_EXCEPTION(InvalidArgumentException("Block header does not start with {", __CLASS_NAME__));
