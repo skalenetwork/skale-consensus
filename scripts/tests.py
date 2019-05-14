@@ -28,7 +28,7 @@ import sys
 
 
 
-def basicConsensusTest(_test, _consensustExecutive):
+def fullConsensusTest(_test, _consensustExecutive):
     testDir = root + "/test/" + _test
     os.chdir(testDir)
     os.system("rm  -rf " + testDir + "/core")
@@ -49,10 +49,10 @@ def getConsensustExecutive():
 
 consensustExecutive = getConsensustExecutive()
 
-basicConsensusTest("onenode", consensustExecutive)
-basicConsensusTest("twonodes", consensustExecutive)
-basicConsensusTest("fournodes", consensustExecutive)
-basicConsensusTest("sixteennodes", consensustExecutive)
+fullConsensusTest("onenode", consensustExecutive)
+fullConsensusTest("twonodes", consensustExecutive)
+fullConsensusTest("fournodes", consensustExecutive)
+fullConsensusTest("sixteennodes", consensustExecutive)
 
 
 

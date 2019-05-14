@@ -78,7 +78,7 @@ void Consensust::testFinalize() {
 }
 
 
-TEST_CASE("Run consensus init destroy", "[consensus start-destroy]") {
+TEST_CASE("Run consensus init destroy", "[consensus-start-destroy]") {
     Consensust::testInit();
 
     for (int i = 0; i < 10; i++) {
@@ -101,7 +101,7 @@ TEST_CASE("Run consensus init destroy", "[consensus start-destroy]") {
 }
 
 
-TEST_CASE("Run basic consensus", "[basic-consensus]") {
+TEST_CASE("Run basic consensus", "[consensus-basic]") {
 
     Consensust::testInit();
 
