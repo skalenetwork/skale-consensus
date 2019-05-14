@@ -41,7 +41,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with skale-consensus.  If not, see <http://www.gnu.org/licenses/>.
 #
-#    @file  build.scripy
+#    @file  build.py
 #    @author Stan Kladko
 #    @date 2018
 #
