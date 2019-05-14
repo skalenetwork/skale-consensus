@@ -24,21 +24,36 @@
 
 import os
 import subprocess
-import sys;
+import sys
+
+
+
+def basicConsensusTest(_test, _consensustExecutive):
+    testDir = root + "/test/" + _test
+    os.chdir(testDir)
+    os.system("rm  -rf " + testDir + "/core")
+    os.system("rm  -rf /tmp/*.db")
+    subprocess.call(_consensustExecutive)
 
 
 root = sys.argv[1]
 
-os.chdir(root + "/test/fournodes")
-os.system("rm  -rf " + root + "/core")
-os.system("rm  -rf /tmp/*.db")
-subprocess.call(["ls", root])
-subprocess.call(["ls", root + "/cmake-build-debug"])
-consensust = root + '/cmake-build-debug/consensust'
-if not os.path.isfile(consensust):
-    consensust = root + "/consensust"
-    assert os.path.isfile(consensust)
 
-subprocess.call(consensust)
+def getConsensustExecutive():
+    consensustExecutive = root + '/cmake-build-debug/consensust'
+    if not os.path.isfile(consensustExecutive):
+        consensustExecutive = root + "/consensust"
+        assert os.path.isfile(consensustExecutive)
+    return consensustExecutive
+
+
+consensustExecutive = getConsensustExecutive()
+
+basicConsensusTest("onenode", consensustExecutive)
+basicConsensusTest("twonodes", consensustExecutive)
+basicConsensusTest("fournodes", consensustExecutive)
+basicConsensusTest("sixteennodes", consensustExecutive)
+
+
 
 
