@@ -113,12 +113,12 @@ TEST_CASE("Run basic consensus", "[consensus-basic]") {
     INFO("Parsing configs");
 
 
-    REQUIRE_NOTHROW(engine.parseConfigsAndCreateAllNodes(Consensust::getConfigDirPath()));
+    engine.parseConfigsAndCreateAllNodes(Consensust::getConfigDirPath());
 
     INFO("Starting nodes");
 
 
-    REQUIRE_NOTHROW(engine.slowStartBootStrapTest());
+    engine.slowStartBootStrapTest();
 
 
     INFO("Running consensus");
@@ -130,7 +130,7 @@ TEST_CASE("Run basic consensus", "[consensus-basic]") {
     INFO("Exiting gracefully");
 
 
-    REQUIRE_NOTHROW(engine.exitGracefully());
+    engine.exitGracefully();
 
     SUCCEED();
 
