@@ -60,7 +60,7 @@
 
 BlockFinalizeClientAgent::BlockFinalizeClientAgent(Schain &_sChain) : AbstractClientAgent(_sChain, PROPOSAL) {
     try {
-        LOG(info, "Constructing blockProposalPushAgent");
+        LOG(debug, "Constructing blockFinalizeClientAgent");
 
         this->blockFinalizeThreadPool = make_shared<BlockFinalizeClientThreadPool>(
                 num_threads((uint64_t) _sChain.getNodeCount()), this);
