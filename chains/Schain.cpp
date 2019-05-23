@@ -319,7 +319,7 @@ void Schain::blockCommitsArrivedThroughCatchup(ptr<CommittedBlockList> _blocks) 
     }
 
     if (committedIDOld < committedBlockID) {
-        LOG(info, "Successful catchup, proposing next block)");
+        LOG(info, "BLOCK_CATCHUP:" + to_string(committedBlockID - committedIDOld) + " BLOCKS)");
         proposeNextBlock(previosBlockTimeStamp);
     }
 }
@@ -411,7 +411,7 @@ void Schain::processCommittedBlock(ptr<CommittedBlock> _block) {
     totalTransactions += _block->getTransactionList()->size();
 
     auto h = _block->getHash()->toHex()->substr(0, 8);
-    LOG(info, "PRPSR:" + to_string(_block->getProposerIndex()) +
+    LOG(info, "BLOCK_COMMIT: PRPSR:" + to_string(_block->getProposerIndex()) +
               ":BID: " + to_string(_block->getBlockID()) + ":HASH:" +
               h +
               +":BLOCK_TXS:" + to_string(_block->getTransactionCount()) + ":DMSG" + to_string(getMessagesCount()) +
@@ -550,7 +550,7 @@ void Schain::startConsensus(const block_id _blockID) {
     auto envelope = make_shared<InternalMessageEnvelope>(ORIGIN_EXTERNAL, message, *this);
 
 
-    LOG(info, "Starting consensus for block id:" + to_string(_blockID));
+    LOG(debug, "Starting consensus for block id:" + to_string(_blockID));
 
     postMessage(envelope);
 
