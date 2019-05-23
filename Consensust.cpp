@@ -56,10 +56,6 @@ void Consensust::setConfigDirPath(const fs_path &_configDirPath) {
 }
 
 
-TEST_CASE("Run basic consensus", "[basic-consensus]") {
-
-
-}
 
 void Consensust::testInit() {
 
@@ -80,7 +76,7 @@ void Consensust::testFinalize() {
 }
 
 
-TEST_CASE("Run consensus init destroy", "[consensus-start-destroy]") {
+TEST_CASE("Consensus init destroy", "[consensus-init-destroy]") {
     Consensust::testInit();
 
     for (int i = 0; i < 10; i++) {
