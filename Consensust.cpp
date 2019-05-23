@@ -76,6 +76,8 @@ void Consensust::testFinalize() {
 }
 
 
+/*
+
 TEST_CASE("Consensus init destroy", "[consensus-init-destroy]") {
     Consensust::testInit();
 
@@ -97,6 +99,8 @@ TEST_CASE("Consensus init destroy", "[consensus-init-destroy]") {
 
     Consensust::testFinalize();
 }
+
+ */
 
 
 TEST_CASE("Run basic consensus", "[consensus-basic]") {
