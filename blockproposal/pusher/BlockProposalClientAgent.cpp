@@ -59,7 +59,7 @@
 
 BlockProposalClientAgent::BlockProposalClientAgent(Schain &_sChain) : AbstractClientAgent(_sChain, PROPOSAL) {
     try {
-        LOG(info, "Constructing blockProposalPushAgent");
+        LOG(debug, "Constructing blockProposalPushAgent");
 
         this->blockProposalThreadPool = make_shared<BlockProposalPusherThreadPool>(
                 num_threads((uint64_t) _sChain.getNodeCount()), this);
