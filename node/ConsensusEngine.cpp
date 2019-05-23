@@ -256,16 +256,14 @@ void ConsensusEngine::startAll() {
 
 void ConsensusEngine::slowStartBootStrapTest() {
     for (auto const it : nodes) {
-        LOG(info, "Starting node");
+        LOG(info, "Starting node:" + to_string(it.second->getNodeID()));
         it.second->start();
-        LOG(info, "Started node");
     }
 
     for (auto const it : nodes) {
-        LOG(info, "Starting node");
         it.second->startClients();
         it.second->getSchain()->bootstrap(lastCommittedBlockID, lastCommittedBlockTimeStamp);
-        LOG(info, "Started node");
+        LOG(info, "Started node"  + to_string(it.second->getNodeID()));
     }
 
 

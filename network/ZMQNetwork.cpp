@@ -87,7 +87,7 @@ int ZMQNetwork::interruptableRecv(void *_socket, void *_buf, size_t _len, int _f
         rc = zmq_recv(_socket, _buf,
                       _len, _flags);
         if (this->getNode()->isExitRequested()) {
-            LOG(info, getThreadName() + " zmq debug: closing = " + to_string((uint64_t)_socket));
+            LOG(debug, getThreadName() + " zmq debug: closing = " + to_string((uint64_t)_socket));
             int linger = 1;
             zmq_setsockopt(_socket, ZMQ_LINGER, &linger, sizeof(linger));
             zmq_close(_socket);
@@ -120,7 +120,7 @@ bool ZMQNetwork::interruptableSend(void *_socket, void *_buf, size_t _len, bool 
         rc = zmq_send(_socket, _buf, _len, flags);
 
         if (this->getNode()->isExitRequested()) {
-            LOG(info, getThreadName() + "zmq debug: closing = " + to_string((uint64_t)_socket));
+            LOG(debug, getThreadName() + "zmq debug: closing = " + to_string((uint64_t)_socket));
             zmq_close(_socket);
             throw ExitRequestedException();
         }

@@ -83,7 +83,7 @@ void *ZMQServerSocket::getReceiveSocket()  {
 
 #endif
 
-        LOG(info, getThreadName() + " zmq debug: receiveSocket = " + to_string((uint64_t)receiveSocket));
+        LOG(debug, getThreadName() + " zmq debug: receiveSocket = " + to_string((uint64_t)receiveSocket));
 
         int timeout = ZMQ_TIMEOUT;
         int linger= 1000;
@@ -115,7 +115,7 @@ void ZMQServerSocket::closeReceive() {
 
 void ZMQServerSocket::closeSend() {
     for (auto &&item : sendSockets) {
-        LOG(info, getThreadName() + " zmq debug in closeSend(): closing " + to_string((uint64_t) item.second));
+        LOG(debug, getThreadName() + " zmq debug in closeSend(): closing " + to_string((uint64_t) item.second));
         zmq_close(item.second);
     }
 }

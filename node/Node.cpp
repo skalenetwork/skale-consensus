@@ -276,12 +276,8 @@ void Node::start() {
 }
 
 void Node::startClients() {
-
     sChain->healthCheck();
-
     releaseGlobalClientBarrier();
-
-    LOG(info, "Started node");
 }
 
 
