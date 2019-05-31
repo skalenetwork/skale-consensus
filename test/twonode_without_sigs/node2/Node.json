@@ -1,7 +1,0 @@
-{
-  "nodeName":  "Node2",
-  "nodeID": 2,
-  "bindIP": "127.0.0.2",
-  "logLevel": "info",
-  "simulateNetworkWriteDelayMs": 100
-}
