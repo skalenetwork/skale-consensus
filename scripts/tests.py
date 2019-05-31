@@ -55,6 +55,7 @@ fullConsensusTest("onenode", consensustExecutive)
 fullConsensusTest("twonodes", consensustExecutive)
 fullConsensusTest("fournodes", consensustExecutive)
 fullConsensusTest("sixteennodes", consensustExecutive)
+fullConsensusTest("fournodes_catchup", consensustExecutive)
 
 
 
