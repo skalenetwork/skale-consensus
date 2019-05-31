@@ -68,7 +68,7 @@ int main(int argc, char **argv) {
 
     engine.slowStartBootStrapTest();
 
-    sleep(60);
+    sleep(600);
 
     engine.exitGracefully();
 

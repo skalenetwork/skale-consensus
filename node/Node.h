@@ -82,6 +82,10 @@ class Node {
 
     network_port basePort = 0;
 
+    uint64_t simulateNetworkWriteDelayMs = 0;
+
+private:
+
 
     ptr<Sockets> sockets = nullptr;
 
@@ -158,6 +162,9 @@ private:
     ptr<BLSPrivateKey> blsPrivateKey;
 
 public:
+
+    uint64_t getSimulateNetworkWriteDelayMs() const;
+
     const ptr<BLSPublicKey> &getBlsPublicKey() const;
 
     const ptr<BLSPrivateKey> &getBlsPrivateKey() const;
@@ -269,9 +276,9 @@ public:
     uint64_t getWaitAfterNetworkErrorMs();
 
 
-    uint64_t getParamUint64(const string &paramName, uint64_t paramDefault);
+    uint64_t getParamUint64(const string &_paramName, uint64_t paramDefault);
 
-    int64_t getParamInt64(const string &paramName, uint64_t paramDefault);
+    int64_t getParamInt64(const string &_paramName, uint64_t _paramDefault);
 
     void initParamsFromConfig();
 

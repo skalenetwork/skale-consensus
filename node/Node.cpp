@@ -117,6 +117,7 @@ void Node::initLogging() {
 void Node::initParamsFromConfig() {
     nodeID = cfg.at("nodeID").get<uint64_t>();
 
+
     catchupIntervalMS = getParamUint64("catchupIntervalMs", CATCHUP_INTERVAL_MS);
 
     waitAfterNetworkErrorMs = getParamUint64("waitAfterNetworkErrorMs", WAIT_AFTER_NETWORK_ERROR_MS);
@@ -139,28 +140,40 @@ void Node::initParamsFromConfig() {
 
     auto emptyBlockIntervalMsTmp = getParamInt64("emptyBlockIntervalMs", EMPTY_BLOCK_INTERVAL_MS);
 
+
     if (emptyBlockIntervalMsTmp < 0) {
         emptyBlockIntervalMs = 100000000000000;
     } else {
         emptyBlockIntervalMs = emptyBlockIntervalMsTmp;
     }
 
+    simulateNetworkWriteDelayMs = getParamInt64("simulateNetworkWriteDelayMs", 0);
+
 
 }
 
-uint64_t Node::getParamUint64(const string &paramName, uint64_t paramDefault) {
-    if (cfg.find(paramName) != cfg.end()) {
-        return cfg.at(paramName).get<uint64_t>();
-    } else {
-        return paramDefault;
+uint64_t Node::getParamUint64(const string &_paramName, uint64_t paramDefault) {
+    try {
+        if (cfg.find(_paramName) != cfg.end()) {
+            return cfg.at(_paramName).get<uint64_t>();
+        } else {
+            return paramDefault;
+        }
+    } catch (...) {
+        throw_with_nested(ParsingException("Could not parse param " + _paramName, __CLASS_NAME__));
     }
 }
 
-int64_t Node::getParamInt64(const string &paramName, uint64_t paramDefault) {
-    if (cfg.find(paramName) != cfg.end()) {
-        return cfg.at(paramName).get<uint64_t>();
+int64_t Node::getParamInt64(const string &_paramName, uint64_t _paramDefault) {
+    try {
+    if (cfg.find(_paramName) != cfg.end()) {
+        return cfg.at(_paramName).get<uint64_t>();
     } else {
-        return paramDefault;
+        return _paramDefault;
+    }
+
+    } catch (...) {
+        throw_with_nested(ParsingException("Could not parse param " + _paramName, __CLASS_NAME__));
     }
 }
 
@@ -301,7 +314,7 @@ void Node::initSchain(ptr<NodeInfo> _localNodeInfo, const vector<ptr<NodeInfo>> 
 
         sChain = make_shared<Schain>(*this, _localNodeInfo->getSchainIndex(),
                                      _localNodeInfo->getSchainID(), _extFace);
-    }   catch (...) {
+    } catch (...) {
         throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
     }
 
@@ -561,4 +574,8 @@ bool Node::isBlsEnabled() const {
 void Node::setBasePort(const network_port &_basePort) {
     ASSERT(_basePort);
     basePort = _basePort;
+}
+
+uint64_t Node::getSimulateNetworkWriteDelayMs() const {
+    return simulateNetworkWriteDelayMs;
 }

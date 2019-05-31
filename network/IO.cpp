@@ -121,6 +121,9 @@ void IO::readBytes(file_descriptor descriptor, in_buffer *buffer, msg_len len) {
 }
 
 void IO::writeBytes(file_descriptor descriptor, out_buffer *buffer, msg_len len) {
+
+    usleep(sChain->getNode()->getSimulateNetworkWriteDelayMs() * 1000);
+
     ASSERT(buffer);
     ASSERT(len > 0);
     ASSERT(descriptor != 0);
