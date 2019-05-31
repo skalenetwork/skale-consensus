@@ -4,6 +4,6 @@
   "bindIP": "127.0.0.1",
   "logLevel": "info",
   "logLevelProposal": "info",
-  "simulateNetworkWriteDelayMs": 100,
+  "simulateNetworkWriteDelayMs": 100
 }
 
