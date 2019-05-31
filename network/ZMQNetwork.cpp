@@ -107,6 +107,9 @@ int ZMQNetwork::interruptableRecv(void *_socket, void *_buf, size_t _len, int _f
 
 bool ZMQNetwork::interruptableSend(void *_socket, void *_buf, size_t _len, bool _isNonBlocking) {
 
+
+    usleep(1000 * sChain->getNode()->getSimulateNetworkWriteDelayMs());
+
     int rc = -1;
 
 
