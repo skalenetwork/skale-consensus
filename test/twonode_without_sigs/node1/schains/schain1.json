@@ -1,0 +1,10 @@
+{
+  "schainName": "TestChain",
+  "schainID": 1,
+  "nodes": [
+    { "nodeID": 1, "ip": "127.0.0.1", "basePort": 1231, "schainIndex" : 0},
+    { "nodeID": 2, "ip": "127.0.0.2", "basePort":1231, "schainIndex" : 1}
+  ],
+
+  "blockProposalTest": "SLOW"
+}

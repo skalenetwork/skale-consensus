@@ -727,7 +727,9 @@ uint64_t BinConsensusInstance::calculateBLSRandom(bin_consensus_round _r) {
     sig->to_affine_coordinates();
     auto result = sig->X.as_ulong() + sig->Y.as_ulong();
 
-    LOG(trace, "Random for round: " + to_string(_r) + ":" + to_string(result));
+
+
+    LOG(debug, "Random for round: " + to_string(_r) + ":" + to_string(result));
 
     return sig->X.as_ulong() + sig->Y.as_ulong();
 }
