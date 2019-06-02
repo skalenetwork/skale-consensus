@@ -46,7 +46,14 @@ namespace leveldb{
     class DB;
 }
 
+
+enum PricingStrategyEnum {ZERO, DOS_PROTECT};
+
+
 class Node {
+
+
+
 
     ConsensusEngine* consensusEngine;
 
@@ -84,8 +91,7 @@ class Node {
 
     uint64_t simulateNetworkWriteDelayMs = 0;
 
-private:
-
+    PricingStrategyEnum DOS_PROTECT;
 
     ptr<Sockets> sockets = nullptr;
 
