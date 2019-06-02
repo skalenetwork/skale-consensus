@@ -16,17 +16,40 @@
     You should have received a copy of the GNU General Public License
     along with skale-consensus.  If not, see <http://www.gnu.org/licenses/>.
 
-    @file ZeroPricingStrategy.cpp
+    @file DynamicPricingStrategy.cpp
     @author Stan Kladko
     @date 2019
 */
 
 #include "../SkaleCommon.h"
 #include "ConsensusEngine.h"
-#include "ZeroPricingStrategy.h"
+#include "DynamicPricingStrategy.h"
 
-u256 ZeroPricingStrategy::calculatePrice(u256,
-                                         const ConsensusExtFace::transactions_vector &,
+
+
+u256 DynamicPricingStrategy::calculatePrice(u256 _previousPrice,
+                                         const ConsensusExtFace::transactions_vector & _block,
                                          uint64_t, uint64_t) {
-    return 0;
-}
+
+
+    static u256 maxPrice = pow(u256(2), 200);
+
+    auto loadPercentage = (_block.size() * 100) / MAX_TRANSACTIONS_PER_BLOCK;
+
+    u256 price;
+
+    if (loadPercentage < 70) {
+        price = _previousPrice / (70 - loadPercentage);
+        if (price < 1000) {
+            price = 1000;
+        }
+    } else {
+        if (_previousPrice <= maxPrice) {
+            price = maxPrice;
+        } else {
+            price = _previousPrice * (loadPercentage + 1 - 70);
+        }
+    }
+
+    return price;
+};

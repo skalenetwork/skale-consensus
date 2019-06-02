@@ -3546,6 +3546,33 @@ node/ConsensusEngine.cpp.s:
 	$(MAKE) -f CMakeFiles/consensus.dir/build.make CMakeFiles/consensus.dir/node/ConsensusEngine.cpp.s
 .PHONY : node/ConsensusEngine.cpp.s
 
+node/DynamicPricingStrategy.o: node/DynamicPricingStrategy.cpp.o
+
+.PHONY : node/DynamicPricingStrategy.o
+
+# target to build an object file
+node/DynamicPricingStrategy.cpp.o:
+	$(MAKE) -f CMakeFiles/consensus.dir/build.make CMakeFiles/consensus.dir/node/DynamicPricingStrategy.cpp.o
+.PHONY : node/DynamicPricingStrategy.cpp.o
+
+node/DynamicPricingStrategy.i: node/DynamicPricingStrategy.cpp.i
+
+.PHONY : node/DynamicPricingStrategy.i
+
+# target to preprocess a source file
+node/DynamicPricingStrategy.cpp.i:
+	$(MAKE) -f CMakeFiles/consensus.dir/build.make CMakeFiles/consensus.dir/node/DynamicPricingStrategy.cpp.i
+.PHONY : node/DynamicPricingStrategy.cpp.i
+
+node/DynamicPricingStrategy.s: node/DynamicPricingStrategy.cpp.s
+
+.PHONY : node/DynamicPricingStrategy.s
+
+# target to generate assembly for a file
+node/DynamicPricingStrategy.cpp.s:
+	$(MAKE) -f CMakeFiles/consensus.dir/build.make CMakeFiles/consensus.dir/node/DynamicPricingStrategy.cpp.s
+.PHONY : node/DynamicPricingStrategy.cpp.s
+
 node/Node.o: node/Node.cpp.o
 
 .PHONY : node/Node.o
@@ -4371,6 +4398,9 @@ help:
 	@echo "... node/ConsensusEngine.o"
 	@echo "... node/ConsensusEngine.i"
 	@echo "... node/ConsensusEngine.s"
+	@echo "... node/DynamicPricingStrategy.o"
+	@echo "... node/DynamicPricingStrategy.i"
+	@echo "... node/DynamicPricingStrategy.s"
 	@echo "... node/Node.o"
 	@echo "... node/Node.i"
 	@echo "... node/Node.s"

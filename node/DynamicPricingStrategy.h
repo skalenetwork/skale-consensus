@@ -16,17 +16,17 @@
     You should have received a copy of the GNU General Public License
     along with skale-consensus.  If not, see <http://www.gnu.org/licenses/>.
 
-    @file ZeroPricingStrategy.h
+    @file DynamicPricingStrategy.h
     @author Stan Kladko
     @date 2019
 */
 
-#ifndef SKALED_ZEROPRICESTRATEGY_H
-#define SKALED_ZEROPRICINGSTRATEGY_H
+#ifndef SKALED_DYNAMICPRICINGSTRATEGY_H
+#define SKALED_DYNAMICPRICINGSTRATEGY_H
 
 #include "PricingStrategy.h"
 
-class ZeroPricingStrategy : public PricingStrategy{
+class DynamicPricingStrategy : public PricingStrategy {
 
 public:
 
@@ -36,4 +36,4 @@ public:
 };
 
 
-#endif //SKALED_ZEROPRICESTRATEGY_H
+#endif //SKALED_DYNAMICPRICINGSTRATEGY_H

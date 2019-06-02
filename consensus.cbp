@@ -1769,6 +1769,12 @@
 		<Unit filename="/d/skale-consensus/node/ConsensusEngine.h">
 			<Option target="consensus"/>
 		</Unit>
+		<Unit filename="/d/skale-consensus/node/DynamicPricingStrategy.cpp">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/node/DynamicPricingStrategy.h">
+			<Option target="consensus"/>
+		</Unit>
 		<Unit filename="/d/skale-consensus/node/Node.cpp">
 			<Option target="consensus"/>
 		</Unit>

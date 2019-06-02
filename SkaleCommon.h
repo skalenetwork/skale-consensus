@@ -265,7 +265,8 @@ BOOST_STRONG_TYPEDEF(char, out_buffer);
 
 BOOST_STRONG_TYPEDEF(char, in_buffer);
 
-using u256 =  boost::multiprecision::number<boost::multiprecision::cpp_int_backend<256, 256, boost::multiprecision::unsigned_magnitude, boost::multiprecision::unchecked, void>>;
+using u256 =  boost::multiprecision::number<boost::multiprecision::cpp_int_backend<256, 256, boost::multiprecision::unsigned_magnitude,
+boost::multiprecision::unchecked, void>>;
 
 
 inline std::string className(const std::string &prettyFunction) {
