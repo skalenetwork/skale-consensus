@@ -26,7 +26,7 @@
 
 
 class PricingStrategy {
-  uint256 calculatePrice(uint256 previousPrice, const transactions_vector &_approvedTransactions, uint64_t _timeStamp, uint64_t _blockID) = 0;
+  virtual u256 calculatePrice(u256 previousPrice, const ConsensusExtFace::transactions_vector &_approvedTransactions, uint64_t _timeStamp, uint64_t _blockID) = 0;
 };
 
 

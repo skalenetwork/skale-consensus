@@ -927,32 +927,32 @@ Log.cpp.s:
 	$(MAKE) -f CMakeFiles/consensus.dir/build.make CMakeFiles/consensus.dir/Log.cpp.s
 .PHONY : Log.cpp.s
 
-SkaleConfig.o: SkaleConfig.cpp.o
+SkaleCommon.o: SkaleCommon.cpp.o
 
-.PHONY : SkaleConfig.o
+.PHONY : SkaleCommon.o
 
 # target to build an object file
-SkaleConfig.cpp.o:
-	$(MAKE) -f CMakeFiles/consensus.dir/build.make CMakeFiles/consensus.dir/SkaleConfig.cpp.o
-.PHONY : SkaleConfig.cpp.o
+SkaleCommon.cpp.o:
+	$(MAKE) -f CMakeFiles/consensus.dir/build.make CMakeFiles/consensus.dir/SkaleCommon.cpp.o
+.PHONY : SkaleCommon.cpp.o
 
-SkaleConfig.i: SkaleConfig.cpp.i
+SkaleCommon.i: SkaleCommon.cpp.i
 
-.PHONY : SkaleConfig.i
+.PHONY : SkaleCommon.i
 
 # target to preprocess a source file
-SkaleConfig.cpp.i:
-	$(MAKE) -f CMakeFiles/consensus.dir/build.make CMakeFiles/consensus.dir/SkaleConfig.cpp.i
-.PHONY : SkaleConfig.cpp.i
+SkaleCommon.cpp.i:
+	$(MAKE) -f CMakeFiles/consensus.dir/build.make CMakeFiles/consensus.dir/SkaleCommon.cpp.i
+.PHONY : SkaleCommon.cpp.i
 
-SkaleConfig.s: SkaleConfig.cpp.s
+SkaleCommon.s: SkaleCommon.cpp.s
 
-.PHONY : SkaleConfig.s
+.PHONY : SkaleCommon.s
 
 # target to generate assembly for a file
-SkaleConfig.cpp.s:
-	$(MAKE) -f CMakeFiles/consensus.dir/build.make CMakeFiles/consensus.dir/SkaleConfig.cpp.s
-.PHONY : SkaleConfig.cpp.s
+SkaleCommon.cpp.s:
+	$(MAKE) -f CMakeFiles/consensus.dir/build.make CMakeFiles/consensus.dir/SkaleCommon.cpp.s
+.PHONY : SkaleCommon.cpp.s
 
 abstracttcpclient/AbstractClientAgent.o: abstracttcpclient/AbstractClientAgent.cpp.o
 
@@ -3627,6 +3627,33 @@ node/PricingStrategy.cpp.s:
 	$(MAKE) -f CMakeFiles/consensus.dir/build.make CMakeFiles/consensus.dir/node/PricingStrategy.cpp.s
 .PHONY : node/PricingStrategy.cpp.s
 
+node/ZeroPricingStrategy.o: node/ZeroPricingStrategy.cpp.o
+
+.PHONY : node/ZeroPricingStrategy.o
+
+# target to build an object file
+node/ZeroPricingStrategy.cpp.o:
+	$(MAKE) -f CMakeFiles/consensus.dir/build.make CMakeFiles/consensus.dir/node/ZeroPricingStrategy.cpp.o
+.PHONY : node/ZeroPricingStrategy.cpp.o
+
+node/ZeroPricingStrategy.i: node/ZeroPricingStrategy.cpp.i
+
+.PHONY : node/ZeroPricingStrategy.i
+
+# target to preprocess a source file
+node/ZeroPricingStrategy.cpp.i:
+	$(MAKE) -f CMakeFiles/consensus.dir/build.make CMakeFiles/consensus.dir/node/ZeroPricingStrategy.cpp.i
+.PHONY : node/ZeroPricingStrategy.cpp.i
+
+node/ZeroPricingStrategy.s: node/ZeroPricingStrategy.cpp.s
+
+.PHONY : node/ZeroPricingStrategy.s
+
+# target to generate assembly for a file
+node/ZeroPricingStrategy.cpp.s:
+	$(MAKE) -f CMakeFiles/consensus.dir/build.make CMakeFiles/consensus.dir/node/ZeroPricingStrategy.cpp.s
+.PHONY : node/ZeroPricingStrategy.cpp.s
+
 pendingqueue/PendingTransactionsAgent.o: pendingqueue/PendingTransactionsAgent.cpp.o
 
 .PHONY : pendingqueue/PendingTransactionsAgent.o
@@ -4053,9 +4080,9 @@ help:
 	@echo "... Log.o"
 	@echo "... Log.i"
 	@echo "... Log.s"
-	@echo "... SkaleConfig.o"
-	@echo "... SkaleConfig.i"
-	@echo "... SkaleConfig.s"
+	@echo "... SkaleCommon.o"
+	@echo "... SkaleCommon.i"
+	@echo "... SkaleCommon.s"
 	@echo "... abstracttcpclient/AbstractClientAgent.o"
 	@echo "... abstracttcpclient/AbstractClientAgent.i"
 	@echo "... abstracttcpclient/AbstractClientAgent.s"
@@ -4353,6 +4380,9 @@ help:
 	@echo "... node/PricingStrategy.o"
 	@echo "... node/PricingStrategy.i"
 	@echo "... node/PricingStrategy.s"
+	@echo "... node/ZeroPricingStrategy.o"
+	@echo "... node/ZeroPricingStrategy.i"
+	@echo "... node/ZeroPricingStrategy.s"
 	@echo "... pendingqueue/PendingTransactionsAgent.o"
 	@echo "... pendingqueue/PendingTransactionsAgent.i"
 	@echo "... pendingqueue/PendingTransactionsAgent.s"

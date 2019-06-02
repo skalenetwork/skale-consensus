@@ -932,10 +932,10 @@
 		<Unit filename="/d/skale-consensus/Log.h">
 			<Option target="consensus"/>
 		</Unit>
-		<Unit filename="/d/skale-consensus/SkaleConfig.cpp">
+		<Unit filename="/d/skale-consensus/SkaleCommon.cpp">
 			<Option target="consensus"/>
 		</Unit>
-		<Unit filename="/d/skale-consensus/SkaleConfig.h">
+		<Unit filename="/d/skale-consensus/SkaleCommon.h">
 			<Option target="consensus"/>
 		</Unit>
 		<Unit filename="/d/skale-consensus/abstracttcpclient/AbstractClientAgent.cpp">
@@ -1052,10 +1052,10 @@
 		<Unit filename="/d/skale-consensus/chains/SchainTest.h">
 			<Option target="consensus"/>
 		</Unit>
-		<Unit filename="/d/skale-consensus/consensus_pch/SkaleConfig.h.gch/.c++.rule">
+		<Unit filename="/d/skale-consensus/consensus_pch/SkaleCommon.h.gch/.c++.rule">
 			<Option target="consensus"/>
 		</Unit>
-		<Unit filename="/d/skale-consensus/consensus_pch/SkaleConfig.h.rule">
+		<Unit filename="/d/skale-consensus/consensus_pch/SkaleCommon.h.rule">
 			<Option target="consensus"/>
 		</Unit>
 		<Unit filename="/d/skale-consensus/crypto/BLSPrivateKey.cpp">
@@ -1785,6 +1785,12 @@
 			<Option target="consensus"/>
 		</Unit>
 		<Unit filename="/d/skale-consensus/node/PricingStrategy.h">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/node/ZeroPricingStrategy.cpp">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/node/ZeroPricingStrategy.h">
 			<Option target="consensus"/>
 		</Unit>
 		<Unit filename="/d/skale-consensus/pendingqueue/PendingTransactionsAgent.cpp">

@@ -16,12 +16,12 @@
     You should have received a copy of the GNU General Public License
     along with skale-consensus.  If not, see <http://www.gnu.org/licenses/>.
 
-    @file BVBMessagePayload.h
+    @file PricingStrategy.h
     @author Stan Kladko
-    @date 2018
+    @date 2019
 */
 
-#include "../../SkaleCommon.h"
-#include "ReceivedDASigShareDatabase.h"
-
-ReceivedDASigShareDatabase::ReceivedDASigShareDatabase(Schain &sChain) : ReceivedSigSharesDatabase(sChain) {}
+#include "../SkaleCommon.h"
+#include "../Log.h"
+#include "ConsensusEngine.h"
+#include "PricingStrategy.h"

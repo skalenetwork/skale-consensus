@@ -16,7 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with skale-consensus.  If not, see <http://www.gnu.org/licenses/>.
 
-    @file SkaleConfig.h
+    @file SkaleCommon.h
     @author Stan Kladko
     @date 2018
 */
@@ -214,7 +214,7 @@ using fs_path = boost::filesystem::path;  // #define fs_path boost::filesystem::
 
 typedef array<uint8_t, PARTIAL_SHA_HASH_LEN> partial_sha_hash;
 
-class SkaleConfig {
+class SkaleCommon {
 public:
 
     static constexpr const char *NODE_FILE_NAME = "Node.json";

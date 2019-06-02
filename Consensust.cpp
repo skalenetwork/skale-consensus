@@ -25,7 +25,7 @@
 
 #include "thirdparty/catch.hpp"
 #include "Log.h"
-#include "SkaleConfig.h"
+#include "SkaleCommon.h"
 #include "node/ConsensusEngine.h"
 
 #include "Consensust.h"

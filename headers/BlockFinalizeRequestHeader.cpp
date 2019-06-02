@@ -22,7 +22,7 @@
 */
 
 
-#include "../SkaleConfig.h"
+#include "../SkaleCommon.h"
 #include "../crypto/SHAHash.h"
 #include "../Log.h"
 #include "../exceptions/FatalError.h"

@@ -23,7 +23,7 @@
 
 
 #include "thirdparty/catch.hpp"
-#include "SkaleConfig.h"
+#include "SkaleCommon.h"
 #include "Consensusd.h"
 #include "node/ConsensusEngine.h"
 

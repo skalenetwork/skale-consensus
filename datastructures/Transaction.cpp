@@ -26,7 +26,7 @@
 
 
 
-#include "../SkaleConfig.h"
+#include "../SkaleCommon.h"
 #include "../chains/Schain.h"
 #include "../Log.h"
 #include "../exceptions/FatalError.h"

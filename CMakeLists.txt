@@ -144,7 +144,7 @@ SET(SRC_FILES
         ${threads_src}
         ${json_src}
         ${exceptions_src}
-        Agent.h Agent.cpp SkaleConfig.h SkaleConfig.cpp Log.h Log.cpp microprofile.cpp miniz.c)
+        Agent.h Agent.cpp SkaleCommon.h SkaleCommon.cpp Log.h Log.cpp microprofile.cpp miniz.c)
 
 
 
@@ -161,7 +161,7 @@ SET(LINK_LIBRARIES Threads::Threads Boost::log Boost::thread Boost::system Boost
 add_library(consensus ${SRC_FILES})
 
 target_link_libraries(consensus ${LINK_LIBRARIES})
-add_precompiled_header(consensus SkaleConfig.h FORCE_INCLUDE)
+add_precompiled_header(consensus SkaleCommon.h FORCE_INCLUDE)
 add_dependencies(consensus bls gmp secp256k1)
 
 # consensus test agent

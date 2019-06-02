@@ -21,7 +21,7 @@
     @date 2018
 */
 
-#include "../SkaleConfig.h"
+#include "../SkaleCommon.h"
 #include "../Log.h"
 #include "../exceptions/FatalError.h"
 #include "../Agent.h"
@@ -100,13 +100,13 @@ Node *ConsensusEngine::readNodeConfigFileAndCreateNode(
     try {
         fs_path nodeFileNamePath(path);
 
-        nodeFileNamePath /= string(SkaleConfig::NODE_FILE_NAME);
+        nodeFileNamePath /= string(SkaleCommon::NODE_FILE_NAME);
 
         checkExistsAndFile(nodeFileNamePath.string());
 
         fs_path schainDirNamePath(path);
 
-        schainDirNamePath /= string(SkaleConfig::SCHAIN_DIR_NAME);
+        schainDirNamePath /= string(SkaleCommon::SCHAIN_DIR_NAME);
 
         checkExistsAndDirectory(schainDirNamePath.string());
 
