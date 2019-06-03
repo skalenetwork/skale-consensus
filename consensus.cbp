@@ -1769,12 +1769,6 @@
 		<Unit filename="/d/skale-consensus/node/ConsensusEngine.h">
 			<Option target="consensus"/>
 		</Unit>
-		<Unit filename="/d/skale-consensus/node/DynamicPricingStrategy.cpp">
-			<Option target="consensus"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/node/DynamicPricingStrategy.h">
-			<Option target="consensus"/>
-		</Unit>
 		<Unit filename="/d/skale-consensus/node/Node.cpp">
 			<Option target="consensus"/>
 		</Unit>
@@ -1787,18 +1781,6 @@
 		<Unit filename="/d/skale-consensus/node/NodeInfo.h">
 			<Option target="consensus"/>
 		</Unit>
-		<Unit filename="/d/skale-consensus/node/PricingStrategy.cpp">
-			<Option target="consensus"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/node/PricingStrategy.h">
-			<Option target="consensus"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/node/ZeroPricingStrategy.cpp">
-			<Option target="consensus"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/node/ZeroPricingStrategy.h">
-			<Option target="consensus"/>
-		</Unit>
 		<Unit filename="/d/skale-consensus/pendingqueue/PendingTransactionsAgent.cpp">
 			<Option target="consensus"/>
 		</Unit>
@@ -1809,6 +1791,30 @@
 			<Option target="consensus"/>
 		</Unit>
 		<Unit filename="/d/skale-consensus/pendingqueue/TestMessageGeneratorAgent.h">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/pricing/DynamicPricingStrategy.cpp">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/pricing/DynamicPricingStrategy.h">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/pricing/PricingAgent.cpp">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/pricing/PricingAgent.h">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/pricing/PricingStrategy.cpp">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/pricing/PricingStrategy.h">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/pricing/ZeroPricingStrategy.cpp">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/pricing/ZeroPricingStrategy.h">
 			<Option target="consensus"/>
 		</Unit>
 		<Unit filename="/d/skale-consensus/protocols/InstanceGarbageCollectorAgent.cpp">

@@ -3546,33 +3546,6 @@ node/ConsensusEngine.cpp.s:
 	$(MAKE) -f CMakeFiles/consensus.dir/build.make CMakeFiles/consensus.dir/node/ConsensusEngine.cpp.s
 .PHONY : node/ConsensusEngine.cpp.s
 
-node/DynamicPricingStrategy.o: node/DynamicPricingStrategy.cpp.o
-
-.PHONY : node/DynamicPricingStrategy.o
-
-# target to build an object file
-node/DynamicPricingStrategy.cpp.o:
-	$(MAKE) -f CMakeFiles/consensus.dir/build.make CMakeFiles/consensus.dir/node/DynamicPricingStrategy.cpp.o
-.PHONY : node/DynamicPricingStrategy.cpp.o
-
-node/DynamicPricingStrategy.i: node/DynamicPricingStrategy.cpp.i
-
-.PHONY : node/DynamicPricingStrategy.i
-
-# target to preprocess a source file
-node/DynamicPricingStrategy.cpp.i:
-	$(MAKE) -f CMakeFiles/consensus.dir/build.make CMakeFiles/consensus.dir/node/DynamicPricingStrategy.cpp.i
-.PHONY : node/DynamicPricingStrategy.cpp.i
-
-node/DynamicPricingStrategy.s: node/DynamicPricingStrategy.cpp.s
-
-.PHONY : node/DynamicPricingStrategy.s
-
-# target to generate assembly for a file
-node/DynamicPricingStrategy.cpp.s:
-	$(MAKE) -f CMakeFiles/consensus.dir/build.make CMakeFiles/consensus.dir/node/DynamicPricingStrategy.cpp.s
-.PHONY : node/DynamicPricingStrategy.cpp.s
-
 node/Node.o: node/Node.cpp.o
 
 .PHONY : node/Node.o
@@ -3627,60 +3600,6 @@ node/NodeInfo.cpp.s:
 	$(MAKE) -f CMakeFiles/consensus.dir/build.make CMakeFiles/consensus.dir/node/NodeInfo.cpp.s
 .PHONY : node/NodeInfo.cpp.s
 
-node/PricingStrategy.o: node/PricingStrategy.cpp.o
-
-.PHONY : node/PricingStrategy.o
-
-# target to build an object file
-node/PricingStrategy.cpp.o:
-	$(MAKE) -f CMakeFiles/consensus.dir/build.make CMakeFiles/consensus.dir/node/PricingStrategy.cpp.o
-.PHONY : node/PricingStrategy.cpp.o
-
-node/PricingStrategy.i: node/PricingStrategy.cpp.i
-
-.PHONY : node/PricingStrategy.i
-
-# target to preprocess a source file
-node/PricingStrategy.cpp.i:
-	$(MAKE) -f CMakeFiles/consensus.dir/build.make CMakeFiles/consensus.dir/node/PricingStrategy.cpp.i
-.PHONY : node/PricingStrategy.cpp.i
-
-node/PricingStrategy.s: node/PricingStrategy.cpp.s
-
-.PHONY : node/PricingStrategy.s
-
-# target to generate assembly for a file
-node/PricingStrategy.cpp.s:
-	$(MAKE) -f CMakeFiles/consensus.dir/build.make CMakeFiles/consensus.dir/node/PricingStrategy.cpp.s
-.PHONY : node/PricingStrategy.cpp.s
-
-node/ZeroPricingStrategy.o: node/ZeroPricingStrategy.cpp.o
-
-.PHONY : node/ZeroPricingStrategy.o
-
-# target to build an object file
-node/ZeroPricingStrategy.cpp.o:
-	$(MAKE) -f CMakeFiles/consensus.dir/build.make CMakeFiles/consensus.dir/node/ZeroPricingStrategy.cpp.o
-.PHONY : node/ZeroPricingStrategy.cpp.o
-
-node/ZeroPricingStrategy.i: node/ZeroPricingStrategy.cpp.i
-
-.PHONY : node/ZeroPricingStrategy.i
-
-# target to preprocess a source file
-node/ZeroPricingStrategy.cpp.i:
-	$(MAKE) -f CMakeFiles/consensus.dir/build.make CMakeFiles/consensus.dir/node/ZeroPricingStrategy.cpp.i
-.PHONY : node/ZeroPricingStrategy.cpp.i
-
-node/ZeroPricingStrategy.s: node/ZeroPricingStrategy.cpp.s
-
-.PHONY : node/ZeroPricingStrategy.s
-
-# target to generate assembly for a file
-node/ZeroPricingStrategy.cpp.s:
-	$(MAKE) -f CMakeFiles/consensus.dir/build.make CMakeFiles/consensus.dir/node/ZeroPricingStrategy.cpp.s
-.PHONY : node/ZeroPricingStrategy.cpp.s
-
 pendingqueue/PendingTransactionsAgent.o: pendingqueue/PendingTransactionsAgent.cpp.o
 
 .PHONY : pendingqueue/PendingTransactionsAgent.o
@@ -3734,6 +3653,114 @@ pendingqueue/TestMessageGeneratorAgent.s: pendingqueue/TestMessageGeneratorAgent
 pendingqueue/TestMessageGeneratorAgent.cpp.s:
 	$(MAKE) -f CMakeFiles/consensus.dir/build.make CMakeFiles/consensus.dir/pendingqueue/TestMessageGeneratorAgent.cpp.s
 .PHONY : pendingqueue/TestMessageGeneratorAgent.cpp.s
+
+pricing/DynamicPricingStrategy.o: pricing/DynamicPricingStrategy.cpp.o
+
+.PHONY : pricing/DynamicPricingStrategy.o
+
+# target to build an object file
+pricing/DynamicPricingStrategy.cpp.o:
+	$(MAKE) -f CMakeFiles/consensus.dir/build.make CMakeFiles/consensus.dir/pricing/DynamicPricingStrategy.cpp.o
+.PHONY : pricing/DynamicPricingStrategy.cpp.o
+
+pricing/DynamicPricingStrategy.i: pricing/DynamicPricingStrategy.cpp.i
+
+.PHONY : pricing/DynamicPricingStrategy.i
+
+# target to preprocess a source file
+pricing/DynamicPricingStrategy.cpp.i:
+	$(MAKE) -f CMakeFiles/consensus.dir/build.make CMakeFiles/consensus.dir/pricing/DynamicPricingStrategy.cpp.i
+.PHONY : pricing/DynamicPricingStrategy.cpp.i
+
+pricing/DynamicPricingStrategy.s: pricing/DynamicPricingStrategy.cpp.s
+
+.PHONY : pricing/DynamicPricingStrategy.s
+
+# target to generate assembly for a file
+pricing/DynamicPricingStrategy.cpp.s:
+	$(MAKE) -f CMakeFiles/consensus.dir/build.make CMakeFiles/consensus.dir/pricing/DynamicPricingStrategy.cpp.s
+.PHONY : pricing/DynamicPricingStrategy.cpp.s
+
+pricing/PricingAgent.o: pricing/PricingAgent.cpp.o
+
+.PHONY : pricing/PricingAgent.o
+
+# target to build an object file
+pricing/PricingAgent.cpp.o:
+	$(MAKE) -f CMakeFiles/consensus.dir/build.make CMakeFiles/consensus.dir/pricing/PricingAgent.cpp.o
+.PHONY : pricing/PricingAgent.cpp.o
+
+pricing/PricingAgent.i: pricing/PricingAgent.cpp.i
+
+.PHONY : pricing/PricingAgent.i
+
+# target to preprocess a source file
+pricing/PricingAgent.cpp.i:
+	$(MAKE) -f CMakeFiles/consensus.dir/build.make CMakeFiles/consensus.dir/pricing/PricingAgent.cpp.i
+.PHONY : pricing/PricingAgent.cpp.i
+
+pricing/PricingAgent.s: pricing/PricingAgent.cpp.s
+
+.PHONY : pricing/PricingAgent.s
+
+# target to generate assembly for a file
+pricing/PricingAgent.cpp.s:
+	$(MAKE) -f CMakeFiles/consensus.dir/build.make CMakeFiles/consensus.dir/pricing/PricingAgent.cpp.s
+.PHONY : pricing/PricingAgent.cpp.s
+
+pricing/PricingStrategy.o: pricing/PricingStrategy.cpp.o
+
+.PHONY : pricing/PricingStrategy.o
+
+# target to build an object file
+pricing/PricingStrategy.cpp.o:
+	$(MAKE) -f CMakeFiles/consensus.dir/build.make CMakeFiles/consensus.dir/pricing/PricingStrategy.cpp.o
+.PHONY : pricing/PricingStrategy.cpp.o
+
+pricing/PricingStrategy.i: pricing/PricingStrategy.cpp.i
+
+.PHONY : pricing/PricingStrategy.i
+
+# target to preprocess a source file
+pricing/PricingStrategy.cpp.i:
+	$(MAKE) -f CMakeFiles/consensus.dir/build.make CMakeFiles/consensus.dir/pricing/PricingStrategy.cpp.i
+.PHONY : pricing/PricingStrategy.cpp.i
+
+pricing/PricingStrategy.s: pricing/PricingStrategy.cpp.s
+
+.PHONY : pricing/PricingStrategy.s
+
+# target to generate assembly for a file
+pricing/PricingStrategy.cpp.s:
+	$(MAKE) -f CMakeFiles/consensus.dir/build.make CMakeFiles/consensus.dir/pricing/PricingStrategy.cpp.s
+.PHONY : pricing/PricingStrategy.cpp.s
+
+pricing/ZeroPricingStrategy.o: pricing/ZeroPricingStrategy.cpp.o
+
+.PHONY : pricing/ZeroPricingStrategy.o
+
+# target to build an object file
+pricing/ZeroPricingStrategy.cpp.o:
+	$(MAKE) -f CMakeFiles/consensus.dir/build.make CMakeFiles/consensus.dir/pricing/ZeroPricingStrategy.cpp.o
+.PHONY : pricing/ZeroPricingStrategy.cpp.o
+
+pricing/ZeroPricingStrategy.i: pricing/ZeroPricingStrategy.cpp.i
+
+.PHONY : pricing/ZeroPricingStrategy.i
+
+# target to preprocess a source file
+pricing/ZeroPricingStrategy.cpp.i:
+	$(MAKE) -f CMakeFiles/consensus.dir/build.make CMakeFiles/consensus.dir/pricing/ZeroPricingStrategy.cpp.i
+.PHONY : pricing/ZeroPricingStrategy.cpp.i
+
+pricing/ZeroPricingStrategy.s: pricing/ZeroPricingStrategy.cpp.s
+
+.PHONY : pricing/ZeroPricingStrategy.s
+
+# target to generate assembly for a file
+pricing/ZeroPricingStrategy.cpp.s:
+	$(MAKE) -f CMakeFiles/consensus.dir/build.make CMakeFiles/consensus.dir/pricing/ZeroPricingStrategy.cpp.s
+.PHONY : pricing/ZeroPricingStrategy.cpp.s
 
 protocols/InstanceGarbageCollectorAgent.o: protocols/InstanceGarbageCollectorAgent.cpp.o
 
@@ -4398,27 +4425,30 @@ help:
 	@echo "... node/ConsensusEngine.o"
 	@echo "... node/ConsensusEngine.i"
 	@echo "... node/ConsensusEngine.s"
-	@echo "... node/DynamicPricingStrategy.o"
-	@echo "... node/DynamicPricingStrategy.i"
-	@echo "... node/DynamicPricingStrategy.s"
 	@echo "... node/Node.o"
 	@echo "... node/Node.i"
 	@echo "... node/Node.s"
 	@echo "... node/NodeInfo.o"
 	@echo "... node/NodeInfo.i"
 	@echo "... node/NodeInfo.s"
-	@echo "... node/PricingStrategy.o"
-	@echo "... node/PricingStrategy.i"
-	@echo "... node/PricingStrategy.s"
-	@echo "... node/ZeroPricingStrategy.o"
-	@echo "... node/ZeroPricingStrategy.i"
-	@echo "... node/ZeroPricingStrategy.s"
 	@echo "... pendingqueue/PendingTransactionsAgent.o"
 	@echo "... pendingqueue/PendingTransactionsAgent.i"
 	@echo "... pendingqueue/PendingTransactionsAgent.s"
 	@echo "... pendingqueue/TestMessageGeneratorAgent.o"
 	@echo "... pendingqueue/TestMessageGeneratorAgent.i"
 	@echo "... pendingqueue/TestMessageGeneratorAgent.s"
+	@echo "... pricing/DynamicPricingStrategy.o"
+	@echo "... pricing/DynamicPricingStrategy.i"
+	@echo "... pricing/DynamicPricingStrategy.s"
+	@echo "... pricing/PricingAgent.o"
+	@echo "... pricing/PricingAgent.i"
+	@echo "... pricing/PricingAgent.s"
+	@echo "... pricing/PricingStrategy.o"
+	@echo "... pricing/PricingStrategy.i"
+	@echo "... pricing/PricingStrategy.s"
+	@echo "... pricing/ZeroPricingStrategy.o"
+	@echo "... pricing/ZeroPricingStrategy.i"
+	@echo "... pricing/ZeroPricingStrategy.s"
 	@echo "... protocols/InstanceGarbageCollectorAgent.o"
 	@echo "... protocols/InstanceGarbageCollectorAgent.i"
 	@echo "... protocols/InstanceGarbageCollectorAgent.s"

@@ -16,17 +16,12 @@
     You should have received a copy of the GNU General Public License
     along with skale-consensus.  If not, see <http://www.gnu.org/licenses/>.
 
-    @file ZeroPricingStrategy.cpp
+    @file PricingStrategy.h
     @author Stan Kladko
     @date 2019
 */
 
 #include "../SkaleCommon.h"
-#include "ConsensusEngine.h"
-#include "ZeroPricingStrategy.h"
-
-u256 ZeroPricingStrategy::calculatePrice(u256,
-                                         const ConsensusExtFace::transactions_vector &,
-                                         uint64_t, uint64_t) {
-    return 0;
-}
+#include "../Log.h"
+#include "../node/ConsensusEngine.h"
+#include "PricingStrategy.h"

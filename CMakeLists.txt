@@ -102,6 +102,7 @@ AUX_SOURCE_DIRECTORY(log log_src)
 AUX_SOURCE_DIRECTORY(messages messages_src)
 AUX_SOURCE_DIRECTORY(network network_src)
 AUX_SOURCE_DIRECTORY(node node_src)
+AUX_SOURCE_DIRECTORY(pricing pricing_src)
 AUX_SOURCE_DIRECTORY(pendingqueue pendingqueue_src)
 AUX_SOURCE_DIRECTORY(protocols/binconsensus protocols_binconsensus_src)
 AUX_SOURCE_DIRECTORY(protocols/blockconsensus protocols_blockconsensus_src)
@@ -137,6 +138,7 @@ SET(SRC_FILES
         ${network_src}
         ${node_src}
         ${pendingqueue_src}
+        ${pricing_src}
         ${protocols_src}
         ${protocols_binconsensus_src}
         ${protocols_blockconsensus_src}

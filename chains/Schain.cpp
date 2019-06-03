@@ -81,7 +81,14 @@
 #include "../datastructures/TransactionList.h"
 
 #include "../exceptions/FatalError.h"
+
+
+
 #include "../node/ConsensusEngine.h"
+
+#include "../pricing/PricingAgent.h"
+
+
 #include "SchainTest.h"
 #include "../pendingqueue/TestMessageGeneratorAgent.h"
 #include "../crypto/bls_include.h"
@@ -281,6 +288,8 @@ void Schain::constructChildAgents() {
         blockProposalsDatabase = make_shared<ReceivedBlockProposalsDatabase>(*this);
         blockSigSharesDatabase = make_shared<ReceivedBlockSigSharesDatabase>(*this);
         testMessageGeneratorAgent = make_shared<TestMessageGeneratorAgent>(*this);
+        pricingAgent = make_shared<PricingAgent>(*this);
+
     }  catch (...) {
         throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
     }

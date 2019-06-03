@@ -87,12 +87,14 @@ void Node::initLevelDBs() {
     string randomDBFilename = dataDir + "/randoms_" + to_string(nodeID) + ".db";
     string committedTransactionsDBFilename = dataDir + "/transactions_" + to_string(nodeID) + ".db";
     string signaturesDBFilename = dataDir + "/sigs_" + to_string(nodeID) + ".db";
+    string pricesDBFilename = dataDir + "/prices_" + to_string(nodeID) + ".db";
 
 
     blocksDB = make_shared<LevelDB>(blockDBFilename);
     randomDB = make_shared<LevelDB>(randomDBFilename);
     committedTransactionsDB = make_shared<LevelDB>(committedTransactionsDBFilename);
     signaturesDB = make_shared<LevelDB>(signaturesDBFilename);
+    pricesDB = make_shared<LevelDB>(pricesDBFilename);
 
 }
 
@@ -193,6 +195,7 @@ void Node::cleanLevelDBs() {
     randomDB = nullptr;
     committedTransactionsDB = nullptr;
     signaturesDB = nullptr;
+    pricesDB = nullptr;
 }
 
 
@@ -487,6 +490,11 @@ ptr<LevelDB> Node::getSignaturesDB() const {
     return signaturesDB;
 }
 
+const ptr<LevelDB> &Node::getPricesDB() const {
+    return pricesDB;
+}
+
+
 void Node::exitCheck() {
     if (exitRequested) {
         throw ExitRequestedException();
@@ -579,3 +587,4 @@ void Node::setBasePort(const network_port &_basePort) {
 uint64_t Node::getSimulateNetworkWriteDelayMs() const {
     return simulateNetworkWriteDelayMs;
 }
+

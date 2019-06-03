@@ -131,8 +131,9 @@ class Node {
 
     ptr<LevelDB> committedTransactionsDB = nullptr;
 
-
     ptr<LevelDB> signaturesDB = nullptr;
+
+    ptr<LevelDB> pricesDB = nullptr;
 
 
     uint64_t catchupIntervalMS;
@@ -186,6 +187,7 @@ public:
 
     ptr<LevelDB> getSignaturesDB() const;
 
+    const ptr<LevelDB> &getPricesDB() const;
 
 
     void initLevelDBs();

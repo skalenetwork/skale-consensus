@@ -16,12 +16,37 @@
     You should have received a copy of the GNU General Public License
     along with skale-consensus.  If not, see <http://www.gnu.org/licenses/>.
 
-    @file PricingStrategy.h
+    @file PricingAgent.h
     @author Stan Kladko
     @date 2019
 */
 
-#include "../SkaleCommon.h"
-#include "../Log.h"
-#include "ConsensusEngine.h"
-#include "PricingStrategy.h"
+#ifndef SKALED_PRICINGAGENT_H
+#define SKALED_PRICINGAGENT_H
+
+#include "../Agent.h"
+
+class PricingStrategy;
+
+class PricingAgent : public Agent{
+
+    ptr<PricingStrategy> pricingStrategy;
+
+public:
+
+    explicit PricingAgent(Schain& _sChain);
+
+    u256 calculatePrice(const ConsensusExtFace::transactions_vector &_approvedTransactions,
+                                uint64_t _timeStamp, uint64_t _blockID);
+
+    u256 readPrice(uint64_t _blockId);
+
+    void savePrice(u256 price, uint64_t _blockID);
+
+
+
+
+};
+
+
+#endif //SKALED_PRICINGAGENT_H

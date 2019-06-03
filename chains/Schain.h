@@ -57,6 +57,7 @@ class Node;
 class PendingTransactionsAgent;
 
 class BlockConsensusAgent;
+class PricingAgent;
 class IO;
 
 
@@ -110,6 +111,9 @@ private:
     ptr<CatchupClientAgent> catchupClientAgent;
 
     ptr<CatchupServerAgent> catchupServerAgent;
+
+
+    ptr<PricingAgent> pricingAgent;
 
     ptr<SchainMessageThreadPool> consensusMessageThreadPool = nullptr;
 
