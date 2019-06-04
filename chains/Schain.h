@@ -51,6 +51,8 @@ class CatchupClientAgent;
 
 class CatchupServerAgent;
 
+class BlockProposalServerAgent;
+
 class MessageEnvelope;
 
 class Node;
@@ -59,7 +61,7 @@ class PendingTransactionsAgent;
 class BlockConsensusAgent;
 class PricingAgent;
 class IO;
-
+class Sockets;
 
 
 class SHAHash;
@@ -101,19 +103,20 @@ private:
 
     recursive_mutex startedConsensusesMutex;
 
+    ptr<BlockProposalServerAgent> blockProposalServerAgent = nullptr;
 
-    ptr<PendingTransactionsAgent> pendingTransactionsAgent;
+    ptr<CatchupServerAgent> catchupServerAgent = nullptr;
 
-    ptr<BlockProposalClientAgent> blockProposalClient;
+    ptr<PendingTransactionsAgent> pendingTransactionsAgent = nullptr;
 
-    ptr<BlockFinalizeClientAgent> blockFinalizeClient;
+    ptr<BlockProposalClientAgent> blockProposalClient = nullptr;
 
-    ptr<CatchupClientAgent> catchupClientAgent;
+    ptr<BlockFinalizeClientAgent> blockFinalizeClient = nullptr;
 
-    ptr<CatchupServerAgent> catchupServerAgent;
+    ptr<CatchupClientAgent> catchupClientAgent = nullptr;
 
 
-    ptr<PricingAgent> pricingAgent;
+    ptr<PricingAgent> pricingAgent = nullptr;
 
     ptr<SchainMessageThreadPool> consensusMessageThreadPool = nullptr;
 
@@ -168,6 +171,10 @@ private:
 
 
 public:
+
+
+    void constructServers(ptr<Sockets> _sockets);
+
 
     void healthCheck();
 

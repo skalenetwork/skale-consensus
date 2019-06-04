@@ -99,9 +99,6 @@ class Node {
 
     ptr<Schain> sChain = nullptr;
 
-    ptr<BlockProposalServerAgent> blockProposalServerAgent = nullptr;
-
-    ptr<CatchupServerAgent> catchupServerAgent = nullptr;
 
 
     class Comparator {
@@ -156,19 +153,18 @@ class Node {
     uint64_t committedBlockStorageSize;
 
 
-    bool isBLSEnabled = false;
-public:
-    bool isBlsEnabled() const;
-
-private:
-
 
     ptr<BLSPublicKey> blsPublicKey;
 
 
     ptr<BLSPrivateKey> blsPrivateKey;
 
+
+    bool isBLSEnabled = false;
+
 public:
+    bool isBlsEnabled() const;
+
 
     uint64_t getSimulateNetworkWriteDelayMs() const;
 
@@ -292,4 +288,5 @@ public:
 
     void initLogging();
 
+    void initBLSKeys();
 };

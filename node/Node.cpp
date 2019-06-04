@@ -207,6 +207,42 @@ node_id Node::getNodeID() const {
 void Node::start() {
 
 
+    initBLSKeys();
+
+
+    ASSERT(!startedServers);
+
+    LOG(info, "Starting node");
+
+    LOG(info, "Initing sockets");
+
+    this->sockets = make_shared<Sockets>(*this);
+
+    sockets->initSockets(bindIP, (uint16_t) basePort);
+
+    sChain->constructServers(sockets);
+
+
+    LOG(info, " Creating consensus network");
+
+
+    network = make_shared<ZMQNetwork>(*sChain);
+
+    LOG(info, " Starting consensus messaging");
+
+    network->startThreads();
+
+    LOG(info, "Starting schain");
+
+    sChain->startThreads();
+
+    LOG(info, "Releasing all threads");
+
+    releaseGlobalServerBarrier();
+
+}
+
+void Node::initBLSKeys() {
     auto prkStr = consensusEngine->getBlsPrivateKey();
     auto pbkStr1 = consensusEngine->getBlsPublicKey1();
     auto pbkStr2 = consensusEngine->getBlsPublicKey2();
@@ -226,7 +262,7 @@ void Node::start() {
             pbkStr2 = cfg.at("insecureTestBLSPublicKey2").get<string>();
             pbkStr3 = cfg.at("insecureTestBLSPublicKey3").get<string>();
             pbkStr4 = cfg.at("insecureTestBLSPublicKey4").get<string>();
-        } catch (std::exception &e) {
+        } catch (exception &e) {
             isBLSEnabled = false;
             /*throw_with_nested(ParsingException(
                     "Could not find bls key. You need to set it through either skaled or config file\n" +
@@ -250,45 +286,6 @@ void Node::start() {
         blsPrivateKey = make_shared<BLSPrivateKey>(prkStr, sChain->getNodeCount());
         blsPublicKey = make_shared<BLSPublicKey>(pbkStr1, pbkStr2, pbkStr3, pbkStr4, sChain->getNodeCount());
     }
-
-
-    ASSERT(!startedServers);
-
-    LOG(info, "Starting node");
-
-    LOG(info, "Initing sockets");
-
-    this->sockets = make_shared<Sockets>(*this);
-
-    sockets->initSockets(bindIP, (uint16_t) basePort);
-
-
-    LOG(info, "Creating block proposal server");
-
-    blockProposalServerAgent = make_shared<BlockProposalServerAgent>(*sChain, sockets->blockProposalSocket);
-
-    LOG(info, "Creating catchup server");
-
-    catchupServerAgent = make_shared<CatchupServerAgent>(*sChain, sockets->catchupSocket);
-
-
-    LOG(info, " Creating consensus network");
-
-
-    network = make_shared<ZMQNetwork>(*sChain);
-
-    LOG(info, " Starting consensus messaging");
-
-    network->startThreads();
-
-    LOG(info, "Starting schain");
-
-    sChain->startThreads();
-
-    LOG(info, "Releasing all threads");
-
-    releaseGlobalServerBarrier();
-
 }
 
 void Node::startClients() {
@@ -301,6 +298,7 @@ void Node::initSchain(ptr<NodeInfo> _localNodeInfo, const vector<ptr<NodeInfo>> 
                       ConsensusExtFace *_extFace) {
 
     try {
+
 
         logThreadLocal_ = getLog();
 

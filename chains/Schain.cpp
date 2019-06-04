@@ -40,6 +40,8 @@
 #include "../headers/BlockProposalHeader.h"
 #include "../pendingqueue/PendingTransactionsAgent.h"
 #include "../blockproposal/pusher/BlockProposalClientAgent.h"
+
+#include "../blockproposal/server/BlockProposalServerAgent.h"
 #include "../blockfinalize/client/BlockFinalizeClientAgent.h"
 #include "../catchup/client/CatchupClientAgent.h"
 #include "../catchup/server/CatchupServerAgent.h"
@@ -785,5 +787,14 @@ ptr<BLSSigShare> Schain::sign(ptr<SHAHash> _hash, block_id _blockId) {
 
     return getNode()->getBlsPrivateKey()->sign(_hash->toHex(), getSchainID(), _blockId, getSchainIndex(),
             getNode()->getNodeID());
+
+}
+
+void Schain::constructServers(ptr<Sockets> _sockets) {
+
+    blockProposalServerAgent = make_shared<BlockProposalServerAgent>(*this, _sockets->blockProposalSocket);
+
+    catchupServerAgent = make_shared<CatchupServerAgent>(*this, _sockets->catchupSocket);
+
 
 }
