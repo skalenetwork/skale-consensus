@@ -45,6 +45,7 @@
 
 #include "leveldb/db.h"
 
+#include "../microprofile.h"
 
 using namespace std;
 
@@ -92,7 +93,9 @@ void PendingTransactionsAgent::addToCommitted(ptr<partial_sha_hash> &s)  {
 
 ptr<BlockProposal> PendingTransactionsAgent::buildBlockProposal(block_id _blockID, uint64_t _previousBlockTimeStamp) {
 
+    MICROPROFILE_ENTERI( "PendingTransactionsAgent", "sleep", MP_DIMGRAY );
     usleep(getNode()->getMinBlockIntervalMs() * 1000);
+    MICROPROFILE_LEAVE();
 
     shared_ptr<vector<ptr<Transaction>>> transactions = createTransactionsListForProposal();
 
