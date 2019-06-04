@@ -21,7 +21,7 @@ PricingAgent::PricingAgent(Schain &_sChain) : Agent(_sChain, false) {
 
 u256
 PricingAgent::calculatePrice(const ConsensusExtFace::transactions_vector &_approvedTransactions, uint64_t _timeStamp,
-                             uint64_t _blockID) {
+                             block_id _blockID) {
     u256  price;
 
     ASSERT(pricingStrategy != nullptr);
@@ -40,7 +40,7 @@ PricingAgent::calculatePrice(const ConsensusExtFace::transactions_vector &_appro
 }
 
 
-void PricingAgent::savePrice(u256 _price, uint64_t _blockID) {
+void PricingAgent::savePrice(u256 _price, block_id _blockID) {
 
 
     auto db = sChain->getNode()->getPricesDB();
@@ -55,7 +55,7 @@ void PricingAgent::savePrice(u256 _price, uint64_t _blockID) {
 }
 
 
-u256 PricingAgent::readPrice(uint64_t _blockID) {
+u256 PricingAgent::readPrice(block_id _blockID) {
 
     auto db = sChain->getNode()->getPricesDB();
 

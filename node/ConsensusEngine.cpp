@@ -226,7 +226,7 @@ void ConsensusEngine::startAll() {
     try {
 
         for (auto const it : nodes) {
-            it.second->start();
+            it.second->startServers();
             LOG(info, "Started servers" + to_string(it.second->getNodeID()));
         }
 
@@ -257,7 +257,7 @@ void ConsensusEngine::startAll() {
 void ConsensusEngine::slowStartBootStrapTest() {
     for (auto const it : nodes) {
         LOG(info, "Starting node: " + to_string(it.second->getNodeID()));
-        it.second->start();
+        it.second->startServers();
     }
 
     for (auto const it : nodes) {

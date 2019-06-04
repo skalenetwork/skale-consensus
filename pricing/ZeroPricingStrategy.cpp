@@ -27,6 +27,6 @@
 
 u256 ZeroPricingStrategy::calculatePrice(u256,
                                          const ConsensusExtFace::transactions_vector &,
-                                         uint64_t, uint64_t) {
+                                         uint64_t, block_id) {
     return 0;
 }

@@ -446,9 +446,10 @@ void Schain::processCommittedBlock(ptr<CommittedBlock> _block) {
     blockProposalsDatabase->cleanOldBlockProposals(_block->getBlockID());
 
 
-    if (extFace) {
-        pushBlockToExtFace(_block);
-    }
+
+
+    pushBlockToExtFace(_block);
+
 
 
 }
@@ -500,6 +501,8 @@ void Schain::saveBlockToLevelDB(ptr<CommittedBlock> &_block) {
 
 void Schain::pushBlockToExtFace(ptr<CommittedBlock> &_block) {
 
+
+
     auto blockID = _block->getBlockID();
 
     ConsensusExtFace::transactions_vector tv;
@@ -513,7 +516,13 @@ void Schain::pushBlockToExtFace(ptr<CommittedBlock> &_block) {
 
     returnedBlock = (uint64_t) blockID;
 
-    extFace->createBlock(tv, _block->getTimeStamp(), (__uint64_t) _block->getBlockID());
+
+    auto price = this->pricingAgent->calculatePrice(tv, _block->getTimeStamp(), _block->getBlockID());
+
+
+    if (extFace) {
+        extFace->createBlock(tv, _block->getTimeStamp(), (__uint64_t) _block->getBlockID(), price);
+    }
 }
 
 

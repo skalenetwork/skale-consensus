@@ -37,11 +37,11 @@ public:
     explicit PricingAgent(Schain& _sChain);
 
     u256 calculatePrice(const ConsensusExtFace::transactions_vector &_approvedTransactions,
-                                uint64_t _timeStamp, uint64_t _blockID);
+                                uint64_t _timeStamp, block_id _blockID);
 
-    u256 readPrice(uint64_t _blockId);
+    u256 readPrice(block_id _blockId);
 
-    void savePrice(u256 price, uint64_t _blockID);
+    void savePrice(u256 price, block_id _blockID);
 
 
 

@@ -204,7 +204,7 @@ node_id Node::getNodeID() const {
 }
 
 
-void Node::start() {
+void Node::startServers() {
 
 
     initBLSKeys();
@@ -220,11 +220,11 @@ void Node::start() {
 
     sockets->initSockets(bindIP, (uint16_t) basePort);
 
+    LOG(info, "Constructing servers");
+
     sChain->constructServers(sockets);
 
-
     LOG(info, " Creating consensus network");
-
 
     network = make_shared<ZMQNetwork>(*sChain);
 
@@ -236,7 +236,7 @@ void Node::start() {
 
     sChain->startThreads();
 
-    LOG(info, "Releasing all threads");
+    LOG(info, "Releasing server threads");
 
     releaseGlobalServerBarrier();
 

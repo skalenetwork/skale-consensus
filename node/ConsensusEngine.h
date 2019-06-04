@@ -48,7 +48,8 @@ public:
     // Returns hashes and bytes of new transactions; blocks if there are no txns
     virtual transactions_vector pendingTransactions( size_t _limit ) = 0;
     // Creates new block with specified transactions AND removes them from the queue
-    virtual void createBlock(const transactions_vector &_approvedTransactions, uint64_t _timeStamp, uint64_t _blockID) = 0;
+    virtual void createBlock(const transactions_vector &_approvedTransactions, uint64_t _timeStamp, uint64_t _blockID,
+            u256 _gasPrice) = 0;
     virtual ~ConsensusExtFace() = default;
 
     virtual void terminateApplication() {};

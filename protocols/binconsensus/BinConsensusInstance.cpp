@@ -526,7 +526,7 @@ void BinConsensusInstance::proceedWithCommonCoin(bool _hasTrue, bool _hasFalse, 
 void BinConsensusInstance::proceedWithNewRound(bin_consensus_value value) {
 
 
-    ASSERT(currentRound < 10);
+    ASSERT(currentRound < 100);
     ASSERT(isTwoThird(totalAUXVotes(currentRound)));
 
     currentRound += 1;
