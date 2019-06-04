@@ -105,6 +105,8 @@ TEST_CASE("Consensus init destroy", "[consensus-init-destroy]") {
 
 TEST_CASE("Run basic consensus", "[consensus-basic]") {
 
+    system("/bin/bash -c rm -rf /tmp/*.db");
+
     Consensust::testInit();
 
     ConsensusEngine engine;

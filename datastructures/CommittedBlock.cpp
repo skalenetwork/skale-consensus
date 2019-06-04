@@ -96,6 +96,9 @@ uint64_t CommittedBlock::getHeaderSize() const {
 
 CommittedBlock::CommittedBlock(ptr<vector<uint8_t>> _serializedBlock) : BlockProposal(0) {
 
+
+    ASSERT(_serializedBlock != nullptr);
+
     auto size = _serializedBlock->size();
 
     if (size < sizeof(headerSize) + 2) {

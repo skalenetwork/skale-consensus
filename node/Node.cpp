@@ -180,6 +180,20 @@ int64_t Node::getParamInt64(const string &_paramName, uint64_t _paramDefault) {
 }
 
 
+ptr<string> Node::getParamString(const string &_paramName, string& _paramDefault) {
+    try {
+        if (cfg.find(_paramName) != cfg.end()) {
+            return make_shared<string>(cfg.at(_paramName).get<string>());
+        } else {
+            return make_shared<string>(_paramDefault);
+        }
+
+    } catch (...) {
+        throw_with_nested(ParsingException("Could not parse param " + _paramName, __CLASS_NAME__));
+    }
+}
+
+
 Node::~Node() {
 
     if (!isExitRequested()) {

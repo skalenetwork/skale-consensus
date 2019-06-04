@@ -620,7 +620,14 @@ ptr<CommittedBlock> Schain::getBlock(block_id _blockID) {
     if (block)
         return block;
 
-    return make_shared<CommittedBlock>(getSerializedBlockFromLevelDB(_blockID));
+
+    auto serializedBlock = getSerializedBlockFromLevelDB(_blockID);
+
+    if (serializedBlock == nullptr) {
+        return nullptr;
+    }
+
+    return make_shared<CommittedBlock>(serializedBlock);
 
 }
 

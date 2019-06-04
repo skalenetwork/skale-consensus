@@ -284,6 +284,10 @@ public:
 
     int64_t getParamInt64(const string &_paramName, uint64_t _paramDefault);
 
+    ptr<string> getParamString(const string &_paramName, string& _paramDefault);
+
+
+
     void initParamsFromConfig();
 
     void initLogging();
