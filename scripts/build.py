@@ -77,7 +77,7 @@ buildDirName = sys.argv[2] + '/cmake-build-' + sys.argv[1].lower()
 print("Build dir:" + buildDirName)
 
 
-os.system("ls " + buildDirName);
+os.system("ls " + buildDirName)
 
 
 
@@ -88,8 +88,8 @@ assert  os.path.isdir(buildDirName)
 
 
 
-assert  os.path.isfile(buildDirName + '/consensust')
-assert  os.path.isfile(buildDirName + '/consensusd')
+assert  os.path.isfile(sys.argv[2] + '/consensust')
+assert  os.path.isfile(sys.argv[2] + '/consensusd')
 
 print("Build successfull.")
 
