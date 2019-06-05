@@ -76,8 +76,15 @@ buildDirName = sys.argv[2] + '/cmake-build-' + sys.argv[1].lower()
 
 print("Build dir:" + buildDirName)
 
+
+os.system("ls " + buildDirName);
+
+
+
 assert  os.path.isdir(sys.argv[2])
 assert  os.path.isdir(buildDirName)
+
+
 
 
 
