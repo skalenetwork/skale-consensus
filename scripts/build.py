@@ -52,14 +52,22 @@ import subprocess
 
 os.chdir("..")
 
-print("Directory changed")
+print("Starting build")
 
-# pylint: disable=B607
-subprocess.call(["which", "cmake"])
+print("Current directory is" + os.getcwd())
 
+cmakeExecutable = subprocess.check_output(["which", "cmake"])
+
+print("Running cmake: " + cmakeExecutable)
 
 subprocess.call(["cmake", ".",  "-DCMAKE_BUILD_TYPE=" +  sys.argv[1], "-DCOVERAGE=ON"])
 
 
 subprocess.call(["/usr/bin/make", "-j2"])
+
+assert  os.path.isdir(sys.argv[2])
+assert  os.path.isfile(sys.argv[2] + '/cmake-build-debug/consensust')
+assert  os.path.isfile(sys.argv[2] + '/cmake-build-debug/consensusd')
+
+
 
