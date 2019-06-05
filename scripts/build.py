@@ -64,7 +64,8 @@ cmakeExecutable = subprocess.check_output(["which", "cmake"])
 
 print("Running cmake: " + cmakeExecutable)
 
-assert(subprocess.call(["cmake", ".",  "-DCMAKE_BUILD_TYPE=" +  sys.argv[1], "-DCOVERAGE=ON", "-DMICROPROFILE_ENABLED=0"]) == 0)
+assert(subprocess.call(["cmake", ".",  "-DCMAKE_BUILD_TYPE=" +  sys.argv[1],
+                        "-DCOVERAGE=ON", "-DMICROPROFILE_ENABLED=0"]) == 0)
 
 assert(subprocess.call(["/usr/bin/make", "-j4"]) == 0)
 
