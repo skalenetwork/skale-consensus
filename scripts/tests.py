@@ -37,7 +37,7 @@ def fullConsensusTest(_test, _consensustExecutive):
 
 
 def getConsensustExecutive():
-    consensustExecutive = root + 'consensust'
+    consensustExecutive = root + '/consensust'
     assert(os.path.isfile(consensustExecutive))
     return consensustExecutive
 
