@@ -80,14 +80,6 @@ print("Build dir:" + buildDirName)
 os.system("ls " + buildDirName)
 
 
-
-assert  os.path.isdir(sys.argv[2])
-assert  os.path.isdir(buildDirName)
-
-
-
-
-
 assert  os.path.isfile(sys.argv[2] + '/consensust')
 assert  os.path.isfile(sys.argv[2] + '/consensusd')
 
