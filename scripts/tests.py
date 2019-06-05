@@ -36,18 +36,18 @@ def fullConsensusTest(_test, _consensustExecutive):
     subprocess.call(_consensustExecutive)
 
 
-root = sys.argv[1]
-
-
 def getConsensustExecutive():
-    consensustExecutive = root + '/cmake-build-debug/consensust'
-    if not os.path.isfile(consensustExecutive):
-        subprocess.call("ls " + root)
-        consensustExecutive = root + "/consensust"
-        print consensustExecutive
-        assert os.path.isfile(consensustExecutive)
+    consensustExecutive = root + 'consensust'
+    assert(os.path.isfile(consensustExecutive))
     return consensustExecutive
 
+
+
+assert(len(sys.argv) == 2)
+
+root = sys.argv[1]
+
+print("Starting tests. Build root:" + sys.argv[1])
 
 consensustExecutive = getConsensustExecutive()
 
