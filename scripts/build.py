@@ -56,6 +56,10 @@ print("Starting build")
 
 print("Current directory is" + os.getcwd())
 
+print("Got TRAVIS_BUILD_TYPE=" + sys.argv[1])
+print("Got TRAVIS_BUILD_DIR=" + sys.argv[2])
+
+
 cmakeExecutable = subprocess.check_output(["which", "cmake"])
 
 print("Running cmake: " + cmakeExecutable)
