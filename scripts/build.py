@@ -50,6 +50,8 @@ import sys
 import os
 import subprocess
 
+assert len(sys.argv) == 3
+
 os.chdir("..")
 
 print("Starting build")
@@ -69,9 +71,17 @@ assert(subprocess.call(["cmake", ".",  "-DCMAKE_BUILD_TYPE=" +  sys.argv[1],
 
 assert(subprocess.call(["/usr/bin/make", "-j4"]) == 0)
 
+
+buildDirName = sys.argv[2] + '/cmake-build-' + sys.argv[1].lower()
+
+print("Build dir:" + buildDirName)
+
 assert  os.path.isdir(sys.argv[2])
-assert  os.path.isfile(sys.argv[2] + '/cmake-build-' + sys.argv[1].lower() +  '/consensust')
-assert  os.path.isfile(sys.argv[2] + '/cmake-build-' + sys.argv[1].lower() + '/consensusd')
+assert  os.path.isdir(buildDirName)
+assert  os.path.isfile(buildDirName + '/consensust')
+assert  os.path.isfile(buildDirName + '/consensusd')
+
+print("Build successfull.")
 
 
 
