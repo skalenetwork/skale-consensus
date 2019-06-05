@@ -26,6 +26,7 @@
 #include "microprofile.config.h"
 #endif
 
+
 #ifndef MICROPROFILE_ENABLED
 #define MICROPROFILE_ENABLED 1
 #endif
@@ -43,6 +44,7 @@
 #endif
 typedef uint64_t MicroProfileToken;
 typedef uint16_t MicroProfileGroupId;
+
 
 #if 0 == MICROPROFILE_ENABLED
 

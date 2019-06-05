@@ -59,8 +59,7 @@ if(CMAKE_PROJECT_NAME STREQUAL "consensus" )
         set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK ccache)
     endif(CCACHE_FOUND)
     add_definitions("-DCONSENSUS_STANDALONE")
-
-
+    add_definitions("-DMICROPROFILE_ENABLED=0")
 endif()
 
 
