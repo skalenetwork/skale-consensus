@@ -5,7 +5,7 @@
 		<Option title="consensus"/>
 		<Option makefile_is_custom="1"/>
 		<Option compiler="gcc"/>
-		<Option virtualFolders="CMake Files\;CMake Files\cmake\;CMake Files\..\;CMake Files\..\..\;CMake Files\..\..\home\;CMake Files\..\..\home\kladko\;CMake Files\..\..\home\kladko\.hunter\;CMake Files\..\..\home\kladko\.hunter\_Base\;CMake Files\..\..\home\kladko\.hunter\_Base\Download\;CMake Files\..\..\home\kladko\.hunter\_Base\Download\Hunter\;CMake Files\..\..\home\kladko\.hunter\_Base\Download\Hunter\0.23.76\;CMake Files\..\..\home\kladko\.hunter\_Base\Download\Hunter\0.23.76\c7b6099\;CMake Files\..\..\home\kladko\.hunter\_Base\Download\Hunter\0.23.76\c7b6099\Unpacked\;CMake Files\..\..\home\kladko\.hunter\_Base\Download\Hunter\0.23.76\c7b6099\Unpacked\cmake\;CMake Files\..\..\home\kladko\.hunter\_Base\Download\Hunter\0.23.76\c7b6099\Unpacked\cmake\modules\;CMake Files\..\..\home\kladko\.hunter\_Base\Download\Hunter\0.23.76\c7b6099\Unpacked\cmake\configs\;CMake Files\..\..\home\kladko\.hunter\_Base\Download\Hunter\0.23.76\c7b6099\Unpacked\cmake\projects\;CMake Files\..\..\home\kladko\.hunter\_Base\Download\Hunter\0.23.76\c7b6099\Unpacked\cmake\projects\ZeroMQ\;CMake Files\..\..\home\kladko\.hunter\_Base\Download\Hunter\0.23.76\c7b6099\Unpacked\cmake\projects\leveldb\;CMake Files\..\..\home\kladko\.hunter\_Base\Download\Hunter\0.23.76\c7b6099\Unpacked\cmake\projects\cryptopp\;CMake Files\..\..\home\kladko\.hunter\_Base\Download\Hunter\0.23.76\c7b6099\Unpacked\cmake\projects\Boost\;CMake Files\..\..\home\kladko\.hunter\_Base\Download\Hunter\0.23.76\c7b6099\Unpacked\cmake\projects\Boost\filesystem\;CMake Files\..\..\home\kladko\.hunter\_Base\Download\Hunter\0.23.76\c7b6099\Unpacked\cmake\projects\Boost\system\;CMake Files\..\..\home\kladko\.hunter\_Base\Download\Hunter\0.23.76\c7b6099\Unpacked\cmake\projects\Boost\thread\;CMake Files\..\..\home\kladko\.hunter\_Base\Download\Hunter\0.23.76\c7b6099\Unpacked\cmake\projects\Boost\log\;CMake Files\..\..\home\kladko\.hunter\_Base\Download\Hunter\0.23.76\c7b6099\Unpacked\cmake\projects\spdlog\;CMake Files\..\..\home\kladko\.hunter\_Base\Download\Hunter\0.23.76\c7b6099\Unpacked\cmake\find\;CMake Files\..\..\home\kladko\.hunter\_Base\Download\Hunter\0.23.76\c7b6099\Unpacked\scripts\;CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\;CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\3ecadcb\;CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\3ecadcb\e190f5f\;CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\3ecadcb\e190f5f\Install\;CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\3ecadcb\e190f5f\Install\lib\;CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\3ecadcb\e190f5f\Install\lib\cmake\;CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\3ecadcb\e190f5f\Install\lib\cmake\ZeroMQ\;CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\3ecadcb\e190f5f\Install\lib\cmake\leveldb\;CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\3ecadcb\e190f5f\Install\lib\cmake\crc32c\;CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\3ecadcb\e190f5f\Install\lib\cmake\Snappy\;CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\3ecadcb\e190f5f\Install\lib\cmake\cryptopp\;CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\3ecadcb\e190f5f\Install\lib\cmake\Boost\;CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\3ecadcb\e190f5f\Install\lib\cmake\spdlog\;CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\3ecadcb\e190f5f\Install\lib\cmake\fmt\;CMake Files\_3rdParty\;CMake Files\_3rdParty\Hunter\;CMake Files\_3rdParty\Hunter\toolchain\;CMake Files\_3rdParty\Hunter\config-id\;CMake Files\libBLS\;CMake Files\libBLS\deps\;CMake Files\libBLS\libff\;CMake Files\libBLS\libff\depends\;CMake Files\libBLS\libff\libff\;CMake Files\deps\;CMake Files\deps\tmp\;"/>
+		<Option virtualFolders="CMake Files\;CMake Files\cmake\;CMake Files\..\;CMake Files\..\..\;CMake Files\..\..\home\;CMake Files\..\..\home\kladko\;CMake Files\..\..\home\kladko\.hunter\;CMake Files\..\..\home\kladko\.hunter\_Base\;CMake Files\..\..\home\kladko\.hunter\_Base\Download\;CMake Files\..\..\home\kladko\.hunter\_Base\Download\Hunter\;CMake Files\..\..\home\kladko\.hunter\_Base\Download\Hunter\0.23.76\;CMake Files\..\..\home\kladko\.hunter\_Base\Download\Hunter\0.23.76\c7b6099\;CMake Files\..\..\home\kladko\.hunter\_Base\Download\Hunter\0.23.76\c7b6099\Unpacked\;CMake Files\..\..\home\kladko\.hunter\_Base\Download\Hunter\0.23.76\c7b6099\Unpacked\cmake\;CMake Files\..\..\home\kladko\.hunter\_Base\Download\Hunter\0.23.76\c7b6099\Unpacked\cmake\modules\;CMake Files\..\..\home\kladko\.hunter\_Base\Download\Hunter\0.23.76\c7b6099\Unpacked\cmake\configs\;CMake Files\..\..\home\kladko\.hunter\_Base\Download\Hunter\0.23.76\c7b6099\Unpacked\cmake\projects\;CMake Files\..\..\home\kladko\.hunter\_Base\Download\Hunter\0.23.76\c7b6099\Unpacked\cmake\projects\ZeroMQ\;CMake Files\..\..\home\kladko\.hunter\_Base\Download\Hunter\0.23.76\c7b6099\Unpacked\cmake\projects\leveldb\;CMake Files\..\..\home\kladko\.hunter\_Base\Download\Hunter\0.23.76\c7b6099\Unpacked\cmake\projects\cryptopp\;CMake Files\..\..\home\kladko\.hunter\_Base\Download\Hunter\0.23.76\c7b6099\Unpacked\cmake\projects\Boost\;CMake Files\..\..\home\kladko\.hunter\_Base\Download\Hunter\0.23.76\c7b6099\Unpacked\cmake\projects\Boost\filesystem\;CMake Files\..\..\home\kladko\.hunter\_Base\Download\Hunter\0.23.76\c7b6099\Unpacked\cmake\projects\Boost\system\;CMake Files\..\..\home\kladko\.hunter\_Base\Download\Hunter\0.23.76\c7b6099\Unpacked\cmake\projects\Boost\thread\;CMake Files\..\..\home\kladko\.hunter\_Base\Download\Hunter\0.23.76\c7b6099\Unpacked\cmake\projects\Boost\log\;CMake Files\..\..\home\kladko\.hunter\_Base\Download\Hunter\0.23.76\c7b6099\Unpacked\cmake\projects\spdlog\;CMake Files\..\..\home\kladko\.hunter\_Base\Download\Hunter\0.23.76\c7b6099\Unpacked\cmake\find\;CMake Files\..\..\home\kladko\.hunter\_Base\Download\Hunter\0.23.76\c7b6099\Unpacked\scripts\;CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\;CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\3ecadcb\;CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\3ecadcb\e190f5f\;CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\3ecadcb\e190f5f\Install\;CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\3ecadcb\e190f5f\Install\lib\;CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\3ecadcb\e190f5f\Install\lib\cmake\;CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\3ecadcb\e190f5f\Install\lib\cmake\ZeroMQ\;CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\3ecadcb\e190f5f\Install\lib\cmake\leveldb\;CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\3ecadcb\e190f5f\Install\lib\cmake\crc32c\;CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\3ecadcb\e190f5f\Install\lib\cmake\Snappy\;CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\3ecadcb\e190f5f\Install\lib\cmake\cryptopp\;CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\3ecadcb\e190f5f\Install\lib\cmake\Boost\;CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\3ecadcb\e190f5f\Install\lib\cmake\spdlog\;CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\3ecadcb\e190f5f\Install\lib\cmake\fmt\;CMake Files\_3rdParty\;CMake Files\_3rdParty\Hunter\;CMake Files\_3rdParty\Hunter\toolchain\;CMake Files\_3rdParty\Hunter\config-id\;CMake Files\libBLS\;CMake Files\libBLS\deps\;CMake Files\libBLS\libff\;CMake Files\libBLS\libff\depends\;CMake Files\libBLS\libff\libff\;CMake Files\libBLS\threshold_encryption\;CMake Files\libBLS\threshold_encryption\deps\;CMake Files\libBLS\threshold_encryption\pbc-prefix\;CMake Files\libBLS\threshold_encryption\pbc-prefix\tmp\;CMake Files\deps\;CMake Files\deps\tmp\;"/>
 		<Build>
 			<Target title="all">
 				<Option working_dir="/d/skale-consensus"/>
@@ -913,6 +913,114 @@
 					<DistClean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/libff/libff/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
+			<Target title="te">
+				<Option output="/d/skale-consensus/libBLS/threshold_encryption/libted.a" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/d/skale-consensus/libBLS/threshold_encryption"/>
+				<Option object_output="./"/>
+				<Option type="2"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add option="-DBLS_VERSION=0.4.0"/>
+					<Add directory="/d/skale-consensus/deps/include"/>
+					<Add directory="/d/skale-consensus/libBLS/libff"/>
+					<Add directory="/d/skale-consensus"/>
+					<Add directory="/d/skale-consensus/deps/include/pbc"/>
+					<Add directory="/d/skale-consensus/libBLS/threshold_encryption"/>
+					<Add directory="/d/skale-consensus/libBLS/threshold_encryption/.."/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/threshold_encryption/Makefile&quot;  VERBOSE=1 te"/>
+					<CompileFile command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/threshold_encryption/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/threshold_encryption/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/threshold_encryption/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="te/fast">
+				<Option output="/d/skale-consensus/libBLS/threshold_encryption/libted.a" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/d/skale-consensus/libBLS/threshold_encryption"/>
+				<Option object_output="./"/>
+				<Option type="2"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add option="-DBLS_VERSION=0.4.0"/>
+					<Add directory="/d/skale-consensus/deps/include"/>
+					<Add directory="/d/skale-consensus/libBLS/libff"/>
+					<Add directory="/d/skale-consensus"/>
+					<Add directory="/d/skale-consensus/deps/include/pbc"/>
+					<Add directory="/d/skale-consensus/libBLS/threshold_encryption"/>
+					<Add directory="/d/skale-consensus/libBLS/threshold_encryption/.."/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/threshold_encryption/Makefile&quot;  VERBOSE=1 te/fast"/>
+					<CompileFile command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/threshold_encryption/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/threshold_encryption/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/threshold_encryption/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="all_te_tests">
+				<Option working_dir="/d/skale-consensus/libBLS/threshold_encryption"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/threshold_encryption/Makefile&quot;  VERBOSE=1 all_te_tests"/>
+					<CompileFile command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/threshold_encryption/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/threshold_encryption/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/threshold_encryption/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="pbc">
+				<Option working_dir="/d/skale-consensus/libBLS/threshold_encryption"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/threshold_encryption/Makefile&quot;  VERBOSE=1 pbc"/>
+					<CompileFile command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/threshold_encryption/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/threshold_encryption/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/threshold_encryption/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="te_unit_test">
+				<Option output="/d/skale-consensus/libBLS/threshold_encryption/te_unit_test" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/d/skale-consensus/libBLS/threshold_encryption"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add option="-DBLS_VERSION=0.4.0"/>
+					<Add directory="/d/skale-consensus/deps/include"/>
+					<Add directory="/d/skale-consensus/libBLS/libff"/>
+					<Add directory="/d/skale-consensus"/>
+					<Add directory="/d/skale-consensus/deps/include/pbc"/>
+					<Add directory="/d/skale-consensus/libBLS/threshold_encryption"/>
+					<Add directory="/d/skale-consensus/libBLS/threshold_encryption/.."/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/threshold_encryption/Makefile&quot;  VERBOSE=1 te_unit_test"/>
+					<CompileFile command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/threshold_encryption/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/threshold_encryption/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/threshold_encryption/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="te_unit_test/fast">
+				<Option output="/d/skale-consensus/libBLS/threshold_encryption/te_unit_test" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/d/skale-consensus/libBLS/threshold_encryption"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add option="-DBLS_VERSION=0.4.0"/>
+					<Add directory="/d/skale-consensus/deps/include"/>
+					<Add directory="/d/skale-consensus/libBLS/libff"/>
+					<Add directory="/d/skale-consensus"/>
+					<Add directory="/d/skale-consensus/deps/include/pbc"/>
+					<Add directory="/d/skale-consensus/libBLS/threshold_encryption"/>
+					<Add directory="/d/skale-consensus/libBLS/threshold_encryption/.."/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/threshold_encryption/Makefile&quot;  VERBOSE=1 te_unit_test/fast"/>
+					<CompileFile command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/threshold_encryption/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/threshold_encryption/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/threshold_encryption/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
 		</Build>
 		<Unit filename="/d/skale-consensus/Agent.cpp">
 			<Option target="consensus"/>
@@ -1597,6 +1705,15 @@
 		</Unit>
 		<Unit filename="/d/skale-consensus/libBLS/third_party/json.hpp">
 			<Option target="bls"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/libBLS/threshold_encryption/threshold_encryption.cpp">
+			<Option target="te"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/libBLS/threshold_encryption/threshold_encryption.h">
+			<Option target="te"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/libBLS/threshold_encryption/unit_tests_te.cpp">
+			<Option target="te_unit_test"/>
 		</Unit>
 		<Unit filename="/d/skale-consensus/libBLS/tools/bls_glue.cpp">
 			<Option target="bls_glue"/>
@@ -2302,6 +2419,15 @@
 		</Unit>
 		<Unit filename="/d/skale-consensus/libBLS/libff/libff/CMakeLists.txt">
 			<Option virtualFolder="CMake Files\libBLS\libff\libff\"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/libBLS/threshold_encryption/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\libBLS\threshold_encryption\"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/libBLS/threshold_encryption/deps/ProjectPBC.cmake">
+			<Option virtualFolder="CMake Files\libBLS\threshold_encryption\deps\"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/libBLS/threshold_encryption/pbc-prefix/tmp/pbc-cfgcmd.txt.in">
+			<Option virtualFolder="CMake Files\libBLS\threshold_encryption\pbc-prefix\tmp\"/>
 		</Unit>
 		<Unit filename="/d/skale-consensus/deps/tmp/gmp-cfgcmd.txt.in">
 			<Option virtualFolder="CMake Files\deps\tmp\"/>

@@ -52,6 +52,7 @@ addons:
       - libgmp3-dev
       - ccache
       - libgoogle-perftools-dev
+      - flex
     sources:
       - ubuntu-toolchain-r-test
 

@@ -819,6 +819,58 @@ NightlyTest/fast:
 	$(MAKE) -f libBLS/libff/libff/CMakeFiles/NightlyTest.dir/build.make libBLS/libff/libff/CMakeFiles/NightlyTest.dir/build
 .PHONY : NightlyTest/fast
 
+#=============================================================================
+# Target rules for targets named te
+
+# Build rule for target.
+te: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 te
+.PHONY : te
+
+# fast build rule for target.
+te/fast:
+	$(MAKE) -f libBLS/threshold_encryption/CMakeFiles/te.dir/build.make libBLS/threshold_encryption/CMakeFiles/te.dir/build
+.PHONY : te/fast
+
+#=============================================================================
+# Target rules for targets named all_te_tests
+
+# Build rule for target.
+all_te_tests: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 all_te_tests
+.PHONY : all_te_tests
+
+# fast build rule for target.
+all_te_tests/fast:
+	$(MAKE) -f libBLS/threshold_encryption/CMakeFiles/all_te_tests.dir/build.make libBLS/threshold_encryption/CMakeFiles/all_te_tests.dir/build
+.PHONY : all_te_tests/fast
+
+#=============================================================================
+# Target rules for targets named pbc
+
+# Build rule for target.
+pbc: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 pbc
+.PHONY : pbc
+
+# fast build rule for target.
+pbc/fast:
+	$(MAKE) -f libBLS/threshold_encryption/CMakeFiles/pbc.dir/build.make libBLS/threshold_encryption/CMakeFiles/pbc.dir/build
+.PHONY : pbc/fast
+
+#=============================================================================
+# Target rules for targets named te_unit_test
+
+# Build rule for target.
+te_unit_test: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 te_unit_test
+.PHONY : te_unit_test
+
+# fast build rule for target.
+te_unit_test/fast:
+	$(MAKE) -f libBLS/threshold_encryption/CMakeFiles/te_unit_test.dir/build.make libBLS/threshold_encryption/CMakeFiles/te_unit_test.dir/build
+.PHONY : te_unit_test/fast
+
 Agent.o: Agent.cpp.o
 
 .PHONY : Agent.o
@@ -4122,6 +4174,10 @@ help:
 	@echo "... ContinuousSubmit"
 	@echo "... multiexp_profile"
 	@echo "... NightlyTest"
+	@echo "... te"
+	@echo "... all_te_tests"
+	@echo "... pbc"
+	@echo "... te_unit_test"
 	@echo "... Agent.o"
 	@echo "... Agent.i"
 	@echo "... Agent.s"
