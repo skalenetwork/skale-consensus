@@ -81,6 +81,7 @@
 *.mod*
 *.cmd
 .tmp_versions/
+deps
 modules.order
 Module.symvers
 Mkfile.old
