@@ -24,7 +24,6 @@
 #ifndef _CONFIG_H
 #define _CONFIG_H
 
-#include <network.h>
 #include <assert.h>
 #include <sys/time.h>
 #include <array>

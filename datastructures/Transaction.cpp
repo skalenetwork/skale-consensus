@@ -44,7 +44,8 @@ ptr<SHAHash> Transaction::getHash() {
 
     auto digest = make_shared<array<uint8_t , SHA3_HASH_LEN>>();
 
-    CryptoPP::SHA3 hashObject(SHA3_HASH_LEN);
+
+    CryptoPP::SHA3_Final< SHA3_HASH_LEN > hashObject;
 
     hashObject.Update(data.get()->data(), data->size());
     hashObject.Final(digest->data());
