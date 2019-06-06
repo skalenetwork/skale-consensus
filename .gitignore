@@ -93,6 +93,7 @@ CMakeCache.txt
 CMakeFiles/
 _3rdParty/
 cmake-build-debug/
+consensus.cbp
 consensus_pch/
 consensusd
 libconsensusd.a
