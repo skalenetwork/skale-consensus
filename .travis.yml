@@ -53,6 +53,7 @@ addons:
       - ccache
       - libgoogle-perftools-dev
       - flex
+      - bison
     sources:
       - ubuntu-toolchain-r-test
 
