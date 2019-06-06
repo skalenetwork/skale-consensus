@@ -46,6 +46,7 @@ find_package(leveldb CONFIG REQUIRED)
 if( SKALED_LATEST_STANDARD )
     set( CMAKE_CXX_STANDARD 17 )
     set( LIB_NAME_cryptopp "cryptopp" )
+
 else()
     set( CMAKE_CXX_STANDARD 17 )
     hunter_add_package(cryptopp)
