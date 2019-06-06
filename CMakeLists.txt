@@ -1,5 +1,18 @@
 cmake_minimum_required(VERSION 3.5)
 
+option( COVERAGE "Build with code coverage support" OFF )
+if( COVERAGE )
+    message( STATUS "**********************" )
+    message( STATUS "*** COVERAGE is ON ***" )
+    message( STATUS "**********************" )
+    add_compile_options( -g --coverage )
+    #
+    set( CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fprofile-arcs -ftest-coverage" )
+    set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fprofile-arcs -ftest-coverage" )
+    #
+    set( CMAKE_SHARED_LINKER_FLAGS "--coverage ${CMAKE_SHARED_LINKER_FLAGS}" )
+    set( CMAKE_EXE_LINKER_FLAGS "--coverage ${CMAKE_EXE_LINKER_FLAGS}" )
+endif()
 
 add_subdirectory(libBLS)
 
@@ -152,7 +165,7 @@ SET(SRC_FILES
 include_directories(${BLS_INCLUDE_DIRS})
 link_directories( ${BLS_WITH_FF_INCLUDE_DIRS} )
 
-SET(LINK_LIBRARIES Threads::Threads Boost::log Boost::thread Boost::system Boost::filesystem ${LIB_NAME_cryptopp} ZeroMQ::libzmq-static leveldb::leveldb bls gcov)
+SET(LINK_LIBRARIES Threads::Threads Boost::log Boost::thread Boost::system Boost::filesystem ${LIB_NAME_cryptopp} ZeroMQ::libzmq-static leveldb::leveldb bls )
 
 
 

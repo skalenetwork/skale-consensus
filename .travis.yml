@@ -52,6 +52,8 @@ addons:
       - libgmp3-dev
       - ccache
       - libgoogle-perftools-dev
+      - flex
+      - bison
     sources:
       - ubuntu-toolchain-r-test
 
