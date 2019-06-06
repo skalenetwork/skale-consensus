@@ -16,7 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with skale-consensus.  If not, see <http://www.gnu.org/licenses/>.
 
-    @file SkaleConfig.h
+    @file SkaleCommon.h
     @author Stan Kladko
     @date 2018
 */
@@ -83,6 +83,8 @@
 
 #include <boost/bind.hpp>
 #include <boost/thread/thread.hpp>
+#include <boost/multiprecision/cpp_int.hpp>
+
 
 
 class Log;
@@ -212,7 +214,7 @@ using fs_path = boost::filesystem::path;  // #define fs_path boost::filesystem::
 
 typedef array<uint8_t, PARTIAL_SHA_HASH_LEN> partial_sha_hash;
 
-class SkaleConfig {
+class SkaleCommon {
 public:
 
     static constexpr const char *NODE_FILE_NAME = "Node.json";
@@ -263,6 +265,9 @@ BOOST_STRONG_TYPEDEF(char, out_buffer);
 
 BOOST_STRONG_TYPEDEF(char, in_buffer);
 
+using u256 =  boost::multiprecision::number<boost::multiprecision::cpp_int_backend<256, 256, boost::multiprecision::unsigned_magnitude,
+boost::multiprecision::unchecked, void>>;
+
 
 inline std::string className(const std::string &prettyFunction) {
     size_t colons = prettyFunction.find("::");
@@ -293,6 +298,14 @@ extern thread_local ptr<Log> logThreadLocal_;
     if (!(_EXPRESSION_)) { \
         auto __msg__ = string("Assert failed::") + #_EXPRESSION_ +  " " + string(__FILE__) + ":" + to_string(__LINE__); \
         throw FatalError(__msg__, __CLASS_NAME__);}
+
+#define CHECK_ARGUMENT(_EXPRESSION_) \
+    if (!(_EXPRESSION_)) { \
+        auto __msg__ = string("Check failed::") + #_EXPRESSION_ +  " " + string(__FILE__) + ":" + to_string(__LINE__); \
+        throw FatalError(__msg__, __CLASS_NAME__);}
+
+
+
 
 
 #define ASSERT2(_EXPRESSION_, _MSG_) \

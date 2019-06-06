@@ -32,7 +32,7 @@
 
 #include "spdlog/spdlog.h"
 
-#include "SkaleConfig.h"
+#include "SkaleCommon.h"
 
 using namespace std;
 

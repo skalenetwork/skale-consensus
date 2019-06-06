@@ -17,28 +17,46 @@
 #    You should have received a copy of the GNU General Public License
 #    along with skale-consensus.  If not, see <http://www.gnu.org/licenses/>.
 #
-#    @file  tests.script
+#    @file  tests.py
 #    @author Stan Kladko
 #    @date 2019
 
 
 import os
 import subprocess
-import sys;
+import sys
 
+
+
+def fullConsensusTest(_test, _consensustExecutive):
+    testDir = root + "/test/" + _test
+    os.chdir(testDir)
+    os.system("rm  -rf " + testDir + "/core")
+    os.system("rm  -rf /tmp/*.db")
+    subprocess.call(_consensustExecutive)
+
+
+def getConsensustExecutive():
+    consensustExecutive = root + '/consensust'
+    assert(os.path.isfile(consensustExecutive))
+    return consensustExecutive
+
+
+
+assert(len(sys.argv) == 2)
 
 root = sys.argv[1]
 
-os.chdir(root + "/test/fournodes")
-os.system("rm  -rf " + root + "/core")
-os.system("rm  -rf /tmp/*.db")
-subprocess.call(["ls", root])
-subprocess.call(["ls", root + "/cmake-build-debug"])
-consensust = root + '/cmake-build-debug/consensust'
-if not os.path.isfile(consensust):
-    consensust = root + "/consensust"
-    assert os.path.isfile(consensust)
+print("Starting tests. Build root:" + sys.argv[1])
 
-subprocess.call(consensust)
+consensustExecutive = getConsensustExecutive()
+
+fullConsensusTest("onenode", consensustExecutive)
+fullConsensusTest("twonodes", consensustExecutive)
+fullConsensusTest("fournodes", consensustExecutive)
+fullConsensusTest("sixteennodes", consensustExecutive)
+fullConsensusTest("fournodes_catchup", consensustExecutive)
+
+
 
 

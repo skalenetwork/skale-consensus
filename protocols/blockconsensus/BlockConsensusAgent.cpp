@@ -21,7 +21,7 @@
     @date 2018
 */
 
-#include "../../SkaleConfig.h"
+#include "../../SkaleCommon.h"
 #include "../../Log.h"
 #include "../../exceptions/FatalError.h"
 
@@ -157,10 +157,10 @@ void BlockConsensusAgent::decideBlock(block_id _blockNumber, schain_index _propo
 
     decidedBlocks[_blockNumber] = _proposerIndex;
 
-    LOG(info, "COMPLETED CONSENSUS:BLOCK:" + to_string(_blockNumber) +
-              ":PROPOSER:" + to_string(_proposerIndex));
-    LOG(info, "Total transactions:" + to_string(getSchain()->getTotalTransactions()) +
-              " Time(s):" +
+    LOG(debug, "decideBlock:" + to_string(_blockNumber) +
+              ":PRP:" + to_string(_proposerIndex));
+    LOG(debug, "Total txs:" + to_string(getSchain()->getTotalTransactions()) +
+              " T(s):" +
               to_string((getSchain()->getCurrentTimeMilllis().count() - getSchain()->getStartTime().count()) / 1000.0));
 
 

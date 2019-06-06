@@ -23,7 +23,7 @@
 
 #pragma  once
 
-#include "../SkaleConfig.h"
+#include "../SkaleCommon.h"
 
 #include "DataStructure.h"
 

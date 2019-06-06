@@ -21,7 +21,7 @@
     @date 2018
 */
 
-#include "../SkaleConfig.h"
+#include "../SkaleCommon.h"
 #include "../Log.h"
 #include "../exceptions/FatalError.h"
 #include "../exceptions/InvalidArgumentException.h"
@@ -40,6 +40,8 @@
 #include "../headers/BlockProposalHeader.h"
 #include "../pendingqueue/PendingTransactionsAgent.h"
 #include "../blockproposal/pusher/BlockProposalClientAgent.h"
+
+#include "../blockproposal/server/BlockProposalServerAgent.h"
 #include "../blockfinalize/client/BlockFinalizeClientAgent.h"
 #include "../catchup/client/CatchupClientAgent.h"
 #include "../catchup/server/CatchupServerAgent.h"
@@ -81,7 +83,14 @@
 #include "../datastructures/TransactionList.h"
 
 #include "../exceptions/FatalError.h"
+
+
+
 #include "../node/ConsensusEngine.h"
+
+#include "../pricing/PricingAgent.h"
+
+
 #include "SchainTest.h"
 #include "../pendingqueue/TestMessageGeneratorAgent.h"
 #include "../crypto/bls_include.h"
@@ -281,6 +290,8 @@ void Schain::constructChildAgents() {
         blockProposalsDatabase = make_shared<ReceivedBlockProposalsDatabase>(*this);
         blockSigSharesDatabase = make_shared<ReceivedBlockSigSharesDatabase>(*this);
         testMessageGeneratorAgent = make_shared<TestMessageGeneratorAgent>(*this);
+        pricingAgent = make_shared<PricingAgent>(*this);
+
     }  catch (...) {
         throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
     }
@@ -319,7 +330,7 @@ void Schain::blockCommitsArrivedThroughCatchup(ptr<CommittedBlockList> _blocks) 
     }
 
     if (committedIDOld < committedBlockID) {
-        LOG(info, "Successful catchup, proposing next block)");
+        LOG(info, "BLOCK_CATCHUP: " + to_string(committedBlockID - committedIDOld) + " BLOCKS");
         proposeNextBlock(previosBlockTimeStamp);
     }
 }
@@ -411,7 +422,7 @@ void Schain::processCommittedBlock(ptr<CommittedBlock> _block) {
     totalTransactions += _block->getTransactionList()->size();
 
     auto h = _block->getHash()->toHex()->substr(0, 8);
-    LOG(info, "PRPSR:" + to_string(_block->getProposerIndex()) +
+    LOG(info, "BLOCK_COMMIT: PRPSR:" + to_string(_block->getProposerIndex()) +
               ":BID: " + to_string(_block->getBlockID()) + ":HASH:" +
               h +
               +":BLOCK_TXS:" + to_string(_block->getTransactionCount()) + ":DMSG" + to_string(getMessagesCount()) +
@@ -435,9 +446,10 @@ void Schain::processCommittedBlock(ptr<CommittedBlock> _block) {
     blockProposalsDatabase->cleanOldBlockProposals(_block->getBlockID());
 
 
-    if (extFace) {
-        pushBlockToExtFace(_block);
-    }
+
+
+    pushBlockToExtFace(_block);
+
 
 
 }
@@ -489,6 +501,8 @@ void Schain::saveBlockToLevelDB(ptr<CommittedBlock> &_block) {
 
 void Schain::pushBlockToExtFace(ptr<CommittedBlock> &_block) {
 
+
+
     auto blockID = _block->getBlockID();
 
     ConsensusExtFace::transactions_vector tv;
@@ -502,7 +516,13 @@ void Schain::pushBlockToExtFace(ptr<CommittedBlock> &_block) {
 
     returnedBlock = (uint64_t) blockID;
 
-    extFace->createBlock(tv, _block->getTimeStamp(), (__uint64_t) _block->getBlockID());
+
+    auto price = this->pricingAgent->calculatePrice(tv, _block->getTimeStamp(), _block->getBlockID());
+
+
+    if (extFace) {
+        extFace->createBlock(tv, _block->getTimeStamp(), (__uint64_t) _block->getBlockID(), price);
+    }
 }
 
 
@@ -550,7 +570,7 @@ void Schain::startConsensus(const block_id _blockID) {
     auto envelope = make_shared<InternalMessageEnvelope>(ORIGIN_EXTERNAL, message, *this);
 
 
-    LOG(info, "Starting consensus for block id:" + to_string(_blockID));
+    LOG(debug, "Starting consensus for block id:" + to_string(_blockID));
 
     postMessage(envelope);
 
@@ -600,7 +620,14 @@ ptr<CommittedBlock> Schain::getBlock(block_id _blockID) {
     if (block)
         return block;
 
-    return make_shared<CommittedBlock>(getSerializedBlockFromLevelDB(_blockID));
+
+    auto serializedBlock = getSerializedBlockFromLevelDB(_blockID);
+
+    if (serializedBlock == nullptr) {
+        return nullptr;
+    }
+
+    return make_shared<CommittedBlock>(serializedBlock);
 
 }
 
@@ -776,5 +803,14 @@ ptr<BLSSigShare> Schain::sign(ptr<SHAHash> _hash, block_id _blockId) {
 
     return getNode()->getBlsPrivateKey()->sign(_hash->toHex(), getSchainID(), _blockId, getSchainIndex(),
             getNode()->getNodeID());
+
+}
+
+void Schain::constructServers(ptr<Sockets> _sockets) {
+
+    blockProposalServerAgent = make_shared<BlockProposalServerAgent>(*this, _sockets->blockProposalSocket);
+
+    catchupServerAgent = make_shared<CatchupServerAgent>(*this, _sockets->catchupSocket);
+
 
 }

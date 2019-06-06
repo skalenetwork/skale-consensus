@@ -3,5 +3,5 @@
   "nodeID": 1112,
   "bindIP": "127.0.0.1",
   "basePort":1231,
-  "emptyBlockIntervalMs": 10000000
+  "simulateNetworkWriteDelayMs": 100
 }

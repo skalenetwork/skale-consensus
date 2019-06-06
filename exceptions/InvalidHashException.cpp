@@ -22,7 +22,7 @@
 */
 
 
-#include "../SkaleConfig.h"
+#include "../SkaleCommon.h"
 #include "../Log.h"
 #include "InvalidHashException.h"
 

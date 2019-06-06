@@ -22,7 +22,7 @@
 */
 
 #include <leveldb/options.h>
-#include "../../SkaleConfig.h"
+#include "../../SkaleCommon.h"
 #include "../../Log.h"
 
 #include "leveldb/db.h"

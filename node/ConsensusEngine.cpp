@@ -21,7 +21,7 @@
     @date 2018
 */
 
-#include "../SkaleConfig.h"
+#include "../SkaleCommon.h"
 #include "../Log.h"
 #include "../exceptions/FatalError.h"
 #include "../Agent.h"
@@ -100,13 +100,13 @@ Node *ConsensusEngine::readNodeConfigFileAndCreateNode(
     try {
         fs_path nodeFileNamePath(path);
 
-        nodeFileNamePath /= string(SkaleConfig::NODE_FILE_NAME);
+        nodeFileNamePath /= string(SkaleCommon::NODE_FILE_NAME);
 
         checkExistsAndFile(nodeFileNamePath.string());
 
         fs_path schainDirNamePath(path);
 
-        schainDirNamePath /= string(SkaleConfig::SCHAIN_DIR_NAME);
+        schainDirNamePath /= string(SkaleCommon::SCHAIN_DIR_NAME);
 
         checkExistsAndDirectory(schainDirNamePath.string());
 
@@ -226,7 +226,7 @@ void ConsensusEngine::startAll() {
     try {
 
         for (auto const it : nodes) {
-            it.second->start();
+            it.second->startServers();
             LOG(info, "Started servers" + to_string(it.second->getNodeID()));
         }
 
@@ -256,16 +256,14 @@ void ConsensusEngine::startAll() {
 
 void ConsensusEngine::slowStartBootStrapTest() {
     for (auto const it : nodes) {
-        LOG(info, "Starting node");
-        it.second->start();
-        LOG(info, "Started node");
+        LOG(info, "Starting node: " + to_string(it.second->getNodeID()));
+        it.second->startServers();
     }
 
     for (auto const it : nodes) {
-        LOG(info, "Starting node");
         it.second->startClients();
         it.second->getSchain()->bootstrap(lastCommittedBlockID, lastCommittedBlockTimeStamp);
-        LOG(info, "Started node");
+        LOG(info, "Started node: "  + to_string(it.second->getNodeID()));
     }
 
 
@@ -303,6 +301,7 @@ node_count ConsensusEngine::nodesCount() {
 
 ConsensusEngine::ConsensusEngine() {
 
+    signal(SIGPIPE, SIG_IGN);
 
     libff::init_alt_bn128_params();
 

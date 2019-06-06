@@ -21,7 +21,7 @@
     @date 2019
 */
 
-#include "../SkaleConfig.h"
+#include "../SkaleCommon.h"
 #include "../Log.h"
 #include "../exceptions/FatalError.h"
 #include "../crypto/bls_include.h"

@@ -21,7 +21,7 @@
     @date 2018
 */
 
-#include "../../SkaleConfig.h"
+#include "../../SkaleCommon.h"
 #include "../../Log.h"
 #include "../../Agent.h"
 #include "../../exceptions/FatalError.h"
@@ -59,7 +59,7 @@
 
 BlockProposalClientAgent::BlockProposalClientAgent(Schain &_sChain) : AbstractClientAgent(_sChain, PROPOSAL) {
     try {
-        LOG(info, "Constructing blockProposalPushAgent");
+        LOG(debug, "Constructing blockProposalPushAgent");
 
         this->blockProposalThreadPool = make_shared<BlockProposalPusherThreadPool>(
                 num_threads((uint64_t) _sChain.getNodeCount()), this);

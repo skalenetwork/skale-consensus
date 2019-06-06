@@ -23,7 +23,7 @@
 
 
 #include "thirdparty/catch.hpp"
-#include "SkaleConfig.h"
+#include "SkaleCommon.h"
 #include "Consensusd.h"
 #include "node/ConsensusEngine.h"
 
@@ -68,7 +68,7 @@ int main(int argc, char **argv) {
 
     engine.slowStartBootStrapTest();
 
-    sleep(60);
+    sleep(600);
 
     engine.exitGracefully();
 

@@ -21,7 +21,7 @@
     @date 2018
 */
 
-#include "../SkaleConfig.h"
+#include "../SkaleCommon.h"
 #include "../Log.h"
 #include "../exceptions/FatalError.h"
 
@@ -87,7 +87,7 @@ int ZMQNetwork::interruptableRecv(void *_socket, void *_buf, size_t _len, int _f
         rc = zmq_recv(_socket, _buf,
                       _len, _flags);
         if (this->getNode()->isExitRequested()) {
-            LOG(info, getThreadName() + " zmq debug: closing = " + to_string((uint64_t)_socket));
+            LOG(debug, getThreadName() + " zmq debug: closing = " + to_string((uint64_t)_socket));
             int linger = 1;
             zmq_setsockopt(_socket, ZMQ_LINGER, &linger, sizeof(linger));
             zmq_close(_socket);
@@ -107,6 +107,9 @@ int ZMQNetwork::interruptableRecv(void *_socket, void *_buf, size_t _len, int _f
 
 bool ZMQNetwork::interruptableSend(void *_socket, void *_buf, size_t _len, bool _isNonBlocking) {
 
+
+    usleep(1000 * sChain->getNode()->getSimulateNetworkWriteDelayMs());
+
     int rc = -1;
 
 
@@ -120,7 +123,7 @@ bool ZMQNetwork::interruptableSend(void *_socket, void *_buf, size_t _len, bool 
         rc = zmq_send(_socket, _buf, _len, flags);
 
         if (this->getNode()->isExitRequested()) {
-            LOG(info, getThreadName() + "zmq debug: closing = " + to_string((uint64_t)_socket));
+            LOG(debug, getThreadName() + "zmq debug: closing = " + to_string((uint64_t)_socket));
             zmq_close(_socket);
             throw ExitRequestedException();
         }

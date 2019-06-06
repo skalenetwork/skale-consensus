@@ -46,7 +46,14 @@ namespace leveldb{
     class DB;
 }
 
+
+enum PricingStrategyEnum {ZERO, DOS_PROTECT};
+
+
 class Node {
+
+
+
 
     ConsensusEngine* consensusEngine;
 
@@ -82,6 +89,9 @@ class Node {
 
     network_port basePort = 0;
 
+    uint64_t simulateNetworkWriteDelayMs = 0;
+
+    PricingStrategyEnum DOS_PROTECT;
 
     ptr<Sockets> sockets = nullptr;
 
@@ -89,9 +99,6 @@ class Node {
 
     ptr<Schain> sChain = nullptr;
 
-    ptr<BlockProposalServerAgent> blockProposalServerAgent = nullptr;
-
-    ptr<CatchupServerAgent> catchupServerAgent = nullptr;
 
 
     class Comparator {
@@ -121,8 +128,9 @@ class Node {
 
     ptr<LevelDB> committedTransactionsDB = nullptr;
 
-
     ptr<LevelDB> signaturesDB = nullptr;
+
+    ptr<LevelDB> pricesDB = nullptr;
 
 
     uint64_t catchupIntervalMS;
@@ -145,19 +153,21 @@ class Node {
     uint64_t committedBlockStorageSize;
 
 
-    bool isBLSEnabled = false;
-public:
-    bool isBlsEnabled() const;
-
-private:
-
 
     ptr<BLSPublicKey> blsPublicKey;
 
 
     ptr<BLSPrivateKey> blsPrivateKey;
 
+
+    bool isBLSEnabled = false;
+
 public:
+    bool isBlsEnabled() const;
+
+
+    uint64_t getSimulateNetworkWriteDelayMs() const;
+
     const ptr<BLSPublicKey> &getBlsPublicKey() const;
 
     const ptr<BLSPrivateKey> &getBlsPrivateKey() const;
@@ -173,6 +183,7 @@ public:
 
     ptr<LevelDB> getSignaturesDB() const;
 
+    const ptr<LevelDB> &getPricesDB() const;
 
 
     void initLevelDBs();
@@ -190,7 +201,7 @@ public:
     ~Node();
 
 
-    void start();
+    void startServers();
 
     void exit();
 
@@ -269,12 +280,17 @@ public:
     uint64_t getWaitAfterNetworkErrorMs();
 
 
-    uint64_t getParamUint64(const string &paramName, uint64_t paramDefault);
+    uint64_t getParamUint64(const string &_paramName, uint64_t paramDefault);
 
-    int64_t getParamInt64(const string &paramName, uint64_t paramDefault);
+    int64_t getParamInt64(const string &_paramName, uint64_t _paramDefault);
+
+    ptr<string> getParamString(const string &_paramName, string& _paramDefault);
+
+
 
     void initParamsFromConfig();
 
     void initLogging();
 
+    void initBLSKeys();
 };

@@ -21,7 +21,7 @@
     @date 2018
 */
 
-#include "../../SkaleConfig.h"
+#include "../../SkaleCommon.h"
 #include "../../Log.h"
 #include "../../exceptions/FatalError.h"
 #include "../../abstracttcpserver/ConnectionStatus.h"
@@ -526,7 +526,7 @@ void BinConsensusInstance::proceedWithCommonCoin(bool _hasTrue, bool _hasFalse, 
 void BinConsensusInstance::proceedWithNewRound(bin_consensus_value value) {
 
 
-    ASSERT(currentRound < 10);
+    ASSERT(currentRound < 100);
     ASSERT(isTwoThird(totalAUXVotes(currentRound)));
 
     currentRound += 1;
@@ -727,7 +727,9 @@ uint64_t BinConsensusInstance::calculateBLSRandom(bin_consensus_round _r) {
     sig->to_affine_coordinates();
     auto result = sig->X.as_ulong() + sig->Y.as_ulong();
 
-    LOG(trace, "Random for round: " + to_string(_r) + ":" + to_string(result));
+
+
+    LOG(debug, "Random for round: " + to_string(_r) + ":" + to_string(result));
 
     return sig->X.as_ulong() + sig->Y.as_ulong();
 }

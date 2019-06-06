@@ -21,7 +21,7 @@
     @date 2019
 */
 
-#include "../../SkaleConfig.h"
+#include "../../SkaleCommon.h"
 #include "../../Log.h"
 #include "../../Agent.h"
 #include "../../exceptions/FatalError.h"
@@ -60,7 +60,7 @@
 
 BlockFinalizeClientAgent::BlockFinalizeClientAgent(Schain &_sChain) : AbstractClientAgent(_sChain, PROPOSAL) {
     try {
-        LOG(info, "Constructing blockProposalPushAgent");
+        LOG(debug, "Constructing blockFinalizeClientAgent");
 
         this->blockFinalizeThreadPool = make_shared<BlockFinalizeClientThreadPool>(
                 num_threads((uint64_t) _sChain.getNodeCount()), this);

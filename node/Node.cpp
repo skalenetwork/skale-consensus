@@ -21,7 +21,7 @@
     @date 2018
 */
 
-#include "../SkaleConfig.h"
+#include "../SkaleCommon.h"
 #include "../Log.h"
 #include "../exceptions/FatalError.h"
 #include "../exceptions/InvalidArgumentException.h"
@@ -87,12 +87,14 @@ void Node::initLevelDBs() {
     string randomDBFilename = dataDir + "/randoms_" + to_string(nodeID) + ".db";
     string committedTransactionsDBFilename = dataDir + "/transactions_" + to_string(nodeID) + ".db";
     string signaturesDBFilename = dataDir + "/sigs_" + to_string(nodeID) + ".db";
+    string pricesDBFilename = dataDir + "/prices_" + to_string(nodeID) + ".db";
 
 
     blocksDB = make_shared<LevelDB>(blockDBFilename);
     randomDB = make_shared<LevelDB>(randomDBFilename);
     committedTransactionsDB = make_shared<LevelDB>(committedTransactionsDBFilename);
     signaturesDB = make_shared<LevelDB>(signaturesDBFilename);
+    pricesDB = make_shared<LevelDB>(pricesDBFilename);
 
 }
 
@@ -117,6 +119,7 @@ void Node::initLogging() {
 void Node::initParamsFromConfig() {
     nodeID = cfg.at("nodeID").get<uint64_t>();
 
+
     catchupIntervalMS = getParamUint64("catchupIntervalMs", CATCHUP_INTERVAL_MS);
 
     waitAfterNetworkErrorMs = getParamUint64("waitAfterNetworkErrorMs", WAIT_AFTER_NETWORK_ERROR_MS);
@@ -139,28 +142,54 @@ void Node::initParamsFromConfig() {
 
     auto emptyBlockIntervalMsTmp = getParamInt64("emptyBlockIntervalMs", EMPTY_BLOCK_INTERVAL_MS);
 
+
     if (emptyBlockIntervalMsTmp < 0) {
         emptyBlockIntervalMs = 100000000000000;
     } else {
         emptyBlockIntervalMs = emptyBlockIntervalMsTmp;
     }
 
+    simulateNetworkWriteDelayMs = getParamInt64("simulateNetworkWriteDelayMs", 0);
+
 
 }
 
-uint64_t Node::getParamUint64(const string &paramName, uint64_t paramDefault) {
-    if (cfg.find(paramName) != cfg.end()) {
-        return cfg.at(paramName).get<uint64_t>();
-    } else {
-        return paramDefault;
+uint64_t Node::getParamUint64(const string &_paramName, uint64_t paramDefault) {
+    try {
+        if (cfg.find(_paramName) != cfg.end()) {
+            return cfg.at(_paramName).get<uint64_t>();
+        } else {
+            return paramDefault;
+        }
+    } catch (...) {
+        throw_with_nested(ParsingException("Could not parse param " + _paramName, __CLASS_NAME__));
     }
 }
 
-int64_t Node::getParamInt64(const string &paramName, uint64_t paramDefault) {
-    if (cfg.find(paramName) != cfg.end()) {
-        return cfg.at(paramName).get<uint64_t>();
+int64_t Node::getParamInt64(const string &_paramName, uint64_t _paramDefault) {
+    try {
+    if (cfg.find(_paramName) != cfg.end()) {
+        return cfg.at(_paramName).get<uint64_t>();
     } else {
-        return paramDefault;
+        return _paramDefault;
+    }
+
+    } catch (...) {
+        throw_with_nested(ParsingException("Could not parse param " + _paramName, __CLASS_NAME__));
+    }
+}
+
+
+ptr<string> Node::getParamString(const string &_paramName, string& _paramDefault) {
+    try {
+        if (cfg.find(_paramName) != cfg.end()) {
+            return make_shared<string>(cfg.at(_paramName).get<string>());
+        } else {
+            return make_shared<string>(_paramDefault);
+        }
+
+    } catch (...) {
+        throw_with_nested(ParsingException("Could not parse param " + _paramName, __CLASS_NAME__));
     }
 }
 
@@ -180,6 +209,7 @@ void Node::cleanLevelDBs() {
     randomDB = nullptr;
     committedTransactionsDB = nullptr;
     signaturesDB = nullptr;
+    pricesDB = nullptr;
 }
 
 
@@ -188,9 +218,45 @@ node_id Node::getNodeID() const {
 }
 
 
-void Node::start() {
+void Node::startServers() {
 
 
+    initBLSKeys();
+
+
+    ASSERT(!startedServers);
+
+    LOG(info, "Starting node");
+
+    LOG(info, "Initing sockets");
+
+    this->sockets = make_shared<Sockets>(*this);
+
+    sockets->initSockets(bindIP, (uint16_t) basePort);
+
+    LOG(info, "Constructing servers");
+
+    sChain->constructServers(sockets);
+
+    LOG(info, " Creating consensus network");
+
+    network = make_shared<ZMQNetwork>(*sChain);
+
+    LOG(info, " Starting consensus messaging");
+
+    network->startThreads();
+
+    LOG(info, "Starting schain");
+
+    sChain->startThreads();
+
+    LOG(info, "Releasing server threads");
+
+    releaseGlobalServerBarrier();
+
+}
+
+void Node::initBLSKeys() {
     auto prkStr = consensusEngine->getBlsPrivateKey();
     auto pbkStr1 = consensusEngine->getBlsPublicKey1();
     auto pbkStr2 = consensusEngine->getBlsPublicKey2();
@@ -210,7 +276,7 @@ void Node::start() {
             pbkStr2 = cfg.at("insecureTestBLSPublicKey2").get<string>();
             pbkStr3 = cfg.at("insecureTestBLSPublicKey3").get<string>();
             pbkStr4 = cfg.at("insecureTestBLSPublicKey4").get<string>();
-        } catch (std::exception &e) {
+        } catch (exception &e) {
             isBLSEnabled = false;
             /*throw_with_nested(ParsingException(
                     "Could not find bls key. You need to set it through either skaled or config file\n" +
@@ -234,54 +300,11 @@ void Node::start() {
         blsPrivateKey = make_shared<BLSPrivateKey>(prkStr, sChain->getNodeCount());
         blsPublicKey = make_shared<BLSPublicKey>(pbkStr1, pbkStr2, pbkStr3, pbkStr4, sChain->getNodeCount());
     }
-
-
-    ASSERT(!startedServers);
-
-    LOG(info, "Starting node");
-
-    LOG(info, "Initing sockets");
-
-    this->sockets = make_shared<Sockets>(*this);
-
-    sockets->initSockets(bindIP, (uint16_t) basePort);
-
-
-    LOG(info, "Creating block proposal server");
-
-    blockProposalServerAgent = make_shared<BlockProposalServerAgent>(*sChain, sockets->blockProposalSocket);
-
-    LOG(info, "Creating catchup server");
-
-    catchupServerAgent = make_shared<CatchupServerAgent>(*sChain, sockets->catchupSocket);
-
-
-    LOG(info, " Creating consensus network");
-
-
-    network = make_shared<ZMQNetwork>(*sChain);
-
-    LOG(info, " Starting consensus messaging");
-
-    network->startThreads();
-
-    LOG(info, "Starting schain");
-
-    sChain->startThreads();
-
-    LOG(info, "Releasing all threads");
-
-    releaseGlobalServerBarrier();
-
 }
 
 void Node::startClients() {
-
     sChain->healthCheck();
-
     releaseGlobalClientBarrier();
-
-    LOG(info, "Started node");
 }
 
 
@@ -289,6 +312,7 @@ void Node::initSchain(ptr<NodeInfo> _localNodeInfo, const vector<ptr<NodeInfo>> 
                       ConsensusExtFace *_extFace) {
 
     try {
+
 
         logThreadLocal_ = getLog();
 
@@ -305,7 +329,7 @@ void Node::initSchain(ptr<NodeInfo> _localNodeInfo, const vector<ptr<NodeInfo>> 
 
         sChain = make_shared<Schain>(*this, _localNodeInfo->getSchainIndex(),
                                      _localNodeInfo->getSchainID(), _extFace);
-    }   catch (...) {
+    } catch (...) {
         throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
     }
 
@@ -478,6 +502,11 @@ ptr<LevelDB> Node::getSignaturesDB() const {
     return signaturesDB;
 }
 
+const ptr<LevelDB> &Node::getPricesDB() const {
+    return pricesDB;
+}
+
+
 void Node::exitCheck() {
     if (exitRequested) {
         throw ExitRequestedException();
@@ -566,3 +595,8 @@ void Node::setBasePort(const network_port &_basePort) {
     ASSERT(_basePort);
     basePort = _basePort;
 }
+
+uint64_t Node::getSimulateNetworkWriteDelayMs() const {
+    return simulateNetworkWriteDelayMs;
+}
+

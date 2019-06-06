@@ -16,12 +16,12 @@
     You should have received a copy of the GNU General Public License
     along with skale-consensus.  If not, see <http://www.gnu.org/licenses/>.
 
-    @file SkaleConfig.cpp
+    @file SkaleCommon.cpp
     @author Stan Kladko
     @date 2018
 */
 
-#include "SkaleConfig.h"
+#include "SkaleCommon.h"
 
 #include "Log.h"
 #include "exceptions/FatalError.h"

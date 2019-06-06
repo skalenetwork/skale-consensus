@@ -21,7 +21,7 @@
     @date 2019
 */
 
-#include "../SkaleConfig.h"
+#include "../SkaleCommon.h"
 #include "../thirdparty/json.hpp"
 #include "../Log.h"
 

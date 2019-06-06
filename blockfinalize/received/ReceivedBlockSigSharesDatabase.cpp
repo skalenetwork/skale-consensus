@@ -3,7 +3,7 @@
 //
 
 
-#include "../../SkaleConfig.h"
+#include "../../SkaleCommon.h"
 #include "ReceivedBlockSigSharesDatabase.h"
 
 ReceivedBlockSigSharesDatabase::ReceivedBlockSigSharesDatabase(Schain &sChain) : ReceivedSigSharesDatabase(sChain) {}

@@ -41,7 +41,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with skale-consensus.  If not, see <http://www.gnu.org/licenses/>.
 #
-#    @file  build.scripy
+#    @file  build.py
 #    @author Stan Kladko
 #    @date 2018
 #
@@ -50,16 +50,40 @@ import sys
 import os
 import subprocess
 
+assert len(sys.argv) == 3
+
 os.chdir("..")
 
-print("Directory changed")
+print("Starting build")
 
-# pylint: disable=B607
-subprocess.call(["which", "cmake"])
+print("Current directory is" + os.getcwd())
+
+print("Got TRAVIS_BUILD_TYPE=" + sys.argv[1])
+print("Got TRAVIS_BUILD_DIR=" + sys.argv[2])
 
 
-subprocess.call(["cmake", ".",  "-DCMAKE_BUILD_TYPE=" +  sys.argv[1], "-DCOVERAGE=ON"])
+cmakeExecutable = subprocess.check_output(["which", "cmake"])
+
+print("Running cmake: " + cmakeExecutable)
+
+assert(subprocess.call(["cmake", ".",  "-DCMAKE_BUILD_TYPE=" +  sys.argv[1],
+                        "-DCOVERAGE=ON", "-DMICROPROFILE_ENABLED=0"]) == 0)
+
+assert(subprocess.call(["/usr/bin/make", "-j4"]) == 0)
 
 
-subprocess.call(["/usr/bin/make", "-j2"])
+buildDirName = sys.argv[2] + '/cmake-build-' + sys.argv[1].lower()
+
+print("Build dir:" + buildDirName)
+
+
+os.system("ls " + buildDirName)
+
+
+assert  os.path.isfile(sys.argv[2] + '/consensust')
+assert  os.path.isfile(sys.argv[2] + '/consensusd')
+
+print("Build successfull.")
+
+
 

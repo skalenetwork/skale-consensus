@@ -37,12 +37,19 @@ sudo apt-get install -y cmake build-essential libgoogle-perftools-dev libboost-a
 sudo apt-get install -y libffi-dev libssl-dev libprocps4-dev
 ```
 
+
 ### Building from source on Ubuntu (Development)
 
-Configure the project build with the following commands.
+
+
+
+
+Clone project and configure build
 ```
-cmake -H. -Bbuild                   # Configure the project and create a build directory.
-cmake --build build -- -j$(nproc)   # Build all default targets using all cores.
+git clone https://github.com/skalenetwork/skale-consensus.git
+git submodule update --init --recursive 
+cmake .                 # Configure the project and create a build directory.
+cmake --build -- -j$(nproc)   # Build all default targets using all cores.
 ```
 
 ### Running tests

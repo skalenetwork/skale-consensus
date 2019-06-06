@@ -60,11 +60,7 @@ cache:
   directories:
     - ~/.local
     - ~/.hunter
-    # Cache whole deps dir hoping you will not need to download and
-    # build external dependencies next build.
-    - ${TRAVIS_BUILD_DIR}/cmake-build-debug
-    - ${TRAVIS_BUILD_DIR}/CMakeFiles
-    - ${TRAVIS_BUILD_DIR}/libBLS
+
 
 
 before_install:
@@ -72,11 +68,11 @@ before_install:
 
 install:
   - cd ${TRAVIS_BUILD_DIR}/scripts
-  - ./build.script ${TRAVIS_BUILD_TYPE} ${TRAVIS_BUILD_DIR}
+  - ./build.py ${TRAVIS_BUILD_TYPE} ${TRAVIS_BUILD_DIR}
 
 script:
   - cd ${TRAVIS_BUILD_DIR}/scripts
-  - ./tests.script ${TRAVIS_BUILD_DIR}
+  - ./tests.py ${TRAVIS_BUILD_DIR}
 
 after_success:
   - pip install --user codecov

@@ -21,7 +21,7 @@
     @date 2019
 */
 
-#include "../../SkaleConfig.h"
+#include "../SkaleCommon.h"
 #include "../../Log.h"
 #include "../thirdparty/json.hpp"
 
@@ -35,7 +35,7 @@
 #include "../exceptions/ExitRequestedException.h"
 #include "../exceptions/NetworkProtocolException.h"
 
-#include "../SkaleConfig.h"
+#include "../SkaleCommon.h"
 #include "../chains/Schain.h"
 #include "../thirdparty/json.hpp"
 #include "../node/Node.h"

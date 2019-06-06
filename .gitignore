@@ -95,7 +95,4 @@ cmake-build-debug/
 consensus_pch/
 consensusd
 libconsensusd.a
-/libBLS/.idea/misc.xml
-/libBLS/.idea/modules.xml
-/libBLS/.idea/vcs.xml
-/libBLS/.idea/workspace.xml
+libBLS/
