@@ -67,7 +67,7 @@ class ConsensusEngine : public ConsensusInterface {
 
     Node* readNodeConfigFileAndCreateNode( const fs_path& path, set< node_id >& nodeIDs );
 
-    node_count nodesCount();
+
 
 
     void readSchainConfigFiles( Node& node, const fs_path& dirname );
@@ -87,6 +87,11 @@ class ConsensusEngine : public ConsensusInterface {
 
 
 public:
+
+    node_count nodesCount();
+
+    block_id getLargestCommittedBlockID();
+
     ConsensusEngine();
 
     ~ConsensusEngine() override;
