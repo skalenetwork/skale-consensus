@@ -403,4 +403,18 @@ const string &ConsensusEngine::getBlsPublicKey4() const {
 const string &ConsensusEngine::getBlsPrivateKey() const {
     return blsPrivateKey;
 }
+block_id ConsensusEngine::getLargestCommittedBlockID() {
 
+    block_id id = 0;
+
+    for (auto&& item: nodes) {
+        auto id2 = item.second->getSchain()->getCommittedBlockID();
+
+        if (id2 > id) {
+            id = id2;
+        }
+
+    }
+
+    return id;
+}

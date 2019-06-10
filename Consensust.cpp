@@ -103,9 +103,11 @@ TEST_CASE("Consensus init destroy", "[consensus-init-destroy]") {
  */
 
 
+
+
 TEST_CASE("Run basic consensus", "[consensus-basic]") {
 
-    system("/bin/bash -c rm -rf /tmp/*.db");
+    system("bash -c rm -rf /tmp/*.db");
 
     Consensust::testInit();
 
@@ -128,6 +130,10 @@ TEST_CASE("Run basic consensus", "[consensus-basic]") {
 
     usleep(Consensust::getRunningTime()); /* Flawfinder: ignore */
 
+    assert(engine.nodesCount() > 0);
+
+    assert(engine.getLargestCommittedBlockID() > 0);
+
 
     INFO("Exiting gracefully");
 
@@ -137,5 +143,42 @@ TEST_CASE("Run basic consensus", "[consensus-basic]") {
     SUCCEED();
 
     Consensust::testFinalize();
+
+}
+
+
+ConsensusEngine engine;
+
+void exit_check() {
+
+    sleep(10);
+
+    SUCCEED();
+
+    Consensust::testFinalize();
+
+    exit(0);
+}
+
+
+
+TEST_CASE("Get consensus to stuck", "[consensus-stuck]") {
+
+system("rm -rf /tmp/*.db");
+
+Consensust::testInit();
+
+
+INFO("Parsing configs");
+
+std::thread timer(exit_check);
+
+engine.parseConfigsAndCreateAllNodes(Consensust::getConfigDirPath());
+
+INFO("Starting nodes");
+
+engine.slowStartBootStrapTest();
+
+assert(false);
 
 }

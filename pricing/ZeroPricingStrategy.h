@@ -21,7 +21,7 @@
     @date 2019
 */
 
-#ifndef SKALED_ZEROPRICESTRATEGY_H
+#ifndef SKALED_ZEROPRICINGSTRATEGY_H
 #define SKALED_ZEROPRICINGSTRATEGY_H
 
 #include "PricingStrategy.h"
