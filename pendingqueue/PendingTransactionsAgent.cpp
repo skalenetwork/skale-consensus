@@ -91,7 +91,8 @@ void PendingTransactionsAgent::addToCommitted(ptr<partial_sha_hash> &s)  {
     committedTransactionsList.push_back(s);
 }
 
-ptr<BlockProposal> PendingTransactionsAgent::buildBlockProposal(block_id _blockID, uint64_t _previousBlockTimeStamp) {
+ptr<BlockProposal> PendingTransactionsAgent::buildBlockProposal(block_id _blockID, uint64_t _previousBlockTimeStamp,
+    uint32_t _previousBlockTimeStampMs) {
 
     MICROPROFILE_ENTERI( "PendingTransactionsAgent", "sleep", MP_DIMGRAY );
     usleep(getNode()->getMinBlockIntervalMs() * 1000);
@@ -100,15 +101,21 @@ ptr<BlockProposal> PendingTransactionsAgent::buildBlockProposal(block_id _blockI
     shared_ptr<vector<ptr<Transaction>>> transactions = createTransactionsListForProposal();
 
 
-    while ((uint64_t )Schain::getCurrentTimeSec() <= _previousBlockTimeStamp) {
-        usleep(1000);
+    while ((uint64_t )Schain::getCurrentTimeMs() <= _previousBlockTimeStamp * 1000 + _previousBlockTimeStampMs) {
+        usleep(10);
     }
 
 
     auto transactionList = make_shared<TransactionList>(transactions);
 
+    auto currentTime = Schain::getCurrentTimeMs();
+    auto sec = currentTime / 1000;
+    auto m = (uint32_t) (currentTime % 1000);
+
+
+
     auto myBlockProposal = make_shared<MyBlockProposal>(*sChain, _blockID, sChain->getSchainIndex(),
-            transactionList, Schain::getCurrentTimeSec());
+            transactionList, sec, m);
     LOG(trace, "Created proposal, transactions:" + to_string(transactions->size()));
 ;
     transactionCounter += (uint64_t) myBlockProposal->createPartialHashesList()->getTransactionCount();

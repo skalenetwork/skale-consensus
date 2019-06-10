@@ -130,7 +130,8 @@ public:
 
     ptr<Transaction> getKnownTransactionByPartialHash(ptr<partial_sha_hash> hash);
 
-    ptr<BlockProposal> buildBlockProposal(block_id _blockID, uint64_t  _previousBlockTimeStamp);
+    ptr<BlockProposal> buildBlockProposal(block_id _blockID, uint64_t  _previousBlockTimeStamp,
+                             uint32_t _previosBlockTimeStampMs);
 
 
     void addToCommitted(shared_ptr<partial_sha_hash> &s);

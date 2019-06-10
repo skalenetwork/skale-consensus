@@ -149,7 +149,7 @@ private:
 
     ptr<NodeInfo> thisNodeInfo = nullptr;
 
-    void proposeNextBlock(uint64_t _previousBlockTimeStamp);
+    void proposeNextBlock(uint64_t _previousBlockTimeStamp, uint32_t _previousBlockTimeStampMs);
 
 
     void processCommittedBlock(ptr<CommittedBlock> _block);
@@ -277,6 +277,8 @@ public:
     static chrono::milliseconds getCurrentTimeMilllis();
 
     static uint64_t getCurrentTimeSec();
+
+    static uint64_t getCurrentTimeMs();
 
     block_id getBootstrapBlockID() const;
 

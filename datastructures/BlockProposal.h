@@ -47,6 +47,8 @@ protected:
 
     transaction_count transactionCount;
     uint64_t  timeStamp = 0;
+    uint32_t  timeStampMs = 0;
+
 
 protected:
     ptr<TransactionList> transactionList;
@@ -57,15 +59,17 @@ protected:
 
 
 
-    BlockProposal(uint64_t _timeStamp);
+    BlockProposal(uint64_t _timeStamp, uint32_t _timeStampMs);
 
     BlockProposal(Schain &_sChain, block_id _blockID, schain_index _proposerIndex,
-                  ptr<TransactionList> _transactions, uint64_t _timeStamp);
+                  ptr<TransactionList> _transactions, uint64_t _timeStamp, __uint32_t _timeStampMs);
 
 
 public:
 
     uint64_t getTimeStamp() const;
+
+    uint32_t getTimeStampMs() const;
 
 
 

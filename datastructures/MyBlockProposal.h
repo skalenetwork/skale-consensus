@@ -32,7 +32,7 @@
 class MyBlockProposal : public BlockProposal {
 public:
     MyBlockProposal(Schain &_sChain, const block_id &_blockID, const schain_index &_proposerIndex,
-                    const ptr<TransactionList> _transactions, uint64_t _timeStamp);
+                    const ptr<TransactionList> _transactions, uint64_t _timeStamp, uint32_t _timeStampMs);
 
 
     static uint64_t getTotalObjects() {

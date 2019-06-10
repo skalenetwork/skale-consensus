@@ -78,6 +78,8 @@ public:
 
     static uint64_t getUint64( nlohmann::json& _js, const char* _name );
 
+    static uint32_t getUint32( nlohmann::json& _js, const char* _name );
+
     static ptr< string > getString( nlohmann::json& _js, const char* _name );
 
 

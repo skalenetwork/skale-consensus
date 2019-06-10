@@ -47,7 +47,8 @@ CommittedBlock::CommittedBlock(Schain &_sChain, ptr<BlockProposal> _p) : BlockPr
                                                                                        _p->getBlockID(),
                                                                                        _p->getProposerIndex(),
                                                                                        _p->getTransactionList(),
-                                                                                       _p->getTimeStamp()) {
+                                                                                       _p->getTimeStamp(),
+                                                                                       _p->getTimeStampMs()) {
 }
 
 
@@ -94,7 +95,7 @@ uint64_t CommittedBlock::getHeaderSize() const {
     return headerSize;
 }
 
-CommittedBlock::CommittedBlock(ptr<vector<uint8_t>> _serializedBlock) : BlockProposal(0) {
+CommittedBlock::CommittedBlock(ptr<vector<uint8_t>> _serializedBlock) : BlockProposal(0,0) {
 
 
     ASSERT(_serializedBlock != nullptr);
