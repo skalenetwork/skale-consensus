@@ -56,6 +56,8 @@ fullConsensusTest("twonodes", consensustExecutive)
 fullConsensusTest("fournodes", consensustExecutive)
 fullConsensusTest("sixteennodes", consensustExecutive)
 fullConsensusTest("fournodes_catchup", consensustExecutive)
+fullConsensusTest("fournodes_catchup", consensustExecutive)
+fullConsensusTest("three_out_of_four", consensustExecutive)
 
 
 

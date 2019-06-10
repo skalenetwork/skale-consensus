@@ -128,7 +128,7 @@ TEST_CASE("Run basic consensus", "[consensus-basic]") {
 
     usleep(Consensust::getRunningTime()); /* Flawfinder: ignore */
 
-    assert(engine.nodeCount() > 0);
+    assert(engine.nodesCount() > 0);
 
     assert(engine.getLargestCommittedBlockID() > 0);
 
