@@ -170,6 +170,7 @@ ptr<vector<size_t>> CommittedBlock::parseBlockHeader(
     blockID = block_id(Header::getUint64(js, "blockID"));
     schainID = schain_id(Header::getUint64(js, "schainID"));
     timeStamp = Header::getUint64(js, "timeStamp");
+    timeStampMs = Header::getUint32(js, "timeStampMs");
 
     transactionCount = js["sizes"].size();
     hash = SHAHash::fromHex(Header::getString(js, "hash"));
