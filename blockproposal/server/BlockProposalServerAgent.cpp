@@ -254,6 +254,7 @@ BlockProposalServerAgent::processProposalRequest(ptr<Connection> _connection, nl
     auto proposerIndex = schain_index(Header::getUint64(_proposalRequest, "proposerIndex"));
     auto blockID = block_id(Header::getUint64(_proposalRequest, "blockID"));
     auto timeStamp = Header::getUint64(_proposalRequest, "timeStamp");
+    auto timeStampMs = Header::getUint32(_proposalRequest, "timeStampMs");
     auto hash = Header::getString(_proposalRequest, "hash");
 
 
@@ -357,7 +358,8 @@ BlockProposalServerAgent::processProposalRequest(ptr<Connection> _connection, nl
     auto transactionList = make_shared<TransactionList>(transactions);
 
     auto proposal =
-            make_shared<ReceivedBlockProposal>(*sChain, blockID, proposerIndex, transactionList, timeStamp);
+            make_shared<ReceivedBlockProposal>(*sChain, blockID, proposerIndex, transactionList,
+                timeStamp, timeStampMs);
 
     auto calculatedHash = proposal->getHash();
 

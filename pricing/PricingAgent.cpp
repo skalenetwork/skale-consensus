@@ -54,6 +54,7 @@ PricingAgent::PricingAgent(Schain &_sChain) : Agent(_sChain, false) {
 
 u256
 PricingAgent::calculatePrice(const ConsensusExtFace::transactions_vector &_approvedTransactions, uint64_t _timeStamp,
+                             uint32_t _timeStampMs,
                              block_id _blockID) {
     u256  price;
 
@@ -63,7 +64,9 @@ PricingAgent::calculatePrice(const ConsensusExtFace::transactions_vector &_appro
         price = 1000;
     } else {
         auto oldPrice = readPrice(_blockID - 1);
-        price = pricingStrategy->calculatePrice(oldPrice, _approvedTransactions, _timeStamp, _blockID);
+        price = pricingStrategy->calculatePrice(oldPrice, _approvedTransactions, _timeStamp,
+            _timeStampMs,
+            _blockID);
     }
 
 

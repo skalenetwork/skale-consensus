@@ -85,6 +85,13 @@ uint64_t Header::getUint64(nlohmann::json &_js, const char *_name) {
     return result;
 };
 
+
+uint32_t Header::getUint32(nlohmann::json &_js, const char *_name) {
+    nullCheck(_js, _name);
+    uint32_t result = _js[_name];
+    return result;
+};
+
 ptr<string> Header::getString(nlohmann::json &_js, const char *_name) {
     nullCheck(_js, _name);
     string result = _js[_name];

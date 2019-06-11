@@ -52,6 +52,7 @@ CommittedBlockHeader::CommittedBlockHeader(CommittedBlock& _block) : Header(Head
     this->blockID = _block.getBlockID();
     this->blockHash = _block.getHash();
     this->timeStamp = _block.getTimeStamp();
+    this->timeStampMs = _block.getTimeStampMs();
     this->transactionSizes = make_shared<list<uint32_t>>();
 
     auto items = _block.getTransactionList()->getItems();
@@ -89,6 +90,8 @@ void CommittedBlockHeader::addFields(nlohmann::basic_json<> &j) {
     j["sizes"] = *transactionSizes;
 
     j["timeStamp"] = timeStamp;
+
+    j["timeStampMs"] = timeStampMs;
 
     ASSERT(timeStamp > 0);
 

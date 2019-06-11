@@ -71,15 +71,18 @@ void BlockProposal::calculateHash() {
 };
 
 
-BlockProposal::BlockProposal(uint64_t _timeStamp) : timeStamp(_timeStamp) {
+BlockProposal::BlockProposal(uint64_t _timeStamp, uint32_t _timeStampMs) : timeStamp(_timeStamp),
+    timeStampMs(_timeStampMs){
     proposerNodeID = 0;
 };
 
 BlockProposal::BlockProposal(Schain &_sChain, block_id _blockID, schain_index _proposerIndex,
-                             ptr<TransactionList> _transactions, uint64_t _timeStamp) : schainID(_sChain.getSchainID()),
+                             ptr<TransactionList> _transactions, uint64_t _timeStamp,
+                             uint32_t _timeStampMs) : schainID(_sChain.getSchainID()),
                                                                                         blockID(_blockID),
                                                                                         proposerIndex(_proposerIndex),
                                                                                         timeStamp(_timeStamp),
+                                                                                        timeStampMs(_timeStampMs),
                                                                                         transactionList(_transactions) {
     proposerNodeID = _sChain.getNodeIDByIndex(_proposerIndex);
 
@@ -151,5 +154,11 @@ const transaction_count &BlockProposal::getTransactionCount() const {
 uint64_t BlockProposal::getTimeStamp() const {
     return timeStamp;
 }
+
+
+uint32_t BlockProposal::getTimeStampMs() const {
+    return timeStampMs;
+}
+
 
 

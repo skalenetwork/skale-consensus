@@ -47,7 +47,8 @@ CommittedBlock::CommittedBlock(Schain &_sChain, ptr<BlockProposal> _p) : BlockPr
                                                                                        _p->getBlockID(),
                                                                                        _p->getProposerIndex(),
                                                                                        _p->getTransactionList(),
-                                                                                       _p->getTimeStamp()) {
+                                                                                       _p->getTimeStamp(),
+                                                                                       _p->getTimeStampMs()) {
 }
 
 
@@ -94,7 +95,7 @@ uint64_t CommittedBlock::getHeaderSize() const {
     return headerSize;
 }
 
-CommittedBlock::CommittedBlock(ptr<vector<uint8_t>> _serializedBlock) : BlockProposal(0) {
+CommittedBlock::CommittedBlock(ptr<vector<uint8_t>> _serializedBlock) : BlockProposal(0,0) {
 
 
     ASSERT(_serializedBlock != nullptr);
@@ -169,6 +170,7 @@ ptr<vector<size_t>> CommittedBlock::parseBlockHeader(
     blockID = block_id(Header::getUint64(js, "blockID"));
     schainID = schain_id(Header::getUint64(js, "schainID"));
     timeStamp = Header::getUint64(js, "timeStamp");
+    timeStampMs = Header::getUint32(js, "timeStampMs");
 
     transactionCount = js["sizes"].size();
     hash = SHAHash::fromHex(Header::getString(js, "hash"));

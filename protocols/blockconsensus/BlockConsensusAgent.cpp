@@ -170,10 +170,18 @@ void BlockConsensusAgent::decideBlock(block_id _blockNumber, schain_index _propo
     ASSERT(proposedBlockSet);
 
 
-    if (_proposerIndex == (uint64_t) getSchain()->getNodeCount()) { // empty block
+    if (_proposerIndex == (uint64_t) getSchain()->getNodeCount()) {
+
+
+        uint64_t time = Schain::getCurrentTimeMs();
+        auto sec = time / 1000;
+
+        auto ms = (uint32_t ) time % 1000;
+
+        // empty block
         auto emptyList = make_shared<TransactionList>(make_shared < vector < ptr < Transaction >> > ());
         auto zeroProposal = make_shared<ReceivedBlockProposal>(*getSchain(), _blockNumber, _proposerIndex,
-                                                               emptyList, Schain::getCurrentTimeSec());
+                                                               emptyList, sec, ms );
 
 
         //TODO: FIX TIME FOR EMPTY PROPOSAL!!!

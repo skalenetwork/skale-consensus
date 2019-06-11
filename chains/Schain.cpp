@@ -214,6 +214,13 @@ uint64_t Schain::getCurrentTimeSec() {
 }
 
 
+uint64_t Schain::getCurrentTimeMs() {
+    uint64_t result = chrono::duration_cast<chrono::milliseconds>(
+            chrono::system_clock::now().time_since_epoch()).count();
+
+    return result;
+}
+
 void Schain::startThreads() {
 
     this->consensusMessageThreadPool->startService();
@@ -317,6 +324,7 @@ void Schain::blockCommitsArrivedThroughCatchup(ptr<CommittedBlockList> _blocks) 
     atomic<uint64_t> committedIDOld(committedBlockID.load());
 
     uint64_t previosBlockTimeStamp = 0;
+    uint64_t previosBlockTimeStampMs = 0;
 
 
     ASSERT((*b)[0]->getBlockID() <= (uint64_t) committedBlockID + 1);
@@ -326,12 +334,13 @@ void Schain::blockCommitsArrivedThroughCatchup(ptr<CommittedBlockList> _blocks) 
             committedBlockID++;
             processCommittedBlock((*b)[i]);
             previosBlockTimeStamp = (*b)[i]->getTimeStamp();
+            previosBlockTimeStampMs = (*b)[i]->getTimeStampMs();
         }
     }
 
     if (committedIDOld < committedBlockID) {
         LOG(info, "BLOCK_CATCHUP: " + to_string(committedBlockID - committedIDOld) + " BLOCKS");
-        proposeNextBlock(previosBlockTimeStamp);
+        proposeNextBlock(previosBlockTimeStamp, previosBlockTimeStampMs);
     }
 }
 
@@ -355,6 +364,7 @@ void Schain::blockCommitArrived(bool bootstrap, block_id _committedBlockID, scha
 
 
     uint64_t previousBlockTimeStamp = 0;
+    uint64_t previousBlockTimeStampMs = 0;
 
     ptr<BlockProposal> committedProposal = nullptr;
 
@@ -374,25 +384,28 @@ void Schain::blockCommitArrived(bool bootstrap, block_id _committedBlockID, scha
         processCommittedBlock(newCommittedBlock);
 
         previousBlockTimeStamp = newCommittedBlock->getTimeStamp();
+        previousBlockTimeStampMs = newCommittedBlock->getTimeStampMs();
+
 
     } else {
         LOG(info, "Jump starting the system with block" + to_string(_committedBlockID));
     }
 
 
-    proposeNextBlock(previousBlockTimeStamp);
+    proposeNextBlock(previousBlockTimeStamp, previousBlockTimeStampMs);
 
 }
 
 
-void Schain::proposeNextBlock(uint64_t _previousBlockTimeStamp) {
+void Schain::proposeNextBlock(uint64_t _previousBlockTimeStamp, uint32_t _previousBlockTimeStampMs) {
 
 
     block_id _proposedBlockID((uint64_t) committedBlockID + 1);
 
     ASSERT(pushedBlockProposals.count(_proposedBlockID) == 0);
 
-    auto myProposal = pendingTransactionsAgent->buildBlockProposal(_proposedBlockID, _previousBlockTimeStamp);
+    auto myProposal = pendingTransactionsAgent->buildBlockProposal(_proposedBlockID, _previousBlockTimeStamp,
+        _previousBlockTimeStampMs);
 
     ASSERT(myProposal->getProposerIndex() == getSchainIndex());
 
@@ -517,11 +530,14 @@ void Schain::pushBlockToExtFace(ptr<CommittedBlock> &_block) {
     returnedBlock = (uint64_t) blockID;
 
 
-    auto price = this->pricingAgent->calculatePrice(tv, _block->getTimeStamp(), _block->getBlockID());
+    auto price = this->pricingAgent->calculatePrice(tv, _block->getTimeStamp(),
+            _block->getTimeStampMs(), _block->getBlockID());
 
 
     if (extFace) {
-        extFace->createBlock(tv, _block->getTimeStamp(), (__uint64_t) _block->getBlockID(), price);
+        extFace->createBlock(tv, _block->getTimeStamp(),
+                _block->getTimeStampMs(),
+                (__uint64_t) _block->getBlockID(), price);
     }
 }
 
