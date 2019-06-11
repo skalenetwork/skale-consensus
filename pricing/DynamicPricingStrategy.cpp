@@ -29,7 +29,7 @@
 
 u256 DynamicPricingStrategy::calculatePrice(u256 _previousPrice,
                                          const ConsensusExtFace::transactions_vector & _block,
-                                         uint64_t, block_id) {
+                                         uint64_t, uint32_t, block_id) {
 
 
     static u256 maxPrice = pow(u256(2), 200);

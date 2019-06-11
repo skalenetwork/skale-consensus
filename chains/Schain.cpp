@@ -530,7 +530,8 @@ void Schain::pushBlockToExtFace(ptr<CommittedBlock> &_block) {
     returnedBlock = (uint64_t) blockID;
 
 
-    auto price = this->pricingAgent->calculatePrice(tv, _block->getTimeStamp(), _block->getBlockID());
+    auto price = this->pricingAgent->calculatePrice(tv, _block->getTimeStamp(),
+            _block->getTimeStampMs(), _block->getBlockID());
 
 
     if (extFace) {
