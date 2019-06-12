@@ -48,8 +48,6 @@ public:
     network_port getPort() const;
 
 
-public:
-
     schain_id getSchainID() const;
 
     NodeInfo(node_id nodeID, ptr<string> &ip, network_port port, schain_id schainID, schain_index schainIndex);
