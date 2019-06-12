@@ -2,8 +2,8 @@
   "schainName": "TestChain",
   "schainID": 1,
   "nodes": [
-    { "nodeID": 1112, "ip": "127.0.0.1", "basePort": 1231, "schainIndex" : 0},
-    { "nodeID": 1113, "ip": "127.0.0.2", "basePort":1231, "schainIndex" : 1}
+    { "nodeID": 1112, "ip": "127.0.0.1", "basePort": 1231, "schainIndex" : 1},
+    { "nodeID": 1113, "ip": "127.0.0.2", "basePort":1231, "schainIndex" : 2}
   ],
 
   "blockProposalTest": "NONE"
