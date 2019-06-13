@@ -268,14 +268,14 @@ void BinConsensusInstance::bvbVote(ptr<MessageEnvelope> me) {
     bin_consensus_round r = m->r;
     bin_consensus_value v = m->value;
 
-    schain_index index = me->getSrcNodeInfo()->getSchainIndex() - 1; // XXXX
+    schain_index index = me->getSrcNodeInfo()->getSchainIndex(); // XXXX
 
     if(v) {
-        ASSERT(bvbTrueVotes[r].count(index) == 0);
+        ASSERT(bvbTrueVotes[r].count(index) == 0); // XXXX
         bvbTrueVotes[r].insert(index);
     } else {
-        ASSERT(bvbFalseVotes[r].count(index) == 0);
-        bvbFalseVotes[r].insert(index);
+        ASSERT(bvbFalseVotes[r].count(index) == 0); // XXXX
+        bvbFalseVotes[r].insert(index); // XXXX
     }
 }
 
