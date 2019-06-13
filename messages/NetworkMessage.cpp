@@ -69,6 +69,8 @@ NetworkMessage::NetworkMessage(MsgType messageType, node_id _srcNodeID, node_id 
                                schain_index _srcSchainIndex)
         : Message(_schainId, messageType, _msgID, _srcNodeID,_dstNodeID, _blockID, _blockProposerIndex) {
 
+    ASSERT(_srcSchainIndex > 0)
+
     this->r = _r;
     this->value = _value;
     this->ip = _ip;
