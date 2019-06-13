@@ -154,7 +154,7 @@ void AbstractClientAgent::workerThreadItemSendLoop(AbstractClientAgent *agent) {
 
 
 
-            if (destinationSubChainIndex != agent->getSchain()->getSchainIndex()) {
+            if (destinationSubChainIndex != (agent->getSchain()->getSchainIndex1() - 1)) { // XXXX
 
                 auto nodeId = agent->getSchain()->getNode()->getNodeInfoByIndex(destinationSubChainIndex)->getNodeID();
 

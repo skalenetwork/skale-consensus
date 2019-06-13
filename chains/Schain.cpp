@@ -409,7 +409,7 @@ void Schain::proposeNextBlock(uint64_t _previousBlockTimeStamp, uint32_t _previo
     auto myProposal = pendingTransactionsAgent->buildBlockProposal(_proposedBlockID, _previousBlockTimeStamp,
         _previousBlockTimeStampMs);
 
-    ASSERT(myProposal->getProposerIndex() == getSchainIndex());
+    ASSERT(myProposal->getProposerIndex() == (getSchainIndex1() -1)); // XXXX
 
     if (blockProposalsDatabase->addBlockProposal(myProposal)) {
         startConsensus(_proposedBlockID);
@@ -666,8 +666,8 @@ ptr<vector<uint8_t>> Schain::getSerializedBlockFromLevelDB(const block_id &_bloc
 }
 
 
-schain_index Schain::getSchainIndex() const {
-    return this->schainIndex -1;
+schain_index Schain::getSchainIndex1() const {
+    return this->schainIndex;
 }
 
 
@@ -786,7 +786,7 @@ void Schain::healthCheck() {
 
         for (int i = 0; i < getNodeCount(); i++) {
 
-            if (i != getSchainIndex() && !connections.count(i)) {
+            if (i != (getSchainIndex1() -1) && !connections.count(i)) { // XXXX
                 try {
                     auto x = make_shared<ClientSocket>(*this, schain_index(i), port_type::PROPOSAL);
                     LOG(debug, "Health check: connected to peer");
@@ -819,7 +819,8 @@ void Schain::sigShareArrived(ptr<BLSSigShare> _sigShare) {
 
 ptr<BLSSigShare> Schain::sign(ptr<SHAHash> _hash, block_id _blockId) {
 
-    return getNode()->getBlsPrivateKey()->sign(_hash->toHex(), getSchainID(), _blockId, getSchainIndex(),
+    return getNode()->getBlsPrivateKey()->sign(_hash->toHex(), getSchainID(), _blockId,
+        getSchainIndex1() - 1, // XXXX
             getNode()->getNodeID());
 
 }

@@ -256,6 +256,6 @@ schain_index CatchupClientAgent::nextSyncNodeIndex(
 
     do {
         index = ((uint64_t) index + 1) % nodeCount;
-    } while (index == agent->getSchain()->getSchainIndex());
+    } while (index == (agent->getSchain()->getSchainIndex1() - 1)); // XXXX
     return index;
 }

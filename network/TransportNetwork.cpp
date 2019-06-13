@@ -123,10 +123,10 @@ void TransportNetwork::broadcastMessage( Schain& subChain, ptr< NetworkMessage >
     while ( 3 * ( sent.size() + 1 ) < getSchain()->getNodeCount() * 2 ) {
         for ( auto const& it : subChain.getNode()->getNodeInfosByIndex() ) {
             auto index = ( uint64_t ) it.second->getSchainIndex() - 1;  // XXXX
-            if ( index != subChain.getSchainIndex() && !sent.count( index ) ) {
+            if ( index != (subChain.getSchainIndex1() - 1) && !sent.count( index ) ) { // XXXX
                 m->setDstNodeID( it.second->getNodeID() );
 
-                ASSERT( it.second->getSchainIndex() - 1 != sChain->getSchainIndex() );  // XXXX
+                ASSERT( it.second->getSchainIndex()  != sChain->getSchainIndex1() );  // XXXX
 
                 if ( sendMessage( it.second, m ) ) {
                     sent.insert( ( uint64_t ) it.second->getSchainIndex() - 1 );  // XXXX
@@ -138,7 +138,7 @@ void TransportNetwork::broadcastMessage( Schain& subChain, ptr< NetworkMessage >
     if ( sent.size() + 1 < getSchain()->getNodeCount() ) {
         for ( auto const& it : subChain.getNode()->getNodeInfosByIndex() ) {
             auto index = ( uint64_t ) it.second->getSchainIndex() - 1;  /// XXXX
-            if ( index != subChain.getSchainIndex() && !sent.count( index ) ) {
+            if ( index != (subChain.getSchainIndex1() - 1)  && !sent.count( index ) ) { ///XXXX
                 {
                     lock_guard< recursive_mutex > lock( delayedSendsLock );
                     delayedSends[index].push_back( {m, it.second} );
@@ -153,7 +153,7 @@ void TransportNetwork::broadcastMessage( Schain& subChain, ptr< NetworkMessage >
     m->setDstNodeID( oldID );
 
     for ( auto const& it : subChain.getNode()->getNodeInfosByIndex() ) {
-        if ( it.second->getSchainIndex() - 1 != subChain.getSchainIndex() ) {
+        if ( it.second->getSchainIndex()  != subChain.getSchainIndex1() ) { // XXXX
             m->setDstNodeID( it.second->getNodeID() );
             confirmMessage( it.second );
         }
@@ -247,7 +247,7 @@ void TransportNetwork::deferredMessagesLoop() {
 
 
         for ( int i = 0; i < getSchain()->getNodeCount(); i++ ) {
-            if ( i != getSchain()->getSchainIndex() ) {
+            if ( i != (getSchain()->getSchainIndex1() - 1)) {
                 lock_guard< recursive_mutex > lock( delayedSendsLock );
                 if ( delayedSends[i].size() > 0 ) {
                     if ( sendMessage(

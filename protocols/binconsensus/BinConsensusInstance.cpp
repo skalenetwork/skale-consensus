@@ -310,11 +310,11 @@ void BinConsensusInstance::auxSelfVote(bin_consensus_round r, bin_consensus_valu
     addAUXSelfVoteToHistory(r, v);
 
     if (v) {
-        ASSERT(auxTrueVotes[r].count(getSchain()->getSchainIndex()) == 0);
-        auxTrueVotes[r][getSchain()->getSchainIndex()] = _sigShare;
+        ASSERT(auxTrueVotes[r].count(getSchain()->getSchainIndex1() -1) == 0); // XXXX
+        auxTrueVotes[r][getSchain()->getSchainIndex1() - 1] = _sigShare; // XXXX
     } else {
-        ASSERT(auxFalseVotes[r].count(getSchain()->getSchainIndex()) == 0);
-        auxFalseVotes[r][getSchain()->getSchainIndex()] = _sigShare;
+        ASSERT(auxFalseVotes[r].count(getSchain()->getSchainIndex1() -1) == 0);
+        auxFalseVotes[r][getSchain()->getSchainIndex1() - 1] = _sigShare; // XXXX
     }
 
 }
