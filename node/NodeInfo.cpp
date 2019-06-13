@@ -41,7 +41,7 @@ node_id NodeInfo::getNodeID() const {
 
 
 schain_index NodeInfo::getSchainIndex() const {
-    return schainIndex -1;
+    return schainIndex;
 }
 
 network_port NodeInfo::getPort() const {

@@ -268,7 +268,7 @@ void BinConsensusInstance::bvbVote(ptr<MessageEnvelope> me) {
     bin_consensus_round r = m->r;
     bin_consensus_value v = m->value;
 
-    schain_index index = me->getSrcNodeInfo()->getSchainIndex();
+    schain_index index = me->getSrcNodeInfo()->getSchainIndex() - 1; // XXXX
 
     if(v) {
         ASSERT(bvbTrueVotes[r].count(index) == 0);
@@ -286,7 +286,7 @@ void BinConsensusInstance::auxVote(ptr<MessageEnvelope> me) {
     bin_consensus_value v = m->value;
 
 
-    auto index = me->getSrcNodeInfo()->getSchainIndex();
+    auto index = me->getSrcNodeInfo()->getSchainIndex() - 1; // XXXX
     if (v) {
         ASSERT(auxTrueVotes[r].count(index) == 0);
         auxTrueVotes[r][index] =  m->getSigShare();

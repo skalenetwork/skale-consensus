@@ -458,7 +458,7 @@ ptr<Header> BlockProposalServerAgent::createProposalResponseHeader(
         BOOST_THROW_EXCEPTION(InvalidNodeIDException("Node ID does not match " + srcNodeID, __CLASS_NAME__));
     }
 
-    if (nmi->getSchainIndex() != schain_index(proposerIndex)) {
+    if (nmi->getSchainIndex() - 1 != schain_index(proposerIndex)) { // XXXX
         responseHeader->setStatusSubStatus(
                 CONNECTION_SERVER_ERROR, CONNECTION_ERROR_INVALID_NODE_INDEX);
         BOOST_THROW_EXCEPTION(InvalidSchainIndexException(
