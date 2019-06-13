@@ -35,7 +35,7 @@ class BLSSigShare {
     ptr< libff::alt_bn128_G1 > sig;
     schain_id schainId;
     block_id blockId;
-    schain_index signerIndex;
+    schain_index signerIndex; // converted
     node_id signerNodeId;
 
 
