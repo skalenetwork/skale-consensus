@@ -49,6 +49,6 @@ BVBroadcastMessage::BVBroadcastMessage(node_id _srcNodeID, node_id _dstNodeID, b
                                        msg_id _msgID,
                                        uint32_t _ip, ptr<string> _sigShare, schain_index _srcSchainIndex) : NetworkMessage(
         BVB_BROADCAST, _srcNodeID, _dstNodeID, _blockID, _blockProposerIndex, _r, _value, _schainId, _msgID, _ip, _sigShare,
-        _srcSchainIndex + 1 ) { // XXXX
+        _srcSchainIndex) { // XXXX
     printPrefix = "b";
 };
