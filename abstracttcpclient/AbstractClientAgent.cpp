@@ -60,11 +60,11 @@ AbstractClientAgent::AbstractClientAgent(Schain &_sChain, port_type _portType) :
 
     for (uint64_t i = 0; i < _sChain.getNodeCount(); i++) {
         (itemQueue)
-                .emplace(schain_index(i), make_shared<queue<ptr<BlockProposal> > >());
+                .emplace(schain_index(i + 1), make_shared<queue<ptr<BlockProposal> > >()); // XXXX
         (queueCond).emplace(schain_index(i + 1) , make_shared<condition_variable>()); // XXXX
         (queueMutex).emplace(schain_index(i + 1), make_shared<mutex>()); // XXXX
 
-        ASSERT(itemQueue.count(schain_index(i)));
+        ASSERT(itemQueue.count(schain_index(i + 1))); // XXXX
         ASSERT(queueCond.count(schain_index(i + 1))); // XXXX
         ASSERT(queueMutex.count(schain_index(i + 1))); // XXXX
     }
@@ -110,7 +110,7 @@ void AbstractClientAgent::enqueueItem(ptr<BlockProposal> item) {
     for (uint64_t i = 0; i < (uint64_t) this->sChain->getNodeCount(); i++) {
         {
             lock_guard<mutex> lock(*queueMutex[schain_index(i+1)]); // XXXX
-            auto q = itemQueue[schain_index(i)];
+            auto q = itemQueue[schain_index(i + 1)]; // XXXX
             q->push(item);
         }
         queueCond[schain_index(i + 1)]->notify_all(); // XXXX
@@ -137,20 +137,20 @@ void AbstractClientAgent::workerThreadItemSendLoop(AbstractClientAgent *agent) {
                 std::unique_lock<std::mutex> mlock(*agent->queueMutex[destinationSubChainIndex + 1]); // XXXX
 
 
-                while (agent->itemQueue[destinationSubChainIndex]->empty()) {
+                while (agent->itemQueue[destinationSubChainIndex + 1]->empty()) { // XXXX
                     agent->getSchain()->getNode()->exitCheck();
                     agent->queueCond[destinationSubChainIndex + 1]->wait(mlock); // XXXX
                 }
             }
 
-            ASSERT(agent->itemQueue[destinationSubChainIndex]);
+            ASSERT(agent->itemQueue[destinationSubChainIndex + 1]); // XXXX
 
-            auto proposal = agent->itemQueue[destinationSubChainIndex]->front();
+            auto proposal = agent->itemQueue[destinationSubChainIndex + 1]->front(); // XXXX
 
 
             ASSERT(proposal);
 
-            agent->itemQueue[destinationSubChainIndex]->pop();
+            agent->itemQueue[destinationSubChainIndex+1]->pop(); // XXXX
 
 
 
