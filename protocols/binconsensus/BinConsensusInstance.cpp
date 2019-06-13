@@ -286,13 +286,13 @@ void BinConsensusInstance::auxVote(ptr<MessageEnvelope> me) {
     bin_consensus_value v = m->value;
 
 
-    auto index = me->getSrcNodeInfo()->getSchainIndex() - 1; // XXXX
+    auto index = me->getSrcNodeInfo()->getSchainIndex(); // XXXX
     if (v) {
-        ASSERT(auxTrueVotes[r].count(index) == 0);
-        auxTrueVotes[r][index] =  m->getSigShare();
+        ASSERT(auxTrueVotes[r].count(index) == 0); // XXXX
+        auxTrueVotes[r][index] =  m->getSigShare(); // XXXX
     } else {
-        ASSERT(auxFalseVotes[r].count(index) == 0);
-        auxFalseVotes[r][index] =  m->getSigShare();
+        ASSERT(auxFalseVotes[r].count(index) == 0); // XXXX
+        auxFalseVotes[r][index] =  m->getSigShare(); // XXXX
     }
 
 }
@@ -310,11 +310,11 @@ void BinConsensusInstance::auxSelfVote(bin_consensus_round r, bin_consensus_valu
     addAUXSelfVoteToHistory(r, v);
 
     if (v) {
-        ASSERT(auxTrueVotes[r].count(getSchain()->getSchainIndex1() -1) == 0); // XXXX
-        auxTrueVotes[r][getSchain()->getSchainIndex1() - 1] = _sigShare; // XXXX
+        ASSERT(auxTrueVotes[r].count( getSchain()->getSchainIndex()) == 0); // XXXX
+        auxTrueVotes[r][getSchain()->getSchainIndex()] = _sigShare; // XXXX
     } else {
-        ASSERT(auxFalseVotes[r].count(getSchain()->getSchainIndex1() -1) == 0);
-        auxFalseVotes[r][getSchain()->getSchainIndex1() - 1] = _sigShare; // XXXX
+        ASSERT(auxFalseVotes[r].count( getSchain()->getSchainIndex()) == 0); // XXXX
+        auxFalseVotes[r][getSchain()->getSchainIndex()] = _sigShare; // XXXX
     }
 
 }

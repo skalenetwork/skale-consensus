@@ -225,7 +225,7 @@ public:
     const ptr<PendingTransactionsAgent> &getPendingTransactionsAgent() const;
 
 
-    schain_index getSchainIndex1() const;
+    schain_index getSchainIndex() const;
 
     Node *getNode() const;
 
