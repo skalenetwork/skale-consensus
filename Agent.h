@@ -64,7 +64,7 @@ public:
 
     map< schain_index, ptr< condition_variable > > queueCond;
 
-    map< schain_index, ptr<mutex > > queueMutex;
+    map< schain_index, ptr<mutex > > queueMutex; // converted
 
 
 

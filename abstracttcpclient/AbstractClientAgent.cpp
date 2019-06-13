@@ -62,11 +62,11 @@ AbstractClientAgent::AbstractClientAgent(Schain &_sChain, port_type _portType) :
         (itemQueue)
                 .emplace(schain_index(i), make_shared<queue<ptr<BlockProposal> > >());
         (queueCond).emplace(schain_index(i), make_shared<condition_variable>());
-        (queueMutex).emplace(schain_index(i), make_shared<mutex>());
+        (queueMutex).emplace(schain_index(i + 1), make_shared<mutex>()); // XXXX
 
         ASSERT(itemQueue.count(schain_index(i)));
         ASSERT(queueCond.count(schain_index(i)));
-        ASSERT(queueMutex.count(schain_index(i)));
+        ASSERT(queueMutex.count(schain_index(i + 1))); // XXXX
     }
 
     threadCounter = 0;
@@ -109,7 +109,7 @@ void AbstractClientAgent::sendItem(ptr<BlockProposal> _proposal, schain_index _d
 void AbstractClientAgent::enqueueItem(ptr<BlockProposal> item) {
     for (uint64_t i = 0; i < (uint64_t) this->sChain->getNodeCount(); i++) {
         {
-            lock_guard<mutex> lock(*queueMutex[schain_index(i)]);
+            lock_guard<mutex> lock(*queueMutex[schain_index(i+1)]); // XXXX
             auto q = itemQueue[schain_index(i)];
             q->push(item);
         }
@@ -134,7 +134,7 @@ void AbstractClientAgent::workerThreadItemSendLoop(AbstractClientAgent *agent) {
         while (!agent->getSchain()->getNode()->isExitRequested()) {
 
             {
-                std::unique_lock<std::mutex> mlock(*agent->queueMutex[destinationSubChainIndex]);
+                std::unique_lock<std::mutex> mlock(*agent->queueMutex[destinationSubChainIndex + 1]); // XXXX
 
 
                 while (agent->itemQueue[destinationSubChainIndex]->empty()) {
