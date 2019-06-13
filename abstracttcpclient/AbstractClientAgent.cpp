@@ -61,11 +61,11 @@ AbstractClientAgent::AbstractClientAgent(Schain &_sChain, port_type _portType) :
     for (uint64_t i = 0; i < _sChain.getNodeCount(); i++) {
         (itemQueue)
                 .emplace(schain_index(i), make_shared<queue<ptr<BlockProposal> > >());
-        (queueCond).emplace(schain_index(i), make_shared<condition_variable>());
+        (queueCond).emplace(schain_index(i + 1) , make_shared<condition_variable>()); // XXXX
         (queueMutex).emplace(schain_index(i + 1), make_shared<mutex>()); // XXXX
 
         ASSERT(itemQueue.count(schain_index(i)));
-        ASSERT(queueCond.count(schain_index(i)));
+        ASSERT(queueCond.count(schain_index(i + 1))); // XXXX
         ASSERT(queueMutex.count(schain_index(i + 1))); // XXXX
     }
 
@@ -113,7 +113,7 @@ void AbstractClientAgent::enqueueItem(ptr<BlockProposal> item) {
             auto q = itemQueue[schain_index(i)];
             q->push(item);
         }
-        queueCond[schain_index(i)]->notify_all();
+        queueCond[schain_index(i + 1)]->notify_all(); // XXXX
     }
 }
 
@@ -139,7 +139,7 @@ void AbstractClientAgent::workerThreadItemSendLoop(AbstractClientAgent *agent) {
 
                 while (agent->itemQueue[destinationSubChainIndex]->empty()) {
                     agent->getSchain()->getNode()->exitCheck();
-                    agent->queueCond[destinationSubChainIndex]->wait(mlock);
+                    agent->queueCond[destinationSubChainIndex + 1]->wait(mlock); // XXXX
                 }
             }
 

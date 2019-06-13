@@ -62,7 +62,7 @@ public:
     condition_variable messageCond;
 
 
-    map< schain_index, ptr< condition_variable > > queueCond;
+    map< schain_index, ptr< condition_variable > > queueCond; // converted
 
     map< schain_index, ptr<mutex > > queueMutex; // converted
 
