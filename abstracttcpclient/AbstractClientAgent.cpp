@@ -107,13 +107,13 @@ void AbstractClientAgent::sendItem(ptr<BlockProposal> _proposal, schain_index _d
 
 
 void AbstractClientAgent::enqueueItem(ptr<BlockProposal> item) {
-    for (uint64_t i = 0; i < (uint64_t) this->sChain->getNodeCount(); i++) {
+    for (uint64_t i = 1; i <= (uint64_t) this->sChain->getNodeCount(); i++) {
         {
-            lock_guard<mutex> lock(*queueMutex[schain_index(i+1)]); // XXXX
-            auto q = itemQueue[schain_index(i + 1)]; // XXXX
+            lock_guard<mutex> lock(*queueMutex[schain_index(i)]); // XXXX
+            auto q = itemQueue[schain_index(i)]; // XXXX
             q->push(item);
         }
-        queueCond[schain_index(i + 1)]->notify_all(); // XXXX
+        queueCond[schain_index(i)]->notify_all(); // XXXX
     }
 }
 
