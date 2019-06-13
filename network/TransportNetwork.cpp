@@ -122,8 +122,8 @@ void TransportNetwork::broadcastMessage( Schain& subChain, ptr< NetworkMessage >
 
     while ( 3 * ( sent.size() + 1 ) < getSchain()->getNodeCount() * 2 ) {
         for ( auto const& it : subChain.getNode()->getNodeInfosByIndex() ) {
-            auto index = ( uint64_t ) it.second->getSchainIndex() - 1;  // XXXX
-            if ( index != ( subChain.getSchainIndex() - 1) && !sent.count( index + 1) ) { // XXXX
+            auto index = ( uint64_t ) it.second->getSchainIndex();  // XXXX
+            if ( index != ( subChain.getSchainIndex()) && !sent.count( index) ) { // XXXX
                 m->setDstNodeID( it.second->getNodeID() );
 
                 ASSERT( it.second->getSchainIndex()  != sChain->getSchainIndex() );  // XXXX
@@ -137,13 +137,13 @@ void TransportNetwork::broadcastMessage( Schain& subChain, ptr< NetworkMessage >
 
     if ( sent.size() + 1 < getSchain()->getNodeCount() ) {
         for ( auto const& it : subChain.getNode()->getNodeInfosByIndex() ) {
-            auto index = ( uint64_t ) it.second->getSchainIndex() - 1;  /// XXXX
-            if ( index != ( subChain.getSchainIndex() - 1)  && !sent.count( index + 1) ) { ///XXXX
+            auto index = ( uint64_t ) it.second->getSchainIndex();  /// XXXX
+            if ( index != ( subChain.getSchainIndex())  && !sent.count( index) ) { ///XXXX
                 {
                     lock_guard< recursive_mutex > lock( delayedSendsLock );
-                    delayedSends[index].push_back( {m, it.second} );
-                    if ( delayedSends[index].size() > 256 ) {
-                        delayedSends[index].pop_front();
+                    delayedSends[index -1].push_back( {m, it.second} ); ///XXXX
+                    if ( delayedSends[index -1].size() > 256 ) { ///XXXX
+                        delayedSends[index -1].pop_front(); ///XXXX
                     }
                 }
             }
