@@ -235,6 +235,8 @@ Schain::Schain(Node &_node, schain_index _schainIndex, const schain_id &_schainI
           node(_node),
           schainIndex(_schainIndex) {
 
+    ASSERT(schainIndex > 0);
+
     try {
 
 
@@ -665,7 +667,7 @@ ptr<vector<uint8_t>> Schain::getSerializedBlockFromLevelDB(const block_id &_bloc
 
 
 schain_index Schain::getSchainIndex() const {
-    return this->schainIndex;
+    return this->schainIndex -1;
 }
 
 

@@ -327,7 +327,7 @@ void Node::initSchain(ptr<NodeInfo> _localNodeInfo, const vector<ptr<NodeInfo>> 
         ASSERT(nodeInfosByIndex.size() > 0);
         ASSERT(nodeInfosByIndex.count(0) > 0);
 
-        sChain = make_shared<Schain>(*this, _localNodeInfo->getSchainIndex() - 1, // XXXX
+        sChain = make_shared<Schain>(*this, _localNodeInfo->getSchainIndex(), // XXXX
                                      _localNodeInfo->getSchainID(), _extFace);
     } catch (...) {
         throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
