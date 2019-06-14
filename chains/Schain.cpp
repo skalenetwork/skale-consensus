@@ -350,7 +350,7 @@ void Schain::blockCommitsArrivedThroughCatchup(ptr<CommittedBlockList> _blocks) 
 void Schain::blockCommitArrived(bool bootstrap, block_id _committedBlockID, schain_index _proposerIndex,
                                 uint64_t _committedTimeStamp) {
 
-    std::lock_guard<std::recursive_mutex> aLock(getMainMutex());
+    std::lock_guard<std::recursive_mutex> lock(getMainMutex());
 
     ASSERT(_committedTimeStamp < (uint64_t) 2 * MODERN_TIME);
 
