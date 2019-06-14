@@ -37,7 +37,7 @@ ptr<ProtocolKey> Message::createDestinationProtocolKey()  {
 
     ASSERT(blockID > 0);
     if (protocolKey == nullptr) {
-        protocolKey = make_shared<ProtocolKey>(blockID, blockProposerIndex);
+        protocolKey = make_shared<ProtocolKey>(blockID, blockProposerIndex + 1);
     }
     return protocolKey;
 

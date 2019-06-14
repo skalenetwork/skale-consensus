@@ -649,7 +649,7 @@ BinConsensusInstance::BinConsensusInstance(BlockConsensusAgent *instance, block_
                                            schain_index _blockProposerIndex) :
 
         ProtocolInstance(BIN_CONSENSUS, *instance->getSchain()),
-        protocolKey(make_shared<ProtocolKey>(_blockId, _blockProposerIndex)) {
+        protocolKey(make_shared<ProtocolKey>(_blockId, _blockProposerIndex + 1)) {
     ASSERT((uint64_t) _blockId > 0);
 
 
