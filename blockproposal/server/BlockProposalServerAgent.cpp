@@ -251,7 +251,7 @@ BlockProposalServerAgent::processProposalRequest(ptr<Connection> _connection, nl
     auto missingTransactionHashes = result.second;
 
     Header::getUint64(_proposalRequest, "proposerNodeID");
-    auto proposerIndex = schain_index(Header::getUint64(_proposalRequest, "proposerIndex")) - 1; // XXXX
+    auto proposerIndex = schain_index(Header::getUint64(_proposalRequest, "proposerIndex")); // XXXX
     auto blockID = block_id(Header::getUint64(_proposalRequest, "blockID"));
     auto timeStamp = Header::getUint64(_proposalRequest, "timeStamp");
     auto timeStampMs = Header::getUint32(_proposalRequest, "timeStampMs");
@@ -358,7 +358,7 @@ BlockProposalServerAgent::processProposalRequest(ptr<Connection> _connection, nl
     auto transactionList = make_shared<TransactionList>(transactions);
 
     auto proposal =
-            make_shared<ReceivedBlockProposal>(*sChain, blockID, proposerIndex + 1, transactionList, // XXXX
+            make_shared<ReceivedBlockProposal>(*sChain, blockID, proposerIndex, transactionList, // XXXX
                 timeStamp, timeStampMs);
 
     auto calculatedHash = proposal->getHash();
@@ -428,7 +428,7 @@ ptr<Header> BlockProposalServerAgent::createProposalResponseHeader(
     schainID = Header::getUint64(_jsonRequest, "schainID");
     blockID = Header::getUint64(_jsonRequest, "blockID");
     srcNodeID = Header::getUint64(_jsonRequest, "proposerNodeID");
-    proposerIndex = Header::getUint64(_jsonRequest, "proposerIndex") - 1;
+    proposerIndex = Header::getUint64(_jsonRequest, "proposerIndex");
     timeStamp = Header::getUint64(_jsonRequest, "timeStamp");
     hash = Header::getString(_jsonRequest, "hash");
 
@@ -458,7 +458,7 @@ ptr<Header> BlockProposalServerAgent::createProposalResponseHeader(
         BOOST_THROW_EXCEPTION(InvalidNodeIDException("Node ID does not match " + srcNodeID, __CLASS_NAME__));
     }
 
-    if (nmi->getSchainIndex() - 1 != schain_index(proposerIndex)) { // XXXX
+    if (nmi->getSchainIndex()  != schain_index(proposerIndex)) { // XXXX
         responseHeader->setStatusSubStatus(
                 CONNECTION_SERVER_ERROR, CONNECTION_ERROR_INVALID_NODE_INDEX);
         BOOST_THROW_EXCEPTION(InvalidSchainIndexException(
@@ -524,7 +524,7 @@ ptr<Header> BlockProposalServerAgent::createFinalizeResponseHeader(
 
     schainID = Header::getUint64(_jsonRequest, "schainID");
     blockID = Header::getUint64(_jsonRequest, "blockID");
-    proposerIndex = Header::getUint64(_jsonRequest, "proposerIndex") -1;
+    proposerIndex = Header::getUint64(_jsonRequest, "proposerIndex");
 
     if (!_jsonRequest["hash"].is_null()) {
         hash = Header::getString(_jsonRequest, "hash");
@@ -563,7 +563,7 @@ ptr<Header> BlockProposalServerAgent::createFinalizeResponseHeader(
     }
 
 
-    if (block->getProposerIndex() -1 != proposerIndex) { // XXXX
+    if (block->getProposerIndex()  != proposerIndex) { // XXXX
         responseHeader->setStatusSubStatus(CONNECTION_ERROR, CONNECTION_INVALID_INDEX);
         responseHeader->setComplete();
         return responseHeader;
