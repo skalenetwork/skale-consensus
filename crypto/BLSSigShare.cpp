@@ -49,6 +49,11 @@ BLSSigShare::BLSSigShare( ptr< string > _s, schain_id _schainID, block_id _block
       blockId( _blockID ),
       signerIndex( _signerIndex ),
       signerNodeId( _signerNodeID ) {
+
+    if ( signerIndex == 0 ) {
+        BOOST_THROW_EXCEPTION( InvalidArgumentException( "Zero signer index", __CLASS_NAME__ ) );
+    }
+
     if ( !_s ) {
         BOOST_THROW_EXCEPTION( InvalidArgumentException( "Null _s", __CLASS_NAME__ ) );
     }
