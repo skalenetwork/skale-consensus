@@ -100,7 +100,7 @@ void AbstractClientAgent::sendItem(ptr<BlockProposal> _proposal, schain_index _d
     }
 
 
-    sendItemImpl(_proposal, socket, _dstIndex -1, _dstNodeId); // XXXX
+    sendItemImpl(_proposal, socket, _dstIndex, _dstNodeId); // XXXX
 }
 
 

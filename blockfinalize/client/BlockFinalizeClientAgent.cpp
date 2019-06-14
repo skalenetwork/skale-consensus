@@ -121,7 +121,7 @@ void BlockFinalizeClientAgent::sendItemImpl(ptr<BlockProposal> &_proposal, share
 
     try {
 
-        signatureShare = getBLSSignatureShare(response, committedBlock->getBlockID(), _destIndex,
+        signatureShare = getBLSSignatureShare(response, committedBlock->getBlockID(), _destIndex - 1,
                                               _dstNodeId);
     } catch (...) {
         throw_with_nested(NetworkProtocolException("Could not read signature share from response", __CLASS_NAME__));
