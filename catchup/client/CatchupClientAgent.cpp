@@ -227,7 +227,7 @@ void CatchupClientAgent::workerThreadItemSendLoop(CatchupClientAgent *agent) {
 
     agent->waitOnGlobalStartBarrier();
 
-    auto destinationSubChainIndex = schain_index(0);
+    auto destinationSubChainIndex = schain_index(1);
 
     try {
         while (!agent->getSchain()->getNode()->isExitRequested()) {
@@ -252,10 +252,13 @@ schain_index CatchupClientAgent::nextSyncNodeIndex(
         const CatchupClientAgent *agent, schain_index _destinationSubChainIndex) {
     auto nodeCount = (uint64_t) agent->getSchain()->getNodeCount();
 
+    ASSERT(_destinationSubChainIndex <= nodeCount);
+
     auto index = _destinationSubChainIndex;
 
     do {
-        index = ((uint64_t) index + 1) % nodeCount;
-    } while (index == ( agent->getSchain()->getSchainIndex() - 1)); // XXXX
+        index = ((uint64_t) index)  % nodeCount + 1;
+    } while (index == ( agent->getSchain()->getSchainIndex())); // XXXX
+
     return index;
 }
