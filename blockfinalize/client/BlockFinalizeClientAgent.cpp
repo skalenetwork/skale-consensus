@@ -88,7 +88,7 @@ void BlockFinalizeClientAgent::sendItemImpl(ptr<BlockProposal> &_proposal, share
     ASSERT(committedBlock);
 
     ptr<Header> header = make_shared<BlockFinalizeRequestHeader>(*sChain, committedBlock,
-                                                                 _proposal->getProposerIndex() -1); // XXXX
+                                                                 _proposal->getProposerIndex()); // XXXX
 
 
     try {

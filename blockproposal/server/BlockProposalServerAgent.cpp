@@ -251,7 +251,7 @@ BlockProposalServerAgent::processProposalRequest(ptr<Connection> _connection, nl
     auto missingTransactionHashes = result.second;
 
     Header::getUint64(_proposalRequest, "proposerNodeID");
-    auto proposerIndex = schain_index(Header::getUint64(_proposalRequest, "proposerIndex"));
+    auto proposerIndex = schain_index(Header::getUint64(_proposalRequest, "proposerIndex")) - 1; // XXXX
     auto blockID = block_id(Header::getUint64(_proposalRequest, "blockID"));
     auto timeStamp = Header::getUint64(_proposalRequest, "timeStamp");
     auto timeStampMs = Header::getUint32(_proposalRequest, "timeStampMs");
@@ -428,7 +428,7 @@ ptr<Header> BlockProposalServerAgent::createProposalResponseHeader(
     schainID = Header::getUint64(_jsonRequest, "schainID");
     blockID = Header::getUint64(_jsonRequest, "blockID");
     srcNodeID = Header::getUint64(_jsonRequest, "proposerNodeID");
-    proposerIndex = Header::getUint64(_jsonRequest, "proposerIndex");
+    proposerIndex = Header::getUint64(_jsonRequest, "proposerIndex") - 1;
     timeStamp = Header::getUint64(_jsonRequest, "timeStamp");
     hash = Header::getString(_jsonRequest, "hash");
 
@@ -524,7 +524,7 @@ ptr<Header> BlockProposalServerAgent::createFinalizeResponseHeader(
 
     schainID = Header::getUint64(_jsonRequest, "schainID");
     blockID = Header::getUint64(_jsonRequest, "blockID");
-    proposerIndex = Header::getUint64(_jsonRequest, "proposerIndex");
+    proposerIndex = Header::getUint64(_jsonRequest, "proposerIndex") -1;
 
     if (!_jsonRequest["hash"].is_null()) {
         hash = Header::getString(_jsonRequest, "hash");
