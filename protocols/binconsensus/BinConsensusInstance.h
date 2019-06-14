@@ -99,11 +99,11 @@ private:
 
 
 
-    map<bin_consensus_round, set<schain_index>> bvbTrueVotes;
-    map<bin_consensus_round, set<schain_index>> bvbFalseVotes;
+    map<bin_consensus_round, set<schain_index>> bvbTrueVotes; // converted
+    map<bin_consensus_round, set<schain_index>> bvbFalseVotes; // converted
 
-    map<bin_consensus_round, map<schain_index, ptr<BLSSigShare>>> auxTrueVotes;
-    map<bin_consensus_round, map<schain_index, ptr<BLSSigShare>>> auxFalseVotes;
+    map<bin_consensus_round, map<schain_index, ptr<BLSSigShare>>> auxTrueVotes; // converted
+    map<bin_consensus_round, map<schain_index, ptr<BLSSigShare>>> auxFalseVotes; // converted
 
 
 

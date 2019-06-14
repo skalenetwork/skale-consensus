@@ -33,7 +33,7 @@ class NodeInfo {
 
     schain_id  schainID;
 
-    schain_index schainIndex;
+    schain_index schainIndex; // converted
 
     ptr<sockaddr_in> socketaddr;
 

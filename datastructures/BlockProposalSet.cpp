@@ -92,8 +92,8 @@ ptr< vector< bool > > BlockProposalSet::createBooleanVector() {
 
     auto v = make_shared< vector< bool > >( ( uint64_t ) sChain->getNodeCount() );
 
-    for ( uint64_t i = 0; i < sChain->getNodeCount(); i++ ) {
-        ( *v )[i] = ( proposals.count( schain_index( i ) + 1) > 0 ); // XXXX
+    for ( uint64_t i = 1; i <= sChain->getNodeCount(); i++ ) {
+        ( *v )[i - 1] = ( proposals.count( schain_index( i )) > 0 ); // XXXX
     }
 
     return v;

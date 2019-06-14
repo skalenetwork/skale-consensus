@@ -579,11 +579,12 @@ void Schain::startConsensus(const block_id _blockID) {
     }
 
 
-    auto proposals = blockProposalsDatabase->getBooleanProposalsVector(_blockID);
-    ASSERT(blockConsensusInstance && proposals);
+    auto proposalVector = blockProposalsDatabase->getBooleanProposalsVector(_blockID);
+    
+    ASSERT(blockConsensusInstance != nullptr && proposalVector != nullptr);
 
 
-    auto message = make_shared<ConsensusProposalMessage>(*this, _blockID, proposals);
+    auto message = make_shared<ConsensusProposalMessage>(*this, _blockID, proposalVector);
 
     auto envelope = make_shared<InternalMessageEnvelope>(ORIGIN_EXTERNAL, message, *this);
 
