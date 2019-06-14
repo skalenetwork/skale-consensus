@@ -409,14 +409,14 @@ bool BlockConsensusAgent::decided(ptr <ProtocolKey> key) {
 
 ptr <BinConsensusInstance> BlockConsensusAgent::getChild(ptr <ProtocolKey> key) {
 
-    if ((uint64_t) key->getBlockProposerIndex() -1 >= (uint64_t) getSchain()->getNodeCount()) // XXXX
+    if ((uint64_t) key->getBlockProposerIndex()  > (uint64_t) getSchain()->getNodeCount()) // XXXX
         return nullptr;
 
 
     lock_guard <recursive_mutex> lock(childrenMutex);
 
     if (children.count(key) == 0)
-        children[key] = make_shared<BinConsensusInstance>(this, key->getBlockID(), key->getBlockProposerIndex() - 1); // XXXX
+        children[key] = make_shared<BinConsensusInstance>(this, key->getBlockID(), key->getBlockProposerIndex()); // XXXX
 
     return children[key];
 

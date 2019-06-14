@@ -86,7 +86,7 @@ void BinConsensusInstance::processMessage(ptr<MessageEnvelope> m) {
 
 
     ASSERT(m->getMessage()->getBlockID() == getBlockID());
-    ASSERT(m->getMessage()->getBlockProposerIndex() == getBlockProposerIndex());
+    ASSERT(m->getMessage()->getBlockProposerIndex() == getBlockProposerIndex() -1 ); // XXXX
 
 
     auto msgType = m->getMessage()->getMessageType();
@@ -402,7 +402,7 @@ void BinConsensusInstance::networkBroadcastValue(ptr<BVBroadcastMessage> m) {
 void BinConsensusInstance::auxBroadcastValue(bin_consensus_value v, bin_consensus_round r) {
 
 
-    auto m = make_shared<AUXBroadcastMessage>(r, v, node_id(0), blockID, blockProposerIndex, *this);
+    auto m = make_shared<AUXBroadcastMessage>(r, v, node_id(0), blockID, blockProposerIndex -1, *this); // XXXX
 
 
     auxSelfVote(r, v, m->getSigShare());
@@ -450,7 +450,7 @@ void BinConsensusInstance::proceedWithCommonCoinIfAUXTwoThird(bin_consensus_roun
 
 
 
-        auto key = getRandomDBKey(getSchain(), getBlockID(), getBlockProposerIndex(), _r);
+        auto key = getRandomDBKey(getSchain(), getBlockID(), getBlockProposerIndex() -1 , _r); // XXXX
 
         auto value = randomDB->readString(*key);
 
@@ -536,7 +536,7 @@ void BinConsensusInstance::proceedWithNewRound(bin_consensus_value value) {
     addNextRoundToHistory(currentRound, value);
 
     auto m = make_shared<BVBroadcastMessage>(node_id(0),
-                                             this->getBlockID(), this->getBlockProposerIndex(), currentRound, value,
+                                             this->getBlockID(), this->getBlockProposerIndex() - 1, currentRound, value, // XXXX
                                              *this);
 
     ptr<MessageEnvelope> me = make_shared<MessageEnvelope>(ORIGIN_NETWORK, m, getSchain()->getThisNodeInfo());
@@ -556,7 +556,7 @@ void BinConsensusInstance::printHistory() {
     cerr << "Proposer:" << getBlockProposerIndex() << "Nodecount:" << getNodeCount() << endl;
     for (auto &&m: *msgHistory) {
 
-        if (m->getBlockProposerIndex() == getBlockProposerIndex() &&
+        if (m->getBlockProposerIndex() == getBlockProposerIndex() -1  && // XXXX
             m->getBlockID() == getBlockID() && m->getDstNodeID() == getSchain()->getNode()->getNodeID()) {
             m->printMessage();
         }
@@ -649,7 +649,7 @@ BinConsensusInstance::BinConsensusInstance(BlockConsensusAgent *instance, block_
                                            schain_index _blockProposerIndex) :
 
         ProtocolInstance(BIN_CONSENSUS, *instance->getSchain()),
-        protocolKey(make_shared<ProtocolKey>(_blockId, _blockProposerIndex + 1)) {
+        protocolKey(make_shared<ProtocolKey>(_blockId, _blockProposerIndex)) {
     ASSERT((uint64_t) _blockId > 0);
 
 
