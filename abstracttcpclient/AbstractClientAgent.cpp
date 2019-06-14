@@ -58,15 +58,15 @@ AbstractClientAgent::AbstractClientAgent(Schain &_sChain, port_type _portType) :
 
     logThreadLocal_ = _sChain.getNode()->getLog();
 
-    for (uint64_t i = 0; i < _sChain.getNodeCount(); i++) {
+    for (uint64_t i = 1; i <= _sChain.getNodeCount(); i++) {
         (itemQueue)
-                .emplace(schain_index(i + 1), make_shared<queue<ptr<BlockProposal> > >()); // XXXX
-        (queueCond).emplace(schain_index(i + 1) , make_shared<condition_variable>()); // XXXX
-        (queueMutex).emplace(schain_index(i + 1), make_shared<mutex>()); // XXXX
+                .emplace(schain_index(i), make_shared<queue<ptr<BlockProposal> > >()); // XXXX
+        (queueCond).emplace(schain_index(i) , make_shared<condition_variable>()); // XXXX
+        (queueMutex).emplace(schain_index(i), make_shared<mutex>()); // XXXX
 
-        ASSERT(itemQueue.count(schain_index(i + 1))); // XXXX
-        ASSERT(queueCond.count(schain_index(i + 1))); // XXXX
-        ASSERT(queueMutex.count(schain_index(i + 1))); // XXXX
+        ASSERT(itemQueue.count(schain_index(i))); // XXXX
+        ASSERT(queueCond.count(schain_index(i))); // XXXX
+        ASSERT(queueMutex.count(schain_index(i))); // XXXX
     }
 
     threadCounter = 0;
