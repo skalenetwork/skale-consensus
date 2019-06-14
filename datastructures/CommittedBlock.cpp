@@ -45,7 +45,7 @@
 
 CommittedBlock::CommittedBlock(Schain &_sChain, ptr<BlockProposal> _p) : BlockProposal(_sChain,
                                                                                        _p->getBlockID(),
-                                                                                       _p->getProposerIndex(),
+                                                                                       _p->getProposerIndex() + 1,
                                                                                        _p->getTransactionList(),
                                                                                        _p->getTimeStamp(),
                                                                                        _p->getTimeStampMs()) {
@@ -165,7 +165,7 @@ ptr<vector<size_t>> CommittedBlock::parseBlockHeader(
 
     auto js = nlohmann::json::parse(*header);
 
-    proposerIndex = schain_index(Header::getUint64(js, "proposerIndex"));
+    proposerIndex = schain_index(Header::getUint64(js, "proposerIndex")) + 1;
     proposerNodeID = node_id(Header::getUint64(js, "proposerNodeID"));
     blockID = block_id(Header::getUint64(js, "blockID"));
     schainID = schain_id(Header::getUint64(js, "schainID"));

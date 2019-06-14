@@ -129,8 +129,8 @@ const transaction_count &BlockProposal::getTransactionsCount() const {
     return transactionCount;
 }
 
-const schain_index &BlockProposal::getProposerIndex() const {
-    return proposerIndex;
+schain_index BlockProposal::getProposerIndex() const {
+    return proposerIndex -1;
 }
 
 
