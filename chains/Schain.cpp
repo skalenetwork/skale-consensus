@@ -785,9 +785,9 @@ void Schain::healthCheck() {
             exit(110);
         }
 
-        for (int i = 0; i < getNodeCount(); i++) {
+        for (int i = 1; i <= getNodeCount(); i++) {
 
-            if (i != ( getSchainIndex() -1) && !connections.count(i)) { // XXXX
+            if (i != ( getSchainIndex()) && !connections.count(i)) { // XXXX
                 try {
                     auto x = make_shared<ClientSocket>(*this, schain_index(i), port_type::PROPOSAL);
                     LOG(debug, "Health check: connected to peer");

@@ -85,7 +85,7 @@ void AbstractClientAgent::sendItem(ptr<BlockProposal> _proposal, schain_index _d
 
     ASSERT(getNode()->isStarted());
 
-    auto socket = make_shared<ClientSocket>(*sChain, _dstIndex - 1, portType);  // XXXX
+    auto socket = make_shared<ClientSocket>(*sChain, _dstIndex, portType);  // XXXX
 
 
 
