@@ -90,11 +90,11 @@ int ClientSocket::createTCPSocket() {
 
 ClientSocket::ClientSocket(Schain &_sChain, schain_index _destinationIndex, port_type portType)
         : bindIP(_sChain.getNode()->getBindIP()) {
-    if (_sChain.getNode()->getNodeInfoByIndex(_destinationIndex) == nullptr) {
+    if (_sChain.getNode()->getNodeInfoByIndex(_destinationIndex + 1 ) == nullptr) { // XXXX
         BOOST_THROW_EXCEPTION(FatalError("Could not find node with destination index "));
     }
 
-    ptr<NodeInfo> ni = _sChain.getNode()->getNodeInfoByIndex(_destinationIndex);
+    ptr<NodeInfo> ni = _sChain.getNode()->getNodeInfoByIndex(_destinationIndex + 1); // XXXX
 
 
     remoteIP = ni->getBaseIP();

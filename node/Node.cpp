@@ -468,9 +468,9 @@ bool Node::isStarted() const {
 
 
 ptr<NodeInfo> Node::getNodeInfoByIndex(schain_index _index) {
-    if (nodeInfosByIndex.count(_index + 1) == 0) // XXXX
+    if (nodeInfosByIndex.count(_index) == 0) // XXXX
         return nullptr;;
-    return nodeInfosByIndex[_index + 1]; // XXXX
+    return nodeInfosByIndex[_index]; // XXXX
 }
 
 

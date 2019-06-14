@@ -131,7 +131,7 @@ void BlockConsensusAgent::processChildMessageImpl(ptr <InternalMessageEnvelope> 
 void BlockConsensusAgent::propose(bin_consensus_value _proposal, schain_index _index, block_id _id) {
 
 
-    auto _nodeID = getSchain()->getNode()->getNodeInfoByIndex(_index)->getNodeID();
+    auto _nodeID = getSchain()->getNode()->getNodeInfoByIndex(_index + 1)->getNodeID(); // XXXX
 
 
     auto key = make_shared<ProtocolKey>(_id, _index);

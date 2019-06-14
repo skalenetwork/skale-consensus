@@ -580,7 +580,7 @@ void Schain::startConsensus(const block_id _blockID) {
 
 
     auto proposalVector = blockProposalsDatabase->getBooleanProposalsVector(_blockID);
-    
+
     ASSERT(blockConsensusInstance != nullptr && proposalVector != nullptr);
 
 
@@ -702,7 +702,7 @@ node_id Schain::getNodeIDByIndex(schain_index _index) {
         BOOST_THROW_EXCEPTION(InvalidArgumentException("Index exceeds node count - 1", __CLASS_NAME__));
     }
 
-    auto nodeInfo =  this->getNode()->getNodeInfoByIndex(_index);
+    auto nodeInfo =  this->getNode()->getNodeInfoByIndex(_index + 1); // XXXX
 
     return nodeInfo->getNodeID();
 }
