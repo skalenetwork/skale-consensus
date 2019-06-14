@@ -104,13 +104,13 @@ ptr< BlockProposal > BlockProposalSet::getProposalByIndex( schain_index _index )
     lock_guard< recursive_mutex > lock( proposalsMutex );
 
 
-    if ( proposals.count( _index  + 1) == 0 ) { // XXXX
+    if ( proposals.count( _index) == 0 ) { // XXXX
         LOG(trace,
             "Proposal did not yet arrive. Total proposals:" + to_string(proposals.size()));
         return nullptr;
     }
 
-    return proposals[_index + 1]; // XXXX
+    return proposals[_index]; // XXXX
 }
 
 atomic<uint64_t>  BlockProposalSet::totalObjects(0);

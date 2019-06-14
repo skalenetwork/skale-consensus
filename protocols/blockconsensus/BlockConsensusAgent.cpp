@@ -195,9 +195,9 @@ void BlockConsensusAgent::decideBlock(block_id _blockNumber, schain_index _propo
             throw ExitRequestedException();
         }
         usleep(100000); /* Flawfinder: ignore */
-    } while (proposedBlockSet->getProposalByIndex(_proposerIndex) == nullptr);
+    } while (proposedBlockSet->getProposalByIndex(_proposerIndex + 1) == nullptr); // XXXX
 
-    auto proposal = proposedBlockSet->getProposalByIndex(_proposerIndex);
+    auto proposal = proposedBlockSet->getProposalByIndex(_proposerIndex + 1); // XXXX
 
     getSchain()->blockCommitArrived(false, _blockNumber, _proposerIndex, proposal->getTimeStamp());
 

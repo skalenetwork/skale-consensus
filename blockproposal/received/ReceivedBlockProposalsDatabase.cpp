@@ -137,7 +137,7 @@ ptr<BlockProposal> ReceivedBlockProposalsDatabase::getBlockProposal(block_id blo
         return nullptr;
     }
 
-    return set->getProposalByIndex(proposerIndex);
+    return set->getProposalByIndex(proposerIndex + 1); // XXXX
 }
 
 
