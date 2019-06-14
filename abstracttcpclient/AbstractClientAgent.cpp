@@ -85,7 +85,7 @@ void AbstractClientAgent::sendItem(ptr<BlockProposal> _proposal, schain_index _d
 
     ASSERT(getNode()->isStarted());
 
-    auto socket = make_shared<ClientSocket>(*sChain, _dstIndex, portType);
+    auto socket = make_shared<ClientSocket>(*sChain, _dstIndex - 1, portType);  // XXXX
 
 
 
@@ -100,7 +100,7 @@ void AbstractClientAgent::sendItem(ptr<BlockProposal> _proposal, schain_index _d
     }
 
 
-    sendItemImpl(_proposal, socket, _dstIndex, _dstNodeId);
+    sendItemImpl(_proposal, socket, _dstIndex -1, _dstNodeId); // XXXX
 }
 
 
@@ -126,7 +126,7 @@ void AbstractClientAgent::workerThreadItemSendLoop(AbstractClientAgent *agent) {
 
     agent->waitOnGlobalStartBarrier();
 
-    auto destinationSubChainIndex = schain_index(agent->incrementAndReturnThreadCounter());
+    auto destinationSubChainIndex = schain_index(agent->incrementAndReturnThreadCounter() + 1);
 
     try {
 
@@ -134,34 +134,32 @@ void AbstractClientAgent::workerThreadItemSendLoop(AbstractClientAgent *agent) {
         while (!agent->getSchain()->getNode()->isExitRequested()) {
 
             {
-                std::unique_lock<std::mutex> mlock(*agent->queueMutex[destinationSubChainIndex + 1]); // XXXX
+                std::unique_lock<std::mutex> mlock(*agent->queueMutex[destinationSubChainIndex]); // XXXX
 
 
-                while (agent->itemQueue[destinationSubChainIndex + 1]->empty()) { // XXXX
+                while (agent->itemQueue[destinationSubChainIndex]->empty()) { // XXXX
                     agent->getSchain()->getNode()->exitCheck();
-                    agent->queueCond[destinationSubChainIndex + 1]->wait(mlock); // XXXX
+                    agent->queueCond[destinationSubChainIndex]->wait(mlock); // XXXX
                 }
             }
 
-            ASSERT(agent->itemQueue[destinationSubChainIndex + 1]); // XXXX
+            ASSERT(agent->itemQueue[destinationSubChainIndex]); // XXXX
 
-            auto proposal = agent->itemQueue[destinationSubChainIndex + 1]->front(); // XXXX
+            auto proposal = agent->itemQueue[destinationSubChainIndex]->front(); // XXXX
 
 
             ASSERT(proposal);
 
-            agent->itemQueue[destinationSubChainIndex+1]->pop(); // XXXX
+            agent->itemQueue[destinationSubChainIndex]->pop(); // XXXX
 
 
 
-            if (destinationSubChainIndex != ( agent->getSchain()->getSchainIndex() - 1)) { // XXXX
+            if (destinationSubChainIndex != ( agent->getSchain()->getSchainIndex())) { // XXXX
 
-                auto nodeId = agent->getSchain()->getNode()->getNodeInfoByIndex(destinationSubChainIndex + 1)->getNodeID(); // XXXX
+                auto nodeId =
+                    agent->getSchain()->getNode()->getNodeInfoByIndex(destinationSubChainIndex)->getNodeID(); // XXXX
 
                 bool sent = false;
-
-
-
 
                 while (!sent) {
                     try {
