@@ -563,7 +563,7 @@ ptr<Header> BlockProposalServerAgent::createFinalizeResponseHeader(
     }
 
 
-    if (block->getProposerIndex() != proposerIndex) {
+    if (block->getProposerIndex() -1 != proposerIndex) { // XXXX
         responseHeader->setStatusSubStatus(CONNECTION_ERROR, CONNECTION_INVALID_INDEX);
         responseHeader->setComplete();
         return responseHeader;

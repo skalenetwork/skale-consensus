@@ -45,7 +45,7 @@
 
 CommittedBlock::CommittedBlock(Schain &_sChain, ptr<BlockProposal> _p) : BlockProposal(_sChain,
                                                                                        _p->getBlockID(),
-                                                                                       _p->getProposerIndex() + 1,
+                                                                                       _p->getProposerIndex(),
                                                                                        _p->getTransactionList(),
                                                                                        _p->getTimeStamp(),
                                                                                        _p->getTimeStampMs()) {

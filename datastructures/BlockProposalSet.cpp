@@ -48,13 +48,13 @@ bool BlockProposalSet::addProposal(ptr<BlockProposal> _proposal) {
 
     lock_guard< recursive_mutex > lock( proposalsMutex );
 
-    if ( proposals.count(_proposal->getProposerIndex() + 1) > 0 ) { // XXXX
+    if ( proposals.count(_proposal->getProposerIndex()) > 0 ) { // XXXX
         LOG(err,
             "Got block proposal with the same index" + to_string((uint64_t) _proposal->getProposerIndex()));
         return false;
     }
 
-    proposals[_proposal->getProposerIndex() + 1] = _proposal; // XXXX
+    proposals[_proposal->getProposerIndex()] = _proposal; // XXXX
 
     return true;
 

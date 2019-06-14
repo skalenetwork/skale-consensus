@@ -409,7 +409,7 @@ void Schain::proposeNextBlock(uint64_t _previousBlockTimeStamp, uint32_t _previo
     auto myProposal = pendingTransactionsAgent->buildBlockProposal(_proposedBlockID, _previousBlockTimeStamp,
         _previousBlockTimeStampMs);
 
-    ASSERT(myProposal->getProposerIndex() == ( getSchainIndex() -1)); // XXXX
+    ASSERT(myProposal->getProposerIndex() == getSchainIndex()); // XXXX
 
     if (blockProposalsDatabase->addBlockProposal(myProposal)) {
         startConsensus(_proposedBlockID);
