@@ -30,7 +30,7 @@ ReceivedBlockProposal::ReceivedBlockProposal(Schain &_sChain, const block_id &_b
                                              const ptr<TransactionList> &_transactions,
                                              const uint64_t &_timeStamp,
                                              const uint32_t &_timeStampMs) : BlockProposal(_sChain, _blockID,
-                                                                                         _proposerIndex + 1, _transactions,
+                                                                                         _proposerIndex, _transactions,
                                                                                          _timeStamp, _timeStampMs) {
     totalObjects++;
 }

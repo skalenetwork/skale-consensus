@@ -180,7 +180,7 @@ void BlockConsensusAgent::decideBlock(block_id _blockNumber, schain_index _propo
 
         // empty block
         auto emptyList = make_shared<TransactionList>(make_shared < vector < ptr < Transaction >> > ());
-        auto zeroProposal = make_shared<ReceivedBlockProposal>(*getSchain(), _blockNumber, _proposerIndex,
+        auto zeroProposal = make_shared<ReceivedBlockProposal>(*getSchain(), _blockNumber, _proposerIndex + 1, // XXXX
                                                                emptyList, sec, ms );
 
 

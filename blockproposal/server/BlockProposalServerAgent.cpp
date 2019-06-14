@@ -358,7 +358,7 @@ BlockProposalServerAgent::processProposalRequest(ptr<Connection> _connection, nl
     auto transactionList = make_shared<TransactionList>(transactions);
 
     auto proposal =
-            make_shared<ReceivedBlockProposal>(*sChain, blockID, proposerIndex, transactionList,
+            make_shared<ReceivedBlockProposal>(*sChain, blockID, proposerIndex + 1, transactionList, // XXXX
                 timeStamp, timeStampMs);
 
     auto calculatedHash = proposal->getHash();
