@@ -114,7 +114,7 @@ ptr<BlockProposal> PendingTransactionsAgent::buildBlockProposal(block_id _blockI
 
 
 
-    auto myBlockProposal = make_shared<MyBlockProposal>(*sChain, _blockID, ( sChain->getSchainIndex() -1) , // XXXX
+    auto myBlockProposal = make_shared<MyBlockProposal>(*sChain, _blockID, sChain->getSchainIndex(), // XXXX
             transactionList, sec, m);
     LOG(trace, "Created proposal, transactions:" + to_string(transactions->size()));
 ;
