@@ -141,9 +141,9 @@ void TransportNetwork::broadcastMessage( Schain& subChain, ptr< NetworkMessage >
             if ( index != ( subChain.getSchainIndex())  && !sent.count( index) ) { ///XXXX
                 {
                     lock_guard< recursive_mutex > lock( delayedSendsLock );
-                    delayedSends[index -1].push_back( {m, it.second} ); ///XXXX
-                    if ( delayedSends[index -1].size() > 256 ) { ///XXXX
-                        delayedSends[index -1].pop_front(); ///XXXX
+                    delayedSends.at(index - 1 ).push_back( {m, it.second} ); ///XXXX
+                    if ( delayedSends.at(index - 1).size() > 256 ) { ///XXXX
+                        delayedSends.at(index - 1).pop_front(); ///XXXX
                     }
                 }
             }

@@ -257,12 +257,12 @@ void BlockConsensusAgent::reportConsensusAndDecideIfNeeded(ptr <ChildBVDecidedMe
 
 
     for (uint64_t i = random; i < random + nodeCount; i++) {
-        auto index = schain_index(i % nodeCount);
-        if (trueDecisions[blockID].count(index + 1) > 0) {
-            decideBlock(blockID, index + 1);
+        auto index = schain_index(i % nodeCount) + 1;
+        if (trueDecisions[blockID].count(index) > 0) {
+            decideBlock(blockID, index);
             return;
         }
-        if (falseDecisions[blockID].count(index + 1) == 0) {
+        if (falseDecisions[blockID].count(index) == 0) {
             return;
         }
     }
