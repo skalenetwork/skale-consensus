@@ -359,7 +359,7 @@ BlockProposalServerAgent::processProposalRequest(ptr<Connection> _connection, nl
 
     auto proposal =
             make_shared<ReceivedBlockProposal>(*sChain, blockID, proposerIndex, transactionList, // XXXX
-                timeStamp, timeStampMs);
+                                               timeStamp, timeStampMs);
 
     auto calculatedHash = proposal->getHash();
 
@@ -458,7 +458,7 @@ ptr<Header> BlockProposalServerAgent::createProposalResponseHeader(
         BOOST_THROW_EXCEPTION(InvalidNodeIDException("Node ID does not match " + srcNodeID, __CLASS_NAME__));
     }
 
-    if (nmi->getSchainIndex()  != schain_index(proposerIndex)) { // XXXX
+    if (nmi->getSchainIndex() != schain_index(proposerIndex)) { // XXXX
         responseHeader->setStatusSubStatus(
                 CONNECTION_SERVER_ERROR, CONNECTION_ERROR_INVALID_NODE_INDEX);
         BOOST_THROW_EXCEPTION(InvalidSchainIndexException(
@@ -524,7 +524,7 @@ ptr<Header> BlockProposalServerAgent::createFinalizeResponseHeader(
 
     schainID = Header::getUint64(_jsonRequest, "schainID");
     blockID = Header::getUint64(_jsonRequest, "blockID");
-    proposerIndex = Header::getUint64(_jsonRequest, "proposerIndex") -1;
+    proposerIndex = Header::getUint64(_jsonRequest, "proposerIndex");
 
     if (!_jsonRequest["hash"].is_null()) {
         hash = Header::getString(_jsonRequest, "hash");
@@ -563,7 +563,7 @@ ptr<Header> BlockProposalServerAgent::createFinalizeResponseHeader(
     }
 
 
-    if (block->getProposerIndex() -1 != proposerIndex) { // XXXX
+    if (block->getProposerIndex() != proposerIndex) { // XXXX
         responseHeader->setStatusSubStatus(CONNECTION_ERROR, CONNECTION_INVALID_INDEX);
         responseHeader->setComplete();
         return responseHeader;
@@ -586,7 +586,8 @@ ptr<Header> BlockProposalServerAgent::createFinalizeResponseHeader(
 }
 
 void
-BlockProposalServerAgent::signBlock(ptr<BlockFinalizeResponseHeader> &_responseHeader, ptr<CommittedBlock> &_block) const {
+BlockProposalServerAgent::signBlock(ptr<BlockFinalizeResponseHeader> &_responseHeader,
+                                    ptr<CommittedBlock> &_block) const {
     ptr<BLSSigShare> sigShare;
 
     try {
@@ -600,7 +601,7 @@ BlockProposalServerAgent::signBlock(ptr<BlockFinalizeResponseHeader> &_responseH
     auto sigString = sigShare->toString();
 
     _responseHeader->setSigShare(sigString);
-    }
+}
 
 
 nlohmann::json BlockProposalServerAgent::readMissingTransactionsResponseHeader(
