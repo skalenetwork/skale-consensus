@@ -150,21 +150,21 @@ void BlockConsensusAgent::propose(bin_consensus_value _proposal, schain_index _i
 }
 
 
-void BlockConsensusAgent::decideBlock(block_id _blockNumber, schain_index _proposerIndex) {
+void BlockConsensusAgent::decideBlock(block_id _blockId, schain_index _proposerIndex) {
 
 
-    ASSERT(decidedBlocks.count(_blockNumber) == 0);
+    ASSERT(decidedBlocks.count(_blockId) == 0);
 
-    decidedBlocks[_blockNumber] = _proposerIndex;
+    decidedBlocks[_blockId] = _proposerIndex;
 
-    LOG(debug, "decideBlock:" + to_string(_blockNumber) +
+    LOG(debug, "decideBlock:" + to_string(_blockId) +
               ":PRP:" + to_string(_proposerIndex));
     LOG(debug, "Total txs:" + to_string(getSchain()->getTotalTransactions()) +
               " T(s):" +
               to_string((getSchain()->getCurrentTimeMilllis().count() - getSchain()->getStartTime().count()) / 1000.0));
 
 
-    auto proposedBlockSet = getSchain()->blockProposalsDatabase->getProposedBlockSet(_blockNumber);
+    auto proposedBlockSet = getSchain()->blockProposalsDatabase->getProposedBlockSet(_blockId);
 
 
     ASSERT(proposedBlockSet);
@@ -179,7 +179,7 @@ void BlockConsensusAgent::decideBlock(block_id _blockNumber, schain_index _propo
 
         // empty block
         auto emptyList = make_shared<TransactionList>(make_shared < vector < ptr < Transaction >> > ());
-        auto zeroProposal = make_shared<ReceivedBlockProposal>(*getSchain(), _blockNumber, 0, // XXXX
+        auto zeroProposal = make_shared<ReceivedBlockProposal>(*getSchain(), _blockId, 0, // XXXX
                                                                emptyList, sec, ms );
 
 
@@ -198,7 +198,7 @@ void BlockConsensusAgent::decideBlock(block_id _blockNumber, schain_index _propo
 
     auto proposal = proposedBlockSet->getProposalByIndex(_proposerIndex); // XXXX
 
-    getSchain()->blockCommitArrived(false, _blockNumber, _proposerIndex, proposal->getTimeStamp());
+    getSchain()->blockCommitArrived(false, _blockId, _proposerIndex, proposal->getTimeStamp());
 
 }
 
@@ -232,9 +232,9 @@ void BlockConsensusAgent::reportConsensusAndDecideIfNeeded(ptr <ChildBVDecidedMe
 
 
     if (msg->getValue()) {
-        trueDecisions[blockID].insert(blockProposerIndex);
+        trueDecisions[blockID].insert(blockProposerIndex + 1);
     } else {
-        falseDecisions[blockID].insert(blockProposerIndex);
+        falseDecisions[blockID].insert(blockProposerIndex + 1);
     }
 
 
@@ -259,11 +259,11 @@ void BlockConsensusAgent::reportConsensusAndDecideIfNeeded(ptr <ChildBVDecidedMe
 
     for (uint64_t i = random; i < random + nodeCount; i++) {
         auto index = schain_index(i % nodeCount);
-        if (trueDecisions[blockID].count(index) > 0) {
+        if (trueDecisions[blockID].count(index + 1) > 0) {
             decideBlock(blockID, index + 1);
             return;
         }
-        if (falseDecisions[blockID].count(index) == 0) {
+        if (falseDecisions[blockID].count(index + 1) == 0) {
             return;
         }
     }
@@ -286,9 +286,9 @@ void BlockConsensusAgent::voteAndDecideIfNeded1(ptr <ChildBVDecidedMessage> msg)
         return;
 
     if (msg->getValue()) {
-        trueDecisions[blockID].insert(blockProposerIndex);
+        trueDecisions[blockID].insert(blockProposerIndex + 1);
     } else {
-        falseDecisions[blockID].insert(blockProposerIndex);
+        falseDecisions[blockID].insert(blockProposerIndex + 1);
     }
 
     if (trueDecisions[blockID].size() == 0) {
@@ -304,11 +304,11 @@ void BlockConsensusAgent::voteAndDecideIfNeded1(ptr <ChildBVDecidedMessage> msg)
 
     for (uint64_t i = winner; i < winner + nodeCount; i++) {
         auto index = schain_index(i % nodeCount);
-        if (trueDecisions[blockID].count(index) > 0) {
+        if (trueDecisions[blockID].count(index + 1) > 0) {
             decideBlock(blockID, index + 1);
             return ;
         }
-        if (falseDecisions[blockID].count(index) == 0) {
+        if (falseDecisions[blockID].count(index + 1) == 0) {
             return;
         }
     }
