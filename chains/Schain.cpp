@@ -698,11 +698,11 @@ schain_id Schain::getSchainID() {
 
 node_id Schain::getNodeIDByIndex(schain_index _index) {
 
-    if (((uint64_t )_index) >= (uint64_t ) this->getNodeCount()) {
-        BOOST_THROW_EXCEPTION(InvalidArgumentException("Index exceeds node count - 1", __CLASS_NAME__));
+    if (((uint64_t )_index) > (uint64_t ) this->getNodeCount()) {
+        BOOST_THROW_EXCEPTION(InvalidArgumentException("Index exceeds node count", __CLASS_NAME__));
     }
 
-    auto nodeInfo =  this->getNode()->getNodeInfoByIndex(_index + 1); // XXXX
+    auto nodeInfo =  this->getNode()->getNodeInfoByIndex(_index); // XXXX
 
     return nodeInfo->getNodeID();
 }
