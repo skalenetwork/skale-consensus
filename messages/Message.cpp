@@ -37,7 +37,7 @@ ptr<ProtocolKey> Message::createDestinationProtocolKey()  {
 
     ASSERT(blockID > 0);
     if (protocolKey == nullptr) {
-        protocolKey = make_shared<ProtocolKey>(blockID, blockProposerIndex + 1);
+        protocolKey = make_shared<ProtocolKey>(blockID, blockProposerIndex);
     }
     return protocolKey;
 
@@ -76,8 +76,8 @@ const block_id Message::getBlockId() const {
     return blockID;
 }
 
-const schain_index &Message::getBlockProposerIndex() const {
-    return blockProposerIndex;
+const schain_index Message::getBlockProposerIndex() const {
+    return blockProposerIndex - 1;
 }
 
 
@@ -88,7 +88,7 @@ Message::Message(const schain_id &_schainID, MsgType _msgType, const msg_id &_ms
                  const node_id &_srcNodeID, const node_id &_dstNodeID, const block_id &_blockID,
                  const schain_index &_blockProposerIndex) : schainID(_schainID),
                                                                        blockID(_blockID),
-                                                                       blockProposerIndex(_blockProposerIndex),
+                                                                       blockProposerIndex(_blockProposerIndex + 1),
                                                                        msgType(_msgType), msgID(_msgID),
 
                                                                        srcNodeID(_srcNodeID), dstNodeID(_dstNodeID) {

@@ -42,7 +42,9 @@ protected:
 
     schain_id schainID;
     block_id  blockID;
+private:
     schain_index blockProposerIndex;
+protected:
     MsgType msgType;
     msg_id msgID;
     node_id srcNodeID;
@@ -65,7 +67,7 @@ public:
 
     const block_id getBlockId() const;
 
-    const schain_index &getBlockProposerIndex() const ;
+    const schain_index getBlockProposerIndex() const ;
 
     schain_id getSchainID() const;
 

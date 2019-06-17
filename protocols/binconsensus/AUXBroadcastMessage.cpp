@@ -53,7 +53,10 @@ AUXBroadcastMessage::AUXBroadcastMessage(bin_consensus_round round, bin_consensu
 
     CryptoPP::SHA256 sha3;
 
-    sha3.Update(reinterpret_cast < uint8_t * > ( &this->blockProposerIndex), sizeof(blockProposerIndex));
+
+    auto bpi = getBlockProposerIndex();
+
+    sha3.Update(reinterpret_cast < uint8_t * > ( &bpi), sizeof(bpi));
     sha3.Update(reinterpret_cast < uint8_t * > ( &this->r), sizeof(r));
     sha3.Update(reinterpret_cast < uint8_t * > ( &this->blockID), sizeof(blockID));
     sha3.Update(reinterpret_cast < uint8_t * > ( &this->schainID), sizeof(schainID));
