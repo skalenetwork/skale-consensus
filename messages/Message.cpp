@@ -88,7 +88,7 @@ Message::Message(const schain_id &_schainID, MsgType _msgType, const msg_id &_ms
                  const node_id &_srcNodeID, const node_id &_dstNodeID, const block_id &_blockID,
                  const schain_index &_blockProposerIndex) : schainID(_schainID),
                                                                        blockID(_blockID),
-                                                                       blockProposerIndex(_blockProposerIndex + 1),
+                                                                       blockProposerIndex(_blockProposerIndex),
                                                                        msgType(_msgType), msgID(_msgID),
 
                                                                        srcNodeID(_srcNodeID), dstNodeID(_dstNodeID) {

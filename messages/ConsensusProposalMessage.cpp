@@ -30,7 +30,7 @@
 ConsensusProposalMessage::ConsensusProposalMessage(Schain& _schain,  const block_id &_blockID, ptr<BooleanProposalVector> _proposals) : Message(
         _schain.getSchainID(), MSG_CONSENSUS_PROPOSAL,
         msg_id(0), node_id(0), node_id(0), _blockID,
-                schain_index(0)) {
+                schain_index(1)) {
     this->proposals = _proposals;
 
 }

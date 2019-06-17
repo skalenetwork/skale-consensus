@@ -54,8 +54,8 @@ protected:
 
 public:
     Message(const schain_id &schainID, MsgType msgType, const msg_id &msgID, const node_id &srcNodeID,
-            const node_id &dstNodeID, const block_id &blockID = block_id(0),
-            const schain_index &blockProposerIndex = schain_index(0));
+            const node_id &dstNodeID, const block_id &blockID,
+            const schain_index &blockProposerIndex);
 
     node_id getSrcNodeID() const;
 
