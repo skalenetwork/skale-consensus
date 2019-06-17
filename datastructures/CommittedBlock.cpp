@@ -165,7 +165,7 @@ ptr<vector<size_t>> CommittedBlock::parseBlockHeader(
 
     auto js = nlohmann::json::parse(*header);
 
-    proposerIndex = schain_index(Header::getUint64(js, "proposerIndex")) + 1;
+    proposerIndex = schain_index(Header::getUint64(js, "proposerIndex"));
     proposerNodeID = node_id(Header::getUint64(js, "proposerNodeID"));
     blockID = block_id(Header::getUint64(js, "blockID"));
     schainID = schain_id(Header::getUint64(js, "schainID"));

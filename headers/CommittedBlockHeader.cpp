@@ -46,7 +46,7 @@ CommittedBlockHeader::CommittedBlockHeader() : Header(Header::COMMITTED_BLOCK) {
 
 CommittedBlockHeader::CommittedBlockHeader(CommittedBlock& _block) : Header(Header::COMMITTED_BLOCK) {
 
-    this->proposerIndex = _block.getProposerIndex() - 1 ;  //XXXX
+    this->proposerIndex = _block.getProposerIndex();  //XXXX
     this->proposerNodeID = _block.getProposerNodeID();
     this->schainID = _block.getSchainID();
     this->blockID = _block.getBlockID();
