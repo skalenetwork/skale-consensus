@@ -34,6 +34,7 @@
 class ChildBVDecidedMessage;
 class BlockProposalSet;
 class Schain;
+class BooleanProposalVector;
 
 
 class BlockConsensusAgent {
@@ -93,7 +94,7 @@ class BlockConsensusAgent {
 
     void processChildCompletedMessage(ptr<InternalMessageEnvelope> _me);
 
-    void startConsensusProposal(block_id _blockID, ptr<vector<bool>> _proposal);
+    void startConsensusProposal(block_id _blockID, ptr<BooleanProposalVector> _proposal);
 
 
     void processMessage(ptr<MessageEnvelope> _m);

@@ -30,6 +30,8 @@ class PartialHashesList;
 
 class Schain;
 
+class BooleanProposalVector;
+
 
 class ReceivedBlockProposalsDatabase : Agent {
 
@@ -62,7 +64,7 @@ public:
     bool addBlockProposal(ptr<BlockProposal> _proposal);
 
 
-    ptr<vector<bool>> getBooleanProposalsVector(block_id _blockID);
+    ptr<BooleanProposalVector> getBooleanProposalsVector(block_id _blockID);
 
     bool isTwoThird(block_id _blockID);
 };

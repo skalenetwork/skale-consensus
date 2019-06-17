@@ -36,6 +36,16 @@ private:
     node_count nodeCount;
     vector<bool> proposals;
 
+public:
+
+    BooleanProposalVector(node_count _nodeCount);
+
+
+    void pushValue(bool _value);
+
+    bool getProposalValue(schain_index _index);
+
+
 
 };
 

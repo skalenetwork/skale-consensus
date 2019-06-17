@@ -31,6 +31,7 @@ class PartialHashesList;
 class Schain;
 class BlockProposal;
 class SHAHash;
+class BooleanProposalVector;
 
 class BlockProposalSet : public DataStructure  {
     recursive_mutex proposalsMutex;
@@ -61,10 +62,9 @@ public:
 
     bool isTwoThird();
 
-    ptr< vector< bool > > createBooleanVector();
+    ptr<BooleanProposalVector> createBooleanVector();
 
-    ptr< BlockProposal > getProposalByIndex( schain_index _index );
-
+    ptr<BlockProposal> getProposalByIndex( schain_index _index );
 
 
     static uint64_t getTotalObjects() {

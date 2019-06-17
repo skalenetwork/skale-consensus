@@ -95,7 +95,7 @@ void ReceivedBlockProposalsDatabase::cleanOldBlockProposals(block_id _lastCommit
     }
 }
 
-ptr<vector<bool>> ReceivedBlockProposalsDatabase::getBooleanProposalsVector(block_id _blockID) {
+ptr<BooleanProposalVector> ReceivedBlockProposalsDatabase::getBooleanProposalsVector(block_id _blockID) {
 
 
     lock_guard<recursive_mutex> lock(proposalsDatabaseMutex);

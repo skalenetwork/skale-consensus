@@ -43,6 +43,7 @@
 #include "../../datastructures/BlockProposalSet.h"
 #include "../../datastructures/TransactionList.h"
 #include "../../blockproposal/pusher/BlockProposalClientAgent.h"
+#include "../../datastructures/BooleanProposalVector.h"
 #include "../../messages/ConsensusProposalMessage.h"
 #include "../../node/NodeInfo.h"
 #include "../../blockproposal/received/ReceivedBlockProposalsDatabase.h"
@@ -81,10 +82,8 @@ void BlockConsensusAgent::processMessage(ptr <MessageEnvelope> _m) {
 }
 
 
-void BlockConsensusAgent::startConsensusProposal(block_id _blockID, ptr <vector<bool>> _proposal) {
+void BlockConsensusAgent::startConsensusProposal(block_id _blockID, ptr <BooleanProposalVector> _proposal) {
 
-
-    ASSERT(_proposal->size() == getSchain()->getNodeCount());
     ASSERT(proposedBlocks.count(_blockID) == 0);
 
     if (getSchain()->getCommittedBlockID() >= _blockID) {
@@ -98,19 +97,19 @@ void BlockConsensusAgent::startConsensusProposal(block_id _blockID, ptr <vector<
 
     uint64_t truthCount = 0;
 
-    for (size_t i = 0; i < _proposal->size(); i++) {
-        if ((*_proposal)[i])
+    for (size_t i = 0; i < sChain.getNodeCount(); i++) {
+        if (_proposal->getProposalValue(schain_index(i + 1)))
             truthCount++;
     }
 
-    ASSERT(3 * truthCount > _proposal->size() * 2);
+    ASSERT(3 * truthCount > getSchain()->getNodeCount() * 2);
 
 
-    for (uint64_t i = 0; i < (uint64_t) getSchain()->getNodeCount(); i++) {
+    for (uint64_t i = 1; i <= (uint64_t) getSchain()->getNodeCount(); i++) {
 
         bin_consensus_value x;
 
-        x = bin_consensus_value((*_proposal)[i] ? 1 : 0);
+        x = bin_consensus_value(_proposal->getProposalValue(schain_index(i)) ? 1 : 0);
 
         propose(x, schain_index(i), _blockID);
     }
@@ -131,14 +130,14 @@ void BlockConsensusAgent::processChildMessageImpl(ptr <InternalMessageEnvelope> 
 void BlockConsensusAgent::propose(bin_consensus_value _proposal, schain_index _index, block_id _id) {
 
 
-    auto _nodeID = getSchain()->getNode()->getNodeInfoByIndex(_index + 1)->getNodeID(); // XXXX
+    auto _nodeID = getSchain()->getNode()->getNodeInfoByIndex(_index)->getNodeID(); // XXXX
 
 
-    auto key = make_shared<ProtocolKey>(_id, _index + 1);
+    auto key = make_shared<ProtocolKey>(_id, _index);
 
     auto child = getChild(key);
 
-    auto msg = make_shared<BVBroadcastMessage>(_nodeID, _id, _index, bin_consensus_round(0), _proposal,
+    auto msg = make_shared<BVBroadcastMessage>(_nodeID, _id, _index - 1, bin_consensus_round(0), _proposal,
                                                *child);
 
 

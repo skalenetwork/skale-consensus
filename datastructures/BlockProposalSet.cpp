@@ -28,7 +28,7 @@
 #include "../node/ConsensusEngine.h"
 #include "../crypto/SHAHash.h"
 #include "../datastructures/BlockProposal.h"
-
+#include "../datastructures/BooleanProposalVector.h"
 
 #include "../chains/Schain.h"
 #include "../pendingqueue/PendingTransactionsAgent.h"
@@ -87,13 +87,12 @@ node_count BlockProposalSet::getTotalProposalsCount() {
 }
 
 
-ptr< vector< bool > > BlockProposalSet::createBooleanVector() {
+ptr<BooleanProposalVector> BlockProposalSet::createBooleanVector() {
     lock_guard< recursive_mutex > lock( proposalsMutex );
 
-    auto v = make_shared<vector<bool>>( ( uint64_t ) sChain->getNodeCount() );
-
+    auto v = make_shared<BooleanProposalVector>(sChain->getNodeCount());
     for ( uint64_t i = 1; i <= sChain->getNodeCount(); i++ ) {
-        ( *v )[i - 1] = ( proposals.count( schain_index( i )) > 0 ); // XXXX
+        v->pushValue(proposals.count( schain_index( i )) > 0); // XXXX
     }
 
     return v;

@@ -30,14 +30,16 @@
 #include "Message.h"
 
 class Schain;
+class BooleanProposalVector;
 
 class ConsensusProposalMessage : public Message {
 
-ptr<vector<bool>>  proposals;
+ptr<BooleanProposalVector>  proposals;
 
 public:
-    ConsensusProposalMessage(Schain& subchain, const block_id &blockID, ptr<vector<bool>> proposals);
 
-    const ptr<vector<bool>> &getProposals() const;
+    ConsensusProposalMessage(Schain& subchain, const block_id &blockID, ptr<BooleanProposalVector> proposals);
+
+    const ptr<BooleanProposalVector> getProposals() const;
 
 };
