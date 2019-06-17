@@ -74,8 +74,8 @@ void CatchupClientAgent::sync(schain_index _dstIndex) {
     LOG(debug,
         "Catchupc step 0: request for block" + to_string(getSchain()->getCommittedBlockID()));
 
-    auto header = make_shared<CatchupRequestHeader>(*sChain, _dstIndex + 1);
-    auto socket = make_shared<ClientSocket>(*sChain, _dstIndex + 1, CATCHUP); // XXXX
+    auto header = make_shared<CatchupRequestHeader>(*sChain, _dstIndex);
+    auto socket = make_shared<ClientSocket>(*sChain, _dstIndex, CATCHUP); // XXXX
     auto io = getSchain()->getIo();
 
 
@@ -227,7 +227,7 @@ void CatchupClientAgent::workerThreadItemSendLoop(CatchupClientAgent *agent) {
 
     agent->waitOnGlobalStartBarrier();
 
-    auto destinationSubChainIndex = schain_index(0);
+    auto destinationSubChainIndex = schain_index(1);
 
     try {
         while (!agent->getSchain()->getNode()->isExitRequested()) {
@@ -241,7 +241,7 @@ void CatchupClientAgent::workerThreadItemSendLoop(CatchupClientAgent *agent) {
                 Exception::logNested(e);
             }
 
-            destinationSubChainIndex = nextSyncNodeIndex(agent, destinationSubChainIndex);
+            destinationSubChainIndex = nextSyncNodeIndex(agent, destinationSubChainIndex) ;
         };
     } catch (FatalError *e) {
         agent->getNode()->exitOnFatalError(e->getMessage());
@@ -252,10 +252,11 @@ schain_index CatchupClientAgent::nextSyncNodeIndex(
         const CatchupClientAgent *agent, schain_index _destinationSubChainIndex) {
     auto nodeCount = (uint64_t) agent->getSchain()->getNodeCount();
 
-    auto index = _destinationSubChainIndex;
+    auto index = _destinationSubChainIndex - 1;
 
     do {
         index = ((uint64_t) index + 1) % nodeCount;
     } while (index == ( agent->getSchain()->getSchainIndex() - 1)); // XXXX
-    return index;
+
+    return index + 1;
 }
