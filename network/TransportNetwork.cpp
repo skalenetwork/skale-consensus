@@ -249,10 +249,10 @@ void TransportNetwork::deferredMessagesLoop() {
         for ( int i = 0; i < getSchain()->getNodeCount(); i++ ) {
             if ( i != ( getSchain()->getSchainIndex() - 1)) {
                 lock_guard< recursive_mutex > lock( delayedSendsLock );
-                if ( delayedSends[i].size() > 0 ) {
+                if ( delayedSends.at(i).size() > 0 ) {
                     if ( sendMessage(
-                             delayedSends[i].front().second, delayedSends[i].front().first ) ) {
-                        delayedSends[i].pop_front();
+                             delayedSends.at(i).front().second, delayedSends.at(i).front().first ) ) {
+                        delayedSends.at(i).pop_front();
                     }
                 }
             }
