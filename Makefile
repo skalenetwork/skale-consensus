@@ -105,8 +105,8 @@ rebuild_cache/fast: rebuild_cache
 
 # Special rule for the target edit_cache
 edit_cache:
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake cache editor..."
-	/d/clion2019/clion-2019.1/bin/cmake/linux/bin/ccmake -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "No interactive CMake dialog available..."
+	/d/clion2019/clion-2019.1/bin/cmake/linux/bin/cmake -E echo No\ interactive\ CMake\ dialog\ available.
 .PHONY : edit_cache
 
 # Special rule for the target edit_cache
@@ -1801,6 +1801,33 @@ datastructures/BlockProposalSet.s: datastructures/BlockProposalSet.cpp.s
 datastructures/BlockProposalSet.cpp.s:
 	$(MAKE) -f CMakeFiles/consensus.dir/build.make CMakeFiles/consensus.dir/datastructures/BlockProposalSet.cpp.s
 .PHONY : datastructures/BlockProposalSet.cpp.s
+
+datastructures/BooleanProposalVector.o: datastructures/BooleanProposalVector.cpp.o
+
+.PHONY : datastructures/BooleanProposalVector.o
+
+# target to build an object file
+datastructures/BooleanProposalVector.cpp.o:
+	$(MAKE) -f CMakeFiles/consensus.dir/build.make CMakeFiles/consensus.dir/datastructures/BooleanProposalVector.cpp.o
+.PHONY : datastructures/BooleanProposalVector.cpp.o
+
+datastructures/BooleanProposalVector.i: datastructures/BooleanProposalVector.cpp.i
+
+.PHONY : datastructures/BooleanProposalVector.i
+
+# target to preprocess a source file
+datastructures/BooleanProposalVector.cpp.i:
+	$(MAKE) -f CMakeFiles/consensus.dir/build.make CMakeFiles/consensus.dir/datastructures/BooleanProposalVector.cpp.i
+.PHONY : datastructures/BooleanProposalVector.cpp.i
+
+datastructures/BooleanProposalVector.s: datastructures/BooleanProposalVector.cpp.s
+
+.PHONY : datastructures/BooleanProposalVector.s
+
+# target to generate assembly for a file
+datastructures/BooleanProposalVector.cpp.s:
+	$(MAKE) -f CMakeFiles/consensus.dir/build.make CMakeFiles/consensus.dir/datastructures/BooleanProposalVector.cpp.s
+.PHONY : datastructures/BooleanProposalVector.cpp.s
 
 datastructures/CommittedBlock.o: datastructures/CommittedBlock.cpp.o
 
@@ -4294,6 +4321,9 @@ help:
 	@echo "... datastructures/BlockProposalSet.o"
 	@echo "... datastructures/BlockProposalSet.i"
 	@echo "... datastructures/BlockProposalSet.s"
+	@echo "... datastructures/BooleanProposalVector.o"
+	@echo "... datastructures/BooleanProposalVector.i"
+	@echo "... datastructures/BooleanProposalVector.s"
 	@echo "... datastructures/CommittedBlock.o"
 	@echo "... datastructures/CommittedBlock.i"
 	@echo "... datastructures/CommittedBlock.s"

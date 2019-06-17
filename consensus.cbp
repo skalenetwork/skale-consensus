@@ -1276,6 +1276,12 @@
 		<Unit filename="/d/skale-consensus/datastructures/BlockProposalSet.h">
 			<Option target="consensus"/>
 		</Unit>
+		<Unit filename="/d/skale-consensus/datastructures/BooleanProposalVector.cpp">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/datastructures/BooleanProposalVector.h">
+			<Option target="consensus"/>
+		</Unit>
 		<Unit filename="/d/skale-consensus/datastructures/CommittedBlock.cpp">
 			<Option target="consensus"/>
 		</Unit>
