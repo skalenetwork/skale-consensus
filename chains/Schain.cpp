@@ -821,7 +821,7 @@ void Schain::sigShareArrived(ptr<BLSSigShare> _sigShare) {
 ptr<BLSSigShare> Schain::sign(ptr<SHAHash> _hash, block_id _blockId) {
 
     return getNode()->getBlsPrivateKey()->sign(_hash->toHex(), getSchainID(), _blockId,
-        getSchainIndex() - 1, // XXXX
+        getSchainIndex(), // XXXX
             getNode()->getNodeID());
 
 }
