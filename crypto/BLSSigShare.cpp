@@ -40,7 +40,7 @@ ptr< string > BLSSigShare::toString() {
     gmp_sprintf( str, "%Nd:%Nd", sig->X.as_bigint().data, libff::alt_bn128_Fq::num_limbs,
         sig->Y.as_bigint().data, libff::alt_bn128_Fq::num_limbs );
 
-    return make_shared< string >( str );
+    return make_shared<string>(str);
 }
 
 BLSSigShare::BLSSigShare( ptr< string > _s, schain_id _schainID, block_id _blockID,
@@ -108,7 +108,7 @@ BLSSigShare::BLSSigShare( ptr< string > _s, schain_id _schainID, block_id _block
     libff::bigint< 4 > Y( component2.c_str() );
     libff::bigint< 4 > Z( "1" );
 
-    sig = make_shared< libff::alt_bn128_G1 >( X, Y, Z );
+    sig = make_shared<libff::alt_bn128_G1>( X, Y, Z );
 }
 
 const ptr< libff::alt_bn128_G1 >& BLSSigShare::getSig() const {

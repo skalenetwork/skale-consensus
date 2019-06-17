@@ -71,7 +71,7 @@ void TransportNetwork::addToDeferredMessageQueue( ptr< NetworkMessageEnvelope > 
         lock_guard< recursive_mutex > l( deferredMessageMutex );
 
         if ( deferredMessageQueue.count( _blockID ) == 0 ) {
-            messageList = make_shared< vector< ptr< NetworkMessageEnvelope > > >();
+            messageList = make_shared<vector<ptr<NetworkMessageEnvelope>>>();
             deferredMessageQueue[_blockID] = messageList;
         } else {
             messageList = deferredMessageQueue[_blockID];
@@ -86,7 +86,7 @@ ptr< vector< ptr< NetworkMessageEnvelope > > > TransportNetwork::pullMessagesFor
     lock_guard< recursive_mutex > lock( deferredMessageMutex );
 
 
-    auto returnList = make_shared< vector< ptr< NetworkMessageEnvelope > > >();
+    auto returnList = make_shared<vector<ptr<NetworkMessageEnvelope>>>();
 
 
     for ( auto it = deferredMessageQueue.cbegin();
@@ -266,9 +266,9 @@ void TransportNetwork::deferredMessagesLoop() {
 
 void TransportNetwork::startThreads() {
     networkReadThread =
-        make_shared< thread >( std::bind( &TransportNetwork::networkReadLoop, this ) );
+        make_shared<thread>( std::bind( &TransportNetwork::networkReadLoop, this ) );
     deferredMessageThread =
-        make_shared< thread >( std::bind( &TransportNetwork::deferredMessagesLoop, this ) );
+        make_shared<thread>( std::bind( &TransportNetwork::deferredMessagesLoop, this ) );
 
     WorkerThreadPool::addThread( networkReadThread );
     WorkerThreadPool::addThread( deferredMessageThread );
@@ -288,13 +288,13 @@ void TransportNetwork::waitUntilExit() {
 
 ptr< string > TransportNetwork::ipToString( uint32_t _ip ) {
     char* ip = ( char* ) &_ip;
-    return make_shared< string >(
+    return make_shared<string>(
         to_string( ( uint8_t ) ip[0] ) + "." + to_string( ( uint8_t ) ip[1] ) + "." +
         to_string( ( uint8_t ) ip[2] ) + "." + to_string( ( uint8_t ) ip[3] ) );
 }
 
 ptr< NetworkMessageEnvelope > TransportNetwork::receiveMessage() {
-    auto buf = make_shared< Buffer >( CONSENSUS_MESSAGE_LEN );
+    auto buf = make_shared<Buffer>( CONSENSUS_MESSAGE_LEN );
     auto ip = readMessageFromNetwork( buf );
 
 
@@ -344,7 +344,7 @@ ptr< NetworkMessageEnvelope > TransportNetwork::receiveMessage() {
 
     buf->read( sigShare, BLS_MAX_SIG_LEN ); /* Flawfinder: ignore */
 
-    auto sig = make_shared< string >( sigShare );
+    auto sig = make_shared<string>(sigShare);
 
 
     auto ip2 = ipToString( rawIP );
@@ -367,12 +367,12 @@ ptr< NetworkMessageEnvelope > TransportNetwork::receiveMessage() {
     ptr< NetworkMessage > mptr;
 
     if ( msgType == MsgType::BVB_BROADCAST ) {
-        mptr = make_shared< BVBroadcastMessage >( node_id( srcNodeID ), node_id( dstNodeID ),
+        mptr = make_shared<BVBroadcastMessage>( node_id( srcNodeID ), node_id( dstNodeID ),
             block_id( blockID ), schain_index( blockProposerIndex ), bin_consensus_round( round ),
             bin_consensus_value( value ), schain_id( sChainID ), msg_id( msgID ), rawIP, sig,
             realSender->getSchainIndex()); //XXXX
     } else if ( msgType == MsgType::AUX_BROADCAST ) {
-        mptr = make_shared< AUXBroadcastMessage >( node_id( srcNodeID ), node_id( dstNodeID ),
+        mptr = make_shared<AUXBroadcastMessage>( node_id( srcNodeID ), node_id( dstNodeID ),
             block_id( blockID ), schain_index( blockProposerIndex ), bin_consensus_round( round ),
             bin_consensus_value( value ), schain_id( sChainID ), msg_id( msgID ), rawIP, sig,
             realSender->getSchainIndex()); //XXXX
@@ -391,7 +391,7 @@ ptr< NetworkMessageEnvelope > TransportNetwork::receiveMessage() {
             "Network Message with corrupt protocol key", __CLASS_NAME__ ) );
     };
 
-    return make_shared< NetworkMessageEnvelope >( mptr, realSender );
+    return make_shared<NetworkMessageEnvelope>(mptr, realSender);
 };
 
 

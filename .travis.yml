@@ -54,6 +54,8 @@ addons:
       - libgoogle-perftools-dev
       - flex
       - bison
+      - autotools-dev
+      - automake
     sources:
       - ubuntu-toolchain-r-test
 

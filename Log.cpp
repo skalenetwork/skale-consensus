@@ -43,13 +43,13 @@ void Log::init() {
     char* d = std::getenv( "DATA_DIR" );
 
     if ( d != nullptr ) {
-        dataDir = make_shared< string >( d );
+        dataDir = make_shared<string>(d);
         cerr << "Found data dir:" << *dataDir << endl;
-        logFileNamePrefix = make_shared< string >( *dataDir + "/skaled.log" );
-        rotatingFileSync = make_shared< spdlog::sinks::rotating_file_sink_mt >(
+        logFileNamePrefix = make_shared<string>(*dataDir + "/skaled.log");
+        rotatingFileSync = make_shared<spdlog::sinks::rotating_file_sink_mt>(
             *logFileNamePrefix, 10* 1024 * 1024, 5 );
     } else {
-        dataDir = make_shared< string >( "/tmp" );
+        dataDir = make_shared<string>("/tmp");
         logFileNamePrefix = nullptr;
         rotatingFileSync = nullptr;
     }
@@ -63,7 +63,7 @@ shared_ptr< spdlog::logger > Log::createLogger( const string& loggerName ) {
     if ( !logger ) {
         if ( logFileNamePrefix != nullptr ) {
             logger = spdlog::get( loggerName );
-            logger = make_shared< spdlog::logger >( loggerName, rotatingFileSync );
+            logger = make_shared<spdlog::logger>( loggerName, rotatingFileSync );
             logger->flush_on( info );
 
         } else {
@@ -128,7 +128,7 @@ shared_ptr< spdlog::logger > Log::loggerForClass( const char* _s ) {
 Log::Log( node_id _nodeID ) {
     nodeID = _nodeID;
 
-    prefix = make_shared< string >( to_string( _nodeID ) + ":" );
+    prefix = make_shared<string>( to_string( _nodeID ) + ":" );
 
 
     mainLogger = createLogger( *prefix + "main" );

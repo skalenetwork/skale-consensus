@@ -144,13 +144,13 @@ ptr< BLSSignature > SigShareSet::mergeSignature() {
     */
 
 
-    std::vector< libff::alt_bn128_Fr > lagrangeCoeffs = obj.LagrangeCoeffs( participatingNodes );
+    std::vector<libff::alt_bn128_Fr> lagrangeCoeffs = obj.LagrangeCoeffs( participatingNodes );
 
     libff::alt_bn128_G1 signature = obj.SignatureRecover( shares, lagrangeCoeffs );
 
-    auto sigPtr = make_shared< libff::alt_bn128_G1 >( signature );
+    auto sigPtr = make_shared<libff::alt_bn128_G1>( signature );
 
     // BOOST_REQUIRE(obj.Verification(hash, common_signature, pk) == false);
 
-    return make_shared< BLSSignature >( sigPtr, blockId );
+    return make_shared<BLSSignature>( sigPtr, blockId );
 }

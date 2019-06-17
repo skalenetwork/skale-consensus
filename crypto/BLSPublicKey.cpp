@@ -36,7 +36,7 @@
 BLSPublicKey::BLSPublicKey(
     const string& k1, const string& k2, const string& k3, const string& k4, node_count _nodeCount )
     : nodeCount( static_cast< uint64_t >( _nodeCount ) ) {
-    pk = make_shared< libff::alt_bn128_G2 >();
+    pk = make_shared<libff::alt_bn128_G2>();
 
     pk->X.c0 = libff::alt_bn128_Fq( k1.c_str() );
     pk->X.c1 = libff::alt_bn128_Fq( k2.c_str() );

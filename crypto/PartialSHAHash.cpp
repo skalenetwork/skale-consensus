@@ -48,7 +48,7 @@ ptr< PartialSHAHash > PartialSHAHash::hex2sha( ptr< string > _hex ) {
         (*result)[i] = Utils::char2int( ( *_hex )[i] ) * 16 + Utils::char2int( ( *_hex )[i + 1] );
     }
 
-    return make_shared< PartialSHAHash >( result );
+    return make_shared<PartialSHAHash>( result );
 }
 
 
@@ -82,7 +82,7 @@ ptr< PartialSHAHash > PartialSHAHash::fromHex(ptr<string> _hex) {
         (*result)[i] = Utils::char2int( ( *_hex )[2*i] ) * 16 + Utils::char2int( ( *_hex )[2* i + 1] );
     }
 
-    return make_shared< PartialSHAHash >( result );
+    return make_shared<PartialSHAHash>(result);
 }
 
 

@@ -53,7 +53,7 @@ ptr< SHAHash > SHAHash::fromHex(ptr<string> _hex) {
 
     cArrayFromHex(*_hex, result->data(), SHA3_HASH_LEN);
 
-    return make_shared< SHAHash >( result );
+    return make_shared<SHAHash>( result );
 }
 
 

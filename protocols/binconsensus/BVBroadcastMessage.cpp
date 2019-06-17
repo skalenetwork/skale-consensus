@@ -52,3 +52,4 @@ BVBroadcastMessage::BVBroadcastMessage(node_id _srcNodeID, node_id _dstNodeID, b
         _srcSchainIndex) { // XXXX
     printPrefix = "b";
 };
+
