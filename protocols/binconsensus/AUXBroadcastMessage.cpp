@@ -54,7 +54,7 @@ AUXBroadcastMessage::AUXBroadcastMessage(bin_consensus_round round, bin_consensu
     CryptoPP::SHA256 sha3;
 
 
-    auto bpi = getBlockProposerIndex() - 1;
+    auto bpi = getBlockProposerIndex();
 
     sha3.Update(reinterpret_cast < uint8_t * > ( &bpi), sizeof(bpi));
     sha3.Update(reinterpret_cast < uint8_t * > ( &this->r), sizeof(r));

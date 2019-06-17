@@ -137,7 +137,7 @@ void BlockConsensusAgent::propose(bin_consensus_value _proposal, schain_index _i
 
     auto child = getChild(key);
 
-    auto msg = make_shared<BVBroadcastMessage>(_nodeID, _id, _index - 1, bin_consensus_round(0), _proposal,
+    auto msg = make_shared<BVBroadcastMessage>(_nodeID, _id, _index, bin_consensus_round(0), _proposal,
                                                *child);
 
 

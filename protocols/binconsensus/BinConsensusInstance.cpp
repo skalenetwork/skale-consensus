@@ -402,7 +402,7 @@ void BinConsensusInstance::networkBroadcastValue(ptr<BVBroadcastMessage> m) {
 void BinConsensusInstance::auxBroadcastValue(bin_consensus_value v, bin_consensus_round r) {
 
 
-    auto m = make_shared<AUXBroadcastMessage>(r, v, node_id(0), blockID, blockProposerIndex -1, *this); // XXXX
+    auto m = make_shared<AUXBroadcastMessage>(r, v, node_id(0), blockID, blockProposerIndex, *this); // XXXX
 
 
     auxSelfVote(r, v, m->getSigShare());
@@ -536,7 +536,7 @@ void BinConsensusInstance::proceedWithNewRound(bin_consensus_value value) {
     addNextRoundToHistory(currentRound, value);
 
     auto m = make_shared<BVBroadcastMessage>(node_id(0),
-                                             this->getBlockID(), this->getBlockProposerIndex() - 1, currentRound, value, // XXXX
+                                             this->getBlockID(), this->getBlockProposerIndex(), currentRound, value, // XXXX
                                              *this);
 
     ptr<MessageEnvelope> me = make_shared<MessageEnvelope>(ORIGIN_NETWORK, m, getSchain()->getThisNodeInfo());
