@@ -170,17 +170,16 @@ void BlockConsensusAgent::decideBlock(block_id _blockNumber, schain_index _propo
     ASSERT(proposedBlockSet);
 
 
-    if (_proposerIndex == (uint64_t) getSchain()->getNodeCount()) {
+    if (_proposerIndex == 0) {
 
 
         uint64_t time = Schain::getCurrentTimeMs();
         auto sec = time / 1000;
-
         auto ms = (uint32_t ) time % 1000;
 
         // empty block
         auto emptyList = make_shared<TransactionList>(make_shared < vector < ptr < Transaction >> > ());
-        auto zeroProposal = make_shared<ReceivedBlockProposal>(*getSchain(), _blockNumber, _proposerIndex + 1, // XXXX
+        auto zeroProposal = make_shared<ReceivedBlockProposal>(*getSchain(), _blockNumber, 0, // XXXX
                                                                emptyList, sec, ms );
 
 
@@ -195,18 +194,18 @@ void BlockConsensusAgent::decideBlock(block_id _blockNumber, schain_index _propo
             throw ExitRequestedException();
         }
         usleep(100000); /* Flawfinder: ignore */
-    } while (proposedBlockSet->getProposalByIndex(_proposerIndex + 1) == nullptr); // XXXX
+    } while (proposedBlockSet->getProposalByIndex(_proposerIndex) == nullptr); // XXXX
 
-    auto proposal = proposedBlockSet->getProposalByIndex(_proposerIndex + 1); // XXXX
+    auto proposal = proposedBlockSet->getProposalByIndex(_proposerIndex); // XXXX
 
-    getSchain()->blockCommitArrived(false, _blockNumber, _proposerIndex + 1, proposal->getTimeStamp());
+    getSchain()->blockCommitArrived(false, _blockNumber, _proposerIndex, proposal->getTimeStamp());
 
 }
 
 
 void BlockConsensusAgent::decideEmptyBlock(block_id blockNumber) {
 
-    decideBlock(blockNumber, schain_index((uint64_t) getSchain()->getNodeCount() + 1));
+    decideBlock(blockNumber, schain_index(0));
 }
 
 
@@ -261,7 +260,7 @@ void BlockConsensusAgent::reportConsensusAndDecideIfNeeded(ptr <ChildBVDecidedMe
     for (uint64_t i = random; i < random + nodeCount; i++) {
         auto index = schain_index(i % nodeCount);
         if (trueDecisions[blockID].count(index) > 0) {
-            decideBlock(blockID, index);
+            decideBlock(blockID, index + 1);
             return;
         }
         if (falseDecisions[blockID].count(index) == 0) {
@@ -306,8 +305,8 @@ void BlockConsensusAgent::voteAndDecideIfNeded1(ptr <ChildBVDecidedMessage> msg)
     for (uint64_t i = winner; i < winner + nodeCount; i++) {
         auto index = schain_index(i % nodeCount);
         if (trueDecisions[blockID].count(index) > 0) {
-            decideBlock(blockID, index);
-            return;
+            decideBlock(blockID, index + 1);
+            return ;
         }
         if (falseDecisions[blockID].count(index) == 0) {
             return;
