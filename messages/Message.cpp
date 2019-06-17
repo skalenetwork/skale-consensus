@@ -77,7 +77,7 @@ const block_id Message::getBlockId() const {
 }
 
 const schain_index Message::getBlockProposerIndex() const {
-    return blockProposerIndex - 1;
+    return blockProposerIndex;
 }
 
 

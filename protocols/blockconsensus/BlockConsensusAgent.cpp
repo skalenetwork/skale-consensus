@@ -214,7 +214,7 @@ void BlockConsensusAgent::reportConsensusAndDecideIfNeeded(ptr <ChildBVDecidedMe
     auto blockProposerIndex = (uint64_t) msg->getBlockProposerIndex();
     auto blockID = msg->getBlockId();
 
-    ASSERT(blockProposerIndex < nodeCount);
+    ASSERT(blockProposerIndex <= nodeCount);
 
 
     if (decidedBlocks.count(blockID) > 0)
@@ -231,9 +231,9 @@ void BlockConsensusAgent::reportConsensusAndDecideIfNeeded(ptr <ChildBVDecidedMe
 
 
     if (msg->getValue()) {
-        trueDecisions[blockID].insert(blockProposerIndex + 1);
+        trueDecisions[blockID].insert(blockProposerIndex);
     } else {
-        falseDecisions[blockID].insert(blockProposerIndex + 1);
+        falseDecisions[blockID].insert(blockProposerIndex);
     }
 
 
@@ -285,9 +285,9 @@ void BlockConsensusAgent::voteAndDecideIfNeded1(ptr <ChildBVDecidedMessage> msg)
         return;
 
     if (msg->getValue()) {
-        trueDecisions[blockID].insert(blockProposerIndex + 1);
+        trueDecisions[blockID].insert(blockProposerIndex);
     } else {
-        falseDecisions[blockID].insert(blockProposerIndex + 1);
+        falseDecisions[blockID].insert(blockProposerIndex);
     }
 
     if (trueDecisions[blockID].size() == 0) {

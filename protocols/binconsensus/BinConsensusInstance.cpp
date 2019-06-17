@@ -86,7 +86,7 @@ void BinConsensusInstance::processMessage(ptr<MessageEnvelope> m) {
 
 
     ASSERT(m->getMessage()->getBlockID() == getBlockID());
-    ASSERT(m->getMessage()->getBlockProposerIndex() == getBlockProposerIndex() -1 ); // XXXX
+    ASSERT(m->getMessage()->getBlockProposerIndex() == getBlockProposerIndex()); // XXXX
 
 
     auto msgType = m->getMessage()->getMessageType();
@@ -556,7 +556,7 @@ void BinConsensusInstance::printHistory() {
     cerr << "Proposer:" << getBlockProposerIndex() << "Nodecount:" << getNodeCount() << endl;
     for (auto &&m: *msgHistory) {
 
-        if (m->getBlockProposerIndex() == getBlockProposerIndex() -1  && // XXXX
+        if (m->getBlockProposerIndex() == getBlockProposerIndex()  && // XXXX
             m->getBlockID() == getBlockID() && m->getDstNodeID() == getSchain()->getNode()->getNodeID()) {
             m->printMessage();
         }

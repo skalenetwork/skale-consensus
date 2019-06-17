@@ -145,7 +145,7 @@ ptr<Buffer> NetworkMessage::toBuffer() {
     WRITE(buf, magic);
     WRITE(buf, schainID);
     WRITE(buf, blockID);
-    auto bpi = getBlockProposerIndex();
+    auto bpi = getBlockProposerIndex() - 1;
     WRITE(buf, bpi);
     WRITE(buf, msgType);
     WRITE(buf, msgID);
