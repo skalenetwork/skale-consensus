@@ -428,7 +428,7 @@ ptr<Header> BlockProposalServerAgent::createProposalResponseHeader(
     schainID = Header::getUint64(_jsonRequest, "schainID");
     blockID = Header::getUint64(_jsonRequest, "blockID");
     srcNodeID = Header::getUint64(_jsonRequest, "proposerNodeID");
-    proposerIndex = Header::getUint64(_jsonRequest, "proposerIndex") - 1;
+    proposerIndex = Header::getUint64(_jsonRequest, "proposerIndex");
     timeStamp = Header::getUint64(_jsonRequest, "timeStamp");
     hash = Header::getString(_jsonRequest, "hash");
 
@@ -458,7 +458,7 @@ ptr<Header> BlockProposalServerAgent::createProposalResponseHeader(
         BOOST_THROW_EXCEPTION(InvalidNodeIDException("Node ID does not match " + srcNodeID, __CLASS_NAME__));
     }
 
-    if (nmi->getSchainIndex() - 1 != schain_index(proposerIndex)) { // XXXX
+    if (nmi->getSchainIndex()  != schain_index(proposerIndex)) { // XXXX
         responseHeader->setStatusSubStatus(
                 CONNECTION_SERVER_ERROR, CONNECTION_ERROR_INVALID_NODE_INDEX);
         BOOST_THROW_EXCEPTION(InvalidSchainIndexException(
