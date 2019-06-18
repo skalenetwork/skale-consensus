@@ -109,7 +109,7 @@ ptr<PartialHashesList> BlockProposal::createPartialHashesList() {
     for (uint64_t i = 0; i < transactionCount; i++) {
 
         for (size_t j = 0; j < PARTIAL_SHA_HASH_LEN; j++) {
-            (*partialHashes)[i * PARTIAL_SHA_HASH_LEN + j] = (*(*t)[i]->getHash()).at(j);
+            partialHashes->at(i * PARTIAL_SHA_HASH_LEN + j) = t->at(i)->getHash()->at(j);
         }
     }
 
