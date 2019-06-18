@@ -41,6 +41,7 @@ node_id NodeInfo::getNodeID() const {
 
 
 schain_index NodeInfo::getSchainIndex() const {
+    ASSERT(schainIndex > 0);
     return schainIndex;
 }
 
@@ -77,5 +78,6 @@ NodeInfo::NodeInfo(node_id nodeID, ptr<string> &ip, network_port port, schain_id
                                                                                                                    schainID),
                                                                                                            schainIndex(
                                                                                                                    schainIndex) {
+        ASSERT(schainIndex > 0);
         this->socketaddr = Sockets::createSocketAddress(ip, (uint16_t)port);
 }

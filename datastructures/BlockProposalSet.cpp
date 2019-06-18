@@ -28,7 +28,7 @@
 #include "../node/ConsensusEngine.h"
 #include "../crypto/SHAHash.h"
 #include "../datastructures/BlockProposal.h"
-
+#include "../datastructures/BooleanProposalVector.h"
 
 #include "../chains/Schain.h"
 #include "../pendingqueue/PendingTransactionsAgent.h"
@@ -87,13 +87,12 @@ node_count BlockProposalSet::getTotalProposalsCount() {
 }
 
 
-ptr< vector< bool > > BlockProposalSet::createBooleanVector() {
+ptr<BooleanProposalVector> BlockProposalSet::createBooleanVector() {
     lock_guard< recursive_mutex > lock( proposalsMutex );
 
-    auto v = make_shared< vector< bool > >( ( uint64_t ) sChain->getNodeCount() );
-
-    for ( uint64_t i = 0; i < sChain->getNodeCount(); i++ ) {
-        ( *v )[i] = ( proposals.count( schain_index( i ) ) > 0 );
+    auto v = make_shared<BooleanProposalVector>(sChain->getNodeCount());
+    for ( uint64_t i = 1; i <= sChain->getNodeCount(); i++ ) {
+        v->pushValue(proposals.count( schain_index( i )) > 0);
     }
 
     return v;
@@ -104,16 +103,13 @@ ptr< BlockProposal > BlockProposalSet::getProposalByIndex( schain_index _index )
     lock_guard< recursive_mutex > lock( proposalsMutex );
 
 
-
-
-
-    if ( proposals.count( _index ) == 0 ) {
+    if ( proposals.count( _index) == 0 ) {
         LOG(trace,
             "Proposal did not yet arrive. Total proposals:" + to_string(proposals.size()));
         return nullptr;
     }
 
-    return proposals[_index];
+    return proposals.at(_index);
 }
 
 atomic<uint64_t>  BlockProposalSet::totalObjects(0);

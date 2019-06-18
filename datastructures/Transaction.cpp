@@ -71,7 +71,7 @@ ptr<partial_sha_hash> Transaction::getPartialHash() {
     partialHash = make_shared<partial_sha_hash>();
 
     for (size_t i = 0; i < PARTIAL_SHA_HASH_LEN; i++) {
-        (*partialHash)[i] = hash->at(i);
+        partialHash->at(i) = hash->at(i);
     }
 
     return partialHash;

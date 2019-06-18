@@ -55,7 +55,7 @@ ptr<BLSSignature> ReceivedSigSharesDatabase::getBLSSignature(block_id _blockId) 
     lock_guard<recursive_mutex> lock(sigShareDatabaseMutex);
 
     if (blockSignatures.find(_blockId) != blockSignatures.end()) {
-        return blockSignatures[_blockId];
+        return blockSignatures.at(_blockId);
     } else {
         return nullptr;
     }
@@ -97,10 +97,10 @@ bool ReceivedSigSharesDatabase::addSigShare(ptr<BLSSigShare> _sigShare) {
         sigShareSets[_sigShare->getBlockId()] = make_shared<SigShareSet>(this->sChain, _sigShare->getBlockId());
     }
 
-    sigShareSets[_sigShare->getBlockId()]->addSigShare(_sigShare);
+    sigShareSets.at(_sigShare->getBlockId())->addSigShare(_sigShare);
 
 
-    return (sigShareSets[_sigShare->getBlockId()]->isTwoThirdMinusOne());
+    return sigShareSets.at(_sigShare->getBlockId())->isTwoThirdMinusOne();
 }
 
 
@@ -117,7 +117,7 @@ ptr<SigShareSet> ReceivedSigSharesDatabase::getSigShareSet(block_id blockID) {
         sigShareSets[blockID] = make_shared<SigShareSet>(this->sChain, blockID);
     }
 
-    return sigShareSets[blockID];
+    return sigShareSets.at(blockID);
 }
 
 
@@ -129,7 +129,7 @@ bool ReceivedSigSharesDatabase::isTwoThird(block_id _blockID) {
 
 
     if (sigShareSets.count(_blockID) > 0) {
-        return sigShareSets[_blockID]->isTwoThird();
+        return sigShareSets.at(_blockID)->isTwoThird();
     } else {
         return false;
     };

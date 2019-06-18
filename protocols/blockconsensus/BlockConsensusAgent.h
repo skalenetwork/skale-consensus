@@ -34,6 +34,7 @@
 class ChildBVDecidedMessage;
 class BlockProposalSet;
 class Schain;
+class BooleanProposalVector;
 
 
 class BlockConsensusAgent {
@@ -69,7 +70,7 @@ class BlockConsensusAgent {
 
     set<block_id> proposedBlocks;
 
-    map<block_id , set<schain_index>> trueDecisions;
+    map<block_id , set<schain_index>> trueDecisions;;
 
     map<block_id , set<schain_index>> falseDecisions;
 
@@ -78,7 +79,7 @@ class BlockConsensusAgent {
 
     void processChildMessageImpl(ptr<InternalMessageEnvelope> _me);
 
-    void decideBlock(block_id _blockNumber, schain_index subChainIndex);
+    void decideBlock(block_id _blockId, schain_index subChainIndex);
 
 
     void propose(bin_consensus_value _proposal, schain_index index, block_id _id);
@@ -93,7 +94,7 @@ class BlockConsensusAgent {
 
     void processChildCompletedMessage(ptr<InternalMessageEnvelope> _me);
 
-    void startConsensusProposal(block_id _blockID, ptr<vector<bool>> _proposal);
+    void startConsensusProposal(block_id _blockID, ptr<BooleanProposalVector> _proposal);
 
 
     void processMessage(ptr<MessageEnvelope> _m);

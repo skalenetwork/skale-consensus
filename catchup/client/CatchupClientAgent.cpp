@@ -201,7 +201,7 @@ ptr<CommittedBlockList> CatchupClientAgent::readMissingBlocks(
         throw_with_nested(NetworkProtocolException("Could not read blocks", __CLASS_NAME__));
     }
 
-    if ((*serializedBlocks)[sizeof(uint64_t)] != '{') {
+    if ((*serializedBlocks).at(sizeof(uint64_t)) != '{') {
         throw_with_nested(NetworkProtocolException(
                 "First serialized block does not start with {", __CLASS_NAME__));
     }
@@ -227,7 +227,7 @@ void CatchupClientAgent::workerThreadItemSendLoop(CatchupClientAgent *agent) {
 
     agent->waitOnGlobalStartBarrier();
 
-    auto destinationSubChainIndex = schain_index(0);
+    auto destinationSubChainIndex = schain_index(1);
 
     try {
         while (!agent->getSchain()->getNode()->isExitRequested()) {
@@ -241,7 +241,7 @@ void CatchupClientAgent::workerThreadItemSendLoop(CatchupClientAgent *agent) {
                 Exception::logNested(e);
             }
 
-            destinationSubChainIndex = nextSyncNodeIndex(agent, destinationSubChainIndex);
+            destinationSubChainIndex = nextSyncNodeIndex(agent, destinationSubChainIndex) ;
         };
     } catch (FatalError *e) {
         agent->getNode()->exitOnFatalError(e->getMessage());
@@ -252,10 +252,11 @@ schain_index CatchupClientAgent::nextSyncNodeIndex(
         const CatchupClientAgent *agent, schain_index _destinationSubChainIndex) {
     auto nodeCount = (uint64_t) agent->getSchain()->getNodeCount();
 
-    auto index = _destinationSubChainIndex;
+    auto index = _destinationSubChainIndex - 1;
 
     do {
         index = ((uint64_t) index + 1) % nodeCount;
-    } while (index == agent->getSchain()->getSchainIndex());
-    return index;
+    } while (index == ( agent->getSchain()->getSchainIndex() - 1));
+
+    return index + 1;
 }

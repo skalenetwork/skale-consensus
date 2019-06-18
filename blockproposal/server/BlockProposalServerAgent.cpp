@@ -327,7 +327,7 @@ BlockProposalServerAgent::processProposalRequest(ptr<Connection> _connection, nl
         ptr<Transaction> transaction;
 
         if (presentTransactions->count(i) > 0) {
-            transaction = (*presentTransactions)[i];
+            transaction = presentTransactions->at(i);
         } else {
 
             transaction = (*missingTransactions)[h];
@@ -351,7 +351,7 @@ BlockProposalServerAgent::processProposalRequest(ptr<Connection> _connection, nl
         transactions->push_back(transaction);
     }
 
-    ASSERT(transactionCount == 0 || (*transactions)[(uint64_t) transactionCount - 1]);
+    ASSERT(transactionCount == 0 || transactions->at((uint64_t) transactionCount - 1));
 
     ASSERT(timeStamp > 0);
 
@@ -359,7 +359,7 @@ BlockProposalServerAgent::processProposalRequest(ptr<Connection> _connection, nl
 
     auto proposal =
             make_shared<ReceivedBlockProposal>(*sChain, blockID, proposerIndex, transactionList,
-                timeStamp, timeStampMs);
+                                               timeStamp, timeStampMs);
 
     auto calculatedHash = proposal->getHash();
 
@@ -586,7 +586,8 @@ ptr<Header> BlockProposalServerAgent::createFinalizeResponseHeader(
 }
 
 void
-BlockProposalServerAgent::signBlock(ptr<BlockFinalizeResponseHeader> &_responseHeader, ptr<CommittedBlock> &_block) const {
+BlockProposalServerAgent::signBlock(ptr<BlockFinalizeResponseHeader> &_responseHeader,
+                                    ptr<CommittedBlock> &_block) const {
     ptr<BLSSigShare> sigShare;
 
     try {
@@ -600,7 +601,7 @@ BlockProposalServerAgent::signBlock(ptr<BlockFinalizeResponseHeader> &_responseH
     auto sigString = sigShare->toString();
 
     _responseHeader->setSigShare(sigString);
-    }
+}
 
 
 nlohmann::json BlockProposalServerAgent::readMissingTransactionsResponseHeader(

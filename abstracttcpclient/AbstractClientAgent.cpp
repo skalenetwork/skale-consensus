@@ -58,10 +58,10 @@ AbstractClientAgent::AbstractClientAgent(Schain &_sChain, port_type _portType) :
 
     logThreadLocal_ = _sChain.getNode()->getLog();
 
-    for (uint64_t i = 0; i < _sChain.getNodeCount(); i++) {
+    for (uint64_t i = 1; i <= _sChain.getNodeCount(); i++) {
         (itemQueue)
                 .emplace(schain_index(i), make_shared<queue<ptr<BlockProposal> > >());
-        (queueCond).emplace(schain_index(i), make_shared<condition_variable>());
+        (queueCond).emplace(schain_index(i) , make_shared<condition_variable>());
         (queueMutex).emplace(schain_index(i), make_shared<mutex>());
 
         ASSERT(itemQueue.count(schain_index(i)));
@@ -107,13 +107,13 @@ void AbstractClientAgent::sendItem(ptr<BlockProposal> _proposal, schain_index _d
 
 
 void AbstractClientAgent::enqueueItem(ptr<BlockProposal> item) {
-    for (uint64_t i = 0; i < (uint64_t) this->sChain->getNodeCount(); i++) {
+    for (uint64_t i = 1; i <= (uint64_t) this->sChain->getNodeCount(); i++) {
         {
             lock_guard<mutex> lock(*queueMutex[schain_index(i)]);
             auto q = itemQueue[schain_index(i)];
             q->push(item);
         }
-        queueCond[schain_index(i)]->notify_all();
+        queueCond.at(schain_index(i))->notify_all();
     }
 }
 
@@ -126,7 +126,7 @@ void AbstractClientAgent::workerThreadItemSendLoop(AbstractClientAgent *agent) {
 
     agent->waitOnGlobalStartBarrier();
 
-    auto destinationSubChainIndex = schain_index(agent->incrementAndReturnThreadCounter());
+    auto destinationSubChainIndex = schain_index(agent->incrementAndReturnThreadCounter() + 1);
 
     try {
 
@@ -154,14 +154,12 @@ void AbstractClientAgent::workerThreadItemSendLoop(AbstractClientAgent *agent) {
 
 
 
-            if (destinationSubChainIndex != agent->getSchain()->getSchainIndex()) {
+            if (destinationSubChainIndex != ( agent->getSchain()->getSchainIndex())) {
 
-                auto nodeId = agent->getSchain()->getNode()->getNodeInfoByIndex(destinationSubChainIndex)->getNodeID();
+                auto nodeId =
+                    agent->getSchain()->getNode()->getNodeInfoByIndex(destinationSubChainIndex)->getNodeID();
 
                 bool sent = false;
-
-
-
 
                 while (!sent) {
                     try {

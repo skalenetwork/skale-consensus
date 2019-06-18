@@ -61,8 +61,8 @@ void BlockProposal::calculateHash() {
 
     for (uint64_t i = 0; i < transactionCount; i++) {
         auto t = transactionList->getItems();
-        ASSERT((*t)[i]);
-        sha3.Update((*t)[i]->getHash()->data(), SHA3_HASH_LEN);
+        ASSERT(t->at(i));
+        sha3.Update(t->at(i)->getHash()->data(), SHA3_HASH_LEN);
     }
 
     auto buf = make_shared<array<uint8_t, SHA3_HASH_LEN>>();
@@ -109,7 +109,7 @@ ptr<PartialHashesList> BlockProposal::createPartialHashesList() {
     for (uint64_t i = 0; i < transactionCount; i++) {
 
         for (size_t j = 0; j < PARTIAL_SHA_HASH_LEN; j++) {
-            (*partialHashes)[i * PARTIAL_SHA_HASH_LEN + j] = (*(*t)[i]->getHash()).at(j);
+            partialHashes->at(i * PARTIAL_SHA_HASH_LEN + j) = t->at(i)->getHash()->at(j);
         }
     }
 
@@ -129,7 +129,7 @@ const transaction_count &BlockProposal::getTransactionsCount() const {
     return transactionCount;
 }
 
-const schain_index &BlockProposal::getProposerIndex() const {
+schain_index BlockProposal::getProposerIndex() const {
     return proposerIndex;
 }
 

@@ -16,45 +16,31 @@
     You should have received a copy of the GNU General Public License
     along with skale-consensus.  If not, see <http://www.gnu.org/licenses/>.
 
-    @file NodeInfo.h
+    @file BooleanProposalVector.cpp
     @author Stan Kladko
-    @date 2018
+    @date 2019
 */
 
-#pragma  once
+#include "../SkaleCommon.h"
+#include "../Log.h"
+#include "../exceptions/FatalError.h"
 
-class NodeInfo {
-
-    node_id nodeID;
-
-    ptr<string> ip;
-
-    network_port port;
-
-    schain_id  schainID;
-
-    schain_index schainIndex;
-
-    ptr<sockaddr_in> socketaddr;
+#include "BooleanProposalVector.h"
 
 
-public:
+BooleanProposalVector::BooleanProposalVector(node_count _nodeCount): nodeCount(_nodeCount) {
+    proposals.push_back(false);
+}
+
+void BooleanProposalVector::pushValue(bool _value) {
+    proposals.push_back(_value);
+}
 
 
-    node_id getNodeID() const;
 
-    schain_index getSchainIndex() const;
-
-    network_port getPort() const;
-
-
-    schain_id getSchainID() const;
-
-    NodeInfo(node_id nodeID, ptr<string> &ip, network_port port, schain_id schainID, schain_index schainIndex);
-
-
-    ptr<sockaddr_in> getSocketaddr();
-
-    ptr<string> getBaseIP();
-};
-
+bool BooleanProposalVector::getProposalValue(schain_index _index) {
+    ASSERT( proposals.size() == nodeCount + 1 );
+    ASSERT( _index <= ( uint64_t ) nodeCount );
+    ASSERT( _index > 0 );
+    return proposals.at( ( uint64_t ) _index );
+}

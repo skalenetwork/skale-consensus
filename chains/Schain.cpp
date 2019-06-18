@@ -235,6 +235,8 @@ Schain::Schain(Node &_node, schain_index _schainIndex, const schain_id &_schainI
           node(_node),
           schainIndex(_schainIndex) {
 
+    ASSERT(schainIndex > 0);
+
     try {
 
 
@@ -327,14 +329,17 @@ void Schain::blockCommitsArrivedThroughCatchup(ptr<CommittedBlockList> _blocks) 
     uint64_t previosBlockTimeStampMs = 0;
 
 
-    ASSERT((*b)[0]->getBlockID() <= (uint64_t) committedBlockID + 1);
+    ASSERT(b->at(0)->getBlockID() <= (uint64_t) committedBlockID + 1);
 
     for (size_t i = 0; i < b->size(); i++) {
-        if ((*b)[i]->getBlockID() > committedBlockID.load()) {
+
+        auto t = b->at(i);
+
+        if (t->getBlockID() > committedBlockID.load()) {
             committedBlockID++;
-            processCommittedBlock((*b)[i]);
-            previosBlockTimeStamp = (*b)[i]->getTimeStamp();
-            previosBlockTimeStampMs = (*b)[i]->getTimeStampMs();
+            processCommittedBlock(t);
+            previosBlockTimeStamp = t->getTimeStamp();
+            previosBlockTimeStampMs = t->getTimeStampMs();
         }
     }
 
@@ -577,11 +582,12 @@ void Schain::startConsensus(const block_id _blockID) {
     }
 
 
-    auto proposals = blockProposalsDatabase->getBooleanProposalsVector(_blockID);
-    ASSERT(blockConsensusInstance && proposals);
+    auto proposalVector = blockProposalsDatabase->getBooleanProposalsVector(_blockID);
+
+    ASSERT(blockConsensusInstance != nullptr && proposalVector != nullptr);
 
 
-    auto message = make_shared<ConsensusProposalMessage>(*this, _blockID, proposals);
+    auto message = make_shared<ConsensusProposalMessage>(*this, _blockID, proposalVector);
 
     auto envelope = make_shared<InternalMessageEnvelope>(ORIGIN_EXTERNAL, message, *this);
 
@@ -621,7 +627,7 @@ ptr<CommittedBlock> Schain::getCachedBlock(block_id _blockID) {
     std::lock_guard<std::recursive_mutex> aLock(getMainMutex());
 
     if (blocks.count(_blockID > 0)) {
-        return blocks[_blockID];
+        return blocks.at(_blockID);
     } else {
         return nullptr;
     }
@@ -695,8 +701,8 @@ schain_id Schain::getSchainID() {
 
 node_id Schain::getNodeIDByIndex(schain_index _index) {
 
-    if (((uint64_t )_index) >= (uint64_t ) this->getNodeCount()) {
-        BOOST_THROW_EXCEPTION(InvalidArgumentException("Index exceeds node count - 1", __CLASS_NAME__));
+    if (((uint64_t )_index) > (uint64_t ) this->getNodeCount()) {
+        BOOST_THROW_EXCEPTION(InvalidArgumentException("Index exceeds node count", __CLASS_NAME__));
     }
 
     auto nodeInfo =  this->getNode()->getNodeInfoByIndex(_index);
@@ -782,9 +788,9 @@ void Schain::healthCheck() {
             exit(110);
         }
 
-        for (int i = 0; i < getNodeCount(); i++) {
+        for (int i = 1; i <= getNodeCount(); i++) {
 
-            if (i != getSchainIndex() && !connections.count(i)) {
+            if (i != ( getSchainIndex()) && !connections.count(i)) {
                 try {
                     auto x = make_shared<ClientSocket>(*this, schain_index(i), port_type::PROPOSAL);
                     LOG(debug, "Health check: connected to peer");
@@ -817,7 +823,8 @@ void Schain::sigShareArrived(ptr<BLSSigShare> _sigShare) {
 
 ptr<BLSSigShare> Schain::sign(ptr<SHAHash> _hash, block_id _blockId) {
 
-    return getNode()->getBlsPrivateKey()->sign(_hash->toHex(), getSchainID(), _blockId, getSchainIndex(),
+    return getNode()->getBlsPrivateKey()->sign(_hash->toHex(), getSchainID(), _blockId,
+        getSchainIndex(),
             getNode()->getNodeID());
 
 }

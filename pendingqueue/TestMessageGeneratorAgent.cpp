@@ -58,11 +58,11 @@ ConsensusExtFace::transactions_vector TestMessageGeneratorAgent::pendingTransact
         vector<uint8_t> transaction(messageSize);
 
         uint64_t  dummy = counter;
+        auto bytes = (uint8_t*) & dummy;
 
         for (uint64_t j = 0; j < messageSize/8; j++) {
-            auto bytes = (uint8_t*) & dummy;
             for (int k = 0; k < 7; k++) {
-                transaction.data()[2 * j + k ] = bytes[k];
+                transaction.at(2 * j + k ) = bytes[k];
             }
 
         }

@@ -44,9 +44,9 @@ bool SigShareSet::addSigShare( ptr< BLSSigShare > _sigShare ) {
 
     lock_guard< recursive_mutex > lock( sigSharesMutex );
 
-    if ( sigShares.count( _sigShare->getSignerIndex() ) > 0 ) {
+    if ( sigShares.count( _sigShare->getSignerIndex()) > 0 ) {
         LOG( err, "Got block proposal with the same index" +
-                      to_string( ( uint64_t ) _sigShare->getSignerIndex() ) );
+                      to_string( ( uint64_t ) _sigShare->getSignerIndex()) );
         return false;
     }
 
@@ -111,7 +111,7 @@ ptr< BLSSigShare > SigShareSet::getSigShareByIndex( schain_index _index ) {
         return nullptr;
     }
 
-    return sigShares[_index];
+    return sigShares.at(_index);
 }
 
 atomic< uint64_t > SigShareSet::totalObjects( 0 );
@@ -144,13 +144,13 @@ ptr< BLSSignature > SigShareSet::mergeSignature() {
     */
 
 
-    std::vector< libff::alt_bn128_Fr > lagrangeCoeffs = obj.LagrangeCoeffs( participatingNodes );
+    std::vector<libff::alt_bn128_Fr> lagrangeCoeffs = obj.LagrangeCoeffs( participatingNodes );
 
     libff::alt_bn128_G1 signature = obj.SignatureRecover( shares, lagrangeCoeffs );
 
-    auto sigPtr = make_shared< libff::alt_bn128_G1 >( signature );
+    auto sigPtr = make_shared<libff::alt_bn128_G1>( signature );
 
     // BOOST_REQUIRE(obj.Verification(hash, common_signature, pk) == false);
 
-    return make_shared< BLSSignature >( sigPtr, blockId );
+    return make_shared<BLSSignature>( sigPtr, blockId );
 }

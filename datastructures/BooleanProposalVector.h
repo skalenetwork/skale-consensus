@@ -16,45 +16,36 @@
     You should have received a copy of the GNU General Public License
     along with skale-consensus.  If not, see <http://www.gnu.org/licenses/>.
 
-    @file NodeInfo.h
+    @file BooleanProposalVector.h
     @author Stan Kladko
     @date 2018
 */
 
 #pragma  once
 
-class NodeInfo {
+#include "DataStructure.h"
 
-    node_id nodeID;
 
-    ptr<string> ip;
 
-    network_port port;
+class BooleanProposalVector : public DataStructure {
 
-    schain_id  schainID;
 
-    schain_index schainIndex;
 
-    ptr<sockaddr_in> socketaddr;
+private:
 
+    node_count nodeCount;
+    vector<bool> proposals;
 
 public:
 
-
-    node_id getNodeID() const;
-
-    schain_index getSchainIndex() const;
-
-    network_port getPort() const;
+    BooleanProposalVector(node_count _nodeCount);
 
 
-    schain_id getSchainID() const;
+    void pushValue(bool _value);
 
-    NodeInfo(node_id nodeID, ptr<string> &ip, network_port port, schain_id schainID, schain_index schainIndex);
+    bool getProposalValue(schain_index _index);
 
 
-    ptr<sockaddr_in> getSocketaddr();
 
-    ptr<string> getBaseIP();
 };
 

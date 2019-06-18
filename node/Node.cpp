@@ -325,7 +325,7 @@ void Node::initSchain(ptr<NodeInfo> _localNodeInfo, const vector<ptr<NodeInfo>> 
         }
 
         ASSERT(nodeInfosByIndex.size() > 0);
-        ASSERT(nodeInfosByIndex.count(0) > 0);
+        ASSERT(nodeInfosByIndex.count(1) > 0);
 
         sChain = make_shared<Schain>(*this, _localNodeInfo->getSchainIndex(),
                                      _localNodeInfo->getSchainID(), _extFace);
@@ -470,14 +470,14 @@ bool Node::isStarted() const {
 ptr<NodeInfo> Node::getNodeInfoByIndex(schain_index _index) {
     if (nodeInfosByIndex.count(_index) == 0)
         return nullptr;;
-    return nodeInfosByIndex[_index];
+    return nodeInfosByIndex.at(_index);
 }
 
 
 ptr<NodeInfo> Node::getNodeInfoByIP(ptr<string> ip) {
     if (nodeInfosByIP.count(ip) == 0)
         return nullptr;;
-    return nodeInfosByIP[ip];
+    return nodeInfosByIP.at(ip);
 }
 
 

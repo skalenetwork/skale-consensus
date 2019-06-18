@@ -43,6 +43,7 @@
 #include "../../datastructures/BlockProposalSet.h"
 #include "../../datastructures/TransactionList.h"
 #include "../../blockproposal/pusher/BlockProposalClientAgent.h"
+#include "../../datastructures/BooleanProposalVector.h"
 #include "../../messages/ConsensusProposalMessage.h"
 #include "../../node/NodeInfo.h"
 #include "../../blockproposal/received/ReceivedBlockProposalsDatabase.h"
@@ -81,10 +82,8 @@ void BlockConsensusAgent::processMessage(ptr <MessageEnvelope> _m) {
 }
 
 
-void BlockConsensusAgent::startConsensusProposal(block_id _blockID, ptr <vector<bool>> _proposal) {
+void BlockConsensusAgent::startConsensusProposal(block_id _blockID, ptr <BooleanProposalVector> _proposal) {
 
-
-    ASSERT(_proposal->size() == getSchain()->getNodeCount());
     ASSERT(proposedBlocks.count(_blockID) == 0);
 
     if (getSchain()->getCommittedBlockID() >= _blockID) {
@@ -98,19 +97,19 @@ void BlockConsensusAgent::startConsensusProposal(block_id _blockID, ptr <vector<
 
     uint64_t truthCount = 0;
 
-    for (size_t i = 0; i < _proposal->size(); i++) {
-        if ((*_proposal)[i])
+    for (size_t i = 0; i < sChain.getNodeCount(); i++) {
+        if (_proposal->getProposalValue(schain_index(i + 1)))
             truthCount++;
     }
 
-    ASSERT(3 * truthCount > _proposal->size() * 2);
+    ASSERT(3 * truthCount > getSchain()->getNodeCount() * 2);
 
 
-    for (uint64_t i = 0; i < (uint64_t) getSchain()->getNodeCount(); i++) {
+    for (uint64_t i = 1; i <= (uint64_t) getSchain()->getNodeCount(); i++) {
 
         bin_consensus_value x;
 
-        x = bin_consensus_value((*_proposal)[i] ? 1 : 0);
+        x = bin_consensus_value(_proposal->getProposalValue(schain_index(i)) ? 1 : 0);
 
         propose(x, schain_index(i), _blockID);
     }
@@ -150,37 +149,36 @@ void BlockConsensusAgent::propose(bin_consensus_value _proposal, schain_index _i
 }
 
 
-void BlockConsensusAgent::decideBlock(block_id _blockNumber, schain_index _proposerIndex) {
+void BlockConsensusAgent::decideBlock(block_id _blockId, schain_index _proposerIndex) {
 
 
-    ASSERT(decidedBlocks.count(_blockNumber) == 0);
+    ASSERT(decidedBlocks.count(_blockId) == 0);
 
-    decidedBlocks[_blockNumber] = _proposerIndex;
+    decidedBlocks[_blockId] = _proposerIndex;
 
-    LOG(debug, "decideBlock:" + to_string(_blockNumber) +
+    LOG(debug, "decideBlock:" + to_string(_blockId) +
               ":PRP:" + to_string(_proposerIndex));
     LOG(debug, "Total txs:" + to_string(getSchain()->getTotalTransactions()) +
               " T(s):" +
               to_string((getSchain()->getCurrentTimeMilllis().count() - getSchain()->getStartTime().count()) / 1000.0));
 
 
-    auto proposedBlockSet = getSchain()->blockProposalsDatabase->getProposedBlockSet(_blockNumber);
+    auto proposedBlockSet = getSchain()->blockProposalsDatabase->getProposedBlockSet(_blockId);
 
 
     ASSERT(proposedBlockSet);
 
 
-    if (_proposerIndex == (uint64_t) getSchain()->getNodeCount()) {
+    if (_proposerIndex == 0) {
 
 
         uint64_t time = Schain::getCurrentTimeMs();
         auto sec = time / 1000;
-
         auto ms = (uint32_t ) time % 1000;
 
         // empty block
         auto emptyList = make_shared<TransactionList>(make_shared < vector < ptr < Transaction >> > ());
-        auto zeroProposal = make_shared<ReceivedBlockProposal>(*getSchain(), _blockNumber, _proposerIndex,
+        auto zeroProposal = make_shared<ReceivedBlockProposal>(*getSchain(), _blockId, 0,
                                                                emptyList, sec, ms );
 
 
@@ -199,14 +197,14 @@ void BlockConsensusAgent::decideBlock(block_id _blockNumber, schain_index _propo
 
     auto proposal = proposedBlockSet->getProposalByIndex(_proposerIndex);
 
-    getSchain()->blockCommitArrived(false, _blockNumber, _proposerIndex, proposal->getTimeStamp());
+    getSchain()->blockCommitArrived(false, _blockId, _proposerIndex, proposal->getTimeStamp());
 
 }
 
 
 void BlockConsensusAgent::decideEmptyBlock(block_id blockNumber) {
 
-    decideBlock(blockNumber, schain_index((uint64_t) getSchain()->getNodeCount() + 1));
+    decideBlock(blockNumber, schain_index(0));
 }
 
 
@@ -216,7 +214,7 @@ void BlockConsensusAgent::reportConsensusAndDecideIfNeeded(ptr <ChildBVDecidedMe
     auto blockProposerIndex = (uint64_t) msg->getBlockProposerIndex();
     auto blockID = msg->getBlockId();
 
-    ASSERT(blockProposerIndex < nodeCount);
+    ASSERT(blockProposerIndex <= nodeCount);
 
 
     if (decidedBlocks.count(blockID) > 0)
@@ -259,7 +257,7 @@ void BlockConsensusAgent::reportConsensusAndDecideIfNeeded(ptr <ChildBVDecidedMe
 
 
     for (uint64_t i = random; i < random + nodeCount; i++) {
-        auto index = schain_index(i % nodeCount);
+        auto index = schain_index(i % nodeCount) + 1;
         if (trueDecisions[blockID].count(index) > 0) {
             decideBlock(blockID, index);
             return;
@@ -305,11 +303,11 @@ void BlockConsensusAgent::voteAndDecideIfNeded1(ptr <ChildBVDecidedMessage> msg)
 
     for (uint64_t i = winner; i < winner + nodeCount; i++) {
         auto index = schain_index(i % nodeCount);
-        if (trueDecisions[blockID].count(index) > 0) {
-            decideBlock(blockID, index);
-            return;
+        if (trueDecisions[blockID].count(index + 1) > 0) {
+            decideBlock(blockID, index + 1);
+            return ;
         }
-        if (falseDecisions[blockID].count(index) == 0) {
+        if (falseDecisions[blockID].count(index + 1) == 0) {
             return;
         }
     }
@@ -409,7 +407,7 @@ bool BlockConsensusAgent::decided(ptr <ProtocolKey> key) {
 
 ptr <BinConsensusInstance> BlockConsensusAgent::getChild(ptr <ProtocolKey> key) {
 
-    if ((uint64_t) key->getBlockProposerIndex() > (uint64_t) getSchain()->getNodeCount())
+    if ((uint64_t) key->getBlockProposerIndex()  > (uint64_t) getSchain()->getNodeCount())
         return nullptr;
 
 
@@ -418,7 +416,7 @@ ptr <BinConsensusInstance> BlockConsensusAgent::getChild(ptr <ProtocolKey> key) 
     if (children.count(key) == 0)
         children[key] = make_shared<BinConsensusInstance>(this, key->getBlockID(), key->getBlockProposerIndex());
 
-    return children[key];
+    return children.at(key);
 
 }
 

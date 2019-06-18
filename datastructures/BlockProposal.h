@@ -75,7 +75,7 @@ public:
 
     const transaction_count &getTransactionsCount() const;
 
-    const schain_index &getProposerIndex() const;
+    schain_index getProposerIndex() const;
 
     const node_id& getProposerNodeID() const;
 

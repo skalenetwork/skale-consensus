@@ -34,7 +34,7 @@ Ensure that the required packages are installed by executing:
 ```
 sudo apt-get update
 sudo apt-get install -y cmake build-essential libgoogle-perftools-dev libboost-all-dev libprocps-dev
-sudo apt-get install -y libffi-dev libssl-dev libprocps4-dev
+sudo apt-get install -y libffi-dev libssl-dev libprocps4-dev autotools-dev automake
 ```
 
 

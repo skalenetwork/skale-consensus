@@ -65,8 +65,8 @@ ptr<vector<uint8_t>> CommittedBlock::serialize() {
 
     auto buf = header->toBuffer();
 
-    ASSERT((*buf->getBuf())[sizeof(uint64_t)] == '{');
-    ASSERT((*buf->getBuf())[buf->getCounter() - 1] == '}');
+    ASSERT(buf->getBuf()->at(sizeof(uint64_t)) == '{');
+    ASSERT(buf->getBuf()->at(buf->getCounter() - 1) == '}');
 
 
     uint64_t binSize = 0;
@@ -84,7 +84,7 @@ ptr<vector<uint8_t>> CommittedBlock::serialize() {
         block->insert(block->end(), data->begin(), data->end());
     }
 
-    ASSERT((*block)[sizeof(uint64_t)] == '{');
+    ASSERT(block->at(sizeof(uint64_t)) == '{');
 
     serializedBlock = block;
 
@@ -133,11 +133,11 @@ CommittedBlock::CommittedBlock(ptr<vector<uint8_t>> _serializedBlock) : BlockPro
 
     in.read((char*)header->c_str(), headerSize); /* Flawfinder: ignore */
 
-    if ((*header)[0] != '{') {
+    if (header->at(0) != '{') {
         BOOST_THROW_EXCEPTION(InvalidArgumentException("Block header does not start with {", __CLASS_NAME__));
     }
 
-    if ((*_serializedBlock)[headerSize + sizeof(uint64_t) - 1] != '}') {
+    if (_serializedBlock->at(headerSize + sizeof(uint64_t) - 1) != '}') {
         BOOST_THROW_EXCEPTION(InvalidArgumentException("Block header does not end with }", __CLASS_NAME__));
     }
 

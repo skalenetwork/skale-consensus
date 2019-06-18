@@ -310,10 +310,10 @@ void BinConsensusInstance::auxSelfVote(bin_consensus_round r, bin_consensus_valu
     addAUXSelfVoteToHistory(r, v);
 
     if (v) {
-        ASSERT(auxTrueVotes[r].count(getSchain()->getSchainIndex()) == 0);
+        ASSERT(auxTrueVotes[r].count( getSchain()->getSchainIndex()) == 0);
         auxTrueVotes[r][getSchain()->getSchainIndex()] = _sigShare;
     } else {
-        ASSERT(auxFalseVotes[r].count(getSchain()->getSchainIndex()) == 0);
+        ASSERT(auxFalseVotes[r].count( getSchain()->getSchainIndex()) == 0);
         auxFalseVotes[r][getSchain()->getSchainIndex()] = _sigShare;
     }
 
@@ -450,7 +450,7 @@ void BinConsensusInstance::proceedWithCommonCoinIfAUXTwoThird(bin_consensus_roun
 
 
 
-        auto key = getRandomDBKey(getSchain(), getBlockID(), getBlockProposerIndex(), _r);
+        auto key = getRandomDBKey(getSchain(), getBlockID(), getBlockProposerIndex() , _r);
 
         auto value = randomDB->readString(*key);
 
@@ -556,7 +556,7 @@ void BinConsensusInstance::printHistory() {
     cerr << "Proposer:" << getBlockProposerIndex() << "Nodecount:" << getNodeCount() << endl;
     for (auto &&m: *msgHistory) {
 
-        if (m->getBlockProposerIndex() == getBlockProposerIndex() &&
+        if (m->getBlockProposerIndex() == getBlockProposerIndex()  &&
             m->getBlockID() == getBlockID() && m->getDstNodeID() == getSchain()->getNode()->getNodeID()) {
             m->printMessage();
         }
