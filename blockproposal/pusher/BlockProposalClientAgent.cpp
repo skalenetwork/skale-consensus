@@ -232,8 +232,9 @@ ptr< unordered_set< ptr< partial_sha_hash >, PendingTransactionsAgent::Hasher,
 BlockProposalClientAgent::readMissingHashes( ptr< ClientSocket > _socket, uint64_t _count ) {
     ASSERT( _count );
     auto bytesToRead = _count * PARTIAL_SHA_HASH_LEN;
-    vector< uint8_t > buffer;
-    buffer.reserve( bytesToRead );
+    vector< uint8_t > buffer( bytesToRead );
+
+    ASSERT( bytesToRead > 0 );
 
 
     try {
@@ -252,14 +253,19 @@ BlockProposalClientAgent::readMissingHashes( ptr< ClientSocket > _socket, uint64
         PendingTransactionsAgent::Hasher, PendingTransactionsAgent::Equal > >();
 
 
-    for ( uint64_t i = 0; i < _count; i++ ) {
-        auto hash = make_shared< partial_sha_hash >();
-        for ( size_t j = 0; j < PARTIAL_SHA_HASH_LEN; j++ ) {
-            hash->at(j) = buffer.at(PARTIAL_SHA_HASH_LEN * i + j);
-        }
+    try {
+        for ( uint64_t i = 0; i < _count; i++ ) {
+            auto hash = make_shared< partial_sha_hash >();
+            for ( size_t j = 0; j < PARTIAL_SHA_HASH_LEN; j++ ) {
+                hash->at( j ) = buffer.at( PARTIAL_SHA_HASH_LEN * i + j );
+            }
 
-        result->insert( hash );
-        ASSERT( result->count( hash ) );
+            result->insert( hash );
+            ASSERT( result->count( hash ) );
+        }
+    } catch ( ... ) {
+        throw_with_nested( NetworkProtocolException(
+            "Could not read missing transaction hashes:" + to_string(_count), __CLASS_NAME__ ) );
     }
 
 
