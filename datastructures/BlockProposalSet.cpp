@@ -48,13 +48,13 @@ bool BlockProposalSet::addProposal(ptr<BlockProposal> _proposal) {
 
     lock_guard< recursive_mutex > lock( proposalsMutex );
 
-    if ( proposals.count(_proposal->getProposerIndex()) > 0 ) { // XXXX
+    if ( proposals.count(_proposal->getProposerIndex()) > 0 ) {
         LOG(err,
             "Got block proposal with the same index" + to_string((uint64_t) _proposal->getProposerIndex()));
         return false;
     }
 
-    proposals[_proposal->getProposerIndex()] = _proposal; // XXXX
+    proposals[_proposal->getProposerIndex()] = _proposal;
 
     return true;
 
@@ -92,7 +92,7 @@ ptr<BooleanProposalVector> BlockProposalSet::createBooleanVector() {
 
     auto v = make_shared<BooleanProposalVector>(sChain->getNodeCount());
     for ( uint64_t i = 1; i <= sChain->getNodeCount(); i++ ) {
-        v->pushValue(proposals.count( schain_index( i )) > 0); // XXXX
+        v->pushValue(proposals.count( schain_index( i )) > 0);
     }
 
     return v;
@@ -103,13 +103,13 @@ ptr< BlockProposal > BlockProposalSet::getProposalByIndex( schain_index _index )
     lock_guard< recursive_mutex > lock( proposalsMutex );
 
 
-    if ( proposals.count( _index) == 0 ) { // XXXX
+    if ( proposals.count( _index) == 0 ) {
         LOG(trace,
             "Proposal did not yet arrive. Total proposals:" + to_string(proposals.size()));
         return nullptr;
     }
 
-    return proposals[_index]; // XXXX
+    return proposals[_index];
 }
 
 atomic<uint64_t>  BlockProposalSet::totalObjects(0);

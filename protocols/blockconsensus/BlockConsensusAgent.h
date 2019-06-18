@@ -70,12 +70,12 @@ class BlockConsensusAgent {
 
     set<block_id> proposedBlocks;
 
-    map<block_id , set<schain_index>> trueDecisions;// converted;
+    map<block_id , set<schain_index>> trueDecisions;;
 
-    map<block_id , set<schain_index>> falseDecisions; // converted
+    map<block_id , set<schain_index>> falseDecisions;
 
 
-    map<block_id, schain_index>  decidedBlocks; // converted
+    map<block_id, schain_index>  decidedBlocks;
 
     void processChildMessageImpl(ptr<InternalMessageEnvelope> _me);
 

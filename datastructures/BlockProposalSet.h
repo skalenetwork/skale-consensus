@@ -50,7 +50,7 @@ class BlockProposalSet : public DataStructure  {
 
     Schain* sChain;
 
-    map< schain_index, ptr< BlockProposal > > proposals; // converted
+    map< schain_index, ptr< BlockProposal > > proposals;
 
 public:
     node_count getTotalProposalsCount();

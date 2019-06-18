@@ -41,7 +41,7 @@ protected:
 
     schain_id schainID;
     block_id blockID;
-    schain_index proposerIndex; // converted
+    schain_index proposerIndex;
     node_id proposerNodeID;
 
 

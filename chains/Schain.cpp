@@ -409,7 +409,7 @@ void Schain::proposeNextBlock(uint64_t _previousBlockTimeStamp, uint32_t _previo
     auto myProposal = pendingTransactionsAgent->buildBlockProposal(_proposedBlockID, _previousBlockTimeStamp,
         _previousBlockTimeStampMs);
 
-    ASSERT(myProposal->getProposerIndex() == getSchainIndex()); // XXXX
+    ASSERT(myProposal->getProposerIndex() == getSchainIndex());
 
     if (blockProposalsDatabase->addBlockProposal(myProposal)) {
         startConsensus(_proposedBlockID);
@@ -702,7 +702,7 @@ node_id Schain::getNodeIDByIndex(schain_index _index) {
         BOOST_THROW_EXCEPTION(InvalidArgumentException("Index exceeds node count", __CLASS_NAME__));
     }
 
-    auto nodeInfo =  this->getNode()->getNodeInfoByIndex(_index); // XXXX
+    auto nodeInfo =  this->getNode()->getNodeInfoByIndex(_index);
 
     return nodeInfo->getNodeID();
 }
@@ -787,7 +787,7 @@ void Schain::healthCheck() {
 
         for (int i = 1; i <= getNodeCount(); i++) {
 
-            if (i != ( getSchainIndex()) && !connections.count(i)) { // XXXX
+            if (i != ( getSchainIndex()) && !connections.count(i)) {
                 try {
                     auto x = make_shared<ClientSocket>(*this, schain_index(i), port_type::PROPOSAL);
                     LOG(debug, "Health check: connected to peer");
@@ -821,7 +821,7 @@ void Schain::sigShareArrived(ptr<BLSSigShare> _sigShare) {
 ptr<BLSSigShare> Schain::sign(ptr<SHAHash> _hash, block_id _blockId) {
 
     return getNode()->getBlsPrivateKey()->sign(_hash->toHex(), getSchainID(), _blockId,
-        getSchainIndex(), // XXXX
+        getSchainIndex(),
             getNode()->getNodeID());
 
 }

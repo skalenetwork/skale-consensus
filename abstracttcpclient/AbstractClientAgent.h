@@ -64,7 +64,7 @@ public:
     sendItemImpl(ptr<BlockProposal> &_proposal, shared_ptr<ClientSocket> &socket, schain_index _destIndex,
                  node_id _dstNodeId) = 0;
 
-    map<schain_index, ptr<queue<ptr<BlockProposal>>>> itemQueue; // converted
+    map<schain_index, ptr<queue<ptr<BlockProposal>>>> itemQueue;
 
     uint64_t incrementAndReturnThreadCounter();
 

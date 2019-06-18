@@ -86,7 +86,7 @@ void BinConsensusInstance::processMessage(ptr<MessageEnvelope> m) {
 
 
     ASSERT(m->getMessage()->getBlockID() == getBlockID());
-    ASSERT(m->getMessage()->getBlockProposerIndex() == getBlockProposerIndex()); // XXXX
+    ASSERT(m->getMessage()->getBlockProposerIndex() == getBlockProposerIndex());
 
 
     auto msgType = m->getMessage()->getMessageType();
@@ -268,14 +268,14 @@ void BinConsensusInstance::bvbVote(ptr<MessageEnvelope> me) {
     bin_consensus_round r = m->r;
     bin_consensus_value v = m->value;
 
-    schain_index index = me->getSrcNodeInfo()->getSchainIndex(); // XXXX
+    schain_index index = me->getSrcNodeInfo()->getSchainIndex();
 
     if(v) {
-        ASSERT(bvbTrueVotes[r].count(index) == 0); // XXXX
+        ASSERT(bvbTrueVotes[r].count(index) == 0);
         bvbTrueVotes[r].insert(index);
     } else {
-        ASSERT(bvbFalseVotes[r].count(index) == 0); // XXXX
-        bvbFalseVotes[r].insert(index); // XXXX
+        ASSERT(bvbFalseVotes[r].count(index) == 0);
+        bvbFalseVotes[r].insert(index);
     }
 }
 
@@ -286,13 +286,13 @@ void BinConsensusInstance::auxVote(ptr<MessageEnvelope> me) {
     bin_consensus_value v = m->value;
 
 
-    auto index = me->getSrcNodeInfo()->getSchainIndex(); // XXXX
+    auto index = me->getSrcNodeInfo()->getSchainIndex();
     if (v) {
-        ASSERT(auxTrueVotes[r].count(index) == 0); // XXXX
-        auxTrueVotes[r][index] =  m->getSigShare(); // XXXX
+        ASSERT(auxTrueVotes[r].count(index) == 0);
+        auxTrueVotes[r][index] =  m->getSigShare();
     } else {
-        ASSERT(auxFalseVotes[r].count(index) == 0); // XXXX
-        auxFalseVotes[r][index] =  m->getSigShare(); // XXXX
+        ASSERT(auxFalseVotes[r].count(index) == 0);
+        auxFalseVotes[r][index] =  m->getSigShare();
     }
 
 }
@@ -310,11 +310,11 @@ void BinConsensusInstance::auxSelfVote(bin_consensus_round r, bin_consensus_valu
     addAUXSelfVoteToHistory(r, v);
 
     if (v) {
-        ASSERT(auxTrueVotes[r].count( getSchain()->getSchainIndex()) == 0); // XXXX
-        auxTrueVotes[r][getSchain()->getSchainIndex()] = _sigShare; // XXXX
+        ASSERT(auxTrueVotes[r].count( getSchain()->getSchainIndex()) == 0);
+        auxTrueVotes[r][getSchain()->getSchainIndex()] = _sigShare;
     } else {
-        ASSERT(auxFalseVotes[r].count( getSchain()->getSchainIndex()) == 0); // XXXX
-        auxFalseVotes[r][getSchain()->getSchainIndex()] = _sigShare; // XXXX
+        ASSERT(auxFalseVotes[r].count( getSchain()->getSchainIndex()) == 0);
+        auxFalseVotes[r][getSchain()->getSchainIndex()] = _sigShare;
     }
 
 }
@@ -402,7 +402,7 @@ void BinConsensusInstance::networkBroadcastValue(ptr<BVBroadcastMessage> m) {
 void BinConsensusInstance::auxBroadcastValue(bin_consensus_value v, bin_consensus_round r) {
 
 
-    auto m = make_shared<AUXBroadcastMessage>(r, v, node_id(0), blockID, blockProposerIndex, *this); // XXXX
+    auto m = make_shared<AUXBroadcastMessage>(r, v, node_id(0), blockID, blockProposerIndex, *this);
 
 
     auxSelfVote(r, v, m->getSigShare());
@@ -450,7 +450,7 @@ void BinConsensusInstance::proceedWithCommonCoinIfAUXTwoThird(bin_consensus_roun
 
 
 
-        auto key = getRandomDBKey(getSchain(), getBlockID(), getBlockProposerIndex() -1 , _r); // XXXX
+        auto key = getRandomDBKey(getSchain(), getBlockID(), getBlockProposerIndex() , _r);
 
         auto value = randomDB->readString(*key);
 
@@ -536,7 +536,7 @@ void BinConsensusInstance::proceedWithNewRound(bin_consensus_value value) {
     addNextRoundToHistory(currentRound, value);
 
     auto m = make_shared<BVBroadcastMessage>(node_id(0),
-                                             this->getBlockID(), this->getBlockProposerIndex(), currentRound, value, // XXXX
+                                             this->getBlockID(), this->getBlockProposerIndex(), currentRound, value,
                                              *this);
 
     ptr<MessageEnvelope> me = make_shared<MessageEnvelope>(ORIGIN_NETWORK, m, getSchain()->getThisNodeInfo());
@@ -556,7 +556,7 @@ void BinConsensusInstance::printHistory() {
     cerr << "Proposer:" << getBlockProposerIndex() << "Nodecount:" << getNodeCount() << endl;
     for (auto &&m: *msgHistory) {
 
-        if (m->getBlockProposerIndex() == getBlockProposerIndex()  && // XXXX
+        if (m->getBlockProposerIndex() == getBlockProposerIndex()  &&
             m->getBlockID() == getBlockID() && m->getDstNodeID() == getSchain()->getNode()->getNodeID()) {
             m->printMessage();
         }

@@ -44,7 +44,7 @@ bool SigShareSet::addSigShare( ptr< BLSSigShare > _sigShare ) {
 
     lock_guard< recursive_mutex > lock( sigSharesMutex );
 
-    if ( sigShares.count( _sigShare->getSignerIndex()) > 0 ) { /// XXXX
+    if ( sigShares.count( _sigShare->getSignerIndex()) > 0 ) { /
         LOG( err, "Got block proposal with the same index" +
                       to_string( ( uint64_t ) _sigShare->getSignerIndex()) ); // XXX
         return false;

@@ -195,7 +195,7 @@ ptr<vector<uint8_t>> CatchupServerAgent::createCatchupResponseHeader(ptr<Connect
         BOOST_THROW_EXCEPTION(InvalidNodeIDException("Node ID does not match " + srcNodeID, __CLASS_NAME__));
     }
 
-    if (nmi->getSchainIndex() != schain_index(srcSchainIndex)) { /// XXXX
+    if (nmi->getSchainIndex() != schain_index(srcSchainIndex)) { /
         _responseHeader->setStatusSubStatus(CONNECTION_SERVER_ERROR, CONNECTION_ERROR_INVALID_NODE_INDEX);
         BOOST_THROW_EXCEPTION(
                 InvalidSchainIndexException("Node subchain index does not match " + srcSchainIndex, __CLASS_NAME__));

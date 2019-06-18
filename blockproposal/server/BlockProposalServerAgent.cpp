@@ -251,7 +251,7 @@ BlockProposalServerAgent::processProposalRequest(ptr<Connection> _connection, nl
     auto missingTransactionHashes = result.second;
 
     Header::getUint64(_proposalRequest, "proposerNodeID");
-    auto proposerIndex = schain_index(Header::getUint64(_proposalRequest, "proposerIndex")); // XXXX
+    auto proposerIndex = schain_index(Header::getUint64(_proposalRequest, "proposerIndex"));
     auto blockID = block_id(Header::getUint64(_proposalRequest, "blockID"));
     auto timeStamp = Header::getUint64(_proposalRequest, "timeStamp");
     auto timeStampMs = Header::getUint32(_proposalRequest, "timeStampMs");
@@ -358,7 +358,7 @@ BlockProposalServerAgent::processProposalRequest(ptr<Connection> _connection, nl
     auto transactionList = make_shared<TransactionList>(transactions);
 
     auto proposal =
-            make_shared<ReceivedBlockProposal>(*sChain, blockID, proposerIndex, transactionList, // XXXX
+            make_shared<ReceivedBlockProposal>(*sChain, blockID, proposerIndex, transactionList,
                                                timeStamp, timeStampMs);
 
     auto calculatedHash = proposal->getHash();
@@ -458,7 +458,7 @@ ptr<Header> BlockProposalServerAgent::createProposalResponseHeader(
         BOOST_THROW_EXCEPTION(InvalidNodeIDException("Node ID does not match " + srcNodeID, __CLASS_NAME__));
     }
 
-    if (nmi->getSchainIndex() != schain_index(proposerIndex)) { // XXXX
+    if (nmi->getSchainIndex() != schain_index(proposerIndex)) {
         responseHeader->setStatusSubStatus(
                 CONNECTION_SERVER_ERROR, CONNECTION_ERROR_INVALID_NODE_INDEX);
         BOOST_THROW_EXCEPTION(InvalidSchainIndexException(
@@ -563,7 +563,7 @@ ptr<Header> BlockProposalServerAgent::createFinalizeResponseHeader(
     }
 
 
-    if (block->getProposerIndex() != proposerIndex) { // XXXX
+    if (block->getProposerIndex() != proposerIndex) {
         responseHeader->setStatusSubStatus(CONNECTION_ERROR, CONNECTION_INVALID_INDEX);
         responseHeader->setComplete();
         return responseHeader;

@@ -52,12 +52,12 @@ CatchupRequestHeader::CatchupRequestHeader(Schain &_sChain, schain_index _dstInd
 
 
     this->srcNodeID = _sChain.getNode()->getNodeID();
-    this->srcSchainIndex = _sChain.getSchainIndex(); /// XXXX
-    this->dstNodeID = _sChain.getNode()->getNodeInfoByIndex(_dstIndex)->getNodeID(); // XXXX
+    this->srcSchainIndex = _sChain.getSchainIndex(); /
+    this->dstNodeID = _sChain.getNode()->getNodeInfoByIndex(_dstIndex)->getNodeID();
     this->schainID = _sChain.getSchainID();
     this->blockID = _sChain.getCommittedBlockID();
 
-    ASSERT(_sChain.getNode()->getNodeInfoByIndex(_dstIndex) != nullptr); // XXXX
+    ASSERT(_sChain.getNode()->getNodeInfoByIndex(_dstIndex) != nullptr);
 
     complete = true;
 

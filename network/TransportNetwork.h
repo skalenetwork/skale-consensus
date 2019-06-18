@@ -45,7 +45,7 @@ class TransportNetwork : public Agent  {
 
     recursive_mutex delayedSendsLock;
 
-    vector<std::list<pair<ptr<NetworkMessage>,ptr<NodeInfo>>>> delayedSends; // converted
+    vector<std::list<pair<ptr<NetworkMessage>,ptr<NodeInfo>>>> delayedSends;
 
 
     recursive_mutex deferredMutex;

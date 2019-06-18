@@ -83,7 +83,7 @@ AUXBroadcastMessage::AUXBroadcastMessage(node_id _srcNodeID, node_id _dstNodeID,
                                          bin_consensus_value _value, schain_id _schainId, msg_id _msgID,
                                          uint32_t _ip, ptr<string> _signature, schain_index _srcSchainIndex) : NetworkMessage(
         AUX_BROADCAST, _srcNodeID, _dstNodeID, _blockID, _blockProposerIndex, _r, _value, _schainId, _msgID, _ip,
-        _signature, _srcSchainIndex) { // XXXX
+        _signature, _srcSchainIndex) {
     printPrefix = "a";
 
 };

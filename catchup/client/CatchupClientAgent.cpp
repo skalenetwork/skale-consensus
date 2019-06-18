@@ -75,7 +75,7 @@ void CatchupClientAgent::sync(schain_index _dstIndex) {
         "Catchupc step 0: request for block" + to_string(getSchain()->getCommittedBlockID()));
 
     auto header = make_shared<CatchupRequestHeader>(*sChain, _dstIndex);
-    auto socket = make_shared<ClientSocket>(*sChain, _dstIndex, CATCHUP); // XXXX
+    auto socket = make_shared<ClientSocket>(*sChain, _dstIndex, CATCHUP);
     auto io = getSchain()->getIo();
 
 
@@ -256,7 +256,7 @@ schain_index CatchupClientAgent::nextSyncNodeIndex(
 
     do {
         index = ((uint64_t) index + 1) % nodeCount;
-    } while (index == ( agent->getSchain()->getSchainIndex() - 1)); // XXXX
+    } while (index == ( agent->getSchain()->getSchainIndex() - 1));
 
     return index + 1;
 }

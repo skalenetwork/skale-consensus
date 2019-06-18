@@ -60,13 +60,13 @@ AbstractClientAgent::AbstractClientAgent(Schain &_sChain, port_type _portType) :
 
     for (uint64_t i = 1; i <= _sChain.getNodeCount(); i++) {
         (itemQueue)
-                .emplace(schain_index(i), make_shared<queue<ptr<BlockProposal> > >()); // XXXX
-        (queueCond).emplace(schain_index(i) , make_shared<condition_variable>()); // XXXX
-        (queueMutex).emplace(schain_index(i), make_shared<mutex>()); // XXXX
+                .emplace(schain_index(i), make_shared<queue<ptr<BlockProposal> > >());
+        (queueCond).emplace(schain_index(i) , make_shared<condition_variable>());
+        (queueMutex).emplace(schain_index(i), make_shared<mutex>());
 
-        ASSERT(itemQueue.count(schain_index(i))); // XXXX
-        ASSERT(queueCond.count(schain_index(i))); // XXXX
-        ASSERT(queueMutex.count(schain_index(i))); // XXXX
+        ASSERT(itemQueue.count(schain_index(i)));
+        ASSERT(queueCond.count(schain_index(i)));
+        ASSERT(queueMutex.count(schain_index(i)));
     }
 
     threadCounter = 0;
@@ -85,7 +85,7 @@ void AbstractClientAgent::sendItem(ptr<BlockProposal> _proposal, schain_index _d
 
     ASSERT(getNode()->isStarted());
 
-    auto socket = make_shared<ClientSocket>(*sChain, _dstIndex, portType);  // XXXX
+    auto socket = make_shared<ClientSocket>(*sChain, _dstIndex, portType);
 
 
 
@@ -100,7 +100,7 @@ void AbstractClientAgent::sendItem(ptr<BlockProposal> _proposal, schain_index _d
     }
 
 
-    sendItemImpl(_proposal, socket, _dstIndex, _dstNodeId); // XXXX
+    sendItemImpl(_proposal, socket, _dstIndex, _dstNodeId);
 }
 
 
@@ -109,11 +109,11 @@ void AbstractClientAgent::sendItem(ptr<BlockProposal> _proposal, schain_index _d
 void AbstractClientAgent::enqueueItem(ptr<BlockProposal> item) {
     for (uint64_t i = 1; i <= (uint64_t) this->sChain->getNodeCount(); i++) {
         {
-            lock_guard<mutex> lock(*queueMutex[schain_index(i)]); // XXXX
-            auto q = itemQueue[schain_index(i)]; // XXXX
+            lock_guard<mutex> lock(*queueMutex[schain_index(i)]);
+            auto q = itemQueue[schain_index(i)];
             q->push(item);
         }
-        queueCond[schain_index(i)]->notify_all(); // XXXX
+        queueCond[schain_index(i)]->notify_all();
     }
 }
 
@@ -134,30 +134,30 @@ void AbstractClientAgent::workerThreadItemSendLoop(AbstractClientAgent *agent) {
         while (!agent->getSchain()->getNode()->isExitRequested()) {
 
             {
-                std::unique_lock<std::mutex> mlock(*agent->queueMutex[destinationSubChainIndex]); // XXXX
+                std::unique_lock<std::mutex> mlock(*agent->queueMutex[destinationSubChainIndex]);
 
 
-                while (agent->itemQueue[destinationSubChainIndex]->empty()) { // XXXX
+                while (agent->itemQueue[destinationSubChainIndex]->empty()) {
                     agent->getSchain()->getNode()->exitCheck();
-                    agent->queueCond[destinationSubChainIndex]->wait(mlock); // XXXX
+                    agent->queueCond[destinationSubChainIndex]->wait(mlock);
                 }
             }
 
-            ASSERT(agent->itemQueue[destinationSubChainIndex]); // XXXX
+            ASSERT(agent->itemQueue[destinationSubChainIndex]);
 
-            auto proposal = agent->itemQueue[destinationSubChainIndex]->front(); // XXXX
+            auto proposal = agent->itemQueue[destinationSubChainIndex]->front();
 
 
             ASSERT(proposal);
 
-            agent->itemQueue[destinationSubChainIndex]->pop(); // XXXX
+            agent->itemQueue[destinationSubChainIndex]->pop();
 
 
 
-            if (destinationSubChainIndex != ( agent->getSchain()->getSchainIndex())) { // XXXX
+            if (destinationSubChainIndex != ( agent->getSchain()->getSchainIndex())) {
 
                 auto nodeId =
-                    agent->getSchain()->getNode()->getNodeInfoByIndex(destinationSubChainIndex)->getNodeID(); // XXXX
+                    agent->getSchain()->getNode()->getNodeInfoByIndex(destinationSubChainIndex)->getNodeID();
 
                 bool sent = false;
 

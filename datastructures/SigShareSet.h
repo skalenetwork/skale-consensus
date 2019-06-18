@@ -39,7 +39,7 @@ class SigShareSet : public DataStructure  {
     Schain* sChain;
     block_id blockId;
 
-    map< schain_index, ptr< BLSSigShare > > sigShares; // converted
+    map< schain_index, ptr< BLSSigShare > > sigShares;
 
 public:
     node_count getTotalSigSharesCount();

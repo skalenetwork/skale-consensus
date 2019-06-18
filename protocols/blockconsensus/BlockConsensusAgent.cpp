@@ -130,7 +130,7 @@ void BlockConsensusAgent::processChildMessageImpl(ptr <InternalMessageEnvelope> 
 void BlockConsensusAgent::propose(bin_consensus_value _proposal, schain_index _index, block_id _id) {
 
 
-    auto _nodeID = getSchain()->getNode()->getNodeInfoByIndex(_index)->getNodeID(); // XXXX
+    auto _nodeID = getSchain()->getNode()->getNodeInfoByIndex(_index)->getNodeID();
 
 
     auto key = make_shared<ProtocolKey>(_id, _index);
@@ -178,7 +178,7 @@ void BlockConsensusAgent::decideBlock(block_id _blockId, schain_index _proposerI
 
         // empty block
         auto emptyList = make_shared<TransactionList>(make_shared < vector < ptr < Transaction >> > ());
-        auto zeroProposal = make_shared<ReceivedBlockProposal>(*getSchain(), _blockId, 0, // XXXX
+        auto zeroProposal = make_shared<ReceivedBlockProposal>(*getSchain(), _blockId, 0,
                                                                emptyList, sec, ms );
 
 
@@ -193,9 +193,9 @@ void BlockConsensusAgent::decideBlock(block_id _blockId, schain_index _proposerI
             throw ExitRequestedException();
         }
         usleep(100000); /* Flawfinder: ignore */
-    } while (proposedBlockSet->getProposalByIndex(_proposerIndex) == nullptr); // XXXX
+    } while (proposedBlockSet->getProposalByIndex(_proposerIndex) == nullptr);
 
-    auto proposal = proposedBlockSet->getProposalByIndex(_proposerIndex); // XXXX
+    auto proposal = proposedBlockSet->getProposalByIndex(_proposerIndex);
 
     getSchain()->blockCommitArrived(false, _blockId, _proposerIndex, proposal->getTimeStamp());
 
@@ -407,14 +407,14 @@ bool BlockConsensusAgent::decided(ptr <ProtocolKey> key) {
 
 ptr <BinConsensusInstance> BlockConsensusAgent::getChild(ptr <ProtocolKey> key) {
 
-    if ((uint64_t) key->getBlockProposerIndex()  > (uint64_t) getSchain()->getNodeCount()) // XXXX
+    if ((uint64_t) key->getBlockProposerIndex()  > (uint64_t) getSchain()->getNodeCount())
         return nullptr;
 
 
     lock_guard <recursive_mutex> lock(childrenMutex);
 
     if (children.count(key) == 0)
-        children[key] = make_shared<BinConsensusInstance>(this, key->getBlockID(), key->getBlockProposerIndex()); // XXXX
+        children[key] = make_shared<BinConsensusInstance>(this, key->getBlockID(), key->getBlockProposerIndex());
 
     return children[key];
 

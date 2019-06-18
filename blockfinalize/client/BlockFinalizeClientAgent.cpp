@@ -88,7 +88,7 @@ void BlockFinalizeClientAgent::sendItemImpl(ptr<BlockProposal> &_proposal, share
     ASSERT(committedBlock);
 
     ptr<Header> header = make_shared<BlockFinalizeRequestHeader>(*sChain, committedBlock,
-                                                                 _proposal->getProposerIndex()); // XXXX
+                                                                 _proposal->getProposerIndex());
 
 
     try {
@@ -137,5 +137,5 @@ ptr<BLSSigShare> BlockFinalizeClientAgent::getBLSSignatureShare(nlohmann::json _
                                                                 block_id _blockID, schain_index _signerIndex,
                                                                 node_id _signerNodeId) {
     auto s = Header::getString(_json, "sigShare");
-    return make_shared<BLSSigShare>(s, getSchain()->getSchainID(), _blockID, _signerIndex, _signerNodeId); // XXXX
+    return make_shared<BLSSigShare>(s, getSchain()->getSchainID(), _blockID, _signerIndex, _signerNodeId);
 }

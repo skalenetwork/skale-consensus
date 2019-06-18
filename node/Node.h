@@ -110,7 +110,7 @@ class Node {
     };
 
 
-    map<schain_index, ptr<NodeInfo>> nodeInfosByIndex; // converted
+    map<schain_index, ptr<NodeInfo>> nodeInfosByIndex;
     map<ptr<string>, ptr<NodeInfo>, Comparator> nodeInfosByIP;
 
 

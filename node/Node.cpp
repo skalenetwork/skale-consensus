@@ -317,8 +317,8 @@ void Node::initSchain(ptr<NodeInfo> _localNodeInfo, const vector<ptr<NodeInfo>> 
         logThreadLocal_ = getLog();
 
         for (auto &rni : remoteNodeInfos) {
-            LOG(debug, "Adding Node Info:" + to_string(rni->getSchainIndex())); // XXXX
-            nodeInfosByIndex[rni->getSchainIndex()] = rni; // XXXX
+            LOG(debug, "Adding Node Info:" + to_string(rni->getSchainIndex()));
+            nodeInfosByIndex[rni->getSchainIndex()] = rni;
             nodeInfosByIP[rni->getBaseIP()] = rni;
             LOG(debug, "Got IP" + *rni->getBaseIP());
 
@@ -327,7 +327,7 @@ void Node::initSchain(ptr<NodeInfo> _localNodeInfo, const vector<ptr<NodeInfo>> 
         ASSERT(nodeInfosByIndex.size() > 0);
         ASSERT(nodeInfosByIndex.count(1) > 0);
 
-        sChain = make_shared<Schain>(*this, _localNodeInfo->getSchainIndex(), // XXXX
+        sChain = make_shared<Schain>(*this, _localNodeInfo->getSchainIndex(),
                                      _localNodeInfo->getSchainID(), _extFace);
     } catch (...) {
         throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
@@ -468,9 +468,9 @@ bool Node::isStarted() const {
 
 
 ptr<NodeInfo> Node::getNodeInfoByIndex(schain_index _index) {
-    if (nodeInfosByIndex.count(_index) == 0) // XXXX
+    if (nodeInfosByIndex.count(_index) == 0)
         return nullptr;;
-    return nodeInfosByIndex[_index]; // XXXX
+    return nodeInfosByIndex[_index];
 }
 
 
