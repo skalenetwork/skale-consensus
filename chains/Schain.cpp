@@ -627,7 +627,7 @@ ptr<CommittedBlock> Schain::getCachedBlock(block_id _blockID) {
     std::lock_guard<std::recursive_mutex> aLock(getMainMutex());
 
     if (blocks.count(_blockID > 0)) {
-        return blocks[_blockID];
+        return blocks.at(_blockID);
     } else {
         return nullptr;
     }

@@ -123,8 +123,8 @@ ptr<string> Utils::carray2Hex(const uint8_t *d, size_t _len) {
             '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
 
     for (size_t j = 0; j < _len; j++) {
-        (*hex)[j * 2] = hexval[((d[j] >> 4) & 0xF)];
-        (*hex)[(j * 2) + 1] = hexval[(d[j]) & 0x0F];
+        hex->at(j * 2) = hexval[((d[j] >> 4) & 0xF)];
+        hex->at((j * 2) + 1) = hexval[(d[j]) & 0x0F];
     }
 
     auto result = make_shared<string>((char *) hex->data(), 2 * _len);

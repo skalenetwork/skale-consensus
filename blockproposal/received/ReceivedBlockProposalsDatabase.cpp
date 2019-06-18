@@ -69,10 +69,10 @@ bool ReceivedBlockProposalsDatabase::addBlockProposal(ptr<BlockProposal> _propos
         proposedBlockSets[_proposal->getBlockID()] = make_shared<BlockProposalSet>(this->sChain, _proposal->getBlockID());
     }
 
-    proposedBlockSets[_proposal->getBlockID()]->addProposal(_proposal);
+    proposedBlockSets.at(_proposal->getBlockID())->addProposal(_proposal);
 
 
-    return (proposedBlockSets[_proposal->getBlockID()]->isTwoThird());
+    return proposedBlockSets.at(_proposal->getBlockID())->isTwoThird();
 }
 
 
@@ -122,7 +122,7 @@ ptr<BlockProposalSet> ReceivedBlockProposalsDatabase::getProposedBlockSet(block_
         proposedBlockSets[blockID] = make_shared<BlockProposalSet>(this->sChain, blockID);
     }
 
-    return proposedBlockSets[blockID];
+    return proposedBlockSets.at(blockID);
 }
 
 
@@ -151,7 +151,7 @@ bool ReceivedBlockProposalsDatabase::isTwoThird(block_id _blockID) {
 
 
     if (proposedBlockSets.count(_blockID) > 0) {
-        return proposedBlockSets[_blockID]->isTwoThird();
+        return proposedBlockSets.at(_blockID)->isTwoThird();
     } else {
         return false;
     };

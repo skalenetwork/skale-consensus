@@ -35,7 +35,7 @@
 
 void SHAHash::print() {
     for (size_t i = 0; i < SHA3_HASH_LEN; i++) {
-        cerr << to_string((*hash)[i]);
+        cerr << to_string(hash->at(i));
     }
 
 }
@@ -43,7 +43,7 @@ void SHAHash::print() {
 
 
 uint8_t SHAHash::at(uint32_t _position) {
-    return (*hash)[_position];
+    return hash->at(_position);
 }
 
 
@@ -66,7 +66,7 @@ void  SHAHash::cArrayFromHex(string & _hex, uint8_t* _data, size_t len) {
     }
 
     for (size_t i = 0; i < _hex.size() / 2; i++) {
-        _data[i] = Utils::char2int(_hex[2 * i]) * 16 + Utils::char2int((_hex)[2 * i + 1]);
+        _data[i] = Utils::char2int(_hex.at(2 * i)) * 16 + Utils::char2int(_hex.at(2 * i + 1));
     }
 
 }
@@ -83,9 +83,9 @@ int SHAHash::compare(ptr<SHAHash> hash2) {
     for (size_t i = 0; i < SHA3_HASH_LEN; i++) {
 
 
-        if ((*hash)[i] < hash2->at(i))
+        if (hash->at(i) < hash2->at(i))
             return -1;
-        if ((*hash)[i] > hash2->at(i))
+        if (hash->at(i) > hash2->at(i))
             return 1;
     }
 

@@ -470,14 +470,14 @@ bool Node::isStarted() const {
 ptr<NodeInfo> Node::getNodeInfoByIndex(schain_index _index) {
     if (nodeInfosByIndex.count(_index) == 0)
         return nullptr;;
-    return nodeInfosByIndex[_index];
+    return nodeInfosByIndex.at(_index);
 }
 
 
 ptr<NodeInfo> Node::getNodeInfoByIP(ptr<string> ip) {
     if (nodeInfosByIP.count(ip) == 0)
         return nullptr;;
-    return nodeInfosByIP[ip];
+    return nodeInfosByIP.at(ip);
 }
 
 

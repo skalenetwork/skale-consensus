@@ -165,7 +165,7 @@ void PendingTransactionsAgent::pushKnownTransactions(ptr<vector<ptr<Transaction>
 ptr<Transaction> PendingTransactionsAgent::getKnownTransactionByPartialHash(ptr<partial_sha_hash> hash) {
     lock_guard<recursive_mutex> lock(transactionsMutex);
     if (knownTransactions.count(hash))
-        return knownTransactions[hash];
+        return knownTransactions.at(hash);
     return nullptr;
 }
 

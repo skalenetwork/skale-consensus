@@ -252,7 +252,7 @@ nlohmann::json IO::readJsonHeader(file_descriptor descriptor, const char *_error
     }
 
 
-    uint64_t headerLen = (*buf2)[0];
+    uint64_t headerLen = (*buf2).at(0);
 
     if (headerLen < 2 || headerLen >= MAX_HEADER_SIZE) {
         LOG(err, "Total Len:" + to_string(headerLen));

@@ -111,7 +111,7 @@ ptr< BLSSigShare > SigShareSet::getSigShareByIndex( schain_index _index ) {
         return nullptr;
     }
 
-    return sigShares[_index];
+    return sigShares.at(_index);
 }
 
 atomic< uint64_t > SigShareSet::totalObjects( 0 );

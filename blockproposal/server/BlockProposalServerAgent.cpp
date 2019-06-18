@@ -327,7 +327,7 @@ BlockProposalServerAgent::processProposalRequest(ptr<Connection> _connection, nl
         ptr<Transaction> transaction;
 
         if (presentTransactions->count(i) > 0) {
-            transaction = (*presentTransactions)[i];
+            transaction = presentTransactions->at(i);
         } else {
 
             transaction = (*missingTransactions)[h];
@@ -351,7 +351,7 @@ BlockProposalServerAgent::processProposalRequest(ptr<Connection> _connection, nl
         transactions->push_back(transaction);
     }
 
-    ASSERT(transactionCount == 0 || (*transactions)[(uint64_t) transactionCount - 1]);
+    ASSERT(transactionCount == 0 || transactions->at((uint64_t) transactionCount - 1));
 
     ASSERT(timeStamp > 0);
 

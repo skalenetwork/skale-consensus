@@ -62,7 +62,7 @@ ptr<partial_sha_hash> PartialHashesList::getPartialHash(uint64_t i) {
     auto hash = make_shared<array<uint8_t, PARTIAL_SHA_HASH_LEN> >();
 
     for (size_t j = 0; j < PARTIAL_SHA_HASH_LEN; j++) {
-        (*hash)[j] = (*partialHashes)[PARTIAL_SHA_HASH_LEN * i + j];
+        hash->at(j) = partialHashes->at(PARTIAL_SHA_HASH_LEN * i + j);
     }
 
     return hash;

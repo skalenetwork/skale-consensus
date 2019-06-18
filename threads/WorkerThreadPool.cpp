@@ -35,7 +35,7 @@ void WorkerThreadPool::startService() {
 
     for (uint64_t i = 0; i < (uint64_t )numThreads; i++) {
         createThread(i);
-        allThreads.push_back(threadpool[i]);
+        allThreads.push_back(threadpool.at(i));
     }
 
 }

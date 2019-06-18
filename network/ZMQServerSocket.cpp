@@ -40,7 +40,7 @@ void *ZMQServerSocket::getDestinationSocket(ptr<string> _ip, network_port _baseP
     lock_guard<mutex> lock(mainMutex);
 
     if (sendSockets.count(*_ip) > 0) {
-        return sendSockets[*_ip];
+        return sendSockets.at(*_ip);
     }
 
 #ifdef ZMQ_EXPERIMENTAL

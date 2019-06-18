@@ -113,7 +113,7 @@ void AbstractClientAgent::enqueueItem(ptr<BlockProposal> item) {
             auto q = itemQueue[schain_index(i)];
             q->push(item);
         }
-        queueCond[schain_index(i)]->notify_all();
+        queueCond.at(schain_index(i))->notify_all();
     }
 }
 

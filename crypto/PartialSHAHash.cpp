@@ -37,7 +37,7 @@ void PartialSHAHash::print() {
 }
 
 uint8_t PartialSHAHash::at(uint32_t _position) {
-    return (*hash)[_position];
+    return hash->at(_position);
 }
 
 ptr< PartialSHAHash > PartialSHAHash::hex2sha( ptr< string > _hex ) {
@@ -45,7 +45,7 @@ ptr< PartialSHAHash > PartialSHAHash::hex2sha( ptr< string > _hex ) {
     auto result = make_shared<array<uint8_t, PARTIAL_SHA_HASH_LEN>>();
 
     for ( size_t i = 0; i < PARTIAL_SHA_HASH_LEN; i++ ) {
-        (*result)[i] = Utils::char2int( ( *_hex )[i] ) * 16 + Utils::char2int( ( *_hex )[i + 1] );
+        (*result)[i] = Utils::char2int(_hex->at(i) ) * 16 + Utils::char2int(_hex->at(i + 1));
     }
 
     return make_shared<PartialSHAHash>( result );
@@ -57,9 +57,9 @@ ptr< PartialSHAHash > PartialSHAHash::hex2sha( ptr< string > _hex ) {
 
 int PartialSHAHash::compare(ptr<PartialSHAHash> hash2) {
     for (size_t i = 0; i < PARTIAL_SHA_HASH_LEN; i++) {
-        if ((*hash)[i] < hash2->at(i))
+        if (hash->at(i) < hash2->at(i))
             return -1;
-        if ((*hash)[i] > hash2->at(i))
+        if (hash->at(i) > hash2->at(i))
             return 1;
     }
     return 0;
@@ -79,7 +79,7 @@ ptr< PartialSHAHash > PartialSHAHash::fromHex(ptr<string> _hex) {
     auto result = make_shared<array<uint8_t, PARTIAL_SHA_HASH_LEN>>();
 
     for ( size_t i = 0; i < PARTIAL_SHA_HASH_LEN; i++ ) {
-        (*result)[i] = Utils::char2int( ( *_hex )[2*i] ) * 16 + Utils::char2int( ( *_hex )[2* i + 1] );
+        result->at(i) = Utils::char2int(_hex->at(2*i) ) * 16 + Utils::char2int(_hex->at(2* i + 1));
     }
 
     return make_shared<PartialSHAHash>(result);

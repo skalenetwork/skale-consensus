@@ -109,7 +109,7 @@ ptr< BlockProposal > BlockProposalSet::getProposalByIndex( schain_index _index )
         return nullptr;
     }
 
-    return proposals[_index];
+    return proposals.at(_index);
 }
 
 atomic<uint64_t>  BlockProposalSet::totalObjects(0);

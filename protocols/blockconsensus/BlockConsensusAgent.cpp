@@ -416,7 +416,7 @@ ptr <BinConsensusInstance> BlockConsensusAgent::getChild(ptr <ProtocolKey> key) 
     if (children.count(key) == 0)
         children[key] = make_shared<BinConsensusInstance>(this, key->getBlockID(), key->getBlockProposerIndex());
 
-    return children[key];
+    return children.at(key);
 
 }
 
