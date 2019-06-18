@@ -52,7 +52,7 @@ CatchupRequestHeader::CatchupRequestHeader(Schain &_sChain, schain_index _dstInd
 
 
     this->srcNodeID = _sChain.getNode()->getNodeID();
-    this->srcSchainIndex = _sChain.getSchainIndex(); /
+    this->srcSchainIndex = _sChain.getSchainIndex();
     this->dstNodeID = _sChain.getNode()->getNodeInfoByIndex(_dstIndex)->getNodeID();
     this->schainID = _sChain.getSchainID();
     this->blockID = _sChain.getCommittedBlockID();

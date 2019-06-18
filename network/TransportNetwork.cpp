@@ -137,13 +137,13 @@ void TransportNetwork::broadcastMessage( Schain& subChain, ptr< NetworkMessage >
 
     if ( sent.size() + 1 < getSchain()->getNodeCount() ) {
         for ( auto const& it : subChain.getNode()->getNodeInfosByIndex() ) {
-            auto index = ( uint64_t ) it.second->getSchainIndex();  /
-            if ( index != ( subChain.getSchainIndex())  && !sent.count( index) ) { /
+            auto index = ( uint64_t ) it.second->getSchainIndex();
+            if ( index != ( subChain.getSchainIndex())  && !sent.count( index) ) {
                 {
                     lock_guard< recursive_mutex > lock( delayedSendsLock );
-                    delayedSends.at(index - 1 ).push_back( {m, it.second} ); /
-                    if ( delayedSends.at(index - 1).size() > 256 ) { /
-                        delayedSends.at(index - 1).pop_front(); /
+                    delayedSends.at(index - 1 ).push_back( {m, it.second} );
+                    if ( delayedSends.at(index - 1).size() > 256 ) {
+                        delayedSends.at(index - 1).pop_front();
                     }
                 }
             }
