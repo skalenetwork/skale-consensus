@@ -69,7 +69,7 @@ print("Running cmake: " + cmakeExecutable)
 assert(subprocess.call(["cmake", ".",  "-DCMAKE_BUILD_TYPE=" +  sys.argv[1],
                         "-DCOVERAGE=ON", "-DMICROPROFILE_ENABLED=0"]) == 0)
 
-assert(subprocess.call(["/usr/bin/make", "-j"]) == 0)
+assert(subprocess.call(["/usr/bin/make", "-j4"]) == 0)
 
 
 buildDirName = sys.argv[2] + '/cmake-build-' + sys.argv[1].lower()

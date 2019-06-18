@@ -32,15 +32,6 @@ env:
 
 
 matrix:
-  env:
-    - TEST_SUITE=onenode
-    - TEST_SUITE=twonodes
-    - TEST_SUITE=fournodes
-    - TEST_SUITE=sixteennodes
-    - TEST_SUITE=fournodes_catchup
-    - TEST_SUITE=three_out_of_four
-
-
   include:
     - os: linux
       dist: xenial
@@ -85,7 +76,7 @@ install:
 
 script:
   - cd ${TRAVIS_BUILD_DIR}/scripts
-  - ./tests.py ${TRAVIS_BUILD_DIR} TEST_SUITE
+  - ./tests.py ${TRAVIS_BUILD_DIR}
 
 after_success:
   - pip install --user codecov
