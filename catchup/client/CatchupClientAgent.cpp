@@ -201,7 +201,7 @@ ptr<CommittedBlockList> CatchupClientAgent::readMissingBlocks(
         throw_with_nested(NetworkProtocolException("Could not read blocks", __CLASS_NAME__));
     }
 
-    if ((*serializedBlocks)[sizeof(uint64_t)] != '{') {
+    if ((*serializedBlocks).at(sizeof(uint64_t)) != '{') {
         throw_with_nested(NetworkProtocolException(
                 "First serialized block does not start with {", __CLASS_NAME__));
     }

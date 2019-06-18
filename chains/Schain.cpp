@@ -329,14 +329,17 @@ void Schain::blockCommitsArrivedThroughCatchup(ptr<CommittedBlockList> _blocks) 
     uint64_t previosBlockTimeStampMs = 0;
 
 
-    ASSERT((*b)[0]->getBlockID() <= (uint64_t) committedBlockID + 1);
+    ASSERT(b->at(0)->getBlockID() <= (uint64_t) committedBlockID + 1);
 
     for (size_t i = 0; i < b->size(); i++) {
-        if ((*b)[i]->getBlockID() > committedBlockID.load()) {
+
+        auto t = b->at(i);
+
+        if (t->getBlockID() > committedBlockID.load()) {
             committedBlockID++;
-            processCommittedBlock((*b)[i]);
-            previosBlockTimeStamp = (*b)[i]->getTimeStamp();
-            previosBlockTimeStampMs = (*b)[i]->getTimeStampMs();
+            processCommittedBlock(t);
+            previosBlockTimeStamp = t->getTimeStamp();
+            previosBlockTimeStampMs = t->getTimeStampMs();
         }
     }
 
