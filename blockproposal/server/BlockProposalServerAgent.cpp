@@ -491,7 +491,7 @@ ptr<Header> BlockProposalServerAgent::createProposalResponseHeader(
     }
 
 
-    if (sChain->getCommittedBlockTimeStamp() >= timeStamp) {
+    if (false && sChain->getCommittedBlockTimeStamp() >= timeStamp) {
         LOG(info, "Incorrect timestamp:" + to_string(timeStamp) +
                   ":vs:" + to_string(sChain->getCommittedBlockTimeStamp()));
 
