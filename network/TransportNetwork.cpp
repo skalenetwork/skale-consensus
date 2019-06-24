@@ -103,8 +103,8 @@ ptr< vector< ptr< NetworkMessageEnvelope > > > TransportNetwork::pullMessagesFor
         }
     }
 
-    LOG( trace,
-        "Pulling deferred BID::" + to_string( _blockID ) + ":" + to_string( returnList->size() ) );
+//    LOG( trace,
+//        "Pulling deferred BID::" + to_string( _blockID ) + ":" + to_string( returnList->size() ) );
 
     return returnList;
 }
