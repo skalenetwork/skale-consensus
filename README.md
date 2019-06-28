@@ -1,21 +1,16 @@
 # SKALE Consensus: a BFT Consensus engine in C++
 
 [![Discord](https://img.shields.io/discord/534485763354787851.svg)](https://discord.gg/vvUtWJB)
-[![Build Status](https://travis-ci.com/skalenetwork/filestorage.js.svg?branch=develop)](https://travis-ci.com/skalenetwork/skale-consensus)
+[![Build Status](https://travis-ci.com/skalenetwork/skale-consensus.svg?branch=develop)](https://travis-ci.com/skalenetwork/skale-consensus)
 
-SKALE consensus utilizes multiple block proposers.  Block proposers distribute proposals to nodes and  
-collect a BLS-signature based data availability proofs. An Asynchronous Binary Byzantine Agreement is then
-executed for each block proposal to reach consensus on whether it is data-available.  If multiple block proposals
-are known to be data-available, a BLS-based common coin is used to select the winning proposal that is 
-committed to the chain.
+SKALE consensus utilizes multiple block proposers.  Block proposers distribute proposals to nodes and collect a BLS-signature based data availability proofs. An Asynchronous Binary Byzantine Agreement is then executed for each block proposal to reach consensus on whether it is data-available.  If multiple block proposals are known to be data-available, a BLS-based common coin is used to select the winning proposal that is committed to the chain.
 
+SKALE Consensus uses an Asynchronous Binary Byzantine Agreement (ABBA) protocol. The current implementation uses ABBA from Mostefaoui _et al._ In general, any ABBA protocol can be used so long as it has the following properties:
 
-SKALE Consensus uses an Asynchronous Binary Byzantine Agreement (ABBA) protocol. The current implementation uses ABBA from Mostefaoui *et al.* In general, any ABBA protocol can be used so long as it has the following properties:
-
-- Network model: protocol assumes asynchronous network messaging model.
-- Byzantine nodes: protocol assumes less than 1/3 of nodes are Byzantine.
-- Initial vote: protocol assumes each node makes an initial *yes* or *no* vote.
-- Consensus vote: protocol terminates with consensus vote of either *yes* or *no*. Where consensus vote is *yes*, it is guaranteed that at least one honest node voted *yes*.
+-   Network model: protocol assumes asynchronous network messaging model.
+-   Byzantine nodes: protocol assumes less than 1/3 of nodes are Byzantine.
+-   Initial vote: protocol assumes each node makes an initial _yes_ or _no_ vote.
+-   Consensus vote: protocol terminates with consensus vote of either _yes_ or _no_. Where consensus vote is _yes_, it is guaranteed that at least one honest node voted _yes_.
 
 ## An important note about production readiness:
 
@@ -31,25 +26,20 @@ SKALE consensus has been built and tested on Ubuntu.
 
 Ensure that the required packages are installed by executing:
 
-```
+```bash
 sudo apt-get update
 sudo apt-get install -y cmake build-essential libgoogle-perftools-dev libboost-all-dev libprocps-dev
-sudo apt-get install -y libffi-dev libssl-dev libprocps4-dev autotools-dev automake
+sudo apt-get install -y libffi-dev libssl-dev libprocps4-dev autotools-dev automake bison flex libgmp3-dev
 ```
-
 
 ### Building from source on Ubuntu (Development)
 
+Clone project and configure build:
 
-
-
-
-Clone project and configure build
-```
-git clone https://github.com/skalenetwork/skale-consensus.git
-git submodule update --init --recursive 
-cmake .                 # Configure the project and create a build directory.
-cmake --build -- -j$(nproc)   # Build all default targets using all cores.
+```bash
+git clone --recurse-submodules https://github.com/skalenetwork/skale-consensus.git
+cmake .             # Configure the build.
+make -j$(nproc)     # Build all default targets using all cores.
 ```
 
 ### Running tests
@@ -57,7 +47,8 @@ cmake --build -- -j$(nproc)   # Build all default targets using all cores.
 Navigate to the testing directories and run `./consensusd .`
 
 ## Libraries
-- [libBLS by SKALE Labs](https://skalelabs.com/)
+
+-   [libBLS by SKALE Labs](https://skalelabs.com/)
 
 ## Contributing
 
@@ -66,7 +57,7 @@ Navigate to the testing directories and run `./consensusd .`
 [![Discord](https://img.shields.io/discord/534485763354787851.svg)](https://discord.gg/vvUtWJB)
 
 ## License
-[![License](https://img.shields.io/github/license/skalenetwork/skale-consensus.svg)](LICENSE)
 
+[![License](https://img.shields.io/github/license/skalenetwork/skale-consensus.svg)](LICENSE)
 
 Copyright (C) 2018-present SKALE Labs

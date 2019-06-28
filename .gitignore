@@ -89,6 +89,7 @@ dkms.conf
 
 .idea/codeStyles/Project.xml
 .idea/workspace.xml
+.vscode/
 CMakeCache.txt
 CMakeFiles/
 _3rdParty/

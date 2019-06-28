@@ -441,9 +441,10 @@ void Schain::processCommittedBlock(ptr<CommittedBlock> _block) {
 
     auto h = _block->getHash()->toHex()->substr(0, 8);
     LOG(info, "BLOCK_COMMIT: PRPSR:" + to_string(_block->getProposerIndex()) +
-              ":BID: " + to_string(_block->getBlockID()) + ":HASH:" +
-              h +
-              +":BLOCK_TXS:" + to_string(_block->getTransactionCount()) + ":DMSG" + to_string(getMessagesCount()) +
+              ":BID: " + to_string(_block->getBlockID()) + 
+              ":HASH:" + h +
+              ":BLOCK_TXS:" + to_string(_block->getTransactionCount()) + 
+              ":DMSG:" + to_string(getMessagesCount()) +
               ":MPRPS:" + to_string(MyBlockProposal::getTotalObjects()) +
               ":RPRPS:" + to_string(ReceivedBlockProposal::getTotalObjects()) +
 
