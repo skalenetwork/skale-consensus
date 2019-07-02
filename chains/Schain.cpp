@@ -767,9 +767,10 @@ void Schain::setHealthCheckFile(uint64_t status) {
     string fileName = Log::getDataDir()->append("/HEALTH_CHECK");
 
 
-    ofstream f(fileName, ios::trunc);
-
-    f << to_string(status);
+    ofstream f;
+    f.open(fileName, ios::trunc);
+    f << status;
+    f.close();
 
 }
 
