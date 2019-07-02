@@ -318,14 +318,14 @@ void Node::initSchain(ptr<NodeInfo> _localNodeInfo, const vector<ptr<NodeInfo>> 
 
         for (auto &rni : remoteNodeInfos) {
             LOG(debug, "Adding Node Info:" + to_string(rni->getSchainIndex()));
-            nodeInfosByIndex[rni->getSchainIndex()] = rni;
-            nodeInfosByIP[rni->getBaseIP()] = rni;
+            (*nodeInfosByIndex)[rni->getSchainIndex()] = rni;
+            (*nodeInfosByIP)[rni->getBaseIP()] = rni;
             LOG(debug, "Got IP" + *rni->getBaseIP());
 
         }
 
-        ASSERT(nodeInfosByIndex.size() > 0);
-        ASSERT(nodeInfosByIndex.count(1) > 0);
+        ASSERT(nodeInfosByIndex->size() > 0);
+        ASSERT(nodeInfosByIndex->count(1) > 0);
 
         sChain = make_shared<Schain>(*this, _localNodeInfo->getSchainIndex(),
                                      _localNodeInfo->getSchainID(), _extFace);
@@ -414,22 +414,22 @@ void Node::closeAllSocketsAndNotifyAllAgentsAndThreads() {
 }
 
 
-vector<Agent *> &Node::getAgents() {
+vector<Agent *> Node::getAgents() {
     return agents;
 }
 
 
-const map<schain_index, ptr<NodeInfo>> &Node::getNodeInfosByIndex() const {
+ptr<map<schain_index, ptr<NodeInfo>>> Node::getNodeInfosByIndex() const {
     return nodeInfosByIndex;
 }
 
 
-const ptr<TransportNetwork> &Node::getNetwork() const {
+ptr<TransportNetwork> Node::getNetwork() const {
     ASSERT(network);
     return network;
 }
 
-const nlohmann::json &Node::getCfg() const {
+nlohmann::json Node::getCfg() const {
     return cfg;
 }
 
@@ -445,18 +445,18 @@ Schain *Node::getSchain() const {
 }
 
 
-const ptr<Log> &Node::getLog() const {
+ptr<Log> Node::getLog() const {
     ASSERT(log);
     return log;
 }
 
 
-const ptr<string> &Node::getBindIP() const {
+ptr<string> Node::getBindIP() const {
     ASSERT(bindIP != nullptr);
     return bindIP;
 }
 
-const network_port &Node::getBasePort() const {
+network_port Node::getBasePort() const {
 
     ASSERT(basePort > 0);
     return basePort;
@@ -468,16 +468,16 @@ bool Node::isStarted() const {
 
 
 ptr<NodeInfo> Node::getNodeInfoByIndex(schain_index _index) {
-    if (nodeInfosByIndex.count(_index) == 0)
+    if (nodeInfosByIndex->count(_index) == 0)
         return nullptr;;
-    return nodeInfosByIndex.at(_index);
+    return nodeInfosByIndex->at(_index);
 }
 
 
 ptr<NodeInfo> Node::getNodeInfoByIP(ptr<string> ip) {
-    if (nodeInfosByIP.count(ip) == 0)
-        return nullptr;;
-    return nodeInfosByIP.at(ip);
+    if (nodeInfosByIP->count(ip) == 0)
+        return nullptr;
+    return nodeInfosByIP->at(ip);
 }
 
 
@@ -502,7 +502,7 @@ ptr<LevelDB> Node::getSignaturesDB() const {
     return signaturesDB;
 }
 
-const ptr<LevelDB> &Node::getPricesDB() const {
+ptr<LevelDB> Node::getPricesDB() const {
     return pricesDB;
 }
 
@@ -573,14 +573,14 @@ uint64_t Node::getCommittedTransactionHistoryLimit() const {
 set<node_id> Node::nodeIDs;
 
 
-const ptr<BLSPublicKey> &Node::getBlsPublicKey() const {
+ptr<BLSPublicKey> Node::getBlsPublicKey() const {
     if (!blsPublicKey) {
         BOOST_THROW_EXCEPTION(FatalError("Null BLS public key", __CLASS_NAME__));
     }
     return blsPublicKey;
 }
 
-const ptr<BLSPrivateKey> &Node::getBlsPrivateKey() const {
+ptr<BLSPrivateKey> Node::getBlsPrivateKey() const {
     if (!blsPrivateKey) {
         BOOST_THROW_EXCEPTION(FatalError("Null BLS private key", __CLASS_NAME__));
     }

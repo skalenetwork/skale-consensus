@@ -35,5 +35,5 @@ public:
         ptr< ProtocolKey > _srcProtocolKey = nullptr );
 
 
-    const ptr< ProtocolKey >& getSrcProtocolKey() const { return srcProtocolKey; }
+    const ptr< ProtocolKey > getSrcProtocolKey() const { return srcProtocolKey; }
 };

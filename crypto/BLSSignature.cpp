@@ -89,11 +89,11 @@ BLSSignature::BLSSignature(ptr<string> _s, block_id _blockID) :
 
 }
 
-const ptr<libff::alt_bn128_G1> &BLSSignature::getSig() const {
+ptr<libff::alt_bn128_G1> BLSSignature::getSig() const {
     return sig;
 }
 
-const block_id &BLSSignature::getBlockId() const {
+block_id BLSSignature::getBlockId() const {
     return blockId;
 }
 

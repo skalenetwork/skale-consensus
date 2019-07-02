@@ -48,7 +48,7 @@ public:
 
 
 
-    const ptr<vector<uint8_t>>& getData() const;
+    ptr<vector<uint8_t>> getData() const;
 
 
     ptr<SHAHash> getHash();

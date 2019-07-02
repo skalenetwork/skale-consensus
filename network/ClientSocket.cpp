@@ -50,7 +50,7 @@ file_descriptor ClientSocket::getDescriptor() {
     return descriptor;
 }
 
-ptr<std::string> &ClientSocket::getConnectionIP() {
+ptr<std::string> ClientSocket::getConnectionIP() {
     return remoteIP;
 }
 

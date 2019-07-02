@@ -248,9 +248,9 @@ Schain::Schain(Node &_node, schain_index _schainIndex, const schain_id &_schainI
         this->io = make_shared<IO>(this);
 
 
-        ASSERT(getNode()->getNodeInfosByIndex().size() > 0);
+        ASSERT(getNode()->getNodeInfosByIndex()->size() > 0);
 
-        for (auto const &iterator : getNode()->getNodeInfosByIndex()) {
+        for (auto const &iterator : *getNode()->getNodeInfosByIndex()) {
 
 
             if (*iterator.second->getBaseIP() == *getNode()->getBindIP()) {
@@ -281,7 +281,7 @@ Schain::Schain(Node &_node, schain_index _schainIndex, const schain_id &_schainI
     }
 }
 
-const ptr<IO> &Schain::getIo() const {
+const ptr<IO> Schain::getIo() const {
     return io;
 }
 
@@ -610,7 +610,7 @@ void Schain::proposedBlockArrived(ptr<BlockProposal> pbm) {
 }
 
 
-const ptr<PendingTransactionsAgent> &Schain::getPendingTransactionsAgent() const {
+ptr<PendingTransactionsAgent> Schain::getPendingTransactionsAgent() const {
     return pendingTransactionsAgent;
 }
 
@@ -682,7 +682,7 @@ Node *Schain::getNode() const {
 
 
 node_count Schain::getNodeCount() {
-    auto count = node_count(getNode()->getNodeInfosByIndex().size());
+    auto count = node_count(getNode()->getNodeInfosByIndex()->size());
     ASSERT(count > 0);
     return count;
 }
@@ -717,12 +717,12 @@ ptr<BlockConsensusAgent> Schain::getBlockConsensusInstance() {
 }
 
 
-const ptr<NodeInfo> &Schain::getThisNodeInfo() const {
+ptr<NodeInfo> Schain::getThisNodeInfo() const {
     return thisNodeInfo;
 }
 
 
-const ptr<TestMessageGeneratorAgent> &Schain::getTestMessageGeneratorAgent() const {
+ptr<TestMessageGeneratorAgent> Schain::getTestMessageGeneratorAgent() const {
     return testMessageGeneratorAgent;
 }
 
@@ -764,8 +764,10 @@ block_id Schain::getBootstrapBlockID() const {
 
 void Schain::setHealthCheckFile(uint64_t status) {
 
+    string fileName = Log::getDataDir()->append("/HEALTH_CHECK");
 
-    ofstream f(*Log::getDataDir() + "/HEALTH_CHECK", ios::trunc);
+
+    ofstream f(fileName, ios::trunc);
 
     f << to_string(status);
 

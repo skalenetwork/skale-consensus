@@ -93,6 +93,6 @@ public:
 
     ptr<Buffer> toBuffer();
 
-    const ptr<BLSSigShare> &getSigShare() const;
+    ptr<BLSSigShare> getSigShare() const;
 
 };

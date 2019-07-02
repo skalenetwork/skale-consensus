@@ -121,7 +121,7 @@ void TransportNetwork::broadcastMessage( Schain& subChain, ptr< NetworkMessage >
     unordered_set< uint64_t > sent;
 
     while ( 3 * ( sent.size() + 1 ) < getSchain()->getNodeCount() * 2 ) {
-        for ( auto const& it : subChain.getNode()->getNodeInfosByIndex() ) {
+        for ( auto const& it : *subChain.getNode()->getNodeInfosByIndex() ) {
             auto index = ( uint64_t ) it.second->getSchainIndex();
             if ( index != ( subChain.getSchainIndex()) && !sent.count( index) ) {
                 m->setDstNodeID( it.second->getNodeID() );
@@ -136,7 +136,7 @@ void TransportNetwork::broadcastMessage( Schain& subChain, ptr< NetworkMessage >
     }
 
     if ( sent.size() + 1 < getSchain()->getNodeCount() ) {
-        for ( auto const& it : subChain.getNode()->getNodeInfosByIndex() ) {
+        for ( auto const& it : *subChain.getNode()->getNodeInfosByIndex() ) {
             auto index = ( uint64_t ) it.second->getSchainIndex();
             if ( index != ( subChain.getSchainIndex())  && !sent.count( index) ) {
                 {
@@ -152,7 +152,7 @@ void TransportNetwork::broadcastMessage( Schain& subChain, ptr< NetworkMessage >
 
     m->setDstNodeID( oldID );
 
-    for ( auto const& it : subChain.getNode()->getNodeInfosByIndex() ) {
+    for ( auto const& it : *subChain.getNode()->getNodeInfosByIndex() ) {
         if ( it.second->getSchainIndex()  != subChain.getSchainIndex() ) {
             m->setDstNodeID( it.second->getNodeID() );
             confirmMessage( it.second );

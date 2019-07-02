@@ -93,7 +93,7 @@ NetworkMessage::NetworkMessage(MsgType messageType, node_id _srcNodeID, node_id 
     ASSERT(messageType > 0);
 }
 
-const ptr<BLSSigShare> &NetworkMessage::getSigShare() const {
+ptr<BLSSigShare> NetworkMessage::getSigShare() const {
     return sigShare;
 }
 

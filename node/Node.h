@@ -110,8 +110,8 @@ class Node {
     };
 
 
-    map<schain_index, ptr<NodeInfo>> nodeInfosByIndex;
-    map<ptr<string>, ptr<NodeInfo>, Comparator> nodeInfosByIP;
+    ptr<map<schain_index, ptr<NodeInfo>>> nodeInfosByIndex;
+    ptr<map<ptr<string>, ptr<NodeInfo>, Comparator>> nodeInfosByIP;
 
 
     void releaseGlobalServerBarrier();
@@ -168,9 +168,9 @@ public:
 
     uint64_t getSimulateNetworkWriteDelayMs() const;
 
-    const ptr<BLSPublicKey> &getBlsPublicKey() const;
+    ptr<BLSPublicKey> getBlsPublicKey() const;
 
-    const ptr<BLSPrivateKey> &getBlsPrivateKey() const;
+    ptr<BLSPrivateKey> getBlsPrivateKey() const;
 
 
     ptr<LevelDB> getBlocksDB();
@@ -183,7 +183,7 @@ public:
 
     ptr<LevelDB> getSignaturesDB() const;
 
-    const ptr<LevelDB> &getPricesDB() const;
+    ptr<LevelDB> getPricesDB() const;
 
 
     void initLevelDBs();
@@ -216,12 +216,12 @@ public:
 
     void waitOnGlobalClientStartBarrier(Agent *agent);
 
-    const ptr<Log> &getLog() const;
+    ptr<Log> getLog() const;
 
 
-    const nlohmann::json &getCfg() const;
+    nlohmann::json getCfg() const;
 
-    const map<schain_index, ptr<NodeInfo>> &getNodeInfosByIndex() const;
+    ptr<map<schain_index, ptr<NodeInfo>>> getNodeInfosByIndex() const;
 
     node_id getNodeID() const;
 
@@ -231,7 +231,7 @@ public:
 
     Schain *getSchain() const;
 
-    vector<Agent *> &getAgents();
+    vector<Agent *> getAgents();
 
     bool isExitRequested();
 
@@ -243,11 +243,11 @@ public:
 
     ptr<NodeInfo> getNodeInfoByIP(ptr<string> ip);
 
-    const ptr<TransportNetwork> &getNetwork() const;
+    ptr<TransportNetwork> getNetwork() const;
 
-    const ptr<string> &getBindIP() const;
+    ptr<string> getBindIP() const;
 
-    const network_port &getBasePort() const;
+    network_port getBasePort() const;
 
     void setBasePort(const network_port &_basePort);
 

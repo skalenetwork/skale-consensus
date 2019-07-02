@@ -76,7 +76,7 @@ Node &Sockets::getNode() const {
     return node;
 }
 
-const ptr<ZMQServerSocket> &Sockets::getConsensusZMQSocket() const {
+ptr<ZMQServerSocket> Sockets::getConsensusZMQSocket() const {
     return consensusZMQSocket;
 }
 

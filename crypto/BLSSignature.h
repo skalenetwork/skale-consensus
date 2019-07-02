@@ -44,10 +44,10 @@ public:
 
     BLSSignature(ptr<libff::alt_bn128_G1>& _s, block_id _blockID);
 
-    const block_id &getBlockId() const;
+   block_id getBlockId() const;
 
 
-    const ptr<libff::alt_bn128_G1>& getSig() const;
+   ptr<libff::alt_bn128_G1> getSig() const;
 
 };
 

@@ -74,7 +74,7 @@ private:
 public:
     Log(node_id _nodeID);
 
-    const node_id &getNodeID() const;
+    const node_id getNodeID() const;
 
     map<string, shared_ptr<spdlog::logger> > loggers;
 
@@ -97,7 +97,7 @@ public:
 
     static shared_ptr<spdlog::logger> createLogger(const string &loggerName);
 
-    static const shared_ptr<string> &getDataDir();
+    static const shared_ptr<string> getDataDir();
 
     static void log(level_enum _severity, const string &_message, const char *_className);
 

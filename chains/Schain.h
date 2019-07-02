@@ -212,7 +212,7 @@ public:
 
     void sigShareArrived(ptr<BLSSigShare> _sigShare);
 
-    const ptr<IO> &getIo() const;
+    const ptr<IO> getIo() const;
 
 
 
@@ -222,7 +222,7 @@ public:
 
 
 
-    const ptr<PendingTransactionsAgent> &getPendingTransactionsAgent() const;
+    ptr<PendingTransactionsAgent> getPendingTransactionsAgent() const;
 
 
     schain_index getSchainIndex() const;
@@ -242,7 +242,7 @@ public:
     ptr<BlockConsensusAgent> getBlockConsensusInstance();
 
 
-    const ptr<NodeInfo> &getThisNodeInfo() const;
+    ptr<NodeInfo> getThisNodeInfo() const;
 
 
     node_count getNodeCount();
@@ -263,7 +263,7 @@ public:
         blockProposerTest = make_shared<string>(_blockProposerTest);
     }
 
-    const ptr<TestMessageGeneratorAgent> &getTestMessageGeneratorAgent() const;
+    ptr<TestMessageGeneratorAgent> getTestMessageGeneratorAgent() const;
 
 
     void bootstrap(block_id _lastCommittedBlockID, uint64_t _lastCommittedBlockTimeStamp);

@@ -53,7 +53,7 @@ public:
 
     CommittedBlockHeader(CommittedBlock& _block);
 
-    const ptr<SHAHash> &getBlockHash() const {
+    ptr<SHAHash> getBlockHash() const {
         return blockHash;
     }
 
