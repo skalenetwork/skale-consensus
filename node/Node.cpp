@@ -64,6 +64,10 @@ using namespace std;
 Node::Node(const nlohmann::json &_cfg, ConsensusEngine *_consensusEngine) {
 
 
+    this->nodeInfosByIndex = make_shared<map<schain_index, ptr<NodeInfo>>>();
+    this->nodeInfosByIP = make_shared<map<ptr<string>, ptr<NodeInfo>, Comparator>>();
+
+
     this->consensusEngine = _consensusEngine;
     this->startedServers = false;
     this->startedClients = false;
