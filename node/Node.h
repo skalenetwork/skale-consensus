@@ -39,7 +39,7 @@ class ConsensusEngine;
 class BLSSigShare;
 class SHAHash;
 class BLSPublicKey;
-class BLSPrivateKey;
+class ConsensusBLSPrivateKey;
 class LevelDB;
 
 namespace leveldb{
@@ -157,7 +157,7 @@ class Node {
     ptr<BLSPublicKey> blsPublicKey;
 
 
-    ptr<BLSPrivateKey> blsPrivateKey;
+    ptr<ConsensusBLSPrivateKey> blsPrivateKey;
 
 
     bool isBLSEnabled = false;
@@ -170,7 +170,7 @@ public:
 
     ptr<BLSPublicKey> getBlsPublicKey() const;
 
-    ptr<BLSPrivateKey> getBlsPrivateKey() const;
+    ptr<ConsensusBLSPrivateKey> getBlsPrivateKey() const;
 
 
     ptr<LevelDB> getBlocksDB();

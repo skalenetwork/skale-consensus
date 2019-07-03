@@ -16,24 +16,28 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file BLSPrivateKey.h
+    @file ConsensusBLSPrivateKey.h
     @author Stan Kladko
     @date 2019
 */
-#ifndef SKALED_BLSPRIVATEKEY_H
-#define SKALED_BLSPRIVATEKEY_H
 
+#ifndef SKALED_CONSENSUSBLSPRIVATEKEY_H
+#define SKALED_CONSENSUSBLSPRIVATEKEY_H 1
 
+#include "BLSPrivateKey.h"
 #include "BLSSigShare.h"
-class BLSPrivateKey {
-protected:
-    size_t requiredSigners;
-    ptr< libff::alt_bn128_Fr > sk;
-    size_t totalSigners;
 
+class ConsensusBLSPrivateKey : public BLSPrivateKey {
 public:
-    BLSPrivateKey( const string & _key, size_t _requiredSigners, size_t _totalSigners );
+    ConsensusBLSPrivateKey( const string& k, node_count _nodeCount );
+
+    ptr<BLSSigShare> sign(ptr<string> _msg, schain_id _schainId, block_id _blockId, schain_index _signerIndex,
+                          node_id _signerNodeId);
+
+    ptr< string > convertSigToString( const libff::alt_bn128_G1& signature ) const;
 };
 
 
-#endif  // SKALED_BLSPRIVATEKEY_H
+#endif
+
+

@@ -62,19 +62,17 @@
 #pragma GCC diagnostic pop
 
 
-
-
 #include "../chains/Schain.h"
-#include "../json/JSONFactory.h"
-#include "../exceptions/EngineInitException.h"
-#include "../network/Utils.h"
-#include "../network/Sockets.h"
-#include "../network/ZMQServerSocket.h"
-#include "../protocols/ProtocolKey.h"
-#include "../protocols/InstanceGarbageCollectorAgent.h"
-#include "../protocols/binconsensus/BinConsensusInstance.h"
 #include "../crypto/BLSPublicKey.h"
-#include "../crypto/BLSPrivateKey.h"
+#include "../crypto/ConsensusBLSPrivateKey.h"
+#include "../exceptions/EngineInitException.h"
+#include "../json/JSONFactory.h"
+#include "../network/Sockets.h"
+#include "../network/Utils.h"
+#include "../network/ZMQServerSocket.h"
+#include "../protocols/InstanceGarbageCollectorAgent.h"
+#include "../protocols/ProtocolKey.h"
+#include "../protocols/binconsensus/BinConsensusInstance.h"
 
 #include "../exceptions/FatalError.h"
 

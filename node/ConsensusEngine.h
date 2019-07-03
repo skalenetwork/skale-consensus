@@ -35,7 +35,7 @@
 #include "Node.h"
 
 class BLSPublicKey;
-class BLSPrivateKey;
+class ConsensusBLSPrivateKey;
 
 
 /**

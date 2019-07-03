@@ -98,7 +98,7 @@
 
 
 #include "Schain.h"
-#include "../crypto/BLSPrivateKey.h"
+#include "../crypto/ConsensusBLSPrivateKey.h"
 
 
 void Schain::postMessage(ptr<MessageEnvelope> m) {
