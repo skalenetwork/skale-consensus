@@ -22,10 +22,12 @@
 */
 
 #include "../SkaleCommon.h"
+
 #include "../Log.h"
 #include "../exceptions/FatalError.h"
 #include "../exceptions/InvalidArgumentException.h"
 #include "../thirdparty/json.hpp"
+#include "../crypto/bls_include.h"
 #include "../protocols/ProtocolKey.h"
 #include "../protocols/binconsensus/BinConsensusInstance.h"
 #include "../chains/Schain.h"

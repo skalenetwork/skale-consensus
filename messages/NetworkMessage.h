@@ -23,6 +23,7 @@
 
 #pragma once
 
+#include "../crypto/bls_include.h"
 
 #include "Message.h"
 
@@ -37,11 +38,11 @@ class BinConsensusInstance;
 class ProtocolInstance;
 class Buffer;
 class ConsensusBLSSigShare;
-
-
 class Node;
 
 
+
+static constexpr uint32_t CONSENSUS_MESSAGE_LEN = 73 + BLS_MAX_SIG_LEN;
 
 class NetworkMessage : public Message {
 
