@@ -65,7 +65,7 @@ class Sockets;
 
 
 class SHAHash;
-class BLSSigShare;
+class ConsensusBLSSigShare;
 
 
 class Schain : public Agent {
@@ -210,7 +210,7 @@ public:
 
     void blockCommitsArrivedThroughCatchup(ptr<CommittedBlockList> _blocks);
 
-    void sigShareArrived(ptr<BLSSigShare> _sigShare);
+    void sigShareArrived(ptr<ConsensusBLSSigShare> _sigShare);
 
     const ptr<IO> getIo() const;
 
@@ -298,6 +298,6 @@ public:
 
     ptr<vector<uint8_t>> getSerializedBlockFromLevelDB(const block_id &_blockID);
 
-    ptr<BLSSigShare> sign(ptr<SHAHash> _hash, block_id _blockId);
+    ptr<ConsensusBLSSigShare> sign(ptr<SHAHash> _hash, block_id _blockId);
 
 };

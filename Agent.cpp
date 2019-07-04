@@ -31,7 +31,7 @@
 #include "network/Sockets.h"
 
 #include "crypto/SHAHash.h"
-#include "crypto/BLSSigShare.h"
+#include "crypto/ConsensusBLSSigShare.h"
 
 
 void Agent::notifyAllConditionVariables() {

@@ -29,7 +29,7 @@
 
 class PartialHashesList;
 class Schain;
-class BLSSigShare;
+class ConsensusBLSSigShare;
 class BLSSignature;
 class SHAHash;
 
@@ -39,20 +39,20 @@ class SigShareSet : public DataStructure  {
     Schain* sChain;
     block_id blockId;
 
-    map< schain_index, ptr< BLSSigShare > > sigShares;
+    map< schain_index, ptr< ConsensusBLSSigShare > > sigShares;
 
 public:
     node_count getTotalSigSharesCount();
 
     SigShareSet( Schain* _sChain, block_id _blockId );
 
-    bool addSigShare(ptr<BLSSigShare> _sigShare);
+    bool addSigShare(ptr<ConsensusBLSSigShare> _sigShare);
 
     bool isTwoThird();
 
     bool isTwoThirdMinusOne();
 
-    ptr<BLSSigShare > getSigShareByIndex(schain_index _index);
+    ptr<ConsensusBLSSigShare > getSigShareByIndex(schain_index _index);
 
     ptr<BLSSignature> mergeSignature();
 

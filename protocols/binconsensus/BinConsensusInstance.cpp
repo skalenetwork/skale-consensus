@@ -28,7 +28,7 @@
 #include "../../thirdparty/json.hpp"
 #include "../../crypto/bls_include.h"
 
-#include "../../crypto/BLSSigShare.h"
+#include "../../crypto/ConsensusBLSSigShare.h"
 
 #include "AUXBroadcastMessage.h"
 
@@ -302,7 +302,7 @@ uint64_t BinConsensusInstance::totalAUXVotes(bin_consensus_round r) {
     return auxTrueVotes[r].size() + auxFalseVotes[r].size();
 }
 
-void BinConsensusInstance::auxSelfVote(bin_consensus_round r, bin_consensus_value v, ptr<BLSSigShare> _sigShare) {
+void BinConsensusInstance::auxSelfVote(bin_consensus_round r, bin_consensus_value v, ptr<ConsensusBLSSigShare> _sigShare) {
     if (getSchain()->getNode()->isBlsEnabled()) {
         ASSERT(_sigShare);
     }

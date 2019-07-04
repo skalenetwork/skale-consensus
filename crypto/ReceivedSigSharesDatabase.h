@@ -30,7 +30,7 @@
 class SigShareSet;
 class BLSSignature;
 class Schain;
-class BLSSigShare;
+class ConsensusBLSSigShare;
 
 class ReceivedSigSharesDatabase : Agent {
 
@@ -52,7 +52,7 @@ public:
 
     explicit ReceivedSigSharesDatabase(Schain &_sChain);
 
-    bool addSigShare(ptr<BLSSigShare> _proposal);
+    bool addSigShare(ptr<ConsensusBLSSigShare> _proposal);
 
     void mergeAndSaveBLSSignature(block_id _blockId);
 

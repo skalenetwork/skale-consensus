@@ -34,8 +34,11 @@
 
 #include "../../messages/NetworkMessage.h"
 #include "../../exceptions/InvalidArgumentException.h"
+#include "../../crypto/ConsensusBLSSigShare.h"
+
 #include "../ProtocolKey.h"
 #include "../ProtocolInstance.h"
+
 #include "BinConsensusInstance.h"
 
 #include "AUXBroadcastMessage.h"
@@ -70,7 +73,7 @@ AUXBroadcastMessage::AUXBroadcastMessage(bin_consensus_round round, bin_consensu
 
     if (node->isBlsEnabled()) {
         this->sigShare = schain->sign(hash, _blockID);
-        this->sigShareString = sigShare->toString();
+        this->sigShareString = sigShare->getBlsSigShare()->toString();
     } else {
         this->sigShareString = make_shared<string>("");
     }

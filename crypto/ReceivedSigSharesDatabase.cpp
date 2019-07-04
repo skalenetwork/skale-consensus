@@ -27,7 +27,7 @@
 #include "../exceptions/FatalError.h"
 #include "../thirdparty/json.hpp"
 
-#include "BLSSigShare.h"
+#include "ConsensusBLSSigShare.h"
 #include "BLSSignature.h"
 
 #include "../abstracttcpserver/ConnectionStatus.h"
@@ -35,11 +35,12 @@
 #include "../node/Node.h"
 #include "../chains/Schain.h"
 #include "SHAHash.h"
-#include "BLSSigShare.h"
+#include "ConsensusBLSSigShare.h"
 #include "../pendingqueue/PendingTransactionsAgent.h"
 #include "../datastructures/SigShareSet.h"
 
 #include "ReceivedSigSharesDatabase.h"
+#include "BLSSigShare.h"
 
 
 using namespace std;
@@ -83,13 +84,13 @@ void ReceivedSigSharesDatabase::mergeAndSaveBLSSignature(block_id _blockId) {
     sigShareSets[_blockId] = nullptr;
 }
 
-bool ReceivedSigSharesDatabase::addSigShare(ptr<BLSSigShare> _sigShare) {
+bool ReceivedSigSharesDatabase::addSigShare(ptr<ConsensusBLSSigShare> _sigShare) {
 
 
     ASSERT(_sigShare);
 
     LOG(trace, "addBlockProposal blockID_=" + to_string(_sigShare->getBlockId()) + " proposerIndex=" +
-               to_string(_sigShare->getSignerIndex()));
+               to_string(_sigShare->getBlsSigShare()->getSignerIndex()));
 
     lock_guard<recursive_mutex> lock(sigShareDatabaseMutex);
 

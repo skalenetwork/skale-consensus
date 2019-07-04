@@ -26,10 +26,11 @@
 #include "../../Agent.h"
 #include "../../exceptions/FatalError.h"
 #include "../../thirdparty/json.hpp"
+#include "../../crypto/bls_include.h"
+
+#include "../../abstracttcpserver/ConnectionStatus.h"
 
 #include "../../crypto/SHAHash.h"
-#include "../../crypto/BLSSigShare.h"
-#include "../../abstracttcpserver/ConnectionStatus.h"
 #include "../../datastructures/PartialHashesList.h"
 #include "../../datastructures/Transaction.h"
 #include "../../datastructures/TransactionList.h"
@@ -50,11 +51,11 @@
 #include "../../headers/BlockFinalizeRequestHeader.h"
 #include "../../datastructures/BlockProposal.h"
 #include "../../datastructures/CommittedBlock.h"
-
 #include "../../exceptions/ExitRequestedException.h"
 #include "../../exceptions/PingException.h"
 #include "../../abstracttcpclient/AbstractClientAgent.h"
 #include "BlockFinalizeClientThreadPool.h"
+#include "../../crypto/ConsensusBLSSigShare.h"
 #include "BlockFinalizeClientAgent.h"
 
 
@@ -117,7 +118,7 @@ void BlockFinalizeClientAgent::sendItemImpl(ptr<BlockProposal> &_proposal, share
         return;
     }
 
-    ptr<BLSSigShare> signatureShare;
+    ptr<ConsensusBLSSigShare> signatureShare;
 
     try {
 
@@ -133,9 +134,9 @@ void BlockFinalizeClientAgent::sendItemImpl(ptr<BlockProposal> &_proposal, share
 }
 
 
-ptr<BLSSigShare> BlockFinalizeClientAgent::getBLSSignatureShare(nlohmann::json _json,
+ptr<ConsensusBLSSigShare> BlockFinalizeClientAgent::getBLSSignatureShare(nlohmann::json _json,
                                                                 block_id _blockID, schain_index _signerIndex,
                                                                 node_id _signerNodeId) {
     auto s = Header::getString(_json, "sigShare");
-    return make_shared<BLSSigShare>(s, getSchain()->getSchainID(), _blockID, _signerIndex, _signerNodeId);
+    return make_shared<ConsensusBLSSigShare>(s, getSchain()->getSchainID(), _blockID, _signerIndex, _signerNodeId);
 }

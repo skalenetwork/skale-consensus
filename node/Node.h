@@ -36,7 +36,7 @@ class NodeInfo;
 class Agent;
 class ConsensusExtFace;
 class ConsensusEngine;
-class BLSSigShare;
+class ConsensusBLSSigShare;
 class SHAHash;
 class BLSPublicKey;
 class ConsensusBLSPrivateKey;

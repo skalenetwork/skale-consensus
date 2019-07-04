@@ -40,6 +40,7 @@
 #include "BLSPrivateKey.h"
 #include "BLSSigShare.h"
 #include "ConsensusBLSPrivateKey.h"
+#include "ConsensusBLSSigShare.h"
 
 
 ConsensusBLSPrivateKey::ConsensusBLSPrivateKey( const string& k, node_count _nodeCount ) :
@@ -55,7 +56,7 @@ BLSPrivateKey(k, size_t(_nodeCount), size_t(_nodeCount))
 }
 
 
-ptr<BLSSigShare>
+ptr<ConsensusBLSSigShare>
 ConsensusBLSPrivateKey::sign(ptr<string> _msg, schain_id _schainId, block_id _blockId, schain_index _signerIndex,
                     node_id _signerNodeId) {
     ptr<signatures::Bls> obj;
@@ -68,13 +69,13 @@ ConsensusBLSPrivateKey::sign(ptr<string> _msg, schain_id _schainId, block_id _bl
 
     ss->to_affine_coordinates();
 
-    auto s = make_shared<BLSSigShare>( ss, _schainId,  _blockId, _signerIndex, _signerNodeId );
+    auto s = make_shared<ConsensusBLSSigShare>( ss, _schainId,  _blockId, _signerIndex, _signerNodeId );
 
-    auto ts = s->toString();
+    auto ts = s->getBlsSigShare()->toString();
 
-    auto sig2 = make_shared<BLSSigShare>( ts, _schainId, _blockId, _signerIndex, _signerNodeId );
+    auto sig2 = make_shared<ConsensusBLSSigShare>( ts, _schainId, _blockId, _signerIndex, _signerNodeId );
 
-    ASSERT( *s->getSig() == *sig2->getSig() );
+    ASSERT( *s->getBlsSigShare()->getSigShare() == *sig2->getBlsSigShare()->getSigShare() );
 
 
     return s;

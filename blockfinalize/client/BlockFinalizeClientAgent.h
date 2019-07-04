@@ -48,7 +48,7 @@ class BlockFinalizeClientAgent : public AbstractClientAgent {
     static void workerThreadItemSendLoop(AbstractClientAgent *agent);
 
 
-    ptr<BLSSigShare> getBLSSignatureShare(nlohmann::json _json,
+    ptr<ConsensusBLSSigShare> getBLSSignatureShare(nlohmann::json _json,
        block_id _blockID, schain_index _signerIndex, node_id _signerNodeId);
 
 

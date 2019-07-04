@@ -41,20 +41,18 @@
 #include "../pendingqueue/PendingTransactionsAgent.h"
 #include "../blockproposal/pusher/BlockProposalClientAgent.h"
 
-#include "../blockproposal/server/BlockProposalServerAgent.h"
 #include "../blockfinalize/client/BlockFinalizeClientAgent.h"
+#include "../blockproposal/server/BlockProposalServerAgent.h"
 #include "../catchup/client/CatchupClientAgent.h"
 #include "../catchup/server/CatchupServerAgent.h"
-#include "../node/NodeInfo.h"
+#include "../crypto/ConsensusBLSSigShare.h"
+#include "../exceptions/EngineInitException.h"
+#include "../exceptions/ParsingException.h"
+#include "../messages/InternalMessageEnvelope.h"
 #include "../messages/Message.h"
 #include "../messages/MessageEnvelope.h"
 #include "../messages/NetworkMessageEnvelope.h"
-#include "../messages/InternalMessageEnvelope.h"
-#include "../crypto/BLSSigShare.h"
-#include "../exceptions/EngineInitException.h"
-#include "../exceptions/ParsingException.h"
-
-
+#include "../node/NodeInfo.h"
 
 
 #include "../blockproposal/received/ReceivedBlockProposalsDatabase.h"
@@ -814,7 +812,7 @@ void Schain::healthCheck() {
     setHealthCheckFile(2);
 }
 
-void Schain::sigShareArrived(ptr<BLSSigShare> _sigShare) {
+void Schain::sigShareArrived(ptr<ConsensusBLSSigShare> _sigShare) {
     if (blockSigSharesDatabase->addSigShare(_sigShare)) {
         auto blockId = _sigShare->getBlockId();
         auto mySig = sign(getBlock(blockId)->getHash(), blockId);
@@ -825,7 +823,7 @@ void Schain::sigShareArrived(ptr<BLSSigShare> _sigShare) {
 }
 
 
-ptr<BLSSigShare> Schain::sign(ptr<SHAHash> _hash, block_id _blockId) {
+ptr<ConsensusBLSSigShare> Schain::sign(ptr<SHAHash> _hash, block_id _blockId) {
 
     return getNode()->getBlsPrivateKey()->sign(_hash->toHex(), getSchainID(), _blockId,
         getSchainIndex(),

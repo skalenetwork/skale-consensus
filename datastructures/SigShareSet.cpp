@@ -31,26 +31,27 @@
 
 #include "../chains/Schain.h"
 #include "../pendingqueue/PendingTransactionsAgent.h"
-#include "../crypto/BLSSigShare.h"
+#include "../crypto/ConsensusBLSSigShare.h"
 
 #include "SigShareSet.h"
+
 
 
 using namespace std;
 
 
-bool SigShareSet::addSigShare( ptr< BLSSigShare > _sigShare ) {
+bool SigShareSet::addSigShare( ptr< ConsensusBLSSigShare > _sigShare ) {
     ASSERT( _sigShare );
 
     lock_guard< recursive_mutex > lock( sigSharesMutex );
 
-    if ( sigShares.count( _sigShare->getSignerIndex()) > 0 ) {
+    if ( sigShares.count( _sigShare->getBlsSigShare()->getSignerIndex()) > 0 ) {
         LOG( err, "Got block proposal with the same index" +
-                      to_string( ( uint64_t ) _sigShare->getSignerIndex()) );
+                      to_string( ( uint64_t ) _sigShare->getBlsSigShare()->getSignerIndex()) );
         return false;
     }
 
-    sigShares[_sigShare->getSignerIndex()] = _sigShare;
+    sigShares[_sigShare->getBlsSigShare()->getSignerIndex()] = _sigShare;
 
     return true;
 }
@@ -101,7 +102,7 @@ node_count SigShareSet::getTotalSigSharesCount() {
 }
 
 
-ptr< BLSSigShare > SigShareSet::getSigShareByIndex( schain_index _index ) {
+ptr< ConsensusBLSSigShare > SigShareSet::getSigShareByIndex( schain_index _index ) {
     lock_guard< recursive_mutex > lock( sigSharesMutex );
 
 
@@ -124,7 +125,7 @@ ptr< BLSSignature > SigShareSet::mergeSignature() {
 
     for ( auto&& item : sigShares ) {
         participatingNodes.push_back( static_cast< uint64_t >( item.first ) + 1 );
-        shares.push_back( *item.second->getSig() );
+        shares.push_back( *item.second->getBlsSigShare()->getSigShare() );
     }
 
     /*

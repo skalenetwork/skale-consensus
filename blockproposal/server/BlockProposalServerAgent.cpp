@@ -29,6 +29,7 @@
 
 #include "../../thirdparty/json.hpp"
 
+
 #include "../../abstracttcpserver/ConnectionStatus.h"
 #include "../../exceptions/CouldNotReadPartialDataHashesException.h"
 #include "../../exceptions/CouldNotSendMessageException.h"
@@ -42,7 +43,7 @@
 #include "../../exceptions/PingException.h"
 #include "../../node/NodeInfo.h"
 
-#include "../../crypto/BLSSigShare.h"
+#include "../../crypto/ConsensusBLSSigShare.h"
 
 
 #include "../../pendingqueue/PendingTransactionsAgent.h"
@@ -75,6 +76,7 @@
 #include "BlockProposalServerAgent.h"
 #include "BlockProposalWorkerThreadPool.h"
 #include "../../headers/BlockFinalizeResponseHeader.h"
+#include "../../crypto/ConsensusBLSSigShare.h"
 
 
 ptr<unordered_map<ptr<partial_sha_hash>, ptr<Transaction>, PendingTransactionsAgent::Hasher, PendingTransactionsAgent::Equal>>
@@ -588,7 +590,7 @@ ptr<Header> BlockProposalServerAgent::createFinalizeResponseHeader(
 void
 BlockProposalServerAgent::signBlock(ptr<BlockFinalizeResponseHeader> &_responseHeader,
                                     ptr<CommittedBlock> &_block) const {
-    ptr<BLSSigShare> sigShare;
+    ptr<ConsensusBLSSigShare> sigShare;
 
     try {
         sigShare = sChain->sign(_block->getHash(), _block->getBlockID());
@@ -598,7 +600,7 @@ BlockProposalServerAgent::signBlock(ptr<BlockFinalizeResponseHeader> &_responseH
     }
 
 
-    auto sigString = sigShare->toString();
+    auto sigString = sigShare->getBlsSigShare()->toString();
 
     _responseHeader->setSigShare(sigString);
 }

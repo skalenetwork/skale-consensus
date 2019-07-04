@@ -29,7 +29,7 @@
 #include "../protocols/ProtocolKey.h"
 #include "../protocols/binconsensus/BinConsensusInstance.h"
 #include "../chains/Schain.h"
-#include "../crypto/BLSSigShare.h"
+#include "../crypto/ConsensusBLSSigShare.h"
 #include "../node/Node.h"
 #include "../node/NodeInfo.h"
 #include "../network/Buffer.h"
@@ -85,7 +85,7 @@ NetworkMessage::NetworkMessage(MsgType messageType, node_id _srcNodeID, node_id 
 
 
     if (_signature->size() > 0 ) {
-       sigShare = make_shared<BLSSigShare>(_signature, _schainId, _blockID, _srcSchainIndex, _srcNodeID);
+       sigShare = make_shared<ConsensusBLSSigShare>(_signature, _schainId, _blockID, _srcSchainIndex, _srcNodeID);
     }
 
 
@@ -93,7 +93,7 @@ NetworkMessage::NetworkMessage(MsgType messageType, node_id _srcNodeID, node_id 
     ASSERT(messageType > 0);
 }
 
-ptr<BLSSigShare> NetworkMessage::getSigShare() const {
+ptr<ConsensusBLSSigShare> NetworkMessage::getSigShare() const {
     return sigShare;
 }
 

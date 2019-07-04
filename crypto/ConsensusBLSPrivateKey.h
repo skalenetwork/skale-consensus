@@ -25,13 +25,13 @@
 #define SKALED_CONSENSUSBLSPRIVATEKEY_H 1
 
 #include "BLSPrivateKey.h"
-#include "BLSSigShare.h"
+#include "ConsensusBLSSigShare.h"
 
 class ConsensusBLSPrivateKey : public BLSPrivateKey {
 public:
     ConsensusBLSPrivateKey( const string& k, node_count _nodeCount );
 
-    ptr<BLSSigShare> sign(ptr<string> _msg, schain_id _schainId, block_id _blockId, schain_index _signerIndex,
+    ptr<ConsensusBLSSigShare> sign(ptr<string> _msg, schain_id _schainId, block_id _blockId, schain_index _signerIndex,
                           node_id _signerNodeId);
 
     ptr< string > convertSigToString( const libff::alt_bn128_G1& signature ) const;

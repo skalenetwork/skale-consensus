@@ -59,6 +59,6 @@
 #include "../exceptions/InvalidArgumentException.h"
 
 
-#include "BLSSigShare.h"
+#include "ConsensusBLSSigShare.h"
 
 #endif //SKALED_BLS_INCLUDE_H

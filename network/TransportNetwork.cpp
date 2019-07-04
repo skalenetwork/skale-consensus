@@ -29,7 +29,7 @@
 #include "../blockproposal/received/ReceivedBlockProposalsDatabase.h"
 #include "../blockproposal/server/BlockProposalWorkerThreadPool.h"
 #include "../chains/Schain.h"
-#include "../crypto/BLSSigShare.h"
+#include "../crypto/ConsensusBLSSigShare.h"
 #include "../crypto/SHAHash.h"
 #include "../datastructures/BlockProposal.h"
 #include "../exceptions/FatalError.h"
@@ -38,6 +38,7 @@
 #include "../node/NodeInfo.h"
 #include "../protocols/binconsensus/AUXBroadcastMessage.h"
 #include "../protocols/binconsensus/BVBroadcastMessage.h"
+#include "../thirdparty/json.hpp"
 
 #include "unordered_set"
 
