@@ -43,7 +43,7 @@
 #include "../../blockproposal/pusher/BlockProposalClientAgent.h"
 #include "../../blockproposal/received/ReceivedBlockProposalsDatabase.h"
 #include "../../chains/Schain.h"
-#include "../../crypto/BLSSignature.h"
+#include "../../crypto/ConsensusBLSSignature.h"
 #include "../../node/Node.h"
 
 #include "../../network/TransportNetwork.h"
@@ -58,8 +58,9 @@
 
 #include "../../datastructures/SigShareSet.h"
 
-#include "BinConsensusInstance.h"
+#include "../../crypto/ConsensusBLSSignature.h"
 
+#include "BinConsensusInstance.h"
 
 using namespace std;
 

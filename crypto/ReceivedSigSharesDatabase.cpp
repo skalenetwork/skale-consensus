@@ -28,7 +28,7 @@
 #include "../thirdparty/json.hpp"
 
 #include "ConsensusBLSSigShare.h"
-#include "BLSSignature.h"
+#include "ConsensusBLSSignature.h"
 
 #include "../abstracttcpserver/ConnectionStatus.h"
 #include "leveldb/db.h"
@@ -52,7 +52,7 @@ ReceivedSigSharesDatabase::ReceivedSigSharesDatabase(Schain &_sChain) : Agent(_s
 
 
 
-ptr<BLSSignature> ReceivedSigSharesDatabase::getBLSSignature(block_id _blockId) {
+ptr<ConsensusBLSSignature> ReceivedSigSharesDatabase::getBLSSignature(block_id _blockId) {
     lock_guard<recursive_mutex> lock(sigShareDatabaseMutex);
 
     if (blockSignatures.find(_blockId) != blockSignatures.end()) {

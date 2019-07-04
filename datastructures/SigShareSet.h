@@ -30,7 +30,7 @@
 class PartialHashesList;
 class Schain;
 class ConsensusBLSSigShare;
-class BLSSignature;
+class ConsensusBLSSignature;
 class SHAHash;
 
 class SigShareSet : public DataStructure  {
@@ -54,7 +54,7 @@ public:
 
     ptr<ConsensusBLSSigShare > getSigShareByIndex(schain_index _index);
 
-    ptr<BLSSignature> mergeSignature();
+    ptr<ConsensusBLSSignature> mergeSignature();
 
     static uint64_t getTotalObjects() {
         return totalObjects;

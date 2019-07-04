@@ -26,7 +26,7 @@
 #include "../../thirdparty/json.hpp"
 #include "../../exceptions/FatalError.h"
 #include "../crypto/bls_include.h"
-#include "../../crypto/BLSSignature.h"
+#include "../../crypto/ConsensusBLSSignature.h"
 #include "../../crypto/SHAHash.h"
 
 #include "../../chains/Schain.h"

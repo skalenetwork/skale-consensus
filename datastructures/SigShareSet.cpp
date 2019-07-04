@@ -27,7 +27,7 @@
 #include "../crypto/bls_include.h"
 #include "../node/ConsensusEngine.h"
 #include "../crypto/SHAHash.h"
-#include "../crypto/BLSSignature.h"
+#include "../crypto/ConsensusBLSSignature.h"
 
 #include "../chains/Schain.h"
 #include "../pendingqueue/PendingTransactionsAgent.h"
@@ -117,7 +117,7 @@ ptr< ConsensusBLSSigShare > SigShareSet::getSigShareByIndex( schain_index _index
 
 atomic< uint64_t > SigShareSet::totalObjects( 0 );
 
-ptr< BLSSignature > SigShareSet::mergeSignature() {
+ptr< ConsensusBLSSignature > SigShareSet::mergeSignature() {
     signatures::Bls obj = signatures::Bls( 2, 2 );
 
     std::vector< size_t > participatingNodes;
@@ -153,5 +153,5 @@ ptr< BLSSignature > SigShareSet::mergeSignature() {
 
     // BOOST_REQUIRE(obj.Verification(hash, common_signature, pk) == false);
 
-    return make_shared<BLSSignature>( sigPtr, blockId );
+    return make_shared<ConsensusBLSSignature>( sigPtr, blockId );
 }

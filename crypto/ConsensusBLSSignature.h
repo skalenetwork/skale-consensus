@@ -16,48 +16,32 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file ReceivedSigSharesDatabase.h
+    @file BLSSignature.h
     @author Stan Kladko
     @date 2019
 */
 
-#pragma once
+#ifndef SKALED_CONSENSUSBLSSIGNATURE_H
+#define SKALED_CONSENSUSBLSSIGNATURE_H
+
+//constexpr uint64_t  MAX_BLS_SIGNATURE_SIZE = 64;
 
 
-
-#include "../Agent.h"
-
-class SigShareSet;
-class ConsensusBLSSignature;
-class Schain;
-class ConsensusBLSSigShare;
-
-class ReceivedSigSharesDatabase : Agent {
-
-
-    recursive_mutex sigShareDatabaseMutex;
-
-    map<block_id, ptr<SigShareSet>> sigShareSets;
-
-    map<block_id, ptr<ConsensusBLSSignature>> blockSignatures;
-
-
-    ptr<SigShareSet> getSigShareSet(block_id _blockID);
-
-    ptr<ConsensusBLSSignature> getBLSSignature(block_id _blockId);
+#include "BLSSignature.h"
+class ConsensusBLSSignature : public BLSSignature {
+    block_id blockId;
 
 public:
+    ptr<string> toString();
 
+    ConsensusBLSSignature(ptr<string> _s, block_id _blockID);
 
+    ConsensusBLSSignature(ptr<libff::alt_bn128_G1>& _s, block_id _blockID);
 
-    explicit ReceivedSigSharesDatabase(Schain &_sChain);
-
-    bool addSigShare(ptr<ConsensusBLSSigShare> _proposal);
-
-    void mergeAndSaveBLSSignature(block_id _blockId);
-
-    bool isTwoThird(block_id _blockID);
+   block_id getBlockId() const;
 };
 
+
+#endif //SKALED_CONSENSUSBLSSIGNATURE_H
 
 

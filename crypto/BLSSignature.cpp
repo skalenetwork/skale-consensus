@@ -1,49 +1,20 @@
-/*
-    Copyright (C) 2019 SKALE Labs
+//
+// Created by kladko on 7/4/19.
+//
 
-    This file is part of skale-consensus.
-
-    skale-consensus is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Affero General Public License as published
-    by the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    skale-consensus is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Affero General Public License for more details.
-
-    You should have received a copy of the GNU Affero General Public License
-    along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
-
-    @file BLSSignature.cpp
-    @author Stan Kladko
-    @date 2019
-*/
-
-
-#include "../SkaleCommon.h"
-#include "../thirdparty/json.hpp"
 #include "../Log.h"
-#include "../network/Utils.h"
+#include "../SkaleCommon.h"
 #include "../crypto/bls_include.h"
-
+#include "../network/Utils.h"
+#include "../thirdparty/json.hpp"
 #include "BLSSignature.h"
 
-
-ptr<string> BLSSignature::toString() {
-    char str[512];
-
-
-    gmp_sprintf(str, "%Nd:%Nd", sig->X.as_bigint().data,
-                libff::alt_bn128_Fq::num_limbs, sig->Y.as_bigint().data, libff::alt_bn128_Fq::num_limbs);
-
-    return make_shared<string>(str);
-
+ptr<libff::alt_bn128_G1> BLSSignature::getSig() const {
+    return sig;
 }
+BLSSignature::BLSSignature(const shared_ptr<libff::alt_bn128_G1> & sig):sig(sig){}
 
-BLSSignature::BLSSignature(ptr<string> _s, block_id _blockID) :
-        blockId(_blockID) {
+BLSSignature::BLSSignature( shared_ptr< string > _s ) {
 
     if (_s->size() > BLS_MAX_SIG_LEN) {
         BOOST_THROW_EXCEPTION(runtime_error("Signature too long"));
@@ -67,7 +38,7 @@ BLSSignature::BLSSignature(ptr<string> _s, block_id _blockID) :
     for (char &c : component1) {
         if (!(c >= '0' && c <= '9')) {
             BOOST_THROW_EXCEPTION(runtime_error("Misformatted char:" + to_string((int)c) + " in component 1:"
-                                                           + component1));
+                                                + component1));
         }
     }
 
@@ -75,7 +46,7 @@ BLSSignature::BLSSignature(ptr<string> _s, block_id _blockID) :
     for (char &c : component2) {
         if (!(c >= '0' && c <= '9')) {
             BOOST_THROW_EXCEPTION(
-                    runtime_error("Misformatted char:" + to_string((int)c) + " in component 2:" + component2));
+                runtime_error("Misformatted char:" + to_string((int)c) + " in component 2:" + component2));
         }
     }
 
@@ -86,17 +57,5 @@ BLSSignature::BLSSignature(ptr<string> _s, block_id _blockID) :
 
     sig = make_shared<libff::alt_bn128_G1>(X, Y, Z);
 
+
 }
-
-ptr<libff::alt_bn128_G1> BLSSignature::getSig() const {
-    return sig;
-}
-
-block_id BLSSignature::getBlockId() const {
-    return blockId;
-}
-
-
-BLSSignature::BLSSignature(ptr<libff::alt_bn128_G1> &_s, block_id _blockID) :
-        sig(_s), blockId(_blockID){}
-
