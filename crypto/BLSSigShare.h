@@ -5,7 +5,7 @@
 #ifndef SKALED_BLSSIGSHARE_H
 #define SKALED_BLSSIGSHARE_H
 
-#include <cstdint>
+
 namespace libff {
 class alt_bn128_G1;
 }
@@ -13,19 +13,19 @@ class alt_bn128_G1;
 class BLSSigShare {
 
 private:
-    ptr< libff::alt_bn128_G1 > sigShare;
+    shared_ptr< libff::alt_bn128_G1 > sigShare;
     size_t signerIndex;
 
 public:
 
-    BLSSigShare( ptr< string > _sigShare, size_t signerIndex );
-    BLSSigShare( const ptr< libff::alt_bn128_G1 >& sigShare, size_t signerIndex );
+    BLSSigShare( shared_ptr< string > _sigShare, size_t signerIndex );
+    BLSSigShare( const shared_ptr< libff::alt_bn128_G1 >& sigShare, size_t signerIndex );
 
-    ptr< libff::alt_bn128_G1 > getSigShare() const;
+    shared_ptr< libff::alt_bn128_G1 > getSigShare() const;
 
     size_t getSignerIndex() const;
 
-    ptr< string > toString();
+    shared_ptr< string > toString();
 };
 
 

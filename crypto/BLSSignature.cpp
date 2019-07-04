@@ -46,17 +46,17 @@ BLSSignature::BLSSignature(ptr<string> _s, block_id _blockID) :
         blockId(_blockID) {
 
     if (_s->size() > BLS_MAX_SIG_LEN) {
-        BOOST_THROW_EXCEPTION(InvalidArgumentException("Signature too long", __CLASS_NAME__));
+        BOOST_THROW_EXCEPTION(runtime_error("Signature too long"));
     }
 
     auto position = _s->find(":");
 
     if (position == string::npos) {
-        BOOST_THROW_EXCEPTION(InvalidArgumentException("Misformatted sig:" + *_s, __CLASS_NAME__));
+        BOOST_THROW_EXCEPTION(runtime_error("Misformatted sig:" + *_s));
     }
 
     if (position >= BLS_MAX_COMPONENT_LEN || _s->size() - position > BLS_MAX_COMPONENT_LEN) {
-        BOOST_THROW_EXCEPTION(InvalidArgumentException("Misformatted sig:" + *_s, __CLASS_NAME__));
+        BOOST_THROW_EXCEPTION(runtime_error("Misformatted sig:" + *_s));
     }
 
 
@@ -66,8 +66,8 @@ BLSSignature::BLSSignature(ptr<string> _s, block_id _blockID) :
 
     for (char &c : component1) {
         if (!(c >= '0' && c <= '9')) {
-            BOOST_THROW_EXCEPTION(InvalidArgumentException("Misformatted char:" + to_string((int)c) + " in component 1:"
-                                                           + component1, __CLASS_NAME__));
+            BOOST_THROW_EXCEPTION(runtime_error("Misformatted char:" + to_string((int)c) + " in component 1:"
+                                                           + component1));
         }
     }
 
@@ -75,8 +75,7 @@ BLSSignature::BLSSignature(ptr<string> _s, block_id _blockID) :
     for (char &c : component2) {
         if (!(c >= '0' && c <= '9')) {
             BOOST_THROW_EXCEPTION(
-                    InvalidArgumentException("Misformatted char:" + to_string((int)c) + " in component 2:" + component2,
-                                             __CLASS_NAME__));
+                    runtime_error("Misformatted char:" + to_string((int)c) + " in component 2:" + component2));
         }
     }
 

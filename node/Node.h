@@ -38,7 +38,7 @@ class ConsensusExtFace;
 class ConsensusEngine;
 class ConsensusBLSSigShare;
 class SHAHash;
-class BLSPublicKey;
+class ConsensusBLSPublicKey;
 class ConsensusBLSPrivateKey;
 class LevelDB;
 
@@ -154,7 +154,7 @@ class Node {
 
 
 
-    ptr<BLSPublicKey> blsPublicKey;
+    ptr<ConsensusBLSPublicKey> blsPublicKey;
 
 
     ptr<ConsensusBLSPrivateKey> blsPrivateKey;
@@ -168,7 +168,7 @@ public:
 
     uint64_t getSimulateNetworkWriteDelayMs() const;
 
-    ptr<BLSPublicKey> getBlsPublicKey() const;
+    ptr<ConsensusBLSPublicKey> getBlsPublicKey() const;
 
     ptr<ConsensusBLSPrivateKey> getBlsPrivateKey() const;
 

@@ -34,7 +34,7 @@
 #include "ConsensusInterface.h"
 #include "Node.h"
 
-class BLSPublicKey;
+class ConsensusBLSPublicKey;
 class ConsensusBLSPrivateKey;
 
 

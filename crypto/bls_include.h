@@ -56,9 +56,5 @@
 #include "bls.h"
 #pragma GCC diagnostic pop
 
-#include "../exceptions/InvalidArgumentException.h"
-
-
-#include "ConsensusBLSSigShare.h"
 
 #endif //SKALED_BLS_INCLUDE_H

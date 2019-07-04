@@ -63,7 +63,7 @@
 
 
 #include "../chains/Schain.h"
-#include "../crypto/BLSPublicKey.h"
+#include "../crypto/ConsensusBLSPublicKey.h"
 #include "../crypto/ConsensusBLSPrivateKey.h"
 #include "../exceptions/EngineInitException.h"
 #include "../json/JSONFactory.h"

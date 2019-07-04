@@ -16,41 +16,27 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file BLSSigShare.h
+    @file BLSPublicKey.h
     @author Stan Kladko
     @date 2019
 */
 
-#ifndef SKALED_CONSENSUSBLSSIGSHARE_H
-#define SKALED_CONSENSUSBLSSIGSHARE_H
+
+#ifndef SKALED_CONSENSUSBLSPUBLICKEY_H
+#define SKALED_CONSENSUSBLSPUBLICKEY_H
 
 
-#include "BLSSigShare.h"
+#include "BLSPublicKey.h"
 
-namespace libff {
-class alt_bn128_G1;
-}
-
-class ConsensusBLSSigShare  {
-
-
-    ptr<BLSSigShare> blsSigShare;
-
-    schain_id schainId;
-    block_id blockId;
-    node_id signerNodeId;
-
-
+class ConsensusBLSPublicKey : public BLSPublicKey {
 public:
-    ConsensusBLSSigShare(ptr<string> _sigShare, schain_id _schainID, block_id _blockID, schain_index _signerIndex, node_id _signerNodeID);
 
-    ConsensusBLSSigShare(ptr<libff::alt_bn128_G1> &_s, schain_id _schainId, block_id _blockID, schain_index _signerIndex,
-                node_id _nodeID);
+    ConsensusBLSPublicKey(const string &k1, const string &k2, const string &k3, const string &k4, node_count _nodeCount);
 
-    block_id getBlockId() const;
-    node_id getSignerNodeId() const;
-    ptr< BLSSigShare > getBlsSigShare() const;
 };
 
 
-#endif  // SKALED_CONSENSUSBLSSIGSHARE_H
+#endif //SKALED_CONSENSUSBLSPUBLICKEY_H
+
+
+

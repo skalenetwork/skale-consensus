@@ -44,7 +44,7 @@
 #include "../network/TCPServerSocket.h"
 #include "../network/ZMQServerSocket.h"
 
-#include "../crypto/BLSPublicKey.h"
+#include "../crypto/ConsensusBLSPublicKey.h"
 #include "../crypto/ConsensusBLSPrivateKey.h"
 #include "../crypto/SHAHash.h"
 
@@ -302,7 +302,7 @@ void Node::initBLSKeys() {
 
     if (isBLSEnabled) {
         blsPrivateKey = make_shared<ConsensusBLSPrivateKey>(prkStr, sChain->getNodeCount());
-        blsPublicKey = make_shared<BLSPublicKey>(pbkStr1, pbkStr2, pbkStr3, pbkStr4, sChain->getNodeCount());
+        blsPublicKey = make_shared<ConsensusBLSPublicKey>(pbkStr1, pbkStr2, pbkStr3, pbkStr4, sChain->getNodeCount());
     }
 }
 
@@ -577,7 +577,7 @@ uint64_t Node::getCommittedTransactionHistoryLimit() const {
 set<node_id> Node::nodeIDs;
 
 
-ptr<BLSPublicKey> Node::getBlsPublicKey() const {
+ptr<ConsensusBLSPublicKey> Node::getBlsPublicKey() const {
     if (!blsPublicKey) {
         BOOST_THROW_EXCEPTION(FatalError("Null BLS public key", __CLASS_NAME__));
     }
