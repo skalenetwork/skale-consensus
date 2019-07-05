@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include "DataStructure.h"
+#include "../datastructures/DataStructure.h"
 
 
 
@@ -33,7 +33,7 @@ class ConsensusBLSSigShare;
 class ConsensusBLSSignature;
 class SHAHash;
 
-class SigShareSet : public DataStructure  {
+class SigShareSet {
     recursive_mutex sigSharesMutex;
 
     Schain* sChain;
@@ -52,7 +52,7 @@ public:
 
     bool isTwoThirdMinusOne();
 
-    ptr<ConsensusBLSSigShare > getSigShareByIndex(schain_index _index);
+    ptr<ConsensusBLSSigShare > getSigShareByIndex(size_t _index);
 
     ptr<ConsensusBLSSignature> mergeSignature();
 

@@ -37,7 +37,7 @@
 #include "SHAHash.h"
 #include "ConsensusBLSSigShare.h"
 #include "../pendingqueue/PendingTransactionsAgent.h"
-#include "../datastructures/SigShareSet.h"
+#include "SigShareSet.h"
 
 #include "ReceivedSigSharesDatabase.h"
 #include "BLSSigShare.h"

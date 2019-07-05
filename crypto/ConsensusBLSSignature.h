@@ -16,7 +16,7 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file BLSSignature.h
+    @file ConsensusBLSSignature.h
     @author Stan Kladko
     @date 2019
 */

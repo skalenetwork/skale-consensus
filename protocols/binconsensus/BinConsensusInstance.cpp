@@ -56,7 +56,7 @@
 #include "BVBroadcastMessage.h"
 #include "../blockconsensus/BlockConsensusAgent.h"
 
-#include "../../datastructures/SigShareSet.h"
+#include "../../crypto/SigShareSet.h"
 
 #include "../../crypto/ConsensusBLSSignature.h"
 

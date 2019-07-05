@@ -24,14 +24,14 @@
 #include "../SkaleCommon.h"
 #include "../Log.h"
 #include "../exceptions/FatalError.h"
-#include "../crypto/bls_include.h"
+#include "bls_include.h"
 #include "../node/ConsensusEngine.h"
-#include "../crypto/SHAHash.h"
-#include "../crypto/ConsensusBLSSignature.h"
+#include "SHAHash.h"
+#include "ConsensusBLSSignature.h"
 
 #include "../chains/Schain.h"
 #include "../pendingqueue/PendingTransactionsAgent.h"
-#include "../crypto/ConsensusBLSSigShare.h"
+#include "ConsensusBLSSigShare.h"
 
 #include "SigShareSet.h"
 
@@ -102,7 +102,7 @@ node_count SigShareSet::getTotalSigSharesCount() {
 }
 
 
-ptr< ConsensusBLSSigShare > SigShareSet::getSigShareByIndex( schain_index _index ) {
+ptr< ConsensusBLSSigShare > SigShareSet::getSigShareByIndex(size_t _index ) {
     lock_guard< recursive_mutex > lock( sigSharesMutex );
 
 
