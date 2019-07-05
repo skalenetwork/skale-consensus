@@ -2,11 +2,9 @@
 // Created by kladko on 7/4/19.
 //
 
-#include "../Log.h"
-#include "../SkaleCommon.h"
+
 #include "../crypto/bls_include.h"
-#include "../network/Utils.h"
-#include "../thirdparty/json.hpp"
+
 #include "BLSSignature.h"
 
 ptr<libff::alt_bn128_G1> BLSSignature::getSig() const {
@@ -57,5 +55,15 @@ BLSSignature::BLSSignature( shared_ptr< string > _s ) {
 
     sig = make_shared<libff::alt_bn128_G1>(X, Y, Z);
 
+
+}
+ptr<string> BLSSignature::toString() {
+    char str[512];
+
+
+    gmp_sprintf(str, "%Nd:%Nd", sig->X.as_bigint().data,
+                libff::alt_bn128_Fq::num_limbs, sig->Y.as_bigint().data, libff::alt_bn128_Fq::num_limbs);
+
+    return make_shared<string>(str);
 
 }

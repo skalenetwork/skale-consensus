@@ -28,19 +28,9 @@
 #include "../network/Utils.h"
 #include "../crypto/bls_include.h"
 
+#include "BLSSignature.h"
 #include "ConsensusBLSSignature.h"
 
-
-ptr<string> ConsensusBLSSignature::toString() {
-    char str[512];
-
-
-    gmp_sprintf(str, "%Nd:%Nd", sig->X.as_bigint().data,
-                libff::alt_bn128_Fq::num_limbs, sig->Y.as_bigint().data, libff::alt_bn128_Fq::num_limbs);
-
-    return make_shared<string>(str);
-
-}
 
 ConsensusBLSSignature::ConsensusBLSSignature(ptr<string> _s, block_id _blockID) : BLSSignature(_s),
         blockId(_blockID) {
