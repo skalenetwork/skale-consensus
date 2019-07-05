@@ -39,22 +39,8 @@
 
 using namespace std;
 
+atomic< uint64_t > ConsensusSigShareSet::totalObjects( 0 );
 
-bool ConsensusSigShareSet::addSigShare( ptr< BLSSigShare > _sigShare ) {
-    ASSERT( _sigShare );
-
-    lock_guard< recursive_mutex > lock( sigSharesMutex );
-
-    if ( sigShares.count( _sigShare->getSignerIndex()) > 0 ) {
-        LOG( err, "Got block proposal with the same index" +
-                      to_string( ( uint64_t ) _sigShare->getSignerIndex()) );
-        return false;
-    }
-
-    sigShares[_sigShare->getSignerIndex()] = _sigShare;
-
-    return true;
-}
 
 
 bool ConsensusSigShareSet::isTwoThird() {
@@ -88,15 +74,9 @@ bool ConsensusSigShareSet::isTwoThirdMinusOne() {
 
 ConsensusSigShareSet::ConsensusSigShareSet(
     Schain* _sChain, block_id _blockId, size_t _totalSigners, size_t _requiredSigners )
-    : sChain( _sChain ), blockId( _blockId ), totalSigners(_totalSigners), requiredSigners(_requiredSigners) {
+    : BLSSigShareSet(_totalSigners, _requiredSigners) , sChain( _sChain ), blockId( _blockId ) {
 
-    if (_totalSigners == 0) {
-        BOOST_THROW_EXCEPTION(runtime_error("_totalSigners == 0"));
-    }
 
-    if (totalSigners < _requiredSigners) {
-        BOOST_THROW_EXCEPTION(runtime_error("_totalSigners < _requiredSigners"));
-    }
 
     totalObjects++;
 }
@@ -105,26 +85,6 @@ ConsensusSigShareSet::~ConsensusSigShareSet() {
     totalObjects--;
 }
 
-size_t ConsensusSigShareSet::getTotalSigSharesCount() {
-    lock_guard< recursive_mutex > lock( sigSharesMutex );
-    return sigShares.size();
-}
-
-
-ptr< BLSSigShare > ConsensusSigShareSet::getSigShareByIndex( size_t _index ) {
-    lock_guard< recursive_mutex > lock( sigSharesMutex );
-
-
-    if ( sigShares.count( _index ) == 0 ) {
-        LOG( trace,
-            "Proposal did not yet arrive. Total sigShares:" + to_string( sigShares.size() ) );
-        return nullptr;
-    }
-
-    return sigShares.at(_index);
-}
-
-atomic< uint64_t > ConsensusSigShareSet::totalObjects( 0 );
 
 ptr< ConsensusBLSSignature > ConsensusSigShareSet::mergeSignature() {
     signatures::Bls obj = signatures::Bls( 2, 2 );

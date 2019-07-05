@@ -24,7 +24,7 @@
 #pragma once
 
 #include "../datastructures/DataStructure.h"
-
+#include "BLSSigShareSet.h"
 
 
 class PartialHashesList;
@@ -33,41 +33,26 @@ class ConsensusBLSSigShare;
 class ConsensusBLSSignature;
 class SHAHash;
 
-class ConsensusSigShareSet {
-    recursive_mutex sigSharesMutex;
-
+class ConsensusSigShareSet : public BLSSigShareSet {
     Schain* sChain;
     block_id blockId;
 
-    size_t totalSigners;
-    size_t requiredSigners;
+    static atomic<uint64_t>  totalObjects;
 
-
-    map<size_t, ptr< BLSSigShare > > sigShares;
 
 public:
-    size_t getTotalSigSharesCount();
-
     ConsensusSigShareSet(
         Schain* _sChain, block_id _blockId, size_t _totalSigners, size_t _requiredSigners );
-
-    bool addSigShare( ptr< BLSSigShare > _sigShare);
 
     bool isTwoThird();
 
     bool isTwoThirdMinusOne();
 
-    ptr< BLSSigShare > getSigShareByIndex( size_t _index);
-
     ptr<ConsensusBLSSignature> mergeSignature();
+
+    virtual ~ConsensusSigShareSet();
 
     static uint64_t getTotalObjects() {
         return totalObjects;
     }
-
-    virtual ~ConsensusSigShareSet();
-
-private:
-
-    static atomic<uint64_t>  totalObjects;
 };

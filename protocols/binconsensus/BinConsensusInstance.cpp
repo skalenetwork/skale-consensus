@@ -57,10 +57,12 @@
 #include "../blockconsensus/BlockConsensusAgent.h"
 
 #include "../../crypto/ConsensusSigShareSet.h"
+#include "../../crypto/BLSSigShareSet.h"
 
 #include "../../crypto/ConsensusBLSSignature.h"
 
 #include "BinConsensusInstance.h"
+
 
 using namespace std;
 

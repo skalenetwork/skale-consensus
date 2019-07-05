@@ -42,6 +42,7 @@
 #include "ReceivedSigSharesDatabase.h"
 #include "BLSSigShare.h"
 #include "BLSSignature.h"
+#include "BLSSigShareSet.h"
 
 
 using namespace std;
