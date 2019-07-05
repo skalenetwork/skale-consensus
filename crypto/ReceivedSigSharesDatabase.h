@@ -34,6 +34,9 @@ class ConsensusBLSSigShare;
 
 class ReceivedSigSharesDatabase : Agent {
 
+    size_t getTotalSignersCount();
+
+    size_t getRequiredSignersCount();
 
     recursive_mutex sigShareDatabaseMutex;
 

@@ -96,7 +96,8 @@ bool ReceivedSigSharesDatabase::addSigShare(ptr<ConsensusBLSSigShare> _sigShare)
     lock_guard<recursive_mutex> lock(sigShareDatabaseMutex);
 
     if (this->sigShareSets.count(_sigShare->getBlockId()) == 0) {
-        sigShareSets[_sigShare->getBlockId()] = make_shared<SigShareSet>(this->sChain, _sigShare->getBlockId());
+        sigShareSets[_sigShare->getBlockId()] = make_shared<SigShareSet>(this->sChain, _sigShare->getBlockId(),
+                getTotalSignersCount(), getRequiredSignersCount());
     }
 
     sigShareSets.at(_sigShare->getBlockId())->addSigShare(_sigShare);
@@ -116,7 +117,8 @@ ptr<SigShareSet> ReceivedSigSharesDatabase::getSigShareSet(block_id blockID) {
     lock_guard<recursive_mutex> lock(sigShareDatabaseMutex);
 
     if (sigShareSets.count(blockID) == 0) {
-        sigShareSets[blockID] = make_shared<SigShareSet>(this->sChain, blockID);
+        sigShareSets[blockID] = make_shared<SigShareSet>(this->sChain, blockID,
+            getTotalSignersCount(), getRequiredSignersCount());
     }
 
     return sigShareSets.at(blockID);
@@ -135,4 +137,19 @@ bool ReceivedSigSharesDatabase::isTwoThird(block_id _blockID) {
     } else {
         return false;
     };
+}
+size_t ReceivedSigSharesDatabase::getTotalSignersCount() {
+    return (size_t) sChain->getNodeCount();
+}
+size_t ReceivedSigSharesDatabase::getRequiredSignersCount() {
+    auto count = sChain->getNodeCount();
+
+    if (count <= 2) {
+        return (uint64_t) count;
+    }
+
+    else {
+        return 2 * (uint64_t) count / 3 + 1;
+    }
+
 }

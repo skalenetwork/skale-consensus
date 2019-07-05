@@ -86,8 +86,9 @@ bool SigShareSet::isTwoThirdMinusOne() {
 }
 
 
-SigShareSet::SigShareSet( Schain* _sChain, block_id _blockId )
-    : sChain( _sChain ), blockId( _blockId ) {
+SigShareSet::SigShareSet(
+    Schain* _sChain, block_id _blockId, size_t _totalSigners, size_t _requiredSigners )
+    : sChain( _sChain ), blockId( _blockId ), totalSigners(_totalSigners), requiredSigners(_requiredSigners) {
     totalObjects++;
 }
 

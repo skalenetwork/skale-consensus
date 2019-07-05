@@ -39,12 +39,17 @@ class SigShareSet {
     Schain* sChain;
     block_id blockId;
 
+    size_t totalSigners;
+    size_t requiredSigners;
+
+
     map< schain_index, ptr< ConsensusBLSSigShare > > sigShares;
 
 public:
     node_count getTotalSigSharesCount();
 
-    SigShareSet( Schain* _sChain, block_id _blockId );
+    SigShareSet(
+        Schain* _sChain, block_id _blockId, size_t _totalSigners, size_t _requiredSigners );
 
     bool addSigShare(ptr<ConsensusBLSSigShare> _sigShare);
 
