@@ -138,5 +138,7 @@ ptr<ConsensusBLSSigShare> BlockFinalizeClientAgent::getBLSSignatureShare(nlohman
                                                                 block_id _blockID, schain_index _signerIndex,
                                                                 node_id _signerNodeId) {
     auto s = Header::getString(_json, "sigShare");
-    return make_shared<ConsensusBLSSigShare>(s, getSchain()->getSchainID(), _blockID, _signerIndex, _signerNodeId);
+
+    return make_shared<ConsensusBLSSigShare>(s, getSchain()->getSchainID(), _blockID, _signerNodeId,
+        _signerIndex);
 }

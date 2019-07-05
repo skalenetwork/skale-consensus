@@ -87,7 +87,7 @@ NetworkMessage::NetworkMessage(MsgType messageType, node_id _srcNodeID, node_id 
 
 
     if (_signature->size() > 0 ) {
-       sigShare = make_shared<ConsensusBLSSigShare>(_signature, _schainId, _blockID, _srcSchainIndex, _srcNodeID);
+       sigShare = make_shared<ConsensusBLSSigShare>(_signature, _schainId, _blockID, _srcNodeID, _srcSchainIndex);
     }
 
 

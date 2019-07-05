@@ -36,10 +36,11 @@
 #include "ConsensusBLSSigShare.h"
 
 
-ConsensusBLSSigShare::ConsensusBLSSigShare( ptr< string > _sigShare, schain_id _schainID,
-    block_id _blockID, schain_index _signerIndex, node_id _signerNodeID )
+ConsensusBLSSigShare::ConsensusBLSSigShare(
+    ptr< BLSSigShare >& _sigShare, schain_id _schainID, block_id _blockID, node_id _signerNodeID )
     : schainId( _schainID ), blockId( _blockID ), signerNodeId( _signerNodeID ) {
-    blsSigShare = make_shared< BLSSigShare >( _sigShare, ( size_t ) _signerIndex );
+    ASSERT( _sigShare != nullptr );
+    blsSigShare = _sigShare;
 }
 
 
@@ -54,9 +55,8 @@ ptr< BLSSigShare > ConsensusBLSSigShare::getBlsSigShare() const {
     ASSERT( blsSigShare );
     return blsSigShare;
 }
-
-ConsensusBLSSigShare::ConsensusBLSSigShare( ptr< libff::alt_bn128_G1 >& _s, schain_id _schainId,
-    block_id _blockID, schain_index _signerIndex, node_id _nodeID )
-    : schainId( _schainId ), blockId( _blockID ), signerNodeId( _nodeID ) {
-    blsSigShare = make_shared< BLSSigShare >( _s, (size_t) _signerIndex );
+ConsensusBLSSigShare::ConsensusBLSSigShare( ptr< string > _sigShare, schain_id _schainID,
+    block_id _blockID, node_id _signerNodeID, schain_index _signerIndex )
+    : schainId( _schainID ), blockId( _blockID ), signerNodeId( _signerNodeID ) {
+    this->blsSigShare = make_shared< BLSSigShare >( _sigShare, ( size_t ) _signerIndex );
 }

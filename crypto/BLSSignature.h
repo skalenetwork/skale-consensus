@@ -24,16 +24,22 @@
 #ifndef SKALED_BLSSIGNATURE_H
 #define SKALED_BLSSIGNATURE_H
 
-#include "../SkaleCommon.h"
+#include <stdlib.h>
+#include <string>
+
+namespace libff {
+    class alt_bn128_G1;
+}
+
 class BLSSignature {
 protected:
-    shared_ptr<libff::alt_bn128_G1> sig;
+    std::shared_ptr<libff::alt_bn128_G1> sig;
 public:
 
-    BLSSignature(shared_ptr<string> s);
-    BLSSignature( const shared_ptr< libff::alt_bn128_G1 >& sig );
-    shared_ptr<libff::alt_bn128_G1> getSig() const;
-    ptr< basic_string< char > > toString();
+    BLSSignature(std::shared_ptr<std::string> s);
+    BLSSignature( const std::shared_ptr< libff::alt_bn128_G1 >& sig );
+    std::shared_ptr<libff::alt_bn128_G1> getSig() const;
+    std::shared_ptr<std::string> toString();
 };
 
 

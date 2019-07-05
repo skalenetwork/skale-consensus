@@ -23,16 +23,21 @@
 #ifndef SKALED_BLSPRIVATEKEY_H
 #define SKALED_BLSPRIVATEKEY_H
 
+#include <stdlib.h>
+#include <string>
 
-#include "ConsensusBLSSigShare.h"
+class BLSSigShare;
+
 class BLSPrivateKey {
 protected:
-    size_t requiredSigners;
-    ptr< libff::alt_bn128_Fr > sk;
+    std::shared_ptr< libff::alt_bn128_Fr > privateKey;
     size_t totalSigners;
+    size_t requiredSigners;
 
 public:
-    BLSPrivateKey( const string & _key, size_t _requiredSigners, size_t _totalSigners );
+
+    BLSPrivateKey( const std::string & _key, size_t _totalSigners, size_t _requiredSigners);
+    std::shared_ptr<BLSSigShare> sign(std::shared_ptr<string> _msg, size_t _signerIndex);
 };
 
 

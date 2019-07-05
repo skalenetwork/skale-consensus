@@ -21,25 +21,57 @@
     @date 2019
 */
 
-#include "../Log.h"
-#include "../SkaleCommon.h"
-#include "../exceptions/FatalError.h"
-#include "../exceptions/InvalidArgumentException.h"
 
+
+
+
+
+
+
+using namespace std;
 
 
 #include "../crypto/bls_include.h"
 
-
+#include "BLSSigShare.h"
 #include "BLSPrivateKey.h"
+
+
+
 BLSPrivateKey::BLSPrivateKey( const string& _key, size_t _requiredSigners, size_t _totalSigners )
     : requiredSigners( _requiredSigners ), totalSigners( _totalSigners ) {
 
-    sk = make_shared<libff::alt_bn128_Fr>( _key.c_str() );
+    privateKey = make_shared<libff::alt_bn128_Fr>( _key.c_str() );
 
 
-    if ( *sk == libff::alt_bn128_Fr::zero() ) {
-        BOOST_THROW_EXCEPTION( InvalidArgumentException(
-                                       "Secret key share is equal to zero or corrupt", __CLASS_NAME__ ) );
+    if ( *privateKey == libff::alt_bn128_Fr::zero() ) {
+        BOOST_THROW_EXCEPTION(runtime_error("Secret key share is equal to zero or corrupt") );
     }
+}
+
+
+
+shared_ptr<BLSSigShare> BLSPrivateKey::sign(shared_ptr<string> _msg, size_t _signerIndex) {
+    shared_ptr<signatures::Bls> obj;
+
+    obj = make_shared<signatures::Bls>( signatures::Bls( requiredSigners, totalSigners ) );
+
+    libff::alt_bn128_G1 hash = obj->Hashing( *_msg );
+
+    auto ss = make_shared<libff::alt_bn128_G1>( obj->Signing( hash, *privateKey ) );
+
+    ss->to_affine_coordinates();
+
+    auto s = make_shared<BLSSigShare>( ss, _signerIndex);
+
+    auto ts = s->toString();
+
+    auto sig2 = make_shared<BLSSigShare>( ts, _signerIndex);
+
+    if ( *s->getSigShare() != *sig2->getSigShare() ) {
+        BOOST_THROW_EXCEPTION(runtime_error("Sig shares do not match"));
+    }
+
+
+    return s;
 }

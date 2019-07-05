@@ -25,7 +25,9 @@
 
 #include "BLSSignature.h"
 
-ptr<libff::alt_bn128_G1> BLSSignature::getSig() const {
+using namespace std;
+
+shared_ptr<libff::alt_bn128_G1> BLSSignature::getSig() const {
     return sig;
 }
 BLSSignature::BLSSignature(const shared_ptr<libff::alt_bn128_G1> & sig):sig(sig){}
@@ -75,7 +77,7 @@ BLSSignature::BLSSignature( shared_ptr< string > _s ) {
 
 
 }
-ptr<string> BLSSignature::toString() {
+shared_ptr<string> BLSSignature::toString() {
     char str[512];
 
 

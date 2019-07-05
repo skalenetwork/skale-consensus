@@ -59,26 +59,13 @@ BLSPrivateKey(k, size_t(_nodeCount), size_t(_nodeCount))
 ptr<ConsensusBLSSigShare>
 ConsensusBLSPrivateKey::sign(ptr<string> _msg, schain_id _schainId, block_id _blockId, schain_index _signerIndex,
                     node_id _signerNodeId) {
-    ptr<signatures::Bls> obj;
-
-    obj = make_shared<signatures::Bls>( signatures::Bls( requiredSigners, totalSigners ) );
-
-    libff::alt_bn128_G1 hash = obj->Hashing( *_msg );
-
-    auto ss = make_shared<libff::alt_bn128_G1>( obj->Signing( hash, *sk ) );
-
-    ss->to_affine_coordinates();
-
-    auto s = make_shared<ConsensusBLSSigShare>( ss, _schainId,  _blockId, _signerIndex, _signerNodeId );
-
-    auto ts = s->getBlsSigShare()->toString();
-
-    auto sig2 = make_shared<ConsensusBLSSigShare>( ts, _schainId, _blockId, _signerIndex, _signerNodeId );
-
-    ASSERT( *s->getBlsSigShare()->getSigShare() == *sig2->getBlsSigShare()->getSigShare() );
 
 
-    return s;
+    auto blsSigShare = BLSPrivateKey::sign(_msg, (size_t) _signerIndex);
+
+    auto sigShare = make_shared<ConsensusBLSSigShare>( blsSigShare, _schainId, _blockId, _signerNodeId );
+
+    return sigShare;
 }
 
 

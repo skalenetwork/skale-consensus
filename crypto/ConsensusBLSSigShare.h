@@ -40,12 +40,17 @@ class ConsensusBLSSigShare  {
     block_id blockId;
     node_id signerNodeId;
 
-
 public:
-    ConsensusBLSSigShare(ptr<string> _sigShare, schain_id _schainID, block_id _blockID, schain_index _signerIndex, node_id _signerNodeID);
 
-    ConsensusBLSSigShare(ptr<libff::alt_bn128_G1> &_s, schain_id _schainId, block_id _blockID, schain_index _signerIndex,
-                node_id _nodeID);
+
+
+
+    ConsensusBLSSigShare(ptr<BLSSigShare> &_s, schain_id _schainId, block_id _blockID, node_id _signerNodeID);
+
+
+    ConsensusBLSSigShare(ptr<string> _sigShare, schain_id _schainID, block_id _blockID, node_id _signerNodeID,
+        schain_index _signerIndex);
+
 
     block_id getBlockId() const;
     node_id getSignerNodeId() const;
