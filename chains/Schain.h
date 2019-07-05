@@ -300,4 +300,8 @@ public:
 
     ptr<ConsensusBLSSigShare> sign(ptr<SHAHash> _hash, block_id _blockId);
 
+
+    size_t getTotalSignersCount();
+    size_t getRequiredSignersCount();
+
 };

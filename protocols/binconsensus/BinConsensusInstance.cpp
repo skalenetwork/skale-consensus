@@ -56,7 +56,7 @@
 #include "BVBroadcastMessage.h"
 #include "../blockconsensus/BlockConsensusAgent.h"
 
-#include "../../crypto/SigShareSet.h"
+#include "../../crypto/ConsensusSigShareSet.h"
 
 #include "../../crypto/ConsensusBLSSignature.h"
 
@@ -697,12 +697,13 @@ const node_count &BinConsensusInstance::getNodeCount() const {
 uint64_t BinConsensusInstance::calculateBLSRandom(bin_consensus_round _r) {
 
 
-    SigShareSet shares(getSchain(), getBlockID(),0,0);
+    ConsensusSigShareSet shares(getSchain(), getBlockID(),getSchain()->getTotalSignersCount(),
+            getSchain()->getRequiredSignersCount());
 
     if (binValues[_r].count(bin_consensus_value(true)) > 0 && auxTrueVotes[_r].size() > 0) {
         for (auto&& item: auxTrueVotes[_r]) {
             ASSERT(item.second);
-            shares.addSigShare(item.second);
+            shares.addSigShare(item.second->getBlsSigShare());
             if (shares.isTwoThird())
                 break;
         }
@@ -711,7 +712,7 @@ uint64_t BinConsensusInstance::calculateBLSRandom(bin_consensus_round _r) {
     if (binValues[_r].count(bin_consensus_value(false)) > 0 && auxFalseVotes[_r].size() > 0) {
         for (auto&& item: auxFalseVotes[_r]) {
             ASSERT(item.second);
-            shares.addSigShare(item.second);
+            shares.addSigShare(item.second->getBlsSigShare());
             if (shares.isTwoThird())
                 break;
         }

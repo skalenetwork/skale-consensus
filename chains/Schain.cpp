@@ -839,3 +839,20 @@ void Schain::constructServers(ptr<Sockets> _sockets) {
 
 
 }
+
+
+size_t Schain::getTotalSignersCount() {
+    return (size_t) getNodeCount();
+}
+size_t Schain::getRequiredSignersCount() {
+    auto count = getNodeCount();
+
+    if (count <= 2) {
+        return (uint64_t) count;
+    }
+
+    else {
+        return 2 * (uint64_t) count / 3 + 1;
+    }
+
+}

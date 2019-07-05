@@ -33,7 +33,7 @@ class ConsensusBLSSigShare;
 class ConsensusBLSSignature;
 class SHAHash;
 
-class SigShareSet {
+class ConsensusSigShareSet {
     recursive_mutex sigSharesMutex;
 
     Schain* sChain;
@@ -43,21 +43,21 @@ class SigShareSet {
     size_t requiredSigners;
 
 
-    map< schain_index, ptr< ConsensusBLSSigShare > > sigShares;
+    map<size_t, ptr< BLSSigShare > > sigShares;
 
 public:
-    node_count getTotalSigSharesCount();
+    size_t getTotalSigSharesCount();
 
-    SigShareSet(
+    ConsensusSigShareSet(
         Schain* _sChain, block_id _blockId, size_t _totalSigners, size_t _requiredSigners );
 
-    bool addSigShare(ptr<ConsensusBLSSigShare> _sigShare);
+    bool addSigShare( ptr< BLSSigShare > _sigShare);
 
     bool isTwoThird();
 
     bool isTwoThirdMinusOne();
 
-    ptr<ConsensusBLSSigShare > getSigShareByIndex(size_t _index);
+    ptr< BLSSigShare > getSigShareByIndex( size_t _index);
 
     ptr<ConsensusBLSSignature> mergeSignature();
 
@@ -65,7 +65,7 @@ public:
         return totalObjects;
     }
 
-    virtual ~SigShareSet();
+    virtual ~ConsensusSigShareSet();
 
 private:
 

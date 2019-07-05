@@ -33,31 +33,31 @@
 #include "../pendingqueue/PendingTransactionsAgent.h"
 #include "ConsensusBLSSigShare.h"
 
-#include "SigShareSet.h"
+#include "ConsensusSigShareSet.h"
 
 
 
 using namespace std;
 
 
-bool SigShareSet::addSigShare( ptr< ConsensusBLSSigShare > _sigShare ) {
+bool ConsensusSigShareSet::addSigShare( ptr< BLSSigShare > _sigShare ) {
     ASSERT( _sigShare );
 
     lock_guard< recursive_mutex > lock( sigSharesMutex );
 
-    if ( sigShares.count( _sigShare->getBlsSigShare()->getSignerIndex()) > 0 ) {
+    if ( sigShares.count( _sigShare->getSignerIndex()) > 0 ) {
         LOG( err, "Got block proposal with the same index" +
-                      to_string( ( uint64_t ) _sigShare->getBlsSigShare()->getSignerIndex()) );
+                      to_string( ( uint64_t ) _sigShare->getSignerIndex()) );
         return false;
     }
 
-    sigShares[_sigShare->getBlsSigShare()->getSignerIndex()] = _sigShare;
+    sigShares[_sigShare->getSignerIndex()] = _sigShare;
 
     return true;
 }
 
 
-bool SigShareSet::isTwoThird() {
+bool ConsensusSigShareSet::isTwoThird() {
 
     lock_guard< recursive_mutex > lock( sigSharesMutex );
 
@@ -73,7 +73,7 @@ bool SigShareSet::isTwoThird() {
 }
 
 
-bool SigShareSet::isTwoThirdMinusOne() {
+bool ConsensusSigShareSet::isTwoThirdMinusOne() {
     lock_guard< recursive_mutex > lock( sigSharesMutex );
 
     auto nodeCount = sChain->getNodeCount();
@@ -86,24 +86,32 @@ bool SigShareSet::isTwoThirdMinusOne() {
 }
 
 
-SigShareSet::SigShareSet(
+ConsensusSigShareSet::ConsensusSigShareSet(
     Schain* _sChain, block_id _blockId, size_t _totalSigners, size_t _requiredSigners )
     : sChain( _sChain ), blockId( _blockId ), totalSigners(_totalSigners), requiredSigners(_requiredSigners) {
+
+    if (_totalSigners == 0) {
+        BOOST_THROW_EXCEPTION(runtime_error("_totalSigners == 0"));
+    }
+
+    if (totalSigners < _requiredSigners) {
+        BOOST_THROW_EXCEPTION(runtime_error("_totalSigners < _requiredSigners"));
+    }
+
     totalObjects++;
 }
 
-SigShareSet::~SigShareSet() {
+ConsensusSigShareSet::~ConsensusSigShareSet() {
     totalObjects--;
 }
 
-node_count SigShareSet::getTotalSigSharesCount() {
+size_t ConsensusSigShareSet::getTotalSigSharesCount() {
     lock_guard< recursive_mutex > lock( sigSharesMutex );
-
-    return ( node_count ) sigShares.size();
+    return sigShares.size();
 }
 
 
-ptr< ConsensusBLSSigShare > SigShareSet::getSigShareByIndex(size_t _index ) {
+ptr< BLSSigShare > ConsensusSigShareSet::getSigShareByIndex( size_t _index ) {
     lock_guard< recursive_mutex > lock( sigSharesMutex );
 
 
@@ -116,9 +124,9 @@ ptr< ConsensusBLSSigShare > SigShareSet::getSigShareByIndex(size_t _index ) {
     return sigShares.at(_index);
 }
 
-atomic< uint64_t > SigShareSet::totalObjects( 0 );
+atomic< uint64_t > ConsensusSigShareSet::totalObjects( 0 );
 
-ptr< ConsensusBLSSignature > SigShareSet::mergeSignature() {
+ptr< ConsensusBLSSignature > ConsensusSigShareSet::mergeSignature() {
     signatures::Bls obj = signatures::Bls( 2, 2 );
 
     std::vector< size_t > participatingNodes;
@@ -126,7 +134,7 @@ ptr< ConsensusBLSSignature > SigShareSet::mergeSignature() {
 
     for ( auto&& item : sigShares ) {
         participatingNodes.push_back( static_cast< uint64_t >( item.first ) + 1 );
-        shares.push_back( *item.second->getBlsSigShare()->getSigShare() );
+        shares.push_back( *item.second->getSigShare() );
     }
 
     /*

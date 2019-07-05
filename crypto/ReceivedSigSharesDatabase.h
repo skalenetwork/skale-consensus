@@ -27,25 +27,21 @@
 
 #include "../Agent.h"
 
-class SigShareSet;
+class ConsensusSigShareSet;
 class ConsensusBLSSignature;
 class Schain;
 class ConsensusBLSSigShare;
 
 class ReceivedSigSharesDatabase : Agent {
 
-    size_t getTotalSignersCount();
-
-    size_t getRequiredSignersCount();
-
     recursive_mutex sigShareDatabaseMutex;
 
-    map<block_id, ptr<SigShareSet>> sigShareSets;
+    map<block_id, ptr<ConsensusSigShareSet>> sigShareSets;
 
     map<block_id, ptr<ConsensusBLSSignature>> blockSignatures;
 
 
-    ptr<SigShareSet> getSigShareSet(block_id _blockID);
+    ptr<ConsensusSigShareSet> getSigShareSet(block_id _blockID);
 
     ptr<ConsensusBLSSignature> getBLSSignature(block_id _blockId);
 
