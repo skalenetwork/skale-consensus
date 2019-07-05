@@ -44,7 +44,7 @@
 #include "../network/TCPServerSocket.h"
 #include "../network/ZMQServerSocket.h"
 
-#include "../crypto/ConsensusBLSPublicKey.h"
+#include "../crypto/BLSPublicKey.h"
 #include "../crypto/ConsensusBLSPrivateKey.h"
 #include "../crypto/SHAHash.h"
 
@@ -301,8 +301,10 @@ void Node::initBLSKeys() {
     }
 
     if (isBLSEnabled) {
-        blsPrivateKey = make_shared<ConsensusBLSPrivateKey>(prkStr, sChain->getNodeCount());
-        blsPublicKey = make_shared<ConsensusBLSPublicKey>(pbkStr1, pbkStr2, pbkStr3, pbkStr4, sChain->getNodeCount());
+        blsPrivateKey = make_shared<BLSPrivateKey>(prkStr, sChain->getTotalSignersCount(), sChain->getRequiredSignersCount());
+
+        blsPublicKey = make_shared<BLSPublicKey>(pbkStr1, pbkStr2, pbkStr3, pbkStr4, sChain->getTotalSignersCount(),
+                sChain->getRequiredSignersCount());
     }
 }
 
@@ -577,14 +579,14 @@ uint64_t Node::getCommittedTransactionHistoryLimit() const {
 set<node_id> Node::nodeIDs;
 
 
-ptr<ConsensusBLSPublicKey> Node::getBlsPublicKey() const {
+ptr<BLSPublicKey> Node::getBlsPublicKey() const {
     if (!blsPublicKey) {
         BOOST_THROW_EXCEPTION(FatalError("Null BLS public key", __CLASS_NAME__));
     }
     return blsPublicKey;
 }
 
-ptr<ConsensusBLSPrivateKey> Node::getBlsPrivateKey() const {
+ptr<BLSPrivateKey> Node::getBlsPrivateKey() const {
     if (!blsPrivateKey) {
         BOOST_THROW_EXCEPTION(FatalError("Null BLS private key", __CLASS_NAME__));
     }

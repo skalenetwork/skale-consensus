@@ -825,9 +825,9 @@ void Schain::sigShareArrived(ptr<ConsensusBLSSigShare> _sigShare) {
 
 ptr<ConsensusBLSSigShare> Schain::sign(ptr<SHAHash> _hash, block_id _blockId) {
 
-    return getNode()->getBlsPrivateKey()->sign(_hash->toHex(), getSchainID(), _blockId,
-        getSchainIndex(),
-            getNode()->getNodeID());
+    auto blsShare = getNode()->getBlsPrivateKey()->sign(_hash->toHex(),(size_t) getSchainIndex());
+
+    return make_shared<ConsensusBLSSigShare>(blsShare, getSchainID(), _blockId, getNode()->getNodeID());
 
 }
 
@@ -836,7 +836,6 @@ void Schain::constructServers(ptr<Sockets> _sockets) {
     blockProposalServerAgent = make_shared<BlockProposalServerAgent>(*this, _sockets->blockProposalSocket);
 
     catchupServerAgent = make_shared<CatchupServerAgent>(*this, _sockets->catchupSocket);
-
 
 }
 

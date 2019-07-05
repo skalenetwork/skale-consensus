@@ -22,54 +22,44 @@
 */
 
 
-
-
-
-
-
-
 using namespace std;
 
 
 #include "../crypto/bls_include.h"
 
-#include "BLSSigShare.h"
 #include "BLSPrivateKey.h"
-
+#include "BLSSigShare.h"
 
 
 BLSPrivateKey::BLSPrivateKey( const string& _key, size_t _requiredSigners, size_t _totalSigners )
-    : requiredSigners( _requiredSigners ), totalSigners( _totalSigners ) {
+    : totalSigners( _totalSigners ), requiredSigners( _requiredSigners ) {
 
-    privateKey = make_shared<libff::alt_bn128_Fr>( _key.c_str() );
-
-
+    privateKey = make_shared< libff::alt_bn128_Fr >( _key.c_str() );
     if ( *privateKey == libff::alt_bn128_Fr::zero() ) {
-        BOOST_THROW_EXCEPTION(runtime_error("Secret key share is equal to zero or corrupt") );
+        BOOST_THROW_EXCEPTION( runtime_error( "Secret key share is equal to zero or corrupt" ) );
     }
 }
 
 
+shared_ptr< BLSSigShare > BLSPrivateKey::sign( shared_ptr< string > _msg, size_t _signerIndex ) {
+    shared_ptr< signatures::Bls > obj;
 
-shared_ptr<BLSSigShare> BLSPrivateKey::sign(shared_ptr<string> _msg, size_t _signerIndex) {
-    shared_ptr<signatures::Bls> obj;
-
-    obj = make_shared<signatures::Bls>( signatures::Bls( requiredSigners, totalSigners ) );
+    obj = make_shared< signatures::Bls >( signatures::Bls( requiredSigners, totalSigners ) );
 
     libff::alt_bn128_G1 hash = obj->Hashing( *_msg );
 
-    auto ss = make_shared<libff::alt_bn128_G1>( obj->Signing( hash, *privateKey ) );
+    auto ss = make_shared< libff::alt_bn128_G1 >( obj->Signing( hash, *privateKey ) );
 
     ss->to_affine_coordinates();
 
-    auto s = make_shared<BLSSigShare>( ss, _signerIndex);
+    auto s = make_shared< BLSSigShare >( ss, _signerIndex );
 
     auto ts = s->toString();
 
-    auto sig2 = make_shared<BLSSigShare>( ts, _signerIndex);
+    auto sig2 = make_shared< BLSSigShare >( ts, _signerIndex );
 
     if ( *s->getSigShare() != *sig2->getSigShare() ) {
-        BOOST_THROW_EXCEPTION(runtime_error("Sig shares do not match"));
+        BOOST_THROW_EXCEPTION( runtime_error( "Sig shares do not match" ) );
     }
 
 

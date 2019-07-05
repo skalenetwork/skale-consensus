@@ -35,9 +35,19 @@ protected:
     size_t requiredSigners;
 
 public:
+    BLSPrivateKey( const std::string& _key, size_t _totalSigners, size_t _requiredSigners );
+    std::shared_ptr< BLSSigShare > sign( std::shared_ptr< string > _msg, size_t _signerIndex );
 
-    BLSPrivateKey( const std::string & _key, size_t _totalSigners, size_t _requiredSigners);
-    std::shared_ptr<BLSSigShare> sign(std::shared_ptr<string> _msg, size_t _signerIndex);
+
+    // generate a vector of correct _totalSigners private keys that work together
+
+    //static shared_ptr< vector< shared_ptr< BLSPrivateKey>>> generateSampleKeys(
+    //    size_t _totalSigners, size_t _requiredSigners );
+
+
+
+
+
 };
 
 
