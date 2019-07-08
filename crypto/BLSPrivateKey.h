@@ -28,6 +28,10 @@
 
 class BLSSigShare;
 
+namespace libff {
+    class alt_bn128_fr;
+}
+
 class BLSPrivateKey {
 protected:
     std::shared_ptr< libff::alt_bn128_Fr > privateKey;
@@ -43,9 +47,6 @@ public:
 
     //static shared_ptr< vector< shared_ptr< BLSPrivateKey>>> generateSampleKeys(
     //    size_t _totalSigners, size_t _requiredSigners );
-
-
-
 
 
 };

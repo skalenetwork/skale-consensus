@@ -25,6 +25,10 @@
 #define SKALED_BLSPUBLICKEY_H
 
 
+namespace libff {
+    class alt_bn128_G2;
+}
+
 
 class BLSPublicKey {
 
