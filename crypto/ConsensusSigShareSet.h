@@ -44,10 +44,6 @@ public:
     ConsensusSigShareSet(
         Schain* _sChain, block_id _blockId, size_t _totalSigners, size_t _requiredSigners );
 
-    bool isTwoThird();
-
-    bool isTwoThirdMinusOne();
-
     ptr<ConsensusBLSSignature> mergeSignature();
 
     virtual ~ConsensusSigShareSet();

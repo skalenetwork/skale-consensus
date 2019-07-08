@@ -74,7 +74,7 @@ void ReceivedSigSharesDatabase::mergeAndSaveBLSSignature(block_id _blockId) {
     }
 
     auto sigSet = getSigShareSet(_blockId);
-    ASSERT(sigSet->isTwoThird());
+    ASSERT(sigSet->isEnough());
     auto signature = sigSet->mergeSignature();
     blockSignatures[_blockId] = signature;
 
@@ -104,7 +104,7 @@ bool ReceivedSigSharesDatabase::addSigShare(ptr<ConsensusBLSSigShare> _sigShare)
     sigShareSets.at(_sigShare->getBlockId())->addSigShare(_sigShare->getBlsSigShare());
 
 
-    return sigShareSets.at(_sigShare->getBlockId())->isTwoThirdMinusOne();
+    return sigShareSets.at(_sigShare->getBlockId())->isEnoughMinusOne();
 }
 
 
@@ -134,7 +134,7 @@ bool ReceivedSigSharesDatabase::isTwoThird(block_id _blockID) {
 
 
     if (sigShareSets.count(_blockID) > 0) {
-        return sigShareSets.at(_blockID)->isTwoThird();
+        return sigShareSets.at(_blockID)->isEnough();
     } else {
         return false;
     };

@@ -2,6 +2,16 @@
 // Created by kladko on 7/5/19.
 //
 
+#include "../Log.h"
+#include "../SkaleCommon.h"
+#include "../chains/Schain.h"
+#include "../exceptions/FatalError.h"
+#include "../node/ConsensusEngine.h"
+#include "../pendingqueue/PendingTransactionsAgent.h"
+#include "ConsensusBLSSigShare.h"
+#include "ConsensusBLSSignature.h"
+#include "ConsensusSigShareSet.h"
+#include "SHAHash.h"
 #include "bls_include.h"
 
 using namespace std;
@@ -57,4 +67,16 @@ BLSSigShareSet::BLSSigShareSet(size_t _totalSigners , size_t _requiredSigners)
     }
 
 
+}
+bool BLSSigShareSet::isEnough() {
+
+    lock_guard< recursive_mutex > lock( sigSharesMutex );
+
+    return (sigShares.size() >= requiredSigners );
+}
+bool BLSSigShareSet::isEnoughMinusOne() {
+    lock_guard< recursive_mutex > lock( sigSharesMutex );
+
+
+    return sigShares.size() >= requiredSigners - 1 ;
 }

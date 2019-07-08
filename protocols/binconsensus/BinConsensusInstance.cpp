@@ -58,8 +58,9 @@
 
 #include "../../crypto/ConsensusSigShareSet.h"
 #include "../../crypto/BLSSigShareSet.h"
-
 #include "../../crypto/ConsensusBLSSignature.h"
+#include "../../crypto/BLSSigShareSet.h"
+
 
 #include "BinConsensusInstance.h"
 
@@ -706,7 +707,7 @@ uint64_t BinConsensusInstance::calculateBLSRandom(bin_consensus_round _r) {
         for (auto&& item: auxTrueVotes[_r]) {
             ASSERT(item.second);
             shares.addSigShare(item.second->getBlsSigShare());
-            if (shares.isTwoThird())
+            if ( shares.isEnough())
                 break;
         }
     }
@@ -715,13 +716,13 @@ uint64_t BinConsensusInstance::calculateBLSRandom(bin_consensus_round _r) {
         for (auto&& item: auxFalseVotes[_r]) {
             ASSERT(item.second);
             shares.addSigShare(item.second->getBlsSigShare());
-            if (shares.isTwoThird())
+            if ( shares.isEnough())
                 break;
         }
     }
 
 
-    bool isTwoThird = shares.isTwoThird();
+    bool isTwoThird = shares.isEnough();
 
 
     ASSERT(isTwoThird);

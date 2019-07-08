@@ -33,43 +33,13 @@
 #include "../pendingqueue/PendingTransactionsAgent.h"
 #include "ConsensusBLSSigShare.h"
 
+#include "BLSSigShareSet.h"
 #include "ConsensusSigShareSet.h"
-
 
 
 using namespace std;
 
 atomic< uint64_t > ConsensusSigShareSet::totalObjects( 0 );
-
-
-
-bool ConsensusSigShareSet::isTwoThird() {
-
-    lock_guard< recursive_mutex > lock( sigSharesMutex );
-
-
-    auto nodeCount = sChain->getNodeCount();
-
-
-
-    if ( nodeCount <= 2 ) {
-        return nodeCount == sigShares.size();
-    }
-    return ( 3 * sigShares.size() > 2 * nodeCount );
-}
-
-
-bool ConsensusSigShareSet::isTwoThirdMinusOne() {
-    lock_guard< recursive_mutex > lock( sigSharesMutex );
-
-    auto nodeCount = sChain->getNodeCount();
-
-    if ( nodeCount <= 2 ) {
-        return nodeCount - 1 == sigShares.size();
-    }
-
-    return ( 3 * ( sigShares.size() + 1 ) > 2 * nodeCount );
-}
 
 
 ConsensusSigShareSet::ConsensusSigShareSet(

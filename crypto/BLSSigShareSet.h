@@ -6,9 +6,10 @@
 #define SKALED_BLSSIGSHARESET_H
 
 
+#include "../datastructures/DataStructure.h"
 #include <stdlib.h>
-#include <string>
 #include <mutex>
+#include <string>
 
 class BLSSigShareSet {
 protected:
@@ -18,6 +19,8 @@ protected:
 
 public:
     BLSSigShareSet( size_t requiredSigners, size_t totalSigners );
+    bool isEnough();
+    bool isEnoughMinusOne();
 protected:
     recursive_mutex sigSharesMutex;
 
