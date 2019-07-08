@@ -87,3 +87,14 @@ shared_ptr<string> BLSSignature::toString() {
     return make_shared<string>(str);
 
 }
+void BLSSignature::checkSigners( uint64_t _requiredSigners, uint64_t _totalSigners ) {
+    if ( _requiredSigners > _totalSigners ) {
+        BOOST_THROW_EXCEPTION( runtime_error( "_requiredSigners > _totalSigners" ) );
+    }
+
+
+    if ( _totalSigners == 0 ) {
+        BOOST_THROW_EXCEPTION( runtime_error( "_totalSigners == 0" ) );
+    }
+}
+

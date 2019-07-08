@@ -40,6 +40,10 @@ public:
     BLSSignature( const std::shared_ptr< libff::alt_bn128_G1 >& sig );
     std::shared_ptr<libff::alt_bn128_G1> getSig() const;
     std::shared_ptr<std::string> toString();
+
+    static void checkSigners( uint64_t _requiredSigners, uint64_t _totalSigners );
+
+
 };
 
 

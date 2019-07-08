@@ -27,12 +27,15 @@ using namespace std;
 
 #include "../crypto/bls_include.h"
 
-#include "BLSPrivateKey.h"
 #include "BLSSigShare.h"
+#include "BLSPrivateKey.h"
 
 
 BLSPrivateKey::BLSPrivateKey( const string& _key, size_t _requiredSigners, size_t _totalSigners )
     : totalSigners( _totalSigners ), requiredSigners( _requiredSigners ) {
+
+
+
 
     privateKey = make_shared< libff::alt_bn128_Fr >( _key.c_str() );
     if ( *privateKey == libff::alt_bn128_Fr::zero() ) {
