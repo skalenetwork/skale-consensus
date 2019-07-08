@@ -37,7 +37,7 @@
 
 
 ConsensusBLSSigShare::ConsensusBLSSigShare(
-    ptr< BLSSigShare >& _sigShare, schain_id _schainID, block_id _blockID, node_id _signerNodeID )
+    ptr< BLSSigShare > _sigShare, schain_id _schainID, block_id _blockID, node_id _signerNodeID)
     : schainId( _schainID ), blockId( _blockID ), signerNodeId( _signerNodeID ) {
     ASSERT( _sigShare != nullptr );
     blsSigShare = _sigShare;
@@ -56,7 +56,9 @@ ptr< BLSSigShare > ConsensusBLSSigShare::getBlsSigShare() const {
     return blsSigShare;
 }
 ConsensusBLSSigShare::ConsensusBLSSigShare( ptr< string > _sigShare, schain_id _schainID,
-    block_id _blockID, node_id _signerNodeID, schain_index _signerIndex )
+    block_id _blockID, node_id _signerNodeID, schain_index _signerIndex,
+    size_t _totalSigners, size_t _requiredSigners)
     : schainId( _schainID ), blockId( _blockID ), signerNodeId( _signerNodeID ) {
-    this->blsSigShare = make_shared< BLSSigShare >( _sigShare, ( size_t ) _signerIndex );
+    this->blsSigShare = make_shared< BLSSigShare >( _sigShare, ( size_t ) _signerIndex,
+            _totalSigners, _requiredSigners);
 }

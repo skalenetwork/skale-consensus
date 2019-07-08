@@ -54,8 +54,9 @@
 #include "../../exceptions/ExitRequestedException.h"
 #include "../../exceptions/PingException.h"
 #include "../../abstracttcpclient/AbstractClientAgent.h"
-#include "BlockFinalizeClientThreadPool.h"
 #include "../../crypto/ConsensusBLSSigShare.h"
+#include "BlockFinalizeClientThreadPool.h"
+
 #include "BlockFinalizeClientAgent.h"
 
 
@@ -140,5 +141,5 @@ ptr<ConsensusBLSSigShare> BlockFinalizeClientAgent::getBLSSignatureShare(nlohman
     auto s = Header::getString(_json, "sigShare");
 
     return make_shared<ConsensusBLSSigShare>(s, getSchain()->getSchainID(), _blockID, _signerNodeId,
-        _signerIndex);
+        _signerIndex, sChain->getTotalSignersCount(), sChain->getRequiredSignersCount());
 }

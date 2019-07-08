@@ -56,11 +56,11 @@ shared_ptr< BLSSigShare > BLSPrivateKey::sign( shared_ptr< string > _msg, size_t
 
     ss->to_affine_coordinates();
 
-    auto s = make_shared< BLSSigShare >( ss, _signerIndex );
+    auto s = make_shared< BLSSigShare >( ss, _signerIndex, totalSigners, requiredSigners );
 
     auto ts = s->toString();
 
-    auto sig2 = make_shared< BLSSigShare >( ts, _signerIndex );
+    auto sig2 = make_shared< BLSSigShare >( ts, _signerIndex, totalSigners, requiredSigners );
 
     if ( *s->getSigShare() != *sig2->getSigShare() ) {
         BOOST_THROW_EXCEPTION( runtime_error( "Sig shares do not match" ) );

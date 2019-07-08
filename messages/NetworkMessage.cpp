@@ -64,12 +64,12 @@ NetworkMessage::NetworkMessage(MsgType _messageType, node_id _destinationNodeID,
 }
 
 
-
-NetworkMessage::NetworkMessage(MsgType messageType, node_id _srcNodeID, node_id _dstNodeID, block_id _blockID,
-                               schain_index _blockProposerIndex, bin_consensus_round _r, bin_consensus_value _value,
-                               schain_id _schainId, msg_id _msgID, uint32_t _ip, ptr<string> _signature,
-                               schain_index _srcSchainIndex)
-        : Message(_schainId, messageType, _msgID, _srcNodeID,_dstNodeID, _blockID, _blockProposerIndex) {
+NetworkMessage::NetworkMessage( MsgType messageType, node_id _srcNodeID, node_id _dstNodeID,
+    block_id _blockID, schain_index _blockProposerIndex, bin_consensus_round _r,
+    bin_consensus_value _value, schain_id _schainId, msg_id _msgID, uint32_t _ip,
+    ptr< string > _signature, schain_index _srcSchainIndex, size_t _totalSigners,
+    size_t _requiredSigners )
+    : Message(_schainId, messageType, _msgID, _srcNodeID,_dstNodeID, _blockID, _blockProposerIndex) {
 
     ASSERT(_srcSchainIndex > 0)
 
@@ -87,7 +87,8 @@ NetworkMessage::NetworkMessage(MsgType messageType, node_id _srcNodeID, node_id 
 
 
     if (_signature->size() > 0 ) {
-       sigShare = make_shared<ConsensusBLSSigShare>(_signature, _schainId, _blockID, _srcNodeID, _srcSchainIndex);
+       sigShare = make_shared<ConsensusBLSSigShare>(_signature, _schainId, _blockID, _srcNodeID, _srcSchainIndex,
+               _totalSigners, _requiredSigners);
     }
 
 

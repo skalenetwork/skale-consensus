@@ -45,11 +45,11 @@ public:
 
 
 
-    ConsensusBLSSigShare(ptr<BLSSigShare> &_s, schain_id _schainId, block_id _blockID, node_id _signerNodeID);
+    ConsensusBLSSigShare(ptr<BLSSigShare> _s, schain_id _schainId, block_id _blockID, node_id _signerNodeID);
 
 
     ConsensusBLSSigShare(ptr<string> _sigShare, schain_id _schainID, block_id _blockID, node_id _signerNodeID,
-        schain_index _signerIndex);
+        schain_index _signerIndex, size_t _totalSigners, size_t _requiredSigners);
 
 
     block_id getBlockId() const;

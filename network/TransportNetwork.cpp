@@ -371,12 +371,12 @@ ptr< NetworkMessageEnvelope > TransportNetwork::receiveMessage() {
         mptr = make_shared<BVBroadcastMessage>( node_id( srcNodeID ), node_id( dstNodeID ),
             block_id( blockID ), schain_index( blockProposerIndex ), bin_consensus_round( round ),
             bin_consensus_value( value ), schain_id( sChainID ), msg_id( msgID ), rawIP, sig,
-            realSender->getSchainIndex());
+            realSender->getSchainIndex(), sChain->getTotalSignersCount(), sChain->getRequiredSignersCount());
     } else if ( msgType == MsgType::AUX_BROADCAST ) {
         mptr = make_shared<AUXBroadcastMessage>( node_id( srcNodeID ), node_id( dstNodeID ),
             block_id( blockID ), schain_index( blockProposerIndex), bin_consensus_round( round ),
             bin_consensus_value( value ), schain_id( sChainID ), msg_id( msgID ), rawIP, sig,
-            realSender->getSchainIndex());
+            realSender->getSchainIndex(), sChain->getTotalSignersCount(), sChain->getRequiredSignersCount());
     } else {
         ASSERT( false );
     }

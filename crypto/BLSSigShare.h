@@ -36,13 +36,17 @@ class BLSSigShare {
 private:
     std::shared_ptr< libff::alt_bn128_G1 > sigShare;
     size_t signerIndex;
+    size_t totalSigners;
+    size_t requiredSigners;
 
 public:
 
 
-    BLSSigShare( const std::shared_ptr< libff::alt_bn128_G1 >& sigShare, size_t signerIndex );
+    BLSSigShare( const std::shared_ptr< libff::alt_bn128_G1 >& sigShare, size_t signerIndex,
+            size_t _totalSigners, size_t _requiredSigners);
 
-    BLSSigShare( std::shared_ptr< string > _sigShare, size_t signerIndex );
+    BLSSigShare( std::shared_ptr< string > _sigShare, size_t signerIndex,
+            size_t _totalSigners, size_t _requiredSigners);
 
     std::shared_ptr< libff::alt_bn128_G1 > getSigShare() const;
 
