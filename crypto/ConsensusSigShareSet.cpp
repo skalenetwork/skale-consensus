@@ -57,40 +57,9 @@ ConsensusSigShareSet::~ConsensusSigShareSet() {
 
 
 ptr< ConsensusBLSSignature > ConsensusSigShareSet::mergeSignature() {
-    signatures::Bls obj = signatures::Bls( 2, 2 );
-
-    std::vector< size_t > participatingNodes;
-    std::vector< libff::alt_bn128_G1 > shares;
-
-    for ( auto&& item : sigShares ) {
-        participatingNodes.push_back( static_cast< uint64_t >( item.first ) + 1 );
-        shares.push_back( *item.second->getSigShare() );
-    }
-
-    /*
-        libff::alt_bn128_G2 pk;
-
-        // correct public key for secret keys from previous test
-        pk.X.c0 =
-       libff::alt_bn128_Fq("3587726236349347862079704257548861220640944168911165295818761560004029551650");
-        pk.X.c1 =
-       libff::alt_bn128_Fq("19787254980733313985916848161712839039049583927978588316450905648226551363679");
-        pk.Y.c0 =
-       libff::alt_bn128_Fq("6758417170296194890394379186698826295431221115224861568917420522501294769196");
-        pk.Y.c1 =
-       libff::alt_bn128_Fq("1055763161413596692895291379377477236343960686086193159772574402659834140867");
-        pk.Z.c0 = libff::alt_bn128_Fq::one();
-        pk.Z.c1 = libff::alt_bn128_Fq::zero();
-    */
-
-
-    std::vector<libff::alt_bn128_Fr> lagrangeCoeffs = obj.LagrangeCoeffs( participatingNodes );
-
-    libff::alt_bn128_G1 signature = obj.SignatureRecover( shares, lagrangeCoeffs );
-
-    auto sigPtr = make_shared<libff::alt_bn128_G1>( signature );
+    auto blsShare = merge();
 
     // BOOST_REQUIRE(obj.Verification(hash, common_signature, pk) == false);
 
-    return make_shared<ConsensusBLSSignature>( sigPtr, blockId );
+    return make_shared<ConsensusBLSSignature>( blsShare->getSig(), blockId );
 }

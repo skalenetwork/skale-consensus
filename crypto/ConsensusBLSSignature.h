@@ -34,7 +34,7 @@ class ConsensusBLSSignature : public BLSSignature {
 public:
     ConsensusBLSSignature(ptr<string> _s, block_id _blockID);
 
-    ConsensusBLSSignature(ptr<libff::alt_bn128_G1>& _s, block_id _blockID);
+    ConsensusBLSSignature(ptr<libff::alt_bn128_G1> _s, block_id _blockID);
 
    block_id getBlockId() const;
 };

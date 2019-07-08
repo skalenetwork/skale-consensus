@@ -12,27 +12,27 @@
 #include <string>
 
 class BLSSigShareSet {
-protected:
+
     size_t totalSigners;
     size_t requiredSigners;
+
+    recursive_mutex sigSharesMutex;
+
+
     map<size_t, shared_ptr< BLSSigShare > > sigShares;
 
 public:
     BLSSigShareSet( size_t requiredSigners, size_t totalSigners );
     bool isEnough();
     bool isEnoughMinusOne();
-protected:
-    recursive_mutex sigSharesMutex;
 
-
-
-public:
     bool addSigShare( shared_ptr< BLSSigShare > _sigShare);
 
     unsigned long getTotalSigSharesCount();
     shared_ptr< BLSSigShare > getSigShareByIndex(size_t _index);
+    ptr<BLSSignature> merge() const;
 };
 
 
 
-#endif  // SKALED_BLSSIGSHARESET_H
+#endif  // SKALED_BLSSIGSHARESET_H-
