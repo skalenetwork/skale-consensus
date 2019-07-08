@@ -27,13 +27,14 @@ using namespace std;
 
 #include "../crypto/bls_include.h"
 
+#include "BLSSignature.h"
 #include "BLSSigShare.h"
 #include "BLSPrivateKey.h"
 
 
 BLSPrivateKey::BLSPrivateKey( const string& _key, size_t _requiredSigners, size_t _totalSigners )
     : totalSigners( _totalSigners ), requiredSigners( _requiredSigners ) {
-
+    BLSSignature::checkSigners( _totalSigners, _requiredSigners );
 
 
 

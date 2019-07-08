@@ -22,27 +22,25 @@
 */
 
 
-#include "../SkaleCommon.h"
-#include "../thirdparty/json.hpp"
 #include "../Log.h"
-#include "../network/Utils.h"
+#include "../SkaleCommon.h"
 #include "../crypto/bls_include.h"
+#include "../network/Utils.h"
+#include "../thirdparty/json.hpp"
 
 #include "BLSSignature.h"
 #include "ConsensusBLSSignature.h"
 
 
-ConsensusBLSSignature::ConsensusBLSSignature(ptr<string> _s, block_id _blockID) : BLSSignature(_s),
-        blockId(_blockID) {
-
-
-}
+ConsensusBLSSignature::ConsensusBLSSignature(
+    ptr< string > _s, block_id _blockID, size_t _totalSigners, size_t _requiredSigners )
+    : BLSSignature( _s, _totalSigners, _requiredSigners ), blockId( _blockID ) {}
 
 block_id ConsensusBLSSignature::getBlockId() const {
     return blockId;
 }
 
 
-ConsensusBLSSignature::ConsensusBLSSignature(ptr<libff::alt_bn128_G1> _s, block_id _blockID) :
-    BLSSignature(_s), blockId(_blockID)  {};
-
+ConsensusBLSSignature::ConsensusBLSSignature( ptr< libff::alt_bn128_G1 > _s, block_id _blockID,
+    size_t _totalSigners, size_t _requiredSigners )
+    : BLSSignature( _s, _totalSigners, _requiredSigners ), blockId( _blockID ){};

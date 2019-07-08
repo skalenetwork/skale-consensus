@@ -61,5 +61,6 @@ ptr< ConsensusBLSSignature > ConsensusSigShareSet::mergeSignature() {
 
     // BOOST_REQUIRE(obj.Verification(hash, common_signature, pk) == false);
 
-    return make_shared<ConsensusBLSSignature>( blsShare->getSig(), blockId );
+    return make_shared<ConsensusBLSSignature>( blsShare->getSig(), blockId,
+            blsShare->getTotalSigners(), blsShare->getRequiredSigners());
 }

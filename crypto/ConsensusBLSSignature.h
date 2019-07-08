@@ -24,7 +24,7 @@
 #ifndef SKALED_CONSENSUSBLSSIGNATURE_H
 #define SKALED_CONSENSUSBLSSIGNATURE_H
 
-//constexpr uint64_t  MAX_BLS_SIGNATURE_SIZE = 64;
+// constexpr uint64_t  MAX_BLS_SIGNATURE_SIZE = 64;
 
 
 #include "BLSSignature.h"
@@ -32,14 +32,14 @@ class ConsensusBLSSignature : public BLSSignature {
     block_id blockId;
 
 public:
-    ConsensusBLSSignature(ptr<string> _s, block_id _blockID);
+    ConsensusBLSSignature(
+        ptr< string > _s, block_id _blockID, size_t _totalSigners, size_t _requiredSigners );
 
-    ConsensusBLSSignature(ptr<libff::alt_bn128_G1> _s, block_id _blockID);
+    ConsensusBLSSignature( ptr< libff::alt_bn128_G1 > _s, block_id _blockID, size_t _totalSigners,
+        size_t _requiredSigners );
 
-   block_id getBlockId() const;
+    block_id getBlockId() const;
 };
 
 
-#endif //SKALED_CONSENSUSBLSSIGNATURE_H
-
-
+#endif  // SKALED_CONSENSUSBLSSIGNATURE_H

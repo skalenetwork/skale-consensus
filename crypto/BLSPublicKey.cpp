@@ -28,11 +28,15 @@
 using namespace std;
 
 #include "../crypto/bls_include.h"
+#include "BLSSignature.h"
 #include "BLSPublicKey.h"
 
 BLSPublicKey::BLSPublicKey( const string& k1, const string& k2, const string& k3, const string& k4,
     size_t _totalSigners, size_t _requiredSigners )
     : totalSigners( _totalSigners ), requiredSigners( _requiredSigners )  {
+    BLSSignature::checkSigners( _totalSigners, _requiredSigners );
+
+
     libffPublicKey = make_shared< libff::alt_bn128_G2 >();
 
     libffPublicKey->X.c0 = libff::alt_bn128_Fq( k1.c_str() );

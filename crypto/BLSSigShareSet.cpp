@@ -59,13 +59,7 @@ shared_ptr< BLSSigShare > BLSSigShareSet::getSigShareByIndex( size_t _index ) {
 }
 BLSSigShareSet::BLSSigShareSet( size_t _totalSigners, size_t _requiredSigners )
     : totalSigners( _totalSigners ), requiredSigners( _requiredSigners ) {
-    if ( _totalSigners == 0 ) {
-        BOOST_THROW_EXCEPTION( runtime_error( "_totalSigners == 0" ) );
-    }
-
-    if ( totalSigners < _requiredSigners ) {
-        BOOST_THROW_EXCEPTION( runtime_error( "_totalSigners < _requiredSigners" ) );
-    }
+    BLSSignature::checkSigners( _totalSigners, _requiredSigners );
 }
 bool BLSSigShareSet::isEnough() {
     lock_guard< recursive_mutex > lock( sigSharesMutex );
@@ -95,5 +89,5 @@ ptr< BLSSignature > BLSSigShareSet::merge() const {
 
     auto sigPtr = make_shared< libff::alt_bn128_G1 >( signature );
 
-    return make_shared< BLSSignature >( sigPtr );
+    return make_shared< BLSSignature >( sigPtr, totalSigners, requiredSigners );
 }

@@ -30,20 +30,27 @@
 namespace libff {
     class alt_bn128_G1;
 }
-
 class BLSSignature {
-protected:
+
+
+    size_t totalSigners;
+    size_t requiredSigners;
+
     std::shared_ptr<libff::alt_bn128_G1> sig;
+
+
+
 public:
 
-    BLSSignature(std::shared_ptr<std::string> s);
-    BLSSignature( const std::shared_ptr< libff::alt_bn128_G1 >& sig );
+    BLSSignature(std::shared_ptr<std::string> s, size_t _totalSigners, size_t _requiredSigners);
+    BLSSignature( const std::shared_ptr< libff::alt_bn128_G1 >& sig, size_t _totalSigners,
+                  size_t _requiredSigners);;
     std::shared_ptr<libff::alt_bn128_G1> getSig() const;
     std::shared_ptr<std::string> toString();
 
-    static void checkSigners( uint64_t _requiredSigners, uint64_t _totalSigners );
-
-
+    static void checkSigners( size_t _totalSigners, size_t _requiredSigners);
+    size_t getTotalSigners() const;
+    size_t getRequiredSigners() const;
 };
 
 
