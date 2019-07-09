@@ -1216,10 +1216,10 @@
 		<Unit filename="/d/skale-consensus/consensus_pch/SkaleCommon.h.rule">
 			<Option target="consensus"/>
 		</Unit>
-		<Unit filename="/d/skale-consensus/crypto/BLSPrivateKey.cpp">
+		<Unit filename="/d/skale-consensus/crypto/BLSPrivateKeyShare.cpp">
 			<Option target="consensus"/>
 		</Unit>
-		<Unit filename="/d/skale-consensus/crypto/BLSPrivateKey.h">
+		<Unit filename="/d/skale-consensus/crypto/BLSPrivateKeyShare.h">
 			<Option target="consensus"/>
 		</Unit>
 		<Unit filename="/d/skale-consensus/crypto/BLSPublicKey.cpp">

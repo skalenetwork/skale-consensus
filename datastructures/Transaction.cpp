@@ -82,7 +82,7 @@ Transaction::Transaction(const ptr<vector<uint8_t>> data) : data(data) {
 
 };
 
-const ptr<vector<uint8_t>> &Transaction::getData() const {
+ptr<vector<uint8_t>> Transaction::getData() const {
     return data;
 }
 

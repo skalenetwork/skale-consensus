@@ -20,42 +20,42 @@
     @author Stan Kladko
     @date 2019
 */
-
-#ifndef SKALED_BLSSIGNATURE_SHARE_H
-#define SKALED_BLSSIGNATURE_SHARE_H
-
+#ifndef SKALED_BLSSIGSHARE_H
+#define SKALED_BLSSIGSHARE_H
 
 
+#include <stdlib.h>
+#include <string>
 
 namespace libff {
 class alt_bn128_G1;
 }
 
 class BLSSigShare {
-    ptr< libff::alt_bn128_G1 > sig;
-    schain_id schainId;
-    block_id blockId;
-    schain_index signerIndex;
-    node_id signerNodeId;
 
+private:
+    std::shared_ptr< libff::alt_bn128_G1 > sigShare;
+    size_t signerIndex;
+    size_t totalSigners;
+    size_t requiredSigners;
 
 public:
-    const ptr< libff::alt_bn128_G1 >& getSig() const;
-
-    ptr< string > toString();
 
 
-    BLSSigShare(ptr<string> _s, schain_id _schainID, block_id _blockID, schain_index _signerIndex, node_id _signerNodeID);
+    BLSSigShare( const std::shared_ptr< libff::alt_bn128_G1 >& sigShare, size_t signerIndex,
+            size_t _totalSigners, size_t _requiredSigners);
 
-    BLSSigShare(ptr<libff::alt_bn128_G1> &_s, schain_id _schainId, block_id _blockID, schain_index _signerIndex,
-                node_id _nodeID);
+    BLSSigShare( std::shared_ptr< string > _sigShare, size_t signerIndex,
+            size_t _totalSigners, size_t _requiredSigners);
 
-    const block_id& getBlockId() const;
+    std::shared_ptr< libff::alt_bn128_G1 > getSigShare() const;
 
-    const schain_index& getSignerIndex() const;
+    size_t getSignerIndex() const;
 
-    const node_id& getSignerNodeId() const;
+    std::shared_ptr< std::string > toString();
+    size_t getTotalSigners() const;
+    size_t getRequiredSigners() const;
 };
 
 
-#endif  // SKALED_BLSSignatureShare_H
+#endif  // SKALED_BLSSIGSHARE_H

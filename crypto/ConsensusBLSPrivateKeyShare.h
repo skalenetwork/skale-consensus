@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2018-2019 SKALE Labs
+    Copyright (C) 2019 SKALE Labs
 
     This file is part of skale-consensus.
 
@@ -16,49 +16,28 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file Transaction.h
+    @file ConsensusBLSPrivateKey.h
     @author Stan Kladko
-    @date 2018
+    @date 2019
 */
 
-#pragma  once
+#ifndef SKALED_CONSENSUSBLSPRIVATEKEYSHARE_H
+#define SKALED_CONSENSUSBLSPRIVATEKEYSHARE_H 1
 
-#include "../datastructures/DataStructure.h"
+#include "BLSPrivateKeyShare.h"
+#include "ConsensusBLSSigShare.h"
 
-class SHAHash;
-
-
-
-class Transaction : public DataStructure {
-
-
-private:
-
-    ptr<vector<uint8_t >> data = nullptr;
-
-    ptr<SHAHash> hash = nullptr;
-
-    ptr<partial_sha_hash> partialHash = nullptr;
-
-protected:
-
-    Transaction(const ptr<vector<uint8_t>> data);
-
+class ConsensusBLSPrivateKeyShare : public BLSPrivateKeyShare {
 public:
+    ConsensusBLSPrivateKeyShare( const string& k, node_count _nodeCount );
 
+    ptr<ConsensusBLSSigShare> sign(ptr<string> _msg, schain_id _schainId, block_id _blockId, schain_index _signerIndex,
+                          node_id _signerNodeId);
 
-
-    ptr<vector<uint8_t>> getData() const;
-
-
-    ptr<SHAHash> getHash();
-
-    ptr<partial_sha_hash> getPartialHash();
-
-    virtual ~Transaction();
-
-
+    ptr< string > convertSigToString( const libff::alt_bn128_G1& signature ) const;
 };
 
+
+#endif
 
 

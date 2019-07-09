@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2018-2019 SKALE Labs
+    Copyright (C) 2019 SKALE Labs
 
     This file is part of skale-consensus.
 
@@ -16,49 +16,30 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file Transaction.h
+    @file ConsensusBLSSignature.h
     @author Stan Kladko
-    @date 2018
+    @date 2019
 */
 
-#pragma  once
+#ifndef SKALED_CONSENSUSBLSSIGNATURE_H
+#define SKALED_CONSENSUSBLSSIGNATURE_H
 
-#include "../datastructures/DataStructure.h"
-
-class SHAHash;
-
+// constexpr uint64_t  MAX_BLS_SIGNATURE_SIZE = 64;
 
 
-class Transaction : public DataStructure {
-
-
-private:
-
-    ptr<vector<uint8_t >> data = nullptr;
-
-    ptr<SHAHash> hash = nullptr;
-
-    ptr<partial_sha_hash> partialHash = nullptr;
-
-protected:
-
-    Transaction(const ptr<vector<uint8_t>> data);
+#include "BLSSignature.h"
+class ConsensusBLSSignature : public BLSSignature {
+    block_id blockId;
 
 public:
+    ConsensusBLSSignature(
+        ptr< string > _s, block_id _blockID, size_t _totalSigners, size_t _requiredSigners );
 
+    ConsensusBLSSignature( ptr< libff::alt_bn128_G1 > _s, block_id _blockID, size_t _totalSigners,
+        size_t _requiredSigners );
 
-
-    ptr<vector<uint8_t>> getData() const;
-
-
-    ptr<SHAHash> getHash();
-
-    ptr<partial_sha_hash> getPartialHash();
-
-    virtual ~Transaction();
-
-
+    block_id getBlockId() const;
 };
 
 
-
+#endif  // SKALED_CONSENSUSBLSSIGNATURE_H

@@ -65,7 +65,7 @@ class Sockets;
 
 
 class SHAHash;
-class BLSSigShare;
+class ConsensusBLSSigShare;
 
 
 class Schain : public Agent {
@@ -210,9 +210,9 @@ public:
 
     void blockCommitsArrivedThroughCatchup(ptr<CommittedBlockList> _blocks);
 
-    void sigShareArrived(ptr<BLSSigShare> _sigShare);
+    void sigShareArrived(ptr<ConsensusBLSSigShare> _sigShare);
 
-    const ptr<IO> &getIo() const;
+    const ptr<IO> getIo() const;
 
 
 
@@ -222,7 +222,7 @@ public:
 
 
 
-    const ptr<PendingTransactionsAgent> &getPendingTransactionsAgent() const;
+    ptr<PendingTransactionsAgent> getPendingTransactionsAgent() const;
 
 
     schain_index getSchainIndex() const;
@@ -242,7 +242,7 @@ public:
     ptr<BlockConsensusAgent> getBlockConsensusInstance();
 
 
-    const ptr<NodeInfo> &getThisNodeInfo() const;
+    ptr<NodeInfo> getThisNodeInfo() const;
 
 
     node_count getNodeCount();
@@ -263,7 +263,7 @@ public:
         blockProposerTest = make_shared<string>(_blockProposerTest);
     }
 
-    const ptr<TestMessageGeneratorAgent> &getTestMessageGeneratorAgent() const;
+    ptr<TestMessageGeneratorAgent> getTestMessageGeneratorAgent() const;
 
 
     void bootstrap(block_id _lastCommittedBlockID, uint64_t _lastCommittedBlockTimeStamp);
@@ -298,6 +298,10 @@ public:
 
     ptr<vector<uint8_t>> getSerializedBlockFromLevelDB(const block_id &_blockID);
 
-    ptr<BLSSigShare> sign(ptr<SHAHash> _hash, block_id _blockId);
+    ptr<ConsensusBLSSigShare> sign(ptr<SHAHash> _hash, block_id _blockId);
+
+
+    size_t getTotalSignersCount();
+    size_t getRequiredSignersCount();
 
 };

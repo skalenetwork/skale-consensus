@@ -16,33 +16,31 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file BLSPrivateKey.h
+    @file ConsensusBLSSignature.cpp
     @author Stan Kladko
     @date 2019
 */
 
-#ifndef SKALED_BLSPRIVATEKEY_H
-#define SKALED_BLSPRIVATEKEY_H 1
 
-#include "BLSSigShare.h"
+#include "../Log.h"
+#include "../SkaleCommon.h"
+#include "../crypto/bls_include.h"
+#include "../network/Utils.h"
+#include "../thirdparty/json.hpp"
 
-class BLSPrivateKey {
-private:
-    size_t nodeCount;
-
-    ptr< libff::alt_bn128_Fr > sk;
-
-
-public:
-    BLSPrivateKey( const string& k, node_count _nodeCount );
-
-    ptr<BLSSigShare> sign(ptr<string> _msg, schain_id _schainId, block_id _blockId, schain_index _signerIndex,
-                          node_id _signerNodeId);
-
-    ptr< string > convertSigToString( const libff::alt_bn128_G1& signature ) const;
-};
+#include "BLSSignature.h"
+#include "ConsensusBLSSignature.h"
 
 
-#endif
+ConsensusBLSSignature::ConsensusBLSSignature(
+    ptr< string > _s, block_id _blockID, size_t _totalSigners, size_t _requiredSigners )
+    : BLSSignature( _s, _totalSigners, _requiredSigners ), blockId( _blockID ) {}
+
+block_id ConsensusBLSSignature::getBlockId() const {
+    return blockId;
+}
 
 
+ConsensusBLSSignature::ConsensusBLSSignature( ptr< libff::alt_bn128_G1 > _s, block_id _blockID,
+    size_t _totalSigners, size_t _requiredSigners )
+    : BLSSignature( _s, _totalSigners, _requiredSigners ), blockId( _blockID ){};

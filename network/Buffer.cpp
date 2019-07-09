@@ -67,7 +67,7 @@ size_t Buffer::getSize() const {
     return size;
 }
 
-const ptr<vector<uint8_t>> &Buffer::getBuf() const {
+ptr<vector<uint8_t>> Buffer::getBuf() const {
     return buf;
 }
 

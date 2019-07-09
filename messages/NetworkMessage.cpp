@@ -22,14 +22,16 @@
 */
 
 #include "../SkaleCommon.h"
+
 #include "../Log.h"
 #include "../exceptions/FatalError.h"
 #include "../exceptions/InvalidArgumentException.h"
 #include "../thirdparty/json.hpp"
+#include "../crypto/bls_include.h"
 #include "../protocols/ProtocolKey.h"
 #include "../protocols/binconsensus/BinConsensusInstance.h"
 #include "../chains/Schain.h"
-#include "../crypto/BLSSigShare.h"
+#include "../crypto/ConsensusBLSSigShare.h"
 #include "../node/Node.h"
 #include "../node/NodeInfo.h"
 #include "../network/Buffer.h"
@@ -62,12 +64,12 @@ NetworkMessage::NetworkMessage(MsgType _messageType, node_id _destinationNodeID,
 }
 
 
-
-NetworkMessage::NetworkMessage(MsgType messageType, node_id _srcNodeID, node_id _dstNodeID, block_id _blockID,
-                               schain_index _blockProposerIndex, bin_consensus_round _r, bin_consensus_value _value,
-                               schain_id _schainId, msg_id _msgID, uint32_t _ip, ptr<string> _signature,
-                               schain_index _srcSchainIndex)
-        : Message(_schainId, messageType, _msgID, _srcNodeID,_dstNodeID, _blockID, _blockProposerIndex) {
+NetworkMessage::NetworkMessage( MsgType messageType, node_id _srcNodeID, node_id _dstNodeID,
+    block_id _blockID, schain_index _blockProposerIndex, bin_consensus_round _r,
+    bin_consensus_value _value, schain_id _schainId, msg_id _msgID, uint32_t _ip,
+    ptr< string > _signature, schain_index _srcSchainIndex, size_t _totalSigners,
+    size_t _requiredSigners )
+    : Message(_schainId, messageType, _msgID, _srcNodeID,_dstNodeID, _blockID, _blockProposerIndex) {
 
     ASSERT(_srcSchainIndex > 0)
 
@@ -85,7 +87,8 @@ NetworkMessage::NetworkMessage(MsgType messageType, node_id _srcNodeID, node_id 
 
 
     if (_signature->size() > 0 ) {
-       sigShare = make_shared<BLSSigShare>(_signature, _schainId, _blockID, _srcSchainIndex, _srcNodeID);
+       sigShare = make_shared<ConsensusBLSSigShare>(_signature, _schainId, _blockID, _srcNodeID, _srcSchainIndex,
+               _totalSigners, _requiredSigners);
     }
 
 
@@ -93,7 +96,7 @@ NetworkMessage::NetworkMessage(MsgType messageType, node_id _srcNodeID, node_id 
     ASSERT(messageType > 0);
 }
 
-const ptr<BLSSigShare> &NetworkMessage::getSigShare() const {
+ptr<ConsensusBLSSigShare> NetworkMessage::getSigShare() const {
     return sigShare;
 }
 

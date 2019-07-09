@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2018-2019 SKALE Labs
+    Copyright (C) 2019 SKALE Labs
 
     This file is part of skale-consensus.
 
@@ -16,49 +16,39 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file Transaction.h
+    @file SigShareSet.h
     @author Stan Kladko
-    @date 2018
+    @date 2019
 */
 
-#pragma  once
+#pragma once
 
 #include "../datastructures/DataStructure.h"
+#include "BLSSigShareSet.h"
 
+
+class PartialHashesList;
+class Schain;
+class ConsensusBLSSigShare;
+class ConsensusBLSSignature;
 class SHAHash;
 
+class ConsensusSigShareSet : public BLSSigShareSet {
+    Schain* sChain;
+    block_id blockId;
 
+    static atomic<uint64_t>  totalObjects;
 
-class Transaction : public DataStructure {
-
-
-private:
-
-    ptr<vector<uint8_t >> data = nullptr;
-
-    ptr<SHAHash> hash = nullptr;
-
-    ptr<partial_sha_hash> partialHash = nullptr;
-
-protected:
-
-    Transaction(const ptr<vector<uint8_t>> data);
 
 public:
+    ConsensusSigShareSet(
+        Schain* _sChain, block_id _blockId, size_t _totalSigners, size_t _requiredSigners );
 
+    ptr<ConsensusBLSSignature> mergeSignature();
 
+    virtual ~ConsensusSigShareSet();
 
-    ptr<vector<uint8_t>> getData() const;
-
-
-    ptr<SHAHash> getHash();
-
-    ptr<partial_sha_hash> getPartialHash();
-
-    virtual ~Transaction();
-
-
+    static uint64_t getTotalObjects() {
+        return totalObjects;
+    }
 };
-
-
-

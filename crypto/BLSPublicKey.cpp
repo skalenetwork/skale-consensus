@@ -22,35 +22,57 @@
 */
 
 
-#include "../SkaleCommon.h"
-#include "../thirdparty/json.hpp"
-#include "../Log.h"
-#include "../network/Utils.h"
+#include <stdint.h>
+#include <string>
 
-#include "../exceptions/InvalidArgumentException.h"
+using namespace std;
 
-#include "bls_include.h"
-
+#include "../crypto/bls_include.h"
+#include "BLSSignature.h"
 #include "BLSPublicKey.h"
 
-BLSPublicKey::BLSPublicKey(
-    const string& k1, const string& k2, const string& k3, const string& k4, node_count _nodeCount )
-    : nodeCount( static_cast< uint64_t >( _nodeCount ) ) {
-    pk = make_shared<libff::alt_bn128_G2>();
+BLSPublicKey::BLSPublicKey( const string& k1, const string& k2, const string& k3, const string& k4,
+    size_t _totalSigners, size_t _requiredSigners )
+    : totalSigners( _totalSigners ), requiredSigners( _requiredSigners )  {
+    BLSSignature::checkSigners( _totalSigners, _requiredSigners );
 
-    pk->X.c0 = libff::alt_bn128_Fq( k1.c_str() );
-    pk->X.c1 = libff::alt_bn128_Fq( k2.c_str() );
-    pk->Y.c0 = libff::alt_bn128_Fq( k3.c_str() );
-    pk->Y.c1 = libff::alt_bn128_Fq( k4.c_str() );
-    pk->Z.c0 = libff::alt_bn128_Fq::one();
-    pk->Z.c1 = libff::alt_bn128_Fq::zero();
 
-    if ( pk->X.c0 == libff::alt_bn128_Fq::zero() || pk->X.c1 == libff::alt_bn128_Fq::zero() ||
-         pk->Y.c0 == libff::alt_bn128_Fq::zero() || pk->Y.c1 == libff::alt_bn128_Fq::zero() ) {
-        BOOST_THROW_EXCEPTION(
-            InvalidArgumentException( "Public Key is equal to zero or corrupt", __CLASS_NAME__ ) );
+    libffPublicKey = make_shared< libff::alt_bn128_G2 >();
+
+    libffPublicKey->X.c0 = libff::alt_bn128_Fq( k1.c_str() );
+    libffPublicKey->X.c1 = libff::alt_bn128_Fq( k2.c_str() );
+    libffPublicKey->Y.c0 = libff::alt_bn128_Fq( k3.c_str() );
+    libffPublicKey->Y.c1 = libff::alt_bn128_Fq( k4.c_str() );
+    libffPublicKey->Z.c0 = libff::alt_bn128_Fq::one();
+    libffPublicKey->Z.c1 = libff::alt_bn128_Fq::zero();
+
+    if ( libffPublicKey->X.c0 == libff::alt_bn128_Fq::zero() ||
+         libffPublicKey->X.c1 == libff::alt_bn128_Fq::zero() ||
+         libffPublicKey->Y.c0 == libff::alt_bn128_Fq::zero() ||
+         libffPublicKey->Y.c1 == libff::alt_bn128_Fq::zero() ) {
+        BOOST_THROW_EXCEPTION( runtime_error( "Public Key is equal to zero or corrupt" ) );
     }
+}
+shared_ptr< libff::alt_bn128_G2 >BLSPublicKey::getLibffPublicKey() const {
+    return libffPublicKey;
+}
+size_t BLSPublicKey::getTotalSigners() const {
+    return totalSigners;
+}
+size_t BLSPublicKey::getRequiredSigners() const {
+    return requiredSigners;
+}
 
+
+void BLSPublicKey::verifySig( shared_ptr< string > _msg) {
+
+    shared_ptr< signatures::Bls > obj;
+
+    obj = make_shared< signatures::Bls >( signatures::Bls( requiredSigners, totalSigners ) );
+
+    libff::alt_bn128_G1 hash = obj->Hashing( *_msg );
+
+    // verify signature here - throw runtime_error if signature does not verify
 
 
 }

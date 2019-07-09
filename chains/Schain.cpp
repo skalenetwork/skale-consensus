@@ -41,20 +41,18 @@
 #include "../pendingqueue/PendingTransactionsAgent.h"
 #include "../blockproposal/pusher/BlockProposalClientAgent.h"
 
-#include "../blockproposal/server/BlockProposalServerAgent.h"
 #include "../blockfinalize/client/BlockFinalizeClientAgent.h"
+#include "../blockproposal/server/BlockProposalServerAgent.h"
 #include "../catchup/client/CatchupClientAgent.h"
 #include "../catchup/server/CatchupServerAgent.h"
-#include "../node/NodeInfo.h"
+#include "../crypto/ConsensusBLSSigShare.h"
+#include "../exceptions/EngineInitException.h"
+#include "../exceptions/ParsingException.h"
+#include "../messages/InternalMessageEnvelope.h"
 #include "../messages/Message.h"
 #include "../messages/MessageEnvelope.h"
 #include "../messages/NetworkMessageEnvelope.h"
-#include "../messages/InternalMessageEnvelope.h"
-#include "../crypto/BLSSigShare.h"
-#include "../exceptions/EngineInitException.h"
-#include "../exceptions/ParsingException.h"
-
-
+#include "../node/NodeInfo.h"
 
 
 #include "../blockproposal/received/ReceivedBlockProposalsDatabase.h"
@@ -97,8 +95,8 @@
 #include "../db/LevelDB.h"
 
 
+#include "../crypto/ConsensusBLSPrivateKeyShare.h"
 #include "Schain.h"
-#include "../crypto/BLSPrivateKey.h"
 
 
 void Schain::postMessage(ptr<MessageEnvelope> m) {
@@ -248,9 +246,9 @@ Schain::Schain(Node &_node, schain_index _schainIndex, const schain_id &_schainI
         this->io = make_shared<IO>(this);
 
 
-        ASSERT(getNode()->getNodeInfosByIndex().size() > 0);
+        ASSERT(getNode()->getNodeInfosByIndex()->size() > 0);
 
-        for (auto const &iterator : getNode()->getNodeInfosByIndex()) {
+        for (auto const &iterator : *getNode()->getNodeInfosByIndex()) {
 
 
             if (*iterator.second->getBaseIP() == *getNode()->getBindIP()) {
@@ -281,7 +279,7 @@ Schain::Schain(Node &_node, schain_index _schainIndex, const schain_id &_schainI
     }
 }
 
-const ptr<IO> &Schain::getIo() const {
+const ptr<IO> Schain::getIo() const {
     return io;
 }
 
@@ -610,7 +608,7 @@ void Schain::proposedBlockArrived(ptr<BlockProposal> pbm) {
 }
 
 
-const ptr<PendingTransactionsAgent> &Schain::getPendingTransactionsAgent() const {
+ptr<PendingTransactionsAgent> Schain::getPendingTransactionsAgent() const {
     return pendingTransactionsAgent;
 }
 
@@ -682,7 +680,7 @@ Node *Schain::getNode() const {
 
 
 node_count Schain::getNodeCount() {
-    auto count = node_count(getNode()->getNodeInfosByIndex().size());
+    auto count = node_count(getNode()->getNodeInfosByIndex()->size());
     ASSERT(count > 0);
     return count;
 }
@@ -717,12 +715,12 @@ ptr<BlockConsensusAgent> Schain::getBlockConsensusInstance() {
 }
 
 
-const ptr<NodeInfo> &Schain::getThisNodeInfo() const {
+ptr<NodeInfo> Schain::getThisNodeInfo() const {
     return thisNodeInfo;
 }
 
 
-const ptr<TestMessageGeneratorAgent> &Schain::getTestMessageGeneratorAgent() const {
+ptr<TestMessageGeneratorAgent> Schain::getTestMessageGeneratorAgent() const {
     return testMessageGeneratorAgent;
 }
 
@@ -764,10 +762,13 @@ block_id Schain::getBootstrapBlockID() const {
 
 void Schain::setHealthCheckFile(uint64_t status) {
 
+    string fileName = Log::getDataDir()->append("/HEALTH_CHECK");
 
-    ofstream f(*Log::getDataDir() + "/HEALTH_CHECK", ios::trunc);
 
-    f << to_string(status);
+    ofstream f;
+    f.open(fileName, ios::trunc);
+    f << status;
+    f.close();
 
 }
 
@@ -811,7 +812,7 @@ void Schain::healthCheck() {
     setHealthCheckFile(2);
 }
 
-void Schain::sigShareArrived(ptr<BLSSigShare> _sigShare) {
+void Schain::sigShareArrived(ptr<ConsensusBLSSigShare> _sigShare) {
     if (blockSigSharesDatabase->addSigShare(_sigShare)) {
         auto blockId = _sigShare->getBlockId();
         auto mySig = sign(getBlock(blockId)->getHash(), blockId);
@@ -822,11 +823,11 @@ void Schain::sigShareArrived(ptr<BLSSigShare> _sigShare) {
 }
 
 
-ptr<BLSSigShare> Schain::sign(ptr<SHAHash> _hash, block_id _blockId) {
+ptr<ConsensusBLSSigShare> Schain::sign(ptr<SHAHash> _hash, block_id _blockId) {
 
-    return getNode()->getBlsPrivateKey()->sign(_hash->toHex(), getSchainID(), _blockId,
-        getSchainIndex(),
-            getNode()->getNodeID());
+    auto blsShare = getNode()->getBlsPrivateKey()->sign(_hash->toHex(),(size_t) getSchainIndex());
+
+    return make_shared<ConsensusBLSSigShare>(blsShare, getSchainID(), _blockId, getNode()->getNodeID());
 
 }
 
@@ -836,5 +837,21 @@ void Schain::constructServers(ptr<Sockets> _sockets) {
 
     catchupServerAgent = make_shared<CatchupServerAgent>(*this, _sockets->catchupSocket);
 
+}
+
+
+size_t Schain::getTotalSignersCount() {
+    return (size_t) getNodeCount();
+}
+size_t Schain::getRequiredSignersCount() {
+    auto count = getNodeCount();
+
+    if (count <= 2) {
+        return (uint64_t) count;
+    }
+
+    else {
+        return 2 * (uint64_t) count / 3 + 1;
+    }
 
 }

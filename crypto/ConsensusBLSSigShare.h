@@ -16,38 +16,46 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file BLSPublicKey.h
+    @file ConsensusBLSSigShare.h
     @author Stan Kladko
     @date 2019
 */
 
-#ifndef SKALED_BLSPUBLICKEY_H
-#define SKALED_BLSPUBLICKEY_H
+#ifndef SKALED_CONSENSUSBLSSIGSHARE_H
+#define SKALED_CONSENSUSBLSSIGSHARE_H
 
+
+#include "BLSSigShare.h"
 
 namespace libff {
-class alt_bn128_G2;
+class alt_bn128_G1;
 }
 
-
-class BLSPublicKey {
-    shared_ptr< libff::alt_bn128_G2 > libffPublicKey;
+class ConsensusBLSSigShare  {
 
 
-    size_t totalSigners;
-    size_t requiredSigners;
+    ptr<BLSSigShare> blsSigShare;
+
+    schain_id schainId;
+    block_id blockId;
+    node_id signerNodeId;
 
 public:
-    BLSPublicKey( const string& k1, const string& k2, const string& k3, const string& k4,
-        size_t _totalSigners, size_t _requiredSigners );
-
-    shared_ptr< libff::alt_bn128_G2 > getLibffPublicKey() const;
-    size_t getTotalSigners() const;
-    size_t getRequiredSigners() const;
 
 
-    void verifySig( shared_ptr< string > _msg );
+
+
+    ConsensusBLSSigShare(ptr<BLSSigShare> _s, schain_id _schainId, block_id _blockID, node_id _signerNodeID);
+
+
+    ConsensusBLSSigShare(ptr<string> _sigShare, schain_id _schainID, block_id _blockID, node_id _signerNodeID,
+        schain_index _signerIndex, size_t _totalSigners, size_t _requiredSigners);
+
+
+    block_id getBlockId() const;
+    node_id getSignerNodeId() const;
+    ptr< BLSSigShare > getBlsSigShare() const;
 };
 
 
-#endif  // SKALED_BLSPUBLICKEY_H
+#endif  // SKALED_CONSENSUSBLSSIGSHARE_H

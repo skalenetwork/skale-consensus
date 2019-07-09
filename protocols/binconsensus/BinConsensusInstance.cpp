@@ -28,7 +28,7 @@
 #include "../../thirdparty/json.hpp"
 #include "../../crypto/bls_include.h"
 
-#include "../../crypto/BLSSigShare.h"
+#include "../../crypto/ConsensusBLSSigShare.h"
 
 #include "AUXBroadcastMessage.h"
 
@@ -43,7 +43,7 @@
 #include "../../blockproposal/pusher/BlockProposalClientAgent.h"
 #include "../../blockproposal/received/ReceivedBlockProposalsDatabase.h"
 #include "../../chains/Schain.h"
-#include "../../crypto/BLSSignature.h"
+#include "../../crypto/ConsensusBLSSignature.h"
 #include "../../node/Node.h"
 
 #include "../../network/TransportNetwork.h"
@@ -56,7 +56,11 @@
 #include "BVBroadcastMessage.h"
 #include "../blockconsensus/BlockConsensusAgent.h"
 
-#include "../../datastructures/SigShareSet.h"
+#include "../../crypto/ConsensusSigShareSet.h"
+#include "../../crypto/BLSSigShareSet.h"
+#include "../../crypto/ConsensusBLSSignature.h"
+#include "../../crypto/BLSSigShareSet.h"
+
 
 #include "BinConsensusInstance.h"
 
@@ -302,7 +306,7 @@ uint64_t BinConsensusInstance::totalAUXVotes(bin_consensus_round r) {
     return auxTrueVotes[r].size() + auxFalseVotes[r].size();
 }
 
-void BinConsensusInstance::auxSelfVote(bin_consensus_round r, bin_consensus_value v, ptr<BLSSigShare> _sigShare) {
+void BinConsensusInstance::auxSelfVote(bin_consensus_round r, bin_consensus_value v, ptr<ConsensusBLSSigShare> _sigShare) {
     if (getSchain()->getNode()->isBlsEnabled()) {
         ASSERT(_sigShare);
     }
@@ -696,13 +700,14 @@ const node_count &BinConsensusInstance::getNodeCount() const {
 uint64_t BinConsensusInstance::calculateBLSRandom(bin_consensus_round _r) {
 
 
-    SigShareSet shares(getSchain(), getBlockID());
+    ConsensusSigShareSet shares(getSchain(), getBlockID(),getSchain()->getTotalSignersCount(),
+            getSchain()->getRequiredSignersCount());
 
     if (binValues[_r].count(bin_consensus_value(true)) > 0 && auxTrueVotes[_r].size() > 0) {
         for (auto&& item: auxTrueVotes[_r]) {
             ASSERT(item.second);
-            shares.addSigShare(item.second);
-            if (shares.isTwoThird())
+            shares.addSigShare(item.second->getBlsSigShare());
+            if ( shares.isEnough())
                 break;
         }
     }
@@ -710,14 +715,14 @@ uint64_t BinConsensusInstance::calculateBLSRandom(bin_consensus_round _r) {
     if (binValues[_r].count(bin_consensus_value(false)) > 0 && auxFalseVotes[_r].size() > 0) {
         for (auto&& item: auxFalseVotes[_r]) {
             ASSERT(item.second);
-            shares.addSigShare(item.second);
-            if (shares.isTwoThird())
+            shares.addSigShare(item.second->getBlsSigShare());
+            if ( shares.isEnough())
                 break;
         }
     }
 
 
-    bool isTwoThird = shares.isTwoThird();
+    bool isTwoThird = shares.isEnough();
 
 
     ASSERT(isTwoThird);

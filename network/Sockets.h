@@ -52,7 +52,7 @@ public:
 
     ptr<ZMQServerSocket> consensusZMQSocket = nullptr;
 
-    const ptr<ZMQServerSocket> &getConsensusZMQSocket() const;
+    ptr<ZMQServerSocket> getConsensusZMQSocket() const;
 
 
     ptr<TCPServerSocket> blockProposalSocket;

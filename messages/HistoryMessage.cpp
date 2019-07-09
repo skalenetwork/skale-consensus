@@ -24,6 +24,7 @@
 #include "../SkaleCommon.h"
 #include "../Log.h"
 #include "../thirdparty/json.hpp"
+#include "../crypto/bls_include.h"
 #include "../exceptions/FatalError.h"
 #include "../chains/Schain.h"
 #include "../node/Node.h"

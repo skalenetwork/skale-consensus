@@ -16,53 +16,40 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file SigShareSet.h
+    @file BLSPrivateKeyShare.h
     @author Stan Kladko
     @date 2019
 */
+#ifndef SKALED_BLSPRIVATEKEYSHARE_H
+#define SKALED_BLSPRIVATEKEYSHARE_H
 
-#pragma once
+#include <stdlib.h>
+#include <string>
 
-#include "DataStructure.h"
-
-
-
-class PartialHashesList;
-class Schain;
 class BLSSigShare;
-class BLSSignature;
-class SHAHash;
 
-class SigShareSet : public DataStructure  {
-    recursive_mutex sigSharesMutex;
+namespace libff {
+    class alt_bn128_fr;
+}
 
-    Schain* sChain;
-    block_id blockId;
-
-    map< schain_index, ptr< BLSSigShare > > sigShares;
+class BLSPrivateKeyShare {
+protected:
+    std::shared_ptr< libff::alt_bn128_Fr > privateKey;
+    size_t totalSigners;
+    size_t requiredSigners;
 
 public:
-    node_count getTotalSigSharesCount();
+    BLSPrivateKeyShare( const std::string& _key, size_t _totalSigners, size_t _requiredSigners );
+    std::shared_ptr< BLSSigShare > sign( std::shared_ptr< string > _msg, size_t _signerIndex );
 
-    SigShareSet( Schain* _sChain, block_id _blockId );
 
-    bool addSigShare(ptr<BLSSigShare> _sigShare);
+    // generate a vector of correct _totalSigners private keys that work together
 
-    bool isTwoThird();
+    //static shared_ptr< vector< shared_ptr< BLSPrivateKeyShare>>> generateSampleKeys(
+    //    size_t _totalSigners, size_t _requiredSigners );
 
-    bool isTwoThirdMinusOne();
 
-    ptr<BLSSigShare > getSigShareByIndex(schain_index _index);
-
-    ptr<BLSSignature> mergeSignature();
-
-    static uint64_t getTotalObjects() {
-        return totalObjects;
-    }
-
-    virtual ~SigShareSet();
-
-private:
-
-    static atomic<uint64_t>  totalObjects;
 };
+
+
+#endif  // SKALED_BLSPRIVATEKEYSHARE_H

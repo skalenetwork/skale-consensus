@@ -62,19 +62,17 @@
 #pragma GCC diagnostic pop
 
 
-
-
 #include "../chains/Schain.h"
-#include "../json/JSONFactory.h"
-#include "../exceptions/EngineInitException.h"
-#include "../network/Utils.h"
-#include "../network/Sockets.h"
-#include "../network/ZMQServerSocket.h"
-#include "../protocols/ProtocolKey.h"
-#include "../protocols/InstanceGarbageCollectorAgent.h"
-#include "../protocols/binconsensus/BinConsensusInstance.h"
 #include "../crypto/BLSPublicKey.h"
-#include "../crypto/BLSPrivateKey.h"
+#include "../crypto/ConsensusBLSPrivateKeyShare.h"
+#include "../exceptions/EngineInitException.h"
+#include "../json/JSONFactory.h"
+#include "../network/Sockets.h"
+#include "../network/Utils.h"
+#include "../network/ZMQServerSocket.h"
+#include "../protocols/InstanceGarbageCollectorAgent.h"
+#include "../protocols/ProtocolKey.h"
+#include "../protocols/binconsensus/BinConsensusInstance.h"
 
 #include "../exceptions/FatalError.h"
 
@@ -137,14 +135,17 @@ void ConsensusEngine::readSchainConfigFiles(Node &_node, const fs_path &_dirPath
 
     checkExistsAndDirectory(_dirPath);
 
+    directory_iterator itr(_dirPath);
+
+    auto end = directory_iterator();
+
+
     // cycle through the directory
 
-    for (directory_iterator itr(_dirPath); itr != directory_iterator(); ++itr) {
+    for (; itr != end; ++itr) {
         fs_path jsonFile = itr->path();
-
         LOG(debug, "Parsing file:" + jsonFile.string());
         JSONFactory::createAndAddSChainFromJson(_node, jsonFile, this);
-
         break;
     }
 
@@ -188,10 +189,13 @@ void ConsensusEngine::parseConfigsAndCreateAllNodes(const fs_path &dirname) {
 
         uint64_t nodeCount = 0;
 
+        directory_iterator itr(dirname);
 
-        for (directory_iterator itr(dirname); itr != directory_iterator{}; ++itr) {
+        auto end = directory_iterator();
+
+
+        for (; itr != end; itr++) {
             if (!is_directory(itr->path())) {
-
                 BOOST_THROW_EXCEPTION(FatalError("Junk file found. Remove it: " + itr->path().string()));
             }
 
@@ -199,12 +203,14 @@ void ConsensusEngine::parseConfigsAndCreateAllNodes(const fs_path &dirname) {
         };
 
 
-        for (directory_iterator itr(dirname); itr != directory_iterator{}; ++itr) {
-            if (!is_directory(itr->path())) {
-                BOOST_THROW_EXCEPTION(FatalError("Junk file found. Remove it: " + itr->path().string()));
+        directory_iterator itr2(dirname);
+
+        for (; itr2 != end; itr2++) {
+            if (!is_directory(itr2->path())) {
+                BOOST_THROW_EXCEPTION(FatalError("Junk file found. Remove it: " + itr2->path().string()));
             }
 
-            readNodeConfigFileAndCreateNode(itr->path(), Node::nodeIDs);
+            readNodeConfigFileAndCreateNode(itr2->path(), Node::nodeIDs);
         };
 
         if (nodes.size() == 0) {
