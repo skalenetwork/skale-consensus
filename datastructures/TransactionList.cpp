@@ -55,7 +55,7 @@ TransactionList::TransactionList(ptr<vector<size_t>> transactionSizes_,
         auto endIndex = index + size;
         ASSERT(index + size <= serializedTransactions->size());
         auto transactionData = make_shared<vector<uint8_t>>(serializedTransactions->begin() + index, serializedTransactions->begin() + endIndex);
-        auto transaction = make_shared<ImportedTransaction>(transactionData);
+        auto transaction = ImportedTransaction::deserialize(transactionData);
         transactions->push_back(transaction);
         index = endIndex;
     }

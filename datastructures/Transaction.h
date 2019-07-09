@@ -40,13 +40,14 @@ private:
 
     ptr<partial_sha_hash> partialHash = nullptr;
 
+
 protected:
 
     Transaction(const ptr<vector<uint8_t>> _data);
 
 public:
 
-
+    static ptr<Transaction> deserialize(const ptr<vector<uint8_t>> _data);
 
     uint64_t  getSerializedSize();
 
@@ -56,12 +57,6 @@ public:
     boost::crc_32_type getCRC();
 
     void serializeInto( ptr< vector< uint8_t > > _out);
-
-
-
-
-
-
 
 
     ptr<SHAHash> getHash();

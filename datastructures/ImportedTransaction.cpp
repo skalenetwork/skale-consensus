@@ -37,3 +37,7 @@ ImportedTransaction::~ImportedTransaction() {
 
 
 atomic<uint64_t>  ImportedTransaction::totalObjects(0);
+
+ptr< ImportedTransaction > ImportedTransaction::deserialize( const ptr< vector< uint8_t > > data ) {
+    return ptr<ImportedTransaction>(new ImportedTransaction(data));
+}

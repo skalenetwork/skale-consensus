@@ -26,9 +26,14 @@
 #include "Transaction.h"
 
 class ImportedTransaction  : public Transaction{
-public:
+
+
     ImportedTransaction(const ptr<vector<uint8_t>> data);
 
+public:
+
+
+    static ptr<ImportedTransaction> deserialize(const ptr<vector<uint8_t>> data);
 
 
     static atomic<uint64_t>  totalObjects;

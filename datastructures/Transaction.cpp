@@ -93,6 +93,3 @@ void Transaction::serializeInto( ptr< vector< uint8_t > > _out ) {
     _out->insert(_out->end(), data->begin(), data->end());
 
 }
-
-
-
