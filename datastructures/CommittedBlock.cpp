@@ -118,7 +118,6 @@ CommittedBlock::CommittedBlock(ptr<vector<uint8_t>> _serializedBlock) : BlockPro
         BOOST_THROW_EXCEPTION(InvalidArgumentException("Header size too large", __CLASS_NAME__));
     }
 
-
     auto header = make_shared<string>(headerSize, ' ');
 
     in.read((char*)header->c_str(), headerSize); /* Flawfinder: ignore */
