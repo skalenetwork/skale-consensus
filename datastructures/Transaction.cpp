@@ -36,9 +36,6 @@
 
 ptr<SHAHash> Transaction::getHash() {
 
-    ASSERT(data && data->size() > 0);
-
-
     if (hash)
         return hash;
 
@@ -61,14 +58,13 @@ ptr<SHAHash> Transaction::getHash() {
 
 ptr<partial_sha_hash> Transaction::getPartialHash() {
 
-
-    auto hash = getHash();
-
     if (partialHash) {
         return partialHash;
     }
 
     partialHash = make_shared<partial_sha_hash>();
+
+    getHash();
 
     for (size_t i = 0; i < PARTIAL_SHA_HASH_LEN; i++) {
         partialHash->at(i) = hash->at(i);
@@ -78,8 +74,8 @@ ptr<partial_sha_hash> Transaction::getPartialHash() {
 
 }
 
-Transaction::Transaction(const ptr<vector<uint8_t>> data) : data(data) {
-
+Transaction::Transaction(const ptr<vector<uint8_t>> _data) : data(_data) {
+    ASSERT(data != nullptr && data->size() > 0);
 };
 
 ptr<vector<uint8_t>> Transaction::getData() const {
@@ -89,4 +85,14 @@ ptr<vector<uint8_t>> Transaction::getData() const {
 Transaction::~Transaction() {
 
 }
+uint64_t Transaction::getSerializedSize() {
+    return data->size();
+}
+void Transaction::serializeInto( ptr< vector< uint8_t > > _out ) {
+    ASSERT(_out != nullptr)
+    _out->insert(_out->end(), data->begin(), data->end());
+
+}
+
+
 

@@ -77,13 +77,12 @@ shared_ptr<vector<uint8_t>>TransactionList::serialize()  {
     size_t totalSize = 0;
 
     for (auto &&transaction : *transactions) {
-        totalSize += transaction->getData()->size();
+        totalSize += transaction->getSerializedSize();
     }
 
     for (auto &&transaction : *transactions) {
-        totalSize += transaction->getData()->size();
+        totalSize += transaction->getSerializedSize();
     }
-
 
     serializedTransactions = make_shared<vector<uint8_t>>();
 
@@ -91,8 +90,7 @@ shared_ptr<vector<uint8_t>>TransactionList::serialize()  {
 
 
     for (auto &&transaction : *transactions) {
-        auto data = transaction->getData();
-        serializedTransactions->insert(serializedTransactions->end(), data->begin(), data->end());
+        transaction->serializeInto( serializedTransactions );
     }
     return serializedTransactions;
 }

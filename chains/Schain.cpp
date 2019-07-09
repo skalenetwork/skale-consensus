@@ -527,7 +527,6 @@ void Schain::pushBlockToExtFace(ptr<CommittedBlock> &_block) {
     ASSERT((returnedBlock + 1 == blockID) || returnedBlock == 0);
 
     for (auto &&t: *_block->getTransactionList()->getItems()) {
-
         tv.push_back(*(t->getData()));
     }
 
@@ -563,7 +562,6 @@ void Schain::startConsensus(const block_id _blockID) {
             LOG(debug, "Too late to start consensus: already committed " + to_string(committedBlockID));
             return;
         }
-
 
         if (_blockID > committedBlockID + 1) {
             LOG(debug, "Consensus is in the future" + to_string(committedBlockID));

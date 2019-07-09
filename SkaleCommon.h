@@ -83,7 +83,7 @@
 #include <boost/bind.hpp>
 #include <boost/thread/thread.hpp>
 #include <boost/multiprecision/cpp_int.hpp>
-
+#include <boost/crc.hpp>
 
 
 class Log;

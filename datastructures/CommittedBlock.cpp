@@ -72,7 +72,7 @@ ptr<vector<uint8_t>> CommittedBlock::serialize() {
     uint64_t binSize = 0;
 
     for (auto &&tx: *items) {
-        binSize += tx->getData()->size();
+        binSize += tx->getSerializedSize();
     }
 
     auto block = make_shared<vector<uint8_t>>();
@@ -80,8 +80,7 @@ ptr<vector<uint8_t>> CommittedBlock::serialize() {
     block->insert(block->end(), buf->getBuf()->begin(), buf->getBuf()->begin() + buf->getCounter());
 
     for (auto &&tx: *items) {
-        auto data = tx->getData();
-        block->insert(block->end(), data->begin(), data->end());
+        tx->serializeInto(block);
     }
 
     ASSERT(block->at(sizeof(uint64_t)) == '{');

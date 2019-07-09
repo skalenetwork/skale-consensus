@@ -42,13 +42,26 @@ private:
 
 protected:
 
-    Transaction(const ptr<vector<uint8_t>> data);
+    Transaction(const ptr<vector<uint8_t>> _data);
 
 public:
 
 
 
+    uint64_t  getSerializedSize();
+
+
     ptr<vector<uint8_t>> getData() const;
+
+    boost::crc_32_type getCRC();
+
+    void serializeInto( ptr< vector< uint8_t > > _out);
+
+
+
+
+
+
 
 
     ptr<SHAHash> getHash();

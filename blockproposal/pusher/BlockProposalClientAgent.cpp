@@ -188,7 +188,7 @@ void BlockProposalClientAgent::sendItemImpl(
     for ( auto&& transaction : *_proposal->getTransactionList()->getItems() ) {
         if ( missingHashes->count( transaction->getPartialHash() ) ) {
             missingTransactions->push_back( transaction );
-            missingTransactionsSizes->push_back( transaction->getData()->size() );
+            missingTransactionsSizes->push_back( transaction->getSerializedSize());
         }
     }
 
