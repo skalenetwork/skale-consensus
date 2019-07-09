@@ -16,12 +16,12 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file BLSPrivateKey.h
+    @file BLSPrivateKeyShare.h
     @author Stan Kladko
     @date 2019
 */
-#ifndef SKALED_BLSPRIVATEKEY_H
-#define SKALED_BLSPRIVATEKEY_H
+#ifndef SKALED_BLSPRIVATEKEYSHARE_H
+#define SKALED_BLSPRIVATEKEYSHARE_H
 
 #include <stdlib.h>
 #include <string>
@@ -32,24 +32,24 @@ namespace libff {
     class alt_bn128_fr;
 }
 
-class BLSPrivateKey {
+class BLSPrivateKeyShare {
 protected:
     std::shared_ptr< libff::alt_bn128_Fr > privateKey;
     size_t totalSigners;
     size_t requiredSigners;
 
 public:
-    BLSPrivateKey( const std::string& _key, size_t _totalSigners, size_t _requiredSigners );
+    BLSPrivateKeyShare( const std::string& _key, size_t _totalSigners, size_t _requiredSigners );
     std::shared_ptr< BLSSigShare > sign( std::shared_ptr< string > _msg, size_t _signerIndex );
 
 
     // generate a vector of correct _totalSigners private keys that work together
 
-    //static shared_ptr< vector< shared_ptr< BLSPrivateKey>>> generateSampleKeys(
+    //static shared_ptr< vector< shared_ptr< BLSPrivateKeyShare>>> generateSampleKeys(
     //    size_t _totalSigners, size_t _requiredSigners );
 
 
 };
 
 
-#endif  // SKALED_BLSPRIVATEKEY_H
+#endif  // SKALED_BLSPRIVATEKEYSHARE_H

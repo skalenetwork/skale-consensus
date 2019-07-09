@@ -26,29 +26,28 @@
 
 
 namespace libff {
-    class alt_bn128_G2;
+class alt_bn128_G2;
 }
 
 
 class BLSPublicKey {
-
-    shared_ptr<libff::alt_bn128_G2> libffPublicKey;
-
+    shared_ptr< libff::alt_bn128_G2 > libffPublicKey;
 
 
     size_t totalSigners;
     size_t requiredSigners;
 
 public:
-    BLSPublicKey(const string &k1, const string &k2, const string &k3, const string &k4,
-            size_t _totalSigners, size_t _requiredSigners);
+    BLSPublicKey( const string& k1, const string& k2, const string& k3, const string& k4,
+        size_t _totalSigners, size_t _requiredSigners );
 
     shared_ptr< libff::alt_bn128_G2 > getLibffPublicKey() const;
     size_t getTotalSigners() const;
     size_t getRequiredSigners() const;
 
+
+    void verifySig( shared_ptr< string > _msg );
 };
 
 
-
-#endif //SKALED_BLSPUBLICKEY_H
+#endif  // SKALED_BLSPUBLICKEY_H

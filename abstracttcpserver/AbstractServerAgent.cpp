@@ -39,7 +39,7 @@
 #include "../exceptions/OldBlockIDException.h"
 #include "../exceptions/CouldNotReadPartialDataHashesException.h"
 
-#include "../crypto/BLSPrivateKey.h"
+#include "../crypto/BLSPrivateKeyShare.h"
 #include "../crypto/BLSPublicKey.h"
 #include "../crypto/SHAHash.h"
 #include "../datastructures/BlockProposalSet.h"

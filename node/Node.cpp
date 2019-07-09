@@ -45,7 +45,7 @@
 #include "../network/ZMQServerSocket.h"
 
 #include "../crypto/BLSPublicKey.h"
-#include "../crypto/ConsensusBLSPrivateKey.h"
+#include "../crypto/ConsensusBLSPrivateKeyShare.h"
 #include "../crypto/SHAHash.h"
 
 
@@ -301,7 +301,7 @@ void Node::initBLSKeys() {
     }
 
     if (isBLSEnabled) {
-        blsPrivateKey = make_shared<BLSPrivateKey>(prkStr, sChain->getTotalSignersCount(), sChain->getRequiredSignersCount());
+        blsPrivateKey = make_shared<BLSPrivateKeyShare>(prkStr, sChain->getTotalSignersCount(), sChain->getRequiredSignersCount());
 
         blsPublicKey = make_shared<BLSPublicKey>(pbkStr1, pbkStr2, pbkStr3, pbkStr4, sChain->getTotalSignersCount(),
                 sChain->getRequiredSignersCount());
@@ -586,7 +586,7 @@ ptr<BLSPublicKey> Node::getBlsPublicKey() const {
     return blsPublicKey;
 }
 
-ptr<BLSPrivateKey> Node::getBlsPrivateKey() const {
+ptr<BLSPrivateKeyShare> Node::getBlsPrivateKey() const {
     if (!blsPrivateKey) {
         BOOST_THROW_EXCEPTION(FatalError("Null BLS private key", __CLASS_NAME__));
     }

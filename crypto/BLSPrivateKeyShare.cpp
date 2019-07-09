@@ -16,7 +16,7 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file BLSPrivateKey.cpp
+    @file BLSPrivateKeyShare.cpp
     @author Stan Kladko
     @date 2019
 */
@@ -27,12 +27,12 @@ using namespace std;
 
 #include "../crypto/bls_include.h"
 
-#include "BLSSignature.h"
+#include "BLSPrivateKeyShare.h"
 #include "BLSSigShare.h"
-#include "BLSPrivateKey.h"
+#include "BLSSignature.h"
 
 
-BLSPrivateKey::BLSPrivateKey( const string& _key, size_t _requiredSigners, size_t _totalSigners )
+BLSPrivateKeyShare::BLSPrivateKeyShare( const string& _key, size_t _requiredSigners, size_t _totalSigners )
     : totalSigners( _totalSigners ), requiredSigners( _requiredSigners ) {
     BLSSignature::checkSigners( _totalSigners, _requiredSigners );
 
@@ -45,7 +45,7 @@ BLSPrivateKey::BLSPrivateKey( const string& _key, size_t _requiredSigners, size_
 }
 
 
-shared_ptr< BLSSigShare > BLSPrivateKey::sign( shared_ptr< string > _msg, size_t _signerIndex ) {
+shared_ptr< BLSSigShare > BLSPrivateKeyShare::sign( shared_ptr< string > _msg, size_t _signerIndex ) {
     shared_ptr< signatures::Bls > obj;
 
     obj = make_shared< signatures::Bls >( signatures::Bls( requiredSigners, totalSigners ) );

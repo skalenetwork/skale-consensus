@@ -53,6 +53,8 @@ public:
     size_t getSignerIndex() const;
 
     std::shared_ptr< std::string > toString();
+    size_t getTotalSigners() const;
+    size_t getRequiredSigners() const;
 };
 
 

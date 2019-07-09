@@ -104,7 +104,10 @@ bool ReceivedSigSharesDatabase::addSigShare(ptr<ConsensusBLSSigShare> _sigShare)
     sigShareSets.at(_sigShare->getBlockId())->addSigShare(_sigShare->getBlsSigShare());
 
 
-    return sigShareSets.at(_sigShare->getBlockId())->isEnoughMinusOne();
+    auto sigsCount = sigShareSets.at(_sigShare->getBlockId())->getTotalSigSharesCount();
+
+
+    return sigsCount >= sChain->getRequiredSignersCount() - 1;
 }
 
 

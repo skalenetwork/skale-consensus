@@ -21,15 +21,15 @@
     @date 2019
 */
 
+#include "bls_include.h"
 #include <stdlib.h>
 #include <string>
-#include "bls_include.h"
 
 using namespace std;
 
 
-#include "BLSSignature.h"
 #include "BLSSigShare.h"
+#include "BLSSignature.h"
 
 
 shared_ptr< libff::alt_bn128_G1 > BLSSigShare::getSigShare() const {
@@ -48,13 +48,12 @@ shared_ptr< string > BLSSigShare::toString() {
     return make_shared< string >( str );
 }
 
-BLSSigShare::BLSSigShare( shared_ptr< string > _sigShare, size_t signerIndex,
-                          size_t _totalSigners, size_t _requiredSigners)
-    : signerIndex( signerIndex), totalSigners(_totalSigners), requiredSigners(_requiredSigners) {
-
-
-
-    BLSSignature::checkSigners(totalSigners, requiredSigners);
+BLSSigShare::BLSSigShare( shared_ptr< string > _sigShare, size_t signerIndex, size_t _totalSigners,
+    size_t _requiredSigners )
+    : signerIndex( signerIndex ),
+      totalSigners( _totalSigners ),
+      requiredSigners( _requiredSigners ) {
+    BLSSignature::checkSigners( totalSigners, requiredSigners );
 
     if ( signerIndex == 0 ) {
         BOOST_THROW_EXCEPTION( runtime_error( "Zero signer index" ) );
@@ -114,11 +113,13 @@ BLSSigShare::BLSSigShare( shared_ptr< string > _sigShare, size_t signerIndex,
     sigShare = make_shared< libff::alt_bn128_G1 >( X, Y, Z );
 }
 BLSSigShare::BLSSigShare( const shared_ptr< libff::alt_bn128_G1 >& _sigShare, size_t _signerIndex,
-                          size_t _totalSigners, size_t _requiredSigners)
-    : sigShare( _sigShare ), signerIndex( _signerIndex ),
-    totalSigners(_totalSigners), requiredSigners(_requiredSigners){
+    size_t _totalSigners, size_t _requiredSigners )
+    : sigShare( _sigShare ),
+      signerIndex( _signerIndex ),
+      totalSigners( _totalSigners ),
+      requiredSigners( _requiredSigners ) {
 
-    BLSSignature::checkSigners(totalSigners, requiredSigners);
+    BLSSignature::checkSigners( totalSigners, requiredSigners );
 
 
     if ( _signerIndex == 0 ) {
@@ -128,4 +129,10 @@ BLSSigShare::BLSSigShare( const shared_ptr< libff::alt_bn128_G1 >& _sigShare, si
     if ( !_sigShare ) {
         BOOST_THROW_EXCEPTION( runtime_error( "Null _s" ) );
     }
+}
+size_t BLSSigShare::getTotalSigners() const {
+    return totalSigners;
+}
+size_t BLSSigShare::getRequiredSigners() const {
+    return requiredSigners;
 }

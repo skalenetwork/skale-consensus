@@ -37,14 +37,14 @@
 #include <iostream>
 
 
-#include "BLSPrivateKey.h"
+#include "BLSPrivateKeyShare.h"
 #include "BLSSigShare.h"
-#include "ConsensusBLSPrivateKey.h"
+#include "ConsensusBLSPrivateKeyShare.h"
 #include "ConsensusBLSSigShare.h"
 
 
-ConsensusBLSPrivateKey::ConsensusBLSPrivateKey( const string& k, node_count _nodeCount ) :
-BLSPrivateKey(k, size_t(_nodeCount), size_t(_nodeCount))
+ConsensusBLSPrivateKeyShare::ConsensusBLSPrivateKeyShare( const string& k, node_count _nodeCount ) :
+BLSPrivateKeyShare(k, size_t(_nodeCount), size_t(_nodeCount))
 {
 
     if (totalSigners == 1 || totalSigners == 2)
@@ -57,11 +57,11 @@ BLSPrivateKey(k, size_t(_nodeCount), size_t(_nodeCount))
 
 
 ptr<ConsensusBLSSigShare>
-ConsensusBLSPrivateKey::sign(ptr<string> _msg, schain_id _schainId, block_id _blockId, schain_index _signerIndex,
+ConsensusBLSPrivateKeyShare::sign(ptr<string> _msg, schain_id _schainId, block_id _blockId, schain_index _signerIndex,
                     node_id _signerNodeId) {
 
 
-    auto blsSigShare = BLSPrivateKey::sign(_msg, (size_t) _signerIndex);
+    auto blsSigShare = BLSPrivateKeyShare::sign(_msg, (size_t) _signerIndex);
 
     auto sigShare = make_shared<ConsensusBLSSigShare>( blsSigShare, _schainId, _blockId, _signerNodeId );
 

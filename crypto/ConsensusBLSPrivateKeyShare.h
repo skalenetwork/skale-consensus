@@ -21,15 +21,15 @@
     @date 2019
 */
 
-#ifndef SKALED_CONSENSUSBLSPRIVATEKEY_H
-#define SKALED_CONSENSUSBLSPRIVATEKEY_H 1
+#ifndef SKALED_CONSENSUSBLSPRIVATEKEYSHARE_H
+#define SKALED_CONSENSUSBLSPRIVATEKEYSHARE_H 1
 
-#include "BLSPrivateKey.h"
+#include "BLSPrivateKeyShare.h"
 #include "ConsensusBLSSigShare.h"
 
-class ConsensusBLSPrivateKey : public BLSPrivateKey {
+class ConsensusBLSPrivateKeyShare : public BLSPrivateKeyShare {
 public:
-    ConsensusBLSPrivateKey( const string& k, node_count _nodeCount );
+    ConsensusBLSPrivateKeyShare( const string& k, node_count _nodeCount );
 
     ptr<ConsensusBLSSigShare> sign(ptr<string> _msg, schain_id _schainId, block_id _blockId, schain_index _signerIndex,
                           node_id _signerNodeId);

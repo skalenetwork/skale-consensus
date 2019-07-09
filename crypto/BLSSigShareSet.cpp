@@ -2,25 +2,20 @@
 // Created by kladko on 7/5/19.
 //
 
-#include "../Log.h"
-#include "../SkaleCommon.h"
-#include "../chains/Schain.h"
-#include "../exceptions/FatalError.h"
-#include "../node/ConsensusEngine.h"
-#include "../pendingqueue/PendingTransactionsAgent.h"
-#include "ConsensusBLSSigShare.h"
-#include "ConsensusBLSSignature.h"
-#include "ConsensusSigShareSet.h"
-#include "SHAHash.h"
-#include "bls_include.h"
+#include <stdint.h>
+#include <string>
 
 using namespace std;
 
+#include "../crypto/bls_include.h"
+
+#include "BLSSignature.h"
 #include "BLSSigShare.h"
 #include "BLSSigShareSet.h"
 
 
 bool BLSSigShareSet::addSigShare( shared_ptr< BLSSigShare > _sigShare ) {
+
     if ( !_sigShare ) {
         BOOST_THROW_EXCEPTION( runtime_error( "Null _sigShare" ) );
     }
@@ -66,13 +61,14 @@ bool BLSSigShareSet::isEnough() {
 
     return ( sigShares.size() >= requiredSigners );
 }
-bool BLSSigShareSet::isEnoughMinusOne() {
-    lock_guard< recursive_mutex > lock( sigSharesMutex );
 
 
-    return sigShares.size() >= requiredSigners - 1;
-}
-ptr< BLSSignature > BLSSigShareSet::merge() const {
+shared_ptr< BLSSignature > BLSSigShareSet::merge() {
+
+    if (!isEnough())
+        BOOST_THROW_EXCEPTION(runtime_error("Not enough shares to create signature"));
+
+
     signatures::Bls obj = signatures::Bls( requiredSigners, totalSigners );
 
     vector< size_t > participatingNodes;

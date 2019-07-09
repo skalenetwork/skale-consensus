@@ -6,10 +6,11 @@
 #define SKALED_BLSSIGSHARESET_H
 
 
-#include "../datastructures/DataStructure.h"
 #include <stdlib.h>
 #include <mutex>
 #include <string>
+
+class BLSSignature;
 
 class BLSSigShareSet {
 
@@ -22,15 +23,16 @@ class BLSSigShareSet {
     map<size_t, shared_ptr< BLSSigShare > > sigShares;
 
 public:
+
     BLSSigShareSet( size_t requiredSigners, size_t totalSigners );
+
     bool isEnough();
-    bool isEnoughMinusOne();
 
     bool addSigShare( shared_ptr< BLSSigShare > _sigShare);
 
     unsigned long getTotalSigSharesCount();
     shared_ptr< BLSSigShare > getSigShareByIndex(size_t _index);
-    ptr<BLSSignature> merge() const;
+    shared_ptr<BLSSignature> merge();
 };
 
 

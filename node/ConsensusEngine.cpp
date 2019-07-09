@@ -64,7 +64,7 @@
 
 #include "../chains/Schain.h"
 #include "../crypto/BLSPublicKey.h"
-#include "../crypto/ConsensusBLSPrivateKey.h"
+#include "../crypto/ConsensusBLSPrivateKeyShare.h"
 #include "../exceptions/EngineInitException.h"
 #include "../json/JSONFactory.h"
 #include "../network/Sockets.h"

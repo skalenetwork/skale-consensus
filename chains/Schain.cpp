@@ -95,8 +95,8 @@
 #include "../db/LevelDB.h"
 
 
+#include "../crypto/ConsensusBLSPrivateKeyShare.h"
 #include "Schain.h"
-#include "../crypto/ConsensusBLSPrivateKey.h"
 
 
 void Schain::postMessage(ptr<MessageEnvelope> m) {
