@@ -522,23 +522,20 @@ void Schain::pushBlockToExtFace(ptr<CommittedBlock> &_block) {
 
     auto blockID = _block->getBlockID();
 
-    ConsensusExtFace::transactions_vector tv;
+
 
     ASSERT((returnedBlock + 1 == blockID) || returnedBlock == 0);
 
-    for (auto &&t: *_block->getTransactionList()->getItems()) {
-        tv.push_back(*(t->getData()));
-    }
-
     returnedBlock = (uint64_t) blockID;
 
+    auto tv = _block->getTransactionList()->createTransactionVector();
 
-    auto price = this->pricingAgent->calculatePrice(tv, _block->getTimeStamp(),
+    auto price = this->pricingAgent->calculatePrice(*tv, _block->getTimeStamp(),
             _block->getTimeStampMs(), _block->getBlockID());
 
 
     if (extFace) {
-        extFace->createBlock(tv, _block->getTimeStamp(),
+        extFace->createBlock(*tv, _block->getTimeStamp(),
                 _block->getTimeStampMs(),
                 (__uint64_t) _block->getBlockID(), price);
     }

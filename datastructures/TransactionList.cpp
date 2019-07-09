@@ -106,3 +106,14 @@ atomic<uint64_t>  TransactionList::totalObjects(0);
 size_t TransactionList::size() {
     return transactions->size();
 }
+
+
+ptr<ConsensusExtFace::transactions_vector> TransactionList::createTransactionVector() {
+
+    auto tv = make_shared< ConsensusExtFace::transactions_vector >();
+
+    for ( auto&& t : *getItems() ) {
+        tv->push_back( *( t->getData() ) );
+    }
+    return tv;
+}

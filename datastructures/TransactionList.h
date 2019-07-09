@@ -26,7 +26,13 @@
 #include "DataStructure.h"
 
 
+
+#include "../node/ConsensusEngine.h"
+
+
+
 class Transaction;
+class ConsensusExtFace;
 
 class TransactionList : public DataStructure  {
 
@@ -56,6 +62,7 @@ public:
 
     virtual ~TransactionList();
 
+    ptr<ConsensusExtFace::transactions_vector> createTransactionVector();
 
 };
 
