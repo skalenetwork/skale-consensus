@@ -55,9 +55,6 @@ CommittedBlock::CommittedBlock(Schain &_sChain, ptr<BlockProposal> _p) : BlockPr
 ptr<vector<uint8_t>> CommittedBlock::serialize() {
 
 
-    if (serializedBlock != nullptr) {
-        return serializedBlock;
-    }
 
     auto items = transactionList->getItems();
 
@@ -85,9 +82,8 @@ ptr<vector<uint8_t>> CommittedBlock::serialize() {
 
     ASSERT(block->at(sizeof(uint64_t)) == '{');
 
-    serializedBlock = block;
+    return block;
 
-    return serializedBlock;
 }
 
 uint64_t CommittedBlock::getHeaderSize() const {
@@ -106,7 +102,6 @@ CommittedBlock::CommittedBlock(ptr<vector<uint8_t>> _serializedBlock) : BlockPro
                                                        __CLASS_NAME__));
     }
 
-    serializedBlock = _serializedBlock;
 
     using boost::iostreams::array_source;
     using boost::iostreams::stream;
@@ -148,7 +143,7 @@ CommittedBlock::CommittedBlock(ptr<vector<uint8_t>> _serializedBlock) : BlockPro
         throw_with_nested(ParsingException("Could not parse committed block header: \n" + *header, __CLASS_NAME__));
     }
 
-    transactionList = make_shared<TransactionList>(transactionSizes, _serializedBlock, headerSize);
+    transactionList = TransactionList::deserialize(transactionSizes, _serializedBlock, headerSize);
 
     calculateHash();
 
@@ -186,4 +181,7 @@ ptr<vector<size_t>> CommittedBlock::parseBlockHeader(
 
     return transactionSizes;
 
+}
+ptr< CommittedBlock > CommittedBlock::deserialize( ptr< vector< uint8_t > > _serializedBlock ) {
+    return ptr< CommittedBlock >(new CommittedBlock(_serializedBlock));
 };

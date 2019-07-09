@@ -643,7 +643,7 @@ ptr<CommittedBlock> Schain::getBlock(block_id _blockID) {
         return nullptr;
     }
 
-    return make_shared<CommittedBlock>(serializedBlock);
+    return CommittedBlock::deserialize(serializedBlock);
 
 }
 

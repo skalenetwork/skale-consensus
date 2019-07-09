@@ -111,7 +111,7 @@ BlockProposalServerAgent::readMissingTransactions(
         BOOST_THROW_EXCEPTION(NetworkProtocolException("Could not read serialized exceptions", __CLASS_NAME__));
     }
 
-    auto list = make_shared<TransactionList>(transactionSizes, serializedTransactions);
+    auto list = TransactionList::deserialize(transactionSizes, serializedTransactions);
 
     auto trs = list->getItems();
 

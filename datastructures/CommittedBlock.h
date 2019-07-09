@@ -31,18 +31,22 @@ class CommittedBlock : public  BlockProposal {
 
 
     uint64_t  headerSize = 0;
-public:
+
+
+    CommittedBlock(ptr<vector<uint8_t>> _serializedBlock);
+
+
+    ptr<std::vector<unsigned long, std::allocator<unsigned long>>> parseBlockHeader(const shared_ptr<string> &header);
+
     uint64_t getHeaderSize() const;
+
 
 public:
 
     CommittedBlock(Schain& _sChain, ptr<BlockProposal> _p);
 
-    CommittedBlock(ptr<vector<uint8_t>> _serializedBlock);
+    static ptr<CommittedBlock> deserialize(ptr<vector<uint8_t>> _serializedBlock);
 
     ptr<vector<uint8_t>> serialize();
 
-    ptr<vector<uint8_t>> serializedBlock = nullptr;
-
-    ptr<std::vector<unsigned long, std::allocator<unsigned long>>> parseBlockHeader(const shared_ptr<string> &header);
 };

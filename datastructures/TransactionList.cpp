@@ -114,3 +114,8 @@ ptr<ConsensusExtFace::transactions_vector> TransactionList::createTransactionVec
     }
     return tv;
 }
+ptr< TransactionList > TransactionList::deserialize( ptr< vector< size_t > > _transactionSizes,
+    ptr< vector< uint8_t > > _serializedTransactions, uint32_t _offset ) {
+    return ptr< TransactionList >(new TransactionList(_transactionSizes, _serializedTransactions,
+        _offset));
+}

@@ -58,7 +58,7 @@ CommittedBlockList::CommittedBlockList(ptr<vector<size_t>> _blockSizes, ptr<vect
                 _serializedBlocks->begin() + index,
                 _serializedBlocks->begin() + endIndex);
 
-        auto block = make_shared<CommittedBlock>(blockData);
+        auto block = CommittedBlock::deserialize(blockData);
 
         blocks->push_back(block);
 
