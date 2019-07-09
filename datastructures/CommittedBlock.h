@@ -38,8 +38,6 @@ class CommittedBlock : public  BlockProposal {
 
     ptr<std::vector<unsigned long, std::allocator<unsigned long>>> parseBlockHeader(const shared_ptr<string> &header);
 
-    uint64_t getHeaderSize() const;
-
 
 public:
 

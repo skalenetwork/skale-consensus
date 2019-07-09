@@ -86,9 +86,6 @@ ptr<vector<uint8_t>> CommittedBlock::serialize() {
 
 }
 
-uint64_t CommittedBlock::getHeaderSize() const {
-    return headerSize;
-}
 
 CommittedBlock::CommittedBlock(ptr<vector<uint8_t>> _serializedBlock) : BlockProposal(0,0) {
 
