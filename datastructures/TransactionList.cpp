@@ -52,12 +52,9 @@ TransactionList::TransactionList(ptr<vector<size_t>> transactionSizes_,
     transactions->reserve(transactionSizes_->size());
 
     for (auto &&size : *transactionSizes_) {
-        auto endIndex = index + size;
-        ASSERT(index + size <= serializedTransactions->size());
-        auto transactionData = make_shared<vector<uint8_t>>(serializedTransactions->begin() + index, serializedTransactions->begin() + endIndex);
-        auto transaction = ImportedTransaction::deserialize(transactionData);
+        auto transaction = ImportedTransaction::deserialize(serializedTransactions, index, size);
         transactions->push_back(transaction);
-        index = endIndex;
+        index += size;
     }
 
 

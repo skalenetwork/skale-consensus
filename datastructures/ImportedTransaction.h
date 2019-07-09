@@ -33,7 +33,8 @@ class ImportedTransaction  : public Transaction{
 public:
 
 
-    static ptr<ImportedTransaction> deserialize(const ptr<vector<uint8_t>> data);
+    static ptr< ImportedTransaction > deserialize(
+        const ptr< vector< uint8_t > > data, uint64_t _startIndex, uint64_t _len );
 
 
     static atomic<uint64_t>  totalObjects;

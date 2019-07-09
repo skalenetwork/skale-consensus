@@ -22,6 +22,8 @@
 */
 
 #include "../SkaleCommon.h"
+#include "../Log.h"
+#include "../exceptions/InvalidArgumentException.h"
 #include "ImportedTransaction.h"
 
 
@@ -38,6 +40,22 @@ ImportedTransaction::~ImportedTransaction() {
 
 atomic<uint64_t>  ImportedTransaction::totalObjects(0);
 
-ptr< ImportedTransaction > ImportedTransaction::deserialize( const ptr< vector< uint8_t > > data ) {
-    return ptr<ImportedTransaction>(new ImportedTransaction(data));
+ptr< ImportedTransaction > ImportedTransaction::deserialize(
+    const ptr< vector< uint8_t > > data, uint64_t _startIndex, uint64_t _len ) {
+
+    CHECK_ARGUMENT(data != nullptr);
+
+    CHECK_ARGUMENT2(_startIndex + _len <= data->size(),
+                    to_string(_startIndex) + " " + to_string(_len) + " " +
+                    to_string(data->size()))
+
+    CHECK_ARGUMENT(_len > 0);
+
+    auto transactionData = make_shared<vector<uint8_t>>(data->begin() + _startIndex,
+                                                        data->begin() + _startIndex + _len);
+
+
+
+    return ptr<ImportedTransaction>(new ImportedTransaction(transactionData));
+
 }
