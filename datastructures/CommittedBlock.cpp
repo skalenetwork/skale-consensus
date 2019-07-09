@@ -119,18 +119,9 @@ CommittedBlock::CommittedBlock(ptr<vector<uint8_t>> _serializedBlock) : BlockPro
     }
 
 
-
     auto header = make_shared<string>(headerSize, ' ');
 
     in.read((char*)header->c_str(), headerSize); /* Flawfinder: ignore */
-
-    if (header->at(0) != '{') {
-        BOOST_THROW_EXCEPTION(InvalidArgumentException("Block header does not start with {", __CLASS_NAME__));
-    }
-
-    if (_serializedBlock->at(headerSize + sizeof(uint64_t) - 1) != '}') {
-        BOOST_THROW_EXCEPTION(InvalidArgumentException("Block header does not end with }", __CLASS_NAME__));
-    }
 
     ptr<vector<size_t>> transactionSizes;
 
@@ -149,6 +140,17 @@ CommittedBlock::CommittedBlock(ptr<vector<uint8_t>> _serializedBlock) : BlockPro
 ptr<vector<size_t>> CommittedBlock::parseBlockHeader(
         const shared_ptr<string> &header) {
 
+    CHECK_ARGUMENT(header != nullptr);
+
+    CHECK_ARGUMENT(header->size() > 2);
+
+    if (header->at(0) != '{') {
+        BOOST_THROW_EXCEPTION(InvalidArgumentException("Block header does not start with {", __CLASS_NAME__));
+    }
+
+    if (header->at(header->size() - 1 ) != '}') {
+        BOOST_THROW_EXCEPTION(InvalidArgumentException("Block header does not end with }", __CLASS_NAME__));
+    }
 
     auto transactionSizes = make_shared<vector<size_t>>();
 
