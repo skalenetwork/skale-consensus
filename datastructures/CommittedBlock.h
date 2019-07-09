@@ -36,7 +36,7 @@ class CommittedBlock : public  BlockProposal {
     CommittedBlock(ptr<vector<uint8_t>> _serializedBlock);
 
 
-    ptr<std::vector<unsigned long, std::allocator<unsigned long>>> parseBlockHeader(const shared_ptr<string> &header);
+    ptr<vector<size_t>> parseBlockHeader(const shared_ptr<string> &header);
 
 
 public:
