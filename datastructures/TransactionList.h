@@ -40,14 +40,15 @@ class TransactionList : public DataStructure  {
 
     ptr<vector<ptr<Transaction>>> transactions = nullptr;
 
-    TransactionList(ptr<vector<size_t>> transactionSizes_, ptr<vector<uint8_t>> serializedTransactions, uint32_t  offset);
+    TransactionList( ptr<vector<uint64_t>> _transactionSizes,
+                                      ptr<vector<uint8_t>> _serializedTransactions, uint32_t _offset, bool _checkPartialHash );
+
+
 
 public:
 
-
-
-
     TransactionList(ptr<vector<ptr<Transaction>>> _transactions);
+
 
     ptr<vector<ptr<Transaction>>> getItems() ;
 
@@ -68,8 +69,9 @@ public:
 
     ptr<vector<uint64_t>> createTransactionSizesVector();
 
-    static ptr<TransactionList> deserialize( ptr< vector< uint64_t > > _transactionSizes,
-        ptr< vector< uint8_t > > _serializedTransactions, uint32_t _offset = 0 );
+    static ptr< TransactionList > deserialize( ptr< vector< uint64_t > > _transactionSizes,
+        ptr< vector< uint8_t > > _serializedTransactions, uint32_t _offset,
+        bool _writePartialHash );
 
 };
 

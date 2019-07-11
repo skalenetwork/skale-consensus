@@ -2,8 +2,9 @@
 // Created by kladko on 7/11/19.
 //
 
+
 #include "../SkaleCommon.h"
-#include "ImportedTransaction.h"
+#include "Transaction.h"
 #include "PendingTransaction.h"
 #include "TransactionList.h"
 
@@ -84,9 +85,9 @@ void test_tx_serialize_deserialize( bool _fail ) {
             }
 
             if ( _fail ) {
-                REQUIRE_THROWS( ImportedTransaction::deserialize( out, 0, out->size() ) );
+                REQUIRE_THROWS(Transaction::deserialize( out, 0, out->size(), true ) );
             } else {
-                auto imp = ImportedTransaction::deserialize( out, 0, out->size() );
+                auto imp = Transaction::deserialize( out, 0, out->size(), true );
                 REQUIRE( imp != nullptr );
             }
         }
@@ -114,10 +115,11 @@ void test_tx_list_serialize_deserialize( bool _fail  ) {
             REQUIRE(out != nullptr);
 
             if ( _fail ) {
-                REQUIRE_THROWS(TransactionList::deserialize( t->createTransactionSizesVector(), out, 0 ));
+                REQUIRE_THROWS( TransactionList::deserialize(
+                    t->createTransactionSizesVector(), out, 0, false ) );
             } else {
-                auto imp =
-                    TransactionList::deserialize( t->createTransactionSizesVector(), out, 0 );
+                auto imp = TransactionList::deserialize(
+                    t->createTransactionSizesVector(), out, 0, false );
                 REQUIRE( imp != nullptr );
             }
         }

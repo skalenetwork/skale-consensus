@@ -71,6 +71,8 @@ ptr< partial_sha_hash > Transaction::getPartialHash() {
 Transaction::Transaction( const ptr< vector< uint8_t > > _trx, bool _verifyChecksum ) {
 
 
+    totalObjects++;
+
     array< uint8_t, PARTIAL_SHA_HASH_LEN > incomingHash;
 
 
@@ -102,7 +104,15 @@ ptr< vector< uint8_t > > Transaction::getData() const {
     return data;
 }
 
-Transaction::~Transaction() {}
+
+
+atomic<uint64_t>  Transaction::totalObjects(0);
+
+
+Transaction::~Transaction() {
+    totalObjects--;
+
+}
 uint64_t Transaction::getSerializedSize() {
     return data->size() + PARTIAL_SHA_HASH_LEN;
 }
@@ -119,3 +129,23 @@ void Transaction::serializeInto( ptr< vector< uint8_t > > _out, bool _writeParti
 
 
 
+
+ptr<Transaction > Transaction::deserialize(
+    const ptr< vector< uint8_t > > data, uint64_t _startIndex, uint64_t _len, bool _verifyPartialHashes ) {
+
+    CHECK_ARGUMENT(data != nullptr);
+
+    CHECK_ARGUMENT2(_startIndex + _len <= data->size(),
+                    to_string(_startIndex) + " " + to_string(_len) + " " +
+                    to_string(data->size()))
+
+    CHECK_ARGUMENT(_len > 0);
+
+    auto transactionData = make_shared<vector<uint8_t>>(data->begin() + _startIndex,
+                                                        data->begin() + _startIndex + _len);
+
+
+
+    return ptr<Transaction>(new Transaction(transactionData, _verifyPartialHashes));
+
+}

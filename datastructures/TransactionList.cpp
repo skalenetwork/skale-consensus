@@ -26,8 +26,6 @@
 #include "../Log.h"
 #include "../exceptions/FatalError.h"
 #include "Transaction.h"
-#include "ImportedTransaction.h"
-
 #include "TransactionList.h"
 
 
@@ -42,17 +40,17 @@ TransactionList::TransactionList(ptr<vector<ptr<Transaction>>> _transactions) {
 }
 
 
-TransactionList::TransactionList(ptr<vector<size_t>> transactionSizes_,
-                                                       ptr<vector<uint8_t>> serializedTransactions, uint32_t _offset) {
+TransactionList::TransactionList( ptr<vector<uint64_t>> _transactionSizes,
+    ptr<vector<uint8_t>> _serializedTransactions, uint32_t _offset, bool _checkPartialHash ) {
 
     totalObjects++;
     size_t index = _offset;
 
     transactions = make_shared<vector<ptr<Transaction>>>();
-    transactions->reserve(transactionSizes_->size());
+    transactions->reserve(_transactionSizes->size());
 
-    for (auto &&size : *transactionSizes_) {
-        auto transaction = ImportedTransaction::deserialize(serializedTransactions, index, size);
+    for (auto &&size : *_transactionSizes) {
+        auto transaction = Transaction::deserialize(_serializedTransactions, index, size, _checkPartialHash);
         transactions->push_back(transaction);
         index += size;
     }
@@ -115,9 +113,9 @@ ptr<ConsensusExtFace::transactions_vector> TransactionList::createTransactionVec
     return tv;
 }
 ptr< TransactionList > TransactionList::deserialize( ptr< vector< uint64_t > > _transactionSizes,
-    ptr< vector< uint8_t > > _serializedTransactions, uint32_t _offset ) {
-    return ptr< TransactionList >(new TransactionList(_transactionSizes, _serializedTransactions,
-        _offset));
+    ptr< vector< uint8_t > > _serializedTransactions, uint32_t _offset, bool _writePartialHash ) {
+    return ptr< TransactionList >(
+        new TransactionList( _transactionSizes, _serializedTransactions, _offset, _writePartialHash ) );
 }
 ptr< vector< uint64_t > > TransactionList::createTransactionSizesVector() {
     auto ret = make_shared<vector<uint64_t>>(transactions->size());

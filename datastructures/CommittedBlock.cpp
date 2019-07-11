@@ -130,7 +130,8 @@ CommittedBlock::CommittedBlock(ptr<vector<uint8_t>> _serializedBlock) : BlockPro
         throw_with_nested(ParsingException("Could not parse committed block header: \n" + *header, __CLASS_NAME__));
     }
 
-    transactionList = TransactionList::deserialize(transactionSizes, _serializedBlock, headerSize);
+    transactionList =
+        TransactionList::deserialize( transactionSizes, _serializedBlock, headerSize, false );
 
     calculateHash();
 

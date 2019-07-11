@@ -34,6 +34,10 @@ class Transaction : public DataStructure {
 
 private:
 
+    static atomic<uint64_t>  totalObjects;
+
+
+
     ptr<vector<uint8_t >> data = nullptr;
 
     ptr<SHAHash> hash = nullptr;
@@ -43,7 +47,7 @@ private:
 
 protected:
 
-    Transaction(const ptr<vector<uint8_t>> _data, bool _verifyChecksum = false);
+    Transaction(const ptr<vector<uint8_t>> _data, bool _verifyChecksum);
 
 
 public:
@@ -64,6 +68,14 @@ public:
     virtual ~Transaction();
 
 
+    static ptr<Transaction > deserialize(
+            const ptr< vector< uint8_t > > data, uint64_t _startIndex, uint64_t _len, bool _verifyPartialHashes );
+
+
+
+    static uint64_t getTotalObjects() {
+        return totalObjects;
+    };
 };
 
 

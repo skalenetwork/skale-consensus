@@ -77,7 +77,6 @@
 #include "../datastructures/BlockProposalSet.h"
 #include "../datastructures/Transaction.h"
 #include "../datastructures/PendingTransaction.h"
-#include "../datastructures/ImportedTransaction.h"
 #include "../datastructures/TransactionList.h"
 
 #include "../exceptions/FatalError.h"
@@ -445,9 +444,7 @@ void Schain::processCommittedBlock(ptr<CommittedBlock> _block) {
               ":DMSG:" + to_string(getMessagesCount()) +
               ":MPRPS:" + to_string(MyBlockProposal::getTotalObjects()) +
               ":RPRPS:" + to_string(ReceivedBlockProposal::getTotalObjects()) +
-
-              ":PTXNS:" + to_string(PendingTransaction::getTotalObjects()) +
-              ":RTXNS:" + to_string(ImportedTransaction::getTotalObjects()) +
+              ":TXNS:" + to_string(Transaction::getTotalObjects()) +
 //              ":PNDG:" + to_string(pendingTransactionsAgent->getPendingTransactionsSize()) +
               ":KNWN:" + to_string(pendingTransactionsAgent->getKnownTransactionsSize()) +
               ":CMT:" + to_string(pendingTransactionsAgent->getCommittedTransactionsSize()) +
