@@ -29,6 +29,8 @@
 #include "../exceptions/FatalError.h"
 #include "../exceptions/InvalidArgumentException.h"
 
+#include "../thirdparty/catch.hpp"
+
 #include "Transaction.h"
 
 ptr< SHAHash > Transaction::getHash() {
@@ -104,11 +106,16 @@ Transaction::~Transaction() {}
 uint64_t Transaction::getSerializedSize() {
     return data->size() + PARTIAL_SHA_HASH_LEN;
 }
-void Transaction::serializeInto( ptr< vector< uint8_t > > _out ) {
+void Transaction::serializeInto( ptr< vector< uint8_t > > _out, bool _writePartialHash ) {
     ASSERT( _out != nullptr )
     _out->insert( _out->end(), data->begin(), data->end() );
 
-    auto h = getPartialHash();
+    if (_writePartialHash) {
 
-    _out->insert( _out->end(), h->begin(), h->end() );
+        auto h = getPartialHash();
+        _out->insert( _out->end(), h->begin(), h->end() );
+    }
 }
+
+
+

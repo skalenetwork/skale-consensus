@@ -87,7 +87,7 @@ shared_ptr<vector<uint8_t>>TransactionList::serialize()  {
 
 
     for (auto &&transaction : *transactions) {
-        transaction->serializeInto( serializedTransactions );
+        transaction->serializeInto( serializedTransactions, false );
     }
     return serializedTransactions;
 }

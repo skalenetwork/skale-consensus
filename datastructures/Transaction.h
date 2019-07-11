@@ -54,8 +54,7 @@ public:
     ptr<vector<uint8_t>> getData() const;
 
 
-
-    void serializeInto( ptr< vector< uint8_t > > _out);
+    void serializeInto( ptr< vector< uint8_t > > _out, bool _writePartialHash );
 
 
     ptr<SHAHash> getHash();

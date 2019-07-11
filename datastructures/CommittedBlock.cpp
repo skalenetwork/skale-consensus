@@ -77,7 +77,7 @@ ptr<vector<uint8_t>> CommittedBlock::serialize() {
     block->insert(block->end(), buf->getBuf()->begin(), buf->getBuf()->begin() + buf->getCounter());
 
     for (auto &&tx: *items) {
-        tx->serializeInto(block);
+        tx->serializeInto( block, true );
     }
 
     ASSERT(block->at(sizeof(uint64_t)) == '{');
