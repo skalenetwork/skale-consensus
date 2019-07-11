@@ -72,12 +72,9 @@ ptr<vector<uint8_t> > TransactionList::serialize( bool _writeTxPartialHash ) {
     size_t totalSize = 0;
 
     for (auto &&transaction : *transactions) {
-        totalSize += transaction->getSerializedSize();
+        totalSize += transaction->getSerializedSize(true);
     }
 
-    for (auto &&transaction : *transactions) {
-        totalSize += transaction->getSerializedSize();
-    }
 
     serializedTransactions = make_shared<vector<uint8_t>>();
 
@@ -117,11 +114,11 @@ ptr< TransactionList > TransactionList::deserialize( ptr< vector< uint64_t > > _
     return ptr< TransactionList >(
         new TransactionList( _transactionSizes, _serializedTransactions, _offset, _writePartialHash ) );
 }
-ptr< vector< uint64_t > > TransactionList::createTransactionSizesVector() {
+ptr< vector< uint64_t > > TransactionList::createTransactionSizesVector(bool _writePartialHash) {
     auto ret = make_shared<vector<uint64_t>>(transactions->size());
 
     for (auto&& t : *transactions) {
-        ret->push_back(t->getSerializedSize());
+        ret->push_back(t->getSerializedSize(_writePartialHash));
     }
 
     return ret;

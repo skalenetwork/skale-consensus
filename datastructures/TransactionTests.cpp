@@ -116,10 +116,10 @@ void test_tx_list_serialize_deserialize( bool _fail  ) {
 
             if ( _fail ) {
                 REQUIRE_THROWS( TransactionList::deserialize(
-                    t->createTransactionSizesVector(), out, 0, false ) );
+                    t->createTransactionSizesVector(true), out, 0, true ) );
             } else {
                 auto imp = TransactionList::deserialize(
-                    t->createTransactionSizesVector(), out, 0, false );
+                    t->createTransactionSizesVector(true), out, 0, true );
                 REQUIRE( imp != nullptr );
             }
         }

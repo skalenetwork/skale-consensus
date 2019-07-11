@@ -69,7 +69,7 @@ ptr<vector<uint8_t>> CommittedBlock::serialize() {
     uint64_t binSize = 0;
 
     for (auto &&tx: *items) {
-        binSize += tx->getSerializedSize();
+        binSize += tx->getSerializedSize(true);
     }
 
     auto block = make_shared<vector<uint8_t>>();
@@ -131,7 +131,7 @@ CommittedBlock::CommittedBlock(ptr<vector<uint8_t>> _serializedBlock) : BlockPro
     }
 
     transactionList =
-        TransactionList::deserialize( transactionSizes, _serializedBlock, headerSize, false );
+        TransactionList::deserialize( transactionSizes, _serializedBlock, headerSize, true);
 
     calculateHash();
 

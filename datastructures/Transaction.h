@@ -52,7 +52,7 @@ protected:
 
 public:
 
-    uint64_t  getSerializedSize();
+    uint64_t  getSerializedSize(bool _writePartialHash);
 
 
     ptr<vector<uint8_t>> getData() const;

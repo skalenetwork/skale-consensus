@@ -113,9 +113,12 @@ Transaction::~Transaction() {
     totalObjects--;
 
 }
-uint64_t Transaction::getSerializedSize() {
-    return data->size() + PARTIAL_SHA_HASH_LEN;
+uint64_t Transaction::getSerializedSize(bool _writePartialHash) {
+    if (_writePartialHash)
+        return data->size() + PARTIAL_SHA_HASH_LEN;
+    return data->size();
 }
+
 void Transaction::serializeInto( ptr< vector< uint8_t > > _out, bool _writePartialHash ) {
     ASSERT( _out != nullptr )
     _out->insert( _out->end(), data->begin(), data->end() );

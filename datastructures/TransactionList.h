@@ -67,7 +67,8 @@ public:
 
     ptr<ConsensusExtFace::transactions_vector> createTransactionVector();
 
-    ptr<vector<uint64_t>> createTransactionSizesVector();
+
+    ptr< vector< uint64_t > > createTransactionSizesVector(bool _writePartialHash);
 
     static ptr< TransactionList > deserialize( ptr< vector< uint64_t > > _transactionSizes,
         ptr< vector< uint8_t > > _serializedTransactions, uint32_t _offset,
