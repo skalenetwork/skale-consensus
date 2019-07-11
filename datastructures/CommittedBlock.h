@@ -39,6 +39,9 @@ class CommittedBlock : public  BlockProposal {
 public:
 
     CommittedBlock(Schain& _sChain, ptr<BlockProposal> _p);
+    CommittedBlock( const schain_id& sChainId, const node_id& proposerNodeId,
+        const block_id& blockId, const schain_index& proposerIndex,
+        const ptr< TransactionList >& transactions, uint64_t timeStamp, __uint32_t timeStampMs );
 
     static ptr<CommittedBlock> deserialize(ptr<vector<uint8_t>> _serializedBlock);
 

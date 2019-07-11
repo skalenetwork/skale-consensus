@@ -6,6 +6,7 @@
 #include "../SkaleCommon.h"
 #include "Transaction.h"
 #include "TransactionList.h"
+#include "CommittedBlock.h"
 
 
 
@@ -61,6 +62,19 @@ ptr<TransactionList > create_random_transaction_list( uint64_t _size,
 
     return make_shared<TransactionList>(sample);
 };
+
+
+ptr<CommittedBlock > create_random_committed_block( uint64_t _size,
+                                                     boost::random::mt19937& _gen, boost::random::uniform_int_distribution<>& _ubyte ) {
+
+
+    auto list = create_random_transaction_list(_size, _gen, _ubyte);
+
+    REQUIRE(list != nullptr);
+
+    return make_shared<CommittedBlock>(1, 1, 1, 1, list, 1, 1);
+};
+
 
 
 
@@ -125,6 +139,38 @@ void test_tx_list_serialize_deserialize( bool _fail  ) {
     }
 }
 
+
+
+void test_committed_block_serialize_deserialize( bool _fail  ) {
+    boost::random::mt19937 gen;
+
+    boost::random::uniform_int_distribution<> ubyte( 0, 255 );
+
+    for ( int k = 0; k < 10; k++ ) {
+        for ( int i = 1; i < 10; i++ ) {
+
+            auto t = create_random_committed_block( i, gen, ubyte );
+
+            auto out = t->serialize();
+
+            if ( _fail ) {
+                corrupt_byte_vector(out, gen, ubyte);
+            }
+
+
+            REQUIRE(out != nullptr);
+
+            if ( _fail ) {
+                REQUIRE_THROWS( CommittedBlock::deserialize( out) );
+            } else {
+                auto imp = CommittedBlock::deserialize( out);
+                REQUIRE( imp != nullptr );
+            }
+        }
+    }
+}
+
+
 TEST_CASE( "Serialize/deserialize transaction", "[tx-serialize]" )
 
 
@@ -153,6 +199,23 @@ TEST_CASE( "Serialize/deserialize transaction list", "[tx-list-serialize]" )
   SECTION( "Test corrupt serialize/deserialize" )
 
         test_tx_list_serialize_deserialize( true );
+
+    // Test successful serialize/deserialize failure
+}
+
+
+TEST_CASE( "Serialize/deserialize transaction list", "[tx-list-serialize]" )
+
+
+{
+    SECTION( "Test successful serialize/deserialize" )
+
+
+        test_committed_block_serialize_deserialize( false );
+
+ //   SECTION( "Test corrupt serialize/deserialize" )
+
+   //     test_tx_list_serialize_deserialize( true );
 
     // Test successful serialize/deserialize failure
 }

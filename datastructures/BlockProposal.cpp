@@ -76,15 +76,14 @@ BlockProposal::BlockProposal(uint64_t _timeStamp, uint32_t _timeStampMs) : timeS
     proposerNodeID = 0;
 };
 
-BlockProposal::BlockProposal(Schain &_sChain, block_id _blockID, schain_index _proposerIndex,
+BlockProposal::BlockProposal(schain_id _sChainId, node_id _proposerNodeId, block_id _blockID, schain_index _proposerIndex,
                              ptr<TransactionList> _transactions, uint64_t _timeStamp,
-                             uint32_t _timeStampMs) : schainID(_sChain.getSchainID()),
+                             uint32_t _timeStampMs) : schainID(_sChainId), proposerNodeID(_proposerNodeId),
                                                                                         blockID(_blockID),
                                                                                         proposerIndex(_proposerIndex),
                                                                                         timeStamp(_timeStamp),
                                                                                         timeStampMs(_timeStampMs),
                                                                                         transactionList(_transactions) {
-    proposerNodeID = _sChain.getNodeIDByIndex(_proposerIndex);
 
     ASSERT(timeStamp > MODERN_TIME);
     transactionCount = transactionList->getItems()->size();

@@ -23,76 +23,71 @@
 
 #include <boost/iostreams/device/array.hpp>
 #include <boost/iostreams/stream.hpp>
-
-#include "../SkaleCommon.h"
 #include "../Log.h"
+
+#include "../thirdparty/json.hpp"
+#include "../SkaleCommon.h"
 #include "../exceptions/FatalError.h"
 
 
-#include "../thirdparty/json.hpp"
-#include "../crypto/SHAHash.h"
+#include "../chains/Schain.h"
 #include "../abstracttcpserver/ConnectionStatus.h"
-#include "../headers/CommittedBlockHeader.h"
+#include "../crypto/SHAHash.h"
+#include "../exceptions/InvalidArgumentException.h"
 #include "../exceptions/NetworkProtocolException.h"
 #include "../exceptions/ParsingException.h"
-#include "../exceptions/InvalidArgumentException.h"
+#include "../headers/CommittedBlockHeader.h"
 
 
 #include "../datastructures/Transaction.h"
-#include "TransactionList.h"
 #include "../network/Buffer.h"
 #include "CommittedBlock.h"
-
-CommittedBlock::CommittedBlock(Schain &_sChain, ptr<BlockProposal> _p) : BlockProposal(_sChain,
-                                                                                       _p->getBlockID(),
-                                                                                       _p->getProposerIndex(),
-                                                                                       _p->getTransactionList(),
-                                                                                       _p->getTimeStamp(),
-                                                                                       _p->getTimeStampMs()) {
-}
+#include "TransactionList.h"
 
 
 
 
-ptr<vector<uint8_t>> CommittedBlock::serialize() {
 
 
+CommittedBlock::CommittedBlock( Schain& _sChain, ptr< BlockProposal > _p )
+    : BlockProposal( _sChain.getSchainID(), _sChain.getNodeIDByIndex(_p->getProposerIndex()),_p->getBlockID(), _p->getProposerIndex(), _p->getTransactionList(),
+          _p->getTimeStamp(), _p->getTimeStampMs() ) {}
 
+
+ptr< vector< uint8_t > > CommittedBlock::serialize() {
     auto items = transactionList->getItems();
 
-    auto header = make_shared<CommittedBlockHeader>(*this);
+    auto header = make_shared< CommittedBlockHeader >( *this );
 
     auto buf = header->toBuffer();
 
-    ASSERT(buf->getBuf()->at(sizeof(uint64_t)) == '{');
-    ASSERT(buf->getBuf()->at(buf->getCounter() - 1) == '}');
+    ASSERT( buf->getBuf()->at( sizeof( uint64_t ) ) == '{' );
+    ASSERT( buf->getBuf()->at( buf->getCounter() - 1 ) == '}' );
 
 
     uint64_t binSize = 0;
 
-    for (auto &&tx: *items) {
-        binSize += tx->getSerializedSize(true);
+    for ( auto&& tx : *items ) {
+        binSize += tx->getSerializedSize( true );
     }
 
-    auto block = make_shared<vector<uint8_t>>();
+    auto block = make_shared< vector< uint8_t > >();
 
-    block->insert(block->end(), buf->getBuf()->begin(), buf->getBuf()->begin() + buf->getCounter());
+    block->insert(
+        block->end(), buf->getBuf()->begin(), buf->getBuf()->begin() + buf->getCounter() );
 
-    for (auto &&tx: *items) {
+    for ( auto&& tx : *items ) {
         tx->serializeInto( block, true );
     }
 
-    ASSERT(block->at(sizeof(uint64_t)) == '{');
+    ASSERT( block->at( sizeof( uint64_t ) ) == '{' );
 
     return block;
-
 }
 
 
-ptr<CommittedBlock> CommittedBlock::deserialize( ptr< vector< uint8_t > > _serializedBlock ) {
-
-
-    auto block = ptr<CommittedBlock>(new CommittedBlock(0,0));
+ptr< CommittedBlock > CommittedBlock::deserialize( ptr< vector< uint8_t > > _serializedBlock ) {
+    auto block = ptr< CommittedBlock >( new CommittedBlock( 0, 0 ) );
 
     uint64_t headerSize = 0;
 
@@ -145,52 +140,57 @@ ptr<CommittedBlock> CommittedBlock::deserialize( ptr< vector< uint8_t > > _seria
     block->calculateHash();
 
     return block;
-
 }
 
-ptr<vector<size_t>> CommittedBlock::parseBlockHeader(
-        const shared_ptr<string> &header) {
+ptr< vector< size_t > > CommittedBlock::parseBlockHeader( const shared_ptr< string >& header ) {
+    CHECK_ARGUMENT( header != nullptr );
 
-    CHECK_ARGUMENT(header != nullptr);
+    CHECK_ARGUMENT( header->size() > 2 );
 
-    CHECK_ARGUMENT(header->size() > 2);
-
-    if (header->at(0) != '{') {
-        BOOST_THROW_EXCEPTION(InvalidArgumentException("Block header does not start with {", __CLASS_NAME__));
+    if ( header->at( 0 ) != '{' ) {
+        BOOST_THROW_EXCEPTION(
+            InvalidArgumentException( "Block header does not start with {", __CLASS_NAME__ ) );
     }
 
-    if (header->at(header->size() - 1 ) != '}') {
-        BOOST_THROW_EXCEPTION(InvalidArgumentException("Block header does not end with }", __CLASS_NAME__));
+    if ( header->at( header->size() - 1 ) != '}' ) {
+        BOOST_THROW_EXCEPTION(
+            InvalidArgumentException( "Block header does not end with }", __CLASS_NAME__ ) );
     }
 
-    auto transactionSizes = make_shared<vector<size_t>>();
+    auto transactionSizes = make_shared< vector< size_t > >();
 
     size_t totalSize = 0;
 
-    auto js = nlohmann::json::parse(*header);
+    auto js = nlohmann::json::parse( *header );
 
-    proposerIndex = schain_index(Header::getUint64(js, "proposerIndex"));
-    proposerNodeID = node_id(Header::getUint64(js, "proposerNodeID"));
-    blockID = block_id(Header::getUint64(js, "blockID"));
-    schainID = schain_id(Header::getUint64(js, "schainID"));
-    timeStamp = Header::getUint64(js, "timeStamp");
-    timeStampMs = Header::getUint32(js, "timeStampMs");
+    proposerIndex = schain_index( Header::getUint64( js, "proposerIndex" ) );
+    proposerNodeID = node_id( Header::getUint64( js, "proposerNodeID" ) );
+    blockID = block_id( Header::getUint64( js, "blockID" ) );
+    schainID = schain_id( Header::getUint64( js, "schainID" ) );
+    timeStamp = Header::getUint64( js, "timeStamp" );
+    timeStampMs = Header::getUint32( js, "timeStampMs" );
 
     transactionCount = js["sizes"].size();
-    hash = SHAHash::fromHex(Header::getString(js, "hash"));
+    hash = SHAHash::fromHex( Header::getString( js, "hash" ) );
 
 
-    Header::nullCheck(js, "sizes");
+    Header::nullCheck( js, "sizes" );
     nlohmann::json jsonTransactionSizes = js["sizes"];
     transactionCount = jsonTransactionSizes.size();
 
-    for (auto &&jsize : jsonTransactionSizes) {
-        transactionSizes->push_back(jsize);
-        totalSize += (size_t) jsize;
+    for ( auto&& jsize : jsonTransactionSizes ) {
+        transactionSizes->push_back( jsize );
+        totalSize += ( size_t ) jsize;
     }
 
     return transactionSizes;
-
 }
 CommittedBlock::CommittedBlock( uint64_t timeStamp, uint32_t timeStampMs )
     : BlockProposal( timeStamp, timeStampMs ) {}
+
+
+CommittedBlock::CommittedBlock( const schain_id& sChainId, const node_id& proposerNodeId,
+    const block_id& blockId, const schain_index& proposerIndex,
+    const ptr< TransactionList >& transactions, uint64_t timeStamp, __uint32_t timeStampMs )
+    : BlockProposal( sChainId, proposerNodeId, blockId, proposerIndex, transactions, timeStamp,
+          timeStampMs ) {}
