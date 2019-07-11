@@ -51,7 +51,7 @@ public:
 
     ptr<vector<ptr<Transaction>>> getItems() ;
 
-    shared_ptr<vector<uint8_t>> serialize() ;
+    ptr<vector<uint8_t>> serialize( bool _writeTxPartialHash );
 
     size_t size();
 
@@ -66,8 +66,10 @@ public:
 
     ptr<ConsensusExtFace::transactions_vector> createTransactionVector();
 
-    static ptr<TransactionList> deserialize(ptr<vector<size_t>> _transactionSizes,
-            ptr<vector<uint8_t>> _serializedTransactions, uint32_t  _offset = 0);
+    ptr<vector<uint64_t>> createTransactionSizesVector();
+
+    static ptr<TransactionList> deserialize( ptr< vector< uint64_t > > _transactionSizes,
+        ptr< vector< uint8_t > > _serializedTransactions, uint32_t _offset = 0 );
 
 };
 

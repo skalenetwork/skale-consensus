@@ -65,7 +65,7 @@ ptr<vector<ptr<Transaction>>> TransactionList::getItems() {
     return transactions;
 }
 
-shared_ptr<vector<uint8_t>>TransactionList::serialize()  {
+ptr<vector<uint8_t> > TransactionList::serialize( bool _writeTxPartialHash ) {
 
     if (serializedTransactions)
         return serializedTransactions;
@@ -87,7 +87,7 @@ shared_ptr<vector<uint8_t>>TransactionList::serialize()  {
 
 
     for (auto &&transaction : *transactions) {
-        transaction->serializeInto( serializedTransactions, false );
+        transaction->serializeInto( serializedTransactions, _writeTxPartialHash);
     }
     return serializedTransactions;
 }
@@ -114,8 +114,18 @@ ptr<ConsensusExtFace::transactions_vector> TransactionList::createTransactionVec
     }
     return tv;
 }
-ptr< TransactionList > TransactionList::deserialize( ptr< vector< size_t > > _transactionSizes,
+ptr< TransactionList > TransactionList::deserialize( ptr< vector< uint64_t > > _transactionSizes,
     ptr< vector< uint8_t > > _serializedTransactions, uint32_t _offset ) {
     return ptr< TransactionList >(new TransactionList(_transactionSizes, _serializedTransactions,
         _offset));
+}
+ptr< vector< uint64_t > > TransactionList::createTransactionSizesVector() {
+    auto ret = make_shared<vector<uint64_t>>(transactions->size());
+
+    for (auto&& t : *transactions) {
+        ret->push_back(t->getSerializedSize());
+    }
+
+    return ret;
+
 }

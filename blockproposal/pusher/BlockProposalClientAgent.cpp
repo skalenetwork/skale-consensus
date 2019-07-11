@@ -215,7 +215,7 @@ void BlockProposalClientAgent::sendItemImpl(
     auto mtrm = make_shared< TransactionList >( missingTransactions );
 
     try {
-        getSchain()->getIo()->writeBytesVector( socket->getDescriptor(), mtrm->serialize() );
+        getSchain()->getIo()->writeBytesVector( socket->getDescriptor(), mtrm->serialize(false) );
     } catch ( ExitRequestedException& ) {
         throw;
     } catch ( ... ) {
