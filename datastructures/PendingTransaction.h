@@ -28,6 +28,7 @@
 
 class PendingTransaction  : public Transaction{
 public:
+
     PendingTransaction(const ptr<vector<uint8_t>> data);
 
 

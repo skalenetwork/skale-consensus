@@ -43,18 +43,17 @@ private:
 
 protected:
 
-    Transaction(const ptr<vector<uint8_t>> _data);
+    Transaction(const ptr<vector<uint8_t>> _data, bool _verifyChecksum = false);
+
 
 public:
-
-    static ptr<Transaction> deserialize(const ptr<vector<uint8_t>> _data);
 
     uint64_t  getSerializedSize();
 
 
     ptr<vector<uint8_t>> getData() const;
 
-    boost::crc_32_type getCRC();
+
 
     void serializeInto( ptr< vector< uint8_t > > _out);
 

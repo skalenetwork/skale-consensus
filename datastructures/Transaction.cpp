@@ -22,74 +22,93 @@
 */
 
 
-
-
-
-
+#include "../Log.h"
 #include "../SkaleCommon.h"
 #include "../chains/Schain.h"
-#include "../Log.h"
-#include "../exceptions/FatalError.h"
 #include "../crypto/SHAHash.h"
+#include "../exceptions/FatalError.h"
+#include "../exceptions/InvalidArgumentException.h"
 
 #include "Transaction.h"
 
-ptr<SHAHash> Transaction::getHash() {
-
-    if (hash)
+ptr< SHAHash > Transaction::getHash() {
+    if ( hash )
         return hash;
 
-    auto digest = make_shared<array<uint8_t , SHA3_HASH_LEN>>();
+    auto digest = make_shared< array< uint8_t, SHA3_HASH_LEN > >();
 
 
     CryptoPP::SHA3_Final< SHA3_HASH_LEN > hashObject;
 
-    hashObject.Update(data.get()->data(), data->size());
-    hashObject.Final(digest->data());
+    hashObject.Update( data.get()->data(), data->size() );
+    hashObject.Final( digest->data() );
 
 
-
-    hash = make_shared<SHAHash>(digest);
+    hash = make_shared< SHAHash >( digest );
 
     return hash;
-
 }
 
 
-ptr<partial_sha_hash> Transaction::getPartialHash() {
-
-    if (partialHash) {
+ptr< partial_sha_hash > Transaction::getPartialHash() {
+    if ( partialHash ) {
         return partialHash;
     }
 
-    partialHash = make_shared<partial_sha_hash>();
+    partialHash = make_shared< partial_sha_hash >();
 
     getHash();
 
-    for (size_t i = 0; i < PARTIAL_SHA_HASH_LEN; i++) {
-        partialHash->at(i) = hash->at(i);
+    for ( size_t i = 0; i < PARTIAL_SHA_HASH_LEN; i++ ) {
+        partialHash->at( i ) = hash->at( i );
     }
 
     return partialHash;
-
 }
 
-Transaction::Transaction(const ptr<vector<uint8_t>> _data) : data(_data) {
-    ASSERT(data != nullptr && data->size() > 0);
+Transaction::Transaction( const ptr< vector< uint8_t > > _trx, bool _verifyChecksum ) {
+
+
+    array< uint8_t, PARTIAL_SHA_HASH_LEN > incomingHash;
+
+
+    if ( !_verifyChecksum ) {
+        ASSERT( _trx != nullptr && _trx->size() > 0 );
+    } else {
+        ASSERT( _trx != nullptr && _trx->size() > sizeof( PARTIAL_SHA_HASH_LEN ) );
+
+
+        std::copy( _trx->begin() + +_trx->size() - PARTIAL_SHA_HASH_LEN, _trx->end(),
+            incomingHash.begin() );
+
+
+        _trx->resize( _trx->size() - PARTIAL_SHA_HASH_LEN );
+    }
+
+    data = _trx;
+
+    if (_verifyChecksum) {
+        auto h = getPartialHash();
+
+        CHECK_ARGUMENT2(*h == incomingHash, "Transaction partial hash does not match");
+
+    }
 };
 
-ptr<vector<uint8_t>> Transaction::getData() const {
+
+ptr< vector< uint8_t > > Transaction::getData() const {
     return data;
 }
 
-Transaction::~Transaction() {
-
-}
+Transaction::~Transaction() {}
 uint64_t Transaction::getSerializedSize() {
-    return data->size();
+    return data->size() + PARTIAL_SHA_HASH_LEN;
 }
 void Transaction::serializeInto( ptr< vector< uint8_t > > _out ) {
-    ASSERT(_out != nullptr)
-    _out->insert(_out->end(), data->begin(), data->end());
+    ASSERT( _out != nullptr )
+    _out->insert( _out->end(), data->begin(), data->end() );
 
+    auto h = getPartialHash();
+
+    _out->insert( _out->end(), h->begin(), h->end() );
 }

@@ -27,7 +27,7 @@
 #include "ImportedTransaction.h"
 
 
-ImportedTransaction::ImportedTransaction(const ptr<vector<uint8_t>> data) : Transaction(data) {
+ImportedTransaction::ImportedTransaction(const ptr<vector<uint8_t>> data) : Transaction(data, true) {
     totalObjects++;
 }
 
