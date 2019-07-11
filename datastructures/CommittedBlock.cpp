@@ -92,7 +92,7 @@ ptr<vector<uint8_t>> CommittedBlock::serialize() {
 ptr<CommittedBlock> CommittedBlock::deserialize( ptr< vector< uint8_t > > _serializedBlock ) {
 
 
-    auto block = make_shared<CommittedBlock>(0,0);
+    auto block = ptr<CommittedBlock>(new CommittedBlock(0,0));
 
     uint64_t headerSize = 0;
 
