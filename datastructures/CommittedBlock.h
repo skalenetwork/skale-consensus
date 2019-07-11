@@ -30,10 +30,7 @@ class Schain;
 class CommittedBlock : public  BlockProposal {
 
 
-    uint64_t  headerSize = 0;
-
-
-    CommittedBlock(ptr<vector<uint8_t>> _serializedBlock);
+    CommittedBlock( uint64_t timeStamp, uint32_t timeStampMs );
 
 
     ptr<vector<size_t>> parseBlockHeader(const shared_ptr<string> &header);

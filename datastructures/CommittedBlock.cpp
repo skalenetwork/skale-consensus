@@ -52,6 +52,8 @@ CommittedBlock::CommittedBlock(Schain &_sChain, ptr<BlockProposal> _p) : BlockPr
 }
 
 
+
+
 ptr<vector<uint8_t>> CommittedBlock::serialize() {
 
 
@@ -87,53 +89,62 @@ ptr<vector<uint8_t>> CommittedBlock::serialize() {
 }
 
 
-CommittedBlock::CommittedBlock(ptr<vector<uint8_t>> _serializedBlock) : BlockProposal(0,0) {
+ptr<CommittedBlock> CommittedBlock::deserialize( ptr< vector< uint8_t > > _serializedBlock ) {
 
 
-    ASSERT(_serializedBlock != nullptr);
+    auto block = make_shared<CommittedBlock>(0,0);
+
+    uint64_t headerSize = 0;
+
+    ASSERT( _serializedBlock != nullptr );
 
     auto size = _serializedBlock->size();
 
-    if (size < sizeof(headerSize) + 2) {
-        BOOST_THROW_EXCEPTION(InvalidArgumentException("Serialized block too small:" + to_string(size),
-                                                       __CLASS_NAME__));
+    if ( size < sizeof( headerSize ) + 2 ) {
+        BOOST_THROW_EXCEPTION( InvalidArgumentException(
+            "Serialized block too small:" + to_string( size ), __CLASS_NAME__ ) );
     }
 
 
     using boost::iostreams::array_source;
     using boost::iostreams::stream;
 
-    array_source src((char*)_serializedBlock->data(), _serializedBlock->size());
+    array_source src( ( char* ) _serializedBlock->data(), _serializedBlock->size() );
 
-    stream<array_source>  in(src);
+    stream< array_source > in( src );
 
-    in.read((char*)&headerSize, sizeof(headerSize)); /* Flawfinder: ignore */
+    in.read( ( char* ) &headerSize, sizeof( headerSize ) ); /* Flawfinder: ignore */
 
 
-    if (headerSize < 2 || headerSize + sizeof(headerSize) > _serializedBlock->size()) {
-        BOOST_THROW_EXCEPTION(InvalidArgumentException("Invalid header size" + to_string(headerSize), __CLASS_NAME__));
+    if ( headerSize < 2 || headerSize + sizeof( headerSize ) > _serializedBlock->size() ) {
+        BOOST_THROW_EXCEPTION( InvalidArgumentException(
+            "Invalid header size" + to_string( headerSize ), __CLASS_NAME__ ) );
     }
 
-    if (headerSize  > MAX_BUFFER_SIZE) {
-        BOOST_THROW_EXCEPTION(InvalidArgumentException("Header size too large", __CLASS_NAME__));
+    if ( headerSize > MAX_BUFFER_SIZE ) {
+        BOOST_THROW_EXCEPTION(
+            InvalidArgumentException( "Header size too large", __CLASS_NAME__ ) );
     }
 
-    auto header = make_shared<string>(headerSize, ' ');
+    auto header = make_shared< string >( headerSize, ' ' );
 
-    in.read((char*)header->c_str(), headerSize); /* Flawfinder: ignore */
+    in.read( ( char* ) header->c_str(), headerSize ); /* Flawfinder: ignore */
 
-    ptr<vector<size_t>> transactionSizes;
+    ptr< vector< size_t > > transactionSizes;
 
     try {
-        transactionSizes =  parseBlockHeader(header);
-    } catch (...) {
-        throw_with_nested(ParsingException("Could not parse committed block header: \n" + *header, __CLASS_NAME__));
+        transactionSizes = block->parseBlockHeader( header );
+    } catch ( ... ) {
+        throw_with_nested( ParsingException(
+            "Could not parse committed block header: \n" + *header, __CLASS_NAME__ ) );
     }
 
-    transactionList =
-        TransactionList::deserialize( transactionSizes, _serializedBlock, headerSize, true);
+    block->transactionList =
+        TransactionList::deserialize( transactionSizes, _serializedBlock, headerSize, true );
 
-    calculateHash();
+    block->calculateHash();
+
+    return block;
 
 }
 
@@ -181,6 +192,5 @@ ptr<vector<size_t>> CommittedBlock::parseBlockHeader(
     return transactionSizes;
 
 }
-ptr< CommittedBlock > CommittedBlock::deserialize( ptr< vector< uint8_t > > _serializedBlock ) {
-    return ptr< CommittedBlock >(new CommittedBlock(_serializedBlock));
-};
+CommittedBlock::CommittedBlock( uint64_t timeStamp, uint32_t timeStampMs )
+    : BlockProposal( timeStamp, timeStampMs ) {}
