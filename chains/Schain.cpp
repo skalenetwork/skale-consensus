@@ -76,7 +76,6 @@
 #include "../datastructures/ReceivedBlockProposal.h"
 #include "../datastructures/BlockProposalSet.h"
 #include "../datastructures/Transaction.h"
-#include "../datastructures/PendingTransaction.h"
 #include "../datastructures/TransactionList.h"
 
 #include "../exceptions/FatalError.h"

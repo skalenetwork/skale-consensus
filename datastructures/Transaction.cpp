@@ -68,35 +68,37 @@ ptr< partial_sha_hash > Transaction::getPartialHash() {
     return partialHash;
 }
 
-Transaction::Transaction( const ptr< vector< uint8_t > > _trx, bool _verifyChecksum ) {
+Transaction::Transaction( const ptr< vector< uint8_t > > _trx, bool _includesPartialHash ) {
 
+    CHECK_ARGUMENT(_trx != nullptr);
 
-    totalObjects++;
 
     array< uint8_t, PARTIAL_SHA_HASH_LEN > incomingHash;
 
-
-    if ( !_verifyChecksum ) {
-        ASSERT( _trx != nullptr && _trx->size() > 0 );
-    } else {
-        ASSERT( _trx != nullptr && _trx->size() > sizeof( PARTIAL_SHA_HASH_LEN ) );
-
+    if (_includesPartialHash) {
+        CHECK_ARGUMENT(_trx->size() > PARTIAL_SHA_HASH_LEN);
 
         std::copy( _trx->begin() + +_trx->size() - PARTIAL_SHA_HASH_LEN, _trx->end(),
-            incomingHash.begin() );
+                   incomingHash.begin() );
 
 
         _trx->resize( _trx->size() - PARTIAL_SHA_HASH_LEN );
-    }
+    } else {
+        CHECK_ARGUMENT(_trx->size() > 0);
+    };
+
+
 
     data = _trx;
 
-    if (_verifyChecksum) {
+    if (_includesPartialHash) {
         auto h = getPartialHash();
 
         CHECK_ARGUMENT2(*h == incomingHash, "Transaction partial hash does not match");
 
     }
+
+    totalObjects++;
 };
 
 

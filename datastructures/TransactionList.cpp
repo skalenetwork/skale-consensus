@@ -24,15 +24,16 @@
 #include "../SkaleCommon.h"
 #include "../Agent.h"
 #include "../Log.h"
-#include "../exceptions/FatalError.h"
+#include "../exceptions/InvalidArgumentException.h"
 #include "Transaction.h"
 #include "TransactionList.h"
 
 
 TransactionList::TransactionList(ptr<vector<ptr<Transaction>>> _transactions) {
 
-    ASSERT(_transactions);
-//    ASSERT(_transactions->size() > 0);
+    CHECK_ARGUMENT(_transactions != nullptr);
+
+
     totalObjects++;
 
     transactions = _transactions;
@@ -50,6 +51,9 @@ TransactionList::TransactionList( ptr<vector<uint64_t>> _transactionSizes,
     transactions->reserve(_transactionSizes->size());
 
     for (auto &&size : *_transactionSizes) {
+
+        CHECK_ARGUMENT(size > 0);
+
         auto transaction = Transaction::deserialize(_serializedTransactions, index, size, _checkPartialHash);
         transactions->push_back(transaction);
         index += size;

@@ -33,7 +33,7 @@
 #include "../datastructures/MyBlockProposal.h"
 #include "../node/Node.h"
 #include "../datastructures/PartialHashesList.h"
-#include "../datastructures/PendingTransaction.h"
+#include "../datastructures/Transaction.h"
 #include "../datastructures/TransactionList.h"
 #include "../pendingqueue/TestMessageGeneratorAgent.h"
 
@@ -147,7 +147,8 @@ shared_ptr<vector<ptr<Transaction>>> PendingTransactionsAgent::createTransaction
     }
 
     for(const auto& e: tx_vec){
-        ptr<Transaction> pt = make_shared<PendingTransaction>( make_shared<std::vector<uint8_t>>(e) );
+        ptr<Transaction> pt = Transaction::deserialize( make_shared<std::vector<uint8_t>>(e),
+                0,e.size(), false );
         result->push_back(pt);
         pushKnownTransaction(pt);
     }

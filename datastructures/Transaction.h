@@ -45,12 +45,12 @@ private:
     ptr<partial_sha_hash> partialHash = nullptr;
 
 
-protected:
-
-    Transaction(const ptr<vector<uint8_t>> _data, bool _verifyChecksum);
+    Transaction(const ptr<vector<uint8_t>> _data, bool _includesPartialHash);
 
 
 public:
+
+
 
     uint64_t  getSerializedSize(bool _writePartialHash);
 

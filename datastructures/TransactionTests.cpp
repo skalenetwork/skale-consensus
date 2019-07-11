@@ -5,7 +5,6 @@
 
 #include "../SkaleCommon.h"
 #include "Transaction.h"
-#include "PendingTransaction.h"
 #include "TransactionList.h"
 
 
@@ -32,7 +31,7 @@ void corrupt_byte_vector(ptr<vector<uint8_t> > _in, boost::random::mt19937& _gen
 }
 
 
-ptr< PendingTransaction > create_random_transaction( uint64_t _size, boost::random::mt19937& _gen,
+ptr<Transaction > create_random_transaction( uint64_t _size, boost::random::mt19937& _gen,
     boost::random::uniform_int_distribution<>& _ubyte ) {
     auto sample = make_shared< vector< uint8_t > >( _size, 0 );
 
@@ -42,7 +41,7 @@ ptr< PendingTransaction > create_random_transaction( uint64_t _size, boost::rand
     }
 
 
-    return make_shared< PendingTransaction >( sample );
+    return Transaction::deserialize(sample, 0, sample->size(), true);
 };
 
 ptr<TransactionList > create_random_transaction_list( uint64_t _size,
@@ -105,7 +104,7 @@ void test_tx_list_serialize_deserialize( bool _fail  ) {
             auto t = create_random_transaction_list( i, gen, ubyte );
 
 
-            auto out = t->serialize( false );
+            auto out = t->serialize( true );
 
             if ( _fail ) {
                 corrupt_byte_vector(out, gen, ubyte);
