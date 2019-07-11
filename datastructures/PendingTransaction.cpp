@@ -25,7 +25,7 @@
 #include "PendingTransaction.h"
 
 
-PendingTransaction::PendingTransaction(const ptr<vector<uint8_t>> data) : Transaction(data) {
+PendingTransaction::PendingTransaction(const ptr<vector<uint8_t>> data) : Transaction(data, false) {
     totalObjects++;
 }
 
