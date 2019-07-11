@@ -41,7 +41,7 @@ ptr<Transaction > create_random_transaction( uint64_t _size, boost::random::mt19
     }
 
 
-    return Transaction::deserialize(sample, 0, sample->size(), true);
+    return Transaction::deserialize(sample, 0, sample->size(), false);
 };
 
 ptr<TransactionList > create_random_transaction_list( uint64_t _size,

@@ -98,11 +98,16 @@ Transaction::Transaction( const ptr< vector< uint8_t > > _trx, bool _includesPar
 
     }
 
+    CHECK_STATE(data != nullptr);
+    CHECK_STATE(data->size() > 0);
+
     totalObjects++;
 };
 
 
 ptr< vector< uint8_t > > Transaction::getData() const {
+    CHECK_STATE(data != nullptr);
+    CHECK_STATE(data->size() > 0);
     return data;
 }
 
@@ -116,13 +121,16 @@ Transaction::~Transaction() {
 
 }
 uint64_t Transaction::getSerializedSize(bool _writePartialHash) {
+
+    CHECK_STATE(data->size() > 0);
+
     if (_writePartialHash)
         return data->size() + PARTIAL_SHA_HASH_LEN;
     return data->size();
 }
 
 void Transaction::serializeInto( ptr< vector< uint8_t > > _out, bool _writePartialHash ) {
-    ASSERT( _out != nullptr )
+    CHECK_ARGUMENT( _out != nullptr )
     _out->insert( _out->end(), data->begin(), data->end() );
 
     if (_writePartialHash) {

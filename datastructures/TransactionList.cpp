@@ -115,14 +115,26 @@ ptr<ConsensusExtFace::transactions_vector> TransactionList::createTransactionVec
 }
 ptr< TransactionList > TransactionList::deserialize( ptr< vector< uint64_t > > _transactionSizes,
     ptr< vector< uint8_t > > _serializedTransactions, uint32_t _offset, bool _writePartialHash ) {
+
+
+    for (auto &&size : *_transactionSizes) {
+        CHECK_ARGUMENT(size > 0);
+    }
+
     return ptr< TransactionList >(
         new TransactionList( _transactionSizes, _serializedTransactions, _offset, _writePartialHash ) );
 }
 ptr< vector< uint64_t > > TransactionList::createTransactionSizesVector(bool _writePartialHash) {
-    auto ret = make_shared<vector<uint64_t>>(transactions->size());
+    auto ret = make_shared<vector<uint64_t>>();
 
     for (auto&& t : *transactions) {
-        ret->push_back(t->getSerializedSize(_writePartialHash));
+        auto x= (t->getSerializedSize(_writePartialHash));
+        CHECK_STATE(x > 0 );
+        ret->push_back(x);
+    }
+
+    for (auto &&size : *ret) {
+        CHECK_STATE( size > 0 );
     }
 
     return ret;
