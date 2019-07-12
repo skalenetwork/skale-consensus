@@ -93,7 +93,7 @@ BlockProposalServerAgent::readMissingTransactions(
     };
 
 
-    size_t totalSize = 0;
+    size_t totalSize = 2; // account for starting and ending < >
 
     for (auto &&size : jsonSizes) {
         transactionSizes->push_back(size);
