@@ -4,6 +4,7 @@
 
 
 #include "../SkaleCommon.h"
+#include "../exceptions/ParsingException.h"
 #include "CommittedBlock.h"
 #include "Transaction.h"
 #include "TransactionList.h"
@@ -154,8 +155,17 @@ void test_committed_block_serialize_deserialize( bool _fail ) {
             if ( _fail ) {
                 REQUIRE_THROWS( CommittedBlock::deserialize( out ) );
             } else {
-                auto imp = CommittedBlock::deserialize( out );
+
+                ptr<CommittedBlock> imp = nullptr;
+
+                try {
+                    imp = CommittedBlock::deserialize( out );
+                } catch (ParsingException&e) {
+                    Exception::logNested(e, err);
+                    throw (e);
+                }
                 REQUIRE( imp != nullptr );
+
             }
         }
     }
