@@ -29,6 +29,7 @@
 #include <boost/random/uniform_int_distribution.hpp>
 
 
+
 #include "BlockProposal.h"
 
 class Schain;

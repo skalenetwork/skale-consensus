@@ -169,12 +169,11 @@ TEST_CASE( "Serialize/deserialize committed block", "[committed-block-serialize]
 {
     SECTION( "Test successful serialize/deserialize" )
 
-
     test_committed_block_serialize_deserialize( false );
 
-    //SECTION( "Test corrupt serialize/deserialize" );
+    // SECTION( "Test corrupt serialize/deserialize" )
 
-    //test_tx_list_serialize_deserialize( true );
+    //test_committed_block_serialize_deserialize( true);
 
     // Test successful serialize/deserialize failure
 }
