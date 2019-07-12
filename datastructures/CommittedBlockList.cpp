@@ -92,3 +92,20 @@ shared_ptr<vector<uint8_t>>CommittedBlockList::serialize()  {
     }
     return serializedBlocks;
 }
+
+
+
+ptr< CommittedBlockList > CommittedBlockList::createRandomSample(uint64_t _size, boost::random::mt19937& _gen,
+                                                         boost::random::uniform_int_distribution<>& _ubyte) {
+
+    auto blcks = make_shared<vector<ptr<CommittedBlock>>>();
+
+    for (uint32_t i = 0; i < _size; i++) {
+        auto block = CommittedBlock::createRandomSample( _size, _gen, _ubyte, i );
+        blcks->push_back(block);
+    }
+
+    return make_shared<CommittedBlockList>(blcks);
+
+
+};
