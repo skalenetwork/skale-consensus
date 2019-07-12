@@ -163,3 +163,18 @@ ptr< vector< uint64_t > > TransactionList::createTransactionSizesVector(bool _wr
     return ret;
 
 }
+
+ptr< TransactionList > TransactionList::createRandomSample( uint64_t _size, boost::random::mt19937& _gen,
+                                                       boost::random::uniform_int_distribution<>& _ubyte ) {
+    auto sample = make_shared< vector< ptr< Transaction > > >();
+
+
+    for ( uint32_t j = 0; j < _size; j++ ) {
+        auto trx = Transaction::createRandomSample( _size, _gen, _ubyte );
+
+        sample->push_back( trx );
+    }
+
+
+    return make_shared< TransactionList >( sample );
+};

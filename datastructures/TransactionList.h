@@ -23,6 +23,12 @@
 
 #pragma once
 
+#define BOOST_PENDING_INTEGER_LOG2_HPP
+#include <boost/integer/integer_log2.hpp>
+#include <boost/random/mersenne_twister.hpp>
+#include <boost/random/uniform_int_distribution.hpp>
+
+
 #include "DataStructure.h"
 
 
@@ -74,6 +80,8 @@ public:
         ptr< vector< uint8_t > > _serializedTransactions, uint32_t _offset,
         bool _writePartialHash );
 
+    static ptr< TransactionList > createRandomSample( uint64_t _size, boost::random::mt19937& _gen,
+                                                           boost::random::uniform_int_distribution<>& _ubyte );
 };
 
 

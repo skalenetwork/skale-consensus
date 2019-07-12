@@ -828,3 +828,16 @@ size_t Schain::getRequiredSignersCount() {
     }
 
 }
+
+ptr< Transaction > Transaction::createRandomSample( uint64_t _size, boost::random::mt19937& _gen,
+                                              boost::random::uniform_int_distribution<>& _ubyte ) {
+    auto sample = make_shared< vector< uint8_t > >( _size, 0 );
+
+
+    for ( uint32_t j = 0; j < sample->size(); j++ ) {
+        sample->at( j ) = _ubyte( _gen );
+    }
+
+
+    return Transaction::deserialize( sample, 0, sample->size(), false );
+};

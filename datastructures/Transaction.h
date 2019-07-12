@@ -23,9 +23,17 @@
 
 #pragma  once
 
+
+#define BOOST_PENDING_INTEGER_LOG2_HPP
+#include <boost/integer/integer_log2.hpp>
+#include <boost/random/mersenne_twister.hpp>
+#include <boost/random/uniform_int_distribution.hpp>
+
+
 #include "../datastructures/DataStructure.h"
 
 class SHAHash;
+
 
 
 
@@ -76,6 +84,9 @@ public:
     static uint64_t getTotalObjects() {
         return totalObjects;
     };
+
+    static ptr< Transaction > createRandomSample( uint64_t _size, boost::random::mt19937& _gen,
+                                                  boost::random::uniform_int_distribution<>& _ubyte );
 };
 
 
