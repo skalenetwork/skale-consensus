@@ -459,22 +459,19 @@ void Schain::processCommittedBlock(ptr<CommittedBlock> _block) {
 
     blockProposalsDatabase->cleanOldBlockProposals(_block->getBlockID());
 
-
-
-
     pushBlockToExtFace(_block);
-
-
 
 }
 
 void Schain::saveBlock(ptr<CommittedBlock> &_block) {
     saveBlockToBlockCache(_block);
-    saveBlockToLevelDB(_block);
+    getNode()->getBlocksDB()->saveBlock(_block);
 }
 
 void Schain::saveBlockToBlockCache(ptr<CommittedBlock> &_block) {
 
+
+    CHECK_ARGUMENT(_block != nullptr);
 
     auto blockID = _block->getBlockID();
 
@@ -494,24 +491,7 @@ void Schain::saveBlockToBlockCache(ptr<CommittedBlock> &_block) {
 
 }
 
-void Schain::saveBlockToLevelDB(ptr<CommittedBlock> &_block) {
-    auto serializedBlock = _block->serialize();
 
-    using namespace leveldb;
-
-    auto db = getNode()->getBlocksDB();
-
-    auto key = to_string(getNode()->getNodeID()) + ":"
-               + to_string(_block->getBlockID());
-
-    auto value = (const char *) serializedBlock->data();
-
-    auto valueLen = serializedBlock->size();
-
-
-    db->writeByteArray(key, value, valueLen);
-
-}
 
 void Schain::pushBlockToExtFace(ptr<CommittedBlock> &_block) {
 
@@ -663,7 +643,7 @@ ptr<vector<uint8_t>> Schain::getSerializedBlock(uint64_t i) const {
 
 
 schain_index Schain::getSchainIndex() const {
-    return this->schainIndex;
+    return schainIndex;
 }
 
 

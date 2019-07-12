@@ -5,6 +5,8 @@
 #ifndef SKALED_BLOCKDB_H
 #define SKALED_BLOCKDB_H
 
+class CommittedBlock;
+
 #include "LevelDB.h"
 
 class BlockDB : public LevelDB{
@@ -14,6 +16,8 @@ class BlockDB : public LevelDB{
 public:
     BlockDB(node_id nodeId,  string& filename );
     ptr<vector<uint8_t >> getSerializedBlock( block_id _blockID );
+
+    void saveBlock(ptr<CommittedBlock> &_block);
 
 };
 

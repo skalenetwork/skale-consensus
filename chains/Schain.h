@@ -166,8 +166,6 @@ class Schain : public Agent {
     void constructChildAgents();
 
 
-    void saveBlockToLevelDB(ptr<CommittedBlock> &_block);
-
     void saveBlockToBlockCache(ptr<CommittedBlock> &_block);
 
 
