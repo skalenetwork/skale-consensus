@@ -222,6 +222,8 @@ ptr<vector<uint8_t>> CatchupServerAgent::createCatchupResponseHeader(ptr<Connect
 
     auto serializedBlocks = make_shared<vector<uint8_t>>();
 
+    serializedBlocks->push_back('[');
+
 
 
     for (uint64_t i = (uint64_t) blockID + 1; i <= committedBlockID; i++) {
@@ -239,6 +241,8 @@ ptr<vector<uint8_t>> CatchupServerAgent::createCatchupResponseHeader(ptr<Connect
         blockSizes->push_back(serializedBlock->size());
 
     }
+
+    serializedBlocks->push_back(']');
 
     _responseHeader->setStatus(CONNECTION_PROCEED);
 

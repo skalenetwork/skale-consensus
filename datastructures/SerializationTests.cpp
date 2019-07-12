@@ -6,6 +6,9 @@
 #include "../SkaleCommon.h"
 #include "../exceptions/ParsingException.h"
 #include "CommittedBlock.h"
+#include "CommittedBlockList.h"
+
+
 #include "Transaction.h"
 #include "TransactionList.h"
 
@@ -27,8 +30,6 @@ void corrupt_byte_vector( ptr< vector< uint8_t > > _in, boost::random::mt19937& 
     auto b = _in->at( randomPosition );
     _in->at( randomPosition ) = b + 1;
 }
-
-
 
 
 void test_tx_serialize_deserialize( bool _fail ) {
@@ -113,18 +114,44 @@ void test_committed_block_serialize_deserialize( bool _fail ) {
             if ( _fail ) {
                 REQUIRE_THROWS( CommittedBlock::deserialize( out ) );
             } else {
-
-                ptr<CommittedBlock> imp = nullptr;
+                ptr< CommittedBlock > imp = nullptr;
 
                 try {
                     imp = CommittedBlock::deserialize( out );
-                } catch (ParsingException&e) {
-                    Exception::logNested(e, err);
-                    throw (e);
+                } catch ( ParsingException& e ) {
+                    Exception::logNested( e, err );
+                    throw( e );
                 }
                 REQUIRE( imp != nullptr );
-
             }
+        }
+    }
+}
+
+void test_committed_block_list_serialize_deserialize() {
+    boost::random::mt19937 gen;
+
+    boost::random::uniform_int_distribution<> ubyte( 0, 255 );
+
+    for ( int k = 0; k < 5; k++ ) {
+        for ( int i = 1; i < 2; i++ ) {
+            auto t = CommittedBlockList::createRandomSample( i, gen, ubyte );
+
+            auto out = t->serialize();
+
+
+            REQUIRE( out != nullptr );
+
+
+            ptr< CommittedBlockList > imp = nullptr;
+
+            try {
+                imp = CommittedBlockList::deserialize(t->createSizes(), out, 0 );
+            } catch ( ParsingException& e ) {
+                Exception::logNested( e, err );
+                throw( e );
+            }
+            REQUIRE( imp != nullptr );
         }
     }
 }
@@ -173,7 +200,23 @@ TEST_CASE( "Serialize/deserialize committed block", "[committed-block-serialize]
 
     // SECTION( "Test corrupt serialize/deserialize" )
 
-    //test_committed_block_serialize_deserialize( true);
+    // test_committed_block_serialize_deserialize( true);
+
+    // Test successful serialize/deserialize failure
+}
+
+
+TEST_CASE( "Serialize/deserialize committed block list", "[committed-block-list-serialize]" )
+
+
+{
+    SECTION( "Test successful serialize/deserialize" )
+
+    test_committed_block_list_serialize_deserialize();
+
+    // SECTION( "Test corrupt serialize/deserialize" )
+
+    // test_committed_block_serialize_deserialize( true);
 
     // Test successful serialize/deserialize failure
 }

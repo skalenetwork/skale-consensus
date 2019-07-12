@@ -178,7 +178,7 @@ size_t CatchupClientAgent::parseBlockSizes(
                                       "totalSize > getNode()->getMaxCatchupDownloadBytes()", __CLASS_NAME__ ));
     }
 
-    return totalSize;
+    return totalSize + 2;
 };
 
 
@@ -201,16 +201,16 @@ ptr<CommittedBlockList> CatchupClientAgent::readMissingBlocks(
         throw_with_nested(NetworkProtocolException("Could not read blocks", __CLASS_NAME__));
     }
 
-    if ((*serializedBlocks).at(sizeof(uint64_t)) != '{') {
+    if (serializedBlocks->at(0) != '[') {
         throw_with_nested(NetworkProtocolException(
-                "First serialized block does not start with {", __CLASS_NAME__));
+                "Serialized blocks do not start with [", __CLASS_NAME__));
     }
 
 
     ptr<CommittedBlockList> blockList = nullptr;
 
     try {
-        blockList = make_shared<CommittedBlockList>(blockSizes, serializedBlocks);
+        blockList = CommittedBlockList::deserialize(blockSizes, serializedBlocks, 0);
     } catch (ExitRequestedException &) {
         throw;
     } catch (...) {

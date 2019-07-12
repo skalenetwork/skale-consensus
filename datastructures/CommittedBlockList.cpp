@@ -21,91 +21,98 @@
     @date 2018
 */
 
-#include "../SkaleCommon.h"
 #include "../Log.h"
-#include "../exceptions/FatalError.h"
-#include "../exceptions/NetworkProtocolException.h"
+#include "../SkaleCommon.h"
 #include "../crypto/SHAHash.h"
+#include "../exceptions/FatalError.h"
+#include "../exceptions/InvalidArgumentException.h"
+#include "../exceptions/NetworkProtocolException.h"
 #include "CommittedBlock.h"
 
 #include "CommittedBlockList.h"
 
 
-CommittedBlockList::CommittedBlockList(ptr<vector<ptr<CommittedBlock>>> _blocks) {
-
-    ASSERT(_blocks);
-    ASSERT(_blocks->size() > 0);
+CommittedBlockList::CommittedBlockList( ptr< vector< ptr< CommittedBlock > > > _blocks ) {
+    ASSERT( _blocks );
+    ASSERT( _blocks->size() > 0 );
 
     blocks = _blocks;
-
 }
 
 
-CommittedBlockList::CommittedBlockList(ptr<vector<size_t>> _blockSizes, ptr<vector<uint8_t>> _serializedBlocks) {
+CommittedBlockList::CommittedBlockList( ptr< vector< size_t > > _blockSizes,
+    ptr< vector< uint8_t > > _serializedBlocks, uint64_t _offset ) {
+    CHECK_ARGUMENT( _serializedBlocks->at( 0 ) == '[' );
+    CHECK_ARGUMENT( _serializedBlocks->at( _serializedBlocks->size() - 1 ) == ']' );
 
-    size_t index = 0;
+
+    size_t index = _offset;
     uint64_t counter = 0;
 
-    blocks = make_shared<vector<ptr<CommittedBlock>>>();
+    blocks = make_shared< vector< ptr< CommittedBlock > > >();
 
-    for (auto &&size : *_blockSizes) {
-
+    for ( auto&& size : *_blockSizes ) {
         auto endIndex = index + size;
 
-        ASSERT(endIndex <= _serializedBlocks->size());
+        ASSERT( endIndex <= _serializedBlocks->size() );
 
-        auto blockData = make_shared<vector<uint8_t>>(
-                _serializedBlocks->begin() + index,
-                _serializedBlocks->begin() + endIndex);
+        auto blockData = make_shared< vector< uint8_t > >(
+            _serializedBlocks->begin() + index, _serializedBlocks->begin() + endIndex );
 
-        auto block = CommittedBlock::deserialize(blockData);
+        auto block = CommittedBlock::deserialize( blockData );
 
-        blocks->push_back(block);
+        blocks->push_back( block );
 
         index = endIndex;
 
         counter++;
     }
-
-
 };
 
 
-ptr<vector<ptr<CommittedBlock>>> CommittedBlockList::getBlocks() {
+ptr< vector< ptr< CommittedBlock > > > CommittedBlockList::getBlocks() {
     return blocks;
 }
 
-shared_ptr<vector<uint8_t>>CommittedBlockList::serialize()  {
+shared_ptr< vector< uint8_t > > CommittedBlockList::serialize() {
+    auto serializedBlocks = make_shared< vector< uint8_t > >();
 
-    size_t totalSize = 0;
+    serializedBlocks->push_back( '[' );
 
-    for (auto &&block : *blocks) {
-        totalSize += block->serialize()->size();
-    }
-
-
-    auto serializedBlocks = make_shared<vector<uint8_t>>();
-
-    for (auto && block : *blocks) {
+    for ( auto&& block : *blocks ) {
         auto data = block->serialize();
-        serializedBlocks->insert(serializedBlocks->end(), data->begin(), data->end());
+        serializedBlocks->insert( serializedBlocks->end(), data->begin(), data->end() );
     }
+
+    serializedBlocks->push_back( ']' );
+
     return serializedBlocks;
 }
 
 
+ptr< CommittedBlockList > CommittedBlockList::createRandomSample( uint64_t _size,
+    boost::random::mt19937& _gen, boost::random::uniform_int_distribution<>& _ubyte ) {
+    auto blcks = make_shared< vector< ptr< CommittedBlock > > >();
 
-ptr< CommittedBlockList > CommittedBlockList::createRandomSample(uint64_t _size, boost::random::mt19937& _gen,
-                                                         boost::random::uniform_int_distribution<>& _ubyte) {
-
-    auto blcks = make_shared<vector<ptr<CommittedBlock>>>();
-
-    for (uint32_t i = 0; i < _size; i++) {
+    for ( uint32_t i = 0; i < _size; i++ ) {
         auto block = CommittedBlock::createRandomSample( _size, _gen, _ubyte, i );
-        blcks->push_back(block);
+        blcks->push_back( block );
     }
 
-    return make_shared<CommittedBlockList>(blcks);
+    return make_shared< CommittedBlockList >( blcks );
+}
+ptr< CommittedBlockList > CommittedBlockList::deserialize(ptr<vector<size_t>> _blockSizes,
+                                                          ptr< vector< uint8_t > > _serializedBlocks,
+                                                          uint64_t _offset) {
+    return ptr< CommittedBlockList >( new CommittedBlockList(_blockSizes, _serializedBlocks, _offset ) );
+}
 
+ptr< vector< uint64_t > > CommittedBlockList::createSizes() {
+    auto ret = make_shared<vector<uint64_t >>();
 
+    for (auto&& block : *blocks) {
+        ret->push_back(block->serialize()->size());
+    }
+
+    return ret;
 };
