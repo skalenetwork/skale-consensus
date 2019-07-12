@@ -134,8 +134,14 @@ ptr< CommittedBlock > CommittedBlock::deserialize( ptr< vector< uint8_t > > _ser
             "Could not parse committed block header: \n" + *header, __CLASS_NAME__ ) );
     }
 
-    block->transactionList =
-        TransactionList::deserialize( transactionSizes, _serializedBlock, headerSize, true );
+
+    try {
+        block->transactionList =
+            TransactionList::deserialize( transactionSizes, _serializedBlock, headerSize, true );
+    } catch ( ... ) {
+        throw_with_nested( ParsingException(
+            "Could not parse transactions after header. Header: \n" + *header, __CLASS_NAME__ ) );
+    }
 
     block->calculateHash();
 

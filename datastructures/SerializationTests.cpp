@@ -138,8 +138,8 @@ void test_committed_block_serialize_deserialize( bool _fail ) {
 
     boost::random::uniform_int_distribution<> ubyte( 0, 255 );
 
-    for ( int k = 0; k < 10; k++ ) {
-        for ( int i = 1; i < 10; i++ ) {
+    for ( int k = 0; k < 100; k++ ) {
+        for ( int i = 1; i < 2; i++ ) {
             auto t = create_random_committed_block( i, gen, ubyte );
 
             auto out = t->serialize();
@@ -204,9 +204,9 @@ TEST_CASE( "Serialize/deserialize committed block", "[committed-block-serialize]
 
     test_committed_block_serialize_deserialize( false );
 
-    SECTION( "Test corrupt serialize/deserialize" )
+    //SECTION( "Test corrupt serialize/deserialize" );
 
-    test_tx_list_serialize_deserialize( true );
+    //test_tx_list_serialize_deserialize( true );
 
     // Test successful serialize/deserialize failure
 }
