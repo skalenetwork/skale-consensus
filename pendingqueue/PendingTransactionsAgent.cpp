@@ -28,6 +28,8 @@
 #include "../thirdparty/json.hpp"
 #include "leveldb/db.h"
 #include "../db/LevelDB.h"
+#include "../db/BlockDB.h"
+
 #include "../crypto/SHAHash.h"
 #include "../datastructures/BlockProposal.h"
 #include "../datastructures/MyBlockProposal.h"

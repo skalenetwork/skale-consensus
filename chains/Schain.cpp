@@ -634,7 +634,7 @@ ptr<CommittedBlock> Schain::getBlock(block_id _blockID) {
         return block;
 
 
-    auto serializedBlock = getNode()->getBlocksDB()->getSerializedBlock(_blockID);
+    auto serializedBlock = getNode()->getBlocksDB()->getSerializedBlock(getNode()->getNodeID(), _blockID);
 
     if (serializedBlock == nullptr) {
         return nullptr;
@@ -654,7 +654,7 @@ ptr<vector<uint8_t>> Schain::getSerializedBlock(uint64_t i) const {
     if (block) {
         return block->serialize();
     } else {
-        return sChain->getSerializedBlockFromLevelDB(i);
+        return getNode()->getBlocksDB()->getSerializedBlock(getNode()->getNodeID(), i);
     }
 
 }

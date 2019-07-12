@@ -21,21 +21,33 @@
     @date 2018
 */
 
+#include "leveldb/db.h"
+
 #include "../SkaleCommon.h"
 #include "../Log.h"
+
+
 #include "../exceptions/FatalError.h"
 #include "../exceptions/InvalidArgumentException.h"
-
+#include "../exceptions/ParsingException.h"
+#include "../exceptions/ExitRequestedException.h"
 #include "../thirdparty/json.hpp"
-#include "leveldb/db.h"
+
+
 
 #include "../crypto/bls_include.h"
 
+#include "../crypto/BLSPublicKey.h"
+#include "../crypto/ConsensusBLSPrivateKeyShare.h"
+#include "../crypto/SHAHash.h"
+
 #include "../blockproposal/server/BlockProposalServerAgent.h"
 #include "../messages/NetworkMessageEnvelope.h"
+
 #include "../chains/Schain.h"
 #include "../chains/Schain.h"
-#include "../exceptions/ExitRequestedException.h"
+
+
 
 
 #include "../node/NodeInfo.h"
@@ -44,20 +56,17 @@
 #include "../network/TCPServerSocket.h"
 #include "../network/ZMQServerSocket.h"
 
-#include "../crypto/BLSPublicKey.h"
-#include "../crypto/ConsensusBLSPrivateKeyShare.h"
-#include "../crypto/SHAHash.h"
-
-
 #include "../messages/Message.h"
 #include "../catchup/server/CatchupServerAgent.h"
 #include "../exceptions/FatalError.h"
 
 #include "../protocols/InstanceGarbageCollectorAgent.h"
+
+#include "../db/BlockDB.h"
+
 #include "ConsensusEngine.h"
 #include "ConsensusInterface.h"
 #include "Node.h"
-#include "../exceptions/ParsingException.h"
 
 using namespace std;
 
