@@ -62,8 +62,6 @@ ptr<Buffer> Header::toBuffer() {
 
     uint64_t len = s.size();
 
-    cerr << "Headersize:" << len << "\n";
-
     CHECK_STATE(len > 16);
 
     auto buf = make_shared<Buffer>(len + sizeof(uint64_t));
