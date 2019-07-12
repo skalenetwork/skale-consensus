@@ -293,4 +293,8 @@ public:
     void initLogging();
 
     void initBLSKeys();
+
+    void setEmptyBlockIntervalMs(uint64_t _interval){
+        this->emptyBlockIntervalMs = _interval;
+    }
 };
