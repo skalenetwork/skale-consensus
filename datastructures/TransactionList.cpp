@@ -45,8 +45,18 @@ TransactionList::TransactionList(ptr<vector<ptr<Transaction>>> _transactions) {
 TransactionList::TransactionList( ptr<vector<uint64_t>> _transactionSizes,
     ptr<vector<uint8_t>> _serializedTransactions, uint32_t _offset, bool _checkPartialHash ) {
 
+    if (_checkPartialHash) {
+        CHECK_ARGUMENT( _serializedTransactions->size() - _offset > PARTIAL_SHA_HASH_LEN + 2 );
+    } else {
+        CHECK_ARGUMENT( _serializedTransactions->size() - _offset > 2 );
+    }
+    CHECK_ARGUMENT(_serializedTransactions->at(_offset) == '<');
+    CHECK_ARGUMENT(_serializedTransactions->at(_serializedTransactions->size() - 1) == '>');
+
+
+
     totalObjects++;
-    size_t index = _offset;
+    size_t index = _offset + 1;
 
     transactions = make_shared<vector<ptr<Transaction>>>();
     transactions->reserve(_transactionSizes->size());
@@ -90,12 +100,17 @@ ptr<vector<uint8_t> > TransactionList::serialize( bool _writeTxPartialHash ) {
 
     serializedTransactions = make_shared<vector<uint8_t>>();
 
-    serializedTransactions->reserve(totalSize);
+    serializedTransactions->reserve(totalSize + 2);
+
+    serializedTransactions->push_back('<');
 
 
     for (auto &&transaction : *transactions) {
         transaction->serializeInto( serializedTransactions, _writeTxPartialHash);
     }
+
+    serializedTransactions->push_back('>');
+
     return serializedTransactions;
 }
 
