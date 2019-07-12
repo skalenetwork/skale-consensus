@@ -70,14 +70,6 @@ ptr< partial_sha_hash > Transaction::getPartialHash() {
 
 Transaction::Transaction( const ptr< vector< uint8_t > > _trx, bool _includesPartialHash ) {
 
-    cerr << (uint32_t ) _includesPartialHash;
-
-    cerr <<"\nTRANSACTION ";
-
-    for (auto&& x: *_trx) {
-        cerr << ":" << x;
-    }
-
 
     CHECK_ARGUMENT(_trx != nullptr);
 
@@ -102,8 +94,6 @@ Transaction::Transaction( const ptr< vector< uint8_t > > _trx, bool _includesPar
 
 
 
-
-    cerr <<"\n";
 
     if (_includesPartialHash) {
         auto h = getPartialHash();
@@ -155,19 +145,6 @@ void Transaction::serializeInto( ptr< vector< uint8_t > > _out, bool _writeParti
         auto h = getPartialHash();
         _out->insert( _out->end(), h->begin(), h->end() );
     }
-
-
-    cerr << (uint32_t ) _writePartialHash;
-
-    cerr <<"\nSERIALIZE TRANSACTION ";
-
-    for (auto&& x: *data) {
-        cerr << ":" << (uint32_t ) x;
-    }
-
-    cerr <<"\n";
-
-
 }
 
 

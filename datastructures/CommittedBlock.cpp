@@ -55,32 +55,31 @@ CommittedBlock::CommittedBlock( Schain& _sChain, ptr< BlockProposal > _p )
 
 
 ptr< vector< uint8_t > > CommittedBlock::serialize() {
-    auto items = transactionList->getItems();
 
     auto header = make_shared< CommittedBlockHeader >( *this );
 
     auto buf = header->toBuffer();
 
-    ASSERT( buf->getBuf()->at( sizeof( uint64_t ) ) == '{' );
-    ASSERT( buf->getBuf()->at( buf->getCounter() - 1 ) == '}' );
 
 
-    uint64_t binSize = 0;
 
-    for ( auto&& tx : *items ) {
-        binSize += tx->getSerializedSize( true );
-    }
+    CHECK_STATE( buf->getBuf()->at( sizeof( uint64_t ) ) == '{' );
+    CHECK_STATE( buf->getBuf()->at( buf->getCounter() - 1 ) == '}' );
+
 
     auto block = make_shared< vector< uint8_t > >();
 
     block->insert(
         block->end(), buf->getBuf()->begin(), buf->getBuf()->begin() + buf->getCounter() );
 
-    for ( auto&& tx : *items ) {
-        tx->serializeInto( block, true );
-    }
 
-    ASSERT( block->at( sizeof( uint64_t ) ) == '{' );
+    auto serializedList = transactionList->serialize(true);
+
+    block->insert(block->end(), serializedList->begin(), serializedList->end());
+
+
+    CHECK_STATE( block->at( sizeof( uint64_t ) ) == '{' );
+
 
     return block;
 }
@@ -89,16 +88,18 @@ ptr< vector< uint8_t > > CommittedBlock::serialize() {
 ptr< CommittedBlock > CommittedBlock::deserialize( ptr< vector< uint8_t > > _serializedBlock ) {
     auto block = ptr< CommittedBlock >( new CommittedBlock( 0, 0 ) );
 
+
+
+
     uint64_t headerSize = 0;
 
-    ASSERT( _serializedBlock != nullptr );
+    CHECK_ARGUMENT( _serializedBlock != nullptr );
+
+
 
     auto size = _serializedBlock->size();
 
-    if ( size < sizeof( headerSize ) + 2 ) {
-        BOOST_THROW_EXCEPTION( InvalidArgumentException(
-            "Serialized block too small:" + to_string( size ), __CLASS_NAME__ ) );
-    }
+    CHECK_ARGUMENT2(size >= sizeof( headerSize ) + 2,"Serialized block too small:" + to_string( size ));
 
 
     using boost::iostreams::array_source;
@@ -111,15 +112,13 @@ ptr< CommittedBlock > CommittedBlock::deserialize( ptr< vector< uint8_t > > _ser
     in.read( ( char* ) &headerSize, sizeof( headerSize ) ); /* Flawfinder: ignore */
 
 
-    if ( headerSize < 2 || headerSize + sizeof( headerSize ) > _serializedBlock->size() ) {
-        BOOST_THROW_EXCEPTION( InvalidArgumentException(
-            "Invalid header size" + to_string( headerSize ), __CLASS_NAME__ ) );
-    }
+    CHECK_STATE2(headerSize >= 2 && headerSize + sizeof( headerSize ) <= _serializedBlock->size(),
+            "Invalid header size" + to_string( headerSize ));
 
-    if ( headerSize > MAX_BUFFER_SIZE ) {
-        BOOST_THROW_EXCEPTION(
-            InvalidArgumentException( "Header size too large", __CLASS_NAME__ ) );
-    }
+
+    CHECK_STATE( headerSize <= MAX_BUFFER_SIZE );
+
+    CHECK_STATE(_serializedBlock->at(headerSize + sizeof(headerSize) ) == '<');
 
     auto header = make_shared< string >( headerSize, ' ' );
 
@@ -135,9 +134,11 @@ ptr< CommittedBlock > CommittedBlock::deserialize( ptr< vector< uint8_t > > _ser
     }
 
 
+
     try {
         block->transactionList =
-            TransactionList::deserialize( transactionSizes, _serializedBlock, headerSize, true );
+            TransactionList::deserialize( transactionSizes, _serializedBlock, headerSize
+                + sizeof(headerSize), true );
     } catch ( ... ) {
         throw_with_nested( ParsingException(
             "Could not parse transactions after header. Header: \n" + *header, __CLASS_NAME__ ) );
@@ -153,15 +154,10 @@ ptr< vector< size_t > > CommittedBlock::parseBlockHeader( const shared_ptr< stri
 
     CHECK_ARGUMENT( header->size() > 2 );
 
-    if ( header->at( 0 ) != '{' ) {
-        BOOST_THROW_EXCEPTION(
-            InvalidArgumentException( "Block header does not start with {", __CLASS_NAME__ ) );
-    }
+    CHECK_ARGUMENT2(header->at( 0 ) == '{', "Block header does not start with {");
 
-    if ( header->at( header->size() - 1 ) != '}' ) {
-        BOOST_THROW_EXCEPTION(
-            InvalidArgumentException( "Block header does not end with }", __CLASS_NAME__ ) );
-    }
+    CHECK_ARGUMENT2(header->at( header->size() - 1 ) == '}',"Block header does not end with }");
+
 
     auto transactionSizes = make_shared< vector< size_t > >();
 

@@ -107,7 +107,7 @@ void test_tx_list_serialize_deserialize( bool _fail ) {
 
     boost::random::uniform_int_distribution<> ubyte( 0, 255 );
 
-    for ( int k = 0; k < 1; k++ ) {
+    for ( int k = 0; k < 10; k++ ) {
         for ( int i = 1; i < 2; i++ ) {
             auto t = create_random_transaction_list( i, gen, ubyte );
 
@@ -140,7 +140,7 @@ void test_committed_block_serialize_deserialize( bool _fail ) {
     boost::random::uniform_int_distribution<> ubyte( 0, 255 );
 
     for ( int k = 0; k < 100; k++ ) {
-        for ( int i = 1; i < 2; i++ ) {
+        for ( int i = 1; i < 20; i++ ) {
             auto t = create_random_committed_block( i, gen, ubyte );
 
             auto out = t->serialize();
