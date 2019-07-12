@@ -31,6 +31,7 @@ class Schain;
 class Transaction;
 class PartialHashesList;
 class TransactionList;
+class SHAHash;
 
 
 class BlockProposal : public DataStructure {

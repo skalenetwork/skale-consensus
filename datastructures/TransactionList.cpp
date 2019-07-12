@@ -25,6 +25,7 @@
 #include "../Agent.h"
 #include "../Log.h"
 #include "../exceptions/InvalidArgumentException.h"
+#include "../exceptions/ParsingException.h"
 #include "Transaction.h"
 #include "TransactionList.h"
 
@@ -54,8 +55,15 @@ TransactionList::TransactionList( ptr<vector<uint64_t>> _transactionSizes,
 
         CHECK_ARGUMENT(size > 0);
 
-        auto transaction = Transaction::deserialize(_serializedTransactions, index, size, _checkPartialHash);
-        transactions->push_back(transaction);
+        try {
+            auto transaction =
+                Transaction::deserialize( _serializedTransactions, index, size, _checkPartialHash );
+            transactions->push_back(transaction);
+        } catch (...) {
+            throw_with_nested(ParsingException("Could not parse transaction:" + to_string(index) + ":size:" +
+                             to_string(size) + ":" + to_string(_checkPartialHash), __CLASS_NAME__));
+        }
+
         index += size;
     }
 
