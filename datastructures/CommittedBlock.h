@@ -56,6 +56,7 @@ public:
 
 
     static ptr< CommittedBlock > createRandomSample( uint64_t _size, boost::random::mt19937& _gen,
-                                                         boost::random::uniform_int_distribution<>& _ubyte );
+                                                         boost::random::uniform_int_distribution<>& _ubyte,
+                                                     block_id _blockID = block_id(1));
 
 };

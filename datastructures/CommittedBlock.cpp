@@ -199,11 +199,12 @@ CommittedBlock::CommittedBlock( const schain_id& sChainId, const node_id& propos
 
 
 
-ptr< CommittedBlock > CommittedBlock::createRandomSample( uint64_t _size, boost::random::mt19937& _gen,
-                                                     boost::random::uniform_int_distribution<>& _ubyte ) {
+ptr< CommittedBlock > CommittedBlock::createRandomSample(uint64_t _size, boost::random::mt19937& _gen,
+                                                     boost::random::uniform_int_distribution<>& _ubyte,
+                                                     block_id _blockID) {
     auto list = TransactionList::createRandomSample(_size, _gen, _ubyte );
 
     static uint64_t MODERN_TIME = 1547640182;
 
-    return make_shared< CommittedBlock >( 1, 1, 1, 1, list, MODERN_TIME + 1, 1 );
+    return make_shared< CommittedBlock >( 1, 1, _blockID, 1, list, MODERN_TIME + 1, 1 );
 };

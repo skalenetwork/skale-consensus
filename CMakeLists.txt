@@ -183,7 +183,7 @@ endif ()
 
 
 
-add_executable(consensust Consensust.h Consensust.cpp datastructures/SerializationTests.cpp)
+add_executable(consensust Consensust.h Consensust.cpp datastructures/SerializationTests.cpp db/DBTests.cpp)
 
 # libgoogle-perftools-dev
 if (CMAKE_PROJECT_NAME STREQUAL "consensus")
