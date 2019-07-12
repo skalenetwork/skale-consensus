@@ -41,6 +41,7 @@ class SHAHash;
 class BLSPublicKey;
 class BLSPrivateKeyShare;
 class LevelDB;
+class BlockDB;
 
 namespace leveldb{
     class DB;
@@ -122,7 +123,7 @@ class Node {
     void closeAllSocketsAndNotifyAllAgentsAndThreads();
 
 
-    ptr<LevelDB> blocksDB = nullptr;
+    ptr<BlockDB> blocksDB = nullptr;
 
     ptr<LevelDB> randomDB = nullptr;
 
@@ -173,7 +174,7 @@ public:
     ptr<BLSPrivateKeyShare> getBlsPrivateKey() const;
 
 
-    ptr<LevelDB> getBlocksDB();
+    ptr<BlockDB> getBlocksDB();
 
     ptr<LevelDB> getRandomDB();
 

@@ -94,7 +94,7 @@ void Node::initLevelDBs() {
     string pricesDBFilename = dataDir + "/prices_" + to_string(nodeID) + ".db";
 
 
-    blocksDB = make_shared<LevelDB>(blockDBFilename);
+    blocksDB = make_shared<BlockDB>(blockDBFilename);
     randomDB = make_shared<LevelDB>(randomDBFilename);
     committedTransactionsDB = make_shared<LevelDB>(committedTransactionsDBFilename);
     signaturesDB = make_shared<LevelDB>(signaturesDBFilename);
@@ -487,7 +487,7 @@ ptr<NodeInfo> Node::getNodeInfoByIP(ptr<string> ip) {
 }
 
 
-ptr<LevelDB> Node::getBlocksDB() {
+ptr<BlockDB> Node::getBlocksDB() {
     ASSERT(blocksDB);
     return blocksDB;
 }

@@ -86,7 +86,7 @@ void BlockConsensusAgent::startConsensusProposal(block_id _blockID, ptr <Boolean
 
     ASSERT(proposedBlocks.count(_blockID) == 0);
 
-    if (getSchain()->getCommittedBlockID() >= _blockID) {
+    if (getSchain()->getLastCommittedBlockID() >= _blockID) {
         LOG(debug, "Terminating consensus proposal since already committed.");
     }
 

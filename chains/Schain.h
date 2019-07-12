@@ -79,9 +79,6 @@ class Schain : public Agent {
     ConsensusExtFace* extFace = nullptr;
 
 
-private:
-
-
     /**
      * ID of this SChain
      */
@@ -158,7 +155,7 @@ private:
 
     void startConsensus(block_id _blockID);
 
-    atomic<uint64_t> committedBlockID;
+    atomic<uint64_t> lastCommittedBlockID;
 
 
     atomic<uint64_t> bootstrapBlockID;
@@ -167,6 +164,23 @@ private:
     atomic<uint64_t>committedBlockTimeStamp;
 
     void constructChildAgents();
+
+
+    void saveBlockToLevelDB(ptr<CommittedBlock> &_block);
+
+    void saveBlockToBlockCache(ptr<CommittedBlock> &_block);
+
+
+    void saveBlock(ptr<CommittedBlock> &_block);
+
+
+    void pushBlockToExtFace(ptr<CommittedBlock> &_block);
+
+
+    ptr<vector<uint8_t>> getSerializedBlockFromLevelDB(const block_id &_blockID);
+
+
+    ptr<CommittedBlock> getCachedBlock(block_id _blockID);
 
 
 
@@ -190,7 +204,7 @@ public:
     static void messageThreadProcessingLoop(Schain *s);
 
 
-    uint64_t getCommittedBlockTimeStamp();
+    uint64_t getLastCommittedBlockTimeStamp();
 
 
     void setBlockProposerTest(const string &blockProposerTest);
@@ -233,7 +247,6 @@ public:
     transaction_count getMessagesCount();
 
 
-
     node_id getNodeIDByIndex(schain_index _index);
 
     schain_id getSchainID();
@@ -248,9 +261,8 @@ public:
     node_count getNodeCount();
 
 
-    const block_id getCommittedBlockID() const;
+    const block_id getLastCommittedBlockID() const;
 
-    ptr<CommittedBlock> getCachedBlock(block_id _blockID);
 
     ptr<CommittedBlock> getBlock(block_id _blockID);
 
@@ -285,18 +297,9 @@ public:
 
     void setHealthCheckFile(uint64_t status);
 
-    void
-    pushBlockToExtFace(ptr<CommittedBlock> &_block);
 
-    void saveBlockToLevelDB(ptr<CommittedBlock> &_block);
+    ptr<vector<uint8_t>> getSerializedBlock(uint64_t i) const;
 
-    void saveBlockToBlockCache(ptr<CommittedBlock> &_block);
-
-    void saveBlock(ptr<CommittedBlock> &_block);
-
-
-
-    ptr<vector<uint8_t>> getSerializedBlockFromLevelDB(const block_id &_blockID);
 
     ptr<ConsensusBLSSigShare> sign(ptr<SHAHash> _hash, block_id _blockId);
 
