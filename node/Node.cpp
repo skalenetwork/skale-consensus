@@ -103,7 +103,7 @@ void Node::initLevelDBs() {
     string pricesDBFilename = dataDir + "/prices_" + to_string(nodeID) + ".db";
 
 
-    blocksDB = make_shared<BlockDB>(blockDBFilename);
+    blocksDB = make_shared<BlockDB>(getNodeID(), blockDBFilename);
     randomDB = make_shared<LevelDB>(randomDBFilename);
     committedTransactionsDB = make_shared<LevelDB>(committedTransactionsDBFilename);
     signaturesDB = make_shared<LevelDB>(signaturesDBFilename);
@@ -227,6 +227,7 @@ void Node::cleanLevelDBs() {
 
 
 node_id Node::getNodeID() const {
+
     return nodeID;
 }
 

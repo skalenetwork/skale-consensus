@@ -8,10 +8,10 @@
 #include "BlockDB.h"
 
 
-ptr<vector<uint8_t>> BlockDB::getSerializedBlock(node_id _nodeId, block_id _blockID) {
+ptr<vector<uint8_t> > BlockDB::getSerializedBlock( block_id _blockID ) {
     using namespace leveldb;
 
-    string key = to_string((uint64_t) _nodeId) + ":" + to_string((uint64_t) _blockID);
+    string key = to_string((uint64_t) nodeId) + ":" + to_string((uint64_t) _blockID);
 
     auto value = readString(key);
 
@@ -23,4 +23,4 @@ ptr<vector<uint8_t>> BlockDB::getSerializedBlock(node_id _nodeId, block_id _bloc
         return nullptr;
     }
 }
-BlockDB::BlockDB( string& filename ) : LevelDB( filename ) {}
+BlockDB::BlockDB(node_id _nodeId,  string& filename ) : LevelDB( filename ),  nodeId(_nodeId) {}

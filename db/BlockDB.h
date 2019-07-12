@@ -9,9 +9,11 @@
 
 class BlockDB : public LevelDB{
 
+    node_id nodeId;
+
 public:
-    BlockDB( string& filename );
-    ptr<vector<uint8_t>> getSerializedBlock(node_id _nodeId, block_id _blockID);
+    BlockDB(node_id nodeId,  string& filename );
+    ptr<vector<uint8_t >> getSerializedBlock( block_id _blockID );
 
 };
 
