@@ -50,7 +50,7 @@ void CommittedTransactionDB::writeCommittedTransaction(ptr<Transaction> _t, __ui
     auto valueLen = sizeof(_committedTransactionCounter);
     writeByteArray(key, keyLen, value, valueLen);
 
-    static auto key1 = string("transactions");
+    static auto key1 = getFormatVersion() +  string(":transactions");
     auto value1 = to_string(_committedTransactionCounter);
     writeString(key1, value1);
 
