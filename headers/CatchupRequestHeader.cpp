@@ -31,9 +31,6 @@
 #include "CatchupRequestHeader.h"
 
 
-//
-// Created by stan on 18.03.18.
-//
 
 
 #include "../node/Node.h"
