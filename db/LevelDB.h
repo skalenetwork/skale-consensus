@@ -39,11 +39,15 @@ protected:
 
     node_id nodeId;
 
-public:
-
 
 
     ptr<string> readString(string& _key);
+
+
+
+public:
+
+
 
     void writeString(const string &key1, const string &value1);
 
@@ -72,6 +76,10 @@ public:
     uint64_t visitKeys(KeyVisitor* _visitor, uint64_t _maxKeysToVisit);
 
     virtual ~LevelDB();
+
+
+    ptr<string>  createKey(const block_id _blockId);
+
 
 };
 

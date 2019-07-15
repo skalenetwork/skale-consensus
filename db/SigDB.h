@@ -22,6 +22,8 @@
 */
 
 
+class ConsensusBLSSignature;
+
 #ifndef SKALED_SIGDB_H
 #define SKALED_SIGDB_H
 
@@ -37,6 +39,12 @@ class SigDB : public LevelDB{
 public:
 
     SigDB(string& filename, node_id nodeId );
+
+    ptr<string>  createKey(block_id _blockId);
+
+    void addSignature(block_id _blockId, ptr<ConsensusBLSSignature> _sig);
+
+    uint64_t  getCounter();
 
 };
 

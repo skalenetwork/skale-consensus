@@ -80,9 +80,8 @@ void ReceivedSigSharesDatabase::mergeAndSaveBLSSignature(block_id _blockId) {
     blockSignatures[_blockId] = signature;
 
     auto db = getNode()->getSignaturesDB();
-    auto key = to_string(_blockId);
-    if (db->readString(key) == nullptr)
-    getNode()->getSignaturesDB()->writeString(key, *signature->toString());
+
+    db->addSignature(_blockId, signature);
 
     sigShareSets[_blockId] = nullptr;
 }

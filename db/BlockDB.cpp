@@ -69,3 +69,16 @@ ptr<string>  BlockDB::createKey(const block_id _blockId) {
 const string BlockDB::getFormatVersion() {
     return "1.0";
 }
+uint64_t BlockDB::readCounter(){
+
+    static string count("COUNT");
+
+    auto value = readString(count);
+
+    if (value != nullptr) {
+        return stoul(*value);
+    } else {
+        return 0;
+    }
+
+}

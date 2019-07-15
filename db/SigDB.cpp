@@ -25,6 +25,8 @@
 #include "../SkaleCommon.h"
 #include "../Log.h"
 
+#include "../crypto/ConsensusBLSSignature.h"
+#include "../crypto/ConsensusBLSSigShare.h"
 #include "../datastructures/CommittedBlock.h"
 
 #include "SigDB.h"
@@ -38,3 +40,17 @@ SigDB::SigDB(string& filename, node_id _nodeId ) : LevelDB( filename, _nodeId ) 
 const string SigDB::getFormatVersion() {
     return "1.0";
 }
+
+
+ptr<string>  SigDB::createKey(const block_id _blockId) {
+    return make_shared<string>(getFormatVersion() + ":" + to_string( nodeId ) + ":"
+                                + to_string( _blockId ));
+}
+
+void SigDB::addSignature(block_id _blockId, ptr<ConsensusBLSSignature> _sig) {
+    auto key = createKey( _blockId );
+    if (readString( *key ) == nullptr )
+        writeString( *key, *_sig->toString() );
+}
+
+

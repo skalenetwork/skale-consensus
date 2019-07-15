@@ -43,6 +43,8 @@ public:
 
     void saveBlock(ptr<CommittedBlock> &_block);
 
+    uint64_t readCounter();
+
 };
 
 

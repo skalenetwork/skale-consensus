@@ -63,13 +63,7 @@ PendingTransactionsAgent::PendingTransactionsAgent( Schain& ref_sChain )
 
         auto db = getSchain()->getNode()->getBlocksDB();
 
-        static string count("COUNT");
-
-        auto value = db->readString(count);
-
-        if (value != nullptr) {
-            committedTransactionCounter = stoul(*value);
-        }
+        committedTransactionCounter = db->readCounter();
 
         auto cdb = getNode()->getCommittedTransactionsDB();
 
