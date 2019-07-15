@@ -80,18 +80,9 @@ PricingAgent::calculatePrice(const ConsensusExtFace::transactions_vector &_appro
 
 void PricingAgent::savePrice(u256 _price, block_id _blockID) {
 
-
     auto db = sChain->getNode()->getPricesDB();
 
-    auto  key = to_string(_blockID);
-
-    auto value = _price.str();
-
-
-
-    db->writeString(key, value);
-
-
+    db->savePrice(_price, _blockID);
 }
 
 
