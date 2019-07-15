@@ -23,17 +23,15 @@
 
 #include <boost/iostreams/device/array.hpp>
 #include <boost/iostreams/stream.hpp>
-#include "../Log.h"
+
 
 #include "../thirdparty/json.hpp"
 #include "../SkaleCommon.h"
-#include "../exceptions/FatalError.h"
-
+#include "../Log.h"
 
 #include "../chains/Schain.h"
 #include "../abstracttcpserver/ConnectionStatus.h"
 #include "../crypto/SHAHash.h"
-#include "../exceptions/InvalidArgumentException.h"
 #include "../exceptions/NetworkProtocolException.h"
 #include "../exceptions/ParsingException.h"
 #include "../headers/CommittedBlockHeader.h"

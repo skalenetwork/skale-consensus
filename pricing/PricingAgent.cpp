@@ -97,12 +97,6 @@ u256 PricingAgent::readPrice(block_id _blockID) {
 
     auto db = sChain->getNode()->getPricesDB();
 
-    auto  key = to_string(_blockID);
-
-    auto price = db->readString(key);
-
-    ASSERT(price != nullptr);
-
-    return u256(price->c_str());
+    return db->readPrice(_blockID);
 }
 

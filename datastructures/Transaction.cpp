@@ -28,14 +28,14 @@
 #include <boost/random/uniform_int_distribution.hpp>
 
 
-#include "../Log.h"
-#include "../SkaleCommon.h"
-#include "../chains/Schain.h"
-#include "../crypto/SHAHash.h"
-#include "../exceptions/FatalError.h"
-#include "../exceptions/InvalidArgumentException.h"
 
 #include "../thirdparty/catch.hpp"
+
+
+#include "../SkaleCommon.h"
+#include "../Log.h"
+#include "../chains/Schain.h"
+#include "../crypto/SHAHash.h"
 
 
 

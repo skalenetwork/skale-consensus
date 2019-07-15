@@ -36,6 +36,9 @@ public:
 
     PriceDB(string& filename, node_id nodeId);
 
+
+    u256 readPrice(block_id _blockID);
+
 };
 
 

@@ -21,11 +21,10 @@
     @date 2018
 */
 
-#include "../Log.h"
+
 #include "../SkaleCommon.h"
+#include "../Log.h"
 #include "../crypto/SHAHash.h"
-#include "../exceptions/FatalError.h"
-#include "../exceptions/InvalidArgumentException.h"
 #include "../exceptions/NetworkProtocolException.h"
 #include "CommittedBlock.h"
 

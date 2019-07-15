@@ -26,6 +26,7 @@
 #include "../Log.h"
 
 
+
 #include "PriceDB.h"
 
 
@@ -36,4 +37,17 @@ PriceDB::PriceDB(string& filename, node_id _nodeId ) : LevelDB( filename, _nodeI
 
 const string PriceDB::getFormatVersion() {
     return "1.0";
+}
+
+
+
+u256 PriceDB::readPrice(block_id _blockID) {
+
+    auto  key = to_string(_blockID);
+
+    auto price = readString(key);
+
+    CHECK_STATE(price != nullptr);
+
+    return u256(price->c_str());
 }

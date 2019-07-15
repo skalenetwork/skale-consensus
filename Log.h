@@ -32,7 +32,10 @@
 
 #include "spdlog/spdlog.h"
 
-#include "SkaleCommon.h"
+#include "exceptions/InvalidArgumentException.h"
+#include "exceptions/FatalError.h"
+
+
 
 using namespace std;
 
