@@ -27,7 +27,7 @@ void test_committed_block_save() {
 
     std::system(("rm -rf " + fileName).c_str());
 
-    auto db = make_shared< BlockDB >( node_id( 1 ), fileName );
+    auto db = make_shared< BlockDB >(  fileName, node_id( 1 ) );
 
 
     for ( int i = 1; i < 200; i++ ) {

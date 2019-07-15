@@ -46,6 +46,7 @@
 #include "PendingTransactionsAgent.h"
 
 #include "leveldb/db.h"
+#include "../db/CommittedTransactionDB.h"
 
 #include "../microprofile.h"
 

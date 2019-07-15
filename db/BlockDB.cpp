@@ -25,7 +25,7 @@ ptr<vector<uint8_t> > BlockDB::getSerializedBlock( block_id _blockID ) {
     }
 }
 
-BlockDB::BlockDB(node_id _nodeId,  string& filename ) : LevelDB( filename, _nodeId ) {}
+BlockDB::BlockDB(string& filename, node_id _nodeId ) : LevelDB( filename, _nodeId ) {}
 
 
 void BlockDB::saveBlock(ptr<CommittedBlock> &_block) {

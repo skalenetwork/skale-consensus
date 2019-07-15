@@ -18,7 +18,7 @@ class BlockDB : public LevelDB{
 
 public:
 
-    BlockDB(node_id _nodeId,  string& _filename );
+    BlockDB(string& _filename, node_id _nodeId);
     ptr<vector<uint8_t >> getSerializedBlock( block_id _blockID );
 
     void saveBlock(ptr<CommittedBlock> &_block);

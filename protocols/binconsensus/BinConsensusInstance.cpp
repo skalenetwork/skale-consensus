@@ -46,6 +46,8 @@
 #include "../../crypto/ConsensusBLSSignature.h"
 #include "../../node/Node.h"
 
+#include "../../db/RandomDB.h"
+
 #include "../../network/TransportNetwork.h"
 
 
