@@ -24,8 +24,9 @@
 #define CATCH_CONFIG_MAIN
 
 #include "thirdparty/catch.hpp"
-#include "Log.h"
+
 #include "SkaleCommon.h"
+#include "Log.h"
 #include "node/ConsensusEngine.h"
 
 #include "Consensust.h"
