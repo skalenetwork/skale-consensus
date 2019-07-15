@@ -46,19 +46,22 @@ protected:
 
     void writeString(const string &key1, const string &value1);
 
-public:
+
 
     void writeByteArray(const char *_key, size_t _keyLen, const char *value,
                         size_t _valueLen);
 
 
+
+
     void writeByteArray(string& _key, const char *value,
                         size_t _valueLen);
 
+public:
+
+
     void throwExceptionOnError(leveldb::Status result);
 
-
-public:
 
     LevelDB(string& filename,  node_id _nodeId);
 
