@@ -502,12 +502,12 @@ ptr<BlockDB> Node::getBlocksDB() {
     return blocksDB;
 }
 
-ptr<LevelDB> Node::getRandomDB() {
+ptr<RandomDB> Node::getRandomDB() {
     ASSERT(randomDB);
     return randomDB;
 }
 
-ptr<CommittedTransactionsDB> Node::getCommittedTransactionsDB() const {
+ptr<CommittedTransactionDB> Node::getCommittedTransactionsDB() const {
     ASSERT(committedTransactionsDB);
     return committedTransactionsDB;
 }
@@ -518,7 +518,7 @@ ptr<SigDB> Node::getSignaturesDB() const {
     return signaturesDB;
 }
 
-ptr<LevelDB> Node::getPricesDB() const {
+ptr<PriceDB> Node::getPricesDB() const {
     return pricesDB;
 }
 

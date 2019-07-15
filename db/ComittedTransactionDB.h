@@ -8,7 +8,7 @@
 
 #include "LevelDB.h"
 
-class CommittedTransactionDB : public CommittedTransactionDB{
+class CommittedTransactionDB : public LevelDB{
 
     const string getFormatVersion();
 
