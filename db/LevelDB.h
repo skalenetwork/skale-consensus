@@ -78,9 +78,6 @@ public:
     virtual ~LevelDB();
 
 
-    ptr<string>  createKey(const block_id _blockId);
-
-
 };
 
 

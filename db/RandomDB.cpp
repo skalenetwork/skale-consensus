@@ -44,17 +44,9 @@ ptr<string>
 RandomDB::readRandom( schain_id _sChainID, const block_id& _blockId,
     const schain_index& _proposerIndex, const bin_consensus_round& _round) {
 
+        auto keyStr = createKey( _sChainID, _blockId, _proposerIndex, _round );
 
-
-        string keyStr;
-
-        stringstream key;
-
-
-        keyStr = getKey( _sChainID, _blockId, _proposerIndex, _round, keyStr, key );
-
-
-        return readString(keyStr);
+        return readString(*keyStr);
 
 }
 
@@ -65,21 +57,20 @@ RandomDB::writeRandom( schain_id _sChainID, const block_id& _blockId,
 
 
 
-    string keyStr;
 
-    stringstream key;
-
-
-    keyStr = getKey( _sChainID, _blockId, _proposerIndex, _round, keyStr, key );
+    auto key = createKey( _sChainID, _blockId, _proposerIndex, _round );
 
 
-    writeString(keyStr, to_string(_random));
+    writeString(*key, to_string(_random));
 
 }
 
-string & RandomDB::getKey(const schain_id& _sChainID, const block_id& _blockId, const schain_index& _proposerIndex, const bin_consensus_round& _round, string& keyStr, stringstream& key) const {
-    key << _sChainID << ":" << _blockId << ":" << _proposerIndex << ":" << _round;
+ptr<string>  RandomDB::createKey( const schain_id& _sChainID, const block_id& _blockId,
+    const schain_index& _proposerIndex, const bin_consensus_round& _round) {
 
-    keyStr = key.str();
-    return keyStr;
+    stringstream key;
+    key <<  getFormatVersion() << ":" << _sChainID << ":" << _blockId << ":" << _proposerIndex << ":" << _round;
+
+    return make_shared<string>(key.str());
+
 }

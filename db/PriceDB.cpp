@@ -40,12 +40,15 @@ const string PriceDB::getFormatVersion() {
 }
 
 
+ptr< string > PriceDB::createKey( block_id _blockId ) {
+    return make_shared<string>(getFormatVersion() + ":" + to_string( _blockId ));
+}
 
 u256 PriceDB::readPrice(block_id _blockID) {
 
-    auto  key = to_string(_blockID);
+    auto  key =  createKey(_blockID);
 
-    auto price = readString(key);
+    auto price = readString(*key);
 
     CHECK_STATE(price != nullptr);
 
@@ -55,9 +58,10 @@ u256 PriceDB::readPrice(block_id _blockID) {
 
 void PriceDB::savePrice(u256 _price, block_id _blockID) {
 
-    auto key = to_string( _blockID );
+    auto key = createKey(_blockID);
 
     auto value = _price.str();
 
-    writeString( key, value );
+    writeString(*key, value );
 }
+
