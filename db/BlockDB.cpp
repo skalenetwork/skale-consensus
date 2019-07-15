@@ -71,9 +71,11 @@ const string BlockDB::getFormatVersion() {
 }
 uint64_t BlockDB::readCounter(){
 
-    static string count("COUNT");
+    static string count(":COUNT");
 
-    auto value = readString(count);
+    auto key = getFormatVersion() + count;
+
+    auto value = readString(key);
 
     if (value != nullptr) {
         return stoul(*value);

@@ -70,7 +70,7 @@ public:
 
     class KeyVisitor {
       public:
-        virtual void visitDBKey(leveldb::Slice key) = 0;
+        virtual void visitDBKey(const char* _data) = 0;
     };
 
     uint64_t visitKeys(KeyVisitor* _visitor, uint64_t _maxKeysToVisit);

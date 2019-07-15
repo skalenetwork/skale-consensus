@@ -38,7 +38,7 @@ class PendingTransactionsAgent : Agent, LevelDB::KeyVisitor {
 
 public:
 private:
-    void visitDBKey(leveldb::Slice key) override;
+    void visitDBKey(const char* _data) override;
 
 public:
 
@@ -52,8 +52,6 @@ public:
             }
             return hash;
         };
-
-
     };
 
 

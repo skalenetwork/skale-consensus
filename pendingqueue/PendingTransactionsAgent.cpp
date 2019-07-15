@@ -74,9 +74,9 @@ PendingTransactionsAgent::PendingTransactionsAgent( Schain& ref_sChain )
     }
 }
 
-void PendingTransactionsAgent::visitDBKey(leveldb::Slice _key) {
+void PendingTransactionsAgent::visitDBKey(const char* _data) {
     auto s = make_shared<partial_sha_hash>();
-    std::copy_n((uint8_t*)_key.data(), PARTIAL_SHA_HASH_LEN, s->begin());
+    std::copy_n((uint8_t*)_data, PARTIAL_SHA_HASH_LEN, s->begin());
     addToCommitted(s);
     committedTransactionCounter++;
 }
