@@ -8,15 +8,13 @@
 
 #include "LevelDB.h"
 
-class SigDB : public SigDB{
-
-    node_id nodeId;
+class CommittedTransactionDB : public CommittedTransactionDB{
 
     const string getFormatVersion();
 
 public:
 
-    SigDB(node_id nodeId,  string& filename );
+    CommittedTransactionDB(string& filename, node_id nodeId);
 
 };
 
