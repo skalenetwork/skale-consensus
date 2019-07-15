@@ -134,7 +134,7 @@ void test_committed_block_list_serialize_deserialize() {
     boost::random::uniform_int_distribution<> ubyte( 0, 255 );
 
     for ( int k = 0; k < 5; k++ ) {
-        for ( int i = 1; i < 2; i++ ) {
+        for ( int i = 1; i < 50; i++ ) {
             auto t = CommittedBlockList::createRandomSample( i, gen, ubyte );
 
             auto out = t->serialize();

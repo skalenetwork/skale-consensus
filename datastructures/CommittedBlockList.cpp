@@ -42,11 +42,11 @@ CommittedBlockList::CommittedBlockList( ptr< vector< ptr< CommittedBlock > > > _
 
 CommittedBlockList::CommittedBlockList( ptr< vector< size_t > > _blockSizes,
     ptr< vector< uint8_t > > _serializedBlocks, uint64_t _offset ) {
-    CHECK_ARGUMENT( _serializedBlocks->at( 0 ) == '[' );
+    CHECK_ARGUMENT( _serializedBlocks->at( _offset ) == '[' );
     CHECK_ARGUMENT( _serializedBlocks->at( _serializedBlocks->size() - 1 ) == ']' );
 
 
-    size_t index = _offset;
+    size_t index = _offset + 1;
     uint64_t counter = 0;
 
     blocks = make_shared< vector< ptr< CommittedBlock > > >();
