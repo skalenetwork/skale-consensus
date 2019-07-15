@@ -129,15 +129,15 @@ class Node {
     void closeAllSocketsAndNotifyAllAgentsAndThreads();
 
 
-    ptr<BlockDB> blocksDB = nullptr;
+    ptr<BlockDB> blockDB = nullptr;
 
     ptr<RandomDB> randomDB = nullptr;
 
-    ptr<CommittedTransactionDB> committedTransactionsDB = nullptr;
+    ptr<CommittedTransactionDB> committedTransactionDB = nullptr;
 
-    ptr<SigDB> signaturesDB = nullptr;
+    ptr<SigDB> signatureDB = nullptr;
 
-    ptr<PriceDB> pricesDB = nullptr;
+    ptr<PriceDB> priceDB = nullptr;
 
 
     uint64_t catchupIntervalMS;
@@ -180,17 +180,17 @@ public:
     ptr<BLSPrivateKeyShare> getBlsPrivateKey() const;
 
 
-    ptr<BlockDB> getBlocksDB();
+    ptr<BlockDB> getBlockDB();
 
     ptr<RandomDB> getRandomDB();
 
 
-    ptr<CommittedTransactionDB> getCommittedTransactionsDB() const;
+    ptr<CommittedTransactionDB> getCommittedTransactionDB() const;
 
 
-    ptr<SigDB> getSignaturesDB() const;
+    ptr<SigDB> getSignatureDB() const;
 
-    ptr<PriceDB> getPricesDB() const;
+    ptr<PriceDB> getPriceDB() const;
 
 
     void initLevelDBs();

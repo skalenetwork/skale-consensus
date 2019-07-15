@@ -111,11 +111,11 @@ void Node::initLevelDBs() {
     string pricesDBFilename = dataDir + "/prices_" + to_string(nodeID) + ".db";
 
 
-    blocksDB = make_shared<BlockDB>(blockDBFilename, getNodeID());
+    blockDB = make_shared<BlockDB>(blockDBFilename, getNodeID());
     randomDB = make_shared<RandomDB>(randomDBFilename, getNodeID());
-    committedTransactionsDB = make_shared<CommittedTransactionDB>(committedTransactionsDBFilename, getNodeID());
-    signaturesDB = make_shared<SigDB>(signaturesDBFilename, getNodeID());
-    pricesDB = make_shared<PriceDB>(pricesDBFilename, getNodeID());
+    committedTransactionDB = make_shared<CommittedTransactionDB>(committedTransactionsDBFilename, getNodeID());
+    signatureDB = make_shared<SigDB>(signaturesDBFilename, getNodeID());
+    priceDB = make_shared<PriceDB>(pricesDBFilename, getNodeID());
 
 }
 
@@ -226,11 +226,11 @@ Node::~Node() {
 }
 
 void Node::cleanLevelDBs() {
-    blocksDB = nullptr;
+    blockDB = nullptr;
     randomDB = nullptr;
-    committedTransactionsDB = nullptr;
-    signaturesDB = nullptr;
-    pricesDB = nullptr;
+    committedTransactionDB = nullptr;
+    signatureDB = nullptr;
+    priceDB = nullptr;
 }
 
 
@@ -505,29 +505,30 @@ ptr<NodeInfo> Node::getNodeInfoByIP(ptr<string> ip) {
 }
 
 
-ptr<BlockDB> Node::getBlocksDB() {
-    ASSERT(blocksDB);
-    return blocksDB;
+ptr<BlockDB> Node::getBlockDB() {
+    ASSERT(blockDB != nullptr);
+    return blockDB;
 }
 
 ptr<RandomDB> Node::getRandomDB() {
-    ASSERT(randomDB);
+    ASSERT(randomDB != nullptr);
     return randomDB;
 }
 
-ptr<CommittedTransactionDB> Node::getCommittedTransactionsDB() const {
-    ASSERT(committedTransactionsDB);
-    return committedTransactionsDB;
+ptr<CommittedTransactionDB> Node::getCommittedTransactionDB() const {
+    ASSERT(committedTransactionDB != nullptr);
+    return committedTransactionDB;
 }
 
 
-ptr<SigDB> Node::getSignaturesDB() const {
-    ASSERT(signaturesDB);
-    return signaturesDB;
+ptr<SigDB> Node::getSignatureDB() const {
+    ASSERT(signatureDB != nullptr);
+    return signatureDB;
 }
 
-ptr<PriceDB> Node::getPricesDB() const {
-    return pricesDB;
+ptr<PriceDB> Node::getPriceDB() const {
+    ASSERT(priceDB != nullptr)
+    return priceDB;
 }
 
 

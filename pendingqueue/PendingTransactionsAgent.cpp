@@ -61,11 +61,11 @@ PendingTransactionsAgent::PendingTransactionsAgent( Schain& ref_sChain )
         auto cfg = getSchain()->getNode()->getCfg();
 
 
-        auto db = getSchain()->getNode()->getBlocksDB();
+        auto db = getSchain()->getNode()->getBlockDB();
 
         committedTransactionCounter = db->readCounter();
 
-        auto cdb = getNode()->getCommittedTransactionsDB();
+        auto cdb = getNode()->getCommittedTransactionDB();
 
 
         cdb->visitKeys(this, getNode()->getCommittedTransactionHistoryLimit() - committedTransactionCounter);
@@ -215,7 +215,7 @@ void PendingTransactionsAgent::pushCommittedTransaction(shared_ptr<Transaction> 
 
     ASSERT(committedTransactionsList.size() >= committedTransactions.size());
 
-    auto db = getNode()->getCommittedTransactionsDB();
+    auto db = getNode()->getCommittedTransactionDB();
 
     db->writeCommittedTransaction(t, committedTransactionCounter);
 

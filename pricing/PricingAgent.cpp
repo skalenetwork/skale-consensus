@@ -80,7 +80,7 @@ PricingAgent::calculatePrice(const ConsensusExtFace::transactions_vector &_appro
 
 void PricingAgent::savePrice(u256 _price, block_id _blockID) {
 
-    auto db = sChain->getNode()->getPricesDB();
+    auto db = sChain->getNode()->getPriceDB();
 
     db->savePrice(_price, _blockID);
 }
@@ -88,7 +88,7 @@ void PricingAgent::savePrice(u256 _price, block_id _blockID) {
 
 u256 PricingAgent::readPrice(block_id _blockID) {
 
-    auto db = sChain->getNode()->getPricesDB();
+    auto db = sChain->getNode()->getPriceDB();
 
     return db->readPrice(_blockID);
 }

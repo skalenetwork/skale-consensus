@@ -465,7 +465,7 @@ void Schain::processCommittedBlock(ptr<CommittedBlock> _block) {
 
 void Schain::saveBlock(ptr<CommittedBlock> &_block) {
     saveBlockToBlockCache(_block);
-    getNode()->getBlocksDB()->saveBlock(_block);
+    getNode()->getBlockDB()->saveBlock(_block);
 }
 
 void Schain::saveBlockToBlockCache(ptr<CommittedBlock> &_block) {
@@ -614,7 +614,7 @@ ptr<CommittedBlock> Schain::getBlock(block_id _blockID) {
         return block;
 
 
-    auto serializedBlock = getNode()->getBlocksDB()->getSerializedBlock( _blockID );
+    auto serializedBlock = getNode()->getBlockDB()->getSerializedBlock( _blockID );
 
     if (serializedBlock == nullptr) {
         return nullptr;
@@ -634,7 +634,7 @@ ptr<vector<uint8_t>> Schain::getSerializedBlock(uint64_t i) const {
     if (block) {
         return block->serialize();
     } else {
-        return getNode()->getBlocksDB()->getSerializedBlock( i );
+        return getNode()->getBlockDB()->getSerializedBlock( i );
     }
 
 }

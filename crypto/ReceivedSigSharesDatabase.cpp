@@ -79,7 +79,7 @@ void ReceivedSigSharesDatabase::mergeAndSaveBLSSignature(block_id _blockId) {
     auto signature = sigSet->mergeSignature();
     blockSignatures[_blockId] = signature;
 
-    auto db = getNode()->getSignaturesDB();
+    auto db = getNode()->getSignatureDB();
 
     db->addSignature(_blockId, signature);
 
