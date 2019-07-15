@@ -185,7 +185,7 @@ public:
     ptr<RandomDB> getRandomDB();
 
 
-    ptr<LevelDB> getCommittedTransactionsDB() const;
+    ptr<CommittedTransactionDB> getCommittedTransactionsDB() const;
 
 
     ptr<SigDB> getSignaturesDB() const;
