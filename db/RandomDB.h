@@ -36,6 +36,15 @@ public:
 
     RandomDB(string& filename, node_id nodeId);
 
+    ptr<string> readRandom( schain_id _sChainID, const block_id& _blockId,
+        const schain_index& _proposerIndex, const bin_consensus_round& _round);
+
+
+    void writeRandom( schain_id _sChainID, const block_id& _blockId,
+                            const schain_index& _proposerIndex, const bin_consensus_round& _round,
+                            uint64_t _random);
+    string& getKey(const schain_id& _sChainID, const block_id& _blockId,
+        const schain_index& _proposerIndex, const bin_consensus_round& _round, string& keyStr, stringstream& key) const;
 };
 
 

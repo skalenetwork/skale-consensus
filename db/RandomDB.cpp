@@ -36,3 +36,50 @@ RandomDB::RandomDB(string& filename, node_id _nodeId ) : LevelDB( filename, _nod
 const string RandomDB::getFormatVersion() {
     return "1.0";
 }
+
+
+
+
+ptr<string>
+RandomDB::readRandom( schain_id _sChainID, const block_id& _blockId,
+    const schain_index& _proposerIndex, const bin_consensus_round& _round) {
+
+
+
+        string keyStr;
+
+        stringstream key;
+
+
+        keyStr = getKey( _sChainID, _blockId, _proposerIndex, _round, keyStr, key );
+
+
+        return readString(keyStr);
+
+}
+
+
+void
+RandomDB::writeRandom( schain_id _sChainID, const block_id& _blockId,
+                      const schain_index& _proposerIndex, const bin_consensus_round& _round, uint64_t _random) {
+
+
+
+    string keyStr;
+
+    stringstream key;
+
+
+    keyStr = getKey( _sChainID, _blockId, _proposerIndex, _round, keyStr, key );
+
+
+    writeString(keyStr, to_string(_random));
+
+}
+
+string & RandomDB::getKey(const schain_id& _sChainID, const block_id& _blockId, const schain_index& _proposerIndex, const bin_consensus_round& _round, string& keyStr, stringstream& key) const {
+    key << _sChainID << ":" << _blockId << ":" << _proposerIndex << ":" << _round;
+
+    keyStr = key.str();
+    return keyStr;
+}
