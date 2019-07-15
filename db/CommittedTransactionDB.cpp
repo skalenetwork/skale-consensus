@@ -25,6 +25,8 @@
 #include "../SkaleCommon.h"
 #include "../Log.h"
 
+#include "../datastructures/Transaction.h"
+
 
 #include "CommittedTransactionDB.h"
 
@@ -36,4 +38,20 @@ CommittedTransactionDB::CommittedTransactionDB(string& filename, node_id _nodeId
 
 const string CommittedTransactionDB::getFormatVersion() {
     return "1.0";
+}
+
+
+
+void CommittedTransactionDB::writeCommittedTransaction(ptr<Transaction> _t, __uint64_t _committedTransactionCounter) {
+
+    auto key = (const char *) _t->getPartialHash()->data();
+    auto keyLen = PARTIAL_SHA_HASH_LEN;
+    auto value = (const char*) &_committedTransactionCounter;
+    auto valueLen = sizeof(_committedTransactionCounter);
+    writeByteArray(key, keyLen, value, valueLen);
+
+    static auto key1 = string("transactions");
+    auto value1 = to_string(_committedTransactionCounter);
+    writeString(key1, value1);
+
 }

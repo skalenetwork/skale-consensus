@@ -44,12 +44,9 @@ protected:
     ptr<string> readString(string& _key);
 
 
+    void writeString(const string &key1, const string &value1);
 
 public:
-
-
-
-    void writeString(const string &key1, const string &value1);
 
     void writeByteArray(const char *_key, size_t _keyLen, const char *value,
                         size_t _valueLen);

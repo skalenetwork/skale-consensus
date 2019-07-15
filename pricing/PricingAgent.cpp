@@ -87,6 +87,8 @@ void PricingAgent::savePrice(u256 _price, block_id _blockID) {
 
     auto value = _price.str();
 
+
+
     db->writeString(key, value);
 
 

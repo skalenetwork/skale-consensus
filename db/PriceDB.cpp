@@ -51,3 +51,13 @@ u256 PriceDB::readPrice(block_id _blockID) {
 
     return u256(price->c_str());
 }
+
+
+void PriceDB::savePrice(u256 _price, block_id _blockID) {
+
+    auto key = to_string( _blockID );
+
+    auto value = _price.str();
+
+    writeString( key, value );
+}

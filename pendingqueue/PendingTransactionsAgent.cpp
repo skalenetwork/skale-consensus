@@ -217,19 +217,7 @@ void PendingTransactionsAgent::pushCommittedTransaction(shared_ptr<Transaction> 
 
     auto db = getNode()->getCommittedTransactionsDB();
 
-
-    auto key = (const char *) t->getPartialHash()->data();
-    auto keyLen = PARTIAL_SHA_HASH_LEN;
-    auto value = (const char*) &committedTransactionCounter;
-    auto valueLen = sizeof(committedTransactionCounter);
-
-
-    db->writeByteArray(key, keyLen, value, valueLen);
-
-    static auto key1 = string("transactions");
-    auto value1 = to_string(committedTransactionCounter);
-
-    db->writeString(key1, value1);
+    db->writeCommittedTransaction(t, committedTransactionCounter);
 
     committedTransactionCounter++;
 

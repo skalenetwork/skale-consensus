@@ -25,6 +25,7 @@
 #ifndef SKALED_COMMITTEDTRANSACTIONDB_H
 #define SKALED_COMMITTEDTRANSACTIONDB_H
 
+class Transaction;
 
 #include "LevelDB.h"
 
@@ -35,6 +36,8 @@ class CommittedTransactionDB : public LevelDB{
 public:
 
     CommittedTransactionDB(string& filename, node_id nodeId);
+
+    void writeCommittedTransaction(ptr<Transaction> _t, __uint64_t _committedTransactionCounter);
 
 };
 

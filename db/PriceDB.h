@@ -39,6 +39,8 @@ public:
 
     u256 readPrice(block_id _blockID);
 
+    void savePrice(u256 _price, block_id _blockID);
+
 };
 
 
