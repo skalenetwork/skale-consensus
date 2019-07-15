@@ -41,6 +41,7 @@ public:
 
     void savePrice(u256 _price, block_id _blockID);
 
+
 };
 
 

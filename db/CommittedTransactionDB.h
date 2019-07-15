@@ -33,6 +33,8 @@ class CommittedTransactionDB : public LevelDB{
 
     const string getFormatVersion();
 
+
+
 public:
 
     CommittedTransactionDB(string& filename, node_id nodeId);
