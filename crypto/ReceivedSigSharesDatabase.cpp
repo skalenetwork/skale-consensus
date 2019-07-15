@@ -39,6 +39,7 @@
 #include "SHAHash.h"
 #include "leveldb/db.h"
 
+#include "../db/SigDB.h"
 #include "ReceivedSigSharesDatabase.h"
 #include "BLSSigShare.h"
 #include "BLSSignature.h"

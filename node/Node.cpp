@@ -103,11 +103,11 @@ void Node::initLevelDBs() {
     string pricesDBFilename = dataDir + "/prices_" + to_string(nodeID) + ".db";
 
 
-    blocksDB = make_shared<BlockDB>(getNodeID(), blockDBFilename);
-    randomDB = make_shared<LevelDB>(randomDBFilename);
-    committedTransactionsDB = make_shared<LevelDB>(committedTransactionsDBFilename);
-    signaturesDB = make_shared<LevelDB>(signaturesDBFilename);
-    pricesDB = make_shared<LevelDB>(pricesDBFilename);
+    blocksDB = make_shared<BlockDB>(blockDBFilename, getNodeID());
+    randomDB = make_shared<RandomDB>(randomDBFilename, getNodeID());
+    committedTransactionsDB = make_shared<CommittedTransactionDB>(committedTransactionsDBFilename, getNodeID());
+    signaturesDB = make_shared<SigDB>(signaturesDBFilename, getNodeID());
+    pricesDB = make_shared<PriceDB>(pricesDBFilename, getNodeID());
 
 }
 
@@ -507,13 +507,13 @@ ptr<LevelDB> Node::getRandomDB() {
     return randomDB;
 }
 
-ptr<LevelDB> Node::getCommittedTransactionsDB() const {
+ptr<CommittedTransactionsDB> Node::getCommittedTransactionsDB() const {
     ASSERT(committedTransactionsDB);
     return committedTransactionsDB;
 }
 
 
-ptr<LevelDB> Node::getSignaturesDB() const {
+ptr<SigDB> Node::getSignaturesDB() const {
     ASSERT(signaturesDB);
     return signaturesDB;
 }

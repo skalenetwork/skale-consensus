@@ -42,6 +42,12 @@ class BLSPublicKey;
 class BLSPrivateKeyShare;
 class LevelDB;
 class BlockDB;
+class SigDB;
+class CommittedTransactionDB;
+class RandomDB;
+class PriceDB;
+
+
 
 namespace leveldb{
     class DB;
@@ -125,13 +131,13 @@ class Node {
 
     ptr<BlockDB> blocksDB = nullptr;
 
-    ptr<LevelDB> randomDB = nullptr;
+    ptr<RandomDB> randomDB = nullptr;
 
-    ptr<LevelDB> committedTransactionsDB = nullptr;
+    ptr<CommittedTransactionDB> committedTransactionsDB = nullptr;
 
-    ptr<LevelDB> signaturesDB = nullptr;
+    ptr<SigDB> signaturesDB = nullptr;
 
-    ptr<LevelDB> pricesDB = nullptr;
+    ptr<PriceDB> pricesDB = nullptr;
 
 
     uint64_t catchupIntervalMS;
@@ -176,15 +182,15 @@ public:
 
     ptr<BlockDB> getBlocksDB();
 
-    ptr<LevelDB> getRandomDB();
+    ptr<RandomDB> getRandomDB();
 
 
     ptr<LevelDB> getCommittedTransactionsDB() const;
 
 
-    ptr<LevelDB> getSignaturesDB() const;
+    ptr<SigDB> getSignaturesDB() const;
 
-    ptr<LevelDB> getPricesDB() const;
+    ptr<PriceDB> getPricesDB() const;
 
 
     void initLevelDBs();

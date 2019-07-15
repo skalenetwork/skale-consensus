@@ -250,7 +250,8 @@ void BlockConsensusAgent::reportConsensusAndDecideIfNeeded(ptr <ChildBVDecidedMe
     if (blockID <= 1) {
         seed = 1;
     } else {
-        seed = *((uint64_t *) previousBlock->getHash()->data());
+        seed = *((uint64_t *)
+                previousBlock->getHash()->data());
     }
 
     auto random = ((uint64_t) seed) % nodeCount;

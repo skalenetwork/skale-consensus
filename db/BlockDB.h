@@ -11,10 +11,14 @@ class CommittedBlock;
 
 class BlockDB : public LevelDB{
 
-    node_id nodeId;
+
+    ptr<string>  createKey(block_id _blockId);
+
+    const string getFormatVersion();
 
 public:
-    BlockDB(node_id nodeId,  string& filename );
+
+    BlockDB(node_id _nodeId,  string& _filename );
     ptr<vector<uint8_t >> getSerializedBlock( block_id _blockID );
 
     void saveBlock(ptr<CommittedBlock> &_block);

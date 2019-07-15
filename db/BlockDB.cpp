@@ -11,11 +11,10 @@
 
 
 ptr<vector<uint8_t> > BlockDB::getSerializedBlock( block_id _blockID ) {
-    using namespace leveldb;
 
-    string key = to_string((uint64_t) nodeId) + ":" + to_string((uint64_t) _blockID);
+    auto key = createKey(_blockID);
 
-    auto value = readString(key);
+    auto value = readString(*key);
 
     if (value) {
         auto serializedBlock = make_shared<vector<uint8_t>>();
@@ -25,22 +24,28 @@ ptr<vector<uint8_t> > BlockDB::getSerializedBlock( block_id _blockID ) {
         return nullptr;
     }
 }
-BlockDB::BlockDB(node_id _nodeId,  string& filename ) : LevelDB( filename ),  nodeId(_nodeId) {}
+
+BlockDB::BlockDB(node_id _nodeId,  string& filename ) : LevelDB( filename, _nodeId ) {}
 
 
 void BlockDB::saveBlock(ptr<CommittedBlock> &_block) {
     auto serializedBlock = _block->serialize();
 
-    using namespace leveldb;
 
-    auto key = to_string(nodeId) + ":"
-               + to_string(_block->getBlockID());
+    auto key = createKey(_block->getBlockID() );
 
     auto value = (const char *) serializedBlock->data();
 
     auto valueLen = serializedBlock->size();
 
 
-    writeByteArray(key, value, valueLen);
+    writeByteArray(*key, value, valueLen);
 
+}
+
+ptr<string>  BlockDB::createKey(const block_id _blockId) {
+    return make_shared<string>(getFormatVersion() + ":" + to_string( nodeId ) + ":" + to_string( _blockId ));
+}
+const string BlockDB::getFormatVersion() {
+    return "1.0";
 }

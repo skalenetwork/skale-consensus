@@ -35,9 +35,12 @@ class LevelDB {
 
     leveldb::DB* db;
 
+protected:
+
+    node_id nodeId;
+
 public:
 
-    LevelDB(string& filename);
 
 
     ptr<string> readString(string& _key);
@@ -49,9 +52,17 @@ public:
 
 
     void writeByteArray(string& _key, const char *value,
-                                 size_t _valueLen);
+                        size_t _valueLen);
 
     void throwExceptionOnError(leveldb::Status result);
+
+
+public:
+
+    LevelDB(string& filename,  node_id _nodeId);
+
+
+
 
     class KeyVisitor {
       public:
