@@ -22,10 +22,9 @@
 */
 
 
-#include "../Log.h"
+
 #include "../SkaleCommon.h"
-#include "../exceptions/FatalError.h"
-#include "../exceptions/InvalidArgumentException.h"
+#include "../Log.h"
 #include "../network/Utils.h"
 #include "../thirdparty/json.hpp"
 #include "SHAHash.h"

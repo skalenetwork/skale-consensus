@@ -23,9 +23,17 @@
 
 #pragma  once
 
+
+#define BOOST_PENDING_INTEGER_LOG2_HPP
+#include <boost/integer/integer_log2.hpp>
+#include <boost/random/mersenne_twister.hpp>
+#include <boost/random/uniform_int_distribution.hpp>
+
+
 #include "../datastructures/DataStructure.h"
 
 class SHAHash;
+
 
 
 
@@ -34,21 +42,31 @@ class Transaction : public DataStructure {
 
 private:
 
+    static atomic<uint64_t>  totalObjects;
+
+
+
     ptr<vector<uint8_t >> data = nullptr;
 
     ptr<SHAHash> hash = nullptr;
 
     ptr<partial_sha_hash> partialHash = nullptr;
 
-protected:
 
-    Transaction(const ptr<vector<uint8_t>> data);
+    Transaction(const ptr<vector<uint8_t>> _data, bool _includesPartialHash);
+
 
 public:
 
 
 
+    uint64_t  getSerializedSize(bool _writePartialHash);
+
+
     ptr<vector<uint8_t>> getData() const;
+
+
+    void serializeInto( ptr< vector< uint8_t > > _out, bool _writePartialHash );
 
 
     ptr<SHAHash> getHash();
@@ -58,6 +76,17 @@ public:
     virtual ~Transaction();
 
 
+    static ptr<Transaction > deserialize(
+            const ptr< vector< uint8_t > > data, uint64_t _startIndex, uint64_t _len, bool _verifyPartialHashes );
+
+
+
+    static uint64_t getTotalObjects() {
+        return totalObjects;
+    };
+
+    static ptr< Transaction > createRandomSample( uint64_t _size, boost::random::mt19937& _gen,
+                                                  boost::random::uniform_int_distribution<>& _ubyte );
 };
 
 

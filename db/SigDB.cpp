@@ -16,33 +16,41 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file ConsensusBLSSignature.cpp
+    @file SigDB.cpp
     @author Stan Kladko
     @date 2019
 */
 
 
-
-
 #include "../SkaleCommon.h"
 #include "../Log.h"
-#include "../crypto/bls_include.h"
-#include "../network/Utils.h"
-#include "../thirdparty/json.hpp"
 
-#include "BLSSignature.h"
-#include "ConsensusBLSSignature.h"
+#include "../crypto/ConsensusBLSSignature.h"
+#include "../crypto/ConsensusBLSSigShare.h"
+#include "../datastructures/CommittedBlock.h"
+
+#include "SigDB.h"
 
 
-ConsensusBLSSignature::ConsensusBLSSignature(
-    ptr< string > _s, block_id _blockID, size_t _totalSigners, size_t _requiredSigners )
-    : BLSSignature( _s, _totalSigners, _requiredSigners ), blockId( _blockID ) {}
 
-block_id ConsensusBLSSignature::getBlockId() const {
-    return blockId;
+
+SigDB::SigDB(string& filename, node_id _nodeId ) : LevelDB( filename, _nodeId ) {}
+
+
+const string SigDB::getFormatVersion() {
+    return "1.0";
 }
 
 
-ConsensusBLSSignature::ConsensusBLSSignature( ptr< libff::alt_bn128_G1 > _s, block_id _blockID,
-    size_t _totalSigners, size_t _requiredSigners )
-    : BLSSignature( _s, _totalSigners, _requiredSigners ), blockId( _blockID ){};
+ptr<string>  SigDB::createKey(const block_id _blockId) {
+    return make_shared<string>(getFormatVersion() + ":" + to_string( nodeId ) + ":"
+                                + to_string( _blockId ));
+}
+
+void SigDB::addSignature(block_id _blockId, ptr<ConsensusBLSSignature> _sig) {
+    auto key = createKey( _blockId );
+    if (readString( *key ) == nullptr )
+        writeString( *key, *_sig->toString() );
+}
+
+

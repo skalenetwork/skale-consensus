@@ -46,6 +46,8 @@
 #include "../../crypto/ConsensusBLSSignature.h"
 #include "../../node/Node.h"
 
+#include "../../db/RandomDB.h"
+
 #include "../../network/TransportNetwork.h"
 
 
@@ -454,10 +456,8 @@ void BinConsensusInstance::proceedWithCommonCoinIfAUXTwoThird(bin_consensus_roun
 
 
 
-        auto key = getRandomDBKey(getSchain(), getBlockID(), getBlockProposerIndex() , _r);
-
-        auto value = randomDB->readString(*key);
-
+        auto value = randomDB->readRandom(
+            getSchain()->getSchainID(), getBlockID(), getBlockProposerIndex(), _r );
         if (value) {
 
             uint64_t random1 = 0;
@@ -471,7 +471,8 @@ void BinConsensusInstance::proceedWithCommonCoinIfAUXTwoThird(bin_consensus_roun
                 to_string(random), __CLASS_NAME__));
             }
         } else {
-            randomDB->writeString(*key, to_string(random));
+            randomDB->writeRandom(getSchain()->getSchainID(), getBlockID(), getBlockProposerIndex(),
+                _r, random);
         }
 
         proceedWithCommonCoin(hasTrue, hasFalse, random);
@@ -480,19 +481,7 @@ void BinConsensusInstance::proceedWithCommonCoinIfAUXTwoThird(bin_consensus_roun
 
 }
 
-ptr<string>
-BinConsensusInstance::getRandomDBKey(const Schain *_sChain, const block_id &_blockId,
-                                     const schain_index &_proposerIndex,
-                                     const bin_consensus_round &_round) {
-    ASSERT(_sChain);
 
-    stringstream key;
-
-
-    key << _sChain << ":" << _blockId << ":" << _proposerIndex << ":" << _round;
-
-    return make_shared<string>(key.str());
-}
 
 void BinConsensusInstance::proceedWithCommonCoin(bool _hasTrue, bool _hasFalse, uint64_t _random) {
 

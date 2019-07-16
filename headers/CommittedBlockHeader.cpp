@@ -58,7 +58,7 @@ CommittedBlockHeader::CommittedBlockHeader(CommittedBlock& _block) : Header(Head
     auto items = _block.getTransactionList()->getItems();
 
     for (auto && t : *items) {
-        transactionSizes->push_back(t->getData()->size());
+        transactionSizes->push_back(t->getSerializedSize(true));
     }
     setComplete();
 }

@@ -28,12 +28,14 @@
 #include "../thirdparty/json.hpp"
 #include "leveldb/db.h"
 #include "../db/LevelDB.h"
+#include "../db/BlockDB.h"
+
 #include "../crypto/SHAHash.h"
 #include "../datastructures/BlockProposal.h"
 #include "../datastructures/MyBlockProposal.h"
 #include "../node/Node.h"
 #include "../datastructures/PartialHashesList.h"
-#include "../datastructures/PendingTransaction.h"
+#include "../datastructures/Transaction.h"
 #include "../datastructures/TransactionList.h"
 #include "../pendingqueue/TestMessageGeneratorAgent.h"
 
@@ -44,6 +46,7 @@
 #include "PendingTransactionsAgent.h"
 
 #include "leveldb/db.h"
+#include "../db/CommittedTransactionDB.h"
 
 #include "../microprofile.h"
 
@@ -58,17 +61,11 @@ PendingTransactionsAgent::PendingTransactionsAgent( Schain& ref_sChain )
         auto cfg = getSchain()->getNode()->getCfg();
 
 
-        auto db = getSchain()->getNode()->getBlocksDB();
+        auto db = getSchain()->getNode()->getBlockDB();
 
-        static string count("COUNT");
+        committedTransactionCounter = db->readCounter();
 
-        auto value = db->readString(count);
-
-        if (value != nullptr) {
-            committedTransactionCounter = stoul(*value);
-        }
-
-        auto cdb = getNode()->getCommittedTransactionsDB();
+        auto cdb = getNode()->getCommittedTransactionDB();
 
 
         cdb->visitKeys(this, getNode()->getCommittedTransactionHistoryLimit() - committedTransactionCounter);
@@ -77,9 +74,9 @@ PendingTransactionsAgent::PendingTransactionsAgent( Schain& ref_sChain )
     }
 }
 
-void PendingTransactionsAgent::visitDBKey(leveldb::Slice _key) {
+void PendingTransactionsAgent::visitDBKey(const char* _data) {
     auto s = make_shared<partial_sha_hash>();
-    std::copy_n((uint8_t*)_key.data(), PARTIAL_SHA_HASH_LEN, s->begin());
+    std::copy_n((uint8_t*)_data, PARTIAL_SHA_HASH_LEN, s->begin());
     addToCommitted(s);
     committedTransactionCounter++;
 }
@@ -147,7 +144,8 @@ shared_ptr<vector<ptr<Transaction>>> PendingTransactionsAgent::createTransaction
     }
 
     for(const auto& e: tx_vec){
-        ptr<Transaction> pt = make_shared<PendingTransaction>( make_shared<std::vector<uint8_t>>(e) );
+        ptr<Transaction> pt = Transaction::deserialize( make_shared<std::vector<uint8_t>>(e),
+                0,e.size(), false );
         result->push_back(pt);
         pushKnownTransaction(pt);
     }
@@ -217,21 +215,9 @@ void PendingTransactionsAgent::pushCommittedTransaction(shared_ptr<Transaction> 
 
     ASSERT(committedTransactionsList.size() >= committedTransactions.size());
 
-    auto db = getNode()->getCommittedTransactionsDB();
+    auto db = getNode()->getCommittedTransactionDB();
 
-
-    auto key = (const char *) t->getPartialHash()->data();
-    auto keyLen = PARTIAL_SHA_HASH_LEN;
-    auto value = (const char*) &committedTransactionCounter;
-    auto valueLen = sizeof(committedTransactionCounter);
-
-
-    db->writeByteArray(key, keyLen, value, valueLen);
-
-    static auto key1 = string("transactions");
-    auto value1 = to_string(committedTransactionCounter);
-
-    db->writeString(key1, value1);
+    db->writeCommittedTransaction(t, committedTransactionCounter);
 
     committedTransactionCounter++;
 

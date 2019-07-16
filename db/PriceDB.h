@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2018-2019 SKALE Labs
+    Copyright (C) 2019 SKALE Labs
 
     This file is part of skale-consensus.
 
@@ -16,28 +16,37 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file PendingTransaction.h
+    @file PriceDB.h
     @author Stan Kladko
-    @date 2018
+    @date 2019
 */
 
-#pragma once
+
+#ifndef SKALED_PRICEDB_H
+#define SKALED_PRICEDB_H
 
 
-#include "Transaction.h"
+#include "LevelDB.h"
 
-class PendingTransaction  : public Transaction{
+class PriceDB : public LevelDB{
+
+    const string getFormatVersion();
+
+    ptr<string>  createKey(block_id _blockId);
+
 public:
-    PendingTransaction(const ptr<vector<uint8_t>> data);
+
+    PriceDB(string& filename, node_id nodeId);
 
 
+    u256 readPrice(block_id _blockID);
 
-    static atomic<uint64_t>  totalObjects;
+    void savePrice(u256 _price, block_id _blockID);
 
-    static uint64_t getTotalObjects() {
-        return totalObjects;
-    };
 
-    virtual ~PendingTransaction();
 
 };
+
+
+
+#endif //SKALED_RANDOMDB_H

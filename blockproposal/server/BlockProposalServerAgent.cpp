@@ -93,7 +93,7 @@ BlockProposalServerAgent::readMissingTransactions(
     };
 
 
-    size_t totalSize = 0;
+    size_t totalSize = 2; // account for starting and ending < >
 
     for (auto &&size : jsonSizes) {
         transactionSizes->push_back(size);
@@ -111,7 +111,7 @@ BlockProposalServerAgent::readMissingTransactions(
         BOOST_THROW_EXCEPTION(NetworkProtocolException("Could not read serialized exceptions", __CLASS_NAME__));
     }
 
-    auto list = make_shared<TransactionList>(transactionSizes, serializedTransactions);
+    auto list = TransactionList::deserialize( transactionSizes, serializedTransactions, 0, false );
 
     auto trs = list->getItems();
 
@@ -306,7 +306,7 @@ BlockProposalServerAgent::processProposalRequest(ptr<Connection> _connection, nl
     }
 
 
-    if (sChain->getCommittedBlockID() >= blockID)
+    if ( sChain->getLastCommittedBlockID() >= blockID)
         return;
 
     LOG(debug, "Storing block proposal");
@@ -407,9 +407,9 @@ BlockProposalServerAgent::processFinalizeRequest(ptr<Connection> _connection, nl
 
 void BlockProposalServerAgent::checkForOldBlock(const block_id &_blockID) {
     LOG(debug, "BID:" + to_string(_blockID) +
-               ":CBID:" + to_string(getSchain()->getCommittedBlockID()) +
+               ":CBID:" + to_string( getSchain()->getLastCommittedBlockID()) +
                ":MQ:" + to_string(getSchain()->getMessagesCount()));
-    if (_blockID <= getSchain()->getCommittedBlockID())
+    if (_blockID <= getSchain()->getLastCommittedBlockID())
         throw OldBlockIDException("Old block ID", nullptr, nullptr, __CLASS_NAME__);
 }
 
@@ -468,7 +468,7 @@ ptr<Header> BlockProposalServerAgent::createProposalResponseHeader(
     }
 
 
-    if (sChain->getCommittedBlockID() >= block_id(blockID)) {
+    if ( sChain->getLastCommittedBlockID() >= block_id(blockID)) {
         responseHeader->setStatusSubStatus(
                 CONNECTION_DISCONNECT, CONNECTION_BLOCK_PROPOSAL_TOO_LATE);
         responseHeader->setComplete();
@@ -493,9 +493,9 @@ ptr<Header> BlockProposalServerAgent::createProposalResponseHeader(
     }
 
 
-    if (sChain->getCommittedBlockTimeStamp() > timeStamp) {
+    if ( sChain->getLastCommittedBlockTimeStamp() > timeStamp) {
         LOG(info, "Incorrect timestamp:" + to_string(timeStamp) +
-                  ":vs:" + to_string(sChain->getCommittedBlockTimeStamp()));
+                  ":vs:" + to_string( sChain->getLastCommittedBlockTimeStamp()));
 
         responseHeader->setStatusSubStatus(
                 CONNECTION_DISCONNECT, CONNECTION_ERROR_TIME_STAMP_EARLIER_THAN_COMMITTED);
@@ -549,7 +549,7 @@ ptr<Header> BlockProposalServerAgent::createFinalizeResponseHeader(
                                       "Could not find node info for IP " + *_connectionEnvelope->getIP()));
     }
 
-    if (blockID > sChain->getCommittedBlockID()) {
+    if (blockID > sChain->getLastCommittedBlockID()) {
         responseHeader->setStatusSubStatus(CONNECTION_DISCONNECT, CONNECTION_DONT_HAVE_BLOCK_YET);
         responseHeader->setComplete();
         return responseHeader;

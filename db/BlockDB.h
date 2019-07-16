@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2018-2019 SKALE Labs
+    Copyright (C) 2019 SKALE Labs
 
     This file is part of skale-consensus.
 
@@ -16,29 +16,37 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file MyBlockProposal.cpp
+    @file BlockDB.h
     @author Stan Kladko
-    @date 2018
+    @date 2019
 */
 
-#include "../SkaleCommon.h"
-#include "../chains/Schain.h"
-#include "Transaction.h"
-#include "MyBlockProposal.h"
 
-MyBlockProposal::MyBlockProposal(Schain &_sChain, const block_id &_blockID, const schain_index &_proposerIndex,
-                                 const ptr<TransactionList>_transactions, uint64_t _timeStamp, uint32_t _timeStampMs)
-        : BlockProposal(_sChain.getSchainID(), _sChain.getNodeIDByIndex(_proposerIndex), _blockID, _proposerIndex, _transactions, _timeStamp, _timeStampMs) {
-    totalObjects++;
+#ifndef SKALED_BLOCKDB_H
+#define SKALED_BLOCKDB_H
+
+class CommittedBlock;
+
+#include "LevelDB.h"
+
+class BlockDB : public LevelDB{
+
+
+    ptr<string>  createKey(block_id _blockId);
+
+    const string getFormatVersion();
+
+public:
+
+    BlockDB(string& _filename, node_id _nodeId);
+    ptr<vector<uint8_t >> getSerializedBlock( block_id _blockID );
+
+    void saveBlock(ptr<CommittedBlock> &_block);
+
+    uint64_t readCounter();
+
 };
 
 
 
-
-atomic<uint64_t>  MyBlockProposal::totalObjects(0);
-
-MyBlockProposal::~MyBlockProposal() {
-    totalObjects--;
-
-}
-
+#endif //SKALED_BLOCKDB_H

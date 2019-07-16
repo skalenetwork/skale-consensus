@@ -202,7 +202,7 @@ ptr<vector<uint8_t>> CatchupServerAgent::createCatchupResponseHeader(ptr<Connect
     }
 
 
-    if (sChain->getCommittedBlockID() <= block_id(blockID)) {
+    if ( sChain->getLastCommittedBlockID() <= block_id(blockID)) {
         LOG(debug, "Catchups: sChain->getCommittedBlockID() <= block_id(blockID)");
         _responseHeader->setStatusSubStatus(CONNECTION_DISCONNECT, CONNECTION_NO_NEW_BLOCKS);
         _responseHeader->setComplete();
@@ -211,7 +211,7 @@ ptr<vector<uint8_t>> CatchupServerAgent::createCatchupResponseHeader(ptr<Connect
 
     auto blockSizes = make_shared<list<uint64_t>>();
 
-    auto committedBlockID = sChain->getCommittedBlockID();
+    auto committedBlockID = sChain->getLastCommittedBlockID();
 
     if (blockID >= committedBlockID) {
         LOG(debug, "Catchups: blockID >= committedBlockID");
@@ -222,11 +222,13 @@ ptr<vector<uint8_t>> CatchupServerAgent::createCatchupResponseHeader(ptr<Connect
 
     auto serializedBlocks = make_shared<vector<uint8_t>>();
 
+    serializedBlocks->push_back('[');
+
 
 
     for (uint64_t i = (uint64_t) blockID + 1; i <= committedBlockID; i++) {
 
-        auto serializedBlock = getSerializedBlock(i);
+        auto serializedBlock = getSchain()->getSerializedBlock(i);
 
         if (!serializedBlock) {
             _responseHeader->setStatus(CONNECTION_DISCONNECT);
@@ -240,6 +242,8 @@ ptr<vector<uint8_t>> CatchupServerAgent::createCatchupResponseHeader(ptr<Connect
 
     }
 
+    serializedBlocks->push_back(']');
+
     _responseHeader->setStatus(CONNECTION_PROCEED);
 
     _responseHeader->setBlockSizes(blockSizes);
@@ -252,18 +256,5 @@ ptr<vector<uint8_t>> CatchupServerAgent::createCatchupResponseHeader(ptr<Connect
 
 }
 
-ptr<vector<uint8_t>> CatchupServerAgent::getSerializedBlock(uint64_t i) const {
-
-
-    auto block = sChain->getCachedBlock(i);
-
-
-    if (block) {
-        return block->serialize();
-    } else {
-        return sChain->getSerializedBlockFromLevelDB(i);
-    }
-
-}
 
 

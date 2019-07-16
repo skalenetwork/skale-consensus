@@ -21,21 +21,33 @@
     @date 2018
 */
 
+#include "leveldb/db.h"
+
 #include "../SkaleCommon.h"
 #include "../Log.h"
+
+
 #include "../exceptions/FatalError.h"
 #include "../exceptions/InvalidArgumentException.h"
-
+#include "../exceptions/ParsingException.h"
+#include "../exceptions/ExitRequestedException.h"
 #include "../thirdparty/json.hpp"
-#include "leveldb/db.h"
+
+
 
 #include "../crypto/bls_include.h"
 
+#include "../crypto/BLSPublicKey.h"
+#include "../crypto/ConsensusBLSPrivateKeyShare.h"
+#include "../crypto/SHAHash.h"
+
 #include "../blockproposal/server/BlockProposalServerAgent.h"
 #include "../messages/NetworkMessageEnvelope.h"
+
 #include "../chains/Schain.h"
 #include "../chains/Schain.h"
-#include "../exceptions/ExitRequestedException.h"
+
+
 
 
 #include "../node/NodeInfo.h"
@@ -44,20 +56,25 @@
 #include "../network/TCPServerSocket.h"
 #include "../network/ZMQServerSocket.h"
 
-#include "../crypto/BLSPublicKey.h"
-#include "../crypto/ConsensusBLSPrivateKeyShare.h"
-#include "../crypto/SHAHash.h"
-
-
 #include "../messages/Message.h"
 #include "../catchup/server/CatchupServerAgent.h"
 #include "../exceptions/FatalError.h"
 
 #include "../protocols/InstanceGarbageCollectorAgent.h"
+
+#include "../db/BlockDB.h"
+#include "../db/RandomDB.h"
+#include "../db/CommittedTransactionDB.h"
+#include "../db/PriceDB.h"
+#include "../db/SigDB.h"
+
+
+
+
+
 #include "ConsensusEngine.h"
 #include "ConsensusInterface.h"
 #include "Node.h"
-#include "../exceptions/ParsingException.h"
 
 using namespace std;
 
@@ -94,11 +111,11 @@ void Node::initLevelDBs() {
     string pricesDBFilename = dataDir + "/prices_" + to_string(nodeID) + ".db";
 
 
-    blocksDB = make_shared<LevelDB>(blockDBFilename);
-    randomDB = make_shared<LevelDB>(randomDBFilename);
-    committedTransactionsDB = make_shared<LevelDB>(committedTransactionsDBFilename);
-    signaturesDB = make_shared<LevelDB>(signaturesDBFilename);
-    pricesDB = make_shared<LevelDB>(pricesDBFilename);
+    blockDB = make_shared<BlockDB>(blockDBFilename, getNodeID());
+    randomDB = make_shared<RandomDB>(randomDBFilename, getNodeID());
+    committedTransactionDB = make_shared<CommittedTransactionDB>(committedTransactionsDBFilename, getNodeID());
+    signatureDB = make_shared<SigDB>(signaturesDBFilename, getNodeID());
+    priceDB = make_shared<PriceDB>(pricesDBFilename, getNodeID());
 
 }
 
@@ -209,15 +226,16 @@ Node::~Node() {
 }
 
 void Node::cleanLevelDBs() {
-    blocksDB = nullptr;
+    blockDB = nullptr;
     randomDB = nullptr;
-    committedTransactionsDB = nullptr;
-    signaturesDB = nullptr;
-    pricesDB = nullptr;
+    committedTransactionDB = nullptr;
+    signatureDB = nullptr;
+    priceDB = nullptr;
 }
 
 
 node_id Node::getNodeID() const {
+
     return nodeID;
 }
 
@@ -487,29 +505,30 @@ ptr<NodeInfo> Node::getNodeInfoByIP(ptr<string> ip) {
 }
 
 
-ptr<LevelDB> Node::getBlocksDB() {
-    ASSERT(blocksDB);
-    return blocksDB;
+ptr<BlockDB> Node::getBlockDB() {
+    ASSERT(blockDB != nullptr);
+    return blockDB;
 }
 
-ptr<LevelDB> Node::getRandomDB() {
-    ASSERT(randomDB);
+ptr<RandomDB> Node::getRandomDB() {
+    ASSERT(randomDB != nullptr);
     return randomDB;
 }
 
-ptr<LevelDB> Node::getCommittedTransactionsDB() const {
-    ASSERT(committedTransactionsDB);
-    return committedTransactionsDB;
+ptr<CommittedTransactionDB> Node::getCommittedTransactionDB() const {
+    ASSERT(committedTransactionDB != nullptr);
+    return committedTransactionDB;
 }
 
 
-ptr<LevelDB> Node::getSignaturesDB() const {
-    ASSERT(signaturesDB);
-    return signaturesDB;
+ptr<SigDB> Node::getSignatureDB() const {
+    ASSERT(signatureDB != nullptr);
+    return signatureDB;
 }
 
-ptr<LevelDB> Node::getPricesDB() const {
-    return pricesDB;
+ptr<PriceDB> Node::getPriceDB() const {
+    ASSERT(priceDB != nullptr)
+    return priceDB;
 }
 
 

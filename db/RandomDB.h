@@ -16,33 +16,37 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file ConsensusBLSSignature.cpp
+    @file RandomDB.h
     @author Stan Kladko
     @date 2019
 */
 
 
+#ifndef SKALED_RANDOMDB_H
+#define SKALED_RANDOMDB_H
 
 
-#include "../SkaleCommon.h"
-#include "../Log.h"
-#include "../crypto/bls_include.h"
-#include "../network/Utils.h"
-#include "../thirdparty/json.hpp"
+#include "LevelDB.h"
 
-#include "BLSSignature.h"
-#include "ConsensusBLSSignature.h"
+class RandomDB : public LevelDB{
 
+    const string getFormatVersion();
 
-ConsensusBLSSignature::ConsensusBLSSignature(
-    ptr< string > _s, block_id _blockID, size_t _totalSigners, size_t _requiredSigners )
-    : BLSSignature( _s, _totalSigners, _requiredSigners ), blockId( _blockID ) {}
+public:
 
-block_id ConsensusBLSSignature::getBlockId() const {
-    return blockId;
-}
+    RandomDB(string& filename, node_id nodeId);
+
+    ptr<string> readRandom( schain_id _sChainID, const block_id& _blockId,
+        const schain_index& _proposerIndex, const bin_consensus_round& _round);
 
 
-ConsensusBLSSignature::ConsensusBLSSignature( ptr< libff::alt_bn128_G1 > _s, block_id _blockID,
-    size_t _totalSigners, size_t _requiredSigners )
-    : BLSSignature( _s, _totalSigners, _requiredSigners ), blockId( _blockID ){};
+    void writeRandom( schain_id _sChainID, const block_id& _blockId,
+                            const schain_index& _proposerIndex, const bin_consensus_round& _round,
+                            uint64_t _random);
+    ptr<string> createKey( const schain_id& _sChainID, const block_id& _blockId,
+        const schain_index& _proposerIndex, const bin_consensus_round& _round);
+};
+
+
+
+#endif //SKALED_RANDOMDB_H

@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2018-2019 SKALE Labs
+    Copyright (C) 2019 SKALE Labs
 
     This file is part of skale-consensus.
 
@@ -16,24 +16,38 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file PendingTransaction.cpp
+    @file SigDB.h
     @author Stan Kladko
-    @date 2018
+    @date 2019
 */
 
-#include "../SkaleCommon.h"
-#include "PendingTransaction.h"
+
+class ConsensusBLSSignature;
+
+#ifndef SKALED_SIGDB_H
+#define SKALED_SIGDB_H
 
 
-PendingTransaction::PendingTransaction(const ptr<vector<uint8_t>> data) : Transaction(data) {
-    totalObjects++;
-}
+#include "LevelDB.h"
+
+class SigDB : public LevelDB{
+
+    node_id nodeId;
+
+    const string getFormatVersion();
+
+public:
+
+    SigDB(string& filename, node_id nodeId );
+
+    ptr<string>  createKey(block_id _blockId);
+
+    void addSignature(block_id _blockId, ptr<ConsensusBLSSignature> _sig);
+
+    uint64_t  getCounter();
+
+};
 
 
 
-PendingTransaction::~PendingTransaction() {
-    totalObjects--;
-}
-
-
-atomic<uint64_t>  PendingTransaction::totalObjects(0);
+#endif //SKALED_BLOCKDB_H

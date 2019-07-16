@@ -71,8 +71,9 @@ before_install:
   - eval "${MATRIX_EVAL}"
 
 install:
+  - cd ${TRAVIS_BUILD_DIR}
   - cd ${TRAVIS_BUILD_DIR}/scripts
-  - ./build.py ${TRAVIS_BUILD_TYPE} ${TRAVIS_BUILD_DIR}
+  - python ./build.py ${TRAVIS_BUILD_TYPE} ${TRAVIS_BUILD_DIR}
 
 script:
   - cd ${TRAVIS_BUILD_DIR}/scripts

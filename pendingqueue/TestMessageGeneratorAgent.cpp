@@ -28,7 +28,7 @@
 #include "../node/Node.h"
 #include "../chains/Schain.h"
 #include "../chains/SchainTest.h"
-#include "../datastructures/PendingTransaction.h"
+#include "../datastructures/Transaction.h"
 #include "../chains/Schain.h"
 #include "../pendingqueue/TestMessageGeneratorAgent.h"
 #include "../datastructures/Transaction.h"

@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2018-2019 SKALE Labs
+    Copyright (C) 2019 SKALE Labs
 
     This file is part of skale-consensus.
 
@@ -16,24 +16,52 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file ImportedTransaction.cpp
+    @file PriceDB.cpp
     @author Stan Kladko
-    @date 2018
+    @date 2019
 */
 
+
 #include "../SkaleCommon.h"
-#include "ImportedTransaction.h"
+#include "../Log.h"
 
 
-ImportedTransaction::ImportedTransaction(const ptr<vector<uint8_t>> data) : Transaction(data) {
-    totalObjects++;
+
+#include "PriceDB.h"
+
+
+
+
+PriceDB::PriceDB(string& filename, node_id _nodeId ) : LevelDB( filename, _nodeId ) {}
+
+
+const string PriceDB::getFormatVersion() {
+    return "1.0";
 }
 
 
+ptr< string > PriceDB::createKey( block_id _blockId ) {
+    return make_shared<string>(getFormatVersion() + ":" + to_string( _blockId ));
+}
 
-ImportedTransaction::~ImportedTransaction() {
-    totalObjects--;
+u256 PriceDB::readPrice(block_id _blockID) {
+
+    auto  key =  createKey(_blockID);
+
+    auto price = readString(*key);
+
+    CHECK_STATE(price != nullptr);
+
+    return u256(price->c_str());
 }
 
 
-atomic<uint64_t>  ImportedTransaction::totalObjects(0);
+void PriceDB::savePrice(u256 _price, block_id _blockID) {
+
+    auto key = createKey(_blockID);
+
+    auto value = _price.str();
+
+    writeString(*key, value );
+}
+

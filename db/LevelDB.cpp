@@ -105,7 +105,7 @@ uint64_t LevelDB::visitKeys(LevelDB::KeyVisitor *_visitor, uint64_t _maxKeysToVi
 
     leveldb::Iterator *it = db->NewIterator(readOptions);
     for (it->SeekToFirst(); it->Valid(); it->Next()) {
-        _visitor->visitDBKey(it->key());
+        _visitor->visitDBKey(it->key().data());
         readCounter++;
         if (readCounter >= _maxKeysToVisit) {
             break;
@@ -117,7 +117,7 @@ uint64_t LevelDB::visitKeys(LevelDB::KeyVisitor *_visitor, uint64_t _maxKeysToVi
     return readCounter;
 }
 
-LevelDB::LevelDB(string &filename) {
+LevelDB::LevelDB(string &filename, node_id _nodeId) : nodeId(_nodeId){
 
 
     leveldb::Options options;

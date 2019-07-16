@@ -36,6 +36,7 @@
 #include "leveldb/db.h"
 
 #include "../node/Node.h"
+#include "../node/ConsensusEngine.h"
 
 #include "../headers/BlockProposalHeader.h"
 #include "../pendingqueue/PendingTransactionsAgent.h"
@@ -76,15 +77,11 @@
 #include "../datastructures/ReceivedBlockProposal.h"
 #include "../datastructures/BlockProposalSet.h"
 #include "../datastructures/Transaction.h"
-#include "../datastructures/PendingTransaction.h"
-#include "../datastructures/ImportedTransaction.h"
 #include "../datastructures/TransactionList.h"
 
 #include "../exceptions/FatalError.h"
 
 
-
-#include "../node/ConsensusEngine.h"
 
 #include "../pricing/PricingAgent.h"
 
@@ -93,6 +90,8 @@
 #include "../pendingqueue/TestMessageGeneratorAgent.h"
 #include "../crypto/bls_include.h"
 #include "../db/LevelDB.h"
+#include "../db/BlockDB.h"
+
 
 
 #include "../crypto/ConsensusBLSPrivateKeyShare.h"
@@ -238,7 +237,7 @@ Schain::Schain(Node &_node, schain_index _schainIndex, const schain_id &_schainI
     try {
 
 
-        committedBlockID.store(0);
+        lastCommittedBlockID.store(0);
         bootstrapBlockID.store(0);
         committedBlockTimeStamp.store(0);
 
@@ -321,28 +320,28 @@ void Schain::blockCommitsArrivedThroughCatchup(ptr<CommittedBlockList> _blocks) 
     std::lock_guard<std::recursive_mutex> aLock(getMainMutex());
 
 
-    atomic<uint64_t> committedIDOld(committedBlockID.load());
+    atomic<uint64_t> committedIDOld(lastCommittedBlockID.load());
 
     uint64_t previosBlockTimeStamp = 0;
     uint64_t previosBlockTimeStampMs = 0;
 
 
-    ASSERT(b->at(0)->getBlockID() <= (uint64_t) committedBlockID + 1);
+    ASSERT(b->at(0)->getBlockID() <= (uint64_t) lastCommittedBlockID + 1);
 
     for (size_t i = 0; i < b->size(); i++) {
 
         auto t = b->at(i);
 
-        if (t->getBlockID() > committedBlockID.load()) {
-            committedBlockID++;
+        if (t->getBlockID() > lastCommittedBlockID.load()) {
+            lastCommittedBlockID++;
             processCommittedBlock(t);
             previosBlockTimeStamp = t->getTimeStamp();
             previosBlockTimeStampMs = t->getTimeStampMs();
         }
     }
 
-    if (committedIDOld < committedBlockID) {
-        LOG(info, "BLOCK_CATCHUP: " + to_string(committedBlockID - committedIDOld) + " BLOCKS");
+    if (committedIDOld < lastCommittedBlockID) {
+        LOG(info, "BLOCK_CATCHUP: " + to_string(lastCommittedBlockID - committedIDOld) + " BLOCKS");
         proposeNextBlock(previosBlockTimeStamp, previosBlockTimeStampMs);
     }
 }
@@ -355,14 +354,14 @@ void Schain::blockCommitArrived(bool bootstrap, block_id _committedBlockID, scha
 
     ASSERT(_committedTimeStamp < (uint64_t) 2 * MODERN_TIME);
 
-    if (_committedBlockID <= committedBlockID && !bootstrap)
+    if (_committedBlockID <= lastCommittedBlockID && !bootstrap)
         return;
 
 
-    ASSERT(_committedBlockID == (committedBlockID + 1) || committedBlockID == 0);
+    ASSERT(_committedBlockID == (lastCommittedBlockID + 1) || lastCommittedBlockID == 0);
 
 
-    committedBlockID.store((uint64_t) _committedBlockID);
+    lastCommittedBlockID.store((uint64_t) _committedBlockID);
     committedBlockTimeStamp = _committedTimeStamp;
 
 
@@ -403,7 +402,7 @@ void Schain::blockCommitArrived(bool bootstrap, block_id _committedBlockID, scha
 void Schain::proposeNextBlock(uint64_t _previousBlockTimeStamp, uint32_t _previousBlockTimeStampMs) {
 
 
-    block_id _proposedBlockID((uint64_t) committedBlockID + 1);
+    block_id _proposedBlockID((uint64_t) lastCommittedBlockID + 1);
 
     ASSERT(pushedBlockProposals.count(_proposedBlockID) == 0);
 
@@ -433,7 +432,7 @@ void Schain::processCommittedBlock(ptr<CommittedBlock> _block) {
     std::lock_guard<std::recursive_mutex> aLock(getMainMutex());
 
 
-    ASSERT(committedBlockID == _block->getBlockID());
+    ASSERT(lastCommittedBlockID == _block->getBlockID());
 
     totalTransactions += _block->getTransactionList()->size();
 
@@ -445,9 +444,7 @@ void Schain::processCommittedBlock(ptr<CommittedBlock> _block) {
               ":DMSG:" + to_string(getMessagesCount()) +
               ":MPRPS:" + to_string(MyBlockProposal::getTotalObjects()) +
               ":RPRPS:" + to_string(ReceivedBlockProposal::getTotalObjects()) +
-
-              ":PTXNS:" + to_string(PendingTransaction::getTotalObjects()) +
-              ":RTXNS:" + to_string(ImportedTransaction::getTotalObjects()) +
+              ":TXNS:" + to_string(Transaction::getTotalObjects()) +
 //              ":PNDG:" + to_string(pendingTransactionsAgent->getPendingTransactionsSize()) +
               ":KNWN:" + to_string(pendingTransactionsAgent->getKnownTransactionsSize()) +
               ":CMT:" + to_string(pendingTransactionsAgent->getCommittedTransactionsSize()) +
@@ -462,22 +459,19 @@ void Schain::processCommittedBlock(ptr<CommittedBlock> _block) {
 
     blockProposalsDatabase->cleanOldBlockProposals(_block->getBlockID());
 
-
-
-
     pushBlockToExtFace(_block);
-
-
 
 }
 
 void Schain::saveBlock(ptr<CommittedBlock> &_block) {
     saveBlockToBlockCache(_block);
-    saveBlockToLevelDB(_block);
+    getNode()->getBlockDB()->saveBlock(_block);
 }
 
 void Schain::saveBlockToBlockCache(ptr<CommittedBlock> &_block) {
 
+
+    CHECK_ARGUMENT(_block != nullptr);
 
     auto blockID = _block->getBlockID();
 
@@ -488,7 +482,7 @@ void Schain::saveBlockToBlockCache(ptr<CommittedBlock> &_block) {
     auto storageSize = getNode()->getCommittedBlockStorageSize();
 
     if (blockID > storageSize && blocks.count(blockID - storageSize) > 0) {
-        blocks.erase(committedBlockID - storageSize);
+        blocks.erase(lastCommittedBlockID - storageSize);
     };
 
 
@@ -497,24 +491,7 @@ void Schain::saveBlockToBlockCache(ptr<CommittedBlock> &_block) {
 
 }
 
-void Schain::saveBlockToLevelDB(ptr<CommittedBlock> &_block) {
-    auto serializedBlock = _block->serialize();
 
-    using namespace leveldb;
-
-    auto db = getNode()->getBlocksDB();
-
-    auto key = to_string(getNode()->getNodeID()) + ":"
-               + to_string(_block->getBlockID());
-
-    auto value = (const char *) serializedBlock->data();
-
-    auto valueLen = serializedBlock->size();
-
-
-    db->writeByteArray(key, value, valueLen);
-
-}
 
 void Schain::pushBlockToExtFace(ptr<CommittedBlock> &_block) {
 
@@ -522,24 +499,20 @@ void Schain::pushBlockToExtFace(ptr<CommittedBlock> &_block) {
 
     auto blockID = _block->getBlockID();
 
-    ConsensusExtFace::transactions_vector tv;
+
 
     ASSERT((returnedBlock + 1 == blockID) || returnedBlock == 0);
 
-    for (auto &&t: *_block->getTransactionList()->getItems()) {
-
-        tv.push_back(*(t->getData()));
-    }
-
     returnedBlock = (uint64_t) blockID;
 
+    auto tv = _block->getTransactionList()->createTransactionVector();
 
-    auto price = this->pricingAgent->calculatePrice(tv, _block->getTimeStamp(),
+    auto price = this->pricingAgent->calculatePrice(*tv, _block->getTimeStamp(),
             _block->getTimeStampMs(), _block->getBlockID());
 
 
     if (extFace) {
-        extFace->createBlock(tv, _block->getTimeStamp(),
+        extFace->createBlock(*tv, _block->getTimeStamp(),
                 _block->getTimeStampMs(),
                 (__uint64_t) _block->getBlockID(), price);
     }
@@ -559,14 +532,13 @@ void Schain::startConsensus(const block_id _blockID) {
 
         LOG(debug, "StartConsensusIfNeeded BLOCK NUMBER:" + to_string((_blockID)));
 
-        if (_blockID <= committedBlockID) {
-            LOG(debug, "Too late to start consensus: already committed " + to_string(committedBlockID));
+        if (_blockID <= lastCommittedBlockID) {
+            LOG(debug, "Too late to start consensus: already committed " + to_string(lastCommittedBlockID));
             return;
         }
 
-
-        if (_blockID > committedBlockID + 1) {
-            LOG(debug, "Consensus is in the future" + to_string(committedBlockID));
+        if (_blockID > lastCommittedBlockID + 1) {
+            LOG(debug, "Consensus is in the future" + to_string(lastCommittedBlockID));
             return;
         }
 
@@ -616,8 +588,8 @@ chrono::milliseconds Schain::getStartTime() const {
     return startTime;
 }
 
-const block_id Schain::getCommittedBlockID() const {
-    return block_id(committedBlockID.load());
+const block_id Schain::getLastCommittedBlockID() const {
+    return block_id(lastCommittedBlockID.load());
 }
 
 
@@ -642,35 +614,36 @@ ptr<CommittedBlock> Schain::getBlock(block_id _blockID) {
         return block;
 
 
-    auto serializedBlock = getSerializedBlockFromLevelDB(_blockID);
+    auto serializedBlock = getNode()->getBlockDB()->getSerializedBlock( _blockID );
 
     if (serializedBlock == nullptr) {
         return nullptr;
     }
 
-    return make_shared<CommittedBlock>(serializedBlock);
+    return CommittedBlock::deserialize(serializedBlock);
 
 }
 
-ptr<vector<uint8_t>> Schain::getSerializedBlockFromLevelDB(const block_id &_blockID) {
-    using namespace leveldb;
 
-    string key = to_string((uint64_t) getNode()->getNodeID()) + ":" + to_string((uint64_t) _blockID);
+ptr<vector<uint8_t>> Schain::getSerializedBlock(uint64_t i) const {
 
-    auto value = getSchain()->getNode()->getBlocksDB()->readString(key);
 
-    if (value) {
-        auto serializedBlock = make_shared<vector<uint8_t>>();
-        serializedBlock->insert(serializedBlock->begin(), value->data(), value->data() + value->size());
-        return serializedBlock;
+    auto block = sChain->getCachedBlock(i);
+
+
+    if (block) {
+        return block->serialize();
     } else {
-        return nullptr;
+        return getNode()->getBlockDB()->getSerializedBlock( i );
     }
+
 }
+
+
 
 
 schain_index Schain::getSchainIndex() const {
-    return this->schainIndex;
+    return schainIndex;
 }
 
 
@@ -750,7 +723,7 @@ uint64_t Schain::getTotalTransactions() const {
     return totalTransactions;
 }
 
-uint64_t Schain::getCommittedBlockTimeStamp() {
+uint64_t Schain::getLastCommittedBlockTimeStamp() {
     return committedBlockTimeStamp;
 }
 
@@ -855,3 +828,16 @@ size_t Schain::getRequiredSignersCount() {
     }
 
 }
+
+ptr< Transaction > Transaction::createRandomSample( uint64_t _size, boost::random::mt19937& _gen,
+                                              boost::random::uniform_int_distribution<>& _ubyte ) {
+    auto sample = make_shared< vector< uint8_t > >( _size, 0 );
+
+
+    for ( uint32_t j = 0; j < sample->size(); j++ ) {
+        sample->at( j ) = _ubyte( _gen );
+    }
+
+
+    return Transaction::deserialize( sample, 0, sample->size(), false );
+};

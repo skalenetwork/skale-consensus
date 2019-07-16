@@ -217,8 +217,6 @@ public:
 
     uint64_t calculateBLSRandom(bin_consensus_round _r);
 
-    static ptr<string> getRandomDBKey(const Schain *_sChain, const block_id &_blockId, const schain_index &_proposerIndex,
-                               const bin_consensus_round &_round);
 };
 
 

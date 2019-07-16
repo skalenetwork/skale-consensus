@@ -41,6 +41,13 @@ class SHAHash;
 class BLSPublicKey;
 class BLSPrivateKeyShare;
 class LevelDB;
+class BlockDB;
+class SigDB;
+class CommittedTransactionDB;
+class RandomDB;
+class PriceDB;
+
+
 
 namespace leveldb{
     class DB;
@@ -122,15 +129,15 @@ class Node {
     void closeAllSocketsAndNotifyAllAgentsAndThreads();
 
 
-    ptr<LevelDB> blocksDB = nullptr;
+    ptr<BlockDB> blockDB = nullptr;
 
-    ptr<LevelDB> randomDB = nullptr;
+    ptr<RandomDB> randomDB = nullptr;
 
-    ptr<LevelDB> committedTransactionsDB = nullptr;
+    ptr<CommittedTransactionDB> committedTransactionDB = nullptr;
 
-    ptr<LevelDB> signaturesDB = nullptr;
+    ptr<SigDB> signatureDB = nullptr;
 
-    ptr<LevelDB> pricesDB = nullptr;
+    ptr<PriceDB> priceDB = nullptr;
 
 
     uint64_t catchupIntervalMS;
@@ -173,17 +180,17 @@ public:
     ptr<BLSPrivateKeyShare> getBlsPrivateKey() const;
 
 
-    ptr<LevelDB> getBlocksDB();
+    ptr<BlockDB> getBlockDB();
 
-    ptr<LevelDB> getRandomDB();
-
-
-    ptr<LevelDB> getCommittedTransactionsDB() const;
+    ptr<RandomDB> getRandomDB();
 
 
-    ptr<LevelDB> getSignaturesDB() const;
+    ptr<CommittedTransactionDB> getCommittedTransactionDB() const;
 
-    ptr<LevelDB> getPricesDB() const;
+
+    ptr<SigDB> getSignatureDB() const;
+
+    ptr<PriceDB> getPriceDB() const;
 
 
     void initLevelDBs();

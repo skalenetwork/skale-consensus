@@ -21,8 +21,10 @@
     @date 2018
 */
 
-#include "../Log.h"
+
+
 #include "../SkaleCommon.h"
+#include "../Log.h"
 #include "../thirdparty/json.hpp"
 #include "../abstracttcpserver/ConnectionStatus.h"
 #include "../blockproposal/pusher/BlockProposalClientAgent.h"
@@ -180,7 +182,7 @@ void TransportNetwork::networkReadLoop() {
 
                 ASSERT( sChain );
 
-                block_id currentBlockID = sChain->getCommittedBlockID() + 1;
+                block_id currentBlockID = sChain->getLastCommittedBlockID() + 1;
 
                 postOrDefer( m, currentBlockID );
             } catch ( ExitRequestedException& ) {
@@ -236,13 +238,13 @@ void TransportNetwork::deferredMessagesLoop() {
         ptr< vector< ptr< NetworkMessageEnvelope > > > deferredMessages;
 
         {
-            block_id currentBlockID = sChain->getCommittedBlockID() + 1;
+            block_id currentBlockID = sChain->getLastCommittedBlockID() + 1;
 
             deferredMessages = pullMessagesForBlockID( currentBlockID );
         }
 
         for ( auto message : *deferredMessages ) {
-            block_id currentBlockID = sChain->getCommittedBlockID() + 1;
+            block_id currentBlockID = sChain->getLastCommittedBlockID() + 1;
             postOrDefer( message, currentBlockID );
         }
 

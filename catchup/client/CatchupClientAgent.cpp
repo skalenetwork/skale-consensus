@@ -72,7 +72,7 @@ nlohmann::json CatchupClientAgent::readCatchupResponseHeader(ptr<ClientSocket> _
 
 void CatchupClientAgent::sync(schain_index _dstIndex) {
     LOG(debug,
-        "Catchupc step 0: request for block" + to_string(getSchain()->getCommittedBlockID()));
+        "Catchupc step 0: request for block" + to_string(getSchain()->getLastCommittedBlockID()));
 
     auto header = make_shared<CatchupRequestHeader>(*sChain, _dstIndex);
     auto socket = make_shared<ClientSocket>(*sChain, _dstIndex, CATCHUP);
@@ -178,7 +178,7 @@ size_t CatchupClientAgent::parseBlockSizes(
                                       "totalSize > getNode()->getMaxCatchupDownloadBytes()", __CLASS_NAME__ ));
     }
 
-    return totalSize;
+    return totalSize + 2;
 };
 
 
@@ -201,16 +201,16 @@ ptr<CommittedBlockList> CatchupClientAgent::readMissingBlocks(
         throw_with_nested(NetworkProtocolException("Could not read blocks", __CLASS_NAME__));
     }
 
-    if ((*serializedBlocks).at(sizeof(uint64_t)) != '{') {
+    if (serializedBlocks->at(0) != '[') {
         throw_with_nested(NetworkProtocolException(
-                "First serialized block does not start with {", __CLASS_NAME__));
+                "Serialized blocks do not start with [", __CLASS_NAME__));
     }
 
 
     ptr<CommittedBlockList> blockList = nullptr;
 
     try {
-        blockList = make_shared<CommittedBlockList>(blockSizes, serializedBlocks);
+        blockList = CommittedBlockList::deserialize(blockSizes, serializedBlocks, 0);
     } catch (ExitRequestedException &) {
         throw;
     } catch (...) {

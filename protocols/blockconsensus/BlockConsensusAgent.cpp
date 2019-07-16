@@ -86,7 +86,7 @@ void BlockConsensusAgent::startConsensusProposal(block_id _blockID, ptr <Boolean
 
     ASSERT(proposedBlocks.count(_blockID) == 0);
 
-    if (getSchain()->getCommittedBlockID() >= _blockID) {
+    if (getSchain()->getLastCommittedBlockID() >= _blockID) {
         LOG(debug, "Terminating consensus proposal since already committed.");
     }
 
@@ -250,7 +250,8 @@ void BlockConsensusAgent::reportConsensusAndDecideIfNeeded(ptr <ChildBVDecidedMe
     if (blockID <= 1) {
         seed = 1;
     } else {
-        seed = *((uint64_t *) previousBlock->getHash()->data());
+        seed = *((uint64_t *)
+                previousBlock->getHash()->data());
     }
 
     auto random = ((uint64_t) seed) % nodeCount;

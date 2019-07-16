@@ -23,13 +23,15 @@
 
 #include "../SkaleCommon.h"
 #include "../crypto/SHAHash.h"
+#include "../chains/Schain.h"
 #include "ReceivedBlockProposal.h"
 
 ReceivedBlockProposal::ReceivedBlockProposal(Schain &_sChain, const block_id &_blockID,
                                              const schain_index &_proposerIndex,
                                              const ptr<TransactionList> &_transactions,
                                              const uint64_t &_timeStamp,
-                                             const uint32_t &_timeStampMs) : BlockProposal(_sChain, _blockID,
+                                             const uint32_t &_timeStampMs) : BlockProposal(
+                                                     _sChain.getSchainID(), _sChain.getNodeIDByIndex(_proposerIndex), _blockID,
                                                                                          _proposerIndex, _transactions,
                                                                                          _timeStamp, _timeStampMs) {
     totalObjects++;

@@ -39,6 +39,7 @@
 #include "SHAHash.h"
 #include "leveldb/db.h"
 
+#include "../db/SigDB.h"
 #include "ReceivedSigSharesDatabase.h"
 #include "BLSSigShare.h"
 #include "BLSSignature.h"
@@ -78,10 +79,9 @@ void ReceivedSigSharesDatabase::mergeAndSaveBLSSignature(block_id _blockId) {
     auto signature = sigSet->mergeSignature();
     blockSignatures[_blockId] = signature;
 
-    auto db = getNode()->getSignaturesDB();
-    auto key = to_string(_blockId);
-    if (db->readString(key) == nullptr)
-    getNode()->getSignaturesDB()->writeString(key, *signature->toString());
+    auto db = getNode()->getSignatureDB();
+
+    db->addSignature(_blockId, signature);
 
     sigShareSets[_blockId] = nullptr;
 }

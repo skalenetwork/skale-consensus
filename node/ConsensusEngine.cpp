@@ -414,7 +414,7 @@ block_id ConsensusEngine::getLargestCommittedBlockID() {
     block_id id = 0;
 
     for (auto&& item: nodes) {
-        auto id2 = item.second->getSchain()->getCommittedBlockID();
+        auto id2 = item.second->getSchain()->getLastCommittedBlockID();
 
         if (id2 > id) {
             id = id2;
