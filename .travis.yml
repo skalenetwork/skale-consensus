@@ -77,7 +77,7 @@ install:
 
 script:
   - cd ${TRAVIS_BUILD_DIR}/scripts
-  - python ./tests.py ${TRAVIS_BUILD_DIR}
+  - ./tests.py ${TRAVIS_BUILD_DIR}
 
 after_success:
   - pip install --user codecov
