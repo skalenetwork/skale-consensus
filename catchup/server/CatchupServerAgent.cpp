@@ -35,6 +35,10 @@
 
 
 #include "../../node/NodeInfo.h"
+
+
+#include "../../db/BlockDB.h"
+
 #include "../../abstracttcpserver/ConnectionStatus.h"
 
 #include "../../exceptions/OldBlockIDException.h"
@@ -228,7 +232,7 @@ ptr<vector<uint8_t>> CatchupServerAgent::createCatchupResponseHeader(ptr<Connect
 
     for (uint64_t i = (uint64_t) blockID + 1; i <= committedBlockID; i++) {
 
-        auto serializedBlock = getSchain()->getSerializedBlock(i);
+        auto serializedBlock = getSchain()->getNode()->getBlockDB()->getSerializedBlock(i);
 
         if (!serializedBlock) {
             _responseHeader->setStatus(CONNECTION_DISCONNECT);

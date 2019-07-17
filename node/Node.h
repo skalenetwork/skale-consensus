@@ -238,7 +238,7 @@ public:
 
     Schain *getSchain() const;
 
-    vector<Agent *> getAgents();
+    void registerAgent( Agent* _agent );
 
     bool isExitRequested();
 

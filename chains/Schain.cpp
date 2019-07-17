@@ -272,7 +272,8 @@ Schain::Schain(Node &_node, schain_index _schainIndex, const schain_id &_schainI
         blockProposerTest = make_shared<string>(x);
 
 
-        getNode()->getAgents().push_back(this);
+        getNode()->registerAgent(this);
+
     } catch (...) {
         throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
     }

@@ -408,10 +408,12 @@ void Node::exit() {
         return;
     }
 
+    exitRequested = true;
+
     releaseGlobalClientBarrier();
     releaseGlobalServerBarrier();
     LOG(info, "Exit requested");
-    exitRequested = true;
+
     closeAllSocketsAndNotifyAllAgentsAndThreads();
 
 }
@@ -424,6 +426,8 @@ bool Node::isExitRequested() {
 void Node::closeAllSocketsAndNotifyAllAgentsAndThreads() {
 
     getSchain()->getNode()->threadServerConditionVariable.notify_all();
+
+    ASSERT(agents.size() > 0);
 
     for (auto &&agent : agents) {
         agent->notifyAllConditionVariables();
@@ -438,8 +442,8 @@ void Node::closeAllSocketsAndNotifyAllAgentsAndThreads() {
 }
 
 
-vector<Agent *> Node::getAgents() {
-    return agents;
+void Node::registerAgent( Agent* _agent ) {
+    agents.push_back(_agent);
 }
 
 
