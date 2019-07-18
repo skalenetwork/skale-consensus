@@ -30,7 +30,7 @@
 #include "../network/Utils.h"
 #include "../thirdparty/json.hpp"
 
-#include "BLSSignature.h"
+#include "../libBLS/bls/BLSSignature.h"
 #include "ConsensusBLSSignature.h"
 
 
