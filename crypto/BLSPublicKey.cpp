@@ -63,16 +63,3 @@ size_t BLSPublicKey::getRequiredSigners() const {
     return requiredSigners;
 }
 
-
-void BLSPublicKey::verifySig( shared_ptr< string > _msg) {
-
-    shared_ptr< signatures::Bls > obj;
-
-    obj = make_shared< signatures::Bls >( signatures::Bls( requiredSigners, totalSigners ) );
-
-    libff::alt_bn128_G1 hash = obj->Hashing( *_msg );
-
-    // verify signature here - throw runtime_error if signature does not verify
-
-
-}

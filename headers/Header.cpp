@@ -49,7 +49,7 @@ ptr<Buffer> Header::toBuffer() {
     ASSERT(complete);
     nlohmann::json j;
 
-    assert(type);
+    CHECK_STATE(type != nullptr);
 
     j["type"] = type;
     j["status"] = status;
