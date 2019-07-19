@@ -39,7 +39,7 @@
 
 #include "../libBLS/bls/BLSSignature.h"
 #include "../libBLS/bls/BLSPublicKey.h"
-#include "../crypto/ConsensusBLSPrivateKeyShare.h"
+#include "../libBLS/bls/BLSPrivateKeyShare.h"
 #include "../crypto/SHAHash.h"
 
 #include "../blockproposal/server/BlockProposalServerAgent.h"

@@ -93,8 +93,7 @@
 #include "../db/BlockDB.h"
 
 
-
-#include "../crypto/ConsensusBLSPrivateKeyShare.h"
+#include "../libBLS/bls/BLSPrivateKeyShare.h"
 #include "Schain.h"
 
 
