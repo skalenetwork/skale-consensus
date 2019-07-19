@@ -59,9 +59,8 @@
 #include "../blockconsensus/BlockConsensusAgent.h"
 
 #include "../../crypto/ConsensusSigShareSet.h"
-#include "../../crypto/BLSSigShareSet.h"
+#include "../../libBLS/bls/BLSSigShareSet.h"
 #include "../../crypto/ConsensusBLSSignature.h"
-#include "../../crypto/BLSSigShareSet.h"
 
 
 #include "BinConsensusInstance.h"

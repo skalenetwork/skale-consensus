@@ -37,8 +37,9 @@
 
 #include "../crypto/bls_include.h"
 
-#include "../crypto/BLSPublicKey.h"
-#include "../crypto/ConsensusBLSPrivateKeyShare.h"
+#include "../libBLS/bls/BLSSignature.h"
+#include "../libBLS/bls/BLSPublicKey.h"
+#include "../libBLS/bls/BLSPrivateKeyShare.h"
 #include "../crypto/SHAHash.h"
 
 #include "../blockproposal/server/BlockProposalServerAgent.h"
@@ -321,7 +322,14 @@ void Node::initBLSKeys() {
     if (isBLSEnabled) {
         blsPrivateKey = make_shared<BLSPrivateKeyShare>(prkStr, sChain->getTotalSignersCount(), sChain->getRequiredSignersCount());
 
-        blsPublicKey = make_shared<BLSPublicKey>(pbkStr1, pbkStr2, pbkStr3, pbkStr4, sChain->getTotalSignersCount(),
+        auto publicKeyStr = make_shared<vector<string>>();
+
+        publicKeyStr->push_back(pbkStr1);
+        publicKeyStr->push_back(pbkStr2);
+        publicKeyStr->push_back(pbkStr3);
+        publicKeyStr->push_back(pbkStr4);
+
+        blsPublicKey = make_shared<BLSPublicKey>(publicKeyStr, sChain->getTotalSignersCount(),
                 sChain->getRequiredSignersCount());
     }
 }

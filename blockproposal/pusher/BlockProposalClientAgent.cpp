@@ -229,6 +229,7 @@ void BlockProposalClientAgent::sendItemImpl(
 
 ptr< unordered_set< ptr< partial_sha_hash >, PendingTransactionsAgent::Hasher,
     PendingTransactionsAgent::Equal > >
+
 BlockProposalClientAgent::readMissingHashes( ptr< ClientSocket > _socket, uint64_t _count ) {
     ASSERT( _count );
     auto bytesToRead = _count * PARTIAL_SHA_HASH_LEN;

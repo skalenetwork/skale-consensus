@@ -39,8 +39,11 @@
 #include "../exceptions/OldBlockIDException.h"
 #include "../exceptions/CouldNotReadPartialDataHashesException.h"
 
-#include "../crypto/BLSPrivateKeyShare.h"
-#include "../crypto/BLSPublicKey.h"
+#include "../libBLS/bls/BLSPrivateKeyShare.h"
+#include "../libBLS/bls/BLSSignature.h"
+#include "../libBLS/bls/BLSPublicKey.h"
+
+
 #include "../crypto/SHAHash.h"
 #include "../datastructures/BlockProposalSet.h"
 #include "../blockproposal/pusher/BlockProposalClientAgent.h"

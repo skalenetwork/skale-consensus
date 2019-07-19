@@ -54,11 +54,6 @@
 #include <libff/algebra/curves/alt_bn128/alt_bn128_g1.hpp>
 
 
-static constexpr size_t BLS_MAX_COMPONENT_LEN = 80;
-
-static constexpr size_t BLS_MAX_SIG_LEN = 160;
-
-
 #include "bls.h"
 #pragma GCC diagnostic pop
 
