@@ -57,7 +57,10 @@ TransactionList::TransactionList( ptr<vector<uint64_t>> _transactionSizes,
     CHECK_ARGUMENT(_serializedTransactions->at(_serializedTransactions->size() - 1) == '>');
 
     if (_transactionSizes->size() == 0) {
-        CHECK_ARGUMENT(_serializedTransactions->size() == 2)
+        if ((_serializedTransactions->size()  - _offset) != 2) {
+            BOOST_THROW_EXCEPTION(InvalidArgumentException("Size not equal to 2:" +
+            to_string(_serializedTransactions->size()), __CLASS_NAME__));
+        }
         isEmpty = true;
         transactions = make_shared<vector<ptr<Transaction>>>();
         return;
@@ -70,7 +73,6 @@ TransactionList::TransactionList( ptr<vector<uint64_t>> _transactionSizes,
     }
 
     if (_checkPartialHash) {
-        cerr << _serializedTransactions->size() << endl;
         CHECK_ARGUMENT( _serializedTransactions->size() - _offset > PARTIAL_SHA_HASH_LEN + 2 );
     } else {
         CHECK_ARGUMENT( _serializedTransactions->size() - _offset > 2 );

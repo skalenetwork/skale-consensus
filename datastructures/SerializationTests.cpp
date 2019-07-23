@@ -86,7 +86,7 @@ void test_tx_list_serialize_deserialize( bool _fail ) {
     boost::random::uniform_int_distribution<> ubyte( 0, 255 );
 
     for ( int k = 0; k < 10; k++ ) {
-        for ( int i = 0; i < 20; i++ ) {
+        for ( int i = 0; i < 30; i++ ) {
             auto t = TransactionList::createRandomSample( i, gen, ubyte );
 
 

@@ -102,7 +102,5 @@ public:
 
     static const shared_ptr<string> getDataDir();
 
-    static void log(level_enum _severity, const string &_message, const char *_className);
-
 };
 #endif
