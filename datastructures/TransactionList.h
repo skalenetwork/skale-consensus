@@ -42,6 +42,8 @@ class ConsensusExtFace;
 
 class TransactionList : public DataStructure  {
 
+    bool isEmpty = false;
+
     ptr<vector<uint8_t>> serializedTransactions = nullptr;
 
     ptr<vector<ptr<Transaction>>> transactions = nullptr;
