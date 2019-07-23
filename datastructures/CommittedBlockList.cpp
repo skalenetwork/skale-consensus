@@ -94,7 +94,7 @@ ptr< CommittedBlockList > CommittedBlockList::createRandomSample( uint64_t _size
     auto blcks = make_shared< vector< ptr< CommittedBlock > > >();
 
     for ( uint32_t i = 0; i < _size; i++ ) {
-        auto block = CommittedBlock::createRandomSample( _size, _gen, _ubyte, i );
+        auto block = CommittedBlock::createRandomSample( _size - 1, _gen, _ubyte, i );
         blcks->push_back( block );
     }
 
