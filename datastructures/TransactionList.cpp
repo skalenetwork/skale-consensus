@@ -32,6 +32,13 @@
 
 TransactionList::TransactionList(ptr<vector<ptr<Transaction>>> _transactions) {
 
+    if (_transactions->size() == 0) {
+        isEmpty = true;
+        transactions = make_shared<vector<ptr<Transaction>>>();
+        return;
+    }
+
+
     CHECK_ARGUMENT(_transactions != nullptr);
 
 
@@ -45,13 +52,31 @@ TransactionList::TransactionList(ptr<vector<ptr<Transaction>>> _transactions) {
 TransactionList::TransactionList( ptr<vector<uint64_t>> _transactionSizes,
     ptr<vector<uint8_t>> _serializedTransactions, uint32_t _offset, bool _checkPartialHash ) {
 
+
+    CHECK_ARGUMENT(_serializedTransactions->at(_offset) == '<');
+    CHECK_ARGUMENT(_serializedTransactions->at(_serializedTransactions->size() - 1) == '>');
+
+    if (_transactionSizes->size() == 0) {
+        if ((_serializedTransactions->size()  - _offset) != 2) {
+            BOOST_THROW_EXCEPTION(InvalidArgumentException("Size not equal to 2:" +
+            to_string(_serializedTransactions->size()), __CLASS_NAME__));
+        }
+        isEmpty = true;
+        transactions = make_shared<vector<ptr<Transaction>>>();
+        return;
+    }
+
+
+
+    for (auto &&size : *_transactionSizes) {
+        CHECK_ARGUMENT(size > 0);
+    }
+
     if (_checkPartialHash) {
         CHECK_ARGUMENT( _serializedTransactions->size() - _offset > PARTIAL_SHA_HASH_LEN + 2 );
     } else {
         CHECK_ARGUMENT( _serializedTransactions->size() - _offset > 2 );
     }
-    CHECK_ARGUMENT(_serializedTransactions->at(_offset) == '<');
-    CHECK_ARGUMENT(_serializedTransactions->at(_serializedTransactions->size() - 1) == '>');
 
 
 
@@ -140,9 +165,6 @@ ptr< TransactionList > TransactionList::deserialize( ptr< vector< uint64_t > > _
     ptr< vector< uint8_t > > _serializedTransactions, uint32_t _offset, bool _writePartialHash ) {
 
 
-    for (auto &&size : *_transactionSizes) {
-        CHECK_ARGUMENT(size > 0);
-    }
 
     return ptr< TransactionList >(
         new TransactionList( _transactionSizes, _serializedTransactions, _offset, _writePartialHash ) );

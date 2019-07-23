@@ -78,6 +78,10 @@ ptr< vector< uint8_t > > CommittedBlock::serialize() {
 
     CHECK_STATE( block->at( sizeof( uint64_t ) ) == '{' );
 
+    if (transactionList->size() == 0 ) {
+        CHECK_STATE(block->size() == buf->getCounter() + 2);
+    }
+
 
     return block;
 }
@@ -137,9 +141,13 @@ ptr< CommittedBlock > CommittedBlock::deserialize( ptr< vector< uint8_t > > _ser
         block->transactionList =
             TransactionList::deserialize( transactionSizes, _serializedBlock, headerSize
                 + sizeof(headerSize), true );
-    } catch ( ... ) {
+    } catch ( Exception& e ) {
+
+        Exception::logNested(e, err);
+
         throw_with_nested( ParsingException(
-            "Could not parse transactions after header. Header: \n" + *header, __CLASS_NAME__ ) );
+            "Could not parse transactions after header. Header: \n" + *header +
+            " Transactions size:" + to_string(_serializedBlock->size()), __CLASS_NAME__ ) );
     }
 
     block->calculateHash();
