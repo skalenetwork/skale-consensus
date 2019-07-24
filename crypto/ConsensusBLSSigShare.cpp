@@ -58,6 +58,6 @@ ConsensusBLSSigShare::ConsensusBLSSigShare( ptr< string > _sigShare, schain_id _
     block_id _blockID, node_id _signerNodeID, schain_index _signerIndex,
     size_t _totalSigners, size_t _requiredSigners)
     : schainId( _schainID ), blockId( _blockID ), signerNodeId( _signerNodeID ) {
-    this->blsSigShare = make_shared< BLSSigShare >( _sigShare, ( size_t ) _signerIndex,
+    this->blsSigShare = make_shared< BLSSigShare >( _sigShare, ( uint64_t ) _signerIndex,
             _totalSigners, _requiredSigners);
 }

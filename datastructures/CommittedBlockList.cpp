@@ -22,8 +22,8 @@
 */
 
 
-#include "../SkaleCommon.h"
 #include "../Log.h"
+#include "../SkaleCommon.h"
 #include "../crypto/SHAHash.h"
 #include "../exceptions/NetworkProtocolException.h"
 #include "CommittedBlock.h"
@@ -39,7 +39,7 @@ CommittedBlockList::CommittedBlockList( ptr< vector< ptr< CommittedBlock > > > _
 }
 
 
-CommittedBlockList::CommittedBlockList( ptr< vector< size_t > > _blockSizes,
+CommittedBlockList::CommittedBlockList( ptr< vector< uint64_t > > _blockSizes,
     ptr< vector< uint8_t > > _serializedBlocks, uint64_t _offset ) {
     CHECK_ARGUMENT( _serializedBlocks->at( _offset ) == '[' );
     CHECK_ARGUMENT( _serializedBlocks->at( _serializedBlocks->size() - 1 ) == ']' );
@@ -100,17 +100,17 @@ ptr< CommittedBlockList > CommittedBlockList::createRandomSample( uint64_t _size
 
     return make_shared< CommittedBlockList >( blcks );
 }
-ptr< CommittedBlockList > CommittedBlockList::deserialize(ptr<vector<size_t>> _blockSizes,
-                                                          ptr< vector< uint8_t > > _serializedBlocks,
-                                                          uint64_t _offset) {
-    return ptr< CommittedBlockList >( new CommittedBlockList(_blockSizes, _serializedBlocks, _offset ) );
+ptr< CommittedBlockList > CommittedBlockList::deserialize( ptr< vector< uint64_t > > _blockSizes,
+    ptr< vector< uint8_t > > _serializedBlocks, uint64_t _offset ) {
+    return ptr< CommittedBlockList >(
+        new CommittedBlockList( _blockSizes, _serializedBlocks, _offset ) );
 }
 
 ptr< vector< uint64_t > > CommittedBlockList::createSizes() {
-    auto ret = make_shared<vector<uint64_t >>();
+    auto ret = make_shared< vector< uint64_t > >();
 
-    for (auto&& block : *blocks) {
-        ret->push_back(block->serialize()->size());
+    for ( auto&& block : *blocks ) {
+        ret->push_back( block->serialize()->size() );
     }
 
     return ret;

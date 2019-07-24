@@ -21,11 +21,12 @@
     @date 2018
 */
 
-#pragma  once
+#pragma once
 #include "Exception.h"
+
+#include <string>
 
 class FatalError : public Exception {
 public:
-    FatalError(const std::string &_message, const string& _className = "");
-
+    FatalError( const std::string& _message, const std::string& _className = "" );
 };
