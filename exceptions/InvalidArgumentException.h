@@ -21,10 +21,12 @@
     @date 2018
 */
 
-#pragma  once
+#pragma once
 #include "Exception.h"
+
+#include <string>
 
 class InvalidArgumentException : public Exception {
 public:
-    InvalidArgumentException(const std::string &_message, const string& _className);
+    InvalidArgumentException( const std::string& _message, const std::string& _className );
 };

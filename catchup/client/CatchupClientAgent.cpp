@@ -36,8 +36,8 @@
 #include "../../network/TransportNetwork.h"
 #include "../../node/Node.h"
 
-#include "../../crypto/SHAHash.h"
 #include "../../chains/Schain.h"
+#include "../../crypto/SHAHash.h"
 #include "../../datastructures/CommittedBlockList.h"
 #include "../../exceptions/NetworkProtocolException.h"
 #include "../../headers/BlockProposalHeader.h"
@@ -49,214 +49,214 @@
 #include "CatchupClientThreadPool.h"
 
 
-CatchupClientAgent::CatchupClientAgent(Schain &_sChain) : Agent(_sChain, false) {
+CatchupClientAgent::CatchupClientAgent( Schain& _sChain ) : Agent( _sChain, false ) {
     try {
         logThreadLocal_ = _sChain.getNode()->getLog();
         this->sChain = &_sChain;
         threadCounter = 0;
 
-        if (_sChain.getNodeCount() > 1) {
-            this->catchupClientThreadPool = make_shared<CatchupClientThreadPool>(1, this);
+        if ( _sChain.getNodeCount() > 1 ) {
+            this->catchupClientThreadPool = make_shared< CatchupClientThreadPool >( 1, this );
             catchupClientThreadPool->startService();
         }
-    } catch (...) {
-        throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
+    } catch ( ... ) {
+        throw_with_nested( FatalError( __FUNCTION__, __CLASS_NAME__ ) );
     }
 }
 
 
-nlohmann::json CatchupClientAgent::readCatchupResponseHeader(ptr<ClientSocket> _socket) {
-    return sChain->getIo()->readJsonHeader(_socket->getDescriptor(), "Read catchup response");
+nlohmann::json CatchupClientAgent::readCatchupResponseHeader( ptr< ClientSocket > _socket ) {
+    return sChain->getIo()->readJsonHeader( _socket->getDescriptor(), "Read catchup response" );
 }
 
 
-void CatchupClientAgent::sync(schain_index _dstIndex) {
-    LOG(debug,
-        "Catchupc step 0: request for block" + to_string(getSchain()->getLastCommittedBlockID()));
+void CatchupClientAgent::sync( schain_index _dstIndex ) {
+    LOG( debug, "Catchupc step 0: request for block" +
+                    to_string( getSchain()->getLastCommittedBlockID() ) );
 
-    auto header = make_shared<CatchupRequestHeader>(*sChain, _dstIndex);
-    auto socket = make_shared<ClientSocket>(*sChain, _dstIndex, CATCHUP);
+    auto header = make_shared< CatchupRequestHeader >( *sChain, _dstIndex );
+    auto socket = make_shared< ClientSocket >( *sChain, _dstIndex, CATCHUP );
     auto io = getSchain()->getIo();
 
 
     try {
-        io->writeMagic(socket);
-    } catch (ExitRequestedException &) {
+        io->writeMagic( socket );
+    } catch ( ExitRequestedException& ) {
         throw;
-    } catch (...) {
-        throw_with_nested(NetworkProtocolException(
-                "Catchupc: Server disconnect sending magic", __CLASS_NAME__));
+    } catch ( ... ) {
+        throw_with_nested( NetworkProtocolException(
+            "Catchupc: Server disconnect sending magic", __CLASS_NAME__ ) );
     }
 
     try {
-        io->writeHeader(socket, header);
-    } catch (ExitRequestedException &) {
+        io->writeHeader( socket, header );
+    } catch ( ExitRequestedException& ) {
         throw;
-    } catch (...) {
+    } catch ( ... ) {
         auto errString = "Catchupc step 1: can not write catchup request";
-        LOG(debug, errString);
-        throw_with_nested(NetworkProtocolException(errString, __CLASS_NAME__));
+        LOG( debug, errString );
+        throw_with_nested( NetworkProtocolException( errString, __CLASS_NAME__ ) );
     }
-    LOG(debug, "Catchupc step 1: wrote catchup request");
+    LOG( debug, "Catchupc step 1: wrote catchup request" );
 
     nlohmann::json response;
 
     try {
-        response = readCatchupResponseHeader(socket);
-    } catch (ExitRequestedException &) {
+        response = readCatchupResponseHeader( socket );
+    } catch ( ExitRequestedException& ) {
         throw;
-    } catch (...) {
+    } catch ( ... ) {
         auto errString = "Catchupc step 2: can not read catchup response";
-        LOG(debug, errString);
-        throw_with_nested(NetworkProtocolException(errString, __CLASS_NAME__));
+        LOG( debug, errString );
+        throw_with_nested( NetworkProtocolException( errString, __CLASS_NAME__ ) );
     }
 
 
-    LOG(debug, "Catchupc step 2: read catchup response header");
+    LOG( debug, "Catchupc step 2: read catchup response header" );
 
-    auto status = (ConnectionStatus) Header::getUint64(response, "status");
+    auto status = ( ConnectionStatus ) Header::getUint64( response, "status" );
 
-    if (status == CONNECTION_DISCONNECT) {
-        LOG(debug, "Catchupc got response::no missing blocks");
+    if ( status == CONNECTION_DISCONNECT ) {
+        LOG( debug, "Catchupc got response::no missing blocks" );
         return;
     }
 
 
-    if (status != CONNECTION_PROCEED) {
-        BOOST_THROW_EXCEPTION(NetworkProtocolException(
-                                      "Server error in catchup response:" + to_string(status), __CLASS_NAME__ ));
+    if ( status != CONNECTION_PROCEED ) {
+        BOOST_THROW_EXCEPTION( NetworkProtocolException(
+            "Server error in catchup response:" + to_string( status ), __CLASS_NAME__ ) );
     }
 
 
-    ptr<CommittedBlockList> blocks;
+    ptr< CommittedBlockList > blocks;
 
 
     try {
-        blocks = readMissingBlocks(socket, response);
-    } catch (ExitRequestedException &) {
+        blocks = readMissingBlocks( socket, response );
+    } catch ( ExitRequestedException& ) {
         throw;
-    } catch (...) {
+    } catch ( ... ) {
         auto errString = "Catchupc step 3: can not read missing blocks";
-        LOG(err, errString);
-        throw_with_nested(NetworkProtocolException(errString, __CLASS_NAME__));
+        LOG( err, errString );
+        throw_with_nested( NetworkProtocolException( errString, __CLASS_NAME__ ) );
     }
 
-    LOG(debug, "Catchupc step 3: got missing blocks:" + to_string(blocks->getBlocks()->size()));
+    LOG( debug, "Catchupc step 3: got missing blocks:" + to_string( blocks->getBlocks()->size() ) );
 
-    getSchain()->blockCommitsArrivedThroughCatchup(blocks);
-    LOG(debug, "Catchupc success");
+    getSchain()->blockCommitsArrivedThroughCatchup( blocks );
+    LOG( debug, "Catchupc success" );
 }
 
 size_t CatchupClientAgent::parseBlockSizes(
-        nlohmann::json _responseHeader, ptr<vector<size_t> > _blockSizes) {
+    nlohmann::json _responseHeader, ptr< vector< uint64_t > > _blockSizes ) {
     nlohmann::json jsonSizes = _responseHeader["sizes"];
 
-    if (!jsonSizes.is_array()) {
+    if ( !jsonSizes.is_array() ) {
         BOOST_THROW_EXCEPTION(
-                NetworkProtocolException("JSON Sizes is not an array ", __CLASS_NAME__));
+            NetworkProtocolException( "JSON Sizes is not an array ", __CLASS_NAME__ ) );
     }
 
 
-    if (jsonSizes.size() == 0) {
-        BOOST_THROW_EXCEPTION(NetworkProtocolException("JSON sizes is empty", __CLASS_NAME__));
+    if ( jsonSizes.size() == 0 ) {
+        BOOST_THROW_EXCEPTION( NetworkProtocolException( "JSON sizes is empty", __CLASS_NAME__ ) );
     }
 
     size_t totalSize = 0;
 
-    for (auto &&size : jsonSizes) {
-        _blockSizes->push_back(size);
-        totalSize += (size_t) size;
+    for ( auto&& size : jsonSizes ) {
+        _blockSizes->push_back( size );
+        totalSize += ( size_t ) size;
     }
 
-    if (totalSize < 4) {
-        BOOST_THROW_EXCEPTION(NetworkProtocolException("TotalSize < 4", __CLASS_NAME__));
+    if ( totalSize < 4 ) {
+        BOOST_THROW_EXCEPTION( NetworkProtocolException( "TotalSize < 4", __CLASS_NAME__ ) );
     }
 
 
-    if (totalSize > getNode()->getMaxCatchupDownloadBytes()) {
-        BOOST_THROW_EXCEPTION(NetworkProtocolException(
-                                      "totalSize > getNode()->getMaxCatchupDownloadBytes()", __CLASS_NAME__ ));
+    if ( totalSize > getNode()->getMaxCatchupDownloadBytes() ) {
+        BOOST_THROW_EXCEPTION( NetworkProtocolException(
+            "totalSize > getNode()->getMaxCatchupDownloadBytes()", __CLASS_NAME__ ) );
     }
 
     return totalSize + 2;
 };
 
 
-ptr<CommittedBlockList> CatchupClientAgent::readMissingBlocks(
-        ptr<ClientSocket> _socket, nlohmann::json responseHeader) {
-    ASSERT(responseHeader > 0);
+ptr< CommittedBlockList > CatchupClientAgent::readMissingBlocks(
+    ptr< ClientSocket > _socket, nlohmann::json responseHeader ) {
+    ASSERT( responseHeader > 0 );
 
-    auto blockSizes = make_shared<vector<size_t> >();
+    auto blockSizes = make_shared< vector< uint64_t > >();
 
-    auto totalSize = parseBlockSizes(responseHeader, blockSizes);
+    auto totalSize = parseBlockSizes( responseHeader, blockSizes );
 
-    auto serializedBlocks = make_shared<vector<uint8_t> >(totalSize);
-
-    try {
-        getSchain()->getIo()->readBytes(_socket->getDescriptor(),
-                                        (in_buffer *) serializedBlocks->data(), msg_len(totalSize));
-    } catch (ExitRequestedException &) {
-        throw;
-    } catch (...) {
-        throw_with_nested(NetworkProtocolException("Could not read blocks", __CLASS_NAME__));
-    }
-
-    if (serializedBlocks->at(0) != '[') {
-        throw_with_nested(NetworkProtocolException(
-                "Serialized blocks do not start with [", __CLASS_NAME__));
-    }
-
-
-    ptr<CommittedBlockList> blockList = nullptr;
+    auto serializedBlocks = make_shared< vector< uint8_t > >( totalSize );
 
     try {
-        blockList = CommittedBlockList::deserialize(blockSizes, serializedBlocks, 0);
-    } catch (ExitRequestedException &) {
+        getSchain()->getIo()->readBytes( _socket->getDescriptor(),
+            ( in_buffer* ) serializedBlocks->data(), msg_len( totalSize ) );
+    } catch ( ExitRequestedException& ) {
         throw;
-    } catch (...) {
+    } catch ( ... ) {
+        throw_with_nested( NetworkProtocolException( "Could not read blocks", __CLASS_NAME__ ) );
+    }
+
+    if ( serializedBlocks->at( 0 ) != '[' ) {
         throw_with_nested(
-                NetworkProtocolException("Could not parse block list", __CLASS_NAME__));
+            NetworkProtocolException( "Serialized blocks do not start with [", __CLASS_NAME__ ) );
+    }
+
+
+    ptr< CommittedBlockList > blockList = nullptr;
+
+    try {
+        blockList = CommittedBlockList::deserialize( blockSizes, serializedBlocks, 0 );
+    } catch ( ExitRequestedException& ) {
+        throw;
+    } catch ( ... ) {
+        throw_with_nested(
+            NetworkProtocolException( "Could not parse block list", __CLASS_NAME__ ) );
     }
 
     return blockList;
 }
 
 
-void CatchupClientAgent::workerThreadItemSendLoop(CatchupClientAgent *agent) {
-    setThreadName(__CLASS_NAME__);
+void CatchupClientAgent::workerThreadItemSendLoop( CatchupClientAgent* agent ) {
+    setThreadName( __CLASS_NAME__ );
 
     agent->waitOnGlobalStartBarrier();
 
-    auto destinationSubChainIndex = schain_index(1);
+    auto destinationSubChainIndex = schain_index( 1 );
 
     try {
-        while (!agent->getSchain()->getNode()->isExitRequested()) {
-            usleep(agent->getNode()->getCatchupIntervalMs() * 1000);
+        while ( !agent->getSchain()->getNode()->isExitRequested() ) {
+            usleep( agent->getNode()->getCatchupIntervalMs() * 1000 );
 
             try {
-                agent->sync(destinationSubChainIndex);
-            } catch (ExitRequestedException &) {
+                agent->sync( destinationSubChainIndex );
+            } catch ( ExitRequestedException& ) {
                 return;
-            } catch (Exception &e) {
-                Exception::logNested(e);
+            } catch ( Exception& e ) {
+                Exception::logNested( e );
             }
 
-            destinationSubChainIndex = nextSyncNodeIndex(agent, destinationSubChainIndex) ;
+            destinationSubChainIndex = nextSyncNodeIndex( agent, destinationSubChainIndex );
         };
-    } catch (FatalError *e) {
-        agent->getNode()->exitOnFatalError(e->getMessage());
+    } catch ( FatalError* e ) {
+        agent->getNode()->exitOnFatalError( e->getMessage() );
     }
 }
 
 schain_index CatchupClientAgent::nextSyncNodeIndex(
-        const CatchupClientAgent *agent, schain_index _destinationSubChainIndex) {
-    auto nodeCount = (uint64_t) agent->getSchain()->getNodeCount();
+    const CatchupClientAgent* agent, schain_index _destinationSubChainIndex ) {
+    auto nodeCount = ( uint64_t ) agent->getSchain()->getNodeCount();
 
     auto index = _destinationSubChainIndex - 1;
 
     do {
-        index = ((uint64_t) index + 1) % nodeCount;
-    } while (index == ( agent->getSchain()->getSchainIndex() - 1));
+        index = ( ( uint64_t ) index + 1 ) % nodeCount;
+    } while ( index == ( agent->getSchain()->getSchainIndex() - 1 ) );
 
     return index + 1;
 }

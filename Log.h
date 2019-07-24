@@ -32,10 +32,10 @@
 
 #include "spdlog/spdlog.h"
 
-#include "exceptions/InvalidArgumentException.h"
 #include "exceptions/FatalError.h"
+#include "exceptions/InvalidArgumentException.h"
 
-
+#include "SkaleCommon.h"
 
 using namespace std;
 
@@ -44,7 +44,8 @@ using namespace spdlog::level;
 
 #define __CLASS_NAME__ className( __PRETTY_FUNCTION__ )
 
-#define LOG( __SEVERITY__, __MESSAGE__ ) Log::log( __SEVERITY__, __MESSAGE__,  className( __PRETTY_FUNCTION__ ))
+#define LOG( __SEVERITY__, __MESSAGE__ ) \
+    Log::log( __SEVERITY__, __MESSAGE__, className( __PRETTY_FUNCTION__ ) )
 
 class Exception;
 
@@ -57,50 +58,49 @@ class Log {
     recursive_mutex logLock;
 
 
-    static shared_ptr<string> dataDir;
+    static shared_ptr< string > dataDir;
 
-    static shared_ptr<string> logFileNamePrefix;
+    static shared_ptr< string > logFileNamePrefix;
 
-    static shared_ptr<spdlog::logger> configLogger;
+    static shared_ptr< spdlog::logger > configLogger;
 
-    static shared_ptr<spdlog::sinks::sink> rotatingFileSync;
+    static shared_ptr< spdlog::sinks::sink > rotatingFileSync;
 
-    shared_ptr<string> prefix = nullptr;
+    shared_ptr< string > prefix = nullptr;
 
 
     node_id nodeID;
 
 private:
-    shared_ptr<spdlog::logger> mainLogger, proposalLogger, consensusLogger, catchupLogger,
-            netLogger, dataStructuresLogger, pendingQueueLogger;
+    shared_ptr< spdlog::logger > mainLogger, proposalLogger, consensusLogger, catchupLogger,
+        netLogger, dataStructuresLogger, pendingQueueLogger;
 
 public:
-    Log(node_id _nodeID);
+    Log( node_id _nodeID );
 
     const node_id getNodeID() const;
 
-    map<string, shared_ptr<spdlog::logger> > loggers;
+    map< string, shared_ptr< spdlog::logger > > loggers;
 
     level_enum globalLogLevel;
 
     static void init();
 
-    static void setConfigLogLevel(string &_s);
+    static void setConfigLogLevel( string& _s );
 
 
-    void setGlobalLogLevel(string &_s);
+    void setGlobalLogLevel( string& _s );
 
-    static level_enum logLevelFromString(string &_s);
-
-
-    shared_ptr<spdlog::logger> loggerForClass(const char *_className);
-
-    static void log(level_enum _severity, const string &_message, const string& _className);
+    static level_enum logLevelFromString( string& _s );
 
 
-    static shared_ptr<spdlog::logger> createLogger(const string &loggerName);
+    shared_ptr< spdlog::logger > loggerForClass( const char* _className );
 
-    static const shared_ptr<string> getDataDir();
+    static void log( level_enum _severity, const string& _message, const string& _className );
 
+
+    static shared_ptr< spdlog::logger > createLogger( const string& loggerName );
+
+    static const shared_ptr< string > getDataDir();
 };
 #endif
