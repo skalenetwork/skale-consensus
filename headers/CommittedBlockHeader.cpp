@@ -53,7 +53,7 @@ CommittedBlockHeader::CommittedBlockHeader(CommittedBlock& _block) : Header(Head
     this->blockHash = _block.getHash();
     this->timeStamp = _block.getTimeStamp();
     this->timeStampMs = _block.getTimeStampMs();
-    this->transactionSizes = make_shared<list<uint32_t>>();
+    this->transactionSizes = make_shared<list<uint64_t>>();
 
     auto items = _block.getTransactionList()->getItems();
 
