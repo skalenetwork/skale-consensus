@@ -829,6 +829,11 @@ size_t Schain::getRequiredSignersCount() {
 
 }
 
+u256 Schain::getPriceForBlockId(uint64_t _blockId){
+    ASSERT(pricingAgent != nullptr);
+    return pricingAgent->readPrice(_blockId);
+}
+
 ptr< Transaction > Transaction::createRandomSample( uint64_t _size, boost::random::mt19937& _gen,
                                               boost::random::uniform_int_distribution<>& _ubyte ) {
     auto sample = make_shared< vector< uint8_t > >( _size, 0 );

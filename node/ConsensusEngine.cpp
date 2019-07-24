@@ -61,6 +61,7 @@
 #include "bls.h"
 #pragma GCC diagnostic pop
 
+#include <boost/multiprecision/cpp_int.hpp>
 
 #include "../chains/Schain.h"
 #include "../libBLS/bls/BLSSignature.h"
@@ -425,3 +426,15 @@ block_id ConsensusEngine::getLargestCommittedBlockID() {
 
     return id;
 }
+
+u256 ConsensusEngine::getPriceForBlockId(uint64_t _blockId) {
+
+    ASSERT(nodes.size() == 1);
+
+    for (auto&& item: nodes) {
+        return item.second->getSchain()->getPriceForBlockId(_blockId);
+    }
+
+    return 0; // never happens
+}
+

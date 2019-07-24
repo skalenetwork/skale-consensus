@@ -32,24 +32,28 @@ u256 DynamicPricingStrategy::calculatePrice(u256 _previousPrice,
                                          uint64_t, uint32_t, block_id) {
 
 
-    static u256 maxPrice = pow(u256(2), 200);
 
     auto loadPercentage = (_block.size() * 100) / MAX_TRANSACTIONS_PER_BLOCK;
 
     u256 price;
 
-    if (loadPercentage < 70) {
-        price = _previousPrice / (70 - loadPercentage);
-        if (price < 1000) {
-            price = 1000;
+    if (loadPercentage < optimalLoadPercentage) {
+        price = _previousPrice + (adjustmentSpeed * _previousPrice) * (optimalLoadPercentage - loadPercentage) / 1000000;
+        if (price < minPrice) {
+            price = minPrice;
         }
     } else {
-        if (_previousPrice <= maxPrice) {
+            price = _previousPrice + (adjustmentSpeed * _previousPrice) * (loadPercentage - optimalLoadPercentage) / 1000000;
+        if (price > maxPrice) {
             price = maxPrice;
-        } else {
-            price = _previousPrice * (loadPercentage + 1 - 70);
         }
     }
 
     return price;
-};
+}
+DynamicPricingStrategy::DynamicPricingStrategy( const u256& minPrice, const u256& maxPrice,
+    uint32_t optimalLoadPercentage, uint32_t adjustmentSpeed )
+    : minPrice( minPrice ),
+      maxPrice( maxPrice ),
+      optimalLoadPercentage( optimalLoadPercentage ),
+      adjustmentSpeed( adjustmentSpeed ){};

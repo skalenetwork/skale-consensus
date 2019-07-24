@@ -37,6 +37,11 @@ public:
     virtual void startAll() = 0;
     virtual void bootStrapAll() = 0;
     virtual void exitGracefully() = 0;
+    virtual u256 getPriceForBlockId(uint64_t _blockId) = 0;
+
+
+
+
 };
 
 #endif  // CONSENSUSINTERFACE_H
