@@ -21,32 +21,44 @@
     @date 2018
 */
 
+
 #pragma once
 
+
+#define BOOST_PENDING_INTEGER_LOG2_HPP
+#include <boost/integer/integer_log2.hpp>
+#include <boost/random/mersenne_twister.hpp>
+#include <boost/random/uniform_int_distribution.hpp>
+
 #include "DataStructure.h"
-
-
 
 
 class CommittedBlock;
 
 class CommittedBlockList : public DataStructure {
+    ptr< vector< ptr< CommittedBlock > > > blocks = nullptr;
 
+    CommittedBlockList( ptr< vector< size_t > > _blockSizes,
+        ptr< vector< uint8_t > > _serializedBlocks, uint64_t offset = 0 );
 
-    ptr<vector<ptr<CommittedBlock>>> blocks = nullptr;
 
 public:
+    CommittedBlockList( ptr< vector< ptr< CommittedBlock > > > _blocks );
 
 
-    CommittedBlockList(ptr<vector<size_t>> _blockSizes, ptr<vector<uint8_t>> _serializedBlocks);
+    ptr< vector< ptr< CommittedBlock > > > getBlocks();
 
-    CommittedBlockList(ptr<vector<ptr<CommittedBlock>>> _blocks);
+    ptr<vector<uint64_t >> createSizes();
 
-    ptr<vector<ptr<CommittedBlock>>> getBlocks() ;
+    ptr< vector< uint8_t > > serialize();
 
-    shared_ptr<vector<uint8_t>> serialize() ;
+    static ptr< CommittedBlockList > deserialize(ptr<vector<size_t>> _blockSizes,
+                                                              ptr< vector< uint8_t > > _serializedBlocks,
+                                                              uint64_t _offset);
+
+
+    static ptr< CommittedBlockList > createRandomSample( uint64_t _size,
+        boost::random::mt19937& _gen, boost::random::uniform_int_distribution<>& _ubyte );
+
 
 };
-
-
-

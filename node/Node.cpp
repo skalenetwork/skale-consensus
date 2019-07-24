@@ -21,21 +21,34 @@
     @date 2018
 */
 
+#include "leveldb/db.h"
+
 #include "../SkaleCommon.h"
 #include "../Log.h"
+
+
 #include "../exceptions/FatalError.h"
 #include "../exceptions/InvalidArgumentException.h"
-
+#include "../exceptions/ParsingException.h"
+#include "../exceptions/ExitRequestedException.h"
 #include "../thirdparty/json.hpp"
-#include "leveldb/db.h"
+
+
 
 #include "../crypto/bls_include.h"
 
+#include "../libBLS/bls/BLSSignature.h"
+#include "../libBLS/bls/BLSPublicKey.h"
+#include "../libBLS/bls/BLSPrivateKeyShare.h"
+#include "../crypto/SHAHash.h"
+
 #include "../blockproposal/server/BlockProposalServerAgent.h"
 #include "../messages/NetworkMessageEnvelope.h"
+
 #include "../chains/Schain.h"
 #include "../chains/Schain.h"
-#include "../exceptions/ExitRequestedException.h"
+
+
 
 
 #include "../node/NodeInfo.h"
@@ -44,24 +57,33 @@
 #include "../network/TCPServerSocket.h"
 #include "../network/ZMQServerSocket.h"
 
-#include "../crypto/BLSPublicKey.h"
-#include "../crypto/BLSPrivateKey.h"
-#include "../crypto/SHAHash.h"
-
-
 #include "../messages/Message.h"
 #include "../catchup/server/CatchupServerAgent.h"
 #include "../exceptions/FatalError.h"
 
 #include "../protocols/InstanceGarbageCollectorAgent.h"
+
+#include "../db/BlockDB.h"
+#include "../db/RandomDB.h"
+#include "../db/CommittedTransactionDB.h"
+#include "../db/PriceDB.h"
+#include "../db/SigDB.h"
+
+
+
+
+
 #include "ConsensusEngine.h"
 #include "ConsensusInterface.h"
 #include "Node.h"
-#include "../exceptions/ParsingException.h"
 
 using namespace std;
 
 Node::Node(const nlohmann::json &_cfg, ConsensusEngine *_consensusEngine) {
+
+
+    this->nodeInfosByIndex = make_shared<map<schain_index, ptr<NodeInfo>>>();
+    this->nodeInfosByIP = make_shared<map<ptr<string>, ptr<NodeInfo>, Comparator>>();
 
 
     this->consensusEngine = _consensusEngine;
@@ -90,11 +112,11 @@ void Node::initLevelDBs() {
     string pricesDBFilename = dataDir + "/prices_" + to_string(nodeID) + ".db";
 
 
-    blocksDB = make_shared<LevelDB>(blockDBFilename);
-    randomDB = make_shared<LevelDB>(randomDBFilename);
-    committedTransactionsDB = make_shared<LevelDB>(committedTransactionsDBFilename);
-    signaturesDB = make_shared<LevelDB>(signaturesDBFilename);
-    pricesDB = make_shared<LevelDB>(pricesDBFilename);
+    blockDB = make_shared<BlockDB>(blockDBFilename, getNodeID());
+    randomDB = make_shared<RandomDB>(randomDBFilename, getNodeID());
+    committedTransactionDB = make_shared<CommittedTransactionDB>(committedTransactionsDBFilename, getNodeID());
+    signatureDB = make_shared<SigDB>(signaturesDBFilename, getNodeID());
+    priceDB = make_shared<PriceDB>(pricesDBFilename, getNodeID());
 
 }
 
@@ -205,15 +227,16 @@ Node::~Node() {
 }
 
 void Node::cleanLevelDBs() {
-    blocksDB = nullptr;
+    blockDB = nullptr;
     randomDB = nullptr;
-    committedTransactionsDB = nullptr;
-    signaturesDB = nullptr;
-    pricesDB = nullptr;
+    committedTransactionDB = nullptr;
+    signatureDB = nullptr;
+    priceDB = nullptr;
 }
 
 
 node_id Node::getNodeID() const {
+
     return nodeID;
 }
 
@@ -297,8 +320,17 @@ void Node::initBLSKeys() {
     }
 
     if (isBLSEnabled) {
-        blsPrivateKey = make_shared<BLSPrivateKey>(prkStr, sChain->getNodeCount());
-        blsPublicKey = make_shared<BLSPublicKey>(pbkStr1, pbkStr2, pbkStr3, pbkStr4, sChain->getNodeCount());
+        blsPrivateKey = make_shared<BLSPrivateKeyShare>(prkStr, sChain->getTotalSignersCount(), sChain->getRequiredSignersCount());
+
+        auto publicKeyStr = make_shared<vector<string>>();
+
+        publicKeyStr->push_back(pbkStr1);
+        publicKeyStr->push_back(pbkStr2);
+        publicKeyStr->push_back(pbkStr3);
+        publicKeyStr->push_back(pbkStr4);
+
+        blsPublicKey = make_shared<BLSPublicKey>(publicKeyStr, sChain->getTotalSignersCount(),
+                sChain->getRequiredSignersCount());
     }
 }
 
@@ -318,14 +350,14 @@ void Node::initSchain(ptr<NodeInfo> _localNodeInfo, const vector<ptr<NodeInfo>> 
 
         for (auto &rni : remoteNodeInfos) {
             LOG(debug, "Adding Node Info:" + to_string(rni->getSchainIndex()));
-            nodeInfosByIndex[rni->getSchainIndex()] = rni;
-            nodeInfosByIP[rni->getBaseIP()] = rni;
+            (*nodeInfosByIndex)[rni->getSchainIndex()] = rni;
+            (*nodeInfosByIP)[rni->getBaseIP()] = rni;
             LOG(debug, "Got IP" + *rni->getBaseIP());
 
         }
 
-        ASSERT(nodeInfosByIndex.size() > 0);
-        ASSERT(nodeInfosByIndex.count(1) > 0);
+        ASSERT(nodeInfosByIndex->size() > 0);
+        ASSERT(nodeInfosByIndex->count(1) > 0);
 
         sChain = make_shared<Schain>(*this, _localNodeInfo->getSchainIndex(),
                                      _localNodeInfo->getSchainID(), _extFace);
@@ -384,10 +416,12 @@ void Node::exit() {
         return;
     }
 
+    exitRequested = true;
+
     releaseGlobalClientBarrier();
     releaseGlobalServerBarrier();
     LOG(info, "Exit requested");
-    exitRequested = true;
+
     closeAllSocketsAndNotifyAllAgentsAndThreads();
 
 }
@@ -400,6 +434,8 @@ bool Node::isExitRequested() {
 void Node::closeAllSocketsAndNotifyAllAgentsAndThreads() {
 
     getSchain()->getNode()->threadServerConditionVariable.notify_all();
+
+    ASSERT(agents.size() > 0);
 
     for (auto &&agent : agents) {
         agent->notifyAllConditionVariables();
@@ -414,22 +450,22 @@ void Node::closeAllSocketsAndNotifyAllAgentsAndThreads() {
 }
 
 
-vector<Agent *> &Node::getAgents() {
-    return agents;
+void Node::registerAgent( Agent* _agent ) {
+    agents.push_back(_agent);
 }
 
 
-const map<schain_index, ptr<NodeInfo>> &Node::getNodeInfosByIndex() const {
+ptr<map<schain_index, ptr<NodeInfo>>> Node::getNodeInfosByIndex() const {
     return nodeInfosByIndex;
 }
 
 
-const ptr<TransportNetwork> &Node::getNetwork() const {
+ptr<TransportNetwork> Node::getNetwork() const {
     ASSERT(network);
     return network;
 }
 
-const nlohmann::json &Node::getCfg() const {
+nlohmann::json Node::getCfg() const {
     return cfg;
 }
 
@@ -445,18 +481,18 @@ Schain *Node::getSchain() const {
 }
 
 
-const ptr<Log> &Node::getLog() const {
+ptr<Log> Node::getLog() const {
     ASSERT(log);
     return log;
 }
 
 
-const ptr<string> &Node::getBindIP() const {
+ptr<string> Node::getBindIP() const {
     ASSERT(bindIP != nullptr);
     return bindIP;
 }
 
-const network_port &Node::getBasePort() const {
+network_port Node::getBasePort() const {
 
     ASSERT(basePort > 0);
     return basePort;
@@ -468,42 +504,43 @@ bool Node::isStarted() const {
 
 
 ptr<NodeInfo> Node::getNodeInfoByIndex(schain_index _index) {
-    if (nodeInfosByIndex.count(_index) == 0)
+    if (nodeInfosByIndex->count(_index) == 0)
         return nullptr;;
-    return nodeInfosByIndex.at(_index);
+    return nodeInfosByIndex->at(_index);
 }
 
 
 ptr<NodeInfo> Node::getNodeInfoByIP(ptr<string> ip) {
-    if (nodeInfosByIP.count(ip) == 0)
-        return nullptr;;
-    return nodeInfosByIP.at(ip);
+    if (nodeInfosByIP->count(ip) == 0)
+        return nullptr;
+    return nodeInfosByIP->at(ip);
 }
 
 
-ptr<LevelDB> Node::getBlocksDB() {
-    ASSERT(blocksDB);
-    return blocksDB;
+ptr<BlockDB> Node::getBlockDB() {
+    ASSERT(blockDB != nullptr);
+    return blockDB;
 }
 
-ptr<LevelDB> Node::getRandomDB() {
-    ASSERT(randomDB);
+ptr<RandomDB> Node::getRandomDB() {
+    ASSERT(randomDB != nullptr);
     return randomDB;
 }
 
-ptr<LevelDB> Node::getCommittedTransactionsDB() const {
-    ASSERT(committedTransactionsDB);
-    return committedTransactionsDB;
+ptr<CommittedTransactionDB> Node::getCommittedTransactionDB() const {
+    ASSERT(committedTransactionDB != nullptr);
+    return committedTransactionDB;
 }
 
 
-ptr<LevelDB> Node::getSignaturesDB() const {
-    ASSERT(signaturesDB);
-    return signaturesDB;
+ptr<SigDB> Node::getSignatureDB() const {
+    ASSERT(signatureDB != nullptr);
+    return signatureDB;
 }
 
-const ptr<LevelDB> &Node::getPricesDB() const {
-    return pricesDB;
+ptr<PriceDB> Node::getPriceDB() const {
+    ASSERT(priceDB != nullptr)
+    return priceDB;
 }
 
 
@@ -573,14 +610,14 @@ uint64_t Node::getCommittedTransactionHistoryLimit() const {
 set<node_id> Node::nodeIDs;
 
 
-const ptr<BLSPublicKey> &Node::getBlsPublicKey() const {
+ptr<BLSPublicKey> Node::getBlsPublicKey() const {
     if (!blsPublicKey) {
         BOOST_THROW_EXCEPTION(FatalError("Null BLS public key", __CLASS_NAME__));
     }
     return blsPublicKey;
 }
 
-const ptr<BLSPrivateKey> &Node::getBlsPrivateKey() const {
+ptr<BLSPrivateKeyShare> Node::getBlsPrivateKey() const {
     if (!blsPrivateKey) {
         BOOST_THROW_EXCEPTION(FatalError("Null BLS private key", __CLASS_NAME__));
     }

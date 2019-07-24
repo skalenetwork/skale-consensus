@@ -31,6 +31,7 @@ class Schain;
 class Transaction;
 class PartialHashesList;
 class TransactionList;
+class SHAHash;
 
 
 class BlockProposal : public DataStructure {
@@ -40,9 +41,10 @@ class BlockProposal : public DataStructure {
 protected:
 
     schain_id schainID;
+    node_id proposerNodeID;
     block_id blockID;
     schain_index proposerIndex;
-    node_id proposerNodeID;
+
 
 
     transaction_count transactionCount;
@@ -61,7 +63,7 @@ protected:
 
     BlockProposal(uint64_t _timeStamp, uint32_t _timeStampMs);
 
-    BlockProposal(Schain &_sChain, block_id _blockID, schain_index _proposerIndex,
+    BlockProposal(schain_id _sChainId, node_id _proposerNodeId, block_id _blockID, schain_index _proposerIndex,
                   ptr<TransactionList> _transactions, uint64_t _timeStamp, __uint32_t _timeStampMs);
 
 

@@ -16,46 +16,37 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file BLSSigShare.h
+    @file RandomDB.h
     @author Stan Kladko
     @date 2019
 */
 
-#ifndef SKALED_BLSSIGNATURE_SHARE_H
-#define SKALED_BLSSIGNATURE_SHARE_H
+
+#ifndef SKALED_RANDOMDB_H
+#define SKALED_RANDOMDB_H
 
 
+#include "LevelDB.h"
 
+class RandomDB : public LevelDB{
 
-namespace libff {
-class alt_bn128_G1;
-}
-
-class BLSSigShare {
-    ptr< libff::alt_bn128_G1 > sig;
-    schain_id schainId;
-    block_id blockId;
-    schain_index signerIndex;
-    node_id signerNodeId;
-
+    const string getFormatVersion();
 
 public:
-    const ptr< libff::alt_bn128_G1 >& getSig() const;
 
-    ptr< string > toString();
+    RandomDB(string& filename, node_id nodeId);
+
+    ptr<string> readRandom( schain_id _sChainID, const block_id& _blockId,
+        const schain_index& _proposerIndex, const bin_consensus_round& _round);
 
 
-    BLSSigShare(ptr<string> _s, schain_id _schainID, block_id _blockID, schain_index _signerIndex, node_id _signerNodeID);
-
-    BLSSigShare(ptr<libff::alt_bn128_G1> &_s, schain_id _schainId, block_id _blockID, schain_index _signerIndex,
-                node_id _nodeID);
-
-    const block_id& getBlockId() const;
-
-    const schain_index& getSignerIndex() const;
-
-    const node_id& getSignerNodeId() const;
+    void writeRandom( schain_id _sChainID, const block_id& _blockId,
+                            const schain_index& _proposerIndex, const bin_consensus_round& _round,
+                            uint64_t _random);
+    ptr<string> createKey( const schain_id& _sChainID, const block_id& _blockId,
+        const schain_index& _proposerIndex, const bin_consensus_round& _round);
 };
 
 
-#endif  // SKALED_BLSSignatureShare_H
+
+#endif //SKALED_RANDOMDB_H

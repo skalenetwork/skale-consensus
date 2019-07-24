@@ -27,24 +27,23 @@
 
 #include "../Agent.h"
 
-class SigShareSet;
-class BLSSignature;
+class ConsensusSigShareSet;
+class ConsensusBLSSignature;
 class Schain;
-class BLSSigShare;
+class ConsensusBLSSigShare;
 
 class ReceivedSigSharesDatabase : Agent {
 
-
     recursive_mutex sigShareDatabaseMutex;
 
-    map<block_id, ptr<SigShareSet>> sigShareSets;
+    map<block_id, ptr<ConsensusSigShareSet>> sigShareSets;
 
-    map<block_id, ptr<BLSSignature>> blockSignatures;
+    map<block_id, ptr<ConsensusBLSSignature>> blockSignatures;
 
 
-    ptr<SigShareSet> getSigShareSet(block_id _blockID);
+    ptr<ConsensusSigShareSet> getSigShareSet(block_id _blockID);
 
-    ptr<BLSSignature> getBLSSignature(block_id _blockId);
+    ptr<ConsensusBLSSignature> getBLSSignature(block_id _blockId);
 
 public:
 
@@ -52,7 +51,7 @@ public:
 
     explicit ReceivedSigSharesDatabase(Schain &_sChain);
 
-    bool addSigShare(ptr<BLSSigShare> _proposal);
+    bool addSigShare(ptr<ConsensusBLSSigShare> _proposal);
 
     void mergeAndSaveBLSSignature(block_id _blockId);
 

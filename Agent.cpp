@@ -31,7 +31,7 @@
 #include "network/Sockets.h"
 
 #include "crypto/SHAHash.h"
-#include "crypto/BLSSigShare.h"
+#include "crypto/ConsensusBLSSigShare.h"
 
 
 void Agent::notifyAllConditionVariables() {
@@ -54,7 +54,7 @@ Agent::Agent(Schain &_sChain, bool _isServer, bool _isSchain) : isServer(_isServ
     if (_isSchain)
         return;
     lock_guard<recursive_mutex> lock(_sChain.getMainMutex());
-    sChain->getNode()->getAgents().push_back(this);
+    sChain->getNode()->registerAgent(this);
 
 }
 

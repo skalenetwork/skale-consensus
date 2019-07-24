@@ -23,27 +23,44 @@
 
 #pragma once
 
+#define BOOST_PENDING_INTEGER_LOG2_HPP
+#include <boost/integer/integer_log2.hpp>
+#include <boost/random/mersenne_twister.hpp>
+#include <boost/random/uniform_int_distribution.hpp>
+
+
 #include "DataStructure.h"
 
 
+
+#include "../node/ConsensusEngine.h"
+
+
+
 class Transaction;
+class ConsensusExtFace;
 
 class TransactionList : public DataStructure  {
+
+    bool isEmpty = false;
 
     ptr<vector<uint8_t>> serializedTransactions = nullptr;
 
     ptr<vector<ptr<Transaction>>> transactions = nullptr;
 
+    TransactionList( ptr<vector<uint64_t>> _transactionSizes,
+                                      ptr<vector<uint8_t>> _serializedTransactions, uint32_t _offset, bool _checkPartialHash );
+
+
+
 public:
-
-
-    TransactionList(ptr<vector<size_t>> transactionSizes_, ptr<vector<uint8_t>> serializedTransactions, uint32_t  offset = 0);
 
     TransactionList(ptr<vector<ptr<Transaction>>> _transactions);
 
+
     ptr<vector<ptr<Transaction>>> getItems() ;
 
-    shared_ptr<vector<uint8_t>> serialize() ;
+    ptr<vector<uint8_t>> serialize( bool _writeTxPartialHash );
 
     size_t size();
 
@@ -56,7 +73,17 @@ public:
 
     virtual ~TransactionList();
 
+    ptr<ConsensusExtFace::transactions_vector> createTransactionVector();
 
+
+    ptr< vector< uint64_t > > createTransactionSizesVector(bool _writePartialHash);
+
+    static ptr< TransactionList > deserialize( ptr< vector< uint64_t > > _transactionSizes,
+        ptr< vector< uint8_t > > _serializedTransactions, uint32_t _offset,
+        bool _writePartialHash );
+
+    static ptr< TransactionList > createRandomSample( uint64_t _size, boost::random::mt19937& _gen,
+                                                           boost::random::uniform_int_distribution<>& _ubyte );
 };
 
 

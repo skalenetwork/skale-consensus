@@ -16,42 +16,38 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file BLSSignature.h
+    @file SigDB.h
     @author Stan Kladko
     @date 2019
 */
 
-#ifndef SKALED_BLSSIGNATURE_H
-#define SKALED_BLSSIGNATURE_H
 
-//constexpr uint64_t  MAX_BLS_SIGNATURE_SIZE = 64;
+class ConsensusBLSSignature;
 
-
-class BLSSignature {
+#ifndef SKALED_SIGDB_H
+#define SKALED_SIGDB_H
 
 
-    ptr<libff::alt_bn128_G1> sig;
-    block_id blockId;
+#include "LevelDB.h"
+
+class SigDB : public LevelDB{
+
+    node_id nodeId;
+
+    const string getFormatVersion();
 
 public:
 
-    BLSSignature(ptr<string> s);
+    SigDB(string& filename, node_id nodeId );
 
+    ptr<string>  createKey(block_id _blockId);
 
-    ptr<string> toString();
+    void addSignature(block_id _blockId, ptr<ConsensusBLSSignature> _sig);
 
-    BLSSignature(ptr<string> _s, block_id _blockID);
-
-    BLSSignature(ptr<libff::alt_bn128_G1>& _s, block_id _blockID);
-
-    const block_id &getBlockId() const;
-
-
-    const ptr<libff::alt_bn128_G1>& getSig() const;
+    uint64_t  getCounter();
 
 };
 
 
-#endif //SKALED_BLSSIGNATURE_H
 
-
+#endif //SKALED_BLOCKDB_H

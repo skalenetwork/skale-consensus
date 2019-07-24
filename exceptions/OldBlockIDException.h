@@ -32,11 +32,11 @@ class OldBlockIDException : public ProposalProtocolException{
    ptr<Header> responseHeader;
 public:
 
-    const ptr<Header> &getResponseHeader() const {
+    ptr<Header> getResponseHeader() const {
         return responseHeader;
     }
 
-    const ptr<Connection> &getConnection() const {
+    ptr<Connection> getConnection() const {
         return connection;
     }
 

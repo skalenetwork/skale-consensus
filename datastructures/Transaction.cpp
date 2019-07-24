@@ -22,71 +22,158 @@
 */
 
 
+#define BOOST_PENDING_INTEGER_LOG2_HPP
+#include <boost/integer/integer_log2.hpp>
+#include <boost/random/mersenne_twister.hpp>
+#include <boost/random/uniform_int_distribution.hpp>
 
 
+
+#include "../thirdparty/catch.hpp"
 
 
 #include "../SkaleCommon.h"
-#include "../chains/Schain.h"
 #include "../Log.h"
-#include "../exceptions/FatalError.h"
+#include "../chains/Schain.h"
 #include "../crypto/SHAHash.h"
+
+
 
 #include "Transaction.h"
 
-ptr<SHAHash> Transaction::getHash() {
-
-    ASSERT(data && data->size() > 0);
-
-
-    if (hash)
+ptr< SHAHash > Transaction::getHash() {
+    if ( hash )
         return hash;
 
-    auto digest = make_shared<array<uint8_t , SHA3_HASH_LEN>>();
+    auto digest = make_shared< array< uint8_t, SHA3_HASH_LEN > >();
 
 
     CryptoPP::SHA3_Final< SHA3_HASH_LEN > hashObject;
 
-    hashObject.Update(data.get()->data(), data->size());
-    hashObject.Final(digest->data());
+    hashObject.Update( data.get()->data(), data->size() );
+    hashObject.Final( digest->data() );
 
 
-
-    hash = make_shared<SHAHash>(digest);
+    hash = make_shared< SHAHash >( digest );
 
     return hash;
-
 }
 
 
-ptr<partial_sha_hash> Transaction::getPartialHash() {
-
-
-    auto hash = getHash();
-
-    if (partialHash) {
+ptr< partial_sha_hash > Transaction::getPartialHash() {
+    if ( partialHash ) {
         return partialHash;
     }
 
-    partialHash = make_shared<partial_sha_hash>();
+    partialHash = make_shared< partial_sha_hash >();
 
-    for (size_t i = 0; i < PARTIAL_SHA_HASH_LEN; i++) {
-        partialHash->at(i) = hash->at(i);
+    getHash();
+
+    for ( size_t i = 0; i < PARTIAL_SHA_HASH_LEN; i++ ) {
+        partialHash->at( i ) = hash->at( i );
     }
 
     return partialHash;
-
 }
 
-Transaction::Transaction(const ptr<vector<uint8_t>> data) : data(data) {
+Transaction::Transaction( const ptr< vector< uint8_t > > _trx, bool _includesPartialHash ) {
 
+
+    CHECK_ARGUMENT(_trx != nullptr);
+
+
+    array< uint8_t, PARTIAL_SHA_HASH_LEN > incomingHash;
+
+    if (_includesPartialHash) {
+        CHECK_ARGUMENT(_trx->size() > PARTIAL_SHA_HASH_LEN);
+
+        std::copy( _trx->begin() + +_trx->size() - PARTIAL_SHA_HASH_LEN, _trx->end(),
+                   incomingHash.begin() );
+
+
+        _trx->resize( _trx->size() - PARTIAL_SHA_HASH_LEN );
+    } else {
+        CHECK_ARGUMENT(_trx->size() > 0);
+    };
+
+
+
+    data = _trx;
+
+
+
+
+    if (_includesPartialHash) {
+        auto h = getPartialHash();
+
+        CHECK_ARGUMENT2(*h == incomingHash, "Transaction partial hash does not match");
+
+    }
+
+    CHECK_STATE(data != nullptr);
+    CHECK_STATE(data->size() > 0);
+
+
+
+
+    totalObjects++;
 };
 
-const ptr<vector<uint8_t>> &Transaction::getData() const {
+
+ptr< vector< uint8_t > > Transaction::getData() const {
+    CHECK_STATE(data != nullptr);
+    CHECK_STATE(data->size() > 0);
     return data;
 }
 
+
+
+atomic<uint64_t>  Transaction::totalObjects(0);
+
+
 Transaction::~Transaction() {
+    totalObjects--;
 
 }
+uint64_t Transaction::getSerializedSize(bool _writePartialHash) {
 
+    CHECK_STATE(data->size() > 0);
+
+    if (_writePartialHash)
+        return data->size() + PARTIAL_SHA_HASH_LEN;
+    return data->size();
+}
+
+void Transaction::serializeInto( ptr< vector< uint8_t > > _out, bool _writePartialHash ) {
+    CHECK_ARGUMENT( _out != nullptr )
+    _out->insert( _out->end(), data->begin(), data->end() );
+
+    if (_writePartialHash) {
+
+        auto h = getPartialHash();
+        _out->insert( _out->end(), h->begin(), h->end() );
+    }
+}
+
+
+
+
+ptr<Transaction > Transaction::deserialize(
+    const ptr< vector< uint8_t > > data, uint64_t _startIndex, uint64_t _len, bool _verifyPartialHashes ) {
+
+    CHECK_ARGUMENT(data != nullptr);
+
+    CHECK_ARGUMENT2(_startIndex + _len <= data->size(),
+                    to_string(_startIndex) + " " + to_string(_len) + " " +
+                    to_string(data->size()))
+
+    CHECK_ARGUMENT(_len > 0);
+
+    auto transactionData = make_shared<vector<uint8_t>>(data->begin() + _startIndex,
+                                                        data->begin() + _startIndex + _len);
+
+
+
+    return ptr<Transaction>(new Transaction(transactionData, _verifyPartialHashes));
+
+}

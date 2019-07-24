@@ -1,18 +1,18 @@
 cmake_minimum_required(VERSION 3.5)
 
-option( COVERAGE "Build with code coverage support" OFF )
-if( COVERAGE )
-    message( STATUS "**********************" )
-    message( STATUS "*** COVERAGE is ON ***" )
-    message( STATUS "**********************" )
-    add_compile_options( -g --coverage )
+option(COVERAGE "Build with code coverage support" OFF)
+if (COVERAGE)
+    message(STATUS "**********************")
+    message(STATUS "*** COVERAGE is ON ***")
+    message(STATUS "**********************")
+    add_compile_options(-g --coverage)
     #
-    set( CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fprofile-arcs -ftest-coverage" )
-    set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fprofile-arcs -ftest-coverage" )
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fprofile-arcs -ftest-coverage")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fprofile-arcs -ftest-coverage")
     #
-    set( CMAKE_SHARED_LINKER_FLAGS "--coverage ${CMAKE_SHARED_LINKER_FLAGS}" )
-    set( CMAKE_EXE_LINKER_FLAGS "--coverage ${CMAKE_EXE_LINKER_FLAGS}" )
-endif()
+    set(CMAKE_SHARED_LINKER_FLAGS "--coverage ${CMAKE_SHARED_LINKER_FLAGS}")
+    set(CMAKE_EXE_LINKER_FLAGS "--coverage ${CMAKE_EXE_LINKER_FLAGS}")
+endif ()
 
 add_subdirectory(libBLS)
 
@@ -21,10 +21,7 @@ include("cmake/HunterGate.cmake")
 include("cmake/precompiledheader.cmake")
 
 
-
-
-HunterGate( URL "https://github.com/ruslo/hunter/archive/v0.23.76.tar.gz" SHA1 "c7b60993e841850e2c449afd454f5d5aa4ec04e4" )
-
+HunterGate(URL "https://github.com/ruslo/hunter/archive/v0.23.76.tar.gz" SHA1 "c7b60993e841850e2c449afd454f5d5aa4ec04e4")
 
 
 project(consensus)
@@ -43,16 +40,16 @@ find_package(leveldb CONFIG REQUIRED)
 
 #set (CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-Wreturn-type -Winit-self")
 
-if( SKALED_LATEST_STANDARD )
-    set( CMAKE_CXX_STANDARD 17 )
-    set( LIB_NAME_cryptopp "cryptopp" )
-else()
-    set( CMAKE_CXX_STANDARD 17 )
+if (SKALED_LATEST_STANDARD)
+    set(CMAKE_CXX_STANDARD 17)
+    set(LIB_NAME_cryptopp "cryptopp")
+else ()
+    set(CMAKE_CXX_STANDARD 17)
     hunter_add_package(cryptopp)
     add_compile_options(-Wall -Wextra -Werror)
-    find_package( cryptopp CONFIG REQUIRED )
-    set( LIB_NAME_cryptopp "cryptopp-static" )
-endif()
+    find_package(cryptopp CONFIG REQUIRED)
+    set(LIB_NAME_cryptopp "cryptopp-static")
+endif ()
 
 add_definitions("-DZMQ_BUILD_DRAFT_API")
 
@@ -62,20 +59,16 @@ add_definitions("-DZMQ_NONBLOCKING")
 #add_definitions(-DGOOGLE_PROFILE) // uncomment to profile
 
 
-
-
-if(CMAKE_PROJECT_NAME STREQUAL "consensus" )
+if (CMAKE_PROJECT_NAME STREQUAL "consensus")
     # to install compiler cache:  sudo apt-get install ccache
     find_program(CCACHE_FOUND ccache)
-    if(CCACHE_FOUND)
+    if (CCACHE_FOUND)
         set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
         set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK ccache)
-    endif(CCACHE_FOUND)
+    endif (CCACHE_FOUND)
     add_definitions("-DCONSENSUS_STANDALONE")
     add_definitions("-DMICROPROFILE_ENABLED=0")
-endif()
-
-
+endif ()
 
 
 #Threads package
@@ -87,8 +80,8 @@ find_package(Threads REQUIRED)
 set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_MULTITHREADED ON)
 
-hunter_add_package(Boost COMPONENTS filesystem system thread log)
-find_package(Boost CONFIG REQUIRED filesystem system thread log)
+hunter_add_package(Boost COMPONENTS filesystem system thread log random)
+find_package(Boost CONFIG REQUIRED filesystem system thread log random)
 
 hunter_add_package(spdlog)
 find_package(spdlog)
@@ -126,7 +119,6 @@ AUX_SOURCE_DIRECTORY(exceptions exceptions_src)
 AUX_SOURCE_DIRECTORY(headers headers_src)
 
 
-
 SET(SRC_FILES
         ${abstractpushagent_src}
         ${abstractcpserver_src}
@@ -161,13 +153,10 @@ SET(SRC_FILES
         Agent.h Agent.cpp SkaleCommon.h SkaleCommon.cpp Log.h Log.cpp microprofile.cpp miniz.c)
 
 
-
 include_directories(${BLS_INCLUDE_DIRS})
-link_directories( ${BLS_WITH_FF_INCLUDE_DIRS} )
+link_directories(${BLS_WITH_FF_INCLUDE_DIRS})
 
-SET(LINK_LIBRARIES Threads::Threads Boost::log Boost::thread Boost::system Boost::filesystem ${LIB_NAME_cryptopp} ZeroMQ::libzmq-static leveldb::leveldb bls )
-
-
+SET(LINK_LIBRARIES Threads::Threads Boost::log Boost::thread Boost::system Boost::filesystem ${LIB_NAME_cryptopp} ZeroMQ::libzmq-static leveldb::leveldb bls)
 
 
 # consensus library
@@ -183,25 +172,25 @@ add_dependencies(consensus bls gmp secp256k1)
 add_executable(consensusd Consensusd.h Consensusd.cpp)
 
 # libgoogle-perftools-dev
-if(CMAKE_PROJECT_NAME STREQUAL "consensus" )
+if (CMAKE_PROJECT_NAME STREQUAL "consensus")
 
-#  sudo apt-get install -qq -yy libgoogle-perftools-dev
+    #  sudo apt-get install -qq -yy libgoogle-perftools-dev
 
     target_link_libraries(consensusd consensus tcmalloc)
-else()
+else ()
     target_link_libraries(consensusd consensus)
-endif()
+endif ()
 
 
 
-add_executable(consensust Consensust.h Consensust.cpp)
+add_executable(consensust Consensust.h Consensust.cpp datastructures/SerializationTests.cpp db/DBTests.cpp)
 
 # libgoogle-perftools-dev
-if(CMAKE_PROJECT_NAME STREQUAL "consensus" )
+if (CMAKE_PROJECT_NAME STREQUAL "consensus")
 
     #  sudo apt-get install -qq -yy libgoogle-perftools-dev
 
     target_link_libraries(consensust consensus tcmalloc)
-else()
+else ()
     target_link_libraries(consensust consensus)
-endif()
+endif ()

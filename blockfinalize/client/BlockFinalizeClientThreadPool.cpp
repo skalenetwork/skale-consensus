@@ -28,7 +28,7 @@
 #include "../../thirdparty/json.hpp"
 
 #include "../../abstracttcpserver/ConnectionStatus.h"
-#include "../../crypto/BLSSigShare.h"
+#include "../../crypto/ConsensusBLSSigShare.h"
 #include "BlockFinalizeClientAgent.h"
 #include "BlockFinalizeClientThreadPool.h"
 

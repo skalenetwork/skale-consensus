@@ -21,15 +21,17 @@
     @date 2018
 */
 
-#include "../Log.h"
+
+
 #include "../SkaleCommon.h"
+#include "../Log.h"
 #include "../thirdparty/json.hpp"
 #include "../abstracttcpserver/ConnectionStatus.h"
 #include "../blockproposal/pusher/BlockProposalClientAgent.h"
 #include "../blockproposal/received/ReceivedBlockProposalsDatabase.h"
 #include "../blockproposal/server/BlockProposalWorkerThreadPool.h"
 #include "../chains/Schain.h"
-#include "../crypto/BLSSigShare.h"
+#include "../crypto/ConsensusBLSSigShare.h"
 #include "../crypto/SHAHash.h"
 #include "../datastructures/BlockProposal.h"
 #include "../exceptions/FatalError.h"
@@ -38,6 +40,7 @@
 #include "../node/NodeInfo.h"
 #include "../protocols/binconsensus/AUXBroadcastMessage.h"
 #include "../protocols/binconsensus/BVBroadcastMessage.h"
+#include "../thirdparty/json.hpp"
 
 #include "unordered_set"
 
@@ -121,7 +124,7 @@ void TransportNetwork::broadcastMessage( Schain& subChain, ptr< NetworkMessage >
     unordered_set< uint64_t > sent;
 
     while ( 3 * ( sent.size() + 1 ) < getSchain()->getNodeCount() * 2 ) {
-        for ( auto const& it : subChain.getNode()->getNodeInfosByIndex() ) {
+        for ( auto const& it : *subChain.getNode()->getNodeInfosByIndex() ) {
             auto index = ( uint64_t ) it.second->getSchainIndex();
             if ( index != ( subChain.getSchainIndex()) && !sent.count( index) ) {
                 m->setDstNodeID( it.second->getNodeID() );
@@ -136,7 +139,7 @@ void TransportNetwork::broadcastMessage( Schain& subChain, ptr< NetworkMessage >
     }
 
     if ( sent.size() + 1 < getSchain()->getNodeCount() ) {
-        for ( auto const& it : subChain.getNode()->getNodeInfosByIndex() ) {
+        for ( auto const& it : *subChain.getNode()->getNodeInfosByIndex() ) {
             auto index = ( uint64_t ) it.second->getSchainIndex();
             if ( index != ( subChain.getSchainIndex())  && !sent.count( index) ) {
                 {
@@ -152,7 +155,7 @@ void TransportNetwork::broadcastMessage( Schain& subChain, ptr< NetworkMessage >
 
     m->setDstNodeID( oldID );
 
-    for ( auto const& it : subChain.getNode()->getNodeInfosByIndex() ) {
+    for ( auto const& it : *subChain.getNode()->getNodeInfosByIndex() ) {
         if ( it.second->getSchainIndex()  != subChain.getSchainIndex() ) {
             m->setDstNodeID( it.second->getNodeID() );
             confirmMessage( it.second );
@@ -179,7 +182,7 @@ void TransportNetwork::networkReadLoop() {
 
                 ASSERT( sChain );
 
-                block_id currentBlockID = sChain->getCommittedBlockID() + 1;
+                block_id currentBlockID = sChain->getLastCommittedBlockID() + 1;
 
                 postOrDefer( m, currentBlockID );
             } catch ( ExitRequestedException& ) {
@@ -235,13 +238,13 @@ void TransportNetwork::deferredMessagesLoop() {
         ptr< vector< ptr< NetworkMessageEnvelope > > > deferredMessages;
 
         {
-            block_id currentBlockID = sChain->getCommittedBlockID() + 1;
+            block_id currentBlockID = sChain->getLastCommittedBlockID() + 1;
 
             deferredMessages = pullMessagesForBlockID( currentBlockID );
         }
 
         for ( auto message : *deferredMessages ) {
-            block_id currentBlockID = sChain->getCommittedBlockID() + 1;
+            block_id currentBlockID = sChain->getLastCommittedBlockID() + 1;
             postOrDefer( message, currentBlockID );
         }
 
@@ -370,12 +373,12 @@ ptr< NetworkMessageEnvelope > TransportNetwork::receiveMessage() {
         mptr = make_shared<BVBroadcastMessage>( node_id( srcNodeID ), node_id( dstNodeID ),
             block_id( blockID ), schain_index( blockProposerIndex ), bin_consensus_round( round ),
             bin_consensus_value( value ), schain_id( sChainID ), msg_id( msgID ), rawIP, sig,
-            realSender->getSchainIndex());
+            realSender->getSchainIndex(), sChain->getTotalSignersCount(), sChain->getRequiredSignersCount());
     } else if ( msgType == MsgType::AUX_BROADCAST ) {
         mptr = make_shared<AUXBroadcastMessage>( node_id( srcNodeID ), node_id( dstNodeID ),
             block_id( blockID ), schain_index( blockProposerIndex), bin_consensus_round( round ),
             bin_consensus_value( value ), schain_id( sChainID ), msg_id( msgID ), rawIP, sig,
-            realSender->getSchainIndex());
+            realSender->getSchainIndex(), sChain->getTotalSignersCount(), sChain->getRequiredSignersCount());
     } else {
         ASSERT( false );
     }

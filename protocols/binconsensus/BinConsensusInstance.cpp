@@ -28,7 +28,7 @@
 #include "../../thirdparty/json.hpp"
 #include "../../crypto/bls_include.h"
 
-#include "../../crypto/BLSSigShare.h"
+#include "../../crypto/ConsensusBLSSigShare.h"
 
 #include "AUXBroadcastMessage.h"
 
@@ -43,8 +43,10 @@
 #include "../../blockproposal/pusher/BlockProposalClientAgent.h"
 #include "../../blockproposal/received/ReceivedBlockProposalsDatabase.h"
 #include "../../chains/Schain.h"
-#include "../../crypto/BLSSignature.h"
+#include "../../crypto/ConsensusBLSSignature.h"
 #include "../../node/Node.h"
+
+#include "../../db/RandomDB.h"
 
 #include "../../network/TransportNetwork.h"
 
@@ -56,7 +58,10 @@
 #include "BVBroadcastMessage.h"
 #include "../blockconsensus/BlockConsensusAgent.h"
 
-#include "../../datastructures/SigShareSet.h"
+#include "../../crypto/ConsensusSigShareSet.h"
+#include "../../libBLS/bls/BLSSigShareSet.h"
+#include "../../crypto/ConsensusBLSSignature.h"
+
 
 #include "BinConsensusInstance.h"
 
@@ -302,7 +307,7 @@ uint64_t BinConsensusInstance::totalAUXVotes(bin_consensus_round r) {
     return auxTrueVotes[r].size() + auxFalseVotes[r].size();
 }
 
-void BinConsensusInstance::auxSelfVote(bin_consensus_round r, bin_consensus_value v, ptr<BLSSigShare> _sigShare) {
+void BinConsensusInstance::auxSelfVote(bin_consensus_round r, bin_consensus_value v, ptr<ConsensusBLSSigShare> _sigShare) {
     if (getSchain()->getNode()->isBlsEnabled()) {
         ASSERT(_sigShare);
     }
@@ -450,10 +455,8 @@ void BinConsensusInstance::proceedWithCommonCoinIfAUXTwoThird(bin_consensus_roun
 
 
 
-        auto key = getRandomDBKey(getSchain(), getBlockID(), getBlockProposerIndex() , _r);
-
-        auto value = randomDB->readString(*key);
-
+        auto value = randomDB->readRandom(
+            getSchain()->getSchainID(), getBlockID(), getBlockProposerIndex(), _r );
         if (value) {
 
             uint64_t random1 = 0;
@@ -467,7 +470,8 @@ void BinConsensusInstance::proceedWithCommonCoinIfAUXTwoThird(bin_consensus_roun
                 to_string(random), __CLASS_NAME__));
             }
         } else {
-            randomDB->writeString(*key, to_string(random));
+            randomDB->writeRandom(getSchain()->getSchainID(), getBlockID(), getBlockProposerIndex(),
+                _r, random);
         }
 
         proceedWithCommonCoin(hasTrue, hasFalse, random);
@@ -476,19 +480,7 @@ void BinConsensusInstance::proceedWithCommonCoinIfAUXTwoThird(bin_consensus_roun
 
 }
 
-ptr<string>
-BinConsensusInstance::getRandomDBKey(const Schain *_sChain, const block_id &_blockId,
-                                     const schain_index &_proposerIndex,
-                                     const bin_consensus_round &_round) {
-    ASSERT(_sChain);
 
-    stringstream key;
-
-
-    key << _sChain << ":" << _blockId << ":" << _proposerIndex << ":" << _round;
-
-    return make_shared<string>(key.str());
-}
 
 void BinConsensusInstance::proceedWithCommonCoin(bool _hasTrue, bool _hasFalse, uint64_t _random) {
 
@@ -696,13 +688,14 @@ const node_count &BinConsensusInstance::getNodeCount() const {
 uint64_t BinConsensusInstance::calculateBLSRandom(bin_consensus_round _r) {
 
 
-    SigShareSet shares(getSchain(), getBlockID());
+    ConsensusSigShareSet shares(getSchain(), getBlockID(),getSchain()->getTotalSignersCount(),
+            getSchain()->getRequiredSignersCount());
 
     if (binValues[_r].count(bin_consensus_value(true)) > 0 && auxTrueVotes[_r].size() > 0) {
         for (auto&& item: auxTrueVotes[_r]) {
             ASSERT(item.second);
-            shares.addSigShare(item.second);
-            if (shares.isTwoThird())
+            shares.addSigShare(item.second->getBlsSigShare());
+            if ( shares.isEnough())
                 break;
         }
     }
@@ -710,14 +703,14 @@ uint64_t BinConsensusInstance::calculateBLSRandom(bin_consensus_round _r) {
     if (binValues[_r].count(bin_consensus_value(false)) > 0 && auxFalseVotes[_r].size() > 0) {
         for (auto&& item: auxFalseVotes[_r]) {
             ASSERT(item.second);
-            shares.addSigShare(item.second);
-            if (shares.isTwoThird())
+            shares.addSigShare(item.second->getBlsSigShare());
+            if ( shares.isEnough())
                 break;
         }
     }
 
 
-    bool isTwoThird = shares.isTwoThird();
+    bool isTwoThird = shares.isEnough();
 
 
     ASSERT(isTwoThird);

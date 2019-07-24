@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2018-2019 SKALE Labs
+    Copyright (C) 2019 SKALE Labs
 
     This file is part of skale-consensus.
 
@@ -16,29 +16,30 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file MyBlockProposal.cpp
+    @file ConsensusBLSSignature.h
     @author Stan Kladko
-    @date 2018
+    @date 2019
 */
 
-#include "../SkaleCommon.h"
-#include "../chains/Schain.h"
-#include "Transaction.h"
-#include "MyBlockProposal.h"
+#ifndef SKALED_CONSENSUSBLSSIGNATURE_H
+#define SKALED_CONSENSUSBLSSIGNATURE_H
 
-MyBlockProposal::MyBlockProposal(Schain &_sChain, const block_id &_blockID, const schain_index &_proposerIndex,
-                                 const ptr<TransactionList>_transactions, uint64_t _timeStamp, uint32_t _timeStampMs)
-        : BlockProposal(_sChain.getSchainID(), _sChain.getNodeIDByIndex(_proposerIndex), _blockID, _proposerIndex, _transactions, _timeStamp, _timeStampMs) {
-    totalObjects++;
+// constexpr uint64_t  MAX_BLS_SIGNATURE_SIZE = 64;
+
+
+#include "BLSSignature.h"
+class ConsensusBLSSignature : public BLSSignature {
+    block_id blockId;
+
+public:
+    ConsensusBLSSignature(
+        ptr< string > _s, block_id _blockID, size_t _totalSigners, size_t _requiredSigners );
+
+    ConsensusBLSSignature( ptr< libff::alt_bn128_G1 > _s, block_id _blockID, size_t _totalSigners,
+        size_t _requiredSigners );
+
+    block_id getBlockId() const;
 };
 
 
-
-
-atomic<uint64_t>  MyBlockProposal::totalObjects(0);
-
-MyBlockProposal::~MyBlockProposal() {
-    totalObjects--;
-
-}
-
+#endif  // SKALED_CONSENSUSBLSSIGNATURE_H

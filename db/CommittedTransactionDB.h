@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2018-2019 SKALE Labs
+    Copyright (C) 2019 SKALE Labs
 
     This file is part of skale-consensus.
 
@@ -16,29 +16,33 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file ImportedTransaction.h
+    @file CommittedTransactionDB.h
     @author Stan Kladko
-    @date 2018
+    @date 2019
 */
 
-#pragma once
 
-#include "Transaction.h"
+#ifndef SKALED_COMMITTEDTRANSACTIONDB_H
+#define SKALED_COMMITTEDTRANSACTIONDB_H
 
-class ImportedTransaction  : public Transaction{
+class Transaction;
+
+#include "LevelDB.h"
+
+class CommittedTransactionDB : public LevelDB{
+
+    const string getFormatVersion();
+
+
+
 public:
-    ImportedTransaction(const ptr<vector<uint8_t>> data);
 
+    CommittedTransactionDB(string& filename, node_id nodeId);
 
-
-    static atomic<uint64_t>  totalObjects;
-
-    static uint64_t getTotalObjects() {
-        return totalObjects;
-    };
-
-    virtual ~ImportedTransaction();
+    void writeCommittedTransaction(ptr<Transaction> _t, __uint64_t _committedTransactionCounter);
 
 };
 
 
+
+#endif //SKALED_COMMITTEDTRANSACTIONDB_H

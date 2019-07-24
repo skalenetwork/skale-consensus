@@ -26,7 +26,7 @@
 #include "../../thirdparty/json.hpp"
 #include "../../exceptions/FatalError.h"
 #include "../crypto/bls_include.h"
-#include "../../crypto/BLSSignature.h"
+#include "../../crypto/ConsensusBLSSignature.h"
 #include "../../crypto/SHAHash.h"
 
 #include "../../chains/Schain.h"
@@ -34,8 +34,11 @@
 
 #include "../../messages/NetworkMessage.h"
 #include "../../exceptions/InvalidArgumentException.h"
+#include "../../crypto/ConsensusBLSSigShare.h"
+
 #include "../ProtocolKey.h"
 #include "../ProtocolInstance.h"
+
 #include "BinConsensusInstance.h"
 
 #include "AUXBroadcastMessage.h"
@@ -70,7 +73,7 @@ AUXBroadcastMessage::AUXBroadcastMessage(bin_consensus_round round, bin_consensu
 
     if (node->isBlsEnabled()) {
         this->sigShare = schain->sign(hash, _blockID);
-        this->sigShareString = sigShare->toString();
+        this->sigShareString = sigShare->getBlsSigShare()->toString();
     } else {
         this->sigShareString = make_shared<string>("");
     }
@@ -78,12 +81,13 @@ AUXBroadcastMessage::AUXBroadcastMessage(bin_consensus_round round, bin_consensu
 }
 
 
-AUXBroadcastMessage::AUXBroadcastMessage(node_id _srcNodeID, node_id _dstNodeID, block_id _blockID,
-                                         schain_index _blockProposerIndex, bin_consensus_round _r,
-                                         bin_consensus_value _value, schain_id _schainId, msg_id _msgID,
-                                         uint32_t _ip, ptr<string> _signature, schain_index _srcSchainIndex) : NetworkMessage(
+AUXBroadcastMessage::AUXBroadcastMessage( node_id _srcNodeID, node_id _dstNodeID, block_id _blockID,
+    schain_index _blockProposerIndex, bin_consensus_round _r, bin_consensus_value _value,
+    schain_id _schainId, msg_id _msgID, uint32_t _ip, ptr< string > _signature,
+    schain_index _srcSchainIndex, size_t _totalSigners, size_t _requiredSigners )
+    : NetworkMessage(
         AUX_BROADCAST, _srcNodeID, _dstNodeID, _blockID, _blockProposerIndex, _r, _value, _schainId, _msgID, _ip,
-        _signature, _srcSchainIndex) {
+        _signature, _srcSchainIndex, _totalSigners,_requiredSigners) {
     printPrefix = "a";
 
 };

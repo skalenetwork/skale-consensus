@@ -42,7 +42,7 @@ void WorkerThreadPool::startService() {
 
 
 WorkerThreadPool::WorkerThreadPool(num_threads _numThreads, void* _param) {
-   assert(_numThreads > 0);
+   CHECK_ARGUMENT(_numThreads > 0);
    LOG(trace, "Started threads count:" + to_string(_numThreads));
    this->params = _param;
    this->numThreads = _numThreads;

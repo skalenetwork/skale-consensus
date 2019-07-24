@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2018-2019 SKALE Labs
+    Copyright (C) 2019 SKALE Labs
 
     This file is part of skale-consensus.
 
@@ -16,24 +16,41 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file ImportedTransaction.cpp
+    @file SigDB.cpp
     @author Stan Kladko
-    @date 2018
+    @date 2019
 */
 
+
 #include "../SkaleCommon.h"
-#include "ImportedTransaction.h"
+#include "../Log.h"
+
+#include "../crypto/ConsensusBLSSignature.h"
+#include "../crypto/ConsensusBLSSigShare.h"
+#include "../datastructures/CommittedBlock.h"
+
+#include "SigDB.h"
 
 
-ImportedTransaction::ImportedTransaction(const ptr<vector<uint8_t>> data) : Transaction(data) {
-    totalObjects++;
+
+
+SigDB::SigDB(string& filename, node_id _nodeId ) : LevelDB( filename, _nodeId ) {}
+
+
+const string SigDB::getFormatVersion() {
+    return "1.0";
 }
 
 
+ptr<string>  SigDB::createKey(const block_id _blockId) {
+    return make_shared<string>(getFormatVersion() + ":" + to_string( nodeId ) + ":"
+                                + to_string( _blockId ));
+}
 
-ImportedTransaction::~ImportedTransaction() {
-    totalObjects--;
+void SigDB::addSignature(block_id _blockId, ptr<ConsensusBLSSignature> _sig) {
+    auto key = createKey( _blockId );
+    if (readString( *key ) == nullptr )
+        writeString( *key, *_sig->toString() );
 }
 
 
-atomic<uint64_t>  ImportedTransaction::totalObjects(0);

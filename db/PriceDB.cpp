@@ -16,53 +16,52 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file SigShareSet.h
+    @file PriceDB.cpp
     @author Stan Kladko
     @date 2019
 */
 
-#pragma once
 
-#include "DataStructure.h"
+#include "../SkaleCommon.h"
+#include "../Log.h"
 
 
 
-class PartialHashesList;
-class Schain;
-class BLSSigShare;
-class BLSSignature;
-class SHAHash;
+#include "PriceDB.h"
 
-class SigShareSet : public DataStructure  {
-    recursive_mutex sigSharesMutex;
 
-    Schain* sChain;
-    block_id blockId;
 
-    map< schain_index, ptr< BLSSigShare > > sigShares;
 
-public:
-    node_count getTotalSigSharesCount();
+PriceDB::PriceDB(string& filename, node_id _nodeId ) : LevelDB( filename, _nodeId ) {}
 
-    SigShareSet( Schain* _sChain, block_id _blockId );
 
-    bool addSigShare(ptr<BLSSigShare> _sigShare);
+const string PriceDB::getFormatVersion() {
+    return "1.0";
+}
 
-    bool isTwoThird();
 
-    bool isTwoThirdMinusOne();
+ptr< string > PriceDB::createKey( block_id _blockId ) {
+    return make_shared<string>(getFormatVersion() + ":" + to_string( _blockId ));
+}
 
-    ptr<BLSSigShare > getSigShareByIndex(schain_index _index);
+u256 PriceDB::readPrice(block_id _blockID) {
 
-    ptr<BLSSignature> mergeSignature();
+    auto  key =  createKey(_blockID);
 
-    static uint64_t getTotalObjects() {
-        return totalObjects;
-    }
+    auto price = readString(*key);
 
-    virtual ~SigShareSet();
+    CHECK_STATE(price != nullptr);
 
-private:
+    return u256(price->c_str());
+}
 
-    static atomic<uint64_t>  totalObjects;
-};
+
+void PriceDB::savePrice(u256 _price, block_id _blockID) {
+
+    auto key = createKey(_blockID);
+
+    auto value = _price.str();
+
+    writeString(*key, value );
+}
+

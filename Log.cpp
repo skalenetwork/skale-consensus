@@ -157,11 +157,11 @@ void Log::log( level_enum _severity, const string& _message, const string& _clas
 
 
 
-const node_id& Log::getNodeID() const {
+const node_id Log::getNodeID() const {
     return nodeID;
 }
 
-const shared_ptr< string >& Log::getDataDir() {
+const shared_ptr< string > Log::getDataDir() {
     ASSERT( dataDir );
     return dataDir;
 }

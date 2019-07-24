@@ -1532,32 +1532,32 @@ chains/SchainTest.cpp.s:
 	$(MAKE) -f CMakeFiles/consensus.dir/build.make CMakeFiles/consensus.dir/chains/SchainTest.cpp.s
 .PHONY : chains/SchainTest.cpp.s
 
-crypto/BLSPrivateKey.o: crypto/BLSPrivateKey.cpp.o
+crypto/BLSPrivateKeyShare.o: crypto/BLSPrivateKeyShare.cpp.o
 
-.PHONY : crypto/BLSPrivateKey.o
+.PHONY : crypto/BLSPrivateKeyShare.o
 
 # target to build an object file
-crypto/BLSPrivateKey.cpp.o:
-	$(MAKE) -f CMakeFiles/consensus.dir/build.make CMakeFiles/consensus.dir/crypto/BLSPrivateKey.cpp.o
-.PHONY : crypto/BLSPrivateKey.cpp.o
+crypto/BLSPrivateKeyShare.cpp.o:
+	$(MAKE) -f CMakeFiles/consensus.dir/build.make CMakeFiles/consensus.dir/crypto/BLSPrivateKeyShare.cpp.o
+.PHONY : crypto/BLSPrivateKeyShare.cpp.o
 
-crypto/BLSPrivateKey.i: crypto/BLSPrivateKey.cpp.i
+crypto/BLSPrivateKeyShare.i: crypto/BLSPrivateKeyShare.cpp.i
 
-.PHONY : crypto/BLSPrivateKey.i
+.PHONY : crypto/BLSPrivateKeyShare.i
 
 # target to preprocess a source file
-crypto/BLSPrivateKey.cpp.i:
-	$(MAKE) -f CMakeFiles/consensus.dir/build.make CMakeFiles/consensus.dir/crypto/BLSPrivateKey.cpp.i
-.PHONY : crypto/BLSPrivateKey.cpp.i
+crypto/BLSPrivateKeyShare.cpp.i:
+	$(MAKE) -f CMakeFiles/consensus.dir/build.make CMakeFiles/consensus.dir/crypto/BLSPrivateKeyShare.cpp.i
+.PHONY : crypto/BLSPrivateKeyShare.cpp.i
 
-crypto/BLSPrivateKey.s: crypto/BLSPrivateKey.cpp.s
+crypto/BLSPrivateKeyShare.s: crypto/BLSPrivateKeyShare.cpp.s
 
-.PHONY : crypto/BLSPrivateKey.s
+.PHONY : crypto/BLSPrivateKeyShare.s
 
 # target to generate assembly for a file
-crypto/BLSPrivateKey.cpp.s:
-	$(MAKE) -f CMakeFiles/consensus.dir/build.make CMakeFiles/consensus.dir/crypto/BLSPrivateKey.cpp.s
-.PHONY : crypto/BLSPrivateKey.cpp.s
+crypto/BLSPrivateKeyShare.cpp.s:
+	$(MAKE) -f CMakeFiles/consensus.dir/build.make CMakeFiles/consensus.dir/crypto/BLSPrivateKeyShare.cpp.s
+.PHONY : crypto/BLSPrivateKeyShare.cpp.s
 
 crypto/BLSPublicKey.o: crypto/BLSPublicKey.cpp.o
 
@@ -4291,9 +4291,9 @@ help:
 	@echo "... chains/SchainTest.o"
 	@echo "... chains/SchainTest.i"
 	@echo "... chains/SchainTest.s"
-	@echo "... crypto/BLSPrivateKey.o"
-	@echo "... crypto/BLSPrivateKey.i"
-	@echo "... crypto/BLSPrivateKey.s"
+	@echo "... crypto/BLSPrivateKeyShare.o"
+	@echo "... crypto/BLSPrivateKeyShare.i"
+	@echo "... crypto/BLSPrivateKeyShare.s"
 	@echo "... crypto/BLSPublicKey.o"
 	@echo "... crypto/BLSPublicKey.i"
 	@echo "... crypto/BLSPublicKey.s"

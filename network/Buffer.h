@@ -37,7 +37,7 @@ public:
 
     Buffer(size_t size);
 
-    const ptr<vector<uint8_t>> &getBuf() const;
+    ptr<vector<uint8_t>> getBuf() const;
 
     void read(void *data, size_t dataLen);
 

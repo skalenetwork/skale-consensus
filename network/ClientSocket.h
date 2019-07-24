@@ -51,7 +51,7 @@ public:
 
     file_descriptor getDescriptor() ;
 
-    ptr<string> &getConnectionIP() ;
+    ptr<string> getConnectionIP() ;
 
     network_port getConnectionPort();
 

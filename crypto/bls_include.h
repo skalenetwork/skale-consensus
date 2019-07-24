@@ -53,12 +53,9 @@
 
 #include <libff/algebra/curves/alt_bn128/alt_bn128_g1.hpp>
 
+
 #include "bls.h"
 #pragma GCC diagnostic pop
 
-#include "../exceptions/InvalidArgumentException.h"
-
-
-#include "BLSSigShare.h"
 
 #endif //SKALED_BLS_INCLUDE_H

@@ -188,7 +188,7 @@ void BlockProposalClientAgent::sendItemImpl(
     for ( auto&& transaction : *_proposal->getTransactionList()->getItems() ) {
         if ( missingHashes->count( transaction->getPartialHash() ) ) {
             missingTransactions->push_back( transaction );
-            missingTransactionsSizes->push_back( transaction->getData()->size() );
+            missingTransactionsSizes->push_back( transaction->getSerializedSize(false));
         }
     }
 
@@ -215,7 +215,7 @@ void BlockProposalClientAgent::sendItemImpl(
     auto mtrm = make_shared< TransactionList >( missingTransactions );
 
     try {
-        getSchain()->getIo()->writeBytesVector( socket->getDescriptor(), mtrm->serialize() );
+        getSchain()->getIo()->writeBytesVector( socket->getDescriptor(), mtrm->serialize(false) );
     } catch ( ExitRequestedException& ) {
         throw;
     } catch ( ... ) {
@@ -229,6 +229,7 @@ void BlockProposalClientAgent::sendItemImpl(
 
 ptr< unordered_set< ptr< partial_sha_hash >, PendingTransactionsAgent::Hasher,
     PendingTransactionsAgent::Equal > >
+
 BlockProposalClientAgent::readMissingHashes( ptr< ClientSocket > _socket, uint64_t _count ) {
     ASSERT( _count );
     auto bytesToRead = _count * PARTIAL_SHA_HASH_LEN;

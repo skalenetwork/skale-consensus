@@ -33,7 +33,9 @@
 #include "PricingStrategy.h"
 #include "DynamicPricingStrategy.h"
 #include "ZeroPricingStrategy.h"
-#include "../db/LevelDB.h"
+#include "../db/PriceDB.h"
+
+
 
 #include "PricingAgent.h"
 
@@ -78,29 +80,16 @@ PricingAgent::calculatePrice(const ConsensusExtFace::transactions_vector &_appro
 
 void PricingAgent::savePrice(u256 _price, block_id _blockID) {
 
+    auto db = sChain->getNode()->getPriceDB();
 
-    auto db = sChain->getNode()->getPricesDB();
-
-    auto  key = to_string(_blockID);
-
-    auto value = _price.str();
-
-    db->writeString(key, value);
-
-
+    db->savePrice(_price, _blockID);
 }
 
 
 u256 PricingAgent::readPrice(block_id _blockID) {
 
-    auto db = sChain->getNode()->getPricesDB();
+    auto db = sChain->getNode()->getPriceDB();
 
-    auto  key = to_string(_blockID);
-
-    auto price = db->readString(key);
-
-    ASSERT(price != nullptr);
-
-    return u256(price->c_str());
+    return db->readPrice(_blockID);
 }
 

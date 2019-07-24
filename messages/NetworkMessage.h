@@ -23,6 +23,7 @@
 
 #pragma once
 
+#include "../crypto/bls_include.h"
 
 #include "Message.h"
 
@@ -36,12 +37,12 @@ class Schain;
 class BinConsensusInstance;
 class ProtocolInstance;
 class Buffer;
-class BLSSigShare;
-
-
+class ConsensusBLSSigShare;
 class Node;
 
 
+
+static constexpr uint32_t CONSENSUS_MESSAGE_LEN = 73 + BLS_MAX_SIG_LEN;
 
 class NetworkMessage : public Message {
 
@@ -56,10 +57,7 @@ protected:
                     BinConsensusInstance& _srcProtocolInstance );
 
 
-    NetworkMessage(MsgType messageType, node_id _srcNodeID, node_id _dstNodeID, block_id _blockID,
-                   schain_index _blockProposerIndex, bin_consensus_round _r, bin_consensus_value _value,
-                   schain_id _schainId, msg_id _msgID, uint32_t _ip, ptr<string> _signature,
-                   schain_index _srcSchainIndex);
+    NetworkMessage(MsgType messageType, node_id _srcNodeID, node_id _dstNodeID, block_id _blockID, schain_index _blockProposerIndex, bin_consensus_round _r, bin_consensus_value _value, schain_id _schainId, msg_id _msgID, uint32_t _ip, ptr<string> _signature, schain_index _srcSchainIndex, size_t _totalSigners, size_t  _requiredSigners);
 
 
 public:
@@ -79,7 +77,7 @@ public:
 
     ptr<string> sigShareString;
 
-    ptr<BLSSigShare> sigShare;
+    ptr<ConsensusBLSSigShare> sigShare;
 
 
     virtual ~NetworkMessage(){};
@@ -93,6 +91,6 @@ public:
 
     ptr<Buffer> toBuffer();
 
-    const ptr<BLSSigShare> &getSigShare() const;
+    ptr<ConsensusBLSSigShare> getSigShare() const;
 
 };

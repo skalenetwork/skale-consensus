@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2018-2019 SKALE Labs
+    Copyright (C) 2019 SKALE Labs
 
     This file is part of skale-consensus.
 
@@ -16,24 +16,39 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file PendingTransaction.cpp
+    @file SigShareSet.h
     @author Stan Kladko
-    @date 2018
+    @date 2019
 */
 
-#include "../SkaleCommon.h"
-#include "PendingTransaction.h"
+#pragma once
+
+#include "../datastructures/DataStructure.h"
+#include "BLSSigShareSet.h"
 
 
-PendingTransaction::PendingTransaction(const ptr<vector<uint8_t>> data) : Transaction(data) {
-    totalObjects++;
-}
+class PartialHashesList;
+class Schain;
+class ConsensusBLSSigShare;
+class ConsensusBLSSignature;
+class SHAHash;
+
+class ConsensusSigShareSet : public BLSSigShareSet {
+    Schain* sChain;
+    block_id blockId;
+
+    static atomic<uint64_t>  totalObjects;
 
 
+public:
+    ConsensusSigShareSet(
+        Schain* _sChain, block_id _blockId, size_t _totalSigners, size_t _requiredSigners );
 
-PendingTransaction::~PendingTransaction() {
-    totalObjects--;
-}
+    ptr<ConsensusBLSSignature> mergeSignature();
 
+    virtual ~ConsensusSigShareSet();
 
-atomic<uint64_t>  PendingTransaction::totalObjects(0);
+    static uint64_t getTotalObjects() {
+        return totalObjects;
+    }
+};

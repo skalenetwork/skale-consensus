@@ -24,6 +24,8 @@
 #include "../SkaleCommon.h"
 #include "../Log.h"
 #include "../exceptions/FatalError.h"
+#include "../exceptions/InvalidArgumentException.h"
+
 #include "../abstracttcpserver/ConnectionStatus.h"
 
 #include "../thirdparty/json.hpp"
@@ -47,7 +49,7 @@ ptr<Buffer> Header::toBuffer() {
     ASSERT(complete);
     nlohmann::json j;
 
-    assert(type);
+    CHECK_STATE(type != nullptr);
 
     j["type"] = type;
     j["status"] = status;
@@ -60,13 +62,13 @@ ptr<Buffer> Header::toBuffer() {
 
     uint64_t len = s.size();
 
-    ASSERT(len > 16);
+    CHECK_STATE(len > 16);
 
     auto buf = make_shared<Buffer>(len + sizeof(uint64_t));
     buf->write(&len, sizeof(len));
     buf->write((void *) s.data(), s.size());
 
-    ASSERT(buf->getCounter() > 16);
+    CHECK_STATE(buf->getCounter() > 16);
 
     return buf;
 }

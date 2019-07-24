@@ -84,6 +84,7 @@
 #include <boost/thread/thread.hpp>
 #include <boost/multiprecision/cpp_int.hpp>
 
+#include <boost/crc.hpp>
 
 
 class Log;
@@ -176,13 +177,6 @@ static constexpr size_t MAX_HEADER_SIZE = 8 * MAX_TRANSACTIONS_PER_BLOCK;
 static const int MODERN_TIME = 1547640182;
 
 static const int MAX_BUFFER_SIZE = 10000000;
-
-
-static constexpr size_t BLS_MAX_COMPONENT_LEN = 80;
-
-static constexpr size_t BLS_MAX_SIG_LEN = 160;
-
-static constexpr uint32_t CONSENSUS_MESSAGE_LEN = 73 + BLS_MAX_SIG_LEN;
 
 static constexpr uint64_t MAGIC_NUMBER = 0x1396A22050B30;
 
@@ -300,11 +294,25 @@ extern thread_local ptr<Log> logThreadLocal_;
 
 #define CHECK_ARGUMENT(_EXPRESSION_) \
     if (!(_EXPRESSION_)) { \
+        auto __msg__ = string("Argument Check failed::") + #_EXPRESSION_ +  " " + string(__FILE__) + ":" + to_string(__LINE__); \
+        throw InvalidArgumentException(__msg__, __CLASS_NAME__);}
+
+#define CHECK_STATE(_EXPRESSION_) \
+    if (!(_EXPRESSION_)) { \
+        auto __msg__ = string("State check failed::") + #_EXPRESSION_ +  " " + string(__FILE__) + ":" + to_string(__LINE__); \
+        throw InvalidArgumentException(__msg__, __CLASS_NAME__);}
+
+
+
+#define CHECK_ARGUMENT2(_EXPRESSION_, _MSG_) \
+    if (!(_EXPRESSION_)) { \
         auto __msg__ = string("Check failed::") + #_EXPRESSION_ +  " " + string(__FILE__) + ":" + to_string(__LINE__); \
-        throw FatalError(__msg__, __CLASS_NAME__);}
+        throw InvalidArgumentException(__msg__ + ":" + _MSG_, __CLASS_NAME__);}
 
-
-
+#define CHECK_STATE2(_EXPRESSION_, _MSG_) \
+    if (!(_EXPRESSION_)) { \
+        auto __msg__ = string("Check failed::") + #_EXPRESSION_ +  " " + string(__FILE__) + ":" + to_string(__LINE__); \
+        throw InvalidArgumentException(__msg__ + ":" + _MSG_, __CLASS_NAME__);}
 
 
 #define ASSERT2(_EXPRESSION_, _MSG_) \

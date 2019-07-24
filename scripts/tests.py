@@ -27,6 +27,10 @@ import subprocess
 import sys
 
 
+def unitTest(_consensustExecutive, _testType):
+    os.system("bash -c rm  -f ./core")
+    subprocess.call([_consensustExecutive, _testType])
+
 
 def fullConsensusTest(_test, _consensustExecutive, _testType):
     testDir = root + "/test/" + _test
@@ -50,6 +54,12 @@ root = sys.argv[1]
 print("Starting tests. Build root:" + sys.argv[1])
 
 consensustExecutive = getConsensustExecutive()
+
+unitTest(consensustExecutive, "[tx-serialize]")
+unitTest(consensustExecutive, "[tx-list-serialize]")
+unitTest(consensustExecutive, "[committed-block-serialize]")
+unitTest(consensustExecutive, "")
+
 
 fullConsensusTest("two_out_of_four", consensustExecutive, "[consensus-stuck]")
 fullConsensusTest("onenode", consensustExecutive, "[consensus-basic]")

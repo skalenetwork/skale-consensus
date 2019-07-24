@@ -36,11 +36,18 @@ class NodeInfo;
 class Agent;
 class ConsensusExtFace;
 class ConsensusEngine;
-class BLSSigShare;
+class ConsensusBLSSigShare;
 class SHAHash;
 class BLSPublicKey;
-class BLSPrivateKey;
+class BLSPrivateKeyShare;
 class LevelDB;
+class BlockDB;
+class SigDB;
+class CommittedTransactionDB;
+class RandomDB;
+class PriceDB;
+
+
 
 namespace leveldb{
     class DB;
@@ -110,8 +117,8 @@ class Node {
     };
 
 
-    map<schain_index, ptr<NodeInfo>> nodeInfosByIndex;
-    map<ptr<string>, ptr<NodeInfo>, Comparator> nodeInfosByIP;
+    ptr<map<schain_index, ptr<NodeInfo>>> nodeInfosByIndex;
+    ptr<map<ptr<string>, ptr<NodeInfo>, Comparator>> nodeInfosByIP;
 
 
     void releaseGlobalServerBarrier();
@@ -122,15 +129,15 @@ class Node {
     void closeAllSocketsAndNotifyAllAgentsAndThreads();
 
 
-    ptr<LevelDB> blocksDB = nullptr;
+    ptr<BlockDB> blockDB = nullptr;
 
-    ptr<LevelDB> randomDB = nullptr;
+    ptr<RandomDB> randomDB = nullptr;
 
-    ptr<LevelDB> committedTransactionsDB = nullptr;
+    ptr<CommittedTransactionDB> committedTransactionDB = nullptr;
 
-    ptr<LevelDB> signaturesDB = nullptr;
+    ptr<SigDB> signatureDB = nullptr;
 
-    ptr<LevelDB> pricesDB = nullptr;
+    ptr<PriceDB> priceDB = nullptr;
 
 
     uint64_t catchupIntervalMS;
@@ -157,7 +164,7 @@ class Node {
     ptr<BLSPublicKey> blsPublicKey;
 
 
-    ptr<BLSPrivateKey> blsPrivateKey;
+    ptr<BLSPrivateKeyShare> blsPrivateKey;
 
 
     bool isBLSEnabled = false;
@@ -168,22 +175,22 @@ public:
 
     uint64_t getSimulateNetworkWriteDelayMs() const;
 
-    const ptr<BLSPublicKey> &getBlsPublicKey() const;
+    ptr<BLSPublicKey> getBlsPublicKey() const;
 
-    const ptr<BLSPrivateKey> &getBlsPrivateKey() const;
-
-
-    ptr<LevelDB> getBlocksDB();
-
-    ptr<LevelDB> getRandomDB();
+    ptr<BLSPrivateKeyShare> getBlsPrivateKey() const;
 
 
-    ptr<LevelDB> getCommittedTransactionsDB() const;
+    ptr<BlockDB> getBlockDB();
+
+    ptr<RandomDB> getRandomDB();
 
 
-    ptr<LevelDB> getSignaturesDB() const;
+    ptr<CommittedTransactionDB> getCommittedTransactionDB() const;
 
-    const ptr<LevelDB> &getPricesDB() const;
+
+    ptr<SigDB> getSignatureDB() const;
+
+    ptr<PriceDB> getPriceDB() const;
 
 
     void initLevelDBs();
@@ -216,12 +223,12 @@ public:
 
     void waitOnGlobalClientStartBarrier(Agent *agent);
 
-    const ptr<Log> &getLog() const;
+    ptr<Log> getLog() const;
 
 
-    const nlohmann::json &getCfg() const;
+    nlohmann::json getCfg() const;
 
-    const map<schain_index, ptr<NodeInfo>> &getNodeInfosByIndex() const;
+    ptr<map<schain_index, ptr<NodeInfo>>> getNodeInfosByIndex() const;
 
     node_id getNodeID() const;
 
@@ -231,7 +238,7 @@ public:
 
     Schain *getSchain() const;
 
-    vector<Agent *> &getAgents();
+    void registerAgent( Agent* _agent );
 
     bool isExitRequested();
 
@@ -243,11 +250,11 @@ public:
 
     ptr<NodeInfo> getNodeInfoByIP(ptr<string> ip);
 
-    const ptr<TransportNetwork> &getNetwork() const;
+    ptr<TransportNetwork> getNetwork() const;
 
-    const ptr<string> &getBindIP() const;
+    ptr<string> getBindIP() const;
 
-    const network_port &getBasePort() const;
+    network_port getBasePort() const;
 
     void setBasePort(const network_port &_basePort);
 
