@@ -305,4 +305,5 @@ public:
     size_t getTotalSignersCount();
     size_t getRequiredSignersCount();
 
+    u256 getPriceForBlockId(uint64_t _blockId);
 };

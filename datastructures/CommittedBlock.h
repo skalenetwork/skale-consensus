@@ -39,7 +39,6 @@ class CommittedBlock : public BlockProposal {
 
     ptr< vector< uint64_t > > parseBlockHeader( const shared_ptr< string >& header );
 
-
 public:
     CommittedBlock( Schain& _sChain, ptr< BlockProposal > _p );
     CommittedBlock( const schain_id& sChainId, const node_id& proposerNodeId,

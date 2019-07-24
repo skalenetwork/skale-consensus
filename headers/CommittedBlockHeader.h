@@ -39,7 +39,7 @@ class CommittedBlockHeader : public Header {
 
     block_id blockID;
     ptr<SHAHash> blockHash;
-    ptr<list<uint32_t>> transactionSizes;
+    ptr<list<uint64_t>> transactionSizes;
     uint64_t timeStamp = 0;
     uint32_t timeStampMs = 0;
 
