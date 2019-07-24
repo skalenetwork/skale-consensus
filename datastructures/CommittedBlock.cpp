@@ -147,7 +147,7 @@ ptr< CommittedBlock > CommittedBlock::deserialize( ptr< vector< uint8_t > > _ser
     return block;
 }
 
-ptr< vector< size_t > > CommittedBlock::parseBlockHeader( const shared_ptr< string >& header ) {
+ptr< vector< uint64_t > > CommittedBlock::parseBlockHeader( const shared_ptr< string >& header ) {
     CHECK_ARGUMENT( header != nullptr );
 
     CHECK_ARGUMENT( header->size() > 2 );
@@ -157,7 +157,7 @@ ptr< vector< size_t > > CommittedBlock::parseBlockHeader( const shared_ptr< stri
     CHECK_ARGUMENT2(header->at( header->size() - 1 ) == '}',"Block header does not end with }");
 
 
-    auto transactionSizes = make_shared< vector< size_t > >();
+    auto transactionSizes = make_shared< vector< uint64_t > >();
 
     size_t totalSize = 0;
 

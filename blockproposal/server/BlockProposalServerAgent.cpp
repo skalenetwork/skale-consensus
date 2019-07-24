@@ -84,7 +84,7 @@ BlockProposalServerAgent::readMissingTransactions(
         ptr<Connection> connectionEnvelope_, nlohmann::json missingTransactionsResponseHeader) {
     ASSERT(missingTransactionsResponseHeader > 0);
 
-    auto transactionSizes = make_shared<vector<size_t> >();
+    auto transactionSizes = make_shared<vector<uint64_t > >();
 
     nlohmann::json jsonSizes = missingTransactionsResponseHeader["sizes"];
 

@@ -40,7 +40,7 @@ class CommittedBlock : public  BlockProposal {
     CommittedBlock( uint64_t timeStamp, uint32_t timeStampMs );
 
 
-    ptr<vector<size_t>> parseBlockHeader(const shared_ptr<string> &header);
+    ptr<vector<uint64_t >> parseBlockHeader(const shared_ptr<string> &header);
 
 
 public:
