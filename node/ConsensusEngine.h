@@ -117,6 +117,16 @@ public:
 
     void bootStrapAll() override;
 
+    uint64_t getEmptyBlockIntervalMs(){
+        // HACK assume there is exactly one
+        return (*(this->nodes.begin())).second->getEmptyBlockIntervalMs();
+    }
+
+    void setEmptyBlockIntervalMs(uint64_t _interval){
+        // HACK assume there is exactly one
+        (*(this->nodes.begin())).second->setEmptyBlockIntervalMs(_interval);
+    }
+
     // tests
 
     void slowStartBootStrapTest();
