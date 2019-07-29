@@ -50,7 +50,9 @@ u256 PriceDB::readPrice(block_id _blockID) {
 
     auto price = readString(*key);
 
-    CHECK_STATE(price != nullptr);
+    if (price == nullptr) {
+        BOOST_THROW_EXCEPTION(InvalidArgumentException("Price for this block is unknown", __CLASS_NAME__));
+    }
 
     return u256(price->c_str());
 }

@@ -46,7 +46,16 @@ PricingAgent::PricingAgent(Schain &_sChain) : Agent(_sChain, false) {
     auto strategy = _sChain.getNode()->getParamString("pricingStrategy", def);
 
    if (*strategy == "DYNAMIC") {
-       pricingStrategy = make_shared<DynamicPricingStrategy>();
+
+
+       u256 minPrice = sChain->getNode()->getParamUint64(string("DYNAMIC_PRICING_MIN_PRICE"), 1000);
+       u256  maxPrice =- sChain->getNode()->getParamUint64("DYNAMIC_PRICING_MAX_PRICE", 1000000000);
+       uint64_t  optimalLoadPercentage = sChain->getNode()->getParamUint64("DYNAMIC_PRICING_OPTIMAL_LOAD_PERCENTAGE", 70);
+       uint64_t adjustmentSpeed = sChain->getNode()->getParamUint64("DYNAMIC_PRICING_ADJUSTMENT_SPEED", 1000);
+
+       pricingStrategy = make_shared<DynamicPricingStrategy>(minPrice, maxPrice, optimalLoadPercentage, adjustmentSpeed);
+
+
    } else if (*strategy == "ZERO") {
        pricingStrategy = make_shared<ZeroPricingStrategy>();
    } else {
@@ -63,7 +72,7 @@ PricingAgent::calculatePrice(const ConsensusExtFace::transactions_vector &_appro
     ASSERT(pricingStrategy != nullptr);
 
     if (_blockID <= 1) {
-        price = 1000;
+        price = sChain->getNode()->getParamUint64(string("DYNAMIC_PRICING_START_PRICE"), 1000);
     } else {
         auto oldPrice = readPrice(_blockID - 1);
         price = pricingStrategy->calculatePrice(oldPrice, _approvedTransactions, _timeStamp,

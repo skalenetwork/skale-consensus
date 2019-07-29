@@ -55,6 +55,7 @@ public:
     virtual void terminateApplication() {};
 };
 
+#include <boost/multiprecision/cpp_int.hpp>
 
 class ConsensusEngine : public ConsensusInterface {
 
@@ -139,4 +140,6 @@ public:
     const string &getBlsPublicKey3() const;
     const string &getBlsPublicKey4() const;
     const string &getBlsPrivateKey() const;
+
+    u256 getPriceForBlockId(uint64_t _blockId) override ;
 };

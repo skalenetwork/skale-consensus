@@ -37,6 +37,7 @@ public:
     virtual void startAll() = 0;
     virtual void bootStrapAll() = 0;
     virtual void exitGracefully() = 0;
+    virtual u256 getPriceForBlockId(uint64_t _blockId) = 0;
     virtual uint64_t getEmptyBlockIntervalMs(){return -1;}
     virtual void setEmptyBlockIntervalMs(uint64_t){}
 };
