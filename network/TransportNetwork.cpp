@@ -64,7 +64,7 @@ TransportType TransportNetwork::transport = TransportType::ZMQ;
 void TransportNetwork::addToDeferredMessageQueue( ptr< NetworkMessageEnvelope > _me ) {
     auto _blockID = _me->getMessage()->getBlockID();
 
-    LOG( trace, "Deferring::" + to_string( _blockID ) );
+//    LOG( trace, "Deferring::" + to_string( _blockID ) );
 
     ASSERT( _me );
 
