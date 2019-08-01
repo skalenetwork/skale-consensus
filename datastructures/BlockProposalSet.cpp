@@ -103,8 +103,8 @@ ptr< BlockProposal > BlockProposalSet::getProposalByIndex( schain_index _index )
 
 
     if ( proposals.count( _index) == 0 ) {
-        LOG(trace,
-            "Proposal did not yet arrive. Total proposals:" + to_string(proposals.size()));
+//        LOG(trace,
+//            "Proposal did not yet arrive. Total proposals:" + to_string(proposals.size()));
         return nullptr;
     }
 
