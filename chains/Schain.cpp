@@ -372,6 +372,9 @@ void Schain::blockCommitArrived( bool bootstrap, block_id _committedBlockID,
 
     } else {
         LOG( info, "Jump starting the system with block" + to_string( _committedBlockID ) );
+        if(_committedBlockID == 0)
+            this->pricingAgent->calculatePrice(
+                ConsensusExtFace::transactions_vector(), 0, 0, 0 );
     }
 
 
@@ -472,13 +475,14 @@ void Schain::pushBlockToExtFace( ptr< CommittedBlock >& _block ) {
 
     auto tv = _block->getTransactionList()->createTransactionVector();
 
-    auto price = this->pricingAgent->calculatePrice(
+    auto next_price = this->pricingAgent->calculatePrice(
         *tv, _block->getTimeStamp(), _block->getTimeStampMs(), _block->getBlockID() );
+    auto cur_price = this->pricingAgent->readPrice(_block->getBlockID() - 1);
 
 
     if ( extFace ) {
         extFace->createBlock( *tv, _block->getTimeStamp(), _block->getTimeStampMs(),
-            ( __uint64_t ) _block->getBlockID(), price );
+            ( __uint64_t ) _block->getBlockID(), cur_price );
     }
 }
 
