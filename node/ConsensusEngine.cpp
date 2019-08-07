@@ -427,7 +427,7 @@ block_id ConsensusEngine::getLargestCommittedBlockID() {
     return id;
 }
 
-u256 ConsensusEngine::getPriceForBlockId(uint64_t _blockId) {
+u256 ConsensusEngine::getPriceForBlockId(uint64_t _blockId) const {
 
     ASSERT(nodes.size() == 1);
 
