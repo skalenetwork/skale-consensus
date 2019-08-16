@@ -26,7 +26,7 @@
 
 
 
-
+#include "../SkaleCommon.h"
 #include "boost/filesystem.hpp"
 #include "../Agent.h"
 #include "../thirdparty/json.hpp"
