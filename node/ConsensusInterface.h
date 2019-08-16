@@ -24,10 +24,11 @@
 #ifndef CONSENSUSINTERFACE_H
 #define CONSENSUSINTERFACE_H
 
+#pragma GCC diagnostic ignored "-Wnon-virtual-dtor"
 
+#include "../SkaleCommon.h"
 
 #include <string>
-
 
 class ConsensusInterface {
 public:
