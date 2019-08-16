@@ -26,9 +26,12 @@
 
 #pragma GCC diagnostic ignored "-Wnon-virtual-dtor"
 
-#include "../SkaleCommon.h"
+#include<boost/multiprecision/cpp_int.hpp>
 
 #include <string>
+
+using u256 = boost::multiprecision::number< boost::multiprecision::backends::cpp_int_backend< 256, 256,
+    boost::multiprecision::unsigned_magnitude, boost::multiprecision::unchecked, void > >;
 
 class ConsensusInterface {
 public:
@@ -38,9 +41,26 @@ public:
     virtual void startAll() = 0;
     virtual void bootStrapAll() = 0;
     virtual void exitGracefully() = 0;
-    virtual u256 getPriceForBlockId(uint64_t _blockId) = 0;
-    virtual uint64_t getEmptyBlockIntervalMs(){return -1;}
+    virtual u256 getPriceForBlockId(uint64_t _blockId) const = 0;
+    virtual uint64_t getEmptyBlockIntervalMs() const {return -1;}
     virtual void setEmptyBlockIntervalMs(uint64_t){}
+};
+
+/**
+ * Through this interface Consensus interacts with the rest of the system
+ */
+class ConsensusExtFace {
+public:
+    typedef std::vector< std::vector< uint8_t > > transactions_vector;
+
+    // Returns hashes and bytes of new transactions; blocks if there are no txns
+    virtual transactions_vector pendingTransactions( size_t _limit ) = 0;
+    // Creates new block with specified transactions AND removes them from the queue
+    virtual void createBlock(const transactions_vector &_approvedTransactions, uint64_t _timeStamp,
+            uint32_t _timeStampMillis, uint64_t _blockID,u256 _gasPrice) = 0;
+    virtual ~ConsensusExtFace() = default;
+
+    virtual void terminateApplication() {};
 };
 
 #endif  // CONSENSUSINTERFACE_H
