@@ -46,21 +46,4 @@ public:
     virtual void setEmptyBlockIntervalMs(uint64_t){}
 };
 
-/**
- * Through this interface Consensus interacts with the rest of the system
- */
-class ConsensusExtFace {
-public:
-    typedef std::vector< std::vector< uint8_t > > transactions_vector;
-
-    // Returns hashes and bytes of new transactions; blocks if there are no txns
-    virtual transactions_vector pendingTransactions( size_t _limit ) = 0;
-    // Creates new block with specified transactions AND removes them from the queue
-    virtual void createBlock(const transactions_vector &_approvedTransactions, uint64_t _timeStamp,
-            uint32_t _timeStampMillis, uint64_t _blockID,u256 _gasPrice) = 0;
-    virtual ~ConsensusExtFace() = default;
-
-    virtual void terminateApplication() {};
-};
-
 #endif  // CONSENSUSINTERFACE_H

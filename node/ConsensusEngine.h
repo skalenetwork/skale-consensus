@@ -27,7 +27,6 @@
 
 
 
-#include "../SkaleCommon.h"
 #include "boost/filesystem.hpp"
 #include "../Agent.h"
 #include "../thirdparty/json.hpp"
@@ -100,7 +99,7 @@ public:
 
     void bootStrapAll() override;
 
-    uint64_t getEmptyBlockIntervalMs(){
+    uint64_t getEmptyBlockIntervalMs() const {
         // HACK assume there is exactly one
         return (*(this->nodes.begin())).second->getEmptyBlockIntervalMs();
     }
@@ -124,5 +123,5 @@ public:
     const string &getBlsPublicKey4() const;
     const string &getBlsPrivateKey() const;
 
-    u256 getPriceForBlockId(uint64_t _blockId) const override ;
+    u256 getPriceForBlockId(uint64_t _blockId) const override;
 };

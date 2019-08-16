@@ -38,12 +38,12 @@ u256 DynamicPricingStrategy::calculatePrice(u256 _previousPrice,
     u256 price;
 
     if (loadPercentage < optimalLoadPercentage) {
-        price = _previousPrice + (adjustmentSpeed * _previousPrice) * (optimalLoadPercentage - loadPercentage) / 1000000;
+        price = _previousPrice - (adjustmentSpeed * _previousPrice) * (optimalLoadPercentage - loadPercentage) / 1000000;
         if (price < minPrice) {
             price = minPrice;
         }
     } else {
-            price = _previousPrice + (adjustmentSpeed * _previousPrice) * (loadPercentage - optimalLoadPercentage) / 1000000;
+        price = _previousPrice + (adjustmentSpeed * _previousPrice) * (loadPercentage - optimalLoadPercentage) / 1000000;
         if (price > maxPrice) {
             price = maxPrice;
         }
