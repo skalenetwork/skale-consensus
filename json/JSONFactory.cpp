@@ -156,15 +156,8 @@ void JSONFactory::createAndAddSChainFromJsonObject(Node &node, const nlohmann::j
 
             auto rni = make_shared<NodeInfo>(nodeID, ip, port, schainID, schainIndex);
 
-            if (nodeID == node.getNodeID()) {
+            if (nodeID == node.getNodeID())
                 localNodeInfo = rni;
-                LOG(debug, "Comparing node info to information in schain ");
-                ASSERT(*rni->getBaseIP() == *node.getBindIP());
-
-                auto bp = rni->getPort();
-                node.setBasePort(bp);
-
-            };
 
             remoteNodeInfos.push_back(rni);
         }

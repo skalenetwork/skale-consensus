@@ -233,7 +233,7 @@ Schain::Schain(
         ASSERT( getNode()->getNodeInfosByIndex()->size() > 0 );
 
         for ( auto const& iterator : *getNode()->getNodeInfosByIndex() ) {
-            if ( *iterator.second->getBaseIP() == *getNode()->getBindIP() ) {
+            if ( iterator.second->getNodeID() == getNode()->getNodeID() ) {
                 ASSERT( thisNodeInfo == nullptr && iterator.second != nullptr );
                 thisNodeInfo = iterator.second;
             }
@@ -241,7 +241,7 @@ Schain::Schain(
 
         if ( thisNodeInfo == nullptr ) {
             throw EngineInitException( "Schain: " + to_string( ( uint64_t ) getSchainID() ) +
-                                           " does not include " + "current node with IP " +
+                                           " does not include current node with IP " +
                                            *getNode()->getBindIP() + "and node id " +
                                            to_string( getNode()->getNodeID() ),
                 __CLASS_NAME__ );

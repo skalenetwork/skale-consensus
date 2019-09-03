@@ -372,7 +372,8 @@ void ConsensusEngine::exitGracefully() {
 
 
     for (auto const it : nodes) {
-        it.second->getSockets()->getConsensusZMQSocket()->terminate();
+        if( it.second->getSockets() )
+            it.second->getSockets()->getConsensusZMQSocket()->terminate();
     }
 
 }
@@ -385,6 +386,8 @@ void ConsensusEngine::joinAllThreads() const {
 }
 
 ConsensusEngine::~ConsensusEngine() {
+
+    exitGracefully();
 
     for (auto &n : nodes) {
 

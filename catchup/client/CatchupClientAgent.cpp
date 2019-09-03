@@ -71,7 +71,7 @@ nlohmann::json CatchupClientAgent::readCatchupResponseHeader( ptr< ClientSocket 
 
 
 void CatchupClientAgent::sync( schain_index _dstIndex ) {
-    LOG( debug, "Catchupc step 0: request for block" +
+    LOG( debug, "Catchupc step 0: requesting blocks after " +
                     to_string( getSchain()->getLastCommittedBlockID() ) );
 
     auto header = make_shared< CatchupRequestHeader >( *sChain, _dstIndex );
