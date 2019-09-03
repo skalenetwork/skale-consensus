@@ -162,6 +162,8 @@ void Node::initParamsFromConfig() {
 
     bindIP = make_shared<string>(cfg.at("bindIP").get<string>());
 
+    basePort = network_port(cfg.at("basePort").get<int>());
+
     auto emptyBlockIntervalMsTmp = getParamInt64("emptyBlockIntervalMs", EMPTY_BLOCK_INTERVAL_MS);
 
 
@@ -218,6 +220,7 @@ ptr<string> Node::getParamString(const string &_paramName, string& _paramDefault
 
 Node::~Node() {
 
+    // sockets means that Node was properly inited
     if (!isExitRequested()) {
         exit();
     }
@@ -441,10 +444,10 @@ void Node::closeAllSocketsAndNotifyAllAgentsAndThreads() {
         agent->notifyAllConditionVariables();
     }
 
-    if (sockets->blockProposalSocket)
+    if (sockets && sockets->blockProposalSocket)
         sockets->blockProposalSocket->touch();
 
-    if (sockets->catchupSocket)
+    if (sockets && sockets->catchupSocket)
         sockets->catchupSocket->touch();
 
 }
@@ -471,7 +474,7 @@ nlohmann::json Node::getCfg() const {
 
 
 Sockets *Node::getSockets() const {
-    ASSERT(sockets);
+    //ASSERT(sockets);
     return sockets.get();
 }
 
