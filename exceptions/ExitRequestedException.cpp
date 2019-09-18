@@ -29,6 +29,4 @@
 
 
 
-ExitRequestedException::ExitRequestedException() : Exception("Exit requested",  "" ){
 
-}

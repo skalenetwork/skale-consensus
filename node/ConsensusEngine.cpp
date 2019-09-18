@@ -370,7 +370,7 @@ void ConsensusEngine::init() {
 ConsensusEngine::ConsensusEngine(ConsensusExtFace &_extFace, uint64_t _lastCommittedBlockID,
                                  uint64_t _lastCommittedBlockTimeStamp, const string &_blsPrivateKey,
                                  const string &_blsPublicKey1, const string &_blsPublicKey2, const string &_blsPublicKey3,
-                                 const string &_blsPublicKey4) :
+                                 const string &_blsPublicKey4) : exitRequested(false),
                                  blsPublicKey1(_blsPublicKey1), blsPublicKey2(_blsPublicKey2),
                                  blsPublicKey3(_blsPublicKey3), blsPublicKey4(_blsPublicKey4),
                                  blsPrivateKey(_blsPrivateKey)
@@ -407,6 +407,14 @@ ConsensusExtFace *ConsensusEngine::getExtFace() const {
 
 void ConsensusEngine::exitGracefully() {
 
+    auto previouslyCalled = exitRequested.exchange(true);
+
+    if (previouslyCalled) {
+        return;
+    }
+
+
+
     for (auto const it : nodes) {
         it.second->exit();
     }
@@ -429,6 +437,8 @@ void ConsensusEngine::joinAllThreads() const {
 }
 
 ConsensusEngine::~ConsensusEngine() {
+
+
 
     exitGracefully();
 

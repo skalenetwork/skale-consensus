@@ -192,7 +192,7 @@ void BlockConsensusAgent::decideBlock(block_id _blockId, schain_index _proposerI
             break;
 
         if (getSchain()->getNode()->isExitRequested()) {
-            throw ExitRequestedException();
+            throw ExitRequestedException(__CLASS_NAME__);
         }
         usleep(100000); /* Flawfinder: ignore */
         ++ i;

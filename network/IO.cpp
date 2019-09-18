@@ -79,7 +79,7 @@ void IO::readBytes(file_descriptor descriptor, in_buffer *buffer, msg_len len) {
 
 
         if (sChain->getNode()->isExitRequested())
-            BOOST_THROW_EXCEPTION(ExitRequestedException());
+            BOOST_THROW_EXCEPTION(ExitRequestedException(__CLASS_NAME__));
 
         uint64_t counter = 1;
 
@@ -89,7 +89,7 @@ void IO::readBytes(file_descriptor descriptor, in_buffer *buffer, msg_len len) {
 
 
             if (sChain->getNode()->isExitRequested())
-                BOOST_THROW_EXCEPTION(ExitRequestedException());
+                BOOST_THROW_EXCEPTION(ExitRequestedException(__CLASS_NAME__));
             if (result == 0) {
                 usleep(10); // dont do busy wait
             };
@@ -141,7 +141,7 @@ void IO::writeBytes(file_descriptor descriptor, out_buffer *buffer, msg_len len)
 
 
         if (sChain->getNode()->isExitRequested())
-            throw ExitRequestedException();
+            throw ExitRequestedException(__CLASS_NAME__);
 
         if (result < 1) {
             BOOST_THROW_EXCEPTION(IOException("Could not write bytes", errno, __CLASS_NAME__));

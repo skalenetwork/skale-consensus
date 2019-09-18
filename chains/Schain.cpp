@@ -211,7 +211,7 @@ void Schain::startThreads() {
 
 
 Schain::Schain(
-    Node& _node, schain_index _schainIndex, const schain_id& _schainID, ConsensusExtFace* _extFace )
+    Node* _node, schain_index _schainIndex, const schain_id& _schainID, ConsensusExtFace* _extFace )
     : Agent( *this, true, true ),
       totalTransactions( 0 ),
       extFace( _extFace ),
@@ -602,7 +602,7 @@ schain_index Schain::getSchainIndex() const {
 
 
 Node* Schain::getNode() const {
-    return &node;
+    return node;
 }
 
 
@@ -717,6 +717,9 @@ void Schain::healthCheck() {
         for ( int i = 1; i <= getNodeCount(); i++ ) {
             if ( i != ( getSchainIndex() ) && !connections.count( i ) ) {
                 try {
+                    if (getNode()->isExitRequested()) {
+                        BOOST_THROW_EXCEPTION(ExitRequestedException(__CLASS_NAME__));
+                    }
                     auto x = make_shared< ClientSocket >(
                         *this, schain_index( i ), port_type::PROPOSAL );
                     LOG( debug, "Health check: connected to peer" );
@@ -724,10 +727,12 @@ void Schain::healthCheck() {
                     x->closeSocket();
                     connections.insert( i );
 
+
+
                 } catch ( ExitRequestedException& ) {
                     throw;
-                } catch ( ... ) {
-                    usleep( 1000 );
+                } catch ( std::exception& e ) {
+                    usleep( 1000000 );
                 }
             }
         }

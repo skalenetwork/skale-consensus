@@ -29,12 +29,33 @@
 #include "Log.h"
 #include "node/ConsensusEngine.h"
 
+#include "time.h"
 #include "Consensust.h"
 
 #ifdef GOOGLE_PROFILE
 #include <gperftools/heap-profiler.h>
 #endif
 
+
+
+class StartFromScratch {
+public:
+    StartFromScratch() {
+        system("rm -rf /tmp/*.db");
+        Consensust::setConfigDirPath(boost::filesystem::system_complete("."));
+
+#ifdef GOOGLE_PROFILE
+        HeapProfilerStart("/tmp/consensusd.profile");
+#endif
+
+    };
+
+    ~StartFromScratch() {
+#ifdef GOOGLE_PROFILE
+        HeapProfilerStop();
+#endif
+    }
+};
 
 uint64_t Consensust::getRunningTime() {
     return runningTimeMs;
@@ -44,7 +65,7 @@ void Consensust::setRunningTime(uint64_t _runningTimeMs) {
     Consensust::runningTimeMs = _runningTimeMs;
 }
 
-uint64_t Consensust::runningTimeMs = 60000000;
+uint64_t Consensust::runningTimeMs = RUNNING_TIME_MS;
 
 fs_path Consensust::configDirPath;
 
@@ -52,30 +73,17 @@ const fs_path &Consensust::getConfigDirPath() {
     return configDirPath;
 }
 
+
+
+
 void Consensust::setConfigDirPath(const fs_path &_configDirPath) {
     Consensust::configDirPath = _configDirPath;
 }
 
 
-
-void Consensust::testInit() {
-
-    setConfigDirPath(boost::filesystem::system_complete("."));
-
-#ifdef GOOGLE_PROFILE
-    HeapProfilerStart("/tmp/consensusd.profile");
-#endif
+void testLog(const char* message) {
+    printf("TEST_LOG: %s\n", message);
 }
-
-void Consensust::testFinalize() {
-
-    signal(SIGPIPE, SIG_IGN);
-
-#ifdef GOOGLE_PROFILE
-    HeapProfilerStop();
-#endif
-}
-
 
 /*
 
@@ -85,7 +93,7 @@ TEST_CASE("Consensus init destroy", "[consensus-init-destroy]") {
     for (int i = 0; i < 10; i++) {
 
 
-        INFO("Parsing configs");
+        testLog("Parsing configs");
 
         ConsensusEngine engine;
 
@@ -93,7 +101,7 @@ TEST_CASE("Consensus init destroy", "[consensus-init-destroy]") {
         REQUIRE_NOTHROW(engine.parseConfigsAndCreateAllNodes(Consensust::getConfigDirPath()));
 
 
-        INFO("Starting nodes");
+        testLog("Starting nodes");
 
 
     }
@@ -106,27 +114,24 @@ TEST_CASE("Consensus init destroy", "[consensus-init-destroy]") {
 
 
 
-TEST_CASE("Run basic consensus", "[consensus-basic]") {
+TEST_CASE_METHOD(StartFromScratch, "Run basic consensus", "[consensus-basic]") {
 
-    system("bash -c rm -rf /tmp/*.db");
-
-    Consensust::testInit();
 
     ConsensusEngine engine;
 
 
-    INFO("Parsing configs");
+    testLog("Parsing configs");
 
 
     engine.parseConfigsAndCreateAllNodes(Consensust::getConfigDirPath());
 
-    INFO("Starting nodes");
+    testLog("Starting nodes");
 
 
     engine.slowStartBootStrapTest();
 
 
-    INFO("Running consensus");
+    testLog("Running consensus");
 
 
     usleep(Consensust::getRunningTime()); /* Flawfinder: ignore */
@@ -136,50 +141,57 @@ TEST_CASE("Run basic consensus", "[consensus-basic]") {
     assert(engine.getLargestCommittedBlockID() > 0);
 
 
-    INFO("Exiting gracefully");
+    testLog("Exiting gracefully");
 
 
     engine.exitGracefully();
 
     SUCCEED();
 
-    Consensust::testFinalize();
-
 }
 
 
 ConsensusEngine engine;
 
+bool success = false;
+
 void exit_check() {
 
-    sleep(10);
+    sleep(STUCK_TEST_TIME);
 
-    SUCCEED();
+    engine.exitGracefully();
 
-    Consensust::testFinalize();
-
-    exit(0);
 }
 
 
+TEST_CASE_METHOD(StartFromScratch, "Get consensus to stuck", "[consensus-stuck]") {
 
-TEST_CASE("Get consensus to stuck", "[consensus-stuck]") {
+    testLog("Parsing configs");
 
-system("rm -rf /tmp/*.db");
+    std::thread timer(exit_check);
 
-Consensust::testInit();
+    try {
 
 
-INFO("Parsing configs");
 
-std::thread timer(exit_check);
+        auto startTime = time(NULL);
 
-engine.parseConfigsAndCreateAllNodes(Consensust::getConfigDirPath());
+        engine.parseConfigsAndCreateAllNodes(Consensust::getConfigDirPath());
 
-INFO("Starting nodes");
+        engine.slowStartBootStrapTest();
 
-engine.slowStartBootStrapTest();
+        auto finishTime = time(NULL);
 
-assert(false);
+        if (finishTime - startTime < STUCK_TEST_TIME) {
+            printf("Consensus did not get stuck");
 
+            REQUIRE(false);
+        }
+
+
+    } catch  (...) {
+        timer.join();
+    }
+
+    SUCCEED();
 }

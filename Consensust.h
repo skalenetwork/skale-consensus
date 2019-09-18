@@ -23,6 +23,10 @@
 
 #pragma once
 
+
+#define RUNNING_TIME_MS 20000000
+#define STUCK_TEST_TIME 5
+
 class Consensust {
 
     static uint64_t runningTimeMs;

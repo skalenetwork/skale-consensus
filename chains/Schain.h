@@ -124,7 +124,7 @@ class Schain : public Agent {
 
 
 
-    Node& node;
+    Node* node;
 
 
     schain_index schainIndex;
@@ -195,7 +195,7 @@ public:
     }
 
 
-    Schain(Node &_node, schain_index _schainIndex, const schain_id &_schainID, ConsensusExtFace *_extFace);
+    Schain(Node* _node, schain_index _schainIndex, const schain_id &_schainID, ConsensusExtFace *_extFace);
 
     void startThreads();
 

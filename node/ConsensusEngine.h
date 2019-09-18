@@ -41,6 +41,8 @@ class ConsensusBLSPrivateKeyShare;
 
 class ConsensusEngine : public ConsensusInterface {
 
+    std::atomic<bool> exitRequested;
+
     map< node_id, Node* > nodes;
 
     std::string exec(const char* cmd);

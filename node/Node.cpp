@@ -362,7 +362,7 @@ void Node::initSchain(ptr<NodeInfo> _localNodeInfo, const vector<ptr<NodeInfo>> 
         ASSERT(nodeInfosByIndex->size() > 0);
         ASSERT(nodeInfosByIndex->count(1) > 0);
 
-        sChain = make_shared<Schain>(*this, _localNodeInfo->getSchainIndex(),
+        sChain = make_shared<Schain>(this, _localNodeInfo->getSchainIndex(),
                                      _localNodeInfo->getSchainID(), _extFace);
     } catch (...) {
         throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
@@ -549,7 +549,7 @@ ptr<PriceDB> Node::getPriceDB() const {
 
 void Node::exitCheck() {
     if (exitRequested) {
-        throw ExitRequestedException();
+        throw ExitRequestedException(__CLASS_NAME__);
     }
 }
 
