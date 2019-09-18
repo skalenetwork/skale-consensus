@@ -21,6 +21,9 @@
     @date 2018
 */
 
+
+
+
 #include "../SkaleCommon.h"
 #include "../Log.h"
 #include "../exceptions/FatalError.h"
@@ -321,11 +324,46 @@ ConsensusEngine::ConsensusEngine() {
     }
 }
 
-void ConsensusEngine::init() const {
+std::string ConsensusEngine::exec(const char* cmd) {
+    std::array<char, 128> buffer;
+    std::string result;
+    std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd, "r"), pclose);
+    if (!pipe) {
+        throw std::runtime_error("popen() failed!");
+    }
+    while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr) {
+        result += buffer.data();
+    }
+    return result;
+}
+
+void ConsensusEngine::systemHealthCheck() {
+
+    string ulimit;
+
+    try {
+        ulimit = exec("/bin/bash -c \"ulimit -n\"");
+    } catch (...) {
+        const char* errStr = "Execution of /bin/bash -c ulimit -n failed";
+        cerr <<  errStr;
+        throw_with_nested(EngineInitException(errStr, __CLASS_NAME__));
+    }
+    int noFiles = std::strtol(ulimit.c_str(), NULL, 10);
+
+    if (noFiles < 65535) {
+
+        const char* error = "File descriptor limit (ulimit -n) is less than 65535. Set it to 65535 or more as described"
+                      "in https://bugs.launchpad.net/ubuntu/+source/lightdm/+bug/1627769\n";
+        cerr <<  error;
+        throw EngineInitException(error, __CLASS_NAME__);
+    }
+
     Utils::checkTime();
+}
+
+void ConsensusEngine::init() {
+    systemHealthCheck();
     BinConsensusInstance::initHistory();
-
-
 }
 
 
@@ -340,7 +378,12 @@ ConsensusEngine::ConsensusEngine(ConsensusExtFace &_extFace, uint64_t _lastCommi
 
 
 
+
+
     ASSERT(_lastCommittedBlockTimeStamp < (uint64_t) 2 * MODERN_TIME);
+
+
+
 
     Log::init();
 

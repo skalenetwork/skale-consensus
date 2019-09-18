@@ -37,8 +37,10 @@ void Utils::checkTime() {
     auto fd = socket( AF_INET, SOCK_DGRAM, IPPROTO_UDP );
 
 
-    if ( fd < 0 )
-        throw FatalError( "Can not open NTP socket" );
+    if ( fd < 0 ) {
+        cerr << "Could not open NTP socket" << endl;
+        throw FatalError("Can not open NTP socket");
+    }
 
     struct timeval tv;
     tv.tv_sec = 1;
@@ -48,8 +50,10 @@ void Utils::checkTime() {
     }
 
 
-    if ( !ip )
-        throw FatalError( "Could not get IP address" );
+    if ( !ip ) {
+        cerr << "Could not resolve of pool.ntp.org. Check internet connection." << endl;
+        throw FatalError("Could not get IP address");
+    }
 
 
     struct sockaddr_in serverAddress = {};
