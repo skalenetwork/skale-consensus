@@ -186,18 +186,21 @@ void BlockConsensusAgent::decideBlock(block_id _blockId, schain_index _proposerI
         proposedBlockSet->addProposal(zeroProposal);
     }
 
-
+    size_t i = 0;
     do {
+        if( i >= 10 )
+            break;
 
         if (getSchain()->getNode()->isExitRequested()) {
             throw ExitRequestedException();
         }
         usleep(100000); /* Flawfinder: ignore */
+        ++ i;
     } while (proposedBlockSet->getProposalByIndex(_proposerIndex) == nullptr);
 
     auto proposal = proposedBlockSet->getProposalByIndex(_proposerIndex);
-
-    getSchain()->blockCommitArrived(false, _blockId, _proposerIndex, proposal->getTimeStamp());
+    if( proposal )
+        getSchain()->blockCommitArrived(false, _blockId, _proposerIndex, proposal->getTimeStamp());
 
 }
 
