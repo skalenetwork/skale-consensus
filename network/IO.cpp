@@ -141,7 +141,7 @@ void IO::writeBytes(file_descriptor descriptor, out_buffer *buffer, msg_len len)
 
 
         if (sChain->getNode()->isExitRequested())
-            throw ExitRequestedException(__CLASS_NAME__);
+            BOOST_THROW_EXCEPTION(ExitRequestedException(__CLASS_NAME__));
 
         if (result < 1) {
             BOOST_THROW_EXCEPTION(IOException("Could not write bytes", errno, __CLASS_NAME__));

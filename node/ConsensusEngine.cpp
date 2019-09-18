@@ -329,7 +329,7 @@ std::string ConsensusEngine::exec(const char* cmd) {
     std::string result;
     std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd, "r"), pclose);
     if (!pipe) {
-        throw std::runtime_error("popen() failed!");
+        BOOST_THROW_EXCEPTION(std::runtime_error("popen() failed!"));
     }
     while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr) {
         result += buffer.data();
@@ -355,7 +355,7 @@ void ConsensusEngine::systemHealthCheck() {
         const char* error = "File descriptor limit (ulimit -n) is less than 65535. Set it to 65535 or more as described"
                       "in https://bugs.launchpad.net/ubuntu/+source/lightdm/+bug/1627769\n";
         cerr <<  error;
-        throw EngineInitException(error, __CLASS_NAME__);
+        BOOST_THROW_EXCEPTION(EngineInitException(error, __CLASS_NAME__));
     }
 
     Utils::checkTime();

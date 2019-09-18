@@ -91,13 +91,13 @@ int ZMQNetwork::interruptableRecv(void *_socket, void *_buf, size_t _len, int _f
             int linger = 1;
             zmq_setsockopt(_socket, ZMQ_LINGER, &linger, sizeof(linger));
             zmq_close(_socket);
-            throw ExitRequestedException(__CLASS_NAME__);
+            BOOST_THROW_EXCEPTION(ExitRequestedException(__CLASS_NAME__));
         }
 
     } while (rc < 0 && errno == EAGAIN);
 
     if (rc < 0) {
-        throw NetworkProtocolException("Zmq recv failed " + string(zmq_strerror(errno)), __CLASS_NAME__);
+        BOOST_THROW_EXCEPTION(NetworkProtocolException("Zmq recv failed " + string(zmq_strerror(errno)), __CLASS_NAME__));
     }
 
     return rc;
@@ -125,7 +125,7 @@ bool ZMQNetwork::interruptableSend(void *_socket, void *_buf, size_t _len, bool 
         if (this->getNode()->isExitRequested()) {
             LOG(debug, getThreadName() + "zmq debug: closing = " + to_string((uint64_t)_socket));
             zmq_close(_socket);
-            throw ExitRequestedException(__CLASS_NAME__);
+            BOOST_THROW_EXCEPTION(ExitRequestedException(__CLASS_NAME__));
         }
 
         if (_isNonBlocking && rc < 0 && errno == EAGAIN) {
@@ -137,7 +137,7 @@ bool ZMQNetwork::interruptableSend(void *_socket, void *_buf, size_t _len, bool 
 
 
     if (rc < 0) {
-        throw NetworkProtocolException("Zmq send failed " + string(zmq_strerror(errno)), __CLASS_NAME__);
+        BOOST_THROW_EXCEPTION(NetworkProtocolException("Zmq send failed " + string(zmq_strerror(errno)), __CLASS_NAME__));
     }
 
 
@@ -153,8 +153,8 @@ ptr<string> ZMQNetwork::readMessageFromNetwork(ptr<Buffer> buf) {
 
 
     if (rc != CONSENSUS_MESSAGE_LEN) {
-        throw NetworkProtocolException("Incorrect message length:" +
-                                       to_string(rc), __CLASS_NAME__);
+        BOOST_THROW_EXCEPTION(NetworkProtocolException("Incorrect message length:" +
+                                       to_string(rc), __CLASS_NAME__));
     }
 
 

@@ -240,11 +240,11 @@ Schain::Schain(
         }
 
         if ( thisNodeInfo == nullptr ) {
-            throw EngineInitException( "Schain: " + to_string( ( uint64_t ) getSchainID() ) +
+            BOOST_THROW_EXCEPTION(EngineInitException( "Schain: " + to_string( ( uint64_t ) getSchainID() ) +
                                            " does not include current node with IP " +
                                            *getNode()->getBindIP() + "and node id " +
                                            to_string( getNode()->getNodeID() ),
-                __CLASS_NAME__ );
+                __CLASS_NAME__ ));
         }
 
         ASSERT( getNodeCount() > 0 );

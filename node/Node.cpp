@@ -549,7 +549,7 @@ ptr<PriceDB> Node::getPriceDB() const {
 
 void Node::exitCheck() {
     if (exitRequested) {
-        throw ExitRequestedException(__CLASS_NAME__);
+        BOOST_THROW_EXCEPTION(ExitRequestedException(__CLASS_NAME__));
     }
 }
 

@@ -96,7 +96,7 @@ level_enum Log::logLevelFromString( string& _s ) {
     }
 
 
-    throw ParsingException( "Unknown level name " + _s , __CLASS_NAME__);
+    BOOST_THROW_EXCEPTION(ParsingException( "Unknown level name " + _s , __CLASS_NAME__));
 }
 
 shared_ptr< spdlog::logger > Log::loggerForClass( const char* _s ) {
