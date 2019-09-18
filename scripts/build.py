@@ -50,6 +50,11 @@ import sys
 import os
 import subprocess
 
+
+def run(_command):
+    print(">" +_command)
+    subprocess.check_call(_command, shell = True)
+
 assert len(sys.argv) == 3
 
 os.chdir("..")
@@ -66,19 +71,17 @@ cmakeExecutable = subprocess.check_output(["which", "cmake"])
 
 print("Running cmake: " + cmakeExecutable)
 
-assert(subprocess.call(["cmake", ".",  "-DCMAKE_BUILD_TYPE=" +  sys.argv[1],
-                        "-DCOVERAGE=ON", "-DMICROPROFILE_ENABLED=0"]) == 0)
+run("cmake . -DCMAKE_BUILD_TYPE=" +  sys.argv[1] +
+                        " -DCOVERAGE=ON -DMICROPROFILE_ENABLED=0")
 
-assert(subprocess.call(["/usr/bin/make", "-j4"]) == 0)
-
+run("/usr/bin/make -j4")
 
 buildDirName = sys.argv[2] + '/cmake-build-' + sys.argv[1].lower()
 
 print("Build dir:" + buildDirName)
 
 
-os.system("ls " + buildDirName)
-
+run("ls " + buildDirName)
 
 assert  os.path.isfile(sys.argv[2] + '/consensust')
 assert  os.path.isfile(sys.argv[2] + '/consensusd')

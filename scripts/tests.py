@@ -26,26 +26,30 @@ import os
 import subprocess
 import sys
 
+def run(_command):
+    print(">" +_command)
+    subprocess.check_call(_command, shell = True)
+
 
 def unitTest(_consensustExecutive, _testType):
-    os.system("bash -c rm  -f ./core")
-    subprocess.call([_consensustExecutive, _testType])
+    run("rm -f ./core")
+    run(_consensustExecutive + " "  + _testType)
 
 
 def fullConsensusTest(_test, _consensustExecutive, _testType):
     testDir = root + "/test/" + _test
     os.chdir(testDir)
-    os.system("bash -c rm  -rf " + testDir + "/core")
-    os.system("bash -c rm  -rf /tmp/*.db")
-    subprocess.call([_consensustExecutive, _testType])
+    run ("pwd")
+    run("rm -rf " + testDir + "/core")
+    run("rm -rf /tmp/*.db")
+    run(_consensustExecutive + " "  + _testType)
 
 
 def getConsensustExecutive():
+    run("cp -f " + root + "/cmake-build-debug/consensust " + root + "/consensust")
     consensustExecutive = root + '/consensust'
     assert(os.path.isfile(consensustExecutive))
     return consensustExecutive
-
-
 
 assert(len(sys.argv) == 2)
 
@@ -58,10 +62,13 @@ consensustExecutive = getConsensustExecutive()
 unitTest(consensustExecutive, "[tx-serialize]")
 unitTest(consensustExecutive, "[tx-list-serialize]")
 unitTest(consensustExecutive, "[committed-block-serialize]")
-unitTest(consensustExecutive, "")
+
+try:
+    fullConsensusTest("two_out_of_four", consensustExecutive, "[consensus-stuck]")
+except:
+    print "Success"
 
 
-fullConsensusTest("two_out_of_four", consensustExecutive, "[consensus-stuck]")
 fullConsensusTest("onenode", consensustExecutive, "[consensus-basic]")
 fullConsensusTest("twonodes", consensustExecutive, "[consensus-basic]")
 fullConsensusTest("fournodes", consensustExecutive, "[consensus-basic]")

@@ -2,6 +2,7 @@
   "nodeName":  "Node2",
   "nodeID": 2,
   "bindIP": "127.0.0.2",
+  "basePort":1231,
   "logLevel": "info",
   "simulateNetworkWriteDelayMs": 100,
   "insecureTestBLSPrivateKey": "1242918195122561069654878094438043001503525111785440814423171735067409748785",
