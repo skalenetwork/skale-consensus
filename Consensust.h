@@ -24,7 +24,7 @@
 #pragma once
 
 
-#define RUNNING_TIME_MS 20000000
+#define RUNNING_TIME_MS 10000000
 #define STUCK_TEST_TIME 5
 
 class Consensust {

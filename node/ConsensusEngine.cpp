@@ -427,6 +427,7 @@ void ConsensusEngine::exitGracefully() {
             it.second->getSockets()->getConsensusZMQSocket()->terminate();
     }
 
+
 }
 
 void ConsensusEngine::joinAllThreads() const {

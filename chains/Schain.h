@@ -146,6 +146,8 @@ class Schain : public Agent {
 
     ptr<NodeInfo> thisNodeInfo = nullptr;
 
+    void checkForExit();
+
     void proposeNextBlock(uint64_t _previousBlockTimeStamp, uint32_t _previousBlockTimeStampMs);
 
 

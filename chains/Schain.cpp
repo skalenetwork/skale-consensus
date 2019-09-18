@@ -97,6 +97,9 @@
 
 
 void Schain::postMessage( ptr< MessageEnvelope > m ) {
+
+    checkForExit();
+
     lock_guard< mutex > lock( messageMutex );
 
     ASSERT( m );
@@ -331,6 +334,9 @@ void Schain::blockCommitsArrivedThroughCatchup( ptr< CommittedBlockList > _block
 
 void Schain::blockCommitArrived( bool bootstrap, block_id _committedBlockID,
     schain_index _proposerIndex, uint64_t _committedTimeStamp ) {
+
+    checkForExit();
+
     std::lock_guard< std::recursive_mutex > aLock( getMainMutex() );
 
     ASSERT( _committedTimeStamp < ( uint64_t ) 2 * MODERN_TIME );
@@ -382,8 +388,17 @@ void Schain::blockCommitArrived( bool bootstrap, block_id _committedBlockID,
 }
 
 
+void Schain::checkForExit() {
+    if (getNode()->isExitRequested()) {
+        BOOST_THROW_EXCEPTION(ExitRequestedException(__CLASS_NAME__));
+    }
+}
+
 void Schain::proposeNextBlock(
     uint64_t _previousBlockTimeStamp, uint32_t _previousBlockTimeStampMs ) {
+
+    checkForExit();
+
     block_id _proposedBlockID( ( uint64_t ) lastCommittedBlockID + 1 );
 
     ASSERT( pushedBlockProposals.count( _proposedBlockID ) == 0 );
@@ -406,6 +421,9 @@ void Schain::proposeNextBlock(
 }
 
 void Schain::processCommittedBlock( ptr< CommittedBlock > _block ) {
+
+    checkForExit();
+
     std::lock_guard< std::recursive_mutex > aLock( getMainMutex() );
 
 
@@ -441,6 +459,8 @@ void Schain::processCommittedBlock( ptr< CommittedBlock > _block ) {
 }
 
 void Schain::saveBlock( ptr< CommittedBlock >& _block ) {
+    checkForExit();
+
     saveBlockToBlockCache( _block );
     getNode()->getBlockDB()->saveBlock( _block );
 }
@@ -466,6 +486,9 @@ void Schain::saveBlockToBlockCache( ptr< CommittedBlock >& _block ) {
 
 
 void Schain::pushBlockToExtFace( ptr< CommittedBlock >& _block ) {
+
+    checkForExit();
+
     auto blockID = _block->getBlockID();
 
 
@@ -489,6 +512,8 @@ void Schain::pushBlockToExtFace( ptr< CommittedBlock >& _block ) {
 
 void Schain::startConsensus( const block_id _blockID ) {
     {
+        checkForExit();
+
         std::lock_guard< std::recursive_mutex > aLock( getMainMutex() );
 
         LOG( debug, "Got proposed block set for block:" + to_string( _blockID ) );
@@ -742,6 +767,9 @@ void Schain::healthCheck() {
 }
 
 void Schain::sigShareArrived( ptr< ConsensusBLSSigShare > _sigShare ) {
+
+    checkForExit();
+
     if ( blockSigSharesDatabase->addSigShare( _sigShare ) ) {
         auto blockId = _sigShare->getBlockId();
         auto mySig = sign( getBlock( blockId )->getHash(), blockId );

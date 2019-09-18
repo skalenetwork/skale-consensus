@@ -427,6 +427,8 @@ void Node::exit() {
 
     closeAllSocketsAndNotifyAllAgentsAndThreads();
 
+
+
 }
 
 bool Node::isExitRequested() {

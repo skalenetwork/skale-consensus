@@ -141,7 +141,7 @@ TEST_CASE_METHOD(StartFromScratch, "Run basic consensus", "[consensus-basic]") {
     assert(engine.getLargestCommittedBlockID() > 0);
 
 
-    testLog("Exiting gracefully");
+    testLog("Exiting gracefully ");
 
 
     engine.exitGracefully();
