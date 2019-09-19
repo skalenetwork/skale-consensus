@@ -147,6 +147,8 @@ TEST_CASE_METHOD(StartFromScratch, "Run basic consensus", "[consensus-basic]") {
 
     engine->exitGracefully();
 
+    delete engine;
+
     SUCCEED();
 
 }
