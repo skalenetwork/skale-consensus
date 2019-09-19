@@ -252,6 +252,8 @@ BOOST_STRONG_TYPEDEF(uint64_t, msg_nonce);
 
 BOOST_STRONG_TYPEDEF(uint64_t, num_threads);
 
+BOOST_STRONG_TYPEDEF(uint64_t, fragment_index);
+
 BOOST_STRONG_TYPEDEF(int, file_descriptor);
 
 BOOST_STRONG_TYPEDEF(char, out_buffer);

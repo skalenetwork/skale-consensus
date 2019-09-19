@@ -6,13 +6,29 @@
 #define SKALED_COMMITTEDBLOCKFRAGMENT_H
 
 
+
 class CommittedBlockFragment {
-    uint64_t totalFragments;
-    uint64_t fragmentIndex;
 
-    ptr<uint8_t> data;
+    const block_id blockId;
+
+    const uint64_t totalFragments;
+    const fragment_index fragmentIndex;
+
+    const ptr<vector<uint8_t>> data;
 
 
+public:
+
+    CommittedBlockFragment(const block_id &blockId, const uint64_t totalFragments, const fragment_index &fragmentIndex,
+                           const ptr<vector<uint8_t>> &data);
+
+    block_id getBlockId() const;
+
+    uint64_t getTotalFragments() const;
+
+    fragment_index getIndex() const;
+
+    ptr<vector<uint8_t>> getData() const;
 
 };
 
