@@ -1,0 +1,14 @@
+//
+// Created by kladko on 19.09.19.
+//
+
+#ifndef SKALED_COMMITTEDBLOCKFRAGMENTLIST_H
+#define SKALED_COMMITTEDBLOCKFRAGMENTLIST_H
+
+
+class CommittedBlockFragmentList {
+
+};
+
+
+#endif //SKALED_COMMITTEDBLOCKFRAGMENTLIST_H
