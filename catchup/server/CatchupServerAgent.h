@@ -50,14 +50,17 @@ class CatchupServerAgent : public AbstractServerAgent {
    ptr<CatchupWorkerThreadPool> catchupWorkerThreadPool;
 
 
+    ptr<vector<uint8_t>>createBlockCatchupResponse( nlohmann::json _jsonRequest,
+                                                         ptr<CatchupResponseHeader> _responseHeader, block_id _blockID);
+
 public:
     CatchupServerAgent(Schain &_schain, ptr<TCPServerSocket> _s);
     ~CatchupServerAgent() override;
 
     CatchupWorkerThreadPool *getCatchupWorkerThreadPool() const;
 
-    ptr<vector<uint8_t>> createCatchupResponseHeader(ptr<Connection> _connectionEnvelope,
-                                nlohmann::json _jsonRequest, ptr<CatchupResponseHeader> _responseHeader);
+    ptr<vector<uint8_t>> createCatchupResponseHeaderAndBinary(ptr<Connection> _connectionEnvelope,
+                                                              nlohmann::json _jsonRequest, ptr<CatchupResponseHeader> _responseHeader);
 
     void processNextAvailableConnection(ptr<Connection> _connection) override;
 

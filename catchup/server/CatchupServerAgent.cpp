@@ -109,10 +109,10 @@ void CatchupServerAgent::processNextAvailableConnection(ptr<Connection> _connect
     auto responseHeader = make_shared<CatchupResponseHeader>();
 
 
-    ptr<vector<uint8_t>> serializedBlocks = nullptr;
+    ptr<vector<uint8_t>> serializedBinary = nullptr;
 
     try {
-        serializedBlocks = this->createCatchupResponseHeader(_connection, catchupRequest, responseHeader);
+        serializedBinary = this->createCatchupResponseHeaderAndBinary(_connection, catchupRequest, responseHeader);
     }
     catch (ExitRequestedException &) { throw; }
     catch (...) {
@@ -141,21 +141,21 @@ void CatchupServerAgent::processNextAvailableConnection(ptr<Connection> _connect
     LOG(debug, "Server step 2: sent catchup response header");
 
 
-    if (serializedBlocks == nullptr) {
-        LOG(debug, "Server step 3: response completed: no missing blocks");
+    if (serializedBinary == nullptr) {
+        LOG(debug, "Server step 3: response completed: no blocks sent");
         return;
     }
 
     try {
-        getSchain()->getIo()->writeBytesVector(_connection->getDescriptor(), serializedBlocks);
+        getSchain()->getIo()->writeBytesVector(_connection->getDescriptor(), serializedBinary);
     } catch (ExitRequestedException &) {
         throw;
     }
     catch (...) {
-        throw_with_nested(CouldNotSendMessageException("Could not send raw blocks", __CLASS_NAME__));
+        throw_with_nested(CouldNotSendMessageException("Could not send serialized binary", __CLASS_NAME__));
     }
 
-    LOG(debug, "Server step 3: response completed with missing blocks");
+    LOG(debug, "Server step 3: response completed: blocks sent");
 
     return;
 
@@ -163,9 +163,9 @@ void CatchupServerAgent::processNextAvailableConnection(ptr<Connection> _connect
 }
 
 
-ptr<vector<uint8_t>> CatchupServerAgent::createCatchupResponseHeader(ptr<Connection> _connectionEnvelope,
-                                                                     nlohmann::json _jsonRequest,
-                                                                     ptr<CatchupResponseHeader> _responseHeader) {
+ptr<vector<uint8_t>> CatchupServerAgent::createCatchupResponseHeaderAndBinary(ptr<Connection> _connectionEnvelope,
+                                                                              nlohmann::json _jsonRequest,
+                                                                              ptr<CatchupResponseHeader> _responseHeader) {
 
 
     schain_id schainID = Header::getUint64(_jsonRequest, "schainID");
@@ -206,18 +206,34 @@ ptr<vector<uint8_t>> CatchupServerAgent::createCatchupResponseHeader(ptr<Connect
     }
 
 
-    if ( sChain->getLastCommittedBlockID() <= block_id(blockID)) {
+    auto serializedBinary = createBlockCatchupResponse(_jsonRequest, _responseHeader, blockID);
+
+    _responseHeader->setComplete();
+
+    LOG(debug, "Catchup response created successfully");
+
+    return serializedBinary;
+}
+
+
+
+ptr<vector<uint8_t>> CatchupServerAgent::createBlockCatchupResponse( nlohmann::json /*_jsonRequest */,
+        ptr<CatchupResponseHeader> _responseHeader, block_id _blockID) {
+
+
+    if (sChain->getLastCommittedBlockID() <= block_id(_blockID)) {
         LOG(debug, "Catchups: sChain->getCommittedBlockID() <= block_id(blockID)");
         _responseHeader->setStatusSubStatus(CONNECTION_DISCONNECT, CONNECTION_NO_NEW_BLOCKS);
         _responseHeader->setComplete();
         return nullptr;
     }
 
+
     auto blockSizes = make_shared<list<uint64_t>>();
 
     auto committedBlockID = sChain->getLastCommittedBlockID();
 
-    if (blockID >= committedBlockID) {
+    if (_blockID >= committedBlockID) {
         LOG(debug, "Catchups: blockID >= committedBlockID");
         _responseHeader->setStatus(CONNECTION_DISCONNECT);
         _responseHeader->setComplete();
@@ -229,8 +245,7 @@ ptr<vector<uint8_t>> CatchupServerAgent::createCatchupResponseHeader(ptr<Connect
     serializedBlocks->push_back('[');
 
 
-
-    for (uint64_t i = (uint64_t) blockID + 1; i <= committedBlockID; i++) {
+    for (uint64_t i = (uint64_t) _blockID + 1; i <= committedBlockID; i++) {
 
         auto serializedBlock = getSchain()->getNode()->getBlockDB()->getSerializedBlock(i);
 
@@ -252,13 +267,8 @@ ptr<vector<uint8_t>> CatchupServerAgent::createCatchupResponseHeader(ptr<Connect
 
     _responseHeader->setBlockSizes(blockSizes);
 
-    _responseHeader->setComplete();
-
-    LOG(debug, "Catchup completed successfully");
-
     return serializedBlocks;
 
 }
-
 
 
