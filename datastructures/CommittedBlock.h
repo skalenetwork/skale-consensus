@@ -33,7 +33,12 @@
 
 class Schain;
 
+class CommittedBlockFragment;
+
 class CommittedBlock : public BlockProposal {
+
+    ptr< vector< uint8_t > > serializedBlock = nullptr;
+
     CommittedBlock( uint64_t timeStamp, uint32_t timeStampMs );
 
     ptr< vector< uint64_t > > parseBlockHeader( const shared_ptr< string >& header );
@@ -44,11 +49,18 @@ public:
         const block_id& blockId, const schain_index& proposerIndex,
         const ptr< TransactionList >& transactions, uint64_t timeStamp, __uint32_t timeStampMs );
 
+    ptr<CommittedBlockFragment> getFragment(uint64_t _totalFragments, fragment_index _index);
+
+
+
     static ptr< CommittedBlock > deserialize( ptr< vector< uint8_t > > _serializedBlock );
 
-    ptr< vector< uint8_t > > serialize();
+    ptr< vector< uint8_t > > getSerialized();
 
 
     static ptr< CommittedBlock > createRandomSample( uint64_t _size, boost::random::mt19937& _gen,
         boost::random::uniform_int_distribution<>& _ubyte, block_id _blockID = block_id( 1 ) );
+
+
+
 };

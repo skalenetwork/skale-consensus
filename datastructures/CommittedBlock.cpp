@@ -39,8 +39,9 @@
 
 #include "../datastructures/Transaction.h"
 #include "../network/Buffer.h"
-#include "CommittedBlock.h"
 #include "TransactionList.h"
+#include "CommittedBlockFragment.h"
+#include "CommittedBlock.h"
 
 
 CommittedBlock::CommittedBlock( Schain& _sChain, ptr< BlockProposal > _p )
@@ -49,7 +50,15 @@ CommittedBlock::CommittedBlock( Schain& _sChain, ptr< BlockProposal > _p )
           _p->getTimeStampMs() ) {}
 
 
-ptr< vector< uint8_t > > CommittedBlock::serialize() {
+ptr< vector< uint8_t > > CommittedBlock::getSerialized() {
+
+
+
+    lock_guard<mutex> lock(m);
+
+    if (serializedBlock != nullptr)
+        return serializedBlock;
+
     auto header = make_shared< CommittedBlockHeader >( *this );
 
     auto buf = header->toBuffer();
@@ -76,6 +85,7 @@ ptr< vector< uint8_t > > CommittedBlock::serialize() {
         CHECK_STATE( block->size() == buf->getCounter() + 2 );
     }
 
+    serializedBlock = block;
 
     return block;
 }
@@ -202,4 +212,39 @@ ptr< CommittedBlock > CommittedBlock::createRandomSample( uint64_t _size,
     static uint64_t MODERN_TIME = 1547640182;
 
     return make_shared< CommittedBlock >( 1, 1, _blockID, 1, list, MODERN_TIME + 1, 1 );
+}
+
+ptr<CommittedBlockFragment> CommittedBlock::getFragment(uint64_t _totalFragments, fragment_index _index) {
+
+    CHECK_ARGUMENT(_totalFragments > 0);
+    CHECK_ARGUMENT(_index <= _totalFragments);
+
+    auto sBlock = getSerialized();
+    auto blockSize = sBlock->size();
+
+    uint64_t fragmentStandardSize;
+
+    if (blockSize % _totalFragments == 0 ) {
+        fragmentStandardSize = sBlock->size() / _totalFragments;
+    } else {
+        fragmentStandardSize = sBlock->size() / _totalFragments + 1;
+    }
+
+    auto startIndex = fragmentStandardSize * ((uint64_t ) _index - 1);
+
+
+    auto fragmentData = make_shared<vector<uint8_t>>();
+    fragmentData->reserve(fragmentStandardSize);
+
+
+    if (_index == _totalFragments) {
+        fragmentData->insert(fragmentData->begin(), sBlock->begin() + startIndex,
+                             sBlock->end());
+
+    } else {
+        fragmentData->insert(fragmentData->begin(), sBlock->begin() + startIndex,
+                             sBlock->begin() + startIndex + fragmentStandardSize);
+    }
+
+    return make_shared<CommittedBlockFragment>(getBlockID(), _totalFragments, _index, fragmentData );
 };

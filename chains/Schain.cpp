@@ -614,7 +614,7 @@ ptr< vector< uint8_t > > Schain::getSerializedBlock( uint64_t i ) const {
 
 
     if ( block ) {
-        return block->serialize();
+        return block->getSerialized();
     } else {
         return getNode()->getBlockDB()->getSerializedBlock( i );
     }

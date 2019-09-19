@@ -25,9 +25,18 @@
 
 #include <stdint.h>
 
+namespace  std {
+    class mutex;
+}
+
 class DataStructure {
 
+
     uint64_t  objectCreationTime;
+
+
+protected:
+    mutex m;
 
 public:
     DataStructure();

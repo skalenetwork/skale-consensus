@@ -49,7 +49,7 @@ BlockDB::BlockDB(string& filename, node_id _nodeId ) : LevelDB( filename, _nodeI
 
 
 void BlockDB::saveBlock(ptr<CommittedBlock> &_block) {
-    auto serializedBlock = _block->serialize();
+    auto serializedBlock = _block->getSerialized();
 
 
     auto key = createKey(_block->getBlockID() );

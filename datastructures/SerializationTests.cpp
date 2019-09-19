@@ -121,7 +121,7 @@ void test_committed_block_serialize_deserialize( bool _fail ) {
         for ( int i = 0; i < 20; i++ ) {
             auto t = CommittedBlock::createRandomSample( i, gen, ubyte );
 
-            auto out = t->serialize();
+            auto out = t->getSerialized();
 
             if ( _fail ) {
                 corrupt_byte_vector( out, gen, ubyte );

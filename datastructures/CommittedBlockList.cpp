@@ -79,7 +79,7 @@ shared_ptr< vector< uint8_t > > CommittedBlockList::serialize() {
     serializedBlocks->push_back( '[' );
 
     for ( auto&& block : *blocks ) {
-        auto data = block->serialize();
+        auto data = block->getSerialized();
         serializedBlocks->insert( serializedBlocks->end(), data->begin(), data->end() );
     }
 
@@ -110,7 +110,7 @@ ptr< vector< uint64_t > > CommittedBlockList::createSizes() {
     auto ret = make_shared< vector< uint64_t > >();
 
     for ( auto&& block : *blocks ) {
-        ret->push_back( block->serialize()->size() );
+        ret->push_back(block->getSerialized()->size() );
     }
 
     return ret;
