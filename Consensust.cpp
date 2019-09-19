@@ -113,22 +113,23 @@ TEST_CASE("Consensus init destroy", "[consensus-init-destroy]") {
 
 
 
+ConsensusEngine* engine;
+
 
 TEST_CASE_METHOD(StartFromScratch, "Run basic consensus", "[consensus-basic]") {
 
 
-    ConsensusEngine engine;
-
+    engine = new ConsensusEngine();
 
     testLog("Parsing configs");
 
 
-    engine.parseConfigsAndCreateAllNodes(Consensust::getConfigDirPath());
+    engine->parseConfigsAndCreateAllNodes(Consensust::getConfigDirPath());
 
     testLog("Starting nodes");
 
 
-    engine.slowStartBootStrapTest();
+    engine->slowStartBootStrapTest();
 
 
     testLog("Running consensus");
@@ -136,22 +137,20 @@ TEST_CASE_METHOD(StartFromScratch, "Run basic consensus", "[consensus-basic]") {
 
     usleep(Consensust::getRunningTime()); /* Flawfinder: ignore */
 
-    assert(engine.nodesCount() > 0);
+    assert(engine->nodesCount() > 0);
 
-    assert(engine.getLargestCommittedBlockID() > 0);
+    assert(engine->getLargestCommittedBlockID() > 0);
 
 
     testLog("Exiting gracefully ");
 
 
-    engine.exitGracefully();
+    engine->exitGracefully();
 
     SUCCEED();
 
 }
 
-
-ConsensusEngine engine;
 
 bool success = false;
 
@@ -159,7 +158,7 @@ void exit_check() {
 
     sleep(STUCK_TEST_TIME);
 
-    engine.exitGracefully();
+    engine->exitGracefully();
 
 }
 
@@ -172,13 +171,11 @@ TEST_CASE_METHOD(StartFromScratch, "Get consensus to stuck", "[consensus-stuck]"
 
     try {
 
-
-
         auto startTime = time(NULL);
 
-        engine.parseConfigsAndCreateAllNodes(Consensust::getConfigDirPath());
+        engine->parseConfigsAndCreateAllNodes(Consensust::getConfigDirPath());
 
-        engine.slowStartBootStrapTest();
+        engine->slowStartBootStrapTest();
 
         auto finishTime = time(NULL);
 

@@ -419,6 +419,8 @@ void ConsensusEngine::exitGracefully() {
         it.second->exit();
     }
 
+
+
     joinAllThreads();
 
 

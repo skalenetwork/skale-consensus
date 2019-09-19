@@ -115,7 +115,6 @@ ptr<BooleanProposalVector> ReceivedBlockProposalsDatabase::getBooleanProposalsVe
 
 ptr<BlockProposalSet> ReceivedBlockProposalsDatabase::getProposedBlockSet(block_id blockID) {
 
-
     lock_guard<recursive_mutex> lock(proposalsDatabaseMutex);
 
     if (proposedBlockSets.count(blockID) == 0) {

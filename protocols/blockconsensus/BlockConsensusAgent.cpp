@@ -351,6 +351,7 @@ void BlockConsensusAgent::routeAndProcessMessage(ptr <MessageEnvelope> m) {
     ASSERT(m->getOrigin() != ORIGIN_PARENT);
 
 
+
     if (m->getMessage()->getMessageType() == MSG_CONSENSUS_PROPOSAL) {
 
         this->startConsensusProposal(m->getMessage()->getBlockId(),
