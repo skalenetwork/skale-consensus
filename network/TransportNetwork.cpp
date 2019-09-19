@@ -269,9 +269,9 @@ void TransportNetwork::deferredMessagesLoop() {
 
 void TransportNetwork::startThreads() {
     networkReadThread =
-        make_shared<thread>( std::bind( &TransportNetwork::networkReadLoop, this ) );
+        new thread( std::bind( &TransportNetwork::networkReadLoop, this ) );
     deferredMessageThread =
-        make_shared<thread>( std::bind( &TransportNetwork::deferredMessagesLoop, this ) );
+        new thread( std::bind( &TransportNetwork::deferredMessagesLoop, this ) );
 
     WorkerThreadPool::addThread( networkReadThread );
     WorkerThreadPool::addThread( deferredMessageThread );

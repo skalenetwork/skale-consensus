@@ -174,7 +174,7 @@ void AbstractServerAgent::acceptTCPConnectionsLoop() {
 void AbstractServerAgent::createNetworkReadThread() {
 
     LOG(info, name + " Starting TCP server network read loop");
-    networkReadThread = make_shared<thread>(std::bind(&AbstractServerAgent::acceptTCPConnectionsLoop, this));
+    networkReadThread = new thread(std::bind(&AbstractServerAgent::acceptTCPConnectionsLoop, this));
     LOG(info, name + " Started TCP server network read loop");
 
 }

@@ -439,10 +439,6 @@ void ConsensusEngine::joinAllThreads() const {
 
 ConsensusEngine::~ConsensusEngine() {
 
-
-
-    exitGracefully();
-
     for (auto &n : nodes) {
 
         delete n.second;

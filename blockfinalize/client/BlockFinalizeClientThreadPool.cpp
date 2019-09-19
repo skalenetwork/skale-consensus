@@ -44,7 +44,7 @@ void BlockFinalizeClientThreadPool::createThread(uint64_t /*number*/) {
 
     ASSERT(p->queueMutex.size() > 0);
 
-    this->threadpool.push_back(make_shared<thread>(AbstractClientAgent::workerThreadItemSendLoop, p));
+    this->threadpool.push_back(new thread(AbstractClientAgent::workerThreadItemSendLoop, p));
 
 }
 

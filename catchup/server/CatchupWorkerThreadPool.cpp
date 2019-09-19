@@ -40,6 +40,6 @@ CatchupWorkerThreadPool::CatchupWorkerThreadPool(num_threads numThreads, void *p
 
 void CatchupWorkerThreadPool::createThread(uint64_t /*threadNumber*/) {
 
-    this->threadpool.push_back(make_shared<thread>(AbstractServerAgent::workerThreadConnectionProcessingLoop,
+    this->threadpool.push_back(new thread(AbstractServerAgent::workerThreadConnectionProcessingLoop,
                                                    (CatchupServerAgent*)params));
 }

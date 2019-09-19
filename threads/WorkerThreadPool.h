@@ -30,19 +30,19 @@ class Schain;
 
 class WorkerThreadPool {
 protected:
-    static vector< ptr< thread > > allThreads;
+    static vector< thread*  > allThreads;
 
 
 public:
 
 
-    static void addThread(ptr<thread> _t);
+    static void addThread(thread* _t);
 
 
-    static const vector< shared_ptr< thread > >& getAllThreads();
+    static const vector< thread * >& getAllThreads();
 
 protected:
-    vector< ptr< thread > > threadpool;
+    vector<thread*> threadpool;
 
     num_threads numThreads;
 

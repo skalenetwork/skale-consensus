@@ -29,7 +29,7 @@
 #include "WorkerThreadPool.h"
 
 
-vector<ptr<thread>> WorkerThreadPool::allThreads;
+vector<thread*> WorkerThreadPool::allThreads;
 
 void WorkerThreadPool::startService() {
 
@@ -48,10 +48,11 @@ WorkerThreadPool::WorkerThreadPool(num_threads _numThreads, void* _param) {
    this->numThreads = _numThreads;
 }
 
-const vector<shared_ptr<thread>> &WorkerThreadPool::getAllThreads() {
+const vector<thread*> &WorkerThreadPool::getAllThreads() {
     return allThreads;
 }
 
-void WorkerThreadPool::addThread(ptr<thread> _t) {
+void WorkerThreadPool::addThread(thread* _t) {
+    ASSERT(_t);
     allThreads.push_back(_t);
 }

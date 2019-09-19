@@ -47,7 +47,7 @@ void CatchupClientThreadPool::createThread(uint64_t /*number*/) {
 
 
 
-    this->threadpool.push_back(make_shared<thread>(CatchupClientAgent::workerThreadItemSendLoop, p));
+    this->threadpool.push_back(new thread(CatchupClientAgent::workerThreadItemSendLoop, p));
 
 }
 
