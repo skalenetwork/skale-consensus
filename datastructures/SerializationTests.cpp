@@ -279,7 +279,7 @@ TEST_CASE("Serialize/deserialize committed block list", "[committed-block-list-s
     // Test successful serialize/deserialize failure
 }
 
-TEST_CASE("Test committed block fragment/defragment", "[committed-block-fragment-defragment]") {
+TEST_CASE("Test committed block fragment/defragment", "[committed-block-defragment]") {
     SECTION("Test successful serialize/deserialize")
 
         test_committed_block_fragment_defragment(false);

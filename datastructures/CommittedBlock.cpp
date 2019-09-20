@@ -155,6 +155,12 @@ ptr< CommittedBlock > CommittedBlock::deserialize( ptr< vector< uint8_t > > _ser
     return block;
 }
 
+
+ptr< CommittedBlock > CommittedBlock::defragment( ptr<CommittedBlockFragmentList> _fragmentList ) {
+    return deserialize(_fragmentList->serialize());
+}
+
+
 ptr< vector< uint64_t > > CommittedBlock::parseBlockHeader( const shared_ptr< string >& header ) {
     CHECK_ARGUMENT( header != nullptr );
 

@@ -28,6 +28,7 @@
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/uniform_int_distribution.hpp>
 
+#include "CommittedBlockFragmentList.h"
 
 #include "BlockProposal.h"
 
@@ -54,6 +55,8 @@ public:
 
 
     static ptr< CommittedBlock > deserialize( ptr< vector< uint8_t > > _serializedBlock );
+
+    static ptr< CommittedBlock > defragment( ptr<CommittedBlockFragmentList> _fragmentList );
 
     ptr< vector< uint8_t > > getSerialized();
 
