@@ -60,11 +60,13 @@ void test_committed_block_fragment_defragment(bool _fail) {
 
     boost::random::uniform_int_distribution<> ubyte(0, 255);
 
+    Log::init();
+
 
     for (int i = 1; i < 20; i++) {
         auto t = CommittedBlock::createRandomSample(i, gen, ubyte);
 
-        auto  list = make_shared<CommittedBlockFragmentList>(i, i);
+        auto list = make_shared<CommittedBlockFragmentList>(i, i);
 
         for (int j = 1; j <= i; j++) {
             list->addFragment(t->getFragment(i, j));
@@ -85,23 +87,25 @@ void test_committed_block_fragment_defragment(bool _fail) {
 
 
 
-        if ( _fail ) {
-            REQUIRE_THROWS( CommittedBlock::defragment(list) );
+        if (_fail) {
+            REQUIRE_THROWS(CommittedBlock::defragment(list));
         } else {
-            ptr< CommittedBlock > imp = nullptr;
+            ptr<CommittedBlock> imp = nullptr;
 
             try {
                 imp = CommittedBlock::defragment(list);
-            } catch ( ParsingException& e ) {
-                Exception::logNested( e, err );
-                throw( e );
+            } catch (Exception &e) {
+                Exception::logNested(e, err);
+                throw (e);
             }
-            REQUIRE( imp != nullptr );
+            REQUIRE(imp != nullptr);
         }
 
     }
 
+
 }
+
 
 void test_tx_serialize_deserialize(bool _fail) {
     boost::random::mt19937 gen;
