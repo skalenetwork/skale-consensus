@@ -43,8 +43,14 @@ bool CommittedBlockFragmentList::isComplete() {
 
     checkSanity();
 
-    return (fragments.size() == totalFragments);
+    if (fragments.size() == totalFragments) {
+        for (uint64_t i = 1; i <= totalFragments; i++) {
+            CHECK_STATE(fragments.find(i) != fragments.end())
+        }
+        return true;
+    }
 
+    return false;
 }
 
 ptr<vector<uint8_t>> CommittedBlockFragmentList::serialize() {
@@ -60,19 +66,20 @@ ptr<vector<uint8_t>> CommittedBlockFragmentList::serialize() {
 
     isSerialized = true;
 
-    uint64_t totalLen = 0;
+    uint64_t totalLen = 2;
 
     try {
 
-        for (uint64_t i = 1; i <= totalFragments; i++) {
-            totalLen += fragments.at(i)->size();
+        for (auto && item : fragments) {
+            totalLen += item.second->size() - 2;
         }
 
         result->reserve(totalLen);
 
-        for (uint64_t i = 0; i <= totalFragments; i++) {
+        result->push_back('<');
 
-            auto fragment = fragments.at(i);
+        for (auto && item : fragments) {
+            auto fragment = item.second;
             result->insert(result->end(), fragment->begin() + 1, fragment->end() - 1);
         }
 
@@ -80,6 +87,7 @@ ptr<vector<uint8_t>> CommittedBlockFragmentList::serialize() {
         throw_with_nested(SerializeException("Could not serialize fragments", __CLASS_NAME__));
     }
 
+    result->push_back('>');
 
     CHECK_STATE(result->size() == totalLen);
 
