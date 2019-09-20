@@ -24,9 +24,7 @@ class CommittedBlockFragmentList {
 public:
     CommittedBlockFragmentList(const block_id &_blockId, const uint64_t _totalFragments);
 
-private:
     bool addFragment(ptr<CommittedBlockFragment> _fragment);
-
 
     bool isComplete();
 
