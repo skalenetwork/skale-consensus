@@ -63,8 +63,8 @@ void test_committed_block_fragment_defragment(bool _fail) {
     Log::init();
 
 
-    for (int i = 1; i < 20; i++) {
-        auto t = CommittedBlock::createRandomSample(i, gen, ubyte);
+    for (int i = 1; i < 200; i++) {
+        auto t = CommittedBlock::createRandomSample(i, gen, ubyte, i);
 
         auto list = make_shared<CommittedBlockFragmentList>(i, i);
 

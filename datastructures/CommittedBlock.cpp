@@ -226,6 +226,8 @@ ptr<CommittedBlockFragment> CommittedBlock::getFragment(uint64_t _totalFragments
     CHECK_ARGUMENT(_index <= _totalFragments);
 
     auto sBlock = getSerialized();
+
+
     auto blockSize = sBlock->size();
 
     uint64_t fragmentStandardSize;

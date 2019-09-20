@@ -56,7 +56,7 @@ bool CommittedBlockFragmentList::isComplete() {
 ptr<vector<uint8_t>> CommittedBlockFragmentList::serialize() {
 
 
-    auto result = make_shared < vector < uint8_t >> ();
+    auto result = make_shared<vector<uint8_t >>();
 
     lock_guard<recursive_mutex> lock(listMutex);
 
@@ -66,30 +66,29 @@ ptr<vector<uint8_t>> CommittedBlockFragmentList::serialize() {
 
     isSerialized = true;
 
-    uint64_t totalLen = 2;
+    uint64_t totalLen = 0;
 
     try {
 
-        for (auto && item : fragments) {
+        for (auto &&item : fragments) {
             totalLen += item.second->size() - 2;
         }
 
         result->reserve(totalLen);
 
-        result->push_back('<');
-
-        for (auto && item : fragments) {
+        for (auto &&item : fragments) {
             auto fragment = item.second;
             result->insert(result->end(), fragment->begin() + 1, fragment->end() - 1);
         }
 
-    } catch(...) {
+    } catch (...) {
         throw_with_nested(SerializeException("Could not serialize fragments", __CLASS_NAME__));
     }
 
-    result->push_back('>');
 
     CHECK_STATE(result->size() == totalLen);
 
+    CHECK_STATE((*result)[sizeof(uint64_t)] == '{');
+    CHECK_STATE(result->back() == '>');
     return result;
 }
