@@ -64,14 +64,15 @@ void test_committed_block_fragment_defragment(bool _fail) {
     for (int i = 1; i < 20; i++) {
         auto t = CommittedBlock::createRandomSample(i, gen, ubyte);
 
-        CommittedBlockFragmentList list(i, i);
+        auto  list = make_shared<CommittedBlockFragmentList>(i, i);
 
         for (int j = 1; j <= i; j++) {
-            list.addFragment(t->getFragment(i, j));
+            list->addFragment(t->getFragment(i, j));
         }
 
 
-        REQUIRE(list.isComplete());
+        REQUIRE(list->isComplete());
+
 
         //auto out = t->getSerialized();
 
@@ -82,15 +83,15 @@ void test_committed_block_fragment_defragment(bool _fail) {
 
         //REQUIRE( out != nullptr );
 
-        /*
+
 
         if ( _fail ) {
-            REQUIRE_THROWS( CommittedBlock::deserialize( out ) );
+            REQUIRE_THROWS( CommittedBlock::defragment(list) );
         } else {
             ptr< CommittedBlock > imp = nullptr;
 
             try {
-                imp = CommittedBlock::deserialize( out );
+                imp = CommittedBlock::defragment(list);
             } catch ( ParsingException& e ) {
                 Exception::logNested( e, err );
                 throw( e );
@@ -98,7 +99,6 @@ void test_committed_block_fragment_defragment(bool _fail) {
             REQUIRE( imp != nullptr );
         }
 
-         */
     }
 
 }

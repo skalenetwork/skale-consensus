@@ -240,17 +240,22 @@ ptr<CommittedBlockFragment> CommittedBlock::getFragment(uint64_t _totalFragments
 
 
     auto fragmentData = make_shared<vector<uint8_t>>();
-    fragmentData->reserve(fragmentStandardSize);
+    fragmentData->reserve(fragmentStandardSize + 2);
+
+    fragmentData->push_back('<');
 
 
     if (_index == _totalFragments) {
-        fragmentData->insert(fragmentData->begin(), sBlock->begin() + startIndex,
+        fragmentData->insert(fragmentData->begin() + 1, sBlock->begin() + startIndex,
                              sBlock->end());
 
     } else {
-        fragmentData->insert(fragmentData->begin(), sBlock->begin() + startIndex,
+        fragmentData->insert(fragmentData->begin() + 1, sBlock->begin() + startIndex,
                              sBlock->begin() + startIndex + fragmentStandardSize);
     }
+
+    fragmentData->push_back('>');
+
 
     return make_shared<CommittedBlockFragment>(getBlockID(), _totalFragments, _index, fragmentData );
 };

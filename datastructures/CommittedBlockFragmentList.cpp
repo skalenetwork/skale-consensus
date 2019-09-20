@@ -19,7 +19,7 @@ bool CommittedBlockFragmentList::addFragment(ptr<CommittedBlockFragment> _fragme
     CHECK_ARGUMENT(_fragment->getIndex() <= totalFragments);
     CHECK_ARGUMENT(_fragment->getData() != nullptr)
 
-    lock_guard<mutex> lock(listMutex);
+    lock_guard<recursive_mutex> lock(listMutex);
 
     checkSanity();
 
@@ -38,7 +38,7 @@ void CommittedBlockFragmentList::checkSanity() {
 }
 
 bool CommittedBlockFragmentList::isComplete() {
-    lock_guard<mutex> lock(listMutex);
+    lock_guard<recursive_mutex> lock(listMutex);
 
     checkSanity();
 
@@ -47,7 +47,7 @@ bool CommittedBlockFragmentList::isComplete() {
 }
 
 ptr<vector<uint8_t>> CommittedBlockFragmentList::serialize() {
-    lock_guard<mutex> lock(listMutex);
+    lock_guard<recursive_mutex> lock(listMutex);
 
     CHECK_STATE(isComplete());
 

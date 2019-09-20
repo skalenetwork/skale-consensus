@@ -11,7 +11,7 @@ class CommittedBlockFragmentList {
 
     bool isSerialized = false;
 
-    mutex listMutex;
+    recursive_mutex listMutex;
 
     const block_id blockID;
 
