@@ -19,12 +19,19 @@ class CommittedBlockFragmentList {
 
     map<fragment_index, ptr<vector<uint8_t>>> fragments;
 
+    list<uint64_t> missingFragments;
+
     void checkSanity();
+
+
+    static boost::random::mt19937 gen;
+
+    static boost::random::uniform_int_distribution<> ubyte;
 
 public:
     CommittedBlockFragmentList(const block_id &_blockId, const uint64_t _totalFragments);
 
-    bool addFragment(ptr<CommittedBlockFragment> _fragment);
+    bool addFragment(ptr<CommittedBlockFragment> _fragment, uint64_t& _nextIndexToRetrieve);
 
     bool isComplete();
 

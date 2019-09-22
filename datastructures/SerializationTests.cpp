@@ -68,10 +68,18 @@ void test_committed_block_fragment_defragment(bool _fail) {
 
         auto list = make_shared<CommittedBlockFragmentList>(i, i);
 
-        for (int j = 1; j <= i; j++) {
-            list->addFragment(t->getFragment(i, j));
+
+        uint64_t next;
+
+        for (int j = 1; j < i; j++) {
+            next = 0;
+            list->addFragment(t->getFragment(i, j), next);
+            REQUIRE(next != 0);
         }
 
+
+        list->addFragment(t->getFragment(i, i), next);
+        REQUIRE(next == 0);
 
         REQUIRE(list->isComplete());
 

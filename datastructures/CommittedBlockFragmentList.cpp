@@ -1,19 +1,38 @@
 //
 // Created by kladko on 19.09.19.
 //
+
+
+
+#include <boost/integer/integer_log2.hpp>
+#include <boost/random/mersenne_twister.hpp>
+#include <boost/random/uniform_int_distribution.hpp>
+
+
 #include "../SkaleCommon.h"
 #include "../Log.h"
-#include "CommittedBlockFragment.h"
-#include "CommittedBlockFragmentList.h"
 #include "../exceptions/SerializeException.h"
+
+#include "CommittedBlockFragment.h"
+
+
+
+#include "CommittedBlockFragmentList.h"
 
 CommittedBlockFragmentList::CommittedBlockFragmentList(const block_id &_blockId,
                                                        const uint64_t _totalFragments) :
                                                                                         blockID(_blockId),
                                                                                         totalFragments(
-                                                                                                _totalFragments) {}
+                                                                                                _totalFragments) {
+    CHECK_ARGUMENT(totalFragments > 0);
 
-bool CommittedBlockFragmentList::addFragment(ptr<CommittedBlockFragment> _fragment) {
+    for (uint64_t i = 1; i <= totalFragments; i++) {
+        missingFragments.push_back(i);
+    }
+
+}
+
+bool CommittedBlockFragmentList::addFragment(ptr<CommittedBlockFragment> _fragment, uint64_t& nextIndexToRetrieve) {
 
     CHECK_ARGUMENT(_fragment->getBlockId() == blockID);
     CHECK_ARGUMENT(_fragment->getIndex() > 0)
@@ -31,6 +50,21 @@ bool CommittedBlockFragmentList::addFragment(ptr<CommittedBlockFragment> _fragme
 
     fragments[_fragment->getIndex()] = _fragment->getData();
 
+
+    std::list<uint64_t >::iterator findIter = std::find(missingFragments.begin(), missingFragments.end(), _fragment->getIndex());
+
+    ASSERT(findIter != missingFragments.end());
+
+    missingFragments.erase(findIter);
+
+    if (isComplete()) {
+        nextIndexToRetrieve = 0;
+        return true;
+    }
+
+
+    nextIndexToRetrieve = 1;
+
     return true;
 }
 
@@ -47,6 +81,10 @@ bool CommittedBlockFragmentList::isComplete() {
         for (uint64_t i = 1; i <= totalFragments; i++) {
             CHECK_STATE(fragments.find(i) != fragments.end())
         }
+
+
+        CHECK_STATE(missingFragments.size() == 0);
+
         return true;
     }
 
@@ -92,3 +130,9 @@ ptr<vector<uint8_t>> CommittedBlockFragmentList::serialize() {
     CHECK_STATE(result->back() == '>');
     return result;
 }
+
+
+
+boost::random::mt19937 CommittedBlockFragmentList::gen;
+
+boost::random::uniform_int_distribution<> CommittedBlockFragmentList::ubyte(0, 1024);
