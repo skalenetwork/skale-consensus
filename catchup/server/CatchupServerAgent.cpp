@@ -30,6 +30,7 @@
 #include "../../exceptions/FatalError.h"
 #include "../../exceptions/ExitRequestedException.h"
 #include "../../exceptions/PingException.h"
+#include "../../exceptions/InvalidMessageFormatException.h"
 #include "../../node/ConsensusEngine.h"
 #include "../../thirdparty/json.hpp"
 
@@ -59,6 +60,7 @@
 #include "../../headers/CatchupRequestHeader.h"
 #include "../../headers/CommittedBlockHeader.h"
 #include "../../headers/CatchupResponseHeader.h"
+#include "../../headers/BlockFinalizeResponseHeader.h"
 
 #include "../../datastructures/CommittedBlock.h"
 #include "../../datastructures/CommittedBlockList.h"
@@ -106,7 +108,7 @@ void CatchupServerAgent::processNextAvailableConnection(ptr<Connection> _connect
     }
 
 
-    auto responseHeader = make_shared<CatchupResponseHeader>();
+    ptr<Header> responseHeader = nullptr;
 
 
     ptr<vector<uint8_t>> serializedBinary = nullptr;
@@ -165,7 +167,8 @@ void CatchupServerAgent::processNextAvailableConnection(ptr<Connection> _connect
 
 ptr<vector<uint8_t>> CatchupServerAgent::createCatchupResponseHeaderAndBinary(ptr<Connection> _connectionEnvelope,
                                                                               nlohmann::json _jsonRequest,
-                                                                              ptr<CatchupResponseHeader> _responseHeader) {
+                                                                              ptr<Header>& _responseHeader) {
+
 
 
     schain_id schainID = Header::getUint64(_jsonRequest, "schainID");
@@ -174,7 +177,6 @@ ptr<vector<uint8_t>> CatchupServerAgent::createCatchupResponseHeaderAndBinary(pt
     block_id blockID = Header::getUint64(_jsonRequest, "blockID");
 
 
-    LOG(debug, "Catchups started: got request block:" + to_string(blockID));
 
 
     if (sChain->getSchainID() != schainID) {
@@ -206,12 +208,29 @@ ptr<vector<uint8_t>> CatchupServerAgent::createCatchupResponseHeaderAndBinary(pt
     }
 
 
-    auto serializedBinary = createBlockCatchupResponse(_jsonRequest, _responseHeader, blockID);
+    auto type = Header::getString(_jsonRequest, "type");
 
-    _responseHeader->setComplete();
+    ptr<vector<uint8_t>> serializedBinary = nullptr;
 
-    LOG(debug, "Catchup response created successfully");
+    if (type->compare(Header::BLOCK_CATCHUP_REQ) == 0) {
+        _responseHeader = make_shared<CatchupResponseHeader>();
 
+        serializedBinary = createBlockCatchupResponse(_jsonRequest,
+                                                           dynamic_pointer_cast<CatchupResponseHeader>(_responseHeader), blockID);
+
+    } else if (type->compare(Header::BLOCK_FINALIZE_REQ) == 0) {
+
+        _responseHeader = make_shared<BlockFinalizeResponseHeader>();
+
+        serializedBinary = createBlockFinalizeResponse(_jsonRequest,
+                                                      dynamic_pointer_cast<BlockFinalizeResponseHeader>(_responseHeader), blockID);
+
+
+    } else {
+        _responseHeader->setStatusSubStatus(CONNECTION_SERVER_ERROR, CONNECTION_ERROR_INVALID_REQUEST_TYPE);
+        BOOST_THROW_EXCEPTION(
+                InvalidMessageFormatException("Unknown request type:" + *type, __CLASS_NAME__));
+    }
     return serializedBinary;
 }
 
@@ -272,3 +291,17 @@ ptr<vector<uint8_t>> CatchupServerAgent::createBlockCatchupResponse( nlohmann::j
 }
 
 
+
+
+ptr<vector<uint8_t>> CatchupServerAgent::createBlockFinalizeResponse( nlohmann::json /*_jsonRequest */,
+                                                                     ptr<BlockFinalizeResponseHeader> _responseHeader,
+                                                                     block_id /*_blockID */) {
+
+
+    auto serializedFragment = make_shared<vector<uint8_t>>();
+
+    _responseHeader->setStatus(CONNECTION_PROCEED);
+
+    return serializedFragment;
+
+}

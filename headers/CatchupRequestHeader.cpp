@@ -41,7 +41,7 @@
 
 using namespace std;
 
-CatchupRequestHeader::CatchupRequestHeader() : Header(Header::CATCHUP_REQ) {
+CatchupRequestHeader::CatchupRequestHeader() : Header(Header::BLOCK_CATCHUP_REQ) {
 }
 
 CatchupRequestHeader::CatchupRequestHeader(Schain &_sChain, schain_index _dstIndex) :
