@@ -99,6 +99,8 @@ void test_committed_block_fragment_defragment(bool _fail) {
                 throw (e);
             }
             REQUIRE(imp != nullptr);
+
+            REQUIRE(*imp->getSerialized() == *t->getSerialized());
         }
 
     }
