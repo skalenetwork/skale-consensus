@@ -43,6 +43,9 @@ bool CommittedBlockFragmentList::addFragment(ptr<CommittedBlockFragment> _fragme
 
     checkSanity();
 
+
+    nextIndexToRetrieve = 0;
+
     if (fragments.find(_fragment->getIndex()) != fragments.end()) {
         return false;
     }
@@ -58,12 +61,26 @@ bool CommittedBlockFragmentList::addFragment(ptr<CommittedBlockFragment> _fragme
     missingFragments.erase(findIter);
 
     if (isComplete()) {
-        nextIndexToRetrieve = 0;
         return true;
     }
 
 
-    nextIndexToRetrieve = 1;
+
+    ASSERT(missingFragments.size() > 0);
+
+    uint64_t randomPosition = ubyte(gen) % missingFragments.size();
+
+    uint64_t  j = 0;
+
+    for (auto && element: missingFragments) {
+        if (j == randomPosition) {
+            nextIndexToRetrieve = element;
+        }
+        j++;
+    }
+
+
+    ASSERT(nextIndexToRetrieve > 0);
 
     return true;
 }
