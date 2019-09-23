@@ -310,7 +310,7 @@ node_count ConsensusEngine::nodesCount() {
 }
 
 
-ConsensusEngine::ConsensusEngine() {
+ConsensusEngine::ConsensusEngine() : exitRequested(false) {
 
     signal(SIGPIPE, SIG_IGN);
 

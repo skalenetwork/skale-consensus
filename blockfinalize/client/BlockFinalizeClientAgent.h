@@ -59,7 +59,13 @@ class BlockFinalizeClientThreadPool;
 
 #include "../../datastructures/CommittedBlockFragmentList.h"
 
-class BlockFinalizeClientAgent : public Agent {
+class BlockFinalizeClientAgent {
+
+    Schain* sChain;
+public:
+    Schain *getSchain() const;
+
+private:
 
     block_id blockId;
 
