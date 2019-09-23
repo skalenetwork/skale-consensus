@@ -21,125 +21,231 @@
     @date 2019
 */
 
+/*
+    Copyright (C) 2018-2019 SKALE Labs
+
+    This file is part of skale-consensus.
+
+    skale-consensus is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published
+    by the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    skale-consensus is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
+
+    @file BlockFinalizeClientAgent.cpp
+    @author Stan Kladko
+    @date 2018
+*/
+
 #include "../../SkaleCommon.h"
+
 #include "../../Log.h"
-#include "../../Agent.h"
+#include "../../exceptions/ExitRequestedException.h"
 #include "../../exceptions/FatalError.h"
+
 #include "../../thirdparty/json.hpp"
-#include "../../crypto/bls_include.h"
 
 #include "../../abstracttcpserver/ConnectionStatus.h"
 
-#include "../../crypto/SHAHash.h"
-#include "../../datastructures/PartialHashesList.h"
-#include "../../datastructures/Transaction.h"
-#include "../../datastructures/TransactionList.h"
-
-
-#include "../../node/Node.h"
-#include "../../chains/Schain.h"
+#include "../../network/ClientSocket.h"
 #include "../../network/IO.h"
 #include "../../network/TransportNetwork.h"
-#include "../../pendingqueue/PendingTransactionsAgent.h"
-#include "../../headers/BlockProposalHeader.h"
-#include "../../network/ClientSocket.h"
 #include "../../node/Node.h"
+
+#include "../../chains/Schain.h"
+#include "../../crypto/SHAHash.h"
+#include "../../datastructures/CommittedBlockList.h"
+#include "../../datastructures/CommittedBlockFragment.h"
+#include "../../datastructures/CommittedBlockFragmentList.h"
 #include "../../exceptions/NetworkProtocolException.h"
-#include "../../network/Connection.h"
-#include "../../headers/MissingTransactionsRequestHeader.h"
-#include "../../headers/MissingTransactionsResponseHeader.h"
+#include "../../headers/BlockProposalHeader.h"
 #include "../../headers/BlockFinalizeRequestHeader.h"
-#include "../../datastructures/BlockProposal.h"
-#include "../../datastructures/CommittedBlock.h"
-#include "../../exceptions/ExitRequestedException.h"
-#include "../../exceptions/PingException.h"
-#include "../../abstracttcpclient/AbstractClientAgent.h"
-#include "../../crypto/ConsensusBLSSigShare.h"
-#include "BlockFinalizeClientThreadPool.h"
+#include "../../headers/BlockFinalizeResponseHeader.h"
+#include "../../pendingqueue/PendingTransactionsAgent.h"
 
 #include "BlockFinalizeClientAgent.h"
+#include "BlockFinalizeClientThreadPool.h"
 
 
-BlockFinalizeClientAgent::BlockFinalizeClientAgent(Schain &_sChain) : AbstractClientAgent(_sChain, PROPOSAL) {
+BlockFinalizeClientAgent::BlockFinalizeClientAgent( Schain& _sChain,
+        block_id _blockId, schain_index _proposerIndex) : Agent( _sChain, false ),
+        blockId(_blockId), proposerIndex(_proposerIndex), fragmentList(_blockId, (uint64_t )_sChain.getNodeCount() - 1) {
     try {
-        LOG(debug, "Constructing blockFinalizeClientAgent");
+        logThreadLocal_ = _sChain.getNode()->getLog();
+        this->sChain = &_sChain;
+        threadCounter = 0;
 
-        this->blockFinalizeThreadPool = make_shared<BlockFinalizeClientThreadPool>(
-                num_threads((uint64_t) _sChain.getNodeCount()), this);
-        blockFinalizeThreadPool->startService();
-    } catch (...) {
-        throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
+        if ( _sChain.getNodeCount() > 1 ) {
+            this->blockFinalizeClientThreadPool = make_shared< BlockFinalizeClientThreadPool >
+                       ((uint64_t) getSchain()->getNodeCount(), this );
+            blockFinalizeClientThreadPool->startService();
+        }
+    } catch ( ... ) {
+        throw_with_nested( FatalError( __FUNCTION__, __CLASS_NAME__ ) );
     }
 }
 
 
-nlohmann::json BlockFinalizeClientAgent::readProposalResponseHeader(ptr<ClientSocket> _socket) {
-    return sChain->getIo()->readJsonHeader(_socket->getDescriptor(), "Read proposal resp");
+nlohmann::json BlockFinalizeClientAgent::readBlockFinalizeResponseHeader( ptr< ClientSocket > _socket ) {
+    return sChain->getIo()->readJsonHeader( _socket->getDescriptor(), "Read BlockFinalize response" );
 }
 
 
-void BlockFinalizeClientAgent::sendItemImpl(ptr<BlockProposal> &_proposal, shared_ptr<ClientSocket> &socket,
-                                            schain_index _destIndex,
-                                            node_id _dstNodeId) {
+uint64_t BlockFinalizeClientAgent::sync( schain_index _dstIndex, fragment_index _fragmentIndex) {
 
-    LOG(trace, "Proposal step 0: Starting block proposal");
-
-
-    auto committedBlock = dynamic_pointer_cast<CommittedBlock>(_proposal);
-
-    ASSERT(committedBlock);
-
-    ptr<Header> header = make_shared<BlockFinalizeRequestHeader>(*sChain, committedBlock,
-                                                                 _proposal->getProposerIndex());
+    auto header = make_shared< BlockFinalizeRequestHeader >( *sChain, blockId, proposerIndex, _fragmentIndex);
+    auto socket = make_shared< ClientSocket >( *sChain, _dstIndex, CATCHUP );
+    auto io = getSchain()->getIo();
 
 
     try {
-        getSchain()->getIo()->writeHeader(socket, header);
-    } catch (ExitRequestedException &) {
+        io->writeMagic( socket );
+    } catch ( ExitRequestedException& ) {
         throw;
-    } catch (...) {
-        throw_with_nested(NetworkProtocolException("Could not write header", __CLASS_NAME__));
+    } catch ( ... ) {
+        throw_with_nested( NetworkProtocolException(
+                "BlockFinalizec: Server disconnect sending magic", __CLASS_NAME__ ) );
     }
-
-
-    LOG(trace, "Proposal step 1: wrote proposal header");
-
-    auto response = sChain->getIo()->readJsonHeader(socket->getDescriptor(), "Read proposal resp");
-
-
-    LOG(trace, "Proposal step 2: read proposal response");
-
-
-    auto status = (ConnectionStatus) Header::getUint64(response, "status");
-    // auto substatus = (ConnectionSubStatus) Header::getUint64(response, "substatus");
-
-
-    if (status != CONNECTION_SUCCESS) {
-        LOG(trace, "Proposal Server terminated proposal push");
-        return;
-    }
-
-    ptr<ConsensusBLSSigShare> signatureShare;
 
     try {
+        io->writeHeader( socket, header );
+    } catch ( ExitRequestedException& ) {
+        throw;
+    } catch ( ... ) {
+        auto errString = "BlockFinalizec step 1: can not write BlockFinalize request";
+        LOG( debug, errString );
+        throw_with_nested( NetworkProtocolException( errString, __CLASS_NAME__ ) );
+    }
+    LOG( debug, "BlockFinalizec step 1: wrote BlockFinalize request" );
 
-        signatureShare = getBLSSignatureShare(response, committedBlock->getBlockID(), _destIndex,
-                                              _dstNodeId);
-    } catch (...) {
-        throw_with_nested(NetworkProtocolException("Could not read signature share from response", __CLASS_NAME__));
+    nlohmann::json response;
+
+    try {
+        response = readBlockFinalizeResponseHeader( socket );
+    } catch ( ExitRequestedException& ) {
+        throw;
+    } catch ( ... ) {
+        auto errString = "BlockFinalizec step 2: can not read BlockFinalize response";
+        LOG( debug, errString );
+        throw_with_nested( NetworkProtocolException( errString, __CLASS_NAME__ ) );
     }
 
-    sChain->sigShareArrived(signatureShare);
 
-    LOG(trace, "Proposal step 6: sent missing transactions");
+    LOG( debug, "BlockFinalizec step 2: read BlockFinalize response header" );
+
+    auto status = ( ConnectionStatus ) Header::getUint64( response, "status" );
+
+    if ( status == CONNECTION_DISCONNECT ) {
+        LOG( debug, "BlockFinalizec got response::no missing blocks" );
+        return 0;
+    }
+
+
+    if ( status != CONNECTION_PROCEED ) {
+        BOOST_THROW_EXCEPTION( NetworkProtocolException(
+                                       "Server error in BlockFinalize response:" + to_string( status ), __CLASS_NAME__ ) );
+    }
+
+
+    ptr<vector<uint8_t >> serializedFragment;
+
+
+    try {
+        serializedFragment = readBlockFragment( socket, response );
+    } catch ( ExitRequestedException& ) {
+        throw;
+    } catch ( ... ) {
+        auto errString = "BlockFinalizec step 3: can not read missing blocks";
+        LOG( err, errString );
+        throw_with_nested( NetworkProtocolException( errString, __CLASS_NAME__ ) );
+    }
+
+    ptr<CommittedBlockFragment> fragment = nullptr;
+
+    try {
+        fragment = make_shared<CommittedBlockFragment>(
+                blockId, (uint64_t ) getSchain()->getNodeCount()  -1 , _fragmentIndex, serializedFragment);
+    } catch ( ... ) {
+        throw_with_nested(
+                NetworkProtocolException( "Could not parse block fragment", __CLASS_NAME__ ) );
+    }
+
+    uint64_t  next = 0;
+
+    fragmentList.addFragment(fragment, next);
+
+    LOG( debug, "BlockFinalizec success" );
+
+    return next;
+
+}
+
+uint64_t BlockFinalizeClientAgent::readFragmentSize(nlohmann::json _responseHeader) {
+    uint64_t  result = Header::getUint64(_responseHeader, "fragmentSize");
+
+    if (result == 0 ) {
+        BOOST_THROW_EXCEPTION( NetworkProtocolException( "fragmentSize == 0", __CLASS_NAME__ ) );
+    }
+
+    return result;
+};
+
+
+ptr<vector<uint8_t >> BlockFinalizeClientAgent::readBlockFragment(ptr<ClientSocket> _socket,
+                                                                      nlohmann::json responseHeader) {
+
+    ASSERT( responseHeader > 0 );
+
+    auto fragmentSize = readFragmentSize( responseHeader);
+
+    auto serializedFragment = make_shared< vector< uint8_t > >(fragmentSize);
+
+    try {
+        getSchain()->getIo()->readBytes(_socket->getDescriptor(),
+                                        ( in_buffer* ) serializedFragment->data(), msg_len(fragmentSize) );
+    } catch ( ExitRequestedException& ) {
+        throw;
+    } catch ( ... ) {
+        throw_with_nested( NetworkProtocolException( "Could not read blocks", __CLASS_NAME__ ) );
+    }
+
+    return serializedFragment;
 }
 
 
-ptr<ConsensusBLSSigShare> BlockFinalizeClientAgent::getBLSSignatureShare(nlohmann::json _json,
-                                                                block_id _blockID, schain_index _signerIndex,
-                                                                node_id _signerNodeId) {
-    auto s = Header::getString(_json, "sigShare");
+void BlockFinalizeClientAgent::workerThreadItemSendLoop( BlockFinalizeClientAgent* agent,
+        schain_index _dstIndex) {
 
-    return make_shared<ConsensusBLSSigShare>(s, getSchain()->getSchainID(), _blockID, _signerNodeId,
-        _signerIndex, sChain->getTotalSignersCount(), sChain->getRequiredSignersCount());
+    setThreadName( __CLASS_NAME__ );
+
+    agent->waitOnGlobalStartBarrier();
+
+
+    uint64_t  next = (uint64_t ) _dstIndex;
+
+
+    try {
+        while ( !agent->getSchain()->getNode()->isExitRequested() ) {
+            //usleep( agent->getNode()->getCatchupIntervalMs() * 1000 );
+
+            try {
+                next = agent->sync(_dstIndex, next);
+            } catch ( ExitRequestedException& ) {
+                return;
+            } catch ( Exception& e ) {
+                Exception::logNested( e );
+            }
+        };
+    } catch ( FatalError* e ) {
+        agent->getNode()->exitOnFatalError( e->getMessage() );
+    }
 }
+
+

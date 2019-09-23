@@ -21,50 +21,73 @@
     @date 2019
 */
 
+/*
+    Copyright (C) 2018-2019 SKALE Labs
+
+    This file is part of skale-consensus.
+
+    skale-consensus is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published
+    by the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    skale-consensus is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
+
+    @file BlockFinalizeClientAgent.h
+    @author Stan Kladko
+    @date 2018
+*/
+
 #pragma once
 
-#include "../../abstracttcpclient/AbstractClientAgent.h"
-#include "../../pendingqueue/PendingTransactionsAgent.h"
 
 
+class CommittedBlockList;
 class ClientSocket;
 class Schain;
+class BlockFinalizeResponseHeader;
+class CommittedBlockFragment;
+class CommittedBlockFragmentList;
+
 class BlockFinalizeClientThreadPool;
-class BlockProposal;
-class MissingTransactionsRequestHeader;
 
+#include "../../datastructures/CommittedBlockFragmentList.h"
 
-class BlockFinalizeClientAgent : public AbstractClientAgent {
+class BlockFinalizeClientAgent : public Agent {
 
+    block_id blockId;
 
-    friend class BlockFinalizeClientThreadPool;
+    schain_index proposerIndex;
 
-    nlohmann::json readProposalResponseHeader(ptr<ClientSocket> _socket);
-
-
-    void sendItem(ptr<BlockProposal> _proposal, schain_index _dstIndex, node_id _dstNodeId);
-
-
-    static void workerThreadItemSendLoop(AbstractClientAgent *agent);
-
-
-    ptr<ConsensusBLSSigShare> getBLSSignatureShare(nlohmann::json _json,
-       block_id _blockID, schain_index _signerIndex, node_id _signerNodeId);
-
-
-
-
+    CommittedBlockFragmentList fragmentList;
 
 public:
+    atomic< uint64_t > threadCounter;
 
-    ptr<BlockFinalizeClientThreadPool> blockFinalizeThreadPool = nullptr;
-
-
-    explicit BlockFinalizeClientAgent(Schain& subChain_);
+    ptr< BlockFinalizeClientThreadPool > blockFinalizeClientThreadPool = nullptr;
 
 
-    void sendItemImpl(ptr<BlockProposal> &_proposal, shared_ptr<ClientSocket> &socket, schain_index _destIndex,
-                      node_id _dstNodeId);
+    BlockFinalizeClientAgent( Schain& subChain_, block_id _blockId, schain_index _proposerIndex);
+
+
+    uint64_t sync( schain_index _dstIndex, fragment_index _fragmentIndex);
+
+
+    static void workerThreadItemSendLoop( BlockFinalizeClientAgent* agent, schain_index _destIndex );
+
+    nlohmann::json readBlockFinalizeResponseHeader( ptr< ClientSocket > _socket );
+
+
+    ptr<vector<uint8_t>> readBlockFragment(
+            ptr< ClientSocket > _socket, nlohmann::json responseHeader );
+
+    uint64_t readFragmentSize(nlohmann::json _responseHeader);
 
 };
 

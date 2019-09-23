@@ -108,7 +108,7 @@ class Schain : public Agent {
 
     ptr<BlockProposalClientAgent> blockProposalClient = nullptr;
 
-    ptr<BlockFinalizeClientAgent> blockFinalizeClient = nullptr;
+
 
     ptr<CatchupClientAgent> catchupClientAgent = nullptr;
 

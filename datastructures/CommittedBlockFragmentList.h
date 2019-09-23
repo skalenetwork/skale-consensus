@@ -2,10 +2,19 @@
 // Created by kladko on 19.09.19.
 //
 
+
 #ifndef SKALED_COMMITTEDBLOCKFRAGMENTLIST_H
 #define SKALED_COMMITTEDBLOCKFRAGMENTLIST_H
 
+
+
 class CommittedBlockFragment;
+
+
+#include <boost/integer/integer_log2.hpp>
+#include <boost/random/mersenne_twister.hpp>
+#include <boost/random/uniform_int_distribution.hpp>
+
 
 class CommittedBlockFragmentList {
 

@@ -45,29 +45,23 @@
 using namespace std;
 
 
-BlockFinalizeRequestHeader::BlockFinalizeRequestHeader(Schain &_sChain, ptr<CommittedBlock> proposal,
-        schain_index _proposerIndex) :
-        AbstractBlockRequestHeader(_sChain, static_pointer_cast<BlockProposal>(proposal),
-                Header::BLOCK_FINALIZE_REQ, _proposerIndex) {
+BlockFinalizeRequestHeader::BlockFinalizeRequestHeader(Schain &_sChain, block_id _blockID, schain_index _proposerIndex,
+                                                           fragment_index _fragmentIndex) :
+        AbstractBlockRequestHeader(_sChain, _blockID,
+                Header::BLOCK_FINALIZE_REQ, _proposerIndex), fragmentIndex(_fragmentIndex) {
 
-    if (!proposal) {
-        BOOST_THROW_EXCEPTION(InvalidArgumentException("Null proposal", __CLASS_NAME__));
-    }
+    CHECK_ARGUMENT(_fragmentIndex > 0);
 
-    if (proposal) {
-        this->hash = proposal->getHash()->toHex();
-    }
-    this->proposerNodeID = _sChain.getNode()->getNodeID();
+    CHECK_ARGUMENT((uint64_t ) _fragmentIndex <= _sChain.getNodeCount() - 1)
+
     complete = true;
-
 }
 
 void BlockFinalizeRequestHeader::addFields(nlohmann::basic_json<> &jsonRequest) {
 
     AbstractBlockRequestHeader::addFields(jsonRequest);
 
-    if (hash)
-        jsonRequest["hash"] = *hash;
+    jsonRequest["fragmentIndex"] = fragmentIndex;
 
 }
 

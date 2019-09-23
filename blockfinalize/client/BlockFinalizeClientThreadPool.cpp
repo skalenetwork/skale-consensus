@@ -21,30 +21,43 @@
     @date 2019
 */
 
+
 #include "../../SkaleCommon.h"
 #include "../../Log.h"
+#include "../../thirdparty/json.hpp"
+
+
+#include "../../Agent.h"
+
+#include "../../chains/Schain.h"
+#include "../../node/Node.h"
 #include "../../exceptions/FatalError.h"
+
+
+#include "../../abstracttcpserver/ConnectionStatus.h"
+#include "../../network/Connection.h"
 
 #include "../../thirdparty/json.hpp"
 
-#include "../../abstracttcpserver/ConnectionStatus.h"
-#include "../../crypto/ConsensusBLSSigShare.h"
 #include "BlockFinalizeClientAgent.h"
 #include "BlockFinalizeClientThreadPool.h"
 
 BlockFinalizeClientThreadPool::BlockFinalizeClientThreadPool(num_threads numThreads, void *params_) : WorkerThreadPool(numThreads,
-                                                                                                            params_) {
-    ASSERT(((BlockFinalizeClientAgent*) params)->queueMutex.size() > 0);
+                                                                                                           params_) {
 }
 
 
-void BlockFinalizeClientThreadPool::createThread(uint64_t /*number*/) {
+void BlockFinalizeClientThreadPool::createThread(uint64_t number) {
 
     auto p = (BlockFinalizeClientAgent*)params;
 
-    ASSERT(p->queueMutex.size() > 0);
+    uint64_t index = number + 1;
 
-    this->threadpool.push_back(new thread(AbstractClientAgent::workerThreadItemSendLoop, p));
+
+    if (index == p->getSchain()->getSchainIndex())
+        return;
+
+    this->threadpool.push_back(new thread(BlockFinalizeClientAgent::workerThreadItemSendLoop, p, index));
 
 }
 

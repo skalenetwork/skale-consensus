@@ -297,7 +297,7 @@ ptr<vector<uint8_t>> CatchupServerAgent::createBlockFinalizeResponse(nlohmann::j
 
     fragment_index fragmentIndex = Header::getUint64(_jsonRequest, "fragmentIndex");
 
-    if (fragmentIndex < 1 || (uint64_t) fragmentIndex > getSchain()->getNodeCount()) {
+    if (fragmentIndex < 1 || (uint64_t) fragmentIndex > getSchain()->getNodeCount() - 1) {
         LOG(debug, "Incorrect fragment index:" + to_string(fragmentIndex));
         _responseHeader->setStatusSubStatus(CONNECTION_DISCONNECT, CONNECTION_ERROR_INVALID_FRAGMENT_INDEX);
         _responseHeader->setComplete();
@@ -329,7 +329,7 @@ ptr<vector<uint8_t>> CatchupServerAgent::createBlockFinalizeResponse(nlohmann::j
     auto committedBlock = make_shared<CommittedBlock>(proposal);
 
     auto fragment = committedBlock->getFragment(
-            (uint64_t ) getSchain()->getNodeCount(),
+            (uint64_t ) getSchain()->getNodeCount() - 1,
             fragmentIndex);
 
     CHECK_STATE(fragment != nullptr);

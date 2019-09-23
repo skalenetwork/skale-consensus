@@ -276,7 +276,6 @@ void Schain::constructChildAgents() {
         std::lock_guard< std::recursive_mutex > aLock( getMainMutex() );
         pendingTransactionsAgent = make_shared< PendingTransactionsAgent >( *this );
         blockProposalClient = make_shared< BlockProposalClientAgent >( *this );
-        blockFinalizeClient = make_shared< BlockFinalizeClientAgent >( *this );
         catchupClientAgent = make_shared< CatchupClientAgent >( *this );
         blockConsensusInstance = make_shared< BlockConsensusAgent >( *this );
         blockProposalsDatabase = make_shared< ReceivedBlockProposalsDatabase >( *this );
@@ -365,10 +364,6 @@ void Schain::blockCommitArrived( bool bootstrap, block_id _committedBlockID,
         ASSERT( committedProposal );
 
         auto newCommittedBlock = make_shared< CommittedBlock >(committedProposal );
-
-        if ( getNode()->isBlsEnabled() ) {
-            blockFinalizeClient->enqueueItem( newCommittedBlock );
-        }
 
         processCommittedBlock( newCommittedBlock );
 
