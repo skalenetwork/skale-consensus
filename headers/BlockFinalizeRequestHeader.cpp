@@ -61,7 +61,7 @@ void BlockFinalizeRequestHeader::addFields(nlohmann::basic_json<> &jsonRequest) 
 
     AbstractBlockRequestHeader::addFields(jsonRequest);
 
-    jsonRequest["fragmentIndex"] = fragmentIndex;
+    jsonRequest["fragmentIndex"] = (uint64_t ) fragmentIndex;
 
 }
 

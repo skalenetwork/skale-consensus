@@ -182,7 +182,6 @@ ptr<vector<uint8_t>> CatchupServerAgent::createResponseHeaderAndBinary(ptr<Conne
                                                                        nlohmann::json _jsonRequest,
                                                                        ptr<Header> &_responseHeader) {
 
-
     schain_id schainID = Header::getUint64(_jsonRequest, "schainID");
     block_id blockID = Header::getUint64(_jsonRequest, "blockID");
 
