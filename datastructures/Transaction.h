@@ -87,6 +87,8 @@ public:
 
     static ptr< Transaction > createRandomSample( uint64_t _size, boost::random::mt19937& _gen,
                                                   boost::random::uniform_int_distribution<>& _ubyte );
+
+
 };
 
 

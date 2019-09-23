@@ -166,51 +166,7 @@ void BlockConsensusAgent::decideBlock(block_id _blockId, schain_index _proposerI
               " T(s):" +
               to_string((getSchain()->getCurrentTimeMilllis().count() - getSchain()->getStartTime().count()) / 1000.0));
 
-
-    auto proposedBlockSet = getSchain()->blockProposalsDatabase->getProposedBlockSet(_blockId);
-
-
-    ASSERT(proposedBlockSet);
-
-
-    if (_proposerIndex == 0) {
-
-
-        uint64_t time = Schain::getCurrentTimeMs();
-        auto sec = time / 1000;
-        auto ms = (uint32_t ) time % 1000;
-
-        // empty block
-        auto emptyList = make_shared<TransactionList>(make_shared < vector < ptr < Transaction >> > ());
-        auto zeroProposal = make_shared<ReceivedBlockProposal>(*getSchain(), _blockId, 0,
-                                                               emptyList, sec, ms );
-
-
-        //TODO: FIX TIME FOR EMPTY PROPOSAL!!!
-        proposedBlockSet->addProposal(zeroProposal);
-    }
-
-
-    if (proposedBlockSet->getProposalByIndex(_proposerIndex) == nullptr) {
-
-        // did not receive proposal from the proposer, pull it in parallel from other hosts
-        // Note that due to the BLS signature proof, 2t hosts out of 3t + 1 total are guaranteed to
-        // posess the proposal
-
-        auto agent = make_unique<BlockFinalizeClientAgent>(*getSchain(), _blockId, _proposerIndex);
-
-        auto proposal = agent->downloadProposal();
-
-        if (proposal != nullptr) // Nullptr means catchup happened first
-            proposedBlockSet->addProposal(proposal);
-
-    }
-
-    auto proposal = proposedBlockSet->getProposalByIndex(_proposerIndex);
-
-
-    if( proposal )
-        getSchain()->blockCommitArrived(false, _blockId, _proposerIndex, proposal->getTimeStamp());
+    getSchain()->decideBlock(_blockId, _proposerIndex);
 
 }
 

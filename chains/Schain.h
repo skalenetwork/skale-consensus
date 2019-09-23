@@ -314,4 +314,6 @@ public:
     size_t getRequiredSignersCount();
 
     u256 getPriceForBlockId(uint64_t _blockId);
+
+    void decideBlock(block_id _blockId, schain_index _proposerIndex);
 };

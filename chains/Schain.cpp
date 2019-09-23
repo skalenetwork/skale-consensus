@@ -816,15 +816,57 @@ u256 Schain::getPriceForBlockId(uint64_t _blockId){
     return pricingAgent->readPrice(_blockId);
 }
 
-ptr< Transaction > Transaction::createRandomSample( uint64_t _size, boost::random::mt19937& _gen,
-    boost::random::uniform_int_distribution<>& _ubyte ) {
-    auto sample = make_shared< vector< uint8_t > >( _size, 0 );
+
+void Schain::decideBlock(block_id _blockId, schain_index _proposerIndex) {
+
+    LOG(debug, "decideBlock:" + to_string(_blockId) +
+               ":PRP:" + to_string(_proposerIndex));
+    LOG(debug, "Total txs:" + to_string(getSchain()->getTotalTransactions()) +
+               " T(s):" +
+               to_string((getSchain()->getCurrentTimeMilllis().count() - getSchain()->getStartTime().count()) / 1000.0));
 
 
-    for ( uint32_t j = 0; j < sample->size(); j++ ) {
-        sample->at( j ) = _ubyte( _gen );
+    auto proposedBlockSet = blockProposalsDatabase->getProposedBlockSet(_blockId);
+
+    ASSERT(proposedBlockSet);
+
+
+    if (_proposerIndex == 0) {
+
+
+        uint64_t time = Schain::getCurrentTimeMs();
+        auto sec = time / 1000;
+        auto ms = (uint32_t ) time % 1000;
+
+        // empty block
+        auto emptyList = make_shared<TransactionList>(make_shared < vector < ptr < Transaction >> > ());
+        auto zeroProposal = make_shared<ReceivedBlockProposal>(*this, _blockId, 0,
+                                                               emptyList, sec, ms );
+
+
+        //TODO: FIX TIME FOR EMPTY PROPOSAL!!!
+        proposedBlockSet->addProposal(zeroProposal);
     }
 
 
-    return Transaction::deserialize( sample, 0, sample->size(), false );
-};
+    if (proposedBlockSet->getProposalByIndex(_proposerIndex) == nullptr) {
+
+        // did not receive proposal from the proposer, pull it in parallel from other hosts
+        // Note that due to the BLS signature proof, 2t hosts out of 3t + 1 total are guaranteed to
+        // posess the proposal
+
+        auto agent = make_unique<BlockFinalizeClientAgent>(*this, _blockId, _proposerIndex);
+
+        auto proposal = agent->downloadProposal();
+
+        if (proposal != nullptr) // Nullptr means catchup happened first
+            proposedBlockSet->addProposal(proposal);
+
+    }
+
+    auto proposal = proposedBlockSet->getProposalByIndex(_proposerIndex);
+
+    if( proposal )
+        blockCommitArrived(false, _blockId, _proposerIndex, proposal->getTimeStamp());
+
+}
