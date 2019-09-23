@@ -184,8 +184,6 @@ ptr<vector<uint8_t>> CatchupServerAgent::createResponseHeaderAndBinary(ptr<Conne
 
 
     schain_id schainID = Header::getUint64(_jsonRequest, "schainID");
-    node_id srcNodeID = Header::getUint64(_jsonRequest, "srcNodeID");
-    schain_index srcSchainIndex = Header::getUint64(_jsonRequest, "srcSchainIndex");
     block_id blockID = Header::getUint64(_jsonRequest, "blockID");
 
 
@@ -204,19 +202,6 @@ ptr<vector<uint8_t>> CatchupServerAgent::createResponseHeaderAndBinary(ptr<Conne
         BOOST_THROW_EXCEPTION(
                 InvalidSourceIPException("Could not find node info for IP " + *_connectionEnvelope->getIP()));
     }
-
-
-    if (nmi->getNodeID() != node_id(srcNodeID)) {
-        _responseHeader->setStatusSubStatus(CONNECTION_SERVER_ERROR, CONNECTION_ERROR_INVALID_NODE_ID);
-        BOOST_THROW_EXCEPTION(InvalidNodeIDException("Node ID does not match " + srcNodeID, __CLASS_NAME__));
-    }
-
-    if (nmi->getSchainIndex() != schain_index(srcSchainIndex)) {
-        _responseHeader->setStatusSubStatus(CONNECTION_SERVER_ERROR, CONNECTION_ERROR_INVALID_NODE_INDEX);
-        BOOST_THROW_EXCEPTION(
-                InvalidSchainIndexException("Node subchain index does not match " + srcSchainIndex, __CLASS_NAME__));
-    }
-
 
     auto type = Header::getString(_jsonRequest, "type");
 
