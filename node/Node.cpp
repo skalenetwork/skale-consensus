@@ -220,12 +220,7 @@ ptr<string> Node::getParamString(const string &_paramName, string& _paramDefault
 
 Node::~Node() {
 
-    // sockets means that Node was properly inited
-    if (!isExitRequested()) {
-        exit();
-    }
 
-    cleanLevelDBs();
 
 }
 
@@ -427,7 +422,7 @@ void Node::exit() {
 
     closeAllSocketsAndNotifyAllAgentsAndThreads();
 
-
+    cleanLevelDBs();
 
 }
 

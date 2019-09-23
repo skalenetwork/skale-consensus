@@ -30,33 +30,25 @@
 #include "AbstractBlockRequestHeader.h"
 #include "BlockFinalizeResponseHeader.h"
 
-BlockFinalizeResponseHeader::BlockFinalizeResponseHeader(): Header(Header::BLOCK_FINALIZE__RSP) {}
+BlockFinalizeResponseHeader::BlockFinalizeResponseHeader(): Header(Header::BLOCK_FINALIZE__RSP) {
 
-void BlockFinalizeResponseHeader::setSigShare(const ptr<string> &_sigShare) {
-
-    if (!_sigShare || _sigShare->size() < 10) {
-        BOOST_THROW_EXCEPTION(InvalidArgumentException("Null or misformatted sig share", __CLASS_NAME__));
-    }
-
-    sigShare = _sigShare;
 }
 
-void BlockFinalizeResponseHeader::addFields(nlohmann::json &jsonRequest) {
 
-    Header::addFields(jsonRequest);
+void BlockFinalizeResponseHeader::addFields(nlohmann::json &_j) {
+
+
+
+    Header::addFields(_j);
+
+    _j["fragmentSize"] = (uint64_t) fragmentSize;
 
     if (status != CONNECTION_SUCCESS)
         return;
 
-    if (!sigShare) {
-        BOOST_THROW_EXCEPTION(InvalidArgumentException("Null sig share", __CLASS_NAME__));
-    }
+}
 
-
-    if (!sigShare || sigShare->size() < 10) {
-        BOOST_THROW_EXCEPTION(InvalidArgumentException("Misformatted sig share", __CLASS_NAME__));
-    }
-
-    jsonRequest["sigShare"] = *sigShare;
-
+void BlockFinalizeResponseHeader::setFragmentSize(uint64_t fragmentSize) {
+    BlockFinalizeResponseHeader::fragmentSize = fragmentSize;
+    setComplete();
 }

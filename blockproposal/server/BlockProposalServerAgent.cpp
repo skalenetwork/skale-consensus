@@ -202,8 +202,6 @@ void BlockProposalServerAgent::processNextAvailableConnection(ptr<Connection> _c
 
     if (strcmp(type->data(), Header::BLOCK_PROPOSAL_REQ) == 0) {
         processProposalRequest(_connection, proposalRequest);
-    } else if (strcmp(type->data(), Header::BLOCK_FINALIZE_REQ) == 0) {
-        processFinalizeRequest(_connection, proposalRequest);
     } else {
         throw_with_nested(
                 NetworkProtocolException("Uknown request type:" + *type, __CLASS_NAME__));
@@ -387,33 +385,6 @@ void BlockProposalServerAgent::processProposalRequest(
 }
 
 
-void BlockProposalServerAgent::processFinalizeRequest(
-        ptr<Connection> _connection, nlohmann::json _proposalRequest) {
-    ptr<Header> responseHeader = nullptr;
-
-
-    try {
-        responseHeader = this->createFinalizeResponseHeader(_connection, _proposalRequest);
-    } catch (ExitRequestedException &) {
-        throw;
-    } catch (...) {
-        throw_with_nested(
-                NetworkProtocolException("Could not create response header", __CLASS_NAME__));
-    }
-
-    try {
-        send(_connection, responseHeader);
-    } catch (ExitRequestedException &) {
-        throw;
-    } catch (...) {
-        throw_with_nested(
-                CouldNotSendMessageException("Could not send response header", __CLASS_NAME__));
-    }
-
-    if (responseHeader->getStatus() != CONNECTION_PROCEED) {
-        return;
-    }
-}
 
 
 void BlockProposalServerAgent::checkForOldBlock(const block_id &_blockID) {
@@ -525,96 +496,8 @@ ptr<Header> BlockProposalServerAgent::createProposalResponseHeader(
 }
 
 
-ptr<Header> BlockProposalServerAgent::createFinalizeResponseHeader(
-        ptr<Connection> _connectionEnvelope, nlohmann::json _jsonRequest) {
-    ptr<BlockFinalizeResponseHeader> responseHeader =
-            make_shared<BlockFinalizeResponseHeader>();
 
 
-    block_id blockID;
-    schain_index proposerIndex;
-    schain_id schainID;
-    ptr<string> hash = nullptr;
-
-
-    schainID = Header::getUint64(_jsonRequest, "schainID");
-    blockID = Header::getUint64(_jsonRequest, "blockID");
-    proposerIndex = Header::getUint64(_jsonRequest, "proposerIndex");
-
-    if (!_jsonRequest["hash"].is_null()) {
-        hash = Header::getString(_jsonRequest, "hash");
-    }
-
-    if (sChain->getSchainID() != schainID) {
-        responseHeader->setStatusSubStatus(CONNECTION_ERROR, CONNECTION_ERROR_UNKNOWN_SCHAIN_ID);
-        BOOST_THROW_EXCEPTION(
-                InvalidSchainException("Incorrect schain " + to_string(schainID), __CLASS_NAME__));
-    };
-
-
-    ptr<NodeInfo> nmi = sChain->getNode()->getNodeInfoByIP(_connectionEnvelope->getIP());
-
-    if (nmi == nullptr) {
-        responseHeader->setStatusSubStatus(
-                CONNECTION_ERROR, CONNECTION_ERROR_DONT_KNOW_THIS_NODE);
-        BOOST_THROW_EXCEPTION(InvalidSourceIPException(
-                                      "Could not find node info for IP " + *_connectionEnvelope->getIP()));
-    }
-
-    if (blockID > sChain->getLastCommittedBlockID()) {
-        responseHeader->setStatusSubStatus(CONNECTION_DISCONNECT, CONNECTION_DONT_HAVE_BLOCK_YET);
-        responseHeader->setComplete();
-        return responseHeader;
-    }
-
-
-    auto block = sChain->getBlock(blockID);
-
-    if (!block) {
-        responseHeader->setStatusSubStatus(CONNECTION_DISCONNECT, CONNECTION_DONT_HAVE_BLOCK);
-        responseHeader->setComplete();
-        return responseHeader;
-    }
-
-
-    if (block->getProposerIndex() != proposerIndex) {
-        responseHeader->setStatusSubStatus(CONNECTION_ERROR, CONNECTION_INVALID_INDEX);
-        responseHeader->setComplete();
-        return responseHeader;
-    }
-
-    if (block->getHash()->compare(SHAHash::fromHex(hash)) != 0) {
-        responseHeader->setStatusSubStatus(CONNECTION_ERROR, CONNECTION_INVALID_HASH);
-        responseHeader->setComplete();
-        return responseHeader;
-    }
-
-
-    signBlock(responseHeader, block);
-
-
-    responseHeader->setStatus(CONNECTION_SUCCESS);
-
-    responseHeader->setComplete();
-    return responseHeader;
-}
-
-void BlockProposalServerAgent::signBlock(
-        ptr<BlockFinalizeResponseHeader> &_responseHeader, ptr<CommittedBlock> &_block) const {
-    ptr<ConsensusBLSSigShare> sigShare;
-
-    try {
-        sigShare = sChain->sign(_block->getHash(), _block->getBlockID());
-    } catch (...) {
-        _responseHeader->setStatus(CONNECTION_SERVER_ERROR);
-        throw_with_nested(NetworkProtocolException("Could not sign block", __CLASS_NAME__));
-    }
-
-
-    auto sigString = sigShare->getBlsSigShare()->toString();
-
-    _responseHeader->setSigShare(sigString);
-}
 
 
 nlohmann::json BlockProposalServerAgent::readMissingTransactionsResponseHeader(

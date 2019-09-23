@@ -324,6 +324,9 @@ ptr<vector<uint8_t>> CatchupServerAgent::createBlockFinalizeResponse(nlohmann::j
 
     _responseHeader->setStatus(CONNECTION_PROCEED);
 
-    return fragment->serialize();
+    auto serializedFragment = fragment->serialize();
+
+    _responseHeader->setFragmentSize(serializedFragment->size());
+    return serializedFragment;
 
 }

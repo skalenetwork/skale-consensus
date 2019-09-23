@@ -440,9 +440,7 @@ void ConsensusEngine::joinAllThreads() const {
 }
 
 ConsensusEngine::~ConsensusEngine() {
-
     for (auto &n : nodes) {
-
         delete n.second;
     }
 }
