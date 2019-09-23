@@ -42,6 +42,8 @@ public:
 
     bool addFragment(ptr<CommittedBlockFragment> _fragment, uint64_t& _nextIndexToRetrieve);
 
+    uint64_t nextIndexToRetrieve();
+
     bool isComplete();
 
     ptr<vector<uint8_t >> serialize();

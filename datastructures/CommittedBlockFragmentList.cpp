@@ -16,14 +16,13 @@
 #include "CommittedBlockFragment.h"
 
 
-
 #include "CommittedBlockFragmentList.h"
 
 CommittedBlockFragmentList::CommittedBlockFragmentList(const block_id &_blockId,
                                                        const uint64_t _totalFragments) :
-                                                                                        blockID(_blockId),
-                                                                                        totalFragments(
-                                                                                                _totalFragments) {
+        blockID(_blockId),
+        totalFragments(
+                _totalFragments) {
     CHECK_ARGUMENT(totalFragments > 0);
 
     for (uint64_t i = 1; i <= totalFragments; i++) {
@@ -32,7 +31,29 @@ CommittedBlockFragmentList::CommittedBlockFragmentList(const block_id &_blockId,
 
 }
 
-bool CommittedBlockFragmentList::addFragment(ptr<CommittedBlockFragment> _fragment, uint64_t& nextIndexToRetrieve) {
+
+uint64_t CommittedBlockFragmentList::nextIndexToRetrieve() {
+
+    if (missingFragments.size() == 0) {
+        return 0;
+    }
+
+    uint64_t randomPosition = ubyte(gen) % missingFragments.size();
+
+    uint64_t j = 0;
+
+    for (auto &&element: missingFragments) {
+        if (j == randomPosition) {
+            return element;
+        }
+        j++;
+    }
+
+
+    ASSERT2(false, "nextIndexToRetrieve assertion failure"); // SHOULD NEVER BE HERE
+}
+
+bool CommittedBlockFragmentList::addFragment(ptr<CommittedBlockFragment> _fragment, uint64_t &nextIndex) {
 
     CHECK_ARGUMENT(_fragment->getBlockId() == blockID);
     CHECK_ARGUMENT(_fragment->getIndex() > 0)
@@ -44,7 +65,7 @@ bool CommittedBlockFragmentList::addFragment(ptr<CommittedBlockFragment> _fragme
     checkSanity();
 
 
-    nextIndexToRetrieve = 0;
+    nextIndex = 0;
 
     if (fragments.find(_fragment->getIndex()) != fragments.end()) {
         return false;
@@ -54,7 +75,8 @@ bool CommittedBlockFragmentList::addFragment(ptr<CommittedBlockFragment> _fragme
     fragments[_fragment->getIndex()] = _fragment->serialize();
 
 
-    std::list<uint64_t >::iterator findIter = std::find(missingFragments.begin(), missingFragments.end(), _fragment->getIndex());
+    std::list<uint64_t>::iterator findIter = std::find(missingFragments.begin(), missingFragments.end(),
+                                                       _fragment->getIndex());
 
     ASSERT(findIter != missingFragments.end());
 
@@ -65,22 +87,14 @@ bool CommittedBlockFragmentList::addFragment(ptr<CommittedBlockFragment> _fragme
     }
 
 
-
     ASSERT(missingFragments.size() > 0);
 
-    uint64_t randomPosition = ubyte(gen) % missingFragments.size();
 
-    uint64_t  j = 0;
+    nextIndex = nextIndexToRetrieve();
 
-    for (auto && element: missingFragments) {
-        if (j == randomPosition) {
-            nextIndexToRetrieve = element;
-        }
-        j++;
-    }
+    ASSERT(nextIndex > 0);
 
 
-    ASSERT(nextIndexToRetrieve > 0);
 
     return true;
 }
@@ -147,7 +161,6 @@ ptr<vector<uint8_t>> CommittedBlockFragmentList::serialize() {
     CHECK_STATE(result->back() == '>');
     return result;
 }
-
 
 
 boost::random::mt19937 CommittedBlockFragmentList::gen;
