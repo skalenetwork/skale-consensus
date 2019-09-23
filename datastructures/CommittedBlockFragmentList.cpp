@@ -37,7 +37,7 @@ bool CommittedBlockFragmentList::addFragment(ptr<CommittedBlockFragment> _fragme
     CHECK_ARGUMENT(_fragment->getBlockId() == blockID);
     CHECK_ARGUMENT(_fragment->getIndex() > 0)
     CHECK_ARGUMENT(_fragment->getIndex() <= totalFragments);
-    CHECK_ARGUMENT(_fragment->getData() != nullptr)
+    CHECK_ARGUMENT(_fragment->serialize() != nullptr)
 
     lock_guard<recursive_mutex> lock(listMutex);
 
@@ -51,7 +51,7 @@ bool CommittedBlockFragmentList::addFragment(ptr<CommittedBlockFragment> _fragme
     }
 
 
-    fragments[_fragment->getIndex()] = _fragment->getData();
+    fragments[_fragment->getIndex()] = _fragment->serialize();
 
 
     std::list<uint64_t >::iterator findIter = std::find(missingFragments.begin(), missingFragments.end(), _fragment->getIndex());

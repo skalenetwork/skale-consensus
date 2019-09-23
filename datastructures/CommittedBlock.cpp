@@ -44,8 +44,8 @@
 #include "CommittedBlock.h"
 
 
-CommittedBlock::CommittedBlock( Schain& _sChain, ptr< BlockProposal > _p )
-    : BlockProposal( _sChain.getSchainID(), _sChain.getNodeIDByIndex( _p->getProposerIndex() ),
+CommittedBlock::CommittedBlock(ptr< BlockProposal > _p )
+    : BlockProposal(_p->getSchainID(), _p->getProposerNodeID(),
           _p->getBlockID(), _p->getProposerIndex(), _p->getTransactionList(), _p->getTimeStamp(),
           _p->getTimeStampMs() ) {}
 

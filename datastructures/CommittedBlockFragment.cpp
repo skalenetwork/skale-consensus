@@ -44,6 +44,6 @@ fragment_index CommittedBlockFragment::getIndex() const {
     return fragmentIndex;
 }
 
-ptr<vector<uint8_t>> CommittedBlockFragment::getData() const {
+ptr<vector<uint8_t>> CommittedBlockFragment::serialize() const {
     return data;
 }

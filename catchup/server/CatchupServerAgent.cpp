@@ -64,6 +64,7 @@
 
 #include "../../datastructures/CommittedBlock.h"
 #include "../../datastructures/CommittedBlockList.h"
+#include "../../datastructures/CommittedBlockFragment.h"
 #include "CatchupServerAgent.h"
 
 
@@ -167,16 +168,13 @@ void CatchupServerAgent::processNextAvailableConnection(ptr<Connection> _connect
 
 ptr<vector<uint8_t>> CatchupServerAgent::createCatchupResponseHeaderAndBinary(ptr<Connection> _connectionEnvelope,
                                                                               nlohmann::json _jsonRequest,
-                                                                              ptr<Header>& _responseHeader) {
-
+                                                                              ptr<Header> &_responseHeader) {
 
 
     schain_id schainID = Header::getUint64(_jsonRequest, "schainID");
     node_id srcNodeID = Header::getUint64(_jsonRequest, "srcNodeID");
     schain_index srcSchainIndex = Header::getUint64(_jsonRequest, "srcSchainIndex");
     block_id blockID = Header::getUint64(_jsonRequest, "blockID");
-
-
 
 
     if (sChain->getSchainID() != schainID) {
@@ -216,14 +214,16 @@ ptr<vector<uint8_t>> CatchupServerAgent::createCatchupResponseHeaderAndBinary(pt
         _responseHeader = make_shared<CatchupResponseHeader>();
 
         serializedBinary = createBlockCatchupResponse(_jsonRequest,
-                                                           dynamic_pointer_cast<CatchupResponseHeader>(_responseHeader), blockID);
+                                                      dynamic_pointer_cast<CatchupResponseHeader>(_responseHeader),
+                                                      blockID);
 
     } else if (type->compare(Header::BLOCK_FINALIZE_REQ) == 0) {
 
         _responseHeader = make_shared<BlockFinalizeResponseHeader>();
 
         serializedBinary = createBlockFinalizeResponse(_jsonRequest,
-                                                      dynamic_pointer_cast<BlockFinalizeResponseHeader>(_responseHeader), blockID);
+                                                       dynamic_pointer_cast<BlockFinalizeResponseHeader>(
+                                                               _responseHeader), blockID);
 
 
     } else {
@@ -235,9 +235,9 @@ ptr<vector<uint8_t>> CatchupServerAgent::createCatchupResponseHeaderAndBinary(pt
 }
 
 
-
-ptr<vector<uint8_t>> CatchupServerAgent::createBlockCatchupResponse( nlohmann::json /*_jsonRequest */,
-        ptr<CatchupResponseHeader> _responseHeader, block_id _blockID) {
+ptr<vector<uint8_t>> CatchupServerAgent::createBlockCatchupResponse(nlohmann::json /*_jsonRequest */,
+                                                                    ptr<CatchupResponseHeader> _responseHeader,
+                                                                    block_id _blockID) {
 
 
     if (sChain->getLastCommittedBlockID() <= block_id(_blockID)) {
@@ -291,17 +291,51 @@ ptr<vector<uint8_t>> CatchupServerAgent::createBlockCatchupResponse( nlohmann::j
 }
 
 
-
-
-ptr<vector<uint8_t>> CatchupServerAgent::createBlockFinalizeResponse( nlohmann::json /*_jsonRequest */,
+ptr<vector<uint8_t>> CatchupServerAgent::createBlockFinalizeResponse(nlohmann::json _jsonRequest,
                                                                      ptr<BlockFinalizeResponseHeader> _responseHeader,
-                                                                     block_id /*_blockID */) {
+                                                                     block_id _blockID) {
+
+    fragment_index fragmentIndex = Header::getUint64(_jsonRequest, "fragmentIndex");
+
+    if (fragmentIndex < 1 || (uint64_t) fragmentIndex > getSchain()->getNodeCount()) {
+        LOG(debug, "Incorrect fragment index:" + to_string(fragmentIndex));
+        _responseHeader->setStatusSubStatus(CONNECTION_DISCONNECT, CONNECTION_ERROR_INVALID_FRAGMENT_INDEX);
+        _responseHeader->setComplete();
+        return nullptr;
+    }
 
 
-    auto serializedFragment = make_shared<vector<uint8_t>>();
+    schain_index proposerIndex = Header::getUint64(_jsonRequest, "proposerIndex");
+
+
+    if (proposerIndex < 1 || (uint64_t) fragmentIndex > getSchain()->getNodeCount()) {
+        LOG(debug, "Incorrect proposer index:" + to_string(proposerIndex));
+        _responseHeader->setStatusSubStatus(CONNECTION_DISCONNECT, CONNECTION_ERROR_INVALID_PROPOSER_INDEX);
+        _responseHeader->setComplete();
+        return nullptr;
+    }
+
+
+
+    auto proposal = getSchain()->getBlockProposal(_blockID, proposerIndex);
+
+    if (proposal == nullptr) {
+        LOG(trace, "Dont have proposal:" + to_string(proposerIndex));
+        _responseHeader->setStatusSubStatus(CONNECTION_DISCONNECT, CONNECTION_DONT_HAVE_PROPOSAL);
+        _responseHeader->setComplete();
+        return nullptr;
+    }
+
+    auto committedBlock = make_shared<CommittedBlock>(proposal);
+
+    auto fragment = committedBlock->getFragment(
+            (uint64_t ) getSchain()->getNodeCount(),
+            fragmentIndex);
+
+    CHECK_STATE(fragment != nullptr);
 
     _responseHeader->setStatus(CONNECTION_PROCEED);
 
-    return serializedFragment;
+    return fragment->serialize();
 
 }

@@ -28,7 +28,7 @@ public:
 
     fragment_index getIndex() const;
 
-    ptr<vector<uint8_t>> getData() const;
+    ptr<vector<uint8_t>> serialize() const;
 
 };
 

@@ -364,7 +364,7 @@ void Schain::blockCommitArrived( bool bootstrap, block_id _committedBlockID,
 
         ASSERT( committedProposal );
 
-        auto newCommittedBlock = make_shared< CommittedBlock >( *this, committedProposal );
+        auto newCommittedBlock = make_shared< CommittedBlock >(committedProposal );
 
         if ( getNode()->isBlsEnabled() ) {
             blockFinalizeClient->enqueueItem( newCommittedBlock );
@@ -579,6 +579,11 @@ const block_id Schain::getLastCommittedBlockID() const {
     return block_id( lastCommittedBlockID.load() );
 }
 
+ptr< BlockProposal > Schain::getBlockProposal( block_id _blockID, schain_index _schainIndex) {
+
+    return blockProposalsDatabase->getBlockProposal(_blockID, _schainIndex);
+
+}
 
 ptr< CommittedBlock > Schain::getCachedBlock( block_id _blockID ) {
     std::lock_guard< std::recursive_mutex > aLock( getMainMutex() );

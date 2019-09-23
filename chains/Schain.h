@@ -180,12 +180,15 @@ class Schain : public Agent {
     ptr<vector<uint8_t>> getSerializedBlockFromLevelDB(const block_id &_blockID);
 
 
+
     ptr<CommittedBlock> getCachedBlock(block_id _blockID);
 
 
 
 public:
 
+
+    ptr<BlockProposal> getBlockProposal(block_id _blockID, schain_index _schainIndex);
 
     void constructServers(ptr<Sockets> _sockets);
 
@@ -267,7 +270,9 @@ public:
     ptr<CommittedBlock> getBlock(block_id _blockID);
 
 
-    const ptr<string> getBlockProposerTest() const {
+
+
+        const ptr<string> getBlockProposerTest() const {
         return blockProposerTest;
     }
 
