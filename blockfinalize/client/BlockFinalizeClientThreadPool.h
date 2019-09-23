@@ -35,5 +35,7 @@ public:
 
     void createThread(uint64_t number) override;
 
+    void startService() override;
+
 };
 

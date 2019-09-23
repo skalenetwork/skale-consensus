@@ -78,16 +78,19 @@
 BlockFinalizeClientAgent::BlockFinalizeClientAgent( Schain& _sChain,
         block_id _blockId, schain_index _proposerIndex) : Agent( _sChain, false ),
         blockId(_blockId), proposerIndex(_proposerIndex), fragmentList(_blockId, (uint64_t )_sChain.getNodeCount() - 1) {
+
+    ASSERT(_sChain.getNodeCount() > 1);
+
     try {
         logThreadLocal_ = _sChain.getNode()->getLog();
         this->sChain = &_sChain;
         threadCounter = 0;
 
-        if ( _sChain.getNodeCount() > 1 ) {
-            this->blockFinalizeClientThreadPool = make_shared< BlockFinalizeClientThreadPool >
-                       ((uint64_t) getSchain()->getNodeCount(), this );
-            blockFinalizeClientThreadPool->startService();
-        }
+
+        this->blockFinalizeClientThreadPool = make_shared< BlockFinalizeClientThreadPool >
+                              ((uint64_t) getSchain()->getNodeCount(), this );
+        blockFinalizeClientThreadPool->startService();
+
     } catch ( ... ) {
         throw_with_nested( FatalError( __FUNCTION__, __CLASS_NAME__ ) );
     }
@@ -228,12 +231,15 @@ void BlockFinalizeClientAgent::workerThreadItemSendLoop( BlockFinalizeClientAgen
     agent->waitOnGlobalStartBarrier();
 
 
+
     uint64_t  next = (uint64_t ) _dstIndex;
+
+    if (next > (uint64_t ) agent->getSchain()->getSchainIndex())
+        next--;
 
 
     try {
         while ( !agent->getSchain()->getNode()->isExitRequested() ) {
-            //usleep( agent->getNode()->getCatchupIntervalMs() * 1000 );
 
             try {
                 next = agent->downloadFragment(_dstIndex, next);

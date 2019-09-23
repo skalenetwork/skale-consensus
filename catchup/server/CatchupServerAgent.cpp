@@ -98,24 +98,36 @@ void CatchupServerAgent::processNextAvailableConnection(ptr<Connection> _connect
     }
 
 
-    nlohmann::json catchupRequest = nullptr;
+    nlohmann::json jsonRequest = nullptr;
 
     try {
-        catchupRequest = sChain->getIo()->readJsonHeader(_connection->getDescriptor(), "Read catchup request");
+        jsonRequest = sChain->getIo()->readJsonHeader(_connection->getDescriptor(), "Read catchup request");
     }
     catch (ExitRequestedException &) { throw; }
     catch (...) {
-        throw_with_nested(NetworkProtocolException("Incorrect magic number", __CLASS_NAME__));
+        throw_with_nested(NetworkProtocolException("Could not read request", __CLASS_NAME__));
     }
 
 
     ptr<Header> responseHeader = nullptr;
 
+    auto type = Header::getString(jsonRequest, "type");
+
+
+    if (type->compare(Header::BLOCK_CATCHUP_REQ) == 0) {
+        responseHeader = make_shared<CatchupResponseHeader>();
+    } else if (type->compare(Header::BLOCK_FINALIZE_REQ) == 0) {
+        responseHeader = make_shared<BlockFinalizeResponseHeader>();
+    } else {
+        responseHeader->setStatusSubStatus(CONNECTION_SERVER_ERROR, CONNECTION_ERROR_INVALID_REQUEST_TYPE);
+        BOOST_THROW_EXCEPTION(
+                InvalidMessageFormatException("Unknown request type:" + *type, __CLASS_NAME__));
+    }
 
     ptr<vector<uint8_t>> serializedBinary = nullptr;
 
     try {
-        serializedBinary = this->createCatchupResponseHeaderAndBinary(_connection, catchupRequest, responseHeader);
+        serializedBinary = this->createResponseHeaderAndBinary(_connection, jsonRequest, responseHeader);
     }
     catch (ExitRequestedException &) { throw; }
     catch (...) {
@@ -166,9 +178,9 @@ void CatchupServerAgent::processNextAvailableConnection(ptr<Connection> _connect
 }
 
 
-ptr<vector<uint8_t>> CatchupServerAgent::createCatchupResponseHeaderAndBinary(ptr<Connection> _connectionEnvelope,
-                                                                              nlohmann::json _jsonRequest,
-                                                                              ptr<Header> &_responseHeader) {
+ptr<vector<uint8_t>> CatchupServerAgent::createResponseHeaderAndBinary(ptr<Connection> _connectionEnvelope,
+                                                                       nlohmann::json _jsonRequest,
+                                                                       ptr<Header> &_responseHeader) {
 
 
     schain_id schainID = Header::getUint64(_jsonRequest, "schainID");
@@ -211,7 +223,6 @@ ptr<vector<uint8_t>> CatchupServerAgent::createCatchupResponseHeaderAndBinary(pt
     ptr<vector<uint8_t>> serializedBinary = nullptr;
 
     if (type->compare(Header::BLOCK_CATCHUP_REQ) == 0) {
-        _responseHeader = make_shared<CatchupResponseHeader>();
 
         serializedBinary = createBlockCatchupResponse(_jsonRequest,
                                                       dynamic_pointer_cast<CatchupResponseHeader>(_responseHeader),
@@ -219,17 +230,10 @@ ptr<vector<uint8_t>> CatchupServerAgent::createCatchupResponseHeaderAndBinary(pt
 
     } else if (type->compare(Header::BLOCK_FINALIZE_REQ) == 0) {
 
-        _responseHeader = make_shared<BlockFinalizeResponseHeader>();
-
         serializedBinary = createBlockFinalizeResponse(_jsonRequest,
                                                        dynamic_pointer_cast<BlockFinalizeResponseHeader>(
                                                                _responseHeader), blockID);
 
-
-    } else {
-        _responseHeader->setStatusSubStatus(CONNECTION_SERVER_ERROR, CONNECTION_ERROR_INVALID_REQUEST_TYPE);
-        BOOST_THROW_EXCEPTION(
-                InvalidMessageFormatException("Unknown request type:" + *type, __CLASS_NAME__));
     }
     return serializedBinary;
 }

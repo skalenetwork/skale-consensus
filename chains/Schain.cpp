@@ -849,7 +849,7 @@ void Schain::decideBlock(block_id _blockId, schain_index _proposerIndex) {
     }
 
 
-    if (proposedBlockSet->getProposalByIndex(_proposerIndex) == nullptr) {
+   // if (proposedBlockSet->getProposalByIndex(_proposerIndex) == nullptr) {
 
         // did not receive proposal from the proposer, pull it in parallel from other hosts
         // Note that due to the BLS signature proof, 2t hosts out of 3t + 1 total are guaranteed to
@@ -857,12 +857,12 @@ void Schain::decideBlock(block_id _blockId, schain_index _proposerIndex) {
 
         auto agent = make_unique<BlockFinalizeClientAgent>(*this, _blockId, _proposerIndex);
 
-        auto proposal = agent->downloadProposal();
+        auto prp = agent->downloadProposal();
 
-        if (proposal != nullptr) // Nullptr means catchup happened first
-            proposedBlockSet->addProposal(proposal);
+        if (prp != nullptr) // Nullptr means catchup happened first
+            proposedBlockSet->addProposal(prp);
 
-    }
+    //}
 
     auto proposal = proposedBlockSet->getProposalByIndex(_proposerIndex);
 

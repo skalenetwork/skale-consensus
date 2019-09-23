@@ -53,7 +53,6 @@ void BlockFinalizeClientThreadPool::createThread(uint64_t number) {
 
     uint64_t index = number + 1;
 
-
     if (index == p->getSchain()->getSchainIndex())
         return;
 
@@ -62,3 +61,10 @@ void BlockFinalizeClientThreadPool::createThread(uint64_t number) {
 }
 
 
+void BlockFinalizeClientThreadPool::startService() {
+
+    for (uint64_t i = 0; i < (uint64_t )numThreads; i++) {
+        createThread(i);
+    }
+
+}

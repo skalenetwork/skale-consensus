@@ -65,8 +65,8 @@ public:
 
     CatchupWorkerThreadPool *getCatchupWorkerThreadPool() const;
 
-    ptr<vector<uint8_t>> createCatchupResponseHeaderAndBinary(ptr<Connection> _connectionEnvelope,
-                                                              nlohmann::json _jsonRequest, ptr<Header>& _responseHeader);
+    ptr<vector<uint8_t>> createResponseHeaderAndBinary(ptr<Connection> _connectionEnvelope,
+                                                       nlohmann::json _jsonRequest, ptr<Header>& _responseHeader);
 
     void processNextAvailableConnection(ptr<Connection> _connection) override;
 

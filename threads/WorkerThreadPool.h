@@ -52,7 +52,7 @@ public:
     WorkerThreadPool( num_threads _numThreads, void* _param_ );
     virtual ~WorkerThreadPool() {}
 
-    void startService();
+    virtual void startService();
 
     virtual void createThread( uint64_t threadNumber ) = 0;
 
