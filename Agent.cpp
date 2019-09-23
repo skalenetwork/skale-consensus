@@ -71,7 +71,6 @@ void Agent::waitOnGlobalStartBarrier() {
 }
 
 Agent::~Agent() {
-    cerr << "Agent destroyed" << endl;
 }
 
 

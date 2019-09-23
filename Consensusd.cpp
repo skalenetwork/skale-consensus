@@ -71,12 +71,7 @@ int main(int argc, char **argv) {
     sleep(20);
 
     engine.exitGracefully();
-
-    sleep(3000);
     cerr << "Exited" << endl;
-
-
-
 
 #ifdef GOOGLE_PROFILE
     HeapProfilerStop();
