@@ -55,4 +55,6 @@ public:
     void startService();
 
     virtual void createThread( uint64_t threadNumber ) = 0;
+
+    void joinAll();
 };

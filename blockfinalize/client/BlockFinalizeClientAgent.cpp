@@ -61,6 +61,7 @@
 
 #include "../../chains/Schain.h"
 #include "../../crypto/SHAHash.h"
+#include "../../datastructures/CommittedBlock.h"
 #include "../../datastructures/CommittedBlockList.h"
 #include "../../datastructures/CommittedBlockFragment.h"
 #include "../../datastructures/CommittedBlockFragmentList.h"
@@ -98,7 +99,7 @@ nlohmann::json BlockFinalizeClientAgent::readBlockFinalizeResponseHeader( ptr< C
 }
 
 
-uint64_t BlockFinalizeClientAgent::sync( schain_index _dstIndex, fragment_index _fragmentIndex) {
+uint64_t BlockFinalizeClientAgent::downloadFragment(schain_index _dstIndex, fragment_index _fragmentIndex) {
 
     auto header = make_shared< BlockFinalizeRequestHeader >( *sChain, blockId, proposerIndex, _fragmentIndex);
     auto socket = make_shared< ClientSocket >( *sChain, _dstIndex, CATCHUP );
@@ -143,10 +144,9 @@ uint64_t BlockFinalizeClientAgent::sync( schain_index _dstIndex, fragment_index 
     auto status = ( ConnectionStatus ) Header::getUint64( response, "status" );
 
     if ( status == CONNECTION_DISCONNECT ) {
-        LOG( debug, "BlockFinalizec got response::no missing blocks" );
-        return 0;
+        LOG( debug, "BlockFinalizec got response::no fragment" );
+        return fragmentList.nextIndexToRetrieve();
     }
-
 
     if ( status != CONNECTION_PROCEED ) {
         BOOST_THROW_EXCEPTION( NetworkProtocolException(
@@ -162,7 +162,7 @@ uint64_t BlockFinalizeClientAgent::sync( schain_index _dstIndex, fragment_index 
     } catch ( ExitRequestedException& ) {
         throw;
     } catch ( ... ) {
-        auto errString = "BlockFinalizec step 3: can not read missing blocks";
+        auto errString = "BlockFinalizec step 3: can not read fragment";
         LOG( err, errString );
         throw_with_nested( NetworkProtocolException( errString, __CLASS_NAME__ ) );
     }
@@ -236,7 +236,12 @@ void BlockFinalizeClientAgent::workerThreadItemSendLoop( BlockFinalizeClientAgen
             //usleep( agent->getNode()->getCatchupIntervalMs() * 1000 );
 
             try {
-                next = agent->sync(_dstIndex, next);
+                next = agent->downloadFragment(_dstIndex, next);
+                if (next == 0) {
+                    return;
+                }
+                if (agent->getSchain()->getLastCommittedBlockID() >= (uint64_t ) agent->blockId)
+                    return;
             } catch ( ExitRequestedException& ) {
                 return;
             } catch ( Exception& e ) {
@@ -245,6 +250,18 @@ void BlockFinalizeClientAgent::workerThreadItemSendLoop( BlockFinalizeClientAgen
         };
     } catch ( FatalError* e ) {
         agent->getNode()->exitOnFatalError( e->getMessage() );
+    }
+}
+
+ptr<CommittedBlock> BlockFinalizeClientAgent::downloadProposal() {
+    BlockFinalizeClientThreadPool pool((uint64_t )getSchain()->getNodeCount(), (void*) this);
+    pool.startService();
+    pool.joinAll();
+
+    if (fragmentList.isComplete()) {
+        return CommittedBlock::deserialize(fragmentList.serialize());
+    } else {
+        return nullptr;
     }
 }
 

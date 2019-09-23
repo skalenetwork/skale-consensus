@@ -73,10 +73,10 @@ public:
     ptr< BlockFinalizeClientThreadPool > blockFinalizeClientThreadPool = nullptr;
 
 
-    BlockFinalizeClientAgent( Schain& subChain_, block_id _blockId, schain_index _proposerIndex);
+    BlockFinalizeClientAgent( Schain& _sChain, block_id _blockId, schain_index _proposerIndex);
 
 
-    uint64_t sync( schain_index _dstIndex, fragment_index _fragmentIndex);
+    uint64_t downloadFragment(schain_index _dstIndex, fragment_index _fragmentIndex);
 
 
     static void workerThreadItemSendLoop( BlockFinalizeClientAgent* agent, schain_index _destIndex );
@@ -88,6 +88,8 @@ public:
             ptr< ClientSocket > _socket, nlohmann::json responseHeader );
 
     uint64_t readFragmentSize(nlohmann::json _responseHeader);
+
+    ptr<CommittedBlock>  downloadProposal();
 
 };
 

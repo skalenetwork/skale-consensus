@@ -41,6 +41,7 @@ class BlockProposalClientAgent;
 class BlockProposalPusherThreadPool;
 
 class BlockFinalizeClientAgent;
+class BlockFinalizeClientThreadPool;
 
 class SchainMessageThreadPool;
 

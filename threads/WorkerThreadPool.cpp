@@ -56,3 +56,9 @@ void WorkerThreadPool::addThread(thread* _t) {
     ASSERT(_t);
     allThreads.push_back(_t);
 }
+
+void WorkerThreadPool::joinAll() {
+    for (auto&& thread : threadpool) {
+        thread->join();
+    }
+}

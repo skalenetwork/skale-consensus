@@ -31,7 +31,7 @@ class BlockFinalizeClientThreadPool : public WorkerThreadPool {
 
 public:
 
-    BlockFinalizeClientThreadPool(num_threads numThreads, void *params_);
+    BlockFinalizeClientThreadPool(num_threads numThreads, void *_params);
 
     void createThread(uint64_t number) override;
 

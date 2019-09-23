@@ -48,6 +48,9 @@
 #include "../../node/NodeInfo.h"
 #include "../../blockproposal/received/ReceivedBlockProposalsDatabase.h"
 
+#include "../../blockfinalize/client/BlockFinalizeClientAgent.h"
+#include "../../blockfinalize/client/BlockFinalizeClientThreadPool.h"
+
 #include "../../protocols/ProtocolKey.h"
 #include  "../../protocols/binconsensus/BVBroadcastMessage.h"
 #include  "../../protocols/binconsensus/BinConsensusInstance.h"
@@ -55,6 +58,7 @@
 #include "../binconsensus/ChildBVDecidedMessage.h"
 #include "BlockConsensusAgent.h"
 #include "../../datastructures/CommittedBlock.h"
+
 
 
 BlockConsensusAgent::BlockConsensusAgent(Schain &_schain) : sChain(_schain) {
@@ -186,19 +190,25 @@ void BlockConsensusAgent::decideBlock(block_id _blockId, schain_index _proposerI
         proposedBlockSet->addProposal(zeroProposal);
     }
 
-    size_t i = 0;
-    do {
-        if( i >= 10 )
-            break;
 
-        if (getSchain()->getNode()->isExitRequested()) {
-            BOOST_THROW_EXCEPTION(ExitRequestedException(__CLASS_NAME__));
-        }
-        usleep(100000); /* Flawfinder: ignore */
-        ++i;
-    } while (proposedBlockSet->getProposalByIndex(_proposerIndex) == nullptr);
+    if (proposedBlockSet->getProposalByIndex(_proposerIndex) == nullptr) {
+
+        // did not receive proposal from the proposer, pull it in parallel from other hosts
+        // Note that due to the BLS signature proof, 2t hosts out of 3t + 1 total are guaranteed to
+        // posess the proposal
+
+        auto agent = make_unique<BlockFinalizeClientAgent>(*getSchain(), _blockId, _proposerIndex);
+
+        auto proposal = agent->downloadProposal();
+
+        if (proposal != nullptr) // Nullptr means catchup happened first
+            proposedBlockSet->addProposal(proposal);
+
+    }
 
     auto proposal = proposedBlockSet->getProposalByIndex(_proposerIndex);
+
+
     if( proposal )
         getSchain()->blockCommitArrived(false, _blockId, _proposerIndex, proposal->getTimeStamp());
 
