@@ -69,7 +69,7 @@ bool ReceivedBlockProposalsDatabase::addBlockProposal(ptr<BlockProposal> _propos
         proposedBlockSets[_proposal->getBlockID()] = make_shared<BlockProposalSet>(this->sChain, _proposal->getBlockID());
     }
 
-    proposedBlockSets.at(_proposal->getBlockID())->addProposal(_proposal);
+    proposedBlockSets.at(_proposal->getBlockID())->add(_proposal);
 
 
     return proposedBlockSets.at(_proposal->getBlockID())->isTwoThird();

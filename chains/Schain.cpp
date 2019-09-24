@@ -847,24 +847,26 @@ void Schain::decideBlock(block_id _blockId, schain_index _proposerIndex) {
 
 
         //TODO: FIX TIME FOR EMPTY PROPOSAL!!!
-        proposedBlockSet->addProposal(zeroProposal);
+        proposedBlockSet->add(zeroProposal);
     }
 
 
-   // if (proposedBlockSet->getProposalByIndex(_proposerIndex) == nullptr) {
+   if (proposedBlockSet->getProposalByIndex(_proposerIndex) == nullptr) {
 
         // did not receive proposal from the proposer, pull it in parallel from other hosts
         // Note that due to the BLS signature proof, 2t hosts out of 3t + 1 total are guaranteed to
         // posess the proposal
 
-        auto agent = make_unique<BlockFinalizeDownloader>(this, _blockId, _proposerIndex);
+        auto agent = make_unique<BlockFinalizeDownloader>(this, _blockId, _proposerIndex,
+                proposedBlockSet);
 
+        // This will complete successfully also if block arrives through catchup
         auto prp = agent->downloadProposal();
 
         if (prp != nullptr) // Nullptr means catchup happened first
-            proposedBlockSet->addProposal(prp);
+            proposedBlockSet->add(prp);
 
-    //}
+    }
 
     auto proposal = proposedBlockSet->getProposalByIndex(_proposerIndex);
 

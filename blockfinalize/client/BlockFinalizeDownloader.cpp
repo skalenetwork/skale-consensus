@@ -65,6 +65,8 @@
 #include "../../datastructures/CommittedBlockList.h"
 #include "../../datastructures/CommittedBlockFragment.h"
 #include "../../datastructures/CommittedBlockFragmentList.h"
+#include "../../datastructures/BlockProposalSet.h"
+#include "../../datastructures/BlockProposal.h"
 #include "../../exceptions/NetworkProtocolException.h"
 #include "../../headers/BlockProposalHeader.h"
 #include "../../headers/BlockFinalizeRequestHeader.h"
@@ -76,8 +78,10 @@
 
 
 BlockFinalizeDownloader::BlockFinalizeDownloader(Schain *_sChain,
-                                                 block_id _blockId, schain_index _proposerIndex) : sChain(_sChain),
-        blockId(_blockId), proposerIndex(_proposerIndex), fragmentList(_blockId, (uint64_t )_sChain->getNodeCount() - 1) {
+                                                 block_id _blockId, schain_index _proposerIndex,
+                                                 ptr<BlockProposalSet> _proposalSet) : sChain(_sChain),
+        blockId(_blockId), proposerIndex(_proposerIndex), fragmentList(_blockId, (uint64_t )_sChain->getNodeCount() - 1),
+        proposalSet(_proposalSet) {
 
     CHECK_ARGUMENT(_sChain != nullptr);
 
@@ -239,7 +243,10 @@ void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(BlockFinalizeDown
     auto sChain = agent->getSchain();
 
     try {
-        while ( !sChain->getNode()->isExitRequested() ) {
+        while ( !sChain->getNode()->isExitRequested() &&
+                 // take into account that the same block can come through catchup
+                 agent->getSchain()->getLastCommittedBlockID() < agent->blockId &&
+                 agent->proposalSet->getProposalByIndex(agent->proposerIndex) != nullptr) {
 
             try {
                 next = agent->downloadFragment(_dstIndex, next);

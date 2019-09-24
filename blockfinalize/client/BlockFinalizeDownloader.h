@@ -56,6 +56,7 @@ class CommittedBlockFragment;
 class CommittedBlockFragmentList;
 
 class BlockFinalizeDownloaderThreadPool;
+class BlockProposalSet;
 
 #include "../../datastructures/CommittedBlockFragmentList.h"
 
@@ -76,12 +77,15 @@ private:
 
     CommittedBlockFragmentList fragmentList;
 
+    ptr<BlockProposalSet> proposalSet;
+
 public:
     atomic< uint64_t > threadCounter;
 
     BlockFinalizeDownloaderThreadPool* threadPool = nullptr;
 
-    BlockFinalizeDownloader(Schain* _sChain, block_id _blockId, schain_index _proposerIndex);
+    BlockFinalizeDownloader(Schain* _sChain, block_id _blockId, schain_index _proposerIndex,
+                            ptr<BlockProposalSet> proposalSet);
 
 
     uint64_t downloadFragment(schain_index _dstIndex, fragment_index _fragmentIndex);
