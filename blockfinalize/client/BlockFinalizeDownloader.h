@@ -68,7 +68,10 @@ public:
 private:
 
     block_id blockId;
+public:
+    virtual ~BlockFinalizeDownloader();
 
+private:
     schain_index proposerIndex;
 
     CommittedBlockFragmentList fragmentList;
@@ -76,8 +79,7 @@ private:
 public:
     atomic< uint64_t > threadCounter;
 
-    ptr< BlockFinalizeDownloaderThreadPool > blockFinalizeClientThreadPool = nullptr;
-
+    BlockFinalizeDownloaderThreadPool* threadPool = nullptr;
 
     BlockFinalizeDownloader(Schain* _sChain, block_id _blockId, schain_index _proposerIndex);
 

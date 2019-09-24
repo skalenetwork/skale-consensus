@@ -72,3 +72,7 @@ void WorkerThreadPool::joinAll() {
     }
 }
 
+bool WorkerThreadPool::isJoined() const {
+    return joined;
+}
+

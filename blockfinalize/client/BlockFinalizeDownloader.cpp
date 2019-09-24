@@ -88,14 +88,9 @@ BlockFinalizeDownloader::BlockFinalizeDownloader(Schain *_sChain,
 
         CHECK_STATE(sChain != nullptr);
 
-
-
         threadCounter = 0;
 
 
-        this->blockFinalizeClientThreadPool = make_shared< BlockFinalizeDownloaderThreadPool >
-                              ((uint64_t) getSchain()->getNodeCount(), this );
-        blockFinalizeClientThreadPool->startService();
 
     } catch ( ... ) {
         throw_with_nested( FatalError( __FUNCTION__, __CLASS_NAME__ ) );
@@ -265,9 +260,10 @@ void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(BlockFinalizeDown
 }
 
 ptr<CommittedBlock> BlockFinalizeDownloader::downloadProposal() {
-    BlockFinalizeDownloaderThreadPool pool((uint64_t )getSchain()->getNodeCount(), (void*) this);
-    pool.startService();
-    pool.joinAll();
+
+    this->threadPool = new  BlockFinalizeDownloaderThreadPool((uint64_t) getSchain()->getNodeCount(), this );
+    threadPool->startService();
+    threadPool->joinAll();
 
     if (fragmentList.isComplete()) {
         return CommittedBlock::deserialize(fragmentList.serialize());
@@ -279,6 +275,11 @@ ptr<CommittedBlock> BlockFinalizeDownloader::downloadProposal() {
 Schain *BlockFinalizeDownloader::getSchain() const {
     CHECK_STATE(sChain != nullptr);
     return sChain;
+}
+
+BlockFinalizeDownloader::~BlockFinalizeDownloader() {
+    assert(threadPool->isJoined());
+    delete threadPool;
 }
 
 

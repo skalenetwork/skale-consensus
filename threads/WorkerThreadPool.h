@@ -61,4 +61,6 @@ public:
 
     void joinAll();
 
+    bool isJoined() const;
+
 };
