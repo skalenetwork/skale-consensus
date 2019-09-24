@@ -144,7 +144,7 @@ void JSONFactory::createAndAddSChainFromJsonObject(Node &node, const nlohmann::j
 
             node_id nodeID((*it)["nodeID"].get<uint64_t>());
 
-            Log::logConfig(info, to_string(node.getNodeID()) + "Adding node:" + to_string(nodeID), __CLASS_NAME__);
+            Log::logConfig(trace, to_string(node.getNodeID()) + ": Adding node:" + to_string(nodeID), __CLASS_NAME__);
 
             ptr<string> ip = make_shared<string>((*it).at("ip").get<string>());
 
