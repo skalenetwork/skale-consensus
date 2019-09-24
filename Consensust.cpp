@@ -57,15 +57,24 @@ public:
     }
 };
 
-uint64_t Consensust::getRunningTime() {
+uint64_t Consensust::getRunningTimeMS() {
+
+    if (runningTimeMs == 0) {
+
+        auto env = std::getenv("TEST_RUN_TIME_MS");
+
+        if (env != NULL) {
+            runningTimeMs = strtoul(env, NULL, 10);
+        } else {
+            runningTimeMs = DEFAULT_RUNNING_TIME_MS;
+        }
+    }
+
     return runningTimeMs;
 }
 
-void Consensust::setRunningTime(uint64_t _runningTimeMs) {
-    Consensust::runningTimeMs = _runningTimeMs;
-}
 
-uint64_t Consensust::runningTimeMs = RUNNING_TIME_MS;
+uint64_t Consensust::runningTimeMs = 0;
 
 fs_path Consensust::configDirPath;
 
@@ -135,7 +144,7 @@ TEST_CASE_METHOD(StartFromScratch, "Run basic consensus", "[consensus-basic]") {
     testLog("Running consensus");
 
 
-    usleep(Consensust::getRunningTime()); /* Flawfinder: ignore */
+    usleep(1000 * Consensust::getRunningTimeMS()); /* Flawfinder: ignore */
 
     assert(engine->nodesCount() > 0);
 
