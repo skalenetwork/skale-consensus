@@ -36,7 +36,7 @@
 #include <gperftools/heap-profiler.h>
 #endif
 
-
+ConsensusEngine *engine;
 
 class StartFromScratch {
 public:
@@ -48,12 +48,15 @@ public:
         HeapProfilerStart("/tmp/consensusd.profile");
 #endif
 
+        engine = new ConsensusEngine();
+
     };
 
     ~StartFromScratch() {
 #ifdef GOOGLE_PROFILE
         HeapProfilerStop();
 #endif
+        delete engine;
     }
 };
 
@@ -73,7 +76,6 @@ uint64_t Consensust::getRunningTimeMS() {
     return runningTimeMs;
 }
 
-
 uint64_t Consensust::runningTimeMs = 0;
 
 fs_path Consensust::configDirPath;
@@ -82,56 +84,20 @@ const fs_path &Consensust::getConfigDirPath() {
     return configDirPath;
 }
 
-
-
-
 void Consensust::setConfigDirPath(const fs_path &_configDirPath) {
     Consensust::configDirPath = _configDirPath;
 }
 
 
-void testLog(const char* message) {
+void testLog(const char *message) {
     printf("TEST_LOG: %s\n", message);
 }
 
-/*
-
-TEST_CASE("Consensus init destroy", "[consensus-init-destroy]") {
-    Consensust::testInit();
-
-    for (int i = 0; i < 10; i++) {
-
-
-        testLog("Parsing configs");
-
-        ConsensusEngine engine;
-
-
-        REQUIRE_NOTHROW(engine.parseConfigsAndCreateAllNodes(Consensust::getConfigDirPath()));
-
-
-        testLog("Starting nodes");
-
-
-    }
-
-    Consensust::testFinalize();
-}
-
- */
-
-
-
-ConsensusEngine* engine;
-
-
 TEST_CASE_METHOD(StartFromScratch, "Run basic consensus", "[consensus-basic]") {
-
 
     engine = new ConsensusEngine();
 
     testLog("Parsing configs");
-
 
     engine->parseConfigsAndCreateAllNodes(Consensust::getConfigDirPath());
 
@@ -139,67 +105,39 @@ TEST_CASE_METHOD(StartFromScratch, "Run basic consensus", "[consensus-basic]") {
 
 
     engine->slowStartBootStrapTest();
-
-
     testLog("Running consensus");
-
-
     usleep(1000 * Consensust::getRunningTimeMS()); /* Flawfinder: ignore */
 
     assert(engine->nodesCount() > 0);
 
     assert(engine->getLargestCommittedBlockID() > 0);
 
-
-    testLog("Exiting gracefully ");
-
-
     engine->exitGracefully();
 
-    delete engine;
-
     SUCCEED();
-
 }
-
 
 bool success = false;
 
 void exit_check() {
-
     sleep(STUCK_TEST_TIME);
-
     engine->exitGracefully();
-
 }
 
-
 TEST_CASE_METHOD(StartFromScratch, "Get consensus to stuck", "[consensus-stuck]") {
-
     testLog("Parsing configs");
-
     std::thread timer(exit_check);
-
     try {
-
         auto startTime = time(NULL);
-
         engine->parseConfigsAndCreateAllNodes(Consensust::getConfigDirPath());
-
         engine->slowStartBootStrapTest();
-
         auto finishTime = time(NULL);
-
         if (finishTime - startTime < STUCK_TEST_TIME) {
             printf("Consensus did not get stuck");
-
             REQUIRE(false);
         }
-
-
-    } catch  (...) {
+    } catch (...) {
         timer.join();
     }
-
     SUCCEED();
 }

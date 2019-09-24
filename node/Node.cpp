@@ -249,29 +249,29 @@ void Node::startServers() {
 
     LOG(info, "Starting node");
 
-    LOG(info, "Initing sockets");
+    LOG(trace, "Initing sockets");
 
     this->sockets = make_shared<Sockets>(*this);
 
     sockets->initSockets(bindIP, (uint16_t) basePort);
 
-    LOG(info, "Constructing servers");
+    LOG(trace, "Constructing servers");
 
     sChain->constructServers(sockets);
 
-    LOG(info, " Creating consensus network");
+    LOG(trace, " Creating consensus network");
 
     network = make_shared<ZMQNetwork>(*sChain);
 
-    LOG(info, " Starting consensus messaging");
+    LOG(trace, " Starting consensus messaging");
 
     network->startThreads();
 
-    LOG(info, "Starting schain");
+    LOG(trace, "Starting schain");
 
     sChain->startThreads();
 
-    LOG(info, "Releasing server threads");
+    LOG(trace, "Releasing server threads");
 
     releaseGlobalServerBarrier();
 

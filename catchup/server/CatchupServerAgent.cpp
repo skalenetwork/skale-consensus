@@ -74,7 +74,7 @@ CatchupWorkerThreadPool *CatchupServerAgent::getCatchupWorkerThreadPool() const 
 
 
 CatchupServerAgent::CatchupServerAgent(Schain &_schain, ptr<TCPServerSocket> _s) : AbstractServerAgent(
-        "Block proposal server", _schain, _s) {
+        "CatchupServer", _schain, _s) {
     catchupWorkerThreadPool = make_shared<CatchupWorkerThreadPool>(num_threads(1), this);
     catchupWorkerThreadPool->startService();
     createNetworkReadThread();

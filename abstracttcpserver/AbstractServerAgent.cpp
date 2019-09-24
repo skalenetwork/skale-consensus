@@ -98,7 +98,7 @@ void AbstractServerAgent::workerThreadConnectionProcessingLoop(void *_params) {
     server->waitOnGlobalStartBarrier();
 
 
-    LOG(info, "Started server loop");
+    LOG(trace, "Started server loop");
 
 
     while (!server->getNode()->isExitRequested()) {
@@ -173,9 +173,9 @@ void AbstractServerAgent::acceptTCPConnectionsLoop() {
 
 void AbstractServerAgent::createNetworkReadThread() {
 
-    LOG(info, name + " Starting TCP server network read loop");
+    LOG(trace, name + " Starting TCP server network read loop");
     networkReadThread = new thread(std::bind(&AbstractServerAgent::acceptTCPConnectionsLoop, this));
-    LOG(info, name + " Started TCP server network read loop");
+    LOG(trace, name + " Started TCP server network read loop");
 
 }
 

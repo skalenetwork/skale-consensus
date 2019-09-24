@@ -36,6 +36,12 @@ using namespace std;
 
 
 void Log::init() {
+
+    lock_guard<recursive_mutex> lock(mutex);
+
+
+
+
     spdlog::flush_every( std::chrono::seconds( 1 ) );
 
     logThreadLocal_ = nullptr;
@@ -55,6 +61,8 @@ void Log::init() {
     }
 
     configLogger = createLogger( "config" );
+
+    inited = true;
 }
 
 shared_ptr< spdlog::logger > Log::createLogger( const string& loggerName ) {
@@ -62,14 +70,15 @@ shared_ptr< spdlog::logger > Log::createLogger( const string& loggerName ) {
 
     if ( !logger ) {
         if ( logFileNamePrefix != nullptr ) {
-            logger = spdlog::get( loggerName );
             logger = make_shared<spdlog::logger>( loggerName, rotatingFileSync );
-            logger->flush_on( info );
-
+            logger->flush_on(info);
         } else {
             logger = spdlog::stdout_color_mt( loggerName );
         }
     }
+
+    assert(logger);
+
     return logger;
 }
 
@@ -130,7 +139,6 @@ Log::Log( node_id _nodeID ) {
 
     prefix = make_shared<string>( to_string( _nodeID ) + ":" );
 
-
     mainLogger = createLogger( *prefix + "main" );
     loggers["Main"] = mainLogger;
     proposalLogger = createLogger( *prefix + "proposal" );
@@ -149,6 +157,10 @@ Log::Log( node_id _nodeID ) {
 
 void Log::log( level_enum _severity, const string& _message, const string& _className ) {
     if ( logThreadLocal_ == nullptr ) {
+
+        assert(inited);
+        assert(configLogger != nullptr);
+
         configLogger->log( _severity, _message );
     } else {
         logThreadLocal_->loggerForClass(_className.c_str())->log( _severity, _message );
@@ -177,3 +189,7 @@ ptr< string > Log::logFileNamePrefix = nullptr;
 
 
 ptr< string > Log::dataDir = nullptr;
+
+recursive_mutex Log::mutex;
+
+bool Log::inited = false;

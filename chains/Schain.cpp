@@ -373,7 +373,7 @@ void Schain::blockCommitArrived( bool bootstrap, block_id _committedBlockID,
 
 
     } else {
-        LOG( info, "Jump starting the system with block" + to_string( _committedBlockID ) );
+        LOG( info, "Jump starting the system with block:" + to_string( _committedBlockID ) );
         if(_committedBlockID == 0)
             this->pricingAgent->calculatePrice(
                 ConsensusExtFace::transactions_vector(), 0, 0, 0 );

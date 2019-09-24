@@ -224,7 +224,7 @@ void ConsensusEngine::parseConfigsAndCreateAllNodes(const fs_path &dirname) {
 
         ASSERT(nodeCount == nodes.size());
 
-        LOG(info, "INFO:Parsed configs and created " + to_string(ConsensusEngine::nodesCount()) +
+        LOG(trace, "Parsed configs and created " + to_string(ConsensusEngine::nodesCount()) +
                   " nodes");
     } catch (exception& e) {
         Exception::logNested(e);
@@ -286,9 +286,9 @@ void ConsensusEngine::bootStrapAll() {
 
 
         for (auto const it : nodes) {
-            LOG(info, "Bootstrapping node");
+            LOG(trace, "Bootstrapping node");
             it.second->getSchain()->bootstrap(lastCommittedBlockID, lastCommittedBlockTimeStamp);
-            LOG(info, "Bootstrapped node");
+            LOG(trace, "Bootstrapped node");
         }
     } catch (Exception &e) {
 

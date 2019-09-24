@@ -55,8 +55,10 @@ class logger;
 }
 
 class Log {
-    recursive_mutex logLock;
 
+    static recursive_mutex mutex;
+
+    static bool inited;
 
     static shared_ptr< string > dataDir;
 
