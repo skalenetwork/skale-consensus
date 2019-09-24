@@ -100,6 +100,8 @@ public:
 
     static void log( level_enum _severity, const string& _message, const string& _className );
 
+    static void logConfig(level_enum _severity, const string &_message, const string &_className);
+
 
     static shared_ptr< spdlog::logger > createLogger( const string& loggerName );
 

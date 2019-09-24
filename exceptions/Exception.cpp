@@ -23,6 +23,7 @@
 
 #include "../SkaleCommon.h"
 #include "../Log.h"
+#include "ExitRequestedException.h"
 #include "Exception.h"
 
 void Exception::logNested(const std::exception &e, int level)
@@ -34,7 +35,12 @@ void Exception::logNested(const std::exception &e, int level)
     } else {
         prefix = "!Caused by:";
     }
-    LOG(err, string(level, ' ') + prefix + e.what());
+
+    if ((dynamic_cast<const ExitRequestedException*>(&e) != nullptr)) {
+        LOG(info, string(level, ' ') + prefix + e.what());
+    } else {
+        LOG(err, string(level, ' ') + prefix + e.what());
+    }
     try {
         std::rethrow_if_nested(e);
     } catch(const std::exception& e) {
