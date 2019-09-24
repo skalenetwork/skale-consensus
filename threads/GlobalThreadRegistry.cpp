@@ -34,11 +34,11 @@ void GlobalThreadRegistry::joinAll() {
 
 void GlobalThreadRegistry::add(thread* _t) {
 
-    ASSERT(_t);
+    CHECK_ARGUMENT(_t);
 
     lock_guard<recursive_mutex> lock(mutex);
 
-    ASSERT(!joined);
+    CHECK_STATE(!joined);
 
     allThreads.push_back(_t);
 }

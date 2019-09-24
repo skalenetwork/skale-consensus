@@ -32,7 +32,7 @@ class WorkerThreadPool {
 
     recursive_mutex mutex;
 
-    bool joined = false;
+
 
     bool started = false;
 
@@ -40,6 +40,7 @@ class WorkerThreadPool {
 
 protected:
 
+    bool joined = false;
 
     vector<thread*> threadpool;
 

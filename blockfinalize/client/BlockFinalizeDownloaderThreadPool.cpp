@@ -71,6 +71,8 @@ void BlockFinalizeDownloaderThreadPool::startService() {
 
 BlockFinalizeDownloaderThreadPool::~BlockFinalizeDownloaderThreadPool() {
 
+    assert(joined);
+
     for (auto&& t : threadpool) {
         assert (!t->joinable());
         delete t;

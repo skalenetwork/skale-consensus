@@ -19,7 +19,6 @@ public:
 
     static void add(thread* _t);
 
-
 };
 
 
