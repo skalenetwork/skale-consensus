@@ -93,6 +93,7 @@
 
 
 #include "../libBLS/bls/BLSPrivateKeyShare.h"
+#include "../monitoring/LivelinessMonitor.h"
 #include "Schain.h"
 
 
@@ -222,6 +223,9 @@ Schain::Schain(
       consensusMessageThreadPool( new SchainMessageThreadPool( this ) ),
       node( _node ),
       schainIndex( _schainIndex ) {
+
+    MONITOR(__CLASS_NAME__, __FUNCTION__)
+
     ASSERT( schainIndex > 0 );
 
     try {
@@ -273,6 +277,9 @@ const ptr< IO > Schain::getIo() const {
 
 
 void Schain::constructChildAgents() {
+
+    MONITOR(__CLASS_NAME__, __FUNCTION__)
+
     try {
         std::lock_guard< std::recursive_mutex > aLock( getMainMutex() );
         pendingTransactionsAgent = make_shared< PendingTransactionsAgent >( *this );
@@ -335,6 +342,8 @@ void Schain::blockCommitsArrivedThroughCatchup( ptr< CommittedBlockList > _block
 void Schain::blockCommitArrived( bool bootstrap, block_id _committedBlockID,
     schain_index _proposerIndex, uint64_t _committedTimeStamp ) {
 
+    MONITOR(__CLASS_NAME__, __FUNCTION__)
+
     checkForExit();
 
     std::lock_guard< std::recursive_mutex > aLock( getMainMutex() );
@@ -393,6 +402,8 @@ void Schain::checkForExit() {
 void Schain::proposeNextBlock(
     uint64_t _previousBlockTimeStamp, uint32_t _previousBlockTimeStampMs ) {
 
+    MONITOR(__CLASS_NAME__, __FUNCTION__)
+
     checkForExit();
 
     block_id _proposedBlockID( ( uint64_t ) lastCommittedBlockID + 1 );
@@ -417,6 +428,8 @@ void Schain::proposeNextBlock(
 }
 
 void Schain::processCommittedBlock( ptr< CommittedBlock > _block ) {
+
+    MONITOR(__CLASS_NAME__, __FUNCTION__)
 
     checkForExit();
 
@@ -455,6 +468,8 @@ void Schain::processCommittedBlock( ptr< CommittedBlock > _block ) {
 }
 
 void Schain::saveBlock( ptr< CommittedBlock >& _block ) {
+    MONITOR(__CLASS_NAME__, __FUNCTION__)
+
     checkForExit();
 
     saveBlockToBlockCache( _block );
@@ -483,6 +498,8 @@ void Schain::saveBlockToBlockCache( ptr< CommittedBlock >& _block ) {
 
 void Schain::pushBlockToExtFace( ptr< CommittedBlock >& _block ) {
 
+    MONITOR(__CLASS_NAME__, __FUNCTION__)
+
     checkForExit();
 
     auto blockID = _block->getBlockID();
@@ -508,6 +525,9 @@ void Schain::pushBlockToExtFace( ptr< CommittedBlock >& _block ) {
 
 void Schain::startConsensus( const block_id _blockID ) {
     {
+
+        MONITOR(__CLASS_NAME__, __FUNCTION__)
+
         checkForExit();
 
         std::lock_guard< std::recursive_mutex > aLock( getMainMutex() );
@@ -555,6 +575,9 @@ void Schain::startConsensus( const block_id _blockID ) {
 
 
 void Schain::proposedBlockArrived( ptr< BlockProposal > pbm ) {
+
+    MONITOR(__CLASS_NAME__, __FUNCTION__)
+
     std::lock_guard< std::recursive_mutex > aLock( getMainMutex() );
 
     if ( blockProposalsDatabase->addBlockProposal( pbm ) ) {
@@ -577,6 +600,8 @@ const block_id Schain::getLastCommittedBlockID() const {
 
 ptr< BlockProposal > Schain::getBlockProposal( block_id _blockID, schain_index _schainIndex) {
 
+    MONITOR(__CLASS_NAME__, __FUNCTION__)
+
     return blockProposalsDatabase->getBlockProposal(_blockID, _schainIndex);
 
 }
@@ -592,6 +617,9 @@ ptr< CommittedBlock > Schain::getCachedBlock( block_id _blockID ) {
 }
 
 ptr< CommittedBlock > Schain::getBlock( block_id _blockID ) {
+
+    MONITOR(__CLASS_NAME__, __FUNCTION__)
+
     std::lock_guard< std::recursive_mutex > aLock( getMainMutex() );
 
     auto block = getCachedBlock( _blockID );
@@ -611,6 +639,9 @@ ptr< CommittedBlock > Schain::getBlock( block_id _blockID ) {
 
 
 ptr< vector< uint8_t > > Schain::getSerializedBlock( uint64_t i ) const {
+
+    MONITOR(__CLASS_NAME__, __FUNCTION__)
+
     auto block = sChain->getCachedBlock( i );
 
 
@@ -682,6 +713,9 @@ void Schain::setBlockProposerTest( const string& blockProposerTest ) {
 }
 
 void Schain::bootstrap( block_id _lastCommittedBlockID, uint64_t _lastCommittedBlockTimeStamp ) {
+
+    MONITOR(__CLASS_NAME__, __FUNCTION__)
+
     try {
         ASSERT( bootStrapped == false );
         bootStrapped = true;
@@ -726,6 +760,9 @@ void Schain::setHealthCheckFile( uint64_t status ) {
 
 
 void Schain::healthCheck() {
+
+    MONITOR(__CLASS_NAME__, __FUNCTION__)
+
     std::unordered_set< uint64_t > connections;
 
     setHealthCheckFile( 1 );
@@ -783,6 +820,9 @@ void Schain::sigShareArrived( ptr< ConsensusBLSSigShare > _sigShare ) {
 
 
 ptr< ConsensusBLSSigShare > Schain::sign( ptr< SHAHash > _hash, block_id _blockId ) {
+
+    MONITOR(__CLASS_NAME__, __FUNCTION__)
+
     auto blsShare =
         getNode()->getBlsPrivateKey()->sign( _hash->toHex(), ( uint64_t ) getSchainIndex() );
 
@@ -791,6 +831,9 @@ ptr< ConsensusBLSSigShare > Schain::sign( ptr< SHAHash > _hash, block_id _blockI
 }
 
 void Schain::constructServers( ptr< Sockets > _sockets ) {
+
+    MONITOR(__CLASS_NAME__, __FUNCTION__)
+
     blockProposalServerAgent =
         make_shared< BlockProposalServerAgent >( *this, _sockets->blockProposalSocket );
 
@@ -820,6 +863,8 @@ u256 Schain::getPriceForBlockId(uint64_t _blockId){
 
 
 void Schain::decideBlock(block_id _blockId, schain_index _proposerIndex) {
+
+    MONITOR(__CLASS_NAME__, __FUNCTION__)
 
     LOG(debug, "decideBlock:" + to_string(_blockId) +
                ":PRP:" + to_string(_proposerIndex));
