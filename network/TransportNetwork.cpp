@@ -53,6 +53,7 @@
 #include "../protocols/blockconsensus/BlockConsensusAgent.h"
 
 #include "../messages/NetworkMessageEnvelope.h"
+#include "../threads/GlobalThreadRegistry.h"
 #include "../network/Sockets.h"
 #include "../network/ZMQServerSocket.h"
 #include "Buffer.h"
@@ -273,8 +274,8 @@ void TransportNetwork::startThreads() {
     deferredMessageThread =
         new thread( std::bind( &TransportNetwork::deferredMessagesLoop, this ) );
 
-    WorkerThreadPool::addThread( networkReadThread );
-    WorkerThreadPool::addThread( deferredMessageThread );
+    GlobalThreadRegistry::add(networkReadThread);
+    GlobalThreadRegistry::add(deferredMessageThread);
 }
 
 bool TransportNetwork::validateIpAddress( ptr< string >& ip ) {

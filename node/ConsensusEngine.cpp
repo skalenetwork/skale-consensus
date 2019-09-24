@@ -29,7 +29,7 @@
 #include "../exceptions/FatalError.h"
 #include "../Agent.h"
 #include "../thirdparty/json.hpp"
-
+#include "../threads/GlobalThreadRegistry.h"
 
 #include "zmq.h"
 
@@ -420,8 +420,7 @@ void ConsensusEngine::exitGracefully() {
     }
 
 
-
-    joinAllThreads();
+    GlobalThreadRegistry::joinAll();
 
 
     for (auto const it : nodes) {
@@ -432,12 +431,7 @@ void ConsensusEngine::exitGracefully() {
 
 }
 
-void ConsensusEngine::joinAllThreads() const {
-    for (auto &&thread : WorkerThreadPool::getAllThreads()) {
-        if (thread->joinable())  // TODO why it's special?
-            thread->join();
-    }
-}
+
 
 ConsensusEngine::~ConsensusEngine() {
     for (auto &n : nodes) {

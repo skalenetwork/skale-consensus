@@ -387,10 +387,9 @@ void Node::releaseGlobalServerBarrier() {
 }
 
 
-void Node::waitOnGlobalClientStartBarrier(Agent *agent) {
+void Node::waitOnGlobalClientStartBarrier() {
 
-    logThreadLocal_ = agent->getSchain()->getNode()->getLog();
-
+    logThreadLocal_ = getLog();
 
     unique_lock<mutex> mlock(threadClientCondMutex);
     while (!startedClients) {
@@ -398,6 +397,9 @@ void Node::waitOnGlobalClientStartBarrier(Agent *agent) {
     }
 
 }
+
+
+
 
 void Node::releaseGlobalClientBarrier() {
     lock_guard<mutex> lock(threadClientCondMutex);
@@ -555,7 +557,7 @@ void Node::exitOnFatalError(const string &_message) {
         return;
     exit();
 
-//    consensusEngine->joinAllThreads();
+//    consensusEngine->joinAll();
     auto extFace = consensusEngine->getExtFace();
 
     if (extFace) {

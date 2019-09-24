@@ -42,7 +42,7 @@
 #include "../headers/BlockProposalHeader.h"
 #include "../pendingqueue/PendingTransactionsAgent.h"
 
-#include "../blockfinalize/client/BlockFinalizeClientAgent.h"
+#include "../blockfinalize/client/BlockFinalizeDownloader.h"
 #include "../blockproposal/server/BlockProposalServerAgent.h"
 #include "../catchup/client/CatchupClientAgent.h"
 #include "../catchup/server/CatchupServerAgent.h"
@@ -267,6 +267,7 @@ Schain::Schain(
 }
 
 const ptr< IO > Schain::getIo() const {
+    CHECK_STATE(io != nullptr);
     return io;
 }
 
@@ -627,6 +628,7 @@ schain_index Schain::getSchainIndex() const {
 
 
 Node* Schain::getNode() const {
+    CHECK_STATE(node != nullptr);
     return node;
 }
 
@@ -855,7 +857,7 @@ void Schain::decideBlock(block_id _blockId, schain_index _proposerIndex) {
         // Note that due to the BLS signature proof, 2t hosts out of 3t + 1 total are guaranteed to
         // posess the proposal
 
-        auto agent = make_unique<BlockFinalizeClientAgent>(*this, _blockId, _proposerIndex);
+        auto agent = make_unique<BlockFinalizeDownloader>(this, _blockId, _proposerIndex);
 
         auto prp = agent->downloadProposal();
 

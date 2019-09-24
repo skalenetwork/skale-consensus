@@ -16,7 +16,7 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file BlockFinalizeClientThreadPool.cpp
+    @file BlockFinalizeDownloaderThreadPool.cpp
     @author Stan Kladko
     @date 2019
 */
@@ -39,32 +39,42 @@
 
 #include "../../thirdparty/json.hpp"
 
-#include "BlockFinalizeClientAgent.h"
-#include "BlockFinalizeClientThreadPool.h"
+#include "BlockFinalizeDownloader.h"
+#include "BlockFinalizeDownloaderThreadPool.h"
 
-BlockFinalizeClientThreadPool::BlockFinalizeClientThreadPool(num_threads numThreads, void *params_) : WorkerThreadPool(numThreads,
-                                                                                                           params_) {
+BlockFinalizeDownloaderThreadPool::BlockFinalizeDownloaderThreadPool(num_threads numThreads, void *params_) : WorkerThreadPool(numThreads,
+                                                                                                                               params_) {
 }
 
 
-void BlockFinalizeClientThreadPool::createThread(uint64_t number) {
+void BlockFinalizeDownloaderThreadPool::createThread(uint64_t number) {
 
-    auto p = (BlockFinalizeClientAgent*)params;
+    auto p = (BlockFinalizeDownloader*)params;
 
     uint64_t index = number + 1;
 
     if (index == p->getSchain()->getSchainIndex())
         return;
 
-    this->threadpool.push_back(new thread(BlockFinalizeClientAgent::workerThreadItemSendLoop, p, index));
+    this->threadpool.push_back(new thread(BlockFinalizeDownloader::workerThreadFragmentDownloadLoop, p, index));
 
 }
 
 
-void BlockFinalizeClientThreadPool::startService() {
+void BlockFinalizeDownloaderThreadPool::startService() {
 
     for (uint64_t i = 0; i < (uint64_t )numThreads; i++) {
         createThread(i);
     }
 
 }
+
+BlockFinalizeDownloaderThreadPool::~BlockFinalizeDownloaderThreadPool() {
+
+    for (auto&& t : threadpool) {
+        assert (!t->joinable());
+        delete t;
+    }
+
+}
+

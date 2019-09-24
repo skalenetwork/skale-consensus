@@ -40,8 +40,8 @@ class PartialHashesList;
 class BlockProposalClientAgent;
 class BlockProposalPusherThreadPool;
 
-class BlockFinalizeClientAgent;
-class BlockFinalizeClientThreadPool;
+class BlockFinalizeDownloader;
+class BlockFinalizeDownloaderThreadPool;
 
 class SchainMessageThreadPool;
 

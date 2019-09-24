@@ -29,32 +29,35 @@ class Schain;
 
 
 class WorkerThreadPool {
-protected:
-    static vector< thread*  > allThreads;
 
+    recursive_mutex mutex;
 
-public:
+    bool joined = false;
 
+    bool started = false;
 
-    static void addThread(thread* _t);
-
-
-    static const vector< thread * >& getAllThreads();
+    virtual void createThread( uint64_t threadNumber ) = 0;
 
 protected:
+
+
     vector<thread*> threadpool;
 
     num_threads numThreads;
 
     void* params;
 
-public:
+protected:
+
     WorkerThreadPool( num_threads _numThreads, void* _param_ );
+
+public:
+
     virtual ~WorkerThreadPool() {}
 
     virtual void startService();
 
-    virtual void createThread( uint64_t threadNumber ) = 0;
 
     void joinAll();
+
 };

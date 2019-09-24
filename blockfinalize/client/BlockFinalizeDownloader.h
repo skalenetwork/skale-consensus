@@ -16,7 +16,7 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file BlockFinalizeClientAgent.h
+    @file BlockFinalizeDownloader.h
     @author Stan Kladko
     @date 2019
 */
@@ -39,7 +39,7 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file BlockFinalizeClientAgent.h
+    @file BlockFinalizeDownloader.h
     @author Stan Kladko
     @date 2018
 */
@@ -55,11 +55,11 @@ class BlockFinalizeResponseHeader;
 class CommittedBlockFragment;
 class CommittedBlockFragmentList;
 
-class BlockFinalizeClientThreadPool;
+class BlockFinalizeDownloaderThreadPool;
 
 #include "../../datastructures/CommittedBlockFragmentList.h"
 
-class BlockFinalizeClientAgent {
+class BlockFinalizeDownloader {
 
     Schain* sChain;
 public:
@@ -76,16 +76,16 @@ private:
 public:
     atomic< uint64_t > threadCounter;
 
-    ptr< BlockFinalizeClientThreadPool > blockFinalizeClientThreadPool = nullptr;
+    ptr< BlockFinalizeDownloaderThreadPool > blockFinalizeClientThreadPool = nullptr;
 
 
-    BlockFinalizeClientAgent( Schain& _sChain, block_id _blockId, schain_index _proposerIndex);
+    BlockFinalizeDownloader(Schain* _sChain, block_id _blockId, schain_index _proposerIndex);
 
 
     uint64_t downloadFragment(schain_index _dstIndex, fragment_index _fragmentIndex);
 
 
-    static void workerThreadItemSendLoop( BlockFinalizeClientAgent* agent, schain_index _destIndex );
+    static void workerThreadFragmentDownloadLoop(BlockFinalizeDownloader* agent, schain_index _dstIndex );
 
     nlohmann::json readBlockFinalizeResponseHeader( ptr< ClientSocket > _socket );
 

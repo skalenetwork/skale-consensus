@@ -221,7 +221,7 @@ public:
 
     void waitOnGlobalServerStartBarrier(Agent *agent);
 
-    void waitOnGlobalClientStartBarrier(Agent *agent);
+    void waitOnGlobalClientStartBarrier();
 
     ptr<Log> getLog() const;
 

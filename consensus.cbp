@@ -1114,10 +1114,10 @@
 		<Unit filename="/d/skale-consensus/blockfinalize/client/BlockFinalizeClientAgent.h">
 			<Option target="consensus"/>
 		</Unit>
-		<Unit filename="/d/skale-consensus/blockfinalize/client/BlockFinalizeClientThreadPool.cpp">
+		<Unit filename="/d/skale-consensus/blockfinalize/client/BlockFinalizeDownloaderThreadPool.cpp">
 			<Option target="consensus"/>
 		</Unit>
-		<Unit filename="/d/skale-consensus/blockfinalize/client/BlockFinalizeClientThreadPool.h">
+		<Unit filename="/d/skale-consensus/blockfinalize/client/BlockFinalizeDownloaderThreadPool.h">
 			<Option target="consensus"/>
 		</Unit>
 		<Unit filename="/d/skale-consensus/blockfinalize/received/ReceivedBlockSigSharesDatabase.cpp">

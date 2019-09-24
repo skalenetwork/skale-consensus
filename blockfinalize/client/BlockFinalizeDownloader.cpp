@@ -16,7 +16,7 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file BlockFinalizeClientAgent.cpp
+    @file BlockFinalizeDownloader.cpp
     @author Stan Kladko
     @date 2019
 */
@@ -39,7 +39,7 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file BlockFinalizeClientAgent.cpp
+    @file BlockFinalizeDownloader.cpp
     @author Stan Kladko
     @date 2018
 */
@@ -71,24 +71,30 @@
 #include "../../headers/BlockFinalizeResponseHeader.h"
 #include "../../pendingqueue/PendingTransactionsAgent.h"
 
-#include "BlockFinalizeClientAgent.h"
-#include "BlockFinalizeClientThreadPool.h"
+#include "BlockFinalizeDownloader.h"
+#include "BlockFinalizeDownloaderThreadPool.h"
 
 
-BlockFinalizeClientAgent::BlockFinalizeClientAgent( Schain& _sChain,
-        block_id _blockId, schain_index _proposerIndex) : sChain(&_sChain),
-        blockId(_blockId), proposerIndex(_proposerIndex), fragmentList(_blockId, (uint64_t )_sChain.getNodeCount() - 1) {
+BlockFinalizeDownloader::BlockFinalizeDownloader(Schain *_sChain,
+                                                 block_id _blockId, schain_index _proposerIndex) : sChain(_sChain),
+        blockId(_blockId), proposerIndex(_proposerIndex), fragmentList(_blockId, (uint64_t )_sChain->getNodeCount() - 1) {
 
-    ASSERT(_sChain.getNodeCount() > 1);
+    CHECK_ARGUMENT(_sChain != nullptr);
+
+    ASSERT(_sChain->getNodeCount() > 1);
 
     try {
-        logThreadLocal_ = _sChain.getNode()->getLog();
-        this->sChain = &_sChain;
+        logThreadLocal_ = _sChain->getNode()->getLog();
+
+        CHECK_STATE(sChain != nullptr);
+
+
+
         threadCounter = 0;
 
 
-        this->blockFinalizeClientThreadPool = make_shared< BlockFinalizeClientThreadPool >
-                              ((uint64_t) sChain->getNodeCount(), this );
+        this->blockFinalizeClientThreadPool = make_shared< BlockFinalizeDownloaderThreadPool >
+                              ((uint64_t) getSchain()->getNodeCount(), this );
         blockFinalizeClientThreadPool->startService();
 
     } catch ( ... ) {
@@ -97,16 +103,16 @@ BlockFinalizeClientAgent::BlockFinalizeClientAgent( Schain& _sChain,
 }
 
 
-nlohmann::json BlockFinalizeClientAgent::readBlockFinalizeResponseHeader( ptr< ClientSocket > _socket ) {
-    return sChain->getIo()->readJsonHeader( _socket->getDescriptor(), "Read BlockFinalize response" );
+nlohmann::json BlockFinalizeDownloader::readBlockFinalizeResponseHeader(ptr< ClientSocket > _socket ) {
+    return getSchain()->getIo()->readJsonHeader( _socket->getDescriptor(), "Read BlockFinalize response" );
 }
 
 
-uint64_t BlockFinalizeClientAgent::downloadFragment(schain_index _dstIndex, fragment_index _fragmentIndex) {
+uint64_t BlockFinalizeDownloader::downloadFragment(schain_index _dstIndex, fragment_index _fragmentIndex) {
 
     auto header = make_shared< BlockFinalizeRequestHeader >( *sChain, blockId, proposerIndex, _fragmentIndex);
     auto socket = make_shared< ClientSocket >( *sChain, _dstIndex, CATCHUP );
-    auto io = sChain->getIo();
+    auto io = getSchain()->getIo();
 
 
     try {
@@ -174,7 +180,7 @@ uint64_t BlockFinalizeClientAgent::downloadFragment(schain_index _dstIndex, frag
 
     try {
         fragment = make_shared<CommittedBlockFragment>(
-                blockId, (uint64_t ) sChain->getNodeCount()  -1 , _fragmentIndex, serializedFragment);
+                blockId, (uint64_t ) getSchain()->getNodeCount()  -1 , _fragmentIndex, serializedFragment);
     } catch ( ... ) {
         throw_with_nested(
                 NetworkProtocolException( "Could not parse block fragment", __CLASS_NAME__ ) );
@@ -190,7 +196,7 @@ uint64_t BlockFinalizeClientAgent::downloadFragment(schain_index _dstIndex, frag
 
 }
 
-uint64_t BlockFinalizeClientAgent::readFragmentSize(nlohmann::json _responseHeader) {
+uint64_t BlockFinalizeDownloader::readFragmentSize(nlohmann::json _responseHeader) {
     uint64_t  result = Header::getUint64(_responseHeader, "fragmentSize");
 
     if (result == 0 ) {
@@ -201,8 +207,8 @@ uint64_t BlockFinalizeClientAgent::readFragmentSize(nlohmann::json _responseHead
 };
 
 
-ptr<vector<uint8_t >> BlockFinalizeClientAgent::readBlockFragment(ptr<ClientSocket> _socket,
-                                                                      nlohmann::json responseHeader) {
+ptr<vector<uint8_t >> BlockFinalizeDownloader::readBlockFragment(ptr<ClientSocket> _socket,
+                                                                 nlohmann::json responseHeader) {
 
     ASSERT( responseHeader > 0 );
 
@@ -211,7 +217,7 @@ ptr<vector<uint8_t >> BlockFinalizeClientAgent::readBlockFragment(ptr<ClientSock
     auto serializedFragment = make_shared< vector< uint8_t > >(fragmentSize);
 
     try {
-        sChain->getIo()->readBytes(_socket->getDescriptor(),
+        getSchain()->getIo()->readBytes(_socket->getDescriptor(),
                                         ( in_buffer* ) serializedFragment->data(), msg_len(fragmentSize) );
     } catch ( ExitRequestedException& ) {
         throw;
@@ -223,26 +229,29 @@ ptr<vector<uint8_t >> BlockFinalizeClientAgent::readBlockFragment(ptr<ClientSock
 }
 
 
-void BlockFinalizeClientAgent::workerThreadItemSendLoop( BlockFinalizeClientAgent* agent,
-        schain_index _dstIndex) {
+void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(BlockFinalizeDownloader* agent,
+                                                               schain_index _dstIndex) {
 
     setThreadName( __CLASS_NAME__ );
 
     uint64_t  next = (uint64_t ) _dstIndex;
 
-    if (next > (uint64_t ) agent->sChain->getSchainIndex())
+    agent->getSchain()->getNode()->waitOnGlobalClientStartBarrier();
+
+    if (next > (uint64_t ) agent->getSchain()->getSchainIndex())
         next--;
 
+    auto sChain = agent->getSchain();
 
     try {
-        while ( !agent->sChain->getNode()->isExitRequested() ) {
+        while ( !sChain->getNode()->isExitRequested() ) {
 
             try {
                 next = agent->downloadFragment(_dstIndex, next);
                 if (next == 0) {
                     return;
                 }
-                if (agent->sChain->getLastCommittedBlockID() >= (uint64_t ) agent->blockId)
+                if (agent->getSchain()->getLastCommittedBlockID() >= (uint64_t ) agent->blockId)
                     return;
             } catch ( ExitRequestedException& ) {
                 return;
@@ -251,12 +260,12 @@ void BlockFinalizeClientAgent::workerThreadItemSendLoop( BlockFinalizeClientAgen
             }
         };
     } catch ( FatalError* e ) {
-        agent->sChain->getNode()->exitOnFatalError( e->getMessage() );
+        agent->getSchain()->getNode()->exitOnFatalError( e->getMessage() );
     }
 }
 
-ptr<CommittedBlock> BlockFinalizeClientAgent::downloadProposal() {
-    BlockFinalizeClientThreadPool pool((uint64_t )sChain->getNodeCount(), (void*) this);
+ptr<CommittedBlock> BlockFinalizeDownloader::downloadProposal() {
+    BlockFinalizeDownloaderThreadPool pool((uint64_t )getSchain()->getNodeCount(), (void*) this);
     pool.startService();
     pool.joinAll();
 
@@ -267,7 +276,8 @@ ptr<CommittedBlock> BlockFinalizeClientAgent::downloadProposal() {
     }
 }
 
-Schain *BlockFinalizeClientAgent::getSchain() const {
+Schain *BlockFinalizeDownloader::getSchain() const {
+    CHECK_STATE(sChain != nullptr);
     return sChain;
 }
 

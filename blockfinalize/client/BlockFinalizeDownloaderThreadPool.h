@@ -16,7 +16,7 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file BlockFinalizeClientThreadPool.h
+    @file BlockFinalizeDownloaderThreadPool.h
     @author Stan Kladko
     @date 2019
 */
@@ -27,15 +27,17 @@
 
 #include "../../threads/WorkerThreadPool.h"
 
-class BlockFinalizeClientThreadPool : public WorkerThreadPool {
+class BlockFinalizeDownloaderThreadPool : public WorkerThreadPool {
 
 public:
 
-    BlockFinalizeClientThreadPool(num_threads numThreads, void *_params);
+    BlockFinalizeDownloaderThreadPool(num_threads numThreads, void *_params);
 
     void createThread(uint64_t number) override;
 
     void startService() override;
+
+    virtual ~BlockFinalizeDownloaderThreadPool();
 
 };
 

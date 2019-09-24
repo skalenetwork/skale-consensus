@@ -48,8 +48,8 @@
 #include "../../node/NodeInfo.h"
 #include "../../blockproposal/received/ReceivedBlockProposalsDatabase.h"
 
-#include "../../blockfinalize/client/BlockFinalizeClientAgent.h"
-#include "../../blockfinalize/client/BlockFinalizeClientThreadPool.h"
+#include "../../blockfinalize/client/BlockFinalizeDownloader.h"
+#include "../../blockfinalize/client/BlockFinalizeDownloaderThreadPool.h"
 
 #include "../../protocols/ProtocolKey.h"
 #include  "../../protocols/binconsensus/BVBroadcastMessage.h"
