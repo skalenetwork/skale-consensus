@@ -61,7 +61,7 @@ uint64_t Consensust::getRunningTimeMS() {
 
     if (runningTimeMs == 0) {
 
-        auto env = std::getenv("TEST_RUN_TIME_MS");
+        auto env = std::getenv("TEST_TIME_MS");
 
         if (env != NULL) {
             runningTimeMs = strtoul(env, NULL, 10);
