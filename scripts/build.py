@@ -71,12 +71,12 @@ cmakeExecutable = subprocess.check_output(["which", "cmake"])
 
 print("Running cmake: " + cmakeExecutable)
 
-run("cmake . -DCMAKE_BUILD_TYPE=" +  sys.argv[1] +
+run("cmake . -Bbuild -DCMAKE_BUILD_TYPE=" +  sys.argv[1] +
                         " -DCOVERAGE=ON -DMICROPROFILE_ENABLED=0")
 
 run("/usr/bin/make -j4")
 
-buildDirName = sys.argv[2] + '/cmake-build-' + sys.argv[1].lower()
+buildDirName = sys.argv[2] + '/build-' + sys.argv[1].lower()
 
 print("Build dir:" + buildDirName)
 
