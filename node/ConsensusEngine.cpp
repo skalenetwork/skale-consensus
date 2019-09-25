@@ -360,6 +360,15 @@ void ConsensusEngine::systemHealthCheck() {
 }
 
 void ConsensusEngine::init() {
+
+    sigset_t sigpipe_mask;
+    sigemptyset(&sigpipe_mask);
+    sigaddset(&sigpipe_mask, SIGPIPE);
+    sigset_t saved_mask;
+    if (pthread_sigmask(SIG_BLOCK, &sigpipe_mask, &saved_mask) == -1) {
+        BOOST_THROW_EXCEPTION(FatalError("Could not block SIGPIPE"));
+    }
+
     systemHealthCheck();
     BinConsensusInstance::initHistory();
 }
@@ -373,6 +382,7 @@ ConsensusEngine::ConsensusEngine(ConsensusExtFace &_extFace, uint64_t _lastCommi
                                  blsPublicKey3(_blsPublicKey3), blsPublicKey4(_blsPublicKey4),
                                  blsPrivateKey(_blsPrivateKey)
 {
+
 
 
 

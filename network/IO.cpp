@@ -131,7 +131,7 @@ void IO::writeBytes(file_descriptor descriptor, out_buffer *buffer, msg_len len)
     //    setsockopt( int( descriptor ), SOL_SOCKET, SO_SNDTIMEO, &timeout, sizeof( int ) );
 
 
-    // signal(SIGPIPE, SIG_IGN);
+
 
     uint64_t bytesWritten = 0;
 

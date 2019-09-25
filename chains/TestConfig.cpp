@@ -29,5 +29,8 @@ bool TestConfig::isFinalizationDownloadOnly() const {
 }
 
 TestConfig::TestConfig(nlohmann::json /*cgf */) {
+    auto option = std::getenv("TEST_FINALIZATION_DOWNLOAD_ONLY");
+
+    finalizationDownloadOnly = (option != nullptr);
 
 }
