@@ -310,3 +310,14 @@ u256 Schain::getPriceForBlockId(uint64_t _blockId) {
 }
 
 
+const ptr<string> Schain::getBlockProposerTest() const {
+    return blockProposerTest;
+}
+
+void Schain::setBlockProposerTest(const char *_blockProposerTest) {
+    blockProposerTest = make_shared<string>(_blockProposerTest);
+}
+
+ConsensusExtFace * Schain::getExtFace() const {
+    return extFace;
+}

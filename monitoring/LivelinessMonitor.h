@@ -7,8 +7,8 @@
 
 
 #include "MonitoringAgent.h"
-
-#define MONITOR(_C_, _F_) LivelinessMonitor __L__(getSchain()->getMonitoringAgent().get(), _C_.c_str(), _F_, 0);
+#define MONITOR2(_C_, _F_, _T_) LivelinessMonitor __L__(getSchain()->getMonitoringAgent().get(), _C_.c_str(), _F_, _T_);
+#define MONITOR(_C_, _F_) LivelinessMonitor __L__(getSchain()->getMonitoringAgent().get(), _C_.c_str(), _F_, 2);
 
 class LivelinessMonitor {
 
@@ -35,7 +35,7 @@ public:
 
     virtual ~LivelinessMonitor();
 
-    LivelinessMonitor(MonitoringAgent *_agent, const char *_function, const char *_class, uint64_t _maxTime);
+    LivelinessMonitor(MonitoringAgent *_agent, const char *_class, const char *_function, uint64_t _maxTime);
 
 
 

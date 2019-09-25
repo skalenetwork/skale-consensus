@@ -66,7 +66,7 @@ void MonitoringAgent::monitor() {
         auto currentTime = Schain::getCurrentTimeMs();
 
         if (currentTime > m->getExpiryTime()) {
-            LOG(err, m->toString() + " has been stuck for " + to_string(currentTime - m->getStartTime()) + " ms");
+            LOG(warn, m->toString() + " has been stuck for " + to_string(currentTime - m->getStartTime()) + " ms");
         }
 
     }

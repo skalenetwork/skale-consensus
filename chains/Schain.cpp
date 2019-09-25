@@ -233,8 +233,7 @@ Schain::Schain(
 
         string x = SchainTest::NONE;
 
-        blockProposerTest = make_shared< string >( x );
-
+        blockProposerTest = make_shared< string >(x);
 
         getNode()->registerAgent( this );
 
@@ -252,9 +251,7 @@ void Schain::constructChildAgents() {
         std::lock_guard< std::recursive_mutex > aLock( getMainMutex() );
         pendingTransactionsAgent = make_shared< PendingTransactionsAgent >( *this );
         blockProposalClient = make_shared< BlockProposalClientAgent >( *this );
-
         catchupClientAgent = make_shared< CatchupClientAgent >( *this );
-
         blockConsensusInstance = make_shared< BlockConsensusAgent >( *this );
         blockProposalsDatabase = make_shared< ReceivedBlockProposalsDatabase >( *this );
         blockSigSharesDatabase = make_shared< ReceivedBlockSigSharesDatabase >( *this );
@@ -312,7 +309,7 @@ void Schain::blockCommitsArrivedThroughCatchup( ptr< CommittedBlockList > _block
 void Schain::blockCommitArrived( bool bootstrap, block_id _committedBlockID,
     schain_index _proposerIndex, uint64_t _committedTimeStamp ) {
 
-    MONITOR(__CLASS_NAME__, __FUNCTION__)
+    MONITOR2(__CLASS_NAME__, __FUNCTION__, getMaxExternalBlockProcessingTime())
 
     checkForExit();
 
@@ -372,7 +369,9 @@ void Schain::checkForExit() {
 void Schain::proposeNextBlock(
     uint64_t _previousBlockTimeStamp, uint32_t _previousBlockTimeStampMs ) {
 
-    MONITOR(__CLASS_NAME__, __FUNCTION__)
+
+
+    MONITOR2(__CLASS_NAME__, __FUNCTION__, getMaxExternalBlockProcessingTime())
 
     checkForExit();
 
@@ -399,7 +398,7 @@ void Schain::proposeNextBlock(
 
 void Schain::processCommittedBlock( ptr< CommittedBlock > _block ) {
 
-    MONITOR(__CLASS_NAME__, __FUNCTION__)
+    MONITOR2(__CLASS_NAME__, __FUNCTION__, getMaxExternalBlockProcessingTime())
 
     checkForExit();
 
@@ -468,7 +467,7 @@ void Schain::saveBlockToBlockCache( ptr< CommittedBlock >& _block ) {
 
 void Schain::pushBlockToExtFace( ptr< CommittedBlock >& _block ) {
 
-    MONITOR(__CLASS_NAME__, __FUNCTION__)
+    MONITOR2(__CLASS_NAME__, __FUNCTION__, getMaxExternalBlockProcessingTime())
 
     checkForExit();
 
@@ -559,7 +558,7 @@ void Schain::proposedBlockArrived( ptr< BlockProposal > pbm ) {
 
 void Schain::bootstrap( block_id _lastCommittedBlockID, uint64_t _lastCommittedBlockTimeStamp ) {
 
-    MONITOR(__CLASS_NAME__, __FUNCTION__)
+    MONITOR2(__CLASS_NAME__, __FUNCTION__, getMaxExternalBlockProcessingTime())
 
     try {
         ASSERT( bootStrapped == false );
@@ -576,7 +575,6 @@ void Schain::bootstrap( block_id _lastCommittedBlockID, uint64_t _lastCommittedB
 
 void Schain::healthCheck() {
 
-    MONITOR(__CLASS_NAME__, __FUNCTION__)
 
     std::unordered_set< uint64_t > connections;
 
@@ -658,7 +656,7 @@ void Schain::constructServers( ptr< Sockets > _sockets ) {
 
 void Schain::decideBlock(block_id _blockId, schain_index _proposerIndex) {
 
-    MONITOR(__CLASS_NAME__, __FUNCTION__)
+    MONITOR2(__CLASS_NAME__, __FUNCTION__, getMaxExternalBlockProcessingTime())
 
     LOG(debug, "decideBlock:" + to_string(_blockId) +
                ":PRP:" + to_string(_proposerIndex));

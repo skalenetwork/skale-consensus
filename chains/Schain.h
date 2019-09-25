@@ -71,20 +71,13 @@ class ConsensusBLSSigShare;
 
 class Schain : public Agent {
 
-
     bool bootStrapped = false;
 
     atomic<uint64_t>  totalTransactions;
 
-
     ConsensusExtFace* extFace = nullptr;
 
-
-    /**
-     * ID of this SChain
-     */
     schain_id  schainID;
-
 
     ptr<TestMessageGeneratorAgent> testMessageGeneratorAgent;
 
@@ -93,7 +86,6 @@ class Schain : public Agent {
     std::map<block_id, ptr<CommittedBlock>> blocks;
 
     block_id lastPushedBlock = 0;
-
 
     set<block_id> pushedBlockProposals;
 
@@ -111,28 +103,31 @@ class Schain : public Agent {
 
     ptr<BlockProposalClientAgent> blockProposalClient = nullptr;
 
-
-
     ptr<CatchupClientAgent> catchupClientAgent = nullptr;
-
 
     ptr<PricingAgent> pricingAgent = nullptr;
 
     ptr<SchainMessageThreadPool> consensusMessageThreadPool = nullptr;
 
-
     ptr<BlockConsensusAgent> blockConsensusInstance;
 
     ptr<IO> io;
 
+    ptr<ReceivedBlockProposalsDatabase> blockProposalsDatabase;
 
+    ptr<ReceivedSigSharesDatabase> blockSigSharesDatabase;
 
     Node* node;
 
-
     schain_index schainIndex;
 
-    ptr<string> blockProposerTest ;
+    ptr<string> blockProposerTest;
+
+    atomic<uint64_t> lastCommittedBlockID;
+
+    atomic<uint64_t> bootstrapBlockID;
+
+    atomic<uint64_t>committedBlockTimeStamp;
 
 
     /*** Queue of unprocessed messages for this schain instance
@@ -144,49 +139,28 @@ class Schain : public Agent {
  */
     queue<uint64_t> dispatchQueue;
 
-
-
-
     ptr<NodeInfo> thisNodeInfo = nullptr;
 
     void checkForExit();
 
     void proposeNextBlock(uint64_t _previousBlockTimeStamp, uint32_t _previousBlockTimeStampMs);
 
-
     void processCommittedBlock(ptr<CommittedBlock> _block);
-
-
 
     void startConsensus(block_id _blockID);
 
-    atomic<uint64_t> lastCommittedBlockID;
-
-
-    atomic<uint64_t> bootstrapBlockID;
-
-
-    atomic<uint64_t>committedBlockTimeStamp;
-
     void constructChildAgents();
-
 
     void saveBlockToBlockCache(ptr<CommittedBlock> &_block);
 
-
     void saveBlock(ptr<CommittedBlock> &_block);
-
 
     void pushBlockToExtFace(ptr<CommittedBlock> &_block);
 
 
     ptr<vector<uint8_t>> getSerializedBlockFromLevelDB(const block_id &_blockID);
 
-
-
     ptr<CommittedBlock> getCachedBlock(block_id _blockID);
-
-
 
 public:
 
@@ -196,10 +170,7 @@ public:
 
     void healthCheck();
 
-    ConsensusExtFace *getExtFace() const {
-        return extFace;
-    }
-
+    ConsensusExtFace *getExtFace();
 
     Schain(Node* _node, schain_index _schainIndex, const schain_id &_schainID, ConsensusExtFace *_extFace);
 
@@ -207,16 +178,9 @@ public:
 
     static void messageThreadProcessingLoop(Schain *s);
 
-
     uint64_t getLastCommittedBlockTimeStamp();
 
-
     void setBlockProposerTest(const string &blockProposerTest);
-
-
-    ptr<ReceivedBlockProposalsDatabase> blockProposalsDatabase;
-
-    ptr<ReceivedSigSharesDatabase> blockSigSharesDatabase;
 
     uint64_t getStartTimeMs() const;
 
@@ -232,59 +196,37 @@ public:
 
     const ptr<IO> getIo() const;
 
-
-
-
     void postMessage(ptr<MessageEnvelope> m);
-
-
-
 
     ptr<PendingTransactionsAgent> getPendingTransactionsAgent() const;
 
     ptr<MonitoringAgent> getMonitoringAgent() const;
 
-
     schain_index getSchainIndex() const;
 
     Node *getNode() const;
 
-
     transaction_count getMessagesCount();
-
 
     node_id getNodeIDByIndex(schain_index _index);
 
     schain_id getSchainID();
 
-
     ptr<BlockConsensusAgent> getBlockConsensusInstance();
-
 
     ptr<NodeInfo> getThisNodeInfo() const;
 
-
     node_count getNodeCount();
-
 
     const block_id getLastCommittedBlockID() const;
 
-
     ptr<CommittedBlock> getBlock(block_id _blockID);
 
+    const ptr<string> getBlockProposerTest() const;
 
-
-
-        const ptr<string> getBlockProposerTest() const {
-        return blockProposerTest;
-    }
-
-    void setBlockProposerTest(const char *_blockProposerTest) {
-        blockProposerTest = make_shared<string>(_blockProposerTest);
-    }
+    void setBlockProposerTest(const char *_blockProposerTest);
 
     ptr<TestMessageGeneratorAgent> getTestMessageGeneratorAgent() const;
-
 
     void bootstrap(block_id _lastCommittedBlockID, uint64_t _lastCommittedBlockTimeStamp);
 
@@ -294,25 +236,16 @@ public:
 
     static uint64_t  getHighResolutionTime();
 
-    static chrono::milliseconds getCurrentTimeMilllis();
-
-    static uint64_t getCurrentTimeSec();
-
-    static uint64_t getCurrentTimeMs();
-
     block_id getBootstrapBlockID() const;
-
 
     void setHealthCheckFile(uint64_t status);
 
-
     ptr<vector<uint8_t>> getSerializedBlock(uint64_t i) const;
-
 
     ptr<ConsensusBLSSigShare> sign(ptr<SHAHash> _hash, block_id _blockId);
 
-
     size_t getTotalSignersCount();
+
     size_t getRequiredSignersCount();
 
     u256 getPriceForBlockId(uint64_t _blockId);
