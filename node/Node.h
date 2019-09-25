@@ -142,6 +142,8 @@ class Node {
 
     uint64_t catchupIntervalMS;
 
+    uint64_t monitoringIntervalMS;
+
     uint64_t waitAfterNetworkErrorMs;
 
     uint64_t emptyBlockIntervalMs;
@@ -264,6 +266,10 @@ public:
     void startClients();
 
     uint64_t  getCatchupIntervalMs();
+
+    uint64_t  getMonitoringIntervalMs();
+
+
 
     ConsensusEngine *getConsensusEngine() const;
 

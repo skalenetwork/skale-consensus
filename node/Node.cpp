@@ -144,6 +144,8 @@ void Node::initParamsFromConfig() {
 
     catchupIntervalMS = getParamUint64("catchupIntervalMs", CATCHUP_INTERVAL_MS);
 
+    monitoringIntervalMS = getParamUint64("monitoringIntervalMs", MONITORING_INTERVAL_MS);
+
     waitAfterNetworkErrorMs = getParamUint64("waitAfterNetworkErrorMs", WAIT_AFTER_NETWORK_ERROR_MS);
 
     blockProposalHistorySize = getParamUint64("blockProposalHistorySize", BLOCK_PROPOSAL_HISTORY_SIZE);
@@ -567,8 +569,12 @@ void Node::exitOnFatalError(const string &_message) {
 }
 
 uint64_t Node::getCatchupIntervalMs() {
-
     return catchupIntervalMS;
+}
+
+
+uint64_t Node::getMonitoringIntervalMs() {
+    return monitoringIntervalMS;
 }
 
 uint64_t Node::getWaitAfterNetworkErrorMs() {
