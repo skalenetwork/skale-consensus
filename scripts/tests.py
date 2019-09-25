@@ -76,7 +76,7 @@ fullConsensusTest("fournodes", consensustExecutive, "[consensus-basic]")
 fullConsensusTest("sixteennodes", consensustExecutive, "[consensus-basic]")
 fullConsensusTest("fournodes_catchup", consensustExecutive, "[consensus-basic]")
 fullConsensusTest("three_out_of_four", consensustExecutive, "[consensus-basic]")
-fullConsensusTest("sixteennodes", "[consensus-finalization-download]");
+fullConsensusTest("sixteennodes", consensustExecutive, "[consensus-finalization-download]");
 
 
 
