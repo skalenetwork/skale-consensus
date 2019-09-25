@@ -49,8 +49,8 @@ class TestMessageGeneratorAgent;
 class ConsensusExtFace;
 
 class CatchupClientAgent;
-
 class CatchupServerAgent;
+class MonitoringAgent;
 
 class BlockProposalServerAgent;
 
@@ -104,6 +104,8 @@ class Schain : public Agent {
     ptr<BlockProposalServerAgent> blockProposalServerAgent = nullptr;
 
     ptr<CatchupServerAgent> catchupServerAgent = nullptr;
+
+    ptr<MonitoringAgent> monitoringAgent = nullptr;
 
     ptr<PendingTransactionsAgent> pendingTransactionsAgent = nullptr;
 
