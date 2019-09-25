@@ -193,6 +193,10 @@ Schain::Schain(
       node( _node ),
       schainIndex( _schainIndex ) {
 
+    // construct monitoring agent early
+    monitoringAgent = make_shared< MonitoringAgent >( *this );
+
+
     MONITOR(__CLASS_NAME__, __FUNCTION__)
 
     ASSERT( schainIndex > 0 );
@@ -248,7 +252,7 @@ void Schain::constructChildAgents() {
         std::lock_guard< std::recursive_mutex > aLock( getMainMutex() );
         pendingTransactionsAgent = make_shared< PendingTransactionsAgent >( *this );
         blockProposalClient = make_shared< BlockProposalClientAgent >( *this );
-        monitoringAgent = make_shared< MonitoringAgent >( *this );
+
         catchupClientAgent = make_shared< CatchupClientAgent >( *this );
 
         blockConsensusInstance = make_shared< BlockConsensusAgent >( *this );

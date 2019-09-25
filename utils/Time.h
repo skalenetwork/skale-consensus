@@ -6,13 +6,14 @@
 #define SKALED_TIME_H
 
 
+
 class Time {
 
 
-    static uint64_t Schain::getCurrentTimeSec();
+    static uint64_t getCurrentTimeSec();
 
 
-    static uint64_t Schain::getCurrentTimeMs();
+    static uint64_t getCurrentTimeMs();
 
 
 };

@@ -77,6 +77,9 @@ void MonitoringAgent::monitoringLoop(MonitoringAgent *agent) {
 
     agent->waitOnGlobalStartBarrier();
 
+    LOG(info, "Monitoring agent started monitoring");
+
+
     try {
         while (!agent->getSchain()->getNode()->isExitRequested()) {
             usleep(agent->getNode()->getMonitoringIntervalMs() * 1000);

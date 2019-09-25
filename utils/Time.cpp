@@ -2,6 +2,8 @@
 // Created by kladko on 25.09.19.
 //
 
+#include "../SkaleCommon.h"
+#include "../Log.h"
 #include "Time.h"
 
 
