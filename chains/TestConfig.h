@@ -16,47 +16,24 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file GlobalThreadRegistry.cpp
+    @file TestConfig.h
     @author Stan Kladko
     @date 2019
 */
+#ifndef SKALED_TESTCONFIG_H
+#define SKALED_TESTCONFIG_H
 
 
-#include "../SkaleCommon.h"
-#include "../Log.h"
-#include "../exceptions/FatalError.h"
+class TestConfig {
 
-#include "GlobalThreadRegistry.h"
+    bool finalizationDownloadOnly = false;
+
+public:
+    bool isFinalizationDownloadOnly() const;
+
+    TestConfig( nlohmann::json cgf);
+
+};
 
 
-vector<thread*> GlobalThreadRegistry::allThreads;
-
-recursive_mutex GlobalThreadRegistry::mutex;
-bool GlobalThreadRegistry::joined = false;
-
-void GlobalThreadRegistry::joinAll() {
-
-    if (joined)
-        return;
-
-    lock_guard<recursive_mutex> lock(mutex);
-
-    joined = true;
-
-    for (auto &&thread : GlobalThreadRegistry::allThreads) {
-        thread->join();
-        ASSERT(!thread->joinable());
-    }
-
-}
-
-void GlobalThreadRegistry::add(thread* _t) {
-
-    CHECK_ARGUMENT(_t);
-
-    lock_guard<recursive_mutex> lock(mutex);
-
-    CHECK_STATE(!joined);
-
-    allThreads.push_back(_t);
-}
+#endif //SKALED_TESTCONFIG_H

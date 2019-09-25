@@ -33,7 +33,7 @@
 #include "../exceptions/ExitRequestedException.h"
 #include "../thirdparty/json.hpp"
 
-
+#include "../chains/TestConfig.h"
 
 #include "../crypto/bls_include.h"
 
@@ -94,6 +94,7 @@ Node::Node(const nlohmann::json &_cfg, ConsensusEngine *_consensusEngine) {
 
     try {
         initParamsFromConfig();
+
     } catch (...) {
         throw_with_nested(ParsingException("Could not parse params", __CLASS_NAME__));
     }
@@ -141,7 +142,6 @@ void Node::initLogging() {
 void Node::initParamsFromConfig() {
     nodeID = cfg.at("nodeID").get<uint64_t>();
 
-
     catchupIntervalMS = getParamUint64("catchupIntervalMs", CATCHUP_INTERVAL_MS);
 
     monitoringIntervalMS = getParamUint64("monitoringIntervalMs", MONITORING_INTERVAL_MS);
@@ -177,7 +177,7 @@ void Node::initParamsFromConfig() {
 
     simulateNetworkWriteDelayMs = getParamInt64("simulateNetworkWriteDelayMs", 0);
 
-
+    testConfig = make_shared<TestConfig>(cfg);
 }
 
 uint64_t Node::getParamUint64(const string &_paramName, uint64_t paramDefault) {
@@ -637,11 +637,16 @@ bool Node::isBlsEnabled() const {
 }
 
 void Node::setBasePort(const network_port &_basePort) {
-    ASSERT(_basePort);
+    CHECK_ARGUMENT(_basePort > 0);
     basePort = _basePort;
 }
 
 uint64_t Node::getSimulateNetworkWriteDelayMs() const {
     return simulateNetworkWriteDelayMs;
+}
+
+const ptr<TestConfig> &Node::getTestConfig() const {
+    CHECK_STATE(testConfig != nullptr)
+    return testConfig;
 }
 

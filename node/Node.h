@@ -46,6 +46,7 @@ class SigDB;
 class CommittedTransactionDB;
 class RandomDB;
 class PriceDB;
+class TestConfig;
 
 
 
@@ -106,7 +107,11 @@ class Node {
 
     ptr<Schain> sChain = nullptr;
 
+    ptr<TestConfig> testConfig = nullptr;
+public:
+    const ptr<TestConfig> &getTestConfig() const;
 
+private:
 
     class Comparator {
     public:
