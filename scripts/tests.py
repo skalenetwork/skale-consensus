@@ -47,6 +47,7 @@ def fullConsensusTest(_test, _consensustExecutive, _testType):
 
 def getConsensustExecutive():
     run("cp -f " + root + "/cmake-build-debug/consensust " + root + "/consensust")
+    run("cp -f " + root + "/build/consensust " + root + "/consensust")
     consensustExecutive = root + '/consensust'
     assert(os.path.isfile(consensustExecutive))
     return consensustExecutive

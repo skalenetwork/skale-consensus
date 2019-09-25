@@ -76,15 +76,15 @@ run("cmake . -Bbuild -DCMAKE_BUILD_TYPE=" +  sys.argv[1] +
 
 run("cmake --build build -- -j4")
 
-buildDirName = sys.argv[2] + '/build-' + sys.argv[1].lower()
+buildDirName = sys.argv[2] + '/build'
 
 print("Build dir:" + buildDirName)
 
 
 run("ls " + buildDirName)
 
-assert  os.path.isfile(sys.argv[2] + '/consensust')
-assert  os.path.isfile(sys.argv[2] + '/consensusd')
+assert  os.path.isfile(sys.argv[2] + '/build/consensust')
+assert  os.path.isfile(sys.argv[2] + '/build/consensusd')
 
 print("Build successfull.")
 
