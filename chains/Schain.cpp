@@ -180,38 +180,6 @@ void Schain::messageThreadProcessingLoop( Schain* s ) {
 }
 
 
-uint64_t Schain::getHighResolutionTime() {
-    auto now = std::chrono::high_resolution_clock::now();
-
-    return std::chrono::duration_cast< std::chrono::nanoseconds >( now.time_since_epoch() ).count();
-}
-
-
-chrono::milliseconds Schain::getCurrentTimeMilllis() {
-    return chrono::duration_cast< chrono::milliseconds >(
-        chrono::system_clock::now().time_since_epoch() );
-}
-
-
-uint64_t Schain::getCurrentTimeSec() {
-    uint64_t result =
-        chrono::duration_cast< chrono::seconds >( chrono::system_clock::now().time_since_epoch() )
-            .count();
-
-    ASSERT( result < ( uint64_t ) MODERN_TIME + 1000000000 );
-
-    return result;
-}
-
-
-uint64_t Schain::getCurrentTimeMs() {
-    uint64_t result = chrono::duration_cast< chrono::milliseconds >(
-        chrono::system_clock::now().time_since_epoch() )
-                          .count();
-
-    return result;
-}
-
 void Schain::startThreads() {
     this->consensusMessageThreadPool->startService();
 }
@@ -271,11 +239,6 @@ Schain::Schain(
     } catch ( ... ) {
         throw_with_nested( FatalError( __FUNCTION__, __CLASS_NAME__ ) );
     }
-}
-
-const ptr< IO > Schain::getIo() const {
-    CHECK_STATE(io != nullptr);
-    return io;
 }
 
 
@@ -591,131 +554,6 @@ void Schain::proposedBlockArrived( ptr< BlockProposal > pbm ) {
 }
 
 
-ptr< PendingTransactionsAgent > Schain::getPendingTransactionsAgent() const {
-    return pendingTransactionsAgent;
-}
-
-chrono::milliseconds Schain::getStartTime() const {
-    return startTime;
-}
-
-const block_id Schain::getLastCommittedBlockID() const {
-    return block_id( lastCommittedBlockID.load() );
-}
-
-ptr< BlockProposal > Schain::getBlockProposal( block_id _blockID, schain_index _schainIndex) {
-
-    MONITOR(__CLASS_NAME__, __FUNCTION__)
-
-    return blockProposalsDatabase->getBlockProposal(_blockID, _schainIndex);
-
-}
-
-ptr< CommittedBlock > Schain::getCachedBlock( block_id _blockID ) {
-    std::lock_guard< std::recursive_mutex > aLock( getMainMutex() );
-
-    if ( blocks.count( _blockID > 0 ) ) {
-        return blocks.at( _blockID );
-    } else {
-        return nullptr;
-    }
-}
-
-ptr< CommittedBlock > Schain::getBlock( block_id _blockID ) {
-
-    MONITOR(__CLASS_NAME__, __FUNCTION__)
-
-    std::lock_guard< std::recursive_mutex > aLock( getMainMutex() );
-
-    auto block = getCachedBlock( _blockID );
-
-    if ( block )
-        return block;
-
-
-    auto serializedBlock = getNode()->getBlockDB()->getSerializedBlock( _blockID );
-
-    if ( serializedBlock == nullptr ) {
-        return nullptr;
-    }
-
-    return CommittedBlock::deserialize( serializedBlock );
-}
-
-
-ptr< vector< uint8_t > > Schain::getSerializedBlock( uint64_t i ) const {
-
-    MONITOR(__CLASS_NAME__, __FUNCTION__)
-
-    auto block = sChain->getCachedBlock( i );
-
-
-    if ( block ) {
-        return block->getSerialized();
-    } else {
-        return getNode()->getBlockDB()->getSerializedBlock( i );
-    }
-}
-
-
-schain_index Schain::getSchainIndex() const {
-    return schainIndex;
-}
-
-
-Node* Schain::getNode() const {
-    CHECK_STATE(node != nullptr);
-    return node;
-}
-
-
-node_count Schain::getNodeCount() {
-    auto count = node_count( getNode()->getNodeInfosByIndex()->size() );
-    ASSERT( count > 0 );
-    return count;
-}
-
-
-transaction_count Schain::getMessagesCount() {
-    std::lock_guard< std::recursive_mutex > aLock( getMainMutex() );
-
-    return transaction_count( messageQueue.size() );
-}
-
-
-schain_id Schain::getSchainID() {
-    return schainID;
-}
-
-node_id Schain::getNodeIDByIndex( schain_index _index ) {
-    if ( ( ( uint64_t ) _index ) > ( uint64_t ) this->getNodeCount() ) {
-        BOOST_THROW_EXCEPTION(
-            InvalidArgumentException( "Index exceeds node count", __CLASS_NAME__ ) );
-    }
-
-    auto nodeInfo = this->getNode()->getNodeInfoByIndex( _index );
-
-    return nodeInfo->getNodeID();
-}
-
-
-ptr< BlockConsensusAgent > Schain::getBlockConsensusInstance() {
-    return blockConsensusInstance;
-}
-
-
-ptr< NodeInfo > Schain::getThisNodeInfo() const {
-    return thisNodeInfo;
-}
-
-
-ptr< TestMessageGeneratorAgent > Schain::getTestMessageGeneratorAgent() const {
-    return testMessageGeneratorAgent;
-}
-
-void Schain::setBlockProposerTest( const string& blockProposerTest ) {
-    Schain::blockProposerTest = make_shared< string >( blockProposerTest );
-}
 
 void Schain::bootstrap( block_id _lastCommittedBlockID, uint64_t _lastCommittedBlockTimeStamp ) {
 
@@ -731,36 +569,6 @@ void Schain::bootstrap( block_id _lastCommittedBlockID, uint64_t _lastCommittedB
         Exception::logNested( e );
         return;
     }
-}
-
-
-schain_id Schain::getSchainID() const {
-    return schainID;
-}
-
-
-uint64_t Schain::getTotalTransactions() const {
-    return totalTransactions;
-}
-
-uint64_t Schain::getLastCommittedBlockTimeStamp() {
-    return committedBlockTimeStamp;
-}
-
-
-block_id Schain::getBootstrapBlockID() const {
-    return bootstrapBlockID.load();
-}
-
-
-void Schain::setHealthCheckFile( uint64_t status ) {
-    string fileName = Log::getDataDir()->append( "/HEALTH_CHECK" );
-
-
-    ofstream f;
-    f.open( fileName, ios::trunc );
-    f << status;
-    f.close();
 }
 
 
@@ -843,27 +651,6 @@ void Schain::constructServers( ptr< Sockets > _sockets ) {
         make_shared< BlockProposalServerAgent >( *this, _sockets->blockProposalSocket );
 
     catchupServerAgent = make_shared< CatchupServerAgent >( *this, _sockets->catchupSocket );
-}
-
-
-size_t Schain::getTotalSignersCount() {
-    return ( size_t )( uint64_t ) getNodeCount();
-}
-size_t Schain::getRequiredSignersCount() {
-    auto count = getNodeCount();
-
-    if ( count <= 2 ) {
-        return ( uint64_t ) count;
-    }
-
-    else {
-        return 2 * ( uint64_t ) count / 3 + 1;
-    }
-}
-
-u256 Schain::getPriceForBlockId(uint64_t _blockId){
-    ASSERT(pricingAgent != nullptr);
-    return pricingAgent->readPrice(_blockId);
 }
 
 

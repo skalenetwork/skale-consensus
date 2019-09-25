@@ -27,8 +27,13 @@
 class Schain;
 
 class MonitoringThreadPool;
+class LivelinessMonitor;
 
 class MonitoringAgent : public Agent {
+
+    recursive_mutex mutex;
+    map<uint64_t, LivelinessMonitor*> activeMonitors;
+
 
     ptr< MonitoringThreadPool > monitoringThreadPool = nullptr;
 
@@ -39,5 +44,10 @@ public:
     static void monitoringLoop( MonitoringAgent* agent );
 
     void monitor();
+
+
+    void registerMonitor(LivelinessMonitor *m);
+
+    void unregisterMonitor(LivelinessMonitor *m);
 
 };

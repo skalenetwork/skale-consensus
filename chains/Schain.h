@@ -190,11 +190,9 @@ class Schain : public Agent {
 
 public:
 
-
     ptr<BlockProposal> getBlockProposal(block_id _blockID, schain_index _schainIndex);
 
     void constructServers(ptr<Sockets> _sockets);
-
 
     void healthCheck();
 
@@ -243,6 +241,8 @@ public:
 
 
     ptr<PendingTransactionsAgent> getPendingTransactionsAgent() const;
+
+    ptr<MonitoringAgent> getMonitoringAgent() const;
 
 
     schain_index getSchainIndex() const;

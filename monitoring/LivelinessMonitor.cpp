@@ -5,29 +5,43 @@
 #include "../SkaleCommon.h"
 #include "../Log.h"
 
+#include "../chains/Schain.h"
 #include "LivelinessMonitor.h"
 
 
 
 
-LivelinessMonitor::LivelinessMonitor(const char* _function, const char* _class, uint64_t  _maxTime) {
+LivelinessMonitor::LivelinessMonitor(MonitoringAgent *_agent, const char *_function, const char *_class,
+                                     uint64_t _maxTime) : agent(_agent), function(_function),
+                                             cl(_class) {
 
-    function = _function;
-    cl = _class;
-    expiryTime = time(NULL) + _maxTime;
+    CHECK_ARGUMENT(_agent != nullptr);
+    CHECK_ARGUMENT(_function != nullptr);
+    CHECK_ARGUMENT(_class != nullptr);
+
+    startTime = Schain::getCurrentTimeMs();
+    expiryTime = startTime + _maxTime;
     threadId = pthread_self();
+    agent->registerMonitor(this);
 
-    lock_guard<recursive_mutex> lock(mutex);
-
-    activeMonitors[(uint64_t) this] = this;
 }
 
 LivelinessMonitor::~LivelinessMonitor() {
-
-    lock_guard<recursive_mutex> lock(mutex);
-
-    activeMonitors.erase((uint64_t) this);
+    agent->unregisterMonitor(this);
 }
 
-recursive_mutex LivelinessMonitor::mutex;
-map<uint64_t, LivelinessMonitor*> LivelinessMonitor::activeMonitors;
+string LivelinessMonitor::toString() {
+    return "Thread" + to_string(threadId) + ":" + cl + string("::") + function;
+}
+
+uint64_t LivelinessMonitor::getExpiryTime() const {
+    return expiryTime;
+}
+
+uint64_t LivelinessMonitor::getStartTime() const {
+    return startTime;
+}
+
+
+
+

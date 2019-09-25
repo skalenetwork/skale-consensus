@@ -6,7 +6,9 @@
 #define SKALED_LIVELINESSMONITOR_H
 
 
-#define MONITOR(_C_, _F_) LivelinessMonitor __L__(_C_.c_str(), _F_, 3);
+#include "MonitoringAgent.h"
+
+#define MONITOR(_C_, _F_) LivelinessMonitor __L__(getSchain()->getMonitoringAgent().get(), _C_.c_str(), _F_, 0);
 
 class LivelinessMonitor {
 
@@ -15,17 +17,27 @@ class LivelinessMonitor {
     const char* function;
     uint64_t  threadId;
 
+    MonitoringAgent* agent = nullptr;
+    uint64_t startTime;
+public:
+    uint64_t getStartTime() const;
 
-    static recursive_mutex mutex;
-    static map<uint64_t, LivelinessMonitor*> activeMonitors;
-
+private:
     uint64_t expiryTime;
+public:
+    uint64_t getExpiryTime() const;
 
 public:
 
+    string toString();
+
+    void monitor();
+
     virtual ~LivelinessMonitor();
 
-    LivelinessMonitor(const char* _function, const char* _class, uint64_t  _maxTime);
+    LivelinessMonitor(MonitoringAgent *_agent, const char *_function, const char *_class, uint64_t _maxTime);
+
+
 
 
 

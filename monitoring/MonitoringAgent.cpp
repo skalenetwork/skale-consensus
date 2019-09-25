@@ -35,6 +35,7 @@
 
 #include "../../exceptions/NetworkProtocolException.h"
 
+#include "LivelinessMonitor.h"
 #include "MonitoringAgent.h"
 #include "MonitoringThreadPool.h"
 
@@ -54,8 +55,22 @@ MonitoringAgent::MonitoringAgent(Schain &_sChain) : Agent(_sChain, true) {
 
 
 void MonitoringAgent::monitor() {
-}
 
+    lock_guard<recursive_mutex> lock(mutex);
+
+    for (auto &&item: activeMonitors) {
+        LivelinessMonitor *m = item.second;
+
+        CHECK_STATE(m != nullptr);
+
+        auto currentTime = Schain::getCurrentTimeMs();
+
+        if (currentTime > m->getExpiryTime()) {
+            LOG(err, m->toString() + " has been stuck for " + to_string(currentTime - m->getStartTime()) + " ms");
+        }
+
+    }
+}
 
 void MonitoringAgent::monitoringLoop(MonitoringAgent *agent) {
     setThreadName(__CLASS_NAME__);
@@ -78,4 +93,24 @@ void MonitoringAgent::monitoringLoop(MonitoringAgent *agent) {
     } catch (FatalError *e) {
         agent->getNode()->exitOnFatalError(e->getMessage());
     }
+}
+
+void MonitoringAgent::registerMonitor(LivelinessMonitor *m) {
+
+    CHECK_ARGUMENT(m != nullptr)
+
+    lock_guard<recursive_mutex> lock(mutex);
+
+    activeMonitors[(uint64_t) m] = m;
+
+}
+
+void MonitoringAgent::unregisterMonitor(LivelinessMonitor *m) {
+
+    CHECK_ARGUMENT(m != nullptr);
+
+    lock_guard<recursive_mutex> lock(mutex);
+
+    activeMonitors.erase((uint64_t) m);
+
 }
