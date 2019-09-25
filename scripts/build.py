@@ -74,7 +74,7 @@ print("Running cmake: " + cmakeExecutable)
 run("cmake . -Bbuild -DCMAKE_BUILD_TYPE=" +  sys.argv[1] +
                         " -DCOVERAGE=ON -DMICROPROFILE_ENABLED=0")
 
-run("/usr/bin/make -j4")
+run("cmake --build build -- -j4")
 
 buildDirName = sys.argv[2] + '/build-' + sys.argv[1].lower()
 
