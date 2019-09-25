@@ -96,26 +96,31 @@ void testLog(const char *message) {
 TEST_CASE_METHOD(StartFromScratch, "Run basic consensus", "[consensus-basic]") {
 
     engine = new ConsensusEngine();
-
-    testLog("Parsing configs");
-
     engine->parseConfigsAndCreateAllNodes(Consensust::getConfigDirPath());
-
-    testLog("Starting nodes");
-
-
     engine->slowStartBootStrapTest();
-    testLog("Running consensus");
     usleep(1000 * Consensust::getRunningTimeMS()); /* Flawfinder: ignore */
 
     assert(engine->nodesCount() > 0);
-
     assert(engine->getLargestCommittedBlockID() > 0);
-
     engine->exitGracefully();
-
     SUCCEED();
 }
+
+TEST_CASE_METHOD(StartFromScratch, "Use finalization download only", "[consensus-finalization-download]") {
+
+    setenv("TEST_FINALIZATION_DOWNLOAD_ONLY", "1", 1);
+
+    engine = new ConsensusEngine();
+    engine->parseConfigsAndCreateAllNodes(Consensust::getConfigDirPath());
+    engine->slowStartBootStrapTest();
+    usleep(1000 * Consensust::getRunningTimeMS()); /* Flawfinder: ignore */
+
+    assert(engine->nodesCount() > 0);
+    assert(engine->getLargestCommittedBlockID() > 0);
+    engine->exitGracefully();
+    SUCCEED();
+}
+
 
 bool success = false;
 

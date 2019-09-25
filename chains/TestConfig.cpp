@@ -20,6 +20,9 @@
     @author Stan Kladko
     @date 2019
 */
+
+#include "../SkaleCommon.h"
+#include "../Log.h"
 #include "../thirdparty/json.hpp"
 
 #include "TestConfig.h"
@@ -30,7 +33,10 @@ bool TestConfig::isFinalizationDownloadOnly() const {
 
 TestConfig::TestConfig(nlohmann::json /*cgf */) {
     auto option = std::getenv("TEST_FINALIZATION_DOWNLOAD_ONLY");
-
     finalizationDownloadOnly = (option != nullptr);
+
+    if (finalizationDownloadOnly) {
+        LOG(info, "Testing the case of only finalization download");
+    }
 
 }

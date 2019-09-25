@@ -30,6 +30,7 @@
 #include "../exceptions/InvalidArgumentException.h"
 #include "../thirdparty/json.hpp"
 
+
 #include "../utils/Time.h"
 #include "../abstracttcpserver/ConnectionStatus.h"
 #include "../node/ConsensusEngine.h"
@@ -83,6 +84,7 @@
 #include "../libBLS/bls/BLSPrivateKeyShare.h"
 #include "../monitoring/LivelinessMonitor.h"
 #include "SchainMessageThreadPool.h"
+#include "TestConfig.h"
 #include "Schain.h"
 
 
@@ -677,7 +679,11 @@ void Schain::decideBlock(block_id _blockId, schain_index _proposerIndex) {
     }
 
 
-   if (proposedBlockSet->getProposalByIndex(_proposerIndex) == nullptr) {
+    bool testFinalizationDownloadOnly = getNode()->getTestConfig()->isFinalizationDownloadOnly();
+
+   if (proposedBlockSet->getProposalByIndex(_proposerIndex) == nullptr ||
+       testFinalizationDownloadOnly // this swich is used for unit testing
+       ) {
 
         // did not receive proposal from the proposer, pull it in parallel from other hosts
         // Note that due to the BLS signature proof, 2t hosts out of 3t + 1 total are guaranteed to

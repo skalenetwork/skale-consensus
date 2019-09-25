@@ -245,7 +245,6 @@ void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(BlockFinalizeDown
     bool testFinalizationDownloadOnly = agent->getSchain()->getNode()->getTestConfig()->isFinalizationDownloadOnly();
 
 
-
     try {
 
         while (!sChain->getNode()->isExitRequested()) {
