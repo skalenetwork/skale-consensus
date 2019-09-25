@@ -26,6 +26,11 @@ import os
 import subprocess
 import sys
 
+def run_without_check(_command):
+    print(">" +_command)
+    subprocess.call(_command, shell = True)
+
+
 def run(_command):
     print(">" +_command)
     subprocess.check_call(_command, shell = True)
@@ -46,8 +51,8 @@ def fullConsensusTest(_test, _consensustExecutive, _testType):
 
 
 def getConsensustExecutive():
-    run("cp -f " + root + "/cmake-build-debug/consensust " + root + "/consensust")
-    run("cp -f " + root + "/build/consensust " + root + "/consensust")
+    run_without_check("cp -f " + root + "/cmake-build-debug/consensust " + root + "/consensust")
+    run_without_check("cp -f " + root + "/build/consensust " + root + "/consensust")
     consensustExecutive = root + '/consensust'
     assert(os.path.isfile(consensustExecutive))
     return consensustExecutive
