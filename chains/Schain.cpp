@@ -21,23 +21,20 @@
     @date 2018
 */
 
+#include <unordered_set>
+#include "leveldb/db.h"
+
 #include "../Log.h"
 #include "../SkaleCommon.h"
 #include "../exceptions/FatalError.h"
 #include "../exceptions/InvalidArgumentException.h"
-
 #include "../thirdparty/json.hpp"
 
+#include "../utils/Time.h"
 #include "../abstracttcpserver/ConnectionStatus.h"
 #include "../node/ConsensusEngine.h"
-
-#include <unordered_set>
-
-#include "leveldb/db.h"
-
 #include "../node/ConsensusEngine.h"
 #include "../node/Node.h"
-
 #include "../blockproposal/pusher/BlockProposalClientAgent.h"
 #include "../headers/BlockProposalHeader.h"
 #include "../pendingqueue/PendingTransactionsAgent.h"
@@ -47,8 +44,6 @@
 #include "../catchup/client/CatchupClientAgent.h"
 #include "../catchup/server/CatchupServerAgent.h"
 #include "../monitoring/MonitoringAgent.h"
-
-
 #include "../crypto/ConsensusBLSSigShare.h"
 #include "../exceptions/EngineInitException.h"
 #include "../exceptions/ParsingException.h"
@@ -57,19 +52,14 @@
 #include "../messages/MessageEnvelope.h"
 #include "../messages/NetworkMessageEnvelope.h"
 #include "../node/NodeInfo.h"
-
-
 #include "../blockfinalize/received/ReceivedBlockSigSharesDatabase.h"
 #include "../blockproposal/received/ReceivedBlockProposalsDatabase.h"
 #include "../network/Sockets.h"
 #include "../protocols/ProtocolInstance.h"
 #include "../protocols/blockconsensus/BlockConsensusAgent.h"
-
 #include "../network/ClientSocket.h"
 #include "../network/IO.h"
 #include "../network/ZMQServerSocket.h"
-#include "SchainMessageThreadPool.h"
-
 #include "../crypto/SHAHash.h"
 #include "../datastructures/BlockProposal.h"
 #include "../datastructures/BlockProposalSet.h"
@@ -81,10 +71,7 @@
 #include "../datastructures/TransactionList.h"
 #include "../exceptions/ExitRequestedException.h"
 #include "../messages/ConsensusProposalMessage.h"
-
 #include "../exceptions/FatalError.h"
-
-
 #include "../pricing/PricingAgent.h"
 
 
@@ -93,10 +80,9 @@
 #include "../db/LevelDB.h"
 #include "../pendingqueue/TestMessageGeneratorAgent.h"
 #include "SchainTest.h"
-
-
 #include "../libBLS/bls/BLSPrivateKeyShare.h"
 #include "../monitoring/LivelinessMonitor.h"
+#include "SchainMessageThreadPool.h"
 #include "Schain.h"
 
 
@@ -124,7 +110,7 @@ void Schain::messageThreadProcessingLoop( Schain* s ) {
 
 
     try {
-        s->startTimeMs = getCurrentTimeMs();
+        s->startTimeMs = Time::getCurrentTimeMs();
 
         logThreadLocal_ = s->getNode()->getLog();
 
@@ -196,6 +182,7 @@ Schain::Schain(
     // construct monitoring agent early
     monitoringAgent = make_shared< MonitoringAgent >( *this );
 
+    maxExternalBlockProcessingTime = std::max(2 * getNode()->getEmptyBlockIntervalMs(), (uint64_t ) 3000);
 
     MONITOR(__CLASS_NAME__, __FUNCTION__)
 
@@ -558,6 +545,8 @@ void Schain::proposedBlockArrived( ptr< BlockProposal > pbm ) {
 
 void Schain::bootstrap( block_id _lastCommittedBlockID, uint64_t _lastCommittedBlockTimeStamp ) {
 
+
+
     MONITOR2(__CLASS_NAME__, __FUNCTION__, getMaxExternalBlockProcessingTime())
 
     try {
@@ -580,15 +569,15 @@ void Schain::healthCheck() {
 
     setHealthCheckFile( 1 );
 
-    auto beginTime = getCurrentTimeSec();
+    auto beginTime = Time::getCurrentTimeSec();
 
     LOG( info, "Waiting to connect to peers" );
 
     while ( 3 * ( connections.size() + 1 ) < 2 * getNodeCount() ) {
-        if ( getCurrentTimeSec() - beginTime > 6000 ) {
+        if ( Time::getCurrentTimeSec() - beginTime > 6000 ) {
             setHealthCheckFile( 0 );
             LOG( err, "Coult not connect to 2/3 of peers" );
-            exit( 110 );
+            exit(110);
         }
 
         for ( int i = 1; i <= getNodeCount(); i++ ) {
@@ -662,7 +651,7 @@ void Schain::decideBlock(block_id _blockId, schain_index _proposerIndex) {
                ":PRP:" + to_string(_proposerIndex));
     LOG(debug, "Total txs:" + to_string(getSchain()->getTotalTransactions()) +
                " T(s):" +
-               to_string((getSchain()->getCurrentTimeMs() - getSchain()->getStartTimeMs()) / 1000.0));
+               to_string((Time::getCurrentTimeMs() - getSchain()->getStartTimeMs()) / 1000.0));
 
 
     auto proposedBlockSet = blockProposalsDatabase->getProposedBlockSet(_blockId);
@@ -673,7 +662,7 @@ void Schain::decideBlock(block_id _blockId, schain_index _proposerIndex) {
     if (_proposerIndex == 0) {
 
 
-        uint64_t time = Schain::getCurrentTimeMs();
+        uint64_t time = Time::getCurrentTimeMs();
         auto sec = time / 1000;
         auto ms = (uint32_t ) time % 1000;
 

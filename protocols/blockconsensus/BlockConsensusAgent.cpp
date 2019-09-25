@@ -24,9 +24,9 @@
 #include "../../SkaleCommon.h"
 #include "../../Log.h"
 #include "../../exceptions/FatalError.h"
-
 #include "../../thirdparty/json.hpp"
 
+#include "../../utils/Time.h"
 #include "../../crypto/SHAHash.h"
 #include "../../abstracttcpserver/ConnectionStatus.h"
 #include "../../abstracttcpserver/ConnectionStatus.h"
@@ -164,7 +164,7 @@ void BlockConsensusAgent::decideBlock(block_id _blockId, schain_index _proposerI
               ":PRP:" + to_string(_proposerIndex));
     LOG(debug, "Total txs:" + to_string(getSchain()->getTotalTransactions()) +
               " T(s):" +
-              to_string((getSchain()->getCurrentTimeMs() - getSchain()->getStartTimeMs()) / 1000));
+              to_string((Time::getCurrentTimeMs() - getSchain()->getStartTimeMs()) / 1000));
 
     getSchain()->decideBlock(_blockId, _proposerIndex);
 

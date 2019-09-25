@@ -6,6 +6,7 @@
 #include "../Log.h"
 #include "../thirdparty/json.hpp"
 
+#include "../utils/Time.h"
 #include "../chains/Schain.h"
 #include "../node/Node.h"
 #include "LivelinessMonitor.h"
@@ -20,7 +21,7 @@ LivelinessMonitor::LivelinessMonitor(MonitoringAgent *_agent, const char *_class
     CHECK_ARGUMENT(_function != nullptr);
     CHECK_ARGUMENT(_class != nullptr);
 
-    startTime = Schain::getCurrentTimeMs();
+    startTime = Time::getCurrentTimeMs();
     expiryTime = startTime + _maxTime;
     threadId = pthread_self();
     agent->registerMonitor(this);

@@ -6,16 +6,11 @@
 #define SKALED_TIME_H
 
 
-
 class Time {
-
-
+public:
     static uint64_t getCurrentTimeSec();
 
-
     static uint64_t getCurrentTimeMs();
-
-
 };
 
 

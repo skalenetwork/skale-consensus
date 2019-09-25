@@ -22,19 +22,14 @@
 */
 
 #include "../../SkaleCommon.h"
-
 #include "../../Log.h"
 #include "../../exceptions/ExitRequestedException.h"
 #include "../../exceptions/FatalError.h"
-
 #include "../../thirdparty/json.hpp"
 
-#include "../../node/Node.h"
-
-#include "../../chains/Schain.h"
-
-#include "../../exceptions/NetworkProtocolException.h"
-
+#include "../utils/Time.h"
+#include "../node/Node.h"
+#include "../chains/Schain.h"
 #include "LivelinessMonitor.h"
 #include "MonitoringAgent.h"
 #include "MonitoringThreadPool.h"
@@ -63,7 +58,7 @@ void MonitoringAgent::monitor() {
 
         CHECK_STATE(m != nullptr);
 
-        auto currentTime = Schain::getCurrentTimeMs();
+        auto currentTime = Time::getCurrentTimeMs();
 
         if (currentTime > m->getExpiryTime()) {
             LOG(warn, m->toString() + " has been stuck for " + to_string(currentTime - m->getStartTime()) + " ms");

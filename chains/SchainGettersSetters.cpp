@@ -105,19 +105,6 @@ uint64_t Schain::getHighResolutionTime() {
 }
 
 
-uint64_t Schain::getCurrentTimeSec() {
-    uint64_t result = chrono::duration_cast<chrono::seconds>(chrono::system_clock::now().time_since_epoch()).count();
-    ASSERT(result < (uint64_t) MODERN_TIME + 1000000000);
-    return result;
-}
-
-
-uint64_t Schain::getCurrentTimeMs() {
-    uint64_t result = chrono::duration_cast<chrono::milliseconds>(
-            chrono::system_clock::now().time_since_epoch()).count();
-    return result;
-}
-
 const ptr<IO> Schain::getIo() const {
     CHECK_STATE(io != nullptr);
     return io;
@@ -321,3 +308,10 @@ void Schain::setBlockProposerTest(const char *_blockProposerTest) {
 ConsensusExtFace * Schain::getExtFace() const {
     return extFace;
 }
+
+
+
+uint64_t Schain::getMaxExternalBlockProcessingTime() const {
+    return maxExternalBlockProcessingTime;;
+}
+

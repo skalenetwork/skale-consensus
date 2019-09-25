@@ -23,13 +23,11 @@
 
 #include "../../Agent.h"
 #include "../../SkaleCommon.h"
-
 #include "../../Log.h"
 #include "../../exceptions/FatalError.h"
-
 #include "../../thirdparty/json.hpp"
 
-
+#include "../../utils/Time.h"
 #include "../../abstracttcpserver/ConnectionStatus.h"
 #include "../../exceptions/CouldNotReadPartialDataHashesException.h"
 #include "../../exceptions/CouldNotSendMessageException.h"
@@ -461,13 +459,13 @@ ptr<Header> BlockProposalServerAgent::createProposalResponseHeader(
 
     ASSERT(timeStamp > MODERN_TIME);
 
-    auto t = Schain::getCurrentTimeSec();
+    auto t = Time::getCurrentTimeSec();
 
     ASSERT(t < (uint64_t) MODERN_TIME * 2);
 
-    if (Schain::getCurrentTimeSec() + 1 < timeStamp) {
+    if (Time::getCurrentTimeSec() + 1 < timeStamp) {
         LOG(info, "Incorrect timestamp:" + to_string(timeStamp) +
-                  ":vs:" + to_string(Schain::getCurrentTimeSec()));
+                  ":vs:" + to_string(Time::getCurrentTimeSec()));
         responseHeader->setStatusSubStatus(
                 CONNECTION_DISCONNECT, CONNECTION_ERROR_TIME_STAMP_IN_THE_FUTURE);
         responseHeader->setComplete();

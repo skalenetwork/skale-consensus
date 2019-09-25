@@ -129,11 +129,11 @@ class Schain : public Agent {
 
     atomic<uint64_t>committedBlockTimeStamp;
 
+    uint64_t maxExternalBlockProcessingTime;
 
     /*** Queue of unprocessed messages for this schain instance
  */
     queue<ptr<MessageEnvelope>> messageQueue;
-
 
     /*** Queue of unprocessed messages for this schain instance
  */
@@ -170,7 +170,9 @@ public:
 
     void healthCheck();
 
-    ConsensusExtFace *getExtFace();
+    ConsensusExtFace *getExtFace() const;
+
+    uint64_t getMaxExternalBlockProcessingTime() const;
 
     Schain(Node* _node, schain_index _schainIndex, const schain_id &_schainID, ConsensusExtFace *_extFace);
 
