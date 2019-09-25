@@ -79,18 +79,18 @@ class BlockConsensusAgent {
 
     void processChildMessageImpl(ptr<InternalMessageEnvelope> _me);
 
-    void decideBlock(block_id _blockId, schain_index subChainIndex);
+    void decideBlock(block_id _blockId, schain_index _sChainIndex);
 
 
     void propose(bin_consensus_value _proposal, schain_index index, block_id _id);
 
-    void reportConsensusAndDecideIfNeeded(ptr<ChildBVDecidedMessage> msg);
+    void reportConsensusAndDecideIfNeeded(ptr<ChildBVDecidedMessage> _msg);
 
-    void voteAndDecideIfNeded1(ptr<ChildBVDecidedMessage> msg);
+    void voteAndDecideIfNeded1(ptr<ChildBVDecidedMessage> _msg);
 
-    void decideEmptyBlock(block_id blockNumber);
+    void decideEmptyBlock(block_id _blockNumber);
 
-    void disconnect(ptr<ProtocolKey> key );
+    void disconnect(ptr<ProtocolKey> _key );
 
     void processChildCompletedMessage(ptr<InternalMessageEnvelope> _me);
 

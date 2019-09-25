@@ -67,10 +67,10 @@ bool BlockProposalSet::isTwoThird() {
 }
 
 
-BlockProposalSet::BlockProposalSet( Schain* _sChain, block_id _blockID)
-    : blockId(_blockID){
+BlockProposalSet::BlockProposalSet(Schain* _sChain, block_id _blockId)
+    : blockId(_blockId){
     CHECK_ARGUMENT(_sChain != nullptr);
-    CHECK_ARGUMENT(_blockID > 0);
+    CHECK_ARGUMENT(_blockId > 0);
 
     nodeCount = _sChain->getNodeCount();
     totalObjects++;

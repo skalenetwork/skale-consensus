@@ -61,7 +61,7 @@ public:
     ptr<BlockProposalPusherThreadPool> blockProposalThreadPool = nullptr;
 
 
-    explicit BlockProposalClientAgent(Schain& subChain_);
+    explicit BlockProposalClientAgent(Schain& _sChain);
 
 
     void sendItemImpl(ptr<BlockProposal> &_proposal, shared_ptr<ClientSocket> &socket, schain_index _destIndex,

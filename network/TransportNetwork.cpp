@@ -113,26 +113,26 @@ ptr< vector< ptr< NetworkMessageEnvelope > > > TransportNetwork::pullMessagesFor
     return returnList;
 }
 
-void TransportNetwork::broadcastMessage( Schain& subChain, ptr< NetworkMessage > m ) {
-    if ( m->getBlockID() <= this->catchupBlocks ) {
+void TransportNetwork::broadcastMessage(Schain& _sChain, ptr< NetworkMessage > _m ) {
+    if (_m->getBlockID() <= this->catchupBlocks ) {
         return;
     }
 
     auto ip = inet_addr( getSchain()->getThisNodeInfo()->getBaseIP()->c_str() );
-    m->setIp( ip );
-    node_id oldID = m->getDstNodeID();
+    _m->setIp(ip );
+    node_id oldID = _m->getDstNodeID();
 
     unordered_set< uint64_t > sent;
 
     while ( 3 * ( sent.size() + 1 ) < getSchain()->getNodeCount() * 2 ) {
-        for ( auto const& it : *subChain.getNode()->getNodeInfosByIndex() ) {
+        for ( auto const& it : *_sChain.getNode()->getNodeInfosByIndex() ) {
             auto index = ( uint64_t ) it.second->getSchainIndex();
-            if ( index != ( subChain.getSchainIndex()) && !sent.count( index) ) {
-                m->setDstNodeID( it.second->getNodeID() );
+            if ( index != ( _sChain.getSchainIndex()) && !sent.count(index) ) {
+                _m->setDstNodeID(it.second->getNodeID() );
 
                 ASSERT( it.second->getSchainIndex()  != sChain->getSchainIndex() );
 
-                if ( sendMessage( it.second, m ) ) {
+                if ( sendMessage(it.second, _m ) ) {
                     sent.insert( ( uint64_t ) it.second->getSchainIndex());
                 }
             }
@@ -140,12 +140,12 @@ void TransportNetwork::broadcastMessage( Schain& subChain, ptr< NetworkMessage >
     }
 
     if ( sent.size() + 1 < getSchain()->getNodeCount() ) {
-        for ( auto const& it : *subChain.getNode()->getNodeInfosByIndex() ) {
+        for ( auto const& it : *_sChain.getNode()->getNodeInfosByIndex() ) {
             auto index = ( uint64_t ) it.second->getSchainIndex();
-            if ( index != ( subChain.getSchainIndex())  && !sent.count( index) ) {
+            if ( index != ( _sChain.getSchainIndex()) && !sent.count(index) ) {
                 {
                     lock_guard< recursive_mutex > lock( delayedSendsLock );
-                    delayedSends.at(index - 1 ).push_back( {m, it.second} );
+                    delayedSends.at(index - 1 ).push_back( {_m, it.second} );
                     if ( delayedSends.at(index - 1).size() > 256 ) {
                         delayedSends.at(index - 1).pop_front();
                     }
@@ -154,11 +154,11 @@ void TransportNetwork::broadcastMessage( Schain& subChain, ptr< NetworkMessage >
         }
     }
 
-    m->setDstNodeID( oldID );
+    _m->setDstNodeID(oldID );
 
-    for ( auto const& it : *subChain.getNode()->getNodeInfosByIndex() ) {
-        if ( it.second->getSchainIndex()  != subChain.getSchainIndex() ) {
-            m->setDstNodeID( it.second->getNodeID() );
+    for ( auto const& it : *_sChain.getNode()->getNodeInfosByIndex() ) {
+        if (it.second->getSchainIndex() != _sChain.getSchainIndex() ) {
+            _m->setDstNodeID(it.second->getNodeID() );
             confirmMessage( it.second );
         }
     }

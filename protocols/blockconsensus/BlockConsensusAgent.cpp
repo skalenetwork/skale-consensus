@@ -153,35 +153,35 @@ void BlockConsensusAgent::propose(bin_consensus_value _proposal, schain_index _i
 }
 
 
-void BlockConsensusAgent::decideBlock(block_id _blockId, schain_index _proposerIndex) {
+void BlockConsensusAgent::decideBlock(block_id _blockId, schain_index _sChainIndex) {
 
 
     ASSERT(decidedBlocks.count(_blockId) == 0);
 
-    decidedBlocks[_blockId] = _proposerIndex;
+    decidedBlocks[_blockId] = _sChainIndex;
 
     LOG(debug, "decideBlock:" + to_string(_blockId) +
-              ":PRP:" + to_string(_proposerIndex));
+              ":PRP:" + to_string(_sChainIndex));
     LOG(debug, "Total txs:" + to_string(getSchain()->getTotalTransactions()) +
               " T(s):" +
               to_string((Time::getCurrentTimeMs() - getSchain()->getStartTimeMs()) / 1000));
 
-    getSchain()->decideBlock(_blockId, _proposerIndex);
+    getSchain()->decideBlock(_blockId, _sChainIndex);
 
 }
 
 
-void BlockConsensusAgent::decideEmptyBlock(block_id blockNumber) {
+void BlockConsensusAgent::decideEmptyBlock(block_id _blockNumber) {
 
-    decideBlock(blockNumber, schain_index(0));
+    decideBlock(_blockNumber, schain_index(0));
 }
 
 
-void BlockConsensusAgent::reportConsensusAndDecideIfNeeded(ptr <ChildBVDecidedMessage> msg) {
+void BlockConsensusAgent::reportConsensusAndDecideIfNeeded(ptr <ChildBVDecidedMessage> _msg) {
 
     auto nodeCount = (uint64_t) getSchain()->getNodeCount();
-    auto blockProposerIndex = (uint64_t) msg->getBlockProposerIndex();
-    auto blockID = msg->getBlockId();
+    auto blockProposerIndex = (uint64_t) _msg->getBlockProposerIndex();
+    auto blockID = _msg->getBlockId();
 
     ASSERT(blockProposerIndex <= nodeCount);
 
@@ -199,7 +199,7 @@ void BlockConsensusAgent::reportConsensusAndDecideIfNeeded(ptr <ChildBVDecidedMe
     }
 
 
-    if (msg->getValue()) {
+    if (_msg->getValue()) {
         trueDecisions[blockID].insert(blockProposerIndex);
     } else {
         falseDecisions[blockID].insert(blockProposerIndex);
@@ -241,11 +241,11 @@ void BlockConsensusAgent::reportConsensusAndDecideIfNeeded(ptr <ChildBVDecidedMe
 }
 
 
-void BlockConsensusAgent::voteAndDecideIfNeded1(ptr <ChildBVDecidedMessage> msg) {
+void BlockConsensusAgent::voteAndDecideIfNeded1(ptr <ChildBVDecidedMessage> _msg) {
 
     auto nodeCount = (uint64_t) getSchain()->getNodeCount();
-    auto blockProposerIndex = (uint64_t) msg->getBlockProposerIndex();
-    auto blockID = msg->getBlockId();
+    auto blockProposerIndex = (uint64_t) _msg->getBlockProposerIndex();
+    auto blockID = _msg->getBlockId();
 
 
     ASSERT(blockProposerIndex < nodeCount);
@@ -254,7 +254,7 @@ void BlockConsensusAgent::voteAndDecideIfNeded1(ptr <ChildBVDecidedMessage> msg)
     if (decidedBlocks.count(blockID) > 0)
         return;
 
-    if (msg->getValue()) {
+    if (_msg->getValue()) {
         trueDecisions[blockID].insert(blockProposerIndex);
     } else {
         falseDecisions[blockID].insert(blockProposerIndex);
@@ -291,21 +291,21 @@ void BlockConsensusAgent::processChildCompletedMessage(ptr <InternalMessageEnvel
 };
 
 
-void BlockConsensusAgent::disconnect(ptr <ProtocolKey> instanceKey) {
+void BlockConsensusAgent::disconnect(ptr <ProtocolKey> _key) {
 
 
     lock_guard <recursive_mutex> lock(childrenMutex);
 
-    if (children.count(instanceKey) == 0)
+    if (children.count(_key) == 0)
         return;
 
-    auto child = children[instanceKey];
+    auto child = children[_key];
 
-    children.erase(instanceKey);
+    children.erase(_key);
 
-    ASSERT(completedInstancesByProtocolKey.count(instanceKey) == 0);
+    ASSERT(completedInstancesByProtocolKey.count(_key) == 0);
 
-    completedInstancesByProtocolKey[instanceKey] = child->getOutcome();
+    completedInstancesByProtocolKey[_key] = child->getOutcome();
 }
 
 

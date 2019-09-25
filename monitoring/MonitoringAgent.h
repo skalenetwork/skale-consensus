@@ -39,7 +39,7 @@ class MonitoringAgent : public Agent {
 
 public:
 
-    MonitoringAgent( Schain& subChain_ );
+    MonitoringAgent( Schain& _sChain );
 
     static void monitoringLoop( MonitoringAgent* agent );
 

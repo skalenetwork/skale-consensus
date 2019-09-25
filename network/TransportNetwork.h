@@ -105,7 +105,7 @@ public:
 
     ptr<string> ipToString(uint32_t _ip);
 
-    void broadcastMessage(Schain& _schain, ptr<NetworkMessage> _m);
+    void broadcastMessage(Schain& _sChain, ptr<NetworkMessage> _m);
 
     ptr<NetworkMessageEnvelope> receiveMessage();
 

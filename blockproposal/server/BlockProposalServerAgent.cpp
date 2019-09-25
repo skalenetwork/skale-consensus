@@ -77,10 +77,9 @@
 #include "BlockProposalWorkerThreadPool.h"
 
 
-ptr<unordered_map<ptr<partial_sha_hash>, ptr<Transaction>, PendingTransactionsAgent::Hasher,
-        PendingTransactionsAgent::Equal> >
-BlockProposalServerAgent::readMissingTransactions(
-        ptr<Connection> connectionEnvelope_, nlohmann::json missingTransactionsResponseHeader) {
+ptr<unordered_map<ptr<partial_sha_hash>, ptr<Transaction>, PendingTransactionsAgent::Hasher, PendingTransactionsAgent::Equal> >
+BlockProposalServerAgent::readMissingTransactions(ptr<Connection> connectionEnvelope_,
+                                                  nlohmann::json missingTransactionsResponseHeader) {
     ASSERT(missingTransactionsResponseHeader > 0);
 
     auto transactionSizes = make_shared<vector<uint64_t> >();
@@ -88,8 +87,7 @@ BlockProposalServerAgent::readMissingTransactions(
     nlohmann::json jsonSizes = missingTransactionsResponseHeader["sizes"];
 
     if (!jsonSizes.is_array()) {
-        BOOST_THROW_EXCEPTION(
-                NetworkProtocolException("jsonSizes is not an array", __CLASS_NAME__));
+        BOOST_THROW_EXCEPTION(NetworkProtocolException("jsonSizes is not an array", __CLASS_NAME__));
     };
 
 
@@ -104,21 +102,19 @@ BlockProposalServerAgent::readMissingTransactions(
 
 
     try {
-        getSchain()->getIo()->readBytes(connectionEnvelope_,
-                                        (in_buffer *) serializedTransactions->data(), msg_len(totalSize));
+        getSchain()->getIo()->readBytes(connectionEnvelope_, (in_buffer *) serializedTransactions->data(),
+                                        msg_len(totalSize));
     } catch (ExitRequestedException &) {
         throw;
     } catch (...) {
-        BOOST_THROW_EXCEPTION(
-                NetworkProtocolException("Could not read serialized exceptions", __CLASS_NAME__));
+        BOOST_THROW_EXCEPTION(NetworkProtocolException("Could not read serialized exceptions", __CLASS_NAME__));
     }
 
     auto list = TransactionList::deserialize(transactionSizes, serializedTransactions, 0, false);
 
     auto trs = list->getItems();
 
-    auto missed = make_shared<unordered_map<ptr<partial_sha_hash>, ptr<Transaction>,
-            PendingTransactionsAgent::Hasher, PendingTransactionsAgent::Equal> >();
+    auto missed = make_shared<unordered_map<ptr<partial_sha_hash>, ptr<Transaction>, PendingTransactionsAgent::Hasher, PendingTransactionsAgent::Equal> >();
 
     for (auto &&t : *trs) {
         (*missed)[t->getPartialHash()] = t;
@@ -134,8 +130,8 @@ BlockProposalWorkerThreadPool *BlockProposalServerAgent::getBlockProposalWorkerT
 
 
 pair<ptr<map<uint64_t, ptr<Transaction> > >, ptr<map<uint64_t, ptr<partial_sha_hash> > > >
-BlockProposalServerAgent::getPresentAndMissingTransactions(
-        Schain &subChain_, ptr<Header> /*tcpHeader*/, ptr<PartialHashesList> _phm) {
+BlockProposalServerAgent::getPresentAndMissingTransactions(Schain &_sChain, ptr<Header> /*tcpHeader*/,
+                                                           ptr<PartialHashesList> _phm) {
     LOG(debug, "Calculating missing hashes");
 
     auto transactionsCount = _phm->getTransactionCount();
@@ -146,8 +142,7 @@ BlockProposalServerAgent::getPresentAndMissingTransactions(
     for (uint64_t i = 0; i < transactionsCount; i++) {
         auto hash = _phm->getPartialHash(i);
         ASSERT(hash);
-        auto transaction =
-                subChain_.getPendingTransactionsAgent()->getKnownTransactionByPartialHash(hash);
+        auto transaction = _sChain.getPendingTransactionsAgent()->getKnownTransactionByPartialHash(hash);
         if (transaction == nullptr) {
             (*missingHashes)[i] = hash;
         } else {
@@ -159,10 +154,9 @@ BlockProposalServerAgent::getPresentAndMissingTransactions(
 }
 
 
-BlockProposalServerAgent::BlockProposalServerAgent(Schain &_schain, ptr<TCPServerSocket> _s)
-        : AbstractServerAgent("BlockProposalServer", _schain, _s) {
-    blockProposalWorkerThreadPool =
-            make_shared<BlockProposalWorkerThreadPool>(num_threads(1), this);
+BlockProposalServerAgent::BlockProposalServerAgent(Schain &_schain, ptr<TCPServerSocket> _s) : AbstractServerAgent(
+        "BlockProposalServer", _schain, _s) {
+    blockProposalWorkerThreadPool = make_shared<BlockProposalWorkerThreadPool>(num_threads(1), this);
     blockProposalWorkerThreadPool->startService();
     createNetworkReadThread();
 }
@@ -178,21 +172,18 @@ void BlockProposalServerAgent::processNextAvailableConnection(ptr<Connection> _c
     } catch (PingException &) {
         return;
     } catch (...) {
-        throw_with_nested(
-                NetworkProtocolException("Could not read magic number", __CLASS_NAME__));
+        throw_with_nested(NetworkProtocolException("Could not read magic number", __CLASS_NAME__));
     }
 
 
     nlohmann::json proposalRequest = nullptr;
 
     try {
-        proposalRequest = getSchain()->getIo()->readJsonHeader(
-                _connection->getDescriptor(), "Read proposal req");
+        proposalRequest = getSchain()->getIo()->readJsonHeader(_connection->getDescriptor(), "Read proposal req");
     } catch (ExitRequestedException &) {
         throw;
     } catch (...) {
-        throw_with_nested(
-                CouldNotSendMessageException("Could not read proposal request", __CLASS_NAME__));
+        throw_with_nested(CouldNotSendMessageException("Could not read proposal request", __CLASS_NAME__));
     }
 
 
@@ -201,13 +192,11 @@ void BlockProposalServerAgent::processNextAvailableConnection(ptr<Connection> _c
     if (strcmp(type->data(), Header::BLOCK_PROPOSAL_REQ) == 0) {
         processProposalRequest(_connection, proposalRequest);
     } else {
-        throw_with_nested(
-                NetworkProtocolException("Uknown request type:" + *type, __CLASS_NAME__));
+        throw_with_nested(NetworkProtocolException("Uknown request type:" + *type, __CLASS_NAME__));
     }
 }
 
-void BlockProposalServerAgent::processProposalRequest(
-        ptr<Connection> _connection, nlohmann::json _proposalRequest) {
+void BlockProposalServerAgent::processProposalRequest(ptr<Connection> _connection, nlohmann::json _proposalRequest) {
     ptr<Header> responseHeader = nullptr;
 
 
@@ -216,8 +205,7 @@ void BlockProposalServerAgent::processProposalRequest(
     } catch (ExitRequestedException &) {
         throw;
     } catch (...) {
-        throw_with_nested(
-                NetworkProtocolException("Could not create response header", __CLASS_NAME__));
+        throw_with_nested(NetworkProtocolException("Could not create response header", __CLASS_NAME__));
     }
 
     try {
@@ -225,8 +213,7 @@ void BlockProposalServerAgent::processProposalRequest(
     } catch (ExitRequestedException &) {
         throw;
     } catch (...) {
-        throw_with_nested(
-                CouldNotSendMessageException("Could not send response header", __CLASS_NAME__));
+        throw_with_nested(CouldNotSendMessageException("Could not send response header", __CLASS_NAME__));
     }
 
     if (responseHeader->getStatus() != CONNECTION_PROCEED) {
@@ -240,8 +227,7 @@ void BlockProposalServerAgent::processProposalRequest(
     } catch (ExitRequestedException &) {
         throw;
     } catch (...) {
-        throw_with_nested(
-                NetworkProtocolException("Could not read partial hashes", __CLASS_NAME__));
+        throw_with_nested(NetworkProtocolException("Could not read partial hashes", __CLASS_NAME__));
     }
 
 
@@ -265,30 +251,25 @@ void BlockProposalServerAgent::processProposalRequest(
     auto hash = Header::getString(_proposalRequest, "hash");
 
 
-    auto missingHashesRequestHeader =
-            make_shared<MissingTransactionsRequestHeader>(missingTransactionHashes);
+    auto missingHashesRequestHeader = make_shared<MissingTransactionsRequestHeader>(missingTransactionHashes);
 
     try {
         send(_connection, missingHashesRequestHeader);
     } catch (ExitRequestedException &) {
         throw;
     } catch (...) {
-        throw_with_nested(CouldNotSendMessageException(
-                "Could not send missing hashes request header", __CLASS_NAME__));
+        throw_with_nested(CouldNotSendMessageException("Could not send missing hashes request header", __CLASS_NAME__));
     }
 
 
-    ptr<unordered_map<ptr<partial_sha_hash>, ptr<Transaction>,
-            PendingTransactionsAgent::Hasher, PendingTransactionsAgent::Equal> >
-            missingTransactions = nullptr;
+    ptr<unordered_map<ptr<partial_sha_hash>, ptr<Transaction>, PendingTransactionsAgent::Hasher, PendingTransactionsAgent::Equal> > missingTransactions = nullptr;
 
     if (missingTransactionHashes->size() == 0) {
         LOG(debug, "Server: No missing partial hashes");
     } else {
         LOG(debug, "Server: missing partial hashes");
         try {
-            getSchain()->getIo()->writePartialHashes(
-                    _connection->getDescriptor(), missingTransactionHashes);
+            getSchain()->getIo()->writePartialHashes(_connection->getDescriptor(), missingTransactionHashes);
         } catch (ExitRequestedException &) {
             throw;
         } catch (...) {
@@ -297,8 +278,7 @@ void BlockProposalServerAgent::processProposalRequest(
         }
 
 
-        auto missingMessagesResponseHeader =
-                this->readMissingTransactionsResponseHeader(_connection);
+        auto missingMessagesResponseHeader = this->readMissingTransactionsResponseHeader(_connection);
 
         missingTransactions = readMissingTransactions(_connection, missingMessagesResponseHeader);
 
@@ -331,8 +311,7 @@ void BlockProposalServerAgent::processProposalRequest(
 
         if (getSchain()->getPendingTransactionsAgent()->isCommitted(h)) {
             checkForOldBlock(blockID);
-            BOOST_THROW_EXCEPTION(
-                    CouldNotReadPartialDataHashesException("Committed transaction", __CLASS_NAME__));
+            BOOST_THROW_EXCEPTION(CouldNotReadPartialDataHashesException("Committed transaction", __CLASS_NAME__));
         }
 
         ptr<Transaction> transaction;
@@ -367,35 +346,31 @@ void BlockProposalServerAgent::processProposalRequest(
 
     auto transactionList = make_shared<TransactionList>(transactions);
 
-    auto proposal = make_shared<ReceivedBlockProposal>(
-            *sChain, blockID, proposerIndex, transactionList, timeStamp, timeStampMs);
+    auto proposal = make_shared<ReceivedBlockProposal>(*sChain, blockID, proposerIndex, transactionList, timeStamp,
+                                                       timeStampMs);
 
     auto calculatedHash = proposal->getHash();
 
     if (calculatedHash->compare(SHAHash::fromHex(hash)) != 0) {
         BOOST_THROW_EXCEPTION(InvalidHashException(
                                       "Block proposal hash does not match" + *proposal->getHash()->toHex() + ":" +
-                                      *hash,
-                                              __CLASS_NAME__ ));
+                                      *hash, __CLASS_NAME__ ));
     }
 
     sChain->proposedBlockArrived(proposal);
 }
 
 
-
-
 void BlockProposalServerAgent::checkForOldBlock(const block_id &_blockID) {
-    LOG(debug, "BID:" + to_string(_blockID) +
-               ":CBID:" + to_string(getSchain()->getLastCommittedBlockID()) +
-               ":MQ:" + to_string(getSchain()->getMessagesCount()));
+    LOG(debug, "BID:" + to_string(_blockID) + ":CBID:" + to_string(getSchain()->getLastCommittedBlockID()) + ":MQ:" +
+               to_string(getSchain()->getMessagesCount()));
     if (_blockID <= getSchain()->getLastCommittedBlockID())
         BOOST_THROW_EXCEPTION(OldBlockIDException("Old block ID", nullptr, nullptr, __CLASS_NAME__));
 }
 
 
-ptr<Header> BlockProposalServerAgent::createProposalResponseHeader(
-        ptr<Connection> _connectionEnvelope, nlohmann::json _jsonRequest) {
+ptr<Header> BlockProposalServerAgent::createProposalResponseHeader(ptr<Connection> _connectionEnvelope,
+                                                                   nlohmann::json _jsonRequest) {
     auto responseHeader = make_shared<BlockProposalResponseHeader>();
 
 
@@ -416,42 +391,35 @@ ptr<Header> BlockProposalServerAgent::createProposalResponseHeader(
 
 
     if (sChain->getSchainID() != schainID) {
-        responseHeader->setStatusSubStatus(
-                CONNECTION_SERVER_ERROR, CONNECTION_ERROR_UNKNOWN_SCHAIN_ID);
-        BOOST_THROW_EXCEPTION(
-                InvalidSchainException("Incorrect schain " + to_string(schainID), __CLASS_NAME__));
+        responseHeader->setStatusSubStatus(CONNECTION_SERVER_ERROR, CONNECTION_ERROR_UNKNOWN_SCHAIN_ID);
+        BOOST_THROW_EXCEPTION(InvalidSchainException("Incorrect schain " + to_string(schainID), __CLASS_NAME__));
     };
 
 
     ptr<NodeInfo> nmi = sChain->getNode()->getNodeInfoByIP(_connectionEnvelope->getIP());
 
     if (nmi == nullptr) {
-        responseHeader->setStatusSubStatus(
-                CONNECTION_SERVER_ERROR, CONNECTION_ERROR_DONT_KNOW_THIS_NODE);
+        responseHeader->setStatusSubStatus(CONNECTION_SERVER_ERROR, CONNECTION_ERROR_DONT_KNOW_THIS_NODE);
         BOOST_THROW_EXCEPTION(InvalidSourceIPException(
                                       "Could not find node info for IP " + *_connectionEnvelope->getIP()));
     }
 
 
     if (nmi->getNodeID() != node_id(srcNodeID)) {
-        responseHeader->setStatusSubStatus(
-                CONNECTION_SERVER_ERROR, CONNECTION_ERROR_INVALID_NODE_ID);
+        responseHeader->setStatusSubStatus(CONNECTION_SERVER_ERROR, CONNECTION_ERROR_INVALID_NODE_ID);
 
-        BOOST_THROW_EXCEPTION(
-                InvalidNodeIDException("Node ID does not match " + srcNodeID, __CLASS_NAME__));
+        BOOST_THROW_EXCEPTION(InvalidNodeIDException("Node ID does not match " + srcNodeID, __CLASS_NAME__));
     }
 
     if (nmi->getSchainIndex() != schain_index(proposerIndex)) {
-        responseHeader->setStatusSubStatus(
-                CONNECTION_SERVER_ERROR, CONNECTION_ERROR_INVALID_NODE_INDEX);
+        responseHeader->setStatusSubStatus(CONNECTION_SERVER_ERROR, CONNECTION_ERROR_INVALID_NODE_INDEX);
         BOOST_THROW_EXCEPTION(InvalidSchainIndexException(
-                                      "Node subchain index does not match " + proposerIndex, __CLASS_NAME__ ));
+                                      "Node schain index does not match " + proposerIndex, __CLASS_NAME__ ));
     }
 
 
     if (sChain->getLastCommittedBlockID() >= block_id(blockID)) {
-        responseHeader->setStatusSubStatus(
-                CONNECTION_DISCONNECT, CONNECTION_BLOCK_PROPOSAL_TOO_LATE);
+        responseHeader->setStatusSubStatus(CONNECTION_DISCONNECT, CONNECTION_BLOCK_PROPOSAL_TOO_LATE);
         responseHeader->setComplete();
         return responseHeader;
     }
@@ -464,10 +432,8 @@ ptr<Header> BlockProposalServerAgent::createProposalResponseHeader(
     ASSERT(t < (uint64_t) MODERN_TIME * 2);
 
     if (Time::getCurrentTimeSec() + 1 < timeStamp) {
-        LOG(info, "Incorrect timestamp:" + to_string(timeStamp) +
-                  ":vs:" + to_string(Time::getCurrentTimeSec()));
-        responseHeader->setStatusSubStatus(
-                CONNECTION_DISCONNECT, CONNECTION_ERROR_TIME_STAMP_IN_THE_FUTURE);
+        LOG(info, "Incorrect timestamp:" + to_string(timeStamp) + ":vs:" + to_string(Time::getCurrentTimeSec()));
+        responseHeader->setStatusSubStatus(CONNECTION_DISCONNECT, CONNECTION_ERROR_TIME_STAMP_IN_THE_FUTURE);
         responseHeader->setComplete();
         ASSERT(false);
         return responseHeader;
@@ -475,11 +441,10 @@ ptr<Header> BlockProposalServerAgent::createProposalResponseHeader(
 
 
     if (sChain->getLastCommittedBlockTimeStamp() > timeStamp) {
-        LOG(info, "Incorrect timestamp:" + to_string(timeStamp) +
-                  ":vs:" + to_string(sChain->getLastCommittedBlockTimeStamp()));
+        LOG(info, "Incorrect timestamp:" + to_string(timeStamp) + ":vs:" +
+                  to_string(sChain->getLastCommittedBlockTimeStamp()));
 
-        responseHeader->setStatusSubStatus(
-                CONNECTION_DISCONNECT, CONNECTION_ERROR_TIME_STAMP_EARLIER_THAN_COMMITTED);
+        responseHeader->setStatusSubStatus(CONNECTION_DISCONNECT, CONNECTION_ERROR_TIME_STAMP_EARLIER_THAN_COMMITTED);
         responseHeader->setComplete();
         ASSERT(false);
         return responseHeader;
@@ -494,14 +459,8 @@ ptr<Header> BlockProposalServerAgent::createProposalResponseHeader(
 }
 
 
-
-
-
-
-nlohmann::json BlockProposalServerAgent::readMissingTransactionsResponseHeader(
-        ptr<Connection> _connectionEnvelope) {
-    auto js = sChain->getIo()->readJsonHeader(
-            _connectionEnvelope->getDescriptor(), "Read missing trans response");
+nlohmann::json BlockProposalServerAgent::readMissingTransactionsResponseHeader(ptr<Connection> _connectionEnvelope) {
+    auto js = sChain->getIo()->readJsonHeader(_connectionEnvelope->getDescriptor(), "Read missing trans response");
 
     return js;
 }

@@ -44,7 +44,7 @@ class BlockProposalSet : public DataStructure  {
 public:
     node_count getCount();
 
-    BlockProposalSet( Schain* subChain, block_id blockId );
+    BlockProposalSet(Schain* _sChain, block_id _blockId );
 
     bool add(ptr<BlockProposal> _proposal);
 

@@ -39,7 +39,7 @@ public:
     ptr< CatchupClientThreadPool > catchupClientThreadPool = nullptr;
 
 
-    CatchupClientAgent( Schain& subChain_ );
+    CatchupClientAgent( Schain& _sChain );
 
 
     void sync( schain_index _dstIndex );
@@ -57,5 +57,5 @@ public:
     size_t parseBlockSizes( nlohmann::json _responseHeader, ptr< vector< uint64_t > > _blockSizes );
 
     static schain_index nextSyncNodeIndex(
-        const CatchupClientAgent* agent, schain_index _destinationSubChainIndex );
+        const CatchupClientAgent* agent, schain_index _destinationSchainIndex );
 };
