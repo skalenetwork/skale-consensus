@@ -68,7 +68,7 @@ void MonitoringAgent::monitor() {
 }
 
 void MonitoringAgent::monitoringLoop(MonitoringAgent *agent) {
-    setThreadName(__CLASS_NAME__);
+    setThreadName("MonitoringLoop");
 
     agent->waitOnGlobalStartBarrier();
 

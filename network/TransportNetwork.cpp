@@ -165,7 +165,7 @@ void TransportNetwork::broadcastMessage(Schain& _sChain, ptr< NetworkMessage > _
 }
 
 void TransportNetwork::networkReadLoop() {
-    setThreadName( __CLASS_NAME__ );
+    setThreadName("NtwkRdLoop");
 
     waitOnGlobalStartBarrier();
 
@@ -231,7 +231,7 @@ void TransportNetwork::postOrDefer(
 }
 
 void TransportNetwork::deferredMessagesLoop() {
-    setThreadName( __CLASS_NAME__ );
+    setThreadName("DeferMsgLoop");
 
     waitOnGlobalStartBarrier();
 

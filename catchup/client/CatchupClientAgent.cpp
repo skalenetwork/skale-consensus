@@ -223,7 +223,7 @@ ptr< CommittedBlockList > CatchupClientAgent::readMissingBlocks(
 
 
 void CatchupClientAgent::workerThreadItemSendLoop( CatchupClientAgent* agent ) {
-    setThreadName( __CLASS_NAME__ );
+    setThreadName("CatchupClient");
 
     agent->waitOnGlobalStartBarrier();
 

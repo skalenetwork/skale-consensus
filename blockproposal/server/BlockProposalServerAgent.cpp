@@ -155,7 +155,7 @@ BlockProposalServerAgent::getPresentAndMissingTransactions(Schain &_sChain, ptr<
 
 
 BlockProposalServerAgent::BlockProposalServerAgent(Schain &_schain, ptr<TCPServerSocket> _s) : AbstractServerAgent(
-        "BlockProposalServer", _schain, _s) {
+        "BlockPropSrv", _schain, _s) {
     blockProposalWorkerThreadPool = make_shared<BlockProposalWorkerThreadPool>(num_threads(1), this);
     blockProposalWorkerThreadPool->startService();
     createNetworkReadThread();

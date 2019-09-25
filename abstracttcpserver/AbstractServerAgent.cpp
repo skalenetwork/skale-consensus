@@ -91,8 +91,6 @@ ptr<Connection> AbstractServerAgent::workerThreadWaitandPopConnection() {
 
 void AbstractServerAgent::workerThreadConnectionProcessingLoop(void *_params) {
 
-    setThreadName(__CLASS_NAME__);
-
     AbstractServerAgent *server = (reinterpret_cast < AbstractServerAgent * > ( _params ));
 
     server->waitOnGlobalStartBarrier();
@@ -138,7 +136,7 @@ AbstractServerAgent::~AbstractServerAgent() {
 
 void AbstractServerAgent::acceptTCPConnectionsLoop() {
 
-    setThreadName(__CLASS_NAME__);
+    setThreadName(name);
 
     waitOnGlobalStartBarrier();
 

@@ -104,7 +104,7 @@ void Schain::postMessage( ptr< MessageEnvelope > m ) {
 void Schain::messageThreadProcessingLoop( Schain* s ) {
     ASSERT( s );
 
-    setThreadName( __CLASS_NAME__ );
+
     s->waitOnGlobalStartBarrier();
 
 

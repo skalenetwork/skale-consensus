@@ -231,7 +231,7 @@ ptr<vector<uint8_t >> BlockFinalizeDownloader::readBlockFragment(ptr<ClientSocke
 void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(BlockFinalizeDownloader* agent,
                                                                schain_index _dstIndex) {
 
-    setThreadName( __CLASS_NAME__ );
+    setThreadName("BlckFinLoop");
 
     uint64_t  next = (uint64_t ) _dstIndex;
 

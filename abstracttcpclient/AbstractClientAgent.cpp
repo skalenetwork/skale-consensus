@@ -122,7 +122,7 @@ void AbstractClientAgent::enqueueItem(ptr<BlockProposal> item) {
 
 
 void AbstractClientAgent::workerThreadItemSendLoop(AbstractClientAgent *agent) {
-    setThreadName(__CLASS_NAME__.substr(0, 15));
+
 
     agent->waitOnGlobalStartBarrier();
 
