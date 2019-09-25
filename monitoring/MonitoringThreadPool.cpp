@@ -36,7 +36,7 @@
 #include "MonitoringThreadPool.h"
 
 MonitoringThreadPool::MonitoringThreadPool(num_threads numThreads, void *params_) : WorkerThreadPool(numThreads,
-                                                                                                            params_) ;
+                                                                                                            params_) {
 }
 
 

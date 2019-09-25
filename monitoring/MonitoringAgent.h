@@ -26,14 +26,18 @@
 
 class Schain;
 
+class MonitoringThreadPool;
+
 class MonitoringAgent : public Agent {
 
-    thread* monitoringThread;
+    ptr< MonitoringThreadPool > monitoringThreadPool = nullptr;
 
 public:
 
     MonitoringAgent( Schain& subChain_ );
 
     static void monitoringLoop( MonitoringAgent* agent );
+
+    void monitor();
 
 };

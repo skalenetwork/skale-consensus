@@ -43,57 +43,39 @@ MonitoringAgent::MonitoringAgent(Schain &_sChain) : Agent(_sChain, true) {
     try {
         logThreadLocal_ = _sChain.getNode()->getLog();
         this->sChain = &_sChain;
-        threadCounter = 0;
 
-        this->MonitoringThreadPool = make_shared<MonitoringThreadPool>(1, this);
-        MonitoringThreadPool->startService();
+        this->monitoringThreadPool = make_shared<MonitoringThreadPool>(1, this);
+        monitoringThreadPool->startService();
+    } catch (...) {
+        throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
     }
-} catch (...) {
-    throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
-}
 
 }
 
 
-
-void MonitoringAgent::sync(schain_index _dstIndex) {
+void MonitoringAgent::monitor() {
 }
 
 
-
-
-void MonitoringAgent::monitoringLoop(MonitoringAgent *agent)  {
+void MonitoringAgent::monitoringLoop(MonitoringAgent *agent) {
     setThreadName(__CLASS_NAME__);
 
     agent->waitOnGlobalStartBarrier();
 
     try {
         while (!agent->getSchain()->getNode()->isExitRequested()) {
-            usleep(agent->getNode()->getCatchupIntervalMs() * 1000);
+            usleep(agent->getNode()->getMonitoringIntervalMs() * 1000);
 
             try {
-                agent->sync(destinationSubChainIndex);
+                agent->monitor();
             } catch (ExitRequestedException &) {
                 return;
             } catch (Exception &e) {
                 Exception::logNested(e);
             }
 
-            destinationSubChainIndex = nextSyncNodeIndex(agent, destinationSubChainIndex);
         };
     } catch (FatalError *e) {
         agent->getNode()->exitOnFatalError(e->getMessage());
     }
-}
-
-schain_index MonitoringAgent::nextSyncNodeIndex(const MonitoringAgent *agent, schain_index _destinationSubChainIndex) {
-    auto nodeCount = (uint64_t) agent->getSchain()->getNodeCount();
-
-    auto index = _destinationSubChainIndex - 1;
-
-    do {
-        index = ((uint64_t) index + 1) % nodeCount;
-    } while (index == (agent->getSchain()->getSchainIndex() - 1));
-
-    return index + 1;
 }
