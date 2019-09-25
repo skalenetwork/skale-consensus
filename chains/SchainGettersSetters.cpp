@@ -99,11 +99,6 @@
 #include "../monitoring/LivelinessMonitor.h"
 #include "Schain.h"
 
-uint64_t Schain::getHighResolutionTime() {
-    auto now = std::chrono::high_resolution_clock::now();
-    return std::chrono::duration_cast<std::chrono::nanoseconds>(now.time_since_epoch()).count();
-}
-
 
 const ptr<IO> Schain::getIo() const {
     CHECK_STATE(io != nullptr);

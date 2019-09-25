@@ -236,8 +236,6 @@ public:
 
     uint64_t getTotalTransactions() const;
 
-    static uint64_t  getHighResolutionTime();
-
     block_id getBootstrapBlockID() const;
 
     void setHealthCheckFile(uint64_t status);
