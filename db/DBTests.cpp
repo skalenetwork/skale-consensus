@@ -45,7 +45,9 @@ void test_committed_block_save() {
 
     boost::random::uniform_int_distribution<> ubyte( 0, 255 );
 
-    std::system(("rm -rf " + fileName).c_str());
+    if (std::system(("rm -rf " + fileName).c_str()) != 0) {
+        BOOST_THROW_EXCEPTION(runtime_error("Remove failed"));
+    }
 
     auto db = make_shared< BlockDB >(  fileName, node_id( 1 ) );
 
