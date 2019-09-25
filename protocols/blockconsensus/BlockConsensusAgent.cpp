@@ -164,7 +164,7 @@ void BlockConsensusAgent::decideBlock(block_id _blockId, schain_index _proposerI
               ":PRP:" + to_string(_proposerIndex));
     LOG(debug, "Total txs:" + to_string(getSchain()->getTotalTransactions()) +
               " T(s):" +
-              to_string((getSchain()->getCurrentTimeMilllis().count() - getSchain()->getStartTime().count()) / 1000.0));
+              to_string((getSchain()->getCurrentTimeMs() - getSchain()->getStartTimeMs()) / 1000));
 
     getSchain()->decideBlock(_blockId, _proposerIndex);
 

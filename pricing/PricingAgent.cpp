@@ -76,12 +76,11 @@ PricingAgent::calculatePrice(const ConsensusExtFace::transactions_vector &_appro
     } else {
         auto oldPrice = readPrice(_blockID - 1);
         price = pricingStrategy->calculatePrice(oldPrice, _approvedTransactions, _timeStamp,
-            _timeStampMs,
-            _blockID);
+                _timeStampMs, _blockID);
     }
 
-
     savePrice(price, _blockID);
+
     return price;
 
 }

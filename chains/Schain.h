@@ -88,11 +88,11 @@ class Schain : public Agent {
 
     ptr<TestMessageGeneratorAgent> testMessageGeneratorAgent;
 
-    chrono::milliseconds startTime;
+    uint64_t startTimeMs;
 
     std::map<block_id, ptr<CommittedBlock>> blocks;
 
-    block_id returnedBlock = 0;
+    block_id lastPushedBlock = 0;
 
 
     set<block_id> pushedBlockProposals;
@@ -218,7 +218,7 @@ public:
 
     ptr<ReceivedSigSharesDatabase> blockSigSharesDatabase;
 
-    chrono::milliseconds getStartTime() const;
+    uint64_t getStartTimeMs() const;
 
     void proposedBlockArrived(ptr<BlockProposal> pbm);
 

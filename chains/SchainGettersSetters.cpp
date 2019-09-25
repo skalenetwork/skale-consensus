@@ -104,9 +104,6 @@ uint64_t Schain::getHighResolutionTime() {
     return std::chrono::duration_cast<std::chrono::nanoseconds>(now.time_since_epoch()).count();
 }
 
-chrono::milliseconds Schain::getCurrentTimeMilllis() {
-    return chrono::duration_cast<chrono::milliseconds>(chrono::system_clock::now().time_since_epoch());
-}
 
 uint64_t Schain::getCurrentTimeSec() {
     uint64_t result = chrono::duration_cast<chrono::seconds>(chrono::system_clock::now().time_since_epoch()).count();
@@ -120,7 +117,6 @@ uint64_t Schain::getCurrentTimeMs() {
             chrono::system_clock::now().time_since_epoch()).count();
     return result;
 }
-
 
 const ptr<IO> Schain::getIo() const {
     CHECK_STATE(io != nullptr);
@@ -139,8 +135,8 @@ ptr<MonitoringAgent> Schain::getMonitoringAgent() const {
     return monitoringAgent;
 }
 
-chrono::milliseconds Schain::getStartTime() const {
-    return startTime;
+uint64_t Schain::getStartTimeMs() const {
+    return startTimeMs;
 }
 
 const block_id Schain::getLastCommittedBlockID() const {

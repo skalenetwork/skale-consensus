@@ -122,11 +122,9 @@ void Schain::messageThreadProcessingLoop( Schain* s ) {
     s->waitOnGlobalStartBarrier();
 
 
-    using namespace std::chrono;
 
     try {
-        s->startTime = getCurrentTimeMilllis();
-
+        s->startTimeMs = getCurrentTimeMs();
 
         logThreadLocal_ = s->getNode()->getLog();
 
@@ -470,17 +468,15 @@ void Schain::pushBlockToExtFace( ptr< CommittedBlock >& _block ) {
 
     checkForExit();
 
-    auto blockID = _block->getBlockID();
-
-
-    ASSERT( ( returnedBlock + 1 == blockID ) || returnedBlock == 0 );
-
-    returnedBlock = ( uint64_t ) blockID;
+    ASSERT((lastPushedBlock + 1 == _block->getBlockID()) || lastPushedBlock == 0 );
 
     auto tv = _block->getTransactionList()->createTransactionVector();
 
-    auto next_price = this->pricingAgent->calculatePrice(
+    //auto next_price = // VERIFY PRICING
+
+    this->pricingAgent->calculatePrice(
         *tv, _block->getTimeStamp(), _block->getTimeStampMs(), _block->getBlockID() );
+
     auto cur_price = this->pricingAgent->readPrice(_block->getBlockID() - 1);
 
 
@@ -488,6 +484,8 @@ void Schain::pushBlockToExtFace( ptr< CommittedBlock >& _block ) {
         extFace->createBlock( *tv, _block->getTimeStamp(), _block->getTimeStampMs(),
             ( __uint64_t ) _block->getBlockID(), cur_price );
     }
+
+    lastPushedBlock = ( uint64_t ) _block->getBlockID();
 }
 
 
@@ -662,7 +660,7 @@ void Schain::decideBlock(block_id _blockId, schain_index _proposerIndex) {
                ":PRP:" + to_string(_proposerIndex));
     LOG(debug, "Total txs:" + to_string(getSchain()->getTotalTransactions()) +
                " T(s):" +
-               to_string((getSchain()->getCurrentTimeMilllis().count() - getSchain()->getStartTime().count()) / 1000.0));
+               to_string((getSchain()->getCurrentTimeMs() - getSchain()->getStartTimeMs()) / 1000.0));
 
 
     auto proposedBlockSet = blockProposalsDatabase->getProposedBlockSet(_blockId);
