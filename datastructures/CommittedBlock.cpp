@@ -264,5 +264,6 @@ ptr<CommittedBlockFragment> CommittedBlock::getFragment(uint64_t _totalFragments
     fragmentData->push_back('>');
 
 
-    return make_shared<CommittedBlockFragment>(getBlockID(), _totalFragments, _index, fragmentData );
+    return make_shared<CommittedBlockFragment>(getBlockID(), _totalFragments, _index, fragmentData,
+            sBlock->size(), getHash()->toHex());
 };

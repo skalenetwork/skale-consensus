@@ -50,9 +50,9 @@ void IO::readBytes(ptr<Connection> env, in_buffer *buffer, msg_len len) {
 }
 
 void IO::readBuf(file_descriptor descriptor, ptr<Buffer> buf, msg_len len) {
-    ASSERT(buf != nullptr);
-    ASSERT(len > 0);
-    ASSERT(buf->getSize() >= len);
+    CHECK_ARGUMENT(buf != nullptr);
+    CHECK_ARGUMENT(len > 0);
+    CHECK_ARGUMENT(buf->getSize() >= len);
 
     return readBytes(descriptor, reinterpret_cast< in_buffer * >( buf->getBuf()->data()), len);
 }
@@ -61,8 +61,8 @@ void IO::readBytes(file_descriptor descriptor, in_buffer *buffer, msg_len len) {
     // fd_set read_set;
     // struct timeval timeout;
 
-    ASSERT(buffer != nullptr);
-    ASSERT(len > 0);
+    CHECK_ARGUMENT(buffer != nullptr);
+    CHECK_ARGUMENT(len > 0);
 
     int64_t bytesRead = 0;
 
@@ -118,15 +118,17 @@ void IO::readBytes(file_descriptor descriptor, in_buffer *buffer, msg_len len) {
         // LOG(trace, "IO bytes read:" + to_string( bytesRead ) );
     }
 
+    assert ((uint64_t ) bytesRead == (uint64_t ) len);
+
 }
 
 void IO::writeBytes(file_descriptor descriptor, out_buffer *buffer, msg_len len) {
 
     usleep(sChain->getNode()->getSimulateNetworkWriteDelayMs() * 1000);
 
-    ASSERT(buffer);
-    ASSERT(len > 0);
-    ASSERT(descriptor != 0);
+    CHECK_ARGUMENT(buffer);
+    CHECK_ARGUMENT(len > 0);
+    CHECK_ARGUMENT(descriptor != 0);
 
     //    setsockopt( int( descriptor ), SOL_SOCKET, SO_SNDTIMEO, &timeout, sizeof( int ) );
 
@@ -153,8 +155,8 @@ void IO::writeBytes(file_descriptor descriptor, out_buffer *buffer, msg_len len)
 }
 
 void IO::writeBuf(file_descriptor descriptor, ptr<Buffer> buf) {
-    ASSERT(buf != nullptr);
-    ASSERT(buf->getBuf() != nullptr);
+    CHECK_ARGUMENT(buf != nullptr);
+    CHECK_ARGUMENT(buf->getBuf() != nullptr);
     writeBytes(descriptor, (out_buffer *) buf->getBuf()->data(), msg_len(buf->getCounter()));
 }
 
@@ -181,21 +183,21 @@ void IO::writeMagic(ptr<ClientSocket> _socket, bool _isPing) {
 
 
 void IO::writeHeader(ptr<ClientSocket> socket, ptr<Header> header) {
-    ASSERT(socket);
-    ASSERT(header);
-    ASSERT(header->isComplete());
+    CHECK_ARGUMENT(socket);
+    CHECK_ARGUMENT(header);
+    CHECK_ARGUMENT(header->isComplete());
     writeBuf(socket->getDescriptor(), header->toBuffer());
 }
 
 void IO::writeBytesVector(file_descriptor socket, ptr<vector<uint8_t> > bytes) {
-    ASSERT(bytes != nullptr);
-    ASSERT(!bytes->empty());
+    CHECK_ARGUMENT(bytes != nullptr);
+    CHECK_ARGUMENT(!bytes->empty());
     writeBytes(socket, (out_buffer *) bytes->data(), msg_len(bytes->size()));
 }
 
 void IO::writePartialHashes(
         file_descriptor socket, ptr<map<uint64_t, ptr<partial_sha_hash>>> hashes) {
-    ASSERT(hashes->size() > 0);
+    CHECK_ARGUMENT(hashes->size() > 0);
 
     auto buffer = make_shared<vector<uint8_t> >(hashes->size() * PARTIAL_SHA_HASH_LEN);
 
@@ -210,7 +212,7 @@ void IO::writePartialHashes(
 }
 
 IO::IO(Schain *_sChain) : sChain(_sChain) {
-    ASSERT(_sChain);
+    CHECK_ARGUMENT(_sChain);
 };
 
 

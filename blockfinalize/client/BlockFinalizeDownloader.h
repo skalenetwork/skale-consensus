@@ -96,12 +96,16 @@ public:
     nlohmann::json readBlockFinalizeResponseHeader( ptr< ClientSocket > _socket );
 
 
-    ptr<vector<uint8_t>> readBlockFragment(
-            ptr< ClientSocket > _socket, nlohmann::json responseHeader );
+    ptr<CommittedBlockFragment>
+    readBlockFragment(ptr<ClientSocket> _socket, nlohmann::json responseHeader, fragment_index _fragmentIndex,
+                      node_count _nodeCount);
 
     uint64_t readFragmentSize(nlohmann::json _responseHeader);
 
     ptr<CommittedBlock>  downloadProposal();
 
+    uint64_t readBlockSize(nlohmann::json _responseHeader);
+
+    ptr<string> readBlockHash(nlohmann::json _responseHeader);
 };
 
