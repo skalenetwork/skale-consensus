@@ -42,7 +42,7 @@
 #include "../datastructures/Transaction.h"
 #include "../network/Buffer.h"
 #include "TransactionList.h"
-#include "CommittedBlockFragment.h"
+#include "BlockProposalFragment.h"
 #include "CommittedBlock.h"
 
 
@@ -156,7 +156,7 @@ ptr< CommittedBlock > CommittedBlock::deserialize( ptr< vector< uint8_t > > _ser
 }
 
 
-ptr< CommittedBlock > CommittedBlock::defragment( ptr<CommittedBlockFragmentList> _fragmentList ) {
+ptr< CommittedBlock > CommittedBlock::defragment( ptr<BlockProposalFragmentList> _fragmentList ) {
     try {
         return deserialize(_fragmentList->serialize());
     } catch ( Exception& e ) {
@@ -225,7 +225,7 @@ ptr< CommittedBlock > CommittedBlock::createRandomSample( uint64_t _size,
     return make_shared< CommittedBlock >( 1, 1, _blockID, 1, list, MODERN_TIME + 1, 1 );
 }
 
-ptr<CommittedBlockFragment> CommittedBlock::getFragment(uint64_t _totalFragments, fragment_index _index) {
+ptr<BlockProposalFragment> CommittedBlock::getFragment(uint64_t _totalFragments, fragment_index _index) {
 
     CHECK_ARGUMENT(_totalFragments > 0);
     CHECK_ARGUMENT(_index <= _totalFragments);
@@ -264,6 +264,6 @@ ptr<CommittedBlockFragment> CommittedBlock::getFragment(uint64_t _totalFragments
     fragmentData->push_back('>');
 
 
-    return make_shared<CommittedBlockFragment>(getBlockID(), _totalFragments, _index, fragmentData,
-            sBlock->size(), getHash()->toHex());
+    return make_shared<BlockProposalFragment>(getBlockID(), _totalFragments, _index, fragmentData,
+                                              sBlock->size(), getHash()->toHex());
 };

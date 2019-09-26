@@ -31,10 +31,10 @@
 #include "../Log.h"
 #include "../exceptions/SerializeException.h"
 
-#include "CommittedBlockFragment.h"
+#include "BlockProposalFragment.h"
 
 
-#include "CommittedBlockFragmentList.h"
+#include "BlockProposalFragmentList.h"
 
 CommittedBlockFragmentList::CommittedBlockFragmentList(const block_id &_blockId,
                                                        const uint64_t _totalFragments) :

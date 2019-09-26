@@ -66,7 +66,7 @@
 
 #include "../../datastructures/CommittedBlock.h"
 #include "../../datastructures/CommittedBlockList.h"
-#include "../../datastructures/CommittedBlockFragment.h"
+#include "../../datastructures/BlockProposalFragment.h"
 #include "CatchupServerAgent.h"
 
 
