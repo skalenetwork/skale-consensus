@@ -37,6 +37,10 @@ class CommittedBlockFragment;
 
 class CommittedBlockFragmentList {
 
+    int64_t blockSize = -1;
+    ptr<string> blockHash = nullptr;
+
+
     bool isSerialized = false;
 
     recursive_mutex listMutex;
