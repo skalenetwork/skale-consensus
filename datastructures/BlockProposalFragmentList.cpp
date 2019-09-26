@@ -16,7 +16,7 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file CommittedBlockFragmentList.cpp
+    @file BlockProposalFragmentList.cpp
     @author Stan Kladko
     @date 2019
 */
@@ -36,7 +36,7 @@
 
 #include "BlockProposalFragmentList.h"
 
-CommittedBlockFragmentList::CommittedBlockFragmentList(const block_id &_blockId,
+BlockProposalFragmentList::BlockProposalFragmentList(const block_id &_blockId,
                                                        const uint64_t _totalFragments) :
         blockID(_blockId),
         totalFragments(
@@ -50,7 +50,7 @@ CommittedBlockFragmentList::CommittedBlockFragmentList(const block_id &_blockId,
 }
 
 
-uint64_t CommittedBlockFragmentList::nextIndexToRetrieve() {
+uint64_t BlockProposalFragmentList::nextIndexToRetrieve() {
 
     if (missingFragments.size() == 0) {
         return 0;
@@ -71,7 +71,7 @@ uint64_t CommittedBlockFragmentList::nextIndexToRetrieve() {
     ASSERT2(false, "nextIndexToRetrieve assertion failure"); // SHOULD NEVER BE HERE
 }
 
-bool CommittedBlockFragmentList::addFragment(ptr<CommittedBlockFragment> _fragment, uint64_t &nextIndex) {
+bool BlockProposalFragmentList::addFragment(ptr<BlockProposalFragment> _fragment, uint64_t &nextIndex) {
 
     CHECK_ARGUMENT(_fragment->getBlockId() == blockID);
     CHECK_ARGUMENT(_fragment->getIndex() > 0)
@@ -130,11 +130,11 @@ bool CommittedBlockFragmentList::addFragment(ptr<CommittedBlockFragment> _fragme
     return true;
 }
 
-void CommittedBlockFragmentList::checkSanity() {
+void BlockProposalFragmentList::checkSanity() {
     CHECK_STATE(fragments.size() <= totalFragments);
 }
 
-bool CommittedBlockFragmentList::isComplete() {
+bool BlockProposalFragmentList::isComplete() {
     lock_guard<recursive_mutex> lock(listMutex);
 
     checkSanity();
@@ -153,7 +153,7 @@ bool CommittedBlockFragmentList::isComplete() {
     return false;
 }
 
-ptr<vector<uint8_t>> CommittedBlockFragmentList::serialize() {
+ptr<vector<uint8_t>> BlockProposalFragmentList::serialize() {
 
 
     auto result = make_shared<vector<uint8_t >>();
@@ -194,6 +194,6 @@ ptr<vector<uint8_t>> CommittedBlockFragmentList::serialize() {
 }
 
 
-boost::random::mt19937 CommittedBlockFragmentList::gen;
+boost::random::mt19937 BlockProposalFragmentList::gen;
 
-boost::random::uniform_int_distribution<> CommittedBlockFragmentList::ubyte(0, 1024);
+boost::random::uniform_int_distribution<> BlockProposalFragmentList::ubyte(0, 1024);

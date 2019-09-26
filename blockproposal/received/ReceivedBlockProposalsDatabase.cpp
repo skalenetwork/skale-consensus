@@ -34,6 +34,7 @@
 #include "../../crypto/SHAHash.h"
 #include "../../pendingqueue/PendingTransactionsAgent.h"
 #include "../pusher/BlockProposalClientAgent.h"
+#include "../../datastructures/BlockProposal.h"
 #include "../../datastructures/BlockProposalSet.h"
 
 
