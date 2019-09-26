@@ -24,6 +24,7 @@
 #include "../Log.h"
 #include "../SkaleCommon.h"
 #include "../exceptions/FatalError.h"
+#include "../exceptions/InvalidStateException.h"
 #include "../exceptions/InvalidArgumentException.h"
 
 #include "../thirdparty/json.hpp"
@@ -140,7 +141,11 @@ ptr<CommittedBlock> Schain::getBlock(block_id _blockID) {
 
     std::lock_guard<std::recursive_mutex> aLock(getMainMutex());
 
-    return getNode()->getBlockDB()->getBlock(_blockID);
+    try {
+        return getNode()->getBlockDB()->getBlock(_blockID);
+    }  catch (...) {
+    throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+}
 }
 
 

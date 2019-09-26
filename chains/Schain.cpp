@@ -33,6 +33,7 @@
 
 #include "../utils/Time.h"
 #include "../abstracttcpserver/ConnectionStatus.h"
+#include "../exceptions/InvalidStateException.h"
 #include "../node/ConsensusEngine.h"
 #include "../node/ConsensusEngine.h"
 #include "../node/Node.h"
@@ -90,7 +91,10 @@
 
 void Schain::postMessage( ptr< MessageEnvelope > m ) {
 
+
     checkForExit();
+
+
 
     lock_guard< mutex > lock( messageMutex );
 
@@ -428,8 +432,13 @@ void Schain::processCommittedBlock( ptr< CommittedBlock > _block ) {
 void Schain::saveBlock( ptr< CommittedBlock >& _block ) {
     MONITOR(__CLASS_NAME__, __FUNCTION__)
 
-    checkForExit();
-    getNode()->getBlockDB()->saveBlock(_block, block_id(lastCommittedBlockID.load()));
+    try {
+
+        checkForExit();
+        getNode()->getBlockDB()->saveBlock(_block, block_id(lastCommittedBlockID.load()));
+    }  catch (...) {
+    throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+}
 
 }
 

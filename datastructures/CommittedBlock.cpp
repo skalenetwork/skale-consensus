@@ -34,6 +34,7 @@
 #include "../crypto/SHAHash.h"
 #include "../exceptions/NetworkProtocolException.h"
 #include "../exceptions/ParsingException.h"
+#include "../exceptions/InvalidStateException.h"
 #include "../headers/CommittedBlockHeader.h"
 
 
@@ -142,8 +143,6 @@ ptr< CommittedBlock > CommittedBlock::deserialize( ptr< vector< uint8_t > > _ser
         block->transactionList = TransactionList::deserialize(
             transactionSizes, _serializedBlock, headerSize + sizeof( headerSize ), true );
     } catch ( Exception& e ) {
-        Exception::logNested( e, err );
-
         throw_with_nested(
             ParsingException( "Could not parse transactions after header. Header: \n" + *header +
                                   " Transactions size:" + to_string( _serializedBlock->size() ),
@@ -157,7 +156,12 @@ ptr< CommittedBlock > CommittedBlock::deserialize( ptr< vector< uint8_t > > _ser
 
 
 ptr< CommittedBlock > CommittedBlock::defragment( ptr<CommittedBlockFragmentList> _fragmentList ) {
-    return deserialize(_fragmentList->serialize());
+    try {
+        return deserialize(_fragmentList->serialize());
+    } catch ( Exception& e ) {
+        Exception::logNested(e);
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+    }
 }
 
 

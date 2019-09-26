@@ -49,6 +49,9 @@
 #include "../../Log.h"
 #include "../../exceptions/ExitRequestedException.h"
 #include "../../exceptions/FatalError.h"
+#include "../../exceptions/InvalidStateException.h"
+#include "../../exceptions/InvalidStateException.h"
+
 
 #include "../../thirdparty/json.hpp"
 
@@ -276,14 +279,22 @@ void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(BlockFinalizeDown
 
 ptr<CommittedBlock> BlockFinalizeDownloader::downloadProposal() {
 
+
+
     this->threadPool = new BlockFinalizeDownloaderThreadPool((uint64_t) getSchain()->getNodeCount(), this);
     threadPool->startService();
     threadPool->joinAll();
 
-    if (fragmentList.isComplete()) {
-        return CommittedBlock::deserialize(fragmentList.serialize());
-    } else {
-        return nullptr;
+    try {
+
+        if (fragmentList.isComplete()) {
+            return CommittedBlock::deserialize(fragmentList.serialize());
+        } else {
+            return nullptr;
+        }
+    } catch ( Exception& e ) {
+        Exception::logNested(e);
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
 }
 
