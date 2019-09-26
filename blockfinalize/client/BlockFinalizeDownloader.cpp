@@ -141,6 +141,7 @@ uint64_t BlockFinalizeDownloader::downloadFragment(schain_index _dstIndex, fragm
 
     try {
         response = readBlockFinalizeResponseHeader(socket);
+        cerr << response.dump();
     } catch (ExitRequestedException &) {throw;} catch (...) {
         auto errString = "BlockFinalizec step 2: can not read BlockFinalize response";
         LOG(debug, errString);
