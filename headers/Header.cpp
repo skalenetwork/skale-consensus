@@ -77,7 +77,7 @@ ptr<Buffer> Header::toBuffer() {
 
 void Header::nullCheck(nlohmann::json &js, const char *name) {
     if (js[name].is_null()) {
-        BOOST_THROW_EXCEPTION(NetworkProtocolException("Null " + string(name) + " in the request", __CLASS_NAME__));
+        BOOST_THROW_EXCEPTION(NetworkProtocolException("Null " + string(name) + " in json", __CLASS_NAME__));
     }
 };
 
