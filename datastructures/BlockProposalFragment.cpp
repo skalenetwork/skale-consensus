@@ -16,7 +16,7 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file CommittedBlockFragment.cpp
+    @file BlockProposalFragment.cpp
     @author Stan Kladko
     @date 2019
 */
@@ -26,7 +26,7 @@
 
 #include "BlockProposalFragment.h"
 
-CommittedBlockFragment::CommittedBlockFragment(const block_id &blockId, const uint64_t totalFragments,
+BlockProposalFragment::BlockProposalFragment(const block_id &blockId, const uint64_t totalFragments,
                                                const fragment_index &fragmentIndex, const ptr<vector<uint8_t>> &data,
                                                uint64_t _blockSize, ptr<string> _blockHash) :
         blockId(blockId), totalFragments(totalFragments),
@@ -50,27 +50,27 @@ CommittedBlockFragment::CommittedBlockFragment(const block_id &blockId, const ui
     }
 }
 
-uint64_t CommittedBlockFragment::getBlockSize() const {
+uint64_t BlockProposalFragment::getBlockSize() const {
     return blockSize;
 }
 
-ptr<string> CommittedBlockFragment::getBlockHash() const {
+ptr<string> BlockProposalFragment::getBlockHash() const {
     return blockHash;
 }
 
 
-block_id CommittedBlockFragment::getBlockId() const {
+block_id BlockProposalFragment::getBlockId() const {
     return blockId;
 }
 
-uint64_t CommittedBlockFragment::getTotalFragments() const {
+uint64_t BlockProposalFragment::getTotalFragments() const {
     return totalFragments;
 }
 
-fragment_index CommittedBlockFragment::getIndex() const {
+fragment_index BlockProposalFragment::getIndex() const {
     return fragmentIndex;
 }
 
-ptr<vector<uint8_t>> CommittedBlockFragment::serialize() const {
+ptr<vector<uint8_t>> BlockProposalFragment::serialize() const {
     return data;
 }
