@@ -348,7 +348,10 @@ void ConsensusEngine::systemHealthCheck() {
     }
     int noFiles = std::strtol(ulimit.c_str(), NULL, 10);
 
-    if (noFiles < 65535) {
+    auto noUlimitCheck = std::getenv("NO_ULIMIT_CHECK") != nullptr;
+    auto onTravis = std::getenv("TRAVIS_BUILD_TYPE") != nullptr;
+
+    if (noFiles < 65535 && !noUlimitCheck && !onTravis) {
 
         const char* error = "File descriptor limit (ulimit -n) is less than 65535. Set it to 65535 or more as described"
                       "in https://bugs.launchpad.net/ubuntu/+source/lightdm/+bug/1627769\n";
