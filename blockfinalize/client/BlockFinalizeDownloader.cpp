@@ -67,8 +67,8 @@
 #include "../../crypto/SHAHash.h"
 #include "../../datastructures/CommittedBlock.h"
 #include "../../datastructures/CommittedBlockList.h"
-#include "../../datastructures/CommittedBlockFragment.h"
-#include "../../datastructures/CommittedBlockFragmentList.h"
+#include "../../datastructures/BlockProposalFragment.h"
+#include "../../datastructures/BlockProposalFragmentList.h"
 #include "../../datastructures/BlockProposalSet.h"
 #include "../../datastructures/BlockProposal.h"
 #include "../../exceptions/NetworkProtocolException.h"
@@ -164,7 +164,7 @@ uint64_t BlockFinalizeDownloader::downloadFragment(schain_index _dstIndex, fragm
     }
 
 
-    ptr<CommittedBlockFragment> blockFragment = nullptr;
+    ptr<BlockProposalFragment> blockFragment = nullptr;
 
 
     try {
@@ -213,7 +213,7 @@ ptr<string> BlockFinalizeDownloader::readBlockHash(nlohmann::json _responseHeade
     return result;
 };
 
-ptr<CommittedBlockFragment>
+ptr<BlockProposalFragment>
 BlockFinalizeDownloader::readBlockFragment(ptr<ClientSocket> _socket, nlohmann::json responseHeader,
                                            fragment_index _fragmentIndex, node_count _nodeCount) {
 
@@ -234,12 +234,12 @@ BlockFinalizeDownloader::readBlockFragment(ptr<ClientSocket> _socket, nlohmann::
         throw_with_nested(NetworkProtocolException("Could not read blocks", __CLASS_NAME__));
     }
 
-    ptr<CommittedBlockFragment> fragment = nullptr;
+    ptr<BlockProposalFragment> fragment = nullptr;
 
     try {
-        fragment = make_shared<CommittedBlockFragment>(blockId, (uint64_t) _nodeCount - 1,
-                                                       _fragmentIndex, serializedFragment,
-                                                       blockSize, blockHash);
+        fragment = make_shared<BlockProposalFragment>(blockId, (uint64_t) _nodeCount - 1,
+                                                      _fragmentIndex, serializedFragment,
+                                                      blockSize, blockHash);
     } catch (ExitRequestedException &) {throw;} catch (...) {
         throw_with_nested(NetworkProtocolException("Could not parse block fragment", __CLASS_NAME__));
     }

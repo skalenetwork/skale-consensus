@@ -16,16 +16,16 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file CommittedBlockFragment.h
+    @file BlockProposalFragment.h
     @author Stan Kladko
     @date 2019
 */
-#ifndef SKALED_COMMITTEDBLOCKFRAGMENT_H
-#define SKALED_COMMITTEDBLOCKFRAGMENT_H
+#ifndef SKALED_BLOCKPROPOSALFRAGMENT_H
+#define SKALED_BLOCKPROPOSALFRAGMENT_H
 
 
 
-class CommittedBlockFragment {
+class BlockProposalFragment {
 
     const block_id blockId;
     const uint64_t blockSize;
@@ -40,8 +40,8 @@ class CommittedBlockFragment {
 
 public:
 
-    CommittedBlockFragment(const block_id &blockId, const uint64_t totalFragments, const fragment_index &fragmentIndex,
-                           const ptr<vector<uint8_t>> &data, uint64_t _blockSize, ptr<string> _blockHash);
+    BlockProposalFragment(const block_id &blockId, const uint64_t totalFragments, const fragment_index &fragmentIndex,
+                          const ptr<vector<uint8_t>> &data, uint64_t _blockSize, ptr<string> _blockHash);
 
     block_id getBlockId() const;
 
@@ -58,4 +58,4 @@ public:
 };
 
 
-#endif //SKALED_COMMITTEDBLOCKFRAGMENT_H
+#endif //SKALED_BLOCKPROPOSALFRAGMENT_H

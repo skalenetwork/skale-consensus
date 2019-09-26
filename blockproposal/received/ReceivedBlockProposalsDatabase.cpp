@@ -35,7 +35,6 @@
 #include "../../pendingqueue/PendingTransactionsAgent.h"
 #include "../pusher/BlockProposalClientAgent.h"
 #include "../../datastructures/BlockProposalSet.h"
-#include "../../datastructures/BlockProposal.h"
 
 
 #include "ReceivedBlockProposalsDatabase.h"

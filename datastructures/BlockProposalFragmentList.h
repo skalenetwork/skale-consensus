@@ -16,18 +16,18 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file CommittedBlockFragmentList.h
+    @file BlockProposalFragmentList.h
     @author Stan Kladko
     @date 2019
 */
 
 
-#ifndef SKALED_COMMITTEDBLOCKFRAGMENTLIST_H
-#define SKALED_COMMITTEDBLOCKFRAGMENTLIST_H
+#ifndef SKALED_BLOCKPROPOSALFRAGMENTLIST_H
+#define SKALED_BLOCKPROPOSALFRAGMENTLIST_H
 
 
 
-class CommittedBlockFragment;
+class BlockProposalFragment;
 
 
 #include <boost/integer/integer_log2.hpp>
@@ -35,7 +35,7 @@ class CommittedBlockFragment;
 #include <boost/random/uniform_int_distribution.hpp>
 
 
-class CommittedBlockFragmentList {
+class BlockProposalFragmentList {
 
     int64_t blockSize = -1;
     ptr<string> blockHash = nullptr;
@@ -61,9 +61,9 @@ class CommittedBlockFragmentList {
     static boost::random::uniform_int_distribution<> ubyte;
 
 public:
-    CommittedBlockFragmentList(const block_id &_blockId, const uint64_t _totalFragments);
+    BlockProposalFragmentList(const block_id &_blockId, const uint64_t _totalFragments);
 
-    bool addFragment(ptr<CommittedBlockFragment> _fragment, uint64_t& _nextIndexToRetrieve);
+    bool addFragment(ptr<BlockProposalFragment> _fragment, uint64_t& _nextIndexToRetrieve);
 
     uint64_t nextIndexToRetrieve();
 
@@ -74,4 +74,4 @@ public:
 };
 
 
-#endif //SKALED_COMMITTEDBLOCKFRAGMENTLIST_H
+#endif //SKALED_BLOCKPROPOSALFRAGMENTLIST_H

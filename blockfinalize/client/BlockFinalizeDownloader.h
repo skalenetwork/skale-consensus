@@ -52,13 +52,13 @@ class CommittedBlockList;
 class ClientSocket;
 class Schain;
 class BlockFinalizeResponseHeader;
-class CommittedBlockFragment;
-class CommittedBlockFragmentList;
+class BlockProposalFragment;
+class BlockProposalFragmentList;
 
 class BlockFinalizeDownloaderThreadPool;
 class BlockProposalSet;
 
-#include "../../datastructures/CommittedBlockFragmentList.h"
+#include "../../datastructures/BlockProposalFragmentList.h"
 
 class BlockFinalizeDownloader {
 
@@ -75,7 +75,7 @@ public:
 private:
     schain_index proposerIndex;
 
-    CommittedBlockFragmentList fragmentList;
+    BlockProposalFragmentList fragmentList;
 
     ptr<BlockProposalSet> proposalSet;
 
@@ -96,7 +96,7 @@ public:
     nlohmann::json readBlockFinalizeResponseHeader( ptr< ClientSocket > _socket );
 
 
-    ptr<CommittedBlockFragment>
+    ptr<BlockProposalFragment>
     readBlockFragment(ptr<ClientSocket> _socket, nlohmann::json responseHeader, fragment_index _fragmentIndex,
                       node_count _nodeCount);
 

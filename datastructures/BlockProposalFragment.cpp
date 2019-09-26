@@ -24,7 +24,7 @@
 #include "../Log.h"
 #include "../exceptions/ParsingException.h"
 
-#include "CommittedBlockFragment.h"
+#include "BlockProposalFragment.h"
 
 CommittedBlockFragment::CommittedBlockFragment(const block_id &blockId, const uint64_t totalFragments,
                                                const fragment_index &fragmentIndex, const ptr<vector<uint8_t>> &data,
