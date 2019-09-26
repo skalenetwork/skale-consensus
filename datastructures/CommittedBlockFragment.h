@@ -28,6 +28,9 @@
 class CommittedBlockFragment {
 
     const block_id blockId;
+    const uint64_t blockSize;
+    ptr<string> blockHash;
+
 
     const uint64_t totalFragments;
     const fragment_index fragmentIndex;
@@ -38,7 +41,7 @@ class CommittedBlockFragment {
 public:
 
     CommittedBlockFragment(const block_id &blockId, const uint64_t totalFragments, const fragment_index &fragmentIndex,
-                           const ptr<vector<uint8_t>> &data);
+                           const ptr<vector<uint8_t>> &data, uint64_t _blockSize, ptr<string> _blockHash);
 
     block_id getBlockId() const;
 
@@ -47,6 +50,10 @@ public:
     fragment_index getIndex() const;
 
     ptr<vector<uint8_t>> serialize() const;
+
+    uint64_t getBlockSize() const;
+
+    ptr<string> getBlockHash() const;
 
 };
 

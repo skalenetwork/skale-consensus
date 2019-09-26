@@ -163,29 +163,22 @@ uint64_t BlockFinalizeDownloader::downloadFragment(schain_index _dstIndex, fragm
     }
 
 
-    ptr<vector<uint8_t >> serializedFragment;
+    ptr<CommittedBlockFragment> blockFragment = nullptr;
 
 
     try {
-        serializedFragment = readBlockFragment(socket, response);
+        blockFragment = readBlockFragment(socket, response, _fragmentIndex, getSchain()->getNodeCount());
     } catch (ExitRequestedException &) {throw;} catch (...) {
         auto errString = "BlockFinalizec step 3: can not read fragment";
         LOG(err, errString);
         throw_with_nested(NetworkProtocolException(errString, __CLASS_NAME__));
     }
 
-    ptr<CommittedBlockFragment> fragment = nullptr;
 
-    try {
-        fragment = make_shared<CommittedBlockFragment>(blockId, (uint64_t) getSchain()->getNodeCount() - 1,
-                                                       _fragmentIndex, serializedFragment);
-    } catch (ExitRequestedException &) {throw;} catch (...) {
-        throw_with_nested(NetworkProtocolException("Could not parse block fragment", __CLASS_NAME__));
-    }
 
     uint64_t next = 0;
 
-    fragmentList.addFragment(fragment, next);
+    fragmentList.addFragment(blockFragment, next);
 
     LOG(debug, "BlockFinalizec success");
 
@@ -203,13 +196,30 @@ uint64_t BlockFinalizeDownloader::readFragmentSize(nlohmann::json _responseHeade
     return result;
 };
 
+uint64_t BlockFinalizeDownloader::readBlockSize(nlohmann::json _responseHeader) {
+    uint64_t result = Header::getUint64(_responseHeader, "blockSize");
 
-ptr<vector<uint8_t >>
-BlockFinalizeDownloader::readBlockFragment(ptr<ClientSocket> _socket, nlohmann::json responseHeader) {
+    if (result == 0) {
+        BOOST_THROW_EXCEPTION(NetworkProtocolException("blockSize == 0", __CLASS_NAME__));
+    }
 
-    ASSERT(responseHeader > 0);
+    return result;
+};
+
+ptr<string> BlockFinalizeDownloader::readBlockHash(nlohmann::json _responseHeader) {
+    auto result = Header::getString(_responseHeader, "blockHash");
+    return result;
+};
+
+ptr<CommittedBlockFragment>
+BlockFinalizeDownloader::readBlockFragment(ptr<ClientSocket> _socket, nlohmann::json responseHeader,
+                                           fragment_index _fragmentIndex, node_count _nodeCount) {
+
+    CHECK_ARGUMENT(responseHeader > 0);
 
     auto fragmentSize = readFragmentSize(responseHeader);
+    auto blockSize = readBlockSize(responseHeader);
+    auto blockHash = readBlockHash(responseHeader);
 
     auto serializedFragment = make_shared<vector<uint8_t> >(fragmentSize);
 
@@ -222,7 +232,19 @@ BlockFinalizeDownloader::readBlockFragment(ptr<ClientSocket> _socket, nlohmann::
         throw_with_nested(NetworkProtocolException("Could not read blocks", __CLASS_NAME__));
     }
 
-    return serializedFragment;
+    ptr<CommittedBlockFragment> fragment = nullptr;
+
+    try {
+        fragment = make_shared<CommittedBlockFragment>(blockId, (uint64_t) _nodeCount - 1,
+                                                       _fragmentIndex, serializedFragment,
+                                                       blockSize, blockHash);
+    } catch (ExitRequestedException &) {throw;} catch (...) {
+        throw_with_nested(NetworkProtocolException("Could not parse block fragment", __CLASS_NAME__));
+    }
+
+    return fragment;
+
+
 }
 
 

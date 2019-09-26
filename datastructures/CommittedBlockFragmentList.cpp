@@ -78,7 +78,20 @@ bool CommittedBlockFragmentList::addFragment(ptr<CommittedBlockFragment> _fragme
     CHECK_ARGUMENT(_fragment->getIndex() <= totalFragments);
     CHECK_ARGUMENT(_fragment->serialize() != nullptr)
 
+
+
+
+
+
     lock_guard<recursive_mutex> lock(listMutex);
+
+    if (blockHash == nullptr) {
+        blockHash = _fragment->getBlockHash();
+        blockSize = _fragment->getBlockSize();
+    } else {
+        CHECK_ARGUMENT(blockHash->compare(*_fragment->getBlockHash()) == 0);
+        CHECK_ARGUMENT(blockSize == (int64_t ) _fragment->getBlockSize());
+    }
 
     checkSanity();
 

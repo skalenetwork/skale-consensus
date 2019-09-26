@@ -27,6 +27,8 @@
 
 #include "leveldb/db.h"
 
+#include "../../crypto/SHAHash.h"
+
 #include "../../exceptions/FatalError.h"
 #include "../../exceptions/ExitRequestedException.h"
 #include "../../exceptions/PingException.h"
@@ -326,7 +328,9 @@ ptr<vector<uint8_t>> CatchupServerAgent::createBlockFinalizeResponse(nlohmann::j
 
     auto serializedFragment = fragment->serialize();
 
-    _responseHeader->setFragmentSize(serializedFragment->size());
+    _responseHeader->setFragmentParams(serializedFragment->size(),
+            committedBlock->getSerialized()->size(), committedBlock->getHash()->toHex());
+
     return serializedFragment;
 
 }
