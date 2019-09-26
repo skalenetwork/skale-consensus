@@ -29,7 +29,7 @@
 
 #include "BlockDB.h"
 
-ptr<vector<uint8_t> > BlockDB::getSerializedBlock(block_id _blockID) {
+ptr<vector<uint8_t> > BlockDB::getSerializedBlockFromLevelDB(block_id _blockID) {
 
     try {
 
@@ -171,7 +171,7 @@ ptr<CommittedBlock> BlockDB::getBlock(block_id _blockID) {
         if (block)
             return block;
 
-        auto serializedBlock = getSerializedBlock(_blockID);
+        auto serializedBlock = getSerializedBlockFromLevelDB(_blockID);
 
         if (serializedBlock == nullptr) {
             return nullptr;

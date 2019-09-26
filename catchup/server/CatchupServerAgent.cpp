@@ -254,7 +254,7 @@ ptr<vector<uint8_t>> CatchupServerAgent::createBlockCatchupResponse(nlohmann::js
 
     for (uint64_t i = (uint64_t) _blockID + 1; i <= committedBlockID; i++) {
 
-        auto serializedBlock = getSchain()->getNode()->getBlockDB()->getSerializedBlock(i);
+        auto serializedBlock = getSchain()->getNode()->getBlockDB()->getSerializedBlockFromLevelDB(i);
 
         if (!serializedBlock) {
             _responseHeader->setStatus(CONNECTION_DISCONNECT);
