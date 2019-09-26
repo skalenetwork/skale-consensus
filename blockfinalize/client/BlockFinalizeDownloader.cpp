@@ -187,6 +187,7 @@ uint64_t BlockFinalizeDownloader::downloadFragment(schain_index _dstIndex, fragm
 }
 
 uint64_t BlockFinalizeDownloader::readFragmentSize(nlohmann::json _responseHeader) {
+
     uint64_t result = Header::getUint64(_responseHeader, "fragmentSize");
 
     if (result == 0) {
