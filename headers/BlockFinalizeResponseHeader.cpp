@@ -30,7 +30,7 @@
 #include "AbstractBlockRequestHeader.h"
 #include "BlockFinalizeResponseHeader.h"
 
-BlockFinalizeResponseHeader::BlockFinalizeResponseHeader(): Header(Header::BLOCK_FINALIZE__RSP) {
+BlockFinalizeResponseHeader::BlockFinalizeResponseHeader() : Header(Header::BLOCK_FINALIZE__RSP) {
 
 }
 
@@ -38,18 +38,16 @@ BlockFinalizeResponseHeader::BlockFinalizeResponseHeader(): Header(Header::BLOCK
 void BlockFinalizeResponseHeader::addFields(nlohmann::json &_j) {
 
 
-
     CHECK_STATE(isComplete());
     Header::addFields(_j);
-    CHECK_STATE(blockHash!= nullptr);
-
-    _j["fragmentSize"] = (uint64_t) fragmentSize;
-    _j["blockSize"] = (uint64_t) blockSize;
-    _j["blockHash"] = *blockHash;
 
     if (status != CONNECTION_SUCCESS)
         return;
 
+    CHECK_STATE(blockHash != nullptr);
+    _j["blockHash"] = *blockHash;
+    _j["fragmentSize"] = (uint64_t) fragmentSize;
+    _j["blockSize"] = (uint64_t) blockSize;
 }
 
 void BlockFinalizeResponseHeader::setFragmentParams(uint64_t _fragmentSize, uint64_t _blockSize, ptr<string> _hash) {
