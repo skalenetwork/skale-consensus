@@ -128,47 +128,60 @@ void BlockDB::saveBlockToBlockCache(ptr<CommittedBlock> &_block, block_id _lastC
 
     lock_guard<recursive_mutex> lock(mutex);
 
-    auto blockID = _block->getBlockID();
+    try {
+        auto blockID = _block->getBlockID();
 
-    ASSERT(blocks.count(blockID) == 0);
+        ASSERT(blocks.count(blockID) == 0);
 
-    blocks[blockID] = _block;
-
-
-    if (blockID > storageSize && blocks.count(blockID - storageSize) > 0) {
-        blocks.erase(_lastCommittedBlockID - storageSize);
-    };
+        blocks[blockID] = _block;
 
 
-    ASSERT(blocks.size() <= storageSize);
-}
+        if (blockID > storageSize && blocks.count(blockID - storageSize) > 0) {
+            blocks.erase(_lastCommittedBlockID - storageSize);
+        };
 
-ptr<CommittedBlock> BlockDB::getCachedBlock(block_id _blockID) {
 
-    if (blocks.count(_blockID > 0)) {
-        return blocks.at(_blockID);
-    } else {
-        return nullptr;
+        ASSERT(blocks.size() <= storageSize);
+
+    } catch (...) {
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
 }
 
+ptr<CommittedBlock> BlockDB::getCachedBlock(block_id _blockID) {
+    try {
+        if (blocks.count(_blockID > 0)) {
+            return blocks.at(_blockID);
+        } else {
+            return nullptr;
+        }
+    } catch (...) {
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+    }
+}
 
 ptr<CommittedBlock> BlockDB::getBlock(block_id _blockID) {
 
 
     std::lock_guard<std::recursive_mutex> lock(mutex);
 
-    auto block = getCachedBlock(_blockID);
+    try {
+        auto block = getCachedBlock(_blockID);
 
-    if (block)
-        return block;
+        if (block)
+            return block;
 
+        auto serializedBlock = getSerializedBlock(_blockID);
 
-    auto serializedBlock = getSerializedBlock(_blockID);
+        if (serializedBlock == nullptr) {
+            return nullptr;
+        }
 
-    if (serializedBlock == nullptr) {
-        return nullptr;
+        return CommittedBlock::deserialize(serializedBlock);
     }
 
-    return CommittedBlock::deserialize(serializedBlock);
+    catch (...) {
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+    }
+
 }
