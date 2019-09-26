@@ -39,7 +39,9 @@ void BlockFinalizeResponseHeader::addFields(nlohmann::json &_j) {
 
 
 
+    CHECK_STATE(isComplete());
     Header::addFields(_j);
+    CHECK_STATE(blockHash!= nullptr);
 
     _j["fragmentSize"] = (uint64_t) fragmentSize;
     _j["blockSize"] = (uint64_t) blockSize;
