@@ -31,8 +31,8 @@
 #include "Transaction.h"
 #include "TransactionList.h"
 
-#include "CommittedBlockFragment.h"
-#include "CommittedBlockFragmentList.h"
+#include "BlockProposalFragment.h"
+#include "BlockProposalFragmentList.h"
 
 
 #define BOOST_PENDING_INTEGER_LOG2_HPP
@@ -66,7 +66,7 @@ void test_committed_block_fragment_defragment(bool _fail) {
     for (int i = 1; i < 200; i++) {
         auto t = CommittedBlock::createRandomSample(i, gen, ubyte, i);
 
-        auto list = make_shared<CommittedBlockFragmentList>(i, i);
+        auto list = make_shared<BlockProposalFragmentList>(i, i);
 
 
         uint64_t next;

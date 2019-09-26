@@ -28,13 +28,13 @@
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/uniform_int_distribution.hpp>
 
-#include "CommittedBlockFragmentList.h"
+#include "BlockProposalFragmentList.h"
 
 #include "BlockProposal.h"
 
 class Schain;
 
-class CommittedBlockFragment;
+class BlockProposalFragment;
 
 class CommittedBlock : public BlockProposal {
 
@@ -50,13 +50,13 @@ public:
         const block_id& blockId, const schain_index& proposerIndex,
         const ptr< TransactionList >& transactions, uint64_t timeStamp, __uint32_t timeStampMs );
 
-    ptr<CommittedBlockFragment> getFragment(uint64_t _totalFragments, fragment_index _index);
+    ptr<BlockProposalFragment> getFragment(uint64_t _totalFragments, fragment_index _index);
 
 
 
     static ptr< CommittedBlock > deserialize( ptr< vector< uint8_t > > _serializedBlock );
 
-    static ptr< CommittedBlock > defragment( ptr<CommittedBlockFragmentList> _fragmentList );
+    static ptr< CommittedBlock > defragment( ptr<BlockProposalFragmentList> _fragmentList );
 
     ptr< vector< uint8_t > > getSerialized();
 
