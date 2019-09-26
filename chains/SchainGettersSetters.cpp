@@ -133,15 +133,6 @@ ptr<BlockProposal> Schain::getBlockProposal(block_id _blockID, schain_index _sch
 
 }
 
-ptr<CommittedBlock> Schain::getCachedBlock(block_id _blockID) {
-    std::lock_guard<std::recursive_mutex> aLock(getMainMutex());
-
-    if (blocks.count(_blockID > 0)) {
-        return blocks.at(_blockID);
-    } else {
-        return nullptr;
-    }
-}
 
 ptr<CommittedBlock> Schain::getBlock(block_id _blockID) {
 
@@ -149,7 +140,7 @@ ptr<CommittedBlock> Schain::getBlock(block_id _blockID) {
 
     std::lock_guard<std::recursive_mutex> aLock(getMainMutex());
 
-    auto block = getCachedBlock(_blockID);
+    auto block = getNode()->getBlockDB()->getCachedBlock(_blockID);
 
     if (block)
         return block;
@@ -165,19 +156,6 @@ ptr<CommittedBlock> Schain::getBlock(block_id _blockID) {
 }
 
 
-ptr<vector<uint8_t> > Schain::getSerializedBlock(uint64_t i) const {
-
-    MONITOR(__CLASS_NAME__, __FUNCTION__)
-
-    auto block = sChain->getCachedBlock(i);
-
-
-    if (block) {
-        return block->getSerialized();
-    } else {
-        return getNode()->getBlockDB()->getSerializedBlock(i);
-    }
-}
 
 
 schain_index Schain::getSchainIndex() const {

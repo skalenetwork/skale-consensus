@@ -113,7 +113,7 @@ void Node::initLevelDBs() {
     string pricesDBFilename = dataDir + "/prices_" + to_string(nodeID) + ".db";
 
 
-    blockDB = make_shared<BlockDB>(blockDBFilename, getNodeID());
+    blockDB = make_shared<BlockDB>(blockDBFilename, getNodeID(), getCommittedBlockStorageSize());
     randomDB = make_shared<RandomDB>(randomDBFilename, getNodeID());
     committedTransactionDB = make_shared<CommittedTransactionDB>(committedTransactionsDBFilename, getNodeID());
     signatureDB = make_shared<SigDB>(signaturesDBFilename, getNodeID());

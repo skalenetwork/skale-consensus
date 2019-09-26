@@ -429,29 +429,10 @@ void Schain::saveBlock( ptr< CommittedBlock >& _block ) {
     MONITOR(__CLASS_NAME__, __FUNCTION__)
 
     checkForExit();
+    getNode()->getBlockDB()->saveBlock(_block, block_id(lastCommittedBlockID.load()));
 
-    saveBlockToBlockCache( _block );
-    getNode()->getBlockDB()->saveBlock2LevelDB(_block);
 }
 
-void Schain::saveBlockToBlockCache( ptr< CommittedBlock >& _block ) {
-    CHECK_ARGUMENT( _block != nullptr );
-
-    auto blockID = _block->getBlockID();
-
-    ASSERT( blocks.count( blockID ) == 0 );
-
-    blocks[blockID] = _block;
-
-    auto storageSize = getNode()->getCommittedBlockStorageSize();
-
-    if ( blockID > storageSize && blocks.count( blockID - storageSize ) > 0 ) {
-        blocks.erase( lastCommittedBlockID - storageSize );
-    };
-
-
-    ASSERT( blocks.size() <= storageSize );
-}
 
 
 void Schain::pushBlockToExtFace( ptr< CommittedBlock >& _block ) {

@@ -29,7 +29,6 @@
 
 #include "BlockDB.h"
 
-
 ptr<vector<uint8_t> > BlockDB::getSerializedBlock(block_id _blockID) {
 
 
@@ -52,7 +51,10 @@ ptr<vector<uint8_t> > BlockDB::getSerializedBlock(block_id _blockID) {
     }
 }
 
-BlockDB::BlockDB(string &filename, node_id _nodeId) : LevelDB(filename, _nodeId) {}
+BlockDB::BlockDB(string &_filename, node_id _nodeId, uint64_t _storageSize) : LevelDB(_filename, _nodeId) {
+    CHECK_ARGUMENT(_storageSize != 0);
+    storageSize = _storageSize;
+}
 
 
 void BlockDB::saveBlock2LevelDB(ptr<CommittedBlock> &_block) {
@@ -107,3 +109,43 @@ uint64_t BlockDB::readCounter() {
         throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
     }
 }
+
+
+void BlockDB::saveBlock(ptr<CommittedBlock> &_block, block_id _lastCommittedBlockID) {
+
+    lock_guard<recursive_mutex> lock(mutex);
+
+    saveBlockToBlockCache(_block, _lastCommittedBlockID);
+    saveBlock2LevelDB(_block);
+}
+
+void BlockDB::saveBlockToBlockCache(ptr<CommittedBlock> &_block, block_id _lastCommittedBlockID) {
+    CHECK_ARGUMENT( _block != nullptr );
+
+    lock_guard<recursive_mutex> lock(mutex);
+
+    auto blockID = _block->getBlockID();
+
+    ASSERT( blocks.count( blockID ) == 0 );
+
+    blocks[blockID] = _block;
+
+
+
+    if ( blockID > storageSize && blocks.count( blockID - storageSize ) > 0 ) {
+        blocks.erase( _lastCommittedBlockID - storageSize );
+    };
+
+
+    ASSERT( blocks.size() <= storageSize );
+}
+
+ptr<CommittedBlock> BlockDB::getCachedBlock(block_id _blockID) {
+
+    if (blocks.count(_blockID > 0)) {
+        return blocks.at(_blockID);
+    } else {
+        return nullptr;
+    }
+}
+

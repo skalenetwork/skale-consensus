@@ -83,8 +83,6 @@ class Schain : public Agent {
 
     uint64_t startTimeMs;
 
-    std::map<block_id, ptr<CommittedBlock>> blocks;
-
     block_id lastPushedBlock = 0;
 
     set<block_id> pushedBlockProposals;
@@ -158,9 +156,7 @@ class Schain : public Agent {
     void pushBlockToExtFace(ptr<CommittedBlock> &_block);
 
 
-    ptr<vector<uint8_t>> getSerializedBlockFromLevelDB(const block_id &_blockID);
 
-    ptr<CommittedBlock> getCachedBlock(block_id _blockID);
 
 public:
 
