@@ -66,25 +66,6 @@ BlockConsensusAgent::BlockConsensusAgent(Schain &_schain) : sChain(_schain) {
 };
 
 
-void BlockConsensusAgent::processMessage(ptr <MessageEnvelope> _m) {
-    try {
-
-        if (_m->getOrigin() == ORIGIN_CHILD) {
-
-            if (_m->getMessage()->getMessageType() == CHILD_COMPLETED) {
-
-                processChildCompletedMessage(dynamic_pointer_cast<InternalMessageEnvelope>(_m));
-            } else {
-                processChildMessageImpl(dynamic_pointer_cast<InternalMessageEnvelope>(_m));
-            }
-
-        }
-    } catch (...) {
-        throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
-    }
-
-}
-
 
 void BlockConsensusAgent::startConsensusProposal(block_id _blockID, ptr <BooleanProposalVector> _proposal) {
 

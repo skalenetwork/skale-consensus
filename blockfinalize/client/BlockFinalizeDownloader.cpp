@@ -102,7 +102,9 @@ BlockFinalizeDownloader::BlockFinalizeDownloader(Schain *_sChain, block_id _bloc
         threadCounter = 0;
 
 
-    } catch (...) {
+    }
+    catch (ExitRequestedException&) {throw;}
+    catch (...) {
         throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
     }
 }
@@ -122,17 +124,13 @@ uint64_t BlockFinalizeDownloader::downloadFragment(schain_index _dstIndex, fragm
 
     try {
         io->writeMagic(socket);
-    } catch (ExitRequestedException &) {
-        throw;
-    } catch (...) {
+    } catch (ExitRequestedException &) {throw;} catch (...) {
         throw_with_nested(NetworkProtocolException("BlockFinalizec: Server disconnect sending magic", __CLASS_NAME__));
     }
 
     try {
         io->writeHeader(socket, header);
-    } catch (ExitRequestedException &) {
-        throw;
-    } catch (...) {
+    } catch (ExitRequestedException &) { throw;} catch (...) {
         auto errString = "BlockFinalizec step 1: can not write BlockFinalize request";
         LOG(debug, errString);
         throw_with_nested(NetworkProtocolException(errString, __CLASS_NAME__));
@@ -143,9 +141,7 @@ uint64_t BlockFinalizeDownloader::downloadFragment(schain_index _dstIndex, fragm
 
     try {
         response = readBlockFinalizeResponseHeader(socket);
-    } catch (ExitRequestedException &) {
-        throw;
-    } catch (...) {
+    } catch (ExitRequestedException &) {throw;} catch (...) {
         auto errString = "BlockFinalizec step 2: can not read BlockFinalize response";
         LOG(debug, errString);
         throw_with_nested(NetworkProtocolException(errString, __CLASS_NAME__));
@@ -172,9 +168,7 @@ uint64_t BlockFinalizeDownloader::downloadFragment(schain_index _dstIndex, fragm
 
     try {
         serializedFragment = readBlockFragment(socket, response);
-    } catch (ExitRequestedException &) {
-        throw;
-    } catch (...) {
+    } catch (ExitRequestedException &) {throw;} catch (...) {
         auto errString = "BlockFinalizec step 3: can not read fragment";
         LOG(err, errString);
         throw_with_nested(NetworkProtocolException(errString, __CLASS_NAME__));
@@ -185,7 +179,7 @@ uint64_t BlockFinalizeDownloader::downloadFragment(schain_index _dstIndex, fragm
     try {
         fragment = make_shared<CommittedBlockFragment>(blockId, (uint64_t) getSchain()->getNodeCount() - 1,
                                                        _fragmentIndex, serializedFragment);
-    } catch (...) {
+    } catch (ExitRequestedException &) {throw;} catch (...) {
         throw_with_nested(NetworkProtocolException("Could not parse block fragment", __CLASS_NAME__));
     }
 
@@ -292,7 +286,7 @@ ptr<CommittedBlock> BlockFinalizeDownloader::downloadProposal() {
         } else {
             return nullptr;
         }
-    } catch ( Exception& e ) {
+    } catch (ExitRequestedException &) {throw;} catch ( Exception& e ) {
         Exception::logNested(e);
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }

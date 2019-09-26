@@ -35,6 +35,7 @@
 #include "../exceptions/NetworkProtocolException.h"
 #include "../exceptions/ParsingException.h"
 #include "../exceptions/InvalidStateException.h"
+#include "../exceptions/ExitRequestedException.h"
 #include "../headers/CommittedBlockHeader.h"
 
 
@@ -133,7 +134,7 @@ ptr< CommittedBlock > CommittedBlock::deserialize( ptr< vector< uint8_t > > _ser
 
     try {
         transactionSizes = block->parseBlockHeader( header );
-    } catch ( ... ) {
+    } catch (ExitRequestedException &) {throw;} catch (...) {
         throw_with_nested( ParsingException(
             "Could not parse committed block header: \n" + *header, __CLASS_NAME__ ) );
     }

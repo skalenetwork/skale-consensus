@@ -25,6 +25,7 @@
 #include "../../Agent.h"
 #include "../../Log.h"
 #include "../../exceptions/FatalError.h"
+#include "../../exceptions/ExitRequestedException.h"
 #include "../../thirdparty/json.hpp"
 #include "../../abstracttcpserver/ConnectionStatus.h"
 #include "leveldb/db.h"
@@ -43,19 +44,16 @@
 using namespace std;
 
 
-
-ReceivedBlockProposalsDatabase::ReceivedBlockProposalsDatabase(Schain &_sChain) : Agent(_sChain, true){
+ReceivedBlockProposalsDatabase::ReceivedBlockProposalsDatabase(Schain &_sChain) : Agent(_sChain, true) {
     try {
         oldBlockID = _sChain.getBootstrapBlockID();
-    }  catch (...) {
-    throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
+    } catch (ExitRequestedException &) { throw; } catch (...) {
+        throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
     }
 };
 
 
 bool ReceivedBlockProposalsDatabase::addBlockProposal(ptr<BlockProposal> _proposal) {
-
-
 
 
     ASSERT(_proposal);
@@ -66,7 +64,8 @@ bool ReceivedBlockProposalsDatabase::addBlockProposal(ptr<BlockProposal> _propos
     lock_guard<recursive_mutex> lock(proposalsDatabaseMutex);
 
     if (this->proposedBlockSets.count(_proposal->getBlockID()) == 0) {
-        proposedBlockSets[_proposal->getBlockID()] = make_shared<BlockProposalSet>(this->sChain, _proposal->getBlockID());
+        proposedBlockSets[_proposal->getBlockID()] = make_shared<BlockProposalSet>(this->sChain,
+                                                                                   _proposal->getBlockID());
     }
 
     proposedBlockSets.at(_proposal->getBlockID())->add(_proposal);
@@ -74,7 +73,6 @@ bool ReceivedBlockProposalsDatabase::addBlockProposal(ptr<BlockProposal> _propos
 
     return proposedBlockSets.at(_proposal->getBlockID())->isTwoThird();
 }
-
 
 
 void ReceivedBlockProposalsDatabase::cleanOldBlockProposals(block_id _lastCommittedBlockID) {
@@ -87,9 +85,9 @@ void ReceivedBlockProposalsDatabase::cleanOldBlockProposals(block_id _lastCommit
     oldBlockID = _lastCommittedBlockID - BLOCK_PROPOSAL_HISTORY_SIZE;
 
     for (auto it = proposedBlockSets.cbegin(); it != proposedBlockSets.end();) {
-        if (it->first  <= oldBlockID) {
+        if (it->first <= oldBlockID) {
             proposedBlockSets.erase(it++);
-        } else{
+        } else {
             ++it;
         }
     }
@@ -101,7 +99,6 @@ ptr<BooleanProposalVector> ReceivedBlockProposalsDatabase::getBooleanProposalsVe
     lock_guard<recursive_mutex> lock(proposalsDatabaseMutex);
 
 
-
     auto set = getProposedBlockSet((_blockID));
 
     ASSERT(set);
@@ -109,8 +106,6 @@ ptr<BooleanProposalVector> ReceivedBlockProposalsDatabase::getBooleanProposalsVe
     return set->createBooleanVector();
 
 }
-
-
 
 
 ptr<BlockProposalSet> ReceivedBlockProposalsDatabase::getProposedBlockSet(block_id blockID) {
@@ -138,9 +133,6 @@ ptr<BlockProposal> ReceivedBlockProposalsDatabase::getBlockProposal(block_id blo
 
     return set->getProposalByIndex(proposerIndex);
 }
-
-
-
 
 
 bool ReceivedBlockProposalsDatabase::isTwoThird(block_id _blockID) {

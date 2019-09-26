@@ -192,7 +192,7 @@ void BlockProposalServerAgent::processNextAvailableConnection(ptr<Connection> _c
     if (strcmp(type->data(), Header::BLOCK_PROPOSAL_REQ) == 0) {
         processProposalRequest(_connection, proposalRequest);
     } else {
-        throw_with_nested(NetworkProtocolException("Uknown request type:" + *type, __CLASS_NAME__));
+        BOOST_THROW_EXCEPTION(NetworkProtocolException("Uknown request type:" + *type, __CLASS_NAME__));
     }
 }
 

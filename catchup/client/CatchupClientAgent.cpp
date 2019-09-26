@@ -59,7 +59,7 @@ CatchupClientAgent::CatchupClientAgent( Schain& _sChain ) : Agent(_sChain, false
             this->catchupClientThreadPool = make_shared< CatchupClientThreadPool >( 1, this );
             catchupClientThreadPool->startService();
         }
-    } catch ( ... ) {
+    } catch (ExitRequestedException &) {throw;} catch (...) {
         throw_with_nested( FatalError( __FUNCTION__, __CLASS_NAME__ ) );
     }
 }
@@ -202,7 +202,7 @@ ptr< CommittedBlockList > CatchupClientAgent::readMissingBlocks(
     }
 
     if ( serializedBlocks->at( 0 ) != '[' ) {
-        throw_with_nested(
+        BOOST_THROW_EXCEPTION(
             NetworkProtocolException( "Serialized blocks do not start with [", __CLASS_NAME__ ) );
     }
 

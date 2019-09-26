@@ -143,12 +143,10 @@ ptr<CommittedBlock> Schain::getBlock(block_id _blockID) {
 
     try {
         return getNode()->getBlockDB()->getBlock(_blockID);
-    }  catch (...) {
-    throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+    } catch (ExitRequestedException &) { throw; } catch (...) {
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+    }
 }
-}
-
-
 
 
 schain_index Schain::getSchainIndex() const {
@@ -271,10 +269,9 @@ void Schain::setBlockProposerTest(const char *_blockProposerTest) {
     blockProposerTest = make_shared<string>(_blockProposerTest);
 }
 
-ConsensusExtFace * Schain::getExtFace() const {
+ConsensusExtFace *Schain::getExtFace() const {
     return extFace;
 }
-
 
 
 uint64_t Schain::getMaxExternalBlockProcessingTime() const {
