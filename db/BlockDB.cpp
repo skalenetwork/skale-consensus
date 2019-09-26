@@ -149,3 +149,23 @@ ptr<CommittedBlock> BlockDB::getCachedBlock(block_id _blockID) {
     }
 }
 
+
+ptr<CommittedBlock> BlockDB::getBlock(block_id _blockID) {
+
+
+    std::lock_guard<std::recursive_mutex> lock(mutex);
+
+    auto block = getCachedBlock(_blockID);
+
+    if (block)
+        return block;
+
+
+    auto serializedBlock = getSerializedBlock(_blockID);
+
+    if (serializedBlock == nullptr) {
+        return nullptr;
+    }
+
+    return CommittedBlock::deserialize(serializedBlock);
+}

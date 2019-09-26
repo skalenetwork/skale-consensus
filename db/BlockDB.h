@@ -56,6 +56,7 @@ public:
 
     ptr<CommittedBlock> getCachedBlock(block_id _blockID);
 
+    ptr<CommittedBlock> getBlock(block_id _blockID);
 };
 
 

@@ -140,19 +140,7 @@ ptr<CommittedBlock> Schain::getBlock(block_id _blockID) {
 
     std::lock_guard<std::recursive_mutex> aLock(getMainMutex());
 
-    auto block = getNode()->getBlockDB()->getCachedBlock(_blockID);
-
-    if (block)
-        return block;
-
-
-    auto serializedBlock = getNode()->getBlockDB()->getSerializedBlock(_blockID);
-
-    if (serializedBlock == nullptr) {
-        return nullptr;
-    }
-
-    return CommittedBlock::deserialize(serializedBlock);
+    return getNode()->getBlockDB()->getBlock(_blockID);
 }
 
 
