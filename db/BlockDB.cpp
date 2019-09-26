@@ -30,63 +30,80 @@
 #include "BlockDB.h"
 
 
-ptr<vector<uint8_t> > BlockDB::getSerializedBlock( block_id _blockID ) {
+ptr<vector<uint8_t> > BlockDB::getSerializedBlock(block_id _blockID) {
 
-    auto key = createKey(_blockID);
 
-    auto value = readString(*key);
+    try {
 
-    if (value) {
-        auto serializedBlock = make_shared<vector<uint8_t>>();
-        serializedBlock->insert(serializedBlock->begin(), value->data(), value->data() + value->size());
-        return serializedBlock;
-    } else {
-        return nullptr;
+        auto key = createKey(_blockID);
+
+        auto value = readString(*key);
+
+        if (value) {
+            auto serializedBlock = make_shared<vector<uint8_t>>();
+            serializedBlock->insert(serializedBlock->begin(), value->data(), value->data() + value->size());
+            return serializedBlock;
+        } else {
+            return nullptr;
+        }
+
+    } catch (...) {
+        throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
     }
 }
 
-BlockDB::BlockDB(string& filename, node_id _nodeId ) : LevelDB( filename, _nodeId ) {}
+BlockDB::BlockDB(string &filename, node_id _nodeId) : LevelDB(filename, _nodeId) {}
 
 
 void BlockDB::saveBlock2LevelDB(ptr<CommittedBlock> &_block) {
 
     lock_guard<recursive_mutex> lock(mutex);
 
-    auto serializedBlock = _block->getSerialized();
+    try {
+
+        auto serializedBlock = _block->getSerialized();
 
 
-    auto key = createKey(_block->getBlockID() );
+        auto key = createKey(_block->getBlockID());
 
-    auto value = (const char *) serializedBlock->data();
+        auto value = (const char *) serializedBlock->data();
 
-    auto valueLen = serializedBlock->size();
+        auto valueLen = serializedBlock->size();
 
-
-    writeByteArray(*key, value, valueLen);
+        writeByteArray(*key, value, valueLen);
+    } catch (...) {
+        throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
+    }
 
 }
 
-ptr<string>  BlockDB::createKey(const block_id _blockId) {
-    return make_shared<string>(getFormatVersion() + ":" + to_string( nodeId ) + ":" + to_string( _blockId ));
+ptr<string> BlockDB::createKey(const block_id _blockId) {
+    return make_shared<string>(getFormatVersion() + ":" + to_string(nodeId) + ":" + to_string(_blockId));
 }
+
 const string BlockDB::getFormatVersion() {
     return "1.0";
 }
-uint64_t BlockDB::readCounter(){
+
+uint64_t BlockDB::readCounter() {
 
     static string count(":COUNT");
 
 
     lock_guard<recursive_mutex> lock(mutex);
 
-    auto key = getFormatVersion() + count;
+    try {
 
-    auto value = readString(key);
+        auto key = getFormatVersion() + count;
 
-    if (value != nullptr) {
-        return stoul(*value);
-    } else {
-        return 0;
+        auto value = readString(key);
+
+        if (value != nullptr) {
+            return stoul(*value);
+        } else {
+            return 0;
+        }
+    } catch (...) {
+        throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
     }
-
 }
