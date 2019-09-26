@@ -16,17 +16,18 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file InvalidArgumentException.h
+    @file InvalidStateException.h
     @author Stan Kladko
     @date 2018
 */
 
 #pragma once
+
 #include "Exception.h"
 
 #include <string>
 
-class InvalidArgumentException : public Exception {
+class InvalidStateException : public Exception {
 public:
-    InvalidArgumentException( const std::string& _message, const std::string& _className );
+    InvalidStateException( const std::string& _message, const std::string& _className );
 };

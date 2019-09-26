@@ -24,13 +24,12 @@
 
 #include "../SkaleCommon.h"
 #include "../Log.h"
-
+#include "../exceptions/InvalidStateException.h"
 #include "../datastructures/CommittedBlock.h"
 
 #include "BlockDB.h"
 
 ptr<vector<uint8_t> > BlockDB::getSerializedBlock(block_id _blockID) {
-
 
     try {
 
@@ -47,7 +46,7 @@ ptr<vector<uint8_t> > BlockDB::getSerializedBlock(block_id _blockID) {
         }
 
     } catch (...) {
-        throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
 }
 
@@ -74,7 +73,7 @@ void BlockDB::saveBlock2LevelDB(ptr<CommittedBlock> &_block) {
 
         writeByteArray(*key, value, valueLen);
     } catch (...) {
-        throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
 
 }
@@ -106,38 +105,42 @@ uint64_t BlockDB::readCounter() {
             return 0;
         }
     } catch (...) {
-        throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
 }
 
 
 void BlockDB::saveBlock(ptr<CommittedBlock> &_block, block_id _lastCommittedBlockID) {
+    try {
+        lock_guard<recursive_mutex> lock(mutex);
 
-    lock_guard<recursive_mutex> lock(mutex);
+        saveBlockToBlockCache(_block, _lastCommittedBlockID);
+        saveBlock2LevelDB(_block);
 
-    saveBlockToBlockCache(_block, _lastCommittedBlockID);
-    saveBlock2LevelDB(_block);
+    } catch (...) {
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+    }
+
 }
 
 void BlockDB::saveBlockToBlockCache(ptr<CommittedBlock> &_block, block_id _lastCommittedBlockID) {
-    CHECK_ARGUMENT( _block != nullptr );
+    CHECK_ARGUMENT(_block != nullptr);
 
     lock_guard<recursive_mutex> lock(mutex);
 
     auto blockID = _block->getBlockID();
 
-    ASSERT( blocks.count( blockID ) == 0 );
+    ASSERT(blocks.count(blockID) == 0);
 
     blocks[blockID] = _block;
 
 
-
-    if ( blockID > storageSize && blocks.count( blockID - storageSize ) > 0 ) {
-        blocks.erase( _lastCommittedBlockID - storageSize );
+    if (blockID > storageSize && blocks.count(blockID - storageSize) > 0) {
+        blocks.erase(_lastCommittedBlockID - storageSize);
     };
 
 
-    ASSERT( blocks.size() <= storageSize );
+    ASSERT(blocks.size() <= storageSize);
 }
 
 ptr<CommittedBlock> BlockDB::getCachedBlock(block_id _blockID) {

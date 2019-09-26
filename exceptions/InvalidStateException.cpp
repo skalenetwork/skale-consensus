@@ -16,16 +16,16 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file InvalidArgumentException.cpp
+    @file InvalidStateException.cpp
     @author Stan Kladko
     @date 2018
 */
 
 #include "../SkaleCommon.h"
 #include "../Log.h"
-#include "InvalidArgumentException.h"
+#include "InvalidStateException.h"
 
-InvalidArgumentException::InvalidArgumentException(const std::string &_message, const string& _className) :
+InvalidStateException::InvalidStateException(const std::string &_message, const string& _className) :
                       Exception(_message, _className) {
     fatal = false;
 }
