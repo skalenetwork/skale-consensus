@@ -122,6 +122,8 @@ void Schain::messageThreadProcessingLoop(Schain *s) {
 
         while (!s->getNode()->isExitRequested()) {
             {
+
+
                 unique_lock<mutex> mlock(s->messageMutex);
                 while (s->messageQueue.empty()) {
                     s->messageCond.wait(mlock);
@@ -206,8 +208,9 @@ Schain::Schain(Node *_node, schain_index _schainIndex, const schain_id &_schainI
 
         if (thisNodeInfo == nullptr) {
             BOOST_THROW_EXCEPTION(EngineInitException(
-                    "Schain: " + to_string((uint64_t) getSchainID()) + " does not include current node with IP " +
-                    *getNode()->getBindIP() + "and node id " + to_string(getNode()->getNodeID()), __CLASS_NAME__));
+                                          "Schain: " + to_string((uint64_t) getSchainID()) +
+                                          " does not include current node with IP " + *getNode()->getBindIP() +
+                                          "and node id " + to_string(getNode()->getNodeID()), __CLASS_NAME__));
         }
 
         ASSERT(getNodeCount() > 0);

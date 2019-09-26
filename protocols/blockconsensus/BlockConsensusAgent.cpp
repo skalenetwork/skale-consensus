@@ -60,7 +60,6 @@
 #include "../../datastructures/CommittedBlock.h"
 
 
-
 BlockConsensusAgent::BlockConsensusAgent(Schain &_schain) : sChain(_schain) {
 
 };
@@ -214,7 +213,7 @@ void BlockConsensusAgent::reportConsensusAndDecideIfNeeded(ptr<ChildBVDecidedMes
                 return;
             }
         }
-    } catch (ExitRequestedException &) { throw; } catch (Exception& e) {
+    } catch (ExitRequestedException &) { throw; } catch (Exception &e) {
 
         Exception::logNested(e);
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
@@ -293,55 +292,59 @@ void BlockConsensusAgent::disconnect(ptr<ProtocolKey> _key) {
 
 void BlockConsensusAgent::routeAndProcessMessage(ptr<MessageEnvelope> m) {
 
+    try {
 
-    ASSERT(m->getMessage()->getBlockId() > 0);
+        ASSERT(m->getMessage()->getBlockId() > 0);
 
-    ASSERT(m->getOrigin() != ORIGIN_PARENT);
-
-
-    if (m->getMessage()->getMessageType() == MSG_CONSENSUS_PROPOSAL) {
-
-        this->startConsensusProposal(m->getMessage()->getBlockId(),
-                                     ((ConsensusProposalMessage *) m->getMessage().get())->getProposals());
-
-        return;
-
-    }
+        ASSERT(m->getOrigin() != ORIGIN_PARENT);
 
 
-    if (m->getOrigin() == ORIGIN_CHILD) {
-        LOG(debug, "Got child message " + to_string(m->getMessage()->getBlockId()) + ":" +
-                   to_string(m->getMessage()->getBlockProposerIndex()));
+        if (m->getMessage()->getMessageType() == MSG_CONSENSUS_PROPOSAL) {
 
+            this->startConsensusProposal(m->getMessage()->getBlockId(),
+                                         ((ConsensusProposalMessage *) m->getMessage().get())->getProposals());
 
-        if (m->getMessage()->getMessageType() == CHILD_COMPLETED) {
+            return;
 
-            return processChildCompletedMessage(dynamic_pointer_cast<InternalMessageEnvelope>(m));
-        } else {
-            return processChildMessageImpl(dynamic_pointer_cast<InternalMessageEnvelope>(m));
         }
 
-    }
+
+        if (m->getOrigin() == ORIGIN_CHILD) {
+            LOG(debug, "Got child message " + to_string(m->getMessage()->getBlockId()) + ":" +
+                       to_string(m->getMessage()->getBlockProposerIndex()));
 
 
-    ptr<ProtocolKey> key = m->getMessage()->createDestinationProtocolKey();
+            if (m->getMessage()->getMessageType() == CHILD_COMPLETED) {
 
-    {
+                return processChildCompletedMessage(dynamic_pointer_cast<InternalMessageEnvelope>(m));
+            } else {
+                return processChildMessageImpl(dynamic_pointer_cast<InternalMessageEnvelope>(m));
+            }
+
+        }
+
+
+        ptr<ProtocolKey> key = m->getMessage()->createDestinationProtocolKey();
 
         {
 
-            if (completedInstancesByProtocolKey.count((key))) {
-                return;
-            }
+            {
 
-            auto child = getChild(key);
+                if (completedInstancesByProtocolKey.count((key))) {
+                    return;
+                }
 
-            if (child != nullptr) {
-                return child->processMessage(m);
+                auto child = getChild(key);
+
+                if (child != nullptr) {
+                    return child->processMessage(m);
+                }
             }
         }
-    }
 
+    } catch (ExitRequestedException &) { throw; } catch (...) {
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+    }
 }
 
 
