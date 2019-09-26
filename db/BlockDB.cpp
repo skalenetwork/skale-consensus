@@ -64,6 +64,8 @@ void BlockDB::saveBlock2LevelDB(ptr<CommittedBlock> &_block) {
 
         auto serializedBlock = _block->getSerialized();
 
+        CommittedBlock::deserialize(serializedBlock);
+
 
         auto key = createKey(_block->getBlockID());
 
