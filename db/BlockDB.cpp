@@ -48,7 +48,10 @@ ptr<vector<uint8_t> > BlockDB::getSerializedBlock( block_id _blockID ) {
 BlockDB::BlockDB(string& filename, node_id _nodeId ) : LevelDB( filename, _nodeId ) {}
 
 
-void BlockDB::saveBlock(ptr<CommittedBlock> &_block) {
+void BlockDB::saveBlock2LevelDB(ptr<CommittedBlock> &_block) {
+
+    lock_guard<recursive_mutex> lock(mutex);
+
     auto serializedBlock = _block->getSerialized();
 
 
@@ -72,6 +75,9 @@ const string BlockDB::getFormatVersion() {
 uint64_t BlockDB::readCounter(){
 
     static string count(":COUNT");
+
+
+    lock_guard<recursive_mutex> lock(mutex);
 
     auto key = getFormatVersion() + count;
 

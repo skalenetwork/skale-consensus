@@ -32,6 +32,8 @@ class CommittedBlock;
 class BlockDB : public LevelDB{
 
 
+    recursive_mutex mutex;
+
     ptr<string>  createKey(block_id _blockId);
 
     const string getFormatVersion();
@@ -41,7 +43,7 @@ public:
     BlockDB(string& _filename, node_id _nodeId);
     ptr<vector<uint8_t >> getSerializedBlock( block_id _blockID );
 
-    void saveBlock(ptr<CommittedBlock> &_block);
+    void saveBlock2LevelDB(ptr<CommittedBlock> &_block);
 
     uint64_t readCounter();
 

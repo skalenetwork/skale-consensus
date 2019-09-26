@@ -55,7 +55,7 @@ void test_committed_block_save() {
     for ( int i = 1; i < 200; i++ ) {
         auto t = CommittedBlock::createRandomSample( i, gen, ubyte );
 
-        db->saveBlock( t );
+        db->saveBlock2LevelDB(t);
 
         auto serializedBlock = db->getSerializedBlock( t->getBlockID() );
 

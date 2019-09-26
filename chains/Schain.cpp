@@ -431,7 +431,7 @@ void Schain::saveBlock( ptr< CommittedBlock >& _block ) {
     checkForExit();
 
     saveBlockToBlockCache( _block );
-    getNode()->getBlockDB()->saveBlock( _block );
+    getNode()->getBlockDB()->saveBlock2LevelDB(_block);
 }
 
 void Schain::saveBlockToBlockCache( ptr< CommittedBlock >& _block ) {
