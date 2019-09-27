@@ -41,7 +41,8 @@ ConsensusEngine *engine;
 class StartFromScratch {
 public:
     StartFromScratch() {
-        system("rm -rf /tmp/*.db");
+        int i = system("rm -rf /tmp/*.db");
+        i++; // make compiler happy
         Consensust::setConfigDirPath(boost::filesystem::system_complete("."));
 
 #ifdef GOOGLE_PROFILE
