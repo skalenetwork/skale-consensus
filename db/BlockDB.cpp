@@ -40,10 +40,13 @@ ptr<vector<uint8_t> > BlockDB::getSerializedBlockFromLevelDB(block_id _blockID) 
         if (value) {
             auto serializedBlock = make_shared<vector<uint8_t>>();
             serializedBlock->insert(serializedBlock->begin(), value->data(), value->data() + value->size());
+            CommittedBlock::serializedSanityCheck(serializedBlock);
             return serializedBlock;
         } else {
             return nullptr;
         }
+
+
 
     } catch (...) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
@@ -63,9 +66,6 @@ void BlockDB::saveBlock2LevelDB(ptr<CommittedBlock> &_block) {
     try {
 
         auto serializedBlock = _block->getSerialized();
-
-        CommittedBlock::deserialize(serializedBlock);
-
 
         auto key = createKey(_block->getBlockID());
 

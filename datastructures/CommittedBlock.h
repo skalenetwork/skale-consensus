@@ -65,5 +65,5 @@ public:
         boost::random::uniform_int_distribution<>& _ubyte, block_id _blockID = block_id( 1 ) );
 
 
-
+    static void serializedSanityCheck(ptr<vector<uint8_t>> _serializedBlock);
 };

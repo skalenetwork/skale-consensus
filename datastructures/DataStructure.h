@@ -36,7 +36,7 @@ class DataStructure {
 
 
 protected:
-    mutex m;
+    recursive_mutex m;
 
 public:
     DataStructure();
