@@ -33,19 +33,13 @@
 TransactionList::TransactionList(ptr<vector<ptr<Transaction>>> _transactions) {
 
     if (_transactions->size() == 0) {
-        isEmpty = true;
         transactions = make_shared<vector<ptr<Transaction>>>();
         return;
     }
 
-
     CHECK_ARGUMENT(_transactions != nullptr);
-
-
     totalObjects++;
-
     transactions = _transactions;
-
 }
 
 
@@ -61,12 +55,10 @@ TransactionList::TransactionList( ptr<vector<uint64_t>> _transactionSizes,
             BOOST_THROW_EXCEPTION(InvalidArgumentException("Size not equal to 2:" +
             to_string(_serializedTransactions->size()), __CLASS_NAME__));
         }
-        isEmpty = true;
+
         transactions = make_shared<vector<ptr<Transaction>>>();
         return;
     }
-
-
 
     for (auto &&size : *_transactionSizes) {
         CHECK_ARGUMENT(size > 0);
@@ -112,6 +104,8 @@ ptr<vector<ptr<Transaction>>> TransactionList::getItems() {
 
 ptr<vector<uint8_t> > TransactionList::serialize( bool _writeTxPartialHash ) {
 
+    lock_guard<recursive_mutex> lock(m);
+
     if (serializedTransactions)
         return serializedTransactions;
 
@@ -153,6 +147,8 @@ size_t TransactionList::size() {
 
 
 ptr<ConsensusExtFace::transactions_vector> TransactionList::createTransactionVector() {
+
+    lock_guard<recursive_mutex> lock(m);
 
     auto tv = make_shared< ConsensusExtFace::transactions_vector >();
 

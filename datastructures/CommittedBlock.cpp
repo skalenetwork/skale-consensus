@@ -56,7 +56,7 @@ ptr< vector< uint8_t > > CommittedBlock::getSerialized() {
 
 
 
-    lock_guard<mutex> lock(m);
+    lock_guard<recursive_mutex> lock(m);
 
     if (serializedBlock != nullptr)
         return serializedBlock;
@@ -77,11 +77,11 @@ ptr< vector< uint8_t > > CommittedBlock::getSerialized() {
 
 
     auto serializedList = transactionList->serialize( true );
+    assert(serializedList->front() == '<' );
+    assert(serializedList->back() == '>' );
+
 
     block->insert( block->end(), serializedList->begin(), serializedList->end() );
-
-
-    CHECK_STATE( block->at( sizeof( uint64_t ) ) == '{' );
 
     if ( transactionList->size() == 0 ) {
         CHECK_STATE( block->size() == buf->getCounter() + 2 );
@@ -89,13 +89,20 @@ ptr< vector< uint8_t > > CommittedBlock::getSerialized() {
 
     serializedBlock = block;
 
+
+    assert(block->at(sizeof( uint64_t )) == '{' );
+    assert(block->back() == '>' );
+
     return block;
 }
 
+void CommittedBlock::serializedSanityCheck(ptr< vector< uint8_t > > _serializedBlock) {
+        CHECK_STATE( _serializedBlock->at(sizeof( uint64_t )) == '{' );
+        CHECK_STATE( _serializedBlock->back() == '>' );
+};
 
 ptr< CommittedBlock > CommittedBlock::deserialize( ptr< vector< uint8_t > > _serializedBlock ) {
     auto block = ptr< CommittedBlock >( new CommittedBlock( 0, 0 ) );
-
 
     uint64_t headerSize = 0;
 
@@ -125,6 +132,8 @@ ptr< CommittedBlock > CommittedBlock::deserialize( ptr< vector< uint8_t > > _ser
     CHECK_STATE( headerSize <= MAX_BUFFER_SIZE );
 
     CHECK_STATE( _serializedBlock->at( headerSize + sizeof( headerSize ) ) == '<' );
+    CHECK_STATE( _serializedBlock->at(sizeof( headerSize )) == '{' );
+    CHECK_STATE( _serializedBlock->back() == '>' );
 
     auto header = make_shared< string >( headerSize, ' ' );
 
@@ -229,6 +238,8 @@ ptr<BlockProposalFragment> CommittedBlock::getFragment(uint64_t _totalFragments,
 
     CHECK_ARGUMENT(_totalFragments > 0);
     CHECK_ARGUMENT(_index <= _totalFragments);
+
+    lock_guard<recursive_mutex> lock(m);
 
     auto sBlock = getSerialized();
 
