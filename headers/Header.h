@@ -48,17 +48,18 @@ protected:
 public:
     bool isComplete() const;
 
-    static constexpr const char *BLOCK_PROPOSAL_REQ = "BlockProposalReq";
-    static constexpr const char *BLOCK_PROPOSAL_RSP = "BlockProposalRsp";
-    static constexpr const char *BLOCK_FINALIZE_REQ = "BlockFinalizeReq";
-    static constexpr const char *BLOCK_FINALIZE__RSP = "BlockFinalizeRsp";
-    static constexpr const char *DA_PROOF_REQ = "DAProof";
-    static constexpr const char *DA_PROOF_RSP = "DAProofRsp";
-    static constexpr const char *CATCHUP_REQ = "Catchup";
-    static constexpr const char *CATCHUP_RSP = "CatchupRsp";
+    static constexpr const char *BLOCK_PROPOSAL_REQ = "BlckPrpslReq";
+    static constexpr const char *BLOCK_PROPOSAL_RSP = "BlckPrpslRsp";
+    static constexpr const char *BLOCK_FINALIZE_REQ = "BlckFinalizeReq";
+    static constexpr const char *BLOCK_FINALIZE__RSP = "BlckFnlzRsp";
+    static constexpr const char *DA_PROOF_REQ = "DAPrfReq";
+    static constexpr const char *DA_PROOF_RSP = "DAPrfRsp";
+    static constexpr const char *BLOCK_CATCHUP_REQ = "BlckCatchupReq";
+    static constexpr const char *BLOCK_CATCHUP_RSP = "BlckCatchupRsp";
+
     static constexpr const char *COMMITTED_BLOCK = "CommittedBlock";
-    static constexpr const char *MISSING_TRANSACTIONS_REQ = "MissingTransactionsReq";
-    static constexpr const char *MISSING_TRANSACTIONS_RSP = "MissingTransactionsRsp";
+    static constexpr const char *MISSING_TRANSACTIONS_REQ = "MssngTxsReq";
+    static constexpr const char *MISSING_TRANSACTIONS_RSP = "MssngTxsRsp";
 
 
     Header(const char *_type);

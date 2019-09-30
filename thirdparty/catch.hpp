@@ -12307,7 +12307,7 @@ namespace Catch {
             uint64_t sum = 0;
             static const uint64_t iterations = 1000000;
 
-            auto startTime = getCurrentNanosecondsSinceEpoch();
+            auto startTimeMs = getCurrentNanosecondsSinceEpoch();
 
             for( std::size_t i = 0; i < iterations; ++i ) {
 
@@ -12323,7 +12323,7 @@ namespace Catch {
                 // If we have been calibrating for over 3 seconds -- the clock
                 // is terrible and we should move on.
                 // TBD: How to signal that the measured resolution is probably wrong?
-                if (ticks > startTime + 3 * nanosecondsInSecond) {
+                if (ticks > startTimeMs + 3 * nanosecondsInSecond) {
                     return sum / ( i + 1u );
                 }
             }

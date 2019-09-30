@@ -16,21 +16,47 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file BlockFinalizeClientThreadPool.h
+    @file GlobalThreadRegistry.cpp
     @author Stan Kladko
     @date 2019
 */
 
-#pragma once
 
-#include "../../threads/WorkerThreadPool.h"
+#include "../SkaleCommon.h"
+#include "../Log.h"
+#include "../exceptions/FatalError.h"
 
-class BlockFinalizeClientThreadPool : public WorkerThreadPool {
+#include "GlobalThreadRegistry.h"
 
-public:
 
-    BlockFinalizeClientThreadPool(num_threads numThreads, void *params_);
+vector<thread*> GlobalThreadRegistry::allThreads;
 
-    void createThread(uint64_t number);
+recursive_mutex GlobalThreadRegistry::mutex;
+bool GlobalThreadRegistry::joined = false;
 
-};
+void GlobalThreadRegistry::joinAll() {
+
+    if (joined)
+        return;
+
+    lock_guard<recursive_mutex> lock(mutex);
+
+    joined = true;
+
+    for (auto &&thread : GlobalThreadRegistry::allThreads) {
+        thread->join();
+        ASSERT(!thread->joinable());
+    }
+
+}
+
+void GlobalThreadRegistry::add(thread* _t) {
+
+    CHECK_ARGUMENT(_t);
+
+    lock_guard<recursive_mutex> lock(mutex);
+
+    CHECK_STATE(!joined);
+
+    allThreads.push_back(_t);
+}

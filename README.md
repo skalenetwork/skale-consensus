@@ -38,8 +38,9 @@ Clone project and configure build:
 
 ```bash
 git clone --recurse-submodules https://github.com/skalenetwork/skale-consensus.git
-cmake .             # Configure the build.
-make -j$(nproc)     # Build all default targets using all cores.
+# Configure the project and create a build directory.
+cmake -H. -Bbuild # Configure the build.
+cmake --build build -- -j$(nproc) # Build all default targets using all cores.
 ```
 
 ### Running tests

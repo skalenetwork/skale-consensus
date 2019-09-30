@@ -27,9 +27,12 @@
 
 #include "leveldb/db.h"
 
+#include "../../crypto/SHAHash.h"
+
 #include "../../exceptions/FatalError.h"
 #include "../../exceptions/ExitRequestedException.h"
 #include "../../exceptions/PingException.h"
+#include "../../exceptions/InvalidMessageFormatException.h"
 #include "../../node/ConsensusEngine.h"
 #include "../../thirdparty/json.hpp"
 
@@ -59,9 +62,11 @@
 #include "../../headers/CatchupRequestHeader.h"
 #include "../../headers/CommittedBlockHeader.h"
 #include "../../headers/CatchupResponseHeader.h"
+#include "../../headers/BlockFinalizeResponseHeader.h"
 
 #include "../../datastructures/CommittedBlock.h"
 #include "../../datastructures/CommittedBlockList.h"
+#include "../../datastructures/BlockProposalFragment.h"
 #include "CatchupServerAgent.h"
 
 
@@ -71,7 +76,7 @@ CatchupWorkerThreadPool *CatchupServerAgent::getCatchupWorkerThreadPool() const 
 
 
 CatchupServerAgent::CatchupServerAgent(Schain &_schain, ptr<TCPServerSocket> _s) : AbstractServerAgent(
-        "Block proposal server", _schain, _s) {
+        "CatchupServer", _schain, _s) {
     catchupWorkerThreadPool = make_shared<CatchupWorkerThreadPool>(num_threads(1), this);
     catchupWorkerThreadPool->startService();
     createNetworkReadThread();
@@ -95,24 +100,36 @@ void CatchupServerAgent::processNextAvailableConnection(ptr<Connection> _connect
     }
 
 
-    nlohmann::json catchupRequest = nullptr;
+    nlohmann::json jsonRequest = nullptr;
 
     try {
-        catchupRequest = sChain->getIo()->readJsonHeader(_connection->getDescriptor(), "Read catchup request");
+        jsonRequest = sChain->getIo()->readJsonHeader(_connection->getDescriptor(), "Read catchup request");
     }
     catch (ExitRequestedException &) { throw; }
     catch (...) {
-        throw_with_nested(NetworkProtocolException("Incorrect magic number", __CLASS_NAME__));
+        throw_with_nested(NetworkProtocolException("Could not read request", __CLASS_NAME__));
     }
 
 
-    auto responseHeader = make_shared<CatchupResponseHeader>();
+    ptr<Header> responseHeader = nullptr;
+
+    auto type = Header::getString(jsonRequest, "type");
 
 
-    ptr<vector<uint8_t>> serializedBlocks = nullptr;
+    if (type->compare(Header::BLOCK_CATCHUP_REQ) == 0) {
+        responseHeader = make_shared<CatchupResponseHeader>();
+    } else if (type->compare(Header::BLOCK_FINALIZE_REQ) == 0) {
+        responseHeader = make_shared<BlockFinalizeResponseHeader>();
+    } else {
+        responseHeader->setStatusSubStatus(CONNECTION_SERVER_ERROR, CONNECTION_ERROR_INVALID_REQUEST_TYPE);
+        BOOST_THROW_EXCEPTION(
+                InvalidMessageFormatException("Unknown request type:" + *type, __CLASS_NAME__));
+    }
+
+    ptr<vector<uint8_t>> serializedBinary = nullptr;
 
     try {
-        serializedBlocks = this->createCatchupResponseHeader(_connection, catchupRequest, responseHeader);
+        serializedBinary = this->createResponseHeaderAndBinary(_connection, jsonRequest, responseHeader);
     }
     catch (ExitRequestedException &) { throw; }
     catch (...) {
@@ -141,21 +158,21 @@ void CatchupServerAgent::processNextAvailableConnection(ptr<Connection> _connect
     LOG(debug, "Server step 2: sent catchup response header");
 
 
-    if (serializedBlocks == nullptr) {
-        LOG(debug, "Server step 3: response completed: no missing blocks");
+    if (serializedBinary == nullptr) {
+        LOG(debug, "Server step 3: response completed: no blocks sent");
         return;
     }
 
     try {
-        getSchain()->getIo()->writeBytesVector(_connection->getDescriptor(), serializedBlocks);
+        getSchain()->getIo()->writeBytesVector(_connection->getDescriptor(), serializedBinary);
     } catch (ExitRequestedException &) {
         throw;
     }
     catch (...) {
-        throw_with_nested(CouldNotSendMessageException("Could not send raw blocks", __CLASS_NAME__));
+        throw_with_nested(CouldNotSendMessageException("Could not send serialized binary", __CLASS_NAME__));
     }
 
-    LOG(debug, "Server step 3: response completed with missing blocks");
+    LOG(debug, "Server step 3: response completed: blocks sent");
 
     return;
 
@@ -163,18 +180,12 @@ void CatchupServerAgent::processNextAvailableConnection(ptr<Connection> _connect
 }
 
 
-ptr<vector<uint8_t>> CatchupServerAgent::createCatchupResponseHeader(ptr<Connection> _connectionEnvelope,
-                                                                     nlohmann::json _jsonRequest,
-                                                                     ptr<CatchupResponseHeader> _responseHeader) {
-
+ptr<vector<uint8_t>> CatchupServerAgent::createResponseHeaderAndBinary(ptr<Connection> _connectionEnvelope,
+                                                                       nlohmann::json _jsonRequest,
+                                                                       ptr<Header> &_responseHeader) {
 
     schain_id schainID = Header::getUint64(_jsonRequest, "schainID");
-    node_id srcNodeID = Header::getUint64(_jsonRequest, "srcNodeID");
-    schain_index srcSchainIndex = Header::getUint64(_jsonRequest, "srcSchainIndex");
     block_id blockID = Header::getUint64(_jsonRequest, "blockID");
-
-
-    LOG(debug, "Catchups started: got request block:" + to_string(blockID));
 
 
     if (sChain->getSchainID() != schainID) {
@@ -193,31 +204,45 @@ ptr<vector<uint8_t>> CatchupServerAgent::createCatchupResponseHeader(ptr<Connect
                 InvalidSourceIPException("Could not find node info for IP " + *_connectionEnvelope->getIP()));
     }
 
+    auto type = Header::getString(_jsonRequest, "type");
 
-    if (nmi->getNodeID() != node_id(srcNodeID)) {
-        _responseHeader->setStatusSubStatus(CONNECTION_SERVER_ERROR, CONNECTION_ERROR_INVALID_NODE_ID);
-        BOOST_THROW_EXCEPTION(InvalidNodeIDException("Node ID does not match " + srcNodeID, __CLASS_NAME__));
+    ptr<vector<uint8_t>> serializedBinary = nullptr;
+
+    if (type->compare(Header::BLOCK_CATCHUP_REQ) == 0) {
+
+        serializedBinary = createBlockCatchupResponse(_jsonRequest,
+                                                      dynamic_pointer_cast<CatchupResponseHeader>(_responseHeader),
+                                                      blockID);
+
+    } else if (type->compare(Header::BLOCK_FINALIZE_REQ) == 0) {
+
+        serializedBinary = createBlockFinalizeResponse(_jsonRequest,
+                                                       dynamic_pointer_cast<BlockFinalizeResponseHeader>(
+                                                               _responseHeader), blockID);
+
     }
-
-    if (nmi->getSchainIndex() != schain_index(srcSchainIndex)) {
-        _responseHeader->setStatusSubStatus(CONNECTION_SERVER_ERROR, CONNECTION_ERROR_INVALID_NODE_INDEX);
-        BOOST_THROW_EXCEPTION(
-                InvalidSchainIndexException("Node subchain index does not match " + srcSchainIndex, __CLASS_NAME__));
-    }
+    return serializedBinary;
+}
 
 
-    if ( sChain->getLastCommittedBlockID() <= block_id(blockID)) {
+ptr<vector<uint8_t>> CatchupServerAgent::createBlockCatchupResponse(nlohmann::json /*_jsonRequest */,
+                                                                    ptr<CatchupResponseHeader> _responseHeader,
+                                                                    block_id _blockID) {
+
+
+    if (sChain->getLastCommittedBlockID() <= block_id(_blockID)) {
         LOG(debug, "Catchups: sChain->getCommittedBlockID() <= block_id(blockID)");
         _responseHeader->setStatusSubStatus(CONNECTION_DISCONNECT, CONNECTION_NO_NEW_BLOCKS);
         _responseHeader->setComplete();
         return nullptr;
     }
 
+
     auto blockSizes = make_shared<list<uint64_t>>();
 
     auto committedBlockID = sChain->getLastCommittedBlockID();
 
-    if (blockID >= committedBlockID) {
+    if (_blockID >= committedBlockID) {
         LOG(debug, "Catchups: blockID >= committedBlockID");
         _responseHeader->setStatus(CONNECTION_DISCONNECT);
         _responseHeader->setComplete();
@@ -229,10 +254,9 @@ ptr<vector<uint8_t>> CatchupServerAgent::createCatchupResponseHeader(ptr<Connect
     serializedBlocks->push_back('[');
 
 
+    for (uint64_t i = (uint64_t) _blockID + 1; i <= committedBlockID; i++) {
 
-    for (uint64_t i = (uint64_t) blockID + 1; i <= committedBlockID; i++) {
-
-        auto serializedBlock = getSchain()->getNode()->getBlockDB()->getSerializedBlock(i);
+        auto serializedBlock = getSchain()->getNode()->getBlockDB()->getSerializedBlockFromLevelDB(i);
 
         if (!serializedBlock) {
             _responseHeader->setStatus(CONNECTION_DISCONNECT);
@@ -252,13 +276,61 @@ ptr<vector<uint8_t>> CatchupServerAgent::createCatchupResponseHeader(ptr<Connect
 
     _responseHeader->setBlockSizes(blockSizes);
 
-    _responseHeader->setComplete();
-
-    LOG(debug, "Catchup completed successfully");
-
     return serializedBlocks;
 
 }
 
 
+ptr<vector<uint8_t>> CatchupServerAgent::createBlockFinalizeResponse(nlohmann::json _jsonRequest,
+                                                                     ptr<BlockFinalizeResponseHeader> _responseHeader,
+                                                                     block_id _blockID) {
 
+    fragment_index fragmentIndex = Header::getUint64(_jsonRequest, "fragmentIndex");
+
+    if (fragmentIndex < 1 || (uint64_t) fragmentIndex > getSchain()->getNodeCount() - 1) {
+        LOG(debug, "Incorrect fragment index:" + to_string(fragmentIndex));
+        _responseHeader->setStatusSubStatus(CONNECTION_DISCONNECT, CONNECTION_ERROR_INVALID_FRAGMENT_INDEX);
+        _responseHeader->setComplete();
+        return nullptr;
+    }
+
+
+    schain_index proposerIndex = Header::getUint64(_jsonRequest, "proposerIndex");
+
+
+    if (proposerIndex < 1 || (uint64_t) fragmentIndex > getSchain()->getNodeCount()) {
+        LOG(debug, "Incorrect proposer index:" + to_string(proposerIndex));
+        _responseHeader->setStatusSubStatus(CONNECTION_DISCONNECT, CONNECTION_ERROR_INVALID_PROPOSER_INDEX);
+        _responseHeader->setComplete();
+        return nullptr;
+    }
+
+
+
+    auto proposal = getSchain()->getBlockProposal(_blockID, proposerIndex);
+
+    if (proposal == nullptr) {
+        LOG(trace, "Dont have proposal:" + to_string(proposerIndex));
+        _responseHeader->setStatusSubStatus(CONNECTION_DISCONNECT, CONNECTION_DONT_HAVE_PROPOSAL);
+        _responseHeader->setComplete();
+        return nullptr;
+    }
+
+    auto committedBlock = make_shared<CommittedBlock>(proposal);
+
+    auto fragment = committedBlock->getFragment(
+            (uint64_t ) getSchain()->getNodeCount() - 1,
+            fragmentIndex);
+
+    CHECK_STATE(fragment != nullptr);
+
+    _responseHeader->setStatus(CONNECTION_PROCEED);
+
+    auto serializedFragment = fragment->serialize();
+
+    _responseHeader->setFragmentParams(serializedFragment->size(),
+            committedBlock->getSerialized()->size(), committedBlock->getHash()->toHex());
+
+    return serializedFragment;
+
+}

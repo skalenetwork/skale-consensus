@@ -63,7 +63,7 @@ BlockProposalClientAgent::BlockProposalClientAgent( Schain& _sChain )
         this->blockProposalThreadPool = make_shared< BlockProposalPusherThreadPool >(
             num_threads( ( uint64_t ) _sChain.getNodeCount() ), this );
         blockProposalThreadPool->startService();
-    } catch ( ... ) {
+    } catch (ExitRequestedException &) {throw;} catch ( ... ) {
         throw_with_nested( FatalError( __FUNCTION__, __CLASS_NAME__ ) );
     }
 }
@@ -264,7 +264,7 @@ BlockProposalClientAgent::readMissingHashes( ptr< ClientSocket > _socket, uint64
             result->insert( hash );
             ASSERT( result->count( hash ) );
         }
-    } catch ( ... ) {
+    } catch (ExitRequestedException &) {throw;} catch (...) {
         throw_with_nested( NetworkProtocolException(
             "Could not read missing transaction hashes:" + to_string(_count), __CLASS_NAME__ ) );
     }

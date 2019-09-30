@@ -26,16 +26,22 @@
 #include "../exceptions/FatalError.h"
 
 
+#include "GlobalThreadRegistry.h"
 #include "WorkerThreadPool.h"
 
 
-vector<ptr<thread>> WorkerThreadPool::allThreads;
 
 void WorkerThreadPool::startService() {
 
+    ASSERT(!started)
+
+    lock_guard<recursive_mutex> lock(mutex);
+
+    started = true;
+
     for (uint64_t i = 0; i < (uint64_t )numThreads; i++) {
         createThread(i);
-        allThreads.push_back(threadpool.at(i));
+        GlobalThreadRegistry::add(threadpool.at(i));
     }
 
 }
@@ -48,10 +54,25 @@ WorkerThreadPool::WorkerThreadPool(num_threads _numThreads, void* _param) {
    this->numThreads = _numThreads;
 }
 
-const vector<shared_ptr<thread>> &WorkerThreadPool::getAllThreads() {
-    return allThreads;
+
+
+
+void WorkerThreadPool::joinAll() {
+
+    if (joined)
+        return;
+
+    lock_guard<recursive_mutex> lock(mutex);
+
+    joined = true;
+
+    for (auto&& thread : threadpool) {
+        thread->join();
+        CHECK_STATE(!thread->joinable());
+    }
 }
 
-void WorkerThreadPool::addThread(ptr<thread> _t) {
-    allThreads.push_back(_t);
+bool WorkerThreadPool::isJoined() const {
+    return joined;
 }
+

@@ -25,8 +25,6 @@
 
 #include "DataStructure.h"
 
-
-
 class PartialHashesList;
 class Schain;
 class BlockProposal;
@@ -34,30 +32,21 @@ class SHAHash;
 class BooleanProposalVector;
 
 class BlockProposalSet : public DataStructure  {
-    recursive_mutex proposalsMutex;
 
-    //block_id blockID;
+    node_count nodeCount;
 
-    class Comparator {
-    public:
-        bool operator()(const ptr<SHAHash> &a, const ptr<SHAHash> &b) const {
-            if (a->compare(b) < 0)
-                return true;
-            return false;
-        };
-    };
+    block_id blockId;
 
+    recursive_mutex mutex;
 
-    Schain* sChain;
-
-    map< schain_index, ptr< BlockProposal > > proposals;
+    map< uint64_t , ptr< BlockProposal > > proposals;
 
 public:
-    node_count getTotalProposalsCount();
+    node_count getCount();
 
-    BlockProposalSet( Schain* subChain, block_id blockId );
+    BlockProposalSet(Schain* _sChain, block_id _blockId );
 
-    bool addProposal(ptr<BlockProposal> _proposal);
+    bool add(ptr<BlockProposal> _proposal);
 
 
     bool isTwoThird();

@@ -31,20 +31,34 @@ class CommittedBlock;
 
 class BlockDB : public LevelDB{
 
+    std::map<block_id, ptr<CommittedBlock>> blocks;
+
+    uint64_t storageSize;
+
+    recursive_mutex mutex;
 
     ptr<string>  createKey(block_id _blockId);
 
     const string getFormatVersion();
 
+
+    void saveBlockToBlockCache(ptr<CommittedBlock> &_block, block_id _lastCommittedBlockID);
+
+    void saveBlock2LevelDB(ptr<CommittedBlock> &_block);
+
+    ptr<CommittedBlock> getCachedBlock(block_id _blockID);
+
 public:
 
-    BlockDB(string& _filename, node_id _nodeId);
-    ptr<vector<uint8_t >> getSerializedBlock( block_id _blockID );
-
-    void saveBlock(ptr<CommittedBlock> &_block);
+    BlockDB(string &_filename, node_id _nodeId, uint64_t _storageSize);
+    ptr<vector<uint8_t >> getSerializedBlockFromLevelDB(block_id _blockID );
 
     uint64_t readCounter();
 
+    void saveBlock(ptr<CommittedBlock> &_block, block_id _lastCommittedBlockID);
+
+
+    ptr<CommittedBlock> getBlock(block_id _blockID);
 };
 
 

@@ -144,8 +144,7 @@ void JSONFactory::createAndAddSChainFromJsonObject(Node &node, const nlohmann::j
 
             node_id nodeID((*it)["nodeID"].get<uint64_t>());
 
-            LOG(info, "Adding node:" + to_string(nodeID));
-
+            Log::logConfig(trace, to_string(node.getNodeID()) + ": Adding node:" + to_string(nodeID), __CLASS_NAME__);
 
             ptr<string> ip = make_shared<string>((*it).at("ip").get<string>());
 
@@ -175,7 +174,7 @@ void JSONFactory::createAndAddSChainFromJsonObject(Node &node, const nlohmann::j
 void JSONFactory::parseJsonFile(nlohmann::json &j, const fs_path &configFile) {
 
 
-    LOG(debug, "Parsing json file: " + configFile.string());
+    Log::logConfig(debug, "Parsing json file: " + configFile.string(), __CLASS_NAME__);
 
     ifstream f(configFile.c_str());
 

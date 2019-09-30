@@ -91,14 +91,12 @@ ptr<Connection> AbstractServerAgent::workerThreadWaitandPopConnection() {
 
 void AbstractServerAgent::workerThreadConnectionProcessingLoop(void *_params) {
 
-    setThreadName(__CLASS_NAME__);
-
     AbstractServerAgent *server = (reinterpret_cast < AbstractServerAgent * > ( _params ));
 
     server->waitOnGlobalStartBarrier();
 
 
-    LOG(info, "Started server loop");
+    LOG(trace, "Started server loop");
 
 
     while (!server->getNode()->isExitRequested()) {
@@ -138,7 +136,7 @@ AbstractServerAgent::~AbstractServerAgent() {
 
 void AbstractServerAgent::acceptTCPConnectionsLoop() {
 
-    setThreadName(__CLASS_NAME__);
+    setThreadName(name);
 
     waitOnGlobalStartBarrier();
 
@@ -173,9 +171,9 @@ void AbstractServerAgent::acceptTCPConnectionsLoop() {
 
 void AbstractServerAgent::createNetworkReadThread() {
 
-    LOG(info, name + " Starting TCP server network read loop");
-    networkReadThread = make_shared<thread>(std::bind(&AbstractServerAgent::acceptTCPConnectionsLoop, this));
-    LOG(info, name + " Started TCP server network read loop");
+    LOG(trace, name + " Starting TCP server network read loop");
+    networkReadThread = new thread(std::bind(&AbstractServerAgent::acceptTCPConnectionsLoop, this));
+    LOG(trace, name + " Started TCP server network read loop");
 
 }
 

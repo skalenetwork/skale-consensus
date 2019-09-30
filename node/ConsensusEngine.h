@@ -41,8 +41,11 @@ class ConsensusBLSPrivateKeyShare;
 
 class ConsensusEngine : public ConsensusInterface {
 
+    std::atomic<bool> exitRequested;
+
     map< node_id, Node* > nodes;
 
+    std::string exec(const char* cmd);
 
     static void checkExistsAndDirectory( const fs_path& dirname );
 
@@ -113,7 +116,7 @@ public:
 
     void slowStartBootStrapTest();
 
-    void init() const;
+    void init();
 
     void joinAllThreads() const;
 
@@ -124,4 +127,6 @@ public:
     const string &getBlsPrivateKey() const;
 
     u256 getPriceForBlockId(uint64_t _blockId) const override;
+
+    void systemHealthCheck();
 };

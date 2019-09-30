@@ -28,9 +28,16 @@
 class BlockFinalizeResponseHeader : public Header {
 
 
-    ptr<string> sigShare;
+    uint64_t  fragmentSize = 0;
+    uint64_t  blockSize = 0;
+    ptr<string> blockHash = nullptr;
+
 
 public:
+
+    void setFragmentParams(uint64_t _fragmentSize, uint64_t _blockSize, ptr<string> _hash);
+
+
 
     BlockFinalizeResponseHeader();
 

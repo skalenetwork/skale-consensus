@@ -23,13 +23,14 @@
 
 #include "../SkaleCommon.h"
 
+#include "../utils/Time.h"
 #include "../chains/Schain.h"
 
 #include "DataStructure.h"
 
 
 DataStructure::DataStructure() {
-    objectCreationTime = Schain::getHighResolutionTime();
+    objectCreationTime = Time::getCurrentTimeMs();
 }
 
 uint64_t DataStructure::getObjectCreationTime() const {

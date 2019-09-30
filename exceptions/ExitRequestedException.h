@@ -26,5 +26,6 @@
 
 class ExitRequestedException : public Exception {
 public:
-    ExitRequestedException();
+
+    ExitRequestedException(const std::string& _className ) : Exception("Exit requested", _className){};
 };

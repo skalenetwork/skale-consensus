@@ -156,6 +156,8 @@ static constexpr uint64_t COMMITTED_BLOCK_STORAGE_SIZE = 1;
 
 static constexpr uint64_t CATCHUP_INTERVAL_MS = 10000;
 
+static constexpr uint64_t MONITORING_INTERVAL_MS = 1000;
+
 static constexpr uint64_t WAIT_AFTER_NETWORK_ERROR_MS = 3000;
 
 
@@ -251,6 +253,8 @@ BOOST_STRONG_TYPEDEF(uint64_t, msg_len);
 BOOST_STRONG_TYPEDEF(uint64_t, msg_nonce);
 
 BOOST_STRONG_TYPEDEF(uint64_t, num_threads);
+
+BOOST_STRONG_TYPEDEF(uint64_t, fragment_index);
 
 BOOST_STRONG_TYPEDEF(int, file_descriptor);
 

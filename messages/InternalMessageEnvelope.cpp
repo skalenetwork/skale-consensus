@@ -32,6 +32,6 @@
 #include "InternalMessageEnvelope.h"
 
 
-InternalMessageEnvelope::InternalMessageEnvelope(MessageOrigin origin, const ptr<Message> message, Schain& subchain,
-ptr<ProtocolKey> _srcProtocolKey): MessageEnvelope(
-        origin, message, subchain.getThisNodeInfo()), srcProtocolKey(_srcProtocolKey) {}
+InternalMessageEnvelope::InternalMessageEnvelope(MessageOrigin _origin, const ptr<Message> _message, Schain& _subchain,
+                                                 ptr<ProtocolKey> _srcProtocolKey): MessageEnvelope(
+        _origin, _message, _subchain.getThisNodeInfo()), srcProtocolKey(_srcProtocolKey) {}

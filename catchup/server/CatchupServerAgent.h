@@ -44,10 +44,19 @@
 class CommittedBlock;
 class CommittedBlockList;
 class CatchupResponseHeader;
+class BlockFinalizeResponseHeader;
 
 class CatchupServerAgent : public AbstractServerAgent {
 
    ptr<CatchupWorkerThreadPool> catchupWorkerThreadPool;
+
+
+    ptr<vector<uint8_t>>createBlockCatchupResponse( nlohmann::json _jsonRequest,
+                                                         ptr<CatchupResponseHeader> _responseHeader, block_id _blockID);
+
+
+    ptr<vector<uint8_t>>createBlockFinalizeResponse( nlohmann::json _jsonRequest,
+                                                    ptr<BlockFinalizeResponseHeader> _responseHeader, block_id _blockID);
 
 
 public:
@@ -56,8 +65,8 @@ public:
 
     CatchupWorkerThreadPool *getCatchupWorkerThreadPool() const;
 
-    ptr<vector<uint8_t>> createCatchupResponseHeader(ptr<Connection> _connectionEnvelope,
-                                nlohmann::json _jsonRequest, ptr<CatchupResponseHeader> _responseHeader);
+    ptr<vector<uint8_t>> createResponseHeaderAndBinary(ptr<Connection> _connectionEnvelope,
+                                                       nlohmann::json _jsonRequest, ptr<Header>& _responseHeader);
 
     void processNextAvailableConnection(ptr<Connection> _connection) override;
 

@@ -41,7 +41,7 @@ protected:
 
     const string name;
 
-    ptr<thread> networkReadThread;
+    thread* networkReadThread;
 
     ptr<ServerSocket> socket;
 

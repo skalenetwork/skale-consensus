@@ -36,24 +36,24 @@
 
 #include "BlockProposalSet.h"
 
-
 using namespace std;
 
+bool BlockProposalSet::add(ptr<BlockProposal> _proposal) {
+    CHECK_ARGUMENT( _proposal  != nullptr);
 
+    lock_guard< recursive_mutex > lock(mutex );
 
+    auto index = (uint64_t ) _proposal->getProposerIndex();
 
-bool BlockProposalSet::addProposal(ptr<BlockProposal> _proposal) {
-    ASSERT( _proposal );
+    CHECK_STATE(index > 0 && index <= nodeCount)
 
-    lock_guard< recursive_mutex > lock( proposalsMutex );
-
-    if ( proposals.count(_proposal->getProposerIndex()) > 0 ) {
-        LOG(err,
-            "Got block proposal with the same index" + to_string((uint64_t) _proposal->getProposerIndex()));
+    if ( proposals.count(index) > 0 ) {
+        LOG(trace,
+            "Got block proposal with the same index" + to_string(index));
         return false;
     }
 
-    proposals[_proposal->getProposerIndex()] = _proposal;
+    proposals[index] = _proposal;
 
     return true;
 
@@ -61,37 +61,37 @@ bool BlockProposalSet::addProposal(ptr<BlockProposal> _proposal) {
 
 
 bool BlockProposalSet::isTwoThird() {
-    lock_guard< recursive_mutex > lock( proposalsMutex );
-
-    auto value = 3 * proposals.size() > 2 * sChain->getNodeCount();
-
+    lock_guard< recursive_mutex > lock(mutex );
+    auto value = 3 * proposals.size() > 2 * nodeCount;
     return value;
 }
 
 
-BlockProposalSet::BlockProposalSet( Schain* _sChain, block_id /*_blockID*/ )
-    : sChain( _sChain ){
+BlockProposalSet::BlockProposalSet(Schain* _sChain, block_id _blockId)
+    : blockId(_blockId){
+    CHECK_ARGUMENT(_sChain != nullptr);
+    CHECK_ARGUMENT(_blockId > 0);
+
+    nodeCount = _sChain->getNodeCount();
     totalObjects++;
 }
 
 BlockProposalSet::~BlockProposalSet() {
     totalObjects--;
-
 }
 
-node_count BlockProposalSet::getTotalProposalsCount() {
-    lock_guard< recursive_mutex > lock( proposalsMutex );
-
+node_count BlockProposalSet::getCount() {
+    lock_guard< recursive_mutex > lock(mutex );
     return ( node_count ) proposals.size();
 }
 
 
 ptr<BooleanProposalVector> BlockProposalSet::createBooleanVector() {
-    lock_guard< recursive_mutex > lock( proposalsMutex );
+    lock_guard< recursive_mutex > lock(mutex );
 
-    auto v = make_shared<BooleanProposalVector>(sChain->getNodeCount());
-    for ( uint64_t i = 1; i <= sChain->getNodeCount(); i++ ) {
-        v->pushValue(proposals.count( schain_index( i )) > 0);
+    auto v = make_shared<BooleanProposalVector>(nodeCount);
+    for ( uint64_t i = 1; i <= nodeCount; i++ ) {
+        v->pushValue(proposals.count(i) > 0);
     }
 
     return v;
@@ -99,16 +99,16 @@ ptr<BooleanProposalVector> BlockProposalSet::createBooleanVector() {
 
 
 ptr< BlockProposal > BlockProposalSet::getProposalByIndex( schain_index _index ) {
-    lock_guard< recursive_mutex > lock( proposalsMutex );
 
+    CHECK_ARGUMENT(_index > 0 && (uint64_t ) _index <= nodeCount)
 
-    if ( proposals.count( _index) == 0 ) {
-//        LOG(trace,
-//            "Proposal did not yet arrive. Total proposals:" + to_string(proposals.size()));
+    lock_guard< recursive_mutex > lock(mutex );
+
+    if ( proposals.count((uint64_t) _index) == 0 ) {
         return nullptr;
     }
 
-    return proposals.at(_index);
+    return proposals.at((uint64_t)_index);
 }
 
 atomic<uint64_t>  BlockProposalSet::totalObjects(0);

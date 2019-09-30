@@ -33,17 +33,15 @@
 #include "AbstractBlockRequestHeader.h"
 
 
-AbstractBlockRequestHeader::AbstractBlockRequestHeader(Schain &_sChain, ptr<BlockProposal> proposal,
+AbstractBlockRequestHeader::AbstractBlockRequestHeader(Schain &_sChain, block_id _blockId,
                                                        const char* _type, schain_index _proposerIndex) :
-        Header(_type) {
+        Header(_type), proposerIndex(_proposerIndex), blockID(_blockId) {
 
-    if (!proposal) {
-        BOOST_THROW_EXCEPTION(InvalidArgumentException("Null proposal", __CLASS_NAME__));
-    }
+    CHECK_ARGUMENT((uint64_t) proposerIndex <= _sChain.getNodeCount());
 
-    this->proposerIndex = _proposerIndex;
+    CHECK_ARGUMENT(proposerIndex > 0);
+
     this->schainID = _sChain.getSchainID();
-    this->blockID = proposal->getBlockID();
 }
 
 

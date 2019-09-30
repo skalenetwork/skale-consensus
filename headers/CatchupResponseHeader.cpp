@@ -34,7 +34,7 @@
 
 using namespace std;
 
-CatchupResponseHeader::CatchupResponseHeader() : Header(Header::CATCHUP_RSP) {
+CatchupResponseHeader::CatchupResponseHeader() : Header(Header::BLOCK_CATCHUP_RSP) {
 
 }
 

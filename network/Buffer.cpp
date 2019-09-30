@@ -55,7 +55,7 @@ uint64_t Buffer::getCounter() const {
 
 Buffer::Buffer(size_t _size) {
     if (_size > MAX_BUFFER_SIZE) {
-        throw InvalidArgumentException("Buffer size too large", __CLASS_NAME__);
+        BOOST_THROW_EXCEPTION(InvalidArgumentException("Buffer size too large", __CLASS_NAME__));
     }
     this->size = _size;
     buf = make_shared<vector<uint8_t>>(size);

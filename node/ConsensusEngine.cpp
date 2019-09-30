@@ -21,12 +21,15 @@
     @date 2018
 */
 
+
+
+
 #include "../SkaleCommon.h"
 #include "../Log.h"
 #include "../exceptions/FatalError.h"
 #include "../Agent.h"
 #include "../thirdparty/json.hpp"
-
+#include "../threads/GlobalThreadRegistry.h"
 
 #include "zmq.h"
 
@@ -221,7 +224,7 @@ void ConsensusEngine::parseConfigsAndCreateAllNodes(const fs_path &dirname) {
 
         ASSERT(nodeCount == nodes.size());
 
-        LOG(info, "INFO:Parsed configs and created " + to_string(ConsensusEngine::nodesCount()) +
+        LOG(trace, "Parsed configs and created " + to_string(ConsensusEngine::nodesCount()) +
                   " nodes");
     } catch (exception& e) {
         Exception::logNested(e);
@@ -264,14 +267,12 @@ void ConsensusEngine::startAll() {
 
 void ConsensusEngine::slowStartBootStrapTest() {
     for (auto const it : nodes) {
-        LOG(info, "Starting node: " + to_string(it.second->getNodeID()));
         it.second->startServers();
     }
 
     for (auto const it : nodes) {
         it.second->startClients();
         it.second->getSchain()->bootstrap(lastCommittedBlockID, lastCommittedBlockTimeStamp);
-        LOG(info, "Started node: "  + to_string(it.second->getNodeID()));
     }
 
 
@@ -283,9 +284,9 @@ void ConsensusEngine::bootStrapAll() {
 
 
         for (auto const it : nodes) {
-            LOG(info, "Bootstrapping node");
+            LOG(trace, "Bootstrapping node");
             it.second->getSchain()->bootstrap(lastCommittedBlockID, lastCommittedBlockTimeStamp);
-            LOG(info, "Bootstrapped node");
+            LOG(trace, "Bootstrapped node");
         }
     } catch (Exception &e) {
 
@@ -307,7 +308,7 @@ node_count ConsensusEngine::nodesCount() {
 }
 
 
-ConsensusEngine::ConsensusEngine() {
+ConsensusEngine::ConsensusEngine() : exitRequested(false) {
 
     signal(SIGPIPE, SIG_IGN);
 
@@ -321,18 +322,65 @@ ConsensusEngine::ConsensusEngine() {
     }
 }
 
-void ConsensusEngine::init() const {
+std::string ConsensusEngine::exec(const char* cmd) {
+    std::array<char, 128> buffer;
+    std::string result;
+    std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd, "r"), pclose);
+    if (!pipe) {
+        BOOST_THROW_EXCEPTION(std::runtime_error("popen() failed!"));
+    }
+    while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr) {
+        result += buffer.data();
+    }
+    return result;
+}
+
+void ConsensusEngine::systemHealthCheck() {
+
+    string ulimit;
+
+    try {
+        ulimit = exec("/bin/bash -c \"ulimit -n\"");
+    } catch (...) {
+        const char* errStr = "Execution of /bin/bash -c ulimit -n failed";
+        cerr <<  errStr;
+        throw_with_nested(EngineInitException(errStr, __CLASS_NAME__));
+    }
+    int noFiles = std::strtol(ulimit.c_str(), NULL, 10);
+
+    auto noUlimitCheck = std::getenv("NO_ULIMIT_CHECK") != nullptr;
+    auto onTravis = std::getenv("TRAVIS_BUILD_TYPE") != nullptr;
+
+    if (noFiles < 65535 && !noUlimitCheck && !onTravis) {
+
+        const char* error = "File descriptor limit (ulimit -n) is less than 65535. Set it to 65535 or more as described"
+                      "in https://bugs.launchpad.net/ubuntu/+source/lightdm/+bug/1627769\n";
+        cerr <<  error;
+        BOOST_THROW_EXCEPTION(EngineInitException(error, __CLASS_NAME__));
+    }
+
     Utils::checkTime();
+}
+
+void ConsensusEngine::init() {
+
+    sigset_t sigpipe_mask;
+    sigemptyset(&sigpipe_mask);
+    sigaddset(&sigpipe_mask, SIGPIPE);
+    sigset_t saved_mask;
+    if (pthread_sigmask(SIG_BLOCK, &sigpipe_mask, &saved_mask) == -1) {
+        BOOST_THROW_EXCEPTION(FatalError("Could not block SIGPIPE"));
+    }
+
+    systemHealthCheck();
     BinConsensusInstance::initHistory();
-
-
 }
 
 
 ConsensusEngine::ConsensusEngine(ConsensusExtFace &_extFace, uint64_t _lastCommittedBlockID,
                                  uint64_t _lastCommittedBlockTimeStamp, const string &_blsPrivateKey,
                                  const string &_blsPublicKey1, const string &_blsPublicKey2, const string &_blsPublicKey3,
-                                 const string &_blsPublicKey4) :
+                                 const string &_blsPublicKey4) : exitRequested(false),
                                  blsPublicKey1(_blsPublicKey1), blsPublicKey2(_blsPublicKey2),
                                  blsPublicKey3(_blsPublicKey3), blsPublicKey4(_blsPublicKey4),
                                  blsPrivateKey(_blsPrivateKey)
@@ -340,7 +388,13 @@ ConsensusEngine::ConsensusEngine(ConsensusExtFace &_extFace, uint64_t _lastCommi
 
 
 
+
+
+
     ASSERT(_lastCommittedBlockTimeStamp < (uint64_t) 2 * MODERN_TIME);
+
+
+
 
     Log::init();
 
@@ -364,11 +418,20 @@ ConsensusExtFace *ConsensusEngine::getExtFace() const {
 
 void ConsensusEngine::exitGracefully() {
 
+    auto previouslyCalled = exitRequested.exchange(true);
+
+    if (previouslyCalled) {
+        return;
+    }
+
+
+
     for (auto const it : nodes) {
         it.second->exit();
     }
 
-    joinAllThreads();
+
+    GlobalThreadRegistry::joinAll();
 
 
     for (auto const it : nodes) {
@@ -376,21 +439,13 @@ void ConsensusEngine::exitGracefully() {
             it.second->getSockets()->getConsensusZMQSocket()->terminate();
     }
 
+
 }
 
-void ConsensusEngine::joinAllThreads() const {
-    for (auto &&thread : WorkerThreadPool::getAllThreads()) {
-        if (thread->joinable())  // TODO why it's special?
-            thread->join();
-    }
-}
+
 
 ConsensusEngine::~ConsensusEngine() {
-
-    exitGracefully();
-
     for (auto &n : nodes) {
-
         delete n.second;
     }
 }

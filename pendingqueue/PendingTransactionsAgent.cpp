@@ -30,6 +30,7 @@
 #include "../db/LevelDB.h"
 #include "../db/BlockDB.h"
 
+#include "../utils/Time.h"
 #include "../crypto/SHAHash.h"
 #include "../datastructures/BlockProposal.h"
 #include "../datastructures/MyBlockProposal.h"
@@ -38,14 +39,9 @@
 #include "../datastructures/Transaction.h"
 #include "../datastructures/TransactionList.h"
 #include "../pendingqueue/TestMessageGeneratorAgent.h"
-
 #include "../chains/Schain.h"
-
 #include "../node/ConsensusEngine.h"
-
 #include "PendingTransactionsAgent.h"
-
-#include "leveldb/db.h"
 #include "../db/CommittedTransactionDB.h"
 
 #include "../microprofile.h"
@@ -98,14 +94,14 @@ ptr<BlockProposal> PendingTransactionsAgent::buildBlockProposal(block_id _blockI
     shared_ptr<vector<ptr<Transaction>>> transactions = createTransactionsListForProposal();
 
 
-    while ((uint64_t )Schain::getCurrentTimeMs() <= _previousBlockTimeStamp * 1000 + _previousBlockTimeStampMs) {
+    while (Time::getCurrentTimeMs() <= _previousBlockTimeStamp * 1000 + _previousBlockTimeStampMs) {
         usleep(10);
     }
 
 
     auto transactionList = make_shared<TransactionList>(transactions);
 
-    auto currentTime = Schain::getCurrentTimeMs();
+    auto currentTime = Time::getCurrentTimeMs();
     auto sec = currentTime / 1000;
     auto m = (uint32_t) (currentTime % 1000);
 

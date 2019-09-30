@@ -100,7 +100,7 @@ ptr<PartialHashesList> BlockProposal::createPartialHashesList() {
 
 
     if (s > MAX_BUFFER_SIZE) {
-        throw InvalidArgumentException("Buffer size too large", __CLASS_NAME__);
+        InvalidArgumentException("Buffer size too large", __CLASS_NAME__);
     }
 
     auto partialHashes = make_shared<vector<uint8_t>>(s);

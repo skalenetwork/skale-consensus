@@ -47,7 +47,7 @@ void setThreadName( std::string const& _n ) {
         prefix = "";
     }
 
-    string name = prefix + _n.substr(0, 15);
+    string name = (prefix + _n).substr(0, 15);
 
 
 #if defined( __GLIBC__ )

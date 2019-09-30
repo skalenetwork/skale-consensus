@@ -72,7 +72,7 @@ public:
 
 
     pair<ptr<map<uint64_t, ptr<Transaction>>>,
-            ptr<map<uint64_t, ptr<partial_sha_hash>>>> getPresentAndMissingTransactions(Schain &subChain_,
+            ptr<map<uint64_t, ptr<partial_sha_hash>>>> getPresentAndMissingTransactions(Schain &_sChain,
                                                                                          ptr<Header>,
                                                                                          ptr<PartialHashesList> _phm);
 
