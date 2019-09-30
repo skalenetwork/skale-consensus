@@ -43,6 +43,8 @@ block_id ConsensusBLSSignature::getBlockId() const {
 }
 
 
+static string dummy_string("");
+
 ConsensusBLSSignature::ConsensusBLSSignature( ptr< libff::alt_bn128_G1 > _s, block_id _blockID,
     size_t _totalSigners, size_t _requiredSigners )
-    : BLSSignature( _s, _totalSigners, _requiredSigners ), blockId( _blockID ){};
+    : BLSSignature( _s, dummy_string, _totalSigners, _requiredSigners ), blockId( _blockID ){};

@@ -591,7 +591,11 @@ ptr<ConsensusBLSSigShare> Schain::sign(ptr<SHAHash> _hash, block_id _blockId) {
 
     MONITOR(__CLASS_NAME__, __FUNCTION__)
 
-    auto blsShare = getNode()->getBlsPrivateKey()->sign(_hash->toHex(), (uint64_t) getSchainIndex());
+    auto hash = make_shared<std::array<uint8_t,32>>();
+
+    memcpy(hash->data(), _hash->data(), 32);
+
+    auto blsShare = getNode()->getBlsPrivateKey()->sign(hash, (uint64_t) getSchainIndex());
 
     return make_shared<ConsensusBLSSigShare>(blsShare, getSchainID(), _blockId, getNode()->getNodeID());
 }
