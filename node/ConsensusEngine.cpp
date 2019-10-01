@@ -88,6 +88,9 @@ using namespace boost::filesystem;
 
 
 void ConsensusEngine::parseFullConfigAndCreateNode(const string &configFileContents) {
+
+    try {
+
     nlohmann::json j = nlohmann::json::parse(configFileContents);
 
     std::set<node_id> dummy;
@@ -98,6 +101,12 @@ void ConsensusEngine::parseFullConfigAndCreateNode(const string &configFileConte
             *node, j["skaleConfig"]["sChain"], this);
 
     nodes[node->getNodeID()] = node;
+
+    } catch (Exception &e) {
+        Exception::logNested(e);
+        throw;
+    }
+
 }
 
 Node *ConsensusEngine::readNodeConfigFileAndCreateNode(
