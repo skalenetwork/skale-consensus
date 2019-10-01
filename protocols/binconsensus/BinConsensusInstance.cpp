@@ -712,19 +712,13 @@ uint64_t BinConsensusInstance::calculateBLSRandom(bin_consensus_round _r) {
 
     bool isTwoThird = shares.isEnough();
 
+    CHECK_STATE(isTwoThird);
 
-    ASSERT(isTwoThird);
+    auto random = shares.mergeSignature()->getRandom();
 
+    LOG(debug, "Random for round: " + to_string(_r) + ":" + to_string(random));
 
-    auto sig = shares.mergeSignature()->getSig();
-    sig->to_affine_coordinates();
-    auto result = sig->X.as_ulong() + sig->Y.as_ulong();
-
-
-
-    LOG(debug, "Random for round: " + to_string(_r) + ":" + to_string(result));
-
-    return sig->X.as_ulong() + sig->Y.as_ulong();
+    return random;
 }
 
 recursive_mutex BinConsensusInstance::historyMutex;

@@ -28,7 +28,10 @@
 
 
 #include "BLSSignature.h"
-class ConsensusBLSSignature : public BLSSignature {
+class ConsensusBLSSignature {
+
+    BLSSignature blsSig;
+
     block_id blockId;
 
 public:
@@ -39,6 +42,10 @@ public:
         size_t _requiredSigners );
 
     block_id getBlockId() const;
+
+    std::shared_ptr<std::string> toString();
+
+    uint64_t getRandom();
 };
 
 

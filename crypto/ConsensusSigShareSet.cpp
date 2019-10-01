@@ -56,6 +56,7 @@ ConsensusSigShareSet::~ConsensusSigShareSet() {
 }
 
 
+
 ptr< ConsensusBLSSignature > ConsensusSigShareSet::mergeSignature() {
     auto blsShare = merge();
 
