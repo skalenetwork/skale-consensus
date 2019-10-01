@@ -16,35 +16,23 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file ConsensusBLSSignature.h
+    @file ThresholdSignature.cpp
     @author Stan Kladko
     @date 2019
 */
 
-#ifndef SKALED_CONSENSUSBLSSIGNATURE_H
-#define SKALED_CONSENSUSBLSSIGNATURE_H
+#include "../SkaleCommon.h"
+#include "../Log.h"
+#include "ConsensusBLSSignature.h"
+#include "../libBLS/bls/BLSSignature.h"
+#include "../thirdparty/json.hpp"
+#include "../network/Utils.h"
+#include "../crypto/bls_include.h"
 
-// constexpr uint64_t  MAX_BLS_SIGNATURE_SIZE = 64;
-
-
-#include "BLSSignature.h"
 #include "ThresholdSignature.h"
 
-class ConsensusBLSSignature : public ThresholdSignature {
+block_id ThresholdSignature::getBlockId() const {
+    return blockId;
+}
 
-    BLSSignature blsSig;
-
-public:
-    ConsensusBLSSignature(
-        ptr< string > _s, block_id _blockID, size_t _totalSigners, size_t _requiredSigners );
-
-    ConsensusBLSSignature( ptr< libff::alt_bn128_G1 > _s, block_id _blockID, size_t _totalSigners,
-        size_t _requiredSigners );
-
-    std::shared_ptr<std::string> toString();
-
-    uint64_t getRandom();
-};
-
-
-#endif  // SKALED_CONSENSUSBLSSIGNATURE_H
+ThresholdSignature::ThresholdSignature(const block_id &blockId) : blockId(blockId) {}
