@@ -42,11 +42,8 @@ using namespace std;
 atomic< uint64_t > ConsensusSigShareSet::totalObjects( 0 );
 
 
-ConsensusSigShareSet::ConsensusSigShareSet(
-    Schain* _sChain, block_id _blockId, size_t _totalSigners, size_t _requiredSigners )
-    : BLSSigShareSet(_totalSigners, _requiredSigners) , sChain( _sChain ), blockId( _blockId ) {
-
-
+ConsensusSigShareSet::ConsensusSigShareSet(block_id _blockId, size_t _totalSigners, size_t _requiredSigners )
+    : requiredSigners(_requiredSigners), totalSigners(_totalSigners), blockId( _blockId ), blsSet(_totalSigners, _requiredSigners)  {
 
     totalObjects++;
 }
@@ -58,10 +55,29 @@ ConsensusSigShareSet::~ConsensusSigShareSet() {
 
 
 ptr< ConsensusBLSSignature > ConsensusSigShareSet::mergeSignature() {
-    auto blsShare = merge();
-
+    auto blsShare = blsSet.merge();
     // BOOST_REQUIRE(obj.Verification(hash, common_signature, pk) == false);
-
     return make_shared<ConsensusBLSSignature>( blsShare->getSig(), blockId,
             blsShare->getTotalSigners(), blsShare->getRequiredSigners());
 }
+
+bool ConsensusSigShareSet::isEnough() {
+    return blsSet.isEnough();
+}
+
+
+
+bool ConsensusSigShareSet::isEnoughMinusOne() {
+    auto sigsCount = blsSet.getTotalSigSharesCount();
+    return sigsCount >= requiredSigners - 1;
+}
+
+
+uint64_t ConsensusSigShareSet::getTotalObjects() {
+    return totalObjects;
+}
+
+bool ConsensusSigShareSet::addSigShare(std::shared_ptr<BLSSigShare> _sigShare) {
+    return blsSet.addSigShare((_sigShare));
+}
+

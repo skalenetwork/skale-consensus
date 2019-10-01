@@ -97,17 +97,14 @@ bool ReceivedSigSharesDatabase::addSigShare(ptr<ConsensusBLSSigShare> _sigShare)
     lock_guard<recursive_mutex> lock(sigShareDatabaseMutex);
 
     if (this->sigShareSets.count(_sigShare->getBlockId()) == 0) {
-        sigShareSets[_sigShare->getBlockId()] = make_shared<ConsensusSigShareSet>(this->sChain, _sigShare->getBlockId(),
+        sigShareSets[_sigShare->getBlockId()] = make_shared<ConsensusSigShareSet>(_sigShare->getBlockId(),
                 sChain->getTotalSignersCount(), sChain->getRequiredSignersCount());
     }
 
     sigShareSets.at(_sigShare->getBlockId())->addSigShare(_sigShare->getBlsSigShare());
 
+    return sigShareSets.at(_sigShare->getBlockId())->isEnoughMinusOne();
 
-    auto sigsCount = sigShareSets.at(_sigShare->getBlockId())->getTotalSigSharesCount();
-
-
-    return sigsCount >= sChain->getRequiredSignersCount() - 1;
 }
 
 
@@ -121,7 +118,7 @@ ptr<ConsensusSigShareSet> ReceivedSigSharesDatabase::getSigShareSet(block_id blo
     lock_guard<recursive_mutex> lock(sigShareDatabaseMutex);
 
     if (sigShareSets.count(blockID) == 0) {
-        sigShareSets[blockID] = make_shared<ConsensusSigShareSet>(this->sChain, blockID,
+        sigShareSets[blockID] = make_shared<ConsensusSigShareSet>(blockID,
             sChain->getTotalSignersCount(), sChain->getRequiredSignersCount());
     }
 
