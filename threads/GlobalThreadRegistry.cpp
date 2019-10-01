@@ -56,7 +56,5 @@ void GlobalThreadRegistry::add(thread* _t) {
 
     lock_guard<recursive_mutex> lock(mutex);
 
-    CHECK_STATE(!joined);
-
     allThreads.push_back(_t);
 }
