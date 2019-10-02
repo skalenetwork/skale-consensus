@@ -63,6 +63,9 @@ root = sys.argv[1]
 
 print("Starting tests. Build root:" + sys.argv[1])
 
+
+run ("ccache -M 20G")
+
 consensustExecutive = getConsensustExecutive()
 
 unitTest(consensustExecutive, "[tx-serialize]")
