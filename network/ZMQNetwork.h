@@ -32,7 +32,7 @@ class NodeInfo;
 
 class ClientSocket;
 class NetworkMessageEnvelope;
-class Connection;
+class ServerConnection;
 
 class Schain;
 

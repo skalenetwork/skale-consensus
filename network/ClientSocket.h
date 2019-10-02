@@ -33,6 +33,7 @@ class Schain;
 
 class ClientSocket {
 
+    static atomic<uint64_t> totalSockets;
 
     file_descriptor descriptor;
 
@@ -46,6 +47,8 @@ class ClientSocket {
 
     ptr<sockaddr_in> bind_addr;
 
+    void closeSocket();
+
 public:
 
 
@@ -57,15 +60,16 @@ public:
 
     ptr<sockaddr_in> getSocketaddr();
 
+    static uint64_t getTotalSockets();
+
 
     virtual ~ClientSocket() {
         closeSocket();
+        totalSockets--;
     }
 
     int createTCPSocket();
 
     ClientSocket(Schain &_sChain, schain_index _destinationIndex, port_type portType);
-
-    void closeSocket();
 
 };

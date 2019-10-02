@@ -395,7 +395,7 @@ void Schain::processCommittedBlock(ptr<CommittedBlock> _block) {
         "BLOCK_COMMIT: PRPSR:" + to_string(_block->getProposerIndex()) + ":BID: " + to_string(_block->getBlockID()) +
         ":HASH:" + h + ":BLOCK_TXS:" + to_string(_block->getTransactionCount()) + ":DMSG:" +
         to_string(getMessagesCount()) + ":MPRPS:" + to_string(MyBlockProposal::getTotalObjects()) + ":RPRPS:" +
-        to_string(ReceivedBlockProposal::getTotalObjects()) + ":TXNS:" + to_string(Transaction::getTotalObjects()) +
+        to_string(ReceivedBlockProposal::getTotalObjects()) + ":TXS:" + to_string(Transaction::getTotalObjects()) +
         //              ":PNDG:" +
         //              to_string(pendingTransactionsAgent->getPendingTransactionsSize())
         //              +
@@ -403,7 +403,8 @@ void Schain::processCommittedBlock(ptr<CommittedBlock> _block) {
         to_string(pendingTransactionsAgent->getCommittedTransactionsSize()) + ":MGS:" +
         to_string(Message::getTotalObjects()) + ":INSTS:" + to_string(ProtocolInstance::getTotalObjects()) + ":BPS:" +
         to_string(BlockProposalSet::getTotalObjects()) + ":TLS:" + to_string(TransactionList::getTotalObjects()) +
-        ":HDRS:" + to_string(Header::getTotalObjects()));
+        ":HDRS:" + to_string(Header::getTotalObjects()) + ":SOCK:" + to_string(ClientSocket::getTotalSockets()) +
+        ":CONS:" + to_string(ServerConnection::getTotalConnections()));
 
 
     saveBlock(_block);
@@ -556,13 +557,10 @@ void Schain::healthCheck() {
                     if (getNode()->isExitRequested()) {
                         BOOST_THROW_EXCEPTION(ExitRequestedException(__CLASS_NAME__));
                     }
-                    auto x = make_shared<ClientSocket>(*this, schain_index(i), port_type::PROPOSAL);
+                    auto socket = make_shared<ClientSocket>(*this, schain_index(i), port_type::PROPOSAL);
                     LOG(debug, "Health check: connected to peer");
-                    getIo()->writeMagic(x, true);
-                    x->closeSocket();
+                    getIo()->writeMagic(socket, true);
                     connections.insert(i);
-
-
                 } catch (ExitRequestedException &) {
                     throw;
                 } catch (std::exception &e) {

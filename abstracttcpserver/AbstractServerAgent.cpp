@@ -54,7 +54,7 @@
 #include "../network/Sockets.h"
 #include "../network/IO.h"
 #include "../network/Buffer.h"
-#include "../network/Connection.h"
+#include "../network/ServerConnection.h"
 #include "../network/TCPServerSocket.h"
 #include "../datastructures/PartialHashesList.h"
 
@@ -62,13 +62,13 @@
 #include "AbstractServerAgent.h"
 
 
-void AbstractServerAgent::pushToQueueAndNotifyWorkers(ptr<Connection> connectionEnvelope) {
+void AbstractServerAgent::pushToQueueAndNotifyWorkers(ptr<ServerConnection> connectionEnvelope) {
     lock_guard<mutex> lock(incomingTCPConnectionsMutex);
     incomingTCPConnections.push(connectionEnvelope);
     incomingTCPConnectionsCond.notify_all();
 }
 
-ptr<Connection> AbstractServerAgent::workerThreadWaitandPopConnection() {
+ptr<ServerConnection> AbstractServerAgent::workerThreadWaitandPopConnection() {
 
     unique_lock<mutex> mlock(incomingTCPConnectionsMutex);
 
@@ -80,7 +80,7 @@ ptr<Connection> AbstractServerAgent::workerThreadWaitandPopConnection() {
 
     ASSERT(!incomingTCPConnections.empty());
 
-    ptr<Connection> ce = incomingTCPConnections.front();
+    ptr<ServerConnection> ce = incomingTCPConnections.front();
 
     incomingTCPConnections.pop();
 
@@ -100,18 +100,22 @@ void AbstractServerAgent::workerThreadConnectionProcessingLoop(void *_params) {
 
 
     while (!server->getNode()->isExitRequested()) {
+
+        ptr<ServerConnection> connection = nullptr;
         try {
 
-            ptr<Connection> connection = server->workerThreadWaitandPopConnection();
-            server->processNextAvailableConnection(connection);
+            connection = server->workerThreadWaitandPopConnection();
+            server->processNextAvailableConnection(connection);;
+            connection->closeConnection();
         } catch (Exception &e) {
             Exception::logNested(e);
+            connection->closeConnection();
         }
     }
 }
 
 
-void AbstractServerAgent::send(ptr<Connection> _connectionEnvelope,
+void AbstractServerAgent::send(ptr<ServerConnection> _connectionEnvelope,
                                ptr<Header> _header) {
 
 
@@ -161,7 +165,7 @@ void AbstractServerAgent::acceptTCPConnectionsLoop() {
 
             char *ip(inet_ntoa(clientAddress.sin_addr));
 
-            this->pushToQueueAndNotifyWorkers(make_shared<Connection>(newConnection, make_shared<string>(ip)));
+            this->pushToQueueAndNotifyWorkers(make_shared<ServerConnection>(newConnection, make_shared<string>(ip)));
 
         }
     } catch (FatalError *e) {
@@ -178,7 +182,7 @@ void AbstractServerAgent::createNetworkReadThread() {
 }
 
 
-ptr<PartialHashesList> AbstractServerAgent::readPartialHashes(ptr<Connection> _connectionEnvelope_,
+ptr<PartialHashesList> AbstractServerAgent::readPartialHashes(ptr<ServerConnection> _connectionEnvelope_,
                                                               nlohmann::json _jsonRequest) {
 
     auto messageCount = transaction_count(Header::getUint64(_jsonRequest, "partialHashesCount"));
