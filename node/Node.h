@@ -221,8 +221,6 @@ public:
 
     void exitOnFatalError(const string& message);
 
-
-
     void initSchain(ptr<NodeInfo> _localNodeInfo, const vector<ptr<NodeInfo>> &remoteNodeInfos,
                     ConsensusExtFace *_extFace);
 

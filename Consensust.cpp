@@ -96,14 +96,21 @@ void testLog(const char *message) {
 
 TEST_CASE_METHOD(StartFromScratch, "Run basic consensus", "[consensus-basic]") {
 
-    engine = new ConsensusEngine();
-    engine->parseConfigsAndCreateAllNodes(Consensust::getConfigDirPath());
-    engine->slowStartBootStrapTest();
-    usleep(1000 * Consensust::getRunningTimeMS()); /* Flawfinder: ignore */
+    try {
+        engine = new ConsensusEngine();
+        engine->parseConfigsAndCreateAllNodes(Consensust::getConfigDirPath());
+        engine->slowStartBootStrapTest();
+        usleep(1000 * Consensust::getRunningTimeMS()); /* Flawfinder: ignore */
 
-    assert(engine->nodesCount() > 0);
-    assert(engine->getLargestCommittedBlockID() > 0);
-    engine->exitGracefully();
+
+        REQUIRE(engine->nodesCount() > 0);
+        REQUIRE(engine->getLargestCommittedBlockID() > 0);
+
+        engine->exitGracefully();
+    } catch (Exception& e) {
+        Exception::logNested(e);
+        throw;
+    }
     SUCCEED();
 }
 
@@ -116,8 +123,8 @@ TEST_CASE_METHOD(StartFromScratch, "Use finalization download only", "[consensus
     engine->slowStartBootStrapTest();
     usleep(1000 * Consensust::getRunningTimeMS()); /* Flawfinder: ignore */
 
-    assert(engine->nodesCount() > 0);
-    assert(engine->getLargestCommittedBlockID() > 0);
+    REQUIRE(engine->nodesCount() > 0);
+    REQUIRE(engine->getLargestCommittedBlockID() > 0);
     engine->exitGracefully();
     SUCCEED();
 }

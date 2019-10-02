@@ -304,7 +304,7 @@ extern thread_local ptr<Log> logThreadLocal_;
 #define CHECK_STATE(_EXPRESSION_) \
     if (!(_EXPRESSION_)) { \
         auto __msg__ = string("State check failed::") + #_EXPRESSION_ +  " " + string(__FILE__) + ":" + to_string(__LINE__); \
-        throw InvalidArgumentException(__msg__, __CLASS_NAME__);}
+        throw InvalidStateException(__msg__, __CLASS_NAME__);}
 
 
 
@@ -316,7 +316,7 @@ extern thread_local ptr<Log> logThreadLocal_;
 #define CHECK_STATE2(_EXPRESSION_, _MSG_) \
     if (!(_EXPRESSION_)) { \
         auto __msg__ = string("Check failed::") + #_EXPRESSION_ +  " " + string(__FILE__) + ":" + to_string(__LINE__); \
-        throw InvalidArgumentException(__msg__ + ":" + _MSG_, __CLASS_NAME__);}
+        throw InvalidStateException(__msg__ + ":" + _MSG_, __CLASS_NAME__);}
 
 
 #define ASSERT2(_EXPRESSION_, _MSG_) \
