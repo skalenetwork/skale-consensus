@@ -34,6 +34,7 @@
 
 #include "exceptions/FatalError.h"
 #include "exceptions/InvalidArgumentException.h"
+#include "exceptions/InvalidStateException.h"
 
 #include "SkaleCommon.h"
 

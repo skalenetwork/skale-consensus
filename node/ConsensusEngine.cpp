@@ -91,16 +91,16 @@ void ConsensusEngine::parseFullConfigAndCreateNode(const string &configFileConte
 
     try {
 
-    nlohmann::json j = nlohmann::json::parse(configFileContents);
+        nlohmann::json j = nlohmann::json::parse(configFileContents);
 
-    std::set<node_id> dummy;
+        std::set<node_id> dummy;
 
-    Node *node = JSONFactory::createNodeFromJsonObject(j["skaleConfig"]["nodeInfo"], dummy, this);
+        Node *node = JSONFactory::createNodeFromJsonObject(j["skaleConfig"]["nodeInfo"], dummy, this);
 
-    JSONFactory::createAndAddSChainFromJsonObject(
-            *node, j["skaleConfig"]["sChain"], this);
+        JSONFactory::createAndAddSChainFromJsonObject(
+                *node, j["skaleConfig"]["sChain"], this);
 
-    nodes[node->getNodeID()] = node;
+        nodes[node->getNodeID()] = node;
 
     } catch (Exception &e) {
         Exception::logNested(e);
@@ -432,26 +432,39 @@ ConsensusExtFace *ConsensusEngine::getExtFace() const {
 
 void ConsensusEngine::exitGracefully() {
 
-    auto previouslyCalled = exitRequested.exchange(true);
+    try {
 
-    if (previouslyCalled) {
-        return;
-    }
+        auto previouslyCalled = exitRequested.exchange(true);
 
-
-    for (auto const it : nodes) {
-        it.second->exit();
-    }
+        if (previouslyCalled) {
+            return;
+        }
 
 
-    GlobalThreadRegistry::joinAll();
+        for (auto const it : nodes) {
+            it.second->exit();
+        }
 
 
-    for (auto const it : nodes) {
-        if (it.second->getSockets())
-            it.second->getSockets()->getConsensusZMQSocket()->terminate();
-    }
 
+        GlobalThreadRegistry::joinAll();
+
+
+
+        for (auto const it : nodes) {
+            if (it.second->getSockets())
+                it.second->getSockets()->getConsensusZMQSocket()->terminate();
+        }
+
+
+        for (auto const it : nodes) {
+            it.second->getSchain()->joinMonitorThread();
+        }
+
+    } catch (Exception &e) {
+    Exception::logNested(e);
+    throw_with_nested(EngineInitException("Engine construction failed", __CLASS_NAME__));
+}
 
 }
 
