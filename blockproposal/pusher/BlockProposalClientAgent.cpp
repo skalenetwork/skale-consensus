@@ -42,7 +42,7 @@
 #include "../../headers/MissingTransactionsRequestHeader.h"
 #include "../../headers/MissingTransactionsResponseHeader.h"
 #include "../../network/ClientSocket.h"
-#include "../../network/Connection.h"
+#include "../../network/ServerConnection.h"
 #include "../../network/IO.h"
 #include "../../network/TransportNetwork.h"
 #include "../../node/Node.h"

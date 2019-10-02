@@ -2,6 +2,14 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/SkaleDeps/argtable2" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/SkaleDeps/curl" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/SkaleDeps/libcryptopp" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/SkaleDeps/libmicrohttpd" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/SkaleDeps/libuv" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/SkaleDeps/libwebsockets" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/SkaleDeps/openssl" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/SkaleDeps/zlib" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/libBLS" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/libBLS/libff" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/libBLS/libff/depends/ate-pairing" vcs="Git" />

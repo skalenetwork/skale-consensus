@@ -32,7 +32,7 @@ class WorkerThreadPool;
 class NodeInfo;
 class ReceivedBlockProposalsDatabase;
 class ReceivedSigSharesDatabase;
-class Connection;
+class ServerConnection;
 class BlockProposal;
 class PartialHashesList;
 

@@ -57,7 +57,7 @@
 #include "../../chains/Schain.h"
 #include "../../network/TransportNetwork.h"
 #include "../../network/Sockets.h"
-#include "../../network/Connection.h"
+#include "../../network/ServerConnection.h"
 #include "../../network/IO.h"
 #include "../../headers/CatchupRequestHeader.h"
 #include "../../headers/CommittedBlockHeader.h"
@@ -87,7 +87,7 @@ CatchupServerAgent::~CatchupServerAgent() {
 }
 
 
-void CatchupServerAgent::processNextAvailableConnection(ptr<Connection> _connection) {
+void CatchupServerAgent::processNextAvailableConnection(ptr<ServerConnection> _connection) {
 
 
     try {
@@ -180,7 +180,7 @@ void CatchupServerAgent::processNextAvailableConnection(ptr<Connection> _connect
 }
 
 
-ptr<vector<uint8_t>> CatchupServerAgent::createResponseHeaderAndBinary(ptr<Connection> _connectionEnvelope,
+ptr<vector<uint8_t>> CatchupServerAgent::createResponseHeaderAndBinary(ptr<ServerConnection> _connectionEnvelope,
                                                                        nlohmann::json _jsonRequest,
                                                                        ptr<Header> &_responseHeader) {
 

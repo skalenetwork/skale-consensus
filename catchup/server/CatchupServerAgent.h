@@ -34,7 +34,7 @@
 #include "../../abstracttcpserver/AbstractServerAgent.h"
 
 #include "../../headers/Header.h"
-#include "../../network/Connection.h"
+#include "../../network/ServerConnection.h"
 #include "../../datastructures/PartialHashesList.h"
 #include "../../headers/Header.h"
 
@@ -65,10 +65,10 @@ public:
 
     CatchupWorkerThreadPool *getCatchupWorkerThreadPool() const;
 
-    ptr<vector<uint8_t>> createResponseHeaderAndBinary(ptr<Connection> _connectionEnvelope,
+    ptr<vector<uint8_t>> createResponseHeaderAndBinary(ptr<ServerConnection> _connectionEnvelope,
                                                        nlohmann::json _jsonRequest, ptr<Header>& _responseHeader);
 
-    void processNextAvailableConnection(ptr<Connection> _connection) override;
+    void processNextAvailableConnection(ptr<ServerConnection> _connection) override;
 
     ptr<vector<uint8_t>> getSerializedBlock(uint64_t i) const;
 };

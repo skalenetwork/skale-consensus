@@ -25,7 +25,7 @@
 
 #include "../Agent.h"
 
-class Connection;
+class ServerConnection;
 class Schain;
 class Buffer;
 class TCPServerSocket;
@@ -52,7 +52,7 @@ protected:
 
 
 
-    void send(ptr<Connection> _connectionEnvelope, ptr<Header> _header);
+    void send(ptr<ServerConnection> _connectionEnvelope, ptr<Header> _header);
 
 
 
@@ -63,14 +63,14 @@ public:
     ~AbstractServerAgent() override;
 
 
-    queue<ptr<Connection>> incomingTCPConnections;
+    queue<ptr<ServerConnection>> incomingTCPConnections;
 
 
 
 
-    void pushToQueueAndNotifyWorkers(ptr<Connection> connectionEnvelope);
+    void pushToQueueAndNotifyWorkers(ptr<ServerConnection> connectionEnvelope);
 
-    ptr<Connection> workerThreadWaitandPopConnection();
+    ptr<ServerConnection> workerThreadWaitandPopConnection();
 
     static void workerThreadConnectionProcessingLoop(void* _params);
 
@@ -80,10 +80,10 @@ public:
 // to be implemented by subclasses
 
 
-    virtual void processNextAvailableConnection(ptr<Connection> _connection) = 0;
+    virtual void processNextAvailableConnection(ptr<ServerConnection> _connection) = 0;
 
 
-    virtual ptr<PartialHashesList> readPartialHashes(ptr<Connection> _connectionEnvelope_, nlohmann::json _jsonRequest);
+    virtual ptr<PartialHashesList> readPartialHashes(ptr<ServerConnection> _connectionEnvelope_, nlohmann::json _jsonRequest);
 
 
 
