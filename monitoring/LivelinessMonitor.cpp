@@ -52,7 +52,7 @@ LivelinessMonitor::~LivelinessMonitor() {
 
 string LivelinessMonitor::toString() {
     return
-    "Node:" + to_string(agent->getNode()->getNodeID()) +
+    "Node:" + to_string(agent->getSChain()->getNode()->getNodeID()) +
     ":Thread:" + to_string((uint32_t ) threadId) + ":" + cl + string("::") + function;
 }
 
