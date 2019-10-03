@@ -16,35 +16,37 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file ConsensusBLSSignature.h
+    @file MockupSignature.cpp
     @author Stan Kladko
     @date 2019
 */
 
-#ifndef SKALED_CONSENSUSBLSSIGNATURE_H
-#define SKALED_CONSENSUSBLSSIGNATURE_H
-
-// constexpr uint64_t  MAX_BLS_SIGNATURE_SIZE = 64;
 
 
-#include "BLSSignature.h"
+
+#include "../SkaleCommon.h"
+#include "../Log.h"
+#include "../crypto/bls_include.h"
+#include "../network/Utils.h"
+#include "../thirdparty/json.hpp"
+
+#include "../libBLS/bls/BLSSignature.h"
+#include "MockupSignature.h"
 #include "ThresholdSignature.h"
 
-class ConsensusBLSSignature : public ThresholdSignature {
 
-    BLSSignature blsSig;
+MockupSignature::MockupSignature(
+    ptr< string > _s, block_id _blockID, size_t _totalSigners, size_t _requiredSigners )
+    : ThresholdSignature(_blockID), blsSig( _s, _totalSigners, _requiredSigners ){}
 
-public:
-    ConsensusBLSSignature(
-        ptr< string > _s, block_id _blockID, size_t _totalSigners, size_t _requiredSigners );
 
-    ConsensusBLSSignature( ptr< libff::alt_bn128_G1 > _s, block_id _blockID, size_t _totalSigners,
-        size_t _requiredSigners );
-
-    std::shared_ptr<std::string> toString();
-
-    uint64_t getRandom();
+std::shared_ptr<std::string> MockupSignature::toString() {
+    return make_shared<string>(to_string(blockId));
 };
 
+uint64_t MockupSignature::getRandom() {
 
-#endif  // SKALED_CONSENSUSBLSSIGNATURE_H
+    uint64_t  bi = (uint64_t ) blockId;
+
+    return (bi * bi ) % 3 + bi;
+}

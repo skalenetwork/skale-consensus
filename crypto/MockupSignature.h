@@ -16,13 +16,13 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file ConsensusBLSSignature.h
+    @file MockupSignature.h
     @author Stan Kladko
     @date 2019
 */
 
-#ifndef SKALED_CONSENSUSBLSSIGNATURE_H
-#define SKALED_CONSENSUSBLSSIGNATURE_H
+#ifndef SKALED_MOCKUPSIGNATURE_H
+#define SKALED_MOCKUPSIGNATURE_H
 
 // constexpr uint64_t  MAX_BLS_SIGNATURE_SIZE = 64;
 
@@ -30,16 +30,13 @@
 #include "BLSSignature.h"
 #include "ThresholdSignature.h"
 
-class ConsensusBLSSignature : public ThresholdSignature {
+class MockupSignature : public ThresholdSignature {
 
     BLSSignature blsSig;
 
 public:
-    ConsensusBLSSignature(
+    MockupSignature(
         ptr< string > _s, block_id _blockID, size_t _totalSigners, size_t _requiredSigners );
-
-    ConsensusBLSSignature( ptr< libff::alt_bn128_G1 > _s, block_id _blockID, size_t _totalSigners,
-        size_t _requiredSigners );
 
     std::shared_ptr<std::string> toString();
 
@@ -47,4 +44,4 @@ public:
 };
 
 
-#endif  // SKALED_CONSENSUSBLSSIGNATURE_H
+#endif  // SKALED_MockupSIGNATURE_H
