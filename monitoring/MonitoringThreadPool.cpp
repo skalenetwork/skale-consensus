@@ -28,7 +28,7 @@
 
 
 #include "../../abstracttcpserver/ConnectionStatus.h"
-#include "../../network/Connection.h"
+#include "../network/ServerConnection.h"
 
 #include "../../thirdparty/json.hpp"
 
@@ -36,7 +36,7 @@
 #include "MonitoringThreadPool.h"
 
 MonitoringThreadPool::MonitoringThreadPool(num_threads numThreads, void *params_) : WorkerThreadPool(numThreads,
-                                                                                                            params_) {
+                                                                                                            params_, true) {
 }
 
 

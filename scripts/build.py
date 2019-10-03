@@ -71,6 +71,8 @@ cmakeExecutable = subprocess.check_output(["which", "cmake"])
 
 print("Running cmake: " + cmakeExecutable)
 
+
+run ("ccache -M 20G")
 run("cmake . -Bbuild -DCMAKE_BUILD_TYPE=" +  sys.argv[1] +
                         " -DCOVERAGE=ON -DMICROPROFILE_ENABLED=0")
 

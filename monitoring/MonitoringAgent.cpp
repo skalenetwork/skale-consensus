@@ -35,7 +35,7 @@
 #include "MonitoringThreadPool.h"
 
 
-MonitoringAgent::MonitoringAgent(Schain &_sChain) : Agent(_sChain, true) {
+MonitoringAgent::MonitoringAgent(Schain &_sChain) {
     try {
         logThreadLocal_ = _sChain.getNode()->getLog();
         this->sChain = &_sChain;
@@ -70,14 +70,13 @@ void MonitoringAgent::monitor() {
 void MonitoringAgent::monitoringLoop(MonitoringAgent *agent) {
     setThreadName("MonitoringLoop");
 
-    agent->waitOnGlobalStartBarrier();
 
     LOG(info, "Monitoring agent started monitoring");
 
 
     try {
-        while (!agent->getSchain()->getNode()->isExitRequested()) {
-            usleep(agent->getNode()->getMonitoringIntervalMs() * 1000);
+        while (!agent->getSChain()->getNode()->isExitRequested()) {
+            usleep(agent->getSChain()->getNode()->getMonitoringIntervalMs() * 1000);
 
             try {
                 agent->monitor();
@@ -89,7 +88,7 @@ void MonitoringAgent::monitoringLoop(MonitoringAgent *agent) {
 
         };
     } catch (FatalError *e) {
-        agent->getNode()->exitOnFatalError(e->getMessage());
+        agent->getSChain()->getNode()->exitOnFatalError(e->getMessage());
     }
 }
 
@@ -111,4 +110,12 @@ void MonitoringAgent::unregisterMonitor(LivelinessMonitor *m) {
 
     activeMonitors.erase((uint64_t) m);
 
+}
+
+Schain *MonitoringAgent::getSChain() const {
+    return sChain;
+}
+
+void MonitoringAgent::join() {
+    this->monitoringThreadPool->joinAll();
 }

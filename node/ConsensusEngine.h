@@ -41,6 +41,8 @@ class ConsensusBLSPrivateKeyShare;
 
 class ConsensusEngine : public ConsensusInterface {
 
+    recursive_mutex mutex;
+
     std::atomic<bool> exitRequested;
 
     map< node_id, Node* > nodes;

@@ -30,7 +30,7 @@
 #include "Sockets.h"
 
 #include "../node/NodeInfo.h"
-#include "../network/Connection.h"
+#include "ServerConnection.h"
 #include "../exceptions/FatalError.h"
 #include "../exceptions/NetworkProtocolException.h"
 #include "../exceptions/ConnectionRefusedException.h"
@@ -40,9 +40,11 @@ using namespace std;
 
 
 void ClientSocket::closeSocket() {
-    Connection::decrementTotalConnections();
-    close((int) descriptor);
+    lock_guard<recursive_mutex> lock(m);
 
+    if (descriptor != 0)
+        close((int) descriptor);
+    descriptor = 0;
 }
 
 
@@ -81,9 +83,6 @@ int ClientSocket::createTCPSocket() {
         BOOST_THROW_EXCEPTION(ConnectionRefusedException("Could not connect to server", errno, __CLASS_NAME__));
     };
 
-
-    Connection::incrementTotalConnections();
-
     return s;
 }
 
@@ -107,6 +106,13 @@ ClientSocket::ClientSocket(Schain &_sChain, schain_index _destinationIndex, port
 
     descriptor = createTCPSocket();
 
-
     ASSERT(descriptor != 0);
+
+    totalSockets++;
+}
+
+atomic<uint64_t> ClientSocket::totalSockets = 0;
+
+uint64_t ClientSocket::getTotalSockets() {
+    return totalSockets;
 }

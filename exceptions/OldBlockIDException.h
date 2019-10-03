@@ -23,7 +23,7 @@
 
 #pragma  once
 class Header;
-class Connection;
+class ServerConnection;
 
 #include "ProposalProtocolException.h"
 
@@ -36,15 +36,15 @@ public:
         return responseHeader;
     }
 
-    ptr<Connection> getConnection() const {
+    ptr<ServerConnection> getConnection() const {
         return connection;
     }
 
 private:
-    ptr<Connection> connection;
+    ptr<ServerConnection> connection;
 
 public:
-    OldBlockIDException(const string &_message, const ptr<Header> &responseHeader, const ptr<Connection> &connection,
+    OldBlockIDException(const string &_message, const ptr<Header> &responseHeader, const ptr<ServerConnection> &connection,
                         const string& _className)
             : ProposalProtocolException(_message, _className), responseHeader(responseHeader), connection(connection) {}
 };

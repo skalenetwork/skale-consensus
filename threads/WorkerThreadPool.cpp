@@ -30,7 +30,6 @@
 #include "WorkerThreadPool.h"
 
 
-
 void WorkerThreadPool::startService() {
 
     ASSERT(!started)
@@ -39,34 +38,35 @@ void WorkerThreadPool::startService() {
 
     started = true;
 
-    for (uint64_t i = 0; i < (uint64_t )numThreads; i++) {
+    for (uint64_t i = 0; i < (uint64_t) numThreads; i++) {
         createThread(i);
-        GlobalThreadRegistry::add(threadpool.at(i));
+        if (!dontJoinGlobalRegistry)
+            GlobalThreadRegistry::add(threadpool.at(i));
     }
 
 }
 
 
-WorkerThreadPool::WorkerThreadPool(num_threads _numThreads, void* _param) {
-   CHECK_ARGUMENT(_numThreads > 0);
-   LOG(trace, "Started threads count:" + to_string(_numThreads));
-   this->params = _param;
-   this->numThreads = _numThreads;
+WorkerThreadPool::WorkerThreadPool(num_threads _numThreads, void *_param,
+        bool _dontJoinGlobalRegistry) {
+    CHECK_ARGUMENT(_numThreads > 0);
+    LOG(trace, "Started threads count:" + to_string(_numThreads));
+    this->dontJoinGlobalRegistry = _dontJoinGlobalRegistry;
+    this->params = _param;
+    this->numThreads = _numThreads;
 }
 
 
-
-
 void WorkerThreadPool::joinAll() {
+    lock_guard<recursive_mutex> lock(mutex);
 
     if (joined)
         return;
 
-    lock_guard<recursive_mutex> lock(mutex);
-
     joined = true;
 
-    for (auto&& thread : threadpool) {
+    for (auto &&thread : threadpool) {
+        CHECK_STATE(thread->joinable());
         thread->join();
         CHECK_STATE(!thread->joinable());
     }

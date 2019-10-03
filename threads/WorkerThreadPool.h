@@ -32,6 +32,8 @@ class WorkerThreadPool {
 
     recursive_mutex mutex;
 
+    bool dontJoinGlobalRegistry = false;
+
 
 
     bool started = false;
@@ -50,7 +52,8 @@ protected:
 
 protected:
 
-    WorkerThreadPool( num_threads _numThreads, void* _param_ );
+    WorkerThreadPool( num_threads _numThreads, void* _param,
+            bool _dontJoinGlobalRegistry = false);
 
 public:
 

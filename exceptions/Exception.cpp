@@ -30,14 +30,20 @@ void Exception::logNested(const std::exception &e, int level)
 {
     string prefix;
 
+
     if (level == 0) {
         prefix = "!Exception:";
     } else {
         prefix = "!Caused by:";
     }
 
+
+
     if ((dynamic_cast<const ExitRequestedException*>(&e) != nullptr)) {
         LOG(info, string(level, ' ') + prefix + e.what());
+    } if (dynamic_cast<const std::nested_exception*>(&e) == nullptr) {
+        LOG(err, string(level, ' ') + prefix + e.what());
+        return;
     } else {
         LOG(err, string(level, ' ') + prefix + e.what());
     }

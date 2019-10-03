@@ -33,8 +33,11 @@ class Schain;
 
 class ClientSocket {
 
+    recursive_mutex m;
 
-    file_descriptor descriptor;
+    static atomic<uint64_t> totalSockets;
+
+    file_descriptor descriptor = 0;
 
     ptr<string> remoteIP;
 
@@ -45,6 +48,12 @@ class ClientSocket {
     ptr<sockaddr_in> remote_addr;
 
     ptr<sockaddr_in> bind_addr;
+
+    void closeSocket();
+
+
+    int createTCPSocket();
+
 
 public:
 
@@ -57,15 +66,15 @@ public:
 
     ptr<sockaddr_in> getSocketaddr();
 
+    static uint64_t getTotalSockets();
+
 
     virtual ~ClientSocket() {
         closeSocket();
+        totalSockets--;
     }
 
-    int createTCPSocket();
 
     ClientSocket(Schain &_sChain, schain_index _destinationIndex, port_type portType);
-
-    void closeSocket();
 
 };
