@@ -35,7 +35,7 @@
 #include "../../messages/NetworkMessage.h"
 #include "../../exceptions/InvalidArgumentException.h"
 #include "../../crypto/ConsensusBLSSigShare.h"
-#include "../../chains/CryptoSigner.h"
+#include "../../crypto/CryptoSigner.h"
 
 #include "../ProtocolKey.h"
 #include "../ProtocolInstance.h"

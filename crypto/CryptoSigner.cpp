@@ -24,12 +24,12 @@
 #include "../SkaleCommon.h"
 #include "../Log.h"
 #include "../thirdparty/json.hpp"
-#include "Schain.h"
-#include "../crypto/SHAHash.h"
-#include "../crypto/ConsensusBLSSigShare.h"
+#include "../chains/Schain.h"
+#include "SHAHash.h"
+#include "ConsensusBLSSigShare.h"
 #include "../node/Node.h"
 #include "../monitoring/LivelinessMonitor.h"
-#include "../libBLS/bls/BLSPrivateKeyShare.h"
+#include "bls/BLSPrivateKeyShare.h"
 
 #include "CryptoSigner.h"
 

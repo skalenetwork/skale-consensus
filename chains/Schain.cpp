@@ -84,7 +84,7 @@
 #include "SchainTest.h"
 #include "../libBLS/bls/BLSPrivateKeyShare.h"
 #include "../monitoring/LivelinessMonitor.h"
-#include "CryptoSigner.h"
+#include "../crypto/CryptoSigner.h"
 #include "SchainMessageThreadPool.h"
 #include "TestConfig.h"
 #include "Schain.h"
