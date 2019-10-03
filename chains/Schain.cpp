@@ -85,9 +85,11 @@
 #include "../libBLS/bls/BLSPrivateKeyShare.h"
 #include "../monitoring/LivelinessMonitor.h"
 #include "../crypto/CryptoSigner.h"
+#include "../crypto/ThresholdSigShare.h"
 #include "SchainMessageThreadPool.h"
 #include "TestConfig.h"
 #include "Schain.h"
+
 
 
 void Schain::postMessage(ptr<MessageEnvelope> m) {

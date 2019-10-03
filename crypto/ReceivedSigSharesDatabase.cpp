@@ -44,6 +44,7 @@
 #include "BLSSigShare.h"
 #include "BLSSignature.h"
 #include "BLSSigShareSet.h"
+#include "ThresholdSigShare.h"
 
 
 using namespace std;
@@ -124,8 +125,6 @@ ptr<ConsensusSigShareSet> ReceivedSigSharesDatabase::getSigShareSet(block_id blo
 
     return sigShareSets.at(blockID);
 }
-
-
 
 bool ReceivedSigSharesDatabase::isTwoThird(block_id _blockID) {
 
