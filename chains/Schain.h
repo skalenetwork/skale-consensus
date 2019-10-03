@@ -51,6 +51,7 @@ class ConsensusExtFace;
 class CatchupClientAgent;
 class CatchupServerAgent;
 class MonitoringAgent;
+class CryptoSigner;
 
 class BlockProposalServerAgent;
 
@@ -115,6 +116,8 @@ class Schain : public Agent {
 
     ptr<ReceivedSigSharesDatabase> blockSigSharesDatabase;
 
+    ptr<CryptoSigner> cryptoSigner;
+
     Node* node;
 
     schain_index schainIndex;
@@ -133,8 +136,6 @@ class Schain : public Agent {
  */
     queue<ptr<MessageEnvelope>> messageQueue;
 
-    /*** Queue of unprocessed messages for this schain instance
- */
     queue<uint64_t> dispatchQueue;
 
     ptr<NodeInfo> thisNodeInfo = nullptr;
@@ -157,6 +158,8 @@ class Schain : public Agent {
 
 
 public:
+
+
 
     void joinMonitorThread();
 
@@ -238,13 +241,15 @@ public:
 
     ptr<vector<uint8_t>> getSerializedBlock(uint64_t i) const;
 
-    ptr<ConsensusBLSSigShare> sign(ptr<SHAHash> _hash, block_id _blockId);
-
     size_t getTotalSignersCount();
 
     size_t getRequiredSignersCount();
 
     u256 getPriceForBlockId(uint64_t _blockId);
+
+
+    ptr<CryptoSigner> getCryptoSigner() const;
+
 
     void decideBlock(block_id _blockId, schain_index _proposerIndex);
 };

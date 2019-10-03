@@ -84,6 +84,7 @@
 #include "SchainTest.h"
 #include "../libBLS/bls/BLSPrivateKeyShare.h"
 #include "../monitoring/LivelinessMonitor.h"
+#include "CryptoSigner.h"
 #include "SchainMessageThreadPool.h"
 #include "TestConfig.h"
 #include "Schain.h"
@@ -223,9 +224,16 @@ Schain::Schain(Node *_node, schain_index _schainIndex, const schain_id &_schainI
 
         getNode()->registerAgent(this);
 
+
+
+
+
     } catch (ExitRequestedException &) { throw; } catch (...) {
         throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
     }
+
+
+
 }
 
 
@@ -234,7 +242,7 @@ void Schain::constructChildAgents() {
     MONITOR(__CLASS_NAME__, __FUNCTION__)
 
     try {
-        std::lock_guard<std::recursive_mutex> aLock(getMainMutex());
+        std::lock_guard<std::recursive_mutex> lock(getMainMutex());
         pendingTransactionsAgent = make_shared<PendingTransactionsAgent>(*this);
         blockProposalClient = make_shared<BlockProposalClientAgent>(*this);
         catchupClientAgent = make_shared<CatchupClientAgent>(*this);
@@ -243,6 +251,7 @@ void Schain::constructChildAgents() {
         blockSigSharesDatabase = make_shared<ReceivedBlockSigSharesDatabase>(*this);
         testMessageGeneratorAgent = make_shared<TestMessageGeneratorAgent>(*this);
         pricingAgent = make_shared<PricingAgent>(*this);
+        cryptoSigner = make_shared<CryptoSigner>(*this);
 
     } catch (...) {
         throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
@@ -579,25 +588,11 @@ void Schain::sigShareArrived(ptr<ConsensusBLSSigShare> _sigShare) {
 
     if (blockSigSharesDatabase->addSigShare(_sigShare)) {
         auto blockId = _sigShare->getBlockId();
-        auto mySig = sign(getBlock(blockId)->getHash(), blockId);
+        auto mySig = getCryptoSigner()->sign(getBlock(blockId)->getHash(), blockId);
         blockSigSharesDatabase->addSigShare(mySig);
         ASSERT(blockSigSharesDatabase->isTwoThird(blockId));
         blockSigSharesDatabase->mergeAndSaveBLSSignature(blockId);
     };
-}
-
-
-ptr<ConsensusBLSSigShare> Schain::sign(ptr<SHAHash> _hash, block_id _blockId) {
-
-    MONITOR(__CLASS_NAME__, __FUNCTION__)
-
-    auto hash = make_shared<std::array<uint8_t,32>>();
-
-    memcpy(hash->data(), _hash->data(), 32);
-
-    auto blsShare = getNode()->getBlsPrivateKey()->sign(hash, (uint64_t) getSchainIndex());
-
-    return make_shared<ConsensusBLSSigShare>(blsShare, getSchainID(), _blockId, getNode()->getNodeID());
 }
 
 void Schain::constructServers(ptr<Sockets> _sockets) {
