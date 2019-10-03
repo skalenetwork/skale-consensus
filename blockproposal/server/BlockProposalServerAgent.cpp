@@ -54,7 +54,7 @@
 #include "../../headers/BlockProposalResponseHeader.h"
 #include "../../headers/Header.h"
 #include "../../headers/MissingTransactionsRequestHeader.h"
-#include "../../network/Connection.h"
+#include "../../network/ServerConnection.h"
 #include "../../network/IO.h"
 #include "../../network/Sockets.h"
 #include "../../network/TransportNetwork.h"
@@ -78,7 +78,7 @@
 
 
 ptr<unordered_map<ptr<partial_sha_hash>, ptr<Transaction>, PendingTransactionsAgent::Hasher, PendingTransactionsAgent::Equal> >
-BlockProposalServerAgent::readMissingTransactions(ptr<Connection> connectionEnvelope_,
+BlockProposalServerAgent::readMissingTransactions(ptr<ServerConnection> connectionEnvelope_,
                                                   nlohmann::json missingTransactionsResponseHeader) {
     ASSERT(missingTransactionsResponseHeader > 0);
 
@@ -164,7 +164,7 @@ BlockProposalServerAgent::BlockProposalServerAgent(Schain &_schain, ptr<TCPServe
 BlockProposalServerAgent::~BlockProposalServerAgent() {}
 
 
-void BlockProposalServerAgent::processNextAvailableConnection(ptr<Connection> _connection) {
+void BlockProposalServerAgent::processNextAvailableConnection(ptr<ServerConnection> _connection) {
     try {
         sChain->getIo()->readMagic(_connection->getDescriptor());
     } catch (ExitRequestedException &) {
@@ -196,7 +196,7 @@ void BlockProposalServerAgent::processNextAvailableConnection(ptr<Connection> _c
     }
 }
 
-void BlockProposalServerAgent::processProposalRequest(ptr<Connection> _connection, nlohmann::json _proposalRequest) {
+void BlockProposalServerAgent::processProposalRequest(ptr<ServerConnection> _connection, nlohmann::json _proposalRequest) {
     ptr<Header> responseHeader = nullptr;
 
 
@@ -369,7 +369,7 @@ void BlockProposalServerAgent::checkForOldBlock(const block_id &_blockID) {
 }
 
 
-ptr<Header> BlockProposalServerAgent::createProposalResponseHeader(ptr<Connection> _connectionEnvelope,
+ptr<Header> BlockProposalServerAgent::createProposalResponseHeader(ptr<ServerConnection> _connectionEnvelope,
                                                                    nlohmann::json _jsonRequest) {
     auto responseHeader = make_shared<BlockProposalResponseHeader>();
 
@@ -459,7 +459,7 @@ ptr<Header> BlockProposalServerAgent::createProposalResponseHeader(ptr<Connectio
 }
 
 
-nlohmann::json BlockProposalServerAgent::readMissingTransactionsResponseHeader(ptr<Connection> _connectionEnvelope) {
+nlohmann::json BlockProposalServerAgent::readMissingTransactionsResponseHeader(ptr<ServerConnection> _connectionEnvelope) {
     auto js = sChain->getIo()->readJsonHeader(_connectionEnvelope->getDescriptor(), "Read missing trans response");
 
     return js;

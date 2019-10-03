@@ -40,12 +40,12 @@
 #include "../exceptions/ExitRequestedException.h"
 #include "../chains/Schain.h"
 #include "Buffer.h"
-#include "Connection.h"
+#include "ServerConnection.h"
 #include "IO.h"
 
 using namespace std;
 
-void IO::readBytes(ptr<Connection> env, in_buffer *buffer, msg_len len) {
+void IO::readBytes(ptr<ServerConnection> env, in_buffer *buffer, msg_len len) {
     return readBytes(env->getDescriptor(), buffer, len);
 }
 

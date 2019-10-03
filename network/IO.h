@@ -28,7 +28,7 @@ class Buffer;
 
 class BlockRetrievalRequestHeader;
 
-class Connection;
+class ServerConnection;
 
 class Header;
 
@@ -48,7 +48,7 @@ public:
 
 public:
 
-    void readBytes(ptr<Connection> env, in_buffer *buffer, msg_len len);
+    void readBytes(ptr<ServerConnection> env, in_buffer *buffer, msg_len len);
 
 
     void readBytes(file_descriptor descriptor, in_buffer *buffer, msg_len len);

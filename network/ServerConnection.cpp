@@ -25,13 +25,13 @@
 #include "../Log.h"
 #include "../exceptions/FatalError.h"
 
-#include "Connection.h"
+#include "ServerConnection.h"
 
 using namespace std;
 
-uint64_t Connection::totalConnections = 0;
+atomic<uint64_t> ServerConnection::totalConnections = 0;
 
-Connection::Connection(unsigned int descriptor, ptr<std::string> ip)  {
+ServerConnection::ServerConnection(unsigned int descriptor, ptr<std::string> ip)  {
 
     incrementTotalConnections();
 
@@ -40,32 +40,42 @@ Connection::Connection(unsigned int descriptor, ptr<std::string> ip)  {
 
 }
 
-file_descriptor Connection::getDescriptor()  {
+file_descriptor ServerConnection::getDescriptor()  {
     return descriptor;
 }
 
-ptr<string> Connection::getIP() {
+ptr<string> ServerConnection::getIP() {
     return ip;
 }
 
-Connection::~Connection() {
+ServerConnection::~ServerConnection() {
     decrementTotalConnections();
-    close((int)descriptor);
+    closeConnection();
 }
 
-void Connection::incrementTotalConnections() {
+
+void ServerConnection::closeConnection() {
+    lock_guard<recursive_mutex> lock(mutex);
+    if (descriptor != 0)
+        close((int)descriptor);
+    descriptor = 0;
+}
+
+void ServerConnection::incrementTotalConnections() {
 //    LOG(trace, "+Connections: " + to_string(totalConnections));
+    CHECK_STATE(totalConnections < 1000000);
     totalConnections++;
 
 }
 
 
-void Connection::decrementTotalConnections() {
+void ServerConnection::decrementTotalConnections() {
+    CHECK_STATE(totalConnections < 1000000);
     totalConnections--;
 //    LOG(trace, "-Connections: " + to_string(totalConnections));
 
 }
 
-uint64_t Connection::getTotalConnections() {
+uint64_t ServerConnection::getTotalConnections() {
     return totalConnections;
 };

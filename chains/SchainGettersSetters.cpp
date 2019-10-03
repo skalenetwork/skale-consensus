@@ -278,3 +278,7 @@ uint64_t Schain::getMaxExternalBlockProcessingTime() const {
     return maxExternalBlockProcessingTime;;
 }
 
+void Schain::joinMonitorThread() {
+    monitoringAgent->join();
+}
+

@@ -23,28 +23,33 @@
 
 #pragma  once
 
-class Connection {
+class ServerConnection {
 
-    static uint64_t totalConnections;
+    recursive_mutex mutex;
+
+    static atomic<uint64_t> totalConnections;
 
 
 
     file_descriptor descriptor;
     ptr<string> ip;
 
+    static void incrementTotalConnections();
+
+    static void decrementTotalConnections();
+
+
 public:
 
-    Connection(unsigned int descriptor, ptr<string>ip);
+    ServerConnection(unsigned int descriptor, ptr<string>ip);
 
-    virtual ~Connection();
+    virtual ~ServerConnection();
+
+    void closeConnection();
 
     file_descriptor getDescriptor();
 
     ptr<string> getIP();
-
-    static void incrementTotalConnections();
-
-    static void decrementTotalConnections();
 
     static uint64_t getTotalConnections();
 

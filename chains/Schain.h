@@ -32,7 +32,7 @@ class WorkerThreadPool;
 class NodeInfo;
 class ReceivedBlockProposalsDatabase;
 class ReceivedSigSharesDatabase;
-class Connection;
+class ServerConnection;
 class BlockProposal;
 class PartialHashesList;
 
@@ -156,9 +156,9 @@ class Schain : public Agent {
     void pushBlockToExtFace(ptr<CommittedBlock> &_block);
 
 
-
-
 public:
+
+    void joinMonitorThread();
 
     ptr<BlockProposal> getBlockProposal(block_id _blockID, schain_index _schainIndex);
 

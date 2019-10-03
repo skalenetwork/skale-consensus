@@ -35,7 +35,7 @@
 
 
 #include "../../abstracttcpserver/ConnectionStatus.h"
-#include "../../network/Connection.h"
+#include "../../network/ServerConnection.h"
 
 #include "../../thirdparty/json.hpp"
 
