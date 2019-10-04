@@ -26,19 +26,16 @@
 
 
 #include "BLSSigShare.h"
+#include "ThresholdSigShare.h"
 
 namespace libff {
 class alt_bn128_G1;
 }
 
-class ConsensusBLSSigShare  {
+class ConsensusBLSSigShare : public ThresholdSigShare {
 
 
     ptr<BLSSigShare> blsSigShare;
-
-    schain_id schainId;
-    block_id blockId;
-    node_id signerNodeId;
 
 public:
 
@@ -52,8 +49,6 @@ public:
         schain_index _signerIndex, size_t _totalSigners, size_t _requiredSigners);
 
 
-    block_id getBlockId() const;
-    node_id getSignerNodeId() const;
     ptr< BLSSigShare > getBlsSigShare() const;
 };
 
