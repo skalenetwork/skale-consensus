@@ -38,9 +38,15 @@ block_id ThresholdSigShare::getBlockId() const {
     return blockId;
 }
 
-ThresholdSigShare::ThresholdSigShare(const schain_id &schainId, const block_id &blockId, const node_id &signerNodeId)
-        : schainId(schainId), blockId(blockId), signerNodeId(signerNodeId) {}
+ThresholdSigShare::ThresholdSigShare(const schain_id &schainId, const block_id &blockId, const node_id &signerNodeId,
+        const schain_index& _signerIndex)
+        : schainId(schainId), blockId(blockId), signerNodeId(signerNodeId),
+          signerIndex(_signerIndex){}
 
 ThresholdSigShare::~ThresholdSigShare() {
 
+}
+
+schain_index ThresholdSigShare::getSignerIndex() const {
+    return signerIndex;
 }

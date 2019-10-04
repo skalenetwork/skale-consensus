@@ -93,7 +93,7 @@ bool ReceivedSigSharesDatabase::addSigShare(ptr<ThresholdSigShare> _sigShare) {
     ASSERT(_sigShare);
 
     LOG(trace, "addBlockProposal blockID_=" + to_string(_sigShare->getBlockId()) + " proposerIndex=" +
-               to_string(_sigShare->getBlsSigShare()->getSignerIndex()));
+               to_string(_sigShare->getSignerIndex()));
 
     lock_guard<recursive_mutex> lock(sigShareDatabaseMutex);
 
@@ -102,7 +102,7 @@ bool ReceivedSigSharesDatabase::addSigShare(ptr<ThresholdSigShare> _sigShare) {
                 sChain->getTotalSignersCount(), sChain->getRequiredSignersCount());
     }
 
-    sigShareSets.at(_sigShare->getBlockId())->addSigShare(_sigShare->getBlsSigShare());
+    sigShareSets.at(_sigShare->getBlockId())->addSigShare(_sigShare);
 
     return sigShareSets.at(_sigShare->getBlockId())->isEnoughMinusOne();
 

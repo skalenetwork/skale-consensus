@@ -30,6 +30,8 @@ class ConsensusBLSSignature;
 
 #include "LevelDB.h"
 
+class ThresholdSignature;
+
 class SigDB : public LevelDB{
 
     node_id nodeId;

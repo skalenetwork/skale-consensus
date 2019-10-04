@@ -31,20 +31,21 @@ class ThresholdSigShare {
 
 protected:
     schain_id schainId;
-
-
-protected:
     block_id blockId;
     node_id signerNodeId;
+    schain_index signerIndex;
 
 public:
     node_id getSignerNodeId() const;
 
     block_id getBlockId() const;
 
-    ThresholdSigShare(const schain_id &schainId, const block_id &blockId, const node_id &signerNodeId);
+    ThresholdSigShare(const schain_id &schainId, const block_id &blockId, const node_id &signerNodeId,
+            const schain_index& _signerIndex);
 
     virtual ~ThresholdSigShare();
+
+     schain_index getSignerIndex() const;
 };
 
 
