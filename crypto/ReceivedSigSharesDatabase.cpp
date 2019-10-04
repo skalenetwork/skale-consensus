@@ -56,7 +56,7 @@ ReceivedSigSharesDatabase::ReceivedSigSharesDatabase(Schain &_sChain) : Agent(_s
 
 
 
-ptr<ConsensusBLSSignature> ReceivedSigSharesDatabase::getBLSSignature(block_id _blockId) {
+ptr<ThresholdSignature> ReceivedSigSharesDatabase::getBLSSignature(block_id _blockId) {
     lock_guard<recursive_mutex> lock(sigShareDatabaseMutex);
 
     if (blockSignatures.find(_blockId) != blockSignatures.end()) {
@@ -87,7 +87,7 @@ void ReceivedSigSharesDatabase::mergeAndSaveBLSSignature(block_id _blockId) {
     sigShareSets[_blockId] = nullptr;
 }
 
-bool ReceivedSigSharesDatabase::addSigShare(ptr<ConsensusBLSSigShare> _sigShare) {
+bool ReceivedSigSharesDatabase::addSigShare(ptr<ThresholdSigShare> _sigShare) {
 
 
     ASSERT(_sigShare);
@@ -113,7 +113,7 @@ bool ReceivedSigSharesDatabase::addSigShare(ptr<ConsensusBLSSigShare> _sigShare)
 
 
 
-ptr<ConsensusSigShareSet> ReceivedSigSharesDatabase::getSigShareSet(block_id blockID) {
+ptr<ThresholdSigShareSet> ReceivedSigSharesDatabase::getSigShareSet(block_id blockID) {
 
 
     lock_guard<recursive_mutex> lock(sigShareDatabaseMutex);

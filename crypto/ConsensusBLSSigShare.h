@@ -50,6 +50,8 @@ public:
 
 
     ptr< BLSSigShare > getBlsSigShare() const;
+
+    virtual ~ConsensusBLSSigShare();
 };
 
 

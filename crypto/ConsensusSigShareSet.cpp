@@ -39,11 +39,9 @@
 
 using namespace std;
 
-atomic< uint64_t > ConsensusSigShareSet::totalObjects( 0 );
-
 
 ConsensusSigShareSet::ConsensusSigShareSet(block_id _blockId, size_t _totalSigners, size_t _requiredSigners )
-    : requiredSigners(_requiredSigners), totalSigners(_totalSigners), blockId( _blockId ), blsSet(_totalSigners, _requiredSigners)  {
+    : ThresholdSigShareSet(_blockId, _totalSigners, _requiredSigners), blsSet(_totalSigners, _requiredSigners)  {
 
     totalObjects++;
 }
@@ -54,7 +52,7 @@ ConsensusSigShareSet::~ConsensusSigShareSet() {
 
 
 
-ptr< ConsensusBLSSignature > ConsensusSigShareSet::mergeSignature() {
+ptr<ThresholdSignature > ConsensusSigShareSet::mergeSignature() {
     auto blsShare = blsSet.merge();
     // BOOST_REQUIRE(obj.Verification(hash, common_signature, pk) == false);
     return make_shared<ConsensusBLSSignature>( blsShare->getSig(), blockId,
@@ -73,11 +71,14 @@ bool ConsensusSigShareSet::isEnoughMinusOne() {
 }
 
 
-uint64_t ConsensusSigShareSet::getTotalObjects() {
-    return totalObjects;
-}
+bool ConsensusSigShareSet::addSigShare(shared_ptr<ThresholdSigShare> _sigShare) {
 
-bool ConsensusSigShareSet::addSigShare(std::shared_ptr<BLSSigShare> _sigShare) {
-    return blsSet.addSigShare((_sigShare));
+    CHECK_ARGUMENT(_sigShare != nullptr);
+
+    ptr<ConsensusBLSSigShare> s = dynamic_pointer_cast<ConsensusBLSSigShare>(_sigShare);
+
+    ASSERT(s != nullptr);
+
+    return blsSet.addSigShare(s->getBlsSigShare());
 }
 

@@ -41,6 +41,8 @@ public:
 
     virtual uint64_t getRandom() = 0;
 
+    virtual ~ThresholdSignature();
+
 };
 
 

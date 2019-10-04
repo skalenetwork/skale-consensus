@@ -1,3 +1,4 @@
+
 /*
     Copyright (C) 2019 SKALE Labs
 
@@ -16,31 +17,24 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file ThresholdSigShare.cpp
+    @file ThresholdSigShareSet.cpp
     @author Stan Kladko
     @date 2019
 */
 
-#include "ConsensusBLSSigShare.h"
-#include "BLSSigShare.h"
-#include "bls_include.h"
-#include "../thirdparty/json.hpp"
-#include "../network/Utils.h"
-#include "../Log.h"
 #include "../SkaleCommon.h"
-#include "ThresholdSigShare.h"
 
-node_id ThresholdSigShare::getSignerNodeId() const {
-    return signerNodeId;
+#include "ThresholdSigShareSet.h"
+
+atomic< uint64_t > ThresholdSigShareSet::totalObjects( 0 );
+
+uint64_t ThresholdSigShareSet::getTotalObjects() {
+    return totalObjects;
 }
 
-block_id ThresholdSigShare::getBlockId() const {
-    return blockId;
-}
+ThresholdSigShareSet::ThresholdSigShareSet(const block_id &blockId, uint64_t totalSigners, uint64_t requiredSigners)
+        : blockId(blockId), totalSigners(totalSigners), requiredSigners(requiredSigners) {}
 
-ThresholdSigShare::ThresholdSigShare(const schain_id &schainId, const block_id &blockId, const node_id &signerNodeId)
-        : schainId(schainId), blockId(blockId), signerNodeId(signerNodeId) {}
-
-ThresholdSigShare::~ThresholdSigShare() {
+ThresholdSigShareSet::~ThresholdSigShareSet() {
 
 }

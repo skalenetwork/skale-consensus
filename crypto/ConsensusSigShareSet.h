@@ -25,6 +25,7 @@
 
 #include "../datastructures/DataStructure.h"
 #include "BLSSigShareSet.h"
+#include "ThresholdSigShareSet.h"
 
 
 class PartialHashesList;
@@ -33,14 +34,7 @@ class ConsensusBLSSigShare;
 class ConsensusBLSSignature;
 class SHAHash;
 
-class ConsensusSigShareSet {
-
-    uint64_t requiredSigners;
-    uint64_t totalSigners;
-
-    block_id blockId;
-
-    static atomic<uint64_t>  totalObjects;
+class ConsensusSigShareSet : public ThresholdSigShareSet {
 
     BLSSigShareSet blsSet;
 
@@ -48,7 +42,9 @@ class ConsensusSigShareSet {
 public:
     ConsensusSigShareSet(block_id _blockId, size_t _totalSigners, size_t _requiredSigners );
 
-    ptr<ConsensusBLSSignature> mergeSignature();
+    ptr<ThresholdSignature> mergeSignature();
+
+    bool addSigShare(shared_ptr<ThresholdSigShare> _sigShare);
 
     bool isEnough();
 
@@ -56,7 +52,5 @@ public:
 
     virtual ~ConsensusSigShareSet();
 
-    bool addSigShare(std::shared_ptr<BLSSigShare> _sigShare);
 
-    static uint64_t getTotalObjects();
 };

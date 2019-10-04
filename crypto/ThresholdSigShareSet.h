@@ -16,31 +16,39 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file ThresholdSigShare.cpp
+    @file ThresholdSigShareSet.h
     @author Stan Kladko
     @date 2019
 */
+#ifndef SKALED_THRESHOLDSIGSHARESET_H
+#define SKALED_THRESHOLDSIGSHARESET_H
 
-#include "ConsensusBLSSigShare.h"
-#include "BLSSigShare.h"
-#include "bls_include.h"
-#include "../thirdparty/json.hpp"
-#include "../network/Utils.h"
-#include "../Log.h"
-#include "../SkaleCommon.h"
-#include "ThresholdSigShare.h"
+class ThresholdSignature;
+class ThresholdSigShare;
 
-node_id ThresholdSigShare::getSignerNodeId() const {
-    return signerNodeId;
-}
+class ThresholdSigShareSet {
+public:
+    ThresholdSigShareSet(const block_id &blockId, uint64_t totalSigners, uint64_t requiredSigners);
 
-block_id ThresholdSigShare::getBlockId() const {
-    return blockId;
-}
+protected:
+    block_id blockId;
+    uint64_t totalSigners;
+    uint64_t requiredSigners;
 
-ThresholdSigShare::ThresholdSigShare(const schain_id &schainId, const block_id &blockId, const node_id &signerNodeId)
-        : schainId(schainId), blockId(blockId), signerNodeId(signerNodeId) {}
+    static atomic<uint64_t>  totalObjects;
+public:
+    virtual ~ThresholdSigShareSet();
 
-ThresholdSigShare::~ThresholdSigShare() {
+    static uint64_t getTotalObjects();
 
-}
+    virtual ptr<ThresholdSignature> mergeSignature() = 0;
+
+    virtual bool addSigShare(shared_ptr<ThresholdSigShare> _sigShare) = 0;
+
+    virtual bool isEnough() = 0;
+
+    virtual bool isEnoughMinusOne() = 0;
+};
+
+
+#endif //SKALED_THRESHOLDSIGSHARESET_H
