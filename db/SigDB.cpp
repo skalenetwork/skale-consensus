@@ -47,7 +47,7 @@ ptr<string>  SigDB::createKey(const block_id _blockId) {
                                 + to_string( _blockId ));
 }
 
-void SigDB::addSignature(block_id _blockId, ptr<ConsensusBLSSignature> _sig) {
+void SigDB::addSignature(block_id _blockId, ptr<ThresholdSignature> _sig) {
     auto key = createKey( _blockId );
     if (readString( *key ) == nullptr )
         writeString( *key, *_sig->toString() );

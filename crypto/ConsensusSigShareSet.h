@@ -48,7 +48,7 @@ class ConsensusSigShareSet {
 public:
     ConsensusSigShareSet(block_id _blockId, size_t _totalSigners, size_t _requiredSigners );
 
-    ptr<ConsensusBLSSignature> mergeSignature();
+    ptr<ThresholdSignature> mergeSignature();
 
     bool isEnough();
 

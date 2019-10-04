@@ -56,7 +56,7 @@ ReceivedSigSharesDatabase::ReceivedSigSharesDatabase(Schain &_sChain) : Agent(_s
 
 
 
-ptr<ConsensusBLSSignature> ReceivedSigSharesDatabase::getBLSSignature(block_id _blockId) {
+ptr<ThresholdSignature> ReceivedSigSharesDatabase::getBLSSignature(block_id _blockId) {
     lock_guard<recursive_mutex> lock(m);
 
     if (blockSignatures.find(_blockId) != blockSignatures.end()) {

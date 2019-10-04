@@ -54,7 +54,7 @@ ConsensusSigShareSet::~ConsensusSigShareSet() {
 
 
 
-ptr< ConsensusBLSSignature > ConsensusSigShareSet::mergeSignature() {
+ptr<ThresholdSignature> ConsensusSigShareSet::mergeSignature() {
     auto blsShare = blsSet.merge();
     // BOOST_REQUIRE(obj.Verification(hash, common_signature, pk) == false);
     return make_shared<ConsensusBLSSignature>( blsShare->getSig(), blockId,

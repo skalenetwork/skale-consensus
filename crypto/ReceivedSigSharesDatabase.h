@@ -31,6 +31,8 @@ class ConsensusSigShareSet;
 class ConsensusBLSSignature;
 class Schain;
 class ThresholdSigShare;
+class ThresholdSignature;
+
 
 class ReceivedSigSharesDatabase : Agent {
 
@@ -38,12 +40,12 @@ class ReceivedSigSharesDatabase : Agent {
 
     map<block_id, ptr<ConsensusSigShareSet>> sigShareSets;
 
-    map<block_id, ptr<ConsensusBLSSignature>> blockSignatures;
+    map<block_id, ptr<ThresholdSignature>> blockSignatures;
 
 
     ptr<ConsensusSigShareSet> getSigShareSet(block_id _blockID);
 
-    ptr<ConsensusBLSSignature> getBLSSignature(block_id _blockId);
+    ptr<ThresholdSignature> getBLSSignature(block_id _blockId);
 
 public:
 
