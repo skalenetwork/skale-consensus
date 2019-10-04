@@ -44,7 +44,7 @@ public:
 
     ptr<ThresholdSigShare> sign(ptr<SHAHash> _hash, block_id _blockId);
 
-    ptr<ThresholdSigShareSet> createSigShareSet(block_id _blockID,  uint64_t totalSigners, uint64_t requiredSigners);
+    static ptr<ThresholdSigShareSet> createSigShareSet(block_id _blockID, uint64_t _totalSigners, uint64_t _requiredSigners);
 
 };
 

@@ -6,9 +6,8 @@
 #define SKALED_THRESHOLDSIGSHARESET_H
 
 
-#include "../datastructures/DataStructure.h"
-#include "BLSSigShareSet.h"
-#include "../cmake-build-debug/consensus_pch/SkaleCommon.h"
+class ThresholdSigShare;
+class ThresholdSignature;
 
 class ThresholdSigShareSet {
 
@@ -20,11 +19,19 @@ protected:
 public:
     ThresholdSigShareSet(const block_id &blockId, uint64_t requiredSigners, uint64_t totalSigners);
 
-    bool isEnough();
+    virtual bool isEnough() = 0;
 
-    bool isEnoughMinusOne();
+    virtual bool isEnoughMinusOne() = 0;
 
     static uint64_t getTotalObjects();
+
+    virtual bool addSigShare(std::shared_ptr<ThresholdSigShare> _sigShare) = 0;
+
+
+    virtual ptr<ThresholdSignature> mergeSignature() = 0;
+
+
+
 };
 
 

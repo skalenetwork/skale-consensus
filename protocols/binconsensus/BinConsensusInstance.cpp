@@ -21,6 +21,8 @@
     @date 2018
 */
 
+#include "../../libBLS/bls/BLSSigShareSet.h"
+
 #include "../../SkaleCommon.h"
 #include "../../Log.h"
 #include "../../exceptions/FatalError.h"
@@ -59,7 +61,7 @@
 #include "../blockconsensus/BlockConsensusAgent.h"
 
 #include "../../crypto/ConsensusSigShareSet.h"
-#include "../../libBLS/bls/BLSSigShareSet.h"
+
 #include "../../crypto/ConsensusBLSSignature.h"
 
 

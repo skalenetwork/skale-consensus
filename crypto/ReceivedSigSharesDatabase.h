@@ -27,6 +27,7 @@
 
 #include "../Agent.h"
 
+class ThresholdSigShareSet;
 class ConsensusSigShareSet;
 class ConsensusBLSSignature;
 class Schain;
@@ -38,12 +39,12 @@ class ReceivedSigSharesDatabase : Agent {
 
     recursive_mutex m;
 
-    map<block_id, ptr<ConsensusSigShareSet>> sigShareSets;
+    map<block_id, ptr<ThresholdSigShareSet>> sigShareSets;
 
     map<block_id, ptr<ThresholdSignature>> blockSignatures;
 
 
-    ptr<ConsensusSigShareSet> getSigShareSet(block_id _blockID);
+    ptr<ThresholdSigShareSet> getSigShareSet(block_id _blockID);
 
     ptr<ThresholdSignature> getBLSSignature(block_id _blockId);
 

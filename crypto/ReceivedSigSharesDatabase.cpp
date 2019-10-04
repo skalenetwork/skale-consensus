@@ -29,11 +29,13 @@
 
 #include "ConsensusBLSSigShare.h"
 #include "ConsensusBLSSignature.h"
+#include "CryptoSigner.h"
 
 #include "../abstracttcpserver/ConnectionStatus.h"
 #include "../chains/Schain.h"
 #include "../node/Node.h"
 #include "../pendingqueue/PendingTransactionsAgent.h"
+#include "bls/BLSSigShareSet.h"
 #include "ConsensusBLSSigShare.h"
 #include "ConsensusSigShareSet.h"
 #include "SHAHash.h"
@@ -99,7 +101,8 @@ bool ReceivedSigSharesDatabase::addSigShare(ptr<ThresholdSigShare> _sigShare) {
     lock_guard<recursive_mutex> lock(m);
 
     if (this->sigShareSets.count(_sigShare->getBlockId()) == 0) {
-        sigShareSets[_sigShare->getBlockId()] = make_shared<ConsensusSigShareSet>(_sigShare->getBlockId(),
+        sigShareSets[_sigShare->getBlockId()] =
+                CryptoSigner::createSigShareSet(_sigShare->getBlockId(),
                 sChain->getTotalSignersCount(), sChain->getRequiredSignersCount());
     }
 
@@ -114,7 +117,7 @@ bool ReceivedSigSharesDatabase::addSigShare(ptr<ThresholdSigShare> _sigShare) {
 
 
 
-ptr<ConsensusSigShareSet> ReceivedSigSharesDatabase::getSigShareSet(block_id blockID) {
+ptr<ThresholdSigShareSet> ReceivedSigSharesDatabase::getSigShareSet(block_id blockID) {
 
 
     lock_guard<recursive_mutex> lock(m);

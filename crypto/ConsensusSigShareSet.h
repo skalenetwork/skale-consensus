@@ -30,8 +30,10 @@
 class PartialHashesList;
 class Schain;
 class ThresholdSigShare;
+class ThresholdSignature;
 class ConsensusBLSSignature;
 class SHAHash;
+class BLSSigShareSet;
 
 class ConsensusSigShareSet : public ThresholdSigShareSet {
 

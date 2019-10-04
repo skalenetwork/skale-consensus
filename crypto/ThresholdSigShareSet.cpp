@@ -12,6 +12,7 @@
 #include "../exceptions/FatalError.h"
 #include "SHAHash.h"
 #include "../libBLS/bls/BLSSigShare.h"
+#include "../libBLS/bls/BLSSigShareSet.h"
 #include "ConsensusSigShareSet.h"
 #include "BLSSigShareSet.h"
 #include "ConsensusBLSSigShare.h"

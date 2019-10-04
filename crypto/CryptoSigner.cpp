@@ -26,10 +26,13 @@
 #include "../thirdparty/json.hpp"
 #include "../chains/Schain.h"
 #include "SHAHash.h"
+#include "bls/BLSPrivateKeyShare.h"
+#include "bls/BLSSigShareSet.h"
 #include "ConsensusBLSSigShare.h"
+#include "ConsensusSigShareSet.h"
 #include "../node/Node.h"
 #include "../monitoring/LivelinessMonitor.h"
-#include "bls/BLSPrivateKeyShare.h"
+
 
 #include "CryptoSigner.h"
 
@@ -56,5 +59,10 @@ ptr<ThresholdSigShare> CryptoSigner::sign(ptr<SHAHash> _hash, block_id _blockId)
 
     return static_pointer_cast<ThresholdSigShare>(share);
 
+}
+
+ptr<ThresholdSigShareSet>
+CryptoSigner::createSigShareSet(block_id _blockID, uint64_t _totalSigners, uint64_t _requiredSigners) {
+    return make_shared<ConsensusSigShareSet>(_blockID, _totalSigners, _requiredSigners);
 }
 
