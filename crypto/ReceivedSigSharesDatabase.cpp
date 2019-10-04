@@ -45,6 +45,7 @@
 #include "BLSSignature.h"
 #include "BLSSigShareSet.h"
 #include "ThresholdSigShare.h"
+#include "ThresholdSigShareSet.h"
 
 
 using namespace std;

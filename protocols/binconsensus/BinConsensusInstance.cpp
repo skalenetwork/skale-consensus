@@ -64,6 +64,7 @@
 
 
 #include "BinConsensusInstance.h"
+#include "../../crypto/ThresholdSigShareSet.h"
 
 
 using namespace std;

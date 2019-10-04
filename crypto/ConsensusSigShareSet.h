@@ -24,25 +24,16 @@
 #pragma once
 
 #include "../datastructures/DataStructure.h"
-#include "BLSSigShareSet.h"
+#include "ThresholdSigShareSet.h"
 
 
 class PartialHashesList;
 class Schain;
-class ConsensusBLSSigShare;
+class ThresholdSigShare;
 class ConsensusBLSSignature;
 class SHAHash;
 
-class ConsensusSigShareSet {
-
-    uint64_t requiredSigners;
-    uint64_t totalSigners;
-
-    block_id blockId;
-
-    static atomic<uint64_t>  totalObjects;
-
-    BLSSigShareSet blsSet;
+class ConsensusSigShareSet : public ThresholdSigShareSet {
 
 
 public:
@@ -50,13 +41,14 @@ public:
 
     ptr<ThresholdSignature> mergeSignature();
 
-    bool isEnough();
-
-    bool isEnoughMinusOne();
-
     virtual ~ConsensusSigShareSet();
 
     bool addSigShare(std::shared_ptr<ThresholdSigShare> _sigShare);
 
-    static uint64_t getTotalObjects();
+    BLSSigShareSet blsSet;
+
+    bool isEnough();
+
+    bool isEnoughMinusOne();
+
 };

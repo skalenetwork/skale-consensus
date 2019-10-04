@@ -39,11 +39,9 @@
 
 using namespace std;
 
-atomic< uint64_t > ConsensusSigShareSet::totalObjects( 0 );
-
 
 ConsensusSigShareSet::ConsensusSigShareSet(block_id _blockId, size_t _totalSigners, size_t _requiredSigners )
-    : requiredSigners(_requiredSigners), totalSigners(_totalSigners), blockId( _blockId ), blsSet(_totalSigners, _requiredSigners)  {
+: ThresholdSigShareSet(_blockId, _requiredSigners, _totalSigners), blsSet(_totalSigners, _requiredSigners)  {
 
     totalObjects++;
 }
@@ -61,23 +59,16 @@ ptr<ThresholdSignature> ConsensusSigShareSet::mergeSignature() {
             blsShare->getTotalSigners(), blsShare->getRequiredSigners());
 }
 
-bool ConsensusSigShareSet::isEnough() {
-    return blsSet.isEnough();
-}
-
-
-
-bool ConsensusSigShareSet::isEnoughMinusOne() {
-    auto sigsCount = blsSet.getTotalSigSharesCount();
-    return sigsCount >= requiredSigners - 1;
-}
-
-
-uint64_t ConsensusSigShareSet::getTotalObjects() {
-    return totalObjects;
-}
 
 bool ConsensusSigShareSet::addSigShare(std::shared_ptr<ThresholdSigShare> _sigShare) {
     return blsSet.addSigShare(dynamic_pointer_cast<ConsensusBLSSigShare>(_sigShare)->getBlsSigShare());
 }
 
+bool ConsensusSigShareSet::isEnough()  {
+return blsSet.isEnough();
+}
+
+bool ConsensusSigShareSet::isEnoughMinusOne() {
+    auto sigsCount = blsSet.getTotalSigSharesCount();
+    return sigsCount >= requiredSigners - 1;
+}
