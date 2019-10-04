@@ -79,6 +79,8 @@ void Log::setGlobalLogLevel( string& _s ) {
     for ( auto&& item : loggers ) {
         item.second->set_level( globalLogLevel );
     }
+
+    Log::setConfigLogLevel(_s);
 }
 
 void Log::setConfigLogLevel( string& _s ) {
