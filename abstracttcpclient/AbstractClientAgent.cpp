@@ -122,11 +122,11 @@ void AbstractClientAgent::enqueueItem(ptr<BlockProposal> item) {
 
 
 void AbstractClientAgent::workerThreadItemSendLoop(AbstractClientAgent *agent) {
-    setThreadName(__CLASS_NAME__.substr(0, 15));
+
 
     agent->waitOnGlobalStartBarrier();
 
-    auto destinationSubChainIndex = schain_index(agent->incrementAndReturnThreadCounter() + 1);
+    auto destinationSchainIndex = schain_index(agent->incrementAndReturnThreadCounter() + 1);
 
     try {
 
@@ -134,36 +134,36 @@ void AbstractClientAgent::workerThreadItemSendLoop(AbstractClientAgent *agent) {
         while (!agent->getSchain()->getNode()->isExitRequested()) {
 
             {
-                std::unique_lock<std::mutex> mlock(*agent->queueMutex[destinationSubChainIndex]);
+                std::unique_lock<std::mutex> mlock(*agent->queueMutex[destinationSchainIndex]);
 
 
-                while (agent->itemQueue[destinationSubChainIndex]->empty()) {
+                while (agent->itemQueue[destinationSchainIndex]->empty()) {
                     agent->getSchain()->getNode()->exitCheck();
-                    agent->queueCond[destinationSubChainIndex]->wait(mlock);
+                    agent->queueCond[destinationSchainIndex]->wait(mlock);
                 }
             }
 
-            ASSERT(agent->itemQueue[destinationSubChainIndex]);
+            ASSERT(agent->itemQueue[destinationSchainIndex]);
 
-            auto proposal = agent->itemQueue[destinationSubChainIndex]->front();
+            auto proposal = agent->itemQueue[destinationSchainIndex]->front();
 
 
             ASSERT(proposal);
 
-            agent->itemQueue[destinationSubChainIndex]->pop();
+            agent->itemQueue[destinationSchainIndex]->pop();
 
 
 
-            if (destinationSubChainIndex != ( agent->getSchain()->getSchainIndex())) {
+            if (destinationSchainIndex != ( agent->getSchain()->getSchainIndex())) {
 
                 auto nodeId =
-                    agent->getSchain()->getNode()->getNodeInfoByIndex(destinationSubChainIndex)->getNodeID();
+                    agent->getSchain()->getNode()->getNodeInfoByIndex(destinationSchainIndex)->getNodeID();
 
                 bool sent = false;
 
                 while (!sent) {
                     try {
-                        agent->sendItem(proposal, destinationSubChainIndex, nodeId);
+                        agent->sendItem(proposal, destinationSchainIndex, nodeId);
                         sent = true;
                     } catch (Exception &e) {
                         Exception::logNested(e);

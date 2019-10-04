@@ -34,6 +34,7 @@
 
 #include "exceptions/FatalError.h"
 #include "exceptions/InvalidArgumentException.h"
+#include "exceptions/InvalidStateException.h"
 
 #include "SkaleCommon.h"
 
@@ -55,8 +56,10 @@ class logger;
 }
 
 class Log {
-    recursive_mutex logLock;
 
+    static recursive_mutex mutex;
+
+    static bool inited;
 
     static shared_ptr< string > dataDir;
 
@@ -97,6 +100,8 @@ public:
     shared_ptr< spdlog::logger > loggerForClass( const char* _className );
 
     static void log( level_enum _severity, const string& _message, const string& _className );
+
+    static void logConfig(level_enum _severity, const string &_message, const string &_className);
 
 
     static shared_ptr< spdlog::logger > createLogger( const string& loggerName );

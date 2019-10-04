@@ -16,7 +16,7 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file Connection.cpp
+    @file SerializeException.cpp
     @author Stan Kladko
     @date 2018
 */
@@ -24,48 +24,10 @@
 #include "../SkaleCommon.h"
 #include "../Log.h"
 #include "../exceptions/FatalError.h"
+#include "SerializeException.h"
 
-#include "Connection.h"
+SerializeException::SerializeException(const std::string &_message,  const string& _className)
+                                                                                    : Exception(_message, _className) {
 
-using namespace std;
-
-uint64_t Connection::totalConnections = 0;
-
-Connection::Connection(unsigned int descriptor, ptr<std::string> ip)  {
-
-    incrementTotalConnections();
-
-    this->descriptor = descriptor;
-    this->ip = ip;
 
 }
-
-file_descriptor Connection::getDescriptor()  {
-    return descriptor;
-}
-
-ptr<string> Connection::getIP() {
-    return ip;
-}
-
-Connection::~Connection() {
-    decrementTotalConnections();
-    close((int)descriptor);
-}
-
-void Connection::incrementTotalConnections() {
-//    LOG(trace, "+Connections: " + to_string(totalConnections));
-    totalConnections++;
-
-}
-
-
-void Connection::decrementTotalConnections() {
-    totalConnections--;
-//    LOG(trace, "-Connections: " + to_string(totalConnections));
-
-}
-
-uint64_t Connection::getTotalConnections() {
-    return totalConnections;
-};

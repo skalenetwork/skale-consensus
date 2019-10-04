@@ -67,7 +67,7 @@ void Agent::waitOnGlobalStartBarrier() {
     if (isServer)
         getSchain()->getNode()->waitOnGlobalServerStartBarrier(this);
     else
-        getSchain()->getNode()->waitOnGlobalClientStartBarrier(this);
+        getSchain()->getNode()->waitOnGlobalClientStartBarrier();
 }
 
 Agent::~Agent() {

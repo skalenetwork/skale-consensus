@@ -32,17 +32,27 @@
 
 #include "../libBLS/bls/BLSSignature.h"
 #include "ConsensusBLSSignature.h"
+#include "ThresholdSignature.h"
 
 
 ConsensusBLSSignature::ConsensusBLSSignature(
     ptr< string > _s, block_id _blockID, size_t _totalSigners, size_t _requiredSigners )
-    : BLSSignature( _s, _totalSigners, _requiredSigners ), blockId( _blockID ) {}
+    : ThresholdSignature(_blockID), blsSig( _s, _totalSigners, _requiredSigners ){}
 
-block_id ConsensusBLSSignature::getBlockId() const {
-    return blockId;
-}
 
+static string dummy_string("");
 
 ConsensusBLSSignature::ConsensusBLSSignature( ptr< libff::alt_bn128_G1 > _s, block_id _blockID,
     size_t _totalSigners, size_t _requiredSigners )
-    : BLSSignature( _s, _totalSigners, _requiredSigners ), blockId( _blockID ){};
+    : ThresholdSignature(_blockID), blsSig( _s, dummy_string, _totalSigners, _requiredSigners ) {}
+
+std::shared_ptr<std::string> ConsensusBLSSignature::toString() {
+    return blsSig.toString();
+};
+
+uint64_t ConsensusBLSSignature::getRandom() {
+    auto sig = blsSig.getSig();
+    sig->to_affine_coordinates();
+    auto result = sig->X.as_ulong() + sig->Y.as_ulong();
+    return result;
+}

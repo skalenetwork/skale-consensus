@@ -33,7 +33,7 @@
 #include "../exceptions/ExitRequestedException.h"
 #include "../thirdparty/json.hpp"
 
-
+#include "../chains/TestConfig.h"
 
 #include "../crypto/bls_include.h"
 
@@ -94,6 +94,7 @@ Node::Node(const nlohmann::json &_cfg, ConsensusEngine *_consensusEngine) {
 
     try {
         initParamsFromConfig();
+
     } catch (...) {
         throw_with_nested(ParsingException("Could not parse params", __CLASS_NAME__));
     }
@@ -112,7 +113,7 @@ void Node::initLevelDBs() {
     string pricesDBFilename = dataDir + "/prices_" + to_string(nodeID) + ".db";
 
 
-    blockDB = make_shared<BlockDB>(blockDBFilename, getNodeID());
+    blockDB = make_shared<BlockDB>(blockDBFilename, getNodeID(), getCommittedBlockStorageSize());
     randomDB = make_shared<RandomDB>(randomDBFilename, getNodeID());
     committedTransactionDB = make_shared<CommittedTransactionDB>(committedTransactionsDBFilename, getNodeID());
     signatureDB = make_shared<SigDB>(signaturesDBFilename, getNodeID());
@@ -141,8 +142,9 @@ void Node::initLogging() {
 void Node::initParamsFromConfig() {
     nodeID = cfg.at("nodeID").get<uint64_t>();
 
-
     catchupIntervalMS = getParamUint64("catchupIntervalMs", CATCHUP_INTERVAL_MS);
+
+    monitoringIntervalMS = getParamUint64("monitoringIntervalMs", MONITORING_INTERVAL_MS);
 
     waitAfterNetworkErrorMs = getParamUint64("waitAfterNetworkErrorMs", WAIT_AFTER_NETWORK_ERROR_MS);
 
@@ -175,7 +177,7 @@ void Node::initParamsFromConfig() {
 
     simulateNetworkWriteDelayMs = getParamInt64("simulateNetworkWriteDelayMs", 0);
 
-
+    testConfig = make_shared<TestConfig>(cfg);
 }
 
 uint64_t Node::getParamUint64(const string &_paramName, uint64_t paramDefault) {
@@ -220,12 +222,7 @@ ptr<string> Node::getParamString(const string &_paramName, string& _paramDefault
 
 Node::~Node() {
 
-    // sockets means that Node was properly inited
-    if (!isExitRequested()) {
-        exit();
-    }
 
-    cleanLevelDBs();
 
 }
 
@@ -254,29 +251,29 @@ void Node::startServers() {
 
     LOG(info, "Starting node");
 
-    LOG(info, "Initing sockets");
+    LOG(trace, "Initing sockets");
 
     this->sockets = make_shared<Sockets>(*this);
 
     sockets->initSockets(bindIP, (uint16_t) basePort);
 
-    LOG(info, "Constructing servers");
+    LOG(trace, "Constructing servers");
 
     sChain->constructServers(sockets);
 
-    LOG(info, " Creating consensus network");
+    LOG(trace, " Creating consensus network");
 
     network = make_shared<ZMQNetwork>(*sChain);
 
-    LOG(info, " Starting consensus messaging");
+    LOG(trace, " Starting consensus messaging");
 
     network->startThreads();
 
-    LOG(info, "Starting schain");
+    LOG(trace, "Starting schain");
 
     sChain->startThreads();
 
-    LOG(info, "Releasing server threads");
+    LOG(trace, "Releasing server threads");
 
     releaseGlobalServerBarrier();
 
@@ -362,7 +359,7 @@ void Node::initSchain(ptr<NodeInfo> _localNodeInfo, const vector<ptr<NodeInfo>> 
         ASSERT(nodeInfosByIndex->size() > 0);
         ASSERT(nodeInfosByIndex->count(1) > 0);
 
-        sChain = make_shared<Schain>(*this, _localNodeInfo->getSchainIndex(),
+        sChain = make_shared<Schain>(this, _localNodeInfo->getSchainIndex(),
                                      _localNodeInfo->getSchainID(), _extFace);
     } catch (...) {
         throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
@@ -392,10 +389,9 @@ void Node::releaseGlobalServerBarrier() {
 }
 
 
-void Node::waitOnGlobalClientStartBarrier(Agent *agent) {
+void Node::waitOnGlobalClientStartBarrier() {
 
-    logThreadLocal_ = agent->getSchain()->getNode()->getLog();
-
+    logThreadLocal_ = getLog();
 
     unique_lock<mutex> mlock(threadClientCondMutex);
     while (!startedClients) {
@@ -403,6 +399,9 @@ void Node::waitOnGlobalClientStartBarrier(Agent *agent) {
     }
 
 }
+
+
+
 
 void Node::releaseGlobalClientBarrier() {
     lock_guard<mutex> lock(threadClientCondMutex);
@@ -426,6 +425,8 @@ void Node::exit() {
     LOG(info, "Exit requested");
 
     closeAllSocketsAndNotifyAllAgentsAndThreads();
+
+    cleanLevelDBs();
 
 }
 
@@ -549,7 +550,7 @@ ptr<PriceDB> Node::getPriceDB() const {
 
 void Node::exitCheck() {
     if (exitRequested) {
-        throw ExitRequestedException();
+        BOOST_THROW_EXCEPTION(ExitRequestedException(__CLASS_NAME__));
     }
 }
 
@@ -558,7 +559,7 @@ void Node::exitOnFatalError(const string &_message) {
         return;
     exit();
 
-//    consensusEngine->joinAllThreads();
+//    consensusEngine->joinAll();
     auto extFace = consensusEngine->getExtFace();
 
     if (extFace) {
@@ -568,8 +569,12 @@ void Node::exitOnFatalError(const string &_message) {
 }
 
 uint64_t Node::getCatchupIntervalMs() {
-
     return catchupIntervalMS;
+}
+
+
+uint64_t Node::getMonitoringIntervalMs() {
+    return monitoringIntervalMS;
 }
 
 uint64_t Node::getWaitAfterNetworkErrorMs() {
@@ -632,11 +637,16 @@ bool Node::isBlsEnabled() const {
 }
 
 void Node::setBasePort(const network_port &_basePort) {
-    ASSERT(_basePort);
+    CHECK_ARGUMENT(_basePort > 0);
     basePort = _basePort;
 }
 
 uint64_t Node::getSimulateNetworkWriteDelayMs() const {
     return simulateNetworkWriteDelayMs;
+}
+
+const ptr<TestConfig> &Node::getTestConfig() const {
+    CHECK_STATE(testConfig != nullptr)
+    return testConfig;
 }
 

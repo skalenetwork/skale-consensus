@@ -117,6 +117,8 @@ AUX_SOURCE_DIRECTORY(threads threads_src)
 AUX_SOURCE_DIRECTORY(json json_src)
 AUX_SOURCE_DIRECTORY(exceptions exceptions_src)
 AUX_SOURCE_DIRECTORY(headers headers_src)
+AUX_SOURCE_DIRECTORY(monitoring monitoring_src)
+AUX_SOURCE_DIRECTORY(utils utils_src)
 
 
 SET(SRC_FILES
@@ -150,6 +152,8 @@ SET(SRC_FILES
         ${threads_src}
         ${json_src}
         ${exceptions_src}
+        ${monitoring_src}
+        ${utils_src}
         Agent.h Agent.cpp SkaleCommon.h SkaleCommon.cpp Log.h Log.cpp microprofile.cpp miniz.c)
 
 

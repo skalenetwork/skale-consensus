@@ -45,19 +45,19 @@ void test_committed_block_save() {
 
     boost::random::uniform_int_distribution<> ubyte( 0, 255 );
 
-    std::system(("rm -rf " + fileName).c_str());
+    if (std::system(("rm -rf " + fileName).c_str()) != 0) {
+        BOOST_THROW_EXCEPTION(runtime_error("Remove failed"));
+    }
 
-    auto db = make_shared< BlockDB >(  fileName, node_id( 1 ) );
+    auto db = make_shared< BlockDB >(  fileName, node_id( 1 ), 200 );
 
 
     for ( int i = 1; i < 200; i++ ) {
         auto t = CommittedBlock::createRandomSample( i, gen, ubyte );
 
-        db->saveBlock( t );
+        db->saveBlock(t, 200);
 
-        auto serializedBlock = db->getSerializedBlock( t->getBlockID() );
-
-        auto bb = CommittedBlock::deserialize( serializedBlock );
+        auto bb = db->getBlock(t->getBlockID());
 
         REQUIRE( bb != nullptr );
     }

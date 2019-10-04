@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2019 SKALE Labs
+    Copyright (C) 2018-2019 SKALE Labs
 
     This file is part of skale-consensus.
 
@@ -16,21 +16,44 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file BlockFinalizeClientThreadPool.h
+    @file MonitoringAgent.h
     @author Stan Kladko
-    @date 2019
+    @date 2018
 */
 
 #pragma once
 
-#include "../../threads/WorkerThreadPool.h"
 
-class BlockFinalizeClientThreadPool : public WorkerThreadPool {
+class Schain;
+
+class MonitoringThreadPool;
+class LivelinessMonitor;
+
+class MonitoringAgent {
+
+    Schain* sChain = nullptr;
+
+    recursive_mutex mutex;
+    map<uint64_t, LivelinessMonitor*> activeMonitors;
+
+
+    ptr< MonitoringThreadPool > monitoringThreadPool = nullptr;
 
 public:
 
-    BlockFinalizeClientThreadPool(num_threads numThreads, void *params_);
+    MonitoringAgent( Schain& _sChain );
 
-    void createThread(uint64_t number);
+    static void monitoringLoop( MonitoringAgent* agent );
+
+    void monitor();
+
+    void join();
+
+
+    void registerMonitor(LivelinessMonitor *m);
+
+    void unregisterMonitor(LivelinessMonitor *m);
+
+    Schain *getSChain() const;
 
 };

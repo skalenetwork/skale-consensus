@@ -38,7 +38,7 @@ ptr<BooleanProposalVector>  proposals;
 
 public:
 
-    ConsensusProposalMessage(Schain& subchain, const block_id &blockID, ptr<BooleanProposalVector> proposals);
+    ConsensusProposalMessage(Schain& _sChain, const block_id &_blockID, ptr<BooleanProposalVector> _proposals);
 
     const ptr<BooleanProposalVector> getProposals() const;
 

@@ -28,7 +28,7 @@
 
 
 #include "../../abstracttcpserver/ConnectionStatus.h"
-#include "../../network/Connection.h"
+#include "../../network/ServerConnection.h"
 
 #include "../../thirdparty/json.hpp"
 
@@ -47,7 +47,7 @@ void CatchupClientThreadPool::createThread(uint64_t /*number*/) {
 
 
 
-    this->threadpool.push_back(make_shared<thread>(CatchupClientAgent::workerThreadItemSendLoop, p));
+    this->threadpool.push_back(new thread(CatchupClientAgent::workerThreadItemSendLoop, p));
 
 }
 

@@ -41,16 +41,13 @@
 
 using namespace std;
 
-CatchupRequestHeader::CatchupRequestHeader() : Header(Header::CATCHUP_REQ) {
+CatchupRequestHeader::CatchupRequestHeader() : Header(Header::BLOCK_CATCHUP_REQ) {
 }
 
 CatchupRequestHeader::CatchupRequestHeader(Schain &_sChain, schain_index _dstIndex) :
         CatchupRequestHeader() {
 
 
-    this->srcNodeID = _sChain.getNode()->getNodeID();
-    this->srcSchainIndex = _sChain.getSchainIndex();
-    this->dstNodeID = _sChain.getNode()->getNodeInfoByIndex(_dstIndex)->getNodeID();
     this->schainID = _sChain.getSchainID();
     this->blockID = _sChain.getLastCommittedBlockID();
 
@@ -63,13 +60,6 @@ CatchupRequestHeader::CatchupRequestHeader(Schain &_sChain, schain_index _dstInd
 void CatchupRequestHeader::addFields(nlohmann::basic_json<> &j) {
 
     j["schainID"] = (uint64_t ) schainID;
-
-    j["srcNodeID"] = (uint64_t ) srcNodeID;
-
-    j["dstNodeID"] = (uint64_t )  dstNodeID;
-
-    j["srcSchainIndex"] = (uint64_t ) srcSchainIndex;
-
     j["blockID"] = (uint64_t ) blockID;
 
 }

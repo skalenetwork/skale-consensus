@@ -56,10 +56,10 @@ class BlockProposalServerAgent : public AbstractServerAgent {
     ptr<BlockProposalWorkerThreadPool> blockProposalWorkerThreadPool;
 
 
-    void processProposalRequest(ptr<Connection> _connection, nlohmann::json _proposalRequest);
+    void processProposalRequest(ptr<ServerConnection> _connection, nlohmann::json _proposalRequest);
 
 
-    void processFinalizeRequest(ptr<Connection> _connection, nlohmann::json _finalizeRequest);
+    void processFinalizeRequest(ptr<ServerConnection> _connection, nlohmann::json _finalizeRequest);
 
 
 public:
@@ -68,11 +68,11 @@ public:
     ~BlockProposalServerAgent() override;
 
     ptr<unordered_map<ptr<partial_sha_hash>, ptr<Transaction>, PendingTransactionsAgent::Hasher, PendingTransactionsAgent::Equal>>
-    readMissingTransactions(ptr<Connection> connectionEnvelope_, nlohmann::json missingTransactionsResponseHeader);
+    readMissingTransactions(ptr<ServerConnection> connectionEnvelope_, nlohmann::json missingTransactionsResponseHeader);
 
 
     pair<ptr<map<uint64_t, ptr<Transaction>>>,
-            ptr<map<uint64_t, ptr<partial_sha_hash>>>> getPresentAndMissingTransactions(Schain &subChain_,
+            ptr<map<uint64_t, ptr<partial_sha_hash>>>> getPresentAndMissingTransactions(Schain &_sChain,
                                                                                          ptr<Header>,
                                                                                          ptr<PartialHashesList> _phm);
 
@@ -82,19 +82,19 @@ public:
     void checkForOldBlock(const block_id &_blockID);
 
     ptr<Header>
-    createProposalResponseHeader(ptr<Connection> _connectionEnvelope,
+    createProposalResponseHeader(ptr<ServerConnection> _connectionEnvelope,
                                  nlohmann::json _jsonRequest);
 
     ptr<Header>
-    createFinalizeResponseHeader(ptr<Connection> _connectionEnvelope,
+    createFinalizeResponseHeader(ptr<ServerConnection> _connectionEnvelope,
                                  nlohmann::json _jsonRequest);
 
 
     nlohmann::json
-    readMissingTransactionsResponseHeader(ptr<Connection> _connectionEnvelope);
+    readMissingTransactionsResponseHeader(ptr<ServerConnection> _connectionEnvelope);
 
 
-    void processNextAvailableConnection(ptr<Connection> _connection) override;
+    void processNextAvailableConnection(ptr<ServerConnection> _connection) override;
 
     void signBlock(ptr<BlockFinalizeResponseHeader> &_responseHeader, ptr<CommittedBlock> &_block) const;
 };

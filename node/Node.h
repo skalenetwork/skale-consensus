@@ -46,6 +46,7 @@ class SigDB;
 class CommittedTransactionDB;
 class RandomDB;
 class PriceDB;
+class TestConfig;
 
 
 
@@ -106,7 +107,11 @@ class Node {
 
     ptr<Schain> sChain = nullptr;
 
+    ptr<TestConfig> testConfig = nullptr;
+public:
+    const ptr<TestConfig> &getTestConfig() const;
 
+private:
 
     class Comparator {
     public:
@@ -141,6 +146,8 @@ class Node {
 
 
     uint64_t catchupIntervalMS;
+
+    uint64_t monitoringIntervalMS;
 
     uint64_t waitAfterNetworkErrorMs;
 
@@ -214,14 +221,12 @@ public:
 
     void exitOnFatalError(const string& message);
 
-
-
     void initSchain(ptr<NodeInfo> _localNodeInfo, const vector<ptr<NodeInfo>> &remoteNodeInfos,
                     ConsensusExtFace *_extFace);
 
     void waitOnGlobalServerStartBarrier(Agent *agent);
 
-    void waitOnGlobalClientStartBarrier(Agent *agent);
+    void waitOnGlobalClientStartBarrier();
 
     ptr<Log> getLog() const;
 
@@ -264,6 +269,10 @@ public:
     void startClients();
 
     uint64_t  getCatchupIntervalMs();
+
+    uint64_t  getMonitoringIntervalMs();
+
+
 
     ConsensusEngine *getConsensusEngine() const;
 

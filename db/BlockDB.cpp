@@ -24,63 +24,166 @@
 
 #include "../SkaleCommon.h"
 #include "../Log.h"
-
+#include "../exceptions/InvalidStateException.h"
 #include "../datastructures/CommittedBlock.h"
 
 #include "BlockDB.h"
 
+ptr<vector<uint8_t> > BlockDB::getSerializedBlockFromLevelDB(block_id _blockID) {
 
-ptr<vector<uint8_t> > BlockDB::getSerializedBlock( block_id _blockID ) {
+    try {
 
-    auto key = createKey(_blockID);
+        auto key = createKey(_blockID);
 
-    auto value = readString(*key);
+        auto value = readString(*key);
 
-    if (value) {
-        auto serializedBlock = make_shared<vector<uint8_t>>();
-        serializedBlock->insert(serializedBlock->begin(), value->data(), value->data() + value->size());
-        return serializedBlock;
-    } else {
-        return nullptr;
+        if (value) {
+            auto serializedBlock = make_shared<vector<uint8_t>>();
+            serializedBlock->insert(serializedBlock->begin(), value->data(), value->data() + value->size());
+            CommittedBlock::serializedSanityCheck(serializedBlock);
+            return serializedBlock;
+        } else {
+            return nullptr;
+        }
+
+
+
+    } catch (...) {
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
 }
 
-BlockDB::BlockDB(string& filename, node_id _nodeId ) : LevelDB( filename, _nodeId ) {}
+BlockDB::BlockDB(string &_filename, node_id _nodeId, uint64_t _storageSize) : LevelDB(_filename, _nodeId) {
+    CHECK_ARGUMENT(_storageSize != 0);
+    storageSize = _storageSize;
+}
 
 
-void BlockDB::saveBlock(ptr<CommittedBlock> &_block) {
-    auto serializedBlock = _block->serialize();
+void BlockDB::saveBlock2LevelDB(ptr<CommittedBlock> &_block) {
 
+    lock_guard<recursive_mutex> lock(mutex);
 
-    auto key = createKey(_block->getBlockID() );
+    try {
 
-    auto value = (const char *) serializedBlock->data();
+        auto serializedBlock = _block->getSerialized();
 
-    auto valueLen = serializedBlock->size();
+        auto key = createKey(_block->getBlockID());
 
+        auto value = (const char *) serializedBlock->data();
 
-    writeByteArray(*key, value, valueLen);
+        auto valueLen = serializedBlock->size();
+
+        writeByteArray(*key, value, valueLen);
+    } catch (...) {
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+    }
 
 }
 
-ptr<string>  BlockDB::createKey(const block_id _blockId) {
-    return make_shared<string>(getFormatVersion() + ":" + to_string( nodeId ) + ":" + to_string( _blockId ));
+ptr<string> BlockDB::createKey(const block_id _blockId) {
+    return make_shared<string>(getFormatVersion() + ":" + to_string(nodeId) + ":" + to_string(_blockId));
 }
+
 const string BlockDB::getFormatVersion() {
     return "1.0";
 }
-uint64_t BlockDB::readCounter(){
+
+uint64_t BlockDB::readCounter() {
 
     static string count(":COUNT");
 
-    auto key = getFormatVersion() + count;
 
-    auto value = readString(key);
+    lock_guard<recursive_mutex> lock(mutex);
 
-    if (value != nullptr) {
-        return stoul(*value);
-    } else {
-        return 0;
+    try {
+
+        auto key = getFormatVersion() + count;
+
+        auto value = readString(key);
+
+        if (value != nullptr) {
+            return stoul(*value);
+        } else {
+            return 0;
+        }
+    } catch (...) {
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+    }
+}
+
+
+void BlockDB::saveBlock(ptr<CommittedBlock> &_block, block_id _lastCommittedBlockID) {
+    try {
+        lock_guard<recursive_mutex> lock(mutex);
+
+        saveBlockToBlockCache(_block, _lastCommittedBlockID);
+        saveBlock2LevelDB(_block);
+
+    } catch (...) {
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+    }
+
+}
+
+void BlockDB::saveBlockToBlockCache(ptr<CommittedBlock> &_block, block_id _lastCommittedBlockID) {
+    CHECK_ARGUMENT(_block != nullptr);
+
+    lock_guard<recursive_mutex> lock(mutex);
+
+    try {
+        auto blockID = _block->getBlockID();
+
+        ASSERT(blocks.count(blockID) == 0);
+
+        blocks[blockID] = _block;
+
+
+        if (blockID > storageSize && blocks.count(blockID - storageSize) > 0) {
+            blocks.erase(_lastCommittedBlockID - storageSize);
+        };
+
+
+        ASSERT(blocks.size() <= storageSize);
+
+    } catch (...) {
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+    }
+}
+
+ptr<CommittedBlock> BlockDB::getCachedBlock(block_id _blockID) {
+    try {
+        if (blocks.count(_blockID > 0)) {
+            return blocks.at(_blockID);
+        } else {
+            return nullptr;
+        }
+    } catch (...) {
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+    }
+}
+
+ptr<CommittedBlock> BlockDB::getBlock(block_id _blockID) {
+
+
+    std::lock_guard<std::recursive_mutex> lock(mutex);
+
+    try {
+        auto block = getCachedBlock(_blockID);
+
+        if (block)
+            return block;
+
+        auto serializedBlock = getSerializedBlockFromLevelDB(_blockID);
+
+        if (serializedBlock == nullptr) {
+            return nullptr;
+        }
+
+        return CommittedBlock::deserialize(serializedBlock);
+    }
+
+    catch (...) {
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
 
 }

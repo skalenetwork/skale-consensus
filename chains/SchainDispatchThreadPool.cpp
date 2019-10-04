@@ -37,5 +37,5 @@ SchainDispatchThreadPool::SchainDispatchThreadPool(void *params_) : WorkerThread
 }
 
 void SchainDispatchThreadPool::createThread(uint64_t /*_threadNumber*/){
-    //threadpool.push_back( make_shared<thread>(Schain::workerThreadDispatchProcessingLoop, reinterpret_cast < Schain * > (params) ) );
+    //threadpool.push_back( new thread(Schain::workerThreadDispatchProcessingLoop, reinterpret_cast < Schain * > (params) ) );
 }

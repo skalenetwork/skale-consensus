@@ -30,33 +30,35 @@
 #include "AbstractBlockRequestHeader.h"
 #include "BlockFinalizeResponseHeader.h"
 
-BlockFinalizeResponseHeader::BlockFinalizeResponseHeader(): Header(Header::BLOCK_FINALIZE__RSP) {}
+BlockFinalizeResponseHeader::BlockFinalizeResponseHeader() : Header(Header::BLOCK_FINALIZE__RSP) {
 
-void BlockFinalizeResponseHeader::setSigShare(const ptr<string> &_sigShare) {
-
-    if (!_sigShare || _sigShare->size() < 10) {
-        BOOST_THROW_EXCEPTION(InvalidArgumentException("Null or misformatted sig share", __CLASS_NAME__));
-    }
-
-    sigShare = _sigShare;
 }
 
-void BlockFinalizeResponseHeader::addFields(nlohmann::json &jsonRequest) {
 
-    Header::addFields(jsonRequest);
+void BlockFinalizeResponseHeader::addFields(nlohmann::json &_j) {
 
-    if (status != CONNECTION_SUCCESS)
+
+    CHECK_STATE(isComplete());
+    Header::addFields(_j);
+
+    if (status != CONNECTION_PROCEED)
         return;
 
-    if (!sigShare) {
-        BOOST_THROW_EXCEPTION(InvalidArgumentException("Null sig share", __CLASS_NAME__));
-    }
+    CHECK_STATE(blockHash != nullptr);
+    _j["blockHash"] = *blockHash;
+    _j["fragmentSize"] = (uint64_t) fragmentSize;
+    _j["blockSize"] = (uint64_t) blockSize;
+}
+
+void BlockFinalizeResponseHeader::setFragmentParams(uint64_t _fragmentSize, uint64_t _blockSize, ptr<string> _hash) {
+
+    CHECK_ARGUMENT(_fragmentSize > 2)
+    CHECK_ARGUMENT(_blockSize > 16)
+    CHECK_ARGUMENT(_hash != nullptr)
 
 
-    if (!sigShare || sigShare->size() < 10) {
-        BOOST_THROW_EXCEPTION(InvalidArgumentException("Misformatted sig share", __CLASS_NAME__));
-    }
-
-    jsonRequest["sigShare"] = *sigShare;
-
+    fragmentSize = _fragmentSize;
+    blockSize = _blockSize;
+    blockHash = _hash;
+    setComplete();
 }

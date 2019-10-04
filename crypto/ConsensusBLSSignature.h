@@ -28,8 +28,11 @@
 
 
 #include "BLSSignature.h"
-class ConsensusBLSSignature : public BLSSignature {
-    block_id blockId;
+#include "ThresholdSignature.h"
+
+class ConsensusBLSSignature : public ThresholdSignature {
+
+    BLSSignature blsSig;
 
 public:
     ConsensusBLSSignature(
@@ -38,7 +41,9 @@ public:
     ConsensusBLSSignature( ptr< libff::alt_bn128_G1 > _s, block_id _blockID, size_t _totalSigners,
         size_t _requiredSigners );
 
-    block_id getBlockId() const;
+    std::shared_ptr<std::string> toString();
+
+    uint64_t getRandom();
 };
 
 

@@ -41,7 +41,8 @@ using namespace std;
 
 
 BlockProposalHeader::BlockProposalHeader(Schain &_sChain, ptr<BlockProposal> proposal) :
-        AbstractBlockRequestHeader(_sChain, proposal, Header::BLOCK_PROPOSAL_REQ, _sChain.getSchainIndex()) {
+        AbstractBlockRequestHeader(_sChain, proposal->getBlockID(), Header::BLOCK_PROPOSAL_REQ,
+                _sChain.getSchainIndex()) {
 
 
     this->proposerNodeID = _sChain.getNode()->getNodeID();

@@ -156,6 +156,8 @@ static constexpr uint64_t COMMITTED_BLOCK_STORAGE_SIZE = 1;
 
 static constexpr uint64_t CATCHUP_INTERVAL_MS = 10000;
 
+static constexpr uint64_t MONITORING_INTERVAL_MS = 1000;
+
 static constexpr uint64_t WAIT_AFTER_NETWORK_ERROR_MS = 3000;
 
 
@@ -252,6 +254,8 @@ BOOST_STRONG_TYPEDEF(uint64_t, msg_nonce);
 
 BOOST_STRONG_TYPEDEF(uint64_t, num_threads);
 
+BOOST_STRONG_TYPEDEF(uint64_t, fragment_index);
+
 BOOST_STRONG_TYPEDEF(int, file_descriptor);
 
 BOOST_STRONG_TYPEDEF(char, out_buffer);
@@ -300,7 +304,7 @@ extern thread_local ptr<Log> logThreadLocal_;
 #define CHECK_STATE(_EXPRESSION_) \
     if (!(_EXPRESSION_)) { \
         auto __msg__ = string("State check failed::") + #_EXPRESSION_ +  " " + string(__FILE__) + ":" + to_string(__LINE__); \
-        throw InvalidArgumentException(__msg__, __CLASS_NAME__);}
+        throw InvalidStateException(__msg__, __CLASS_NAME__);}
 
 
 
@@ -312,7 +316,7 @@ extern thread_local ptr<Log> logThreadLocal_;
 #define CHECK_STATE2(_EXPRESSION_, _MSG_) \
     if (!(_EXPRESSION_)) { \
         auto __msg__ = string("Check failed::") + #_EXPRESSION_ +  " " + string(__FILE__) + ":" + to_string(__LINE__); \
-        throw InvalidArgumentException(__msg__ + ":" + _MSG_, __CLASS_NAME__);}
+        throw InvalidStateException(__msg__ + ":" + _MSG_, __CLASS_NAME__);}
 
 
 #define ASSERT2(_EXPRESSION_, _MSG_) \

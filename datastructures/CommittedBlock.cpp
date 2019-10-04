@@ -34,22 +34,33 @@
 #include "../crypto/SHAHash.h"
 #include "../exceptions/NetworkProtocolException.h"
 #include "../exceptions/ParsingException.h"
+#include "../exceptions/InvalidStateException.h"
+#include "../exceptions/ExitRequestedException.h"
 #include "../headers/CommittedBlockHeader.h"
 
 
 #include "../datastructures/Transaction.h"
 #include "../network/Buffer.h"
-#include "CommittedBlock.h"
 #include "TransactionList.h"
+#include "BlockProposalFragment.h"
+#include "CommittedBlock.h"
 
 
-CommittedBlock::CommittedBlock( Schain& _sChain, ptr< BlockProposal > _p )
-    : BlockProposal( _sChain.getSchainID(), _sChain.getNodeIDByIndex( _p->getProposerIndex() ),
+CommittedBlock::CommittedBlock(ptr< BlockProposal > _p )
+    : BlockProposal(_p->getSchainID(), _p->getProposerNodeID(),
           _p->getBlockID(), _p->getProposerIndex(), _p->getTransactionList(), _p->getTimeStamp(),
           _p->getTimeStampMs() ) {}
 
 
-ptr< vector< uint8_t > > CommittedBlock::serialize() {
+ptr< vector< uint8_t > > CommittedBlock::getSerialized() {
+
+
+
+    lock_guard<recursive_mutex> lock(m);
+
+    if (serializedBlock != nullptr)
+        return serializedBlock;
+
     auto header = make_shared< CommittedBlockHeader >( *this );
 
     auto buf = header->toBuffer();
@@ -66,24 +77,32 @@ ptr< vector< uint8_t > > CommittedBlock::serialize() {
 
 
     auto serializedList = transactionList->serialize( true );
+    assert(serializedList->front() == '<' );
+    assert(serializedList->back() == '>' );
+
 
     block->insert( block->end(), serializedList->begin(), serializedList->end() );
-
-
-    CHECK_STATE( block->at( sizeof( uint64_t ) ) == '{' );
 
     if ( transactionList->size() == 0 ) {
         CHECK_STATE( block->size() == buf->getCounter() + 2 );
     }
 
+    serializedBlock = block;
+
+
+    assert(block->at(sizeof( uint64_t )) == '{' );
+    assert(block->back() == '>' );
 
     return block;
 }
 
+void CommittedBlock::serializedSanityCheck(ptr< vector< uint8_t > > _serializedBlock) {
+        CHECK_STATE( _serializedBlock->at(sizeof( uint64_t )) == '{' );
+        CHECK_STATE( _serializedBlock->back() == '>' );
+};
 
 ptr< CommittedBlock > CommittedBlock::deserialize( ptr< vector< uint8_t > > _serializedBlock ) {
     auto block = ptr< CommittedBlock >( new CommittedBlock( 0, 0 ) );
-
 
     uint64_t headerSize = 0;
 
@@ -113,6 +132,8 @@ ptr< CommittedBlock > CommittedBlock::deserialize( ptr< vector< uint8_t > > _ser
     CHECK_STATE( headerSize <= MAX_BUFFER_SIZE );
 
     CHECK_STATE( _serializedBlock->at( headerSize + sizeof( headerSize ) ) == '<' );
+    CHECK_STATE( _serializedBlock->at(sizeof( headerSize )) == '{' );
+    CHECK_STATE( _serializedBlock->back() == '>' );
 
     auto header = make_shared< string >( headerSize, ' ' );
 
@@ -122,7 +143,7 @@ ptr< CommittedBlock > CommittedBlock::deserialize( ptr< vector< uint8_t > > _ser
 
     try {
         transactionSizes = block->parseBlockHeader( header );
-    } catch ( ... ) {
+    } catch (ExitRequestedException &) {throw;} catch (...) {
         throw_with_nested( ParsingException(
             "Could not parse committed block header: \n" + *header, __CLASS_NAME__ ) );
     }
@@ -132,8 +153,6 @@ ptr< CommittedBlock > CommittedBlock::deserialize( ptr< vector< uint8_t > > _ser
         block->transactionList = TransactionList::deserialize(
             transactionSizes, _serializedBlock, headerSize + sizeof( headerSize ), true );
     } catch ( Exception& e ) {
-        Exception::logNested( e, err );
-
         throw_with_nested(
             ParsingException( "Could not parse transactions after header. Header: \n" + *header +
                                   " Transactions size:" + to_string( _serializedBlock->size() ),
@@ -144,6 +163,17 @@ ptr< CommittedBlock > CommittedBlock::deserialize( ptr< vector< uint8_t > > _ser
 
     return block;
 }
+
+
+ptr< CommittedBlock > CommittedBlock::defragment( ptr<BlockProposalFragmentList> _fragmentList ) {
+    try {
+        return deserialize(_fragmentList->serialize());
+    } catch ( Exception& e ) {
+        Exception::logNested(e);
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+    }
+}
+
 
 ptr< vector< uint64_t > > CommittedBlock::parseBlockHeader( const shared_ptr< string >& header ) {
     CHECK_ARGUMENT( header != nullptr );
@@ -202,4 +232,49 @@ ptr< CommittedBlock > CommittedBlock::createRandomSample( uint64_t _size,
     static uint64_t MODERN_TIME = 1547640182;
 
     return make_shared< CommittedBlock >( 1, 1, _blockID, 1, list, MODERN_TIME + 1, 1 );
+}
+
+ptr<BlockProposalFragment> CommittedBlock::getFragment(uint64_t _totalFragments, fragment_index _index) {
+
+    CHECK_ARGUMENT(_totalFragments > 0);
+    CHECK_ARGUMENT(_index <= _totalFragments);
+
+    lock_guard<recursive_mutex> lock(m);
+
+    auto sBlock = getSerialized();
+
+
+    auto blockSize = sBlock->size();
+
+    uint64_t fragmentStandardSize;
+
+    if (blockSize % _totalFragments == 0 ) {
+        fragmentStandardSize = sBlock->size() / _totalFragments;
+    } else {
+        fragmentStandardSize = sBlock->size() / _totalFragments + 1;
+    }
+
+    auto startIndex = fragmentStandardSize * ((uint64_t ) _index - 1);
+
+
+    auto fragmentData = make_shared<vector<uint8_t>>();
+    fragmentData->reserve(fragmentStandardSize + 2);
+
+    fragmentData->push_back('<');
+
+
+    if (_index == _totalFragments) {
+        fragmentData->insert(fragmentData->begin() + 1, sBlock->begin() + startIndex,
+                             sBlock->end());
+
+    } else {
+        fragmentData->insert(fragmentData->begin() + 1, sBlock->begin() + startIndex,
+                             sBlock->begin() + startIndex + fragmentStandardSize);
+    }
+
+    fragmentData->push_back('>');
+
+
+    return make_shared<BlockProposalFragment>(getBlockID(), _totalFragments, _index, fragmentData,
+                                              sBlock->size(), getHash()->toHex());
 };

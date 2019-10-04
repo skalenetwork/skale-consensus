@@ -38,7 +38,6 @@
 
 TestMessageGeneratorAgent::TestMessageGeneratorAgent(Schain& _sChain_) : Agent(_sChain_, false) {
     ASSERT(_sChain_.getNodeCount() > 0);
-    LOG(info, "created");
 }
 
 

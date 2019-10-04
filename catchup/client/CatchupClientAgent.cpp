@@ -49,17 +49,17 @@
 #include "CatchupClientThreadPool.h"
 
 
-CatchupClientAgent::CatchupClientAgent( Schain& _sChain ) : Agent( _sChain, false ) {
+CatchupClientAgent::CatchupClientAgent( Schain& _sChain ) : Agent(_sChain, false ) {
     try {
         logThreadLocal_ = _sChain.getNode()->getLog();
         this->sChain = &_sChain;
         threadCounter = 0;
 
-        if ( _sChain.getNodeCount() > 1 ) {
+        if (_sChain.getNodeCount() > 1 ) {
             this->catchupClientThreadPool = make_shared< CatchupClientThreadPool >( 1, this );
             catchupClientThreadPool->startService();
         }
-    } catch ( ... ) {
+    } catch (ExitRequestedException &) {throw;} catch (...) {
         throw_with_nested( FatalError( __FUNCTION__, __CLASS_NAME__ ) );
     }
 }
@@ -202,7 +202,7 @@ ptr< CommittedBlockList > CatchupClientAgent::readMissingBlocks(
     }
 
     if ( serializedBlocks->at( 0 ) != '[' ) {
-        throw_with_nested(
+        BOOST_THROW_EXCEPTION(
             NetworkProtocolException( "Serialized blocks do not start with [", __CLASS_NAME__ ) );
     }
 
@@ -223,25 +223,25 @@ ptr< CommittedBlockList > CatchupClientAgent::readMissingBlocks(
 
 
 void CatchupClientAgent::workerThreadItemSendLoop( CatchupClientAgent* agent ) {
-    setThreadName( __CLASS_NAME__ );
+    setThreadName("CatchupClient");
 
     agent->waitOnGlobalStartBarrier();
 
-    auto destinationSubChainIndex = schain_index( 1 );
+    auto destinationSchainIndex = schain_index(1 );
 
     try {
         while ( !agent->getSchain()->getNode()->isExitRequested() ) {
             usleep( agent->getNode()->getCatchupIntervalMs() * 1000 );
 
             try {
-                agent->sync( destinationSubChainIndex );
+                agent->sync(destinationSchainIndex );
             } catch ( ExitRequestedException& ) {
                 return;
             } catch ( Exception& e ) {
                 Exception::logNested( e );
             }
 
-            destinationSubChainIndex = nextSyncNodeIndex( agent, destinationSubChainIndex );
+            destinationSchainIndex = nextSyncNodeIndex(agent, destinationSchainIndex );
         };
     } catch ( FatalError* e ) {
         agent->getNode()->exitOnFatalError( e->getMessage() );
@@ -249,10 +249,10 @@ void CatchupClientAgent::workerThreadItemSendLoop( CatchupClientAgent* agent ) {
 }
 
 schain_index CatchupClientAgent::nextSyncNodeIndex(
-    const CatchupClientAgent* agent, schain_index _destinationSubChainIndex ) {
+    const CatchupClientAgent* agent, schain_index _destinationSchainIndex ) {
     auto nodeCount = ( uint64_t ) agent->getSchain()->getNodeCount();
 
-    auto index = _destinationSubChainIndex - 1;
+    auto index = _destinationSchainIndex - 1;
 
     do {
         index = ( ( uint64_t ) index + 1 ) % nodeCount;

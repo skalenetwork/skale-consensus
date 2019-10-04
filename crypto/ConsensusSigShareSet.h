@@ -33,22 +33,30 @@ class ConsensusBLSSigShare;
 class ConsensusBLSSignature;
 class SHAHash;
 
-class ConsensusSigShareSet : public BLSSigShareSet {
-    Schain* sChain;
+class ConsensusSigShareSet {
+
+    uint64_t requiredSigners;
+    uint64_t totalSigners;
+
     block_id blockId;
 
     static atomic<uint64_t>  totalObjects;
 
+    BLSSigShareSet blsSet;
+
 
 public:
-    ConsensusSigShareSet(
-        Schain* _sChain, block_id _blockId, size_t _totalSigners, size_t _requiredSigners );
+    ConsensusSigShareSet(block_id _blockId, size_t _totalSigners, size_t _requiredSigners );
 
     ptr<ConsensusBLSSignature> mergeSignature();
 
+    bool isEnough();
+
+    bool isEnoughMinusOne();
+
     virtual ~ConsensusSigShareSet();
 
-    static uint64_t getTotalObjects() {
-        return totalObjects;
-    }
+    bool addSigShare(std::shared_ptr<BLSSigShare> _sigShare);
+
+    static uint64_t getTotalObjects();
 };

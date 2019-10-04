@@ -33,35 +33,39 @@
 #include "../exceptions/InvalidArgumentException.h"
 
 void Utils::checkTime() {
-    auto ip = gethostbyname( "pool.ntp.org" );
-    auto fd = socket( AF_INET, SOCK_DGRAM, IPPROTO_UDP );
+    auto ip = gethostbyname("pool.ntp.org");
+    auto fd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 
 
-    if ( fd < 0 )
-        throw FatalError( "Can not open NTP socket" );
+    if (fd < 0) {
+        cerr << "Could not open NTP socket" << endl;
+        BOOST_THROW_EXCEPTION(FatalError("Can not open NTP socket"));
+    }
 
     struct timeval tv;
     tv.tv_sec = 1;
     tv.tv_usec = 0;
-    if ( setsockopt( fd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof( tv ) ) < 0 ) {
-        perror( "Error" );
+    if (setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv)) < 0) {
+        perror("Error");
     }
 
 
-    if ( !ip )
-        throw FatalError( "Could not get IP address" );
+    if (!ip) {
+        cerr << "Could not resolve of pool.ntp.org. Check internet connection." << endl;
+        BOOST_THROW_EXCEPTION(FatalError("Could not get IP address", __CLASS_NAME__));
+    }
 
 
     struct sockaddr_in serverAddress = {};
 
-    memcpy( ( char* ) &serverAddress.sin_addr.s_addr, ip->h_addr, ( size_t ) ip->h_length );
+    memcpy((char *) &serverAddress.sin_addr.s_addr, ip->h_addr, (size_t) ip->h_length);
 
     serverAddress.sin_family = AF_INET;
 
-    serverAddress.sin_port = htons( 123 );
+    serverAddress.sin_port = htons(123);
 
-    if ( connect( fd, ( struct sockaddr* ) &serverAddress, sizeof( serverAddress ) ) < 0 )
-        throw FatalError( "Could not connect to NTP server" );
+    if (connect(fd, (struct sockaddr *) &serverAddress, sizeof(serverAddress)) < 0)
+        BOOST_THROW_EXCEPTION(FatalError("Could not connect to NTP server"));
 
 
     struct {
@@ -84,13 +88,13 @@ void Utils::checkTime() {
     } ntpMessage;
 
 
-    if ( write( fd, ( char* ) &ntpMessage, sizeof( ntpMessage ) ) <= 0 )
-        throw FatalError( "Could not write to NTP" );
+    if (write(fd, (char *) &ntpMessage, sizeof(ntpMessage)) <= 0)
+        BOOST_THROW_EXCEPTION(FatalError("Could not write to NTP", __CLASS_NAME__));
 
 
-    if ( read( fd, ( char* ) &ntpMessage, sizeof( ntpMessage ) ) != sizeof( ntpMessage ) ) {
-        if ( errno != EAGAIN )
-            throw FatalError( "Could not read from NTP" );
+    if (read(fd, (char *) &ntpMessage, sizeof(ntpMessage)) != sizeof(ntpMessage)) {
+        if (errno != EAGAIN)
+            BOOST_THROW_EXCEPTION(FatalError("Could not read from NTP", __CLASS_NAME__));
         else
             return;
     }
@@ -99,19 +103,19 @@ void Utils::checkTime() {
         return;
     }
 
-    int64_t timeDiff = ntohl( ntpMessage.txTmS ) - TIME_START - time( NULL );
+    int64_t timeDiff = ntohl(ntpMessage.txTmS) - TIME_START - time(NULL);
 
-    if ( timeDiff > 1 || timeDiff < -1 )
-        throw FatalError(
-            "System time is not synchronized. Enable NTP: sudo timedatectl set-ntp on. Timediff:" +
-            to_string( timeDiff ) + ":Local:" + to_string( time( NULL ) ) +
-            ":ntp:" + to_string( ntohl( ntpMessage.txTmS ) - TIME_START ) );
+    if (timeDiff > 1 || timeDiff < -1)
+        BOOST_THROW_EXCEPTION(FatalError(
+                                      "System time is not synchronized. Enable NTP: sudo timedatectl set-ntp on. Timediff:" +
+                                      to_string(timeDiff) + ":Local:" + to_string(time(NULL)) +
+                                      ":ntp:" + to_string(ntohl(ntpMessage.txTmS) - TIME_START)));
 }
 
 
-bool Utils::isValidIpAddress( ptr< string > ipAddress ) {
+bool Utils::isValidIpAddress(ptr<string> ipAddress) {
     struct sockaddr_in sa;
-    int result = inet_pton( AF_INET, ipAddress->c_str(), &( sa.sin_addr ) );
+    int result = inet_pton(AF_INET, ipAddress->c_str(), &(sa.sin_addr));
     return result != 0;
 }
 
@@ -132,12 +136,12 @@ ptr<string> Utils::carray2Hex(const uint8_t *d, size_t _len) {
 }
 
 
-uint Utils::char2int( char _input ) {
-    if ( _input >= '0' && _input <= '9' )
+uint Utils::char2int(char _input) {
+    if (_input >= '0' && _input <= '9')
         return _input - '0';
-    if ( _input >= 'A' && _input <= 'F' )
+    if (_input >= 'A' && _input <= 'F')
         return _input - 'A' + 10;
-    if ( _input >= 'a' && _input <= 'f' )
+    if (_input >= 'a' && _input <= 'f')
         return _input - 'a' + 10;
-    throw InvalidArgumentException( "Invalid input string", __CLASS_NAME__ );
+    BOOST_THROW_EXCEPTION(InvalidArgumentException("Invalid input string", __CLASS_NAME__));
 }

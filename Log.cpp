@@ -36,146 +36,165 @@ using namespace std;
 
 
 void Log::init() {
-    spdlog::flush_every( std::chrono::seconds( 1 ) );
+
+    lock_guard<recursive_mutex> lock(mutex);
+
+
+    spdlog::flush_every(std::chrono::seconds(1));
 
     logThreadLocal_ = nullptr;
 
-    char* d = std::getenv( "DATA_DIR" );
+    char *d = std::getenv("DATA_DIR");
 
-    if ( d != nullptr ) {
+    if (d != nullptr) {
         dataDir = make_shared<string>(d);
         cerr << "Found data dir:" << *dataDir << endl;
         logFileNamePrefix = make_shared<string>(*dataDir + "/skaled.log");
-        rotatingFileSync = make_shared<spdlog::sinks::rotating_file_sink_mt>(
-            *logFileNamePrefix, 10* 1024 * 1024, 5 );
+        rotatingFileSync = make_shared<spdlog::sinks::rotating_file_sink_mt>(*logFileNamePrefix, 10 * 1024 * 1024, 5);
     } else {
         dataDir = make_shared<string>("/tmp");
         logFileNamePrefix = nullptr;
         rotatingFileSync = nullptr;
     }
 
-    configLogger = createLogger( "config" );
+    configLogger = createLogger("config");
+
+    inited = true;
 }
 
-shared_ptr< spdlog::logger > Log::createLogger( const string& loggerName ) {
-    shared_ptr< spdlog::logger > logger = spdlog::get( loggerName );
+shared_ptr<spdlog::logger> Log::createLogger(const string &loggerName) {
+    shared_ptr<spdlog::logger> logger = spdlog::get(loggerName);
 
-    if ( !logger ) {
-        if ( logFileNamePrefix != nullptr ) {
-            logger = spdlog::get( loggerName );
-            logger = make_shared<spdlog::logger>( loggerName, rotatingFileSync );
-            logger->flush_on( info );
-
+    if (!logger) {
+        if (logFileNamePrefix != nullptr) {
+            logger = make_shared<spdlog::logger>(loggerName, rotatingFileSync);
+            logger->flush_on(info);
         } else {
-            logger = spdlog::stdout_color_mt( loggerName );
+            logger = spdlog::stdout_color_mt(loggerName);
         }
     }
+
+    assert(logger);
+
     return logger;
 }
 
-void Log::setGlobalLogLevel( string& _s ) {
-    globalLogLevel = logLevelFromString( _s );
+void Log::setGlobalLogLevel(string &_s) {
+    globalLogLevel = logLevelFromString(_s);
 
-    for ( auto&& item : loggers ) {
-        item.second->set_level( globalLogLevel );
+    for (auto &&item : loggers) {
+        item.second->set_level(globalLogLevel);
     }
 
     Log::setConfigLogLevel(_s);
 }
 
-void Log::setConfigLogLevel( string& _s ) {
-    auto configLogLevel = logLevelFromString( _s );
+void Log::setConfigLogLevel(string &_s) {
+    auto configLogLevel = logLevelFromString(_s);
 
-    Log::configLogger->set_level( configLogLevel );
+    Log::configLogger->set_level(configLogLevel);
 }
 
 
-level_enum Log::logLevelFromString( string& _s ) {
-    for ( int i = 0; i < 7; i++ ) {
-        if ( _s == level_names[i] ) {
-            return level_enum( i );
+level_enum Log::logLevelFromString(string &_s) {
+    for (int i = 0; i < 7; i++) {
+        if (_s == level_names[i]) {
+            return level_enum(i);
         }
     }
 
 
-    throw ParsingException( "Unknown level name " + _s , __CLASS_NAME__);
+    BOOST_THROW_EXCEPTION(ParsingException("Unknown level name " + _s, __CLASS_NAME__));
 }
 
-shared_ptr< spdlog::logger > Log::loggerForClass( const char* _s ) {
+shared_ptr<spdlog::logger> Log::loggerForClass(const char *_s) {
     string key;
 
-    if ( strstr( _s, "Proposal" ) )
+    if (strstr(_s, "Proposal"))
         key = "Proposal";
-    if ( strstr( _s, "Catchup" ) )
+    if (strstr(_s, "Catchup"))
         key = "Catchup";
 
-    if ( strstr( _s, "Pending" ) )
+    if (strstr(_s, "Pending"))
         key = "Pending";
-    if ( strstr( _s, "Consensus" ) )
+    if (strstr(_s, "Consensus"))
         key = "Consensus";
-    if ( strstr( _s, "Protocol" ) )
+    if (strstr(_s, "Protocol"))
         key = "Consensus";
-    if ( strstr( _s, "Header" ) )
+    if (strstr(_s, "Header"))
         key = "Datastructures";
-    if ( strstr( _s, "Network" ) )
+    if (strstr(_s, "Network"))
         key = "Net";
 
-    if ( key == "" )
+    if (key == "")
         key = "Main";
 
-    assert( loggers.count( key ) > 0 );
+    assert(loggers.count(key) > 0);
     return loggers[key];
 }
 
-Log::Log( node_id _nodeID ) {
+Log::Log(node_id _nodeID) {
     nodeID = _nodeID;
 
-    prefix = make_shared<string>( to_string( _nodeID ) + ":" );
+    prefix = make_shared<string>(to_string(_nodeID) + ":");
 
-
-    mainLogger = createLogger( *prefix + "main" );
+    mainLogger = createLogger(*prefix + "main");
     loggers["Main"] = mainLogger;
-    proposalLogger = createLogger( *prefix + "proposal" );
+    proposalLogger = createLogger(*prefix + "proposal");
     loggers["Proposal"] = proposalLogger;
-    catchupLogger = createLogger( *prefix + "catchup" );
+    catchupLogger = createLogger(*prefix + "catchup");
     loggers["Catchup"] = catchupLogger;
-    consensusLogger = createLogger( *prefix + "consensus" );
+    consensusLogger = createLogger(*prefix + "consensus");
     loggers["Consensus"] = consensusLogger;
-    netLogger = createLogger( *prefix + "net" );
+    netLogger = createLogger(*prefix + "net");
     loggers["Net"] = netLogger;
-    dataStructuresLogger = createLogger( *prefix + "datastructures" );
+    dataStructuresLogger = createLogger(*prefix + "datastructures");
     loggers["Datastructures"] = dataStructuresLogger;
-    pendingQueueLogger = createLogger( *prefix + "pending" );
+    pendingQueueLogger = createLogger(*prefix + "pending");
     loggers["Pending"] = pendingQueueLogger;
 }
 
-void Log::log( level_enum _severity, const string& _message, const string& _className ) {
-    if ( logThreadLocal_ == nullptr ) {
-        configLogger->log( _severity, _message );
-    } else {
-        logThreadLocal_->loggerForClass(_className.c_str())->log( _severity, _message );
-    }
+
+void Log::logConfig(level_enum _severity, const string &_message, const string &_className) {
+    assert(inited);
+    assert(configLogger != nullptr);
+    configLogger->log(_severity, _className + ": " + _message);
 }
 
+void Log::log(level_enum _severity, const string &_message, const string &_className) {
+    if (logThreadLocal_ == nullptr) {
+
+        assert(inited);
+        assert(configLogger != nullptr);
+
+        configLogger->log(_severity, _message);
+    } else {
+        logThreadLocal_->loggerForClass(_className.c_str())->log(_severity, _message);
+    }
+}
 
 
 const node_id Log::getNodeID() const {
     return nodeID;
 }
 
-const shared_ptr< string > Log::getDataDir() {
-    ASSERT( dataDir );
+const shared_ptr<string> Log::getDataDir() {
+    ASSERT(dataDir);
     return dataDir;
 }
 
 
-ptr< spdlog::logger > Log::configLogger = nullptr;
+ptr<spdlog::logger> Log::configLogger = nullptr;
 
 
-ptr< spdlog::sinks::sink > Log::rotatingFileSync = nullptr;
+ptr<spdlog::sinks::sink> Log::rotatingFileSync = nullptr;
 
 
-ptr< string > Log::logFileNamePrefix = nullptr;
+ptr<string> Log::logFileNamePrefix = nullptr;
 
 
-ptr< string > Log::dataDir = nullptr;
+ptr<string> Log::dataDir = nullptr;
+
+recursive_mutex Log::mutex;
+
+bool Log::inited = false;

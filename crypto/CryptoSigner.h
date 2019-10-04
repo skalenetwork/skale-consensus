@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2018-2019 SKALE Labs
+    Copyright (C) 2019 SKALE Labs
 
     This file is part of skale-consensus.
 
@@ -16,37 +16,33 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file Connection.h
+    @file CryptoSigner.h
     @author Stan Kladko
-    @date 2018
+    @date 2019
 */
 
-#pragma  once
-
-class Connection {
-
-    static uint64_t totalConnections;
+#ifndef SKALED_CRYPTOSIGNER_H
+#define SKALED_CRYPTOSIGNER_H
 
 
 
-    file_descriptor descriptor;
-    ptr<string> ip;
+class Schain;
+class SHAHash;
+class ConsensusBLSSigShare;
+
+class CryptoSigner {
+
+private:
+    Schain* sChain;
 
 public:
 
-    Connection(unsigned int descriptor, ptr<string>ip);
+    CryptoSigner(Schain& sChain);
 
-    virtual ~Connection();
+    Schain *getSchain() const;
 
-    file_descriptor getDescriptor();
-
-    ptr<string> getIP();
-
-    static void incrementTotalConnections();
-
-    static void decrementTotalConnections();
-
-    static uint64_t getTotalConnections();
-
+    ptr<ConsensusBLSSigShare> sign(ptr<SHAHash> _hash, block_id _blockId);
 };
 
+
+#endif //SKALED_CRYPTOSIGNER_H
