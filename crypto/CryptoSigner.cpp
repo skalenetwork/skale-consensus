@@ -27,6 +27,7 @@
 #include "../chains/Schain.h"
 #include "SHAHash.h"
 #include "ConsensusBLSSigShare.h"
+#include "ConsensusSigShareSet.h"
 #include "../node/Node.h"
 #include "../monitoring/LivelinessMonitor.h"
 #include "bls/BLSPrivateKeyShare.h"
@@ -54,5 +55,10 @@ ptr<ConsensusBLSSigShare> CryptoSigner::sign(ptr<SHAHash> _hash, block_id _block
 
     return make_shared<ConsensusBLSSigShare>(blsShare, sChain->getSchainID(), _blockId, sChain->getNode()->getNodeID());
 
+}
+
+ptr<ThresholdSigShareSet>
+CryptoSigner::createSigShareSet(block_id _blockId, size_t _totalSigners, size_t _requiredSigners) {
+    return make_shared<ConsensusSigShareSet>(_blockId, _totalSigners, _requiredSigners);
 }
 

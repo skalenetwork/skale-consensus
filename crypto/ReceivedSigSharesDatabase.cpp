@@ -98,7 +98,8 @@ bool ReceivedSigSharesDatabase::addSigShare(ptr<ThresholdSigShare> _sigShare) {
     lock_guard<recursive_mutex> lock(sigShareDatabaseMutex);
 
     if (this->sigShareSets.count(_sigShare->getBlockId()) == 0) {
-        sigShareSets[_sigShare->getBlockId()] = make_shared<ConsensusSigShareSet>(_sigShare->getBlockId(),
+        sigShareSets[_sigShare->getBlockId()] =
+                make_shared<ConsensusSigShareSet>(_sigShare->getBlockId(),
                 sChain->getTotalSignersCount(), sChain->getRequiredSignersCount());
     }
 
