@@ -307,7 +307,7 @@ uint64_t BinConsensusInstance::totalAUXVotes(bin_consensus_round r) {
     return auxTrueVotes[r].size() + auxFalseVotes[r].size();
 }
 
-void BinConsensusInstance::auxSelfVote(bin_consensus_round r, bin_consensus_value v, ptr<ConsensusBLSSigShare> _sigShare) {
+void BinConsensusInstance::auxSelfVote(bin_consensus_round r, bin_consensus_value v, ptr<ThresholdSigShare> _sigShare) {
     if (getSchain()->getNode()->isBlsEnabled()) {
         ASSERT(_sigShare);
     }
@@ -694,7 +694,7 @@ uint64_t BinConsensusInstance::calculateBLSRandom(bin_consensus_round _r) {
     if (binValues[_r].count(bin_consensus_value(true)) > 0 && auxTrueVotes[_r].size() > 0) {
         for (auto&& item: auxTrueVotes[_r]) {
             ASSERT(item.second);
-            shares.addSigShare(item.second->getBlsSigShare());
+            shares.addSigShare(item.second);
             if ( shares.isEnough())
                 break;
         }
@@ -703,7 +703,7 @@ uint64_t BinConsensusInstance::calculateBLSRandom(bin_consensus_round _r) {
     if (binValues[_r].count(bin_consensus_value(false)) > 0 && auxFalseVotes[_r].size() > 0) {
         for (auto&& item: auxFalseVotes[_r]) {
             ASSERT(item.second);
-            shares.addSigShare(item.second->getBlsSigShare());
+            shares.addSigShare(item.second);
             if ( shares.isEnough())
                 break;
         }

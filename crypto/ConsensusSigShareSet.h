@@ -56,7 +56,7 @@ public:
 
     virtual ~ConsensusSigShareSet();
 
-    bool addSigShare(std::shared_ptr<BLSSigShare> _sigShare);
+    bool addSigShare(std::shared_ptr<ThresholdSigShare> _sigShare);
 
     static uint64_t getTotalObjects();
 };

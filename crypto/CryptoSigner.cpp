@@ -42,7 +42,7 @@ Schain *CryptoSigner::getSchain() const {
     return sChain;
 }
 
-ptr<ConsensusBLSSigShare> CryptoSigner::sign(ptr<SHAHash> _hash, block_id _blockId) {
+ptr<ThresholdSigShare> CryptoSigner::sign(ptr<SHAHash> _hash, block_id _blockId) {
 
     MONITOR(__CLASS_NAME__, __FUNCTION__)
 
@@ -52,7 +52,9 @@ ptr<ConsensusBLSSigShare> CryptoSigner::sign(ptr<SHAHash> _hash, block_id _block
 
     auto blsShare = sChain->getNode()->getBlsPrivateKey()->sign(hash, (uint64_t) sChain->getSchainIndex());
 
-    return make_shared<ConsensusBLSSigShare>(blsShare, sChain->getSchainID(), _blockId, sChain->getNode()->getNodeID());
+    auto share =  make_shared<ConsensusBLSSigShare>(blsShare, sChain->getSchainID(), _blockId, sChain->getNode()->getNodeID());
+
+    return static_pointer_cast<ThresholdSigShare>(share);
 
 }
 

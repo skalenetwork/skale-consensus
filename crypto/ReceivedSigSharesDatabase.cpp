@@ -57,7 +57,7 @@ ReceivedSigSharesDatabase::ReceivedSigSharesDatabase(Schain &_sChain) : Agent(_s
 
 
 ptr<ConsensusBLSSignature> ReceivedSigSharesDatabase::getBLSSignature(block_id _blockId) {
-    lock_guard<recursive_mutex> lock(sigShareDatabaseMutex);
+    lock_guard<recursive_mutex> lock(m);
 
     if (blockSignatures.find(_blockId) != blockSignatures.end()) {
         return blockSignatures.at(_blockId);
@@ -68,7 +68,7 @@ ptr<ConsensusBLSSignature> ReceivedSigSharesDatabase::getBLSSignature(block_id _
 
 void ReceivedSigSharesDatabase::mergeAndSaveBLSSignature(block_id _blockId) {
 
-    lock_guard<recursive_mutex> lock(sigShareDatabaseMutex);
+    lock_guard<recursive_mutex> lock(m);
 
     if (getBLSSignature(_blockId)) {
         LOG(err, "Attempted to recreate block BLS signature");
@@ -87,22 +87,22 @@ void ReceivedSigSharesDatabase::mergeAndSaveBLSSignature(block_id _blockId) {
     sigShareSets[_blockId] = nullptr;
 }
 
-bool ReceivedSigSharesDatabase::addSigShare(ptr<ConsensusBLSSigShare> _sigShare) {
+bool ReceivedSigSharesDatabase::addSigShare(ptr<ThresholdSigShare> _sigShare) {
 
 
     ASSERT(_sigShare);
 
     LOG(trace, "addBlockProposal blockID_=" + to_string(_sigShare->getBlockId()) + " proposerIndex=" +
-               to_string(_sigShare->getBlsSigShare()->getSignerIndex()));
+               to_string(_sigShare->getSignerIndex()));
 
-    lock_guard<recursive_mutex> lock(sigShareDatabaseMutex);
+    lock_guard<recursive_mutex> lock(m);
 
     if (this->sigShareSets.count(_sigShare->getBlockId()) == 0) {
         sigShareSets[_sigShare->getBlockId()] = make_shared<ConsensusSigShareSet>(_sigShare->getBlockId(),
                 sChain->getTotalSignersCount(), sChain->getRequiredSignersCount());
     }
 
-    sigShareSets.at(_sigShare->getBlockId())->addSigShare(_sigShare->getBlsSigShare());
+    sigShareSets.at(_sigShare->getBlockId())->addSigShare(_sigShare);
 
     return sigShareSets.at(_sigShare->getBlockId())->isEnoughMinusOne();
 
@@ -116,7 +116,7 @@ bool ReceivedSigSharesDatabase::addSigShare(ptr<ConsensusBLSSigShare> _sigShare)
 ptr<ConsensusSigShareSet> ReceivedSigSharesDatabase::getSigShareSet(block_id blockID) {
 
 
-    lock_guard<recursive_mutex> lock(sigShareDatabaseMutex);
+    lock_guard<recursive_mutex> lock(m);
 
     if (sigShareSets.count(blockID) == 0) {
         sigShareSets[blockID] = make_shared<ConsensusSigShareSet>(blockID,
@@ -129,7 +129,7 @@ ptr<ConsensusSigShareSet> ReceivedSigSharesDatabase::getSigShareSet(block_id blo
 bool ReceivedSigSharesDatabase::isTwoThird(block_id _blockID) {
 
 
-    lock_guard<recursive_mutex> lock(sigShareDatabaseMutex);
+    lock_guard<recursive_mutex> lock(m);
 
 
     if (sigShareSets.count(_blockID) > 0) {

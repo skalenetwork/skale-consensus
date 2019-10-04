@@ -41,7 +41,7 @@ public:
 
     Schain *getSchain() const;
 
-    ptr<ConsensusBLSSigShare> sign(ptr<SHAHash> _hash, block_id _blockId);
+    ptr<ThresholdSigShare> sign(ptr<SHAHash> _hash, block_id _blockId);
 };
 
 

@@ -37,7 +37,7 @@ class Schain;
 class BinConsensusInstance;
 class ProtocolInstance;
 class Buffer;
-class ConsensusBLSSigShare;
+class ThresholdSigShare;
 class Node;
 
 
@@ -77,7 +77,7 @@ public:
 
     ptr<string> sigShareString;
 
-    ptr<ConsensusBLSSigShare> sigShare;
+    ptr<ThresholdSigShare> sigShare;
 
 
     virtual ~NetworkMessage(){};
@@ -91,6 +91,6 @@ public:
 
     ptr<Buffer> toBuffer();
 
-    ptr<ConsensusBLSSigShare> getSigShare() const;
+    ptr<ThresholdSigShare> getSigShare() const;
 
 };

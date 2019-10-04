@@ -50,6 +50,8 @@ public:
 
 
     ptr< BLSSigShare > getBlsSigShare() const;
+
+    virtual std::shared_ptr<std::string> toString();
 };
 
 

@@ -77,7 +77,7 @@ uint64_t ConsensusSigShareSet::getTotalObjects() {
     return totalObjects;
 }
 
-bool ConsensusSigShareSet::addSigShare(std::shared_ptr<BLSSigShare> _sigShare) {
-    return blsSet.addSigShare((_sigShare));
+bool ConsensusSigShareSet::addSigShare(std::shared_ptr<ThresholdSigShare> _sigShare) {
+    return blsSet.addSigShare(dynamic_pointer_cast<ConsensusBLSSigShare>(_sigShare)->getBlsSigShare());
 }
 

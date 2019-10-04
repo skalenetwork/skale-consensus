@@ -15,9 +15,12 @@ protected:
     block_id blockId;
     schain_id schainId;
     node_id signerNodeId;
+    schain_index signerIndex;
+
 
 protected:
-    ThresholdSigShare(const schain_id &_schainId, const block_id &_blockId, const node_id &_signerNodeId);
+    ThresholdSigShare(const schain_id &_schainId, const block_id &_blockId, const node_id &_signerNodeId,
+                      schain_index _signerIndex);
 
 public:
 
@@ -26,6 +29,10 @@ public:
     node_id getSignerNodeId() const;
 
     block_id getBlockId() const;
+
+    schain_index getSignerIndex() const;
+
+    virtual std::shared_ptr<std::string> toString() = 0;
 };
 
 

@@ -87,8 +87,11 @@ NetworkMessage::NetworkMessage( MsgType messageType, node_id _srcNodeID, node_id
 
 
     if (_signature->size() > 0 ) {
-       sigShare = make_shared<ConsensusBLSSigShare>(_signature, _schainId, _blockID, _srcNodeID, _srcSchainIndex,
+       auto share = make_shared<ConsensusBLSSigShare>(_signature, _schainId, _blockID, _srcNodeID, _srcSchainIndex,
                _totalSigners, _requiredSigners);
+
+
+        sigShare = static_pointer_cast<ThresholdSigShare>(share);
     }
 
 
@@ -96,7 +99,7 @@ NetworkMessage::NetworkMessage( MsgType messageType, node_id _srcNodeID, node_id
     ASSERT(messageType > 0);
 }
 
-ptr<ConsensusBLSSigShare> NetworkMessage::getSigShare() const {
+ptr<ThresholdSigShare> NetworkMessage::getSigShare() const {
     return sigShare;
 }
 

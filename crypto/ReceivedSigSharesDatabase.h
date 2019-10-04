@@ -30,11 +30,11 @@
 class ConsensusSigShareSet;
 class ConsensusBLSSignature;
 class Schain;
-class ConsensusBLSSigShare;
+class ThresholdSigShare;
 
 class ReceivedSigSharesDatabase : Agent {
 
-    recursive_mutex sigShareDatabaseMutex;
+    recursive_mutex m;
 
     map<block_id, ptr<ConsensusSigShareSet>> sigShareSets;
 
@@ -51,7 +51,7 @@ public:
 
     explicit ReceivedSigSharesDatabase(Schain &_sChain);
 
-    bool addSigShare(ptr<ConsensusBLSSigShare> _proposal);
+    bool addSigShare(ptr<ThresholdSigShare> _proposal);
 
     void mergeAndSaveBLSSignature(block_id _blockId);
 
