@@ -34,7 +34,7 @@ class LivelinessMonitor {
 
     const char* cl;
     const char* function;
-    uint64_t  threadId;
+    pthread_t  threadId;
 
     MonitoringAgent* agent = nullptr;
     uint64_t startTime;
