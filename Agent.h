@@ -35,8 +35,6 @@ class CommittedBlock;
 
 class Agent {
 public:
-
-
     bool isServer;
 
     virtual ~Agent();
@@ -62,43 +60,34 @@ public:
     condition_variable messageCond;
 
 
-    map< schain_index, ptr< condition_variable > > queueCond;
+    std::map< schain_index, ptr< std::condition_variable > > queueCond;
 
-    map< schain_index, ptr<mutex > > queueMutex;
-
+    std::map< schain_index, ptr< std::mutex > > queueMutex;
 
 
     virtual void notifyAllConditionVariables();
 
 
-
 private:
     std::recursive_mutex m_mainMutex;
+
 public:
-    std::recursive_mutex & getMainMutex() { return m_mainMutex; }
+    std::recursive_mutex& getMainMutex() { return m_mainMutex; }
 
 protected:
-
     Schain* sChain;
 
 
-
-
 public:
-
     Agent( Schain& _sChain, bool isServer, bool _isSchain = false );
 
 
     Node* getNode();
 
 
-
-    Schain *getSchain() const;
+    Schain* getSchain() const;
 
     void waitOnGlobalStartBarrier();
 
     void waitOnGlobalClientStartBarrier();
-
-
-
 };
