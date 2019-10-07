@@ -172,7 +172,7 @@ void BlockConsensusAgent::reportConsensusAndDecideIfNeeded(ptr<ChildBVDecidedMes
         if (blockID > 1) {
             previousBlock = getSchain()->getBlock(blockID - 1);
             if (previousBlock == nullptr) {
-                return;
+	        throw FatalError("Cannot read block from blocks_...db");
             }
         }
 
