@@ -307,45 +307,47 @@ void Schain::blockCommitArrived(bool bootstrap, block_id _committedBlockID, scha
 
     checkForExit();
 
-    std::lock_guard<std::recursive_mutex> aLock(getMainMutex());
-
-    ASSERT(_committedTimeStamp < (uint64_t) 2 * MODERN_TIME);
-
-    if (_committedBlockID <= lastCommittedBlockID && !bootstrap)
-        return;
-
-
-    ASSERT(_committedBlockID == (lastCommittedBlockID + 1) || lastCommittedBlockID == 0);
-
-
-    lastCommittedBlockID.store((uint64_t) _committedBlockID);
-    committedBlockTimeStamp = _committedTimeStamp;
-
-
     uint64_t previousBlockTimeStamp = 0;
     uint64_t previousBlockTimeStampMs = 0;
 
-    ptr<BlockProposal> committedProposal = nullptr;
+    // RELEASE mainMutex before waiting for txns!!
+    {
+        std::lock_guard<std::recursive_mutex> aLock(getMainMutex());
+
+        ASSERT(_committedTimeStamp < (uint64_t) 2 * MODERN_TIME);
+
+        if (_committedBlockID <= lastCommittedBlockID && !bootstrap)
+            return;
 
 
-    if (!bootstrap) {
-        committedProposal = blockProposalsDatabase->getBlockProposal(_committedBlockID, _proposerIndex);
-
-        ASSERT(committedProposal);
-
-        auto newCommittedBlock = make_shared<CommittedBlock>(committedProposal);
-
-        processCommittedBlock(newCommittedBlock);
-
-        previousBlockTimeStamp = newCommittedBlock->getTimeStamp();
-        previousBlockTimeStampMs = newCommittedBlock->getTimeStampMs();
+        ASSERT(_committedBlockID == (lastCommittedBlockID + 1) || lastCommittedBlockID == 0);
 
 
-    } else {
-        LOG(info, "Jump starting the system with block:" + to_string(_committedBlockID));
-        if (_committedBlockID == 0)
-            this->pricingAgent->calculatePrice(ConsensusExtFace::transactions_vector(), 0, 0, 0);
-    }
+        lastCommittedBlockID.store((uint64_t) _committedBlockID);
+        committedBlockTimeStamp = _committedTimeStamp;
+
+        ptr<BlockProposal> committedProposal = nullptr;
+
+
+        if (!bootstrap) {
+            committedProposal = blockProposalsDatabase->getBlockProposal(_committedBlockID, _proposerIndex);
+
+            ASSERT(committedProposal);
+
+            auto newCommittedBlock = make_shared<CommittedBlock>(committedProposal);
+
+            processCommittedBlock(newCommittedBlock);
+
+            previousBlockTimeStamp = newCommittedBlock->getTimeStamp();
+            previousBlockTimeStampMs = newCommittedBlock->getTimeStampMs();
+
+
+        } else {
+            LOG(info, "Jump starting the system with block:" + to_string(_committedBlockID));
+            if (_committedBlockID == 0)
+                this->pricingAgent->calculatePrice(ConsensusExtFace::transactions_vector(), 0, 0, 0);
+        }
+    }// mutex
 
 
     proposeNextBlock(previousBlockTimeStamp, previousBlockTimeStampMs);
