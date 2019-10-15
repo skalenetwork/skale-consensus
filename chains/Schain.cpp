@@ -376,6 +376,8 @@ void Schain::proposeNextBlock(uint64_t _previousBlockTimeStamp, uint32_t _previo
 
     ASSERT(myProposal->getProposerIndex() == getSchainIndex());
 
+    std::lock_guard<std::recursive_mutex> aLock(getMainMutex());
+
     if (blockProposalsDatabase->addBlockProposal(myProposal)) {
         startConsensus(_proposedBlockID);
     }
