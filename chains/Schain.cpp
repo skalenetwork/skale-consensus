@@ -295,7 +295,7 @@ void Schain::blockCommitsArrivedThroughCatchup(ptr<CommittedBlockList> _blocks) 
 
     if (committedIDOld < lastCommittedBlockID) {
         LOG(info, "BLOCK_CATCHUP: " + to_string(lastCommittedBlockID - committedIDOld) + " BLOCKS");
-        proposeNextBlock(previosBlockTimeStamp, previosBlockTimeStampMs);
+        // it's already getting done in another thread - proposeNextBlock(previosBlockTimeStamp, previosBlockTimeStampMs);
     }
 }
 
