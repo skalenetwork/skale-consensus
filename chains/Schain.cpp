@@ -295,7 +295,7 @@ void Schain::blockCommitsArrivedThroughCatchup(ptr<CommittedBlockList> _blocks) 
 
     if (committedIDOld < lastCommittedBlockID) {
         LOG(info, "BLOCK_CATCHUP: " + to_string(lastCommittedBlockID - committedIDOld) + " BLOCKS");
-        // it's already getting done in another thread - proposeNextBlock(previosBlockTimeStamp, previosBlockTimeStampMs);
+        proposeNextBlock(previosBlockTimeStamp, previosBlockTimeStampMs);
     }
 }
 
@@ -310,44 +310,41 @@ void Schain::blockCommitArrived(bool bootstrap, block_id _committedBlockID, scha
     uint64_t previousBlockTimeStamp = 0;
     uint64_t previousBlockTimeStampMs = 0;
 
-    // RELEASE mainMutex before waiting for txns!!
-    {
-        std::lock_guard<std::recursive_mutex> aLock(getMainMutex());
+    std::lock_guard<std::recursive_mutex> aLock(getMainMutex());
 
-        ASSERT(_committedTimeStamp < (uint64_t) 2 * MODERN_TIME);
+    ASSERT(_committedTimeStamp < (uint64_t) 2 * MODERN_TIME);
 
-        if (_committedBlockID <= lastCommittedBlockID && !bootstrap)
-            return;
+    if (_committedBlockID <= lastCommittedBlockID && !bootstrap)
+        return;
 
 
-        ASSERT(_committedBlockID == (lastCommittedBlockID + 1) || lastCommittedBlockID == 0);
+    ASSERT(_committedBlockID == (lastCommittedBlockID + 1) || lastCommittedBlockID == 0);
 
 
-        lastCommittedBlockID.store((uint64_t) _committedBlockID);
-        committedBlockTimeStamp = _committedTimeStamp;
+    lastCommittedBlockID.store((uint64_t) _committedBlockID);
+    committedBlockTimeStamp = _committedTimeStamp;
 
-        ptr<BlockProposal> committedProposal = nullptr;
-
-
-        if (!bootstrap) {
-            committedProposal = blockProposalsDatabase->getBlockProposal(_committedBlockID, _proposerIndex);
-
-            ASSERT(committedProposal);
-
-            auto newCommittedBlock = make_shared<CommittedBlock>(committedProposal);
-
-            processCommittedBlock(newCommittedBlock);
-
-            previousBlockTimeStamp = newCommittedBlock->getTimeStamp();
-            previousBlockTimeStampMs = newCommittedBlock->getTimeStampMs();
+    ptr<BlockProposal> committedProposal = nullptr;
 
 
-        } else {
-            LOG(info, "Jump starting the system with block:" + to_string(_committedBlockID));
-            if (_committedBlockID == 0)
-                this->pricingAgent->calculatePrice(ConsensusExtFace::transactions_vector(), 0, 0, 0);
-        }
-    }// mutex
+    if (!bootstrap) {
+        committedProposal = blockProposalsDatabase->getBlockProposal(_committedBlockID, _proposerIndex);
+
+        ASSERT(committedProposal);
+
+        auto newCommittedBlock = make_shared<CommittedBlock>(committedProposal);
+
+        processCommittedBlock(newCommittedBlock);
+
+        previousBlockTimeStamp = newCommittedBlock->getTimeStamp();
+        previousBlockTimeStampMs = newCommittedBlock->getTimeStampMs();
+
+
+    } else {
+        LOG(info, "Jump starting the system with block:" + to_string(_committedBlockID));
+        if (_committedBlockID == 0)
+            this->pricingAgent->calculatePrice(ConsensusExtFace::transactions_vector(), 0, 0, 0);
+    }
 
 
     proposeNextBlock(previousBlockTimeStamp, previousBlockTimeStampMs);
@@ -375,8 +372,6 @@ void Schain::proposeNextBlock(uint64_t _previousBlockTimeStamp, uint32_t _previo
                                                                    _previousBlockTimeStampMs);
 
     ASSERT(myProposal->getProposerIndex() == getSchainIndex());
-
-    std::lock_guard<std::recursive_mutex> aLock(getMainMutex());
 
     if (blockProposalsDatabase->addBlockProposal(myProposal)) {
         startConsensus(_proposedBlockID);
