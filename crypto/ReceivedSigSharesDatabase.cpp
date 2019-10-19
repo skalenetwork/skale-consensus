@@ -36,6 +36,7 @@
 #include "../pendingqueue/PendingTransactionsAgent.h"
 #include "ConsensusBLSSigShare.h"
 #include "ConsensusSigShareSet.h"
+#include "CryptoSigner.h"
 #include "SHAHash.h"
 #include "leveldb/db.h"
 
@@ -100,7 +101,7 @@ bool ReceivedSigSharesDatabase::addSigShare(ptr<ThresholdSigShare> _sigShare) {
     if (this->sigShareSets.count(_sigShare->getBlockId()) == 0) {
         sigShareSets[_sigShare->getBlockId()] =
                 make_shared<ConsensusSigShareSet>(_sigShare->getBlockId(),
-                sChain->getTotalSignersCount(), sChain->getRequiredSignersCount());
+                                                  sChain->getTotalSignersCount(), sChain->getRequiredSignersCount());
     }
 
     sigShareSets.at(_sigShare->getBlockId())->addSigShare(_sigShare);
@@ -116,12 +117,11 @@ bool ReceivedSigSharesDatabase::addSigShare(ptr<ThresholdSigShare> _sigShare) {
 
 ptr<ThresholdSigShareSet> ReceivedSigSharesDatabase::getSigShareSet(block_id blockID) {
 
-
     lock_guard<recursive_mutex> lock(sigShareDatabaseMutex);
 
     if (sigShareSets.count(blockID) == 0) {
-        sigShareSets[blockID] = make_shared<ConsensusSigShareSet>(blockID,
-            sChain->getTotalSignersCount(), sChain->getRequiredSignersCount());
+        sigShareSets[blockID] = CryptoSigner::createSigShareSet(blockID,
+                                                                  sChain->getTotalSignersCount(), sChain->getRequiredSignersCount());
     }
 
     return sigShareSets.at(blockID);

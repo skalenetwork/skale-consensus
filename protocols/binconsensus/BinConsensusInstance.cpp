@@ -688,8 +688,8 @@ const node_count &BinConsensusInstance::getNodeCount() const {
 uint64_t BinConsensusInstance::calculateBLSRandom(bin_consensus_round _r) {
 
 
-    ConsensusSigShareSet shares(getBlockID(),getSchain()->getTotalSignersCount(),
-            getSchain()->getRequiredSignersCount());
+    ConsensusSigShareSet shares(getBlockID(), getSchain()->getTotalSignersCount(),
+                                getSchain()->getRequiredSignersCount());
 
     if (binValues[_r].count(bin_consensus_value(true)) > 0 && auxTrueVotes[_r].size() > 0) {
         for (auto&& item: auxTrueVotes[_r]) {
