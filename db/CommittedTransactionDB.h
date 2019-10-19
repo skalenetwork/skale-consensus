@@ -29,20 +29,18 @@ class Transaction;
 
 #include "LevelDB.h"
 
-class CommittedTransactionDB : public LevelDB{
+class CommittedTransactionDB : public LevelDB {
 
     const string getFormatVersion();
 
 
-
 public:
 
-    CommittedTransactionDB(string& filename, node_id nodeId);
+    CommittedTransactionDB(string &filename, node_id nodeId);
 
     void writeCommittedTransaction(ptr<Transaction> _t, __uint64_t _committedTransactionCounter);
 
 };
-
 
 
 #endif //SKALED_COMMITTEDTRANSACTIONDB_H

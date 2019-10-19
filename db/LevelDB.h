@@ -27,34 +27,32 @@
 
 namespace leveldb {
     class DB;
+
     class Status;
+
     class Slice;
 }
 
 class LevelDB {
 
-    leveldb::DB* db;
+    leveldb::DB *db;
 
 protected:
 
     node_id nodeId;
 
 
-
-    ptr<string> readString(string& _key);
+    ptr<string> readString(string &_key);
 
 
     void writeString(const string &key1, const string &value1);
-
 
 
     void writeByteArray(const char *_key, size_t _keyLen, const char *value,
                         size_t _valueLen);
 
 
-
-
-    void writeByteArray(string& _key, const char *value,
+    void writeByteArray(string &_key, const char *value,
                         size_t _valueLen);
 
 public:
@@ -63,17 +61,15 @@ public:
     void throwExceptionOnError(leveldb::Status result);
 
 
-    LevelDB(string& filename,  node_id _nodeId);
-
-
+    LevelDB(string &filename, node_id _nodeId);
 
 
     class KeyVisitor {
-      public:
-        virtual void visitDBKey(const char* _data) = 0;
+    public:
+        virtual void visitDBKey(const char *_data) = 0;
     };
 
-    uint64_t visitKeys(KeyVisitor* _visitor, uint64_t _maxKeysToVisit);
+    uint64_t visitKeys(KeyVisitor *_visitor, uint64_t _maxKeysToVisit);
 
     virtual ~LevelDB();
 

@@ -31,7 +31,7 @@ class NodeInfo {
 
     network_port port;
 
-    schain_id  schainID;
+    schain_id schainID;
 
     schain_index schainIndex;
 

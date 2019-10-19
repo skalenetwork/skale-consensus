@@ -70,14 +70,10 @@ AUXBroadcastMessage::AUXBroadcastMessage(bin_consensus_round round, bin_consensu
     sha3.Final(buf->data());
     auto hash = make_shared<SHAHash>(buf);
 
-    auto node = schain->getNode();
 
-    if (node->isBlsEnabled()) {
+
         this->sigShare = schain->getCryptoManager()->sign(hash, _blockID);
         this->sigShareString = sigShare->toString();
-    } else {
-        this->sigShareString = make_shared<string>("");
-    }
 
 }
 

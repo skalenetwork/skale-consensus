@@ -29,6 +29,7 @@
 #include "../datastructures/CommittedBlock.h"
 
 #define BOOST_PENDING_INTEGER_LOG2_HPP
+
 #include <boost/integer/integer_log2.hpp>
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/uniform_int_distribution.hpp>
@@ -43,34 +44,31 @@ void test_committed_block_save() {
     static string fileName = "/tmp/test_committed_block_save";
     boost::random::mt19937 gen;
 
-    boost::random::uniform_int_distribution<> ubyte( 0, 255 );
+    boost::random::uniform_int_distribution<> ubyte(0, 255);
 
     if (std::system(("rm -rf " + fileName).c_str()) != 0) {
         BOOST_THROW_EXCEPTION(runtime_error("Remove failed"));
     }
 
-    auto db = make_shared< BlockDB >(  fileName, node_id( 1 ), 200 );
+    auto db = make_shared<BlockDB>(fileName, node_id(1), 200);
 
 
-    for ( int i = 1; i < 200; i++ ) {
-        auto t = CommittedBlock::createRandomSample( i, gen, ubyte );
+    for (int i = 1; i < 200; i++) {
+        auto t = CommittedBlock::createRandomSample(i, gen, ubyte);
 
         db->saveBlock(t, 200);
 
         auto bb = db->getBlock(t->getBlockID());
 
-        REQUIRE( bb != nullptr );
+        REQUIRE(bb != nullptr);
     }
 
 }
 
 
-TEST_CASE( "Save/read block", "[block-save-read-db]" )
+TEST_CASE("Save/read block", "[block-save-read-db]") {
+    SECTION("Test successful save/read")
 
 
-{
-    SECTION( "Test successful save/read" )
-
-
-    test_committed_block_save();
+        test_committed_block_save();
 }

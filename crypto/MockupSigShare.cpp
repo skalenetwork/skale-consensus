@@ -36,7 +36,7 @@ MockupSigShare::MockupSigShare( ptr< string > _sigShare, schain_id _schainID,
     size_t _totalSigners, size_t _requiredSigners)
     : ThresholdSigShare(_schainID, _blockID,  _signerNodeID, _signerIndex) {
 
-    CHECK_ARGUMENT(_requiredSigners <= totalSigners);
+    CHECK_ARGUMENT(_requiredSigners <= _totalSigners);
     this->totalSigners = _totalSigners;
     this->requiredSigners = _requiredSigners;
     this->sigShare = _sigShare;

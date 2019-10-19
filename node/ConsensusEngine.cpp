@@ -446,9 +446,7 @@ void ConsensusEngine::exitGracefully() {
         }
 
 
-
         GlobalThreadRegistry::joinAll();
-
 
 
         for (auto const it : nodes) {
@@ -462,9 +460,9 @@ void ConsensusEngine::exitGracefully() {
         }
 
     } catch (Exception &e) {
-    Exception::logNested(e);
-    throw_with_nested(EngineInitException("Engine construction failed", __CLASS_NAME__));
-}
+        Exception::logNested(e);
+        throw_with_nested(EngineInitException("Engine construction failed", __CLASS_NAME__));
+    }
 
 }
 

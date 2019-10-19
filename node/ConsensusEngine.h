@@ -24,8 +24,6 @@
 #pragma once
 
 
-
-
 #include "../SkaleCommon.h"
 #include "boost/filesystem.hpp"
 #include "../Agent.h"
@@ -35,6 +33,7 @@
 #include "Node.h"
 
 class ConsensusBLSPublicKey;
+
 class ConsensusBLSPrivateKeyShare;
 
 #include <boost/multiprecision/cpp_int.hpp>
@@ -45,22 +44,20 @@ class ConsensusEngine : public ConsensusInterface {
 
     std::atomic<bool> exitRequested;
 
-    map< node_id, Node* > nodes;
+    map<node_id, Node *> nodes;
 
-    std::string exec(const char* cmd);
+    std::string exec(const char *cmd);
 
-    static void checkExistsAndDirectory( const fs_path& dirname );
+    static void checkExistsAndDirectory(const fs_path &dirname);
 
-    static void checkExistsAndFile( const fs_path& filename );
+    static void checkExistsAndFile(const fs_path &filename);
 
-    Node* readNodeConfigFileAndCreateNode( const fs_path& path, set< node_id >& nodeIDs );
-
-
+    Node *readNodeConfigFileAndCreateNode(const fs_path &path, set<node_id> &nodeIDs);
 
 
-    void readSchainConfigFiles( Node& node, const fs_path& dirname );
+    void readSchainConfigFiles(Node &node, const fs_path &dirname);
 
-    ConsensusExtFace* extFace = nullptr;
+    ConsensusExtFace *extFace = nullptr;
 
     block_id lastCommittedBlockID = 0;
 
@@ -71,7 +68,6 @@ class ConsensusEngine : public ConsensusInterface {
     string blsPublicKey3;
     string blsPublicKey4;
     string blsPrivateKey;
-
 
 
 public:
@@ -89,12 +85,12 @@ public:
                     const string &_blsPublicKey1 = "", const string &_blsPublicKey2 = "",
                     const string &_blsPublicKey3 = "", const string &_blsPublicKey4 = "");
 
-    ConsensusExtFace* getExtFace() const;
+    ConsensusExtFace *getExtFace() const;
 
 
     void startAll() override;
 
-    void parseFullConfigAndCreateNode( const string& fullPathToConfigFile ) override;
+    void parseFullConfigAndCreateNode(const string &fullPathToConfigFile) override;
 
     // used for standalone debugging
 
@@ -109,7 +105,7 @@ public:
         return (*(this->nodes.begin())).second->getEmptyBlockIntervalMs();
     }
 
-    void setEmptyBlockIntervalMs(uint64_t _interval){
+    void setEmptyBlockIntervalMs(uint64_t _interval) {
         // HACK assume there is exactly one
         (*(this->nodes.begin())).second->setEmptyBlockIntervalMs(_interval);
     }
@@ -123,9 +119,13 @@ public:
     void joinAllThreads() const;
 
     const string &getBlsPublicKey1() const;
+
     const string &getBlsPublicKey2() const;
+
     const string &getBlsPublicKey3() const;
+
     const string &getBlsPublicKey4() const;
+
     const string &getBlsPrivateKey() const;
 
     u256 getPriceForBlockId(uint64_t _blockId) const override;

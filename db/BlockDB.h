@@ -29,7 +29,7 @@ class CommittedBlock;
 
 #include "LevelDB.h"
 
-class BlockDB : public LevelDB{
+class BlockDB : public LevelDB {
 
     std::map<block_id, ptr<CommittedBlock>> blocks;
 
@@ -37,7 +37,7 @@ class BlockDB : public LevelDB{
 
     recursive_mutex mutex;
 
-    ptr<string>  createKey(block_id _blockId);
+    ptr<string> createKey(block_id _blockId);
 
     const string getFormatVersion();
 
@@ -51,7 +51,8 @@ class BlockDB : public LevelDB{
 public:
 
     BlockDB(string &_filename, node_id _nodeId, uint64_t _storageSize);
-    ptr<vector<uint8_t >> getSerializedBlockFromLevelDB(block_id _blockID );
+
+    ptr<vector<uint8_t >> getSerializedBlockFromLevelDB(block_id _blockID);
 
     uint64_t readCounter();
 
@@ -60,7 +61,6 @@ public:
 
     ptr<CommittedBlock> getBlock(block_id _blockID);
 };
-
 
 
 #endif //SKALED_BLOCKDB_H
