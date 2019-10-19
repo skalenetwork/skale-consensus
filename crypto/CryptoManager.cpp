@@ -16,7 +16,7 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file CryptoSigner.h
+    @file CryptoManager.h
     @author Stan Kladko
     @date 2019
 
@@ -32,18 +32,18 @@
 #include "../monitoring/LivelinessMonitor.h"
 #include "bls/BLSPrivateKeyShare.h"
 
-#include "CryptoSigner.h"
+#include "CryptoManager.h"
 
 
-CryptoSigner::CryptoSigner(Schain& _sChain) : sChain(&_sChain) {
+CryptoManager::CryptoManager(Schain& _sChain) : sChain(&_sChain) {
     CHECK_ARGUMENT(sChain != nullptr);
 }
 
-Schain *CryptoSigner::getSchain() const {
+Schain *CryptoManager::getSchain() const {
     return sChain;
 }
 
-ptr<ConsensusBLSSigShare> CryptoSigner::sign(ptr<SHAHash> _hash, block_id _blockId) {
+ptr<ConsensusBLSSigShare> CryptoManager::sign(ptr<SHAHash> _hash, block_id _blockId) {
 
     MONITOR(__CLASS_NAME__, __FUNCTION__)
 
@@ -58,7 +58,14 @@ ptr<ConsensusBLSSigShare> CryptoSigner::sign(ptr<SHAHash> _hash, block_id _block
 }
 
 ptr<ThresholdSigShareSet>
-CryptoSigner::createSigShareSet(block_id _blockId, size_t _totalSigners, size_t _requiredSigners) {
+CryptoManager::createSigShareSet(block_id _blockId, size_t _totalSigners, size_t _requiredSigners) {
     return make_shared<ConsensusSigShareSet>(_blockId, _totalSigners, _requiredSigners);
+}
+
+ptr<ThresholdSigShare>
+CryptoManager::createSigShare(ptr<string> _sigShare, schain_id _schainID, block_id _blockID, node_id _signerNodeID,
+                              schain_index _signerIndex, size_t _totalSigners, size_t _requiredSigners) {
+    return make_shared<ConsensusBLSSigShare>(_sigShare, _schainID, _blockID, _signerNodeID, _signerIndex,
+            _totalSigners, _requiredSigners);
 }
 

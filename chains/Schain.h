@@ -51,7 +51,7 @@ class ConsensusExtFace;
 class CatchupClientAgent;
 class CatchupServerAgent;
 class MonitoringAgent;
-class CryptoSigner;
+class CryptoManager;
 
 class BlockProposalServerAgent;
 
@@ -116,7 +116,7 @@ class Schain : public Agent {
 
     ptr<ReceivedSigSharesDatabase> blockSigSharesDatabase;
 
-    ptr<CryptoSigner> cryptoSigner;
+    ptr<CryptoManager> cryptoSigner;
 
     Node* node;
 
@@ -248,7 +248,7 @@ public:
     u256 getPriceForBlockId(uint64_t _blockId);
 
 
-    ptr<CryptoSigner> getCryptoSigner() const;
+    ptr<CryptoManager> getCryptoSigner() const;
 
 
     void decideBlock(block_id _blockId, schain_index _proposerIndex);

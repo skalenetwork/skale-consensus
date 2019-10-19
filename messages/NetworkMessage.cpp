@@ -32,6 +32,7 @@
 #include "../protocols/binconsensus/BinConsensusInstance.h"
 #include "../chains/Schain.h"
 #include "../crypto/ConsensusBLSSigShare.h"
+#include "../crypto/CryptoManager.h"
 #include "../node/Node.h"
 #include "../node/NodeInfo.h"
 #include "../network/Buffer.h"
@@ -87,8 +88,8 @@ NetworkMessage::NetworkMessage( MsgType messageType, node_id _srcNodeID, node_id
 
 
     if (_signature->size() > 0 ) {
-       sigShare = make_shared<ConsensusBLSSigShare>(_signature, _schainId, _blockID, _srcNodeID, _srcSchainIndex,
-               _totalSigners, _requiredSigners);
+       sigShare = CryptoManager::createSigShare(_signature, _schainId, _blockID, _srcNodeID, _srcSchainIndex,
+                                                _totalSigners, _requiredSigners);
     }
 
 

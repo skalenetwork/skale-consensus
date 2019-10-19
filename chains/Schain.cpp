@@ -85,7 +85,7 @@
 #include "SchainTest.h"
 #include "../libBLS/bls/BLSPrivateKeyShare.h"
 #include "../monitoring/LivelinessMonitor.h"
-#include "../crypto/CryptoSigner.h"
+#include "../crypto/CryptoManager.h"
 #include "SchainMessageThreadPool.h"
 #include "TestConfig.h"
 #include "Schain.h"
@@ -253,7 +253,7 @@ void Schain::constructChildAgents() {
         blockSigSharesDatabase = make_shared<ReceivedBlockSigSharesDatabase>(*this);
         testMessageGeneratorAgent = make_shared<TestMessageGeneratorAgent>(*this);
         pricingAgent = make_shared<PricingAgent>(*this);
-        cryptoSigner = make_shared<CryptoSigner>(*this);
+        cryptoSigner = make_shared<CryptoManager>(*this);
 
     } catch (...) {
         throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));

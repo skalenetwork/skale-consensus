@@ -16,13 +16,13 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file CryptoSigner.h
+    @file CryptoManager.h
     @author Stan Kladko
     @date 2019
 */
 
-#ifndef SKALED_CRYPTOSIGNER_H
-#define SKALED_CRYPTOSIGNER_H
+#ifndef SKALED_CRYPTOMANAGER_H
+#define SKALED_CRYPTOMANAGER_H
 
 
 
@@ -31,21 +31,24 @@ class SHAHash;
 class ConsensusBLSSigShare;
 class ThresholdSigShareSet;
 
-class CryptoSigner {
+class CryptoManager {
 
 private:
     Schain* sChain;
 
 public:
 
-    CryptoSigner(Schain& sChain);
+    CryptoManager(Schain& sChain);
 
     Schain *getSchain() const;
 
     ptr<ConsensusBLSSigShare> sign(ptr<SHAHash> _hash, block_id _blockId);
 
     static ptr<ThresholdSigShareSet> createSigShareSet(block_id _blockId, size_t _totalSigners, size_t _requiredSigners );
+
+    static ptr<ThresholdSigShare> createSigShare(ptr<string> _sigShare, schain_id _schainID, block_id _blockID, node_id _signerNodeID,
+            schain_index _signerIndex, size_t _totalSigners, size_t _requiredSigners);
 };
 
 
-#endif //SKALED_CRYPTOSIGNER_H
+#endif //SKALED_CRYPTOMANAGER_H
