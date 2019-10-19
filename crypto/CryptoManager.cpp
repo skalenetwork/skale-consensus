@@ -36,7 +36,7 @@
 #include "CryptoManager.h"
 
 
-CryptoManager::CryptoManager(Schain& _sChain) : sChain(&_sChain) {
+CryptoManager::CryptoManager(Schain &_sChain) : sChain(&_sChain) {
     CHECK_ARGUMENT(sChain != nullptr);
 }
 
@@ -44,11 +44,11 @@ Schain *CryptoManager::getSchain() const {
     return sChain;
 }
 
-ptr<ConsensusBLSSigShare> CryptoManager::sign(ptr<SHAHash> _hash, block_id _blockId) {
+ptr<ThresholdSigShare> CryptoManager::sign(ptr<SHAHash> _hash, block_id _blockId) {
 
     MONITOR(__CLASS_NAME__, __FUNCTION__)
 
-    auto hash = make_shared<std::array<uint8_t,32>>();
+    auto hash = make_shared<std::array<uint8_t, 32>>();
 
     memcpy(hash->data(), _hash->data(), 32);
 
@@ -67,11 +67,11 @@ ptr<ThresholdSigShare>
 CryptoManager::createSigShare(ptr<string> _sigShare, schain_id _schainID, block_id _blockID, node_id _signerNodeID,
                               schain_index _signerIndex, size_t _totalSigners, size_t _requiredSigners) {
     if (getSchain()->getNode()->isBlsEnabled()) {
-    return make_shared<ConsensusBLSSigShare>(_sigShare, _schainID, _blockID, _signerNodeID, _signerIndex,
-            _totalSigners, _requiredSigners);
-        } else {
-        return make_shared<MockupSigShare>(_sigShare, _schainID, _blockID, _signerNodeID, _signerIndex,
+        return make_shared<ConsensusBLSSigShare>(_sigShare, _schainID, _blockID, _signerNodeID, _signerIndex,
                                                  _totalSigners, _requiredSigners);
+    } else {
+        return make_shared<MockupSigShare>(_sigShare, _schainID, _blockID, _signerNodeID, _signerIndex,
+                                           _totalSigners, _requiredSigners);
     }
 }
 
