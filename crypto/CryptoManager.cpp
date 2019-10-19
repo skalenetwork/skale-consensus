@@ -27,6 +27,7 @@
 #include "../chains/Schain.h"
 #include "SHAHash.h"
 #include "ConsensusBLSSigShare.h"
+#include "MockupSigShare.h"
 #include "ConsensusSigShareSet.h"
 #include "../node/Node.h"
 #include "../monitoring/LivelinessMonitor.h"
@@ -65,7 +66,12 @@ CryptoManager::createSigShareSet(block_id _blockId, size_t _totalSigners, size_t
 ptr<ThresholdSigShare>
 CryptoManager::createSigShare(ptr<string> _sigShare, schain_id _schainID, block_id _blockID, node_id _signerNodeID,
                               schain_index _signerIndex, size_t _totalSigners, size_t _requiredSigners) {
+    if (getSchain()->getNode()->isBlsEnabled()) {
     return make_shared<ConsensusBLSSigShare>(_sigShare, _schainID, _blockID, _signerNodeID, _signerIndex,
             _totalSigners, _requiredSigners);
+        } else {
+        return make_shared<MockupSigShare>(_sigShare, _schainID, _blockID, _signerNodeID, _signerIndex,
+                                                 _totalSigners, _requiredSigners);
+    }
 }
 

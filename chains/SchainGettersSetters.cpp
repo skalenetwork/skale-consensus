@@ -282,7 +282,7 @@ void Schain::joinMonitorThread() {
     monitoringAgent->join();
 }
 
- ptr<CryptoManager> Schain::getCryptoSigner() const {
-    return cryptoSigner;
+ ptr<CryptoManager> Schain::getCryptoManager() const {
+    return cryptoManager;
 }
 

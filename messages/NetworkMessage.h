@@ -58,7 +58,7 @@ protected:
                     BinConsensusInstance& _srcProtocolInstance );
 
 
-    NetworkMessage(MsgType messageType, node_id _srcNodeID, node_id _dstNodeID, block_id _blockID, schain_index _blockProposerIndex, bin_consensus_round _r, bin_consensus_value _value, schain_id _schainId, msg_id _msgID, uint32_t _ip, ptr<string> _signature, schain_index _srcSchainIndex, size_t _totalSigners, size_t  _requiredSigners);
+    NetworkMessage(MsgType messageType, node_id _srcNodeID, node_id _dstNodeID, block_id _blockID, schain_index _blockProposerIndex, bin_consensus_round _r, bin_consensus_value _value, schain_id _schainId, msg_id _msgID, uint32_t _ip, ptr<string> _signature, schain_index _srcSchainIndex, Schain* _schain);
 
 
 public:

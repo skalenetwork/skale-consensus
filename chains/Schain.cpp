@@ -253,7 +253,7 @@ void Schain::constructChildAgents() {
         blockSigSharesDatabase = make_shared<ReceivedBlockSigSharesDatabase>(*this);
         testMessageGeneratorAgent = make_shared<TestMessageGeneratorAgent>(*this);
         pricingAgent = make_shared<PricingAgent>(*this);
-        cryptoSigner = make_shared<CryptoManager>(*this);
+        cryptoManager = make_shared<CryptoManager>(*this);
 
     } catch (...) {
         throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
@@ -590,7 +590,7 @@ void Schain::sigShareArrived(ptr<ConsensusBLSSigShare> _sigShare) {
 
     if (blockSigSharesDatabase->addSigShare(_sigShare)) {
         auto blockId = _sigShare->getBlockId();
-        auto mySig = getCryptoSigner()->sign(getBlock(blockId)->getHash(), blockId);
+        auto mySig = getCryptoManager()->sign(getBlock(blockId)->getHash(), blockId);
         blockSigSharesDatabase->addSigShare(mySig);
         ASSERT(blockSigSharesDatabase->isTwoThird(blockId));
         blockSigSharesDatabase->mergeAndSaveBLSSignature(blockId);

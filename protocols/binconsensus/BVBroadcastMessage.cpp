@@ -46,10 +46,10 @@ BVBroadcastMessage::BVBroadcastMessage(node_id destinationNodeID, block_id _bloc
 BVBroadcastMessage::BVBroadcastMessage( node_id _srcNodeID, node_id _dstNodeID, block_id _blockID,
     schain_index _blockProposerIndex, bin_consensus_round _r, bin_consensus_value _value,
     schain_id _schainId, msg_id _msgID, uint32_t _ip, ptr< string > _sigShare,
-    schain_index _srcSchainIndex, size_t _totalSigners, size_t _requiredSigners )
+    schain_index _srcSchainIndex, Schain* _sChain)
     : NetworkMessage(
         BVB_BROADCAST, _srcNodeID, _dstNodeID, _blockID, _blockProposerIndex, _r, _value, _schainId, _msgID, _ip, _sigShare,
-        _srcSchainIndex, _totalSigners, _requiredSigners ) {
+        _srcSchainIndex, _sChain ) {
     printPrefix = "b";
 };
 

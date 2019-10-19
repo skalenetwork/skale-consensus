@@ -100,8 +100,8 @@ bool ReceivedSigSharesDatabase::addSigShare(ptr<ThresholdSigShare> _sigShare) {
 
     if (this->sigShareSets.count(_sigShare->getBlockId()) == 0) {
         sigShareSets[_sigShare->getBlockId()] =
-                CryptoManager::createSigShareSet(_sigShare->getBlockId(),
-                                                  sChain->getTotalSignersCount(), sChain->getRequiredSignersCount());
+                getSchain()->getCryptoManager()->createSigShareSet(_sigShare->getBlockId(),
+                                                                   sChain->getTotalSignersCount(), sChain->getRequiredSignersCount());
     }
 
     sigShareSets.at(_sigShare->getBlockId())->addSigShare(_sigShare);
@@ -120,8 +120,8 @@ ptr<ThresholdSigShareSet> ReceivedSigSharesDatabase::getSigShareSet(block_id blo
     lock_guard<recursive_mutex> lock(sigShareDatabaseMutex);
 
     if (sigShareSets.count(blockID) == 0) {
-        sigShareSets[blockID] = CryptoManager::createSigShareSet(blockID,
-                                                                 sChain->getTotalSignersCount(), sChain->getRequiredSignersCount());
+        sigShareSets[blockID] = getSchain()->getCryptoManager()->createSigShareSet(blockID,
+                                                                                   sChain->getTotalSignersCount(), sChain->getRequiredSignersCount());
     }
 
     return sigShareSets.at(blockID);

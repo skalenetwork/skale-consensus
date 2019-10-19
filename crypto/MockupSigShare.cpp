@@ -16,39 +16,36 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file CryptoManager.h
+    @file MockupSigShare.cpp
     @author Stan Kladko
     @date 2019
 */
 
-#ifndef SKALED_CRYPTOMANAGER_H
-#define SKALED_CRYPTOMANAGER_H
 
 
+#include "../SkaleCommon.h"
+#include "../Log.h"
 
-class Schain;
-class SHAHash;
-class ConsensusBLSSigShare;
-class ThresholdSigShareSet;
+#include "../network/Utils.h"
+#include "../thirdparty/json.hpp"
 
-class CryptoManager {
+#include "MockupSigShare.h"
 
-private:
-    Schain* sChain;
+MockupSigShare::MockupSigShare( ptr< string > _sigShare, schain_id _schainID,
+    block_id _blockID, node_id _signerNodeID, schain_index _signerIndex,
+    size_t _totalSigners, size_t _requiredSigners)
+    : ThresholdSigShare(_schainID, _blockID,  _signerNodeID, _signerIndex) {
 
-public:
+    CHECK_ARGUMENT(_requiredSigners <= totalSigners);
+    this->totalSigners = _totalSigners;
+    this->requiredSigners = _requiredSigners;
+    this->sigShare = _sigShare;
+}
 
-    CryptoManager(Schain& sChain);
+MockupSigShare::~MockupSigShare() {
 
-    Schain *getSchain() const;
+}
 
-    ptr<ConsensusBLSSigShare> sign(ptr<SHAHash> _hash, block_id _blockId);
-
-    ptr<ThresholdSigShareSet> createSigShareSet(block_id _blockId, size_t _totalSigners, size_t _requiredSigners );
-
-    ptr<ThresholdSigShare> createSigShare(ptr<string> _sigShare, schain_id _schainID, block_id _blockID, node_id _signerNodeID,
-            schain_index _signerIndex, size_t _totalSigners, size_t _requiredSigners);
-};
-
-
-#endif //SKALED_CRYPTOMANAGER_H
+ptr<std::string> MockupSigShare::toString() {
+    return sigShare;
+}

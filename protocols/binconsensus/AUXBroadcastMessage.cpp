@@ -73,7 +73,7 @@ AUXBroadcastMessage::AUXBroadcastMessage(bin_consensus_round round, bin_consensu
     auto node = schain->getNode();
 
     if (node->isBlsEnabled()) {
-        this->sigShare = schain->getCryptoSigner()->sign(hash, _blockID);
+        this->sigShare = schain->getCryptoManager()->sign(hash, _blockID);
         this->sigShareString = sigShare->toString();
     } else {
         this->sigShareString = make_shared<string>("");
@@ -85,10 +85,10 @@ AUXBroadcastMessage::AUXBroadcastMessage(bin_consensus_round round, bin_consensu
 AUXBroadcastMessage::AUXBroadcastMessage( node_id _srcNodeID, node_id _dstNodeID, block_id _blockID,
     schain_index _blockProposerIndex, bin_consensus_round _r, bin_consensus_value _value,
     schain_id _schainId, msg_id _msgID, uint32_t _ip, ptr< string > _signature,
-    schain_index _srcSchainIndex, size_t _totalSigners, size_t _requiredSigners )
+    schain_index _srcSchainIndex, Schain* _sChain )
     : NetworkMessage(
         AUX_BROADCAST, _srcNodeID, _dstNodeID, _blockID, _blockProposerIndex, _r, _value, _schainId, _msgID, _ip,
-        _signature, _srcSchainIndex, _totalSigners,_requiredSigners) {
+        _signature, _srcSchainIndex, _sChain) {
     printPrefix = "a";
 
 };

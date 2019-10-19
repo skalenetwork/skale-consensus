@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2018-2019 SKALE Labs
+    Copyright (C) 2019 SKALE Labs
 
     This file is part of skale-consensus.
 
@@ -16,32 +16,39 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file AUXBroadcastMessage.h
+    @file MockupSigShare.h
     @author Stan Kladko
-    @date 2018
+    @date 2019
 */
 
-#pragma  once
+#ifndef SKALED_MOCKUPSIGSHARE_H
+#define SKALED_MOCKUPSIGSHARE_H
 
 
+#include "BLSSigShare.h"
+#include "ThresholdSigShare.h"
 
 
-#include "../../messages/NetworkMessage.h"
+class MockupSigShare : public ThresholdSigShare {
 
+    uint64_t totalSigners;
+    uint64_t requiredSigners;
 
-class BinConsensusInstance;
+    ptr<std::string> sigShare;
 
-
-
-class AUXBroadcastMessage : public NetworkMessage{
 public:
 
 
 
-    AUXBroadcastMessage(bin_consensus_round round, bin_consensus_value value, node_id destinationNodeID,
-                        block_id _blockID, schain_index _proposerIndex,
-                        BinConsensusInstance &sourceProtocolInstance);
 
-    AUXBroadcastMessage(node_id _srcNodeID, node_id _dstNodeID, block_id _blockID, schain_index _blockProposerIndex, bin_consensus_round _r, bin_consensus_value _value, schain_id _schainId, msg_id _msgID, uint32_t _ip, ptr<string> _signature, schain_index _srcSchainIndex, Schain* _sChain);
 
+    MockupSigShare(ptr<string> _sigShare, schain_id _schainID, block_id _blockID, node_id _signerNodeID,
+        schain_index _signerIndex, size_t _totalSigners, size_t _requiredSigners);
+
+    virtual ptr<std::string> toString();
+
+    virtual ~MockupSigShare();
 };
+
+
+#endif  // SKALED_MockupSIGSHARE_H

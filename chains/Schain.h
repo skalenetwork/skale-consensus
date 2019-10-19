@@ -116,7 +116,7 @@ class Schain : public Agent {
 
     ptr<ReceivedSigSharesDatabase> blockSigSharesDatabase;
 
-    ptr<CryptoManager> cryptoSigner;
+    ptr<CryptoManager> cryptoManager;
 
     Node* node;
 
@@ -248,7 +248,7 @@ public:
     u256 getPriceForBlockId(uint64_t _blockId);
 
 
-    ptr<CryptoManager> getCryptoSigner() const;
+    ptr<CryptoManager> getCryptoManager() const;
 
 
     void decideBlock(block_id _blockId, schain_index _proposerIndex);
