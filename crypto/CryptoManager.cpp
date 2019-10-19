@@ -29,6 +29,7 @@
 #include "ConsensusBLSSigShare.h"
 #include "MockupSigShare.h"
 #include "ConsensusSigShareSet.h"
+#include "MockupSigShareSet.h"
 #include "../node/Node.h"
 #include "../monitoring/LivelinessMonitor.h"
 #include "bls/BLSPrivateKeyShare.h"
@@ -48,19 +49,35 @@ ptr<ThresholdSigShare> CryptoManager::sign(ptr<SHAHash> _hash, block_id _blockId
 
     MONITOR(__CLASS_NAME__, __FUNCTION__)
 
-    auto hash = make_shared<std::array<uint8_t, 32>>();
+    if (getSchain()->getNode()->isBlsEnabled()) {
 
-    memcpy(hash->data(), _hash->data(), 32);
 
-    auto blsShare = sChain->getNode()->getBlsPrivateKey()->sign(hash, (uint64_t) sChain->getSchainIndex());
+        auto hash = make_shared<std::array<uint8_t, 32>>();
 
-    return make_shared<ConsensusBLSSigShare>(blsShare, sChain->getSchainID(), _blockId, sChain->getNode()->getNodeID());
+        memcpy(hash->data(), _hash->data(), 32);
 
+        auto blsShare = sChain->getNode()->getBlsPrivateKey()->sign(hash, (uint64_t) sChain->getSchainIndex());
+
+        return make_shared<ConsensusBLSSigShare>(blsShare, sChain->getSchainID(), _blockId,
+                                                 sChain->getNode()->getNodeID());
+
+    } else {
+        auto sigShare = _hash->toHex();
+        return make_shared<MockupSigShare>(sigShare, sChain->getSchainID(), _blockId,
+                                           sChain->getNode()->getNodeID(),
+                                           sChain->getSchainIndex(),
+                                           sChain->getTotalSignersCount(),
+                                           sChain->getRequiredSignersCount());
+    }
 }
 
 ptr<ThresholdSigShareSet>
 CryptoManager::createSigShareSet(block_id _blockId, size_t _totalSigners, size_t _requiredSigners) {
-    return make_shared<ConsensusSigShareSet>(_blockId, _totalSigners, _requiredSigners);
+    if (getSchain()->getNode()->isBlsEnabled()) {
+        return make_shared<ConsensusSigShareSet>(_blockId, _totalSigners, _requiredSigners);
+    } else {
+        return make_shared<MockupSigShareSet>(_blockId, _totalSigners, _requiredSigners);
+    }
 }
 
 ptr<ThresholdSigShare>
