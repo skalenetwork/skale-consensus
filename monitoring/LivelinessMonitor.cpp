@@ -53,7 +53,7 @@ LivelinessMonitor::~LivelinessMonitor() {
 string LivelinessMonitor::toString() {
     return
     "Node:" + to_string(agent->getSChain()->getNode()->getNodeID()) +
-    ":Thread:" + to_string((uint32_t ) threadId) + ":" + cl + string("::") + function;
+    ":Thread:" + to_string( (uint64_t) threadId ) + ":" + cl + string("::") + function;
 }
 
 uint64_t LivelinessMonitor::getExpiryTime() const {

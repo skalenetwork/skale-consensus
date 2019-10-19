@@ -25,67 +25,56 @@
 #define CONSENSUS_ABSTRACTCLIENTAGENT_H
 
 
-
-#include "../Agent.h"
 #include "../../abstracttcpclient/AbstractClientAgent.h"
+#include "../Agent.h"
 
 
 class BlockProposal;
 class ClientSocket;
 
 class AbstractClientAgent : public Agent {
-
-
-
 protected:
-
     port_type portType;
 
-    atomic<uint64_t> threadCounter;
+    atomic< uint64_t > threadCounter;
 
-    explicit AbstractClientAgent(Schain &_sChain, port_type _portType);
-
+    explicit AbstractClientAgent( Schain& _sChain, port_type _portType );
 
 
 public:
+    static void workerThreadItemSendLoop( AbstractClientAgent* agent );
+
+    void enqueueItem( ptr< BlockProposal > item );
 
 
+    void enqueueBlock( ptr< CommittedBlock > item );
 
-    static void workerThreadItemSendLoop(AbstractClientAgent *agent);
+    void sendItem( ptr< BlockProposal > _proposal, schain_index _dstIndex, node_id _dstNodeId );
 
-    void enqueueItem(ptr<BlockProposal> item);
+    virtual void sendItemImpl( ptr< BlockProposal >& _proposal, shared_ptr< ClientSocket >& socket,
+        schain_index _destIndex, node_id _dstNodeId ) = 0;
 
-
-    void enqueueBlock(ptr<CommittedBlock> item);
-
-    void sendItem(ptr<BlockProposal> _proposal, schain_index _dstIndex, node_id _dstNodeId);
-
-    virtual void
-    sendItemImpl(ptr<BlockProposal> &_proposal, shared_ptr<ClientSocket> &socket, schain_index _destIndex,
-                 node_id _dstNodeId) = 0;
-
-    map<schain_index, ptr<queue<ptr<BlockProposal>>>> itemQueue;
+    std::map< schain_index, ptr< queue< ptr< BlockProposal > > > > itemQueue;
 
     uint64_t incrementAndReturnThreadCounter();
 
 
     class PartialHashComparator {
     public:
-        bool operator()(const ptr<partial_sha_hash> &a,
-                        const ptr<partial_sha_hash>& b ) const {
-            for (size_t i = 0; i < PARTIAL_SHA_HASH_LEN; i++) {
-                if ((*a)[i] < (*b)[i])
+        bool operator()(
+            const ptr< partial_sha_hash >& a, const ptr< partial_sha_hash >& b ) const {
+            for ( size_t i = 0; i < PARTIAL_SHA_HASH_LEN; i++ ) {
+                if ( ( *a )[i] < ( *b )[i] )
                     return false;
-                if ((*b)[i] < (*a)[i])
+                if ( ( *b )[i] < ( *a )[i] )
                     return true;
             }
             return false;
         }
     };
-
 };
 
 
-bool operator==(const ptr<partial_sha_hash> &a, const ptr<partial_sha_hash> &b);
+bool operator==( const ptr< partial_sha_hash >& a, const ptr< partial_sha_hash >& b );
 
-#endif //CONSENSUS_ABSTRACTCLIENTAGENT_H
+#endif  // CONSENSUS_ABSTRACTCLIENTAGENT_H

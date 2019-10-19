@@ -25,24 +25,17 @@
 
 #include <stdint.h>
 
-namespace  std {
-    class mutex;
-}
+#include <mutex>
 
 class DataStructure {
-
-
-    uint64_t  objectCreationTime;
+    uint64_t objectCreationTime;
 
 
 protected:
-    recursive_mutex m;
+    std::recursive_mutex m;
 
 public:
     DataStructure();
 
     uint64_t getObjectCreationTime() const;
-
-
 };
-
