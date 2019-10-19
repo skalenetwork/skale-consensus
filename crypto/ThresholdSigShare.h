@@ -43,9 +43,13 @@ public:
     ThresholdSigShare(const schain_id &schainId, const block_id &blockId, const node_id &signerNodeId,
             const schain_index& _signerIndex);
 
+    virtual ptr<std::string> toString() = 0;
+
     virtual ~ThresholdSigShare();
 
-     schain_index getSignerIndex() const;
+    schain_index getSignerIndex() const;
+
+
 };
 
 

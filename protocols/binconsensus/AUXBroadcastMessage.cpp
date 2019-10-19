@@ -74,7 +74,7 @@ AUXBroadcastMessage::AUXBroadcastMessage(bin_consensus_round round, bin_consensu
 
     if (node->isBlsEnabled()) {
         this->sigShare = schain->getCryptoSigner()->sign(hash, _blockID);
-        this->sigShareString = sigShare->getBlsSigShare()->toString();
+        this->sigShareString = sigShare->toString();
     } else {
         this->sigShareString = make_shared<string>("");
     }

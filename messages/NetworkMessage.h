@@ -78,7 +78,7 @@ public:
 
     ptr<string> sigShareString;
 
-    ptr<ConsensusBLSSigShare> sigShare;
+    ptr<ThresholdSigShare> sigShare;
 
 
     virtual ~NetworkMessage(){};

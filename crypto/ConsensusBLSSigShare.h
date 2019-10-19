@@ -51,6 +51,8 @@ public:
 
     ptr< BLSSigShare > getBlsSigShare() const;
 
+    virtual ptr<std::string> toString();
+
     virtual ~ConsensusBLSSigShare();
 };
 

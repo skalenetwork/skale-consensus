@@ -58,3 +58,7 @@ ConsensusBLSSigShare::ConsensusBLSSigShare( ptr< string > _sigShare, schain_id _
 ConsensusBLSSigShare::~ConsensusBLSSigShare() {
 
 }
+
+ptr<std::string> ConsensusBLSSigShare::toString() {
+    return getBlsSigShare()->toString();
+}
