@@ -96,7 +96,7 @@ NetworkMessage::NetworkMessage( MsgType messageType, node_id _srcNodeID, node_id
     ASSERT(messageType > 0);
 }
 
-ptr<ConsensusBLSSigShare> NetworkMessage::getSigShare() const {
+ptr<ThresholdSigShare> NetworkMessage::getSigShare() const {
     return sigShare;
 }
 

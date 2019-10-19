@@ -307,7 +307,7 @@ uint64_t BinConsensusInstance::totalAUXVotes(bin_consensus_round r) {
     return auxTrueVotes[r].size() + auxFalseVotes[r].size();
 }
 
-void BinConsensusInstance::auxSelfVote(bin_consensus_round r, bin_consensus_value v, ptr<ConsensusBLSSigShare> _sigShare) {
+void BinConsensusInstance::auxSelfVote(bin_consensus_round r, bin_consensus_value v, ptr<ThresholdSigShare> _sigShare) {
     if (getSchain()->getNode()->isBlsEnabled()) {
         ASSERT(_sigShare);
     }

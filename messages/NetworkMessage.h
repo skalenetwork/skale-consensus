@@ -39,6 +39,7 @@ class ProtocolInstance;
 class Buffer;
 class ConsensusBLSSigShare;
 class Node;
+class ThresholdSigShare;
 
 
 
@@ -91,6 +92,6 @@ public:
 
     ptr<Buffer> toBuffer();
 
-    ptr<ConsensusBLSSigShare> getSigShare() const;
+    ptr<ThresholdSigShare> getSigShare() const;
 
 };
