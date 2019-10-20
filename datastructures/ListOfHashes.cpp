@@ -16,13 +16,17 @@ ptr<SHAHash> ListOfHashes::calculateTopMerkleRoot() {
 ptr<SHAHash> ListOfHashes::calculateMerkleRoot(uint64_t _startIndex, uint64_t _count) {
     CHECK_ARGUMENT(_startIndex < hashCount());
     CHECK_ARGUMENT(_count != 0);
+
     if (_count == 1)
         return getHash(_startIndex);
 
-    auto rightHalf = _count % 2;
+    uint64_t  rightHalf;
 
-    if (rightHalf == 0) {
+
+    if (_count % 2 == 0) {
         rightHalf = _count / 2;
+    } else {
+        rightHalf = _count / 2 + 1;
     }
 
     auto leftHalf = _count - rightHalf;
@@ -32,7 +36,7 @@ ptr<SHAHash> ListOfHashes::calculateMerkleRoot(uint64_t _startIndex, uint64_t _c
     ptr<SHAHash> rightHash = nullptr;
 
     if (rightHalf > 0) {
-        rightHash = calculateMerkleRoot(_startIndex + leftHalf, _count - rightHalf);
+        rightHash = calculateMerkleRoot(_startIndex + leftHalf, leftHalf);
     }
     return SHAHash::merkleTreeMerge(leftHash, rightHash);
 }

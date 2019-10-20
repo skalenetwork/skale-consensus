@@ -196,7 +196,9 @@ ptr< TransactionList > TransactionList::createRandomSample( uint64_t _size, boos
 
     auto result =  make_shared< TransactionList >( sample );
 
-    CHECK_STATE(result->calculateTopMerkleRoot() != nullptr);
+    if (_size > 0) {
+        CHECK_STATE(result->calculateTopMerkleRoot() != nullptr);
+    }
 
     return result;
 
