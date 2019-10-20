@@ -68,6 +68,13 @@ void CryptoManager::init() {
 
 CryptoManager::CryptoManager() : sChain(nullptr) {
     init();
+
+    unsigned char* digest = (unsigned  char*) calloc(SHA_HASH_LEN,0);
+    auto sig = ECDSA_do_sign(digest, SHA_HASH_LEN, ecdsaKey);
+
+    CHECK_STATE(sig != nullptr);
+
+
 }
 
 
@@ -83,6 +90,8 @@ Schain *CryptoManager::getSchain() const {
 }
 
 ptr<ThresholdSigShare> CryptoManager::sign(ptr<SHAHash> _hash, block_id _blockId) {
+
+
 
     MONITOR(__CLASS_NAME__, __FUNCTION__)
 
