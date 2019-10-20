@@ -50,6 +50,7 @@ public:
 
     CryptoManager(Schain& sChain);
 
+    ptr<string> sign(ptr<SHAHash> _hash);
 
 
     Schain *getSchain() const;

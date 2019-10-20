@@ -69,16 +69,6 @@ void CryptoManager::init() {
 CryptoManager::CryptoManager() : sChain(nullptr) {
     init();
 
-    unsigned char* digest = (unsigned  char*) calloc(SHA_HASH_LEN,0);
-    auto sig = ECDSA_do_sign(digest, SHA_HASH_LEN, ecdsaKey);
-
-    CHECK_STATE(sig != nullptr);
-
-    auto signature = (unsigned char *) malloc(ECDSA_size(ecdsaKey));
-
-    auto ret = i2d_ECDSA_SIG(sig, &signature);
-
-    CHECK_STATE(ret !=0);
 
 
 }
@@ -91,12 +81,35 @@ CryptoManager::CryptoManager(Schain &_sChain) : sChain(&_sChain) {
 
 }
 
+
+ptr<string> CryptoManager::sign(ptr<SHAHash> _hash) {
+
+    auto sig = ECDSA_do_sign(_hash->getHash()->data(), SHA_HASH_LEN, ecdsaKey);
+
+    CHECK_STATE(sig != nullptr);
+
+    auto len = ECDSA_size(ecdsaKey);
+
+    auto signature = (unsigned char *) malloc(len);
+
+    auto ret = i2d_ECDSA_SIG(sig, &signature);
+
+    CHECK_STATE(ret != 0);
+
+    unsigned char encoded[2 * len];
+
+    EVP_EncodeBlock(encoded, signature, len);
+
+    return make_shared<string>((const char*)encoded);
+
+
+}
+
 Schain *CryptoManager::getSchain() const {
     return sChain;
 }
 
 ptr<ThresholdSigShare> CryptoManager::sign(ptr<SHAHash> _hash, block_id _blockId) {
-
 
 
     MONITOR(__CLASS_NAME__, __FUNCTION__)
