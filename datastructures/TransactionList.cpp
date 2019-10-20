@@ -194,7 +194,16 @@ ptr< TransactionList > TransactionList::createRandomSample( uint64_t _size, boos
     }
 
 
-    return make_shared< TransactionList >( sample );
+    auto result =  make_shared< TransactionList >( sample );
+
+    CHECK_STATE(result->calculateTopMerkleRoot() != nullptr);
+
+    return result;
+
+}
+
+uint64_t TransactionList::hashCount() {
+    return transactions->size();
 }
 
 ptr<SHAHash> TransactionList::getHash(uint64_t _index) {

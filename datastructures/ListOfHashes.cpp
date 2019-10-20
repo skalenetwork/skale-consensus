@@ -9,12 +9,12 @@
 
 
 ptr<SHAHash> ListOfHashes::calculateTopMerkleRoot() {
-    CHECK_STATE(size() > 0);
-    return calculateMerkleRoot(0, size());
+    CHECK_STATE(hashCount() > 0);
+    return calculateMerkleRoot(0, hashCount());
 }
 
 ptr<SHAHash> ListOfHashes::calculateMerkleRoot(uint64_t _startIndex, uint64_t _count) {
-    CHECK_ARGUMENT(_startIndex < size());
+    CHECK_ARGUMENT(_startIndex < hashCount());
     CHECK_ARGUMENT(_count != 0);
     if (_count == 1)
         return getHash(_startIndex);

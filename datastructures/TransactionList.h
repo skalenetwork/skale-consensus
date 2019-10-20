@@ -85,6 +85,8 @@ public:
                                                            boost::random::uniform_int_distribution<>& _ubyte );
 
     ptr<SHAHash> getHash(uint64_t _index);
+
+    uint64_t hashCount() override;
 };
 
 

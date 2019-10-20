@@ -9,7 +9,10 @@
 class SHAHAsh;
 
 class ListOfHashes {
-    virtual uint64_t size() = 0;
+
+public:
+
+    virtual uint64_t hashCount() = 0;
     virtual ptr<SHAHash> getHash(uint64_t _index) = 0;
     ptr<SHAHash> calculateTopMerkleRoot();
     ptr<SHAHash> calculateMerkleRoot(uint64_t _startIndex, uint64_t _count);
