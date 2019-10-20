@@ -28,8 +28,8 @@ Ensure that the required packages are installed by executing:
 
 ```bash
 sudo apt-get update
-sudo apt-get install -y cmake build-essential libgoogle-perftools-dev libboost-all-dev libprocps-dev
-sudo apt-get install -y libffi-dev libssl-dev libprocps4-dev autotools-dev automake bison flex libgmp3-dev
+sudo apt-get install -y cmake build-essential libgoogle-perftools-dev libprocps-dev
+sudo apt-get install -y libffi-dev autotools-dev automake bison flex
 ```
 
 ### Building from source on Ubuntu (Development)
@@ -39,6 +39,7 @@ Clone project and configure build:
 ```bash
 git clone --recurse-submodules https://github.com/skalenetwork/skale-consensus.git
 # Configure the project and create a build directory.
+./libBLS/deps/build.sh # build libBLS's dependencies
 cmake -H. -Bbuild # Configure the build.
 cmake --build build -- -j$(nproc) # Build all default targets using all cores.
 ```

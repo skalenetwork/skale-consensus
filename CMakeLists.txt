@@ -26,6 +26,12 @@ HunterGate(URL "https://github.com/ruslo/hunter/archive/v0.23.76.tar.gz" SHA1 "c
 
 project(consensus)
 
+include_directories( "${BLS_DEPS_INSTALL_ROOT}/include" ${CMAKE_BINARY_DIR}/deps/include )
+link_directories( "${BLS_DEPS_INSTALL_ROOT}/lib" )
+set( CMAKE_PREFIX_PATH "${BLS_DEPS_INSTALL_ROOT}" )
+
+find_library( FF_LIBRARY NAMES "ff" PATHS "${BLS_DEPS_INSTALL_ROOT}/lib" )
+
 # zeromq
 
 hunter_add_package(ZeroMQ)
@@ -157,10 +163,11 @@ SET(SRC_FILES
         Agent.h Agent.cpp SkaleCommon.h SkaleCommon.cpp Log.h Log.cpp microprofile.cpp miniz.c)
 
 
-include_directories(${BLS_INCLUDE_DIRS})
-link_directories(${BLS_WITH_FF_INCLUDE_DIRS})
+message(INFO "${BLS_DEPS_INSTALL_ROOT}")
+include_directories(${BLS_INCLUDE_DIRS} "${BLS_DEPS_INSTALL_ROOT}/include")
+link_directories(${BLS_WITH_FF_INCLUDE_DIRS} "${BLS_DEPS_INSTALL_ROOT}/lib")
 
-SET(LINK_LIBRARIES Threads::Threads Boost::log Boost::thread Boost::system Boost::filesystem ${LIB_NAME_cryptopp} ZeroMQ::libzmq-static leveldb::leveldb bls)
+SET(LINK_LIBRARIES Threads::Threads Boost::log Boost::thread Boost::system Boost::filesystem ${LIB_NAME_cryptopp} ZeroMQ::libzmq-static leveldb::leveldb bls ${FF_LIBRARY} procps boost_system boost_program_options)
 
 
 # consensus library
@@ -169,7 +176,7 @@ add_library(consensus ${SRC_FILES})
 
 target_link_libraries(consensus ${LINK_LIBRARIES})
 add_precompiled_header(consensus SkaleCommon.h FORCE_INCLUDE)
-add_dependencies(consensus bls gmp secp256k1)
+add_dependencies(consensus bls) # ${GMP_LIBRARY} ${GMPXX_LIBRARY}
 
 # consensus test agent
 
