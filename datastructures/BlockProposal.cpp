@@ -59,10 +59,13 @@ void BlockProposal::calculateHash() {
     sha3.Update(reinterpret_cast < uint8_t * > ( &transactionCount ), sizeof(transactionCount));
     sha3.Update(reinterpret_cast < uint8_t * > ( &timeStamp ), sizeof(timeStamp));
     sha3.Update(reinterpret_cast < uint8_t * > ( &timeStampMs ), sizeof(timeStampMs));
-    auto merkleRoot = transactionList->calculateTopMerkleRoot();
-    sha3.Update(merkleRoot->getHash()->data(), SHA_HASH_LEN);
+    if (transactionList->size() > 0) {
+        auto merkleRoot = transactionList->calculateTopMerkleRoot();
+        sha3.Update(merkleRoot->getHash()->data(), SHA_HASH_LEN);
+    }
     auto buf = make_shared<array<uint8_t, SHA_HASH_LEN>>();
     sha3.Final(buf->data());
+
     hash = make_shared<SHAHash>(buf);
 };
 

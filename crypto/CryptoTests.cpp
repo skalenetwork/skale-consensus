@@ -40,7 +40,7 @@
 
 
 
-TEST_CASE("Import pem ecdsa key", "[gen-ecdsa-key]") {
+TEST_CASE("Import pem ecdsa key", "[import-ecdsa-key]") {
 
     //openssl ecparam -name secp256k1 -genkey -noout
 
