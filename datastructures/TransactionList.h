@@ -34,13 +34,13 @@
 
 
 #include "../node/ConsensusEngine.h"
-
+#include "ListOfHashes.h"
 
 
 class Transaction;
 class ConsensusExtFace;
 
-class TransactionList : public DataStructure  {
+class TransactionList : public DataStructure, public ListOfHashes {
 
 
     ptr<vector<uint8_t>> serializedTransactions = nullptr;
