@@ -22,10 +22,8 @@
 */
 
 
-#include "../SkaleCommon.h"
-#include "../exceptions/ParsingException.h"
 
-#define BOOST_PENDING_INTEGER_LOG2_HPP
+#include "../thirdparty/catch.hpp"
 
 
 #include "openssl/bio.h"
@@ -35,12 +33,24 @@
 #include "openssl/pem.h"
 
 
+#include "../SkaleCommon.h"
+#include "../exceptions/ParsingException.h"
 
-#include "../thirdparty/catch.hpp"
+#define BOOST_PENDING_INTEGER_LOG2_HPP
 
 
 
-TEST_CASE("Import pem ecdsa key", "[import-ecdsa-key]") {
+class CryptoFixture {
+public:
+    CryptoFixture() {
+    };
+
+    ~CryptoFixture(){
+    }
+};
+
+
+TEST_CASE_METHOD(CryptoFixture, "Import pem ecdsa key", "[import-ecdsa-key]") {
 
     //openssl ecparam -name secp256k1 -genkey -noout
 
@@ -64,7 +74,5 @@ TEST_CASE("Import pem ecdsa key", "[import-ecdsa-key]") {
     );
 
     REQUIRE(result != nullptr);
-
-
 
 }
