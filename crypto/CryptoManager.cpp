@@ -88,22 +88,43 @@ ptr<string> CryptoManager::sign(ptr<SHAHash> _hash) {
 
     CHECK_STATE(sig != nullptr);
 
-    auto len = ECDSA_size(ecdsaKey);
+    static auto ecdsaLen = ECDSA_size(ecdsaKey);
 
-    auto signature = (unsigned char *) malloc(len);
+    auto signature = (unsigned char *) malloc(ecdsaLen);
 
     auto ret = i2d_ECDSA_SIG(sig, &signature);
 
+    ECDSA_SIG_free(sig);
+
     CHECK_STATE(ret != 0);
 
-    unsigned char encoded[2 * len];
+    unsigned char encoded[2 * ecdsaLen];
 
-    EVP_EncodeBlock(encoded, signature, len);
+    EVP_EncodeBlock(encoded, signature, ecdsaLen);
+
+    free(signature);
 
     return make_shared<string>((const char*)encoded);
 
 
 }
+
+
+bool CryptoManager::verify(ptr<SHAHash> /*_hash */, ptr<string> _signature) {
+    auto len = _signature->size();
+    auto sig = (unsigned char*) malloc(_signature->size());
+    auto result = EVP_DecodeBlock(sig, (unsigned char*) _signature->c_str(), len);
+
+
+    static auto ecdsaLen = ECDSA_size(ecdsaKey);
+
+    if (result != ecdsaLen) {
+        return false;
+    }
+
+    return true;
+}
+
 
 Schain *CryptoManager::getSchain() const {
     return sChain;

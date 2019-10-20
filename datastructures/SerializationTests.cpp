@@ -337,8 +337,14 @@ TEST_CASE_METHOD(CryptoFixture, "Import pem ecdsa key", "[import-ecdsa-key]") {
 
     CryptoManager manager;
 
-    auto signature = manager.sign(SHAHash::calculateHash((uint8_t*) "test", 4));
+    auto testHash = SHAHash::calculateHash((uint8_t*) "test", 4);
+
+    auto signature = manager.sign(testHash);
 
     REQUIRE(signature != nullptr);
+
+    auto result = manager.verify(testHash, signature);
+
+    REQUIRE(result);
 
 }

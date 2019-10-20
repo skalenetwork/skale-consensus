@@ -53,6 +53,9 @@ public:
     ptr<string> sign(ptr<SHAHash> _hash);
 
 
+    bool verify(ptr<SHAHash> _hash, ptr<string> _signature);
+
+
     Schain *getSchain() const;
 
     ptr<ThresholdSigShare> sign(ptr<SHAHash> _hash, block_id _blockId);
