@@ -9,35 +9,30 @@
 
 
 ptr<SHAHash> ListOfHashes::calculateTopMerkleRoot() {
+
     CHECK_STATE(hashCount() > 0);
-    return calculateMerkleRoot(0, hashCount());
-}
 
-ptr<SHAHash> ListOfHashes::calculateMerkleRoot(uint64_t _startIndex, uint64_t _count) {
-    CHECK_ARGUMENT(_startIndex < hashCount());
-    CHECK_ARGUMENT(_count != 0);
+    vector<ptr<SHAHash>> hashes;
+    hashes.reserve(hashCount() + 1);
 
-    if (_count == 1)
-        return getHash(_startIndex);
-
-    uint64_t  rightHalf;
-
-
-    if (_count % 2 == 0) {
-        rightHalf = _count / 2;
-    } else {
-        rightHalf = _count / 2 + 1;
+    for (uint64_t i = 0; i < hashCount(); i++) {
+        hashes.push_back(getHash(i));
     }
 
-    auto leftHalf = _count - rightHalf;
+    while (hashes.size() > 1) {
 
-    auto leftHash = calculateMerkleRoot(_startIndex, leftHalf);
+        if (hashes.size() % 2 == 1)
+            hashes.push_back(hashes.back());
 
-    ptr<SHAHash> rightHash = nullptr;
+        for (uint64_t j = 0; j < hashes.size() / 2; j++) {
+            hashes[j] = SHAHash::merkleTreeMerge(hashes[2 * j], hashes[2 * j + 1]);
+        }
 
-    if (rightHalf > 0) {
-        rightHash = calculateMerkleRoot(_startIndex + leftHalf, leftHalf);
+        hashes.resize(hashes.size() / 2);
     }
-    return SHAHash::merkleTreeMerge(leftHash, rightHash);
+
+    return hashes.front();
+
 }
+
 
