@@ -50,6 +50,8 @@ addons:
       - libgoogle-perftools-dev
       - flex
       - bison
+      - yasm
+      - texinfo
       - autotools-dev
       - automake
     sources:

@@ -29,7 +29,7 @@ Ensure that the required packages are installed by executing:
 ```bash
 sudo apt-get update
 sudo apt-get install -y cmake build-essential libgoogle-perftools-dev libprocps-dev
-sudo apt-get install -y libffi-dev autotools-dev automake bison flex
+sudo apt-get install -y libffi-dev autotools-dev automake bison flex yasm texinfo
 ```
 
 ### Building from source on Ubuntu (Development)
