@@ -16,7 +16,7 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file SerializationTests.cpp
+    @file CryptoTests.cpp
     @author Stan Kladko
     @date 2019
 */
@@ -50,16 +50,18 @@ public:
 };
 
 
+const char* insecureECDSAKey =
+        "-----BEGIN EC PRIVATE KEY-----"
+        "MHQCAQEEINbmHz6w9lvoNvgPPRwkVSJVAD0zS3Rhd2YMQl6fcLpFoAcGBSuBBAAK"
+        "oUQDQgAEmtFhQ0RnjT1zQYhYUcKAi5j1E6wAu5dAo9pileYW0fgDX2533s1FUSiz"
+        "Mg90hwa2Z50fcIxS9JY8SFuf+tllyQ=="
+        "-----END EC PRIVATE KEY-----";
+
+
+
 TEST_CASE_METHOD(CryptoFixture, "Import pem ecdsa key", "[import-ecdsa-key]") {
 
     //openssl ecparam -name secp256k1 -genkey -noout
-
-    const char* insecureECDSAKey =
-            "-----BEGIN EC PRIVATE KEY-----"
-            "MHQCAQEEINbmHz6w9lvoNvgPPRwkVSJVAD0zS3Rhd2YMQl6fcLpFoAcGBSuBBAAK"
-            "oUQDQgAEmtFhQ0RnjT1zQYhYUcKAi5j1E6wAu5dAo9pileYW0fgDX2533s1FUSiz"
-            "Mg90hwa2Z50fcIxS9JY8SFuf+tllyQ=="
-            "-----END EC PRIVATE KEY-----";
 
     BIO *bio;
 
