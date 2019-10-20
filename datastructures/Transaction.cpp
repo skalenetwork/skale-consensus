@@ -44,10 +44,14 @@
 
 
 ptr< SHAHash > Transaction::getHash() {
+
+    lock_guard<recursive_mutex> lock(m);
+
     if ( hash )
         return hash;
 
-    return SHAHash::calculateHash(data->data(), data->size());
+    hash = SHAHash::calculateHash(data->data(), data->size());
+    return hash;
 
 }
 
