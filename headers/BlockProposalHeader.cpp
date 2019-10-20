@@ -46,7 +46,7 @@ BlockProposalHeader::BlockProposalHeader(Schain &_sChain, ptr<BlockProposal> pro
 
 
     this->proposerNodeID = _sChain.getNode()->getNodeID();
-    this->partialHashesCount = (uint64_t) proposal->getTransactionsCount();
+    this->partialHashesCount = (uint64_t) proposal->getTransactionCount();
     this->timeStamp = proposal->getTimeStamp();
     this->timeStampMs = proposal->getTimeStampMs();
 
