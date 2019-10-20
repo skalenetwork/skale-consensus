@@ -34,7 +34,7 @@
 #include "SHAHash.h"
 
 void SHAHash::print() {
-    for (size_t i = 0; i < SHA3_HASH_LEN; i++) {
+    for (size_t i = 0; i < SHA_HASH_LEN; i++) {
         cerr << to_string(hash->at(i));
     }
 
@@ -49,9 +49,9 @@ uint8_t SHAHash::at(uint32_t _position) {
 
 ptr< SHAHash > SHAHash::fromHex(ptr<string> _hex) {
 
-    auto result =  make_shared<array<uint8_t ,SHA3_HASH_LEN>>();
+    auto result =  make_shared<array<uint8_t ,SHA_HASH_LEN>>();
 
-    cArrayFromHex(*_hex, result->data(), SHA3_HASH_LEN);
+    cArrayFromHex(*_hex, result->data(), SHA_HASH_LEN);
 
     return make_shared<SHAHash>( result );
 }
@@ -73,14 +73,14 @@ void  SHAHash::cArrayFromHex(string & _hex, uint8_t* _data, size_t len) {
 
 
 ptr< string > SHAHash::toHex() {
-    return Utils::carray2Hex(hash->data(), SHA3_HASH_LEN);
+    return Utils::carray2Hex(hash->data(), SHA_HASH_LEN);
 }
 
 
 int SHAHash::compare(ptr<SHAHash> hash2) {
 
 
-    for (size_t i = 0; i < SHA3_HASH_LEN; i++) {
+    for (size_t i = 0; i < SHA_HASH_LEN; i++) {
 
 
         if (hash->at(i) < hash2->at(i))
@@ -94,8 +94,53 @@ int SHAHash::compare(ptr<SHAHash> hash2) {
 
 }
 
-SHAHash::SHAHash(ptr<array<uint8_t, SHA3_HASH_LEN>> _hash) {
+SHAHash::SHAHash(ptr<array<uint8_t, SHA_HASH_LEN>> _hash) {
     hash = _hash;
 
 }
+
+ptr<SHAHash> SHAHash::calculateHash(uint8_t *_data, uint64_t _count) {
+
+        CHECK_ARGUMENT(_data != nullptr);
+        CHECK_ARGUMENT(_count > 0);
+
+        auto digest = make_shared< array< uint8_t, SHA_HASH_LEN > >();
+
+
+        CryptoPP::SHA256 hashObject;
+
+        hashObject.Update( _data, _count );
+        hashObject.Final( digest->data() );
+
+
+        auto hash = make_shared< SHAHash >( digest );
+
+        return hash;
+
+}
+
+ptr<SHAHash> SHAHash::merkleTreeMerge(ptr<SHAHash> _left, ptr<SHAHash> _right) {
+    CHECK_ARGUMENT(_left != nullptr);
+
+    vector<uint8_t > concatenation;
+    concatenation.reserve(2*SHA_HASH_LEN);
+
+    auto leftHash = _left->getHash();
+
+    concatenation.insert(concatenation.end(), leftHash->begin(), leftHash->end());
+
+    if (_right != nullptr) {
+        auto rightHash = _right->getHash();
+        concatenation.insert(concatenation.end(), rightHash->begin(), rightHash->end());
+
+    }
+
+
+    return calculateHash(concatenation.data(), concatenation.size());
+}
+
+ptr<array<uint8_t ,SHA_HASH_LEN>>  SHAHash::getHash() const{
+    return hash;
+}
+
 

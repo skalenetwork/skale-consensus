@@ -62,10 +62,10 @@ void BlockProposal::calculateHash() {
     for (uint64_t i = 0; i < transactionCount; i++) {
         auto t = transactionList->getItems();
         ASSERT(t->at(i));
-        sha3.Update(t->at(i)->getHash()->data(), SHA3_HASH_LEN);
+        sha3.Update(t->at(i)->getHash()->data(), SHA_HASH_LEN);
     }
 
-    auto buf = make_shared<array<uint8_t, SHA3_HASH_LEN>>();
+    auto buf = make_shared<array<uint8_t, SHA_HASH_LEN>>();
     sha3.Final(buf->data());
     hash = make_shared<SHAHash>(buf);
 };

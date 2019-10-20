@@ -166,7 +166,7 @@ static constexpr uint64_t WAIT_AFTER_NETWORK_ERROR_MS = 3000;
 
 static constexpr uint32_t SOCKET_BACKLOG = 64;
 
-static constexpr size_t SHA3_HASH_LEN = 32;
+static constexpr size_t SHA_HASH_LEN = 32;
 
 static constexpr size_t PARTIAL_SHA_HASH_LEN = 8;
 

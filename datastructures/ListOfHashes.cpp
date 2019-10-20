@@ -19,21 +19,21 @@ ptr<SHAHash> ListOfHashes::calculateMerkleRoot(uint64_t _startIndex, uint64_t _c
     if (_count == 1)
         return getHash(_startIndex);
 
-    auto rightHalf = count % 2;
+    auto rightHalf = _count % 2;
 
     if (rightHalf == 0) {
-        rightHalf = count / 2;
+        rightHalf = _count / 2;
     }
 
-    auto leftHalf = count - rightHalf;
+    auto leftHalf = _count - rightHalf;
 
     auto leftHash = calculateMerkleRoot(_startIndex, leftHalf);
 
     ptr<SHAHash> rightHash = nullptr;
 
     if (rightHalf > 0) {
-        rightHash = calculateMerkleRoot(_startIndex + leftHalf, count - rightHalf);
+        rightHash = calculateMerkleRoot(_startIndex + leftHalf, _count - rightHalf);
     }
-    return mergeHashes(leftHash, rightHash);
+    return SHAHash::merkleTreeMerge(leftHash, rightHash);
 }
 

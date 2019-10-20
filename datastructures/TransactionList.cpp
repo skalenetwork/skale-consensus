@@ -195,4 +195,8 @@ ptr< TransactionList > TransactionList::createRandomSample( uint64_t _size, boos
 
 
     return make_shared< TransactionList >( sample );
+}
+
+ptr<SHAHash> TransactionList::getHash(uint64_t _index) {
+    return transactions->at(_index)->getHash();
 };
