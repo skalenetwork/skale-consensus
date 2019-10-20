@@ -29,6 +29,7 @@
 #include "openssl/err.h"
 #include "openssl/ec.h"
 
+#include "Base64.h"
 
 #include "../SkaleCommon.h"
 #include "../Log.h"
@@ -84,23 +85,26 @@ CryptoManager::CryptoManager(Schain &_sChain) : sChain(&_sChain) {
 
 ptr<string> CryptoManager::sign(ptr<SHAHash> _hash) {
 
+    CHECK_ARGUMENT(_hash != nullptr);
+
     auto sig = ECDSA_do_sign(_hash->getHash()->data(), SHA_HASH_LEN, ecdsaKey);
 
     CHECK_STATE(sig != nullptr);
 
     static auto ecdsaLen = ECDSA_size(ecdsaKey);
 
-    auto signature = (unsigned char *) malloc(ecdsaLen);
+    auto signature = (unsigned char *) calloc(ecdsaLen, 0);
+    auto pointerCopy = signature;
 
-    auto ret = i2d_ECDSA_SIG(sig, &signature);
+    auto ret = i2d_ECDSA_SIG(sig, &pointerCopy);
+
 
     ECDSA_SIG_free(sig);
 
-    CHECK_STATE(ret != 0);
 
-    unsigned char encoded[2 * ecdsaLen];
+    auto encoded = (char*) calloc(2 * ecdsaLen, 0);
 
-    EVP_EncodeBlock(encoded, signature, ecdsaLen);
+    base64_encode(signature, ret, encoded);
 
     free(signature);
 
@@ -110,15 +114,27 @@ ptr<string> CryptoManager::sign(ptr<SHAHash> _hash) {
 }
 
 
-bool CryptoManager::verify(ptr<SHAHash> /*_hash */, ptr<string> _signature) {
+bool CryptoManager::verify(ptr<SHAHash> _hash , ptr<string> _signature) {
+    CHECK_ARGUMENT(_hash != nullptr);
+    CHECK_ARGUMENT(_signature != nullptr);
+
+
     auto len = _signature->size();
-    auto sig = (unsigned char*) malloc(_signature->size());
-    auto result = EVP_DecodeBlock(sig, (unsigned char*) _signature->c_str(), len);
+    auto derSig = (unsigned char*) malloc(_signature->size());
+    auto pointerCopy = derSig;
+    auto result = base64_decode(_signature->c_str(), len, derSig);
+
+    if (result == 0) {
+        return false;
+    }
 
 
-    static auto ecdsaLen = ECDSA_size(ecdsaKey);
+    auto ecdsaSig = d2i_ECDSA_SIG(NULL, (const unsigned char**) &pointerCopy, result);
 
-    if (result != ecdsaLen) {
+    free(derSig);
+
+    if (ecdsaSig == nullptr) {
+        printf("%s", ERR_error_string(ERR_get_error(), NULL));
         return false;
     }
 
