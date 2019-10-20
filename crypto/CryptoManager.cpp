@@ -21,6 +21,15 @@
     @date 2019
 
 */
+
+#include "openssl/bio.h"
+
+#include "openssl/evp.h"
+#include "openssl/pem.h"
+#include "openssl/err.h"
+#include "openssl/ec.h"
+
+
 #include "../SkaleCommon.h"
 #include "../Log.h"
 #include "../thirdparty/json.hpp"
@@ -34,11 +43,39 @@
 #include "../monitoring/LivelinessMonitor.h"
 #include "bls/BLSPrivateKeyShare.h"
 
+
 #include "CryptoManager.h"
+
+
+void CryptoManager::init() {
+
+    BIO *bio;
+
+    bio = BIO_new_mem_buf((void *) insecureTestECDSAKey, strlen(insecureTestECDSAKey));
+    ecdsaKey = PEM_read_bio_ECPrivateKey(
+            bio,
+            NULL,
+            NULL,
+            NULL
+    );
+
+    if (ecdsaKey == nullptr) {
+        throw FatalError("Could not init openssl key", __CLASS_NAME__);
+    }
+
+}
+
+
+CryptoManager::CryptoManager() : sChain(nullptr) {
+    init();
+}
 
 
 CryptoManager::CryptoManager(Schain &_sChain) : sChain(&_sChain) {
     CHECK_ARGUMENT(sChain != nullptr);
+    init();
+
+
 }
 
 Schain *CryptoManager::getSchain() const {
@@ -91,4 +128,17 @@ CryptoManager::createSigShare(ptr<string> _sigShare, schain_id _schainID, block_
                                            _totalSigners, _requiredSigners);
     }
 }
+
+
+const char *CryptoManager::insecureTestECDSAKey =
+        "-----BEGIN EC PRIVATE KEY-----\n"
+        "MHQCAQEEINbmHz6w9lvoNvgPPRwkVSJVAD0zS3Rhd2YMQl6fcLpFoAcGBSuBBAAK"
+        "oUQDQgAEmtFhQ0RnjT1zQYhYUcKAi5j1E6wAu5dAo9pileYW0fgDX2533s1FUSiz"
+        "Mg90hwa2Z50fcIxS9JY8SFuf+tllyQ==\n"
+        "-----END EC PRIVATE KEY-----";
+
+
+
+
+
 

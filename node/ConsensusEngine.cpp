@@ -23,6 +23,9 @@
 
 
 
+#include "openssl/evp.h"
+#include "openssl/pem.h"
+#include "openssl/err.h"
 
 #include "../SkaleCommon.h"
 #include "../Log.h"
@@ -327,6 +330,9 @@ ConsensusEngine::ConsensusEngine() : exitRequested(false) {
     try {
         signal(SIGPIPE, SIG_IGN);
         libff::init_alt_bn128_params();
+        ERR_load_crypto_strings();
+        OpenSSL_add_all_algorithms();
+
         Log::init();
         init();
     } catch (Exception &e) {
@@ -401,6 +407,11 @@ ConsensusEngine::ConsensusEngine(ConsensusExtFace &_extFace, uint64_t _lastCommi
 
 
     Log::init();
+
+
+    libff::init_alt_bn128_params();
+    ERR_load_crypto_strings();
+    OpenSSL_add_all_algorithms();
 
     try {
 

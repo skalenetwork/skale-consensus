@@ -25,20 +25,32 @@
 #define SKALED_CRYPTOMANAGER_H
 
 
+#include "openssl/ec.h"
 
 class Schain;
 class SHAHash;
 class ConsensusBLSSigShare;
 class ThresholdSigShareSet;
-
+class ThresholdSigShare;
 class CryptoManager {
 
 private:
     Schain* sChain;
 
+    static const char* insecureTestECDSAKey;
+
+    EC_KEY* ecdsaKey;
+
+
+    void init();
+
 public:
 
+    CryptoManager(); // for testing
+
     CryptoManager(Schain& sChain);
+
+
 
     Schain *getSchain() const;
 
