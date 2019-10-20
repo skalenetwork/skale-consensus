@@ -74,6 +74,12 @@ CryptoManager::CryptoManager() : sChain(nullptr) {
 
     CHECK_STATE(sig != nullptr);
 
+    auto signature = (unsigned char *) malloc(ECDSA_size(ecdsaKey));
+
+    auto ret = i2d_ECDSA_SIG(sig, &signature);
+
+    CHECK_STATE(ret !=0);
+
 
 }
 
