@@ -22,13 +22,6 @@
 
 */
 
-#include "openssl/bio.h"
-
-#include "openssl/evp.h"
-#include "openssl/pem.h"
-#include "openssl/err.h"
-#include "openssl/ec.h"
-
 #include "Base64.h"
 
 #include "../SkaleCommon.h"
@@ -50,28 +43,13 @@
 
 void CryptoManager::init() {
 
-    BIO *bio;
 
-    bio = BIO_new_mem_buf((void *) insecureTestECDSAKey, strlen(insecureTestECDSAKey));
-    ecdsaKey = PEM_read_bio_ECPrivateKey(
-            bio,
-            NULL,
-            NULL,
-            NULL
-    );
-
-    if (ecdsaKey == nullptr) {
-        throw FatalError("Could not init openssl key", __CLASS_NAME__);
-    }
 
 }
 
 
 CryptoManager::CryptoManager() : sChain(nullptr) {
     init();
-
-
-
 }
 
 
@@ -85,6 +63,11 @@ CryptoManager::CryptoManager(Schain &_sChain) : sChain(&_sChain) {
 
 ptr<string> CryptoManager::sign(ptr<SHAHash> _hash) {
 
+    CHECK_ARGUMENT(_hash != nullptr);
+
+    return nullptr;
+
+
 }
 
 
@@ -92,6 +75,7 @@ bool CryptoManager::verify(ptr<SHAHash> _hash , ptr<string> _signature) {
     CHECK_ARGUMENT(_hash != nullptr);
     CHECK_ARGUMENT(_signature != nullptr);
 
+    return true;
 }
 
 

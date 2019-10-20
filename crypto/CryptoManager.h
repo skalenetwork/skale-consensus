@@ -39,7 +39,7 @@ private:
 
     static const char* insecureTestECDSAKey;
 
-    EC_KEY* ecdsaKey;
+    //EC_KEY* ecdsaKey;
 
 
     void init();
