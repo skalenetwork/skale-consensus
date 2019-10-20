@@ -176,7 +176,7 @@ add_library(consensus ${SRC_FILES})
 
 target_link_libraries(consensus ${LINK_LIBRARIES})
 add_precompiled_header(consensus SkaleCommon.h FORCE_INCLUDE)
-add_dependencies(consensus bls) # ${GMP_LIBRARY} ${GMPXX_LIBRARY}
+add_dependencies(consensus bls)
 
 # consensus test agent
 
