@@ -25,7 +25,6 @@
 #define CONSENSUS_SHAHASH_H
 
 
-#include "../SkaleCommon.h"
 
 class SHAHash {
 
