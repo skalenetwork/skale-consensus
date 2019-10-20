@@ -38,23 +38,18 @@ hunter_add_package(leveldb)
 find_package(leveldb CONFIG REQUIRED)
 
 
+#openssl
+hunter_add_package(OpenSSL)
+find_package(OpenSSL REQUIRED)
+
+
 
 #set (CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-Wreturn-type -Winit-self")
 
-set(CMAKE_CXX_STANDARD 17)
-
 if (SKALED_LATEST_STANDARD)
+    set(CMAKE_CXX_STANDARD 17)
     set(LIB_NAME_cryptopp "cryptopp")
 else ()
-
-    set( DEPS_SOURCES_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/SkaleDeps" )
-    set( DEPS_INSTALL_ROOT "${DEPS_SOURCES_ROOT}/deps_inst/x86_or_x64" )
-    include_directories( "${DEPS_INSTALL_ROOT}/include" "${DEPS_INSTALL_ROOT}/include/cryptopp" ${CMAKE_BINARY_DIR}/deps/include )
-    link_directories( "${DEPS_INSTALL_ROOT}/lib" )
-    set( CMAKE_PREFIX_PATH "${DEPS_INSTALL_ROOT}" )
-    list(APPEND CMAKE_MODULE_PATH ${DEPS_INSTALL_ROOT}/lib/cmake)
-
-    link_directories(${CMAKE_BINARY_DIR}/deps/lib)          # HACK for not-found -lff in testeth
     set(CMAKE_CXX_STANDARD 17)
     hunter_add_package(cryptopp)
     add_compile_options(-Wall -Wextra -Werror)
@@ -171,7 +166,7 @@ SET(SRC_FILES
 include_directories(${BLS_INCLUDE_DIRS})
 link_directories(${BLS_WITH_FF_INCLUDE_DIRS})
 
-SET(LINK_LIBRARIES Threads::Threads Boost::log Boost::thread Boost::system Boost::filesystem ${LIB_NAME_cryptopp}  ZeroMQ::libzmq-static leveldb::leveldb bls)
+SET(LINK_LIBRARIES Threads::Threads Boost::log Boost::thread Boost::system Boost::filesystem ${LIB_NAME_cryptopp} OpenSSL::Crypto ZeroMQ::libzmq-static leveldb::leveldb bls)
 
 
 # consensus library

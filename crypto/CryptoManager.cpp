@@ -22,7 +22,13 @@
 
 */
 
-#include "Base64.h"
+#include "openssl/bio.h"
+
+#include "openssl/evp.h"
+#include "openssl/pem.h"
+#include "openssl/err.h"
+#include "openssl/ec.h"
+
 
 #include "../SkaleCommon.h"
 #include "../Log.h"
@@ -43,8 +49,6 @@
 
 void CryptoManager::init() {
 
-
-
 }
 
 
@@ -57,33 +61,25 @@ CryptoManager::CryptoManager(Schain &_sChain) : sChain(&_sChain) {
     CHECK_ARGUMENT(sChain != nullptr);
     init();
 
-
 }
-
-
-ptr<string> CryptoManager::sign(ptr<SHAHash> _hash) {
-
-    CHECK_ARGUMENT(_hash != nullptr);
-
-    return nullptr;
-
-
-}
-
-
-bool CryptoManager::verify(ptr<SHAHash> _hash , ptr<string> _signature) {
-    CHECK_ARGUMENT(_hash != nullptr);
-    CHECK_ARGUMENT(_signature != nullptr);
-
-    return true;
-}
-
 
 Schain *CryptoManager::getSchain() const {
     return sChain;
 }
 
+ptr<string> CryptoManager::signECDSA(ptr<SHAHash> /*_hash*/) {
+    return make_shared<string>("test_sig");
+}
+
+
+bool CryptoManager::verifyECDSA(ptr<SHAHash> /*_hash */,
+        ptr<string> /*_sig */) {
+    return true;
+}
+
+
 ptr<ThresholdSigShare> CryptoManager::sign(ptr<SHAHash> _hash, block_id _blockId) {
+
 
 
     MONITOR(__CLASS_NAME__, __FUNCTION__)
@@ -130,15 +126,6 @@ CryptoManager::createSigShare(ptr<string> _sigShare, schain_id _schainID, block_
                                            _totalSigners, _requiredSigners);
     }
 }
-
-
-const char *CryptoManager::insecureTestECDSAKey =
-        "-----BEGIN EC PRIVATE KEY-----\n"
-        "MHQCAQEEINbmHz6w9lvoNvgPPRwkVSJVAD0zS3Rhd2YMQl6fcLpFoAcGBSuBBAAK"
-        "oUQDQgAEmtFhQ0RnjT1zQYhYUcKAi5j1E6wAu5dAo9pileYW0fgDX2533s1FUSiz"
-        "Mg90hwa2Z50fcIxS9JY8SFuf+tllyQ==\n"
-        "-----END EC PRIVATE KEY-----";
-
 
 
 

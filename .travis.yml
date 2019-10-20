@@ -56,7 +56,6 @@ addons:
       - bison
       - autotools-dev
       - automake
-      - golang
     sources:
       - ubuntu-toolchain-r-test
 

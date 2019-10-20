@@ -23,6 +23,9 @@
 
 
 
+#include "openssl/evp.h"
+#include "openssl/pem.h"
+#include "openssl/err.h"
 
 #include "../SkaleCommon.h"
 #include "../Log.h"

@@ -50,12 +50,6 @@ public:
 
     CryptoManager(Schain& sChain);
 
-    ptr<string> sign(ptr<SHAHash> _hash);
-
-
-    bool verify(ptr<SHAHash> _hash, ptr<string> _signature);
-
-
     Schain *getSchain() const;
 
     ptr<ThresholdSigShare> sign(ptr<SHAHash> _hash, block_id _blockId);
@@ -64,6 +58,12 @@ public:
 
     ptr<ThresholdSigShare> createSigShare(ptr<string> _sigShare, schain_id _schainID, block_id _blockID, node_id _signerNodeID,
             schain_index _signerIndex, size_t _totalSigners, size_t _requiredSigners);
+
+    ptr<string> signECDSA(ptr<SHAHash> _hash);
+
+
+    bool verifyECDSA(ptr<SHAHash> _hash, ptr<string> _sig);
+
 };
 
 

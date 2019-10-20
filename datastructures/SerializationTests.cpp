@@ -34,7 +34,6 @@
 #include "../SkaleCommon.h"
 #include "../exceptions/ParsingException.h"
 #include "../crypto/CryptoManager.h"
-#include "../crypto/SHAHash.h"
 
 #include "CommittedBlock.h"
 #include "CommittedBlockList.h"
@@ -336,15 +335,5 @@ TEST_CASE_METHOD(CryptoFixture, "Import pem ecdsa key", "[import-ecdsa-key]") {
     //openssl ecparam -name secp256k1 -genkey -noout
 
     CryptoManager manager;
-
-    auto testHash = SHAHash::calculateHash((uint8_t*) "test", 4);
-
-    auto signature = manager.sign(testHash);
-
-    REQUIRE(signature != nullptr);
-
-    auto result = manager.verify(testHash, signature);
-
-    REQUIRE(result);
 
 }
