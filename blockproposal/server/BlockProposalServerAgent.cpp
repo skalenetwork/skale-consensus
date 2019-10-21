@@ -42,7 +42,7 @@
 #include "../../node/NodeInfo.h"
 
 #include "../../crypto/ConsensusBLSSigShare.h"
-
+#include "../../crypto/CryptoManager.h"
 
 #include "../../pendingqueue/PendingTransactionsAgent.h"
 #include "../pusher/BlockProposalClientAgent.h"
@@ -198,43 +198,37 @@ void BlockProposalServerAgent::processNextAvailableConnection(ptr<ServerConnecti
 
 void
 BlockProposalServerAgent::processProposalRequest(ptr<ServerConnection> _connection, nlohmann::json _proposalRequest) {
+    ptr<BlockProposalHeader> requestHeader = nullptr;
     ptr<Header> responseHeader = nullptr;
 
-    ptr<BlockProposalHeader> header = nullptr;
     try {
 
-        header = make_shared<BlockProposalHeader>(_proposalRequest, getSchain()->getNodeCount());
-        responseHeader = this->createProposalResponseHeader(_connection, *header);
+        requestHeader = make_shared<BlockProposalHeader>(_proposalRequest, getSchain()->getNodeCount());
+        responseHeader = this->createProposalResponseHeader(_connection, *requestHeader);
         send(_connection, responseHeader);
-
+        if (responseHeader->getStatus() != CONNECTION_PROCEED) {
+            return;
+        }
     } catch (ExitRequestedException &) {
         throw;
     } catch (...) {
-        throw_with_nested(NetworkProtocolException("Could not create response header", __CLASS_NAME__));
-    }
-
-    if (responseHeader->getStatus() != CONNECTION_PROCEED) {
-        return;
+        throw_with_nested(NetworkProtocolException("Could not create response requestHeader", __CLASS_NAME__));
     }
 
     ptr<PartialHashesList> partialHashesList = nullptr;
 
     try {
-        partialHashesList = readPartialHashes(_connection, header->getTxCount());
+        partialHashesList = readPartialHashes(_connection, requestHeader->getTxCount());
     } catch (ExitRequestedException &) {
         throw;
     } catch (...) {
         throw_with_nested(NetworkProtocolException("Could not read partial hashes", __CLASS_NAME__));
     }
 
-
-
-
     auto result = getPresentAndMissingTransactions(*sChain, responseHeader, partialHashesList);
 
     auto presentTransactions = result.first;
     auto missingTransactionHashes = result.second;
-
     auto missingHashesRequestHeader = make_shared<MissingTransactionsRequestHeader>(missingTransactionHashes);
 
     try {
@@ -242,7 +236,7 @@ BlockProposalServerAgent::processProposalRequest(ptr<ServerConnection> _connecti
     } catch (ExitRequestedException &) {
         throw;
     } catch (...) {
-        throw_with_nested(CouldNotSendMessageException("Could not send missing hashes request header", __CLASS_NAME__));
+        throw_with_nested(CouldNotSendMessageException("Could not send missing hashes request requestHeader", __CLASS_NAME__));
     }
 
 
@@ -258,7 +252,7 @@ BlockProposalServerAgent::processProposalRequest(ptr<ServerConnection> _connecti
             throw;
         } catch (...) {
             BOOST_THROW_EXCEPTION(CouldNotSendMessageException(
-                                          "Could not send missing hashes request header", __CLASS_NAME__ ));
+                                          "Could not send missing hashes request requestHeader", __CLASS_NAME__ ));
         }
 
 
@@ -278,12 +272,7 @@ BlockProposalServerAgent::processProposalRequest(ptr<ServerConnection> _connecti
         }
     }
 
-
-    if (sChain->getLastCommittedBlockID() >= header->getBlockId())
-        return;
-
     LOG(debug, "Storing block proposal");
-
 
     auto transactions = make_shared<vector<ptr<Transaction> > >();
 
@@ -294,7 +283,7 @@ BlockProposalServerAgent::processProposalRequest(ptr<ServerConnection> _connecti
         ASSERT(h);
 
         if (getSchain()->getPendingTransactionsAgent()->isCommitted(h)) {
-            checkForOldBlock(header->getBlockId());
+            checkForOldBlock(requestHeader->getBlockId());
             BOOST_THROW_EXCEPTION(CouldNotReadPartialDataHashesException("Committed transaction", __CLASS_NAME__));
         }
 
@@ -306,9 +295,8 @@ BlockProposalServerAgent::processProposalRequest(ptr<ServerConnection> _connecti
             transaction = (*missingTransactions)[h];
         };
 
-
         if (transaction == nullptr) {
-            checkForOldBlock(header->getBlockId());
+            checkForOldBlock(requestHeader->getBlockId());
             ASSERT(missingTransactions);
 
             if (missingTransactions->count(h) > 0) {
@@ -318,29 +306,20 @@ BlockProposalServerAgent::processProposalRequest(ptr<ServerConnection> _connecti
             ASSERT(false);
         }
 
-
         ASSERT(transactions != nullptr);
 
         transactions->push_back(transaction);
     }
 
     ASSERT(transactionCount == 0 || transactions->at((uint64_t) transactionCount - 1));
-
-    ASSERT(header->getTimeStamp() > 0);
+    ASSERT(requestHeader->getTimeStamp() > 0);
 
     auto transactionList = make_shared<TransactionList>(transactions);
 
-    auto proposal = make_shared<ReceivedBlockProposal>(*sChain, header->getBlockId(),
-            header->getProposerIndex(), transactionList, header->getTimeStamp(),
-                                                       header->getTimeStampMs());
-
-    auto calculatedHash = proposal->getHash();
-
-    if (calculatedHash->compare(SHAHash::fromHex(header->getHash())) != 0) {
-        BOOST_THROW_EXCEPTION(InvalidHashException(
-                                      "Block proposal hash does not match" + *proposal->getHash()->toHex() + ":" +
-                                      *header->getHash(), __CLASS_NAME__ ));
-    }
+    auto proposal = make_shared<ReceivedBlockProposal>(*sChain, requestHeader->getBlockId(),
+                                                       requestHeader->getProposerIndex(), transactionList, requestHeader->getTimeStamp(),
+                                                       requestHeader->getTimeStampMs());
+    getSchain()->getCryptoManager()->verifyProposalECDSA(proposal, requestHeader->getHash(), requestHeader->getSignature());
 
     sChain->proposedBlockArrived(proposal);
 }

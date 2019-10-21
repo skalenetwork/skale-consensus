@@ -124,4 +124,8 @@ uint32_t BlockProposalHeader::getTimeStampMs() const {
     return timeStampMs;
 }
 
+ptr<string> BlockProposalHeader::getSignature() const {
+    return signature;
+}
+
 

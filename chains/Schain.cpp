@@ -521,6 +521,9 @@ void Schain::proposedBlockArrived(ptr<BlockProposal> pbm) {
 
     std::lock_guard<std::recursive_mutex> aLock(getMainMutex());
 
+    if (pbm->getBlockID() <= lastCommittedBlockID )
+        return;
+
     if (blockProposalsDatabase->addBlockProposal(pbm)) {
         startConsensus(pbm->getBlockID());
     }

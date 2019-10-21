@@ -59,6 +59,8 @@ public:
 
     uint32_t getTimeStampMs() const;
 
+    ptr<string> getSignature() const;
+
 };
 
 

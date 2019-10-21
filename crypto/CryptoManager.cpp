@@ -34,6 +34,7 @@
 #include "../Log.h"
 #include "../thirdparty/json.hpp"
 #include "../chains/Schain.h"
+#include "../exceptions/NetworkProtocolException.h"
 #include "SHAHash.h"
 #include "ConsensusBLSSigShare.h"
 #include "MockupSigShare.h"
@@ -137,11 +138,19 @@ void CryptoManager::signProposalECDSA(ptr<BlockProposal> _proposal) {
     _proposal->addSignature(signature);
 }
 
-bool CryptoManager::verifyProposalECDSA(ptr<BlockProposal> _proposal) {
+void CryptoManager::verifyProposalECDSA(ptr<BlockProposal> _proposal, ptr<string> _hashStr, ptr<string> _signature) {
     CHECK_ARGUMENT(_proposal != nullptr);
-    auto signature = _proposal->getSignature();
+    CHECK_ARGUMENT(_hashStr != nullptr)
+    CHECK_ARGUMENT(_signature != nullptr)
     auto hash = _proposal->getHash();
-    return verifyECDSA(hash, signature);
+
+    if (*hash->toHex() != *_hashStr) {
+        BOOST_THROW_EXCEPTION(NetworkProtocolException("Incorrect proposal hash", __CLASS_NAME__));
+    }
+
+    if (!verifyECDSA(hash, _signature)) {
+        BOOST_THROW_EXCEPTION(NetworkProtocolException("ECDSA sig did not verify", __CLASS_NAME__));
+    }
 }
 
 
