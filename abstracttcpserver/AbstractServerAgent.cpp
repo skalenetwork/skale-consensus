@@ -183,31 +183,6 @@ void AbstractServerAgent::createNetworkReadThread() {
 }
 
 
-ptr<PartialHashesList> AbstractServerAgent::readPartialHashes(ptr<ServerConnection> _connectionEnvelope_,
-                                                              nlohmann::json _jsonRequest) {
-
-    auto messageCount = transaction_count(Header::getUint64(_jsonRequest, "txCount"));
-
-    if (messageCount > (uint64_t) getNode()->getMaxTransactionsPerBlock()) {
-        BOOST_THROW_EXCEPTION(NetworkProtocolException("Too many transactions", __CLASS_NAME__));
-    }
-
-    auto partialHashesList = make_shared<PartialHashesList>(messageCount);
-
-    if (messageCount != 0) {
-        try {
-            getSchain()->getIo()->readBytes(_connectionEnvelope_,
-                                             (in_buffer *) partialHashesList->getPartialHashes()->data(),
-                                             msg_len((uint64_t) partialHashesList->getTransactionCount() * PARTIAL_SHA_HASH_LEN));
-        } catch (ExitRequestedException&) {throw;}
-        catch (...) {
-            throw_with_nested(CouldNotReadPartialDataHashesException("Could not read partial hashes", __CLASS_NAME__));
-        }
-    }
-
-    return partialHashesList;
-
-}
 
 void AbstractServerAgent::notifyAllConditionVariables() {
     Agent::notifyAllConditionVariables();

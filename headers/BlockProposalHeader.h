@@ -33,6 +33,8 @@ class BlockProposalHeader : public AbstractBlockRequestHeader{
 
     node_id proposerNodeID;
     ptr<string> hash;
+    ptr<string> signature;
+
 
     uint64_t txCount;
     uint64_t  timeStamp = 0;
@@ -42,9 +44,24 @@ public:
 
     BlockProposalHeader(Schain &_sChain, ptr<BlockProposal> proposal);
 
+    BlockProposalHeader(node_count nodeCount, schain_id schainId,
+                        block_id blockId, schain_index proposerIndex,
+                        node_id proposerNodeId, ptr<string> hash,
+                        ptr<string> signature, uint64_t txCount, uint64_t timeStamp,
+                        uint32_t timeStampMs);
 
 
     void addFields(nlohmann::basic_json<> &jsonRequest) override;
+
+    const node_id &getProposerNodeId() const;
+
+    const ptr<string> &getHash() const;
+
+    uint64_t getTxCount() const;
+
+    uint64_t getTimeStamp() const;
+
+    uint32_t getTimeStampMs() const;
 
 };
 

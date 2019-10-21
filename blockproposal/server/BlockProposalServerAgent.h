@@ -28,7 +28,7 @@
 
 class BlockProposalWorkerThreadPool;
 class BlockFinalizeResponseHeader;
-
+class BlockProposalHeader;
 
 
 class Transaction;
@@ -83,7 +83,7 @@ public:
 
     ptr<Header>
     createProposalResponseHeader(ptr<ServerConnection> _connectionEnvelope,
-                                 nlohmann::json _jsonRequest);
+                                 BlockProposalHeader &_header);
 
     ptr<Header>
     createFinalizeResponseHeader(ptr<ServerConnection> _connectionEnvelope,

@@ -83,7 +83,7 @@ public:
     virtual void processNextAvailableConnection(ptr<ServerConnection> _connection) = 0;
 
 
-    virtual ptr<PartialHashesList> readPartialHashes(ptr<ServerConnection> _connectionEnvelope_, nlohmann::json _jsonRequest);
+    virtual ptr<PartialHashesList> readPartialHashes(ptr<ServerConnection> _connectionEnvelope_, transaction_count _txCount);
 
 
 

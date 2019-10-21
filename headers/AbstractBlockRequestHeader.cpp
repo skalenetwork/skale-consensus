@@ -57,3 +57,15 @@ void AbstractBlockRequestHeader::addFields(nlohmann::basic_json<> &jsonRequest) 
 
 }
 
+const schain_id &AbstractBlockRequestHeader::getSchainId() const {
+    return schainID;
+}
+
+const schain_index &AbstractBlockRequestHeader::getProposerIndex() const {
+    return proposerIndex;
+}
+
+const block_id &AbstractBlockRequestHeader::getBlockId() const {
+    return blockID;
+}
+

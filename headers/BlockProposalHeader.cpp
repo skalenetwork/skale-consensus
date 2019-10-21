@@ -39,6 +39,16 @@
 
 using namespace std;
 
+BlockProposalHeader::BlockProposalHeader(node_count nodeCount, schain_id schainId,
+                                         block_id blockId, schain_index proposerIndex,
+                                         node_id proposerNodeId, ptr<string> hash,
+                                         ptr<string> signature, uint64_t txCount, uint64_t timeStamp,
+                                         uint32_t timeStampMs) : AbstractBlockRequestHeader(nodeCount, schainId,
+                                                                                            blockId, Header::BLOCK_PROPOSAL_REQ ,
+                                                                                            proposerIndex),
+                                                                 proposerNodeID(proposerNodeId), hash(hash),
+                                                                 signature(signature), txCount(txCount),
+                                                                 timeStamp(timeStamp), timeStampMs(timeStampMs) {}
 
 BlockProposalHeader::BlockProposalHeader(Schain &_sChain, ptr<BlockProposal> proposal) :
         AbstractBlockRequestHeader(_sChain.getNodeCount(), _sChain.getSchainID(),  proposal->getBlockID(), Header::BLOCK_PROPOSAL_REQ,
@@ -51,6 +61,8 @@ BlockProposalHeader::BlockProposalHeader(Schain &_sChain, ptr<BlockProposal> pro
     this->timeStampMs = proposal->getTimeStampMs();
 
     this->hash = proposal->getHash()->toHex();
+
+    this->signature = proposal->getSignature();
 
 
 
@@ -80,8 +92,33 @@ void BlockProposalHeader::addFields(nlohmann::basic_json<> &jsonRequest) {
 
     jsonRequest["timeStampMs"] = timeStampMs;
 
+    CHECK_STATE(hash != nullptr);
+    CHECK_STATE(signature != nullptr);
+
     jsonRequest["hash"] = *hash;
 
+    jsonRequest["sig"] = *signature;
+
+}
+
+const node_id &BlockProposalHeader::getProposerNodeId() const {
+    return proposerNodeID;
+}
+
+const ptr<string> &BlockProposalHeader::getHash() const {
+    return hash;
+}
+
+uint64_t BlockProposalHeader::getTxCount() const {
+    return txCount;
+}
+
+uint64_t BlockProposalHeader::getTimeStamp() const {
+    return timeStamp;
+}
+
+uint32_t BlockProposalHeader::getTimeStampMs() const {
+    return timeStampMs;
 }
 
 

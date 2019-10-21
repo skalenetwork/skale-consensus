@@ -50,7 +50,14 @@ protected:
                                schain_id _schainId, block_id _blockId,
                                const char* _type, schain_index _proposerIndex);
 
-    virtual ~AbstractBlockRequestHeader(){};
+    virtual ~AbstractBlockRequestHeader(){}
+
+public:
+    const schain_id &getSchainId() const;
+
+    const schain_index &getProposerIndex() const;
+
+    const block_id &getBlockId() const;;
 
 
 };
