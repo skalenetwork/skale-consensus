@@ -209,7 +209,7 @@ BlockProposalServerAgent::processProposalRequest(ptr<ServerConnection> _connecti
         auto timeStamp = Header::getUint64(_proposalRequest, "timeStamp");
         auto timeStampMs = Header::getUint32(_proposalRequest, "timeStampMs");
         auto hash = Header::getString(_proposalRequest, "hash");
-        auto signature = Header::getString(_proposalRequest, "signature");
+        auto signature = Header::getString(_proposalRequest, "sig");
         auto  txCount = Header::getUint64(_proposalRequest, "txCount");
 
 
@@ -219,8 +219,6 @@ BlockProposalServerAgent::processProposalRequest(ptr<ServerConnection> _connecti
                                    make_shared<string>(*hash),
                                    make_shared<string>(*signature), txCount, timeStamp, timeStampMs);
         responseHeader = this->createProposalResponseHeader(_connection, *header);
-
-
 
         send(_connection, responseHeader);
 

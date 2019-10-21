@@ -38,6 +38,7 @@ class CryptoManager;
 
 class BlockProposal : public DataStructure {
 
+    ptr<BlockProposalHeader> header = nullptr;
 
 
 protected:

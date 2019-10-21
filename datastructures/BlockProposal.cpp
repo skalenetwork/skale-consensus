@@ -161,17 +161,26 @@ void BlockProposal::addSignature(ptr<string> _signature) {
 
 ptr<string>  BlockProposal::getSignature() {
     lock_guard<recursive_mutex> lock(mutex);
-
-    CHECK_STATE(signature != nullptr);
     return  signature;
 }
 
 ptr<BlockProposalHeader> BlockProposal::createBlockProposalHeader(Schain* _sChain,
         ptr<BlockProposal> _proposal) {
+
+
     CHECK_ARGUMENT(_sChain != nullptr);
     CHECK_ARGUMENT(_proposal != nullptr);
+
+    lock_guard<recursive_mutex> lock(mutex);
+
+    if (_proposal->header != nullptr)
+        return _proposal->header;
+
     _sChain->getCryptoManager()->signProposalECDSA(_proposal);
-    return make_shared<BlockProposalHeader>(*_sChain, _proposal);
+    _proposal->header = make_shared<BlockProposalHeader>(*_sChain, _proposal);
+
+    return _proposal->header;
+
 }
 
 
