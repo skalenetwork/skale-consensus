@@ -32,6 +32,8 @@ class Transaction;
 class PartialHashesList;
 class TransactionList;
 class SHAHash;
+class BlockProposalHeader;
+class CryptoManager;
 
 
 class BlockProposal : public DataStructure {
@@ -95,5 +97,7 @@ public:
     void addSignature(ptr<string> _signature);
 
     ptr<string>  getSignature();
+
+    static ptr<BlockProposalHeader> createBlockProposalHeader(Schain* _sChain, ptr<BlockProposal> _proposal);
 };
 

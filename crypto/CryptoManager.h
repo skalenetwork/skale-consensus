@@ -65,9 +65,9 @@ public:
 
     bool verifyECDSA(ptr<SHAHash> _hash, ptr<string> _sig);
 
-    ptr<string> signECDSAProposal(ptr<BlockProposal> _proposal);
+    void signProposalECDSA(ptr<BlockProposal> _proposal);
 
-    bool verifyECDSAProposal(ptr<BlockProposal> _proposal);
+    bool verifyProposalECDSA(ptr<BlockProposal> _proposal);
 
 };
 

@@ -34,6 +34,8 @@
 #include "PartialHashesList.h"
 #include "../chains/Schain.h"
 #include "../pendingqueue/PendingTransactionsAgent.h"
+#include "../headers/BlockProposalHeader.h"
+#include "../crypto/CryptoManager.h"
 
 #include "BlockProposal.h"
 
@@ -162,6 +164,14 @@ ptr<string>  BlockProposal::getSignature() {
 
     CHECK_STATE(signature != nullptr);
     return  signature;
+}
+
+ptr<BlockProposalHeader> BlockProposal::createBlockProposalHeader(Schain* _sChain,
+        ptr<BlockProposal> _proposal) {
+    CHECK_ARGUMENT(_sChain != nullptr);
+    CHECK_ARGUMENT(_proposal != nullptr);
+    _sChain->getCryptoManager()->signProposalECDSA(_proposal);
+    return make_shared<BlockProposalHeader>(*_sChain, _proposal);
 }
 
 

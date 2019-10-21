@@ -99,7 +99,7 @@ void BlockProposalClientAgent::sendItemImpl(
     LOG( trace, "Proposal step 0: Starting block proposal" );
 
 
-    ptr< Header > header = make_shared< BlockProposalHeader >( *sChain, _proposal );
+    ptr< Header > header = BlockProposal::createBlockProposalHeader(sChain, _proposal);
 
 
     try {
