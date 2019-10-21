@@ -43,15 +43,11 @@ using namespace std;
 ptr<SHAHash> BlockProposal::getHash() {
     ASSERT(hash);
     return hash;
-
 }
 
 
 void BlockProposal::calculateHash() {
-
-
     CryptoPP::SHA256 sha3;
-
     sha3.Update(reinterpret_cast < uint8_t * > ( &proposerIndex), sizeof(proposerIndex));
     sha3.Update(reinterpret_cast < uint8_t * > ( &proposerNodeID), sizeof(proposerNodeID));
     sha3.Update(reinterpret_cast < uint8_t * > ( &schainID      ), sizeof(schainID));
@@ -65,7 +61,6 @@ void BlockProposal::calculateHash() {
     }
     auto buf = make_shared<array<uint8_t, SHA_HASH_LEN>>();
     sha3.Final(buf->data());
-
     hash = make_shared<SHAHash>(buf);
 };
 
@@ -87,16 +82,16 @@ BlockProposal::BlockProposal(schain_id _sChainId, node_id _proposerNodeId, block
     ASSERT(timeStamp > MODERN_TIME);
     transactionCount = transactionList->getItems()->size();
     calculateHash();
-
 }
 
 
+
 ptr<PartialHashesList> BlockProposal::createPartialHashesList() {
+    //CHECK_STATE(signature != nullptr);
 
 
     auto s = (uint64_t) this->transactionCount * PARTIAL_SHA_HASH_LEN;
     auto t = transactionList->getItems();
-
 
     if (s > MAX_BUFFER_SIZE) {
         InvalidArgumentException("Buffer size too large", __CLASS_NAME__);
@@ -154,6 +149,22 @@ uint64_t BlockProposal::getTimeStamp() const {
 uint32_t BlockProposal::getTimeStampMs() const {
     return timeStampMs;
 }
+
+void BlockProposal::addSignature(ptr<string> _signature) {
+    lock_guard<recursive_mutex> lock(mutex);
+    CHECK_ARGUMENT(_signature != nullptr)
+    CHECK_STATE( signature == nullptr);
+    signature = _signature;
+}
+
+ptr<string>  BlockProposal::getSignature() {
+    lock_guard<recursive_mutex> lock(mutex);
+
+    CHECK_STATE(signature != nullptr);
+    return  signature;
+}
+
+
 
 
 

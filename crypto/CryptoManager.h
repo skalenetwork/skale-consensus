@@ -32,6 +32,7 @@ class SHAHash;
 class ConsensusBLSSigShare;
 class ThresholdSigShareSet;
 class ThresholdSigShare;
+class BlockProposal;
 class CryptoManager {
 
 private:
@@ -63,6 +64,10 @@ public:
 
 
     bool verifyECDSA(ptr<SHAHash> _hash, ptr<string> _sig);
+
+    ptr<string> signECDSAProposal(ptr<BlockProposal> _proposal);
+
+    bool verifyECDSAProposal(ptr<BlockProposal> _proposal);
 
 };
 

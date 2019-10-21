@@ -41,6 +41,7 @@
 #include "MockupSigShareSet.h"
 #include "../node/Node.h"
 #include "../monitoring/LivelinessMonitor.h"
+#include "../datastructures/BlockProposal.h"
 #include "bls/BLSPrivateKeyShare.h"
 
 
@@ -67,14 +68,16 @@ Schain *CryptoManager::getSchain() const {
     return sChain;
 }
 
-ptr<string> CryptoManager::signECDSA(ptr<SHAHash> /*_hash*/) {
-    return make_shared<string>("test_sig");
+ptr<string> CryptoManager::signECDSA(ptr<SHAHash> _hash) {
+    return _hash->toHex();
 }
 
 
-bool CryptoManager::verifyECDSA(ptr<SHAHash> /*_hash */,
-        ptr<string> /*_sig */) {
-    return true;
+bool CryptoManager::verifyECDSA(ptr<SHAHash> _hash,
+        ptr<string> _sig) {
+    CHECK_ARGUMENT(_hash != nullptr)
+    CHECK_ARGUMENT(_sig != nullptr)
+    return *_sig == *(_hash->toHex());
 }
 
 
@@ -126,6 +129,21 @@ CryptoManager::createSigShare(ptr<string> _sigShare, schain_id _schainID, block_
                                            _totalSigners, _requiredSigners);
     }
 }
+
+ptr<string> CryptoManager::signECDSAProposal(ptr<BlockProposal> _proposal) {
+    CHECK_ARGUMENT(_proposal != nullptr);
+    auto signature = signECDSA(_proposal->getHash());
+    CHECK_STATE( signature != nullptr);
+    _proposal->addSignature(signature);
+}
+
+bool CryptoManager::verifyECDSAProposal(ptr<BlockProposal> _proposal) {
+    CHECK_ARGUMENT(_proposal != nullptr);
+    auto signature = _proposal->getSignature();
+    auto hash = _proposal->getHash();
+    return verifyECDSA(hash, signature);
+}
+
 
 
 

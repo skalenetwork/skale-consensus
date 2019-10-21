@@ -33,15 +33,16 @@
 #include "AbstractBlockRequestHeader.h"
 
 
-AbstractBlockRequestHeader::AbstractBlockRequestHeader(Schain &_sChain, block_id _blockId,
+AbstractBlockRequestHeader::AbstractBlockRequestHeader(node_count _nodeCount,
+                                                       schain_id _schainId, block_id _blockId,
                                                        const char* _type, schain_index _proposerIndex) :
         Header(_type), proposerIndex(_proposerIndex), blockID(_blockId) {
 
-    CHECK_ARGUMENT((uint64_t) proposerIndex <= _sChain.getNodeCount());
+    CHECK_ARGUMENT((uint64_t) proposerIndex <= (uint64_t) _nodeCount);
 
     CHECK_ARGUMENT(proposerIndex > 0);
 
-    this->schainID = _sChain.getSchainID();
+    this->schainID = _schainId;
 }
 
 

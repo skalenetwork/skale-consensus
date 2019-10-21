@@ -46,12 +46,11 @@ protected:
 
     void addFields(nlohmann::basic_json<> &jsonRequest) override;
 
-    AbstractBlockRequestHeader(Schain &_sChain, block_id _blockId,
+    AbstractBlockRequestHeader(node_count _nodeCount,
+                               schain_id _schainId, block_id _blockId,
                                const char* _type, schain_index _proposerIndex);
 
     virtual ~AbstractBlockRequestHeader(){};
-
-public:
 
 
 };

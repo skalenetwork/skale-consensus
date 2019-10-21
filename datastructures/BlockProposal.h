@@ -47,7 +47,7 @@ protected:
     transaction_count transactionCount;
     uint64_t  timeStamp = 0;
     uint32_t  timeStampMs = 0;
-
+    ptr<string> signature = nullptr;
 
 protected:
     ptr<TransactionList> transactionList;
@@ -70,7 +70,7 @@ public:
 
     uint32_t getTimeStampMs() const;
 
-
+    void sign(CryptoManager& _manager);
 
     schain_index getProposerIndex() const;
 
@@ -92,6 +92,8 @@ public:
     transaction_count getTransactionCount() const;
 
 
+    void addSignature(ptr<string> _signature);
 
+    ptr<string>  getSignature();
 };
 
