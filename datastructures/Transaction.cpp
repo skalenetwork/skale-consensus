@@ -41,22 +41,18 @@
 
 #include "Transaction.h"
 
+
+
 ptr< SHAHash > Transaction::getHash() {
+
+    lock_guard<recursive_mutex> lock(m);
+
     if ( hash )
         return hash;
 
-    auto digest = make_shared< array< uint8_t, SHA3_HASH_LEN > >();
-
-
-    CryptoPP::SHA3_Final< SHA3_HASH_LEN > hashObject;
-
-    hashObject.Update( data.get()->data(), data->size() );
-    hashObject.Final( digest->data() );
-
-
-    hash = make_shared< SHAHash >( digest );
-
+    hash = SHAHash::calculateHash(data->data(), data->size());
     return hash;
+
 }
 
 

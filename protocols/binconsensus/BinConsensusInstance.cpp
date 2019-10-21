@@ -308,9 +308,7 @@ uint64_t BinConsensusInstance::totalAUXVotes(bin_consensus_round r) {
 }
 
 void BinConsensusInstance::auxSelfVote(bin_consensus_round r, bin_consensus_value v, ptr<ThresholdSigShare> _sigShare) {
-    if (getSchain()->getNode()->isBlsEnabled()) {
-        ASSERT(_sigShare);
-    }
+    ASSERT(_sigShare);
 
     addAUXSelfVoteToHistory(r, v);
 

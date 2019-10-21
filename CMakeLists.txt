@@ -38,6 +38,12 @@ hunter_add_package(leveldb)
 find_package(leveldb CONFIG REQUIRED)
 
 
+#openssl
+hunter_add_package(OpenSSL)
+find_package(OpenSSL REQUIRED)
+
+
+
 #set (CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-Wreturn-type -Winit-self")
 
 if (SKALED_LATEST_STANDARD)
@@ -160,7 +166,7 @@ SET(SRC_FILES
 include_directories(${BLS_INCLUDE_DIRS})
 link_directories(${BLS_WITH_FF_INCLUDE_DIRS})
 
-SET(LINK_LIBRARIES Threads::Threads Boost::log Boost::thread Boost::system Boost::filesystem ${LIB_NAME_cryptopp} ZeroMQ::libzmq-static leveldb::leveldb bls)
+SET(LINK_LIBRARIES Threads::Threads Boost::log Boost::thread Boost::system Boost::filesystem ${LIB_NAME_cryptopp} OpenSSL::Crypto ZeroMQ::libzmq-static leveldb::leveldb bls)
 
 
 # consensus library

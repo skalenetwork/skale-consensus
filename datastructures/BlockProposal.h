@@ -44,9 +44,6 @@ protected:
     node_id proposerNodeID;
     block_id blockID;
     schain_index proposerIndex;
-
-
-
     transaction_count transactionCount;
     uint64_t  timeStamp = 0;
     uint32_t  timeStampMs = 0;
@@ -75,11 +72,9 @@ public:
 
 
 
-    const transaction_count &getTransactionsCount() const;
-
     schain_index getProposerIndex() const;
 
-    const node_id& getProposerNodeID() const;
+    node_id getProposerNodeID() const;
 
     ptr<SHAHash> getHash();
 
@@ -92,9 +87,9 @@ public:
 
     virtual ~BlockProposal();
 
-    const schain_id &getSchainID() const;
+    schain_id getSchainID() const;
 
-    const transaction_count &getTransactionCount() const;
+    transaction_count getTransactionCount() const;
 
 
 

@@ -21,19 +21,18 @@
     @date 2019
 */
 
-#ifndef CONSENSUS_SHA3HASH_H
-#define CONSENSUS_SHA3HASH_H
+#ifndef CONSENSUS_SHAHASH_H
+#define CONSENSUS_SHAHASH_H
 
 
-#include "../SkaleCommon.h"
 
 class SHAHash {
 
-    ptr<array<uint8_t ,SHA3_HASH_LEN>> hash;
+    ptr<array<uint8_t ,SHA_HASH_LEN>> hash;
 
 public:
 
-    explicit SHAHash(ptr<array<uint8_t, SHA3_HASH_LEN>> _hash);
+    explicit SHAHash(ptr<array<uint8_t, SHA_HASH_LEN>> _hash);
 
 
     void print();
@@ -46,12 +45,18 @@ public:
         return hash->data();
     };
 
+    ptr<array<uint8_t ,SHA_HASH_LEN>> getHash() const;
+
 
     static ptr<SHAHash> fromHex(ptr<string> _hex);
 
     static void cArrayFromHex(string& _str, uint8_t* data, size_t len);
 
     ptr< string > toHex();
+
+    static ptr<SHAHash> calculateHash(uint8_t* _data, uint64_t _count);
+
+    static ptr<SHAHash> merkleTreeMerge(ptr<SHAHash> _left, ptr<SHAHash> _right);
 
 };
 

@@ -21,6 +21,15 @@
     @date 2019
 
 */
+
+#include "openssl/bio.h"
+
+#include "openssl/evp.h"
+#include "openssl/pem.h"
+#include "openssl/err.h"
+#include "openssl/ec.h"
+
+
 #include "../SkaleCommon.h"
 #include "../Log.h"
 #include "../thirdparty/json.hpp"
@@ -34,18 +43,44 @@
 #include "../monitoring/LivelinessMonitor.h"
 #include "bls/BLSPrivateKeyShare.h"
 
+
 #include "CryptoManager.h"
+
+
+void CryptoManager::init() {
+
+}
+
+
+CryptoManager::CryptoManager() : sChain(nullptr) {
+    init();
+}
 
 
 CryptoManager::CryptoManager(Schain &_sChain) : sChain(&_sChain) {
     CHECK_ARGUMENT(sChain != nullptr);
+    init();
+
 }
 
 Schain *CryptoManager::getSchain() const {
     return sChain;
 }
 
+ptr<string> CryptoManager::signECDSA(ptr<SHAHash> /*_hash*/) {
+    return make_shared<string>("test_sig");
+}
+
+
+bool CryptoManager::verifyECDSA(ptr<SHAHash> /*_hash */,
+        ptr<string> /*_sig */) {
+    return true;
+}
+
+
 ptr<ThresholdSigShare> CryptoManager::sign(ptr<SHAHash> _hash, block_id _blockId) {
+
+
 
     MONITOR(__CLASS_NAME__, __FUNCTION__)
 
@@ -91,4 +126,8 @@ CryptoManager::createSigShare(ptr<string> _sigShare, schain_id _schainID, block_
                                            _totalSigners, _requiredSigners);
     }
 }
+
+
+
+
 

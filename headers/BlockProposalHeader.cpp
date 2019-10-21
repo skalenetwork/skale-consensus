@@ -46,7 +46,7 @@ BlockProposalHeader::BlockProposalHeader(Schain &_sChain, ptr<BlockProposal> pro
 
 
     this->proposerNodeID = _sChain.getNode()->getNodeID();
-    this->partialHashesCount = (uint64_t) proposal->getTransactionsCount();
+    this->txCount = (uint64_t) proposal->getTransactionCount();
     this->timeStamp = proposal->getTimeStamp();
     this->timeStampMs = proposal->getTimeStampMs();
 
@@ -72,7 +72,7 @@ void BlockProposalHeader::addFields(nlohmann::basic_json<> &jsonRequest) {
 
     jsonRequest["blockID"] = (uint64_t ) blockID;
 
-    jsonRequest["partialHashesCount"] = partialHashesCount;
+    jsonRequest["txCount"] = txCount;
 
     ASSERT(timeStamp > MODERN_TIME);
 

@@ -22,8 +22,19 @@
 */
 
 
+#include "openssl/bio.h"
+
+#include "openssl/evp.h"
+#include "openssl/pem.h"
+#include "openssl/err.h"
+#include "openssl/ec.h"
+
+
+
 #include "../SkaleCommon.h"
 #include "../exceptions/ParsingException.h"
+#include "../crypto/CryptoManager.h"
+
 #include "CommittedBlock.h"
 #include "CommittedBlockList.h"
 
@@ -303,4 +314,26 @@ TEST_CASE("Test committed block fragment/defragment", "[committed-block-defragme
     // test_committed_block_serialize_deserialize( true);
 
     // Test successful serialize/deserialize failure
+}
+
+
+class CryptoFixture {
+public:
+    CryptoFixture() {
+    };
+
+    ~CryptoFixture(){
+    }
+};
+
+
+
+
+
+TEST_CASE_METHOD(CryptoFixture, "Import pem ecdsa key", "[import-ecdsa-key]") {
+
+    //openssl ecparam -name secp256k1 -genkey -noout
+
+    CryptoManager manager;
+
 }

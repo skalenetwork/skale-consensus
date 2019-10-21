@@ -26,13 +26,10 @@
 #include "../Log.h"
 
 
-
 #include "PriceDB.h"
 
 
-
-
-PriceDB::PriceDB(string& filename, node_id _nodeId ) : LevelDB( filename, _nodeId ) {}
+PriceDB::PriceDB(string &filename, node_id _nodeId) : LevelDB(filename, _nodeId) {}
 
 
 const string PriceDB::getFormatVersion() {
@@ -40,13 +37,13 @@ const string PriceDB::getFormatVersion() {
 }
 
 
-ptr< string > PriceDB::createKey( block_id _blockId ) {
-    return make_shared<string>(getFormatVersion() + ":" + to_string( _blockId ));
+ptr<string> PriceDB::createKey(block_id _blockId) {
+    return make_shared<string>(getFormatVersion() + ":" + to_string(_blockId));
 }
 
 u256 PriceDB::readPrice(block_id _blockID) {
 
-    auto  key =  createKey(_blockID);
+    auto key = createKey(_blockID);
 
     auto price = readString(*key);
 
@@ -64,6 +61,6 @@ void PriceDB::savePrice(u256 _price, block_id _blockID) {
 
     auto value = _price.str();
 
-    writeString(*key, value );
+    writeString(*key, value);
 }
 

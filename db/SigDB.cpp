@@ -32,9 +32,7 @@
 #include "SigDB.h"
 
 
-
-
-SigDB::SigDB(string& filename, node_id _nodeId ) : LevelDB( filename, _nodeId ) {}
+SigDB::SigDB(string &filename, node_id _nodeId) : LevelDB(filename, _nodeId) {}
 
 
 const string SigDB::getFormatVersion() {
@@ -42,15 +40,15 @@ const string SigDB::getFormatVersion() {
 }
 
 
-ptr<string>  SigDB::createKey(const block_id _blockId) {
-    return make_shared<string>(getFormatVersion() + ":" + to_string( nodeId ) + ":"
-                                + to_string( _blockId ));
+ptr<string> SigDB::createKey(const block_id _blockId) {
+    return make_shared<string>(getFormatVersion() + ":" + to_string(nodeId) + ":"
+                               + to_string(_blockId));
 }
 
 void SigDB::addSignature(block_id _blockId, ptr<ThresholdSignature> _sig) {
-    auto key = createKey( _blockId );
-    if (readString( *key ) == nullptr )
-        writeString( *key, *_sig->toString() );
+    auto key = createKey(_blockId);
+    if (readString(*key) == nullptr)
+        writeString(*key, *_sig->toString());
 }
 
 

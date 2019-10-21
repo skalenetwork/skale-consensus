@@ -28,41 +28,64 @@
 class Sockets;
 
 class TransportNetwork;
+
 class ZMQNetwork;
+
 class BlockProposalServerAgent;
+
 class CatchupServerAgent;
+
 class NetworkMessageEnvelope;
+
 class NodeInfo;
+
 class Schain;
+
 class NodeInfo;
+
 class Agent;
+
 class ConsensusExtFace;
+
 class ConsensusEngine;
+
 class ConsensusBLSSigShare;
+
 class SHAHash;
+
 class BLSPublicKey;
+
 class BLSPrivateKeyShare;
+
 class LevelDB;
+
 class BlockDB;
+
 class SigDB;
+
 class CommittedTransactionDB;
+
 class RandomDB;
+
 class PriceDB;
+
 class TestConfig;
 
 
 namespace leveldb {
-class DB;
+    class DB;
 }
 
 
-enum PricingStrategyEnum { ZERO, DOS_PROTECT };
+enum PricingStrategyEnum {
+    ZERO, DOS_PROTECT
+};
 
 
 class Node {
-    ConsensusEngine* consensusEngine;
+    ConsensusEngine *consensusEngine;
 
-    vector< Agent* > agents;
+    vector<Agent *> agents;
 
     node_id nodeID;
 
@@ -84,10 +107,10 @@ class Node {
 
     volatile bool exitRequested;
 
-    ptr< Log > log = nullptr;
-    ptr< string > name = nullptr;
+    ptr<Log> log = nullptr;
+    ptr<string> name = nullptr;
 
-    ptr< string > bindIP = nullptr;
+    ptr<string> bindIP = nullptr;
 
 
     nlohmann::json cfg;
@@ -98,26 +121,26 @@ class Node {
 
     PricingStrategyEnum DOS_PROTECT;
 
-    ptr< Sockets > sockets = nullptr;
+    ptr<Sockets> sockets = nullptr;
 
-    ptr< TransportNetwork > network = nullptr;
+    ptr<TransportNetwork> network = nullptr;
 
-    ptr< Schain > sChain = nullptr;
+    ptr<Schain> sChain = nullptr;
 
-    ptr< TestConfig > testConfig = nullptr;
+    ptr<TestConfig> testConfig = nullptr;
 
 public:
-    const ptr< TestConfig >& getTestConfig() const;
+    const ptr<TestConfig> &getTestConfig() const;
 
 private:
     class Comparator {
     public:
-        bool operator()( const ptr< string >& a, const ptr< string >& b ) const { return *a < *b; }
+        bool operator()(const ptr<string> &a, const ptr<string> &b) const { return *a < *b; }
     };
 
 
-    ptr< map< schain_index, ptr< NodeInfo > > > nodeInfosByIndex;
-    ptr< map< ptr< string >, ptr< NodeInfo >, Comparator > > nodeInfosByIP;
+    ptr<map<schain_index, ptr<NodeInfo> > > nodeInfosByIndex;
+    ptr<map<ptr<string>, ptr<NodeInfo>, Comparator> > nodeInfosByIP;
 
 
     void releaseGlobalServerBarrier();
@@ -128,15 +151,15 @@ private:
     void closeAllSocketsAndNotifyAllAgentsAndThreads();
 
 
-    ptr< BlockDB > blockDB = nullptr;
+    ptr<BlockDB> blockDB = nullptr;
 
-    ptr< RandomDB > randomDB = nullptr;
+    ptr<RandomDB> randomDB = nullptr;
 
-    ptr< CommittedTransactionDB > committedTransactionDB = nullptr;
+    ptr<CommittedTransactionDB> committedTransactionDB = nullptr;
 
-    ptr< SigDB > signatureDB = nullptr;
+    ptr<SigDB> signatureDB = nullptr;
 
-    ptr< PriceDB > priceDB = nullptr;
+    ptr<PriceDB> priceDB = nullptr;
 
 
     uint64_t catchupIntervalMS;
@@ -161,10 +184,10 @@ private:
     uint64_t committedBlockStorageSize;
 
 
-    ptr< BLSPublicKey > blsPublicKey;
+    ptr<BLSPublicKey> blsPublicKey;
 
 
-    ptr< BLSPrivateKeyShare > blsPrivateKey;
+    ptr<BLSPrivateKeyShare> blsPrivateKey;
 
 
     bool isBLSEnabled = false;
@@ -175,22 +198,22 @@ public:
 
     uint64_t getSimulateNetworkWriteDelayMs() const;
 
-    ptr< BLSPublicKey > getBlsPublicKey() const;
+    ptr<BLSPublicKey> getBlsPublicKey() const;
 
-    ptr< BLSPrivateKeyShare > getBlsPrivateKey() const;
-
-
-    ptr< BlockDB > getBlockDB();
-
-    ptr< RandomDB > getRandomDB();
+    ptr<BLSPrivateKeyShare> getBlsPrivateKey() const;
 
 
-    ptr< CommittedTransactionDB > getCommittedTransactionDB() const;
+    ptr<BlockDB> getBlockDB();
+
+    ptr<RandomDB> getRandomDB();
 
 
-    ptr< SigDB > getSignatureDB() const;
+    ptr<CommittedTransactionDB> getCommittedTransactionDB() const;
 
-    ptr< PriceDB > getPriceDB() const;
+
+    ptr<SigDB> getSignatureDB() const;
+
+    ptr<PriceDB> getPriceDB() const;
 
 
     void initLevelDBs();
@@ -200,10 +223,10 @@ public:
 
     bool isStarted() const;
 
-    static set< node_id > nodeIDs;
+    static set<node_id> nodeIDs;
 
 
-    Node( const nlohmann::json& _cfg, ConsensusEngine* _consensusEngine );
+    Node(const nlohmann::json &_cfg, ConsensusEngine *_consensusEngine);
 
     ~Node();
 
@@ -212,49 +235,49 @@ public:
 
     void exit();
 
-    void exitOnFatalError( const string& message );
+    void exitOnFatalError(const string &message);
 
-    void initSchain( ptr< NodeInfo > _localNodeInfo,
-        const vector< ptr< NodeInfo > >& remoteNodeInfos, ConsensusExtFace* _extFace );
+    void initSchain(ptr<NodeInfo> _localNodeInfo,
+                    const vector<ptr<NodeInfo> > &remoteNodeInfos, ConsensusExtFace *_extFace);
 
-    void waitOnGlobalServerStartBarrier( Agent* agent );
+    void waitOnGlobalServerStartBarrier(Agent *agent);
 
     void waitOnGlobalClientStartBarrier();
 
-    ptr< Log > getLog() const;
+    ptr<Log> getLog() const;
 
 
     nlohmann::json getCfg() const;
 
-    ptr< map< schain_index, ptr< NodeInfo > > > getNodeInfosByIndex() const;
+    ptr<map<schain_index, ptr<NodeInfo> > > getNodeInfosByIndex() const;
 
     node_id getNodeID() const;
 
 
-    Sockets* getSockets() const;
+    Sockets *getSockets() const;
 
 
-    Schain* getSchain() const;
+    Schain *getSchain() const;
 
-    void registerAgent( Agent* _agent );
+    void registerAgent(Agent *_agent);
 
     bool isExitRequested();
 
     void exitCheck();
 
 
-    ptr< NodeInfo > getNodeInfoByIndex( schain_index _index );
+    ptr<NodeInfo> getNodeInfoByIndex(schain_index _index);
 
 
-    ptr< NodeInfo > getNodeInfoByIP( ptr< string > ip );
+    ptr<NodeInfo> getNodeInfoByIP(ptr<string> ip);
 
-    ptr< TransportNetwork > getNetwork() const;
+    ptr<TransportNetwork> getNetwork() const;
 
-    ptr< string > getBindIP() const;
+    ptr<string> getBindIP() const;
 
     network_port getBasePort() const;
 
-    void setBasePort( const network_port& _basePort );
+    void setBasePort(const network_port &_basePort);
 
     uint64_t getCommittedTransactionHistoryLimit() const;
 
@@ -266,7 +289,7 @@ public:
     uint64_t getMonitoringIntervalMs();
 
 
-    ConsensusEngine* getConsensusEngine() const;
+    ConsensusEngine *getConsensusEngine() const;
 
     uint64_t getEmptyBlockIntervalMs() const;
 
@@ -287,11 +310,11 @@ public:
     uint64_t getWaitAfterNetworkErrorMs();
 
 
-    uint64_t getParamUint64( const string& _paramName, uint64_t paramDefault );
+    uint64_t getParamUint64(const string &_paramName, uint64_t paramDefault);
 
-    int64_t getParamInt64( const string& _paramName, uint64_t _paramDefault );
+    int64_t getParamInt64(const string &_paramName, uint64_t _paramDefault);
 
-    ptr< string > getParamString( const string& _paramName, string& _paramDefault );
+    ptr<string> getParamString(const string &_paramName, string &_paramDefault);
 
 
     void initParamsFromConfig();
@@ -300,5 +323,5 @@ public:
 
     void initBLSKeys();
 
-    void setEmptyBlockIntervalMs( uint64_t _interval ) { this->emptyBlockIntervalMs = _interval; }
+    void setEmptyBlockIntervalMs(uint64_t _interval) { this->emptyBlockIntervalMs = _interval; }
 };

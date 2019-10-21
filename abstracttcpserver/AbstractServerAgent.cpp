@@ -186,7 +186,7 @@ void AbstractServerAgent::createNetworkReadThread() {
 ptr<PartialHashesList> AbstractServerAgent::readPartialHashes(ptr<ServerConnection> _connectionEnvelope_,
                                                               nlohmann::json _jsonRequest) {
 
-    auto messageCount = transaction_count(Header::getUint64(_jsonRequest, "partialHashesCount"));
+    auto messageCount = transaction_count(Header::getUint64(_jsonRequest, "txCount"));
 
     if (messageCount > (uint64_t) getNode()->getMaxTransactionsPerBlock()) {
         BOOST_THROW_EXCEPTION(NetworkProtocolException("Too many transactions", __CLASS_NAME__));

@@ -53,20 +53,19 @@ void BlockProposal::calculateHash() {
     CryptoPP::SHA256 sha3;
 
     sha3.Update(reinterpret_cast < uint8_t * > ( &proposerIndex), sizeof(proposerIndex));
+    sha3.Update(reinterpret_cast < uint8_t * > ( &proposerNodeID), sizeof(proposerNodeID));
     sha3.Update(reinterpret_cast < uint8_t * > ( &schainID      ), sizeof(schainID));
     sha3.Update(reinterpret_cast < uint8_t * > ( &blockID       ), sizeof(blockID));
     sha3.Update(reinterpret_cast < uint8_t * > ( &transactionCount ), sizeof(transactionCount));
     sha3.Update(reinterpret_cast < uint8_t * > ( &timeStamp ), sizeof(timeStamp));
-
-
-    for (uint64_t i = 0; i < transactionCount; i++) {
-        auto t = transactionList->getItems();
-        ASSERT(t->at(i));
-        sha3.Update(t->at(i)->getHash()->data(), SHA3_HASH_LEN);
+    sha3.Update(reinterpret_cast < uint8_t * > ( &timeStampMs ), sizeof(timeStampMs));
+    if (transactionList->size() > 0) {
+        auto merkleRoot = transactionList->calculateTopMerkleRoot();
+        sha3.Update(merkleRoot->getHash()->data(), SHA_HASH_LEN);
     }
-
-    auto buf = make_shared<array<uint8_t, SHA3_HASH_LEN>>();
+    auto buf = make_shared<array<uint8_t, SHA_HASH_LEN>>();
     sha3.Final(buf->data());
+
     hash = make_shared<SHAHash>(buf);
 };
 
@@ -124,16 +123,13 @@ block_id BlockProposal::getBlockID() const {
     return blockID;
 }
 
-const transaction_count &BlockProposal::getTransactionsCount() const {
-    return transactionCount;
-}
 
 schain_index BlockProposal::getProposerIndex() const {
     return proposerIndex;
 }
 
 
-const node_id& BlockProposal::getProposerNodeID() const {
+node_id BlockProposal::getProposerNodeID() const {
     return proposerNodeID;
 }
 
@@ -142,11 +138,11 @@ ptr<TransactionList> BlockProposal::getTransactionList() {
     return transactionList;
 }
 
-const schain_id &BlockProposal::getSchainID() const {
+schain_id BlockProposal::getSchainID() const {
     return schainID;
 }
 
-const transaction_count &BlockProposal::getTransactionCount() const {
+transaction_count BlockProposal::getTransactionCount() const {
     return transactionCount;
 }
 
