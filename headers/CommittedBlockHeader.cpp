@@ -87,6 +87,8 @@ void CommittedBlockHeader::addFields(nlohmann::basic_json<> &j) {
 
     j["hash"] = *blockHash;
 
+    j["sig"] = *signature;
+
     j["sizes"] = *transactionSizes;
 
     j["timeStamp"] = timeStamp;

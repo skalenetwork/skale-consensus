@@ -62,6 +62,9 @@ BlockDB::BlockDB(string &_filename, node_id _nodeId, uint64_t _storageSize) : Le
 
 void BlockDB::saveBlock2LevelDB(ptr<CommittedBlock> &_block) {
 
+
+    CHECK_ARGUMENT(_block->getSignature() != nullptr);
+
     lock_guard<recursive_mutex> lock(mutex);
 
     try {
@@ -114,6 +117,10 @@ uint64_t BlockDB::readCounter() {
 
 
 void BlockDB::saveBlock(ptr<CommittedBlock> &_block, block_id _lastCommittedBlockID) {
+
+
+    CHECK_ARGUMENT(_block->getSignature() != nullptr);
+
     try {
         lock_guard<recursive_mutex> lock(mutex);
 
@@ -128,6 +135,8 @@ void BlockDB::saveBlock(ptr<CommittedBlock> &_block, block_id _lastCommittedBloc
 
 void BlockDB::saveBlockToBlockCache(ptr<CommittedBlock> &_block, block_id _lastCommittedBlockID) {
     CHECK_ARGUMENT(_block != nullptr);
+
+    CHECK_ARGUMENT(_block->getSignature() != nullptr);
 
     lock_guard<recursive_mutex> lock(mutex);
 

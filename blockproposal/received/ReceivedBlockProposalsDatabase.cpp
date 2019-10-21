@@ -57,6 +57,8 @@ bool ReceivedBlockProposalsDatabase::addBlockProposal(ptr<BlockProposal> _propos
 
 
     ASSERT(_proposal);
+    CHECK_ARGUMENT(_proposal->getSignature() != nullptr);
+
 
     LOG(trace, "addBlockProposal blockID_=" + to_string(_proposal->getBlockID()) + " proposerIndex=" +
                to_string(_proposal->getProposerIndex()));
@@ -131,7 +133,11 @@ ptr<BlockProposal> ReceivedBlockProposalsDatabase::getBlockProposal(block_id blo
         return nullptr;
     }
 
-    return set->getProposalByIndex(proposerIndex);
+    auto proposal = set->getProposalByIndex(proposerIndex);
+
+    CHECK_STATE(proposal->getSignature() != nullptr);
+
+    return proposal;
 }
 
 

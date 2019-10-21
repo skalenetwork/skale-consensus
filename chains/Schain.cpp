@@ -369,12 +369,13 @@ void Schain::proposeNextBlock(uint64_t _previousBlockTimeStamp, uint32_t _previo
 
     block_id _proposedBlockID((uint64_t) lastCommittedBlockID + 1);
 
-    ASSERT(pushedBlockProposals.count(_proposedBlockID) == 0);
+    CHECK_STATE(pushedBlockProposals.count(_proposedBlockID) == 0);
 
     auto myProposal = pendingTransactionsAgent->buildBlockProposal(_proposedBlockID, _previousBlockTimeStamp,
                                                                    _previousBlockTimeStampMs);
 
-    ASSERT(myProposal->getProposerIndex() == getSchainIndex());
+    CHECK_STATE(myProposal->getProposerIndex() == getSchainIndex());
+    CHECK_STATE(myProposal->getSignature() != nullptr);
 
     if (blockProposalsDatabase->addBlockProposal(myProposal)) {
         startConsensus(_proposedBlockID);
@@ -389,6 +390,10 @@ void Schain::proposeNextBlock(uint64_t _previousBlockTimeStamp, uint32_t _previo
 }
 
 void Schain::processCommittedBlock(ptr<CommittedBlock> _block) {
+
+    CHECK_STATE(_block->getSignature() != nullptr);
+
+
 
     MONITOR2(__CLASS_NAME__, __FUNCTION__, getMaxExternalBlockProcessingTime())
 
@@ -517,6 +522,8 @@ void Schain::startConsensus(const block_id _blockID) {
 
 void Schain::proposedBlockArrived(ptr<BlockProposal> pbm) {
 
+    CHECK_STATE(pbm->getSignature() != nullptr);
+
     MONITOR(__CLASS_NAME__, __FUNCTION__)
 
     std::lock_guard<std::recursive_mutex> aLock(getMainMutex());
@@ -633,7 +640,7 @@ void Schain::decideBlock(block_id _blockId, schain_index _proposerIndex) {
 
         // empty block
         auto emptyList = make_shared<TransactionList>(make_shared<vector<ptr<Transaction >>>());
-        auto zeroProposal = make_shared<ReceivedBlockProposal>(*this, _blockId, 0, emptyList, sec, ms);
+        auto zeroProposal = make_shared<ReceivedBlockProposal>(*this, _blockId, emptyList, sec, ms);
 
 
         //TODO: FIX TIME FOR EMPTY PROPOSAL!!!

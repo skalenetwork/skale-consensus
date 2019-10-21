@@ -32,6 +32,7 @@
 
 #include "../utils/Time.h"
 #include "../crypto/SHAHash.h"
+#include "../crypto/CryptoManager.h"
 #include "../datastructures/BlockProposal.h"
 #include "../datastructures/MyBlockProposal.h"
 #include "../node/Node.h"

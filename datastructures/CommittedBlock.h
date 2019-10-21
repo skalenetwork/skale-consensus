@@ -49,7 +49,8 @@ public:
     CommittedBlock(ptr< BlockProposal > _p );
     CommittedBlock( const schain_id& sChainId, const node_id& proposerNodeId,
         const block_id& blockId, const schain_index& proposerIndex,
-        const ptr< TransactionList >& transactions, uint64_t timeStamp, __uint32_t timeStampMs );
+        const ptr< TransactionList >& transactions, uint64_t timeStamp, __uint32_t timeStampMs,
+        ptr<string> _signature);
 
     ptr<BlockProposalFragment> getFragment(uint64_t _totalFragments, fragment_index _index);
 

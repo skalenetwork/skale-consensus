@@ -50,7 +50,10 @@
 CommittedBlock::CommittedBlock(ptr< BlockProposal > _p )
     : BlockProposal(_p->getSchainID(), _p->getProposerNodeID(),
           _p->getBlockID(), _p->getProposerIndex(), _p->getTransactionList(), _p->getTimeStamp(),
-          _p->getTimeStampMs() ) {}
+          _p->getTimeStampMs() ) {
+    this->signature = _p->getSignature();
+    CHECK_STATE(signature != nullptr);
+}
 
 
 ptr< vector< uint8_t > > CommittedBlock::getSerialized() {
@@ -198,9 +201,14 @@ CommittedBlock::CommittedBlock( uint64_t timeStamp, uint32_t timeStampMs )
 
 CommittedBlock::CommittedBlock( const schain_id& sChainId, const node_id& proposerNodeId,
     const block_id& blockId, const schain_index& proposerIndex,
-    const ptr< TransactionList >& transactions, uint64_t timeStamp, __uint32_t timeStampMs )
+    const ptr< TransactionList >& transactions, uint64_t timeStamp, __uint32_t timeStampMs,
+    ptr<string> _signature)
     : BlockProposal( sChainId, proposerNodeId, blockId, proposerIndex, transactions, timeStamp,
-          timeStampMs ) {}
+          timeStampMs ) {
+    CHECK_ARGUMENT(_signature != nullptr);
+    this->signature = _signature;
+
+}
 
 
 ptr< CommittedBlock > CommittedBlock::createRandomSample( uint64_t _size,
@@ -210,7 +218,7 @@ ptr< CommittedBlock > CommittedBlock::createRandomSample( uint64_t _size,
 
     static uint64_t MODERN_TIME = 1547640182;
 
-    return make_shared< CommittedBlock >( 1, 1, _blockID, 1, list, MODERN_TIME + 1, 1 );
+    return make_shared< CommittedBlock >( 1, 1, _blockID, 1, list, MODERN_TIME + 1, 1, nullptr );
 }
 
 ptr<BlockProposalFragment> CommittedBlock::getFragment(uint64_t _totalFragments, fragment_index _index) {
