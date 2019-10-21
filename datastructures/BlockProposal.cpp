@@ -176,7 +176,6 @@ ptr<BlockProposalHeader> BlockProposal::createBlockProposalHeader(Schain* _sChai
     if (_proposal->header != nullptr)
         return _proposal->header;
 
-    _sChain->getCryptoManager()->signProposalECDSA(_proposal);
     _proposal->header = make_shared<BlockProposalHeader>(*_sChain, _proposal);
 
     return _proposal->header;

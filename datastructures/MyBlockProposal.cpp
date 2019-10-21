@@ -21,7 +21,9 @@
     @date 2018
 */
 
+
 #include "../SkaleCommon.h"
+#include "../crypto/CryptoManager.h"
 #include "../chains/Schain.h"
 #include "Transaction.h"
 #include "MyBlockProposal.h"
@@ -29,6 +31,7 @@
 MyBlockProposal::MyBlockProposal(Schain &_sChain, const block_id &_blockID, const schain_index &_proposerIndex,
                                  const ptr<TransactionList>_transactions, uint64_t _timeStamp, uint32_t _timeStampMs)
         : BlockProposal(_sChain.getSchainID(), _sChain.getNodeIDByIndex(_proposerIndex), _blockID, _proposerIndex, _transactions, _timeStamp, _timeStampMs) {
+    _sChain.getCryptoManager()->signProposalECDSA(this);
     totalObjects++;
 };
 

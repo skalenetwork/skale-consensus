@@ -319,7 +319,7 @@ BlockProposalServerAgent::processProposalRequest(ptr<ServerConnection> _connecti
     auto proposal = make_shared<ReceivedBlockProposal>(*sChain, requestHeader->getBlockId(),
                                                        requestHeader->getProposerIndex(), transactionList, requestHeader->getTimeStamp(),
                                                        requestHeader->getTimeStampMs());
-    getSchain()->getCryptoManager()->verifyProposalECDSA(proposal, requestHeader->getHash(), requestHeader->getSignature());
+    getSchain()->getCryptoManager()->verifyProposalECDSA(proposal.get(), requestHeader->getHash(), requestHeader->getSignature());
 
     sChain->proposedBlockArrived(proposal);
 }

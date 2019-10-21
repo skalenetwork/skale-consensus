@@ -131,14 +131,14 @@ CryptoManager::createSigShare(ptr<string> _sigShare, schain_id _schainID, block_
     }
 }
 
-void CryptoManager::signProposalECDSA(ptr<BlockProposal> _proposal) {
+void CryptoManager::signProposalECDSA(BlockProposal* _proposal) {
     CHECK_ARGUMENT(_proposal != nullptr);
     auto signature = signECDSA(_proposal->getHash());
     CHECK_STATE( signature != nullptr);
     _proposal->addSignature(signature);
 }
 
-void CryptoManager::verifyProposalECDSA(ptr<BlockProposal> _proposal, ptr<string> _hashStr, ptr<string> _signature) {
+void CryptoManager::verifyProposalECDSA(BlockProposal* _proposal, ptr<string> _hashStr, ptr<string> _signature) {
     CHECK_ARGUMENT(_proposal != nullptr);
     CHECK_ARGUMENT(_hashStr != nullptr)
     CHECK_ARGUMENT(_signature != nullptr)
