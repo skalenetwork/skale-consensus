@@ -305,7 +305,8 @@ ptr<CommittedBlock> BlockFinalizeDownloader::downloadProposal() {
     try {
 
         if (fragmentList.isComplete()) {
-            return CommittedBlock::deserialize(fragmentList.serialize());
+            auto block = CommittedBlock::deserialize(fragmentList.serialize(), getSchain()->getCryptoManager());
+            return block;
         } else {
             return nullptr;
         }

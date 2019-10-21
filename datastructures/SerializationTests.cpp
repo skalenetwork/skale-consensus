@@ -107,12 +107,12 @@ void test_committed_block_fragment_defragment(bool _fail) {
 
 
         if (_fail) {
-            REQUIRE_THROWS(CommittedBlock::defragment(list));
+            REQUIRE_THROWS(CommittedBlock::defragment(list, ptr<CryptoManager>()));
         } else {
             ptr<CommittedBlock> imp = nullptr;
 
             try {
-                imp = CommittedBlock::defragment(list);
+                imp = CommittedBlock::defragment(list, ptr<CryptoManager>());
             } catch (Exception &e) {
                 Exception::logNested(e, err);
                 throw (e);
@@ -192,6 +192,8 @@ void test_tx_list_serialize_deserialize(bool _fail) {
 void test_committed_block_serialize_deserialize(bool _fail) {
     boost::random::mt19937 gen;
 
+    auto cryptoManager = make_shared<CryptoManager>();
+
     boost::random::uniform_int_distribution<> ubyte(0, 255);
 
     for (int k = 0; k < 100; k++) {
@@ -208,12 +210,12 @@ void test_committed_block_serialize_deserialize(bool _fail) {
             REQUIRE(out != nullptr);
 
             if (_fail) {
-                REQUIRE_THROWS(CommittedBlock::deserialize(out));
+                REQUIRE_THROWS(CommittedBlock::deserialize(out, cryptoManager));
             } else {
                 ptr<CommittedBlock> imp = nullptr;
 
                 try {
-                    imp = CommittedBlock::deserialize(out);
+                    imp = CommittedBlock::deserialize(out, cryptoManager);
                 } catch (ParsingException &e) {
                     Exception::logNested(e, err);
                     throw (e);
@@ -226,6 +228,8 @@ void test_committed_block_serialize_deserialize(bool _fail) {
 
 void test_committed_block_list_serialize_deserialize() {
     boost::random::mt19937 gen;
+
+    auto cryptoManager = make_shared<CryptoManager>();
 
     boost::random::uniform_int_distribution<> ubyte(0, 255);
 
@@ -242,7 +246,7 @@ void test_committed_block_list_serialize_deserialize() {
             ptr<CommittedBlockList> imp = nullptr;
 
             try {
-                imp = CommittedBlockList::deserialize(t->createSizes(), out, 0);
+                imp = CommittedBlockList::deserialize(cryptoManager, t->createSizes(), out, 0);
             } catch (ParsingException &e) {
                 Exception::logNested(e, err);
                 throw (e);

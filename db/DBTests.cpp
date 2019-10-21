@@ -25,7 +25,7 @@
 
 #include "../SkaleCommon.h"
 #include "../exceptions/ParsingException.h"
-
+#include "../crypto/CryptoManager.h"
 #include "../datastructures/CommittedBlock.h"
 
 #define BOOST_PENDING_INTEGER_LOG2_HPP
@@ -43,6 +43,7 @@
 void test_committed_block_save() {
     static string fileName = "/tmp/test_committed_block_save";
     boost::random::mt19937 gen;
+    auto cryptoManager = make_shared<CryptoManager>();
 
     boost::random::uniform_int_distribution<> ubyte(0, 255);
 
@@ -58,7 +59,7 @@ void test_committed_block_save() {
 
         db->saveBlock(t, 200);
 
-        auto bb = db->getBlock(t->getBlockID());
+        auto bb = db->getBlock(t->getBlockID(), cryptoManager);
 
         REQUIRE(bb != nullptr);
     }

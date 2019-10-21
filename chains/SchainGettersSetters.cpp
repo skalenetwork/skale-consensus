@@ -142,7 +142,7 @@ ptr<CommittedBlock> Schain::getBlock(block_id _blockID) {
     std::lock_guard<std::recursive_mutex> aLock(getMainMutex());
 
     try {
-        return getNode()->getBlockDB()->getBlock(_blockID);
+        return getNode()->getBlockDB()->getBlock(_blockID, cryptoManager);
     } catch (ExitRequestedException &) { throw; } catch (...) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }

@@ -24,6 +24,7 @@
 
 #include "../SkaleCommon.h"
 #include "../Log.h"
+#include "../chains/Schain.h"
 #include "../exceptions/InvalidStateException.h"
 #include "../datastructures/CommittedBlock.h"
 
@@ -53,6 +54,7 @@ ptr<vector<uint8_t> > BlockDB::getSerializedBlockFromLevelDB(block_id _blockID) 
 }
 
 BlockDB::BlockDB(string &_filename, node_id _nodeId, uint64_t _storageSize) : LevelDB(_filename, _nodeId) {
+
     CHECK_ARGUMENT(_storageSize != 0);
     storageSize = _storageSize;
 }
@@ -161,7 +163,7 @@ ptr<CommittedBlock> BlockDB::getCachedBlock(block_id _blockID) {
     }
 }
 
-ptr<CommittedBlock> BlockDB::getBlock(block_id _blockID) {
+ptr<CommittedBlock> BlockDB::getBlock(block_id _blockID, ptr<CryptoManager> _cryptoManager) {
 
 
     std::lock_guard<std::recursive_mutex> lock(mutex);
@@ -178,7 +180,7 @@ ptr<CommittedBlock> BlockDB::getBlock(block_id _blockID) {
             return nullptr;
         }
 
-        return CommittedBlock::deserialize(serializedBlock);
+        return CommittedBlock::deserialize(serializedBlock, _cryptoManager);
     }
 
     catch (...) {

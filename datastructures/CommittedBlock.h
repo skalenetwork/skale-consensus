@@ -33,6 +33,7 @@
 #include "BlockProposal.h"
 
 class Schain;
+class CommittedBlockHeader;
 
 class BlockProposalFragment;
 
@@ -42,7 +43,7 @@ class CommittedBlock : public BlockProposal {
 
     CommittedBlock( uint64_t timeStamp, uint32_t timeStampMs );
 
-    ptr< vector< uint64_t > > parseBlockHeader( const shared_ptr< string >& header );
+    ptr<CommittedBlockHeader> parseBlockHeader(const shared_ptr< string >& header );
 
 public:
     CommittedBlock(ptr< BlockProposal > _p );
@@ -52,11 +53,12 @@ public:
 
     ptr<BlockProposalFragment> getFragment(uint64_t _totalFragments, fragment_index _index);
 
+    static ptr<CommittedBlock> deserialize(ptr<vector<uint8_t> > _serializedBlock,
+            ptr<CryptoManager> _manager);
 
 
-    static ptr< CommittedBlock > deserialize( ptr< vector< uint8_t > > _serializedBlock );
-
-    static ptr< CommittedBlock > defragment( ptr<BlockProposalFragmentList> _fragmentList );
+    static ptr<CommittedBlock>
+    defragment(ptr<BlockProposalFragmentList> _fragmentList, ptr<CryptoManager> _cryptoManager);
 
     ptr< vector< uint8_t > > getSerialized();
 

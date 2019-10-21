@@ -26,9 +26,9 @@
 #include "../SkaleCommon.h"
 #include "../crypto/SHAHash.h"
 #include "../exceptions/NetworkProtocolException.h"
-#include "CommittedBlock.h"
 #include "../exceptions/InvalidStateException.h"
-
+#include "../crypto/CryptoManager.h"
+#include "CommittedBlock.h"
 #include "CommittedBlockList.h"
 
 
@@ -40,7 +40,7 @@ CommittedBlockList::CommittedBlockList(ptr<vector<ptr<CommittedBlock> > > _block
 }
 
 
-CommittedBlockList::CommittedBlockList(ptr<vector<uint64_t> > _blockSizes, ptr<vector<uint8_t> > _serializedBlocks,
+CommittedBlockList::CommittedBlockList(ptr<CryptoManager> _cryptoManager, ptr<vector<uint64_t> > _blockSizes, ptr<vector<uint8_t> > _serializedBlocks,
                                        uint64_t _offset) {
     CHECK_ARGUMENT(_serializedBlocks->at(_offset) == '[');
     CHECK_ARGUMENT(_serializedBlocks->at(_serializedBlocks->size() - 1) == ']');
@@ -62,7 +62,7 @@ CommittedBlockList::CommittedBlockList(ptr<vector<uint64_t> > _blockSizes, ptr<v
                                                            _serializedBlocks->begin() + endIndex);
 
             CommittedBlock::serializedSanityCheck(blockData);
-            auto block = CommittedBlock::deserialize(blockData);
+            auto block = CommittedBlock::deserialize(blockData, _cryptoManager);
 
             blocks->push_back(block);
 
@@ -110,9 +110,9 @@ ptr<CommittedBlockList> CommittedBlockList::createRandomSample(uint64_t _size, b
 }
 
 ptr<CommittedBlockList>
-CommittedBlockList::deserialize(ptr<vector<uint64_t> > _blockSizes, ptr<vector<uint8_t> > _serializedBlocks,
+CommittedBlockList::deserialize(ptr<CryptoManager> _cryptoManager, ptr<vector<uint64_t> > _blockSizes, ptr<vector<uint8_t> > _serializedBlocks,
                                 uint64_t _offset) {
-    return ptr<CommittedBlockList>(new CommittedBlockList(_blockSizes, _serializedBlocks, _offset));
+    return ptr<CommittedBlockList>(new CommittedBlockList(_cryptoManager,_blockSizes, _serializedBlocks, _offset));
 }
 
 ptr<vector<uint64_t> > CommittedBlockList::createSizes() {

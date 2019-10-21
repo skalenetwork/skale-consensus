@@ -29,6 +29,8 @@ class CommittedBlock;
 
 #include "LevelDB.h"
 
+class CryptoManager;
+
 class BlockDB : public LevelDB {
 
     std::map<block_id, ptr<CommittedBlock>> blocks;
@@ -59,7 +61,7 @@ public:
     void saveBlock(ptr<CommittedBlock> &_block, block_id _lastCommittedBlockID);
 
 
-    ptr<CommittedBlock> getBlock(block_id _blockID);
+    ptr<CommittedBlock> getBlock(block_id _blockID, ptr<CryptoManager> _cryptoManager);
 };
 
 

@@ -210,7 +210,7 @@ ptr< CommittedBlockList > CatchupClientAgent::readMissingBlocks(
     ptr< CommittedBlockList > blockList = nullptr;
 
     try {
-        blockList = CommittedBlockList::deserialize( blockSizes, serializedBlocks, 0 );
+        blockList = CommittedBlockList::deserialize(getSchain()->getCryptoManager(),  blockSizes, serializedBlocks, 0);
     } catch ( ExitRequestedException& ) {
         throw;
     } catch ( ... ) {

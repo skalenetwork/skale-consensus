@@ -28,6 +28,7 @@
 #include "../Log.h"
 #include "../SkaleCommon.h"
 #include "../thirdparty/json.hpp"
+#include "../crypto/CryptoManager.h"
 
 #include "../abstracttcpserver/ConnectionStatus.h"
 #include "../chains/Schain.h"
@@ -101,7 +102,10 @@ void CommittedBlock::serializedSanityCheck(ptr< vector< uint8_t > > _serializedB
         CHECK_STATE( _serializedBlock->back() == '>' );
 };
 
-ptr< CommittedBlock > CommittedBlock::deserialize( ptr< vector< uint8_t > > _serializedBlock ) {
+
+
+ptr<CommittedBlock> CommittedBlock::deserialize(ptr<vector<uint8_t> > _serializedBlock,
+        ptr<CryptoManager> _manager) {
     auto block = ptr< CommittedBlock >( new CommittedBlock( 0, 0 ) );
 
     uint64_t headerSize = 0;
@@ -139,10 +143,10 @@ ptr< CommittedBlock > CommittedBlock::deserialize( ptr< vector< uint8_t > > _ser
 
     in.read( ( char* ) header->c_str(), headerSize ); /* Flawfinder: ignore */
 
-    ptr< vector< uint64_t > > transactionSizes;
+    ptr<CommittedBlockHeader> blockHeader;
 
     try {
-        transactionSizes = block->parseBlockHeader( header );
+        blockHeader = block->parseBlockHeader( header );
     } catch (ExitRequestedException &) {throw;} catch (...) {
         throw_with_nested( ParsingException(
             "Could not parse committed block header: \n" + *header, __CLASS_NAME__ ) );
@@ -151,7 +155,7 @@ ptr< CommittedBlock > CommittedBlock::deserialize( ptr< vector< uint8_t > > _ser
 
     try {
         block->transactionList = TransactionList::deserialize(
-            transactionSizes, _serializedBlock, headerSize + sizeof( headerSize ), true );
+            blockHeader->getTransactionSizes(), _serializedBlock, headerSize + sizeof( headerSize ), true );
     } catch ( Exception& e ) {
         throw_with_nested(
             ParsingException( "Could not parse transactions after header. Header: \n" + *header +
@@ -159,15 +163,18 @@ ptr< CommittedBlock > CommittedBlock::deserialize( ptr< vector< uint8_t > > _ser
                 __CLASS_NAME__ ) );
     }
 
-    block->calculateHash();
+
+
+    _manager->verifyProposalECDSA(block.get(), blockHeader->getBlockHash(), blockHeader->getSignature());
 
     return block;
 }
 
 
-ptr< CommittedBlock > CommittedBlock::defragment( ptr<BlockProposalFragmentList> _fragmentList ) {
+ptr<CommittedBlock>
+CommittedBlock::defragment(ptr<BlockProposalFragmentList> _fragmentList, ptr<CryptoManager> _cryptoManager) {
     try {
-        return deserialize(_fragmentList->serialize());
+        return deserialize(_fragmentList->serialize(), _cryptoManager);
     } catch ( Exception& e ) {
         Exception::logNested(e);
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
@@ -175,43 +182,15 @@ ptr< CommittedBlock > CommittedBlock::defragment( ptr<BlockProposalFragmentList>
 }
 
 
-ptr< vector< uint64_t > > CommittedBlock::parseBlockHeader( const shared_ptr< string >& header ) {
+ptr<CommittedBlockHeader> CommittedBlock::parseBlockHeader(const shared_ptr< string >& header ) {
     CHECK_ARGUMENT( header != nullptr );
-
     CHECK_ARGUMENT( header->size() > 2 );
-
     CHECK_ARGUMENT2( header->at( 0 ) == '{', "Block header does not start with {" );
-
     CHECK_ARGUMENT2( header->at( header->size() - 1 ) == '}', "Block header does not end with }" );
 
-
-    auto transactionSizes = make_shared< vector< uint64_t > >();
-
-    size_t totalSize = 0;
-
     auto js = nlohmann::json::parse( *header );
+    return make_shared<CommittedBlockHeader>(js);
 
-    proposerIndex = schain_index( Header::getUint64( js, "proposerIndex" ) );
-    proposerNodeID = node_id( Header::getUint64( js, "proposerNodeID" ) );
-    blockID = block_id( Header::getUint64( js, "blockID" ) );
-    schainID = schain_id( Header::getUint64( js, "schainID" ) );
-    timeStamp = Header::getUint64( js, "timeStamp" );
-    timeStampMs = Header::getUint32( js, "timeStampMs" );
-
-    transactionCount = js["sizes"].size();
-    hash = SHAHash::fromHex( Header::getString( js, "hash" ) );
-
-
-    Header::nullCheck( js, "sizes" );
-    nlohmann::json jsonTransactionSizes = js["sizes"];
-    transactionCount = jsonTransactionSizes.size();
-
-    for ( auto&& jsize : jsonTransactionSizes ) {
-        transactionSizes->push_back( jsize );
-        totalSize += ( size_t ) jsize;
-    }
-
-    return transactionSizes;
 }
 CommittedBlock::CommittedBlock( uint64_t timeStamp, uint32_t timeStampMs )
     : BlockProposal( timeStamp, timeStampMs ) {}
@@ -277,4 +256,4 @@ ptr<BlockProposalFragment> CommittedBlock::getFragment(uint64_t _totalFragments,
 
     return make_shared<BlockProposalFragment>(getBlockID(), _totalFragments, _index, fragmentData,
                                               sBlock->size(), getHash()->toHex());
-};
+}
