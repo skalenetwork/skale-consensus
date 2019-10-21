@@ -43,7 +43,7 @@ class CommittedBlock : public BlockProposal {
 
     CommittedBlock( uint64_t timeStamp, uint32_t timeStampMs );
 
-    ptr<CommittedBlockHeader> parseBlockHeader(const shared_ptr< string >& header );
+    static ptr<CommittedBlockHeader> parseBlockHeader(const shared_ptr< string >& header );
 
 public:
     CommittedBlock(ptr< BlockProposal > _p );

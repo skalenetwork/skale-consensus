@@ -132,4 +132,21 @@ const ptr<string> &CommittedBlockHeader::getSignature() const {
     return signature;
 }
 
+const schain_index &CommittedBlockHeader::getProposerIndex() const {
+    return proposerIndex;
+}
+
+const node_id &CommittedBlockHeader::getProposerNodeId() const {
+    return proposerNodeID;
+}
+
+
+uint64_t CommittedBlockHeader::getTimeStamp() const {
+    return timeStamp;
+}
+
+uint32_t CommittedBlockHeader::getTimeStampMs() const {
+    return timeStampMs;
+}
+
 

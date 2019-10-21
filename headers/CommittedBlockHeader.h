@@ -70,6 +70,16 @@ public:
     const ptr<vector<uint64_t>> &getTransactionSizes() const;
 
 
+    const schain_index &getProposerIndex() const;
+
+    const node_id &getProposerNodeId() const;
+
+
+    uint64_t getTimeStamp() const;
+
+    uint32_t getTimeStampMs() const;
+
+
 };
 
 
