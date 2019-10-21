@@ -44,11 +44,7 @@ public:
 
     BlockProposalHeader(Schain &_sChain, ptr<BlockProposal> proposal);
 
-    BlockProposalHeader(node_count nodeCount, schain_id schainId,
-                        block_id blockId, schain_index proposerIndex,
-                        node_id proposerNodeId, ptr<string> hash,
-                        ptr<string> signature, uint64_t txCount, uint64_t timeStamp,
-                        uint32_t timeStampMs);
+    BlockProposalHeader(nlohmann::json _proposalRequest, node_count nodeCount);
 
 
     void addFields(nlohmann::basic_json<> &jsonRequest) override;

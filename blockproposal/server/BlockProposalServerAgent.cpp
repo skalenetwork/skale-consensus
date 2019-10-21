@@ -202,24 +202,9 @@ BlockProposalServerAgent::processProposalRequest(ptr<ServerConnection> _connecti
 
     ptr<BlockProposalHeader> header = nullptr;
     try {
-        auto schainID = (schain_id)Header::getUint64(_proposalRequest, "schainID");
-        auto blockID = (block_id) Header::getUint64(_proposalRequest, "blockID");
-        auto proposerNodeID = (node_id) Header::getUint64(_proposalRequest, "proposerNodeID");
-        auto proposerIndex = (schain_index) Header::getUint64(_proposalRequest, "proposerIndex");
-        auto timeStamp = Header::getUint64(_proposalRequest, "timeStamp");
-        auto timeStampMs = Header::getUint32(_proposalRequest, "timeStampMs");
-        auto hash = Header::getString(_proposalRequest, "hash");
-        auto signature = Header::getString(_proposalRequest, "sig");
-        auto  txCount = Header::getUint64(_proposalRequest, "txCount");
 
-
-
-        header = make_shared<BlockProposalHeader>(getSchain()->getNodeCount(), schainID,
-                                   blockID, proposerIndex, proposerNodeID,
-                                   make_shared<string>(*hash),
-                                   make_shared<string>(*signature), txCount, timeStamp, timeStampMs);
+        header = make_shared<BlockProposalHeader>(_proposalRequest, getSchain()->getNodeCount());
         responseHeader = this->createProposalResponseHeader(_connection, *header);
-
         send(_connection, responseHeader);
 
     } catch (ExitRequestedException &) {
