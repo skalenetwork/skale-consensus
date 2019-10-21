@@ -80,28 +80,17 @@ void BlockProposalHeader::addFields(nlohmann::basic_json<> &jsonRequest) {
     AbstractBlockRequestHeader::addFields(jsonRequest);
 
     jsonRequest["schainID"] = (uint64_t) schainID;
-
     jsonRequest["proposerNodeID"] = (uint64_t) proposerNodeID;
-
     jsonRequest["proposerIndex"] = (uint64_t) proposerIndex;
-
     jsonRequest["blockID"] = (uint64_t) blockID;
-
     jsonRequest["txCount"] = txCount;
-
     ASSERT(timeStamp > MODERN_TIME);
-
     jsonRequest["timeStamp"] = timeStamp;
-
     jsonRequest["timeStampMs"] = timeStampMs;
-
     CHECK_STATE(hash != nullptr);
     CHECK_STATE(signature != nullptr);
-
     jsonRequest["hash"] = *hash;
-
     jsonRequest["sig"] = *signature;
-
 }
 
 const node_id &BlockProposalHeader::getProposerNodeId() const {
