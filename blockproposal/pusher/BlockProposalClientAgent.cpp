@@ -41,6 +41,7 @@
 #include "../../headers/BlockProposalHeader.h"
 #include "../../headers/MissingTransactionsRequestHeader.h"
 #include "../../headers/MissingTransactionsResponseHeader.h"
+#include "../../headers/FinalProposalResponseHeader.h"
 #include "../../network/ClientSocket.h"
 #include "../../network/ServerConnection.h"
 #include "../../network/IO.h"
@@ -69,11 +70,6 @@ BlockProposalClientAgent::BlockProposalClientAgent( Schain& _sChain )
 }
 
 
-nlohmann::json BlockProposalClientAgent::readProposalResponseHeader( ptr< ClientSocket > _socket ) {
-    return sChain->getIo()->readJsonHeader( _socket->getDescriptor(), "Read proposal resp" );
-}
-
-
 ptr< MissingTransactionsRequestHeader >
 BlockProposalClientAgent::readAndProcessMissingTransactionsRequestHeader(
     ptr< ClientSocket > _socket ) {
@@ -93,7 +89,7 @@ BlockProposalClientAgent::readAndProcessMissingTransactionsRequestHeader(
     return mtrh;
 }
 
-ptr< MissingTransactionsRequestHeader >
+ptr<FinalProposalResponseHeader>
 BlockProposalClientAgent::readAndProcessFinalProposalResponseHeader(
         ptr< ClientSocket > _socket ) {
     auto js =
@@ -106,7 +102,9 @@ BlockProposalClientAgent::readAndProcessFinalProposalResponseHeader(
         return nullptr;
     }
 
-    return nullptr;
+    auto sigShare = Header::getString( js, "sigShare" );
+    return make_shared<FinalProposalResponseHeader>(sigShare);
+
 }
 
 

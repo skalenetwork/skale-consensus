@@ -32,6 +32,7 @@ class Schain;
 class BlockProposalPusherThreadPool;
 class BlockProposal;
 class MissingTransactionsRequestHeader;
+class FinalProposalResponseHeader;
 
 
 class BlockProposalClientAgent : public AbstractClientAgent {
@@ -50,7 +51,7 @@ class BlockProposalClientAgent : public AbstractClientAgent {
     ptr<MissingTransactionsRequestHeader> readAndProcessMissingTransactionsRequestHeader(ptr<ClientSocket> _socket);
 
 
-    ptr<MissingTransactionsRequestHeader>  readAndProcessFinalProposalResponseHeader(ptr<ClientSocket> _socket);
+    ptr<FinalProposalResponseHeader> readAndProcessFinalProposalResponseHeader(ptr<ClientSocket> _socket);
 
 
 
