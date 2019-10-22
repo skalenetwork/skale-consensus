@@ -87,7 +87,7 @@ public:
                                  BlockProposalHeader &_header);
 
     ptr<Header>
-    createSigShareResponseHeader(ptr<ReceivedBlockProposal> _proposal);
+    createFinalResponseHeader(ptr<ReceivedBlockProposal> _proposal);
 
     ptr<Header>
     createFinalizeResponseHeader(ptr<ServerConnection> _connectionEnvelope,

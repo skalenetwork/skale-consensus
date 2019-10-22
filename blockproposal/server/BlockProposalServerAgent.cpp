@@ -331,18 +331,21 @@ BlockProposalServerAgent::processProposalRequest(ptr<ServerConnection> _connecti
                                                        requestHeader->getTimeStamp(),
                                                        requestHeader->getTimeStampMs(),
                                                        requestHeader->getHash(), requestHeader->getSignature());
-    getSchain()->getCryptoManager()->verifyProposalECDSA(proposal.get(), requestHeader->getHash(),
-                                                         requestHeader->getSignature());
-
-    ptr<Header> sigShareResponseHeader;
+    ptr<Header> finalResponseHeader = nullptr;
 
     try {
-
-        sigShareResponseHeader = this->createSigShareResponseHeader(proposal);
+        if (!getSchain()->getCryptoManager()->verifyProposalECDSA(proposal.get(), requestHeader->getHash(),
+                                                                  requestHeader->getSignature())) {
+            finalResponseHeader = make_shared<FinalProposalResponseHeader>(CONNECTION_ERROR,
+                                                                           CONNECTION_SIGNATURE_DID_NOT_VERIFY);
+        } else {
+            finalResponseHeader = this->createFinalResponseHeader(proposal);
+        }
+        // send(_connection, finalResponseHeader);
     } catch (ExitRequestedException &) {
         throw;
     } catch (...) {
-        throw_with_nested(NetworkProtocolException("Couldnt create proposal response header", __CLASS_NAME__));
+        throw_with_nested(NetworkProtocolException("Couldnt create/send final response header", __CLASS_NAME__));
     }
 
 
@@ -351,8 +354,9 @@ BlockProposalServerAgent::processProposalRequest(ptr<ServerConnection> _connecti
 
 
 void BlockProposalServerAgent::checkForOldBlock(const block_id &_blockID) {
-    LOG(debug, "BID:" + to_string(_blockID) + ":CBID:" + to_string(getSchain()->getLastCommittedBlockID()) + ":MQ:" +
-               to_string(getSchain()->getMessagesCount()));
+    LOG(debug,
+        "BID:" + to_string(_blockID) + ":CBID:" + to_string(getSchain()->getLastCommittedBlockID()) + ":MQ:" +
+        to_string(getSchain()->getMessagesCount()));
     if (_blockID <= getSchain()->getLastCommittedBlockID())
         BOOST_THROW_EXCEPTION(OldBlockIDException("Old block ID", nullptr, nullptr, __CLASS_NAME__));
 }
@@ -419,12 +423,14 @@ ptr<Header> BlockProposalServerAgent::createProposalResponseHeader(ptr<ServerCon
         LOG(info, "Incorrect timestamp:" + to_string(_header.getTimeStamp()) + ":vs:" +
                   to_string(sChain->getLastCommittedBlockTimeStamp()));
 
-        responseHeader->setStatusSubStatus(CONNECTION_DISCONNECT, CONNECTION_ERROR_TIME_STAMP_EARLIER_THAN_COMMITTED);
+        responseHeader->setStatusSubStatus(CONNECTION_DISCONNECT,
+                                           CONNECTION_ERROR_TIME_STAMP_EARLIER_THAN_COMMITTED);
         responseHeader->setComplete();
         return responseHeader;
     }
 
-    if (!getSchain()->getNode()->getProposalHashDb()->checkAndSaveHash(_header.getBlockId(), _header.getProposerIndex(),
+    if (!getSchain()->getNode()->getProposalHashDb()->checkAndSaveHash(_header.getBlockId(),
+                                                                       _header.getProposerIndex(),
                                                                        _header.getHash(),
                                                                        sChain->getLastCommittedBlockID())) {
 
@@ -440,7 +446,7 @@ ptr<Header> BlockProposalServerAgent::createProposalResponseHeader(ptr<ServerCon
 }
 
 
-ptr<Header> BlockProposalServerAgent::createSigShareResponseHeader(ptr<ReceivedBlockProposal> _proposal) {
+ptr<Header> BlockProposalServerAgent::createFinalResponseHeader(ptr<ReceivedBlockProposal> _proposal) {
 
     auto sigShare = getSchain()->getCryptoManager()->signBLS(_proposal->getHash(), _proposal->getBlockID());
 
@@ -450,8 +456,6 @@ ptr<Header> BlockProposalServerAgent::createSigShareResponseHeader(ptr<ReceivedB
     responseHeader->setComplete();
     return responseHeader;
 }
-
-
 
 
 nlohmann::json
@@ -479,7 +483,8 @@ ptr<PartialHashesList> AbstractServerAgent::readPartialHashes(ptr<ServerConnecti
                                                     PARTIAL_SHA_HASH_LEN));
         } catch (ExitRequestedException &) { throw; }
         catch (...) {
-            throw_with_nested(CouldNotReadPartialDataHashesException("Could not read partial hashes", __CLASS_NAME__));
+            throw_with_nested(
+                    CouldNotReadPartialDataHashesException("Could not read partial hashes", __CLASS_NAME__));
         }
     }
 

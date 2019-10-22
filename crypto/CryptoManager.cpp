@@ -138,19 +138,23 @@ void CryptoManager::signProposalECDSA(BlockProposal* _proposal) {
     _proposal->addSignature(signature);
 }
 
-void CryptoManager::verifyProposalECDSA(BlockProposal* _proposal, ptr<string> _hashStr, ptr<string> _signature) {
+bool CryptoManager::verifyProposalECDSA(BlockProposal* _proposal, ptr<string> _hashStr, ptr<string> _signature) {
     CHECK_ARGUMENT(_proposal != nullptr);
     CHECK_ARGUMENT(_hashStr != nullptr)
     CHECK_ARGUMENT(_signature != nullptr)
     auto hash = _proposal->getHash();
 
+
     if (*hash->toHex() != *_hashStr) {
-        BOOST_THROW_EXCEPTION(NetworkProtocolException("Incorrect proposal hash", __CLASS_NAME__));
+        LOG(warn, "Incorrect proposal hash");
+        return false;
     }
 
     if (!verifyECDSA(hash, _signature)) {
-        BOOST_THROW_EXCEPTION(NetworkProtocolException("ECDSA sig did not verify", __CLASS_NAME__));
+        LOG(warn, "ECDSA sig did not verify");
+        return false;
     }
+    return true;
 }
 
 

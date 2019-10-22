@@ -67,7 +67,7 @@ public:
 
     void signProposalECDSA(BlockProposal* _proposal);
 
-    void verifyProposalECDSA(BlockProposal* _proposal, ptr<string> _hashStr, ptr<string> _signature);
+    bool verifyProposalECDSA(BlockProposal* _proposal, ptr<string> _hashStr, ptr<string> _signature);
 
 };
 
