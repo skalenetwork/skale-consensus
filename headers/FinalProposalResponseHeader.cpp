@@ -16,7 +16,7 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file SigShareResponseHeader.cpp
+    @file FinalProposalResponseHeader.cpp
     @author Stan Kladko
     @date 2018
 */
@@ -27,19 +27,22 @@
 
 #include "../thirdparty/json.hpp"
 
-#include "SigShareResponseHeader.h"
+#include "FinalProposalResponseHeader.h"
 
 using namespace std;
 
-SigShareResponseHeader::SigShareResponseHeader(ptr<string> _sigShare)
+FinalProposalResponseHeader::FinalProposalResponseHeader(ptr<string> _sigShare)
         : Header(SIG_SHARE_RSP) {
     CHECK_ARGUMENT(_sigShare != nullptr)
+    this->status = CONNECTION_SUCCESS;
     sigShare = _sigShare;
     complete = true;
 }
 
-void SigShareResponseHeader::addFields(nlohmann::basic_json<> &_j) {
-    _j["sigShare"] = *sigShare;
+void FinalProposalResponseHeader::addFields(nlohmann::basic_json<> &_j) {
+    if (sigShare != nullptr) {
+        _j["sigShare"] = *sigShare;
+    }
 }
 
 

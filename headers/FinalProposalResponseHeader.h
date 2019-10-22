@@ -16,7 +16,7 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file SigShareResponseHeader.h
+    @file FinalProposalResponseHeader.h
     @author Stan Kladko
     @date 2018
 */
@@ -34,7 +34,7 @@ class Schain;
 
 class Transaction;
 
-class SigShareResponseHeader : public Header {
+class FinalProposalResponseHeader : public Header {
 
     ptr <string> sigShare;
 
@@ -43,7 +43,7 @@ public:
 
 
 
-    SigShareResponseHeader(ptr <string> sigShare);
+    FinalProposalResponseHeader(ptr <string> sigShare);
 
     void addFields(nlohmann::basic_json<> &_j) override;
 

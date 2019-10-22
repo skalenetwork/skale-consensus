@@ -52,7 +52,7 @@
 #include "../../chains/Schain.h"
 #include "../../crypto/SHAHash.h"
 #include "../../headers/BlockProposalResponseHeader.h"
-#include "../../headers/SigShareResponseHeader.h"
+#include "../../headers/FinalProposalResponseHeader.h"
 #include "../../headers/Header.h"
 #include "../../headers/MissingTransactionsRequestHeader.h"
 #include "../../network/ServerConnection.h"
@@ -444,7 +444,7 @@ ptr<Header> BlockProposalServerAgent::createSigShareResponseHeader(ptr<ReceivedB
 
     auto sigShare = getSchain()->getCryptoManager()->signBLS(_proposal->getHash(), _proposal->getBlockID());
 
-    auto responseHeader = make_shared<SigShareResponseHeader>(sigShare->toString());
+    auto responseHeader = make_shared<FinalProposalResponseHeader>(sigShare->toString());
 
     responseHeader->setStatus(CONNECTION_PROCEED);
     responseHeader->setComplete();
