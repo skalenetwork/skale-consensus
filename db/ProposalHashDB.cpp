@@ -133,44 +133,7 @@ void ProposalHashDB::saveBlock(ptr<CommittedBlock> &_block, block_id _lastCommit
 
 }
 
-void ProposalHashDB::saveBlockToBlockCache(ptr<CommittedBlock> &_block, block_id _lastCommittedBlockID) {
-    CHECK_ARGUMENT(_block != nullptr);
 
-    CHECK_ARGUMENT(_block->getSignature() != nullptr);
-
-    lock_guard<recursive_mutex> lock(mutex);
-
-    try {
-        auto blockID = _block->getBlockID();
-
-        ASSERT(blocks.count(blockID) == 0);
-
-        blocks[blockID] = _block;
-
-
-        if (blockID > storageSize && blocks.count(blockID - storageSize) > 0) {
-            blocks.erase(_lastCommittedBlockID - storageSize);
-        };
-
-
-        ASSERT(blocks.size() <= storageSize);
-
-    } catch (...) {
-        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
-    }
-}
-
-ptr<CommittedBlock> ProposalHashDB::getCachedBlock(block_id _blockID) {
-    try {
-        if (blocks.count(_blockID > 0)) {
-            return blocks.at(_blockID);
-        } else {
-            return nullptr;
-        }
-    } catch (...) {
-        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
-    }
-}
 
 ptr<CommittedBlock> ProposalHashDB::getBlock(block_id _blockID, ptr<CryptoManager> _cryptoManager) {
 
@@ -178,10 +141,6 @@ ptr<CommittedBlock> ProposalHashDB::getBlock(block_id _blockID, ptr<CryptoManage
     std::lock_guard<std::recursive_mutex> lock(mutex);
 
     try {
-        auto block = getCachedBlock(_blockID);
-
-        if (block)
-            return block;
 
         auto serializedBlock = getSerializedBlockFromLevelDB(_blockID);
 
