@@ -93,6 +93,23 @@ BlockProposalClientAgent::readAndProcessMissingTransactionsRequestHeader(
     return mtrh;
 }
 
+ptr< MissingTransactionsRequestHeader >
+BlockProposalClientAgent::readAndProcessFinalProposalResponseHeader(
+        ptr< ClientSocket > _socket ) {
+    auto js =
+            sChain->getIo()->readJsonHeader( _socket->getDescriptor(), "Read final response header" );
+
+    auto status = ( ConnectionStatus ) Header::getUint64( js, "status" );
+
+    if (status != CONNECTION_SUCCESS) {
+        LOG(err, "Server refused block sig");
+        return nullptr;
+    }
+
+    return nullptr;
+}
+
+
 
 void BlockProposalClientAgent::sendItemImpl(
     ptr< BlockProposal >& _proposal, shared_ptr< ClientSocket >& socket, schain_index, node_id ) {
@@ -224,6 +241,8 @@ void BlockProposalClientAgent::sendItemImpl(
     }
 
     LOG( trace, "Proposal step 6: sent missing transactions" );
+
+    readAndProcessFinalProposalResponseHeader(socket);
 }
 
 

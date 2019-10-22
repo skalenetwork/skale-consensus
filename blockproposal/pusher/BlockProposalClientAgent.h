@@ -50,6 +50,9 @@ class BlockProposalClientAgent : public AbstractClientAgent {
     ptr<MissingTransactionsRequestHeader> readAndProcessMissingTransactionsRequestHeader(ptr<ClientSocket> _socket);
 
 
+    ptr<MissingTransactionsRequestHeader>  readAndProcessFinalProposalResponseHeader(ptr<ClientSocket> _socket);
+
+
 
 
     ptr<unordered_set<ptr<partial_sha_hash>, PendingTransactionsAgent::Hasher, PendingTransactionsAgent::Equal>>
