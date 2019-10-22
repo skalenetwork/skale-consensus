@@ -65,6 +65,8 @@
 #include "../db/PriceDB.h"
 #include "../db/RandomDB.h"
 #include "../db/SigDB.h"
+#include "../db/ProposalHashDB.h"
+
 
 
 #include "ConsensusEngine.h"
@@ -103,7 +105,7 @@ void Node::initLevelDBs() {
             dataDir + "/transactions_" + to_string(nodeID) + ".db";
     string signaturesDBFilename = dataDir + "/sigs_" + to_string(nodeID) + ".db";
     string pricesDBFilename = dataDir + "/prices_" + to_string(nodeID) + ".db";
-
+    string proposalHashDBFilename = dataDir + "/proposal_hashes_" + to_string(nodeID) + ".db";
 
     blockDB =
             make_shared<BlockDB>(blockDBFilename, getNodeID(), getCommittedBlockStorageSize());
@@ -112,6 +114,7 @@ void Node::initLevelDBs() {
             make_shared<CommittedTransactionDB>(committedTransactionsDBFilename, getNodeID());
     signatureDB = make_shared<SigDB>(signaturesDBFilename, getNodeID());
     priceDB = make_shared<PriceDB>(pricesDBFilename, getNodeID());
+    proposalHashDB = make_shared<ProposalHashDB>(proposalHashDBFilename, getNodeID(), proposalHashesPerDB);
 }
 
 void Node::initLogging() {
@@ -196,7 +199,6 @@ void Node::cleanLevelDBs() {
     priceDB = nullptr;
     proposalHashDB = nullptr;
 }
-
 
 
 void Node::startServers() {
