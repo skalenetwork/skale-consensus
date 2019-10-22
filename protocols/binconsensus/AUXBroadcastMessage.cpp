@@ -71,18 +71,18 @@ AUXBroadcastMessage::AUXBroadcastMessage(bin_consensus_round round, bin_consensu
     auto hash = make_shared<SHAHash>(buf);
 
 
-
-        this->sigShare = schain->getCryptoManager()->sign(hash, _blockID);
-        this->sigShareString = sigShare->toString();
+    this->sigShare = schain->getCryptoManager()->sign(hash, _blockID);
+    this->sigShareString = sigShare->toString();
 
 }
 
 
-AUXBroadcastMessage::AUXBroadcastMessage( node_id _srcNodeID, node_id _dstNodeID, block_id _blockID,
-    schain_index _blockProposerIndex, bin_consensus_round _r, bin_consensus_value _value,
-    schain_id _schainId, msg_id _msgID, uint32_t _ip, ptr< string > _signature,
-    schain_index _srcSchainIndex, Schain* _sChain )
-    : NetworkMessage(
+AUXBroadcastMessage::AUXBroadcastMessage(node_id _srcNodeID, node_id _dstNodeID, block_id _blockID,
+                                         schain_index _blockProposerIndex, bin_consensus_round _r,
+                                         bin_consensus_value _value,
+                                         schain_id _schainId, msg_id _msgID, uint32_t _ip, ptr<string> _signature,
+                                         schain_index _srcSchainIndex, Schain *_sChain)
+        : NetworkMessage(
         AUX_BROADCAST, _srcNodeID, _dstNodeID, _blockID, _blockProposerIndex, _r, _value, _schainId, _msgID, _ip,
         _signature, _srcSchainIndex, _sChain) {
     printPrefix = "a";

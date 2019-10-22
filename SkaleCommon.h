@@ -145,6 +145,7 @@ static const uint64_t COMMITTED_TRANSACTIONS_HISTORY = 1000000;
 
 static constexpr uint64_t MAX_CATCHUP_DOWNLOAD_BYTES = 1000000000;
 
+static constexpr uint64_t PROPOSAL_HASHES_PER_DB = 100000;
 
 static constexpr uint64_t MAX_TRANSACTIONS_PER_BLOCK = 10000;
 

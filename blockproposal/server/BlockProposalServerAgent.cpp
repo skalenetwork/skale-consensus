@@ -392,7 +392,6 @@ ptr<Header> BlockProposalServerAgent::createProposalResponseHeader(ptr<ServerCon
                 _header.getTimeStamp()) + ":vs:" + to_string(Time::getCurrentTimeSec()));
         responseHeader->setStatusSubStatus(CONNECTION_DISCONNECT, CONNECTION_ERROR_TIME_STAMP_IN_THE_FUTURE);
         responseHeader->setComplete();
-        ASSERT(false);
         return responseHeader;
     }
 
@@ -403,18 +402,20 @@ ptr<Header> BlockProposalServerAgent::createProposalResponseHeader(ptr<ServerCon
 
         responseHeader->setStatusSubStatus(CONNECTION_DISCONNECT, CONNECTION_ERROR_TIME_STAMP_EARLIER_THAN_COMMITTED);
         responseHeader->setComplete();
-        ASSERT(false);
         return responseHeader;
     }
 
-    getSchain()->getNode()->getProposalHashDb()->checkAndSaveHash(_header.getBlockId(), _header.getProposerIndex(),
-                                                                  _header.getHash(),
-                                                                  sChain->getLastCommittedBlockID());
+    if (!getSchain()->getNode()->getProposalHashDb()->checkAndSaveHash(_header.getBlockId(), _header.getProposerIndex(),
+                                                                       _header.getHash(),
+                                                                       sChain->getLastCommittedBlockID())) {
 
-
+        LOG(info, "Double proposal for block:" + to_string(_header.getBlockId()) +
+                  "  proposer index:" + to_string(_header.getProposerIndex()));
+        responseHeader->setStatusSubStatus(CONNECTION_DISCONNECT, CONNECTION_DOUBLE_PROPOSAL);
+        responseHeader->setComplete();
+        return responseHeader;
+    }
     responseHeader->setStatus(CONNECTION_PROCEED);
-
-
     responseHeader->setComplete();
     return responseHeader;
 }
