@@ -29,6 +29,7 @@
 class BlockProposalWorkerThreadPool;
 class BlockFinalizeResponseHeader;
 class BlockProposalHeader;
+class ReceivedBlockProposal;
 
 
 class Transaction;
@@ -84,6 +85,9 @@ public:
     ptr<Header>
     createProposalResponseHeader(ptr<ServerConnection> _connectionEnvelope,
                                  BlockProposalHeader &_header);
+
+    ptr<Header>
+    createSigShareResponseHeader(ptr<ReceivedBlockProposal> _proposal);
 
     ptr<Header>
     createFinalizeResponseHeader(ptr<ServerConnection> _connectionEnvelope,

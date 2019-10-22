@@ -57,9 +57,11 @@ public:
     static constexpr const char *BLOCK_CATCHUP_REQ = "BlckCatchupReq";
     static constexpr const char *BLOCK_CATCHUP_RSP = "BlckCatchupRsp";
 
-    static constexpr const char *COMMITTED_BLOCK = "CommittedBlock";
-    static constexpr const char *MISSING_TRANSACTIONS_REQ = "MssngTxsReq";
-    static constexpr const char *MISSING_TRANSACTIONS_RSP = "MssngTxsRsp";
+    static constexpr const char *COMMITTED_BLOCK = "CmtdBlck";
+    static constexpr const char *MISSING_TRANSACTIONS_REQ = "MsngTxsReq";
+    static constexpr const char *MISSING_TRANSACTIONS_RSP = "MsngTxsRsp";
+    static constexpr const char *SIG_SHARE_RSP = "SigShareRsp";
+
 
 
     Header(const char *_type);

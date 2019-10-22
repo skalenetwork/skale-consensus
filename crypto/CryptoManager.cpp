@@ -82,7 +82,7 @@ bool CryptoManager::verifyECDSA(ptr<SHAHash> _hash,
 }
 
 
-ptr<ThresholdSigShare> CryptoManager::sign(ptr<SHAHash> _hash, block_id _blockId) {
+ptr<ThresholdSigShare> CryptoManager::signBLS(ptr<SHAHash> _hash, block_id _blockId) {
 
 
 

@@ -600,7 +600,7 @@ void Schain::sigShareArrived(ptr<ConsensusBLSSigShare> _sigShare) {
 
     if (blockSigSharesDatabase->addSigShare(_sigShare)) {
         auto blockId = _sigShare->getBlockId();
-        auto mySig = getCryptoManager()->sign(getBlock(blockId)->getHash(), blockId);
+        auto mySig = getCryptoManager()->signBLS(getBlock(blockId)->getHash(), blockId);
         blockSigSharesDatabase->addSigShare(mySig);
         ASSERT(blockSigSharesDatabase->isTwoThird(blockId));
         blockSigSharesDatabase->mergeAndSaveBLSSignature(blockId);

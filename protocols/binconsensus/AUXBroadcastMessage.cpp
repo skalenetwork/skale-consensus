@@ -55,23 +55,23 @@ AUXBroadcastMessage::AUXBroadcastMessage(bin_consensus_round round, bin_consensu
     auto schain = sourceProtocolInstance.getSchain();
 
 
-    CryptoPP::SHA256 sha3;
+    CryptoPP::SHA256 sha256;
 
 
     auto bpi = getBlockProposerIndex();
 
-    sha3.Update(reinterpret_cast < uint8_t * > ( &bpi), sizeof(bpi));
-    sha3.Update(reinterpret_cast < uint8_t * > ( &this->r), sizeof(r));
-    sha3.Update(reinterpret_cast < uint8_t * > ( &this->blockID), sizeof(blockID));
-    sha3.Update(reinterpret_cast < uint8_t * > ( &this->schainID), sizeof(schainID));
-    sha3.Update(reinterpret_cast < uint8_t * > ( &this->msgType), sizeof(msgType));
+    sha256.Update(reinterpret_cast < uint8_t * > ( &bpi), sizeof(bpi));
+    sha256.Update(reinterpret_cast < uint8_t * > ( &this->r), sizeof(r));
+    sha256.Update(reinterpret_cast < uint8_t * > ( &this->blockID), sizeof(blockID));
+    sha256.Update(reinterpret_cast < uint8_t * > ( &this->schainID), sizeof(schainID));
+    sha256.Update(reinterpret_cast < uint8_t * > ( &this->msgType), sizeof(msgType));
 
     auto buf = make_shared<array<uint8_t, SHA_HASH_LEN>>();
-    sha3.Final(buf->data());
+    sha256.Final(buf->data());
     auto hash = make_shared<SHAHash>(buf);
 
 
-    this->sigShare = schain->getCryptoManager()->sign(hash, _blockID);
+    this->sigShare = schain->getCryptoManager()->signBLS(hash, _blockID);
     this->sigShareString = sigShare->toString();
 
 }

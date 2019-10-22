@@ -52,6 +52,7 @@
 #include "../../chains/Schain.h"
 #include "../../crypto/SHAHash.h"
 #include "../../headers/BlockProposalResponseHeader.h"
+#include "../../headers/SigShareResponseHeader.h"
 #include "../../headers/Header.h"
 #include "../../headers/MissingTransactionsRequestHeader.h"
 #include "../../network/ServerConnection.h"
@@ -206,6 +207,13 @@ BlockProposalServerAgent::processProposalRequest(ptr<ServerConnection> _connecti
 
         requestHeader = make_shared<BlockProposalHeader>(_proposalRequest, getSchain()->getNodeCount());
         responseHeader = this->createProposalResponseHeader(_connection, *requestHeader);
+    } catch (ExitRequestedException &) {
+        throw;
+    } catch (...) {
+        throw_with_nested(NetworkProtocolException("Couldnt create proposal response header", __CLASS_NAME__));
+    }
+
+    try {
         send(_connection, responseHeader);
         if (responseHeader->getStatus() != CONNECTION_PROCEED) {
             return;
@@ -213,7 +221,7 @@ BlockProposalServerAgent::processProposalRequest(ptr<ServerConnection> _connecti
     } catch (ExitRequestedException &) {
         throw;
     } catch (...) {
-        throw_with_nested(NetworkProtocolException("Could not create response requestHeader", __CLASS_NAME__));
+        throw_with_nested(NetworkProtocolException("Couldnt send proposal response header", __CLASS_NAME__));
     }
 
     ptr<PartialHashesList> partialHashesList = nullptr;
@@ -326,6 +334,17 @@ BlockProposalServerAgent::processProposalRequest(ptr<ServerConnection> _connecti
     getSchain()->getCryptoManager()->verifyProposalECDSA(proposal.get(), requestHeader->getHash(),
                                                          requestHeader->getSignature());
 
+    ptr<Header> sigShareResponseHeader;
+
+    try {
+
+        sigShareResponseHeader = this->createSigShareResponseHeader(proposal);
+    } catch (ExitRequestedException &) {
+        throw;
+    } catch (...) {
+        throw_with_nested(NetworkProtocolException("Couldnt create proposal response header", __CLASS_NAME__));
+    }
+
 
     sChain->proposedBlockArrived(proposal);
 }
@@ -419,6 +438,20 @@ ptr<Header> BlockProposalServerAgent::createProposalResponseHeader(ptr<ServerCon
     responseHeader->setComplete();
     return responseHeader;
 }
+
+
+ptr<Header> BlockProposalServerAgent::createSigShareResponseHeader(ptr<ReceivedBlockProposal> _proposal) {
+
+    auto sigShare = getSchain()->getCryptoManager()->signBLS(_proposal->getHash(), _proposal->getBlockID());
+
+    auto responseHeader = make_shared<SigShareResponseHeader>(sigShare->toString());
+
+    responseHeader->setStatus(CONNECTION_PROCEED);
+    responseHeader->setComplete();
+    return responseHeader;
+}
+
+
 
 
 nlohmann::json
