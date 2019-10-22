@@ -108,7 +108,7 @@ BlockProposalClientAgent::readAndProcessFinalProposalResponseHeader(
 
 
 void BlockProposalClientAgent::sendItemImpl(
-    ptr< BlockProposal >& _proposal, shared_ptr< ClientSocket >& socket, schain_index, node_id ) {
+    ptr< BlockProposal >& _proposal, shared_ptr< ClientSocket >& socket, schain_index _index, node_id _nodeID) {
     LOG( trace, "Proposal step 0: Starting block proposal" );
 
 
@@ -238,7 +238,20 @@ void BlockProposalClientAgent::sendItemImpl(
 
     LOG( trace, "Proposal step 6: sent missing transactions" );
 
-    readAndProcessFinalProposalResponseHeader(socket);
+    auto finalHeader = readAndProcessFinalProposalResponseHeader(socket);
+
+    if (finalHeader == nullptr)
+        return;
+
+    auto sigShare = getSchain()->getCryptoManager()->createSigShare(finalHeader->getSigShare(), _proposal->getSchainID(),
+    _proposal->getBlockID(), _nodeID, _index, getSchain()->getTotalSignersCount(), getSchain()->getRequiredSignersCount());
+
+
+
+
+
+
+
 
     LOG( trace, "Proposal step 7: got final response" );
 }

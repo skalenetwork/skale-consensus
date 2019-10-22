@@ -34,6 +34,7 @@ class Schain;
 
 class Transaction;
 
+
 class FinalProposalResponseHeader : public Header {
 
     ptr <string> sigShare;
@@ -48,6 +49,8 @@ public:
     FinalProposalResponseHeader(ConnectionStatus _status, ConnectionSubStatus _substatus);
 
     void addFields(nlohmann::basic_json<> &_j) override;
+
+    const ptr<string> getSigShare() const;
 
 };
 

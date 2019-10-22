@@ -53,4 +53,8 @@ FinalProposalResponseHeader::FinalProposalResponseHeader(ConnectionStatus _statu
 }
 
 
+const ptr<string> FinalProposalResponseHeader::getSigShare() const {
+    return sigShare;
+}
+
 
