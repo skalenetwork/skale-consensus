@@ -35,6 +35,7 @@
 
 
 #include "../../chains/Schain.h"
+#include "../../crypto/CryptoManager.h"
 #include "../../datastructures/BlockProposal.h"
 #include "../../datastructures/CommittedBlock.h"
 #include "../../exceptions/NetworkProtocolException.h"
@@ -89,7 +90,7 @@ BlockProposalClientAgent::readAndProcessMissingTransactionsRequestHeader(
     return mtrh;
 }
 
-void
+ptr<FinalProposalResponseHeader>
 BlockProposalClientAgent::readAndProcessFinalProposalResponseHeader(
         ptr< ClientSocket > _socket ) {
     auto js =
@@ -99,10 +100,9 @@ BlockProposalClientAgent::readAndProcessFinalProposalResponseHeader(
 
     if (status != CONNECTION_SUCCESS) {
         LOG(err, "Server refused block sig");
-        return;
+        return nullptr;
     }
-
-    auto sigShare = Header::getString( js, "sigShare" );
+    return make_shared<FinalProposalResponseHeader>(Header::getString(js, "sigShare"));
 }
 
 
