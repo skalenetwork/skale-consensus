@@ -39,25 +39,25 @@ ProposalHashDB::ProposalHashDB(string &_filename, node_id _nodeId, uint64_t _blo
 }
 
 
-bool ProposalHashDB::checkAndSaveHash(ptr<BlockProposal> &_block, block_id /*_lastCommittedBlockID*/) {
+bool
+ProposalHashDB::checkAndSaveHash(block_id _proposalBlockID, schain_index _proposerIndex, ptr<string> _proposalHash,
+                                 block_id /*_lastCommittedBlockID */) {
 
 
     lock_guard<recursive_mutex> lock(mutex);
 
     try {
 
-        auto hexHash = _block->getHash()->toHex();
-
-        auto key = createKey(_block->getBlockID(), _block->getProposerIndex());
+        auto key = createKey(_proposalBlockID, _proposerIndex);
 
         auto previous = readString(*key);
 
         if (previous == nullptr) {
-            writeString(*key, *hexHash);
+            writeString(*key, *_proposalHash);
             return true;
         }
 
-        return (*previous == *hexHash);
+        return (*previous == *_proposalHash);
 
     } catch (...) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));

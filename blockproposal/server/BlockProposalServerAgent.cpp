@@ -67,6 +67,7 @@
 #include "../../datastructures/ReceivedBlockProposal.h"
 #include "../../datastructures/Transaction.h"
 #include "../../datastructures/TransactionList.h"
+#include "../../db/ProposalHashDB.h"
 #include "../../headers/AbstractBlockRequestHeader.h"
 #include "../../headers/BlockProposalHeader.h"
 
@@ -236,7 +237,8 @@ BlockProposalServerAgent::processProposalRequest(ptr<ServerConnection> _connecti
     } catch (ExitRequestedException &) {
         throw;
     } catch (...) {
-        throw_with_nested(CouldNotSendMessageException("Could not send missing hashes request requestHeader", __CLASS_NAME__));
+        throw_with_nested(
+                CouldNotSendMessageException("Could not send missing hashes request requestHeader", __CLASS_NAME__));
     }
 
 
@@ -317,10 +319,13 @@ BlockProposalServerAgent::processProposalRequest(ptr<ServerConnection> _connecti
     auto transactionList = make_shared<TransactionList>(transactions);
 
     auto proposal = make_shared<ReceivedBlockProposal>(*sChain, requestHeader->getBlockId(),
-                                                       requestHeader->getProposerIndex(), transactionList, requestHeader->getTimeStamp(),
+                                                       requestHeader->getProposerIndex(), transactionList,
+                                                       requestHeader->getTimeStamp(),
                                                        requestHeader->getTimeStampMs(),
                                                        requestHeader->getHash(), requestHeader->getSignature());
-    getSchain()->getCryptoManager()->verifyProposalECDSA(proposal.get(), requestHeader->getHash(), requestHeader->getSignature());
+    getSchain()->getCryptoManager()->verifyProposalECDSA(proposal.get(), requestHeader->getHash(),
+                                                         requestHeader->getSignature());
+
 
     sChain->proposedBlockArrived(proposal);
 }
@@ -340,7 +345,8 @@ ptr<Header> BlockProposalServerAgent::createProposalResponseHeader(ptr<ServerCon
 
     if (sChain->getSchainID() != _header.getSchainId()) {
         responseHeader->setStatusSubStatus(CONNECTION_SERVER_ERROR, CONNECTION_ERROR_UNKNOWN_SCHAIN_ID);
-        BOOST_THROW_EXCEPTION(InvalidSchainException("Incorrect schain " + to_string(_header.getSchainId()), __CLASS_NAME__));
+        BOOST_THROW_EXCEPTION(
+                InvalidSchainException("Incorrect schain " + to_string(_header.getSchainId()), __CLASS_NAME__));
     };
 
 
@@ -357,7 +363,7 @@ ptr<Header> BlockProposalServerAgent::createProposalResponseHeader(ptr<ServerCon
         responseHeader->setStatusSubStatus(CONNECTION_SERVER_ERROR, CONNECTION_ERROR_INVALID_NODE_ID);
 
         BOOST_THROW_EXCEPTION(InvalidNodeIDException("Node ID does not match " +
-           _header.getProposerNodeId(), __CLASS_NAME__));
+                                                     _header.getProposerNodeId(), __CLASS_NAME__));
     }
 
     if (nmi->getSchainIndex() != schain_index(_header.getProposerIndex())) {
@@ -400,6 +406,10 @@ ptr<Header> BlockProposalServerAgent::createProposalResponseHeader(ptr<ServerCon
         ASSERT(false);
         return responseHeader;
     }
+
+    getSchain()->getNode()->getProposalHashDb()->checkAndSaveHash(_header.getBlockId(), _header.getProposerIndex(),
+                                                                  _header.getHash(),
+                                                                  sChain->getLastCommittedBlockID());
 
 
     responseHeader->setStatus(CONNECTION_PROCEED);
