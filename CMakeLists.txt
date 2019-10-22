@@ -167,7 +167,7 @@ message(INFO "${BLS_DEPS_INSTALL_ROOT}")
 include_directories(${BLS_INCLUDE_DIRS} "${BLS_DEPS_INSTALL_ROOT}/include")
 link_directories(${BLS_WITH_FF_INCLUDE_DIRS} "${BLS_DEPS_INSTALL_ROOT}/lib")
 
-SET(LINK_LIBRARIES Threads::Threads Boost::log Boost::thread Boost::system Boost::filesystem ${LIB_NAME_cryptopp} ZeroMQ::libzmq-static leveldb::leveldb bls ${FF_LIBRARY} procps boost_system boost_program_options)
+SET(LINK_LIBRARIES Threads::Threads Boost::log Boost::thread Boost::system Boost::filesystem ${LIB_NAME_cryptopp} ZeroMQ::libzmq-static leveldb::leveldb bls ${FF_LIBRARY} Boost::program_options)
 
 
 # consensus library
