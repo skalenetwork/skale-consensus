@@ -86,8 +86,8 @@ find_package(Threads REQUIRED)
 set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_MULTITHREADED ON)
 
-hunter_add_package(Boost COMPONENTS filesystem system thread log random)
-find_package(Boost CONFIG REQUIRED filesystem system thread log random)
+hunter_add_package(Boost COMPONENTS filesystem system thread log random program_options)
+find_package(Boost CONFIG REQUIRED filesystem system thread log random program_options)
 
 hunter_add_package(spdlog)
 find_package(spdlog)
@@ -167,7 +167,22 @@ message(INFO "${BLS_DEPS_INSTALL_ROOT}")
 include_directories(${BLS_INCLUDE_DIRS} "${BLS_DEPS_INSTALL_ROOT}/include")
 link_directories(${BLS_WITH_FF_INCLUDE_DIRS} "${BLS_DEPS_INSTALL_ROOT}/lib")
 
-SET(LINK_LIBRARIES Threads::Threads Boost::log Boost::thread Boost::system Boost::filesystem ${LIB_NAME_cryptopp} ZeroMQ::libzmq-static leveldb::leveldb bls ${FF_LIBRARY} procps boost_system boost_program_options)
+if( SKALE_HAVE_BOOST_FROM_HUNTER )
+  set( BOOST_LIBS_4_CONSENSUS
+    Boost::log Boost::thread Boost::system Boost::filesystem Boost::program_options
+    )
+else()
+  set( BOOST_LIBS_4_CONSENSUS
+    #boost_log
+    boost_thread boost_system boost_filesystem boost_program_options
+    )
+endif()
+
+SET( LINK_LIBRARIES
+  Threads::Threads
+  ${BOOST_LIBS_4_CONSENSUS}
+  ${LIB_NAME_cryptopp} ZeroMQ::libzmq-static leveldb::leveldb bls ${FF_LIBRARY}
+  )
 
 
 # consensus library
