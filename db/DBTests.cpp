@@ -54,8 +54,9 @@ void test_committed_block_save() {
     auto db = make_shared<BlockDB>(fileName, node_id(1), 200);
 
 
+
     for (int i = 1; i < 200; i++) {
-        auto t = CommittedBlock::createRandomSample(i, gen, ubyte);
+        auto t = CommittedBlock::createRandomSample(cryptoManager, i, gen, ubyte);
 
         db->saveBlock(t, 200);
 

@@ -64,8 +64,9 @@ public:
     ptr< vector< uint8_t > > getSerialized();
 
 
-    static ptr< CommittedBlock > createRandomSample( uint64_t _size, boost::random::mt19937& _gen,
-        boost::random::uniform_int_distribution<>& _ubyte, block_id _blockID = block_id( 1 ) );
+    static ptr< CommittedBlock > createRandomSample(ptr<CryptoManager> _manager, uint64_t _size, boost::random::mt19937& _gen,
+        boost::random::uniform_int_distribution<>& _ubyte,
+        block_id _blockID = block_id( 1 ) );
 
 
     static void serializedSanityCheck(ptr<vector<uint8_t>> _serializedBlock);

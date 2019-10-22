@@ -63,11 +63,12 @@ protected:
 
     BlockProposal(uint64_t _timeStamp, uint32_t _timeStampMs);
 
-    BlockProposal(schain_id _sChainId, node_id _proposerNodeId, block_id _blockID, schain_index _proposerIndex,
-                  ptr<TransactionList> _transactions, uint64_t _timeStamp, __uint32_t _timeStampMs);
 
 
 public:
+
+    BlockProposal(schain_id _sChainId, node_id _proposerNodeId, block_id _blockID, schain_index _proposerIndex,
+                  ptr<TransactionList> _transactions, uint64_t _timeStamp, __uint32_t _timeStampMs);
 
     uint64_t getTimeStamp() const;
 

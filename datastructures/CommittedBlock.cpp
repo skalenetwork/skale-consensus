@@ -215,7 +215,7 @@ CommittedBlock::CommittedBlock(const schain_id &sChainId, const node_id &propose
 }
 
 
-ptr<CommittedBlock> CommittedBlock::createRandomSample(uint64_t _size,
+ptr<CommittedBlock> CommittedBlock::createRandomSample(ptr<CryptoManager> _manager, uint64_t _size,
                                                        boost::random::mt19937 &_gen,
                                                        boost::random::uniform_int_distribution<> &_ubyte,
                                                        block_id _blockID) {
@@ -223,7 +223,11 @@ ptr<CommittedBlock> CommittedBlock::createRandomSample(uint64_t _size,
 
     static uint64_t MODERN_TIME = 1547640182;
 
-    return make_shared<CommittedBlock>(1, 1, _blockID, 1, list, MODERN_TIME + 1, 1, nullptr);
+    auto proposal =  make_shared<BlockProposal>(1, 1, _blockID, 1, list, MODERN_TIME + 1, 1);
+
+    _manager->signProposalECDSA(proposal.get());
+
+    return make_shared<CommittedBlock>(proposal);
 }
 
 ptr<BlockProposalFragment> CommittedBlock::getFragment(uint64_t _totalFragments, fragment_index _index) {

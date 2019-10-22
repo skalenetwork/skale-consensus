@@ -60,7 +60,7 @@ public:
                                                ptr<vector<uint8_t> > _serializedBlocks, uint64_t _offset);
 
 
-    static ptr<CommittedBlockList> createRandomSample(uint64_t _size,
+    static ptr<CommittedBlockList> createRandomSample(ptr<CryptoManager> _cryptoManager, uint64_t _size,
                                                       boost::random::mt19937 &_gen,
                                                       boost::random::uniform_int_distribution<> &_ubyte);
 };

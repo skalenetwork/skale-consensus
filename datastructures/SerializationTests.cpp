@@ -73,9 +73,11 @@ void test_committed_block_fragment_defragment(bool _fail) {
 
     Log::init();
 
+    auto cryptoManager = make_shared<CryptoManager>();
+
 
     for (int i = 1; i < 200; i++) {
-        auto t = CommittedBlock::createRandomSample(i, gen, ubyte, i);
+        auto t = CommittedBlock::createRandomSample(cryptoManager, i, gen, ubyte, i);
 
         auto list = make_shared<BlockProposalFragmentList>(i, i);
 
@@ -198,7 +200,7 @@ void test_committed_block_serialize_deserialize(bool _fail) {
 
     for (int k = 0; k < 100; k++) {
         for (int i = 0; i < 20; i++) {
-            auto t = CommittedBlock::createRandomSample(i, gen, ubyte);
+            auto t = CommittedBlock::createRandomSample(cryptoManager, i, gen, ubyte);
 
             auto out = t->getSerialized();
 
@@ -235,7 +237,7 @@ void test_committed_block_list_serialize_deserialize() {
 
     for (int k = 0; k < 5; k++) {
         for (int i = 1; i < 50; i++) {
-            auto t = CommittedBlockList::createRandomSample(i, gen, ubyte);
+            auto t = CommittedBlockList::createRandomSample(cryptoManager, i, gen, ubyte);
 
             auto out = t->serialize();
 
