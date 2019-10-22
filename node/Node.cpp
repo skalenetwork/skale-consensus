@@ -159,6 +159,10 @@ void Node::initParamsFromConfig() {
     committedBlockStorageSize =
             getParamUint64("committedBlockStorageSize", COMMITTED_BLOCK_STORAGE_SIZE);
 
+
+    proposalHashesPerDB =
+            getParamUint64("proposalHashesPerDB", PROPOSAL_HASHES_PER_DB);
+
     name = make_shared<string>(cfg.at("nodeName").get<string>());
 
     bindIP = make_shared<string>(cfg.at("bindIP").get<string>());
@@ -179,47 +183,7 @@ void Node::initParamsFromConfig() {
     testConfig = make_shared<TestConfig>(cfg);
 }
 
-uint64_t Node::getParamUint64(const string &_paramName, uint64_t paramDefault) {
-    try {
-        if (cfg.find(_paramName) != cfg.end()) {
-            return cfg.at(_paramName).get<uint64_t>();
-        } else {
-            return paramDefault;
-        }
-    } catch (...) {
-        throw_with_nested(
-                ParsingException("Could not parse param " + _paramName, __CLASS_NAME__));
-    }
-}
 
-int64_t Node::getParamInt64(const string &_paramName, uint64_t _paramDefault) {
-    try {
-        if (cfg.find(_paramName) != cfg.end()) {
-            return cfg.at(_paramName).get<uint64_t>();
-        } else {
-            return _paramDefault;
-        }
-
-    } catch (...) {
-        throw_with_nested(
-                ParsingException("Could not parse param " + _paramName, __CLASS_NAME__));
-    }
-}
-
-
-ptr<string> Node::getParamString(const string &_paramName, string &_paramDefault) {
-    try {
-        if (cfg.find(_paramName) != cfg.end()) {
-            return make_shared<string>(cfg.at(_paramName).get<string>());
-        } else {
-            return make_shared<string>(_paramDefault);
-        }
-
-    } catch (...) {
-        throw_with_nested(
-                ParsingException("Could not parse param " + _paramName, __CLASS_NAME__));
-    }
-}
 
 
 Node::~Node() {}
@@ -230,12 +194,9 @@ void Node::cleanLevelDBs() {
     committedTransactionDB = nullptr;
     signatureDB = nullptr;
     priceDB = nullptr;
+    proposalHashDB = nullptr;
 }
 
-
-node_id Node::getNodeID() const {
-    return nodeID;
-}
 
 
 void Node::startServers() {
@@ -408,9 +369,6 @@ void Node::exit() {
     cleanLevelDBs();
 }
 
-bool Node::isExitRequested() {
-    return exitRequested;
-}
 
 
 void Node::closeAllSocketsAndNotifyAllAgentsAndThreads() {
@@ -435,92 +393,8 @@ void Node::registerAgent(Agent *_agent) {
 }
 
 
-ptr<map<schain_index, ptr<NodeInfo> > > Node::getNodeInfosByIndex() const {
-    return nodeInfosByIndex;
-}
 
 
-ptr<TransportNetwork> Node::getNetwork() const {
-    ASSERT(network);
-    return network;
-}
-
-nlohmann::json Node::getCfg() const {
-    return cfg;
-}
-
-
-Sockets *Node::getSockets() const {
-    // ASSERT(sockets);
-    return sockets.get();
-}
-
-Schain *Node::getSchain() const {
-    ASSERT(sChain);
-    return sChain.get();
-}
-
-
-ptr<Log> Node::getLog() const {
-    ASSERT(log);
-    return log;
-}
-
-
-ptr<string> Node::getBindIP() const {
-    ASSERT(bindIP != nullptr);
-    return bindIP;
-}
-
-network_port Node::getBasePort() const {
-    ASSERT(basePort > 0);
-    return basePort;
-}
-
-bool Node::isStarted() const {
-    return startedServers;
-}
-
-
-ptr<NodeInfo> Node::getNodeInfoByIndex(schain_index _index) {
-    if (nodeInfosByIndex->count(_index) == 0)
-        return nullptr;;
-    return nodeInfosByIndex->at(_index);
-}
-
-
-ptr<NodeInfo> Node::getNodeInfoByIP(ptr<string> ip) {
-    if (nodeInfosByIP->count(ip) == 0)
-        return nullptr;
-    return nodeInfosByIP->at(ip);
-}
-
-
-ptr<BlockDB> Node::getBlockDB() {
-    ASSERT(blockDB != nullptr);
-    return blockDB;
-}
-
-ptr<RandomDB> Node::getRandomDB() {
-    ASSERT(randomDB != nullptr);
-    return randomDB;
-}
-
-ptr<CommittedTransactionDB> Node::getCommittedTransactionDB() const {
-    ASSERT(committedTransactionDB != nullptr);
-    return committedTransactionDB;
-}
-
-
-ptr<SigDB> Node::getSignatureDB() const {
-    ASSERT(signatureDB != nullptr);
-    return signatureDB;
-}
-
-ptr<PriceDB> Node::getPriceDB() const {
-    ASSERT(priceDB != nullptr)
-    return priceDB;
-}
 
 
 void Node::exitCheck() {
@@ -543,83 +417,6 @@ void Node::exitOnFatalError(const string &_message) {
     LOG(critical, _message);
 }
 
-uint64_t Node::getCatchupIntervalMs() {
-    return catchupIntervalMS;
-}
-
-
-uint64_t Node::getMonitoringIntervalMs() {
-    return monitoringIntervalMS;
-}
-
-uint64_t Node::getWaitAfterNetworkErrorMs() {
-    return waitAfterNetworkErrorMs;
-}
-
-ConsensusEngine *Node::getConsensusEngine() const {
-    return consensusEngine;
-}
-
-uint64_t Node::getEmptyBlockIntervalMs() const {
-    return emptyBlockIntervalMs;
-}
-
-uint64_t Node::getBlockProposalHistorySize() const {
-    return blockProposalHistorySize;
-}
-
-uint64_t Node::getMaxCatchupDownloadBytes() const {
-    return maxCatchupDownloadBytes;
-}
-
-
-uint64_t Node::getMaxTransactionsPerBlock() const {
-    return maxTransactionsPerBlock;
-}
-
-uint64_t Node::getMinBlockIntervalMs() const {
-    return minBlockIntervalMs;
-}
-
-uint64_t Node::getCommittedBlockStorageSize() const {
-    return committedBlockStorageSize;
-}
-
-uint64_t Node::getCommittedTransactionHistoryLimit() const {
-    return committedTransactionsHistory;
-}
-
 set<node_id> Node::nodeIDs;
 
 
-ptr<BLSPublicKey> Node::getBlsPublicKey() const {
-    if (!blsPublicKey) {
-        BOOST_THROW_EXCEPTION(FatalError("Null BLS public key", __CLASS_NAME__));
-    }
-    return blsPublicKey;
-}
-
-ptr<BLSPrivateKeyShare> Node::getBlsPrivateKey() const {
-    if (!blsPrivateKey) {
-        BOOST_THROW_EXCEPTION(FatalError("Null BLS private key", __CLASS_NAME__));
-    }
-    return blsPrivateKey;
-}
-
-bool Node::isBlsEnabled() const {
-    return isBLSEnabled;
-}
-
-void Node::setBasePort(const network_port &_basePort) {
-    CHECK_ARGUMENT(_basePort > 0);
-    basePort = _basePort;
-}
-
-uint64_t Node::getSimulateNetworkWriteDelayMs() const {
-    return simulateNetworkWriteDelayMs;
-}
-
-const ptr<TestConfig> &Node::getTestConfig() const {
-    CHECK_STATE(testConfig != nullptr)
-    return testConfig;
-}

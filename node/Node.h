@@ -69,6 +69,8 @@ class RandomDB;
 
 class PriceDB;
 
+class ProposalHashDB;
+
 class TestConfig;
 
 
@@ -161,6 +163,8 @@ private:
 
     ptr<PriceDB> priceDB = nullptr;
 
+    ptr<ProposalHashDB> proposalHashDB = nullptr;
+
 
     uint64_t catchupIntervalMS;
 
@@ -182,6 +186,8 @@ private:
     uint64_t minBlockIntervalMs;
 
     uint64_t committedBlockStorageSize;
+
+    uint64_t proposalHashesPerDB;
 
 
     ptr<BLSPublicKey> blsPublicKey;
@@ -324,4 +330,6 @@ public:
     void initBLSKeys();
 
     void setEmptyBlockIntervalMs(uint64_t _interval) { this->emptyBlockIntervalMs = _interval; }
+
+    const ptr<ProposalHashDB> &getProposalHashDb() const;
 };

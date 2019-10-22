@@ -24,77 +24,58 @@
 
 #include "../SkaleCommon.h"
 #include "../Log.h"
+#include "../crypto/SHAHash.h"
 #include "../chains/Schain.h"
 #include "../exceptions/InvalidStateException.h"
 #include "../datastructures/CommittedBlock.h"
 
 #include "ProposalHashDB.h"
 
-ptr<vector<uint8_t> > ProposalHashDB::getSerializedBlockFromLevelDB(block_id _blockID) {
 
-    try {
-
-        auto key = createKey(_blockID);
-
-        auto value = readString(*key);
-
-        if (value) {
-            auto serializedBlock = make_shared<vector<uint8_t>>();
-            serializedBlock->insert(serializedBlock->begin(), value->data(), value->data() + value->size());
-            CommittedBlock::serializedSanityCheck(serializedBlock);
-            return serializedBlock;
-        } else {
-            return nullptr;
-        }
-
-
-    } catch (...) {
-        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
-    }
-}
-
-ProposalHashDB::ProposalHashDB(string &_filename, node_id _nodeId, uint64_t _storageSize) : LevelDB(_filename, _nodeId) {
-
-    CHECK_ARGUMENT(_storageSize != 0);
-    storageSize = _storageSize;
+ProposalHashDB::ProposalHashDB(string &_filename, node_id _nodeId, uint64_t _blockIdsPerDB) : LevelDB(_filename,
+                                                                                                      _nodeId) {
+    CHECK_ARGUMENT(_blockIdsPerDB != 0);
+    blockIdsPerDB = _blockIdsPerDB;
 }
 
 
-void ProposalHashDB::saveBlock2LevelDB(ptr<CommittedBlock> &_block) {
+bool ProposalHashDB::checkAndSaveHash(ptr<BlockProposal> &_block, block_id /*_lastCommittedBlockID*/) {
 
-
-    CHECK_ARGUMENT(_block->getSignature() != nullptr);
 
     lock_guard<recursive_mutex> lock(mutex);
 
     try {
 
-        auto serializedBlock = _block->getSerialized();
+        auto hexHash = _block->getHash()->toHex();
 
-        auto key = createKey(_block->getBlockID());
+        auto key = createKey(_block->getBlockID(), _block->getProposerIndex());
 
-        auto value = (const char *) serializedBlock->data();
+        auto previous = readString(*key);
 
-        auto valueLen = serializedBlock->size();
+        if (previous == nullptr) {
+            writeString(*key, *hexHash);
+            return true;
+        }
 
-        writeByteArray(*key, value, valueLen);
+        return (*previous == *hexHash);
+
     } catch (...) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
 
 }
 
-ptr<string> ProposalHashDB::createKey(const block_id _blockId) {
-    return make_shared<string>(getFormatVersion() + ":" + to_string(nodeId) + ":" + to_string(_blockId));
+ptr<string> ProposalHashDB::createKey(block_id _blockId, schain_index _proposerIndex) {
+    return make_shared<string>(getFormatVersion() + ":" + to_string(_blockId) + ":" + to_string(_proposerIndex));
 }
 
 const string ProposalHashDB::getFormatVersion() {
     return "1.0";
 }
 
-uint64_t ProposalHashDB::readCounter() {
+uint64_t ProposalHashDB::readBlockLimit() {
 
-    static string count(":COUNT");
+    static string count(":MAX_BLOCK_ID");
 
 
     lock_guard<recursive_mutex> lock(mutex);
@@ -116,43 +97,6 @@ uint64_t ProposalHashDB::readCounter() {
 }
 
 
-void ProposalHashDB::saveBlock(ptr<CommittedBlock> &_block, block_id _lastCommittedBlockID) {
-
-
-    CHECK_ARGUMENT(_block->getSignature() != nullptr);
-
-    try {
-        lock_guard<recursive_mutex> lock(mutex);
-
-        saveBlockToBlockCache(_block, _lastCommittedBlockID);
-        saveBlock2LevelDB(_block);
-
-    } catch (...) {
-        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
-    }
-
-}
 
 
 
-ptr<CommittedBlock> ProposalHashDB::getBlock(block_id _blockID, ptr<CryptoManager> _cryptoManager) {
-
-
-    std::lock_guard<std::recursive_mutex> lock(mutex);
-
-    try {
-
-        auto serializedBlock = getSerializedBlockFromLevelDB(_blockID);
-
-        if (serializedBlock == nullptr) {
-            return nullptr;
-        }
-
-        return CommittedBlock::deserialize(serializedBlock, _cryptoManager);
-    }
-
-    catch (...) {
-        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
-    }
-
-}
