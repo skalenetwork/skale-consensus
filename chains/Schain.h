@@ -31,7 +31,7 @@ class NetworkMessageEnvelope;
 class WorkerThreadPool;
 class NodeInfo;
 class ReceivedBlockProposalsDatabase;
-class ReceivedSigSharesDatabase;
+class ReceivedDASigSharesDatabase;
 class ServerConnection;
 class BlockProposal;
 class PartialHashesList;
@@ -114,7 +114,7 @@ class Schain : public Agent {
 
     ptr<ReceivedBlockProposalsDatabase> blockProposalsDatabase;
 
-    ptr<ReceivedSigSharesDatabase> blockSigSharesDatabase;
+    ptr<ReceivedDASigSharesDatabase> receivedDASigSharesDatabase;
 
     ptr<CryptoManager> cryptoManager;
 

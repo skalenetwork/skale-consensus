@@ -89,7 +89,7 @@ BlockProposalClientAgent::readAndProcessMissingTransactionsRequestHeader(
     return mtrh;
 }
 
-ptr<FinalProposalResponseHeader>
+void
 BlockProposalClientAgent::readAndProcessFinalProposalResponseHeader(
         ptr< ClientSocket > _socket ) {
     auto js =
@@ -99,12 +99,10 @@ BlockProposalClientAgent::readAndProcessFinalProposalResponseHeader(
 
     if (status != CONNECTION_SUCCESS) {
         LOG(err, "Server refused block sig");
-        return nullptr;
+        return;
     }
 
     auto sigShare = Header::getString( js, "sigShare" );
-    return make_shared<FinalProposalResponseHeader>(sigShare);
-
 }
 
 
@@ -241,6 +239,8 @@ void BlockProposalClientAgent::sendItemImpl(
     LOG( trace, "Proposal step 6: sent missing transactions" );
 
     readAndProcessFinalProposalResponseHeader(socket);
+
+    LOG( trace, "Proposal step 7: got final response" );
 }
 
 

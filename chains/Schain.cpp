@@ -54,8 +54,8 @@
 #include "../messages/MessageEnvelope.h"
 #include "../messages/NetworkMessageEnvelope.h"
 #include "../node/NodeInfo.h"
-#include "../blockfinalize/received/ReceivedBlockSigSharesDatabase.h"
 #include "../blockproposal/received/ReceivedBlockProposalsDatabase.h"
+#include "../blockproposal/received/ReceivedDASigSharesDatabase.h"
 #include "../network/Sockets.h"
 #include "../protocols/ProtocolInstance.h"
 #include "../protocols/blockconsensus/BlockConsensusAgent.h"
@@ -250,7 +250,7 @@ void Schain::constructChildAgents() {
         catchupClientAgent = make_shared<CatchupClientAgent>(*this);
         blockConsensusInstance = make_shared<BlockConsensusAgent>(*this);
         blockProposalsDatabase = make_shared<ReceivedBlockProposalsDatabase>(*this);
-        blockSigSharesDatabase = make_shared<ReceivedBlockSigSharesDatabase>(*this);
+        receivedDASigSharesDatabase = make_shared<ReceivedDASigSharesDatabase>(*this);
         testMessageGeneratorAgent = make_shared<TestMessageGeneratorAgent>(*this);
         pricingAgent = make_shared<PricingAgent>(*this);
         cryptoManager = make_shared<CryptoManager>(*this);
@@ -598,12 +598,12 @@ void Schain::sigShareArrived(ptr<ConsensusBLSSigShare> _sigShare) {
 
     checkForExit();
 
-    if (blockSigSharesDatabase->addSigShare(_sigShare)) {
+    if (receivedDASigSharesDatabase->addSigShare(_sigShare)) {
         auto blockId = _sigShare->getBlockId();
         auto mySig = getCryptoManager()->signBLS(getBlock(blockId)->getHash(), blockId);
-        blockSigSharesDatabase->addSigShare(mySig);
-        ASSERT(blockSigSharesDatabase->isTwoThird(blockId));
-        blockSigSharesDatabase->mergeAndSaveBLSSignature(blockId);
+        receivedDASigSharesDatabase->addSigShare(mySig);
+        ASSERT(receivedDASigSharesDatabase->isTwoThird(blockId));
+        receivedDASigSharesDatabase->mergeAndSaveBLSSignature(blockId);
     };
 }
 

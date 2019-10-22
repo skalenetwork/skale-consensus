@@ -16,48 +16,47 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file ReceivedSigSharesDatabase.cpp
+    @file ReceivedDASigSharesDatabase.cpp
     @author Stan Kladko
     @date 2019
 */
 
-#include "../SkaleCommon.h"
-#include "../Agent.h"
-#include "../Log.h"
-#include "../exceptions/FatalError.h"
-#include "../thirdparty/json.hpp"
+#include "../../SkaleCommon.h"
+#include "../../Agent.h"
+#include "../../Log.h"
+#include "../../exceptions/FatalError.h"
+#include "../../thirdparty/json.hpp"
 
-#include "ConsensusBLSSigShare.h"
-#include "ConsensusBLSSignature.h"
+#include "../../crypto/ConsensusBLSSigShare.h"
+#include "../../crypto/ConsensusBLSSignature.h"
 
-#include "../abstracttcpserver/ConnectionStatus.h"
-#include "../chains/Schain.h"
-#include "../node/Node.h"
-#include "../pendingqueue/PendingTransactionsAgent.h"
-#include "ConsensusBLSSigShare.h"
-#include "ConsensusSigShareSet.h"
-#include "CryptoManager.h"
-#include "SHAHash.h"
+#include "../../abstracttcpserver/ConnectionStatus.h"
+#include "../../chains/Schain.h"
+#include "../../node/Node.h"
+#include "../../pendingqueue/PendingTransactionsAgent.h"
+#include "../../crypto/ConsensusBLSSigShare.h"
+#include "../../crypto/ConsensusSigShareSet.h"
+#include "../../crypto/CryptoManager.h"
+#include "../../crypto/SHAHash.h"
 #include "leveldb/db.h"
 
-#include "../db/SigDB.h"
-#include "ReceivedSigSharesDatabase.h"
+#include "../../db/SigDB.h"
+#include "ReceivedDASigSharesDatabase.h"
 #include "BLSSigShare.h"
 #include "BLSSignature.h"
 #include "BLSSigShareSet.h"
-#include "ThresholdSigShare.h"
+#include "../../crypto/ThresholdSigShare.h"
 
 
 using namespace std;
 
 
 
-ReceivedSigSharesDatabase::ReceivedSigSharesDatabase(Schain &_sChain) : Agent(_sChain, true){
+ReceivedDASigSharesDatabase::ReceivedDASigSharesDatabase(Schain &_sChain) {
+    this->sChain = &_sChain;
 };
 
-
-
-ptr<ThresholdSignature> ReceivedSigSharesDatabase::getBLSSignature(block_id _blockId) {
+ptr<ThresholdSignature> ReceivedDASigSharesDatabase::getBLSSignature(block_id _blockId) {
     lock_guard<recursive_mutex> lock(sigShareDatabaseMutex);
 
     if (blockSignatures.find(_blockId) != blockSignatures.end()) {
@@ -67,7 +66,7 @@ ptr<ThresholdSignature> ReceivedSigSharesDatabase::getBLSSignature(block_id _blo
     }
 }
 
-void ReceivedSigSharesDatabase::mergeAndSaveBLSSignature(block_id _blockId) {
+void ReceivedDASigSharesDatabase::mergeAndSaveBLSSignature(block_id _blockId) {
 
     lock_guard<recursive_mutex> lock(sigShareDatabaseMutex);
 
@@ -79,16 +78,11 @@ void ReceivedSigSharesDatabase::mergeAndSaveBLSSignature(block_id _blockId) {
     auto sigSet = getSigShareSet(_blockId);
     ASSERT(sigSet->isEnough());
     auto signature = sigSet->mergeSignature();
-    blockSignatures[_blockId] = signature;
-
-    auto db = getNode()->getSignatureDB();
-
-    db->addSignature(_blockId, signature);
 
     sigShareSets[_blockId] = nullptr;
 }
 
-bool ReceivedSigSharesDatabase::addSigShare(ptr<ThresholdSigShare> _sigShare) {
+bool ReceivedDASigSharesDatabase::addSigShare(ptr<ThresholdSigShare> _sigShare) {
 
 
     ASSERT(_sigShare);
@@ -100,7 +94,7 @@ bool ReceivedSigSharesDatabase::addSigShare(ptr<ThresholdSigShare> _sigShare) {
 
     if (this->sigShareSets.count(_sigShare->getBlockId()) == 0) {
         sigShareSets[_sigShare->getBlockId()] =
-                getSchain()->getCryptoManager()->createSigShareSet(_sigShare->getBlockId(),
+                sChain->getCryptoManager()->createSigShareSet(_sigShare->getBlockId(),
                                                                    sChain->getTotalSignersCount(), sChain->getRequiredSignersCount());
     }
 
@@ -115,12 +109,12 @@ bool ReceivedSigSharesDatabase::addSigShare(ptr<ThresholdSigShare> _sigShare) {
 
 
 
-ptr<ThresholdSigShareSet> ReceivedSigSharesDatabase::getSigShareSet(block_id blockID) {
+ptr<ThresholdSigShareSet> ReceivedDASigSharesDatabase::getSigShareSet(block_id blockID) {
 
     lock_guard<recursive_mutex> lock(sigShareDatabaseMutex);
 
     if (sigShareSets.count(blockID) == 0) {
-        sigShareSets[blockID] = getSchain()->getCryptoManager()->createSigShareSet(blockID,
+        sigShareSets[blockID] = sChain->getCryptoManager()->createSigShareSet(blockID,
                                                                                    sChain->getTotalSignersCount(), sChain->getRequiredSignersCount());
     }
 
@@ -129,7 +123,7 @@ ptr<ThresholdSigShareSet> ReceivedSigSharesDatabase::getSigShareSet(block_id blo
 
 
 
-bool ReceivedSigSharesDatabase::isTwoThird(block_id _blockID) {
+bool ReceivedDASigSharesDatabase::isTwoThird(block_id _blockID) {
 
 
     lock_guard<recursive_mutex> lock(sigShareDatabaseMutex);

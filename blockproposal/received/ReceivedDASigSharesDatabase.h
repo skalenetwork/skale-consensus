@@ -16,7 +16,7 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file ReceivedSigSharesDatabase.h
+    @file ReceivedDASigSharesDatabase.h
     @author Stan Kladko
     @date 2019
 */
@@ -25,7 +25,7 @@
 
 
 
-#include "../Agent.h"
+#include "../../Agent.h"
 
 class ConsensusSigShareSet;
 class ConsensusBLSSignature;
@@ -35,7 +35,9 @@ class ThresholdSigShareSet;
 class ThresholdSignature;
 class ThresholdSigShare;
 
-class ReceivedSigSharesDatabase : Agent {
+class ReceivedDASigSharesDatabase {
+
+    Schain* sChain;
 
     recursive_mutex sigShareDatabaseMutex;
 
@@ -52,7 +54,7 @@ public:
 
 
 
-    explicit ReceivedSigSharesDatabase(Schain &_sChain);
+    explicit ReceivedDASigSharesDatabase(Schain &_sChain);
 
     bool addSigShare(ptr<ThresholdSigShare> _proposal);
 

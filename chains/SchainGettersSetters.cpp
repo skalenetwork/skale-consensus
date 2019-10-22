@@ -58,14 +58,10 @@
 #include "../messages/MessageEnvelope.h"
 #include "../messages/NetworkMessageEnvelope.h"
 #include "../node/NodeInfo.h"
-
-
-#include "../blockfinalize/received/ReceivedBlockSigSharesDatabase.h"
 #include "../blockproposal/received/ReceivedBlockProposalsDatabase.h"
 #include "../network/Sockets.h"
 #include "../protocols/ProtocolInstance.h"
 #include "../protocols/blockconsensus/BlockConsensusAgent.h"
-
 #include "../network/ClientSocket.h"
 #include "../network/IO.h"
 #include "../network/ZMQServerSocket.h"

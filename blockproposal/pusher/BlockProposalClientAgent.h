@@ -51,7 +51,7 @@ class BlockProposalClientAgent : public AbstractClientAgent {
     ptr<MissingTransactionsRequestHeader> readAndProcessMissingTransactionsRequestHeader(ptr<ClientSocket> _socket);
 
 
-    ptr<FinalProposalResponseHeader> readAndProcessFinalProposalResponseHeader(ptr<ClientSocket> _socket);
+    void readAndProcessFinalProposalResponseHeader(ptr<ClientSocket> _socket);
 
 
 
