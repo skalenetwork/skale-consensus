@@ -45,6 +45,8 @@ public:
 
     FinalProposalResponseHeader(ptr <string> sigShare);
 
+    FinalProposalResponseHeader(ConnectionStatus _status, ConnectionSubStatus _substatus);
+
     void addFields(nlohmann::basic_json<> &_j) override;
 
 };
