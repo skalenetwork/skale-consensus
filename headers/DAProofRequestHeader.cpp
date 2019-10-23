@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2019 SKALE Labs
+    Copyright (C) 2018-2019 SKALE Labs
 
     This file is part of skale-consensus.
 
@@ -18,22 +18,16 @@
 
     @file DAProofRequestHeader.cpp
     @author Stan Kladko
-    @date 2019
+    @date 2018
 */
-
 
 #include "../SkaleCommon.h"
 #include "../crypto/SHAHash.h"
 #include "../Log.h"
 #include "../exceptions/FatalError.h"
-#include "../exceptions/InvalidArgumentException.h"
-
 #include "../thirdparty/json.hpp"
 #include "../abstracttcpserver/ConnectionStatus.h"
-
 #include "../datastructures/BlockProposal.h"
-#include "../datastructures/CommittedBlock.h"
-
 #include "../node/Node.h"
 #include "../node/NodeInfo.h"
 #include "../chains/Schain.h"
@@ -44,34 +38,50 @@
 
 using namespace std;
 
+DAProofRequestHeader::DAProofRequestHeader(nlohmann::json _proposalRequest, node_count _nodeCount)
+        : AbstractBlockRequestHeader(_nodeCount, (schain_id) Header::getUint64(_proposalRequest, "schainID"),
+                                     (block_id) Header::getUint64(_proposalRequest, "blockID"),
+                                     Header::DA_PROOF_REQ,
+                                     (schain_index) Header::getUint64(_proposalRequest, "proposerIndex")) {
 
-DAProofRequestHeader::DAProofRequestHeader(Schain &_sChain, block_id _blockID, schain_index _proposerIndex,
-                                           ptr<string> _sig) :
-        AbstractBlockRequestHeader(_sChain.getNodeCount(), _sChain.getSchainID(), _blockID,
-                                   Header::DA_PROOF_REQ, _proposerIndex), thresholdSig(_sig) {
+    proposerNodeID = (node_id) Header::getUint64(_proposalRequest, "proposerNodeID");
+    thresholdSig = Header::getString(_proposalRequest, "sig");
+}
 
-    CHECK_ARGUMENT(_sig != nullptr);
+DAProofRequestHeader::DAProofRequestHeader(Schain &_sChain, ptr<BlockProposal> proposal) :
+        AbstractBlockRequestHeader(_sChain.getNodeCount(), _sChain.getSchainID(), proposal->getBlockID(),
+                                   Header::BLOCK_PROPOSAL_REQ,
+                                   _sChain.getSchainIndex()) {
+
+
+    this->proposerNodeID = _sChain.getNode()->getNodeID();
+
+    this->thresholdSig = proposal->getSignature();
 
     complete = true;
+
 }
 
 void DAProofRequestHeader::addFields(nlohmann::basic_json<> &jsonRequest) {
 
     AbstractBlockRequestHeader::addFields(jsonRequest);
 
-    jsonRequest["blsSig"] = *thresholdSig;
+    jsonRequest["schainID"] = (uint64_t) schainID;
+    jsonRequest["proposerNodeID"] = (uint64_t) proposerNodeID;
+    jsonRequest["proposerIndex"] = (uint64_t) proposerIndex;
+    jsonRequest["blockID"] = (uint64_t) blockID;
+    CHECK_STATE(thresholdSig != nullptr);
+    jsonRequest["thresholdSig"] = *thresholdSig;
+}
 
+const node_id &DAProofRequestHeader::getProposerNodeId() const {
+    return proposerNodeID;
 }
 
 
-DAProofRequestHeader::DAProofRequestHeader(nlohmann::json _proposalRequest, node_count _nodeCount) :
-        AbstractBlockRequestHeader(_nodeCount, (schain_id) Header::getUint64(_proposalRequest, "schainID"),
-                                   (block_id) Header::getUint64(_proposalRequest, "blockID"),
-                                   Header::DA_PROOF_REQ,
-                                   (schain_index) Header::getUint64(_proposalRequest, "proposerIndex")) {
 
-
-    thresholdSig = Header::getString(_proposalRequest, "thrSig");
-
-
+ptr<string> DAProofRequestHeader::getSignature() const {
+    return thresholdSig;
 }
+
+

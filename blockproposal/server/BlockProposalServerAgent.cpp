@@ -72,6 +72,7 @@
 #include "../../headers/AbstractBlockRequestHeader.h"
 #include "../../headers/BlockProposalHeader.h"
 #include "../../headers/DAProofRequestHeader.h"
+#include "../../headers/DAProofResponseHeader.h"
 
 
 #include "../../crypto/ConsensusBLSSigShare.h"
@@ -472,11 +473,11 @@ ptr<Header> BlockProposalServerAgent::createProposalResponseHeader(ptr<ServerCon
 }
 
 ptr<Header> BlockProposalServerAgent::createDAProofResponseHeader(ptr<ServerConnection>
-        /*_connectionEnvelope */,
+        _connectionEnvelope,
                                                                    DAProofRequestHeader
-                                                                   /*_header*/) {
-    /*
-    auto responseHeader = make_shared<BlockProposalResponseHeader>();
+                                                                   _header) {
+
+    auto responseHeader = make_shared<DAProofResponseHeader>();
 
     if (sChain->getSchainID() != _header.getSchainId()) {
         responseHeader->setStatusSubStatus(CONNECTION_SERVER_ERROR, CONNECTION_ERROR_UNKNOWN_SCHAIN_ID);
@@ -516,47 +517,10 @@ ptr<Header> BlockProposalServerAgent::createDAProofResponseHeader(ptr<ServerConn
     }
 
 
-    ASSERT(_header.getTimeStamp() > MODERN_TIME);
-
-    auto t = Time::getCurrentTimeSec();
-
-    ASSERT(t < (uint64_t) MODERN_TIME * 2);
-
-    if (Time::getCurrentTimeSec() + 1 < _header.getTimeStamp()) {
-        LOG(info, "Incorrect timestamp:" + to_string(
-                _header.getTimeStamp()) + ":vs:" + to_string(Time::getCurrentTimeSec()));
-        responseHeader->setStatusSubStatus(CONNECTION_DISCONNECT, CONNECTION_ERROR_TIME_STAMP_IN_THE_FUTURE);
-        responseHeader->setComplete();
-        return responseHeader;
-    }
-
-
-    if (sChain->getLastCommittedBlockTimeStamp() > _header.getTimeStamp()) {
-        LOG(info, "Incorrect timestamp:" + to_string(_header.getTimeStamp()) + ":vs:" +
-                  to_string(sChain->getLastCommittedBlockTimeStamp()));
-
-        responseHeader->setStatusSubStatus(CONNECTION_DISCONNECT,
-                                           CONNECTION_ERROR_TIME_STAMP_EARLIER_THAN_COMMITTED);
-        responseHeader->setComplete();
-        return responseHeader;
-    }
-
-    if (!getSchain()->getNode()->getProposalHashDb()->checkAndSaveHash(_header.getBlockId(),
-                                                                       _header.getProposerIndex(),
-                                                                       _header.getHash(),
-                                                                       sChain->getLastCommittedBlockID())) {
-
-        LOG(info, "Double proposal for block:" + to_string(_header.getBlockId()) +
-                  "  proposer index:" + to_string(_header.getProposerIndex()));
-        responseHeader->setStatusSubStatus(CONNECTION_DISCONNECT, CONNECTION_DOUBLE_PROPOSAL);
-        responseHeader->setComplete();
-        return responseHeader;
-    }
-    responseHeader->setStatus(CONNECTION_PROCEED);
+    responseHeader->setStatus(CONNECTION_SUCCESS);
     responseHeader->setComplete();
     return responseHeader;
-     */
-    return nullptr;
+
 }
 
 

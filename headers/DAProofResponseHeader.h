@@ -16,38 +16,21 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file DAProofHeader.h
+    @file DAProofResponseHeader.h
     @author Stan Kladko
-    @date 2018
+    @date 2019
 */
 
-#pragma  once
-
-#include "AbstractBlockRequestHeader.h"
-
+#ifndef SKALED_DAPROOFRESPONSEHEADER_H
+#define SKALED_DAPROOFRESPONSEHEADER_H
 
 
-class DAProofRequestHeader : public AbstractBlockRequestHeader{
+#include "Header.h"
 
-
-
-    node_id proposerNodeID;
-    ptr<string> thresholdSig;
-
-
+class DAProofResponseHeader : public Header {
 public:
-
-    DAProofRequestHeader(Schain &_sChain, ptr<BlockProposal> proposal);
-
-    DAProofRequestHeader(nlohmann::json _proposalRequest, node_count _nodeCount);
-
-    void addFields(nlohmann::basic_json<> &jsonRequest) override;
-
-    const node_id &getProposerNodeId() const;
-
-    ptr<string> getSignature() const;
-
+    DAProofResponseHeader();
 };
 
 
-
+#endif //SKALED_DAPROOFRESPONSEHEADER_H
