@@ -38,13 +38,13 @@
 ConsensusBLSSigShare::ConsensusBLSSigShare(
     ptr< BLSSigShare > _sigShare, schain_id _schainID, block_id _blockID, node_id _signerNodeID)
     : ThresholdSigShare(_schainID, _blockID, _signerNodeID, _sigShare->getSignerIndex() ) {
+    ASSERT(false);
     ASSERT( _sigShare != nullptr );
     blsSigShare = _sigShare;
 }
 
 
 ptr< BLSSigShare > ConsensusBLSSigShare::getBlsSigShare() const {
-    ASSERT( blsSigShare );
     return blsSigShare;
 }
 ConsensusBLSSigShare::ConsensusBLSSigShare( ptr< string > _sigShare, schain_id _schainID,

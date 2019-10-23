@@ -43,6 +43,7 @@ using namespace std;
 ConsensusSigShareSet::ConsensusSigShareSet(block_id _blockId, size_t _totalSigners, size_t _requiredSigners )
     : ThresholdSigShareSet(_blockId, _totalSigners, _requiredSigners), blsSet(_totalSigners, _requiredSigners)  {
 
+
     totalObjects++;
 }
 

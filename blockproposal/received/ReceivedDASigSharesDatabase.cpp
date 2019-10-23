@@ -51,7 +51,6 @@
 using namespace std;
 
 
-
 ReceivedDASigSharesDatabase::ReceivedDASigSharesDatabase(Schain &_sChain) {
     this->sChain = &_sChain;
 };
@@ -61,25 +60,33 @@ ptr<ThresholdSignature> ReceivedDASigSharesDatabase::addAndMergeSigShare(ptr<Thr
 
     ASSERT(_sigShare);
 
-    LOG(trace, "addBlockProposal blockID_=" + to_string(_sigShare->getBlockId()) + " proposerIndex=" +
-               to_string(_sigShare->getSignerIndex()));
-
     lock_guard<recursive_mutex> lock(sigShareDatabaseMutex);
 
     if (this->sigShareSets.count(_sigShare->getBlockId()) == 0) {
-        sigShareSets[_sigShare->getBlockId()] =
-                sChain->getCryptoManager()->createSigShareSet(_sigShare->getBlockId(),
-                                                              sChain->getTotalSignersCount(), sChain->getRequiredSignersCount());
+
+        auto set = sChain->getCryptoManager()->createSigShareSet(_sigShare->getBlockId(),
+                                                                 sChain->getTotalSignersCount(),
+                                                                 sChain->getRequiredSignersCount());
+
+        sigShareSets[_sigShare->getBlockId()] = set;
+
+        ASSERT(!set->isEnough());
+
+        LOG(err, "Create set");
     }
 
     auto set = sigShareSets.at(_sigShare->getBlockId());
 
-    if (set->isEnough()) // already merged
+    if (set->isEnough()) { // already merged
+        LOG(err, "IS ENOUGH");
         return nullptr;
+    }
 
+    LOG(err, "Adding sigshare");
     set->addSigShare(_sigShare);
 
     if (set->isEnough()) {
+        LOG(err, "Merged signature");
         return set->mergeSignature();
     }
 

@@ -32,8 +32,8 @@ uint64_t ThresholdSigShareSet::getTotalObjects() {
     return totalObjects;
 }
 
-ThresholdSigShareSet::ThresholdSigShareSet(const block_id &blockId, uint64_t totalSigners, uint64_t requiredSigners)
-        : blockId(blockId), totalSigners(totalSigners), requiredSigners(requiredSigners) {}
+ThresholdSigShareSet::ThresholdSigShareSet(const block_id _blockId, uint64_t _totalSigners, uint64_t _requiredSigners)
+        : blockId(_blockId), totalSigners(_totalSigners), requiredSigners(_requiredSigners) {}
 
 ThresholdSigShareSet::~ThresholdSigShareSet() {
 
