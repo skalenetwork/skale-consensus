@@ -71,5 +71,9 @@ public:
     void sendItemImpl(ptr<DataStructure> _item, shared_ptr<ClientSocket> socket, schain_index _destIndex,
                       node_id _dstNodeId);
 
-};
+    void sendBlockProposal(ptr<BlockProposal> _proposal, shared_ptr<ClientSocket> socket, schain_index _index, node_id _nodeID);
+
+
+
+    };
 

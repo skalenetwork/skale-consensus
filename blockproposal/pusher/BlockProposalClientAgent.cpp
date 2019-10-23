@@ -107,12 +107,23 @@ BlockProposalClientAgent::readAndProcessFinalProposalResponseHeader(
 
 
 void BlockProposalClientAgent::sendItemImpl(
-        ptr<DataStructure> _item, shared_ptr<ClientSocket> socket, schain_index _index, node_id _nodeID) {
-    LOG(trace, "Proposal step 0: Starting block proposal");
-
-    CHECK_ARGUMENT(_item != nullptr);
+        ptr<DataStructure> _item, shared_ptr<ClientSocket> _socket, schain_index _index, node_id _nodeID) {
 
     ptr<BlockProposal> _proposal = dynamic_pointer_cast<BlockProposal>(_item);
+    
+    sendBlockProposal(_proposal, _socket, _index, _nodeID);
+}
+
+
+void BlockProposalClientAgent::sendBlockProposal(
+        ptr<BlockProposal> _proposal, shared_ptr<ClientSocket> socket, schain_index _index, node_id _nodeID) {
+
+
+    LOG(trace, "Proposal step 0: Starting block proposal");
+
+    CHECK_ARGUMENT(_proposal != nullptr);
+
+
 
     assert(_proposal != nullptr);
 
