@@ -249,11 +249,6 @@ void BlockProposalClientAgent::sendItemImpl(
     LOG(err, "Sig share arrived");
     getSchain()->sigShareArrived(sigShare);
 
-
-
-
-
-
     LOG( trace, "Proposal step 7: got final response" );
 }
 
