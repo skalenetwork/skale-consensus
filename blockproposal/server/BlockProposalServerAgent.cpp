@@ -125,12 +125,6 @@ BlockProposalServerAgent::readMissingTransactions(ptr<ServerConnection> connecti
     return missed;
 }
 
-
-BlockProposalWorkerThreadPool *BlockProposalServerAgent::getBlockProposalWorkerThreadPool() const {
-    return blockProposalWorkerThreadPool.get();
-}
-
-
 pair<ptr<map<uint64_t, ptr<Transaction> > >, ptr<map<uint64_t, ptr<partial_sha_hash> > > >
 BlockProposalServerAgent::getPresentAndMissingTransactions(Schain &_sChain, ptr<Header> /*tcpHeader*/,
                                                            ptr<PartialHashesList> _phm) {
@@ -178,10 +172,10 @@ void BlockProposalServerAgent::processNextAvailableConnection(ptr<ServerConnecti
     }
 
 
-    nlohmann::json proposalRequest = nullptr;
+    nlohmann::json clientRequest = nullptr;
 
     try {
-        proposalRequest = getSchain()->getIo()->readJsonHeader(_connection->getDescriptor(), "Read proposal req");
+        clientRequest = getSchain()->getIo()->readJsonHeader(_connection->getDescriptor(), "Read proposal req");
     } catch (ExitRequestedException &) {
         throw;
     } catch (...) {
@@ -189,12 +183,43 @@ void BlockProposalServerAgent::processNextAvailableConnection(ptr<ServerConnecti
     }
 
 
-    auto type = Header::getString(proposalRequest, "type");
+    auto type = Header::getString(clientRequest, "type");
 
     if (strcmp(type->data(), Header::BLOCK_PROPOSAL_REQ) == 0) {
-        processProposalRequest(_connection, proposalRequest);
-    } else {
+        processProposalRequest(_connection, clientRequest);
+    } else if  (strcmp(type->data(), Header::DA_PROOF_REQ) == 0) {
+        processDAProofRequest(_connection, clientRequest);
+    }
+    else {
         BOOST_THROW_EXCEPTION(NetworkProtocolException("Uknown request type:" + *type, __CLASS_NAME__));
+    }
+}
+
+
+void
+BlockProposalServerAgent::processDAProofRequest(ptr<ServerConnection> _connection, nlohmann::json _daProofRequest) {
+    ptr<BlockProposalHeader> requestHeader = nullptr;
+    ptr<Header> responseHeader = nullptr;
+
+    try {
+
+        requestHeader = make_shared<BlockProposalHeader>(_daProofRequest, getSchain()->getNodeCount());
+        responseHeader = this->createProposalResponseHeader(_connection, *requestHeader);
+    } catch (ExitRequestedException &) {
+        throw;
+    } catch (...) {
+        throw_with_nested(NetworkProtocolException("Couldnt create daProof response header", __CLASS_NAME__));
+    }
+
+    try {
+        send(_connection, responseHeader);
+        if (responseHeader->getStatus() != CONNECTION_PROCEED) {
+            return;
+        }
+    } catch (ExitRequestedException &) {
+        throw;
+    } catch (...) {
+        throw_with_nested(NetworkProtocolException("Couldnt send daProof response header", __CLASS_NAME__));
     }
 }
 

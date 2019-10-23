@@ -59,8 +59,8 @@ class BlockProposalServerAgent : public AbstractServerAgent {
 
     void processProposalRequest(ptr<ServerConnection> _connection, nlohmann::json _proposalRequest);
 
+    void processDAProofRequest(ptr<ServerConnection> _connection, nlohmann::json _daProofRequest);
 
-    void processFinalizeRequest(ptr<ServerConnection> _connection, nlohmann::json _finalizeRequest);
 
 
 public:
