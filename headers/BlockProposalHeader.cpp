@@ -39,8 +39,8 @@
 
 using namespace std;
 
-BlockProposalHeader::BlockProposalHeader(nlohmann::json _proposalRequest, node_count nodeCount)
-        : AbstractBlockRequestHeader(nodeCount, (schain_id) Header::getUint64(_proposalRequest, "schainID"),
+BlockProposalHeader::BlockProposalHeader(nlohmann::json _proposalRequest, node_count _nodeCount)
+        : AbstractBlockRequestHeader(_nodeCount, (schain_id) Header::getUint64(_proposalRequest, "schainID"),
                                      (block_id) Header::getUint64(_proposalRequest, "blockID"),
                                      Header::BLOCK_PROPOSAL_REQ,
                                      (schain_index) Header::getUint64(_proposalRequest, "proposerIndex")) {

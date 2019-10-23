@@ -37,6 +37,8 @@ public:
     DAProofRequestHeader(Schain &_sChain, block_id _blockID, schain_index _proposerIndex,
             ptr<string> _sig);
 
+    explicit DAProofRequestHeader(nlohmann::json _proposalRequest, node_count nodeCount);
+
 
 
     void addFields(nlohmann::basic_json<> &jsonRequest) override;

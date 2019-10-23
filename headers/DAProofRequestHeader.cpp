@@ -46,9 +46,9 @@ using namespace std;
 
 
 DAProofRequestHeader::DAProofRequestHeader(Schain &_sChain, block_id _blockID, schain_index _proposerIndex,
-                                                           ptr<string> _sig) :
+                                           ptr<string> _sig) :
         AbstractBlockRequestHeader(_sChain.getNodeCount(), _sChain.getSchainID(), _blockID,
-                Header::DA_PROOF_REQ, _proposerIndex), thresholdSig(_sig) {
+                                   Header::DA_PROOF_REQ, _proposerIndex), thresholdSig(_sig) {
 
     CHECK_ARGUMENT(_sig != nullptr);
 
@@ -64,3 +64,14 @@ void DAProofRequestHeader::addFields(nlohmann::basic_json<> &jsonRequest) {
 }
 
 
+DAProofRequestHeader::DAProofRequestHeader(nlohmann::json _proposalRequest, node_count _nodeCount) :
+        AbstractBlockRequestHeader(_nodeCount, (schain_id) Header::getUint64(_proposalRequest, "schainID"),
+                                   (block_id) Header::getUint64(_proposalRequest, "blockID"),
+                                   Header::DA_PROOF_REQ,
+                                   (schain_index) Header::getUint64(_proposalRequest, "proposerIndex")) {
+
+
+    thresholdSig = Header::getString(_proposalRequest, "thrSig");
+
+
+}
