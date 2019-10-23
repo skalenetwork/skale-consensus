@@ -40,7 +40,6 @@ class BlockProposal : public DataStructure {
 
     ptr<BlockProposalHeader> header = nullptr;
 
-
 protected:
 
     schain_id schainID;
