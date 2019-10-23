@@ -29,6 +29,7 @@
 class BlockProposalWorkerThreadPool;
 class BlockFinalizeResponseHeader;
 class BlockProposalHeader;
+class DAProofRequestHeader;
 class ReceivedBlockProposal;
 
 
@@ -89,12 +90,12 @@ public:
     ptr<Header>
     createFinalResponseHeader(ptr<ReceivedBlockProposal> _proposal);
 
-    ptr<Header>
-    createFinalizeResponseHeader(ptr<ServerConnection> _connectionEnvelope,
-                                 nlohmann::json _jsonRequest);
+    ptr<Header> createDAProofResponseHeader(ptr<ServerConnection> _connectionEnvelope,
+                                                                      DAProofRequestHeader _header);
 
 
-    nlohmann::json
+
+        nlohmann::json
     readMissingTransactionsResponseHeader(ptr<ServerConnection> _connectionEnvelope);
 
 

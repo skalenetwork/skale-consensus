@@ -71,6 +71,7 @@
 #include "../../db/ProposalHashDB.h"
 #include "../../headers/AbstractBlockRequestHeader.h"
 #include "../../headers/BlockProposalHeader.h"
+#include "../../headers/DAProofRequestHeader.h"
 
 
 #include "../../crypto/ConsensusBLSSigShare.h"
@@ -198,17 +199,17 @@ void BlockProposalServerAgent::processNextAvailableConnection(ptr<ServerConnecti
 
 void
 BlockProposalServerAgent::processDAProofRequest(ptr<ServerConnection> _connection, nlohmann::json _daProofRequest) {
-    ptr<BlockProposalHeader> requestHeader = nullptr;
+    ptr<DAProofRequestHeader> requestHeader = nullptr;
     ptr<Header> responseHeader = nullptr;
 
     try {
 
-        requestHeader = make_shared<BlockProposalHeader>(_daProofRequest, getSchain()->getNodeCount());
-        responseHeader = this->createProposalResponseHeader(_connection, *requestHeader);
+        requestHeader = make_shared<DAProofRequestHeader>(_daProofRequest, getSchain()->getNodeCount());
+        responseHeader = this->createDAProofResponseHeader(_connection, *requestHeader);
     } catch (ExitRequestedException &) {
         throw;
     } catch (...) {
-        throw_with_nested(NetworkProtocolException("Couldnt create daProof response header", __CLASS_NAME__));
+        throw_with_nested(NetworkProtocolException("Couldnt create DAProof response header", __CLASS_NAME__));
     }
 
     try {
@@ -469,6 +470,95 @@ ptr<Header> BlockProposalServerAgent::createProposalResponseHeader(ptr<ServerCon
     responseHeader->setComplete();
     return responseHeader;
 }
+
+ptr<Header> BlockProposalServerAgent::createDAProofResponseHeader(ptr<ServerConnection>
+        /*_connectionEnvelope */,
+                                                                   DAProofRequestHeader
+                                                                   /*_header*/) {
+    /*
+    auto responseHeader = make_shared<BlockProposalResponseHeader>();
+
+    if (sChain->getSchainID() != _header.getSchainId()) {
+        responseHeader->setStatusSubStatus(CONNECTION_SERVER_ERROR, CONNECTION_ERROR_UNKNOWN_SCHAIN_ID);
+        BOOST_THROW_EXCEPTION(
+                InvalidSchainException("Incorrect schain " + to_string(_header.getSchainId()), __CLASS_NAME__));
+    };
+
+
+    ptr<NodeInfo> nmi = sChain->getNode()->getNodeInfoByIP(_connectionEnvelope->getIP());
+
+    if (nmi == nullptr) {
+        responseHeader->setStatusSubStatus(CONNECTION_SERVER_ERROR, CONNECTION_ERROR_DONT_KNOW_THIS_NODE);
+        BOOST_THROW_EXCEPTION(InvalidSourceIPException(
+                                      "Could not find node info for IP " + *_connectionEnvelope->getIP()));
+    }
+
+
+    if (nmi->getNodeID() != _header.getProposerNodeId()) {
+        responseHeader->setStatusSubStatus(CONNECTION_SERVER_ERROR, CONNECTION_ERROR_INVALID_NODE_ID);
+
+        BOOST_THROW_EXCEPTION(InvalidNodeIDException("Node ID does not match " +
+                                                     _header.getProposerNodeId(), __CLASS_NAME__));
+    }
+
+    if (nmi->getSchainIndex() != schain_index(_header.getProposerIndex())) {
+        responseHeader->setStatusSubStatus(CONNECTION_SERVER_ERROR, CONNECTION_ERROR_INVALID_NODE_INDEX);
+        BOOST_THROW_EXCEPTION(InvalidSchainIndexException(
+                                      "Node schain index does not match " +
+                                      _header.getProposerIndex(), __CLASS_NAME__ ));
+    }
+
+
+    if (sChain->getLastCommittedBlockID() >= _header.getBlockId()) {
+        responseHeader->setStatusSubStatus(CONNECTION_DISCONNECT, CONNECTION_BLOCK_PROPOSAL_TOO_LATE);
+        responseHeader->setComplete();
+        return responseHeader;
+    }
+
+
+    ASSERT(_header.getTimeStamp() > MODERN_TIME);
+
+    auto t = Time::getCurrentTimeSec();
+
+    ASSERT(t < (uint64_t) MODERN_TIME * 2);
+
+    if (Time::getCurrentTimeSec() + 1 < _header.getTimeStamp()) {
+        LOG(info, "Incorrect timestamp:" + to_string(
+                _header.getTimeStamp()) + ":vs:" + to_string(Time::getCurrentTimeSec()));
+        responseHeader->setStatusSubStatus(CONNECTION_DISCONNECT, CONNECTION_ERROR_TIME_STAMP_IN_THE_FUTURE);
+        responseHeader->setComplete();
+        return responseHeader;
+    }
+
+
+    if (sChain->getLastCommittedBlockTimeStamp() > _header.getTimeStamp()) {
+        LOG(info, "Incorrect timestamp:" + to_string(_header.getTimeStamp()) + ":vs:" +
+                  to_string(sChain->getLastCommittedBlockTimeStamp()));
+
+        responseHeader->setStatusSubStatus(CONNECTION_DISCONNECT,
+                                           CONNECTION_ERROR_TIME_STAMP_EARLIER_THAN_COMMITTED);
+        responseHeader->setComplete();
+        return responseHeader;
+    }
+
+    if (!getSchain()->getNode()->getProposalHashDb()->checkAndSaveHash(_header.getBlockId(),
+                                                                       _header.getProposerIndex(),
+                                                                       _header.getHash(),
+                                                                       sChain->getLastCommittedBlockID())) {
+
+        LOG(info, "Double proposal for block:" + to_string(_header.getBlockId()) +
+                  "  proposer index:" + to_string(_header.getProposerIndex()));
+        responseHeader->setStatusSubStatus(CONNECTION_DISCONNECT, CONNECTION_DOUBLE_PROPOSAL);
+        responseHeader->setComplete();
+        return responseHeader;
+    }
+    responseHeader->setStatus(CONNECTION_PROCEED);
+    responseHeader->setComplete();
+    return responseHeader;
+     */
+    return nullptr;
+}
+
 
 
 ptr<Header> BlockProposalServerAgent::createFinalResponseHeader(ptr<ReceivedBlockProposal> _proposal) {
