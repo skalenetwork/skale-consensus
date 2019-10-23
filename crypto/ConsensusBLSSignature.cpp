@@ -37,14 +37,14 @@
 
 ConsensusBLSSignature::ConsensusBLSSignature(
     ptr< string > _s, block_id _blockID, size_t _totalSigners, size_t _requiredSigners )
-    : ThresholdSignature(_blockID), blsSig( _s, _totalSigners, _requiredSigners ){}
+    : ThresholdSignature(_blockID, _totalSigners, _requiredSigners), blsSig( _s, _totalSigners, _requiredSigners ){}
 
 
 static string dummy_string("");
 
 ConsensusBLSSignature::ConsensusBLSSignature( ptr< libff::alt_bn128_G1 > _s, block_id _blockID,
     size_t _totalSigners, size_t _requiredSigners )
-    : ThresholdSignature(_blockID), blsSig( _s, dummy_string, _totalSigners, _requiredSigners ) {}
+    : ThresholdSignature(_blockID, _totalSigners, _requiredSigners), blsSig( _s, dummy_string, _totalSigners, _requiredSigners ) {}
 
 std::shared_ptr<std::string> ConsensusBLSSignature::toString() {
     return blsSig.toString();

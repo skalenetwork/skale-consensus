@@ -37,11 +37,13 @@
 
 MockupSignature::MockupSignature(
     ptr< string > _s, block_id _blockID, size_t _totalSigners, size_t _requiredSigners )
-    : ThresholdSignature(_blockID), blsSig( _s, _totalSigners, _requiredSigners ){}
+    : ThresholdSignature(_blockID, _totalSigners, _requiredSigners) {
+    s = _s;
+}
 
 
 std::shared_ptr<std::string> MockupSignature::toString() {
-    return make_shared<string>(to_string(blockId));
+    return s;
 };
 
 uint64_t MockupSignature::getRandom() {
