@@ -36,3 +36,6 @@ DataStructure::DataStructure() {
 uint64_t DataStructure::getObjectCreationTime() const {
     return objectCreationTime;
 }
+
+DataStructure::~DataStructure() {}
+

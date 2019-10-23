@@ -28,7 +28,7 @@
 #include "../../abstracttcpclient/AbstractClientAgent.h"
 #include "../Agent.h"
 
-
+class DataStructure;
 class BlockProposal;
 class ClientSocket;
 
@@ -49,12 +49,12 @@ public:
 
     void enqueueBlock( ptr< CommittedBlock > item );
 
-    void sendItem( ptr< BlockProposal > _proposal, schain_index _dstIndex, node_id _dstNodeId );
+    void sendItem(ptr<DataStructure> _item, schain_index _dstIndex, node_id _dstNodeId );
 
-    virtual void sendItemImpl( ptr< BlockProposal >& _proposal, shared_ptr< ClientSocket >& socket,
-        schain_index _destIndex, node_id _dstNodeId ) = 0;
+    virtual void sendItemImpl(ptr<DataStructure> _item, shared_ptr< ClientSocket > socket,
+                              schain_index _destIndex, node_id _dstNodeId ) = 0;
 
-    std::map< schain_index, ptr< queue< ptr< BlockProposal > > > > itemQueue;
+    std::map< schain_index, ptr< queue< ptr< DataStructure > > > > itemQueue;
 
     uint64_t incrementAndReturnThreadCounter();
 

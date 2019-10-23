@@ -58,7 +58,7 @@ AbstractClientAgent::AbstractClientAgent( Schain& _sChain, port_type _portType )
     logThreadLocal_ = _sChain.getNode()->getLog();
 
     for ( uint64_t i = 1; i <= _sChain.getNodeCount(); i++ ) {
-        ( itemQueue ).emplace( schain_index( i ), make_shared< queue< ptr< BlockProposal > > >() );
+        ( itemQueue ).emplace( schain_index( i ), make_shared< queue< ptr< DataStructure > > >() );
         ( queueCond ).emplace( schain_index( i ), make_shared< condition_variable >() );
         ( queueMutex ).emplace( schain_index( i ), make_shared< std::mutex >() );
 
@@ -76,7 +76,7 @@ uint64_t AbstractClientAgent::incrementAndReturnThreadCounter() {
 
 
 void AbstractClientAgent::sendItem(
-    ptr< BlockProposal > _proposal, schain_index _dstIndex, node_id _dstNodeId ) {
+        ptr<DataStructure> _item, schain_index _dstIndex, node_id _dstNodeId ) {
     ASSERT( getNode()->isStarted() );
 
     auto socket = make_shared< ClientSocket >( *sChain, _dstIndex, portType );
@@ -93,7 +93,7 @@ void AbstractClientAgent::sendItem(
     }
 
 
-    sendItemImpl( _proposal, socket, _dstIndex, _dstNodeId );
+    sendItemImpl(_item, socket, _dstIndex, _dstNodeId );
 }
 
 

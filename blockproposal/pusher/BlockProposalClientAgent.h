@@ -42,7 +42,7 @@ class BlockProposalClientAgent : public AbstractClientAgent {
     nlohmann::json readProposalResponseHeader(ptr<ClientSocket> _socket);
 
 
-    void sendItem(ptr<BlockProposal> _proposal, schain_index _dstIndex, node_id _dstNodeId);
+    void sendItem(ptr<DataStructure> _item, schain_index _dstIndex, node_id _dstNodeId);
 
 
     static void workerThreadItemSendLoop(AbstractClientAgent *agent);
@@ -68,7 +68,7 @@ public:
     explicit BlockProposalClientAgent(Schain& _sChain);
 
 
-    void sendItemImpl(ptr<BlockProposal> &_proposal, shared_ptr<ClientSocket> &socket, schain_index _destIndex,
+    void sendItemImpl(ptr<DataStructure> _item, shared_ptr<ClientSocket> socket, schain_index _destIndex,
                       node_id _dstNodeId);
 
 };

@@ -57,46 +57,46 @@
 #include "BlockProposalPusherThreadPool.h"
 
 
-BlockProposalClientAgent::BlockProposalClientAgent( Schain& _sChain )
-    : AbstractClientAgent( _sChain, PROPOSAL ) {
+BlockProposalClientAgent::BlockProposalClientAgent(Schain &_sChain)
+        : AbstractClientAgent(_sChain, PROPOSAL) {
     try {
-        LOG( debug, "Constructing blockProposalPushAgent" );
+        LOG(debug, "Constructing blockProposalPushAgent");
 
-        this->blockProposalThreadPool = make_shared< BlockProposalPusherThreadPool >(
-            num_threads( ( uint64_t ) _sChain.getNodeCount() ), this );
+        this->blockProposalThreadPool = make_shared<BlockProposalPusherThreadPool>(
+                num_threads((uint64_t) _sChain.getNodeCount()), this);
         blockProposalThreadPool->startService();
-    } catch (ExitRequestedException &) {throw;} catch ( ... ) {
-        throw_with_nested( FatalError( __FUNCTION__, __CLASS_NAME__ ) );
+    } catch (ExitRequestedException &) { throw; } catch (...) {
+        throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
     }
 }
 
 
-ptr< MissingTransactionsRequestHeader >
+ptr<MissingTransactionsRequestHeader>
 BlockProposalClientAgent::readAndProcessMissingTransactionsRequestHeader(
-    ptr< ClientSocket > _socket ) {
+        ptr<ClientSocket> _socket) {
     auto js =
-        sChain->getIo()->readJsonHeader( _socket->getDescriptor(), "Read missing trans request" );
-    auto mtrh = make_shared< MissingTransactionsRequestHeader >();
+            sChain->getIo()->readJsonHeader(_socket->getDescriptor(), "Read missing trans request");
+    auto mtrh = make_shared<MissingTransactionsRequestHeader>();
 
-    auto status = ( ConnectionStatus ) Header::getUint64( js, "status" );
-    auto substatus = ( ConnectionSubStatus ) Header::getUint64( js, "substatus" );
-    mtrh->setStatusSubStatus( status, substatus );
+    auto status = (ConnectionStatus) Header::getUint64(js, "status");
+    auto substatus = (ConnectionSubStatus) Header::getUint64(js, "substatus");
+    mtrh->setStatusSubStatus(status, substatus);
 
-    auto count = ( uint64_t ) Header::getUint64( js, "count" );
-    mtrh->setMissingTransactionsCount( count );
+    auto count = (uint64_t) Header::getUint64(js, "count");
+    mtrh->setMissingTransactionsCount(count);
 
     mtrh->setComplete();
-    LOG( trace, "Push agent processed missing transactions header" );
+    LOG(trace, "Push agent processed missing transactions header");
     return mtrh;
 }
 
 ptr<FinalProposalResponseHeader>
 BlockProposalClientAgent::readAndProcessFinalProposalResponseHeader(
-        ptr< ClientSocket > _socket ) {
+        ptr<ClientSocket> _socket) {
     auto js =
-            sChain->getIo()->readJsonHeader( _socket->getDescriptor(), "Read final response header" );
+            sChain->getIo()->readJsonHeader(_socket->getDescriptor(), "Read final response header");
 
-    auto status = ( ConnectionStatus ) Header::getUint64( js, "status" );
+    auto status = (ConnectionStatus) Header::getUint64(js, "status");
 
     if (status != CONNECTION_SUCCESS) {
         LOG(err, "Server refused block sig");
@@ -106,197 +106,204 @@ BlockProposalClientAgent::readAndProcessFinalProposalResponseHeader(
 }
 
 
-
 void BlockProposalClientAgent::sendItemImpl(
-    ptr< BlockProposal >& _proposal, shared_ptr< ClientSocket >& socket, schain_index _index, node_id _nodeID) {
-    LOG( trace, "Proposal step 0: Starting block proposal" );
+        ptr<DataStructure> _item, shared_ptr<ClientSocket> socket, schain_index _index, node_id _nodeID) {
+    LOG(trace, "Proposal step 0: Starting block proposal");
 
+    CHECK_ARGUMENT(_item != nullptr);
 
-    ptr< Header > header = BlockProposal::createBlockProposalHeader(sChain, _proposal);
+    ptr<BlockProposal> _proposal = dynamic_pointer_cast<BlockProposal>(_item);
+
+    assert(_proposal != nullptr);
+
+    ptr<Header> header = BlockProposal::createBlockProposalHeader(sChain, _proposal);
 
 
     try {
-        getSchain()->getIo()->writeHeader( socket, header );
-    } catch ( ExitRequestedException& ) {
+        getSchain()->getIo()->writeHeader(socket, header);
+    } catch (ExitRequestedException &) {
         throw;
-    } catch ( ... ) {
-        throw_with_nested( NetworkProtocolException( "Could not write header", __CLASS_NAME__ ) );
+    } catch (...) {
+        throw_with_nested(NetworkProtocolException("Could not write header", __CLASS_NAME__));
     }
 
 
-    LOG( trace, "Proposal step 1: wrote proposal header" );
+    LOG(trace, "Proposal step 1: wrote proposal header");
 
     auto response =
-        sChain->getIo()->readJsonHeader( socket->getDescriptor(), "Read proposal resp" );
+            sChain->getIo()->readJsonHeader(socket->getDescriptor(), "Read proposal resp");
 
 
-    LOG( trace, "Proposal step 2: read proposal response" );
+    LOG(trace, "Proposal step 2: read proposal response");
 
 
-    auto status = ( ConnectionStatus ) Header::getUint64( response, "status" );
+    auto status = (ConnectionStatus) Header::getUint64(response, "status");
     // auto substatus = (ConnectionSubStatus) Header::getUint64(response, "substatus");
 
 
-    if ( status != CONNECTION_PROCEED ) {
-        LOG( trace, "Proposal Server terminated proposal push" );
+    if (status != CONNECTION_PROCEED) {
+        LOG(trace, "Proposal Server terminated proposal push");
         return;
     }
 
     auto partialHashesList = _proposal->createPartialHashesList();
 
 
-    if ( partialHashesList->getTransactionCount() > 0 ) {
+    if (partialHashesList->getTransactionCount() > 0) {
         try {
             getSchain()->getIo()->writeBytesVector(
-                socket->getDescriptor(), partialHashesList->getPartialHashes() );
-        } catch ( ExitRequestedException& ) {
+                    socket->getDescriptor(), partialHashesList->getPartialHashes());
+        } catch (ExitRequestedException &) {
             throw;
-        } catch ( ... ) {
+        } catch (...) {
             auto errStr = "Unexpected disconnect writing block data";
-            throw_with_nested( NetworkProtocolException( errStr, __CLASS_NAME__ ) );
+            throw_with_nested(NetworkProtocolException(errStr, __CLASS_NAME__));
         }
     }
 
 
-    LOG( trace, "Proposal step 3: sent partial hashes" );
+    LOG(trace, "Proposal step 3: sent partial hashes");
 
-    ptr< MissingTransactionsRequestHeader > missingTransactionHeader;
+    ptr<MissingTransactionsRequestHeader> missingTransactionHeader;
 
     try {
-        missingTransactionHeader = readAndProcessMissingTransactionsRequestHeader( socket );
-    } catch ( ExitRequestedException& ) {
+        missingTransactionHeader = readAndProcessMissingTransactionsRequestHeader(socket);
+    } catch (ExitRequestedException &) {
         throw;
-    } catch ( ... ) {
+    } catch (...) {
         auto errStr = "Could not read missing transactions request header";
-        throw_with_nested( NetworkProtocolException( errStr, __CLASS_NAME__ ) );
+        throw_with_nested(NetworkProtocolException(errStr, __CLASS_NAME__));
     }
 
     auto count = missingTransactionHeader->getMissingTransactionsCount();
 
-    if ( count == 0 ) {
-        LOG( trace, "Proposal complete::no missing transactions" );
+    if (count == 0) {
+        LOG(trace, "Proposal complete::no missing transactions");
         return;
     }
 
-    ptr< unordered_set< ptr< partial_sha_hash >, PendingTransactionsAgent::Hasher,
-        PendingTransactionsAgent::Equal > >
-        missingHashes;
+    ptr<unordered_set<ptr<partial_sha_hash>, PendingTransactionsAgent::Hasher,
+            PendingTransactionsAgent::Equal> >
+            missingHashes;
 
     try {
-        missingHashes = readMissingHashes( socket, count );
-    } catch ( ExitRequestedException& ) {
+        missingHashes = readMissingHashes(socket, count);
+    } catch (ExitRequestedException &) {
         throw;
-    } catch ( ... ) {
+    } catch (...) {
         auto errStr = "Could not read missing hashes";
-        throw_with_nested( NetworkProtocolException( errStr, __CLASS_NAME__ ) );
+        throw_with_nested(NetworkProtocolException(errStr, __CLASS_NAME__));
     }
 
 
-    LOG( trace, "Proposal step 4: read missing transaction hashes" );
+    LOG(trace, "Proposal step 4: read missing transaction hashes");
 
 
-    auto missingTransactions = make_shared< vector< ptr< Transaction > > >();
-    auto missingTransactionsSizes = make_shared< vector< uint64_t > >();
+    auto missingTransactions = make_shared<vector<ptr<Transaction> > >();
+    auto missingTransactionsSizes = make_shared<vector<uint64_t> >();
 
-    for ( auto&& transaction : *_proposal->getTransactionList()->getItems() ) {
-        if ( missingHashes->count( transaction->getPartialHash() ) ) {
-            missingTransactions->push_back( transaction );
-            missingTransactionsSizes->push_back( transaction->getSerializedSize(false));
+    for (auto &&transaction : *_proposal->getTransactionList()->getItems()) {
+        if (missingHashes->count(transaction->getPartialHash())) {
+            missingTransactions->push_back(transaction);
+            missingTransactionsSizes->push_back(transaction->getSerializedSize(false));
         }
     }
 
-    ASSERT2( missingTransactions->size() == count,
-        "Transactions:" + to_string( missingTransactions->size() ) + ":" + to_string( count ) );
+    ASSERT2(missingTransactions->size() == count,
+            "Transactions:" + to_string(missingTransactions->size()) + ":" + to_string(count));
 
 
-    auto mtrh = make_shared< MissingTransactionsResponseHeader >( missingTransactionsSizes );
+    auto mtrh = make_shared<MissingTransactionsResponseHeader>(missingTransactionsSizes);
 
     try {
-        getSchain()->getIo()->writeHeader( socket, mtrh );
-    } catch ( ExitRequestedException& ) {
+        getSchain()->getIo()->writeHeader(socket, mtrh);
+    } catch (ExitRequestedException &) {
         throw;
-    } catch ( ... ) {
+    } catch (...) {
         auto errString =
-            "Proposal: unexpected server disconnect writing missing txs response header";
-        throw_with_nested( new NetworkProtocolException( errString, __CLASS_NAME__ ) );
+                "Proposal: unexpected server disconnect writing missing txs response header";
+        throw_with_nested(new NetworkProtocolException(errString, __CLASS_NAME__));
     }
 
 
-    LOG( trace, "Proposal step 5: sent missing transactions header" );
+    LOG(trace, "Proposal step 5: sent missing transactions header");
 
 
-    auto mtrm = make_shared< TransactionList >( missingTransactions );
+    auto mtrm = make_shared<TransactionList>(missingTransactions);
 
     try {
-        getSchain()->getIo()->writeBytesVector( socket->getDescriptor(), mtrm->serialize(false) );
-    } catch ( ExitRequestedException& ) {
+        getSchain()->getIo()->writeBytesVector(socket->getDescriptor(), mtrm->serialize(false));
+    } catch (ExitRequestedException &) {
         throw;
-    } catch ( ... ) {
+    } catch (...) {
         auto errString = "Proposal: unexpected server disconnect  writing missing hashes";
-        throw_with_nested( new NetworkProtocolException( errString, __CLASS_NAME__ ) );
+        throw_with_nested(new NetworkProtocolException(errString, __CLASS_NAME__));
     }
 
-    LOG( trace, "Proposal step 6: sent missing transactions" );
+    LOG(trace, "Proposal step 6: sent missing transactions");
 
     auto finalHeader = readAndProcessFinalProposalResponseHeader(socket);
 
     if (finalHeader == nullptr)
         return;
 
-    auto sigShare = getSchain()->getCryptoManager()->createSigShare(finalHeader->getSigShare(), _proposal->getSchainID(),
-    _proposal->getBlockID(), _nodeID, _index, getSchain()->getTotalSignersCount(), getSchain()->getRequiredSignersCount());
+    auto sigShare = getSchain()->getCryptoManager()->createSigShare(finalHeader->getSigShare(),
+                                                                    _proposal->getSchainID(),
+                                                                    _proposal->getBlockID(), _nodeID, _index,
+                                                                    getSchain()->getTotalSignersCount(),
+                                                                    getSchain()->getRequiredSignersCount());
 
     LOG(err, "Sig share arrived");
     getSchain()->sigShareArrived(sigShare);
 
-    LOG( trace, "Proposal step 7: got final response" );
+    LOG(trace, "Proposal step 7: got final response");
 }
 
 
-ptr< unordered_set< ptr< partial_sha_hash >, PendingTransactionsAgent::Hasher,
-    PendingTransactionsAgent::Equal > >
+ptr<unordered_set<ptr<partial_sha_hash>, PendingTransactionsAgent::Hasher,
+        PendingTransactionsAgent::Equal> >
 
-BlockProposalClientAgent::readMissingHashes( ptr< ClientSocket > _socket, uint64_t _count ) {
-    ASSERT( _count );
+BlockProposalClientAgent::readMissingHashes(ptr<ClientSocket> _socket, uint64_t _count) {
+    ASSERT(_count);
     auto bytesToRead = _count * PARTIAL_SHA_HASH_LEN;
-    vector< uint8_t > buffer( bytesToRead );
+    vector<uint8_t> buffer(bytesToRead);
 
-    ASSERT( bytesToRead > 0 );
+    ASSERT(bytesToRead > 0);
 
 
     try {
         getSchain()->getIo()->readBytes(
-            _socket->getDescriptor(), ( in_buffer* ) buffer.data(), msg_len( bytesToRead ) );
-    } catch ( ExitRequestedException& ) {
+                _socket->getDescriptor(), (in_buffer *) buffer.data(), msg_len(bytesToRead));
+    } catch (ExitRequestedException &) {
         throw;
-    } catch ( ... ) {
-        LOG( info, "Could not read partial hashes" );
+    } catch (...) {
+        LOG(info, "Could not read partial hashes");
         throw_with_nested(
-            NetworkProtocolException( "Could not read partial data hashes", __CLASS_NAME__ ) );
+                NetworkProtocolException("Could not read partial data hashes", __CLASS_NAME__));
     }
 
 
-    auto result = make_shared< unordered_set< ptr< partial_sha_hash >,
-        PendingTransactionsAgent::Hasher, PendingTransactionsAgent::Equal > >();
+    auto result = make_shared<unordered_set<ptr<partial_sha_hash>,
+            PendingTransactionsAgent::Hasher, PendingTransactionsAgent::Equal> >();
 
 
     try {
-        for ( uint64_t i = 0; i < _count; i++ ) {
-            auto hash = make_shared< partial_sha_hash >();
-            for ( size_t j = 0; j < PARTIAL_SHA_HASH_LEN; j++ ) {
-                hash->at( j ) = buffer.at( PARTIAL_SHA_HASH_LEN * i + j );
+        for (uint64_t i = 0; i < _count; i++) {
+            auto hash = make_shared<partial_sha_hash>();
+            for (size_t j = 0; j < PARTIAL_SHA_HASH_LEN; j++) {
+                hash->at(j) = buffer.at(PARTIAL_SHA_HASH_LEN * i + j);
             }
 
-            result->insert( hash );
-            ASSERT( result->count( hash ) );
+            result->insert(hash);
+            ASSERT(result->count(hash));
         }
-    } catch (ExitRequestedException &) {throw;} catch (...) {
-        throw_with_nested( NetworkProtocolException(
-            "Could not read missing transaction hashes:" + to_string(_count), __CLASS_NAME__ ) );
+    } catch (ExitRequestedException &) { throw; } catch (...) {
+        throw_with_nested(NetworkProtocolException(
+                "Could not read missing transaction hashes:" + to_string(_count), __CLASS_NAME__));
     }
 
 
-    ASSERT( result->size() == _count );
+    ASSERT(result->size() == _count);
 
     return result;
 }
