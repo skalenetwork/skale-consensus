@@ -52,30 +52,34 @@ MockupSigShareSet::~MockupSigShareSet() {
 
 ptr<ThresholdSignature> MockupSigShareSet::mergeSignature() {
 
+    lock_guard<recursive_mutex> lock(m);
+
     auto sig = make_shared<string>(to_string(blockId));
     return make_shared<MockupSignature>(sig, blockId,
                                         totalSigners, requiredSigners);
 }
 
 bool MockupSigShareSet::isEnough() {
+
+    lock_guard<recursive_mutex> lock(m);
+
     return (sigShares.size() >= requiredSigners);
 }
 
 
-bool MockupSigShareSet::isEnoughMinusOne() {
-    auto sigsCount = sigShares.size();
-    return sigsCount >= requiredSigners - 1;
-}
+
 
 
 bool MockupSigShareSet::addSigShare(shared_ptr<ThresholdSigShare> _sigShare) {
-    if (was_merged) {
-        BOOST_THROW_EXCEPTION(std::runtime_error("Invalid state"));
-    }
 
-    if (!_sigShare) {
-        BOOST_THROW_EXCEPTION(std::runtime_error("Null _sigShare"));
-    }
+    CHECK_ARGUMENT(_sigShare != nullptr);
+
+
+    lock_guard<recursive_mutex> lock(m);
+
+
+    if (isEnough())
+       return false;
 
     if (sigShares.count((uint64_t )_sigShare->getSignerIndex()) > 0) {
          return false;
@@ -83,7 +87,7 @@ bool MockupSigShareSet::addSigShare(shared_ptr<ThresholdSigShare> _sigShare) {
 
     ptr<MockupSigShare> mss = dynamic_pointer_cast<MockupSigShare>(_sigShare);
 
-    CHECK_ARGUMENT(mss != nullptr);
+    CHECK_STATE(mss != nullptr);
 
     sigShares[(uint64_t )_sigShare->getSignerIndex()] = mss;
 

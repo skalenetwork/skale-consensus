@@ -29,7 +29,8 @@
 #include "../../crypto/bls_include.h"
 
 #include "../../crypto/ConsensusBLSSigShare.h"
-
+#include "../../chains/Schain.h"
+#include "../../crypto/CryptoManager.h"
 #include "AUXBroadcastMessage.h"
 
 #include "../../node/NodeInfo.h"
@@ -686,14 +687,14 @@ const node_count &BinConsensusInstance::getNodeCount() const {
 uint64_t BinConsensusInstance::calculateBLSRandom(bin_consensus_round _r) {
 
 
-    ConsensusSigShareSet shares(getBlockID(), getSchain()->getTotalSignersCount(),
+    auto shares = getSchain()->getCryptoManager()->createSigShareSet(getBlockID(), getSchain()->getTotalSignersCount(),
                                 getSchain()->getRequiredSignersCount());
 
     if (binValues[_r].count(bin_consensus_value(true)) > 0 && auxTrueVotes[_r].size() > 0) {
         for (auto&& item: auxTrueVotes[_r]) {
             ASSERT(item.second);
-            shares.addSigShare(item.second);
-            if ( shares.isEnough())
+            shares->addSigShare(item.second);
+            if ( shares->isEnough())
                 break;
         }
     }
@@ -701,18 +702,15 @@ uint64_t BinConsensusInstance::calculateBLSRandom(bin_consensus_round _r) {
     if (binValues[_r].count(bin_consensus_value(false)) > 0 && auxFalseVotes[_r].size() > 0) {
         for (auto&& item: auxFalseVotes[_r]) {
             ASSERT(item.second);
-            shares.addSigShare(item.second);
-            if ( shares.isEnough())
+            shares->addSigShare(item.second);
+            if ( shares->isEnough())
                 break;
         }
     }
 
+    CHECK_STATE(shares->isEnough());
 
-    bool isTwoThird = shares.isEnough();
-
-    CHECK_STATE(isTwoThird);
-
-    auto random = shares.mergeSignature()->getRandom();
+    auto random = shares->mergeSignature()->getRandom();
 
     LOG(debug, "Random for round: " + to_string(_r) + ":" + to_string(random));
 

@@ -56,33 +56,7 @@ ReceivedDASigSharesDatabase::ReceivedDASigSharesDatabase(Schain &_sChain) {
     this->sChain = &_sChain;
 };
 
-ptr<ThresholdSignature> ReceivedDASigSharesDatabase::getBLSSignature(block_id _blockId) {
-    lock_guard<recursive_mutex> lock(sigShareDatabaseMutex);
-
-    if (blockSignatures.find(_blockId) != blockSignatures.end()) {
-        return blockSignatures.at(_blockId);
-    } else {
-        return nullptr;
-    }
-}
-
-void ReceivedDASigSharesDatabase::mergeAndSaveBLSSignature(block_id _blockId) {
-
-    lock_guard<recursive_mutex> lock(sigShareDatabaseMutex);
-
-    if (getBLSSignature(_blockId)) {
-        LOG(err, "Attempted to recreate block BLS signature");
-        return;
-    }
-
-    auto sigSet = getSigShareSet(_blockId);
-    ASSERT(sigSet->isEnough());
-    auto signature = sigSet->mergeSignature();
-
-    sigShareSets[_blockId] = nullptr;
-}
-
-bool ReceivedDASigSharesDatabase::addSigShare(ptr<ThresholdSigShare> _sigShare) {
+ptr<ThresholdSignature> ReceivedDASigSharesDatabase::addAndMergeSigShare(ptr<ThresholdSigShare> _sigShare) {
 
 
     ASSERT(_sigShare);
@@ -95,43 +69,23 @@ bool ReceivedDASigSharesDatabase::addSigShare(ptr<ThresholdSigShare> _sigShare) 
     if (this->sigShareSets.count(_sigShare->getBlockId()) == 0) {
         sigShareSets[_sigShare->getBlockId()] =
                 sChain->getCryptoManager()->createSigShareSet(_sigShare->getBlockId(),
-                                                                   sChain->getTotalSignersCount(), sChain->getRequiredSignersCount());
+                                                              sChain->getTotalSignersCount(), sChain->getRequiredSignersCount());
     }
 
-    sigShareSets.at(_sigShare->getBlockId())->addSigShare(_sigShare);
+    auto set = sigShareSets.at(_sigShare->getBlockId());
 
-    return sigShareSets.at(_sigShare->getBlockId())->isEnoughMinusOne();
+    if (set->isEnough()) // already merged
+        return nullptr;
 
-}
+    set->addSigShare(_sigShare);
 
-
-
-
-
-
-ptr<ThresholdSigShareSet> ReceivedDASigSharesDatabase::getSigShareSet(block_id blockID) {
-
-    lock_guard<recursive_mutex> lock(sigShareDatabaseMutex);
-
-    if (sigShareSets.count(blockID) == 0) {
-        sigShareSets[blockID] = sChain->getCryptoManager()->createSigShareSet(blockID,
-                                                                                   sChain->getTotalSignersCount(), sChain->getRequiredSignersCount());
+    if (set->isEnough()) {
+        return set->mergeSignature();
     }
 
-    return sigShareSets.at(blockID);
+    return nullptr;
 }
 
 
 
-bool ReceivedDASigSharesDatabase::isTwoThird(block_id _blockID) {
 
-
-    lock_guard<recursive_mutex> lock(sigShareDatabaseMutex);
-
-
-    if (sigShareSets.count(_blockID) > 0) {
-        return sigShareSets.at(_blockID)->isEnough();
-    } else {
-        return false;
-    };
-}

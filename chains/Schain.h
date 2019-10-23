@@ -68,7 +68,7 @@ class Sockets;
 
 class SHAHash;
 class ConsensusBLSSigShare;
-
+class ThresholdSigShare;
 
 class Schain : public Agent {
 
@@ -193,7 +193,7 @@ public:
 
     void blockCommitsArrivedThroughCatchup(ptr<CommittedBlockList> _blocks);
 
-    void sigShareArrived(ptr<ConsensusBLSSigShare> _sigShare);
+    void sigShareArrived(ptr<ThresholdSigShare> _sigShare);
 
     const ptr<IO> getIo() const;
 

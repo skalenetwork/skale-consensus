@@ -36,6 +36,7 @@ protected:
     uint64_t requiredSigners;
 
     static atomic<uint64_t>  totalObjects;
+
 public:
     virtual ~ThresholdSigShareSet();
 
@@ -43,11 +44,10 @@ public:
 
     virtual ptr<ThresholdSignature> mergeSignature() = 0;
 
-    virtual bool addSigShare(shared_ptr<ThresholdSigShare> _sigShare) = 0;
-
     virtual bool isEnough() = 0;
 
-    virtual bool isEnoughMinusOne() = 0;
+    virtual bool addSigShare(shared_ptr<ThresholdSigShare> _sigShare) = 0;
+
 };
 
 

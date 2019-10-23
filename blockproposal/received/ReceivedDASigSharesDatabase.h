@@ -45,22 +45,12 @@ class ReceivedDASigSharesDatabase {
 
     map<block_id, ptr<ThresholdSignature>> blockSignatures;
 
-
-    ptr<ThresholdSigShareSet> getSigShareSet(block_id _blockID);
-
-    ptr<ThresholdSignature> getBLSSignature(block_id _blockId);
-
 public:
-
-
 
     explicit ReceivedDASigSharesDatabase(Schain &_sChain);
 
-    bool addSigShare(ptr<ThresholdSigShare> _proposal);
+    ptr<ThresholdSignature> addAndMergeSigShare(ptr<ThresholdSigShare> _sigShare);
 
-    void mergeAndSaveBLSSignature(block_id _blockId);
-
-    bool isTwoThird(block_id _blockID);
 };
 
 

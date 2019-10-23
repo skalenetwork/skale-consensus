@@ -246,7 +246,7 @@ void BlockProposalClientAgent::sendItemImpl(
     auto sigShare = getSchain()->getCryptoManager()->createSigShare(finalHeader->getSigShare(), _proposal->getSchainID(),
     _proposal->getBlockID(), _nodeID, _index, getSchain()->getTotalSignersCount(), getSchain()->getRequiredSignersCount());
 
-
+    getSchain()->sigShareArrived(sigShare);
 
 
 

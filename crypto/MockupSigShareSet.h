@@ -36,10 +36,12 @@ class SHAHash;
 
 class MockupSigShareSet : public ThresholdSigShareSet {
 
+    recursive_mutex m;
+
     size_t requiredSigners;
     size_t totalSigners;
 
-    bool was_merged;
+    bool wasMerged = false;
 
     std::map<size_t, std::shared_ptr<MockupSigShare> > sigShares;
 

@@ -91,7 +91,6 @@
 #include "Schain.h"
 
 
-
 void Schain::postMessage(ptr<MessageEnvelope> m) {
 
 
@@ -227,13 +226,9 @@ Schain::Schain(Node *_node, schain_index _schainIndex, const schain_id &_schainI
         getNode()->registerAgent(this);
 
 
-
-
-
     } catch (ExitRequestedException &) { throw; } catch (...) {
         throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
     }
-
 
 
 }
@@ -394,7 +389,6 @@ void Schain::processCommittedBlock(ptr<CommittedBlock> _block) {
     CHECK_STATE(_block->getSignature() != nullptr);
 
 
-
     MONITOR2(__CLASS_NAME__, __FUNCTION__, getMaxExternalBlockProcessingTime())
 
     checkForExit();
@@ -528,7 +522,7 @@ void Schain::proposedBlockArrived(ptr<BlockProposal> pbm) {
 
     std::lock_guard<std::recursive_mutex> aLock(getMainMutex());
 
-    if (pbm->getBlockID() <= lastCommittedBlockID )
+    if (pbm->getBlockID() <= lastCommittedBlockID)
         return;
 
     if (blockProposalsDatabase->addBlockProposal(pbm)) {
@@ -594,17 +588,14 @@ void Schain::healthCheck() {
     setHealthCheckFile(2);
 }
 
-void Schain::sigShareArrived(ptr<ConsensusBLSSigShare> _sigShare) {
-
+void Schain::sigShareArrived(ptr<ThresholdSigShare> _sigShare) {
     checkForExit();
-
-    if (receivedDASigSharesDatabase->addSigShare(_sigShare)) {
-        auto blockId = _sigShare->getBlockId();
-        auto mySig = getCryptoManager()->signBLS(getBlock(blockId)->getHash(), blockId);
-        receivedDASigSharesDatabase->addSigShare(mySig);
-        ASSERT(receivedDASigSharesDatabase->isTwoThird(blockId));
-        receivedDASigSharesDatabase->mergeAndSaveBLSSignature(blockId);
-    };
+    try {
+        receivedDASigSharesDatabase->addAndMergeSigShare(_sigShare);
+    } catch (ExitRequestedException &) { throw; } catch (...) {
+        LOG(err, "Could not add/merge sig");
+        throw_with_nested(InvalidStateException("Could not add/merge sig", __CLASS_NAME__));
+    }
 }
 
 void Schain::constructServers(ptr<Sockets> _sockets) {
@@ -612,7 +603,6 @@ void Schain::constructServers(ptr<Sockets> _sockets) {
     MONITOR(__CLASS_NAME__, __FUNCTION__)
 
     blockProposalServerAgent = make_shared<BlockProposalServerAgent>(*this, _sockets->blockProposalSocket);
-
     catchupServerAgent = make_shared<CatchupServerAgent>(*this, _sockets->catchupSocket);
 }
 

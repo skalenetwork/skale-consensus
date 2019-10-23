@@ -38,3 +38,4 @@ ThresholdSigShareSet::ThresholdSigShareSet(const block_id &blockId, uint64_t tot
 ThresholdSigShareSet::~ThresholdSigShareSet() {
 
 }
+
