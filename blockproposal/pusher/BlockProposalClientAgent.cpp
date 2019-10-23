@@ -36,6 +36,7 @@
 
 #include "../../chains/Schain.h"
 #include "../../crypto/CryptoManager.h"
+#include "../../datastructures/DAProof.h"
 #include "../../datastructures/BlockProposal.h"
 #include "../../datastructures/CommittedBlock.h"
 #include "../../exceptions/NetworkProtocolException.h"
@@ -43,6 +44,7 @@
 #include "../../headers/MissingTransactionsRequestHeader.h"
 #include "../../headers/MissingTransactionsResponseHeader.h"
 #include "../../headers/FinalProposalResponseHeader.h"
+#include "../../headers/DAProofRequestHeader.h"
 #include "../../network/ClientSocket.h"
 #include "../../network/ServerConnection.h"
 #include "../../network/IO.h"
@@ -109,9 +111,25 @@ BlockProposalClientAgent::readAndProcessFinalProposalResponseHeader(
 void BlockProposalClientAgent::sendItemImpl(
         ptr<DataStructure> _item, shared_ptr<ClientSocket> _socket, schain_index _index, node_id _nodeID) {
 
+    CHECK_ARGUMENT(_item != nullptr);
+
     ptr<BlockProposal> _proposal = dynamic_pointer_cast<BlockProposal>(_item);
-    
-    sendBlockProposal(_proposal, _socket, _index, _nodeID);
+
+    if (_proposal != nullptr) {
+        sendBlockProposal(_proposal, _socket, _index, _nodeID);
+        return;
+    }
+
+    ptr<DAProof> _daProof = dynamic_pointer_cast<DAProof>(_item);
+
+    if (_daProof != nullptr) {
+        sendDAProof(_daProof, _socket);
+        return;
+    }
+
+    assert(false);
+
+
 }
 
 
@@ -268,6 +286,52 @@ void BlockProposalClientAgent::sendBlockProposal(
     getSchain()->sigShareArrived(sigShare);
 
     LOG(trace, "Proposal step 7: got final response");
+}
+
+
+void BlockProposalClientAgent::sendDAProof(
+        ptr<DAProof> _daProof, shared_ptr<ClientSocket> socket) {
+
+
+    LOG(trace, "Proposal step 0: Starting block proposal");
+
+    CHECK_ARGUMENT(_daProof != nullptr);
+
+
+
+    assert(_daProof != nullptr);
+
+    auto header = make_shared<DAProofRequestHeader>(*getSchain(), _daProof);
+
+    try {
+        getSchain()->getIo()->writeHeader(socket, header);
+    } catch (ExitRequestedException &) {
+        throw;
+    } catch (...) {
+        throw_with_nested(NetworkProtocolException("Could not write header", __CLASS_NAME__));
+    }
+
+
+    LOG(trace, "DA proof step 1: wrote request header");
+
+    auto response =
+            sChain->getIo()->readJsonHeader(socket->getDescriptor(), "Read proposal resp");
+
+
+    LOG(trace, "DAProof step 2: read response");
+
+
+    auto status = (ConnectionStatus) Header::getUint64(response, "status");
+    // auto substatus = (ConnectionSubStatus) Header::getUint64(response, "substatus");
+
+
+    if (status != CONNECTION_SUCCESS) {
+        LOG(err, "Failure submitting DA proof");
+        return;
+    }
+
+
+
 }
 
 

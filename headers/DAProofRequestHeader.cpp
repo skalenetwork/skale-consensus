@@ -28,6 +28,8 @@
 #include "../thirdparty/json.hpp"
 #include "../abstracttcpserver/ConnectionStatus.h"
 #include "../datastructures/BlockProposal.h"
+#include "../datastructures/DAProof.h"
+#include "../crypto/ThresholdSignature.h"
 #include "../node/Node.h"
 #include "../node/NodeInfo.h"
 #include "../chains/Schain.h"
@@ -48,15 +50,15 @@ DAProofRequestHeader::DAProofRequestHeader(nlohmann::json _proposalRequest, node
     thresholdSig = Header::getString(_proposalRequest, "sig");
 }
 
-DAProofRequestHeader::DAProofRequestHeader(Schain &_sChain, ptr<BlockProposal> proposal) :
-        AbstractBlockRequestHeader(_sChain.getNodeCount(), _sChain.getSchainID(), proposal->getBlockID(),
-                                   Header::BLOCK_PROPOSAL_REQ,
+DAProofRequestHeader::DAProofRequestHeader(Schain &_sChain, ptr<DAProof> _proof) :
+        AbstractBlockRequestHeader(_sChain.getNodeCount(), _sChain.getSchainID(), _proof->getBlockId(),
+                                   Header::DA_PROOF_REQ,
                                    _sChain.getSchainIndex()) {
 
 
     this->proposerNodeID = _sChain.getNode()->getNodeID();
 
-    this->thresholdSig = proposal->getSignature();
+    this->thresholdSig = _proof->getThresholdSig()->toString();
 
     complete = true;
 

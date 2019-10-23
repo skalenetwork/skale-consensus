@@ -28,10 +28,17 @@
 
 
 class ClientSocket;
+
 class Schain;
+
 class BlockProposalPusherThreadPool;
+
 class BlockProposal;
+
+class DAProof;
+
 class MissingTransactionsRequestHeader;
+
 class FinalProposalResponseHeader;
 
 
@@ -54,8 +61,6 @@ class BlockProposalClientAgent : public AbstractClientAgent {
     ptr<FinalProposalResponseHeader> readAndProcessFinalProposalResponseHeader(ptr<ClientSocket> _socket);
 
 
-
-
     ptr<unordered_set<ptr<partial_sha_hash>, PendingTransactionsAgent::Hasher, PendingTransactionsAgent::Equal>>
     readMissingHashes(ptr<ClientSocket> _socket, uint64_t _count);
 
@@ -65,15 +70,17 @@ public:
     ptr<BlockProposalPusherThreadPool> blockProposalThreadPool = nullptr;
 
 
-    explicit BlockProposalClientAgent(Schain& _sChain);
+    explicit BlockProposalClientAgent(Schain &_sChain);
 
 
     void sendItemImpl(ptr<DataStructure> _item, shared_ptr<ClientSocket> socket, schain_index _destIndex,
                       node_id _dstNodeId);
 
-    void sendBlockProposal(ptr<BlockProposal> _proposal, shared_ptr<ClientSocket> socket, schain_index _index, node_id _nodeID);
+    void sendBlockProposal(ptr<BlockProposal> _proposal, shared_ptr<ClientSocket> socket, schain_index _index,
+                           node_id _nodeID);
 
+    void sendDAProof(
+            ptr<DAProof> _daProof, shared_ptr<ClientSocket> socket);
 
-
-    };
+};
 

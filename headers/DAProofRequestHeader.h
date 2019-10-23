@@ -25,6 +25,7 @@
 
 #include "AbstractBlockRequestHeader.h"
 
+class DAProof;
 
 
 class DAProofRequestHeader : public AbstractBlockRequestHeader{
@@ -37,7 +38,7 @@ class DAProofRequestHeader : public AbstractBlockRequestHeader{
 
 public:
 
-    DAProofRequestHeader(Schain &_sChain, ptr<BlockProposal> proposal);
+    DAProofRequestHeader(Schain &_sChain, ptr<DAProof> _proof);
 
     DAProofRequestHeader(nlohmann::json _proposalRequest, node_count _nodeCount);
 
