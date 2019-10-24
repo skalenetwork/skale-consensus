@@ -538,6 +538,21 @@ ptr<Header> BlockProposalServerAgent::createDAProofResponseHeader(ptr<ServerConn
         return responseHeader;
     }
 
+
+    auto proposal = getSchain()->getBlockProposal(_header.getBlockId(), _header.getProposerIndex());
+
+    if (proposal == nullptr) {
+        responseHeader->setStatusSubStatus(CONNECTION_DISCONNECT, CONNECTION_DONT_HAVE_THIS_PROPOSAL);
+        responseHeader->setComplete();
+        return responseHeader;
+    }
+
+    if (*proposal->getHash()->toHex() != *_header.getBlockHash()) {
+        responseHeader->setStatusSubStatus(CONNECTION_DISCONNECT, CONNECTION_INVALID_HASH);
+        responseHeader->setComplete();
+        return responseHeader;
+    }
+
     responseHeader->setStatus(CONNECTION_SUCCESS);
     responseHeader->setComplete();
     return responseHeader;
