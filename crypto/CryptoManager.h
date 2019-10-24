@@ -53,7 +53,10 @@ public:
 
     Schain *getSchain() const;
 
-    ptr<ThresholdSigShare> signBLS(ptr<SHAHash> _hash, block_id _blockId);
+    ptr<ThresholdSigShare> signThreshold(ptr<SHAHash> _hash, block_id _blockId);
+
+    void verifyThreshold(ptr<SHAHash> _hash, ptr<string> _signature);
+
 
     ptr<ThresholdSigShareSet> createSigShareSet(block_id _blockId, size_t _totalSigners, size_t _requiredSigners );
 

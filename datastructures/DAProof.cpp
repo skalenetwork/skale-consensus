@@ -42,6 +42,7 @@ DAProof::DAProof(ptr<BlockProposal> _p, ptr<ThresholdSignature> _thresholdSignat
     this->blockID = _p->getBlockID();
     this->proposerIndex = _p->getProposerIndex();
     this->proposerNodeID = _p->getProposerNodeID();
+    this->hash = _p->getHash();
 }
 
 schain_id DAProof::getSchainId() const {
@@ -62,6 +63,10 @@ schain_index DAProof::getProposerIndex() const {
 
 ptr<ThresholdSignature> DAProof::getThresholdSig() const {
     return thresholdSig;
+}
+
+ptr<SHAHash> DAProof::getHash() const {
+    return hash;
 }
 
 

@@ -44,9 +44,8 @@ protected:
     node_id proposerNodeID;
     block_id blockID;
     schain_index proposerIndex;
+    ptr<SHAHash> hash = nullptr;
     ptr<ThresholdSignature> thresholdSig = nullptr;
-
-
 
 public:
 
@@ -61,5 +60,7 @@ public:
     schain_index getProposerIndex() const;
 
     ptr<ThresholdSignature> getThresholdSig() const;
+
+    ptr<SHAHash> getHash() const;
 };
 

@@ -82,14 +82,11 @@ bool CryptoManager::verifyECDSA(ptr<SHAHash> _hash,
 }
 
 
-ptr<ThresholdSigShare> CryptoManager::signBLS(ptr<SHAHash> _hash, block_id _blockId) {
-
-
+ptr<ThresholdSigShare> CryptoManager::signThreshold(ptr<SHAHash> _hash, block_id _blockId) {
 
     MONITOR(__CLASS_NAME__, __FUNCTION__)
 
     if (getSchain()->getNode()->isBlsEnabled()) {
-
 
         auto hash = make_shared<std::array<uint8_t, 32>>();
 
@@ -155,6 +152,33 @@ bool CryptoManager::verifyProposalECDSA(BlockProposal* _proposal, ptr<string> _h
         return false;
     }
     return true;
+}
+
+void CryptoManager::verifyThreshold(ptr<SHAHash> _hash, ptr<string> _signature) {
+    MONITOR(__CLASS_NAME__, __FUNCTION__)
+
+    if (getSchain()->getNode()->isBlsEnabled()) {
+
+        auto hash = make_shared<std::array<uint8_t, 32>>();
+
+        memcpy(hash->data(), _hash->data(), 32);
+
+        auto sig = make_shared<BLSSignature>(_signature ,
+                                             sChain->getRequiredSignersCount(),
+                                             sChain->getTotalSignersCount());
+
+        if (!sChain->getNode()->getBlsPublicKey()->VerifySig(hash,
+                sig, sChain->getRequiredSignersCount(),
+                sChain->getTotalSignersCount())) {
+            BOOST_THROW_EXCEPTION(InvalidArgumentException("BLS Signature did not verify",
+                    __CLASS_NAME__));
+        }
+    } else {
+        if (*_signature != *_hash->toHex()) {
+            BOOST_THROW_EXCEPTION(InvalidArgumentException("BLS Signature did not verify",
+                                                           __CLASS_NAME__));
+        }
+    }
 }
 
 

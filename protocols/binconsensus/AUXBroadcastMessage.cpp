@@ -71,7 +71,7 @@ AUXBroadcastMessage::AUXBroadcastMessage(bin_consensus_round round, bin_consensu
     auto hash = make_shared<SHAHash>(buf);
 
 
-    this->sigShare = schain->getCryptoManager()->signBLS(hash, _blockID);
+    this->sigShare = schain->getCryptoManager()->signThreshold(hash, _blockID);
     this->sigShareString = sigShare->toString();
 
 }

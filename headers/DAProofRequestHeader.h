@@ -34,6 +34,7 @@ class DAProofRequestHeader : public AbstractBlockRequestHeader{
 
     node_id proposerNodeID;
     ptr<string> thresholdSig;
+    ptr<string> blockHash;
 
 
 public:
@@ -47,6 +48,8 @@ public:
     const node_id &getProposerNodeId() const;
 
     ptr<string> getSignature() const;
+
+    ptr<string> getBlockHash() const;
 
 };
 

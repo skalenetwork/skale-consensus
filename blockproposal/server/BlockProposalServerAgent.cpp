@@ -515,6 +515,28 @@ ptr<Header> BlockProposalServerAgent::createDAProofResponseHeader(ptr<ServerConn
         return responseHeader;
     }
 
+    ptr<SHAHash> blockHash = nullptr;
+    try {
+        blockHash = SHAHash::fromHex(_header.getBlockHash());
+    } catch(...) {
+        responseHeader->setStatusSubStatus(CONNECTION_DISCONNECT, CONNECTION_INVALID_HASH);
+        responseHeader->setComplete();
+        return responseHeader;
+    }
+
+
+
+    try {
+
+        auto signature = _header.getSignature();
+        getSchain()->getCryptoManager()->verifyThreshold(blockHash,
+                                                         _header.getSignature());
+
+    } catch(...) {
+        responseHeader->setStatusSubStatus(CONNECTION_DISCONNECT, CONNECTION_SIGNATURE_DID_NOT_VERIFY);
+        responseHeader->setComplete();
+        return responseHeader;
+    }
 
     responseHeader->setStatus(CONNECTION_SUCCESS);
     responseHeader->setComplete();
@@ -526,7 +548,7 @@ ptr<Header> BlockProposalServerAgent::createDAProofResponseHeader(ptr<ServerConn
 
 ptr<Header> BlockProposalServerAgent::createFinalResponseHeader(ptr<ReceivedBlockProposal> _proposal) {
 
-    auto sigShare = getSchain()->getCryptoManager()->signBLS(_proposal->getHash(), _proposal->getBlockID());
+    auto sigShare = getSchain()->getCryptoManager()->signThreshold(_proposal->getHash(), _proposal->getBlockID());
 
     auto responseHeader = make_shared<FinalProposalResponseHeader>(sigShare->toString());
 
