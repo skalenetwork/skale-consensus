@@ -57,8 +57,18 @@ ptr<ThresholdSignature> MockupSigShareSet::mergeSignature() {
 
     lock_guard<recursive_mutex> lock(m);
 
-    auto sig = make_shared<string>(to_string(blockId));
-    return make_shared<MockupSignature>(sig, blockId,
+    ptr<string> h = nullptr;
+
+    for (auto&& item : sigShares) {
+        if (h == nullptr) {
+            h = item.second->toString();
+        } else {
+            CHECK_STATE(*h == *item.second->toString());
+        }
+    }
+    ASSERT((h != nullptr));
+
+    return make_shared<MockupSignature>(h, blockId,
                                         totalSigners, requiredSigners);
 }
 

@@ -45,6 +45,7 @@
 #include "../blockproposal/server/BlockProposalServerAgent.h"
 #include "../catchup/client/CatchupClientAgent.h"
 #include "../catchup/server/CatchupServerAgent.h"
+#include "../crypto/ThresholdSignature.h"
 #include "../monitoring/MonitoringAgent.h"
 #include "../crypto/ConsensusBLSSigShare.h"
 #include "../exceptions/EngineInitException.h"
@@ -597,6 +598,8 @@ void Schain::sigShareArrived(ptr<ThresholdSigShare> _sigShare, ptr<BlockProposal
         auto sig = receivedDASigSharesDatabase->addAndMergeSigShare(_sigShare);
         if (sig != nullptr) {
             auto proof = make_shared<DAProof>(_proposal, sig);
+
+            getCryptoManager()->verifyThreshold(proof->getHash(), proof->getThresholdSig()->toString());
             blockProposalClient->enqueueItem(proof);
         }
     } catch (ExitRequestedException &) { throw; } catch (...) {
