@@ -47,7 +47,7 @@ DAProofRequestHeader::DAProofRequestHeader(nlohmann::json _proposalRequest, node
                                      (schain_index) Header::getUint64(_proposalRequest, "proposerIndex")) {
 
     proposerNodeID = (node_id) Header::getUint64(_proposalRequest, "proposerNodeID");
-    thresholdSig = Header::getString(_proposalRequest, "sig");
+    thresholdSig = Header::getString(_proposalRequest, "thrSig");
 }
 
 DAProofRequestHeader::DAProofRequestHeader(Schain &_sChain, ptr<DAProof> _proof) :
@@ -73,7 +73,7 @@ void DAProofRequestHeader::addFields(nlohmann::basic_json<> &jsonRequest) {
     jsonRequest["proposerIndex"] = (uint64_t) proposerIndex;
     jsonRequest["blockID"] = (uint64_t) blockID;
     CHECK_STATE(thresholdSig != nullptr);
-    jsonRequest["thresholdSig"] = *thresholdSig;
+    jsonRequest["thrSig"] = *thresholdSig;
 }
 
 const node_id &DAProofRequestHeader::getProposerNodeId() const {

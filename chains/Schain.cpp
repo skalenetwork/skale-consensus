@@ -595,8 +595,10 @@ void Schain::sigShareArrived(ptr<ThresholdSigShare> _sigShare, ptr<BlockProposal
     CHECK_ARGUMENT(_proposal != nullptr);
     try {
         auto sig = receivedDASigSharesDatabase->addAndMergeSigShare(_sigShare);
-        //auto proof = new DAProof(_proposal, sig);
-
+        if (sig != nullptr) {
+            auto proof = make_shared<DAProof>(_proposal, sig);
+            blockProposalClient->enqueueItem(proof);
+        }
     } catch (ExitRequestedException &) { throw; } catch (...) {
         LOG(err, "Could not add/merge sig");
         throw_with_nested(InvalidStateException("Could not add/merge sig", __CLASS_NAME__));
