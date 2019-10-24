@@ -30,6 +30,7 @@
 
 class DataStructure;
 class BlockProposal;
+class DAProof;
 class ClientSocket;
 
 class AbstractClientAgent : public Agent {
@@ -51,24 +52,16 @@ protected:
 
     uint64_t incrementAndReturnThreadCounter();
 
+    void enqueueItemImpl(ptr<DataStructure> item );
+
 public:
+
     static void workerThreadItemSendLoop( AbstractClientAgent* agent );
 
-    void enqueueItem( ptr< BlockProposal > item );
+    void enqueueItem(ptr<BlockProposal> _item );
 
-    class PartialHashComparator {
-    public:
-        bool operator()(
-            const ptr< partial_sha_hash >& a, const ptr< partial_sha_hash >& b ) const {
-            for ( size_t i = 0; i < PARTIAL_SHA_HASH_LEN; i++ ) {
-                if ( ( *a )[i] < ( *b )[i] )
-                    return false;
-                if ( ( *b )[i] < ( *a )[i] )
-                    return true;
-            }
-            return false;
-        }
-    };
+    void enqueueItem(ptr<DAProof> _item );
+
 };
 
 

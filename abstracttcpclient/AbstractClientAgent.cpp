@@ -44,6 +44,7 @@
 
 
 #include "../datastructures/BlockProposal.h"
+#include "../datastructures/DAProof.h"
 
 #include "../thirdparty/json.hpp"
 
@@ -97,7 +98,7 @@ void AbstractClientAgent::sendItem(
 }
 
 
-void AbstractClientAgent::enqueueItem( ptr< BlockProposal > item ) {
+void AbstractClientAgent::enqueueItemImpl(ptr<DataStructure> item ) {
     for ( uint64_t i = 1; i <= ( uint64_t ) this->sChain->getNodeCount(); i++ ) {
         {
             std::lock_guard< std::mutex > lock( *queueMutex[schain_index( i )] );
@@ -107,6 +108,8 @@ void AbstractClientAgent::enqueueItem( ptr< BlockProposal > item ) {
         queueCond.at( schain_index( i ) )->notify_all();
     }
 }
+
+
 
 
 void AbstractClientAgent::workerThreadItemSendLoop( AbstractClientAgent* agent ) {
@@ -164,4 +167,12 @@ void AbstractClientAgent::workerThreadItemSendLoop( AbstractClientAgent* agent )
     } catch ( ExitRequestedException& e ) {
         return;
     }
+}
+
+void AbstractClientAgent::enqueueItem(ptr<BlockProposal> _item) {
+    enqueueItemImpl(_item);
+}
+
+void AbstractClientAgent::enqueueItem(ptr<DAProof> _item) {
+    enqueueItemImpl(_item);
 }
