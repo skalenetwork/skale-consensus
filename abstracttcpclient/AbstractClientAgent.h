@@ -40,14 +40,7 @@ protected:
 
     explicit AbstractClientAgent( Schain& _sChain, port_type _portType );
 
-
-public:
-    static void workerThreadItemSendLoop( AbstractClientAgent* agent );
-
-    void enqueueItem( ptr< BlockProposal > item );
-
-
-    void enqueueBlock( ptr< CommittedBlock > item );
+protected:
 
     void sendItem(ptr<DataStructure> _item, schain_index _dstIndex, node_id _dstNodeId );
 
@@ -58,6 +51,10 @@ public:
 
     uint64_t incrementAndReturnThreadCounter();
 
+public:
+    static void workerThreadItemSendLoop( AbstractClientAgent* agent );
+
+    void enqueueItem( ptr< BlockProposal > item );
 
     class PartialHashComparator {
     public:

@@ -140,13 +140,9 @@ void BlockProposalClientAgent::sendBlockProposal(
     LOG(trace, "Proposal step 0: Starting block proposal");
 
     CHECK_ARGUMENT(_proposal != nullptr);
-
-
-
     assert(_proposal != nullptr);
 
     ptr<Header> header = BlockProposal::createBlockProposalHeader(sChain, _proposal);
-
 
     try {
         getSchain()->getIo()->writeHeader(socket, header);
@@ -283,7 +279,7 @@ void BlockProposalClientAgent::sendBlockProposal(
                                                                     getSchain()->getRequiredSignersCount());
 
     LOG(err, "Sig share arrived");
-    getSchain()->sigShareArrived(sigShare);
+    getSchain()->sigShareArrived(sigShare, _proposal);
 
     LOG(trace, "Proposal step 7: got final response");
 }

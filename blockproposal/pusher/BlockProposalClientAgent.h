@@ -46,14 +46,6 @@ class BlockProposalClientAgent : public AbstractClientAgent {
 
     friend class BlockProposalPusherThreadPool;
 
-    nlohmann::json readProposalResponseHeader(ptr<ClientSocket> _socket);
-
-
-    void sendItem(ptr<DataStructure> _item, schain_index _dstIndex, node_id _dstNodeId);
-
-
-    static void workerThreadItemSendLoop(AbstractClientAgent *agent);
-
 
     ptr<MissingTransactionsRequestHeader> readAndProcessMissingTransactionsRequestHeader(ptr<ClientSocket> _socket);
 
@@ -65,14 +57,6 @@ class BlockProposalClientAgent : public AbstractClientAgent {
     readMissingHashes(ptr<ClientSocket> _socket, uint64_t _count);
 
 
-public:
-
-    ptr<BlockProposalPusherThreadPool> blockProposalThreadPool = nullptr;
-
-
-    explicit BlockProposalClientAgent(Schain &_sChain);
-
-
     void sendItemImpl(ptr<DataStructure> _item, shared_ptr<ClientSocket> socket, schain_index _destIndex,
                       node_id _dstNodeId);
 
@@ -81,6 +65,17 @@ public:
 
     void sendDAProof(
             ptr<DAProof> _daProof, shared_ptr<ClientSocket> socket);
+
+
+
+    ptr<BlockProposalPusherThreadPool> blockProposalThreadPool = nullptr;
+
+
+
+public:
+
+    explicit BlockProposalClientAgent(Schain &_sChain);
+
 
 };
 

@@ -193,7 +193,7 @@ public:
 
     void blockCommitsArrivedThroughCatchup(ptr<CommittedBlockList> _blocks);
 
-    void sigShareArrived(ptr<ThresholdSigShare> _sigShare);
+    void sigShareArrived(ptr<ThresholdSigShare> _sigShare, ptr<BlockProposal> _proposal);
 
     const ptr<IO> getIo() const;
 

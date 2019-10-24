@@ -71,6 +71,7 @@
 #include "../datastructures/ReceivedBlockProposal.h"
 #include "../datastructures/Transaction.h"
 #include "../datastructures/TransactionList.h"
+#include "../datastructures/DAProof.h"
 #include "../exceptions/ExitRequestedException.h"
 #include "../messages/ConsensusProposalMessage.h"
 #include "../exceptions/FatalError.h"
@@ -588,10 +589,14 @@ void Schain::healthCheck() {
     setHealthCheckFile(2);
 }
 
-void Schain::sigShareArrived(ptr<ThresholdSigShare> _sigShare) {
+void Schain::sigShareArrived(ptr<ThresholdSigShare> _sigShare, ptr<BlockProposal> _proposal) {
     checkForExit();
+    CHECK_ARGUMENT(_sigShare != nullptr);
+    CHECK_ARGUMENT(_proposal != nullptr);
     try {
-        receivedDASigSharesDatabase->addAndMergeSigShare(_sigShare);
+        auto sig = receivedDASigSharesDatabase->addAndMergeSigShare(_sigShare);
+        //auto proof = new DAProof(_proposal, sig);
+
     } catch (ExitRequestedException &) { throw; } catch (...) {
         LOG(err, "Could not add/merge sig");
         throw_with_nested(InvalidStateException("Could not add/merge sig", __CLASS_NAME__));
