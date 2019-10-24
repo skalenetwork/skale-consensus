@@ -215,14 +215,13 @@ BlockProposalServerAgent::processDAProofRequest(ptr<ServerConnection> _connectio
 
     try {
         send(_connection, responseHeader);
-        if (responseHeader->getStatus() != CONNECTION_PROCEED) {
-            return;
-        }
     } catch (ExitRequestedException &) {
         throw;
     } catch (...) {
         throw_with_nested(NetworkProtocolException("Couldnt send daProof response header", __CLASS_NAME__));
     }
+
+    LOG(err, "Got DA proof");
 }
 
 void
