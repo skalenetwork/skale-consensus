@@ -167,6 +167,9 @@ SET(SRC_FILES
         ${utils_src}
         Agent.h Agent.cpp SkaleCommon.h SkaleCommon.cpp Log.h Log.cpp microprofile.cpp miniz.c)
 
+include_directories( ${BLS_INCLUDE_DIRS} "${DEPS_INSTALL_ROOT}/include" )
+link_directories( "${DEPS_INSTALL_ROOT}/lib" )
+
 if( SKALE_HAVE_BOOST_FROM_HUNTER )
   set( BOOST_LIBS_4_CONSENSUS
     Boost::log Boost::thread Boost::system Boost::filesystem Boost::program_options
