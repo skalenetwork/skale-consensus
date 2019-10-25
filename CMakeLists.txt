@@ -26,11 +26,11 @@ HunterGate(URL "https://github.com/ruslo/hunter/archive/v0.23.76.tar.gz" SHA1 "c
 
 project(consensus)
 
-include_directories( "${BLS_DEPS_INSTALL_ROOT}/include" ${CMAKE_BINARY_DIR}/deps/include )
-link_directories( "${BLS_DEPS_INSTALL_ROOT}/lib" )
-set( CMAKE_PREFIX_PATH "${BLS_DEPS_INSTALL_ROOT}" )
+include_directories( "${DEPS_INSTALL_ROOT}/include" ${CMAKE_BINARY_DIR}/deps/include )
+link_directories( "${DEPS_INSTALL_ROOT}/lib" )
+set( CMAKE_PREFIX_PATH "${DEPS_INSTALL_ROOT}" )
 
-find_library( FF_LIBRARY NAMES "ff" PATHS "${BLS_DEPS_INSTALL_ROOT}/lib" )
+find_library( FF_LIBRARY NAMES "ff" PATHS "${DEPS_INSTALL_ROOT}/lib" )
 
 # zeromq
 
@@ -163,9 +163,9 @@ SET(SRC_FILES
         Agent.h Agent.cpp SkaleCommon.h SkaleCommon.cpp Log.h Log.cpp microprofile.cpp miniz.c)
 
 
-message(INFO "${BLS_DEPS_INSTALL_ROOT}")
-include_directories(${BLS_INCLUDE_DIRS} "${BLS_DEPS_INSTALL_ROOT}/include")
-link_directories(${BLS_WITH_FF_INCLUDE_DIRS} "${BLS_DEPS_INSTALL_ROOT}/lib")
+message(INFO "---- DEPS_INSTALL_ROOT in consensus is: ${DEPS_INSTALL_ROOT}")
+include_directories(${BLS_INCLUDE_DIRS} "${DEPS_INSTALL_ROOT}/include")
+link_directories(${BLS_WITH_FF_INCLUDE_DIRS} "${DEPS_INSTALL_ROOT}/lib")
 
 if( SKALE_HAVE_BOOST_FROM_HUNTER )
   set( BOOST_LIBS_4_CONSENSUS
