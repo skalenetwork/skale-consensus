@@ -16,6 +16,11 @@ endif ()
 
 add_subdirectory(libBLS)
 
+if( NOT DEFINED DEPS_INSTALL_ROOT )
+    set( DEPS_SOURCES_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/libBLS/deps")
+    set( DEPS_INSTALL_ROOT "${DEPS_SOURCES_ROOT}/deps_inst/x86_or_x64")
+endif()
+message(INFO "---- DEPS_INSTALL_ROOT in consensus is: ${DEPS_INSTALL_ROOT}")
 
 include("cmake/HunterGate.cmake")
 include("cmake/precompiledheader.cmake")
@@ -161,11 +166,6 @@ SET(SRC_FILES
         ${monitoring_src}
         ${utils_src}
         Agent.h Agent.cpp SkaleCommon.h SkaleCommon.cpp Log.h Log.cpp microprofile.cpp miniz.c)
-
-
-message(INFO "---- DEPS_INSTALL_ROOT in consensus is: ${DEPS_INSTALL_ROOT}")
-include_directories(${BLS_INCLUDE_DIRS} "${DEPS_INSTALL_ROOT}/include")
-link_directories(${BLS_WITH_FF_INCLUDE_DIRS} "${DEPS_INSTALL_ROOT}/lib")
 
 if( SKALE_HAVE_BOOST_FROM_HUNTER )
   set( BOOST_LIBS_4_CONSENSUS
