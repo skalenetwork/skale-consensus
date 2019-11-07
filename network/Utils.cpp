@@ -55,18 +55,16 @@ void Utils::checkTime() {
         BOOST_THROW_EXCEPTION(FatalError("Could not get IP address", __CLASS_NAME__));
     }
 
-
-    struct sockaddr_in serverAddress = {};
-
-    memcpy((char *) &serverAddress.sin_addr.s_addr, ip->h_addr, (size_t) ip->h_length);
-
-    serverAddress.sin_family = AF_INET;
-
-    serverAddress.sin_port = htons(123);
-
-    if (connect(fd, (struct sockaddr *) &serverAddress, sizeof(serverAddress)) < 0)
+    union {
+        struct sockaddr_in sa_in;
+        struct sockaddr sa;
+    } srvAddr;
+    memset( &srvAddr, 0, sizeof(srvAddr) );
+    memcpy( (void *) &srvAddr.sa_in.sin_addr.s_addr, (void *) ip->h_addr, size_t( ip->h_length ) );
+    srvAddr.sa_in.sin_family = AF_INET;
+    srvAddr.sa_in.sin_port = htons( 123 );
+    if (connect(fd, (struct sockaddr *) &srvAddr.sa_in, sizeof(srvAddr.sa_in)) < 0)
         BOOST_THROW_EXCEPTION(FatalError("Could not connect to NTP server"));
-
 
     struct {
         uint8_t vnm = 0x1b;

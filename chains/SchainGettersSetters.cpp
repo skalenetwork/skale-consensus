@@ -168,9 +168,13 @@ node_count Schain::getNodeCount() {
 
 
 transaction_count Schain::getMessagesCount() {
+    size_t cntMessages = 0;
+    { // block
+        lock_guard<mutex> lock(messageMutex);
+        cntMessages = messageQueue.size();
+    } // block
     std::lock_guard<std::recursive_mutex> aLock(getMainMutex());
-
-    return transaction_count(messageQueue.size());
+    return transaction_count(cntMessages);
 }
 
 
