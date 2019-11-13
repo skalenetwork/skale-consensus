@@ -55,7 +55,7 @@ MockupSigShareSet::~MockupSigShareSet() {
 
 ptr<ThresholdSignature> MockupSigShareSet::mergeSignature() {
 
-    lock_guard<recursive_mutex> lock(m);
+    LOCK(m)
 
     ptr<string> h = nullptr;
 
@@ -74,7 +74,7 @@ ptr<ThresholdSignature> MockupSigShareSet::mergeSignature() {
 
 bool MockupSigShareSet::isEnough() {
 
-    lock_guard<recursive_mutex> lock(m);
+    LOCK(m)
 
     return (sigShares.size() >= requiredSigners);
 }
@@ -88,7 +88,7 @@ bool MockupSigShareSet::addSigShare(shared_ptr<ThresholdSigShare> _sigShare) {
     CHECK_ARGUMENT(_sigShare != nullptr);
 
 
-    lock_guard<recursive_mutex> lock(m);
+    LOCK(m)
 
 
     if (isEnough())

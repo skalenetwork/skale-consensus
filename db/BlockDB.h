@@ -37,7 +37,7 @@ class BlockDB : public LevelDB {
 
     uint64_t storageSize;
 
-    recursive_mutex mutex;
+    recursive_mutex m;
 
     ptr<string> createKey(block_id _blockId);
 

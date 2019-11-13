@@ -104,7 +104,7 @@ ptr<vector<ptr<Transaction>>> TransactionList::getItems() {
 
 ptr<vector<uint8_t> > TransactionList::serialize( bool _writeTxPartialHash ) {
 
-    lock_guard<recursive_mutex> lock(m);
+    LOCK(m)
 
     if (serializedTransactions)
         return serializedTransactions;
@@ -148,7 +148,7 @@ size_t TransactionList::size() {
 
 ptr<ConsensusExtFace::transactions_vector> TransactionList::createTransactionVector() {
 
-    lock_guard<recursive_mutex> lock(m);
+    LOCK(m)
 
     auto tv = make_shared< ConsensusExtFace::transactions_vector >();
 
@@ -166,6 +166,9 @@ ptr< TransactionList > TransactionList::deserialize( ptr< vector< uint64_t > > _
         new TransactionList( _transactionSizes, _serializedTransactions, _offset, _writePartialHash ) );
 }
 ptr< vector< uint64_t > > TransactionList::createTransactionSizesVector(bool _writePartialHash) {
+
+    LOCK(m)
+
     auto ret = make_shared<vector<uint64_t>>();
 
     for (auto&& t : *transactions) {

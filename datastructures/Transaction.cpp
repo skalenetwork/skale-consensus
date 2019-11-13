@@ -45,7 +45,7 @@
 
 ptr< SHAHash > Transaction::getHash() {
 
-    lock_guard<recursive_mutex> lock(m);
+    LOCK(m)
 
     if ( hash )
         return hash;
@@ -57,6 +57,9 @@ ptr< SHAHash > Transaction::getHash() {
 
 
 ptr< partial_sha_hash > Transaction::getPartialHash() {
+
+    LOCK(m)
+
     if ( partialHash ) {
         return partialHash;
     }
@@ -141,6 +144,9 @@ uint64_t Transaction::getSerializedSize(bool _writePartialHash) {
 }
 
 void Transaction::serializeInto( ptr< vector< uint8_t > > _out, bool _writePartialHash ) {
+
+    LOCK(m)
+
     CHECK_ARGUMENT( _out != nullptr )
     _out->insert( _out->end(), data->begin(), data->end() );
 

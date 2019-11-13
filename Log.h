@@ -57,7 +57,7 @@ class logger;
 
 class Log {
 
-    static recursive_mutex mutex;
+    static recursive_mutex m;
 
     static bool inited;
 

@@ -82,6 +82,9 @@ ptr<vector<ptr<CommittedBlock> > > CommittedBlockList::getBlocks() {
 }
 
 shared_ptr<vector<uint8_t> > CommittedBlockList::serialize() {
+
+    LOCK(m)
+
     auto serializedBlocks = make_shared<vector<uint8_t> >();
 
     serializedBlocks->push_back('[');
@@ -117,6 +120,9 @@ CommittedBlockList::deserialize(ptr<CryptoManager> _cryptoManager, ptr<vector<ui
 }
 
 ptr<vector<uint64_t> > CommittedBlockList::createSizes() {
+
+    LOCK(m)
+
     auto ret = make_shared<vector<uint64_t> >();
 
     for (auto &&block : *blocks) {

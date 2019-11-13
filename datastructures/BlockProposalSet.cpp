@@ -41,7 +41,7 @@ using namespace std;
 bool BlockProposalSet::add(ptr<BlockProposal> _proposal) {
     CHECK_ARGUMENT( _proposal  != nullptr);
 
-    lock_guard< recursive_mutex > lock(mutex );
+    LOCK(m)
 
     auto index = (uint64_t ) _proposal->getProposerIndex();
 
@@ -61,7 +61,7 @@ bool BlockProposalSet::add(ptr<BlockProposal> _proposal) {
 
 
 bool BlockProposalSet::isTwoThird() {
-    lock_guard< recursive_mutex > lock(mutex );
+    LOCK(m)
     auto value = 3 * proposals.size() > 2 * nodeCount;
     return value;
 }
@@ -81,13 +81,14 @@ BlockProposalSet::~BlockProposalSet() {
 }
 
 node_count BlockProposalSet::getCount() {
-    lock_guard< recursive_mutex > lock(mutex );
+    LOCK(m)
     return ( node_count ) proposals.size();
 }
 
 
 ptr<BooleanProposalVector> BlockProposalSet::createBooleanVector() {
-    lock_guard< recursive_mutex > lock(mutex );
+
+    LOCK(m)
 
     auto v = make_shared<BooleanProposalVector>(nodeCount);
     for ( uint64_t i = 1; i <= nodeCount; i++ ) {
@@ -102,7 +103,7 @@ ptr< BlockProposal > BlockProposalSet::getProposalByIndex( schain_index _index )
 
     CHECK_ARGUMENT(_index > 0 && (uint64_t ) _index <= nodeCount)
 
-    lock_guard< recursive_mutex > lock(mutex );
+    LOCK(m)
 
     if ( proposals.count((uint64_t) _index) == 0 ) {
         return nullptr;

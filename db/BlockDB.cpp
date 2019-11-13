@@ -65,7 +65,7 @@ void BlockDB::saveBlock2LevelDB(ptr<CommittedBlock> &_block) {
 
     CHECK_ARGUMENT(_block->getSignature() != nullptr);
 
-    lock_guard<recursive_mutex> lock(mutex);
+    LOCK(m)
 
     try {
 
@@ -97,7 +97,7 @@ uint64_t BlockDB::readCounter() {
     static string count(":COUNT");
 
 
-    lock_guard<recursive_mutex> lock(mutex);
+    LOCK(m)
 
     try {
 
@@ -122,7 +122,7 @@ void BlockDB::saveBlock(ptr<CommittedBlock> &_block, block_id _lastCommittedBloc
     CHECK_ARGUMENT(_block->getSignature() != nullptr);
 
     try {
-        lock_guard<recursive_mutex> lock(mutex);
+        LOCK(m)
 
         saveBlockToBlockCache(_block, _lastCommittedBlockID);
         saveBlock2LevelDB(_block);
@@ -138,7 +138,7 @@ void BlockDB::saveBlockToBlockCache(ptr<CommittedBlock> &_block, block_id _lastC
 
     CHECK_ARGUMENT(_block->getSignature() != nullptr);
 
-    lock_guard<recursive_mutex> lock(mutex);
+    LOCK(m)
 
     try {
         auto blockID = _block->getBlockID();
@@ -175,7 +175,7 @@ ptr<CommittedBlock> BlockDB::getCachedBlock(block_id _blockID) {
 ptr<CommittedBlock> BlockDB::getBlock(block_id _blockID, ptr<CryptoManager> _cryptoManager) {
 
 
-    std::lock_guard<std::recursive_mutex> lock(mutex);
+    std::lock_guard<std::recursive_mutex> lock(m);
 
     try {
         auto block = getCachedBlock(_blockID);

@@ -37,8 +37,6 @@ class BlockProposalSet : public DataStructure  {
 
     block_id blockId;
 
-    recursive_mutex mutex;
-
     map< uint64_t , ptr< BlockProposal > > proposals;
 
 public:

@@ -40,7 +40,7 @@
 class Transaction;
 class ConsensusExtFace;
 
-class TransactionList : public DataStructure, public ListOfHashes {
+class TransactionList : public ListOfHashes {
 
 
     ptr<vector<uint8_t>> serializedTransactions = nullptr;

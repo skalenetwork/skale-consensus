@@ -30,7 +30,7 @@ class Schain;
 
 class WorkerThreadPool {
 
-    recursive_mutex mutex;
+    recursive_mutex m;
 
     bool dontJoinGlobalRegistry = false;
 

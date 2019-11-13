@@ -34,16 +34,16 @@ class BlockProposalFragment;
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/uniform_int_distribution.hpp>
 
+#include "DataStructure.h"
 
-class BlockProposalFragmentList {
+
+class BlockProposalFragmentList : public DataStructure {
 
     int64_t blockSize = -1;
     ptr<string> blockHash = nullptr;
 
 
     bool isSerialized = false;
-
-    recursive_mutex listMutex;
 
     const block_id blockID;
 

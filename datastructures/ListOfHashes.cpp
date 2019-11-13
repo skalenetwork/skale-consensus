@@ -10,6 +10,8 @@
 
 ptr<SHAHash> ListOfHashes::calculateTopMerkleRoot() {
 
+    LOCK(m)
+
     CHECK_STATE(hashCount() > 0);
 
     vector<ptr<SHAHash>> hashes;

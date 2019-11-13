@@ -59,7 +59,7 @@ CommittedBlock::CommittedBlock(ptr<BlockProposal> _p)
 ptr<vector<uint8_t> > CommittedBlock::getSerialized() {
 
 
-    lock_guard<recursive_mutex> lock(m);
+    LOCK(m)
 
     if (serializedBlock != nullptr)
         return serializedBlock;
@@ -234,8 +234,7 @@ ptr<BlockProposalFragment> CommittedBlock::getFragment(uint64_t _totalFragments,
 
     CHECK_ARGUMENT(_totalFragments > 0);
     CHECK_ARGUMENT(_index <= _totalFragments);
-
-    lock_guard<recursive_mutex> lock(m);
+    LOCK(m)
 
     auto sBlock = getSerialized();
 
