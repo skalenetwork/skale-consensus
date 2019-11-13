@@ -325,3 +325,5 @@ extern thread_local ptr<Log> logThreadLocal_;
         auto __msg__ = string("Assert failed::") + #_EXPRESSION_ + " " + string(_MSG_) + ":" + string(__FILE__) + ":" + to_string(__LINE__); \
         throw FatalError(__msg__, __CLASS_NAME__);}
 #endif
+
+#define LOCK(_M_) lock_guard<recursive_mutex> _lock_(_M_);

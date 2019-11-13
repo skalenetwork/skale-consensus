@@ -89,8 +89,6 @@ BlockProposal::BlockProposal(schain_id _sChainId, node_id _proposerNodeId, block
 
 
 ptr<PartialHashesList> BlockProposal::createPartialHashesList() {
-    //CHECK_STATE(signature != nullptr);
-
 
     auto s = (uint64_t) this->transactionCount * PARTIAL_SHA_HASH_LEN;
     auto t = transactionList->getItems();
@@ -153,14 +151,14 @@ uint32_t BlockProposal::getTimeStampMs() const {
 }
 
 void BlockProposal::addSignature(ptr<string> _signature) {
-    lock_guard<recursive_mutex> lock(mutex);
+    LOCK(m)
     CHECK_ARGUMENT(_signature != nullptr)
-    CHECK_STATE( signature == nullptr);
+    CHECK_STATE( signature == nullptr)
     signature = _signature;
 }
 
 ptr<string>  BlockProposal::getSignature() {
-    lock_guard<recursive_mutex> lock(mutex);
+    LOCK(m)
     return  signature;
 }
 
@@ -171,7 +169,7 @@ ptr<BlockProposalHeader> BlockProposal::createBlockProposalHeader(Schain* _sChai
     CHECK_ARGUMENT(_sChain != nullptr);
     CHECK_ARGUMENT(_proposal != nullptr);
 
-    lock_guard<recursive_mutex> lock(mutex);
+    LOCK(_proposal->m);
 
     if (_proposal->header != nullptr)
         return _proposal->header;
