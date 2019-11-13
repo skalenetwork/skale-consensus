@@ -278,7 +278,7 @@ void BlockProposalClientAgent::sendBlockProposal(
                                                                     getSchain()->getTotalSignersCount(),
                                                                     getSchain()->getRequiredSignersCount());
 
-    LOG(err, "Sig share arrived");
+    LOG(info, "Sig share arrived");
     getSchain()->sigShareArrived(sigShare, _proposal);
 
     LOG(trace, "Proposal step 7: got final response");

@@ -72,21 +72,19 @@ ptr<ThresholdSignature> ReceivedDASigSharesDatabase::addAndMergeSigShare(ptr<Thr
 
         ASSERT(!set->isEnough());
 
-        LOG(err, "Create set");
     }
 
     auto set = sigShareSets.at(_sigShare->getBlockId());
 
     if (set->isEnough()) { // already merged
-        LOG(err, "IS ENOUGH");
         return nullptr;
     }
 
-    LOG(err, "Adding sigshare");
+    LOG(info, "Adding sigshare");
     set->addSigShare(_sigShare);
 
     if (set->isEnough()) {
-        LOG(err, "Merged signature");
+        LOG(info, "Merged signature");
         return set->mergeSignature();
     }
 
