@@ -35,10 +35,15 @@ class SHAHash;
 class BlockProposalHeader;
 class CryptoManager;
 
+class DAProof;
 
 class BlockProposal : public DataStructure {
 
     ptr<BlockProposalHeader> header = nullptr;
+
+    ptr<DAProof> daProof = nullptr;
+
+
 
 protected:
 
@@ -51,7 +56,7 @@ protected:
     uint32_t  timeStampMs = 0;
     ptr<string> signature = nullptr;
 
-protected:
+
     ptr<TransactionList> transactionList;
     ptr< SHAHash > hash = nullptr;
 
@@ -100,5 +105,9 @@ public:
     ptr<string>  getSignature();
 
     static ptr<BlockProposalHeader> createBlockProposalHeader(Schain* _sChain, ptr<BlockProposal> _proposal);
+
+    ptr<DAProof> setAndGetDaProof(const ptr<DAProof> _daProof);
+
+    ptr<DAProof> getDaProof() const;
 };
 

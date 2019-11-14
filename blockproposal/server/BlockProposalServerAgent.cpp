@@ -43,6 +43,7 @@
 
 #include "../../crypto/ConsensusBLSSigShare.h"
 #include "../../crypto/CryptoManager.h"
+#include "../../datastructures/DAProof.h"
 
 #include "../../pendingqueue/PendingTransactionsAgent.h"
 #include "../pusher/BlockProposalClientAgent.h"
@@ -79,6 +80,7 @@
 #include "../../headers/BlockFinalizeResponseHeader.h"
 #include "BlockProposalServerAgent.h"
 #include "BlockProposalWorkerThreadPool.h"
+
 
 
 ptr<unordered_map<ptr<partial_sha_hash>, ptr<Transaction>, PendingTransactionsAgent::Hasher, PendingTransactionsAgent::Equal> >
@@ -525,12 +527,12 @@ ptr<Header> BlockProposalServerAgent::createDAProofResponseHeader(ptr<ServerConn
     }
 
 
+    ptr<ThresholdSignature> sig;
 
     try {
 
-        auto signature = _header.getSignature();
-        getSchain()->getCryptoManager()->verifyThreshold(blockHash,
-                                                         _header.getSignature());
+        sig = getSchain()->getCryptoManager()->verifyThreshold(blockHash,
+                                                         _header.getSignature(), _header.getBlockId());
 
     } catch(...) {
         responseHeader->setStatusSubStatus(CONNECTION_DISCONNECT, CONNECTION_SIGNATURE_DID_NOT_VERIFY);
@@ -552,6 +554,16 @@ ptr<Header> BlockProposalServerAgent::createDAProofResponseHeader(ptr<ServerConn
         responseHeader->setComplete();
         return responseHeader;
     }
+
+    auto proof = make_shared<DAProof>(proposal, sig);
+
+    if (proposal->setAndGetDaProof(proof) != nullptr) {
+        responseHeader->setStatusSubStatus(CONNECTION_DISCONNECT, CONNECTION_ALREADY_HAVE_DAP_PROOF);
+        responseHeader->setComplete();
+        return responseHeader;
+    }
+
+
 
     responseHeader->setStatus(CONNECTION_SUCCESS);
     responseHeader->setComplete();

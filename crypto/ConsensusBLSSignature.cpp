@@ -37,22 +37,30 @@
 
 ConsensusBLSSignature::ConsensusBLSSignature(
     ptr< string > _s, block_id _blockID, size_t _totalSigners, size_t _requiredSigners )
-    : ThresholdSignature(_blockID, _totalSigners, _requiredSigners), blsSig( _s, _totalSigners, _requiredSigners ){}
+    : ThresholdSignature(_blockID, _totalSigners, _requiredSigners){
+    blsSig = make_shared<BLSSignature>( _s, _totalSigners, _requiredSigners );
+}
 
 
 static string dummy_string("");
 
 ConsensusBLSSignature::ConsensusBLSSignature( ptr< libff::alt_bn128_G1 > _s, block_id _blockID,
     size_t _totalSigners, size_t _requiredSigners )
-    : ThresholdSignature(_blockID, _totalSigners, _requiredSigners), blsSig( _s, dummy_string, _totalSigners, _requiredSigners ) {}
+    : ThresholdSignature(_blockID, _totalSigners, _requiredSigners) {
+    blsSig = make_shared<BLSSignature>(_s, dummy_string, _totalSigners, _requiredSigners );
+}
 
 std::shared_ptr<std::string> ConsensusBLSSignature::toString() {
-    return blsSig.toString();
+    return blsSig->toString();
 };
 
 uint64_t ConsensusBLSSignature::getRandom() {
-    auto sig = blsSig.getSig();
+    auto sig = blsSig->getSig();
     sig->to_affine_coordinates();
     auto result = sig->X.as_ulong() + sig->Y.as_ulong();
     return result;
+}
+
+ptr<BLSSignature> ConsensusBLSSignature::getBlsSig() const {
+    return blsSig;
 }

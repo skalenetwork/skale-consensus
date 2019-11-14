@@ -34,7 +34,7 @@ class ConsensusSigShareSet;
 
 class ConsensusBLSSignature : public ThresholdSignature {
 
-    BLSSignature blsSig;
+    ptr<BLSSignature> blsSig = nullptr;
 
 public:
 
@@ -48,6 +48,8 @@ public:
     std::shared_ptr<std::string> toString();
 
     uint64_t getRandom();
+
+    ptr<BLSSignature> getBlsSig() const;
 };
 
 

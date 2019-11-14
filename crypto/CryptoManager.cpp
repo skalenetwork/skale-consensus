@@ -37,8 +37,10 @@
 #include "../exceptions/NetworkProtocolException.h"
 #include "SHAHash.h"
 #include "ConsensusBLSSigShare.h"
+#include "ConsensusBLSSignature.h"
 #include "MockupSigShare.h"
 #include "ConsensusSigShareSet.h"
+#include "MockupSignature.h"
 #include "MockupSigShareSet.h"
 #include "../node/Node.h"
 #include "../monitoring/LivelinessMonitor.h"
@@ -154,8 +156,12 @@ bool CryptoManager::verifyProposalECDSA(BlockProposal* _proposal, ptr<string> _h
     return true;
 }
 
-void CryptoManager::verifyThreshold(ptr<SHAHash> _hash, ptr<string> _signature) {
+ptr<ThresholdSignature> CryptoManager::verifyThreshold(ptr<SHAHash> _hash, ptr<string> _signature, block_id _blockId) {
     MONITOR(__CLASS_NAME__, __FUNCTION__)
+
+    auto requiredSigners = sChain->getRequiredSignersCount();
+    auto totalSigners = sChain->getTotalSignersCount();
+
 
     if (getSchain()->getNode()->isBlsEnabled()) {
 
@@ -163,21 +169,25 @@ void CryptoManager::verifyThreshold(ptr<SHAHash> _hash, ptr<string> _signature) 
 
         memcpy(hash->data(), _hash->data(), 32);
 
-        auto sig = make_shared<BLSSignature>(_signature ,
-                                             sChain->getRequiredSignersCount(),
-                                             sChain->getTotalSignersCount());
+
+
+        auto sig = make_shared<ConsensusBLSSignature>(_signature , _blockId, requiredSigners, totalSigners);
 
         if (!sChain->getNode()->getBlsPublicKey()->VerifySig(hash,
-                sig, sChain->getRequiredSignersCount(),
-                sChain->getTotalSignersCount())) {
+                sig->getBlsSig(), requiredSigners, totalSigners)) {
             BOOST_THROW_EXCEPTION(InvalidArgumentException("BLS Signature did not verify",
                     __CLASS_NAME__));
         }
+        return  sig;
     } else {
-        if (*_signature != *_hash->toHex()) {
-            BOOST_THROW_EXCEPTION(InvalidArgumentException("BLS Signature did not verify",
+
+        auto sig = make_shared<MockupSignature>(_signature, _blockId, requiredSigners, totalSigners);
+
+        if (*sig->toString() != *_hash->toHex()) {
+            BOOST_THROW_EXCEPTION(InvalidArgumentException("Mockup threshold signature did not verify",
                                                            __CLASS_NAME__));
         }
+        return  sig;
     }
 }
 

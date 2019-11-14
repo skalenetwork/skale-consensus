@@ -180,6 +180,21 @@ ptr<BlockProposalHeader> BlockProposal::createBlockProposalHeader(Schain* _sChai
 
 }
 
+ptr<DAProof> BlockProposal::getDaProof() const {
+    return daProof;
+}
+
+ptr<DAProof> BlockProposal::setAndGetDaProof(const ptr<DAProof> _daProof) {
+    LOCK(m)
+
+    if (daProof != nullptr)
+        return daProof;
+
+    LOG(info, "Set DA proof");
+
+    BlockProposal::daProof = _daProof;
+    return nullptr;
+}
 
 
 
