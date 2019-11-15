@@ -35,7 +35,7 @@ class ReceivedDASigSharesDatabase;
 class ServerConnection;
 class BlockProposal;
 class PartialHashesList;
-
+class DAProof;
 
 class BlockProposalClientAgent;
 class BlockProposalPusherThreadPool;
@@ -177,17 +177,19 @@ public:
 
     void startThreads();
 
-    static void messageThreadProcessingLoop(Schain *s);
+    static void messageThreadProcessingLoop(Schain *_s);
 
     uint64_t getLastCommittedBlockTimeStamp();
 
-    void setBlockProposerTest(const string &blockProposerTest);
+    void setBlockProposerTest(const string &_blockProposerTest);
 
     uint64_t getStartTimeMs() const;
 
-    void proposedBlockArrived(ptr<BlockProposal> pbm);
+    void proposedBlockArrived(ptr<BlockProposal> _pbm);
 
-    void blockCommitArrived(bool bootstrap, block_id _committedBlockID, schain_index _proposerIndex,
+    void daProofArrived(ptr<DAProof> _proof);
+
+    void blockCommitArrived(bool _bootstrap, block_id _committedBlockID, schain_index _proposerIndex,
                                 uint64_t _committedTimeStamp);
 
 
@@ -219,11 +221,11 @@ public:
 
     node_count getNodeCount();
 
-    const block_id getLastCommittedBlockID() const;
+    block_id getLastCommittedBlockID() const;
 
     ptr<CommittedBlock> getBlock(block_id _blockID);
 
-    const ptr<string> getBlockProposerTest() const;
+    ptr<string> getBlockProposerTest() const;
 
     void setBlockProposerTest(const char *_blockProposerTest);
 
@@ -239,7 +241,6 @@ public:
 
     void setHealthCheckFile(uint64_t status);
 
-    ptr<vector<uint8_t>> getSerializedBlock(uint64_t i) const;
 
     size_t getTotalSignersCount();
 

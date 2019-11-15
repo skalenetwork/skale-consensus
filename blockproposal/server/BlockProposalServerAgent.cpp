@@ -555,15 +555,17 @@ ptr<Header> BlockProposalServerAgent::createDAProofResponseHeader(ptr<ServerConn
         return responseHeader;
     }
 
-    auto proof = make_shared<DAProof>(proposal, sig);
 
-    if (proposal->setAndGetDaProof(proof) != nullptr) {
+
+    if (proposal->getDaProof() != nullptr) {
         responseHeader->setStatusSubStatus(CONNECTION_DISCONNECT, CONNECTION_ALREADY_HAVE_DAP_PROOF);
         responseHeader->setComplete();
         return responseHeader;
     }
 
+    auto proof = make_shared<DAProof>(proposal, sig);
 
+    sChain->daProofArrived(proof);
 
     responseHeader->setStatus(CONNECTION_SUCCESS);
     responseHeader->setComplete();

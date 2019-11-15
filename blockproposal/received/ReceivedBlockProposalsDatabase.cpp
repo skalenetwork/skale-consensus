@@ -52,6 +52,10 @@ ReceivedBlockProposalsDatabase::ReceivedBlockProposalsDatabase(Schain &_sChain) 
     }
 };
 
+bool ReceivedBlockProposalsDatabase::addDAProof(ptr<DAProof> /*_proof*/) {
+    return false;
+}
+
 
 bool ReceivedBlockProposalsDatabase::addBlockProposal(ptr<BlockProposal> _proposal) {
 

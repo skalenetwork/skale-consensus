@@ -118,7 +118,7 @@ uint64_t Schain::getStartTimeMs() const {
     return startTimeMs;
 }
 
-const block_id Schain::getLastCommittedBlockID() const {
+block_id Schain::getLastCommittedBlockID() const {
     return block_id(lastCommittedBlockID.load());
 }
 
@@ -257,7 +257,7 @@ u256 Schain::getPriceForBlockId(uint64_t _blockId) {
 }
 
 
-const ptr<string> Schain::getBlockProposerTest() const {
+ptr<string> Schain::getBlockProposerTest() const {
     return blockProposerTest;
 }
 
@@ -281,4 +281,6 @@ void Schain::joinMonitorThread() {
  ptr<CryptoManager> Schain::getCryptoManager() const {
     return cryptoManager;
 }
+
+
 

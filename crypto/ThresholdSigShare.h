@@ -25,7 +25,7 @@
 
 
 #include "BLSSigShare.h"
-#include "../cmake-build-debug/consensus_pch/SkaleCommon.h"
+#include "../SkaleCommon.h"
 
 class ThresholdSigShare {
 

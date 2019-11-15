@@ -241,7 +241,7 @@ void Schain::constructChildAgents() {
     MONITOR(__CLASS_NAME__, __FUNCTION__)
 
     try {
-        std::lock_guard<std::recursive_mutex> lock(getMainMutex());
+        LOCK(m)
         pendingTransactionsAgent = make_shared<PendingTransactionsAgent>(*this);
         blockProposalClient = make_shared<BlockProposalClientAgent>(*this);
         catchupClientAgent = make_shared<CatchupClientAgent>(*this);
@@ -270,7 +270,7 @@ void Schain::blockCommitsArrivedThroughCatchup(ptr<CommittedBlockList> _blocks) 
     }
 
 
-    std::lock_guard<std::recursive_mutex> aLock(getMainMutex());
+    LOCK(m)
 
 
     atomic<uint64_t> committedIDOld(lastCommittedBlockID.load());
@@ -306,7 +306,7 @@ void Schain::blockCommitArrived(bool bootstrap, block_id _committedBlockID, scha
 
     checkForExit();
 
-    std::lock_guard<std::recursive_mutex> aLock(getMainMutex());
+    LOCK(m)
 
     ASSERT(_committedTimeStamp < (uint64_t) 2 * MODERN_TIME);
 
@@ -389,15 +389,11 @@ void Schain::proposeNextBlock(uint64_t _previousBlockTimeStamp, uint32_t _previo
 void Schain::processCommittedBlock(ptr<CommittedBlock> _block) {
 
     CHECK_STATE(_block->getSignature() != nullptr);
-
-
     MONITOR2(__CLASS_NAME__, __FUNCTION__, getMaxExternalBlockProcessingTime())
 
     checkForExit();
 
-    std::lock_guard<std::recursive_mutex> aLock(getMainMutex());
-
-
+    LOCK(m)
     ASSERT(lastCommittedBlockID == _block->getBlockID());
 
     totalTransactions += _block->getTransactionList()->size();
@@ -473,7 +469,7 @@ void Schain::startConsensus(const block_id _blockID) {
 
         checkForExit();
 
-        std::lock_guard<std::recursive_mutex> aLock(getMainMutex());
+        LOCK(m)
 
         LOG(debug, "Got proposed block set for block:" + to_string(_blockID));
 
@@ -515,6 +511,18 @@ void Schain::startConsensus(const block_id _blockID) {
     postMessage(envelope);
 }
 
+void Schain::daProofArrived(ptr<DAProof> _proof) {
+
+    LOCK(m);
+
+    if (_proof->getBlockId() <= lastCommittedBlockID)
+        return;
+
+    if (blockProposalsDatabase->addDAProof(_proof)) {
+        startConsensus(_proof->getBlockId());
+    }
+}
+
 
 void Schain::proposedBlockArrived(ptr<BlockProposal> pbm) {
 
@@ -522,7 +530,7 @@ void Schain::proposedBlockArrived(ptr<BlockProposal> pbm) {
 
     MONITOR(__CLASS_NAME__, __FUNCTION__)
 
-    std::lock_guard<std::recursive_mutex> aLock(getMainMutex());
+    LOCK(m);
 
     if (pbm->getBlockID() <= lastCommittedBlockID)
         return;
