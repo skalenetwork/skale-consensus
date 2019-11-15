@@ -32,6 +32,7 @@
 #include "../../node/Node.h"
 #include "../../chains/Schain.h"
 #include "../../crypto/SHAHash.h"
+#include "../../datastructures/DAProof.h"
 #include "../../pendingqueue/PendingTransactionsAgent.h"
 #include "../pusher/BlockProposalClientAgent.h"
 #include "../../datastructures/BlockProposal.h"
@@ -52,8 +53,15 @@ ReceivedBlockProposalsDatabase::ReceivedBlockProposalsDatabase(Schain &_sChain) 
     }
 };
 
-bool ReceivedBlockProposalsDatabase::addDAProof(ptr<DAProof> /*_proof*/) {
-    return false;
+bool ReceivedBlockProposalsDatabase::addDAProof(ptr<DAProof> _proof) {
+
+    LOCK(m)
+
+    auto set = getProposedBlockSet(_proof->getBlockId());
+
+    CHECK_STATE(set != nullptr);
+
+    return set->addDAProof(_proof);
 }
 
 
@@ -67,7 +75,7 @@ bool ReceivedBlockProposalsDatabase::addBlockProposal(ptr<BlockProposal> _propos
     LOG(trace, "addBlockProposal blockID_=" + to_string(_proposal->getBlockID()) + " proposerIndex=" +
                to_string(_proposal->getProposerIndex()));
 
-    lock_guard<recursive_mutex> lock(proposalsDatabaseMutex);
+    LOCK(m)
 
     if (this->proposedBlockSets.count(_proposal->getBlockID()) == 0) {
         proposedBlockSets[_proposal->getBlockID()] = make_shared<BlockProposalSet>(this->sChain,
@@ -83,7 +91,7 @@ bool ReceivedBlockProposalsDatabase::addBlockProposal(ptr<BlockProposal> _propos
 
 void ReceivedBlockProposalsDatabase::cleanOldBlockProposals(block_id _lastCommittedBlockID) {
 
-    lock_guard<recursive_mutex> lock(proposalsDatabaseMutex);
+    LOCK(m)
 
     if (_lastCommittedBlockID < BLOCK_PROPOSAL_HISTORY_SIZE)
         return;
@@ -102,8 +110,7 @@ void ReceivedBlockProposalsDatabase::cleanOldBlockProposals(block_id _lastCommit
 ptr<BooleanProposalVector> ReceivedBlockProposalsDatabase::getBooleanProposalsVector(block_id _blockID) {
 
 
-    lock_guard<recursive_mutex> lock(proposalsDatabaseMutex);
-
+    LOCK(m)
 
     auto set = getProposedBlockSet((_blockID));
 
@@ -114,30 +121,30 @@ ptr<BooleanProposalVector> ReceivedBlockProposalsDatabase::getBooleanProposalsVe
 }
 
 
-ptr<BlockProposalSet> ReceivedBlockProposalsDatabase::getProposedBlockSet(block_id blockID) {
+ptr<BlockProposalSet> ReceivedBlockProposalsDatabase::getProposedBlockSet(block_id _blockID) {
 
-    lock_guard<recursive_mutex> lock(proposalsDatabaseMutex);
+    LOCK(m)
 
-    if (proposedBlockSets.count(blockID) == 0) {
-        proposedBlockSets[blockID] = make_shared<BlockProposalSet>(this->sChain, blockID);
+    if (proposedBlockSets.count(_blockID) == 0) {
+        proposedBlockSets[_blockID] = make_shared<BlockProposalSet>(this->sChain, _blockID);
     }
 
-    return proposedBlockSets.at(blockID);
+    return proposedBlockSets.at(_blockID);
 }
 
 
-ptr<BlockProposal> ReceivedBlockProposalsDatabase::getBlockProposal(block_id blockID, schain_index proposerIndex) {
+ptr<BlockProposal> ReceivedBlockProposalsDatabase::getBlockProposal(block_id _blockID, schain_index _proposerIndex) {
 
 
-    lock_guard<recursive_mutex> lock(proposalsDatabaseMutex);
+    LOCK(m)
 
-    auto set = getProposedBlockSet(blockID);
+    auto set = getProposedBlockSet(_blockID);
 
     if (!set) {
         return nullptr;
     }
 
-    auto proposal = set->getProposalByIndex(proposerIndex);
+    auto proposal = set->getProposalByIndex(_proposerIndex);
 
     CHECK_STATE(proposal->getSignature() != nullptr);
 
@@ -148,8 +155,7 @@ ptr<BlockProposal> ReceivedBlockProposalsDatabase::getBlockProposal(block_id blo
 bool ReceivedBlockProposalsDatabase::isTwoThird(block_id _blockID) {
 
 
-    lock_guard<recursive_mutex> lock(proposalsDatabaseMutex);
-
+    LOCK(m)
 
     if (proposedBlockSets.count(_blockID) > 0) {
         return proposedBlockSets.at(_blockID)->isTwoThird();

@@ -35,9 +35,6 @@ class BooleanProposalVector;
 
 class ReceivedBlockProposalsDatabase : Agent {
 
-
-    recursive_mutex proposalsDatabaseMutex;
-
     block_id oldBlockID;
 
     map<block_id, ptr<BlockProposalSet>> proposedBlockSets;
@@ -53,7 +50,7 @@ public:
     ptr<BlockProposalSet> getProposedBlockSet(block_id _blockID);
 
 
-    ptr<BlockProposal> getBlockProposal(block_id blockID, schain_index proposerIndex);
+    ptr<BlockProposal> getBlockProposal(block_id _blockID, schain_index _proposerIndex);
 
 
     ReceivedBlockProposalsDatabase(Schain &_sChain);

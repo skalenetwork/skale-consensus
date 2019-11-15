@@ -32,11 +32,25 @@
 #include "../chains/Schain.h"
 #include "../pendingqueue/PendingTransactionsAgent.h"
 #include "../blockproposal/received/ReceivedBlockProposalsDatabase.h"
+#include "../datastructures/DAProof.h"
 #include "BlockProposal.h"
 
 #include "BlockProposalSet.h"
 
 using namespace std;
+
+bool BlockProposalSet::addDAProof(ptr<DAProof> _proof) {
+
+    LOCK(m)
+
+    auto index = _proof->getProposerIndex();
+
+
+    CHECK_STATE(proposals.count((uint64_t ) index ) > 0);
+
+    daProofs++;
+    return isTwoThirdProofs();
+}
 
 bool BlockProposalSet::add(ptr<BlockProposal> _proposal) {
     CHECK_ARGUMENT( _proposal  != nullptr);
@@ -57,6 +71,12 @@ bool BlockProposalSet::add(ptr<BlockProposal> _proposal) {
 
     return true;
 
+}
+
+bool BlockProposalSet::isTwoThirdProofs() {
+    LOCK(m)
+    auto value = 3 *  daProofs > 2 * nodeCount;
+    return value;
 }
 
 
