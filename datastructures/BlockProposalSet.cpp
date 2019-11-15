@@ -48,6 +48,8 @@ bool BlockProposalSet::addDAProof(ptr<DAProof> _proof) {
 
     CHECK_STATE(proposals.count((uint64_t ) index ) > 0);
 
+    CHECK_STATE(proposals.at((uint64_t) index)->setAndGetDaProof(_proof) == nullptr);
+
     daProofs++;
     return isTwoThirdProofs();
 }
