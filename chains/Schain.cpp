@@ -519,7 +519,7 @@ void Schain::daProofArrived(ptr<DAProof> _proof) {
         return;
 
     if (blockProposalsDatabase->addDAProof(_proof)) {
-        cerr << "Two third proofs";
+        cerr << "Two third proofs\n";
         //startConsensus(_proof->getBlockId());
     }
 }
