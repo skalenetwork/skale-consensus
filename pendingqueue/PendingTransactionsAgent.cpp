@@ -109,8 +109,6 @@ ptr<BlockProposal> PendingTransactionsAgent::buildBlockProposal(block_id _blockI
     auto myBlockProposal = make_shared<MyBlockProposal>(*sChain, _blockID, sChain->getSchainIndex(),
             transactionList, sec, m);
 
-    auto mySig = getSchain()->getCryptoManager()->signThreshold(myBlockProposal->getHash(), _blockID);
-    getSchain()->sigShareArrived(mySig, myBlockProposal);
 
     LOG(trace, "Created proposal, transactions:" + to_string(transactions->size()));
 ;

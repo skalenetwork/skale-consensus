@@ -382,6 +382,10 @@ void Schain::proposeNextBlock(uint64_t _previousBlockTimeStamp, uint32_t _previo
 
     blockProposalClient->enqueueItem(myProposal);
 
+    auto mySig = getSchain()->getCryptoManager()->signThreshold(myProposal->getHash(), _proposedBlockID);
+    getSchain()->sigShareArrived(mySig, myProposal);
+
+
 
     pushedBlockProposals.insert(_proposedBlockID);
 }
