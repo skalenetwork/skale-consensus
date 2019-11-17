@@ -49,8 +49,8 @@ public:
 
     explicit ReceivedDASigSharesDatabase(Schain &_sChain);
 
-    ptr<ThresholdSignature> addAndMergeSigShare(ptr<ThresholdSigShare> _sigShare,
-            ptr<BlockProposal> _proposal);
+    ptr<DAProof> addAndMergeSigShareAndVerifySig(ptr<ThresholdSigShare> _sigShare,
+                                                 ptr<BlockProposal> _proposal);
 
 };
 

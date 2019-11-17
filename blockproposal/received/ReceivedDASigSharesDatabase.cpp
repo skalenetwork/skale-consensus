@@ -49,6 +49,7 @@
 #include "BLSSignature.h"
 #include "BLSSigShareSet.h"
 #include "../../crypto/ThresholdSigShare.h"
+#include "../../datastructures/DAProof.h"
 
 
 using namespace std;
@@ -58,8 +59,8 @@ ReceivedDASigSharesDatabase::ReceivedDASigSharesDatabase(Schain &_sChain) {
     this->sChain = &_sChain;
 };
 
-ptr<ThresholdSignature> ReceivedDASigSharesDatabase::addAndMergeSigShare(ptr<ThresholdSigShare> _sigShare,
-        ptr<BlockProposal> _proposal) {
+ptr<DAProof> ReceivedDASigSharesDatabase::addAndMergeSigShareAndVerifySig(ptr<ThresholdSigShare> _sigShare,
+                                                                          ptr<BlockProposal> _proposal) {
 
 
     ASSERT(_sigShare);
@@ -93,7 +94,8 @@ ptr<ThresholdSignature> ReceivedDASigSharesDatabase::addAndMergeSigShare(ptr<Thr
 
         sChain->getCryptoManager()->verifyThreshold(
                 _proposal->getHash(), sig->toString(), _sigShare->getBlockId());
-        return sig;
+        auto proof = make_shared<DAProof>(_proposal, sig);
+        return proof;
     }
 
     return nullptr;
