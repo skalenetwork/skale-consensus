@@ -38,6 +38,9 @@
 #include "../../crypto/ConsensusSigShareSet.h"
 #include "../../crypto/CryptoManager.h"
 #include "../../crypto/SHAHash.h"
+#include "../../datastructures/BlockProposal.h"
+
+
 #include "leveldb/db.h"
 
 #include "../../db/SigDB.h"
@@ -55,12 +58,13 @@ ReceivedDASigSharesDatabase::ReceivedDASigSharesDatabase(Schain &_sChain) {
     this->sChain = &_sChain;
 };
 
-ptr<ThresholdSignature> ReceivedDASigSharesDatabase::addAndMergeSigShare(ptr<ThresholdSigShare> _sigShare) {
+ptr<ThresholdSignature> ReceivedDASigSharesDatabase::addAndMergeSigShare(ptr<ThresholdSigShare> _sigShare,
+        ptr<BlockProposal> _proposal) {
 
 
     ASSERT(_sigShare);
 
-    lock_guard<recursive_mutex> lock(sigShareDatabaseMutex);
+    LOCK(m)
 
     if (this->sigShareSets.count(_sigShare->getBlockId()) == 0) {
 
@@ -85,7 +89,11 @@ ptr<ThresholdSignature> ReceivedDASigSharesDatabase::addAndMergeSigShare(ptr<Thr
 
     if (set->isEnough()) {
         LOG(info, "Merged signature");
-        return set->mergeSignature();
+        auto sig = set->mergeSignature();
+
+        sChain->getCryptoManager()->verifyThreshold(
+                _proposal->getHash(), sig->toString(), _sigShare->getBlockId());
+        return sig;
     }
 
     return nullptr;

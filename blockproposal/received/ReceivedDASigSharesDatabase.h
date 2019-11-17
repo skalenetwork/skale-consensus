@@ -39,7 +39,7 @@ class ReceivedDASigSharesDatabase {
 
     Schain* sChain;
 
-    recursive_mutex sigShareDatabaseMutex;
+    recursive_mutex m;
 
     map<block_id, ptr<ThresholdSigShareSet>> sigShareSets;
 
@@ -49,7 +49,8 @@ public:
 
     explicit ReceivedDASigSharesDatabase(Schain &_sChain);
 
-    ptr<ThresholdSignature> addAndMergeSigShare(ptr<ThresholdSigShare> _sigShare);
+    ptr<ThresholdSignature> addAndMergeSigShare(ptr<ThresholdSigShare> _sigShare,
+            ptr<BlockProposal> _proposal);
 
 };
 

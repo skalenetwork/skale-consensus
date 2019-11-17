@@ -604,11 +604,9 @@ void Schain::sigShareArrived(ptr<ThresholdSigShare> _sigShare, ptr<BlockProposal
     CHECK_ARGUMENT(_sigShare != nullptr);
     CHECK_ARGUMENT(_proposal != nullptr);
     try {
-        auto sig = receivedDASigSharesDatabase->addAndMergeSigShare(_sigShare);
+        auto sig = receivedDASigSharesDatabase->addAndMergeSigShare(_sigShare, _proposal);
         if (sig != nullptr) {
             auto proof = make_shared<DAProof>(_proposal, sig);
-
-            getCryptoManager()->verifyThreshold(proof->getHash(), proof->getThresholdSig()->toString(), _sigShare->getBlockId());
             blockProposalClient->enqueueItem(proof);
         }
     } catch (ExitRequestedException &) { throw; } catch (...) {
