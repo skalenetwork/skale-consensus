@@ -136,6 +136,7 @@ const ptr<ProposalHashDB> &Node::getProposalHashDb() const {
 
 
 ptr<map<schain_index, ptr<NodeInfo> > > Node::getNodeInfosByIndex() const {
+    assert(nodeInfosByIndex != nullptr);
     return nodeInfosByIndex;
 }
 

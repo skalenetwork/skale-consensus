@@ -118,7 +118,7 @@ class Schain : public Agent {
 
     ptr<CryptoManager> cryptoManager;
 
-    Node* node;
+    Node* node = nullptr;
 
     schain_index schainIndex;
 

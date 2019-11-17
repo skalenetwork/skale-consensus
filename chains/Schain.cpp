@@ -375,7 +375,7 @@ void Schain::proposeNextBlock(uint64_t _previousBlockTimeStamp, uint32_t _previo
     CHECK_STATE(myProposal->getSignature() != nullptr);
 
     if (blockProposalsDatabase->addBlockProposal(myProposal)) {
-        startConsensus(_proposedBlockID);
+        //startConsensus(_proposedBlockID);
     }
 
     LOG(debug, "PROPOSING BLOCK NUMBER:" + to_string(_proposedBlockID));
@@ -524,7 +524,7 @@ void Schain::daProofArrived(ptr<DAProof> _proof) {
 
     if (blockProposalsDatabase->addDAProof(_proof)) {
         cerr << "Two third proofs\n";
-        //startConsensus(_proof->getBlockId());
+        startConsensus(_proof->getBlockId());
     }
 }
 
@@ -541,7 +541,7 @@ void Schain::proposedBlockArrived(ptr<BlockProposal> pbm) {
         return;
 
     if (blockProposalsDatabase->addBlockProposal(pbm)) {
-        startConsensus(pbm->getBlockID());
+        //startConsensus(pbm->getBlockID());
     }
 }
 

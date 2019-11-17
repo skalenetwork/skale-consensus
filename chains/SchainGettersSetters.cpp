@@ -151,12 +151,13 @@ schain_index Schain::getSchainIndex() const {
 
 
 Node *Schain::getNode() const {
-    CHECK_STATE(node != nullptr);
+    assert(node);
     return node;
 }
 
 
 node_count Schain::getNodeCount() {
+
     auto count = node_count(getNode()->getNodeInfosByIndex()->size());
     ASSERT(count > 0);
     return count;
