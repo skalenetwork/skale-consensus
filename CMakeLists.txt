@@ -49,12 +49,6 @@ hunter_add_package(leveldb)
 find_package(leveldb CONFIG REQUIRED)
 
 
-#openssl
-hunter_add_package(OpenSSL)
-find_package(OpenSSL REQUIRED)
-
-
-
 #set (CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-Wreturn-type -Winit-self")
 
 if (SKALED_LATEST_STANDARD)
@@ -177,18 +171,22 @@ include_directories( ${BLS_INCLUDE_DIRS} "${DEPS_INSTALL_ROOT}/include" )
 link_directories( "${DEPS_INSTALL_ROOT}/lib" )
 
 if( SKALE_HAVE_BOOST_FROM_HUNTER )
-  set( BOOST_LIBS_4_CONSENSUS
-    Boost::log Boost::thread Boost::system Boost::filesystem Boost::program_options
-    )
+    set( BOOST_LIBS_4_CONSENSUS
+            Boost::log Boost::thread Boost::system Boost::filesystem Boost::program_options
+            )
 else()
-  set( BOOST_LIBS_4_CONSENSUS
-    #boost_log
-    boost_thread boost_system boost_filesystem boost_program_options
-    )
+    set( BOOST_LIBS_4_CONSENSUS
+            #boost_log
+            boost_thread boost_system boost_filesystem boost_program_options
+            )
 endif()
 
+SET( LINK_LIBRARIES
+        Threads::Threads
+        ${BOOST_LIBS_4_CONSENSUS}
+        ${LIB_NAME_cryptopp} ZeroMQ::libzmq-static leveldb::leveldb bls ${FF_LIBRARY}
+        )
 
-SET(LINK_LIBRARIES Threads::Threads Boost::log Boost::thread Boost::system Boost::filesystem ${LIB_NAME_cryptopp} OpenSSL::Crypto ZeroMQ::libzmq-static leveldb::leveldb bls)
 
 # consensus library
 
@@ -218,9 +216,7 @@ add_executable(consensust Consensust.h Consensust.cpp datastructures/Serializati
 
 # libgoogle-perftools-dev
 if (CMAKE_PROJECT_NAME STREQUAL "consensus")
-
     #  sudo apt-get install -qq -yy libgoogle-perftools-dev
-
     target_link_libraries(consensust consensus tcmalloc)
 else ()
     target_link_libraries(consensust consensus)
