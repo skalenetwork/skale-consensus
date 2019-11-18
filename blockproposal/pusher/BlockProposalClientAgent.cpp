@@ -153,7 +153,7 @@ void BlockProposalClientAgent::sendBlockProposal(
     }
 
 
-    LOG(trace, "Proposal step 1: wrote proposal header");
+    LOG(info, "Proposal step 1: wrote proposal header");
 
     auto response =
             sChain->getIo()->readJsonHeader(socket->getDescriptor(), "Read proposal resp");
@@ -203,69 +203,70 @@ void BlockProposalClientAgent::sendBlockProposal(
     auto count = missingTransactionHeader->getMissingTransactionsCount();
 
     if (count == 0) {
-        LOG(trace, "Proposal complete::no missing transactions");
-        return;
-    }
+        LOG(info, "Proposal complete::no missing transactions");
 
-    ptr<unordered_set<ptr<partial_sha_hash>, PendingTransactionsAgent::Hasher,
-            PendingTransactionsAgent::Equal> >
-            missingHashes;
+    } else {
 
-    try {
-        missingHashes = readMissingHashes(socket, count);
-    } catch (ExitRequestedException &) {
-        throw;
-    } catch (...) {
-        auto errStr = "Could not read missing hashes";
-        throw_with_nested(NetworkProtocolException(errStr, __CLASS_NAME__));
-    }
+        ptr<unordered_set<ptr<partial_sha_hash>, PendingTransactionsAgent::Hasher,
+                PendingTransactionsAgent::Equal> >
+                missingHashes;
 
-
-    LOG(trace, "Proposal step 4: read missing transaction hashes");
-
-
-    auto missingTransactions = make_shared<vector<ptr<Transaction> > >();
-    auto missingTransactionsSizes = make_shared<vector<uint64_t> >();
-
-    for (auto &&transaction : *_proposal->getTransactionList()->getItems()) {
-        if (missingHashes->count(transaction->getPartialHash())) {
-            missingTransactions->push_back(transaction);
-            missingTransactionsSizes->push_back(transaction->getSerializedSize(false));
+        try {
+            missingHashes = readMissingHashes(socket, count);
+        } catch (ExitRequestedException &) {
+            throw;
+        } catch (...) {
+            auto errStr = "Could not read missing hashes";
+            throw_with_nested(NetworkProtocolException(errStr, __CLASS_NAME__));
         }
+
+
+        LOG(trace, "Proposal step 4: read missing transaction hashes");
+
+
+        auto missingTransactions = make_shared<vector<ptr<Transaction> > >();
+        auto missingTransactionsSizes = make_shared<vector<uint64_t> >();
+
+        for (auto &&transaction : *_proposal->getTransactionList()->getItems()) {
+            if (missingHashes->count(transaction->getPartialHash())) {
+                missingTransactions->push_back(transaction);
+                missingTransactionsSizes->push_back(transaction->getSerializedSize(false));
+            }
+        }
+
+        ASSERT2(missingTransactions->size() == count,
+                "Transactions:" + to_string(missingTransactions->size()) + ":" + to_string(count));
+
+
+        auto mtrh = make_shared<MissingTransactionsResponseHeader>(missingTransactionsSizes);
+
+        try {
+            getSchain()->getIo()->writeHeader(socket, mtrh);
+        } catch (ExitRequestedException &) {
+            throw;
+        } catch (...) {
+            auto errString =
+                    "Proposal: unexpected server disconnect writing missing txs response header";
+            throw_with_nested(new NetworkProtocolException(errString, __CLASS_NAME__));
+        }
+
+
+        LOG(trace, "Proposal step 5: sent missing transactions header");
+
+
+        auto mtrm = make_shared<TransactionList>(missingTransactions);
+
+        try {
+            getSchain()->getIo()->writeBytesVector(socket->getDescriptor(), mtrm->serialize(false));
+        } catch (ExitRequestedException &) {
+            throw;
+        } catch (...) {
+            auto errString = "Proposal: unexpected server disconnect  writing missing hashes";
+            throw_with_nested(new NetworkProtocolException(errString, __CLASS_NAME__));
+        }
+
+        LOG(trace, "Proposal step 6: sent missing transactions");
     }
-
-    ASSERT2(missingTransactions->size() == count,
-            "Transactions:" + to_string(missingTransactions->size()) + ":" + to_string(count));
-
-
-    auto mtrh = make_shared<MissingTransactionsResponseHeader>(missingTransactionsSizes);
-
-    try {
-        getSchain()->getIo()->writeHeader(socket, mtrh);
-    } catch (ExitRequestedException &) {
-        throw;
-    } catch (...) {
-        auto errString =
-                "Proposal: unexpected server disconnect writing missing txs response header";
-        throw_with_nested(new NetworkProtocolException(errString, __CLASS_NAME__));
-    }
-
-
-    LOG(trace, "Proposal step 5: sent missing transactions header");
-
-
-    auto mtrm = make_shared<TransactionList>(missingTransactions);
-
-    try {
-        getSchain()->getIo()->writeBytesVector(socket->getDescriptor(), mtrm->serialize(false));
-    } catch (ExitRequestedException &) {
-        throw;
-    } catch (...) {
-        auto errString = "Proposal: unexpected server disconnect  writing missing hashes";
-        throw_with_nested(new NetworkProtocolException(errString, __CLASS_NAME__));
-    }
-
-    LOG(trace, "Proposal step 6: sent missing transactions");
 
     auto finalHeader = readAndProcessFinalProposalResponseHeader(socket);
 
@@ -278,10 +279,9 @@ void BlockProposalClientAgent::sendBlockProposal(
                                                                     getSchain()->getTotalSignersCount(),
                                                                     getSchain()->getRequiredSignersCount());
 
-    LOG(info, "Sig share arrived");
     getSchain()->sigShareArrived(sigShare, _proposal);
 
-    LOG(trace, "Proposal step 7: got final response");
+    LOG(info, "Proposal step 7: got sig share");
 }
 
 

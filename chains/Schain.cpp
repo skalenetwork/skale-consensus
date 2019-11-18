@@ -374,9 +374,8 @@ void Schain::proposeNextBlock(uint64_t _previousBlockTimeStamp, uint32_t _previo
     CHECK_STATE(myProposal->getProposerIndex() == getSchainIndex());
     CHECK_STATE(myProposal->getSignature() != nullptr);
 
-    if (blockProposalsDatabase->addBlockProposal(myProposal)) {
-        //startConsensus(_proposedBlockID);
-    }
+
+    proposedBlockArrived(myProposal);
 
     LOG(debug, "PROPOSING BLOCK NUMBER:" + to_string(_proposedBlockID));
 
@@ -522,6 +521,8 @@ void Schain::daProofArrived(ptr<DAProof> _proof) {
     if (_proof->getBlockId() <= lastCommittedBlockID)
         return;
 
+    cerr << "DAProof arrived \n";
+
     if (blockProposalsDatabase->addDAProof(_proof)) {
         cerr << "Two third proofs\n";
         startConsensus(_proof->getBlockId());
@@ -536,6 +537,8 @@ void Schain::proposedBlockArrived(ptr<BlockProposal> pbm) {
     MONITOR(__CLASS_NAME__, __FUNCTION__)
 
     LOCK(m);
+
+    cerr << "Proposed block arrived\n";
 
     if (pbm->getBlockID() <= lastCommittedBlockID)
         return;
@@ -604,12 +607,15 @@ void Schain::healthCheck() {
 }
 
 void Schain::sigShareArrived(ptr<ThresholdSigShare> _sigShare, ptr<BlockProposal> _proposal) {
+
+    cerr << "Sig share arrived\n";
     checkForExit();
     CHECK_ARGUMENT(_sigShare != nullptr);
     CHECK_ARGUMENT(_proposal != nullptr);
     try {
         auto proof = receivedDASigSharesDatabase->addAndMergeSigShareAndVerifySig(_sigShare, _proposal);
         if (proof != nullptr) {
+            getSchain()->daProofArrived(proof);
             blockProposalClient->enqueueItem(proof);
         }
     } catch (ExitRequestedException &) { throw; } catch (...) {
