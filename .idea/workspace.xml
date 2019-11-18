@@ -69,9 +69,21 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="328bba78-e120-46f5-8d8c-d775e2cc49f7" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.travis.yml" beforeDir="false" afterPath="$PROJECT_DIR$/.travis.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/blockproposal/pusher/BlockProposalClientAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/blockproposal/pusher/BlockProposalClientAgent.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/chains/Schain.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/chains/Schain.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/chains/SchainGettersSetters.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/chains/SchainGettersSetters.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libBLS" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libBLS/pbc" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/pbc" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libBLS/pbc/INSTALL" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/pbc/INSTALL" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/network/Utils.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/network/Utils.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/node/Node.h" beforeDir="false" afterPath="$PROJECT_DIR$/node/Node.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pricing/PricingStrategy.h" beforeDir="false" afterPath="$PROJECT_DIR$/pricing/PricingStrategy.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/protocols/binconsensus/BinConsensusInstance.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/protocols/binconsensus/BinConsensusInstance.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/protocols/binconsensus/BinConsensusInstance.h" beforeDir="false" afterPath="$PROJECT_DIR$/protocols/binconsensus/BinConsensusInstance.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/build.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/build.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

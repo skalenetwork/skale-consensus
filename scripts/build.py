@@ -73,6 +73,7 @@ print("Running cmake: " + cmakeExecutable)
 
 
 run ("ccache -M 20G")
+run("./libBLS/deps/build.sh PARALLEL_COUNT=j$(nproc)")
 run("cmake . -Bbuild -DCMAKE_BUILD_TYPE=" +  sys.argv[1] +
                         " -DCOVERAGE=ON -DMICROPROFILE_ENABLED=0")
 

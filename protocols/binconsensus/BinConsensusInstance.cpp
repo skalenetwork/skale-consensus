@@ -517,10 +517,10 @@ void BinConsensusInstance::proceedWithCommonCoin(bool _hasTrue, bool _hasFalse, 
 void BinConsensusInstance::proceedWithNewRound(bin_consensus_value value) {
 
 
-    ASSERT(currentRound < 100);
+    ASSERT(currentRound.load() < 100);
     ASSERT(isTwoThird(totalAUXVotes(currentRound)));
 
-    currentRound += 1;
+    currentRound = currentRound + 1;
 
     est[currentRound] = value;
 
@@ -661,8 +661,8 @@ void BinConsensusInstance::initHistory() {
     msgHistory = make_shared<list<ptr<NetworkMessage>>>();
 }
 
-bin_consensus_round &BinConsensusInstance::getCurrentRound() {
-    return currentRound;
+bin_consensus_round BinConsensusInstance::getCurrentRound() {
+    return currentRound.load();
 }
 
 bool BinConsensusInstance::decided() const {

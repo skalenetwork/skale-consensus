@@ -88,7 +88,7 @@ private:
 
     const ptr<ProtocolKey> protocolKey;
 
-    bin_consensus_round currentRound = bin_consensus_round(0);
+    std::atomic<bin_consensus_round> currentRound = bin_consensus_round(0);
 
     bin_consensus_round commonCoinNextRound = bin_consensus_round(0);
 
@@ -194,7 +194,7 @@ public:
 
     BinConsensusInstance(BlockConsensusAgent* instance, block_id _blockId, schain_index _blockProposerIndex);
 
-    bin_consensus_round &getCurrentRound();
+    bin_consensus_round getCurrentRound();
 
     void addToHistory(shared_ptr<NetworkMessage> m);
 

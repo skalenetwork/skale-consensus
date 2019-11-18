@@ -16,6 +16,11 @@ endif ()
 
 add_subdirectory(libBLS)
 
+if( NOT DEFINED DEPS_INSTALL_ROOT )
+    set( DEPS_SOURCES_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/libBLS/deps")
+    set( DEPS_INSTALL_ROOT "${DEPS_SOURCES_ROOT}/deps_inst/x86_or_x64")
+endif()
+message(INFO "---- DEPS_INSTALL_ROOT in consensus is: ${DEPS_INSTALL_ROOT}")
 
 include("cmake/HunterGate.cmake")
 include("cmake/precompiledheader.cmake")
@@ -25,6 +30,12 @@ HunterGate(URL "https://github.com/ruslo/hunter/archive/v0.23.76.tar.gz" SHA1 "c
 
 
 project(consensus)
+
+include_directories( "${DEPS_INSTALL_ROOT}/include" ${CMAKE_BINARY_DIR}/deps/include )
+link_directories( "${DEPS_INSTALL_ROOT}/lib" )
+set( CMAKE_PREFIX_PATH "${DEPS_INSTALL_ROOT}" )
+
+find_library( FF_LIBRARY NAMES "ff" PATHS "${DEPS_INSTALL_ROOT}/lib" )
 
 # zeromq
 
@@ -86,8 +97,8 @@ find_package(Threads REQUIRED)
 set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_MULTITHREADED ON)
 
-hunter_add_package(Boost COMPONENTS filesystem system thread log random)
-find_package(Boost CONFIG REQUIRED filesystem system thread log random)
+hunter_add_package(Boost COMPONENTS filesystem system thread log random program_options)
+find_package(Boost CONFIG REQUIRED filesystem system thread log random program_options)
 
 hunter_add_package(spdlog)
 find_package(spdlog)
@@ -162,12 +173,22 @@ SET(SRC_FILES
         ${utils_src}
         Agent.h Agent.cpp SkaleCommon.h SkaleCommon.cpp Log.h Log.cpp microprofile.cpp miniz.c)
 
+include_directories( ${BLS_INCLUDE_DIRS} "${DEPS_INSTALL_ROOT}/include" )
+link_directories( "${DEPS_INSTALL_ROOT}/lib" )
 
-include_directories(${BLS_INCLUDE_DIRS})
-link_directories(${BLS_WITH_FF_INCLUDE_DIRS})
+if( SKALE_HAVE_BOOST_FROM_HUNTER )
+  set( BOOST_LIBS_4_CONSENSUS
+    Boost::log Boost::thread Boost::system Boost::filesystem Boost::program_options
+    )
+else()
+  set( BOOST_LIBS_4_CONSENSUS
+    #boost_log
+    boost_thread boost_system boost_filesystem boost_program_options
+    )
+endif()
+
 
 SET(LINK_LIBRARIES Threads::Threads Boost::log Boost::thread Boost::system Boost::filesystem ${LIB_NAME_cryptopp} OpenSSL::Crypto ZeroMQ::libzmq-static leveldb::leveldb bls)
-
 
 # consensus library
 
@@ -175,7 +196,7 @@ add_library(consensus ${SRC_FILES})
 
 target_link_libraries(consensus ${LINK_LIBRARIES})
 add_precompiled_header(consensus SkaleCommon.h FORCE_INCLUDE)
-add_dependencies(consensus bls gmp secp256k1)
+add_dependencies(consensus bls)
 
 # consensus test agent
 

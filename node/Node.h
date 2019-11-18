@@ -107,7 +107,7 @@ class Node {
     bool startedClients;
 
 
-    volatile bool exitRequested;
+    std::atomic_bool exitRequested;
 
     ptr<Log> log = nullptr;
     ptr<string> name = nullptr;

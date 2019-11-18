@@ -45,15 +45,13 @@ addons:
       - valgrind
       - gawk
       - sed
-      - libboost-all-dev
       - libffi-dev
-      - libssl-dev
-      - libprocps4-dev
-      - libgmp3-dev
       - ccache
       - libgoogle-perftools-dev
       - flex
       - bison
+      - yasm
+      - texinfo
       - autotools-dev
       - automake
     sources:

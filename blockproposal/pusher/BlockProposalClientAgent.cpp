@@ -337,9 +337,6 @@ void BlockProposalClientAgent::sendDAProof(
 
         return;
     }
-
-
-
 }
 
 
