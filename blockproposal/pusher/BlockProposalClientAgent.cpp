@@ -153,7 +153,7 @@ void BlockProposalClientAgent::sendBlockProposal(
     }
 
 
-    LOG(info, "Proposal step 1: wrote proposal header");
+    LOG(trace, "Proposal step 1: wrote proposal header");
 
     auto response =
             sChain->getIo()->readJsonHeader(socket->getDescriptor(), "Read proposal resp");
@@ -203,7 +203,7 @@ void BlockProposalClientAgent::sendBlockProposal(
     auto count = missingTransactionHeader->getMissingTransactionsCount();
 
     if (count == 0) {
-        LOG(info, "Proposal complete::no missing transactions");
+        LOG(trace, "Proposal complete::no missing transactions");
 
     } else {
 
@@ -281,7 +281,7 @@ void BlockProposalClientAgent::sendBlockProposal(
 
     getSchain()->sigShareArrived(sigShare, _proposal);
 
-    LOG(info, "Proposal step 7: got sig share");
+    LOG(trace, "Proposal step 7: got sig share");
 }
 
 

@@ -190,7 +190,7 @@ ptr<DAProof> BlockProposal::setAndGetDaProof(const ptr<DAProof> _daProof) {
     if (daProof != nullptr)
         return daProof;
 
-    LOG(info, "Set DA proof");
+    LOG(trace, "Set DA proof");
 
     BlockProposal::daProof = _daProof;
     return nullptr;

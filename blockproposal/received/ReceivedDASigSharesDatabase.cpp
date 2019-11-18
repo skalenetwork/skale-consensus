@@ -85,11 +85,11 @@ ptr<DAProof> ReceivedDASigSharesDatabase::addAndMergeSigShareAndVerifySig(ptr<Th
         return nullptr;
     }
 
-    LOG(info, "Adding sigshare");
+    LOG(trace, "Adding sigshare");
     set->addSigShare(_sigShare);
 
     if (set->isEnough()) {
-        LOG(info, "Merged signature");
+        LOG(trace, "Merged signature");
         auto sig = set->mergeSignature();
 
         sChain->getCryptoManager()->verifyThreshold(
