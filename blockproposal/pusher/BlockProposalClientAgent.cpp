@@ -322,7 +322,19 @@ void BlockProposalClientAgent::sendDAProof(
 
 
     if (status != CONNECTION_SUCCESS) {
-        LOG(err, "Failure submitting DA proof");
+        uint64_t substatus = 0;
+
+        try {
+            substatus = Header::getUint64(response, "substatus");
+        } catch (...) {
+
+        }
+        if (substatus == CONNECTION_BLOCK_PROPOSAL_TOO_LATE) {
+            LOG(trace, "Block proposal too late");
+        } else {
+            LOG(err, "Failure submitting DA proof:" + to_string(status) + ":" + to_string(substatus));
+        }
+
         return;
     }
 
