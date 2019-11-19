@@ -30,9 +30,17 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="328bba78-e120-46f5-8d8c-d775e2cc49f7" name="Default Changelist" comment="Updated libBLS">
-      <change beforePath="$PROJECT_DIR$/chains/Schain.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/chains/Schain.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/blockfinalize/client/BlockFinalizeDownloader.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/blockfinalize/client/BlockFinalizeDownloader.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/blockproposal/pusher/BlockProposalClientAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/blockproposal/pusher/BlockProposalClientAgent.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/blockproposal/server/BlockProposalServerAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/blockproposal/server/BlockProposalServerAgent.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/catchup/client/CatchupClientAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/catchup/client/CatchupClientAgent.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/headers/CatchupRequestHeader.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/headers/CatchupRequestHeader.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libBLS/deps/pbc/INSTALL" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/deps/pbc/INSTALL" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libBLS/pbc/INSTALL" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/pbc/INSTALL" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/network/IO.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/network/IO.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/network/IO.h" beforeDir="false" afterPath="$PROJECT_DIR$/network/IO.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/network/TransportNetwork.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/network/TransportNetwork.cpp" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -68,7 +76,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="CMake Application.test_16">
+  <component name="RunManager" selected="CMake Application.test_2">
     <configuration name="all_bls_tests" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="consensus" TARGET_NAME="all_bls_tests" CONFIG_NAME="Debug">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -215,7 +223,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1574094284750</updated>
-      <workItem from="1574094287405" duration="6542000" />
+      <workItem from="1574094287405" duration="14398000" />
     </task>
     <task id="LOCAL-00002" summary="Updated libBLS">
       <created>1574096232083</created>
@@ -231,7 +239,14 @@
       <option name="project" value="LOCAL" />
       <updated>1574165301695</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="Updated libBLS">
+      <created>1574166019497</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1574166019497</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -254,8 +269,8 @@
     <option name="CHECK_CODE_SMELLS_BEFORE_PROJECT_COMMIT" value="false" />
     <option name="CHECK_NEW_TODO" value="false" />
     <MESSAGE value="Added workspace.xml" />
-    <MESSAGE value="Updated libBLS" />
     <MESSAGE value="Improve locking" />
-    <option name="LAST_COMMIT_MESSAGE" value="Improve locking" />
+    <MESSAGE value="Updated libBLS" />
+    <option name="LAST_COMMIT_MESSAGE" value="Updated libBLS" />
   </component>
 </project>

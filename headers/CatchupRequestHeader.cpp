@@ -44,14 +44,12 @@ using namespace std;
 CatchupRequestHeader::CatchupRequestHeader() : Header(Header::BLOCK_CATCHUP_REQ) {
 }
 
-CatchupRequestHeader::CatchupRequestHeader(Schain &_sChain, schain_index _dstIndex) :
+CatchupRequestHeader::CatchupRequestHeader(Schain &_sChain, schain_index) :
         CatchupRequestHeader() {
 
 
     this->schainID = _sChain.getSchainID();
     this->blockID = _sChain.getLastCommittedBlockID();
-
-    ASSERT(_sChain.getNode()->getNodeInfoByIndex(_dstIndex) != nullptr);
 
     complete = true;
 

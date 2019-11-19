@@ -194,7 +194,7 @@ ptr< CommittedBlockList > CatchupClientAgent::readMissingBlocks(
 
     try {
         getSchain()->getIo()->readBytes( _socket->getDescriptor(),
-            ( in_buffer* ) serializedBlocks->data(), msg_len( totalSize ) );
+            serializedBlocks, msg_len( totalSize ) );
     } catch ( ExitRequestedException& ) {
         throw;
     } catch ( ... ) {
