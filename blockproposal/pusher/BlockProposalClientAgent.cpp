@@ -352,7 +352,7 @@ BlockProposalClientAgent::readMissingHashes(ptr<ClientSocket> _socket, uint64_t 
 
 
     try {
-        getSchain()->getIo()->readBytes2(
+        getSchain()->getIo()->readBytes(
                 _socket->getDescriptor(), buffer, msg_len(bytesToRead));
     } catch (ExitRequestedException &) {
         throw;

@@ -193,8 +193,8 @@ ptr< CommittedBlockList > CatchupClientAgent::readMissingBlocks(
     auto serializedBlocks = make_shared< vector< uint8_t > >( totalSize );
 
     try {
-        getSchain()->getIo()->readBytes( _socket->getDescriptor(),
-            ( in_buffer* ) serializedBlocks->data(), msg_len( totalSize ) );
+        getSchain()->getIo()->readBytes(_socket->getDescriptor(),
+                                        serializedBlocks, msg_len(totalSize));
     } catch ( ExitRequestedException& ) {
         throw;
     } catch ( ... ) {

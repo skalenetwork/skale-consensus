@@ -45,8 +45,8 @@
 
 using namespace std;
 
-void IO::readBytes(ptr<ServerConnection> env, in_buffer *buffer, msg_len len) {
-    return readBytes(env->getDescriptor(), buffer, len);
+void IO::readBytes(ptr<ServerConnection> env, ptr<vector<uint8_t>> _buffer, msg_len len) {
+    return readBytes(env->getDescriptor(), _buffer, len);
 }
 
 void IO::readBuf(file_descriptor descriptor, ptr<Buffer> buf, msg_len len) {
@@ -54,14 +54,15 @@ void IO::readBuf(file_descriptor descriptor, ptr<Buffer> buf, msg_len len) {
     CHECK_ARGUMENT(len > 0);
     CHECK_ARGUMENT(buf->getSize() >= len);
 
-    return readBytes(descriptor, reinterpret_cast< in_buffer * >( buf->getBuf()->data()), len);
+    return readBytes(descriptor, buf->getBuf(), len);
 }
 
-void IO::readBytes(file_descriptor descriptor, in_buffer *buffer, msg_len len) {
+
+void IO::readBytes(file_descriptor descriptor, ptr<vector<uint8_t>> _buffer, msg_len len) {
     // fd_set read_set;
     // struct timeval timeout;
 
-    CHECK_ARGUMENT(buffer != nullptr);
+    CHECK_ARGUMENT(_buffer != nullptr);
     CHECK_ARGUMENT(len > 0);
 
     int64_t bytesRead = 0;
@@ -85,72 +86,7 @@ void IO::readBytes(file_descriptor descriptor, in_buffer *buffer, msg_len len) {
 
         do {
 
-            result = recv(int(descriptor), buffer + bytesRead, uint64_t(len) - bytesRead, 0);
-
-
-            if (sChain->getNode()->isExitRequested())
-                BOOST_THROW_EXCEPTION(ExitRequestedException(__CLASS_NAME__));
-            if (result == 0) {
-                usleep(10); // dont do busy wait
-            };
-            counter++;
-
-            if (counter > 1000) {
-                BOOST_THROW_EXCEPTION(NetworkProtocolException("Peer read timeout", __CLASS_NAME__));
-            }
-
-
-        } while (result <= 0 && errno == EAGAIN);
-
-        if (result < 0) {
-            BOOST_THROW_EXCEPTION(
-                    NetworkProtocolException("Read returned error:" + string(strerror(errno)), __CLASS_NAME__));
-        }
-
-        if (result == 0) {
-            BOOST_THROW_EXCEPTION(NetworkProtocolException("The peer shut down the socket, bytes to read:" +
-                                                           to_string(uint64_t(len) - bytesRead), __CLASS_NAME__));
-
-        }
-
-        bytesRead += result;
-
-        // LOG(trace, "IO bytes read:" + to_string( bytesRead ) );
-    }
-
-    assert ((uint64_t ) bytesRead == (uint64_t ) len);
-
-}
-
-void IO::readBytes2(file_descriptor descriptor, ptr<vector<uint8_t>> buffer, msg_len len) {
-    // fd_set read_set;
-    // struct timeval timeout;
-
-    CHECK_ARGUMENT(buffer != nullptr);
-    CHECK_ARGUMENT(len > 0);
-
-    int64_t bytesRead = 0;
-
-    int64_t result;
-
-
-    struct timeval tv;
-    tv.tv_sec = 3;
-    tv.tv_usec = 0;
-    setsockopt(int(descriptor), SOL_SOCKET, SO_RCVTIMEO, (const char *) &tv, sizeof tv);
-
-
-    while (msg_len(bytesRead) < len) {
-
-
-        if (sChain->getNode()->isExitRequested())
-            BOOST_THROW_EXCEPTION(ExitRequestedException(__CLASS_NAME__));
-
-        uint64_t counter = 1;
-
-        do {
-
-            result = recv(int(descriptor), buffer->data() + bytesRead, uint64_t(len) - bytesRead, 0);
+            result = recv(int(descriptor), _buffer->data() + bytesRead, uint64_t(len) - bytesRead, 0);
 
 
             if (sChain->getNode()->isExitRequested())
@@ -282,14 +218,19 @@ IO::IO(Schain *_sChain) : sChain(_sChain) {
 
 
 void IO::readMagic(file_descriptor descriptor) {
+
     uint64_t magic;
 
+    auto readBuffer = make_shared<vector<uint8_t>>(sizeof(magic));
+
     try {
-        readBytes(descriptor, (in_buffer *) &magic, sizeof(magic));
+        readBytes(descriptor, readBuffer, sizeof(magic));
     } catch (ExitRequestedException &) { throw; }
     catch (...) {
         throw_with_nested(NetworkProtocolException("Could not read magic number", __CLASS_NAME__));
     }
+
+    magic = *(uint64_t*) readBuffer->data();
 
     if (magic != MAGIC_NUMBER) {
         if (magic == TEST_MAGIC_NUMBER) {
@@ -304,14 +245,14 @@ void IO::readMagic(file_descriptor descriptor) {
 nlohmann::json IO::readJsonHeader(file_descriptor descriptor, const char *_errorString) {
 
 
-    auto buf2 = make_shared<array<uint64_t, MAX_HEADER_SIZE>>();
+    auto buf2 = make_shared<vector<uint8_t>>(sizeof(uint64_t));
 
 
     ptr<Buffer> buf = nullptr;
 
     try {
         readBytes(descriptor,
-                  (in_buffer *) buf2->data(),
+                  buf2,
                   msg_len(sizeof(uint64_t)));
     } catch (ExitRequestedException &) { throw; }
     catch (...) {
@@ -319,7 +260,7 @@ nlohmann::json IO::readJsonHeader(file_descriptor descriptor, const char *_error
     }
 
 
-    uint64_t headerLen = (*buf2).at(0);
+    uint64_t headerLen = *(uint64_t*) buf2->data();
 
     if (headerLen < 2 || headerLen >= MAX_HEADER_SIZE) {
         LOG(err, "Total Len:" + to_string(headerLen));
