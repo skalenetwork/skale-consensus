@@ -48,19 +48,18 @@ public:
 
 public:
 
-    void readBytes(ptr<ServerConnection> env, ptr<vector<uint8_t>> _buffer, msg_len len);
+    void readBytes(ptr<ServerConnection> _env, ptr<vector<uint8_t>> _buffer, msg_len _len);
 
-    void readBytes(file_descriptor descriptor, ptr<vector<uint8_t>> _buffer, msg_len len);
+    void readBytes(file_descriptor _descriptor, ptr<vector<uint8_t>> _buffer, msg_len _len);
 
-    void readBuf(file_descriptor descriptor, ptr<Buffer> buf, msg_len len);
+    void readBuf(file_descriptor _descriptor, ptr<Buffer> _buf, msg_len _len);
+
+    void writeBytes(file_descriptor descriptor, ptr<vector<uint8_t>> _buffer, msg_len len);
+
+    void writeBuf(file_descriptor _descriptor, ptr<Buffer> _buf);
 
 
-    void writeBytes(file_descriptor descriptor, out_buffer *buffer, msg_len len);
-
-    void writeBuf(file_descriptor descriptor, ptr<Buffer> buf);
-
-
-    void writeHeader(ptr<ClientSocket> socket, ptr<Header> header);
+    void writeHeader(ptr<ClientSocket> _socket, ptr<Header> _header);
 
 
 
