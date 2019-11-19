@@ -475,7 +475,9 @@ void ConsensusEngine::exitGracefully() {
 
 
 ConsensusEngine::~ConsensusEngine() {
+    exitGracefully();
     for (auto &n : nodes) {
+        assert(n.second->isExitRequested());
         delete n.second;
     }
 }

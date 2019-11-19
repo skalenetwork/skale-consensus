@@ -31,10 +31,12 @@
   <component name="ChangeListManager">
     <list default="true" id="328bba78-e120-46f5-8d8c-d775e2cc49f7" name="Default Changelist" comment="Updated libBLS">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Consensust.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Consensust.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/blockproposal/pusher/BlockProposalClientAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/blockproposal/pusher/BlockProposalClientAgent.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libBLS/deps/pbc/INSTALL" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/deps/pbc/INSTALL" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libBLS/pbc/INSTALL" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/pbc/INSTALL" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/network/IO.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/network/IO.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/network/IO.h" beforeDir="false" afterPath="$PROJECT_DIR$/network/IO.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/network/TransportNetwork.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/network/TransportNetwork.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/node/ConsensusEngine.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/node/ConsensusEngine.cpp" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -70,7 +72,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="CMake Application.test_16">
+  <component name="RunManager" selected="CMake Application.test_2">
     <configuration name="all_bls_tests" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="consensus" TARGET_NAME="all_bls_tests" CONFIG_NAME="Debug">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -247,7 +249,14 @@
       <option name="project" value="LOCAL" />
       <updated>1574182764664</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="Updated libBLS">
+      <created>1574184026583</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1574184026583</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -270,9 +279,9 @@
     <option name="CHECK_CODE_SMELLS_BEFORE_PROJECT_COMMIT" value="false" />
     <option name="CHECK_NEW_TODO" value="false" />
     <MESSAGE value="Added workspace.xml" />
-    <MESSAGE value="Updated libBLS" />
     <MESSAGE value="Improve locking" />
     <MESSAGE value="Fixing IO" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fixing IO" />
+    <MESSAGE value="Updated libBLS" />
+    <option name="LAST_COMMIT_MESSAGE" value="Updated libBLS" />
   </component>
 </project>

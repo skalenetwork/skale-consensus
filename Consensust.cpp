@@ -57,6 +57,7 @@ public:
 #ifdef GOOGLE_PROFILE
         HeapProfilerStop();
 #endif
+        engine->exitGracefully();
         delete engine;
     }
 };
@@ -105,7 +106,6 @@ TEST_CASE_METHOD(StartFromScratch, "Run basic consensus", "[consensus-basic]") {
 
         REQUIRE(engine->nodesCount() > 0);
         REQUIRE(engine->getLargestCommittedBlockID() > 0);
-
         engine->exitGracefully();
     } catch (Exception& e) {
         Exception::logNested(e);

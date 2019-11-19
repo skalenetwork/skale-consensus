@@ -132,10 +132,29 @@ void BlockProposalClientAgent::sendItemImpl(
 
 }
 
+ptr<BlockProposal> corruptProposal(ptr<BlockProposal> _proposal, schain_index _index) {
+    if ((uint64_t) _index % 2 == 0) {
+        auto proposal2 = make_shared<BlockProposal>(
+                _proposal->getSchainID(), _proposal->getProposerNodeID(),
+                _proposal->getBlockID(), _proposal->getProposerIndex(), make_shared<TransactionList>(
+                        make_shared<vector<ptr<Transaction>>>()), MODERN_TIME + 1, 1);
+        return proposal2;
+    } else {
+        return _proposal;
+    }
+}
+
+
 
 void BlockProposalClientAgent::sendBlockProposal(
         ptr<BlockProposal> _proposal, shared_ptr<ClientSocket> socket, schain_index _index, node_id _nodeID) {
 
+
+
+#define ENABLE_TESTS
+#ifdef ENABLE_TESTS
+    _proposal = corruptProposal(_proposal, _index);
+#endif
 
     LOG(trace, "Proposal step 0: Starting block proposal");
 

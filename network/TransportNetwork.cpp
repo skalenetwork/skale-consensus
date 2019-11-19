@@ -233,6 +233,9 @@ void TransportNetwork::postOrDefer(
 void TransportNetwork::deferredMessagesLoop() {
     setThreadName("DeferMsgLoop");
 
+    auto nodeCount  = getSchain()->getNodeCount();
+    auto schainIndex = getSchain()->getSchainIndex();
+
     waitOnGlobalStartBarrier();
 
     while (!getSchain()->getNode()->isExitRequested()) {
@@ -250,8 +253,8 @@ void TransportNetwork::deferredMessagesLoop() {
         }
 
 
-        for (int i = 0; i < getSchain()->getNodeCount(); i++) {
-            if (i != (getSchain()->getSchainIndex() - 1)) {
+        for (int i = 0; i < nodeCount; i++) {
+            if (i != (schainIndex - 1)) {
                 lock_guard<recursive_mutex> lock(delayedSendsLock);
                 if (delayedSends.at(i).size() > 0) {
                     if (sendMessage(
@@ -261,7 +264,6 @@ void TransportNetwork::deferredMessagesLoop() {
                 }
             }
         }
-
 
         usleep(100000);
     }
