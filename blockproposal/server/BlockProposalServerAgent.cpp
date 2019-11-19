@@ -108,7 +108,7 @@ BlockProposalServerAgent::readMissingTransactions(ptr<ServerConnection> connecti
 
 
     try {
-        getSchain()->getIo()->readBytes(connectionEnvelope_, serializedTransactions,
+        getSchain()->getIo()->readBytes(connectionEnvelope_, (in_buffer *) serializedTransactions->data(),
                                         msg_len(totalSize));
     } catch (ExitRequestedException &) {
         throw;
@@ -607,7 +607,7 @@ ptr<PartialHashesList> AbstractServerAgent::readPartialHashes(ptr<ServerConnecti
     if (_txCount != 0) {
         try {
             getSchain()->getIo()->readBytes(_connectionEnvelope_,
-                                            partialHashesList->getPartialHashes(),
+                                            (in_buffer *) partialHashesList->getPartialHashes()->data(),
                                             msg_len((uint64_t) partialHashesList->getTransactionCount() *
                                                     PARTIAL_SHA_HASH_LEN));
         } catch (ExitRequestedException &) { throw; }

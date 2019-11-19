@@ -225,7 +225,7 @@ BlockFinalizeDownloader::readBlockFragment(ptr<ClientSocket> _socket, nlohmann::
     auto serializedFragment = make_shared<vector<uint8_t> >(fragmentSize);
 
     try {
-        getSchain()->getIo()->readBytes(_socket->getDescriptor(), serializedFragment,
+        getSchain()->getIo()->readBytes(_socket->getDescriptor(), (in_buffer *) serializedFragment->data(),
                                         msg_len(fragmentSize));
     } catch (ExitRequestedException &) {
         throw;
