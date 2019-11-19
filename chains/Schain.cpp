@@ -474,13 +474,13 @@ void Schain::startConsensus(const block_id _blockID) {
 
         checkForExit();
 
-        LOCK(m)
-
         LOG(debug, "Got proposed block set for block:" + to_string(_blockID));
 
         ASSERT(blockProposalsDatabase->isTwoThird(_blockID));
 
         LOG(debug, "StartConsensusIfNeeded BLOCK NUMBER:" + to_string((_blockID)));
+
+        LOCK(m)
 
         if (_blockID <= lastCommittedBlockID) {
             LOG(debug, "Too late to start consensus: already committed " + to_string(lastCommittedBlockID));
@@ -518,10 +518,16 @@ void Schain::startConsensus(const block_id _blockID) {
 
 void Schain::daProofArrived(ptr<DAProof> _proof) {
 
-    LOCK(m);
+    MONITOR(__CLASS_NAME__, __FUNCTION__)
 
-    if (_proof->getBlockId() <= lastCommittedBlockID)
-        return;
+
+    {
+        LOCK(m);
+
+
+        if (_proof->getBlockId() <= lastCommittedBlockID)
+            return;
+    }
 
     if (blockProposalsDatabase->addDAProof(_proof)) {
         startConsensus(_proof->getBlockId());
@@ -534,8 +540,6 @@ void Schain::proposedBlockArrived(ptr<BlockProposal> pbm) {
     CHECK_STATE(pbm->getSignature() != nullptr);
 
     MONITOR(__CLASS_NAME__, __FUNCTION__)
-
-    LOCK(m);
 
     if (pbm->getBlockID() <= lastCommittedBlockID)
         return;
