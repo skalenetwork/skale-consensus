@@ -326,4 +326,9 @@ extern thread_local ptr<Log> logThreadLocal_;
         throw FatalError(__msg__, __CLASS_NAME__);}
 #endif
 
+
+#define INJECT_TEST(__TEST_NAME__, __TEST_CODE__) \
+ { static bool __TEST_NAME__ = (getenv(#__TEST_NAME__) != nullptr); \
+ if (__TEST_NAME__) {__TEST_CODE__ ;} };
+
 #define LOCK(_M_) lock_guard<recursive_mutex> _lock_(_M_);

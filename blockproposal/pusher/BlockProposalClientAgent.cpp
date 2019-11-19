@@ -132,12 +132,15 @@ void BlockProposalClientAgent::sendItemImpl(
 
 }
 
-ptr<BlockProposal> corruptProposal(ptr<BlockProposal> _proposal, schain_index _index) {
+ptr<BlockProposal> BlockProposalClientAgent::corruptProposal(ptr<BlockProposal> _proposal, schain_index _index) {
     if ((uint64_t) _index % 2 == 0) {
         auto proposal2 = make_shared<BlockProposal>(
                 _proposal->getSchainID(), _proposal->getProposerNodeID(),
                 _proposal->getBlockID(), _proposal->getProposerIndex(), make_shared<TransactionList>(
                         make_shared<vector<ptr<Transaction>>>()), MODERN_TIME + 1, 1);
+
+        getSchain()->getCryptoManager()->signProposalECDSA(proposal2.get());
+
         return proposal2;
     } else {
         return _proposal;
@@ -149,17 +152,12 @@ ptr<BlockProposal> corruptProposal(ptr<BlockProposal> _proposal, schain_index _i
 void BlockProposalClientAgent::sendBlockProposal(
         ptr<BlockProposal> _proposal, shared_ptr<ClientSocket> socket, schain_index _index, node_id _nodeID) {
 
-
-
-#define ENABLE_TESTS
-#ifdef ENABLE_TESTS
-    _proposal = corruptProposal(_proposal, _index);
-#endif
+    INJECT_TEST(CORRUPT_PROPOSAL_TEST,
+            _proposal = corruptProposal(_proposal, _index))
 
     LOG(trace, "Proposal step 0: Starting block proposal");
 
     CHECK_ARGUMENT(_proposal != nullptr);
-    assert(_proposal != nullptr);
 
     ptr<Header> header = BlockProposal::createBlockProposalHeader(sChain, _proposal);
 

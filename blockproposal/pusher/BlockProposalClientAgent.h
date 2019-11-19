@@ -63,6 +63,8 @@ class BlockProposalClientAgent : public AbstractClientAgent {
     void sendBlockProposal(ptr<BlockProposal> _proposal, shared_ptr<ClientSocket> socket, schain_index _index,
                            node_id _nodeID);
 
+    ptr<BlockProposal> corruptProposal(ptr<BlockProposal> _proposal, schain_index _index);
+
     void sendDAProof(
             ptr<DAProof> _daProof, shared_ptr<ClientSocket> socket);
 
