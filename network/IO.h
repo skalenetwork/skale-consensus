@@ -53,6 +53,8 @@ public:
 
     void readBytes(file_descriptor descriptor, in_buffer *buffer, msg_len len);
 
+    void readBytes2(file_descriptor descriptor, ptr<vector<uint8_t>> _buffer, msg_len len);
+
     void readBuf(file_descriptor descriptor, ptr<Buffer> buf, msg_len len);
 
 

@@ -2,25 +2,25 @@
 <project version="4">
   <component name="CMakeRunConfigurationManager" shouldGenerate="true" shouldDeleteObsolete="true">
     <generated>
-      <config projectName="consensus" targetName="dkg_glue" />
-      <config projectName="consensus" targetName="sign_bls" />
-      <config projectName="consensus" targetName="te" />
-      <config projectName="consensus" targetName="consensus" />
-      <config projectName="consensus" targetName="all_bls_tests" />
-      <config projectName="consensus" targetName="dkg_keygen" />
-      <config projectName="consensus" targetName="consensusd" />
-      <config projectName="consensus" targetName="all_te_tests" />
-      <config projectName="consensus" targetName="bls" />
-      <config projectName="consensus" targetName="bls_unit_test" />
-      <config projectName="consensus" targetName="bls_glue" />
-      <config projectName="consensus" targetName="bls_test" />
-      <config projectName="consensus" targetName="te_test" />
-      <config projectName="consensus" targetName="hash_g1" />
-      <config projectName="consensus" targetName="dkg_te_unit_test" />
-      <config projectName="consensus" targetName="te_unit_test" />
       <config projectName="consensus" targetName="consensust" />
-      <config projectName="consensus" targetName="verify_bls" />
+      <config projectName="consensus" targetName="hash_g1" />
+      <config projectName="consensus" targetName="dkg_glue" />
+      <config projectName="consensus" targetName="dkg_keygen" />
+      <config projectName="consensus" targetName="all_bls_tests" />
+      <config projectName="consensus" targetName="bls_unit_test" />
+      <config projectName="consensus" targetName="dkg_te_unit_test" />
+      <config projectName="consensus" targetName="consensusd" />
+      <config projectName="consensus" targetName="bls_test" />
+      <config projectName="consensus" targetName="bls_glue" />
+      <config projectName="consensus" targetName="all_te_tests" />
+      <config projectName="consensus" targetName="te_unit_test" />
       <config projectName="consensus" targetName="dkg_unit_test" />
+      <config projectName="consensus" targetName="bls" />
+      <config projectName="consensus" targetName="te" />
+      <config projectName="consensus" targetName="te_test" />
+      <config projectName="consensus" targetName="verify_bls" />
+      <config projectName="consensus" targetName="sign_bls" />
+      <config projectName="consensus" targetName="consensus" />
     </generated>
   </component>
   <component name="CMakeSettings">
@@ -30,9 +30,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="328bba78-e120-46f5-8d8c-d775e2cc49f7" name="Default Changelist" comment="Updated libBLS">
-      <change beforePath="$PROJECT_DIR$/chains/Schain.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/chains/Schain.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/blockproposal/pusher/BlockProposalClientAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/blockproposal/pusher/BlockProposalClientAgent.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libBLS/deps/pbc/INSTALL" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/deps/pbc/INSTALL" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libBLS/pbc/INSTALL" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/pbc/INSTALL" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/network/IO.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/network/IO.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/network/IO.h" beforeDir="false" afterPath="$PROJECT_DIR$/network/IO.h" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />

@@ -122,6 +122,71 @@ void IO::readBytes(file_descriptor descriptor, in_buffer *buffer, msg_len len) {
 
 }
 
+void IO::readBytes2(file_descriptor descriptor, ptr<vector<uint8_t>> buffer, msg_len len) {
+    // fd_set read_set;
+    // struct timeval timeout;
+
+    CHECK_ARGUMENT(buffer != nullptr);
+    CHECK_ARGUMENT(len > 0);
+
+    int64_t bytesRead = 0;
+
+    int64_t result;
+
+
+    struct timeval tv;
+    tv.tv_sec = 3;
+    tv.tv_usec = 0;
+    setsockopt(int(descriptor), SOL_SOCKET, SO_RCVTIMEO, (const char *) &tv, sizeof tv);
+
+
+    while (msg_len(bytesRead) < len) {
+
+
+        if (sChain->getNode()->isExitRequested())
+            BOOST_THROW_EXCEPTION(ExitRequestedException(__CLASS_NAME__));
+
+        uint64_t counter = 1;
+
+        do {
+
+            result = recv(int(descriptor), buffer->data() + bytesRead, uint64_t(len) - bytesRead, 0);
+
+
+            if (sChain->getNode()->isExitRequested())
+                BOOST_THROW_EXCEPTION(ExitRequestedException(__CLASS_NAME__));
+            if (result == 0) {
+                usleep(10); // dont do busy wait
+            };
+            counter++;
+
+            if (counter > 1000) {
+                BOOST_THROW_EXCEPTION(NetworkProtocolException("Peer read timeout", __CLASS_NAME__));
+            }
+
+
+        } while (result <= 0 && errno == EAGAIN);
+
+        if (result < 0) {
+            BOOST_THROW_EXCEPTION(
+                    NetworkProtocolException("Read returned error:" + string(strerror(errno)), __CLASS_NAME__));
+        }
+
+        if (result == 0) {
+            BOOST_THROW_EXCEPTION(NetworkProtocolException("The peer shut down the socket, bytes to read:" +
+                                                           to_string(uint64_t(len) - bytesRead), __CLASS_NAME__));
+
+        }
+
+        bytesRead += result;
+
+        // LOG(trace, "IO bytes read:" + to_string( bytesRead ) );
+    }
+
+    assert ((uint64_t ) bytesRead == (uint64_t ) len);
+
+}
+
 void IO::writeBytes(file_descriptor descriptor, out_buffer *buffer, msg_len len) {
 
     usleep(sChain->getNode()->getSimulateNetworkWriteDelayMs() * 1000);
