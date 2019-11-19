@@ -84,7 +84,6 @@ class Schain : public Agent {
 
     uint64_t startTimeMs;
 
-    block_id lastPushedBlock = 0;
 
     set<block_id> pushedBlockProposals;
 

@@ -324,8 +324,6 @@ void Schain::blockCommitArrived(bool bootstrap, block_id _committedBlockID, scha
     committedBlockTimeStamp = _committedTimeStamp;
 
 
-
-
     ptr<BlockProposal> committedProposal = nullptr;
 
 
@@ -340,7 +338,6 @@ void Schain::blockCommitArrived(bool bootstrap, block_id _committedBlockID, scha
 
         previousBlockTimeStamp = newCommittedBlock->getTimeStamp();
         previousBlockTimeStampMs = newCommittedBlock->getTimeStampMs();
-
 
     } else {
         LOG(info, "Jump starting the system with block:" + to_string(_committedBlockID));
@@ -387,7 +384,6 @@ void Schain::proposeNextBlock(uint64_t _previousBlockTimeStamp, uint32_t _previo
     getSchain()->sigShareArrived(mySig, myProposal);
 
 
-
     pushedBlockProposals.insert(_proposedBlockID);
 }
 
@@ -397,6 +393,7 @@ void Schain::processCommittedBlock(ptr<CommittedBlock> _block) {
     MONITOR2(__CLASS_NAME__, __FUNCTION__, getMaxExternalBlockProcessingTime())
 
     checkForExit();
+
 
     LOCK(m)
     ASSERT(lastCommittedBlockID == _block->getBlockID());
@@ -447,8 +444,6 @@ void Schain::pushBlockToExtFace(ptr<CommittedBlock> &_block) {
 
     checkForExit();
 
-    ASSERT((lastPushedBlock + 1 == _block->getBlockID()) || lastPushedBlock == 0);
-
     auto tv = _block->getTransactionList()->createTransactionVector();
 
     //auto next_price = // VERIFY PRICING
@@ -463,7 +458,6 @@ void Schain::pushBlockToExtFace(ptr<CommittedBlock> &_block) {
                              cur_price);
     }
 
-    lastPushedBlock = (uint64_t) _block->getBlockID();
 }
 
 
@@ -520,14 +514,9 @@ void Schain::daProofArrived(ptr<DAProof> _proof) {
 
     MONITOR(__CLASS_NAME__, __FUNCTION__)
 
+    if (_proof->getBlockId() <= lastCommittedBlockID)
+        return;
 
-    {
-        LOCK(m);
-
-
-        if (_proof->getBlockId() <= lastCommittedBlockID)
-            return;
-    }
 
     if (blockProposalsDatabase->addDAProof(_proof)) {
         startConsensus(_proof->getBlockId());
@@ -537,9 +526,10 @@ void Schain::daProofArrived(ptr<DAProof> _proof) {
 
 void Schain::proposedBlockArrived(ptr<BlockProposal> pbm) {
 
+    MONITOR(__CLASS_NAME__, __FUNCTION__)
+
     CHECK_STATE(pbm->getSignature() != nullptr);
 
-    MONITOR(__CLASS_NAME__, __FUNCTION__)
 
     if (pbm->getBlockID() <= lastCommittedBlockID)
         return;
@@ -609,9 +599,13 @@ void Schain::healthCheck() {
 
 void Schain::sigShareArrived(ptr<ThresholdSigShare> _sigShare, ptr<BlockProposal> _proposal) {
 
+    MONITOR(__CLASS_NAME__, __FUNCTION__)
+
     checkForExit();
     CHECK_ARGUMENT(_sigShare != nullptr);
     CHECK_ARGUMENT(_proposal != nullptr);
+
+
     try {
         auto proof = receivedDASigSharesDatabase->addAndMergeSigShareAndVerifySig(_sigShare, _proposal);
         if (proof != nullptr) {
