@@ -50,23 +50,22 @@ static ReadOptions readOptions;
 
 ptr<string> LevelDB::readString(string &_key) {
 
-    auto result = make_shared<string>();
 
-    ASSERT(db);
+    for (int i = LEVELDB_PIECES - 1; i >= 0; i--) {
+        auto result = make_shared<string>();
+        ASSERT(db[i] != nullptr);
+        auto status = db[i]->Get(readOptions, _key, &*result);
+        throwExceptionOnError(status);
+        if (!status.IsNotFound())
+            return result;
+    }
 
-    auto status = db->Get(readOptions, _key, &*result);
-
-    throwExceptionOnError(status);
-
-    if (status.IsNotFound())
-        return nullptr;
-
-    return result;
+    return nullptr;
 }
 
 void LevelDB::writeString(const string &_key, const string &_value) {
 
-    auto status = db->Put(writeOptions, Slice(_key), Slice(_value));
+    auto status = db.front()->Put(writeOptions, Slice(_key), Slice(_value));
 
     throwExceptionOnError(status);
 }
@@ -74,7 +73,7 @@ void LevelDB::writeString(const string &_key, const string &_value) {
 void LevelDB::writeByteArray(const char *_key, size_t _keyLen, const char *value,
                              size_t _valueLen) {
 
-    auto status = db->Put(writeOptions, Slice(_key, _keyLen), Slice(value, _valueLen));
+    auto status = db.front()->Put(writeOptions, Slice(_key, _keyLen), Slice(value, _valueLen));
 
     throwExceptionOnError(status);
 }
@@ -83,7 +82,7 @@ void LevelDB::writeByteArray(const char *_key, size_t _keyLen, const char *value
 void LevelDB::writeByteArray(string &_key, const char *value,
                              size_t _valueLen) {
 
-    auto status = db->Put(writeOptions, Slice(_key), Slice(value, _valueLen));
+    auto status = db.front()->Put(writeOptions, Slice(_key), Slice(value, _valueLen));
 
     throwExceptionOnError(status);
 }
@@ -103,7 +102,7 @@ uint64_t LevelDB::visitKeys(LevelDB::KeyVisitor *_visitor, uint64_t _maxKeysToVi
 
     uint64_t readCounter = 0;
 
-    leveldb::Iterator *it = db->NewIterator(readOptions);
+    leveldb::Iterator *it = db.front()->NewIterator(readOptions);
     for (it->SeekToFirst(); it->Valid(); it->Next()) {
         _visitor->visitDBKey(it->key().data());
         readCounter++;
@@ -123,15 +122,16 @@ LevelDB::LevelDB(string &filename, node_id _nodeId) : nodeId(_nodeId) {
     leveldb::Options options;
     options.create_if_missing = true;
 
-    ASSERT2(leveldb::DB::Open(options, filename, (leveldb::DB **) &db).ok(),
-            "Unable to open blocks database");
+    for (int i = 0; i < LEVELDB_PIECES ; i++) {
 
-    ASSERT(db);
-
+        leveldb::DB* dbase = nullptr;
+        ASSERT2(leveldb::DB::Open(options, filename + "_" + to_string(i),
+                                  &dbase).ok(),
+                "Unable to open blocks database");
+        db.push_back(shared_ptr<leveldb::DB>(dbase));
+    }
 }
 
 LevelDB::~LevelDB() {
-    if (db != nullptr)
-        delete db;
 }
 

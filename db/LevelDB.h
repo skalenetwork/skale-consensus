@@ -33,9 +33,14 @@ namespace leveldb {
     class Slice;
 }
 
+#define LEVELDB_PIECES 4
+
 class LevelDB {
 
-    leveldb::DB *db;
+
+
+    vector<ptr<leveldb::DB>>db;
+
 
 protected:
 
