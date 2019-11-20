@@ -41,8 +41,11 @@ class LevelDB {
 
     vector<ptr<leveldb::DB>>db;
 
+    int findHighestDBIndex(ptr<string> prefix);
+
 
 protected:
+
 
     node_id nodeId;
 

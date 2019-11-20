@@ -117,15 +117,15 @@ uint64_t LevelDB::visitKeys(LevelDB::KeyVisitor *_visitor, uint64_t _maxKeysToVi
 }
 
 LevelDB::LevelDB(string &filename, node_id _nodeId) : nodeId(_nodeId) {
-
+    findHighestDBIndex(make_shared<string>("haha"));
 
     leveldb::Options options;
     options.create_if_missing = true;
 
-    for (int i = 0; i < LEVELDB_PIECES ; i++) {
+    for (int i = 0; i < LEVELDB_PIECES; i++) {
 
-        leveldb::DB* dbase = nullptr;
-        ASSERT2(leveldb::DB::Open(options, filename + "_" + to_string(i),
+        leveldb::DB *dbase = nullptr;
+        ASSERT2(leveldb::DB::Open(options, filename + "." + to_string(i),
                                   &dbase).ok(),
                 "Unable to open blocks database");
         db.push_back(shared_ptr<leveldb::DB>(dbase));
@@ -133,5 +133,31 @@ LevelDB::LevelDB(string &filename, node_id _nodeId) : nodeId(_nodeId) {
 }
 
 LevelDB::~LevelDB() {
+}
+
+
+int LevelDB::findHighestDBIndex(ptr<string> _prefix) {
+
+
+    auto cwd = boost::filesystem::current_path();
+
+    vector<boost::filesystem::path>dirs;
+
+    copy(boost::filesystem::directory_iterator(cwd), boost::filesystem::directory_iterator(), back_inserter(dirs));
+
+    sort(dirs.begin(), dirs.end());             // sort, since directory iteration
+    // is not ordered on some file systems
+
+    boost::filesystem::path x;
+    //bool foundMatch = false;
+
+    for (auto &path : dirs) {
+        if (boost::filesystem::is_directory(path)) {
+            cerr << path.filename().string();
+        }
+    }
+
+    cerr << _prefix;
+    return 0;
 }
 
