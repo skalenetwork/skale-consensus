@@ -316,6 +316,7 @@ ptr<vector<uint8_t>> CatchupServerAgent::createBlockFinalizeResponse(nlohmann::j
         return nullptr;
     }
 
+
     auto committedBlock = make_shared<CommittedBlock>(proposal);
 
     auto fragment = committedBlock->getFragment(

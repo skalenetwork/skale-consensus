@@ -31,9 +31,7 @@
 #include "CommittedTransactionDB.h"
 
 
-
-
-CommittedTransactionDB::CommittedTransactionDB(string& filename, node_id _nodeId ) : LevelDB( filename, _nodeId ) {}
+CommittedTransactionDB::CommittedTransactionDB(string &filename, node_id _nodeId) : LevelDB(filename, _nodeId) {}
 
 
 const string CommittedTransactionDB::getFormatVersion() {
@@ -41,16 +39,15 @@ const string CommittedTransactionDB::getFormatVersion() {
 }
 
 
-
 void CommittedTransactionDB::writeCommittedTransaction(ptr<Transaction> _t, __uint64_t _committedTransactionCounter) {
 
     auto key = (const char *) _t->getPartialHash()->data();
     auto keyLen = PARTIAL_SHA_HASH_LEN;
-    auto value = (const char*) &_committedTransactionCounter;
+    auto value = (const char *) &_committedTransactionCounter;
     auto valueLen = sizeof(_committedTransactionCounter);
     writeByteArray(key, keyLen, value, valueLen);
 
-    static auto key1 = getFormatVersion() +  string(":transactions");
+    static auto key1 = getFormatVersion() + string(":transactions");
     auto value1 = to_string(_committedTransactionCounter);
     writeString(key1, value1);
 

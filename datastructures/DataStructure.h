@@ -23,6 +23,7 @@
 
 #pragma once
 
+
 #include <stdint.h>
 
 #include <mutex>
@@ -38,4 +39,6 @@ public:
     DataStructure();
 
     uint64_t getObjectCreationTime() const;
+
+    virtual ~DataStructure();
 };

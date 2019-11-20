@@ -39,6 +39,7 @@ class ProtocolInstance;
 class Buffer;
 class ConsensusBLSSigShare;
 class Node;
+class ThresholdSigShare;
 
 
 
@@ -57,7 +58,7 @@ protected:
                     BinConsensusInstance& _srcProtocolInstance );
 
 
-    NetworkMessage(MsgType messageType, node_id _srcNodeID, node_id _dstNodeID, block_id _blockID, schain_index _blockProposerIndex, bin_consensus_round _r, bin_consensus_value _value, schain_id _schainId, msg_id _msgID, uint32_t _ip, ptr<string> _signature, schain_index _srcSchainIndex, size_t _totalSigners, size_t  _requiredSigners);
+    NetworkMessage(MsgType messageType, node_id _srcNodeID, node_id _dstNodeID, block_id _blockID, schain_index _blockProposerIndex, bin_consensus_round _r, bin_consensus_value _value, schain_id _schainId, msg_id _msgID, uint32_t _ip, ptr<string> _signature, schain_index _srcSchainIndex, Schain* _schain);
 
 
 public:
@@ -77,7 +78,7 @@ public:
 
     ptr<string> sigShareString;
 
-    ptr<ConsensusBLSSigShare> sigShare;
+    ptr<ThresholdSigShare> sigShare;
 
 
     virtual ~NetworkMessage(){};
@@ -91,6 +92,6 @@ public:
 
     ptr<Buffer> toBuffer();
 
-    ptr<ConsensusBLSSigShare> getSigShare() const;
+    ptr<ThresholdSigShare> getSigShare() const;
 
 };

@@ -28,44 +28,56 @@
 
 
 class ClientSocket;
+
 class Schain;
+
 class BlockProposalPusherThreadPool;
+
 class BlockProposal;
+
+class DAProof;
+
 class MissingTransactionsRequestHeader;
+
+class FinalProposalResponseHeader;
 
 
 class BlockProposalClientAgent : public AbstractClientAgent {
 
     friend class BlockProposalPusherThreadPool;
 
-    nlohmann::json readProposalResponseHeader(ptr<ClientSocket> _socket);
-
-
-    void sendItem(ptr<BlockProposal> _proposal, schain_index _dstIndex, node_id _dstNodeId);
-
-
-    static void workerThreadItemSendLoop(AbstractClientAgent *agent);
-
 
     ptr<MissingTransactionsRequestHeader> readAndProcessMissingTransactionsRequestHeader(ptr<ClientSocket> _socket);
 
 
+    ptr<FinalProposalResponseHeader> readAndProcessFinalProposalResponseHeader(ptr<ClientSocket> _socket);
 
 
     ptr<unordered_set<ptr<partial_sha_hash>, PendingTransactionsAgent::Hasher, PendingTransactionsAgent::Equal>>
     readMissingHashes(ptr<ClientSocket> _socket, uint64_t _count);
 
 
-public:
+    void sendItemImpl(ptr<DataStructure> _item, shared_ptr<ClientSocket> socket, schain_index _destIndex,
+                      node_id _dstNodeId);
+
+    void sendBlockProposal(ptr<BlockProposal> _proposal, shared_ptr<ClientSocket> socket, schain_index _index,
+                           node_id _nodeID);
+
+    ptr<BlockProposal> corruptProposal(ptr<BlockProposal> _proposal, schain_index _index);
+
+    void sendDAProof(
+            ptr<DAProof> _daProof, shared_ptr<ClientSocket> socket);
+
+
 
     ptr<BlockProposalPusherThreadPool> blockProposalThreadPool = nullptr;
 
 
-    explicit BlockProposalClientAgent(Schain& _sChain);
 
+public:
 
-    void sendItemImpl(ptr<BlockProposal> &_proposal, shared_ptr<ClientSocket> &socket, schain_index _destIndex,
-                      node_id _dstNodeId);
+    explicit BlockProposalClientAgent(Schain &_sChain);
+
 
 };
 

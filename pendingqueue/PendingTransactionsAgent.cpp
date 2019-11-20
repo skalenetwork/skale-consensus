@@ -32,6 +32,7 @@
 
 #include "../utils/Time.h"
 #include "../crypto/SHAHash.h"
+#include "../crypto/CryptoManager.h"
 #include "../datastructures/BlockProposal.h"
 #include "../datastructures/MyBlockProposal.h"
 #include "../node/Node.h"
@@ -105,10 +106,10 @@ ptr<BlockProposal> PendingTransactionsAgent::buildBlockProposal(block_id _blockI
     auto sec = currentTime / 1000;
     auto m = (uint32_t) (currentTime % 1000);
 
-
-
     auto myBlockProposal = make_shared<MyBlockProposal>(*sChain, _blockID, sChain->getSchainIndex(),
             transactionList, sec, m);
+
+
     LOG(trace, "Created proposal, transactions:" + to_string(transactions->size()));
 ;
     transactionCounter += (uint64_t) myBlockProposal->createPartialHashesList()->getTransactionCount();

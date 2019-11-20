@@ -30,13 +30,17 @@
 #include "BLSSignature.h"
 #include "ThresholdSignature.h"
 
+class ConsensusSigShareSet;
+
 class ConsensusBLSSignature : public ThresholdSignature {
 
-    BLSSignature blsSig;
+    ptr<BLSSignature> blsSig = nullptr;
 
 public:
+
     ConsensusBLSSignature(
         ptr< string > _s, block_id _blockID, size_t _totalSigners, size_t _requiredSigners );
+
 
     ConsensusBLSSignature( ptr< libff::alt_bn128_G1 > _s, block_id _blockID, size_t _totalSigners,
         size_t _requiredSigners );
@@ -44,6 +48,8 @@ public:
     std::shared_ptr<std::string> toString();
 
     uint64_t getRandom();
+
+    ptr<BLSSignature> getBlsSig() const;
 };
 
 

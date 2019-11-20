@@ -32,7 +32,7 @@
 
 class MockupSignature : public ThresholdSignature {
 
-    BLSSignature blsSig;
+    ptr<string> s;
 
 public:
     MockupSignature(

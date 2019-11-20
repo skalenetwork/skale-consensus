@@ -16,21 +16,42 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file ReceivedDASigShareDatabase.h
+    @file DAProofHeader.h
     @author Stan Kladko
     @date 2018
 */
 
-#ifndef SKALED_RECEIVEDDASIGSHAREDATABASE_H
-#define SKALED_RECEIVEDDASIGSHAREDATABASE_H
+#pragma  once
 
-#include "../../crypto/ReceivedSigSharesDatabase.h"
+#include "AbstractBlockRequestHeader.h"
+
+class DAProof;
 
 
-class ReceivedDASigShareDatabase : public ReceivedSigSharesDatabase {
+class DAProofRequestHeader : public AbstractBlockRequestHeader{
+
+
+
+    node_id proposerNodeID;
+    ptr<string> thresholdSig;
+    ptr<string> blockHash;
+
+
 public:
-    ReceivedDASigShareDatabase(Schain &sChain);
+
+    DAProofRequestHeader(Schain &_sChain, ptr<DAProof> _proof);
+
+    DAProofRequestHeader(nlohmann::json _proposalRequest, node_count _nodeCount);
+
+    void addFields(nlohmann::basic_json<> &jsonRequest) override;
+
+    const node_id &getProposerNodeId() const;
+
+    ptr<string> getSignature() const;
+
+    ptr<string> getBlockHash() const;
+
 };
 
 
-#endif //SKALED_RECEIVEDDASIGSHAREDATABASE_H
+

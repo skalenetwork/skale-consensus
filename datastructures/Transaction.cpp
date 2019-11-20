@@ -41,26 +41,25 @@
 
 #include "Transaction.h"
 
+
+
 ptr< SHAHash > Transaction::getHash() {
+
+    LOCK(m)
+
     if ( hash )
         return hash;
 
-    auto digest = make_shared< array< uint8_t, SHA3_HASH_LEN > >();
-
-
-    CryptoPP::SHA3_Final< SHA3_HASH_LEN > hashObject;
-
-    hashObject.Update( data.get()->data(), data->size() );
-    hashObject.Final( digest->data() );
-
-
-    hash = make_shared< SHAHash >( digest );
-
+    hash = SHAHash::calculateHash(data->data(), data->size());
     return hash;
+
 }
 
 
 ptr< partial_sha_hash > Transaction::getPartialHash() {
+
+    LOCK(m)
+
     if ( partialHash ) {
         return partialHash;
     }
@@ -145,6 +144,9 @@ uint64_t Transaction::getSerializedSize(bool _writePartialHash) {
 }
 
 void Transaction::serializeInto( ptr< vector< uint8_t > > _out, bool _writePartialHash ) {
+
+    LOCK(m)
+
     CHECK_ARGUMENT( _out != nullptr )
     _out->insert( _out->end(), data->begin(), data->end() );
 

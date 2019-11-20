@@ -37,7 +37,7 @@ using namespace std;
 
 void Log::init() {
 
-    lock_guard<recursive_mutex> lock(mutex);
+    LOCK(m)
 
 
     spdlog::flush_every(std::chrono::seconds(1));
@@ -195,6 +195,6 @@ ptr<string> Log::logFileNamePrefix = nullptr;
 
 ptr<string> Log::dataDir = nullptr;
 
-recursive_mutex Log::mutex;
+recursive_mutex Log::m;
 
 bool Log::inited = false;

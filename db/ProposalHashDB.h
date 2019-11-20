@@ -16,47 +16,46 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file ReceivedSigSharesDatabase.h
+    @file ProposalHashDB.h
     @author Stan Kladko
     @date 2019
 */
 
-#pragma once
+
+#ifndef SKALED_ProposalHashDB_H
+#define SKALED_ProposalHashDB_H
+
+class CommittedBlock;
 
 
 
-#include "../Agent.h"
+#include "LevelDB.h"
 
-class ConsensusSigShareSet;
-class ConsensusBLSSignature;
-class Schain;
-class ConsensusBLSSigShare;
+class CryptoManager;
 
-class ReceivedSigSharesDatabase : Agent {
+class ProposalHashDB : public LevelDB {
 
-    recursive_mutex sigShareDatabaseMutex;
+    uint64_t blockIdsPerDB;
 
-    map<block_id, ptr<ConsensusSigShareSet>> sigShareSets;
+    recursive_mutex mutex;
 
-    map<block_id, ptr<ConsensusBLSSignature>> blockSignatures;
+    ptr<string> createKey(block_id _blockId, schain_index _proposerIndex);
 
-
-    ptr<ConsensusSigShareSet> getSigShareSet(block_id _blockID);
-
-    ptr<ConsensusBLSSignature> getBLSSignature(block_id _blockId);
+    const string getFormatVersion();
 
 public:
 
+    ProposalHashDB(string &_filename, node_id _nodeId, uint64_t _blockIdsPerDB);
+
+    ptr<vector<uint8_t >> getSerializedBlockFromLevelDB(block_id _blockID);
+
+    uint64_t readBlockLimit();
+
+    bool checkAndSaveHash(block_id _proposalBlockID, schain_index _proposerIndex, ptr<string> _proposalHash,
+                          block_id);
 
 
-    explicit ReceivedSigSharesDatabase(Schain &_sChain);
-
-    bool addSigShare(ptr<ConsensusBLSSigShare> _proposal);
-
-    void mergeAndSaveBLSSignature(block_id _blockId);
-
-    bool isTwoThird(block_id _blockID);
 };
 
 
-
+#endif //SKALED_ProposalHashDB_H

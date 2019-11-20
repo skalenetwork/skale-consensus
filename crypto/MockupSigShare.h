@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2018-2019 SKALE Labs
+    Copyright (C) 2019 SKALE Labs
 
     This file is part of skale-consensus.
 
@@ -16,13 +16,39 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file ReceivedBlockSigSharesDatabase.cpp
+    @file MockupSigShare.h
     @author Stan Kladko
     @date 2019
 */
 
+#ifndef SKALED_MOCKUPSIGSHARE_H
+#define SKALED_MOCKUPSIGSHARE_H
 
-#include "../../SkaleCommon.h"
-#include "ReceivedBlockSigSharesDatabase.h"
 
-ReceivedBlockSigSharesDatabase::ReceivedBlockSigSharesDatabase(Schain &sChain) : ReceivedSigSharesDatabase(sChain) {}
+#include "BLSSigShare.h"
+#include "ThresholdSigShare.h"
+
+
+class MockupSigShare : public ThresholdSigShare {
+
+    uint64_t totalSigners;
+    uint64_t requiredSigners;
+
+    ptr<std::string> sigShare;
+
+public:
+
+
+
+
+
+    MockupSigShare(ptr<string> _sigShare, schain_id _schainID, block_id _blockID, node_id _signerNodeID,
+        schain_index _signerIndex, size_t _totalSigners, size_t _requiredSigners);
+
+    virtual ptr<std::string> toString();
+
+    virtual ~MockupSigShare();
+};
+
+
+#endif  // SKALED_MockupSIGSHARE_H

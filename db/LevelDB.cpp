@@ -117,7 +117,7 @@ uint64_t LevelDB::visitKeys(LevelDB::KeyVisitor *_visitor, uint64_t _maxKeysToVi
     return readCounter;
 }
 
-LevelDB::LevelDB(string &filename, node_id _nodeId) : nodeId(_nodeId){
+LevelDB::LevelDB(string &filename, node_id _nodeId) : nodeId(_nodeId) {
 
 
     leveldb::Options options;

@@ -28,15 +28,15 @@
 
 #include "LevelDB.h"
 
-class PriceDB : public LevelDB{
+class PriceDB : public LevelDB {
 
     const string getFormatVersion();
 
-    ptr<string>  createKey(block_id _blockId);
+    ptr<string> createKey(block_id _blockId);
 
 public:
 
-    PriceDB(string& filename, node_id nodeId);
+    PriceDB(string &filename, node_id nodeId);
 
 
     u256 readPrice(block_id _blockID);
@@ -44,9 +44,7 @@ public:
     void savePrice(u256 _price, block_id _blockID);
 
 
-
 };
-
 
 
 #endif //SKALED_RANDOMDB_H

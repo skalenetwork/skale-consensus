@@ -55,7 +55,7 @@ ServerConnection::~ServerConnection() {
 
 
 void ServerConnection::closeConnection() {
-    lock_guard<recursive_mutex> lock(mutex);
+    LOCK(m)
     if (descriptor != 0)
         close((int)descriptor);
     descriptor = 0;

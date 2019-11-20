@@ -16,12 +16,43 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file ReceivedDASigShareDatabase.cpp
+    @file FinalProposalResponseHeader.h
     @author Stan Kladko
     @date 2018
 */
 
-#include "../../SkaleCommon.h"
-#include "ReceivedDASigShareDatabase.h"
+#pragma  once
 
-ReceivedDASigShareDatabase::ReceivedDASigShareDatabase(Schain &sChain) : ReceivedSigSharesDatabase(sChain) {}
+
+#include "Header.h"
+
+class NodeInfo;
+
+class BlockProposal;
+
+class Schain;
+
+class Transaction;
+
+
+class FinalProposalResponseHeader : public Header {
+
+    ptr <string> sigShare;
+
+
+public:
+
+
+
+    FinalProposalResponseHeader(ptr <string> sigShare);
+
+    FinalProposalResponseHeader(ConnectionStatus _status, ConnectionSubStatus _substatus);
+
+    void addFields(nlohmann::basic_json<> &_j) override;
+
+    const ptr<string> getSigShare() const;
+
+};
+
+
+

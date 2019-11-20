@@ -23,6 +23,9 @@
 
 
 
+#include "openssl/evp.h"
+#include "openssl/pem.h"
+#include "openssl/err.h"
 
 #include "../SkaleCommon.h"
 #include "../Log.h"
@@ -327,6 +330,7 @@ ConsensusEngine::ConsensusEngine() : exitRequested(false) {
     try {
         signal(SIGPIPE, SIG_IGN);
         libff::init_alt_bn128_params();
+
         Log::init();
         init();
     } catch (Exception &e) {
@@ -402,6 +406,9 @@ ConsensusEngine::ConsensusEngine(ConsensusExtFace &_extFace, uint64_t _lastCommi
 
     Log::init();
 
+
+    libff::init_alt_bn128_params();
+
     try {
 
         ASSERT(_lastCommittedBlockTimeStamp < (uint64_t) 2 * MODERN_TIME);
@@ -446,9 +453,7 @@ void ConsensusEngine::exitGracefully() {
         }
 
 
-
         GlobalThreadRegistry::joinAll();
-
 
 
         for (auto const it : nodes) {
@@ -462,15 +467,17 @@ void ConsensusEngine::exitGracefully() {
         }
 
     } catch (Exception &e) {
-    Exception::logNested(e);
-    throw_with_nested(EngineInitException("Engine construction failed", __CLASS_NAME__));
-}
+        Exception::logNested(e);
+        throw_with_nested(EngineInitException("Engine construction failed", __CLASS_NAME__));
+    }
 
 }
 
 
 ConsensusEngine::~ConsensusEngine() {
+    exitGracefully();
     for (auto &n : nodes) {
+        assert(n.second->isExitRequested());
         delete n.second;
     }
 }

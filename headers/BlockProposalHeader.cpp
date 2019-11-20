@@ -39,19 +39,34 @@
 
 using namespace std;
 
+BlockProposalHeader::BlockProposalHeader(nlohmann::json _proposalRequest, node_count _nodeCount)
+        : AbstractBlockRequestHeader(_nodeCount, (schain_id) Header::getUint64(_proposalRequest, "schainID"),
+                                     (block_id) Header::getUint64(_proposalRequest, "blockID"),
+                                     Header::BLOCK_PROPOSAL_REQ,
+                                     (schain_index) Header::getUint64(_proposalRequest, "proposerIndex")) {
+
+    proposerNodeID = (node_id) Header::getUint64(_proposalRequest, "proposerNodeID");
+    timeStamp = Header::getUint64(_proposalRequest, "timeStamp");
+    timeStampMs = Header::getUint32(_proposalRequest, "timeStampMs");
+    hash = Header::getString(_proposalRequest, "hash");
+    signature = Header::getString(_proposalRequest, "sig");
+    txCount = Header::getUint64(_proposalRequest, "txCount");
+}
 
 BlockProposalHeader::BlockProposalHeader(Schain &_sChain, ptr<BlockProposal> proposal) :
-        AbstractBlockRequestHeader(_sChain, proposal->getBlockID(), Header::BLOCK_PROPOSAL_REQ,
-                _sChain.getSchainIndex()) {
+        AbstractBlockRequestHeader(_sChain.getNodeCount(), _sChain.getSchainID(), proposal->getBlockID(),
+                                   Header::BLOCK_PROPOSAL_REQ,
+                                   _sChain.getSchainIndex()) {
 
 
     this->proposerNodeID = _sChain.getNode()->getNodeID();
-    this->partialHashesCount = (uint64_t) proposal->getTransactionsCount();
+    this->txCount = (uint64_t) proposal->getTransactionCount();
     this->timeStamp = proposal->getTimeStamp();
     this->timeStampMs = proposal->getTimeStampMs();
 
     this->hash = proposal->getHash()->toHex();
 
+    this->signature = proposal->getSignature();
 
 
     ASSERT(timeStamp > MODERN_TIME);
@@ -64,24 +79,42 @@ void BlockProposalHeader::addFields(nlohmann::basic_json<> &jsonRequest) {
 
     AbstractBlockRequestHeader::addFields(jsonRequest);
 
-    jsonRequest["schainID"] = (uint64_t ) schainID;
-
-    jsonRequest["proposerNodeID"] = (uint64_t ) proposerNodeID;
-
-    jsonRequest["proposerIndex"] = (uint64_t ) proposerIndex;
-
-    jsonRequest["blockID"] = (uint64_t ) blockID;
-
-    jsonRequest["partialHashesCount"] = partialHashesCount;
-
+    jsonRequest["schainID"] = (uint64_t) schainID;
+    jsonRequest["proposerNodeID"] = (uint64_t) proposerNodeID;
+    jsonRequest["proposerIndex"] = (uint64_t) proposerIndex;
+    jsonRequest["blockID"] = (uint64_t) blockID;
+    jsonRequest["txCount"] = txCount;
     ASSERT(timeStamp > MODERN_TIME);
-
     jsonRequest["timeStamp"] = timeStamp;
-
     jsonRequest["timeStampMs"] = timeStampMs;
-
+    CHECK_STATE(hash != nullptr);
+    CHECK_STATE(signature != nullptr);
     jsonRequest["hash"] = *hash;
+    jsonRequest["sig"] = *signature;
+}
 
+const node_id &BlockProposalHeader::getProposerNodeId() const {
+    return proposerNodeID;
+}
+
+const ptr<string> &BlockProposalHeader::getHash() const {
+    return hash;
+}
+
+uint64_t BlockProposalHeader::getTxCount() const {
+    return txCount;
+}
+
+uint64_t BlockProposalHeader::getTimeStamp() const {
+    return timeStamp;
+}
+
+uint32_t BlockProposalHeader::getTimeStampMs() const {
+    return timeStampMs;
+}
+
+ptr<string> BlockProposalHeader::getSignature() const {
+    return signature;
 }
 
 

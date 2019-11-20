@@ -52,6 +52,8 @@ BlockProposalFragmentList::BlockProposalFragmentList(const block_id &_blockId,
 
 uint64_t BlockProposalFragmentList::nextIndexToRetrieve() {
 
+    LOCK(m);
+
     if (missingFragments.size() == 0) {
         return 0;
     }
@@ -78,12 +80,7 @@ bool BlockProposalFragmentList::addFragment(ptr<BlockProposalFragment> _fragment
     CHECK_ARGUMENT(_fragment->getIndex() <= totalFragments);
     CHECK_ARGUMENT(_fragment->serialize() != nullptr)
 
-
-
-
-
-
-    lock_guard<recursive_mutex> lock(listMutex);
+    LOCK(m)
 
     if (blockHash == nullptr) {
         blockHash = _fragment->getBlockHash();
@@ -135,7 +132,7 @@ void BlockProposalFragmentList::checkSanity() {
 }
 
 bool BlockProposalFragmentList::isComplete() {
-    lock_guard<recursive_mutex> lock(listMutex);
+    LOCK(m)
 
     checkSanity();
 
@@ -158,11 +155,13 @@ ptr<vector<uint8_t>> BlockProposalFragmentList::serialize() {
 
     auto result = make_shared<vector<uint8_t >>();
 
-    lock_guard<recursive_mutex> lock(listMutex);
+
 
     CHECK_STATE(isComplete());
 
     CHECK_STATE(!isSerialized)
+
+    LOCK(m)
 
     isSerialized = true;
 

@@ -33,6 +33,9 @@ BooleanProposalVector::BooleanProposalVector(node_count _nodeCount): nodeCount(_
 }
 
 void BooleanProposalVector::pushValue(bool _value) {
+
+    LOCK(m)
+
     proposals.push_back(_value);
 }
 
@@ -42,5 +45,8 @@ bool BooleanProposalVector::getProposalValue(schain_index _index) {
     ASSERT( proposals.size() == nodeCount + 1 );
     ASSERT( _index <= ( uint64_t ) nodeCount );
     ASSERT( _index > 0 );
+
+    LOCK(m)
+
     return proposals.at( ( uint64_t ) _index );
 }

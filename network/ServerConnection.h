@@ -25,7 +25,7 @@
 
 class ServerConnection {
 
-    recursive_mutex mutex;
+    recursive_mutex m;
 
     static atomic<uint64_t> totalConnections;
 

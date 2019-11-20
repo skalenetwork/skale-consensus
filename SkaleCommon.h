@@ -145,6 +145,7 @@ static const uint64_t COMMITTED_TRANSACTIONS_HISTORY = 1000000;
 
 static constexpr uint64_t MAX_CATCHUP_DOWNLOAD_BYTES = 1000000000;
 
+static constexpr uint64_t PROPOSAL_HASHES_PER_DB = 100000;
 
 static constexpr uint64_t MAX_TRANSACTIONS_PER_BLOCK = 10000;
 
@@ -166,7 +167,7 @@ static constexpr uint64_t WAIT_AFTER_NETWORK_ERROR_MS = 3000;
 
 static constexpr uint32_t SOCKET_BACKLOG = 64;
 
-static constexpr size_t SHA3_HASH_LEN = 32;
+static constexpr size_t SHA_HASH_LEN = 32;
 
 static constexpr size_t PARTIAL_SHA_HASH_LEN = 8;
 
@@ -324,3 +325,10 @@ extern thread_local ptr<Log> logThreadLocal_;
         auto __msg__ = string("Assert failed::") + #_EXPRESSION_ + " " + string(_MSG_) + ":" + string(__FILE__) + ":" + to_string(__LINE__); \
         throw FatalError(__msg__, __CLASS_NAME__);}
 #endif
+
+
+#define INJECT_TEST(__TEST_NAME__, __TEST_CODE__) \
+ { static bool __TEST_NAME__ = (getenv(#__TEST_NAME__) != nullptr); \
+ if (__TEST_NAME__) {__TEST_CODE__ ;} };
+
+#define LOCK(_M_) lock_guard<recursive_mutex> _lock_(_M_);

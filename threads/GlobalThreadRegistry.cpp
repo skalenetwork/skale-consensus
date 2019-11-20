@@ -31,7 +31,7 @@
 
 vector<thread*> GlobalThreadRegistry::allThreads;
 
-recursive_mutex GlobalThreadRegistry::mutex;
+recursive_mutex GlobalThreadRegistry::m;
 bool GlobalThreadRegistry::joined = false;
 
 void GlobalThreadRegistry::joinAll() {
@@ -39,7 +39,7 @@ void GlobalThreadRegistry::joinAll() {
     if (joined)
         return;
 
-    lock_guard<recursive_mutex> lock(mutex);
+    LOCK(m)
 
     joined = true;
 
@@ -54,7 +54,7 @@ void GlobalThreadRegistry::add(thread* _t) {
 
     CHECK_ARGUMENT(_t);
 
-    lock_guard<recursive_mutex> lock(mutex);
+    LOCK(m)
 
     allThreads.push_back(_t);
 }

@@ -28,25 +28,25 @@
 
 #include "LevelDB.h"
 
-class RandomDB : public LevelDB{
+class RandomDB : public LevelDB {
 
     const string getFormatVersion();
 
 public:
 
-    RandomDB(string& filename, node_id nodeId);
+    RandomDB(string &filename, node_id nodeId);
 
-    ptr<string> readRandom( schain_id _sChainID, const block_id& _blockId,
-        const schain_index& _proposerIndex, const bin_consensus_round& _round);
+    ptr<string> readRandom(schain_id _sChainID, const block_id &_blockId,
+                           const schain_index &_proposerIndex, const bin_consensus_round &_round);
 
 
-    void writeRandom( schain_id _sChainID, const block_id& _blockId,
-                            const schain_index& _proposerIndex, const bin_consensus_round& _round,
-                            uint64_t _random);
-    ptr<string> createKey( const schain_id& _sChainID, const block_id& _blockId,
-        const schain_index& _proposerIndex, const bin_consensus_round& _round);
+    void writeRandom(schain_id _sChainID, const block_id &_blockId,
+                     const schain_index &_proposerIndex, const bin_consensus_round &_round,
+                     uint64_t _random);
+
+    ptr<string> createKey(const schain_id &_sChainID, const block_id &_blockId,
+                          const schain_index &_proposerIndex, const bin_consensus_round &_round);
 };
-
 
 
 #endif //SKALED_RANDOMDB_H

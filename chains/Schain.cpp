@@ -45,6 +45,7 @@
 #include "../blockproposal/server/BlockProposalServerAgent.h"
 #include "../catchup/client/CatchupClientAgent.h"
 #include "../catchup/server/CatchupServerAgent.h"
+#include "../crypto/ThresholdSignature.h"
 #include "../monitoring/MonitoringAgent.h"
 #include "../crypto/ConsensusBLSSigShare.h"
 #include "../exceptions/EngineInitException.h"
@@ -54,8 +55,8 @@
 #include "../messages/MessageEnvelope.h"
 #include "../messages/NetworkMessageEnvelope.h"
 #include "../node/NodeInfo.h"
-#include "../blockfinalize/received/ReceivedBlockSigSharesDatabase.h"
 #include "../blockproposal/received/ReceivedBlockProposalsDatabase.h"
+#include "../blockproposal/received/ReceivedDASigSharesDatabase.h"
 #include "../network/Sockets.h"
 #include "../protocols/ProtocolInstance.h"
 #include "../protocols/blockconsensus/BlockConsensusAgent.h"
@@ -71,6 +72,7 @@
 #include "../datastructures/ReceivedBlockProposal.h"
 #include "../datastructures/Transaction.h"
 #include "../datastructures/TransactionList.h"
+#include "../datastructures/DAProof.h"
 #include "../exceptions/ExitRequestedException.h"
 #include "../messages/ConsensusProposalMessage.h"
 #include "../exceptions/FatalError.h"
@@ -78,13 +80,14 @@
 
 
 #include "../crypto/bls_include.h"
+#include "../crypto/ThresholdSigShare.h"
 #include "../db/BlockDB.h"
 #include "../db/LevelDB.h"
 #include "../pendingqueue/TestMessageGeneratorAgent.h"
 #include "SchainTest.h"
 #include "../libBLS/bls/BLSPrivateKeyShare.h"
 #include "../monitoring/LivelinessMonitor.h"
-#include "../crypto/CryptoSigner.h"
+#include "../crypto/CryptoManager.h"
 #include "SchainMessageThreadPool.h"
 #include "TestConfig.h"
 #include "Schain.h"
@@ -225,13 +228,9 @@ Schain::Schain(Node *_node, schain_index _schainIndex, const schain_id &_schainI
         getNode()->registerAgent(this);
 
 
-
-
-
     } catch (ExitRequestedException &) { throw; } catch (...) {
         throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
     }
-
 
 
 }
@@ -242,16 +241,16 @@ void Schain::constructChildAgents() {
     MONITOR(__CLASS_NAME__, __FUNCTION__)
 
     try {
-        std::lock_guard<std::recursive_mutex> lock(getMainMutex());
+        LOCK(m)
         pendingTransactionsAgent = make_shared<PendingTransactionsAgent>(*this);
         blockProposalClient = make_shared<BlockProposalClientAgent>(*this);
         catchupClientAgent = make_shared<CatchupClientAgent>(*this);
         blockConsensusInstance = make_shared<BlockConsensusAgent>(*this);
         blockProposalsDatabase = make_shared<ReceivedBlockProposalsDatabase>(*this);
-        blockSigSharesDatabase = make_shared<ReceivedBlockSigSharesDatabase>(*this);
+        receivedDASigSharesDatabase = make_shared<ReceivedDASigSharesDatabase>(*this);
         testMessageGeneratorAgent = make_shared<TestMessageGeneratorAgent>(*this);
         pricingAgent = make_shared<PricingAgent>(*this);
-        cryptoSigner = make_shared<CryptoSigner>(*this);
+        cryptoManager = make_shared<CryptoManager>(*this);
 
     } catch (...) {
         throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
@@ -271,7 +270,7 @@ void Schain::blockCommitsArrivedThroughCatchup(ptr<CommittedBlockList> _blocks) 
     }
 
 
-    std::lock_guard<std::recursive_mutex> aLock(getMainMutex());
+    LOCK(m)
 
 
     atomic<uint64_t> committedIDOld(lastCommittedBlockID.load());
@@ -310,7 +309,7 @@ void Schain::blockCommitArrived(bool bootstrap, block_id _committedBlockID, scha
     uint64_t previousBlockTimeStamp = 0;
     uint64_t previousBlockTimeStampMs = 0;
 
-    std::lock_guard<std::recursive_mutex> aLock(getMainMutex());
+    LOCK(m)
 
     ASSERT(_committedTimeStamp < (uint64_t) 2 * MODERN_TIME);
 
@@ -323,6 +322,7 @@ void Schain::blockCommitArrived(bool bootstrap, block_id _committedBlockID, scha
 
     lastCommittedBlockID.store((uint64_t) _committedBlockID);
     committedBlockTimeStamp = _committedTimeStamp;
+
 
     ptr<BlockProposal> committedProposal = nullptr;
 
@@ -338,7 +338,6 @@ void Schain::blockCommitArrived(bool bootstrap, block_id _committedBlockID, scha
 
         previousBlockTimeStamp = newCommittedBlock->getTimeStamp();
         previousBlockTimeStampMs = newCommittedBlock->getTimeStampMs();
-
 
     } else {
         LOG(info, "Jump starting the system with block:" + to_string(_committedBlockID));
@@ -366,20 +365,23 @@ void Schain::proposeNextBlock(uint64_t _previousBlockTimeStamp, uint32_t _previo
 
     block_id _proposedBlockID((uint64_t) lastCommittedBlockID + 1);
 
-    ASSERT(pushedBlockProposals.count(_proposedBlockID) == 0);
+    CHECK_STATE(pushedBlockProposals.count(_proposedBlockID) == 0);
 
     auto myProposal = pendingTransactionsAgent->buildBlockProposal(_proposedBlockID, _previousBlockTimeStamp,
                                                                    _previousBlockTimeStampMs);
 
-    ASSERT(myProposal->getProposerIndex() == getSchainIndex());
+    CHECK_STATE(myProposal->getProposerIndex() == getSchainIndex());
+    CHECK_STATE(myProposal->getSignature() != nullptr);
 
-    if (blockProposalsDatabase->addBlockProposal(myProposal)) {
-        startConsensus(_proposedBlockID);
-    }
+
+    proposedBlockArrived(myProposal);
 
     LOG(debug, "PROPOSING BLOCK NUMBER:" + to_string(_proposedBlockID));
 
     blockProposalClient->enqueueItem(myProposal);
+
+    auto mySig = getSchain()->getCryptoManager()->signThreshold(myProposal->getHash(), _proposedBlockID);
+    getSchain()->sigShareArrived(mySig, myProposal);
 
 
     pushedBlockProposals.insert(_proposedBlockID);
@@ -387,13 +389,13 @@ void Schain::proposeNextBlock(uint64_t _previousBlockTimeStamp, uint32_t _previo
 
 void Schain::processCommittedBlock(ptr<CommittedBlock> _block) {
 
+    CHECK_STATE(_block->getSignature() != nullptr);
     MONITOR2(__CLASS_NAME__, __FUNCTION__, getMaxExternalBlockProcessingTime())
 
     checkForExit();
 
-    std::lock_guard<std::recursive_mutex> aLock(getMainMutex());
 
-
+    LOCK(m)
     ASSERT(lastCommittedBlockID == _block->getBlockID());
 
     totalTransactions += _block->getTransactionList()->size();
@@ -442,8 +444,6 @@ void Schain::pushBlockToExtFace(ptr<CommittedBlock> &_block) {
 
     checkForExit();
 
-    ASSERT((lastPushedBlock + 1 == _block->getBlockID()) || lastPushedBlock == 0);
-
     auto tv = _block->getTransactionList()->createTransactionVector();
 
     //auto next_price = // VERIFY PRICING
@@ -458,7 +458,6 @@ void Schain::pushBlockToExtFace(ptr<CommittedBlock> &_block) {
                              cur_price);
     }
 
-    lastPushedBlock = (uint64_t) _block->getBlockID();
 }
 
 
@@ -469,13 +468,13 @@ void Schain::startConsensus(const block_id _blockID) {
 
         checkForExit();
 
-        std::lock_guard<std::recursive_mutex> aLock(getMainMutex());
-
         LOG(debug, "Got proposed block set for block:" + to_string(_blockID));
 
         ASSERT(blockProposalsDatabase->isTwoThird(_blockID));
 
         LOG(debug, "StartConsensusIfNeeded BLOCK NUMBER:" + to_string((_blockID)));
+
+        LOCK(m)
 
         if (_blockID <= lastCommittedBlockID) {
             LOG(debug, "Too late to start consensus: already committed " + to_string(lastCommittedBlockID));
@@ -511,15 +510,32 @@ void Schain::startConsensus(const block_id _blockID) {
     postMessage(envelope);
 }
 
+void Schain::daProofArrived(ptr<DAProof> _proof) {
+
+    MONITOR(__CLASS_NAME__, __FUNCTION__)
+
+    if (_proof->getBlockId() <= lastCommittedBlockID)
+        return;
+
+
+    if (blockProposalsDatabase->addDAProof(_proof)) {
+        startConsensus(_proof->getBlockId());
+    }
+}
+
 
 void Schain::proposedBlockArrived(ptr<BlockProposal> pbm) {
 
     MONITOR(__CLASS_NAME__, __FUNCTION__)
 
-    std::lock_guard<std::recursive_mutex> aLock(getMainMutex());
+    CHECK_STATE(pbm->getSignature() != nullptr);
+
+
+    if (pbm->getBlockID() <= lastCommittedBlockID)
+        return;
 
     if (blockProposalsDatabase->addBlockProposal(pbm)) {
-        startConsensus(pbm->getBlockID());
+        //startConsensus(pbm->getBlockID());
     }
 }
 
@@ -581,17 +597,25 @@ void Schain::healthCheck() {
     setHealthCheckFile(2);
 }
 
-void Schain::sigShareArrived(ptr<ConsensusBLSSigShare> _sigShare) {
+void Schain::sigShareArrived(ptr<ThresholdSigShare> _sigShare, ptr<BlockProposal> _proposal) {
+
+    MONITOR(__CLASS_NAME__, __FUNCTION__)
 
     checkForExit();
+    CHECK_ARGUMENT(_sigShare != nullptr);
+    CHECK_ARGUMENT(_proposal != nullptr);
 
-    if (blockSigSharesDatabase->addSigShare(_sigShare)) {
-        auto blockId = _sigShare->getBlockId();
-        auto mySig = getCryptoSigner()->sign(getBlock(blockId)->getHash(), blockId);
-        blockSigSharesDatabase->addSigShare(mySig);
-        ASSERT(blockSigSharesDatabase->isTwoThird(blockId));
-        blockSigSharesDatabase->mergeAndSaveBLSSignature(blockId);
-    };
+
+    try {
+        auto proof = receivedDASigSharesDatabase->addAndMergeSigShareAndVerifySig(_sigShare, _proposal);
+        if (proof != nullptr) {
+            getSchain()->daProofArrived(proof);
+            blockProposalClient->enqueueItem(proof);
+        }
+    } catch (ExitRequestedException &) { throw; } catch (...) {
+        LOG(err, "Could not add/merge sig");
+        throw_with_nested(InvalidStateException("Could not add/merge sig", __CLASS_NAME__));
+    }
 }
 
 void Schain::constructServers(ptr<Sockets> _sockets) {
@@ -599,7 +623,6 @@ void Schain::constructServers(ptr<Sockets> _sockets) {
     MONITOR(__CLASS_NAME__, __FUNCTION__)
 
     blockProposalServerAgent = make_shared<BlockProposalServerAgent>(*this, _sockets->blockProposalSocket);
-
     catchupServerAgent = make_shared<CatchupServerAgent>(*this, _sockets->catchupSocket);
 }
 
@@ -627,7 +650,7 @@ void Schain::decideBlock(block_id _blockId, schain_index _proposerIndex) {
 
         // empty block
         auto emptyList = make_shared<TransactionList>(make_shared<vector<ptr<Transaction >>>());
-        auto zeroProposal = make_shared<ReceivedBlockProposal>(*this, _blockId, 0, emptyList, sec, ms);
+        auto zeroProposal = make_shared<ReceivedBlockProposal>(*this, _blockId, emptyList, sec, ms);
 
 
         //TODO: FIX TIME FOR EMPTY PROPOSAL!!!

@@ -32,6 +32,7 @@
 #include "../protocols/binconsensus/BinConsensusInstance.h"
 #include "../chains/Schain.h"
 #include "../crypto/ConsensusBLSSigShare.h"
+#include "../crypto/CryptoManager.h"
 #include "../node/Node.h"
 #include "../node/NodeInfo.h"
 #include "../network/Buffer.h"
@@ -67,8 +68,7 @@ NetworkMessage::NetworkMessage(MsgType _messageType, node_id _destinationNodeID,
 NetworkMessage::NetworkMessage( MsgType messageType, node_id _srcNodeID, node_id _dstNodeID,
     block_id _blockID, schain_index _blockProposerIndex, bin_consensus_round _r,
     bin_consensus_value _value, schain_id _schainId, msg_id _msgID, uint32_t _ip,
-    ptr< string > _signature, schain_index _srcSchainIndex, size_t _totalSigners,
-    size_t _requiredSigners )
+    ptr< string > _signature, schain_index _srcSchainIndex,  Schain* _schain)
     : Message(_schainId, messageType, _msgID, _srcNodeID,_dstNodeID, _blockID, _blockProposerIndex) {
 
     ASSERT(_srcSchainIndex > 0)
@@ -87,8 +87,10 @@ NetworkMessage::NetworkMessage( MsgType messageType, node_id _srcNodeID, node_id
 
 
     if (_signature->size() > 0 ) {
-       sigShare = make_shared<ConsensusBLSSigShare>(_signature, _schainId, _blockID, _srcNodeID, _srcSchainIndex,
-               _totalSigners, _requiredSigners);
+       sigShare =
+               _schain->getCryptoManager()->createSigShare(_signature, _schainId, _blockID, _srcNodeID, _srcSchainIndex,
+                                                           _schain->getTotalSignersCount(),
+                                                           _schain->getRequiredSignersCount());
     }
 
 
@@ -96,7 +98,7 @@ NetworkMessage::NetworkMessage( MsgType messageType, node_id _srcNodeID, node_id
     ASSERT(messageType > 0);
 }
 
-ptr<ConsensusBLSSigShare> NetworkMessage::getSigShare() const {
+ptr<ThresholdSigShare> NetworkMessage::getSigShare() const {
     return sigShare;
 }
 

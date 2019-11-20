@@ -1,5 +1,6 @@
+
 /*
-    Copyright (C) 2018-2019 SKALE Labs
+    Copyright (C) 2019 SKALE Labs
 
     This file is part of skale-consensus.
 
@@ -16,20 +17,25 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file ReceivedBlockSigSharesDatabase.h
+    @file ThresholdSigShareSet.cpp
     @author Stan Kladko
     @date 2019
 */
 
-#ifndef SKALED_RECEIVEDBLOCKSIGSHARESDATABASE_H
-#define SKALED_RECEIVEDBLOCKSIGSHARESDATABASE_H
+#include "../SkaleCommon.h"
 
-#include "../../crypto/ReceivedSigSharesDatabase.h"
+#include "ThresholdSigShareSet.h"
 
-class ReceivedBlockSigSharesDatabase : public  ReceivedSigSharesDatabase {
-public:
-    ReceivedBlockSigSharesDatabase(Schain &sChain);
-};
+atomic< uint64_t > ThresholdSigShareSet::totalObjects( 0 );
 
+uint64_t ThresholdSigShareSet::getTotalObjects() {
+    return totalObjects;
+}
 
-#endif //SKALED_RECEIVEDBLOCKSIGSHARESDATABASE_H
+ThresholdSigShareSet::ThresholdSigShareSet(const block_id _blockId, uint64_t _totalSigners, uint64_t _requiredSigners)
+        : blockId(_blockId), totalSigners(_totalSigners), requiredSigners(_requiredSigners) {}
+
+ThresholdSigShareSet::~ThresholdSigShareSet() {
+
+}
+

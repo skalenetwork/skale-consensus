@@ -68,14 +68,15 @@ public:
     virtual void notifyAllConditionVariables();
 
 
-private:
-    std::recursive_mutex m_mainMutex;
+
 
 public:
-    std::recursive_mutex& getMainMutex() { return m_mainMutex; }
+    std::recursive_mutex& getMainMutex() { return m; }
 
 protected:
     Schain* sChain;
+
+    std::recursive_mutex m;
 
 
 public:

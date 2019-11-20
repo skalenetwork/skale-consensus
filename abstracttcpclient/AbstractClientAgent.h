@@ -28,8 +28,9 @@
 #include "../../abstracttcpclient/AbstractClientAgent.h"
 #include "../Agent.h"
 
-
+class DataStructure;
 class BlockProposal;
+class DAProof;
 class ClientSocket;
 
 class AbstractClientAgent : public Agent {
@@ -40,38 +41,27 @@ protected:
 
     explicit AbstractClientAgent( Schain& _sChain, port_type _portType );
 
+protected:
 
-public:
-    static void workerThreadItemSendLoop( AbstractClientAgent* agent );
+    void sendItem(ptr<DataStructure> _item, schain_index _dstIndex, node_id _dstNodeId );
 
-    void enqueueItem( ptr< BlockProposal > item );
+    virtual void sendItemImpl(ptr<DataStructure> _item, shared_ptr< ClientSocket > socket,
+                              schain_index _destIndex, node_id _dstNodeId ) = 0;
 
-
-    void enqueueBlock( ptr< CommittedBlock > item );
-
-    void sendItem( ptr< BlockProposal > _proposal, schain_index _dstIndex, node_id _dstNodeId );
-
-    virtual void sendItemImpl( ptr< BlockProposal >& _proposal, shared_ptr< ClientSocket >& socket,
-        schain_index _destIndex, node_id _dstNodeId ) = 0;
-
-    std::map< schain_index, ptr< queue< ptr< BlockProposal > > > > itemQueue;
+    std::map< schain_index, ptr< queue< ptr< DataStructure > > > > itemQueue;
 
     uint64_t incrementAndReturnThreadCounter();
 
+    void enqueueItemImpl(ptr<DataStructure> item );
 
-    class PartialHashComparator {
-    public:
-        bool operator()(
-            const ptr< partial_sha_hash >& a, const ptr< partial_sha_hash >& b ) const {
-            for ( size_t i = 0; i < PARTIAL_SHA_HASH_LEN; i++ ) {
-                if ( ( *a )[i] < ( *b )[i] )
-                    return false;
-                if ( ( *b )[i] < ( *a )[i] )
-                    return true;
-            }
-            return false;
-        }
-    };
+public:
+
+    static void workerThreadItemSendLoop( AbstractClientAgent* agent );
+
+    void enqueueItem(ptr<BlockProposal> _item );
+
+    void enqueueItem(ptr<DAProof> _item );
+
 };
 
 

@@ -29,7 +29,7 @@ class GlobalThreadRegistry {
 
 
     static vector< thread*  > allThreads;
-    static recursive_mutex mutex;
+    static recursive_mutex m;
     static bool joined;
 
 public:

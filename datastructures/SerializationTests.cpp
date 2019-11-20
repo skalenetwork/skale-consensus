@@ -22,8 +22,19 @@
 */
 
 
+#include "openssl/bio.h"
+
+#include "openssl/evp.h"
+#include "openssl/pem.h"
+#include "openssl/err.h"
+#include "openssl/ec.h"
+
+
+
 #include "../SkaleCommon.h"
 #include "../exceptions/ParsingException.h"
+#include "../crypto/CryptoManager.h"
+
 #include "CommittedBlock.h"
 #include "CommittedBlockList.h"
 
@@ -62,9 +73,11 @@ void test_committed_block_fragment_defragment(bool _fail) {
 
     Log::init();
 
+    auto cryptoManager = make_shared<CryptoManager>();
+
 
     for (int i = 1; i < 200; i++) {
-        auto t = CommittedBlock::createRandomSample(i, gen, ubyte, i);
+        auto t = CommittedBlock::createRandomSample(cryptoManager, i, gen, ubyte, i);
 
         auto list = make_shared<BlockProposalFragmentList>(i, i);
 
@@ -96,12 +109,12 @@ void test_committed_block_fragment_defragment(bool _fail) {
 
 
         if (_fail) {
-            REQUIRE_THROWS(CommittedBlock::defragment(list));
+            REQUIRE_THROWS(CommittedBlock::defragment(list, ptr<CryptoManager>()));
         } else {
             ptr<CommittedBlock> imp = nullptr;
 
             try {
-                imp = CommittedBlock::defragment(list);
+                imp = CommittedBlock::defragment(list, ptr<CryptoManager>());
             } catch (Exception &e) {
                 Exception::logNested(e, err);
                 throw (e);
@@ -181,11 +194,13 @@ void test_tx_list_serialize_deserialize(bool _fail) {
 void test_committed_block_serialize_deserialize(bool _fail) {
     boost::random::mt19937 gen;
 
+    auto cryptoManager = make_shared<CryptoManager>();
+
     boost::random::uniform_int_distribution<> ubyte(0, 255);
 
     for (int k = 0; k < 100; k++) {
         for (int i = 0; i < 20; i++) {
-            auto t = CommittedBlock::createRandomSample(i, gen, ubyte);
+            auto t = CommittedBlock::createRandomSample(cryptoManager, i, gen, ubyte);
 
             auto out = t->getSerialized();
 
@@ -197,12 +212,12 @@ void test_committed_block_serialize_deserialize(bool _fail) {
             REQUIRE(out != nullptr);
 
             if (_fail) {
-                REQUIRE_THROWS(CommittedBlock::deserialize(out));
+                REQUIRE_THROWS(CommittedBlock::deserialize(out, cryptoManager));
             } else {
                 ptr<CommittedBlock> imp = nullptr;
 
                 try {
-                    imp = CommittedBlock::deserialize(out);
+                    imp = CommittedBlock::deserialize(out, cryptoManager);
                 } catch (ParsingException &e) {
                     Exception::logNested(e, err);
                     throw (e);
@@ -216,11 +231,13 @@ void test_committed_block_serialize_deserialize(bool _fail) {
 void test_committed_block_list_serialize_deserialize() {
     boost::random::mt19937 gen;
 
+    auto cryptoManager = make_shared<CryptoManager>();
+
     boost::random::uniform_int_distribution<> ubyte(0, 255);
 
     for (int k = 0; k < 5; k++) {
         for (int i = 1; i < 50; i++) {
-            auto t = CommittedBlockList::createRandomSample(i, gen, ubyte);
+            auto t = CommittedBlockList::createRandomSample(cryptoManager, i, gen, ubyte);
 
             auto out = t->serialize();
 
@@ -231,7 +248,7 @@ void test_committed_block_list_serialize_deserialize() {
             ptr<CommittedBlockList> imp = nullptr;
 
             try {
-                imp = CommittedBlockList::deserialize(t->createSizes(), out, 0);
+                imp = CommittedBlockList::deserialize(cryptoManager, t->createSizes(), out, 0);
             } catch (ParsingException &e) {
                 Exception::logNested(e, err);
                 throw (e);
@@ -303,4 +320,26 @@ TEST_CASE("Test committed block fragment/defragment", "[committed-block-defragme
     // test_committed_block_serialize_deserialize( true);
 
     // Test successful serialize/deserialize failure
+}
+
+
+class CryptoFixture {
+public:
+    CryptoFixture() {
+    };
+
+    ~CryptoFixture(){
+    }
+};
+
+
+
+
+
+TEST_CASE_METHOD(CryptoFixture, "Import pem ecdsa key", "[import-ecdsa-key]") {
+
+    //openssl ecparam -name secp256k1 -genkey -noout
+
+    CryptoManager manager;
+
 }

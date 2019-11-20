@@ -28,7 +28,9 @@
 
 class BlockProposalWorkerThreadPool;
 class BlockFinalizeResponseHeader;
-
+class BlockProposalHeader;
+class DAProofRequestHeader;
+class ReceivedBlockProposal;
 
 
 class Transaction;
@@ -58,8 +60,8 @@ class BlockProposalServerAgent : public AbstractServerAgent {
 
     void processProposalRequest(ptr<ServerConnection> _connection, nlohmann::json _proposalRequest);
 
+    void processDAProofRequest(ptr<ServerConnection> _connection, nlohmann::json _daProofRequest);
 
-    void processFinalizeRequest(ptr<ServerConnection> _connection, nlohmann::json _finalizeRequest);
 
 
 public:
@@ -83,14 +85,17 @@ public:
 
     ptr<Header>
     createProposalResponseHeader(ptr<ServerConnection> _connectionEnvelope,
-                                 nlohmann::json _jsonRequest);
+                                 BlockProposalHeader &_header);
 
     ptr<Header>
-    createFinalizeResponseHeader(ptr<ServerConnection> _connectionEnvelope,
-                                 nlohmann::json _jsonRequest);
+    createFinalResponseHeader(ptr<ReceivedBlockProposal> _proposal);
+
+    ptr<Header> createDAProofResponseHeader(ptr<ServerConnection> _connectionEnvelope,
+                                                                      DAProofRequestHeader _header);
 
 
-    nlohmann::json
+
+        nlohmann::json
     readMissingTransactionsResponseHeader(ptr<ServerConnection> _connectionEnvelope);
 
 

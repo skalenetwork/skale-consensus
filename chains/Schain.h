@@ -31,11 +31,11 @@ class NetworkMessageEnvelope;
 class WorkerThreadPool;
 class NodeInfo;
 class ReceivedBlockProposalsDatabase;
-class ReceivedSigSharesDatabase;
+class ReceivedDASigSharesDatabase;
 class ServerConnection;
 class BlockProposal;
 class PartialHashesList;
-
+class DAProof;
 
 class BlockProposalClientAgent;
 class BlockProposalPusherThreadPool;
@@ -51,7 +51,7 @@ class ConsensusExtFace;
 class CatchupClientAgent;
 class CatchupServerAgent;
 class MonitoringAgent;
-class CryptoSigner;
+class CryptoManager;
 
 class BlockProposalServerAgent;
 
@@ -68,7 +68,7 @@ class Sockets;
 
 class SHAHash;
 class ConsensusBLSSigShare;
-
+class ThresholdSigShare;
 
 class Schain : public Agent {
 
@@ -84,7 +84,6 @@ class Schain : public Agent {
 
     uint64_t startTimeMs;
 
-    block_id lastPushedBlock = 0;
 
     set<block_id> pushedBlockProposals;
 
@@ -114,11 +113,11 @@ class Schain : public Agent {
 
     ptr<ReceivedBlockProposalsDatabase> blockProposalsDatabase;
 
-    ptr<ReceivedSigSharesDatabase> blockSigSharesDatabase;
+    ptr<ReceivedDASigSharesDatabase> receivedDASigSharesDatabase;
 
-    ptr<CryptoSigner> cryptoSigner;
+    ptr<CryptoManager> cryptoManager;
 
-    Node* node;
+    Node* node = nullptr;
 
     schain_index schainIndex;
 
@@ -177,23 +176,25 @@ public:
 
     void startThreads();
 
-    static void messageThreadProcessingLoop(Schain *s);
+    static void messageThreadProcessingLoop(Schain *_s);
 
     uint64_t getLastCommittedBlockTimeStamp();
 
-    void setBlockProposerTest(const string &blockProposerTest);
+    void setBlockProposerTest(const string &_blockProposerTest);
 
     uint64_t getStartTimeMs() const;
 
-    void proposedBlockArrived(ptr<BlockProposal> pbm);
+    void proposedBlockArrived(ptr<BlockProposal> _pbm);
 
-    void blockCommitArrived(bool bootstrap, block_id _committedBlockID, schain_index _proposerIndex,
+    void daProofArrived(ptr<DAProof> _proof);
+
+    void blockCommitArrived(bool _bootstrap, block_id _committedBlockID, schain_index _proposerIndex,
                                 uint64_t _committedTimeStamp);
 
 
     void blockCommitsArrivedThroughCatchup(ptr<CommittedBlockList> _blocks);
 
-    void sigShareArrived(ptr<ConsensusBLSSigShare> _sigShare);
+    void sigShareArrived(ptr<ThresholdSigShare> _sigShare, ptr<BlockProposal> _proposal);
 
     const ptr<IO> getIo() const;
 
@@ -219,11 +220,11 @@ public:
 
     node_count getNodeCount();
 
-    const block_id getLastCommittedBlockID() const;
+    block_id getLastCommittedBlockID() const;
 
     ptr<CommittedBlock> getBlock(block_id _blockID);
 
-    const ptr<string> getBlockProposerTest() const;
+    ptr<string> getBlockProposerTest() const;
 
     void setBlockProposerTest(const char *_blockProposerTest);
 
@@ -239,7 +240,6 @@ public:
 
     void setHealthCheckFile(uint64_t status);
 
-    ptr<vector<uint8_t>> getSerializedBlock(uint64_t i) const;
 
     size_t getTotalSignersCount();
 
@@ -248,7 +248,7 @@ public:
     u256 getPriceForBlockId(uint64_t _blockId);
 
 
-    ptr<CryptoSigner> getCryptoSigner() const;
+    ptr<CryptoManager> getCryptoManager() const;
 
 
     void decideBlock(block_id _blockId, schain_index _proposerIndex);

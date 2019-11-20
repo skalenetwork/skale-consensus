@@ -28,9 +28,7 @@
 #include "RandomDB.h"
 
 
-
-
-RandomDB::RandomDB(string& filename, node_id _nodeId ) : LevelDB( filename, _nodeId ) {}
+RandomDB::RandomDB(string &filename, node_id _nodeId) : LevelDB(filename, _nodeId) {}
 
 
 const string RandomDB::getFormatVersion() {
@@ -38,38 +36,34 @@ const string RandomDB::getFormatVersion() {
 }
 
 
-
-
 ptr<string>
-RandomDB::readRandom( schain_id _sChainID, const block_id& _blockId,
-    const schain_index& _proposerIndex, const bin_consensus_round& _round) {
+RandomDB::readRandom(schain_id _sChainID, const block_id &_blockId,
+                     const schain_index &_proposerIndex, const bin_consensus_round &_round) {
 
-        auto keyStr = createKey( _sChainID, _blockId, _proposerIndex, _round );
+    auto keyStr = createKey(_sChainID, _blockId, _proposerIndex, _round);
 
-        return readString(*keyStr);
+    return readString(*keyStr);
 
 }
 
 
 void
-RandomDB::writeRandom( schain_id _sChainID, const block_id& _blockId,
-                      const schain_index& _proposerIndex, const bin_consensus_round& _round, uint64_t _random) {
+RandomDB::writeRandom(schain_id _sChainID, const block_id &_blockId,
+                      const schain_index &_proposerIndex, const bin_consensus_round &_round, uint64_t _random) {
 
 
-
-
-    auto key = createKey( _sChainID, _blockId, _proposerIndex, _round );
+    auto key = createKey(_sChainID, _blockId, _proposerIndex, _round);
 
 
     writeString(*key, to_string(_random));
 
 }
 
-ptr<string>  RandomDB::createKey( const schain_id& _sChainID, const block_id& _blockId,
-    const schain_index& _proposerIndex, const bin_consensus_round& _round) {
+ptr<string> RandomDB::createKey(const schain_id &_sChainID, const block_id &_blockId,
+                                const schain_index &_proposerIndex, const bin_consensus_round &_round) {
 
     stringstream key;
-    key <<  getFormatVersion() << ":" << _sChainID << ":" << _blockId << ":" << _proposerIndex << ":" << _round;
+    key << getFormatVersion() << ":" << _sChainID << ":" << _blockId << ":" << _proposerIndex << ":" << _round;
 
     return make_shared<string>(key.str());
 

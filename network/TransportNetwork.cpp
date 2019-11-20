@@ -62,46 +62,46 @@
 TransportType TransportNetwork::transport = TransportType::ZMQ;
 
 
-void TransportNetwork::addToDeferredMessageQueue( ptr< NetworkMessageEnvelope > _me ) {
+void TransportNetwork::addToDeferredMessageQueue(ptr<NetworkMessageEnvelope> _me) {
     auto _blockID = _me->getMessage()->getBlockID();
 
 //    LOG( trace, "Deferring::" + to_string( _blockID ) );
 
-    ASSERT( _me );
+    ASSERT(_me);
 
-    ptr< vector< ptr< NetworkMessageEnvelope > > > messageList;
+    ptr<vector<ptr<NetworkMessageEnvelope> > > messageList;
 
     {
-        lock_guard< recursive_mutex > l( deferredMessageMutex );
+        lock_guard<recursive_mutex> l(deferredMessageMutex);
 
-        if ( deferredMessageQueue.count( _blockID ) == 0 ) {
+        if (deferredMessageQueue.count(_blockID) == 0) {
             messageList = make_shared<vector<ptr<NetworkMessageEnvelope>>>();
             deferredMessageQueue[_blockID] = messageList;
         } else {
             messageList = deferredMessageQueue[_blockID];
         };
 
-        messageList->push_back( _me );
+        messageList->push_back(_me);
     }
 }
 
-ptr< vector< ptr< NetworkMessageEnvelope > > > TransportNetwork::pullMessagesForBlockID(
-    block_id _blockID ) {
-    lock_guard< recursive_mutex > lock( deferredMessageMutex );
+ptr<vector<ptr<NetworkMessageEnvelope> > > TransportNetwork::pullMessagesForBlockID(
+        block_id _blockID) {
+    lock_guard<recursive_mutex> lock(deferredMessageMutex);
 
 
     auto returnList = make_shared<vector<ptr<NetworkMessageEnvelope>>>();
 
 
-    for ( auto it = deferredMessageQueue.cbegin();
-          it != deferredMessageQueue.cend() /* not hoisted */;
+    for (auto it = deferredMessageQueue.cbegin();
+         it != deferredMessageQueue.cend() /* not hoisted */;
         /* no increment */ ) {
-        if ( it->first <= _blockID ) {
-            for ( auto&& msg : *( it->second ) ) {
-                returnList->push_back( msg );
+        if (it->first <= _blockID) {
+            for (auto &&msg : *(it->second)) {
+                returnList->push_back(msg);
             }
 
-            it = deferredMessageQueue.erase( it );
+            it = deferredMessageQueue.erase(it);
         } else {
             ++it;
         }
@@ -113,40 +113,40 @@ ptr< vector< ptr< NetworkMessageEnvelope > > > TransportNetwork::pullMessagesFor
     return returnList;
 }
 
-void TransportNetwork::broadcastMessage(Schain& _sChain, ptr< NetworkMessage > _m ) {
-    if (_m->getBlockID() <= this->catchupBlocks ) {
+void TransportNetwork::broadcastMessage(Schain &_sChain, ptr<NetworkMessage> _m) {
+    if (_m->getBlockID() <= this->catchupBlocks) {
         return;
     }
 
-    auto ip = inet_addr( getSchain()->getThisNodeInfo()->getBaseIP()->c_str() );
-    _m->setIp(ip );
+    auto ip = inet_addr(getSchain()->getThisNodeInfo()->getBaseIP()->c_str());
+    _m->setIp(ip);
     node_id oldID = _m->getDstNodeID();
 
-    unordered_set< uint64_t > sent;
+    unordered_set<uint64_t> sent;
 
-    while ( 3 * ( sent.size() + 1 ) < getSchain()->getNodeCount() * 2 ) {
-        for ( auto const& it : *_sChain.getNode()->getNodeInfosByIndex() ) {
-            auto index = ( uint64_t ) it.second->getSchainIndex();
-            if ( index != ( _sChain.getSchainIndex()) && !sent.count(index) ) {
-                _m->setDstNodeID(it.second->getNodeID() );
+    while (3 * (sent.size() + 1) < getSchain()->getNodeCount() * 2) {
+        for (auto const &it : *_sChain.getNode()->getNodeInfosByIndex()) {
+            auto index = (uint64_t) it.second->getSchainIndex();
+            if (index != (_sChain.getSchainIndex()) && !sent.count(index)) {
+                _m->setDstNodeID(it.second->getNodeID());
 
-                ASSERT( it.second->getSchainIndex()  != sChain->getSchainIndex() );
+                ASSERT(it.second->getSchainIndex() != sChain->getSchainIndex());
 
-                if ( sendMessage(it.second, _m ) ) {
-                    sent.insert( ( uint64_t ) it.second->getSchainIndex());
+                if (sendMessage(it.second, _m)) {
+                    sent.insert((uint64_t) it.second->getSchainIndex());
                 }
             }
         }
     }
 
-    if ( sent.size() + 1 < getSchain()->getNodeCount() ) {
-        for ( auto const& it : *_sChain.getNode()->getNodeInfosByIndex() ) {
-            auto index = ( uint64_t ) it.second->getSchainIndex();
-            if ( index != ( _sChain.getSchainIndex()) && !sent.count(index) ) {
+    if (sent.size() + 1 < getSchain()->getNodeCount()) {
+        for (auto const &it : *_sChain.getNode()->getNodeInfosByIndex()) {
+            auto index = (uint64_t) it.second->getSchainIndex();
+            if (index != (_sChain.getSchainIndex()) && !sent.count(index)) {
                 {
-                    lock_guard< recursive_mutex > lock( delayedSendsLock );
-                    delayedSends.at(index - 1 ).push_back( {_m, it.second} );
-                    if ( delayedSends.at(index - 1).size() > 256 ) {
+                    lock_guard<recursive_mutex> lock(delayedSendsLock);
+                    delayedSends.at(index - 1).push_back({_m, it.second});
+                    if (delayedSends.at(index - 1).size() > 256) {
                         delayedSends.at(index - 1).pop_front();
                     }
                 }
@@ -154,12 +154,12 @@ void TransportNetwork::broadcastMessage(Schain& _sChain, ptr< NetworkMessage > _
         }
     }
 
-    _m->setDstNodeID(oldID );
+    _m->setDstNodeID(oldID);
 
-    for ( auto const& it : *_sChain.getNode()->getNodeInfosByIndex() ) {
-        if (it.second->getSchainIndex() != _sChain.getSchainIndex() ) {
-            _m->setDstNodeID(it.second->getNodeID() );
-            confirmMessage( it.second );
+    for (auto const &it : *_sChain.getNode()->getNodeInfosByIndex()) {
+        if (it.second->getSchainIndex() != _sChain.getSchainIndex()) {
+            _m->setDstNodeID(it.second->getNodeID());
+            confirmMessage(it.second);
         }
     }
 }
@@ -170,117 +170,119 @@ void TransportNetwork::networkReadLoop() {
     waitOnGlobalStartBarrier();
 
     try {
-        while ( !sChain->getNode()->isExitRequested() ) {
+        while (!sChain->getNode()->isExitRequested()) {
             try {
-                ptr< NetworkMessageEnvelope > m = receiveMessage();
+                ptr<NetworkMessageEnvelope> m = receiveMessage();
 
-                if ( !m )
+                if (!m)
                     continue;  // check exit again
 
-                if ( m->getMessage()->getBlockID() <= catchupBlocks ) {
+                if (m->getMessage()->getBlockID() <= catchupBlocks) {
                     continue;
                 }
 
-                ASSERT( sChain );
+                ASSERT(sChain);
 
                 block_id currentBlockID = sChain->getLastCommittedBlockID() + 1;
 
-                postOrDefer( m, currentBlockID );
-            } catch ( ExitRequestedException& ) {
+                postOrDefer(m, currentBlockID);
+            } catch (ExitRequestedException &) {
                 return;
-            } catch ( FatalError& ) {
+            } catch (FatalError &) {
                 throw;
-            } catch ( Exception& e ) {
-                if ( sChain->getNode()->isExitRequested() ) {
+            } catch (Exception &e) {
+                if (sChain->getNode()->isExitRequested()) {
                     sChain->getNode()->getSockets()->consensusZMQSocket->closeReceive();
                     return;
                 }
-                Exception::logNested( e );
+                Exception::logNested(e);
             }
 
         }  // while
-    } catch ( FatalError& e ) {
-        sChain->getNode()->exitOnFatalError( e.getMessage() );
+    } catch (FatalError &e) {
+        sChain->getNode()->exitOnFatalError(e.getMessage());
     }
 
     sChain->getNode()->getSockets()->consensusZMQSocket->closeReceive();
 }
 
 void TransportNetwork::postOrDefer(
-    const ptr< NetworkMessageEnvelope >& m, const block_id& currentBlockID ) {
-    if ( m->getMessage()->getBlockID() > currentBlockID ) {
-        addToDeferredMessageQueue( m );
-    } else if ( m->getMessage()->getBlockID() <= currentBlockID ) {
-        auto msg = ( NetworkMessage* ) m->getMessage().get();
-        if ( msg->getRound() >
-             sChain->getBlockConsensusInstance()->getRound( msg->createDestinationProtocolKey() ) +
-                 1 ) {
-            addToDeferredMessageQueue( m );
-        } else if ( msg->getRound() == sChain->getBlockConsensusInstance()->getRound(
-                                           msg->createDestinationProtocolKey() ) +
-                                           1 &&
-                    !sChain->getBlockConsensusInstance()->decided(
-                        msg->createDestinationProtocolKey() ) ) {
-            addToDeferredMessageQueue( m );
+        const ptr<NetworkMessageEnvelope> &m, const block_id &currentBlockID) {
+    if (m->getMessage()->getBlockID() > currentBlockID) {
+        addToDeferredMessageQueue(m);
+    } else if (m->getMessage()->getBlockID() <= currentBlockID) {
+        auto msg = (NetworkMessage *) m->getMessage().get();
+        if (msg->getRound() >
+            sChain->getBlockConsensusInstance()->getRound(msg->createDestinationProtocolKey()) +
+            1) {
+            addToDeferredMessageQueue(m);
+        } else if (msg->getRound() == sChain->getBlockConsensusInstance()->getRound(
+                msg->createDestinationProtocolKey()) +
+                                      1 &&
+                   !sChain->getBlockConsensusInstance()->decided(
+                           msg->createDestinationProtocolKey())) {
+            addToDeferredMessageQueue(m);
         } else {
-            sChain->postMessage( m );
+            sChain->postMessage(m);
         }
     } else {
-        sChain->postMessage( m );
+        sChain->postMessage(m);
     }
 }
 
 void TransportNetwork::deferredMessagesLoop() {
     setThreadName("DeferMsgLoop");
 
+    auto nodeCount  = getSchain()->getNodeCount();
+    auto schainIndex = getSchain()->getSchainIndex();
+
     waitOnGlobalStartBarrier();
 
-    while ( !getSchain()->getNode()->isExitRequested() ) {
-        ptr< vector< ptr< NetworkMessageEnvelope > > > deferredMessages;
+    while (!getSchain()->getNode()->isExitRequested()) {
+        ptr<vector<ptr<NetworkMessageEnvelope> > > deferredMessages;
 
         {
             block_id currentBlockID = sChain->getLastCommittedBlockID() + 1;
 
-            deferredMessages = pullMessagesForBlockID( currentBlockID );
+            deferredMessages = pullMessagesForBlockID(currentBlockID);
         }
 
-        for ( auto message : *deferredMessages ) {
+        for (auto message : *deferredMessages) {
             block_id currentBlockID = sChain->getLastCommittedBlockID() + 1;
-            postOrDefer( message, currentBlockID );
+            postOrDefer(message, currentBlockID);
         }
 
 
-        for ( int i = 0; i < getSchain()->getNodeCount(); i++ ) {
-            if ( i != ( getSchain()->getSchainIndex() - 1)) {
-                lock_guard< recursive_mutex > lock( delayedSendsLock );
-                if ( delayedSends.at(i).size() > 0 ) {
-                    if ( sendMessage(
-                             delayedSends.at(i).front().second, delayedSends.at(i).front().first ) ) {
+        for (int i = 0; i < nodeCount; i++) {
+            if (i != (schainIndex - 1)) {
+                lock_guard<recursive_mutex> lock(delayedSendsLock);
+                if (delayedSends.at(i).size() > 0) {
+                    if (sendMessage(
+                            delayedSends.at(i).front().second, delayedSends.at(i).front().first)) {
                         delayedSends.at(i).pop_front();
                     }
                 }
             }
         }
 
-
-        usleep( 100000 );
+        usleep(100000);
     }
 }
 
 
 void TransportNetwork::startThreads() {
     networkReadThread =
-        new thread( std::bind( &TransportNetwork::networkReadLoop, this ) );
+            new thread(std::bind(&TransportNetwork::networkReadLoop, this));
     deferredMessageThread =
-        new thread( std::bind( &TransportNetwork::deferredMessagesLoop, this ) );
+            new thread(std::bind(&TransportNetwork::deferredMessagesLoop, this));
 
     GlobalThreadRegistry::add(networkReadThread);
     GlobalThreadRegistry::add(deferredMessageThread);
 }
 
-bool TransportNetwork::validateIpAddress( ptr< string >& ip ) {
+bool TransportNetwork::validateIpAddress(ptr<string> &ip) {
     struct sockaddr_in sa;
-    int result = inet_pton( AF_INET, ip.get()->c_str(), &( sa.sin_addr ) );
+    int result = inet_pton(AF_INET, ip.get()->c_str(), &(sa.sin_addr));
     return result != 0;
 }
 
@@ -290,19 +292,19 @@ void TransportNetwork::waitUntilExit() {
     deferredMessageThread->join();
 }
 
-ptr< string > TransportNetwork::ipToString( uint32_t _ip ) {
-    char* ip = ( char* ) &_ip;
+ptr<string> TransportNetwork::ipToString(uint32_t _ip) {
+    char *ip = (char *) &_ip;
     return make_shared<string>(
-        to_string( ( uint8_t ) ip[0] ) + "." + to_string( ( uint8_t ) ip[1] ) + "." +
-        to_string( ( uint8_t ) ip[2] ) + "." + to_string( ( uint8_t ) ip[3] ) );
+            to_string((uint8_t) ip[0]) + "." + to_string((uint8_t) ip[1]) + "." +
+            to_string((uint8_t) ip[2]) + "." + to_string((uint8_t) ip[3]));
 }
 
-ptr< NetworkMessageEnvelope > TransportNetwork::receiveMessage() {
-    auto buf = make_shared<Buffer>( CONSENSUS_MESSAGE_LEN );
-    auto ip = readMessageFromNetwork( buf );
+ptr<NetworkMessageEnvelope> TransportNetwork::receiveMessage() {
+    auto buf = make_shared<Buffer>(CONSENSUS_MESSAGE_LEN);
+    auto ip = readMessageFromNetwork(buf);
 
 
-    if ( ip == nullptr ) {
+    if (ip == nullptr) {
         return nullptr;
     }
 
@@ -320,86 +322,92 @@ ptr< NetworkMessageEnvelope > TransportNetwork::receiveMessage() {
 
     char sigShare[BLS_MAX_SIG_LEN + 1];
 
-    memset( sigShare, 0, BLS_MAX_SIG_LEN );
+    memset(sigShare, 0, BLS_MAX_SIG_LEN);
 
 
-    READ( buf, magicNumber );
+    READ(buf, magicNumber);
 
-    if ( magicNumber != MAGIC_NUMBER )
+    if (magicNumber != MAGIC_NUMBER)
         return nullptr;
 
-    READ( buf, sChainID );
-    READ( buf, blockID );
-    READ( buf, blockProposerIndex );
-    READ( buf, msgType );
-    READ( buf, msgID );
-    READ( buf, srcNodeID );
-    READ( buf, dstNodeID );
-    READ( buf, round );
-    READ( buf, value );
-    READ( buf, rawIP );
+    READ(buf, sChainID);
+    READ(buf, blockID);
+    READ(buf, blockProposerIndex);
+    READ(buf, msgType);
+    READ(buf, msgID);
+    READ(buf, srcNodeID);
+    READ(buf, dstNodeID);
+    READ(buf, round);
+    READ(buf, value);
+    READ(buf, rawIP);
 
 
-    if ( sChain->getSchainID() != sChainID ) {
+    if (sChain->getSchainID() != sChainID) {
         BOOST_THROW_EXCEPTION(
-            InvalidSchainException( "unknown Schain id" + to_string( sChainID ), __CLASS_NAME__ ) );
+                InvalidSchainException("unknown Schain id" + to_string(sChainID), __CLASS_NAME__));
     }
 
 
-    buf->read( sigShare, BLS_MAX_SIG_LEN ); /* Flawfinder: ignore */
+    buf->read(sigShare, BLS_MAX_SIG_LEN); /* Flawfinder: ignore */
 
     auto sig = make_shared<string>(sigShare);
 
 
-    auto ip2 = ipToString( rawIP );
-    if ( ip->size() == 0 ) {
+    auto ip2 = ipToString(rawIP);
+    if (ip->size() == 0) {
         ip = ip2;
     } else {
-        LOG( debug, ( *ip + ":" + *ip2 ).c_str() );
-        ASSERT( *ip == *ip2 );
+        LOG(debug, (*ip + ":" + *ip2).c_str());
+        ASSERT(*ip == *ip2);
     }
 
 
-    ptr< NodeInfo > realSender = sChain->getNode()->getNodeInfoByIP( ip );
+    ptr<NodeInfo> realSender = sChain->getNode()->getNodeInfoByIP(ip);
 
 
-    if ( realSender == nullptr ) {
-        BOOST_THROW_EXCEPTION( InvalidSourceIPException( "NetworkMessage from unknown IP" + *ip ) );
+    if (realSender == nullptr) {
+        BOOST_THROW_EXCEPTION(InvalidSourceIPException("NetworkMessage from unknown IP" + *ip));
     }
 
 
-    ptr< NetworkMessage > mptr;
+    ptr<NetworkMessage> mptr;
 
-    if ( msgType == MsgType::BVB_BROADCAST ) {
-        mptr = make_shared<BVBroadcastMessage>( node_id( srcNodeID ), node_id( dstNodeID ),
-            block_id( blockID ), schain_index( blockProposerIndex ), bin_consensus_round( round ),
-            bin_consensus_value( value ), schain_id( sChainID ), msg_id( msgID ), rawIP, sig,
-            realSender->getSchainIndex(), sChain->getTotalSignersCount(), sChain->getRequiredSignersCount());
-    } else if ( msgType == MsgType::AUX_BROADCAST ) {
-        mptr = make_shared<AUXBroadcastMessage>( node_id( srcNodeID ), node_id( dstNodeID ),
-            block_id( blockID ), schain_index( blockProposerIndex), bin_consensus_round( round ),
-            bin_consensus_value( value ), schain_id( sChainID ), msg_id( msgID ), rawIP, sig,
-            realSender->getSchainIndex(), sChain->getTotalSignersCount(), sChain->getRequiredSignersCount());
+    if (msgType == MsgType::BVB_BROADCAST) {
+        mptr = make_shared<BVBroadcastMessage>(node_id(srcNodeID), node_id(dstNodeID),
+                                               block_id(blockID), schain_index(blockProposerIndex),
+                                               bin_consensus_round(round),
+                                               bin_consensus_value(value), schain_id(sChainID), msg_id(msgID), rawIP,
+                                               sig,
+                                               realSender->getSchainIndex(),
+                                               sChain);
+    } else if (msgType == MsgType::AUX_BROADCAST) {
+        mptr = make_shared<AUXBroadcastMessage>(node_id(srcNodeID), node_id(dstNodeID),
+                                                block_id(blockID), schain_index(blockProposerIndex),
+                                                bin_consensus_round(round),
+                                                bin_consensus_value(value), schain_id(sChainID), msg_id(msgID), rawIP,
+                                                sig,
+                                                realSender->getSchainIndex(),
+                                                sChain);
     } else {
-        ASSERT( false );
+        ASSERT(false);
     }
 
 
-    ASSERT( sChain );
+    ASSERT(sChain);
 
 
-    ptr< ProtocolKey > key = mptr->createDestinationProtocolKey();
+    ptr<ProtocolKey> key = mptr->createDestinationProtocolKey();
 
-    if ( key == nullptr ) {
-        BOOST_THROW_EXCEPTION( InvalidMessageFormatException(
-            "Network Message with corrupt protocol key", __CLASS_NAME__ ) );
+    if (key == nullptr) {
+        BOOST_THROW_EXCEPTION(InvalidMessageFormatException(
+                                      "Network Message with corrupt protocol key", __CLASS_NAME__ ));
     };
 
     return make_shared<NetworkMessageEnvelope>(mptr, realSender);
 };
 
 
-void TransportNetwork::setTransport( TransportType transport ) {
+void TransportNetwork::setTransport(TransportType transport) {
     TransportNetwork::transport = transport;
 }
 
@@ -411,11 +419,11 @@ uint32_t TransportNetwork::getPacketLoss() const {
     return packetLoss;
 }
 
-void TransportNetwork::setPacketLoss( uint32_t packetLoss ) {
+void TransportNetwork::setPacketLoss(uint32_t packetLoss) {
     TransportNetwork::packetLoss = packetLoss;
 }
 
-void TransportNetwork::setCatchupBlocks( uint64_t _catchupBlocks ) {
+void TransportNetwork::setCatchupBlocks(uint64_t _catchupBlocks) {
     TransportNetwork::catchupBlocks = _catchupBlocks;
 }
 
@@ -424,22 +432,22 @@ uint64_t TransportNetwork::getCatchupBlock() const {
 }
 
 
-TransportNetwork::TransportNetwork( Schain& _sChain )
-    : Agent( _sChain, false ), delayedSends( ( uint64_t ) _sChain.getNodeCount() ) {
+TransportNetwork::TransportNetwork(Schain &_sChain)
+        : Agent(_sChain, false), delayedSends((uint64_t) _sChain.getNodeCount()) {
     auto cfg = _sChain.getNode()->getCfg();
 
-    if ( cfg.find( "catchupBlocks" ) != cfg.end() ) {
-        uint64_t catchupBlock = cfg.at( "catchupBlocks" ).get< uint64_t >();
-        setCatchupBlocks( catchupBlock );
+    if (cfg.find("catchupBlocks") != cfg.end()) {
+        uint64_t catchupBlock = cfg.at("catchupBlocks").get<uint64_t>();
+        setCatchupBlocks(catchupBlock);
     }
 
-    if ( cfg.find( "packetLoss" ) != cfg.end() ) {
-        uint32_t packetLoss = cfg.at( "packetLoss" ).get< uint64_t >();
-        ASSERT( packetLoss <= 100 );
-        setPacketLoss( packetLoss );
+    if (cfg.find("packetLoss") != cfg.end()) {
+        uint32_t packetLoss = cfg.at("packetLoss").get<uint64_t>();
+        ASSERT(packetLoss <= 100);
+        setPacketLoss(packetLoss);
     }
 }
 
-void TransportNetwork::confirmMessage( const ptr< NodeInfo >& ){
+void TransportNetwork::confirmMessage(const ptr<NodeInfo> &) {
 
 };

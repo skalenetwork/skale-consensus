@@ -30,7 +30,9 @@ class ConsensusBLSSignature;
 
 #include "LevelDB.h"
 
-class SigDB : public LevelDB{
+class ThresholdSignature;
+
+class SigDB : public LevelDB {
 
     node_id nodeId;
 
@@ -38,16 +40,15 @@ class SigDB : public LevelDB{
 
 public:
 
-    SigDB(string& filename, node_id nodeId );
+    SigDB(string &filename, node_id nodeId);
 
-    ptr<string>  createKey(block_id _blockId);
+    ptr<string> createKey(block_id _blockId);
 
-    void addSignature(block_id _blockId, ptr<ConsensusBLSSignature> _sig);
+    void addSignature(block_id _blockId, ptr<ThresholdSignature> _sig);
 
-    uint64_t  getCounter();
+    uint64_t getCounter();
 
 };
-
 
 
 #endif //SKALED_BLOCKDB_H

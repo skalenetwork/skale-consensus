@@ -36,10 +36,14 @@ class CommittedBlockHeader : public Header {
     schain_id schainID;
     schain_index proposerIndex;
     node_id proposerNodeID;
-
     block_id blockID;
-    ptr<SHAHash> blockHash;
-    ptr<list<uint64_t>> transactionSizes;
+    ptr<string> blockHash;
+public:
+    const ptr<string> &getSignature() const;
+
+private:
+    ptr<string> signature;
+    ptr<vector<uint64_t>> transactionSizes;
     uint64_t timeStamp = 0;
     uint32_t timeStampMs = 0;
 
@@ -51,13 +55,29 @@ public:
 
     CommittedBlockHeader();
 
+
+
+    CommittedBlockHeader(nlohmann::json& _json);
+
     CommittedBlockHeader(CommittedBlock& _block);
 
-    ptr<SHAHash> getBlockHash() const {
+    ptr<string> getBlockHash() const {
         return blockHash;
     }
 
     void addFields(nlohmann::basic_json<> &j) override;
+
+    const ptr<vector<uint64_t>> &getTransactionSizes() const;
+
+
+    const schain_index &getProposerIndex() const;
+
+    const node_id &getProposerNodeId() const;
+
+
+    uint64_t getTimeStamp() const;
+
+    uint32_t getTimeStampMs() const;
 
 
 };

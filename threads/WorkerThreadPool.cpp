@@ -34,7 +34,7 @@ void WorkerThreadPool::startService() {
 
     ASSERT(!started)
 
-    lock_guard<recursive_mutex> lock(mutex);
+    LOCK(m)
 
     started = true;
 
@@ -58,7 +58,7 @@ WorkerThreadPool::WorkerThreadPool(num_threads _numThreads, void *_param,
 
 
 void WorkerThreadPool::joinAll() {
-    lock_guard<recursive_mutex> lock(mutex);
+    LOCK(m)
 
     if (joined)
         return;

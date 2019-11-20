@@ -29,15 +29,17 @@ class CommittedBlock;
 
 #include "LevelDB.h"
 
-class BlockDB : public LevelDB{
+class CryptoManager;
+
+class BlockDB : public LevelDB {
 
     std::map<block_id, ptr<CommittedBlock>> blocks;
 
     uint64_t storageSize;
 
-    recursive_mutex mutex;
+    recursive_mutex m;
 
-    ptr<string>  createKey(block_id _blockId);
+    ptr<string> createKey(block_id _blockId);
 
     const string getFormatVersion();
 
@@ -51,16 +53,16 @@ class BlockDB : public LevelDB{
 public:
 
     BlockDB(string &_filename, node_id _nodeId, uint64_t _storageSize);
-    ptr<vector<uint8_t >> getSerializedBlockFromLevelDB(block_id _blockID );
+
+    ptr<vector<uint8_t >> getSerializedBlockFromLevelDB(block_id _blockID);
 
     uint64_t readCounter();
 
     void saveBlock(ptr<CommittedBlock> &_block, block_id _lastCommittedBlockID);
 
 
-    ptr<CommittedBlock> getBlock(block_id _blockID);
+    ptr<CommittedBlock> getBlock(block_id _blockID, ptr<CryptoManager> _cryptoManager);
 };
-
 
 
 #endif //SKALED_BLOCKDB_H

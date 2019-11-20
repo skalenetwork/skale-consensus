@@ -40,7 +40,7 @@ using namespace std;
 
 
 void ClientSocket::closeSocket() {
-    lock_guard<recursive_mutex> lock(m);
+    LOCK(m)
 
     if (descriptor != 0)
         close((int) descriptor);

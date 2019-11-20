@@ -50,10 +50,11 @@ CommittedBlockHeader::CommittedBlockHeader(CommittedBlock& _block) : Header(Head
     this->proposerNodeID = _block.getProposerNodeID();
     this->schainID = _block.getSchainID();
     this->blockID = _block.getBlockID();
-    this->blockHash = _block.getHash();
+    this->blockHash = _block.getHash()->toHex();
+    this->signature = _block.getSignature();
     this->timeStamp = _block.getTimeStamp();
     this->timeStampMs = _block.getTimeStampMs();
-    this->transactionSizes = make_shared<list<uint64_t>>();
+    this->transactionSizes = make_shared<vector<uint64_t>>();
 
     auto items = _block.getTransactionList()->getItems();
 
@@ -75,7 +76,6 @@ const block_id &CommittedBlockHeader::getBlockID() const {
 
 void CommittedBlockHeader::addFields(nlohmann::basic_json<> &j) {
 
-    auto hash = getBlockHash();
 
     j["schainID"] = (uint64_t ) schainID;
 
@@ -85,7 +85,9 @@ void CommittedBlockHeader::addFields(nlohmann::basic_json<> &j) {
 
     j["blockID"] = (uint64_t ) blockID;
 
-    j["hash"] = *(hash->toHex());
+    j["hash"] = *blockHash;
+
+    j["sig"] = *signature;
 
     j["sizes"] = *transactionSizes;
 
@@ -97,6 +99,54 @@ void CommittedBlockHeader::addFields(nlohmann::basic_json<> &j) {
 
 
 
+}
+
+CommittedBlockHeader::CommittedBlockHeader(nlohmann::json& _json) : Header(Header::COMMITTED_BLOCK){
+
+    proposerIndex = schain_index( Header::getUint64(_json, "proposerIndex" ) );
+    proposerNodeID = node_id( Header::getUint64(_json, "proposerNodeID" ) );
+    blockID = block_id( Header::getUint64(_json, "blockID" ) );
+    schainID = schain_id( Header::getUint64(_json, "schainID" ) );
+    timeStamp = Header::getUint64(_json, "timeStamp" );
+    timeStampMs = Header::getUint32(_json, "timeStampMs" );
+    blockHash = Header::getString(_json, "hash" ) ;
+    signature = Header::getString(_json, "sig");
+
+    Header::nullCheck(_json, "sizes" );
+    nlohmann::json jsonTransactionSizes = _json["sizes"];
+
+    transactionSizes = make_shared< vector< uint64_t > >();
+
+    for ( auto&& jsize : jsonTransactionSizes ) {
+        transactionSizes->push_back( jsize );
+    }
+
+    setComplete();
+}
+
+const ptr<vector<uint64_t>> &CommittedBlockHeader::getTransactionSizes() const {
+    return transactionSizes;
+}
+
+const ptr<string> &CommittedBlockHeader::getSignature() const {
+    return signature;
+}
+
+const schain_index &CommittedBlockHeader::getProposerIndex() const {
+    return proposerIndex;
+}
+
+const node_id &CommittedBlockHeader::getProposerNodeId() const {
+    return proposerNodeID;
+}
+
+
+uint64_t CommittedBlockHeader::getTimeStamp() const {
+    return timeStamp;
+}
+
+uint32_t CommittedBlockHeader::getTimeStampMs() const {
+    return timeStampMs;
 }
 
 

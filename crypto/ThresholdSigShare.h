@@ -16,33 +16,41 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file CryptoSigner.h
+    @file ThresholdSigShare.h
     @author Stan Kladko
     @date 2019
 */
-
-#ifndef SKALED_CRYPTOSIGNER_H
-#define SKALED_CRYPTOSIGNER_H
-
+#ifndef SKALED_THRESHOLDSIGSHARE_H
+#define SKALED_THRESHOLDSIGSHARE_H
 
 
-class Schain;
-class SHAHash;
-class ConsensusBLSSigShare;
+#include "BLSSigShare.h"
+#include "../SkaleCommon.h"
 
-class CryptoSigner {
+class ThresholdSigShare {
 
-private:
-    Schain* sChain;
+protected:
+    schain_id schainId;
+    block_id blockId;
+    node_id signerNodeId;
+    schain_index signerIndex;
 
 public:
+    node_id getSignerNodeId() const;
 
-    CryptoSigner(Schain& sChain);
+    block_id getBlockId() const;
 
-    Schain *getSchain() const;
+    ThresholdSigShare(const schain_id &schainId, const block_id &blockId, const node_id &signerNodeId,
+            const schain_index& _signerIndex);
 
-    ptr<ConsensusBLSSigShare> sign(ptr<SHAHash> _hash, block_id _blockId);
+    virtual ptr<std::string> toString() = 0;
+
+    virtual ~ThresholdSigShare();
+
+    schain_index getSignerIndex() const;
+
+
 };
 
 
-#endif //SKALED_CRYPTOSIGNER_H
+#endif //SKALED_THRESHOLDSIGSHARE_H

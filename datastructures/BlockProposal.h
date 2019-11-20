@@ -32,9 +32,16 @@ class Transaction;
 class PartialHashesList;
 class TransactionList;
 class SHAHash;
+class BlockProposalHeader;
+class CryptoManager;
 
+class DAProof;
 
 class BlockProposal : public DataStructure {
+
+    ptr<BlockProposalHeader> header = nullptr;
+
+    ptr<DAProof> daProof = nullptr;
 
 
 
@@ -44,15 +51,12 @@ protected:
     node_id proposerNodeID;
     block_id blockID;
     schain_index proposerIndex;
-
-
-
     transaction_count transactionCount;
     uint64_t  timeStamp = 0;
     uint32_t  timeStampMs = 0;
+    ptr<string> signature = nullptr;
 
 
-protected:
     ptr<TransactionList> transactionList;
     ptr< SHAHash > hash = nullptr;
 
@@ -63,23 +67,22 @@ protected:
 
     BlockProposal(uint64_t _timeStamp, uint32_t _timeStampMs);
 
-    BlockProposal(schain_id _sChainId, node_id _proposerNodeId, block_id _blockID, schain_index _proposerIndex,
-                  ptr<TransactionList> _transactions, uint64_t _timeStamp, __uint32_t _timeStampMs);
 
 
 public:
+
+    BlockProposal(schain_id _sChainId, node_id _proposerNodeId, block_id _blockID, schain_index _proposerIndex,
+                  ptr<TransactionList> _transactions, uint64_t _timeStamp, __uint32_t _timeStampMs);
 
     uint64_t getTimeStamp() const;
 
     uint32_t getTimeStampMs() const;
 
-
-
-    const transaction_count &getTransactionsCount() const;
+    void sign(CryptoManager& _manager);
 
     schain_index getProposerIndex() const;
 
-    const node_id& getProposerNodeID() const;
+    node_id getProposerNodeID() const;
 
     ptr<SHAHash> getHash();
 
@@ -92,11 +95,19 @@ public:
 
     virtual ~BlockProposal();
 
-    const schain_id &getSchainID() const;
+    schain_id getSchainID() const;
 
-    const transaction_count &getTransactionCount() const;
+    transaction_count getTransactionCount() const;
 
 
+    void addSignature(ptr<string> _signature);
 
+    ptr<string>  getSignature();
+
+    static ptr<BlockProposalHeader> createBlockProposalHeader(Schain* _sChain, ptr<BlockProposal> _proposal);
+
+    ptr<DAProof> setAndGetDaProof(const ptr<DAProof> _daProof);
+
+    ptr<DAProof> getDaProof() const;
 };
 

@@ -35,7 +35,7 @@
 #include "../../messages/NetworkMessage.h"
 #include "../../exceptions/InvalidArgumentException.h"
 #include "../../crypto/ConsensusBLSSigShare.h"
-#include "../../crypto/CryptoSigner.h"
+#include "../../crypto/CryptoManager.h"
 
 #include "../ProtocolKey.h"
 #include "../ProtocolInstance.h"
@@ -55,40 +55,36 @@ AUXBroadcastMessage::AUXBroadcastMessage(bin_consensus_round round, bin_consensu
     auto schain = sourceProtocolInstance.getSchain();
 
 
-    CryptoPP::SHA256 sha3;
+    CryptoPP::SHA256 sha256;
 
 
     auto bpi = getBlockProposerIndex();
 
-    sha3.Update(reinterpret_cast < uint8_t * > ( &bpi), sizeof(bpi));
-    sha3.Update(reinterpret_cast < uint8_t * > ( &this->r), sizeof(r));
-    sha3.Update(reinterpret_cast < uint8_t * > ( &this->blockID), sizeof(blockID));
-    sha3.Update(reinterpret_cast < uint8_t * > ( &this->schainID), sizeof(schainID));
-    sha3.Update(reinterpret_cast < uint8_t * > ( &this->msgType), sizeof(msgType));
+    sha256.Update(reinterpret_cast < uint8_t * > ( &bpi), sizeof(bpi));
+    sha256.Update(reinterpret_cast < uint8_t * > ( &this->r), sizeof(r));
+    sha256.Update(reinterpret_cast < uint8_t * > ( &this->blockID), sizeof(blockID));
+    sha256.Update(reinterpret_cast < uint8_t * > ( &this->schainID), sizeof(schainID));
+    sha256.Update(reinterpret_cast < uint8_t * > ( &this->msgType), sizeof(msgType));
 
-    auto buf = make_shared<array<uint8_t, SHA3_HASH_LEN>>();
-    sha3.Final(buf->data());
+    auto buf = make_shared<array<uint8_t, SHA_HASH_LEN>>();
+    sha256.Final(buf->data());
     auto hash = make_shared<SHAHash>(buf);
 
-    auto node = schain->getNode();
 
-    if (node->isBlsEnabled()) {
-        this->sigShare = schain->getCryptoSigner()->sign(hash, _blockID);
-        this->sigShareString = sigShare->getBlsSigShare()->toString();
-    } else {
-        this->sigShareString = make_shared<string>("");
-    }
+    this->sigShare = schain->getCryptoManager()->signThreshold(hash, _blockID);
+    this->sigShareString = sigShare->toString();
 
 }
 
 
-AUXBroadcastMessage::AUXBroadcastMessage( node_id _srcNodeID, node_id _dstNodeID, block_id _blockID,
-    schain_index _blockProposerIndex, bin_consensus_round _r, bin_consensus_value _value,
-    schain_id _schainId, msg_id _msgID, uint32_t _ip, ptr< string > _signature,
-    schain_index _srcSchainIndex, size_t _totalSigners, size_t _requiredSigners )
-    : NetworkMessage(
+AUXBroadcastMessage::AUXBroadcastMessage(node_id _srcNodeID, node_id _dstNodeID, block_id _blockID,
+                                         schain_index _blockProposerIndex, bin_consensus_round _r,
+                                         bin_consensus_value _value,
+                                         schain_id _schainId, msg_id _msgID, uint32_t _ip, ptr<string> _signature,
+                                         schain_index _srcSchainIndex, Schain *_sChain)
+        : NetworkMessage(
         AUX_BROADCAST, _srcNodeID, _dstNodeID, _blockID, _blockProposerIndex, _r, _value, _schainId, _msgID, _ip,
-        _signature, _srcSchainIndex, _totalSigners,_requiredSigners) {
+        _signature, _srcSchainIndex, _sChain) {
     printPrefix = "a";
 
 };

@@ -24,6 +24,7 @@
 
 #include "../SkaleCommon.h"
 #include "../Log.h"
+#include "../chains/Schain.h"
 #include "../exceptions/InvalidStateException.h"
 #include "../datastructures/CommittedBlock.h"
 
@@ -47,13 +48,13 @@ ptr<vector<uint8_t> > BlockDB::getSerializedBlockFromLevelDB(block_id _blockID) 
         }
 
 
-
     } catch (...) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
 }
 
 BlockDB::BlockDB(string &_filename, node_id _nodeId, uint64_t _storageSize) : LevelDB(_filename, _nodeId) {
+
     CHECK_ARGUMENT(_storageSize != 0);
     storageSize = _storageSize;
 }
@@ -61,7 +62,10 @@ BlockDB::BlockDB(string &_filename, node_id _nodeId, uint64_t _storageSize) : Le
 
 void BlockDB::saveBlock2LevelDB(ptr<CommittedBlock> &_block) {
 
-    lock_guard<recursive_mutex> lock(mutex);
+
+    CHECK_ARGUMENT(_block->getSignature() != nullptr);
+
+    LOCK(m)
 
     try {
 
@@ -93,7 +97,7 @@ uint64_t BlockDB::readCounter() {
     static string count(":COUNT");
 
 
-    lock_guard<recursive_mutex> lock(mutex);
+    LOCK(m)
 
     try {
 
@@ -113,8 +117,12 @@ uint64_t BlockDB::readCounter() {
 
 
 void BlockDB::saveBlock(ptr<CommittedBlock> &_block, block_id _lastCommittedBlockID) {
+
+
+    CHECK_ARGUMENT(_block->getSignature() != nullptr);
+
     try {
-        lock_guard<recursive_mutex> lock(mutex);
+        LOCK(m)
 
         saveBlockToBlockCache(_block, _lastCommittedBlockID);
         saveBlock2LevelDB(_block);
@@ -128,7 +136,9 @@ void BlockDB::saveBlock(ptr<CommittedBlock> &_block, block_id _lastCommittedBloc
 void BlockDB::saveBlockToBlockCache(ptr<CommittedBlock> &_block, block_id _lastCommittedBlockID) {
     CHECK_ARGUMENT(_block != nullptr);
 
-    lock_guard<recursive_mutex> lock(mutex);
+    CHECK_ARGUMENT(_block->getSignature() != nullptr);
+
+    LOCK(m)
 
     try {
         auto blockID = _block->getBlockID();
@@ -162,10 +172,10 @@ ptr<CommittedBlock> BlockDB::getCachedBlock(block_id _blockID) {
     }
 }
 
-ptr<CommittedBlock> BlockDB::getBlock(block_id _blockID) {
+ptr<CommittedBlock> BlockDB::getBlock(block_id _blockID, ptr<CryptoManager> _cryptoManager) {
 
 
-    std::lock_guard<std::recursive_mutex> lock(mutex);
+    std::lock_guard<std::recursive_mutex> lock(m);
 
     try {
         auto block = getCachedBlock(_blockID);
@@ -179,7 +189,7 @@ ptr<CommittedBlock> BlockDB::getBlock(block_id _blockID) {
             return nullptr;
         }
 
-        return CommittedBlock::deserialize(serializedBlock);
+        return CommittedBlock::deserialize(serializedBlock, _cryptoManager);
     }
 
     catch (...) {

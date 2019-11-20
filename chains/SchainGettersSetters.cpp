@@ -58,14 +58,10 @@
 #include "../messages/MessageEnvelope.h"
 #include "../messages/NetworkMessageEnvelope.h"
 #include "../node/NodeInfo.h"
-
-
-#include "../blockfinalize/received/ReceivedBlockSigSharesDatabase.h"
 #include "../blockproposal/received/ReceivedBlockProposalsDatabase.h"
 #include "../network/Sockets.h"
 #include "../protocols/ProtocolInstance.h"
 #include "../protocols/blockconsensus/BlockConsensusAgent.h"
-
 #include "../network/ClientSocket.h"
 #include "../network/IO.h"
 #include "../network/ZMQServerSocket.h"
@@ -122,7 +118,7 @@ uint64_t Schain::getStartTimeMs() const {
     return startTimeMs;
 }
 
-const block_id Schain::getLastCommittedBlockID() const {
+block_id Schain::getLastCommittedBlockID() const {
     return block_id(lastCommittedBlockID.load());
 }
 
@@ -142,7 +138,7 @@ ptr<CommittedBlock> Schain::getBlock(block_id _blockID) {
     std::lock_guard<std::recursive_mutex> aLock(getMainMutex());
 
     try {
-        return getNode()->getBlockDB()->getBlock(_blockID);
+        return getNode()->getBlockDB()->getBlock(_blockID, cryptoManager);
     } catch (ExitRequestedException &) { throw; } catch (...) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
@@ -155,12 +151,13 @@ schain_index Schain::getSchainIndex() const {
 
 
 Node *Schain::getNode() const {
-    CHECK_STATE(node != nullptr);
+    assert(node);
     return node;
 }
 
 
 node_count Schain::getNodeCount() {
+
     auto count = node_count(getNode()->getNodeInfosByIndex()->size());
     ASSERT(count > 0);
     return count;
@@ -265,7 +262,7 @@ u256 Schain::getPriceForBlockId(uint64_t _blockId) {
 }
 
 
-const ptr<string> Schain::getBlockProposerTest() const {
+ptr<string> Schain::getBlockProposerTest() const {
     return blockProposerTest;
 }
 
@@ -286,7 +283,9 @@ void Schain::joinMonitorThread() {
     monitoringAgent->join();
 }
 
- ptr<CryptoSigner> Schain::getCryptoSigner() const {
-    return cryptoSigner;
+ ptr<CryptoManager> Schain::getCryptoManager() const {
+    return cryptoManager;
 }
+
+
 

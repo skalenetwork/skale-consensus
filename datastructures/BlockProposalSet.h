@@ -30,16 +30,21 @@ class Schain;
 class BlockProposal;
 class SHAHash;
 class BooleanProposalVector;
+class DAProof;
 
 class BlockProposalSet : public DataStructure  {
+
+    int daProofs = 0;
 
     node_count nodeCount;
 
     block_id blockId;
 
-    recursive_mutex mutex;
-
     map< uint64_t , ptr< BlockProposal > > proposals;
+
+    bool isTwoThirdProofs();
+
+    static atomic<uint64_t>  totalObjects;
 
 public:
     node_count getCount();
@@ -47,6 +52,8 @@ public:
     BlockProposalSet(Schain* _sChain, block_id _blockId );
 
     bool add(ptr<BlockProposal> _proposal);
+
+    bool addDAProof(ptr<DAProof> _proof);
 
 
     bool isTwoThird();
@@ -64,5 +71,5 @@ public:
 
 private:
 
-    static atomic<uint64_t>  totalObjects;
+
 };

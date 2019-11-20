@@ -32,14 +32,21 @@ class ThresholdSignature {
 protected:
     block_id blockId;
 
+    uint64_t  totalSigners;
+    uint64_t  requiredSigners;
+
 public:
     ThresholdSignature(const block_id &blockId);
+
+    ThresholdSignature(const block_id &blockId, uint64_t totalSigners, uint64_t requiredSigners);
 
     block_id getBlockId() const;
 
     virtual std::shared_ptr<std::string> toString() = 0;
 
     virtual uint64_t getRandom() = 0;
+
+    virtual ~ThresholdSignature();
 
 };
 
