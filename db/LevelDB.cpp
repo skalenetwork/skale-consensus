@@ -151,9 +151,15 @@ int LevelDB::findHighestDBIndex(ptr<string> _prefix) {
     boost::filesystem::path x;
     //bool foundMatch = false;
 
+
     for (auto &path : dirs) {
         if (boost::filesystem::is_directory(path)) {
-            cerr << path.filename().string();
+            auto fileName = path.filename().string();
+            if (fileName.find(*_prefix) != 0) {
+                cerr << fileName << endl;
+            }
+
+
         }
     }
 
