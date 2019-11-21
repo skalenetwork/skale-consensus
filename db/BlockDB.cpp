@@ -53,7 +53,9 @@ ptr<vector<uint8_t> > BlockDB::getSerializedBlockFromLevelDB(block_id _blockID) 
     }
 }
 
-BlockDB::BlockDB(string &_filename, node_id _nodeId, uint64_t _storageSize) : LevelDB(_filename, _nodeId) {
+BlockDB::BlockDB(string& _dirname,
+                 string &_prefix, node_id _nodeId, uint64_t _storageSize) : LevelDB(_dirname, _prefix,
+                                                                                    _nodeId) {
 
     CHECK_ARGUMENT(_storageSize != 0);
     storageSize = _storageSize;

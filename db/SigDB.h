@@ -40,7 +40,7 @@ class SigDB : public LevelDB {
 
 public:
 
-    SigDB(string &filename, node_id nodeId);
+    SigDB(string& _dirName, string &_prefix, node_id nodeId);
 
     ptr<string> createKey(block_id _blockId);
 

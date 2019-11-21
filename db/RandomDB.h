@@ -34,7 +34,7 @@ class RandomDB : public LevelDB {
 
 public:
 
-    RandomDB(string &filename, node_id nodeId);
+    RandomDB(string& _dirName, string &_prefix, node_id _nodeId);
 
     ptr<string> readRandom(schain_id _sChainID, const block_id &_blockId,
                            const schain_index &_proposerIndex, const bin_consensus_round &_round);

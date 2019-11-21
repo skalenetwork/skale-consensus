@@ -28,7 +28,7 @@
 #include "RandomDB.h"
 
 
-RandomDB::RandomDB(string &filename, node_id _nodeId) : LevelDB(filename, _nodeId) {}
+RandomDB::RandomDB(string& _dirName, string &_prefix, node_id _nodeId) : LevelDB(_dirName, _prefix, _nodeId) {}
 
 
 const string RandomDB::getFormatVersion() {

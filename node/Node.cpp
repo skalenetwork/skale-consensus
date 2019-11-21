@@ -99,22 +99,21 @@ Node::Node(const nlohmann::json &_cfg, ConsensusEngine *_consensusEngine) {
 
 void Node::initLevelDBs() {
     string dataDir = *Log::getDataDir();
-    string blockDBFilename = dataDir + "/blocks_" + to_string(nodeID) + ".db";
-    string randomDBFilename = dataDir + "/randoms_" + to_string(nodeID) + ".db";
-    string committedTransactionsDBFilename =
-            dataDir + "/transactions_" + to_string(nodeID) + ".db";
-    string signaturesDBFilename = dataDir + "/sigs_" + to_string(nodeID) + ".db";
-    string pricesDBFilename = dataDir + "/prices_" + to_string(nodeID) + ".db";
-    string proposalHashDBFilename = dataDir + "/proposal_hashes_" + to_string(nodeID) + ".db";
+    string blockDBPrefix = "blocks_" + to_string(nodeID) + ".db";
+    string randomDBPrefix = "randoms_" + to_string(nodeID) + ".db";
+    string committedTransactionsDBPrefix = "transactions_" + to_string(nodeID) + ".db";
+    string signaturesDBPrefix = "sigs_" + to_string(nodeID) + ".db";
+    string pricesDBPrefix = "prices_" + to_string(nodeID) + ".db";
+    string proposalHashDBPrefix = "/proposal_hashes_" + to_string(nodeID) + ".db";
 
     blockDB =
-            make_shared<BlockDB>(blockDBFilename, getNodeID(), getCommittedBlockStorageSize());
-    randomDB = make_shared<RandomDB>(randomDBFilename, getNodeID());
+            make_shared<BlockDB>(dataDir, blockDBPrefix, getNodeID(), getCommittedBlockStorageSize());
+    randomDB = make_shared<RandomDB>(dataDir, randomDBPrefix, getNodeID());
     committedTransactionDB =
-            make_shared<CommittedTransactionDB>(committedTransactionsDBFilename, getNodeID());
-    signatureDB = make_shared<SigDB>(signaturesDBFilename, getNodeID());
-    priceDB = make_shared<PriceDB>(pricesDBFilename, getNodeID());
-    proposalHashDB = make_shared<ProposalHashDB>(proposalHashDBFilename, getNodeID(), proposalHashesPerDB);
+            make_shared<CommittedTransactionDB>(dataDir, committedTransactionsDBPrefix, getNodeID());
+    signatureDB = make_shared<SigDB>(dataDir, signaturesDBPrefix, getNodeID());
+    priceDB = make_shared<PriceDB>(dataDir, pricesDBPrefix, getNodeID());
+    proposalHashDB = make_shared<ProposalHashDB>(dataDir, proposalHashDBPrefix, getNodeID(), proposalHashesPerDB);
 }
 
 void Node::initLogging() {

@@ -69,7 +69,7 @@ public:
     void throwExceptionOnError(leveldb::Status result);
 
 
-    LevelDB(string &filename, node_id _nodeId);
+    LevelDB(string &_dirName, string &_prefix, node_id _nodeId);
 
 
     class KeyVisitor {

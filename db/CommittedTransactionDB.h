@@ -36,7 +36,9 @@ class CommittedTransactionDB : public LevelDB {
 
 public:
 
-    CommittedTransactionDB(string &filename, node_id nodeId);
+    CommittedTransactionDB(
+            string &_dirName,
+            string &_prefix, node_id _nodeId);
 
     void writeCommittedTransaction(ptr<Transaction> _t, __uint64_t _committedTransactionCounter);
 

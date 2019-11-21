@@ -115,12 +115,12 @@ uint64_t LevelDB::visitKeys(LevelDB::KeyVisitor *_visitor, uint64_t _maxKeysToVi
     return readCounter;
 }
 
-LevelDB::LevelDB(string &filename, node_id _nodeId) : nodeId(_nodeId) {
+LevelDB::LevelDB(string &_dirName, string &_prefix, node_id _nodeId) : nodeId(_nodeId) {
 
-    boost::filesystem::path path(filename);
+    boost::filesystem::path path(_dirName);
 
     auto highestDBIndex = findHighestDBIndex(make_shared<string>(
-            path.filename().string() + "."), path.parent_path());
+            _prefix + "."), path);
 
     if (highestDBIndex < LEVELDB_PIECES) {
         highestDBIndex = LEVELDB_PIECES;
@@ -131,7 +131,7 @@ LevelDB::LevelDB(string &filename, node_id _nodeId) : nodeId(_nodeId) {
 
     for (int i = highestDBIndex - LEVELDB_PIECES + 1; i <= highestDBIndex; i++) {
         leveldb::DB *dbase = nullptr;
-        ASSERT2(leveldb::DB::Open(options, filename + "." + to_string(i),
+        ASSERT2(leveldb::DB::Open(options, _dirName + "/" + _prefix + "." + to_string(i),
                                   &dbase).ok(),
                 "Unable to open blocks database");
         db.push_back(shared_ptr<leveldb::DB>(dbase));

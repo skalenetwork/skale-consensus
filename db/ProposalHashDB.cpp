@@ -32,8 +32,11 @@
 #include "ProposalHashDB.h"
 
 
-ProposalHashDB::ProposalHashDB(string &_filename, node_id _nodeId, uint64_t _blockIdsPerDB) : LevelDB(_filename,
-                                                                                                      _nodeId) {
+ProposalHashDB::ProposalHashDB(
+        string& _dirName,
+        string &_prefix, node_id _nodeId, uint64_t _blockIdsPerDB) : LevelDB(_dirName,
+                                                                             _prefix,
+                                                                             _nodeId) {
     CHECK_ARGUMENT(_blockIdsPerDB != 0);
     blockIdsPerDB = _blockIdsPerDB;
 }

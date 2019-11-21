@@ -29,7 +29,9 @@
 #include "PriceDB.h"
 
 
-PriceDB::PriceDB(string &filename, node_id _nodeId) : LevelDB(filename, _nodeId) {}
+PriceDB::PriceDB(
+        string& _dirName,
+        string &_prefix, node_id _nodeId) : LevelDB(_dirName, _prefix, _nodeId) {}
 
 
 const string PriceDB::getFormatVersion() {

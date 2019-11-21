@@ -32,7 +32,9 @@
 #include "SigDB.h"
 
 
-SigDB::SigDB(string &filename, node_id _nodeId) : LevelDB(filename, _nodeId) {}
+SigDB::SigDB(
+        string& _dirName,
+        string &_prefix, node_id _nodeId) : LevelDB(_dirName, _prefix, _nodeId) {}
 
 
 const string SigDB::getFormatVersion() {
