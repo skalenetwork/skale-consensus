@@ -78,7 +78,6 @@ void LevelDB::writeByteArray(const char *_key, size_t _keyLen, const char *value
     throwExceptionOnError(status);
 }
 
-
 void LevelDB::writeByteArray(string &_key, const char *value,
                              size_t _valueLen) {
 
@@ -117,7 +116,7 @@ uint64_t LevelDB::visitKeys(LevelDB::KeyVisitor *_visitor, uint64_t _maxKeysToVi
 }
 
 LevelDB::LevelDB(string &filename, node_id _nodeId) : nodeId(_nodeId) {
-    findHighestDBIndex(make_shared<string>("haha"));
+    findHighestDBIndex(make_shared<string>("no"));
 
     leveldb::Options options;
     options.create_if_missing = true;
@@ -135,35 +134,33 @@ LevelDB::LevelDB(string &filename, node_id _nodeId) : nodeId(_nodeId) {
 LevelDB::~LevelDB() {
 }
 
+using namespace boost::filesystem;
 
 int LevelDB::findHighestDBIndex(ptr<string> _prefix) {
 
+    vector<path>dirs;
+    vector<uint64_t> indices;
 
-    auto cwd = boost::filesystem::current_path();
-
-    vector<boost::filesystem::path>dirs;
-
-    copy(boost::filesystem::directory_iterator(cwd), boost::filesystem::directory_iterator(), back_inserter(dirs));
-
-    sort(dirs.begin(), dirs.end());             // sort, since directory iteration
-    // is not ordered on some file systems
-
-    boost::filesystem::path x;
-    //bool foundMatch = false;
-
+    copy(directory_iterator(current_path()), directory_iterator(), back_inserter(dirs));
+    sort(dirs.begin(), dirs.end());
 
     for (auto &path : dirs) {
-        if (boost::filesystem::is_directory(path)) {
+        if (is_directory(path)) {
             auto fileName = path.filename().string();
-            if (fileName.find(*_prefix) != 0) {
-                cerr << fileName << endl;
+            if (fileName.find(*_prefix) == 0) {
+                auto index = fileName.substr(_prefix->size());
+                auto value = strtoull(index.c_str(), nullptr, 10);
+                cerr << value;
+                if (value != 0) {
+                    indices.push_back(value);
+                }
             }
-
-
         }
     }
 
-    cerr << _prefix;
-    return 0;
+    if (indices.size() == 0)
+        return -1;
+
+    return *max_element(begin(indices), end(indices));
 }
 

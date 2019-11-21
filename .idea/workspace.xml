@@ -4,18 +4,18 @@
     <generated>
       <config projectName="consensus" targetName="consensust" />
       <config projectName="consensus" targetName="hash_g1" />
-      <config projectName="consensus" targetName="dkg_glue" />
-      <config projectName="consensus" targetName="dkg_keygen" />
-      <config projectName="consensus" targetName="all_bls_tests" />
       <config projectName="consensus" targetName="bls_unit_test" />
-      <config projectName="consensus" targetName="dkg_te_unit_test" />
+      <config projectName="consensus" targetName="te_unit_test" />
+      <config projectName="consensus" targetName="all_bls_tests" />
+      <config projectName="consensus" targetName="bls_glue" />
+      <config projectName="consensus" targetName="bls" />
       <config projectName="consensus" targetName="consensusd" />
       <config projectName="consensus" targetName="bls_test" />
-      <config projectName="consensus" targetName="bls_glue" />
+      <config projectName="consensus" targetName="dkg_te_unit_test" />
+      <config projectName="consensus" targetName="dkg_keygen" />
       <config projectName="consensus" targetName="all_te_tests" />
-      <config projectName="consensus" targetName="te_unit_test" />
       <config projectName="consensus" targetName="dkg_unit_test" />
-      <config projectName="consensus" targetName="bls" />
+      <config projectName="consensus" targetName="dkg_glue" />
       <config projectName="consensus" targetName="te" />
       <config projectName="consensus" targetName="te_test" />
       <config projectName="consensus" targetName="verify_bls" />
@@ -223,6 +223,7 @@
       <option name="presentableId" value="Default" />
       <updated>1574094284750</updated>
       <workItem from="1574094287405" duration="6542000" />
+      <workItem from="1574329687184" duration="5058000" />
     </task>
     <task id="LOCAL-00002" summary="Updated libBLS">
       <created>1574096232083</created>
@@ -287,7 +288,14 @@
       <option name="project" value="LOCAL" />
       <updated>1574260584403</updated>
     </task>
-    <option name="localTasksCounter" value="11" />
+    <task id="LOCAL-00011" summary="Updated libBLS">
+      <created>1574261866223</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1574261866223</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -313,10 +321,10 @@
     <MESSAGE value="Improve locking" />
     <MESSAGE value="Fixing IO" />
     <MESSAGE value="Adding tests" />
-    <MESSAGE value="Updated libBLS" />
     <MESSAGE value="Adding db rotation" />
     <MESSAGE value="Cleaning Up memory" />
-    <option name="LAST_COMMIT_MESSAGE" value="Cleaning Up memory" />
+    <MESSAGE value="Updated libBLS" />
+    <option name="LAST_COMMIT_MESSAGE" value="Updated libBLS" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
