@@ -116,13 +116,20 @@ uint64_t LevelDB::visitKeys(LevelDB::KeyVisitor *_visitor, uint64_t _maxKeysToVi
 }
 
 LevelDB::LevelDB(string &filename, node_id _nodeId) : nodeId(_nodeId) {
-    findHighestDBIndex(make_shared<string>("no"));
+
+    boost::filesystem::path path(filename);
+
+    auto highestDBIndex = findHighestDBIndex(make_shared<string>(
+            path.filename().string() + "."), path.parent_path());
+
+    if (highestDBIndex < LEVELDB_PIECES) {
+        highestDBIndex = LEVELDB_PIECES;
+    }
 
     leveldb::Options options;
     options.create_if_missing = true;
 
-    for (int i = 0; i < LEVELDB_PIECES; i++) {
-
+    for (int i = highestDBIndex - LEVELDB_PIECES + 1; i <= highestDBIndex; i++) {
         leveldb::DB *dbase = nullptr;
         ASSERT2(leveldb::DB::Open(options, filename + "." + to_string(i),
                                   &dbase).ok(),
@@ -136,12 +143,14 @@ LevelDB::~LevelDB() {
 
 using namespace boost::filesystem;
 
-int LevelDB::findHighestDBIndex(ptr<string> _prefix) {
+int LevelDB::findHighestDBIndex(ptr<string> _prefix, boost::filesystem::path _path) {
+
+    CHECK_ARGUMENT(_prefix != nullptr);
 
     vector<path>dirs;
     vector<uint64_t> indices;
 
-    copy(directory_iterator(current_path()), directory_iterator(), back_inserter(dirs));
+    copy(directory_iterator(_path), directory_iterator(), back_inserter(dirs));
     sort(dirs.begin(), dirs.end());
 
     for (auto &path : dirs) {
@@ -150,7 +159,6 @@ int LevelDB::findHighestDBIndex(ptr<string> _prefix) {
             if (fileName.find(*_prefix) == 0) {
                 auto index = fileName.substr(_prefix->size());
                 auto value = strtoull(index.c_str(), nullptr, 10);
-                cerr << value;
                 if (value != 0) {
                     indices.push_back(value);
                 }
@@ -161,6 +169,8 @@ int LevelDB::findHighestDBIndex(ptr<string> _prefix) {
     if (indices.size() == 0)
         return -1;
 
-    return *max_element(begin(indices), end(indices));
+    auto result =  *max_element(begin(indices), end(indices));
+
+    return result;
 }
 

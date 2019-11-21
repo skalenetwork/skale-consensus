@@ -41,7 +41,7 @@ class LevelDB {
 
     vector<ptr<leveldb::DB>>db;
 
-    int findHighestDBIndex(ptr<string> prefix);
+    int findHighestDBIndex(ptr<string> _prefix, boost::filesystem::path _path);
 
 
 protected:
