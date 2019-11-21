@@ -146,6 +146,9 @@ ptr<BlockProposal> ReceivedBlockProposalsDatabase::getBlockProposal(block_id _bl
 
     auto proposal = set->getProposalByIndex(_proposerIndex);
 
+    if (proposal == nullptr)
+        return nullptr;
+
     CHECK_STATE(proposal->getSignature() != nullptr);
 
     return proposal;
