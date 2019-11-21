@@ -65,13 +65,27 @@ ptr<string> LevelDB::readString(string &_key) {
 
 void LevelDB::writeString(const string &_key, const string &_value) {
 
+    getFrontDBSize();
+
     auto status = db.front()->Put(writeOptions, Slice(_key), Slice(_value));
 
     throwExceptionOnError(status);
 }
 
+uint64_t LevelDB::getFrontDBSize() {
+    static leveldb::Range all("", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+    uint64_t size;
+    db.front()->GetApproximateSizes(&all, 1, &size);
+
+    cerr << size << " " << prefix << endl;
+
+    return size;
+}
+
 void LevelDB::writeByteArray(const char *_key, size_t _keyLen, const char *value,
                              size_t _valueLen) {
+
+    getFrontDBSize();
 
     auto status = db.front()->Put(writeOptions, Slice(_key, _keyLen), Slice(value, _valueLen));
 
@@ -80,6 +94,8 @@ void LevelDB::writeByteArray(const char *_key, size_t _keyLen, const char *value
 
 void LevelDB::writeByteArray(string &_key, const char *value,
                              size_t _valueLen) {
+
+    getFrontDBSize();
 
     auto status = db.front()->Put(writeOptions, Slice(_key), Slice(value, _valueLen));
 
@@ -115,7 +131,8 @@ uint64_t LevelDB::visitKeys(LevelDB::KeyVisitor *_visitor, uint64_t _maxKeysToVi
     return readCounter;
 }
 
-LevelDB::LevelDB(string &_dirName, string &_prefix, node_id _nodeId) : nodeId(_nodeId) {
+LevelDB::LevelDB(string &_dirName, string &_prefix, node_id _nodeId) : nodeId(_nodeId),
+                                                                       prefix(_prefix), dirname(_dirName) {
 
     boost::filesystem::path path(_dirName);
 
@@ -147,7 +164,7 @@ int LevelDB::findHighestDBIndex(ptr<string> _prefix, boost::filesystem::path _pa
 
     CHECK_ARGUMENT(_prefix != nullptr);
 
-    vector<path>dirs;
+    vector<path> dirs;
     vector<uint64_t> indices;
 
     copy(directory_iterator(_path), directory_iterator(), back_inserter(dirs));
@@ -169,7 +186,7 @@ int LevelDB::findHighestDBIndex(ptr<string> _prefix, boost::filesystem::path _pa
     if (indices.size() == 0)
         return -1;
 
-    auto result =  *max_element(begin(indices), end(indices));
+    auto result = *max_element(begin(indices), end(indices));
 
     return result;
 }

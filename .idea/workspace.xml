@@ -31,24 +31,10 @@
   <component name="ChangeListManager">
     <list default="true" id="328bba78-e120-46f5-8d8c-d775e2cc49f7" name="Default Changelist" comment="Updated libBLS">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/BlockDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/BlockDB.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/BlockDB.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/BlockDB.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/CommittedTransactionDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/CommittedTransactionDB.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/CommittedTransactionDB.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/CommittedTransactionDB.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/DBTests.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/DBTests.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/db/LevelDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/LevelDB.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/db/LevelDB.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/LevelDB.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/PriceDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/PriceDB.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/PriceDB.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/PriceDB.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/ProposalHashDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/ProposalHashDB.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/ProposalHashDB.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/ProposalHashDB.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/RandomDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/RandomDB.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/RandomDB.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/RandomDB.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/SigDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/SigDB.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/SigDB.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/SigDB.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libBLS/deps/pbc/INSTALL" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/deps/pbc/INSTALL" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libBLS/pbc/INSTALL" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/pbc/INSTALL" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/node/Node.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/node/Node.cpp" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -317,7 +303,14 @@
       <option name="project" value="LOCAL" />
       <updated>1574346237876</updated>
     </task>
-    <option name="localTasksCounter" value="13" />
+    <task id="LOCAL-00013" summary="Four piece db">
+      <created>1574348334008</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1574348334008</updated>
+    </task>
+    <option name="localTasksCounter" value="14" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -346,7 +339,8 @@
     <MESSAGE value="Adding db rotation" />
     <MESSAGE value="Cleaning Up memory" />
     <MESSAGE value="Updated libBLS" />
-    <option name="LAST_COMMIT_MESSAGE" value="Updated libBLS" />
+    <MESSAGE value="Four piece db" />
+    <option name="LAST_COMMIT_MESSAGE" value="Four piece db" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -355,6 +349,11 @@
           <url>file://$PROJECT_DIR$/blockproposal/pusher/BlockProposalClientAgent.cpp</url>
           <line>154</line>
           <option name="timeStamp" value="2" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/db/LevelDB.cpp</url>
+          <line>79</line>
+          <option name="timeStamp" value="4" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

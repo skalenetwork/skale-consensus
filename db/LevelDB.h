@@ -36,19 +36,16 @@ namespace leveldb {
 #define LEVELDB_PIECES 4
 
 class LevelDB {
-
-
-
     vector<ptr<leveldb::DB>>db;
 
     int findHighestDBIndex(ptr<string> _prefix, boost::filesystem::path _path);
 
-
 protected:
 
-
     node_id nodeId;
-
+    string prefix;
+    string dirname;
+    uint64_t maxDBSize;
 
     ptr<string> readString(string &_key);
 
@@ -69,7 +66,7 @@ public:
     void throwExceptionOnError(leveldb::Status result);
 
 
-    LevelDB(string &_dirName, string &_prefix, node_id _nodeId);
+    LevelDB(string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize);
 
 
     class KeyVisitor {
@@ -82,6 +79,7 @@ public:
     virtual ~LevelDB();
 
 
+    uint64_t getFrontDBSize();
 };
 
 
