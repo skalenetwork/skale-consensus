@@ -660,8 +660,11 @@ void Schain::decideBlock(block_id _blockId, schain_index _proposerIndex) {
 
     bool testFinalizationDownloadOnly = getNode()->getTestConfig()->isFinalizationDownloadOnly();
 
-    if (proposedBlockSet->getProposalByIndex(_proposerIndex) == nullptr ||
-        testFinalizationDownloadOnly // this swich is used for unit testing
+    auto proposal = proposedBlockSet->getProposalByIndex(_proposerIndex);
+
+    if (proposal == nullptr ||
+        proposal->getDaProof() == nullptr ||
+        testFinalizationDownloadOnly // this switch is used for unit testing
             ) {
 
         // did not receive proposal from the proposer, pull it in parallel from other hosts
@@ -678,7 +681,7 @@ void Schain::decideBlock(block_id _blockId, schain_index _proposerIndex) {
 
     }
 
-    auto proposal = proposedBlockSet->getProposalByIndex(_proposerIndex);
+    proposal = proposedBlockSet->getProposalByIndex(_proposerIndex);
 
     if (proposal)
         blockCommitArrived(false, _blockId, _proposerIndex, proposal->getTimeStamp());
