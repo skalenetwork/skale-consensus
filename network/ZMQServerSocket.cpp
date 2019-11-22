@@ -108,20 +108,27 @@ void *ZMQServerSocket::getReceiveSocket()  {
 
 void ZMQServerSocket::closeReceive() {
 
-    zmq_close(receiveSocket);
-
+    if(receiveSocket){
+        zmq_close(receiveSocket);
+        receiveSocket = nullptr;
+    }
 }
 
 
 void ZMQServerSocket::closeSend() {
     for (auto &&item : sendSockets) {
-        LOG(debug, getThreadName() + " zmq debug in closeSend(): closing " + to_string((uint64_t) item.second));
-        zmq_close(item.second);
+        if(item.second){
+            LOG(debug, getThreadName() + " zmq debug in closeSend(): closing " + to_string((uint64_t) item.second));
+            zmq_close(item.second);
+            item.second = nullptr;
+        }// if
     }
 }
 
 
 void ZMQServerSocket::terminate() {
+    closeSend();
+    closeReceive();
     zmq_ctx_shutdown(context);
     zmq_ctx_term(context);
 }
