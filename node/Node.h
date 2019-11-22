@@ -185,9 +185,22 @@ private:
 
     uint64_t minBlockIntervalMs;
 
-    uint64_t committedBlockStorageSize;
+    uint64_t blockDBSize;
+    uint64_t proposalHashDBSize;
+    uint64_t commitedTxsDBSize;
+public:
+    uint64_t getCommitedTxsDbSize() const;
 
-    uint64_t proposalHashesPerDB;
+    uint64_t getRandomDbSize() const;
+
+    uint64_t getSignatureDbSize() const;
+
+    uint64_t getPriceDbSize() const;
+
+private:
+    uint64_t randomDBSize;
+    uint64_t signatureDBSize;
+    uint64_t priceDBSize;
 
 
     ptr<BLSPublicKey> blsPublicKey;
@@ -310,7 +323,7 @@ public:
     uint64_t getMinBlockIntervalMs() const;
 
 
-    uint64_t getCommittedBlockStorageSize() const;
+    uint64_t getBlockDBSize() const;
 
 
     uint64_t getWaitAfterNetworkErrorMs();
@@ -332,4 +345,8 @@ public:
     void setEmptyBlockIntervalMs(uint64_t _interval) { this->emptyBlockIntervalMs = _interval; }
 
     const ptr<ProposalHashDB> &getProposalHashDb() const;
+
+    uint64_t getProposalHashDbSize() const;
+
+
 };

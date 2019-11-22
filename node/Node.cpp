@@ -107,13 +107,13 @@ void Node::initLevelDBs() {
     string proposalHashDBPrefix = "/proposal_hashes_" + to_string(nodeID) + ".db";
 
     blockDB =
-            make_shared<BlockDB>(dataDir, blockDBPrefix, getNodeID(), getCommittedBlockStorageSize());
-    randomDB = make_shared<RandomDB>(dataDir, randomDBPrefix, getNodeID());
+            make_shared<BlockDB>(dataDir, blockDBPrefix, getNodeID(), getBlockDBSize());
+    randomDB = make_shared<RandomDB>(dataDir, randomDBPrefix, getNodeID(), getRandomDbSize());
     committedTransactionDB =
-            make_shared<CommittedTransactionDB>(dataDir, committedTransactionsDBPrefix, getNodeID());
-    signatureDB = make_shared<SigDB>(dataDir, signaturesDBPrefix, getNodeID());
-    priceDB = make_shared<PriceDB>(dataDir, pricesDBPrefix, getNodeID());
-    proposalHashDB = make_shared<ProposalHashDB>(dataDir, proposalHashDBPrefix, getNodeID(), proposalHashesPerDB);
+            make_shared<CommittedTransactionDB>(dataDir, committedTransactionsDBPrefix, getNodeID(), getCommitedTxsDbSize());
+    signatureDB = make_shared<SigDB>(dataDir, signaturesDBPrefix, getNodeID(), getSignatureDbSize());
+    priceDB = make_shared<PriceDB>(dataDir, pricesDBPrefix, getNodeID(), getPriceDbSize());
+    proposalHashDB = make_shared<ProposalHashDB>(dataDir, proposalHashDBPrefix, getNodeID(), getProposalHashDbSize());
 }
 
 void Node::initLogging() {
@@ -158,12 +158,23 @@ void Node::initParamsFromConfig() {
 
     minBlockIntervalMs = getParamUint64("minBlockIntervalMs", MIN_BLOCK_INTERVAL_MS);
 
-    committedBlockStorageSize =
-            getParamUint64("committedBlockStorageSize", COMMITTED_BLOCK_STORAGE_SIZE);
+    blockDBSize =
+            getParamUint64("blockDBSize", BLOCK_DB_SIZE);
 
+    proposalHashDBSize =
+            getParamUint64("proposalHashDBSize", PROPOSAL_HASH_DB_SIZE);
 
-    proposalHashesPerDB =
-            getParamUint64("proposalHashesPerDB", PROPOSAL_HASHES_PER_DB);
+    commitedTxsDBSize =
+            getParamUint64("commitedTxsDBSize", COMMITTED_TXS_DB_SIZE);
+
+    randomDBSize =
+            getParamUint64("randomDBSize", RANDOM_DB_SIZE);
+
+    signatureDBSize =
+            getParamUint64("signatuteDBSize", SIGNATURE_DB_SIZE);
+
+    priceDBSize =
+            getParamUint64("signatuteDBSize", SIGNATURE_DB_SIZE);
 
     name = make_shared<string>(cfg.at("nodeName").get<string>());
 
@@ -185,7 +196,9 @@ void Node::initParamsFromConfig() {
     testConfig = make_shared<TestConfig>(cfg);
 }
 
-
+uint64_t Node::getProposalHashDbSize() const {
+    return proposalHashDBSize;
+}
 
 
 Node::~Node() {}

@@ -45,9 +45,7 @@ class ProposalHashDB : public LevelDB {
 
 public:
 
-    ProposalHashDB(
-            string& _dirName,
-            string &_prefix, node_id _nodeId, uint64_t _blockIdsPerDB);
+    ProposalHashDB(string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize);
 
     ptr<vector<uint8_t >> getSerializedBlockFromLevelDB(block_id _blockID);
 

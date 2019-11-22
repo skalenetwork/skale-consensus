@@ -36,7 +36,7 @@ class PriceDB : public LevelDB {
 
 public:
 
-    PriceDB(string& _dirName, string &_prefix, node_id _nodeId);
+    PriceDB(string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize);
 
 
     u256 readPrice(block_id _blockID);

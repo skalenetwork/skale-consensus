@@ -131,10 +131,14 @@ uint64_t LevelDB::visitKeys(LevelDB::KeyVisitor *_visitor, uint64_t _maxKeysToVi
     return readCounter;
 }
 
-LevelDB::LevelDB(string &_dirName, string &_prefix, node_id _nodeId) : nodeId(_nodeId),
-                                                                       prefix(_prefix), dirname(_dirName) {
+LevelDB::LevelDB(string &_dirName, string &_prefix, node_id _nodeId,
+                 uint64_t _maxDBSize) : nodeId(_nodeId),
+                                        prefix(_prefix), dirname(_dirName),
+                                        maxDBSize(_maxDBSize) {
 
     boost::filesystem::path path(_dirName);
+
+    CHECK_ARGUMENT(_maxDBSize != 0);
 
     auto highestDBIndex = findHighestDBIndex(make_shared<string>(
             _prefix + "."), path);

@@ -12,15 +12,15 @@
       <config projectName="consensus" targetName="consensusd" />
       <config projectName="consensus" targetName="bls_test" />
       <config projectName="consensus" targetName="dkg_te_unit_test" />
-      <config projectName="consensus" targetName="consensus" />
       <config projectName="consensus" targetName="all_te_tests" />
+      <config projectName="consensus" targetName="te_unit_test" />
       <config projectName="consensus" targetName="dkg_unit_test" />
       <config projectName="consensus" targetName="dkg_glue" />
       <config projectName="consensus" targetName="te" />
       <config projectName="consensus" targetName="te_test" />
       <config projectName="consensus" targetName="verify_bls" />
       <config projectName="consensus" targetName="sign_bls" />
-      <config projectName="consensus" targetName="te_unit_test" />
+      <config projectName="consensus" targetName="consensus" />
     </generated>
   </component>
   <component name="CMakeSettings">
@@ -31,10 +31,24 @@
   <component name="ChangeListManager">
     <list default="true" id="328bba78-e120-46f5-8d8c-d775e2cc49f7" name="Default Changelist" comment="Updated libBLS">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SkaleCommon.h" beforeDir="false" afterPath="$PROJECT_DIR$/SkaleCommon.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/BlockDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/BlockDB.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/CommittedTransactionDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/CommittedTransactionDB.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/CommittedTransactionDB.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/CommittedTransactionDB.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/db/LevelDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/LevelDB.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/LevelDB.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/LevelDB.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/PriceDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/PriceDB.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/PriceDB.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/PriceDB.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/ProposalHashDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/ProposalHashDB.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/ProposalHashDB.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/ProposalHashDB.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/RandomDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/RandomDB.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/RandomDB.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/RandomDB.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/SigDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/SigDB.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/SigDB.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/SigDB.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libBLS/deps/pbc/INSTALL" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/deps/pbc/INSTALL" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libBLS/pbc/INSTALL" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/pbc/INSTALL" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/node/Node.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/node/Node.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/node/Node.h" beforeDir="false" afterPath="$PROJECT_DIR$/node/Node.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/node/NodeGettersSetters.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/node/NodeGettersSetters.cpp" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />

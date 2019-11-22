@@ -256,8 +256,8 @@ uint64_t Node::getMinBlockIntervalMs() const {
     return minBlockIntervalMs;
 }
 
-uint64_t Node::getCommittedBlockStorageSize() const {
-    return committedBlockStorageSize;
+uint64_t Node::getBlockDBSize() const {
+    return blockDBSize;
 }
 
 uint64_t Node::getCommittedTransactionHistoryLimit() const {
@@ -305,4 +305,20 @@ bool Node::isBlsEnabled() const {
 
 bool Node::isStarted() const {
     return startedServers;
+}
+
+uint64_t Node::getCommitedTxsDbSize() const {
+    return commitedTxsDBSize;
+}
+
+uint64_t Node::getRandomDbSize() const {
+    return randomDBSize;
+}
+
+uint64_t Node::getSignatureDbSize() const {
+    return signatureDBSize;
+}
+
+uint64_t Node::getPriceDbSize() const {
+    return priceDBSize;
 }
