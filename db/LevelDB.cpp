@@ -140,17 +140,17 @@ LevelDB::LevelDB(string &_dirName, string &_prefix, node_id _nodeId,
 
     CHECK_ARGUMENT(_maxDBSize != 0);
 
-    auto highestDBIndex = findHighestDBIndex(make_shared<string>(
-            _prefix + "."), path);
+    auto maxDBIndex = findMaxMinDBIndex(make_shared<string>(
+            _prefix + "."), path).first;
 
-    if (highestDBIndex < LEVELDB_PIECES) {
-        highestDBIndex = LEVELDB_PIECES;
+    if (maxDBIndex < LEVELDB_PIECES) {
+        maxDBIndex = LEVELDB_PIECES;
     }
 
     leveldb::Options options;
     options.create_if_missing = true;
 
-    for (int i = highestDBIndex - LEVELDB_PIECES + 1; i <= highestDBIndex; i++) {
+    for (auto i = maxDBIndex - LEVELDB_PIECES + 1; i <= maxDBIndex; i++) {
         leveldb::DB *dbase = nullptr;
         ASSERT2(leveldb::DB::Open(options, _dirName + "/" + _prefix + "." + to_string(i),
                                   &dbase).ok(),
@@ -164,7 +164,7 @@ LevelDB::~LevelDB() {
 
 using namespace boost::filesystem;
 
-int LevelDB::findHighestDBIndex(ptr<string> _prefix, boost::filesystem::path _path) {
+std::pair<uint64_t, uint64_t> LevelDB::findMaxMinDBIndex(ptr<string> _prefix, boost::filesystem::path _path) {
 
     CHECK_ARGUMENT(_prefix != nullptr);
 
@@ -188,10 +188,11 @@ int LevelDB::findHighestDBIndex(ptr<string> _prefix, boost::filesystem::path _pa
     }
 
     if (indices.size() == 0)
-        return -1;
+        return {0,0};
 
-    auto result = *max_element(begin(indices), end(indices));
+    auto maxIndex = *max_element(begin(indices), end(indices));
+    auto minIndex = *min_element(begin(indices), end(indices));
 
-    return result;
+    return {maxIndex, minIndex};
 }
 

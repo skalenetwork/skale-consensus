@@ -38,7 +38,7 @@ namespace leveldb {
 class LevelDB {
     vector<ptr<leveldb::DB>>db;
 
-    int findHighestDBIndex(ptr<string> _prefix, boost::filesystem::path _path);
+    std::pair<uint64_t, uint64_t> findMaxMinDBIndex(ptr<string> _prefix, boost::filesystem::path _path);
 
 protected:
 
