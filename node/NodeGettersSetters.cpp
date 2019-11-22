@@ -74,8 +74,22 @@
 using namespace std;
 
 
-
 uint64_t Node::getParamUint64(const string &_paramName, uint64_t paramDefault) {
+
+    auto result = std::getenv(_paramName.c_str());
+
+    if (result != nullptr) {
+        errno = 0;
+        auto value = strtoll(result, nullptr, 10);
+        if (errno == 0) {
+            return value;
+        } else {
+            BOOST_THROW_EXCEPTION(InvalidStateException("Invalid value of env var " + _paramName + "=" +
+                                                        result, __CLASS_NAME__));
+        }
+    }
+
+
     try {
         if (cfg.find(_paramName) != cfg.end()) {
             return cfg.at(_paramName).get<uint64_t>();
@@ -118,21 +132,14 @@ ptr<string> Node::getParamString(const string &_paramName, string &_paramDefault
 }
 
 
-
-
-
 node_id Node::getNodeID() const {
     return nodeID;
 }
 
 
-
-
-
 const ptr<ProposalHashDB> &Node::getProposalHashDb() const {
     return proposalHashDB;
 }
-
 
 
 ptr<map<schain_index, ptr<NodeInfo> > > Node::getNodeInfosByIndex() const {
