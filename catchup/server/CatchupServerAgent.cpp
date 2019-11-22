@@ -316,6 +316,14 @@ ptr<vector<uint8_t>> CatchupServerAgent::createBlockFinalizeResponse(nlohmann::j
         return nullptr;
     }
 
+    if (proposal->getDaProof() == nullptr) {
+        LOG(trace, "Dont have DA proof:" + to_string(proposerIndex));
+        _responseHeader->setStatusSubStatus(CONNECTION_DISCONNECT,
+                CONNECTION_DONT_HAVE_DA_PROOF_FOR_PROPOSAL);
+        _responseHeader->setComplete();
+        return nullptr;
+    }
+
 
     auto committedBlock = make_shared<CommittedBlock>(proposal);
 

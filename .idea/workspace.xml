@@ -4,18 +4,18 @@
     <generated>
       <config projectName="consensus" targetName="consensust" />
       <config projectName="consensus" targetName="hash_g1" />
-      <config projectName="consensus" targetName="dkg_glue" />
+      <config projectName="consensus" targetName="bls_unit_test" />
       <config projectName="consensus" targetName="dkg_keygen" />
       <config projectName="consensus" targetName="all_bls_tests" />
-      <config projectName="consensus" targetName="bls_unit_test" />
-      <config projectName="consensus" targetName="dkg_te_unit_test" />
+      <config projectName="consensus" targetName="bls_glue" />
+      <config projectName="consensus" targetName="bls" />
       <config projectName="consensus" targetName="consensusd" />
       <config projectName="consensus" targetName="bls_test" />
-      <config projectName="consensus" targetName="bls_glue" />
+      <config projectName="consensus" targetName="dkg_te_unit_test" />
       <config projectName="consensus" targetName="all_te_tests" />
       <config projectName="consensus" targetName="te_unit_test" />
       <config projectName="consensus" targetName="dkg_unit_test" />
-      <config projectName="consensus" targetName="bls" />
+      <config projectName="consensus" targetName="dkg_glue" />
       <config projectName="consensus" targetName="te" />
       <config projectName="consensus" targetName="te_test" />
       <config projectName="consensus" targetName="verify_bls" />
@@ -31,10 +31,8 @@
   <component name="ChangeListManager">
     <list default="true" id="328bba78-e120-46f5-8d8c-d775e2cc49f7" name="Default Changelist" comment="Updated libBLS">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Consensust.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Consensust.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SkaleCommon.h" beforeDir="false" afterPath="$PROJECT_DIR$/SkaleCommon.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/blockproposal/pusher/BlockProposalClientAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/blockproposal/pusher/BlockProposalClientAgent.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/blockproposal/pusher/BlockProposalClientAgent.h" beforeDir="false" afterPath="$PROJECT_DIR$/blockproposal/pusher/BlockProposalClientAgent.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/abstracttcpserver/ConnectionStatus.h" beforeDir="false" afterPath="$PROJECT_DIR$/abstracttcpserver/ConnectionStatus.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/catchup/server/CatchupServerAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/catchup/server/CatchupServerAgent.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libBLS/deps/pbc/INSTALL" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/deps/pbc/INSTALL" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libBLS/pbc/INSTALL" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/pbc/INSTALL" afterDir="false" />
     </list>
@@ -47,14 +45,20 @@
   <component name="ClangdSettings">
     <option name="formatViaClangd" value="false" />
   </component>
-  <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:Debug" />
   <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="SKALE-1129-cleanup-memory" />
+      </map>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="ROOT_SYNC" value="DONT_SYNC" />
   </component>
   <component name="OCFindUsagesOptions" text="true" ivars="false" properties="true" derivedClasses="false" />
   <component name="ProjectId" id="1TnSIFu9Eo5WxsaS61xq1WagMk7" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="PropertiesComponent">
+    <property name="Git.Branch.Popup.ShowAllRepositories" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="cf.advertisement.text.has.clang-format" value="true" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$/../skaled" />
@@ -72,7 +76,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="CMake Application.corrupt_proposal_test">
+  <component name="RunManager">
     <configuration name="all_bls_tests" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="consensus" TARGET_NAME="all_bls_tests" CONFIG_NAME="Debug">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -174,9 +178,6 @@
       </method>
     </configuration>
     <configuration name="test_2" type="CMakeRunConfiguration" factoryName="Application" PROGRAM_PARAMS="[consensus-basic]" WORKING_DIR="file://$PROJECT_DIR$/test/twonodes" PASS_PARENT_ENVS_2="true" PROJECT_NAME="consensus" TARGET_NAME="consensust" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="consensus" RUN_TARGET_NAME="consensust">
-      <envs>
-        <env name="CORRUPT_PROPOSAL_TEST" value="1" />
-      </envs>
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
@@ -229,6 +230,7 @@
       <option name="presentableId" value="Default" />
       <updated>1574094284750</updated>
       <workItem from="1574094287405" duration="6542000" />
+      <workItem from="1574329687184" duration="5058000" />
     </task>
     <task id="LOCAL-00002" summary="Updated libBLS">
       <created>1574096232083</created>
@@ -272,7 +274,56 @@
       <option name="project" value="LOCAL" />
       <updated>1574186041591</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="Updated libBLS">
+      <created>1574189474307</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1574189474307</updated>
+    </task>
+    <task id="LOCAL-00009" summary="Adding db rotation">
+      <created>1574250241189</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1574250241189</updated>
+    </task>
+    <task id="LOCAL-00010" summary="Cleaning Up memory">
+      <created>1574260584403</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1574260584403</updated>
+    </task>
+    <task id="LOCAL-00011" summary="Updated libBLS">
+      <created>1574261866223</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1574261866223</updated>
+    </task>
+    <task id="LOCAL-00012" summary="Updated libBLS">
+      <created>1574346237876</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1574346237876</updated>
+    </task>
+    <task id="LOCAL-00013" summary="Four piece db">
+      <created>1574348334008</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1574348334008</updated>
+    </task>
+    <task id="LOCAL-00014" summary="Adding DB storage limits">
+      <created>1574431376591</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1574431376591</updated>
+    </task>
+    <option name="localTasksCounter" value="15" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -297,19 +348,12 @@
     <MESSAGE value="Added workspace.xml" />
     <MESSAGE value="Improve locking" />
     <MESSAGE value="Fixing IO" />
-    <MESSAGE value="Updated libBLS" />
     <MESSAGE value="Adding tests" />
-    <option name="LAST_COMMIT_MESSAGE" value="Adding tests" />
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
-          <url>file://$PROJECT_DIR$/blockproposal/pusher/BlockProposalClientAgent.cpp</url>
-          <line>154</line>
-          <option name="timeStamp" value="2" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
+    <MESSAGE value="Adding db rotation" />
+    <MESSAGE value="Cleaning Up memory" />
+    <MESSAGE value="Updated libBLS" />
+    <MESSAGE value="Four piece db" />
+    <MESSAGE value="Adding DB storage limits" />
+    <option name="LAST_COMMIT_MESSAGE" value="Adding DB storage limits" />
   </component>
 </project>
