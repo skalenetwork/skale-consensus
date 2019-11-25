@@ -54,8 +54,8 @@ ptr<vector<uint8_t> > BlockDB::getSerializedBlockFromLevelDB(block_id _blockID) 
 }
 
 BlockDB::BlockDB(string& _dirname,
-                 string &_prefix, node_id _nodeId, uint64_t _storageSize) : LevelDB(_dirname, _prefix,
-                                                                                    _nodeId, _storageSize) {
+                 string &_prefix, node_id _nodeId, uint64_t _maxDBSize) : LevelDB(_dirname, _prefix,
+                                                                                  _nodeId, _maxDBSize) {
 
 
 }
@@ -93,28 +93,7 @@ const string BlockDB::getFormatVersion() {
     return "1.0";
 }
 
-uint64_t BlockDB::readCounter() {
 
-    static string count(":COUNT");
-
-
-    LOCK(m)
-
-    try {
-
-        auto key = getFormatVersion() + count;
-
-        auto value = readString(key);
-
-        if (value != nullptr) {
-            return stoul(*value);
-        } else {
-            return 0;
-        }
-    } catch (...) {
-        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
-    }
-}
 
 
 void BlockDB::saveBlock(ptr<CommittedBlock> &_block) {

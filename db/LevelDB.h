@@ -42,7 +42,6 @@ class LevelDB {
     uint64_t  highestDBIndex = 0;
     shared_mutex m;
 
-    std::pair<uint64_t, uint64_t> findMaxMinDBIndex();
 
 protected:
 
@@ -71,6 +70,9 @@ public:
 
 
     LevelDB(string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize);
+
+
+    std::pair<uint64_t, uint64_t> findMaxMinDBIndex();
 
 
     class KeyVisitor {

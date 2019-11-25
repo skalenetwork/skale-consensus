@@ -31,6 +31,9 @@
   <component name="ChangeListManager">
     <list default="true" id="e8eb5c74-4268-46a2-ac26-2e919fd9ff42" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/BlockDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/BlockDB.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/BlockDB.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/BlockDB.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/DBTests.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/DBTests.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/db/LevelDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/LevelDB.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/db/LevelDB.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/LevelDB.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libBLS/deps/pbc/INSTALL" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/deps/pbc/INSTALL" afterDir="false" />
@@ -373,7 +376,14 @@
       <option name="project" value="LOCAL" />
       <updated>1574700458275</updated>
     </task>
-    <option name="localTasksCounter" value="22" />
+    <task id="LOCAL-00022" summary="Added leveldb test">
+      <created>1574703506462</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1574703506462</updated>
+    </task>
+    <option name="localTasksCounter" value="23" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -408,6 +418,7 @@
     <MESSAGE value="Optimizing memory" />
     <MESSAGE value="Fixed a problem with double proposal" />
     <MESSAGE value="Fixing block hash" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fixing block hash" />
+    <MESSAGE value="Added leveldb test" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added leveldb test" />
   </component>
 </project>

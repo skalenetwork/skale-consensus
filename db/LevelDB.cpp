@@ -220,7 +220,6 @@ std::pair<uint64_t, uint64_t> LevelDB::findMaxMinDBIndex() {
             auto fileName = path.filename().string();
             if (fileName.find(prefix) == 0) {
                 auto index = fileName.substr(prefix.size() + 1);
-                cerr << index << endl;
                 auto value = strtoull(index.c_str(), nullptr, 10);
                 if (value != 0) {
                     indices.push_back(value);
