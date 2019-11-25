@@ -434,7 +434,7 @@ void Schain::saveBlock(ptr<CommittedBlock> &_block) {
     try {
 
         checkForExit();
-        getNode()->getBlockDB()->saveBlock(_block, block_id(lastCommittedBlockID.load()));
+        getNode()->getBlockDB()->saveBlock(_block);
     } catch (ExitRequestedException &) { throw; } catch (...) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }

@@ -58,7 +58,7 @@ public:
 
     uint64_t readCounter();
 
-    void saveBlock(ptr<CommittedBlock> &_block, block_id _lastCommittedBlockID);
+    void saveBlock(ptr<CommittedBlock> &_block);
 
 
     ptr<CommittedBlock> getBlock(block_id _blockID, ptr<CryptoManager> _cryptoManager);

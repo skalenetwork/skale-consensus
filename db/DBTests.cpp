@@ -54,10 +54,11 @@ void test_committed_block_save() {
 
     auto db = make_shared<BlockDB>(dirName, fileName, node_id(1), 200);
 
-    for (int i = 1; i < 200; i++) {
+    for (int i = 1; i < 1000; i++) {
         auto t = CommittedBlock::createRandomSample(cryptoManager, i, gen, ubyte);
 
-        db->saveBlock(t, 200);
+        db->saveBlock(t);
+
 
         auto bb = db->getBlock(t->getBlockID(), cryptoManager);
 
@@ -69,7 +70,6 @@ void test_committed_block_save() {
 
 TEST_CASE("Save/read block", "[block-save-read-db]") {
     SECTION("Test successful save/read")
-
-
         test_committed_block_save();
 }
+

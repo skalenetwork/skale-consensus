@@ -117,15 +117,13 @@ uint64_t BlockDB::readCounter() {
 }
 
 
-void BlockDB::saveBlock(ptr<CommittedBlock> &_block, block_id _lastCommittedBlockID) {
+void BlockDB::saveBlock(ptr<CommittedBlock> &_block) {
 
 
     CHECK_ARGUMENT(_block->getSignature() != nullptr);
 
     try {
         LOCK(m)
-
-        saveBlockToBlockCache(_block, _lastCommittedBlockID);
         saveBlock2LevelDB(_block);
 
     } catch (...) {
@@ -134,44 +132,7 @@ void BlockDB::saveBlock(ptr<CommittedBlock> &_block, block_id _lastCommittedBloc
 
 }
 
-void BlockDB::saveBlockToBlockCache(ptr<CommittedBlock> &_block, block_id _lastCommittedBlockID) {
-    CHECK_ARGUMENT(_block != nullptr);
 
-    CHECK_ARGUMENT(_block->getSignature() != nullptr);
-
-    LOCK(m)
-
-    try {
-        auto blockID = _block->getBlockID();
-
-        ASSERT(blocks.count(blockID) == 0);
-
-        blocks[blockID] = _block;
-
-
-        if (blockID > storageSize && blocks.count(blockID - storageSize) > 0) {
-            blocks.erase(_lastCommittedBlockID - storageSize);
-        };
-
-
-        ASSERT(blocks.size() <= storageSize);
-
-    } catch (...) {
-        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
-    }
-}
-
-ptr<CommittedBlock> BlockDB::getCachedBlock(block_id _blockID) {
-    try {
-        if (blocks.count(_blockID > 0)) {
-            return blocks.at(_blockID);
-        } else {
-            return nullptr;
-        }
-    } catch (...) {
-        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
-    }
-}
 
 ptr<CommittedBlock> BlockDB::getBlock(block_id _blockID, ptr<CryptoManager> _cryptoManager) {
 
@@ -179,10 +140,6 @@ ptr<CommittedBlock> BlockDB::getBlock(block_id _blockID, ptr<CryptoManager> _cry
     std::lock_guard<std::recursive_mutex> lock(m);
 
     try {
-        auto block = getCachedBlock(_blockID);
-
-        if (block)
-            return block;
 
         auto serializedBlock = getSerializedBlockFromLevelDB(_blockID);
 
