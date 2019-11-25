@@ -365,6 +365,7 @@
     <MESSAGE value="Added setting config params in environment vars" />
     <MESSAGE value="Cleaning up memory" />
     <MESSAGE value="Optimizing memory" />
-    <option name="LAST_COMMIT_MESSAGE" value="Optimizing memory" />
+    <MESSAGE value="Fixed a problem with double proposal" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fixed a problem with double proposal" />
   </component>
 </project>
