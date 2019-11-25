@@ -406,11 +406,7 @@ void Schain::processCommittedBlock(ptr<CommittedBlock> _block) {
         ":HASH:" + h + ":BLOCK_TXS:" + to_string(_block->getTransactionCount()) + ":DMSG:" +
         to_string(getMessagesCount()) + ":MPRPS:" + to_string(MyBlockProposal::getTotalObjects()) + ":RPRPS:" +
         to_string(ReceivedBlockProposal::getTotalObjects()) + ":TXS:" + to_string(Transaction::getTotalObjects()) +
-        //              ":PNDG:" +
-        //              to_string(pendingTransactionsAgent->getPendingTransactionsSize())
-        //              +
-        ":KNWN:" + to_string(pendingTransactionsAgent->getKnownTransactionsSize()) + ":CMT:" +
-        to_string(pendingTransactionsAgent->getCommittedTransactionsSize()) + ":MGS:" +
+        ":KNWN:" + to_string(pendingTransactionsAgent->getKnownTransactionsSize()) + ":MGS:" +
         to_string(Message::getTotalObjects()) + ":INSTS:" + to_string(ProtocolInstance::getTotalObjects()) + ":BPS:" +
         to_string(BlockProposalSet::getTotalObjects()) + ":TLS:" + to_string(TransactionList::getTotalObjects()) +
         ":HDRS:" + to_string(Header::getTotalObjects()) + ":SOCK:" + to_string(ClientSocket::getTotalSockets()) +

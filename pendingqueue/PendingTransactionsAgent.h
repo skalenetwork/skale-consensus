@@ -118,12 +118,6 @@ public:
 
     uint64_t getCommittedTransactionsSize();
 
-
-    bool isCommitted(ptr< partial_sha_hash > _hash);
-
-    void pushCommittedTransaction(shared_ptr<Transaction> t);
-
-
     shared_ptr<vector<ptr<Transaction>>> createTransactionsListForProposal();
 
     ptr<Transaction> getKnownTransactionByPartialHash(ptr<partial_sha_hash> hash);

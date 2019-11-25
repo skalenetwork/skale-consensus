@@ -320,10 +320,6 @@ BlockProposalServerAgent::processProposalRequest(ptr<ServerConnection> _connecti
         auto h = partialHashesList->getPartialHash(i);
         ASSERT(h);
 
-        if (getSchain()->getPendingTransactionsAgent()->isCommitted(h)) {
-            checkForOldBlock(requestHeader->getBlockId());
-            BOOST_THROW_EXCEPTION(CouldNotReadPartialDataHashesException("Committed transaction", __CLASS_NAME__));
-        }
 
         ptr<Transaction> transaction;
 

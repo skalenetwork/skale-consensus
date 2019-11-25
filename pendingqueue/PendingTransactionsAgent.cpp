@@ -189,40 +189,8 @@ uint64_t PendingTransactionsAgent::getKnownTransactionsSize() {
     return knownTransactions.size();
 }
 
-uint64_t PendingTransactionsAgent::getCommittedTransactionsSize() {
-    lock_guard<recursive_mutex> lock(transactionsMutex);
-    return committedTransactions.size();
-}
-
-bool PendingTransactionsAgent::isCommitted(ptr<partial_sha_hash> _hash) {
-    lock_guard<recursive_mutex> lock(transactionsMutex);
-   auto isCommitted = committedTransactions.count(_hash ) > 0;
-        return isCommitted;
-}
 
 
-void PendingTransactionsAgent::pushCommittedTransaction(shared_ptr<Transaction> t) {
-    lock_guard<recursive_mutex> lock(transactionsMutex);
-    committedTransactions.insert(t->getPartialHash());
-    committedTransactionsList.push_back(t->getPartialHash());
-    while (committedTransactions.size() > getNode()->getCommittedTransactionHistoryLimit()) {
-        committedTransactions.erase(committedTransactionsList.front());
-        committedTransactionsList.pop_front();
-    }
 
-    ASSERT(committedTransactionsList.size() >= committedTransactions.size());
-
-    auto db = getNode()->getCommittedTransactionDB();
-
-    db->writeCommittedTransaction(t, committedTransactionCounter);
-
-    committedTransactionCounter++;
-
-
-}
-
-uint64_t PendingTransactionsAgent::getCommittedTransactionCounter() const {
-    return committedTransactionCounter;
-}
 
 
