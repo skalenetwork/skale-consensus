@@ -76,9 +76,6 @@ uint64_t LevelDB::getFrontDBSize() {
     static leveldb::Range all("", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
     uint64_t size;
     db.front()->GetApproximateSizes(&all, 1, &size);
-
-    cerr << size << " " << prefix << endl;
-
     return size;
 }
 

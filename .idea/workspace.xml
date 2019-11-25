@@ -2,25 +2,25 @@
 <project version="4">
   <component name="CMakeRunConfigurationManager" shouldGenerate="true" shouldDeleteObsolete="true">
     <generated>
-      <config projectName="consensus" targetName="dkg_glue" />
-      <config projectName="consensus" targetName="sign_bls" />
-      <config projectName="consensus" targetName="te" />
-      <config projectName="consensus" targetName="consensus" />
-      <config projectName="consensus" targetName="all_bls_tests" />
-      <config projectName="consensus" targetName="dkg_keygen" />
-      <config projectName="consensus" targetName="consensusd" />
-      <config projectName="consensus" targetName="all_te_tests" />
-      <config projectName="consensus" targetName="bls" />
-      <config projectName="consensus" targetName="bls_unit_test" />
-      <config projectName="consensus" targetName="bls_glue" />
-      <config projectName="consensus" targetName="bls_test" />
-      <config projectName="consensus" targetName="te_test" />
-      <config projectName="consensus" targetName="hash_g1" />
       <config projectName="consensus" targetName="consensust" />
+      <config projectName="consensus" targetName="hash_g1" />
+      <config projectName="consensus" targetName="dkg_glue" />
+      <config projectName="consensus" targetName="dkg_keygen" />
+      <config projectName="consensus" targetName="all_bls_tests" />
+      <config projectName="consensus" targetName="bls_unit_test" />
       <config projectName="consensus" targetName="dkg_te_unit_test" />
+      <config projectName="consensus" targetName="consensusd" />
+      <config projectName="consensus" targetName="bls_test" />
+      <config projectName="consensus" targetName="bls_glue" />
+      <config projectName="consensus" targetName="all_te_tests" />
       <config projectName="consensus" targetName="te_unit_test" />
       <config projectName="consensus" targetName="dkg_unit_test" />
+      <config projectName="consensus" targetName="bls" />
+      <config projectName="consensus" targetName="te" />
+      <config projectName="consensus" targetName="te_test" />
       <config projectName="consensus" targetName="verify_bls" />
+      <config projectName="consensus" targetName="sign_bls" />
+      <config projectName="consensus" targetName="consensus" />
     </generated>
   </component>
   <component name="CMakeSettings">
@@ -31,8 +31,11 @@
   <component name="ChangeListManager">
     <list default="true" id="328bba78-e120-46f5-8d8c-d775e2cc49f7" name="Default Changelist" comment="Updated libBLS">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/chains/Schain.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/chains/Schain.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/datastructures/Transaction.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/Transaction.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/datastructures/Transaction.h" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/Transaction.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/datastructures/TransactionList.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/TransactionList.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/db/LevelDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/LevelDB.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/LevelDB.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/LevelDB.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libBLS/deps/pbc/INSTALL" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/deps/pbc/INSTALL" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libBLS/pbc/INSTALL" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/pbc/INSTALL" afterDir="false" />
     </list>
@@ -173,6 +176,9 @@
       </method>
     </configuration>
     <configuration name="test_2" type="CMakeRunConfiguration" factoryName="Application" PROGRAM_PARAMS="[consensus-basic]" WORKING_DIR="file://$PROJECT_DIR$/test/twonodes" PASS_PARENT_ENVS_2="true" PROJECT_NAME="consensus" TARGET_NAME="consensust" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="consensus" RUN_TARGET_NAME="consensust">
+      <envs>
+        <env name="TEST_TIME_MS" value="10000000" />
+      </envs>
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
@@ -319,7 +325,21 @@
       <option name="project" value="LOCAL" />
       <updated>1574435501336</updated>
     </task>
-    <option name="localTasksCounter" value="15" />
+    <task id="LOCAL-00015" summary="Cleaning up memory">
+      <created>1574681953454</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1574681953455</updated>
+    </task>
+    <task id="LOCAL-00016" summary="Optimizing memory">
+      <created>1574683705498</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1574683705498</updated>
+    </task>
+    <option name="localTasksCounter" value="17" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -350,7 +370,9 @@
     <MESSAGE value="Updated libBLS" />
     <MESSAGE value="Four piece db" />
     <MESSAGE value="Added setting config params in environment vars" />
-    <option name="LAST_COMMIT_MESSAGE" value="Added setting config params in environment vars" />
+    <MESSAGE value="Cleaning up memory" />
+    <MESSAGE value="Optimizing memory" />
+    <option name="LAST_COMMIT_MESSAGE" value="Optimizing memory" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -359,11 +381,6 @@
           <url>file://$PROJECT_DIR$/blockproposal/pusher/BlockProposalClientAgent.cpp</url>
           <line>154</line>
           <option name="timeStamp" value="2" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
-          <url>file://$PROJECT_DIR$/db/LevelDB.cpp</url>
-          <line>79</line>
-          <option name="timeStamp" value="4" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

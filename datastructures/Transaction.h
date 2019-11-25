@@ -40,11 +40,7 @@ class SHAHash;
 class Transaction : public DataStructure {
 
 
-private:
-
     static atomic<uint64_t>  totalObjects;
-
-
 
     ptr<vector<uint8_t >> data = nullptr;
 
@@ -53,11 +49,9 @@ private:
     ptr<partial_sha_hash> partialHash = nullptr;
 
 
-    Transaction(const ptr<vector<uint8_t>> _data, bool _includesPartialHash);
-
-
 public:
 
+    Transaction(const ptr<vector<uint8_t>> _data, bool _includesPartialHash);
 
 
     uint64_t  getSerializedSize(bool _writePartialHash);
