@@ -42,7 +42,7 @@ class LevelDB {
     uint64_t  highestDBIndex = 0;
     shared_mutex m;
 
-    std::pair<uint64_t, uint64_t> findMaxMinDBIndex(ptr<string> _prefix, boost::filesystem::path _path);
+    std::pair<uint64_t, uint64_t> findMaxMinDBIndex();
 
 protected:
 
@@ -92,6 +92,8 @@ public:
     uint64_t getActiveDBSize();
 
     leveldb::DB *openDB(uint64_t _index);
+
+    void removeDB(uint64_t index);
 };
 
 

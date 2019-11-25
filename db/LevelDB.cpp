@@ -125,7 +125,7 @@ void LevelDB::writeByteArray(string &_key, const char *value,
     {
         shared_lock<shared_mutex> lock(m);
 
-        getActiveDBSize();
+
 
         auto status = db.back()->Put(writeOptions, Slice(_key), Slice(value, _valueLen));
 
@@ -189,8 +189,7 @@ LevelDB::LevelDB(string &_dirName, string &_prefix, node_id _nodeId,
 
     CHECK_ARGUMENT(_maxDBSize != 0);
 
-    highestDBIndex = findMaxMinDBIndex(make_shared<string>(
-            _prefix + "."), path).first;
+    highestDBIndex = findMaxMinDBIndex().first;
 
     if (highestDBIndex < LEVELDB_PIECES) {
         highestDBIndex = LEVELDB_PIECES;
@@ -208,21 +207,20 @@ LevelDB::~LevelDB() {
 
 using namespace boost::filesystem;
 
-std::pair<uint64_t, uint64_t> LevelDB::findMaxMinDBIndex(ptr<string> _prefix, boost::filesystem::path _path) {
-
-    CHECK_ARGUMENT(_prefix != nullptr);
+std::pair<uint64_t, uint64_t> LevelDB::findMaxMinDBIndex() {
 
     vector<path> dirs;
     vector<uint64_t> indices;
 
-    copy(directory_iterator(_path), directory_iterator(), back_inserter(dirs));
+    copy(directory_iterator(path(dirname)), directory_iterator(), back_inserter(dirs));
     sort(dirs.begin(), dirs.end());
 
     for (auto &path : dirs) {
         if (is_directory(path)) {
             auto fileName = path.filename().string();
-            if (fileName.find(*_prefix) == 0) {
-                auto index = fileName.substr(_prefix->size());
+            if (fileName.find(prefix) == 0) {
+                auto index = fileName.substr(prefix.size() + 1);
+                cerr << index << endl;
                 auto value = strtoull(index.c_str(), nullptr, 10);
                 if (value != 0) {
                     indices.push_back(value);
@@ -248,6 +246,9 @@ void LevelDB::rotateDBsIfNeeded() {
     {
         lock_guard<shared_mutex> lock(m);
 
+        if (getActiveDBSize() <= maxDBSize)
+            return;
+
         auto newDB = openDB(highestDBIndex+1);
 
         for (int i = 1; i <  LEVELDB_PIECES; i++) {
@@ -258,6 +259,23 @@ void LevelDB::rotateDBsIfNeeded() {
 
         db.at(0) = nullptr;
         highestDBIndex++;
+
+        uint64_t minIndex;
+
+        while ((minIndex = findMaxMinDBIndex().second) + LEVELDB_PIECES <= highestDBIndex) {
+
+            if (minIndex == 0) {
+                return;
+            }
+
+            auto dbName = dirname + "/" + prefix + "." + to_string(minIndex);
+            try {
+
+            boost::filesystem::remove_all(path(dbName));
+            } catch (Exception& e) {
+                LOG(err, "Could not remove db:" + dbName);
+            }
+        }
     }
 }
 
