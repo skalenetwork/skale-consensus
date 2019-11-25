@@ -81,7 +81,6 @@ bool LevelDB::keyExists(const char *_key) {
 }
 
 
-
 void LevelDB::writeString(const string &_key, const string &_value) {
 
     rotateDBsIfNeeded();
@@ -95,13 +94,8 @@ void LevelDB::writeString(const string &_key, const string &_value) {
     }
 }
 
-uint64_t LevelDB::getActiveDBSize() {
-    static leveldb::Range all("", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-    uint64_t size;
-    db.back()->GetApproximateSizes(&all, 1, &size);
 
-    return size;
-}
+
 
 void LevelDB::writeByteArray(const char *_key, size_t _keyLen, const char *value,
                              size_t _valueLen) {
@@ -124,7 +118,6 @@ void LevelDB::writeByteArray(string &_key, const char *value,
 
     {
         shared_lock<shared_mutex> lock(m);
-
 
 
         auto status = db.back()->Put(writeOptions, Slice(_key), Slice(value, _valueLen));
@@ -166,7 +159,7 @@ uint64_t LevelDB::visitKeys(LevelDB::KeyVisitor *_visitor, uint64_t _maxKeysToVi
 }
 
 
-DB * LevelDB::openDB(uint64_t _index) {
+DB *LevelDB::openDB(uint64_t _index) {
 
     leveldb::DB *dbase = nullptr;
 
@@ -206,6 +199,22 @@ LevelDB::~LevelDB() {
 }
 
 using namespace boost::filesystem;
+
+uint64_t LevelDB::getActiveDBSize() {
+    vector<path> files;
+
+    path levelDBPath(dirname + "/" + prefix + "." + to_string(highestDBIndex));
+
+    copy(directory_iterator(levelDBPath), directory_iterator(), back_inserter(files));
+
+    uint64_t size = 0;
+
+    for (auto &filePath : files) {
+        size = size + file_size(filePath);
+    }
+    return size;
+}
+
 
 std::pair<uint64_t, uint64_t> LevelDB::findMaxMinDBIndex() {
 
@@ -248,10 +257,10 @@ void LevelDB::rotateDBsIfNeeded() {
         if (getActiveDBSize() <= maxDBSize)
             return;
 
-        auto newDB = openDB(highestDBIndex+1);
+        auto newDB = openDB(highestDBIndex + 1);
 
-        for (int i = 1; i <  LEVELDB_PIECES; i++) {
-            db.at(i -1) = db.at(i);
+        for (int i = 1; i < LEVELDB_PIECES; i++) {
+            db.at(i - 1) = db.at(i);
         }
 
         db[LEVELDB_PIECES - 1] = shared_ptr<leveldb::DB>(newDB);
@@ -270,8 +279,8 @@ void LevelDB::rotateDBsIfNeeded() {
             auto dbName = dirname + "/" + prefix + "." + to_string(minIndex);
             try {
 
-            boost::filesystem::remove_all(path(dbName));
-            } catch (Exception& e) {
+                boost::filesystem::remove_all(path(dbName));
+            } catch (Exception &e) {
                 LOG(err, "Could not remove db:" + dbName);
             }
         }
