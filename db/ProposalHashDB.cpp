@@ -39,8 +39,7 @@ ProposalHashDB::ProposalHashDB(string &_dirName, string &_prefix, node_id _nodeI
 
 
 bool
-ProposalHashDB::checkAndSaveHash(block_id _proposalBlockID, schain_index _proposerIndex, ptr<string> _proposalHash,
-                                 block_id /*_lastCommittedBlockID */) {
+ProposalHashDB::checkAndSaveHash(block_id _proposalBlockID, schain_index _proposerIndex, ptr<string> _proposalHash) {
 
 
     lock_guard<recursive_mutex> lock(mutex);
@@ -63,6 +62,29 @@ ProposalHashDB::checkAndSaveHash(block_id _proposalBlockID, schain_index _propos
     }
 
 }
+
+bool
+ProposalHashDB::haveProposal(block_id _proposalBlockID, schain_index _proposerIndex) {
+
+
+    lock_guard<recursive_mutex> lock(mutex);
+
+    try {
+
+        auto key = createKey(_proposalBlockID, _proposerIndex);
+
+        auto previous = readString(*key);
+
+        return (previous != nullptr);
+
+    } catch (...) {
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+    }
+
+}
+
+
+
 
 ptr<string> ProposalHashDB::createKey(block_id _blockId, schain_index _proposerIndex) {
     return make_shared<string>(getFormatVersion() + ":" + to_string(_blockId) + ":" + to_string(_proposerIndex));

@@ -84,12 +84,8 @@ class Schain : public Agent {
 
     uint64_t startTimeMs;
 
-
-    set<block_id> pushedBlockProposals;
-
     set<block_id> startedConsensuses;
 
-    recursive_mutex startedConsensusesMutex;
 
     ptr<BlockProposalServerAgent> blockProposalServerAgent = nullptr;
 

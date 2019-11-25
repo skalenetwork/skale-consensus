@@ -51,10 +51,10 @@ public:
 
     uint64_t readBlockLimit();
 
-    bool checkAndSaveHash(block_id _proposalBlockID, schain_index _proposerIndex, ptr<string> _proposalHash,
-                          block_id);
+    bool checkAndSaveHash(block_id _proposalBlockID, schain_index _proposerIndex, ptr<string> _proposalHash);
 
 
+    bool haveProposal(block_id _proposalBlockID, schain_index _proposerIndex);
 };
 
 

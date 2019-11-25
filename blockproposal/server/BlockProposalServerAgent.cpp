@@ -455,8 +455,7 @@ ptr<Header> BlockProposalServerAgent::createProposalResponseHeader(ptr<ServerCon
 
     if (!getSchain()->getNode()->getProposalHashDb()->checkAndSaveHash(_header.getBlockId(),
                                                                        _header.getProposerIndex(),
-                                                                       _header.getHash(),
-                                                                       sChain->getLastCommittedBlockID())) {
+                                                                       _header.getHash())) {
 
         LOG(info, "Double proposal for block:" + to_string(_header.getBlockId()) +
                   "  proposer index:" + to_string(_header.getProposerIndex()));

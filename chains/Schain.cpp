@@ -83,6 +83,7 @@
 #include "../crypto/ThresholdSigShare.h"
 #include "../db/BlockDB.h"
 #include "../db/LevelDB.h"
+#include "../db/ProposalHashDB.h"
 #include "../pendingqueue/TestMessageGeneratorAgent.h"
 #include "SchainTest.h"
 #include "../libBLS/bls/BLSPrivateKeyShare.h"
@@ -363,9 +364,14 @@ void Schain::proposeNextBlock(uint64_t _previousBlockTimeStamp, uint32_t _previo
 
     checkForExit();
 
+
+
+
     block_id _proposedBlockID((uint64_t) lastCommittedBlockID + 1);
 
-    CHECK_STATE(pushedBlockProposals.count(_proposedBlockID) == 0);
+    if (getNode()->getProposalHashDb()->haveProposal(_proposedBlockID, getSchainIndex()))
+        return;
+
 
     auto myProposal = pendingTransactionsAgent->buildBlockProposal(_proposedBlockID, _previousBlockTimeStamp,
                                                                    _previousBlockTimeStampMs);
@@ -378,13 +384,14 @@ void Schain::proposeNextBlock(uint64_t _previousBlockTimeStamp, uint32_t _previo
 
     LOG(debug, "PROPOSING BLOCK NUMBER:" + to_string(_proposedBlockID));
 
+    getNode()->getProposalHashDb()->checkAndSaveHash(_proposedBlockID, getSchainIndex(),
+                                                     myProposal->getHash()->toHex());
+
     blockProposalClient->enqueueItem(myProposal);
 
     auto mySig = getSchain()->getCryptoManager()->signThreshold(myProposal->getHash(), _proposedBlockID);
     getSchain()->sigShareArrived(mySig, myProposal);
 
-
-    pushedBlockProposals.insert(_proposedBlockID);
 }
 
 void Schain::processCommittedBlock(ptr<CommittedBlock> _block) {
