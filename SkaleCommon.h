@@ -37,6 +37,7 @@
 #include <sstream>
 #include <thread>
 #include <mutex>
+#include <shared_mutex>
 #include <iostream>
 #include "assert.h"
 #include <condition_variable>

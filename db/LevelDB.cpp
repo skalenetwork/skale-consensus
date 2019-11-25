@@ -50,6 +50,7 @@ static ReadOptions readOptions;
 
 ptr<string> LevelDB::readString(string &_key) {
 
+    shared_lock<shared_mutex> lock(m);
 
     for (int i = LEVELDB_PIECES - 1; i >= 0; i--) {
         auto result = make_shared<string>();
@@ -63,40 +64,74 @@ ptr<string> LevelDB::readString(string &_key) {
     return nullptr;
 }
 
-void LevelDB::writeString(const string &_key, const string &_value) {
+bool LevelDB::keyExists(const char *_key) {
 
-    getFrontDBSize();
+    shared_lock<shared_mutex> lock(m);
 
-    auto status = db.front()->Put(writeOptions, Slice(_key), Slice(_value));
+    for (int i = LEVELDB_PIECES - 1; i >= 0; i--) {
+        auto result = make_shared<string>();
+        ASSERT(db[i] != nullptr);
+        auto status = db[i]->Get(readOptions, _key, &*result);
+        throwExceptionOnError(status);
+        if (!status.IsNotFound())
+            return true;
+    }
 
-    throwExceptionOnError(status);
+    return false;
 }
 
-uint64_t LevelDB::getFrontDBSize() {
+
+
+void LevelDB::writeString(const string &_key, const string &_value) {
+
+    rotateDBsIfNeeded();
+
+    {
+        shared_lock<shared_mutex> lock(m);
+
+        auto status = db.back()->Put(writeOptions, Slice(_key), Slice(_value));
+
+        throwExceptionOnError(status);
+    }
+}
+
+uint64_t LevelDB::getActiveDBSize() {
     static leveldb::Range all("", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
     uint64_t size;
-    db.front()->GetApproximateSizes(&all, 1, &size);
+    db.back()->GetApproximateSizes(&all, 1, &size);
+
     return size;
 }
 
 void LevelDB::writeByteArray(const char *_key, size_t _keyLen, const char *value,
                              size_t _valueLen) {
 
-    getFrontDBSize();
+    rotateDBsIfNeeded();
 
-    auto status = db.front()->Put(writeOptions, Slice(_key, _keyLen), Slice(value, _valueLen));
+    {
+        shared_lock<shared_mutex> lock(m);
 
-    throwExceptionOnError(status);
+        auto status = db.back()->Put(writeOptions, Slice(_key, _keyLen), Slice(value, _valueLen));
+
+        throwExceptionOnError(status);
+    }
 }
 
 void LevelDB::writeByteArray(string &_key, const char *value,
                              size_t _valueLen) {
 
-    getFrontDBSize();
+    rotateDBsIfNeeded();
 
-    auto status = db.front()->Put(writeOptions, Slice(_key), Slice(value, _valueLen));
+    {
+        shared_lock<shared_mutex> lock(m);
 
-    throwExceptionOnError(status);
+        getActiveDBSize();
+
+        auto status = db.back()->Put(writeOptions, Slice(_key), Slice(value, _valueLen));
+
+        throwExceptionOnError(status);
+
+    }
 }
 
 void LevelDB::throwExceptionOnError(Status _status) {
@@ -112,9 +147,11 @@ void LevelDB::throwExceptionOnError(Status _status) {
 
 uint64_t LevelDB::visitKeys(LevelDB::KeyVisitor *_visitor, uint64_t _maxKeysToVisit) {
 
+    shared_lock<shared_mutex> lock(m);
+
     uint64_t readCounter = 0;
 
-    leveldb::Iterator *it = db.front()->NewIterator(readOptions);
+    leveldb::Iterator *it = db.back()->NewIterator(readOptions);
     for (it->SeekToFirst(); it->Valid(); it->Next()) {
         _visitor->visitDBKey(it->key().data());
         readCounter++;
@@ -128,6 +165,21 @@ uint64_t LevelDB::visitKeys(LevelDB::KeyVisitor *_visitor, uint64_t _maxKeysToVi
     return readCounter;
 }
 
+
+DB * LevelDB::openDB(uint64_t _index) {
+
+    leveldb::DB *dbase = nullptr;
+
+    static leveldb::Options options;
+    options.create_if_missing = true;
+
+    ASSERT2(leveldb::DB::Open(options, dirname + "/" + prefix + "." + to_string(_index),
+                              &dbase).ok(),
+            "Unable to open database");
+    return dbase;
+}
+
+
 LevelDB::LevelDB(string &_dirName, string &_prefix, node_id _nodeId,
                  uint64_t _maxDBSize) : nodeId(_nodeId),
                                         prefix(_prefix), dirname(_dirName),
@@ -137,21 +189,16 @@ LevelDB::LevelDB(string &_dirName, string &_prefix, node_id _nodeId,
 
     CHECK_ARGUMENT(_maxDBSize != 0);
 
-    auto maxDBIndex = findMaxMinDBIndex(make_shared<string>(
+    highestDBIndex = findMaxMinDBIndex(make_shared<string>(
             _prefix + "."), path).first;
 
-    if (maxDBIndex < LEVELDB_PIECES) {
-        maxDBIndex = LEVELDB_PIECES;
+    if (highestDBIndex < LEVELDB_PIECES) {
+        highestDBIndex = LEVELDB_PIECES;
     }
 
-    leveldb::Options options;
-    options.create_if_missing = true;
 
-    for (auto i = maxDBIndex - LEVELDB_PIECES + 1; i <= maxDBIndex; i++) {
-        leveldb::DB *dbase = nullptr;
-        ASSERT2(leveldb::DB::Open(options, _dirName + "/" + _prefix + "." + to_string(i),
-                                  &dbase).ok(),
-                "Unable to open blocks database");
+    for (auto i = highestDBIndex - LEVELDB_PIECES + 1; i <= highestDBIndex; i++) {
+        leveldb::DB *dbase = openDB(i);
         db.push_back(shared_ptr<leveldb::DB>(dbase));
     }
 }
@@ -185,11 +232,32 @@ std::pair<uint64_t, uint64_t> LevelDB::findMaxMinDBIndex(ptr<string> _prefix, bo
     }
 
     if (indices.size() == 0)
-        return {0,0};
+        return {0, 0};
 
     auto maxIndex = *max_element(begin(indices), end(indices));
     auto minIndex = *min_element(begin(indices), end(indices));
 
     return {maxIndex, minIndex};
+}
+
+void LevelDB::rotateDBsIfNeeded() {
+
+    if (getActiveDBSize() <= maxDBSize)
+        return;
+
+    {
+        lock_guard<shared_mutex> lock(m);
+
+        auto newDB = openDB(highestDBIndex+1);
+
+        for (int i = 1; i <  LEVELDB_PIECES; i++) {
+            db.at(i -1) = db.at(i);
+        }
+
+        db[LEVELDB_PIECES - 1] = shared_ptr<leveldb::DB>(newDB);
+
+        db.at(0) = nullptr;
+        highestDBIndex++;
+    }
 }
 

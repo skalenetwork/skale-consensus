@@ -38,6 +38,10 @@ namespace leveldb {
 class LevelDB {
     vector<ptr<leveldb::DB>>db;
 
+
+    uint64_t  highestDBIndex = 0;
+    shared_mutex m;
+
     std::pair<uint64_t, uint64_t> findMaxMinDBIndex(ptr<string> _prefix, boost::filesystem::path _path);
 
 protected:
@@ -80,6 +84,14 @@ public:
 
 
     uint64_t getFrontDBSize();
+
+    bool keyExists(const char *_key);
+
+    void rotateDBsIfNeeded();
+
+    uint64_t getActiveDBSize();
+
+    leveldb::DB *openDB(uint64_t _index);
 };
 
 
