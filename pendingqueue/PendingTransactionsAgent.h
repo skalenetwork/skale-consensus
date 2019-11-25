@@ -34,11 +34,10 @@ class Transaction;
 
 #include "../db/LevelDB.h"
 
-class PendingTransactionsAgent : Agent, LevelDB::KeyVisitor {
+class PendingTransactionsAgent : Agent {
 
 public:
 private:
-    void visitDBKey(const char* _data) override;
 
 public:
 
@@ -88,37 +87,22 @@ private:
     unordered_set<ptr<partial_sha_hash>, Hasher, Equal> committedTransactions;
     unordered_map<ptr<partial_sha_hash>, ptr<Transaction> , Hasher, Equal> knownTransactions;
 
-    list<ptr<partial_sha_hash>> committedTransactionsList;
 
     transaction_count transactionCounter = 0;
-
-    uint64_t committedTransactionCounter = 0;
 
 
     recursive_mutex transactionsMutex;
 
 
+    shared_ptr<vector<ptr<Transaction>>> createTransactionsListForProposal();
+
 public:
 
     PendingTransactionsAgent(Schain& _sChain);
 
-    uint64_t getCommittedTransactionCounter() const;
-
-    transaction_count getTransactionCounter() const;
-
     void pushKnownTransaction(ptr<Transaction> _transaction);
 
-    void pushKnownTransactions(ptr<vector<ptr<Transaction>>> _transactions);
-
-    void waitUntilPendingTransaction();
-
     uint64_t getKnownTransactionsSize();
-
-    uint64_t getPendingTransactionsSize();
-
-    uint64_t getCommittedTransactionsSize();
-
-    shared_ptr<vector<ptr<Transaction>>> createTransactionsListForProposal();
 
     ptr<Transaction> getKnownTransactionByPartialHash(ptr<partial_sha_hash> hash);
 
@@ -126,7 +110,7 @@ public:
                              uint32_t _previosBlockTimeStampMs);
 
 
-    void addToCommitted(shared_ptr<partial_sha_hash> &s);
+    virtual ~PendingTransactionsAgent() = default;
 
 
 };
