@@ -2,25 +2,25 @@
 <project version="4">
   <component name="CMakeRunConfigurationManager" shouldGenerate="true" shouldDeleteObsolete="true">
     <generated>
-      <config projectName="consensus" targetName="consensust" />
-      <config projectName="consensus" targetName="hash_g1" />
       <config projectName="consensus" targetName="dkg_glue" />
-      <config projectName="consensus" targetName="dkg_keygen" />
+      <config projectName="consensus" targetName="sign_bls" />
+      <config projectName="consensus" targetName="te" />
+      <config projectName="consensus" targetName="consensus" />
       <config projectName="consensus" targetName="all_bls_tests" />
-      <config projectName="consensus" targetName="bls_unit_test" />
-      <config projectName="consensus" targetName="dkg_te_unit_test" />
+      <config projectName="consensus" targetName="dkg_keygen" />
       <config projectName="consensus" targetName="consensusd" />
-      <config projectName="consensus" targetName="bls_test" />
-      <config projectName="consensus" targetName="bls_glue" />
       <config projectName="consensus" targetName="all_te_tests" />
+      <config projectName="consensus" targetName="bls" />
+      <config projectName="consensus" targetName="bls_glue" />
+      <config projectName="consensus" targetName="bls_unit_test" />
+      <config projectName="consensus" targetName="bls_test" />
+      <config projectName="consensus" targetName="te_test" />
+      <config projectName="consensus" targetName="hash_g1" />
+      <config projectName="consensus" targetName="consensust" />
+      <config projectName="consensus" targetName="dkg_te_unit_test" />
       <config projectName="consensus" targetName="te_unit_test" />
       <config projectName="consensus" targetName="dkg_unit_test" />
-      <config projectName="consensus" targetName="bls" />
-      <config projectName="consensus" targetName="te" />
-      <config projectName="consensus" targetName="te_test" />
       <config projectName="consensus" targetName="verify_bls" />
-      <config projectName="consensus" targetName="sign_bls" />
-      <config projectName="consensus" targetName="consensus" />
     </generated>
   </component>
   <component name="CMakeSettings">
@@ -29,15 +29,11 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="328bba78-e120-46f5-8d8c-d775e2cc49f7" name="Default Changelist" comment="Updated libBLS">
+    <list default="true" id="e8eb5c74-4268-46a2-ac26-2e919fd9ff42" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chains/Schain.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/chains/Schain.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/datastructures/Transaction.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/Transaction.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/datastructures/Transaction.h" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/Transaction.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/datastructures/TransactionList.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/TransactionList.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/LevelDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/LevelDB.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/abstracttcpserver/ConnectionStatus.h" beforeDir="false" afterPath="$PROJECT_DIR$/abstracttcpserver/ConnectionStatus.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/catchup/server/CatchupServerAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/catchup/server/CatchupServerAgent.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libBLS/deps/pbc/INSTALL" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/deps/pbc/INSTALL" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/libBLS/pbc/INSTALL" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/pbc/INSTALL" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -74,7 +70,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="CMake Application.test_2">
+  <component name="RunManager" selected="CMake Application.test_16">
     <configuration name="all_bls_tests" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="consensus" TARGET_NAME="all_bls_tests" CONFIG_NAME="Debug">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -111,11 +107,6 @@
       </method>
     </configuration>
     <configuration name="consensusd" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="consensus" TARGET_NAME="consensusd" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="consensus" RUN_TARGET_NAME="consensusd">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="consensust" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="consensus" TARGET_NAME="consensust" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="consensus" RUN_TARGET_NAME="consensust">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
@@ -171,6 +162,9 @@
       </method>
     </configuration>
     <configuration name="test_16" type="CMakeRunConfiguration" factoryName="Application" PROGRAM_PARAMS="[consensus-basic]" WORKING_DIR="file://$PROJECT_DIR$/test/sixteennodes" PASS_PARENT_ENVS_2="true" PROJECT_NAME="consensus" TARGET_NAME="consensust" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="consensus" RUN_TARGET_NAME="consensust">
+      <envs>
+        <env name="TEST_TIME_MS" value="1000000000" />
+      </envs>
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
@@ -189,12 +183,11 @@
       </method>
     </configuration>
     <list>
-      <item itemvalue="CMake Application.consensus" />
-      <item itemvalue="CMake Application.consensusd" />
-      <item itemvalue="CMake Application.consensust" />
       <item itemvalue="CMake Application.test_2" />
       <item itemvalue="CMake Application.corrupt_proposal_test" />
       <item itemvalue="CMake Application.test_16" />
+      <item itemvalue="CMake Application.consensus" />
+      <item itemvalue="CMake Application.consensusd" />
       <item itemvalue="CMake Application.all_bls_tests" />
       <item itemvalue="CMake Application.bls" />
       <item itemvalue="CMake Application.bls_glue" />
@@ -373,16 +366,5 @@
     <MESSAGE value="Cleaning up memory" />
     <MESSAGE value="Optimizing memory" />
     <option name="LAST_COMMIT_MESSAGE" value="Optimizing memory" />
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
-          <url>file://$PROJECT_DIR$/blockproposal/pusher/BlockProposalClientAgent.cpp</url>
-          <line>154</line>
-          <option name="timeStamp" value="2" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
   </component>
 </project>
