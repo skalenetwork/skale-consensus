@@ -85,6 +85,7 @@ enum PricingStrategyEnum {
 
 
 class Node {
+
     ConsensusEngine *consensusEngine;
 
     vector<Agent *> agents;
@@ -185,9 +186,22 @@ private:
 
     uint64_t minBlockIntervalMs;
 
-    uint64_t committedBlockStorageSize;
+    uint64_t blockDBSize;
+    uint64_t proposalHashDBSize;
+    uint64_t commitedTxsDBSize;
+public:
+    uint64_t getCommitedTxsDbSize() const;
 
-    uint64_t proposalHashesPerDB;
+    uint64_t getRandomDbSize() const;
+
+    uint64_t getSignatureDbSize() const;
+
+    uint64_t getPriceDbSize() const;
+
+private:
+    uint64_t randomDBSize;
+    uint64_t signatureDBSize;
+    uint64_t priceDBSize;
 
 
     ptr<BLSPublicKey> blsPublicKey;
@@ -224,8 +238,6 @@ public:
 
     void initLevelDBs();
 
-    void cleanLevelDBs();
-
 
     bool isStarted() const;
 
@@ -243,8 +255,10 @@ public:
 
     void exitOnFatalError(const string &message);
 
-    void initSchain(ptr<NodeInfo> _localNodeInfo,
-                    const vector<ptr<NodeInfo> > &remoteNodeInfos, ConsensusExtFace *_extFace);
+    void setSchain(ptr<Schain> _schain);
+
+    static void
+    initSchain(ptr<Node> _node, ptr<NodeInfo> _localNodeInfo, const vector<ptr<NodeInfo> > &remoteNodeInfos, ConsensusExtFace *_extFace);
 
     void waitOnGlobalServerStartBarrier(Agent *agent);
 
@@ -310,7 +324,7 @@ public:
     uint64_t getMinBlockIntervalMs() const;
 
 
-    uint64_t getCommittedBlockStorageSize() const;
+    uint64_t getBlockDBSize() const;
 
 
     uint64_t getWaitAfterNetworkErrorMs();
@@ -331,5 +345,9 @@ public:
 
     void setEmptyBlockIntervalMs(uint64_t _interval) { this->emptyBlockIntervalMs = _interval; }
 
-    const ptr<ProposalHashDB> &getProposalHashDb() const;
+    ptr<ProposalHashDB> getProposalHashDb();
+
+    uint64_t getProposalHashDbSize() const;
+
+    void setNodeInfo(ptr<NodeInfo> _info);
 };

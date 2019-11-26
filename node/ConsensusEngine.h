@@ -44,7 +44,7 @@ class ConsensusEngine : public ConsensusInterface {
 
     std::atomic<bool> exitRequested;
 
-    map<node_id, Node *> nodes;
+    map<node_id, ptr<Node>> nodes;
 
     std::string exec(const char *cmd);
 
@@ -52,10 +52,10 @@ class ConsensusEngine : public ConsensusInterface {
 
     static void checkExistsAndFile(const fs_path &filename);
 
-    Node *readNodeConfigFileAndCreateNode(const fs_path &path, set<node_id> &nodeIDs);
+    ptr<Node> readNodeConfigFileAndCreateNode(const fs_path &path, set<node_id> &nodeIDs);
 
 
-    void readSchainConfigFiles(Node &node, const fs_path &dirname);
+    void readSchainConfigFiles(ptr<Node> _node, const fs_path &_dirPath);
 
     ConsensusExtFace *extFace = nullptr;
 

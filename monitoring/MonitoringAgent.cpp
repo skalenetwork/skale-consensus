@@ -51,7 +51,7 @@ MonitoringAgent::MonitoringAgent(Schain &_sChain) {
 
 void MonitoringAgent::monitor() {
 
-    lock_guard<recursive_mutex> lock(mutex);
+    lock_guard<recursive_mutex> lock(m);
 
     for (auto &&item: activeMonitors) {
         LivelinessMonitor *m = item.second;
@@ -92,23 +92,23 @@ void MonitoringAgent::monitoringLoop(MonitoringAgent *agent) {
     }
 }
 
-void MonitoringAgent::registerMonitor(LivelinessMonitor *m) {
+void MonitoringAgent::registerMonitor(LivelinessMonitor *_monitor) {
 
-    CHECK_ARGUMENT(m != nullptr)
+    CHECK_ARGUMENT(_monitor != nullptr)
 
-    lock_guard<recursive_mutex> lock(mutex);
+    lock_guard<recursive_mutex> lock(m);
 
-    activeMonitors[(uint64_t) m] = m;
+    activeMonitors[(uint64_t) _monitor] = _monitor;
 
 }
 
-void MonitoringAgent::unregisterMonitor(LivelinessMonitor *m) {
+void MonitoringAgent::unregisterMonitor(LivelinessMonitor *_monitor) {
 
-    CHECK_ARGUMENT(m != nullptr);
+    CHECK_ARGUMENT(_monitor != nullptr);
 
-    lock_guard<recursive_mutex> lock(mutex);
+    lock_guard<recursive_mutex> lock(m);
 
-    activeMonitors.erase((uint64_t) m);
+    activeMonitors.erase((uint64_t) _monitor);
 
 }
 

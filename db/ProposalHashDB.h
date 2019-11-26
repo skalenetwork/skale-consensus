@@ -35,9 +35,7 @@ class CryptoManager;
 
 class ProposalHashDB : public LevelDB {
 
-    uint64_t blockIdsPerDB;
-
-    recursive_mutex mutex;
+    recursive_mutex m;
 
     ptr<string> createKey(block_id _blockId, schain_index _proposerIndex);
 
@@ -45,16 +43,16 @@ class ProposalHashDB : public LevelDB {
 
 public:
 
-    ProposalHashDB(string &_filename, node_id _nodeId, uint64_t _blockIdsPerDB);
+    ProposalHashDB(string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize);
 
     ptr<vector<uint8_t >> getSerializedBlockFromLevelDB(block_id _blockID);
 
     uint64_t readBlockLimit();
 
-    bool checkAndSaveHash(block_id _proposalBlockID, schain_index _proposerIndex, ptr<string> _proposalHash,
-                          block_id);
+    bool checkAndSaveHash(block_id _proposalBlockID, schain_index _proposerIndex, ptr<string> _proposalHash);
 
 
+    bool haveProposal(block_id _proposalBlockID, schain_index _proposerIndex);
 };
 
 

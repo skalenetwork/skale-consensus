@@ -36,15 +36,15 @@ class JSONFactory {
 public:
 
 
-    static Node *createNodeFromJson(const fs_path &jsonFile, set<node_id> &nodeIDs, ConsensusEngine *
+    static ptr<Node> createNodeFromJson(const fs_path &jsonFile, set<node_id> &nodeIDs, ConsensusEngine *
+    _consensusEngine);
+
+    static ptr<Node> createNodeFromJsonObject(const nlohmann::json &j, set<node_id> &nodeIDs, ConsensusEngine *
     _engine);
 
-    static Node *createNodeFromJsonObject(const nlohmann::json &j, set<node_id> &nodeIDs, ConsensusEngine *
-    _engine);
+    static void createAndAddSChainFromJson(ptr<Node> _node, const fs_path &jsonFile, ConsensusEngine *_engine);
 
-    static void createAndAddSChainFromJson(Node &node, const fs_path &jsonFile, ConsensusEngine *_engine);
-
-    static void createAndAddSChainFromJsonObject(Node &node, const nlohmann::json &j, ConsensusEngine *_engine);
+    static void createAndAddSChainFromJsonObject(ptr<Node> &_node, const nlohmann::json &j, ConsensusEngine *_engine);
 
     static void parseJsonFile(nlohmann::json &j, const fs_path &configFile);
 

@@ -71,8 +71,6 @@ TransactionList::TransactionList( ptr<vector<uint64_t>> _transactionSizes,
     }
 
 
-
-    totalObjects++;
     size_t index = _offset + 1;
 
     transactions = make_shared<vector<ptr<Transaction>>>();
@@ -94,7 +92,7 @@ TransactionList::TransactionList( ptr<vector<uint64_t>> _transactionSizes,
         index += size;
     }
 
-
+    totalObjects++;
 };
 
 

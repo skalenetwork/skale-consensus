@@ -83,6 +83,7 @@
 #include "../crypto/ThresholdSigShare.h"
 #include "../db/BlockDB.h"
 #include "../db/LevelDB.h"
+#include "../db/ProposalHashDB.h"
 #include "../pendingqueue/TestMessageGeneratorAgent.h"
 #include "SchainTest.h"
 #include "../libBLS/bls/BLSPrivateKeyShare.h"
@@ -179,7 +180,7 @@ void Schain::startThreads() {
 }
 
 
-Schain::Schain(Node *_node, schain_index _schainIndex, const schain_id &_schainID, ConsensusExtFace *_extFace) : Agent(
+Schain::Schain(weak_ptr<Node> _node, schain_index _schainIndex, const schain_id &_schainID, ConsensusExtFace *_extFace) : Agent(
         *this, true, true), totalTransactions(0), extFace(_extFace), schainID(_schainID), consensusMessageThreadPool(
         new SchainMessageThreadPool(this)), node(_node), schainIndex(_schainIndex) {
 
@@ -363,9 +364,14 @@ void Schain::proposeNextBlock(uint64_t _previousBlockTimeStamp, uint32_t _previo
 
     checkForExit();
 
+
+
+
     block_id _proposedBlockID((uint64_t) lastCommittedBlockID + 1);
 
-    CHECK_STATE(pushedBlockProposals.count(_proposedBlockID) == 0);
+    if (getNode()->getProposalHashDb()->haveProposal(_proposedBlockID, getSchainIndex()))
+        return;
+
 
     auto myProposal = pendingTransactionsAgent->buildBlockProposal(_proposedBlockID, _previousBlockTimeStamp,
                                                                    _previousBlockTimeStampMs);
@@ -378,13 +384,16 @@ void Schain::proposeNextBlock(uint64_t _previousBlockTimeStamp, uint32_t _previo
 
     LOG(debug, "PROPOSING BLOCK NUMBER:" + to_string(_proposedBlockID));
 
+    auto db = getNode()->getProposalHashDb();
+
+    db->checkAndSaveHash(_proposedBlockID, getSchainIndex(),
+                                                     myProposal->getHash()->toHex());
+
     blockProposalClient->enqueueItem(myProposal);
 
     auto mySig = getSchain()->getCryptoManager()->signThreshold(myProposal->getHash(), _proposedBlockID);
     getSchain()->sigShareArrived(mySig, myProposal);
 
-
-    pushedBlockProposals.insert(_proposedBlockID);
 }
 
 void Schain::processCommittedBlock(ptr<CommittedBlock> _block) {
@@ -406,11 +415,8 @@ void Schain::processCommittedBlock(ptr<CommittedBlock> _block) {
         ":HASH:" + h + ":BLOCK_TXS:" + to_string(_block->getTransactionCount()) + ":DMSG:" +
         to_string(getMessagesCount()) + ":MPRPS:" + to_string(MyBlockProposal::getTotalObjects()) + ":RPRPS:" +
         to_string(ReceivedBlockProposal::getTotalObjects()) + ":TXS:" + to_string(Transaction::getTotalObjects()) +
-        //              ":PNDG:" +
-        //              to_string(pendingTransactionsAgent->getPendingTransactionsSize())
-        //              +
-        ":KNWN:" + to_string(pendingTransactionsAgent->getKnownTransactionsSize()) + ":CMT:" +
-        to_string(pendingTransactionsAgent->getCommittedTransactionsSize()) + ":MGS:" +
+        ":TXLS:" + to_string(TransactionList::getTotalObjects()) +
+        ":KNWN:" + to_string(pendingTransactionsAgent->getKnownTransactionsSize()) + ":MGS:" +
         to_string(Message::getTotalObjects()) + ":INSTS:" + to_string(ProtocolInstance::getTotalObjects()) + ":BPS:" +
         to_string(BlockProposalSet::getTotalObjects()) + ":TLS:" + to_string(TransactionList::getTotalObjects()) +
         ":HDRS:" + to_string(Header::getTotalObjects()) + ":SOCK:" + to_string(ClientSocket::getTotalSockets()) +
@@ -430,7 +436,7 @@ void Schain::saveBlock(ptr<CommittedBlock> &_block) {
     try {
 
         checkForExit();
-        getNode()->getBlockDB()->saveBlock(_block, block_id(lastCommittedBlockID.load()));
+        getNode()->getBlockDB()->saveBlock(_block);
     } catch (ExitRequestedException &) { throw; } catch (...) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }

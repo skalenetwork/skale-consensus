@@ -2,25 +2,25 @@
 <project version="4">
   <component name="CMakeRunConfigurationManager" shouldGenerate="true" shouldDeleteObsolete="true">
     <generated>
-      <config projectName="consensus" targetName="consensust" />
-      <config projectName="consensus" targetName="hash_g1" />
       <config projectName="consensus" targetName="dkg_glue" />
-      <config projectName="consensus" targetName="dkg_keygen" />
+      <config projectName="consensus" targetName="sign_bls" />
+      <config projectName="consensus" targetName="te" />
+      <config projectName="consensus" targetName="consensus" />
       <config projectName="consensus" targetName="all_bls_tests" />
-      <config projectName="consensus" targetName="bls_unit_test" />
-      <config projectName="consensus" targetName="dkg_te_unit_test" />
+      <config projectName="consensus" targetName="dkg_keygen" />
       <config projectName="consensus" targetName="consensusd" />
-      <config projectName="consensus" targetName="bls_test" />
-      <config projectName="consensus" targetName="bls_glue" />
       <config projectName="consensus" targetName="all_te_tests" />
+      <config projectName="consensus" targetName="bls" />
+      <config projectName="consensus" targetName="bls_glue" />
+      <config projectName="consensus" targetName="bls_unit_test" />
+      <config projectName="consensus" targetName="bls_test" />
+      <config projectName="consensus" targetName="te_test" />
+      <config projectName="consensus" targetName="hash_g1" />
+      <config projectName="consensus" targetName="consensust" />
+      <config projectName="consensus" targetName="dkg_te_unit_test" />
       <config projectName="consensus" targetName="te_unit_test" />
       <config projectName="consensus" targetName="dkg_unit_test" />
-      <config projectName="consensus" targetName="bls" />
-      <config projectName="consensus" targetName="te" />
-      <config projectName="consensus" targetName="te_test" />
       <config projectName="consensus" targetName="verify_bls" />
-      <config projectName="consensus" targetName="sign_bls" />
-      <config projectName="consensus" targetName="consensus" />
     </generated>
   </component>
   <component name="CMakeSettings">
@@ -29,14 +29,13 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="328bba78-e120-46f5-8d8c-d775e2cc49f7" name="Default Changelist" comment="Updated libBLS">
+    <list default="true" id="e8eb5c74-4268-46a2-ac26-2e919fd9ff42" name="Default Changelist" comment="Cleaned memory on return">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Consensust.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Consensust.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SkaleCommon.h" beforeDir="false" afterPath="$PROJECT_DIR$/SkaleCommon.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/blockproposal/pusher/BlockProposalClientAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/blockproposal/pusher/BlockProposalClientAgent.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/blockproposal/pusher/BlockProposalClientAgent.h" beforeDir="false" afterPath="$PROJECT_DIR$/blockproposal/pusher/BlockProposalClientAgent.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/chains/Schain.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/chains/Schain.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libBLS/deps/pbc/INSTALL" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/deps/pbc/INSTALL" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/libBLS/pbc/INSTALL" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/pbc/INSTALL" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/node/Node.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/node/Node.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/node/Node.h" beforeDir="false" afterPath="$PROJECT_DIR$/node/Node.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/node/NodeGettersSetters.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/node/NodeGettersSetters.cpp" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -50,6 +49,7 @@
   <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:Debug" />
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="ROOT_SYNC" value="DONT_SYNC" />
   </component>
   <component name="OCFindUsagesOptions" text="true" ivars="false" properties="true" derivedClasses="false" />
   <component name="ProjectId" id="1TnSIFu9Eo5WxsaS61xq1WagMk7" />
@@ -57,7 +57,7 @@
   <component name="PropertiesComponent">
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="cf.advertisement.text.has.clang-format" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../skaled" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../libjson-rpc-cpp" />
     <property name="settings.editor.selected.configurable" value="CMakeSettings" />
   </component>
   <component name="RunDashboard">
@@ -72,7 +72,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="CMake Application.corrupt_proposal_test">
+  <component name="RunManager" selected="CMake Application.test_1">
     <configuration name="all_bls_tests" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="consensus" TARGET_NAME="all_bls_tests" CONFIG_NAME="Debug">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -113,12 +113,12 @@
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="consensust" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="consensus" TARGET_NAME="consensust" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="consensus" RUN_TARGET_NAME="consensust">
+    <configuration name="corrupt_proposal_test" type="CMakeRunConfiguration" factoryName="Application" PROGRAM_PARAMS="[corrupt-proposal]" WORKING_DIR="file://$PROJECT_DIR$/test/twonodes" PASS_PARENT_ENVS_2="true" PROJECT_NAME="consensus" TARGET_NAME="consensust" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="consensus" RUN_TARGET_NAME="consensust">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="corrupt_proposal_test" type="CMakeRunConfiguration" factoryName="Application" PROGRAM_PARAMS="[corrupt-proposal]" WORKING_DIR="file://$PROJECT_DIR$/test/twonodes" PASS_PARENT_ENVS_2="true" PROJECT_NAME="consensus" TARGET_NAME="consensust" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="consensus" RUN_TARGET_NAME="consensust">
+    <configuration name="db_rotation" type="CMakeRunConfiguration" factoryName="Application" PROGRAM_PARAMS="[block-save-read-db]" WORKING_DIR="file://$PROJECT_DIR$/test/sixteennodes" PASS_PARENT_ENVS_2="true" PROJECT_NAME="consensus" TARGET_NAME="consensust" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="consensus" RUN_TARGET_NAME="consensust">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
@@ -168,14 +168,22 @@
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
+    <configuration name="test_1" type="CMakeRunConfiguration" factoryName="Application" PROGRAM_PARAMS="[consensus-basic]" WORKING_DIR="file://$PROJECT_DIR$/test/onenode" PASS_PARENT_ENVS_2="true" PROJECT_NAME="consensus" TARGET_NAME="consensust" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="consensus" RUN_TARGET_NAME="consensust">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="test_16" type="CMakeRunConfiguration" factoryName="Application" PROGRAM_PARAMS="[consensus-basic]" WORKING_DIR="file://$PROJECT_DIR$/test/sixteennodes" PASS_PARENT_ENVS_2="true" PROJECT_NAME="consensus" TARGET_NAME="consensust" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="consensus" RUN_TARGET_NAME="consensust">
+      <envs>
+        <env name="TEST_TIME_MS" value="1000000000" />
+      </envs>
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
     <configuration name="test_2" type="CMakeRunConfiguration" factoryName="Application" PROGRAM_PARAMS="[consensus-basic]" WORKING_DIR="file://$PROJECT_DIR$/test/twonodes" PASS_PARENT_ENVS_2="true" PROJECT_NAME="consensus" TARGET_NAME="consensust" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="consensus" RUN_TARGET_NAME="consensust">
       <envs>
-        <env name="CORRUPT_PROPOSAL_TEST" value="1" />
+        <env name="TEST_TIME_MS" value="10000000" />
       </envs>
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -187,12 +195,13 @@
       </method>
     </configuration>
     <list>
-      <item itemvalue="CMake Application.consensus" />
-      <item itemvalue="CMake Application.consensusd" />
-      <item itemvalue="CMake Application.consensust" />
       <item itemvalue="CMake Application.test_2" />
+      <item itemvalue="CMake Application.test_1" />
       <item itemvalue="CMake Application.corrupt_proposal_test" />
       <item itemvalue="CMake Application.test_16" />
+      <item itemvalue="CMake Application.db_rotation" />
+      <item itemvalue="CMake Application.consensus" />
+      <item itemvalue="CMake Application.consensusd" />
       <item itemvalue="CMake Application.all_bls_tests" />
       <item itemvalue="CMake Application.bls" />
       <item itemvalue="CMake Application.bls_glue" />
@@ -229,6 +238,8 @@
       <option name="presentableId" value="Default" />
       <updated>1574094284750</updated>
       <workItem from="1574094287405" duration="6542000" />
+      <workItem from="1574329687184" duration="5058000" />
+      <workItem from="1574435605775" duration="945000" />
     </task>
     <task id="LOCAL-00002" summary="Updated libBLS">
       <created>1574096232083</created>
@@ -272,7 +283,140 @@
       <option name="project" value="LOCAL" />
       <updated>1574186041591</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="Updated libBLS">
+      <created>1574189474307</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1574189474307</updated>
+    </task>
+    <task id="LOCAL-00009" summary="Adding db rotation">
+      <created>1574250241189</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1574250241189</updated>
+    </task>
+    <task id="LOCAL-00010" summary="Cleaning Up memory">
+      <created>1574260584403</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1574260584403</updated>
+    </task>
+    <task id="LOCAL-00011" summary="Updated libBLS">
+      <created>1574261866223</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1574261866223</updated>
+    </task>
+    <task id="LOCAL-00012" summary="Updated libBLS">
+      <created>1574346237876</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1574346237876</updated>
+    </task>
+    <task id="LOCAL-00013" summary="Four piece db">
+      <created>1574348334008</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1574348334008</updated>
+    </task>
+    <task id="LOCAL-00014" summary="Added setting config params in environment vars">
+      <created>1574435501336</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1574435501336</updated>
+    </task>
+    <task id="LOCAL-00015" summary="Cleaning up memory">
+      <created>1574681953454</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1574681953455</updated>
+    </task>
+    <task id="LOCAL-00016" summary="Optimizing memory">
+      <created>1574683705498</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1574683705498</updated>
+    </task>
+    <task id="LOCAL-00017" summary="Fixed a problem with double proposal">
+      <created>1574690439183</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1574690439183</updated>
+    </task>
+    <task id="LOCAL-00018" summary="Fixed a problem with double proposal">
+      <created>1574690468050</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1574690468050</updated>
+    </task>
+    <task id="LOCAL-00019" summary="Fixed a problem with double proposal">
+      <created>1574692635500</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1574692635500</updated>
+    </task>
+    <task id="LOCAL-00020" summary="Fixing block hash">
+      <created>1574695146583</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1574695146583</updated>
+    </task>
+    <task id="LOCAL-00021" summary="Fixing block hash">
+      <created>1574700458275</created>
+      <option name="number" value="00021" />
+      <option name="presentableId" value="LOCAL-00021" />
+      <option name="project" value="LOCAL" />
+      <updated>1574700458275</updated>
+    </task>
+    <task id="LOCAL-00022" summary="Added leveldb test">
+      <created>1574703506462</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1574703506462</updated>
+    </task>
+    <task id="LOCAL-00023" summary="Limit LevelDB size">
+      <created>1574704803287</created>
+      <option name="number" value="00023" />
+      <option name="presentableId" value="LOCAL-00023" />
+      <option name="project" value="LOCAL" />
+      <updated>1574704803287</updated>
+    </task>
+    <task id="LOCAL-00024" summary="Changed node to shared_ptr">
+      <created>1574769635555</created>
+      <option name="number" value="00024" />
+      <option name="presentableId" value="LOCAL-00024" />
+      <option name="project" value="LOCAL" />
+      <updated>1574769635555</updated>
+    </task>
+    <task id="LOCAL-00025" summary="Fixed locks">
+      <created>1574770214767</created>
+      <option name="number" value="00025" />
+      <option name="presentableId" value="LOCAL-00025" />
+      <option name="project" value="LOCAL" />
+      <updated>1574770214767</updated>
+    </task>
+    <task id="LOCAL-00026" summary="Cleaned memory on return">
+      <created>1574771025830</created>
+      <option name="number" value="00026" />
+      <option name="presentableId" value="LOCAL-00026" />
+      <option name="project" value="LOCAL" />
+      <updated>1574771025830</updated>
+    </task>
+    <option name="localTasksCounter" value="27" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -297,19 +441,21 @@
     <MESSAGE value="Added workspace.xml" />
     <MESSAGE value="Improve locking" />
     <MESSAGE value="Fixing IO" />
-    <MESSAGE value="Updated libBLS" />
     <MESSAGE value="Adding tests" />
-    <option name="LAST_COMMIT_MESSAGE" value="Adding tests" />
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
-          <url>file://$PROJECT_DIR$/blockproposal/pusher/BlockProposalClientAgent.cpp</url>
-          <line>154</line>
-          <option name="timeStamp" value="2" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
+    <MESSAGE value="Adding db rotation" />
+    <MESSAGE value="Cleaning Up memory" />
+    <MESSAGE value="Updated libBLS" />
+    <MESSAGE value="Four piece db" />
+    <MESSAGE value="Added setting config params in environment vars" />
+    <MESSAGE value="Cleaning up memory" />
+    <MESSAGE value="Optimizing memory" />
+    <MESSAGE value="Fixed a problem with double proposal" />
+    <MESSAGE value="Fixing block hash" />
+    <MESSAGE value="Added leveldb test" />
+    <MESSAGE value="Limit LevelDB size" />
+    <MESSAGE value="Changed node to shared_ptr" />
+    <MESSAGE value="Fixed locks" />
+    <MESSAGE value="Cleaned memory on return" />
+    <option name="LAST_COMMIT_MESSAGE" value="Cleaned memory on return" />
   </component>
 </project>

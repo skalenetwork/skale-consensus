@@ -46,7 +46,7 @@ def fullConsensusTest(_test, _consensustExecutive, _testType):
     os.chdir(testDir)
     run ("pwd")
     run("rm -rf " + testDir + "/core")
-    run("rm -rf /tmp/*.db")
+    run("rm -rf /tmp/*.db*")
     run(_consensustExecutive + " "  + _testType)
 
 

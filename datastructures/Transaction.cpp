@@ -132,7 +132,6 @@ atomic<uint64_t>  Transaction::totalObjects(0);
 
 Transaction::~Transaction() {
     totalObjects--;
-
 }
 uint64_t Transaction::getSerializedSize(bool _writePartialHash) {
 
@@ -176,7 +175,7 @@ ptr<Transaction > Transaction::deserialize(
 
 
 
-    return ptr<Transaction>(new Transaction(transactionData, _verifyPartialHashes));
+    return make_shared<Transaction>(transactionData, _verifyPartialHashes);
 
 }
 

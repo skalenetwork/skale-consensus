@@ -150,9 +150,12 @@ schain_index Schain::getSchainIndex() const {
 }
 
 
-Node *Schain::getNode() const {
-    assert(node);
-    return node;
+ptr<Node> Schain::getNode() const {
+    auto  ret = node.lock();
+    if (ret == nullptr) {
+        throw ExitRequestedException(__CLASS_NAME__);
+    }
+    return ret;
 }
 
 

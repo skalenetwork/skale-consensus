@@ -31,7 +31,8 @@
 #include "CommittedTransactionDB.h"
 
 
-CommittedTransactionDB::CommittedTransactionDB(string &filename, node_id _nodeId) : LevelDB(filename, _nodeId) {}
+CommittedTransactionDB::CommittedTransactionDB(string &_dirName, string &_prefix, node_id _nodeId,
+                                               uint64_t _maxDBSize) : LevelDB(_dirName, _prefix, _nodeId, _maxDBSize) {}
 
 
 const string CommittedTransactionDB::getFormatVersion() {

@@ -99,22 +99,21 @@ Node::Node(const nlohmann::json &_cfg, ConsensusEngine *_consensusEngine) {
 
 void Node::initLevelDBs() {
     string dataDir = *Log::getDataDir();
-    string blockDBFilename = dataDir + "/blocks_" + to_string(nodeID) + ".db";
-    string randomDBFilename = dataDir + "/randoms_" + to_string(nodeID) + ".db";
-    string committedTransactionsDBFilename =
-            dataDir + "/transactions_" + to_string(nodeID) + ".db";
-    string signaturesDBFilename = dataDir + "/sigs_" + to_string(nodeID) + ".db";
-    string pricesDBFilename = dataDir + "/prices_" + to_string(nodeID) + ".db";
-    string proposalHashDBFilename = dataDir + "/proposal_hashes_" + to_string(nodeID) + ".db";
+    string blockDBPrefix = "blocks_" + to_string(nodeID) + ".db";
+    string randomDBPrefix = "randoms_" + to_string(nodeID) + ".db";
+    string committedTransactionsDBPrefix = "transactions_" + to_string(nodeID) + ".db";
+    string signaturesDBPrefix = "sigs_" + to_string(nodeID) + ".db";
+    string pricesDBPrefix = "prices_" + to_string(nodeID) + ".db";
+    string proposalHashDBPrefix = "/proposal_hashes_" + to_string(nodeID) + ".db";
 
     blockDB =
-            make_shared<BlockDB>(blockDBFilename, getNodeID(), getCommittedBlockStorageSize());
-    randomDB = make_shared<RandomDB>(randomDBFilename, getNodeID());
+            make_shared<BlockDB>(dataDir, blockDBPrefix, getNodeID(), getBlockDBSize());
+    randomDB = make_shared<RandomDB>(dataDir, randomDBPrefix, getNodeID(), getRandomDbSize());
     committedTransactionDB =
-            make_shared<CommittedTransactionDB>(committedTransactionsDBFilename, getNodeID());
-    signatureDB = make_shared<SigDB>(signaturesDBFilename, getNodeID());
-    priceDB = make_shared<PriceDB>(pricesDBFilename, getNodeID());
-    proposalHashDB = make_shared<ProposalHashDB>(proposalHashDBFilename, getNodeID(), proposalHashesPerDB);
+            make_shared<CommittedTransactionDB>(dataDir, committedTransactionsDBPrefix, getNodeID(), getCommitedTxsDbSize());
+    signatureDB = make_shared<SigDB>(dataDir, signaturesDBPrefix, getNodeID(), getSignatureDbSize());
+    priceDB = make_shared<PriceDB>(dataDir, pricesDBPrefix, getNodeID(), getPriceDbSize());
+    proposalHashDB = make_shared<ProposalHashDB>(dataDir, proposalHashDBPrefix, getNodeID(), getProposalHashDbSize());
 }
 
 void Node::initLogging() {
@@ -159,12 +158,23 @@ void Node::initParamsFromConfig() {
 
     minBlockIntervalMs = getParamUint64("minBlockIntervalMs", MIN_BLOCK_INTERVAL_MS);
 
-    committedBlockStorageSize =
-            getParamUint64("committedBlockStorageSize", COMMITTED_BLOCK_STORAGE_SIZE);
+    blockDBSize =
+            getParamUint64("blockDBSize", BLOCK_DB_SIZE);
 
+    proposalHashDBSize =
+            getParamUint64("proposalHashDBSize", PROPOSAL_HASH_DB_SIZE);
 
-    proposalHashesPerDB =
-            getParamUint64("proposalHashesPerDB", PROPOSAL_HASHES_PER_DB);
+    commitedTxsDBSize =
+            getParamUint64("commitedTxsDBSize", COMMITTED_TXS_DB_SIZE);
+
+    randomDBSize =
+            getParamUint64("randomDBSize", RANDOM_DB_SIZE);
+
+    signatureDBSize =
+            getParamUint64("signatuteDBSize", SIGNATURE_DB_SIZE);
+
+    priceDBSize =
+            getParamUint64("signatuteDBSize", SIGNATURE_DB_SIZE);
 
     name = make_shared<string>(cfg.at("nodeName").get<string>());
 
@@ -186,24 +196,16 @@ void Node::initParamsFromConfig() {
     testConfig = make_shared<TestConfig>(cfg);
 }
 
-
+uint64_t Node::getProposalHashDbSize() const {
+    return proposalHashDBSize;
+}
 
 
 Node::~Node() {}
 
-void Node::cleanLevelDBs() {
-    blockDB = nullptr;
-    randomDB = nullptr;
-    committedTransactionDB = nullptr;
-    signatureDB = nullptr;
-    priceDB = nullptr;
-    proposalHashDB = nullptr;
-}
-
 
 void Node::startServers() {
     initBLSKeys();
-
 
     ASSERT(!startedServers);
 
@@ -294,24 +296,32 @@ void Node::startClients() {
     releaseGlobalClientBarrier();
 }
 
+void Node::setNodeInfo(ptr<NodeInfo> _info) {
+    (*nodeInfosByIndex)[_info->getSchainIndex()] = _info;
+    (*nodeInfosByIP)[_info->getBaseIP()] = _info;
+}
 
-void Node::initSchain(ptr<NodeInfo> _localNodeInfo,
-                      const vector<ptr<NodeInfo> > &remoteNodeInfos, ConsensusExtFace *_extFace) {
+void Node::setSchain(ptr<Schain> _schain) {
+    assert (this->sChain == nullptr);
+    this->sChain = _schain;
+}
+
+void Node::initSchain(ptr<Node> _node, ptr<NodeInfo> _localNodeInfo, const vector<ptr<NodeInfo> > &remoteNodeInfos,
+                      ConsensusExtFace *_extFace) {
     try {
-        logThreadLocal_ = getLog();
+        logThreadLocal_ = _node->getLog();
 
         for (auto &rni : remoteNodeInfos) {
             LOG(debug, "Adding Node Info:" + to_string(rni->getSchainIndex()));
-            (*nodeInfosByIndex)[rni->getSchainIndex()] = rni;
-            (*nodeInfosByIP)[rni->getBaseIP()] = rni;
+            _node->setNodeInfo(rni);
             LOG(debug, "Got IP" + *rni->getBaseIP());
         }
 
-        ASSERT(nodeInfosByIndex->size() > 0);
-        ASSERT(nodeInfosByIndex->count(1) > 0);
+        auto sChain = make_shared<Schain>(
+                _node, _localNodeInfo->getSchainIndex(), _localNodeInfo->getSchainID(), _extFace);
 
-        sChain = make_shared<Schain>(
-                this, _localNodeInfo->getSchainIndex(), _localNodeInfo->getSchainID(), _extFace);
+        _node->setSchain(sChain);
+
     } catch (...) {
         throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
     }
@@ -368,7 +378,6 @@ void Node::exit() {
 
     closeAllSocketsAndNotifyAllAgentsAndThreads();
 
-    cleanLevelDBs();
 }
 
 

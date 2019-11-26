@@ -44,21 +44,17 @@ class BlockDB : public LevelDB {
     const string getFormatVersion();
 
 
-    void saveBlockToBlockCache(ptr<CommittedBlock> &_block, block_id _lastCommittedBlockID);
-
     void saveBlock2LevelDB(ptr<CommittedBlock> &_block);
 
-    ptr<CommittedBlock> getCachedBlock(block_id _blockID);
 
 public:
 
-    BlockDB(string &_filename, node_id _nodeId, uint64_t _storageSize);
+    BlockDB(string& _dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize);
 
     ptr<vector<uint8_t >> getSerializedBlockFromLevelDB(block_id _blockID);
 
-    uint64_t readCounter();
 
-    void saveBlock(ptr<CommittedBlock> &_block, block_id _lastCommittedBlockID);
+    void saveBlock(ptr<CommittedBlock> &_block);
 
 
     ptr<CommittedBlock> getBlock(block_id _blockID, ptr<CryptoManager> _cryptoManager);

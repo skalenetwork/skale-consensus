@@ -320,10 +320,6 @@ BlockProposalServerAgent::processProposalRequest(ptr<ServerConnection> _connecti
         auto h = partialHashesList->getPartialHash(i);
         ASSERT(h);
 
-        if (getSchain()->getPendingTransactionsAgent()->isCommitted(h)) {
-            checkForOldBlock(requestHeader->getBlockId());
-            BOOST_THROW_EXCEPTION(CouldNotReadPartialDataHashesException("Committed transaction", __CLASS_NAME__));
-        }
 
         ptr<Transaction> transaction;
 
@@ -459,8 +455,7 @@ ptr<Header> BlockProposalServerAgent::createProposalResponseHeader(ptr<ServerCon
 
     if (!getSchain()->getNode()->getProposalHashDb()->checkAndSaveHash(_header.getBlockId(),
                                                                        _header.getProposerIndex(),
-                                                                       _header.getHash(),
-                                                                       sChain->getLastCommittedBlockID())) {
+                                                                       _header.getHash())) {
 
         LOG(info, "Double proposal for block:" + to_string(_header.getBlockId()) +
                   "  proposer index:" + to_string(_header.getProposerIndex()));

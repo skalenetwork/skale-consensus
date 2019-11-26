@@ -37,6 +37,7 @@
 #include <sstream>
 #include <thread>
 #include <mutex>
+#include <shared_mutex>
 #include <iostream>
 #include "assert.h"
 #include <condition_variable>
@@ -152,8 +153,6 @@ static constexpr uint64_t MAX_TRANSACTIONS_PER_BLOCK = 10000;
 static constexpr int64_t EMPTY_BLOCK_INTERVAL_MS = 10000;
 
 static constexpr uint64_t MIN_BLOCK_INTERVAL_MS = 1;
-
-static constexpr uint64_t COMMITTED_BLOCK_STORAGE_SIZE = 1;
 
 static constexpr uint64_t CATCHUP_INTERVAL_MS = 10000;
 
@@ -283,7 +282,12 @@ static const num_threads NUM_SCHAIN_THREADS = num_threads(1);
 
 static const num_threads NUM_DISPATCH_THREADS = num_threads(1);
 
-
+static const uint64_t  BLOCK_DB_SIZE = 10000000000;
+static const uint64_t  COMMITTED_TXS_DB_SIZE = 10000000;
+static const uint64_t  RANDOM_DB_SIZE = 10000000;
+static const uint64_t  SIGNATURE_DB_SIZE = 10000000;
+static const uint64_t  PRICE_DB_SIZE = 10000000;
+static const uint64_t  PROPOSAL_HASH_DB_SIZE = 10000000;
 
 extern void setThreadName(std::string const &_n);
 
@@ -332,3 +336,4 @@ extern thread_local ptr<Log> logThreadLocal_;
  if (__TEST_NAME__) {__TEST_CODE__ ;} };
 
 #define LOCK(_M_) lock_guard<recursive_mutex> _lock_(_M_);
+

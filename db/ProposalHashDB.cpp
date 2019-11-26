@@ -32,19 +32,17 @@
 #include "ProposalHashDB.h"
 
 
-ProposalHashDB::ProposalHashDB(string &_filename, node_id _nodeId, uint64_t _blockIdsPerDB) : LevelDB(_filename,
-                                                                                                      _nodeId) {
-    CHECK_ARGUMENT(_blockIdsPerDB != 0);
-    blockIdsPerDB = _blockIdsPerDB;
+ProposalHashDB::ProposalHashDB(string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize)
+        : LevelDB(_dirName, _prefix,
+                  _nodeId, _maxDBSize) {
 }
 
 
 bool
-ProposalHashDB::checkAndSaveHash(block_id _proposalBlockID, schain_index _proposerIndex, ptr<string> _proposalHash,
-                                 block_id /*_lastCommittedBlockID */) {
+ProposalHashDB::checkAndSaveHash(block_id _proposalBlockID, schain_index _proposerIndex, ptr<string> _proposalHash) {
 
 
-    lock_guard<recursive_mutex> lock(mutex);
+    lock_guard<recursive_mutex> lock(m);
 
     try {
 
@@ -65,6 +63,29 @@ ProposalHashDB::checkAndSaveHash(block_id _proposalBlockID, schain_index _propos
 
 }
 
+bool
+ProposalHashDB::haveProposal(block_id _proposalBlockID, schain_index _proposerIndex) {
+
+
+    lock_guard<recursive_mutex> lock(m);
+
+    try {
+
+        auto key = createKey(_proposalBlockID, _proposerIndex);
+
+        auto previous = readString(*key);
+
+        return (previous != nullptr);
+
+    } catch (...) {
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+    }
+
+}
+
+
+
+
 ptr<string> ProposalHashDB::createKey(block_id _blockId, schain_index _proposerIndex) {
     return make_shared<string>(getFormatVersion() + ":" + to_string(_blockId) + ":" + to_string(_proposerIndex));
 }
@@ -78,7 +99,7 @@ uint64_t ProposalHashDB::readBlockLimit() {
     static string count(":MAX_BLOCK_ID");
 
 
-    lock_guard<recursive_mutex> lock(mutex);
+    lock_guard<recursive_mutex> lock(m);
 
     try {
 

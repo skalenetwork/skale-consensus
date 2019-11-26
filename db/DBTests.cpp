@@ -41,7 +41,8 @@
 
 
 void test_committed_block_save() {
-    static string fileName = "/tmp/test_committed_block_save";
+    static string dirName = "/tmp";
+    static string fileName = "test_committed_block_save";
     boost::random::mt19937 gen;
     auto cryptoManager = make_shared<CryptoManager>();
 
@@ -51,26 +52,25 @@ void test_committed_block_save() {
         BOOST_THROW_EXCEPTION(runtime_error("Remove failed"));
     }
 
-    auto db = make_shared<BlockDB>(fileName, node_id(1), 200);
+    auto db = make_shared<BlockDB>(dirName, fileName, node_id(1), 5000000);
 
-
-
-    for (int i = 1; i < 200; i++) {
+    for (int i = 1; i < 500; i++) {
         auto t = CommittedBlock::createRandomSample(cryptoManager, i, gen, ubyte);
 
-        db->saveBlock(t, 200);
+        db->saveBlock(t);
 
         auto bb = db->getBlock(t->getBlockID(), cryptoManager);
 
         REQUIRE(bb != nullptr);
+
+
     }
 
+    REQUIRE(db->findMaxMinDBIndex().first > 10);
 }
-
 
 TEST_CASE("Save/read block", "[block-save-read-db]") {
     SECTION("Test successful save/read")
-
-
         test_committed_block_save();
 }
+

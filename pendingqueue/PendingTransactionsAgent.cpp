@@ -51,39 +51,7 @@ using namespace std;
 
 
 PendingTransactionsAgent::PendingTransactionsAgent( Schain& ref_sChain )
-    : Agent(ref_sChain, false)  {
-
-    try {
-
-        auto cfg = getSchain()->getNode()->getCfg();
-
-
-        auto db = getSchain()->getNode()->getBlockDB();
-
-        committedTransactionCounter = db->readCounter();
-
-        auto cdb = getNode()->getCommittedTransactionDB();
-
-
-        cdb->visitKeys(this, getNode()->getCommittedTransactionHistoryLimit() - committedTransactionCounter);
-    } catch (...) {
-        throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
-    }
-}
-
-void PendingTransactionsAgent::visitDBKey(const char* _data) {
-    auto s = make_shared<partial_sha_hash>();
-    std::copy_n((uint8_t*)_data, PARTIAL_SHA_HASH_LEN, s->begin());
-    addToCommitted(s);
-    committedTransactionCounter++;
-}
-
-
-
-void PendingTransactionsAgent::addToCommitted(ptr<partial_sha_hash> &s)  {
-    committedTransactions.insert(s);
-    committedTransactionsList.push_back(s);
-}
+    : Agent(ref_sChain, false)  {}
 
 ptr<BlockProposal> PendingTransactionsAgent::buildBlockProposal(block_id _blockID, uint64_t _previousBlockTimeStamp,
     uint32_t _previousBlockTimeStampMs) {
@@ -151,12 +119,6 @@ shared_ptr<vector<ptr<Transaction>>> PendingTransactionsAgent::createTransaction
 }
 
 
-void PendingTransactionsAgent::pushKnownTransactions(ptr<vector<ptr<Transaction>>> _transactions) {
-    for (auto &&t: *_transactions) {
-        pushKnownTransaction(t);
-    }
-}
-
 ptr<Transaction> PendingTransactionsAgent::getKnownTransactionByPartialHash(ptr<partial_sha_hash> hash) {
     lock_guard<recursive_mutex> lock(transactionsMutex);
     if (knownTransactions.count(hash))
@@ -180,49 +142,13 @@ void PendingTransactionsAgent::pushKnownTransaction(ptr<Transaction> _transactio
 }
 
 
-transaction_count PendingTransactionsAgent::getTransactionCounter() const {
-    return transactionCounter;
-}
-
 uint64_t PendingTransactionsAgent::getKnownTransactionsSize() {
     lock_guard<recursive_mutex> lock(transactionsMutex);
     return knownTransactions.size();
 }
 
-uint64_t PendingTransactionsAgent::getCommittedTransactionsSize() {
-    lock_guard<recursive_mutex> lock(transactionsMutex);
-    return committedTransactions.size();
-}
-
-bool PendingTransactionsAgent::isCommitted(ptr<partial_sha_hash> _hash) {
-    lock_guard<recursive_mutex> lock(transactionsMutex);
-   auto isCommitted = committedTransactions.count(_hash ) > 0;
-        return isCommitted;
-}
 
 
-void PendingTransactionsAgent::pushCommittedTransaction(shared_ptr<Transaction> t) {
-    lock_guard<recursive_mutex> lock(transactionsMutex);
-    committedTransactions.insert(t->getPartialHash());
-    committedTransactionsList.push_back(t->getPartialHash());
-    while (committedTransactions.size() > getNode()->getCommittedTransactionHistoryLimit()) {
-        committedTransactions.erase(committedTransactionsList.front());
-        committedTransactionsList.pop_front();
-    }
 
-    ASSERT(committedTransactionsList.size() >= committedTransactions.size());
-
-    auto db = getNode()->getCommittedTransactionDB();
-
-    db->writeCommittedTransaction(t, committedTransactionCounter);
-
-    committedTransactionCounter++;
-
-
-}
-
-uint64_t PendingTransactionsAgent::getCommittedTransactionCounter() const {
-    return committedTransactionCounter;
-}
 
 

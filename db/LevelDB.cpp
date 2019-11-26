@@ -50,42 +50,81 @@ static ReadOptions readOptions;
 
 ptr<string> LevelDB::readString(string &_key) {
 
-    auto result = make_shared<string>();
+    shared_lock<shared_mutex> lock(m);
 
-    ASSERT(db);
+    for (int i = LEVELDB_PIECES - 1; i >= 0; i--) {
+        auto result = make_shared<string>();
+        ASSERT(db[i] != nullptr);
+        auto status = db[i]->Get(readOptions, _key, &*result);
+        throwExceptionOnError(status);
+        if (!status.IsNotFound())
+            return result;
+    }
 
-    auto status = db->Get(readOptions, _key, &*result);
-
-    throwExceptionOnError(status);
-
-    if (status.IsNotFound())
-        return nullptr;
-
-    return result;
+    return nullptr;
 }
+
+bool LevelDB::keyExists(const char *_key) {
+
+    shared_lock<shared_mutex> lock(m);
+
+    for (int i = LEVELDB_PIECES - 1; i >= 0; i--) {
+        auto result = make_shared<string>();
+        ASSERT(db[i] != nullptr);
+        auto status = db[i]->Get(readOptions, _key, &*result);
+        throwExceptionOnError(status);
+        if (!status.IsNotFound())
+            return true;
+    }
+
+    return false;
+}
+
 
 void LevelDB::writeString(const string &_key, const string &_value) {
 
-    auto status = db->Put(writeOptions, Slice(_key), Slice(_value));
+    rotateDBsIfNeeded();
 
-    throwExceptionOnError(status);
+    {
+        shared_lock<shared_mutex> lock(m);
+
+        auto status = db.back()->Put(writeOptions, Slice(_key), Slice(_value));
+
+        throwExceptionOnError(status);
+    }
 }
+
+
+
 
 void LevelDB::writeByteArray(const char *_key, size_t _keyLen, const char *value,
                              size_t _valueLen) {
 
-    auto status = db->Put(writeOptions, Slice(_key, _keyLen), Slice(value, _valueLen));
+    rotateDBsIfNeeded();
 
-    throwExceptionOnError(status);
+    {
+        shared_lock<shared_mutex> lock(m);
+
+        auto status = db.back()->Put(writeOptions, Slice(_key, _keyLen), Slice(value, _valueLen));
+
+        throwExceptionOnError(status);
+    }
 }
-
 
 void LevelDB::writeByteArray(string &_key, const char *value,
                              size_t _valueLen) {
 
-    auto status = db->Put(writeOptions, Slice(_key), Slice(value, _valueLen));
+    rotateDBsIfNeeded();
 
-    throwExceptionOnError(status);
+    {
+        shared_lock<shared_mutex> lock(m);
+
+
+        auto status = db.back()->Put(writeOptions, Slice(_key), Slice(value, _valueLen));
+
+        throwExceptionOnError(status);
+
+    }
 }
 
 void LevelDB::throwExceptionOnError(Status _status) {
@@ -101,9 +140,11 @@ void LevelDB::throwExceptionOnError(Status _status) {
 
 uint64_t LevelDB::visitKeys(LevelDB::KeyVisitor *_visitor, uint64_t _maxKeysToVisit) {
 
+    shared_lock<shared_mutex> lock(m);
+
     uint64_t readCounter = 0;
 
-    leveldb::Iterator *it = db->NewIterator(readOptions);
+    leveldb::Iterator *it = db.back()->NewIterator(readOptions);
     for (it->SeekToFirst(); it->Valid(); it->Next()) {
         _visitor->visitDBKey(it->key().data());
         readCounter++;
@@ -117,21 +158,132 @@ uint64_t LevelDB::visitKeys(LevelDB::KeyVisitor *_visitor, uint64_t _maxKeysToVi
     return readCounter;
 }
 
-LevelDB::LevelDB(string &filename, node_id _nodeId) : nodeId(_nodeId) {
 
+DB *LevelDB::openDB(uint64_t _index) {
 
-    leveldb::Options options;
+    leveldb::DB *dbase = nullptr;
+
+    static leveldb::Options options;
     options.create_if_missing = true;
 
-    ASSERT2(leveldb::DB::Open(options, filename, (leveldb::DB **) &db).ok(),
-            "Unable to open blocks database");
+    ASSERT2(leveldb::DB::Open(options, dirname + "/" + prefix + "." + to_string(_index),
+                              &dbase).ok(),
+            "Unable to open database");
+    return dbase;
+}
 
-    ASSERT(db);
 
+LevelDB::LevelDB(string &_dirName, string &_prefix, node_id _nodeId,
+                 uint64_t _maxDBSize) : nodeId(_nodeId),
+                                        prefix(_prefix), dirname(_dirName),
+                                        maxDBSize(_maxDBSize) {
+
+    boost::filesystem::path path(_dirName);
+
+    CHECK_ARGUMENT(_maxDBSize != 0);
+
+    highestDBIndex = findMaxMinDBIndex().first;
+
+    if (highestDBIndex < LEVELDB_PIECES) {
+        highestDBIndex = LEVELDB_PIECES;
+    }
+
+
+    for (auto i = highestDBIndex - LEVELDB_PIECES + 1; i <= highestDBIndex; i++) {
+        leveldb::DB *dbase = openDB(i);
+        db.push_back(shared_ptr<leveldb::DB>(dbase));
+    }
 }
 
 LevelDB::~LevelDB() {
-    if (db != nullptr)
-        delete db;
+}
+
+using namespace boost::filesystem;
+
+uint64_t LevelDB::getActiveDBSize() {
+    vector<path> files;
+
+    path levelDBPath(dirname + "/" + prefix + "." + to_string(highestDBIndex));
+
+    copy(directory_iterator(levelDBPath), directory_iterator(), back_inserter(files));
+
+    uint64_t size = 0;
+
+    for (auto &filePath : files) {
+        size = size + file_size(filePath);
+    }
+    return size;
+}
+
+
+std::pair<uint64_t, uint64_t> LevelDB::findMaxMinDBIndex() {
+
+    vector<path> dirs;
+    vector<uint64_t> indices;
+
+    copy(directory_iterator(path(dirname)), directory_iterator(), back_inserter(dirs));
+    sort(dirs.begin(), dirs.end());
+
+    for (auto &path : dirs) {
+        if (is_directory(path)) {
+            auto fileName = path.filename().string();
+            if (fileName.find(prefix) == 0) {
+                auto index = fileName.substr(prefix.size() + 1);
+                auto value = strtoull(index.c_str(), nullptr, 10);
+                if (value != 0) {
+                    indices.push_back(value);
+                }
+            }
+        }
+    }
+
+    if (indices.size() == 0)
+        return {0, 0};
+
+    auto maxIndex = *max_element(begin(indices), end(indices));
+    auto minIndex = *min_element(begin(indices), end(indices));
+
+    return {maxIndex, minIndex};
+}
+
+void LevelDB::rotateDBsIfNeeded() {
+
+    if (getActiveDBSize() <= maxDBSize)
+        return;
+
+    {
+        lock_guard<shared_mutex> lock(m);
+
+        if (getActiveDBSize() <= maxDBSize)
+            return;
+
+        auto newDB = openDB(highestDBIndex + 1);
+
+        for (int i = 1; i < LEVELDB_PIECES; i++) {
+            db.at(i - 1) = db.at(i);
+        }
+
+        db[LEVELDB_PIECES - 1] = shared_ptr<leveldb::DB>(newDB);
+
+        db.at(0) = nullptr;
+        highestDBIndex++;
+
+        uint64_t minIndex;
+
+        while ((minIndex = findMaxMinDBIndex().second) + LEVELDB_PIECES <= highestDBIndex) {
+
+            if (minIndex == 0) {
+                return;
+            }
+
+            auto dbName = dirname + "/" + prefix + "." + to_string(minIndex);
+            try {
+
+                boost::filesystem::remove_all(path(dbName));
+            } catch (Exception &e) {
+                LOG(err, "Could not remove db:" + dbName);
+            }
+        }
+    }
 }
 

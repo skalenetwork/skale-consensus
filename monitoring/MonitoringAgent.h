@@ -33,10 +33,8 @@ class MonitoringAgent {
 
     Schain* sChain = nullptr;
 
-    recursive_mutex mutex;
+    recursive_mutex m;
     map<uint64_t, LivelinessMonitor*> activeMonitors;
-
-
     ptr< MonitoringThreadPool > monitoringThreadPool = nullptr;
 
 public:

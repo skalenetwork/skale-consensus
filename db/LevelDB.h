@@ -33,14 +33,22 @@ namespace leveldb {
     class Slice;
 }
 
-class LevelDB {
+#define LEVELDB_PIECES 4
 
-    leveldb::DB *db;
+class LevelDB {
+    vector<ptr<leveldb::DB>>db;
+
+
+    uint64_t  highestDBIndex = 0;
+    shared_mutex m;
+
 
 protected:
 
     node_id nodeId;
-
+    string prefix;
+    string dirname;
+    uint64_t maxDBSize;
 
     ptr<string> readString(string &_key);
 
@@ -61,7 +69,10 @@ public:
     void throwExceptionOnError(leveldb::Status result);
 
 
-    LevelDB(string &filename, node_id _nodeId);
+    LevelDB(string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize);
+
+
+    std::pair<uint64_t, uint64_t> findMaxMinDBIndex();
 
 
     class KeyVisitor {
@@ -74,6 +85,17 @@ public:
     virtual ~LevelDB();
 
 
+    uint64_t getFrontDBSize();
+
+    bool keyExists(const char *_key);
+
+    void rotateDBsIfNeeded();
+
+    uint64_t getActiveDBSize();
+
+    leveldb::DB *openDB(uint64_t _index);
+
+    void removeDB(uint64_t index);
 };
 
 

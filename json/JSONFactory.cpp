@@ -42,7 +42,7 @@
 
 #include "JSONFactory.h"
 
-Node *JSONFactory::createNodeFromJson(const fs_path &jsonFile, set<node_id> &nodeIDs, ConsensusEngine *
+ptr<Node> JSONFactory::createNodeFromJson(const fs_path &jsonFile, set<node_id> &nodeIDs, ConsensusEngine *
 _consensusEngine) {
 
     try {
@@ -59,7 +59,7 @@ _consensusEngine) {
 
 }
 
-Node *JSONFactory::createNodeFromJsonObject(const nlohmann::json &j, set<node_id> &nodeIDs, ConsensusEngine *
+ptr<Node> JSONFactory::createNodeFromJsonObject(const nlohmann::json &j, set<node_id> &nodeIDs, ConsensusEngine *
 _engine) {
 
     if (j.find("transport") != j.end()) {
@@ -75,11 +75,11 @@ _engine) {
 
     uint64_t nodeID = j.at("nodeID").get<uint64_t>();
 
-    Node *node = nullptr;
+    ptr<Node> node = nullptr;
 
     if (nodeIDs.empty() || nodeIDs.count(node_id(nodeID)) > 0) {
         try {
-            node = new Node(j, _engine);
+            node = make_shared<Node>(j, _engine);
         } catch (...) {
             throw_with_nested(FatalError("Could not init node", __CLASS_NAME__));
         }
@@ -89,25 +89,22 @@ _engine) {
 
 }
 
-void JSONFactory::createAndAddSChainFromJson(Node &node, const fs_path &jsonFile, ConsensusEngine *_engine) {
+void JSONFactory::createAndAddSChainFromJson(ptr<Node> _node, const fs_path &jsonFile, ConsensusEngine *_engine) {
     try {
 
-
         nlohmann::json j;
-
         parseJsonFile(j, jsonFile);
 
-        createAndAddSChainFromJsonObject(node, j, _engine);
+        createAndAddSChainFromJsonObject(_node, j, _engine);
 
         if (j.find("blockProposalTest") != j.end()) {
 
             string test = j["blockProposalTest"].get<string>();
 
             if (test == SchainTest::NONE) {
-
-                node.getSchain()->setBlockProposerTest(SchainTest::NONE);
+                _node->getSchain()->setBlockProposerTest(SchainTest::NONE);
             } else if (test == SchainTest::SLOW) {
-                node.getSchain()->setBlockProposerTest(SchainTest::SLOW);
+                _node->getSchain()->setBlockProposerTest(SchainTest::SLOW);
             } else {
                 BOOST_THROW_EXCEPTION(
                         ParsingException("Unknown test type parsing schain config:" + test, __CLASS_NAME__));
@@ -119,7 +116,7 @@ void JSONFactory::createAndAddSChainFromJson(Node &node, const fs_path &jsonFile
 
 }
 
-void JSONFactory::createAndAddSChainFromJsonObject(Node &node, const nlohmann::json &j, ConsensusEngine *_engine) {
+void JSONFactory::createAndAddSChainFromJsonObject(ptr<Node> &_node, const nlohmann::json &j, ConsensusEngine *_engine) {
 
     try {
 
@@ -144,7 +141,7 @@ void JSONFactory::createAndAddSChainFromJsonObject(Node &node, const nlohmann::j
 
             node_id nodeID((*it)["nodeID"].get<uint64_t>());
 
-            Log::logConfig(trace, to_string(node.getNodeID()) + ": Adding node:" + to_string(nodeID), __CLASS_NAME__);
+            Log::logConfig(trace, to_string(_node->getNodeID()) + ": Adding node:" + to_string(nodeID), __CLASS_NAME__);
 
             ptr<string> ip = make_shared<string>((*it).at("ip").get<string>());
 
@@ -155,21 +152,19 @@ void JSONFactory::createAndAddSChainFromJsonObject(Node &node, const nlohmann::j
 
             auto rni = make_shared<NodeInfo>(nodeID, ip, port, schainID, schainIndex);
 
-            if (nodeID == node.getNodeID())
+            if (nodeID == _node->getNodeID())
                 localNodeInfo = rni;
 
             remoteNodeInfos.push_back(rni);
         }
 
         ASSERT(localNodeInfo);
-
-        node.initSchain(localNodeInfo, remoteNodeInfos, _engine->getExtFace());
+        Node::initSchain(_node, localNodeInfo, remoteNodeInfos, _engine->getExtFace());
     } catch (...) {
         throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
     }
 
 }
-
 
 void JSONFactory::parseJsonFile(nlohmann::json &j, const fs_path &configFile) {
 
