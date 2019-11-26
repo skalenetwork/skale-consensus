@@ -42,7 +42,7 @@ bool
 ProposalHashDB::checkAndSaveHash(block_id _proposalBlockID, schain_index _proposerIndex, ptr<string> _proposalHash) {
 
 
-    lock_guard<recursive_mutex> lock(mutex);
+    lock_guard<recursive_mutex> lock(m);
 
     try {
 
@@ -67,7 +67,7 @@ bool
 ProposalHashDB::haveProposal(block_id _proposalBlockID, schain_index _proposerIndex) {
 
 
-    lock_guard<recursive_mutex> lock(mutex);
+    lock_guard<recursive_mutex> lock(m);
 
     try {
 
@@ -99,7 +99,7 @@ uint64_t ProposalHashDB::readBlockLimit() {
     static string count(":MAX_BLOCK_ID");
 
 
-    lock_guard<recursive_mutex> lock(mutex);
+    lock_guard<recursive_mutex> lock(m);
 
     try {
 

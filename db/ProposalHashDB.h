@@ -35,9 +35,7 @@ class CryptoManager;
 
 class ProposalHashDB : public LevelDB {
 
-    uint64_t blockIdsPerDB;
-
-    recursive_mutex mutex;
+    recursive_mutex m;
 
     ptr<string> createKey(block_id _blockId, schain_index _proposerIndex);
 

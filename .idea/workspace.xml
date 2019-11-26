@@ -31,19 +31,11 @@
   <component name="ChangeListManager">
     <list default="true" id="e8eb5c74-4268-46a2-ac26-2e919fd9ff42" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Agent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Agent.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Agent.h" beforeDir="false" afterPath="$PROJECT_DIR$/Agent.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Consensust.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Consensust.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chains/Schain.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/chains/Schain.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chains/Schain.h" beforeDir="false" afterPath="$PROJECT_DIR$/chains/Schain.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chains/SchainGettersSetters.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/chains/SchainGettersSetters.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/json/JSONFactory.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/json/JSONFactory.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/json/JSONFactory.h" beforeDir="false" afterPath="$PROJECT_DIR$/json/JSONFactory.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/ProposalHashDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/ProposalHashDB.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/ProposalHashDB.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/ProposalHashDB.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libBLS/deps/pbc/INSTALL" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/deps/pbc/INSTALL" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/node/ConsensusEngine.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/node/ConsensusEngine.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/node/ConsensusEngine.h" beforeDir="false" afterPath="$PROJECT_DIR$/node/ConsensusEngine.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/node/Node.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/node/Node.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/node/Node.h" beforeDir="false" afterPath="$PROJECT_DIR$/node/Node.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/monitoring/MonitoringAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/monitoring/MonitoringAgent.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/monitoring/MonitoringAgent.h" beforeDir="false" afterPath="$PROJECT_DIR$/monitoring/MonitoringAgent.h" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -403,7 +395,14 @@
       <option name="project" value="LOCAL" />
       <updated>1574704803287</updated>
     </task>
-    <option name="localTasksCounter" value="24" />
+    <task id="LOCAL-00024" summary="Changed node to shared_ptr">
+      <created>1574769635555</created>
+      <option name="number" value="00024" />
+      <option name="presentableId" value="LOCAL-00024" />
+      <option name="project" value="LOCAL" />
+      <updated>1574769635555</updated>
+    </task>
+    <option name="localTasksCounter" value="25" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -440,6 +439,7 @@
     <MESSAGE value="Fixing block hash" />
     <MESSAGE value="Added leveldb test" />
     <MESSAGE value="Limit LevelDB size" />
-    <option name="LAST_COMMIT_MESSAGE" value="Limit LevelDB size" />
+    <MESSAGE value="Changed node to shared_ptr" />
+    <option name="LAST_COMMIT_MESSAGE" value="Changed node to shared_ptr" />
   </component>
 </project>
