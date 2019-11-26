@@ -151,7 +151,11 @@ schain_index Schain::getSchainIndex() const {
 
 
 ptr<Node> Schain::getNode() const {
-    return shared_ptr(node);
+    auto  ret = node.lock();
+    if (ret == nullptr) {
+        throw ExitRequestedException(__CLASS_NAME__);
+    }
+    return ret;
 }
 
 
