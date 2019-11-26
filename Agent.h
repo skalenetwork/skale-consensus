@@ -83,7 +83,7 @@ public:
     Agent( Schain& _sChain, bool isServer, bool _isSchain = false );
 
 
-    Node* getNode();
+    ptr<Node> getNode();
 
 
     Schain* getSchain() const;

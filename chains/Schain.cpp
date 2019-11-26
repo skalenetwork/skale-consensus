@@ -180,7 +180,7 @@ void Schain::startThreads() {
 }
 
 
-Schain::Schain(Node *_node, schain_index _schainIndex, const schain_id &_schainID, ConsensusExtFace *_extFace) : Agent(
+Schain::Schain(weak_ptr<Node> _node, schain_index _schainIndex, const schain_id &_schainID, ConsensusExtFace *_extFace) : Agent(
         *this, true, true), totalTransactions(0), extFace(_extFace), schainID(_schainID), consensusMessageThreadPool(
         new SchainMessageThreadPool(this)), node(_node), schainIndex(_schainIndex) {
 

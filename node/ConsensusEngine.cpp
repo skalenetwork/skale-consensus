@@ -98,10 +98,10 @@ void ConsensusEngine::parseFullConfigAndCreateNode(const string &configFileConte
 
         std::set<node_id> dummy;
 
-        Node *node = JSONFactory::createNodeFromJsonObject(j["skaleConfig"]["nodeInfo"], dummy, this);
+        auto node = JSONFactory::createNodeFromJsonObject(j["skaleConfig"]["nodeInfo"], dummy, this);
 
         JSONFactory::createAndAddSChainFromJsonObject(
-                *node, j["skaleConfig"]["sChain"], this);
+                node, j["skaleConfig"]["sChain"], this);
 
         nodes[node->getNodeID()] = node;
 
@@ -112,7 +112,7 @@ void ConsensusEngine::parseFullConfigAndCreateNode(const string &configFileConte
 
 }
 
-Node *ConsensusEngine::readNodeConfigFileAndCreateNode(
+ptr<Node> ConsensusEngine::readNodeConfigFileAndCreateNode(
         const fs_path &path, set<node_id> &nodeIDs) {
     try {
         fs_path nodeFileNamePath(path);
@@ -127,14 +127,14 @@ Node *ConsensusEngine::readNodeConfigFileAndCreateNode(
 
         checkExistsAndDirectory(schainDirNamePath.string());
 
-        Node *node = JSONFactory::createNodeFromJson(nodeFileNamePath.string(), nodeIDs, this);
+        auto node = JSONFactory::createNodeFromJson(nodeFileNamePath.string(), nodeIDs, this);
 
 
         if (node == nullptr) {
             return nullptr;
         }
 
-        readSchainConfigFiles(*node, schainDirNamePath.string());
+        readSchainConfigFiles(node, schainDirNamePath.string());
 
         ASSERT(nodes.count(node->getNodeID()) == 0);
 
@@ -148,7 +148,7 @@ Node *ConsensusEngine::readNodeConfigFileAndCreateNode(
 }
 
 
-void ConsensusEngine::readSchainConfigFiles(Node &_node, const fs_path &_dirPath) {
+void ConsensusEngine::readSchainConfigFiles(ptr<Node> _node, const fs_path &_dirPath) {
 
     try {
 
@@ -478,8 +478,8 @@ ConsensusEngine::~ConsensusEngine() {
     exitGracefully();
     for (auto &n : nodes) {
         assert(n.second->isExitRequested());
-        delete n.second;
     }
+    nodes.clear();
 }
 
 const string &ConsensusEngine::getBlsPublicKey1() const {

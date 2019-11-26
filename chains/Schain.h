@@ -113,7 +113,7 @@ class Schain : public Agent {
 
     ptr<CryptoManager> cryptoManager;
 
-    Node* node = nullptr;
+    weak_ptr<Node> node;
 
     schain_index schainIndex;
 
@@ -168,7 +168,7 @@ public:
 
     uint64_t getMaxExternalBlockProcessingTime() const;
 
-    Schain(Node* _node, schain_index _schainIndex, const schain_id &_schainID, ConsensusExtFace *_extFace);
+    Schain(weak_ptr<Node> _node, schain_index _schainIndex, const schain_id &_schainID, ConsensusExtFace *_extFace);
 
     void startThreads();
 
@@ -202,7 +202,7 @@ public:
 
     schain_index getSchainIndex() const;
 
-    Node *getNode() const;
+    ptr<Node> getNode() const;
 
     transaction_count getMessagesCount();
 

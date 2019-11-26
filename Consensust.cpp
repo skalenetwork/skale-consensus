@@ -111,6 +111,7 @@ TEST_CASE_METHOD(StartFromScratch, "Run basic consensus", "[consensus-basic]") {
         Exception::logNested(e);
         throw;
     }
+
     SUCCEED();
 }
 

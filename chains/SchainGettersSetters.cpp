@@ -150,9 +150,8 @@ schain_index Schain::getSchainIndex() const {
 }
 
 
-Node *Schain::getNode() const {
-    assert(node);
-    return node;
+ptr<Node> Schain::getNode() const {
+    return shared_ptr(node);
 }
 
 

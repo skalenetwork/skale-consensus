@@ -85,6 +85,7 @@ enum PricingStrategyEnum {
 
 
 class Node {
+
     ConsensusEngine *consensusEngine;
 
     vector<Agent *> agents;
@@ -256,8 +257,10 @@ public:
 
     void exitOnFatalError(const string &message);
 
-    void initSchain(ptr<NodeInfo> _localNodeInfo,
-                    const vector<ptr<NodeInfo> > &remoteNodeInfos, ConsensusExtFace *_extFace);
+    void setSchain(ptr<Schain> _schain);
+
+    static void
+    initSchain(ptr<Node> _node, ptr<NodeInfo> _localNodeInfo, const vector<ptr<NodeInfo> > &remoteNodeInfos, ConsensusExtFace *_extFace);
 
     void waitOnGlobalServerStartBarrier(Agent *agent);
 
@@ -349,4 +352,5 @@ public:
     uint64_t getProposalHashDbSize() const;
 
 
+    void setNodeInfo(ptr<NodeInfo> _info);
 };

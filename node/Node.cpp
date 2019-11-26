@@ -306,24 +306,32 @@ void Node::startClients() {
     releaseGlobalClientBarrier();
 }
 
+void Node::setNodeInfo(ptr<NodeInfo> _info) {
+    (*nodeInfosByIndex)[_info->getSchainIndex()] = _info;
+    (*nodeInfosByIP)[_info->getBaseIP()] = _info;
+}
 
-void Node::initSchain(ptr<NodeInfo> _localNodeInfo,
-                      const vector<ptr<NodeInfo> > &remoteNodeInfos, ConsensusExtFace *_extFace) {
+void Node::setSchain(ptr<Schain> _schain) {
+    assert (this->sChain == nullptr);
+    this->sChain = _schain;
+}
+
+void Node::initSchain(ptr<Node> _node, ptr<NodeInfo> _localNodeInfo, const vector<ptr<NodeInfo> > &remoteNodeInfos,
+                      ConsensusExtFace *_extFace) {
     try {
-        logThreadLocal_ = getLog();
+        logThreadLocal_ = _node->getLog();
 
         for (auto &rni : remoteNodeInfos) {
             LOG(debug, "Adding Node Info:" + to_string(rni->getSchainIndex()));
-            (*nodeInfosByIndex)[rni->getSchainIndex()] = rni;
-            (*nodeInfosByIP)[rni->getBaseIP()] = rni;
+            _node->setNodeInfo(rni);
             LOG(debug, "Got IP" + *rni->getBaseIP());
         }
 
-        ASSERT(nodeInfosByIndex->size() > 0);
-        ASSERT(nodeInfosByIndex->count(1) > 0);
+        auto sChain = make_shared<Schain>(
+                _node, _localNodeInfo->getSchainIndex(), _localNodeInfo->getSchainID(), _extFace);
 
-        sChain = make_shared<Schain>(
-                this, _localNodeInfo->getSchainIndex(), _localNodeInfo->getSchainID(), _extFace);
+        _node->setSchain(sChain);
+
     } catch (...) {
         throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
     }

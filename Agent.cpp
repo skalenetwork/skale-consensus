@@ -59,7 +59,7 @@ Agent::Agent(Schain &_sChain, bool _isServer, bool _isSchain) : isServer(_isServ
 }
 
 
-Node *Agent::getNode() {
+ptr<Node> Agent::getNode() {
     return getSchain()->getNode();
 }
 
