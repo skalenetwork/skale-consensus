@@ -384,7 +384,9 @@ void Schain::proposeNextBlock(uint64_t _previousBlockTimeStamp, uint32_t _previo
 
     LOG(debug, "PROPOSING BLOCK NUMBER:" + to_string(_proposedBlockID));
 
-    getNode()->getProposalHashDb()->checkAndSaveHash(_proposedBlockID, getSchainIndex(),
+    auto db = getNode()->getProposalHashDb();
+
+    db->checkAndSaveHash(_proposedBlockID, getSchainIndex(),
                                                      myProposal->getHash()->toHex());
 
     blockProposalClient->enqueueItem(myProposal);

@@ -29,10 +29,13 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e8eb5c74-4268-46a2-ac26-2e919fd9ff42" name="Default Changelist" comment="">
+    <list default="true" id="e8eb5c74-4268-46a2-ac26-2e919fd9ff42" name="Default Changelist" comment="Cleaned memory on return">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chains/SchainGettersSetters.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/chains/SchainGettersSetters.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/chains/Schain.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/chains/Schain.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libBLS/deps/pbc/INSTALL" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/deps/pbc/INSTALL" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/node/Node.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/node/Node.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/node/Node.h" beforeDir="false" afterPath="$PROJECT_DIR$/node/Node.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/node/NodeGettersSetters.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/node/NodeGettersSetters.cpp" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -406,7 +409,14 @@
       <option name="project" value="LOCAL" />
       <updated>1574770214767</updated>
     </task>
-    <option name="localTasksCounter" value="26" />
+    <task id="LOCAL-00026" summary="Cleaned memory on return">
+      <created>1574771025830</created>
+      <option name="number" value="00026" />
+      <option name="presentableId" value="LOCAL-00026" />
+      <option name="project" value="LOCAL" />
+      <updated>1574771025830</updated>
+    </task>
+    <option name="localTasksCounter" value="27" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -445,6 +455,7 @@
     <MESSAGE value="Limit LevelDB size" />
     <MESSAGE value="Changed node to shared_ptr" />
     <MESSAGE value="Fixed locks" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fixed locks" />
+    <MESSAGE value="Cleaned memory on return" />
+    <option name="LAST_COMMIT_MESSAGE" value="Cleaned memory on return" />
   </component>
 </project>

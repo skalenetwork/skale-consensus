@@ -137,7 +137,8 @@ node_id Node::getNodeID() const {
 }
 
 
-const ptr<ProposalHashDB> &Node::getProposalHashDb() const {
+ptr<ProposalHashDB> Node::getProposalHashDb() {
+    assert(proposalHashDB != nullptr);
     return proposalHashDB;
 }
 

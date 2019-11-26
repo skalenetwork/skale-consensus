@@ -203,19 +203,9 @@ uint64_t Node::getProposalHashDbSize() const {
 
 Node::~Node() {}
 
-void Node::cleanLevelDBs() {
-    blockDB = nullptr;
-    randomDB = nullptr;
-    committedTransactionDB = nullptr;
-    signatureDB = nullptr;
-    priceDB = nullptr;
-    proposalHashDB = nullptr;
-}
-
 
 void Node::startServers() {
     initBLSKeys();
-
 
     ASSERT(!startedServers);
 
@@ -388,7 +378,6 @@ void Node::exit() {
 
     closeAllSocketsAndNotifyAllAgentsAndThreads();
 
-    cleanLevelDBs();
 }
 
 

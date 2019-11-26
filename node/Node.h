@@ -238,8 +238,6 @@ public:
 
     void initLevelDBs();
 
-    void cleanLevelDBs();
-
 
     bool isStarted() const;
 
@@ -347,10 +345,9 @@ public:
 
     void setEmptyBlockIntervalMs(uint64_t _interval) { this->emptyBlockIntervalMs = _interval; }
 
-    const ptr<ProposalHashDB> &getProposalHashDb() const;
+    ptr<ProposalHashDB> getProposalHashDb();
 
     uint64_t getProposalHashDbSize() const;
-
 
     void setNodeInfo(ptr<NodeInfo> _info);
 };
