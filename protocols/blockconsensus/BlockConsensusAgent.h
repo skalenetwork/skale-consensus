@@ -37,9 +37,7 @@ class Schain;
 class BooleanProposalVector;
 
 
-class BlockConsensusAgent {
-
-    Schain &  sChain;
+class BlockConsensusAgent : public ProtocolInstance {
 
 
     class Comparator {
@@ -111,7 +109,7 @@ public:
     bool decided(ptr<ProtocolKey> key);
 
 
-    Schain *getSchain() const;
+
 
 
     void routeAndProcessMessage(ptr<MessageEnvelope> m);

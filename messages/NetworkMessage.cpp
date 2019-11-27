@@ -46,7 +46,7 @@ NetworkMessage::NetworkMessage(MsgType _messageType, node_id _destinationNodeID,
                                block_id _blockID, schain_index _blockProposerIndex,
                                bin_consensus_round _r,
                                bin_consensus_value _value,
-                               BinConsensusInstance &_srcProtocolInstance)
+                               ProtocolInstance &_srcProtocolInstance)
         : Message(_srcProtocolInstance.getSchain()->getSchainID(),
                 _messageType, _srcProtocolInstance.createNetworkMessageID(),
                   _srcProtocolInstance.getSchain()->getNode()->getNodeID(), _destinationNodeID, _blockID, _blockProposerIndex) {

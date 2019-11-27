@@ -60,8 +60,8 @@
 #include "../../datastructures/CommittedBlock.h"
 
 
-BlockConsensusAgent::BlockConsensusAgent(Schain &_schain) : sChain(_schain) {
-
+BlockConsensusAgent::BlockConsensusAgent(Schain &_schain) : ProtocolInstance(
+                                          BLOCK_SIGN, _schain) {
 };
 
 
@@ -80,7 +80,7 @@ void BlockConsensusAgent::startConsensusProposal(block_id _blockID, ptr<BooleanP
 
     uint64_t truthCount = 0;
 
-    for (size_t i = 0; i < sChain.getNodeCount(); i++) {
+    for (size_t i = 0; i < getSchain()->getNodeCount(); i++) {
         if (_proposal->getProposalValue(schain_index(i + 1)))
             truthCount++;
     }
@@ -362,10 +362,6 @@ void BlockConsensusAgent::routeAndProcessMessage(ptr<MessageEnvelope> m) {
     }
 }
 
-
-Schain *BlockConsensusAgent::getSchain() const {
-    return &sChain;
-}
 
 bin_consensus_round BlockConsensusAgent::getRound(ptr<ProtocolKey> key) {
     return getChild(key)->getCurrentRound();

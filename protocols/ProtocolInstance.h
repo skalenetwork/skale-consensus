@@ -39,7 +39,7 @@ class BlockConsensusAgent;
 class BinConsensusInstance;
 
 
-enum ProtocolType { BLOCK_CONSENSUS, BIN_CONSENSUS, COMMONCOIN};
+enum ProtocolType { BLOCK_SIGN, BIN_CONSENSUS};
 
 enum ProtocolStatus { STATUS_ACTIVE, STATUS_COMPLETED};
 enum ProtocolOutcome { OUTCOME_UNKNOWN, OUTCOME_SUCCESS, OUTCOME_FAILURE, OUTCOME_KILLED};
@@ -50,7 +50,9 @@ enum ProtocolOutcome { OUTCOME_UNKNOWN, OUTCOME_SUCCESS, OUTCOME_FAILURE, OUTCOM
 class ProtocolInstance {
 
 
-    Schain &  sChain;
+    static atomic<uint64_t>  totalObjects;
+
+    Schain*  sChain;
 
     const ProtocolType protocolType; // unused
 
@@ -106,12 +108,6 @@ public:
     static uint64_t getTotalObjects() {
         return totalObjects;
     }
-
-private:
-
-
-    static atomic<uint64_t>  totalObjects;
-
 };
 
 
