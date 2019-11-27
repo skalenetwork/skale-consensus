@@ -16,51 +16,41 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file AUXBroadcastMessage.cpp
+    @file FinalizeMessage.cpp
     @author Stan Kladko
     @date 2018
 */
 
 #include "../../SkaleCommon.h"
 #include "../../Log.h"
-#include "../../thirdparty/json.hpp"
 #include "../../exceptions/FatalError.h"
-#include "../crypto/bls_include.h"
-#include "../../crypto/ConsensusBLSSignature.h"
-#include "../../crypto/SHAHash.h"
-
-#include "../../chains/Schain.h"
-#include "../../node/Node.h"
 
 #include "../../messages/NetworkMessage.h"
-#include "../../exceptions/InvalidArgumentException.h"
-#include "../../crypto/ConsensusBLSSigShare.h"
-#include "../../crypto/CryptoManager.h"
+#include "../../crypto/SHAHash.h"
 
 #include "../ProtocolKey.h"
 #include "../ProtocolInstance.h"
+#include "../../crypto/CryptoManager.h"
+#include "../../chains/Schain.h"
 
-#include "BinConsensusInstance.h"
+#include "BlockSignBroadcastMessage.h"
+#include "../binconsensus/BinConsensusInstance.h"
+#include "../../crypto/ThresholdSigShare.h"
 
-#include "AUXBroadcastMessage.h"
 
-
-AUXBroadcastMessage::AUXBroadcastMessage(bin_consensus_round round, bin_consensus_value value,
-                                         node_id destinationNodeID, block_id _blockID, schain_index _blockProposer,
-                                         BinConsensusInstance &sourceProtocolInstance)
-        : NetworkMessage(AUX_BROADCAST, destinationNodeID, _blockID, _blockProposer, round, value,
+BlockSignBroadcastMessage::BlockSignBroadcastMessage(block_id _blockID, schain_index _blockProposerIndex,
+                                                     BinConsensusInstance &sourceProtocolInstance)
+        : NetworkMessage(FINALIZE_BROADCAST, 0, _blockID, _blockProposerIndex, 0, 0,
                          sourceProtocolInstance) {
-    printPrefix = "a";
+    printPrefix = "f";
+
     auto schain = sourceProtocolInstance.getSchain();
     CryptoPP::SHA256 sha256;
     auto bpi = getBlockProposerIndex();
-
     sha256.Update(reinterpret_cast < uint8_t * > ( &bpi), sizeof(bpi));
-    sha256.Update(reinterpret_cast < uint8_t * > ( &this->r), sizeof(r));
     sha256.Update(reinterpret_cast < uint8_t * > ( &this->blockID), sizeof(blockID));
     sha256.Update(reinterpret_cast < uint8_t * > ( &this->schainID), sizeof(schainID));
     sha256.Update(reinterpret_cast < uint8_t * > ( &this->msgType), sizeof(msgType));
-
     auto buf = make_shared<array<uint8_t, SHA_HASH_LEN>>();
     sha256.Final(buf->data());
     auto hash = make_shared<SHAHash>(buf);
@@ -69,18 +59,18 @@ AUXBroadcastMessage::AUXBroadcastMessage(bin_consensus_round round, bin_consensu
     this->sigShare = schain->getCryptoManager()->signThreshold(hash, _blockID);
     this->sigShareString = sigShare->toString();
 
+
 }
 
 
-AUXBroadcastMessage::AUXBroadcastMessage(node_id _srcNodeID, node_id _dstNodeID, block_id _blockID,
-                                         schain_index _blockProposerIndex, bin_consensus_round _r,
-                                         bin_consensus_value _value,
-                                         schain_id _schainId, msg_id _msgID, uint32_t _ip, ptr<string> _signature,
-                                         schain_index _srcSchainIndex, Schain *_sChain)
-        : NetworkMessage(
-        AUX_BROADCAST, _srcNodeID, _dstNodeID, _blockID, _blockProposerIndex, _r, _value, _schainId, _msgID, _ip,
-        _signature, _srcSchainIndex, _sChain->getCryptoManager(), _sChain->getTotalSignersCount(),
-                                     _sChain->getRequiredSignersCount()) {
-    printPrefix = "a";
-
+BlockSignBroadcastMessage::BlockSignBroadcastMessage(node_id _srcNodeID, node_id _dstNodeID, block_id _blockID,
+                                                     schain_index _blockProposerIndex,
+                                                     schain_id _schainId, msg_id _msgID, uint32_t _ip, ptr< string > _sigShare,
+                                                     schain_index _srcSchainIndex, Schain* _sChain)
+    : NetworkMessage(
+        FINALIZE_BROADCAST, _srcNodeID, _dstNodeID, _blockID, _blockProposerIndex, 0, 0, _schainId, _msgID, _ip, _sigShare,
+        _srcSchainIndex, _sChain->getCryptoManager(), _sChain->getTotalSignersCount(),
+        _sChain->getRequiredSignersCount()) {
+    printPrefix = "F";
 };
+

@@ -248,4 +248,6 @@ public:
 
 
     void decideBlock(block_id _blockId, schain_index _proposerIndex);
+
+    size_t getRequiredBlockSignersCount();
 };

@@ -259,6 +259,16 @@ size_t Schain::getRequiredSignersCount() {
     }
 }
 
+size_t Schain::getRequiredBlockSignersCount() {
+    auto count = getNodeCount();
+    if (count <= 2) {
+        return (uint64_t) count;
+    } else {
+        return (uint64_t) count / 3 + 1;
+    }
+}
+
+
 u256 Schain::getPriceForBlockId(uint64_t _blockId) {
     CHECK_STATE(pricingAgent != nullptr);
     return pricingAgent->readPrice(_blockId);

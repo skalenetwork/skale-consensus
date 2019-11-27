@@ -40,7 +40,7 @@
 #include "../node/NodeInfo.h"
 #include "../protocols/binconsensus/AUXBroadcastMessage.h"
 #include "../protocols/binconsensus/BVBroadcastMessage.h"
-#include "../protocols/blockconsensus/FinalizeBroadcastMessage.h"
+#include "../protocols/blockconsensus/BlockSignBroadcastMessage.h"
 #include "../thirdparty/json.hpp"
 
 #include "unordered_set"
@@ -390,12 +390,12 @@ ptr<NetworkMessageEnvelope> TransportNetwork::receiveMessage() {
                                                 realSender->getSchainIndex(),
                                                 sChain);
     } else if (msgType == MsgType::FINALIZE_BROADCAST) {
-        mptr = make_shared<FinalizeBroadcastMessage>(node_id(srcNodeID), node_id(dstNodeID),
-                                                     block_id(blockID), schain_index(blockProposerIndex),
-                                                     schain_id(sChainID), msg_id(msgID), rawIP,
-                                                     sig,
-                                                     realSender->getSchainIndex(),
-                                                     sChain);
+        mptr = make_shared<BlockSignBroadcastMessage>(node_id(srcNodeID), node_id(dstNodeID),
+                                                      block_id(blockID), schain_index(blockProposerIndex),
+                                                      schain_id(sChainID), msg_id(msgID), rawIP,
+                                                      sig,
+                                                      realSender->getSchainIndex(),
+                                                      sChain);
     } else {
         ASSERT(false);
     }
