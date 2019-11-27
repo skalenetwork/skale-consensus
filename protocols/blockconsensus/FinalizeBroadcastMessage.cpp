@@ -30,21 +30,21 @@
 #include "../ProtocolKey.h"
 #include "../ProtocolInstance.h"
 
-#include "FinalizeMessage.h"
+#include "FinalizeBroadcastMessage.h"
 
 
-FinalizeMessage::FinalizeMessage(node_id destinationNodeID, block_id _blockID,
-                                       schain_index _blockProposerIndex, BinConsensusInstance &sourceProtocolInstance)
+FinalizeBroadcastMessage::FinalizeBroadcastMessage(node_id destinationNodeID, block_id _blockID,
+                                                   schain_index _blockProposerIndex, BinConsensusInstance &sourceProtocolInstance)
         : NetworkMessage(FINALIZE_BROADCAST, destinationNodeID, _blockID, _blockProposerIndex, 0, 0,
                          sourceProtocolInstance) {
     printPrefix = "f";
 }
 
 
-FinalizeMessage::FinalizeMessage( node_id _srcNodeID, node_id _dstNodeID, block_id _blockID,
-    schain_index _blockProposerIndex,
-    schain_id _schainId, msg_id _msgID, uint32_t _ip, ptr< string > _sigShare,
-    schain_index _srcSchainIndex, Schain* _sChain)
+FinalizeBroadcastMessage::FinalizeBroadcastMessage(node_id _srcNodeID, node_id _dstNodeID, block_id _blockID,
+                                                   schain_index _blockProposerIndex,
+                                                   schain_id _schainId, msg_id _msgID, uint32_t _ip, ptr< string > _sigShare,
+                                                   schain_index _srcSchainIndex, Schain* _sChain)
     : NetworkMessage(
         BVB_BROADCAST, _srcNodeID, _dstNodeID, _blockID, _blockProposerIndex, 0, 0, _schainId, _msgID, _ip, _sigShare,
         _srcSchainIndex, _sChain ) {

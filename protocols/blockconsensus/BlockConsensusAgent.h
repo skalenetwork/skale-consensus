@@ -119,5 +119,6 @@ public:
     ptr<BinConsensusInstance> getChild(ptr<ProtocolKey> key);
 
 
+    void processFinalizeBroadcastMessage(ptr<MessageEnvelope> _me);
 };
 

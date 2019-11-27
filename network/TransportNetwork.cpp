@@ -40,6 +40,7 @@
 #include "../node/NodeInfo.h"
 #include "../protocols/binconsensus/AUXBroadcastMessage.h"
 #include "../protocols/binconsensus/BVBroadcastMessage.h"
+#include "../protocols/blockconsensus/FinalizeBroadcastMessage.h"
 #include "../thirdparty/json.hpp"
 
 #include "unordered_set"
@@ -233,7 +234,7 @@ void TransportNetwork::postOrDefer(
 void TransportNetwork::deferredMessagesLoop() {
     setThreadName("DeferMsgLoop");
 
-    auto nodeCount  = getSchain()->getNodeCount();
+    auto nodeCount = getSchain()->getNodeCount();
     auto schainIndex = getSchain()->getSchainIndex();
 
     waitOnGlobalStartBarrier();
@@ -388,6 +389,13 @@ ptr<NetworkMessageEnvelope> TransportNetwork::receiveMessage() {
                                                 sig,
                                                 realSender->getSchainIndex(),
                                                 sChain);
+    } else if (msgType == MsgType::FINALIZE_BROADCAST) {
+        mptr = make_shared<FinalizeBroadcastMessage>(node_id(srcNodeID), node_id(dstNodeID),
+                                                     block_id(blockID), schain_index(blockProposerIndex),
+                                                     schain_id(sChainID), msg_id(msgID), rawIP,
+                                                     sig,
+                                                     realSender->getSchainIndex(),
+                                                     sChain);
     } else {
         ASSERT(false);
     }
@@ -403,7 +411,9 @@ ptr<NetworkMessageEnvelope> TransportNetwork::receiveMessage() {
                                       "Network Message with corrupt protocol key", __CLASS_NAME__ ));
     };
 
-    return make_shared<NetworkMessageEnvelope>(mptr, realSender);
+    return
+            make_shared<NetworkMessageEnvelope>(mptr, realSender
+            );
 };
 
 

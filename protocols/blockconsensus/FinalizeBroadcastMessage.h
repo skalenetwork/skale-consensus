@@ -28,18 +28,18 @@
 
 
 
-class FinalizeMessage : public NetworkMessage{
+class FinalizeBroadcastMessage : public NetworkMessage{
 public:
 
 
-    FinalizeMessage(node_id destinationNodeID, block_id _blockID,
-                           schain_index _blockProposerIndex,
-                           BinConsensusInstance &sourceProtocolInstance);
+    FinalizeBroadcastMessage(node_id destinationNodeID, block_id _blockID,
+                             schain_index _blockProposerIndex,
+                             BinConsensusInstance &sourceProtocolInstance);
 
-    FinalizeMessage( node_id _srcNodeID, node_id _dstNodeID, block_id _blockID,
-        schain_index _blockProposerIndex,
-        schain_id _schainId, msg_id _msgID, uint32_t _ip, ptr< string > _sigShare,
-        schain_index _srcSchainIndex, Schain* _sChain);
+    FinalizeBroadcastMessage(node_id _srcNodeID, node_id _dstNodeID, block_id _blockID,
+                             schain_index _blockProposerIndex,
+                             schain_id _schainId, msg_id _msgID, uint32_t _ip, ptr< string > _sigShare,
+                             schain_index _srcSchainIndex, Schain* _sChain);
 
 
 };

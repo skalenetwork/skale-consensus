@@ -272,6 +272,13 @@ void BlockConsensusAgent::processChildCompletedMessage(ptr<InternalMessageEnvelo
     disconnect(_me->getSrcProtocolKey());
 };
 
+void BlockConsensusAgent::processFinalizeBroadcastMessage(ptr<MessageEnvelope> /*_me */) {
+};
+
+
+
+
+
 
 void BlockConsensusAgent::disconnect(ptr<ProtocolKey> _key) {
 
@@ -308,6 +315,13 @@ void BlockConsensusAgent::routeAndProcessMessage(ptr<MessageEnvelope> m) {
             return;
 
         }
+
+        if (m->getMessage()->getMessageType() == FINALIZE_BROADCAST) {
+            this->processFinalizeBroadcastMessage(m);
+            return;
+
+        }
+
 
 
         if (m->getOrigin() == ORIGIN_CHILD) {
