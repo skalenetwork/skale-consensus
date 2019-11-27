@@ -54,15 +54,6 @@ class ProtocolInstance {
 
     const ProtocolType protocolType; // unused
 
-
-
-
-
-
-
-
-
-
 protected:
 
 

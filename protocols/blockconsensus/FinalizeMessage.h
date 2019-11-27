@@ -16,7 +16,7 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file BVBMessagePayload.h
+    @file FinalizeMessage.h
     @author Stan Kladko
     @date 2018
 */
@@ -26,9 +26,21 @@
 
 
 
-class BVBMessagePayload {
+
+
+class FinalizeMessage : public NetworkMessage{
+public:
+
+
+    FinalizeMessage(node_id destinationNodeID, block_id _blockID,
+                           schain_index _blockProposerIndex,
+                           BinConsensusInstance &sourceProtocolInstance);
+
+    FinalizeMessage( node_id _srcNodeID, node_id _dstNodeID, block_id _blockID,
+        schain_index _blockProposerIndex,
+        schain_id _schainId, msg_id _msgID, uint32_t _ip, ptr< string > _sigShare,
+        schain_index _srcSchainIndex, Schain* _sChain);
+
 
 };
-
-
 
