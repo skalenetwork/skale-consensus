@@ -114,7 +114,7 @@ ptr<vector<ptr<NetworkMessageEnvelope> > > TransportNetwork::pullMessagesForBloc
     return returnList;
 }
 
-void TransportNetwork::broadcastMessage(Schain &_sChain, ptr<NetworkMessage> _m) {
+void TransportNetwork::broadcastMessage(ptr<NetworkMessage> _m) {
     if (_m->getBlockID() <= this->catchupBlocks) {
         return;
     }
@@ -126,13 +126,11 @@ void TransportNetwork::broadcastMessage(Schain &_sChain, ptr<NetworkMessage> _m)
     unordered_set<uint64_t> sent;
 
     while (3 * (sent.size() + 1) < getSchain()->getNodeCount() * 2) {
-        for (auto const &it : *_sChain.getNode()->getNodeInfosByIndex()) {
+        for (auto const &it : *getSchain()->getNode()->getNodeInfosByIndex()) {
             auto index = (uint64_t) it.second->getSchainIndex();
-            if (index != (_sChain.getSchainIndex()) && !sent.count(index)) {
+            if (index != (getSchain()->getSchainIndex()) && !sent.count(index)) {
                 _m->setDstNodeID(it.second->getNodeID());
-
-                ASSERT(it.second->getSchainIndex() != sChain->getSchainIndex());
-
+                ASSERT(it.second->getSchainIndex() != getSchain()->getSchainIndex());
                 if (sendMessage(it.second, _m)) {
                     sent.insert((uint64_t) it.second->getSchainIndex());
                 }
@@ -141,9 +139,9 @@ void TransportNetwork::broadcastMessage(Schain &_sChain, ptr<NetworkMessage> _m)
     }
 
     if (sent.size() + 1 < getSchain()->getNodeCount()) {
-        for (auto const &it : *_sChain.getNode()->getNodeInfosByIndex()) {
+        for (auto const &it : *getSchain()->getNode()->getNodeInfosByIndex()) {
             auto index = (uint64_t) it.second->getSchainIndex();
-            if (index != (_sChain.getSchainIndex()) && !sent.count(index)) {
+            if (index != (getSchain()->getSchainIndex()) && !sent.count(index)) {
                 {
                     lock_guard<recursive_mutex> lock(delayedSendsLock);
                     delayedSends.at(index - 1).push_back({_m, it.second});
@@ -157,8 +155,8 @@ void TransportNetwork::broadcastMessage(Schain &_sChain, ptr<NetworkMessage> _m)
 
     _m->setDstNodeID(oldID);
 
-    for (auto const &it : *_sChain.getNode()->getNodeInfosByIndex()) {
-        if (it.second->getSchainIndex() != _sChain.getSchainIndex()) {
+    for (auto const &it : *getSchain()->getNode()->getNodeInfosByIndex()) {
+        if (it.second->getSchainIndex() != getSchain()->getSchainIndex()) {
             _m->setDstNodeID(it.second->getNodeID());
             confirmMessage(it.second);
         }
@@ -211,9 +209,12 @@ void TransportNetwork::postOrDefer(
         const ptr<NetworkMessageEnvelope> &m, const block_id &currentBlockID) {
     if (m->getMessage()->getBlockID() > currentBlockID) {
         addToDeferredMessageQueue(m);
-    } else if (m->getMessage()->getBlockID() <= currentBlockID) {
+    } else  {
         auto msg = (NetworkMessage *) m->getMessage().get();
-        if (msg->getRound() >
+
+        if (msg->getMessageType() == MSG_BLOCK_SIGN_BROADCAST) {
+            sChain->postMessage(m);
+        } else if (msg->getRound() >
             sChain->getBlockConsensusInstance()->getRound(msg->createDestinationProtocolKey()) +
             1) {
             addToDeferredMessageQueue(m);
@@ -226,8 +227,6 @@ void TransportNetwork::postOrDefer(
         } else {
             sChain->postMessage(m);
         }
-    } else {
-        sChain->postMessage(m);
     }
 }
 
@@ -265,7 +264,6 @@ void TransportNetwork::deferredMessagesLoop() {
                 }
             }
         }
-
         usleep(100000);
     }
 }
@@ -389,7 +387,7 @@ ptr<NetworkMessageEnvelope> TransportNetwork::receiveMessage() {
                                                 sig,
                                                 realSender->getSchainIndex(),
                                                 sChain);
-    } else if (msgType == MsgType::FINALIZE_BROADCAST) {
+    } else if (msgType == MsgType::MSG_BLOCK_SIGN_BROADCAST) {
         mptr = make_shared<BlockSignBroadcastMessage>(node_id(srcNodeID), node_id(dstNodeID),
                                                       block_id(blockID), schain_index(blockProposerIndex),
                                                       schain_id(sChainID), msg_id(msgID), rawIP,

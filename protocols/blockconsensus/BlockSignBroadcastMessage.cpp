@@ -38,13 +38,22 @@
 #include "../../crypto/ThresholdSigShare.h"
 
 
+bin_consensus_round BlockSignBroadcastMessage::getRound() const {
+    assert(false);
+}
+
+bin_consensus_value BlockSignBroadcastMessage::getValue() const {
+    assert(false);
+}
+
+
 BlockSignBroadcastMessage::BlockSignBroadcastMessage(block_id _blockID, schain_index _blockProposerIndex,
-                                                     BinConsensusInstance &sourceProtocolInstance)
-        : NetworkMessage(FINALIZE_BROADCAST, 0, _blockID, _blockProposerIndex, 0, 0,
-                         sourceProtocolInstance) {
+                                                     ProtocolInstance &_sourceProtocolInstance)
+        : NetworkMessage(MSG_BLOCK_SIGN_BROADCAST, 0, _blockID, _blockProposerIndex, 0, 0,
+                         _sourceProtocolInstance) {
     printPrefix = "f";
 
-    auto schain = sourceProtocolInstance.getSchain();
+    auto schain = _sourceProtocolInstance.getSchain();
     CryptoPP::SHA256 sha256;
     auto bpi = getBlockProposerIndex();
     sha256.Update(reinterpret_cast < uint8_t * > ( &bpi), sizeof(bpi));
@@ -54,12 +63,8 @@ BlockSignBroadcastMessage::BlockSignBroadcastMessage(block_id _blockID, schain_i
     auto buf = make_shared<array<uint8_t, SHA_HASH_LEN>>();
     sha256.Final(buf->data());
     auto hash = make_shared<SHAHash>(buf);
-
-
     this->sigShare = schain->getCryptoManager()->signThreshold(hash, _blockID);
     this->sigShareString = sigShare->toString();
-
-
 }
 
 
@@ -68,7 +73,7 @@ BlockSignBroadcastMessage::BlockSignBroadcastMessage(node_id _srcNodeID, node_id
                                                      schain_id _schainId, msg_id _msgID, uint32_t _ip, ptr< string > _sigShare,
                                                      schain_index _srcSchainIndex, Schain* _sChain)
     : NetworkMessage(
-        FINALIZE_BROADCAST, _srcNodeID, _dstNodeID, _blockID, _blockProposerIndex, 0, 0, _schainId, _msgID, _ip, _sigShare,
+        MSG_BLOCK_SIGN_BROADCAST, _srcNodeID, _dstNodeID, _blockID, _blockProposerIndex, 0, 0, _schainId, _msgID, _ip, _sigShare,
         _srcSchainIndex, _sChain->getCryptoManager(), _sChain->getTotalSignersCount(),
         _sChain->getRequiredSignersCount()) {
     printPrefix = "F";

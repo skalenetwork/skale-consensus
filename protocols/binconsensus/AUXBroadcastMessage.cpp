@@ -64,13 +64,9 @@ AUXBroadcastMessage::AUXBroadcastMessage(bin_consensus_round round, bin_consensu
     auto buf = make_shared<array<uint8_t, SHA_HASH_LEN>>();
     sha256.Final(buf->data());
     auto hash = make_shared<SHAHash>(buf);
-
-
     this->sigShare = schain->getCryptoManager()->signThreshold(hash, _blockID);
     this->sigShareString = sigShare->toString();
-
 }
-
 
 AUXBroadcastMessage::AUXBroadcastMessage(node_id _srcNodeID, node_id _dstNodeID, block_id _blockID,
                                          schain_index _blockProposerIndex, bin_consensus_round _r,
@@ -82,5 +78,4 @@ AUXBroadcastMessage::AUXBroadcastMessage(node_id _srcNodeID, node_id _dstNodeID,
         _signature, _srcSchainIndex, _sChain->getCryptoManager(), _sChain->getTotalSignersCount(),
                                      _sChain->getRequiredSignersCount()) {
     printPrefix = "a";
-
 };

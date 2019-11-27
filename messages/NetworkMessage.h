@@ -71,9 +71,9 @@ public:
     bin_consensus_round r;
     bin_consensus_value value;
 
-    bin_consensus_round getRound() const;
+    virtual bin_consensus_round getRound() const;
 
-    bin_consensus_value getValue() const;
+    virtual bin_consensus_value getValue() const;
 
     msg_len getLen();
 

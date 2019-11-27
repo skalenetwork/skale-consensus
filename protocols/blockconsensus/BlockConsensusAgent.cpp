@@ -32,11 +32,13 @@
 #include "../../abstracttcpserver/ConnectionStatus.h"
 #include "../../chains/Schain.h"
 #include "../../node/Node.h"
+#include "../../network/TransportNetwork.h"
 #include "../../exceptions/ExitRequestedException.h"
 #include "../../messages/ParentMessage.h"
 #include "../../messages/InternalMessageEnvelope.h"
 #include "../../messages/NetworkMessage.h"
 #include "../../messages/NetworkMessageEnvelope.h"
+#include "../../protocols/blockconsensus/BlockSignBroadcastMessage.h"
 #include "../../pendingqueue/PendingTransactionsAgent.h"
 #include "../../datastructures/BlockProposal.h"
 #include "../../datastructures/ReceivedBlockProposal.h"
@@ -123,6 +125,8 @@ void BlockConsensusAgent::propose(bin_consensus_value _proposal, schain_index _i
     auto msg = make_shared<BVBroadcastMessage>(_nodeID, _id, _index, bin_consensus_round(0), _proposal, *child);
 
 
+
+
     auto id = (uint64_t) msg->getBlockId();
     ASSERT(id != 0);
 
@@ -133,6 +137,10 @@ void BlockConsensusAgent::propose(bin_consensus_value _proposal, schain_index _i
 
 void BlockConsensusAgent::decideBlock(block_id _blockId, schain_index _sChainIndex) {
 
+
+    auto msg = make_shared<BlockSignBroadcastMessage>(_blockId, _sChainIndex, *this);
+
+    getSchain()->getNode()->getNetwork()->broadcastMessage(msg);
 
     ASSERT(decidedBlocks.count(_blockId) == 0);
 
@@ -148,7 +156,6 @@ void BlockConsensusAgent::decideBlock(block_id _blockId, schain_index _sChainInd
 
 
 void BlockConsensusAgent::decideEmptyBlock(block_id _blockNumber) {
-
     decideBlock(_blockNumber, schain_index(0));
 }
 
@@ -316,7 +323,7 @@ void BlockConsensusAgent::routeAndProcessMessage(ptr<MessageEnvelope> m) {
 
         }
 
-        if (m->getMessage()->getMessageType() == FINALIZE_BROADCAST) {
+        if (m->getMessage()->getMessageType() == MSG_BLOCK_SIGN_BROADCAST) {
             this->processFinalizeBroadcastMessage(m);
             return;
 

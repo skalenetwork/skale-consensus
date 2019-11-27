@@ -33,7 +33,7 @@ public:
 
 
     BlockSignBroadcastMessage(block_id _blockID, schain_index _blockProposerIndex,
-                              BinConsensusInstance &sourceProtocolInstance);
+                              ProtocolInstance &_sourceProtocolInstance);
 
     BlockSignBroadcastMessage(node_id _srcNodeID, node_id _dstNodeID, block_id _blockID,
                               schain_index _blockProposerIndex,
@@ -41,5 +41,8 @@ public:
                               schain_index _srcSchainIndex, Schain* _sChain);
 
 
+    virtual bin_consensus_round getRound() const override ;
+
+    virtual bin_consensus_value getValue() const override ;
 };
 
