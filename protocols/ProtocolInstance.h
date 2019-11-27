@@ -58,12 +58,9 @@ class ProtocolInstance {
 
 protected:
 
-
     ProtocolStatus status = STATUS_ACTIVE;
 
     ProtocolOutcome outcome = OUTCOME_UNKNOWN;
-
-
 
     /**
      * Instance ID
