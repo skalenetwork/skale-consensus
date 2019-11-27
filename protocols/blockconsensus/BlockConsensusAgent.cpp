@@ -28,6 +28,7 @@
 
 #include "../../utils/Time.h"
 #include "../../crypto/SHAHash.h"
+#include "../../crypto/ThresholdSigShare.h"
 #include "../../abstracttcpserver/ConnectionStatus.h"
 #include "../../abstracttcpserver/ConnectionStatus.h"
 #include "../../chains/Schain.h"
@@ -279,7 +280,8 @@ void BlockConsensusAgent::processChildCompletedMessage(ptr<InternalMessageEnvelo
     disconnect(_me->getSrcProtocolKey());
 };
 
-void BlockConsensusAgent::processFinalizeBroadcastMessage(ptr<MessageEnvelope> /*_me */) {
+void BlockConsensusAgent::processBlockSignMessage(ptr<BlockSignBroadcastMessage> _message) {
+    cerr << _message->getSigShare()->toString() << endl;
 };
 
 
@@ -324,12 +326,9 @@ void BlockConsensusAgent::routeAndProcessMessage(ptr<MessageEnvelope> m) {
         }
 
         if (m->getMessage()->getMessageType() == MSG_BLOCK_SIGN_BROADCAST) {
-            this->processFinalizeBroadcastMessage(m);
+            this->processBlockSignMessage(dynamic_pointer_cast<BlockSignBroadcastMessage>(m->getMessage()));
             return;
-
         }
-
-
 
         if (m->getOrigin() == ORIGIN_CHILD) {
             LOG(debug, "Got child message " + to_string(m->getMessage()->getBlockId()) + ":" +

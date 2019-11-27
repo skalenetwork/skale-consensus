@@ -63,6 +63,10 @@ BlockSignBroadcastMessage::BlockSignBroadcastMessage(block_id _blockID, schain_i
     auto buf = make_shared<array<uint8_t, SHA_HASH_LEN>>();
     sha256.Final(buf->data());
     auto hash = make_shared<SHAHash>(buf);
+
+
+    cerr  << " Signing hash " + *hash->toHex() + " for block id " + to_string(_blockID) << endl;
+
     this->sigShare = schain->getCryptoManager()->signThreshold(hash, _blockID);
     this->sigShareString = sigShare->toString();
 }

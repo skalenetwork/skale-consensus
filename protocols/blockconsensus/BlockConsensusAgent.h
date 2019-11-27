@@ -35,7 +35,7 @@ class ChildBVDecidedMessage;
 class BlockProposalSet;
 class Schain;
 class BooleanProposalVector;
-
+class BlockSignBroadcastMessage;
 
 class BlockConsensusAgent : public ProtocolInstance {
 
@@ -117,6 +117,6 @@ public:
     ptr<BinConsensusInstance> getChild(ptr<ProtocolKey> key);
 
 
-    void processFinalizeBroadcastMessage(ptr<MessageEnvelope> _me);
+    void processBlockSignMessage(ptr<BlockSignBroadcastMessage> _message);
 };
 

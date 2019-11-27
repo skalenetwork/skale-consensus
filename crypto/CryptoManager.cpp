@@ -86,6 +86,7 @@ bool CryptoManager::verifyECDSA(ptr<SHAHash> _hash,
 
 ptr<ThresholdSigShare> CryptoManager::signThreshold(ptr<SHAHash> _hash, block_id _blockId) {
 
+
     MONITOR(__CLASS_NAME__, __FUNCTION__)
 
     if (getSchain()->getNode()->isBlsEnabled()) {
