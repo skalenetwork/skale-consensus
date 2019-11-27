@@ -209,14 +209,14 @@ void TransportNetwork::postOrDefer(
         const ptr<NetworkMessageEnvelope> &m, const block_id &currentBlockID) {
     if (m->getMessage()->getBlockID() > currentBlockID) {
         addToDeferredMessageQueue(m);
-    } else  {
+    } else {
         auto msg = (NetworkMessage *) m->getMessage().get();
 
         if (msg->getMessageType() == MSG_BLOCK_SIGN_BROADCAST) {
             sChain->postMessage(m);
         } else if (msg->getRound() >
-            sChain->getBlockConsensusInstance()->getRound(msg->createDestinationProtocolKey()) +
-            1) {
+                   sChain->getBlockConsensusInstance()->getRound(msg->createDestinationProtocolKey()) +
+                   1) {
             addToDeferredMessageQueue(m);
         } else if (msg->getRound() == sChain->getBlockConsensusInstance()->getRound(
                 msg->createDestinationProtocolKey()) +
@@ -241,17 +241,13 @@ void TransportNetwork::deferredMessagesLoop() {
     while (!getSchain()->getNode()->isExitRequested()) {
         ptr<vector<ptr<NetworkMessageEnvelope> > > deferredMessages;
 
-        {
-            block_id currentBlockID = sChain->getLastCommittedBlockID() + 1;
-
-            deferredMessages = pullMessagesForBlockID(currentBlockID);
-        }
+        block_id currentBlockID = sChain->getLastCommittedBlockID() + 1;
+        deferredMessages = pullMessagesForBlockID(currentBlockID);
 
         for (auto message : *deferredMessages) {
-            block_id currentBlockID = sChain->getLastCommittedBlockID() + 1;
+            currentBlockID = sChain->getLastCommittedBlockID() + 1;
             postOrDefer(message, currentBlockID);
         }
-
 
         for (int i = 0; i < nodeCount; i++) {
             if (i != (schainIndex - 1)) {
