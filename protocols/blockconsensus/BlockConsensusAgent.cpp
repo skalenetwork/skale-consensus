@@ -287,10 +287,14 @@ void BlockConsensusAgent::processBlockSignMessage(ptr<BlockSignBroadcastMessage>
 
     auto db = getSchain()->getNode()->getBlockSigShareDb();
 
-    db->checkAndSaveShare(
+    auto enough = db->checkAndSaveShare(
             _message->getSigShare());
 
-    cerr << _message->getSigShare()->toString() << endl;
+    if (enough) {
+        cerr << "Enough" << _message->getSigShare()->toString() << endl;
+    }
+
+
 };
 
 

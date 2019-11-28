@@ -350,7 +350,6 @@ uint64_t LevelDB::writeStringToBlockSet(const string &_key, const string &_value
 
     if (containingDb != nullptr) {
         try {
-            cerr << *result << endl;
             count = stoull(*result, NULL, 10);
         } catch (...) {
             LOG(err, "Incorrect value in LevelDB:" + *result);
