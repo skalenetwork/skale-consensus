@@ -16,24 +16,22 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file ProposalHashDB.h
+    @file BlockSigShare.h
     @author Stan Kladko
     @date 2019
 */
 
 
-#ifndef SKALED_ProposalHashDB_H
-#define SKALED_ProposalHashDB_H
+#ifndef SKALED_BLOCK_SIG_SHARES_DB
+#define SKALED_BLOCK_SIG_SHARES_DB
 
 class CommittedBlock;
-
-
 
 #include "LevelDB.h"
 
 class CryptoManager;
 
-class ProposalHashDB : public LevelDB {
+class BlockSigShare : public LevelDB {
 
     recursive_mutex m;
 
@@ -43,7 +41,7 @@ class ProposalHashDB : public LevelDB {
 
 public:
 
-    ProposalHashDB(string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize);
+    BlockSigShare(string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize);
 
     bool checkAndSaveHash(block_id _proposalBlockID, schain_index _proposerIndex, ptr<string> _proposalHash);
 
@@ -51,4 +49,4 @@ public:
 };
 
 
-#endif //SKALED_ProposalHashDB_H
+#endif //SKALED_BLOCK_SIG_SHARES_DB

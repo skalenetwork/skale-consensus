@@ -330,3 +330,7 @@ uint64_t Node::getSignatureDbSize() const {
 uint64_t Node::getPriceDbSize() const {
     return priceDBSize;
 }
+
+uint64_t Node::getBlockSigDbSize() const {
+    return blockSigSharesDBSize;
+}

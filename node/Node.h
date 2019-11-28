@@ -166,6 +166,8 @@ private:
 
     ptr<ProposalHashDB> proposalHashDB = nullptr;
 
+    ptr<BlockSigSharesDB> blockSigSharesDB = nullptr;
+
 
     uint64_t catchupIntervalMS;
 
@@ -188,7 +190,15 @@ private:
 
     uint64_t blockDBSize;
     uint64_t proposalHashDBSize;
+    uint64_t blockSigSharesDBSize;
+public:
+    uint64_t getBlockSigDbSize() const;
+
+private:
+
     uint64_t commitedTxsDBSize;
+
+
 public:
     uint64_t getCommitedTxsDbSize() const;
 

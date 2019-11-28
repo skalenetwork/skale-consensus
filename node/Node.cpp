@@ -68,7 +68,6 @@
 #include "../db/ProposalHashDB.h"
 
 
-
 #include "ConsensusEngine.h"
 #include "ConsensusInterface.h"
 #include "Node.h"
@@ -110,7 +109,8 @@ void Node::initLevelDBs() {
             make_shared<BlockDB>(dataDir, blockDBPrefix, getNodeID(), getBlockDBSize());
     randomDB = make_shared<RandomDB>(dataDir, randomDBPrefix, getNodeID(), getRandomDbSize());
     committedTransactionDB =
-            make_shared<CommittedTransactionDB>(dataDir, committedTransactionsDBPrefix, getNodeID(), getCommitedTxsDbSize());
+            make_shared<CommittedTransactionDB>(dataDir, committedTransactionsDBPrefix, getNodeID(),
+                                                getCommitedTxsDbSize());
     signatureDB = make_shared<SigDB>(dataDir, signaturesDBPrefix, getNodeID(), getSignatureDbSize());
     priceDB = make_shared<PriceDB>(dataDir, pricesDBPrefix, getNodeID(), getPriceDbSize());
     proposalHashDB = make_shared<ProposalHashDB>(dataDir, proposalHashDBPrefix, getNodeID(), getProposalHashDbSize());
@@ -134,54 +134,28 @@ void Node::initLogging() {
     }
 }
 
+
 void Node::initParamsFromConfig() {
     nodeID = cfg.at("nodeID").get<uint64_t>();
-
-    catchupIntervalMS = getParamUint64("catchupIntervalMs", CATCHUP_INTERVAL_MS);
-
-    monitoringIntervalMS = getParamUint64("monitoringIntervalMs", MONITORING_INTERVAL_MS);
-
-    waitAfterNetworkErrorMs =
-            getParamUint64("waitAfterNetworkErrorMs", WAIT_AFTER_NETWORK_ERROR_MS);
-
-    blockProposalHistorySize =
-            getParamUint64("blockProposalHistorySize", BLOCK_PROPOSAL_HISTORY_SIZE);
-
-    committedTransactionsHistory =
-            getParamUint64("committedTransactionsHistory", COMMITTED_TRANSACTIONS_HISTORY);
-
-    maxCatchupDownloadBytes =
-            getParamUint64("maxCatchupDownloadBytes", MAX_CATCHUP_DOWNLOAD_BYTES);
-
-    maxTransactionsPerBlock =
-            getParamUint64("maxTransactionsPerBlock", MAX_TRANSACTIONS_PER_BLOCK);
-
-    minBlockIntervalMs = getParamUint64("minBlockIntervalMs", MIN_BLOCK_INTERVAL_MS);
-
-    blockDBSize =
-            getParamUint64("blockDBSize", BLOCK_DB_SIZE);
-
-    proposalHashDBSize =
-            getParamUint64("proposalHashDBSize", PROPOSAL_HASH_DB_SIZE);
-
-    commitedTxsDBSize =
-            getParamUint64("commitedTxsDBSize", COMMITTED_TXS_DB_SIZE);
-
-    randomDBSize =
-            getParamUint64("randomDBSize", RANDOM_DB_SIZE);
-
-    signatureDBSize =
-            getParamUint64("signatuteDBSize", SIGNATURE_DB_SIZE);
-
-    priceDBSize =
-            getParamUint64("signatuteDBSize", SIGNATURE_DB_SIZE);
-
     name = make_shared<string>(cfg.at("nodeName").get<string>());
-
     bindIP = make_shared<string>(cfg.at("bindIP").get<string>());
-
     basePort = network_port(cfg.at("basePort").get<int>());
 
+    catchupIntervalMS = getParamUint64("catchupIntervalMs", CATCHUP_INTERVAL_MS);
+    monitoringIntervalMS = getParamUint64("monitoringIntervalMs", MONITORING_INTERVAL_MS);
+    waitAfterNetworkErrorMs = getParamUint64("waitAfterNetworkErrorMs", WAIT_AFTER_NETWORK_ERROR_MS);
+    blockProposalHistorySize = getParamUint64("blockProposalHistorySize", BLOCK_PROPOSAL_HISTORY_SIZE);
+    committedTransactionsHistory = getParamUint64("committedTransactionsHistory", COMMITTED_TRANSACTIONS_HISTORY);
+    maxCatchupDownloadBytes = getParamUint64("maxCatchupDownloadBytes", MAX_CATCHUP_DOWNLOAD_BYTES);
+    maxTransactionsPerBlock = getParamUint64("maxTransactionsPerBlock", MAX_TRANSACTIONS_PER_BLOCK);
+    minBlockIntervalMs = getParamUint64("minBlockIntervalMs", MIN_BLOCK_INTERVAL_MS);
+    blockDBSize = getParamUint64("blockDBSize", BLOCK_DB_SIZE);
+    proposalHashDBSize = getParamUint64("proposalHashDBSize", PROPOSAL_HASH_DB_SIZE);
+    blockSigSharesDBSize = getParamUint64("proposalHashDBSize", BLOCK_SIG_SHARES_DB_SIZE);
+    commitedTxsDBSize = getParamUint64("commitedTxsDBSize", COMMITTED_TXS_DB_SIZE);
+    randomDBSize = getParamUint64("randomDBSize", RANDOM_DB_SIZE);
+    signatureDBSize = getParamUint64("signatuteDBSize", SIGNATURE_DB_SIZE);
+    priceDBSize = getParamUint64("signatuteDBSize", PRICE_DB_SIZE);
     auto emptyBlockIntervalMsTmp = getParamInt64("emptyBlockIntervalMs", EMPTY_BLOCK_INTERVAL_MS);
 
 
@@ -381,7 +355,6 @@ void Node::exit() {
 }
 
 
-
 void Node::closeAllSocketsAndNotifyAllAgentsAndThreads() {
     getSchain()->getNode()->threadServerConditionVariable.notify_all();
 
@@ -402,10 +375,6 @@ void Node::closeAllSocketsAndNotifyAllAgentsAndThreads() {
 void Node::registerAgent(Agent *_agent) {
     agents.push_back(_agent);
 }
-
-
-
-
 
 
 void Node::exitCheck() {

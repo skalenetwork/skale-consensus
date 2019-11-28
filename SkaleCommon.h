@@ -288,6 +288,7 @@ static const uint64_t  RANDOM_DB_SIZE = 10000000;
 static const uint64_t  SIGNATURE_DB_SIZE = 10000000;
 static const uint64_t  PRICE_DB_SIZE = 10000000;
 static const uint64_t  PROPOSAL_HASH_DB_SIZE = 10000000;
+static const uint64_t  BLOCK_SIG_SHARES_DB_SIZE = 10000000;
 
 extern void setThreadName(std::string const &_n);
 
