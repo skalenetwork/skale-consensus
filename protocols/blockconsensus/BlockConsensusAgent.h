@@ -36,9 +36,9 @@ class BlockProposalSet;
 class Schain;
 class BooleanProposalVector;
 class BlockSignBroadcastMessage;
+class CryptoManager;
 
 class BlockConsensusAgent : public ProtocolInstance {
-
 
     class Comparator {
     public:
@@ -46,14 +46,8 @@ class BlockConsensusAgent : public ProtocolInstance {
                         const ptr<ProtocolKey>& b ) const {
 
             return *a < *b;
-            return *a < *b;
-
         }
     };
-
-
-
-    bin_consensus_round cleanedRound = bin_consensus_round(0);
 
 
     recursive_mutex childrenMutex;
@@ -79,12 +73,9 @@ class BlockConsensusAgent : public ProtocolInstance {
 
     void decideBlock(block_id _blockId, schain_index _sChainIndex);
 
-
     void propose(bin_consensus_value _proposal, schain_index index, block_id _id);
 
     void reportConsensusAndDecideIfNeeded(ptr<ChildBVDecidedMessage> _msg);
-
-    void voteAndDecideIfNeded1(ptr<ChildBVDecidedMessage> _msg);
 
     void decideEmptyBlock(block_id _blockNumber);
 
@@ -93,9 +84,6 @@ class BlockConsensusAgent : public ProtocolInstance {
     void processChildCompletedMessage(ptr<InternalMessageEnvelope> _me);
 
     void startConsensusProposal(block_id _blockID, ptr<BooleanProposalVector> _proposal);
-
-
-    void processMessage(ptr<MessageEnvelope> _m);
 
 
 public:

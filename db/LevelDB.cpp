@@ -52,8 +52,12 @@ static ReadOptions readOptions;
 
 
 ptr<string> LevelDB::readString(string &_key) {
-
     shared_lock<shared_mutex> lock(m);
+    return readStringUnsafe(_key);
+}
+
+
+ptr<string> LevelDB::readStringUnsafe(string &_key) {
 
     for (int i = LEVELDB_PIECES - 1; i >= 0; i--) {
         auto result = make_shared<string>();
@@ -96,8 +100,6 @@ void LevelDB::writeString(const string &_key, const string &_value) {
         throwExceptionOnError(status);
     }
 }
-
-
 
 
 void LevelDB::writeByteArray(const char *_key, size_t _keyLen, const char *value,
@@ -176,13 +178,10 @@ DB *LevelDB::openDB(uint64_t _index) {
 }
 
 
-LevelDB::LevelDB(string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize,
-        uint64_t _totalNodes, uint64_t _requiredNodes)
+LevelDB::LevelDB(string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize)
         : nodeId(_nodeId),
           prefix(_prefix), dirname(_dirName),
-          maxDBSize(_maxDBSize), totalNodes(_totalNodes), requiredNodes(_requiredNodes) {
-
-    CHECK_ARGUMENT(_totalNodes >= _requiredNodes);
+          maxDBSize(_maxDBSize) {
 
     boost::filesystem::path path(_dirName);
 
@@ -293,7 +292,7 @@ void LevelDB::rotateDBsIfNeeded() {
     }
 }
 
-string LevelDB::createSetKey(const string& _key, block_id _blockId, schain_index _index) {
+string LevelDB::createSetKey(const string &_key, block_id _blockId, schain_index _index) {
     return to_string(_blockId).append(":").append(to_string(_index)).append(":").append(_key);
 }
 
@@ -326,7 +325,9 @@ uint64_t LevelDB::readCount(block_id _blockId) {
     }
 }
 
-uint64_t LevelDB::writeStringToBlockSet(const string &_key, const string &_value, block_id _blockId, schain_index _index) {
+ptr<map<schain_index, ptr<string>>>
+LevelDB::writeStringToBlockSet(const string &_key, const string &_value, block_id _blockId, schain_index _index,
+                               uint64_t _totalSigners, uint64_t _requiredSigners) {
 
 
     lock_guard<shared_mutex> lock(m);
@@ -364,17 +365,35 @@ uint64_t LevelDB::writeStringToBlockSet(const string &_key, const string &_value
 
         leveldb::WriteBatch batch;
         count++;
-        CHECK_STATE(count <= totalNodes || totalNodes == 0)
+
         batch.Put(counterKey, to_string(count));
         batch.Put(entryKey, _value);
         CHECK_STATE2(containingDb->Write(writeOptions, &batch).ok(), "Could not write LevelDB");
     }
 
-    return count;
 
+    if (count < _requiredSigners) {
+        return nullptr;
+    }
+
+
+    auto enoughSet = make_shared<map<schain_index, ptr<string>>>();
+
+    for (uint64_t i = 1; i <= _totalSigners; i++) {
+        auto key = createSetKey(_key, _blockId, schain_index(i));
+        auto entry = readStringUnsafe(key);
+
+        if (entry != nullptr)
+            (*enoughSet)[schain_index(i)] = entry;
+        if (enoughSet->size() == _requiredSigners) {
+            break;
+        }
+    }
+
+    CHECK_STATE(enoughSet->size() == _requiredSigners);
+
+    return enoughSet;
 }
 
-bool LevelDB::isEnough(uint64_t _count) {
-    return _count >= requiredNodes;
-}
+
 

@@ -228,8 +228,6 @@ public:
 
     void bootstrap(block_id _lastCommittedBlockID, uint64_t _lastCommittedBlockTimeStamp);
 
-    schain_id getSchainID() const;
-
     uint64_t getTotalTransactions() const;
 
     block_id getBootstrapBlockID() const;
@@ -237,9 +235,9 @@ public:
     void setHealthCheckFile(uint64_t status);
 
 
-    size_t getTotalSignersCount();
+    size_t getTotalSigners();
 
-    size_t getRequiredSignersCount();
+    size_t getRequiredSigners();
 
     u256 getPriceForBlockId(uint64_t _blockId);
 
@@ -249,5 +247,4 @@ public:
 
     void decideBlock(block_id _blockId, schain_index _proposerIndex);
 
-    size_t getRequiredBlockSignersCount();
 };

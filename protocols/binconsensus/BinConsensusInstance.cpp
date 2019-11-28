@@ -671,8 +671,8 @@ const node_count &BinConsensusInstance::getNodeCount() const {
 uint64_t BinConsensusInstance::calculateBLSRandom(bin_consensus_round _r) {
 
 
-    auto shares = getSchain()->getCryptoManager()->createSigShareSet(getBlockID(), getSchain()->getTotalSignersCount(),
-                                                                     getSchain()->getRequiredSignersCount());
+    auto shares = getSchain()->getCryptoManager()->createSigShareSet(getBlockID(), getSchain()->getTotalSigners(),
+                                                                     getSchain()->getRequiredSigners());
 
     if (binValues[_r].count(bin_consensus_value(true)) > 0 && auxTrueVotes[_r].size() > 0) {
         for (auto &&item: auxTrueVotes[_r]) {

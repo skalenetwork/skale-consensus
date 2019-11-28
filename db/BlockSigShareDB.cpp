@@ -24,31 +24,65 @@
 
 #include "../SkaleCommon.h"
 #include "../Log.h"
+#include "../thirdparty/json.hpp"
 #include "../crypto/SHAHash.h"
+#include "../crypto/ThresholdSignature.h"
 #include "../chains/Schain.h"
+#include "../node/Node.h"
+#include "../node/NodeInfo.h"
+#include "../crypto/ThresholdSigShareSet.h"
 #include "../exceptions/InvalidStateException.h"
 #include "../datastructures/CommittedBlock.h"
 #include "../crypto/ThresholdSigShare.h"
+#include "../crypto/CryptoManager.h"
+#include "../exceptions/ExitRequestedException.h"
 
 #include "BlockSigShareDB.h"
 
 
-BlockSigShareDB::BlockSigShareDB(string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize)
-        : LevelDB(_dirName, _prefix,
-                  _nodeId, _maxDBSize) {
+BlockSigShareDB::BlockSigShareDB(string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize,
+                                 Schain *_sChain)
+        : LevelDB(_dirName, _prefix, _nodeId, _maxDBSize), sChain(_sChain) {
+    CHECK_ARGUMENT(sChain != nullptr);
 }
 
 
-bool
-BlockSigShareDB::checkAndSaveShare(ptr<ThresholdSigShare> _sigShare) {
-    CHECK_ARGUMENT(_sigShare != nullptr);
-    auto sigShareString = _sigShare->toString();
-    auto count = writeStringToBlockSet("", *sigShareString, _sigShare->getBlockId(),
-            _sigShare->getSignerIndex());
-    return isEnough(count);
+ptr<ThresholdSignature>
+BlockSigShareDB::checkAndSaveShare(ptr<ThresholdSigShare> _sigShare, ptr<CryptoManager> _cryptoManager) {
+    try {
+        CHECK_ARGUMENT(_sigShare != nullptr);
+        CHECK_ARGUMENT(_cryptoManager != nullptr);
+        auto sigShareString = _sigShare->toString();
+        auto enoughSet = writeStringToBlockSet("", *sigShareString, _sigShare->getBlockId(),
+                                               _sigShare->getSignerIndex(), sChain->getTotalSigners(),
+                                               sChain->getRequiredSigners());
+        if (enoughSet == nullptr)
+            return nullptr;
+
+        auto s = _cryptoManager->createSigShareSet(_sigShare->getBlockId(), sChain->getTotalSigners(),
+                                                   sChain->getRequiredSigners());
+
+
+        for (auto &&item : *enoughSet) {
+            auto nodeInfo = sChain->getNode()->getNodeInfoByIndex(item.first);
+            CHECK_STATE(nodeInfo != nullptr);
+            auto sigShare = _cryptoManager->createSigShare(item.second, sChain->getSchainID(),
+                                                           _sigShare->getBlockId(), nodeInfo->getNodeID(), item.first,
+                                                           sChain->getTotalSigners(),
+                                                           sChain->getRequiredSigners());
+            s->addSigShare(sigShare);
+        }
+
+
+        CHECK_STATE(s->isEnough());
+        auto signature = s->mergeSignature();
+        CHECK_STATE(signature != nullptr);
+        return signature;
+    } catch (ExitRequestedException &) { throw; }
+    catch (...) {
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+    }
 }
-
-
 
 
 const string BlockSigShareDB::getFormatVersion() {

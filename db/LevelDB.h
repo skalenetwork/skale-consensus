@@ -60,21 +60,21 @@ protected:
     string dirname;
     uint64_t maxDBSize;
 
-    uint64_t totalNodes;
-    uint64_t requiredNodes;
-
-    bool isEnough(uint64_t _count);
-
     ptr<string> readString(string &_key);
+
+    ptr<string> readStringUnsafe(string &_key);
 
 
     void writeString(const string &key1, const string &value1);
 
-    uint64_t writeStringToBlockSet(const string &_key, const string &_value,
-                                   block_id _blockId, schain_index _index);
+    ptr<map<schain_index, ptr<string>>>
+    writeStringToBlockSet(const string &_key, const string &_value, block_id _blockId, schain_index _index,
+                          uint64_t _totalSigners, uint64_t _requiredSigners);
 
     void writeByteArray(const char *_key, size_t _keyLen, const char *value,
                         size_t _valueLen);
+
+    vector<ptr<string>> getEnoughSet();
 
 
     void writeByteArray(string &_key, const char *value,
@@ -90,8 +90,7 @@ public:
     void throwExceptionOnError(leveldb::Status result);
 
 
-    LevelDB(string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize,
-                             uint64_t _totalNodes = 0, uint64_t _requiredNodes = 0);
+    LevelDB(string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize);
 
 
     std::pair<uint64_t, uint64_t> findMaxMinDBIndex();

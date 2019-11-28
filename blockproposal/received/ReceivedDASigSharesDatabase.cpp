@@ -70,8 +70,8 @@ ptr<DAProof> ReceivedDASigSharesDatabase::addAndMergeSigShareAndVerifySig(ptr<Th
     if (this->sigShareSets.count(_sigShare->getBlockId()) == 0) {
 
         auto set = sChain->getCryptoManager()->createSigShareSet(_sigShare->getBlockId(),
-                                                                 sChain->getTotalSignersCount(),
-                                                                 sChain->getRequiredSignersCount());
+                                                                 sChain->getTotalSigners(),
+                                                                 sChain->getRequiredSigners());
 
         sigShareSets[_sigShare->getBlockId()] = set;
 

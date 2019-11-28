@@ -105,8 +105,8 @@ ptr<ThresholdSigShare> CryptoManager::signThreshold(ptr<SHAHash> _hash, block_id
         return make_shared<MockupSigShare>(sigShare, sChain->getSchainID(), _blockId,
                                            sChain->getNode()->getNodeID(),
                                            sChain->getSchainIndex(),
-                                           sChain->getTotalSignersCount(),
-                                           sChain->getRequiredSignersCount());
+                                           sChain->getTotalSigners(),
+                                           sChain->getRequiredSigners());
     }
 }
 
@@ -160,8 +160,8 @@ bool CryptoManager::verifyProposalECDSA(BlockProposal* _proposal, ptr<string> _h
 ptr<ThresholdSignature> CryptoManager::verifyThreshold(ptr<SHAHash> _hash, ptr<string> _signature, block_id _blockId) {
     MONITOR(__CLASS_NAME__, __FUNCTION__)
 
-    auto requiredSigners = sChain->getRequiredSignersCount();
-    auto totalSigners = sChain->getTotalSignersCount();
+    auto requiredSigners = sChain->getRequiredSigners();
+    auto totalSigners = sChain->getTotalSigners();
 
 
     if (getSchain()->getNode()->isBlsEnabled()) {

@@ -26,12 +26,15 @@
 #define SKALED_BLOCK_SIG_SHARES_DB
 
 class CommittedBlock;
+class ThresholdSignature;
 
 #include "LevelDB.h"
 
 class CryptoManager;
 
 class BlockSigShareDB : public LevelDB {
+
+    Schain* sChain;
 
     recursive_mutex m;
 
@@ -41,9 +44,9 @@ class BlockSigShareDB : public LevelDB {
 
 public:
 
-    BlockSigShareDB(string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize);
+    BlockSigShareDB(string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize, Schain *_sChain);
 
-    bool checkAndSaveShare(ptr<ThresholdSigShare> _sigShare);
+    ptr<ThresholdSignature> checkAndSaveShare(ptr<ThresholdSigShare> _sigShare, ptr<CryptoManager> _cryptoManager);
 
 };
 

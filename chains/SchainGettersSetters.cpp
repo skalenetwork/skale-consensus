@@ -210,13 +210,8 @@ ptr<TestMessageGeneratorAgent> Schain::getTestMessageGeneratorAgent() const {
     return testMessageGeneratorAgent;
 }
 
-void Schain::setBlockProposerTest(const string &blockProposerTest) {
-    Schain::blockProposerTest = make_shared<string>(blockProposerTest);
-}
-
-
-schain_id Schain::getSchainID() const {
-    return schainID;
+void Schain::setBlockProposerTest(const string &_blockProposerTest) {
+    Schain::blockProposerTest = make_shared<string>(_blockProposerTest);
 }
 
 
@@ -245,26 +240,17 @@ void Schain::setHealthCheckFile(uint64_t status) {
 }
 
 
-size_t Schain::getTotalSignersCount() {
+size_t Schain::getTotalSigners() {
     return (size_t) (uint64_t) getNodeCount();
 }
 
 
-size_t Schain::getRequiredSignersCount() {
+size_t Schain::getRequiredSigners() {
     auto count = getNodeCount();
     if (count <= 2) {
         return (uint64_t) count;
     } else {
         return 2 * (uint64_t) count / 3 + 1;
-    }
-}
-
-size_t Schain::getRequiredBlockSignersCount() {
-    auto count = getNodeCount();
-    if (count <= 2) {
-        return (uint64_t) count;
-    } else {
-        return (uint64_t) count / 3 + 1;
     }
 }
 
@@ -297,6 +283,7 @@ void Schain::joinMonitorThread() {
 }
 
  ptr<CryptoManager> Schain::getCryptoManager() const {
+    ASSERT(cryptoManager != nullptr);
     return cryptoManager;
 }
 

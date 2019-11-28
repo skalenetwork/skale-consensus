@@ -65,7 +65,7 @@
 
 
 BlockConsensusAgent::BlockConsensusAgent(Schain &_schain) : ProtocolInstance(
-                                          BLOCK_SIGN, _schain) {
+        BLOCK_SIGN, _schain) {
 };
 
 
@@ -127,8 +127,6 @@ void BlockConsensusAgent::propose(bin_consensus_value _proposal, schain_index _i
     auto msg = make_shared<BVBroadcastMessage>(_nodeID, _id, _index, bin_consensus_round(0), _proposal, *child);
 
 
-
-
     auto id = (uint64_t) msg->getBlockId();
     ASSERT(id != 0);
 
@@ -142,7 +140,8 @@ void BlockConsensusAgent::decideBlock(block_id _blockId, schain_index _sChainInd
 
     auto msg = make_shared<BlockSignBroadcastMessage>(_blockId, _sChainIndex, *this);
 
-    getSchain()->getNode()->getBlockSigShareDb()->checkAndSaveShare(msg->getSigShare());
+    getSchain()->getNode()->getBlockSigShareDb()->checkAndSaveShare(msg->getSigShare(),
+                                                                    getSchain()->getCryptoManager());
 
     getSchain()->getNode()->getNetwork()->broadcastMessage(msg);
 
@@ -183,7 +182,7 @@ void BlockConsensusAgent::reportConsensusAndDecideIfNeeded(ptr<ChildBVDecidedMes
         if (blockID > 1) {
             previousBlock = getSchain()->getBlock(blockID - 1);
             if (previousBlock == nullptr) {
-                LOG(err,"Cannot read block from blocks_...db");
+                LOG(err, "Cannot read block from blocks_...db");
                 return;
             }
         }
@@ -234,72 +233,30 @@ void BlockConsensusAgent::reportConsensusAndDecideIfNeeded(ptr<ChildBVDecidedMes
 }
 
 
-void BlockConsensusAgent::voteAndDecideIfNeded1(ptr<ChildBVDecidedMessage> _msg) {
-
-    auto nodeCount = (uint64_t) getSchain()->getNodeCount();
-    auto blockProposerIndex = (uint64_t) _msg->getBlockProposerIndex();
-    auto blockID = _msg->getBlockId();
-
-
-    ASSERT(blockProposerIndex < nodeCount);
-
-
-    if (decidedBlocks.count(blockID) > 0)
-        return;
-
-    if (_msg->getValue()) {
-        trueDecisions[blockID].insert(blockProposerIndex);
-    } else {
-        falseDecisions[blockID].insert(blockProposerIndex);
-    }
-
-    if (trueDecisions[blockID].size() == 0) {
-        if ((uint64_t) falseDecisions[blockID].size() == nodeCount) {
-            decideEmptyBlock(blockID);
-        }
-        return;
-    }
-
-
-    auto winner = ((uint64_t) blockID) % nodeCount;
-
-
-    for (uint64_t i = winner; i < winner + nodeCount; i++) {
-        auto index = schain_index(i % nodeCount);
-        if (trueDecisions[blockID].count(index + 1) > 0) {
-            decideBlock(blockID, index + 1);
-            return;
-        }
-        if (falseDecisions[blockID].count(index + 1) == 0) {
-            return;
-        }
-    }
-
-
-}
-
-
 void BlockConsensusAgent::processChildCompletedMessage(ptr<InternalMessageEnvelope> _me) {
     disconnect(_me->getSrcProtocolKey());
 };
 
 void BlockConsensusAgent::processBlockSignMessage(ptr<BlockSignBroadcastMessage> _message) {
 
-    auto db = getSchain()->getNode()->getBlockSigShareDb();
+    try {
 
-    auto enough = db->checkAndSaveShare(
-            _message->getSigShare());
+        auto signature =
+                getSchain()->getNode()->getBlockSigShareDb()->checkAndSaveShare(_message->getSigShare(),
+                                                                                getSchain()->getCryptoManager());
 
-    if (enough) {
-        cerr << "Enough" << _message->getSigShare()->toString() << endl;
+
+        if (signature == nullptr) {
+            return;
+        }
+
+        cerr << "Signed block !" << endl;
+    } catch (ExitRequestedException& e) { throw;}
+    catch (...) {
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
 
-
 };
-
-
-
-
 
 
 void BlockConsensusAgent::disconnect(ptr<ProtocolKey> _key) {
@@ -330,12 +287,9 @@ void BlockConsensusAgent::routeAndProcessMessage(ptr<MessageEnvelope> m) {
 
 
         if (m->getMessage()->getMessageType() == MSG_CONSENSUS_PROPOSAL) {
-
             this->startConsensusProposal(m->getMessage()->getBlockId(),
                                          ((ConsensusProposalMessage *) m->getMessage().get())->getProposals());
-
             return;
-
         }
 
         if (m->getMessage()->getMessageType() == MSG_BLOCK_SIGN_BROADCAST) {

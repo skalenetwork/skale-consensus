@@ -336,5 +336,6 @@ uint64_t Node::getBlockSigShareDbSize() const {
 }
 
 ptr<BlockSigShareDB> Node::getBlockSigShareDb() const {
+    ASSERT(blockSigShareDB != nullptr);
     return blockSigShareDB;
 }

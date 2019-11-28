@@ -75,8 +75,8 @@ BlockSignBroadcastMessage::BlockSignBroadcastMessage(node_id _srcNodeID, node_id
                                                      schain_index _srcSchainIndex, Schain* _sChain)
     : NetworkMessage(
         MSG_BLOCK_SIGN_BROADCAST, _srcNodeID, _dstNodeID, _blockID, _blockProposerIndex, 0, 0, _schainId, _msgID, _ip, _sigShare,
-        _srcSchainIndex, _sChain->getCryptoManager(), _sChain->getTotalSignersCount(),
-        _sChain->getRequiredSignersCount()) {
+        _srcSchainIndex, _sChain->getCryptoManager(), _sChain->getTotalSigners(),
+        _sChain->getRequiredSigners()) {
     printPrefix = "F";
 };
 

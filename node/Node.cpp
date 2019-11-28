@@ -105,7 +105,7 @@ void Node::initLevelDBs() {
     string signaturesDBPrefix = "sigs_" + to_string(nodeID) + ".db";
     string pricesDBPrefix = "prices_" + to_string(nodeID) + ".db";
     string proposalHashDBPrefix = "/proposal_hashes_" + to_string(nodeID) + ".db";
-    string blockSigShareDBPrefix = "/block_sigshares_" + to_string(nodeID) + ".db";
+
 
     blockDB =
             make_shared<BlockDB>(dataDir, blockDBPrefix, getNodeID(), getBlockDBSize());
@@ -116,7 +116,6 @@ void Node::initLevelDBs() {
     signatureDB = make_shared<SigDB>(dataDir, signaturesDBPrefix, getNodeID(), getSignatureDbSize());
     priceDB = make_shared<PriceDB>(dataDir, pricesDBPrefix, getNodeID(), getPriceDbSize());
     proposalHashDB = make_shared<ProposalHashDB>(dataDir, proposalHashDBPrefix, getNodeID(), getProposalHashDbSize());
-    blockSigShareDB = make_shared<BlockSigShareDB>(dataDir, blockSigShareDBPrefix, getNodeID(), getBlockSigShareDbSize());
 
 }
 
@@ -255,7 +254,7 @@ void Node::initBLSKeys() {
 
     if (isBLSEnabled) {
         blsPrivateKey = make_shared<BLSPrivateKeyShare>(
-                prkStr, sChain->getTotalSignersCount(), sChain->getRequiredSignersCount());
+                prkStr, sChain->getTotalSigners(), sChain->getRequiredSigners());
 
         auto publicKeyStr = make_shared<vector<string> >();
 
@@ -265,7 +264,7 @@ void Node::initBLSKeys() {
         publicKeyStr->push_back(pbkStr4);
 
         blsPublicKey = make_shared<BLSPublicKey>(
-                publicKeyStr, sChain->getTotalSignersCount(), sChain->getRequiredSignersCount());
+                publicKeyStr, sChain->getTotalSigners(), sChain->getRequiredSigners());
     }
 }
 
@@ -282,6 +281,13 @@ void Node::setNodeInfo(ptr<NodeInfo> _info) {
 void Node::setSchain(ptr<Schain> _schain) {
     assert (this->sChain == nullptr);
     this->sChain = _schain;
+
+    string dataDir = *Log::getDataDir();
+    string blockSigShareDBPrefix = "/block_sigshares_" + to_string(nodeID) + ".db";
+    blockSigShareDB = make_shared<BlockSigShareDB>(dataDir, blockSigShareDBPrefix, getNodeID(), getBlockSigShareDbSize(),
+                                                         getSchain());
+
+
 }
 
 void Node::initSchain(ptr<Node> _node, ptr<NodeInfo> _localNodeInfo, const vector<ptr<NodeInfo> > &remoteNodeInfos,
@@ -300,9 +306,13 @@ void Node::initSchain(ptr<Node> _node, ptr<NodeInfo> _localNodeInfo, const vecto
 
         _node->setSchain(sChain);
 
+
+
     } catch (...) {
         throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
     }
+
+
 }
 
 
