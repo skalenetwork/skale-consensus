@@ -31,7 +31,7 @@ class CommittedBlock;
 
 class CryptoManager;
 
-class BlockSigShare : public LevelDB {
+class BlockSigShareDB : public LevelDB {
 
     recursive_mutex m;
 
@@ -41,11 +41,10 @@ class BlockSigShare : public LevelDB {
 
 public:
 
-    BlockSigShare(string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize);
+    BlockSigShareDB(string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize);
 
-    bool checkAndSaveHash(block_id _proposalBlockID, schain_index _proposerIndex, ptr<string> _proposalHash);
+    bool checkAndSaveShare(ptr<ThresholdSigShare> _sigShare);
 
-    bool haveProposal(block_id _proposalBlockID, schain_index _proposerIndex);
 };
 
 

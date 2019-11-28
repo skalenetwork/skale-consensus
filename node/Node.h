@@ -167,7 +167,7 @@ private:
 
     ptr<ProposalHashDB> proposalHashDB = nullptr;
 
-    ptr<BlockSigShareDB> blockSigSharesDB = nullptr;
+    ptr<BlockSigShareDB> blockSigShareDB = nullptr;
 
 
     uint64_t catchupIntervalMS;
@@ -191,9 +191,9 @@ private:
 
     uint64_t blockDBSize;
     uint64_t proposalHashDBSize;
-    uint64_t blockSigSharesDBSize;
+    uint64_t blockSigShareDBSize;
 public:
-    uint64_t getBlockSigDbSize() const;
+    uint64_t getBlockSigShareDbSize() const;
 
 private:
 
@@ -361,4 +361,6 @@ public:
     uint64_t getProposalHashDbSize() const;
 
     void setNodeInfo(ptr<NodeInfo> _info);
+
+    ptr<BlockSigShareDB> getBlockSigShareDb() const;
 };

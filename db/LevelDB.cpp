@@ -318,7 +318,12 @@ uint64_t LevelDB::readCount(block_id _blockId) {
         return 0;
     }
 
-    return stoull(*countString, NULL, 10);
+    try {
+        return stoull(*countString, NULL, 10);
+    } catch (...) {
+        LOG(err, "Incorrect value in LevelDB:" + *countString);
+        return 0;
+    }
 }
 
 uint64_t LevelDB::writeStringToBlockSet(const string &_key, const string &_value, block_id _blockId, schain_index _index) {
@@ -337,11 +342,20 @@ uint64_t LevelDB::writeStringToBlockSet(const string &_key, const string &_value
         ASSERT(db[i] != nullptr);
         auto status = db[i]->Get(readOptions, counterKey, &*result);
         throwExceptionOnError(status);
-        containingDb = db[i];
+        if (!status.IsNotFound()) {
+            containingDb = db[i];
+            break;
+        }
     }
 
     if (containingDb != nullptr) {
-        count = stoull(*result, NULL, 10);
+        try {
+            cerr << *result << endl;
+            count = stoull(*result, NULL, 10);
+        } catch (...) {
+            LOG(err, "Incorrect value in LevelDB:" + *result);
+            return 0;
+        }
     } else {
         containingDb = db.back();
     }
@@ -351,6 +365,7 @@ uint64_t LevelDB::writeStringToBlockSet(const string &_key, const string &_value
 
         leveldb::WriteBatch batch;
         count++;
+        CHECK_STATE(count <= totalNodes || totalNodes == 0)
         batch.Put(counterKey, to_string(count));
         batch.Put(entryKey, _value);
         CHECK_STATE2(containingDb->Write(writeOptions, &batch).ok(), "Could not write LevelDB");
@@ -358,5 +373,9 @@ uint64_t LevelDB::writeStringToBlockSet(const string &_key, const string &_value
 
     return count;
 
+}
+
+bool LevelDB::isEnough(uint64_t _count) {
+    return _count >= requiredNodes;
 }
 

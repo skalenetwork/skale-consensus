@@ -331,6 +331,10 @@ uint64_t Node::getPriceDbSize() const {
     return priceDBSize;
 }
 
-uint64_t Node::getBlockSigDbSize() const {
-    return blockSigSharesDBSize;
+uint64_t Node::getBlockSigShareDbSize() const {
+    return blockSigShareDBSize;
+}
+
+ptr<BlockSigShareDB> Node::getBlockSigShareDb() const {
+    return blockSigShareDB;
 }

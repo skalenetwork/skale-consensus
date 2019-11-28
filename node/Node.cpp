@@ -66,6 +66,7 @@
 #include "../db/RandomDB.h"
 #include "../db/SigDB.h"
 #include "../db/ProposalHashDB.h"
+#include "../db/BlockSigShareDB.h"
 
 
 #include "ConsensusEngine.h"
@@ -104,6 +105,7 @@ void Node::initLevelDBs() {
     string signaturesDBPrefix = "sigs_" + to_string(nodeID) + ".db";
     string pricesDBPrefix = "prices_" + to_string(nodeID) + ".db";
     string proposalHashDBPrefix = "/proposal_hashes_" + to_string(nodeID) + ".db";
+    string blockSigShareDBPrefix = "/block_sigshares_" + to_string(nodeID) + ".db";
 
     blockDB =
             make_shared<BlockDB>(dataDir, blockDBPrefix, getNodeID(), getBlockDBSize());
@@ -114,6 +116,8 @@ void Node::initLevelDBs() {
     signatureDB = make_shared<SigDB>(dataDir, signaturesDBPrefix, getNodeID(), getSignatureDbSize());
     priceDB = make_shared<PriceDB>(dataDir, pricesDBPrefix, getNodeID(), getPriceDbSize());
     proposalHashDB = make_shared<ProposalHashDB>(dataDir, proposalHashDBPrefix, getNodeID(), getProposalHashDbSize());
+    blockSigShareDB = make_shared<BlockSigShareDB>(dataDir, blockSigShareDBPrefix, getNodeID(), getBlockSigShareDbSize());
+
 }
 
 void Node::initLogging() {
@@ -151,7 +155,7 @@ void Node::initParamsFromConfig() {
     minBlockIntervalMs = getParamUint64("minBlockIntervalMs", MIN_BLOCK_INTERVAL_MS);
     blockDBSize = getParamUint64("blockDBSize", BLOCK_DB_SIZE);
     proposalHashDBSize = getParamUint64("proposalHashDBSize", PROPOSAL_HASH_DB_SIZE);
-    blockSigSharesDBSize = getParamUint64("proposalHashDBSize", BLOCK_SIG_SHARES_DB_SIZE);
+    blockSigShareDBSize = getParamUint64("proposalHashDBSize", BLOCK_SIG_SHARES_DB_SIZE);
     commitedTxsDBSize = getParamUint64("commitedTxsDBSize", COMMITTED_TXS_DB_SIZE);
     randomDBSize = getParamUint64("randomDBSize", RANDOM_DB_SIZE);
     signatureDBSize = getParamUint64("signatuteDBSize", SIGNATURE_DB_SIZE);

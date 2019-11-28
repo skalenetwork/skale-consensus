@@ -16,7 +16,7 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file ProposalHashDB.cpp
+    @file BlockSigShareDB.cpp
     @author Stan Kladko
     @date 2019
 */
@@ -28,94 +28,33 @@
 #include "../chains/Schain.h"
 #include "../exceptions/InvalidStateException.h"
 #include "../datastructures/CommittedBlock.h"
+#include "../crypto/ThresholdSigShare.h"
 
-#include "ProposalHashDB.h"
+#include "BlockSigShareDB.h"
 
 
-ProposalHashDB::ProposalHashDB(string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize)
+BlockSigShareDB::BlockSigShareDB(string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize)
         : LevelDB(_dirName, _prefix,
                   _nodeId, _maxDBSize) {
 }
 
 
 bool
-ProposalHashDB::checkAndSaveHash(block_id _proposalBlockID, schain_index _proposerIndex, ptr<string> _proposalHash) {
-
-
-    lock_guard<recursive_mutex> lock(m);
-
-    try {
-
-        auto key = createKey(_proposalBlockID, _proposerIndex);
-
-        auto previous = readString(*key);
-
-        if (previous == nullptr) {
-            writeString(*key, *_proposalHash);
-            return true;
-        }
-
-        return (*previous == *_proposalHash);
-
-    } catch (...) {
-        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
-    }
-
-}
-
-bool
-ProposalHashDB::haveProposal(block_id _proposalBlockID, schain_index _proposerIndex) {
-
-
-    lock_guard<recursive_mutex> lock(m);
-
-    try {
-
-        auto key = createKey(_proposalBlockID, _proposerIndex);
-
-        auto previous = readString(*key);
-
-        return (previous != nullptr);
-
-    } catch (...) {
-        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
-    }
-
+BlockSigShareDB::checkAndSaveShare(ptr<ThresholdSigShare> _sigShare) {
+    CHECK_ARGUMENT(_sigShare != nullptr);
+    auto sigShareString = _sigShare->toString();
+    auto count = writeStringToBlockSet("", *sigShareString, _sigShare->getBlockId(),
+            _sigShare->getSignerIndex());
+    return isEnough(count);
 }
 
 
 
 
-ptr<string> ProposalHashDB::createKey(block_id _blockId, schain_index _proposerIndex) {
-    return make_shared<string>(getFormatVersion() + ":" + to_string(_blockId) + ":" + to_string(_proposerIndex));
-}
-
-const string ProposalHashDB::getFormatVersion() {
+const string BlockSigShareDB::getFormatVersion() {
     return "1.0";
 }
 
-uint64_t ProposalHashDB::readBlockLimit() {
-
-    static string count(":MAX_BLOCK_ID");
-
-
-    lock_guard<recursive_mutex> lock(m);
-
-    try {
-
-        auto key = getFormatVersion() + count;
-
-        auto value = readString(key);
-
-        if (value != nullptr) {
-            return stoul(*value);
-        } else {
-            return 0;
-        }
-    } catch (...) {
-        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
-    }
-}
 
 
 

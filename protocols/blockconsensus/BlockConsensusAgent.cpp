@@ -51,6 +51,7 @@
 #include "../../node/NodeInfo.h"
 #include "../../blockproposal/received/ReceivedBlockProposalsDatabase.h"
 #include "../../exceptions/InvalidStateException.h"
+#include "../../db/BlockSigShareDB.h"
 #include "../../blockfinalize/client/BlockFinalizeDownloader.h"
 #include "../../blockfinalize/client/BlockFinalizeDownloaderThreadPool.h"
 
@@ -140,6 +141,8 @@ void BlockConsensusAgent::decideBlock(block_id _blockId, schain_index _sChainInd
 
 
     auto msg = make_shared<BlockSignBroadcastMessage>(_blockId, _sChainIndex, *this);
+
+    getSchain()->getNode()->getBlockSigShareDb()->checkAndSaveShare(msg->getSigShare());
 
     getSchain()->getNode()->getNetwork()->broadcastMessage(msg);
 
@@ -281,6 +284,12 @@ void BlockConsensusAgent::processChildCompletedMessage(ptr<InternalMessageEnvelo
 };
 
 void BlockConsensusAgent::processBlockSignMessage(ptr<BlockSignBroadcastMessage> _message) {
+
+    auto db = getSchain()->getNode()->getBlockSigShareDb();
+
+    db->checkAndSaveShare(
+            _message->getSigShare());
+
     cerr << _message->getSigShare()->toString() << endl;
 };
 

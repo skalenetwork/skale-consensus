@@ -44,6 +44,8 @@ class LevelDB {
 
 
 
+
+
     vector<ptr<leveldb::DB>>db;
 
 
@@ -61,6 +63,7 @@ protected:
     uint64_t totalNodes;
     uint64_t requiredNodes;
 
+    bool isEnough(uint64_t _count);
 
     ptr<string> readString(string &_key);
 

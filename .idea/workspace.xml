@@ -29,11 +29,17 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e8eb5c74-4268-46a2-ac26-2e919fd9ff42" name="Default Changelist" comment="Added LRU cache">
+    <list default="true" id="e8eb5c74-4268-46a2-ac26-2e919fd9ff42" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/BlockSigShareDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/BlockSigShareDB.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/BlockSigShareDB.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/BlockSigShareDB.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/db/LevelDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/LevelDB.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/db/LevelDB.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/LevelDB.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messages/NetworkMessage.h" beforeDir="false" afterPath="$PROJECT_DIR$/messages/NetworkMessage.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/node/Node.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/node/Node.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/node/Node.h" beforeDir="false" afterPath="$PROJECT_DIR$/node/Node.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/node/NodeGettersSetters.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/node/NodeGettersSetters.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/protocols/blockconsensus/BlockConsensusAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/protocols/blockconsensus/BlockConsensusAgent.cpp" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -478,7 +484,14 @@
       <option name="project" value="LOCAL" />
       <updated>1574950781526</updated>
     </task>
-    <option name="localTasksCounter" value="35" />
+    <task id="LOCAL-00035" summary="Added block set storage">
+      <created>1574951323828</created>
+      <option name="number" value="00035" />
+      <option name="presentableId" value="LOCAL-00035" />
+      <option name="project" value="LOCAL" />
+      <updated>1574951323828</updated>
+    </task>
+    <option name="localTasksCounter" value="36" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -522,6 +535,23 @@
     <MESSAGE value="Adding block signing" />
     <MESSAGE value="Added LRU cache" />
     <MESSAGE value="Adding set DB" />
-    <option name="LAST_COMMIT_MESSAGE" value="Adding set DB" />
+    <MESSAGE value="Added block set storage" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added block set storage" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/db/LevelDB.cpp</url>
+          <line>352</line>
+          <option name="timeStamp" value="5" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/db/LevelDB.cpp</url>
+          <line>323</line>
+          <option name="timeStamp" value="6" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>
