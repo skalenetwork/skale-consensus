@@ -73,6 +73,7 @@ class ProposalHashDB;
 
 class TestConfig;
 
+class BlockSigShareDB;
 
 namespace leveldb {
     class DB;
@@ -166,7 +167,7 @@ private:
 
     ptr<ProposalHashDB> proposalHashDB = nullptr;
 
-    ptr<BlockSigSharesDB> blockSigSharesDB = nullptr;
+    ptr<BlockSigShareDB> blockSigSharesDB = nullptr;
 
 
     uint64_t catchupIntervalMS;

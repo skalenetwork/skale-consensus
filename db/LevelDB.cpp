@@ -176,10 +176,13 @@ DB *LevelDB::openDB(uint64_t _index) {
 }
 
 
-LevelDB::LevelDB(string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize)
+LevelDB::LevelDB(string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize,
+        uint64_t _totalNodes, uint64_t _requiredNodes)
         : nodeId(_nodeId),
           prefix(_prefix), dirname(_dirName),
-          maxDBSize(_maxDBSize) {
+          maxDBSize(_maxDBSize), totalNodes(_totalNodes), requiredNodes(_requiredNodes) {
+
+    CHECK_ARGUMENT(_totalNodes >= _requiredNodes);
 
     boost::filesystem::path path(_dirName);
 

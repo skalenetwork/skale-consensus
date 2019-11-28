@@ -83,38 +83,12 @@ ProposalHashDB::haveProposal(block_id _proposalBlockID, schain_index _proposerIn
 
 }
 
-
-
-
 ptr<string> ProposalHashDB::createKey(block_id _blockId, schain_index _proposerIndex) {
     return make_shared<string>(getFormatVersion() + ":" + to_string(_blockId) + ":" + to_string(_proposerIndex));
 }
 
 const string ProposalHashDB::getFormatVersion() {
     return "1.0";
-}
-
-uint64_t ProposalHashDB::readBlockLimit() {
-
-    static string count(":MAX_BLOCK_ID");
-
-
-    lock_guard<recursive_mutex> lock(m);
-
-    try {
-
-        auto key = getFormatVersion() + count;
-
-        auto value = readString(key);
-
-        if (value != nullptr) {
-            return stoul(*value);
-        } else {
-            return 0;
-        }
-    } catch (...) {
-        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
-    }
 }
 
 

@@ -42,6 +42,8 @@ namespace cache {
 
 class LevelDB {
 
+
+
     vector<ptr<leveldb::DB>>db;
 
 
@@ -56,6 +58,10 @@ protected:
     string dirname;
     uint64_t maxDBSize;
 
+    uint64_t totalNodes;
+    uint64_t requiredNodes;
+
+
     ptr<string> readString(string &_key);
 
 
@@ -63,8 +69,6 @@ protected:
 
     uint64_t writeStringToBlockSet(const string &_key, const string &_value,
                                    block_id _blockId, schain_index _index);
-
-
 
     void writeByteArray(const char *_key, size_t _keyLen, const char *value,
                         size_t _valueLen);
@@ -83,7 +87,8 @@ public:
     void throwExceptionOnError(leveldb::Status result);
 
 
-    LevelDB(string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize);
+    LevelDB(string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize,
+                             uint64_t _totalNodes = 0, uint64_t _requiredNodes = 0);
 
 
     std::pair<uint64_t, uint64_t> findMaxMinDBIndex();
