@@ -21,11 +21,14 @@
     @date 2019
 */
 
+#include "../thirdparty/lrucache.hpp"
+
 
 #include "../SkaleCommon.h"
 #include "../Log.h"
 #include "../thirdparty/json.hpp"
 #include "leveldb/db.h"
+#include "leveldb/write_batch.h"
 
 #include "../chains/Schain.h"
 #include "../datastructures/TransactionList.h"
@@ -64,7 +67,7 @@ ptr<string> LevelDB::readString(string &_key) {
     return nullptr;
 }
 
-bool LevelDB::keyExists(const char *_key) {
+bool LevelDB::keyExists(const string &_key) {
 
     shared_lock<shared_mutex> lock(m);
 
@@ -88,7 +91,7 @@ void LevelDB::writeString(const string &_key, const string &_value) {
     {
         shared_lock<shared_mutex> lock(m);
 
-        auto status = db.back()->Put(writeOptions, Slice(_key), Slice(_value));
+        auto status = db.back()->Put(writeOptions, _key, Slice(_value));
 
         throwExceptionOnError(status);
     }
@@ -173,10 +176,10 @@ DB *LevelDB::openDB(uint64_t _index) {
 }
 
 
-LevelDB::LevelDB(string &_dirName, string &_prefix, node_id _nodeId,
-                 uint64_t _maxDBSize) : nodeId(_nodeId),
-                                        prefix(_prefix), dirname(_dirName),
-                                        maxDBSize(_maxDBSize) {
+LevelDB::LevelDB(string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize)
+        : nodeId(_nodeId),
+          prefix(_prefix), dirname(_dirName),
+          maxDBSize(_maxDBSize) {
 
     boost::filesystem::path path(_dirName);
 
@@ -285,5 +288,72 @@ void LevelDB::rotateDBsIfNeeded() {
             }
         }
     }
+}
+
+string LevelDB::createSetKey(const string& _key, block_id _blockId, schain_index _index) {
+    return to_string(_blockId).append(":").append(to_string(_index)).append(":").append(_key);
+}
+
+string LevelDB::createCounterKey(block_id _blockId) {
+    return "COUNTER:" + to_string(_blockId);
+}
+
+ptr<string> LevelDB::readStringFromBlockSet(const string &_key, block_id _blockId, schain_index _index) {
+    auto key = createSetKey(_key, _blockId, _index);
+    return readString(key);
+}
+
+
+uint64_t LevelDB::readCount(block_id _blockId) {
+
+
+    auto counterKey = createCounterKey(_blockId);
+
+    auto countString = readString(counterKey);
+
+    if (countString == nullptr) {
+        return 0;
+    }
+
+    return stoull(*countString, NULL, 10);
+}
+
+uint64_t LevelDB::writeStringToBlockSet(const string &_key, const string &_value, block_id _blockId, schain_index _index) {
+
+
+    lock_guard<shared_mutex> lock(m);
+
+    uint64_t count = 0;
+
+    ptr<leveldb::DB> containingDb = nullptr;
+    auto result = make_shared<string>();
+
+    auto counterKey = createCounterKey(_blockId);
+
+    for (int i = LEVELDB_PIECES - 1; i >= 0; i--) {
+        ASSERT(db[i] != nullptr);
+        auto status = db[i]->Get(readOptions, counterKey, &*result);
+        throwExceptionOnError(status);
+        containingDb = db[i];
+    }
+
+    if (containingDb != nullptr) {
+        count = stoull(*result, NULL, 10);
+    } else {
+        containingDb = db.back();
+    }
+    {
+
+        string entryKey = createSetKey(_key, _blockId, _index);
+
+        leveldb::WriteBatch batch;
+        count++;
+        batch.Put(counterKey, to_string(count));
+        batch.Put(entryKey, _value);
+        CHECK_STATE2(containingDb->Write(writeOptions, &batch).ok(), "Could not write LevelDB");
+    }
+
+    return count;
+
 }
 

@@ -29,9 +29,13 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e8eb5c74-4268-46a2-ac26-2e919fd9ff42" name="Default Changelist" comment="Cleaned memory on return">
+    <list default="true" id="e8eb5c74-4268-46a2-ac26-2e919fd9ff42" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/LevelDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/LevelDB.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/db/LevelDB.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/LevelDB.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/RandomDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/RandomDB.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/SigDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/SigDB.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/thirdparty/lrucache.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/thirdparty/lrucache.hpp" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -48,6 +52,9 @@
     <option name="ROOT_SYNC" value="DONT_SYNC" />
   </component>
   <component name="OCFindUsagesOptions" text="true" ivars="false" properties="true" derivedClasses="false" />
+  <component name="OCResolveContextSettings">
+    <option name="configuration" value="0-consensus" />
+  </component>
   <component name="ProjectId" id="1TnSIFu9Eo5WxsaS61xq1WagMk7" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="PropertiesComponent">
@@ -447,7 +454,14 @@
       <option name="project" value="LOCAL" />
       <updated>1574878202970</updated>
     </task>
-    <option name="localTasksCounter" value="32" />
+    <task id="LOCAL-00032" summary="Added LRU cache">
+      <created>1574937911074</created>
+      <option name="number" value="00032" />
+      <option name="presentableId" value="LOCAL-00032" />
+      <option name="project" value="LOCAL" />
+      <updated>1574937911074</updated>
+    </task>
+    <option name="localTasksCounter" value="33" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -489,6 +503,7 @@
     <MESSAGE value="Adding BlockSignMessage" />
     <MESSAGE value="Cleaned memory on return" />
     <MESSAGE value="Adding block signing" />
-    <option name="LAST_COMMIT_MESSAGE" value="Adding block signing" />
+    <MESSAGE value="Added LRU cache" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added LRU cache" />
   </component>
 </project>

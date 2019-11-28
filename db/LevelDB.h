@@ -35,7 +35,13 @@ namespace leveldb {
 
 #define LEVELDB_PIECES 4
 
+namespace cache {
+    template<typename key_t, typename value_t> class lru_cache;
+}
+
+
 class LevelDB {
+
     vector<ptr<leveldb::DB>>db;
 
 
@@ -55,7 +61,8 @@ protected:
 
     void writeString(const string &key1, const string &value1);
 
-    void writeStringToBlockSet(const string &key1, const string &value1);
+    uint64_t writeStringToBlockSet(const string &_key, const string &_value,
+                                   block_id _blockId, schain_index _index);
 
 
 
@@ -65,6 +72,10 @@ protected:
 
     void writeByteArray(string &_key, const char *value,
                         size_t _valueLen);
+
+    string createSetKey(const string& _key, block_id _blockId, schain_index _index);
+
+    string createCounterKey(block_id _block_id);
 
 public:
 
@@ -88,17 +99,17 @@ public:
     virtual ~LevelDB();
 
 
-    uint64_t getFrontDBSize();
-
-    bool keyExists(const char *_key);
-
     void rotateDBsIfNeeded();
 
     uint64_t getActiveDBSize();
 
     leveldb::DB *openDB(uint64_t _index);
 
-    void removeDB(uint64_t index);
+    bool keyExists(const string &_key);
+
+    ptr<string> readStringFromBlockSet(const string &_key, block_id _blockId, schain_index _index);
+
+    uint64_t readCount(block_id _blockId);
 };
 
 

@@ -29,7 +29,7 @@
 
 
 RandomDB::RandomDB(string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize) :
-LevelDB(_dirName, _prefix, _nodeId, _maxDBSize) {}
+        LevelDB(_dirName, _prefix, _nodeId, _maxDBSize) {}
 
 
 const string RandomDB::getFormatVersion() {
