@@ -39,6 +39,7 @@
 #include "../exceptions/InvalidStateException.h"
 #include "../exceptions/ExitRequestedException.h"
 #include "../headers/BlockProposalHeader.h"
+#include "../headers/CommittedBlockHeader.h"
 
 
 #include "../datastructures/Transaction.h"
@@ -58,21 +59,17 @@ CommittedBlock::CommittedBlock(ptr<BlockProposal> _p, ptr<ThresholdSignature> _t
 }
 
 
-
-
 void CommittedBlock::serializedSanityCheck(ptr<vector<uint8_t> > _serializedBlock) {
     CHECK_STATE(_serializedBlock->at(sizeof(uint64_t)) == '{');
     CHECK_STATE(_serializedBlock->back() == '>');
 };
 
+ptr<string> CommittedBlock::extractHeader(ptr<vector<uint8_t> > _serializedBlock) {
 
-ptr<CommittedBlock> CommittedBlock::deserialize(ptr<vector<uint8_t> > _serializedBlock,
-                                                ptr<CryptoManager> _manager) {
+    CHECK_ARGUMENT(_serializedBlock != nullptr);
 
 
     uint64_t headerSize = 0;
-
-    CHECK_ARGUMENT(_serializedBlock != nullptr);
 
 
     auto size = _serializedBlock->size();
@@ -105,31 +102,53 @@ ptr<CommittedBlock> CommittedBlock::deserialize(ptr<vector<uint8_t> > _serialize
 
     in.read((char *) header->c_str(), headerSize); /* Flawfinder: ignore */
 
-    ptr<BlockProposalHeader> blockHeader;
+    return header;
 
-    try {
-        blockHeader = CommittedBlock::parseBlockHeader(header);
-    } catch (ExitRequestedException &) { throw; } catch (...) {
-        throw_with_nested(ParsingException(
-                "Could not parse committed block header: \n" + *header, __CLASS_NAME__));
-    }
+}
 
+ptr<TransactionList> CommittedBlock::deserializeTransactions(ptr<BlockProposalHeader> _header,
+        ptr<string> _headerString,
+        ptr<vector<uint8_t> > _serializedBlock) {
+
+    auto headerSize = _headerString->size();
 
     ptr<TransactionList> list;
     try {
         list = TransactionList::deserialize(
-                blockHeader->getTransactionSizes(), _serializedBlock, headerSize + sizeof(headerSize), true);
+                _header->getTransactionSizes(), _serializedBlock, headerSize + sizeof(headerSize), true);
     } catch (Exception &e) {
         throw_with_nested(
-                ParsingException("Could not parse transactions after header. Header: \n" + *header +
+                ParsingException("Could not parse transactions after header. Header: \n" + *_headerString +
                                  " Transactions size:" + to_string(_serializedBlock->size()),
-                                 __CLASS_NAME__));
+                                 __CLASS_NAME__)
+        );
     }
 
+    return list;
+
+}
+
+ptr<CommittedBlock> CommittedBlock::deserialize(ptr<vector<uint8_t> > _serializedBlock,
+                                                ptr<CryptoManager> _manager) {
+
+    ptr<string> headerStr = extractHeader(_serializedBlock);
+
+
+    ptr<BlockProposalHeader> blockHeader;
+
+    try {
+        blockHeader = CommittedBlock::parseBlockHeader(headerStr);
+    } catch (ExitRequestedException &) { throw; } catch (...) {
+        throw_with_nested(ParsingException(
+                "Could not parse committed block header: \n" + *headerStr, __CLASS_NAME__));
+    }
+
+    auto list = deserializeTransactions(blockHeader, headerStr, _serializedBlock);
+
     auto block = make_shared<CommittedBlock>(blockHeader->getSchainID(), blockHeader->getProposerNodeId(),
-                                     blockHeader->getBlockID(), blockHeader->getProposerIndex(),
-                                     list, blockHeader->getTimeStamp(), blockHeader->getTimeStampMs(),
-                                     blockHeader->getSignature(), nullptr);
+                                             blockHeader->getBlockID(), blockHeader->getProposerIndex(),
+                                             list, blockHeader->getTimeStamp(), blockHeader->getTimeStampMs(),
+                                             blockHeader->getSignature(), nullptr);
 
 
     _manager->verifyProposalECDSA(block.get(), blockHeader->getBlockHash(), blockHeader->getSignature());
@@ -149,25 +168,32 @@ CommittedBlock::defragment(ptr<BlockProposalFragmentList> _fragmentList, ptr<Cry
 }
 
 
-ptr<BlockProposalHeader> CommittedBlock::parseBlockHeader(const shared_ptr<string> &header) {
+ptr<CommittedBlockHeader> CommittedBlock::parseBlockHeader(const shared_ptr<string> &header) {
     CHECK_ARGUMENT(header != nullptr);
     CHECK_ARGUMENT(header->size() > 2);
     CHECK_ARGUMENT2(header->at(0) == '{', "Block header does not start with {");
     CHECK_ARGUMENT2(header->at(header->size() - 1) == '}', "Block header does not end with }");
 
     auto js = nlohmann::json::parse(*header);
-    return make_shared<BlockProposalHeader>(js);
+    return make_shared<CommittedBlockHeader>(js);
 
 }
 
-CommittedBlock::CommittedBlock(uint64_t timeStamp, uint32_t timeStampMs)
+CommittedBlock::CommittedBlock(uint64_t
+                               timeStamp, uint32_t
+                               timeStampMs)
         : BlockProposal(timeStamp, timeStampMs) {}
 
 
-CommittedBlock::CommittedBlock(const schain_id &sChainId, const node_id &proposerNodeId, const block_id &blockId,
-                               const schain_index &proposerIndex, const ptr<TransactionList> &transactions,
-                               uint64_t timeStamp,
-                               __uint32_t timeStampMs, ptr<string> _signature, ptr<string> _thresholdSig)
+CommittedBlock::CommittedBlock(
+        const schain_id &sChainId,
+        const node_id &proposerNodeId,
+        const block_id &blockId,
+        const schain_index &proposerIndex,
+        const ptr<TransactionList> &transactions,
+        uint64_t timeStamp,
+        __uint32_t timeStampMs, ptr<string>
+        _signature, ptr<string> _thresholdSig)
         : BlockProposal(sChainId, proposerNodeId, blockId, proposerIndex, transactions, timeStamp,
                         timeStampMs) {
     CHECK_ARGUMENT(_signature != nullptr);
@@ -176,15 +202,17 @@ CommittedBlock::CommittedBlock(const schain_id &sChainId, const node_id &propose
 }
 
 
-ptr<CommittedBlock> CommittedBlock::createRandomSample(ptr<CryptoManager> _manager, uint64_t _size,
+ptr<CommittedBlock> CommittedBlock::createRandomSample(ptr<CryptoManager> _manager, uint64_t
+_size,
                                                        boost::random::mt19937 &_gen,
                                                        boost::random::uniform_int_distribution<> &_ubyte,
-                                                       block_id _blockID) {
+                                                       block_id
+                                                       _blockID) {
     auto list = TransactionList::createRandomSample(_size, _gen, _ubyte);
 
     static uint64_t MODERN_TIME = 1547640182;
 
-    auto proposal =  make_shared<BlockProposal>(1, 1, _blockID, 1, list, MODERN_TIME + 1, 1);
+    auto proposal = make_shared<BlockProposal>(1, 1, _blockID, 1, list, MODERN_TIME + 1, 1);
 
     _manager->signProposalECDSA(proposal.get());
 
@@ -198,8 +226,6 @@ ptr<BlockProposalFragment> CommittedBlock::getFragment(uint64_t _totalFragments,
     LOCK(m)
 
     auto sBlock = serialize();
-
-
     auto blockSize = sBlock->size();
 
     uint64_t fragmentStandardSize;
@@ -233,4 +259,8 @@ ptr<BlockProposalFragment> CommittedBlock::getFragment(uint64_t _totalFragments,
 
     return make_shared<BlockProposalFragment>(getBlockID(), _totalFragments, _index, fragmentData,
                                               sBlock->size(), getHash()->toHex());
+}
+
+ptr<Header> CommittedBlock::createHeader() {
+    return make_shared<BlockProposalHeader>(*this);
 }

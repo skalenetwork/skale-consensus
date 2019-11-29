@@ -35,6 +35,7 @@
 class Schain;
 class BlockProposalHeader;
 class ThresholdSignature;
+class CommittedBlockHeader;
 
 class BlockProposalFragment;
 
@@ -44,7 +45,7 @@ class CommittedBlock : public BlockProposal {
 
     CommittedBlock( uint64_t timeStamp, uint32_t timeStampMs );
 
-    static ptr<BlockProposalHeader> parseBlockHeader(const shared_ptr< string >& header );
+    static ptr<CommittedBlockHeader> parseBlockHeader(const shared_ptr< string >& header );
 
 public:
     CommittedBlock(ptr<BlockProposal> _p, ptr<ThresholdSignature> _thresholdSig);
@@ -54,14 +55,23 @@ public:
 
     ptr<BlockProposalFragment> getFragment(uint64_t _totalFragments, fragment_index _index);
 
+    static ptr<TransactionList> deserializeTransactions(ptr<BlockProposalHeader> _header,
+            ptr<string> _headerString,
+            ptr<vector<uint8_t>> _serializedBlock);
+
     static ptr<CommittedBlock> deserialize(ptr<vector<uint8_t> > _serializedBlock,
             ptr<CryptoManager> _manager);
 
 
-    static ptr<CommittedBlock>
-    defragment(ptr<BlockProposalFragmentList> _fragmentList, ptr<CryptoManager> _cryptoManager);
+    static ptr<CommittedBlock> defragment(ptr<BlockProposalFragmentList> _fragmentList, ptr<CryptoManager> _cryptoManager);
+
+    static ptr<string> extractHeader(ptr<vector<uint8_t>> _serializedBlock);
 
 
+protected:
+    ptr<Header> createHeader() override;
+
+public:
 
 
     static ptr< CommittedBlock > createRandomSample(ptr<CryptoManager> _manager, uint64_t _size, boost::random::mt19937& _gen,
@@ -70,4 +80,6 @@ public:
 
 
     static void serializedSanityCheck(ptr<vector<uint8_t>> _serializedBlock);
+
+
 };
