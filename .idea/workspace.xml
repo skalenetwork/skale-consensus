@@ -29,8 +29,7 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e8eb5c74-4268-46a2-ac26-2e919fd9ff42" name="Default Changelist" comment="Signing blocks now">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    <list default="true" id="e8eb5c74-4268-46a2-ac26-2e919fd9ff42" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/chains/Schain.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/chains/Schain.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/chains/Schain.h" beforeDir="false" afterPath="$PROJECT_DIR$/chains/Schain.h" afterDir="false" />
     </list>
@@ -517,7 +516,14 @@
       <option name="project" value="LOCAL" />
       <updated>1575022504238</updated>
     </task>
-    <option name="localTasksCounter" value="40" />
+    <task id="LOCAL-00040" summary="Signing blocks now">
+      <created>1575032987160</created>
+      <option name="number" value="00040" />
+      <option name="presentableId" value="LOCAL-00040" />
+      <option name="project" value="LOCAL" />
+      <updated>1575032987160</updated>
+    </task>
+    <option name="localTasksCounter" value="41" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -562,9 +568,9 @@
     <MESSAGE value="Adding set DB" />
     <MESSAGE value="Added block set storage" />
     <MESSAGE value="Adding sigShareStorage" />
-    <MESSAGE value="Signing blocks now" />
     <MESSAGE value="Decide on block signing" />
-    <option name="LAST_COMMIT_MESSAGE" value="Decide on block signing" />
+    <MESSAGE value="Signing blocks now" />
+    <option name="LAST_COMMIT_MESSAGE" value="Signing blocks now" />
   </component>
   <component name="WindowStateProjectService">
     <state x="2434" y="329" key="com.intellij.ide.util.TipDialog" />

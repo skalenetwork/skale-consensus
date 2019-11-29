@@ -302,7 +302,7 @@ void Schain::blockCommitsArrivedThroughCatchup(ptr<CommittedBlockList> _blocks) 
 
 
 void Schain::blockCommitArrived(block_id _committedBlockID, schain_index _proposerIndex, uint64_t _committedTimeStamp,
-                                uint64_t _committedTimeStampMs) {
+                                uint64_t _committedTimeStampMs, ptr<ThresholdSignature> /*_thresholdSig*/) {
 
     MONITOR2(__CLASS_NAME__, __FUNCTION__, getMaxExternalBlockProcessingTime())
 
@@ -536,8 +536,6 @@ void Schain::bootstrap(block_id _lastCommittedBlockID, uint64_t _lastCommittedBl
         ASSERT(bootStrapped == false);
         bootStrapped = true;
         bootstrapBlockID.store((uint64_t) _lastCommittedBlockID);
-        blockCommitArrived(_lastCommittedBlockID, schain_index(0), _lastCommittedBlockTimeStamp, 0);
-
         ASSERT(_lastCommittedBlockTimeStamp < (uint64_t) 2 * MODERN_TIME);
 
         LOCK(m)
@@ -651,8 +649,10 @@ ptr<BlockProposal> Schain::createEmptyBlockProposal(block_id _blockId) {
 }
 
 
-void Schain::decideBlock(block_id _blockId, schain_index _proposerIndex, ptr<ThresholdSignature> /*_signature*/) {
+void Schain::decideBlock(block_id _blockId, schain_index _proposerIndex, ptr<ThresholdSignature> _thresholdSig) {
 
+    CHECK_ARGUMENT(_thresholdSig != nullptr);
+    
     MONITOR2(__CLASS_NAME__, __FUNCTION__, getMaxExternalBlockProcessingTime())
 
     LOG(debug, "decideBlock:" + to_string(_blockId) + ":PRP:" + to_string(_proposerIndex));
@@ -691,6 +691,6 @@ void Schain::decideBlock(block_id _blockId, schain_index _proposerIndex, ptr<Thr
     }
 
     if (proposal != nullptr)
-        blockCommitArrived(_blockId, _proposerIndex, proposal->getTimeStamp(), proposal->getTimeStampMs());
+        blockCommitArrived(_blockId, _proposerIndex, proposal->getTimeStamp(), proposal->getTimeStampMs(), _thresholdSig);
 
 }

@@ -186,7 +186,7 @@ public:
     void daProofArrived(ptr<DAProof> _proof);
 
     void blockCommitArrived(block_id _committedBlockID, schain_index _proposerIndex, uint64_t _committedTimeStamp,
-                            uint64_t _committedTimeStampMs);
+                            uint64_t _committedTimeStampMs, ptr<ThresholdSignature> _thresholdSig);
 
 
     void blockCommitsArrivedThroughCatchup(ptr<CommittedBlockList> _blocks);
