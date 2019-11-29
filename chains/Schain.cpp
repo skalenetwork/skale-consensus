@@ -180,7 +180,8 @@ void Schain::startThreads() {
 }
 
 
-Schain::Schain(weak_ptr<Node> _node, schain_index _schainIndex, const schain_id &_schainID, ConsensusExtFace *_extFace) : Agent(
+Schain::Schain(weak_ptr<Node> _node, schain_index _schainIndex, const schain_id &_schainID, ConsensusExtFace *_extFace)
+        : Agent(
         *this, true, true), totalTransactions(0), extFace(_extFace), schainID(_schainID), consensusMessageThreadPool(
         new SchainMessageThreadPool(this)), node(_node), schainIndex(_schainIndex) {
 
@@ -285,8 +286,8 @@ void Schain::blockCommitsArrivedThroughCatchup(ptr<CommittedBlockList> _blocks) 
     for (size_t i = 0; i < b->size(); i++) {
         auto t = b->at(i);
 
+        lastCommittedBlockID++;
         if (t->getBlockID() > lastCommittedBlockID.load()) {
-            lastCommittedBlockID++;
             processCommittedBlock(t);
             previosBlockTimeStamp = t->getTimeStamp();
             previosBlockTimeStampMs = t->getTimeStampMs();
@@ -300,8 +301,8 @@ void Schain::blockCommitsArrivedThroughCatchup(ptr<CommittedBlockList> _blocks) 
 }
 
 
-void Schain::blockCommitArrived(bool bootstrap, block_id _committedBlockID, schain_index _proposerIndex,
-                                uint64_t _committedTimeStamp, uint64_t _committedTimeStampMs) {
+void Schain::blockCommitArrived(block_id _committedBlockID, schain_index _proposerIndex, uint64_t _committedTimeStamp,
+                                uint64_t _committedTimeStampMs) {
 
     MONITOR2(__CLASS_NAME__, __FUNCTION__, getMaxExternalBlockProcessingTime())
 
@@ -311,7 +312,7 @@ void Schain::blockCommitArrived(bool bootstrap, block_id _committedBlockID, scha
 
     LOCK(m)
 
-    if (_committedBlockID <= lastCommittedBlockID && !bootstrap)
+    if (_committedBlockID <= lastCommittedBlockID)
         return;
 
     ASSERT(_committedBlockID == (lastCommittedBlockID + 1) || lastCommittedBlockID == 0);
@@ -321,19 +322,13 @@ void Schain::blockCommitArrived(bool bootstrap, block_id _committedBlockID, scha
     lastCommittedBlockTimeStamp = _committedTimeStamp;
     lastCommittedBlockTimeStampMs = _committedTimeStampMs;
 
-    if (!bootstrap) {
-        committedProposal = blockProposalsDatabase->getBlockProposal(_committedBlockID, _proposerIndex);
-        ASSERT(committedProposal);
 
-        auto newCommittedBlock = make_shared<CommittedBlock>(committedProposal);
+    committedProposal = blockProposalsDatabase->getBlockProposal(_committedBlockID, _proposerIndex);
+    ASSERT(committedProposal);
 
-        processCommittedBlock(newCommittedBlock);
+    auto newCommittedBlock = make_shared<CommittedBlock>(committedProposal);
 
-    } else {
-        LOG(info, "Jump starting the system with block:" + to_string(_committedBlockID));
-        if (_committedBlockID == 0)
-            this->pricingAgent->calculatePrice(ConsensusExtFace::transactions_vector(), 0, 0, 0);
-    }
+    processCommittedBlock(newCommittedBlock);
 
     proposeNextBlock(_committedTimeStamp, _committedTimeStampMs);
 }
@@ -373,10 +368,9 @@ void Schain::proposeNextBlock(uint64_t _previousBlockTimeStamp, uint32_t _previo
     auto db = getNode()->getProposalHashDb();
 
     db->checkAndSaveHash(_proposedBlockID, getSchainIndex(),
-                                                     myProposal->getHash()->toHex());
+                         myProposal->getHash()->toHex());
 
     blockProposalClient->enqueueItem(myProposal);
-
     auto mySig = getSchain()->getCryptoManager()->signThreshold(myProposal->getHash(), _proposedBlockID);
     getSchain()->sigShareArrived(mySig, myProposal);
 
@@ -534,6 +528,7 @@ void Schain::proposedBlockArrived(ptr<BlockProposal> pbm) {
 
 void Schain::bootstrap(block_id _lastCommittedBlockID, uint64_t _lastCommittedBlockTimeStamp) {
 
+    checkForExit();
 
     MONITOR2(__CLASS_NAME__, __FUNCTION__, getMaxExternalBlockProcessingTime())
 
@@ -541,7 +536,25 @@ void Schain::bootstrap(block_id _lastCommittedBlockID, uint64_t _lastCommittedBl
         ASSERT(bootStrapped == false);
         bootStrapped = true;
         bootstrapBlockID.store((uint64_t) _lastCommittedBlockID);
-        blockCommitArrived(true, _lastCommittedBlockID, schain_index(0), _lastCommittedBlockTimeStamp, 0);
+        blockCommitArrived(_lastCommittedBlockID, schain_index(0), _lastCommittedBlockTimeStamp, 0);
+
+        ASSERT(_lastCommittedBlockTimeStamp < (uint64_t) 2 * MODERN_TIME);
+
+        LOCK(m)
+
+        ptr<BlockProposal> committedProposal = nullptr;
+
+        lastCommittedBlockID = (uint64_t) _lastCommittedBlockID;
+        lastCommittedBlockTimeStamp = _lastCommittedBlockTimeStamp;
+        lastCommittedBlockTimeStampMs = 0;
+
+
+        LOG(info, "Jump starting the system with block:" + to_string(_lastCommittedBlockID));
+        if (lastCommittedBlockID == 0)
+            this->pricingAgent->calculatePrice(ConsensusExtFace::transactions_vector(), 0, 0, 0);
+
+        proposeNextBlock(lastCommittedBlockTimeStamp, lastCommittedBlockTimeStampMs);
+
     } catch (Exception &e) {
         Exception::logNested(e);
         return;
@@ -619,8 +632,26 @@ void Schain::constructServers(ptr<Sockets> _sockets) {
     catchupServerAgent = make_shared<CatchupServerAgent>(*this, _sockets->catchupSocket);
 }
 
+ptr<BlockProposal> Schain::createEmptyBlockProposal(block_id _blockId) {
 
-void Schain::decideBlock(block_id _blockId, schain_index _proposerIndex, ptr<ThresholdSignature> _signature) {
+    uint64_t sec = lastCommittedBlockTimeStamp;
+    uint64_t ms = lastCommittedBlockTimeStampMs;
+
+// Set time for an empty block to be 1 ms more than previous block
+    if (ms == 999) {
+        sec++;
+        ms = 0;
+    } else {
+        ms++;
+    }
+
+    auto emptyList = make_shared<TransactionList>(make_shared<vector<ptr<Transaction >>>());
+    return make_shared<ReceivedBlockProposal>(*this, _blockId, emptyList, sec, ms);
+
+}
+
+
+void Schain::decideBlock(block_id _blockId, schain_index _proposerIndex, ptr<ThresholdSignature> /*_signature*/) {
 
     MONITOR2(__CLASS_NAME__, __FUNCTION__, getMaxExternalBlockProcessingTime())
 
@@ -635,32 +666,16 @@ void Schain::decideBlock(block_id _blockId, schain_index _proposerIndex, ptr<Thr
     ASSERT(proposedBlockSet);
 
     if (_proposerIndex == 0) {
-
-        uint64_t sec = lastCommittedBlockTimeStamp;
-        uint64_t ms = lastCommittedBlockTimeStampMs;
-
-        // Set time for an empty block to be 1 ms more than previous block
-        if (ms == 999) {
-            sec++;
-            ms = 0;
-        } else {
-             ms++;
-        }
-
-        auto emptyList = make_shared<TransactionList>(make_shared<vector<ptr<Transaction >>>());
-        proposal = make_shared<ReceivedBlockProposal>(*this, _blockId, emptyList, sec, ms);
+        proposal = createEmptyBlockProposal(_blockId);
     } else {
         proposal = proposedBlockSet->getProposalByIndex(_proposerIndex);
     }
 
 
-    bool testFinalizationDownloadOnly = getNode()->getTestConfig()->isFinalizationDownloadOnly();
-
-
     if (proposal == nullptr ||
         proposal->getDaProof() == nullptr ||
-        testFinalizationDownloadOnly // this switch is used for unit testing
-            ) {
+        // this switch is for testing only
+        getNode()->getTestConfig()->isFinalizationDownloadOnly()) {
 
         // did not receive proposal from the proposer, pull it in parallel from other hosts
         // Note that due to the BLS signature proof, 2t hosts out of 3t + 1 total are guaranteed to
@@ -675,7 +690,7 @@ void Schain::decideBlock(block_id _blockId, schain_index _proposerIndex, ptr<Thr
             proposedBlockSet->add(proposal);
     }
 
-    if (proposal)
-        blockCommitArrived(false, _blockId, _proposerIndex, proposal->getTimeStamp(), proposal->getTimeStampMs());
+    if (proposal != nullptr)
+        blockCommitArrived(_blockId, _proposerIndex, proposal->getTimeStamp(), proposal->getTimeStampMs());
 
 }

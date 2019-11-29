@@ -150,6 +150,8 @@ class Schain : public Agent {
 
     void pushBlockToExtFace(ptr<CommittedBlock> &_block);
 
+    ptr<BlockProposal> createEmptyBlockProposal(block_id _blockId);
+
 
 public:
 
@@ -183,8 +185,8 @@ public:
 
     void daProofArrived(ptr<DAProof> _proof);
 
-    void blockCommitArrived(bool bootstrap, block_id _committedBlockID, schain_index _proposerIndex,
-                            uint64_t _committedTimeStamp, uint64_t _committedTimeStampMs);
+    void blockCommitArrived(block_id _committedBlockID, schain_index _proposerIndex, uint64_t _committedTimeStamp,
+                            uint64_t _committedTimeStampMs);
 
 
     void blockCommitsArrivedThroughCatchup(ptr<CommittedBlockList> _blocks);

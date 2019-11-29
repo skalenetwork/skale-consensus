@@ -33,8 +33,6 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/chains/Schain.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/chains/Schain.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/chains/Schain.h" beforeDir="false" afterPath="$PROJECT_DIR$/chains/Schain.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chains/SchainGettersSetters.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/chains/SchainGettersSetters.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/protocols/blockconsensus/BlockConsensusAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/protocols/blockconsensus/BlockConsensusAgent.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
