@@ -39,9 +39,8 @@
 
 using namespace std;
 
-BlockProposalHeader::BlockProposalHeader() : Header(Header::BLOCK) {
 
-}
+
 
 
 BlockProposalHeader::BlockProposalHeader(BlockProposal& _block) : Header(Header::BLOCK) {
