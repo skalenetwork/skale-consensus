@@ -153,7 +153,7 @@ void BlockConsensusAgent::decideBlock(block_id _blockId, schain_index _sChainInd
     LOG(debug, "Total txs:" + to_string(getSchain()->getTotalTransactions()) + " T(s):" +
                to_string((Time::getCurrentTimeMs() - getSchain()->getStartTimeMs()) / 1000));
 
-    getSchain()->decideBlock(_blockId, _sChainIndex);
+    //getSchain()->decideBlock(_blockId, _sChainIndex);
 
 }
 
@@ -250,7 +250,8 @@ void BlockConsensusAgent::processBlockSignMessage(ptr<BlockSignBroadcastMessage>
             return;
         }
 
-        cerr << "Signed block !" << endl;
+        getSchain()->decideBlock(_message->getBlockId(), _message->getBlockProposerIndex());
+
     } catch (ExitRequestedException& e) { throw;}
     catch (...) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
