@@ -16,94 +16,130 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file BlockProposalHeader.cpp
+    @file CommittedBlockHeader.cpp
     @author Stan Kladko
     @date 2018
 */
 
 #include "../SkaleCommon.h"
-#include "../crypto/SHAHash.h"
 #include "../Log.h"
 #include "../exceptions/FatalError.h"
 #include "../thirdparty/json.hpp"
+#include "../crypto/SHAHash.h"
 #include "../abstracttcpserver/ConnectionStatus.h"
-
+#include "BlockProposalRequestHeader.h"
 #include "../datastructures/BlockProposal.h"
-#include "../node/Node.h"
-#include "../node/NodeInfo.h"
+#include "../datastructures/CommittedBlock.h"
+#include "../datastructures/Transaction.h"
+#include "../datastructures/TransactionList.h"
+
 #include "../chains/Schain.h"
-
-#include "AbstractBlockRequestHeader.h"
-
 #include "BlockProposalHeader.h"
+
 
 using namespace std;
 
-BlockProposalHeader::BlockProposalHeader(nlohmann::json _proposalRequest, node_count _nodeCount)
-        : AbstractBlockRequestHeader(_nodeCount, (schain_id) Header::getUint64(_proposalRequest, "schainID"),
-                                     (block_id) Header::getUint64(_proposalRequest, "blockID"),
-                                     Header::BLOCK_PROPOSAL_REQ,
-                                     (schain_index) Header::getUint64(_proposalRequest, "proposerIndex")) {
-
-    proposerNodeID = (node_id) Header::getUint64(_proposalRequest, "proposerNodeID");
-    timeStamp = Header::getUint64(_proposalRequest, "timeStamp");
-    timeStampMs = Header::getUint32(_proposalRequest, "timeStampMs");
-    hash = Header::getString(_proposalRequest, "hash");
-    signature = Header::getString(_proposalRequest, "sig");
-    txCount = Header::getUint64(_proposalRequest, "txCount");
-}
-
-BlockProposalHeader::BlockProposalHeader(Schain &_sChain, ptr<BlockProposal> proposal) :
-        AbstractBlockRequestHeader(_sChain.getNodeCount(), _sChain.getSchainID(), proposal->getBlockID(),
-                                   Header::BLOCK_PROPOSAL_REQ,
-                                   _sChain.getSchainIndex()) {
-
-
-    this->proposerNodeID = _sChain.getNode()->getNodeID();
-    this->txCount = (uint64_t) proposal->getTransactionCount();
-    this->timeStamp = proposal->getTimeStamp();
-    this->timeStampMs = proposal->getTimeStampMs();
-
-    this->hash = proposal->getHash()->toHex();
-
-    this->signature = proposal->getSignature();
-
-
-    ASSERT(timeStamp > MODERN_TIME);
-
-    complete = true;
+BlockProposalHeader::BlockProposalHeader() : Header(Header::BLOCK) {
 
 }
 
-void BlockProposalHeader::addFields(nlohmann::basic_json<> &jsonRequest) {
 
-    AbstractBlockRequestHeader::addFields(jsonRequest);
+BlockProposalHeader::BlockProposalHeader(BlockProposal& _block) : Header(Header::BLOCK) {
 
-    jsonRequest["schainID"] = (uint64_t) schainID;
-    jsonRequest["proposerNodeID"] = (uint64_t) proposerNodeID;
-    jsonRequest["proposerIndex"] = (uint64_t) proposerIndex;
-    jsonRequest["blockID"] = (uint64_t) blockID;
-    jsonRequest["txCount"] = txCount;
-    ASSERT(timeStamp > MODERN_TIME);
-    jsonRequest["timeStamp"] = timeStamp;
-    jsonRequest["timeStampMs"] = timeStampMs;
-    CHECK_STATE(hash != nullptr);
-    CHECK_STATE(signature != nullptr);
-    jsonRequest["hash"] = *hash;
-    jsonRequest["sig"] = *signature;
+    this->proposerIndex = _block.getProposerIndex();
+    this->proposerNodeID = _block.getProposerNodeID();
+    this->schainID = _block.getSchainID();
+    this->blockID = _block.getBlockID();
+    this->blockHash = _block.getHash()->toHex();
+    this->signature = _block.getSignature();
+    this->timeStamp = _block.getTimeStamp();
+    this->timeStampMs = _block.getTimeStampMs();
+    this->transactionSizes = make_shared<vector<uint64_t>>();
+
+    auto items = _block.getTransactionList()->getItems();
+
+    for (auto && t : *items) {
+        transactionSizes->push_back(t->getSerializedSize(true));
+    }
+    setComplete();
+}
+
+
+const schain_id &BlockProposalHeader::getSchainID() const {
+    return schainID;
+}
+
+
+const block_id &BlockProposalHeader::getBlockID() const {
+    return blockID;
+}
+
+void BlockProposalHeader::addFields(nlohmann::basic_json<> &j) {
+
+
+    j["schainID"] = (uint64_t ) schainID;
+
+    j["proposerIndex"] = (uint64_t ) proposerIndex;
+
+    j["proposerNodeID"] = (uint64_t ) proposerNodeID;
+
+    j["blockID"] = (uint64_t ) blockID;
+
+    j["hash"] = *blockHash;
+
+    j["sig"] = *signature;
+
+    j["sizes"] = *transactionSizes;
+
+    j["timeStamp"] = timeStamp;
+
+    j["timeStampMs"] = timeStampMs;
+
+    ASSERT(timeStamp > 0);
+
+
+
+}
+
+BlockProposalHeader::BlockProposalHeader(nlohmann::json& _json) : Header(Header::BLOCK){
+
+    proposerIndex = schain_index( Header::getUint64(_json, "proposerIndex" ) );
+    proposerNodeID = node_id( Header::getUint64(_json, "proposerNodeID" ) );
+    blockID = block_id( Header::getUint64(_json, "blockID" ) );
+    schainID = schain_id( Header::getUint64(_json, "schainID" ) );
+    timeStamp = Header::getUint64(_json, "timeStamp" );
+    timeStampMs = Header::getUint32(_json, "timeStampMs" );
+    blockHash = Header::getString(_json, "hash" ) ;
+    signature = Header::getString(_json, "sig");
+
+    Header::nullCheck(_json, "sizes" );
+    nlohmann::json jsonTransactionSizes = _json["sizes"];
+
+    transactionSizes = make_shared< vector< uint64_t > >();
+
+    for ( auto&& jsize : jsonTransactionSizes ) {
+        transactionSizes->push_back( jsize );
+    }
+
+    setComplete();
+}
+
+const ptr<vector<uint64_t>> &BlockProposalHeader::getTransactionSizes() const {
+    return transactionSizes;
+}
+
+const ptr<string> &BlockProposalHeader::getSignature() const {
+    return signature;
+}
+
+const schain_index &BlockProposalHeader::getProposerIndex() const {
+    return proposerIndex;
 }
 
 const node_id &BlockProposalHeader::getProposerNodeId() const {
     return proposerNodeID;
 }
 
-const ptr<string> &BlockProposalHeader::getHash() const {
-    return hash;
-}
-
-uint64_t BlockProposalHeader::getTxCount() const {
-    return txCount;
-}
 
 uint64_t BlockProposalHeader::getTimeStamp() const {
     return timeStamp;
@@ -111,10 +147,6 @@ uint64_t BlockProposalHeader::getTimeStamp() const {
 
 uint32_t BlockProposalHeader::getTimeStampMs() const {
     return timeStampMs;
-}
-
-ptr<string> BlockProposalHeader::getSignature() const {
-    return signature;
 }
 
 

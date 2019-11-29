@@ -29,12 +29,14 @@
 #include "../node/ConsensusEngine.h"
 #include "../exceptions/InvalidArgumentException.h"
 #include "../exceptions/OldBlockIDException.h"
+#include "../headers/BlockProposalHeader.h"
 #include "Transaction.h"
 #include "TransactionList.h"
 #include "PartialHashesList.h"
 #include "../chains/Schain.h"
 #include "../pendingqueue/PendingTransactionsAgent.h"
-#include "../headers/BlockProposalHeader.h"
+#include "../headers/BlockProposalRequestHeader.h"
+#include "../network/Buffer.h"
 #include "../crypto/CryptoManager.h"
 
 #include "BlockProposal.h"
@@ -162,8 +164,8 @@ ptr<string>  BlockProposal::getSignature() {
     return  signature;
 }
 
-ptr<BlockProposalHeader> BlockProposal::createBlockProposalHeader(Schain* _sChain,
-        ptr<BlockProposal> _proposal) {
+ptr<BlockProposalRequestHeader> BlockProposal::createBlockProposalHeader(Schain* _sChain,
+                                                                         ptr<BlockProposal> _proposal) {
 
 
     CHECK_ARGUMENT(_sChain != nullptr);
@@ -174,7 +176,7 @@ ptr<BlockProposalHeader> BlockProposal::createBlockProposalHeader(Schain* _sChai
     if (_proposal->header != nullptr)
         return _proposal->header;
 
-    _proposal->header = make_shared<BlockProposalHeader>(*_sChain, _proposal);
+    _proposal->header = make_shared<BlockProposalRequestHeader>(*_sChain, _proposal);
 
     return _proposal->header;
 
@@ -197,5 +199,46 @@ ptr<DAProof> BlockProposal::setAndGetDaProof(const ptr<DAProof> _daProof) {
 }
 
 
+ptr<vector<uint8_t> > BlockProposal::getSerialized() {
 
+
+    LOCK(m)
+
+    if (serializedBlock != nullptr)
+        return serializedBlock;
+
+
+    auto blockHeader = make_shared<BlockProposalHeader>(*this);
+
+    auto buf = blockHeader->toBuffer();
+
+    CHECK_STATE(buf->getBuf()->at(sizeof(uint64_t)) == '{');
+    CHECK_STATE(buf->getBuf()->at(buf->getCounter() - 1) == '}');
+
+
+    auto block = make_shared<vector<uint8_t> >();
+
+    block->insert(
+            block->end(), buf->getBuf()->begin(), buf->getBuf()->begin() + buf->getCounter());
+
+
+    auto serializedList = transactionList->serialize(true);
+    assert(serializedList->front() == '<');
+    assert(serializedList->back() == '>');
+
+
+    block->insert(block->end(), serializedList->begin(), serializedList->end());
+
+    if (transactionList->size() == 0) {
+        CHECK_STATE(block->size() == buf->getCounter() + 2);
+    }
+
+    serializedBlock = block;
+
+
+    assert(block->at(sizeof(uint64_t)) == '{');
+    assert(block->back() == '>');
+
+    return block;
+}
 

@@ -38,7 +38,7 @@
 #include "../node/ConsensusEngine.h"
 #include "../node/Node.h"
 #include "../blockproposal/pusher/BlockProposalClientAgent.h"
-#include "../headers/BlockProposalHeader.h"
+#include "../headers/BlockProposalRequestHeader.h"
 #include "../pendingqueue/PendingTransactionsAgent.h"
 
 #include "../blockfinalize/client/BlockFinalizeDownloader.h"

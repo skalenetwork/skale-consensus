@@ -32,16 +32,18 @@ class Transaction;
 class PartialHashesList;
 class TransactionList;
 class SHAHash;
-class BlockProposalHeader;
+class BlockProposalRequestHeader;
 class CryptoManager;
 
 class DAProof;
 
 class BlockProposal : public DataStructure {
 
-    ptr<BlockProposalHeader> header = nullptr;
+    ptr<BlockProposalRequestHeader> header = nullptr;
 
     ptr<DAProof> daProof = nullptr;
+
+    ptr< vector< uint8_t > > serializedBlock = nullptr;
 
 
 
@@ -105,9 +107,11 @@ public:
 
     ptr<string>  getSignature();
 
-    static ptr<BlockProposalHeader> createBlockProposalHeader(Schain* _sChain, ptr<BlockProposal> _proposal);
+    static ptr<BlockProposalRequestHeader> createBlockProposalHeader(Schain* _sChain, ptr<BlockProposal> _proposal);
 
     ptr<DAProof> setAndGetDaProof(const ptr<DAProof> _daProof);
+
+    ptr<vector<uint8_t> > getSerialized();
 
     ptr<DAProof> getDaProof() const;
 };

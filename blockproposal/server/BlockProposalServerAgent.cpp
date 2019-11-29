@@ -71,7 +71,7 @@
 #include "../../datastructures/TransactionList.h"
 #include "../../db/ProposalHashDB.h"
 #include "../../headers/AbstractBlockRequestHeader.h"
-#include "../../headers/BlockProposalHeader.h"
+#include "../../headers/BlockProposalRequestHeader.h"
 #include "../../headers/DAProofRequestHeader.h"
 #include "../../headers/DAProofResponseHeader.h"
 
@@ -228,12 +228,12 @@ BlockProposalServerAgent::processDAProofRequest(ptr<ServerConnection> _connectio
 
 void
 BlockProposalServerAgent::processProposalRequest(ptr<ServerConnection> _connection, nlohmann::json _proposalRequest) {
-    ptr<BlockProposalHeader> requestHeader = nullptr;
+    ptr<BlockProposalRequestHeader> requestHeader = nullptr;
     ptr<Header> responseHeader = nullptr;
 
     try {
 
-        requestHeader = make_shared<BlockProposalHeader>(_proposalRequest, getSchain()->getNodeCount());
+        requestHeader = make_shared<BlockProposalRequestHeader>(_proposalRequest, getSchain()->getNodeCount());
         responseHeader = this->createProposalResponseHeader(_connection, *requestHeader);
     } catch (ExitRequestedException &) {
         throw;
@@ -387,7 +387,7 @@ void BlockProposalServerAgent::checkForOldBlock(const block_id &_blockID) {
 
 
 ptr<Header> BlockProposalServerAgent::createProposalResponseHeader(ptr<ServerConnection> _connectionEnvelope,
-                                                                   BlockProposalHeader &_header) {
+                                                                   BlockProposalRequestHeader &_header) {
     auto responseHeader = make_shared<BlockProposalResponseHeader>();
 
     if (sChain->getSchainID() != _header.getSchainId()) {

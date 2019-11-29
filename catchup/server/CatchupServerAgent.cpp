@@ -60,7 +60,7 @@
 #include "../../network/ServerConnection.h"
 #include "../../network/IO.h"
 #include "../../headers/CatchupRequestHeader.h"
-#include "../../headers/CommittedBlockHeader.h"
+#include "../../headers/BlockProposalHeader.h"
 #include "../../headers/CatchupResponseHeader.h"
 #include "../../headers/BlockFinalizeResponseHeader.h"
 

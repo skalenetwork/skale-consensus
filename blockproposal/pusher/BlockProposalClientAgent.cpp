@@ -40,7 +40,7 @@
 #include "../../datastructures/BlockProposal.h"
 #include "../../datastructures/CommittedBlock.h"
 #include "../../exceptions/NetworkProtocolException.h"
-#include "../../headers/BlockProposalHeader.h"
+#include "../../headers/BlockProposalRequestHeader.h"
 #include "../../headers/MissingTransactionsRequestHeader.h"
 #include "../../headers/MissingTransactionsResponseHeader.h"
 #include "../../headers/FinalProposalResponseHeader.h"

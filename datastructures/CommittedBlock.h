@@ -33,18 +33,18 @@
 #include "BlockProposal.h"
 
 class Schain;
-class CommittedBlockHeader;
+class BlockProposalHeader;
 class ThresholdSignature;
 
 class BlockProposalFragment;
 
 class CommittedBlock : public BlockProposal {
 
-    ptr< vector< uint8_t > > serializedBlock = nullptr;
+
 
     CommittedBlock( uint64_t timeStamp, uint32_t timeStampMs );
 
-    static ptr<CommittedBlockHeader> parseBlockHeader(const shared_ptr< string >& header );
+    static ptr<BlockProposalHeader> parseBlockHeader(const shared_ptr< string >& header );
 
 public:
     CommittedBlock(ptr<BlockProposal> _p, ptr<ThresholdSignature> _thresholdSig);
@@ -61,7 +61,7 @@ public:
     static ptr<CommittedBlock>
     defragment(ptr<BlockProposalFragmentList> _fragmentList, ptr<CryptoManager> _cryptoManager);
 
-    ptr< vector< uint8_t > > getSerialized();
+
 
 
     static ptr< CommittedBlock > createRandomSample(ptr<CryptoManager> _manager, uint64_t _size, boost::random::mt19937& _gen,

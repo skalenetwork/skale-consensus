@@ -38,7 +38,7 @@
 #include "../exceptions/ParsingException.h"
 #include "../exceptions/InvalidStateException.h"
 #include "../exceptions/ExitRequestedException.h"
-#include "../headers/CommittedBlockHeader.h"
+#include "../headers/BlockProposalHeader.h"
 
 
 #include "../datastructures/Transaction.h"
@@ -58,48 +58,7 @@ CommittedBlock::CommittedBlock(ptr<BlockProposal> _p, ptr<ThresholdSignature> _t
 }
 
 
-ptr<vector<uint8_t> > CommittedBlock::getSerialized() {
 
-
-    LOCK(m)
-
-    if (serializedBlock != nullptr)
-        return serializedBlock;
-
-    auto header = make_shared<CommittedBlockHeader>(*this);
-
-    auto buf = header->toBuffer();
-
-
-    CHECK_STATE(buf->getBuf()->at(sizeof(uint64_t)) == '{');
-    CHECK_STATE(buf->getBuf()->at(buf->getCounter() - 1) == '}');
-
-
-    auto block = make_shared<vector<uint8_t> >();
-
-    block->insert(
-            block->end(), buf->getBuf()->begin(), buf->getBuf()->begin() + buf->getCounter());
-
-
-    auto serializedList = transactionList->serialize(true);
-    assert(serializedList->front() == '<');
-    assert(serializedList->back() == '>');
-
-
-    block->insert(block->end(), serializedList->begin(), serializedList->end());
-
-    if (transactionList->size() == 0) {
-        CHECK_STATE(block->size() == buf->getCounter() + 2);
-    }
-
-    serializedBlock = block;
-
-
-    assert(block->at(sizeof(uint64_t)) == '{');
-    assert(block->back() == '>');
-
-    return block;
-}
 
 void CommittedBlock::serializedSanityCheck(ptr<vector<uint8_t> > _serializedBlock) {
     CHECK_STATE(_serializedBlock->at(sizeof(uint64_t)) == '{');
@@ -146,7 +105,7 @@ ptr<CommittedBlock> CommittedBlock::deserialize(ptr<vector<uint8_t> > _serialize
 
     in.read((char *) header->c_str(), headerSize); /* Flawfinder: ignore */
 
-    ptr<CommittedBlockHeader> blockHeader;
+    ptr<BlockProposalHeader> blockHeader;
 
     try {
         blockHeader = CommittedBlock::parseBlockHeader(header);
@@ -190,14 +149,14 @@ CommittedBlock::defragment(ptr<BlockProposalFragmentList> _fragmentList, ptr<Cry
 }
 
 
-ptr<CommittedBlockHeader> CommittedBlock::parseBlockHeader(const shared_ptr<string> &header) {
+ptr<BlockProposalHeader> CommittedBlock::parseBlockHeader(const shared_ptr<string> &header) {
     CHECK_ARGUMENT(header != nullptr);
     CHECK_ARGUMENT(header->size() > 2);
     CHECK_ARGUMENT2(header->at(0) == '{', "Block header does not start with {");
     CHECK_ARGUMENT2(header->at(header->size() - 1) == '}', "Block header does not end with }");
 
     auto js = nlohmann::json::parse(*header);
-    return make_shared<CommittedBlockHeader>(js);
+    return make_shared<BlockProposalHeader>(js);
 
 }
 

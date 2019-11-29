@@ -40,7 +40,7 @@
 #include "../../crypto/SHAHash.h"
 #include "../../datastructures/CommittedBlockList.h"
 #include "../../exceptions/NetworkProtocolException.h"
-#include "../../headers/BlockProposalHeader.h"
+#include "../../headers/BlockProposalRequestHeader.h"
 #include "../../headers/CatchupRequestHeader.h"
 #include "../../headers/CatchupResponseHeader.h"
 #include "../../pendingqueue/PendingTransactionsAgent.h"

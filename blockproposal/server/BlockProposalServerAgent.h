@@ -28,7 +28,7 @@
 
 class BlockProposalWorkerThreadPool;
 class BlockFinalizeResponseHeader;
-class BlockProposalHeader;
+class BlockProposalRequestHeader;
 class DAProofRequestHeader;
 class ReceivedBlockProposal;
 
@@ -85,7 +85,7 @@ public:
 
     ptr<Header>
     createProposalResponseHeader(ptr<ServerConnection> _connectionEnvelope,
-                                 BlockProposalHeader &_header);
+                                 BlockProposalRequestHeader &_header);
 
     ptr<Header>
     createFinalResponseHeader(ptr<ReceivedBlockProposal> _proposal);

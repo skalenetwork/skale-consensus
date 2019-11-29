@@ -30,12 +30,24 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="e8eb5c74-4268-46a2-ac26-2e919fd9ff42" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/headers/BlockProposalRequestHeader.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/blockfinalize/client/BlockFinalizeDownloader.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/blockfinalize/client/BlockFinalizeDownloader.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/blockproposal/pusher/BlockProposalClientAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/blockproposal/pusher/BlockProposalClientAgent.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/blockproposal/server/BlockProposalServerAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/blockproposal/server/BlockProposalServerAgent.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/blockproposal/server/BlockProposalServerAgent.h" beforeDir="false" afterPath="$PROJECT_DIR$/blockproposal/server/BlockProposalServerAgent.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/catchup/client/CatchupClientAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/catchup/client/CatchupClientAgent.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/catchup/server/CatchupServerAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/catchup/server/CatchupServerAgent.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/chains/Schain.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/chains/Schain.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/chains/SchainGettersSetters.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/chains/SchainGettersSetters.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/datastructures/BlockProposal.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/BlockProposal.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/datastructures/BlockProposal.h" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/BlockProposal.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/datastructures/CommittedBlock.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/CommittedBlock.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/datastructures/CommittedBlock.h" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/CommittedBlock.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/headers/BlockProposalHeader.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/headers/BlockProposalRequestHeader.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/headers/CommittedBlockHeader.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/headers/BlockProposalHeader.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/headers/CommittedBlockHeader.h" beforeDir="false" afterPath="$PROJECT_DIR$/headers/BlockProposalHeader.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/headers/Header.h" beforeDir="false" afterPath="$PROJECT_DIR$/headers/Header.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/network/IO.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/network/IO.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -534,7 +546,14 @@
       <option name="project" value="LOCAL" />
       <updated>1575033415124</updated>
     </task>
-    <option name="localTasksCounter" value="42" />
+    <task id="LOCAL-00042" summary="Signing blocks now">
+      <created>1575035659322</created>
+      <option name="number" value="00042" />
+      <option name="presentableId" value="LOCAL-00042" />
+      <option name="project" value="LOCAL" />
+      <updated>1575035659322</updated>
+    </task>
+    <option name="localTasksCounter" value="43" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

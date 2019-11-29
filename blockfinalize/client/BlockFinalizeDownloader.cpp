@@ -72,7 +72,7 @@
 #include "../../datastructures/BlockProposalSet.h"
 #include "../../datastructures/BlockProposal.h"
 #include "../../exceptions/NetworkProtocolException.h"
-#include "../../headers/BlockProposalHeader.h"
+#include "../../headers/BlockProposalRequestHeader.h"
 #include "../../headers/BlockFinalizeRequestHeader.h"
 #include "../../headers/BlockFinalizeResponseHeader.h"
 #include "../../pendingqueue/PendingTransactionsAgent.h"

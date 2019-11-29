@@ -31,7 +31,7 @@
 #include "../abstracttcpserver/ConnectionStatus.h"
 #include "../node/Node.h"
 #include "../headers/Header.h"
-#include "../headers/BlockProposalHeader.h"
+#include "../headers/BlockProposalRequestHeader.h"
 #include "ClientSocket.h"
 #include "../exceptions/NetworkProtocolException.h"
 #include "../exceptions/IOException.h"
