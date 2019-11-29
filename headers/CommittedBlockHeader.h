@@ -17,6 +17,8 @@ public:
     CommittedBlockHeader(nlohmann::json &json);
 
     const ptr<string> &getThresholdSig() const;
+
+    void addFields(nlohmann::basic_json<> &j) override;
 };
 
 

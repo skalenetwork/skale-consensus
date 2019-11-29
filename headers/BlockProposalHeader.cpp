@@ -73,7 +73,7 @@ const block_id &BlockProposalHeader::getBlockID() const {
     return blockID;
 }
 
-void BlockProposalHeader::addFields(nlohmann::basic_json<> &j) {
+void BlockProposalHeader::addFields(nlohmann::json &j) {
 
 
     j["schainID"] = (uint64_t ) schainID;

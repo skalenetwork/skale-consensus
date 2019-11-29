@@ -70,7 +70,7 @@ void BlockDB::saveBlock2LevelDB(ptr<CommittedBlock> &_block) {
 
     try {
 
-        auto serializedBlock = _block->getSerialized();
+        auto serializedBlock = _block->serialize();
 
         auto key = createKey(_block->getBlockID());
 

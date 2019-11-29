@@ -198,8 +198,11 @@ ptr<DAProof> BlockProposal::setAndGetDaProof(const ptr<DAProof> _daProof) {
     return nullptr;
 }
 
+ptr<Header> BlockProposal::createHeader() {
+    return make_shared<BlockProposalHeader>(*this);
+}
 
-ptr<vector<uint8_t> > BlockProposal::getSerialized() {
+ptr<vector<uint8_t> > BlockProposal::serialize() {
 
 
     LOCK(m)
@@ -208,7 +211,7 @@ ptr<vector<uint8_t> > BlockProposal::getSerialized() {
         return serializedBlock;
 
 
-    auto blockHeader = make_shared<BlockProposalHeader>(*this);
+    auto blockHeader = createHeader();
 
     auto buf = blockHeader->toBuffer();
 

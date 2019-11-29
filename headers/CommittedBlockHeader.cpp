@@ -13,7 +13,7 @@ CommittedBlockHeader::CommittedBlockHeader(BlockProposal &block, const ptr<strin
 }
 
 CommittedBlockHeader::CommittedBlockHeader(nlohmann::json &json) : BlockProposalHeader(json) {
-    thresholdSig = Header::getString(json, "sig");
+    thresholdSig = Header::getString(json, "thrSig");
     CHECK_STATE(thresholdSig != nullptr);
 }
 
@@ -21,6 +21,10 @@ const ptr<string> &CommittedBlockHeader::getThresholdSig() const {
     return thresholdSig;
 }
 
+void CommittedBlockHeader::addFields(nlohmann::basic_json<> &j) {
+    BlockProposalHeader::addFields(j);
 
+    j["thrSig"] = *thresholdSig;
+}
 
 

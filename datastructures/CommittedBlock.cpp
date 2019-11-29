@@ -197,7 +197,7 @@ ptr<BlockProposalFragment> CommittedBlock::getFragment(uint64_t _totalFragments,
     CHECK_ARGUMENT(_index <= _totalFragments);
     LOCK(m)
 
-    auto sBlock = getSerialized();
+    auto sBlock = serialize();
 
 
     auto blockSize = sBlock->size();

@@ -121,7 +121,7 @@ void test_committed_block_fragment_defragment(bool _fail) {
             }
             REQUIRE(imp != nullptr);
 
-            REQUIRE(*imp->getSerialized() == *t->getSerialized());
+            REQUIRE(*imp->serialize() == *t->serialize());
         }
 
     }
@@ -202,7 +202,7 @@ void test_committed_block_serialize_deserialize(bool _fail) {
         for (int i = 0; i < 20; i++) {
             auto t = CommittedBlock::createRandomSample(cryptoManager, i, gen, ubyte);
 
-            auto out = t->getSerialized();
+            auto out = t->serialize();
 
             if (_fail) {
                 corrupt_byte_vector(out, gen, ubyte);

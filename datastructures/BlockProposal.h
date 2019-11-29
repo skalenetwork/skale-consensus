@@ -34,8 +34,8 @@ class TransactionList;
 class SHAHash;
 class BlockProposalRequestHeader;
 class CryptoManager;
-
 class DAProof;
+class Header;
 
 class BlockProposal : public DataStructure {
 
@@ -63,14 +63,12 @@ protected:
     ptr<TransactionList> transactionList;
     ptr< SHAHash > hash = nullptr;
 
-
     void calculateHash();
-
-
 
     BlockProposal(uint64_t _timeStamp, uint32_t _timeStampMs);
 
 
+    virtual ptr<Header> createHeader();
 
 public:
 
@@ -111,8 +109,9 @@ public:
 
     ptr<DAProof> setAndGetDaProof(const ptr<DAProof> _daProof);
 
-    ptr<vector<uint8_t> > getSerialized();
+    ptr<vector<uint8_t> > serialize();
 
     ptr<DAProof> getDaProof() const;
+
 };
 
