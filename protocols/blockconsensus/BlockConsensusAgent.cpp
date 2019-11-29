@@ -250,7 +250,7 @@ void BlockConsensusAgent::processBlockSignMessage(ptr<BlockSignBroadcastMessage>
             return;
         }
 
-        getSchain()->decideBlock(_message->getBlockId(), _message->getBlockProposerIndex());
+        getSchain()->decideBlock(_message->getBlockId(), _message->getBlockProposerIndex(), signature);
 
     } catch (ExitRequestedException& e) { throw;}
     catch (...) {

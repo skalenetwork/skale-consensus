@@ -11,8 +11,8 @@
       <config projectName="consensus" targetName="consensusd" />
       <config projectName="consensus" targetName="all_te_tests" />
       <config projectName="consensus" targetName="bls" />
-      <config projectName="consensus" targetName="bls_glue" />
       <config projectName="consensus" targetName="bls_unit_test" />
+      <config projectName="consensus" targetName="bls_glue" />
       <config projectName="consensus" targetName="bls_test" />
       <config projectName="consensus" targetName="te_test" />
       <config projectName="consensus" targetName="hash_g1" />
@@ -29,10 +29,13 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e8eb5c74-4268-46a2-ac26-2e919fd9ff42" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/protocols/blockconsensus/BlockSignBroadcastMessage.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/protocols/blockconsensus/BlockSignBroadcastMessage.cpp" afterDir="false" />
+    <list default="true" id="e8eb5c74-4268-46a2-ac26-2e919fd9ff42" name="Default Changelist" comment="Signing blocks now">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/chains/Schain.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/chains/Schain.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/chains/Schain.h" beforeDir="false" afterPath="$PROJECT_DIR$/chains/Schain.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/chains/SchainGettersSetters.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/chains/SchainGettersSetters.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/protocols/blockconsensus/BlockConsensusAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/protocols/blockconsensus/BlockConsensusAgent.cpp" afterDir="false" />
     </list>
-    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -46,12 +49,17 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
     <option name="ROOT_SYNC" value="DONT_SYNC" />
   </component>
-  <component name="OCFindUsagesOptions" text="true" ivars="false" properties="true" derivedClasses="false" />
+  <component name="OCFindUsagesOptions" text="false" ivars="false" properties="true" derivedClasses="false" />
   <component name="OCResolveContextSettings">
     <option name="configuration" value="0-consensus" />
   </component>
   <component name="ProjectId" id="1TnSIFu9Eo5WxsaS61xq1WagMk7" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showExcludedFiles" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
   <component name="PropertiesComponent">
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="cf.advertisement.text.has.clang-format" value="true" />
@@ -235,7 +243,7 @@
       <updated>1574090790692</updated>
     </task>
     <task active="true" id="Default" summary="Default task">
-      <changelist id="328bba78-e120-46f5-8d8c-d775e2cc49f7" name="Default Changelist" comment="" />
+      <changelist id="e8eb5c74-4268-46a2-ac26-2e919fd9ff42" name="Default Changelist" comment="Signing blocks now" />
       <created>1574094284750</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
@@ -243,6 +251,7 @@
       <workItem from="1574094287405" duration="6542000" />
       <workItem from="1574329687184" duration="5058000" />
       <workItem from="1574435605775" duration="945000" />
+      <workItem from="1575021765183" duration="8000" />
     </task>
     <task id="LOCAL-00002" summary="Updated libBLS">
       <created>1574096232083</created>
@@ -489,7 +498,28 @@
       <option name="project" value="LOCAL" />
       <updated>1574954623159</updated>
     </task>
-    <option name="localTasksCounter" value="37" />
+    <task id="LOCAL-00037" summary="Adding sigShareStorage">
+      <created>1574954845678</created>
+      <option name="number" value="00037" />
+      <option name="presentableId" value="LOCAL-00037" />
+      <option name="project" value="LOCAL" />
+      <updated>1574954845678</updated>
+    </task>
+    <task id="LOCAL-00038" summary="Signing blocks now">
+      <created>1574962363753</created>
+      <option name="number" value="00038" />
+      <option name="presentableId" value="LOCAL-00038" />
+      <option name="project" value="LOCAL" />
+      <updated>1574962363753</updated>
+    </task>
+    <task id="LOCAL-00039" summary="Decide on block signing">
+      <created>1575022504238</created>
+      <option name="number" value="00039" />
+      <option name="presentableId" value="LOCAL-00039" />
+      <option name="project" value="LOCAL" />
+      <updated>1575022504238</updated>
+    </task>
+    <option name="localTasksCounter" value="40" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -511,7 +541,6 @@
   <component name="VcsManagerConfiguration">
     <option name="CHECK_CODE_SMELLS_BEFORE_PROJECT_COMMIT" value="false" />
     <option name="CHECK_NEW_TODO" value="false" />
-    <MESSAGE value="Added workspace.xml" />
     <MESSAGE value="Improve locking" />
     <MESSAGE value="Fixing IO" />
     <MESSAGE value="Adding tests" />
@@ -535,7 +564,13 @@
     <MESSAGE value="Adding set DB" />
     <MESSAGE value="Added block set storage" />
     <MESSAGE value="Adding sigShareStorage" />
-    <option name="LAST_COMMIT_MESSAGE" value="Adding sigShareStorage" />
+    <MESSAGE value="Signing blocks now" />
+    <MESSAGE value="Decide on block signing" />
+    <option name="LAST_COMMIT_MESSAGE" value="Decide on block signing" />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="2434" y="329" key="com.intellij.ide.util.TipDialog" />
+    <state x="2434" y="329" key="com.intellij.ide.util.TipDialog/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -547,7 +582,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
           <url>file://$PROJECT_DIR$/db/LevelDB.cpp</url>
-          <line>323</line>
+          <line>322</line>
           <option name="timeStamp" value="6" />
         </line-breakpoint>
       </breakpoints>

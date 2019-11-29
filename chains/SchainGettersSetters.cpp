@@ -220,7 +220,7 @@ uint64_t Schain::getTotalTransactions() const {
 }
 
 uint64_t Schain::getLastCommittedBlockTimeStamp() {
-    return committedBlockTimeStamp;
+    return lastCommittedBlockTimeStamp;
 }
 
 

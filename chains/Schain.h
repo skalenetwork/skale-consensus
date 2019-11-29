@@ -25,7 +25,7 @@
 
 #include "../Agent.h"
 
-
+class ThresholdSignature;
 class CommittedBlockList;
 class NetworkMessageEnvelope;
 class WorkerThreadPool;
@@ -120,10 +120,9 @@ class Schain : public Agent {
     ptr<string> blockProposerTest;
 
     atomic<uint64_t> lastCommittedBlockID;
-
+    atomic<uint64_t>lastCommittedBlockTimeStamp;
+    atomic<uint64_t>lastCommittedBlockTimeStampMs;
     atomic<uint64_t> bootstrapBlockID;
-
-    atomic<uint64_t>committedBlockTimeStamp;
 
     uint64_t maxExternalBlockProcessingTime;
 
@@ -184,8 +183,8 @@ public:
 
     void daProofArrived(ptr<DAProof> _proof);
 
-    void blockCommitArrived(bool _bootstrap, block_id _committedBlockID, schain_index _proposerIndex,
-                                uint64_t _committedTimeStamp);
+    void blockCommitArrived(bool bootstrap, block_id _committedBlockID, schain_index _proposerIndex,
+                            uint64_t _committedTimeStamp, uint64_t _committedTimeStampMs);
 
 
     void blockCommitsArrivedThroughCatchup(ptr<CommittedBlockList> _blocks);
@@ -245,6 +244,6 @@ public:
     ptr<CryptoManager> getCryptoManager() const;
 
 
-    void decideBlock(block_id _blockId, schain_index _proposerIndex);
+    void decideBlock(block_id _blockId, schain_index _proposerIndex, ptr<ThresholdSignature> _signature);
 
 };
