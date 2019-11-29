@@ -34,6 +34,7 @@
 
 class Schain;
 class CommittedBlockHeader;
+class ThresholdSignature;
 
 class BlockProposalFragment;
 
@@ -46,11 +47,10 @@ class CommittedBlock : public BlockProposal {
     static ptr<CommittedBlockHeader> parseBlockHeader(const shared_ptr< string >& header );
 
 public:
-    CommittedBlock(ptr< BlockProposal > _p );
-    CommittedBlock( const schain_id& sChainId, const node_id& proposerNodeId,
-        const block_id& blockId, const schain_index& proposerIndex,
-        const ptr< TransactionList >& transactions, uint64_t timeStamp, __uint32_t timeStampMs,
-        ptr<string> _signature);
+    CommittedBlock(ptr<BlockProposal> _p, ptr<ThresholdSignature> _thresholdSig);
+    CommittedBlock(const schain_id &sChainId, const node_id &proposerNodeId, const block_id &blockId,
+                   const schain_index &proposerIndex, const ptr<TransactionList> &transactions, uint64_t timeStamp,
+                   __uint32_t timeStampMs, ptr<string> _signature, ptr<string> _thresholdSig);
 
     ptr<BlockProposalFragment> getFragment(uint64_t _totalFragments, fragment_index _index);
 

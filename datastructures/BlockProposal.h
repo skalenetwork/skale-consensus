@@ -55,6 +55,7 @@ protected:
     uint64_t  timeStamp = 0;
     uint32_t  timeStampMs = 0;
     ptr<string> signature = nullptr;
+    ptr<string> thresholdSig = nullptr;
 
 
     ptr<TransactionList> transactionList;

@@ -302,7 +302,7 @@ void Schain::blockCommitsArrivedThroughCatchup(ptr<CommittedBlockList> _blocks) 
 
 
 void Schain::blockCommitArrived(block_id _committedBlockID, schain_index _proposerIndex, uint64_t _committedTimeStamp,
-                                uint64_t _committedTimeStampMs, ptr<ThresholdSignature> /*_thresholdSig*/) {
+                                uint64_t _committedTimeStampMs, ptr<ThresholdSignature> _thresholdSig) {
 
     MONITOR2(__CLASS_NAME__, __FUNCTION__, getMaxExternalBlockProcessingTime())
 
@@ -326,7 +326,7 @@ void Schain::blockCommitArrived(block_id _committedBlockID, schain_index _propos
     committedProposal = blockProposalsDatabase->getBlockProposal(_committedBlockID, _proposerIndex);
     ASSERT(committedProposal);
 
-    auto newCommittedBlock = make_shared<CommittedBlock>(committedProposal);
+    auto newCommittedBlock = make_shared<CommittedBlock>(committedProposal, _thresholdSig);
 
     processCommittedBlock(newCommittedBlock);
 

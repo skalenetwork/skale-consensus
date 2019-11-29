@@ -29,6 +29,7 @@
 #include "../SkaleCommon.h"
 #include "../thirdparty/json.hpp"
 #include "../crypto/CryptoManager.h"
+#include "../crypto/ThresholdSignature.h"
 
 #include "../abstracttcpserver/ConnectionStatus.h"
 #include "../chains/Schain.h"
@@ -47,11 +48,12 @@
 #include "CommittedBlock.h"
 
 
-CommittedBlock::CommittedBlock(ptr<BlockProposal> _p)
+CommittedBlock::CommittedBlock(ptr<BlockProposal> _p, ptr<ThresholdSignature> _thresholdSig)
         : BlockProposal(_p->getSchainID(), _p->getProposerNodeID(),
                         _p->getBlockID(), _p->getProposerIndex(), _p->getTransactionList(), _p->getTimeStamp(),
                         _p->getTimeStampMs()) {
     this->signature = _p->getSignature();
+    this->thresholdSig = _thresholdSig->toString();
     CHECK_STATE(signature != nullptr);
 }
 
@@ -168,7 +170,7 @@ ptr<CommittedBlock> CommittedBlock::deserialize(ptr<vector<uint8_t> > _serialize
     auto block = make_shared<CommittedBlock>(blockHeader->getSchainID(), blockHeader->getProposerNodeId(),
                                      blockHeader->getBlockID(), blockHeader->getProposerIndex(),
                                      list, blockHeader->getTimeStamp(), blockHeader->getTimeStampMs(),
-                                     blockHeader->getSignature());
+                                     blockHeader->getSignature(), nullptr);
 
 
     _manager->verifyProposalECDSA(block.get(), blockHeader->getBlockHash(), blockHeader->getSignature());
@@ -203,15 +205,15 @@ CommittedBlock::CommittedBlock(uint64_t timeStamp, uint32_t timeStampMs)
         : BlockProposal(timeStamp, timeStampMs) {}
 
 
-CommittedBlock::CommittedBlock(const schain_id &sChainId, const node_id &proposerNodeId,
-                               const block_id &blockId, const schain_index &proposerIndex,
-                               const ptr<TransactionList> &transactions, uint64_t timeStamp, __uint32_t timeStampMs,
-                               ptr<string> _signature)
+CommittedBlock::CommittedBlock(const schain_id &sChainId, const node_id &proposerNodeId, const block_id &blockId,
+                               const schain_index &proposerIndex, const ptr<TransactionList> &transactions,
+                               uint64_t timeStamp,
+                               __uint32_t timeStampMs, ptr<string> _signature, ptr<string> _thresholdSig)
         : BlockProposal(sChainId, proposerNodeId, blockId, proposerIndex, transactions, timeStamp,
                         timeStampMs) {
     CHECK_ARGUMENT(_signature != nullptr);
     this->signature = _signature;
-
+    this->thresholdSig = _thresholdSig;
 }
 
 
@@ -227,7 +229,7 @@ ptr<CommittedBlock> CommittedBlock::createRandomSample(ptr<CryptoManager> _manag
 
     _manager->signProposalECDSA(proposal.get());
 
-    return make_shared<CommittedBlock>(proposal);
+    return make_shared<CommittedBlock>(proposal, nullptr);
 }
 
 ptr<BlockProposalFragment> CommittedBlock::getFragment(uint64_t _totalFragments, fragment_index _index) {

@@ -324,7 +324,7 @@ ptr<vector<uint8_t>> CatchupServerAgent::createBlockFinalizeResponse(nlohmann::j
         return nullptr;
     }
 
-    auto committedBlock = make_shared<CommittedBlock>(proposal);
+    auto committedBlock = make_shared<CommittedBlock>(proposal, nullptr);
 
     auto fragment = committedBlock->getFragment(
             (uint64_t ) getSchain()->getNodeCount() - 1,
