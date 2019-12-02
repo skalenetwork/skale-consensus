@@ -329,7 +329,6 @@ ptr<string> BlockProposal::extractHeader(ptr<vector<uint8_t> > _serializedBlock)
     CHECK_ARGUMENT2(
             size >= sizeof(headerSize) + 2, "Serialized block too small:" + to_string(size));
 
-
     using boost::iostreams::array_source;
     using boost::iostreams::stream;
 
@@ -338,7 +337,6 @@ ptr<string> BlockProposal::extractHeader(ptr<vector<uint8_t> > _serializedBlock)
     stream<array_source> in(src);
 
     in.read((char *) &headerSize, sizeof(headerSize)); /* Flawfinder: ignore */
-
 
     CHECK_STATE2(headerSize >= 2 && headerSize + sizeof(headerSize) <= _serializedBlock->size(),
                  "Invalid header size" + to_string(headerSize));
