@@ -35,7 +35,7 @@ ReceivedBlockProposal::ReceivedBlockProposal(Schain &_sChain, const block_id &_b
                                              ptr<string> _signature) : BlockProposal(
         _sChain.getSchainID(), _sChain.getNodeIDByIndex(_proposerIndex), _blockID,
         _proposerIndex, _transactions,
-        _timeStamp, _timeStampMs, ptr<string>(), ptr<CryptoManager>()) {
+        _timeStamp, _timeStampMs, _signature, nullptr) {
     this->hash = SHAHash::fromHex(_hash);
     this->signature = _signature;
     totalObjects++;

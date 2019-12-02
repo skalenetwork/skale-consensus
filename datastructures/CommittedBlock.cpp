@@ -146,7 +146,6 @@ _size,
     auto proposal = make_shared<BlockProposal>(1, 1, _blockID, 1, list, MODERN_TIME + 1, 1, nullptr,
             _manager);
 
-    _manager->signProposalECDSA(proposal.get());
 
     return make_shared<CommittedBlock>(proposal, nullptr);
 }

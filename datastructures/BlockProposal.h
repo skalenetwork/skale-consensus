@@ -58,10 +58,10 @@ protected:
     transaction_count transactionCount;
     uint64_t  timeStamp = 0;
     uint32_t  timeStampMs = 0;
-    ptr<string> signature = nullptr;
 
     ptr<TransactionList> transactionList;
     ptr< SHAHash > hash = nullptr;
+    ptr<string> signature = nullptr;
 
     void calculateHash();
 
@@ -86,7 +86,6 @@ public:
 
     uint32_t getTimeStampMs() const;
 
-    void sign(CryptoManager& _manager);
 
     schain_index getProposerIndex() const;
 

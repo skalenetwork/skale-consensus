@@ -75,11 +75,10 @@ ptr<BlockProposal> PendingTransactionsAgent::buildBlockProposal(block_id _blockI
     auto m = (uint32_t) (currentTime % 1000);
 
     auto myBlockProposal = make_shared<MyBlockProposal>(*sChain, _blockID, sChain->getSchainIndex(),
-            transactionList, sec, m);
-
+            transactionList, sec, m, getSchain()->getCryptoManager());
 
     LOG(trace, "Created proposal, transactions:" + to_string(transactions->size()));
-;
+
     transactionCounter += (uint64_t) myBlockProposal->createPartialHashesList()->getTransactionCount();
     return myBlockProposal;
 }

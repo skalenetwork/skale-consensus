@@ -140,7 +140,6 @@ ptr<BlockProposal> BlockProposalClientAgent::corruptProposal(ptr<BlockProposal> 
                         make_shared<vector<ptr<Transaction>>>()), MODERN_TIME + 1, 1,
                 nullptr, getSchain()->getCryptoManager());
 
-        getSchain()->getCryptoManager()->signProposalECDSA(proposal2.get());
 
         return proposal2;
     } else {

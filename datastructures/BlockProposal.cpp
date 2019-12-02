@@ -52,7 +52,7 @@
 using namespace std;
 
 ptr<SHAHash> BlockProposal::getHash() {
-    ASSERT(hash);
+    assert(hash);
     return hash;
 }
 
@@ -88,18 +88,18 @@ BlockProposal::BlockProposal(schain_id _sChainId, node_id _proposerNodeId, block
         proposerIndex(_proposerIndex), timeStamp(_timeStamp),timeStampMs(_timeStampMs),
         transactionList(_transactions), signature(_signature){
 
-    ASSERT(_cryptoManager != nullptr || _signature != nullptr);
-    ASSERT(_cryptoManager == nullptr || _signature == nullptr);
+    assert(_cryptoManager != nullptr || _signature != nullptr);
+    assert(_cryptoManager == nullptr || _signature == nullptr);
+
+    ASSERT(timeStamp > MODERN_TIME);
+    transactionCount = transactionList->getItems()->size();
+    calculateHash();
 
     if (_cryptoManager != nullptr) {
         _cryptoManager->signProposalECDSA(this);
     } else {
         signature = _signature;
     }
-
-    ASSERT(timeStamp > MODERN_TIME);
-    transactionCount = transactionList->getItems()->size();
-    calculateHash();
 }
 
 
@@ -276,6 +276,10 @@ ptr<BlockProposal> BlockProposal::deserialize(ptr<vector<uint8_t> > _serializedB
 
     auto list = deserializeTransactions(blockHeader, headerStr, _serializedBlock);
 
+    auto sig = blockHeader->getSignature();
+
+    ASSERT(sig != nullptr);
+
     auto block = make_shared<BlockProposal>(blockHeader->getSchainID(), blockHeader->getProposerNodeId(),
                                              blockHeader->getBlockID(), blockHeader->getProposerIndex(),
                                              list, blockHeader->getTimeStamp(), blockHeader->getTimeStampMs(),
@@ -355,7 +359,6 @@ ptr<string> BlockProposal::extractHeader(ptr<vector<uint8_t> > _serializedBlock)
     return header;
 
 }
-
 
 
 
