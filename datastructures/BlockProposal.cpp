@@ -21,24 +21,31 @@
     @date 2018
 */
 
+
+#include <boost/iostreams/device/array.hpp>
+#include <boost/iostreams/stream.hpp>
+
 #include "../SkaleCommon.h"
 #include "../Log.h"
 #include "../exceptions/FatalError.h"
 
 #include "../crypto/SHAHash.h"
 #include "../node/ConsensusEngine.h"
+
 #include "../exceptions/InvalidArgumentException.h"
 #include "../exceptions/OldBlockIDException.h"
+#include "../exceptions/ParsingException.h"
+#include "../exceptions/ExitRequestedException.h"
 #include "../headers/BlockProposalHeader.h"
 #include "Transaction.h"
 #include "TransactionList.h"
 #include "PartialHashesList.h"
 #include "../chains/Schain.h"
 #include "../pendingqueue/PendingTransactionsAgent.h"
+#include "../datastructures/BlockProposalFragmentList.h"
 #include "../headers/BlockProposalRequestHeader.h"
 #include "../network/Buffer.h"
 #include "../crypto/CryptoManager.h"
-
 #include "BlockProposal.h"
 
 
@@ -74,14 +81,21 @@ BlockProposal::BlockProposal(uint64_t _timeStamp, uint32_t _timeStampMs) : timeS
     proposerNodeID = 0;
 };
 
-BlockProposal::BlockProposal(schain_id _sChainId, node_id _proposerNodeId, block_id _blockID, schain_index _proposerIndex,
-                             ptr<TransactionList> _transactions, uint64_t _timeStamp,
-                             uint32_t _timeStampMs) : schainID(_sChainId), proposerNodeID(_proposerNodeId),
-                                                                                        blockID(_blockID),
-                                                                                        proposerIndex(_proposerIndex),
-                                                                                        timeStamp(_timeStamp),
-                                                                                        timeStampMs(_timeStampMs),
-                                                                                        transactionList(_transactions) {
+BlockProposal::BlockProposal(schain_id _sChainId, node_id _proposerNodeId, block_id _blockID,
+                             schain_index _proposerIndex, ptr<TransactionList> _transactions, uint64_t _timeStamp,
+                             __uint32_t _timeStampMs, ptr<string> _signature, ptr<CryptoManager> _cryptoManager)
+        : schainID(_sChainId), proposerNodeID(_proposerNodeId), blockID(_blockID),
+        proposerIndex(_proposerIndex), timeStamp(_timeStamp),timeStampMs(_timeStampMs),
+        transactionList(_transactions), signature(_signature){
+
+    ASSERT(_cryptoManager != nullptr || _signature != nullptr);
+    ASSERT(_cryptoManager == nullptr || _signature == nullptr);
+
+    if (_cryptoManager != nullptr) {
+        _cryptoManager->signProposalECDSA(this);
+    } else {
+        signature = _signature;
+    }
 
     ASSERT(timeStamp > MODERN_TIME);
     transactionCount = transactionList->getItems()->size();
@@ -245,3 +259,116 @@ ptr<vector<uint8_t> > BlockProposal::serialize() {
     return block;
 }
 
+
+ptr<BlockProposal> BlockProposal::deserialize(ptr<vector<uint8_t> > _serializedBlock,
+                                                ptr<CryptoManager> _manager) {
+
+    ptr<string> headerStr = BlockProposal::extractHeader(_serializedBlock);
+
+    ptr<BlockProposalHeader> blockHeader;
+
+    try {
+        blockHeader = parseBlockHeader(headerStr);
+    } catch (ExitRequestedException &) { throw; } catch (...) {
+        throw_with_nested(ParsingException(
+                "Could not parse committed block header: \n" + *headerStr, __CLASS_NAME__));
+    }
+
+    auto list = deserializeTransactions(blockHeader, headerStr, _serializedBlock);
+
+    auto block = make_shared<BlockProposal>(blockHeader->getSchainID(), blockHeader->getProposerNodeId(),
+                                             blockHeader->getBlockID(), blockHeader->getProposerIndex(),
+                                             list, blockHeader->getTimeStamp(), blockHeader->getTimeStampMs(),
+                                             blockHeader->getSignature(), nullptr);
+
+    _manager->verifyProposalECDSA(block.get(), blockHeader->getBlockHash(), blockHeader->getSignature());
+
+    return block;
+}
+
+ptr<BlockProposal> BlockProposal::defragment(ptr<BlockProposalFragmentList> _fragmentList, ptr<CryptoManager> _cryptoManager) {
+    try {
+        return deserialize(_fragmentList->serialize(), _cryptoManager);
+    } catch (Exception &e) {
+        Exception::logNested(e);
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+    }
+}
+
+ptr<TransactionList> BlockProposal::deserializeTransactions(ptr<BlockProposalHeader> _header,
+                                                             ptr<string> _headerString,
+                                                             ptr<vector<uint8_t> > _serializedBlock) {
+
+    auto headerSize = _headerString->size();
+
+    ptr<TransactionList> list;
+    try {
+        list = TransactionList::deserialize(
+                _header->getTransactionSizes(), _serializedBlock, headerSize + sizeof(headerSize), true);
+    } catch (Exception &e) {
+        throw_with_nested(
+                ParsingException("Could not parse transactions after header. Header: \n" + *_headerString +
+                                 " Transactions size:" + to_string(_serializedBlock->size()),
+                                 __CLASS_NAME__)
+        );
+    }
+
+    return list;
+
+}
+
+
+ptr<string> BlockProposal::extractHeader(ptr<vector<uint8_t> > _serializedBlock) {
+
+    CHECK_ARGUMENT(_serializedBlock != nullptr);
+
+    uint64_t headerSize = 0;
+
+    auto size = _serializedBlock->size();
+
+    CHECK_ARGUMENT2(
+            size >= sizeof(headerSize) + 2, "Serialized block too small:" + to_string(size));
+
+
+    using boost::iostreams::array_source;
+    using boost::iostreams::stream;
+
+    array_source src((char *) _serializedBlock->data(), _serializedBlock->size());
+
+    stream<array_source> in(src);
+
+    in.read((char *) &headerSize, sizeof(headerSize)); /* Flawfinder: ignore */
+
+
+    CHECK_STATE2(headerSize >= 2 && headerSize + sizeof(headerSize) <= _serializedBlock->size(),
+                 "Invalid header size" + to_string(headerSize));
+
+
+    CHECK_STATE(headerSize <= MAX_BUFFER_SIZE);
+
+    CHECK_STATE(_serializedBlock->at(headerSize + sizeof(headerSize)) == '<');
+    CHECK_STATE(_serializedBlock->at(sizeof(headerSize)) == '{');
+    CHECK_STATE(_serializedBlock->back() == '>');
+
+    auto header = make_shared<string>(headerSize, ' ');
+
+    in.read((char *) header->c_str(), headerSize); /* Flawfinder: ignore */
+
+    return header;
+
+}
+
+
+
+
+ptr<BlockProposalHeader> BlockProposal::parseBlockHeader(const shared_ptr<string> &header) {
+    CHECK_ARGUMENT(header != nullptr);
+    CHECK_ARGUMENT(header->size() > 2);
+    CHECK_ARGUMENT2(header->at(0) == '{', "Block header does not start with {");
+    CHECK_ARGUMENT2(header->at(header->size() - 1) == '}', "Block header does not end with }");
+
+    auto js = nlohmann::json::parse(*header);
+
+    return make_shared<BlockProposalHeader>(js);
+
+}

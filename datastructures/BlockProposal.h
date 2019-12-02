@@ -36,6 +36,8 @@ class BlockProposalRequestHeader;
 class CryptoManager;
 class DAProof;
 class Header;
+class BlockProposalHeader;
+class BlockProposalFragmentList;
 
 class BlockProposal : public DataStructure {
 
@@ -57,8 +59,6 @@ protected:
     uint64_t  timeStamp = 0;
     uint32_t  timeStampMs = 0;
     ptr<string> signature = nullptr;
-    ptr<string> thresholdSig = nullptr;
-
 
     ptr<TransactionList> transactionList;
     ptr< SHAHash > hash = nullptr;
@@ -67,13 +67,20 @@ protected:
 
     BlockProposal(uint64_t _timeStamp, uint32_t _timeStampMs);
 
-
     virtual ptr<Header> createHeader();
 
+    static ptr<TransactionList> deserializeTransactions(ptr<BlockProposalHeader> _header,
+                                                        ptr<string> _headerString,
+                                                        ptr<vector<uint8_t>> _serializedBlock);
+
+    static ptr<string> extractHeader(ptr<vector<uint8_t>> _serializedBlock);
+
+    static ptr<BlockProposalHeader> parseBlockHeader(const shared_ptr<string> &header);
 public:
 
-    BlockProposal(schain_id _sChainId, node_id _proposerNodeId, block_id _blockID, schain_index _proposerIndex,
-                  ptr<TransactionList> _transactions, uint64_t _timeStamp, __uint32_t _timeStampMs);
+    BlockProposal(schain_id _sChainId, node_id _proposerNodeId, block_id _blockID,
+                  schain_index _proposerIndex, ptr<TransactionList> _transactions, uint64_t _timeStamp,
+                  __uint32_t _timeStampMs, ptr<string> _signature, ptr<CryptoManager> _cryptoManager);
 
     uint64_t getTimeStamp() const;
 
@@ -87,7 +94,6 @@ public:
 
     ptr<SHAHash> getHash();
 
-
     ptr<PartialHashesList> createPartialHashesList();
 
     ptr<TransactionList> getTransactionList();
@@ -100,7 +106,6 @@ public:
 
     transaction_count getTransactionCount() const;
 
-
     void addSignature(ptr<string> _signature);
 
     ptr<string>  getSignature();
@@ -112,6 +117,11 @@ public:
     ptr<vector<uint8_t> > serialize();
 
     ptr<DAProof> getDaProof() const;
+
+    static ptr<BlockProposal> deserialize(ptr<vector<uint8_t> > _serializedBlock,
+                                                  ptr<CryptoManager> _manager);
+
+    static ptr<BlockProposal> defragment(ptr<BlockProposalFragmentList> _fragmentList, ptr<CryptoManager> _cryptoManager);
 
 };
 

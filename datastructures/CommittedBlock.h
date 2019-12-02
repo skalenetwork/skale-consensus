@@ -41,6 +41,7 @@ class BlockProposalFragment;
 
 class CommittedBlock : public BlockProposal {
 
+    ptr<string> thresholdSig = nullptr;
 
 
     CommittedBlock( uint64_t timeStamp, uint32_t timeStampMs );
@@ -55,17 +56,11 @@ public:
 
     ptr<BlockProposalFragment> getFragment(uint64_t _totalFragments, fragment_index _index);
 
-    static ptr<TransactionList> deserializeTransactions(ptr<BlockProposalHeader> _header,
-            ptr<string> _headerString,
-            ptr<vector<uint8_t>> _serializedBlock);
+
 
     static ptr<CommittedBlock> deserialize(ptr<vector<uint8_t> > _serializedBlock,
             ptr<CryptoManager> _manager);
 
-
-    static ptr<CommittedBlock> defragment(ptr<BlockProposalFragmentList> _fragmentList, ptr<CryptoManager> _cryptoManager);
-
-    static ptr<string> extractHeader(ptr<vector<uint8_t>> _serializedBlock);
 
 
 protected:

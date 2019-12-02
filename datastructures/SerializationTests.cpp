@@ -106,15 +106,13 @@ void test_committed_block_fragment_defragment(bool _fail) {
 
         //REQUIRE( out != nullptr );
 
-
-
         if (_fail) {
-            REQUIRE_THROWS(CommittedBlock::defragment(list, ptr<CryptoManager>()));
+            REQUIRE_THROWS(BlockProposal::defragment(list, cryptoManager));
         } else {
-            ptr<CommittedBlock> imp = nullptr;
+            ptr<BlockProposal> imp = nullptr;
 
             try {
-                imp = CommittedBlock::defragment(list, ptr<CryptoManager>());
+                imp = CommittedBlock::defragment(list, cryptoManager);
             } catch (Exception &e) {
                 Exception::logNested(e, err);
                 throw (e);
