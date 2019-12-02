@@ -43,7 +43,10 @@ class CommittedBlock : public BlockProposal {
 
     ptr<string> thresholdSig = nullptr;
 
+public:
+    ptr<string> getThresholdSig() const;
 
+private:
     CommittedBlock( uint64_t timeStamp, uint32_t timeStampMs );
 
     static ptr<CommittedBlockHeader> parseBlockHeader(const shared_ptr< string >& header );

@@ -52,7 +52,7 @@
 CommittedBlock::CommittedBlock(ptr<BlockProposal> _p, ptr<ThresholdSignature> _thresholdSig)
         : BlockProposal(_p->getSchainID(), _p->getProposerNodeID(),
                         _p->getBlockID(), _p->getProposerIndex(), _p->getTransactionList(), _p->getTimeStamp(),
-                        _p->getTimeStampMs(), ptr<string>(), ptr<CryptoManager>()) {
+                        _p->getTimeStampMs(), _thresholdSig->toString(), nullptr) {
     CHECK_ARGUMENT(_thresholdSig != nullptr);
     CHECK_ARGUMENT(_p != nullptr);
     this->signature = _p->getSignature();
@@ -125,7 +125,7 @@ CommittedBlock::CommittedBlock(
         __uint32_t timeStampMs, ptr<string>
         _signature, ptr<string> _thresholdSig)
         : BlockProposal(sChainId, proposerNodeId, blockId, proposerIndex, transactions, timeStamp,
-                        timeStampMs, ptr<string>(), ptr<CryptoManager>()) {
+                        timeStampMs, _thresholdSig, nullptr) {
     CHECK_ARGUMENT(_signature != nullptr);
     CHECK_ARGUMENT(_thresholdSig != nullptr);
     this->signature = _signature;
@@ -193,5 +193,9 @@ ptr<BlockProposalFragment> CommittedBlock::getFragment(uint64_t _totalFragments,
 }
 
 ptr<Header> CommittedBlock::createHeader() {
-    return make_shared<BlockProposalHeader>(*this);
+    return make_shared<CommittedBlockHeader>(*this, this->getThresholdSig());
+}
+
+ptr<string> CommittedBlock::getThresholdSig() const {
+    return thresholdSig;
 }

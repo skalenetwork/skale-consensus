@@ -643,8 +643,8 @@ ptr<BlockProposal> Schain::createEmptyBlockProposal(block_id _blockId) {
         ms++;
     }
 
-    auto emptyList = make_shared<TransactionList>(make_shared<vector<ptr<Transaction >>>());
-    return make_shared<ReceivedBlockProposal>(*this, _blockId, emptyList, sec, ms);
+
+    return make_shared<ReceivedBlockProposal>(*this, _blockId, sec, ms);
 
 }
 
