@@ -93,6 +93,9 @@ ptr<ThresholdSigShare> CryptoManager::signBinaryConsensusSigShare(ptr<SHAHash> _
     return signSigShare(_hash, _blockId);
 }
 
+ptr<ThresholdSigShare> CryptoManager::signBlockSigShare(ptr<SHAHash> _hash, block_id _blockId) {
+    return signSigShare(_hash, _blockId);
+}
 ptr<ThresholdSigShare> CryptoManager::signSigShare(ptr<SHAHash> _hash, block_id _blockId) {
 
 

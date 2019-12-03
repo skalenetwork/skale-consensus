@@ -73,6 +73,8 @@ public:
     ptr<ThresholdSigShare> signDAProofSigShare(ptr<BlockProposal> _p);
 
     ptr<ThresholdSigShare> signBinaryConsensusSigShare(ptr<SHAHash> _hash, block_id _blockId);
+
+    ptr<ThresholdSigShare> signBlockSigShare(ptr<SHAHash> _hash, block_id _blockId);
 };
 
 

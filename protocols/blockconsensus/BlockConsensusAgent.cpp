@@ -140,7 +140,7 @@ void BlockConsensusAgent::decideBlock(block_id _blockId, schain_index _sChainInd
 
     auto msg = make_shared<BlockSignBroadcastMessage>(_blockId, _sChainIndex, *this);
 
-    getSchain()->getNode()->getBlockSigShareDb()->checkAndSaveShare(msg->getSigShare(),
+    auto signature = getSchain()->getNode()->getBlockSigShareDb()->checkAndSaveShare(msg->getSigShare(),
                                                                     getSchain()->getCryptoManager());
 
     getSchain()->getNode()->getNetwork()->broadcastMessage(msg);
@@ -149,11 +149,11 @@ void BlockConsensusAgent::decideBlock(block_id _blockId, schain_index _sChainInd
 
     decidedBlocks[_blockId] = _sChainIndex;
 
-    LOG(debug, "decideBlock:" + to_string(_blockId) + ":PRP:" + to_string(_sChainIndex));
-    LOG(debug, "Total txs:" + to_string(getSchain()->getTotalTransactions()) + " T(s):" +
-               to_string((Time::getCurrentTimeMs() - getSchain()->getStartTimeMs()) / 1000));
 
-    //getSchain()->decideBlock(_blockId, _sChainIndex);
+
+    if (signature != nullptr) {
+        getSchain()->decideBlock(_blockId, _sChainIndex, signature);
+    }
 
 }
 

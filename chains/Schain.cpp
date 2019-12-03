@@ -655,6 +655,7 @@ void Schain::decideBlock(block_id _blockId, schain_index _proposerIndex, ptr<Thr
     
     MONITOR2(__CLASS_NAME__, __FUNCTION__, getMaxExternalBlockProcessingTime())
 
+
     LOG(debug, "decideBlock:" + to_string(_blockId) + ":PRP:" + to_string(_proposerIndex));
     LOG(debug, "Total txs:" + to_string(getSchain()->getTotalTransactions()) + " T(s):" +
                to_string((Time::getCurrentTimeMs() - getSchain()->getStartTimeMs()) / 1000.0));

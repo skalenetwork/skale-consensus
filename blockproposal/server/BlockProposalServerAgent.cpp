@@ -521,7 +521,6 @@ ptr<Header> BlockProposalServerAgent::createDAProofResponseHeader(ptr<ServerConn
         return responseHeader;
     }
 
-
     ptr<ThresholdSignature> sig;
 
     try {
@@ -550,8 +549,6 @@ ptr<Header> BlockProposalServerAgent::createDAProofResponseHeader(ptr<ServerConn
         return responseHeader;
     }
 
-
-
     if (proposal->getDaProof() != nullptr) {
         responseHeader->setStatusSubStatus(CONNECTION_DISCONNECT, CONNECTION_ALREADY_HAVE_DAP_PROOF);
         responseHeader->setComplete();
@@ -571,11 +568,8 @@ ptr<Header> BlockProposalServerAgent::createDAProofResponseHeader(ptr<ServerConn
 
 
 ptr<Header> BlockProposalServerAgent::createFinalResponseHeader(ptr<ReceivedBlockProposal> _proposal) {
-
     auto sigShare = getSchain()->getCryptoManager()->signDAProofSigShare(_proposal);
-
     auto responseHeader = make_shared<FinalProposalResponseHeader>(sigShare->toString());
-
     responseHeader->setStatus(CONNECTION_SUCCESS);
     responseHeader->setComplete();
     return responseHeader;
