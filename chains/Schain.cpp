@@ -331,7 +331,7 @@ void Schain::blockCommitArrived(block_id _committedBlockID, schain_index _propos
         committedProposal = blockProposalsDatabase->getBlockProposal(_committedBlockID, _proposerIndex);
         ASSERT(committedProposal);
 
-        auto newCommittedBlock = CommittedBlock::make(committedProposal, _thresholdSig);
+        auto newCommittedBlock = CommittedBlock::makeObject(committedProposal, _thresholdSig);
 
         processCommittedBlock(newCommittedBlock);
 

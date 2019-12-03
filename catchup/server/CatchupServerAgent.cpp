@@ -335,9 +335,7 @@ ptr<vector<uint8_t>> CatchupServerAgent::createBlockFinalizeResponse(nlohmann::j
             return nullptr;
         }
 
-        auto committedBlock = CommittedBlock::make(proposal, nullptr);
-
-        auto fragment = committedBlock->getFragment(
+        auto fragment = proposal->getFragment(
                 (uint64_t) getSchain()->getNodeCount() - 1,
                 fragmentIndex);
 
@@ -348,7 +346,7 @@ ptr<vector<uint8_t>> CatchupServerAgent::createBlockFinalizeResponse(nlohmann::j
         auto serializedFragment = fragment->serialize();
 
         _responseHeader->setFragmentParams(serializedFragment->size(),
-                                           committedBlock->serialize()->size(), committedBlock->getHash()->toHex());
+                                           proposal->serialize()->size(), proposal->getHash()->toHex());
 
         return serializedFragment;
     } catch (ExitRequestedException &e) { throw; } catch (...) {

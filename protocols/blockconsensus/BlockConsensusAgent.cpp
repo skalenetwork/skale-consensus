@@ -177,15 +177,6 @@ void BlockConsensusAgent::reportConsensusAndDecideIfNeeded(ptr<ChildBVDecidedMes
         if (decidedBlocks.count(blockID) > 0)
             return;
 
-        ptr<CommittedBlock> previousBlock = nullptr;
-
-        if (blockID > 1) {
-            previousBlock = getSchain()->getBlock(blockID - 1);
-            if (previousBlock == nullptr) {
-                LOG(err, "Cannot read block from blocks_XXX.db");
-                return;
-            }
-        }
 
 
         if (_msg->getValue()) {
@@ -208,6 +199,11 @@ void BlockConsensusAgent::reportConsensusAndDecideIfNeeded(ptr<ChildBVDecidedMes
         if (blockID <= 1) {
             seed = 1;
         } else {
+            auto previousBlock = getSchain()->getBlock(blockID - 1);
+            if (previousBlock == nullptr)
+                BOOST_THROW_EXCEPTION(InvalidStateException("Can not read block "
+                                                            + to_string(blockID -1) + " from LevelDB",
+                                                            __CLASS_NAME__));
             seed = *((uint64_t *) previousBlock->getHash()->data());
         }
 

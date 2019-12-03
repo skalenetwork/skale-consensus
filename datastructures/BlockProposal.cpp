@@ -27,25 +27,26 @@
 
 #include "../SkaleCommon.h"
 #include "../Log.h"
+
 #include "../exceptions/FatalError.h"
-
-#include "../crypto/SHAHash.h"
-#include "../node/ConsensusEngine.h"
-
 #include "../exceptions/InvalidArgumentException.h"
-#include "../exceptions/OldBlockIDException.h"
 #include "../exceptions/ParsingException.h"
+#include "../crypto/SHAHash.h"
+#include "../crypto/CryptoManager.h"
+#include "../network/Buffer.h"
+#include "../node/ConsensusEngine.h"
 #include "../exceptions/ExitRequestedException.h"
 #include "../headers/BlockProposalHeader.h"
+#include "../chains/Schain.h"
+#include "../pendingqueue/PendingTransactionsAgent.h"
+#include "../datastructures/BlockProposalFragment.h"
+#include "../datastructures/BlockProposalFragmentList.h"
+#include "../headers/BlockProposalRequestHeader.h"
+
+
 #include "Transaction.h"
 #include "TransactionList.h"
 #include "PartialHashesList.h"
-#include "../chains/Schain.h"
-#include "../pendingqueue/PendingTransactionsAgent.h"
-#include "../datastructures/BlockProposalFragmentList.h"
-#include "../headers/BlockProposalRequestHeader.h"
-#include "../network/Buffer.h"
-#include "../crypto/CryptoManager.h"
 #include "BlockProposal.h"
 
 
@@ -297,6 +298,48 @@ ptr<BlockProposal> BlockProposal::defragment(ptr<BlockProposalFragmentList> _fra
         Exception::logNested(e);
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
+}
+
+ptr<BlockProposalFragment> BlockProposal::getFragment(uint64_t _totalFragments, fragment_index _index) {
+
+    CHECK_ARGUMENT(_totalFragments > 0);
+    CHECK_ARGUMENT(_index <= _totalFragments);
+    LOCK(m)
+
+    auto sBlock = serialize();
+    auto blockSize = sBlock->size();
+
+    uint64_t fragmentStandardSize;
+
+    if (blockSize % _totalFragments == 0) {
+        fragmentStandardSize = sBlock->size() / _totalFragments;
+    } else {
+        fragmentStandardSize = sBlock->size() / _totalFragments + 1;
+    }
+
+    auto startIndex = fragmentStandardSize * ((uint64_t) _index - 1);
+
+
+    auto fragmentData = make_shared<vector<uint8_t>>();
+    fragmentData->reserve(fragmentStandardSize + 2);
+
+    fragmentData->push_back('<');
+
+
+    if (_index == _totalFragments) {
+        fragmentData->insert(fragmentData->begin() + 1, sBlock->begin() + startIndex,
+                             sBlock->end());
+
+    } else {
+        fragmentData->insert(fragmentData->begin() + 1, sBlock->begin() + startIndex,
+                             sBlock->begin() + startIndex + fragmentStandardSize);
+    }
+
+    fragmentData->push_back('>');
+
+
+    return make_shared<BlockProposalFragment>(getBlockID(), _totalFragments, _index, fragmentData,
+                                              sBlock->size(), getHash()->toHex());
 }
 
 ptr<TransactionList> BlockProposal::deserializeTransactions(ptr<BlockProposalHeader> _header,

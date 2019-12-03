@@ -43,12 +43,10 @@ class CommittedBlock : public BlockProposal {
 
     ptr<string> thresholdSig = nullptr;
 
-public:
-    ptr<string> getThresholdSig() const;
-
-private:
     static ptr<CommittedBlockHeader> parseBlockHeader(const shared_ptr< string >& header );
 
+protected:
+    ptr<Header> createHeader() override;
 
 public:
 
@@ -60,13 +58,12 @@ public:
                    const schain_index &proposerIndex, const ptr<TransactionList> &transactions, uint64_t timeStamp,
                    __uint32_t timeStampMs, ptr<string> _signature, ptr<string> _thresholdSig);
 
-    static ptr<CommittedBlock> make(ptr<BlockProposal> _p, ptr<ThresholdSignature> _thresholdSig);
+    ptr<string> getThresholdSig() const;
+
+    static ptr<CommittedBlock> makeObject(ptr<BlockProposal> _p, ptr<ThresholdSignature> _thresholdSig);
     static ptr<CommittedBlock> make(schain_id _sChainId, node_id _proposerNodeId, block_id _blockId,
                                      schain_index _proposerIndex, ptr<TransactionList> _transactions, uint64_t _timeStamp,
                                      uint64_t _timeStampMs, ptr<string> _signature, ptr<string> _thresholdSig);
-
-
-    ptr<BlockProposalFragment> getFragment(uint64_t _totalFragments, fragment_index _index);
 
 
 
@@ -74,17 +71,9 @@ public:
             ptr<CryptoManager> _manager);
 
 
-
-protected:
-    ptr<Header> createHeader() override;
-
-public:
-
-
     static ptr< CommittedBlock > createRandomSample(ptr<CryptoManager> _manager, uint64_t _size, boost::random::mt19937& _gen,
         boost::random::uniform_int_distribution<>& _ubyte,
         block_id _blockID = block_id( 1 ) );
-
 
     static void serializedSanityCheck(ptr<vector<uint8_t>> _serializedBlock);
 

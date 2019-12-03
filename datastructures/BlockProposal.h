@@ -37,6 +37,7 @@ class CryptoManager;
 class DAProof;
 class Header;
 class BlockProposalHeader;
+class BlockProposalFragment;
 class BlockProposalFragmentList;
 
 class BlockProposal : public DataStructure {
@@ -124,5 +125,6 @@ public:
 
     static ptr<BlockProposal> defragment(ptr<BlockProposalFragmentList> _fragmentList, ptr<CryptoManager> _cryptoManager);
 
+    ptr<BlockProposalFragment> getFragment(uint64_t _totalFragments, fragment_index _index);
 };
 

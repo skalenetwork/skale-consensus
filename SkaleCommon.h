@@ -304,7 +304,8 @@ extern thread_local ptr<Log> logThreadLocal_;
 
 #define CHECK_ARGUMENT(_EXPRESSION_) \
     if (!(_EXPRESSION_)) { \
-        auto __msg__ = string("Argument Check failed::") + #_EXPRESSION_ +  " " + string(__FILE__) + ":" + to_string(__LINE__); \
+        auto __msg__ = string("Argument Check failed:") + #_EXPRESSION_ + "\n" + __CLASS_NAME__ + ":" + __FUNCTION__ +  \
+        + " " + string(__FILE__) + ":" + to_string(__LINE__); \
         throw InvalidArgumentException(__msg__, __CLASS_NAME__);}
 
 #define CHECK_STATE(_EXPRESSION_) \

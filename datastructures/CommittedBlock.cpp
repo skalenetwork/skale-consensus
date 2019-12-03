@@ -49,7 +49,7 @@
 #include "CommittedBlock.h"
 
 
-ptr<CommittedBlock> CommittedBlock::make(ptr<BlockProposal> _p, ptr<ThresholdSignature> _thresholdSig) {
+ptr<CommittedBlock> CommittedBlock::makeObject(ptr<BlockProposal> _p, ptr<ThresholdSignature> _thresholdSig) {
     CHECK_ARGUMENT(_p != nullptr);
     CHECK_ARGUMENT(_thresholdSig != nullptr);
     return CommittedBlock::make(_p->getSchainID(), _p->getProposerNodeID(),
@@ -98,6 +98,7 @@ ptr<CommittedBlock> CommittedBlock::deserialize(ptr<vector<uint8_t> > _serialize
 
     _manager->verifyProposalECDSA(block.get(), blockHeader->getBlockHash(), blockHeader->getSignature());
 
+    cerr << "success" << endl;
     return block;
 }
 
@@ -159,47 +160,7 @@ _size,
                          p->getTimeStampMs(), p->getSignature(), make_shared<string>("EMPTY"));
 }
 
-ptr<BlockProposalFragment> CommittedBlock::getFragment(uint64_t _totalFragments, fragment_index _index) {
 
-    CHECK_ARGUMENT(_totalFragments > 0);
-    CHECK_ARGUMENT(_index <= _totalFragments);
-    LOCK(m)
-
-    auto sBlock = serialize();
-    auto blockSize = sBlock->size();
-
-    uint64_t fragmentStandardSize;
-
-    if (blockSize % _totalFragments == 0) {
-        fragmentStandardSize = sBlock->size() / _totalFragments;
-    } else {
-        fragmentStandardSize = sBlock->size() / _totalFragments + 1;
-    }
-
-    auto startIndex = fragmentStandardSize * ((uint64_t) _index - 1);
-
-
-    auto fragmentData = make_shared<vector<uint8_t>>();
-    fragmentData->reserve(fragmentStandardSize + 2);
-
-    fragmentData->push_back('<');
-
-
-    if (_index == _totalFragments) {
-        fragmentData->insert(fragmentData->begin() + 1, sBlock->begin() + startIndex,
-                             sBlock->end());
-
-    } else {
-        fragmentData->insert(fragmentData->begin() + 1, sBlock->begin() + startIndex,
-                             sBlock->begin() + startIndex + fragmentStandardSize);
-    }
-
-    fragmentData->push_back('>');
-
-
-    return make_shared<BlockProposalFragment>(getBlockID(), _totalFragments, _index, fragmentData,
-                                              sBlock->size(), getHash()->toHex());
-}
 
 ptr<Header> CommittedBlock::createHeader() {
     return make_shared<CommittedBlockHeader>(*this, this->getThresholdSig());
