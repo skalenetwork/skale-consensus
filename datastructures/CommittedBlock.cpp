@@ -49,15 +49,22 @@
 #include "CommittedBlock.h"
 
 
-CommittedBlock::CommittedBlock(ptr<BlockProposal> _p, ptr<ThresholdSignature> _thresholdSig)
-        : BlockProposal(_p->getSchainID(), _p->getProposerNodeID(),
-                        _p->getBlockID(), _p->getProposerIndex(), _p->getTransactionList(), _p->getTimeStamp(),
-                        _p->getTimeStampMs(), _thresholdSig->toString(), nullptr) {
-    CHECK_ARGUMENT(_thresholdSig != nullptr);
+ptr<CommittedBlock> CommittedBlock::make(ptr<BlockProposal> _p, ptr<ThresholdSignature> _thresholdSig) {
     CHECK_ARGUMENT(_p != nullptr);
-    this->signature = _p->getSignature();
-    this->thresholdSig = _thresholdSig->toString();
-    CHECK_STATE(signature != nullptr);
+    CHECK_ARGUMENT(_thresholdSig != nullptr);
+    return CommittedBlock::make(_p->getSchainID(), _p->getProposerNodeID(),
+                                _p->getBlockID(), _p->getProposerIndex(), _p->getTransactionList(), _p->getTimeStamp(),
+                                _p->getTimeStampMs(), _p->getSignature(), _thresholdSig->toString());
+
+
+}
+
+ptr<CommittedBlock>
+CommittedBlock::make(const schain_id _sChainId, const node_id _proposerNodeId, const block_id _blockId,
+                     schain_index _proposerIndex, ptr<TransactionList> _transactions, uint64_t _timeStamp,
+                     uint64_t _timeStampMs, ptr<string> _signature, ptr<string> _thresholdSig) {
+    return make_shared<CommittedBlock>(_sChainId, _proposerNodeId, _blockId, _proposerIndex, _transactions,
+                                       _timeStamp, _timeStampMs, _signature, _thresholdSig);
 }
 
 
@@ -65,8 +72,6 @@ void CommittedBlock::serializedSanityCheck(ptr<vector<uint8_t> > _serializedBloc
     CHECK_STATE(_serializedBlock->at(sizeof(uint64_t)) == '{');
     CHECK_STATE(_serializedBlock->back() == '>');
 };
-
-
 
 
 ptr<CommittedBlock> CommittedBlock::deserialize(ptr<vector<uint8_t> > _serializedBlock,
@@ -85,11 +90,11 @@ ptr<CommittedBlock> CommittedBlock::deserialize(ptr<vector<uint8_t> > _serialize
 
     auto list = deserializeTransactions(blockHeader, headerStr, _serializedBlock);
 
-    auto block = make_shared<CommittedBlock>(blockHeader->getSchainID(), blockHeader->getProposerNodeId(),
-                                             blockHeader->getBlockID(), blockHeader->getProposerIndex(),
-                                             list, blockHeader->getTimeStamp(), blockHeader->getTimeStampMs(),
-                                             blockHeader->getSignature(),
-                                             blockHeader->getThresholdSig());
+    auto block = CommittedBlock::make(blockHeader->getSchainID(), blockHeader->getProposerNodeId(),
+                                      blockHeader->getBlockID(), blockHeader->getProposerIndex(),
+                                      list, blockHeader->getTimeStamp(), blockHeader->getTimeStampMs(),
+                                      blockHeader->getSignature(),
+                                      blockHeader->getThresholdSig());
 
     _manager->verifyProposalECDSA(block.get(), blockHeader->getBlockHash(), blockHeader->getSignature());
 
@@ -143,11 +148,15 @@ _size,
 
     static uint64_t MODERN_TIME = 1547640182;
 
-    auto proposal = make_shared<BlockProposal>(1, 1, _blockID, 1, list, MODERN_TIME + 1, 1, nullptr,
-            _manager);
 
 
-    return make_shared<CommittedBlock>(proposal, nullptr);
+    auto p = make_shared<BlockProposal>(1, 1, _blockID, 1, list, MODERN_TIME + 1, 1, nullptr,
+                                        _manager);
+
+
+    return CommittedBlock::make(p->getSchainID(), p->getProposerNodeID(),
+                         p->getBlockID(), p->getProposerIndex(), p->getTransactionList(), p->getTimeStamp(),
+                         p->getTimeStampMs(), p->getSignature(), make_shared<string>("EMPTY"));
 }
 
 ptr<BlockProposalFragment> CommittedBlock::getFragment(uint64_t _totalFragments, fragment_index _index) {

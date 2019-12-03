@@ -47,15 +47,24 @@ public:
     ptr<string> getThresholdSig() const;
 
 private:
-    CommittedBlock( uint64_t timeStamp, uint32_t timeStampMs );
-
     static ptr<CommittedBlockHeader> parseBlockHeader(const shared_ptr< string >& header );
 
+
 public:
-    CommittedBlock(ptr<BlockProposal> _p, ptr<ThresholdSignature> _thresholdSig);
+
+
+    CommittedBlock( uint64_t timeStamp, uint32_t timeStampMs );
+
+
     CommittedBlock(const schain_id &sChainId, const node_id &proposerNodeId, const block_id &blockId,
                    const schain_index &proposerIndex, const ptr<TransactionList> &transactions, uint64_t timeStamp,
                    __uint32_t timeStampMs, ptr<string> _signature, ptr<string> _thresholdSig);
+
+    static ptr<CommittedBlock> make(ptr<BlockProposal> _p, ptr<ThresholdSignature> _thresholdSig);
+    static ptr<CommittedBlock> make(schain_id _sChainId, node_id _proposerNodeId, block_id _blockId,
+                                     schain_index _proposerIndex, ptr<TransactionList> _transactions, uint64_t _timeStamp,
+                                     uint64_t _timeStampMs, ptr<string> _signature, ptr<string> _thresholdSig);
+
 
     ptr<BlockProposalFragment> getFragment(uint64_t _totalFragments, fragment_index _index);
 

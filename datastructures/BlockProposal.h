@@ -65,8 +65,6 @@ protected:
 
     void calculateHash();
 
-    BlockProposal(uint64_t _timeStamp, uint32_t _timeStampMs);
-
     virtual ptr<Header> createHeader();
 
     static ptr<TransactionList> deserializeTransactions(ptr<BlockProposalHeader> _header,
@@ -78,9 +76,13 @@ protected:
     static ptr<BlockProposalHeader> parseBlockHeader(const shared_ptr<string> &header);
 public:
 
+
+    BlockProposal(uint64_t _timeStamp, uint32_t _timeStampMs);
+
     BlockProposal(schain_id _sChainId, node_id _proposerNodeId, block_id _blockID,
                   schain_index _proposerIndex, ptr<TransactionList> _transactions, uint64_t _timeStamp,
                   __uint32_t _timeStampMs, ptr<string> _signature, ptr<CryptoManager> _cryptoManager);
+
 
     uint64_t getTimeStamp() const;
 

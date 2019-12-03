@@ -88,10 +88,6 @@ BlockProposal::BlockProposal(schain_id _sChainId, node_id _proposerNodeId, block
         proposerIndex(_proposerIndex), timeStamp(_timeStamp),timeStampMs(_timeStampMs),
         transactionList(_transactions), signature(_signature){
 
-    if (_cryptoManager == nullptr && _signature == nullptr) {
-        cerr << "haha" << endl;
-    }
-
     CHECK_ARGUMENT(_cryptoManager != nullptr || _signature != nullptr);
     CHECK_ARGUMENT(_cryptoManager == nullptr || _signature == nullptr);
 
