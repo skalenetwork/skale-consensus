@@ -102,7 +102,7 @@ public:
 
     uint64_t readFragmentSize(nlohmann::json _responseHeader);
 
-    ptr<CommittedBlock>  downloadProposal();
+    ptr<BlockProposal> downloadProposal();
 
     uint64_t readBlockSize(nlohmann::json _responseHeader);
 

@@ -301,7 +301,7 @@ void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(BlockFinalizeDown
     }
 }
 
-ptr<CommittedBlock> BlockFinalizeDownloader::downloadProposal() {
+ptr<BlockProposal> BlockFinalizeDownloader::downloadProposal() {
 
 
     this->threadPool = new BlockFinalizeDownloaderThreadPool((uint64_t) getSchain()->getNodeCount(), this);
@@ -311,7 +311,7 @@ ptr<CommittedBlock> BlockFinalizeDownloader::downloadProposal() {
     try {
 
         if (fragmentList.isComplete()) {
-            auto block = CommittedBlock::deserialize(fragmentList.serialize(), getSchain()->getCryptoManager());
+            auto block = BlockProposal::deserialize(fragmentList.serialize(), getSchain()->getCryptoManager());
             return block;
         } else {
             return nullptr;
