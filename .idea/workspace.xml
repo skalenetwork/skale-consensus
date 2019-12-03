@@ -31,12 +31,8 @@
   <component name="ChangeListManager">
     <list default="true" id="e8eb5c74-4268-46a2-ac26-2e919fd9ff42" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/blockproposal/server/BlockProposalServerAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/blockproposal/server/BlockProposalServerAgent.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/catchup/server/CatchupServerAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/catchup/server/CatchupServerAgent.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/chains/Schain.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/chains/Schain.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crypto/CryptoManager.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/crypto/CryptoManager.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crypto/CryptoManager.h" beforeDir="false" afterPath="$PROJECT_DIR$/crypto/CryptoManager.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/protocols/blockconsensus/BlockConsensusAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/protocols/blockconsensus/BlockConsensusAgent.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/protocols/blockconsensus/BlockSignBroadcastMessage.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/protocols/blockconsensus/BlockSignBroadcastMessage.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -73,7 +69,7 @@
       <recent name="$PROJECT_DIR$/db" />
     </key>
   </component>
-  <component name="RunManager" selected="CMake Application.test_1">
+  <component name="RunManager" selected="CMake Application.test_16">
     <configuration name="all_bls_tests" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="consensus" TARGET_NAME="all_bls_tests" CONFIG_NAME="Debug">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -253,14 +249,7 @@
       <workItem from="1574329687184" duration="5058000" />
       <workItem from="1574435605775" duration="945000" />
       <workItem from="1575021765183" duration="8000" />
-      <workItem from="1575369130855" duration="4537000" />
-    </task>
-    <task id="LOCAL-00004" summary="Fixing IO">
-      <created>1574181791861</created>
-      <option name="number" value="00004" />
-      <option name="presentableId" value="LOCAL-00004" />
-      <option name="project" value="LOCAL" />
-      <updated>1574181791861</updated>
+      <workItem from="1575369130855" duration="7136000" />
     </task>
     <task id="LOCAL-00005" summary="Fixing IO">
       <created>1574182764664</created>
@@ -598,7 +587,14 @@
       <option name="project" value="LOCAL" />
       <updated>1575373006123</updated>
     </task>
-    <option name="localTasksCounter" value="53" />
+    <task id="LOCAL-00053" summary="Fixed one-node test">
+      <created>1575373801900</created>
+      <option name="number" value="00053" />
+      <option name="presentableId" value="LOCAL-00053" />
+      <option name="project" value="LOCAL" />
+      <updated>1575373801901</updated>
+    </task>
+    <option name="localTasksCounter" value="54" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -620,7 +616,6 @@
   <component name="VcsManagerConfiguration">
     <option name="CHECK_CODE_SMELLS_BEFORE_PROJECT_COMMIT" value="false" />
     <option name="CHECK_NEW_TODO" value="false" />
-    <MESSAGE value="Adding db rotation" />
     <MESSAGE value="Cleaning Up memory" />
     <MESSAGE value="Updated libBLS" />
     <MESSAGE value="Four piece db" />
@@ -645,7 +640,8 @@
     <MESSAGE value="Adding block signatures" />
     <MESSAGE value="Fixed block tests" />
     <MESSAGE value="Cleaning crypto" />
-    <option name="LAST_COMMIT_MESSAGE" value="Cleaning crypto" />
+    <MESSAGE value="Fixed one-node test" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fixed one-node test" />
   </component>
   <component name="WindowStateProjectService">
     <state x="2468" y="216" width="814" height="678" key="#All_in_[committed-block-serialize]" timestamp="1575369358115">
@@ -656,26 +652,26 @@
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
     <state x="2338" y="205" width="1084" height="702" key="#com.intellij.execution.impl.EditConfigurationsDialog/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575369410270" />
-    <state x="2314" y="71" width="1121" height="962" key="CommitChangelistDialog2" timestamp="1575373005494">
+    <state x="2314" y="71" width="1121" height="962" key="CommitChangelistDialog2" timestamp="1575373800976">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state x="2314" y="71" width="1121" height="962" key="CommitChangelistDialog2/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575373005494" />
-    <state width="1860" height="148" key="GridCell.Tab.0.bottom" timestamp="1575373772846">
+    <state x="2314" y="71" width="1121" height="962" key="CommitChangelistDialog2/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575373800976" />
+    <state width="1860" height="126" key="GridCell.Tab.0.bottom" timestamp="1575383647438">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state width="1860" height="148" key="GridCell.Tab.0.bottom/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575373772846" />
-    <state width="1860" height="148" key="GridCell.Tab.0.center" timestamp="1575373772846">
+    <state width="1860" height="126" key="GridCell.Tab.0.bottom/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575383647438" />
+    <state width="1860" height="126" key="GridCell.Tab.0.center" timestamp="1575383647438">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state width="1860" height="148" key="GridCell.Tab.0.center/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575373772846" />
-    <state width="1860" height="148" key="GridCell.Tab.0.left" timestamp="1575373772846">
+    <state width="1860" height="126" key="GridCell.Tab.0.center/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575383647438" />
+    <state width="1860" height="126" key="GridCell.Tab.0.left" timestamp="1575383647438">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state width="1860" height="148" key="GridCell.Tab.0.left/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575373772846" />
-    <state width="1860" height="148" key="GridCell.Tab.0.right" timestamp="1575373772846">
+    <state width="1860" height="126" key="GridCell.Tab.0.left/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575383647438" />
+    <state width="1860" height="126" key="GridCell.Tab.0.right" timestamp="1575383647438">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state width="1860" height="148" key="GridCell.Tab.0.right/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575373772846" />
+    <state width="1860" height="126" key="GridCell.Tab.0.right/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575383647438" />
     <state width="1860" height="334" key="GridCell.Tab.1.bottom" timestamp="1575372006606">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
@@ -692,16 +688,16 @@
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
     <state width="1860" height="334" key="GridCell.Tab.1.right/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575372006606" />
-    <state x="2375" y="210" width="1000" height="684" key="Vcs.Push.Dialog.v2" timestamp="1575373007364">
+    <state x="2375" y="210" width="1000" height="684" key="Vcs.Push.Dialog.v2" timestamp="1575373803331">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state x="2375" y="210" width="1000" height="684" key="Vcs.Push.Dialog.v2/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575373007364" />
+    <state x="2375" y="210" width="1000" height="684" key="Vcs.Push.Dialog.v2/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575373803331" />
     <state x="2434" y="329" key="com.intellij.ide.util.TipDialog" timestamp="1575369169675" />
     <state x="2434" y="329" key="com.intellij.ide.util.TipDialog/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575369169675" />
-    <state x="2417" y="205" width="925" height="694" key="find.popup" timestamp="1575373390286">
+    <state x="2417" y="205" width="925" height="694" key="find.popup" timestamp="1575383773159">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state x="2417" y="205" width="925" height="694" key="find.popup/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575373390286" />
+    <state x="2417" y="205" width="925" height="694" key="find.popup/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575383773159" />
     <state x="2565" y="128" width="620" height="849" key="refactoring.ChangeSignatureDialog" timestamp="1575370608701">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>

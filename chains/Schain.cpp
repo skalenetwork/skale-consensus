@@ -304,6 +304,7 @@ void Schain::blockCommitsArrivedThroughCatchup(ptr<CommittedBlockList> _blocks) 
 void Schain::blockCommitArrived(block_id _committedBlockID, schain_index _proposerIndex, uint64_t _committedTimeStamp,
                                 uint64_t _committedTimeStampMs, ptr<ThresholdSignature> _thresholdSig) {
 
+
     MONITOR2(__CLASS_NAME__, __FUNCTION__, getMaxExternalBlockProcessingTime())
 
     checkForExit();
@@ -312,25 +313,35 @@ void Schain::blockCommitArrived(block_id _committedBlockID, schain_index _propos
 
     LOCK(m)
 
+
     if (_committedBlockID <= lastCommittedBlockID)
         return;
 
     ASSERT(_committedBlockID == (lastCommittedBlockID + 1) || lastCommittedBlockID == 0);
-    ptr<BlockProposal> committedProposal = nullptr;
 
-    lastCommittedBlockID = (uint64_t) _committedBlockID;
-    lastCommittedBlockTimeStamp = _committedTimeStamp;
-    lastCommittedBlockTimeStampMs = _committedTimeStampMs;
+    try {
+
+        ptr<BlockProposal> committedProposal = nullptr;
+
+        lastCommittedBlockID = (uint64_t) _committedBlockID;
+        lastCommittedBlockTimeStamp = _committedTimeStamp;
+        lastCommittedBlockTimeStampMs = _committedTimeStampMs;
 
 
-    committedProposal = blockProposalsDatabase->getBlockProposal(_committedBlockID, _proposerIndex);
-    ASSERT(committedProposal);
+        committedProposal = blockProposalsDatabase->getBlockProposal(_committedBlockID, _proposerIndex);
+        ASSERT(committedProposal);
 
-    auto newCommittedBlock = CommittedBlock::make(committedProposal, _thresholdSig);
+        auto newCommittedBlock = CommittedBlock::make(committedProposal, _thresholdSig);
 
-    processCommittedBlock(newCommittedBlock);
+        processCommittedBlock(newCommittedBlock);
 
-    proposeNextBlock(_committedTimeStamp, _committedTimeStampMs);
+        proposeNextBlock(_committedTimeStamp, _committedTimeStampMs);
+
+    } catch (ExitRequestedException &e) { throw; }
+    catch (...) {
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+    }
+
 }
 
 
@@ -346,33 +357,38 @@ void Schain::proposeNextBlock(uint64_t _previousBlockTimeStamp, uint32_t _previo
     MONITOR2(__CLASS_NAME__, __FUNCTION__, getMaxExternalBlockProcessingTime())
 
     checkForExit();
+    try {
+
+        block_id _proposedBlockID((uint64_t) lastCommittedBlockID + 1);
+
+        if (getNode()->getProposalHashDb()->haveProposal(_proposedBlockID, getSchainIndex()))
+            return;
 
 
-    block_id _proposedBlockID((uint64_t) lastCommittedBlockID + 1);
+        auto myProposal = pendingTransactionsAgent->buildBlockProposal(_proposedBlockID, _previousBlockTimeStamp,
+                                                                       _previousBlockTimeStampMs);
 
-    if (getNode()->getProposalHashDb()->haveProposal(_proposedBlockID, getSchainIndex()))
-        return;
-
-
-    auto myProposal = pendingTransactionsAgent->buildBlockProposal(_proposedBlockID, _previousBlockTimeStamp,
-                                                                   _previousBlockTimeStampMs);
-
-    CHECK_STATE(myProposal->getProposerIndex() == getSchainIndex());
-    CHECK_STATE(myProposal->getSignature() != nullptr);
+        CHECK_STATE(myProposal->getProposerIndex() == getSchainIndex());
+        CHECK_STATE(myProposal->getSignature() != nullptr);
 
 
-    proposedBlockArrived(myProposal);
+        proposedBlockArrived(myProposal);
 
-    LOG(debug, "PROPOSING BLOCK NUMBER:" + to_string(_proposedBlockID));
+        LOG(debug, "PROPOSING BLOCK NUMBER:" + to_string(_proposedBlockID));
 
-    auto db = getNode()->getProposalHashDb();
+        auto db = getNode()->getProposalHashDb();
 
-    db->checkAndSaveHash(_proposedBlockID, getSchainIndex(),
-                         myProposal->getHash()->toHex());
+        db->checkAndSaveHash(_proposedBlockID, getSchainIndex(),
+                             myProposal->getHash()->toHex());
 
-    blockProposalClient->enqueueItem(myProposal);
-    auto mySig = getSchain()->getCryptoManager()->signDAProofSigShare(myProposal);
-    getSchain()->daProofSigShareArrived(mySig, myProposal);
+        blockProposalClient->enqueueItem(myProposal);
+        auto mySig = getSchain()->getCryptoManager()->signDAProofSigShare(myProposal);
+        getSchain()->daProofSigShareArrived(mySig, myProposal);
+
+    } catch (ExitRequestedException &e) { throw; }
+    catch (...) {
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+    }
 
 }
 
@@ -385,29 +401,40 @@ void Schain::processCommittedBlock(ptr<CommittedBlock> _block) {
 
 
     LOCK(m)
-    ASSERT(lastCommittedBlockID == _block->getBlockID());
 
-    totalTransactions += _block->getTransactionList()->size();
+    try {
 
-    auto h = _block->getHash()->toHex()->substr(0, 8);
-    LOG(info,
-        "BLOCK_COMMIT: PRPSR:" + to_string(_block->getProposerIndex()) + ":BID: " + to_string(_block->getBlockID()) +
-        ":HASH:" + h + ":BLOCK_TXS:" + to_string(_block->getTransactionCount()) + ":DMSG:" +
-        to_string(getMessagesCount()) + ":MPRPS:" + to_string(MyBlockProposal::getTotalObjects()) + ":RPRPS:" +
-        to_string(ReceivedBlockProposal::getTotalObjects()) + ":TXS:" + to_string(Transaction::getTotalObjects()) +
-        ":TXLS:" + to_string(TransactionList::getTotalObjects()) +
-        ":KNWN:" + to_string(pendingTransactionsAgent->getKnownTransactionsSize()) + ":MGS:" +
-        to_string(Message::getTotalObjects()) + ":INSTS:" + to_string(ProtocolInstance::getTotalObjects()) + ":BPS:" +
-        to_string(BlockProposalSet::getTotalObjects()) + ":TLS:" + to_string(TransactionList::getTotalObjects()) +
-        ":HDRS:" + to_string(Header::getTotalObjects()) + ":SOCK:" + to_string(ClientSocket::getTotalSockets()) +
-        ":CONS:" + to_string(ServerConnection::getTotalConnections()));
+        ASSERT(lastCommittedBlockID == _block->getBlockID());
+
+        totalTransactions += _block->getTransactionList()->size();
+
+        auto h = _block->getHash()->toHex()->substr(0, 8);
+        LOG(info,
+            "BLOCK_COMMIT: PRPSR:" + to_string(_block->getProposerIndex()) + ":BID: " +
+            to_string(_block->getBlockID()) +
+            ":HASH:" + h + ":BLOCK_TXS:" + to_string(_block->getTransactionCount()) + ":DMSG:" +
+            to_string(getMessagesCount()) + ":MPRPS:" + to_string(MyBlockProposal::getTotalObjects()) + ":RPRPS:" +
+            to_string(ReceivedBlockProposal::getTotalObjects()) + ":TXS:" + to_string(Transaction::getTotalObjects()) +
+            ":TXLS:" + to_string(TransactionList::getTotalObjects()) +
+            ":KNWN:" + to_string(pendingTransactionsAgent->getKnownTransactionsSize()) + ":MGS:" +
+            to_string(Message::getTotalObjects()) + ":INSTS:" + to_string(ProtocolInstance::getTotalObjects()) +
+            ":BPS:" +
+            to_string(BlockProposalSet::getTotalObjects()) + ":TLS:" + to_string(TransactionList::getTotalObjects()) +
+            ":HDRS:" + to_string(Header::getTotalObjects()) + ":SOCK:" + to_string(ClientSocket::getTotalSockets()) +
+            ":CONS:" + to_string(ServerConnection::getTotalConnections()));
 
 
-    saveBlock(_block);
+        saveBlock(_block);
 
-    blockProposalsDatabase->cleanOldBlockProposals(_block->getBlockID());
+        blockProposalsDatabase->cleanOldBlockProposals(_block->getBlockID());
 
-    pushBlockToExtFace(_block);
+        pushBlockToExtFace(_block);
+
+    } catch (ExitRequestedException &e) { throw; }
+    catch (...) {
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+    }
+
 }
 
 void Schain::saveBlock(ptr<CommittedBlock> &_block) {
@@ -430,18 +457,26 @@ void Schain::pushBlockToExtFace(ptr<CommittedBlock> &_block) {
 
     checkForExit();
 
-    auto tv = _block->getTransactionList()->createTransactionVector();
+    try {
 
-    //auto next_price = // VERIFY PRICING
+        auto tv = _block->getTransactionList()->createTransactionVector();
 
-    this->pricingAgent->calculatePrice(*tv, _block->getTimeStamp(), _block->getTimeStampMs(), _block->getBlockID());
+        //auto next_price = // VERIFY PRICING
 
-    auto cur_price = this->pricingAgent->readPrice(_block->getBlockID() - 1);
+        this->pricingAgent->calculatePrice(*tv, _block->getTimeStamp(), _block->getTimeStampMs(), _block->getBlockID());
+
+        auto cur_price = this->pricingAgent->readPrice(_block->getBlockID() - 1);
 
 
-    if (extFace) {
-        extFace->createBlock(*tv, _block->getTimeStamp(), _block->getTimeStampMs(), (__uint64_t) _block->getBlockID(),
-                             cur_price);
+        if (extFace) {
+            extFace->createBlock(*tv, _block->getTimeStamp(), _block->getTimeStampMs(),
+                                 (__uint64_t) _block->getBlockID(),
+                                 cur_price);
+        }
+
+    } catch (ExitRequestedException &e) { throw; }
+    catch (...) {
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
 
 }
@@ -500,13 +535,20 @@ void Schain::daProofArrived(ptr<DAProof> _proof) {
 
     MONITOR(__CLASS_NAME__, __FUNCTION__)
 
-    if (_proof->getBlockId() <= lastCommittedBlockID)
-        return;
+    try {
+
+        if (_proof->getBlockId() <= lastCommittedBlockID)
+            return;
 
 
-    if (blockProposalsDatabase->addDAProof(_proof)) {
-        startConsensus(_proof->getBlockId());
+        if (blockProposalsDatabase->addDAProof(_proof)) {
+            startConsensus(_proof->getBlockId());
+        }
+    } catch (ExitRequestedException &e) { throw; }
+    catch (...) {
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
+
 }
 
 
@@ -652,7 +694,7 @@ ptr<BlockProposal> Schain::createEmptyBlockProposal(block_id _blockId) {
 void Schain::decideBlock(block_id _blockId, schain_index _proposerIndex, ptr<ThresholdSignature> _thresholdSig) {
 
     CHECK_ARGUMENT(_thresholdSig != nullptr);
-    
+
     MONITOR2(__CLASS_NAME__, __FUNCTION__, getMaxExternalBlockProcessingTime())
 
 
@@ -692,6 +734,7 @@ void Schain::decideBlock(block_id _blockId, schain_index _proposerIndex, ptr<Thr
     }
 
     if (proposal != nullptr)
-        blockCommitArrived(_blockId, _proposerIndex, proposal->getTimeStamp(), proposal->getTimeStampMs(), _thresholdSig);
+        blockCommitArrived(_blockId, _proposerIndex, proposal->getTimeStamp(), proposal->getTimeStampMs(),
+                           _thresholdSig);
 
 }
