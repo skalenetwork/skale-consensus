@@ -371,8 +371,8 @@ void Schain::proposeNextBlock(uint64_t _previousBlockTimeStamp, uint32_t _previo
                          myProposal->getHash()->toHex());
 
     blockProposalClient->enqueueItem(myProposal);
-    auto mySig = getSchain()->getCryptoManager()->signThreshold(myProposal->getHash(), _proposedBlockID);
-    getSchain()->sigShareArrived(mySig, myProposal);
+    auto mySig = getSchain()->getCryptoManager()->signDAProofSigShare(myProposal);
+    getSchain()->daProofSigShareArrived(mySig, myProposal);
 
 }
 
@@ -600,7 +600,7 @@ void Schain::healthCheck() {
     setHealthCheckFile(2);
 }
 
-void Schain::sigShareArrived(ptr<ThresholdSigShare> _sigShare, ptr<BlockProposal> _proposal) {
+void Schain::daProofSigShareArrived(ptr<ThresholdSigShare> _sigShare, ptr<BlockProposal> _proposal) {
 
     MONITOR(__CLASS_NAME__, __FUNCTION__)
 

@@ -84,7 +84,16 @@ bool CryptoManager::verifyECDSA(ptr<SHAHash> _hash,
 }
 
 
-ptr<ThresholdSigShare> CryptoManager::signThreshold(ptr<SHAHash> _hash, block_id _blockId) {
+ptr<ThresholdSigShare> CryptoManager::signDAProofSigShare(ptr<BlockProposal> _p) {
+    CHECK_ARGUMENT(_p != nullptr);
+    return signSigShare(_p->getHash(), _p->getBlockID());
+}
+
+ptr<ThresholdSigShare> CryptoManager::signBinaryConsensusSigShare(ptr<SHAHash> _hash, block_id _blockId) {
+    return signSigShare(_hash, _blockId);
+}
+
+ptr<ThresholdSigShare> CryptoManager::signSigShare(ptr<SHAHash> _hash, block_id _blockId) {
 
 
     MONITOR(__CLASS_NAME__, __FUNCTION__)
@@ -118,6 +127,9 @@ CryptoManager::createSigShareSet(block_id _blockId, size_t _totalSigners, size_t
         return make_shared<MockupSigShareSet>(_blockId, _totalSigners, _requiredSigners);
     }
 }
+
+
+
 
 ptr<ThresholdSigShare>
 CryptoManager::createSigShare(ptr<string> _sigShare, schain_id _schainID, block_id _blockID, node_id _signerNodeID,

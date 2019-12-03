@@ -572,7 +572,7 @@ ptr<Header> BlockProposalServerAgent::createDAProofResponseHeader(ptr<ServerConn
 
 ptr<Header> BlockProposalServerAgent::createFinalResponseHeader(ptr<ReceivedBlockProposal> _proposal) {
 
-    auto sigShare = getSchain()->getCryptoManager()->signThreshold(_proposal->getHash(), _proposal->getBlockID());
+    auto sigShare = getSchain()->getCryptoManager()->signDAProofSigShare(_proposal);
 
     auto responseHeader = make_shared<FinalProposalResponseHeader>(sigShare->toString());
 

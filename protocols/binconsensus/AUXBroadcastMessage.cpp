@@ -64,7 +64,7 @@ AUXBroadcastMessage::AUXBroadcastMessage(bin_consensus_round round, bin_consensu
     auto buf = make_shared<array<uint8_t, SHA_HASH_LEN>>();
     sha256.Final(buf->data());
     auto hash = make_shared<SHAHash>(buf);
-    this->sigShare = schain->getCryptoManager()->signThreshold(hash, _blockID);
+    this->sigShare = schain->getCryptoManager()->signBinaryConsensusSigShare(hash, _blockID);
     this->sigShareString = sigShare->toString();
 }
 

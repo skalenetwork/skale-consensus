@@ -64,7 +64,7 @@ BlockSignBroadcastMessage::BlockSignBroadcastMessage(block_id _blockID, schain_i
     sha256.Final(buf->data());
     auto hash = make_shared<SHAHash>(buf);
 
-    this->sigShare = schain->getCryptoManager()->signThreshold(hash, _blockID);
+    this->sigShare = schain->getCryptoManager()->signBinaryConsensusSigShare(hash, _blockID);
     this->sigShareString = sigShare->toString();
 }
 

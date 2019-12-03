@@ -296,7 +296,7 @@ void BlockProposalClientAgent::sendBlockProposal(
                                                                     getSchain()->getTotalSigners(),
                                                                     getSchain()->getRequiredSigners());
 
-    getSchain()->sigShareArrived(sigShare, _proposal);
+    getSchain()->daProofSigShareArrived(sigShare, _proposal);
 
     LOG(trace, "Proposal step 7: got sig share");
 }
