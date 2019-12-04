@@ -31,7 +31,7 @@
 
 #include "../chains/Schain.h"
 #include "../pendingqueue/PendingTransactionsAgent.h"
-#include "../db/ReceivedBlockProposalsDB.h"
+#include "../db/BlockProposalDB.h"
 #include "../datastructures/DAProof.h"
 #include "BlockProposal.h"
 

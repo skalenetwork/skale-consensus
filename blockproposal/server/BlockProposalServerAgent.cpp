@@ -47,7 +47,7 @@
 
 #include "../../pendingqueue/PendingTransactionsAgent.h"
 #include "../pusher/BlockProposalClientAgent.h"
-#include "../../db/ReceivedBlockProposalsDB.h"
+#include "../../db/BlockProposalDB.h"
 
 #include "../../abstracttcpserver/AbstractServerAgent.h"
 #include "../../chains/Schain.h"
@@ -453,7 +453,7 @@ ptr<Header> BlockProposalServerAgent::createProposalResponseHeader(ptr<ServerCon
         return responseHeader;
     }
 
-    if (!getSchain()->getNode()->getProposalHashDb()->checkAndSaveHash(_header.getBlockId(),
+    if (!getSchain()->getNode()->getProposalHashDB()->checkAndSaveHash(_header.getBlockId(),
                                                                        _header.getProposerIndex(),
                                                                        _header.getHash())) {
 

@@ -36,7 +36,7 @@ class BlockSigShareDB : public LevelDB {
 
     Schain* sChain;
 
-    recursive_mutex m;
+    recursive_mutex sigShareMutex;
 
     const string getFormatVersion();
 

@@ -34,9 +34,7 @@
 #include "../thirdparty/json.hpp"
 
 #include "../chains/TestConfig.h"
-
 #include "../crypto/bls_include.h"
-
 #include "../crypto/SHAHash.h"
 #include "../libBLS/bls/BLSPrivateKeyShare.h"
 #include "../libBLS/bls/BLSPublicKey.h"
@@ -44,22 +42,16 @@
 
 #include "../blockproposal/server/BlockProposalServerAgent.h"
 #include "../messages/NetworkMessageEnvelope.h"
-
 #include "../chains/Schain.h"
-
-
 #include "../network/Sockets.h"
 #include "../network/TCPServerSocket.h"
 #include "../network/ZMQNetwork.h"
 #include "../network/ZMQServerSocket.h"
 #include "../node/NodeInfo.h"
-
 #include "../catchup/server/CatchupServerAgent.h"
 #include "../exceptions/FatalError.h"
 #include "../messages/Message.h"
-
 #include "../protocols/InstanceGarbageCollectorAgent.h"
-
 #include "../db/BlockDB.h"
 #include "../db/DASigShareDB.h"
 #include "../db/PriceDB.h"
@@ -67,8 +59,7 @@
 #include "../db/SigDB.h"
 #include "../db/ProposalHashDB.h"
 #include "../db/BlockSigShareDB.h"
-
-
+#include "../db/BlockProposalDB.h"
 #include "ConsensusEngine.h"
 #include "ConsensusInterface.h"
 #include "Node.h"
@@ -104,9 +95,9 @@ void Node::initLevelDBs() {
     string proposalHashDBPrefix = "/proposal_hashes_" + to_string(nodeID) + ".db";
 
     blockDB = make_shared<BlockDB>(dataDir, blockDBPrefix, getNodeID(), getBlockDBSize());
-    randomDB = make_shared<RandomDB>(dataDir, randomDBPrefix, getNodeID(), getRandomDbSize());
-    priceDB = make_shared<PriceDB>(dataDir, priceDBPrefix, getNodeID(), getPriceDbSize());
-    proposalHashDB = make_shared<ProposalHashDB>(dataDir, proposalHashDBPrefix, getNodeID(), getProposalHashDbSize());
+    randomDB = make_shared<RandomDB>(dataDir, randomDBPrefix, getNodeID(), getRandomDBSize());
+    priceDB = make_shared<PriceDB>(dataDir, priceDBPrefix, getNodeID(), getPriceDBSize());
+    proposalHashDB = make_shared<ProposalHashDB>(dataDir, proposalHashDBPrefix, getNodeID(), getProposalHashDBSize());
 
 }
 
@@ -147,10 +138,10 @@ void Node::initParamsFromConfig() {
     proposalHashDBSize = getParamUint64("proposalHashDBSize", PROPOSAL_HASH_DB_SIZE);
     blockSigShareDBSize = getParamUint64("blockSigShareDBSize", BLOCK_SIG_SHARE_DB_SIZE);
     daSigShareDBSize = getParamUint64("daSigShareDBSize", DA_SIG_SHARE_DB_SIZE);
-    commitedTxsDBSize = getParamUint64("commitedTxsDBSize", COMMITTED_TXS_DB_SIZE);
     randomDBSize = getParamUint64("randomDBSize", RANDOM_DB_SIZE);
-    signatureDBSize = getParamUint64("signatureDBSize", SIGNATURE_DB_SIZE);
     priceDBSize = getParamUint64("priceDBSize", PRICE_DB_SIZE);
+    blockProposalDBSize = getParamUint64("blockProposalDBSize", BLOCK_PROPOSAL_DB_SIZE);
+
     auto emptyBlockIntervalMsTmp = getParamInt64("emptyBlockIntervalMs", EMPTY_BLOCK_INTERVAL_MS);
 
 
@@ -165,7 +156,7 @@ void Node::initParamsFromConfig() {
     testConfig = make_shared<TestConfig>(cfg);
 }
 
-uint64_t Node::getProposalHashDbSize() const {
+uint64_t Node::getProposalHashDBSize() const {
     return proposalHashDBSize;
 }
 
@@ -277,15 +268,16 @@ void Node::setSchain(ptr<Schain> _schain) {
     string dataDir = *Log::getDataDir();
     string blockSigShareDBPrefix = "/block_sigshares_" + to_string(nodeID) + ".db";
     string daSigShareDBPrefix = "/da_sigshares_" + to_string(nodeID) + ".db";
+    string blockProposalDBPrefix = "/block_proposals_" + to_string(nodeID) + ".db";
 
-    blockSigShareDB = make_shared<BlockSigShareDB>(dataDir, blockSigShareDBPrefix, getNodeID(), getBlockSigShareDbSize(),
-                                                         getSchain());
+    blockSigShareDB = make_shared<BlockSigShareDB>(dataDir, blockSigShareDBPrefix, getNodeID(), getBlockSigShareDBSize(),
+                                                   getSchain());
 
-    daSigShareDB = make_shared<DASigShareDB>(dataDir, daSigShareDBPrefix, getNodeID(), getDaSigShareDbSize(),
-                                                *getSchain());
+    daSigShareDB = make_shared<DASigShareDB>(dataDir, daSigShareDBPrefix, getNodeID(), getDaSigShareDBSize(),
+                                             *getSchain());
 
-
-
+    blockProposalDB = make_shared<BlockProposalDB>(*getSchain(), dataDir, blockProposalDBPrefix, getNodeID(),
+            getBlockProposalDBSize());
 
 }
 

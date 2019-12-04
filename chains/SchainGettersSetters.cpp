@@ -58,7 +58,7 @@
 #include "../messages/MessageEnvelope.h"
 #include "../messages/NetworkMessageEnvelope.h"
 #include "../node/NodeInfo.h"
-#include "../db/ReceivedBlockProposalsDB.h"
+#include "../db/BlockProposalDB.h"
 #include "../network/Sockets.h"
 #include "../protocols/ProtocolInstance.h"
 #include "../protocols/blockconsensus/BlockConsensusAgent.h"
@@ -126,7 +126,7 @@ ptr<BlockProposal> Schain::getBlockProposal(block_id _blockID, schain_index _sch
 
     MONITOR(__CLASS_NAME__, __FUNCTION__)
 
-    return blockProposalsDatabase->getBlockProposal(_blockID, _schainIndex);
+    return getNode()->getBlockProposalDB()->getBlockProposal(_blockID, _schainIndex);
 
 }
 

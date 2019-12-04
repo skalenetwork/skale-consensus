@@ -53,6 +53,9 @@ BlockSigShareDB::checkAndSaveShare(ptr<ThresholdSigShare> _sigShare, ptr<CryptoM
         CHECK_ARGUMENT(_sigShare != nullptr);
         CHECK_ARGUMENT(_cryptoManager != nullptr);
         auto sigShareString = _sigShare->toString();
+
+        LOCK(sigShareMutex)
+
         auto enoughSet = writeStringToBlockSet("", *sigShareString, _sigShare->getBlockId(),
                                                _sigShare->getSignerIndex(), sChain->getTotalSigners(),
                                                sChain->getRequiredSigners());
@@ -78,8 +81,7 @@ BlockSigShareDB::checkAndSaveShare(ptr<ThresholdSigShare> _sigShare, ptr<CryptoM
         auto signature = s->mergeSignature();
         CHECK_STATE(signature != nullptr);
         return signature;
-    } catch (ExitRequestedException &) { throw; }
-    catch (...) {
+    } catch (ExitRequestedException &) { throw; } catch (...) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
 }

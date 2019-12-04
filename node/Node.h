@@ -58,15 +58,9 @@ class BLSPublicKey;
 class BLSPrivateKeyShare;
 
 class LevelDB;
-
 class BlockDB;
-
-class SigDB;
-
-class CommittedTransactionDB;
-
+class BlockProposalDB;
 class RandomDB;
-
 class PriceDB;
 
 class ProposalHashDB;
@@ -169,6 +163,11 @@ private:
 
     ptr<DASigShareDB> daSigShareDB = nullptr;
 
+    ptr<BlockProposalDB> blockProposalDB = nullptr;
+
+
+private:
+
     uint64_t catchupIntervalMS;
 
     uint64_t monitoringIntervalMS;
@@ -192,16 +191,11 @@ private:
     uint64_t proposalHashDBSize;
     uint64_t daSigShareDBSize;
     uint64_t blockSigShareDBSize;
-    uint64_t commitedTxsDBSize;
-
     uint64_t randomDBSize;
-    uint64_t signatureDBSize;
     uint64_t priceDBSize;
-
+    uint64_t blockProposalDBSize;
 
     ptr<BLSPublicKey> blsPublicKey;
-
-
     ptr<BLSPrivateKeyShare> blsPrivateKey;
 
 
@@ -212,17 +206,19 @@ public:
     ptr<BlockDB> getBlockDB();
     ptr<RandomDB> getRandomDB();
     ptr<PriceDB> getPriceDB() const;
-    ptr<ProposalHashDB> getProposalHashDb();
-    ptr<BlockSigShareDB> getBlockSigShareDb() const;
-    ptr<DASigShareDB> getDaSigShareDb() const;
-    uint64_t getProposalHashDbSize() const;
+    ptr<ProposalHashDB> getProposalHashDB();
+    ptr<BlockSigShareDB> getBlockSigShareDB() const;
+    ptr<DASigShareDB> getDaSigShareDB() const;
+    ptr<BlockProposalDB> getBlockProposalDB() const;
+
+    uint64_t getProposalHashDBSize() const;
     uint64_t getBlockDBSize() const;
-    uint64_t getBlockSigShareDbSize() const;
-    uint64_t getCommitedTxsDbSize() const;
-    uint64_t getRandomDbSize() const;
-    uint64_t getSignatureDbSize() const;
-    uint64_t getPriceDbSize() const;
-    uint64_t getDaSigShareDbSize() const;
+    uint64_t getBlockSigShareDBSize() const;
+    uint64_t getRandomDBSize() const;
+    uint64_t getPriceDBSize() const;
+    uint64_t getDaSigShareDBSize() const;
+    uint64_t getBlockProposalDBSize() const;
+
     bool isBlsEnabled() const;
 
     uint64_t getSimulateNetworkWriteDelayMs() const;

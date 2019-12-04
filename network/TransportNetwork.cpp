@@ -28,7 +28,7 @@
 #include "../thirdparty/json.hpp"
 #include "../abstracttcpserver/ConnectionStatus.h"
 #include "../blockproposal/pusher/BlockProposalClientAgent.h"
-#include "../db/ReceivedBlockProposalsDB.h"
+#include "../db/BlockProposalDB.h"
 #include "../blockproposal/server/BlockProposalWorkerThreadPool.h"
 #include "../chains/Schain.h"
 #include "../crypto/ConsensusBLSSigShare.h"

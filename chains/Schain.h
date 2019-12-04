@@ -30,7 +30,7 @@ class CommittedBlockList;
 class NetworkMessageEnvelope;
 class WorkerThreadPool;
 class NodeInfo;
-class ReceivedBlockProposalsDB;
+class BlockProposalDB;
 class DASigShareDB;
 class ServerConnection;
 class BlockProposal;
@@ -107,8 +107,6 @@ class Schain : public Agent {
 
     ptr<IO> io;
 
-    ptr<ReceivedBlockProposalsDB> blockProposalsDatabase;
-
     ptr<CryptoManager> cryptoManager;
 
     weak_ptr<Node> node;
@@ -142,8 +140,6 @@ class Schain : public Agent {
     void startConsensus(block_id _blockID);
 
     void constructChildAgents();
-
-    void saveBlockToBlockCache(ptr<CommittedBlock> &_block);
 
     void saveBlock(ptr<CommittedBlock> &_block);
 
@@ -180,9 +176,9 @@ public:
 
     uint64_t getStartTimeMs() const;
 
-    void proposedBlockArrived(ptr<BlockProposal> _pbm);
+    void proposedBlockArrived(ptr<BlockProposal> _proposal);
 
-    void daProofArrived(ptr<DAProof> _proof);
+    void daProofArrived(ptr<DAProof> _daProof);
 
     void blockCommitArrived(block_id _committedBlockID, schain_index _proposerIndex, uint64_t _committedTimeStamp,
                             uint64_t _committedTimeStampMs, ptr<ThresholdSignature> _thresholdSig);

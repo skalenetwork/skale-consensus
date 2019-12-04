@@ -137,7 +137,7 @@ node_id Node::getNodeID() const {
 }
 
 
-ptr<ProposalHashDB> Node::getProposalHashDb() {
+ptr<ProposalHashDB> Node::getProposalHashDB() {
     assert(proposalHashDB != nullptr);
     return proposalHashDB;
 }
@@ -297,35 +297,35 @@ bool Node::isStarted() const {
     return startedServers;
 }
 
-uint64_t Node::getCommitedTxsDbSize() const {
-    return commitedTxsDBSize;
-}
-
-uint64_t Node::getRandomDbSize() const {
+uint64_t Node::getRandomDBSize() const {
     return randomDBSize;
 }
 
-uint64_t Node::getSignatureDbSize() const {
-    return signatureDBSize;
-}
-
-uint64_t Node::getPriceDbSize() const {
+uint64_t Node::getPriceDBSize() const {
     return priceDBSize;
 }
 
-uint64_t Node::getBlockSigShareDbSize() const {
+uint64_t Node::getBlockSigShareDBSize() const {
     return blockSigShareDBSize;
 }
 
-ptr<BlockSigShareDB> Node::getBlockSigShareDb() const {
+ptr<BlockSigShareDB> Node::getBlockSigShareDB() const {
     ASSERT(blockSigShareDB != nullptr);
     return blockSigShareDB;
 }
 
-ptr<DASigShareDB> Node::getDaSigShareDb() const {
+ptr<DASigShareDB> Node::getDaSigShareDB() const {
     return daSigShareDB;
 }
 
-uint64_t Node::getDaSigShareDbSize() const {
+uint64_t Node::getDaSigShareDBSize() const {
     return daSigShareDBSize;
+}
+
+ptr<BlockProposalDB>  Node::getBlockProposalDB() const {
+    return blockProposalDB;
+}
+
+uint64_t Node::getBlockProposalDBSize() const {
+    return blockProposalDBSize;
 }

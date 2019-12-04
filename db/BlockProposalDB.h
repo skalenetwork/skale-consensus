@@ -32,8 +32,13 @@ class Schain;
 
 class BooleanProposalVector;
 
+#include "LevelDB.h"
 
-class ReceivedBlockProposalsDB : Agent {
+class BlockProposalDB : public LevelDB {
+
+    Schain* sChain;
+
+    recursive_mutex proposalMutex;
 
     block_id oldBlockID;
 
@@ -45,7 +50,7 @@ public:
 
     ptr<BlockProposal> getBlockProposal(block_id _blockID, schain_index _proposerIndex);
 
-    ReceivedBlockProposalsDB(Schain &_sChain);
+    BlockProposalDB(Schain &_sChain, string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize);
 
     void cleanOldBlockProposals(block_id _lastCommittedBlockID);
 
@@ -56,6 +61,9 @@ public:
     bool isTwoThird(block_id _blockID);
 
     bool addDAProof(ptr<DAProof> _proof);
+
+    const string getFormatVersion();
+
 };
 
 

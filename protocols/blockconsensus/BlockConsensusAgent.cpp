@@ -49,7 +49,7 @@
 #include "../../datastructures/BooleanProposalVector.h"
 #include "../../messages/ConsensusProposalMessage.h"
 #include "../../node/NodeInfo.h"
-#include "../../db/ReceivedBlockProposalsDB.h"
+#include "../../db/BlockProposalDB.h"
 #include "../../exceptions/InvalidStateException.h"
 #include "../../db/BlockSigShareDB.h"
 #include "../../blockfinalize/client/BlockFinalizeDownloader.h"
@@ -151,7 +151,7 @@ void BlockConsensusAgent::decideBlock(block_id _blockId, schain_index _sChainInd
 
         auto msg = make_shared<BlockSignBroadcastMessage>(_blockId, _sChainIndex, *this);
 
-        auto signature = getSchain()->getNode()->getBlockSigShareDb()->checkAndSaveShare(msg->getSigShare(),
+        auto signature = getSchain()->getNode()->getBlockSigShareDB()->checkAndSaveShare(msg->getSigShare(),
                                                                                          getSchain()->getCryptoManager());
 
         getSchain()->getNode()->getNetwork()->broadcastMessage(msg);
@@ -253,7 +253,7 @@ void BlockConsensusAgent::processChildCompletedMessage(ptr<InternalMessageEnvelo
 void BlockConsensusAgent::processBlockSignMessage(ptr<BlockSignBroadcastMessage> _message) {
     try {
         auto signature =
-                getSchain()->getNode()->getBlockSigShareDb()->checkAndSaveShare(_message->getSigShare(),
+                getSchain()->getNode()->getBlockSigShareDB()->checkAndSaveShare(_message->getSigShare(),
                                                                                 getSchain()->getCryptoManager());
         if (signature == nullptr) {
             return;

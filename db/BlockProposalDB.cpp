@@ -39,13 +39,16 @@
 #include "../datastructures/BlockProposalSet.h"
 
 
-#include "ReceivedBlockProposalsDB.h"
+#include "BlockProposalDB.h"
 
 
 using namespace std;
 
 
-ReceivedBlockProposalsDB::ReceivedBlockProposalsDB(Schain &_sChain) : Agent(_sChain, true) {
+BlockProposalDB::BlockProposalDB(Schain &_sChain,
+                                 string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize) : LevelDB(_dirName, _prefix, _nodeId, _maxDBSize) {
+
+    sChain = &_sChain;
     try {
         oldBlockID = _sChain.getBootstrapBlockID();
     } catch (ExitRequestedException &) { throw; } catch (...) {
@@ -53,9 +56,9 @@ ReceivedBlockProposalsDB::ReceivedBlockProposalsDB(Schain &_sChain) : Agent(_sCh
     }
 };
 
-bool ReceivedBlockProposalsDB::addDAProof(ptr<DAProof> _proof) {
+bool BlockProposalDB::addDAProof(ptr<DAProof> _proof) {
 
-    LOCK(m)
+    LOCK(proposalMutex)
 
     auto set = getProposedBlockSet(_proof->getBlockId());
 
@@ -65,7 +68,7 @@ bool ReceivedBlockProposalsDB::addDAProof(ptr<DAProof> _proof) {
 }
 
 
-bool ReceivedBlockProposalsDB::addBlockProposal(ptr<BlockProposal> _proposal) {
+bool BlockProposalDB::addBlockProposal(ptr<BlockProposal> _proposal) {
 
 
     ASSERT(_proposal);
@@ -75,7 +78,7 @@ bool ReceivedBlockProposalsDB::addBlockProposal(ptr<BlockProposal> _proposal) {
     LOG(trace, "addBlockProposal blockID_=" + to_string(_proposal->getBlockID()) + " proposerIndex=" +
                to_string(_proposal->getProposerIndex()));
 
-    LOCK(m)
+    LOCK(proposalMutex)
 
     if (this->proposedBlockSets.count(_proposal->getBlockID()) == 0) {
         proposedBlockSets[_proposal->getBlockID()] = make_shared<BlockProposalSet>(this->sChain,
@@ -89,9 +92,9 @@ bool ReceivedBlockProposalsDB::addBlockProposal(ptr<BlockProposal> _proposal) {
 }
 
 
-void ReceivedBlockProposalsDB::cleanOldBlockProposals(block_id _lastCommittedBlockID) {
+void BlockProposalDB::cleanOldBlockProposals(block_id _lastCommittedBlockID) {
 
-    LOCK(m)
+    LOCK(proposalMutex)
 
     if (_lastCommittedBlockID < BLOCK_PROPOSAL_HISTORY_SIZE)
         return;
@@ -107,10 +110,10 @@ void ReceivedBlockProposalsDB::cleanOldBlockProposals(block_id _lastCommittedBlo
     }
 }
 
-ptr<BooleanProposalVector> ReceivedBlockProposalsDB::getBooleanProposalsVector(block_id _blockID) {
+ptr<BooleanProposalVector> BlockProposalDB::getBooleanProposalsVector(block_id _blockID) {
 
 
-    LOCK(m)
+    LOCK(proposalMutex)
 
     auto set = getProposedBlockSet((_blockID));
 
@@ -121,9 +124,9 @@ ptr<BooleanProposalVector> ReceivedBlockProposalsDB::getBooleanProposalsVector(b
 }
 
 
-ptr<BlockProposalSet> ReceivedBlockProposalsDB::getProposedBlockSet(block_id _blockID) {
+ptr<BlockProposalSet> BlockProposalDB::getProposedBlockSet(block_id _blockID) {
 
-    LOCK(m)
+    LOCK(proposalMutex)
 
     if (proposedBlockSets.count(_blockID) == 0) {
         proposedBlockSets[_blockID] = make_shared<BlockProposalSet>(this->sChain, _blockID);
@@ -133,10 +136,10 @@ ptr<BlockProposalSet> ReceivedBlockProposalsDB::getProposedBlockSet(block_id _bl
 }
 
 
-ptr<BlockProposal> ReceivedBlockProposalsDB::getBlockProposal(block_id _blockID, schain_index _proposerIndex) {
+ptr<BlockProposal> BlockProposalDB::getBlockProposal(block_id _blockID, schain_index _proposerIndex) {
 
 
-    LOCK(m)
+    LOCK(proposalMutex);
 
     auto set = getProposedBlockSet(_blockID);
 
@@ -155,14 +158,18 @@ ptr<BlockProposal> ReceivedBlockProposalsDB::getBlockProposal(block_id _blockID,
 }
 
 
-bool ReceivedBlockProposalsDB::isTwoThird(block_id _blockID) {
+bool BlockProposalDB::isTwoThird(block_id _blockID) {
 
 
-    LOCK(m)
+    LOCK(proposalMutex);
 
     if (proposedBlockSets.count(_blockID) > 0) {
         return proposedBlockSets.at(_blockID)->isTwoThird();
     } else {
         return false;
     };
+}
+
+const string BlockProposalDB::getFormatVersion() {
+    return "1.0";
 }

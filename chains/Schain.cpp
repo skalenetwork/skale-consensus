@@ -55,7 +55,7 @@
 #include "../messages/MessageEnvelope.h"
 #include "../messages/NetworkMessageEnvelope.h"
 #include "../node/NodeInfo.h"
-#include "../db/ReceivedBlockProposalsDB.h"
+#include "../db/BlockProposalDB.h"
 #include "../db/DASigShareDB.h"
 #include "../network/Sockets.h"
 #include "../protocols/ProtocolInstance.h"
@@ -242,7 +242,6 @@ void Schain::constructChildAgents() {
         blockProposalClient = make_shared<BlockProposalClientAgent>(*this);
         catchupClientAgent = make_shared<CatchupClientAgent>(*this);
         blockConsensusInstance = make_shared<BlockConsensusAgent>(*this);
-        blockProposalsDatabase = make_shared<ReceivedBlockProposalsDB>(*this);
 
         testMessageGeneratorAgent = make_shared<TestMessageGeneratorAgent>(*this);
         pricingAgent = make_shared<PricingAgent>(*this);
@@ -320,7 +319,7 @@ void Schain::blockCommitArrived(block_id _committedBlockID, schain_index _propos
         lastCommittedBlockTimeStampMs = _committedTimeStampMs;
 
 
-        committedProposal = blockProposalsDatabase->getBlockProposal(_committedBlockID, _proposerIndex);
+        committedProposal = getNode()->getBlockProposalDB()->getBlockProposal(_committedBlockID, _proposerIndex);
         ASSERT(committedProposal);
 
         auto newCommittedBlock = CommittedBlock::makeObject(committedProposal, _thresholdSig);
@@ -353,7 +352,7 @@ void Schain::proposeNextBlock(uint64_t _previousBlockTimeStamp, uint32_t _previo
 
         block_id _proposedBlockID((uint64_t) lastCommittedBlockID + 1);
 
-        if (getNode()->getProposalHashDb()->haveProposal(_proposedBlockID, getSchainIndex()))
+        if (getNode()->getProposalHashDB()->haveProposal(_proposedBlockID, getSchainIndex()))
             return;
 
 
@@ -368,7 +367,7 @@ void Schain::proposeNextBlock(uint64_t _previousBlockTimeStamp, uint32_t _previo
 
         LOG(debug, "PROPOSING BLOCK NUMBER:" + to_string(_proposedBlockID));
 
-        auto db = getNode()->getProposalHashDb();
+        auto db = getNode()->getProposalHashDB();
 
         db->checkAndSaveHash(_proposedBlockID, getSchainIndex(),
                              myProposal->getHash()->toHex());
@@ -418,7 +417,7 @@ void Schain::processCommittedBlock(ptr<CommittedBlock> _block) {
 
         saveBlock(_block);
 
-        blockProposalsDatabase->cleanOldBlockProposals(_block->getBlockID());
+        getNode()->getBlockProposalDB()->cleanOldBlockProposals(_block->getBlockID());
 
         pushBlockToExtFace(_block);
 
@@ -485,7 +484,7 @@ void Schain::startConsensus(const block_id _blockID) {
 
         LOG(debug, "Got proposed block set for block:" + to_string(_blockID));
 
-        ASSERT(blockProposalsDatabase->isTwoThird(_blockID));
+        ASSERT(getNode()->getBlockProposalDB()->isTwoThird(_blockID));
 
         LOG(debug, "StartConsensusIfNeeded BLOCK NUMBER:" + to_string((_blockID)));
 
@@ -510,7 +509,7 @@ void Schain::startConsensus(const block_id _blockID) {
     }
 
 
-    auto proposalVector = blockProposalsDatabase->getBooleanProposalsVector(_blockID);
+    auto proposalVector = getNode()->getBlockProposalDB()->getBooleanProposalsVector(_blockID);
 
     ASSERT(blockConsensusInstance != nullptr && proposalVector != nullptr);
 
@@ -525,18 +524,18 @@ void Schain::startConsensus(const block_id _blockID) {
     postMessage(envelope);
 }
 
-void Schain::daProofArrived(ptr<DAProof> _proof) {
+void Schain::daProofArrived(ptr<DAProof> _daProof) {
 
     MONITOR(__CLASS_NAME__, __FUNCTION__)
 
     try {
 
-        if (_proof->getBlockId() <= getLastCommittedBlockID())
+        if (_daProof->getBlockId() <= getLastCommittedBlockID())
             return;
 
 
-        if (blockProposalsDatabase->addDAProof(_proof)) {
-            startConsensus(_proof->getBlockId());
+        if (getNode()->getBlockProposalDB()->addDAProof(_daProof)) {
+            startConsensus(_daProof->getBlockId());
         }
     } catch (ExitRequestedException &e) { throw; }
     catch (...) {
@@ -546,19 +545,16 @@ void Schain::daProofArrived(ptr<DAProof> _proof) {
 }
 
 
-void Schain::proposedBlockArrived(ptr<BlockProposal> pbm) {
+void Schain::proposedBlockArrived(ptr<BlockProposal> _proposal) {
 
     MONITOR(__CLASS_NAME__, __FUNCTION__)
 
-    CHECK_STATE(pbm->getSignature() != nullptr);
-
-
-    if (pbm->getBlockID() <= getLastCommittedBlockID())
+    if (_proposal->getBlockID() <= getLastCommittedBlockID())
         return;
 
-    if (blockProposalsDatabase->addBlockProposal(pbm)) {
-        //startConsensus(pbm->getBlockID());
-    }
+    CHECK_STATE(_proposal->getSignature() != nullptr);
+
+    getNode()->getBlockProposalDB()->addBlockProposal(_proposal);
 }
 
 
@@ -646,7 +642,7 @@ void Schain::daProofSigShareArrived(ptr<ThresholdSigShare> _sigShare, ptr<BlockP
 
 
     try {
-        auto proof = getNode()->getDaSigShareDb()->addAndMergeSigShareAndVerifySig(_sigShare, _proposal);
+        auto proof = getNode()->getDaSigShareDB()->addAndMergeSigShareAndVerifySig(_sigShare, _proposal);
         if (proof != nullptr) {
             getSchain()->daProofArrived(proof);
             blockProposalClient->enqueueItem(proof);
@@ -697,7 +693,7 @@ void Schain::decideBlock(block_id _blockId, schain_index _proposerIndex, ptr<Thr
                to_string((Time::getCurrentTimeMs() - getSchain()->getStartTimeMs()) / 1000.0));
 
 
-    auto proposedBlockSet = blockProposalsDatabase->getProposedBlockSet(_blockId);
+    auto proposedBlockSet = getNode()->getBlockProposalDB()->getProposedBlockSet(_blockId);
 
     ptr<BlockProposal> proposal = nullptr;
     ASSERT(proposedBlockSet);
