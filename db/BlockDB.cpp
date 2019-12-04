@@ -63,7 +63,7 @@ BlockDB::BlockDB(string& _dirname,
 
 void BlockDB::saveBlock2LevelDB(ptr<CommittedBlock> &_block) {
 
-    LOG(err, to_string(_block->getBlockID()));
+
 
     CHECK_ARGUMENT(_block->getSignature() != nullptr);
 
@@ -127,8 +127,6 @@ ptr<CommittedBlock> BlockDB::getBlock(block_id _blockID, ptr<CryptoManager> _cry
             cerr << "got null" << endl;
             return nullptr;
         }
-
-        cerr << "Deserializing" << endl;
 
         return CommittedBlock::deserialize(serializedBlock, _cryptoManager);
     }

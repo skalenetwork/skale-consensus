@@ -31,6 +31,7 @@
 #include "../chains/Schain.h"
 #include "../node/ConsensusEngine.h"
 #include "PricingStrategy.h"
+#include "../exceptions/ExitRequestedException.h"
 #include "DynamicPricingStrategy.h"
 #include "ZeroPricingStrategy.h"
 #include "../db/PriceDB.h"
@@ -67,19 +68,27 @@ u256
 PricingAgent::calculatePrice(const ConsensusExtFace::transactions_vector &_approvedTransactions, uint64_t _timeStamp,
                              uint32_t _timeStampMs,
                              block_id _blockID) {
+
+
     u256  price;
 
     ASSERT(pricingStrategy != nullptr);
 
-    if (_blockID <= 1) {
-        price = sChain->getNode()->getParamUint64(string("DYNAMIC_PRICING_START_PRICE"), 1000);
-    } else {
-        auto oldPrice = readPrice(_blockID - 1);
-        price = pricingStrategy->calculatePrice(oldPrice, _approvedTransactions, _timeStamp,
-                _timeStampMs, _blockID);
-    }
+    try {
 
-    savePrice(price, _blockID);
+        if (_blockID <= 1) {
+            price = sChain->getNode()->getParamUint64(string("DYNAMIC_PRICING_START_PRICE"), 1000);
+        } else {
+            auto oldPrice = readPrice(_blockID - 1);
+            price = pricingStrategy->calculatePrice(oldPrice, _approvedTransactions, _timeStamp,
+                                                    _timeStampMs, _blockID);
+        }
+
+        savePrice(price, _blockID);
+
+    } catch (ExitRequestedException&) {throw;} catch(...) {
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+    }
 
     return price;
 

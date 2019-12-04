@@ -24,8 +24,7 @@
 
 #include "../SkaleCommon.h"
 #include "../Log.h"
-
-
+#include "../exceptions/ExitRequestedException.h"
 #include "PriceDB.h"
 
 
@@ -44,25 +43,36 @@ ptr<string> PriceDB::createKey(block_id _blockId) {
 }
 
 u256 PriceDB::readPrice(block_id _blockID) {
+    try {
 
-    auto key = createKey(_blockID);
 
-    auto price = readString(*key);
+        auto key = createKey(_blockID);
 
-    if (price == nullptr) {
-        BOOST_THROW_EXCEPTION(InvalidArgumentException("Price for this block is unknown", __CLASS_NAME__));
+        auto price = readString(*key);
+
+        if (price == nullptr) {
+            BOOST_THROW_EXCEPTION(InvalidArgumentException("Price for this block is unknown", __CLASS_NAME__));
+        }
+
+        return u256(price->c_str());
+
+    } catch (ExitRequestedException &) { throw; } catch (...) {
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
-
-    return u256(price->c_str());
 }
 
 
 void PriceDB::savePrice(u256 _price, block_id _blockID) {
 
-    auto key = createKey(_blockID);
+    try {
 
-    auto value = _price.str();
+        auto key = createKey(_blockID);
 
-    writeString(*key, value);
+        auto value = _price.str();
+
+        writeString(*key, value);
+    } catch (ExitRequestedException &) { throw; } catch (...) {
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+    }
 }
 
