@@ -262,6 +262,8 @@ void LevelDB::rotateDBsIfNeeded() {
         if (getActiveDBSize() <= maxDBSize)
             return;
 
+        cerr << "Rotating db" << endl;
+
         auto newDB = openDB(highestDBIndex + 1);
 
         for (int i = 1; i < LEVELDB_PIECES; i++) {

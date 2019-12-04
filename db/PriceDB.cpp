@@ -43,6 +43,9 @@ ptr<string> PriceDB::createKey(block_id _blockId) {
 }
 
 u256 PriceDB::readPrice(block_id _blockID) {
+
+    LOG(err, "Read price for block" + to_string(_blockID));
+
     try {
 
 
@@ -51,7 +54,8 @@ u256 PriceDB::readPrice(block_id _blockID) {
         auto price = readString(*key);
 
         if (price == nullptr) {
-            BOOST_THROW_EXCEPTION(InvalidArgumentException("Price for this block is unknown", __CLASS_NAME__));
+            BOOST_THROW_EXCEPTION(InvalidArgumentException("Price for block " +
+            to_string(_blockID) + " is unknown", __CLASS_NAME__));
         }
 
         return u256(price->c_str());
@@ -63,6 +67,8 @@ u256 PriceDB::readPrice(block_id _blockID) {
 
 
 void PriceDB::savePrice(u256 _price, block_id _blockID) {
+
+    LOG(err, "Save price for block" + to_string(_blockID));
 
     try {
 

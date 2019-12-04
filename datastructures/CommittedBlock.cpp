@@ -97,8 +97,6 @@ ptr<CommittedBlock> CommittedBlock::deserialize(ptr<vector<uint8_t> > _serialize
                                       blockHeader->getThresholdSig());
 
     _manager->verifyProposalECDSA(block.get(), blockHeader->getBlockHash(), blockHeader->getSignature());
-
-    cerr << "success" << endl;
     return block;
 }
 
