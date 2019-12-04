@@ -21,46 +21,50 @@
     @date 2019
 */
 
-#include "../../SkaleCommon.h"
-#include "../../Agent.h"
-#include "../../Log.h"
-#include "../../exceptions/FatalError.h"
-#include "../../thirdparty/json.hpp"
+#include "../SkaleCommon.h"
+#include "../Agent.h"
+#include "../Log.h"
+#include "../exceptions/FatalError.h"
+#include "../thirdparty/json.hpp"
 
-#include "../../crypto/ConsensusBLSSigShare.h"
-#include "../../crypto/ConsensusBLSSignature.h"
+#include "../crypto/ConsensusBLSSigShare.h"
+#include "../crypto/ConsensusBLSSignature.h"
 
-#include "../../abstracttcpserver/ConnectionStatus.h"
-#include "../../chains/Schain.h"
-#include "../../node/Node.h"
-#include "../../pendingqueue/PendingTransactionsAgent.h"
-#include "../../crypto/ConsensusBLSSigShare.h"
-#include "../../crypto/ConsensusSigShareSet.h"
-#include "../../crypto/CryptoManager.h"
-#include "../../crypto/SHAHash.h"
-#include "../../datastructures/BlockProposal.h"
+#include "../abstracttcpserver/ConnectionStatus.h"
+#include "../chains/Schain.h"
+#include "../node/Node.h"
+#include "../pendingqueue/PendingTransactionsAgent.h"
+#include "../crypto/ConsensusBLSSigShare.h"
+#include "../crypto/ConsensusSigShareSet.h"
+#include "../crypto/CryptoManager.h"
+#include "../crypto/SHAHash.h"
+#include "../datastructures/BlockProposal.h"
 
 
 #include "leveldb/db.h"
 
-#include "../../db/SigDB.h"
-#include "ReceivedDASigSharesDatabase.h"
+#include "SigDB.h"
+#include "ReceivedDASigSharesDB.h"
 #include "BLSSigShare.h"
 #include "BLSSignature.h"
 #include "BLSSigShareSet.h"
-#include "../../crypto/ThresholdSigShare.h"
-#include "../../datastructures/DAProof.h"
+#include "../crypto/ThresholdSigShare.h"
+#include "../datastructures/DAProof.h"
 
 
 using namespace std;
 
 
-ReceivedDASigSharesDatabase::ReceivedDASigSharesDatabase(Schain &_sChain) {
+ReceivedDASigSharesDB::ReceivedDASigSharesDB(Schain &_sChain) {
     this->sChain = &_sChain;
 };
 
-ptr<DAProof> ReceivedDASigSharesDatabase::addAndMergeSigShareAndVerifySig(ptr<ThresholdSigShare> _sigShare,
-                                                                          ptr<BlockProposal> _proposal) {
+const string ReceivedDASigSharesDB::getFormatVersion() {
+    return "1.0";
+}
+
+ptr<DAProof> ReceivedDASigSharesDB::addAndMergeSigShareAndVerifySig(ptr<ThresholdSigShare> _sigShare,
+                                                                    ptr<BlockProposal> _proposal) {
 
 
     ASSERT(_sigShare);
@@ -92,7 +96,7 @@ ptr<DAProof> ReceivedDASigSharesDatabase::addAndMergeSigShareAndVerifySig(ptr<Th
         LOG(trace, "Merged signature");
         auto sig = set->mergeSignature();
 
-        sChain->getCryptoManager()->verifyThreshold(
+        sChain->getCryptoManager()->verifyThresholdSig(
                 _proposal->getHash(), sig->toString(), _sigShare->getBlockId());
         auto proof = make_shared<DAProof>(_proposal, sig);
         return proof;

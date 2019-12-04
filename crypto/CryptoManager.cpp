@@ -172,7 +172,7 @@ bool CryptoManager::verifyProposalECDSA(BlockProposal* _proposal, ptr<string> _h
     return true;
 }
 
-ptr<ThresholdSignature> CryptoManager::verifyThreshold(ptr<SHAHash> _hash, ptr<string> _signature, block_id _blockId) {
+ptr<ThresholdSignature> CryptoManager::verifyThresholdSig(ptr<SHAHash> _hash, ptr<string> _signature, block_id _blockId) {
     MONITOR(__CLASS_NAME__, __FUNCTION__)
 
     auto requiredSigners = sChain->getRequiredSigners();

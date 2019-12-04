@@ -59,7 +59,7 @@ public:
 
     Schain *getSchain() const;
 
-    ptr<ThresholdSignature> verifyThreshold(ptr<SHAHash> _hash, ptr<string> _signature, block_id _blockId);
+    ptr<ThresholdSignature> verifyThresholdSig(ptr<SHAHash> _hash, ptr<string> _signature, block_id _blockId);
 
     ptr<ThresholdSigShareSet> createSigShareSet(block_id _blockId, size_t _totalSigners, size_t _requiredSigners );
 

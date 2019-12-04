@@ -58,7 +58,7 @@
 #include "../messages/MessageEnvelope.h"
 #include "../messages/NetworkMessageEnvelope.h"
 #include "../node/NodeInfo.h"
-#include "../blockproposal/received/ReceivedBlockProposalsDatabase.h"
+#include "../db/ReceivedBlockProposalsDB.h"
 #include "../network/Sockets.h"
 #include "../protocols/ProtocolInstance.h"
 #include "../protocols/blockconsensus/BlockConsensusAgent.h"

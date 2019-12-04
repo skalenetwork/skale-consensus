@@ -30,7 +30,7 @@
 #include "../messages/ChildCompletedMessage.h"
 #include "../pendingqueue/PendingTransactionsAgent.h"
 #include "../blockproposal/pusher/BlockProposalClientAgent.h"
-#include "../blockproposal/received/ReceivedBlockProposalsDatabase.h"
+#include "../db/ReceivedBlockProposalsDB.h"
 #include "../chains/Schain.h"
 #include "../protocols/ProtocolKey.h"
 #include "../protocols/binconsensus/BinConsensusInstance.h"

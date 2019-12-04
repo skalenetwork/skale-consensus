@@ -55,8 +55,8 @@
 #include "../messages/MessageEnvelope.h"
 #include "../messages/NetworkMessageEnvelope.h"
 #include "../node/NodeInfo.h"
-#include "../blockproposal/received/ReceivedBlockProposalsDatabase.h"
-#include "../blockproposal/received/ReceivedDASigSharesDatabase.h"
+#include "../db/ReceivedBlockProposalsDB.h"
+#include "../db/ReceivedDASigSharesDB.h"
 #include "../network/Sockets.h"
 #include "../protocols/ProtocolInstance.h"
 #include "../protocols/blockconsensus/BlockConsensusAgent.h"
@@ -242,8 +242,8 @@ void Schain::constructChildAgents() {
         blockProposalClient = make_shared<BlockProposalClientAgent>(*this);
         catchupClientAgent = make_shared<CatchupClientAgent>(*this);
         blockConsensusInstance = make_shared<BlockConsensusAgent>(*this);
-        blockProposalsDatabase = make_shared<ReceivedBlockProposalsDatabase>(*this);
-        receivedDASigSharesDatabase = make_shared<ReceivedDASigSharesDatabase>(*this);
+        blockProposalsDatabase = make_shared<ReceivedBlockProposalsDB>(*this);
+        receivedDASigSharesDatabase = make_shared<ReceivedDASigSharesDB>(*this);
         testMessageGeneratorAgent = make_shared<TestMessageGeneratorAgent>(*this);
         pricingAgent = make_shared<PricingAgent>(*this);
         cryptoManager = make_shared<CryptoManager>(*this);

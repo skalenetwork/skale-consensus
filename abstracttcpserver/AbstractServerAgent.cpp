@@ -47,7 +47,7 @@
 #include "../crypto/SHAHash.h"
 #include "../datastructures/BlockProposalSet.h"
 #include "../blockproposal/pusher/BlockProposalClientAgent.h"
-#include "../blockproposal/received/ReceivedBlockProposalsDatabase.h"
+#include "../db/ReceivedBlockProposalsDB.h"
 #include "../headers/MissingTransactionsRequestHeader.h"
 #include "../pendingqueue/PendingTransactionsAgent.h"
 #include "../network/TransportNetwork.h"

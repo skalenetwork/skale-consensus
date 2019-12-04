@@ -47,7 +47,7 @@
 
 #include "../../pendingqueue/PendingTransactionsAgent.h"
 #include "../pusher/BlockProposalClientAgent.h"
-#include "../received/ReceivedBlockProposalsDatabase.h"
+#include "../../db/ReceivedBlockProposalsDB.h"
 
 #include "../../abstracttcpserver/AbstractServerAgent.h"
 #include "../../chains/Schain.h"
@@ -525,8 +525,8 @@ ptr<Header> BlockProposalServerAgent::createDAProofResponseHeader(ptr<ServerConn
 
     try {
 
-        sig = getSchain()->getCryptoManager()->verifyThreshold(blockHash,
-                                                         _header.getSignature(), _header.getBlockId());
+        sig = getSchain()->getCryptoManager()->verifyThresholdSig(blockHash,
+                                                                  _header.getSignature(), _header.getBlockId());
 
     } catch(...) {
         responseHeader->setStatusSubStatus(CONNECTION_DISCONNECT, CONNECTION_SIGNATURE_DID_NOT_VERIFY);

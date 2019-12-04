@@ -21,31 +21,31 @@
     @date 2018
 */
 
-#include "../../SkaleCommon.h"
-#include "../../Agent.h"
-#include "../../Log.h"
-#include "../../exceptions/FatalError.h"
-#include "../../exceptions/ExitRequestedException.h"
-#include "../../thirdparty/json.hpp"
-#include "../../abstracttcpserver/ConnectionStatus.h"
+#include "../SkaleCommon.h"
+#include "../Agent.h"
+#include "../Log.h"
+#include "../exceptions/FatalError.h"
+#include "../exceptions/ExitRequestedException.h"
+#include "../thirdparty/json.hpp"
+#include "../abstracttcpserver/ConnectionStatus.h"
 #include "leveldb/db.h"
-#include "../../node/Node.h"
-#include "../../chains/Schain.h"
-#include "../../crypto/SHAHash.h"
-#include "../../datastructures/DAProof.h"
-#include "../../pendingqueue/PendingTransactionsAgent.h"
-#include "../pusher/BlockProposalClientAgent.h"
-#include "../../datastructures/BlockProposal.h"
-#include "../../datastructures/BlockProposalSet.h"
+#include "../node/Node.h"
+#include "../chains/Schain.h"
+#include "../crypto/SHAHash.h"
+#include "../datastructures/DAProof.h"
+#include "../pendingqueue/PendingTransactionsAgent.h"
+#include "../blockproposal/pusher/BlockProposalClientAgent.h"
+#include "../datastructures/BlockProposal.h"
+#include "../datastructures/BlockProposalSet.h"
 
 
-#include "ReceivedBlockProposalsDatabase.h"
+#include "ReceivedBlockProposalsDB.h"
 
 
 using namespace std;
 
 
-ReceivedBlockProposalsDatabase::ReceivedBlockProposalsDatabase(Schain &_sChain) : Agent(_sChain, true) {
+ReceivedBlockProposalsDB::ReceivedBlockProposalsDB(Schain &_sChain) : Agent(_sChain, true) {
     try {
         oldBlockID = _sChain.getBootstrapBlockID();
     } catch (ExitRequestedException &) { throw; } catch (...) {
@@ -53,7 +53,7 @@ ReceivedBlockProposalsDatabase::ReceivedBlockProposalsDatabase(Schain &_sChain) 
     }
 };
 
-bool ReceivedBlockProposalsDatabase::addDAProof(ptr<DAProof> _proof) {
+bool ReceivedBlockProposalsDB::addDAProof(ptr<DAProof> _proof) {
 
     LOCK(m)
 
@@ -65,7 +65,7 @@ bool ReceivedBlockProposalsDatabase::addDAProof(ptr<DAProof> _proof) {
 }
 
 
-bool ReceivedBlockProposalsDatabase::addBlockProposal(ptr<BlockProposal> _proposal) {
+bool ReceivedBlockProposalsDB::addBlockProposal(ptr<BlockProposal> _proposal) {
 
 
     ASSERT(_proposal);
@@ -89,7 +89,7 @@ bool ReceivedBlockProposalsDatabase::addBlockProposal(ptr<BlockProposal> _propos
 }
 
 
-void ReceivedBlockProposalsDatabase::cleanOldBlockProposals(block_id _lastCommittedBlockID) {
+void ReceivedBlockProposalsDB::cleanOldBlockProposals(block_id _lastCommittedBlockID) {
 
     LOCK(m)
 
@@ -107,7 +107,7 @@ void ReceivedBlockProposalsDatabase::cleanOldBlockProposals(block_id _lastCommit
     }
 }
 
-ptr<BooleanProposalVector> ReceivedBlockProposalsDatabase::getBooleanProposalsVector(block_id _blockID) {
+ptr<BooleanProposalVector> ReceivedBlockProposalsDB::getBooleanProposalsVector(block_id _blockID) {
 
 
     LOCK(m)
@@ -121,7 +121,7 @@ ptr<BooleanProposalVector> ReceivedBlockProposalsDatabase::getBooleanProposalsVe
 }
 
 
-ptr<BlockProposalSet> ReceivedBlockProposalsDatabase::getProposedBlockSet(block_id _blockID) {
+ptr<BlockProposalSet> ReceivedBlockProposalsDB::getProposedBlockSet(block_id _blockID) {
 
     LOCK(m)
 
@@ -133,7 +133,7 @@ ptr<BlockProposalSet> ReceivedBlockProposalsDatabase::getProposedBlockSet(block_
 }
 
 
-ptr<BlockProposal> ReceivedBlockProposalsDatabase::getBlockProposal(block_id _blockID, schain_index _proposerIndex) {
+ptr<BlockProposal> ReceivedBlockProposalsDB::getBlockProposal(block_id _blockID, schain_index _proposerIndex) {
 
 
     LOCK(m)
@@ -155,7 +155,7 @@ ptr<BlockProposal> ReceivedBlockProposalsDatabase::getBlockProposal(block_id _bl
 }
 
 
-bool ReceivedBlockProposalsDatabase::isTwoThird(block_id _blockID) {
+bool ReceivedBlockProposalsDB::isTwoThird(block_id _blockID) {
 
 
     LOCK(m)

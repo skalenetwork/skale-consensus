@@ -29,7 +29,7 @@
 #include "../abstracttcpserver/ConnectionStatus.h"
 #include "../pendingqueue/PendingTransactionsAgent.h"
 #include "../blockproposal/pusher/BlockProposalClientAgent.h"
-#include "../blockproposal/received/ReceivedBlockProposalsDatabase.h"
+#include "../db/ReceivedBlockProposalsDB.h"
 #include "../threads/WorkerThreadPool.h"
 #include "Schain.h"
 #include "SchainMessageThreadPool.h"

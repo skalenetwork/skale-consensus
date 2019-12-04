@@ -49,7 +49,7 @@
 #include "../../datastructures/BooleanProposalVector.h"
 #include "../../messages/ConsensusProposalMessage.h"
 #include "../../node/NodeInfo.h"
-#include "../../blockproposal/received/ReceivedBlockProposalsDatabase.h"
+#include "../../db/ReceivedBlockProposalsDB.h"
 #include "../../exceptions/InvalidStateException.h"
 #include "../../db/BlockSigShareDB.h"
 #include "../../blockfinalize/client/BlockFinalizeDownloader.h"

@@ -31,10 +31,23 @@
   <component name="ChangeListManager">
     <list default="true" id="e8eb5c74-4268-46a2-ac26-2e919fd9ff42" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/abstracttcpserver/AbstractServerAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/abstracttcpserver/AbstractServerAgent.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/blockproposal/received/ReceivedBlockProposalsDatabase.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/ReceivedBlockProposalsDB.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/blockproposal/received/ReceivedBlockProposalsDatabase.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/ReceivedBlockProposalsDB.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/blockproposal/received/ReceivedDASigSharesDatabase.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/ReceivedDASigSharesDB.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/blockproposal/received/ReceivedDASigSharesDatabase.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/ReceivedDASigSharesDB.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/blockproposal/server/BlockProposalServerAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/blockproposal/server/BlockProposalServerAgent.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/chains/Schain.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/chains/Schain.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/chains/Schain.h" beforeDir="false" afterPath="$PROJECT_DIR$/chains/Schain.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/chains/SchainGettersSetters.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/chains/SchainGettersSetters.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/PriceDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/PriceDB.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/chains/SchainMessageThreadPool.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/chains/SchainMessageThreadPool.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crypto/CryptoManager.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/crypto/CryptoManager.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crypto/CryptoManager.h" beforeDir="false" afterPath="$PROJECT_DIR$/crypto/CryptoManager.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/datastructures/BlockProposalSet.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/BlockProposalSet.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/network/TransportNetwork.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/network/TransportNetwork.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/network/ZMQNetwork.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/network/ZMQNetwork.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/protocols/ProtocolInstance.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/protocols/ProtocolInstance.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/protocols/binconsensus/BinConsensusInstance.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/protocols/binconsensus/BinConsensusInstance.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/protocols/blockconsensus/BlockConsensusAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/protocols/blockconsensus/BlockConsensusAgent.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -68,6 +81,9 @@
     <property name="settings.editor.selected.configurable" value="CMakeSettings" />
   </component>
   <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/db" />
+    </key>
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/db" />
     </key>
@@ -280,13 +296,6 @@
       <workItem from="1574435605775" duration="945000" />
       <workItem from="1575021765183" duration="8000" />
       <workItem from="1575369130855" duration="7805000" />
-    </task>
-    <task id="LOCAL-00012" summary="Updated libBLS">
-      <created>1574346237876</created>
-      <option name="number" value="00012" />
-      <option name="presentableId" value="LOCAL-00012" />
-      <option name="project" value="LOCAL" />
-      <updated>1574346237876</updated>
     </task>
     <task id="LOCAL-00013" summary="Four piece db">
       <created>1574348334008</created>
@@ -624,7 +633,14 @@
       <option name="project" value="LOCAL" />
       <updated>1575457721288</updated>
     </task>
-    <option name="localTasksCounter" value="61" />
+    <task id="LOCAL-00061" summary="Cleaned up LevelDB">
+      <created>1575463985013</created>
+      <option name="number" value="00061" />
+      <option name="presentableId" value="LOCAL-00061" />
+      <option name="project" value="LOCAL" />
+      <updated>1575463985013</updated>
+    </task>
+    <option name="localTasksCounter" value="62" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -682,30 +698,30 @@
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
     <state x="2338" y="205" width="1084" height="702" key="#com.intellij.execution.impl.EditConfigurationsDialog/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575391911218" />
-    <state x="2314" y="71" width="1121" height="962" key="CommitChangelistDialog2" timestamp="1575457720784">
+    <state x="2314" y="71" width="1121" height="962" key="CommitChangelistDialog2" timestamp="1575463984367">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state x="2314" y="71" width="1121" height="962" key="CommitChangelistDialog2/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575457720784" />
+    <state x="2314" y="71" width="1121" height="962" key="CommitChangelistDialog2/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575463984367" />
     <state x="2613" y="259" width="524" height="594" key="FileChooserDialogImpl" timestamp="1575391828198">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
     <state x="2613" y="259" width="524" height="594" key="FileChooserDialogImpl/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575391828198" />
-    <state width="1860" height="276" key="GridCell.Tab.0.bottom" timestamp="1575462118412">
+    <state width="1860" height="154" key="GridCell.Tab.0.bottom" timestamp="1575465096556">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state width="1860" height="276" key="GridCell.Tab.0.bottom/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575462118412" />
-    <state width="1860" height="276" key="GridCell.Tab.0.center" timestamp="1575462118412">
+    <state width="1860" height="154" key="GridCell.Tab.0.bottom/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575465096556" />
+    <state width="1860" height="154" key="GridCell.Tab.0.center" timestamp="1575465096556">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state width="1860" height="276" key="GridCell.Tab.0.center/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575462118412" />
-    <state width="1860" height="276" key="GridCell.Tab.0.left" timestamp="1575462118412">
+    <state width="1860" height="154" key="GridCell.Tab.0.center/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575465096556" />
+    <state width="1860" height="154" key="GridCell.Tab.0.left" timestamp="1575465096556">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state width="1860" height="276" key="GridCell.Tab.0.left/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575462118412" />
-    <state width="1860" height="276" key="GridCell.Tab.0.right" timestamp="1575462118412">
+    <state width="1860" height="154" key="GridCell.Tab.0.left/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575465096556" />
+    <state width="1860" height="154" key="GridCell.Tab.0.right" timestamp="1575465096556">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state width="1860" height="276" key="GridCell.Tab.0.right/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575462118412" />
+    <state width="1860" height="154" key="GridCell.Tab.0.right/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575465096556" />
     <state width="1860" height="334" key="GridCell.Tab.1.bottom" timestamp="1575372006606">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
@@ -722,10 +738,10 @@
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
     <state width="1860" height="334" key="GridCell.Tab.1.right/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575372006606" />
-    <state x="2375" y="210" width="1000" height="684" key="Vcs.Push.Dialog.v2" timestamp="1575457722306">
+    <state x="2375" y="210" width="1000" height="684" key="Vcs.Push.Dialog.v2" timestamp="1575463986195">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state x="2375" y="210" width="1000" height="684" key="Vcs.Push.Dialog.v2/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575457722306" />
+    <state x="2375" y="210" width="1000" height="684" key="Vcs.Push.Dialog.v2/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575463986195" />
     <state x="2434" y="329" key="com.intellij.ide.util.TipDialog" timestamp="1575369169675" />
     <state x="2434" y="329" key="com.intellij.ide.util.TipDialog/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575369169675" />
     <state x="2417" y="205" width="966" height="694" key="find.popup" timestamp="1575462605368">

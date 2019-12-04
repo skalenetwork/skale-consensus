@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2018-2019 SKALE Labs
+    Copyright (C) 2019 SKALE Labs
 
     This file is part of skale-consensus.
 
@@ -16,56 +16,43 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file ReceivedBlockProposalsDatabase.h
+    @file ReceivedDASigSharesDatabase.h
     @author Stan Kladko
-    @date 2018
+    @date 2019
 */
 
 #pragma once
 
 
-class BlockProposalSet;
 
-class PartialHashesList;
+#include "../Agent.h"
 
+class ConsensusSigShareSet;
+class ConsensusBLSSignature;
 class Schain;
+class ConsensusBLSSigShare;
+class ThresholdSigShareSet;
+class ThresholdSignature;
+class ThresholdSigShare;
 
-class BooleanProposalVector;
+#include "LevelDB.h"
 
+class ReceivedDASigSharesDB : public  LevelDB {
 
-class ReceivedBlockProposalsDatabase : Agent {
+    Schain* sChain;
 
-    block_id oldBlockID;
+    recursive_mutex m;
 
-    map<block_id, ptr<BlockProposalSet>> proposedBlockSets;
-
-
-
-
+    map<block_id, ptr<ThresholdSigShareSet>> sigShareSets;
 
 public:
 
+    explicit ReceivedDASigSharesDB(Schain &_sChain);
 
+    ptr<DAProof> addAndMergeSigShareAndVerifySig(ptr<ThresholdSigShare> _sigShare,
+                                                 ptr<BlockProposal> _proposal);
 
-    ptr<BlockProposalSet> getProposedBlockSet(block_id _blockID);
-
-
-    ptr<BlockProposal> getBlockProposal(block_id _blockID, schain_index _proposerIndex);
-
-
-    ReceivedBlockProposalsDatabase(Schain &_sChain);
-
-    void cleanOldBlockProposals(block_id _lastCommittedBlockID);
-
-
-    bool addBlockProposal(ptr<BlockProposal> _proposal);
-
-
-    ptr<BooleanProposalVector> getBooleanProposalsVector(block_id _blockID);
-
-    bool isTwoThird(block_id _blockID);
-
-    bool addDAProof(ptr<DAProof> _proof);
+    const string getFormatVersion();
 };
 
 
