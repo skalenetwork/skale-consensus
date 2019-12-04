@@ -41,7 +41,7 @@ const string PriceDB::getFormatVersion() {
 
 u256 PriceDB::readPrice(block_id _blockID) {
 
-    LOG(err, "Read price for block" + to_string(_blockID));
+    LOG(trace, "Read price for block" + to_string(_blockID));
 
     try {
 
@@ -65,7 +65,7 @@ u256 PriceDB::readPrice(block_id _blockID) {
 
 void PriceDB::savePrice(u256 _price, block_id _blockID) {
 
-    LOG(err, "Save price for block" + to_string(_blockID));
+    LOG(trace, "Save price for block" + to_string(_blockID));
 
     try {
 

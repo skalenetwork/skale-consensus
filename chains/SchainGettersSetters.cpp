@@ -119,7 +119,7 @@ uint64_t Schain::getStartTimeMs() const {
 }
 
 block_id Schain::getLastCommittedBlockID() const {
-    return block_id(lastCommittedBlockID.load());
+    return lastCommittedBlockID.load();
 }
 
 ptr<BlockProposal> Schain::getBlockProposal(block_id _blockID, schain_index _schainIndex) {

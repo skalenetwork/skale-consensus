@@ -119,10 +119,11 @@ class Schain : public Agent {
 
     ptr<string> blockProposerTest;
 
-    atomic<uint64_t> lastCommittedBlockID;
-    atomic<uint64_t>lastCommittedBlockTimeStamp;
+    atomic<uint64_t> lastCommittedBlockID = 0;
+    atomic<uint64_t> bootstrapBlockID = 0;
+    atomic<uint64_t>lastCommittedBlockTimeStamp = 0;
     atomic<uint64_t>lastCommittedBlockTimeStampMs;
-    atomic<uint64_t> bootstrapBlockID;
+
 
     uint64_t maxExternalBlockProcessingTime;
 

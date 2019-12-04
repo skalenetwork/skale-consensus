@@ -216,6 +216,8 @@ void BlockConsensusAgent::reportConsensusAndDecideIfNeeded(ptr<ChildBVDecidedMes
         if (blockID <= 1) {
             seed = 1;
         } else {
+
+            assert(blockID - 1 <= getSchain()->getLastCommittedBlockID());
             auto previousBlock = getSchain()->getBlock(blockID - 1);
             if (previousBlock == nullptr)
                 BOOST_THROW_EXCEPTION(InvalidStateException("Can not read block "
@@ -288,6 +290,8 @@ void BlockConsensusAgent::disconnect(ptr<ProtocolKey> _key) {
 void BlockConsensusAgent::routeAndProcessMessage(ptr<MessageEnvelope> m) {
 
     try {
+
+        assert(m->getMessage()->getBlockId() - 1 <= getSchain()->getLastCommittedBlockID());
 
         ASSERT(m->getMessage()->getBlockId() > 0);
 

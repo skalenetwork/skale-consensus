@@ -187,7 +187,6 @@ Schain::Schain(weak_ptr<Node> _node, schain_index _schainIndex, const schain_id 
 
     // construct monitoring agent early
     monitoringAgent = make_shared<MonitoringAgent>(*this);
-
     maxExternalBlockProcessingTime = std::max(2 * getNode()->getEmptyBlockIntervalMs(), (uint64_t) 3000);
 
     MONITOR(__CLASS_NAME__, __FUNCTION__)
@@ -195,13 +194,8 @@ Schain::Schain(weak_ptr<Node> _node, schain_index _schainIndex, const schain_id 
     ASSERT(schainIndex > 0);
 
     try {
-        lastCommittedBlockID.store(0);
-        bootstrapBlockID.store(0);
-        lastCommittedBlockTimeStamp.store(0);
-
 
         this->io = make_shared<IO>(this);
-
 
         ASSERT(getNode()->getNodeInfosByIndex()->size() > 0);
 
@@ -275,27 +269,26 @@ void Schain::blockCommitsArrivedThroughCatchup(ptr<CommittedBlockList> _blocks) 
     LOCK(m)
 
 
-    atomic<uint64_t> committedIDOld(lastCommittedBlockID.load());
+    atomic<uint64_t> committedIDOld = (uint64_t ) getLastCommittedBlockID();
 
     uint64_t previosBlockTimeStamp = 0;
     uint64_t previosBlockTimeStampMs = 0;
 
 
-    ASSERT(b->at(0)->getBlockID() <= (uint64_t) lastCommittedBlockID + 1);
+    ASSERT(b->at(0)->getBlockID() <= (uint64_t) getLastCommittedBlockID() + 1);
 
     for (size_t i = 0; i < b->size(); i++) {
         auto t = b->at(i);
 
-        lastCommittedBlockID++;
-        if (t->getBlockID() > lastCommittedBlockID.load()) {
+        if ((uint64_t ) t->getBlockID() > getLastCommittedBlockID()) {
             processCommittedBlock(t);
             previosBlockTimeStamp = t->getTimeStamp();
             previosBlockTimeStampMs = t->getTimeStampMs();
         }
     }
 
-    if (committedIDOld < lastCommittedBlockID) {
-        LOG(info, "BLOCK_CATCHUP: " + to_string(lastCommittedBlockID - committedIDOld) + " BLOCKS");
+    if (committedIDOld < getLastCommittedBlockID()) {
+        LOG(info, "BLOCK_CATCHUP: " + to_string(getLastCommittedBlockID() - committedIDOld) + " BLOCKS");
         proposeNextBlock(previosBlockTimeStamp, previosBlockTimeStampMs);
     }
 }
@@ -314,16 +307,15 @@ void Schain::blockCommitArrived(block_id _committedBlockID, schain_index _propos
     LOCK(m)
 
 
-    if (_committedBlockID <= lastCommittedBlockID)
+    if (_committedBlockID <= getLastCommittedBlockID())
         return;
 
-    ASSERT(_committedBlockID == (lastCommittedBlockID + 1) || lastCommittedBlockID == 0);
+    ASSERT(_committedBlockID == (getLastCommittedBlockID() + 1) || getLastCommittedBlockID() == 0);
 
     try {
 
         ptr<BlockProposal> committedProposal = nullptr;
 
-        lastCommittedBlockID = (uint64_t) _committedBlockID;
         lastCommittedBlockTimeStamp = _committedTimeStamp;
         lastCommittedBlockTimeStampMs = _committedTimeStampMs;
 
@@ -404,7 +396,7 @@ void Schain::processCommittedBlock(ptr<CommittedBlock> _block) {
 
     try {
 
-        ASSERT(lastCommittedBlockID == _block->getBlockID());
+        ASSERT(getLastCommittedBlockID() + 1 == _block->getBlockID());
 
         totalTransactions += _block->getTransactionList()->size();
 
@@ -429,6 +421,8 @@ void Schain::processCommittedBlock(ptr<CommittedBlock> _block) {
         blockProposalsDatabase->cleanOldBlockProposals(_block->getBlockID());
 
         pushBlockToExtFace(_block);
+
+        lastCommittedBlockID++;
 
     } catch (ExitRequestedException &e) { throw; }
     catch (...) {
@@ -497,12 +491,12 @@ void Schain::startConsensus(const block_id _blockID) {
 
         LOCK(m)
 
-        if (_blockID <= lastCommittedBlockID) {
+        if (_blockID <= getLastCommittedBlockID()) {
             LOG(debug, "Too late to start consensus: already committed " + to_string(lastCommittedBlockID));
             return;
         }
 
-        if (_blockID > lastCommittedBlockID + 1) {
+        if (_blockID > getLastCommittedBlockID() + 1) {
             LOG(debug, "Consensus is in the future" + to_string(lastCommittedBlockID));
             return;
         }
@@ -537,7 +531,7 @@ void Schain::daProofArrived(ptr<DAProof> _proof) {
 
     try {
 
-        if (_proof->getBlockId() <= lastCommittedBlockID)
+        if (_proof->getBlockId() <= getLastCommittedBlockID())
             return;
 
 
@@ -559,7 +553,7 @@ void Schain::proposedBlockArrived(ptr<BlockProposal> pbm) {
     CHECK_STATE(pbm->getSignature() != nullptr);
 
 
-    if (pbm->getBlockID() <= lastCommittedBlockID)
+    if (pbm->getBlockID() <= getLastCommittedBlockID())
         return;
 
     if (blockProposalsDatabase->addBlockProposal(pbm)) {
@@ -590,7 +584,7 @@ void Schain::bootstrap(block_id _lastCommittedBlockID, uint64_t _lastCommittedBl
 
 
         LOG(info, "Jump starting the system with block:" + to_string(_lastCommittedBlockID));
-        if (lastCommittedBlockID == 0)
+        if (getLastCommittedBlockID() == 0)
             this->pricingAgent->calculatePrice(ConsensusExtFace::transactions_vector(), 0, 0, 0);
 
         proposeNextBlock(lastCommittedBlockTimeStamp, lastCommittedBlockTimeStampMs);
