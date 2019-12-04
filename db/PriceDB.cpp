@@ -38,9 +38,6 @@ const string PriceDB::getFormatVersion() {
 }
 
 
-ptr<string> PriceDB::createKey(block_id _blockId) {
-    return make_shared<string>(getFormatVersion() + ":" + to_string(_blockId));
-}
 
 u256 PriceDB::readPrice(block_id _blockID) {
 

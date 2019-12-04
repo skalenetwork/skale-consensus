@@ -30,19 +30,16 @@
 
 class PriceDB : public LevelDB {
 
-    const string getFormatVersion();
-
-    ptr<string> createKey(block_id _blockId);
 
 public:
 
-    PriceDB(string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize);
+    const string getFormatVersion() override ;
 
+    PriceDB(string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize);
 
     u256 readPrice(block_id _blockID);
 
     void savePrice(u256 _price, block_id _blockID);
-
 
 };
 

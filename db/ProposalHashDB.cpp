@@ -30,6 +30,7 @@
 #include "../datastructures/CommittedBlock.h"
 
 #include "ProposalHashDB.h"
+#include "LevelDB.h"
 
 
 ProposalHashDB::ProposalHashDB(string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize)
@@ -81,10 +82,6 @@ ProposalHashDB::haveProposal(block_id _proposalBlockID, schain_index _proposerIn
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
 
-}
-
-ptr<string> ProposalHashDB::createKey(block_id _blockId, schain_index _proposerIndex) {
-    return make_shared<string>(getFormatVersion() + ":" + to_string(_blockId) + ":" + to_string(_proposerIndex));
 }
 
 const string ProposalHashDB::getFormatVersion() {

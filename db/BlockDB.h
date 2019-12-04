@@ -33,31 +33,16 @@ class CryptoManager;
 
 class BlockDB : public LevelDB {
 
-    std::map<block_id, ptr<CommittedBlock>> blocks;
-
-    uint64_t storageSize;
-
     recursive_mutex m;
-
-    ptr<string> createKey(block_id _blockId);
-
-    const string getFormatVersion();
-
-
     void saveBlock2LevelDB(ptr<CommittedBlock> &_block);
-
 
 public:
 
     BlockDB(string& _dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize);
-
     ptr<vector<uint8_t >> getSerializedBlockFromLevelDB(block_id _blockID);
-
-
     void saveBlock(ptr<CommittedBlock> &_block);
-
-
     ptr<CommittedBlock> getBlock(block_id _blockID, ptr<CryptoManager> _cryptoManager);
+    const string getFormatVersion();
 };
 
 

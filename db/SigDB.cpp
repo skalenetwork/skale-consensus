@@ -41,10 +41,7 @@ const string SigDB::getFormatVersion() {
 }
 
 
-ptr<string> SigDB::createKey(const block_id _blockId) {
-    return make_shared<string>(getFormatVersion() + ":" + to_string(nodeId) + ":"
-                               + to_string(_blockId));
-}
+
 
 void SigDB::addSignature(block_id _blockId, ptr<ThresholdSignature> _sig) {
     auto key = createKey(_blockId);

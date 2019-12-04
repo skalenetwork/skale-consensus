@@ -25,6 +25,8 @@
 #ifndef SKALED_LEVELDB_H
 #define SKALED_LEVELDB_H
 
+#include "../SkaleCommon.h"
+
 namespace leveldb {
     class DB;
 
@@ -41,19 +43,15 @@ namespace cache {
 
 
 class LevelDB {
-
-
-
-
-
     vector<ptr<leveldb::DB>>db;
-
-
     uint64_t  highestDBIndex = 0;
     shared_mutex m;
 
 
+
 protected:
+
+
 
     node_id nodeId;
     string prefix;
@@ -61,31 +59,33 @@ protected:
     uint64_t maxDBSize;
 
     ptr<string> readString(string &_key);
-
     ptr<string> readStringUnsafe(string &_key);
-
-
     void writeString(const string &key1, const string &value1);
-
     ptr<map<schain_index, ptr<string>>>
     writeStringToBlockSet(const string &_key, const string &_value, block_id _blockId, schain_index _index,
                           uint64_t _totalSigners, uint64_t _requiredSigners);
-
     void writeByteArray(const char *_key, size_t _keyLen, const char *value,
                         size_t _valueLen);
-
-    vector<ptr<string>> getEnoughSet();
-
-
     void writeByteArray(string &_key, const char *value,
                         size_t _valueLen);
+
+
+    ptr<string> createKey(block_id _blockId);
+
+    ptr<string> createKey(block_id _blockId, schain_index _proposerIndex);
+
+
+    ptr<string>
+    createKey(const block_id &_blockId, const schain_index &_proposerIndex, const bin_consensus_round &_round);
 
     string createSetKey(const string& _key, block_id _blockId, schain_index _index);
 
     string createCounterKey(block_id _block_id);
 
+
 public:
 
+    virtual const string getFormatVersion() = 0;
 
     void throwExceptionOnError(leveldb::Status result);
 
@@ -117,6 +117,7 @@ public:
     ptr<string> readStringFromBlockSet(const string &_key, block_id _blockId, schain_index _index);
 
     uint64_t readCount(block_id _blockId);
+
 };
 
 

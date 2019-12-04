@@ -21,6 +21,11 @@
     @date 2019
 */
 
+#include "RandomDB.h"
+#include "ProposalHashDB.h"
+#include "BlockDB.h"
+#include "../datastructures/CommittedBlock.h"
+#include "../exceptions/InvalidStateException.h"
 #include "../thirdparty/lrucache.hpp"
 
 
@@ -398,4 +403,17 @@ LevelDB::writeStringToBlockSet(const string &_key, const string &_value, block_i
 }
 
 
+ptr<string> LevelDB::createKey(const block_id _blockId) {
+    return make_shared<string>(getFormatVersion() + ":" + to_string(_blockId));
+}
 
+ptr<string> LevelDB::createKey(block_id _blockId, schain_index _proposerIndex) {
+    return make_shared<string>(
+            getFormatVersion() + ":" + to_string(_blockId) + ":" + to_string(_proposerIndex));
+}
+
+ptr<string>
+LevelDB::createKey(const block_id &_blockId, const schain_index &_proposerIndex, const bin_consensus_round &_round) {
+    return make_shared<string>(getFormatVersion() + ":" + to_string(_blockId) + ":" + to_string(_proposerIndex) + ":" +
+                               to_string(_round));
+}

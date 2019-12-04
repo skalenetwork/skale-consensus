@@ -37,10 +37,6 @@ class ProposalHashDB : public LevelDB {
 
     recursive_mutex m;
 
-    ptr<string> createKey(block_id _blockId, schain_index _proposerIndex);
-
-    const string getFormatVersion();
-
 public:
 
     ProposalHashDB(string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize);
@@ -48,6 +44,8 @@ public:
     bool checkAndSaveHash(block_id _proposalBlockID, schain_index _proposerIndex, ptr<string> _proposalHash);
 
     bool haveProposal(block_id _proposalBlockID, schain_index _proposerIndex);
+
+    const string getFormatVersion() override ;
 };
 
 

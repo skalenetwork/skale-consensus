@@ -441,25 +441,8 @@ void BinConsensusInstance::proceedWithCommonCoinIfAUXTwoThird(bin_consensus_roun
 
         auto randomDB = getSchain()->getNode()->getRandomDB();
 
-
-        auto value = randomDB->readRandom(
-                getSchain()->getSchainID(), getBlockID(), getBlockProposerIndex(), _r);
-        if (value) {
-
-            uint64_t random1 = 0;
-            try {
-                random1 = stoul(*value);
-            } catch (...) {
-            }
-
-            if (random != random1) {
-                BOOST_THROW_EXCEPTION(FatalError("Incorrect random number:" + to_string(random1) + ":" +
-                                                 to_string(random), __CLASS_NAME__));
-            }
-        } else {
-            randomDB->writeRandom(getSchain()->getSchainID(), getBlockID(), getBlockProposerIndex(),
+        randomDB->writeRandom(getBlockID(), getBlockProposerIndex(),
                                   _r, random);
-        }
 
         proceedWithCommonCoin(hasTrue, hasFalse, random);
 

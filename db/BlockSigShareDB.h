@@ -38,8 +38,6 @@ class BlockSigShareDB : public LevelDB {
 
     recursive_mutex m;
 
-    ptr<string> createKey(block_id _blockId, schain_index _proposerIndex);
-
     const string getFormatVersion();
 
 public:

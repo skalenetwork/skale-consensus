@@ -29,6 +29,7 @@
 #include "../datastructures/CommittedBlock.h"
 
 #include "BlockDB.h"
+#include "LevelDB.h"
 
 ptr<vector<uint8_t> > BlockDB::getSerializedBlockFromLevelDB(block_id _blockID) {
 
@@ -46,8 +47,6 @@ ptr<vector<uint8_t> > BlockDB::getSerializedBlockFromLevelDB(block_id _blockID) 
         } else {
             return nullptr;
         }
-
-
     } catch (...) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
@@ -84,10 +83,6 @@ void BlockDB::saveBlock2LevelDB(ptr<CommittedBlock> &_block) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
 
-}
-
-ptr<string> BlockDB::createKey(const block_id _blockId) {
-    return make_shared<string>(getFormatVersion() + ":" + to_string(nodeId) + ":" + to_string(_blockId));
 }
 
 const string BlockDB::getFormatVersion() {
