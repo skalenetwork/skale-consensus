@@ -451,3 +451,8 @@ TransportNetwork::TransportNetwork(Schain &_sChain)
 void TransportNetwork::confirmMessage(const ptr<NodeInfo> &) {
 
 };
+
+TransportNetwork::~TransportNetwork(){
+    delete networkReadThread;
+    delete deferredMessageThread;
+}
