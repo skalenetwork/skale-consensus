@@ -76,3 +76,9 @@ bool WorkerThreadPool::isJoined() const {
     return joined;
 }
 
+WorkerThreadPool::~WorkerThreadPool(){
+    for(std::thread* t: threadpool){
+        delete t;
+    }
+    threadpool.clear();
+}

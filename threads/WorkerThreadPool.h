@@ -57,7 +57,7 @@ protected:
 
 public:
 
-    virtual ~WorkerThreadPool() {}
+    virtual ~WorkerThreadPool();
 
     virtual void startService();
 
