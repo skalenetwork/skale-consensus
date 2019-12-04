@@ -16,7 +16,7 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file ReceivedDASigSharesDatabase.cpp
+    @file DASigShareDB.cpp
     @author Stan Kladko
     @date 2019
 */
@@ -44,7 +44,7 @@
 #include "leveldb/db.h"
 
 #include "SigDB.h"
-#include "ReceivedDASigSharesDB.h"
+#include "DASigShareDB.h"
 #include "BLSSigShare.h"
 #include "BLSSignature.h"
 #include "BLSSigShareSet.h"
@@ -55,16 +55,17 @@
 using namespace std;
 
 
-ReceivedDASigSharesDB::ReceivedDASigSharesDB(Schain &_sChain) {
+DASigShareDB::DASigShareDB(string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize, Schain &_sChain) :
+LevelDB(_dirName, _prefix, _nodeId, _maxDBSize){
     this->sChain = &_sChain;
 };
 
-const string ReceivedDASigSharesDB::getFormatVersion() {
+const string DASigShareDB::getFormatVersion() {
     return "1.0";
 }
 
-ptr<DAProof> ReceivedDASigSharesDB::addAndMergeSigShareAndVerifySig(ptr<ThresholdSigShare> _sigShare,
-                                                                    ptr<BlockProposal> _proposal) {
+ptr<DAProof> DASigShareDB::addAndMergeSigShareAndVerifySig(ptr<ThresholdSigShare> _sigShare,
+                                                           ptr<BlockProposal> _proposal) {
 
 
     ASSERT(_sigShare);

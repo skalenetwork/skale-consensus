@@ -211,16 +211,6 @@ ptr<RandomDB> Node::getRandomDB() {
     return randomDB;
 }
 
-ptr<CommittedTransactionDB> Node::getCommittedTransactionDB() const {
-    ASSERT(committedTransactionDB != nullptr);
-    return committedTransactionDB;
-}
-
-ptr<SigDB> Node::getSignatureDB() const {
-    ASSERT(signatureDB != nullptr);
-    return signatureDB;
-}
-
 ptr<PriceDB> Node::getPriceDB() const {
     ASSERT(priceDB != nullptr)
     return priceDB;
@@ -239,16 +229,8 @@ uint64_t Node::getWaitAfterNetworkErrorMs() {
     return waitAfterNetworkErrorMs;
 }
 
-ConsensusEngine *Node::getConsensusEngine() const {
-    return consensusEngine;
-}
-
 uint64_t Node::getEmptyBlockIntervalMs() const {
     return emptyBlockIntervalMs;
-}
-
-uint64_t Node::getBlockProposalHistorySize() const {
-    return blockProposalHistorySize;
 }
 
 uint64_t Node::getMaxCatchupDownloadBytes() const {
@@ -338,4 +320,12 @@ uint64_t Node::getBlockSigShareDbSize() const {
 ptr<BlockSigShareDB> Node::getBlockSigShareDb() const {
     ASSERT(blockSigShareDB != nullptr);
     return blockSigShareDB;
+}
+
+ptr<DASigShareDB> Node::getDaSigShareDb() const {
+    return daSigShareDB;
+}
+
+uint64_t Node::getDaSigShareDbSize() const {
+    return daSigShareDBSize;
 }

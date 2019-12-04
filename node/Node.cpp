@@ -61,7 +61,7 @@
 #include "../protocols/InstanceGarbageCollectorAgent.h"
 
 #include "../db/BlockDB.h"
-#include "../db/CommittedTransactionDB.h"
+#include "../db/DASigShareDB.h"
 #include "../db/PriceDB.h"
 #include "../db/RandomDB.h"
 #include "../db/SigDB.h"
@@ -93,7 +93,6 @@ Node::Node(const nlohmann::json &_cfg, ConsensusEngine *_consensusEngine) {
         throw_with_nested(ParsingException("Could not parse params", __CLASS_NAME__));
     }
     initLevelDBs();
-
     initLogging();
 }
 
@@ -101,20 +100,12 @@ void Node::initLevelDBs() {
     string dataDir = *Log::getDataDir();
     string blockDBPrefix = "blocks_" + to_string(nodeID) + ".db";
     string randomDBPrefix = "randoms_" + to_string(nodeID) + ".db";
-    string committedTransactionsDBPrefix = "transactions_" + to_string(nodeID) + ".db";
-    string signaturesDBPrefix = "sigs_" + to_string(nodeID) + ".db";
-    string pricesDBPrefix = "prices_" + to_string(nodeID) + ".db";
+    string priceDBPrefix = "prices_" + to_string(nodeID) + ".db";
     string proposalHashDBPrefix = "/proposal_hashes_" + to_string(nodeID) + ".db";
 
-
-    blockDB =
-            make_shared<BlockDB>(dataDir, blockDBPrefix, getNodeID(), getBlockDBSize());
+    blockDB = make_shared<BlockDB>(dataDir, blockDBPrefix, getNodeID(), getBlockDBSize());
     randomDB = make_shared<RandomDB>(dataDir, randomDBPrefix, getNodeID(), getRandomDbSize());
-    committedTransactionDB =
-            make_shared<CommittedTransactionDB>(dataDir, committedTransactionsDBPrefix, getNodeID(),
-                                                getCommitedTxsDbSize());
-    signatureDB = make_shared<SigDB>(dataDir, signaturesDBPrefix, getNodeID(), getSignatureDbSize());
-    priceDB = make_shared<PriceDB>(dataDir, pricesDBPrefix, getNodeID(), getPriceDbSize());
+    priceDB = make_shared<PriceDB>(dataDir, priceDBPrefix, getNodeID(), getPriceDbSize());
     proposalHashDB = make_shared<ProposalHashDB>(dataDir, proposalHashDBPrefix, getNodeID(), getProposalHashDbSize());
 
 }
@@ -154,11 +145,12 @@ void Node::initParamsFromConfig() {
     minBlockIntervalMs = getParamUint64("minBlockIntervalMs", MIN_BLOCK_INTERVAL_MS);
     blockDBSize = getParamUint64("blockDBSize", BLOCK_DB_SIZE);
     proposalHashDBSize = getParamUint64("proposalHashDBSize", PROPOSAL_HASH_DB_SIZE);
-    blockSigShareDBSize = getParamUint64("proposalHashDBSize", BLOCK_SIG_SHARES_DB_SIZE);
+    blockSigShareDBSize = getParamUint64("blockSigShareDBSize", BLOCK_SIG_SHARE_DB_SIZE);
+    daSigShareDBSize = getParamUint64("daSigShareDBSize", DA_SIG_SHARE_DB_SIZE);
     commitedTxsDBSize = getParamUint64("commitedTxsDBSize", COMMITTED_TXS_DB_SIZE);
     randomDBSize = getParamUint64("randomDBSize", RANDOM_DB_SIZE);
-    signatureDBSize = getParamUint64("signatuteDBSize", SIGNATURE_DB_SIZE);
-    priceDBSize = getParamUint64("signatuteDBSize", PRICE_DB_SIZE);
+    signatureDBSize = getParamUint64("signatureDBSize", SIGNATURE_DB_SIZE);
+    priceDBSize = getParamUint64("priceDBSize", PRICE_DB_SIZE);
     auto emptyBlockIntervalMsTmp = getParamInt64("emptyBlockIntervalMs", EMPTY_BLOCK_INTERVAL_MS);
 
 
@@ -284,8 +276,15 @@ void Node::setSchain(ptr<Schain> _schain) {
 
     string dataDir = *Log::getDataDir();
     string blockSigShareDBPrefix = "/block_sigshares_" + to_string(nodeID) + ".db";
+    string daSigShareDBPrefix = "/da_sigshares_" + to_string(nodeID) + ".db";
+
     blockSigShareDB = make_shared<BlockSigShareDB>(dataDir, blockSigShareDBPrefix, getNodeID(), getBlockSigShareDbSize(),
                                                          getSchain());
+
+    daSigShareDB = make_shared<DASigShareDB>(dataDir, daSigShareDBPrefix, getNodeID(), getDaSigShareDbSize(),
+                                                *getSchain());
+
+
 
 
 }

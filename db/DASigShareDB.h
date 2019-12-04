@@ -37,7 +37,7 @@ class ThresholdSigShare;
 
 #include "LevelDB.h"
 
-class ReceivedDASigSharesDB : public  LevelDB {
+class DASigShareDB : public  LevelDB {
 
     Schain* sChain;
 
@@ -47,7 +47,7 @@ class ReceivedDASigSharesDB : public  LevelDB {
 
 public:
 
-    explicit ReceivedDASigSharesDB(Schain &_sChain);
+    explicit DASigShareDB(string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize, Schain &_sChain);
 
     ptr<DAProof> addAndMergeSigShareAndVerifySig(ptr<ThresholdSigShare> _sigShare,
                                                  ptr<BlockProposal> _proposal);

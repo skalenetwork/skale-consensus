@@ -56,7 +56,7 @@
 #include "../messages/NetworkMessageEnvelope.h"
 #include "../node/NodeInfo.h"
 #include "../db/ReceivedBlockProposalsDB.h"
-#include "../db/ReceivedDASigSharesDB.h"
+#include "../db/DASigShareDB.h"
 #include "../network/Sockets.h"
 #include "../protocols/ProtocolInstance.h"
 #include "../protocols/blockconsensus/BlockConsensusAgent.h"
@@ -243,7 +243,7 @@ void Schain::constructChildAgents() {
         catchupClientAgent = make_shared<CatchupClientAgent>(*this);
         blockConsensusInstance = make_shared<BlockConsensusAgent>(*this);
         blockProposalsDatabase = make_shared<ReceivedBlockProposalsDB>(*this);
-        receivedDASigSharesDatabase = make_shared<ReceivedDASigSharesDB>(*this);
+
         testMessageGeneratorAgent = make_shared<TestMessageGeneratorAgent>(*this);
         pricingAgent = make_shared<PricingAgent>(*this);
         cryptoManager = make_shared<CryptoManager>(*this);
@@ -646,7 +646,7 @@ void Schain::daProofSigShareArrived(ptr<ThresholdSigShare> _sigShare, ptr<BlockP
 
 
     try {
-        auto proof = receivedDASigSharesDatabase->addAndMergeSigShareAndVerifySig(_sigShare, _proposal);
+        auto proof = getNode()->getDaSigShareDb()->addAndMergeSigShareAndVerifySig(_sigShare, _proposal);
         if (proof != nullptr) {
             getSchain()->daProofArrived(proof);
             blockProposalClient->enqueueItem(proof);
