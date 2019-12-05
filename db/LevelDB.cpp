@@ -299,18 +299,8 @@ void LevelDB::rotateDBsIfNeeded() {
     }
 }
 
-string LevelDB::createSetKey(const string &_key, block_id _blockId, schain_index _index) {
-    return to_string(_blockId).append(":").append(to_string(_index)).append(":").append(_key);
-}
 
-string LevelDB::createCounterKey(block_id _blockId) {
-    return "COUNTER:" + to_string(_blockId);
-}
 
-ptr<string> LevelDB::readStringFromBlockSet(const string &_key, block_id _blockId, schain_index _index) {
-    auto key = createSetKey(_key, _blockId, _index);
-    return readString(key);
-}
 
 
 uint64_t LevelDB::readCount(block_id _blockId) {
@@ -333,8 +323,17 @@ uint64_t LevelDB::readCount(block_id _blockId) {
 }
 
 ptr<map<schain_index, ptr<string>>>
-LevelDB::writeStringToBlockSet(const string &_key, const string &_value, block_id _blockId, schain_index _index,
-                               uint64_t _totalSigners, uint64_t _requiredSigners) {
+LevelDB::writeStringToBlockSet(const string &_value, block_id _blockId, schain_index _index, uint64_t _totalSigners,
+                               uint64_t _requiredSigners) {
+    return writeByteArrayToBlockSet(_value.data(), _value.size(), _blockId,
+                                    _index, _totalSigners, _requiredSigners);
+}
+
+
+
+ptr<map<schain_index, ptr<string>>>
+LevelDB::writeByteArrayToBlockSet(const char* _value, uint64_t _valueLen, block_id _blockId, schain_index _index,
+                                  uint64_t _totalSigners, uint64_t _requiredSigners) {
 
 
     lock_guard<shared_mutex> lock(m);
@@ -368,13 +367,13 @@ LevelDB::writeStringToBlockSet(const string &_key, const string &_value, block_i
     }
     {
 
-        string entryKey = createSetKey(_key, _blockId, _index);
+        string entryKey = createSetKey(_blockId, _index);
 
         leveldb::WriteBatch batch;
         count++;
 
         batch.Put(counterKey, to_string(count));
-        batch.Put(entryKey, _value);
+        batch.Put(entryKey, Slice(_value, _valueLen));
         CHECK_STATE2(containingDb->Write(writeOptions, &batch).ok(), "Could not write LevelDB");
     }
 
@@ -387,7 +386,7 @@ LevelDB::writeStringToBlockSet(const string &_key, const string &_value, block_i
     auto enoughSet = make_shared<map<schain_index, ptr<string>>>();
 
     for (uint64_t i = 1; i <= _totalSigners; i++) {
-        auto key = createSetKey(_key, _blockId, schain_index(i));
+        auto key = createSetKey(_blockId, schain_index(i));
         auto entry = readStringUnsafe(key);
 
         if (entry != nullptr)
@@ -417,3 +416,21 @@ LevelDB::createKey(const block_id &_blockId, const schain_index &_proposerIndex,
     return make_shared<string>(getFormatVersion() + ":" + to_string(_blockId) + ":" + to_string(_proposerIndex) + ":" +
                                to_string(_round));
 }
+
+
+string LevelDB::createSetKey(block_id _blockId, schain_index _index) {
+    return to_string(_blockId) + ":" + to_string(_index);
+}
+
+string LevelDB::createCounterKey(block_id _blockId) {
+    return getFormatVersion() + ":COUNTER:" + to_string(_blockId);
+}
+
+
+
+
+ptr<string> LevelDB::readStringFromBlockSet(block_id _blockId, schain_index _index) {
+    auto key = createSetKey(_blockId, _index);
+    return readString(key);
+}
+
