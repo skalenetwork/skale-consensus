@@ -94,34 +94,11 @@ bool LevelDB::keyExists(const string &_key) {
 
 
 void LevelDB::writeString(const string &_key, const string &_value) {
-
-    rotateDBsIfNeeded();
-
-    {
-        shared_lock<shared_mutex> lock(m);
-
-        auto status = db.back()->Put(writeOptions, _key, Slice(_value));
-
-        throwExceptionOnError(status);
-    }
+    writeByteArray(_key, _value.data(), _value.size());
 }
 
 
-void LevelDB::writeByteArray(const char *_key, size_t _keyLen, const char *value,
-                             size_t _valueLen) {
-
-    rotateDBsIfNeeded();
-
-    {
-        shared_lock<shared_mutex> lock(m);
-
-        auto status = db.back()->Put(writeOptions, Slice(_key, _keyLen), Slice(value, _valueLen));
-
-        throwExceptionOnError(status);
-    }
-}
-
-void LevelDB::writeByteArray(string &_key, const char *value,
+void LevelDB::writeByteArray(const string &_key, const char *value,
                              size_t _valueLen) {
 
     rotateDBsIfNeeded();
@@ -267,8 +244,6 @@ void LevelDB::rotateDBsIfNeeded() {
         if (getActiveDBSize() <= maxDBSize)
             return;
 
-        cerr << "Rotating db" << endl;
-
         auto newDB = openDB(highestDBIndex + 1);
 
         for (int i = 1; i < LEVELDB_PIECES; i++) {
@@ -299,16 +274,17 @@ void LevelDB::rotateDBsIfNeeded() {
     }
 }
 
-string LevelDB::createSetKey(const string &_key, block_id _blockId, schain_index _index) {
-    return to_string(_blockId).append(":").append(to_string(_index)).append(":").append(_key);
+string LevelDB::createSetKey(block_id _blockId, schain_index _index) {
+    return to_string(_blockId).append(":").append(to_string(_index));
 }
 
 string LevelDB::createCounterKey(block_id _blockId) {
     return "COUNTER:" + to_string(_blockId);
 }
 
-ptr<string> LevelDB::readStringFromBlockSet(const string &_key, block_id _blockId, schain_index _index) {
-    auto key = createSetKey(_key, _blockId, _index);
+ptr<string> LevelDB::readStringFromBlockSet(block_id _blockId, schain_index _index) {
+    ASSERT(totalSigners >= requiredSigners && requiredSigners > 0);
+    auto key = createSetKey(_blockId, _index);
     return readString(key);
 }
 
@@ -333,9 +309,14 @@ uint64_t LevelDB::readCount(block_id _blockId) {
 }
 
 ptr<map<schain_index, ptr<string>>>
-LevelDB::writeStringToBlockSet(const string &_key, const string &_value, block_id _blockId, schain_index _index,
-                               uint64_t _totalSigners, uint64_t _requiredSigners) {
+LevelDB::writeStringToBlockSet(string &_value, block_id _blockId, schain_index _index) {
+    return writeBytesToBlockSet(_value.data(), _value.size(), _blockId, _index);
+}
 
+ptr<map<schain_index, ptr<string>>>
+LevelDB::writeBytesToBlockSet(const char *_value, uint64_t _valueLen, block_id _blockId, schain_index _index) {
+
+    ASSERT(totalSigners >= requiredSigners && requiredSigners > 0);
 
     lock_guard<shared_mutex> lock(m);
 
@@ -368,36 +349,36 @@ LevelDB::writeStringToBlockSet(const string &_key, const string &_value, block_i
     }
     {
 
-        string entryKey = createSetKey(_key, _blockId, _index);
+        string entryKey = createSetKey(_blockId, _index);
 
         leveldb::WriteBatch batch;
         count++;
 
         batch.Put(counterKey, to_string(count));
-        batch.Put(entryKey, _value);
+        batch.Put(entryKey, Slice(_value, _valueLen));
         CHECK_STATE2(containingDb->Write(writeOptions, &batch).ok(), "Could not write LevelDB");
     }
 
 
-    if (count < _requiredSigners) {
+    if (count < requiredSigners) {
         return nullptr;
     }
 
 
     auto enoughSet = make_shared<map<schain_index, ptr<string>>>();
 
-    for (uint64_t i = 1; i <= _totalSigners; i++) {
-        auto key = createSetKey(_key, _blockId, schain_index(i));
+    for (uint64_t i = 1; i <= totalSigners; i++) {
+        auto key = createSetKey(_blockId, schain_index(i));
         auto entry = readStringUnsafe(key);
 
         if (entry != nullptr)
             (*enoughSet)[schain_index(i)] = entry;
-        if (enoughSet->size() == _requiredSigners) {
+        if (enoughSet->size() == requiredSigners) {
             break;
         }
     }
 
-    CHECK_STATE(enoughSet->size() == _requiredSigners);
+    CHECK_STATE(enoughSet->size() == requiredSigners);
 
     return enoughSet;
 }

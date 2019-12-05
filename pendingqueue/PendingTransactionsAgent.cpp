@@ -43,7 +43,6 @@
 #include "../chains/Schain.h"
 #include "../node/ConsensusEngine.h"
 #include "PendingTransactionsAgent.h"
-#include "../db/CommittedTransactionDB.h"
 
 #include "../microprofile.h"
 

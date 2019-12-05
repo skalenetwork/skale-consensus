@@ -65,6 +65,8 @@ void BlockDB::saveBlock2LevelDB(ptr<CommittedBlock> &_block) {
 
 
     CHECK_ARGUMENT(_block->getSignature() != nullptr);
+    CHECK_ARGUMENT(_block->getThresholdSig() != nullptr);
+
 
     LOCK(m)
 

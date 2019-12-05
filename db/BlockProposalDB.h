@@ -64,6 +64,8 @@ public:
 
     const string getFormatVersion();
 
+    void saveProposal2LevelDB(ptr<BlockProposal> &_proposal);
+
 };
 
 

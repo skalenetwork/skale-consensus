@@ -87,7 +87,6 @@ bool BlockProposalDB::addBlockProposal(ptr<BlockProposal> _proposal) {
 
     proposedBlockSets.at(_proposal->getBlockID())->add(_proposal);
 
-
     return proposedBlockSets.at(_proposal->getBlockID())->isTwoThird();
 }
 
@@ -172,4 +171,26 @@ bool BlockProposalDB::isTwoThird(block_id _blockID) {
 
 const string BlockProposalDB::getFormatVersion() {
     return "1.0";
+}
+
+void BlockProposalDB::saveProposal2LevelDB(ptr<BlockProposal> &_proposal) {
+
+    CHECK_ARGUMENT(_proposal->getSignature() != nullptr);
+
+    LOCK(proposalMutex);
+
+    try {
+
+        auto serializedProposal = _proposal->serialize();
+
+        auto value = (const char *) serializedProposal->data();
+
+        auto valueLen = serializedProposal->size();
+
+        writeBytesToBlockSet(value, valueLen, _proposal->getBlockID(),
+                _proposal->getProposerIndex());
+    } catch (...) {
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+    }
+
 }

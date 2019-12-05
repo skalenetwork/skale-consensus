@@ -61,7 +61,6 @@
 #include "../protocols/InstanceGarbageCollectorAgent.h"
 
 #include "../db/BlockDB.h"
-#include "../db/CommittedTransactionDB.h"
 #include "../db/PriceDB.h"
 #include "../db/RandomDB.h"
 #include "../db/SigDB.h"
