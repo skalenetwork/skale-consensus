@@ -38,21 +38,19 @@ namespace leveldb {
 #define LEVELDB_PIECES 4
 
 namespace cache {
-    template<typename key_t, typename value_t>
-    class lru_cache;
+    template<typename key_t, typename value_t> class lru_cache;
 }
 
 
 class LevelDB {
-    vector<ptr<leveldb::DB>> db;
-    uint64_t highestDBIndex = 0;
+    vector<ptr<leveldb::DB>>db;
+    uint64_t  highestDBIndex = 0;
     shared_mutex m;
 
-    uint64_t totalSigners;
-    uint64_t requiredSigners;
 
 
 protected:
+
 
 
     node_id nodeId;
@@ -61,18 +59,14 @@ protected:
     uint64_t maxDBSize;
 
     ptr<string> readString(string &_key);
-
     ptr<string> readStringUnsafe(string &_key);
-
     void writeString(const string &key1, const string &value1);
-
     ptr<map<schain_index, ptr<string>>>
-    writeStringToBlockSet(string &_value, block_id _blockId, schain_index _index);
-
-    ptr<map<schain_index, ptr<string>>>
-    writeBytesToBlockSet(const char *_value, uint64_t _valueLen, block_id _blockId, schain_index _index);
-
-    void writeByteArray(const string &_key, const char *value,
+    writeStringToBlockSet(const string &_key, const string &_value, block_id _blockId, schain_index _index,
+                          uint64_t _totalSigners, uint64_t _requiredSigners);
+    void writeByteArray(const char *_key, size_t _keyLen, const char *value,
+                        size_t _valueLen);
+    void writeByteArray(string &_key, const char *value,
                         size_t _valueLen);
 
 
@@ -84,7 +78,7 @@ protected:
     ptr<string>
     createKey(const block_id &_blockId, const schain_index &_proposerIndex, const bin_consensus_round &_round);
 
-    string createSetKey(block_id _blockId, schain_index _index);
+    string createSetKey(const string& _key, block_id _blockId, schain_index _index);
 
     string createCounterKey(block_id _block_id);
 
@@ -120,7 +114,7 @@ public:
 
     bool keyExists(const string &_key);
 
-    ptr<string> readStringFromBlockSet(block_id _blockId, schain_index _index);
+    ptr<string> readStringFromBlockSet(const string &_key, block_id _blockId, schain_index _index);
 
     uint64_t readCount(block_id _blockId);
 
