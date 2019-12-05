@@ -50,7 +50,8 @@ public:
 
     ptr<BlockProposal> getBlockProposal(block_id _blockID, schain_index _proposerIndex);
 
-    BlockProposalDB(Schain &_sChain, string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize);
+    BlockProposalDB(string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize,
+                    Schain &_sChain);
 
     void cleanOldBlockProposals(block_id _lastCommittedBlockID);
 

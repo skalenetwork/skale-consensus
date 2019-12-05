@@ -183,10 +183,11 @@ DB *LevelDB::openDB(uint64_t _index) {
 }
 
 
-LevelDB::LevelDB(string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize)
+LevelDB::LevelDB(string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize,
+        uint64_t _totalSigners, uint64_t _requiredSigners)
         : nodeId(_nodeId),
           prefix(_prefix), dirname(_dirName),
-          maxDBSize(_maxDBSize) {
+          maxDBSize(_maxDBSize), totalSigners(_totalSigners), requiredSigners(_requiredSigners) {
 
     boost::filesystem::path path(_dirName);
 
@@ -323,19 +324,18 @@ uint64_t LevelDB::readCount(block_id _blockId) {
 }
 
 ptr<map<schain_index, ptr<string>>>
-LevelDB::writeStringToBlockSet(const string &_value, block_id _blockId, schain_index _index, uint64_t _totalSigners,
-                               uint64_t _requiredSigners) {
+LevelDB::writeStringToBlockSet(const string &_value, block_id _blockId, schain_index _index) {
     return writeByteArrayToBlockSet(_value.data(), _value.size(), _blockId,
-                                    _index, _totalSigners, _requiredSigners);
+                                    _index);
 }
 
 
 
 ptr<map<schain_index, ptr<string>>>
-LevelDB::writeByteArrayToBlockSet(const char* _value, uint64_t _valueLen, block_id _blockId, schain_index _index,
-                                  uint64_t _totalSigners, uint64_t _requiredSigners) {
+LevelDB::writeByteArrayToBlockSet(const char *_value, uint64_t _valueLen, block_id _blockId, schain_index _index) {
 
 
+    ASSERT(requiredSigners > 0 && totalSigners >= requiredSigners)
     lock_guard<shared_mutex> lock(m);
 
     uint64_t count = 0;
@@ -378,25 +378,25 @@ LevelDB::writeByteArrayToBlockSet(const char* _value, uint64_t _valueLen, block_
     }
 
 
-    if (count < _requiredSigners) {
+    if (count < requiredSigners) {
         return nullptr;
     }
 
 
     auto enoughSet = make_shared<map<schain_index, ptr<string>>>();
 
-    for (uint64_t i = 1; i <= _totalSigners; i++) {
+    for (uint64_t i = 1; i <= totalSigners; i++) {
         auto key = createSetKey(_blockId, schain_index(i));
         auto entry = readStringUnsafe(key);
 
         if (entry != nullptr)
             (*enoughSet)[schain_index(i)] = entry;
-        if (enoughSet->size() == _requiredSigners) {
+        if (enoughSet->size() == requiredSigners) {
             break;
         }
     }
 
-    CHECK_STATE(enoughSet->size() == _requiredSigners);
+    CHECK_STATE(enoughSet->size() == requiredSigners);
 
     return enoughSet;
 }

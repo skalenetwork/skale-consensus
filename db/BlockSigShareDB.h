@@ -42,7 +42,7 @@ class BlockSigShareDB : public LevelDB {
 
 public:
 
-    BlockSigShareDB(string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize, Schain *_sChain);
+    BlockSigShareDB(string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize, Schain &_sChain);
 
     ptr<ThresholdSignature> checkAndSaveShare(ptr<ThresholdSigShare> _sigShare, ptr<CryptoManager> _cryptoManager);
 

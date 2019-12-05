@@ -271,13 +271,13 @@ void Node::setSchain(ptr<Schain> _schain) {
     string blockProposalDBPrefix = "/block_proposals_" + to_string(nodeID) + ".db";
 
     blockSigShareDB = make_shared<BlockSigShareDB>(dataDir, blockSigShareDBPrefix, getNodeID(), getBlockSigShareDBSize(),
-                                                   getSchain());
+                                                   *getSchain());
 
     daSigShareDB = make_shared<DASigShareDB>(dataDir, daSigShareDBPrefix, getNodeID(), getDaSigShareDBSize(),
                                              *getSchain());
 
-    blockProposalDB = make_shared<BlockProposalDB>(*getSchain(), dataDir, blockProposalDBPrefix, getNodeID(),
-            getBlockProposalDBSize());
+    blockProposalDB = make_shared<BlockProposalDB>(dataDir, blockProposalDBPrefix, getNodeID(),
+            getBlockProposalDBSize(), *getSchain());
 
 }
 

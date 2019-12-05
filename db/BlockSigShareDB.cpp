@@ -41,8 +41,8 @@
 
 
 BlockSigShareDB::BlockSigShareDB(string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize,
-                                 Schain *_sChain)
-        : LevelDB(_dirName, _prefix, _nodeId, _maxDBSize), sChain(_sChain) {
+                                 Schain &_sChain)
+        : LevelDB(_dirName, _prefix, _nodeId, _maxDBSize, _sChain.getTotalSigners(), _sChain.getRequiredSigners()), sChain(&_sChain) {
     CHECK_ARGUMENT(sChain != nullptr);
 }
 
@@ -57,22 +57,20 @@ BlockSigShareDB::checkAndSaveShare(ptr<ThresholdSigShare> _sigShare, ptr<CryptoM
         LOCK(sigShareMutex)
 
         auto enoughSet = writeStringToBlockSet(*sigShareString, _sigShare->getBlockId(),
-                                                  _sigShare->getSignerIndex(), sChain->getTotalSigners(),
-                                                  sChain->getRequiredSigners());
+                                               _sigShare->getSignerIndex());
         if (enoughSet == nullptr)
             return nullptr;
 
-        auto s = _cryptoManager->createSigShareSet(_sigShare->getBlockId(), sChain->getTotalSigners(),
-                                                   sChain->getRequiredSigners());
-
+        auto s = _cryptoManager->createSigShareSet(_sigShare->getBlockId(), totalSigners,
+                                                   requiredSigners);
 
         for (auto &&item : *enoughSet) {
             auto nodeInfo = sChain->getNode()->getNodeInfoByIndex(item.first);
             CHECK_STATE(nodeInfo != nullptr);
             auto sigShare = _cryptoManager->createSigShare(item.second, sChain->getSchainID(),
                                                            _sigShare->getBlockId(), nodeInfo->getNodeID(), item.first,
-                                                           sChain->getTotalSigners(),
-                                                           sChain->getRequiredSigners());
+                                                           totalSigners,
+                                                           requiredSigners);
             s->addSigShare(sigShare);
         }
 

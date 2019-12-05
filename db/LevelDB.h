@@ -49,8 +49,11 @@ class LevelDB {
 
 
 
+
 protected:
 
+    uint64_t totalSigners;
+    uint64_t requiredSigners;
 
 
     node_id nodeId;
@@ -63,15 +66,11 @@ protected:
     void writeString(const string &key1, const string &value1);
 
     ptr<map<schain_index, ptr<string>>>
-    writeStringToBlockSet(const string &_value, block_id _blockId, schain_index _index, uint64_t _totalSigners,
-                          uint64_t _requiredSigners);
-
-
+    writeStringToBlockSet(const string &_value, block_id _blockId, schain_index _index);
 
 
         ptr<map<schain_index, ptr<string>>>
-    writeByteArrayToBlockSet(const char* _value, uint64_t _valueLen, block_id _blockId, schain_index _index,
-                             uint64_t _totalSigners, uint64_t _requiredSigners);
+    writeByteArrayToBlockSet(const char *_value, uint64_t _valueLen, block_id _blockId, schain_index _index);
 
     void writeByteArray(const char *_key, size_t _keyLen, const char *value,
                         size_t _valueLen);
@@ -99,7 +98,8 @@ public:
     void throwExceptionOnError(leveldb::Status result);
 
 
-    LevelDB(string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize);
+    LevelDB(string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize,
+            uint64_t _totalSigners = 0, uint64_t _requiredSigners = 0);
 
 
     std::pair<uint64_t, uint64_t> findMaxMinDBIndex();
