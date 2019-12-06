@@ -26,9 +26,9 @@
 #define SKALED_PRICEDB_H
 
 
-#include "LevelDB.h"
+#include "FIFOLevelDB.h"
 
-class PriceDB : public LevelDB {
+class PriceDB : public FIFOLevelDB {
 
 
 public:

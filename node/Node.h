@@ -57,7 +57,7 @@ class BLSPublicKey;
 
 class BLSPrivateKeyShare;
 
-class LevelDB;
+class FIFOLevelDB;
 class BlockDB;
 class BlockProposalDB;
 class RandomDB;

@@ -22,8 +22,8 @@
 */
 
 
-#ifndef SKALED_LEVELDB_H
-#define SKALED_LEVELDB_H
+#ifndef SKALED_FIFOLEVELDB_H
+#define SKALED_FIFOLEVELDB_H
 
 #include "../SkaleCommon.h"
 
@@ -42,13 +42,10 @@ namespace cache {
 }
 
 
-class LevelDB {
+class FIFOLevelDB {
     vector<ptr<leveldb::DB>>db;
     uint64_t  highestDBIndex = 0;
     shared_mutex m;
-
-
-
 
 protected:
 
@@ -98,7 +95,7 @@ public:
     void throwExceptionOnError(leveldb::Status result);
 
 
-    LevelDB(string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize,
+    FIFOLevelDB(string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize,
             uint64_t _totalSigners = 0, uint64_t _requiredSigners = 0);
 
 
@@ -112,7 +109,7 @@ public:
 
     uint64_t visitKeys(KeyVisitor *_visitor, uint64_t _maxKeysToVisit);
 
-    virtual ~LevelDB();
+    virtual ~FIFOLevelDB();
 
 
     void rotateDBsIfNeeded();
@@ -133,4 +130,4 @@ public:
 };
 
 
-#endif //SKALED_LEVELDB_H
+#endif //SKALED_FIFOLEVELDB_H

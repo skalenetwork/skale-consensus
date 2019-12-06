@@ -27,7 +27,7 @@
 #include "../exceptions/FatalError.h"
 #include "../thirdparty/json.hpp"
 #include "leveldb/db.h"
-#include "../db/LevelDB.h"
+#include "../db/FIFOLevelDB.h"
 #include "../db/BlockDB.h"
 
 #include "../utils/Time.h"

@@ -28,11 +28,11 @@ class ConsensusBLSSignature;
 #define SKALED_SIGDB_H
 
 
-#include "LevelDB.h"
+#include "FIFOLevelDB.h"
 
 class ThresholdSignature;
 
-class SigDB : public LevelDB {
+class SigDB : public FIFOLevelDB {
 
     node_id nodeId;
 

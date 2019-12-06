@@ -2,25 +2,25 @@
 <project version="4">
   <component name="CMakeRunConfigurationManager" shouldGenerate="true" shouldDeleteObsolete="true">
     <generated>
-      <config projectName="consensus" targetName="dkg_glue" />
-      <config projectName="consensus" targetName="sign_bls" />
-      <config projectName="consensus" targetName="te" />
-      <config projectName="consensus" targetName="consensus" />
-      <config projectName="consensus" targetName="all_bls_tests" />
-      <config projectName="consensus" targetName="dkg_keygen" />
-      <config projectName="consensus" targetName="consensusd" />
-      <config projectName="consensus" targetName="all_te_tests" />
-      <config projectName="consensus" targetName="bls" />
-      <config projectName="consensus" targetName="bls_unit_test" />
-      <config projectName="consensus" targetName="bls_glue" />
-      <config projectName="consensus" targetName="bls_test" />
-      <config projectName="consensus" targetName="te_test" />
-      <config projectName="consensus" targetName="hash_g1" />
       <config projectName="consensus" targetName="consensust" />
+      <config projectName="consensus" targetName="hash_g1" />
+      <config projectName="consensus" targetName="dkg_glue" />
+      <config projectName="consensus" targetName="dkg_keygen" />
+      <config projectName="consensus" targetName="all_bls_tests" />
+      <config projectName="consensus" targetName="bls_unit_test" />
       <config projectName="consensus" targetName="dkg_te_unit_test" />
+      <config projectName="consensus" targetName="consensusd" />
+      <config projectName="consensus" targetName="bls_test" />
+      <config projectName="consensus" targetName="bls_glue" />
+      <config projectName="consensus" targetName="all_te_tests" />
       <config projectName="consensus" targetName="te_unit_test" />
       <config projectName="consensus" targetName="dkg_unit_test" />
+      <config projectName="consensus" targetName="bls" />
+      <config projectName="consensus" targetName="te" />
+      <config projectName="consensus" targetName="te_test" />
       <config projectName="consensus" targetName="verify_bls" />
+      <config projectName="consensus" targetName="sign_bls" />
+      <config projectName="consensus" targetName="consensus" />
     </generated>
   </component>
   <component name="CMakeSettings">
@@ -29,16 +29,33 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e8eb5c74-4268-46a2-ac26-2e919fd9ff42" name="Default Changelist" comment="">
+    <list default="true" id="e8eb5c74-4268-46a2-ac26-2e919fd9ff42" name="Default Changelist" comment="BetterDBName">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/blockfinalize/client/BlockFinalizeDownloader.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/blockfinalize/client/BlockFinalizeDownloader.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/blockfinalize/client/BlockFinalizeDownloader.h" beforeDir="false" afterPath="$PROJECT_DIR$/blockfinalize/client/BlockFinalizeDownloader.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/chains/Schain.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/chains/Schain.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/chains/SchainGettersSetters.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/chains/SchainGettersSetters.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/BlockDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/BlockDB.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/BlockDB.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/BlockDB.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/db/BlockProposalDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/BlockProposalDB.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/db/BlockProposalDB.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/BlockProposalDB.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/LevelDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/LevelDB.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/LevelDB.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/LevelDB.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/BlockSigShareDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/BlockSigShareDB.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/BlockSigShareDB.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/BlockSigShareDB.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/CommittedTransactionDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/CommittedTransactionDB.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/CommittedTransactionDB.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/CommittedTransactionDB.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/DASigShareDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/DASigShareDB.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/DASigShareDB.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/DASigShareDB.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/LevelDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/FIFOLevelDB.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/LevelDB.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/FIFOLevelDB.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/PriceDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/PriceDB.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/PriceDB.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/PriceDB.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/ProposalHashDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/ProposalHashDB.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/ProposalHashDB.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/ProposalHashDB.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/RandomDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/RandomDB.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/RandomDB.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/RandomDB.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/SigDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/SigDB.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/SigDB.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/SigDB.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/node/Node.h" beforeDir="false" afterPath="$PROJECT_DIR$/node/Node.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pendingqueue/PendingTransactionsAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/pendingqueue/PendingTransactionsAgent.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pendingqueue/PendingTransactionsAgent.h" beforeDir="false" afterPath="$PROJECT_DIR$/pendingqueue/PendingTransactionsAgent.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -286,13 +303,7 @@
       <workItem from="1574435605775" duration="945000" />
       <workItem from="1575021765183" duration="8000" />
       <workItem from="1575369130855" duration="7805000" />
-    </task>
-    <task id="LOCAL-00020" summary="Fixing block hash">
-      <created>1574695146583</created>
-      <option name="number" value="00020" />
-      <option name="presentableId" value="LOCAL-00020" />
-      <option name="project" value="LOCAL" />
-      <updated>1574695146583</updated>
+      <workItem from="1575640279975" duration="347000" />
     </task>
     <task id="LOCAL-00021" summary="Fixing block hash">
       <created>1574700458275</created>
@@ -630,7 +641,14 @@
       <option name="project" value="LOCAL" />
       <updated>1575636281352</updated>
     </task>
-    <option name="localTasksCounter" value="69" />
+    <task id="LOCAL-00069" summary="Saving proposal">
+      <created>1575640363432</created>
+      <option name="number" value="00069" />
+      <option name="presentableId" value="LOCAL-00069" />
+      <option name="project" value="LOCAL" />
+      <updated>1575640363433</updated>
+    </task>
+    <option name="localTasksCounter" value="70" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -686,8 +704,10 @@
     <state x="2338" y="205" width="1084" height="702" key="#com.intellij.execution.impl.EditConfigurationsDialog/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575636402415" />
     <state x="2644" y="206" width="462" height="693" key="#com.intellij.ide.util.MemberChooser" timestamp="1575636402415" />
     <state x="2644" y="206" width="462" height="693" key="#com.intellij.ide.util.MemberChooser/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575636402415" />
-    <state x="2314" y="71" width="1121" height="962" key="CommitChangelistDialog2" timestamp="1575636402415" />
-    <state x="2314" y="71" width="1121" height="962" key="CommitChangelistDialog2/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575636402415" />
+    <state x="2314" y="71" width="1121" height="962" key="CommitChangelistDialog2" timestamp="1575640500510">
+      <screen x="1920" y="0" width="1920" height="1080" />
+    </state>
+    <state x="2314" y="71" width="1121" height="962" key="CommitChangelistDialog2/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575640500510" />
     <state x="2613" y="259" width="524" height="594" key="FileChooserDialogImpl" timestamp="1575636402415" />
     <state x="2613" y="259" width="524" height="594" key="FileChooserDialogImpl/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575636402415" />
     <state width="1860" height="249" key="GridCell.Tab.0.bottom" timestamp="1575639783712">
@@ -714,8 +734,10 @@
     <state width="1860" height="334" key="GridCell.Tab.1.left/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575636402415" />
     <state width="1860" height="334" key="GridCell.Tab.1.right" timestamp="1575636402415" />
     <state width="1860" height="334" key="GridCell.Tab.1.right/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575636402415" />
-    <state x="2375" y="210" width="1000" height="684" key="Vcs.Push.Dialog.v2" timestamp="1575636402415" />
-    <state x="2375" y="210" width="1000" height="684" key="Vcs.Push.Dialog.v2/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575636402415" />
+    <state x="2375" y="210" width="1000" height="684" key="Vcs.Push.Dialog.v2" timestamp="1575640364430">
+      <screen x="1920" y="0" width="1920" height="1080" />
+    </state>
+    <state x="2375" y="210" width="1000" height="684" key="Vcs.Push.Dialog.v2/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575640364430" />
     <state x="2020" y="125" width="1720" height="855" key="com.intellij.history.integration.ui.views.FileHistoryDialog" timestamp="1575638884892">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
@@ -739,12 +761,12 @@
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
-          <url>file://$PROJECT_DIR$/db/LevelDB.cpp</url>
+          <url>file://$PROJECT_DIR$/db/FIFOLevelDB.cpp</url>
           <line>355</line>
           <option name="timeStamp" value="5" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
-          <url>file://$PROJECT_DIR$/db/LevelDB.cpp</url>
+          <url>file://$PROJECT_DIR$/db/FIFOLevelDB.cpp</url>
           <line>322</line>
           <option name="timeStamp" value="6" />
         </line-breakpoint>

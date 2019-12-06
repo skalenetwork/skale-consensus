@@ -30,11 +30,11 @@
 #include "../datastructures/CommittedBlock.h"
 
 #include "ProposalHashDB.h"
-#include "LevelDB.h"
+#include "FIFOLevelDB.h"
 
 
 ProposalHashDB::ProposalHashDB(string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize)
-        : LevelDB(_dirName, _prefix,
+        : FIFOLevelDB(_dirName, _prefix,
                   _nodeId, _maxDBSize) {
 }
 

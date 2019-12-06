@@ -28,11 +28,11 @@
 class CommittedBlock;
 class ThresholdSignature;
 
-#include "LevelDB.h"
+#include "FIFOLevelDB.h"
 
 class CryptoManager;
 
-class BlockSigShareDB : public LevelDB {
+class BlockSigShareDB : public FIFOLevelDB {
 
     Schain* sChain;
 

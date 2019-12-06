@@ -87,7 +87,7 @@
 
 #include "../crypto/bls_include.h"
 #include "../db/BlockDB.h"
-#include "../db/LevelDB.h"
+#include "../db/FIFOLevelDB.h"
 #include "../pendingqueue/TestMessageGeneratorAgent.h"
 #include "SchainTest.h"
 

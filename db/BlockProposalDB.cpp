@@ -47,7 +47,7 @@ using namespace std;
 
 BlockProposalDB::BlockProposalDB(string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize,
                                  Schain &_sChain) :
-                                 LevelDB(_dirName, _prefix, _nodeId, _maxDBSize, _sChain.getTotalSigners(),
+                                 FIFOLevelDB(_dirName, _prefix, _nodeId, _maxDBSize, _sChain.getTotalSigners(),
                                          _sChain.getRequiredSigners()) {
 
     sChain = &_sChain;

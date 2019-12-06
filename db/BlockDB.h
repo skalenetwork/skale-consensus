@@ -27,11 +27,11 @@
 
 class CommittedBlock;
 
-#include "LevelDB.h"
+#include "FIFOLevelDB.h"
 
 class CryptoManager;
 
-class BlockDB : public LevelDB {
+class BlockDB : public FIFOLevelDB {
 
     recursive_mutex m;
     void saveBlock2LevelDB(ptr<CommittedBlock> &_block);

@@ -28,7 +28,7 @@
 #include "PriceDB.h"
 
 
-PriceDB::PriceDB(string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize) : LevelDB(_dirName, _prefix,
+PriceDB::PriceDB(string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize) : FIFOLevelDB(_dirName, _prefix,
                                                                                                     _nodeId,
                                                                                                     _maxDBSize) {}
 
