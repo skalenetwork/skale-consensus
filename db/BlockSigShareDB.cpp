@@ -68,7 +68,7 @@ BlockSigShareDB::checkAndSaveShare(ptr<ThresholdSigShare> _sigShare, ptr<CryptoM
             auto nodeInfo = sChain->getNode()->getNodeInfoByIndex(item.first);
             CHECK_STATE(nodeInfo != nullptr);
             auto sigShare = _cryptoManager->createSigShare(item.second, sChain->getSchainID(),
-                                                           _sigShare->getBlockId(), nodeInfo->getNodeID(), item.first,
+                                                           _sigShare->getBlockId(), item.first,
                                                            totalSigners,
                                                            requiredSigners);
             s->addSigShare(sigShare);

@@ -231,9 +231,9 @@ public:
     void setHealthCheckFile(uint64_t status);
 
 
-    size_t getTotalSigners();
+    uint64_t getTotalSigners();
 
-    size_t getRequiredSigners();
+    uint64_t getRequiredSigners();
 
     u256 getPriceForBlockId(uint64_t _blockId);
 

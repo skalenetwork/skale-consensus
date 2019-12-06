@@ -41,9 +41,7 @@ class DASigShareDB : public  LevelDB {
 
     Schain* sChain;
 
-    recursive_mutex m;
-
-    map<block_id, ptr<ThresholdSigShareSet>> sigShareSets;
+    recursive_mutex sigShareMutex;
 
 public:
 

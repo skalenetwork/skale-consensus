@@ -240,12 +240,12 @@ void Schain::setHealthCheckFile(uint64_t status) {
 }
 
 
-size_t Schain::getTotalSigners() {
-    return (size_t) (uint64_t) getNodeCount();
+uint64_t Schain::getTotalSigners() {
+    return (uint64_t) getNodeCount();
 }
 
 
-size_t Schain::getRequiredSigners() {
+uint64_t Schain::getRequiredSigners() {
     auto count = getNodeCount();
     if (count <= 2) {
         return (uint64_t) count;

@@ -35,22 +35,21 @@
 #include "ConsensusBLSSigShare.h"
 
 
-ConsensusBLSSigShare::ConsensusBLSSigShare(
-    ptr< BLSSigShare > _sigShare, schain_id _schainID, block_id _blockID, node_id _signerNodeID)
-    : ThresholdSigShare(_schainID, _blockID, _signerNodeID, _sigShare->getSignerIndex() ) {
+ConsensusBLSSigShare::ConsensusBLSSigShare(ptr<BLSSigShare> _s, schain_id _schainId, block_id _blockID)
+    : ThresholdSigShare(_schainId, _blockID, _s->getSignerIndex()) {
     ASSERT(false);
-    ASSERT( _sigShare != nullptr );
-    blsSigShare = _sigShare;
+    ASSERT(_s != nullptr );
+    blsSigShare = _s;
 }
 
 
 ptr< BLSSigShare > ConsensusBLSSigShare::getBlsSigShare() const {
     return blsSigShare;
 }
-ConsensusBLSSigShare::ConsensusBLSSigShare( ptr< string > _sigShare, schain_id _schainID,
-    block_id _blockID, node_id _signerNodeID, schain_index _signerIndex,
-    size_t _totalSigners, size_t _requiredSigners)
-    : ThresholdSigShare(_schainID, _blockID,  _signerNodeID, _signerIndex) {
+ConsensusBLSSigShare::ConsensusBLSSigShare(ptr<string> _sigShare, schain_id _schainID, block_id _blockID,
+                                           schain_index _signerIndex,
+                                           uint64_t _totalSigners, uint64_t _requiredSigners)
+    : ThresholdSigShare(_schainID, _blockID, _signerIndex) {
     this->blsSigShare = make_shared< BLSSigShare >( _sigShare, ( uint64_t ) _signerIndex,
             _totalSigners, _requiredSigners);
 }

@@ -76,8 +76,7 @@ uint64_t AbstractClientAgent::incrementAndReturnThreadCounter() {
 }
 
 
-void AbstractClientAgent::sendItem(
-        ptr<DataStructure> _item, schain_index _dstIndex, node_id _dstNodeId ) {
+void AbstractClientAgent::sendItem(ptr<DataStructure> _item, schain_index _dstIndex) {
     ASSERT( getNode()->isStarted() );
 
     auto socket = make_shared< ClientSocket >( *sChain, _dstIndex, portType );
@@ -94,7 +93,7 @@ void AbstractClientAgent::sendItem(
     }
 
 
-    sendItemImpl(_item, socket, _dstIndex, _dstNodeId );
+    sendItemImpl(_item, socket, _dstIndex);
 }
 
 
@@ -149,7 +148,7 @@ void AbstractClientAgent::workerThreadItemSendLoop( AbstractClientAgent* agent )
 
                 while ( !sent ) {
                     try {
-                        agent->sendItem( proposal, destinationSchainIndex, nodeId );
+                        agent->sendItem(proposal, destinationSchainIndex);
                         sent = true;
                     } catch ( Exception& e ) {
                         Exception::logNested( e );

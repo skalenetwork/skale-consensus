@@ -109,13 +109,12 @@ ptr<ThresholdSigShare> CryptoManager::signSigShare(ptr<SHAHash> _hash, block_id 
 
         auto blsShare = sChain->getNode()->getBlsPrivateKey()->sign(hash, (uint64_t) sChain->getSchainIndex());
 
-        return make_shared<ConsensusBLSSigShare>(blsShare, sChain->getSchainID(), _blockId,
-                                                 sChain->getNode()->getNodeID());
+        return make_shared<ConsensusBLSSigShare>(blsShare, sChain->getSchainID(), _blockId);
+
 
     } else {
         auto sigShare = _hash->toHex();
         return make_shared<MockupSigShare>(sigShare, sChain->getSchainID(), _blockId,
-                                           sChain->getNode()->getNodeID(),
                                            sChain->getSchainIndex(),
                                            sChain->getTotalSigners(),
                                            sChain->getRequiredSigners());
@@ -135,13 +134,13 @@ CryptoManager::createSigShareSet(block_id _blockId, size_t _totalSigners, size_t
 
 
 ptr<ThresholdSigShare>
-CryptoManager::createSigShare(ptr<string> _sigShare, schain_id _schainID, block_id _blockID, node_id _signerNodeID,
-                              schain_index _signerIndex, size_t _totalSigners, size_t _requiredSigners) {
+CryptoManager::createSigShare(ptr<string> _sigShare, schain_id _schainID, block_id _blockID, schain_index _signerIndex,
+                              size_t _totalSigners, size_t _requiredSigners) {
     if (getSchain()->getNode()->isBlsEnabled()) {
-        return make_shared<ConsensusBLSSigShare>(_sigShare, _schainID, _blockID, _signerNodeID, _signerIndex,
+        return make_shared<ConsensusBLSSigShare>(_sigShare, _schainID, _blockID, _signerIndex,
                                                  _totalSigners, _requiredSigners);
     } else {
-        return make_shared<MockupSigShare>(_sigShare, _schainID, _blockID, _signerNodeID, _signerIndex,
+        return make_shared<MockupSigShare>(_sigShare, _schainID, _blockID, _signerIndex,
                                            _totalSigners, _requiredSigners);
     }
 }

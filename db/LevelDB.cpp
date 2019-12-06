@@ -378,7 +378,7 @@ LevelDB::writeByteArrayToSet(const char *_value, uint64_t _valueLen, block_id _b
     }
 
 
-    if (count < requiredSigners) {
+    if (count != requiredSigners) {
         return nullptr;
     }
 

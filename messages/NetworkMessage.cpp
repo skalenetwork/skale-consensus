@@ -85,8 +85,8 @@ NetworkMessage::NetworkMessage(MsgType messageType, node_id _srcNodeID, node_id 
 
     
     if (_sigShareStr->size() > 0 ) {
-       sigShare = _cryptoManager->createSigShare(_sigShareStr, _schainId, _blockID, _srcNodeID, _srcSchainIndex,
-                                                           _totalSigners, _requiredSigners);
+       sigShare = _cryptoManager->createSigShare(_sigShareStr, _schainId, _blockID, _srcSchainIndex,
+                                                 _totalSigners, _requiredSigners);
     }
 
 

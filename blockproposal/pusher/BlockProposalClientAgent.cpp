@@ -108,15 +108,15 @@ BlockProposalClientAgent::readAndProcessFinalProposalResponseHeader(
 }
 
 
-void BlockProposalClientAgent::sendItemImpl(
-        ptr<DataStructure> _item, shared_ptr<ClientSocket> _socket, schain_index _index, node_id _nodeID) {
+void BlockProposalClientAgent::sendItemImpl(ptr<DataStructure> _item, shared_ptr<ClientSocket> _socket,
+                                            schain_index _index) {
 
     CHECK_ARGUMENT(_item != nullptr);
 
     ptr<BlockProposal> _proposal = dynamic_pointer_cast<BlockProposal>(_item);
 
     if (_proposal != nullptr) {
-        sendBlockProposal(_proposal, _socket, _index, _nodeID);
+        sendBlockProposal(_proposal, _socket, _index);
         return;
     }
 
@@ -149,8 +149,8 @@ ptr<BlockProposal> BlockProposalClientAgent::corruptProposal(ptr<BlockProposal> 
 
 
 
-void BlockProposalClientAgent::sendBlockProposal(
-        ptr<BlockProposal> _proposal, shared_ptr<ClientSocket> socket, schain_index _index, node_id _nodeID) {
+void BlockProposalClientAgent::sendBlockProposal(ptr<BlockProposal> _proposal, shared_ptr<ClientSocket> socket,
+                                                 schain_index _index) {
 
     INJECT_TEST(CORRUPT_PROPOSAL_TEST,
             _proposal = corruptProposal(_proposal, _index))
@@ -292,7 +292,7 @@ void BlockProposalClientAgent::sendBlockProposal(
 
     auto sigShare = getSchain()->getCryptoManager()->createSigShare(finalHeader->getSigShare(),
                                                                     _proposal->getSchainID(),
-                                                                    _proposal->getBlockID(), _nodeID, _index,
+                                                                    _proposal->getBlockID(), _index,
                                                                     getSchain()->getTotalSigners(),
                                                                     getSchain()->getRequiredSigners());
 

@@ -63,8 +63,9 @@ public:
 
     ptr<ThresholdSigShareSet> createSigShareSet(block_id _blockId, size_t _totalSigners, size_t _requiredSigners );
 
-    ptr<ThresholdSigShare> createSigShare(ptr<string> _sigShare, schain_id _schainID, block_id _blockID, node_id _signerNodeID,
-            schain_index _signerIndex, size_t _totalSigners, size_t _requiredSigners);
+    ptr<ThresholdSigShare>
+    createSigShare(ptr<string> _sigShare, schain_id _schainID, block_id _blockID, schain_index _signerIndex,
+                   size_t _totalSigners, size_t _requiredSigners);
 
     void signProposalECDSA(BlockProposal* _proposal);
 

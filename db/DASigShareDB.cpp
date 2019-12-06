@@ -64,38 +64,36 @@ const string DASigShareDB::getFormatVersion() {
     return "1.0";
 }
 
+
+// return not-null if _sigShare completes sig, null otherwise (both if not enough and too much)
 ptr<DAProof> DASigShareDB::addAndMergeSigShareAndVerifySig(ptr<ThresholdSigShare> _sigShare,
                                                            ptr<BlockProposal> _proposal) {
 
-
     ASSERT(_sigShare);
 
-    LOCK(m)
+    LOCK(sigShareMutex)
 
-    if (this->sigShareSets.count(_sigShare->getBlockId()) == 0) {
+    LOG(trace, "Adding sigshare");
+
+    auto result = this->writeStringToSet(*_sigShare->toString(),
+            _sigShare->getBlockId(), _sigShare->getSignerIndex());
+
+    if (result != nullptr) {
 
         auto set = sChain->getCryptoManager()->createSigShareSet(_sigShare->getBlockId(),
                                                                  sChain->getTotalSigners(),
                                                                  sChain->getRequiredSigners());
 
-        sigShareSets[_sigShare->getBlockId()] = set;
+        for (auto && entry : *result) {
+            auto share = sChain->getCryptoManager()->createSigShare(
+                    entry.second, sChain->getSchainID(),
+                    _proposal->getBlockID(), entry.first,
+                    totalSigners, requiredSigners);
 
-        ASSERT(!set->isEnough());
+            set->addSigShare(share);
+        }
 
-    }
 
-    auto set = sigShareSets.at(_sigShare->getBlockId());
-
-    if (set->isEnough()) { // already merged
-        return nullptr;
-    }
-
-    LOG(trace, "Adding sigshare");
-    set->addSigShare(_sigShare);
-
-    auto result = this->writeStringToSet(*_sigShare->toString(), _sigShare->getBlockId(), _sigShare->getSignerIndex());
-
-    if (result != nullptr) {
         LOG(trace, "Merged signature");
         auto sig = set->mergeSignature();
         sChain->getCryptoManager()->verifyThresholdSig(
