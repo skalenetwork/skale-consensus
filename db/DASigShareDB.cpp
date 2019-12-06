@@ -93,12 +93,11 @@ ptr<DAProof> DASigShareDB::addAndMergeSigShareAndVerifySig(ptr<ThresholdSigShare
     LOG(trace, "Adding sigshare");
     set->addSigShare(_sigShare);
 
-    auto result = this->writeStringToBlockSet(*_sigShare->toString(), _sigShare->getBlockId(), _sigShare->getSignerIndex());
+    auto result = this->writeStringToSet(*_sigShare->toString(), _sigShare->getBlockId(), _sigShare->getSignerIndex());
 
-    if (set->isEnough()) {
+    if (result != nullptr) {
         LOG(trace, "Merged signature");
         auto sig = set->mergeSignature();
-
         sChain->getCryptoManager()->verifyThresholdSig(
                 _proposal->getHash(), sig->toString(), _sigShare->getBlockId());
         auto proof = make_shared<DAProof>(_proposal, sig);

@@ -66,11 +66,11 @@ protected:
     void writeString(const string &key1, const string &value1);
 
     ptr<map<schain_index, ptr<string>>>
-    writeStringToBlockSet(const string &_value, block_id _blockId, schain_index _index);
+    writeStringToSet(const string &_value, block_id _blockId, schain_index _index);
 
 
         ptr<map<schain_index, ptr<string>>>
-    writeByteArrayToBlockSet(const char *_value, uint64_t _valueLen, block_id _blockId, schain_index _index);
+    writeByteArrayToSet(const char *_value, uint64_t _valueLen, block_id _blockId, schain_index _index);
 
     void writeByteArray(const char *_key, size_t _keyLen, const char *value,
                         size_t _valueLen);

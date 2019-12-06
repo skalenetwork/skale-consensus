@@ -56,8 +56,8 @@ BlockSigShareDB::checkAndSaveShare(ptr<ThresholdSigShare> _sigShare, ptr<CryptoM
 
         LOCK(sigShareMutex)
 
-        auto enoughSet = writeStringToBlockSet(*sigShareString, _sigShare->getBlockId(),
-                                               _sigShare->getSignerIndex());
+        auto enoughSet = writeStringToSet(*sigShareString, _sigShare->getBlockId(),
+                                          _sigShare->getSignerIndex());
         if (enoughSet == nullptr)
             return nullptr;
 

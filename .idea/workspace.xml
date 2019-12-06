@@ -32,7 +32,6 @@
     <list default="true" id="e8eb5c74-4268-46a2-ac26-2e919fd9ff42" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/db/DASigShareDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/DASigShareDB.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/node/Node.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/node/Node.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -280,13 +279,6 @@
       <workItem from="1574435605775" duration="945000" />
       <workItem from="1575021765183" duration="8000" />
       <workItem from="1575369130855" duration="7805000" />
-    </task>
-    <task id="LOCAL-00017" summary="Fixed a problem with double proposal">
-      <created>1574690439183</created>
-      <option name="number" value="00017" />
-      <option name="presentableId" value="LOCAL-00017" />
-      <option name="project" value="LOCAL" />
-      <updated>1574690439183</updated>
     </task>
     <task id="LOCAL-00018" summary="Fixed a problem with double proposal">
       <created>1574690468050</created>
@@ -624,7 +616,14 @@
       <option name="project" value="LOCAL" />
       <updated>1575565387125</updated>
     </task>
-    <option name="localTasksCounter" value="66" />
+    <task id="LOCAL-00066" summary="Moving sigshares to DB">
+      <created>1575627051651</created>
+      <option name="number" value="00066" />
+      <option name="presentableId" value="LOCAL-00066" />
+      <option name="project" value="LOCAL" />
+      <updated>1575627051651</updated>
+    </task>
+    <option name="localTasksCounter" value="67" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -646,7 +645,6 @@
   <component name="VcsManagerConfiguration">
     <option name="CHECK_CODE_SMELLS_BEFORE_PROJECT_COMMIT" value="false" />
     <option name="CHECK_NEW_TODO" value="false" />
-    <MESSAGE value="Fixing block hash" />
     <MESSAGE value="Added leveldb test" />
     <MESSAGE value="Limit LevelDB size" />
     <MESSAGE value="Changed node to shared_ptr" />
@@ -671,7 +669,8 @@
     <MESSAGE value="Cleaned up LevelDB" />
     <MESSAGE value="Refactoring DBS" />
     <MESSAGE value="Added DASigShareDB" />
-    <option name="LAST_COMMIT_MESSAGE" value="Added DASigShareDB" />
+    <MESSAGE value="Moving sigshares to DB" />
+    <option name="LAST_COMMIT_MESSAGE" value="Moving sigshares to DB" />
   </component>
   <component name="WindowStateProjectService">
     <state x="2468" y="216" width="814" height="678" key="#All_in_[committed-block-serialize]" timestamp="1575369358115">
@@ -686,30 +685,30 @@
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
     <state x="2644" y="206" width="462" height="693" key="#com.intellij.ide.util.MemberChooser/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575468651368" />
-    <state x="2314" y="71" width="1121" height="962" key="CommitChangelistDialog2" timestamp="1575565386586">
+    <state x="2314" y="71" width="1121" height="962" key="CommitChangelistDialog2" timestamp="1575627050913">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state x="2314" y="71" width="1121" height="962" key="CommitChangelistDialog2/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575565386586" />
+    <state x="2314" y="71" width="1121" height="962" key="CommitChangelistDialog2/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575627050913" />
     <state x="2613" y="259" width="524" height="594" key="FileChooserDialogImpl" timestamp="1575391828198">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
     <state x="2613" y="259" width="524" height="594" key="FileChooserDialogImpl/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575391828198" />
-    <state width="1860" height="290" key="GridCell.Tab.0.bottom" timestamp="1575627016251">
+    <state width="1860" height="290" key="GridCell.Tab.0.bottom" timestamp="1575627228154">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state width="1860" height="290" key="GridCell.Tab.0.bottom/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575627016251" />
-    <state width="1860" height="290" key="GridCell.Tab.0.center" timestamp="1575627016251">
+    <state width="1860" height="290" key="GridCell.Tab.0.bottom/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575627228154" />
+    <state width="1860" height="290" key="GridCell.Tab.0.center" timestamp="1575627228154">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state width="1860" height="290" key="GridCell.Tab.0.center/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575627016251" />
-    <state width="1860" height="290" key="GridCell.Tab.0.left" timestamp="1575627016251">
+    <state width="1860" height="290" key="GridCell.Tab.0.center/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575627228154" />
+    <state width="1860" height="290" key="GridCell.Tab.0.left" timestamp="1575627228153">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state width="1860" height="290" key="GridCell.Tab.0.left/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575627016251" />
-    <state width="1860" height="290" key="GridCell.Tab.0.right" timestamp="1575627016251">
+    <state width="1860" height="290" key="GridCell.Tab.0.left/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575627228153" />
+    <state width="1860" height="290" key="GridCell.Tab.0.right" timestamp="1575627228154">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state width="1860" height="290" key="GridCell.Tab.0.right/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575627016251" />
+    <state width="1860" height="290" key="GridCell.Tab.0.right/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575627228154" />
     <state width="1860" height="334" key="GridCell.Tab.1.bottom" timestamp="1575372006606">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
@@ -726,10 +725,10 @@
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
     <state width="1860" height="334" key="GridCell.Tab.1.right/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575372006606" />
-    <state x="2375" y="210" width="1000" height="684" key="Vcs.Push.Dialog.v2" timestamp="1575565388303">
+    <state x="2375" y="210" width="1000" height="684" key="Vcs.Push.Dialog.v2" timestamp="1575627052977">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state x="2375" y="210" width="1000" height="684" key="Vcs.Push.Dialog.v2/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575565388303" />
+    <state x="2375" y="210" width="1000" height="684" key="Vcs.Push.Dialog.v2/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575627052977" />
     <state x="2434" y="329" key="com.intellij.ide.util.TipDialog" timestamp="1575369169675" />
     <state x="2434" y="329" key="com.intellij.ide.util.TipDialog/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575369169675" />
     <state x="2224" y="386" width="966" height="694" key="find.popup" timestamp="1575625931709">

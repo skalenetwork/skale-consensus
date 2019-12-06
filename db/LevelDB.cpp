@@ -324,15 +324,15 @@ uint64_t LevelDB::readCount(block_id _blockId) {
 }
 
 ptr<map<schain_index, ptr<string>>>
-LevelDB::writeStringToBlockSet(const string &_value, block_id _blockId, schain_index _index) {
-    return writeByteArrayToBlockSet(_value.data(), _value.size(), _blockId,
-                                    _index);
+LevelDB::writeStringToSet(const string &_value, block_id _blockId, schain_index _index) {
+    return writeByteArrayToSet(_value.data(), _value.size(), _blockId,
+                               _index);
 }
 
 
 
 ptr<map<schain_index, ptr<string>>>
-LevelDB::writeByteArrayToBlockSet(const char *_value, uint64_t _valueLen, block_id _blockId, schain_index _index) {
+LevelDB::writeByteArrayToSet(const char *_value, uint64_t _valueLen, block_id _blockId, schain_index _index) {
 
 
     ASSERT(requiredSigners > 0 && totalSigners >= requiredSigners)
