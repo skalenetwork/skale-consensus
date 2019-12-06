@@ -65,7 +65,6 @@ protected:
     ptr<map<schain_index, ptr<string>>>
     writeStringToSet(const string &_value, block_id _blockId, schain_index _index);
 
-
         ptr<map<schain_index, ptr<string>>>
     writeByteArrayToSet(const char *_value, uint64_t _valueLen, block_id _blockId, schain_index _index);
 
