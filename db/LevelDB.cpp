@@ -301,11 +301,13 @@ void LevelDB::rotateDBsIfNeeded() {
 }
 
 
-
+bool LevelDB::isEnough(block_id _blockID) {
+    ASSERT(requiredSigners > 0 && totalSigners >= requiredSigners)
+    return readCount(_blockID) >= requiredSigners;
+}
 
 
 uint64_t LevelDB::readCount(block_id _blockId) {
-
 
     auto counterKey = createCounterKey(_blockId);
 
@@ -316,7 +318,12 @@ uint64_t LevelDB::readCount(block_id _blockId) {
     }
 
     try {
-        return stoull(*countString, NULL, 10);
+        auto result = stoull(*countString, NULL, 10);
+
+        CHECK_STATE(totalSigners == 0 || result <= totalSigners);
+
+        return result;
+
     } catch (...) {
         LOG(err, "Incorrect value in LevelDB:" + *countString);
         return 0;

@@ -89,6 +89,11 @@ bool BlockProposalDB::addBlockProposal(ptr<BlockProposal> _proposal) {
 
     proposedBlockSets.at(_proposal->getBlockID())->add(_proposal);
 
+    auto serialized = _proposal->serialize();
+
+    this->writeByteArrayToSet((const char*) serialized->data(), serialized->size(), _proposal->getBlockID(),
+    _proposal->getProposerIndex());
+
 
     return proposedBlockSets.at(_proposal->getBlockID())->isTwoThird();
 }
@@ -159,18 +164,6 @@ ptr<BlockProposal> BlockProposalDB::getBlockProposal(block_id _blockID, schain_i
     return proposal;
 }
 
-
-bool BlockProposalDB::isTwoThird(block_id _blockID) {
-
-
-    LOCK(proposalMutex);
-
-    if (proposedBlockSets.count(_blockID) > 0) {
-        return proposedBlockSets.at(_blockID)->isTwoThird();
-    } else {
-        return false;
-    };
-}
 
 const string BlockProposalDB::getFormatVersion() {
     return "1.0";

@@ -127,6 +127,7 @@ public:
 
     uint64_t readCount(block_id _blockId);
 
+    bool isEnough(block_id _blockID);
 };
 
 

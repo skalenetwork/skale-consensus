@@ -59,8 +59,6 @@ public:
 
     ptr<BooleanProposalVector> getBooleanProposalsVector(block_id _blockID);
 
-    bool isTwoThird(block_id _blockID);
-
     bool addDAProof(ptr<DAProof> _proof);
 
     const string getFormatVersion();
