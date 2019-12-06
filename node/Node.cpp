@@ -265,6 +265,7 @@ void Node::setSchain(ptr<Schain> _schain) {
     assert (this->sChain == nullptr);
     this->sChain = _schain;
 
+
     string dataDir = *Log::getDataDir();
     string blockSigShareDBPrefix = "/block_sigshares_" + to_string(nodeID) + ".db";
     string daSigShareDBPrefix = "/da_sigshares_" + to_string(nodeID) + ".db";

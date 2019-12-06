@@ -56,7 +56,7 @@ using namespace std;
 
 
 DASigShareDB::DASigShareDB(string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize, Schain &_sChain) :
-LevelDB(_dirName, _prefix, _nodeId, _maxDBSize){
+LevelDB(_dirName, _prefix, _nodeId, _maxDBSize, _sChain.getTotalSigners(), _sChain.getRequiredSigners()){
     this->sChain = &_sChain;
 };
 
@@ -92,6 +92,8 @@ ptr<DAProof> DASigShareDB::addAndMergeSigShareAndVerifySig(ptr<ThresholdSigShare
 
     LOG(trace, "Adding sigshare");
     set->addSigShare(_sigShare);
+
+    auto result = this->writeStringToBlockSet(*_sigShare->toString(), _sigShare->getBlockId(), _sigShare->getSignerIndex());
 
     if (set->isEnough()) {
         LOG(trace, "Merged signature");

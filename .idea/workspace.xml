@@ -31,13 +31,7 @@
   <component name="ChangeListManager">
     <list default="true" id="e8eb5c74-4268-46a2-ac26-2e919fd9ff42" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/BlockDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/BlockDB.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/BlockProposalDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/BlockProposalDB.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/BlockProposalDB.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/BlockProposalDB.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/BlockSigShareDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/BlockSigShareDB.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/BlockSigShareDB.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/BlockSigShareDB.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/LevelDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/LevelDB.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/LevelDB.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/LevelDB.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/DASigShareDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/DASigShareDB.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/node/Node.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/node/Node.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -286,13 +280,6 @@
       <workItem from="1574435605775" duration="945000" />
       <workItem from="1575021765183" duration="8000" />
       <workItem from="1575369130855" duration="7805000" />
-    </task>
-    <task id="LOCAL-00016" summary="Optimizing memory">
-      <created>1574683705498</created>
-      <option name="number" value="00016" />
-      <option name="presentableId" value="LOCAL-00016" />
-      <option name="project" value="LOCAL" />
-      <updated>1574683705498</updated>
     </task>
     <task id="LOCAL-00017" summary="Fixed a problem with double proposal">
       <created>1574690439183</created>
@@ -630,7 +617,14 @@
       <option name="project" value="LOCAL" />
       <updated>1575564241837</updated>
     </task>
-    <option name="localTasksCounter" value="65" />
+    <task id="LOCAL-00065" summary="Added DASigShareDB">
+      <created>1575565387125</created>
+      <option name="number" value="00065" />
+      <option name="presentableId" value="LOCAL-00065" />
+      <option name="project" value="LOCAL" />
+      <updated>1575565387125</updated>
+    </task>
+    <option name="localTasksCounter" value="66" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -692,30 +686,30 @@
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
     <state x="2644" y="206" width="462" height="693" key="#com.intellij.ide.util.MemberChooser/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575468651368" />
-    <state x="2314" y="71" width="1121" height="962" key="CommitChangelistDialog2" timestamp="1575564241299">
+    <state x="2314" y="71" width="1121" height="962" key="CommitChangelistDialog2" timestamp="1575565386586">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state x="2314" y="71" width="1121" height="962" key="CommitChangelistDialog2/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575564241299" />
+    <state x="2314" y="71" width="1121" height="962" key="CommitChangelistDialog2/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575565386586" />
     <state x="2613" y="259" width="524" height="594" key="FileChooserDialogImpl" timestamp="1575391828198">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
     <state x="2613" y="259" width="524" height="594" key="FileChooserDialogImpl/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575391828198" />
-    <state width="1860" height="290" key="GridCell.Tab.0.bottom" timestamp="1575563373539">
+    <state width="1860" height="290" key="GridCell.Tab.0.bottom" timestamp="1575627016251">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state width="1860" height="290" key="GridCell.Tab.0.bottom/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575563373539" />
-    <state width="1860" height="290" key="GridCell.Tab.0.center" timestamp="1575563373539">
+    <state width="1860" height="290" key="GridCell.Tab.0.bottom/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575627016251" />
+    <state width="1860" height="290" key="GridCell.Tab.0.center" timestamp="1575627016251">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state width="1860" height="290" key="GridCell.Tab.0.center/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575563373539" />
-    <state width="1860" height="290" key="GridCell.Tab.0.left" timestamp="1575563373539">
+    <state width="1860" height="290" key="GridCell.Tab.0.center/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575627016251" />
+    <state width="1860" height="290" key="GridCell.Tab.0.left" timestamp="1575627016251">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state width="1860" height="290" key="GridCell.Tab.0.left/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575563373539" />
-    <state width="1860" height="290" key="GridCell.Tab.0.right" timestamp="1575563373539">
+    <state width="1860" height="290" key="GridCell.Tab.0.left/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575627016251" />
+    <state width="1860" height="290" key="GridCell.Tab.0.right" timestamp="1575627016251">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state width="1860" height="290" key="GridCell.Tab.0.right/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575563373539" />
+    <state width="1860" height="290" key="GridCell.Tab.0.right/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575627016251" />
     <state width="1860" height="334" key="GridCell.Tab.1.bottom" timestamp="1575372006606">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
@@ -732,16 +726,16 @@
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
     <state width="1860" height="334" key="GridCell.Tab.1.right/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575372006606" />
-    <state x="2375" y="210" width="1000" height="684" key="Vcs.Push.Dialog.v2" timestamp="1575564242833">
+    <state x="2375" y="210" width="1000" height="684" key="Vcs.Push.Dialog.v2" timestamp="1575565388303">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state x="2375" y="210" width="1000" height="684" key="Vcs.Push.Dialog.v2/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575564242833" />
+    <state x="2375" y="210" width="1000" height="684" key="Vcs.Push.Dialog.v2/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575565388303" />
     <state x="2434" y="329" key="com.intellij.ide.util.TipDialog" timestamp="1575369169675" />
     <state x="2434" y="329" key="com.intellij.ide.util.TipDialog/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575369169675" />
-    <state x="2417" y="205" width="966" height="694" key="find.popup" timestamp="1575465897038">
+    <state x="2224" y="386" width="966" height="694" key="find.popup" timestamp="1575625931709">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state x="2417" y="205" width="966" height="694" key="find.popup/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575465897038" />
+    <state x="2224" y="386" width="966" height="694" key="find.popup/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575625931709" />
     <state x="2565" y="128" width="620" height="849" key="refactoring.ChangeSignatureDialog" timestamp="1575565083306">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
