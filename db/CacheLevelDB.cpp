@@ -46,7 +46,7 @@
 #include "../exceptions/LevelDBException.h"
 #include "../exceptions/FatalError.h"
 
-#include "FIFOLevelDB.h"
+#include "CacheLevelDB.h"
 
 
 using namespace leveldb;
@@ -56,13 +56,13 @@ static WriteOptions writeOptions;
 static ReadOptions readOptions;
 
 
-ptr<string> FIFOLevelDB::readString(string &_key) {
+ptr<string> CacheLevelDB::readString(string &_key) {
     shared_lock<shared_mutex> lock(m);
     return readStringUnsafe(_key);
 }
 
 
-ptr<string> FIFOLevelDB::readStringUnsafe(string &_key) {
+ptr<string> CacheLevelDB::readStringUnsafe(string &_key) {
 
     for (int i = LEVELDB_PIECES - 1; i >= 0; i--) {
         auto result = make_shared<string>();
@@ -76,7 +76,7 @@ ptr<string> FIFOLevelDB::readStringUnsafe(string &_key) {
     return nullptr;
 }
 
-bool FIFOLevelDB::keyExists(const string &_key) {
+bool CacheLevelDB::keyExists(const string &_key) {
 
     shared_lock<shared_mutex> lock(m);
 
@@ -93,7 +93,7 @@ bool FIFOLevelDB::keyExists(const string &_key) {
 }
 
 
-void FIFOLevelDB::writeString(const string &_key, const string &_value) {
+void CacheLevelDB::writeString(const string &_key, const string &_value) {
 
     rotateDBsIfNeeded();
 
@@ -107,7 +107,7 @@ void FIFOLevelDB::writeString(const string &_key, const string &_value) {
 }
 
 
-void FIFOLevelDB::writeByteArray(const char *_key, size_t _keyLen, const char *value,
+void CacheLevelDB::writeByteArray(const char *_key, size_t _keyLen, const char *value,
                              size_t _valueLen) {
 
     rotateDBsIfNeeded();
@@ -121,7 +121,7 @@ void FIFOLevelDB::writeByteArray(const char *_key, size_t _keyLen, const char *v
     }
 }
 
-void FIFOLevelDB::writeByteArray(string &_key, const char *value,
+void CacheLevelDB::writeByteArray(string &_key, const char *value,
                              size_t _valueLen) {
 
     rotateDBsIfNeeded();
@@ -137,7 +137,7 @@ void FIFOLevelDB::writeByteArray(string &_key, const char *value,
     }
 }
 
-void FIFOLevelDB::throwExceptionOnError(Status _status) {
+void CacheLevelDB::throwExceptionOnError(Status _status) {
     if (_status.IsNotFound())
         return;
 
@@ -148,7 +148,7 @@ void FIFOLevelDB::throwExceptionOnError(Status _status) {
 
 }
 
-uint64_t FIFOLevelDB::visitKeys(FIFOLevelDB::KeyVisitor *_visitor, uint64_t _maxKeysToVisit) {
+uint64_t CacheLevelDB::visitKeys(CacheLevelDB::KeyVisitor *_visitor, uint64_t _maxKeysToVisit) {
 
     shared_lock<shared_mutex> lock(m);
 
@@ -169,7 +169,7 @@ uint64_t FIFOLevelDB::visitKeys(FIFOLevelDB::KeyVisitor *_visitor, uint64_t _max
 }
 
 
-DB *FIFOLevelDB::openDB(uint64_t _index) {
+DB *CacheLevelDB::openDB(uint64_t _index) {
 
     leveldb::DB *dbase = nullptr;
 
@@ -183,7 +183,7 @@ DB *FIFOLevelDB::openDB(uint64_t _index) {
 }
 
 
-FIFOLevelDB::FIFOLevelDB(string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize,
+CacheLevelDB::CacheLevelDB(string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize,
         uint64_t _totalSigners, uint64_t _requiredSigners)
         : nodeId(_nodeId),
           prefix(_prefix), dirname(_dirName),
@@ -206,12 +206,12 @@ FIFOLevelDB::FIFOLevelDB(string &_dirName, string &_prefix, node_id _nodeId, uin
     }
 }
 
-FIFOLevelDB::~FIFOLevelDB() {
+CacheLevelDB::~CacheLevelDB() {
 }
 
 using namespace boost::filesystem;
 
-uint64_t FIFOLevelDB::getActiveDBSize() {
+uint64_t CacheLevelDB::getActiveDBSize() {
     vector<path> files;
 
     path levelDBPath(dirname + "/" + prefix + "." + to_string(highestDBIndex));
@@ -227,7 +227,7 @@ uint64_t FIFOLevelDB::getActiveDBSize() {
 }
 
 
-std::pair<uint64_t, uint64_t> FIFOLevelDB::findMaxMinDBIndex() {
+std::pair<uint64_t, uint64_t> CacheLevelDB::findMaxMinDBIndex() {
 
     vector<path> dirs;
     vector<uint64_t> indices;
@@ -257,7 +257,7 @@ std::pair<uint64_t, uint64_t> FIFOLevelDB::findMaxMinDBIndex() {
     return {maxIndex, minIndex};
 }
 
-void FIFOLevelDB::rotateDBsIfNeeded() {
+void CacheLevelDB::rotateDBsIfNeeded() {
 
     if (getActiveDBSize() <= maxDBSize)
         return;
@@ -301,13 +301,13 @@ void FIFOLevelDB::rotateDBsIfNeeded() {
 }
 
 
-bool FIFOLevelDB::isEnough(block_id _blockID) {
+bool CacheLevelDB::isEnough(block_id _blockID) {
     ASSERT(requiredSigners > 0 && totalSigners >= requiredSigners)
     return readCount(_blockID) >= requiredSigners;
 }
 
 
-uint64_t FIFOLevelDB::readCount(block_id _blockId) {
+uint64_t CacheLevelDB::readCount(block_id _blockId) {
 
     auto counterKey = createCounterKey(_blockId);
 
@@ -331,7 +331,7 @@ uint64_t FIFOLevelDB::readCount(block_id _blockId) {
 }
 
 ptr<map<schain_index, ptr<string>>>
-FIFOLevelDB::writeStringToSet(const string &_value, block_id _blockId, schain_index _index) {
+CacheLevelDB::writeStringToSet(const string &_value, block_id _blockId, schain_index _index) {
     return writeByteArrayToSet(_value.data(), _value.size(), _blockId,
                                _index);
 }
@@ -339,7 +339,7 @@ FIFOLevelDB::writeStringToSet(const string &_value, block_id _blockId, schain_in
 
 
 ptr<map<schain_index, ptr<string>>>
-FIFOLevelDB::writeByteArrayToSet(const char *_value, uint64_t _valueLen, block_id _blockId, schain_index _index) {
+CacheLevelDB::writeByteArrayToSet(const char *_value, uint64_t _valueLen, block_id _blockId, schain_index _index) {
 
 
     ASSERT(requiredSigners > 0 && totalSigners >= requiredSigners)
@@ -409,39 +409,39 @@ FIFOLevelDB::writeByteArrayToSet(const char *_value, uint64_t _valueLen, block_i
 }
 
 
-ptr<string> FIFOLevelDB::createKey(const block_id _blockId) {
+ptr<string> CacheLevelDB::createKey(const block_id _blockId) {
     return make_shared<string>(getFormatVersion() + ":" + to_string(_blockId));
 }
 
-ptr<string> FIFOLevelDB::createKey(block_id _blockId, schain_index _proposerIndex) {
+ptr<string> CacheLevelDB::createKey(block_id _blockId, schain_index _proposerIndex) {
     return make_shared<string>(
             getFormatVersion() + ":" + to_string(_blockId) + ":" + to_string(_proposerIndex));
 }
 
 ptr<string>
-FIFOLevelDB::createKey(const block_id &_blockId, const schain_index &_proposerIndex, const bin_consensus_round &_round) {
+CacheLevelDB::createKey(const block_id &_blockId, const schain_index &_proposerIndex, const bin_consensus_round &_round) {
     return make_shared<string>(getFormatVersion() + ":" + to_string(_blockId) + ":" + to_string(_proposerIndex) + ":" +
                                to_string(_round));
 }
 
 
-string FIFOLevelDB::createSetKey(block_id _blockId, schain_index _index) {
+string CacheLevelDB::createSetKey(block_id _blockId, schain_index _index) {
     return to_string(_blockId) + ":" + to_string(_index);
 }
 
-string FIFOLevelDB::createCounterKey(block_id _blockId) {
+string CacheLevelDB::createCounterKey(block_id _blockId) {
     return getFormatVersion() + ":COUNTER:" + to_string(_blockId);
 }
 
 
 
 
-ptr<string> FIFOLevelDB::readStringFromBlockSet(block_id _blockId, schain_index _index) {
+ptr<string> CacheLevelDB::readStringFromBlockSet(block_id _blockId, schain_index _index) {
     auto key = createSetKey(_blockId, _index);
     return readString(key);
 }
 
-bool FIFOLevelDB::keyExistsInSet(block_id _blockId, schain_index _index) {
+bool CacheLevelDB::keyExistsInSet(block_id _blockId, schain_index _index) {
     return keyExists(createSetKey(_blockId, _index));
 }
 

@@ -82,7 +82,7 @@
 #include "../crypto/bls_include.h"
 #include "../crypto/ThresholdSigShare.h"
 #include "../db/BlockDB.h"
-#include "../db/FIFOLevelDB.h"
+#include "../db/CacheLevelDB.h"
 #include "../db/ProposalHashDB.h"
 #include "../pendingqueue/TestMessageGeneratorAgent.h"
 #include "SchainTest.h"

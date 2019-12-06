@@ -32,9 +32,9 @@ class Schain;
 
 class BooleanProposalVector;
 
-#include "FIFOLevelDB.h"
+#include "CacheLevelDB.h"
 
-class BlockProposalDB : public FIFOLevelDB {
+class BlockProposalDB : public CacheLevelDB {
 
     Schain* sChain;
 

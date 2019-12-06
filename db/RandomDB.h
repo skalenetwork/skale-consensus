@@ -26,9 +26,9 @@
 #define SKALED_RANDOMDB_H
 
 
-#include "FIFOLevelDB.h"
+#include "CacheLevelDB.h"
 
-class RandomDB : public FIFOLevelDB {
+class RandomDB : public CacheLevelDB {
 
 public:
 

@@ -32,7 +32,7 @@ class BlockProposal;
 class PartialHashesList;
 class Transaction;
 
-#include "../db/FIFOLevelDB.h"
+#include "../db/CacheLevelDB.h"
 
 class PendingTransactionsAgent : Agent {
 

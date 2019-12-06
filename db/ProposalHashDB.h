@@ -29,11 +29,11 @@ class CommittedBlock;
 
 
 
-#include "FIFOLevelDB.h"
+#include "CacheLevelDB.h"
 
 class CryptoManager;
 
-class ProposalHashDB : public FIFOLevelDB {
+class ProposalHashDB : public CacheLevelDB {
 
     recursive_mutex m;
 

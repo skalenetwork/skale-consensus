@@ -27,9 +27,9 @@
 
 class Transaction;
 
-#include "FIFOLevelDB.h"
+#include "CacheLevelDB.h"
 
-class CommittedTransactionDB : public FIFOLevelDB {
+class CommittedTransactionDB : public CacheLevelDB {
 
     const string getFormatVersion();
 

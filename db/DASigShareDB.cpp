@@ -56,7 +56,7 @@ using namespace std;
 
 
 DASigShareDB::DASigShareDB(string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize, Schain &_sChain) :
-FIFOLevelDB(_dirName, _prefix, _nodeId, _maxDBSize, _sChain.getTotalSigners(), _sChain.getRequiredSigners()){
+CacheLevelDB(_dirName, _prefix, _nodeId, _maxDBSize, _sChain.getTotalSigners(), _sChain.getRequiredSigners()){
     this->sChain = &_sChain;
 };
 

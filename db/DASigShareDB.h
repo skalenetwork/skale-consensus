@@ -35,9 +35,9 @@ class ThresholdSigShareSet;
 class ThresholdSignature;
 class ThresholdSigShare;
 
-#include "FIFOLevelDB.h"
+#include "CacheLevelDB.h"
 
-class DASigShareDB : public  FIFOLevelDB {
+class DASigShareDB : public  CacheLevelDB {
 
     Schain* sChain;
 
