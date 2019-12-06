@@ -44,18 +44,20 @@ class BlockProposalDB : public LevelDB {
 
     map<block_id, ptr<BlockProposalSet>> proposedBlockSets;
 
-public:
 
     ptr<BlockProposalSet> getProposedBlockSet(block_id _blockID);
+
+    void cleanOldBlockProposals(block_id _lastCommittedBlockID);
+
+public:
+
 
     ptr<BlockProposal> getBlockProposal(block_id _blockID, schain_index _proposerIndex);
 
     BlockProposalDB(string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize,
                     Schain &_sChain);
 
-    void cleanOldBlockProposals(block_id _lastCommittedBlockID);
-
-    bool addBlockProposal(ptr<BlockProposal> _proposal);
+    void addBlockProposal(ptr<BlockProposal> _proposal);
 
     ptr<BooleanProposalVector> getBooleanProposalsVector(block_id _blockID);
 

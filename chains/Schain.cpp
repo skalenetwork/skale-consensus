@@ -417,8 +417,6 @@ void Schain::processCommittedBlock(ptr<CommittedBlock> _block) {
 
         saveBlock(_block);
 
-        getNode()->getBlockProposalDB()->cleanOldBlockProposals(_block->getBlockID());
-
         pushBlockToExtFace(_block);
 
         lastCommittedBlockID++;
@@ -693,20 +691,17 @@ void Schain::decideBlock(block_id _blockId, schain_index _proposerIndex, ptr<Thr
                to_string((Time::getCurrentTimeMs() - getSchain()->getStartTimeMs()) / 1000.0));
 
 
-    auto proposedBlockSet = getNode()->getBlockProposalDB()->getProposedBlockSet(_blockId);
-
     ptr<BlockProposal> proposal = nullptr;
-    ASSERT(proposedBlockSet);
 
     if (_proposerIndex == 0) {
         proposal = createEmptyBlockProposal(_blockId);
     } else {
-        proposal = proposedBlockSet->getProposalByIndex(_proposerIndex);
+        proposal = getNode()->getBlockProposalDB()->getBlockProposal(_blockId, _proposerIndex);
     }
 
 
     if (proposal == nullptr ||
-        proposal->getDaProof() == nullptr ||
+            (proposal->getDaProof() == nullptr && _proposerIndex != 0) || // empty proposals donot need proofs
         // this switch is for testing only
         getNode()->getTestConfig()->isFinalizationDownloadOnly()) {
 
@@ -714,13 +709,13 @@ void Schain::decideBlock(block_id _blockId, schain_index _proposerIndex, ptr<Thr
         // Note that due to the BLS signature proof, 2t hosts out of 3t + 1 total are guaranteed to
         // posess the proposal
 
-        auto agent = make_unique<BlockFinalizeDownloader>(this, _blockId, _proposerIndex, proposedBlockSet);
+        auto agent = make_unique<BlockFinalizeDownloader>(this, _blockId, _proposerIndex);
 
         // This will complete successfully also if block arrives through catchup
         proposal = agent->downloadProposal();
 
         if (proposal != nullptr) // Nullptr means catchup happened first
-            proposedBlockSet->add(proposal);
+            getNode()->getBlockProposalDB()->addBlockProposal(proposal);
     }
 
     if (proposal != nullptr)

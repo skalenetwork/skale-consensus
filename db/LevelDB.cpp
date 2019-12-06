@@ -441,3 +441,7 @@ ptr<string> LevelDB::readStringFromBlockSet(block_id _blockId, schain_index _ind
     return readString(key);
 }
 
+bool LevelDB::keyExistsInSet(block_id _blockId, schain_index _index) {
+    return keyExists(createSetKey(_blockId, _index));
+}
+

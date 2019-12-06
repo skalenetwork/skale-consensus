@@ -218,22 +218,15 @@ public:
     uint64_t getPriceDBSize() const;
     uint64_t getDaSigShareDBSize() const;
     uint64_t getBlockProposalDBSize() const;
-
     bool isBlsEnabled() const;
-
     uint64_t getSimulateNetworkWriteDelayMs() const;
-
     ptr<BLSPublicKey> getBlsPublicKey() const;
-
     ptr<BLSPrivateKeyShare> getBlsPrivateKey() const;
 
 
 
     void initLevelDBs();
-
-
     bool isStarted() const;
-
     static set<node_id> nodeIDs;
 
 

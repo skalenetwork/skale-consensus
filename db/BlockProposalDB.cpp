@@ -70,7 +70,7 @@ bool BlockProposalDB::addDAProof(ptr<DAProof> _proof) {
 }
 
 
-bool BlockProposalDB::addBlockProposal(ptr<BlockProposal> _proposal) {
+void BlockProposalDB::addBlockProposal(ptr<BlockProposal> _proposal) {
 
 
     ASSERT(_proposal);
@@ -94,8 +94,6 @@ bool BlockProposalDB::addBlockProposal(ptr<BlockProposal> _proposal) {
     this->writeByteArrayToSet((const char*) serialized->data(), serialized->size(), _proposal->getBlockID(),
     _proposal->getProposerIndex());
 
-
-    return proposedBlockSets.at(_proposal->getBlockID())->isTwoThird();
 }
 
 
@@ -141,6 +139,7 @@ ptr<BlockProposalSet> BlockProposalDB::getProposedBlockSet(block_id _blockID) {
 
     return proposedBlockSets.at(_blockID);
 }
+
 
 
 ptr<BlockProposal> BlockProposalDB::getBlockProposal(block_id _blockID, schain_index _proposerIndex) {

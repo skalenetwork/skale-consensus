@@ -71,6 +71,7 @@
 #include "../../datastructures/BlockProposalFragmentList.h"
 #include "../../datastructures/BlockProposalSet.h"
 #include "../../datastructures/BlockProposal.h"
+#include "../../db/BlockProposalDB.h"
 #include "../../exceptions/NetworkProtocolException.h"
 #include "../../headers/BlockProposalRequestHeader.h"
 #include "../../headers/BlockFinalizeRequestHeader.h"
@@ -81,14 +82,11 @@
 #include "BlockFinalizeDownloaderThreadPool.h"
 
 
-BlockFinalizeDownloader::BlockFinalizeDownloader(Schain *_sChain, block_id _blockId, schain_index _proposerIndex,
-                                                 ptr<BlockProposalSet> _proposalSet) : sChain(_sChain),
-                                                                                       blockId(_blockId),
-                                                                                       proposerIndex(_proposerIndex),
-                                                                                       fragmentList(_blockId,
-                                                                                                    (uint64_t) _sChain->getNodeCount() -
-                                                                                                    1),
-                                                                                       proposalSet(_proposalSet) {
+BlockFinalizeDownloader::BlockFinalizeDownloader(Schain *_sChain, block_id _blockId, schain_index _proposerIndex)
+        : sChain(_sChain),
+          blockId(_blockId),
+          proposerIndex(_proposerIndex),
+          fragmentList(_blockId,   (uint64_t) _sChain->getNodeCount() - 1) {
 
     CHECK_ARGUMENT(_sChain != nullptr);
 
@@ -279,7 +277,9 @@ void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(BlockFinalizeDown
             if (!testFinalizationDownloadOnly) {
                 // take into account that the same block can come through catchup
                 if (agent->getSchain()->getLastCommittedBlockID() >= agent->blockId ||
-                    agent->proposalSet->getProposalByIndex(agent->proposerIndex) != nullptr) {
+                    agent->getSchain()->getNode()->getBlockProposalDB()->keyExistsInSet(
+                            agent->blockId,
+                            agent->proposerIndex)) {
                     return;
                 }
             }

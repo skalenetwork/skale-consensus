@@ -123,6 +123,8 @@ public:
 
     bool keyExists(const string &_key);
 
+    bool keyExistsInSet(block_id _blockId, schain_index _index);
+
     ptr<string> readStringFromBlockSet(block_id _blockId, schain_index _index);
 
     uint64_t readCount(block_id _blockId);
