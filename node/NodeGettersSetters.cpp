@@ -318,9 +318,23 @@ ptr<DASigShareDB> Node::getDaSigShareDB() const {
     return daSigShareDB;
 }
 
+
+ptr<DAProofDB> Node::getDaProofDB() const {
+    return daProofDB;
+}
+
+
 uint64_t Node::getDaSigShareDBSize() const {
     return daSigShareDBSize;
 }
+
+
+uint64_t Node::getDaProofDBSize() const {
+    return daProofDBSize;
+}
+
+
+
 
 ptr<BlockProposalDB>  Node::getBlockProposalDB() const {
     return blockProposalDB;

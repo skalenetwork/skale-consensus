@@ -70,6 +70,7 @@ class TestConfig;
 class BlockSigShareDB;
 
 class DASigShareDB;
+class DAProofDB;
 
 namespace leveldb {
     class DB;
@@ -163,6 +164,8 @@ private:
 
     ptr<DASigShareDB> daSigShareDB = nullptr;
 
+    ptr<DAProofDB> daProofDB = nullptr;
+
     ptr<BlockProposalDB> blockProposalDB = nullptr;
 
 
@@ -190,6 +193,7 @@ private:
     uint64_t blockDBSize;
     uint64_t proposalHashDBSize;
     uint64_t daSigShareDBSize;
+    uint64_t daProofDBSize;
     uint64_t blockSigShareDBSize;
     uint64_t randomDBSize;
     uint64_t priceDBSize;
@@ -209,6 +213,7 @@ public:
     ptr<ProposalHashDB> getProposalHashDB();
     ptr<BlockSigShareDB> getBlockSigShareDB() const;
     ptr<DASigShareDB> getDaSigShareDB() const;
+    ptr<DAProofDB> getDaProofDB() const;
     ptr<BlockProposalDB> getBlockProposalDB() const;
 
     uint64_t getProposalHashDBSize() const;
@@ -217,6 +222,7 @@ public:
     uint64_t getRandomDBSize() const;
     uint64_t getPriceDBSize() const;
     uint64_t getDaSigShareDBSize() const;
+    uint64_t getDaProofDBSize() const;
     uint64_t getBlockProposalDBSize() const;
     bool isBlsEnabled() const;
     uint64_t getSimulateNetworkWriteDelayMs() const;

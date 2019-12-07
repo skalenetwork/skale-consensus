@@ -34,6 +34,7 @@ class ConsensusBLSSigShare;
 class ThresholdSigShareSet;
 class ThresholdSignature;
 class ThresholdSigShare;
+class BooleanProposalVector;
 
 #include "CacheLevelDB.h"
 

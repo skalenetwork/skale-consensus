@@ -139,10 +139,6 @@ void AbstractClientAgent::workerThreadItemSendLoop( AbstractClientAgent* agent )
 
 
             if ( destinationSchainIndex != ( agent->getSchain()->getSchainIndex() ) ) {
-                auto nodeId = agent->getSchain()
-                                  ->getNode()
-                                  ->getNodeInfoByIndex( destinationSchainIndex )
-                                  ->getNodeID();
 
                 bool sent = false;
 
