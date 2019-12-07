@@ -39,6 +39,8 @@
 #include "../crypto/CryptoManager.h"
 #include "../crypto/SHAHash.h"
 #include "../datastructures/BlockProposal.h"
+#include "../datastructures/DAProof.h"
+#include "../datastructures/BooleanProposalVector.h"
 
 
 #include "leveldb/db.h"
@@ -56,7 +58,7 @@ using namespace std;
 
 
 DAProofDB::DAProofDB(string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize, Schain &_sChain) :
-CacheLevelDB(_dirName, _prefix, _nodeId, _maxDBSize, _sChain.getTotalSigners(), _sChain.getRequiredSigners()){
+        CacheLevelDB(_dirName, _prefix, _nodeId, _maxDBSize, _sChain.getTotalSigners(), _sChain.getRequiredSigners()) {
     this->sChain = &_sChain;
 };
 
@@ -65,45 +67,44 @@ const string DAProofDB::getFormatVersion() {
 }
 
 
-// return not-null if _sigShare completes sig, null otherwise (both if not enough and too much)
-ptr<DAProof> DAProofDB::addAndMergeSigShareAndVerifySig(ptr<ThresholdSigShare> _sigShare,
-                                                           ptr<BlockProposal> _proposal) {
+// return not-null if _daProof completes set, null otherwise (both if not enough and too much)
+ptr<BooleanProposalVector> DAProofDB::addDAProof(ptr<DAProof> _daProof,
+                                                 ptr<BlockProposal> _proposal) {
 
-    ASSERT(_sigShare);
-
-    LOCK(sigShareMutex)
-
-    LOG(trace, "Adding sigshare");
-
-    auto result = this->writeStringToSet(*_sigShare->toString(),
-            _sigShare->getBlockId(), _sigShare->getSignerIndex());
-
-    if (result != nullptr) {
-
-        auto set = sChain->getCryptoManager()->createSigShareSet(_sigShare->getBlockId(),
-                                                                 sChain->getTotalSigners(),
-                                                                 sChain->getRequiredSigners());
-
-        for (auto && entry : *result) {
-            auto share = sChain->getCryptoManager()->createSigShare(
-                    entry.second, sChain->getSchainID(),
-                    _proposal->getBlockID(), entry.first,
-                    totalSigners, requiredSigners);
-
-            set->addSigShare(share);
-        }
+    CHECK_ARGUMENT(_daProof != nullptr);
+    CHECK_ARGUMENT(_proposal != nullptr);
 
 
-        LOG(trace, "Merged signature");
-        auto sig = set->mergeSignature();
-        sChain->getCryptoManager()->verifyThresholdSig(
-                _proposal->getHash(), sig->toString(), _sigShare->getBlockId());
-        auto proof = make_shared<DAProof>(_proposal, sig);
-        return proof;
+    LOCK(daProofMutex)
+
+    LOG(trace, "Adding daProof");
+
+    auto result = this->writeStringToSet(*_daProof->getThresholdSig()->toString(),
+                                         _proposal->getBlockID(), _proposal->getProposerIndex());
+
+
+    if (result == nullptr) {
+        return nullptr;
     }
 
-    return nullptr;
+
+    auto proposalVector = make_shared<BooleanProposalVector>(node_count(totalSigners));
+
+
+    for (uint64_t i = 1; i <= totalSigners; i++) {
+
+        proposalVector->pushValue(result->count(schain_index(i)) > 0);
+
+    }
+
+    CHECK_STATE(proposalVector->getTrueCount() == requiredSigners);
+
+
+    LOG(trace, "Created proposal vector");
+
+    return proposalVector;
 }
+
 
 
 

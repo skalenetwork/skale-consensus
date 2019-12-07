@@ -114,18 +114,13 @@ ptr<BooleanProposalVector> BlockProposalSet::createBooleanVector() {
 
     auto v = make_shared<BooleanProposalVector>(nodeCount);
 
-    int trueValues = 0;
 
     for ( uint64_t i = 1; i <= nodeCount; i++ ) {
         auto value = proposals.count(i) > 0 && proposals.at(i)->getDaProof() != nullptr;
-
-        if (value) {
-            trueValues++;
-        }
         v->pushValue(value);
     }
 
-    ASSERT(3 * trueValues > 2 * nodeCount);
+    ASSERT(3 * v->getTrueCount() > 2 * nodeCount);
 
     return v;
 };

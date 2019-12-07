@@ -41,13 +41,13 @@ class DAProofDB : public  CacheLevelDB {
 
     Schain* sChain;
 
-    recursive_mutex sigShareMutex;
+    recursive_mutex daProofMutex;
 
 public:
 
     explicit DAProofDB(string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize, Schain &_sChain);
 
-    ptr<DAProof> addAndMergeSigShareAndVerifySig(ptr<ThresholdSigShare> _sigShare,
+    ptr<BooleanProposalVector> addDAProof(ptr<DAProof> _daProof,
                                                  ptr<BlockProposal> _proposal);
 
     const string getFormatVersion();
