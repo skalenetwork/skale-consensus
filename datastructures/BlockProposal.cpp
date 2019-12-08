@@ -197,21 +197,6 @@ ptr<BlockProposalRequestHeader> BlockProposal::createBlockProposalHeader(Schain*
 
 }
 
-ptr<DAProof> BlockProposal::getDaProof() const {
-    return daProof;
-}
-
-ptr<DAProof> BlockProposal::setAndGetDaProof(const ptr<DAProof> _daProof) {
-    LOCK(m)
-
-    if (daProof != nullptr)
-        return daProof;
-
-    LOG(trace, "Set DA proof");
-
-    BlockProposal::daProof = _daProof;
-    return nullptr;
-}
 
 ptr<Header> BlockProposal::createHeader() {
     return make_shared<BlockProposalHeader>(*this);

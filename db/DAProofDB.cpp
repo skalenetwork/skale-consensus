@@ -67,12 +67,15 @@ const string DAProofDB::getFormatVersion() {
 }
 
 
+
+bool DAProofDB::haveDAProof(ptr<BlockProposal> _proposal) {
+    return keyExistsInSet(_proposal->getBlockID(), _proposal->getProposerIndex());
+};
+
 // return not-null if _daProof completes set, null otherwise (both if not enough and too much)
-ptr<BooleanProposalVector> DAProofDB::addDAProof(ptr<DAProof> _daProof,
-                                                 ptr<BlockProposal> _proposal) {
+ptr<BooleanProposalVector> DAProofDB::addDAProof(ptr<DAProof> _daProof) {
 
     CHECK_ARGUMENT(_daProof != nullptr);
-    CHECK_ARGUMENT(_proposal != nullptr);
 
 
     LOCK(daProofMutex)
@@ -80,13 +83,15 @@ ptr<BooleanProposalVector> DAProofDB::addDAProof(ptr<DAProof> _daProof,
     LOG(trace, "Adding daProof");
 
     auto result = this->writeStringToSet(*_daProof->getThresholdSig()->toString(),
-                                         _proposal->getBlockID(), _proposal->getProposerIndex());
+                                         _daProof->getBlockId(), _daProof->getProposerIndex());
 
 
     if (result == nullptr) {
         return nullptr;
     }
 
+
+    cerr << "Starting  consensus" << endl;
 
     auto proposalVector = make_shared<BooleanProposalVector>(node_count(totalSigners));
 
@@ -101,6 +106,7 @@ ptr<BooleanProposalVector> DAProofDB::addDAProof(ptr<DAProof> _daProof,
 
 
     LOG(trace, "Created proposal vector");
+
 
     return proposalVector;
 }

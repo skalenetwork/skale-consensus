@@ -69,6 +69,7 @@ class Sockets;
 class SHAHash;
 class ConsensusBLSSigShare;
 class ThresholdSigShare;
+class BooleanProposalVector;
 
 class Schain : public Agent {
 
@@ -137,7 +138,7 @@ class Schain : public Agent {
 
     void processCommittedBlock(ptr<CommittedBlock> _block);
 
-    void startConsensus(block_id _blockID);
+    void startConsensus(const block_id _blockID, ptr<BooleanProposalVector> _propposalVector);
 
     void constructChildAgents();
 

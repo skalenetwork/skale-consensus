@@ -48,6 +48,7 @@
 #include "../../pendingqueue/PendingTransactionsAgent.h"
 #include "../pusher/BlockProposalClientAgent.h"
 #include "../../db/BlockProposalDB.h"
+#include "../../db/DAProofDB.h"
 
 #include "../../abstracttcpserver/AbstractServerAgent.h"
 #include "../../chains/Schain.h"
@@ -549,7 +550,7 @@ ptr<Header> BlockProposalServerAgent::createDAProofResponseHeader(ptr<ServerConn
         return responseHeader;
     }
 
-    if (proposal->getDaProof() != nullptr) {
+    if (getNode()->getDaProofDB()->haveDAProof(proposal)) {
         responseHeader->setStatusSubStatus(CONNECTION_DISCONNECT, CONNECTION_ALREADY_HAVE_DAP_PROOF);
         responseHeader->setComplete();
         return responseHeader;

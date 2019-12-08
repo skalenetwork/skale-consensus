@@ -169,8 +169,6 @@ private:
     ptr<BlockProposalDB> blockProposalDB = nullptr;
 
 
-private:
-
     uint64_t catchupIntervalMS;
 
     uint64_t monitoringIntervalMS;

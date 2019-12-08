@@ -58,16 +58,6 @@ BlockProposalDB::BlockProposalDB(string &_dirName, string &_prefix, node_id _nod
     }
 };
 
-bool BlockProposalDB::addDAProof(ptr<DAProof> _proof) {
-
-    LOCK(proposalMutex)
-
-    auto set = getProposedBlockSet(_proof->getBlockId());
-
-    CHECK_STATE(set != nullptr);
-
-    return set->addDAProof(_proof);
-}
 
 
 void BlockProposalDB::addBlockProposal(ptr<BlockProposal> _proposal) {
@@ -93,38 +83,6 @@ void BlockProposalDB::addBlockProposal(ptr<BlockProposal> _proposal) {
 
     this->writeByteArrayToSet((const char*) serialized->data(), serialized->size(), _proposal->getBlockID(),
     _proposal->getProposerIndex());
-
-}
-
-
-void BlockProposalDB::cleanOldBlockProposals(block_id _lastCommittedBlockID) {
-
-    LOCK(proposalMutex)
-
-    if (_lastCommittedBlockID < BLOCK_PROPOSAL_HISTORY_SIZE)
-        return;
-
-    oldBlockID = _lastCommittedBlockID - BLOCK_PROPOSAL_HISTORY_SIZE;
-
-    for (auto it = proposedBlockSets.cbegin(); it != proposedBlockSets.end();) {
-        if (it->first <= oldBlockID) {
-            proposedBlockSets.erase(it++);
-        } else {
-            ++it;
-        }
-    }
-}
-
-ptr<BooleanProposalVector> BlockProposalDB::getBooleanProposalsVector(block_id _blockID) {
-
-
-    LOCK(proposalMutex)
-
-    auto set = getProposedBlockSet((_blockID));
-
-    ASSERT(set);
-
-    return set->createBooleanVector();
 
 }
 

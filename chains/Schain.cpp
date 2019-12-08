@@ -56,6 +56,7 @@
 #include "../messages/NetworkMessageEnvelope.h"
 #include "../node/NodeInfo.h"
 #include "../db/BlockProposalDB.h"
+#include "../db/DAProofDB.h"
 #include "../db/DASigShareDB.h"
 #include "../network/Sockets.h"
 #include "../protocols/ProtocolInstance.h"
@@ -473,7 +474,7 @@ void Schain::pushBlockToExtFace(ptr<CommittedBlock> &_block) {
 }
 
 
-void Schain::startConsensus(const block_id _blockID) {
+void Schain::startConsensus(const block_id _blockID, ptr<BooleanProposalVector> _proposalVector) {
     {
 
         MONITOR(__CLASS_NAME__, __FUNCTION__)
@@ -507,12 +508,11 @@ void Schain::startConsensus(const block_id _blockID) {
     }
 
 
-    auto proposalVector = getNode()->getBlockProposalDB()->getBooleanProposalsVector(_blockID);
 
-    ASSERT(blockConsensusInstance != nullptr && proposalVector != nullptr);
+    ASSERT(blockConsensusInstance != nullptr && _proposalVector != nullptr);
 
 
-    auto message = make_shared<ConsensusProposalMessage>(*this, _blockID, proposalVector);
+    auto message = make_shared<ConsensusProposalMessage>(*this, _blockID, _proposalVector);
 
     auto envelope = make_shared<InternalMessageEnvelope>(ORIGIN_EXTERNAL, message, *this);
 
@@ -531,9 +531,11 @@ void Schain::daProofArrived(ptr<DAProof> _daProof) {
         if (_daProof->getBlockId() <= getLastCommittedBlockID())
             return;
 
+        auto pv = getNode()->getDaProofDB()->addDAProof(_daProof);
 
-        if (getNode()->getBlockProposalDB()->addDAProof(_daProof)) {
-            startConsensus(_daProof->getBlockId());
+
+        if (pv != nullptr) {
+            startConsensus(_daProof->getBlockId(), pv);
         }
     } catch (ExitRequestedException &e) { throw; }
     catch (...) {
@@ -693,15 +695,22 @@ void Schain::decideBlock(block_id _blockId, schain_index _proposerIndex, ptr<Thr
 
     ptr<BlockProposal> proposal = nullptr;
 
+    bool haveProof = false;
+
+
     if (_proposerIndex == 0) {
         proposal = createEmptyBlockProposal(_blockId);
+        haveProof = true; // empty proposals donot need DAP proofs
     } else {
         proposal = getNode()->getBlockProposalDB()->getBlockProposal(_blockId, _proposerIndex);
+        if (proposal!= nullptr) {
+            haveProof = getNode()->getDaProofDB()->haveDAProof(proposal);
+        }
     }
 
 
-    if (proposal == nullptr ||
-            (proposal->getDaProof() == nullptr && _proposerIndex != 0) || // empty proposals donot need proofs
+
+    if (!haveProof || // a proposal without a  DA proof is not trusted and has to be downloaded from others
         // this switch is for testing only
         getNode()->getTestConfig()->isFinalizationDownloadOnly()) {
 

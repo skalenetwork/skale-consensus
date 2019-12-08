@@ -34,7 +34,6 @@ class DAProof;
 
 class BlockProposalSet : public DataStructure  {
 
-    int daProofs = 0;
 
     node_count nodeCount;
 
@@ -42,23 +41,15 @@ class BlockProposalSet : public DataStructure  {
 
     map< uint64_t , ptr< BlockProposal > > proposals;
 
-    bool isTwoThirdProofs();
-
     static atomic<uint64_t>  totalObjects;
 
 public:
+
     node_count getCount();
 
     BlockProposalSet(Schain* _sChain, block_id _blockId );
 
     bool add(ptr<BlockProposal> _proposal);
-
-    bool addDAProof(ptr<DAProof> _proof);
-
-
-    bool isTwoThird();
-
-    ptr<BooleanProposalVector> createBooleanVector();
 
     ptr<BlockProposal> getProposalByIndex( schain_index _index );
 

@@ -44,8 +44,6 @@ class BlockProposal : public DataStructure {
 
     ptr<BlockProposalRequestHeader> header = nullptr;
 
-    ptr<DAProof> daProof = nullptr;
-
     ptr< vector< uint8_t > > serializedBlock = nullptr;
 
 
@@ -114,11 +112,9 @@ public:
 
     static ptr<BlockProposalRequestHeader> createBlockProposalHeader(Schain* _sChain, ptr<BlockProposal> _proposal);
 
-    ptr<DAProof> setAndGetDaProof(const ptr<DAProof> _daProof);
 
     ptr<vector<uint8_t> > serialize();
 
-    ptr<DAProof> getDaProof() const;
 
     static ptr<BlockProposal> deserialize(ptr<vector<uint8_t> > _serializedBlock,
                                                   ptr<CryptoManager> _manager);

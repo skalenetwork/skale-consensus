@@ -35,8 +35,12 @@ class ThresholdSigShareSet;
 class ThresholdSignature;
 class ThresholdSigShare;
 class BooleanProposalVector;
+class DAProof;
+class BlockProposal;
 
 #include "CacheLevelDB.h"
+
+
 
 class DAProofDB : public  CacheLevelDB {
 
@@ -48,10 +52,11 @@ public:
 
     explicit DAProofDB(string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize, Schain &_sChain);
 
-    ptr<BooleanProposalVector> addDAProof(ptr<DAProof> _daProof,
-                                                 ptr<BlockProposal> _proposal);
+    ptr<BooleanProposalVector> addDAProof(ptr<DAProof> _daProof);
 
     const string getFormatVersion();
+
+    bool haveDAProof(ptr<BlockProposal> _proposal);
 };
 
 

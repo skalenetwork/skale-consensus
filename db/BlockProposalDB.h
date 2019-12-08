@@ -47,8 +47,6 @@ class BlockProposalDB : public CacheLevelDB {
 
     ptr<BlockProposalSet> getProposedBlockSet(block_id _blockID);
 
-    void cleanOldBlockProposals(block_id _lastCommittedBlockID);
-
 public:
 
 
@@ -58,8 +56,6 @@ public:
                     Schain &_sChain);
 
     void addBlockProposal(ptr<BlockProposal> _proposal);
-
-    ptr<BooleanProposalVector> getBooleanProposalsVector(block_id _blockID);
 
     bool addDAProof(ptr<DAProof> _proof);
 

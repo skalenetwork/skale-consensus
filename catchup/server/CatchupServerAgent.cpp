@@ -41,6 +41,7 @@
 
 
 #include "../../db/BlockDB.h"
+#include "../../db/DAProofDB.h"
 
 #include "../../abstracttcpserver/ConnectionStatus.h"
 
@@ -327,7 +328,7 @@ ptr<vector<uint8_t>> CatchupServerAgent::createBlockFinalizeResponse(nlohmann::j
             return nullptr;
         }
 
-        if (proposal->getDaProof() == nullptr) {
+        if (!getNode()->getDaProofDB()->haveDAProof(proposal)) {
             LOG(trace, "Dont have DA proof:" + to_string(proposerIndex));
             _responseHeader->setStatusSubStatus(CONNECTION_DISCONNECT,
                                                 CONNECTION_DONT_HAVE_DA_PROOF_FOR_PROPOSAL);
