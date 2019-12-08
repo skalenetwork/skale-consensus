@@ -38,6 +38,7 @@ class BooleanProposalVector;
 class BlockSignBroadcastMessage;
 class CryptoManager;
 
+
 class BlockConsensusAgent : public ProtocolInstance {
 
     class Comparator {
