@@ -61,6 +61,7 @@ public:
 
     const string getFormatVersion();
 
+    ptr<vector<uint8_t> > getSerializedProposalFromLevelDB(block_id _blockID, schain_index _proposerIndex);
 };
 
 

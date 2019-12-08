@@ -33,6 +33,7 @@
 #include "../chains/Schain.h"
 #include "../crypto/SHAHash.h"
 #include "../datastructures/DAProof.h"
+#include "../datastructures/CommittedBlock.h"
 #include "../pendingqueue/PendingTransactionsAgent.h"
 #include "../blockproposal/pusher/BlockProposalClientAgent.h"
 #include "../datastructures/BlockProposal.h"
@@ -72,13 +73,6 @@ void BlockProposalDB::addBlockProposal(ptr<BlockProposal> _proposal) {
 
     LOCK(proposalMutex)
 
-    if (this->proposedBlockSets.count(_proposal->getBlockID()) == 0) {
-        proposedBlockSets[_proposal->getBlockID()] = make_shared<BlockProposalSet>(this->sChain,
-                                                                                   _proposal->getBlockID());
-    }
-
-    proposedBlockSets.at(_proposal->getBlockID())->add(_proposal);
-
     auto serialized = _proposal->serialize();
 
     this->writeByteArrayToSet((const char*) serialized->data(), serialized->size(), _proposal->getBlockID(),
@@ -87,16 +81,28 @@ void BlockProposalDB::addBlockProposal(ptr<BlockProposal> _proposal) {
 }
 
 
-ptr<BlockProposalSet> BlockProposalDB::getProposedBlockSet(block_id _blockID) {
 
-    LOCK(proposalMutex)
+ptr<vector<uint8_t> >
+BlockProposalDB::getSerializedProposalFromLevelDB(block_id _blockID, schain_index _proposerIndex) {
 
-    if (proposedBlockSets.count(_blockID) == 0) {
-        proposedBlockSets[_blockID] = make_shared<BlockProposalSet>(this->sChain, _blockID);
+    try {
+
+
+        auto value = readStringFromBlockSet(_blockID, _proposerIndex);
+
+        if (value) {
+            auto serializedBlock = make_shared<vector<uint8_t>>();
+            serializedBlock->insert(serializedBlock->begin(), value->data(), value->data() + value->size());
+            CommittedBlock::serializedSanityCheck(serializedBlock);
+            return serializedBlock;
+        } else {
+            return nullptr;
+        }
+    } catch (...) {
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
-
-    return proposedBlockSets.at(_blockID);
 }
+
 
 
 
@@ -105,13 +111,13 @@ ptr<BlockProposal> BlockProposalDB::getBlockProposal(block_id _blockID, schain_i
 
     LOCK(proposalMutex);
 
-    auto set = getProposedBlockSet(_blockID);
 
-    if (!set) {
+    auto serializedProposal = getSerializedProposalFromLevelDB(_blockID, _proposerIndex);
+
+    if (serializedProposal == nullptr)
         return nullptr;
-    }
 
-    auto proposal = set->getProposalByIndex(_proposerIndex);
+    auto proposal = BlockProposal::deserialize(serializedProposal, sChain->getCryptoManager());
 
     if (proposal == nullptr)
         return nullptr;

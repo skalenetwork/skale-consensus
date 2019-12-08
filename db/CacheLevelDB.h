@@ -126,6 +126,9 @@ public:
     uint64_t readCount(block_id _blockId);
 
     bool isEnough(block_id _blockID);
+
+    ptr<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char>>>
+    readBytesFromBlockSet(block_id _blockId, schain_index _index);
 };
 
 
