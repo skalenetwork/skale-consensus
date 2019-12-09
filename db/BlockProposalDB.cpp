@@ -48,8 +48,8 @@ using namespace std;
 
 BlockProposalDB::BlockProposalDB(string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize,
                                  Schain &_sChain) :
-                                 CacheLevelDB(_dirName, _prefix, _nodeId, _maxDBSize, _sChain.getTotalSigners(),
-                                         _sChain.getRequiredSigners()) {
+        CacheLevelDB(_dirName, _prefix, _nodeId, _maxDBSize, _sChain.getTotalSigners(),
+                     _sChain.getRequiredSigners(), true) {
 
     sChain = &_sChain;
     try {
@@ -68,14 +68,20 @@ void BlockProposalDB::addBlockProposal(ptr<BlockProposal> _proposal) {
     LOG(trace, "addBlockProposal blockID_=" + to_string(_proposal->getBlockID()) + " proposerIndex=" +
                to_string(_proposal->getProposerIndex()));
 
+    try {
 
-    auto serialized = _proposal->serialize();
 
-    this->writeByteArrayToSet((const char*) serialized->data(), serialized->size(), _proposal->getBlockID(),
-    _proposal->getProposerIndex());
+        auto serialized = _proposal->serialize();
+
+        this->writeByteArrayToSet((const char *) serialized->data(), serialized->size(), _proposal->getBlockID(),
+                                  _proposal->getProposerIndex());
+
+    } catch (ExitRequestedException &e) { throw; }
+    catch (...) {
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+    }
 
 }
-
 
 
 ptr<vector<uint8_t> >
@@ -97,8 +103,6 @@ BlockProposalDB::getSerializedProposalFromLevelDB(block_id _blockID, schain_inde
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
 }
-
-
 
 
 ptr<BlockProposal> BlockProposalDB::getBlockProposal(block_id _blockID, schain_index _proposerIndex) {

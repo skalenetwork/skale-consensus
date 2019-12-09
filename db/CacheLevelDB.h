@@ -47,6 +47,7 @@ class CacheLevelDB {
     uint64_t  highestDBIndex = 0;
     shared_mutex m;
 
+
 protected:
 
     uint64_t totalSigners;
@@ -57,6 +58,8 @@ protected:
     string prefix;
     string dirname;
     uint64_t maxDBSize;
+    bool isDuplicateAddOK;
+
 
     ptr<string> readString(string &_key);
     ptr<string> readStringUnsafe(string &_key);
@@ -105,7 +108,7 @@ protected:
 
 
     CacheLevelDB(string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize,
-                 uint64_t _totalSigners = 0, uint64_t _requiredSigners = 0);
+                 uint64_t _totalSigners = 0, uint64_t _requiredSigners = 0, bool _isDuplicateAddOK = false);
 
 public:
 

@@ -200,10 +200,11 @@ DB *CacheLevelDB::openDB(uint64_t _index) {
 
 
 CacheLevelDB::CacheLevelDB(string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize,
-        uint64_t _totalSigners, uint64_t _requiredSigners)
+        uint64_t _totalSigners, uint64_t _requiredSigners, bool _isDuplicateAddOK)
         : nodeId(_nodeId),
           prefix(_prefix), dirname(_dirName),
-          maxDBSize(_maxDBSize), totalSigners(_totalSigners), requiredSigners(_requiredSigners) {
+          maxDBSize(_maxDBSize), totalSigners(_totalSigners), requiredSigners(_requiredSigners),
+          isDuplicateAddOK(_isDuplicateAddOK) {
 
     boost::filesystem::path path(_dirName);
 
@@ -366,7 +367,8 @@ CacheLevelDB::writeByteArrayToSet(const char *_value, uint64_t _valueLen, block_
     lock_guard<shared_mutex> lock(m);
 
     if (keyExistsUnsafe(entryKey)) {
-        LOG(warn, "Double db entry " + this->prefix + "\n" + to_string(_blockId) +  ":" + to_string(_index));
+        if (!isDuplicateAddOK)
+            LOG(warn, "Double db entry " + this->prefix + "\n" + to_string(_blockId) +  ":" + to_string(_index));
         return nullptr;
     }
 

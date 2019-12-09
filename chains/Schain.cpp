@@ -269,7 +269,7 @@ void Schain::blockCommitsArrivedThroughCatchup(ptr<CommittedBlockList> _blocks) 
     LOCK(m)
 
 
-    atomic<uint64_t> committedIDOld = (uint64_t ) getLastCommittedBlockID();
+    atomic<uint64_t> committedIDOld = (uint64_t) getLastCommittedBlockID();
 
     uint64_t previosBlockTimeStamp = 0;
     uint64_t previosBlockTimeStampMs = 0;
@@ -280,7 +280,7 @@ void Schain::blockCommitsArrivedThroughCatchup(ptr<CommittedBlockList> _blocks) 
     for (size_t i = 0; i < b->size(); i++) {
         auto t = b->at(i);
 
-        if ((uint64_t ) t->getBlockID() > getLastCommittedBlockID()) {
+        if ((uint64_t) t->getBlockID() > getLastCommittedBlockID()) {
             processCommittedBlock(t);
             previosBlockTimeStamp = t->getTimeStamp();
             previosBlockTimeStampMs = t->getTimeStampMs();
@@ -508,7 +508,6 @@ void Schain::startConsensus(const block_id _blockID, ptr<BooleanProposalVector> 
     }
 
 
-
     ASSERT(blockConsensusInstance != nullptr && _proposalVector != nullptr);
 
 
@@ -697,47 +696,51 @@ void Schain::decideBlock(block_id _blockId, schain_index _proposerIndex, ptr<Thr
 
     bool haveProof = false;
 
+    try {
 
-    if (_proposerIndex == 0) {
-
-
-
-        proposal = createEmptyBlockProposal(_blockId);
-        haveProof = true; // empty proposals donot need DAP proofs
-    } else {
-        proposal = getNode()->getBlockProposalDB()->getBlockProposal(_blockId, _proposerIndex);
-        if (proposal!= nullptr) {
-            haveProof = getNode()->getDaProofDB()->haveDAProof(proposal);
-        }
-    }
+        if (_proposerIndex == 0) {
 
 
-
-    if (!haveProof || // a proposal without a  DA proof is not trusted and has to be downloaded from others
-        // this switch is for testing only
-        getNode()->getTestConfig()->isFinalizationDownloadOnly()) {
-
-        // did not receive proposal from the proposer, pull it in parallel from other hosts
-        // Note that due to the BLS signature proof, 2t hosts out of 3t + 1 total are guaranteed to
-        // posess the proposal
-
-        auto agent = make_unique<BlockFinalizeDownloader>(this, _blockId, _proposerIndex);
-
-        {
-            const string message = "Finalization download:" + to_string(_blockId) + ":" +
-                    to_string(_proposerIndex);
-
-            MONITOR(__CLASS_NAME__, message.c_str());
-            // This will complete successfully also if block arrives through catchup
-            proposal = agent->downloadProposal();
+            proposal = createEmptyBlockProposal(_blockId);
+            haveProof = true; // empty proposals donot need DAP proofs
+        } else {
+            proposal = getNode()->getBlockProposalDB()->getBlockProposal(_blockId, _proposerIndex);
+            if (proposal != nullptr) {
+                haveProof = getNode()->getDaProofDB()->haveDAProof(proposal);
+            }
         }
 
-        if (proposal != nullptr) // Nullptr means catchup happened first
-            getNode()->getBlockProposalDB()->addBlockProposal(proposal);
-    }
 
-    if (proposal != nullptr)
-        blockCommitArrived(_blockId, _proposerIndex, proposal->getTimeStamp(), proposal->getTimeStampMs(),
-                           _thresholdSig);
+        if (!haveProof || // a proposal without a  DA proof is not trusted and has to be downloaded from others
+            // this switch is for testing only
+            getNode()->getTestConfig()->isFinalizationDownloadOnly()) {
+
+            // did not receive proposal from the proposer, pull it in parallel from other hosts
+            // Note that due to the BLS signature proof, 2t hosts out of 3t + 1 total are guaranteed to
+            // posess the proposal
+
+            auto agent = make_unique<BlockFinalizeDownloader>(this, _blockId, _proposerIndex);
+
+            {
+                const string message = "Finalization download:" + to_string(_blockId) + ":" +
+                                       to_string(_proposerIndex);
+
+                MONITOR(__CLASS_NAME__, message.c_str());
+                // This will complete successfully also if block arrives through catchup
+                proposal = agent->downloadProposal();
+            }
+
+            if (proposal != nullptr) // Nullptr means catchup happened first
+                getNode()->getBlockProposalDB()->addBlockProposal(proposal);
+        }
+
+        if (proposal != nullptr)
+            blockCommitArrived(_blockId, _proposerIndex, proposal->getTimeStamp(), proposal->getTimeStampMs(),
+                               _thresholdSig);
+
+    } catch (ExitRequestedException &e) { throw; }
+    catch (...) {
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+    }
 
 }
