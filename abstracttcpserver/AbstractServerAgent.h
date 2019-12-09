@@ -41,10 +41,9 @@ protected:
 
     const string name;
 
-    thread* networkReadThread;
-
     ptr<ServerSocket> socket;
 
+    thread* networkReadThread;
 
     mutex incomingTCPConnectionsMutex;
 

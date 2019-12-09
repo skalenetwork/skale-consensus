@@ -59,10 +59,7 @@ BlockProposalDB::BlockProposalDB(string &_dirName, string &_prefix, node_id _nod
     }
 };
 
-
-
 void BlockProposalDB::addBlockProposal(ptr<BlockProposal> _proposal) {
-
 
     ASSERT(_proposal);
     CHECK_ARGUMENT(_proposal->getSignature() != nullptr);
@@ -71,7 +68,6 @@ void BlockProposalDB::addBlockProposal(ptr<BlockProposal> _proposal) {
     LOG(trace, "addBlockProposal blockID_=" + to_string(_proposal->getBlockID()) + " proposerIndex=" +
                to_string(_proposal->getProposerIndex()));
 
-    LOCK(proposalMutex)
 
     auto serialized = _proposal->serialize();
 
@@ -86,7 +82,6 @@ ptr<vector<uint8_t> >
 BlockProposalDB::getSerializedProposalFromLevelDB(block_id _blockID, schain_index _proposerIndex) {
 
     try {
-
 
         auto value = readStringFromBlockSet(_blockID, _proposerIndex);
 
