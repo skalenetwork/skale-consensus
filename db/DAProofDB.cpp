@@ -90,9 +90,6 @@ ptr<BooleanProposalVector> DAProofDB::addDAProof(ptr<DAProof> _daProof) {
         return nullptr;
     }
 
-
-    cerr << "Starting  consensus" << endl;
-
     auto proposalVector = make_shared<BooleanProposalVector>(node_count(totalSigners));
 
 
