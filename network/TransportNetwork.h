@@ -122,4 +122,6 @@ public:
     void setCatchupBlocks(uint64_t _catchupBlocks);
 
     void postOrDefer(const ptr<NetworkMessageEnvelope> &m, const block_id &currentBlockID);
+
+    ~TransportNetwork();
 };
