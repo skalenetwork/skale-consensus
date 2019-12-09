@@ -79,6 +79,7 @@
 
 #include "../../crypto/ConsensusBLSSigShare.h"
 #include "../../headers/BlockFinalizeResponseHeader.h"
+#include "../../monitoring/LivelinessMonitor.h"
 #include "BlockProposalServerAgent.h"
 #include "BlockProposalWorkerThreadPool.h"
 
@@ -166,6 +167,9 @@ BlockProposalServerAgent::~BlockProposalServerAgent() {}
 
 
 void BlockProposalServerAgent::processNextAvailableConnection(ptr<ServerConnection> _connection) {
+
+    MONITOR(__CLASS_NAME__, __FUNCTION__);
+
     try {
         sChain->getIo()->readMagic(_connection->getDescriptor());
     } catch (ExitRequestedException &) {

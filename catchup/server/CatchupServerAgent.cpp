@@ -93,6 +93,8 @@ CatchupServerAgent::~CatchupServerAgent() {
 void CatchupServerAgent::processNextAvailableConnection(ptr<ServerConnection> _connection) {
 
 
+    MONITOR(__CLASS_NAME__, __FUNCTION__);
+
     try {
         sChain->getIo()->readMagic(_connection->getDescriptor());
     }

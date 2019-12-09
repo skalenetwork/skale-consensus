@@ -26,14 +26,14 @@
 
 
 #include "MonitoringAgent.h"
-#define MONITOR2(_C_, _F_, _T_) LivelinessMonitor __L__(getSchain()->getMonitoringAgent().get(), _C_.c_str(), _F_, _T_);
-#define MONITOR(_C_, _F_) LivelinessMonitor __L__(getSchain()->getMonitoringAgent().get(), _C_.c_str(), _F_, 2000);
+#define MONITOR2(_C_, _F_, _T_) LivelinessMonitor __L__(getSchain()->getMonitoringAgent().get(), _C_, _F_, _T_);
+#define MONITOR(_C_, _F_) LivelinessMonitor __L__(getSchain()->getMonitoringAgent().get(), _C_, _F_, 2000);
 
 class LivelinessMonitor {
 
 
-    const char* cl;
-    const char* function;
+    string cl;
+    string function;
     pthread_t  threadId;
 
     MonitoringAgent* agent = nullptr;
@@ -54,7 +54,7 @@ public:
 
     virtual ~LivelinessMonitor();
 
-    LivelinessMonitor(MonitoringAgent *_agent, const char *_class, const char *_function, uint64_t _maxTime);
+    LivelinessMonitor(MonitoringAgent *_agent, const string& _class, const string& _function, uint64_t _maxTime);
 
 };
 

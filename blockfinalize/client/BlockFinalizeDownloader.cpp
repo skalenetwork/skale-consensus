@@ -72,6 +72,7 @@
 #include "../../datastructures/BlockProposalSet.h"
 #include "../../datastructures/BlockProposal.h"
 #include "../../db/BlockProposalDB.h"
+#include "../../monitoring/LivelinessMonitor.h"
 #include "../../exceptions/NetworkProtocolException.h"
 #include "../../headers/BlockProposalRequestHeader.h"
 #include "../../headers/BlockFinalizeRequestHeader.h"
@@ -86,7 +87,7 @@ BlockFinalizeDownloader::BlockFinalizeDownloader(Schain *_sChain, block_id _bloc
         : sChain(_sChain),
           blockId(_blockId),
           proposerIndex(_proposerIndex),
-          fragmentList(_blockId,   (uint64_t) _sChain->getNodeCount() - 1) {
+          fragmentList(_blockId, (uint64_t) _sChain->getNodeCount() - 1) {
 
     CHECK_ARGUMENT(_sChain != nullptr);
 
@@ -109,6 +110,7 @@ BlockFinalizeDownloader::BlockFinalizeDownloader(Schain *_sChain, block_id _bloc
 
 
 nlohmann::json BlockFinalizeDownloader::readBlockFinalizeResponseHeader(ptr<ClientSocket> _socket) {
+    MONITOR(__CLASS_NAME__, __FUNCTION__);
     return getSchain()->getIo()->readJsonHeader(_socket->getDescriptor(), "Read BlockFinalize response");
 }
 
@@ -224,6 +226,8 @@ BlockFinalizeDownloader::readBlockFragment(ptr<ClientSocket> _socket, nlohmann::
 
     CHECK_ARGUMENT(responseHeader > 0);
 
+    MONITOR(__CLASS_NAME__, __FUNCTION__);
+
     auto fragmentSize = readFragmentSize(responseHeader);
     auto blockSize = readBlockSize(responseHeader);
     auto blockHash = readBlockHash(responseHeader);
@@ -305,9 +309,14 @@ void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(BlockFinalizeDown
 ptr<BlockProposal> BlockFinalizeDownloader::downloadProposal() {
 
 
-    this->threadPool = new BlockFinalizeDownloaderThreadPool((uint64_t) getSchain()->getNodeCount(), this);
-    threadPool->startService();
-    threadPool->joinAll();
+    {
+        MONITOR(__CLASS_NAME__, "Parallel download");
+
+        this->threadPool = new BlockFinalizeDownloaderThreadPool((uint64_t) getSchain()->getNodeCount(), this);
+        threadPool->startService();
+        threadPool->joinAll();
+
+    }
 
     try {
 
