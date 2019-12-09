@@ -76,9 +76,7 @@ ptr<string> CacheLevelDB::readStringUnsafe(string &_key) {
     return nullptr;
 }
 
-bool CacheLevelDB::keyExists(const string &_key) {
-
-    shared_lock<shared_mutex> lock(m);
+bool CacheLevelDB::keyExistsUnsafe(const string &_key) {
 
     for (int i = LEVELDB_PIECES - 1; i >= 0; i--) {
         auto result = make_shared<string>();
@@ -92,6 +90,13 @@ bool CacheLevelDB::keyExists(const string &_key) {
     return false;
 }
 
+bool CacheLevelDB::keyExists(const string &_key) {
+
+    shared_lock<shared_mutex> lock(m);
+
+    return keyExistsUnsafe(_key);
+}
+
 
 void CacheLevelDB::writeString(const string &_key, const string &_value) {
 
@@ -99,6 +104,13 @@ void CacheLevelDB::writeString(const string &_key, const string &_value) {
 
     {
         shared_lock<shared_mutex> lock(m);
+
+        if (keyExistsUnsafe(_key)) {
+            CHECK_STATE(false);
+            LOG(trace, "Double entry written to db");
+            return;
+        }
+
 
         auto status = db.back()->Put(writeOptions, _key, Slice(_value));
 
@@ -114,6 +126,11 @@ void CacheLevelDB::writeByteArray(const char *_key, size_t _keyLen, const char *
 
     {
         shared_lock<shared_mutex> lock(m);
+
+        if (keyExistsUnsafe(string(_key))) {
+            LOG(trace, "Double entry written to db");
+            return;
+        }
 
         auto status = db.back()->Put(writeOptions, Slice(_key, _keyLen), Slice(value, _valueLen));
 
@@ -341,11 +358,19 @@ CacheLevelDB::writeStringToSet(const string &_value, block_id _blockId, schain_i
 ptr<map<schain_index, ptr<string>>>
 CacheLevelDB::writeByteArrayToSet(const char *_value, uint64_t _valueLen, block_id _blockId, schain_index _index) {
 
-
-
     assert(requiredSigners > 0 && totalSigners >= requiredSigners);
     assert(_index > 0 && _index <= totalSigners);
+
+
+    string entryKey = createSetKey(_blockId, _index);
+
     lock_guard<shared_mutex> lock(m);
+
+    if (keyExistsUnsafe(entryKey)) {
+        cerr << _blockId << ":" << _index << endl;
+        LOG(trace, "Double entry written to db");
+        return nullptr;
+    }
 
     uint64_t count = 0;
 
@@ -353,6 +378,8 @@ CacheLevelDB::writeByteArrayToSet(const char *_value, uint64_t _valueLen, block_
     auto result = make_shared<string>();
 
     auto counterKey = createCounterKey(_blockId);
+
+
 
     for (int i = LEVELDB_PIECES - 1; i >= 0; i--) {
         ASSERT(db[i] != nullptr);
@@ -376,7 +403,7 @@ CacheLevelDB::writeByteArrayToSet(const char *_value, uint64_t _valueLen, block_
     }
     {
 
-        string entryKey = createSetKey(_blockId, _index);
+
 
         leveldb::WriteBatch batch;
         count++;
