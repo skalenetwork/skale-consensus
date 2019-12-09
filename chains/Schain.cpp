@@ -699,6 +699,9 @@ void Schain::decideBlock(block_id _blockId, schain_index _proposerIndex, ptr<Thr
 
 
     if (_proposerIndex == 0) {
+
+
+
         proposal = createEmptyBlockProposal(_blockId);
         haveProof = true; // empty proposals donot need DAP proofs
     } else {
@@ -720,8 +723,11 @@ void Schain::decideBlock(block_id _blockId, schain_index _proposerIndex, ptr<Thr
 
         auto agent = make_unique<BlockFinalizeDownloader>(this, _blockId, _proposerIndex);
 
-        // This will complete successfully also if block arrives through catchup
-        proposal = agent->downloadProposal();
+        {
+            MONITOR(__CLASS_NAME__, "Finalization download")
+            // This will complete successfully also if block arrives through catchup
+            proposal = agent->downloadProposal();
+        }
 
         if (proposal != nullptr) // Nullptr means catchup happened first
             getNode()->getBlockProposalDB()->addBlockProposal(proposal);
