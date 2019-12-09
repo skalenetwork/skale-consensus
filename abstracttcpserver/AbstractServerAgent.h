@@ -43,7 +43,7 @@ protected:
 
     ptr<ServerSocket> socket;
 
-    thread* networkReadThread;
+    ptr<thread> networkReadThread;
 
     mutex incomingTCPConnectionsMutex;
 

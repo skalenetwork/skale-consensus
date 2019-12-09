@@ -267,9 +267,9 @@ void TransportNetwork::deferredMessagesLoop() {
 
 void TransportNetwork::startThreads() {
     networkReadThread =
-            new thread(std::bind(&TransportNetwork::networkReadLoop, this));
+            make_shared<thread>(std::bind(&TransportNetwork::networkReadLoop, this));
     deferredMessageThread =
-            new thread(std::bind(&TransportNetwork::deferredMessagesLoop, this));
+            make_shared<thread>(std::bind(&TransportNetwork::deferredMessagesLoop, this));
 
     GlobalThreadRegistry::add(networkReadThread);
     GlobalThreadRegistry::add(deferredMessageThread);
@@ -423,8 +423,8 @@ uint32_t TransportNetwork::getPacketLoss() const {
     return packetLoss;
 }
 
-void TransportNetwork::setPacketLoss(uint32_t packetLoss) {
-    TransportNetwork::packetLoss = packetLoss;
+void TransportNetwork::setPacketLoss(uint32_t _packetLoss) {
+    TransportNetwork::packetLoss = _packetLoss;
 }
 
 void TransportNetwork::setCatchupBlocks(uint64_t _catchupBlocks) {
@@ -446,9 +446,9 @@ TransportNetwork::TransportNetwork(Schain &_sChain)
     }
 
     if (cfg.find("packetLoss") != cfg.end()) {
-        uint32_t packetLoss = cfg.at("packetLoss").get<uint64_t>();
-        ASSERT(packetLoss <= 100);
-        setPacketLoss(packetLoss);
+        uint32_t pl = cfg.at("packetLoss").get<uint64_t>();
+        ASSERT(pl <= 100);
+        setPacketLoss(pl);
     }
 }
 
@@ -457,6 +457,4 @@ void TransportNetwork::confirmMessage(const ptr<NodeInfo> &) {
 };
 
 TransportNetwork::~TransportNetwork(){
-    delete networkReadThread;
-    delete deferredMessageThread;
 }

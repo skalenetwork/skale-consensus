@@ -43,6 +43,6 @@ BlockProposalWorkerThreadPool::BlockProposalWorkerThreadPool(num_threads numThre
 
 void BlockProposalWorkerThreadPool::createThread(uint64_t /*threadNumber*/) {
 
-    this->threadpool.push_back(new thread(AbstractServerAgent::workerThreadConnectionProcessingLoop,
+    this->threadpool.push_back(make_shared<thread>(AbstractServerAgent::workerThreadConnectionProcessingLoop,
                                                    (BlockProposalServerAgent*)params));
 }

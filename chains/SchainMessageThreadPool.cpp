@@ -40,6 +40,6 @@ SchainMessageThreadPool::SchainMessageThreadPool(void *params_) : WorkerThreadPo
 }
 
 void SchainMessageThreadPool::createThread(uint64_t /*_threadNumber*/) {
-    threadpool.push_back(new thread(Schain::messageThreadProcessingLoop,
+    threadpool.push_back(make_shared<thread>(Schain::messageThreadProcessingLoop,
                                     reinterpret_cast < Schain * > ( params )));
 }

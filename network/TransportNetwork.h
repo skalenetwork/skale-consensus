@@ -85,9 +85,9 @@ protected:
 
 
 
-    thread* networkReadThread;
+    ptr<thread> networkReadThread;
 
-    thread* deferredMessageThread;
+    ptr<thread> deferredMessageThread;
 
 
 public:

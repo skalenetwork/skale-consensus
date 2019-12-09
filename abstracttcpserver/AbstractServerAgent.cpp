@@ -137,7 +137,6 @@ AbstractServerAgent::AbstractServerAgent(const string &_name, Schain &_schain,
 
 AbstractServerAgent::~AbstractServerAgent() {
     this->networkReadThread->join();
-    delete networkReadThread;
 }
 
 void AbstractServerAgent::acceptTCPConnectionsLoop() {
@@ -178,7 +177,7 @@ void AbstractServerAgent::acceptTCPConnectionsLoop() {
 void AbstractServerAgent::createNetworkReadThread() {
 
     LOG(trace, name + " Starting TCP server network read loop");
-    networkReadThread = new thread(std::bind(&AbstractServerAgent::acceptTCPConnectionsLoop, this));
+    networkReadThread = make_shared<thread>(std::bind(&AbstractServerAgent::acceptTCPConnectionsLoop, this));
     LOG(trace, name + " Started TCP server network read loop");
 
 }

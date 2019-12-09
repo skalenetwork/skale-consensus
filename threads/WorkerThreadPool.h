@@ -44,7 +44,7 @@ protected:
 
     bool joined = false;
 
-    vector<thread*> threadpool;
+    vector<ptr<thread>> threadpool;
 
     num_threads numThreads;
 
