@@ -36,6 +36,8 @@
 #include "../../node/ConsensusEngine.h"
 #include "../../thirdparty/json.hpp"
 
+#include "../monitoring/LivelinessMonitor.h"
+
 
 #include "../../node/NodeInfo.h"
 
@@ -238,6 +240,9 @@ ptr<vector<uint8_t>> CatchupServerAgent::createResponseHeaderAndBinary(ptr<Serve
 ptr<vector<uint8_t>> CatchupServerAgent::createBlockCatchupResponse(nlohmann::json /*_jsonRequest */,
                                                                     ptr<CatchupResponseHeader> _responseHeader,
                                                                     block_id _blockID) {
+
+    MONITOR(__CLASS_NAME__, __FUNCTION__);
+
     try {
 
         if (sChain->getLastCommittedBlockID() <= block_id(_blockID)) {
@@ -297,6 +302,9 @@ ptr<vector<uint8_t>> CatchupServerAgent::createBlockCatchupResponse(nlohmann::js
 ptr<vector<uint8_t>> CatchupServerAgent::createBlockFinalizeResponse(nlohmann::json _jsonRequest,
                                                                      ptr<BlockFinalizeResponseHeader> _responseHeader,
                                                                      block_id _blockID) {
+
+    MONITOR(__CLASS_NAME__, __FUNCTION__);
+
     try {
         fragment_index fragmentIndex = Header::getUint64(_jsonRequest, "fragmentIndex");
 
@@ -322,14 +330,14 @@ ptr<vector<uint8_t>> CatchupServerAgent::createBlockFinalizeResponse(nlohmann::j
         auto proposal = getSchain()->getBlockProposal(_blockID, proposerIndex);
 
         if (proposal == nullptr) {
-            LOG(trace, "Dont have proposal:" + to_string(proposerIndex));
+            LOG(err, "Dont have proposal:" + to_string(proposerIndex));
             _responseHeader->setStatusSubStatus(CONNECTION_DISCONNECT, CONNECTION_DONT_HAVE_PROPOSAL);
             _responseHeader->setComplete();
             return nullptr;
         }
 
         if (!getNode()->getDaProofDB()->haveDAProof(proposal)) {
-            LOG(trace, "Dont have DA proof:" + to_string(proposerIndex));
+            LOG(err, "Dont have DA proof:" + to_string(proposerIndex));
             _responseHeader->setStatusSubStatus(CONNECTION_DISCONNECT,
                                                 CONNECTION_DONT_HAVE_DA_PROOF_FOR_PROPOSAL);
             _responseHeader->setComplete();

@@ -115,6 +115,7 @@ nlohmann::json BlockFinalizeDownloader::readBlockFinalizeResponseHeader(ptr<Clie
 
 uint64_t BlockFinalizeDownloader::downloadFragment(schain_index _dstIndex, fragment_index _fragmentIndex) {
 
+
     try {
 
         auto header = make_shared<BlockFinalizeRequestHeader>(*sChain, blockId, proposerIndex, _fragmentIndex);

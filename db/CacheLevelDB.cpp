@@ -342,7 +342,9 @@ ptr<map<schain_index, ptr<string>>>
 CacheLevelDB::writeByteArrayToSet(const char *_value, uint64_t _valueLen, block_id _blockId, schain_index _index) {
 
 
-    ASSERT(requiredSigners > 0 && totalSigners >= requiredSigners)
+
+    assert(requiredSigners > 0 && totalSigners >= requiredSigners);
+    assert(_index > 0 && _index <= totalSigners);
     lock_guard<shared_mutex> lock(m);
 
     uint64_t count = 0;
@@ -403,7 +405,7 @@ CacheLevelDB::writeByteArrayToSet(const char *_value, uint64_t _valueLen, block_
         }
     }
 
-    CHECK_STATE(enoughSet->size() == requiredSigners);
+    assert(enoughSet->size() == requiredSigners);
 
     return enoughSet;
 }

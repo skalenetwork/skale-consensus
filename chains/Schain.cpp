@@ -724,7 +724,10 @@ void Schain::decideBlock(block_id _blockId, schain_index _proposerIndex, ptr<Thr
         auto agent = make_unique<BlockFinalizeDownloader>(this, _blockId, _proposerIndex);
 
         {
-            MONITOR(__CLASS_NAME__, "Finalization download")
+            const string message = "Finalization download:" + to_string(_blockId) + ":" +
+                    to_string(_proposerIndex);
+
+            MONITOR(__CLASS_NAME__, message.c_str());
             // This will complete successfully also if block arrives through catchup
             proposal = agent->downloadProposal();
         }
