@@ -106,8 +106,7 @@ void CacheLevelDB::writeString(const string &_key, const string &_value) {
         shared_lock<shared_mutex> lock(m);
 
         if (keyExistsUnsafe(_key)) {
-            CHECK_STATE(false);
-            LOG(trace, "Double entry written to db");
+            LOG(warn, "Double db entry " + this->prefix + "\n" + _key);
             return;
         }
 
@@ -285,7 +284,7 @@ void CacheLevelDB::rotateDBsIfNeeded() {
         if (getActiveDBSize() <= maxDBSize)
             return;
 
-        cerr << "Rotating db" << endl;
+        LOG(info, "Rotating db");
 
         auto newDB = openDB(highestDBIndex + 1);
 
@@ -367,8 +366,7 @@ CacheLevelDB::writeByteArrayToSet(const char *_value, uint64_t _valueLen, block_
     lock_guard<shared_mutex> lock(m);
 
     if (keyExistsUnsafe(entryKey)) {
-        cerr << _blockId << ":" << _index << endl;
-        LOG(trace, "Double entry written to db");
+        LOG(warn, "Double db entry " + this->prefix + "\n" + to_string(_blockId) +  ":" + to_string(_index));
         return nullptr;
     }
 

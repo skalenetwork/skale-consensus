@@ -278,7 +278,7 @@ void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(BlockFinalizeDown
             if (!testFinalizationDownloadOnly) {
                 // take into account that the same block can come through catchup
                 if (agent->getSchain()->getLastCommittedBlockID() >= agent->blockId ||
-                    agent->getSchain()->getNode()->getBlockProposalDB()->keyExistsInSet(
+                    agent->getSchain()->getNode()->getBlockProposalDB()->proposalExists(
                             agent->blockId,
                             agent->proposerIndex)) {
                     return;

@@ -50,6 +50,10 @@ class BlockProposalDB : public CacheLevelDB {
 public:
 
 
+
+
+    bool proposalExists(block_id _blockId, schain_index _index);
+
     ptr<BlockProposal> getBlockProposal(block_id _blockID, schain_index _proposerIndex);
 
     BlockProposalDB(string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize,

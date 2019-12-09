@@ -86,6 +86,26 @@ protected:
 
     string createCounterKey(block_id _block_id);
 
+    bool keyExists(const string &_key);
+
+    bool keyExistsUnsafe(const string &_key);
+
+    bool keyExistsInSet(block_id _blockId, schain_index _index);
+
+    ptr<string> readStringFromBlockSet(block_id _blockId, schain_index _index);
+
+    void rotateDBsIfNeeded();
+
+    leveldb::DB *openDB(uint64_t _index);
+
+    uint64_t readCount(block_id _blockId);
+
+    bool isEnough(block_id _blockID);
+
+
+
+    CacheLevelDB(string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize,
+                 uint64_t _totalSigners = 0, uint64_t _requiredSigners = 0);
 
 public:
 
@@ -93,9 +113,6 @@ public:
 
     void throwExceptionOnError(leveldb::Status result);
 
-
-    CacheLevelDB(string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize,
-            uint64_t _totalSigners = 0, uint64_t _requiredSigners = 0);
 
 
     std::pair<uint64_t, uint64_t> findMaxMinDBIndex();
@@ -111,26 +128,9 @@ public:
     virtual ~CacheLevelDB();
 
 
-    void rotateDBsIfNeeded();
+
 
     uint64_t getActiveDBSize();
-
-    leveldb::DB *openDB(uint64_t _index);
-
-    bool keyExists(const string &_key);
-
-    bool keyExistsUnsafe(const string &_key);
-
-    bool keyExistsInSet(block_id _blockId, schain_index _index);
-
-    ptr<string> readStringFromBlockSet(block_id _blockId, schain_index _index);
-
-    uint64_t readCount(block_id _blockId);
-
-    bool isEnough(block_id _blockID);
-
-    ptr<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char>>>
-    readBytesFromBlockSet(block_id _blockId, schain_index _index);
 };
 
 

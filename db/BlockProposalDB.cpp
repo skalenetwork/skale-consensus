@@ -126,3 +126,7 @@ ptr<BlockProposal> BlockProposalDB::getBlockProposal(block_id _blockID, schain_i
 const string BlockProposalDB::getFormatVersion() {
     return "1.0";
 }
+
+bool BlockProposalDB::proposalExists(block_id _blockId, schain_index _index) {
+    return keyExistsInSet(_blockId, _index);
+}

@@ -483,7 +483,7 @@ void Schain::startConsensus(const block_id _blockID, ptr<BooleanProposalVector> 
 
         LOG(debug, "Got proposed block set for block:" + to_string(_blockID));
 
-        ASSERT(getNode()->getBlockProposalDB()->isEnough(_blockID));
+        ASSERT(getNode()->getDaProofDB()->isEnoughProofs(_blockID));
 
         LOG(debug, "StartConsensusIfNeeded BLOCK NUMBER:" + to_string((_blockID)));
 

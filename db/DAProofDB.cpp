@@ -108,6 +108,10 @@ ptr<BooleanProposalVector> DAProofDB::addDAProof(ptr<DAProof> _daProof) {
     return proposalVector;
 }
 
+bool DAProofDB::isEnoughProofs(block_id _blockID) {
+    return isEnough(_blockID);
+}
+
 
 
 

@@ -343,3 +343,4 @@ ptr<BlockProposalDB>  Node::getBlockProposalDB() const {
 uint64_t Node::getBlockProposalDBSize() const {
     return blockProposalDBSize;
 }
+

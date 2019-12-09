@@ -57,6 +57,8 @@ public:
     const string getFormatVersion();
 
     bool haveDAProof(ptr<BlockProposal> _proposal);
+
+    bool isEnoughProofs(block_id _blockID);
 };
 
 
