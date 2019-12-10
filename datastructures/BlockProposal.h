@@ -44,7 +44,7 @@ class BlockProposal : public DataStructure {
 
     ptr<BlockProposalRequestHeader> header = nullptr;
 
-    ptr< vector< uint8_t > > serializedBlock = nullptr;
+    ptr< vector< uint8_t > > serializedProposal = nullptr;
 
 
 
@@ -116,7 +116,7 @@ public:
     ptr<vector<uint8_t> > serialize();
 
 
-    static ptr<BlockProposal> deserialize(ptr<vector<uint8_t> > _serializedBlock,
+    static ptr<BlockProposal> deserialize(ptr<vector<uint8_t> > _serializedProposal,
                                                   ptr<CryptoManager> _manager);
 
     static ptr<BlockProposal> defragment(ptr<BlockProposalFragmentList> _fragmentList, ptr<CryptoManager> _cryptoManager);

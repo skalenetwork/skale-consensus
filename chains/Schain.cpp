@@ -156,7 +156,7 @@ void Schain::messageThreadProcessingLoop(Schain *s) {
 
                 try {
                     s->getBlockConsensusInstance()->routeAndProcessMessage(m);
-                } catch (Exception &e) {
+                } catch (exception &e) {
                     if (s->getNode()->isExitRequested()) {
                         s->getNode()->getSockets()->consensusZMQSocket->closeSend();
                         return;
@@ -584,7 +584,7 @@ void Schain::bootstrap(block_id _lastCommittedBlockID, uint64_t _lastCommittedBl
 
         proposeNextBlock(lastCommittedBlockTimeStamp, lastCommittedBlockTimeStampMs);
 
-    } catch (Exception &e) {
+    } catch (exception &e) {
         Exception::logNested(e);
         return;
     }
@@ -744,3 +744,6 @@ void Schain::decideBlock(block_id _blockId, schain_index _proposerIndex, ptr<Thr
     }
 
 }
+
+// empty constructor is used for tests
+Schain::Schain() : Agent() {}

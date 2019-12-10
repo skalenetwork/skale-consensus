@@ -25,7 +25,10 @@
 #ifndef SKALED_CACHELEVELDB_H
 #define SKALED_CACHELEVELDB_H
 
+#include "../thirdparty/lrucache.hpp"
 #include "../SkaleCommon.h"
+
+class Schain;
 
 namespace leveldb {
     class DB;
@@ -34,6 +37,7 @@ namespace leveldb {
 
     class Slice;
 }
+
 
 #define LEVELDB_PIECES 4
 
@@ -47,6 +51,10 @@ class CacheLevelDB {
     uint64_t  highestDBIndex = 0;
     shared_mutex m;
 
+    void verify();
+
+
+    ptr<map<schain_index, ptr<string>>> writeByteArrayToSetUnsafe(const char *_value, uint64_t _valueLen, block_id _blockId, schain_index _index);
 
 protected:
 
@@ -59,6 +67,8 @@ protected:
     string dirname;
     uint64_t maxDBSize;
     bool isDuplicateAddOK;
+    Schain* sChain;
+
 
 
     ptr<string> readString(string &_key);
@@ -107,8 +117,8 @@ protected:
 
 
 
-    CacheLevelDB(string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize,
-                 uint64_t _totalSigners = 0, uint64_t _requiredSigners = 0, bool _isDuplicateAddOK = false);
+    CacheLevelDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize,
+                 bool _isDuplicateAddOK = false);
 
 public:
 
@@ -120,6 +130,8 @@ public:
 
     std::pair<uint64_t, uint64_t> findMaxMinDBIndex();
 
+    Schain *getSchain() const;
+
 
     class KeyVisitor {
     public:
@@ -129,8 +141,6 @@ public:
     uint64_t visitKeys(KeyVisitor *_visitor, uint64_t _maxKeysToVisit);
 
     virtual ~CacheLevelDB();
-
-
 
 
     uint64_t getActiveDBSize();

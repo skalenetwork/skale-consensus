@@ -57,9 +57,8 @@
 using namespace std;
 
 
-DAProofDB::DAProofDB(string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize, Schain &_sChain) :
-        CacheLevelDB(_dirName, _prefix, _nodeId, _maxDBSize, _sChain.getTotalSigners(), _sChain.getRequiredSigners()) {
-    this->sChain = &_sChain;
+DAProofDB::DAProofDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize) :
+        CacheLevelDB(_sChain, _dirName, _prefix, _nodeId, _maxDBSize, false) {
 };
 
 const string DAProofDB::getFormatVersion() {

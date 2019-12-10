@@ -207,8 +207,8 @@ ptr<vector<uint8_t> > BlockProposal::serialize() {
 
     LOCK(m)
 
-    if (serializedBlock != nullptr)
-        return serializedBlock;
+    if (serializedProposal != nullptr)
+        return serializedProposal;
 
 
     auto blockHeader = createHeader();
@@ -236,7 +236,7 @@ ptr<vector<uint8_t> > BlockProposal::serialize() {
         CHECK_STATE(block->size() == buf->getCounter() + 2);
     }
 
-    serializedBlock = block;
+    serializedProposal = block;
 
 
     assert(block->at(sizeof(uint64_t)) == '{');
@@ -246,10 +246,10 @@ ptr<vector<uint8_t> > BlockProposal::serialize() {
 }
 
 
-ptr<BlockProposal> BlockProposal::deserialize(ptr<vector<uint8_t> > _serializedBlock,
+ptr<BlockProposal> BlockProposal::deserialize(ptr<vector<uint8_t> > _serializedProposal,
                                                 ptr<CryptoManager> _manager) {
 
-    ptr<string> headerStr = BlockProposal::extractHeader(_serializedBlock);
+    ptr<string> headerStr = BlockProposal::extractHeader(_serializedProposal);
 
     ptr<BlockProposalHeader> blockHeader;
 
@@ -260,26 +260,28 @@ ptr<BlockProposal> BlockProposal::deserialize(ptr<vector<uint8_t> > _serializedB
                 "Could not parse committed block header: \n" + *headerStr, __CLASS_NAME__));
     }
 
-    auto list = deserializeTransactions(blockHeader, headerStr, _serializedBlock);
+    auto list = deserializeTransactions(blockHeader, headerStr, _serializedProposal);
 
     auto sig = blockHeader->getSignature();
 
     ASSERT(sig != nullptr);
 
-    auto block = make_shared<BlockProposal>(blockHeader->getSchainID(), blockHeader->getProposerNodeId(),
+    auto proposal = make_shared<BlockProposal>(blockHeader->getSchainID(), blockHeader->getProposerNodeId(),
                                              blockHeader->getBlockID(), blockHeader->getProposerIndex(),
                                              list, blockHeader->getTimeStamp(), blockHeader->getTimeStampMs(),
                                              blockHeader->getSignature(), nullptr);
 
-    _manager->verifyProposalECDSA(block.get(), blockHeader->getBlockHash(), blockHeader->getSignature());
+    _manager->verifyProposalECDSA(proposal, blockHeader->getBlockHash(), blockHeader->getSignature());
 
-    return block;
+    proposal->serializedProposal = _serializedProposal;
+
+    return proposal;
 }
 
 ptr<BlockProposal> BlockProposal::defragment(ptr<BlockProposalFragmentList> _fragmentList, ptr<CryptoManager> _cryptoManager) {
     try {
         return deserialize(_fragmentList->serialize(), _cryptoManager);
-    } catch (Exception &e) {
+    } catch (exception &e) {
         Exception::logNested(e);
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }

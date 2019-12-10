@@ -52,9 +52,9 @@ ptr<vector<uint8_t> > BlockDB::getSerializedBlockFromLevelDB(block_id _blockID) 
     }
 }
 
-BlockDB::BlockDB(string& _dirname,
-                 string &_prefix, node_id _nodeId, uint64_t _maxDBSize) : CacheLevelDB(_dirname, _prefix,
-                                                                                  _nodeId, _maxDBSize) {
+BlockDB::BlockDB(Schain *_sChain, string &_dirname, string &_prefix, node_id _nodeId, uint64_t _maxDBSize)
+        : CacheLevelDB(_sChain, _dirname, _prefix,
+                       _nodeId, _maxDBSize, false) {
 
 
 

@@ -82,7 +82,7 @@ void MonitoringAgent::monitoringLoop(MonitoringAgent *agent) {
                 agent->monitor();
             } catch (ExitRequestedException &) {
                 return;
-            } catch (Exception &e) {
+            } catch (exception &e) {
                 Exception::logNested(e);
             }
 

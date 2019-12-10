@@ -38,6 +38,7 @@
 #include "../blockproposal/pusher/BlockProposalClientAgent.h"
 #include "../datastructures/BlockProposal.h"
 #include "../datastructures/BlockProposalSet.h"
+#include "../monitoring/LivelinessMonitor.h"
 
 
 #include "BlockProposalDB.h"
@@ -45,23 +46,17 @@
 
 using namespace std;
 
+#define PROPOSAL_CACHE_SIZE 3
 
-BlockProposalDB::BlockProposalDB(string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize,
-                                 Schain &_sChain) :
-        CacheLevelDB(_dirName, _prefix, _nodeId, _maxDBSize, _sChain.getTotalSigners(),
-                     _sChain.getRequiredSigners(), true) {
-
-    sChain = &_sChain;
-    try {
-        oldBlockID = _sChain.getBootstrapBlockID();
-    } catch (ExitRequestedException &) { throw; } catch (...) {
-        throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
-    }
+BlockProposalDB::BlockProposalDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId,
+                                 uint64_t _maxDBSize) :
+        CacheLevelDB(_sChain, _dirName, _prefix, _nodeId, _maxDBSize, true) {
+    proposalCache = make_shared<cache::lru_cache<string, ptr<BlockProposal>>>(PROPOSAL_CACHE_SIZE);
 };
 
 void BlockProposalDB::addBlockProposal(ptr<BlockProposal> _proposal) {
 
-    ASSERT(_proposal);
+    CHECK_ARGUMENT(_proposal);
     CHECK_ARGUMENT(_proposal->getSignature() != nullptr);
 
 
@@ -70,8 +65,10 @@ void BlockProposalDB::addBlockProposal(ptr<BlockProposal> _proposal) {
 
     try {
 
+        ptr<vector<uint8_t> > serialized;
 
-        auto serialized = _proposal->serialize();
+
+        serialized = _proposal->serialize();
 
         this->writeByteArrayToSet((const char *) serialized->data(), serialized->size(), _proposal->getBlockID(),
                                   _proposal->getProposerIndex());
@@ -110,16 +107,23 @@ ptr<BlockProposal> BlockProposalDB::getBlockProposal(block_id _blockID, schain_i
 
     LOCK(proposalMutex);
 
+    auto key = createSetKey(_blockID, _proposerIndex);
+
+    if (proposalCache->exists(key)) {
+        return proposalCache->get(key);
+    }
 
     auto serializedProposal = getSerializedProposalFromLevelDB(_blockID, _proposerIndex);
 
     if (serializedProposal == nullptr)
         return nullptr;
 
-    auto proposal = BlockProposal::deserialize(serializedProposal, sChain->getCryptoManager());
+    auto proposal = BlockProposal::deserialize(serializedProposal, getSchain()->getCryptoManager());
 
     if (proposal == nullptr)
         return nullptr;
+
+    proposalCache->put(key, proposal);
 
     CHECK_STATE(proposal->getSignature() != nullptr);
 
@@ -134,3 +138,5 @@ const string BlockProposalDB::getFormatVersion() {
 bool BlockProposalDB::proposalExists(block_id _blockId, schain_index _index) {
     return keyExistsInSet(_blockId, _index);
 }
+
+

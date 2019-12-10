@@ -39,13 +39,11 @@ class ThresholdSigShare;
 
 class DASigShareDB : public  CacheLevelDB {
 
-    Schain* sChain;
-
     recursive_mutex sigShareMutex;
 
 public:
 
-    explicit DASigShareDB(string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize, Schain &_sChain);
+    explicit DASigShareDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize);
 
     ptr<DAProof> addAndMergeSigShareAndVerifySig(ptr<ThresholdSigShare> _sigShare,
                                                  ptr<BlockProposal> _proposal);

@@ -44,13 +44,11 @@ class BlockProposal;
 
 class DAProofDB : public  CacheLevelDB {
 
-    Schain* sChain;
-
     recursive_mutex daProofMutex;
 
 public:
 
-    explicit DAProofDB(string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize, Schain &_sChain);
+    explicit DAProofDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize);
 
     ptr<BooleanProposalVector> addDAProof(ptr<DAProof> _daProof);
 

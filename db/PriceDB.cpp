@@ -28,9 +28,10 @@
 #include "PriceDB.h"
 
 
-PriceDB::PriceDB(string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize) : CacheLevelDB(_dirName, _prefix,
-                                                                                                    _nodeId,
-                                                                                                    _maxDBSize) {}
+PriceDB::PriceDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize)
+        : CacheLevelDB(_sChain, _dirName, _prefix,
+                       _nodeId,
+                       _maxDBSize, false) {}
 
 
 const string PriceDB::getFormatVersion() {

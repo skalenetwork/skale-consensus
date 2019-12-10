@@ -304,7 +304,7 @@ void ConsensusEngine::bootStrapAll() {
             it.second->getSchain()->bootstrap(lastCommittedBlockID, lastCommittedBlockTimeStamp);
             LOG(trace, "Bootstrapped node");
         }
-    } catch (Exception &e) {
+    } catch (exception &e) {
 
         for (auto const it : nodes) {
             if (!it.second->isExitRequested()) {
@@ -333,8 +333,8 @@ ConsensusEngine::ConsensusEngine() : exitRequested(false) {
 
         Log::init();
         init();
-    } catch (Exception &e) {
-        Exception::logNested(e);
+    } catch (exception &e) {
+        exception::logNested(e);
         throw_with_nested(EngineInitException("Engine construction failed", __CLASS_NAME__));
     }
 }
@@ -425,7 +425,7 @@ ConsensusEngine::ConsensusEngine(ConsensusExtFace &_extFace, uint64_t _lastCommi
 
         init();
 
-    } catch (Exception &e) {
+    } catch (exception &e) {
         Exception::logNested(e);
         throw_with_nested(EngineInitException("Engine construction failed", __CLASS_NAME__));
     }
@@ -466,7 +466,7 @@ void ConsensusEngine::exitGracefully() {
             it.second->getSchain()->joinMonitorThread();
         }
 
-    } catch (Exception &e) {
+    } catch (exception &e) {
         Exception::logNested(e);
         throw_with_nested(EngineInitException("Engine construction failed", __CLASS_NAME__));
     }

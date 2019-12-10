@@ -38,7 +38,7 @@ class BlockDB : public CacheLevelDB {
 
 public:
 
-    BlockDB(string& _dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize);
+    BlockDB(Schain *_sChain, string &_dirname, string &_prefix, node_id _nodeId, uint64_t _maxDBSize);
     ptr<vector<uint8_t >> getSerializedBlockFromLevelDB(block_id _blockID);
     void saveBlock(ptr<CommittedBlock> &_block);
     ptr<CommittedBlock> getBlock(block_id _blockID, ptr<CryptoManager> _cryptoManager);

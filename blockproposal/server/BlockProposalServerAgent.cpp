@@ -363,7 +363,7 @@ BlockProposalServerAgent::processProposalRequest(ptr<ServerConnection> _connecti
     ptr<Header> finalResponseHeader = nullptr;
 
     try {
-        if (!getSchain()->getCryptoManager()->verifyProposalECDSA(proposal.get(), requestHeader->getHash(),
+        if (!getSchain()->getCryptoManager()->verifyProposalECDSA(proposal, requestHeader->getHash(),
                                                                   requestHeader->getSignature())) {
             finalResponseHeader = make_shared<FinalProposalResponseHeader>(CONNECTION_ERROR,
                                                                            CONNECTION_SIGNATURE_DID_NOT_VERIFY);

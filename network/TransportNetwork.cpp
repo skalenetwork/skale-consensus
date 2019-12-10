@@ -189,7 +189,7 @@ void TransportNetwork::networkReadLoop() {
                 return;
             } catch (FatalError &) {
                 throw;
-            } catch (Exception &e) {
+            } catch (exception &e) {
                 if (sChain->getNode()->isExitRequested()) {
                     sChain->getNode()->getSockets()->consensusZMQSocket->closeReceive();
                     return;

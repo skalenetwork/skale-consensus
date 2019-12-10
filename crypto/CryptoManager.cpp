@@ -152,11 +152,12 @@ void CryptoManager::signProposalECDSA(BlockProposal* _proposal) {
     _proposal->addSignature(signature);
 }
 
-bool CryptoManager::verifyProposalECDSA(BlockProposal* _proposal, ptr<string> _hashStr, ptr<string> _signature) {
+bool CryptoManager::verifyProposalECDSA(ptr<BlockProposal> _proposal, ptr<string> _hashStr, ptr<string> _signature) {
     CHECK_ARGUMENT(_proposal != nullptr);
     CHECK_ARGUMENT(_hashStr != nullptr)
     CHECK_ARGUMENT(_signature != nullptr)
     auto hash = _proposal->getHash();
+
 
 
     if (*hash->toHex() != *_hashStr) {

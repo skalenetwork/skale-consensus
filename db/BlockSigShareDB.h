@@ -34,7 +34,6 @@ class CryptoManager;
 
 class BlockSigShareDB : public CacheLevelDB {
 
-    Schain* sChain;
 
     recursive_mutex sigShareMutex;
 
@@ -42,7 +41,7 @@ class BlockSigShareDB : public CacheLevelDB {
 
 public:
 
-    BlockSigShareDB(string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize, Schain &_sChain);
+    BlockSigShareDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize);
 
     ptr<ThresholdSignature> checkAndSaveShare(ptr<ThresholdSigShare> _sigShare, ptr<CryptoManager> _cryptoManager);
 

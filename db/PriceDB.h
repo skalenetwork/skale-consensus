@@ -35,7 +35,7 @@ public:
 
     const string getFormatVersion() override ;
 
-    PriceDB(string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize);
+    PriceDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize);
 
     u256 readPrice(block_id _blockID);
 

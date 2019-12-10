@@ -34,18 +34,12 @@ class BooleanProposalVector;
 
 #include "CacheLevelDB.h"
 
-class BlockProposalDB : public CacheLevelDB {
 
-    Schain* sChain;
+class BlockProposalDB : public CacheLevelDB {
 
     recursive_mutex proposalMutex;
 
-    block_id oldBlockID;
-
-    map<block_id, ptr<BlockProposalSet>> proposedBlockSets;
-
-
-    ptr<BlockProposalSet> getProposedBlockSet(block_id _blockID);
+    ptr<cache::lru_cache<string, ptr<BlockProposal>>> proposalCache;
 
 public:
 
@@ -56,12 +50,9 @@ public:
 
     ptr<BlockProposal> getBlockProposal(block_id _blockID, schain_index _proposerIndex);
 
-    BlockProposalDB(string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize,
-                    Schain &_sChain);
+    BlockProposalDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize);
 
     void addBlockProposal(ptr<BlockProposal> _proposal);
-
-    bool addDAProof(ptr<DAProof> _proof);
 
     const string getFormatVersion();
 

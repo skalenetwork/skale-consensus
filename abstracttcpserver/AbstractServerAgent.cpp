@@ -107,7 +107,7 @@ void AbstractServerAgent::workerThreadConnectionProcessingLoop(void *_params) {
             connection = server->workerThreadWaitandPopConnection();
             server->processNextAvailableConnection(connection);;
             connection->closeConnection();
-        } catch (Exception &e) {
+        } catch (exception &e) {
             Exception::logNested(e);
             if (connection != nullptr)
                 connection->closeConnection();

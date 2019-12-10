@@ -29,13 +29,50 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e8eb5c74-4268-46a2-ac26-2e919fd9ff42" name="Default Changelist" comment="">
+    <list default="true" id="e8eb5c74-4268-46a2-ac26-2e919fd9ff42" name="Default Changelist" comment="Added ptrs to threads">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Agent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Agent.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Agent.h" beforeDir="false" afterPath="$PROJECT_DIR$/Agent.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/abstracttcpclient/AbstractClientAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/abstracttcpclient/AbstractClientAgent.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/abstracttcpserver/AbstractServerAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/abstracttcpserver/AbstractServerAgent.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/blockfinalize/client/BlockFinalizeDownloader.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/blockfinalize/client/BlockFinalizeDownloader.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/blockproposal/server/BlockProposalServerAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/blockproposal/server/BlockProposalServerAgent.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/catchup/server/CatchupServerAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/catchup/server/CatchupServerAgent.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/monitoring/LivelinessMonitor.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/monitoring/LivelinessMonitor.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/monitoring/LivelinessMonitor.h" beforeDir="false" afterPath="$PROJECT_DIR$/monitoring/LivelinessMonitor.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/catchup/client/CatchupClientAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/catchup/client/CatchupClientAgent.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/chains/Schain.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/chains/Schain.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/chains/Schain.h" beforeDir="false" afterPath="$PROJECT_DIR$/chains/Schain.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crypto/CryptoManager.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/crypto/CryptoManager.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crypto/CryptoManager.h" beforeDir="false" afterPath="$PROJECT_DIR$/crypto/CryptoManager.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/datastructures/BlockProposal.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/BlockProposal.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/datastructures/BlockProposal.h" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/BlockProposal.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/datastructures/CommittedBlock.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/CommittedBlock.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/datastructures/CommittedBlockList.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/CommittedBlockList.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/BlockDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/BlockDB.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/BlockDB.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/BlockDB.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/BlockProposalDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/BlockProposalDB.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/BlockProposalDB.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/BlockProposalDB.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/BlockSigShareDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/BlockSigShareDB.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/BlockSigShareDB.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/BlockSigShareDB.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/CacheLevelDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/CacheLevelDB.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/CacheLevelDB.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/CacheLevelDB.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/CommittedTransactionDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/CommittedTransactionDB.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/CommittedTransactionDB.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/CommittedTransactionDB.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/DAProofDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/DAProofDB.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/DAProofDB.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/DAProofDB.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/DASigShareDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/DASigShareDB.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/DASigShareDB.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/DASigShareDB.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/DBTests.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/DBTests.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/PriceDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/PriceDB.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/PriceDB.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/PriceDB.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/ProposalHashDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/ProposalHashDB.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/ProposalHashDB.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/ProposalHashDB.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/RandomDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/RandomDB.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/RandomDB.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/RandomDB.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/SigDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/SigDB.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/SigDB.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/SigDB.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/monitoring/MonitoringAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/monitoring/MonitoringAgent.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/network/TransportNetwork.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/network/TransportNetwork.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/node/ConsensusEngine.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/node/ConsensusEngine.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/node/Node.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/node/Node.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -293,13 +330,6 @@
       <workItem from="1575369130855" duration="7805000" />
       <workItem from="1575640279975" duration="4005000" />
       <workItem from="1575716912702" duration="17312000" />
-    </task>
-    <task id="LOCAL-00036" summary="Adding sigShareStorage">
-      <created>1574954623159</created>
-      <option name="number" value="00036" />
-      <option name="presentableId" value="LOCAL-00036" />
-      <option name="project" value="LOCAL" />
-      <updated>1574954623159</updated>
     </task>
     <task id="LOCAL-00037" summary="Adding sigShareStorage">
       <created>1574954845678</created>
@@ -637,7 +667,14 @@
       <option name="project" value="LOCAL" />
       <updated>1575904484162</updated>
     </task>
-    <option name="localTasksCounter" value="85" />
+    <task id="LOCAL-00085" summary="Added ptrs to threads">
+      <created>1575907126346</created>
+      <option name="number" value="00085" />
+      <option name="presentableId" value="LOCAL-00085" />
+      <option name="project" value="LOCAL" />
+      <updated>1575907126346</updated>
+    </task>
+    <option name="localTasksCounter" value="86" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -707,52 +744,54 @@
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
     <state x="2338" y="205" width="1084" height="702" key="#com.intellij.execution.impl.EditConfigurationsDialog/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575891118630" />
-    <state x="2644" y="206" width="462" height="693" key="#com.intellij.ide.util.MemberChooser" timestamp="1575636402415" />
-    <state x="2644" y="206" width="462" height="693" key="#com.intellij.ide.util.MemberChooser/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575636402415" />
-    <state x="2314" y="71" width="1121" height="962" key="CommitChangelistDialog2" timestamp="1575904483711">
+    <state x="2644" y="206" width="603" height="693" key="#com.intellij.ide.util.MemberChooser" timestamp="1575989470558">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state x="2314" y="71" width="1121" height="962" key="CommitChangelistDialog2/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575904483711" />
+    <state x="2644" y="206" width="603" height="693" key="#com.intellij.ide.util.MemberChooser/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575989470558" />
+    <state x="2314" y="71" width="1121" height="962" key="CommitChangelistDialog2" timestamp="1575907179568">
+      <screen x="1920" y="0" width="1920" height="1080" />
+    </state>
+    <state x="2314" y="71" width="1121" height="962" key="CommitChangelistDialog2/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575907179568" />
     <state x="2613" y="259" width="524" height="594" key="FileChooserDialogImpl" timestamp="1575891117016">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
     <state x="2613" y="259" width="524" height="594" key="FileChooserDialogImpl/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575891117016" />
-    <state width="1860" height="528" key="GridCell.Tab.0.bottom" timestamp="1575907085242">
+    <state width="1860" height="236" key="GridCell.Tab.0.bottom" timestamp="1576006888633">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state width="1860" height="528" key="GridCell.Tab.0.bottom/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575907085242" />
-    <state width="1860" height="528" key="GridCell.Tab.0.center" timestamp="1575907085242">
+    <state width="1860" height="236" key="GridCell.Tab.0.bottom/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576006888633" />
+    <state width="1860" height="236" key="GridCell.Tab.0.center" timestamp="1576006888633">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state width="1860" height="528" key="GridCell.Tab.0.center/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575907085242" />
-    <state width="1860" height="528" key="GridCell.Tab.0.left" timestamp="1575907085242">
+    <state width="1860" height="236" key="GridCell.Tab.0.center/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576006888633" />
+    <state width="1860" height="236" key="GridCell.Tab.0.left" timestamp="1576006888633">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state width="1860" height="528" key="GridCell.Tab.0.left/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575907085242" />
-    <state width="1860" height="528" key="GridCell.Tab.0.right" timestamp="1575907085242">
+    <state width="1860" height="236" key="GridCell.Tab.0.left/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576006888633" />
+    <state width="1860" height="236" key="GridCell.Tab.0.right" timestamp="1576006888633">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state width="1860" height="528" key="GridCell.Tab.0.right/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575907085242" />
-    <state width="1860" height="314" key="GridCell.Tab.1.bottom" timestamp="1575902902841">
+    <state width="1860" height="236" key="GridCell.Tab.0.right/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576006888633" />
+    <state width="1860" height="250" key="GridCell.Tab.1.bottom" timestamp="1576005294487">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state width="1860" height="314" key="GridCell.Tab.1.bottom/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575902902841" />
-    <state width="1860" height="314" key="GridCell.Tab.1.center" timestamp="1575902902841">
+    <state width="1860" height="250" key="GridCell.Tab.1.bottom/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576005294487" />
+    <state width="1860" height="250" key="GridCell.Tab.1.center" timestamp="1576005294487">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state width="1860" height="314" key="GridCell.Tab.1.center/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575902902841" />
-    <state width="1860" height="314" key="GridCell.Tab.1.left" timestamp="1575902902841">
+    <state width="1860" height="250" key="GridCell.Tab.1.center/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576005294487" />
+    <state width="1860" height="250" key="GridCell.Tab.1.left" timestamp="1576005294487">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state width="1860" height="314" key="GridCell.Tab.1.left/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575902902841" />
-    <state width="1860" height="314" key="GridCell.Tab.1.right" timestamp="1575902902841">
+    <state width="1860" height="250" key="GridCell.Tab.1.left/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576005294487" />
+    <state width="1860" height="250" key="GridCell.Tab.1.right" timestamp="1576005294487">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state width="1860" height="314" key="GridCell.Tab.1.right/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575902902841" />
-    <state x="2375" y="210" width="1000" height="684" key="Vcs.Push.Dialog.v2" timestamp="1575904485015">
+    <state width="1860" height="250" key="GridCell.Tab.1.right/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576005294487" />
+    <state x="2375" y="210" width="1000" height="684" key="Vcs.Push.Dialog.v2" timestamp="1575907127195">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state x="2375" y="210" width="1000" height="684" key="Vcs.Push.Dialog.v2/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575904485015" />
+    <state x="2375" y="210" width="1000" height="684" key="Vcs.Push.Dialog.v2/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575907127195" />
     <state x="2020" y="125" width="1720" height="855" key="com.intellij.history.integration.ui.views.FileHistoryDialog" timestamp="1575638884892">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
@@ -761,18 +800,18 @@
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
     <state x="2434" y="329" key="com.intellij.ide.util.TipDialog/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575640281237" />
-    <state x="2188" y="30" width="966" height="694" key="find.popup" timestamp="1575906309480">
+    <state x="2188" y="30" width="966" height="694" key="find.popup" timestamp="1576006868238">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state x="2188" y="30" width="966" height="694" key="find.popup/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575906309480" />
+    <state x="2188" y="30" width="966" height="694" key="find.popup/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576006868238" />
     <state x="2479" y="299" width="801" height="506" key="git4idea.merge.GitMergeDialog" timestamp="1575886235995">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
     <state x="2479" y="299" width="801" height="506" key="git4idea.merge.GitMergeDialog/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575886235995" />
-    <state x="2565" y="128" width="620" height="849" key="refactoring.ChangeSignatureDialog" timestamp="1575902010634">
+    <state x="2565" y="128" width="620" height="849" key="refactoring.ChangeSignatureDialog" timestamp="1575999020733">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state x="2565" y="128" width="620" height="849" key="refactoring.ChangeSignatureDialog/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575902010634" />
+    <state x="2565" y="128" width="620" height="849" key="refactoring.ChangeSignatureDialog/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575999020733" />
     <state x="2459" y="45" width="840" height="1034" key="search.everywhere.popup" timestamp="1575636402415" />
     <state x="2459" y="45" width="840" height="1034" key="search.everywhere.popup/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575636402415" />
     <state x="2566" y="383" width="617" height="338" key="vcs.readOnlyHandler.ReadOnlyStatusDialog" timestamp="1575636402415" />

@@ -146,7 +146,7 @@ void AbstractClientAgent::workerThreadItemSendLoop( AbstractClientAgent* agent )
                     try {
                         agent->sendItem(proposal, destinationSchainIndex);
                         sent = true;
-                    } catch ( Exception& e ) {
+                    } catch ( exception& e ) {
                         Exception::logNested( e );
                         if ( agent->getNode()->isExitRequested() )
                             return;

@@ -96,7 +96,7 @@ ptr<CommittedBlock> CommittedBlock::deserialize(ptr<vector<uint8_t> > _serialize
                                       blockHeader->getSignature(),
                                       blockHeader->getThresholdSig());
 
-    _manager->verifyProposalECDSA(block.get(), blockHeader->getBlockHash(), blockHeader->getSignature());
+    _manager->verifyProposalECDSA(block, blockHeader->getBlockHash(), blockHeader->getSignature());
     return block;
 }
 
@@ -129,10 +129,9 @@ CommittedBlock::CommittedBlock(
         __uint32_t timeStampMs, ptr<string>
         _signature, ptr<string> _thresholdSig)
         : BlockProposal(sChainId, proposerNodeId, blockId, proposerIndex, transactions, timeStamp,
-                        timeStampMs, _thresholdSig, nullptr) {
+                        timeStampMs, _signature, nullptr) {
     CHECK_ARGUMENT(_signature != nullptr);
     CHECK_ARGUMENT(_thresholdSig != nullptr);
-    this->signature = _signature;
     this->thresholdSig = _thresholdSig;
 }
 

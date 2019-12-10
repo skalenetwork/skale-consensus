@@ -237,7 +237,7 @@ void CatchupClientAgent::workerThreadItemSendLoop( CatchupClientAgent* agent ) {
                 agent->sync(destinationSchainIndex );
             } catch ( ExitRequestedException& ) {
                 return;
-            } catch ( Exception& e ) {
+            } catch ( exception& e ) {
                 Exception::logNested( e );
             }
 

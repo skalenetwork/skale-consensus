@@ -31,8 +31,9 @@
 #include "CommittedTransactionDB.h"
 
 
-CommittedTransactionDB::CommittedTransactionDB(string &_dirName, string &_prefix, node_id _nodeId,
-                                               uint64_t _maxDBSize) : CacheLevelDB(_dirName, _prefix, _nodeId, _maxDBSize) {}
+CommittedTransactionDB::CommittedTransactionDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId,
+                                               uint64_t _maxDBSize) : CacheLevelDB(_sChain, _dirName, _prefix, _nodeId,
+                                                                                   _maxDBSize, false) {}
 
 
 const string CommittedTransactionDB::getFormatVersion() {

@@ -40,7 +40,7 @@ class SigDB : public CacheLevelDB {
 
 public:
 
-    SigDB(string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize);
+    SigDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize);
 
     void addSignature(block_id _blockId, ptr<ThresholdSignature> _sig);
 

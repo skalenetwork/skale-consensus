@@ -297,7 +297,7 @@ void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(BlockFinalizeDown
                 }
             } catch (ExitRequestedException &) {
                 return;
-            } catch (Exception &e) {
+            } catch (exception &e) {
                 Exception::logNested(e);
             }
         };
@@ -326,7 +326,7 @@ ptr<BlockProposal> BlockFinalizeDownloader::downloadProposal() {
         } else {
             return nullptr;
         }
-    } catch (ExitRequestedException &) { throw; } catch (Exception &e) {
+    } catch (ExitRequestedException &) { throw; } catch (exception &e) {
         Exception::logNested(e);
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }

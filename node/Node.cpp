@@ -84,7 +84,6 @@ Node::Node(const nlohmann::json &_cfg, ConsensusEngine *_consensusEngine) {
     } catch (...) {
         throw_with_nested(ParsingException("Could not parse params", __CLASS_NAME__));
     }
-    initLevelDBs();
     initLogging();
 }
 
@@ -95,10 +94,24 @@ void Node::initLevelDBs() {
     string priceDBPrefix = "prices_" + to_string(nodeID) + ".db";
     string proposalHashDBPrefix = "/proposal_hashes_" + to_string(nodeID) + ".db";
 
-    blockDB = make_shared<BlockDB>(dataDir, blockDBPrefix, getNodeID(), getBlockDBSize());
-    randomDB = make_shared<RandomDB>(dataDir, randomDBPrefix, getNodeID(), getRandomDBSize());
-    priceDB = make_shared<PriceDB>(dataDir, priceDBPrefix, getNodeID(), getPriceDBSize());
-    proposalHashDB = make_shared<ProposalHashDB>(dataDir, proposalHashDBPrefix, getNodeID(), getProposalHashDBSize());
+    string blockSigShareDBPrefix = "/block_sigshares_" + to_string(nodeID) + ".db";
+    string daSigShareDBPrefix = "/da_sigshares_" + to_string(nodeID) + ".db";
+    string daProofDBPrefix = "/da_proofs_" + to_string(nodeID) + ".db";
+    string blockProposalDBPrefix = "/block_proposals_" + to_string(nodeID) + ".db";
+
+
+    blockDB = make_shared<BlockDB>(getSchain(), dataDir, blockDBPrefix, getNodeID(), getBlockDBSize());
+    randomDB = make_shared<RandomDB>(getSchain(), dataDir, randomDBPrefix, getNodeID(), getRandomDBSize());
+    priceDB = make_shared<PriceDB>(getSchain(), dataDir, priceDBPrefix, getNodeID(), getPriceDBSize());
+    proposalHashDB = make_shared<ProposalHashDB>(getSchain(), dataDir, proposalHashDBPrefix, getNodeID(),
+                                                 getProposalHashDBSize());
+    blockSigShareDB = make_shared<BlockSigShareDB>(getSchain(), dataDir, blockSigShareDBPrefix, getNodeID(),
+                                                   getBlockSigShareDBSize());
+    daSigShareDB = make_shared<DASigShareDB>(getSchain(), dataDir, daSigShareDBPrefix, getNodeID(),
+                                             getDaSigShareDBSize());
+    daProofDB = make_shared<DAProofDB>(getSchain(), dataDir, daProofDBPrefix, getNodeID(), getDaProofDBSize());
+    blockProposalDB = make_shared<BlockProposalDB>(getSchain(), dataDir, blockProposalDBPrefix, getNodeID(),
+                                                   getBlockProposalDBSize());
 
 }
 
@@ -266,25 +279,7 @@ void Node::setNodeInfo(ptr<NodeInfo> _info) {
 void Node::setSchain(ptr<Schain> _schain) {
     assert (this->sChain == nullptr);
     this->sChain = _schain;
-
-
-    string dataDir = *Log::getDataDir();
-    string blockSigShareDBPrefix = "/block_sigshares_" + to_string(nodeID) + ".db";
-    string daSigShareDBPrefix = "/da_sigshares_" + to_string(nodeID) + ".db";
-    string daProofDBPrefix = "/da_proofs_" + to_string(nodeID) + ".db";
-    string blockProposalDBPrefix = "/block_proposals_" + to_string(nodeID) + ".db";
-
-    blockSigShareDB = make_shared<BlockSigShareDB>(dataDir, blockSigShareDBPrefix, getNodeID(), getBlockSigShareDBSize(),
-                                                   *getSchain());
-
-    daSigShareDB = make_shared<DASigShareDB>(dataDir, daSigShareDBPrefix, getNodeID(), getDaSigShareDBSize(),
-                                             *getSchain());
-    daProofDB = make_shared<DAProofDB>(dataDir, daProofDBPrefix, getNodeID(), getDaProofDBSize(),
-                                             *getSchain());
-
-    blockProposalDB = make_shared<BlockProposalDB>(dataDir, blockProposalDBPrefix, getNodeID(),
-            getBlockProposalDBSize(), *getSchain());
-
+    initLevelDBs();
 }
 
 void Node::initSchain(ptr<Node> _node, ptr<NodeInfo> _localNodeInfo, const vector<ptr<NodeInfo> > &remoteNodeInfos,
@@ -302,7 +297,6 @@ void Node::initSchain(ptr<Node> _node, ptr<NodeInfo> _localNodeInfo, const vecto
                 _node, _localNodeInfo->getSchainIndex(), _localNodeInfo->getSchainID(), _extFace);
 
         _node->setSchain(sChain);
-
 
 
     } catch (...) {

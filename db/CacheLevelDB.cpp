@@ -28,6 +28,7 @@
 #include "../exceptions/InvalidStateException.h"
 #include "../thirdparty/lrucache.hpp"
 
+#include "../exceptions/ExitRequestedException.h"
 
 #include "../SkaleCommon.h"
 #include "../Log.h"
@@ -46,6 +47,9 @@
 #include "../exceptions/LevelDBException.h"
 #include "../exceptions/FatalError.h"
 
+
+#include "../monitoring/LivelinessMonitor.h"
+
 #include "CacheLevelDB.h"
 
 
@@ -55,6 +59,46 @@ using namespace leveldb;
 static WriteOptions writeOptions;
 static ReadOptions readOptions;
 
+
+ptr<string> CacheLevelDB::createKey(const block_id _blockId) {
+    return make_shared<string>(getFormatVersion() + ":" + to_string(_blockId));
+}
+
+ptr<string> CacheLevelDB::createKey(block_id _blockId, schain_index _proposerIndex) {
+    return make_shared<string>(
+            getFormatVersion() + ":" + to_string(_blockId) + ":" + to_string(_proposerIndex));
+}
+
+ptr<string>
+CacheLevelDB::createKey(const block_id &_blockId, const schain_index &_proposerIndex,
+                        const bin_consensus_round &_round) {
+    return make_shared<string>(getFormatVersion() + ":" + to_string(_blockId) + ":" + to_string(_proposerIndex) + ":" +
+                               to_string(_round));
+}
+
+
+string CacheLevelDB::createSetKey(block_id _blockId, schain_index _index) {
+    return to_string(_blockId) + ":" + to_string(_index);
+}
+
+string CacheLevelDB::createCounterKey(block_id _blockId) {
+    return getFormatVersion() + ":COUNTER:" + to_string(_blockId);
+}
+
+
+ptr<string> CacheLevelDB::readStringFromBlockSet(block_id _blockId, schain_index _index) {
+    auto key = createSetKey(_blockId, _index);
+    return readString(key);
+}
+
+
+bool CacheLevelDB::keyExistsInSet(block_id _blockId, schain_index _index) {
+    return keyExists(createSetKey(_blockId, _index));
+}
+
+Schain *CacheLevelDB::getSchain() const {
+    return sChain;
+}
 
 ptr<string> CacheLevelDB::readString(string &_key) {
     shared_lock<shared_mutex> lock(m);
@@ -119,7 +163,7 @@ void CacheLevelDB::writeString(const string &_key, const string &_value) {
 
 
 void CacheLevelDB::writeByteArray(const char *_key, size_t _keyLen, const char *value,
-                             size_t _valueLen) {
+                                  size_t _valueLen) {
 
     rotateDBsIfNeeded();
 
@@ -138,7 +182,7 @@ void CacheLevelDB::writeByteArray(const char *_key, size_t _keyLen, const char *
 }
 
 void CacheLevelDB::writeByteArray(string &_key, const char *value,
-                             size_t _valueLen) {
+                                  size_t _valueLen) {
 
     rotateDBsIfNeeded();
 
@@ -187,24 +231,34 @@ uint64_t CacheLevelDB::visitKeys(CacheLevelDB::KeyVisitor *_visitor, uint64_t _m
 
 DB *CacheLevelDB::openDB(uint64_t _index) {
 
-    leveldb::DB *dbase = nullptr;
+    try {
+        leveldb::DB *dbase = nullptr;
 
-    static leveldb::Options options;
-    options.create_if_missing = true;
+        static leveldb::Options options;
+        options.create_if_missing = true;
 
-    ASSERT2(leveldb::DB::Open(options, dirname + "/" + prefix + "." + to_string(_index),
-                              &dbase).ok(),
-            "Unable to open database");
-    return dbase;
+        ASSERT2(leveldb::DB::Open(options, dirname + "/" + prefix + "." + to_string(_index),
+                                  &dbase).ok(),
+                "Unable to open database");
+        return dbase;
+
+    } catch (ExitRequestedException &e) { throw; }
+    catch (...) {
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+    }
+
 }
 
 
-CacheLevelDB::CacheLevelDB(string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize,
-        uint64_t _totalSigners, uint64_t _requiredSigners, bool _isDuplicateAddOK)
+CacheLevelDB::CacheLevelDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize,
+                           bool _isDuplicateAddOK)
         : nodeId(_nodeId),
           prefix(_prefix), dirname(_dirName),
-          maxDBSize(_maxDBSize), totalSigners(_totalSigners), requiredSigners(_requiredSigners),
-          isDuplicateAddOK(_isDuplicateAddOK) {
+          maxDBSize(_maxDBSize), totalSigners(_sChain->getTotalSigners()),
+          requiredSigners(_sChain->getRequiredSigners()),
+          isDuplicateAddOK(_isDuplicateAddOK), sChain(_sChain) {
+
+    CHECK_STATE(_sChain != nullptr);
 
     boost::filesystem::path path(_dirName);
 
@@ -221,6 +275,8 @@ CacheLevelDB::CacheLevelDB(string &_dirName, string &_prefix, node_id _nodeId, u
         leveldb::DB *dbase = openDB(i);
         db.push_back(shared_ptr<leveldb::DB>(dbase));
     }
+
+    verify();
 }
 
 CacheLevelDB::~CacheLevelDB() {
@@ -229,18 +285,26 @@ CacheLevelDB::~CacheLevelDB() {
 using namespace boost::filesystem;
 
 uint64_t CacheLevelDB::getActiveDBSize() {
-    vector<path> files;
 
-    path levelDBPath(dirname + "/" + prefix + "." + to_string(highestDBIndex));
+    try {
+        vector<path> files;
 
-    copy(directory_iterator(levelDBPath), directory_iterator(), back_inserter(files));
+        path levelDBPath(dirname + "/" + prefix + "." + to_string(highestDBIndex));
 
-    uint64_t size = 0;
+        copy(directory_iterator(levelDBPath), directory_iterator(), back_inserter(files));
 
-    for (auto &filePath : files) {
-        size = size + file_size(filePath);
+        uint64_t size = 0;
+
+        for (auto &filePath : files) {
+            size = size + file_size(filePath);
+        }
+        return size;
+
+    } catch (ExitRequestedException &e) { throw; }
+    catch (exception&) {
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
-    return size;
+
 }
 
 
@@ -276,50 +340,57 @@ std::pair<uint64_t, uint64_t> CacheLevelDB::findMaxMinDBIndex() {
 
 void CacheLevelDB::rotateDBsIfNeeded() {
 
-    if (getActiveDBSize() <= maxDBSize)
-        return;
-
-    {
-        lock_guard<shared_mutex> lock(m);
+    try {
 
         if (getActiveDBSize() <= maxDBSize)
             return;
 
-        LOG(info, "Rotating db");
+        {
+            lock_guard<shared_mutex> lock(m);
 
-        auto newDB = openDB(highestDBIndex + 1);
-
-        for (int i = 1; i < LEVELDB_PIECES; i++) {
-            db.at(i - 1) = db.at(i);
-        }
-
-        db[LEVELDB_PIECES - 1] = shared_ptr<leveldb::DB>(newDB);
-
-        db.at(0) = nullptr;
-        highestDBIndex++;
-
-        uint64_t minIndex;
-
-        while ((minIndex = findMaxMinDBIndex().second) + LEVELDB_PIECES <= highestDBIndex) {
-
-            if (minIndex == 0) {
+            if (getActiveDBSize() <= maxDBSize)
                 return;
+
+            LOG(info, "Rotating db");
+
+            auto newDB = openDB(highestDBIndex + 1);
+
+            for (int i = 1; i < LEVELDB_PIECES; i++) {
+                db.at(i - 1) = db.at(i);
             }
 
-            auto dbName = dirname + "/" + prefix + "." + to_string(minIndex);
-            try {
+            db[LEVELDB_PIECES - 1] = shared_ptr<leveldb::DB>(newDB);
 
-                boost::filesystem::remove_all(path(dbName));
-            } catch (Exception &e) {
-                LOG(err, "Could not remove db:" + dbName);
+            highestDBIndex++;
+
+            uint64_t minIndex;
+
+            while ((minIndex = findMaxMinDBIndex().second) + LEVELDB_PIECES <= highestDBIndex) {
+
+                if (minIndex == 0) {
+                    return;
+                }
+
+                auto dbName = dirname + "/" + prefix + "." + to_string(minIndex);
+                try {
+
+                    boost::filesystem::remove_all(path(dbName));
+                } catch (Exception &e) {
+                    LOG(err, "Could not remove db:" + dbName);
+                }
             }
+
+            verify();
         }
+
+    } catch (ExitRequestedException &e) { throw; }
+    catch (...) {
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
 }
 
 
 bool CacheLevelDB::isEnough(block_id _blockID) {
-    ASSERT(requiredSigners > 0 && totalSigners >= requiredSigners)
     return readCount(_blockID) >= requiredSigners;
 }
 
@@ -337,7 +408,7 @@ uint64_t CacheLevelDB::readCount(block_id _blockId) {
     try {
         auto result = stoull(*countString, NULL, 10);
 
-        CHECK_STATE(totalSigners == 0 || result <= totalSigners);
+        CHECK_STATE(result <= totalSigners);
 
         return result;
 
@@ -354,21 +425,38 @@ CacheLevelDB::writeStringToSet(const string &_value, block_id _blockId, schain_i
 }
 
 
-
 ptr<map<schain_index, ptr<string>>>
 CacheLevelDB::writeByteArrayToSet(const char *_value, uint64_t _valueLen, block_id _blockId, schain_index _index) {
 
-    assert(requiredSigners > 0 && totalSigners >= requiredSigners);
+    rotateDBsIfNeeded();
+    {
+
+        shared_lock<shared_mutex> lock(m);
+
+        return writeByteArrayToSetUnsafe(_value, _valueLen, _blockId, _index);
+
+    }
+
+}
+
+
+ptr<map<schain_index, ptr<string>>>
+CacheLevelDB::writeByteArrayToSetUnsafe(const char *_value, uint64_t _valueLen, block_id _blockId,
+                                        schain_index _index) {
+
+
+    MONITOR(__CLASS_NAME__, __FUNCTION__);
+
+
     assert(_index > 0 && _index <= totalSigners);
 
 
     string entryKey = createSetKey(_blockId, _index);
 
-    lock_guard<shared_mutex> lock(m);
 
     if (keyExistsUnsafe(entryKey)) {
         if (!isDuplicateAddOK)
-            LOG(warn, "Double db entry " + this->prefix + "\n" + to_string(_blockId) +  ":" + to_string(_index));
+            LOG(warn, "Double db entry " + this->prefix + "\n" + to_string(_blockId) + ":" + to_string(_index));
         return nullptr;
     }
 
@@ -378,8 +466,6 @@ CacheLevelDB::writeByteArrayToSet(const char *_value, uint64_t _valueLen, block_
     auto result = make_shared<string>();
 
     auto counterKey = createCounterKey(_blockId);
-
-
 
     for (int i = LEVELDB_PIECES - 1; i >= 0; i--) {
         ASSERT(db[i] != nullptr);
@@ -402,8 +488,6 @@ CacheLevelDB::writeByteArrayToSet(const char *_value, uint64_t _valueLen, block_
         containingDb = db.back();
     }
     {
-
-
 
         leveldb::WriteBatch batch;
         count++;
@@ -435,44 +519,15 @@ CacheLevelDB::writeByteArrayToSet(const char *_value, uint64_t _valueLen, block_
     assert(enoughSet->size() == requiredSigners);
 
     return enoughSet;
+
 }
 
+void CacheLevelDB::verify() {
 
-ptr<string> CacheLevelDB::createKey(const block_id _blockId) {
-    return make_shared<string>(getFormatVersion() + ":" + to_string(_blockId));
+    assert(db.size() == LEVELDB_PIECES);
+    for (auto &&x : db) {
+        assert(x != nullptr);
+    }
 }
 
-ptr<string> CacheLevelDB::createKey(block_id _blockId, schain_index _proposerIndex) {
-    return make_shared<string>(
-            getFormatVersion() + ":" + to_string(_blockId) + ":" + to_string(_proposerIndex));
-}
-
-ptr<string>
-CacheLevelDB::createKey(const block_id &_blockId, const schain_index &_proposerIndex, const bin_consensus_round &_round) {
-    return make_shared<string>(getFormatVersion() + ":" + to_string(_blockId) + ":" + to_string(_proposerIndex) + ":" +
-                               to_string(_round));
-}
-
-
-string CacheLevelDB::createSetKey(block_id _blockId, schain_index _index) {
-    return to_string(_blockId) + ":" + to_string(_index);
-}
-
-string CacheLevelDB::createCounterKey(block_id _blockId) {
-    return getFormatVersion() + ":COUNTER:" + to_string(_blockId);
-}
-
-
-
-
-ptr<string> CacheLevelDB::readStringFromBlockSet(block_id _blockId, schain_index _index) {
-    auto key = createSetKey(_blockId, _index);
-    return readString(key);
-}
-
-
-
-bool CacheLevelDB::keyExistsInSet(block_id _blockId, schain_index _index) {
-    return keyExists(createSetKey(_blockId, _index));
-}
 

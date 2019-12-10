@@ -69,7 +69,7 @@ public:
 
     void signProposalECDSA(BlockProposal* _proposal);
 
-    bool verifyProposalECDSA(BlockProposal* _proposal, ptr<string> _hashStr, ptr<string> _signature);
+    bool verifyProposalECDSA(ptr<BlockProposal> _proposal, ptr<string> _hashStr, ptr<string> _signature);
 
     ptr<ThresholdSigShare> signDAProofSigShare(ptr<BlockProposal> _p);
 

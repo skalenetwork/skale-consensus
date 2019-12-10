@@ -1,3 +1,5 @@
+
+
 /*
     Copyright (C) 2018-2019 SKALE Labs
 
@@ -166,6 +168,8 @@ public:
     uint64_t getMaxExternalBlockProcessingTime() const;
 
     Schain(weak_ptr<Node> _node, schain_index _schainIndex, const schain_id &_schainID, ConsensusExtFace *_extFace);
+
+    Schain(); // empty constructor is used for tests
 
     void startThreads();
 
