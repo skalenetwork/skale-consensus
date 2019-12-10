@@ -291,12 +291,19 @@ uint64_t CacheLevelDB::getActiveDBSize() {
 
         path levelDBPath(dirname + "/" + prefix + "." + to_string(highestDBIndex));
 
+        if (!is_directory(levelDBPath)) {
+            return 0;
+        }
+
+
         copy(directory_iterator(levelDBPath), directory_iterator(), back_inserter(files));
 
         uint64_t size = 0;
 
         for (auto &filePath : files) {
-            size = size + file_size(filePath);
+            if (is_regular_file(filePath)) {
+                size = size + file_size(filePath);
+            }
         }
         return size;
 
@@ -342,8 +349,10 @@ void CacheLevelDB::rotateDBsIfNeeded() {
 
     try {
 
+
         if (getActiveDBSize() <= maxDBSize)
             return;
+
 
         {
             lock_guard<shared_mutex> lock(m);
