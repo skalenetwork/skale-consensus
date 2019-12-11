@@ -21,6 +21,7 @@
     @date 2018
 */
 
+#include <node/ConsensusEngine.h>
 #include "../../SkaleCommon.h"
 #include "../../Log.h"
 #include "../../exceptions/ExitRequestedException.h"
@@ -29,7 +30,7 @@
 
 #include "../utils/Time.h"
 #include "../node/Node.h"
-#include "../chains/Schain.h"
+#include "chains/Schain.h"
 #include "LivelinessMonitor.h"
 #include "MonitoringAgent.h"
 #include "MonitoringThreadPool.h"
@@ -40,8 +41,11 @@ MonitoringAgent::MonitoringAgent(Schain &_sChain) {
         logThreadLocal_ = _sChain.getNode()->getLog();
         this->sChain = &_sChain;
 
+
+
         this->monitoringThreadPool = make_shared<MonitoringThreadPool>(1, this);
         monitoringThreadPool->startService();
+
     } catch (...) {
         throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
     }
@@ -51,17 +55,20 @@ MonitoringAgent::MonitoringAgent(Schain &_sChain) {
 
 void MonitoringAgent::monitor() {
 
+    if (ConsensusEngine::isOnTravis())
+        return;
+
     lock_guard<recursive_mutex> lock(m);
 
     for (auto &&item: activeMonitors) {
-        LivelinessMonitor *m = item.second;
+        LivelinessMonitor *monitor = item.second;
 
-        CHECK_STATE(m != nullptr);
+        CHECK_STATE(monitor != nullptr);
 
         auto currentTime = Time::getCurrentTimeMs();
 
-        if (currentTime > m->getExpiryTime()) {
-            LOG(warn, m->toString() + " has been stuck for " + to_string(currentTime - m->getStartTime()) + " ms");
+        if (currentTime > monitor->getExpiryTime()) {
+            LOG(warn, monitor->toString() + " has been stuck for " + to_string(currentTime - monitor->getStartTime()) + " ms");
         }
 
     }
@@ -75,8 +82,8 @@ void MonitoringAgent::monitoringLoop(MonitoringAgent *agent) {
 
 
     try {
-        while (!agent->getSChain()->getNode()->isExitRequested()) {
-            usleep(agent->getSChain()->getNode()->getMonitoringIntervalMs() * 1000);
+        while (!agent->getSchain()->getNode()->isExitRequested()) {
+            usleep(agent->getSchain()->getNode()->getMonitoringIntervalMs() * 1000);
 
             try {
                 agent->monitor();
@@ -88,7 +95,7 @@ void MonitoringAgent::monitoringLoop(MonitoringAgent *agent) {
 
         };
     } catch (FatalError *e) {
-        agent->getSChain()->getNode()->exitOnFatalError(e->getMessage());
+        agent->getSchain()->getNode()->exitOnFatalError(e->getMessage());
     }
 }
 
@@ -112,7 +119,7 @@ void MonitoringAgent::unregisterMonitor(LivelinessMonitor *_monitor) {
 
 }
 
-Schain *MonitoringAgent::getSChain() const {
+Schain *MonitoringAgent::getSchain() const {
     return sChain;
 }
 

@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.5)
 
+include_directories(.)
+
 option(COVERAGE "Build with code coverage support" OFF)
 if (COVERAGE)
     message(STATUS "**********************")

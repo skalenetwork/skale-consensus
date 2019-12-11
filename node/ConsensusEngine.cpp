@@ -361,8 +361,8 @@ void ConsensusEngine::systemHealthCheck() {
     }
     int noFiles = std::strtol(ulimit.c_str(), NULL, 10);
 
-    auto noUlimitCheck = std::getenv("NO_ULIMIT_CHECK") != nullptr;
-    auto onTravis = std::getenv("TRAVIS_BUILD_TYPE") != nullptr;
+    noUlimitCheck = std::getenv("NO_ULIMIT_CHECK") != nullptr;
+    onTravis = std::getenv("TRAVIS_BUILD_TYPE") != nullptr;
 
     if (noFiles < 65535 && !noUlimitCheck && !onTravis) {
 
@@ -525,5 +525,18 @@ u256 ConsensusEngine::getPriceForBlockId(uint64_t _blockId) const {
     }
 
     return 0; // never happens
+}
+
+
+bool ConsensusEngine::onTravis = false;
+
+bool ConsensusEngine::noUlimitCheck = false;
+
+bool ConsensusEngine::isOnTravis() {
+    return onTravis;
+}
+
+bool ConsensusEngine::isNoUlimitCheck() {
+    return noUlimitCheck;
 }
 
