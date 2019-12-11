@@ -21,21 +21,21 @@
     @date 2018
 */
 
-#include "../../SkaleCommon.h"
-#include "../../Log.h"
-#include "../../exceptions/FatalError.h"
+#include "SkaleCommon.h"
+#include "Log.h"
+#include "exceptions/FatalError.h"
 
-#include "../../messages/NetworkMessage.h"
-#include "../../crypto/SHAHash.h"
+#include "messages/NetworkMessage.h"
+#include "crypto/SHAHash.h"
 
-#include "../ProtocolKey.h"
-#include "../ProtocolInstance.h"
-#include "../../crypto/CryptoManager.h"
-#include "../../chains/Schain.h"
+#include "protocols/ProtocolKey.h"
+#include "protocols/ProtocolInstance.h"
+#include "crypto/CryptoManager.h"
+#include "chains/Schain.h"
 
 #include "BlockSignBroadcastMessage.h"
-#include "../binconsensus/BinConsensusInstance.h"
-#include "../../crypto/ThresholdSigShare.h"
+#include "protocols/binconsensus/BinConsensusInstance.h"
+#include "crypto/ThresholdSigShare.h"
 
 
 bin_consensus_round BlockSignBroadcastMessage::getRound() const {

@@ -21,9 +21,9 @@
     @date 2018
 */
 
-#include "../SkaleCommon.h"
-#include "../Log.h"
-#include "../exceptions/FatalError.h"
+#include "SkaleCommon.h"
+#include "Log.h"
+#include "exceptions/FatalError.h"
 #include "InstanceGarbageCollectorAgent.h"
 #include "ProtocolInstance.h"
 

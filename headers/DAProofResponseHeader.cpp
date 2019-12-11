@@ -21,8 +21,8 @@
     @date 2019
 */
 
-#include "../SkaleCommon.h"
-#include "../thirdparty/json.hpp"
+#include "SkaleCommon.h"
+#include "thirdparty/json.hpp"
 #include "DAProofResponseHeader.h"
 
 DAProofResponseHeader::DAProofResponseHeader() : Header(Header::DA_PROOF_RSP) {}

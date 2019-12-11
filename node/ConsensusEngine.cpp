@@ -27,12 +27,12 @@
 #include "openssl/pem.h"
 #include "openssl/err.h"
 
-#include "../SkaleCommon.h"
-#include "../Log.h"
-#include "../exceptions/FatalError.h"
-#include "../Agent.h"
-#include "../thirdparty/json.hpp"
-#include "../threads/GlobalThreadRegistry.h"
+#include "SkaleCommon.h"
+#include "Log.h"
+#include "exceptions/FatalError.h"
+#include "Agent.h"
+#include "thirdparty/json.hpp"
+#include "threads/GlobalThreadRegistry.h"
 
 #include "zmq.h"
 
@@ -70,20 +70,20 @@
 
 #include <boost/multiprecision/cpp_int.hpp>
 
-#include "../chains/Schain.h"
-#include "../libBLS/bls/BLSSignature.h"
-#include "../libBLS/bls/BLSPublicKey.h"
-#include "../libBLS/bls/BLSPrivateKeyShare.h"
-#include "../exceptions/EngineInitException.h"
-#include "../json/JSONFactory.h"
-#include "../network/Sockets.h"
-#include "../network/Utils.h"
-#include "../network/ZMQServerSocket.h"
-#include "../protocols/InstanceGarbageCollectorAgent.h"
-#include "../protocols/ProtocolKey.h"
-#include "../protocols/binconsensus/BinConsensusInstance.h"
+#include "chains/Schain.h"
+#include "libBLS/bls/BLSSignature.h"
+#include "libBLS/bls/BLSPublicKey.h"
+#include "libBLS/bls/BLSPrivateKeyShare.h"
+#include "exceptions/EngineInitException.h"
+#include "json/JSONFactory.h"
+#include "network/Sockets.h"
+#include "network/Utils.h"
+#include "network/ZMQServerSocket.h"
+#include "protocols/InstanceGarbageCollectorAgent.h"
+#include "protocols/ProtocolKey.h"
+#include "protocols/binconsensus/BinConsensusInstance.h"
 
-#include "../exceptions/FatalError.h"
+#include "exceptions/FatalError.h"
 
 #include "ConsensusEngine.h"
 

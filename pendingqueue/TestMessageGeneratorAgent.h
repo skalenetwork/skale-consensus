@@ -24,8 +24,8 @@
 #pragma  once
 
 
-#include "../Agent.h"
-#include "../node/ConsensusEngine.h"
+#include "Agent.h"
+#include "node/ConsensusEngine.h"
 
 class Schain;
 

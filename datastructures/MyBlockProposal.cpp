@@ -22,9 +22,9 @@
 */
 
 
-#include "../SkaleCommon.h"
-#include "../crypto/CryptoManager.h"
-#include "../chains/Schain.h"
+#include "SkaleCommon.h"
+#include "crypto/CryptoManager.h"
+#include "chains/Schain.h"
 #include "Transaction.h"
 #include "MyBlockProposal.h"
 

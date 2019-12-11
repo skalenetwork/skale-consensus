@@ -30,7 +30,7 @@
 #include <mutex>
 
 #include <memory>
-#include "../node/Node.h"
+#include "node/Node.h"
 
 
 class ServerSocker;

@@ -23,13 +23,8 @@
 
 #pragma once
 
-
-
-#include "../ProtocolKey.h"
-
-#include "../ProtocolInstance.h"
-
-
+#include "protocols/ProtocolKey.h"
+#include "protocols/ProtocolInstance.h"
 
 class ChildBVDecidedMessage;
 class BlockProposalSet;
@@ -54,9 +49,6 @@ class BlockConsensusAgent : public ProtocolInstance {
     recursive_mutex childrenMutex;
 
     map<ptr<ProtocolKey>, ptr<BinConsensusInstance>, Comparator> children;
-
-
-
 
     map<ptr<ProtocolKey>, ProtocolOutcome , Comparator> completedInstancesByProtocolKey;
 

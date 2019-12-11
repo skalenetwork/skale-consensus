@@ -21,15 +21,15 @@
     @date 2018
 */
 
-#include "../SkaleCommon.h"
-#include "../Log.h"
-#include "../exceptions/FatalError.h"
-#include "../thirdparty/json.hpp"
+#include "SkaleCommon.h"
+#include "Log.h"
+#include "exceptions/FatalError.h"
+#include "thirdparty/json.hpp"
 
-#include "../chains/Schain.h"
-#include "../protocols/ProtocolInstance.h"
-#include "../protocols/ProtocolKey.h"
-#include "../node/Node.h"
+#include "chains/Schain.h"
+#include "protocols/ProtocolInstance.h"
+#include "protocols/ProtocolKey.h"
+#include "node/Node.h"
 #include "InternalMessage.h"
 
 using namespace std;

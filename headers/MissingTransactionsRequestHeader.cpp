@@ -21,15 +21,15 @@
     @date 2018
 */
 
-#include "../SkaleCommon.h"
-#include "../Log.h"
-#include "../exceptions/FatalError.h"
+#include "SkaleCommon.h"
+#include "Log.h"
+#include "exceptions/FatalError.h"
 
-#include "../thirdparty/json.hpp"
-#include "../abstracttcpserver/ConnectionStatus.h"
-#include "../crypto/SHAHash.h"
-#include "../datastructures/BlockProposal.h"
-#include "../chains/Schain.h"
+#include "thirdparty/json.hpp"
+#include "abstracttcpserver/ConnectionStatus.h"
+#include "crypto/SHAHash.h"
+#include "datastructures/BlockProposal.h"
+#include "chains/Schain.h"
 
 #include "MissingTransactionsRequestHeader.h"
 

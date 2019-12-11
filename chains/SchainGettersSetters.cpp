@@ -21,79 +21,79 @@
     @date 2018
 */
 
-#include "../Log.h"
-#include "../SkaleCommon.h"
-#include "../exceptions/FatalError.h"
-#include "../exceptions/InvalidStateException.h"
-#include "../exceptions/InvalidArgumentException.h"
+#include "Log.h"
+#include "SkaleCommon.h"
+#include "exceptions/FatalError.h"
+#include "exceptions/InvalidStateException.h"
+#include "exceptions/InvalidArgumentException.h"
 
-#include "../thirdparty/json.hpp"
+#include "thirdparty/json.hpp"
 
-#include "../abstracttcpserver/ConnectionStatus.h"
-#include "../node/ConsensusEngine.h"
+#include "abstracttcpserver/ConnectionStatus.h"
+#include "node/ConsensusEngine.h"
 
 #include <unordered_set>
 
 #include "leveldb/db.h"
 
-#include "../node/ConsensusEngine.h"
-#include "../node/Node.h"
+#include "node/ConsensusEngine.h"
+#include "node/Node.h"
 
-#include "../blockproposal/pusher/BlockProposalClientAgent.h"
-#include "../headers/BlockProposalRequestHeader.h"
-#include "../pendingqueue/PendingTransactionsAgent.h"
+#include "blockproposal/pusher/BlockProposalClientAgent.h"
+#include "headers/BlockProposalRequestHeader.h"
+#include "pendingqueue/PendingTransactionsAgent.h"
 
-#include "../blockfinalize/client/BlockFinalizeDownloader.h"
-#include "../blockproposal/server/BlockProposalServerAgent.h"
-#include "../catchup/client/CatchupClientAgent.h"
-#include "../catchup/server/CatchupServerAgent.h"
-#include "../monitoring/MonitoringAgent.h"
+#include "blockfinalize/client/BlockFinalizeDownloader.h"
+#include "blockproposal/server/BlockProposalServerAgent.h"
+#include "catchup/client/CatchupClientAgent.h"
+#include "catchup/server/CatchupServerAgent.h"
+#include "monitoring/MonitoringAgent.h"
 
 
-#include "../crypto/ConsensusBLSSigShare.h"
-#include "../exceptions/EngineInitException.h"
-#include "../exceptions/ParsingException.h"
-#include "../messages/InternalMessageEnvelope.h"
-#include "../messages/Message.h"
-#include "../messages/MessageEnvelope.h"
-#include "../messages/NetworkMessageEnvelope.h"
-#include "../node/NodeInfo.h"
-#include "../db/BlockProposalDB.h"
-#include "../network/Sockets.h"
-#include "../protocols/ProtocolInstance.h"
-#include "../protocols/blockconsensus/BlockConsensusAgent.h"
-#include "../network/ClientSocket.h"
-#include "../network/IO.h"
-#include "../network/ZMQServerSocket.h"
+#include "crypto/ConsensusBLSSigShare.h"
+#include "exceptions/EngineInitException.h"
+#include "exceptions/ParsingException.h"
+#include "messages/InternalMessageEnvelope.h"
+#include "messages/Message.h"
+#include "messages/MessageEnvelope.h"
+#include "messages/NetworkMessageEnvelope.h"
+#include "node/NodeInfo.h"
+#include "db/BlockProposalDB.h"
+#include "network/Sockets.h"
+#include "protocols/ProtocolInstance.h"
+#include "protocols/blockconsensus/BlockConsensusAgent.h"
+#include "network/ClientSocket.h"
+#include "network/IO.h"
+#include "network/ZMQServerSocket.h"
 #include "SchainMessageThreadPool.h"
 
-#include "../crypto/SHAHash.h"
-#include "../datastructures/BlockProposal.h"
-#include "../datastructures/BlockProposalSet.h"
-#include "../datastructures/CommittedBlock.h"
-#include "../datastructures/CommittedBlockList.h"
-#include "../datastructures/MyBlockProposal.h"
-#include "../datastructures/ReceivedBlockProposal.h"
-#include "../datastructures/Transaction.h"
-#include "../datastructures/TransactionList.h"
-#include "../exceptions/ExitRequestedException.h"
-#include "../messages/ConsensusProposalMessage.h"
+#include "crypto/SHAHash.h"
+#include "datastructures/BlockProposal.h"
+#include "datastructures/BlockProposalSet.h"
+#include "datastructures/CommittedBlock.h"
+#include "datastructures/CommittedBlockList.h"
+#include "datastructures/MyBlockProposal.h"
+#include "datastructures/ReceivedBlockProposal.h"
+#include "datastructures/Transaction.h"
+#include "datastructures/TransactionList.h"
+#include "exceptions/ExitRequestedException.h"
+#include "messages/ConsensusProposalMessage.h"
 
-#include "../exceptions/FatalError.h"
-
-
-#include "../pricing/PricingAgent.h"
+#include "exceptions/FatalError.h"
 
 
-#include "../crypto/bls_include.h"
-#include "../db/BlockDB.h"
-#include "../db/CacheLevelDB.h"
-#include "../pendingqueue/TestMessageGeneratorAgent.h"
+#include "pricing/PricingAgent.h"
+
+
+#include "crypto/bls_include.h"
+#include "db/BlockDB.h"
+#include "db/CacheLevelDB.h"
+#include "pendingqueue/TestMessageGeneratorAgent.h"
 #include "SchainTest.h"
 
 
-#include "../libBLS/bls/BLSPrivateKeyShare.h"
-#include "../monitoring/LivelinessMonitor.h"
+#include "libBLS/bls/BLSPrivateKeyShare.h"
+#include "monitoring/LivelinessMonitor.h"
 #include "Schain.h"
 
 

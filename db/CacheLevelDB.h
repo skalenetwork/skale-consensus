@@ -25,8 +25,8 @@
 #ifndef SKALED_CACHELEVELDB_H
 #define SKALED_CACHELEVELDB_H
 
-#include "../thirdparty/lrucache.hpp"
-#include "../SkaleCommon.h"
+#include "thirdparty/lrucache.hpp"
+#include "SkaleCommon.h"
 
 class Schain;
 

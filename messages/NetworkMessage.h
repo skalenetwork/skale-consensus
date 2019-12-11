@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include "../crypto/bls_include.h"
+#include "crypto/bls_include.h"
 
 #include "Message.h"
 

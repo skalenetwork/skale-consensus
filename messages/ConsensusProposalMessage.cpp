@@ -21,10 +21,10 @@
     @date 2018
 */
 
-#include "../chains/Schain.h"
+#include "chains/Schain.h"
 
-#include "../protocols/ProtocolKey.h"
-#include "../datastructures/BooleanProposalVector.h"
+#include "protocols/ProtocolKey.h"
+#include "datastructures/BooleanProposalVector.h"
 #include "ConsensusProposalMessage.h"
 
 ConsensusProposalMessage::ConsensusProposalMessage(Schain& _sChain, const block_id &_blockID, ptr<BooleanProposalVector> _proposals) : Message(

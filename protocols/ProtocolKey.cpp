@@ -21,10 +21,10 @@
     @date 2018
 */
 
-#include "../SkaleCommon.h"
-#include "../Log.h"
-#include "../exceptions/FatalError.h"
-#include "../messages/NetworkMessage.h"
+#include "SkaleCommon.h"
+#include "Log.h"
+#include "exceptions/FatalError.h"
+#include "messages/NetworkMessage.h"
 #include "ProtocolInstance.h"
 #include "ProtocolKey.h"
 

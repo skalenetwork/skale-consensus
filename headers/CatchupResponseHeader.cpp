@@ -21,13 +21,13 @@
     @date 2018
 */
 
-#include "../SkaleCommon.h"
-#include "../Log.h"
-#include "../exceptions/FatalError.h"
+#include "SkaleCommon.h"
+#include "Log.h"
+#include "exceptions/FatalError.h"
 
-#include "../thirdparty/json.hpp"
+#include "thirdparty/json.hpp"
 
-#include "../abstracttcpserver/ConnectionStatus.h"
+#include "abstracttcpserver/ConnectionStatus.h"
 #include "MissingTransactionsRequestHeader.h"
 #include "CatchupResponseHeader.h"
 

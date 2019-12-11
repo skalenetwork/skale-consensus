@@ -22,14 +22,14 @@
 */
 
 #include <node/ConsensusEngine.h>
-#include "../../SkaleCommon.h"
-#include "../../Log.h"
-#include "../../exceptions/ExitRequestedException.h"
-#include "../../exceptions/FatalError.h"
-#include "../../thirdparty/json.hpp"
+#include "SkaleCommon.h"
+#include "Log.h"
+#include "exceptions/ExitRequestedException.h"
+#include "exceptions/FatalError.h"
+#include "thirdparty/json.hpp"
 
-#include "../utils/Time.h"
-#include "../node/Node.h"
+#include "utils/Time.h"
+#include "node/Node.h"
 #include "chains/Schain.h"
 #include "LivelinessMonitor.h"
 #include "MonitoringAgent.h"

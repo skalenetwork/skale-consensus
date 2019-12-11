@@ -24,9 +24,9 @@
 #pragma  once
 #include <vector>
 
-#include "../SkaleCommon.h"
-#include "../Log.h"
-#include "../exceptions/FatalError.h"
+#include "SkaleCommon.h"
+#include "Log.h"
+#include "exceptions/FatalError.h"
 #include "Message.h"
 
 class Schain;

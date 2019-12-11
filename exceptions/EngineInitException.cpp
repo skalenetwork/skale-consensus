@@ -21,9 +21,9 @@
     @date 2018
 */
 
-#include "../SkaleCommon.h"
-#include "../Log.h"
-#include "../exceptions/EngineInitException.h"
+#include "SkaleCommon.h"
+#include "Log.h"
+#include "exceptions/EngineInitException.h"
 #include "EngineInitException.h"
 
 

@@ -21,12 +21,12 @@
     @date 2018
 */
 
-#include "../SkaleCommon.h"
-#include "../Log.h"
-#include "../exceptions/FatalError.h"
+#include "SkaleCommon.h"
+#include "Log.h"
+#include "exceptions/FatalError.h"
 
-#include "../protocols/ProtocolKey.h"
-#include "../protocols/ProtocolInstance.h"
+#include "protocols/ProtocolKey.h"
+#include "protocols/ProtocolInstance.h"
 #include "ChildCompletedMessage.h"
 
 using namespace std;

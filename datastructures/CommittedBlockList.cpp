@@ -22,12 +22,12 @@
 */
 
 
-#include "../Log.h"
-#include "../SkaleCommon.h"
-#include "../crypto/SHAHash.h"
-#include "../exceptions/NetworkProtocolException.h"
-#include "../exceptions/InvalidStateException.h"
-#include "../crypto/CryptoManager.h"
+#include "Log.h"
+#include "SkaleCommon.h"
+#include "crypto/SHAHash.h"
+#include "exceptions/NetworkProtocolException.h"
+#include "exceptions/InvalidStateException.h"
+#include "crypto/CryptoManager.h"
 #include "CommittedBlock.h"
 #include "CommittedBlockList.h"
 

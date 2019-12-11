@@ -22,9 +22,9 @@
 */
 
 
-#include "../SkaleCommon.h"
-#include "../Log.h"
-#include "../exceptions/ExitRequestedException.h"
+#include "SkaleCommon.h"
+#include "Log.h"
+#include "exceptions/ExitRequestedException.h"
 #include "PriceDB.h"
 
 

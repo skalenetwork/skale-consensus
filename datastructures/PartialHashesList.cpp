@@ -21,12 +21,12 @@
     @date 2018
 */
 
-#include "../SkaleCommon.h"
-#include "../Log.h"
-#include "../exceptions/FatalError.h"
-#include "../exceptions/InvalidArgumentException.h"
+#include "SkaleCommon.h"
+#include "Log.h"
+#include "exceptions/FatalError.h"
+#include "exceptions/InvalidArgumentException.h"
 
-#include "../exceptions/NetworkProtocolException.h"
+#include "exceptions/NetworkProtocolException.h"
 #include "PartialHashesList.h"
 
 PartialHashesList::~PartialHashesList() {}

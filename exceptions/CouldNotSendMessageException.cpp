@@ -21,9 +21,9 @@
     @date 2018
 */
 
-#include "../SkaleCommon.h"
-#include "../Log.h"
-#include "../exceptions/FatalError.h"
+#include "SkaleCommon.h"
+#include "Log.h"
+#include "exceptions/FatalError.h"
 #include "CouldNotSendMessageException.h"
 
 CouldNotSendMessageException::CouldNotSendMessageException(const std::string &_message,  const string& _className) :

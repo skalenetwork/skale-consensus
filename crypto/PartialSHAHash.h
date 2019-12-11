@@ -25,7 +25,7 @@
 #define CONSENSUS_PARTIALSHA3HASH_H
 
 
-#include "../SkaleCommon.h"
+#include "SkaleCommon.h"
 
 class PartialSHAHash {
 

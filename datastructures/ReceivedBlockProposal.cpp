@@ -21,10 +21,10 @@
     @date 2018
 */
 
-#include "../SkaleCommon.h"
-#include "../datastructures/TransactionList.h"
-#include "../crypto/SHAHash.h"
-#include "../chains/Schain.h"
+#include "SkaleCommon.h"
+#include "datastructures/TransactionList.h"
+#include "crypto/SHAHash.h"
+#include "chains/Schain.h"
 #include "ReceivedBlockProposal.h"
 
 ReceivedBlockProposal::ReceivedBlockProposal(Schain &_sChain, const block_id &_blockID,

@@ -21,12 +21,12 @@
     @date 2018
 */
 
-#include "../SkaleCommon.h"
-#include "../Log.h"
-#include "../exceptions/FatalError.h"
+#include "SkaleCommon.h"
+#include "Log.h"
+#include "exceptions/FatalError.h"
 
 #include "zmq.h"
-#include "../exceptions/FatalError.h"
+#include "exceptions/FatalError.h"
 #include "ZMQServerSocket.h"
 
 ZMQServerSocket::ZMQServerSocket(ptr<string> &_bindIP, uint16_t _basePort, port_type _portType) : ServerSocket(_bindIP,

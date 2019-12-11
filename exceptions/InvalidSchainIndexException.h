@@ -23,9 +23,9 @@
 
 #pragma once
 
-#include "../SkaleCommon.h"
-#include "../Log.h"
-#include "../exceptions/FatalError.h"
+#include "SkaleCommon.h"
+#include "Log.h"
+#include "exceptions/FatalError.h"
 #include "Exception.h"
 
 class InvalidSchainIndexException : public Exception {

@@ -21,47 +21,47 @@
     @date 2018
 */
 
-#include "../../SkaleCommon.h"
-#include "../../Log.h"
-#include "../../exceptions/FatalError.h"
-#include "../../abstracttcpserver/ConnectionStatus.h"
-#include "../../thirdparty/json.hpp"
-#include "../../crypto/bls_include.h"
+#include "SkaleCommon.h"
+#include "Log.h"
+#include "exceptions/FatalError.h"
+#include "abstracttcpserver/ConnectionStatus.h"
+#include "thirdparty/json.hpp"
+#include "crypto/bls_include.h"
 
-#include "../../crypto/ConsensusBLSSigShare.h"
-#include "../../chains/Schain.h"
-#include "../../crypto/CryptoManager.h"
+#include "crypto/ConsensusBLSSigShare.h"
+#include "chains/Schain.h"
+#include "crypto/CryptoManager.h"
 #include "AUXBroadcastMessage.h"
 
-#include "../../node/NodeInfo.h"
-#include "../../messages/ParentMessage.h"
-#include "../../messages/ChildCompletedMessage.h"
-#include "../../messages/MessageEnvelope.h"
-#include "../../messages/NetworkMessageEnvelope.h"
-#include "../../messages/InternalMessageEnvelope.h"
-#include "../../messages/HistoryMessage.h"
-#include "../../pendingqueue/PendingTransactionsAgent.h"
-#include "../../blockproposal/pusher/BlockProposalClientAgent.h"
-#include "../../db/BlockProposalDB.h"
-#include "../../chains/Schain.h"
-#include "../../crypto/ConsensusBLSSignature.h"
-#include "../../node/Node.h"
+#include "node/NodeInfo.h"
+#include "messages/ParentMessage.h"
+#include "messages/ChildCompletedMessage.h"
+#include "messages/MessageEnvelope.h"
+#include "messages/NetworkMessageEnvelope.h"
+#include "messages/InternalMessageEnvelope.h"
+#include "messages/HistoryMessage.h"
+#include "pendingqueue/PendingTransactionsAgent.h"
+#include "blockproposal/pusher/BlockProposalClientAgent.h"
+#include "db/BlockProposalDB.h"
+#include "chains/Schain.h"
+#include "crypto/ConsensusBLSSignature.h"
+#include "node/Node.h"
 
-#include "../../db/RandomDB.h"
+#include "db/RandomDB.h"
 
-#include "../../network/TransportNetwork.h"
+#include "network/TransportNetwork.h"
 
 
-#include "../ProtocolInstance.h"
+#include "protocols/ProtocolInstance.h"
 
 
 #include "ChildBVDecidedMessage.h"
 #include "BVBroadcastMessage.h"
-#include "../blockconsensus/BlockConsensusAgent.h"
+#include "protocols/blockconsensus/BlockConsensusAgent.h"
 
-#include "../../crypto/ConsensusSigShareSet.h"
-#include "../../libBLS/bls/BLSSigShareSet.h"
-#include "../../crypto/ConsensusBLSSignature.h"
+#include "crypto/ConsensusSigShareSet.h"
+#include "libBLS/bls/BLSSigShareSet.h"
+#include "crypto/ConsensusBLSSignature.h"
 
 
 #include "BinConsensusInstance.h"

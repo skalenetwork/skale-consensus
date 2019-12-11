@@ -22,11 +22,11 @@
 */
 
 
-#include "../SkaleCommon.h"
-#include "../thirdparty/json.hpp"
-#include "../headers/Header.h"
+#include "SkaleCommon.h"
+#include "thirdparty/json.hpp"
+#include "headers/Header.h"
 #include "PartialSHAHash.h"
-#include "../network/Utils.h"
+#include "network/Utils.h"
 
 
 void PartialSHAHash::print() {

@@ -21,29 +21,29 @@
     @date 2018
 */
 
-#include "../../SkaleCommon.h"
+#include "SkaleCommon.h"
 
-#include "../../Log.h"
-#include "../../exceptions/ExitRequestedException.h"
-#include "../../exceptions/FatalError.h"
+#include "Log.h"
+#include "exceptions/ExitRequestedException.h"
+#include "exceptions/FatalError.h"
 
-#include "../../thirdparty/json.hpp"
+#include "thirdparty/json.hpp"
 
-#include "../../abstracttcpserver/ConnectionStatus.h"
+#include "abstracttcpserver/ConnectionStatus.h"
 
-#include "../../network/ClientSocket.h"
-#include "../../network/IO.h"
-#include "../../network/TransportNetwork.h"
-#include "../../node/Node.h"
+#include "network/ClientSocket.h"
+#include "network/IO.h"
+#include "network/TransportNetwork.h"
+#include "node/Node.h"
 
-#include "../../chains/Schain.h"
-#include "../../crypto/SHAHash.h"
-#include "../../datastructures/CommittedBlockList.h"
-#include "../../exceptions/NetworkProtocolException.h"
-#include "../../headers/BlockProposalRequestHeader.h"
-#include "../../headers/CatchupRequestHeader.h"
-#include "../../headers/CatchupResponseHeader.h"
-#include "../../pendingqueue/PendingTransactionsAgent.h"
+#include "chains/Schain.h"
+#include "crypto/SHAHash.h"
+#include "datastructures/CommittedBlockList.h"
+#include "exceptions/NetworkProtocolException.h"
+#include "headers/BlockProposalRequestHeader.h"
+#include "headers/CatchupRequestHeader.h"
+#include "headers/CatchupResponseHeader.h"
+#include "pendingqueue/PendingTransactionsAgent.h"
 
 #include "CatchupClientAgent.h"
 #include "CatchupClientThreadPool.h"

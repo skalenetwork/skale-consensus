@@ -22,8 +22,8 @@
 */
 
 
-#include "../SkaleCommon.h"
-#include "../Log.h"
+#include "SkaleCommon.h"
+#include "Log.h"
 #include "InvalidHashException.h"
 
 InvalidHashException::InvalidHashException(const std::string &_message, const string& _className) :

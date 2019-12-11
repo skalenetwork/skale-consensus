@@ -25,7 +25,7 @@
 
 
 
-#include "../Agent.h"
+#include "Agent.h"
 
 class ConsensusSigShareSet;
 class ConsensusBLSSignature;

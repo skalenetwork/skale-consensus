@@ -22,10 +22,10 @@
 */
 
 
-#include "../SkaleCommon.h"
-#include "../Log.h"
+#include "SkaleCommon.h"
+#include "Log.h"
 
-#include "../datastructures/Transaction.h"
+#include "datastructures/Transaction.h"
 
 
 #include "CommittedTransactionDB.h"

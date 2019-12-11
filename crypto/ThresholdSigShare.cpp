@@ -24,10 +24,10 @@
 #include "ConsensusBLSSigShare.h"
 #include "BLSSigShare.h"
 #include "bls_include.h"
-#include "../thirdparty/json.hpp"
-#include "../network/Utils.h"
-#include "../Log.h"
-#include "../SkaleCommon.h"
+#include "thirdparty/json.hpp"
+#include "network/Utils.h"
+#include "Log.h"
+#include "SkaleCommon.h"
 #include "ThresholdSigShare.h"
 
 

@@ -20,8 +20,8 @@
     @author Stan Kladko
     @date 2019
 */
-#include "../SkaleCommon.h"
-#include "../Log.h"
+#include "SkaleCommon.h"
+#include "Log.h"
 #include "Time.h"
 
 

@@ -21,16 +21,16 @@
     @date 2019
 */
 
-#include "../SkaleCommon.h"
-#include "../Log.h"
-#include "../exceptions/FatalError.h"
+#include "SkaleCommon.h"
+#include "Log.h"
+#include "exceptions/FatalError.h"
 #include "bls_include.h"
-#include "../node/ConsensusEngine.h"
+#include "node/ConsensusEngine.h"
 #include "SHAHash.h"
 #include "ConsensusBLSSignature.h"
 
-#include "../chains/Schain.h"
-#include "../pendingqueue/PendingTransactionsAgent.h"
+#include "chains/Schain.h"
+#include "pendingqueue/PendingTransactionsAgent.h"
 #include "ConsensusBLSSigShare.h"
 
 #include "BLSSigShareSet.h"

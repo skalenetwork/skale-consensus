@@ -21,11 +21,11 @@
     @date 2018
 */
 
-#include "../SkaleCommon.h"
-#include "../Agent.h"
-#include "../Log.h"
-#include "../exceptions/InvalidArgumentException.h"
-#include "../exceptions/ParsingException.h"
+#include "SkaleCommon.h"
+#include "Agent.h"
+#include "Log.h"
+#include "exceptions/InvalidArgumentException.h"
+#include "exceptions/ParsingException.h"
 #include "Transaction.h"
 #include "TransactionList.h"
 

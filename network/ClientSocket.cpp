@@ -21,19 +21,19 @@
     @date 2018
 */
 
-#include "../SkaleCommon.h"
-#include "../Log.h"
-#include "../exceptions/FatalError.h"
+#include "SkaleCommon.h"
+#include "Log.h"
+#include "exceptions/FatalError.h"
 
-#include "../thirdparty/json.hpp"
-#include "../chains/Schain.h"
+#include "thirdparty/json.hpp"
+#include "chains/Schain.h"
 #include "Sockets.h"
 
-#include "../node/NodeInfo.h"
+#include "node/NodeInfo.h"
 #include "ServerConnection.h"
-#include "../exceptions/FatalError.h"
-#include "../exceptions/NetworkProtocolException.h"
-#include "../exceptions/ConnectionRefusedException.h"
+#include "exceptions/FatalError.h"
+#include "exceptions/NetworkProtocolException.h"
+#include "exceptions/ConnectionRefusedException.h"
 #include "ClientSocket.h"
 
 using namespace std;
