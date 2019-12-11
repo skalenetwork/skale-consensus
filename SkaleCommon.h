@@ -144,6 +144,11 @@ static const uint64_t BLOCK_PROPOSAL_HISTORY_SIZE = 1;
 
 static const uint64_t COMMITTED_TRANSACTIONS_HISTORY = 1000000;
 
+static const uint64_t MAX_ACTIVE_CONSENSUSES = 50;
+
+static const uint64_t CONSENSUS_HISTORY  = 2 * MAX_ACTIVE_CONSENSUSES;
+
+
 static constexpr uint64_t MAX_CATCHUP_DOWNLOAD_BYTES = 1000000000;
 
 static constexpr uint64_t PROPOSAL_HASHES_PER_DB = 100000;

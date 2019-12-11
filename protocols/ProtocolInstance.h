@@ -58,9 +58,6 @@ class ProtocolInstance {
 
 protected:
 
-    ProtocolStatus status = STATUS_ACTIVE;
-
-    ProtocolOutcome outcome = OUTCOME_UNKNOWN;
 
     /**
      * Instance ID
@@ -73,11 +70,6 @@ protected:
     msg_id messageCounter;
 
 
-
-    void setStatus(ProtocolStatus status);
-
-
-    void setOutcome(ProtocolOutcome outcome);
 
 
 public:
@@ -92,9 +84,7 @@ public:
 
 
 
-    ProtocolStatus getStatus() const {
-        return status;
-    }
+
 
     ProtocolOutcome getOutcome() const;
 

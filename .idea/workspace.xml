@@ -31,189 +31,14 @@
   <component name="ChangeListManager">
     <list default="true" id="e8eb5c74-4268-46a2-ac26-2e919fd9ff42" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/abstracttcpclient/AbstractClientAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/abstracttcpclient/AbstractClientAgent.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/abstracttcpclient/AbstractClientAgent.h" beforeDir="false" afterPath="$PROJECT_DIR$/abstracttcpclient/AbstractClientAgent.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/abstracttcpserver/AbstractServerAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/abstracttcpserver/AbstractServerAgent.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/abstracttcpserver/AbstractServerAgent.h" beforeDir="false" afterPath="$PROJECT_DIR$/abstracttcpserver/AbstractServerAgent.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/blockfinalize/client/BlockFinalizeDownloader.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/blockfinalize/client/BlockFinalizeDownloader.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/blockfinalize/client/BlockFinalizeDownloader.h" beforeDir="false" afterPath="$PROJECT_DIR$/blockfinalize/client/BlockFinalizeDownloader.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/blockfinalize/client/BlockFinalizeDownloaderThreadPool.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/blockfinalize/client/BlockFinalizeDownloaderThreadPool.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/blockfinalize/client/BlockFinalizeDownloaderThreadPool.h" beforeDir="false" afterPath="$PROJECT_DIR$/blockfinalize/client/BlockFinalizeDownloaderThreadPool.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/blockproposal/pusher/BlockProposalClientAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/blockproposal/pusher/BlockProposalClientAgent.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/blockproposal/pusher/BlockProposalClientAgent.h" beforeDir="false" afterPath="$PROJECT_DIR$/blockproposal/pusher/BlockProposalClientAgent.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/blockproposal/pusher/BlockProposalPusherThreadPool.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/blockproposal/pusher/BlockProposalPusherThreadPool.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/blockproposal/pusher/BlockProposalPusherThreadPool.h" beforeDir="false" afterPath="$PROJECT_DIR$/blockproposal/pusher/BlockProposalPusherThreadPool.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/blockproposal/server/BlockProposalServerAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/blockproposal/server/BlockProposalServerAgent.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/blockproposal/server/BlockProposalServerAgent.h" beforeDir="false" afterPath="$PROJECT_DIR$/blockproposal/server/BlockProposalServerAgent.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/blockproposal/server/BlockProposalWorkerThreadPool.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/blockproposal/server/BlockProposalWorkerThreadPool.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/blockproposal/server/BlockProposalWorkerThreadPool.h" beforeDir="false" afterPath="$PROJECT_DIR$/blockproposal/server/BlockProposalWorkerThreadPool.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/catchup/client/CatchupClientAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/catchup/client/CatchupClientAgent.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/catchup/client/CatchupClientThreadPool.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/catchup/client/CatchupClientThreadPool.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/catchup/client/CatchupClientThreadPool.h" beforeDir="false" afterPath="$PROJECT_DIR$/catchup/client/CatchupClientThreadPool.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/catchup/server/CatchupServerAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/catchup/server/CatchupServerAgent.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/catchup/server/CatchupServerAgent.h" beforeDir="false" afterPath="$PROJECT_DIR$/catchup/server/CatchupServerAgent.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/catchup/server/CatchupWorkerThreadPool.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/catchup/server/CatchupWorkerThreadPool.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/catchup/server/CatchupWorkerThreadPool.h" beforeDir="false" afterPath="$PROJECT_DIR$/catchup/server/CatchupWorkerThreadPool.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chains/Schain.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/chains/Schain.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chains/Schain.h" beforeDir="false" afterPath="$PROJECT_DIR$/chains/Schain.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chains/SchainDispatchThreadPool.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/chains/SchainDispatchThreadPool.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chains/SchainGettersSetters.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/chains/SchainGettersSetters.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chains/SchainMessageThreadPool.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/chains/SchainMessageThreadPool.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chains/TestConfig.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/chains/TestConfig.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crypto/ConsensusBLSSigShare.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/crypto/ConsensusBLSSigShare.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crypto/ConsensusBLSSignature.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/crypto/ConsensusBLSSignature.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crypto/ConsensusSigShareSet.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/crypto/ConsensusSigShareSet.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crypto/ConsensusSigShareSet.h" beforeDir="false" afterPath="$PROJECT_DIR$/crypto/ConsensusSigShareSet.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crypto/CryptoManager.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/crypto/CryptoManager.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crypto/MockupSigShare.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/crypto/MockupSigShare.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crypto/MockupSigShareSet.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/crypto/MockupSigShareSet.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crypto/MockupSigShareSet.h" beforeDir="false" afterPath="$PROJECT_DIR$/crypto/MockupSigShareSet.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crypto/MockupSignature.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/crypto/MockupSignature.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crypto/PartialSHAHash.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/crypto/PartialSHAHash.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crypto/PartialSHAHash.h" beforeDir="false" afterPath="$PROJECT_DIR$/crypto/PartialSHAHash.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crypto/SHAHash.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/crypto/SHAHash.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crypto/ThresholdSigShare.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/crypto/ThresholdSigShare.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crypto/ThresholdSigShare.h" beforeDir="false" afterPath="$PROJECT_DIR$/crypto/ThresholdSigShare.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crypto/ThresholdSigShareSet.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/crypto/ThresholdSigShareSet.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crypto/ThresholdSignature.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/crypto/ThresholdSignature.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/datastructures/BlockProposal.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/BlockProposal.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/datastructures/BlockProposal.h" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/BlockProposal.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/datastructures/BlockProposalFragment.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/BlockProposalFragment.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/datastructures/BlockProposalFragmentList.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/BlockProposalFragmentList.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/datastructures/BlockProposalSet.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/BlockProposalSet.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/datastructures/BooleanProposalVector.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/BooleanProposalVector.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/datastructures/CommittedBlock.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/CommittedBlock.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/datastructures/CommittedBlockList.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/CommittedBlockList.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/datastructures/DAProof.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/DAProof.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/datastructures/DAProof.h" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/DAProof.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/datastructures/DataStructure.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/DataStructure.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/datastructures/ListOfHashes.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/ListOfHashes.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/datastructures/MyBlockProposal.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/MyBlockProposal.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/datastructures/PartialHashesList.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/PartialHashesList.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/datastructures/ReceivedBlockProposal.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/ReceivedBlockProposal.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/datastructures/SerializationTests.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/SerializationTests.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/datastructures/Transaction.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/Transaction.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/datastructures/Transaction.h" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/Transaction.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/datastructures/TransactionList.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/TransactionList.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/datastructures/TransactionList.h" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/TransactionList.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/BlockDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/BlockDB.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/BlockProposalDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/BlockProposalDB.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/BlockSigShareDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/BlockSigShareDB.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/CacheLevelDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/CacheLevelDB.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/CacheLevelDB.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/CacheLevelDB.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/CommittedTransactionDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/CommittedTransactionDB.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/DAProofDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/DAProofDB.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/DAProofDB.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/DAProofDB.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/DASigShareDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/DASigShareDB.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/DASigShareDB.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/DASigShareDB.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/DBTests.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/DBTests.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/PriceDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/PriceDB.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/ProposalHashDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/ProposalHashDB.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/RandomDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/RandomDB.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/SigDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/SigDB.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/exceptions/CouldNotReadPartialDataHashesException.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/exceptions/CouldNotReadPartialDataHashesException.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/exceptions/CouldNotSendMessageException.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/exceptions/CouldNotSendMessageException.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/exceptions/EngineInitException.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/exceptions/EngineInitException.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/exceptions/Exception.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/exceptions/Exception.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/exceptions/ExitRequestedException.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/exceptions/ExitRequestedException.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/exceptions/FatalError.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/exceptions/FatalError.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/exceptions/IOException.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/exceptions/IOException.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/exceptions/InvalidArgumentException.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/exceptions/InvalidArgumentException.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/exceptions/InvalidHashException.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/exceptions/InvalidHashException.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/exceptions/InvalidSchainIndexException.h" beforeDir="false" afterPath="$PROJECT_DIR$/exceptions/InvalidSchainIndexException.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/exceptions/InvalidSourceIPException.h" beforeDir="false" afterPath="$PROJECT_DIR$/exceptions/InvalidSourceIPException.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/exceptions/InvalidStateException.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/exceptions/InvalidStateException.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/exceptions/LevelDBException.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/exceptions/LevelDBException.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/exceptions/NetworkProtocolException.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/exceptions/NetworkProtocolException.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/exceptions/NetworkProtocolException.h" beforeDir="false" afterPath="$PROJECT_DIR$/exceptions/NetworkProtocolException.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/exceptions/ParsingException.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/exceptions/ParsingException.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/exceptions/ParsingException.h" beforeDir="false" afterPath="$PROJECT_DIR$/exceptions/ParsingException.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/exceptions/ProposalProtocolException.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/exceptions/ProposalProtocolException.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/exceptions/SerializeException.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/exceptions/SerializeException.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/exceptions/SerializeException.h" beforeDir="false" afterPath="$PROJECT_DIR$/exceptions/SerializeException.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/headers/AbstractBlockRequestHeader.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/headers/AbstractBlockRequestHeader.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/headers/BlockFinalizeRequestHeader.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/headers/BlockFinalizeRequestHeader.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/headers/BlockFinalizeResponseHeader.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/headers/BlockFinalizeResponseHeader.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/headers/BlockProposalHeader.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/headers/BlockProposalHeader.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/headers/BlockProposalRequestHeader.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/headers/BlockProposalRequestHeader.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/headers/BlockProposalResponseHeader.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/headers/BlockProposalResponseHeader.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/headers/CatchupRequestHeader.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/headers/CatchupRequestHeader.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/headers/CatchupResponseHeader.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/headers/CatchupResponseHeader.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/headers/CommittedBlockHeader.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/headers/CommittedBlockHeader.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/headers/DAProofRequestHeader.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/headers/DAProofRequestHeader.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/headers/DAProofResponseHeader.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/headers/DAProofResponseHeader.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/headers/FinalProposalResponseHeader.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/headers/FinalProposalResponseHeader.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/headers/Header.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/headers/Header.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/headers/Header.h" beforeDir="false" afterPath="$PROJECT_DIR$/headers/Header.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/headers/MissingTransactionsRequestHeader.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/headers/MissingTransactionsRequestHeader.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/headers/MissingTransactionsResponseHeader.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/headers/MissingTransactionsResponseHeader.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/json/JSONFactory.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/json/JSONFactory.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/messages/ChildCompletedMessage.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/messages/ChildCompletedMessage.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/messages/ChildMessage.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/messages/ChildMessage.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/messages/ConsensusProposalMessage.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/messages/ConsensusProposalMessage.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/messages/ConsensusProposalMessage.h" beforeDir="false" afterPath="$PROJECT_DIR$/messages/ConsensusProposalMessage.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/messages/HistoryMessage.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/messages/HistoryMessage.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/messages/InternalMessage.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/messages/InternalMessage.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/messages/InternalMessageEnvelope.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/messages/InternalMessageEnvelope.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/messages/InternalMessageEnvelope.h" beforeDir="false" afterPath="$PROJECT_DIR$/messages/InternalMessageEnvelope.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/messages/Message.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/messages/Message.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/messages/MessageEnvelope.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/messages/MessageEnvelope.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/messages/NetworkMessage.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/messages/NetworkMessage.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/messages/NetworkMessage.h" beforeDir="false" afterPath="$PROJECT_DIR$/messages/NetworkMessage.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/messages/NetworkMessageEnvelope.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/messages/NetworkMessageEnvelope.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/messages/ParentCompletedMessage.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/messages/ParentCompletedMessage.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/messages/ParentMessage.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/messages/ParentMessage.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/monitoring/LivelinessMonitor.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/monitoring/LivelinessMonitor.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/monitoring/MonitoringAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/monitoring/MonitoringAgent.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/monitoring/MonitoringThreadPool.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/monitoring/MonitoringThreadPool.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/monitoring/MonitoringThreadPool.h" beforeDir="false" afterPath="$PROJECT_DIR$/monitoring/MonitoringThreadPool.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/network/Buffer.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/network/Buffer.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/network/ClientSocket.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/network/ClientSocket.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/network/IO.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/network/IO.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/network/NTPClient.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/network/NTPClient.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/network/ServerConnection.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/network/ServerConnection.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/network/ServerSocket.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/network/ServerSocket.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/network/Sockets.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/network/Sockets.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/network/Sockets.h" beforeDir="false" afterPath="$PROJECT_DIR$/network/Sockets.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/network/TCPServerSocket.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/network/TCPServerSocket.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/network/TransportNetwork.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/network/TransportNetwork.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/network/TransportNetwork.h" beforeDir="false" afterPath="$PROJECT_DIR$/network/TransportNetwork.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/network/Utils.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/network/Utils.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/network/Utils.h" beforeDir="false" afterPath="$PROJECT_DIR$/network/Utils.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/network/ZMQNetwork.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/network/ZMQNetwork.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/network/ZMQServerSocket.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/network/ZMQServerSocket.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/node/ConsensusEngine.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/node/ConsensusEngine.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/node/ConsensusEngine.h" beforeDir="false" afterPath="$PROJECT_DIR$/node/ConsensusEngine.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/node/Node.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/node/Node.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/node/NodeGettersSetters.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/node/NodeGettersSetters.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/node/NodeInfo.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/node/NodeInfo.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pendingqueue/PendingTransactionsAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/pendingqueue/PendingTransactionsAgent.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pendingqueue/PendingTransactionsAgent.h" beforeDir="false" afterPath="$PROJECT_DIR$/pendingqueue/PendingTransactionsAgent.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pendingqueue/TestMessageGeneratorAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/pendingqueue/TestMessageGeneratorAgent.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pendingqueue/TestMessageGeneratorAgent.h" beforeDir="false" afterPath="$PROJECT_DIR$/pendingqueue/TestMessageGeneratorAgent.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pricing/DynamicPricingStrategy.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/pricing/DynamicPricingStrategy.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pricing/PricingAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/pricing/PricingAgent.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pricing/PricingAgent.h" beforeDir="false" afterPath="$PROJECT_DIR$/pricing/PricingAgent.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pricing/PricingStrategy.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/pricing/PricingStrategy.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pricing/ZeroPricingStrategy.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/pricing/ZeroPricingStrategy.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/protocols/InstanceGarbageCollectorAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/protocols/InstanceGarbageCollectorAgent.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SkaleCommon.h" beforeDir="false" afterPath="$PROJECT_DIR$/SkaleCommon.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messages/ChildCompletedMessage.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/messages/ChildCompletedMessage.h" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/protocols/ProtocolInstance.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/protocols/ProtocolInstance.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/protocols/ProtocolKey.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/protocols/ProtocolKey.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/protocols/binconsensus/AUXBroadcastMessage.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/protocols/binconsensus/AUXBroadcastMessage.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/protocols/binconsensus/AUXBroadcastMessage.h" beforeDir="false" afterPath="$PROJECT_DIR$/protocols/binconsensus/AUXBroadcastMessage.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/protocols/binconsensus/BVBroadcastMessage.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/protocols/binconsensus/BVBroadcastMessage.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/protocols/ProtocolInstance.h" beforeDir="false" afterPath="$PROJECT_DIR$/protocols/ProtocolInstance.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/protocols/binconsensus/BinConsensusInstance.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/protocols/binconsensus/BinConsensusInstance.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/protocols/binconsensus/BinConsensusInstance.h" beforeDir="false" afterPath="$PROJECT_DIR$/protocols/binconsensus/BinConsensusInstance.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/protocols/binconsensus/ChildBVDecidedMessage.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/protocols/binconsensus/ChildBVDecidedMessage.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/protocols/binconsensus/ChildBVDecidedMessage.h" beforeDir="false" afterPath="$PROJECT_DIR$/protocols/binconsensus/ChildBVDecidedMessage.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/protocols/blockconsensus/BlockConsensusAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/protocols/blockconsensus/BlockConsensusAgent.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/protocols/blockconsensus/BlockConsensusAgent.h" beforeDir="false" afterPath="$PROJECT_DIR$/protocols/blockconsensus/BlockConsensusAgent.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/protocols/blockconsensus/BlockConsensusParentConsensusInitMessage.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/protocols/blockconsensus/BlockConsensusParentConsensusInitMessage.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/protocols/blockconsensus/BlockConsensusParentConsensusInitMessage.h" beforeDir="false" afterPath="$PROJECT_DIR$/protocols/blockconsensus/BlockConsensusParentConsensusInitMessage.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/protocols/blockconsensus/BlockSignBroadcastMessage.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/protocols/blockconsensus/BlockSignBroadcastMessage.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/threads/GlobalThreadRegistry.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/threads/GlobalThreadRegistry.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/threads/WorkerThreadPool.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/threads/WorkerThreadPool.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utils/Time.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/utils/Time.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -471,13 +296,6 @@
       <workItem from="1575369130855" duration="7805000" />
       <workItem from="1575640279975" duration="4005000" />
       <workItem from="1575716912702" duration="17312000" />
-    </task>
-    <task id="LOCAL-00039" summary="Decide on block signing">
-      <created>1575022504238</created>
-      <option name="number" value="00039" />
-      <option name="presentableId" value="LOCAL-00039" />
-      <option name="project" value="LOCAL" />
-      <updated>1575022504238</updated>
     </task>
     <task id="LOCAL-00040" summary="Signing blocks now">
       <created>1575032987160</created>
@@ -815,7 +633,14 @@
       <option name="project" value="LOCAL" />
       <updated>1576008223200</updated>
     </task>
-    <option name="localTasksCounter" value="88" />
+    <task id="LOCAL-00088" summary="Cleaning imports">
+      <created>1576074558261</created>
+      <option name="number" value="00088" />
+      <option name="presentableId" value="LOCAL-00088" />
+      <option name="project" value="LOCAL" />
+      <updated>1576074558261</updated>
+    </task>
+    <option name="localTasksCounter" value="89" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -851,7 +676,6 @@
   <component name="VcsManagerConfiguration">
     <option name="CHECK_CODE_SMELLS_BEFORE_PROJECT_COMMIT" value="false" />
     <option name="CHECK_NEW_TODO" value="false" />
-    <MESSAGE value="Cleaned memory on return" />
     <MESSAGE value="Adding block signing" />
     <MESSAGE value="Added LRU cache" />
     <MESSAGE value="Adding set DB" />
@@ -876,7 +700,8 @@
     <MESSAGE value="BetterDBName" />
     <MESSAGE value="Add DAProofDB" />
     <MESSAGE value="Added ptrs to threads" />
-    <option name="LAST_COMMIT_MESSAGE" value="Added ptrs to threads" />
+    <MESSAGE value="Cleaning imports" />
+    <option name="LAST_COMMIT_MESSAGE" value="Cleaning imports" />
   </component>
   <component name="WindowStateProjectService">
     <state x="2468" y="216" width="814" height="678" key="#All_in_[committed-block-serialize]" timestamp="1575636402415" />
@@ -889,30 +714,34 @@
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
     <state x="2644" y="206" width="593" height="693" key="#com.intellij.ide.util.MemberChooser/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576053124139" />
-    <state x="2314" y="71" width="1121" height="962" key="CommitChangelistDialog2" timestamp="1576008222741">
+    <state x="2550" y="243" width="649" height="618" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog" timestamp="1576079242641">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state x="2314" y="71" width="1121" height="962" key="CommitChangelistDialog2/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576008222741" />
+    <state x="2550" y="243" width="649" height="618" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576079242641" />
+    <state x="2314" y="71" width="1121" height="962" key="CommitChangelistDialog2" timestamp="1576074557710">
+      <screen x="1920" y="0" width="1920" height="1080" />
+    </state>
+    <state x="2314" y="71" width="1121" height="962" key="CommitChangelistDialog2/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576074557710" />
     <state x="2613" y="259" width="524" height="594" key="FileChooserDialogImpl" timestamp="1576073838542">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
     <state x="2613" y="259" width="524" height="594" key="FileChooserDialogImpl/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576073838542" />
-    <state width="1860" height="301" key="GridCell.Tab.0.bottom" timestamp="1576053776849">
+    <state width="1860" height="301" key="GridCell.Tab.0.bottom" timestamp="1576085676144">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state width="1860" height="301" key="GridCell.Tab.0.bottom/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576053776849" />
-    <state width="1860" height="301" key="GridCell.Tab.0.center" timestamp="1576053776848">
+    <state width="1860" height="301" key="GridCell.Tab.0.bottom/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576085676144" />
+    <state width="1860" height="301" key="GridCell.Tab.0.center" timestamp="1576085676144">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state width="1860" height="301" key="GridCell.Tab.0.center/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576053776848" />
-    <state width="1860" height="301" key="GridCell.Tab.0.left" timestamp="1576053776848">
+    <state width="1860" height="301" key="GridCell.Tab.0.center/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576085676144" />
+    <state width="1860" height="301" key="GridCell.Tab.0.left" timestamp="1576085676144">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state width="1860" height="301" key="GridCell.Tab.0.left/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576053776848" />
-    <state width="1860" height="301" key="GridCell.Tab.0.right" timestamp="1576053776849">
+    <state width="1860" height="301" key="GridCell.Tab.0.left/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576085676144" />
+    <state width="1860" height="301" key="GridCell.Tab.0.right" timestamp="1576085676144">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state width="1860" height="301" key="GridCell.Tab.0.right/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576053776849" />
+    <state width="1860" height="301" key="GridCell.Tab.0.right/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576085676144" />
     <state width="1860" height="250" key="GridCell.Tab.1.bottom" timestamp="1576005294487">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
@@ -933,10 +762,10 @@
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
     <state x="2238" y="100" key="SettingsEditor/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576053303654" />
-    <state x="2375" y="210" width="1000" height="684" key="Vcs.Push.Dialog.v2" timestamp="1576008224148">
+    <state x="2375" y="210" width="1000" height="684" key="Vcs.Push.Dialog.v2" timestamp="1576074559255">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state x="2375" y="210" width="1000" height="684" key="Vcs.Push.Dialog.v2/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576008224148" />
+    <state x="2375" y="210" width="1000" height="684" key="Vcs.Push.Dialog.v2/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576074559255" />
     <state x="2020" y="125" width="1720" height="855" key="com.intellij.history.integration.ui.views.FileHistoryDialog" timestamp="1575638884892">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
@@ -945,10 +774,10 @@
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
     <state x="2434" y="329" key="com.intellij.ide.util.TipDialog/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575640281237" />
-    <state x="2188" y="30" width="1125" height="792" key="find.popup" timestamp="1576073867543">
+    <state x="2188" y="30" width="1125" height="792" key="find.popup" timestamp="1576085283246">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state x="2188" y="30" width="1125" height="792" key="find.popup/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576073867543" />
+    <state x="2188" y="30" width="1125" height="792" key="find.popup/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576085283246" />
     <state x="2479" y="299" width="801" height="506" key="git4idea.merge.GitMergeDialog" timestamp="1575886235995">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
@@ -957,8 +786,10 @@
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
     <state x="2565" y="128" width="620" height="849" key="refactoring.ChangeSignatureDialog/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576053051492" />
-    <state x="2459" y="45" width="840" height="1034" key="search.everywhere.popup" timestamp="1575636402415" />
-    <state x="2459" y="45" width="840" height="1034" key="search.everywhere.popup/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575636402415" />
+    <state x="2459" y="45" width="840" height="1034" key="search.everywhere.popup" timestamp="1576079984258">
+      <screen x="1920" y="0" width="1920" height="1080" />
+    </state>
+    <state x="2459" y="45" width="840" height="1034" key="search.everywhere.popup/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576079984258" />
     <state x="2566" y="383" width="617" height="338" key="vcs.readOnlyHandler.ReadOnlyStatusDialog" timestamp="1575636402415" />
     <state x="2566" y="383" width="617" height="338" key="vcs.readOnlyHandler.ReadOnlyStatusDialog/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575636402415" />
   </component>

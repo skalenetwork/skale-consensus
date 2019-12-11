@@ -35,7 +35,6 @@
 
 #include "node/NodeInfo.h"
 #include "messages/ParentMessage.h"
-#include "messages/ChildCompletedMessage.h"
 #include "messages/MessageEnvelope.h"
 #include "messages/NetworkMessageEnvelope.h"
 #include "messages/InternalMessageEnvelope.h"
@@ -70,23 +69,7 @@
 using namespace std;
 
 
-void BinConsensusInstance::processParentCompletedMessage(ptr<InternalMessageEnvelope> /*me*/) {
-
-
-    if (getStatus() != STATUS_ACTIVE) {
-        return;
-    }
-
-    initiateProtocolCompletion(OUTCOME_KILLED);
-
-}
-
-
 void BinConsensusInstance::processMessage(ptr<MessageEnvelope> m) {
-
-
-    if (status == STATUS_COMPLETED)
-        return;
 
 
     ASSERT(m->getMessage()->getBlockID() == getBlockID());
@@ -98,7 +81,7 @@ void BinConsensusInstance::processMessage(ptr<MessageEnvelope> m) {
     auto msgOrigin = m->getOrigin();
 
 
-    if (msgOrigin == ORIGIN_NETWORK || getStatus() == STATUS_ACTIVE) {
+    if (msgOrigin == ORIGIN_NETWORK) {
 
         if (msgType != BVB_BROADCAST && msgType != AUX_BROADCAST)
             return;
@@ -109,12 +92,7 @@ void BinConsensusInstance::processMessage(ptr<MessageEnvelope> m) {
 
 
     } else if (msgOrigin == ORIGIN_PARENT) {
-        if (msgType == PARENT_COMPLETED) {
-            processParentCompletedMessage(dynamic_pointer_cast<InternalMessageEnvelope>(m));
-        } else {
-            if (getStatus() == STATUS_ACTIVE)
-                processParentProposal(dynamic_pointer_cast<InternalMessageEnvelope>(m));
-        }
+        processParentProposal(dynamic_pointer_cast<InternalMessageEnvelope>(m));
     }
 }
 
@@ -442,7 +420,7 @@ void BinConsensusInstance::proceedWithCommonCoinIfAUXTwoThird(bin_consensus_roun
         auto randomDB = getSchain()->getNode()->getRandomDB();
 
         randomDB->writeRandom(getBlockID(), getBlockProposerIndex(),
-                                  _r, random);
+                              _r, random);
 
         proceedWithCommonCoin(hasTrue, hasFalse, random);
 
@@ -588,21 +566,6 @@ const schain_index BinConsensusInstance::getBlockProposerIndex() const {
     return blockProposerIndex;
 }
 
-
-void BinConsensusInstance::initiateProtocolCompletion(ProtocolOutcome outcome) {
-
-
-    this->setOutcome(outcome);
-
-
-    auto msg = make_shared<ChildCompletedMessage>(*this, getProtocolKey());
-
-    getSchain()->postMessage(make_shared<InternalMessageEnvelope>(ORIGIN_CHILD,
-                                                                  msg, *getSchain(), getProtocolKey()));
-
-    this->setStatus(ProtocolStatus::STATUS_COMPLETED);
-
-}
 
 BinConsensusInstance::BinConsensusInstance(BlockConsensusAgent *instance, block_id _blockId,
                                            schain_index _blockProposerIndex) :

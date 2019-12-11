@@ -50,15 +50,9 @@ class BlockConsensusAgent : public ProtocolInstance {
 
     map<ptr<ProtocolKey>, ptr<BinConsensusInstance>, Comparator> children;
 
-    map<ptr<ProtocolKey>, ProtocolOutcome , Comparator> completedInstancesByProtocolKey;
-
-
-    set<block_id> proposedBlocks;
-
     map<block_id , set<schain_index>> trueDecisions;;
 
     map<block_id , set<schain_index>> falseDecisions;
-
 
     map<block_id, schain_index>  decidedBlocks;
 
@@ -72,12 +66,7 @@ class BlockConsensusAgent : public ProtocolInstance {
 
     void decideEmptyBlock(block_id _blockNumber);
 
-    void disconnect(ptr<ProtocolKey> _key );
-
-    void processChildCompletedMessage(ptr<InternalMessageEnvelope> _me);
-
     void startConsensusProposal(block_id _blockID, ptr<BooleanProposalVector> _proposal);
-
 
 public:
 

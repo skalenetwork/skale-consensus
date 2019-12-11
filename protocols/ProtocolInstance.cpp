@@ -27,7 +27,6 @@
 #include "thirdparty/json.hpp"
 #include "abstracttcpserver/ConnectionStatus.h"
 #include "messages/ParentMessage.h"
-#include "messages/ChildCompletedMessage.h"
 #include "pendingqueue/PendingTransactionsAgent.h"
 #include "blockproposal/pusher/BlockProposalClientAgent.h"
 #include "db/BlockProposalDB.h"
@@ -59,20 +58,10 @@ Schain *ProtocolInstance::getSchain() const {
 }
 
 
-void ProtocolInstance::setStatus(ProtocolStatus _status) {
-    ProtocolInstance::status = _status;
-}
-
-void ProtocolInstance::setOutcome(ProtocolOutcome outcome) {
-    ProtocolInstance::outcome = outcome;
-}
 
 
 
 
-ProtocolOutcome ProtocolInstance::getOutcome() const {
-    return outcome;
-}
 
 ProtocolInstance::~ProtocolInstance() {
     totalObjects--;
