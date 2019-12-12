@@ -85,9 +85,9 @@ protected:
 
 
 
-    thread* networkReadThread;
+    ptr<thread> networkReadThread;
 
-    thread* deferredMessageThread;
+    ptr<thread> deferredMessageThread;
 
 
 public:
@@ -105,7 +105,7 @@ public:
 
     ptr<string> ipToString(uint32_t _ip);
 
-    void broadcastMessage(Schain& _sChain, ptr<NetworkMessage> _m);
+    void broadcastMessage(ptr<NetworkMessage> _m);
 
     ptr<NetworkMessageEnvelope> receiveMessage();
 

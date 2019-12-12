@@ -1,3 +1,5 @@
+
+
 /*
     Copyright (C) 2018-2019 SKALE Labs
 
@@ -25,13 +27,13 @@
 
 #include "../Agent.h"
 
-
+class ThresholdSignature;
 class CommittedBlockList;
 class NetworkMessageEnvelope;
 class WorkerThreadPool;
 class NodeInfo;
-class ReceivedBlockProposalsDatabase;
-class ReceivedDASigSharesDatabase;
+class BlockProposalDB;
+class DASigShareDB;
 class ServerConnection;
 class BlockProposal;
 class PartialHashesList;
@@ -69,6 +71,7 @@ class Sockets;
 class SHAHash;
 class ConsensusBLSSigShare;
 class ThresholdSigShare;
+class BooleanProposalVector;
 
 class Schain : public Agent {
 
@@ -107,10 +110,6 @@ class Schain : public Agent {
 
     ptr<IO> io;
 
-    ptr<ReceivedBlockProposalsDatabase> blockProposalsDatabase;
-
-    ptr<ReceivedDASigSharesDatabase> receivedDASigSharesDatabase;
-
     ptr<CryptoManager> cryptoManager;
 
     weak_ptr<Node> node;
@@ -119,11 +118,11 @@ class Schain : public Agent {
 
     ptr<string> blockProposerTest;
 
-    atomic<uint64_t> lastCommittedBlockID;
+    atomic<uint64_t> lastCommittedBlockID = 0;
+    atomic<uint64_t> bootstrapBlockID = 0;
+    atomic<uint64_t>lastCommittedBlockTimeStamp = 0;
+    atomic<uint64_t>lastCommittedBlockTimeStampMs;
 
-    atomic<uint64_t> bootstrapBlockID;
-
-    atomic<uint64_t>committedBlockTimeStamp;
 
     uint64_t maxExternalBlockProcessingTime;
 
@@ -141,15 +140,15 @@ class Schain : public Agent {
 
     void processCommittedBlock(ptr<CommittedBlock> _block);
 
-    void startConsensus(block_id _blockID);
+    void startConsensus(const block_id _blockID, ptr<BooleanProposalVector> _propposalVector);
 
     void constructChildAgents();
-
-    void saveBlockToBlockCache(ptr<CommittedBlock> &_block);
 
     void saveBlock(ptr<CommittedBlock> &_block);
 
     void pushBlockToExtFace(ptr<CommittedBlock> &_block);
+
+    ptr<BlockProposal> createEmptyBlockProposal(block_id _blockId);
 
 
 public:
@@ -170,6 +169,8 @@ public:
 
     Schain(weak_ptr<Node> _node, schain_index _schainIndex, const schain_id &_schainID, ConsensusExtFace *_extFace);
 
+    Schain(); // empty constructor is used for tests
+
     void startThreads();
 
     static void messageThreadProcessingLoop(Schain *_s);
@@ -180,17 +181,17 @@ public:
 
     uint64_t getStartTimeMs() const;
 
-    void proposedBlockArrived(ptr<BlockProposal> _pbm);
+    void proposedBlockArrived(ptr<BlockProposal> _proposal);
 
-    void daProofArrived(ptr<DAProof> _proof);
+    void daProofArrived(ptr<DAProof> _daProof);
 
-    void blockCommitArrived(bool _bootstrap, block_id _committedBlockID, schain_index _proposerIndex,
-                                uint64_t _committedTimeStamp);
+    void blockCommitArrived(block_id _committedBlockID, schain_index _proposerIndex, uint64_t _committedTimeStamp,
+                            uint64_t _committedTimeStampMs, ptr<ThresholdSignature> _thresholdSig);
 
 
     void blockCommitsArrivedThroughCatchup(ptr<CommittedBlockList> _blocks);
 
-    void sigShareArrived(ptr<ThresholdSigShare> _sigShare, ptr<BlockProposal> _proposal);
+    void daProofSigShareArrived(ptr<ThresholdSigShare> _sigShare, ptr<BlockProposal> _proposal);
 
     const ptr<IO> getIo() const;
 
@@ -228,8 +229,6 @@ public:
 
     void bootstrap(block_id _lastCommittedBlockID, uint64_t _lastCommittedBlockTimeStamp);
 
-    schain_id getSchainID() const;
-
     uint64_t getTotalTransactions() const;
 
     block_id getBootstrapBlockID() const;
@@ -237,9 +236,9 @@ public:
     void setHealthCheckFile(uint64_t status);
 
 
-    size_t getTotalSignersCount();
+    uint64_t getTotalSigners();
 
-    size_t getRequiredSignersCount();
+    uint64_t getRequiredSigners();
 
     u256 getPriceForBlockId(uint64_t _blockId);
 
@@ -247,5 +246,6 @@ public:
     ptr<CryptoManager> getCryptoManager() const;
 
 
-    void decideBlock(block_id _blockId, schain_index _proposerIndex);
+    void decideBlock(block_id _blockId, schain_index _proposerIndex, ptr<ThresholdSignature> _signature);
+
 };

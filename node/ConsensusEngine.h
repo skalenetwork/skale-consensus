@@ -46,6 +46,16 @@ class ConsensusEngine : public ConsensusInterface {
 
     map<node_id, ptr<Node>> nodes;
 
+    static bool onTravis;
+public:
+    static bool isOnTravis();
+
+    static bool isNoUlimitCheck();
+
+private:
+
+    static bool noUlimitCheck;
+
     std::string exec(const char *cmd);
 
     static void checkExistsAndDirectory(const fs_path &dirname);

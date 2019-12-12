@@ -70,7 +70,7 @@ CommittedBlockList::CommittedBlockList(ptr<CryptoManager> _cryptoManager, ptr<ve
 
             counter++;
         }
-    } catch (Exception &e) {
+    } catch (exception &e) {
         Exception::logNested(e);
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
@@ -90,7 +90,7 @@ shared_ptr<vector<uint8_t> > CommittedBlockList::serialize() {
     serializedBlocks->push_back('[');
 
     for (auto &&block : *blocks) {
-        auto data = block->getSerialized();
+        auto data = block->serialize();
         serializedBlocks->insert(serializedBlocks->end(), data->begin(), data->end());
     }
 
@@ -126,7 +126,7 @@ ptr<vector<uint64_t> > CommittedBlockList::createSizes() {
     auto ret = make_shared<vector<uint64_t> >();
 
     for (auto &&block : *blocks) {
-        ret->push_back(block->getSerialized()->size());
+        ret->push_back(block->serialize()->size());
     }
 
     return ret;

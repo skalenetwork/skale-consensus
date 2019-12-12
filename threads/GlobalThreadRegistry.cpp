@@ -29,7 +29,7 @@
 #include "GlobalThreadRegistry.h"
 
 
-vector<thread*> GlobalThreadRegistry::allThreads;
+vector<ptr<thread>> GlobalThreadRegistry::allThreads;
 
 recursive_mutex GlobalThreadRegistry::m;
 bool GlobalThreadRegistry::joined = false;
@@ -48,9 +48,10 @@ void GlobalThreadRegistry::joinAll() {
         ASSERT(!thread->joinable());
     }
 
+    allThreads.clear();
 }
 
-void GlobalThreadRegistry::add(thread* _t) {
+void GlobalThreadRegistry::add(ptr<thread> _t) {
 
     CHECK_ARGUMENT(_t);
 

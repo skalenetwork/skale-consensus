@@ -82,6 +82,8 @@ protected:
 public:
     Agent( Schain& _sChain, bool isServer, bool _isSchain = false );
 
+    Agent();
+
 
     ptr<Node> getNode();
 

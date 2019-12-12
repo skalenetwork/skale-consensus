@@ -304,11 +304,11 @@ void ConsensusEngine::bootStrapAll() {
             it.second->getSchain()->bootstrap(lastCommittedBlockID, lastCommittedBlockTimeStamp);
             LOG(trace, "Bootstrapped node");
         }
-    } catch (Exception &e) {
+    } catch (exception &e) {
 
         for (auto const it : nodes) {
             if (!it.second->isExitRequested()) {
-                it.second->exitOnFatalError(e.getMessage());
+                it.second->exitOnFatalError(e.what());
             }
         }
 
@@ -330,10 +330,9 @@ ConsensusEngine::ConsensusEngine() : exitRequested(false) {
     try {
         signal(SIGPIPE, SIG_IGN);
         libff::init_alt_bn128_params();
-
         Log::init();
         init();
-    } catch (Exception &e) {
+    } catch (exception &e) {
         Exception::logNested(e);
         throw_with_nested(EngineInitException("Engine construction failed", __CLASS_NAME__));
     }
@@ -358,13 +357,12 @@ void ConsensusEngine::systemHealthCheck() {
         ulimit = exec("/bin/bash -c \"ulimit -n\"");
     } catch (...) {
         const char *errStr = "Execution of /bin/bash -c ulimit -n failed";
-        cerr << errStr;
         throw_with_nested(EngineInitException(errStr, __CLASS_NAME__));
     }
     int noFiles = std::strtol(ulimit.c_str(), NULL, 10);
 
-    auto noUlimitCheck = std::getenv("NO_ULIMIT_CHECK") != nullptr;
-    auto onTravis = std::getenv("TRAVIS_BUILD_TYPE") != nullptr;
+    noUlimitCheck = std::getenv("NO_ULIMIT_CHECK") != nullptr;
+    onTravis = std::getenv("TRAVIS_BUILD_TYPE") != nullptr;
 
     if (noFiles < 65535 && !noUlimitCheck && !onTravis) {
 
@@ -425,7 +423,7 @@ ConsensusEngine::ConsensusEngine(ConsensusExtFace &_extFace, uint64_t _lastCommi
 
         init();
 
-    } catch (Exception &e) {
+    } catch (exception &e) {
         Exception::logNested(e);
         throw_with_nested(EngineInitException("Engine construction failed", __CLASS_NAME__));
     }
@@ -466,7 +464,7 @@ void ConsensusEngine::exitGracefully() {
             it.second->getSchain()->joinMonitorThread();
         }
 
-    } catch (Exception &e) {
+    } catch (exception &e) {
         Exception::logNested(e);
         throw_with_nested(EngineInitException("Engine construction failed", __CLASS_NAME__));
     }
@@ -527,5 +525,18 @@ u256 ConsensusEngine::getPriceForBlockId(uint64_t _blockId) const {
     }
 
     return 0; // never happens
+}
+
+
+bool ConsensusEngine::onTravis = false;
+
+bool ConsensusEngine::noUlimitCheck = false;
+
+bool ConsensusEngine::isOnTravis() {
+    return onTravis;
+}
+
+bool ConsensusEngine::isNoUlimitCheck() {
+    return noUlimitCheck;
 }
 

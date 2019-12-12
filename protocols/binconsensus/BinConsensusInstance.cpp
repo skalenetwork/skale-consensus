@@ -42,7 +42,7 @@
 #include "../../messages/HistoryMessage.h"
 #include "../../pendingqueue/PendingTransactionsAgent.h"
 #include "../../blockproposal/pusher/BlockProposalClientAgent.h"
-#include "../../blockproposal/received/ReceivedBlockProposalsDatabase.h"
+#include "../../db/BlockProposalDB.h"
 #include "../../chains/Schain.h"
 #include "../../crypto/ConsensusBLSSignature.h"
 #include "../../node/Node.h"
@@ -68,8 +68,6 @@
 
 
 using namespace std;
-
-
 
 
 void BinConsensusInstance::processParentCompletedMessage(ptr<InternalMessageEnvelope> /*me*/) {
@@ -121,9 +119,8 @@ void BinConsensusInstance::processMessage(ptr<MessageEnvelope> m) {
 }
 
 
-
 void BinConsensusInstance::ifAlreadyDecidedSendDelayedEstimateForNextRound(bin_consensus_round _round) {
-    if (isDecided && _round == currentRound + 1 &&  isTwoThird(totalAUXVotes(currentRound))){
+    if (isDecided && _round == currentRound + 1 && isTwoThird(totalAUXVotes(currentRound))) {
         proceedWithNewRound(decidedValue);
     }
 }
@@ -160,17 +157,12 @@ void BinConsensusInstance::processNetworkMessageImpl(ptr<NetworkMessageEnvelope>
         if (isDecided)
             return;
 
-
         auto m = dynamic_pointer_cast<AUXBroadcastMessage>(me->getMessage());
-
-
         ASSERT(m);
-
         auxVote(me);
 
         if (m->r == currentRound)
             proceedWithCommonCoinIfAUXTwoThird(m->r);
-
     }
 
 
@@ -206,13 +198,11 @@ void BinConsensusInstance::processParentProposal(ptr<InternalMessageEnvelope> me
 }
 
 
-
-
 void BinConsensusInstance::addToHistory(shared_ptr<NetworkMessage>
 #ifdef CONSENSUS_DEBUG
-m
+                                        m
 #endif
-)  {
+) {
 
 #ifdef CONSENSUS_DEBUG
 
@@ -232,7 +222,6 @@ m
 }
 
 
-
 void BinConsensusInstance::addBVSelfVoteToHistory(bin_consensus_round _r, bin_consensus_value _v) {
 
     addToHistory(dynamic_pointer_cast<NetworkMessage>(make_shared<HistoryBVSelfVoteMessage>(_r, _v, *this)));
@@ -246,7 +235,7 @@ void BinConsensusInstance::addAUXSelfVoteToHistory(bin_consensus_round _r, bin_c
 }
 
 
-void BinConsensusInstance::addDecideToHistory(bin_consensus_round _r, bin_consensus_value _v)  {
+void BinConsensusInstance::addDecideToHistory(bin_consensus_round _r, bin_consensus_value _v) {
 
 
     addToHistory(dynamic_pointer_cast<NetworkMessage>(make_shared<HistoryDecideMessage>(_r, _v, *this)));
@@ -254,7 +243,7 @@ void BinConsensusInstance::addDecideToHistory(bin_consensus_round _r, bin_consen
 }
 
 
-void BinConsensusInstance::addNextRoundToHistory(bin_consensus_round _r, bin_consensus_value _v)  {
+void BinConsensusInstance::addNextRoundToHistory(bin_consensus_round _r, bin_consensus_value _v) {
 
     addToHistory(dynamic_pointer_cast<NetworkMessage>(make_shared<HistoryNewRoundMessage>(_r, _v, *this)));
 
@@ -276,7 +265,7 @@ void BinConsensusInstance::bvbVote(ptr<MessageEnvelope> me) {
 
     schain_index index = me->getSrcNodeInfo()->getSchainIndex();
 
-    if(v) {
+    if (v) {
         ASSERT(bvbTrueVotes[r].count(index) == 0);
         bvbTrueVotes[r].insert(index);
     } else {
@@ -295,10 +284,10 @@ void BinConsensusInstance::auxVote(ptr<MessageEnvelope> me) {
     auto index = me->getSrcNodeInfo()->getSchainIndex();
     if (v) {
         ASSERT(auxTrueVotes[r].count(index) == 0);
-        auxTrueVotes[r][index] =  m->getSigShare();
+        auxTrueVotes[r][index] = m->getSigShare();
     } else {
         ASSERT(auxFalseVotes[r].count(index) == 0);
-        auxFalseVotes[r][index] =  m->getSigShare();
+        auxFalseVotes[r][index] = m->getSigShare();
     }
 
 }
@@ -314,10 +303,10 @@ void BinConsensusInstance::auxSelfVote(bin_consensus_round r, bin_consensus_valu
     addAUXSelfVoteToHistory(r, v);
 
     if (v) {
-        ASSERT(auxTrueVotes[r].count( getSchain()->getSchainIndex()) == 0);
+        ASSERT(auxTrueVotes[r].count(getSchain()->getSchainIndex()) == 0);
         auxTrueVotes[r][getSchain()->getSchainIndex()] = _sigShare;
     } else {
-        ASSERT(auxFalseVotes[r].count( getSchain()->getSchainIndex()) == 0);
+        ASSERT(auxFalseVotes[r].count(getSchain()->getSchainIndex()) == 0);
         auxFalseVotes[r][getSchain()->getSchainIndex()] = _sigShare;
     }
 
@@ -396,7 +385,7 @@ void BinConsensusInstance::networkBroadcastValue(ptr<BVBroadcastMessage> m) {
 
     m->setSrcNodeID(getSchain()->getNode()->getNodeID());
 
-    getSchain()->getNode()->getNetwork()->broadcastMessage(*getSchain(), m);
+    getSchain()->getNode()->getNetwork()->broadcastMessage(m);
 
 
     broadcastValues[r].insert(bin_consensus_value(v == 1));
@@ -412,7 +401,7 @@ void BinConsensusInstance::auxBroadcastValue(bin_consensus_value v, bin_consensu
     auxSelfVote(r, v, m->getSigShare());
 
 
-    getSchain()->getNode()->getNetwork()->broadcastMessage(*getSchain(), m);
+    getSchain()->getNode()->getNetwork()->broadcastMessage(m);
 
 }
 
@@ -446,32 +435,14 @@ void BinConsensusInstance::proceedWithCommonCoinIfAUXTwoThird(bin_consensus_roun
         if (getSchain()->getNode()->isBlsEnabled()) {
             random = this->calculateBLSRandom(_r);
         } else {
-            srand((uint64_t ) _r + (uint64_t ) getBlockID() * 123456);
+            srand((uint64_t) _r + (uint64_t) getBlockID() * 123456);
             random = rand();
         }
 
         auto randomDB = getSchain()->getNode()->getRandomDB();
 
-
-
-        auto value = randomDB->readRandom(
-            getSchain()->getSchainID(), getBlockID(), getBlockProposerIndex(), _r );
-        if (value) {
-
-            uint64_t random1 = 0;
-            try {
-                random1 = stoul(*value);
-            } catch (...) {
-            }
-
-            if (random != random1) {
-                BOOST_THROW_EXCEPTION(FatalError("Incorrect random number:" + to_string(random1) + ":" +
-                to_string(random), __CLASS_NAME__));
-            }
-        } else {
-            randomDB->writeRandom(getSchain()->getSchainID(), getBlockID(), getBlockProposerIndex(),
-                _r, random);
-        }
+        randomDB->writeRandom(getBlockID(), getBlockProposerIndex(),
+                                  _r, random);
 
         proceedWithCommonCoin(hasTrue, hasFalse, random);
 
@@ -480,9 +451,7 @@ void BinConsensusInstance::proceedWithCommonCoinIfAUXTwoThird(bin_consensus_roun
 }
 
 
-
 void BinConsensusInstance::proceedWithCommonCoin(bool _hasTrue, bool _hasFalse, uint64_t _random) {
-
 
 
     ASSERT(!isDecided);
@@ -494,7 +463,7 @@ void BinConsensusInstance::proceedWithCommonCoin(bool _hasTrue, bool _hasFalse, 
     addCommonCoinToHistory(currentRound, random);
 
 
-    if (_hasTrue  && _hasFalse) {
+    if (_hasTrue && _hasFalse) {
         LOG(debug, "NEW ROUND:BLOCK:" + to_string(blockID) + ":ROUND:" + to_string(currentRound));
         proceedWithNewRound(random);
         return;
@@ -547,11 +516,10 @@ void BinConsensusInstance::printHistory() {
     cerr << "Proposer:" << getBlockProposerIndex() << "Nodecount:" << getNodeCount() << endl;
     for (auto &&m: *msgHistory) {
 
-        if (m->getBlockProposerIndex() == getBlockProposerIndex()  &&
+        if (m->getBlockProposerIndex() == getBlockProposerIndex() &&
             m->getBlockID() == getBlockID() && m->getDstNodeID() == getSchain()->getNode()->getNodeID()) {
             m->printMessage();
         }
-
 
 
     };
@@ -644,7 +612,6 @@ BinConsensusInstance::BinConsensusInstance(BlockConsensusAgent *instance, block_
     ASSERT((uint64_t) _blockId > 0);
 
 
-
     blockConsensusInstance = instance;
     blockID = _blockId;
     blockProposerIndex = _blockProposerIndex;
@@ -687,23 +654,23 @@ const node_count &BinConsensusInstance::getNodeCount() const {
 uint64_t BinConsensusInstance::calculateBLSRandom(bin_consensus_round _r) {
 
 
-    auto shares = getSchain()->getCryptoManager()->createSigShareSet(getBlockID(), getSchain()->getTotalSignersCount(),
-                                getSchain()->getRequiredSignersCount());
+    auto shares = getSchain()->getCryptoManager()->createSigShareSet(getBlockID(), getSchain()->getTotalSigners(),
+                                                                     getSchain()->getRequiredSigners());
 
     if (binValues[_r].count(bin_consensus_value(true)) > 0 && auxTrueVotes[_r].size() > 0) {
-        for (auto&& item: auxTrueVotes[_r]) {
+        for (auto &&item: auxTrueVotes[_r]) {
             ASSERT(item.second);
             shares->addSigShare(item.second);
-            if ( shares->isEnough())
+            if (shares->isEnough())
                 break;
         }
     }
 
     if (binValues[_r].count(bin_consensus_value(false)) > 0 && auxFalseVotes[_r].size() > 0) {
-        for (auto&& item: auxFalseVotes[_r]) {
+        for (auto &&item: auxFalseVotes[_r]) {
             ASSERT(item.second);
             shares->addSigShare(item.second);
-            if ( shares->isEnough())
+            if (shares->isEnough())
                 break;
         }
     }

@@ -28,11 +28,11 @@ class ConsensusBLSSignature;
 #define SKALED_SIGDB_H
 
 
-#include "LevelDB.h"
+#include "CacheLevelDB.h"
 
 class ThresholdSignature;
 
-class SigDB : public LevelDB {
+class SigDB : public CacheLevelDB {
 
     node_id nodeId;
 
@@ -40,9 +40,7 @@ class SigDB : public LevelDB {
 
 public:
 
-    SigDB(string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize);
-
-    ptr<string> createKey(block_id _blockId);
+    SigDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize);
 
     void addSignature(block_id _blockId, ptr<ThresholdSignature> _sig);
 

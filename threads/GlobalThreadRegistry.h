@@ -28,7 +28,7 @@
 class GlobalThreadRegistry {
 
 
-    static vector< thread*  > allThreads;
+    static vector< ptr<thread>> allThreads;
     static recursive_mutex m;
     static bool joined;
 
@@ -36,7 +36,7 @@ public:
 
     static void joinAll();
 
-    static void add(thread* _t);
+    static void add(ptr<thread> _t);
 
 };
 

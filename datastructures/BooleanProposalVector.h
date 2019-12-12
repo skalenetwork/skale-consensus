@@ -34,6 +34,7 @@ class BooleanProposalVector : public DataStructure {
 private:
 
     node_count nodeCount;
+    uint64_t  trueCount = 0;
     vector<bool> proposals;
 
 public:
@@ -45,6 +46,7 @@ public:
 
     bool getProposalValue(schain_index _index);
 
+    uint64_t getTrueCount() const;
 
 
 };

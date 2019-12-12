@@ -52,6 +52,6 @@ public:
 
     void unregisterMonitor(LivelinessMonitor *m);
 
-    Schain *getSChain() const;
+    Schain *getSchain() const;
 
 };

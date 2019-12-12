@@ -1,86 +1,25 @@
-/*
-    Copyright (C) 2018-2019 SKALE Labs
+//
+// Created by kladko on 29.11.19.
+//
 
-    This file is part of skale-consensus.
-
-    skale-consensus is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Affero General Public License as published
-    by the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    skale-consensus is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Affero General Public License for more details.
-
-    You should have received a copy of the GNU Affero General Public License
-    along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
-
-    @file CommittedBlockHeader.h
-    @author Stan Kladko
-    @date 2018
-*/
-
-#pragma  once
-
-#include "Header.h"
-
-class NodeInfo;
-class BlockProposal;
-class Schain;
-class CommittedBlock;
-
-class CommittedBlockHeader : public Header {
+#ifndef SKALED_COMMITTEDBLOCKHEADER_H
+#define SKALED_COMMITTEDBLOCKHEADER_H
 
 
-    schain_id schainID;
-    schain_index proposerIndex;
-    node_id proposerNodeID;
-    block_id blockID;
-    ptr<string> blockHash;
-public:
-    const ptr<string> &getSignature() const;
+#include "BlockProposalHeader.h"
 
-private:
-    ptr<string> signature;
-    ptr<vector<uint64_t>> transactionSizes;
-    uint64_t timeStamp = 0;
-    uint32_t timeStampMs = 0;
+class CommittedBlockHeader : public BlockProposalHeader {
+    ptr<string> thresholdSig;
 
 public:
+    CommittedBlockHeader(BlockProposal &block, const ptr<string> &thresholdSig);
 
-    const schain_id &getSchainID() const;
+    CommittedBlockHeader(nlohmann::json &json);
 
-    const block_id &getBlockID() const;
-
-    CommittedBlockHeader();
-
-
-
-    CommittedBlockHeader(nlohmann::json& _json);
-
-    CommittedBlockHeader(CommittedBlock& _block);
-
-    ptr<string> getBlockHash() const {
-        return blockHash;
-    }
+    const ptr<string> &getThresholdSig() const;
 
     void addFields(nlohmann::basic_json<> &j) override;
-
-    const ptr<vector<uint64_t>> &getTransactionSizes() const;
-
-
-    const schain_index &getProposerIndex() const;
-
-    const node_id &getProposerNodeId() const;
-
-
-    uint64_t getTimeStamp() const;
-
-    uint32_t getTimeStampMs() const;
-
-
 };
 
 
-
+#endif //SKALED_COMMITTEDBLOCKHEADER_H

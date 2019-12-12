@@ -47,7 +47,7 @@
 #include "../crypto/SHAHash.h"
 #include "../datastructures/BlockProposalSet.h"
 #include "../blockproposal/pusher/BlockProposalClientAgent.h"
-#include "../blockproposal/received/ReceivedBlockProposalsDatabase.h"
+#include "../db/BlockProposalDB.h"
 #include "../headers/MissingTransactionsRequestHeader.h"
 #include "../pendingqueue/PendingTransactionsAgent.h"
 #include "../network/TransportNetwork.h"
@@ -107,7 +107,7 @@ void AbstractServerAgent::workerThreadConnectionProcessingLoop(void *_params) {
             connection = server->workerThreadWaitandPopConnection();
             server->processNextAvailableConnection(connection);;
             connection->closeConnection();
-        } catch (Exception &e) {
+        } catch (exception &e) {
             Exception::logNested(e);
             if (connection != nullptr)
                 connection->closeConnection();
@@ -137,7 +137,6 @@ AbstractServerAgent::AbstractServerAgent(const string &_name, Schain &_schain,
 
 AbstractServerAgent::~AbstractServerAgent() {
     this->networkReadThread->join();
-    delete networkReadThread;
 }
 
 void AbstractServerAgent::acceptTCPConnectionsLoop() {
@@ -178,7 +177,7 @@ void AbstractServerAgent::acceptTCPConnectionsLoop() {
 void AbstractServerAgent::createNetworkReadThread() {
 
     LOG(trace, name + " Starting TCP server network read loop");
-    networkReadThread = new thread(std::bind(&AbstractServerAgent::acceptTCPConnectionsLoop, this));
+    networkReadThread = make_shared<thread>(std::bind(&AbstractServerAgent::acceptTCPConnectionsLoop, this));
     LOG(trace, name + " Started TCP server network read loop");
 
 }

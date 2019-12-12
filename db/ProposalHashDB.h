@@ -29,30 +29,23 @@ class CommittedBlock;
 
 
 
-#include "LevelDB.h"
+#include "CacheLevelDB.h"
 
 class CryptoManager;
 
-class ProposalHashDB : public LevelDB {
+class ProposalHashDB : public CacheLevelDB {
 
     recursive_mutex m;
 
-    ptr<string> createKey(block_id _blockId, schain_index _proposerIndex);
-
-    const string getFormatVersion();
-
 public:
 
-    ProposalHashDB(string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize);
-
-    ptr<vector<uint8_t >> getSerializedBlockFromLevelDB(block_id _blockID);
-
-    uint64_t readBlockLimit();
+    ProposalHashDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize);
 
     bool checkAndSaveHash(block_id _proposalBlockID, schain_index _proposerIndex, ptr<string> _proposalHash);
 
-
     bool haveProposal(block_id _proposalBlockID, schain_index _proposerIndex);
+
+    const string getFormatVersion() override ;
 };
 
 

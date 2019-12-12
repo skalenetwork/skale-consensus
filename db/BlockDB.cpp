@@ -29,6 +29,7 @@
 #include "../datastructures/CommittedBlock.h"
 
 #include "BlockDB.h"
+#include "CacheLevelDB.h"
 
 ptr<vector<uint8_t> > BlockDB::getSerializedBlockFromLevelDB(block_id _blockID) {
 
@@ -46,16 +47,15 @@ ptr<vector<uint8_t> > BlockDB::getSerializedBlockFromLevelDB(block_id _blockID) 
         } else {
             return nullptr;
         }
-
-
     } catch (...) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
 }
 
-BlockDB::BlockDB(string& _dirname,
-                 string &_prefix, node_id _nodeId, uint64_t _maxDBSize) : LevelDB(_dirname, _prefix,
-                                                                                  _nodeId, _maxDBSize) {
+BlockDB::BlockDB(Schain *_sChain, string &_dirname, string &_prefix, node_id _nodeId, uint64_t _maxDBSize)
+        : CacheLevelDB(_sChain, _dirname, _prefix,
+                       _nodeId, _maxDBSize, false) {
+
 
 
 }
@@ -64,13 +64,14 @@ BlockDB::BlockDB(string& _dirname,
 void BlockDB::saveBlock2LevelDB(ptr<CommittedBlock> &_block) {
 
 
+
     CHECK_ARGUMENT(_block->getSignature() != nullptr);
 
     LOCK(m)
 
     try {
 
-        auto serializedBlock = _block->getSerialized();
+        auto serializedBlock = _block->serialize();
 
         auto key = createKey(_block->getBlockID());
 
@@ -83,10 +84,6 @@ void BlockDB::saveBlock2LevelDB(ptr<CommittedBlock> &_block) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
 
-}
-
-ptr<string> BlockDB::createKey(const block_id _blockId) {
-    return make_shared<string>(getFormatVersion() + ":" + to_string(nodeId) + ":" + to_string(_blockId));
 }
 
 const string BlockDB::getFormatVersion() {
@@ -123,6 +120,7 @@ ptr<CommittedBlock> BlockDB::getBlock(block_id _blockID, ptr<CryptoManager> _cry
         auto serializedBlock = getSerializedBlockFromLevelDB(_blockID);
 
         if (serializedBlock == nullptr) {
+            cerr << "got null" << endl;
             return nullptr;
         }
 

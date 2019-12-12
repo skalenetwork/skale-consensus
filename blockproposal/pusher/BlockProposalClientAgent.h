@@ -57,11 +57,10 @@ class BlockProposalClientAgent : public AbstractClientAgent {
     readMissingHashes(ptr<ClientSocket> _socket, uint64_t _count);
 
 
-    void sendItemImpl(ptr<DataStructure> _item, shared_ptr<ClientSocket> socket, schain_index _destIndex,
-                      node_id _dstNodeId);
+    void sendItemImpl(ptr<DataStructure> _item, shared_ptr<ClientSocket> _socket, schain_index _index);
 
-    void sendBlockProposal(ptr<BlockProposal> _proposal, shared_ptr<ClientSocket> socket, schain_index _index,
-                           node_id _nodeID);
+    void sendBlockProposal(ptr<BlockProposal> _proposal, shared_ptr<ClientSocket> socket,
+                           schain_index _index);
 
     ptr<BlockProposal> corruptProposal(ptr<BlockProposal> _proposal, schain_index _index);
 

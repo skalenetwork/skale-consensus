@@ -31,7 +31,7 @@
 
 #include "../chains/Schain.h"
 #include "../pendingqueue/PendingTransactionsAgent.h"
-#include "../blockproposal/received/ReceivedBlockProposalsDatabase.h"
+#include "../db/BlockProposalDB.h"
 #include "../datastructures/DAProof.h"
 #include "BlockProposal.h"
 
@@ -39,20 +39,6 @@
 
 using namespace std;
 
-bool BlockProposalSet::addDAProof(ptr<DAProof> _proof) {
-
-    LOCK(m)
-
-    auto index = _proof->getProposerIndex();
-
-
-    CHECK_STATE(proposals.count((uint64_t ) index ) > 0);
-
-    CHECK_STATE(proposals.at((uint64_t) index)->setAndGetDaProof(_proof) == nullptr);
-
-    daProofs++;
-    return isTwoThirdProofs();
-}
 
 bool BlockProposalSet::add(ptr<BlockProposal> _proposal) {
     CHECK_ARGUMENT( _proposal  != nullptr);
@@ -75,18 +61,6 @@ bool BlockProposalSet::add(ptr<BlockProposal> _proposal) {
 
 }
 
-bool BlockProposalSet::isTwoThirdProofs() {
-    LOCK(m)
-    auto value = 3 *  daProofs > 2 * nodeCount;
-    return value;
-}
-
-
-bool BlockProposalSet::isTwoThird() {
-    LOCK(m)
-    auto value = 3 * proposals.size() > 2 * nodeCount;
-    return value;
-}
 
 
 BlockProposalSet::BlockProposalSet(Schain* _sChain, block_id _blockId)
@@ -108,27 +82,6 @@ node_count BlockProposalSet::getCount() {
 }
 
 
-ptr<BooleanProposalVector> BlockProposalSet::createBooleanVector() {
-
-    LOCK(m)
-
-    auto v = make_shared<BooleanProposalVector>(nodeCount);
-
-    int trueValues = 0;
-
-    for ( uint64_t i = 1; i <= nodeCount; i++ ) {
-        auto value = proposals.count(i) > 0 && proposals.at(i)->getDaProof() != nullptr;
-
-        if (value) {
-            trueValues++;
-        }
-        v->pushValue(value);
-    }
-
-    ASSERT(3 * trueValues > 2 * nodeCount);
-
-    return v;
-};
 
 
 ptr< BlockProposal > BlockProposalSet::getProposalByIndex( schain_index _index ) {

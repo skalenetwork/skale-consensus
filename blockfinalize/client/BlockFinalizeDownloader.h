@@ -63,30 +63,27 @@ class BlockProposalSet;
 class BlockFinalizeDownloader {
 
     Schain* sChain;
-public:
-    Schain *getSchain() const;
-
-private:
 
     block_id blockId;
-public:
-    virtual ~BlockFinalizeDownloader();
 
-private:
     schain_index proposerIndex;
 
     BlockProposalFragmentList fragmentList;
 
-    ptr<BlockProposalSet> proposalSet;
 
 public:
+
+
+
+    Schain *getSchain() const;
     atomic< uint64_t > threadCounter;
 
     BlockFinalizeDownloaderThreadPool* threadPool = nullptr;
 
-    BlockFinalizeDownloader(Schain* _sChain, block_id _blockId, schain_index _proposerIndex,
-                            ptr<BlockProposalSet> proposalSet);
+    BlockFinalizeDownloader(Schain *_sChain, block_id _blockId, schain_index _proposerIndex);
 
+
+    virtual ~BlockFinalizeDownloader();
 
     uint64_t downloadFragment(schain_index _dstIndex, fragment_index _fragmentIndex);
 
@@ -102,7 +99,7 @@ public:
 
     uint64_t readFragmentSize(nlohmann::json _responseHeader);
 
-    ptr<CommittedBlock>  downloadProposal();
+    ptr<BlockProposal> downloadProposal();
 
     uint64_t readBlockSize(nlohmann::json _responseHeader);
 

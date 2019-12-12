@@ -41,8 +41,13 @@ private:
 
     static const char* insecureTestECDSAKey;
 
-    //EC_KEY* ecdsaKey;
+    ptr<string> signECDSA(ptr<SHAHash> _hash);
 
+    bool verifyECDSA(ptr<SHAHash> _hash, ptr<string> _sig);
+
+    ptr<ThresholdSigShare> signSigShare(ptr<SHAHash> _hash, block_id _blockId);
+
+    //EC_KEY* ecdsaKey;
 
     void init();
 
@@ -54,25 +59,23 @@ public:
 
     Schain *getSchain() const;
 
-    ptr<ThresholdSigShare> signThreshold(ptr<SHAHash> _hash, block_id _blockId);
-
-    ptr<ThresholdSignature> verifyThreshold(ptr<SHAHash> _hash, ptr<string> _signature, block_id _blockId);
-
+    ptr<ThresholdSignature> verifyThresholdSig(ptr<SHAHash> _hash, ptr<string> _signature, block_id _blockId);
 
     ptr<ThresholdSigShareSet> createSigShareSet(block_id _blockId, size_t _totalSigners, size_t _requiredSigners );
 
-    ptr<ThresholdSigShare> createSigShare(ptr<string> _sigShare, schain_id _schainID, block_id _blockID, node_id _signerNodeID,
-            schain_index _signerIndex, size_t _totalSigners, size_t _requiredSigners);
-
-    ptr<string> signECDSA(ptr<SHAHash> _hash);
-
-
-    bool verifyECDSA(ptr<SHAHash> _hash, ptr<string> _sig);
+    ptr<ThresholdSigShare>
+    createSigShare(ptr<string> _sigShare, schain_id _schainID, block_id _blockID, schain_index _signerIndex,
+                   size_t _totalSigners, size_t _requiredSigners);
 
     void signProposalECDSA(BlockProposal* _proposal);
 
-    bool verifyProposalECDSA(BlockProposal* _proposal, ptr<string> _hashStr, ptr<string> _signature);
+    bool verifyProposalECDSA(ptr<BlockProposal> _proposal, ptr<string> _hashStr, ptr<string> _signature);
 
+    ptr<ThresholdSigShare> signDAProofSigShare(ptr<BlockProposal> _p);
+
+    ptr<ThresholdSigShare> signBinaryConsensusSigShare(ptr<SHAHash> _hash, block_id _blockId);
+
+    ptr<ThresholdSigShare> signBlockSigShare(ptr<SHAHash> _hash, block_id _blockId);
 };
 
 

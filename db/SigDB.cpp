@@ -32,8 +32,8 @@
 #include "SigDB.h"
 
 
-SigDB::SigDB(string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize) :
-                                          LevelDB(_dirName, _prefix, _nodeId, _maxDBSize) {}
+SigDB::SigDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize) :
+        CacheLevelDB(_sChain, _dirName, _prefix, _nodeId, _maxDBSize, false) {}
 
 
 const string SigDB::getFormatVersion() {
@@ -41,10 +41,7 @@ const string SigDB::getFormatVersion() {
 }
 
 
-ptr<string> SigDB::createKey(const block_id _blockId) {
-    return make_shared<string>(getFormatVersion() + ":" + to_string(nodeId) + ":"
-                               + to_string(_blockId));
-}
+
 
 void SigDB::addSignature(block_id _blockId, ptr<ThresholdSignature> _sig) {
     auto key = createKey(_blockId);

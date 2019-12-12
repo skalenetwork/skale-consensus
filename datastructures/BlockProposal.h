@@ -32,16 +32,19 @@ class Transaction;
 class PartialHashesList;
 class TransactionList;
 class SHAHash;
-class BlockProposalHeader;
+class BlockProposalRequestHeader;
 class CryptoManager;
-
 class DAProof;
+class Header;
+class BlockProposalHeader;
+class BlockProposalFragment;
+class BlockProposalFragmentList;
 
 class BlockProposal : public DataStructure {
 
-    ptr<BlockProposalHeader> header = nullptr;
+    ptr<BlockProposalRequestHeader> header = nullptr;
 
-    ptr<DAProof> daProof = nullptr;
+    ptr< vector< uint8_t > > serializedProposal = nullptr;
 
 
 
@@ -54,38 +57,42 @@ protected:
     transaction_count transactionCount;
     uint64_t  timeStamp = 0;
     uint32_t  timeStampMs = 0;
-    ptr<string> signature = nullptr;
-
 
     ptr<TransactionList> transactionList;
     ptr< SHAHash > hash = nullptr;
-
+    ptr<string> signature = nullptr;
 
     void calculateHash();
 
+    virtual ptr<Header> createHeader();
+
+    static ptr<TransactionList> deserializeTransactions(ptr<BlockProposalHeader> _header,
+                                                        ptr<string> _headerString,
+                                                        ptr<vector<uint8_t>> _serializedBlock);
+
+    static ptr<string> extractHeader(ptr<vector<uint8_t>> _serializedBlock);
+
+    static ptr<BlockProposalHeader> parseBlockHeader(const shared_ptr<string> &header);
+public:
 
 
     BlockProposal(uint64_t _timeStamp, uint32_t _timeStampMs);
 
+    BlockProposal(schain_id _sChainId, node_id _proposerNodeId, block_id _blockID,
+                  schain_index _proposerIndex, ptr<TransactionList> _transactions, uint64_t _timeStamp,
+                  __uint32_t _timeStampMs, ptr<string> _signature, ptr<CryptoManager> _cryptoManager);
 
-
-public:
-
-    BlockProposal(schain_id _sChainId, node_id _proposerNodeId, block_id _blockID, schain_index _proposerIndex,
-                  ptr<TransactionList> _transactions, uint64_t _timeStamp, __uint32_t _timeStampMs);
 
     uint64_t getTimeStamp() const;
 
     uint32_t getTimeStampMs() const;
 
-    void sign(CryptoManager& _manager);
 
     schain_index getProposerIndex() const;
 
     node_id getProposerNodeID() const;
 
     ptr<SHAHash> getHash();
-
 
     ptr<PartialHashesList> createPartialHashesList();
 
@@ -99,15 +106,21 @@ public:
 
     transaction_count getTransactionCount() const;
 
-
     void addSignature(ptr<string> _signature);
 
     ptr<string>  getSignature();
 
-    static ptr<BlockProposalHeader> createBlockProposalHeader(Schain* _sChain, ptr<BlockProposal> _proposal);
+    static ptr<BlockProposalRequestHeader> createBlockProposalHeader(Schain* _sChain, ptr<BlockProposal> _proposal);
 
-    ptr<DAProof> setAndGetDaProof(const ptr<DAProof> _daProof);
 
-    ptr<DAProof> getDaProof() const;
+    ptr<vector<uint8_t> > serialize();
+
+
+    static ptr<BlockProposal> deserialize(ptr<vector<uint8_t> > _serializedProposal,
+                                                  ptr<CryptoManager> _manager);
+
+    static ptr<BlockProposal> defragment(ptr<BlockProposalFragmentList> _fragmentList, ptr<CryptoManager> _cryptoManager);
+
+    ptr<BlockProposalFragment> getFragment(uint64_t _totalFragments, fragment_index _index);
 };
 

@@ -38,7 +38,7 @@
 #include "../exceptions/FatalError.h"
 #include "../blockproposal/server/BlockProposalWorkerThreadPool.h"
 #include "../blockproposal/pusher/BlockProposalClientAgent.h"
-#include "../blockproposal/received/ReceivedBlockProposalsDatabase.h"
+#include "../db/BlockProposalDB.h"
 #include "../pendingqueue/PendingTransactionsAgent.h"
 #include "../exceptions/NetworkProtocolException.h"
 #include "../exceptions/IOException.h"

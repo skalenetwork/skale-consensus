@@ -22,6 +22,7 @@
 */
 
 #include "../SkaleCommon.h"
+#include "../datastructures/TransactionList.h"
 #include "../crypto/SHAHash.h"
 #include "../chains/Schain.h"
 #include "ReceivedBlockProposal.h"
@@ -33,28 +34,21 @@ ReceivedBlockProposal::ReceivedBlockProposal(Schain &_sChain, const block_id &_b
                                              const uint32_t &_timeStampMs,
                                              ptr<string> _hash,
                                              ptr<string> _signature) : BlockProposal(
-                                                     _sChain.getSchainID(), _sChain.getNodeIDByIndex(_proposerIndex), _blockID,
-                                                                                         _proposerIndex, _transactions,
-                                                                                         _timeStamp, _timeStampMs) {
+        _sChain.getSchainID(), _sChain.getNodeIDByIndex(_proposerIndex), _blockID,
+        _proposerIndex, _transactions,
+        _timeStamp, _timeStampMs, _signature, nullptr) {
     this->hash = SHAHash::fromHex(_hash);
     this->signature = _signature;
     totalObjects++;
 }
 
-ReceivedBlockProposal::ReceivedBlockProposal(Schain &_sChain, const block_id &_blockID,
-                                             const ptr<TransactionList> &_transactions,
-                                             const uint64_t &_timeStamp,
+ReceivedBlockProposal::ReceivedBlockProposal(Schain &_sChain, const block_id &_blockID, const uint64_t &_timeStamp,
                                              const uint32_t &_timeStampMs) : BlockProposal(
         _sChain.getSchainID(), 0, _blockID,
-        0, _transactions, _timeStamp, _timeStampMs) {
+        0, make_shared<TransactionList>(make_shared<vector<ptr<Transaction >>>()), _timeStamp, _timeStampMs, make_shared<string>("EMPTY"), ptr<CryptoManager>()) {
     calculateHash();
-    this->signature = make_shared<string>("EMPTY");
     totalObjects++;
 }
-
-
-
-
 
 atomic<uint64_t>  ReceivedBlockProposal::totalObjects(0);
 

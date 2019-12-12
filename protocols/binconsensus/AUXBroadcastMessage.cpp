@@ -51,13 +51,8 @@ AUXBroadcastMessage::AUXBroadcastMessage(bin_consensus_round round, bin_consensu
         : NetworkMessage(AUX_BROADCAST, destinationNodeID, _blockID, _blockProposer, round, value,
                          sourceProtocolInstance) {
     printPrefix = "a";
-
     auto schain = sourceProtocolInstance.getSchain();
-
-
     CryptoPP::SHA256 sha256;
-
-
     auto bpi = getBlockProposerIndex();
 
     sha256.Update(reinterpret_cast < uint8_t * > ( &bpi), sizeof(bpi));
@@ -69,13 +64,9 @@ AUXBroadcastMessage::AUXBroadcastMessage(bin_consensus_round round, bin_consensu
     auto buf = make_shared<array<uint8_t, SHA_HASH_LEN>>();
     sha256.Final(buf->data());
     auto hash = make_shared<SHAHash>(buf);
-
-
-    this->sigShare = schain->getCryptoManager()->signThreshold(hash, _blockID);
+    this->sigShare = schain->getCryptoManager()->signBinaryConsensusSigShare(hash, _blockID);
     this->sigShareString = sigShare->toString();
-
 }
-
 
 AUXBroadcastMessage::AUXBroadcastMessage(node_id _srcNodeID, node_id _dstNodeID, block_id _blockID,
                                          schain_index _blockProposerIndex, bin_consensus_round _r,
@@ -84,7 +75,7 @@ AUXBroadcastMessage::AUXBroadcastMessage(node_id _srcNodeID, node_id _dstNodeID,
                                          schain_index _srcSchainIndex, Schain *_sChain)
         : NetworkMessage(
         AUX_BROADCAST, _srcNodeID, _dstNodeID, _blockID, _blockProposerIndex, _r, _value, _schainId, _msgID, _ip,
-        _signature, _srcSchainIndex, _sChain) {
+        _signature, _srcSchainIndex, _sChain->getCryptoManager(), _sChain->getTotalSigners(),
+        _sChain->getRequiredSigners()) {
     printPrefix = "a";
-
 };

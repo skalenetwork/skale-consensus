@@ -26,26 +26,22 @@
 #define SKALED_RANDOMDB_H
 
 
-#include "LevelDB.h"
+#include "CacheLevelDB.h"
 
-class RandomDB : public LevelDB {
-
-    const string getFormatVersion();
+class RandomDB : public CacheLevelDB {
 
 public:
 
-    RandomDB(string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize);
+    RandomDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize);
 
-    ptr<string> readRandom(schain_id _sChainID, const block_id &_blockId,
-                           const schain_index &_proposerIndex, const bin_consensus_round &_round);
+    uint64_t
+    readRandom(const block_id &_blockId, const schain_index &_proposerIndex, const bin_consensus_round &_round);
 
 
-    void writeRandom(schain_id _sChainID, const block_id &_blockId,
-                     const schain_index &_proposerIndex, const bin_consensus_round &_round,
+    void writeRandom(const block_id &_blockId, const schain_index &_proposerIndex, const bin_consensus_round &_round,
                      uint64_t _random);
 
-    ptr<string> createKey(const schain_id &_sChainID, const block_id &_blockId,
-                          const schain_index &_proposerIndex, const bin_consensus_round &_round);
+    const string getFormatVersion() override;
 };
 
 

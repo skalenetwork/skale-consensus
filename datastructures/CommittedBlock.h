@@ -33,41 +33,49 @@
 #include "BlockProposal.h"
 
 class Schain;
+class BlockProposalHeader;
+class ThresholdSignature;
 class CommittedBlockHeader;
 
 class BlockProposalFragment;
 
 class CommittedBlock : public BlockProposal {
 
-    ptr< vector< uint8_t > > serializedBlock = nullptr;
-
-    CommittedBlock( uint64_t timeStamp, uint32_t timeStampMs );
+    ptr<string> thresholdSig = nullptr;
 
     static ptr<CommittedBlockHeader> parseBlockHeader(const shared_ptr< string >& header );
 
-public:
-    CommittedBlock(ptr< BlockProposal > _p );
-    CommittedBlock( const schain_id& sChainId, const node_id& proposerNodeId,
-        const block_id& blockId, const schain_index& proposerIndex,
-        const ptr< TransactionList >& transactions, uint64_t timeStamp, __uint32_t timeStampMs,
-        ptr<string> _signature);
+protected:
+    ptr<Header> createHeader() override;
 
-    ptr<BlockProposalFragment> getFragment(uint64_t _totalFragments, fragment_index _index);
+public:
+
+
+    CommittedBlock( uint64_t timeStamp, uint32_t timeStampMs );
+
+
+    CommittedBlock(const schain_id &sChainId, const node_id &proposerNodeId, const block_id &blockId,
+                   const schain_index &proposerIndex, const ptr<TransactionList> &transactions, uint64_t timeStamp,
+                   __uint32_t timeStampMs, ptr<string> _signature, ptr<string> _thresholdSig);
+
+    ptr<string> getThresholdSig() const;
+
+    static ptr<CommittedBlock> makeObject(ptr<BlockProposal> _p, ptr<ThresholdSignature> _thresholdSig);
+    static ptr<CommittedBlock> make(schain_id _sChainId, node_id _proposerNodeId, block_id _blockId,
+                                     schain_index _proposerIndex, ptr<TransactionList> _transactions, uint64_t _timeStamp,
+                                     uint64_t _timeStampMs, ptr<string> _signature, ptr<string> _thresholdSig);
+
+
 
     static ptr<CommittedBlock> deserialize(ptr<vector<uint8_t> > _serializedBlock,
             ptr<CryptoManager> _manager);
-
-
-    static ptr<CommittedBlock>
-    defragment(ptr<BlockProposalFragmentList> _fragmentList, ptr<CryptoManager> _cryptoManager);
-
-    ptr< vector< uint8_t > > getSerialized();
 
 
     static ptr< CommittedBlock > createRandomSample(ptr<CryptoManager> _manager, uint64_t _size, boost::random::mt19937& _gen,
         boost::random::uniform_int_distribution<>& _ubyte,
         block_id _blockID = block_id( 1 ) );
 
-
     static void serializedSanityCheck(ptr<vector<uint8_t>> _serializedBlock);
+
+
 };

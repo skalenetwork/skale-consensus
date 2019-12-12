@@ -32,7 +32,7 @@
 
 
 
-const ptr<Message> MessageEnvelope::getMessage() const {
+ptr<Message> MessageEnvelope::getMessage() const {
     return message;
 }
 

@@ -64,18 +64,18 @@ root = sys.argv[1]
 print("Starting tests. Build root:" + sys.argv[1])
 
 
+
 run ("ccache -M 20G")
 
 consensustExecutive = getConsensustExecutive()
 
-unitTest(consensustExecutive, "[tx-serialize]")
-unitTest(consensustExecutive, "[tx-list-serialize]")
-unitTest(consensustExecutive, "[committed-block-serialize]")
+
+fullConsensusTest("sixteennodes", consensustExecutive, "[consensus-finalization-download]")
 
 try:
     fullConsensusTest("two_out_of_four", consensustExecutive, "[consensus-stuck]")
 except:
-    print "Success"
+    print("Success")
 
 
 fullConsensusTest("onenode", consensustExecutive, "[consensus-basic]")
@@ -84,7 +84,11 @@ fullConsensusTest("fournodes", consensustExecutive, "[consensus-basic]")
 fullConsensusTest("sixteennodes", consensustExecutive, "[consensus-basic]")
 fullConsensusTest("fournodes_catchup", consensustExecutive, "[consensus-basic]")
 fullConsensusTest("three_out_of_four", consensustExecutive, "[consensus-basic]")
-fullConsensusTest("sixteennodes", consensustExecutive, "[consensus-finalization-download]");
+
+
+unitTest(consensustExecutive, "[tx-serialize]")
+unitTest(consensustExecutive, "[tx-list-serialize]")
+unitTest(consensustExecutive, "[committed-block-serialize]")
 
 
 

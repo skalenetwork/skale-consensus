@@ -24,14 +24,14 @@
 
 #include "../SkaleCommon.h"
 #include "../Log.h"
-
-
+#include "../exceptions/ExitRequestedException.h"
 #include "PriceDB.h"
 
 
-PriceDB::PriceDB(string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize) : LevelDB(_dirName, _prefix,
-                                                                                                    _nodeId,
-                                                                                                    _maxDBSize) {}
+PriceDB::PriceDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize)
+        : CacheLevelDB(_sChain, _dirName, _prefix,
+                       _nodeId,
+                       _maxDBSize, false) {}
 
 
 const string PriceDB::getFormatVersion() {
@@ -39,30 +39,44 @@ const string PriceDB::getFormatVersion() {
 }
 
 
-ptr<string> PriceDB::createKey(block_id _blockId) {
-    return make_shared<string>(getFormatVersion() + ":" + to_string(_blockId));
-}
 
 u256 PriceDB::readPrice(block_id _blockID) {
 
-    auto key = createKey(_blockID);
+    LOG(trace, "Read price for block" + to_string(_blockID));
 
-    auto price = readString(*key);
+    try {
 
-    if (price == nullptr) {
-        BOOST_THROW_EXCEPTION(InvalidArgumentException("Price for this block is unknown", __CLASS_NAME__));
+
+        auto key = createKey(_blockID);
+
+        auto price = readString(*key);
+
+        if (price == nullptr) {
+            BOOST_THROW_EXCEPTION(InvalidArgumentException("Price for block " +
+            to_string(_blockID) + " is unknown", __CLASS_NAME__));
+        }
+
+        return u256(price->c_str());
+
+    } catch (ExitRequestedException &) { throw; } catch (...) {
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
-
-    return u256(price->c_str());
 }
 
 
 void PriceDB::savePrice(u256 _price, block_id _blockID) {
 
-    auto key = createKey(_blockID);
+    LOG(trace, "Save price for block" + to_string(_blockID));
 
-    auto value = _price.str();
+    try {
 
-    writeString(*key, value);
+        auto key = createKey(_blockID);
+
+        auto value = _price.str();
+
+        writeString(*key, value);
+    } catch (ExitRequestedException &) { throw; } catch (...) {
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+    }
 }
 

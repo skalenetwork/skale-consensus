@@ -46,7 +46,7 @@ NetworkMessage::NetworkMessage(MsgType _messageType, node_id _destinationNodeID,
                                block_id _blockID, schain_index _blockProposerIndex,
                                bin_consensus_round _r,
                                bin_consensus_value _value,
-                               BinConsensusInstance &_srcProtocolInstance)
+                               ProtocolInstance &_srcProtocolInstance)
         : Message(_srcProtocolInstance.getSchain()->getSchainID(),
                 _messageType, _srcProtocolInstance.createNetworkMessageID(),
                   _srcProtocolInstance.getSchain()->getNode()->getNodeID(), _destinationNodeID, _blockID, _blockProposerIndex) {
@@ -56,7 +56,6 @@ NetworkMessage::NetworkMessage(MsgType _messageType, node_id _destinationNodeID,
 
      auto ipString = _srcProtocolInstance.getSchain()->getThisNodeInfo()->getBaseIP();
 
-
      this->ip = inet_addr(ipString->c_str());
 
      ASSERT(_messageType > 0);
@@ -65,10 +64,11 @@ NetworkMessage::NetworkMessage(MsgType _messageType, node_id _destinationNodeID,
 }
 
 
-NetworkMessage::NetworkMessage( MsgType messageType, node_id _srcNodeID, node_id _dstNodeID,
-    block_id _blockID, schain_index _blockProposerIndex, bin_consensus_round _r,
-    bin_consensus_value _value, schain_id _schainId, msg_id _msgID, uint32_t _ip,
-    ptr< string > _signature, schain_index _srcSchainIndex,  Schain* _schain)
+NetworkMessage::NetworkMessage(MsgType messageType, node_id _srcNodeID, node_id _dstNodeID, block_id _blockID,
+                               schain_index _blockProposerIndex, bin_consensus_round _r, bin_consensus_value _value,
+                               schain_id _schainId, msg_id _msgID, uint32_t _ip, ptr<string> _sigShareStr,
+                               schain_index _srcSchainIndex, ptr<CryptoManager> _cryptoManager,
+                               uint64_t _totalSigners, uint64_t _requiredSigners)
     : Message(_schainId, messageType, _msgID, _srcNodeID,_dstNodeID, _blockID, _blockProposerIndex) {
 
     ASSERT(_srcSchainIndex > 0)
@@ -76,21 +76,17 @@ NetworkMessage::NetworkMessage( MsgType messageType, node_id _srcNodeID, node_id
     this->r = _r;
     this->value = _value;
     this->ip = _ip;
-    this->sigShareString = _signature;
+    this->sigShareString = _sigShareStr;
 
 
-    if (_signature->size() > BLS_MAX_SIG_LEN) {
-        BOOST_THROW_EXCEPTION(InvalidArgumentException("Signature size too large:" + *_signature, __CLASS_NAME__));
+    if (_sigShareStr->size() > BLS_MAX_SIG_LEN) {
+        BOOST_THROW_EXCEPTION(InvalidArgumentException("Signature size too large:" + *_sigShareStr, __CLASS_NAME__));
     }
 
-
-
-
-    if (_signature->size() > 0 ) {
-       sigShare =
-               _schain->getCryptoManager()->createSigShare(_signature, _schainId, _blockID, _srcNodeID, _srcSchainIndex,
-                                                           _schain->getTotalSignersCount(),
-                                                           _schain->getRequiredSignersCount());
+    
+    if (_sigShareStr->size() > 0 ) {
+       sigShare = _cryptoManager->createSigShare(_sigShareStr, _schainId, _blockID, _srcSchainIndex,
+                                                 _totalSigners, _requiredSigners);
     }
 
 

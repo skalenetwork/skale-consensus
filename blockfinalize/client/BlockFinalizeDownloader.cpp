@@ -71,8 +71,10 @@
 #include "../../datastructures/BlockProposalFragmentList.h"
 #include "../../datastructures/BlockProposalSet.h"
 #include "../../datastructures/BlockProposal.h"
+#include "../../db/BlockProposalDB.h"
+#include "../../monitoring/LivelinessMonitor.h"
 #include "../../exceptions/NetworkProtocolException.h"
-#include "../../headers/BlockProposalHeader.h"
+#include "../../headers/BlockProposalRequestHeader.h"
 #include "../../headers/BlockFinalizeRequestHeader.h"
 #include "../../headers/BlockFinalizeResponseHeader.h"
 #include "../../pendingqueue/PendingTransactionsAgent.h"
@@ -81,14 +83,11 @@
 #include "BlockFinalizeDownloaderThreadPool.h"
 
 
-BlockFinalizeDownloader::BlockFinalizeDownloader(Schain *_sChain, block_id _blockId, schain_index _proposerIndex,
-                                                 ptr<BlockProposalSet> _proposalSet) : sChain(_sChain),
-                                                                                       blockId(_blockId),
-                                                                                       proposerIndex(_proposerIndex),
-                                                                                       fragmentList(_blockId,
-                                                                                                    (uint64_t) _sChain->getNodeCount() -
-                                                                                                    1),
-                                                                                       proposalSet(_proposalSet) {
+BlockFinalizeDownloader::BlockFinalizeDownloader(Schain *_sChain, block_id _blockId, schain_index _proposerIndex)
+        : sChain(_sChain),
+          blockId(_blockId),
+          proposerIndex(_proposerIndex),
+          fragmentList(_blockId, (uint64_t) _sChain->getNodeCount() - 1) {
 
     CHECK_ARGUMENT(_sChain != nullptr);
 
@@ -103,7 +102,7 @@ BlockFinalizeDownloader::BlockFinalizeDownloader(Schain *_sChain, block_id _bloc
 
 
     }
-    catch (ExitRequestedException&) {throw;}
+    catch (ExitRequestedException &) { throw; }
     catch (...) {
         throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
     }
@@ -111,78 +110,87 @@ BlockFinalizeDownloader::BlockFinalizeDownloader(Schain *_sChain, block_id _bloc
 
 
 nlohmann::json BlockFinalizeDownloader::readBlockFinalizeResponseHeader(ptr<ClientSocket> _socket) {
+    MONITOR(__CLASS_NAME__, __FUNCTION__);
     return getSchain()->getIo()->readJsonHeader(_socket->getDescriptor(), "Read BlockFinalize response");
 }
 
 
 uint64_t BlockFinalizeDownloader::downloadFragment(schain_index _dstIndex, fragment_index _fragmentIndex) {
 
-    auto header = make_shared<BlockFinalizeRequestHeader>(*sChain, blockId, proposerIndex, _fragmentIndex);
-    auto socket = make_shared<ClientSocket>(*sChain, _dstIndex, CATCHUP);
-    auto io = getSchain()->getIo();
-
 
     try {
-        io->writeMagic(socket);
-    } catch (ExitRequestedException &) {throw;} catch (...) {
-        throw_with_nested(NetworkProtocolException("BlockFinalizec: Server disconnect sending magic", __CLASS_NAME__));
+
+        auto header = make_shared<BlockFinalizeRequestHeader>(*sChain, blockId, proposerIndex, _fragmentIndex);
+        auto socket = make_shared<ClientSocket>(*sChain, _dstIndex, CATCHUP);
+        auto io = getSchain()->getIo();
+
+
+        try {
+            io->writeMagic(socket);
+        } catch (ExitRequestedException &) { throw; } catch (...) {
+            throw_with_nested(
+                    NetworkProtocolException("BlockFinalizec: Server disconnect sending magic", __CLASS_NAME__));
+        }
+
+        try {
+            io->writeHeader(socket, header);
+        } catch (ExitRequestedException &) { throw; } catch (...) {
+            auto errString = "BlockFinalizec step 1: can not write BlockFinalize request";
+            LOG(debug, errString);
+            throw_with_nested(NetworkProtocolException(errString, __CLASS_NAME__));
+        }
+        LOG(debug, "BlockFinalizec step 1: wrote BlockFinalize request");
+
+        nlohmann::json response;
+
+        try {
+            response = readBlockFinalizeResponseHeader(socket);
+        } catch (ExitRequestedException &) { throw; } catch (...) {
+            auto errString = "BlockFinalizec step 2: can not read BlockFinalize response";
+            LOG(debug, errString);
+            throw_with_nested(NetworkProtocolException(errString, __CLASS_NAME__));
+        }
+
+
+        LOG(debug, "BlockFinalizec step 2: read BlockFinalize response header");
+
+        auto status = (ConnectionStatus) Header::getUint64(response, "status");
+
+        if (status == CONNECTION_DISCONNECT) {
+            LOG(debug, "BlockFinalizec got response::no fragment");
+            return fragmentList.nextIndexToRetrieve();
+        }
+
+        if (status != CONNECTION_PROCEED) {
+            BOOST_THROW_EXCEPTION(NetworkProtocolException(
+                                          "Server error in BlockFinalize response:" +
+                                          to_string(status), __CLASS_NAME__ ));
+        }
+
+
+        ptr<BlockProposalFragment> blockFragment = nullptr;
+
+
+        try {
+            blockFragment = readBlockFragment(socket, response, _fragmentIndex, getSchain()->getNodeCount());
+        } catch (ExitRequestedException &) { throw; } catch (...) {
+            auto errString = "BlockFinalizec step 3: can not read fragment";
+            LOG(err, errString);
+            throw_with_nested(NetworkProtocolException(errString, __CLASS_NAME__));
+        }
+
+
+        uint64_t next = 0;
+
+        fragmentList.addFragment(blockFragment, next);
+
+        LOG(debug, "BlockFinalizec success");
+
+        return next;
+
+    } catch (ExitRequestedException &e) { throw; } catch (...) {
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
-
-    try {
-        io->writeHeader(socket, header);
-    } catch (ExitRequestedException &) { throw;} catch (...) {
-        auto errString = "BlockFinalizec step 1: can not write BlockFinalize request";
-        LOG(debug, errString);
-        throw_with_nested(NetworkProtocolException(errString, __CLASS_NAME__));
-    }
-    LOG(debug, "BlockFinalizec step 1: wrote BlockFinalize request");
-
-    nlohmann::json response;
-
-    try {
-        response = readBlockFinalizeResponseHeader(socket);
-    } catch (ExitRequestedException &) {throw;} catch (...) {
-        auto errString = "BlockFinalizec step 2: can not read BlockFinalize response";
-        LOG(debug, errString);
-        throw_with_nested(NetworkProtocolException(errString, __CLASS_NAME__));
-    }
-
-
-    LOG(debug, "BlockFinalizec step 2: read BlockFinalize response header");
-
-    auto status = (ConnectionStatus) Header::getUint64(response, "status");
-
-    if (status == CONNECTION_DISCONNECT) {
-        LOG(debug, "BlockFinalizec got response::no fragment");
-        return fragmentList.nextIndexToRetrieve();
-    }
-
-    if (status != CONNECTION_PROCEED) {
-        BOOST_THROW_EXCEPTION(NetworkProtocolException(
-                                      "Server error in BlockFinalize response:" + to_string(status), __CLASS_NAME__ ));
-    }
-
-
-    ptr<BlockProposalFragment> blockFragment = nullptr;
-
-
-    try {
-        blockFragment = readBlockFragment(socket, response, _fragmentIndex, getSchain()->getNodeCount());
-    } catch (ExitRequestedException &) {throw;} catch (...) {
-        auto errString = "BlockFinalizec step 3: can not read fragment";
-        LOG(err, errString);
-        throw_with_nested(NetworkProtocolException(errString, __CLASS_NAME__));
-    }
-
-
-
-    uint64_t next = 0;
-
-    fragmentList.addFragment(blockFragment, next);
-
-    LOG(debug, "BlockFinalizec success");
-
-    return next;
 
 }
 
@@ -218,6 +226,8 @@ BlockFinalizeDownloader::readBlockFragment(ptr<ClientSocket> _socket, nlohmann::
 
     CHECK_ARGUMENT(responseHeader > 0);
 
+    MONITOR(__CLASS_NAME__, __FUNCTION__);
+
     auto fragmentSize = readFragmentSize(responseHeader);
     auto blockSize = readBlockSize(responseHeader);
     auto blockHash = readBlockHash(responseHeader);
@@ -239,7 +249,7 @@ BlockFinalizeDownloader::readBlockFragment(ptr<ClientSocket> _socket, nlohmann::
         fragment = make_shared<BlockProposalFragment>(blockId, (uint64_t) _nodeCount - 1,
                                                       _fragmentIndex, serializedFragment,
                                                       blockSize, blockHash);
-    } catch (ExitRequestedException &) {throw;} catch (...) {
+    } catch (ExitRequestedException &) { throw; } catch (...) {
         throw_with_nested(NetworkProtocolException("Could not parse block fragment", __CLASS_NAME__));
     }
 
@@ -272,7 +282,9 @@ void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(BlockFinalizeDown
             if (!testFinalizationDownloadOnly) {
                 // take into account that the same block can come through catchup
                 if (agent->getSchain()->getLastCommittedBlockID() >= agent->blockId ||
-                    agent->proposalSet->getProposalByIndex(agent->proposerIndex) != nullptr) {
+                    agent->getSchain()->getNode()->getBlockProposalDB()->proposalExists(
+                            agent->blockId,
+                            agent->proposerIndex)) {
                     return;
                 }
             }
@@ -285,7 +297,7 @@ void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(BlockFinalizeDown
                 }
             } catch (ExitRequestedException &) {
                 return;
-            } catch (Exception &e) {
+            } catch (exception &e) {
                 Exception::logNested(e);
             }
         };
@@ -294,23 +306,27 @@ void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(BlockFinalizeDown
     }
 }
 
-ptr<CommittedBlock> BlockFinalizeDownloader::downloadProposal() {
+ptr<BlockProposal> BlockFinalizeDownloader::downloadProposal() {
 
 
+    {
+        MONITOR(__CLASS_NAME__, "Parallel download");
 
-    this->threadPool = new BlockFinalizeDownloaderThreadPool((uint64_t) getSchain()->getNodeCount(), this);
-    threadPool->startService();
-    threadPool->joinAll();
+        this->threadPool = new BlockFinalizeDownloaderThreadPool((uint64_t) getSchain()->getNodeCount(), this);
+        threadPool->startService();
+        threadPool->joinAll();
+
+    }
 
     try {
 
         if (fragmentList.isComplete()) {
-            auto block = CommittedBlock::deserialize(fragmentList.serialize(), getSchain()->getCryptoManager());
+            auto block = BlockProposal::deserialize(fragmentList.serialize(), getSchain()->getCryptoManager());
             return block;
         } else {
             return nullptr;
         }
-    } catch (ExitRequestedException &) {throw;} catch ( Exception& e ) {
+    } catch (ExitRequestedException &) { throw; } catch (exception &e) {
         Exception::logNested(e);
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }

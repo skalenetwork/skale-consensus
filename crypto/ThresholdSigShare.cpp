@@ -30,17 +30,14 @@
 #include "../SkaleCommon.h"
 #include "ThresholdSigShare.h"
 
-node_id ThresholdSigShare::getSignerNodeId() const {
-    return signerNodeId;
-}
 
 block_id ThresholdSigShare::getBlockId() const {
     return blockId;
 }
 
-ThresholdSigShare::ThresholdSigShare(const schain_id &schainId, const block_id &blockId, const node_id &signerNodeId,
-        const schain_index& _signerIndex)
-        : schainId(schainId), blockId(blockId), signerNodeId(signerNodeId),
+ThresholdSigShare::ThresholdSigShare(const schain_id &schainId, const block_id &blockId,
+                                     const schain_index &_signerIndex)
+        : schainId(schainId), blockId(blockId),
           signerIndex(_signerIndex){}
 
 ThresholdSigShare::~ThresholdSigShare() {

@@ -56,7 +56,8 @@ void BlockFinalizeDownloaderThreadPool::createThread(uint64_t number) {
     if (index == p->getSchain()->getSchainIndex())
         return;
 
-    this->threadpool.push_back(new thread(BlockFinalizeDownloader::workerThreadFragmentDownloadLoop, p, index));
+    this->threadpool.push_back(make_shared<thread>(
+            BlockFinalizeDownloader::workerThreadFragmentDownloadLoop, p, index));
 
 }
 
@@ -75,8 +76,9 @@ BlockFinalizeDownloaderThreadPool::~BlockFinalizeDownloaderThreadPool() {
 
     for (auto&& t : threadpool) {
         assert (!t->joinable());
-        delete t;
     }
+
+    threadpool.clear();
 
 }
 
