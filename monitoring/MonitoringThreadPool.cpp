@@ -44,7 +44,7 @@ void MonitoringThreadPool::createThread(uint64_t /*number*/) {
 
     auto p = (MonitoringAgent*)params;
 
-    this->threadpool.push_back(new thread(MonitoringAgent::monitoringLoop, p));
+    this->threadpool.push_back(make_shared<thread>(MonitoringAgent::monitoringLoop, p));
 
 }
 

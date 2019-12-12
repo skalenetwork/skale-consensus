@@ -26,10 +26,11 @@
 
 
 #include "RandomDB.h"
+#include "CacheLevelDB.h"
 
 
-RandomDB::RandomDB(string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize) :
-LevelDB(_dirName, _prefix, _nodeId, _maxDBSize) {}
+RandomDB::RandomDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize) :
+        CacheLevelDB(_sChain, _dirName, _prefix, _nodeId, _maxDBSize, false) {}
 
 
 const string RandomDB::getFormatVersion() {
@@ -37,35 +38,24 @@ const string RandomDB::getFormatVersion() {
 }
 
 
-ptr<string>
-RandomDB::readRandom(schain_id _sChainID, const block_id &_blockId,
-                     const schain_index &_proposerIndex, const bin_consensus_round &_round) {
+uint64_t
+RandomDB::readRandom(const block_id &_blockId, const schain_index &_proposerIndex, const bin_consensus_round &_round) {
 
-    auto keyStr = createKey(_sChainID, _blockId, _proposerIndex, _round);
-
-    return readString(*keyStr);
+    auto key = createKey(_blockId, _proposerIndex, _round);
+    auto value = readString(*key);
+    return stoul(*value);
 
 }
 
 
 void
-RandomDB::writeRandom(schain_id _sChainID, const block_id &_blockId,
-                      const schain_index &_proposerIndex, const bin_consensus_round &_round, uint64_t _random) {
+RandomDB::writeRandom(const block_id &_blockId, const schain_index &_proposerIndex, const bin_consensus_round &_round,
+                      uint64_t _random) {
 
 
-    auto key = createKey(_sChainID, _blockId, _proposerIndex, _round);
-
+    auto key = createKey(_blockId, _proposerIndex, _round);
 
     writeString(*key, to_string(_random));
 
 }
 
-ptr<string> RandomDB::createKey(const schain_id &_sChainID, const block_id &_blockId,
-                                const schain_index &_proposerIndex, const bin_consensus_round &_round) {
-
-    stringstream key;
-    key << getFormatVersion() << ":" << _sChainID << ":" << _blockId << ":" << _proposerIndex << ":" << _round;
-
-    return make_shared<string>(key.str());
-
-}

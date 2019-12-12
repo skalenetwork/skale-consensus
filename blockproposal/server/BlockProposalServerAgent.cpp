@@ -47,7 +47,8 @@
 
 #include "../../pendingqueue/PendingTransactionsAgent.h"
 #include "../pusher/BlockProposalClientAgent.h"
-#include "../received/ReceivedBlockProposalsDatabase.h"
+#include "../../db/BlockProposalDB.h"
+#include "../../db/DAProofDB.h"
 
 #include "../../abstracttcpserver/AbstractServerAgent.h"
 #include "../../chains/Schain.h"
@@ -71,13 +72,14 @@
 #include "../../datastructures/TransactionList.h"
 #include "../../db/ProposalHashDB.h"
 #include "../../headers/AbstractBlockRequestHeader.h"
-#include "../../headers/BlockProposalHeader.h"
+#include "../../headers/BlockProposalRequestHeader.h"
 #include "../../headers/DAProofRequestHeader.h"
 #include "../../headers/DAProofResponseHeader.h"
 
 
 #include "../../crypto/ConsensusBLSSigShare.h"
 #include "../../headers/BlockFinalizeResponseHeader.h"
+#include "../../monitoring/LivelinessMonitor.h"
 #include "BlockProposalServerAgent.h"
 #include "BlockProposalWorkerThreadPool.h"
 
@@ -165,6 +167,9 @@ BlockProposalServerAgent::~BlockProposalServerAgent() {}
 
 
 void BlockProposalServerAgent::processNextAvailableConnection(ptr<ServerConnection> _connection) {
+
+    MONITOR(__CLASS_NAME__, __FUNCTION__);
+
     try {
         sChain->getIo()->readMagic(_connection->getDescriptor());
     } catch (ExitRequestedException &) {
@@ -228,12 +233,12 @@ BlockProposalServerAgent::processDAProofRequest(ptr<ServerConnection> _connectio
 
 void
 BlockProposalServerAgent::processProposalRequest(ptr<ServerConnection> _connection, nlohmann::json _proposalRequest) {
-    ptr<BlockProposalHeader> requestHeader = nullptr;
+    ptr<BlockProposalRequestHeader> requestHeader = nullptr;
     ptr<Header> responseHeader = nullptr;
 
     try {
 
-        requestHeader = make_shared<BlockProposalHeader>(_proposalRequest, getSchain()->getNodeCount());
+        requestHeader = make_shared<BlockProposalRequestHeader>(_proposalRequest, getSchain()->getNodeCount());
         responseHeader = this->createProposalResponseHeader(_connection, *requestHeader);
     } catch (ExitRequestedException &) {
         throw;
@@ -358,7 +363,7 @@ BlockProposalServerAgent::processProposalRequest(ptr<ServerConnection> _connecti
     ptr<Header> finalResponseHeader = nullptr;
 
     try {
-        if (!getSchain()->getCryptoManager()->verifyProposalECDSA(proposal.get(), requestHeader->getHash(),
+        if (!getSchain()->getCryptoManager()->verifyProposalECDSA(proposal, requestHeader->getHash(),
                                                                   requestHeader->getSignature())) {
             finalResponseHeader = make_shared<FinalProposalResponseHeader>(CONNECTION_ERROR,
                                                                            CONNECTION_SIGNATURE_DID_NOT_VERIFY);
@@ -387,7 +392,7 @@ void BlockProposalServerAgent::checkForOldBlock(const block_id &_blockID) {
 
 
 ptr<Header> BlockProposalServerAgent::createProposalResponseHeader(ptr<ServerConnection> _connectionEnvelope,
-                                                                   BlockProposalHeader &_header) {
+                                                                   BlockProposalRequestHeader &_header) {
     auto responseHeader = make_shared<BlockProposalResponseHeader>();
 
     if (sChain->getSchainID() != _header.getSchainId()) {
@@ -453,7 +458,7 @@ ptr<Header> BlockProposalServerAgent::createProposalResponseHeader(ptr<ServerCon
         return responseHeader;
     }
 
-    if (!getSchain()->getNode()->getProposalHashDb()->checkAndSaveHash(_header.getBlockId(),
+    if (!getSchain()->getNode()->getProposalHashDB()->checkAndSaveHash(_header.getBlockId(),
                                                                        _header.getProposerIndex(),
                                                                        _header.getHash())) {
 
@@ -521,13 +526,12 @@ ptr<Header> BlockProposalServerAgent::createDAProofResponseHeader(ptr<ServerConn
         return responseHeader;
     }
 
-
     ptr<ThresholdSignature> sig;
 
     try {
 
-        sig = getSchain()->getCryptoManager()->verifyThreshold(blockHash,
-                                                         _header.getSignature(), _header.getBlockId());
+        sig = getSchain()->getCryptoManager()->verifyThresholdSig(blockHash,
+                                                                  _header.getSignature(), _header.getBlockId());
 
     } catch(...) {
         responseHeader->setStatusSubStatus(CONNECTION_DISCONNECT, CONNECTION_SIGNATURE_DID_NOT_VERIFY);
@@ -550,9 +554,7 @@ ptr<Header> BlockProposalServerAgent::createDAProofResponseHeader(ptr<ServerConn
         return responseHeader;
     }
 
-
-
-    if (proposal->getDaProof() != nullptr) {
+    if (getNode()->getDaProofDB()->haveDAProof(proposal)) {
         responseHeader->setStatusSubStatus(CONNECTION_DISCONNECT, CONNECTION_ALREADY_HAVE_DAP_PROOF);
         responseHeader->setComplete();
         return responseHeader;
@@ -571,11 +573,8 @@ ptr<Header> BlockProposalServerAgent::createDAProofResponseHeader(ptr<ServerConn
 
 
 ptr<Header> BlockProposalServerAgent::createFinalResponseHeader(ptr<ReceivedBlockProposal> _proposal) {
-
-    auto sigShare = getSchain()->getCryptoManager()->signThreshold(_proposal->getHash(), _proposal->getBlockID());
-
+    auto sigShare = getSchain()->getCryptoManager()->signDAProofSigShare(_proposal);
     auto responseHeader = make_shared<FinalProposalResponseHeader>(sigShare->toString());
-
     responseHeader->setStatus(CONNECTION_SUCCESS);
     responseHeader->setComplete();
     return responseHeader;

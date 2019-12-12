@@ -283,11 +283,15 @@ static const num_threads NUM_SCHAIN_THREADS = num_threads(1);
 static const num_threads NUM_DISPATCH_THREADS = num_threads(1);
 
 static const uint64_t  BLOCK_DB_SIZE = 10000000000;
-static const uint64_t  COMMITTED_TXS_DB_SIZE = 10000000;
 static const uint64_t  RANDOM_DB_SIZE = 10000000;
-static const uint64_t  SIGNATURE_DB_SIZE = 10000000;
 static const uint64_t  PRICE_DB_SIZE = 10000000;
 static const uint64_t  PROPOSAL_HASH_DB_SIZE = 10000000;
+static const uint64_t  BLOCK_SIG_SHARE_DB_SIZE = 10000000;
+static const uint64_t  DA_SIG_SHARE_DB_SIZE = 10000000;
+static const uint64_t  DA_PROOF_DB_SIZE = 10000000;
+static const uint64_t  BLOCK_PROPOSAL_DB_SIZE = 100000000;
+
+
 
 extern void setThreadName(std::string const &_n);
 
@@ -303,7 +307,8 @@ extern thread_local ptr<Log> logThreadLocal_;
 
 #define CHECK_ARGUMENT(_EXPRESSION_) \
     if (!(_EXPRESSION_)) { \
-        auto __msg__ = string("Argument Check failed::") + #_EXPRESSION_ +  " " + string(__FILE__) + ":" + to_string(__LINE__); \
+        auto __msg__ = string("Argument Check failed:") + #_EXPRESSION_ + "\n" + __CLASS_NAME__ + ":" + __FUNCTION__ +  \
+        + " " + string(__FILE__) + ":" + to_string(__LINE__); \
         throw InvalidArgumentException(__msg__, __CLASS_NAME__);}
 
 #define CHECK_STATE(_EXPRESSION_) \

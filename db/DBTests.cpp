@@ -37,6 +37,9 @@
 
 #include "../thirdparty/catch.hpp"
 
+
+#include "../chains/Schain.h"
+
 #include "BlockDB.h"
 
 
@@ -52,7 +55,9 @@ void test_committed_block_save() {
         BOOST_THROW_EXCEPTION(runtime_error("Remove failed"));
     }
 
-    auto db = make_shared<BlockDB>(dirName, fileName, node_id(1), 5000000);
+    auto sChain = make_shared<Schain>();
+
+    auto db = make_shared<BlockDB>(sChain.get(), dirName, fileName, node_id(1), 5000000);
 
     for (int i = 1; i < 500; i++) {
         auto t = CommittedBlock::createRandomSample(cryptoManager, i, gen, ubyte);

@@ -16,17 +16,50 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file BVBMessagePayload.h
+    @file BlockProposalHeader.h
     @author Stan Kladko
     @date 2018
 */
 
 #pragma  once
 
+#include "AbstractBlockRequestHeader.h"
 
 
 
-class BVBMessagePayload {
+class BlockProposalRequestHeader : public AbstractBlockRequestHeader{
+
+
+
+    node_id proposerNodeID;
+    ptr<string> hash;
+    ptr<string> signature;
+
+
+    uint64_t txCount;
+    uint64_t  timeStamp = 0;
+    uint32_t  timeStampMs = 0;
+
+public:
+
+    BlockProposalRequestHeader(Schain &_sChain, ptr<BlockProposal> proposal);
+
+    BlockProposalRequestHeader(nlohmann::json _proposalRequest, node_count _nodeCount);
+
+
+    void addFields(nlohmann::basic_json<> &jsonRequest) override;
+
+    const node_id &getProposerNodeId() const;
+
+    const ptr<string> &getHash() const;
+
+    uint64_t getTxCount() const;
+
+    uint64_t getTimeStamp() const;
+
+    uint32_t getTimeStampMs() const;
+
+    ptr<string> getSignature() const;
 
 };
 

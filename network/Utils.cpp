@@ -33,6 +33,15 @@
 #include "../exceptions/InvalidArgumentException.h"
 
 void Utils::checkTime() {
+
+
+    if (getenv("NO_NTP_CHECK") != nullptr) {
+        return;
+    }
+
+
+
+
     auto ip = gethostbyname("pool.ntp.org");
     auto fd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 
@@ -51,7 +60,7 @@ void Utils::checkTime() {
 
 
     if (!ip) {
-        cerr << "Could not resolve of pool.ntp.org. Check internet connection." << endl;
+        cerr << "Couldnt DNS resolve pool.ntp.org. Check internet connection." << endl;
         BOOST_THROW_EXCEPTION(FatalError("Could not get IP address", __CLASS_NAME__));
     }
 
@@ -87,12 +96,12 @@ void Utils::checkTime() {
 
 
     if (write(fd, (char *) &ntpMessage, sizeof(ntpMessage)) <= 0)
-        BOOST_THROW_EXCEPTION(FatalError("Could not write to NTP", __CLASS_NAME__));
+        BOOST_THROW_EXCEPTION(FatalError("Could not write to NTP server ", __CLASS_NAME__));
 
 
     if (read(fd, (char *) &ntpMessage, sizeof(ntpMessage)) != sizeof(ntpMessage)) {
         if (errno != EAGAIN)
-            BOOST_THROW_EXCEPTION(FatalError("Could not read from NTP", __CLASS_NAME__));
+            BOOST_THROW_EXCEPTION(FatalError("Could not read from NTP server", __CLASS_NAME__));
         else
             return;
     }
@@ -105,7 +114,7 @@ void Utils::checkTime() {
 
     if (timeDiff > 1 || timeDiff < -1)
         BOOST_THROW_EXCEPTION(FatalError(
-                                      "System time is not synchronized. Enable NTP: sudo timedatectl set-ntp on. Timediff:" +
+                                      "System time is not synchronized with NTP. Enable NTP: sudo timedatectl set-ntp on. Timediff:" +
                                       to_string(timeDiff) + ":Local:" + to_string(time(NULL)) +
                                       ":ntp:" + to_string(ntohl(ntpMessage.txTmS) - TIME_START)));
 }

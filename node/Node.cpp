@@ -34,9 +34,7 @@
 #include "../thirdparty/json.hpp"
 
 #include "../chains/TestConfig.h"
-
 #include "../crypto/bls_include.h"
-
 #include "../crypto/SHAHash.h"
 #include "../libBLS/bls/BLSPrivateKeyShare.h"
 #include "../libBLS/bls/BLSPublicKey.h"
@@ -44,31 +42,25 @@
 
 #include "../blockproposal/server/BlockProposalServerAgent.h"
 #include "../messages/NetworkMessageEnvelope.h"
-
 #include "../chains/Schain.h"
-
-
 #include "../network/Sockets.h"
 #include "../network/TCPServerSocket.h"
 #include "../network/ZMQNetwork.h"
 #include "../network/ZMQServerSocket.h"
 #include "../node/NodeInfo.h"
-
 #include "../catchup/server/CatchupServerAgent.h"
 #include "../exceptions/FatalError.h"
 #include "../messages/Message.h"
-
 #include "../protocols/InstanceGarbageCollectorAgent.h"
-
 #include "../db/BlockDB.h"
-#include "../db/CommittedTransactionDB.h"
+#include "../db/DASigShareDB.h"
+#include "../db/DAProofDB.h"
 #include "../db/PriceDB.h"
 #include "../db/RandomDB.h"
 #include "../db/SigDB.h"
 #include "../db/ProposalHashDB.h"
-
-
-
+#include "../db/BlockSigShareDB.h"
+#include "../db/BlockProposalDB.h"
 #include "ConsensusEngine.h"
 #include "ConsensusInterface.h"
 #include "Node.h"
@@ -92,8 +84,6 @@ Node::Node(const nlohmann::json &_cfg, ConsensusEngine *_consensusEngine) {
     } catch (...) {
         throw_with_nested(ParsingException("Could not parse params", __CLASS_NAME__));
     }
-    initLevelDBs();
-
     initLogging();
 }
 
@@ -101,19 +91,28 @@ void Node::initLevelDBs() {
     string dataDir = *Log::getDataDir();
     string blockDBPrefix = "blocks_" + to_string(nodeID) + ".db";
     string randomDBPrefix = "randoms_" + to_string(nodeID) + ".db";
-    string committedTransactionsDBPrefix = "transactions_" + to_string(nodeID) + ".db";
-    string signaturesDBPrefix = "sigs_" + to_string(nodeID) + ".db";
-    string pricesDBPrefix = "prices_" + to_string(nodeID) + ".db";
+    string priceDBPrefix = "prices_" + to_string(nodeID) + ".db";
     string proposalHashDBPrefix = "/proposal_hashes_" + to_string(nodeID) + ".db";
 
-    blockDB =
-            make_shared<BlockDB>(dataDir, blockDBPrefix, getNodeID(), getBlockDBSize());
-    randomDB = make_shared<RandomDB>(dataDir, randomDBPrefix, getNodeID(), getRandomDbSize());
-    committedTransactionDB =
-            make_shared<CommittedTransactionDB>(dataDir, committedTransactionsDBPrefix, getNodeID(), getCommitedTxsDbSize());
-    signatureDB = make_shared<SigDB>(dataDir, signaturesDBPrefix, getNodeID(), getSignatureDbSize());
-    priceDB = make_shared<PriceDB>(dataDir, pricesDBPrefix, getNodeID(), getPriceDbSize());
-    proposalHashDB = make_shared<ProposalHashDB>(dataDir, proposalHashDBPrefix, getNodeID(), getProposalHashDbSize());
+    string blockSigShareDBPrefix = "/block_sigshares_" + to_string(nodeID) + ".db";
+    string daSigShareDBPrefix = "/da_sigshares_" + to_string(nodeID) + ".db";
+    string daProofDBPrefix = "/da_proofs_" + to_string(nodeID) + ".db";
+    string blockProposalDBPrefix = "/block_proposals_" + to_string(nodeID) + ".db";
+
+
+    blockDB = make_shared<BlockDB>(getSchain(), dataDir, blockDBPrefix, getNodeID(), getBlockDBSize());
+    randomDB = make_shared<RandomDB>(getSchain(), dataDir, randomDBPrefix, getNodeID(), getRandomDBSize());
+    priceDB = make_shared<PriceDB>(getSchain(), dataDir, priceDBPrefix, getNodeID(), getPriceDBSize());
+    proposalHashDB = make_shared<ProposalHashDB>(getSchain(), dataDir, proposalHashDBPrefix, getNodeID(),
+                                                 getProposalHashDBSize());
+    blockSigShareDB = make_shared<BlockSigShareDB>(getSchain(), dataDir, blockSigShareDBPrefix, getNodeID(),
+                                                   getBlockSigShareDBSize());
+    daSigShareDB = make_shared<DASigShareDB>(getSchain(), dataDir, daSigShareDBPrefix, getNodeID(),
+                                             getDaSigShareDBSize());
+    daProofDB = make_shared<DAProofDB>(getSchain(), dataDir, daProofDBPrefix, getNodeID(), getDaProofDBSize());
+    blockProposalDB = make_shared<BlockProposalDB>(getSchain(), dataDir, blockProposalDBPrefix, getNodeID(),
+                                                   getBlockProposalDBSize());
+
 }
 
 void Node::initLogging() {
@@ -134,53 +133,29 @@ void Node::initLogging() {
     }
 }
 
+
 void Node::initParamsFromConfig() {
     nodeID = cfg.at("nodeID").get<uint64_t>();
+    name = make_shared<string>(cfg.at("nodeName").get<string>());
+    bindIP = make_shared<string>(cfg.at("bindIP").get<string>());
+    basePort = network_port(cfg.at("basePort").get<int>());
 
     catchupIntervalMS = getParamUint64("catchupIntervalMs", CATCHUP_INTERVAL_MS);
-
     monitoringIntervalMS = getParamUint64("monitoringIntervalMs", MONITORING_INTERVAL_MS);
-
-    waitAfterNetworkErrorMs =
-            getParamUint64("waitAfterNetworkErrorMs", WAIT_AFTER_NETWORK_ERROR_MS);
-
-    blockProposalHistorySize =
-            getParamUint64("blockProposalHistorySize", BLOCK_PROPOSAL_HISTORY_SIZE);
-
-    committedTransactionsHistory =
-            getParamUint64("committedTransactionsHistory", COMMITTED_TRANSACTIONS_HISTORY);
-
-    maxCatchupDownloadBytes =
-            getParamUint64("maxCatchupDownloadBytes", MAX_CATCHUP_DOWNLOAD_BYTES);
-
-    maxTransactionsPerBlock =
-            getParamUint64("maxTransactionsPerBlock", MAX_TRANSACTIONS_PER_BLOCK);
-
+    waitAfterNetworkErrorMs = getParamUint64("waitAfterNetworkErrorMs", WAIT_AFTER_NETWORK_ERROR_MS);
+    blockProposalHistorySize = getParamUint64("blockProposalHistorySize", BLOCK_PROPOSAL_HISTORY_SIZE);
+    committedTransactionsHistory = getParamUint64("committedTransactionsHistory", COMMITTED_TRANSACTIONS_HISTORY);
+    maxCatchupDownloadBytes = getParamUint64("maxCatchupDownloadBytes", MAX_CATCHUP_DOWNLOAD_BYTES);
+    maxTransactionsPerBlock = getParamUint64("maxTransactionsPerBlock", MAX_TRANSACTIONS_PER_BLOCK);
     minBlockIntervalMs = getParamUint64("minBlockIntervalMs", MIN_BLOCK_INTERVAL_MS);
-
-    blockDBSize =
-            getParamUint64("blockDBSize", BLOCK_DB_SIZE);
-
-    proposalHashDBSize =
-            getParamUint64("proposalHashDBSize", PROPOSAL_HASH_DB_SIZE);
-
-    commitedTxsDBSize =
-            getParamUint64("commitedTxsDBSize", COMMITTED_TXS_DB_SIZE);
-
-    randomDBSize =
-            getParamUint64("randomDBSize", RANDOM_DB_SIZE);
-
-    signatureDBSize =
-            getParamUint64("signatuteDBSize", SIGNATURE_DB_SIZE);
-
-    priceDBSize =
-            getParamUint64("signatuteDBSize", SIGNATURE_DB_SIZE);
-
-    name = make_shared<string>(cfg.at("nodeName").get<string>());
-
-    bindIP = make_shared<string>(cfg.at("bindIP").get<string>());
-
-    basePort = network_port(cfg.at("basePort").get<int>());
+    blockDBSize = getParamUint64("blockDBSize", BLOCK_DB_SIZE);
+    proposalHashDBSize = getParamUint64("proposalHashDBSize", PROPOSAL_HASH_DB_SIZE);
+    blockSigShareDBSize = getParamUint64("blockSigShareDBSize", BLOCK_SIG_SHARE_DB_SIZE);
+    daSigShareDBSize = getParamUint64("daSigShareDBSize", DA_SIG_SHARE_DB_SIZE);
+    daProofDBSize = getParamUint64("daProofDBSize", DA_PROOF_DB_SIZE);
+    randomDBSize = getParamUint64("randomDBSize", RANDOM_DB_SIZE);
+    priceDBSize = getParamUint64("priceDBSize", PRICE_DB_SIZE);
+    blockProposalDBSize = getParamUint64("blockProposalDBSize", BLOCK_PROPOSAL_DB_SIZE);
 
     auto emptyBlockIntervalMsTmp = getParamInt64("emptyBlockIntervalMs", EMPTY_BLOCK_INTERVAL_MS);
 
@@ -196,7 +171,7 @@ void Node::initParamsFromConfig() {
     testConfig = make_shared<TestConfig>(cfg);
 }
 
-uint64_t Node::getProposalHashDbSize() const {
+uint64_t Node::getProposalHashDBSize() const {
     return proposalHashDBSize;
 }
 
@@ -277,7 +252,7 @@ void Node::initBLSKeys() {
 
     if (isBLSEnabled) {
         blsPrivateKey = make_shared<BLSPrivateKeyShare>(
-                prkStr, sChain->getTotalSignersCount(), sChain->getRequiredSignersCount());
+                prkStr, sChain->getTotalSigners(), sChain->getRequiredSigners());
 
         auto publicKeyStr = make_shared<vector<string> >();
 
@@ -287,7 +262,7 @@ void Node::initBLSKeys() {
         publicKeyStr->push_back(pbkStr4);
 
         blsPublicKey = make_shared<BLSPublicKey>(
-                publicKeyStr, sChain->getTotalSignersCount(), sChain->getRequiredSignersCount());
+                publicKeyStr, sChain->getTotalSigners(), sChain->getRequiredSigners());
     }
 }
 
@@ -304,6 +279,7 @@ void Node::setNodeInfo(ptr<NodeInfo> _info) {
 void Node::setSchain(ptr<Schain> _schain) {
     assert (this->sChain == nullptr);
     this->sChain = _schain;
+    initLevelDBs();
 }
 
 void Node::initSchain(ptr<Node> _node, ptr<NodeInfo> _localNodeInfo, const vector<ptr<NodeInfo> > &remoteNodeInfos,
@@ -322,9 +298,12 @@ void Node::initSchain(ptr<Node> _node, ptr<NodeInfo> _localNodeInfo, const vecto
 
         _node->setSchain(sChain);
 
+
     } catch (...) {
         throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
     }
+
+
 }
 
 
@@ -381,7 +360,6 @@ void Node::exit() {
 }
 
 
-
 void Node::closeAllSocketsAndNotifyAllAgentsAndThreads() {
     getSchain()->getNode()->threadServerConditionVariable.notify_all();
 
@@ -402,10 +380,6 @@ void Node::closeAllSocketsAndNotifyAllAgentsAndThreads() {
 void Node::registerAgent(Agent *_agent) {
     agents.push_back(_agent);
 }
-
-
-
-
 
 
 void Node::exitCheck() {

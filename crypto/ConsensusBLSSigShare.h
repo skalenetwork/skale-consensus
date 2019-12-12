@@ -42,11 +42,11 @@ public:
 
 
 
-    ConsensusBLSSigShare(ptr<BLSSigShare> _s, schain_id _schainId, block_id _blockID, node_id _signerNodeID);
+    ConsensusBLSSigShare(ptr<BLSSigShare> _s, schain_id _schainId, block_id _blockID);
 
 
-    ConsensusBLSSigShare(ptr<string> _sigShare, schain_id _schainID, block_id _blockID, node_id _signerNodeID,
-        schain_index _signerIndex, size_t _totalSigners, size_t _requiredSigners);
+    ConsensusBLSSigShare(ptr<string> _sigShare, schain_id _schainID, block_id _blockID, schain_index _signerIndex,
+                         uint64_t _totalSigners, uint64_t _requiredSigners);
 
 
     ptr< BLSSigShare > getBlsSigShare() const;

@@ -43,10 +43,10 @@ protected:
 
 protected:
 
-    void sendItem(ptr<DataStructure> _item, schain_index _dstIndex, node_id _dstNodeId );
+    void sendItem(ptr<DataStructure> _item, schain_index _dstIndex);
 
-    virtual void sendItemImpl(ptr<DataStructure> _item, shared_ptr< ClientSocket > socket,
-                              schain_index _destIndex, node_id _dstNodeId ) = 0;
+    virtual void sendItemImpl(ptr<DataStructure> _item, shared_ptr<ClientSocket> socket,
+                              schain_index _destIndex) = 0;
 
     std::map< schain_index, ptr< queue< ptr< DataStructure > > > > itemQueue;
 

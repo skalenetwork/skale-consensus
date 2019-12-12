@@ -35,6 +35,8 @@ BooleanProposalVector::BooleanProposalVector(node_count _nodeCount): nodeCount(_
 void BooleanProposalVector::pushValue(bool _value) {
 
     LOCK(m)
+    if (_value)
+        trueCount++;
 
     proposals.push_back(_value);
 }
@@ -49,4 +51,8 @@ bool BooleanProposalVector::getProposalValue(schain_index _index) {
     LOCK(m)
 
     return proposals.at( ( uint64_t ) _index );
+}
+
+uint64_t BooleanProposalVector::getTrueCount() const {
+    return trueCount;
 }

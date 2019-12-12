@@ -16,43 +16,36 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file ReceivedDASigSharesDatabase.h
+    @file BlockSigShare.h
     @author Stan Kladko
     @date 2019
 */
 
-#pragma once
 
+#ifndef SKALED_BLOCK_SIG_SHARES_DB
+#define SKALED_BLOCK_SIG_SHARES_DB
 
-
-#include "../../Agent.h"
-
-class ConsensusSigShareSet;
-class ConsensusBLSSignature;
-class Schain;
-class ConsensusBLSSigShare;
-class ThresholdSigShareSet;
+class CommittedBlock;
 class ThresholdSignature;
-class ThresholdSigShare;
 
-class ReceivedDASigSharesDatabase {
+#include "CacheLevelDB.h"
 
-    Schain* sChain;
+class CryptoManager;
 
-    recursive_mutex m;
+class BlockSigShareDB : public CacheLevelDB {
 
-    map<block_id, ptr<ThresholdSigShareSet>> sigShareSets;
 
-    map<block_id, ptr<ThresholdSignature>> blockSignatures;
+    recursive_mutex sigShareMutex;
+
+    const string getFormatVersion();
 
 public:
 
-    explicit ReceivedDASigSharesDatabase(Schain &_sChain);
+    BlockSigShareDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize);
 
-    ptr<DAProof> addAndMergeSigShareAndVerifySig(ptr<ThresholdSigShare> _sigShare,
-                                                 ptr<BlockProposal> _proposal);
+    ptr<ThresholdSignature> checkAndSaveShare(ptr<ThresholdSigShare> _sigShare, ptr<CryptoManager> _cryptoManager);
 
 };
 
 
-
+#endif //SKALED_BLOCK_SIG_SHARES_DB

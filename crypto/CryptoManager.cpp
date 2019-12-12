@@ -84,7 +84,20 @@ bool CryptoManager::verifyECDSA(ptr<SHAHash> _hash,
 }
 
 
-ptr<ThresholdSigShare> CryptoManager::signThreshold(ptr<SHAHash> _hash, block_id _blockId) {
+ptr<ThresholdSigShare> CryptoManager::signDAProofSigShare(ptr<BlockProposal> _p) {
+    CHECK_ARGUMENT(_p != nullptr);
+    return signSigShare(_p->getHash(), _p->getBlockID());
+}
+
+ptr<ThresholdSigShare> CryptoManager::signBinaryConsensusSigShare(ptr<SHAHash> _hash, block_id _blockId) {
+    return signSigShare(_hash, _blockId);
+}
+
+ptr<ThresholdSigShare> CryptoManager::signBlockSigShare(ptr<SHAHash> _hash, block_id _blockId) {
+    return signSigShare(_hash, _blockId);
+}
+ptr<ThresholdSigShare> CryptoManager::signSigShare(ptr<SHAHash> _hash, block_id _blockId) {
+
 
     MONITOR(__CLASS_NAME__, __FUNCTION__)
 
@@ -96,16 +109,15 @@ ptr<ThresholdSigShare> CryptoManager::signThreshold(ptr<SHAHash> _hash, block_id
 
         auto blsShare = sChain->getNode()->getBlsPrivateKey()->sign(hash, (uint64_t) sChain->getSchainIndex());
 
-        return make_shared<ConsensusBLSSigShare>(blsShare, sChain->getSchainID(), _blockId,
-                                                 sChain->getNode()->getNodeID());
+        return make_shared<ConsensusBLSSigShare>(blsShare, sChain->getSchainID(), _blockId);
+
 
     } else {
         auto sigShare = _hash->toHex();
         return make_shared<MockupSigShare>(sigShare, sChain->getSchainID(), _blockId,
-                                           sChain->getNode()->getNodeID(),
                                            sChain->getSchainIndex(),
-                                           sChain->getTotalSignersCount(),
-                                           sChain->getRequiredSignersCount());
+                                           sChain->getTotalSigners(),
+                                           sChain->getRequiredSigners());
     }
 }
 
@@ -118,14 +130,17 @@ CryptoManager::createSigShareSet(block_id _blockId, size_t _totalSigners, size_t
     }
 }
 
+
+
+
 ptr<ThresholdSigShare>
-CryptoManager::createSigShare(ptr<string> _sigShare, schain_id _schainID, block_id _blockID, node_id _signerNodeID,
-                              schain_index _signerIndex, size_t _totalSigners, size_t _requiredSigners) {
+CryptoManager::createSigShare(ptr<string> _sigShare, schain_id _schainID, block_id _blockID, schain_index _signerIndex,
+                              size_t _totalSigners, size_t _requiredSigners) {
     if (getSchain()->getNode()->isBlsEnabled()) {
-        return make_shared<ConsensusBLSSigShare>(_sigShare, _schainID, _blockID, _signerNodeID, _signerIndex,
+        return make_shared<ConsensusBLSSigShare>(_sigShare, _schainID, _blockID, _signerIndex,
                                                  _totalSigners, _requiredSigners);
     } else {
-        return make_shared<MockupSigShare>(_sigShare, _schainID, _blockID, _signerNodeID, _signerIndex,
+        return make_shared<MockupSigShare>(_sigShare, _schainID, _blockID, _signerIndex,
                                            _totalSigners, _requiredSigners);
     }
 }
@@ -137,11 +152,12 @@ void CryptoManager::signProposalECDSA(BlockProposal* _proposal) {
     _proposal->addSignature(signature);
 }
 
-bool CryptoManager::verifyProposalECDSA(BlockProposal* _proposal, ptr<string> _hashStr, ptr<string> _signature) {
+bool CryptoManager::verifyProposalECDSA(ptr<BlockProposal> _proposal, ptr<string> _hashStr, ptr<string> _signature) {
     CHECK_ARGUMENT(_proposal != nullptr);
     CHECK_ARGUMENT(_hashStr != nullptr)
     CHECK_ARGUMENT(_signature != nullptr)
     auto hash = _proposal->getHash();
+
 
 
     if (*hash->toHex() != *_hashStr) {
@@ -156,11 +172,11 @@ bool CryptoManager::verifyProposalECDSA(BlockProposal* _proposal, ptr<string> _h
     return true;
 }
 
-ptr<ThresholdSignature> CryptoManager::verifyThreshold(ptr<SHAHash> _hash, ptr<string> _signature, block_id _blockId) {
+ptr<ThresholdSignature> CryptoManager::verifyThresholdSig(ptr<SHAHash> _hash, ptr<string> _signature, block_id _blockId) {
     MONITOR(__CLASS_NAME__, __FUNCTION__)
 
-    auto requiredSigners = sChain->getRequiredSignersCount();
-    auto totalSigners = sChain->getTotalSignersCount();
+    auto requiredSigners = sChain->getRequiredSigners();
+    auto totalSigners = sChain->getTotalSigners();
 
 
     if (getSchain()->getNode()->isBlsEnabled()) {

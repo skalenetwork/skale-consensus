@@ -31,10 +31,9 @@
 
 #include "MockupSigShare.h"
 
-MockupSigShare::MockupSigShare( ptr< string > _sigShare, schain_id _schainID,
-    block_id _blockID, node_id _signerNodeID, schain_index _signerIndex,
-    size_t _totalSigners, size_t _requiredSigners)
-    : ThresholdSigShare(_schainID, _blockID,  _signerNodeID, _signerIndex) {
+MockupSigShare::MockupSigShare(ptr<string> _sigShare, schain_id _schainID, block_id _blockID, schain_index _signerIndex,
+                               size_t _totalSigners, size_t _requiredSigners)
+    : ThresholdSigShare(_schainID, _blockID, _signerIndex) {
 
     CHECK_ARGUMENT(_requiredSigners <= _totalSigners);
     this->totalSigners = _totalSigners;

@@ -31,8 +31,7 @@
 class ReceivedBlockProposal : public BlockProposal{
 public:
 
-    ReceivedBlockProposal(Schain &_sChain, const block_id &_blockID,
-                          const ptr<TransactionList> & _transactions, const uint64_t &_timeStamp,
+    ReceivedBlockProposal(Schain &_sChain, const block_id &_blockID, const uint64_t &_timeStamp,
                           const uint32_t &_timeStampMs);
 
 

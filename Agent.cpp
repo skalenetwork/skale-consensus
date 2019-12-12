@@ -58,6 +58,8 @@ Agent::Agent(Schain &_sChain, bool _isServer, bool _isSchain) : isServer(_isServ
 
 }
 
+Agent::Agent() {}// empty constructor is used by tests}
+
 
 ptr<Node> Agent::getNode() {
     return getSchain()->getNode();

@@ -16,50 +16,64 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file BlockProposalHeader.h
+    @file CommittedBlockHeader.h
     @author Stan Kladko
     @date 2018
 */
 
 #pragma  once
 
-#include "AbstractBlockRequestHeader.h"
+#include "Header.h"
+
+class NodeInfo;
+class BlockProposal;
+class Schain;
+class CommittedBlock;
+
+class BlockProposalHeader : public Header {
 
 
-
-class BlockProposalHeader : public AbstractBlockRequestHeader{
-
-
-
+    schain_id schainID;
+    schain_index proposerIndex;
     node_id proposerNodeID;
-    ptr<string> hash;
+    block_id blockID;
+    ptr<string> blockHash;
     ptr<string> signature;
-
-
-    uint64_t txCount;
-    uint64_t  timeStamp = 0;
-    uint32_t  timeStampMs = 0;
+    ptr<vector<uint64_t>> transactionSizes;
+    uint64_t timeStamp = 0;
+    uint32_t timeStampMs = 0;
 
 public:
 
-    BlockProposalHeader(Schain &_sChain, ptr<BlockProposal> proposal);
+    const ptr<string> &getSignature() const;
 
-    BlockProposalHeader(nlohmann::json _proposalRequest, node_count _nodeCount);
+    const schain_id &getSchainID() const;
+
+    const block_id &getBlockID() const;
 
 
-    void addFields(nlohmann::basic_json<> &jsonRequest) override;
+    BlockProposalHeader(nlohmann::json& _json);
+
+    BlockProposalHeader(BlockProposal & _block);
+
+    ptr<string> getBlockHash() const {
+        return blockHash;
+    }
+
+    void addFields(nlohmann::json &j) override;
+
+    const ptr<vector<uint64_t>> &getTransactionSizes() const;
+
+
+    const schain_index &getProposerIndex() const;
 
     const node_id &getProposerNodeId() const;
 
-    const ptr<string> &getHash() const;
-
-    uint64_t getTxCount() const;
 
     uint64_t getTimeStamp() const;
 
     uint32_t getTimeStampMs() const;
 
-    ptr<string> getSignature() const;
 
 };
 

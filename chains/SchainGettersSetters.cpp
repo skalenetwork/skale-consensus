@@ -40,7 +40,7 @@
 #include "../node/Node.h"
 
 #include "../blockproposal/pusher/BlockProposalClientAgent.h"
-#include "../headers/BlockProposalHeader.h"
+#include "../headers/BlockProposalRequestHeader.h"
 #include "../pendingqueue/PendingTransactionsAgent.h"
 
 #include "../blockfinalize/client/BlockFinalizeDownloader.h"
@@ -58,7 +58,7 @@
 #include "../messages/MessageEnvelope.h"
 #include "../messages/NetworkMessageEnvelope.h"
 #include "../node/NodeInfo.h"
-#include "../blockproposal/received/ReceivedBlockProposalsDatabase.h"
+#include "../db/BlockProposalDB.h"
 #include "../network/Sockets.h"
 #include "../protocols/ProtocolInstance.h"
 #include "../protocols/blockconsensus/BlockConsensusAgent.h"
@@ -87,7 +87,7 @@
 
 #include "../crypto/bls_include.h"
 #include "../db/BlockDB.h"
-#include "../db/LevelDB.h"
+#include "../db/CacheLevelDB.h"
 #include "../pendingqueue/TestMessageGeneratorAgent.h"
 #include "SchainTest.h"
 
@@ -119,14 +119,14 @@ uint64_t Schain::getStartTimeMs() const {
 }
 
 block_id Schain::getLastCommittedBlockID() const {
-    return block_id(lastCommittedBlockID.load());
+    return lastCommittedBlockID.load();
 }
 
 ptr<BlockProposal> Schain::getBlockProposal(block_id _blockID, schain_index _schainIndex) {
 
     MONITOR(__CLASS_NAME__, __FUNCTION__)
 
-    return blockProposalsDatabase->getBlockProposal(_blockID, _schainIndex);
+    return getNode()->getBlockProposalDB()->getBlockProposal(_blockID, _schainIndex);
 
 }
 
@@ -210,13 +210,8 @@ ptr<TestMessageGeneratorAgent> Schain::getTestMessageGeneratorAgent() const {
     return testMessageGeneratorAgent;
 }
 
-void Schain::setBlockProposerTest(const string &blockProposerTest) {
-    Schain::blockProposerTest = make_shared<string>(blockProposerTest);
-}
-
-
-schain_id Schain::getSchainID() const {
-    return schainID;
+void Schain::setBlockProposerTest(const string &_blockProposerTest) {
+    Schain::blockProposerTest = make_shared<string>(_blockProposerTest);
 }
 
 
@@ -225,7 +220,7 @@ uint64_t Schain::getTotalTransactions() const {
 }
 
 uint64_t Schain::getLastCommittedBlockTimeStamp() {
-    return committedBlockTimeStamp;
+    return lastCommittedBlockTimeStamp;
 }
 
 
@@ -245,12 +240,12 @@ void Schain::setHealthCheckFile(uint64_t status) {
 }
 
 
-size_t Schain::getTotalSignersCount() {
-    return (size_t) (uint64_t) getNodeCount();
+uint64_t Schain::getTotalSigners() {
+    return (uint64_t) getNodeCount();
 }
 
 
-size_t Schain::getRequiredSignersCount() {
+uint64_t Schain::getRequiredSigners() {
     auto count = getNodeCount();
     if (count <= 2) {
         return (uint64_t) count;
@@ -258,6 +253,7 @@ size_t Schain::getRequiredSignersCount() {
         return 2 * (uint64_t) count / 3 + 1;
     }
 }
+
 
 u256 Schain::getPriceForBlockId(uint64_t _blockId) {
     CHECK_STATE(pricingAgent != nullptr);
@@ -287,6 +283,7 @@ void Schain::joinMonitorThread() {
 }
 
  ptr<CryptoManager> Schain::getCryptoManager() const {
+    ASSERT(cryptoManager != nullptr);
     return cryptoManager;
 }
 

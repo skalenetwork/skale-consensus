@@ -31,7 +31,6 @@ class BlockProposalFragment {
     const uint64_t blockSize;
     ptr<string> blockHash;
 
-
     const uint64_t totalFragments;
     const fragment_index fragmentIndex;
 

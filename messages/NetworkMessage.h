@@ -40,25 +40,36 @@ class Buffer;
 class ConsensusBLSSigShare;
 class Node;
 class ThresholdSigShare;
-
-
+class CryptoManager;
 
 static constexpr uint32_t CONSENSUS_MESSAGE_LEN = 73 + BLS_MAX_SIG_LEN;
 
 class NetworkMessage : public Message {
 
+
+
 protected:
+
 
 
     string printPrefix = "n";
 
+    ptr<string> sigShareString;
 
-    NetworkMessage( MsgType _messageType, node_id _destinationNodeID, block_id blockID,
-                    schain_index blockProposerIndex, bin_consensus_round _r, bin_consensus_value _value,
-                    BinConsensusInstance& _srcProtocolInstance );
+    ptr<ThresholdSigShare> sigShare;
+
+    NetworkMessage(MsgType _messageType, node_id _destinationNodeID, block_id _blockID,
+                   schain_index _blockProposerIndex, bin_consensus_round _r, bin_consensus_value _value,
+                   ProtocolInstance &_srcProtocolInstance );
 
 
-    NetworkMessage(MsgType messageType, node_id _srcNodeID, node_id _dstNodeID, block_id _blockID, schain_index _blockProposerIndex, bin_consensus_round _r, bin_consensus_value _value, schain_id _schainId, msg_id _msgID, uint32_t _ip, ptr<string> _signature, schain_index _srcSchainIndex, Schain* _schain);
+    NetworkMessage(MsgType messageType, node_id _srcNodeID, node_id _dstNodeID, block_id _blockID,
+                   schain_index _blockProposerIndex, bin_consensus_round _r, bin_consensus_value _value,
+                   schain_id _schainId, msg_id _msgID, uint32_t _ip, ptr<string> _sigShareStr,
+                   schain_index _srcSchainIndex, ptr<CryptoManager> _cryptoManager,
+                   uint64_t _totalSigners, uint64_t _requiredSigners);
+
+
 
 
 public:
@@ -68,17 +79,15 @@ public:
     bin_consensus_round r;
     bin_consensus_value value;
 
-    bin_consensus_round getRound() const;
+    virtual bin_consensus_round getRound() const;
 
-    bin_consensus_value getValue() const;
+    virtual bin_consensus_value getValue() const;
 
     msg_len getLen();
 
     int32_t ip;
 
-    ptr<string> sigShareString;
 
-    ptr<ThresholdSigShare> sigShare;
 
 
     virtual ~NetworkMessage(){};

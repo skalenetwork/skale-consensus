@@ -30,7 +30,7 @@
 #include "../messages/ChildCompletedMessage.h"
 #include "../pendingqueue/PendingTransactionsAgent.h"
 #include "../blockproposal/pusher/BlockProposalClientAgent.h"
-#include "../blockproposal/received/ReceivedBlockProposalsDatabase.h"
+#include "../db/BlockProposalDB.h"
 #include "../chains/Schain.h"
 #include "../protocols/ProtocolKey.h"
 #include "../protocols/binconsensus/BinConsensusInstance.h"
@@ -46,7 +46,7 @@ ProtocolInstance::ProtocolInstance(
     ProtocolType _protocolType // unused
     , Schain& _sChain
     )
-    : sChain(_sChain)
+    : sChain(&_sChain)
     , protocolType(_protocolType) // unused
     , messageCounter(0)
 {
@@ -55,7 +55,7 @@ ProtocolInstance::ProtocolInstance(
 
 
 Schain *ProtocolInstance::getSchain() const {
-    return &sChain;
+    return sChain;
 }
 
 
@@ -80,6 +80,7 @@ ProtocolInstance::~ProtocolInstance() {
 
 
 atomic<uint64_t>  ProtocolInstance::totalObjects(0);
+
 
 
 

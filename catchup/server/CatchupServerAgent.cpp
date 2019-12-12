@@ -36,11 +36,14 @@
 #include "../../node/ConsensusEngine.h"
 #include "../../thirdparty/json.hpp"
 
+#include "../monitoring/LivelinessMonitor.h"
+
 
 #include "../../node/NodeInfo.h"
 
 
 #include "../../db/BlockDB.h"
+#include "../../db/DAProofDB.h"
 
 #include "../../abstracttcpserver/ConnectionStatus.h"
 
@@ -60,7 +63,7 @@
 #include "../../network/ServerConnection.h"
 #include "../../network/IO.h"
 #include "../../headers/CatchupRequestHeader.h"
-#include "../../headers/CommittedBlockHeader.h"
+#include "../../headers/BlockProposalHeader.h"
 #include "../../headers/CatchupResponseHeader.h"
 #include "../../headers/BlockFinalizeResponseHeader.h"
 
@@ -89,6 +92,8 @@ CatchupServerAgent::~CatchupServerAgent() {
 
 void CatchupServerAgent::processNextAvailableConnection(ptr<ServerConnection> _connection) {
 
+
+    MONITOR(__CLASS_NAME__, __FUNCTION__);
 
     try {
         sChain->getIo()->readMagic(_connection->getDescriptor());
@@ -184,44 +189,53 @@ ptr<vector<uint8_t>> CatchupServerAgent::createResponseHeaderAndBinary(ptr<Serve
                                                                        nlohmann::json _jsonRequest,
                                                                        ptr<Header> &_responseHeader) {
 
-    schain_id schainID = Header::getUint64(_jsonRequest, "schainID");
-    block_id blockID = Header::getUint64(_jsonRequest, "blockID");
+    try {
+
+        schain_id schainID = Header::getUint64(_jsonRequest, "schainID");
+        block_id blockID = Header::getUint64(_jsonRequest, "blockID");
 
 
-    if (sChain->getSchainID() != schainID) {
-        _responseHeader->setStatusSubStatus(CONNECTION_SERVER_ERROR, CONNECTION_ERROR_UNKNOWN_SCHAIN_ID);
+        if (sChain->getSchainID() != schainID) {
+            _responseHeader->setStatusSubStatus(CONNECTION_SERVER_ERROR, CONNECTION_ERROR_UNKNOWN_SCHAIN_ID);
 
-        BOOST_THROW_EXCEPTION(InvalidSchainException("Incorrect schain " + to_string(schainID), __CLASS_NAME__));
+            BOOST_THROW_EXCEPTION(InvalidSchainException("Incorrect schain " + to_string(schainID), __CLASS_NAME__));
 
-    };
+        };
 
 
-    ptr<NodeInfo> nmi = sChain->getNode()->getNodeInfoByIP(_connectionEnvelope->getIP());
+        ptr<NodeInfo> nmi = sChain->getNode()->getNodeInfoByIP(_connectionEnvelope->getIP());
 
-    if (nmi == nullptr) {
-        _responseHeader->setStatusSubStatus(CONNECTION_SERVER_ERROR, CONNECTION_ERROR_DONT_KNOW_THIS_NODE);
-        BOOST_THROW_EXCEPTION(
-                InvalidSourceIPException("Could not find node info for IP " + *_connectionEnvelope->getIP()));
+        if (nmi == nullptr) {
+            _responseHeader->setStatusSubStatus(CONNECTION_SERVER_ERROR, CONNECTION_ERROR_DONT_KNOW_THIS_NODE);
+            BOOST_THROW_EXCEPTION(
+                    InvalidSourceIPException("Could not find node info for IP " + *_connectionEnvelope->getIP()));
+        }
+
+        auto type = Header::getString(_jsonRequest, "type");
+
+        ptr<vector<uint8_t>> serializedBinary = nullptr;
+
+        if (type->compare(Header::BLOCK_CATCHUP_REQ) == 0) {
+
+            serializedBinary = createBlockCatchupResponse(_jsonRequest,
+                                                          dynamic_pointer_cast<CatchupResponseHeader>(_responseHeader),
+                                                          blockID);
+
+        } else if (type->compare(Header::BLOCK_FINALIZE_REQ) == 0) {
+
+            serializedBinary = createBlockFinalizeResponse(_jsonRequest,
+                                                           dynamic_pointer_cast<BlockFinalizeResponseHeader>(
+                                                                   _responseHeader), blockID);
+
+        }
+
+        return serializedBinary;
+    }
+    catch (ExitRequestedException &e) { throw; } catch (...) {
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
 
-    auto type = Header::getString(_jsonRequest, "type");
 
-    ptr<vector<uint8_t>> serializedBinary = nullptr;
-
-    if (type->compare(Header::BLOCK_CATCHUP_REQ) == 0) {
-
-        serializedBinary = createBlockCatchupResponse(_jsonRequest,
-                                                      dynamic_pointer_cast<CatchupResponseHeader>(_responseHeader),
-                                                      blockID);
-
-    } else if (type->compare(Header::BLOCK_FINALIZE_REQ) == 0) {
-
-        serializedBinary = createBlockFinalizeResponse(_jsonRequest,
-                                                       dynamic_pointer_cast<BlockFinalizeResponseHeader>(
-                                                               _responseHeader), blockID);
-
-    }
-    return serializedBinary;
 }
 
 
@@ -229,54 +243,60 @@ ptr<vector<uint8_t>> CatchupServerAgent::createBlockCatchupResponse(nlohmann::js
                                                                     ptr<CatchupResponseHeader> _responseHeader,
                                                                     block_id _blockID) {
 
+    MONITOR(__CLASS_NAME__, __FUNCTION__);
 
-    if (sChain->getLastCommittedBlockID() <= block_id(_blockID)) {
-        LOG(debug, "Catchups: sChain->getCommittedBlockID() <= block_id(blockID)");
-        _responseHeader->setStatusSubStatus(CONNECTION_DISCONNECT, CONNECTION_NO_NEW_BLOCKS);
-        _responseHeader->setComplete();
-        return nullptr;
-    }
+    try {
 
-
-    auto blockSizes = make_shared<list<uint64_t>>();
-
-    auto committedBlockID = sChain->getLastCommittedBlockID();
-
-    if (_blockID >= committedBlockID) {
-        LOG(debug, "Catchups: blockID >= committedBlockID");
-        _responseHeader->setStatus(CONNECTION_DISCONNECT);
-        _responseHeader->setComplete();
-        return nullptr;
-    }
-
-    auto serializedBlocks = make_shared<vector<uint8_t>>();
-
-    serializedBlocks->push_back('[');
+        if (sChain->getLastCommittedBlockID() <= block_id(_blockID)) {
+            LOG(debug, "Catchups: sChain->getCommittedBlockID() <= block_id(blockID)");
+            _responseHeader->setStatusSubStatus(CONNECTION_DISCONNECT, CONNECTION_NO_NEW_BLOCKS);
+            _responseHeader->setComplete();
+            return nullptr;
+        }
 
 
-    for (uint64_t i = (uint64_t) _blockID + 1; i <= committedBlockID; i++) {
+        auto blockSizes = make_shared<list<uint64_t>>();
 
-        auto serializedBlock = getSchain()->getNode()->getBlockDB()->getSerializedBlockFromLevelDB(i);
+        auto committedBlockID = sChain->getLastCommittedBlockID();
 
-        if (!serializedBlock) {
+        if (_blockID >= committedBlockID) {
+            LOG(debug, "Catchups: blockID >= committedBlockID");
             _responseHeader->setStatus(CONNECTION_DISCONNECT);
             _responseHeader->setComplete();
             return nullptr;
         }
 
-        serializedBlocks->insert(serializedBlocks->end(), serializedBlock->begin(), serializedBlock->end());
+        auto serializedBlocks = make_shared<vector<uint8_t>>();
 
-        blockSizes->push_back(serializedBlock->size());
+        serializedBlocks->push_back('[');
 
+
+        for (uint64_t i = (uint64_t) _blockID + 1; i <= committedBlockID; i++) {
+
+            auto serializedBlock = getSchain()->getNode()->getBlockDB()->getSerializedBlockFromLevelDB(i);
+
+            if (!serializedBlock) {
+                _responseHeader->setStatus(CONNECTION_DISCONNECT);
+                _responseHeader->setComplete();
+                return nullptr;
+            }
+
+            serializedBlocks->insert(serializedBlocks->end(), serializedBlock->begin(), serializedBlock->end());
+
+            blockSizes->push_back(serializedBlock->size());
+
+        }
+
+        serializedBlocks->push_back(']');
+
+        _responseHeader->setStatus(CONNECTION_PROCEED);
+
+        _responseHeader->setBlockSizes(blockSizes);
+
+        return serializedBlocks;
+    } catch (ExitRequestedException &e) { throw; } catch (...) {
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
-
-    serializedBlocks->push_back(']');
-
-    _responseHeader->setStatus(CONNECTION_PROCEED);
-
-    _responseHeader->setBlockSizes(blockSizes);
-
-    return serializedBlocks;
 
 }
 
@@ -285,60 +305,62 @@ ptr<vector<uint8_t>> CatchupServerAgent::createBlockFinalizeResponse(nlohmann::j
                                                                      ptr<BlockFinalizeResponseHeader> _responseHeader,
                                                                      block_id _blockID) {
 
-    fragment_index fragmentIndex = Header::getUint64(_jsonRequest, "fragmentIndex");
+    MONITOR(__CLASS_NAME__, __FUNCTION__);
 
-    if (fragmentIndex < 1 || (uint64_t) fragmentIndex > getSchain()->getNodeCount() - 1) {
-        LOG(debug, "Incorrect fragment index:" + to_string(fragmentIndex));
-        _responseHeader->setStatusSubStatus(CONNECTION_DISCONNECT, CONNECTION_ERROR_INVALID_FRAGMENT_INDEX);
-        _responseHeader->setComplete();
-        return nullptr;
+    try {
+        fragment_index fragmentIndex = Header::getUint64(_jsonRequest, "fragmentIndex");
+
+        if (fragmentIndex < 1 || (uint64_t) fragmentIndex > getSchain()->getNodeCount() - 1) {
+            LOG(debug, "Incorrect fragment index:" + to_string(fragmentIndex));
+            _responseHeader->setStatusSubStatus(CONNECTION_DISCONNECT, CONNECTION_ERROR_INVALID_FRAGMENT_INDEX);
+            _responseHeader->setComplete();
+            return nullptr;
+        }
+
+
+        schain_index proposerIndex = Header::getUint64(_jsonRequest, "proposerIndex");
+
+
+        if (proposerIndex < 1 || (uint64_t) fragmentIndex > getSchain()->getNodeCount()) {
+            LOG(debug, "Incorrect proposer index:" + to_string(proposerIndex));
+            _responseHeader->setStatusSubStatus(CONNECTION_DISCONNECT, CONNECTION_ERROR_INVALID_PROPOSER_INDEX);
+            _responseHeader->setComplete();
+            return nullptr;
+        }
+
+
+        auto proposal = getSchain()->getBlockProposal(_blockID, proposerIndex);
+
+        if (proposal == nullptr) {
+            LOG(err, "Dont have proposal:" + to_string(proposerIndex));
+            _responseHeader->setStatusSubStatus(CONNECTION_DISCONNECT, CONNECTION_DONT_HAVE_PROPOSAL);
+            _responseHeader->setComplete();
+            return nullptr;
+        }
+
+        if (!getNode()->getDaProofDB()->haveDAProof(proposal)) {
+            LOG(trace, "Dont have DA proof:" + to_string(proposerIndex));
+            _responseHeader->setStatusSubStatus(CONNECTION_DISCONNECT,
+                                                CONNECTION_DONT_HAVE_DA_PROOF_FOR_PROPOSAL);
+            _responseHeader->setComplete();
+            return nullptr;
+        }
+
+        auto fragment = proposal->getFragment(
+                (uint64_t) getSchain()->getNodeCount() - 1,
+                fragmentIndex);
+
+        CHECK_STATE(fragment != nullptr);
+
+        _responseHeader->setStatus(CONNECTION_PROCEED);
+
+        auto serializedFragment = fragment->serialize();
+
+        _responseHeader->setFragmentParams(serializedFragment->size(),
+                                           proposal->serialize()->size(), proposal->getHash()->toHex());
+
+        return serializedFragment;
+    } catch (ExitRequestedException &e) { throw; } catch (...) {
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
-
-
-    schain_index proposerIndex = Header::getUint64(_jsonRequest, "proposerIndex");
-
-
-    if (proposerIndex < 1 || (uint64_t) fragmentIndex > getSchain()->getNodeCount()) {
-        LOG(debug, "Incorrect proposer index:" + to_string(proposerIndex));
-        _responseHeader->setStatusSubStatus(CONNECTION_DISCONNECT, CONNECTION_ERROR_INVALID_PROPOSER_INDEX);
-        _responseHeader->setComplete();
-        return nullptr;
-    }
-
-
-
-    auto proposal = getSchain()->getBlockProposal(_blockID, proposerIndex);
-
-    if (proposal == nullptr) {
-        LOG(trace, "Dont have proposal:" + to_string(proposerIndex));
-        _responseHeader->setStatusSubStatus(CONNECTION_DISCONNECT, CONNECTION_DONT_HAVE_PROPOSAL);
-        _responseHeader->setComplete();
-        return nullptr;
-    }
-
-    if (proposal->getDaProof() == nullptr) {
-        LOG(trace, "Dont have DA proof:" + to_string(proposerIndex));
-        _responseHeader->setStatusSubStatus(CONNECTION_DISCONNECT,
-                CONNECTION_DONT_HAVE_DA_PROOF_FOR_PROPOSAL);
-        _responseHeader->setComplete();
-        return nullptr;
-    }
-
-    auto committedBlock = make_shared<CommittedBlock>(proposal);
-
-    auto fragment = committedBlock->getFragment(
-            (uint64_t ) getSchain()->getNodeCount() - 1,
-            fragmentIndex);
-
-    CHECK_STATE(fragment != nullptr);
-
-    _responseHeader->setStatus(CONNECTION_PROCEED);
-
-    auto serializedFragment = fragment->serialize();
-
-    _responseHeader->setFragmentParams(serializedFragment->size(),
-            committedBlock->getSerialized()->size(), committedBlock->getHash()->toHex());
-
-    return serializedFragment;
-
 }

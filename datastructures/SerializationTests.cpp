@@ -106,22 +106,20 @@ void test_committed_block_fragment_defragment(bool _fail) {
 
         //REQUIRE( out != nullptr );
 
-
-
         if (_fail) {
-            REQUIRE_THROWS(CommittedBlock::defragment(list, ptr<CryptoManager>()));
+            REQUIRE_THROWS(BlockProposal::defragment(list, cryptoManager));
         } else {
-            ptr<CommittedBlock> imp = nullptr;
+            ptr<BlockProposal> imp = nullptr;
 
             try {
-                imp = CommittedBlock::defragment(list, ptr<CryptoManager>());
+                imp = CommittedBlock::defragment(list, cryptoManager);
             } catch (Exception &e) {
                 Exception::logNested(e, err);
                 throw (e);
             }
             REQUIRE(imp != nullptr);
 
-            REQUIRE(*imp->getSerialized() == *t->getSerialized());
+            REQUIRE(*imp->serialize() == *t->serialize());
         }
 
     }
@@ -202,7 +200,7 @@ void test_committed_block_serialize_deserialize(bool _fail) {
         for (int i = 0; i < 20; i++) {
             auto t = CommittedBlock::createRandomSample(cryptoManager, i, gen, ubyte);
 
-            auto out = t->getSerialized();
+            auto out = t->serialize();
 
             if (_fail) {
                 corrupt_byte_vector(out, gen, ubyte);

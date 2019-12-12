@@ -137,7 +137,7 @@ node_id Node::getNodeID() const {
 }
 
 
-ptr<ProposalHashDB> Node::getProposalHashDb() {
+ptr<ProposalHashDB> Node::getProposalHashDB() {
     assert(proposalHashDB != nullptr);
     return proposalHashDB;
 }
@@ -211,16 +211,6 @@ ptr<RandomDB> Node::getRandomDB() {
     return randomDB;
 }
 
-ptr<CommittedTransactionDB> Node::getCommittedTransactionDB() const {
-    ASSERT(committedTransactionDB != nullptr);
-    return committedTransactionDB;
-}
-
-ptr<SigDB> Node::getSignatureDB() const {
-    ASSERT(signatureDB != nullptr);
-    return signatureDB;
-}
-
 ptr<PriceDB> Node::getPriceDB() const {
     ASSERT(priceDB != nullptr)
     return priceDB;
@@ -239,16 +229,8 @@ uint64_t Node::getWaitAfterNetworkErrorMs() {
     return waitAfterNetworkErrorMs;
 }
 
-ConsensusEngine *Node::getConsensusEngine() const {
-    return consensusEngine;
-}
-
 uint64_t Node::getEmptyBlockIntervalMs() const {
     return emptyBlockIntervalMs;
-}
-
-uint64_t Node::getBlockProposalHistorySize() const {
-    return blockProposalHistorySize;
 }
 
 uint64_t Node::getMaxCatchupDownloadBytes() const {
@@ -315,18 +297,50 @@ bool Node::isStarted() const {
     return startedServers;
 }
 
-uint64_t Node::getCommitedTxsDbSize() const {
-    return commitedTxsDBSize;
-}
-
-uint64_t Node::getRandomDbSize() const {
+uint64_t Node::getRandomDBSize() const {
     return randomDBSize;
 }
 
-uint64_t Node::getSignatureDbSize() const {
-    return signatureDBSize;
-}
-
-uint64_t Node::getPriceDbSize() const {
+uint64_t Node::getPriceDBSize() const {
     return priceDBSize;
 }
+
+uint64_t Node::getBlockSigShareDBSize() const {
+    return blockSigShareDBSize;
+}
+
+ptr<BlockSigShareDB> Node::getBlockSigShareDB() const {
+    ASSERT(blockSigShareDB != nullptr);
+    return blockSigShareDB;
+}
+
+ptr<DASigShareDB> Node::getDaSigShareDB() const {
+    return daSigShareDB;
+}
+
+
+ptr<DAProofDB> Node::getDaProofDB() const {
+    return daProofDB;
+}
+
+
+uint64_t Node::getDaSigShareDBSize() const {
+    return daSigShareDBSize;
+}
+
+
+uint64_t Node::getDaProofDBSize() const {
+    return daProofDBSize;
+}
+
+
+
+
+ptr<BlockProposalDB>  Node::getBlockProposalDB() const {
+    return blockProposalDB;
+}
+
+uint64_t Node::getBlockProposalDBSize() const {
+    return blockProposalDBSize;
+}
+

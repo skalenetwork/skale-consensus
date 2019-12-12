@@ -29,7 +29,7 @@
 #include "../abstracttcpserver/ConnectionStatus.h"
 #include "../pendingqueue/PendingTransactionsAgent.h"
 #include "../blockproposal/pusher/BlockProposalClientAgent.h"
-#include "../blockproposal/received/ReceivedBlockProposalsDatabase.h"
+#include "../db/BlockProposalDB.h"
 #include "../threads/WorkerThreadPool.h"
 #include "Schain.h"
 #include "SchainMessageThreadPool.h"
@@ -40,6 +40,6 @@ SchainMessageThreadPool::SchainMessageThreadPool(void *params_) : WorkerThreadPo
 }
 
 void SchainMessageThreadPool::createThread(uint64_t /*_threadNumber*/) {
-    threadpool.push_back(new thread(Schain::messageThreadProcessingLoop,
+    threadpool.push_back(make_shared<thread>(Schain::messageThreadProcessingLoop,
                                     reinterpret_cast < Schain * > ( params )));
 }

@@ -32,12 +32,10 @@
 
 
 
-LivelinessMonitor::LivelinessMonitor(MonitoringAgent *_agent, const char *_class, const char *_function,
+LivelinessMonitor::LivelinessMonitor(MonitoringAgent *_agent, const string& _class, const string&  _function,
                                      uint64_t _maxTime) : cl(_class), function(_function), agent(_agent) {
 
     CHECK_ARGUMENT(_agent != nullptr);
-    CHECK_ARGUMENT(_function != nullptr);
-    CHECK_ARGUMENT(_class != nullptr);
 
     startTime = Time::getCurrentTimeMs();
     expiryTime = startTime + _maxTime;
@@ -52,8 +50,8 @@ LivelinessMonitor::~LivelinessMonitor() {
 
 string LivelinessMonitor::toString() {
     return
-    "Node:" + to_string(agent->getSChain()->getNode()->getNodeID()) +
-    ":Thread:" + to_string( (uint64_t) threadId ) + ":" + cl + string("::") + function;
+            "Node:" + to_string(agent->getSchain()->getNode()->getNodeID()) +
+            ":Thread:" + to_string( (uint64_t) threadId ) + ":" + cl + string("::") + function;
 }
 
 uint64_t LivelinessMonitor::getExpiryTime() const {
