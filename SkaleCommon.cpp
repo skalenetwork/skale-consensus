@@ -23,11 +23,14 @@
 
 #include "SkaleCommon.h"
 
+
 #include "Log.h"
 #include "exceptions/FatalError.h"
 
+
 #include "thirdparty/json.hpp"
 #include "crypto/SHAHash.h"
+#include "node/ConsensusEngine.h"
 #include "node/Node.h"
 
 
@@ -37,11 +40,14 @@
     extern "C" void MicroProfileOnThreadCreate( const char* );
 #endif
 
-void setThreadName( std::string const& _n ) {
+void setThreadName( std::string const& _n,  ConsensusEngine* engine) {
 
     string prefix;
 
-    if (Node::nodeIDs.size() > 1) {
+    CHECK_STATE(engine != nullptr);
+
+
+    if (engine->getNodeIDs().size() > 1) {
         prefix = to_string(logThreadLocal_->getNodeID());
     } else {
         prefix = "";

@@ -402,6 +402,4 @@ void Node::exitOnFatalError(const string &_message) {
     LOG(critical, _message);
 }
 
-set<node_id> Node::nodeIDs;
-
 

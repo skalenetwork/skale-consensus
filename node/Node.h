@@ -231,7 +231,7 @@ public:
 
     void initLevelDBs();
     bool isStarted() const;
-    static set<node_id> nodeIDs;
+
 
 
     Node(const nlohmann::json &_cfg, ConsensusEngine *_consensusEngine);
@@ -325,6 +325,7 @@ public:
 
     void setNodeInfo(ptr<NodeInfo> _info);
 
+    ConsensusEngine *getConsensusEngine() const;
 
 
 };

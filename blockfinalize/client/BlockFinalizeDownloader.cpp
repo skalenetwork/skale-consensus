@@ -261,7 +261,7 @@ BlockFinalizeDownloader::readBlockFragment(ptr<ClientSocket> _socket, nlohmann::
 
 void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(BlockFinalizeDownloader *agent, schain_index _dstIndex) {
 
-    setThreadName("BlckFinLoop");
+    setThreadName("BlckFinLoop", agent->getSchain()->getNode()->getConsensusEngine());
 
     uint64_t next = (uint64_t) _dstIndex;
 

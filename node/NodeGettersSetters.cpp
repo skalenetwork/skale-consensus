@@ -344,3 +344,7 @@ uint64_t Node::getBlockProposalDBSize() const {
     return blockProposalDBSize;
 }
 
+ConsensusEngine *Node::getConsensusEngine() const {
+    return consensusEngine;
+}
+

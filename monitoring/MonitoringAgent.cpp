@@ -75,7 +75,7 @@ void MonitoringAgent::monitor() {
 }
 
 void MonitoringAgent::monitoringLoop(MonitoringAgent *agent) {
-    setThreadName("MonitoringLoop");
+    setThreadName("MonitoringLoop", agent->getSchain()->getNode()->getConsensusEngine());
 
 
     LOG(info, "Monitoring agent started monitoring");

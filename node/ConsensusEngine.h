@@ -47,12 +47,6 @@ class ConsensusEngine : public ConsensusInterface {
     map<node_id, ptr<Node>> nodes;
 
     static bool onTravis;
-public:
-    static bool isOnTravis();
-
-    static bool isNoUlimitCheck();
-
-private:
 
     static bool noUlimitCheck;
 
@@ -79,8 +73,13 @@ private:
     string blsPublicKey4;
     string blsPrivateKey;
 
-
+    set<node_id> nodeIDs;
 public:
+   set<node_id> &getNodeIDs();
+
+    static bool isOnTravis();
+
+    static bool isNoUlimitCheck();
 
     node_count nodesCount();
 

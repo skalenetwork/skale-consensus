@@ -164,8 +164,7 @@ void TransportNetwork::broadcastMessage(ptr<NetworkMessage> _m) {
 }
 
 void TransportNetwork::networkReadLoop() {
-    setThreadName("NtwkRdLoop");
-
+    setThreadName("NtwkRdLoop", getSchain()->getNode()->getConsensusEngine());
     waitOnGlobalStartBarrier();
 
     try {
@@ -231,7 +230,7 @@ void TransportNetwork::postOrDefer(
 }
 
 void TransportNetwork::deferredMessagesLoop() {
-    setThreadName("DeferMsgLoop");
+    setThreadName("DeferMsgLoop", getSchain()->getNode()->getConsensusEngine());
 
     auto nodeCount = getSchain()->getNodeCount();
     auto schainIndex = getSchain()->getSchainIndex();

@@ -229,7 +229,7 @@ void ConsensusEngine::parseConfigsAndCreateAllNodes(const fs_path &dirname) {
                 BOOST_THROW_EXCEPTION(FatalError("Junk file found. Remove it: " + itr2->path().string()));
             }
 
-            readNodeConfigFileAndCreateNode(itr2->path(), Node::nodeIDs);
+            readNodeConfigFileAndCreateNode(itr2->path(), nodeIDs);
         };
 
         if (nodes.size() == 0) {
@@ -538,5 +538,9 @@ bool ConsensusEngine::isOnTravis() {
 
 bool ConsensusEngine::isNoUlimitCheck() {
     return noUlimitCheck;
+}
+
+set<node_id> &ConsensusEngine::getNodeIDs() {
+    return nodeIDs;
 }
 
