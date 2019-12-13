@@ -34,6 +34,10 @@ class BlockSignBroadcastMessage;
 class CryptoManager;
 
 
+namespace cache {
+    template<typename key_t, typename value_t> class lru_cache;
+}
+
 class BlockConsensusAgent : public ProtocolInstance {
 
     class Comparator {
@@ -50,11 +54,10 @@ class BlockConsensusAgent : public ProtocolInstance {
 
     map<ptr<ProtocolKey>, ptr<BinConsensusInstance>, Comparator> children;
 
-    map<block_id , set<schain_index>> trueDecisions;;
+    ptr<cache::lru_cache<uint64_t , ptr<set<schain_index>>>> trueDecisions;
+    ptr<cache::lru_cache<uint64_t , ptr<set<schain_index>>>> falseDecisions;
+    ptr<cache::lru_cache<uint64_t , schain_index>> decidedIndices;
 
-    map<block_id , set<schain_index>> falseDecisions;
-
-    map<block_id, schain_index>  decidedBlocks;
 
     void processChildMessageImpl(ptr<InternalMessageEnvelope> _me);
 

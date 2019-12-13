@@ -67,7 +67,7 @@ public:
 
     const block_id getBlockId() const;
 
-    const schain_index getBlockProposerIndex() const ;
+    schain_index getBlockProposerIndex() const ;
 
     schain_id getSchainID() const;
 
