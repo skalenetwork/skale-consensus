@@ -79,7 +79,11 @@ private:
 
     static ptr<map<ptr<ProtocolKey>, ptr<BinConsensusInstance>, Comparator>> globalFalseDecisions;
 
+#ifdef CONSENSUS_DEBUG
+
     static ptr<list<ptr<NetworkMessage>>> msgHistory;
+#endif
+
 
     bin_consensus_value decidedValue;
 
