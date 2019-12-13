@@ -41,9 +41,6 @@ namespace leveldb {
 
 #define LEVELDB_PIECES 4
 
-namespace cache {
-    template<typename key_t, typename value_t> class lru_cache;
-}
 
 
 class CacheLevelDB {

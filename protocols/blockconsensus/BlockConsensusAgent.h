@@ -34,9 +34,7 @@ class BlockSignBroadcastMessage;
 class CryptoManager;
 
 
-namespace cache {
-    template<typename key_t, typename value_t> class lru_cache;
-}
+#include "thirdparty/lrucache.hpp"
 
 class BlockConsensusAgent : public ProtocolInstance {
 

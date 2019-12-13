@@ -33,7 +33,7 @@ class Schain;
 class BooleanProposalVector;
 
 #include "CacheLevelDB.h"
-
+#include "thirdparty/lrucache.hpp"
 
 class BlockProposalDB : public CacheLevelDB {
 
