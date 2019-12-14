@@ -230,7 +230,7 @@ block_id Schain::getBootstrapBlockID() const {
 
 
 void Schain::setHealthCheckFile(uint64_t status) {
-    string fileName = Log::getDataDir()->append("/HEALTH_CHECK");
+    string fileName = ConsensusEngine::getDataDir()->append("/HEALTH_CHECK");
 
 
     ofstream f;

@@ -70,7 +70,7 @@ _engine) {
 
     if (j.find("logLevelConfig") != j.end()) {
         ptr<string> logLevel = make_shared<string>(j.at("logLevelConfig").get<string>());
-        Log::setConfigLogLevel(*logLevel);
+        _engine->setConfigLogLevel(*logLevel);
     }
 
     uint64_t nodeID = j.at("nodeID").get<uint64_t>();
@@ -89,11 +89,16 @@ _engine) {
 
 }
 
-void JSONFactory::createAndAddSChainFromJson(ptr<Node> _node, const fs_path &jsonFile, ConsensusEngine *_engine) {
+void JSONFactory::createAndAddSChainFromJson(ptr<Node> _node, const fs_path &_jsonFile, ConsensusEngine *_engine) {
     try {
 
         nlohmann::json j;
-        parseJsonFile(j, jsonFile);
+
+
+        _engine->logConfig(debug, "Parsing json file: " + _jsonFile.string(), __CLASS_NAME__);
+
+
+        parseJsonFile(j, _jsonFile);
 
         createAndAddSChainFromJsonObject(_node, j, _engine);
 
@@ -141,7 +146,7 @@ void JSONFactory::createAndAddSChainFromJsonObject(ptr<Node> &_node, const nlohm
 
             node_id nodeID((*it)["nodeID"].get<uint64_t>());
 
-            Log::logConfig(trace, to_string(_node->getNodeID()) + ": Adding node:" + to_string(nodeID), __CLASS_NAME__);
+            _engine->logConfig(trace, to_string(_node->getNodeID()) + ": Adding node:" + to_string(nodeID), __CLASS_NAME__);
 
             ptr<string> ip = make_shared<string>((*it).at("ip").get<string>());
 
@@ -168,8 +173,6 @@ void JSONFactory::createAndAddSChainFromJsonObject(ptr<Node> &_node, const nlohm
 
 void JSONFactory::parseJsonFile(nlohmann::json &j, const fs_path &configFile) {
 
-
-    Log::logConfig(debug, "Parsing json file: " + configFile.string(), __CLASS_NAME__);
 
     ifstream f(configFile.c_str());
 

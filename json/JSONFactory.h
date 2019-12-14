@@ -42,7 +42,7 @@ public:
     static ptr<Node> createNodeFromJsonObject(const nlohmann::json &j, set<node_id> &nodeIDs, ConsensusEngine *
     _engine);
 
-    static void createAndAddSChainFromJson(ptr<Node> _node, const fs_path &jsonFile, ConsensusEngine *_engine);
+    static void createAndAddSChainFromJson(ptr<Node> _node, const fs_path &_jsonFile, ConsensusEngine *_engine);
 
     static void createAndAddSChainFromJsonObject(ptr<Node> &_node, const nlohmann::json &j, ConsensusEngine *_engine);
 

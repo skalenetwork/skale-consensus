@@ -35,49 +35,8 @@
 using namespace std;
 
 
-void Log::init() {
-
-    LOCK(m)
 
 
-    spdlog::flush_every(std::chrono::seconds(1));
-
-    logThreadLocal_ = nullptr;
-
-    char *d = std::getenv("DATA_DIR");
-
-    if (d != nullptr) {
-        dataDir = make_shared<string>(d);
-        cerr << "Found data dir:" << *dataDir << endl;
-        logFileNamePrefix = make_shared<string>(*dataDir + "/skaled.log");
-        rotatingFileSync = make_shared<spdlog::sinks::rotating_file_sink_mt>(*logFileNamePrefix, 10 * 1024 * 1024, 5);
-    } else {
-        dataDir = make_shared<string>("/tmp");
-        logFileNamePrefix = nullptr;
-        rotatingFileSync = nullptr;
-    }
-
-    configLogger = createLogger("config");
-
-    inited = true;
-}
-
-shared_ptr<spdlog::logger> Log::createLogger(const string &loggerName) {
-    shared_ptr<spdlog::logger> logger = spdlog::get(loggerName);
-
-    if (!logger) {
-        if (logFileNamePrefix != nullptr) {
-            logger = make_shared<spdlog::logger>(loggerName, rotatingFileSync);
-            logger->flush_on(info);
-        } else {
-            logger = spdlog::stdout_color_mt(loggerName);
-        }
-    }
-
-    assert(logger);
-
-    return logger;
-}
 
 void Log::setGlobalLogLevel(string &_s) {
     globalLogLevel = logLevelFromString(_s);
@@ -86,14 +45,9 @@ void Log::setGlobalLogLevel(string &_s) {
         item.second->set_level(globalLogLevel);
     }
 
-    Log::setConfigLogLevel(_s);
+    ConsensusEngine::setConfigLogLevel(_s);
 }
 
-void Log::setConfigLogLevel(string &_s) {
-    auto configLogLevel = logLevelFromString(_s);
-
-    Log::configLogger->set_level(configLogLevel);
-}
 
 
 level_enum Log::logLevelFromString(string &_s) {
@@ -133,68 +87,42 @@ shared_ptr<spdlog::logger> Log::loggerForClass(const char *_s) {
     return loggers[key];
 }
 
-Log::Log(node_id _nodeID) {
+Log::Log(node_id _nodeID, ConsensusEngine* _engine) {
+
+    CHECK_STATE(_engine);
+
     nodeID = _nodeID;
 
     prefix = make_shared<string>(to_string(_nodeID) + ":");
 
-    mainLogger = createLogger(*prefix + "main");
+
+    if (_engine->getEngineID() > 1) {
+        prefix = make_shared<string>(to_string(_engine->getEngineID()) + ":" + to_string(_nodeID) + ":");
+    } else {
+        prefix = make_shared<string>(to_string(_nodeID) + ":");
+    }
+
+    mainLogger = _engine->createLogger(*prefix + "main");
     loggers["Main"] = mainLogger;
-    proposalLogger = createLogger(*prefix + "proposal");
+    proposalLogger = _engine->createLogger(*prefix + "proposal");
     loggers["Proposal"] = proposalLogger;
-    catchupLogger = createLogger(*prefix + "catchup");
+    catchupLogger = _engine->createLogger(*prefix + "catchup");
     loggers["Catchup"] = catchupLogger;
-    consensusLogger = createLogger(*prefix + "consensus");
+    consensusLogger = _engine->createLogger(*prefix + "consensus");
     loggers["Consensus"] = consensusLogger;
-    netLogger = createLogger(*prefix + "net");
+    netLogger = _engine->createLogger(*prefix + "net");
     loggers["Net"] = netLogger;
-    dataStructuresLogger = createLogger(*prefix + "datastructures");
+    dataStructuresLogger = _engine->createLogger(*prefix + "datastructures");
     loggers["Datastructures"] = dataStructuresLogger;
-    pendingQueueLogger = createLogger(*prefix + "pending");
+    pendingQueueLogger = _engine->createLogger(*prefix + "pending");
     loggers["Pending"] = pendingQueueLogger;
 }
 
-
-void Log::logConfig(level_enum _severity, const string &_message, const string &_className) {
-    assert(inited);
-    assert(configLogger != nullptr);
-    configLogger->log(_severity, _className + ": " + _message);
-}
-
-void Log::log(level_enum _severity, const string &_message, const string &_className) {
-    if (logThreadLocal_ == nullptr) {
-
-        assert(inited);
-        assert(configLogger != nullptr);
-
-        configLogger->log(_severity, _message);
-    } else {
-        logThreadLocal_->loggerForClass(_className.c_str())->log(_severity, _message);
-    }
-}
 
 
 const node_id Log::getNodeID() const {
     return nodeID;
 }
 
-const shared_ptr<string> Log::getDataDir() {
-    ASSERT(dataDir);
-    return dataDir;
-}
 
 
-ptr<spdlog::logger> Log::configLogger = nullptr;
-
-
-ptr<spdlog::sinks::sink> Log::rotatingFileSync = nullptr;
-
-
-ptr<string> Log::logFileNamePrefix = nullptr;
-
-
-ptr<string> Log::dataDir = nullptr;
-
-recursive_mutex Log::m;
-
-bool Log::inited = false;

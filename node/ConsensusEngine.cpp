@@ -70,6 +70,11 @@
 
 #include <boost/multiprecision/cpp_int.hpp>
 
+
+#include "spdlog/sinks/rotating_file_sink.h"
+#include "spdlog/sinks/stdout_color_sinks.h"
+#include "spdlog/spdlog.h"
+
 #include "chains/Schain.h"
 #include "libBLS/bls/BLSSignature.h"
 #include "libBLS/bls/BLSPublicKey.h"
@@ -83,11 +88,115 @@
 #include "protocols/ProtocolKey.h"
 #include "protocols/binconsensus/BinConsensusInstance.h"
 
+
 #include "exceptions/FatalError.h"
 
 #include "ConsensusEngine.h"
 
 using namespace boost::filesystem;
+
+
+shared_ptr<spdlog::logger> ConsensusEngine::configLogger = nullptr;
+
+shared_ptr<string> ConsensusEngine::dataDir = nullptr;
+
+recursive_mutex  ConsensusEngine::logMutex;
+
+atomic<uint64_t> ConsensusEngine::engineCounter;
+
+
+void ConsensusEngine::logInit() {
+
+
+    engineID = ++engineCounter;
+
+    LOCK(logMutex)
+
+
+    spdlog::flush_every(std::chrono::seconds(1));
+
+    logThreadLocal_ = nullptr;
+
+
+    if (dataDir == nullptr) {
+
+        char *d = std::getenv("DATA_DIR");
+
+        if (d != nullptr) {
+            dataDir = make_shared<string>(d);
+            cerr << "Found data dir:" << *dataDir << endl;
+        }
+    }
+
+    string logFileName;
+    if (engineID > 1) {
+        logFileName = "skaled." + to_string(engineID) + ".log";
+    } else {
+        logFileName = "skaled.log";
+    }
+
+
+    if (dataDir != nullptr) {
+
+        logFileNamePrefix = make_shared<string>(*dataDir + "/" + logFileName);
+        logRotatingFileSync = make_shared<spdlog::sinks::rotating_file_sink_mt>(*logFileNamePrefix,
+                                                                                10 * 1024 * 1024, 5);
+    } else {
+        dataDir = make_shared<string>("/tmp");
+        logFileNamePrefix = nullptr;
+        logRotatingFileSync = nullptr;
+    }
+
+
+    configLogger = createLogger("config");
+}
+
+
+
+
+const shared_ptr<string> ConsensusEngine::getDataDir() {
+    CHECK_STATE(dataDir);
+    return dataDir;
+}
+
+
+shared_ptr<spdlog::logger> ConsensusEngine::createLogger(const string &loggerName) {
+    shared_ptr<spdlog::logger> logger = spdlog::get(loggerName);
+
+    if (!logger) {
+        if (logFileNamePrefix != nullptr) {
+            logger = make_shared<spdlog::logger>(loggerName, logRotatingFileSync);
+            logger->flush_on(info);
+        } else {
+            logger = spdlog::stdout_color_mt(loggerName);
+        }
+    }
+
+    CHECK_STATE(logger);
+
+    return logger;
+}
+
+
+void ConsensusEngine::setConfigLogLevel(string &_s) {
+    auto configLogLevel = Log::logLevelFromString(_s);
+    CHECK_STATE(configLogger != nullptr);
+    configLogger->set_level(configLogLevel);
+}
+
+void ConsensusEngine::logConfig(level_enum _severity, const string &_message, const string &_className) {
+    CHECK_STATE(configLogger != nullptr);
+    configLogger->log(_severity, _className + ": " + _message);
+}
+
+void ConsensusEngine::log(level_enum _severity, const string &_message, const string &_className) {
+    if (logThreadLocal_ == nullptr) {
+        CHECK_STATE(configLogger != nullptr);
+        configLogger->log(_severity, _message);
+    } else {
+        logThreadLocal_->loggerForClass(_className.c_str())->log(_severity, _message);
+    }
+}
 
 
 void ConsensusEngine::parseFullConfigAndCreateNode(const string &configFileContents) {
@@ -217,7 +326,6 @@ void ConsensusEngine::parseConfigsAndCreateAllNodes(const fs_path &dirname) {
             if (!is_directory(itr->path())) {
                 BOOST_THROW_EXCEPTION(FatalError("Junk file found. Remove it: " + itr->path().string()));
             }
-
             nodeCount++;
         };
 
@@ -330,7 +438,7 @@ ConsensusEngine::ConsensusEngine() : exitRequested(false) {
     try {
         signal(SIGPIPE, SIG_IGN);
         libff::init_alt_bn128_params();
-        Log::init();
+        logInit();
         init();
     } catch (exception &e) {
         Exception::logNested(e);
@@ -401,8 +509,7 @@ ConsensusEngine::ConsensusEngine(ConsensusExtFace &_extFace, uint64_t _lastCommi
                                                                  blsPublicKey4(_blsPublicKey4),
                                                                  blsPrivateKey(_blsPrivateKey) {
 
-
-    Log::init();
+    logInit();
 
 
     libff::init_alt_bn128_params();
@@ -542,5 +649,9 @@ bool ConsensusEngine::isNoUlimitCheck() {
 
 set<node_id> &ConsensusEngine::getNodeIDs() {
     return nodeIDs;
+}
+
+uint64_t ConsensusEngine::getEngineID() const {
+    return engineID;
 }
 
