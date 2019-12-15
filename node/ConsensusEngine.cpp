@@ -84,7 +84,6 @@
 #include "network/Sockets.h"
 #include "network/Utils.h"
 #include "network/ZMQServerSocket.h"
-#include "protocols/InstanceGarbageCollectorAgent.h"
 #include "protocols/ProtocolKey.h"
 #include "protocols/binconsensus/BinConsensusInstance.h"
 

@@ -30,7 +30,6 @@
 #include "chains/SchainTest.h"
 
 #include "chains/Schain.h"
-#include "protocols/InstanceGarbageCollectorAgent.h"
 
 #include "node/NodeInfo.h"
 #include "node/Node.h"

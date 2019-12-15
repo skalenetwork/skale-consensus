@@ -51,7 +51,6 @@
 #include "catchup/server/CatchupServerAgent.h"
 #include "exceptions/FatalError.h"
 #include "messages/Message.h"
-#include "protocols/InstanceGarbageCollectorAgent.h"
 #include "db/BlockDB.h"
 #include "db/DASigShareDB.h"
 #include "db/DAProofDB.h"
