@@ -29,8 +29,8 @@ class BlockProposalPusherThreadPool : public WorkerThreadPool {
 
 public:
 
-    BlockProposalPusherThreadPool(num_threads numThreads, void *params_);
+    BlockProposalPusherThreadPool(num_threads _numThreads, Agent *_agent);
 
-    void createThread(uint64_t number);
+    void createThread(uint64_t _number);
 
 };

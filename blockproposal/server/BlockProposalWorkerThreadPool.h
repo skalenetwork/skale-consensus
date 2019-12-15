@@ -36,9 +36,9 @@ class BlockProposalWorkerThreadPool : public WorkerThreadPool {
 
 public:
 
-    BlockProposalWorkerThreadPool(num_threads numThreads, void *params_);
+    BlockProposalWorkerThreadPool(num_threads _numThreads, Agent* _agent);
 
-    virtual void createThread(uint64_t threadNumber);
+    virtual void createThread(uint64_t _threadNumber);
 };
 
 

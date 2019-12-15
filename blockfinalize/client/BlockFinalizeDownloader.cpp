@@ -84,7 +84,7 @@
 
 
 BlockFinalizeDownloader::BlockFinalizeDownloader(Schain *_sChain, block_id _blockId, schain_index _proposerIndex)
-        : sChain(_sChain),
+        : Agent(*_sChain, false, true),
           blockId(_blockId),
           proposerIndex(_proposerIndex),
           fragmentList(_blockId, (uint64_t) _sChain->getNodeCount() - 1) {
@@ -312,7 +312,7 @@ ptr<BlockProposal> BlockFinalizeDownloader::downloadProposal() {
     {
         MONITOR(__CLASS_NAME__, "Parallel download");
 
-        this->threadPool = new BlockFinalizeDownloaderThreadPool((uint64_t) getSchain()->getNodeCount(), this);
+        threadPool = make_shared<BlockFinalizeDownloaderThreadPool>((uint64_t) getSchain()->getNodeCount(), this);
         threadPool->startService();
         threadPool->joinAll();
 
@@ -332,14 +332,10 @@ ptr<BlockProposal> BlockFinalizeDownloader::downloadProposal() {
     }
 }
 
-Schain *BlockFinalizeDownloader::getSchain() const {
-    CHECK_STATE(sChain != nullptr);
-    return sChain;
-}
+
 
 BlockFinalizeDownloader::~BlockFinalizeDownloader() {
-    assert(threadPool->isJoined());
-    delete threadPool;
+
 }
 
 

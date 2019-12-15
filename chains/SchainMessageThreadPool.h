@@ -34,7 +34,7 @@ class WorkerThreadPool;
 class SchainMessageThreadPool : public WorkerThreadPool {
 public:
 
-    SchainMessageThreadPool(void *params_);
+    SchainMessageThreadPool(Agent *_agent);
 
     virtual void createThread(uint64_t _numThreads);
 };

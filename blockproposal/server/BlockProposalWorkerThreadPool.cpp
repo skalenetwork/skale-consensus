@@ -34,9 +34,8 @@
 #include "BlockProposalWorkerThreadPool.h"
 
 
-BlockProposalWorkerThreadPool::BlockProposalWorkerThreadPool(num_threads numThreads, void *params_) : WorkerThreadPool(numThreads, params_) {
-
-    ASSERT(numThreads > 0);
+BlockProposalWorkerThreadPool::BlockProposalWorkerThreadPool(num_threads _numThreads, Agent *_agent) : WorkerThreadPool(
+        _numThreads, _agent, false) {
 
 }
 
@@ -44,5 +43,5 @@ BlockProposalWorkerThreadPool::BlockProposalWorkerThreadPool(num_threads numThre
 void BlockProposalWorkerThreadPool::createThread(uint64_t /*threadNumber*/) {
 
     this->threadpool.push_back(make_shared<thread>(AbstractServerAgent::workerThreadConnectionProcessingLoop,
-                                                   (BlockProposalServerAgent*)params));
+                                                   (BlockProposalServerAgent *) agent));
 }

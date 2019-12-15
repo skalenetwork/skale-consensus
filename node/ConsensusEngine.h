@@ -53,10 +53,13 @@ extern thread_local ptr<Log> logThreadLocal_;
 using namespace spdlog::level;
 
 
+class GlobalThreadRegistry;
 
 
 class ConsensusEngine : public ConsensusInterface {
 
+
+    ptr<GlobalThreadRegistry> threadRegistry;
 
     uint64_t engineID;
 
@@ -200,4 +203,6 @@ public:
     u256 getPriceForBlockId(uint64_t _blockId) const override;
 
     void systemHealthCheck();
+
+    const ptr<GlobalThreadRegistry> &getThreadRegistry() const;
 };

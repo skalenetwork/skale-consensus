@@ -60,9 +60,7 @@ class BlockProposalSet;
 
 #include "datastructures/BlockProposalFragmentList.h"
 
-class BlockFinalizeDownloader {
-
-    Schain* sChain;
+class BlockFinalizeDownloader : public Agent {
 
     block_id blockId;
 
@@ -75,10 +73,9 @@ public:
 
 
 
-    Schain *getSchain() const;
     atomic< uint64_t > threadCounter;
 
-    BlockFinalizeDownloaderThreadPool* threadPool = nullptr;
+    ptr<BlockFinalizeDownloaderThreadPool> threadPool = nullptr;
 
     BlockFinalizeDownloader(Schain *_sChain, block_id _blockId, schain_index _proposerIndex);
 

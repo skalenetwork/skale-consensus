@@ -31,9 +31,10 @@
 #include "CatchupServerAgent.h"
 
 
-CatchupWorkerThreadPool::CatchupWorkerThreadPool(num_threads numThreads, void *params_) : WorkerThreadPool(numThreads, params_) {
+CatchupWorkerThreadPool::CatchupWorkerThreadPool(
+        num_threads _numThreads, Agent *_agent) :
+        WorkerThreadPool(_numThreads, _agent, false) {
 
-    ASSERT(numThreads > 0);
 
 }
 
@@ -41,5 +42,5 @@ CatchupWorkerThreadPool::CatchupWorkerThreadPool(num_threads numThreads, void *p
 void CatchupWorkerThreadPool::createThread(uint64_t /*threadNumber*/) {
 
     this->threadpool.push_back(make_shared<thread>(AbstractServerAgent::workerThreadConnectionProcessingLoop,
-                                                   (CatchupServerAgent*)params));
+                                                   (CatchupServerAgent*)agent));
 }

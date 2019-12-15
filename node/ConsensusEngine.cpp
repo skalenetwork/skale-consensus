@@ -434,17 +434,7 @@ node_count ConsensusEngine::nodesCount() {
 }
 
 
-ConsensusEngine::ConsensusEngine() : exitRequested(false) {
-    try {
-        signal(SIGPIPE, SIG_IGN);
-        libff::init_alt_bn128_params();
-        logInit();
-        init();
-    } catch (exception &e) {
-        Exception::logNested(e);
-        throw_with_nested(EngineInitException("Engine construction failed", __CLASS_NAME__));
-    }
-}
+
 
 std::string ConsensusEngine::exec(const char *cmd) {
     std::array<char, 128> buffer;
@@ -485,6 +475,14 @@ void ConsensusEngine::systemHealthCheck() {
 
 void ConsensusEngine::init() {
 
+
+    libff::init_alt_bn128_params();
+
+
+    threadRegistry = make_shared<GlobalThreadRegistry>();
+    logInit();
+
+
     sigset_t sigpipe_mask;
     sigemptyset(&sigpipe_mask);
     sigaddset(&sigpipe_mask, SIGPIPE);
@@ -498,6 +496,15 @@ void ConsensusEngine::init() {
 }
 
 
+ConsensusEngine::ConsensusEngine() : exitRequested(false) {
+    try {
+        init();
+    } catch (exception &e) {
+        Exception::logNested(e);
+        throw_with_nested(EngineInitException("Engine construction failed", __CLASS_NAME__));
+    }
+}
+
 ConsensusEngine::ConsensusEngine(ConsensusExtFace &_extFace, uint64_t _lastCommittedBlockID,
                                  uint64_t _lastCommittedBlockTimeStamp, const string &_blsPrivateKey,
                                  const string &_blsPublicKey1, const string &_blsPublicKey2,
@@ -509,12 +516,10 @@ ConsensusEngine::ConsensusEngine(ConsensusExtFace &_extFace, uint64_t _lastCommi
                                                                  blsPublicKey4(_blsPublicKey4),
                                                                  blsPrivateKey(_blsPrivateKey) {
 
-    logInit();
-
-
-    libff::init_alt_bn128_params();
 
     try {
+
+        init();
 
         ASSERT(_lastCommittedBlockTimeStamp < (uint64_t) 2 * MODERN_TIME);
 
@@ -528,13 +533,15 @@ ConsensusEngine::ConsensusEngine(ConsensusExtFace &_extFace, uint64_t _lastCommi
 
         lastCommittedBlockTimeStamp = _lastCommittedBlockTimeStamp;
 
-        init();
-
     } catch (exception &e) {
         Exception::logNested(e);
         throw_with_nested(EngineInitException("Engine construction failed", __CLASS_NAME__));
     }
 };
+
+
+
+
 
 
 ConsensusExtFace *ConsensusEngine::getExtFace() const {
@@ -558,7 +565,7 @@ void ConsensusEngine::exitGracefully() {
         }
 
 
-        GlobalThreadRegistry::joinAll();
+        threadRegistry->joinAll();
 
 
         for (auto const it : nodes) {
@@ -653,5 +660,9 @@ set<node_id> &ConsensusEngine::getNodeIDs() {
 
 uint64_t ConsensusEngine::getEngineID() const {
     return engineID;
+}
+
+const ptr<GlobalThreadRegistry> &ConsensusEngine::getThreadRegistry() const {
+    return threadRegistry;
 }
 

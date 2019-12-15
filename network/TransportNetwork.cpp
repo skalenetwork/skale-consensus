@@ -270,8 +270,10 @@ void TransportNetwork::startThreads() {
     deferredMessageThread =
             make_shared<thread>(std::bind(&TransportNetwork::deferredMessagesLoop, this));
 
-    GlobalThreadRegistry::add(networkReadThread);
-    GlobalThreadRegistry::add(deferredMessageThread);
+    auto reg = getSchain()->getNode()->getConsensusEngine()->getThreadRegistry();
+
+    reg->add(networkReadThread);
+    reg->add(deferredMessageThread);
 }
 
 bool TransportNetwork::validateIpAddress(ptr<string> &ip) {

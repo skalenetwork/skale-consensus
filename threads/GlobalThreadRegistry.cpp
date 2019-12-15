@@ -29,11 +29,6 @@
 #include "GlobalThreadRegistry.h"
 
 
-vector<ptr<thread>> GlobalThreadRegistry::allThreads;
-
-recursive_mutex GlobalThreadRegistry::m;
-bool GlobalThreadRegistry::joined = false;
-
 void GlobalThreadRegistry::joinAll() {
 
     if (joined)
