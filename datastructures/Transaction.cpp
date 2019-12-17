@@ -29,13 +29,13 @@
 
 
 
-#include "../thirdparty/catch.hpp"
+#include "thirdparty/catch.hpp"
 
 
-#include "../SkaleCommon.h"
-#include "../Log.h"
-#include "../chains/Schain.h"
-#include "../crypto/SHAHash.h"
+#include "SkaleCommon.h"
+#include "Log.h"
+#include "chains/Schain.h"
+#include "crypto/SHAHash.h"
 
 
 

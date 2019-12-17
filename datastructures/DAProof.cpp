@@ -25,10 +25,10 @@
 #include <boost/iostreams/stream.hpp>
 
 
-#include "../Log.h"
-#include "../SkaleCommon.h"
-#include "../thirdparty/json.hpp"
-#include "../exceptions/InvalidStateException.h"
+#include "Log.h"
+#include "SkaleCommon.h"
+#include "thirdparty/json.hpp"
+#include "exceptions/InvalidStateException.h"
 #include "BlockProposal.h"
 #include "DAProof.h"
 

@@ -21,8 +21,8 @@
     @date 2019
 */
 
-#include "../SkaleCommon.h"
-#include "../node/ConsensusEngine.h"
+#include "SkaleCommon.h"
+#include "node/ConsensusEngine.h"
 #include "ZeroPricingStrategy.h"
 
 u256 ZeroPricingStrategy::calculatePrice(u256,

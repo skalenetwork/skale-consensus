@@ -22,22 +22,22 @@
 */
 
 
-#include "../../SkaleCommon.h"
-#include "../../Log.h"
-#include "../../thirdparty/json.hpp"
+#include "SkaleCommon.h"
+#include "Log.h"
+#include "thirdparty/json.hpp"
 
 
-#include "../../Agent.h"
+#include "Agent.h"
 
-#include "../../chains/Schain.h"
-#include "../../node/Node.h"
-#include "../../exceptions/FatalError.h"
+#include "chains/Schain.h"
+#include "node/Node.h"
+#include "exceptions/FatalError.h"
 
 
-#include "../../abstracttcpserver/ConnectionStatus.h"
-#include "../../network/ServerConnection.h"
+#include "abstracttcpserver/ConnectionStatus.h"
+#include "network/ServerConnection.h"
 
-#include "../../thirdparty/json.hpp"
+#include "thirdparty/json.hpp"
 
 #include "BlockFinalizeDownloader.h"
 #include "BlockFinalizeDownloaderThreadPool.h"

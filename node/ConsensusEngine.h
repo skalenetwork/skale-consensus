@@ -24,11 +24,11 @@
 #pragma once
 
 
-#include "../SkaleCommon.h"
+#include "SkaleCommon.h"
 #include "boost/filesystem.hpp"
-#include "../Agent.h"
-#include "../thirdparty/json.hpp"
-#include "../threads/WorkerThreadPool.h"
+#include "Agent.h"
+#include "thirdparty/json.hpp"
+#include "threads/WorkerThreadPool.h"
 #include "ConsensusInterface.h"
 #include "Node.h"
 

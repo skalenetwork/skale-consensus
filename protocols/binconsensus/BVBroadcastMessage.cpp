@@ -21,15 +21,15 @@
     @date 2018
 */
 
-#include "../../SkaleCommon.h"
-#include "../../Log.h"
-#include "../../exceptions/FatalError.h"
+#include "SkaleCommon.h"
+#include "Log.h"
+#include "exceptions/FatalError.h"
 
-#include "../../messages/NetworkMessage.h"
+#include "messages/NetworkMessage.h"
 
-#include "../../chains/Schain.h"
-#include "../ProtocolKey.h"
-#include "../ProtocolInstance.h"
+#include "chains/Schain.h"
+#include "protocols/ProtocolKey.h"
+#include "protocols/ProtocolInstance.h"
 #include "BinConsensusInstance.h"
 
 #include "BVBroadcastMessage.h"

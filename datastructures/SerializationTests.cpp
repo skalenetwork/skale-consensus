@@ -31,9 +31,9 @@
 
 
 
-#include "../SkaleCommon.h"
-#include "../exceptions/ParsingException.h"
-#include "../crypto/CryptoManager.h"
+#include "SkaleCommon.h"
+#include "exceptions/ParsingException.h"
+#include "crypto/CryptoManager.h"
 
 #include "CommittedBlock.h"
 #include "CommittedBlockList.h"
@@ -53,7 +53,7 @@
 #include <boost/random/uniform_int_distribution.hpp>
 
 
-#include "../thirdparty/catch.hpp"
+#include "thirdparty/catch.hpp"
 
 #include "Transaction.h"
 

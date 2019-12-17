@@ -22,7 +22,7 @@
     @date 2019
 */
 
-#include "../SkaleCommon.h"
+#include "SkaleCommon.h"
 
 #include "ThresholdSigShareSet.h"
 

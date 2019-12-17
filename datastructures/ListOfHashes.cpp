@@ -2,9 +2,9 @@
 // Created by skale on 10/20/19.
 //
 
-#include "../SkaleCommon.h"
-#include "../Log.h"
-#include "../crypto/SHAHash.h"
+#include "SkaleCommon.h"
+#include "Log.h"
+#include "crypto/SHAHash.h"
 #include "ListOfHashes.h"
 
 

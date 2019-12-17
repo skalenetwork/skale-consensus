@@ -22,54 +22,54 @@
 */
 
 #include <leveldb/options.h>
-#include "../../SkaleCommon.h"
-#include "../../Log.h"
+#include "SkaleCommon.h"
+#include "Log.h"
 
 #include "leveldb/db.h"
 
-#include "../../crypto/SHAHash.h"
+#include "crypto/SHAHash.h"
 
-#include "../../exceptions/FatalError.h"
-#include "../../exceptions/ExitRequestedException.h"
-#include "../../exceptions/PingException.h"
-#include "../../exceptions/InvalidMessageFormatException.h"
-#include "../../node/ConsensusEngine.h"
-#include "../../thirdparty/json.hpp"
+#include "exceptions/FatalError.h"
+#include "exceptions/ExitRequestedException.h"
+#include "exceptions/PingException.h"
+#include "exceptions/InvalidMessageFormatException.h"
+#include "node/ConsensusEngine.h"
+#include "thirdparty/json.hpp"
 
-#include "../monitoring/LivelinessMonitor.h"
-
-
-#include "../../node/NodeInfo.h"
+#include "monitoring/LivelinessMonitor.h"
 
 
-#include "../../db/BlockDB.h"
-#include "../../db/DAProofDB.h"
-
-#include "../../abstracttcpserver/ConnectionStatus.h"
-
-#include "../../exceptions/OldBlockIDException.h"
-#include "../../exceptions/InvalidSchainException.h"
-#include "../../exceptions/InvalidSourceIPException.h"
-#include "../../exceptions/InvalidNodeIDException.h"
-#include "../../exceptions/InvalidSchainIndexException.h"
-#include "../../exceptions/CouldNotSendMessageException.h"
+#include "node/NodeInfo.h"
 
 
-#include "../../pendingqueue/PendingTransactionsAgent.h"
+#include "db/BlockDB.h"
+#include "db/DAProofDB.h"
 
-#include "../../chains/Schain.h"
-#include "../../network/TransportNetwork.h"
-#include "../../network/Sockets.h"
-#include "../../network/ServerConnection.h"
-#include "../../network/IO.h"
-#include "../../headers/CatchupRequestHeader.h"
-#include "../../headers/BlockProposalHeader.h"
-#include "../../headers/CatchupResponseHeader.h"
-#include "../../headers/BlockFinalizeResponseHeader.h"
+#include "abstracttcpserver/ConnectionStatus.h"
 
-#include "../../datastructures/CommittedBlock.h"
-#include "../../datastructures/CommittedBlockList.h"
-#include "../../datastructures/BlockProposalFragment.h"
+#include "exceptions/OldBlockIDException.h"
+#include "exceptions/InvalidSchainException.h"
+#include "exceptions/InvalidSourceIPException.h"
+#include "exceptions/InvalidNodeIDException.h"
+#include "exceptions/InvalidSchainIndexException.h"
+#include "exceptions/CouldNotSendMessageException.h"
+
+
+#include "pendingqueue/PendingTransactionsAgent.h"
+
+#include "chains/Schain.h"
+#include "network/TransportNetwork.h"
+#include "network/Sockets.h"
+#include "network/ServerConnection.h"
+#include "network/IO.h"
+#include "headers/CatchupRequestHeader.h"
+#include "headers/BlockProposalHeader.h"
+#include "headers/CatchupResponseHeader.h"
+#include "headers/BlockFinalizeResponseHeader.h"
+
+#include "datastructures/CommittedBlock.h"
+#include "datastructures/CommittedBlockList.h"
+#include "datastructures/BlockProposalFragment.h"
 #include "CatchupServerAgent.h"
 
 

@@ -21,16 +21,16 @@
     @date 2018
 */
 
-#include "../SkaleCommon.h"
-#include "../Log.h"
-#include "../exceptions/FatalError.h"
+#include "SkaleCommon.h"
+#include "Log.h"
+#include "exceptions/FatalError.h"
 
-#include "../thirdparty/json.hpp"
-#include "../abstracttcpserver/ConnectionStatus.h"
-#include "../pendingqueue/PendingTransactionsAgent.h"
-#include "../blockproposal/pusher/BlockProposalClientAgent.h"
-#include "../db/BlockProposalDB.h"
-#include "../threads/WorkerThreadPool.h"
+#include "thirdparty/json.hpp"
+#include "abstracttcpserver/ConnectionStatus.h"
+#include "pendingqueue/PendingTransactionsAgent.h"
+#include "blockproposal/pusher/BlockProposalClientAgent.h"
+#include "db/BlockProposalDB.h"
+#include "threads/WorkerThreadPool.h"
 #include "Schain.h"
 #include "SchainMessageThreadPool.h"
 

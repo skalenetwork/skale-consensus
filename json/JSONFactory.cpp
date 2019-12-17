@@ -21,24 +21,24 @@
     @date 2018
 */
 
-#include "../SkaleCommon.h"
-#include "../Log.h"
-#include "../exceptions/FatalError.h"
-#include "../thirdparty/json.hpp"
+#include "SkaleCommon.h"
+#include "Log.h"
+#include "exceptions/FatalError.h"
+#include "thirdparty/json.hpp"
 
-#include "../network/TransportNetwork.h"
-#include "../chains/SchainTest.h"
+#include "network/TransportNetwork.h"
+#include "chains/SchainTest.h"
 
-#include "../chains/Schain.h"
-#include "../protocols/InstanceGarbageCollectorAgent.h"
+#include "chains/Schain.h"
+#include "protocols/InstanceGarbageCollectorAgent.h"
 
-#include "../node/NodeInfo.h"
-#include "../node/Node.h"
-#include "../node/ConsensusEngine.h"
-#include "../network/Sockets.h"
-#include "../Log.h"
-#include "../exceptions/ParsingException.h"
-#include "../exceptions/FatalError.h"
+#include "node/NodeInfo.h"
+#include "node/Node.h"
+#include "node/ConsensusEngine.h"
+#include "network/Sockets.h"
+#include "Log.h"
+#include "exceptions/ParsingException.h"
+#include "exceptions/FatalError.h"
 
 #include "JSONFactory.h"
 

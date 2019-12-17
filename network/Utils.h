@@ -24,7 +24,7 @@
 #pragma  once
 
 #include <stdint.h>
-#include "../abstracttcpserver/ConnectionStatus.h"
+#include "abstracttcpserver/ConnectionStatus.h"
 
 class Utils {
 

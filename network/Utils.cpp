@@ -21,16 +21,16 @@
     @date 2018
 */
 
-#include "../SkaleCommon.h"
-#include "../Log.h"
-#include "../thirdparty/json.hpp"
-#include "../crypto/SHAHash.h"
-#include "../network/Utils.h"
-#include "../headers/Header.h"
-#include "../thirdparty/json.hpp"
-#include "../exceptions/FatalError.h"
+#include "SkaleCommon.h"
+#include "Log.h"
+#include "thirdparty/json.hpp"
+#include "crypto/SHAHash.h"
+#include "network/Utils.h"
+#include "headers/Header.h"
+#include "thirdparty/json.hpp"
+#include "exceptions/FatalError.h"
 #include "Utils.h"
-#include "../exceptions/InvalidArgumentException.h"
+#include "exceptions/InvalidArgumentException.h"
 
 void Utils::checkTime() {
 

@@ -21,15 +21,15 @@
     @date 2018
 */
 
-#include "../../SkaleCommon.h"
-#include "../../Agent.h"
-#include "../../Log.h"
+#include "SkaleCommon.h"
+#include "Agent.h"
+#include "Log.h"
 
-#include "../../thirdparty/json.hpp"
-#include "../../abstracttcpserver/AbstractServerAgent.h"
-#include "../../exceptions/FatalError.h"
+#include "thirdparty/json.hpp"
+#include "abstracttcpserver/AbstractServerAgent.h"
+#include "exceptions/FatalError.h"
 
-#include "../../threads/WorkerThreadPool.h"
+#include "threads/WorkerThreadPool.h"
 #include "BlockProposalServerAgent.h"
 #include "BlockProposalWorkerThreadPool.h"
 

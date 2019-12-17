@@ -30,16 +30,16 @@
 #include <mutex>
 #include <queue>
 #include <condition_variable>
-#include "../../abstracttcpserver/ConnectionStatus.h"
-#include "../../abstracttcpserver/AbstractServerAgent.h"
+#include "abstracttcpserver/ConnectionStatus.h"
+#include "abstracttcpserver/AbstractServerAgent.h"
 
-#include "../../headers/Header.h"
-#include "../../network/ServerConnection.h"
-#include "../../datastructures/PartialHashesList.h"
-#include "../../headers/Header.h"
+#include "headers/Header.h"
+#include "network/ServerConnection.h"
+#include "datastructures/PartialHashesList.h"
+#include "headers/Header.h"
 
 #include "CatchupWorkerThreadPool.h"
-#include "../../Agent.h"
+#include "Agent.h"
 
 class CommittedBlock;
 class CommittedBlockList;

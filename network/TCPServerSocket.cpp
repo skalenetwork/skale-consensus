@@ -21,11 +21,11 @@
     @date 2018
 */
 
-#include "../SkaleCommon.h"
-#include "../Log.h"
-#include "../exceptions/FatalError.h"
+#include "SkaleCommon.h"
+#include "Log.h"
+#include "exceptions/FatalError.h"
 
-#include "../exceptions/FatalError.h"
+#include "exceptions/FatalError.h"
 #include <boost/asio.hpp>
 #include "TCPServerSocket.h"
 

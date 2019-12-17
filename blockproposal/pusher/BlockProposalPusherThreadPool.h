@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include "../../threads/WorkerThreadPool.h"
+#include "threads/WorkerThreadPool.h"
 
 class BlockProposalPusherThreadPool : public WorkerThreadPool {
 

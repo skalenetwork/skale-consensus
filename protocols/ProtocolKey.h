@@ -26,7 +26,7 @@
 class NetworkMessage;
 
 
-class ProtocolKey  {
+class ProtocolKey {
 
 
 public:

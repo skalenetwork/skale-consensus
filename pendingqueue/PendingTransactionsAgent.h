@@ -24,7 +24,7 @@
 #pragma once
 
 #include <boost/functional/hash.hpp>
-#include "../Agent.h"
+#include "Agent.h"
 
 
 class Schain;
@@ -32,7 +32,7 @@ class BlockProposal;
 class PartialHashesList;
 class Transaction;
 
-#include "../db/CacheLevelDB.h"
+#include "db/CacheLevelDB.h"
 
 class PendingTransactionsAgent : Agent {
 

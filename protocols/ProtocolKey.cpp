@@ -21,10 +21,10 @@
     @date 2018
 */
 
-#include "../SkaleCommon.h"
-#include "../Log.h"
-#include "../exceptions/FatalError.h"
-#include "../messages/NetworkMessage.h"
+#include "SkaleCommon.h"
+#include "Log.h"
+#include "exceptions/FatalError.h"
+#include "messages/NetworkMessage.h"
 #include "ProtocolInstance.h"
 #include "ProtocolKey.h"
 
@@ -52,6 +52,7 @@ schain_index ProtocolKey::getBlockProposerIndex() const {
 ProtocolKey::ProtocolKey(block_id _blockId, schain_index _blockProposerIndex) :
         blockID(_blockId),  blockProposerIndex(_blockProposerIndex){
     ASSERT((uint64_t) blockID > 0);
+
 }
 
 bool operator<(const ProtocolKey &l, const ProtocolKey &r) {

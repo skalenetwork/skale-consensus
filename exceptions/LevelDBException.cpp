@@ -22,9 +22,9 @@
 */
 
 
-#include "../SkaleCommon.h"
-#include "../Log.h"
-#include "../exceptions/LevelDBException.h"
+#include "SkaleCommon.h"
+#include "Log.h"
+#include "exceptions/LevelDBException.h"
 #include "LevelDBException.h"
 
 

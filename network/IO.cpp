@@ -21,24 +21,24 @@
     @date 2018
 */
 
-#include "../SkaleCommon.h"
-#include "../Log.h"
-#include "../exceptions/FatalError.h"
+#include "SkaleCommon.h"
+#include "Log.h"
+#include "exceptions/FatalError.h"
 
-#include "../thirdparty/json.hpp"
+#include "thirdparty/json.hpp"
 
 
-#include "../abstracttcpserver/ConnectionStatus.h"
-#include "../node/Node.h"
-#include "../headers/Header.h"
-#include "../headers/BlockProposalRequestHeader.h"
+#include "abstracttcpserver/ConnectionStatus.h"
+#include "node/Node.h"
+#include "headers/Header.h"
+#include "headers/BlockProposalRequestHeader.h"
 #include "ClientSocket.h"
-#include "../exceptions/NetworkProtocolException.h"
-#include "../exceptions/IOException.h"
-#include "../exceptions/ParsingException.h"
-#include "../exceptions/PingException.h"
-#include "../exceptions/ExitRequestedException.h"
-#include "../chains/Schain.h"
+#include "exceptions/NetworkProtocolException.h"
+#include "exceptions/IOException.h"
+#include "exceptions/ParsingException.h"
+#include "exceptions/PingException.h"
+#include "exceptions/ExitRequestedException.h"
+#include "chains/Schain.h"
 #include "Buffer.h"
 #include "ServerConnection.h"
 #include "IO.h"

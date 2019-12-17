@@ -21,32 +21,32 @@
     @date 2019
 */
 
-#include "../../Log.h"
-#include "../SkaleCommon.h"
-#include "../thirdparty/json.hpp"
+#include "Log.h"
+#include "SkaleCommon.h"
+#include "thirdparty/json.hpp"
 
-#include "../../Agent.h"
-#include "../../abstracttcpclient/AbstractClientAgent.h"
-#include "../../node/Node.h"
-#include "../exceptions/Exception.h"
-#include "../exceptions/ExitRequestedException.h"
-#include "../exceptions/FatalError.h"
-#include "../exceptions/NetworkProtocolException.h"
-#include "../network/ClientSocket.h"
-#include "../network/IO.h"
+#include "Agent.h"
+#include "abstracttcpclient/AbstractClientAgent.h"
+#include "node/Node.h"
+#include "exceptions/Exception.h"
+#include "exceptions/ExitRequestedException.h"
+#include "exceptions/FatalError.h"
+#include "exceptions/NetworkProtocolException.h"
+#include "network/ClientSocket.h"
+#include "network/IO.h"
 
-#include "../SkaleCommon.h"
-#include "../chains/Schain.h"
-#include "../crypto/SHAHash.h"
-#include "../node/Node.h"
-#include "../node/NodeInfo.h"
-#include "../thirdparty/json.hpp"
+#include "SkaleCommon.h"
+#include "chains/Schain.h"
+#include "crypto/SHAHash.h"
+#include "node/Node.h"
+#include "node/NodeInfo.h"
+#include "thirdparty/json.hpp"
 
 
-#include "../datastructures/BlockProposal.h"
-#include "../datastructures/DAProof.h"
+#include "datastructures/BlockProposal.h"
+#include "datastructures/DAProof.h"
 
-#include "../thirdparty/json.hpp"
+#include "thirdparty/json.hpp"
 
 #include "AbstractClientAgent.h"
 

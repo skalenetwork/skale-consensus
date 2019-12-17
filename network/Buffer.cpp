@@ -21,11 +21,11 @@
     @date 2018
 */
 
-#include "../SkaleCommon.h"
-#include "../Log.h"
-#include "../exceptions/Exception.h"
-#include "../exceptions/InvalidArgumentException.h"
-#include "../exceptions/FatalError.h"
+#include "SkaleCommon.h"
+#include "Log.h"
+#include "exceptions/Exception.h"
+#include "exceptions/InvalidArgumentException.h"
+#include "exceptions/FatalError.h"
 
 #include "Buffer.h"
 

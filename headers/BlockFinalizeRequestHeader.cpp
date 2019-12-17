@@ -22,21 +22,21 @@
 */
 
 
-#include "../SkaleCommon.h"
-#include "../crypto/SHAHash.h"
-#include "../Log.h"
-#include "../exceptions/FatalError.h"
-#include "../exceptions/InvalidArgumentException.h"
+#include "SkaleCommon.h"
+#include "crypto/SHAHash.h"
+#include "Log.h"
+#include "exceptions/FatalError.h"
+#include "exceptions/InvalidArgumentException.h"
 
-#include "../thirdparty/json.hpp"
-#include "../abstracttcpserver/ConnectionStatus.h"
+#include "thirdparty/json.hpp"
+#include "abstracttcpserver/ConnectionStatus.h"
 
-#include "../datastructures/BlockProposal.h"
-#include "../datastructures/CommittedBlock.h"
+#include "datastructures/BlockProposal.h"
+#include "datastructures/CommittedBlock.h"
 
-#include "../node/Node.h"
-#include "../node/NodeInfo.h"
-#include "../chains/Schain.h"
+#include "node/Node.h"
+#include "node/NodeInfo.h"
+#include "chains/Schain.h"
 
 #include "AbstractBlockRequestHeader.h"
 

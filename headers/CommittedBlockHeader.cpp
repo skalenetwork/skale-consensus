@@ -2,9 +2,9 @@
 // Created by kladko on 29.11.19.
 //
 
-#include "../SkaleCommon.h"
-#include "../Log.h"
-#include "../thirdparty/json.hpp"
+#include "SkaleCommon.h"
+#include "Log.h"
+#include "thirdparty/json.hpp"
 #include "CommittedBlockHeader.h"
 
 CommittedBlockHeader::CommittedBlockHeader(BlockProposal &block, const ptr<string> &thresholdSig) : BlockProposalHeader(

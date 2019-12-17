@@ -23,48 +23,48 @@
 
 #include "leveldb/db.h"
 
-#include "../Log.h"
-#include "../SkaleCommon.h"
+#include "Log.h"
+#include "SkaleCommon.h"
 
 
-#include "../exceptions/ExitRequestedException.h"
-#include "../exceptions/FatalError.h"
-#include "../exceptions/InvalidArgumentException.h"
-#include "../exceptions/ParsingException.h"
-#include "../thirdparty/json.hpp"
+#include "exceptions/ExitRequestedException.h"
+#include "exceptions/FatalError.h"
+#include "exceptions/InvalidArgumentException.h"
+#include "exceptions/ParsingException.h"
+#include "thirdparty/json.hpp"
 
-#include "../chains/TestConfig.h"
+#include "chains/TestConfig.h"
 
-#include "../crypto/bls_include.h"
+#include "crypto/bls_include.h"
 
-#include "../crypto/SHAHash.h"
-#include "../libBLS/bls/BLSPrivateKeyShare.h"
-#include "../libBLS/bls/BLSPublicKey.h"
-#include "../libBLS/bls/BLSSignature.h"
+#include "crypto/SHAHash.h"
+#include "libBLS/bls/BLSPrivateKeyShare.h"
+#include "libBLS/bls/BLSPublicKey.h"
+#include "libBLS/bls/BLSSignature.h"
 
-#include "../blockproposal/server/BlockProposalServerAgent.h"
-#include "../messages/NetworkMessageEnvelope.h"
+#include "blockproposal/server/BlockProposalServerAgent.h"
+#include "messages/NetworkMessageEnvelope.h"
 
-#include "../chains/Schain.h"
+#include "chains/Schain.h"
 
 
-#include "../network/Sockets.h"
-#include "../network/TCPServerSocket.h"
-#include "../network/ZMQNetwork.h"
-#include "../network/ZMQServerSocket.h"
-#include "../node/NodeInfo.h"
+#include "network/Sockets.h"
+#include "network/TCPServerSocket.h"
+#include "network/ZMQNetwork.h"
+#include "network/ZMQServerSocket.h"
+#include "node/NodeInfo.h"
 
-#include "../catchup/server/CatchupServerAgent.h"
-#include "../exceptions/FatalError.h"
-#include "../messages/Message.h"
+#include "catchup/server/CatchupServerAgent.h"
+#include "exceptions/FatalError.h"
+#include "messages/Message.h"
 
-#include "../protocols/InstanceGarbageCollectorAgent.h"
+#include "protocols/InstanceGarbageCollectorAgent.h"
 
-#include "../db/BlockDB.h"
-#include "../db/CommittedTransactionDB.h"
-#include "../db/PriceDB.h"
-#include "../db/RandomDB.h"
-#include "../db/SigDB.h"
+#include "db/BlockDB.h"
+#include "db/CommittedTransactionDB.h"
+#include "db/PriceDB.h"
+#include "db/RandomDB.h"
+#include "db/SigDB.h"
 
 
 #include "ConsensusEngine.h"

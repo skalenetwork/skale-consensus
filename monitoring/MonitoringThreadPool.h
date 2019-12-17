@@ -28,7 +28,7 @@
 
 #include <cstdint>
 
-#include "../../threads/WorkerThreadPool.h"
+#include "threads/WorkerThreadPool.h"
 
 class MonitoringThreadPool : public WorkerThreadPool {
 

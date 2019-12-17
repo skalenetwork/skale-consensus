@@ -21,18 +21,18 @@
     @date 2018
 */
 
-#include "../SkaleCommon.h"
-#include "../Log.h"
-#include "../exceptions/FatalError.h"
-#include "../thirdparty/json.hpp"
-#include "../node/Node.h"
-#include "../chains/Schain.h"
-#include "../chains/SchainTest.h"
-#include "../datastructures/Transaction.h"
-#include "../chains/Schain.h"
-#include "../pendingqueue/TestMessageGeneratorAgent.h"
-#include "../datastructures/Transaction.h"
-#include "../node/ConsensusEngine.h"
+#include "SkaleCommon.h"
+#include "Log.h"
+#include "exceptions/FatalError.h"
+#include "thirdparty/json.hpp"
+#include "node/Node.h"
+#include "chains/Schain.h"
+#include "chains/SchainTest.h"
+#include "datastructures/Transaction.h"
+#include "chains/Schain.h"
+#include "pendingqueue/TestMessageGeneratorAgent.h"
+#include "datastructures/Transaction.h"
+#include "node/ConsensusEngine.h"
 #include "PendingTransactionsAgent.h"
 
 

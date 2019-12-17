@@ -21,42 +21,42 @@
     @date 2018
 */
 
-#include "../crypto/bls_include.h"
-#include "../SkaleCommon.h"
-#include "../Agent.h"
-#include "../Log.h"
+#include "crypto/bls_include.h"
+#include "SkaleCommon.h"
+#include "Agent.h"
+#include "Log.h"
 
-#include "../exceptions/FatalError.h"
-#include "../exceptions/ExitRequestedException.h"
+#include "exceptions/FatalError.h"
+#include "exceptions/ExitRequestedException.h"
 
-#include "../thirdparty/json.hpp"
+#include "thirdparty/json.hpp"
 
-#include "../abstracttcpserver/ConnectionStatus.h"
+#include "abstracttcpserver/ConnectionStatus.h"
 
-#include "../node/Node.h"
-#include "../chains/Schain.h"
+#include "node/Node.h"
+#include "chains/Schain.h"
 
-#include "../exceptions/OldBlockIDException.h"
-#include "../exceptions/CouldNotReadPartialDataHashesException.h"
+#include "exceptions/OldBlockIDException.h"
+#include "exceptions/CouldNotReadPartialDataHashesException.h"
 
-#include "../libBLS/bls/BLSPrivateKeyShare.h"
-#include "../libBLS/bls/BLSSignature.h"
-#include "../libBLS/bls/BLSPublicKey.h"
+#include "libBLS/bls/BLSPrivateKeyShare.h"
+#include "libBLS/bls/BLSSignature.h"
+#include "libBLS/bls/BLSPublicKey.h"
 
 
-#include "../crypto/SHAHash.h"
-#include "../datastructures/BlockProposalSet.h"
-#include "../blockproposal/pusher/BlockProposalClientAgent.h"
-#include "../db/BlockProposalDB.h"
-#include "../headers/MissingTransactionsRequestHeader.h"
-#include "../pendingqueue/PendingTransactionsAgent.h"
-#include "../network/TransportNetwork.h"
-#include "../network/Sockets.h"
-#include "../network/IO.h"
-#include "../network/Buffer.h"
-#include "../network/ServerConnection.h"
-#include "../network/TCPServerSocket.h"
-#include "../datastructures/PartialHashesList.h"
+#include "crypto/SHAHash.h"
+#include "datastructures/BlockProposalSet.h"
+#include "blockproposal/pusher/BlockProposalClientAgent.h"
+#include "db/BlockProposalDB.h"
+#include "headers/MissingTransactionsRequestHeader.h"
+#include "pendingqueue/PendingTransactionsAgent.h"
+#include "network/TransportNetwork.h"
+#include "network/Sockets.h"
+#include "network/IO.h"
+#include "network/Buffer.h"
+#include "network/ServerConnection.h"
+#include "network/TCPServerSocket.h"
+#include "datastructures/PartialHashesList.h"
 
 
 #include "AbstractServerAgent.h"

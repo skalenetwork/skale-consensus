@@ -22,7 +22,7 @@
 */
 
 #pragma once
-#include "../Log.h"
+#include "Log.h"
 #include "Exception.h"
 
 class SerializeException : public Exception  {

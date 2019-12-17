@@ -21,11 +21,11 @@
     @date 2018
 */
 
-#include "../SkaleCommon.h"
-#include "../Log.h"
-#include "../exceptions/FatalError.h"
-#include "../protocols/ProtocolInstance.h"
-#include "../protocols/ProtocolKey.h"
+#include "SkaleCommon.h"
+#include "Log.h"
+#include "exceptions/FatalError.h"
+#include "protocols/ProtocolInstance.h"
+#include "protocols/ProtocolKey.h"
 
 #include "Message.h"
 
@@ -73,7 +73,7 @@ const block_id Message::getBlockId() const {
     return blockID;
 }
 
-const schain_index Message::getBlockProposerIndex() const {
+schain_index Message::getBlockProposerIndex() const {
     return blockProposerIndex;
 }
 

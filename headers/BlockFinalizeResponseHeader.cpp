@@ -22,10 +22,10 @@
 */
 
 
-#include "../SkaleCommon.h"
-#include "../Log.h"
-#include "../thirdparty/json.hpp"
-#include "../exceptions/InvalidArgumentException.h"
+#include "SkaleCommon.h"
+#include "Log.h"
+#include "thirdparty/json.hpp"
+#include "exceptions/InvalidArgumentException.h"
 
 #include "AbstractBlockRequestHeader.h"
 #include "BlockFinalizeResponseHeader.h"

@@ -33,7 +33,7 @@
 
 
 
-#include "../node/ConsensusEngine.h"
+#include "node/ConsensusEngine.h"
 #include "ListOfHashes.h"
 
 

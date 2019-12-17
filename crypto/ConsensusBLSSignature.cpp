@@ -24,13 +24,13 @@
 
 
 
-#include "../SkaleCommon.h"
-#include "../Log.h"
-#include "../crypto/bls_include.h"
-#include "../network/Utils.h"
-#include "../thirdparty/json.hpp"
+#include "SkaleCommon.h"
+#include "Log.h"
+#include "crypto/bls_include.h"
+#include "network/Utils.h"
+#include "thirdparty/json.hpp"
 
-#include "../libBLS/bls/BLSSignature.h"
+#include "libBLS/bls/BLSSignature.h"
 #include "ConsensusBLSSignature.h"
 #include "ThresholdSignature.h"
 

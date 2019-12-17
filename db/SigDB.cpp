@@ -22,12 +22,12 @@
 */
 
 
-#include "../SkaleCommon.h"
-#include "../Log.h"
+#include "SkaleCommon.h"
+#include "Log.h"
 
-#include "../crypto/ConsensusBLSSignature.h"
-#include "../crypto/ConsensusBLSSigShare.h"
-#include "../datastructures/CommittedBlock.h"
+#include "crypto/ConsensusBLSSignature.h"
+#include "crypto/ConsensusBLSSigShare.h"
+#include "datastructures/CommittedBlock.h"
 
 #include "SigDB.h"
 

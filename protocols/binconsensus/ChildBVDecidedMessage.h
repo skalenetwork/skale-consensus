@@ -26,7 +26,7 @@
 
 
 
-#include "../../messages/ChildMessage.h"
+#include "messages/ChildMessage.h"
 
 class ChildBVDecidedMessage : public ChildMessage {
 
