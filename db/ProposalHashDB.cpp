@@ -22,12 +22,12 @@
 */
 
 
-#include "../SkaleCommon.h"
-#include "../Log.h"
-#include "../crypto/SHAHash.h"
-#include "../chains/Schain.h"
-#include "../exceptions/InvalidStateException.h"
-#include "../datastructures/CommittedBlock.h"
+#include "SkaleCommon.h"
+#include "Log.h"
+#include "crypto/SHAHash.h"
+#include "chains/Schain.h"
+#include "exceptions/InvalidStateException.h"
+#include "datastructures/CommittedBlock.h"
 
 #include "ProposalHashDB.h"
 #include "CacheLevelDB.h"

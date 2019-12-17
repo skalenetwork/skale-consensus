@@ -21,21 +21,21 @@
     @date 2018
 */
 
-#include "../SkaleCommon.h"
-#include "../Log.h"
-#include "../exceptions/FatalError.h"
+#include "SkaleCommon.h"
+#include "Log.h"
+#include "exceptions/FatalError.h"
 
-#include "../thirdparty/json.hpp"
-#include "../node/Node.h"
-#include "../abstracttcpserver/ConnectionStatus.h"
+#include "thirdparty/json.hpp"
+#include "node/Node.h"
+#include "abstracttcpserver/ConnectionStatus.h"
 #include "CatchupRequestHeader.h"
 
 
 
 
-#include "../node/Node.h"
-#include "../node/NodeInfo.h"
-#include "../chains/Schain.h"
+#include "node/Node.h"
+#include "node/NodeInfo.h"
+#include "chains/Schain.h"
 
 
 

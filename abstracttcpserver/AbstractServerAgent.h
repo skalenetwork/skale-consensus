@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include "../Agent.h"
+#include "Agent.h"
 
 class ServerConnection;
 class Schain;

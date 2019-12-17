@@ -20,19 +20,19 @@
     @date 2018
 */
 
-#include "../SkaleCommon.h"
-#include "../Log.h"
-#include "../exceptions/FatalError.h"
+#include "SkaleCommon.h"
+#include "Log.h"
+#include "exceptions/FatalError.h"
 
-#include "../node/ConsensusEngine.h"
-#include "../crypto/SHAHash.h"
-#include "../datastructures/BlockProposal.h"
-#include "../datastructures/BooleanProposalVector.h"
+#include "node/ConsensusEngine.h"
+#include "crypto/SHAHash.h"
+#include "datastructures/BlockProposal.h"
+#include "datastructures/BooleanProposalVector.h"
 
-#include "../chains/Schain.h"
-#include "../pendingqueue/PendingTransactionsAgent.h"
-#include "../db/BlockProposalDB.h"
-#include "../datastructures/DAProof.h"
+#include "chains/Schain.h"
+#include "pendingqueue/PendingTransactionsAgent.h"
+#include "db/BlockProposalDB.h"
+#include "datastructures/DAProof.h"
 #include "BlockProposal.h"
 
 #include "BlockProposalSet.h"

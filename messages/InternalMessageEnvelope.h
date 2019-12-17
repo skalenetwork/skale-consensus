@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include "../protocols/ProtocolKey.h"
+#include "protocols/ProtocolKey.h"
 #include "MessageEnvelope.h"
 
 

@@ -21,19 +21,18 @@
     @date 2018
 */
 
-#include "../SkaleCommon.h"
-#include "../Log.h"
-#include "../exceptions/FatalError.h"
-#include "../thirdparty/json.hpp"
-#include "../abstracttcpserver/ConnectionStatus.h"
-#include "../messages/ParentMessage.h"
-#include "../messages/ChildCompletedMessage.h"
-#include "../pendingqueue/PendingTransactionsAgent.h"
-#include "../blockproposal/pusher/BlockProposalClientAgent.h"
-#include "../db/BlockProposalDB.h"
-#include "../chains/Schain.h"
-#include "../protocols/ProtocolKey.h"
-#include "../protocols/binconsensus/BinConsensusInstance.h"
+#include "SkaleCommon.h"
+#include "Log.h"
+#include "exceptions/FatalError.h"
+#include "thirdparty/json.hpp"
+#include "abstracttcpserver/ConnectionStatus.h"
+#include "messages/ParentMessage.h"
+#include "pendingqueue/PendingTransactionsAgent.h"
+#include "blockproposal/pusher/BlockProposalClientAgent.h"
+#include "db/BlockProposalDB.h"
+#include "chains/Schain.h"
+#include "protocols/ProtocolKey.h"
+#include "protocols/binconsensus/BinConsensusInstance.h"
 
 
 msg_id ProtocolInstance::createNetworkMessageID() {
@@ -59,20 +58,10 @@ Schain *ProtocolInstance::getSchain() const {
 }
 
 
-void ProtocolInstance::setStatus(ProtocolStatus _status) {
-    ProtocolInstance::status = _status;
-}
-
-void ProtocolInstance::setOutcome(ProtocolOutcome outcome) {
-    ProtocolInstance::outcome = outcome;
-}
 
 
 
 
-ProtocolOutcome ProtocolInstance::getOutcome() const {
-    return outcome;
-}
 
 ProtocolInstance::~ProtocolInstance() {
     totalObjects--;

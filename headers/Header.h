@@ -32,7 +32,7 @@ class Buffer;
 class ServerConnection;
 class SHAHash;
 
-#include "../abstracttcpserver/ConnectionStatus.h"
+#include "abstracttcpserver/ConnectionStatus.h"
 
 
 

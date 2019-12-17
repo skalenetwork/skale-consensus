@@ -23,13 +23,8 @@
 
 #pragma once
 
-
-
-#include "../ProtocolKey.h"
-
-#include "../ProtocolInstance.h"
-
-
+#include "protocols/ProtocolKey.h"
+#include "protocols/ProtocolInstance.h"
 
 class ChildBVDecidedMessage;
 class BlockProposalSet;
@@ -38,6 +33,8 @@ class BooleanProposalVector;
 class BlockSignBroadcastMessage;
 class CryptoManager;
 
+
+#include "thirdparty/lrucache.hpp"
 
 class BlockConsensusAgent : public ProtocolInstance {
 
@@ -55,20 +52,10 @@ class BlockConsensusAgent : public ProtocolInstance {
 
     map<ptr<ProtocolKey>, ptr<BinConsensusInstance>, Comparator> children;
 
+    ptr<cache::lru_cache<uint64_t , ptr<set<schain_index>>>> trueDecisions;
+    ptr<cache::lru_cache<uint64_t , ptr<set<schain_index>>>> falseDecisions;
+    ptr<cache::lru_cache<uint64_t , schain_index>> decidedIndices;
 
-
-
-    map<ptr<ProtocolKey>, ProtocolOutcome , Comparator> completedInstancesByProtocolKey;
-
-
-    set<block_id> proposedBlocks;
-
-    map<block_id , set<schain_index>> trueDecisions;;
-
-    map<block_id , set<schain_index>> falseDecisions;
-
-
-    map<block_id, schain_index>  decidedBlocks;
 
     void processChildMessageImpl(ptr<InternalMessageEnvelope> _me);
 
@@ -80,12 +67,7 @@ class BlockConsensusAgent : public ProtocolInstance {
 
     void decideEmptyBlock(block_id _blockNumber);
 
-    void disconnect(ptr<ProtocolKey> _key );
-
-    void processChildCompletedMessage(ptr<InternalMessageEnvelope> _me);
-
     void startConsensusProposal(block_id _blockID, ptr<BooleanProposalVector> _proposal);
-
 
 public:
 

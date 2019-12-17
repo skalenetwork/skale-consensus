@@ -21,21 +21,21 @@
     @date 2018
 */
 
-#include "../SkaleCommon.h"
-#include "../Log.h"
-#include "../exceptions/FatalError.h"
-#include "../exceptions/InvalidArgumentException.h"
+#include "SkaleCommon.h"
+#include "Log.h"
+#include "exceptions/FatalError.h"
+#include "exceptions/InvalidArgumentException.h"
 
-#include "../abstracttcpserver/ConnectionStatus.h"
+#include "abstracttcpserver/ConnectionStatus.h"
 
-#include "../thirdparty/json.hpp"
+#include "thirdparty/json.hpp"
 
-#include "../abstracttcpserver/AbstractServerAgent.h"
-#include "../exceptions/ParsingException.h"
-#include "../exceptions/NetworkProtocolException.h"
+#include "abstracttcpserver/AbstractServerAgent.h"
+#include "exceptions/ParsingException.h"
+#include "exceptions/NetworkProtocolException.h"
 
-#include "../network/Buffer.h"
-#include "../network/IO.h"
+#include "network/Buffer.h"
+#include "network/IO.h"
 
 #include "Header.h"
 

@@ -25,8 +25,8 @@
 #define CONSENSUS_ABSTRACTCLIENTAGENT_H
 
 
-#include "../../abstracttcpclient/AbstractClientAgent.h"
-#include "../Agent.h"
+#include "abstracttcpclient/AbstractClientAgent.h"
+#include "Agent.h"
 
 class DataStructure;
 class BlockProposal;

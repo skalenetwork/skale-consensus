@@ -23,8 +23,8 @@
 
 #pragma once
 
-#include "../../abstracttcpclient/AbstractClientAgent.h"
-#include "../../pendingqueue/PendingTransactionsAgent.h"
+#include "abstracttcpclient/AbstractClientAgent.h"
+#include "pendingqueue/PendingTransactionsAgent.h"
 
 
 class ClientSocket;

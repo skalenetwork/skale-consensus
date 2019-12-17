@@ -21,24 +21,24 @@
     @date 2018
 */
 
-#include "../../SkaleCommon.h"
-#include "../../Log.h"
-#include "../../thirdparty/json.hpp"
-#include "../../exceptions/FatalError.h"
-#include "../crypto/bls_include.h"
-#include "../../crypto/ConsensusBLSSignature.h"
-#include "../../crypto/SHAHash.h"
+#include "SkaleCommon.h"
+#include "Log.h"
+#include "thirdparty/json.hpp"
+#include "exceptions/FatalError.h"
+#include "crypto/bls_include.h"
+#include "crypto/ConsensusBLSSignature.h"
+#include "crypto/SHAHash.h"
 
-#include "../../chains/Schain.h"
-#include "../../node/Node.h"
+#include "chains/Schain.h"
+#include "node/Node.h"
 
-#include "../../messages/NetworkMessage.h"
-#include "../../exceptions/InvalidArgumentException.h"
-#include "../../crypto/ConsensusBLSSigShare.h"
-#include "../../crypto/CryptoManager.h"
+#include "messages/NetworkMessage.h"
+#include "exceptions/InvalidArgumentException.h"
+#include "crypto/ConsensusBLSSigShare.h"
+#include "crypto/CryptoManager.h"
 
-#include "../ProtocolKey.h"
-#include "../ProtocolInstance.h"
+#include "protocols/ProtocolKey.h"
+#include "protocols/ProtocolInstance.h"
 
 #include "BinConsensusInstance.h"
 

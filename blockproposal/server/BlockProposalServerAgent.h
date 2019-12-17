@@ -23,8 +23,8 @@
 
 #pragma once
 
-#include "../../abstracttcpserver/AbstractServerAgent.h"
-#include "../../pendingqueue/PendingTransactionsAgent.h"
+#include "abstracttcpserver/AbstractServerAgent.h"
+#include "pendingqueue/PendingTransactionsAgent.h"
 
 class BlockProposalWorkerThreadPool;
 class BlockFinalizeResponseHeader;

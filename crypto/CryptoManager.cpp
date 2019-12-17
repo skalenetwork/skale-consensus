@@ -30,11 +30,11 @@
 #include "openssl/ec.h"
 
 
-#include "../SkaleCommon.h"
-#include "../Log.h"
-#include "../thirdparty/json.hpp"
-#include "../chains/Schain.h"
-#include "../exceptions/NetworkProtocolException.h"
+#include "SkaleCommon.h"
+#include "Log.h"
+#include "thirdparty/json.hpp"
+#include "chains/Schain.h"
+#include "exceptions/NetworkProtocolException.h"
 #include "SHAHash.h"
 #include "ConsensusBLSSigShare.h"
 #include "ConsensusBLSSignature.h"
@@ -42,9 +42,9 @@
 #include "ConsensusSigShareSet.h"
 #include "MockupSignature.h"
 #include "MockupSigShareSet.h"
-#include "../node/Node.h"
-#include "../monitoring/LivelinessMonitor.h"
-#include "../datastructures/BlockProposal.h"
+#include "node/Node.h"
+#include "monitoring/LivelinessMonitor.h"
+#include "datastructures/BlockProposal.h"
 #include "bls/BLSPrivateKeyShare.h"
 
 

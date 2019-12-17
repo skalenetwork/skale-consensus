@@ -30,7 +30,7 @@
 #include <boost/random/uniform_int_distribution.hpp>
 
 
-#include "../datastructures/DataStructure.h"
+#include "datastructures/DataStructure.h"
 
 class SHAHash;
 

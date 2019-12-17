@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include "../datastructures/DataStructure.h"
+#include "datastructures/DataStructure.h"
 #include "BLSSigShareSet.h"
 #include "ThresholdSigShareSet.h"
 

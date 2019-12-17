@@ -21,10 +21,10 @@
     @date 2018
 */
 
-#include "../chains/Schain.h"
+#include "chains/Schain.h"
 
 
-#include "../protocols/ProtocolKey.h"
+#include "protocols/ProtocolKey.h"
 #include "Message.h"
 #include "InternalMessage.h"
 

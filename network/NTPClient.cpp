@@ -21,10 +21,10 @@
     @date 2019
 */
 
-#include "../SkaleCommon.h"
-#include "../Log.h"
-#include "../exceptions/FatalError.h"
-#include "../exceptions/FatalError.h"
+#include "SkaleCommon.h"
+#include "Log.h"
+#include "exceptions/FatalError.h"
+#include "exceptions/FatalError.h"
 #include "NTPClient.h"
 #include "Utils.h"
 

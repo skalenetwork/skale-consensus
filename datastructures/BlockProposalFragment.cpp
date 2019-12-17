@@ -20,9 +20,9 @@
     @author Stan Kladko
     @date 2019
 */
-#include "../SkaleCommon.h"
-#include "../Log.h"
-#include "../exceptions/ParsingException.h"
+#include "SkaleCommon.h"
+#include "Log.h"
+#include "exceptions/ParsingException.h"
 
 #include "BlockProposalFragment.h"
 

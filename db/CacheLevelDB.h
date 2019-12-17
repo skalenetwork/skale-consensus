@@ -25,8 +25,8 @@
 #ifndef SKALED_CACHELEVELDB_H
 #define SKALED_CACHELEVELDB_H
 
-#include "../thirdparty/lrucache.hpp"
-#include "../SkaleCommon.h"
+#include "thirdparty/lrucache.hpp"
+#include "SkaleCommon.h"
 
 class Schain;
 
@@ -41,9 +41,6 @@ namespace leveldb {
 
 #define LEVELDB_PIECES 4
 
-namespace cache {
-    template<typename key_t, typename value_t> class lru_cache;
-}
 
 
 class CacheLevelDB {

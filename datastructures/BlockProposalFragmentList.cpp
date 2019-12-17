@@ -27,9 +27,9 @@
 #include <boost/random/uniform_int_distribution.hpp>
 
 
-#include "../SkaleCommon.h"
-#include "../Log.h"
-#include "../exceptions/SerializeException.h"
+#include "SkaleCommon.h"
+#include "Log.h"
+#include "exceptions/SerializeException.h"
 
 #include "BlockProposalFragment.h"
 

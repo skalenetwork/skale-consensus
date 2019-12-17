@@ -21,9 +21,9 @@
     @date 2018
 */
 
-#include "../SkaleCommon.h"
-#include "../Log.h"
-#include "../exceptions/FatalError.h"
+#include "SkaleCommon.h"
+#include "Log.h"
+#include "exceptions/FatalError.h"
 #include "ProposalProtocolException.h"
 
 ProposalProtocolException::ProposalProtocolException(const std::string &_message, const string &_className) :

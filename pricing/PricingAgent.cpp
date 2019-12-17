@@ -21,20 +21,20 @@
     @date 2019
 */
 
-#include "../SkaleCommon.h"
-#include "../thirdparty/json.hpp"
+#include "SkaleCommon.h"
+#include "thirdparty/json.hpp"
 #include <boost/multiprecision/cpp_int.hpp>
-#include "../Log.h"
-#include "../node/Node.h"
-#include "../exceptions/FatalError.h"
-#include "../exceptions/ParsingException.h"
-#include "../chains/Schain.h"
-#include "../node/ConsensusEngine.h"
+#include "Log.h"
+#include "node/Node.h"
+#include "exceptions/FatalError.h"
+#include "exceptions/ParsingException.h"
+#include "chains/Schain.h"
+#include "node/ConsensusEngine.h"
 #include "PricingStrategy.h"
-#include "../exceptions/ExitRequestedException.h"
+#include "exceptions/ExitRequestedException.h"
 #include "DynamicPricingStrategy.h"
 #include "ZeroPricingStrategy.h"
-#include "../db/PriceDB.h"
+#include "db/PriceDB.h"
 
 
 

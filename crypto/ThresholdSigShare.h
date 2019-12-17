@@ -25,7 +25,7 @@
 
 
 #include "BLSSigShare.h"
-#include "../SkaleCommon.h"
+#include "SkaleCommon.h"
 
 class ThresholdSigShare {
 

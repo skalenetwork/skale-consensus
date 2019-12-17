@@ -21,26 +21,26 @@
     @date 2019
 */
 
-#include "../SkaleCommon.h"
-#include "../Agent.h"
-#include "../Log.h"
-#include "../exceptions/FatalError.h"
-#include "../thirdparty/json.hpp"
+#include "SkaleCommon.h"
+#include "Agent.h"
+#include "Log.h"
+#include "exceptions/FatalError.h"
+#include "thirdparty/json.hpp"
 
-#include "../crypto/ConsensusBLSSigShare.h"
-#include "../crypto/ConsensusBLSSignature.h"
+#include "crypto/ConsensusBLSSigShare.h"
+#include "crypto/ConsensusBLSSignature.h"
 
-#include "../abstracttcpserver/ConnectionStatus.h"
-#include "../chains/Schain.h"
-#include "../node/Node.h"
-#include "../pendingqueue/PendingTransactionsAgent.h"
-#include "../crypto/ConsensusBLSSigShare.h"
-#include "../crypto/ConsensusSigShareSet.h"
-#include "../crypto/CryptoManager.h"
-#include "../crypto/SHAHash.h"
-#include "../datastructures/BlockProposal.h"
-#include "../datastructures/DAProof.h"
-#include "../datastructures/BooleanProposalVector.h"
+#include "abstracttcpserver/ConnectionStatus.h"
+#include "chains/Schain.h"
+#include "node/Node.h"
+#include "pendingqueue/PendingTransactionsAgent.h"
+#include "crypto/ConsensusBLSSigShare.h"
+#include "crypto/ConsensusSigShareSet.h"
+#include "crypto/CryptoManager.h"
+#include "crypto/SHAHash.h"
+#include "datastructures/BlockProposal.h"
+#include "datastructures/DAProof.h"
+#include "datastructures/BooleanProposalVector.h"
 
 
 #include "leveldb/db.h"
@@ -50,8 +50,8 @@
 #include "BLSSigShare.h"
 #include "BLSSignature.h"
 #include "BLSSigShareSet.h"
-#include "../crypto/ThresholdSigShare.h"
-#include "../datastructures/DAProof.h"
+#include "crypto/ThresholdSigShare.h"
+#include "datastructures/DAProof.h"
 
 
 using namespace std;

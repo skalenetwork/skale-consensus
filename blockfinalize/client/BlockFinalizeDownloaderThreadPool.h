@@ -25,7 +25,7 @@
 
 #include <cstdint>
 
-#include "../../threads/WorkerThreadPool.h"
+#include "threads/WorkerThreadPool.h"
 
 class BlockFinalizeDownloaderThreadPool : public WorkerThreadPool {
 

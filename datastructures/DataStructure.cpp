@@ -21,10 +21,10 @@
     @date 2018
 */
 
-#include "../SkaleCommon.h"
+#include "SkaleCommon.h"
 
-#include "../utils/Time.h"
-#include "../chains/Schain.h"
+#include "utils/Time.h"
+#include "chains/Schain.h"
 
 #include "DataStructure.h"
 

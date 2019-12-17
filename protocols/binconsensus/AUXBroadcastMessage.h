@@ -26,7 +26,7 @@
 
 
 
-#include "../../messages/NetworkMessage.h"
+#include "messages/NetworkMessage.h"
 
 
 class BinConsensusInstance;

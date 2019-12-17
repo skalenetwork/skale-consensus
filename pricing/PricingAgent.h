@@ -24,7 +24,7 @@
 #ifndef SKALED_PRICINGAGENT_H
 #define SKALED_PRICINGAGENT_H
 
-#include "../Agent.h"
+#include "Agent.h"
 
 class PricingStrategy;
 

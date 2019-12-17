@@ -21,87 +21,82 @@
     @date 2018
 */
 
-#include "../../SkaleCommon.h"
-#include "../../Log.h"
-#include "../../exceptions/FatalError.h"
-#include "../../thirdparty/json.hpp"
+#include "SkaleCommon.h"
+#include "Log.h"
+#include "exceptions/FatalError.h"
+#include "thirdparty/json.hpp"
 
-#include "../../utils/Time.h"
-#include "../../crypto/SHAHash.h"
-#include "../../crypto/ThresholdSigShare.h"
-#include "../../abstracttcpserver/ConnectionStatus.h"
-#include "../../abstracttcpserver/ConnectionStatus.h"
-#include "../../chains/Schain.h"
-#include "../../node/Node.h"
-#include "../../network/TransportNetwork.h"
-#include "../../exceptions/ExitRequestedException.h"
-#include "../../messages/ParentMessage.h"
-#include "../../messages/InternalMessageEnvelope.h"
-#include "../../messages/NetworkMessage.h"
-#include "../../messages/NetworkMessageEnvelope.h"
-#include "../../protocols/blockconsensus/BlockSignBroadcastMessage.h"
-#include "../../pendingqueue/PendingTransactionsAgent.h"
-#include "../../datastructures/BlockProposal.h"
-#include "../../datastructures/ReceivedBlockProposal.h"
-#include "../../datastructures/BlockProposalSet.h"
-#include "../../datastructures/TransactionList.h"
-#include "../../blockproposal/pusher/BlockProposalClientAgent.h"
-#include "../../datastructures/BooleanProposalVector.h"
-#include "../../messages/ConsensusProposalMessage.h"
-#include "../../node/NodeInfo.h"
-#include "../../db/BlockProposalDB.h"
-#include "../../exceptions/InvalidStateException.h"
-#include "../../db/BlockSigShareDB.h"
-#include "../../blockfinalize/client/BlockFinalizeDownloader.h"
-#include "../../blockfinalize/client/BlockFinalizeDownloaderThreadPool.h"
+#include "crypto/SHAHash.h"
+#include "crypto/ThresholdSigShare.h"
+#include "chains/Schain.h"
+#include "node/Node.h"
+#include "network/TransportNetwork.h"
+#include "exceptions/ExitRequestedException.h"
+#include "messages/ParentMessage.h"
+#include "messages/InternalMessageEnvelope.h"
+#include "messages/NetworkMessage.h"
+#include "messages/NetworkMessageEnvelope.h"
+#include "protocols/blockconsensus/BlockSignBroadcastMessage.h"
+#include "pendingqueue/PendingTransactionsAgent.h"
+#include "datastructures/BlockProposal.h"
+#include "datastructures/TransactionList.h"
+#include "blockproposal/pusher/BlockProposalClientAgent.h"
+#include "datastructures/BooleanProposalVector.h"
+#include "messages/ConsensusProposalMessage.h"
+#include "node/NodeInfo.h"
+#include "db/BlockProposalDB.h"
+#include "exceptions/InvalidStateException.h"
+#include "db/BlockSigShareDB.h"
+#include "blockfinalize/client/BlockFinalizeDownloader.h"
+#include "blockfinalize/client/BlockFinalizeDownloaderThreadPool.h"
+#include "thirdparty/lrucache.hpp"
 
-#include "../../protocols/ProtocolKey.h"
-#include  "../../protocols/binconsensus/BVBroadcastMessage.h"
-#include  "../../protocols/binconsensus/BinConsensusInstance.h"
+#include "protocols/ProtocolKey.h"
+#include  "protocols/binconsensus/BVBroadcastMessage.h"
+#include  "protocols/binconsensus/BinConsensusInstance.h"
 
-#include "../binconsensus/ChildBVDecidedMessage.h"
+#include "protocols/binconsensus/ChildBVDecidedMessage.h"
 #include "BlockConsensusAgent.h"
-#include "../../datastructures/CommittedBlock.h"
+#include "datastructures/CommittedBlock.h"
 
 
 BlockConsensusAgent::BlockConsensusAgent(Schain &_schain) : ProtocolInstance(
         BLOCK_SIGN, _schain) {
+    trueDecisions = make_shared<cache::lru_cache<uint64_t , ptr<set<schain_index>>>>(CONSENSUS_HISTORY);
+    falseDecisions = make_shared<cache::lru_cache<uint64_t , ptr<set<schain_index>>>>(CONSENSUS_HISTORY);
+    decidedIndices = make_shared<cache::lru_cache<uint64_t , schain_index>>(CONSENSUS_HISTORY);
 };
 
 
 void BlockConsensusAgent::startConsensusProposal(block_id _blockID, ptr<BooleanProposalVector> _proposal) {
 
-    ASSERT(proposedBlocks.count(_blockID) == 0);
 
     try {
 
-    if (getSchain()->getLastCommittedBlockID() >= _blockID) {
-        LOG(debug, "Terminating consensus proposal since already committed.");
-    }
+        if (getSchain()->getLastCommittedBlockID() >= _blockID) {
+            LOG(debug, "Terminating consensus proposal since already committed.");
+        }
 
-    LOG(debug, "CONSENSUS START:BLOCK:" + to_string(_blockID));
+        LOG(debug, "CONSENSUS START:BLOCK:" + to_string(_blockID));
 
-    proposedBlocks.insert(_blockID);
+        uint64_t truthCount = 0;
 
+        for (size_t i = 0; i < getSchain()->getNodeCount(); i++) {
+            if (_proposal->getProposalValue(schain_index(i + 1)))
+                truthCount++;
+        }
 
-    uint64_t truthCount = 0;
-
-    for (size_t i = 0; i < getSchain()->getNodeCount(); i++) {
-        if (_proposal->getProposalValue(schain_index(i + 1)))
-            truthCount++;
-    }
-
-    ASSERT(3 * truthCount > getSchain()->getNodeCount() * 2);
+        ASSERT(3 * truthCount > getSchain()->getNodeCount() * 2);
 
 
-    for (uint64_t i = 1; i <= (uint64_t) getSchain()->getNodeCount(); i++) {
+        for (uint64_t i = 1; i <= (uint64_t) getSchain()->getNodeCount(); i++) {
 
-        bin_consensus_value x;
+            bin_consensus_value x;
 
-        x = bin_consensus_value(_proposal->getProposalValue(schain_index(i)) ? 1 : 0);
+            x = bin_consensus_value(_proposal->getProposalValue(schain_index(i)) ? 1 : 0);
 
-        propose(x, schain_index(i), _blockID);
-    }
+            propose(x, schain_index(i), _blockID);
+        }
 
     } catch (ExitRequestedException &) { throw; } catch (Exception &e) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
@@ -156,9 +151,9 @@ void BlockConsensusAgent::decideBlock(block_id _blockId, schain_index _sChainInd
 
         getSchain()->getNode()->getNetwork()->broadcastMessage(msg);
 
-        ASSERT(decidedBlocks.count(_blockId) == 0);
+        ASSERT(!decidedIndices->exists((uint64_t)_blockId));
 
-        decidedBlocks[_blockId] = _sChainIndex;
+        decidedIndices->put((uint64_t )_blockId, _sChainIndex);
 
 
         if (signature != nullptr) {
@@ -186,25 +181,33 @@ void BlockConsensusAgent::reportConsensusAndDecideIfNeeded(ptr<ChildBVDecidedMes
     try {
 
         auto nodeCount = (uint64_t) getSchain()->getNodeCount();
-        auto blockProposerIndex = (uint64_t) _msg->getBlockProposerIndex();
+        schain_index blockProposerIndex = _msg->getBlockProposerIndex();
         auto blockID = _msg->getBlockId();
 
         ASSERT(blockProposerIndex <= nodeCount);
 
 
-        if (decidedBlocks.count(blockID) > 0)
-            return;
+        if (decidedIndices->exists((uint64_t) blockID)){return;}
 
 
         if (_msg->getValue()) {
-            trueDecisions[blockID].insert(blockProposerIndex);
+            if (!trueDecisions->exists((uint64_t )blockID))
+                trueDecisions->put((uint64_t) blockID, make_shared<set<schain_index>>());
+
+            trueDecisions->get((uint64_t)blockID)->insert(blockProposerIndex);
         } else {
-            falseDecisions[blockID].insert(blockProposerIndex);
+            if (!falseDecisions->exists((uint64_t )blockID))
+                falseDecisions->put((uint64_t) blockID,
+                        make_shared<set<schain_index>>());
+
+            falseDecisions->get((uint64_t)blockID)->insert(blockProposerIndex);
         }
 
 
-        if (trueDecisions[blockID].size() == 0) {
-            if ((uint64_t) falseDecisions[blockID].size() == nodeCount) {
+        if (!trueDecisions->exists((uint64_t) blockID) ||
+                trueDecisions->get((uint64_t) blockID)->empty()) {
+            if (falseDecisions->exists((uint64_t) blockID) &&
+            (uint64_t) falseDecisions->get((uint64_t) blockID)->size() == nodeCount) {
                 decideEmptyBlock(blockID);
             }
             return;
@@ -231,11 +234,13 @@ void BlockConsensusAgent::reportConsensusAndDecideIfNeeded(ptr<ChildBVDecidedMes
 
         for (uint64_t i = random; i < random + nodeCount; i++) {
             auto index = schain_index(i % nodeCount) + 1;
-            if (trueDecisions[blockID].count(index) > 0) {
+            if (trueDecisions->exists((uint64_t) blockID) &&
+                trueDecisions->get((uint64_t) blockID)->count(index) > 0) {
                 decideBlock(blockID, index);
                 return;
             }
-            if (falseDecisions[blockID].count(index) == 0) {
+            if (!falseDecisions->exists((uint64_t) blockID) ||
+                falseDecisions->get((uint64_t) blockID)->count(index) == 0) {
                 return;
             }
         }
@@ -245,10 +250,6 @@ void BlockConsensusAgent::reportConsensusAndDecideIfNeeded(ptr<ChildBVDecidedMes
 
 }
 
-
-void BlockConsensusAgent::processChildCompletedMessage(ptr<InternalMessageEnvelope> _me) {
-    disconnect(_me->getSrcProtocolKey());
-};
 
 void BlockConsensusAgent::processBlockSignMessage(ptr<BlockSignBroadcastMessage> _message) {
     try {
@@ -269,33 +270,22 @@ void BlockConsensusAgent::processBlockSignMessage(ptr<BlockSignBroadcastMessage>
 };
 
 
-void BlockConsensusAgent::disconnect(ptr<ProtocolKey> _key) {
-
-
-    lock_guard<recursive_mutex> lock(childrenMutex);
-
-    if (children.count(_key) == 0)
-        return;
-
-    auto child = children[_key];
-
-    children.erase(_key);
-
-    ASSERT(completedInstancesByProtocolKey.count(_key) == 0);
-
-    completedInstancesByProtocolKey[_key] = child->getOutcome();
-}
-
-
 void BlockConsensusAgent::routeAndProcessMessage(ptr<MessageEnvelope> m) {
 
     try {
 
-        assert(m->getMessage()->getBlockId() - 1 <= getSchain()->getLastCommittedBlockID());
 
-        ASSERT(m->getMessage()->getBlockId() > 0);
+        CHECK_ARGUMENT(m->getMessage()->getBlockId() > 0);
+        CHECK_ARGUMENT(m->getOrigin() != ORIGIN_PARENT);
 
-        ASSERT(m->getOrigin() != ORIGIN_PARENT);
+        auto blockID = m->getMessage()->getBlockId();
+
+        // Future blockid messages shall never get to this point
+        // They are in
+        CHECK_ARGUMENT( blockID <= getSchain()->getLastCommittedBlockID() + 1);
+
+        if (blockID + MAX_ACTIVE_CONSENSUSES < getSchain()->getLastCommittedBlockID())
+            return; // message has a very old block id, ignore. They need to catchup
 
 
         if (m->getMessage()->getMessageType() == MSG_CONSENSUS_PROPOSAL) {
@@ -313,13 +303,7 @@ void BlockConsensusAgent::routeAndProcessMessage(ptr<MessageEnvelope> m) {
             LOG(debug, "Got child message " + to_string(m->getMessage()->getBlockId()) + ":" +
                        to_string(m->getMessage()->getBlockProposerIndex()));
 
-
-            if (m->getMessage()->getMessageType() == CHILD_COMPLETED) {
-
-                return processChildCompletedMessage(dynamic_pointer_cast<InternalMessageEnvelope>(m));
-            } else {
-                return processChildMessageImpl(dynamic_pointer_cast<InternalMessageEnvelope>(m));
-            }
+            return processChildMessageImpl(dynamic_pointer_cast<InternalMessageEnvelope>(m));
 
         }
 
@@ -330,9 +314,7 @@ void BlockConsensusAgent::routeAndProcessMessage(ptr<MessageEnvelope> m) {
 
             {
 
-                if (completedInstancesByProtocolKey.count((key))) {
-                    return;
-                }
+
 
                 auto child = getChild(key);
 

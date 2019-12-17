@@ -58,7 +58,7 @@ class BlockProposalFragmentList;
 class BlockFinalizeDownloaderThreadPool;
 class BlockProposalSet;
 
-#include "../../datastructures/BlockProposalFragmentList.h"
+#include "datastructures/BlockProposalFragmentList.h"
 
 class BlockFinalizeDownloader {
 

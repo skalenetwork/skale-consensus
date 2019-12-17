@@ -21,13 +21,13 @@
     @date 2018
 */
 
-#include "../SkaleCommon.h"
-#include "../Log.h"
-#include "../exceptions/FatalError.h"
+#include "SkaleCommon.h"
+#include "Log.h"
+#include "exceptions/FatalError.h"
 
-#include "../node/ConsensusEngine.h"
+#include "node/ConsensusEngine.h"
 
-#include "../threads/WorkerThreadPool.h"
+#include "threads/WorkerThreadPool.h"
 #include "Schain.h"
 #include "SchainDispatchThreadPool.h"
 

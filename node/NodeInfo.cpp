@@ -21,12 +21,12 @@
     @date 2018
 */
 
-#include "../SkaleCommon.h"
-#include "../Log.h"
-#include "../exceptions/FatalError.h"
-#include "../thirdparty/json.hpp"
+#include "SkaleCommon.h"
+#include "Log.h"
+#include "exceptions/FatalError.h"
+#include "thirdparty/json.hpp"
 
-#include "../network/Sockets.h"
+#include "network/Sockets.h"
 #include "NodeInfo.h"
 
 

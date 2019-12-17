@@ -21,13 +21,13 @@
     @date 2019
 */
 
-#include "../SkaleCommon.h"
-#include "../thirdparty/json.hpp"
-#include "../Log.h"
+#include "SkaleCommon.h"
+#include "thirdparty/json.hpp"
+#include "Log.h"
 
-#include "../headers/Header.h"
-#include "../network/Utils.h"
-#include "../exceptions/InvalidArgumentException.h"
+#include "headers/Header.h"
+#include "network/Utils.h"
+#include "exceptions/InvalidArgumentException.h"
 
 #include "SHAHash.h"
 

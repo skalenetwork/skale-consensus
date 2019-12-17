@@ -20,13 +20,13 @@
     @author Stan Kladko
     @date 2019
 */
-#include "../SkaleCommon.h"
-#include "../Log.h"
-#include "../thirdparty/json.hpp"
+#include "SkaleCommon.h"
+#include "Log.h"
+#include "thirdparty/json.hpp"
 
-#include "../utils/Time.h"
-#include "../chains/Schain.h"
-#include "../node/Node.h"
+#include "utils/Time.h"
+#include "chains/Schain.h"
+#include "node/Node.h"
 #include "LivelinessMonitor.h"
 
 

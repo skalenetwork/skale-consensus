@@ -24,7 +24,7 @@
 #pragma  once
 
 
-#include "../../protocols/ProtocolInstance.h"
+#include "protocols/ProtocolInstance.h"
 
 
 static const int MSG_HISTORY_SIZE = 2048;
