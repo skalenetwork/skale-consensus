@@ -101,6 +101,8 @@ TEST_CASE_METHOD(StartFromScratch, "Run basic consensus", "[consensus-basic]") {
 
 
 
+        REQUIRE(ConsensusEngine::getEngineVersion().size() > 0);
+
         engine = new ConsensusEngine();
         engine->parseConfigsAndCreateAllNodes(Consensust::getConfigDirPath());
         engine->slowStartBootStrapTest();

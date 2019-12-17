@@ -30,12 +30,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="e8eb5c74-4268-46a2-ac26-2e919fd9ff42" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/CONSENSUS_VERSION" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CONSENSUS_VERSION" beforeDir="false" afterPath="$PROJECT_DIR$/ENGINE_VERSION" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Consensust.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Consensust.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chains/Schain.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/chains/Schain.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/node/ConsensusEngine.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/node/ConsensusEngine.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/node/ConsensusEngine.h" beforeDir="false" afterPath="$PROJECT_DIR$/node/ConsensusEngine.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -45,6 +43,7 @@
   <component name="ClangdSettings">
     <option name="formatViaClangd" value="false" />
   </component>
+  <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:Debug" />
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
@@ -86,7 +85,7 @@
       <recent name="$PROJECT_DIR$/db" />
     </key>
   </component>
-  <component name="RunManager">
+  <component name="RunManager" selected="CMake Application.consensust">
     <configuration name="all_bls_tests" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="consensus" TARGET_NAME="all_bls_tests" CONFIG_NAME="Debug">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -711,10 +710,10 @@
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
     <state x="2338" y="205" width="1084" height="702" key="#com.intellij.execution.impl.EditConfigurationsDialog/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575891118630" />
-    <state x="2421" y="340" width="908" height="424" key="#com.intellij.fileTypes.FileTypeChooser" timestamp="1576609687658">
+    <state x="2421" y="340" width="908" height="424" key="#com.intellij.fileTypes.FileTypeChooser" timestamp="1576610719304">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state x="2421" y="340" width="908" height="424" key="#com.intellij.fileTypes.FileTypeChooser/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576609687658" />
+    <state x="2421" y="340" width="908" height="424" key="#com.intellij.fileTypes.FileTypeChooser/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576610719304" />
     <state x="2644" y="206" width="593" height="693" key="#com.intellij.ide.util.MemberChooser" timestamp="1576610128485">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>

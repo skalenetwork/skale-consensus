@@ -84,7 +84,7 @@
 #include "../protocols/binconsensus/BinConsensusInstance.h"
 
 #include "../exceptions/FatalError.h"
-#include "CONSENSUS_VERSION"
+#include "ENGINE_VERSION"
 #include "ConsensusEngine.h"
 
 using namespace boost::filesystem;
