@@ -38,7 +38,14 @@ class ConsensusBLSPrivateKeyShare;
 
 #include <boost/multiprecision/cpp_int.hpp>
 
+#include "ConsensusEngine.h"
+
+
+
 class ConsensusEngine : public ConsensusInterface {
+
+
+    static string engineVersion;
 
     recursive_mutex mutex;
 
@@ -141,4 +148,6 @@ public:
     u256 getPriceForBlockId(uint64_t _blockId) const override;
 
     void systemHealthCheck();
+
+    static string getEngineVersion();
 };

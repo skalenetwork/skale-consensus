@@ -84,7 +84,7 @@
 #include "../protocols/binconsensus/BinConsensusInstance.h"
 
 #include "../exceptions/FatalError.h"
-
+#include "CONSENSUS_VERSION"
 #include "ConsensusEngine.h"
 
 using namespace boost::filesystem;
@@ -540,3 +540,10 @@ bool ConsensusEngine::isNoUlimitCheck() {
     return noUlimitCheck;
 }
 
+
+
+string ConsensusEngine::engineVersion = ENGINE_VERSION;
+
+string ConsensusEngine::getEngineVersion() {
+    return engineVersion;
+}
