@@ -97,7 +97,7 @@
       <recent name="$PROJECT_DIR$/db" />
     </key>
   </component>
-  <component name="RunManager" selected="CMake Application.finalization_download_16">
+  <component name="RunManager" selected="CMake Application.test_two_engines_1">
     <configuration name="all_bls_tests" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="consensus" TARGET_NAME="all_bls_tests" CONFIG_NAME="Debug">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -245,6 +245,11 @@
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
+    <configuration name="test_two_engines_1" type="CMakeRunConfiguration" factoryName="Application" PROGRAM_PARAMS="[consensus-two-engines]" WORKING_DIR="file://$PROJECT_DIR$/test/onenode" PASS_PARENT_ENVS_2="true" PROJECT_NAME="consensus" TARGET_NAME="consensust" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="consensus" RUN_TARGET_NAME="consensust">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="verify_bls" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="consensus" TARGET_NAME="verify_bls" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="consensus" RUN_TARGET_NAME="verify_bls">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -276,6 +281,7 @@
       <item itemvalue="CMake Application.catchup_4" />
       <item itemvalue="CMake Application.finalization_download_16" />
       <item itemvalue="CMake Application.test_1" />
+      <item itemvalue="CMake Application.test_two_engines_1" />
       <item itemvalue="CMake Application.corrupt_proposal_test" />
       <item itemvalue="CMake Application.db_rotation" />
     </list>
@@ -310,13 +316,6 @@
       <workItem from="1575640279975" duration="4005000" />
       <workItem from="1575716912702" duration="17312000" />
       <workItem from="1576352552399" duration="22630000" />
-    </task>
-    <task id="LOCAL-00044" summary="Signing blocks now">
-      <created>1575037215810</created>
-      <option name="number" value="00044" />
-      <option name="presentableId" value="LOCAL-00044" />
-      <option name="project" value="LOCAL" />
-      <updated>1575037215810</updated>
     </task>
     <task id="LOCAL-00045" summary="Signing blocks now">
       <created>1575038689940</created>
@@ -654,7 +653,14 @@
       <option name="project" value="LOCAL" />
       <updated>1576674402952</updated>
     </task>
-    <option name="localTasksCounter" value="93" />
+    <task id="LOCAL-00093" summary="Fixed log">
+      <created>1576675524952</created>
+      <option name="number" value="00093" />
+      <option name="presentableId" value="LOCAL-00093" />
+      <option name="project" value="LOCAL" />
+      <updated>1576675524952</updated>
+    </task>
+    <option name="localTasksCounter" value="94" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -720,10 +726,10 @@
   <component name="WindowStateProjectService">
     <state x="2468" y="216" width="814" height="678" key="#All_in_[committed-block-serialize]" timestamp="1575636402415" />
     <state x="2468" y="216" width="814" height="678" key="#All_in_[committed-block-serialize]/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575636402415" />
-    <state x="2338" y="205" width="1084" height="702" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1576675099493">
+    <state x="2338" y="205" width="1084" height="702" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1576675937314">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state x="2338" y="205" width="1084" height="702" key="#com.intellij.execution.impl.EditConfigurationsDialog/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576675099493" />
+    <state x="2338" y="205" width="1084" height="702" key="#com.intellij.execution.impl.EditConfigurationsDialog/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576675937314" />
     <state x="2476" y="340" width="798" height="424" key="#com.intellij.fileTypes.FileTypeChooser" timestamp="1576674586401">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
@@ -736,30 +742,30 @@
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
     <state x="2550" y="243" width="649" height="618" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576079242641" />
-    <state x="2314" y="71" width="1121" height="962" key="CommitChangelistDialog2" timestamp="1576674402494">
+    <state x="2314" y="71" width="1121" height="962" key="CommitChangelistDialog2" timestamp="1576676256781">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state x="2314" y="71" width="1121" height="962" key="CommitChangelistDialog2/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576674402494" />
+    <state x="2314" y="71" width="1121" height="962" key="CommitChangelistDialog2/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576676256781" />
     <state x="2613" y="259" width="524" height="594" key="FileChooserDialogImpl" timestamp="1576073838542">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
     <state x="2613" y="259" width="524" height="594" key="FileChooserDialogImpl/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576073838542" />
-    <state width="1860" height="155" key="GridCell.Tab.0.bottom" timestamp="1576675479094">
+    <state width="1860" height="132" key="GridCell.Tab.0.bottom" timestamp="1576676051592">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state width="1860" height="155" key="GridCell.Tab.0.bottom/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576675479094" />
-    <state width="1860" height="155" key="GridCell.Tab.0.center" timestamp="1576675479094">
+    <state width="1860" height="132" key="GridCell.Tab.0.bottom/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576676051592" />
+    <state width="1860" height="132" key="GridCell.Tab.0.center" timestamp="1576676051592">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state width="1860" height="155" key="GridCell.Tab.0.center/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576675479094" />
-    <state width="1860" height="155" key="GridCell.Tab.0.left" timestamp="1576675479094">
+    <state width="1860" height="132" key="GridCell.Tab.0.center/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576676051592" />
+    <state width="1860" height="132" key="GridCell.Tab.0.left" timestamp="1576676051591">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state width="1860" height="155" key="GridCell.Tab.0.left/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576675479094" />
-    <state width="1860" height="155" key="GridCell.Tab.0.right" timestamp="1576675479094">
+    <state width="1860" height="132" key="GridCell.Tab.0.left/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576676051591" />
+    <state width="1860" height="132" key="GridCell.Tab.0.right" timestamp="1576676051592">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state width="1860" height="155" key="GridCell.Tab.0.right/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576675479094" />
+    <state width="1860" height="132" key="GridCell.Tab.0.right/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576676051592" />
     <state width="1860" height="314" key="GridCell.Tab.1.bottom" timestamp="1576672360301">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
@@ -780,10 +786,10 @@
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
     <state x="2238" y="100" key="SettingsEditor/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576053303654" />
-    <state x="2375" y="210" width="1000" height="684" key="Vcs.Push.Dialog.v2" timestamp="1576674404107">
+    <state x="2375" y="210" width="1000" height="684" key="Vcs.Push.Dialog.v2" timestamp="1576675526016">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state x="2375" y="210" width="1000" height="684" key="Vcs.Push.Dialog.v2/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576674404107" />
+    <state x="2375" y="210" width="1000" height="684" key="Vcs.Push.Dialog.v2/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576675526016" />
     <state x="2020" y="125" width="1720" height="855" key="com.intellij.history.integration.ui.views.FileHistoryDialog" timestamp="1575638884892">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
