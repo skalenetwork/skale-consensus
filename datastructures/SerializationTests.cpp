@@ -71,7 +71,7 @@ void test_committed_block_fragment_defragment(bool _fail) {
 
     boost::random::uniform_int_distribution<> ubyte(0, 255);
 
-    Log::init();
+    ConsensusEngine engine;
 
     auto cryptoManager = make_shared<CryptoManager>();
 

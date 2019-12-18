@@ -51,7 +51,6 @@
 #include "catchup/server/CatchupServerAgent.h"
 #include "exceptions/FatalError.h"
 #include "messages/Message.h"
-#include "protocols/InstanceGarbageCollectorAgent.h"
 #include "db/BlockDB.h"
 #include "db/DASigShareDB.h"
 #include "db/DAProofDB.h"
@@ -68,11 +67,10 @@
 using namespace std;
 
 Node::Node(const nlohmann::json &_cfg, ConsensusEngine *_consensusEngine) {
+    this->consensusEngine = _consensusEngine;
     this->nodeInfosByIndex = make_shared<map<schain_index, ptr<NodeInfo> > >();
     this->nodeInfosByIP = make_shared<map<ptr<string>, ptr<NodeInfo>, Comparator> >();
 
-
-    this->consensusEngine = _consensusEngine;
     this->startedServers = false;
     this->startedClients = false;
     this->exitRequested = false;
@@ -88,7 +86,7 @@ Node::Node(const nlohmann::json &_cfg, ConsensusEngine *_consensusEngine) {
 }
 
 void Node::initLevelDBs() {
-    string dataDir = *Log::getDataDir();
+    string dataDir = *ConsensusEngine::getDataDir();
     string blockDBPrefix = "blocks_" + to_string(nodeID) + ".db";
     string randomDBPrefix = "randoms_" + to_string(nodeID) + ".db";
     string priceDBPrefix = "prices_" + to_string(nodeID) + ".db";
@@ -116,7 +114,7 @@ void Node::initLevelDBs() {
 }
 
 void Node::initLogging() {
-    log = make_shared<Log>(nodeID);
+    log = make_shared<Log>(nodeID, getConsensusEngine());
 
     if (cfg.find("logLevel") != cfg.end()) {
         ptr<string> logLevel = make_shared<string>(cfg.at("logLevel").get<string>());

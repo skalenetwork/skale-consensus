@@ -303,7 +303,7 @@ extern void setThreadName(std::string const &_n, ConsensusEngine* _engine);
 extern std::string getThreadName();
 
 
-extern thread_local ptr<Log> logThreadLocal_;
+
 
 #define ASSERT(_EXPRESSION_) \
     if (!(_EXPRESSION_)) { \

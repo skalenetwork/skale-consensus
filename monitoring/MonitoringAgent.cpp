@@ -36,7 +36,7 @@
 #include "MonitoringThreadPool.h"
 
 
-MonitoringAgent::MonitoringAgent(Schain &_sChain) {
+MonitoringAgent::MonitoringAgent(Schain &_sChain) : Agent(_sChain, false, true) {
     try {
         logThreadLocal_ = _sChain.getNode()->getLog();
         this->sChain = &_sChain;
@@ -119,9 +119,6 @@ void MonitoringAgent::unregisterMonitor(LivelinessMonitor *_monitor) {
 
 }
 
-Schain *MonitoringAgent::getSchain() const {
-    return sChain;
-}
 
 void MonitoringAgent::join() {
     this->monitoringThreadPool->joinAll();

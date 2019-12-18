@@ -31,15 +31,16 @@
 class Node;
 class Schain;
 class CommittedBlock;
+class GlobalThreadRegistry;
 
 
 class Agent {
-public:
+
+
+protected:
+
     bool isServer;
 
-    virtual ~Agent();
-
-    mutex dispatchMutex;
 
 
     /**
@@ -65,13 +66,6 @@ public:
     std::map< schain_index, ptr< std::mutex > > queueMutex;
 
 
-    virtual void notifyAllConditionVariables();
-
-
-
-
-public:
-    std::recursive_mutex& getMainMutex() { return m; }
 
 protected:
     Schain* sChain;
@@ -80,9 +74,18 @@ protected:
 
 
 public:
-    Agent( Schain& _sChain, bool isServer, bool _isSchain = false );
+    Agent( Schain& _sChain, bool isServer, bool _dontRegister = false );
 
     Agent();
+
+    virtual void notifyAllConditionVariables();
+
+
+    virtual ~Agent();
+
+
+
+    ptr<GlobalThreadRegistry> getThreadRegistry();
 
 
     ptr<Node> getNode();
@@ -92,5 +95,8 @@ public:
 
     void waitOnGlobalStartBarrier();
 
-    void waitOnGlobalClientStartBarrier();
+
+    std::recursive_mutex& getMainMutex() { return m; }
+
+
 };

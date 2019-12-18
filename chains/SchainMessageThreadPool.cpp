@@ -35,11 +35,11 @@
 #include "SchainMessageThreadPool.h"
 
 
-SchainMessageThreadPool::SchainMessageThreadPool(void *params_) : WorkerThreadPool(NUM_SCHAIN_THREADS, params_) {
+SchainMessageThreadPool::SchainMessageThreadPool(Agent *_agent) : WorkerThreadPool(NUM_SCHAIN_THREADS, _agent, false) {
 
 }
 
 void SchainMessageThreadPool::createThread(uint64_t /*_threadNumber*/) {
     threadpool.push_back(make_shared<thread>(Schain::messageThreadProcessingLoop,
-                                    reinterpret_cast < Schain * > ( params )));
+                                    reinterpret_cast < Schain * > ( agent )));
 }

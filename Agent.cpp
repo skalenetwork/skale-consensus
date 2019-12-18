@@ -49,9 +49,9 @@ Schain *Agent::getSchain() const {
 }
 
 
-Agent::Agent(Schain &_sChain, bool _isServer, bool _isSchain) : isServer(_isServer), sChain(&_sChain) {
+Agent::Agent(Schain &_sChain, bool _isServer, bool _dontRegister) : isServer(_isServer), sChain(&_sChain) {
 
-    if (_isSchain)
+    if (_dontRegister)
         return;
     lock_guard<recursive_mutex> lock(_sChain.getMainMutex());
     sChain->getNode()->registerAgent(this);
@@ -73,6 +73,10 @@ void Agent::waitOnGlobalStartBarrier() {
 }
 
 Agent::~Agent() {
+}
+
+ptr<GlobalThreadRegistry> Agent::getThreadRegistry() {
+    return sChain->getNode()->getConsensusEngine()->getThreadRegistry();
 }
 
 

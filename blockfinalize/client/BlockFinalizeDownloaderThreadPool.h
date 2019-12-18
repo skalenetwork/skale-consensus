@@ -31,7 +31,7 @@ class BlockFinalizeDownloaderThreadPool : public WorkerThreadPool {
 
 public:
 
-    BlockFinalizeDownloaderThreadPool(num_threads numThreads, void *_params);
+    BlockFinalizeDownloaderThreadPool(num_threads numThreads, Agent *_params);
 
     void createThread(uint64_t number) override;
 

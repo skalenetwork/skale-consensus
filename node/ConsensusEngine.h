@@ -32,20 +32,71 @@
 #include "ConsensusInterface.h"
 #include "Node.h"
 
-class ConsensusBLSPublicKey;
 
-class ConsensusBLSPrivateKeyShare;
+
+#include "spdlog/spdlog.h"
+
+
 
 #include <boost/multiprecision/cpp_int.hpp>
 
-#include "ConsensusEngine.h"
 
+#define __CLASS_NAME__ className( __PRETTY_FUNCTION__ )
+
+#define LOG( __SEVERITY__, __MESSAGE__ ) \
+    ConsensusEngine::log( __SEVERITY__, __MESSAGE__, className( __PRETTY_FUNCTION__ ) )
+
+
+
+extern thread_local ptr<Log> logThreadLocal_;
+
+using namespace spdlog::level;
+
+
+class GlobalThreadRegistry;
 
 
 class ConsensusEngine : public ConsensusInterface {
 
-
     static string engineVersion;
+
+    ptr<GlobalThreadRegistry> threadRegistry;
+
+    uint64_t engineID;
+
+    static atomic<uint64_t> engineCounter;
+
+    static shared_ptr< spdlog::logger > configLogger;
+
+    static shared_ptr< string > dataDir;
+
+
+    static recursive_mutex logMutex;
+
+
+    shared_ptr< string > logFileNamePrefix;
+
+    shared_ptr< spdlog::sinks::sink > logRotatingFileSync;
+
+
+
+public:
+
+
+
+    void logInit();
+
+    static void setConfigLogLevel( string& _s );
+
+
+    static void log( level_enum _severity, const string& _message, const string& _className );
+
+    static void logConfig(level_enum _severity, const string &_message, const string &_className);
+
+    shared_ptr< spdlog::logger > createLogger( const string& loggerName );
+
+    static const shared_ptr< string > getDataDir();
+
 
     recursive_mutex mutex;
 
@@ -81,8 +132,10 @@ class ConsensusEngine : public ConsensusInterface {
     string blsPrivateKey;
 
     set<node_id> nodeIDs;
-public:
-   set<node_id> &getNodeIDs();
+
+
+
+    set<node_id> &getNodeIDs();
 
     static bool isOnTravis();
 
@@ -102,6 +155,10 @@ public:
                     const string &_blsPublicKey3 = "", const string &_blsPublicKey4 = "");
 
     ConsensusExtFace *getExtFace() const;
+
+
+    uint64_t getEngineID() const;
+
 
 
     void startAll() override;
@@ -148,5 +205,9 @@ public:
 
     void systemHealthCheck();
 
+
     static string getEngineVersion();
+
+    const ptr<GlobalThreadRegistry> &getThreadRegistry() const;
+
 };

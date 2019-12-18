@@ -34,7 +34,7 @@ class CatchupClientThreadPool : public WorkerThreadPool {
 
 public:
 
-    CatchupClientThreadPool(num_threads numThreads, void *params_);
+    CatchupClientThreadPool(num_threads numThreads, Agent *_agent);
 
     void createThread(uint64_t number) override;
 
