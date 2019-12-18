@@ -47,8 +47,13 @@
   </component>
   <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:Debug" />
   <component name="Git.Settings">
-    <option name="ROOT_SYNC" value="DONT_SYNC" />
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="SKALE-808-multiple-consensus-instances" />
+      </map>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="ROOT_SYNC" value="DONT_SYNC" />
   </component>
   <component name="OCFindUsagesOptions" text="false" ivars="false" properties="true" derivedClasses="false" />
   <component name="OCResolveContextSettings">
@@ -82,7 +87,7 @@
       <recent name="$PROJECT_DIR$/db" />
     </key>
   </component>
-  <component name="RunManager" selected="CMake Application.finalization_download_16">
+  <component name="RunManager" selected="CMake Application.consensust">
     <configuration name="all_bls_tests" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="consensus" TARGET_NAME="all_bls_tests" CONFIG_NAME="Debug">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -707,7 +712,7 @@
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
     <state x="2338" y="205" width="1084" height="702" key="#com.intellij.execution.impl.EditConfigurationsDialog/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575891118630" />
-    <state x="2644" y="206" width="593" height="693" key="#com.intellij.ide.util.MemberChooser" timestamp="1576053124139">
+    <state x="2421" y="340" width="908" height="424" key="#com.intellij.fileTypes.FileTypeChooser" timestamp="1576610719304">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
     <state x="2644" y="206" width="593" height="693" key="#com.intellij.ide.util.MemberChooser/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576053124139" />

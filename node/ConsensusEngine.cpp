@@ -70,6 +70,7 @@
 
 #include <boost/multiprecision/cpp_int.hpp>
 
+
 #include "chains/Schain.h"
 #include "libBLS/bls/BLSSignature.h"
 #include "libBLS/bls/BLSPublicKey.h"
@@ -85,6 +86,7 @@
 
 #include "exceptions/FatalError.h"
 
+#include "ENGINE_VERSION"
 #include "ConsensusEngine.h"
 
 using namespace boost::filesystem;
@@ -540,3 +542,10 @@ bool ConsensusEngine::isNoUlimitCheck() {
     return noUlimitCheck;
 }
 
+
+
+string ConsensusEngine::engineVersion = ENGINE_VERSION;
+
+string ConsensusEngine::getEngineVersion() {
+    return engineVersion;
+}
