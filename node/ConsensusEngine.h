@@ -41,10 +41,6 @@
 #include <boost/multiprecision/cpp_int.hpp>
 
 
-#define __CLASS_NAME__ className( __PRETTY_FUNCTION__ )
-
-#define LOG( __SEVERITY__, __MESSAGE__ ) \
-    ConsensusEngine::log( __SEVERITY__, __MESSAGE__, className( __PRETTY_FUNCTION__ ) )
 
 
 

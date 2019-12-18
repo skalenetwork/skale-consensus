@@ -50,6 +50,12 @@ namespace spdlog {
 class logger;
 }
 
+#define __CLASS_NAME__ className( __PRETTY_FUNCTION__ )
+
+#define LOG( __SEVERITY__, __MESSAGE__ ) \
+    ConsensusEngine::log( __SEVERITY__, __MESSAGE__, className( __PRETTY_FUNCTION__ ) )
+
+
 class Log {
 
 
