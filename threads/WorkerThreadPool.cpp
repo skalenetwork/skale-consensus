@@ -66,8 +66,8 @@ void WorkerThreadPool::joinAll() {
     joined = true;
 
     for (auto &&thread : threadpool) {
-        CHECK_STATE(thread->joinable());
-        thread->join();
+        if (thread->joinable())
+            thread->join();
         CHECK_STATE(!thread->joinable());
     }
 }
