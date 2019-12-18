@@ -559,6 +559,8 @@ void Schain::proposedBlockArrived(ptr<BlockProposal> _proposal) {
 
 void Schain::bootstrap(block_id _lastCommittedBlockID, uint64_t _lastCommittedBlockTimeStamp) {
 
+    LOG(info, "Consensus engine version:" + ConsensusEngine::getEngineVersion());
+
     checkForExit();
 
     MONITOR2(__CLASS_NAME__, __FUNCTION__, getMaxExternalBlockProcessingTime())

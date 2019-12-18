@@ -98,6 +98,11 @@ void testLog(const char *message) {
 TEST_CASE_METHOD(StartFromScratch, "Run basic consensus", "[consensus-basic]") {
 
     try {
+
+
+
+        REQUIRE(ConsensusEngine::getEngineVersion().size() > 0);
+
         engine = new ConsensusEngine();
         engine->parseConfigsAndCreateAllNodes(Consensust::getConfigDirPath());
         engine->slowStartBootStrapTest();

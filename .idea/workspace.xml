@@ -2,25 +2,25 @@
 <project version="4">
   <component name="CMakeRunConfigurationManager" shouldGenerate="true" shouldDeleteObsolete="true">
     <generated>
-      <config projectName="consensus" targetName="dkg_glue" />
-      <config projectName="consensus" targetName="sign_bls" />
-      <config projectName="consensus" targetName="te" />
-      <config projectName="consensus" targetName="consensus" />
-      <config projectName="consensus" targetName="all_bls_tests" />
-      <config projectName="consensus" targetName="dkg_keygen" />
-      <config projectName="consensus" targetName="consensusd" />
-      <config projectName="consensus" targetName="all_te_tests" />
-      <config projectName="consensus" targetName="bls" />
-      <config projectName="consensus" targetName="bls_glue" />
-      <config projectName="consensus" targetName="bls_unit_test" />
-      <config projectName="consensus" targetName="bls_test" />
-      <config projectName="consensus" targetName="te_test" />
-      <config projectName="consensus" targetName="hash_g1" />
       <config projectName="consensus" targetName="consensust" />
+      <config projectName="consensus" targetName="hash_g1" />
+      <config projectName="consensus" targetName="dkg_glue" />
+      <config projectName="consensus" targetName="dkg_keygen" />
+      <config projectName="consensus" targetName="all_bls_tests" />
+      <config projectName="consensus" targetName="bls_unit_test" />
       <config projectName="consensus" targetName="dkg_te_unit_test" />
+      <config projectName="consensus" targetName="consensusd" />
+      <config projectName="consensus" targetName="bls_test" />
+      <config projectName="consensus" targetName="bls_glue" />
+      <config projectName="consensus" targetName="all_te_tests" />
       <config projectName="consensus" targetName="te_unit_test" />
       <config projectName="consensus" targetName="dkg_unit_test" />
+      <config projectName="consensus" targetName="bls" />
+      <config projectName="consensus" targetName="te" />
+      <config projectName="consensus" targetName="te_test" />
       <config projectName="consensus" targetName="verify_bls" />
+      <config projectName="consensus" targetName="sign_bls" />
+      <config projectName="consensus" targetName="consensus" />
     </generated>
   </component>
   <component name="CMakeSettings">
@@ -55,10 +55,14 @@
     <expand />
     <select />
   </component>
-  <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:Debug" />
   <component name="Git.Settings">
-    <option name="ROOT_SYNC" value="DONT_SYNC" />
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="SKALE-808-multiple-consensus-instances" />
+      </map>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="ROOT_SYNC" value="DONT_SYNC" />
   </component>
   <component name="OCFindUsagesOptions" text="false" ivars="false" properties="true" derivedClasses="false" />
   <component name="OCResolveContextSettings">
@@ -92,7 +96,7 @@
       <recent name="$PROJECT_DIR$/db" />
     </key>
   </component>
-  <component name="RunManager" selected="CMake Application.finalization_download_16">
+  <component name="RunManager" selected="CMake Application.consensust">
     <configuration name="all_bls_tests" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="consensus" TARGET_NAME="all_bls_tests" CONFIG_NAME="Debug">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
