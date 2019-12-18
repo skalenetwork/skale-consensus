@@ -230,8 +230,12 @@ block_id Schain::getBootstrapBlockID() const {
 
 
 void Schain::setHealthCheckFile(uint64_t status) {
-    string fileName = ConsensusEngine::getDataDir()->append("/HEALTH_CHECK");
-
+    auto engine = getNode()->getConsensusEngine();
+    string fileName = engine->getHealthCheckDir()->append("/HEALTH_CHECK");
+    auto id = engine->getEngineID();
+    if (id > 1) {
+        fileName.append("." + to_string(id));
+    }
 
     ofstream f;
     f.open(fileName, ios::trunc);

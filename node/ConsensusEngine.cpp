@@ -128,6 +128,7 @@ void ConsensusEngine::logInit() {
         }
     }
 
+
     string logFileName;
     if (engineID > 1) {
         logFileName = "skaled." + to_string(engineID) + ".log";
@@ -137,12 +138,14 @@ void ConsensusEngine::logInit() {
 
 
     if (dataDir != nullptr) {
-
         logFileNamePrefix = make_shared<string>(*dataDir + "/" + logFileName);
         logRotatingFileSync = make_shared<spdlog::sinks::rotating_file_sink_mt>(*logFileNamePrefix,
                                                                                 10 * 1024 * 1024, 5);
+        healthCheckDir = dataDir;
+        dbDir = dataDir;
     } else {
-        dataDir = make_shared<string>("/tmp");
+        healthCheckDir = make_shared<string>("/tmp");
+        dbDir = healthCheckDir;
         logFileNamePrefix = nullptr;
         logRotatingFileSync = nullptr;
     }
@@ -475,9 +478,7 @@ void ConsensusEngine::systemHealthCheck() {
 
 void ConsensusEngine::init() {
 
-
     libff::init_alt_bn128_params();
-
 
     threadRegistry = make_shared<GlobalThreadRegistry>();
     logInit();
@@ -670,7 +671,15 @@ uint64_t ConsensusEngine::getEngineID() const {
     return engineID;
 }
 
-const ptr<GlobalThreadRegistry> &ConsensusEngine::getThreadRegistry() const {
+ptr<GlobalThreadRegistry> ConsensusEngine::getThreadRegistry() const {
     return threadRegistry;
+}
+
+shared_ptr<string> ConsensusEngine::getHealthCheckDir() const {
+    return healthCheckDir;
+}
+
+ptr<string> ConsensusEngine::getDbDir() const {
+    return dbDir;
 }
 

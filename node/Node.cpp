@@ -86,29 +86,28 @@ Node::Node(const nlohmann::json &_cfg, ConsensusEngine *_consensusEngine) {
 }
 
 void Node::initLevelDBs() {
-    string dataDir = *ConsensusEngine::getDataDir();
+    auto dbDir = *consensusEngine->getDbDir();
     string blockDBPrefix = "blocks_" + to_string(nodeID) + ".db";
     string randomDBPrefix = "randoms_" + to_string(nodeID) + ".db";
     string priceDBPrefix = "prices_" + to_string(nodeID) + ".db";
     string proposalHashDBPrefix = "/proposal_hashes_" + to_string(nodeID) + ".db";
-
     string blockSigShareDBPrefix = "/block_sigshares_" + to_string(nodeID) + ".db";
     string daSigShareDBPrefix = "/da_sigshares_" + to_string(nodeID) + ".db";
     string daProofDBPrefix = "/da_proofs_" + to_string(nodeID) + ".db";
     string blockProposalDBPrefix = "/block_proposals_" + to_string(nodeID) + ".db";
 
 
-    blockDB = make_shared<BlockDB>(getSchain(), dataDir, blockDBPrefix, getNodeID(), getBlockDBSize());
-    randomDB = make_shared<RandomDB>(getSchain(), dataDir, randomDBPrefix, getNodeID(), getRandomDBSize());
-    priceDB = make_shared<PriceDB>(getSchain(), dataDir, priceDBPrefix, getNodeID(), getPriceDBSize());
-    proposalHashDB = make_shared<ProposalHashDB>(getSchain(), dataDir, proposalHashDBPrefix, getNodeID(),
+    blockDB = make_shared<BlockDB>(getSchain(), dbDir, blockDBPrefix, getNodeID(), getBlockDBSize());
+    randomDB = make_shared<RandomDB>(getSchain(), dbDir, randomDBPrefix, getNodeID(), getRandomDBSize());
+    priceDB = make_shared<PriceDB>(getSchain(), dbDir, priceDBPrefix, getNodeID(), getPriceDBSize());
+    proposalHashDB = make_shared<ProposalHashDB>(getSchain(), dbDir, proposalHashDBPrefix, getNodeID(),
                                                  getProposalHashDBSize());
-    blockSigShareDB = make_shared<BlockSigShareDB>(getSchain(), dataDir, blockSigShareDBPrefix, getNodeID(),
+    blockSigShareDB = make_shared<BlockSigShareDB>(getSchain(), dbDir, blockSigShareDBPrefix, getNodeID(),
                                                    getBlockSigShareDBSize());
-    daSigShareDB = make_shared<DASigShareDB>(getSchain(), dataDir, daSigShareDBPrefix, getNodeID(),
+    daSigShareDB = make_shared<DASigShareDB>(getSchain(), dbDir, daSigShareDBPrefix, getNodeID(),
                                              getDaSigShareDBSize());
-    daProofDB = make_shared<DAProofDB>(getSchain(), dataDir, daProofDBPrefix, getNodeID(), getDaProofDBSize());
-    blockProposalDB = make_shared<BlockProposalDB>(getSchain(), dataDir, blockProposalDBPrefix, getNodeID(),
+    daProofDB = make_shared<DAProofDB>(getSchain(), dbDir, daProofDBPrefix, getNodeID(), getDaProofDBSize());
+    blockProposalDB = make_shared<BlockProposalDB>(getSchain(), dbDir, blockProposalDBPrefix, getNodeID(),
                                                    getBlockProposalDBSize());
 
 }

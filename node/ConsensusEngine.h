@@ -70,6 +70,13 @@ class ConsensusEngine : public ConsensusInterface {
 
     static shared_ptr< string > dataDir;
 
+    shared_ptr<string> healthCheckDir;
+    shared_ptr<string> dbDir;
+public:
+    ptr<string> getDbDir() const;
+
+
+private:
 
     static recursive_mutex logMutex;
 
@@ -87,6 +94,9 @@ public:
     void logInit();
 
     static void setConfigLogLevel( string& _s );
+
+    ptr<string> getHealthCheckDir() const;
+
 
 
     static void log( level_enum _severity, const string& _message, const string& _className );
@@ -208,6 +218,6 @@ public:
 
     static string getEngineVersion();
 
-    const ptr<GlobalThreadRegistry> &getThreadRegistry() const;
+    ptr<GlobalThreadRegistry> getThreadRegistry() const;
 
 };
