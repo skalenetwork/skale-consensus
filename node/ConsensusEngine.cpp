@@ -659,16 +659,13 @@ set<node_id> &ConsensusEngine::getNodeIDs() {
     return nodeIDs;
 }
 
-<<<<<<< HEAD
-
-
 
 string ConsensusEngine::engineVersion = ENGINE_VERSION;
 
 string ConsensusEngine::getEngineVersion() {
     return engineVersion;
 }
-=======
+
 uint64_t ConsensusEngine::getEngineID() const {
     return engineID;
 }
@@ -677,4 +674,3 @@ const ptr<GlobalThreadRegistry> &ConsensusEngine::getThreadRegistry() const {
     return threadRegistry;
 }
 
->>>>>>> 618c02bf2cff89d4746b938680a59d057c09b082
