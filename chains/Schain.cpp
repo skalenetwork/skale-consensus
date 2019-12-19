@@ -58,6 +58,7 @@
 #include "db/BlockProposalDB.h"
 #include "db/DAProofDB.h"
 #include "db/DASigShareDB.h"
+#include "db/ProposalVectorDB.h"
 #include "network/Sockets.h"
 #include "protocols/ProtocolInstance.h"
 #include "protocols/blockconsensus/BlockConsensusAgent.h"
@@ -534,6 +535,8 @@ void Schain::daProofArrived(ptr<DAProof> _daProof) {
 
 
         if (pv != nullptr) {
+
+            getNode()->getProposalVectorDB()->saveVector(_daProof->getBlockId(), pv);
             startConsensus(_daProof->getBlockId(), pv);
         }
     } catch (ExitRequestedException &e) { throw; }

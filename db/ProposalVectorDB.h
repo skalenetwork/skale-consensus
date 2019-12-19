@@ -38,9 +38,9 @@ public:
 
     ProposalVectorDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize);
 
-    bool checkAndSaveVector(block_id _proposalBlockID, schain_index _proposerIndex, ptr<string> _proposalVector);
+    bool saveVector(block_id _proposalBlockID, ptr<BooleanProposalVector> _proposalVector);
 
-    bool haveProposal(block_id _proposalBlockID, schain_index _proposerIndex);
+    ptr<BooleanProposalVector> getVector(block_id _blockID);
 
     const string getFormatVersion() override ;
 };

@@ -27,7 +27,7 @@
 #include "crypto/SHAHash.h"
 #include "chains/Schain.h"
 #include "exceptions/InvalidStateException.h"
-#include "datastructures/CommittedBlock.h"
+#include "datastructures/BooleanProposalVector.h"
 
 #include "ProposalVectorDB.h"
 #include "CacheLevelDB.h"
@@ -40,23 +40,27 @@ ProposalVectorDB::ProposalVectorDB(Schain *_sChain, string &_dirName, string &_p
 
 
 bool
-ProposalVectorDB::checkAndSaveVector(block_id _proposalBlockID, schain_index _proposerIndex, ptr<string> _proposalVector) {
+ProposalVectorDB::saveVector(block_id _proposalBlockID, ptr<BooleanProposalVector> _proposalVector) {
 
 
     lock_guard<recursive_mutex> lock(m);
 
+    CHECK_STATE(_proposalVector);
+
+    auto proposalString = _proposalVector->toString();
+
     try {
 
-        auto key = createKey(_proposalBlockID, _proposerIndex);
+        auto key = createKey(_proposalBlockID);
 
         auto previous = readString(*key);
 
         if (previous == nullptr) {
-            writeString(*key, *_proposalVector);
+            writeString(*key, *proposalString);
             return true;
         }
 
-        return (*previous == *_proposalVector);
+        return (*previous == *proposalString);
 
     } catch (...) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
@@ -64,20 +68,22 @@ ProposalVectorDB::checkAndSaveVector(block_id _proposalBlockID, schain_index _pr
 
 }
 
-bool
-ProposalVectorDB::haveProposal(block_id _proposalBlockID, schain_index _proposerIndex) {
+ptr<BooleanProposalVector>
+ProposalVectorDB::getVector(block_id _blockID) {
 
 
     lock_guard<recursive_mutex> lock(m);
 
     try {
 
-        auto key = createKey(_proposalBlockID, _proposerIndex);
+        auto key = createKey(_blockID);
 
-        auto previous = readString(*key);
+        auto value = readString(*key);
 
-        return (previous != nullptr);
-
+        if (value == nullptr) {
+            return nullptr;
+        }
+        return make_shared<BooleanProposalVector>(getSchain()->getNodeCount(), value);
     } catch (...) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }

@@ -95,6 +95,8 @@ ptr<BooleanProposalVector> DAProofDB::addDAProof(ptr<DAProof> _daProof) {
 
 
 
+
+
     LOG(trace, "Created proposal vector");
 
     return proposalVector;
