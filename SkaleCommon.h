@@ -292,6 +292,7 @@ static const uint64_t  RANDOM_DB_SIZE = 10000000;
 static const uint64_t  PRICE_DB_SIZE = 10000000;
 static const uint64_t  PROPOSAL_HASH_DB_SIZE = 10000000;
 static const uint64_t  PROPOSAL_VECTOR_DB_SIZE = 10000000;
+static const uint64_t  OUTGOING_MSG_DB_SIZE = 10000000;
 static const uint64_t  BLOCK_SIG_SHARE_DB_SIZE = 10000000;
 static const uint64_t  DA_SIG_SHARE_DB_SIZE = 10000000;
 static const uint64_t  DA_PROOF_DB_SIZE = 10000000;

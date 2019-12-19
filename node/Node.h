@@ -65,6 +65,7 @@ class PriceDB;
 
 class ProposalHashDB;
 class ProposalVectorDB;
+class OutgoingMsgDB;
 
 class TestConfig;
 
@@ -163,6 +164,8 @@ private:
 
     ptr<ProposalVectorDB> proposalVectorDB = nullptr;
 
+    ptr<OutgoingMsgDB> outgoingMsgDB = nullptr;
+
     ptr<BlockSigShareDB> blockSigShareDB = nullptr;
 
     ptr<DASigShareDB> daSigShareDB = nullptr;
@@ -194,6 +197,7 @@ private:
     uint64_t blockDBSize;
     uint64_t proposalHashDBSize;
     uint64_t proposalVectorDBSize;
+    uint64_t outgoingMsgDBSize;
     uint64_t daSigShareDBSize;
     uint64_t daProofDBSize;
     uint64_t blockSigShareDBSize;
@@ -214,13 +218,20 @@ public:
     ptr<PriceDB> getPriceDB() const;
     ptr<ProposalHashDB> getProposalHashDB();
     ptr<ProposalVectorDB> getProposalVectorDB();
+    ptr<OutgoingMsgDB> getOutgoingMsgDB();
+
+
+
     ptr<BlockSigShareDB> getBlockSigShareDB() const;
     ptr<DASigShareDB> getDaSigShareDB() const;
     ptr<DAProofDB> getDaProofDB() const;
     ptr<BlockProposalDB> getBlockProposalDB() const;
 
+
+
     uint64_t getProposalHashDBSize() const;
     uint64_t getProposalVectorDBSize() const;
+    uint64_t getOutgoingMsgDBSize() const;
     uint64_t getBlockDBSize() const;
     uint64_t getBlockSigShareDBSize() const;
     uint64_t getRandomDBSize() const;

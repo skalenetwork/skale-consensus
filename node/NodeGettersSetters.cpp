@@ -145,6 +145,12 @@ ptr<ProposalVectorDB> Node::getProposalVectorDB() {
     return proposalVectorDB;
 }
 
+ptr<OutgoingMsgDB> Node::getOutgoingMsgDB() {
+    CHECK_STATE(outgoingMsgDB);
+    return outgoingMsgDB;
+}
+
+
 
 
 ptr<map<schain_index, ptr<NodeInfo> > > Node::getNodeInfosByIndex() const {
