@@ -431,6 +431,9 @@ void Schain::processCommittedBlock(ptr<CommittedBlock> _block) {
 }
 
 void Schain::saveBlock(ptr<CommittedBlock> &_block) {
+
+    CHECK_ARGUMENT(_block);
+
     MONITOR(__CLASS_NAME__, __FUNCTION__)
 
     try {
@@ -445,6 +448,8 @@ void Schain::saveBlock(ptr<CommittedBlock> &_block) {
 
 
 void Schain::pushBlockToExtFace(ptr<CommittedBlock> &_block) {
+
+    CHECK_ARGUMENT(_block);
 
     MONITOR2(__CLASS_NAME__, __FUNCTION__, getMaxExternalBlockProcessingTime())
 
@@ -477,6 +482,8 @@ void Schain::pushBlockToExtFace(ptr<CommittedBlock> &_block) {
 
 void Schain::startConsensus(const block_id _blockID, ptr<BooleanProposalVector> _proposalVector) {
     {
+
+        CHECK_ARGUMENT(_proposalVector);
 
         MONITOR(__CLASS_NAME__, __FUNCTION__)
 
@@ -523,6 +530,8 @@ void Schain::startConsensus(const block_id _blockID, ptr<BooleanProposalVector> 
 }
 
 void Schain::daProofArrived(ptr<DAProof> _daProof) {
+
+    CHECK_ARGUMENT(_daProof);
 
     MONITOR(__CLASS_NAME__, __FUNCTION__)
 
