@@ -63,8 +63,6 @@ BlockDB::BlockDB(Schain *_sChain, string &_dirname, string &_prefix, node_id _no
 
 void BlockDB::saveBlock2LevelDB(ptr<CommittedBlock> &_block) {
 
-
-
     CHECK_ARGUMENT(_block->getSignature() != nullptr);
 
     LOCK(m)
@@ -75,11 +73,7 @@ void BlockDB::saveBlock2LevelDB(ptr<CommittedBlock> &_block) {
 
         auto key = createKey(_block->getBlockID());
 
-        auto value = (const char *) serializedBlock->data();
-
-        auto valueLen = serializedBlock->size();
-
-        writeByteArray(*key, value, valueLen);
+        writeByteArray(*key, serializedBlock);
     } catch (...) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }

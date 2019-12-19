@@ -33,7 +33,6 @@
 #include "chains/Schain.h"
 #include "crypto/ConsensusBLSSigShare.h"
 #include "crypto/CryptoManager.h"
-#include "node/Node.h"
 #include "node/NodeInfo.h"
 #include "network/Buffer.h"
 #include "Message.h"

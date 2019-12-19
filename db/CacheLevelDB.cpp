@@ -60,6 +60,11 @@ static WriteOptions writeOptions;
 static ReadOptions readOptions;
 
 
+ptr<string> CacheLevelDB::createKey(const block_id _blockId, uint64_t _counter) {
+    return make_shared<string>(
+            getFormatVersion() + ":" + to_string(_blockId) + ":" + to_string(_counter));
+}
+
 ptr<string> CacheLevelDB::createKey(const block_id _blockId) {
     return make_shared<string>(getFormatVersion() + ":" + to_string(_blockId));
 }
@@ -181,8 +186,10 @@ void CacheLevelDB::writeByteArray(const char *_key, size_t _keyLen, const char *
     }
 }
 
-void CacheLevelDB::writeByteArray(string &_key, const char *value,
-                                  size_t _valueLen) {
+void CacheLevelDB::writeByteArray(string &_key, ptr<vector<uint8_t>> _data) {
+
+    auto value = (const char*) _data->data();
+    auto valueLen = _data->size();
 
     rotateDBsIfNeeded();
 
@@ -190,7 +197,7 @@ void CacheLevelDB::writeByteArray(string &_key, const char *value,
         shared_lock<shared_mutex> lock(m);
 
 
-        auto status = db.back()->Put(writeOptions, Slice(_key), Slice(value, _valueLen));
+        auto status = db.back()->Put(writeOptions, Slice(_key), Slice(value, valueLen));
 
         throwExceptionOnError(status);
 

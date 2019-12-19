@@ -80,14 +80,14 @@ protected:
 
     void writeByteArray(const char *_key, size_t _keyLen, const char *value,
                         size_t _valueLen);
-    void writeByteArray(string &_key, const char *value,
-                        size_t _valueLen);
+    void writeByteArray(string &_key, ptr<vector<uint8_t>> _data);
 
 
     ptr<string> createKey(block_id _blockId);
 
     ptr<string> createKey(block_id _blockId, schain_index _proposerIndex);
 
+    ptr<string> createKey(const block_id _blockId, uint64_t _counter);
 
     ptr<string>
     createKey(const block_id &_blockId, const schain_index &_proposerIndex, const bin_consensus_round &_round);

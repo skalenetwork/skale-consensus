@@ -115,6 +115,12 @@ ptr<vector<ptr<NetworkMessageEnvelope> > > TransportNetwork::pullMessagesForBloc
 }
 
 void TransportNetwork::broadcastMessage(ptr<NetworkMessage> _m) {
+
+    //static atomic<uint64_t> broadCastCounter = 0;
+
+
+
+
     if (_m->getBlockID() <= this->catchupBlocks) {
         return;
     }

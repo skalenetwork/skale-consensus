@@ -77,7 +77,6 @@ protected:
 
     ptr<vector<ptr<NetworkMessageEnvelope>>> pullMessagesForBlockID(block_id _blockID);
 
-
     virtual bool sendMessage(const ptr<NodeInfo> &remoteNodeInfo, ptr<NetworkMessage> _msg) = 0;
 
 

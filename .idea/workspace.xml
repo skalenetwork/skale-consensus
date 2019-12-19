@@ -30,9 +30,15 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="e8eb5c74-4268-46a2-ac26-2e919fd9ff42" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/db/OutgoingMsgDB.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/db/OutgoingMsgDB.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chains/Schain.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/chains/Schain.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/PriceDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/PriceDB.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/BlockDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/BlockDB.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/CacheLevelDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/CacheLevelDB.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/CacheLevelDB.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/CacheLevelDB.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messages/NetworkMessage.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/messages/NetworkMessage.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/network/TransportNetwork.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/network/TransportNetwork.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/network/TransportNetwork.h" beforeDir="false" afterPath="$PROJECT_DIR$/network/TransportNetwork.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -91,10 +97,10 @@
     <property name="settings.editor.selected.configurable" value="CMakeSettings" />
   </component>
   <component name="RecentsManager">
-    <key name="MoveFile.RECENT_KEYS">
+    <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/db" />
     </key>
-    <key name="CopyFile.RECENT_KEYS">
+    <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/db" />
     </key>
   </component>
@@ -317,14 +323,7 @@
       <workItem from="1575640279975" duration="4005000" />
       <workItem from="1575716912702" duration="17312000" />
       <workItem from="1576352552399" duration="22630000" />
-      <workItem from="1576770922817" duration="258000" />
-    </task>
-    <task id="LOCAL-00051" summary="Fixed block tests">
-      <created>1575371674234</created>
-      <option name="number" value="00051" />
-      <option name="presentableId" value="LOCAL-00051" />
-      <option name="project" value="LOCAL" />
-      <updated>1575371674234</updated>
+      <workItem from="1576770922817" duration="4035000" />
     </task>
     <task id="LOCAL-00052" summary="Cleaning crypto">
       <created>1575373006123</created>
@@ -662,7 +661,14 @@
       <option name="project" value="LOCAL" />
       <updated>1576765042853</updated>
     </task>
-    <option name="localTasksCounter" value="100" />
+    <task id="LOCAL-00100" summary="Completed proposal vector DB">
+      <created>1576771253547</created>
+      <option name="number" value="00100" />
+      <option name="presentableId" value="LOCAL-00100" />
+      <option name="project" value="LOCAL" />
+      <updated>1576771253547</updated>
+    </task>
+    <option name="localTasksCounter" value="101" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -698,7 +704,6 @@
   <component name="VcsManagerConfiguration">
     <option name="CHECK_CODE_SMELLS_BEFORE_PROJECT_COMMIT" value="false" />
     <option name="CHECK_NEW_TODO" value="false" />
-    <MESSAGE value="Adding set DB" />
     <MESSAGE value="Added block set storage" />
     <MESSAGE value="Adding sigShareStorage" />
     <MESSAGE value="Decide on block signing" />
@@ -723,7 +728,8 @@
     <MESSAGE value="Cleaning imports" />
     <MESSAGE value="Fixed log" />
     <MESSAGE value="Adding ProposalVectorDB" />
-    <option name="LAST_COMMIT_MESSAGE" value="Adding ProposalVectorDB" />
+    <MESSAGE value="Completed proposal vector DB" />
+    <option name="LAST_COMMIT_MESSAGE" value="Completed proposal vector DB" />
   </component>
   <component name="WindowStateProjectService">
     <state x="2468" y="216" width="814" height="678" key="#All_in_[committed-block-serialize]" timestamp="1575636402415" />
@@ -744,30 +750,30 @@
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
     <state x="2550" y="243" width="649" height="618" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576752235200" />
-    <state x="2314" y="71" width="1121" height="962" key="CommitChangelistDialog2" timestamp="1576765042350">
+    <state x="2314" y="71" width="1121" height="962" key="CommitChangelistDialog2" timestamp="1576771252953">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state x="2314" y="71" width="1121" height="962" key="CommitChangelistDialog2/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576765042350" />
+    <state x="2314" y="71" width="1121" height="962" key="CommitChangelistDialog2/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576771252953" />
     <state x="2613" y="259" width="524" height="594" key="FileChooserDialogImpl" timestamp="1576073838542">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
     <state x="2613" y="259" width="524" height="594" key="FileChooserDialogImpl/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576073838542" />
-    <state width="1860" height="656" key="GridCell.Tab.0.bottom" timestamp="1576771191015">
+    <state width="1860" height="55" key="GridCell.Tab.0.bottom" timestamp="1576786490978">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state width="1860" height="656" key="GridCell.Tab.0.bottom/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576771191015" />
-    <state width="1860" height="656" key="GridCell.Tab.0.center" timestamp="1576771191015">
+    <state width="1860" height="55" key="GridCell.Tab.0.bottom/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576786490978" />
+    <state width="1860" height="55" key="GridCell.Tab.0.center" timestamp="1576786490977">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state width="1860" height="656" key="GridCell.Tab.0.center/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576771191015" />
-    <state width="1860" height="656" key="GridCell.Tab.0.left" timestamp="1576771191015">
+    <state width="1860" height="55" key="GridCell.Tab.0.center/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576786490977" />
+    <state width="1860" height="55" key="GridCell.Tab.0.left" timestamp="1576786490977">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state width="1860" height="656" key="GridCell.Tab.0.left/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576771191015" />
-    <state width="1860" height="656" key="GridCell.Tab.0.right" timestamp="1576771191015">
+    <state width="1860" height="55" key="GridCell.Tab.0.left/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576786490977" />
+    <state width="1860" height="55" key="GridCell.Tab.0.right" timestamp="1576786490977">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state width="1860" height="656" key="GridCell.Tab.0.right/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576771191015" />
+    <state width="1860" height="55" key="GridCell.Tab.0.right/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576786490977" />
     <state width="1860" height="314" key="GridCell.Tab.1.bottom" timestamp="1576762976186">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
@@ -788,10 +794,10 @@
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
     <state x="2238" y="100" key="SettingsEditor/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576759515576" />
-    <state x="2375" y="210" width="1000" height="684" key="Vcs.Push.Dialog.v2" timestamp="1576765043912">
+    <state x="2375" y="210" width="1000" height="684" key="Vcs.Push.Dialog.v2" timestamp="1576771254618">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state x="2375" y="210" width="1000" height="684" key="Vcs.Push.Dialog.v2/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576765043912" />
+    <state x="2375" y="210" width="1000" height="684" key="Vcs.Push.Dialog.v2/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576771254618" />
     <state x="2020" y="125" width="1720" height="855" key="com.intellij.history.integration.ui.views.FileHistoryDialog" timestamp="1575638884892">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
@@ -800,18 +806,18 @@
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
     <state x="2434" y="329" key="com.intellij.ide.util.TipDialog/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576770922912" />
-    <state x="2188" y="30" width="1125" height="792" key="find.popup" timestamp="1576764908098">
+    <state x="2188" y="30" width="1125" height="792" key="find.popup" timestamp="1576783153438">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state x="2188" y="30" width="1125" height="792" key="find.popup/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576764908098" />
+    <state x="2188" y="30" width="1125" height="792" key="find.popup/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576783153438" />
     <state x="2479" y="299" width="801" height="506" key="git4idea.merge.GitMergeDialog" timestamp="1575886235995">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
     <state x="2479" y="299" width="801" height="506" key="git4idea.merge.GitMergeDialog/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575886235995" />
-    <state x="2565" y="128" width="620" height="849" key="refactoring.ChangeSignatureDialog" timestamp="1576762358654">
+    <state x="2565" y="128" width="620" height="849" key="refactoring.ChangeSignatureDialog" timestamp="1576786082099">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state x="2565" y="128" width="620" height="849" key="refactoring.ChangeSignatureDialog/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576762358654" />
+    <state x="2565" y="128" width="620" height="849" key="refactoring.ChangeSignatureDialog/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576786082099" />
     <state x="2459" y="45" width="840" height="1034" key="search.everywhere.popup" timestamp="1576759369068">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
