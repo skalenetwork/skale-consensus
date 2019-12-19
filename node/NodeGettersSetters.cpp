@@ -58,8 +58,6 @@
 #include "exceptions/FatalError.h"
 #include "messages/Message.h"
 
-#include "protocols/InstanceGarbageCollectorAgent.h"
-
 #include "db/BlockDB.h"
 #include "db/CommittedTransactionDB.h"
 #include "db/PriceDB.h"
@@ -342,5 +340,9 @@ ptr<BlockProposalDB>  Node::getBlockProposalDB() const {
 
 uint64_t Node::getBlockProposalDBSize() const {
     return blockProposalDBSize;
+}
+
+ConsensusEngine *Node::getConsensusEngine() const {
+    return consensusEngine;
 }
 

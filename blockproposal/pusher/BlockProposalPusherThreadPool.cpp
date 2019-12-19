@@ -31,17 +31,15 @@
 #include "BlockProposalClientAgent.h"
 #include "BlockProposalPusherThreadPool.h"
 
-BlockProposalPusherThreadPool::BlockProposalPusherThreadPool(num_threads numThreads, void *params_) : WorkerThreadPool(numThreads,
-                                                                                                            params_) {
-    ASSERT(((BlockProposalClientAgent*) params)->queueMutex.size() > 0);
+BlockProposalPusherThreadPool::BlockProposalPusherThreadPool(
+        num_threads _numThreads, Agent *_agent) : WorkerThreadPool(_numThreads,
+                                                                  _agent, false) {
 }
 
 
 void BlockProposalPusherThreadPool::createThread(uint64_t /*number*/) {
 
-    auto p = (BlockProposalClientAgent*)params;
-
-    ASSERT(p->queueMutex.size() > 0);
+    auto p = (BlockProposalClientAgent*)agent;
 
     this->threadpool.push_back(make_shared<thread>(AbstractClientAgent::workerThreadItemSendLoop, p));
 

@@ -491,6 +491,8 @@ void BinConsensusInstance::proceedWithNewRound(bin_consensus_value value) {
 }
 
 void BinConsensusInstance::printHistory() {
+
+#ifdef CONSENSUS_DEBUG
     cerr << "Proposer:" << getBlockProposerIndex() << "Nodecount:" << getNodeCount() << endl;
     for (auto &&m: *msgHistory) {
 
@@ -498,11 +500,9 @@ void BinConsensusInstance::printHistory() {
             m->getBlockID() == getBlockID() && m->getDstNodeID() == getSchain()->getNode()->getNodeID()) {
             m->printMessage();
         }
-
-
     };
-
     cerr << endl;
+#endif
 }
 
 void BinConsensusInstance::decide(bin_consensus_value b) {
@@ -588,7 +588,9 @@ void BinConsensusInstance::initHistory() {
 
     globalFalseDecisions = make_shared<map<ptr<ProtocolKey>, ptr<BinConsensusInstance>, Comparator>>();
 
+#ifdef CONSENSUS_DEBUG
     msgHistory = make_shared<list<ptr<NetworkMessage>>>();
+#endif
 }
 
 bin_consensus_round BinConsensusInstance::getCurrentRound() {
@@ -604,7 +606,9 @@ ptr<map<ptr<ProtocolKey>, ptr<BinConsensusInstance>, BinConsensusInstance::Compa
 
 ptr<map<ptr<ProtocolKey>, ptr<BinConsensusInstance>, BinConsensusInstance::Comparator>> BinConsensusInstance::globalFalseDecisions = nullptr;
 
+#ifdef CONSENSUS_DEBUG
 ptr<list<ptr<NetworkMessage>>> BinConsensusInstance::msgHistory = nullptr;
+#endif
 
 BlockConsensusAgent *BinConsensusInstance::getBlockConsensusInstance() const {
     return blockConsensusInstance;

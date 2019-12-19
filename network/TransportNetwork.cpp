@@ -164,8 +164,7 @@ void TransportNetwork::broadcastMessage(ptr<NetworkMessage> _m) {
 }
 
 void TransportNetwork::networkReadLoop() {
-    setThreadName("NtwkRdLoop");
-
+    setThreadName("NtwkRdLoop", getSchain()->getNode()->getConsensusEngine());
     waitOnGlobalStartBarrier();
 
     try {
@@ -231,7 +230,7 @@ void TransportNetwork::postOrDefer(
 }
 
 void TransportNetwork::deferredMessagesLoop() {
-    setThreadName("DeferMsgLoop");
+    setThreadName("DeferMsgLoop", getSchain()->getNode()->getConsensusEngine());
 
     auto nodeCount = getSchain()->getNodeCount();
     auto schainIndex = getSchain()->getSchainIndex();
@@ -271,8 +270,10 @@ void TransportNetwork::startThreads() {
     deferredMessageThread =
             make_shared<thread>(std::bind(&TransportNetwork::deferredMessagesLoop, this));
 
-    GlobalThreadRegistry::add(networkReadThread);
-    GlobalThreadRegistry::add(deferredMessageThread);
+    auto reg = getSchain()->getNode()->getConsensusEngine()->getThreadRegistry();
+
+    reg->add(networkReadThread);
+    reg->add(deferredMessageThread);
 }
 
 bool TransportNetwork::validateIpAddress(ptr<string> &ip) {

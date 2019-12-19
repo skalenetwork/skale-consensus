@@ -42,14 +42,15 @@
 #include "BlockFinalizeDownloader.h"
 #include "BlockFinalizeDownloaderThreadPool.h"
 
-BlockFinalizeDownloaderThreadPool::BlockFinalizeDownloaderThreadPool(num_threads numThreads, void *params_) : WorkerThreadPool(numThreads,
-                                                                                                                               params_) {
+BlockFinalizeDownloaderThreadPool::BlockFinalizeDownloaderThreadPool(
+        num_threads numThreads, Agent *_params) : WorkerThreadPool(numThreads,
+                                                                  _params, false) {
 }
 
 
 void BlockFinalizeDownloaderThreadPool::createThread(uint64_t number) {
 
-    auto p = (BlockFinalizeDownloader*)params;
+    auto p = (BlockFinalizeDownloader*)agent;
 
     uint64_t index = number + 1;
 

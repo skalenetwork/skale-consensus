@@ -141,7 +141,7 @@ AbstractServerAgent::~AbstractServerAgent() {
 
 void AbstractServerAgent::acceptTCPConnectionsLoop() {
 
-    setThreadName(name);
+    setThreadName(name, getSchain()->getNode()->getConsensusEngine());
 
     waitOnGlobalStartBarrier();
 

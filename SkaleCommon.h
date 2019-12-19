@@ -87,7 +87,7 @@
 
 #include <boost/crc.hpp>
 
-
+class ConsensusEngine;
 class Log;
 
 
@@ -298,12 +298,12 @@ static const uint64_t  BLOCK_PROPOSAL_DB_SIZE = 100000000;
 
 
 
-extern void setThreadName(std::string const &_n);
+extern void setThreadName(std::string const &_n, ConsensusEngine* _engine);
 
 extern std::string getThreadName();
 
 
-extern thread_local ptr<Log> logThreadLocal_;
+
 
 #define ASSERT(_EXPRESSION_) \
     if (!(_EXPRESSION_)) { \

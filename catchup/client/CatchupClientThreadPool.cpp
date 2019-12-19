@@ -35,19 +35,18 @@
 #include "CatchupClientAgent.h"
 #include "CatchupClientThreadPool.h"
 
-CatchupClientThreadPool::CatchupClientThreadPool(num_threads numThreads, void *params_) : WorkerThreadPool(numThreads,
-                                                                                                            params_) {
+CatchupClientThreadPool::CatchupClientThreadPool(
+        num_threads _numThreads, Agent* _agent) : WorkerThreadPool(_numThreads,
+                                                                   _agent, false) {
 
 }
 
 
 void CatchupClientThreadPool::createThread(uint64_t /*number*/) {
 
-    auto p = (CatchupClientAgent*)params;
+    auto a = (CatchupClientAgent*) agent;
 
-
-
-    this->threadpool.push_back(make_shared<thread>(CatchupClientAgent::workerThreadItemSendLoop, p));
+    this->threadpool.push_back(make_shared<thread>(CatchupClientAgent::workerThreadItemSendLoop, a));
 
 }
 

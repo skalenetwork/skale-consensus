@@ -26,6 +26,7 @@
 
 
 class Schain;
+class GlobalThreadRegistry;
 
 
 class WorkerThreadPool {
@@ -48,12 +49,11 @@ protected:
 
     num_threads numThreads;
 
-    void* params;
+    Agent* agent;
 
 protected:
 
-    WorkerThreadPool( num_threads _numThreads, void* _param,
-            bool _dontJoinGlobalRegistry = false);
+    WorkerThreadPool(num_threads _numThreads, Agent *_agent, bool _dontJoinGlobalRegistry);
 
 public:
 
@@ -65,5 +65,6 @@ public:
     void joinAll();
 
     bool isJoined() const;
+
 
 };

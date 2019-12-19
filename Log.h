@@ -37,16 +37,11 @@
 #include "exceptions/InvalidStateException.h"
 
 #include "SkaleCommon.h"
+#include "node/ConsensusEngine.h"
 
 using namespace std;
 
-using namespace spdlog::level;
 
-
-#define __CLASS_NAME__ className( __PRETTY_FUNCTION__ )
-
-#define LOG( __SEVERITY__, __MESSAGE__ ) \
-    Log::log( __SEVERITY__, __MESSAGE__, className( __PRETTY_FUNCTION__ ) )
 
 class Exception;
 
@@ -55,31 +50,25 @@ namespace spdlog {
 class logger;
 }
 
+#define __CLASS_NAME__ className( __PRETTY_FUNCTION__ )
+
+#define LOG( __SEVERITY__, __MESSAGE__ ) \
+    ConsensusEngine::log( __SEVERITY__, __MESSAGE__, className( __PRETTY_FUNCTION__ ) )
+
+
 class Log {
 
-    static recursive_mutex m;
-
-    static bool inited;
-
-    static shared_ptr< string > dataDir;
-
-    static shared_ptr< string > logFileNamePrefix;
-
-    static shared_ptr< spdlog::logger > configLogger;
-
-    static shared_ptr< spdlog::sinks::sink > rotatingFileSync;
 
     shared_ptr< string > prefix = nullptr;
 
-
     node_id nodeID;
 
-private:
     shared_ptr< spdlog::logger > mainLogger, proposalLogger, consensusLogger, catchupLogger,
         netLogger, dataStructuresLogger, pendingQueueLogger;
 
 public:
-    Log( node_id _nodeID );
+
+    Log( node_id _nodeID, ConsensusEngine* _engine);
 
     const node_id getNodeID() const;
 
@@ -87,25 +76,13 @@ public:
 
     level_enum globalLogLevel;
 
-    static void init();
-
-    static void setConfigLogLevel( string& _s );
-
 
     void setGlobalLogLevel( string& _s );
-
-    static level_enum logLevelFromString( string& _s );
 
 
     shared_ptr< spdlog::logger > loggerForClass( const char* _className );
 
-    static void log( level_enum _severity, const string& _message, const string& _className );
 
-    static void logConfig(level_enum _severity, const string &_message, const string &_className);
-
-
-    static shared_ptr< spdlog::logger > createLogger( const string& loggerName );
-
-    static const shared_ptr< string > getDataDir();
+    static level_enum logLevelFromString(string &_s);
 };
 #endif

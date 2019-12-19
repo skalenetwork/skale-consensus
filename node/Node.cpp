@@ -51,7 +51,6 @@
 #include "catchup/server/CatchupServerAgent.h"
 #include "exceptions/FatalError.h"
 #include "messages/Message.h"
-#include "protocols/InstanceGarbageCollectorAgent.h"
 #include "db/BlockDB.h"
 #include "db/DASigShareDB.h"
 #include "db/DAProofDB.h"
@@ -68,11 +67,10 @@
 using namespace std;
 
 Node::Node(const nlohmann::json &_cfg, ConsensusEngine *_consensusEngine) {
+    this->consensusEngine = _consensusEngine;
     this->nodeInfosByIndex = make_shared<map<schain_index, ptr<NodeInfo> > >();
     this->nodeInfosByIP = make_shared<map<ptr<string>, ptr<NodeInfo>, Comparator> >();
 
-
-    this->consensusEngine = _consensusEngine;
     this->startedServers = false;
     this->startedClients = false;
     this->exitRequested = false;
@@ -88,35 +86,34 @@ Node::Node(const nlohmann::json &_cfg, ConsensusEngine *_consensusEngine) {
 }
 
 void Node::initLevelDBs() {
-    string dataDir = *Log::getDataDir();
+    auto dbDir = *consensusEngine->getDbDir();
     string blockDBPrefix = "blocks_" + to_string(nodeID) + ".db";
     string randomDBPrefix = "randoms_" + to_string(nodeID) + ".db";
     string priceDBPrefix = "prices_" + to_string(nodeID) + ".db";
     string proposalHashDBPrefix = "/proposal_hashes_" + to_string(nodeID) + ".db";
-
     string blockSigShareDBPrefix = "/block_sigshares_" + to_string(nodeID) + ".db";
     string daSigShareDBPrefix = "/da_sigshares_" + to_string(nodeID) + ".db";
     string daProofDBPrefix = "/da_proofs_" + to_string(nodeID) + ".db";
     string blockProposalDBPrefix = "/block_proposals_" + to_string(nodeID) + ".db";
 
 
-    blockDB = make_shared<BlockDB>(getSchain(), dataDir, blockDBPrefix, getNodeID(), getBlockDBSize());
-    randomDB = make_shared<RandomDB>(getSchain(), dataDir, randomDBPrefix, getNodeID(), getRandomDBSize());
-    priceDB = make_shared<PriceDB>(getSchain(), dataDir, priceDBPrefix, getNodeID(), getPriceDBSize());
-    proposalHashDB = make_shared<ProposalHashDB>(getSchain(), dataDir, proposalHashDBPrefix, getNodeID(),
+    blockDB = make_shared<BlockDB>(getSchain(), dbDir, blockDBPrefix, getNodeID(), getBlockDBSize());
+    randomDB = make_shared<RandomDB>(getSchain(), dbDir, randomDBPrefix, getNodeID(), getRandomDBSize());
+    priceDB = make_shared<PriceDB>(getSchain(), dbDir, priceDBPrefix, getNodeID(), getPriceDBSize());
+    proposalHashDB = make_shared<ProposalHashDB>(getSchain(), dbDir, proposalHashDBPrefix, getNodeID(),
                                                  getProposalHashDBSize());
-    blockSigShareDB = make_shared<BlockSigShareDB>(getSchain(), dataDir, blockSigShareDBPrefix, getNodeID(),
+    blockSigShareDB = make_shared<BlockSigShareDB>(getSchain(), dbDir, blockSigShareDBPrefix, getNodeID(),
                                                    getBlockSigShareDBSize());
-    daSigShareDB = make_shared<DASigShareDB>(getSchain(), dataDir, daSigShareDBPrefix, getNodeID(),
+    daSigShareDB = make_shared<DASigShareDB>(getSchain(), dbDir, daSigShareDBPrefix, getNodeID(),
                                              getDaSigShareDBSize());
-    daProofDB = make_shared<DAProofDB>(getSchain(), dataDir, daProofDBPrefix, getNodeID(), getDaProofDBSize());
-    blockProposalDB = make_shared<BlockProposalDB>(getSchain(), dataDir, blockProposalDBPrefix, getNodeID(),
+    daProofDB = make_shared<DAProofDB>(getSchain(), dbDir, daProofDBPrefix, getNodeID(), getDaProofDBSize());
+    blockProposalDB = make_shared<BlockProposalDB>(getSchain(), dbDir, blockProposalDBPrefix, getNodeID(),
                                                    getBlockProposalDBSize());
 
 }
 
 void Node::initLogging() {
-    log = make_shared<Log>(nodeID);
+    log = make_shared<Log>(nodeID, getConsensusEngine());
 
     if (cfg.find("logLevel") != cfg.end()) {
         ptr<string> logLevel = make_shared<string>(cfg.at("logLevel").get<string>());
@@ -401,7 +398,5 @@ void Node::exitOnFatalError(const string &_message) {
     }
     LOG(critical, _message);
 }
-
-set<node_id> Node::nodeIDs;
 
 

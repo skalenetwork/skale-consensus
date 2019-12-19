@@ -41,7 +41,7 @@ ConsensusEngine *engine;
 class StartFromScratch {
 public:
     StartFromScratch() {
-        int i = system("rm -rf /tmp/*.db");
+        int i = system("rm -rf /tmp/*.db.*");
         i++; // make compiler happy
         Consensust::setConfigDirPath(boost::filesystem::system_complete("."));
 
@@ -49,7 +49,7 @@ public:
         HeapProfilerStart("/tmp/consensusd.profile");
 #endif
 
-        engine = new ConsensusEngine();
+
 
     };
 
@@ -57,8 +57,7 @@ public:
 #ifdef GOOGLE_PROFILE
         HeapProfilerStop();
 #endif
-        engine->exitGracefully();
-        delete engine;
+
     }
 };
 
@@ -95,8 +94,7 @@ void testLog(const char *message) {
     printf("TEST_LOG: %s\n", message);
 }
 
-TEST_CASE_METHOD(StartFromScratch, "Run basic consensus", "[consensus-basic]") {
-
+void basicRun() {
     try {
 
 
@@ -112,13 +110,26 @@ TEST_CASE_METHOD(StartFromScratch, "Run basic consensus", "[consensus-basic]") {
         REQUIRE(engine->nodesCount() > 0);
         REQUIRE(engine->getLargestCommittedBlockID() > 0);
         engine->exitGracefully();
+        delete engine;
     } catch (Exception &e) {
         Exception::logNested(e);
         throw;
     }
+}
 
+
+TEST_CASE_METHOD(StartFromScratch, "Run basic consensus", "[consensus-basic]") {
+    basicRun();
     SUCCEED();
 }
+
+TEST_CASE_METHOD(StartFromScratch, "Run two engines", "[consensus-two-engines]") {
+    basicRun();
+    system("rm -rf /tmp/*.db.*");
+    basicRun();
+    SUCCEED();
+}
+
 
 TEST_CASE_METHOD(StartFromScratch, "Use finalization download only", "[consensus-finalization-download]") {
 
@@ -132,6 +143,7 @@ TEST_CASE_METHOD(StartFromScratch, "Use finalization download only", "[consensus
     REQUIRE(engine->nodesCount() > 0);
     REQUIRE(engine->getLargestCommittedBlockID() > 0);
     engine->exitGracefully();
+    delete engine;
     SUCCEED();
 }
 
@@ -148,6 +160,7 @@ TEST_CASE_METHOD(StartFromScratch, "Get consensus to stuck", "[consensus-stuck]"
     std::thread timer(exit_check);
     try {
         auto startTime = time(NULL);
+        engine = new ConsensusEngine();
         engine->parseConfigsAndCreateAllNodes(Consensust::getConfigDirPath());
         engine->slowStartBootStrapTest();
         auto finishTime = time(NULL);
@@ -158,6 +171,8 @@ TEST_CASE_METHOD(StartFromScratch, "Get consensus to stuck", "[consensus-stuck]"
     } catch (...) {
         timer.join();
     }
+    engine->exitGracefully();
+    delete engine;
     SUCCEED();
 }
 
@@ -176,6 +191,7 @@ TEST_CASE_METHOD(StartFromScratch, "Issue different proposals to different nodes
         REQUIRE(engine->nodesCount() > 0);
         REQUIRE(engine->getLargestCommittedBlockID() == 0);
         engine->exitGracefully();
+        delete engine;
     } catch (Exception &e) {
         Exception::logNested(e);
         throw;

@@ -49,19 +49,21 @@ int main(int argc, char **argv) {
         exit(1);
     }
 
+
+    ConsensusEngine engine;
+
+
     for (int i = 2; i < argc; i++) {
 
         uint64_t ui64;
         ui64 = static_cast<uint64_t >(stoll(argv[i]));
 
-        Node::nodeIDs.insert(node_id(ui64));
+        engine.getNodeIDs().insert(node_id(ui64));
 
         cerr << node_id(ui64) << endl;
     }
 
     fs_path dirPath(boost::filesystem::system_complete(fs_path(argv[1])));
-
-    ConsensusEngine engine;
 
     engine.parseConfigsAndCreateAllNodes(dirPath);
 

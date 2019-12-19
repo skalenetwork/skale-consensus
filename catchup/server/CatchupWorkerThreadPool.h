@@ -38,7 +38,7 @@ class CatchupWorkerThreadPool : public WorkerThreadPool {
 
 public:
 
-    CatchupWorkerThreadPool(num_threads numThreads, void *params_);
+    CatchupWorkerThreadPool(num_threads _numThreads, Agent* _agent);
 
     virtual void createThread(uint64_t threadNumber);
 };

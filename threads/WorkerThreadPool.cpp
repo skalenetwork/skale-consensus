@@ -41,19 +41,19 @@ void WorkerThreadPool::startService() {
     for (uint64_t i = 0; i < (uint64_t) numThreads; i++) {
         createThread(i);
         if (!dontJoinGlobalRegistry)
-            GlobalThreadRegistry::add(threadpool.at(i));
+            agent->getThreadRegistry()->add(threadpool.at(i));
     }
 
 }
 
 
-WorkerThreadPool::WorkerThreadPool(num_threads _numThreads, void *_param,
-        bool _dontJoinGlobalRegistry) {
+WorkerThreadPool::WorkerThreadPool(num_threads _numThreads, Agent *_agent, bool _dontJoinGlobalRegistry) {
     CHECK_ARGUMENT(_numThreads > 0);
+    CHECK_ARGUMENT(_agent != nullptr);
     LOG(trace, "Started threads count:" + to_string(_numThreads));
     this->dontJoinGlobalRegistry = _dontJoinGlobalRegistry;
-    this->params = _param;
-    this->numThreads = _numThreads;
+    this->agent = _agent;
+    this->numThreads = _numThreads;;
 }
 
 
@@ -66,8 +66,8 @@ void WorkerThreadPool::joinAll() {
     joined = true;
 
     for (auto &&thread : threadpool) {
-        CHECK_STATE(thread->joinable());
-        thread->join();
+        if (thread->joinable())
+            thread->join();
         CHECK_STATE(!thread->joinable());
     }
 }

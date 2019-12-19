@@ -34,8 +34,8 @@ class MonitoringThreadPool : public WorkerThreadPool {
 
 public:
 
-    MonitoringThreadPool(num_threads numThreads, void *params_);
+    MonitoringThreadPool(num_threads _numThreads, Agent* _agent);
 
-    void createThread(uint64_t number) override;
+    void createThread(uint64_t _number) override;
 
 };
