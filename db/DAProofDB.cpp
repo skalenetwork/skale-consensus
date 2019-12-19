@@ -81,15 +81,19 @@ ptr<BooleanProposalVector> DAProofDB::addDAProof(ptr<DAProof> _daProof) {
 
     LOG(trace, "Adding daProof");
 
-    auto result = this->writeStringToSet(*_daProof->getThresholdSig()->toString(),
-                                         _daProof->getBlockId(), _daProof->getProposerIndex());
+    auto daProofSet = this->writeStringToSet(*_daProof->getThresholdSig()->toString(),
+                                             _daProof->getBlockId(), _daProof->getProposerIndex());
 
 
-    if (result == nullptr) {
+    if (daProofSet == nullptr) {
         return nullptr;
     }
 
-    auto proposalVector = make_shared<BooleanProposalVector>(node_count(totalSigners), result);
+    CHECK_STATE(daProofSet->size() == requiredSigners);
+
+    auto proposalVector = make_shared<BooleanProposalVector>(node_count(totalSigners), daProofSet);
+
+
 
     LOG(trace, "Created proposal vector");
 

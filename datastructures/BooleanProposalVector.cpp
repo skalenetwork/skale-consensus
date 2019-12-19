@@ -37,6 +37,8 @@ BooleanProposalVector::BooleanProposalVector(node_count _nodeCount, ptr<map<scha
     for (uint64_t i = 1; i <= _nodeCount; i++) {
         proposals.push_back(_receivedDAProofs->count(schain_index(i)) > 0);
     }
+
+    trueCount = proposals.size();
 }
 
 

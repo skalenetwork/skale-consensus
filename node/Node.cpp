@@ -58,6 +58,7 @@
 #include "db/RandomDB.h"
 #include "db/SigDB.h"
 #include "db/ProposalHashDB.h"
+#include "db/ProposalVectorDB.h"
 #include "db/BlockSigShareDB.h"
 #include "db/BlockProposalDB.h"
 #include "ConsensusEngine.h"
@@ -91,6 +92,7 @@ void Node::initLevelDBs() {
     string randomDBPrefix = "randoms_" + to_string(nodeID) + ".db";
     string priceDBPrefix = "prices_" + to_string(nodeID) + ".db";
     string proposalHashDBPrefix = "/proposal_hashes_" + to_string(nodeID) + ".db";
+    string proposalVectorDBPrefix = "/proposal_vectors_" + to_string(nodeID) + ".db";
     string blockSigShareDBPrefix = "/block_sigshares_" + to_string(nodeID) + ".db";
     string daSigShareDBPrefix = "/da_sigshares_" + to_string(nodeID) + ".db";
     string daProofDBPrefix = "/da_proofs_" + to_string(nodeID) + ".db";
@@ -102,6 +104,10 @@ void Node::initLevelDBs() {
     priceDB = make_shared<PriceDB>(getSchain(), dbDir, priceDBPrefix, getNodeID(), getPriceDBSize());
     proposalHashDB = make_shared<ProposalHashDB>(getSchain(), dbDir, proposalHashDBPrefix, getNodeID(),
                                                  getProposalHashDBSize());
+    proposalVectorDB = make_shared<ProposalVectorDB>(getSchain(), dbDir, proposalVectorDBPrefix, getNodeID(),
+                                                 getProposalVectorDBSize());
+
+
     blockSigShareDB = make_shared<BlockSigShareDB>(getSchain(), dbDir, blockSigShareDBPrefix, getNodeID(),
                                                    getBlockSigShareDBSize());
     daSigShareDB = make_shared<DASigShareDB>(getSchain(), dbDir, daSigShareDBPrefix, getNodeID(),
@@ -147,6 +153,7 @@ void Node::initParamsFromConfig() {
     minBlockIntervalMs = getParamUint64("minBlockIntervalMs", MIN_BLOCK_INTERVAL_MS);
     blockDBSize = getParamUint64("blockDBSize", BLOCK_DB_SIZE);
     proposalHashDBSize = getParamUint64("proposalHashDBSize", PROPOSAL_HASH_DB_SIZE);
+    proposalVectorDBSize = getParamUint64("proposalVectorDBSize", PROPOSAL_VECTOR_DB_SIZE);
     blockSigShareDBSize = getParamUint64("blockSigShareDBSize", BLOCK_SIG_SHARE_DB_SIZE);
     daSigShareDBSize = getParamUint64("daSigShareDBSize", DA_SIG_SHARE_DB_SIZE);
     daProofDBSize = getParamUint64("daProofDBSize", DA_PROOF_DB_SIZE);
@@ -171,6 +178,11 @@ void Node::initParamsFromConfig() {
 uint64_t Node::getProposalHashDBSize() const {
     return proposalHashDBSize;
 }
+
+uint64_t Node::getProposalVectorDBSize() const {
+    return proposalVectorDBSize;
+}
+
 
 
 Node::~Node() {}
