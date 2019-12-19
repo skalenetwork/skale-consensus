@@ -2,25 +2,25 @@
 <project version="4">
   <component name="CMakeRunConfigurationManager" shouldGenerate="true" shouldDeleteObsolete="true">
     <generated>
-      <config projectName="consensus" targetName="consensust" />
-      <config projectName="consensus" targetName="hash_g1" />
       <config projectName="consensus" targetName="dkg_glue" />
-      <config projectName="consensus" targetName="dkg_keygen" />
+      <config projectName="consensus" targetName="sign_bls" />
+      <config projectName="consensus" targetName="te" />
+      <config projectName="consensus" targetName="consensus" />
       <config projectName="consensus" targetName="all_bls_tests" />
-      <config projectName="consensus" targetName="bls_unit_test" />
-      <config projectName="consensus" targetName="dkg_te_unit_test" />
+      <config projectName="consensus" targetName="dkg_keygen" />
       <config projectName="consensus" targetName="consensusd" />
-      <config projectName="consensus" targetName="bls_test" />
-      <config projectName="consensus" targetName="bls_glue" />
       <config projectName="consensus" targetName="all_te_tests" />
+      <config projectName="consensus" targetName="bls" />
+      <config projectName="consensus" targetName="bls_unit_test" />
+      <config projectName="consensus" targetName="bls_glue" />
+      <config projectName="consensus" targetName="bls_test" />
+      <config projectName="consensus" targetName="te_test" />
+      <config projectName="consensus" targetName="hash_g1" />
+      <config projectName="consensus" targetName="consensust" />
+      <config projectName="consensus" targetName="dkg_te_unit_test" />
       <config projectName="consensus" targetName="te_unit_test" />
       <config projectName="consensus" targetName="dkg_unit_test" />
-      <config projectName="consensus" targetName="bls" />
-      <config projectName="consensus" targetName="te" />
-      <config projectName="consensus" targetName="te_test" />
       <config projectName="consensus" targetName="verify_bls" />
-      <config projectName="consensus" targetName="sign_bls" />
-      <config projectName="consensus" targetName="consensus" />
     </generated>
   </component>
   <component name="CMakeSettings">
@@ -30,8 +30,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="e8eb5c74-4268-46a2-ac26-2e919fd9ff42" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/Log.h" beforeDir="false" afterPath="$PROJECT_DIR$/Log.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/node/ConsensusEngine.h" beforeDir="false" afterPath="$PROJECT_DIR$/node/ConsensusEngine.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/db/ProposalVectorDB.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/db/ProposalVectorDB.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/datastructures/BooleanProposalVector.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/BooleanProposalVector.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/datastructures/BooleanProposalVector.h" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/BooleanProposalVector.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/DAProofDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/DAProofDB.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -86,18 +90,18 @@
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="cf.advertisement.text.has.clang-format" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/db" />
     <property name="settings.editor.selected.configurable" value="editor.preferences.import" />
   </component>
   <component name="RecentsManager">
-    <key name="MoveFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/db" />
-    </key>
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/db" />
     </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/db" />
+    </key>
   </component>
-  <component name="RunManager" selected="CMake Application.test_two_engines_1">
+  <component name="RunManager" selected="CMake Application.finalization_download_16">
     <configuration name="all_bls_tests" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="consensus" TARGET_NAME="all_bls_tests" CONFIG_NAME="Debug">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -738,10 +742,10 @@
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
     <state x="2644" y="206" width="593" height="693" key="#com.intellij.ide.util.MemberChooser/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576673903019" />
-    <state x="2550" y="243" width="649" height="618" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog" timestamp="1576079242641">
+    <state x="2550" y="243" width="649" height="618" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog" timestamp="1576752235200">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state x="2550" y="243" width="649" height="618" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576079242641" />
+    <state x="2550" y="243" width="649" height="618" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576752235200" />
     <state x="2314" y="71" width="1121" height="962" key="CommitChangelistDialog2" timestamp="1576676256781">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
@@ -750,22 +754,22 @@
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
     <state x="2613" y="259" width="524" height="594" key="FileChooserDialogImpl/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576073838542" />
-    <state width="1860" height="132" key="GridCell.Tab.0.bottom" timestamp="1576676051592">
+    <state width="1860" height="267" key="GridCell.Tab.0.bottom" timestamp="1576753595709">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state width="1860" height="132" key="GridCell.Tab.0.bottom/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576676051592" />
-    <state width="1860" height="132" key="GridCell.Tab.0.center" timestamp="1576676051592">
+    <state width="1860" height="267" key="GridCell.Tab.0.bottom/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576753595709" />
+    <state width="1860" height="267" key="GridCell.Tab.0.center" timestamp="1576753595709">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state width="1860" height="132" key="GridCell.Tab.0.center/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576676051592" />
-    <state width="1860" height="132" key="GridCell.Tab.0.left" timestamp="1576676051591">
+    <state width="1860" height="267" key="GridCell.Tab.0.center/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576753595709" />
+    <state width="1860" height="267" key="GridCell.Tab.0.left" timestamp="1576753595709">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state width="1860" height="132" key="GridCell.Tab.0.left/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576676051591" />
-    <state width="1860" height="132" key="GridCell.Tab.0.right" timestamp="1576676051592">
+    <state width="1860" height="267" key="GridCell.Tab.0.left/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576753595709" />
+    <state width="1860" height="267" key="GridCell.Tab.0.right" timestamp="1576753595709">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state width="1860" height="132" key="GridCell.Tab.0.right/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576676051592" />
+    <state width="1860" height="267" key="GridCell.Tab.0.right/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576753595709" />
     <state width="1860" height="314" key="GridCell.Tab.1.bottom" timestamp="1576672360301">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
@@ -806,10 +810,10 @@
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
     <state x="2479" y="299" width="801" height="506" key="git4idea.merge.GitMergeDialog/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575886235995" />
-    <state x="2565" y="128" width="620" height="849" key="refactoring.ChangeSignatureDialog" timestamp="1576673917866">
+    <state x="2565" y="128" width="620" height="849" key="refactoring.ChangeSignatureDialog" timestamp="1576753025572">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state x="2565" y="128" width="620" height="849" key="refactoring.ChangeSignatureDialog/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576673917866" />
+    <state x="2565" y="128" width="620" height="849" key="refactoring.ChangeSignatureDialog/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576753025572" />
     <state x="2459" y="45" width="840" height="1034" key="search.everywhere.popup" timestamp="1576079984258">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>

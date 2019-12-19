@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2018-2019 SKALE Labs
+    Copyright (C) 2019 SKALE Labs
 
     This file is part of skale-consensus.
 
@@ -16,36 +16,34 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file BooleanProposalVector.h
+    @file ProposalVectorDB.h
     @author Stan Kladko
-    @date 2018
+    @date 2019
 */
 
-#pragma  once
 
-#include "DataStructure.h"
-
-
-
-class BooleanProposalVector : public DataStructure {
+#ifndef SKALED_PROPOSAL_VECTOR_DB_H
+#define SKALED_PROPOSAL_VECTOR_DB_
 
 
+#include "CacheLevelDB.h"
 
-private:
+class CryptoManager;
 
-    node_count nodeCount;
-    uint64_t  trueCount = 0;
-    vector<bool> proposals;
+class ProposalVectorDB : public CacheLevelDB {
+
+    recursive_mutex m;
 
 public:
 
-    BooleanProposalVector(node_count _nodeCount, ptr<map<schain_index, ptr<string>>> _receivedDAProofs);
+    ProposalVectorDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize);
 
+    bool checkAndSaveVector(block_id _proposalBlockID, schain_index _proposerIndex, ptr<string> _proposalVector);
 
-    bool getProposalValue(schain_index _index);
+    bool haveProposal(block_id _proposalBlockID, schain_index _proposerIndex);
 
-    uint64_t getTrueCount() const;
-
-
+    const string getFormatVersion() override ;
 };
 
+
+#endif //SKALED_PROPOSAL_VECTOR_DB_H

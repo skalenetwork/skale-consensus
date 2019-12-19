@@ -89,20 +89,9 @@ ptr<BooleanProposalVector> DAProofDB::addDAProof(ptr<DAProof> _daProof) {
         return nullptr;
     }
 
-    auto proposalVector = make_shared<BooleanProposalVector>(node_count(totalSigners));
-
-
-    for (uint64_t i = 1; i <= totalSigners; i++) {
-
-        proposalVector->pushValue(result->count(schain_index(i)) > 0);
-
-    }
-
-    CHECK_STATE(proposalVector->getTrueCount() == requiredSigners);
-
+    auto proposalVector = make_shared<BooleanProposalVector>(node_count(totalSigners), result);
 
     LOG(trace, "Created proposal vector");
-
 
     return proposalVector;
 }

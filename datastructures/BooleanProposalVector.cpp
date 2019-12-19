@@ -28,28 +28,22 @@
 #include "BooleanProposalVector.h"
 
 
-BooleanProposalVector::BooleanProposalVector(node_count _nodeCount): nodeCount(_nodeCount) {
+BooleanProposalVector::BooleanProposalVector(node_count _nodeCount, ptr<map<schain_index, ptr<string>>>
+        _receivedDAProofs) : nodeCount(_nodeCount) {
+    CHECK_ARGUMENT(_receivedDAProofs != nullptr);
+
     proposals.push_back(false);
+
+    for (uint64_t i = 1; i <= _nodeCount; i++) {
+        proposals.push_back(_receivedDAProofs->count(schain_index(i)) > 0);
+    }
 }
-
-void BooleanProposalVector::pushValue(bool _value) {
-
-    LOCK(m)
-    if (_value)
-        trueCount++;
-
-    proposals.push_back(_value);
-}
-
 
 
 bool BooleanProposalVector::getProposalValue(schain_index _index) {
     ASSERT( proposals.size() == nodeCount + 1 );
     ASSERT( _index <= ( uint64_t ) nodeCount );
     ASSERT( _index > 0 );
-
-    LOCK(m)
-
     return proposals.at( ( uint64_t ) _index );
 }
 
