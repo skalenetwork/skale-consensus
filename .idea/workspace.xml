@@ -31,10 +31,10 @@
   <component name="ChangeListManager">
     <list default="true" id="e8eb5c74-4268-46a2-ac26-2e919fd9ff42" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SkaleCommon.h" beforeDir="false" afterPath="$PROJECT_DIR$/SkaleCommon.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/node/Node.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/node/Node.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/node/Node.h" beforeDir="false" afterPath="$PROJECT_DIR$/node/Node.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/node/NodeGettersSetters.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/node/NodeGettersSetters.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/OutgoingMsgDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/OutgoingMsgDB.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/OutgoingMsgDB.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/OutgoingMsgDB.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messages/NetworkMessage.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/messages/NetworkMessage.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/network/TransportNetwork.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/network/TransportNetwork.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -319,14 +319,7 @@
       <workItem from="1575640279975" duration="4005000" />
       <workItem from="1575716912702" duration="17312000" />
       <workItem from="1576352552399" duration="22630000" />
-      <workItem from="1576770922817" duration="5136000" />
-    </task>
-    <task id="LOCAL-00053" summary="Fixed one-node test">
-      <created>1575373801900</created>
-      <option name="number" value="00053" />
-      <option name="presentableId" value="LOCAL-00053" />
-      <option name="project" value="LOCAL" />
-      <updated>1575373801901</updated>
+      <workItem from="1576770922817" duration="6100000" />
     </task>
     <task id="LOCAL-00054" summary="Fixing exceptions">
       <created>1575383924967</created>
@@ -664,7 +657,14 @@
       <option name="project" value="LOCAL" />
       <updated>1576786532265</updated>
     </task>
-    <option name="localTasksCounter" value="102" />
+    <task id="LOCAL-00102" summary="Adding outgoing messages db">
+      <created>1576787822916</created>
+      <option name="number" value="00102" />
+      <option name="presentableId" value="LOCAL-00102" />
+      <option name="project" value="LOCAL" />
+      <updated>1576787822916</updated>
+    </task>
+    <option name="localTasksCounter" value="103" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -700,7 +700,6 @@
   <component name="VcsManagerConfiguration">
     <option name="CHECK_CODE_SMELLS_BEFORE_PROJECT_COMMIT" value="false" />
     <option name="CHECK_NEW_TODO" value="false" />
-    <MESSAGE value="Added block set storage" />
     <MESSAGE value="Adding sigShareStorage" />
     <MESSAGE value="Decide on block signing" />
     <MESSAGE value="Signing blocks now" />
@@ -725,7 +724,8 @@
     <MESSAGE value="Fixed log" />
     <MESSAGE value="Adding ProposalVectorDB" />
     <MESSAGE value="Completed proposal vector DB" />
-    <option name="LAST_COMMIT_MESSAGE" value="Completed proposal vector DB" />
+    <MESSAGE value="Adding outgoing messages db" />
+    <option name="LAST_COMMIT_MESSAGE" value="Adding outgoing messages db" />
   </component>
   <component name="WindowStateProjectService">
     <state x="2468" y="216" width="814" height="678" key="#All_in_[committed-block-serialize]" timestamp="1575636402415" />
@@ -746,30 +746,30 @@
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
     <state x="2550" y="243" width="649" height="618" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576752235200" />
-    <state x="2314" y="71" width="1121" height="962" key="CommitChangelistDialog2" timestamp="1576786531800">
+    <state x="2314" y="71" width="1121" height="962" key="CommitChangelistDialog2" timestamp="1576787822398">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state x="2314" y="71" width="1121" height="962" key="CommitChangelistDialog2/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576786531800" />
+    <state x="2314" y="71" width="1121" height="962" key="CommitChangelistDialog2/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576787822398" />
     <state x="2613" y="259" width="524" height="594" key="FileChooserDialogImpl" timestamp="1576073838542">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
     <state x="2613" y="259" width="524" height="594" key="FileChooserDialogImpl/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576073838542" />
-    <state width="1860" height="170" key="GridCell.Tab.0.bottom" timestamp="1576787766265">
+    <state width="1860" height="239" key="GridCell.Tab.0.bottom" timestamp="1576788568106">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state width="1860" height="170" key="GridCell.Tab.0.bottom/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576787766265" />
-    <state width="1860" height="170" key="GridCell.Tab.0.center" timestamp="1576787766265">
+    <state width="1860" height="239" key="GridCell.Tab.0.bottom/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576788568106" />
+    <state width="1860" height="239" key="GridCell.Tab.0.center" timestamp="1576788568106">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state width="1860" height="170" key="GridCell.Tab.0.center/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576787766265" />
-    <state width="1860" height="170" key="GridCell.Tab.0.left" timestamp="1576787766265">
+    <state width="1860" height="239" key="GridCell.Tab.0.center/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576788568106" />
+    <state width="1860" height="239" key="GridCell.Tab.0.left" timestamp="1576788568106">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state width="1860" height="170" key="GridCell.Tab.0.left/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576787766265" />
-    <state width="1860" height="170" key="GridCell.Tab.0.right" timestamp="1576787766265">
+    <state width="1860" height="239" key="GridCell.Tab.0.left/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576788568106" />
+    <state width="1860" height="239" key="GridCell.Tab.0.right" timestamp="1576788568106">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state width="1860" height="170" key="GridCell.Tab.0.right/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576787766265" />
+    <state width="1860" height="239" key="GridCell.Tab.0.right/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576788568106" />
     <state width="1860" height="314" key="GridCell.Tab.1.bottom" timestamp="1576762976186">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
@@ -790,10 +790,10 @@
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
     <state x="2238" y="100" key="SettingsEditor/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576759515576" />
-    <state x="2375" y="210" width="1000" height="684" key="Vcs.Push.Dialog.v2" timestamp="1576786533467">
+    <state x="2375" y="210" width="1000" height="684" key="Vcs.Push.Dialog.v2" timestamp="1576787823930">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state x="2375" y="210" width="1000" height="684" key="Vcs.Push.Dialog.v2/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576786533467" />
+    <state x="2375" y="210" width="1000" height="684" key="Vcs.Push.Dialog.v2/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576787823930" />
     <state x="2020" y="125" width="1720" height="855" key="com.intellij.history.integration.ui.views.FileHistoryDialog" timestamp="1575638884892">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
@@ -810,10 +810,10 @@
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
     <state x="2479" y="299" width="801" height="506" key="git4idea.merge.GitMergeDialog/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575886235995" />
-    <state x="2565" y="128" width="620" height="849" key="refactoring.ChangeSignatureDialog" timestamp="1576786082099">
+    <state x="2565" y="128" width="620" height="849" key="refactoring.ChangeSignatureDialog" timestamp="1576788253328">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state x="2565" y="128" width="620" height="849" key="refactoring.ChangeSignatureDialog/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576786082099" />
+    <state x="2565" y="128" width="620" height="849" key="refactoring.ChangeSignatureDialog/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576788253328" />
     <state x="2459" y="45" width="840" height="1034" key="search.everywhere.popup" timestamp="1576759369068">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>

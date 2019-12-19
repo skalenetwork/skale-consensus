@@ -135,9 +135,6 @@ ptr<Buffer> NetworkMessage::toBuffer() {
 
     static vector<uint8_t> ZERO_BUFFER(BLS_MAX_SIG_LEN, 0);
 
-    ASSERT(getSrcNodeID() != getDstNodeID());
-
-
     auto buf = make_shared<Buffer>(CONSENSUS_MESSAGE_LEN);
 
     static uint64_t magic = MAGIC_NUMBER;

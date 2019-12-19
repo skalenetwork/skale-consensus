@@ -29,6 +29,7 @@
 #include "CacheLevelDB.h"
 
 class CryptoManager;
+class NetworkMessage;
 
 class OutgoingMsgDB : public CacheLevelDB {
 
@@ -38,7 +39,7 @@ public:
 
     OutgoingMsgDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize);
 
-    bool saveMsg(block_id _proposalBlockID, ptr<NetworkMessage> _outgoingMsg);
+    bool saveMsg(ptr<NetworkMessage> _outgoingMsg);
 
     ptr<vector<ptr<NetworkMessage>>> getMessages(block_id _blockID);
 

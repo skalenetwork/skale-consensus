@@ -41,7 +41,7 @@ OutgoingMsgDB::OutgoingMsgDB(Schain *_sChain, string &_dirName, string &_prefix,
 
 
 bool
-OutgoingMsgDB::saveMsg(block_id _proposalBlockID, ptr<NetworkMessage> _outgoingMsg) {
+OutgoingMsgDB::saveMsg(ptr<NetworkMessage> _outgoingMsg) {
 
     static atomic<uint64_t> msgCounter = 0;
 
@@ -55,7 +55,7 @@ OutgoingMsgDB::saveMsg(block_id _proposalBlockID, ptr<NetworkMessage> _outgoingM
 
         auto currentCounter = msgCounter++;
 
-        auto key = createKey(_proposalBlockID, currentCounter);
+        auto key = createKey(_outgoingMsg->getBlockID(), currentCounter);
 
         auto previous = readString(*key);
 
