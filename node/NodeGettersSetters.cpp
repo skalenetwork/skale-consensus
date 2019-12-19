@@ -136,9 +136,15 @@ node_id Node::getNodeID() const {
 
 
 ptr<ProposalHashDB> Node::getProposalHashDB() {
-    assert(proposalHashDB != nullptr);
+    CHECK_STATE(proposalHashDB);
     return proposalHashDB;
 }
+
+ptr<ProposalVectorDB> Node::getProposalVectorDB() {
+    CHECK_STATE(proposalVectorDB);
+    return proposalVectorDB;
+}
+
 
 
 ptr<map<schain_index, ptr<NodeInfo> > > Node::getNodeInfosByIndex() const {
@@ -200,17 +206,17 @@ ptr<NodeInfo> Node::getNodeInfoByIP(ptr<string> ip) {
 
 
 ptr<BlockDB> Node::getBlockDB() {
-    ASSERT(blockDB != nullptr);
+    CHECK_STATE(blockDB != nullptr);
     return blockDB;
 }
 
 ptr<RandomDB> Node::getRandomDB() {
-    ASSERT(randomDB != nullptr);
+    CHECK_STATE(randomDB);
     return randomDB;
 }
 
 ptr<PriceDB> Node::getPriceDB() const {
-    ASSERT(priceDB != nullptr)
+    CHECK_STATE(priceDB)
     return priceDB;
 }
 
@@ -308,16 +314,18 @@ uint64_t Node::getBlockSigShareDBSize() const {
 }
 
 ptr<BlockSigShareDB> Node::getBlockSigShareDB() const {
-    ASSERT(blockSigShareDB != nullptr);
+    CHECK_STATE(blockSigShareDB != nullptr);
     return blockSigShareDB;
 }
 
 ptr<DASigShareDB> Node::getDaSigShareDB() const {
+    CHECK_STATE(daSigShareDB);
     return daSigShareDB;
 }
 
 
 ptr<DAProofDB> Node::getDaProofDB() const {
+    CHECK_STATE(daProofDB);
     return daProofDB;
 }
 
@@ -335,6 +343,7 @@ uint64_t Node::getDaProofDBSize() const {
 
 
 ptr<BlockProposalDB>  Node::getBlockProposalDB() const {
+    CHECK_STATE(blockProposalDB)
     return blockProposalDB;
 }
 

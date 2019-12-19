@@ -213,6 +213,7 @@ public:
     ptr<RandomDB> getRandomDB();
     ptr<PriceDB> getPriceDB() const;
     ptr<ProposalHashDB> getProposalHashDB();
+    ptr<ProposalVectorDB> getProposalVectorDB();
     ptr<BlockSigShareDB> getBlockSigShareDB() const;
     ptr<DASigShareDB> getDaSigShareDB() const;
     ptr<DAProofDB> getDaProofDB() const;
