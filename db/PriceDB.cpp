@@ -27,6 +27,7 @@
 #include "exceptions/ExitRequestedException.h"
 #include "PriceDB.h"
 
+#include "chains/Schain.h"
 
 PriceDB::PriceDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize)
         : CacheLevelDB(_sChain, _dirName, _prefix,
@@ -43,6 +44,10 @@ const string PriceDB::getFormatVersion() {
 u256 PriceDB::readPrice(block_id _blockID) {
 
     LOG(trace, "Read price for block" + to_string(_blockID));
+
+    if (_blockID <= 1) {
+        return getSchain()->getNode()->getParamUint64(string("DYNAMIC_PRICING_START_PRICE"), 1000);
+    }
 
     try {
 
