@@ -253,14 +253,15 @@ DB *CacheLevelDB::openDB(uint64_t _index) {
 CacheLevelDB::CacheLevelDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize,
                            bool _isDuplicateAddOK)
         : nodeId(_nodeId),
-          prefix(_prefix), dirname(_dirName),
+          prefix(_prefix), dirname(_dirName + "/" + _prefix),
           maxDBSize(_maxDBSize), totalSigners(_sChain->getTotalSigners()),
           requiredSigners(_sChain->getRequiredSigners()),
           isDuplicateAddOK(_isDuplicateAddOK), sChain(_sChain) {
 
     CHECK_STATE(_sChain != nullptr);
 
-    boost::filesystem::path path(_dirName);
+    boost::filesystem::path path(dirname);
+    boost::filesystem::create_directory(path);
 
     CHECK_ARGUMENT(_maxDBSize != 0);
 
