@@ -122,7 +122,7 @@ void TransportNetwork::broadcastMessage(ptr<NetworkMessage> _m) {
     }
 
     getSchain()->getNode()->getOutgoingMsgDB()->saveMsg(_m);
-    assert(getSchain()->getNode()->getOutgoingMsgDB()->readValuesForBlock(_m->getBlockID()));
+    assert(getSchain()->getNode()->getOutgoingMsgDB()->readStringsForBlock(_m->getBlockID()));
 
     auto ip = inet_addr(getSchain()->getThisNodeInfo()->getBaseIP()->c_str());
     _m->setIp(ip);
@@ -309,6 +309,7 @@ ptr<NetworkMessageEnvelope> TransportNetwork::receiveMessage() {
         return nullptr;
     }
 
+
     uint64_t magicNumber;
     uint64_t sChainID;
     uint64_t blockID;
@@ -377,7 +378,8 @@ ptr<NetworkMessageEnvelope> TransportNetwork::receiveMessage() {
         mptr = make_shared<BVBroadcastMessage>(node_id(srcNodeID), node_id(dstNodeID),
                                                block_id(blockID), schain_index(blockProposerIndex),
                                                bin_consensus_round(round),
-                                               bin_consensus_value(value), schain_id(sChainID), msg_id(msgID), rawIP,
+                                               bin_consensus_value(value), schain_id(sChainID), msg_id(msgID),
+                                               rawIP,
                                                sig,
                                                realSender->getSchainIndex(),
                                                sChain);
@@ -385,7 +387,8 @@ ptr<NetworkMessageEnvelope> TransportNetwork::receiveMessage() {
         mptr = make_shared<AUXBroadcastMessage>(node_id(srcNodeID), node_id(dstNodeID),
                                                 block_id(blockID), schain_index(blockProposerIndex),
                                                 bin_consensus_round(round),
-                                                bin_consensus_value(value), schain_id(sChainID), msg_id(msgID), rawIP,
+                                                bin_consensus_value(value), schain_id(sChainID), msg_id(msgID),
+                                                rawIP,
                                                 sig,
                                                 realSender->getSchainIndex(),
                                                 sChain);
@@ -462,5 +465,5 @@ void TransportNetwork::confirmMessage(const ptr<NodeInfo> &) {
 
 };
 
-TransportNetwork::~TransportNetwork(){
+TransportNetwork::~TransportNetwork() {
 }

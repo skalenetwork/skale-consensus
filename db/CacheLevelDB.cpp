@@ -214,7 +214,7 @@ void CacheLevelDB::throwExceptionOnError(Status _status) {
 
 }
 
-ptr<vector<ptr<string>>> CacheLevelDB::readValuesForBlock(block_id _blockId) {
+ptr<vector<ptr<string>>> CacheLevelDB::readStringsForBlock(block_id _blockId) {
 
     CHECK_ARGUMENT(_blockId > 0);
 

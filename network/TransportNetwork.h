@@ -102,7 +102,7 @@ public:
 
 
 
-    ptr<string> ipToString(uint32_t _ip);
+    static ptr<string> ipToString(uint32_t _ip);
 
     void broadcastMessage(ptr<NetworkMessage> _m);
 

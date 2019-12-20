@@ -103,4 +103,7 @@ public:
 
     ptr<ThresholdSigShare> getSigShare() const;
 
+    static ptr<NetworkMessage> parseMessage(ptr<Buffer> _buf, Schain *_sChain);
+
+
 };

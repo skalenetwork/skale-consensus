@@ -73,13 +73,23 @@ OutgoingMsgDB::saveMsg(ptr<NetworkMessage> _outgoingMsg) {
 
 }
 
-ptr<vector<ptr<NetworkMessage>>>
-OutgoingMsgDB::getMessages(block_id /*_blockID*/) {
+ptr<vector<ptr<NetworkMessage>>> OutgoingMsgDB::getMessages(block_id _blockID) {
 
 
     lock_guard<recursive_mutex> lock(m);
 
     try {
+
+        auto messages = readStringsForBlock(_blockID);
+
+        if (!messages)
+            return nullptr;
+
+        //for (auto&& message : *messages) {
+           // return make_shared<NetworkMessage>(getSchain()->getNodeCount(), message);
+        //}
+
+
 /*
         auto key = createKey(_blockID);
 

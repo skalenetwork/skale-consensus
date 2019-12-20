@@ -26,6 +26,7 @@
 #include "Log.h"
 #include "exceptions/FatalError.h"
 #include "exceptions/InvalidArgumentException.h"
+#include "exceptions/InvalidSchainException.h"
 #include "thirdparty/json.hpp"
 #include "crypto/bls_include.h"
 #include "protocols/ProtocolKey.h"
@@ -36,9 +37,12 @@
 #include "node/NodeInfo.h"
 #include "network/Buffer.h"
 #include "Message.h"
+#include "network/TransportNetwork.h"
 #include "NetworkMessageEnvelope.h"
+#include "protocols/binconsensus/BVBroadcastMessage.h"
+#include "protocols/binconsensus/AUXBroadcastMessage.h"
+#include "protocols/blockconsensus/BlockSignBroadcastMessage.h"
 #include "NetworkMessage.h"
-
 
 
 NetworkMessage::NetworkMessage(MsgType _messageType, node_id _destinationNodeID,
@@ -47,17 +51,18 @@ NetworkMessage::NetworkMessage(MsgType _messageType, node_id _destinationNodeID,
                                bin_consensus_value _value,
                                ProtocolInstance &_srcProtocolInstance)
         : Message(_srcProtocolInstance.getSchain()->getSchainID(),
-                _messageType, _srcProtocolInstance.createNetworkMessageID(),
-                  _srcProtocolInstance.getSchain()->getNode()->getNodeID(), _destinationNodeID, _blockID, _blockProposerIndex) {
+                  _messageType, _srcProtocolInstance.createNetworkMessageID(),
+                  _srcProtocolInstance.getSchain()->getNode()->getNodeID(), _destinationNodeID, _blockID,
+                  _blockProposerIndex) {
 
-     this->r = _r;
-     this->value = _value;
+    this->r = _r;
+    this->value = _value;
 
-     auto ipString = _srcProtocolInstance.getSchain()->getThisNodeInfo()->getBaseIP();
+    auto ipString = _srcProtocolInstance.getSchain()->getThisNodeInfo()->getBaseIP();
 
-     this->ip = inet_addr(ipString->c_str());
+    this->ip = inet_addr(ipString->c_str());
 
-     ASSERT(_messageType > 0);
+    ASSERT(_messageType > 0);
 
 
 }
@@ -68,7 +73,7 @@ NetworkMessage::NetworkMessage(MsgType messageType, node_id _srcNodeID, node_id 
                                schain_id _schainId, msg_id _msgID, uint32_t _ip, ptr<string> _sigShareStr,
                                schain_index _srcSchainIndex, ptr<CryptoManager> _cryptoManager,
                                uint64_t _totalSigners, uint64_t _requiredSigners)
-    : Message(_schainId, messageType, _msgID, _srcNodeID,_dstNodeID, _blockID, _blockProposerIndex) {
+        : Message(_schainId, messageType, _msgID, _srcNodeID, _dstNodeID, _blockID, _blockProposerIndex) {
 
     ASSERT(_srcSchainIndex > 0)
 
@@ -82,12 +87,11 @@ NetworkMessage::NetworkMessage(MsgType messageType, node_id _srcNodeID, node_id 
         BOOST_THROW_EXCEPTION(InvalidArgumentException("Signature size too large:" + *_sigShareStr, __CLASS_NAME__));
     }
 
-    
-    if (_sigShareStr->size() > 0 ) {
-       sigShare = _cryptoManager->createSigShare(_sigShareStr, _schainId, _blockID, _srcSchainIndex,
-                                                 _totalSigners, _requiredSigners);
-    }
 
+    if (_sigShareStr->size() > 0) {
+        sigShare = _cryptoManager->createSigShare(_sigShareStr, _schainId, _blockID, _srcSchainIndex,
+                                                  _totalSigners, _requiredSigners);
+    }
 
 
     ASSERT(messageType > 0);
@@ -119,7 +123,7 @@ void NetworkMessage::printMessage() {
     string s;
 
 
-    cerr << "|" << printPrefix << ":"  << r << ":v:" << to_string(uint8_t(value)) << "|";
+    cerr << "|" << printPrefix << ":" << r << ":v:" << to_string(uint8_t(value)) << "|";
 
 
 }
@@ -127,8 +131,6 @@ void NetworkMessage::printMessage() {
 void NetworkMessage::setIp(int32_t _ip) {
     ip = _ip;
 }
-
-
 
 
 ptr<Buffer> NetworkMessage::toBuffer() {
@@ -161,6 +163,10 @@ ptr<Buffer> NetworkMessage::toBuffer() {
     }
 
     return buf;
+}
+
+ptr<NetworkMessage> NetworkMessage::parseMessage(ptr<Buffer> /*_buf*/, Schain */*_sChain*/) {
+    return nullptr;
 }
 
 

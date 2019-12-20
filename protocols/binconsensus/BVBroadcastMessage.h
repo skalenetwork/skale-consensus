@@ -24,16 +24,13 @@
 #pragma  once
 
 
-
+#include "messages/NetworkMessage.h"
 
 
 class BinConsensusInstance;
 
-
 class BVBroadcastMessage : public NetworkMessage{
 public:
-
-
 
 
     BVBroadcastMessage(node_id destinationNodeID, block_id _blockID,
