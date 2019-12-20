@@ -237,7 +237,7 @@ DB *CacheLevelDB::openDB(uint64_t _index) {
         static leveldb::Options options;
         options.create_if_missing = true;
 
-        ASSERT2(leveldb::DB::Open(options, dirname + "/" + prefix + "." + to_string(_index),
+        ASSERT2(leveldb::DB::Open(options, dirname + "/" + "db." + to_string(_index),
                                   &dbase).ok(),
                 "Unable to open database");
         return dbase;
