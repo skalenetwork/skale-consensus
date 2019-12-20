@@ -83,7 +83,7 @@ CacheLevelDB::createKey(const block_id &_blockId, const schain_index &_proposerI
 
 
 string CacheLevelDB::createSetKey(block_id _blockId, schain_index _index) {
-    return to_string(_blockId) + ":" + to_string(_index);
+    return getFormatVersion() + ":" + to_string(_blockId) + ":" + to_string(_index);
 }
 
 string CacheLevelDB::createCounterKey(block_id _blockId) {
@@ -188,19 +188,19 @@ void CacheLevelDB::writeByteArray(const char *_key, size_t _keyLen, const char *
 
 void CacheLevelDB::writeByteArray(string &_key, ptr<vector<uint8_t>> _data) {
 
-    auto value = (const char*) _data->data();
-    auto valueLen = _data->size();
+    CHECK_ARGUMENT(_data);
+
+
 
     rotateDBsIfNeeded();
 
+    auto value = (const char *) _data->data();
+    auto valueLen = _data->size();
+
     {
         shared_lock<shared_mutex> lock(m);
-
-
         auto status = db.back()->Put(writeOptions, Slice(_key), Slice(value, valueLen));
-
         throwExceptionOnError(status);
-
     }
 }
 
@@ -214,6 +214,50 @@ void CacheLevelDB::throwExceptionOnError(Status _status) {
     }
 
 }
+
+ptr<vector<ptr<string>>> CacheLevelDB::readBlockRangeFrom(block_id _blockId) {
+
+    CHECK_ARGUMENT(_blockId > 0);
+
+    ptr<vector<ptr<string>>> result = nullptr;
+
+    shared_lock<shared_mutex> lock(m);
+
+    for (int i = LEVELDB_PIECES - 1; i >= 0; i--) {
+        ASSERT(db[i]);
+        auto partialResult = readBlockRangeFromDBUnsafe(_blockId, db[i]);
+        if (partialResult) {
+            if (result) {
+                result->insert(result->end(), partialResult->begin(), partialResult->end());
+            } else {
+                result = partialResult;
+            }
+        }
+    }
+
+    return result;
+}
+
+ptr<vector<ptr<string>>> CacheLevelDB::readBlockRangeFromDBUnsafe(block_id _blockId, ptr<leveldb::DB> _db) {
+
+    CHECK_ARGUMENT(_blockId != 0);
+    CHECK_ARGUMENT(_db);
+
+    ptr<vector<ptr<string>>> result = nullptr;
+
+    string start = getFormatVersion() + ":" + to_string(_blockId);
+
+    Iterator *idb = _db->NewIterator(readOptions);
+
+    for (idb->Seek(start); idb->Valid() && idb->key().starts_with(start); idb->Next()) {
+        if (!result) {
+            result = make_shared<vector<ptr<string>>>();
+        }
+        result->push_back(make_shared<string>(idb->value().ToString()));
+    }
+    return result;
+}
+
 
 uint64_t CacheLevelDB::visitKeys(CacheLevelDB::KeyVisitor *_visitor, uint64_t _maxKeysToVisit) {
 
@@ -315,7 +359,7 @@ uint64_t CacheLevelDB::getActiveDBSize() {
         return size;
 
     } catch (ExitRequestedException &e) { throw; }
-    catch (exception&) {
+    catch (exception &) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
 

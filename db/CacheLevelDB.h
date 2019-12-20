@@ -117,11 +117,15 @@ protected:
     CacheLevelDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize,
                  bool _isDuplicateAddOK = false);
 
+    ptr<vector<ptr<string>>> readBlockRangeFromDBUnsafe(block_id _blockId, ptr<leveldb::DB> _db);
+
 public:
 
     virtual const string getFormatVersion() = 0;
 
     void throwExceptionOnError(leveldb::Status result);
+
+
 
 
 
@@ -141,6 +145,8 @@ public:
 
 
     uint64_t getActiveDBSize();
+
+    ptr<vector<ptr<string>>> readBlockRangeFrom(block_id _blockId);
 };
 
 
