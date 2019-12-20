@@ -146,7 +146,7 @@ public:
 
     uint64_t getActiveDBSize();
 
-    ptr<vector<ptr<string>>> readBlockRangeFrom(block_id _blockId);
+    ptr<vector<ptr<string>>> readValuesForBlock(block_id _blockId);
 };
 
 

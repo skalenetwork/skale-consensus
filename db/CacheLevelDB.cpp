@@ -159,7 +159,6 @@ void CacheLevelDB::writeString(const string &_key, const string &_value) {
             return;
         }
 
-
         auto status = db.back()->Put(writeOptions, _key, Slice(_value));
 
         throwExceptionOnError(status);
@@ -215,7 +214,7 @@ void CacheLevelDB::throwExceptionOnError(Status _status) {
 
 }
 
-ptr<vector<ptr<string>>> CacheLevelDB::readBlockRangeFrom(block_id _blockId) {
+ptr<vector<ptr<string>>> CacheLevelDB::readValuesForBlock(block_id _blockId) {
 
     CHECK_ARGUMENT(_blockId > 0);
 
