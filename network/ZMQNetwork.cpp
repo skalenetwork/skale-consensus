@@ -78,7 +78,7 @@ bool ZMQNetwork::sendMessage(const ptr<NodeInfo> &_remoteNodeInfo, ptr<NetworkMe
 }
 
 
-int ZMQNetwork::interruptableRecv(void *_socket, void *_buf, size_t _len, int _flags) {
+uint64_t ZMQNetwork::interruptableRecv(void *_socket, void *_buf, size_t _len, int _flags) {
 
     int rc = -1;
 
@@ -100,7 +100,7 @@ int ZMQNetwork::interruptableRecv(void *_socket, void *_buf, size_t _len, int _f
         BOOST_THROW_EXCEPTION(NetworkProtocolException("Zmq recv failed " + string(zmq_strerror(errno)), __CLASS_NAME__));
     }
 
-    return rc;
+    return (uint64_t ) rc;
 
 }
 
@@ -149,11 +149,10 @@ ptr<string> ZMQNetwork::readMessageFromNetwork(ptr<Buffer> buf) {
 
     auto s = sChain->getNode()->getSockets()->consensusZMQSocket->getReceiveSocket();
 
-    auto rc = interruptableRecv(s, buf->getBuf()->data(), CONSENSUS_MESSAGE_LEN, 0);
+    auto rc = interruptableRecv(s, buf->getBuf()->data(), MAX_CONSENSUS_MESSAGE_LEN, 0);
 
-
-    if (rc != CONSENSUS_MESSAGE_LEN) {
-        BOOST_THROW_EXCEPTION(NetworkProtocolException("Incorrect message length:" +
+    if ((uint64_t) rc >= MAX_CONSENSUS_MESSAGE_LEN) {
+        BOOST_THROW_EXCEPTION(NetworkProtocolException("Consensus essage length too large:" +
                                        to_string(rc), __CLASS_NAME__));
     }
 

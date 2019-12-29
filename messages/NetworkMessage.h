@@ -42,7 +42,9 @@ class Node;
 class ThresholdSigShare;
 class CryptoManager;
 
-static constexpr uint32_t CONSENSUS_MESSAGE_LEN = 73 + BLS_MAX_SIG_LEN;
+static constexpr uint64_t CONSENSUS_MESSAGE_LEN = 73 + BLS_MAX_SIG_LEN;
+
+static constexpr uint64_t MAX_CONSENSUS_MESSAGE_LEN = 1024;
 
 #include "headers/BasicHeader.h"
 
