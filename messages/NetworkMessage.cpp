@@ -56,6 +56,7 @@ NetworkMessage::NetworkMessage(MsgType _messageType, node_id _destinationNodeID,
                   _srcProtocolInstance.getSchain()->getNode()->getNodeID(), _destinationNodeID, _blockID,
                   _blockProposerIndex), BasicHeader(getTypeString(_messageType)) {
 
+    this->srcSchainIndex = _srcProtocolInstance.getSchain()->getSchainIndex();
     this->r = _r;
     this->value = _value;
 
@@ -78,6 +79,7 @@ NetworkMessage::NetworkMessage(MsgType _messageType, node_id _srcNodeID, node_id
 
     ASSERT(_srcSchainIndex > 0)
 
+    this->srcSchainIndex = _srcSchainIndex;
     this->r = _r;
     this->value = _value;
     this->ip = _ip;
@@ -128,9 +130,9 @@ void NetworkMessage::addFields(nlohmann::basic_json<> &j) {
     j["mi"] = (uint64_t )msgID;
     j["sni"] = (uint64_t )srcNodeID;
     j["dni"] = (uint64_t )dstNodeID;
+    j["ssi"] = (uint64_t) srcSchainIndex;
     j["r"] = (uint64_t )r;
     j["v"] = (uint8_t )value;
-    j["ip"] = (uint64_t )ip;
 
     if (sigShareString != nullptr) {
         j["sss"] = *sigShareString;
@@ -180,6 +182,7 @@ ptr<NetworkMessage> NetworkMessage::parseMessage(ptr<string> _header, Schain *_s
     uint64_t msgID;
     uint64_t srcNodeID;
     uint64_t dstNodeID;
+    uint64_t srcSchainIndex;
     uint64_t round;
     uint8_t value;
     uint32_t ip;
@@ -205,9 +208,9 @@ ptr<NetworkMessage> NetworkMessage::parseMessage(ptr<string> _header, Schain *_s
         msgID = getUint64(js, "mi");
         srcNodeID = getUint64(js, "sni");
         dstNodeID = getUint64(js, "dni");
+        srcSchainIndex = getUint64(js, "ssi");
         round = getUint64(js, "r");
         value = getUint64(js, "v");
-        ip = getUint32(js, "ip");
 
         if (js.find("sss") != js.end()) {
             sigShare = getString(js, "sss");
@@ -225,13 +228,6 @@ ptr<NetworkMessage> NetworkMessage::parseMessage(ptr<string> _header, Schain *_s
                     InvalidSchainException("unknown Schain id" + to_string(sChainID), __CLASS_NAME__));
         }
 
-        ptr<NodeInfo> realSender = _sChain->getNode()->getNodeInfoByIP(TransportNetwork::ipToString(ip));
-
-        if (realSender == nullptr) {
-            BOOST_THROW_EXCEPTION(InvalidStateException("NetworkMessage from unknown IP", __CLASS_NAME__));
-        }
-
-
         ptr<NetworkMessage> mptr;
 
         if (msgType == MsgType::MSG_BVB_BROADCAST) {
@@ -240,7 +236,7 @@ ptr<NetworkMessage> NetworkMessage::parseMessage(ptr<string> _header, Schain *_s
                                                    bin_consensus_round(round),
                                                    bin_consensus_value(value), schain_id(sChainID), msg_id(msgID),
                                                    ip,
-                                                   realSender->getSchainIndex(),
+                                                   srcSchainIndex,
                                                    _sChain);
         } else if (msgType == MsgType::MSG_AUX_BROADCAST) {
             mptr = make_shared<AUXBroadcastMessage>(node_id(srcNodeID), node_id(dstNodeID),
@@ -249,14 +245,14 @@ ptr<NetworkMessage> NetworkMessage::parseMessage(ptr<string> _header, Schain *_s
                                                     bin_consensus_value(value), schain_id(sChainID), msg_id(msgID),
                                                     ip,
                                                     sigShare,
-                                                    realSender->getSchainIndex(),
+                                                    srcSchainIndex,
                                                     _sChain);
         } else if (msgType == MsgType::MSG_BLOCK_SIGN_BROADCAST) {
             mptr = make_shared<BlockSignBroadcastMessage>(node_id(srcNodeID), node_id(dstNodeID),
                                                           block_id(blockID), schain_index(blockProposerIndex),
                                                           schain_id(sChainID), msg_id(msgID), ip,
                                                           sigShare,
-                                                          realSender->getSchainIndex(),
+                                                          srcSchainIndex,
                                                           _sChain);
         } else {
             ASSERT(false);

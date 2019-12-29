@@ -82,9 +82,12 @@ protected:
 public:
 
 
+    schain_index srcSchainIndex;
 
     bin_consensus_round r;
     bin_consensus_value value;
+
+
 
     virtual bin_consensus_round getRound() const;
 
