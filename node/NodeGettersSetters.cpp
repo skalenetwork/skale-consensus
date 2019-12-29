@@ -60,6 +60,7 @@
 
 #include "db/BlockDB.h"
 #include "db/CommittedTransactionDB.h"
+#include "db/ConsensusStateDB.h"
 #include "db/PriceDB.h"
 #include "db/RandomDB.h"
 #include "db/SigDB.h"
@@ -153,6 +154,11 @@ ptr<MsgDB> Node::getOutgoingMsgDB() {
 ptr<MsgDB> Node::getIncomingMsgDB() {
     CHECK_STATE(incomingMsgDB);
     return incomingMsgDB;
+}
+
+ptr<ConsensusStateDB> Node::getConsensusStateDB() {
+    CHECK_STATE(consensusStateDB);
+    return consensusStateDB;
 }
 
 ptr<map<schain_index, ptr<NodeInfo> > > Node::getNodeInfosByIndex() const {
@@ -262,6 +268,12 @@ uint64_t Node::getBlockDBSize() const {
     return blockDBSize;
 }
 
+uint64_t Node::getConsensusStateDBSize() const {
+    return consensusStateDBSize;
+}
+
+
+
 uint64_t Node::getCommittedTransactionHistoryLimit() const {
     return committedTransactionsHistory;
 }
@@ -346,9 +358,6 @@ uint64_t Node::getDaSigShareDBSize() const {
 uint64_t Node::getDaProofDBSize() const {
     return daProofDBSize;
 }
-
-
-
 
 ptr<BlockProposalDB>  Node::getBlockProposalDB() const {
     CHECK_STATE(blockProposalDB)

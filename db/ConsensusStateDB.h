@@ -43,4 +43,4 @@ public:
 };
 
 
-#endif //SKALED_COMMITTEDTRANSACTIONDB_H
+#endif
