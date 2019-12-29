@@ -253,6 +253,7 @@ ptr<vector<ptr<string>>> CacheLevelDB::readBlockRangeFromDBUnsafe(block_id _bloc
         }
         result->push_back(make_shared<string>(idb->value().ToString()));
     }
+
     return result;
 }
 
