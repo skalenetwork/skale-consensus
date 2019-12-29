@@ -90,6 +90,13 @@ uint64_t BasicHeader::getUint64(nlohmann::json &_js, const char *_name) {
     return result;
 };
 
+int32_t BasicHeader::getInt32(nlohmann::json &_js, const char *_name) {
+    nullCheck(_js, _name);
+    int32_t result = _js[_name];
+    return result;
+};
+
+
 
 uint32_t BasicHeader::getUint32(nlohmann::json &_js, const char *_name) {
     nullCheck(_js, _name);

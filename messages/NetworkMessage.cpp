@@ -133,6 +133,7 @@ void NetworkMessage::addFields(nlohmann::basic_json<> &j) {
     j["ssi"] = (uint64_t) srcSchainIndex;
     j["r"] = (uint64_t )r;
     j["v"] = (uint8_t )value;
+    j["ip"] = ip;
 
     if (sigShareString != nullptr) {
         j["sss"] = *sigShareString;
@@ -211,6 +212,7 @@ ptr<NetworkMessage> NetworkMessage::parseMessage(ptr<string> _header, Schain *_s
         srcSchainIndex = getUint64(js, "ssi");
         round = getUint64(js, "r");
         value = getUint64(js, "v");
+        ip = getInt32(js, "ip");
 
         if (js.find("sss") != js.end()) {
             sigShare = getString(js, "sss");
