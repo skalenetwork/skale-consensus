@@ -177,7 +177,13 @@ ptr<Buffer> NetworkMessage::toBuffer1() {
     return buf;
 }
 
-ptr<NetworkMessage> NetworkMessage::parseMessage(ptr<Buffer> /*_buf*/, Schain */*_sChain*/) {
+ptr<NetworkMessage> NetworkMessage::parseMessage(ptr<string> _header) {
+
+    CHECK_ARGUMENT(_header);
+
+    auto js = nlohmann::json::parse(*_header);
+
+
     return nullptr;
 }
 

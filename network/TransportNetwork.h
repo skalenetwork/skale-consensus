@@ -108,7 +108,7 @@ public:
 
     ptr<NetworkMessageEnvelope> receiveMessage();
 
-    virtual ptr<string> readMessageFromNetwork(ptr<Buffer> buf) = 0;
+    virtual void readMessageFromNetwork(ptr<Buffer> buf) = 0;
 
     static bool validateIpAddress(ptr<string> &_ip);
 

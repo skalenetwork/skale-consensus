@@ -302,13 +302,7 @@ ptr<string> TransportNetwork::ipToString(uint32_t _ip) {
 
 ptr<NetworkMessageEnvelope> TransportNetwork::receiveMessage() {
     auto buf = make_shared<Buffer>(MAX_CONSENSUS_MESSAGE_LEN);
-    auto ip = readMessageFromNetwork(buf);
-
-
-    if (ip == nullptr) {
-        return nullptr;
-    }
-
+    readMessageFromNetwork(buf);
 
     uint64_t magicNumber;
     uint64_t sChainID;
@@ -325,7 +319,6 @@ ptr<NetworkMessageEnvelope> TransportNetwork::receiveMessage() {
     char sigShare[BLS_MAX_SIG_LEN + 1];
 
     memset(sigShare, 0, BLS_MAX_SIG_LEN);
-
 
     READ(buf, magicNumber);
 
@@ -355,20 +348,12 @@ ptr<NetworkMessageEnvelope> TransportNetwork::receiveMessage() {
     auto sig = make_shared<string>(sigShare);
 
 
-    auto ip2 = ipToString(rawIP);
-    if (ip->size() == 0) {
-        ip = ip2;
-    } else {
-        LOG(debug, (*ip + ":" + *ip2).c_str());
-        ASSERT(*ip == *ip2);
-    }
 
-
-    ptr<NodeInfo> realSender = sChain->getNode()->getNodeInfoByIP(ip);
+    ptr<NodeInfo> realSender = sChain->getNode()->getNodeInfoByIP(ipToString(rawIP));
 
 
     if (realSender == nullptr) {
-        BOOST_THROW_EXCEPTION(InvalidSourceIPException("NetworkMessage from unknown IP" + *ip));
+        BOOST_THROW_EXCEPTION(InvalidSourceIPException("NetworkMessage from unknown IP"));
     }
 
 

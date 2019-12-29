@@ -50,7 +50,7 @@ public:
 
     bool interruptableSend(void *_socket, void *_buf, size_t _len, bool _isNonBlocking = false);
 
-    ptr<string> readMessageFromNetwork(ptr<Buffer> buf);
+    void readMessageFromNetwork(ptr<Buffer> buf);
 
     ZMQNetwork(Schain &_schain);
 

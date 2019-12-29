@@ -143,7 +143,7 @@ bool ZMQNetwork::interruptableSend(void *_socket, void *_buf, size_t _len, bool 
 }
 
 
-ptr<string> ZMQNetwork::readMessageFromNetwork(ptr<Buffer> buf) {
+void ZMQNetwork::readMessageFromNetwork(ptr<Buffer> buf) {
 
     auto s = sChain->getNode()->getSockets()->consensusZMQSocket->getReceiveSocket();
 
@@ -160,7 +160,6 @@ ptr<string> ZMQNetwork::readMessageFromNetwork(ptr<Buffer> buf) {
     interruptableSend(s, &zero, 1, 0);
 #endif
 
-    return make_shared<string>("");
 
 }
 
