@@ -41,7 +41,6 @@
 #include "datastructures/Transaction.h"
 #include "datastructures/PartialHashesList.h"
 #include "node/Node.h"
-#include "datastructures/MyBlockProposal.h"
 #include "datastructures/BlockProposal.h"
 #include "crypto/SHAHash.h"
 #include "exceptions/LevelDBException.h"
@@ -287,7 +286,7 @@ DB *CacheLevelDB::openDB(uint64_t _index) {
         static leveldb::Options options;
         options.create_if_missing = true;
 
-        ASSERT2(leveldb::DB::Open(options, dirname + "/" + prefix + "." + to_string(_index),
+        ASSERT2(leveldb::DB::Open(options, dirname + "/" + "db." + to_string(_index),
                                   &dbase).ok(),
                 "Unable to open database");
         return dbase;
@@ -303,14 +302,15 @@ DB *CacheLevelDB::openDB(uint64_t _index) {
 CacheLevelDB::CacheLevelDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize,
                            bool _isDuplicateAddOK)
         : nodeId(_nodeId),
-          prefix(_prefix), dirname(_dirName),
+          prefix(_prefix), dirname(_dirName + "/" + _prefix),
           maxDBSize(_maxDBSize), totalSigners(_sChain->getTotalSigners()),
           requiredSigners(_sChain->getRequiredSigners()),
           isDuplicateAddOK(_isDuplicateAddOK), sChain(_sChain) {
 
     CHECK_STATE(_sChain != nullptr);
 
-    boost::filesystem::path path(_dirName);
+    boost::filesystem::path path(dirname);
+    boost::filesystem::create_directory(path);
 
     CHECK_ARGUMENT(_maxDBSize != 0);
 

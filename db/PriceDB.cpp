@@ -29,6 +29,7 @@
 #include "chains/Schain.h"
 #include "PriceDB.h"
 
+#include "chains/Schain.h"
 
 PriceDB::PriceDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize)
         : CacheLevelDB(_sChain, _dirName, _prefix,

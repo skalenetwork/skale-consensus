@@ -30,15 +30,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="e8eb5c74-4268-46a2-ac26-2e919fd9ff42" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/db/CacheLevelDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/CacheLevelDB.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/CacheLevelDB.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/CacheLevelDB.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/OutgoingMsgDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/OutgoingMsgDB.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/messages/NetworkMessage.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/messages/NetworkMessage.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/messages/NetworkMessage.h" beforeDir="false" afterPath="$PROJECT_DIR$/messages/NetworkMessage.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/network/TransportNetwork.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/network/TransportNetwork.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/network/TransportNetwork.h" beforeDir="false" afterPath="$PROJECT_DIR$/network/TransportNetwork.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/protocols/binconsensus/BVBroadcastMessage.h" beforeDir="false" afterPath="$PROJECT_DIR$/protocols/binconsensus/BVBroadcastMessage.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/PriceDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/PriceDB.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/libBLS" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -66,7 +60,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="SKALE-808-multiple-consensus-instances" />
+        <entry key="$PROJECT_DIR$" value="SKALE-1909-separate-leveldb-dir" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -750,30 +744,30 @@
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
     <state x="2550" y="243" width="649" height="618" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576752235200" />
-    <state x="2314" y="71" width="1121" height="962" key="CommitChangelistDialog2" timestamp="1576850707391">
+    <state x="2314" y="71" width="1121" height="962" key="CommitChangelistDialog2" timestamp="1577608891043">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state x="2314" y="71" width="1121" height="962" key="CommitChangelistDialog2/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576850707391" />
+    <state x="2314" y="71" width="1121" height="962" key="CommitChangelistDialog2/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1577608891043" />
     <state x="2613" y="259" width="524" height="594" key="FileChooserDialogImpl" timestamp="1576073838542">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
     <state x="2613" y="259" width="524" height="594" key="FileChooserDialogImpl/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576073838542" />
-    <state width="1860" height="197" key="GridCell.Tab.0.bottom" timestamp="1576853477955">
+    <state width="1860" height="179" key="GridCell.Tab.0.bottom" timestamp="1577608818986">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state width="1860" height="197" key="GridCell.Tab.0.bottom/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576853477955" />
-    <state width="1860" height="197" key="GridCell.Tab.0.center" timestamp="1576853477955">
+    <state width="1860" height="179" key="GridCell.Tab.0.bottom/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1577608818986" />
+    <state width="1860" height="179" key="GridCell.Tab.0.center" timestamp="1577608818986">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state width="1860" height="197" key="GridCell.Tab.0.center/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576853477955" />
-    <state width="1860" height="197" key="GridCell.Tab.0.left" timestamp="1576853477955">
+    <state width="1860" height="179" key="GridCell.Tab.0.center/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1577608818986" />
+    <state width="1860" height="179" key="GridCell.Tab.0.left" timestamp="1577608818986">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state width="1860" height="197" key="GridCell.Tab.0.left/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576853477955" />
-    <state width="1860" height="197" key="GridCell.Tab.0.right" timestamp="1576853477955">
+    <state width="1860" height="179" key="GridCell.Tab.0.left/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1577608818986" />
+    <state width="1860" height="179" key="GridCell.Tab.0.right" timestamp="1577608818986">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state width="1860" height="197" key="GridCell.Tab.0.right/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576853477955" />
+    <state width="1860" height="179" key="GridCell.Tab.0.right/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1577608818986" />
     <state width="1860" height="314" key="GridCell.Tab.1.bottom" timestamp="1576762976186">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
@@ -814,6 +808,10 @@
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
     <state x="2479" y="299" width="801" height="506" key="git4idea.merge.GitMergeDialog/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575886235995" />
+    <state x="2420" y="299" width="909" height="506" key="git4idea.merge.GitPullDialog" timestamp="1577608528706">
+      <screen x="1920" y="0" width="1920" height="1080" />
+    </state>
+    <state x="2420" y="299" width="909" height="506" key="git4idea.merge.GitPullDialog/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1577608528706" />
     <state x="2565" y="128" width="620" height="849" key="refactoring.ChangeSignatureDialog" timestamp="1576851425531">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
