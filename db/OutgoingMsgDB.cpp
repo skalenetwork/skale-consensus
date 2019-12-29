@@ -55,8 +55,8 @@ OutgoingMsgDB::saveMsg(ptr<NetworkMessage> _outgoingMsg) {
         auto buffer = _outgoingMsg->toBuffer1()->getBuf();
 
         auto s = _outgoingMsg->serializeToString();
-        NetworkMessage::parseMessage(s, getSchain());
-
+        auto msg = NetworkMessage::parseMessage(s, getSchain());
+        assert (*msg->serializeToString() == *s);
 
         auto currentCounter = msgCounter++;
 

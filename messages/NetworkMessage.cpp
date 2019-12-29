@@ -178,7 +178,7 @@ ptr<NetworkMessage> NetworkMessage::parseMessage(ptr<string> _header, Schain *_s
     uint64_t sChainID;
     uint64_t blockID;
     uint64_t blockProposerIndex;
-    MsgType msgType;
+    ptr<string> type;
     uint64_t msgID;
     uint64_t srcNodeID;
     uint64_t dstNodeID;
@@ -204,7 +204,7 @@ ptr<NetworkMessage> NetworkMessage::parseMessage(ptr<string> _header, Schain *_s
         sChainID = getUint64(js, "si");
         blockID = getUint64(js, "bi");
         blockProposerIndex = getUint64(js, "bpi");
-        msgType = (MsgType) getUint64(js, "mt");
+        type = getString(js, "type");
         msgID = getUint64(js, "mi");
         srcNodeID = getUint64(js, "sni");
         dstNodeID = getUint64(js, "dni");
@@ -230,7 +230,7 @@ ptr<NetworkMessage> NetworkMessage::parseMessage(ptr<string> _header, Schain *_s
 
         ptr<NetworkMessage> mptr;
 
-        if (msgType == MsgType::MSG_BVB_BROADCAST) {
+        if (*type == BasicHeader::BV_BROADCAST) {
             mptr = make_shared<BVBroadcastMessage>(node_id(srcNodeID), node_id(dstNodeID),
                                                    block_id(blockID), schain_index(blockProposerIndex),
                                                    bin_consensus_round(round),
@@ -238,7 +238,7 @@ ptr<NetworkMessage> NetworkMessage::parseMessage(ptr<string> _header, Schain *_s
                                                    ip,
                                                    srcSchainIndex,
                                                    _sChain);
-        } else if (msgType == MsgType::MSG_AUX_BROADCAST) {
+        } else if (*type == BasicHeader::AUX_BROADCAST) {
             mptr = make_shared<AUXBroadcastMessage>(node_id(srcNodeID), node_id(dstNodeID),
                                                     block_id(blockID), schain_index(blockProposerIndex),
                                                     bin_consensus_round(round),
@@ -247,7 +247,7 @@ ptr<NetworkMessage> NetworkMessage::parseMessage(ptr<string> _header, Schain *_s
                                                     sigShare,
                                                     srcSchainIndex,
                                                     _sChain);
-        } else if (msgType == MsgType::MSG_BLOCK_SIGN_BROADCAST) {
+        } else if (*type == BasicHeader::BLOCK_SIG_BROADCAST) {
             mptr = make_shared<BlockSignBroadcastMessage>(node_id(srcNodeID), node_id(dstNodeID),
                                                           block_id(blockID), schain_index(blockProposerIndex),
                                                           schain_id(sChainID), msg_id(msgID), ip,
@@ -258,7 +258,7 @@ ptr<NetworkMessage> NetworkMessage::parseMessage(ptr<string> _header, Schain *_s
             ASSERT(false);
         }
 
-        return nullptr;
+        return mptr;
 
     } catch (ExitRequestedException &) { throw; } catch (...) {
         throw_with_nested(InvalidStateException("Could not create message", __CLASS_NAME__));
