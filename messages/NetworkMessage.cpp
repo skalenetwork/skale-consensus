@@ -62,8 +62,7 @@ NetworkMessage::NetworkMessage(MsgType _messageType, node_id _destinationNodeID,
 
     this->ip = inet_addr(ipString->c_str());
 
-    ASSERT(_messageType > 0);
-
+    setComplete();
 
 }
 
@@ -94,6 +93,8 @@ NetworkMessage::NetworkMessage(MsgType _messageType, node_id _srcNodeID, node_id
                                                   _totalSigners, _requiredSigners);
     }
 
+    setComplete();
+
 }
 
 ptr<ThresholdSigShare> NetworkMessage::getSigShare() const {
@@ -123,8 +124,28 @@ void NetworkMessage::setIp(int32_t _ip) {
     ip = _ip;
 }
 
+void NetworkMessage::addFields(nlohmann::basic_json<> &j) {
+
+    j["si"] = schainID;
+    j["bi"] = blockID;
+    j["bpi"] = getBlockProposerIndex();
+    j["mt"] = msgType;
+    j["mi"] = msgID;
+    j["sni"] = srcNodeID;
+    j["dni"] = dstNodeID;
+    j["r"] = r;
+    j["v"] = value;
+    j["ip"] = ip;
+
+    if (sigShareString != nullptr) {
+        j["sss"] = *sigShareString;
+    }
+}
+
 
 ptr<Buffer> NetworkMessage::toBuffer1() {
+
+    toBuffer();
 
     static vector<uint8_t> ZERO_BUFFER(BLS_MAX_SIG_LEN, 0);
 
@@ -179,9 +200,6 @@ const char *NetworkMessage::getTypeString(MsgType _type) {
 
 }
 
-void NetworkMessage::addFields(nlohmann::json & /*_j */) {
-
-}
 
 
 
