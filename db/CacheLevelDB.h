@@ -70,7 +70,8 @@ protected:
 
     ptr<string> readString(string &_key);
     ptr<string> readStringUnsafe(string &_key);
-    void writeString(const string &key1, const string &value1);
+
+    void writeString(const string &key1, const string &value1, bool overWrite = false);
 
     ptr<map<schain_index, ptr<string>>>
     writeStringToSet(const string &_value, block_id _blockId, schain_index _index);

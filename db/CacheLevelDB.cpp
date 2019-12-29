@@ -146,14 +146,15 @@ bool CacheLevelDB::keyExists(const string &_key) {
 }
 
 
-void CacheLevelDB::writeString(const string &_key, const string &_value) {
+void CacheLevelDB::writeString(const string &_key, const string &_value,
+        bool _overWrite) {
 
     rotateDBsIfNeeded();
 
     {
         shared_lock<shared_mutex> lock(m);
 
-        if (keyExistsUnsafe(_key)) {
+        if ((!_overWrite) && keyExistsUnsafe(_key)) {
             LOG(warn, "Double db entry " + this->prefix + "\n" + _key);
             return;
         }
