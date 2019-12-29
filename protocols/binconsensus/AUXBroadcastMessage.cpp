@@ -48,7 +48,7 @@
 AUXBroadcastMessage::AUXBroadcastMessage(bin_consensus_round round, bin_consensus_value value,
                                          node_id destinationNodeID, block_id _blockID, schain_index _blockProposer,
                                          BinConsensusInstance &sourceProtocolInstance)
-        : NetworkMessage(AUX_BROADCAST, destinationNodeID, _blockID, _blockProposer, round, value,
+        : NetworkMessage(MSG_AUX_BROADCAST, destinationNodeID, _blockID, _blockProposer, round, value,
                          sourceProtocolInstance) {
     printPrefix = "a";
     auto schain = sourceProtocolInstance.getSchain();
@@ -74,7 +74,7 @@ AUXBroadcastMessage::AUXBroadcastMessage(node_id _srcNodeID, node_id _dstNodeID,
                                          schain_id _schainId, msg_id _msgID, uint32_t _ip, ptr<string> _signature,
                                          schain_index _srcSchainIndex, Schain *_sChain)
         : NetworkMessage(
-        AUX_BROADCAST, _srcNodeID, _dstNodeID, _blockID, _blockProposerIndex, _r, _value, _schainId, _msgID, _ip,
+        MSG_AUX_BROADCAST, _srcNodeID, _dstNodeID, _blockID, _blockProposerIndex, _r, _value, _schainId, _msgID, _ip,
         _signature, _srcSchainIndex, _sChain->getCryptoManager(), _sChain->getTotalSigners(),
         _sChain->getRequiredSigners()) {
     printPrefix = "a";

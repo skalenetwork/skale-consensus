@@ -31,8 +31,8 @@
 
 
 ptr<ProtocolKey> Message::createDestinationProtocolKey()  {
-    ASSERT(msgType == PARENT_COMPLETED ||  msgType ==  BVB_BROADCAST ||
-           msgType == AUX_BROADCAST || msgType == BIN_CONSENSUS_COMMIT || msgType == MSG_BLOCK_SIGN_BROADCAST);
+    ASSERT(msgType == PARENT_COMPLETED || msgType == MSG_BVB_BROADCAST ||
+           msgType == MSG_AUX_BROADCAST || msgType == BIN_CONSENSUS_COMMIT || msgType == MSG_BLOCK_SIGN_BROADCAST);
     ASSERT(blockID > 0);
     if (protocolKey == nullptr) {
         protocolKey = make_shared<ProtocolKey>(blockID, blockProposerIndex);

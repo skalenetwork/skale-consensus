@@ -44,12 +44,17 @@ class CryptoManager;
 
 static constexpr uint32_t CONSENSUS_MESSAGE_LEN = 73 + BLS_MAX_SIG_LEN;
 
-class NetworkMessage : public Message {
+#include "headers/BasicHeader.h"
+
+class NetworkMessage : public Message, BasicHeader {
 
 
 
 protected:
+private:
+    void addFields(nlohmann::json &j) override;
 
+protected:
 
 
     string printPrefix = "n";
@@ -95,15 +100,17 @@ public:
     void printMessage();
 
 
-    int32_t getIp() const;
 
     void setIp(int32_t _ip);
 
-    ptr<Buffer> toBuffer();
+    ptr<Buffer> toBuffer1();
 
     ptr<ThresholdSigShare> getSigShare() const;
 
     static ptr<NetworkMessage> parseMessage(ptr<Buffer> _buf, Schain *_sChain);
+
+    static const char* getTypeString(MsgType _type );
+
 
 
 };

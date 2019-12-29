@@ -374,7 +374,7 @@ ptr<NetworkMessageEnvelope> TransportNetwork::receiveMessage() {
 
     ptr<NetworkMessage> mptr;
 
-    if (msgType == MsgType::BVB_BROADCAST) {
+    if (msgType == MsgType::MSG_BVB_BROADCAST) {
         mptr = make_shared<BVBroadcastMessage>(node_id(srcNodeID), node_id(dstNodeID),
                                                block_id(blockID), schain_index(blockProposerIndex),
                                                bin_consensus_round(round),
@@ -383,7 +383,7 @@ ptr<NetworkMessageEnvelope> TransportNetwork::receiveMessage() {
                                                sig,
                                                realSender->getSchainIndex(),
                                                sChain);
-    } else if (msgType == MsgType::AUX_BROADCAST) {
+    } else if (msgType == MsgType::MSG_AUX_BROADCAST) {
         mptr = make_shared<AUXBroadcastMessage>(node_id(srcNodeID), node_id(dstNodeID),
                                                 block_id(blockID), schain_index(blockProposerIndex),
                                                 bin_consensus_round(round),

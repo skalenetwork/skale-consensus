@@ -53,7 +53,7 @@ NetworkMessage::NetworkMessage(MsgType _messageType, node_id _destinationNodeID,
         : Message(_srcProtocolInstance.getSchain()->getSchainID(),
                   _messageType, _srcProtocolInstance.createNetworkMessageID(),
                   _srcProtocolInstance.getSchain()->getNode()->getNodeID(), _destinationNodeID, _blockID,
-                  _blockProposerIndex) {
+                  _blockProposerIndex), BasicHeader(getTypeString(_messageType)) {
 
     this->r = _r;
     this->value = _value;
@@ -68,12 +68,13 @@ NetworkMessage::NetworkMessage(MsgType _messageType, node_id _destinationNodeID,
 }
 
 
-NetworkMessage::NetworkMessage(MsgType messageType, node_id _srcNodeID, node_id _dstNodeID, block_id _blockID,
+NetworkMessage::NetworkMessage(MsgType _messageType, node_id _srcNodeID, node_id _dstNodeID, block_id _blockID,
                                schain_index _blockProposerIndex, bin_consensus_round _r, bin_consensus_value _value,
                                schain_id _schainId, msg_id _msgID, uint32_t _ip, ptr<string> _sigShareStr,
                                schain_index _srcSchainIndex, ptr<CryptoManager> _cryptoManager,
                                uint64_t _totalSigners, uint64_t _requiredSigners)
-        : Message(_schainId, messageType, _msgID, _srcNodeID, _dstNodeID, _blockID, _blockProposerIndex) {
+        : Message(_schainId, _messageType, _msgID, _srcNodeID, _dstNodeID, _blockID, _blockProposerIndex),
+          BasicHeader(getTypeString(_messageType)) {
 
     ASSERT(_srcSchainIndex > 0)
 
@@ -93,8 +94,6 @@ NetworkMessage::NetworkMessage(MsgType messageType, node_id _srcNodeID, node_id 
                                                   _totalSigners, _requiredSigners);
     }
 
-
-    ASSERT(messageType > 0);
 }
 
 ptr<ThresholdSigShare> NetworkMessage::getSigShare() const {
@@ -108,14 +107,6 @@ bin_consensus_round NetworkMessage::getRound() const {
 
 bin_consensus_value NetworkMessage::getValue() const {
     return value;
-}
-
-int32_t NetworkMessage::getIp() const {
-    return ip;
-}
-
-msg_len NetworkMessage::getLen() {
-    return CONSENSUS_MESSAGE_LEN;
 }
 
 void NetworkMessage::printMessage() {
@@ -133,7 +124,7 @@ void NetworkMessage::setIp(int32_t _ip) {
 }
 
 
-ptr<Buffer> NetworkMessage::toBuffer() {
+ptr<Buffer> NetworkMessage::toBuffer1() {
 
     static vector<uint8_t> ZERO_BUFFER(BLS_MAX_SIG_LEN, 0);
 
@@ -170,9 +161,27 @@ ptr<NetworkMessage> NetworkMessage::parseMessage(ptr<Buffer> /*_buf*/, Schain */
 }
 
 
+const char *NetworkMessage::getTypeString(MsgType _type) {
+    switch (_type) {
+        case MSG_BVB_BROADCAST : {
+            return BV_BROADCAST;
+        };
+        case MSG_AUX_BROADCAST : {
+            return AUX_BROADCAST;
+        };
+        case MSG_BLOCK_SIGN_BROADCAST : {
+            return BLOCK_SIG_BROADCAST;
+        }
+        default: {
+            return "history";
+        };
+    }
 
+}
 
+void NetworkMessage::addFields(nlohmann::json & /*_j */) {
 
+}
 
 
 

@@ -83,7 +83,7 @@ void BinConsensusInstance::processMessage(ptr<MessageEnvelope> m) {
 
     if (msgOrigin == ORIGIN_NETWORK) {
 
-        if (msgType != BVB_BROADCAST && msgType != AUX_BROADCAST)
+        if (msgType != MSG_BVB_BROADCAST && msgType != MSG_AUX_BROADCAST)
             return;
 
         processNetworkMessageImpl(dynamic_pointer_cast<NetworkMessageEnvelope>(m));
@@ -114,7 +114,7 @@ void BinConsensusInstance::processNetworkMessageImpl(ptr<NetworkMessageEnvelope>
     ASSERT(round <= currentRound + 1);
 
 
-    if (me->getMessage()->getMessageType() == BVB_BROADCAST) {
+    if (me->getMessage()->getMessageType() == MSG_BVB_BROADCAST) {
 
 
         auto m = dynamic_pointer_cast<BVBroadcastMessage>(me->getMessage());
@@ -130,7 +130,7 @@ void BinConsensusInstance::processNetworkMessageImpl(ptr<NetworkMessageEnvelope>
 
         commitValueIfTwoThirds(m);
 
-    } else if (me->getMessage()->getMessageType() == AUX_BROADCAST) {
+    } else if (me->getMessage()->getMessageType() == MSG_AUX_BROADCAST) {
 
         if (isDecided)
             return;

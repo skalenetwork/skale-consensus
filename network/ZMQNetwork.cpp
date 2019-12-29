@@ -56,7 +56,7 @@ using namespace std;
 
 bool ZMQNetwork::sendMessage(const ptr<NodeInfo> &_remoteNodeInfo, ptr<NetworkMessage> _msg) {
 
-    auto buf = _msg->toBuffer();
+    auto buf = _msg->toBuffer1();
 
     auto ip = _remoteNodeInfo->getBaseIP();
 

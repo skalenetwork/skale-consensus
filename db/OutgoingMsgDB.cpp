@@ -49,7 +49,7 @@ OutgoingMsgDB::saveMsg(ptr<NetworkMessage> _outgoingMsg) {
 
     CHECK_STATE(_outgoingMsg);
 
-    auto buffer = _outgoingMsg->toBuffer()->getBuf();
+    auto buffer = _outgoingMsg->toBuffer1()->getBuf();
 
     try {
 
