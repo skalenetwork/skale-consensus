@@ -145,7 +145,7 @@ void NetworkMessage::addFields(nlohmann::basic_json<> &j) {
 
 ptr<Buffer> NetworkMessage::toBuffer1() {
 
-    toBuffer();
+
 
     static vector<uint8_t> ZERO_BUFFER(BLS_MAX_SIG_LEN, 0);
 

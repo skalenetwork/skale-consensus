@@ -69,7 +69,7 @@ public:
     static void nullCheck( nlohmann::json& js, const char* name );
 
 
-    ptr<string> toString();
+    ptr<string> serializeToString();
 
     ptr< Buffer > toBuffer();
 

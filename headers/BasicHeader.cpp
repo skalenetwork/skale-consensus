@@ -45,7 +45,7 @@ bool BasicHeader::isComplete() const {
     return complete;
 }
 
-ptr<string> BasicHeader::toString() {
+ptr<string> BasicHeader::serializeToString() {
     ASSERT(complete);
     nlohmann::json j;
 
@@ -65,7 +65,7 @@ ptr<string> BasicHeader::toString() {
 
 ptr<Buffer> BasicHeader::toBuffer() {
 
-    auto s = toString();
+    auto s = serializeToString();
 
     uint64_t len  = s->length();
 

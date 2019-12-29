@@ -48,7 +48,7 @@ static constexpr uint64_t MAX_CONSENSUS_MESSAGE_LEN = 1024;
 
 #include "headers/BasicHeader.h"
 
-class NetworkMessage : public Message, BasicHeader {
+class NetworkMessage : public Message, public BasicHeader {
 
 
 
