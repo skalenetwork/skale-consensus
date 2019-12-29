@@ -46,14 +46,12 @@
 #include "NetworkMessage.h"
 
 
-NetworkMessage::NetworkMessage(MsgType _messageType, node_id _destinationNodeID,
-                               block_id _blockID, schain_index _blockProposerIndex,
-                               bin_consensus_round _r,
-                               bin_consensus_value _value,
+NetworkMessage::NetworkMessage(MsgType _messageType, block_id _blockID, schain_index _blockProposerIndex,
+                               bin_consensus_round _r, bin_consensus_value _value,
                                ProtocolInstance &_srcProtocolInstance)
         : Message(_srcProtocolInstance.getSchain()->getSchainID(),
                   _messageType, _srcProtocolInstance.createNetworkMessageID(),
-                  _srcProtocolInstance.getSchain()->getNode()->getNodeID(), _destinationNodeID, _blockID,
+                  _srcProtocolInstance.getSchain()->getNode()->getNodeID(), _blockID,
                   _blockProposerIndex), BasicHeader(getTypeString(_messageType)) {
 
     this->srcSchainIndex = _srcProtocolInstance.getSchain()->getSchainIndex();
@@ -69,12 +67,12 @@ NetworkMessage::NetworkMessage(MsgType _messageType, node_id _destinationNodeID,
 }
 
 
-NetworkMessage::NetworkMessage(MsgType _messageType, node_id _srcNodeID, node_id _dstNodeID, block_id _blockID,
+NetworkMessage::NetworkMessage(MsgType _messageType, node_id _srcNodeID, block_id _blockID,
                                schain_index _blockProposerIndex, bin_consensus_round _r, bin_consensus_value _value,
                                schain_id _schainId, msg_id _msgID, uint32_t _ip, ptr<string> _sigShareStr,
                                schain_index _srcSchainIndex, ptr<CryptoManager> _cryptoManager,
                                uint64_t _totalSigners, uint64_t _requiredSigners)
-        : Message(_schainId, _messageType, _msgID, _srcNodeID, _dstNodeID, _blockID, _blockProposerIndex),
+        : Message(_schainId, _messageType, _msgID, _srcNodeID, _blockID, _blockProposerIndex),
           BasicHeader(getTypeString(_messageType)) {
 
     ASSERT(_srcSchainIndex > 0)
@@ -129,7 +127,6 @@ void NetworkMessage::addFields(nlohmann::basic_json<> &j) {
     j["mt"] = (uint64_t )msgType;
     j["mi"] = (uint64_t )msgID;
     j["sni"] = (uint64_t )srcNodeID;
-    j["dni"] = (uint64_t )dstNodeID;
     j["ssi"] = (uint64_t) srcSchainIndex;
     j["r"] = (uint64_t )r;
     j["v"] = (uint8_t )value;
@@ -141,38 +138,6 @@ void NetworkMessage::addFields(nlohmann::basic_json<> &j) {
 }
 
 
-ptr<Buffer> NetworkMessage::toBuffer1() {
-
-
-    static vector<uint8_t> ZERO_BUFFER(BLS_MAX_SIG_LEN, 0);
-
-    auto buf = make_shared<Buffer>(CONSENSUS_MESSAGE_LEN);
-
-    static uint64_t magic = MAGIC_NUMBER;
-
-    WRITE(buf, magic);
-    WRITE(buf, schainID);
-    WRITE(buf, blockID);
-    auto bpi = getBlockProposerIndex();
-    WRITE(buf, bpi);
-    WRITE(buf, msgType);
-    WRITE(buf, msgID);
-    WRITE(buf, srcNodeID);
-    WRITE(buf, dstNodeID);
-    WRITE(buf, r);
-    WRITE(buf, value);
-    WRITE(buf, ip);
-
-    if (sigShareString != nullptr) {
-        buf->write(sigShareString->data(), sigShareString->size());
-    }
-
-    if (buf->getCounter() < CONSENSUS_MESSAGE_LEN) {
-        buf->write(ZERO_BUFFER.data(), CONSENSUS_MESSAGE_LEN - buf->getCounter());
-    }
-
-    return buf;
-}
 
 ptr<NetworkMessage> NetworkMessage::parseMessage(ptr<string> _header, Schain *_sChain) {
 
@@ -182,7 +147,6 @@ ptr<NetworkMessage> NetworkMessage::parseMessage(ptr<string> _header, Schain *_s
     ptr<string> type;
     uint64_t msgID;
     uint64_t srcNodeID;
-    uint64_t dstNodeID;
     uint64_t srcSchainIndex;
     uint64_t round;
     uint8_t value;
@@ -197,18 +161,12 @@ ptr<NetworkMessage> NetworkMessage::parseMessage(ptr<string> _header, Schain *_s
         auto js = nlohmann::json::parse(*_header);
 
 
-
-
-
-
-
         sChainID = getUint64(js, "si");
         blockID = getUint64(js, "bi");
         blockProposerIndex = getUint64(js, "bpi");
         type = getString(js, "type");
         msgID = getUint64(js, "mi");
         srcNodeID = getUint64(js, "sni");
-        dstNodeID = getUint64(js, "dni");
         srcSchainIndex = getUint64(js, "ssi");
         round = getUint64(js, "r");
         value = getUint64(js, "v");
@@ -233,7 +191,7 @@ ptr<NetworkMessage> NetworkMessage::parseMessage(ptr<string> _header, Schain *_s
         ptr<NetworkMessage> mptr;
 
         if (*type == BasicHeader::BV_BROADCAST) {
-            mptr = make_shared<BVBroadcastMessage>(node_id(srcNodeID), node_id(dstNodeID),
+            mptr = make_shared<BVBroadcastMessage>(node_id(srcNodeID),
                                                    block_id(blockID), schain_index(blockProposerIndex),
                                                    bin_consensus_round(round),
                                                    bin_consensus_value(value), schain_id(sChainID), msg_id(msgID),
@@ -241,7 +199,7 @@ ptr<NetworkMessage> NetworkMessage::parseMessage(ptr<string> _header, Schain *_s
                                                    srcSchainIndex,
                                                    _sChain);
         } else if (*type == BasicHeader::AUX_BROADCAST) {
-            mptr = make_shared<AUXBroadcastMessage>(node_id(srcNodeID), node_id(dstNodeID),
+            mptr = make_shared<AUXBroadcastMessage>(node_id(srcNodeID),
                                                     block_id(blockID), schain_index(blockProposerIndex),
                                                     bin_consensus_round(round),
                                                     bin_consensus_value(value), schain_id(sChainID), msg_id(msgID),
@@ -250,7 +208,7 @@ ptr<NetworkMessage> NetworkMessage::parseMessage(ptr<string> _header, Schain *_s
                                                     srcSchainIndex,
                                                     _sChain);
         } else if (*type == BasicHeader::BLOCK_SIG_BROADCAST) {
-            mptr = make_shared<BlockSignBroadcastMessage>(node_id(srcNodeID), node_id(dstNodeID),
+            mptr = make_shared<BlockSignBroadcastMessage>(node_id(srcNodeID),
                                                           block_id(blockID), schain_index(blockProposerIndex),
                                                           schain_id(sChainID), msg_id(msgID), ip,
                                                           sigShare,

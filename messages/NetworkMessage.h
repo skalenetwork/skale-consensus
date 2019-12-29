@@ -65,12 +65,12 @@ protected:
 
     ptr<ThresholdSigShare> sigShare;
 
-    NetworkMessage(MsgType _messageType, node_id _destinationNodeID, block_id _blockID,
-                   schain_index _blockProposerIndex, bin_consensus_round _r, bin_consensus_value _value,
-                   ProtocolInstance &_srcProtocolInstance );
+    NetworkMessage(MsgType _messageType, block_id _blockID, schain_index _blockProposerIndex,
+                   bin_consensus_round _r, bin_consensus_value _value,
+                   ProtocolInstance &_srcProtocolInstance);
 
 
-    NetworkMessage(MsgType messageType, node_id _srcNodeID, node_id _dstNodeID, block_id _blockID,
+    NetworkMessage(MsgType _messageType, node_id _srcNodeID, block_id _blockID,
                    schain_index _blockProposerIndex, bin_consensus_round _r, bin_consensus_value _value,
                    schain_id _schainId, msg_id _msgID, uint32_t _ip, ptr<string> _sigShareStr,
                    schain_index _srcSchainIndex, ptr<CryptoManager> _cryptoManager,

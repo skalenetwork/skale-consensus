@@ -48,18 +48,15 @@ protected:
     MsgType msgType;
     msg_id msgID;
     node_id srcNodeID;
-    node_id dstNodeID;
 
     ptr<ProtocolKey> protocolKey;
 
 public:
     Message(const schain_id &schainID, MsgType msgType, const msg_id &msgID, const node_id &srcNodeID,
-            const node_id &dstNodeID, const block_id &blockID,
-            const schain_index &blockProposerIndex);
+            const block_id &blockID, const schain_index &blockProposerIndex);
 
     node_id getSrcNodeID() const;
-
-    node_id getDstNodeID() const;
+;
 
     msg_id getMessageID() const;
 
@@ -76,7 +73,6 @@ public:
 
     void setSrcNodeID(const node_id &srcNodeID);
 
-    void setDstNodeID(const node_id &dstNodeID);
 
     const block_id &getBlockID() const;
 

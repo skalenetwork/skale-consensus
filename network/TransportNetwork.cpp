@@ -129,7 +129,6 @@ void TransportNetwork::broadcastMessage(ptr<NetworkMessage> _m) {
 
         auto ip = inet_addr(getSchain()->getThisNodeInfo()->getBaseIP()->c_str());
         _m->setIp(ip);
-        node_id oldID = _m->getDstNodeID();
 
         unordered_set<uint64_t> sent;
 
@@ -137,7 +136,6 @@ void TransportNetwork::broadcastMessage(ptr<NetworkMessage> _m) {
             for (auto const &it : *getSchain()->getNode()->getNodeInfosByIndex()) {
                 auto index = (uint64_t) it.second->getSchainIndex();
                 if (index != (getSchain()->getSchainIndex()) && !sent.count(index)) {
-                    _m->setDstNodeID(it.second->getNodeID());
                     ASSERT(it.second->getSchainIndex() != getSchain()->getSchainIndex());
                     if (sendMessage(it.second, _m)) {
                         sent.insert((uint64_t) it.second->getSchainIndex());
@@ -161,11 +159,9 @@ void TransportNetwork::broadcastMessage(ptr<NetworkMessage> _m) {
             }
         }
 
-        _m->setDstNodeID(oldID);
 
         for (auto const &it : *getSchain()->getNode()->getNodeInfosByIndex()) {
             if (it.second->getSchainIndex() != getSchain()->getSchainIndex()) {
-                _m->setDstNodeID(it.second->getNodeID());
                 confirmMessage(it.second);
             }
         }

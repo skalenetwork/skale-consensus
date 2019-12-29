@@ -117,14 +117,12 @@ void BlockConsensusAgent::propose(bin_consensus_value _proposal, schain_index _i
 
     try {
 
-        auto _nodeID = getSchain()->getNode()->getNodeInfoByIndex(_index)->getNodeID();
-
 
         auto key = make_shared<ProtocolKey>(_id, _index);
 
         auto child = getChild(key);
 
-        auto msg = make_shared<BVBroadcastMessage>(_nodeID, _id, _index, bin_consensus_round(0), _proposal, *child);
+        auto msg = make_shared<BVBroadcastMessage>(_id, _index, bin_consensus_round(0), _proposal, *child);
 
 
         auto id = (uint64_t) msg->getBlockId();

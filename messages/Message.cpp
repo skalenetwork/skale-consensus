@@ -64,9 +64,7 @@ node_id Message::getSrcNodeID() const {
 }
 
 
-node_id Message::getDstNodeID() const {
-    return dstNodeID;
-}
+
 
 const block_id Message::getBlockId() const {
 
@@ -81,27 +79,23 @@ schain_index Message::getBlockProposerIndex() const {
 
 
 
-Message::Message(const schain_id &_schainID, MsgType _msgType, const msg_id &_msgID,
-                 const node_id &_srcNodeID, const node_id &_dstNodeID, const block_id &_blockID,
-                 const schain_index &_blockProposerIndex) : schainID(_schainID),
-                                                                       blockID(_blockID),
-                                                                       blockProposerIndex(_blockProposerIndex),
-                                                                       msgType(_msgType), msgID(_msgID),
+Message::Message(const schain_id &schainID, MsgType msgType, const msg_id &msgID, const node_id &srcNodeID,
+                 const block_id &blockID, const schain_index &blockProposerIndex) : schainID(schainID),
+                                                                                    blockID(blockID),
+                                                                                    blockProposerIndex(blockProposerIndex),
+                                                                                    msgType(msgType), msgID(msgID),
 
-                                                                       srcNodeID(_srcNodeID), dstNodeID(_dstNodeID) {
+                                                                                    srcNodeID(srcNodeID) {
     if ((uint64_t)blockID == 0) {
         ASSERT(false);
     }
     totalObjects++;
 }
 
-void Message::setSrcNodeID(const node_id &srcNodeID) {
-    Message::srcNodeID = srcNodeID;
+void Message::setSrcNodeID(const node_id &_srcNodeID) {
+    Message::srcNodeID = _srcNodeID;
 }
 
-void Message::setDstNodeID(const node_id &dstNodeID) {
-    Message::dstNodeID = dstNodeID;
-}
 
 const block_id &Message::getBlockID() const {
     return blockID;

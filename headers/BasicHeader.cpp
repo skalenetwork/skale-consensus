@@ -111,6 +111,7 @@ ptr<string> BasicHeader::getString(nlohmann::json &_js, const char *_name) {
 }
 
 BasicHeader::BasicHeader(const char *_type) : type(_type) {
+
 }
 
 BasicHeader::~BasicHeader() {

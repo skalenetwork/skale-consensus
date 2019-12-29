@@ -35,8 +35,7 @@
 
 HistoryMessage::HistoryMessage(MsgType _messageType, bin_consensus_round _r, bin_consensus_value _value,
                                BinConsensusInstance &_srcProtocolInstance)
-        : NetworkMessage(_messageType,
-                         _srcProtocolInstance.getBlockConsensusInstance()->getSchain()->getNode()->getNodeID(), _srcProtocolInstance.getBlockID(),
+        : NetworkMessage(_messageType, _srcProtocolInstance.getBlockID(),
                          _srcProtocolInstance.getBlockProposerIndex(), _r, _value,
                          _srcProtocolInstance) {
 }
