@@ -79,7 +79,7 @@ ptr<Buffer> BasicHeader::toBuffer() {
 
 
 void BasicHeader::nullCheck(nlohmann::json &js, const char *name) {
-    if (js[name].is_null()) {
+    if (js.find(name) == js.end()) {
         BOOST_THROW_EXCEPTION(NetworkProtocolException("Null " + string(name) + " in json", __CLASS_NAME__));
     }
 };

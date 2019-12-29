@@ -47,13 +47,16 @@ OutgoingMsgDB::saveMsg(ptr<NetworkMessage> _outgoingMsg) {
 
     lock_guard<recursive_mutex> lock(m);
 
-    CHECK_STATE(_outgoingMsg);
-
-    auto buffer = _outgoingMsg->toBuffer1()->getBuf();
-
-    _outgoingMsg->serializeToString();
-
     try {
+
+
+        CHECK_STATE(_outgoingMsg);
+
+        auto buffer = _outgoingMsg->toBuffer1()->getBuf();
+
+        auto s = _outgoingMsg->serializeToString();
+        NetworkMessage::parseMessage(s, getSchain());
+
 
         auto currentCounter = msgCounter++;
 

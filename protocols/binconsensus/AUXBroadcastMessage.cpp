@@ -71,11 +71,13 @@ AUXBroadcastMessage::AUXBroadcastMessage(bin_consensus_round round, bin_consensu
 AUXBroadcastMessage::AUXBroadcastMessage(node_id _srcNodeID, node_id _dstNodeID, block_id _blockID,
                                          schain_index _blockProposerIndex, bin_consensus_round _r,
                                          bin_consensus_value _value,
-                                         schain_id _schainId, msg_id _msgID, uint32_t _ip, ptr<string> _signature,
+                                         schain_id _schainId, msg_id _msgID, uint32_t _ip, ptr<string> _sigShare,
                                          schain_index _srcSchainIndex, Schain *_sChain)
         : NetworkMessage(
         MSG_AUX_BROADCAST, _srcNodeID, _dstNodeID, _blockID, _blockProposerIndex, _r, _value, _schainId, _msgID, _ip,
-        _signature, _srcSchainIndex, _sChain->getCryptoManager(), _sChain->getTotalSigners(),
+        _sigShare, _srcSchainIndex, _sChain->getCryptoManager(), _sChain->getTotalSigners(),
         _sChain->getRequiredSigners()) {
+    CHECK_ARGUMENT(_sigShare);
     printPrefix = "a";
+
 };
