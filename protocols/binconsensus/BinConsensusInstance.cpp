@@ -47,6 +47,7 @@
 #include "node/Node.h"
 
 #include "db/RandomDB.h"
+#include "db/ConsensusStateDB.h"
 
 #include "network/TransportNetwork.h"
 
@@ -598,6 +599,7 @@ bin_consensus_round BinConsensusInstance::getCurrentRound() {
 
 void BinConsensusInstance::setCurrentRound(bin_consensus_round _currentRound) {
     currentRound = _currentRound;
+    getSchain()->getNode()->getConsensusStateDB()->writeR(_currentRound, getBlockID());
 }
 
 bool BinConsensusInstance::decided() const {
