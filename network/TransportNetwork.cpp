@@ -125,7 +125,6 @@ void TransportNetwork::broadcastMessage(ptr<NetworkMessage> _m) {
     try {
 
         getSchain()->getNode()->getOutgoingMsgDB()->saveMsg(_m);
-        assert(getSchain()->getNode()->getOutgoingMsgDB()->readStringsForBlock(_m->getBlockID()));
 
         auto ip = inet_addr(getSchain()->getThisNodeInfo()->getBaseIP()->c_str());
         _m->setIp(ip);

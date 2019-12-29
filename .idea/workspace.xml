@@ -31,23 +31,7 @@
   <component name="ChangeListManager">
     <list default="true" id="e8eb5c74-4268-46a2-ac26-2e919fd9ff42" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/headers/BasicHeader.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/headers/BasicHeader.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/messages/ConsensusProposalMessage.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/messages/ConsensusProposalMessage.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/messages/HistoryMessage.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/messages/HistoryMessage.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/messages/InternalMessage.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/messages/InternalMessage.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/messages/Message.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/messages/Message.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/messages/Message.h" beforeDir="false" afterPath="$PROJECT_DIR$/messages/Message.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/messages/NetworkMessage.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/messages/NetworkMessage.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/messages/NetworkMessage.h" beforeDir="false" afterPath="$PROJECT_DIR$/messages/NetworkMessage.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/network/TransportNetwork.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/network/TransportNetwork.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/protocols/binconsensus/AUXBroadcastMessage.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/protocols/binconsensus/AUXBroadcastMessage.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/protocols/binconsensus/AUXBroadcastMessage.h" beforeDir="false" afterPath="$PROJECT_DIR$/protocols/binconsensus/AUXBroadcastMessage.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/protocols/binconsensus/BVBroadcastMessage.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/protocols/binconsensus/BVBroadcastMessage.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/protocols/binconsensus/BVBroadcastMessage.h" beforeDir="false" afterPath="$PROJECT_DIR$/protocols/binconsensus/BVBroadcastMessage.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/protocols/binconsensus/BinConsensusInstance.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/protocols/binconsensus/BinConsensusInstance.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/protocols/blockconsensus/BlockConsensusAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/protocols/blockconsensus/BlockConsensusAgent.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/protocols/blockconsensus/BlockSignBroadcastMessage.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/protocols/blockconsensus/BlockSignBroadcastMessage.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/protocols/blockconsensus/BlockSignBroadcastMessage.h" beforeDir="false" afterPath="$PROJECT_DIR$/protocols/blockconsensus/BlockSignBroadcastMessage.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -333,13 +317,6 @@
       <workItem from="1575716912702" duration="17312000" />
       <workItem from="1576352552399" duration="22630000" />
       <workItem from="1576770922817" duration="14605000" />
-    </task>
-    <task id="LOCAL-00072" summary="BetterDBName">
-      <created>1575647308305</created>
-      <option name="number" value="00072" />
-      <option name="presentableId" value="LOCAL-00072" />
-      <option name="project" value="LOCAL" />
-      <updated>1575647308305</updated>
     </task>
     <task id="LOCAL-00073" summary="Add DAProofDB">
       <created>1575739047346</created>
@@ -677,7 +654,14 @@
       <option name="project" value="LOCAL" />
       <updated>1577638546663</updated>
     </task>
-    <option name="localTasksCounter" value="121" />
+    <task id="LOCAL-00121" summary="Moving to json messages">
+      <created>1577645605133</created>
+      <option name="number" value="00121" />
+      <option name="presentableId" value="LOCAL-00121" />
+      <option name="project" value="LOCAL" />
+      <updated>1577645605133</updated>
+    </task>
+    <option name="localTasksCounter" value="122" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -763,10 +747,10 @@
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
     <state x="2581" y="184" key="#xdebugger.evaluate/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1577620419368" />
-    <state x="2314" y="71" width="1121" height="962" key="CommitChangelistDialog2" timestamp="1577641658310">
+    <state x="2314" y="71" width="1121" height="962" key="CommitChangelistDialog2" timestamp="1577645604331">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state x="2314" y="71" width="1121" height="962" key="CommitChangelistDialog2/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1577641658310" />
+    <state x="2314" y="71" width="1121" height="962" key="CommitChangelistDialog2/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1577645604331" />
     <state x="2613" y="259" width="524" height="594" key="FileChooserDialogImpl" timestamp="1576073838542">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
@@ -807,10 +791,10 @@
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
     <state x="2238" y="100" key="SettingsEditor/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576759515576" />
-    <state x="2375" y="210" width="1000" height="684" key="Vcs.Push.Dialog.v2" timestamp="1577638547949">
+    <state x="2375" y="210" width="1000" height="684" key="Vcs.Push.Dialog.v2" timestamp="1577645606678">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state x="2375" y="210" width="1000" height="684" key="Vcs.Push.Dialog.v2/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1577638547949" />
+    <state x="2375" y="210" width="1000" height="684" key="Vcs.Push.Dialog.v2/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1577645606678" />
     <state x="2020" y="125" width="1720" height="855" key="com.intellij.history.integration.ui.views.FileHistoryDialog" timestamp="1577618562437">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
@@ -851,7 +835,7 @@
       <breakpoints>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
           <url>file://$PROJECT_DIR$/messages/NetworkMessage.cpp</url>
-          <line>230</line>
+          <line>223</line>
           <option name="timeStamp" value="7" />
         </line-breakpoint>
       </breakpoints>
