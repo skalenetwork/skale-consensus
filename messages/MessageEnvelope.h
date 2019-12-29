@@ -45,8 +45,8 @@ protected:
 public:
 
 
-    MessageEnvelope(MessageOrigin origin, const ptr<Message> &message,
-                    const ptr<NodeInfo> &realSender);
+    MessageEnvelope(MessageOrigin origin, const ptr<Message> &_message,
+                    const ptr<NodeInfo> &_realSender);
 
     ptr<Message> getMessage() const;
 

@@ -23,7 +23,7 @@
 
 
 
-#include <db/OutgoingMsgDB.h>
+#include <db/MsgDB.h>
 #include "SkaleCommon.h"
 #include "Log.h"
 #include "thirdparty/json.hpp"
@@ -65,11 +65,13 @@ TransportType TransportNetwork::transport = TransportType::ZMQ;
 
 
 void TransportNetwork::addToDeferredMessageQueue(ptr<NetworkMessageEnvelope> _me) {
+    CHECK_ARGUMENT(_me);
+
+    auto msg = dynamic_pointer_cast<NetworkMessage>(_me->getMessage());
+
+    getSchain()->getNode()->getIncomingMsgDB()->saveMsg(msg);
+
     auto _blockID = _me->getMessage()->getBlockID();
-
-//    LOG( trace, "Deferring::" + to_string( _blockID ) );
-
-    ASSERT(_me);
 
     ptr<vector<ptr<NetworkMessageEnvelope> > > messageList;
 

@@ -16,7 +16,7 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file OutgoingMsgDB.cpp
+    @file MsgDB.cpp
     @author Stan Kladko
     @date 2019
 */
@@ -29,19 +29,19 @@
 #include "exceptions/InvalidStateException.h"
 #include "messages/NetworkMessage.h"
 
-#include "OutgoingMsgDB.h"
+#include "MsgDB.h"
 #include "network/Buffer.h"
 #include "CacheLevelDB.h"
 
 
-OutgoingMsgDB::OutgoingMsgDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize)
+MsgDB::MsgDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize)
         : CacheLevelDB(_sChain, _dirName, _prefix,
                        _nodeId, _maxDBSize, false) {
 }
 
 
 bool
-OutgoingMsgDB::saveMsg(ptr<NetworkMessage> _outgoingMsg) {
+MsgDB::saveMsg(ptr<NetworkMessage> _msg) {
 
     static atomic<uint64_t> msgCounter = 0;
 
@@ -50,14 +50,14 @@ OutgoingMsgDB::saveMsg(ptr<NetworkMessage> _outgoingMsg) {
     try {
 
 
-        CHECK_STATE(_outgoingMsg);
+        CHECK_STATE(_msg);
 
 
-        auto s = _outgoingMsg->serializeToString();
+        auto s = _msg->serializeToString();
 
         auto currentCounter = msgCounter++;
 
-        auto key = createKey(_outgoingMsg->getBlockID(), currentCounter);
+        auto key = createKey(_msg->getBlockID(), currentCounter);
 
         auto previous = readString(*key);
 
@@ -74,7 +74,7 @@ OutgoingMsgDB::saveMsg(ptr<NetworkMessage> _outgoingMsg) {
 
 }
 
-ptr<vector<ptr<NetworkMessage>>> OutgoingMsgDB::getMessages(block_id _blockID) {
+ptr<vector<ptr<NetworkMessage>>> MsgDB::getMessages(block_id _blockID) {
 
 
     lock_guard<recursive_mutex> lock(m);
@@ -109,7 +109,7 @@ ptr<vector<ptr<NetworkMessage>>> OutgoingMsgDB::getMessages(block_id _blockID) {
 
 }
 
-const string OutgoingMsgDB::getFormatVersion() {
+const string MsgDB::getFormatVersion() {
     return "1.0";
 }
 

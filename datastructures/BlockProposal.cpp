@@ -218,7 +218,6 @@ ptr<vector<uint8_t> > BlockProposal::serialize() {
     CHECK_STATE(buf->getBuf()->at(sizeof(uint64_t)) == '{');
     CHECK_STATE(buf->getBuf()->at(buf->getCounter() - 1) == '}');
 
-
     auto block = make_shared<vector<uint8_t> >();
 
     block->insert(

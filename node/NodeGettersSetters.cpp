@@ -145,13 +145,15 @@ ptr<ProposalVectorDB> Node::getProposalVectorDB() {
     return proposalVectorDB;
 }
 
-ptr<OutgoingMsgDB> Node::getOutgoingMsgDB() {
+ptr<MsgDB> Node::getOutgoingMsgDB() {
     CHECK_STATE(outgoingMsgDB);
     return outgoingMsgDB;
 }
 
-
-
+ptr<MsgDB> Node::getIncomingMsgDB() {
+    CHECK_STATE(incomingMsgDB);
+    return incomingMsgDB;
+}
 
 ptr<map<schain_index, ptr<NodeInfo> > > Node::getNodeInfosByIndex() const {
     assert(nodeInfosByIndex != nullptr);

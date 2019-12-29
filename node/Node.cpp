@@ -61,7 +61,7 @@
 #include "db/ProposalVectorDB.h"
 #include "db/BlockSigShareDB.h"
 #include "db/BlockProposalDB.h"
-#include "db/OutgoingMsgDB.h"
+#include "db/MsgDB.h"
 #include "ConsensusEngine.h"
 #include "ConsensusInterface.h"
 #include "Node.h"
@@ -95,6 +95,7 @@ void Node::initLevelDBs() {
     string proposalHashDBPrefix = "/proposal_hashes_" + to_string(nodeID) + ".db";
     string proposalVectorDBPrefix = "/proposal_vectors_" + to_string(nodeID) + ".db";
     string outgoingMsgDBPrefix = "/outgoing_msgs_" + to_string(nodeID) + ".db";
+    string incomingMsgDBPrefix = "/incoming_msgs_" + to_string(nodeID) + ".db";
     string blockSigShareDBPrefix = "/block_sigshares_" + to_string(nodeID) + ".db";
     string daSigShareDBPrefix = "/da_sigshares_" + to_string(nodeID) + ".db";
     string daProofDBPrefix = "/da_proofs_" + to_string(nodeID) + ".db";
@@ -109,8 +110,12 @@ void Node::initLevelDBs() {
     proposalVectorDB = make_shared<ProposalVectorDB>(getSchain(), dbDir, proposalVectorDBPrefix, getNodeID(),
                                                  getProposalVectorDBSize());
 
-    outgoingMsgDB = make_shared<OutgoingMsgDB>(getSchain(), dbDir, outgoingMsgDBPrefix, getNodeID(),
-                                                     getOutgoingMsgDBSize());
+    outgoingMsgDB = make_shared<MsgDB>(getSchain(), dbDir, outgoingMsgDBPrefix, getNodeID(),
+                                       getOutgoingMsgDBSize());
+
+    incomingMsgDB = make_shared<MsgDB>(getSchain(), dbDir, incomingMsgDBPrefix, getNodeID(),
+                                       getIncomingMsgDBSize());
+
 
     blockSigShareDB = make_shared<BlockSigShareDB>(getSchain(), dbDir, blockSigShareDBPrefix, getNodeID(),
                                                    getBlockSigShareDBSize());
@@ -159,6 +164,7 @@ void Node::initParamsFromConfig() {
     proposalHashDBSize = getParamUint64("proposalHashDBSize", PROPOSAL_HASH_DB_SIZE);
     proposalVectorDBSize = getParamUint64("proposalVectorDBSize", PROPOSAL_VECTOR_DB_SIZE);
     outgoingMsgDBSize = getParamUint64("outgoingMsgDBSize", OUTGOING_MSG_DB_SIZE);
+    incomingMsgDBSize = getParamUint64("incomingMsgDBSize", INCOMING_MSG_DB_SIZE);
     blockSigShareDBSize = getParamUint64("blockSigShareDBSize", BLOCK_SIG_SHARE_DB_SIZE);
     daSigShareDBSize = getParamUint64("daSigShareDBSize", DA_SIG_SHARE_DB_SIZE);
     daProofDBSize = getParamUint64("daProofDBSize", DA_PROOF_DB_SIZE);
@@ -190,6 +196,10 @@ uint64_t Node::getProposalVectorDBSize() const {
 
 uint64_t Node::getOutgoingMsgDBSize() const {
     return outgoingMsgDBSize;
+}
+
+uint64_t Node::getIncomingMsgDBSize() const {
+    return incomingMsgDBSize;
 }
 
 Node::~Node() {}

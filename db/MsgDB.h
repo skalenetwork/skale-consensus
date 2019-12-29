@@ -16,7 +16,7 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file OutgoingMsgDB.h
+    @file MsgDB.h
     @author Stan Kladko
     @date 2019
 */
@@ -31,15 +31,15 @@
 class CryptoManager;
 class NetworkMessage;
 
-class OutgoingMsgDB : public CacheLevelDB {
+class MsgDB : public CacheLevelDB {
 
     recursive_mutex m;
 
 public:
 
-    OutgoingMsgDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize);
+    MsgDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize);
 
-    bool saveMsg(ptr<NetworkMessage> _outgoingMsg);
+    bool saveMsg(ptr<NetworkMessage> _msg);
 
     ptr<vector<ptr<NetworkMessage>>> getMessages(block_id _blockID);
 
