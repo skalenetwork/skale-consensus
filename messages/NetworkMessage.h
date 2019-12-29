@@ -109,7 +109,7 @@ public:
 
     ptr<ThresholdSigShare> getSigShare() const;
 
-    static ptr<NetworkMessage> parseMessage(ptr<string> _header);
+    static ptr<NetworkMessage> parseMessage(ptr<string> _header, Schain* _sChain);
 
     static const char* getTypeString(MsgType _type );
 
