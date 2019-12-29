@@ -584,6 +584,8 @@ void ConsensusEngine::exitGracefully() {
         throw_with_nested(EngineInitException("Engine construction failed", __CLASS_NAME__));
     }
 
+
+
 }
 
 

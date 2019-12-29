@@ -109,8 +109,8 @@ void *ZMQServerSocket::getReceiveSocket()  {
 void ZMQServerSocket::closeReceive() {
 
     if(receiveSocket){
-        zmq_close(receiveSocket);
         receiveSocket = nullptr;
+        zmq_close(receiveSocket);
     }
 }
 

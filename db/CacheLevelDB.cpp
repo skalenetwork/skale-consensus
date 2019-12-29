@@ -416,6 +416,7 @@ void CacheLevelDB::rotateDBsIfNeeded() {
             auto newDB = openDB(highestDBIndex + 1);
 
             for (int i = 1; i < LEVELDB_PIECES; i++) {
+                db.at(i -1) = nullptr;
                 db.at(i - 1) = db.at(i);
             }
 
