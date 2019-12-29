@@ -69,6 +69,8 @@ public:
     static void nullCheck( nlohmann::json& js, const char* name );
 
 
+    ptr<string> toString();
+
     ptr< Buffer > toBuffer();
 
 

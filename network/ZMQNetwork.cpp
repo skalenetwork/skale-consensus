@@ -66,8 +66,6 @@ bool ZMQNetwork::sendMessage(const ptr<NodeInfo> &_remoteNodeInfo, ptr<NetworkMe
 
     auto len = buf->getCounter();
 
-    ASSERT(len == CONSENSUS_MESSAGE_LEN);
-
 #ifdef ZMQ_NONBLOCKING
     return interruptableSend(s, buf->getBuf()->data(), len, true);
 #else

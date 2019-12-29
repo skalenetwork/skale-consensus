@@ -45,7 +45,7 @@ bool BasicHeader::isComplete() const {
     return complete;
 }
 
-ptr<Buffer> BasicHeader::toBuffer() {
+ptr<string> BasicHeader::toString() {
     ASSERT(complete);
     nlohmann::json j;
 
@@ -55,18 +55,24 @@ ptr<Buffer> BasicHeader::toBuffer() {
 
     addFields(j);
 
-    string s = j.dump();
+    auto s  = make_shared<string>(j.dump());
 
-    uint64_t len = s.size();
+    CHECK_STATE(s->size() > 16);
 
-    CHECK_STATE(len > 16);
+    return s;
 
-    auto buf = make_shared<Buffer>(len + sizeof(uint64_t));
+}
+
+ptr<Buffer> BasicHeader::toBuffer() {
+
+    auto s = toString();
+
+    uint64_t len  = s->length();
+
+    auto buf = make_shared<Buffer>(len + sizeof(len));
     buf->write(&len, sizeof(len));
-    buf->write((void *) s.data(), s.size());
-
+    buf->write((void *) s->data(), len);
     CHECK_STATE(buf->getCounter() > 16);
-
     return buf;
 }
 
