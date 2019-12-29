@@ -52,7 +52,7 @@ OutgoingMsgDB::saveMsg(ptr<NetworkMessage> _outgoingMsg) {
 
         CHECK_STATE(_outgoingMsg);
 
-        auto buffer = _outgoingMsg->toBuffer1()->getBuf();
+
 
         auto s = _outgoingMsg->serializeToString();
         auto msg = NetworkMessage::parseMessage(s, getSchain());
@@ -65,12 +65,11 @@ OutgoingMsgDB::saveMsg(ptr<NetworkMessage> _outgoingMsg) {
         auto previous = readString(*key);
 
         if (previous == nullptr) {
-            writeByteArray(*key, buffer);
+            writeString(*key, *s);
             return true;
         }
 
-        return (buffer->size() == previous->size() && memcmp(buffer->data(),
-                previous->data(), buffer->size()) == 0);
+        return (*previous == *s);
 
     } catch (...) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
