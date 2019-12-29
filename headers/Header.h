@@ -33,57 +33,24 @@ class ServerConnection;
 class SHAHash;
 
 #include "abstracttcpserver/ConnectionStatus.h"
+#include "BasicHeader.h"
 
 
 
-class Header {
+class Header : public BasicHeader {
+
 protected:
 
-    const char* type = nullptr;
     ConnectionStatus status = CONNECTION_SERVER_ERROR;
     ConnectionSubStatus substatus = CONNECTION_ERROR_UNKNOWN_SERVER_ERROR;
 
-    bool complete = false;
-
 public:
-    bool isComplete() const;
-
-    static constexpr const char *BLOCK_PROPOSAL_REQ = "BlckPrpslReq";
-    static constexpr const char *BLOCK_PROPOSAL_RSP = "BlckPrpslRsp";
-    static constexpr const char *BLOCK_FINALIZE_REQ = "BlckFinalizeReq";
-    static constexpr const char *BLOCK_FINALIZE__RSP = "BlckFnlzRsp";
-    static constexpr const char *DA_PROOF_REQ = "DAPrfReq";
-    static constexpr const char *DA_PROOF_RSP = "DAPrfRsp";
-    static constexpr const char *BLOCK_CATCHUP_REQ = "BlckCatchupReq";
-    static constexpr const char *BLOCK_CATCHUP_RSP = "BlckCatchupRsp";
-
-    static constexpr const char *BLOCK = "Blck";
-    static constexpr const char *MISSING_TRANSACTIONS_REQ = "MsngTxsReq";
-    static constexpr const char *MISSING_TRANSACTIONS_RSP = "MsngTxsRsp";
-    static constexpr const char *SIG_SHARE_RSP = "SigShareRsp";
-
-
 
     Header(const char *_type);
 
     virtual ~Header();
 
-    void setComplete() { complete = true; }
-
-
-    static void nullCheck( nlohmann::json& js, const char* name );
-
-
-    ptr< Buffer > toBuffer();
-
-
-    virtual void addFields(nlohmann::json & /*j*/ ) { };
-
-    static uint64_t getUint64( nlohmann::json& _js, const char* _name );
-
-    static uint32_t getUint32( nlohmann::json& _js, const char* _name );
-
-    static ptr< string > getString( nlohmann::json& _js, const char* _name );
+    virtual void addFields(nlohmann::json & j);
 
 
     ConnectionStatus getStatus() { return status; }

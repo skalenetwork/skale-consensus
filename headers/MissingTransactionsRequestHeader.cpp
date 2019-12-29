@@ -51,8 +51,9 @@ MissingTransactionsRequestHeader::MissingTransactionsRequestHeader(ptr<map<uint6
 
 }
 
-void MissingTransactionsRequestHeader::addFields(nlohmann::basic_json<> &j_) {
-        j_["count"] = missingTransactionsCount;
+void MissingTransactionsRequestHeader::addFields(nlohmann::json &_j) {
+       Header::addFields(_j);
+        _j["count"] = missingTransactionsCount;
 }
 
 uint64_t MissingTransactionsRequestHeader::getMissingTransactionsCount() const {

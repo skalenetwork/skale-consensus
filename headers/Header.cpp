@@ -22,85 +22,17 @@
 */
 
 #include "SkaleCommon.h"
-#include "Log.h"
 #include "exceptions/FatalError.h"
-#include "exceptions/InvalidArgumentException.h"
-
-#include "abstracttcpserver/ConnectionStatus.h"
 
 #include "thirdparty/json.hpp"
 
-#include "abstracttcpserver/AbstractServerAgent.h"
-#include "exceptions/ParsingException.h"
-#include "exceptions/NetworkProtocolException.h"
-
 #include "network/Buffer.h"
-#include "network/IO.h"
-
 #include "Header.h"
 
 
 
-bool Header::isComplete() const {
-    return complete;
-}
 
-ptr<Buffer> Header::toBuffer() {
-    ASSERT(complete);
-    nlohmann::json j;
-
-    CHECK_STATE(type != nullptr);
-
-    j["type"] = type;
-    j["status"] = status;
-
-    j["substatus"] = substatus;
-
-    addFields(j);
-
-    string s = j.dump();
-
-    uint64_t len = s.size();
-
-    CHECK_STATE(len > 16);
-
-    auto buf = make_shared<Buffer>(len + sizeof(uint64_t));
-    buf->write(&len, sizeof(len));
-    buf->write((void *) s.data(), s.size());
-
-    CHECK_STATE(buf->getCounter() > 16);
-
-    return buf;
-}
-
-
-
-void Header::nullCheck(nlohmann::json &js, const char *name) {
-    if (js[name].is_null()) {
-        BOOST_THROW_EXCEPTION(NetworkProtocolException("Null " + string(name) + " in json", __CLASS_NAME__));
-    }
-};
-
-uint64_t Header::getUint64(nlohmann::json &_js, const char *_name) {
-    nullCheck(_js, _name);
-    uint64_t result = _js[_name];
-    return result;
-};
-
-
-uint32_t Header::getUint32(nlohmann::json &_js, const char *_name) {
-    nullCheck(_js, _name);
-    uint32_t result = _js[_name];
-    return result;
-};
-
-ptr<string> Header::getString(nlohmann::json &_js, const char *_name) {
-    nullCheck(_js, _name);
-    string result = _js[_name];
-    return make_shared<string>(result);
-}
-
-Header::Header(const char *_type) : type(_type){
+Header::Header(const char *_type) : BasicHeader(_type){
     totalObjects++;
 }
 
@@ -112,3 +44,8 @@ Header::~Header() {
 
 
 atomic<uint64_t>  Header::totalObjects(0);
+
+void Header::addFields(nlohmann::json &j) {
+    j["status"] = status;
+    j["substatus"] = substatus;
+}

@@ -49,6 +49,8 @@ AbstractBlockRequestHeader::AbstractBlockRequestHeader(node_count _nodeCount,
 
 void AbstractBlockRequestHeader::addFields(nlohmann::basic_json<> &jsonRequest) {
 
+    Header::addFields(jsonRequest);
+
     jsonRequest["schainID"] = (uint64_t ) schainID;
 
     jsonRequest["proposerIndex"] = (uint64_t ) proposerIndex;

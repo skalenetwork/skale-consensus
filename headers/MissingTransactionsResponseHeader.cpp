@@ -44,6 +44,7 @@ MissingTransactionsResponseHeader::MissingTransactionsResponseHeader(ptr<vector<
 
 void MissingTransactionsResponseHeader::addFields(nlohmann::basic_json<> &_j) {
 
+    Header::addFields(_j);
 
     list<uint64_t> l(missingTransactionSizes->begin(), missingTransactionSizes->end());
 
