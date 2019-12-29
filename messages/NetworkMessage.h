@@ -87,7 +87,7 @@ public:
     bin_consensus_round r;
     bin_consensus_value value;
 
-
+    int32_t getIp() const;
 
     virtual bin_consensus_round getRound() const;
 

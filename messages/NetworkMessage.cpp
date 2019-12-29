@@ -286,6 +286,10 @@ const char *NetworkMessage::getTypeString(MsgType _type) {
 
 }
 
+int32_t NetworkMessage::getIp() const {
+    return ip;
+}
+
 
 
 

@@ -53,7 +53,6 @@ OutgoingMsgDB::saveMsg(ptr<NetworkMessage> _outgoingMsg) {
         CHECK_STATE(_outgoingMsg);
 
 
-
         auto s = _outgoingMsg->serializeToString();
         auto msg = NetworkMessage::parseMessage(s, getSchain());
         assert (*msg->serializeToString() == *s);

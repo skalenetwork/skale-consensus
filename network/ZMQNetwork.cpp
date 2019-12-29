@@ -56,8 +56,8 @@ using namespace std;
 
 bool ZMQNetwork::sendMessage(const ptr<NodeInfo> &_remoteNodeInfo, ptr<NetworkMessage> _msg) {
 
-    _msg->serializeToString();
-    auto buf = _msg->toBuffer1();
+
+    auto buf = _msg->serializeToString();
 
     auto ip = _remoteNodeInfo->getBaseIP();
 
@@ -65,12 +65,10 @@ bool ZMQNetwork::sendMessage(const ptr<NodeInfo> &_remoteNodeInfo, ptr<NetworkMe
 
     void *s = sChain->getNode()->getSockets()->consensusZMQSocket->getDestinationSocket(ip, port);
 
-    auto len = buf->getCounter();
-
 #ifdef ZMQ_NONBLOCKING
-    return interruptableSend(s, buf->getBuf()->data(), len, true);
+    return interruptableSend(s, buf->data(), buf->size(), true);
 #else
-    return interruptableSend(s, buf->getBuf()->data(), len, false);
+    return interruptableSend(s, buf->data(), buf->size(), false);
 #endif
 
 

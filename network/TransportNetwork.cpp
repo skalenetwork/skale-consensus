@@ -310,93 +310,20 @@ ptr<string> TransportNetwork::ipToString(uint32_t _ip) {
 
 ptr<NetworkMessageEnvelope> TransportNetwork::receiveMessage() {
     auto buf = make_shared<Buffer>(MAX_CONSENSUS_MESSAGE_LEN);
-    readMessageFromNetwork(buf);
+    uint64_t readBytes = readMessageFromNetwork(buf);
 
-    uint64_t magicNumber;
-    uint64_t sChainID;
-    uint64_t blockID;
-    uint64_t blockProposerIndex;
-    MsgType msgType;
-    uint64_t msgID;
-    uint64_t srcNodeID;
-    uint64_t dstNodeID;
-    uint64_t round;
-    uint8_t value;
-    uint32_t rawIP;
+    auto msg = make_shared<string>((const char*) buf->getBuf()->data(), readBytes);
 
-    char sigShare[BLS_MAX_SIG_LEN + 1];
-
-    memset(sigShare, 0, BLS_MAX_SIG_LEN);
-
-    READ(buf, magicNumber);
-
-    if (magicNumber != MAGIC_NUMBER)
-        return nullptr;
-
-    READ(buf, sChainID);
-    READ(buf, blockID);
-    READ(buf, blockProposerIndex);
-    READ(buf, msgType);
-    READ(buf, msgID);
-    READ(buf, srcNodeID);
-    READ(buf, dstNodeID);
-    READ(buf, round);
-    READ(buf, value);
-    READ(buf, rawIP);
+    auto mptr = NetworkMessage::parseMessage(msg, getSchain());
 
 
-    if (sChain->getSchainID() != sChainID) {
-        BOOST_THROW_EXCEPTION(
-                InvalidSchainException("unknown Schain id" + to_string(sChainID), __CLASS_NAME__));
-    }
 
-
-    buf->read(sigShare, BLS_MAX_SIG_LEN); /* Flawfinder: ignore */
-
-    auto sig = make_shared<string>(sigShare);
-
-
-    ptr<NodeInfo> realSender = sChain->getNode()->getNodeInfoByIP(ipToString(rawIP));
+    ptr<NodeInfo> realSender = sChain->getNode()->getNodeInfoByIP(ipToString(mptr->getIp()));
 
 
     if (realSender == nullptr) {
         BOOST_THROW_EXCEPTION(InvalidSourceIPException("NetworkMessage from unknown IP"));
     }
-
-
-    ptr<NetworkMessage> mptr;
-
-    if (msgType == MsgType::MSG_BVB_BROADCAST) {
-        mptr = make_shared<BVBroadcastMessage>(node_id(srcNodeID), node_id(dstNodeID),
-                                               block_id(blockID), schain_index(blockProposerIndex),
-                                               bin_consensus_round(round),
-                                               bin_consensus_value(value), schain_id(sChainID), msg_id(msgID),
-                                               rawIP,
-                                               realSender->getSchainIndex(),
-                                               sChain);
-    } else if (msgType == MsgType::MSG_AUX_BROADCAST) {
-        mptr = make_shared<AUXBroadcastMessage>(node_id(srcNodeID), node_id(dstNodeID),
-                                                block_id(blockID), schain_index(blockProposerIndex),
-                                                bin_consensus_round(round),
-                                                bin_consensus_value(value), schain_id(sChainID), msg_id(msgID),
-                                                rawIP,
-                                                sig,
-                                                realSender->getSchainIndex(),
-                                                sChain);
-    } else if (msgType == MsgType::MSG_BLOCK_SIGN_BROADCAST) {
-        mptr = make_shared<BlockSignBroadcastMessage>(node_id(srcNodeID), node_id(dstNodeID),
-                                                      block_id(blockID), schain_index(blockProposerIndex),
-                                                      schain_id(sChainID), msg_id(msgID), rawIP,
-                                                      sig,
-                                                      realSender->getSchainIndex(),
-                                                      sChain);
-    } else {
-        ASSERT(false);
-    }
-
-
-    ASSERT(sChain);
-
 
     ptr<ProtocolKey> key = mptr->createDestinationProtocolKey();
 
@@ -411,8 +338,8 @@ ptr<NetworkMessageEnvelope> TransportNetwork::receiveMessage() {
 };
 
 
-void TransportNetwork::setTransport(TransportType transport) {
-    TransportNetwork::transport = transport;
+void TransportNetwork::setTransport(TransportType _transport) {
+    TransportNetwork::transport = _transport;
 }
 
 TransportType TransportNetwork::getTransport() {
