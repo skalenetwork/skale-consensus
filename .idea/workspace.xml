@@ -31,8 +31,9 @@
   <component name="ChangeListManager">
     <list default="true" id="e8eb5c74-4268-46a2-ac26-2e919fd9ff42" name="Default Changelist" comment="Merge branch 'develop' into SKALE-1825-survive-crashes&#10;&#10;# Conflicts:&#10;#&#9;db/PriceDB.cpp">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/OutgoingMsgDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/OutgoingMsgDB.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/messages/NetworkMessage.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/messages/NetworkMessage.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/network/TransportNetwork.h" beforeDir="false" afterPath="$PROJECT_DIR$/network/TransportNetwork.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/network/ZMQNetwork.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/network/ZMQNetwork.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/network/ZMQNetwork.h" beforeDir="false" afterPath="$PROJECT_DIR$/network/ZMQNetwork.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -757,22 +758,22 @@
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
     <state x="2613" y="259" width="524" height="594" key="FileChooserDialogImpl/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576073838542" />
-    <state width="1860" height="197" key="GridCell.Tab.0.bottom" timestamp="1577623836810">
+    <state width="1860" height="5" key="GridCell.Tab.0.bottom" timestamp="1577626890525">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state width="1860" height="197" key="GridCell.Tab.0.bottom/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1577623836810" />
-    <state width="1860" height="197" key="GridCell.Tab.0.center" timestamp="1577623836810">
+    <state width="1860" height="5" key="GridCell.Tab.0.bottom/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1577626890525" />
+    <state width="1860" height="5" key="GridCell.Tab.0.center" timestamp="1577626890525">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state width="1860" height="197" key="GridCell.Tab.0.center/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1577623836810" />
-    <state width="1860" height="197" key="GridCell.Tab.0.left" timestamp="1577623836809">
+    <state width="1860" height="5" key="GridCell.Tab.0.center/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1577626890525" />
+    <state width="1860" height="5" key="GridCell.Tab.0.left" timestamp="1577626890525">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state width="1860" height="197" key="GridCell.Tab.0.left/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1577623836809" />
-    <state width="1860" height="197" key="GridCell.Tab.0.right" timestamp="1577623836810">
+    <state width="1860" height="5" key="GridCell.Tab.0.left/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1577626890525" />
+    <state width="1860" height="5" key="GridCell.Tab.0.right" timestamp="1577626890525">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state width="1860" height="197" key="GridCell.Tab.0.right/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1577623836810" />
+    <state width="1860" height="5" key="GridCell.Tab.0.right/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1577626890525" />
     <state width="1860" height="172" key="GridCell.Tab.1.bottom" timestamp="1577622967121">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
@@ -817,10 +818,10 @@
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
     <state x="2420" y="299" width="909" height="506" key="git4idea.merge.GitPullDialog/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1577608528706" />
-    <state x="2565" y="128" width="620" height="849" key="refactoring.ChangeSignatureDialog" timestamp="1577621830322">
+    <state x="2565" y="128" width="620" height="849" key="refactoring.ChangeSignatureDialog" timestamp="1577626821177">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state x="2565" y="128" width="620" height="849" key="refactoring.ChangeSignatureDialog/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1577621830322" />
+    <state x="2565" y="128" width="620" height="849" key="refactoring.ChangeSignatureDialog/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1577626821177" />
     <state x="2460" y="249" key="run.anything.popup" timestamp="1577617725036">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>

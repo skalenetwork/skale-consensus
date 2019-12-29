@@ -144,7 +144,7 @@ bool ZMQNetwork::interruptableSend(void *_socket, void *_buf, size_t _len, bool 
 }
 
 
-void ZMQNetwork::readMessageFromNetwork(ptr<Buffer> buf) {
+uint64_t ZMQNetwork::readMessageFromNetwork(ptr<Buffer> buf) {
 
     auto s = sChain->getNode()->getSockets()->consensusZMQSocket->getReceiveSocket();
 
@@ -155,6 +155,7 @@ void ZMQNetwork::readMessageFromNetwork(ptr<Buffer> buf) {
                                        to_string(rc), __CLASS_NAME__));
     }
 
+    return rc;
 
 #ifndef ZMQ_EXPERIMENTAL
     int zero = 0;
