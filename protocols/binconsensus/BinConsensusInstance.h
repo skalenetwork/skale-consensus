@@ -50,11 +50,6 @@ class BinConsensusInstance : public ProtocolInstance{
     schain_index blockProposerIndex;
 
     node_count nodeCount;
-public:
-    const node_count &getNodeCount() const;
-
-private:
-
 
     bool isDecided = false;
 
@@ -99,9 +94,6 @@ private:
     map  <bin_consensus_round, bin_consensus_value> est;
 
     map  <bin_consensus_round, bin_consensus_value>  w;
-
-
-
 
 
     map<bin_consensus_round, set<schain_index>> bvbTrueVotes;
@@ -175,7 +167,7 @@ private:
 
 public:
 
-
+    const node_count &getNodeCount() const;
 
     bool decided() const;
 
@@ -200,8 +192,9 @@ public:
 
     bin_consensus_round getCurrentRound();
 
-    void addToHistory(shared_ptr<NetworkMessage> m);
+    void setCurrentRound(bin_consensus_round _currentRound);
 
+    void addToHistory(shared_ptr<NetworkMessage> m);
 
     void addBVSelfVoteToHistory(bin_consensus_round _r, bin_consensus_value _v);
 
@@ -212,9 +205,6 @@ public:
     void addDecideToHistory(bin_consensus_round _r, bin_consensus_value _v);
 
     void addNextRoundToHistory(bin_consensus_round _r, bin_consensus_value _v);
-
-
-
 
     static void initHistory();
 

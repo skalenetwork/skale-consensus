@@ -98,7 +98,7 @@ void BinConsensusInstance::processMessage(ptr<MessageEnvelope> m) {
 
 
 void BinConsensusInstance::ifAlreadyDecidedSendDelayedEstimateForNextRound(bin_consensus_round _round) {
-    if (isDecided && _round == currentRound + 1 && isTwoThird(totalAUXVotes(currentRound))) {
+    if (isDecided && _round == getCurrentRound() + 1 && isTwoThird(totalAUXVotes(getCurrentRound()))) {
         proceedWithNewRound(decidedValue);
     }
 }
@@ -111,7 +111,7 @@ void BinConsensusInstance::processNetworkMessageImpl(ptr<NetworkMessageEnvelope>
 
     addToHistory(dynamic_pointer_cast<NetworkMessage>(me->getMessage()));
 
-    ASSERT(round <= currentRound + 1);
+    ASSERT(round <= getCurrentRound() + 1);
 
 
     if (me->getMessage()->getMessageType() == MSG_BVB_BROADCAST) {
@@ -139,7 +139,7 @@ void BinConsensusInstance::processNetworkMessageImpl(ptr<NetworkMessageEnvelope>
         ASSERT(m);
         auxVote(me);
 
-        if (m->r == currentRound)
+        if (m->r == getCurrentRound())
             proceedWithCommonCoinIfAUXTwoThird(m->r);
     }
 
@@ -340,7 +340,7 @@ void BinConsensusInstance::commitValueIfTwoThirds(ptr<BVBroadcastMessage> m) {
             auxBroadcastValue(m->value, r);
         }
 
-        if (r == currentRound && !isDecided)
+        if (r == getCurrentRound() && !isDecided)
             proceedWithCommonCoinIfAUXTwoThird(r);
 
     }
@@ -389,7 +389,7 @@ void BinConsensusInstance::proceedWithCommonCoinIfAUXTwoThird(bin_consensus_roun
     if (decided())
         return;
 
-    ASSERT(_r == currentRound);
+    ASSERT(_r == getCurrentRound());
 
     uint64_t verifiedValuesSize = 0;
 
@@ -434,15 +434,15 @@ void BinConsensusInstance::proceedWithCommonCoin(bool _hasTrue, bool _hasFalse, 
 
     ASSERT(!isDecided);
 
-    LOG(debug, "ROUND_COMPLETE:BLOCK:" + to_string(blockID) + ":ROUND:" + to_string(currentRound));
+    LOG(debug, "ROUND_COMPLETE:BLOCK:" + to_string(blockID) + ":ROUND:" + to_string(getCurrentRound()));
 
     bin_consensus_value random(_random % 2 == 0);
 
-    addCommonCoinToHistory(currentRound, random);
+    addCommonCoinToHistory(getCurrentRound(), random);
 
 
     if (_hasTrue && _hasFalse) {
-        LOG(debug, "NEW ROUND:BLOCK:" + to_string(blockID) + ":ROUND:" + to_string(currentRound));
+        LOG(debug, "NEW ROUND:BLOCK:" + to_string(blockID) + ":ROUND:" + to_string(getCurrentRound()));
         proceedWithNewRound(random);
         return;
     } else {
@@ -450,10 +450,10 @@ void BinConsensusInstance::proceedWithCommonCoin(bool _hasTrue, bool _hasFalse, 
         bin_consensus_value v(_hasTrue);
 
         if (v == random) {
-            LOG(debug, "DECIDED VALUE" + to_string(blockID) + ":ROUND:" + to_string(currentRound));
+            LOG(debug, "DECIDED VALUE" + to_string(blockID) + ":ROUND:" + to_string(getCurrentRound()));
             decide(v);
         } else {
-            LOG(debug, "NEW ROUND:BLOCK:" + to_string(blockID) + ":ROUND:" + to_string(currentRound));
+            LOG(debug, "NEW ROUND:BLOCK:" + to_string(blockID) + ":ROUND:" + to_string(getCurrentRound()));
             proceedWithNewRound(v);
         }
     }
@@ -464,17 +464,17 @@ void BinConsensusInstance::proceedWithCommonCoin(bool _hasTrue, bool _hasFalse, 
 void BinConsensusInstance::proceedWithNewRound(bin_consensus_value value) {
 
 
-    ASSERT(currentRound.load() < 100);
-    ASSERT(isTwoThird(totalAUXVotes(currentRound)));
+    ASSERT(getCurrentRound() < 100);
+    ASSERT(isTwoThird(totalAUXVotes(getCurrentRound())));
 
-    currentRound = currentRound + 1;
+    setCurrentRound(getCurrentRound() + 1);
 
-    est[currentRound] = value;
+    est[getCurrentRound()] = value;
 
-    addNextRoundToHistory(currentRound, value);
+    addNextRoundToHistory(getCurrentRound(), value);
 
-    auto m = make_shared<BVBroadcastMessage>(getBlockID(), getBlockProposerIndex(), currentRound, value,
-                                             *this);
+    auto m = make_shared<BVBroadcastMessage>(getBlockID(), getBlockProposerIndex(),
+            getCurrentRound(), value,*this);
 
     ptr<MessageEnvelope> me = make_shared<MessageEnvelope>(ORIGIN_NETWORK, m, getSchain()->getThisNodeInfo());
 
@@ -513,9 +513,9 @@ void BinConsensusInstance::decide(bin_consensus_value b) {
 
     decidedValue = bin_consensus_value(b);
 
-    decidedRound = currentRound;
+    decidedRound = getCurrentRound();
 
-    addDecideToHistory(currentRound, decidedValue);
+    addDecideToHistory(decidedRound, decidedValue);
 
     {
         lock_guard<recursive_mutex> lock(historyMutex);
@@ -593,7 +593,11 @@ void BinConsensusInstance::initHistory() {
 }
 
 bin_consensus_round BinConsensusInstance::getCurrentRound() {
-    return currentRound.load();
+    return currentRound;
+}
+
+void BinConsensusInstance::setCurrentRound(bin_consensus_round _currentRound) {
+    currentRound = _currentRound;
 }
 
 bool BinConsensusInstance::decided() const {
