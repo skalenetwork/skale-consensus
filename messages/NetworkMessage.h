@@ -96,8 +96,6 @@ public:
 
     void printMessage();
 
-    void setSrcSchainIndex(const schain_index &_srcSchainIndex);
-
     void setIp(int32_t _ip);
 
     ptr<ThresholdSigShare> getSigShare() const;

@@ -365,11 +365,7 @@ void BinConsensusInstance::networkBroadcastValue(ptr<BVBroadcastMessage> m) {
     auto newMsg = make_shared<BVBroadcastMessage>(m->getBlockID(), m->getBlockProposerIndex(), m->getRound(), m->getValue(),
             *this);
 
-    //m->setSrcNodeID(getSchain()->getNode()->getNodeID());
-    //m->setSrcSchainIndex(getSchain()->getSchainIndex());
-
     getSchain()->getNode()->getNetwork()->broadcastMessage(newMsg);
-
 
     broadcastValues[r].insert(bin_consensus_value(v == 1));
 }

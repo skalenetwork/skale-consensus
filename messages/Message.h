@@ -71,9 +71,6 @@ public:
 
     ptr<ProtocolKey> createDestinationProtocolKey();
 
-    void setSrcNodeID(const node_id &_srcNodeID);
-
-
     const block_id &getBlockID() const;
 
     MsgType getMsgType() const;
