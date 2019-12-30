@@ -39,48 +39,54 @@ const string ConsensusStateDB::getFormatVersion() {
     return "1.0";
 }
 
-ptr<string> ConsensusStateDB::createCurrentRoundKey(block_id _blockId) {
+ptr<string> ConsensusStateDB::createCurrentRoundKey(block_id _blockId, schain_index _proposerIndex) {
     return make_shared<string>(
-            getFormatVersion() + ":" + to_string(_blockId) + ":cr");
+            getFormatVersion() + ":" + to_string(_blockId) + ":" + to_string(_proposerIndex) +
+            ":cr");
 }
 
-ptr<string> ConsensusStateDB::createDecidedRoundKey(block_id _blockId) {
+ptr<string> ConsensusStateDB::createDecidedRoundKey(block_id _blockId, schain_index _proposerIndex) {
     return make_shared<string>(
-            getFormatVersion() + ":" + to_string(_blockId) + ":dr");
+            getFormatVersion() + ":" + to_string(_blockId) + ":" + to_string(_proposerIndex) +
+            ":dr");
 }
 
-ptr<string> ConsensusStateDB::createDecidedValueKey(block_id _blockId) {
+ptr<string> ConsensusStateDB::createDecidedValueKey(block_id _blockId, schain_index _proposerIndex) {
     return make_shared<string>(
-            getFormatVersion() + ":" + to_string(_blockId) + ":dv");
-}
-
-
-ptr<string> ConsensusStateDB::createProposalKey(block_id _blockId, bin_consensus_round _r) {
-    return make_shared<string>(
-            getFormatVersion() + ":" + to_string(_blockId) + ":pr:" + to_string(_r));
-
+            getFormatVersion() + ":" + to_string(_blockId) + ":" + to_string(_proposerIndex) +
+            ":dv");
 }
 
 
-void ConsensusStateDB::writeCR(block_id _blockId, bin_consensus_round _r) {
-    auto key = createCurrentRoundKey(_blockId);
+ptr<string>
+ConsensusStateDB::createProposalKey(block_id _blockId, schain_index _proposerIndex, bin_consensus_round _r) {
+    return make_shared<string>(
+            getFormatVersion() + ":" + to_string(_blockId) + ":" + to_string(_proposerIndex) +
+            ":pr:" + to_string(_r));
+
+}
+
+
+void ConsensusStateDB::writeCR(block_id _blockId, schain_index _proposerIndex, bin_consensus_round _r) {
+    auto key = createCurrentRoundKey(_blockId, _proposerIndex);
     writeString(*key, to_string((uint64_t) _r), true);
 }
 
-void ConsensusStateDB::writeDR(block_id _blockId, bin_consensus_round _r) {
-    auto key = createDecidedRoundKey(_blockId);
+void ConsensusStateDB::writeDR(block_id _blockId, schain_index _proposerIndex, bin_consensus_round _r) {
+    auto key = createDecidedRoundKey(_blockId, _proposerIndex);
     writeString(*key, to_string((uint64_t) _r));
 }
 
-void ConsensusStateDB::writeDV(block_id _blockId, bin_consensus_value _v) {
+void ConsensusStateDB::writeDV(block_id _blockId, schain_index _proposerIndex, bin_consensus_value _v) {
     CHECK_ARGUMENT(_v <= 1 )
-    auto key = createDecidedValueKey(_blockId);
+    auto key = createDecidedValueKey(_blockId, _proposerIndex);
     writeString(*key, to_string((uint8_t) _v));
 }
 
-void ConsensusStateDB::writePr(block_id _blockId, bin_consensus_round _r, bin_consensus_value _v) {
+void ConsensusStateDB::writePr(block_id _blockId, schain_index _proposerIndex, bin_consensus_round _r,
+                               bin_consensus_value _v) {
     CHECK_ARGUMENT(_v <= 1 )
-    auto key = createProposalKey(_blockId, _r);
+    auto key = createProposalKey(_blockId, _proposerIndex, _r);
     writeString(*key, to_string((uint8_t) _v));
 }
 

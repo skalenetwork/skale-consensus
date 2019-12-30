@@ -32,13 +32,13 @@ class ConsensusStateDB : public CacheLevelDB {
 
     const string getFormatVersion();
 
-    ptr<string> createCurrentRoundKey(block_id _blockId);
+    ptr<string> createCurrentRoundKey(block_id _blockId, schain_index _proposerIndex);
 
-    ptr<string> createDecidedRoundKey(block_id _blockId);
+    ptr<string> createDecidedRoundKey(block_id _blockId, schain_index _proposerIndex);
 
-    ptr<string> createDecidedValueKey(block_id _blockId);
+    ptr<string> createDecidedValueKey(block_id _blockId, schain_index _proposerIndex);
 
-    ptr<string> createProposalKey(block_id _blockId, bin_consensus_round _r);
+    ptr<string> createProposalKey(block_id _blockId, schain_index _proposerIndex, bin_consensus_round _r);
 
 
 public:
@@ -49,13 +49,13 @@ public:
 
 
 
-    void writeCR(block_id _blockId, bin_consensus_round _r);
+    void writeCR(block_id _blockId, schain_index _proposerIndex, bin_consensus_round _r);
 
-    void writeDR(block_id _blockId, bin_consensus_round _r);
+    void writeDR(block_id _blockId, schain_index _proposerIndex, bin_consensus_round _r);
 
-    void writeDV(block_id _blockId, bin_consensus_value _v);
+    void writeDV(block_id _blockId, schain_index _proposerIndex, bin_consensus_value _v);
 
-    void writePr(block_id _blockId, bin_consensus_round _r, bin_consensus_value _v);
+    void writePr(block_id _blockId, schain_index _proposerIndex, bin_consensus_round _r, bin_consensus_value _v);
 };
 
 

@@ -596,7 +596,8 @@ bin_consensus_round BinConsensusInstance::getCurrentRound() {
 
 void BinConsensusInstance::setCurrentRound(bin_consensus_round _currentRound) {
     currentRound = _currentRound;
-    getSchain()->getNode()->getConsensusStateDB()->writeCR(getBlockID(), _currentRound);
+    getSchain()->getNode()->getConsensusStateDB()->writeCR(getBlockID(),
+            blockProposerIndex, _currentRound);
 }
 
 bool BinConsensusInstance::decided() const {
@@ -654,16 +655,18 @@ uint64_t BinConsensusInstance::calculateBLSRandom(bin_consensus_round _r) {
 }
 
 void BinConsensusInstance::setDecidedValue(const bin_consensus_value &_decidedValue) {
-    getSchain()->getNode()->getConsensusStateDB()->writeDV(getBlockID(), _decidedValue);
+    getSchain()->getNode()->getConsensusStateDB()->writeDV(getBlockID(), blockProposerIndex, _decidedValue);
     decidedValue = _decidedValue;
 }
 
 void BinConsensusInstance::setDecidedRound(const bin_consensus_round &_decidedRound) {
-    getSchain()->getNode()->getConsensusStateDB()->writeDR(getBlockID(), _decidedRound);
+    getSchain()->getNode()->getConsensusStateDB()->writeDR(getBlockID(), blockProposerIndex, _decidedRound);
     decidedRound = _decidedRound;
 }
 
 void BinConsensusInstance::setProposal(bin_consensus_round _r, bin_consensus_value _v) {
+    getSchain()->getNode()->getConsensusStateDB()->writePr(getBlockID(), blockProposerIndex,
+            _r, _v);
     proposals[_r] = _v;
 }
 
