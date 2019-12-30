@@ -39,7 +39,54 @@ const string ConsensusStateDB::getFormatVersion() {
     return "1.0";
 }
 
-void ConsensusStateDB::writeR(bin_consensus_round _r, block_id _blockId) {
-    auto key = createKey(_blockId);
+ptr<string> ConsensusStateDB::createCurrentRoundKey(block_id _blockId) {
+    return make_shared<string>(
+            getFormatVersion() + ":" + to_string(_blockId) + ":cr");
+}
+
+ptr<string> ConsensusStateDB::createDecidedRoundKey(block_id _blockId) {
+    return make_shared<string>(
+            getFormatVersion() + ":" + to_string(_blockId) + ":dr");
+}
+
+ptr<string> ConsensusStateDB::createDecidedValueKey(block_id _blockId) {
+    return make_shared<string>(
+            getFormatVersion() + ":" + to_string(_blockId) + ":dv");
+}
+
+
+ptr<string> ConsensusStateDB::createProposalKey(block_id _blockId, bin_consensus_round _r) {
+    return make_shared<string>(
+            getFormatVersion() + ":" + to_string(_blockId) + ":pr:" + to_string(_r));
+
+}
+
+
+void ConsensusStateDB::writeCR(block_id _blockId, bin_consensus_round _r) {
+    auto key = createCurrentRoundKey(_blockId);
     writeString(*key, to_string((uint64_t) _r), true);
 }
+
+void ConsensusStateDB::writeDR(block_id _blockId, bin_consensus_round _r) {
+    auto key = createDecidedRoundKey(_blockId);
+    writeString(*key, to_string((uint64_t) _r));
+}
+
+void ConsensusStateDB::writeDV(block_id _blockId, bin_consensus_value _v) {
+    CHECK_ARGUMENT(_v <= 1 )
+    auto key = createDecidedValueKey(_blockId);
+    writeString(*key, to_string((uint8_t) _v));
+}
+
+void ConsensusStateDB::writePr(block_id _blockId, bin_consensus_round _r, bin_consensus_value _v) {
+    CHECK_ARGUMENT(_v <= 1 )
+    auto key = createProposalKey(_blockId, _r);
+    writeString(*key, to_string((uint8_t) _v));
+}
+
+
+
+
+
+
+

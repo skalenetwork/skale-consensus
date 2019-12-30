@@ -32,14 +32,30 @@ class ConsensusStateDB : public CacheLevelDB {
 
     const string getFormatVersion();
 
+    ptr<string> createCurrentRoundKey(block_id _blockId);
+
+    ptr<string> createDecidedRoundKey(block_id _blockId);
+
+    ptr<string> createDecidedValueKey(block_id _blockId);
+
+    ptr<string> createProposalKey(block_id _blockId, bin_consensus_round _r);
+
 
 public:
 
    ConsensusStateDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId,
                            uint64_t _maxDBSize);
 
-    void writeR(bin_consensus_round _r, block_id _blockId);
 
+
+
+    void writeCR(block_id _blockId, bin_consensus_round _r);
+
+    void writeDR(block_id _blockId, bin_consensus_round _r);
+
+    void writeDV(block_id _blockId, bin_consensus_value _v);
+
+    void writePr(block_id _blockId, bin_consensus_round _r, bin_consensus_value _v);
 };
 
 

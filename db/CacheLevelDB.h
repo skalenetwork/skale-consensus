@@ -148,6 +148,8 @@ public:
     uint64_t getActiveDBSize();
 
     ptr<vector<ptr<string>>> readStringsForBlock(block_id _blockId);
+
+
 };
 
 

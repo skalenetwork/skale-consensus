@@ -68,6 +68,7 @@ ptr<string> CacheLevelDB::createKey(const block_id _blockId) {
     return make_shared<string>(getFormatVersion() + ":" + to_string(_blockId));
 }
 
+
 ptr<string> CacheLevelDB::createKey(block_id _blockId, schain_index _proposerIndex) {
     return make_shared<string>(
             getFormatVersion() + ":" + to_string(_blockId) + ":" + to_string(_proposerIndex));

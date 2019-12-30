@@ -42,7 +42,6 @@ class ProtocolKey;
 
 class BinConsensusInstance : public ProtocolInstance{
 
-
     BlockConsensusAgent * blockConsensusInstance;
 
     block_id blockID;
@@ -82,6 +81,7 @@ class BinConsensusInstance : public ProtocolInstance{
 
     bin_consensus_value decidedValue;
 
+
     bin_consensus_round decidedRound;
 
 
@@ -89,12 +89,8 @@ class BinConsensusInstance : public ProtocolInstance{
 
     std::atomic<bin_consensus_round> currentRound = bin_consensus_round(0);
 
-    bin_consensus_round commonCoinNextRound = bin_consensus_round(0);
-
-    map  <bin_consensus_round, bin_consensus_value> est;
-
-    map  <bin_consensus_round, bin_consensus_value>  w;
-
+    // non-essential tracing data tracing proposals for each round
+    map  <bin_consensus_round, bin_consensus_value> proposals;
 
     map<bin_consensus_round, set<schain_index>> bvbTrueVotes;
     map<bin_consensus_round, set<schain_index>> bvbFalseVotes;
@@ -116,6 +112,8 @@ class BinConsensusInstance : public ProtocolInstance{
     void networkBroadcastValueIfThird(ptr<BVBroadcastMessage>  m);
 
     void networkBroadcastValue(ptr<BVBroadcastMessage> m);
+
+    void setProposal(bin_consensus_round _r, bin_consensus_value _v);
 
 
     void commitValueIfTwoThirds(ptr<BVBroadcastMessage> m);
@@ -142,7 +140,7 @@ class BinConsensusInstance : public ProtocolInstance{
 
     void proceedWithCommonCoin(bool _hasTrue, bool _hasFalse, uint64_t _random);
 
-    void proceedWithNewRound(bin_consensus_value value);
+    void proceedWithNewRound(bin_consensus_value _value);
 
     void printHistory();
 
@@ -166,6 +164,10 @@ class BinConsensusInstance : public ProtocolInstance{
 
 
 public:
+
+    void setDecidedValue(const bin_consensus_value &_decidedValue);
+
+    void setDecidedRound(const bin_consensus_round &_decidedRound);
 
     const node_count &getNodeCount() const;
 
