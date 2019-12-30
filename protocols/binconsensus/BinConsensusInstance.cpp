@@ -244,6 +244,10 @@ void BinConsensusInstance::bvbVote(ptr<MessageEnvelope> me) {
 
     schain_index index = me->getSrcNodeInfo()->getSchainIndex();
 
+    getSchain()->getNode()->getConsensusStateDB()->writeBVBVote(getBlockID(),
+                                                                getBlockProposerIndex(), r, index, v);
+
+
     if (v) {
         ASSERT(bvbTrueVotes[r].count(index) == 0);
         bvbTrueVotes[r].insert(index);
@@ -259,14 +263,20 @@ void BinConsensusInstance::auxVote(ptr<MessageEnvelope> me) {
     auto r = m->r;
     bin_consensus_value v = m->value;
 
-
     auto index = me->getSrcNodeInfo()->getSchainIndex();
+
+    auto sigShare = m->getSigShare();
+
+    getSchain()->getNode()->getConsensusStateDB()->writeAUXVote(getBlockID(),
+                                                                getBlockProposerIndex(), r, index, v,
+                                                                sigShare->toString());
+
     if (v) {
         ASSERT(auxTrueVotes[r].count(index) == 0);
-        auxTrueVotes[r][index] = m->getSigShare();
+        auxTrueVotes[r][index] = sigShare;
     } else {
         ASSERT(auxFalseVotes[r].count(index) == 0);
-        auxFalseVotes[r][index] = m->getSigShare();
+        auxFalseVotes[r][index] = sigShare;
     }
 
 }
@@ -280,6 +290,12 @@ void BinConsensusInstance::auxSelfVote(bin_consensus_round r, bin_consensus_valu
     ASSERT(_sigShare);
 
     addAUXSelfVoteToHistory(r, v);
+
+
+    getSchain()->getNode()->getConsensusStateDB()->writeAUXVote(getBlockID(),
+                                                                getBlockProposerIndex(), r,
+                                                                getSchain()->getSchainIndex(), v,
+                                                                _sigShare->toString());
 
     if (v) {
         ASSERT(auxTrueVotes[r].count(getSchain()->getSchainIndex()) == 0);
