@@ -255,6 +255,7 @@ void BinConsensusInstance::auxVote(ptr<MessageEnvelope> _me) {
                                                                 getBlockProposerIndex(), r, index, v,
                                                                 sigShare->toString());
 
+
     if (v) {
         ASSERT(auxTrueVotes[r].count(index) == 0);
         auxTrueVotes[r][index] = sigShare;
