@@ -107,38 +107,38 @@ class BinConsensusInstance : public ProtocolInstance{
 
     // END OF ESSENTIAL PROTOCOL FIELDS
 
-    void processNetworkMessageImpl(ptr<NetworkMessageEnvelope> me);
+    void processNetworkMessageImpl(ptr<NetworkMessageEnvelope> _me);
 
 
 
-    void networkBroadcastValueIfThird(ptr<BVBroadcastMessage>  m);
+    void networkBroadcastValueIfThird(ptr<BVBroadcastMessage>  _m);
 
-    void networkBroadcastValue(ptr<BVBroadcastMessage> m);
+    void networkBroadcastValue(ptr<BVBroadcastMessage> _m);
 
     void setProposal(bin_consensus_round _r, bin_consensus_value _v);
 
 
-    void commitValueIfTwoThirds(ptr<BVBroadcastMessage> m);
+    void commitValueIfTwoThirds(ptr<BVBroadcastMessage> _m);
 
-    void bvbVote(ptr<MessageEnvelope> me);
+    void bvbVote(ptr<MessageEnvelope> _me);
 
-    void auxVote(ptr<MessageEnvelope> ptr);
+    void auxVote(ptr<MessageEnvelope> _me);
 
 
-    node_count getBVBVoteCount(bin_consensus_value v, bin_consensus_round round);
+    node_count getBVBVoteCount(bin_consensus_value _v, bin_consensus_round _round);
 
-    node_count getAUXVoteCount(bin_consensus_value v, bin_consensus_round round);
+    node_count getAUXVoteCount(bin_consensus_value _v, bin_consensus_round _round);
 
-    bool isThirdVote(ptr<BVBroadcastMessage> m);
+    bool isThirdVote(ptr<BVBroadcastMessage> _m);
 
 
     void proceedWithCommonCoinIfAUXTwoThird(bin_consensus_round _r);
 
-    void auxBroadcastValue(bin_consensus_value v, bin_consensus_round round);
+    void auxBroadcastValue(bin_consensus_value _v, bin_consensus_round _round);
 
-    bool isThird(node_count count);
+    bool isThird(node_count _count);
 
-    bool isTwoThird(node_count count);
+    bool isTwoThird(node_count _count);
 
     void proceedWithCommonCoin(bool _hasTrue, bool _hasFalse, uint64_t _random);
 
@@ -146,17 +146,17 @@ class BinConsensusInstance : public ProtocolInstance{
 
     void printHistory();
 
-    void decide(bin_consensus_value b);
+    void decide(bin_consensus_value _b);
 
-    bool isTwoThirdVote(ptr<BVBroadcastMessage> m);
+    bool isTwoThirdVote(ptr<BVBroadcastMessage> _m);
 
-    void ifAlreadyDecidedSendDelayedEstimateForNextRound(bin_consensus_round round);
-
-
-    uint64_t totalAUXVotes(bin_consensus_round r);
+    void ifAlreadyDecidedSendDelayedEstimateForNextRound(bin_consensus_round _round);
 
 
-    void auxSelfVote(bin_consensus_round r, bin_consensus_value v, ptr<ThresholdSigShare> _sigShare);
+    uint64_t totalAUXVotes(bin_consensus_round _r);
+
+
+    void auxSelfVote(bin_consensus_round _r, bin_consensus_value _v, ptr<ThresholdSigShare> _sigShare);
 
 
 
@@ -183,17 +183,17 @@ public:
 
 
 
-    void processMessage(ptr<MessageEnvelope> m);
+    void processMessage(ptr<MessageEnvelope> _m);
 
-    void processParentProposal(ptr<InternalMessageEnvelope> me);
+    void processParentProposal(ptr<InternalMessageEnvelope> _me);
 
-    BinConsensusInstance(BlockConsensusAgent* instance, block_id _blockId, schain_index _blockProposerIndex);
+    BinConsensusInstance(BlockConsensusAgent* _instance, block_id _blockId, schain_index _blockProposerIndex);
 
     bin_consensus_round getCurrentRound();
 
     void setCurrentRound(bin_consensus_round _currentRound);
 
-    void addToHistory(shared_ptr<NetworkMessage> m);
+    void addToHistory(shared_ptr<NetworkMessage> _m);
 
     void addBVSelfVoteToHistory(bin_consensus_round _r, bin_consensus_value _v);
 
