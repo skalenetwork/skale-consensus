@@ -88,9 +88,10 @@ class BinConsensusInstance : public ProtocolInstance{
 #endif
 
     // THIS FIELDS are requred by the protocol
-    // THEY MUST BE PERSISTED IN LEVELDB
 
-    bool isDecided = false;
+
+    bool isDecided = false; // does not have to be persisted in database since it is
+    // enough to persist decidedValue and  decided round
     bin_consensus_value decidedValue;
     bin_consensus_round decidedRound;
 
@@ -161,9 +162,9 @@ class BinConsensusInstance : public ProtocolInstance{
 
 public:
 
-    void setDecidedValue(const bin_consensus_value &_decidedValue);
 
-    void setDecidedRound(const bin_consensus_round &_decidedRound);
+    void setDecidedRoundAndValue(const bin_consensus_round &_decidedRound, const bin_consensus_value &_decidedValue);
+
 
     const node_count &getNodeCount() const;
 

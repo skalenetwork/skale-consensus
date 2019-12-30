@@ -362,8 +362,9 @@ void BinConsensusInstance::networkBroadcastValue(ptr<BVBroadcastMessage> m) {
     if (broadcastValues[r].count(v) > 0)
         return;
 
-    auto newMsg = make_shared<BVBroadcastMessage>(m->getBlockID(), m->getBlockProposerIndex(), m->getRound(), m->getValue(),
-            *this);
+    auto newMsg = make_shared<BVBroadcastMessage>(m->getBlockID(), m->getBlockProposerIndex(), m->getRound(),
+                                                  m->getValue(),
+                                                  *this);
 
     getSchain()->getNode()->getNetwork()->broadcastMessage(newMsg);
 
@@ -507,14 +508,7 @@ void BinConsensusInstance::decide(bin_consensus_value b) {
 
     ASSERT(!isDecided);
 
-
-    isDecided = true;
-
-    setDecidedValue(bin_consensus_value(b));
-
-    setDecidedRound(getCurrentRound());
-
-    addDecideToHistory(decidedRound, decidedValue);
+    setDecidedRoundAndValue(getCurrentRound(), bin_consensus_value(b));
 
     {
         lock_guard<recursive_mutex> lock(historyMutex);
@@ -569,7 +563,7 @@ BinConsensusInstance::BinConsensusInstance(BlockConsensusAgent *_instance, block
                                            schain_index _blockProposerIndex) :
         blockConsensusInstance(_instance), blockID(_blockId), blockProposerIndex(_blockProposerIndex),
         ProtocolInstance(BIN_CONSENSUS, *_instance->getSchain()),
-        nodeCount(_instance? _instance->getSchain()->getNodeCount() : 0),
+        nodeCount(_instance ? _instance->getSchain()->getNodeCount() : 0),
         protocolKey(make_shared<ProtocolKey>(_blockId, _blockProposerIndex)) {
     CHECK_ARGUMENT((uint64_t) _blockId > 0);
     CHECK_ARGUMENT((uint64_t) _blockProposerIndex > 0);
@@ -595,7 +589,7 @@ bin_consensus_round BinConsensusInstance::getCurrentRound() {
 void BinConsensusInstance::setCurrentRound(bin_consensus_round _currentRound) {
     currentRound = _currentRound;
     getSchain()->getNode()->getConsensusStateDB()->writeCR(getBlockID(),
-            blockProposerIndex, _currentRound);
+                                                           blockProposerIndex, _currentRound);
 }
 
 bool BinConsensusInstance::decided() const {
@@ -652,19 +646,21 @@ uint64_t BinConsensusInstance::calculateBLSRandom(bin_consensus_round _r) {
     return random;
 }
 
-void BinConsensusInstance::setDecidedValue(const bin_consensus_value &_decidedValue) {
-    getSchain()->getNode()->getConsensusStateDB()->writeDV(getBlockID(), blockProposerIndex, _decidedValue);
-    decidedValue = _decidedValue;
-}
-
-void BinConsensusInstance::setDecidedRound(const bin_consensus_round &_decidedRound) {
+void BinConsensusInstance::setDecidedRoundAndValue(const bin_consensus_round &_decidedRound,
+                                                   const bin_consensus_value &_decidedValue) {
+    isDecided = true;
     getSchain()->getNode()->getConsensusStateDB()->writeDR(getBlockID(), blockProposerIndex, _decidedRound);
+    getSchain()->getNode()->getConsensusStateDB()->writeDV(getBlockID(), blockProposerIndex, _decidedValue);
     decidedRound = _decidedRound;
+    decidedValue = _decidedValue;
+
+    addDecideToHistory(decidedRound, decidedValue);
+
 }
 
 void BinConsensusInstance::setProposal(bin_consensus_round _r, bin_consensus_value _v) {
     getSchain()->getNode()->getConsensusStateDB()->writePr(getBlockID(), blockProposerIndex,
-            _r, _v);
+                                                           _r, _v);
     proposals[_r] = _v;
 }
 
