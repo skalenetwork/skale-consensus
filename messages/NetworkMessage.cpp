@@ -248,6 +248,10 @@ int32_t NetworkMessage::getIp() const {
     return ip;
 }
 
+void NetworkMessage::setSrcSchainIndex(const schain_index &_srcSchainIndex) {
+    srcSchainIndex = _srcSchainIndex;
+}
+
 
 
 

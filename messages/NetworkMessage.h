@@ -50,13 +50,10 @@ static constexpr uint64_t MAX_CONSENSUS_MESSAGE_LEN = 1024;
 
 class NetworkMessage : public Message, public BasicHeader {
 
-
-
 protected:
-private:
+
+
     void addFields(nlohmann::json &j) override;
-
-protected:
 
 
     string printPrefix = "n";
@@ -93,29 +90,20 @@ public:
 
     virtual bin_consensus_value getValue() const;
 
-    msg_len getLen();
-
     int32_t ip;
-
-
-
 
     virtual ~NetworkMessage(){};
 
     void printMessage();
 
-
+    void setSrcSchainIndex(const schain_index &_srcSchainIndex);
 
     void setIp(int32_t _ip);
-
-    ptr<Buffer> toBuffer1();
 
     ptr<ThresholdSigShare> getSigShare() const;
 
     static ptr<NetworkMessage> parseMessage(ptr<string> _header, Schain* _sChain);
 
     static const char* getTypeString(MsgType _type );
-
-
 
 };

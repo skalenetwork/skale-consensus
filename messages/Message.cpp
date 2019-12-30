@@ -93,7 +93,7 @@ Message::Message(const schain_id &schainID, MsgType msgType, const msg_id &msgID
 }
 
 void Message::setSrcNodeID(const node_id &_srcNodeID) {
-    Message::srcNodeID = _srcNodeID;
+    srcNodeID = _srcNodeID;
 }
 
 

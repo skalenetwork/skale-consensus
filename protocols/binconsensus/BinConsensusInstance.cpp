@@ -362,9 +362,13 @@ void BinConsensusInstance::networkBroadcastValue(ptr<BVBroadcastMessage> m) {
     if (broadcastValues[r].count(v) > 0)
         return;
 
-    m->setSrcNodeID(getSchain()->getNode()->getNodeID());
+    auto newMsg = make_shared<BVBroadcastMessage>(m->getBlockID(), m->getBlockProposerIndex(), m->getRound(), m->getValue(),
+            *this);
 
-    getSchain()->getNode()->getNetwork()->broadcastMessage(m);
+    //m->setSrcNodeID(getSchain()->getNode()->getNodeID());
+    //m->setSrcSchainIndex(getSchain()->getSchainIndex());
+
+    getSchain()->getNode()->getNetwork()->broadcastMessage(newMsg);
 
 
     broadcastValues[r].insert(bin_consensus_value(v == 1));
@@ -376,9 +380,7 @@ void BinConsensusInstance::auxBroadcastValue(bin_consensus_value v, bin_consensu
 
     auto m = make_shared<AUXBroadcastMessage>(r, v, blockID, blockProposerIndex, *this);
 
-
     auxSelfVote(r, v, m->getSigShare());
-
 
     getSchain()->getNode()->getNetwork()->broadcastMessage(m);
 
