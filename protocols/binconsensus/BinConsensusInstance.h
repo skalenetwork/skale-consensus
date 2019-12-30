@@ -48,9 +48,6 @@ class BinConsensusInstance : public ProtocolInstance{
     const node_count nodeCount;
     const ptr<ProtocolKey> protocolKey;
 
-
-
-
     class Comparator {
     public:
         bool operator()(const ptr<ProtocolKey> &a,
@@ -87,7 +84,7 @@ class BinConsensusInstance : public ProtocolInstance{
 
 #endif
 
-    // THIS FIELDS are requred by the protocol
+    // THIS FIELDS are requred by the protocol and in general are persisted in LevelDB
 
 
     bool isDecided = false; // does not have to be persisted in database since it is
@@ -110,13 +107,14 @@ class BinConsensusInstance : public ProtocolInstance{
     void processNetworkMessageImpl(ptr<NetworkMessageEnvelope> _me);
 
 
-
     void networkBroadcastValueIfThird(ptr<BVBroadcastMessage>  _m);
 
     void networkBroadcastValue(ptr<BVBroadcastMessage> _m);
 
     void setProposal(bin_consensus_round _r, bin_consensus_value _v);
 
+
+    void insertValue(bin_consensus_round _r, bin_consensus_value _v);
 
     void commitValueIfTwoThirds(ptr<BVBroadcastMessage> _m);
 
@@ -134,7 +132,7 @@ class BinConsensusInstance : public ProtocolInstance{
 
     void proceedWithCommonCoinIfAUXTwoThird(bin_consensus_round _r);
 
-    void auxBroadcastValue(bin_consensus_value _v, bin_consensus_round _round);
+    void auxBroadcastValue(bin_consensus_round _r, bin_consensus_value _v);
 
     bool isThird(node_count _count);
 

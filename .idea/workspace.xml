@@ -31,6 +31,9 @@
   <component name="ChangeListManager">
     <list default="true" id="e8eb5c74-4268-46a2-ac26-2e919fd9ff42" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/ConsensusStateDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/ConsensusStateDB.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/ConsensusStateDB.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/ConsensusStateDB.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messages/NetworkMessage.h" beforeDir="false" afterPath="$PROJECT_DIR$/messages/NetworkMessage.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/protocols/binconsensus/BinConsensusInstance.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/protocols/binconsensus/BinConsensusInstance.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/protocols/binconsensus/BinConsensusInstance.h" beforeDir="false" afterPath="$PROJECT_DIR$/protocols/binconsensus/BinConsensusInstance.h" afterDir="false" />
     </list>
@@ -313,13 +316,6 @@
       <workItem from="1575716912702" duration="17312000" />
       <workItem from="1576352552399" duration="22630000" />
       <workItem from="1576770922817" duration="14605000" />
-    </task>
-    <task id="LOCAL-00088" summary="Cleaning imports">
-      <created>1576074558261</created>
-      <option name="number" value="00088" />
-      <option name="presentableId" value="LOCAL-00088" />
-      <option name="project" value="LOCAL" />
-      <updated>1576074558261</updated>
     </task>
     <task id="LOCAL-00089" summary="Cleaning imports">
       <created>1576247912555</created>
@@ -657,7 +653,14 @@
       <option name="project" value="LOCAL" />
       <updated>1577721575508</updated>
     </task>
-    <option name="localTasksCounter" value="137" />
+    <task id="LOCAL-00137" summary="Removing IP from the message. Full tests pass.">
+      <created>1577722178045</created>
+      <option name="number" value="00137" />
+      <option name="presentableId" value="LOCAL-00137" />
+      <option name="project" value="LOCAL" />
+      <updated>1577722178045</updated>
+    </task>
+    <option name="localTasksCounter" value="138" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -743,10 +746,10 @@
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
     <state x="2581" y="184" key="#xdebugger.evaluate/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1577620419368" />
-    <state x="2314" y="71" width="1121" height="962" key="CommitChangelistDialog2" timestamp="1577721573540">
+    <state x="2314" y="71" width="1121" height="962" key="CommitChangelistDialog2" timestamp="1577722177529">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state x="2314" y="71" width="1121" height="962" key="CommitChangelistDialog2/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1577721573540" />
+    <state x="2314" y="71" width="1121" height="962" key="CommitChangelistDialog2/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1577722177529" />
     <state x="2613" y="259" width="524" height="594" key="FileChooserDialogImpl" timestamp="1576073838542">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
@@ -787,10 +790,10 @@
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
     <state x="2238" y="100" key="SettingsEditor/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576759515576" />
-    <state x="2375" y="210" width="1000" height="684" key="Vcs.Push.Dialog.v2" timestamp="1577721579871">
+    <state x="2375" y="210" width="1000" height="684" key="Vcs.Push.Dialog.v2" timestamp="1577722178901">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state x="2375" y="210" width="1000" height="684" key="Vcs.Push.Dialog.v2/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1577721579871" />
+    <state x="2375" y="210" width="1000" height="684" key="Vcs.Push.Dialog.v2/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1577722178901" />
     <state x="2020" y="125" width="1720" height="855" key="com.intellij.history.integration.ui.views.FileHistoryDialog" timestamp="1577618562437">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
@@ -811,10 +814,10 @@
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
     <state x="2420" y="299" width="909" height="506" key="git4idea.merge.GitPullDialog/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1577608528706" />
-    <state x="2565" y="128" width="620" height="849" key="refactoring.ChangeSignatureDialog" timestamp="1577721875273">
+    <state x="2565" y="128" width="590" height="833" key="refactoring.ChangeSignatureDialog" timestamp="1577723029295">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state x="2565" y="128" width="620" height="849" key="refactoring.ChangeSignatureDialog/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1577721875273" />
+    <state x="2565" y="128" width="590" height="833" key="refactoring.ChangeSignatureDialog/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1577723029295" />
     <state x="2460" y="249" key="run.anything.popup" timestamp="1577617725036">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>

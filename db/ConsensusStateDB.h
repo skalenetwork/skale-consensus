@@ -43,6 +43,11 @@ class ConsensusStateDB : public CacheLevelDB {
     ptr<string> createBVBVoteKey(block_id _blockId, schain_index _proposerIndex, bin_consensus_round _r,
                                  schain_index _voterIndex, bin_consensus_value _v);
 
+    ptr<string> createBinValueKey(block_id _blockId, schain_index _proposerIndex, bin_consensus_round _r,
+                                 bin_consensus_value _v);
+
+
+
     ptr<string> createAUXVoteKey(block_id _blockId, schain_index _proposerIndex, bin_consensus_round _r,
                                  schain_index _voterIndex, bin_consensus_value _v);
 
@@ -69,6 +74,11 @@ public:
 
     void writeAUXVote(block_id _blockId, schain_index _proposerIndex, bin_consensus_round _r, schain_index _voterIndex,
                       bin_consensus_value _v, ptr<string> _sigShare);
+
+    void writeBinValue(block_id _blockId, schain_index _proposerIndex, bin_consensus_round _r,
+                      bin_consensus_value _v);
+
+
 };
 
 

@@ -75,6 +75,13 @@ ConsensusStateDB::createBVBVoteKey(block_id _blockId, schain_index _proposerInde
 }
 
 
+ptr<string> ConsensusStateDB::createBinValueKey(block_id _blockId, schain_index _proposerIndex, bin_consensus_round _r,
+                              bin_consensus_value _v) {
+    return make_shared<string>(
+            getFormatVersion() + ":" + to_string(_blockId) + ":" + to_string(_proposerIndex) +
+            ":bvb:" + to_string(_r) + ":" + to_string(_v));
+}
+
 ptr<string>
 ConsensusStateDB::createAUXVoteKey(block_id _blockId, schain_index _proposerIndex, bin_consensus_round _r,
                                    schain_index _voterIndex, bin_consensus_value _v) {
@@ -114,6 +121,13 @@ void ConsensusStateDB::writeBVBVote(block_id _blockId, schain_index _proposerInd
                                     schain_index _voterIndex, bin_consensus_value _v) {
     CHECK_ARGUMENT(_v <= 1 )
     auto key = createBVBVoteKey(_blockId, _proposerIndex, _r, _voterIndex, _v);
+    writeString(*key, "");
+}
+
+void ConsensusStateDB::writeBinValue(block_id _blockId, schain_index _proposerIndex, bin_consensus_round _r,
+                   bin_consensus_value _v) {
+    CHECK_ARGUMENT(_v <= 1 )
+    auto key = createBinValueKey(_blockId, _proposerIndex, _r, _v);
     writeString(*key, "");
 }
 

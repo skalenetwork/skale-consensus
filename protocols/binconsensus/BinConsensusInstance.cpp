@@ -320,24 +320,29 @@ bool BinConsensusInstance::isTwoThirdVote(ptr<BVBroadcastMessage> _m) {
     return isTwoThird(getBVBVoteCount(_m->value, _m->r));
 }
 
+void BinConsensusInstance::insertValue(bin_consensus_round _r, bin_consensus_value _v) {
+    getSchain()->getNode()->getConsensusStateDB()->writeBinValue(getBlockID(),
+            getBlockProposerIndex(), _r, _v);
+    binValues[_r].insert(_v);
+}
 
 void BinConsensusInstance::commitValueIfTwoThirds(ptr<BVBroadcastMessage> _m) {
 
-
     auto r = _m->r;
+    auto v = _m->value;
 
-    if (binValues[r].count(_m->value))
+
+    if (binValues[r].count(v))
         return;
 
 
     if (isTwoThirdVote(_m)) {
-
         bool didAUXBroadcast = binValues[r].size() > 0;
 
-        binValues[r].insert(_m->value);
+        insertValue(r, v);
 
         if (!didAUXBroadcast) {
-            auxBroadcastValue(_m->value, r);
+            auxBroadcastValue(r, v);
         }
 
         if (r == getCurrentRound() && !isDecided)
@@ -346,6 +351,7 @@ void BinConsensusInstance::commitValueIfTwoThirds(ptr<BVBroadcastMessage> _m) {
     }
 
 }
+
 
 void BinConsensusInstance::networkBroadcastValueIfThird(ptr<BVBroadcastMessage> _m) {
     if (isThirdVote(_m)) {
@@ -371,7 +377,7 @@ void BinConsensusInstance::networkBroadcastValue(ptr<BVBroadcastMessage> _m) {
 }
 
 
-void BinConsensusInstance::auxBroadcastValue(bin_consensus_value _v, bin_consensus_round _r) {
+void BinConsensusInstance::auxBroadcastValue(bin_consensus_round _r, bin_consensus_value _v) {
 
 
     auto m = make_shared<AUXBroadcastMessage>(_r, _v, blockID, blockProposerIndex, *this);
