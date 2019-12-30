@@ -128,9 +128,6 @@ void TransportNetwork::broadcastMessage(ptr<NetworkMessage> _m) {
 
         getSchain()->getNode()->getOutgoingMsgDB()->saveMsg(_m);
 
-        auto ip = inet_addr(getSchain()->getThisNodeInfo()->getBaseIP()->c_str());
-        _m->setIp(ip);
-
         unordered_set<uint64_t> sent;
 
         while (3 * (sent.size() + 1) < getSchain()->getNodeCount() * 2) {
@@ -228,10 +225,8 @@ void TransportNetwork::postOrDefer(
                    1) {
             addToDeferredMessageQueue(m);
         } else if (msg->getRound() == sChain->getBlockConsensusInstance()->getRound(
-                msg->createDestinationProtocolKey()) +
-                                      1 &&
-                   !sChain->getBlockConsensusInstance()->decided(
-                           msg->createDestinationProtocolKey())) {
+                msg->createDestinationProtocolKey()) + 1 &&
+                   !sChain->getBlockConsensusInstance()->decided(msg->createDestinationProtocolKey())) {
             addToDeferredMessageQueue(m);
         } else {
             sChain->postMessage(m);
@@ -309,7 +304,7 @@ ptr<NetworkMessageEnvelope> TransportNetwork::receiveMessage() {
     auto buf = make_shared<Buffer>(MAX_CONSENSUS_MESSAGE_LEN);
     uint64_t readBytes = readMessageFromNetwork(buf);
 
-    auto msg = make_shared<string>((const char*) buf->getBuf()->data(), readBytes);
+    auto msg = make_shared<string>((const char *) buf->getBuf()->data(), readBytes);
 
     auto mptr = NetworkMessage::parseMessage(msg, getSchain());
 
@@ -317,7 +312,7 @@ ptr<NetworkMessageEnvelope> TransportNetwork::receiveMessage() {
 
     if (realSender == nullptr) {
         BOOST_THROW_EXCEPTION(InvalidStateException("NetworkMessage from unknown sender schain index",
-                __CLASS_NAME__));
+                                                    __CLASS_NAME__));
     }
 
     ptr<ProtocolKey> key = mptr->createDestinationProtocolKey();

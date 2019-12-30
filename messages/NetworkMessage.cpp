@@ -57,11 +57,6 @@ NetworkMessage::NetworkMessage(MsgType _messageType, block_id _blockID, schain_i
     this->srcSchainIndex = _srcProtocolInstance.getSchain()->getSchainIndex();
     this->r = _r;
     this->value = _value;
-
-    auto ipString = _srcProtocolInstance.getSchain()->getThisNodeInfo()->getBaseIP();
-
-    this->ip = inet_addr(ipString->c_str());
-
     setComplete();
 
 }
@@ -69,7 +64,7 @@ NetworkMessage::NetworkMessage(MsgType _messageType, block_id _blockID, schain_i
 
 NetworkMessage::NetworkMessage(MsgType _messageType, node_id _srcNodeID, block_id _blockID,
                                schain_index _blockProposerIndex, bin_consensus_round _r, bin_consensus_value _value,
-                               schain_id _schainId, msg_id _msgID, uint32_t _ip, ptr<string> _sigShareStr,
+                               schain_id _schainId, msg_id _msgID, ptr<string> _sigShareStr,
                                schain_index _srcSchainIndex, ptr<CryptoManager> _cryptoManager,
                                uint64_t _totalSigners, uint64_t _requiredSigners)
         : Message(_schainId, _messageType, _msgID, _srcNodeID, _blockID, _blockProposerIndex),
@@ -80,7 +75,6 @@ NetworkMessage::NetworkMessage(MsgType _messageType, node_id _srcNodeID, block_i
     this->srcSchainIndex = _srcSchainIndex;
     this->r = _r;
     this->value = _value;
-    this->ip = _ip;
     this->sigShareString = _sigShareStr;
 
     if (_sigShareStr != nullptr) {
@@ -115,9 +109,6 @@ void NetworkMessage::printMessage() {
 
 }
 
-void NetworkMessage::setIp(int32_t _ip) {
-    ip = _ip;
-}
 
 void NetworkMessage::addFields(nlohmann::basic_json<> &j) {
 
@@ -130,7 +121,6 @@ void NetworkMessage::addFields(nlohmann::basic_json<> &j) {
     j["ssi"] = (uint64_t) srcSchainIndex;
     j["r"] = (uint64_t )r;
     j["v"] = (uint8_t )value;
-    j["ip"] = ip;
 
     if (sigShareString != nullptr) {
         j["sss"] = *sigShareString;
@@ -150,7 +140,6 @@ ptr<NetworkMessage> NetworkMessage::parseMessage(ptr<string> _header, Schain *_s
     uint64_t srcSchainIndex;
     uint64_t round;
     uint8_t value;
-    uint32_t ip;
     ptr<string> sigShare;
 
     CHECK_ARGUMENT(_header);
@@ -170,7 +159,6 @@ ptr<NetworkMessage> NetworkMessage::parseMessage(ptr<string> _header, Schain *_s
         srcSchainIndex = getUint64(js, "ssi");
         round = getUint64(js, "r");
         value = getUint64(js, "v");
-        ip = getInt32(js, "ip");
 
         if (js.find("sss") != js.end()) {
             sigShare = getString(js, "sss");
@@ -195,7 +183,6 @@ ptr<NetworkMessage> NetworkMessage::parseMessage(ptr<string> _header, Schain *_s
                                                    block_id(blockID), schain_index(blockProposerIndex),
                                                    bin_consensus_round(round),
                                                    bin_consensus_value(value), schain_id(sChainID), msg_id(msgID),
-                                                   ip,
                                                    srcSchainIndex,
                                                    _sChain);
         } else if (*type == BasicHeader::AUX_BROADCAST) {
@@ -203,14 +190,13 @@ ptr<NetworkMessage> NetworkMessage::parseMessage(ptr<string> _header, Schain *_s
                                                     block_id(blockID), schain_index(blockProposerIndex),
                                                     bin_consensus_round(round),
                                                     bin_consensus_value(value), schain_id(sChainID), msg_id(msgID),
-                                                    ip,
                                                     sigShare,
                                                     srcSchainIndex,
                                                     _sChain);
         } else if (*type == BasicHeader::BLOCK_SIG_BROADCAST) {
             mptr = make_shared<BlockSignBroadcastMessage>(node_id(srcNodeID),
                                                           block_id(blockID), schain_index(blockProposerIndex),
-                                                          schain_id(sChainID), msg_id(msgID), ip,
+                                                          schain_id(sChainID), msg_id(msgID),
                                                           sigShare,
                                                           srcSchainIndex,
                                                           _sChain);
@@ -242,10 +228,6 @@ const char *NetworkMessage::getTypeString(MsgType _type) {
         };
     }
 
-}
-
-int32_t NetworkMessage::getIp() const {
-    return ip;
 }
 
 const schain_index &NetworkMessage::getSrcSchainIndex() const {

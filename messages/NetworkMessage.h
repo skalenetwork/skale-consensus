@@ -69,7 +69,7 @@ protected:
 
     NetworkMessage(MsgType _messageType, node_id _srcNodeID, block_id _blockID,
                    schain_index _blockProposerIndex, bin_consensus_round _r, bin_consensus_value _value,
-                   schain_id _schainId, msg_id _msgID, uint32_t _ip, ptr<string> _sigShareStr,
+                   schain_id _schainId, msg_id _msgID, ptr<string> _sigShareStr,
                    schain_index _srcSchainIndex, ptr<CryptoManager> _cryptoManager,
                    uint64_t _totalSigners, uint64_t _requiredSigners);
 
@@ -84,13 +84,9 @@ public:
     bin_consensus_round r;
     bin_consensus_value value;
 
-    int32_t getIp() const;
-
     virtual bin_consensus_round getRound() const;
 
     virtual bin_consensus_value getValue() const;
-
-    int32_t ip;
 
     virtual ~NetworkMessage(){};
 

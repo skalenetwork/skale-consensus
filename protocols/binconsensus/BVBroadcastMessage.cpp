@@ -45,10 +45,11 @@ BVBroadcastMessage::BVBroadcastMessage(block_id _blockID, schain_index _blockPro
 
 BVBroadcastMessage::BVBroadcastMessage(node_id _srcNodeID, block_id _blockID, schain_index _blockProposerIndex,
                                        bin_consensus_round _r,
-                                       bin_consensus_value _value, schain_id _schainId, msg_id _msgID, uint32_t _ip,
-                                       schain_index _srcSchainIndex, Schain *_sChain)
+                                       bin_consensus_value _value, schain_id _schainId, msg_id _msgID,
+                                       schain_index _srcSchainIndex,
+                                       Schain *_sChain)
     : NetworkMessage(
-        MSG_BVB_BROADCAST, _srcNodeID, _blockID, _blockProposerIndex, _r, _value, _schainId, _msgID, _ip,
+        MSG_BVB_BROADCAST, _srcNodeID, _blockID, _blockProposerIndex, _r, _value, _schainId, _msgID,
         nullptr,
         _srcSchainIndex, _sChain->getCryptoManager(),
         _sChain->getTotalSigners(), _sChain->getRequiredSigners()) {

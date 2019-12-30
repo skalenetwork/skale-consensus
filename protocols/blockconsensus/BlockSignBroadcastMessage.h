@@ -36,8 +36,8 @@ public:
                               ProtocolInstance &_sourceProtocolInstance);
 
     BlockSignBroadcastMessage(node_id _srcNodeID, block_id _blockID, schain_index _blockProposerIndex,
-                              schain_id _schainId, msg_id _msgID, uint32_t _ip, ptr<string> _sigShare,
-                              schain_index _srcSchainIndex, Schain *_sChain);
+                              schain_id _schainId, msg_id _msgID, ptr<string> _sigShare, schain_index _srcSchainIndex,
+                              Schain *_sChain);
 
 
     virtual bin_consensus_round getRound() const override ;
