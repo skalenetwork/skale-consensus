@@ -42,15 +42,13 @@ class ProtocolKey;
 
 class BinConsensusInstance : public ProtocolInstance{
 
-    BlockConsensusAgent * blockConsensusInstance;
+    BlockConsensusAgent* const blockConsensusInstance;
+    const block_id blockID;
+    const schain_index blockProposerIndex;
+    const node_count nodeCount;
+    const ptr<ProtocolKey> protocolKey;
 
-    block_id blockID;
 
-    schain_index blockProposerIndex;
-
-    node_count nodeCount;
-
-    bool isDecided = false;
 
 
     class Comparator {
@@ -64,33 +62,39 @@ class BinConsensusInstance : public ProtocolInstance{
     };
 
 
-    map<ptr<ProtocolKey>, ptr<BinConsensusInstance>, Comparator> children;
-
-
+    // non-essential debugging
     static recursive_mutex historyMutex;
 
+    // non-essential debugging
     static ptr<map<ptr<ProtocolKey>, ptr<BinConsensusInstance>, Comparator>> globalTrueDecisions;
 
+    // non-essential debugging
     static ptr<map<ptr<ProtocolKey>, ptr<BinConsensusInstance>, Comparator>> globalFalseDecisions;
 
-#ifdef CONSENSUS_DEBUG
-
-    static ptr<list<ptr<NetworkMessage>>> msgHistory;
-#endif
-
-
-    bin_consensus_value decidedValue;
-
-
-    bin_consensus_round decidedRound;
-
-
-    const ptr<ProtocolKey> protocolKey;
-
-    std::atomic<bin_consensus_round> currentRound = bin_consensus_round(0);
 
     // non-essential tracing data tracing proposals for each round
     map  <bin_consensus_round, bin_consensus_value> proposals;
+
+    // Used to make sure the same message is not broadcast twice. Does not need to be
+    // saved in the DB
+    map<bin_consensus_round, set<bin_consensus_value>> broadcastValues;
+
+#ifdef CONSENSUS_DEBUG
+
+    // non-essential debugging
+    static ptr<list<ptr<NetworkMessage>>> msgHistory;
+
+
+#endif
+
+    // THIS FIELDS are requred by the protocol
+    // THEY MUST BE PERSISTED IN LEVELDB
+
+    bool isDecided = false;
+    bin_consensus_value decidedValue;
+    bin_consensus_round decidedRound;
+
+    std::atomic<bin_consensus_round> currentRound = bin_consensus_round(0);
 
     map<bin_consensus_round, set<schain_index>> bvbTrueVotes;
     map<bin_consensus_round, set<schain_index>> bvbFalseVotes;
@@ -98,12 +102,9 @@ class BinConsensusInstance : public ProtocolInstance{
     map<bin_consensus_round, map<schain_index, ptr<ThresholdSigShare>>> auxTrueVotes;
     map<bin_consensus_round, map<schain_index, ptr<ThresholdSigShare>>> auxFalseVotes;
 
-
-
     map<bin_consensus_round, set<bin_consensus_value>> binValues;
 
-    map<bin_consensus_round, set<bin_consensus_value>> broadcastValues;
-
+    // END OF ESSENTIAL PROTOCOL FIELDS
 
     void processNetworkMessageImpl(ptr<NetworkMessageEnvelope> me);
 
@@ -150,11 +151,6 @@ class BinConsensusInstance : public ProtocolInstance{
 
     void ifAlreadyDecidedSendDelayedEstimateForNextRound(bin_consensus_round round);
 
-
-    void initiateProtocolCompletion(ProtocolOutcome outcome);
-
-
-    void processParentCompletedMessage(ptr<InternalMessageEnvelope> me);
 
     uint64_t totalAUXVotes(bin_consensus_round r);
 

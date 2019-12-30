@@ -567,18 +567,15 @@ const schain_index BinConsensusInstance::getBlockProposerIndex() const {
 }
 
 
-BinConsensusInstance::BinConsensusInstance(BlockConsensusAgent *instance, block_id _blockId,
+BinConsensusInstance::BinConsensusInstance(BlockConsensusAgent *_instance, block_id _blockId,
                                            schain_index _blockProposerIndex) :
-
-        ProtocolInstance(BIN_CONSENSUS, *instance->getSchain()),
+        blockConsensusInstance(_instance), blockID(_blockId), blockProposerIndex(_blockProposerIndex),
+        ProtocolInstance(BIN_CONSENSUS, *_instance->getSchain()),
+        nodeCount(_instance? _instance->getSchain()->getNodeCount() : 0),
         protocolKey(make_shared<ProtocolKey>(_blockId, _blockProposerIndex)) {
-    ASSERT((uint64_t) _blockId > 0);
-
-
-    blockConsensusInstance = instance;
-    blockID = _blockId;
-    blockProposerIndex = _blockProposerIndex;
-    nodeCount = instance->getSchain()->getNodeCount();
+    CHECK_ARGUMENT((uint64_t) _blockId > 0);
+    CHECK_ARGUMENT((uint64_t) _blockProposerIndex > 0);
+    CHECK_ARGUMENT(_instance);
 }
 
 void BinConsensusInstance::initHistory() {
