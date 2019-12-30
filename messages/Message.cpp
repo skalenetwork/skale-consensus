@@ -55,10 +55,6 @@ schain_id Message::getSchainID() const {
 }
 
 
-
-
-
-
 node_id Message::getSrcNodeID() const {
     return srcNodeID;
 }
@@ -90,10 +86,6 @@ Message::Message(const schain_id &schainID, MsgType msgType, const msg_id &msgID
         ASSERT(false);
     }
     totalObjects++;
-}
-
-void Message::setSrcNodeID(const node_id &_srcNodeID) {
-    srcNodeID = _srcNodeID;
 }
 
 

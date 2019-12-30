@@ -313,13 +313,11 @@ ptr<NetworkMessageEnvelope> TransportNetwork::receiveMessage() {
 
     auto mptr = NetworkMessage::parseMessage(msg, getSchain());
 
-
-
-    ptr<NodeInfo> realSender = sChain->getNode()->getNodeInfoByIP(ipToString(mptr->getIp()));
-
+    ptr<NodeInfo> realSender = sChain->getNode()->getNodeInfoByIndex(mptr->getSrcSchainIndex());
 
     if (realSender == nullptr) {
-        BOOST_THROW_EXCEPTION(InvalidSourceIPException("NetworkMessage from unknown IP"));
+        BOOST_THROW_EXCEPTION(InvalidStateException("NetworkMessage from unknown sender schain index",
+                __CLASS_NAME__));
     }
 
     ptr<ProtocolKey> key = mptr->createDestinationProtocolKey();

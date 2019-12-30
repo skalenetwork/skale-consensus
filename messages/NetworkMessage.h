@@ -104,4 +104,6 @@ public:
 
     static const char* getTypeString(MsgType _type );
 
+    const schain_index &getSrcSchainIndex() const;
+
 };
