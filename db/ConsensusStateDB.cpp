@@ -39,55 +39,61 @@ const string ConsensusStateDB::getFormatVersion() {
     return "1.0";
 }
 
+
+
 ptr<string> ConsensusStateDB::createCurrentRoundKey(block_id _blockId, schain_index _proposerIndex) {
-    return make_shared<string>(
-            getFormatVersion() + ":" + to_string(_blockId) + ":" + to_string(_proposerIndex) +
-            ":cr");
+
+    auto key = createKey(_blockId, _proposerIndex);
+    key->append(":cr");
+    return key;
 }
 
 ptr<string> ConsensusStateDB::createDecidedRoundKey(block_id _blockId, schain_index _proposerIndex) {
-    return make_shared<string>(
-            getFormatVersion() + ":" + to_string(_blockId) + ":" + to_string(_proposerIndex) +
-            ":dr");
+    auto key = createKey(_blockId, _proposerIndex);
+    key->append(":dr");
+    return key;
+
 }
 
 ptr<string> ConsensusStateDB::createDecidedValueKey(block_id _blockId, schain_index _proposerIndex) {
-    return make_shared<string>(
-            getFormatVersion() + ":" + to_string(_blockId) + ":" + to_string(_proposerIndex) +
-            ":dv");
+    auto key = createKey(_blockId, _proposerIndex);
+    key->append(":dv");
+    return key;
 }
 
 
 ptr<string>
 ConsensusStateDB::createProposalKey(block_id _blockId, schain_index _proposerIndex, bin_consensus_round _r) {
-    return make_shared<string>(
-            getFormatVersion() + ":" + to_string(_blockId) + ":" + to_string(_proposerIndex) +
-            ":prp:" + to_string(_r));
-
+    auto key = createKey(_blockId, _proposerIndex);
+    key->append(":prp:").append(to_string(_r));
+    return key;
 }
 
 ptr<string>
 ConsensusStateDB::createBVBVoteKey(block_id _blockId, schain_index _proposerIndex, bin_consensus_round _r,
                                    schain_index _voterIndex, bin_consensus_value _v) {
-    return make_shared<string>(
-            getFormatVersion() + ":" + to_string(_blockId) + ":" + to_string(_proposerIndex) +
-            ":bvb:" + to_string(_r) + ":" + to_string(_voterIndex) + ":" + to_string(_v));
+    auto key = createKey(_blockId, _proposerIndex);
+    key->
+     append(":bvb:").append(to_string(_r)).append(":").append(to_string(_voterIndex)).append(":").append(to_string(_v));
+    return key;
 }
 
 
 ptr<string> ConsensusStateDB::createBinValueKey(block_id _blockId, schain_index _proposerIndex, bin_consensus_round _r,
                               bin_consensus_value _v) {
-    return make_shared<string>(
-            getFormatVersion() + ":" + to_string(_blockId) + ":" + to_string(_proposerIndex) +
-            ":bvb:" + to_string(_r) + ":" + to_string(_v));
+    auto key = createKey(_blockId, _proposerIndex);
+    key->append(":bvb:").append(to_string(_r)).append(":").append(to_string(_v));
+    return key;
 }
 
 ptr<string>
 ConsensusStateDB::createAUXVoteKey(block_id _blockId, schain_index _proposerIndex, bin_consensus_round _r,
                                    schain_index _voterIndex, bin_consensus_value _v) {
-    return make_shared<string>(
-            getFormatVersion() + ":" + to_string(_blockId) + ":" + to_string(_proposerIndex) +
-            ":aux:" + to_string(_r) + ":" + to_string(_voterIndex)  + ":" + to_string(_v));
+
+    auto key = createKey(_blockId, _proposerIndex);
+    key->
+     append(":aux:").append(to_string(_r)).append(":").append(to_string(_voterIndex)).append(":").append(to_string(_v));
+    return key;
 }
 
 
