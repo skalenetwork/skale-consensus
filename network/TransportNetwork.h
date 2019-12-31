@@ -75,7 +75,7 @@ protected:
 
     void addToDeferredMessageQueue(ptr<NetworkMessageEnvelope> _me);
 
-    ptr<vector<ptr<NetworkMessageEnvelope>>> pullMessagesForBlockID(block_id _blockID);
+    ptr<vector<ptr<NetworkMessageEnvelope> > > pullMessagesForCurrentBlockID();
 
     virtual bool sendMessage(const ptr<NodeInfo> &remoteNodeInfo, ptr<NetworkMessage> _msg) = 0;
 
@@ -120,7 +120,7 @@ public:
 
     void setCatchupBlocks(uint64_t _catchupBlocks);
 
-    void postOrDefer(const ptr<NetworkMessageEnvelope> &m, const block_id &currentBlockID);
+    void postDeferOrDrop(const ptr<NetworkMessageEnvelope> &m);
 
     ~TransportNetwork();
 };

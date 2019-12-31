@@ -89,9 +89,16 @@ void TransportNetwork::addToDeferredMessageQueue(ptr<NetworkMessageEnvelope> _me
     }
 }
 
-ptr<vector<ptr<NetworkMessageEnvelope> > > TransportNetwork::pullMessagesForBlockID(
-        block_id _blockID) {
-    lock_guard<recursive_mutex> lock(deferredMessageMutex);
+ptr<vector<ptr<NetworkMessageEnvelope> > > TransportNetwork::pullMessagesForCurrentBlockID() {
+
+
+
+
+
+    LOCK(deferredMessageMutex);
+
+
+    block_id currentBlockID = sChain->getLastCommittedBlockID() + 1;
 
 
     auto returnList = make_shared<vector<ptr<NetworkMessageEnvelope>>>();
@@ -100,7 +107,7 @@ ptr<vector<ptr<NetworkMessageEnvelope> > > TransportNetwork::pullMessagesForBloc
     for (auto it = deferredMessageQueue.cbegin();
          it != deferredMessageQueue.cend() /* not hoisted */;
         /* no increment */ ) {
-        if (it->first <= _blockID) {
+        if (it->first <= currentBlockID) {
             for (auto &&msg : *(it->second)) {
                 returnList->push_back(msg);
             }
@@ -110,9 +117,6 @@ ptr<vector<ptr<NetworkMessageEnvelope> > > TransportNetwork::pullMessagesForBloc
             ++it;
         }
     }
-
-//    LOG( trace,
-//        "Pulling deferred BID::" + to_string( _blockID ) + ":" + to_string( returnList->size() ) );
 
     return returnList;
 }
@@ -188,9 +192,8 @@ void TransportNetwork::networkReadLoop() {
 
                 ASSERT(sChain);
 
-                block_id currentBlockID = sChain->getLastCommittedBlockID() + 1;
 
-                postOrDefer(m, currentBlockID);
+                postDeferOrDrop(m);
             } catch (ExitRequestedException &) {
                 return;
             } catch (FatalError &) {
@@ -211,27 +214,49 @@ void TransportNetwork::networkReadLoop() {
     sChain->getNode()->getSockets()->consensusZMQSocket->closeReceive();
 }
 
-void TransportNetwork::postOrDefer(
-        const ptr<NetworkMessageEnvelope> &m, const block_id &currentBlockID) {
-    if (m->getMessage()->getBlockID() > currentBlockID) {
-        addToDeferredMessageQueue(m);
-    } else {
-        auto msg = (NetworkMessage *) m->getMessage().get();
+void TransportNetwork::postDeferOrDrop(const ptr<NetworkMessageEnvelope> &m) {
 
-        if (msg->getMessageType() == MSG_BLOCK_SIGN_BROADCAST) {
+    block_id currentBlockID = sChain->getLastCommittedBlockID() + 1;
+
+
+    auto bid = m->getMessage()->getBlockID();
+
+    if (bid > currentBlockID) {
+        addToDeferredMessageQueue(m);
+        return;
+    }
+
+
+
+    if (bid < currentBlockID) {
+        if (bid + MAX_ACTIVE_CONSENSUSES <= currentBlockID) {
+            // too old, drop
+            return;
+        }
+        else {
             sChain->postMessage(m);
-        } else if (msg->getRound() >
-                   sChain->getBlockConsensusInstance()->getRound(msg->createDestinationProtocolKey()) +
-                   1) {
-            addToDeferredMessageQueue(m);
-        } else if (msg->getRound() == sChain->getBlockConsensusInstance()->getRound(
-                msg->createDestinationProtocolKey()) + 1 &&
-                   !sChain->getBlockConsensusInstance()->decided(msg->createDestinationProtocolKey())) {
-            addToDeferredMessageQueue(m);
-        } else {
-            sChain->postMessage(m);
+            return;
+
         }
     }
+
+
+    // now  deal with the case of bid = currentBlockID
+
+    auto msg = dynamic_pointer_cast<NetworkMessage>(m->getMessage());
+
+    CHECK_STATE(msg);
+
+
+    // ask consensus whether to defer
+
+    if (sChain->getBlockConsensusInstance()->shouldPost(msg)) {
+        sChain->postMessage(m);
+    } else {
+        addToDeferredMessageQueue(m);
+
+    }
+
 }
 
 void TransportNetwork::deferredMessagesLoop() {
@@ -245,12 +270,10 @@ void TransportNetwork::deferredMessagesLoop() {
     while (!getSchain()->getNode()->isExitRequested()) {
         ptr<vector<ptr<NetworkMessageEnvelope> > > deferredMessages;
 
-        block_id currentBlockID = sChain->getLastCommittedBlockID() + 1;
-        deferredMessages = pullMessagesForBlockID(currentBlockID);
+        deferredMessages = pullMessagesForCurrentBlockID();
 
         for (auto message : *deferredMessages) {
-            currentBlockID = sChain->getLastCommittedBlockID() + 1;
-            postOrDefer(message, currentBlockID);
+            postDeferOrDrop(message);
         }
 
         for (int i = 0; i < nodeCount; i++) {
