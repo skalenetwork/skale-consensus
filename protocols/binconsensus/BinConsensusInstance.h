@@ -38,7 +38,7 @@ class NetworkMessageEnvelope;
 class Schain;
 class ProtocolKey;
 
-
+#include "thirdparty/lrucache.hpp"
 
 class BinConsensusInstance : public ProtocolInstance{
 
@@ -63,10 +63,10 @@ class BinConsensusInstance : public ProtocolInstance{
     static recursive_mutex historyMutex;
 
     // non-essential debugging
-    static ptr<map<ptr<ProtocolKey>, ptr<BinConsensusInstance>, Comparator>> globalTrueDecisions;
+    static ptr<vector<ptr<cache::lru_cache<uint64_t, ptr<BinConsensusInstance>>>>> globalTrueDecisions;
 
     // non-essential debugging
-    static ptr<map<ptr<ProtocolKey>, ptr<BinConsensusInstance>, Comparator>> globalFalseDecisions;
+    static ptr<vector<ptr<cache::lru_cache<uint64_t, ptr<BinConsensusInstance>>>>> globalFalseDecisions;
 
 
     // non-essential tracing data tracing proposals for each round
@@ -203,7 +203,7 @@ public:
 
     void addNextRoundToHistory(bin_consensus_round _r, bin_consensus_value _v);
 
-    static void initHistory();
+    static void initHistory(node_count _nodeCount);
 
     BlockConsensusAgent *getBlockConsensusInstance() const;
 

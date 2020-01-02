@@ -519,28 +519,32 @@ void BinConsensusInstance::decide(bin_consensus_value _b) {
     {
         lock_guard<recursive_mutex> lock(historyMutex);
 
+        auto trueCache = globalTrueDecisions->at((uint64_t)getBlockProposerIndex() - 1);
+        auto falseCache = globalFalseDecisions->at((uint64_t)getBlockProposerIndex() - 1);
+
+        CHECK_STATE(trueCache);
+        CHECK_STATE(falseCache);
+
 
         if (decidedValue) {
-            if (globalFalseDecisions->count(getProtocolKey()) > 0) {
+            if (falseCache->exists((uint64_t ) getBlockID())) {
                 printHistory();
-                (*globalFalseDecisions)[getProtocolKey()]->printHistory();
+                falseCache->get((uint64_t) getBlockID())->printHistory();
                 ASSERT(false);
             }
-
-            (*globalTrueDecisions)[getProtocolKey()] = getSchain()->getBlockConsensusInstance()->getChild(
-                    this->getProtocolKey());
+            trueCache->put((uint64_t) getBlockID(), getSchain()->getBlockConsensusInstance()->getChild(
+                    this->getProtocolKey()));
         } else {
-            if (globalTrueDecisions->count(getProtocolKey()) > 0) {
+            if (trueCache->exists((uint64_t ) getBlockID())) {
                 printHistory();
-                (*globalTrueDecisions)[getProtocolKey()]->printHistory();
+                trueCache->get((uint64_t) getBlockID())->printHistory();
                 ASSERT(false);
             }
-
-            (*globalFalseDecisions)[getProtocolKey()] = getSchain()->getBlockConsensusInstance()->getChild(
-                    this->getProtocolKey());
+            falseCache->put((uint64_t) getBlockID(), getSchain()->getBlockConsensusInstance()->getChild(
+                    this->getProtocolKey()));
         }
-    }
 
+    }
 
     auto msg = make_shared<ChildBVDecidedMessage>((bool) _b, *this, this->getProtocolKey());
 
@@ -576,12 +580,20 @@ BinConsensusInstance::BinConsensusInstance(BlockConsensusAgent *_instance, block
     CHECK_ARGUMENT(_instance);
 }
 
-void BinConsensusInstance::initHistory() {
+void BinConsensusInstance::initHistory(node_count _nodeCount) {
 
+    CHECK_ARGUMENT(_nodeCount > 0);
+    globalTrueDecisions =
+            make_shared<vector<ptr<cache::lru_cache<uint64_t, ptr<BinConsensusInstance>>>>>();
+    globalFalseDecisions =
+            make_shared<vector<ptr<cache::lru_cache<uint64_t,ptr<BinConsensusInstance>>>>>();
 
-    globalTrueDecisions = make_shared<map<ptr<ProtocolKey>, ptr<BinConsensusInstance>, Comparator>>();
-
-    globalFalseDecisions = make_shared<map<ptr<ProtocolKey>, ptr<BinConsensusInstance>, Comparator>>();
+    for (uint64_t i = 0; i < (uint64_t) _nodeCount; i++) {
+        globalTrueDecisions->
+          push_back(make_shared<cache::lru_cache<uint64_t, ptr<BinConsensusInstance>>>(MAX_CONSENSUS_HISTORY));
+        globalFalseDecisions->
+          push_back(make_shared<cache::lru_cache<uint64_t, ptr<BinConsensusInstance>>>(MAX_CONSENSUS_HISTORY));
+    }
 
 #ifdef CONSENSUS_DEBUG
     msgHistory = make_shared<list<ptr<NetworkMessage>>>();
@@ -603,9 +615,9 @@ bool BinConsensusInstance::decided() const {
 }
 
 
-ptr<map<ptr<ProtocolKey>, ptr<BinConsensusInstance>, BinConsensusInstance::Comparator>> BinConsensusInstance::globalTrueDecisions = nullptr;
+ptr<vector<ptr<cache::lru_cache<uint64_t, ptr<BinConsensusInstance>>>>> BinConsensusInstance::globalTrueDecisions = nullptr;
 
-ptr<map<ptr<ProtocolKey>, ptr<BinConsensusInstance>, BinConsensusInstance::Comparator>> BinConsensusInstance::globalFalseDecisions = nullptr;
+ptr<vector<ptr<cache::lru_cache<uint64_t, ptr<BinConsensusInstance>>>>>  BinConsensusInstance::globalFalseDecisions = nullptr;
 
 #ifdef CONSENSUS_DEBUG
 ptr<list<ptr<NetworkMessage>>> BinConsensusInstance::msgHistory = nullptr;

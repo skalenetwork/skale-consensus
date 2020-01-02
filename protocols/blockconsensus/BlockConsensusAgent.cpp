@@ -62,11 +62,11 @@
 
 BlockConsensusAgent::BlockConsensusAgent(Schain &_schain) : ProtocolInstance(
         BLOCK_SIGN, _schain) {
-    trueDecisions = make_shared<cache::lru_cache<uint64_t , ptr<set<schain_index>>>>(CONSENSUS_HISTORY);
-    falseDecisions = make_shared<cache::lru_cache<uint64_t , ptr<set<schain_index>>>>(CONSENSUS_HISTORY);
-    decidedIndices = make_shared<cache::lru_cache<uint64_t , schain_index>>(CONSENSUS_HISTORY);
+    trueDecisions = make_shared<cache::lru_cache<uint64_t , ptr<set<schain_index>>>>(MAX_CONSENSUS_HISTORY);
+    falseDecisions = make_shared<cache::lru_cache<uint64_t , ptr<set<schain_index>>>>(MAX_CONSENSUS_HISTORY);
+    decidedIndices = make_shared<cache::lru_cache<uint64_t , schain_index>>(MAX_CONSENSUS_HISTORY);
     for (int i = 0; i <  _schain.getNodeCount(); i++) {
-        children.push_back(make_shared<cache::lru_cache<uint64_t, ptr<BinConsensusInstance>>>(CONSENSUS_HISTORY));
+        children.push_back(make_shared<cache::lru_cache<uint64_t, ptr<BinConsensusInstance>>>(MAX_CONSENSUS_HISTORY));
     }
 };
 

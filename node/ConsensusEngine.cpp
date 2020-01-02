@@ -349,6 +349,8 @@ void ConsensusEngine::parseConfigsAndCreateAllNodes(const fs_path &dirname) {
 
         ASSERT(nodeCount == nodes.size());
 
+        BinConsensusInstance::initHistory(nodes.begin()->second->getSchain()->getNodeCount());
+
         LOG(trace, "Parsed configs and created " + to_string(ConsensusEngine::nodesCount()) +
                    " nodes");
     } catch (exception &e) {
@@ -493,7 +495,6 @@ void ConsensusEngine::init() {
     }
 
     systemHealthCheck();
-    BinConsensusInstance::initHistory();
 }
 
 
