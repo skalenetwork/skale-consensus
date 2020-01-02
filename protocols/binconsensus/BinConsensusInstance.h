@@ -66,7 +66,7 @@ class BinConsensusInstance : public ProtocolInstance{
     static ptr<vector<ptr<cache::lru_cache<uint64_t, ptr<BinConsensusInstance>>>>> globalTrueDecisions;
 
     // non-essential debugging
-    static ptr<vector<ptr<cache::lru_cache<uint64_t, ptr<BinConsensusInstance>>>>> globalFalseDecisions;
+    static ptr<vector<ptr<cache::lru_cache<uint64_t, ptr<BinConsensusInstance >>>>> globalFalseDecisions;
 
 
     // non-essential tracing data tracing proposals for each round
@@ -209,6 +209,7 @@ public:
 
     uint64_t calculateBLSRandom(bin_consensus_round _r);
 
+    void addToGlobalHistory(bin_consensus_value _decidedValue);
 };
 
 
