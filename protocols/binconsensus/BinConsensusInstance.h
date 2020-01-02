@@ -209,6 +209,7 @@ public:
 
     uint64_t calculateBLSRandom(bin_consensus_round _r);
 
+    void addDecideToGlobalHistory(bin_consensus_value _decidedValue);
 };
 
 

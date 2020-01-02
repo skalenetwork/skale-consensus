@@ -510,41 +510,43 @@ void BinConsensusInstance::printHistory() {
 #endif
 }
 
-void BinConsensusInstance::decide(bin_consensus_value _b) {
+void BinConsensusInstance::addDecideToGlobalHistory(bin_consensus_value _decidedValue) {
 
-    ASSERT(!isDecided);
-
-    setDecidedRoundAndValue(getCurrentRound(), bin_consensus_value(_b));
-
-    {
         lock_guard<recursive_mutex> lock(historyMutex);
 
         auto trueCache = globalTrueDecisions->at((uint64_t)getBlockProposerIndex() - 1);
         auto falseCache = globalFalseDecisions->at((uint64_t)getBlockProposerIndex() - 1);
+        auto child = getSchain()->getBlockConsensusInstance()->getChild(
+                this->getProtocolKey());
 
+        CHECK_STATE(child);
         CHECK_STATE(trueCache);
         CHECK_STATE(falseCache);
 
-
-        if (decidedValue) {
+        if (_decidedValue) {
             if (falseCache->exists((uint64_t ) getBlockID())) {
                 printHistory();
                 falseCache->get((uint64_t) getBlockID())->printHistory();
                 ASSERT(false);
             }
-            trueCache->put((uint64_t) getBlockID(), getSchain()->getBlockConsensusInstance()->getChild(
-                    this->getProtocolKey()));
+            trueCache->put((uint64_t) getBlockID(), child);
         } else {
             if (trueCache->exists((uint64_t ) getBlockID())) {
                 printHistory();
                 trueCache->get((uint64_t) getBlockID())->printHistory();
                 ASSERT(false);
             }
-            falseCache->put((uint64_t) getBlockID(), getSchain()->getBlockConsensusInstance()->getChild(
-                    this->getProtocolKey()));
+            falseCache->put((uint64_t) getBlockID(), child);
         }
+}
 
-    }
+void BinConsensusInstance::decide(bin_consensus_value _b) {
+
+    ASSERT(!isDecided);
+
+    setDecidedRoundAndValue(getCurrentRound(), bin_consensus_value(_b));
+
+    addDecideToGlobalHistory(decidedValue);
 
     auto msg = make_shared<ChildBVDecidedMessage>((bool) _b, *this, this->getProtocolKey());
 
