@@ -74,7 +74,8 @@ ConsensusStateDB::createBVBVoteKey(block_id _blockId, schain_index _proposerInde
                                    schain_index _voterIndex, bin_consensus_value _v) {
     auto key = createKey(_blockId, _proposerIndex);
     key->
-     append(":bvb:").append(to_string(_r)).append(":").append(to_string(_voterIndex)).append(":").append(to_string(_v));
+     append(":bvb:").append(to_string(_r)).append(":").append(to_string(_voterIndex)).append(":").append(to_string(
+            (uint32_t)(uint8_t ) _v));
     return key;
 }
 
@@ -82,7 +83,7 @@ ConsensusStateDB::createBVBVoteKey(block_id _blockId, schain_index _proposerInde
 ptr<string> ConsensusStateDB::createBinValueKey(block_id _blockId, schain_index _proposerIndex, bin_consensus_round _r,
                               bin_consensus_value _v) {
     auto key = createKey(_blockId, _proposerIndex);
-    key->append(":bvb:").append(to_string(_r)).append(":").append(to_string(_v));
+    key->append(":bvb:").append(to_string(_r)).append(":").append(to_string((uint32_t)(uint8_t )_v));
     return key;
 }
 
@@ -92,7 +93,8 @@ ConsensusStateDB::createAUXVoteKey(block_id _blockId, schain_index _proposerInde
 
     auto key = createKey(_blockId, _proposerIndex);
     key->
-     append(":aux:").append(to_string(_r)).append(":").append(to_string(_voterIndex)).append(":").append(to_string(_v));
+     append(":aux:").append(to_string(_r)).append(":").append(to_string(_voterIndex)).append(":").append(to_string(
+            (uint32_t)(uint8_t )_v));
     return key;
 }
 
@@ -125,37 +127,52 @@ void ConsensusStateDB::writeDR(block_id _blockId, schain_index _proposerIndex, b
 
 bin_consensus_round ConsensusStateDB::readDR(block_id _blockId, schain_index _proposerIndex) {
     auto key = createDecidedRoundKey(_blockId, _proposerIndex);
-    auto round = readString(*key);
-    if (round == nullptr)
+    auto value = readString(*key);
+    if (value == nullptr)
         BOOST_THROW_EXCEPTION(InvalidStateException("Missing DR", __CLASS_NAME__));
     uint64_t result;
-    stringstream(*round) >> result;
+    stringstream(*value) >> result;
     return result;
 }
 
 void ConsensusStateDB::writeDV(block_id _blockId, schain_index _proposerIndex, bin_consensus_value _v) {
     CHECK_ARGUMENT(_v <= 1 )
+
     auto key = createDecidedValueKey(_blockId, _proposerIndex);
-    writeString(*key, to_string((uint8_t) _v));
-    //assert(readDV(_blockId, _proposerIndex) == _v);
+    writeString(*key, to_string((uint32_t) (uint8_t) _v));
+    assert(readDV(_blockId, _proposerIndex) ==  _v);
 }
 
 bin_consensus_value ConsensusStateDB::readDV(block_id _blockId, schain_index _proposerIndex) {
     auto key = createDecidedValueKey(_blockId, _proposerIndex);
-    auto round = readString(*key);
-    if (round == nullptr)
+    auto value = readString(*key);
+    if (value == nullptr)
         BOOST_THROW_EXCEPTION(InvalidStateException("Missing DV", __CLASS_NAME__));
-    uint8_t result;
-    stringstream(*round) >> result;
-    return result;
+    uint32_t result;
+    stringstream(*value) >> result;
+
+    return (uint8_t ) result;
 }
 
 void ConsensusStateDB::writePr(block_id _blockId, schain_index _proposerIndex, bin_consensus_round _r,
                                bin_consensus_value _v) {
     CHECK_ARGUMENT(_v <= 1 )
     auto key = createProposalKey(_blockId, _proposerIndex, _r);
-    writeString(*key, to_string((uint8_t) _v));
+    writeString(*key, to_string((uint32_t) (uint8_t) _v));
+    assert(readPR(_blockId, _proposerIndex, _r) ==  _v);
 }
+
+bin_consensus_value ConsensusStateDB::readPR(block_id _blockId, schain_index _proposerIndex,
+                                             bin_consensus_round _r) {
+    auto key = createProposalKey(_blockId, _proposerIndex, _r);
+    auto value = readString(*key);
+    if (value == nullptr)
+        BOOST_THROW_EXCEPTION(InvalidStateException("Missing DV", __CLASS_NAME__));
+    uint32_t result;
+    stringstream(*value) >> result;
+    return (uint8_t ) result;
+}
+
 
 void ConsensusStateDB::writeBVBVote(block_id _blockId, schain_index _proposerIndex, bin_consensus_round _r,
                                     schain_index _voterIndex, bin_consensus_value _v) {
