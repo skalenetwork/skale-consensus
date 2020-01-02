@@ -103,17 +103,51 @@ ConsensusStateDB::createAUXVoteKey(block_id _blockId, schain_index _proposerInde
 void ConsensusStateDB::writeCR(block_id _blockId, schain_index _proposerIndex, bin_consensus_round _r) {
     auto key = createCurrentRoundKey(_blockId, _proposerIndex);
     writeString(*key, to_string((uint64_t) _r), true);
+    assert(readCR(_blockId, _proposerIndex) == _r);
+}
+
+bin_consensus_round ConsensusStateDB::readCR(block_id _blockId, schain_index _proposerIndex) {
+    auto key = createCurrentRoundKey(_blockId, _proposerIndex);
+    auto round = readString(*key);
+    if (round == nullptr)
+        BOOST_THROW_EXCEPTION(InvalidStateException("Missing CR", __CLASS_NAME__));
+    uint64_t result;
+    stringstream(*round) >> result;
+    return result;
 }
 
 void ConsensusStateDB::writeDR(block_id _blockId, schain_index _proposerIndex, bin_consensus_round _r) {
     auto key = createDecidedRoundKey(_blockId, _proposerIndex);
     writeString(*key, to_string((uint64_t) _r));
+    assert(readDR(_blockId, _proposerIndex) == _r);
+
+}
+
+bin_consensus_round ConsensusStateDB::readDR(block_id _blockId, schain_index _proposerIndex) {
+    auto key = createDecidedRoundKey(_blockId, _proposerIndex);
+    auto round = readString(*key);
+    if (round == nullptr)
+        BOOST_THROW_EXCEPTION(InvalidStateException("Missing DR", __CLASS_NAME__));
+    uint64_t result;
+    stringstream(*round) >> result;
+    return result;
 }
 
 void ConsensusStateDB::writeDV(block_id _blockId, schain_index _proposerIndex, bin_consensus_value _v) {
     CHECK_ARGUMENT(_v <= 1 )
     auto key = createDecidedValueKey(_blockId, _proposerIndex);
     writeString(*key, to_string((uint8_t) _v));
+    //assert(readDV(_blockId, _proposerIndex) == _v);
+}
+
+bin_consensus_value ConsensusStateDB::readDV(block_id _blockId, schain_index _proposerIndex) {
+    auto key = createDecidedValueKey(_blockId, _proposerIndex);
+    auto round = readString(*key);
+    if (round == nullptr)
+        BOOST_THROW_EXCEPTION(InvalidStateException("Missing DV", __CLASS_NAME__));
+    uint8_t result;
+    stringstream(*round) >> result;
+    return result;
 }
 
 void ConsensusStateDB::writePr(block_id _blockId, schain_index _proposerIndex, bin_consensus_round _r,
