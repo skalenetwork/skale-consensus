@@ -510,10 +510,14 @@ void BinConsensusInstance::printHistory() {
 #endif
 }
 
+void BinConsensusInstance::decide(bin_consensus_value _b) {
 
-void BinConsensusInstance::addToGlobalHistory(bin_consensus_value _decidedValue) {
+    ASSERT(!isDecided);
+
+    setDecidedRoundAndValue(getCurrentRound(), bin_consensus_value(_b));
+
     {
-        LOCK(historyMutex);
+        lock_guard<recursive_mutex> lock(historyMutex);
 
         auto trueCache = globalTrueDecisions->at((uint64_t)getBlockProposerIndex() - 1);
         auto falseCache = globalFalseDecisions->at((uint64_t)getBlockProposerIndex() - 1);
@@ -521,7 +525,8 @@ void BinConsensusInstance::addToGlobalHistory(bin_consensus_value _decidedValue)
         CHECK_STATE(trueCache);
         CHECK_STATE(falseCache);
 
-        if (_decidedValue) {
+
+        if (decidedValue) {
             if (falseCache->exists((uint64_t ) getBlockID())) {
                 printHistory();
                 falseCache->get((uint64_t) getBlockID())->printHistory();
@@ -541,17 +546,8 @@ void BinConsensusInstance::addToGlobalHistory(bin_consensus_value _decidedValue)
 
     }
 
-}
-
-void BinConsensusInstance::decide(bin_consensus_value _b) {
-
-    ASSERT(!isDecided);
-
-    addToGlobalHistory(decidedValue);
-
-    setDecidedRoundAndValue(getCurrentRound(), bin_consensus_value(_b));
-
     auto msg = make_shared<ChildBVDecidedMessage>((bool) _b, *this, this->getProtocolKey());
+
 
     LOG(debug, "Decided value: " + to_string(decidedValue) + " for blockid:" +
                to_string(getBlockID()) + " proposer:" +
