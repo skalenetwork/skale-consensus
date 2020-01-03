@@ -118,7 +118,7 @@ protected:
     CacheLevelDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize,
                  bool _isDuplicateAddOK = false);
 
-    ptr<vector<ptr<string>>> readBlockRangeFromDBUnsafe(block_id _blockId, ptr<leveldb::DB> _db);
+    ptr<map<string, ptr<string>>> readPrefixRangeFromDBUnsafe(string &_prefix, ptr<leveldb::DB> _db);
 
 public:
 
@@ -147,7 +147,7 @@ public:
 
     uint64_t getActiveDBSize();
 
-    ptr<vector<ptr<string>>> readStringsForBlock(block_id _blockId);
+    ptr<map<string, ptr<string>>> readPrefixRange(string &_prefix);
 
 
 };

@@ -81,7 +81,10 @@ ptr<vector<ptr<NetworkMessage>>> MsgDB::getMessages(block_id _blockID) {
 
     try {
 
-        auto messages = readStringsForBlock(_blockID);
+
+        string prefix = getFormatVersion() + ":" + to_string(_blockID);
+
+        auto messages = readPrefixRange(prefix);
 
         if (!messages)
             return nullptr;

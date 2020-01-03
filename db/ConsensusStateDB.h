@@ -89,6 +89,10 @@ public:
                                                  bin_consensus_round _r);
 
 
+
+
+    ptr<map<bin_consensus_round, set<schain_index>>> readBVBVotes(block_id _blockId, schain_index _proposerIndex);
+
 };
 
 

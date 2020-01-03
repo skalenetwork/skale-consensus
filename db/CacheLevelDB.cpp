@@ -215,20 +215,21 @@ void CacheLevelDB::throwExceptionOnError(Status _status) {
 
 }
 
-ptr<vector<ptr<string>>> CacheLevelDB::readStringsForBlock(block_id _blockId) {
+ptr<map<string, ptr<string>>> CacheLevelDB::readPrefixRange(string &_prefix) {
 
-    CHECK_ARGUMENT(_blockId > 0);
 
-    ptr<vector<ptr<string>>> result = nullptr;
+    ptr<map<string, ptr<string>>> result = nullptr;
 
     shared_lock<shared_mutex> lock(m);
 
     for (int i = LEVELDB_PIECES - 1; i >= 0; i--) {
         ASSERT(db[i]);
-        auto partialResult = readBlockRangeFromDBUnsafe(_blockId, db[i]);
+
+
+        auto partialResult = readPrefixRangeFromDBUnsafe(_prefix, db[i]);
         if (partialResult) {
             if (result) {
-                result->insert(result->end(), partialResult->begin(), partialResult->end());
+                result->insert(partialResult->begin(), partialResult->end());
             } else {
                 result = partialResult;
             }
@@ -238,22 +239,19 @@ ptr<vector<ptr<string>>> CacheLevelDB::readStringsForBlock(block_id _blockId) {
     return result;
 }
 
-ptr<vector<ptr<string>>> CacheLevelDB::readBlockRangeFromDBUnsafe(block_id _blockId, ptr<leveldb::DB> _db) {
+ptr<map<string, ptr<string>>> CacheLevelDB::readPrefixRangeFromDBUnsafe(string &_prefix, ptr<leveldb::DB> _db) {
 
-    CHECK_ARGUMENT(_blockId != 0);
     CHECK_ARGUMENT(_db);
 
-    ptr<vector<ptr<string>>> result = nullptr;
+    ptr<map<string, ptr<string>>> result = nullptr;
 
-    string start = getFormatVersion() + ":" + to_string(_blockId);
+    auto idb = ptr<Iterator>(_db->NewIterator(readOptions));
 
-    Iterator *idb = _db->NewIterator(readOptions);
-
-    for (idb->Seek(start); idb->Valid() && idb->key().starts_with(start); idb->Next()) {
+    for (idb->Seek(_prefix); idb->Valid() && idb->key().starts_with(_prefix); idb->Next()) {
         if (!result) {
-            result = make_shared<vector<ptr<string>>>();
+            result = make_shared<map<string, ptr<string>>>();
         }
-        result->push_back(make_shared<string>(idb->value().ToString()));
+        (*result)[idb->key().ToString()] =  make_shared<string>(idb->value().ToString());
     }
 
     return result;
