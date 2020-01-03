@@ -595,8 +595,6 @@ BinConsensusInstance::BinConsensusInstance(BlockConsensusAgent *_instance, block
         this->bvbTrueVotes.insert(bvVotes.first->begin(), bvVotes.first->end());
 
 
-
-
         auto auxVotes = db->readAUXVotes(blockID, blockProposerIndex);
         auto bValues = db->readBinValues(blockID, blockProposerIndex);
 

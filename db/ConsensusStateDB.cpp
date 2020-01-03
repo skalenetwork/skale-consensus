@@ -257,6 +257,34 @@ ConsensusStateDB::readBinValues(block_id _blockId, schain_index _proposerIndex) 
     return result;
 }
 
+ptr<map<bin_consensus_round, bin_consensus_value>>
+ConsensusStateDB::readPrs(block_id _blockId, schain_index _proposerIndex) {
+
+    auto result = make_shared<map<bin_consensus_round, bin_consensus_value>>();
+
+    auto prefix = createKey(_blockId, _proposerIndex)->append(":prp:");
+    auto keysAndValues = readPrefixRange(prefix);
+
+    if (keysAndValues == nullptr) {
+        return result;
+    }
+
+    for (auto&& item : *keysAndValues) {
+        CHECK_STATE(item.first.rfind(prefix) == 0);
+
+
+        auto info = stringstream(item.first.substr(prefix.size()));
+        uint64_t round;
+        uint32_t value;
+        info >> round;
+        CHECK_STATE(info.get() == ':');
+        info >> value;
+        bin_consensus_value b(value > 0 ? 1 : 0);
+        (*result)[bin_consensus_round(round)] = b;
+    }
+    return result;
+}
+
 
 void ConsensusStateDB::writeAUXVote(block_id _blockId, schain_index _proposerIndex, bin_consensus_round _r,
                                     schain_index _voterIndex,

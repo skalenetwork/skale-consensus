@@ -44,21 +44,17 @@ class ConsensusStateDB : public CacheLevelDB {
                                  schain_index _voterIndex, bin_consensus_value _v);
 
     ptr<string> createBinValueKey(block_id _blockId, schain_index _proposerIndex, bin_consensus_round _r,
-                                 bin_consensus_value _v);
-
+                                  bin_consensus_value _v);
 
 
     ptr<string> createAUXVoteKey(block_id _blockId, schain_index _proposerIndex, bin_consensus_round _r,
                                  schain_index _voterIndex, bin_consensus_value _v);
 
 
-
 public:
 
-   ConsensusStateDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId,
-                           uint64_t _maxDBSize);
-
-
+    ConsensusStateDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId,
+                     uint64_t _maxDBSize);
 
 
     void writeCR(block_id _blockId, schain_index _proposerIndex, bin_consensus_round _r);
@@ -76,7 +72,7 @@ public:
                       bin_consensus_value _v, ptr<string> _sigShare);
 
     void writeBinValue(block_id _blockId, schain_index _proposerIndex, bin_consensus_round _r,
-                      bin_consensus_value _v);
+                       bin_consensus_value _v);
 
 
     bin_consensus_round readCR(block_id _blockId, schain_index _proposerIndex);
@@ -86,13 +82,12 @@ public:
     bin_consensus_value readDV(block_id _blockId, schain_index _proposerIndex);
 
     bin_consensus_value readPR(block_id _blockId, schain_index _proposerIndex,
-                                                 bin_consensus_round _r);
-
-
+                               bin_consensus_round _r);
 
 
     pair<ptr<map<bin_consensus_round, set<schain_index>>>,
-            ptr<map<bin_consensus_round, set<schain_index>>>> readBVBVotes(block_id _blockId, schain_index _proposerIndex);
+            ptr<map<bin_consensus_round, set<schain_index>>>>
+    readBVBVotes(block_id _blockId, schain_index _proposerIndex);
 
     pair<ptr<map<bin_consensus_round, map<schain_index, ptr<string>>>>,
             ptr<map<bin_consensus_round, map<schain_index, ptr<string>>>>>
@@ -101,6 +96,7 @@ public:
     ptr<map<bin_consensus_round, set<bin_consensus_value>>>
     readBinValues(block_id _blockId, schain_index _proposerIndex);
 
+    ptr<map<bin_consensus_round, bin_consensus_value>> readPrs(block_id _blockId, schain_index _proposerIndex);
 };
 
 
