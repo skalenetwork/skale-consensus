@@ -180,10 +180,6 @@ void ConsensusStateDB::writeBVBVote(block_id _blockId, schain_index _proposerInd
     auto saved = readBVBVotes(_blockId, _proposerIndex);
     auto x = (*(_v > 0 ? saved.first : saved.second))[_r];
     CHECK_STATE(x.find(_voterIndex) != x.end());
-
-
-
-
 }
 
 pair<ptr<map<bin_consensus_round, set<schain_index>>>,
@@ -237,7 +233,46 @@ void ConsensusStateDB::writeAUXVote(block_id _blockId, schain_index _proposerInd
     CHECK_ARGUMENT(_sigShare);
     auto key = createAUXVoteKey(_blockId, _proposerIndex, _r, _voterIndex, _v);
     writeString(*key, *_sigShare);
+
+    auto saved = readAUXVotes(_blockId, _proposerIndex);
+    auto x = (*(_v > 0 ? saved.first : saved.second))[_r];
+    CHECK_STATE(x.find(_voterIndex) != x.end());
 }
+
+pair<ptr<map<bin_consensus_round, set<schain_index>>>,
+        ptr<map<bin_consensus_round, set<schain_index>>>>
+ConsensusStateDB::readAUXVotes(block_id _blockId, schain_index _proposerIndex) {
+    auto prefix = createKey(_blockId, _proposerIndex)->append(":aux:");
+    auto keysAndValues = readPrefixRange(prefix);
+
+    auto trueMap = make_shared<map<bin_consensus_round, set<schain_index>>>();
+    auto falseMap = make_shared<map<bin_consensus_round, set<schain_index>>>();
+
+
+    if (keysAndValues == nullptr) {
+        return {trueMap, falseMap};
+    }
+
+    for (auto&& item : *keysAndValues) {
+        CHECK_STATE(item.first.rfind(prefix) == 0);
+        auto info = stringstream(item.first.substr(prefix.size()));
+        uint64_t round;
+        uint64_t voterIndex;
+        uint32_t value;
+        info >> round;
+        CHECK_STATE(info.get() == ':');
+        info >> voterIndex;
+        CHECK_STATE(info.get() == ':');
+        info >> value;
+
+        ptr<map<bin_consensus_round, set<schain_index>>> outputMap;
+        outputMap = (value > 0  ? trueMap : falseMap);
+        (*outputMap)[bin_consensus_round(round)].insert(schain_index(voterIndex));
+    }
+
+    return {trueMap, falseMap};
+}
+
 
 
 
