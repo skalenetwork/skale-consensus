@@ -180,25 +180,24 @@ void ConsensusStateDB::writeBVBVote(block_id _blockId, schain_index _proposerInd
     readBVBVotes(_blockId, _proposerIndex);
 }
 
-ptr<map<bin_consensus_round, set<schain_index>>>
+pair<ptr<map<bin_consensus_round, set<schain_index>>>,
+        ptr<map<bin_consensus_round, set<schain_index>>>>
 ConsensusStateDB::readBVBVotes(block_id _blockId, schain_index _proposerIndex) {
 
     auto prefix = createKey(_blockId, _proposerIndex)->append(":bvb:");
-    auto keysValues = readPrefixRange(prefix);
+    auto keysAndValues = readPrefixRange(prefix);
 
     auto trueMap = make_shared<map<bin_consensus_round, set<schain_index>>>();
+    auto falseMap = make_shared<map<bin_consensus_round, set<schain_index>>>();
 
-    if (keysValues == nullptr) {
-        return trueMap;
+    if (keysAndValues == nullptr) {
+        return {trueMap, falseMap};
     }
 
-    for (auto&& item : *keysValues) {
+    for (auto&& item : *keysAndValues) {
         CHECK_STATE(item.first.rfind(prefix) == 0);
 
-        cerr << item.first.substr(prefix.size()) << endl;
-
         auto info = stringstream(item.first.substr(prefix.size()));
-
 
         uint64_t round;
         uint64_t voterIndex;
@@ -210,7 +209,7 @@ ConsensusStateDB::readBVBVotes(block_id _blockId, schain_index _proposerIndex) {
         info >> value;
     }
 
-    return trueMap;
+    return {trueMap, falseMap};
 }
 
 
