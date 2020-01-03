@@ -243,13 +243,12 @@ ConsensusStateDB::readBinValues(block_id _blockId, schain_index _proposerIndex) 
 
     for (auto&& item : *keysAndValues) {
         CHECK_STATE(item.first.rfind(prefix) == 0);
+
+
         auto info = stringstream(item.first.substr(prefix.size()));
         uint64_t round;
-        uint64_t voterIndex;
         uint32_t value;
         info >> round;
-        CHECK_STATE(info.get() == ':');
-        info >> voterIndex;
         CHECK_STATE(info.get() == ':');
         info >> value;
         bin_consensus_value b(value > 0 ? 1 : 0);
