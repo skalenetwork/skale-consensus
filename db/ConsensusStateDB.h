@@ -94,7 +94,8 @@ public:
     pair<ptr<map<bin_consensus_round, set<schain_index>>>,
             ptr<map<bin_consensus_round, set<schain_index>>>> readBVBVotes(block_id _blockId, schain_index _proposerIndex);
 
-    pair<ptr<map<bin_consensus_round, set<schain_index>>>, ptr<map<bin_consensus_round, set<schain_index>>>>
+    pair<ptr<map<bin_consensus_round, map<schain_index, ptr<string>>>>,
+            ptr<map<bin_consensus_round, map<schain_index, ptr<string>>>>>
     readAUXVotes(block_id _blockId, schain_index _proposerIndex);
 };
 

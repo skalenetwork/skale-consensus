@@ -237,17 +237,18 @@ void ConsensusStateDB::writeAUXVote(block_id _blockId, schain_index _proposerInd
     auto saved = readAUXVotes(_blockId, _proposerIndex);
     auto x = (*(_v > 0 ? saved.first : saved.second))[_r];
     CHECK_STATE(x.find(_voterIndex) != x.end());
+    auto sig = x.at(_voterIndex);
+    CHECK_STATE(*x.at(_voterIndex) == *_sigShare);
 }
 
-pair<ptr<map<bin_consensus_round, set<schain_index>>>,
-        ptr<map<bin_consensus_round, set<schain_index>>>>
+pair<ptr<map<bin_consensus_round, map<schain_index, ptr<string>>>>,
+        ptr<map<bin_consensus_round, map<schain_index, ptr<string>>>>>
 ConsensusStateDB::readAUXVotes(block_id _blockId, schain_index _proposerIndex) {
     auto prefix = createKey(_blockId, _proposerIndex)->append(":aux:");
     auto keysAndValues = readPrefixRange(prefix);
 
-    auto trueMap = make_shared<map<bin_consensus_round, set<schain_index>>>();
-    auto falseMap = make_shared<map<bin_consensus_round, set<schain_index>>>();
-
+    auto trueMap = make_shared<map<bin_consensus_round, map<schain_index, ptr<string>>>>();
+    auto falseMap = make_shared<map<bin_consensus_round, map<schain_index, ptr<string>>>>();
 
     if (keysAndValues == nullptr) {
         return {trueMap, falseMap};
@@ -265,9 +266,9 @@ ConsensusStateDB::readAUXVotes(block_id _blockId, schain_index _proposerIndex) {
         CHECK_STATE(info.get() == ':');
         info >> value;
 
-        ptr<map<bin_consensus_round, set<schain_index>>> outputMap;
+        ptr<map<bin_consensus_round, map<schain_index, ptr<string>>>> outputMap;
         outputMap = (value > 0  ? trueMap : falseMap);
-        (*outputMap)[bin_consensus_round(round)].insert(schain_index(voterIndex));
+        (*outputMap)[bin_consensus_round(round)][schain_index(voterIndex)] = item.second;
     }
 
     return {trueMap, falseMap};
