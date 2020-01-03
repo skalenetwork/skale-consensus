@@ -31,6 +31,7 @@
   <component name="ChangeListManager">
     <list default="true" id="e8eb5c74-4268-46a2-ac26-2e919fd9ff42" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/protocols/binconsensus/BinConsensusInstance.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/protocols/binconsensus/BinConsensusInstance.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/protocols/binconsensus/BinConsensusInstance.h" beforeDir="false" afterPath="$PROJECT_DIR$/protocols/binconsensus/BinConsensusInstance.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -321,13 +322,6 @@
       <workItem from="1576770922817" duration="14605000" />
       <workItem from="1577725078471" duration="1008000" />
       <workItem from="1577788378952" duration="9662000" />
-    </task>
-    <task id="LOCAL-00102" summary="Adding outgoing messages db">
-      <created>1576787822916</created>
-      <option name="number" value="00102" />
-      <option name="presentableId" value="LOCAL-00102" />
-      <option name="project" value="LOCAL" />
-      <updated>1576787822916</updated>
     </task>
     <task id="LOCAL-00103" summary="Adding outgoing messages db">
       <created>1576788697892</created>
@@ -665,7 +659,14 @@
       <option name="project" value="LOCAL" />
       <updated>1578068536117</updated>
     </task>
-    <option name="localTasksCounter" value="151" />
+    <task id="LOCAL-00151" summary="Completed state reading functions. All tests pass.">
+      <created>1578069052542</created>
+      <option name="number" value="00151" />
+      <option name="presentableId" value="LOCAL-00151" />
+      <option name="project" value="LOCAL" />
+      <updated>1578069052542</updated>
+    </task>
+    <option name="localTasksCounter" value="152" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -751,10 +752,10 @@
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
     <state x="2581" y="184" key="#xdebugger.evaluate/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1577620419368" />
-    <state x="2314" y="71" width="1121" height="962" key="CommitChangelistDialog2" timestamp="1578068535617">
+    <state x="2314" y="71" width="1121" height="962" key="CommitChangelistDialog2" timestamp="1578069052086">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state x="2314" y="71" width="1121" height="962" key="CommitChangelistDialog2/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1578068535617" />
+    <state x="2314" y="71" width="1121" height="962" key="CommitChangelistDialog2/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1578069052086" />
     <state x="2613" y="259" width="524" height="594" key="FileChooserDialogImpl" timestamp="1576073838542">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
@@ -795,10 +796,10 @@
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
     <state x="2238" y="100" key="SettingsEditor/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576759515576" />
-    <state x="2375" y="210" width="1000" height="684" key="Vcs.Push.Dialog.v2" timestamp="1578068537007">
+    <state x="2375" y="210" width="1000" height="684" key="Vcs.Push.Dialog.v2" timestamp="1578069053325">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state x="2375" y="210" width="1000" height="684" key="Vcs.Push.Dialog.v2/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1578068537007" />
+    <state x="2375" y="210" width="1000" height="684" key="Vcs.Push.Dialog.v2/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1578069053325" />
     <state x="2020" y="125" width="1720" height="855" key="com.intellij.history.integration.ui.views.FileHistoryDialog" timestamp="1577618562437">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>

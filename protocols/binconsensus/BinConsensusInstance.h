@@ -196,7 +196,8 @@ public:
 
     void processParentProposal(ptr<InternalMessageEnvelope> _me);
 
-    BinConsensusInstance(BlockConsensusAgent* _instance, block_id _blockId, schain_index _blockProposerIndex);
+    BinConsensusInstance(BlockConsensusAgent* _instance, block_id _blockId, schain_index _blockProposerIndex,
+            bool _initFromDB = false);
 
     bin_consensus_round getCurrentRound();
 

@@ -572,7 +572,7 @@ const schain_index BinConsensusInstance::getBlockProposerIndex() const {
 
 
 BinConsensusInstance::BinConsensusInstance(BlockConsensusAgent *_instance, block_id _blockId,
-                                           schain_index _blockProposerIndex) :
+                                           schain_index _blockProposerIndex, bool _initFromDB) :
         blockConsensusInstance(_instance), blockID(_blockId), blockProposerIndex(_blockProposerIndex),
         ProtocolInstance(BIN_CONSENSUS, *_instance->getSchain()),
         nodeCount(_instance ? _instance->getSchain()->getNodeCount() : 0),
@@ -580,7 +580,32 @@ BinConsensusInstance::BinConsensusInstance(BlockConsensusAgent *_instance, block
     CHECK_ARGUMENT((uint64_t) _blockId > 0);
     CHECK_ARGUMENT((uint64_t) _blockProposerIndex > 0);
     CHECK_ARGUMENT(_instance);
+
+
+    if (_initFromDB) {
+        auto db = _instance->getSchain()->getNode()->getConsensusStateDB();
+
+        currentRound = db->readCR(blockID, blockProposerIndex);
+        decidedRound = db->readDR(blockID, blockProposerIndex);
+        decidedValue = db->readDV(blockID, blockProposerIndex);
+
+        auto bvVotes = db->readBVBVotes(blockID, blockProposerIndex);
+
+        this->bvbTrueVotes.insert(bvVotes.first->begin(), bvVotes.first->end());
+        this->bvbTrueVotes.insert(bvVotes.first->begin(), bvVotes.first->end());
+
+
+
+
+        auto auxVotes = db->readAUXVotes(blockID, blockProposerIndex);
+        auto bValues = db->readBinValues(blockID, blockProposerIndex);
+
+    }
 }
+
+
+
+
 
 void BinConsensusInstance::initHistory(node_count _nodeCount) {
 
