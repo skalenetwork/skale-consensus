@@ -156,41 +156,6 @@ class BinConsensusInstance : public ProtocolInstance{
 
     void auxSelfVote(bin_consensus_round _r, bin_consensus_value _v, ptr<ThresholdSigShare> _sigShare);
 
-
-
-public:
-
-
-    void setDecidedRoundAndValue(const bin_consensus_round &_decidedRound, const bin_consensus_value &_decidedValue);
-
-
-    const node_count &getNodeCount() const;
-
-    bool decided() const;
-
-
-    const block_id getBlockID() const;
-
-    const schain_index getBlockProposerIndex() const;
-
-
-    ptr<ProtocolKey> getProtocolKey() {
-        ASSERT(protocolKey);
-        return protocolKey;
-    }
-
-
-
-    void processMessage(ptr<MessageEnvelope> _m);
-
-    void processParentProposal(ptr<InternalMessageEnvelope> _me);
-
-    BinConsensusInstance(BlockConsensusAgent* _instance, block_id _blockId, schain_index _blockProposerIndex);
-
-    bin_consensus_round getCurrentRound();
-
-    void setCurrentRound(bin_consensus_round _currentRound);
-
     void addToHistory(shared_ptr<NetworkMessage> _m);
 
     void addBVSelfVoteToHistory(bin_consensus_round _r, bin_consensus_value _v);
@@ -203,13 +168,40 @@ public:
 
     void addNextRoundToHistory(bin_consensus_round _r, bin_consensus_value _v);
 
-    static void initHistory(node_count _nodeCount);
-
-    BlockConsensusAgent *getBlockConsensusInstance() const;
-
     uint64_t calculateBLSRandom(bin_consensus_round _r);
 
     void addDecideToGlobalHistory(bin_consensus_value _decidedValue);
+
+    void setCurrentRound(bin_consensus_round _currentRound);
+
+    void setDecidedRoundAndValue(const bin_consensus_round &_decidedRound, const bin_consensus_value &_decidedValue);
+
+    const node_count &getNodeCount() const;
+
+public:
+
+    bool decided() const;
+
+    const block_id getBlockID() const;
+
+    const schain_index getBlockProposerIndex() const;
+
+    ptr<ProtocolKey> getProtocolKey() {
+        ASSERT(protocolKey);
+        return protocolKey;
+    }
+
+
+    void processMessage(ptr<MessageEnvelope> _m);
+
+    void processParentProposal(ptr<InternalMessageEnvelope> _me);
+
+    BinConsensusInstance(BlockConsensusAgent* _instance, block_id _blockId, schain_index _blockProposerIndex);
+
+    bin_consensus_round getCurrentRound();
+
+    static void initHistory(node_count _nodeCount);
+
 };
 
 
