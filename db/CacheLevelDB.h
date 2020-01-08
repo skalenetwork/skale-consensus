@@ -118,7 +118,7 @@ protected:
     CacheLevelDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize,
                  bool _isDuplicateAddOK = false);
 
-    ptr<map<string, ptr<string>>> readPrefixRangeFromDBUnsafe(string &_prefix, ptr<leveldb::DB> _db);
+    ptr<map<string, ptr<string>>> readPrefixRangeFromDBUnsafe(string &_prefix, ptr<leveldb::DB> _db, bool lastOnly = false);
 
 public:
 
@@ -150,6 +150,7 @@ public:
     ptr<map<string, ptr<string>>> readPrefixRange(string &_prefix);
 
 
+    ptr<string> readLastKeyInPrefixRange(string &_prefix);
 };
 
 

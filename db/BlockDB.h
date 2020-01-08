@@ -42,6 +42,9 @@ public:
     ptr<vector<uint8_t >> getSerializedBlockFromLevelDB(block_id _blockID);
     void saveBlock(ptr<CommittedBlock> &_block);
     ptr<CommittedBlock> getBlock(block_id _blockID, ptr<CryptoManager> _cryptoManager);
+
+    block_id readLastCommittedBlockID();
+
     const string getFormatVersion();
 };
 

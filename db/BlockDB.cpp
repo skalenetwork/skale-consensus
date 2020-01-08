@@ -57,7 +57,6 @@ BlockDB::BlockDB(Schain *_sChain, string &_dirname, string &_prefix, node_id _no
                        _nodeId, _maxDBSize, false) {
 
 
-
 }
 
 
@@ -85,8 +84,6 @@ const string BlockDB::getFormatVersion() {
 }
 
 
-
-
 void BlockDB::saveBlock(ptr<CommittedBlock> &_block) {
 
 
@@ -101,7 +98,6 @@ void BlockDB::saveBlock(ptr<CommittedBlock> &_block) {
     }
 
 }
-
 
 
 ptr<CommittedBlock> BlockDB::getBlock(block_id _blockID, ptr<CryptoManager> _cryptoManager) {
@@ -124,5 +120,22 @@ ptr<CommittedBlock> BlockDB::getBlock(block_id _blockID, ptr<CryptoManager> _cry
     catch (...) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
+
+}
+
+block_id BlockDB::readLastCommittedBlockID() {
+
+    string prefix = getFormatVersion();
+
+    auto last = this->readLastKeyInPrefixRange(prefix);
+
+    uint64_t blockId;
+
+    if (last == nullptr) {
+        blockId = 0;
+    } else {
+        stringstream(*last) >> blockId;
+    }
+    return blockId;
 
 }

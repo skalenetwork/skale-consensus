@@ -148,7 +148,7 @@ bool CacheLevelDB::keyExists(const string &_key) {
 
 
 void CacheLevelDB::writeString(const string &_key, const string &_value,
-        bool _overWrite) {
+                               bool _overWrite) {
 
     rotateDBsIfNeeded();
 
@@ -191,7 +191,6 @@ void CacheLevelDB::writeByteArray(string &_key, ptr<vector<uint8_t>> _data) {
     CHECK_ARGUMENT(_data);
 
 
-
     rotateDBsIfNeeded();
 
     auto value = (const char *) _data->data();
@@ -215,8 +214,8 @@ void CacheLevelDB::throwExceptionOnError(Status _status) {
 
 }
 
-ptr<map<string, ptr<string>>> CacheLevelDB::readPrefixRange(string &_prefix) {
 
+ptr<string> CacheLevelDB::readLastKeyInPrefixRange(string &_prefix) {
 
     ptr<map<string, ptr<string>>> result = nullptr;
 
@@ -224,8 +223,6 @@ ptr<map<string, ptr<string>>> CacheLevelDB::readPrefixRange(string &_prefix) {
 
     for (int i = LEVELDB_PIECES - 1; i >= 0; i--) {
         ASSERT(db[i]);
-
-
         auto partialResult = readPrefixRangeFromDBUnsafe(_prefix, db[i]);
         if (partialResult) {
             if (result) {
@@ -236,23 +233,59 @@ ptr<map<string, ptr<string>>> CacheLevelDB::readPrefixRange(string &_prefix) {
         }
     }
 
-    return result;
+    if (result->empty()) {
+        return nullptr;
+    }
+
+    return make_shared<string>(result->rbegin()->first);
+
 }
 
-ptr<map<string, ptr<string>>> CacheLevelDB::readPrefixRangeFromDBUnsafe(string &_prefix, ptr<leveldb::DB> _db) {
 
-    CHECK_ARGUMENT(_db);
+ptr<map<string, ptr<string>>> CacheLevelDB::readPrefixRange(string &_prefix) {
+
 
     ptr<map<string, ptr<string>>> result = nullptr;
 
+    shared_lock<shared_mutex> lock(m);
+
+    for (int i = LEVELDB_PIECES - 1; i >= 0; i--) {
+        ASSERT(db[i]);
+        auto partialResult = readPrefixRangeFromDBUnsafe(_prefix, db[i]);
+        if (partialResult) {
+            if (result) {
+                result->insert(partialResult->begin(), partialResult->end());
+            } else {
+                result = partialResult;
+            }
+        }
+    }
+
+
+    return result;
+
+
+}
+
+ptr<map<string, ptr<string>>> CacheLevelDB::readPrefixRangeFromDBUnsafe(string &_prefix, ptr<leveldb::DB> _db,
+                                                                        bool _lastOnly) {
+
+    CHECK_ARGUMENT(_db);
+
+    ptr<map<string, ptr<string>>> result = make_shared<map<string, ptr<string>>>();
+
     auto idb = ptr<Iterator>(_db->NewIterator(readOptions));
 
-    for (idb->Seek(_prefix); idb->Valid() && idb->key().starts_with(_prefix); idb->Next()) {
-        if (!result) {
-            result = make_shared<map<string, ptr<string>>>();
-        }
-        (*result)[idb->key().ToString()] =  make_shared<string>(idb->value().ToString());
+    if (_lastOnly) {
+        idb->SeekToLast();
+        (*result)[idb->key().ToString()] = make_shared<string>(idb->value().ToString());
+        return result;
     }
+
+    for (idb->Seek(_prefix); idb->Valid() && idb->key().starts_with(_prefix); idb->Next()) {
+        (*result)[idb->key().ToString()] = make_shared<string>(idb->value().ToString());
+    }
+
 
     return result;
 }
@@ -416,7 +449,7 @@ void CacheLevelDB::rotateDBsIfNeeded() {
             auto newDB = openDB(highestDBIndex + 1);
 
             for (int i = 1; i < LEVELDB_PIECES; i++) {
-                db.at(i -1) = nullptr;
+                db.at(i - 1) = nullptr;
                 db.at(i - 1) = db.at(i);
             }
 
