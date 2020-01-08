@@ -52,12 +52,9 @@
 
 
 void CryptoManager::init() {
+    totalSigners = sChain->getTotalSigners();
+    requiredSigners = sChain->getRequiredSigners();
 
-}
-
-
-CryptoManager::CryptoManager() : sChain(nullptr) {
-    init();
 }
 
 
@@ -122,11 +119,11 @@ ptr<ThresholdSigShare> CryptoManager::signSigShare(ptr<SHAHash> _hash, block_id 
 }
 
 ptr<ThresholdSigShareSet>
-CryptoManager::createSigShareSet(block_id _blockId, size_t _totalSigners, size_t _requiredSigners) {
+CryptoManager::createSigShareSet(block_id _blockId) {
     if (getSchain()->getNode()->isBlsEnabled()) {
-        return make_shared<ConsensusSigShareSet>(_blockId, _totalSigners, _requiredSigners);
+        return make_shared<ConsensusSigShareSet>(_blockId, totalSigners, requiredSigners);
     } else {
-        return make_shared<MockupSigShareSet>(_blockId, _totalSigners, _requiredSigners);
+        return make_shared<MockupSigShareSet>(_blockId, totalSigners, requiredSigners);
     }
 }
 
@@ -134,14 +131,14 @@ CryptoManager::createSigShareSet(block_id _blockId, size_t _totalSigners, size_t
 
 
 ptr<ThresholdSigShare>
-CryptoManager::createSigShare(ptr<string> _sigShare, schain_id _schainID, block_id _blockID, schain_index _signerIndex,
-                              size_t _totalSigners, size_t _requiredSigners) {
+CryptoManager::createSigShare(ptr<string> _sigShare, schain_id _schainID, block_id _blockID,
+                              schain_index _signerIndex) {
     if (getSchain()->getNode()->isBlsEnabled()) {
         return make_shared<ConsensusBLSSigShare>(_sigShare, _schainID, _blockID, _signerIndex,
-                                                 _totalSigners, _requiredSigners);
+                                                 totalSigners, requiredSigners);
     } else {
         return make_shared<MockupSigShare>(_sigShare, _schainID, _blockID, _signerIndex,
-                                           _totalSigners, _requiredSigners);
+                                           totalSigners, requiredSigners);
     }
 }
 

@@ -581,7 +581,6 @@ BinConsensusInstance::BinConsensusInstance(BlockConsensusAgent *_instance, block
     CHECK_ARGUMENT((uint64_t) _blockProposerIndex > 0);
     CHECK_ARGUMENT(_instance);
 
-
     if (_initFromDB) {
         auto db = _instance->getSchain()->getNode()->getConsensusStateDB();
 
@@ -592,11 +591,17 @@ BinConsensusInstance::BinConsensusInstance(BlockConsensusAgent *_instance, block
         auto bvVotes = db->readBVBVotes(blockID, blockProposerIndex);
 
         this->bvbTrueVotes.insert(bvVotes.first->begin(), bvVotes.first->end());
-        this->bvbTrueVotes.insert(bvVotes.first->begin(), bvVotes.first->end());
+        this->bvbFalseVotes.insert(bvVotes.second->begin(), bvVotes.second->end());
 
+        auto auxVotes = db->readAUXVotes(blockID, blockProposerIndex,
+                                         _instance->getSchain()->getCryptoManager());
 
-        auto auxVotes = db->readAUXVotes(blockID, blockProposerIndex);
+        this->auxTrueVotes.insert(auxVotes.first->begin(), auxVotes.first->end());
+        this->auxFalseVotes.insert(auxVotes.first->begin(), auxVotes.first->end());
+
         auto bValues = db->readBinValues(blockID, blockProposerIndex);
+
+        this->binValues.insert(bValues->begin(), bValues->end());
 
     }
 }
@@ -656,8 +661,7 @@ const node_count &BinConsensusInstance::getNodeCount() const {
 uint64_t BinConsensusInstance::calculateBLSRandom(bin_consensus_round _r) {
 
 
-    auto shares = getSchain()->getCryptoManager()->createSigShareSet(getBlockID(), getSchain()->getTotalSigners(),
-                                                                     getSchain()->getRequiredSigners());
+    auto shares = getSchain()->getCryptoManager()->createSigShareSet(getBlockID());
 
     if (binValues[_r].count(bin_consensus_value(true)) > 0 && auxTrueVotes[_r].size() > 0) {
         for (auto &&item: auxTrueVotes[_r]) {

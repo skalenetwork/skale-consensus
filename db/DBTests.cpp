@@ -44,10 +44,12 @@
 
 
 void test_committed_block_save() {
+
+    auto sChain = make_shared<Schain>();
     static string dirName = "/tmp";
     static string fileName = "test_committed_block_save";
     boost::random::mt19937 gen;
-    auto cryptoManager = make_shared<CryptoManager>();
+    auto cryptoManager = make_shared<CryptoManager>(*sChain);
 
     boost::random::uniform_int_distribution<> ubyte(0, 255);
 
@@ -55,7 +57,7 @@ void test_committed_block_save() {
         BOOST_THROW_EXCEPTION(runtime_error("Remove failed"));
     }
 
-    auto sChain = make_shared<Schain>();
+
 
     auto db = make_shared<BlockDB>(sChain.get(), dirName, fileName, node_id(1), 5000000);
 

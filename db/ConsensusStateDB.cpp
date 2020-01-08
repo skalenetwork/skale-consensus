@@ -25,6 +25,8 @@
 #include "SkaleCommon.h"
 #include "Log.h"
 
+#include "chains/Schain.h"
+#include "crypto/CryptoManager.h"
 #include "datastructures/Transaction.h"
 
 #include "ConsensusStateDB.h"
@@ -160,6 +162,8 @@ void ConsensusStateDB::writePr(block_id _blockId, schain_index _proposerIndex, b
     assert(readPR(_blockId, _proposerIndex, _r) == _v);
 }
 
+
+
 bin_consensus_value ConsensusStateDB::readPR(block_id _blockId, schain_index _proposerIndex,
                                              bin_consensus_round _r) {
     auto key = createProposalKey(_blockId, _proposerIndex, _r);
@@ -257,12 +261,12 @@ ConsensusStateDB::readBinValues(block_id _blockId, schain_index _proposerIndex) 
     return result;
 }
 
-ptr<map<bin_consensus_round, bin_consensus_value>>
-ConsensusStateDB::readPrs(block_id _blockId, schain_index _proposerIndex) {
+ptr<map  <bin_consensus_round, bin_consensus_value>>
+ConsensusStateDB::readPRs(block_id _blockId, schain_index _proposerIndex) {
 
     auto result = make_shared<map<bin_consensus_round, bin_consensus_value>>();
 
-    auto prefix = createKey(_blockId, _proposerIndex)->append(":prp:");
+    auto prefix = createKey(_blockId, _proposerIndex)->append(":pr:");
     auto keysAndValues = readPrefixRange(prefix);
 
     if (keysAndValues == nullptr) {
@@ -286,6 +290,7 @@ ConsensusStateDB::readPrs(block_id _blockId, schain_index _proposerIndex) {
 }
 
 
+
 void ConsensusStateDB::writeAUXVote(block_id _blockId, schain_index _proposerIndex, bin_consensus_round _r,
                                     schain_index _voterIndex,
                                     bin_consensus_value _v, ptr<string> _sigShare) {
@@ -294,20 +299,19 @@ void ConsensusStateDB::writeAUXVote(block_id _blockId, schain_index _proposerInd
     auto key = createAUXVoteKey(_blockId, _proposerIndex, _r, _voterIndex, _v);
     writeString(*key, *_sigShare);
 
-    auto saved = readAUXVotes(_blockId, _proposerIndex);
+    auto saved = readAUXVotes(_blockId, _proposerIndex, getSchain()->getCryptoManager());
     auto x = (*(_v > 0 ? saved.first : saved.second))[_r];
     CHECK_STATE(x.find(_voterIndex) != x.end());
-    auto sig = x.at(_voterIndex);
-    CHECK_STATE(*x.at(_voterIndex) == *_sigShare);
 }
 
-pair<ptr<map<bin_consensus_round, map<schain_index, ptr<string>>>>,
-        ptr<map<bin_consensus_round, map<schain_index, ptr<string>>>>>
-ConsensusStateDB::readAUXVotes(block_id _blockId, schain_index _proposerIndex) {
+pair<ptr<map<bin_consensus_round, map<schain_index, ptr<ThresholdSigShare>>>>,
+        ptr<map<bin_consensus_round, map<schain_index, ptr<ThresholdSigShare>>>>>
+ConsensusStateDB::readAUXVotes(block_id _blockId, schain_index _proposerIndex, ptr<CryptoManager> _cryptoManager) {
 
+    CHECK_ARGUMENT(_cryptoManager);
 
-    auto trueMap = make_shared<map<bin_consensus_round, map<schain_index, ptr<string>>>>();
-    auto falseMap = make_shared<map<bin_consensus_round, map<schain_index, ptr<string>>>>();
+    auto trueMap = make_shared<map<bin_consensus_round, map<schain_index, ptr<ThresholdSigShare>>>>();
+    auto falseMap = make_shared<map<bin_consensus_round, map<schain_index, ptr<ThresholdSigShare>>>>();
 
 
     auto prefix = createKey(_blockId, _proposerIndex)->append(":aux:");
@@ -329,9 +333,12 @@ ConsensusStateDB::readAUXVotes(block_id _blockId, schain_index _proposerIndex) {
         CHECK_STATE(info.get() == ':');
         info >> value;
 
-        ptr<map<bin_consensus_round, map<schain_index, ptr<string>>>> outputMap;
+        ptr<map<bin_consensus_round, map<schain_index, ptr<ThresholdSigShare>>>> outputMap;
         outputMap = (value > 0  ? trueMap : falseMap);
-        (*outputMap)[bin_consensus_round(round)][schain_index(voterIndex)] = item.second;
+
+        (*outputMap)[bin_consensus_round(round)][schain_index(voterIndex)] =
+                _cryptoManager->createSigShare(item.second,
+                        getSchain()->getSchainID(), _blockId, voterIndex);
     }
 
     return {trueMap, falseMap};

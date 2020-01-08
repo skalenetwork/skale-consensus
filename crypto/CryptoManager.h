@@ -37,9 +37,12 @@ class ThresholdSignature;
 class CryptoManager {
 
 private:
+
+    uint64_t  totalSigners;
+    uint64_t  requiredSigners;
+
     Schain* sChain;
 
-    static const char* insecureTestECDSAKey;
 
     ptr<string> signECDSA(ptr<SHAHash> _hash);
 
@@ -53,19 +56,16 @@ private:
 
 public:
 
-    CryptoManager(); // for testing
-
     CryptoManager(Schain& sChain);
 
     Schain *getSchain() const;
 
     ptr<ThresholdSignature> verifyThresholdSig(ptr<SHAHash> _hash, ptr<string> _signature, block_id _blockId);
 
-    ptr<ThresholdSigShareSet> createSigShareSet(block_id _blockId, size_t _totalSigners, size_t _requiredSigners );
+    ptr<ThresholdSigShareSet> createSigShareSet(block_id _blockId);
 
     ptr<ThresholdSigShare>
-    createSigShare(ptr<string> _sigShare, schain_id _schainID, block_id _blockID, schain_index _signerIndex,
-                   size_t _totalSigners, size_t _requiredSigners);
+    createSigShare(ptr<string> _sigShare, schain_id _schainID, block_id _blockID, schain_index _signerIndex);
 
     void signProposalECDSA(BlockProposal* _proposal);
 

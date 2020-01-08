@@ -79,15 +79,12 @@ ptr<DAProof> DASigShareDB::addAndMergeSigShareAndVerifySig(ptr<ThresholdSigShare
 
     if (result != nullptr) {
 
-        auto set = sChain->getCryptoManager()->createSigShareSet(_sigShare->getBlockId(),
-                                                                 sChain->getTotalSigners(),
-                                                                 sChain->getRequiredSigners());
+        auto set = sChain->getCryptoManager()->createSigShareSet(_sigShare->getBlockId());
 
         for (auto && entry : *result) {
             auto share = sChain->getCryptoManager()->createSigShare(
                     entry.second, sChain->getSchainID(),
-                    _proposal->getBlockID(), entry.first,
-                    totalSigners, requiredSigners);
+                    _proposal->getBlockID(), entry.first);
 
             set->addSigShare(share);
         }

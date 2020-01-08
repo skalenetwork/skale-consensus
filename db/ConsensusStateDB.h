@@ -28,6 +28,8 @@
 
 #include "CacheLevelDB.h"
 
+class CryptoManager;
+
 class ConsensusStateDB : public CacheLevelDB {
 
     const string getFormatVersion();
@@ -89,14 +91,14 @@ public:
             ptr<map<bin_consensus_round, set<schain_index>>>>
     readBVBVotes(block_id _blockId, schain_index _proposerIndex);
 
-    pair<ptr<map<bin_consensus_round, map<schain_index, ptr<string>>>>,
-            ptr<map<bin_consensus_round, map<schain_index, ptr<string>>>>>
-    readAUXVotes(block_id _blockId, schain_index _proposerIndex);
+    pair<ptr<map<bin_consensus_round, map<schain_index, ptr<ThresholdSigShare>>>>,
+            ptr<map<bin_consensus_round, map<schain_index, ptr<ThresholdSigShare>>>>>
+    readAUXVotes(block_id _blockId, schain_index _proposerIndex, ptr<CryptoManager> _cryptoManager);
 
     ptr<map<bin_consensus_round, set<bin_consensus_value>>>
     readBinValues(block_id _blockId, schain_index _proposerIndex);
 
-    ptr<map<bin_consensus_round, bin_consensus_value>> readPrs(block_id _blockId, schain_index _proposerIndex);
+    ptr<map<bin_consensus_round, bin_consensus_value>> readPRs(block_id _blockId, schain_index _proposerIndex);
 };
 
 

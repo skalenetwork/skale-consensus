@@ -65,8 +65,7 @@ NetworkMessage::NetworkMessage(MsgType _messageType, block_id _blockID, schain_i
 NetworkMessage::NetworkMessage(MsgType _messageType, node_id _srcNodeID, block_id _blockID,
                                schain_index _blockProposerIndex, bin_consensus_round _r, bin_consensus_value _value,
                                schain_id _schainId, msg_id _msgID, ptr<string> _sigShareStr,
-                               schain_index _srcSchainIndex, ptr<CryptoManager> _cryptoManager,
-                               uint64_t _totalSigners, uint64_t _requiredSigners)
+                               schain_index _srcSchainIndex, ptr<CryptoManager> _cryptoManager)
         : Message(_schainId, _messageType, _msgID, _srcNodeID, _blockID, _blockProposerIndex),
           BasicHeader(getTypeString(_messageType)) {
 
@@ -78,8 +77,7 @@ NetworkMessage::NetworkMessage(MsgType _messageType, node_id _srcNodeID, block_i
     this->sigShareString = _sigShareStr;
 
     if (_sigShareStr != nullptr) {
-        sigShare = _cryptoManager->createSigShare(_sigShareStr, _schainId, _blockID, _srcSchainIndex,
-                                                  _totalSigners, _requiredSigners);
+        sigShare = _cryptoManager->createSigShare(_sigShareStr, _schainId, _blockID, _srcSchainIndex);
     }
 
     setComplete();

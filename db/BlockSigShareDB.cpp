@@ -61,16 +61,13 @@ BlockSigShareDB::checkAndSaveShare(ptr<ThresholdSigShare> _sigShare, ptr<CryptoM
         if (enoughSet == nullptr)
             return nullptr;
 
-        auto s = _cryptoManager->createSigShareSet(_sigShare->getBlockId(), totalSigners,
-                                                   requiredSigners);
+        auto s = _cryptoManager->createSigShareSet(_sigShare->getBlockId());
 
         for (auto &&item : *enoughSet) {
             auto nodeInfo = sChain->getNode()->getNodeInfoByIndex(item.first);
             CHECK_STATE(nodeInfo != nullptr);
             auto sigShare = _cryptoManager->createSigShare(item.second, sChain->getSchainID(),
-                                                           _sigShare->getBlockId(), item.first,
-                                                           totalSigners,
-                                                           requiredSigners);
+                                                           _sigShare->getBlockId(), item.first);
             s->addSigShare(sigShare);
         }
 
