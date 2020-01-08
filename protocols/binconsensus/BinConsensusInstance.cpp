@@ -603,6 +603,10 @@ BinConsensusInstance::BinConsensusInstance(BlockConsensusAgent *_instance, block
 
         this->binValues.insert(bValues->begin(), bValues->end());
 
+        auto props = db->readPRs(blockID, blockProposerIndex);
+
+        this->proposals.insert(props->begin(), props->end());
+
     }
 }
 
