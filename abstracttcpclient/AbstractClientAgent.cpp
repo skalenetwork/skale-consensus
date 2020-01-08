@@ -112,6 +112,9 @@ void AbstractClientAgent::enqueueItemImpl(ptr<DataStructure> item ) {
 
 
 void AbstractClientAgent::workerThreadItemSendLoop( AbstractClientAgent* agent ) {
+
+    setThreadName("BlockPropClnt", agent->getSchain()->getNode()->getConsensusEngine());
+
     agent->waitOnGlobalStartBarrier();
 
     auto destinationSchainIndex = schain_index( agent->incrementAndReturnThreadCounter() + 1 );
@@ -157,10 +160,13 @@ void AbstractClientAgent::workerThreadItemSendLoop( AbstractClientAgent* agent )
         };
     }
 
-    catch ( FatalError* e ) {
-        agent->getNode()->exitOnFatalError( e->getMessage() );
-    } catch ( ExitRequestedException& e ) {
+    catch (FatalError& e ) {
+        Exception::logNested(e);
+        agent->getNode()->exitOnFatalError( e.getMessage() );
+    } catch (ExitRequestedException& e ) {
         return;
+    } catch (Exception& e) {
+        Exception::logNested(e);
     }
 }
 
