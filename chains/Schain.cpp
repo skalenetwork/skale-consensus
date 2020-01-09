@@ -354,12 +354,14 @@ void Schain::proposeNextBlock(uint64_t _previousBlockTimeStamp, uint32_t _previo
 
         block_id _proposedBlockID((uint64_t) lastCommittedBlockID + 1);
 
-        if (getNode()->getProposalHashDB()->haveProposal(_proposedBlockID, getSchainIndex()))
-            return;
+        ptr<BlockProposal> myProposal;
 
-
-        auto myProposal = pendingTransactionsAgent->buildBlockProposal(_proposedBlockID, _previousBlockTimeStamp,
-                                                                       _previousBlockTimeStampMs);
+        if (getNode()->getProposalHashDB()->haveProposal(_proposedBlockID, getSchainIndex())) {
+            myProposal = getNode()->getBlockProposalDB()->getBlockProposal(_proposedBlockID, getSchainIndex());
+        } else {
+            myProposal = pendingTransactionsAgent->buildBlockProposal(_proposedBlockID, _previousBlockTimeStamp,
+                                                                           _previousBlockTimeStampMs);
+        }
 
         CHECK_STATE(myProposal->getProposerIndex() == getSchainIndex());
         CHECK_STATE(myProposal->getSignature() != nullptr);
