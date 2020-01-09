@@ -134,7 +134,8 @@ block_id BlockDB::readLastCommittedBlockID() {
     if (last == nullptr) {
         blockId = 0;
     } else {
-        stringstream(*last) >> blockId;
+        auto blockStr = last->substr(getFormatVersion().size() + 1);
+        stringstream(blockStr) >> blockId;
     }
     return blockId;
 

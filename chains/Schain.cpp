@@ -573,6 +573,8 @@ void Schain::bootstrap(block_id _lastCommittedBlockID, uint64_t _lastCommittedBl
 
     _lastCommittedBlockID = getNode()->getBlockDB()->readLastCommittedBlockID();
 
+    cerr << "ID " << (uint64_t) _lastCommittedBlockID << endl;
+
     LOG(info, "Consensus engine version:" + ConsensusEngine::getEngineVersion());
 
     checkForExit();

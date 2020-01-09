@@ -222,7 +222,7 @@ ptr<string> CacheLevelDB::readLastKeyInPrefixRange(string &_prefix) {
 
     for (int i = LEVELDB_PIECES - 1; i >= 0; i--) {
         ASSERT(db[i]);
-        auto partialResult = readPrefixRangeFromDBUnsafe(_prefix, db[i]);
+        auto partialResult = readPrefixRangeFromDBUnsafe(_prefix, db[i], true);
         if (partialResult) {
             if (result) {
                 result->insert(partialResult->begin(), partialResult->end());
@@ -277,7 +277,10 @@ ptr<map<string, ptr<string>>> CacheLevelDB::readPrefixRangeFromDBUnsafe(string &
 
     if (_lastOnly) {
         idb->SeekToLast();
-        (*result)[idb->key().ToString()] = make_shared<string>(idb->value().ToString());
+        if (idb->Valid()) {
+            (*result)[idb->key().ToString()] = make_shared<string>(idb->value().ToString());
+            cerr << idb->key().ToString() << endl;
+        }
         return result;
     }
 
