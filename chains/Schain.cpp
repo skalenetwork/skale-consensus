@@ -31,6 +31,7 @@
 #include "thirdparty/json.hpp"
 
 
+#include "db/MsgDB.h"
 #include "utils/Time.h"
 #include "abstracttcpserver/ConnectionStatus.h"
 #include "exceptions/InvalidStateException.h"
@@ -40,6 +41,7 @@
 #include "blockproposal/pusher/BlockProposalClientAgent.h"
 #include "headers/BlockProposalRequestHeader.h"
 #include "pendingqueue/PendingTransactionsAgent.h"
+#include "network/TransportNetwork.h"
 
 #include "blockfinalize/client/BlockFinalizeDownloader.h"
 #include "blockproposal/server/BlockProposalServerAgent.h"
@@ -522,7 +524,6 @@ void Schain::startConsensus(const block_id _blockID, ptr<BooleanProposalVector> 
 
 
     LOG(info, "Starting consensus for block id:" + to_string(_blockID));
-
     postMessage(envelope);
 }
 
@@ -606,7 +607,12 @@ void Schain::bootstrap(block_id _lastCommittedBlockID, uint64_t _lastCommittedBl
        proposeNextBlock(lastCommittedBlockTimeStamp, lastCommittedBlockTimeStampMs);
        auto proposalVector =  getNode()->getProposalVectorDB()->getVector(_lastCommittedBlockID + 1);
        if (proposalVector) {
-           startConsensus(_lastCommittedBlockID + 1, proposalVector);
+           auto messages = getNode()->getOutgoingMsgDB()->getMessages(_lastCommittedBlockID + 1);
+           for (auto && m : *messages) {
+               getNode()->getNetwork()->broadcastMessage(m);
+           }
+
+           //startConsensus(_lastCommittedBlockID + 1, proposalVector);
        }
 
     } catch (exception &e) {
@@ -620,7 +626,6 @@ void Schain::healthCheck() {
 
 
     std::unordered_set<uint64_t> connections;
-
     setHealthCheckFile(1);
 
     auto beginTime = Time::getCurrentTimeSec();

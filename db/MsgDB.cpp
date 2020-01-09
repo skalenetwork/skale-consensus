@@ -77,7 +77,11 @@ MsgDB::saveMsg(ptr<NetworkMessage> _msg) {
 ptr<vector<ptr<NetworkMessage>>> MsgDB::getMessages(block_id _blockID) {
 
 
+    auto result = make_shared<vector<ptr<NetworkMessage>>>();
+
     lock_guard<recursive_mutex> lock(m);
+
+
 
     try {
 
@@ -87,24 +91,14 @@ ptr<vector<ptr<NetworkMessage>>> MsgDB::getMessages(block_id _blockID) {
         auto messages = readPrefixRange(prefix);
 
         if (!messages)
-            return nullptr;
+            return result;
 
-        //for (auto&& message : *messages) {
-           // return make_shared<NetworkMessage>(getSchain()->getNodeCount(), message);
-        //}
-
-
-/*
-        auto key = createKey(_blockID);
-
-        auto value = readString(*key);
-
-        if (value == nullptr) {
-            return nullptr;
+        for (auto&& message : *messages) {
+            result->push_back(NetworkMessage::parseMessage(message.second, getSchain()));
         }
-        return make_shared<NetworkMessage>(getSchain()->getNodeCount(), value);
-        */
-        return nullptr;
+
+        return result;
+
 
     } catch (...) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));

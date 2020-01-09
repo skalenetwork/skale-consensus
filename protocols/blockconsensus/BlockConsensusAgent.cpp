@@ -84,11 +84,6 @@ BlockConsensusAgent::BlockConsensusAgent(Schain &_schain) : ProtocolInstance(
 
 
 
-
-
-
-
-
 };
 
 
