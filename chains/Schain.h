@@ -106,7 +106,7 @@ class Schain : public Agent {
 
     ptr<SchainMessageThreadPool> consensusMessageThreadPool = nullptr;
 
-    ptr<BlockConsensusAgent> blockConsensusInstance;
+
 
     ptr<IO> io;
 
@@ -153,6 +153,10 @@ class Schain : public Agent {
 
 public:
 
+
+    ptr<BlockConsensusAgent> blockConsensusInstance;
+
+    void createBlockConsensusInstance();
 
 
     void joinMonitorThread();

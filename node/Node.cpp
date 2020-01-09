@@ -33,6 +33,8 @@
 #include "exceptions/ParsingException.h"
 #include "thirdparty/json.hpp"
 
+#include "protocols/blockconsensus/BlockConsensusAgent.h"
+
 #include "chains/TestConfig.h"
 #include "crypto/bls_include.h"
 #include "libBLS/bls/BLSPrivateKeyShare.h"
@@ -310,6 +312,7 @@ void Node::setSchain(ptr<Schain> _schain) {
     assert (this->sChain == nullptr);
     this->sChain = _schain;
     initLevelDBs();
+
 }
 
 void Node::initSchain(ptr<Node> _node, ptr<NodeInfo> _localNodeInfo, const vector<ptr<NodeInfo> > &remoteNodeInfos,
@@ -328,11 +331,11 @@ void Node::initSchain(ptr<Node> _node, ptr<NodeInfo> _localNodeInfo, const vecto
 
         _node->setSchain(sChain);
 
+        sChain->createBlockConsensusInstance();
 
     } catch (...) {
         throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
     }
-
 
 }
 

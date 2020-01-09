@@ -79,7 +79,7 @@ public:
 
     bin_consensus_round readCR(block_id _blockId, schain_index _proposerIndex);
 
-    bin_consensus_round readDR(block_id _blockId, schain_index _proposerIndex);
+    pair<bool, bin_consensus_round> readDR(block_id _blockId, schain_index _proposerIndex);
 
     bin_consensus_value readDV(block_id _blockId, schain_index _proposerIndex);
 

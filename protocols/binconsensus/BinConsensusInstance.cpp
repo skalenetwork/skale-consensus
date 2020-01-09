@@ -585,8 +585,12 @@ BinConsensusInstance::BinConsensusInstance(BlockConsensusAgent *_instance, block
         auto db = _instance->getSchain()->getNode()->getConsensusStateDB();
 
         currentRound = db->readCR(blockID, blockProposerIndex);
-        decidedRound = db->readDR(blockID, blockProposerIndex);
-        decidedValue = db->readDV(blockID, blockProposerIndex);
+        auto result  = db->readDR(blockID, blockProposerIndex);
+        isDecided = result.first;
+        if (isDecided) {
+            decidedRound = result.second;
+            decidedValue = db->readDV(blockID, blockProposerIndex);
+        }
 
         auto bvVotes = db->readBVBVotes(blockID, blockProposerIndex);
 

@@ -105,14 +105,15 @@ ConsensusStateDB::createAUXVoteKey(block_id _blockId, schain_index _proposerInde
 void ConsensusStateDB::writeCR(block_id _blockId, schain_index _proposerIndex, bin_consensus_round _r) {
     auto key = createCurrentRoundKey(_blockId, _proposerIndex);
     writeString(*key, to_string((uint64_t) _r), true);
-    assert(readCR(_blockId, _proposerIndex) == _r);
 }
 
 bin_consensus_round ConsensusStateDB::readCR(block_id _blockId, schain_index _proposerIndex) {
     auto key = createCurrentRoundKey(_blockId, _proposerIndex);
     auto round = readString(*key);
-    if (round == nullptr)
-        BOOST_THROW_EXCEPTION(InvalidStateException("Missing CR", __CLASS_NAME__));
+    if (round == nullptr) {
+        return 0;
+    }
+
     uint64_t result;
     stringstream(*round) >> result;
     return result;
@@ -121,18 +122,18 @@ bin_consensus_round ConsensusStateDB::readCR(block_id _blockId, schain_index _pr
 void ConsensusStateDB::writeDR(block_id _blockId, schain_index _proposerIndex, bin_consensus_round _r) {
     auto key = createDecidedRoundKey(_blockId, _proposerIndex);
     writeString(*key, to_string((uint64_t) _r));
-    assert(readDR(_blockId, _proposerIndex) == _r);
 
 }
 
-bin_consensus_round ConsensusStateDB::readDR(block_id _blockId, schain_index _proposerIndex) {
+pair<bool, bin_consensus_round> ConsensusStateDB::readDR(block_id _blockId, schain_index _proposerIndex) {
     auto key = createDecidedRoundKey(_blockId, _proposerIndex);
     auto value = readString(*key);
-    if (value == nullptr)
-        BOOST_THROW_EXCEPTION(InvalidStateException("Missing DR", __CLASS_NAME__));
+    if (value == nullptr) {
+        return {false, 0};
+    }
     uint64_t result;
     stringstream(*value) >> result;
-    return result;
+    return {true, result};
 }
 
 void ConsensusStateDB::writeDV(block_id _blockId, schain_index _proposerIndex, bin_consensus_value _v) {

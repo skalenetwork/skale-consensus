@@ -214,7 +214,6 @@ void CacheLevelDB::throwExceptionOnError(Status _status) {
 
 }
 
-
 ptr<string> CacheLevelDB::readLastKeyInPrefixRange(string &_prefix) {
 
     ptr<map<string, ptr<string>>> result = nullptr;

@@ -47,6 +47,7 @@
 #include "db/BlockProposalDB.h"
 #include "exceptions/InvalidStateException.h"
 #include "db/BlockSigShareDB.h"
+#include "db/BlockDB.h"
 #include "blockfinalize/client/BlockFinalizeDownloader.h"
 #include "blockfinalize/client/BlockFinalizeDownloaderThreadPool.h"
 #include "thirdparty/lrucache.hpp"
@@ -65,9 +66,29 @@ BlockConsensusAgent::BlockConsensusAgent(Schain &_schain) : ProtocolInstance(
     trueDecisions = make_shared<cache::lru_cache<uint64_t , ptr<set<schain_index>>>>(MAX_CONSENSUS_HISTORY);
     falseDecisions = make_shared<cache::lru_cache<uint64_t , ptr<set<schain_index>>>>(MAX_CONSENSUS_HISTORY);
     decidedIndices = make_shared<cache::lru_cache<uint64_t , schain_index>>(MAX_CONSENSUS_HISTORY);
+
     for (int i = 0; i <  _schain.getNodeCount(); i++) {
         children.push_back(make_shared<cache::lru_cache<uint64_t, ptr<BinConsensusInstance>>>(MAX_CONSENSUS_HISTORY));
     }
+
+    auto blockDB = _schain.getNode()->getBlockDB();
+
+    auto currentBlock = blockDB->readLastCommittedBlockID() + 1;
+
+    for (int i = 0; i <  _schain.getNodeCount(); i++) {
+        children[i]->put((uint64_t) currentBlock, make_shared<BinConsensusInstance>(this, currentBlock, i + 1, true));
+    }
+
+
+
+
+
+
+
+
+
+
+
 };
 
 

@@ -243,7 +243,7 @@ void Schain::constructChildAgents() {
         pendingTransactionsAgent = make_shared<PendingTransactionsAgent>(*this);
         blockProposalClient = make_shared<BlockProposalClientAgent>(*this);
         catchupClientAgent = make_shared<CatchupClientAgent>(*this);
-        blockConsensusInstance = make_shared<BlockConsensusAgent>(*this);
+
 
         testMessageGeneratorAgent = make_shared<TestMessageGeneratorAgent>(*this);
         pricingAgent = make_shared<PricingAgent>(*this);
