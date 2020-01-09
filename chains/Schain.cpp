@@ -509,12 +509,7 @@ void Schain::startConsensus(const block_id _blockID, ptr<BooleanProposalVector> 
             return;
         }
 
-        if (startedConsensuses.count(_blockID) > 0) {
-            LOG(debug, "already started consensus for this block id");
-            return;
-        }
 
-        startedConsensuses.insert(_blockID);
     }
 
 
@@ -526,7 +521,7 @@ void Schain::startConsensus(const block_id _blockID, ptr<BooleanProposalVector> 
     auto envelope = make_shared<InternalMessageEnvelope>(ORIGIN_EXTERNAL, message, *this);
 
 
-    LOG(debug, "Starting consensus for block id:" + to_string(_blockID));
+    LOG(info, "Starting consensus for block id:" + to_string(_blockID));
 
     postMessage(envelope);
 }
@@ -560,6 +555,8 @@ void Schain::daProofArrived(ptr<DAProof> _daProof) {
 
 void Schain::proposedBlockArrived(ptr<BlockProposal> _proposal) {
 
+    cerr << "Arrived" << endl;
+
     MONITOR(__CLASS_NAME__, __FUNCTION__)
 
     if (_proposal->getBlockID() <= getLastCommittedBlockID())
@@ -574,6 +571,7 @@ void Schain::proposedBlockArrived(ptr<BlockProposal> _proposal) {
 void Schain::bootstrap(block_id _lastCommittedBlockID, uint64_t _lastCommittedBlockTimeStamp) {
 
     _lastCommittedBlockID = getNode()->getBlockDB()->readLastCommittedBlockID();
+
 
     cerr << "ID " << (uint64_t) _lastCommittedBlockID << endl;
 
@@ -602,7 +600,14 @@ void Schain::bootstrap(block_id _lastCommittedBlockID, uint64_t _lastCommittedBl
         if (getLastCommittedBlockID() == 0)
             this->pricingAgent->calculatePrice(ConsensusExtFace::transactions_vector(), 0, 0, 0);
 
-        proposeNextBlock(lastCommittedBlockTimeStamp, lastCommittedBlockTimeStampMs);
+
+
+
+       proposeNextBlock(lastCommittedBlockTimeStamp, lastCommittedBlockTimeStampMs);
+       auto proposalVector =  getNode()->getProposalVectorDB()->getVector(_lastCommittedBlockID + 1);
+       if (proposalVector) {
+           startConsensus(_lastCommittedBlockID + 1, proposalVector);
+       }
 
     } catch (exception &e) {
         Exception::logNested(e);

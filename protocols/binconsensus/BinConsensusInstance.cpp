@@ -233,10 +233,8 @@ void BinConsensusInstance::bvbVote(ptr<MessageEnvelope> _me) {
 
 
     if (v) {
-        ASSERT(bvbTrueVotes[r].count(index) == 0);
         bvbTrueVotes[r].insert(index);
     } else {
-        ASSERT(bvbFalseVotes[r].count(index) == 0);
         bvbFalseVotes[r].insert(index);
     }
 }
@@ -257,10 +255,8 @@ void BinConsensusInstance::auxVote(ptr<MessageEnvelope> _me) {
 
 
     if (v) {
-        ASSERT(auxTrueVotes[r].count(index) == 0);
         auxTrueVotes[r][index] = sigShare;
     } else {
-        ASSERT(auxFalseVotes[r].count(index) == 0);
         auxFalseVotes[r][index] = sigShare;
     }
 
