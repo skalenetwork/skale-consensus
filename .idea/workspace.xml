@@ -2,25 +2,25 @@
 <project version="4">
   <component name="CMakeRunConfigurationManager" shouldGenerate="true" shouldDeleteObsolete="true">
     <generated>
-      <config projectName="consensus" targetName="consensust" />
-      <config projectName="consensus" targetName="hash_g1" />
       <config projectName="consensus" targetName="dkg_glue" />
-      <config projectName="consensus" targetName="dkg_keygen" />
-      <config projectName="consensus" targetName="all_bls_tests" />
-      <config projectName="consensus" targetName="bls_unit_test" />
-      <config projectName="consensus" targetName="dkg_te_unit_test" />
-      <config projectName="consensus" targetName="consensusd" />
-      <config projectName="consensus" targetName="bls_test" />
-      <config projectName="consensus" targetName="bls_glue" />
-      <config projectName="consensus" targetName="all_te_tests" />
-      <config projectName="consensus" targetName="te_unit_test" />
-      <config projectName="consensus" targetName="dkg_unit_test" />
-      <config projectName="consensus" targetName="bls" />
-      <config projectName="consensus" targetName="te" />
-      <config projectName="consensus" targetName="te_test" />
-      <config projectName="consensus" targetName="verify_bls" />
       <config projectName="consensus" targetName="sign_bls" />
+      <config projectName="consensus" targetName="te" />
       <config projectName="consensus" targetName="consensus" />
+      <config projectName="consensus" targetName="all_bls_tests" />
+      <config projectName="consensus" targetName="dkg_keygen" />
+      <config projectName="consensus" targetName="consensusd" />
+      <config projectName="consensus" targetName="all_te_tests" />
+      <config projectName="consensus" targetName="bls" />
+      <config projectName="consensus" targetName="bls_unit_test" />
+      <config projectName="consensus" targetName="bls_glue" />
+      <config projectName="consensus" targetName="bls_test" />
+      <config projectName="consensus" targetName="te_test" />
+      <config projectName="consensus" targetName="hash_g1" />
+      <config projectName="consensus" targetName="consensust" />
+      <config projectName="consensus" targetName="te_unit_test" />
+      <config projectName="consensus" targetName="dkg_te_unit_test" />
+      <config projectName="consensus" targetName="dkg_unit_test" />
+      <config projectName="consensus" targetName="verify_bls" />
     </generated>
   </component>
   <component name="CMakeSettings">
@@ -29,10 +29,7 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e8eb5c74-4268-46a2-ac26-2e919fd9ff42" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chains/Schain.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/chains/Schain.cpp" afterDir="false" />
-    </list>
+    <list default="true" id="e8eb5c74-4268-46a2-ac26-2e919fd9ff42" name="Default Changelist" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -267,37 +264,37 @@
       </method>
     </configuration>
     <list>
-      <item itemvalue="CMake Application.consensus" />
-      <item itemvalue="CMake Application.consensusd" />
-      <item itemvalue="CMake Application.consensust" />
       <item itemvalue="CMake Application.all_bls_tests" />
+      <item itemvalue="CMake Application.all_te_tests" />
       <item itemvalue="CMake Application.bls" />
       <item itemvalue="CMake Application.bls_glue" />
       <item itemvalue="CMake Application.bls_test" />
       <item itemvalue="CMake Application.bls_unit_test" />
+      <item itemvalue="CMake Application.catchup_4" />
+      <item itemvalue="CMake Application.consensus" />
+      <item itemvalue="CMake Application.consensusd" />
+      <item itemvalue="CMake Application.consensust" />
+      <item itemvalue="CMake Application.corrupt_proposal_test" />
+      <item itemvalue="CMake Application.db_rotation" />
       <item itemvalue="CMake Application.dkg_glue" />
       <item itemvalue="CMake Application.dkg_keygen" />
+      <item itemvalue="CMake Application.dkg_te_unit_test" />
       <item itemvalue="CMake Application.dkg_unit_test" />
+      <item itemvalue="CMake Application.finalization_download_16" />
+      <item itemvalue="CMake Application.finalization_download_4" />
       <item itemvalue="CMake Application.hash_g1" />
       <item itemvalue="CMake Application.sign_bls" />
-      <item itemvalue="CMake Application.verify_bls" />
-      <item itemvalue="CMake Application.all_te_tests" />
-      <item itemvalue="CMake Application.dkg_te_unit_test" />
       <item itemvalue="CMake Application.te" />
       <item itemvalue="CMake Application.te_test" />
       <item itemvalue="CMake Application.te_unit_test" />
       <item itemvalue="CMake Application.test_16" />
-      <item itemvalue="CMake Application.test_2" />
-      <item itemvalue="CMake Application.finalization_download_4" />
-      <item itemvalue="CMake Application.catchup_4" />
-      <item itemvalue="CMake Application.finalization_download_16" />
       <item itemvalue="CMake Application.test_1" />
+      <item itemvalue="CMake Application.test_2" />
+      <item itemvalue="CMake Application.test_two_engines_16 " />
       <item itemvalue="CMake Application.test_two_engines_1" />
       <item itemvalue="CMake Application.test_two_engines_2" />
       <item itemvalue="CMake Application.test_two_engines_4" />
-      <item itemvalue="CMake Application.test_two_engines_16 " />
-      <item itemvalue="CMake Application.corrupt_proposal_test" />
-      <item itemvalue="CMake Application.db_rotation" />
+      <item itemvalue="CMake Application.verify_bls" />
     </list>
   </component>
   <component name="ServiceViewManager">
@@ -334,6 +331,7 @@
       <workItem from="1577725078471" duration="1008000" />
       <workItem from="1577788378952" duration="9662000" />
       <workItem from="1578660965151" duration="1698000" />
+      <workItem from="1578669545890" duration="6000" />
     </task>
     <task id="LOCAL-00119" summary="Moving to json messages">
       <created>1577637317673</created>
@@ -820,10 +818,10 @@
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
     <state x="2020" y="125" width="1720" height="851" key="com.intellij.history.integration.ui.views.FileHistoryDialog/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1578657503865" />
-    <state x="2434" y="329" key="com.intellij.ide.util.TipDialog" timestamp="1578660966439">
+    <state x="2434" y="329" key="com.intellij.ide.util.TipDialog" timestamp="1578669669986">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state x="2434" y="329" key="com.intellij.ide.util.TipDialog/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1578660966439" />
+    <state x="2434" y="329" key="com.intellij.ide.util.TipDialog/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1578669669986" />
     <state x="2188" y="30" width="1172" height="792" key="find.popup" timestamp="1578667557459">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>

@@ -540,9 +540,9 @@ ptr<map<schain_index, ptr<string>>>
 CacheLevelDB::writeByteArrayToSetUnsafe(const char *_value, uint64_t _valueLen, block_id _blockId,
                                         schain_index _index) {
 
-    uint64_t count = 0;
 
     MONITOR(__CLASS_NAME__, __FUNCTION__);
+
 
     assert(_index > 0 && _index <= totalSigners);
 
@@ -553,43 +553,43 @@ CacheLevelDB::writeByteArrayToSetUnsafe(const char *_value, uint64_t _valueLen, 
     if (keyExistsUnsafe(entryKey)) {
         if (!isDuplicateAddOK)
             LOG(trace, "Double db entry " + this->prefix + "\n" + to_string(_blockId) + ":" + to_string(_index));
+    }
+
+    uint64_t count = 0;
+
+    ptr<leveldb::DB> containingDb = nullptr;
+    auto result = make_shared<string>();
+
+    auto counterKey = createCounterKey(_blockId);
+
+    for (int i = LEVELDB_PIECES - 1; i >= 0; i--) {
+        ASSERT(db[i] != nullptr);
+        auto status = db[i]->Get(readOptions, counterKey, &*result);
+        throwExceptionOnError(status);
+        if (!status.IsNotFound()) {
+            containingDb = db[i];
+            break;
+        }
+    }
+
+    if (containingDb != nullptr) {
+        try {
+            count = stoull(*result, NULL, 10);
+        } catch (...) {
+            LOG(err, "Incorrect value in LevelDB:" + *result);
+            return 0;
+        }
     } else {
+        containingDb = db.back();
+    }
+    {
 
+        leveldb::WriteBatch batch;
+        count++;
 
-        ptr<leveldb::DB> containingDb = nullptr;
-        auto result = make_shared<string>();
-
-        auto counterKey = createCounterKey(_blockId);
-
-        for (int i = LEVELDB_PIECES - 1; i >= 0; i--) {
-            ASSERT(db[i] != nullptr);
-            auto status = db[i]->Get(readOptions, counterKey, &*result);
-            throwExceptionOnError(status);
-            if (!status.IsNotFound()) {
-                containingDb = db[i];
-                break;
-            }
-        }
-
-        if (containingDb != nullptr) {
-            try {
-                count = stoull(*result, NULL, 10);
-            } catch (...) {
-                LOG(err, "Incorrect value in LevelDB:" + *result);
-                return 0;
-            }
-        } else {
-            containingDb = db.back();
-        }
-        {
-
-            leveldb::WriteBatch batch;
-            count++;
-
-            batch.Put(counterKey, to_string(count));
-            batch.Put(entryKey, Slice(_value, _valueLen));
-            CHECK_STATE2(containingDb->Write(writeOptions, &batch).ok(), "Could not write LevelDB");
-        }
+        batch.Put(counterKey, to_string(count));
+        batch.Put(entryKey, Slice(_value, _valueLen));
+        CHECK_STATE2(containingDb->Write(writeOptions, &batch).ok(), "Could not write LevelDB");
     }
 
 

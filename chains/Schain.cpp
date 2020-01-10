@@ -577,6 +577,8 @@ void Schain::bootstrap(block_id _lastCommittedBlockID, uint64_t _lastCommittedBl
         "mismatches the value saved in consensus " + to_string(_lastCommittedBlockIDSaved));
 
 
+    cerr << "ID " << (uint64_t) _lastCommittedBlockID << endl;
+
     LOG(info, "Consensus engine version:" + ConsensusEngine::getEngineVersion());
 
     checkForExit();
@@ -601,6 +603,9 @@ void Schain::bootstrap(block_id _lastCommittedBlockID, uint64_t _lastCommittedBl
         LOG(info, "Jump starting the system with block:" + to_string(_lastCommittedBlockID));
         if (getLastCommittedBlockID() == 0)
             this->pricingAgent->calculatePrice(ConsensusExtFace::transactions_vector(), 0, 0, 0);
+
+
+
 
        proposeNextBlock(lastCommittedBlockTimeStamp, lastCommittedBlockTimeStampMs);
        auto proposalVector =  getNode()->getProposalVectorDB()->getVector(_lastCommittedBlockID + 1);
