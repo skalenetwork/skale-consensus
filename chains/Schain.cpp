@@ -524,7 +524,7 @@ void Schain::startConsensus(const block_id _blockID, ptr<BooleanProposalVector> 
     auto envelope = make_shared<InternalMessageEnvelope>(ORIGIN_EXTERNAL, message, *this);
 
 
-    LOG(info, "Starting consensus for block id:" + to_string(_blockID));
+    LOG(info, "Starting consensus for BLOCK_ID: " + to_string(_blockID));
     postMessage(envelope);
 }
 
@@ -570,7 +570,11 @@ void Schain::proposedBlockArrived(ptr<BlockProposal> _proposal) {
 
 void Schain::bootstrap(block_id _lastCommittedBlockID, uint64_t _lastCommittedBlockTimeStamp) {
 
-    _lastCommittedBlockID = getNode()->getBlockDB()->readLastCommittedBlockID();
+    auto _lastCommittedBlockIDSaved = getNode()->getBlockDB()->readLastCommittedBlockID();
+
+    CHECK_STATE2(_lastCommittedBlockIDSaved == _lastCommittedBlockID,
+        "lastCommitted block ID " + to_string(_lastCommittedBlockID) +
+        "mismatches the value saved in consensus " + to_string(_lastCommittedBlockIDSaved));
 
 
     LOG(info, "Consensus engine version:" + ConsensusEngine::getEngineVersion());
