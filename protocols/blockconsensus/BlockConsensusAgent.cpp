@@ -197,8 +197,6 @@ void BlockConsensusAgent::reportConsensusAndDecideIfNeeded(ptr<ChildBVDecidedMes
 
     try {
 
-        cerr << "Reporting consensus" << endl;
-
         auto nodeCount = (uint64_t) getSchain()->getNodeCount();
         schain_index blockProposerIndex = _msg->getBlockProposerIndex();
         auto blockID = _msg->getBlockId();

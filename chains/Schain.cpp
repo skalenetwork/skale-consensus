@@ -556,8 +556,6 @@ void Schain::daProofArrived(ptr<DAProof> _daProof) {
 
 void Schain::proposedBlockArrived(ptr<BlockProposal> _proposal) {
 
-    cerr << "Arrived" << endl;
-
     MONITOR(__CLASS_NAME__, __FUNCTION__)
 
     if (_proposal->getBlockID() <= getLastCommittedBlockID())
