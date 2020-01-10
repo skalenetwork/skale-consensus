@@ -156,7 +156,7 @@ void CacheLevelDB::writeString(const string &_key, const string &_value,
         shared_lock<shared_mutex> lock(m);
 
         if ((!_overWrite) && keyExistsUnsafe(_key)) {
-            LOG(warn, "Double db entry " + this->prefix + "\n" + _key);
+            LOG(trace, "Double db entry " + this->prefix + "\n" + _key);
             return;
         }
 
@@ -552,8 +552,7 @@ CacheLevelDB::writeByteArrayToSetUnsafe(const char *_value, uint64_t _valueLen, 
 
     if (keyExistsUnsafe(entryKey)) {
         if (!isDuplicateAddOK)
-            LOG(warn, "Double db entry " + this->prefix + "\n" + to_string(_blockId) + ":" + to_string(_index));
-        //return nullptr;
+            LOG(trace, "Double db entry " + this->prefix + "\n" + to_string(_blockId) + ":" + to_string(_index));
     }
 
     uint64_t count = 0;

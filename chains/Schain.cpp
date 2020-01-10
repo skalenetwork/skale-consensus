@@ -605,14 +605,10 @@ void Schain::bootstrap(block_id _lastCommittedBlockID, uint64_t _lastCommittedBl
        proposeNextBlock(lastCommittedBlockTimeStamp, lastCommittedBlockTimeStampMs);
        auto proposalVector =  getNode()->getProposalVectorDB()->getVector(_lastCommittedBlockID + 1);
        if (proposalVector) {
-
-
            auto messages = getNode()->getOutgoingMsgDB()->getMessages(_lastCommittedBlockID + 1);
            for (auto && m : *messages) {
                getNode()->getNetwork()->broadcastMessage(m);
            }
-
-
        }
 
     } catch (exception &e) {
