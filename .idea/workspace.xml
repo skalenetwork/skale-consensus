@@ -2,25 +2,25 @@
 <project version="4">
   <component name="CMakeRunConfigurationManager" shouldGenerate="true" shouldDeleteObsolete="true">
     <generated>
-      <config projectName="consensus" targetName="dkg_glue" />
-      <config projectName="consensus" targetName="sign_bls" />
-      <config projectName="consensus" targetName="te" />
-      <config projectName="consensus" targetName="consensus" />
-      <config projectName="consensus" targetName="all_bls_tests" />
-      <config projectName="consensus" targetName="dkg_keygen" />
-      <config projectName="consensus" targetName="consensusd" />
-      <config projectName="consensus" targetName="all_te_tests" />
-      <config projectName="consensus" targetName="bls" />
-      <config projectName="consensus" targetName="bls_unit_test" />
-      <config projectName="consensus" targetName="bls_glue" />
-      <config projectName="consensus" targetName="bls_test" />
-      <config projectName="consensus" targetName="te_test" />
-      <config projectName="consensus" targetName="hash_g1" />
       <config projectName="consensus" targetName="consensust" />
+      <config projectName="consensus" targetName="hash_g1" />
+      <config projectName="consensus" targetName="dkg_glue" />
+      <config projectName="consensus" targetName="dkg_keygen" />
+      <config projectName="consensus" targetName="all_bls_tests" />
+      <config projectName="consensus" targetName="bls_unit_test" />
       <config projectName="consensus" targetName="dkg_te_unit_test" />
+      <config projectName="consensus" targetName="consensusd" />
+      <config projectName="consensus" targetName="bls_test" />
+      <config projectName="consensus" targetName="bls_glue" />
+      <config projectName="consensus" targetName="all_te_tests" />
       <config projectName="consensus" targetName="te_unit_test" />
       <config projectName="consensus" targetName="dkg_unit_test" />
+      <config projectName="consensus" targetName="bls" />
+      <config projectName="consensus" targetName="te" />
+      <config projectName="consensus" targetName="te_test" />
       <config projectName="consensus" targetName="verify_bls" />
+      <config projectName="consensus" targetName="sign_bls" />
+      <config projectName="consensus" targetName="consensus" />
     </generated>
   </component>
   <component name="CMakeSettings">
@@ -33,6 +33,8 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/chains/Schain.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/chains/Schain.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/db/CacheLevelDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/CacheLevelDB.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/network/TransportNetwork.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/network/TransportNetwork.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/network/TransportNetwork.h" beforeDir="false" afterPath="$PROJECT_DIR$/network/TransportNetwork.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -334,13 +336,7 @@
       <workItem from="1576770922817" duration="14605000" />
       <workItem from="1577725078471" duration="1008000" />
       <workItem from="1577788378952" duration="9662000" />
-    </task>
-    <task id="LOCAL-00116" summary="Merge branch 'develop' into SKALE-1825-survive-crashes&#10;&#10;# Conflicts:&#10;#&#9;db/PriceDB.cpp">
-      <created>1577626988130</created>
-      <option name="number" value="00116" />
-      <option name="presentableId" value="LOCAL-00116" />
-      <option name="project" value="LOCAL" />
-      <updated>1577626988130</updated>
+      <workItem from="1578660965151" duration="915000" />
     </task>
     <task id="LOCAL-00117" summary="Merge branch 'develop' into SKALE-1825-survive-crashes&#10;&#10;# Conflicts:&#10;#&#9;db/PriceDB.cpp">
       <created>1577628297516</created>
@@ -678,7 +674,14 @@
       <option name="project" value="LOCAL" />
       <updated>1578659054749</updated>
     </task>
-    <option name="localTasksCounter" value="165" />
+    <task id="LOCAL-00165" summary="Consensus restart">
+      <created>1578660993771</created>
+      <option name="number" value="00165" />
+      <option name="presentableId" value="LOCAL-00165" />
+      <option name="project" value="LOCAL" />
+      <updated>1578660993771</updated>
+    </task>
+    <option name="localTasksCounter" value="166" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -764,30 +767,30 @@
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
     <state x="2581" y="184" key="#xdebugger.evaluate/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1577620419368" />
-    <state x="2314" y="71" width="1121" height="962" key="CommitChangelistDialog2" timestamp="1578659054266">
+    <state x="2314" y="71" width="1121" height="962" key="CommitChangelistDialog2" timestamp="1578660993210">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state x="2314" y="71" width="1121" height="962" key="CommitChangelistDialog2/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1578659054266" />
+    <state x="2314" y="71" width="1121" height="962" key="CommitChangelistDialog2/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1578660993210" />
     <state x="2613" y="259" width="524" height="594" key="FileChooserDialogImpl" timestamp="1578660153166">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
     <state x="2613" y="259" width="524" height="594" key="FileChooserDialogImpl/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1578660153166" />
-    <state width="1860" height="314" key="GridCell.Tab.0.bottom" timestamp="1578660803350">
+    <state width="1860" height="237" key="GridCell.Tab.0.bottom" timestamp="1578661828801">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state width="1860" height="314" key="GridCell.Tab.0.bottom/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1578660803350" />
-    <state width="1860" height="314" key="GridCell.Tab.0.center" timestamp="1578660803350">
+    <state width="1860" height="237" key="GridCell.Tab.0.bottom/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1578661828801" />
+    <state width="1860" height="237" key="GridCell.Tab.0.center" timestamp="1578661828801">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state width="1860" height="314" key="GridCell.Tab.0.center/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1578660803350" />
-    <state width="1860" height="314" key="GridCell.Tab.0.left" timestamp="1578660803350">
+    <state width="1860" height="237" key="GridCell.Tab.0.center/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1578661828801" />
+    <state width="1860" height="237" key="GridCell.Tab.0.left" timestamp="1578661828800">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state width="1860" height="314" key="GridCell.Tab.0.left/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1578660803350" />
-    <state width="1860" height="314" key="GridCell.Tab.0.right" timestamp="1578660803350">
+    <state width="1860" height="237" key="GridCell.Tab.0.left/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1578661828800" />
+    <state width="1860" height="237" key="GridCell.Tab.0.right" timestamp="1578661828801">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state width="1860" height="314" key="GridCell.Tab.0.right/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1578660803350" />
+    <state width="1860" height="237" key="GridCell.Tab.0.right/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1578661828801" />
     <state width="1860" height="314" key="GridCell.Tab.1.bottom" timestamp="1578660803350">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
@@ -808,10 +811,10 @@
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
     <state x="2238" y="100" key="SettingsEditor/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576759515576" />
-    <state x="2375" y="210" width="1000" height="684" key="Vcs.Push.Dialog.v2" timestamp="1578659055876">
+    <state x="2375" y="210" width="1000" height="684" key="Vcs.Push.Dialog.v2" timestamp="1578660994891">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state x="2375" y="210" width="1000" height="684" key="Vcs.Push.Dialog.v2/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1578659055876" />
+    <state x="2375" y="210" width="1000" height="684" key="Vcs.Push.Dialog.v2/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1578660994891" />
     <state x="2120" y="225" width="1720" height="855" key="com.intellij.history.integration.ui.views.DirectoryHistoryDialog" timestamp="1578654761086">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>

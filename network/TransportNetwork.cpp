@@ -214,7 +214,7 @@ void TransportNetwork::networkReadLoop() {
     sChain->getNode()->getSockets()->consensusZMQSocket->closeReceive();
 }
 
-void TransportNetwork::postDeferOrDrop(const ptr<NetworkMessageEnvelope> &m) {
+void TransportNetwork::postDeferOrDrop(ptr<NetworkMessageEnvelope> &m) {
 
     block_id currentBlockID = sChain->getLastCommittedBlockID() + 1;
 

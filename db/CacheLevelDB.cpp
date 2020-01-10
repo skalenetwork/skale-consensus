@@ -611,7 +611,7 @@ CacheLevelDB::writeByteArrayToSetUnsafe(const char *_value, uint64_t _valueLen, 
         }
     }
 
-    assert(enoughSet->size() == requiredSigners);
+    CHECK_STATE(enoughSet->size() == requiredSigners);
 
     return enoughSet;
 

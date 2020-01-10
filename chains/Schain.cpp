@@ -37,6 +37,7 @@
 #include "exceptions/InvalidStateException.h"
 #include "node/ConsensusEngine.h"
 #include "node/ConsensusEngine.h"
+#include "messages/NetworkMessage.h"
 #include "node/Node.h"
 #include "blockproposal/pusher/BlockProposalClientAgent.h"
 #include "headers/BlockProposalRequestHeader.h"
@@ -605,9 +606,21 @@ void Schain::bootstrap(block_id _lastCommittedBlockID, uint64_t _lastCommittedBl
        proposeNextBlock(lastCommittedBlockTimeStamp, lastCommittedBlockTimeStampMs);
        auto proposalVector =  getNode()->getProposalVectorDB()->getVector(_lastCommittedBlockID + 1);
        if (proposalVector) {
+
+           // re-send outgoing messages for this blockid
            auto messages = getNode()->getOutgoingMsgDB()->getMessages(_lastCommittedBlockID + 1);
            for (auto && m : *messages) {
                getNode()->getNetwork()->broadcastMessage(m);
+           }
+
+           messages = getNode()->getIncomingMsgDB()->getMessages(_lastCommittedBlockID + 1);
+
+           for (auto && m : *messages) {
+               // re-consume outgoing saved messages for this blockid
+               auto envelope = make_shared<NetworkMessageEnvelope>(
+                       m, getNode()->getNodeInfoByIndex(m->getSrcSchainIndex()));
+
+               getNode()->getNetwork()->postDeferOrDrop(envelope);
            }
        }
 

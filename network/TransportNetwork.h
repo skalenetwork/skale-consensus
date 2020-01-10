@@ -120,7 +120,7 @@ public:
 
     void setCatchupBlocks(uint64_t _catchupBlocks);
 
-    void postDeferOrDrop(const ptr<NetworkMessageEnvelope> &m);
+    void postDeferOrDrop(ptr<NetworkMessageEnvelope> &m);
 
     ~TransportNetwork();
 };
