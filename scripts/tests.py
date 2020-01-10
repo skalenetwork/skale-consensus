@@ -88,7 +88,6 @@ fullConsensusTest("three_out_of_four", consensustExecutive, "[consensus-basic]")
 
 unitTest(consensustExecutive, "[tx-serialize]")
 unitTest(consensustExecutive, "[tx-list-serialize]")
-unitTest(consensustExecutive, "[committed-block-serialize]")
 
 
 

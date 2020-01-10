@@ -517,13 +517,11 @@ void Schain::startConsensus(const block_id _blockID, ptr<BooleanProposalVector> 
 
     ASSERT(blockConsensusInstance != nullptr && _proposalVector != nullptr);
 
-
     auto message = make_shared<ConsensusProposalMessage>(*this, _blockID, _proposalVector);
 
     auto envelope = make_shared<InternalMessageEnvelope>(ORIGIN_EXTERNAL, message, *this);
 
-
-    LOG(info, "Starting consensus for block id:" + to_string(_blockID));
+    LOG(debug, "Starting consensus for block id:" + to_string(_blockID));
     postMessage(envelope);
 }
 
@@ -556,8 +554,6 @@ void Schain::daProofArrived(ptr<DAProof> _daProof) {
 
 void Schain::proposedBlockArrived(ptr<BlockProposal> _proposal) {
 
-    cerr << "Arrived" << endl;
-
     MONITOR(__CLASS_NAME__, __FUNCTION__)
 
     if (_proposal->getBlockID() <= getLastCommittedBlockID())
@@ -573,8 +569,6 @@ void Schain::bootstrap(block_id _lastCommittedBlockID, uint64_t _lastCommittedBl
 
     _lastCommittedBlockID = getNode()->getBlockDB()->readLastCommittedBlockID();
 
-
-    cerr << "ID " << (uint64_t) _lastCommittedBlockID << endl;
 
     LOG(info, "Consensus engine version:" + ConsensusEngine::getEngineVersion());
 
@@ -627,8 +621,17 @@ void Schain::healthCheck() {
 
     LOG(info, "Waiting to connect to peers");
 
-    while (3 * (connections.size() + 1) < 2 * getNodeCount()) {
-        if (Time::getCurrentTimeSec() - beginTime > 6000) {
+
+    while (connections.size() + 1 < getNodeCount()) {
+
+        if (3 * (connections.size() + 1) >= 2 * getNodeCount()) {
+            if (Time::getCurrentTimeSec() - beginTime > 5000) {
+                break;
+            }
+        }
+
+
+        if (Time::getCurrentTimeSec() - beginTime > 15000) {
             setHealthCheckFile(0);
             LOG(err, "Coult not connect to 2/3 of peers");
             exit(110);

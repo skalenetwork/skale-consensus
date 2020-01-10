@@ -32,7 +32,8 @@
     <list default="true" id="e8eb5c74-4268-46a2-ac26-2e919fd9ff42" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/chains/Schain.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/chains/Schain.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/CacheLevelDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/CacheLevelDB.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/protocols/blockconsensus/BlockConsensusAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/protocols/blockconsensus/BlockConsensusAgent.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/tests.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/tests.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -269,36 +270,36 @@
       </method>
     </configuration>
     <list>
-      <item itemvalue="CMake Application.consensus" />
-      <item itemvalue="CMake Application.consensusd" />
-      <item itemvalue="CMake Application.consensust" />
       <item itemvalue="CMake Application.all_bls_tests" />
+      <item itemvalue="CMake Application.all_te_tests" />
       <item itemvalue="CMake Application.bls" />
       <item itemvalue="CMake Application.bls_glue" />
       <item itemvalue="CMake Application.bls_test" />
       <item itemvalue="CMake Application.bls_unit_test" />
+      <item itemvalue="CMake Application.catchup_4" />
+      <item itemvalue="CMake Application.consensus" />
+      <item itemvalue="CMake Application.consensusd" />
+      <item itemvalue="CMake Application.consensust" />
+      <item itemvalue="CMake Application.corrupt_proposal_test" />
+      <item itemvalue="CMake Application.db_rotation" />
       <item itemvalue="CMake Application.dkg_glue" />
       <item itemvalue="CMake Application.dkg_keygen" />
+      <item itemvalue="CMake Application.dkg_te_unit_test" />
       <item itemvalue="CMake Application.dkg_unit_test" />
+      <item itemvalue="CMake Application.finalization_download_16" />
+      <item itemvalue="CMake Application.finalization_download_4" />
       <item itemvalue="CMake Application.hash_g1" />
       <item itemvalue="CMake Application.sign_bls" />
-      <item itemvalue="CMake Application.verify_bls" />
-      <item itemvalue="CMake Application.all_te_tests" />
-      <item itemvalue="CMake Application.dkg_te_unit_test" />
       <item itemvalue="CMake Application.te" />
       <item itemvalue="CMake Application.te_test" />
       <item itemvalue="CMake Application.te_unit_test" />
       <item itemvalue="CMake Application.test_16" />
-      <item itemvalue="CMake Application.test_2" />
-      <item itemvalue="CMake Application.finalization_download_4" />
-      <item itemvalue="CMake Application.catchup_4" />
-      <item itemvalue="CMake Application.finalization_download_16" />
       <item itemvalue="CMake Application.test_1" />
+      <item itemvalue="CMake Application.test_2" />
+      <item itemvalue="CMake Application.test_two_engines_16" />
       <item itemvalue="CMake Application.test_two_engines_1" />
       <item itemvalue="CMake Application.test_two_engines_2" />
-      <item itemvalue="CMake Application.test_two_engines_16" />
-      <item itemvalue="CMake Application.corrupt_proposal_test" />
-      <item itemvalue="CMake Application.db_rotation" />
+      <item itemvalue="CMake Application.verify_bls" />
     </list>
   </component>
   <component name="ServiceViewManager">
@@ -334,13 +335,6 @@
       <workItem from="1576770922817" duration="14605000" />
       <workItem from="1577725078471" duration="1008000" />
       <workItem from="1577788378952" duration="9662000" />
-    </task>
-    <task id="LOCAL-00113" summary="Merge branch 'develop' into SKALE-1825-survive-crashes&#10;&#10;# Conflicts:&#10;#&#9;db/PriceDB.cpp">
-      <created>1577619003784</created>
-      <option name="number" value="00113" />
-      <option name="presentableId" value="LOCAL-00113" />
-      <option name="project" value="LOCAL" />
-      <updated>1577619003784</updated>
     </task>
     <task id="LOCAL-00114" summary="Merge branch 'develop' into SKALE-1825-survive-crashes&#10;&#10;# Conflicts:&#10;#&#9;db/PriceDB.cpp">
       <created>1577622020654</created>
@@ -678,7 +672,14 @@
       <option name="project" value="LOCAL" />
       <updated>1578582573903</updated>
     </task>
-    <option name="localTasksCounter" value="162" />
+    <task id="LOCAL-00162" summary="Completed state reading functions. All tests pass.">
+      <created>1578679862361</created>
+      <option name="number" value="00162" />
+      <option name="presentableId" value="LOCAL-00162" />
+      <option name="project" value="LOCAL" />
+      <updated>1578679862361</updated>
+    </task>
+    <option name="localTasksCounter" value="163" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -744,10 +745,10 @@
   <component name="WindowStateProjectService">
     <state x="2468" y="216" width="814" height="678" key="#All_in_[committed-block-serialize]" timestamp="1575636402415" />
     <state x="2468" y="216" width="814" height="678" key="#All_in_[committed-block-serialize]/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575636402415" />
-    <state x="2338" y="205" width="1084" height="702" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1578679723119">
+    <state x="2338" y="205" width="1084" height="702" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1578680178160">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state x="2338" y="205" width="1084" height="702" key="#com.intellij.execution.impl.EditConfigurationsDialog/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1578679723119" />
+    <state x="2338" y="205" width="1084" height="702" key="#com.intellij.execution.impl.EditConfigurationsDialog/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1578680178160" />
     <state x="2476" y="340" width="798" height="424" key="#com.intellij.fileTypes.FileTypeChooser" timestamp="1576674586401">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
@@ -764,30 +765,30 @@
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
     <state x="2581" y="184" key="#xdebugger.evaluate/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1577620419368" />
-    <state x="2314" y="71" width="1121" height="962" key="CommitChangelistDialog2" timestamp="1578679856025">
+    <state x="2314" y="71" width="1121" height="962" key="CommitChangelistDialog2" timestamp="1578679861907">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state x="2314" y="71" width="1121" height="962" key="CommitChangelistDialog2/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1578679856025" />
+    <state x="2314" y="71" width="1121" height="962" key="CommitChangelistDialog2/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1578679861907" />
     <state x="2613" y="259" width="524" height="594" key="FileChooserDialogImpl" timestamp="1578679722518">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
     <state x="2613" y="259" width="524" height="594" key="FileChooserDialogImpl/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1578679722518" />
-    <state width="1860" height="283" key="GridCell.Tab.0.bottom" timestamp="1578679770711">
+    <state width="1860" height="382" key="GridCell.Tab.0.bottom" timestamp="1578681248070">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state width="1860" height="283" key="GridCell.Tab.0.bottom/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1578679770711" />
-    <state width="1860" height="283" key="GridCell.Tab.0.center" timestamp="1578679770711">
+    <state width="1860" height="382" key="GridCell.Tab.0.bottom/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1578681248070" />
+    <state width="1860" height="382" key="GridCell.Tab.0.center" timestamp="1578681248070">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state width="1860" height="283" key="GridCell.Tab.0.center/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1578679770711" />
-    <state width="1860" height="283" key="GridCell.Tab.0.left" timestamp="1578679770711">
+    <state width="1860" height="382" key="GridCell.Tab.0.center/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1578681248070" />
+    <state width="1860" height="382" key="GridCell.Tab.0.left" timestamp="1578681248070">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state width="1860" height="283" key="GridCell.Tab.0.left/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1578679770711" />
-    <state width="1860" height="283" key="GridCell.Tab.0.right" timestamp="1578679770711">
+    <state width="1860" height="382" key="GridCell.Tab.0.left/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1578681248070" />
+    <state width="1860" height="382" key="GridCell.Tab.0.right" timestamp="1578681248070">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state width="1860" height="283" key="GridCell.Tab.0.right/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1578679770711" />
+    <state width="1860" height="382" key="GridCell.Tab.0.right/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1578681248070" />
     <state width="1860" height="314" key="GridCell.Tab.1.bottom" timestamp="1578577062335">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
@@ -808,10 +809,10 @@
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
     <state x="2238" y="100" key="SettingsEditor/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576759515576" />
-    <state x="2375" y="210" width="1000" height="684" key="Vcs.Push.Dialog.v2" timestamp="1578658859082">
+    <state x="2375" y="210" width="1000" height="684" key="Vcs.Push.Dialog.v2" timestamp="1578679864854">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state x="2375" y="210" width="1000" height="684" key="Vcs.Push.Dialog.v2/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1578658859082" />
+    <state x="2375" y="210" width="1000" height="684" key="Vcs.Push.Dialog.v2/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1578679864854" />
     <state x="2120" y="225" width="1720" height="855" key="com.intellij.history.integration.ui.views.DirectoryHistoryDialog" timestamp="1578654761086">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
@@ -820,14 +821,14 @@
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
     <state x="2020" y="125" width="1720" height="851" key="com.intellij.history.integration.ui.views.FileHistoryDialog/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1578657503865" />
-    <state x="2434" y="329" key="com.intellij.ide.util.TipDialog" timestamp="1577725078648">
+    <state x="2434" y="329" key="com.intellij.ide.util.TipDialog" timestamp="1578681256411">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state x="2434" y="329" key="com.intellij.ide.util.TipDialog/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575640281237" />
-    <state x="2188" y="30" width="1125" height="792" key="find.popup" timestamp="1578679458861">
+    <state x="2434" y="329" key="com.intellij.ide.util.TipDialog/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1578681256411" />
+    <state x="2188" y="30" width="1125" height="792" key="find.popup" timestamp="1578680993876">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state x="2188" y="30" width="1125" height="792" key="find.popup/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1578679458861" />
+    <state x="2188" y="30" width="1125" height="792" key="find.popup/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1578680993876" />
     <state x="2479" y="299" width="801" height="506" key="git4idea.merge.GitMergeDialog" timestamp="1575886235995">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
