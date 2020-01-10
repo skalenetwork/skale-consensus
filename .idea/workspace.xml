@@ -31,8 +31,8 @@
   <component name="ChangeListManager">
     <list default="true" id="e8eb5c74-4268-46a2-ac26-2e919fd9ff42" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chains/Schain.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/chains/Schain.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/protocols/blockconsensus/BlockConsensusAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/protocols/blockconsensus/BlockConsensusAgent.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/BlockDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/BlockDB.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/BlockDB.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/BlockDB.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -766,22 +766,22 @@
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
     <state x="2613" y="259" width="524" height="594" key="FileChooserDialogImpl/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1578578438427" />
-    <state width="1860" height="747" key="GridCell.Tab.0.bottom" timestamp="1578582988038">
+    <state width="1860" height="613" key="GridCell.Tab.0.bottom" timestamp="1578658776160">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state width="1860" height="747" key="GridCell.Tab.0.bottom/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1578582988038" />
-    <state width="1860" height="747" key="GridCell.Tab.0.center" timestamp="1578582988038">
+    <state width="1860" height="613" key="GridCell.Tab.0.bottom/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1578658776160" />
+    <state width="1860" height="613" key="GridCell.Tab.0.center" timestamp="1578658776160">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state width="1860" height="747" key="GridCell.Tab.0.center/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1578582988038" />
-    <state width="1860" height="747" key="GridCell.Tab.0.left" timestamp="1578582988038">
+    <state width="1860" height="613" key="GridCell.Tab.0.center/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1578658776160" />
+    <state width="1860" height="613" key="GridCell.Tab.0.left" timestamp="1578658776160">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state width="1860" height="747" key="GridCell.Tab.0.left/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1578582988038" />
-    <state width="1860" height="747" key="GridCell.Tab.0.right" timestamp="1578582988038">
+    <state width="1860" height="613" key="GridCell.Tab.0.left/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1578658776160" />
+    <state width="1860" height="613" key="GridCell.Tab.0.right" timestamp="1578658776160">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state width="1860" height="747" key="GridCell.Tab.0.right/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1578582988038" />
+    <state width="1860" height="613" key="GridCell.Tab.0.right/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1578658776160" />
     <state width="1860" height="314" key="GridCell.Tab.1.bottom" timestamp="1578577062335">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
@@ -806,10 +806,14 @@
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
     <state x="2375" y="210" width="1000" height="684" key="Vcs.Push.Dialog.v2/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1578582574869" />
-    <state x="2020" y="125" width="1720" height="855" key="com.intellij.history.integration.ui.views.FileHistoryDialog" timestamp="1577618562437">
+    <state x="2120" y="225" width="1720" height="855" key="com.intellij.history.integration.ui.views.DirectoryHistoryDialog" timestamp="1578654761086">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state x="2020" y="125" width="1720" height="855" key="com.intellij.history.integration.ui.views.FileHistoryDialog/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1577618562437" />
+    <state x="2120" y="225" width="1720" height="855" key="com.intellij.history.integration.ui.views.DirectoryHistoryDialog/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1578654761086" />
+    <state x="2020" y="125" width="1720" height="851" key="com.intellij.history.integration.ui.views.FileHistoryDialog" timestamp="1578657503865">
+      <screen x="1920" y="0" width="1920" height="1080" />
+    </state>
+    <state x="2020" y="125" width="1720" height="851" key="com.intellij.history.integration.ui.views.FileHistoryDialog/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1578657503865" />
     <state x="2434" y="329" key="com.intellij.ide.util.TipDialog" timestamp="1577725078648">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>

@@ -71,13 +71,19 @@ void BlockDB::saveBlock2LevelDB(ptr<CommittedBlock> &_block) {
         auto serializedBlock = _block->serialize();
 
         auto key = createKey(_block->getBlockID());
-
+        
         writeByteArray(*key, serializedBlock);
+        writeString(createLastCommittedKey(), to_string(_block->getBlockID()), true);
     } catch (...) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
 
 }
+
+string BlockDB::createLastCommittedKey() {
+    return getFormatVersion() + ":last";
+}
+
 
 const string BlockDB::getFormatVersion() {
     return "1.0";
@@ -125,18 +131,16 @@ ptr<CommittedBlock> BlockDB::getBlock(block_id _blockID, ptr<CryptoManager> _cry
 
 block_id BlockDB::readLastCommittedBlockID() {
 
-    string prefix = getFormatVersion();
+    uint64_t  lastBlockId;
 
-    auto last = this->readLastKeyInPrefixRange(prefix);
+    auto key = createLastCommittedKey();
 
-    uint64_t blockId;
+    auto blockStr = readString(key);
 
-    if (last == nullptr) {
-        blockId = 0;
-    } else {
-        auto blockStr = last->substr(getFormatVersion().size() + 1);
-        stringstream(blockStr) >> blockId;
-    }
-    return blockId;
+    if (!blockStr)
+        return 0;
 
+    stringstream(*blockStr)  >> lastBlockId;
+
+    return lastBlockId;
 }

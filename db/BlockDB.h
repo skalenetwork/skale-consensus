@@ -46,6 +46,8 @@ public:
     block_id readLastCommittedBlockID();
 
     const string getFormatVersion();
+
+    string createLastCommittedKey();
 };
 
 
