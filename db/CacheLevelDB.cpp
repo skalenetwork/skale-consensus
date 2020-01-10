@@ -553,7 +553,7 @@ CacheLevelDB::writeByteArrayToSetUnsafe(const char *_value, uint64_t _valueLen, 
     if (keyExistsUnsafe(entryKey)) {
         if (!isDuplicateAddOK)
             LOG(warn, "Double db entry " + this->prefix + "\n" + to_string(_blockId) + ":" + to_string(_index));
-        //return nullptr;
+        return nullptr;
     }
 
     uint64_t count = 0;
