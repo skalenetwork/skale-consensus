@@ -572,10 +572,11 @@ void Schain::bootstrap(block_id _lastCommittedBlockID, uint64_t _lastCommittedBl
 
     auto _lastCommittedBlockIDSaved = getNode()->getBlockDB()->readLastCommittedBlockID();
 
-    CHECK_STATE2(_lastCommittedBlockIDSaved == _lastCommittedBlockID,
+    CHECK_STATE2( _lastCommittedBlockID == 0 || _lastCommittedBlockIDSaved == _lastCommittedBlockID,
         "lastCommitted block ID " + to_string(_lastCommittedBlockID) +
         "mismatches the value saved in consensus " + to_string(_lastCommittedBlockIDSaved));
 
+    _lastCommittedBlockID = _lastCommittedBlockIDSaved;
 
     cerr << "ID " << (uint64_t) _lastCommittedBlockID << endl;
 

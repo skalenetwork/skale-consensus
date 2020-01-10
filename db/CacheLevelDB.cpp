@@ -540,20 +540,13 @@ ptr<map<schain_index, ptr<string>>>
 CacheLevelDB::writeByteArrayToSetUnsafe(const char *_value, uint64_t _valueLen, block_id _blockId,
                                         schain_index _index) {
 
+    bool firstBlockAfterCrash = (
+            _blockId > 2 && _blockId == getSchain()->getBootstrapBlockID() + 1);
 
     MONITOR(__CLASS_NAME__, __FUNCTION__);
 
 
     assert(_index > 0 && _index <= totalSigners);
-
-
-    string entryKey = createSetKey(_blockId, _index);
-
-
-    if (keyExistsUnsafe(entryKey)) {
-        if (!isDuplicateAddOK)
-            LOG(trace, "Double db entry " + this->prefix + "\n" + to_string(_blockId) + ":" + to_string(_index));
-    }
 
     uint64_t count = 0;
 
@@ -582,7 +575,18 @@ CacheLevelDB::writeByteArrayToSetUnsafe(const char *_value, uint64_t _valueLen, 
     } else {
         containingDb = db.back();
     }
-    {
+
+
+    string entryKey = createSetKey(_blockId, _index);
+
+
+    if (keyExistsUnsafe(entryKey)) {
+        if (!isDuplicateAddOK)
+            LOG(trace, "Double db entry " + this->prefix + "\n" + to_string(_blockId) + ":" + to_string(_index));
+
+        if (!firstBlockAfterCrash)
+            return nullptr;
+    } else {
 
         leveldb::WriteBatch batch;
         count++;
