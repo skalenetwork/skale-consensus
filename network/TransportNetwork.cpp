@@ -92,9 +92,6 @@ void TransportNetwork::addToDeferredMessageQueue(ptr<NetworkMessageEnvelope> _me
 ptr<vector<ptr<NetworkMessageEnvelope> > > TransportNetwork::pullMessagesForCurrentBlockID() {
 
 
-
-
-
     LOCK(deferredMessageMutex);
 
 
@@ -227,13 +224,11 @@ void TransportNetwork::postDeferOrDrop(const ptr<NetworkMessageEnvelope> &m) {
     }
 
 
-
     if (bid < currentBlockID) {
         if (bid + MAX_ACTIVE_CONSENSUSES <= currentBlockID) {
             // too old, drop
             return;
-        }
-        else {
+        } else {
             sChain->postMessage(m);
             return;
 
@@ -268,24 +263,34 @@ void TransportNetwork::deferredMessagesLoop() {
     waitOnGlobalStartBarrier();
 
     while (!getSchain()->getNode()->isExitRequested()) {
-        ptr<vector<ptr<NetworkMessageEnvelope> > > deferredMessages;
+        try {
+            ptr<vector<ptr<NetworkMessageEnvelope> > > deferredMessages;
 
-        deferredMessages = pullMessagesForCurrentBlockID();
+            deferredMessages = pullMessagesForCurrentBlockID();
 
-        for (auto message : *deferredMessages) {
-            postDeferOrDrop(message);
-        }
+            for (auto message : *deferredMessages) {
+                postDeferOrDrop(message);
+            }
 
-        for (int i = 0; i < nodeCount; i++) {
-            if (i != (schainIndex - 1)) {
-                lock_guard<recursive_mutex> lock(delayedSendsLock);
-                if (delayedSends.at(i).size() > 0) {
-                    if (sendMessage(
-                            delayedSends.at(i).front().second, delayedSends.at(i).front().first)) {
-                        delayedSends.at(i).pop_front();
+            for (int i = 0; i < nodeCount; i++) {
+                if (i != (schainIndex - 1)) {
+                    lock_guard<recursive_mutex> lock(delayedSendsLock);
+                    if (delayedSends.at(i).size() > 0) {
+                        if (sendMessage(
+                                delayedSends.at(i).front().second, delayedSends.at(i).front().first)) {
+                            delayedSends.at(i).pop_front();
+                        }
                     }
                 }
             }
+        }
+        catch (ExitRequestedException &) {
+            // exit
+            LOG(info, "Exit requested, exiting deferred messages loop");
+            return;
+        } catch (Exception &e) {
+            // print the error and continue the loop
+            Exception::logNested(e);
         }
         usleep(100000);
     }
