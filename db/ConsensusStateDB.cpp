@@ -141,7 +141,6 @@ void ConsensusStateDB::writeDV(block_id _blockId, schain_index _proposerIndex, b
 
     auto key = createDecidedValueKey(_blockId, _proposerIndex);
     writeString(*key, to_string((uint32_t) (uint8_t) _v));
-    assert(readDV(_blockId, _proposerIndex) == _v);
 }
 
 bin_consensus_value ConsensusStateDB::readDV(block_id _blockId, schain_index _proposerIndex) {
@@ -160,7 +159,6 @@ void ConsensusStateDB::writePr(block_id _blockId, schain_index _proposerIndex, b
     CHECK_ARGUMENT(_v <= 1)
     auto key = createProposalKey(_blockId, _proposerIndex, _r);
     writeString(*key, to_string((uint32_t) (uint8_t) _v));
-    assert(readPR(_blockId, _proposerIndex, _r) == _v);
 }
 
 
@@ -183,9 +181,6 @@ void ConsensusStateDB::writeBVBVote(block_id _blockId, schain_index _proposerInd
     auto key = createBVBVoteKey(_blockId, _proposerIndex, _r, _voterIndex, _v);
     writeString(*key, "");
 
-    auto saved = readBVBVotes(_blockId, _proposerIndex);
-    auto x = (*(_v > 0 ? saved.first : saved.second))[_r];
-    CHECK_STATE(x.find(_voterIndex) != x.end());
 }
 
 pair<ptr<map<bin_consensus_round, set<schain_index>>>,
@@ -230,8 +225,6 @@ void ConsensusStateDB::writeBinValue(block_id _blockId, schain_index _proposerIn
     auto key = createBinValueKey(_blockId, _proposerIndex, _r, _v);
     writeString(*key, "");
 
-    auto saved = readBinValues(_blockId, _proposerIndex);
-    //CHECK_STATE((*saved)[_r].find(_v) != (*saved)[_r].end());
 }
 
 ptr<map<bin_consensus_round, set<bin_consensus_value>>>
@@ -300,9 +293,6 @@ void ConsensusStateDB::writeAUXVote(block_id _blockId, schain_index _proposerInd
     auto key = createAUXVoteKey(_blockId, _proposerIndex, _r, _voterIndex, _v);
     writeString(*key, *_sigShare);
 
-    auto saved = readAUXVotes(_blockId, _proposerIndex, getSchain()->getCryptoManager());
-    auto x = (*(_v > 0 ? saved.first : saved.second))[_r];
-    CHECK_STATE(x.find(_voterIndex) != x.end());
 }
 
 pair<ptr<map<bin_consensus_round, map<schain_index, ptr<ThresholdSigShare>>>>,

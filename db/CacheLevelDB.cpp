@@ -621,9 +621,9 @@ CacheLevelDB::writeByteArrayToSetUnsafe(const char *_value, uint64_t _valueLen, 
 
 void CacheLevelDB::verify() {
 
-    assert(db.size() == LEVELDB_PIECES);
+    CHECK_STATE(db.size() == LEVELDB_PIECES);
     for (auto &&x : db) {
-        assert(x != nullptr);
+        CHECK_STATE(x != nullptr);
     }
 }
 
