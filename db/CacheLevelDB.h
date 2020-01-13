@@ -70,7 +70,8 @@ protected:
 
     ptr<string> readString(string &_key);
     ptr<string> readStringUnsafe(string &_key);
-    void writeString(const string &key1, const string &value1);
+
+    void writeString(const string &key1, const string &value1, bool overWrite = false);
 
     ptr<map<schain_index, ptr<string>>>
     writeStringToSet(const string &_value, block_id _blockId, schain_index _index);
@@ -80,14 +81,14 @@ protected:
 
     void writeByteArray(const char *_key, size_t _keyLen, const char *value,
                         size_t _valueLen);
-    void writeByteArray(string &_key, const char *value,
-                        size_t _valueLen);
+    void writeByteArray(string &_key, ptr<vector<uint8_t>> _data);
 
 
     ptr<string> createKey(block_id _blockId);
 
     ptr<string> createKey(block_id _blockId, schain_index _proposerIndex);
 
+    ptr<string> createKey(const block_id _blockId, uint64_t _counter);
 
     ptr<string>
     createKey(const block_id &_blockId, const schain_index &_proposerIndex, const bin_consensus_round &_round);
@@ -117,11 +118,15 @@ protected:
     CacheLevelDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize,
                  bool _isDuplicateAddOK = false);
 
+    ptr<map<string, ptr<string>>> readPrefixRangeFromDBUnsafe(string &_prefix, ptr<leveldb::DB> _db, bool lastOnly = false);
+
 public:
 
     virtual const string getFormatVersion() = 0;
 
     void throwExceptionOnError(leveldb::Status result);
+
+
 
 
 
@@ -141,6 +146,11 @@ public:
 
 
     uint64_t getActiveDBSize();
+
+    ptr<map<string, ptr<string>>> readPrefixRange(string &_prefix);
+
+
+    ptr<string> readLastKeyInPrefixRange(string &_prefix);
 };
 
 

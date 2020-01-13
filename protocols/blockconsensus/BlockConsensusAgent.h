@@ -38,19 +38,14 @@ class CryptoManager;
 
 class BlockConsensusAgent : public ProtocolInstance {
 
-    class Comparator {
-    public:
-        bool operator()(const ptr<ProtocolKey> &a,
-                        const ptr<ProtocolKey>& b ) const {
-
-            return *a < *b;
-        }
-    };
 
 
-    recursive_mutex childrenMutex;
+    recursive_mutex m;
 
-    map<ptr<ProtocolKey>, ptr<BinConsensusInstance>, Comparator> children;
+
+    // protocol cache for each block proposer
+
+    vector<ptr<cache::lru_cache<uint64_t, ptr<BinConsensusInstance>>>> children;
 
     ptr<cache::lru_cache<uint64_t , ptr<set<schain_index>>>> trueDecisions;
     ptr<cache::lru_cache<uint64_t , ptr<set<schain_index>>>> falseDecisions;
@@ -69,25 +64,33 @@ class BlockConsensusAgent : public ProtocolInstance {
 
     void startConsensusProposal(block_id _blockID, ptr<BooleanProposalVector> _proposal);
 
-public:
 
-
-    BlockConsensusAgent(Schain& _schain);
+    void processBlockSignMessage(ptr<BlockSignBroadcastMessage> _message);
 
 
     bin_consensus_round getRound(ptr<ProtocolKey> _key);
+
 
     bool decided(ptr<ProtocolKey> key);
 
 
 
+public:
 
 
-    void routeAndProcessMessage(ptr<MessageEnvelope> m);
 
     ptr<BinConsensusInstance> getChild(ptr<ProtocolKey> key);
 
 
-    void processBlockSignMessage(ptr<BlockSignBroadcastMessage> _message);
+
+    BlockConsensusAgent(Schain& _schain);
+
+
+
+    bool shouldPost(ptr<NetworkMessage> _msg);
+
+
+    void routeAndProcessMessage(ptr<MessageEnvelope> m);
+
 };
 

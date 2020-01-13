@@ -292,9 +292,7 @@ void BlockProposalClientAgent::sendBlockProposal(ptr<BlockProposal> _proposal, s
 
     auto sigShare = getSchain()->getCryptoManager()->createSigShare(finalHeader->getSigShare(),
                                                                     _proposal->getSchainID(),
-                                                                    _proposal->getBlockID(), _index,
-                                                                    getSchain()->getTotalSigners(),
-                                                                    getSchain()->getRequiredSigners());
+                                                                    _proposal->getBlockID(), _index);
 
     getSchain()->daProofSigShareArrived(sigShare, _proposal);
 

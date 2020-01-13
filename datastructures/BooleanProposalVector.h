@@ -33,21 +33,20 @@ class BooleanProposalVector : public DataStructure {
 
 private:
 
-    node_count nodeCount;
-    uint64_t  trueCount = 0;
+    uint64_t nodeCount;
+    uint64_t  trueCount;
     vector<bool> proposals;
 
 public:
 
-    BooleanProposalVector(node_count _nodeCount);
+    BooleanProposalVector(node_count _nodeCount, ptr<map<schain_index, ptr<string>>> _receivedDAProofs);
 
-
-    void pushValue(bool _value);
+    BooleanProposalVector(node_count _nodeCount, ptr<string> _vectorStr);
 
     bool getProposalValue(schain_index _index);
 
     uint64_t getTrueCount() const;
 
-
+    ptr<string> toString();
 };
 

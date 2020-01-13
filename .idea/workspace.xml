@@ -2,37 +2,36 @@
 <project version="4">
   <component name="CMakeRunConfigurationManager" shouldGenerate="true" shouldDeleteObsolete="true">
     <generated>
-      <config projectName="consensus" targetName="dkg_glue" />
-      <config projectName="consensus" targetName="sign_bls" />
-      <config projectName="consensus" targetName="te" />
-      <config projectName="consensus" targetName="consensus" />
-      <config projectName="consensus" targetName="all_bls_tests" />
-      <config projectName="consensus" targetName="dkg_keygen" />
-      <config projectName="consensus" targetName="consensusd" />
-      <config projectName="consensus" targetName="all_te_tests" />
-      <config projectName="consensus" targetName="bls" />
-      <config projectName="consensus" targetName="bls_unit_test" />
-      <config projectName="consensus" targetName="bls_glue" />
-      <config projectName="consensus" targetName="bls_test" />
-      <config projectName="consensus" targetName="te_test" />
-      <config projectName="consensus" targetName="hash_g1" />
       <config projectName="consensus" targetName="consensust" />
+      <config projectName="consensus" targetName="hash_g1" />
+      <config projectName="consensus" targetName="bls_unit_test" />
       <config projectName="consensus" targetName="te_unit_test" />
+      <config projectName="consensus" targetName="all_bls_tests" />
+      <config projectName="consensus" targetName="bls_glue" />
+      <config projectName="consensus" targetName="bls" />
+      <config projectName="consensus" targetName="consensusd" />
+      <config projectName="consensus" targetName="bls_test" />
       <config projectName="consensus" targetName="dkg_te_unit_test" />
+      <config projectName="consensus" targetName="dkg_keygen" />
+      <config projectName="consensus" targetName="all_te_tests" />
       <config projectName="consensus" targetName="dkg_unit_test" />
+      <config projectName="consensus" targetName="dkg_glue" />
+      <config projectName="consensus" targetName="te" />
+      <config projectName="consensus" targetName="te_test" />
       <config projectName="consensus" targetName="verify_bls" />
+      <config projectName="consensus" targetName="sign_bls" />
+      <config projectName="consensus" targetName="consensus" />
     </generated>
   </component>
   <component name="CMakeSettings">
     <configurations>
-      <configuration PROFILE_NAME="Debug" CONFIG_NAME="Debug" />
+      <configuration PROFILE_NAME="Debug" CONFIG_NAME="Debug" BUILD_OPTIONS="-j8" />
     </configurations>
   </component>
   <component name="ChangeListManager">
     <list default="true" id="e8eb5c74-4268-46a2-ac26-2e919fd9ff42" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/abstracttcpclient/AbstractClientAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/abstracttcpclient/AbstractClientAgent.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/libBLS" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/ConsensusStateDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/ConsensusStateDB.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -60,7 +59,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="SKALE-808-multiple-consensus-instances" />
+        <entry key="$PROJECT_DIR$" value="SKALE-1909-separate-leveldb-dir" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -71,9 +70,9 @@
     <option name="configuration" value="0-Debug-consensus" />
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="331" />
-    <option name="y" value="187" />
-    <option name="width" value="1697" />
+    <option name="x" value="169" />
+    <option name="y" value="153" />
+    <option name="width" value="1677" />
     <option name="height" value="926" />
   </component>
   <component name="ProjectId" id="1TnSIFu9Eo5WxsaS61xq1WagMk7" />
@@ -84,11 +83,12 @@
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent">
+    <property name="OCFindUsagesOptions.isSearchForTextOccurrences" value="false" />
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="cf.advertisement.text.has.clang-format" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
-    <property name="settings.editor.selected.configurable" value="editor.preferences.import" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/db" />
+    <property name="settings.editor.selected.configurable" value="CMakeSettings" />
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
@@ -96,9 +96,10 @@
     </key>
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/db" />
+      <recent name="$PROJECT_DIR$/headers" />
     </key>
   </component>
-  <component name="RunManager" selected="CMake Application.test_two_engines_1">
+  <component name="RunManager" selected="CMake Application.test_two_engines_16">
     <configuration name="all_bls_tests" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="consensus" TARGET_NAME="all_bls_tests" CONFIG_NAME="Debug">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -185,7 +186,6 @@
     </configuration>
     <configuration name="finalization_download_16" type="CMakeRunConfiguration" factoryName="Application" PROGRAM_PARAMS="[consensus-finalization-download]" WORKING_DIR="file://$PROJECT_DIR$/test/sixteennodes" PASS_PARENT_ENVS_2="true" PROJECT_NAME="consensus" TARGET_NAME="consensust" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="consensus" RUN_TARGET_NAME="consensust">
       <envs>
-        <env name="TEST_TIME_MS" value="10000000" />
         <env name="NO_NTP_CHECK" value="1" />
       </envs>
       <method v="2">
@@ -240,13 +240,24 @@
     </configuration>
     <configuration name="test_2" type="CMakeRunConfiguration" factoryName="Application" PROGRAM_PARAMS="[consensus-basic]" WORKING_DIR="file://$PROJECT_DIR$/test/twonodes" PASS_PARENT_ENVS_2="true" PROJECT_NAME="consensus" TARGET_NAME="consensust" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="consensus" RUN_TARGET_NAME="consensust">
       <envs>
-        <env name="TEST_TIME_MS" value="10000000" />
+        <env name="NO_NTP_CHECK" value="1" />
+        <env name="NO_ULIMIT" value="1" />
       </envs>
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
     <configuration name="test_two_engines_1" type="CMakeRunConfiguration" factoryName="Application" PROGRAM_PARAMS="[consensus-two-engines]" WORKING_DIR="file://$PROJECT_DIR$/test/onenode" PASS_PARENT_ENVS_2="true" PROJECT_NAME="consensus" TARGET_NAME="consensust" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="consensus" RUN_TARGET_NAME="consensust">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="test_two_engines_16" type="CMakeRunConfiguration" factoryName="Application" PROGRAM_PARAMS="[consensus-two-engines]" WORKING_DIR="file://$PROJECT_DIR$/test/sixteennodes" PASS_PARENT_ENVS_2="true" PROJECT_NAME="consensus" TARGET_NAME="consensust" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="consensus" RUN_TARGET_NAME="consensust">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="test_two_engines_2" type="CMakeRunConfiguration" factoryName="Application" PROGRAM_PARAMS="[consensus-two-engines]" WORKING_DIR="file://$PROJECT_DIR$/test/twonodes" PASS_PARENT_ENVS_2="true" PROJECT_NAME="consensus" TARGET_NAME="consensust" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="consensus" RUN_TARGET_NAME="consensust">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
@@ -283,6 +294,8 @@
       <item itemvalue="CMake Application.finalization_download_16" />
       <item itemvalue="CMake Application.test_1" />
       <item itemvalue="CMake Application.test_two_engines_1" />
+      <item itemvalue="CMake Application.test_two_engines_2" />
+      <item itemvalue="CMake Application.test_two_engines_16" />
       <item itemvalue="CMake Application.corrupt_proposal_test" />
       <item itemvalue="CMake Application.db_rotation" />
     </list>
@@ -317,351 +330,355 @@
       <workItem from="1575640279975" duration="4005000" />
       <workItem from="1575716912702" duration="17312000" />
       <workItem from="1576352552399" duration="22630000" />
+      <workItem from="1576770922817" duration="14605000" />
+      <workItem from="1577725078471" duration="1008000" />
+      <workItem from="1577788378952" duration="9662000" />
+      <workItem from="1578681255701" duration="4351000" />
     </task>
-    <task id="LOCAL-00045" summary="Signing blocks now">
-      <created>1575038689940</created>
-      <option name="number" value="00045" />
-      <option name="presentableId" value="LOCAL-00045" />
+    <task id="LOCAL-00116" summary="Merge branch 'develop' into SKALE-1825-survive-crashes&#10;&#10;# Conflicts:&#10;#&#9;db/PriceDB.cpp">
+      <created>1577626988130</created>
+      <option name="number" value="00116" />
+      <option name="presentableId" value="LOCAL-00116" />
       <option name="project" value="LOCAL" />
-      <updated>1575038689940</updated>
+      <updated>1577626988130</updated>
     </task>
-    <task id="LOCAL-00046" summary="Signing blocks now">
-      <created>1575039837735</created>
-      <option name="number" value="00046" />
-      <option name="presentableId" value="LOCAL-00046" />
+    <task id="LOCAL-00117" summary="Merge branch 'develop' into SKALE-1825-survive-crashes&#10;&#10;# Conflicts:&#10;#&#9;db/PriceDB.cpp">
+      <created>1577628297516</created>
+      <option name="number" value="00117" />
+      <option name="presentableId" value="LOCAL-00117" />
       <option name="project" value="LOCAL" />
-      <updated>1575039837735</updated>
+      <updated>1577628297516</updated>
     </task>
-    <task id="LOCAL-00047" summary="Signing blocks now">
-      <created>1575042785536</created>
-      <option name="number" value="00047" />
-      <option name="presentableId" value="LOCAL-00047" />
+    <task id="LOCAL-00118" summary="Moving to json messages">
+      <created>1577628536587</created>
+      <option name="number" value="00118" />
+      <option name="presentableId" value="LOCAL-00118" />
       <option name="project" value="LOCAL" />
-      <updated>1575042785536</updated>
+      <updated>1577628536587</updated>
     </task>
-    <task id="LOCAL-00048" summary="Signing blocks now">
-      <created>1575296473888</created>
-      <option name="number" value="00048" />
-      <option name="presentableId" value="LOCAL-00048" />
+    <task id="LOCAL-00119" summary="Moving to json messages">
+      <created>1577637317673</created>
+      <option name="number" value="00119" />
+      <option name="presentableId" value="LOCAL-00119" />
       <option name="project" value="LOCAL" />
-      <updated>1575296473888</updated>
+      <updated>1577637317673</updated>
     </task>
-    <task id="LOCAL-00049" summary="Signing blocks now">
-      <created>1575301259055</created>
-      <option name="number" value="00049" />
-      <option name="presentableId" value="LOCAL-00049" />
+    <task id="LOCAL-00120" summary="Moving to json messages">
+      <created>1577638546662</created>
+      <option name="number" value="00120" />
+      <option name="presentableId" value="LOCAL-00120" />
       <option name="project" value="LOCAL" />
-      <updated>1575301259056</updated>
+      <updated>1577638546663</updated>
     </task>
-    <task id="LOCAL-00050" summary="Signing blocks now">
-      <created>1575304771370</created>
-      <option name="number" value="00050" />
-      <option name="presentableId" value="LOCAL-00050" />
+    <task id="LOCAL-00121" summary="Moving to json messages">
+      <created>1577645605133</created>
+      <option name="number" value="00121" />
+      <option name="presentableId" value="LOCAL-00121" />
       <option name="project" value="LOCAL" />
-      <updated>1575304771372</updated>
+      <updated>1577645605133</updated>
     </task>
-    <task id="LOCAL-00051" summary="Fixed block tests">
-      <created>1575371674234</created>
-      <option name="number" value="00051" />
-      <option name="presentableId" value="LOCAL-00051" />
+    <task id="LOCAL-00122" summary="Moving to json messages">
+      <created>1577645792204</created>
+      <option name="number" value="00122" />
+      <option name="presentableId" value="LOCAL-00122" />
       <option name="project" value="LOCAL" />
-      <updated>1575371674234</updated>
+      <updated>1577645792204</updated>
     </task>
-    <task id="LOCAL-00052" summary="Cleaning crypto">
-      <created>1575373006123</created>
-      <option name="number" value="00052" />
-      <option name="presentableId" value="LOCAL-00052" />
+    <task id="LOCAL-00123" summary="Adding incoming messages db">
+      <created>1577647691311</created>
+      <option name="number" value="00123" />
+      <option name="presentableId" value="LOCAL-00123" />
       <option name="project" value="LOCAL" />
-      <updated>1575373006123</updated>
+      <updated>1577647691311</updated>
     </task>
-    <task id="LOCAL-00053" summary="Fixed one-node test">
-      <created>1575373801900</created>
-      <option name="number" value="00053" />
-      <option name="presentableId" value="LOCAL-00053" />
+    <task id="LOCAL-00124" summary="Adding consensusstate db">
+      <created>1577648702733</created>
+      <option name="number" value="00124" />
+      <option name="presentableId" value="LOCAL-00124" />
       <option name="project" value="LOCAL" />
-      <updated>1575373801901</updated>
+      <updated>1577648702733</updated>
     </task>
-    <task id="LOCAL-00054" summary="Fixing exceptions">
-      <created>1575383924967</created>
-      <option name="number" value="00054" />
-      <option name="presentableId" value="LOCAL-00054" />
+    <task id="LOCAL-00125" summary="Adding consensusstate db">
+      <created>1577650381825</created>
+      <option name="number" value="00125" />
+      <option name="presentableId" value="LOCAL-00125" />
       <option name="project" value="LOCAL" />
-      <updated>1575383924967</updated>
+      <updated>1577650381826</updated>
     </task>
-    <task id="LOCAL-00055" summary="Add block proposal header">
-      <created>1575388306400</created>
-      <option name="number" value="00055" />
-      <option name="presentableId" value="LOCAL-00055" />
+    <task id="LOCAL-00126" summary="Adding consensusstate db">
+      <created>1577651531316</created>
+      <option name="number" value="00126" />
+      <option name="presentableId" value="LOCAL-00126" />
       <option name="project" value="LOCAL" />
-      <updated>1575388306400</updated>
+      <updated>1577651531316</updated>
     </task>
-    <task id="LOCAL-00056" summary="Fixed block read">
-      <created>1575392830871</created>
-      <option name="number" value="00056" />
-      <option name="presentableId" value="LOCAL-00056" />
+    <task id="LOCAL-00127" summary="Pass full tests. Saving consensus state R">
+      <created>1577651818319</created>
+      <option name="number" value="00127" />
+      <option name="presentableId" value="LOCAL-00127" />
       <option name="project" value="LOCAL" />
-      <updated>1575392830871</updated>
+      <updated>1577651818319</updated>
     </task>
-    <task id="LOCAL-00057" summary="Fixed block read">
-      <created>1575392924502</created>
-      <option name="number" value="00057" />
-      <option name="presentableId" value="LOCAL-00057" />
+    <task id="LOCAL-00128" summary="Saving consensus state">
+      <created>1577712352610</created>
+      <option name="number" value="00128" />
+      <option name="presentableId" value="LOCAL-00128" />
       <option name="project" value="LOCAL" />
-      <updated>1575392924502</updated>
+      <updated>1577712352610</updated>
     </task>
-    <task id="LOCAL-00058" summary="More exception handling">
-      <created>1575453294700</created>
-      <option name="number" value="00058" />
-      <option name="presentableId" value="LOCAL-00058" />
+    <task id="LOCAL-00129" summary="Saving consensus state">
+      <created>1577713728971</created>
+      <option name="number" value="00129" />
+      <option name="presentableId" value="LOCAL-00129" />
       <option name="project" value="LOCAL" />
-      <updated>1575453294700</updated>
+      <updated>1577713728971</updated>
     </task>
-    <task id="LOCAL-00059" summary="More exception handling">
-      <created>1575455368096</created>
-      <option name="number" value="00059" />
-      <option name="presentableId" value="LOCAL-00059" />
+    <task id="LOCAL-00130" summary="Saving consensus state">
+      <created>1577714686880</created>
+      <option name="number" value="00130" />
+      <option name="presentableId" value="LOCAL-00130" />
       <option name="project" value="LOCAL" />
-      <updated>1575455368096</updated>
+      <updated>1577714686880</updated>
     </task>
-    <task id="LOCAL-00060" summary="Cleaned up LevelDB">
-      <created>1575457721288</created>
-      <option name="number" value="00060" />
-      <option name="presentableId" value="LOCAL-00060" />
+    <task id="LOCAL-00131" summary="Making NetworkMessage immutable">
+      <created>1577715653567</created>
+      <option name="number" value="00131" />
+      <option name="presentableId" value="LOCAL-00131" />
       <option name="project" value="LOCAL" />
-      <updated>1575457721288</updated>
+      <updated>1577715653567</updated>
     </task>
-    <task id="LOCAL-00061" summary="Cleaned up LevelDB">
-      <created>1575463985013</created>
-      <option name="number" value="00061" />
-      <option name="presentableId" value="LOCAL-00061" />
+    <task id="LOCAL-00132" summary="Making NetworkMessage immutable. Full tests pass.">
+      <created>1577715742225</created>
+      <option name="number" value="00132" />
+      <option name="presentableId" value="LOCAL-00132" />
       <option name="project" value="LOCAL" />
-      <updated>1575463985013</updated>
+      <updated>1577715742226</updated>
     </task>
-    <task id="LOCAL-00062" summary="Refactoring DBS">
-      <created>1575465160126</created>
-      <option name="number" value="00062" />
-      <option name="presentableId" value="LOCAL-00062" />
+    <task id="LOCAL-00133" summary="Removing IP from the message">
+      <created>1577716203995</created>
+      <option name="number" value="00133" />
+      <option name="presentableId" value="LOCAL-00133" />
       <option name="project" value="LOCAL" />
-      <updated>1575465160126</updated>
+      <updated>1577716203995</updated>
     </task>
-    <task id="LOCAL-00063" summary="Added DASigShareDB">
-      <created>1575467839589</created>
-      <option name="number" value="00063" />
-      <option name="presentableId" value="LOCAL-00063" />
+    <task id="LOCAL-00134" summary="Removing IP from the message. Full tests pass.">
+      <created>1577716662120</created>
+      <option name="number" value="00134" />
+      <option name="presentableId" value="LOCAL-00134" />
       <option name="project" value="LOCAL" />
-      <updated>1575467839589</updated>
+      <updated>1577716662120</updated>
     </task>
-    <task id="LOCAL-00064" summary="Added DASigShareDB">
-      <created>1575564241837</created>
-      <option name="number" value="00064" />
-      <option name="presentableId" value="LOCAL-00064" />
+    <task id="LOCAL-00135" summary="Removing IP from the message. Full tests pass.">
+      <created>1577718742970</created>
+      <option name="number" value="00135" />
+      <option name="presentableId" value="LOCAL-00135" />
       <option name="project" value="LOCAL" />
-      <updated>1575564241837</updated>
+      <updated>1577718742970</updated>
     </task>
-    <task id="LOCAL-00065" summary="Added DASigShareDB">
-      <created>1575565387125</created>
-      <option name="number" value="00065" />
-      <option name="presentableId" value="LOCAL-00065" />
+    <task id="LOCAL-00136" summary="Removing IP from the message. Full tests pass.">
+      <created>1577721575508</created>
+      <option name="number" value="00136" />
+      <option name="presentableId" value="LOCAL-00136" />
       <option name="project" value="LOCAL" />
-      <updated>1575565387125</updated>
+      <updated>1577721575508</updated>
     </task>
-    <task id="LOCAL-00066" summary="Moving sigshares to DB">
-      <created>1575627051651</created>
-      <option name="number" value="00066" />
-      <option name="presentableId" value="LOCAL-00066" />
+    <task id="LOCAL-00137" summary="Removing IP from the message. Full tests pass.">
+      <created>1577722178045</created>
+      <option name="number" value="00137" />
+      <option name="presentableId" value="LOCAL-00137" />
       <option name="project" value="LOCAL" />
-      <updated>1575627051651</updated>
+      <updated>1577722178045</updated>
     </task>
-    <task id="LOCAL-00067" summary="Adding DASigShareDB">
-      <created>1575627281149</created>
-      <option name="number" value="00067" />
-      <option name="presentableId" value="LOCAL-00067" />
+    <task id="LOCAL-00138" summary="Completed saving consensus state. All tests pass.">
+      <created>1577726673018</created>
+      <option name="number" value="00138" />
+      <option name="presentableId" value="LOCAL-00138" />
       <option name="project" value="LOCAL" />
-      <updated>1575627281149</updated>
+      <updated>1577726673018</updated>
     </task>
-    <task id="LOCAL-00068" summary="Saving proposal">
-      <created>1575636281351</created>
-      <option name="number" value="00068" />
-      <option name="presentableId" value="LOCAL-00068" />
+    <task id="LOCAL-00139" summary="Cleaning db writes">
+      <created>1577791000261</created>
+      <option name="number" value="00139" />
+      <option name="presentableId" value="LOCAL-00139" />
       <option name="project" value="LOCAL" />
-      <updated>1575636281352</updated>
+      <updated>1577791000262</updated>
     </task>
-    <task id="LOCAL-00069" summary="Saving proposal">
-      <created>1575640363432</created>
-      <option name="number" value="00069" />
-      <option name="presentableId" value="LOCAL-00069" />
+    <task id="LOCAL-00140" summary="Finished fixing memory leaks. All tests pass.">
+      <created>1577976556276</created>
+      <option name="number" value="00140" />
+      <option name="presentableId" value="LOCAL-00140" />
       <option name="project" value="LOCAL" />
-      <updated>1575640363433</updated>
+      <updated>1577976556276</updated>
     </task>
-    <task id="LOCAL-00070" summary="BetterDBName">
-      <created>1575640642748</created>
-      <option name="number" value="00070" />
-      <option name="presentableId" value="LOCAL-00070" />
+    <task id="LOCAL-00141" summary="Reading state from LevelDB">
+      <created>1577982637657</created>
+      <option name="number" value="00141" />
+      <option name="presentableId" value="LOCAL-00141" />
       <option name="project" value="LOCAL" />
-      <updated>1575640642748</updated>
+      <updated>1577982637657</updated>
     </task>
-    <task id="LOCAL-00071" summary="BetterDBName">
-      <created>1575641744840</created>
-      <option name="number" value="00071" />
-      <option name="presentableId" value="LOCAL-00071" />
+    <task id="LOCAL-00142" summary="Reading state from LevelDB. All tests pass.">
+      <created>1577985838452</created>
+      <option name="number" value="00142" />
+      <option name="presentableId" value="LOCAL-00142" />
       <option name="project" value="LOCAL" />
-      <updated>1575641744840</updated>
+      <updated>1577985838453</updated>
     </task>
-    <task id="LOCAL-00072" summary="BetterDBName">
-      <created>1575647308305</created>
-      <option name="number" value="00072" />
-      <option name="presentableId" value="LOCAL-00072" />
+    <task id="LOCAL-00143" summary="Reading state from LevelDB. Reading votes,">
+      <created>1578063085128</created>
+      <option name="number" value="00143" />
+      <option name="presentableId" value="LOCAL-00143" />
       <option name="project" value="LOCAL" />
-      <updated>1575647308305</updated>
+      <updated>1578063085129</updated>
     </task>
-    <task id="LOCAL-00073" summary="Add DAProofDB">
-      <created>1575739047346</created>
-      <option name="number" value="00073" />
-      <option name="presentableId" value="LOCAL-00073" />
+    <task id="LOCAL-00144" summary="Reading state from LevelDB. Reading votes,">
+      <created>1578063551376</created>
+      <option name="number" value="00144" />
+      <option name="presentableId" value="LOCAL-00144" />
       <option name="project" value="LOCAL" />
-      <updated>1575739047347</updated>
+      <updated>1578063551376</updated>
     </task>
-    <task id="LOCAL-00074" summary="Add DAProofDB">
-      <created>1575740393321</created>
-      <option name="number" value="00074" />
-      <option name="presentableId" value="LOCAL-00074" />
+    <task id="LOCAL-00145" summary="Reading state from LevelDB. Reading votes. Tests pass.">
+      <created>1578064179516</created>
+      <option name="number" value="00145" />
+      <option name="presentableId" value="LOCAL-00145" />
       <option name="project" value="LOCAL" />
-      <updated>1575740393321</updated>
+      <updated>1578064179516</updated>
     </task>
-    <task id="LOCAL-00075" summary="Add DAProofDB">
-      <created>1575818318075</created>
-      <option name="number" value="00075" />
-      <option name="presentableId" value="LOCAL-00075" />
+    <task id="LOCAL-00146" summary="Reading state from LevelDB. Reading votes. Tests pass.">
+      <created>1578064495212</created>
+      <option name="number" value="00146" />
+      <option name="presentableId" value="LOCAL-00146" />
       <option name="project" value="LOCAL" />
-      <updated>1575818318076</updated>
+      <updated>1578064495213</updated>
     </task>
-    <task id="LOCAL-00076" summary="Add DAProofDB">
-      <created>1575838931428</created>
-      <option name="number" value="00076" />
-      <option name="presentableId" value="LOCAL-00076" />
+    <task id="LOCAL-00147" summary="Reading state from LevelDB. Reading votes. Tests pass.">
+      <created>1578064581620</created>
+      <option name="number" value="00147" />
+      <option name="presentableId" value="LOCAL-00147" />
       <option name="project" value="LOCAL" />
-      <updated>1575838931428</updated>
+      <updated>1578064581620</updated>
     </task>
-    <task id="LOCAL-00077" summary="Add DAProofDB">
-      <created>1575886096219</created>
-      <option name="number" value="00077" />
-      <option name="presentableId" value="LOCAL-00077" />
+    <task id="LOCAL-00148" summary="Reading state from LevelDB. Reading votes. Tests pass.">
+      <created>1578066949332</created>
+      <option name="number" value="00148" />
+      <option name="presentableId" value="LOCAL-00148" />
       <option name="project" value="LOCAL" />
-      <updated>1575886096219</updated>
+      <updated>1578066949332</updated>
     </task>
-    <task id="LOCAL-00078" summary="Add DAProofDB">
-      <created>1575887171558</created>
-      <option name="number" value="00078" />
-      <option name="presentableId" value="LOCAL-00078" />
+    <task id="LOCAL-00149" summary="Reading state from LevelDB. Reading votes. Tests pass.">
+      <created>1578068206463</created>
+      <option name="number" value="00149" />
+      <option name="presentableId" value="LOCAL-00149" />
       <option name="project" value="LOCAL" />
-      <updated>1575887171558</updated>
+      <updated>1578068206463</updated>
     </task>
-    <task id="LOCAL-00079" summary="Added ptrs to threads">
-      <created>1575888319375</created>
-      <option name="number" value="00079" />
-      <option name="presentableId" value="LOCAL-00079" />
+    <task id="LOCAL-00150" summary="Completed state reading functions. All tests pass.">
+      <created>1578068536117</created>
+      <option name="number" value="00150" />
+      <option name="presentableId" value="LOCAL-00150" />
       <option name="project" value="LOCAL" />
-      <updated>1575888319375</updated>
+      <updated>1578068536117</updated>
     </task>
-    <task id="LOCAL-00080" summary="Added ptrs to threads">
-      <created>1575890536710</created>
-      <option name="number" value="00080" />
-      <option name="presentableId" value="LOCAL-00080" />
+    <task id="LOCAL-00151" summary="Completed state reading functions. All tests pass.">
+      <created>1578069052542</created>
+      <option name="number" value="00151" />
+      <option name="presentableId" value="LOCAL-00151" />
       <option name="project" value="LOCAL" />
-      <updated>1575890536710</updated>
+      <updated>1578069052542</updated>
     </task>
-    <task id="LOCAL-00081" summary="Added ptrs to threads">
-      <created>1575897482299</created>
-      <option name="number" value="00081" />
-      <option name="presentableId" value="LOCAL-00081" />
+    <task id="LOCAL-00152" summary="Completed state reading functions. All tests pass.">
+      <created>1578070461216</created>
+      <option name="number" value="00152" />
+      <option name="presentableId" value="LOCAL-00152" />
       <option name="project" value="LOCAL" />
-      <updated>1575897482299</updated>
+      <updated>1578070461216</updated>
     </task>
-    <task id="LOCAL-00082" summary="Added ptrs to threads">
-      <created>1575900847904</created>
-      <option name="number" value="00082" />
-      <option name="presentableId" value="LOCAL-00082" />
+    <task id="LOCAL-00153" summary="Completed state reading functions. All tests pass.">
+      <created>1578508695656</created>
+      <option name="number" value="00153" />
+      <option name="presentableId" value="LOCAL-00153" />
       <option name="project" value="LOCAL" />
-      <updated>1575900847904</updated>
+      <updated>1578508695656</updated>
     </task>
-    <task id="LOCAL-00083" summary="Added ptrs to threads">
-      <created>1575902282303</created>
-      <option name="number" value="00083" />
-      <option name="presentableId" value="LOCAL-00083" />
+    <task id="LOCAL-00154" summary="Completed state reading functions. All tests pass.">
+      <created>1578509871470</created>
+      <option name="number" value="00154" />
+      <option name="presentableId" value="LOCAL-00154" />
       <option name="project" value="LOCAL" />
-      <updated>1575902282303</updated>
+      <updated>1578509871470</updated>
     </task>
-    <task id="LOCAL-00084" summary="Added ptrs to threads">
-      <created>1575904484162</created>
-      <option name="number" value="00084" />
-      <option name="presentableId" value="LOCAL-00084" />
+    <task id="LOCAL-00155" summary="Completed state reading functions. All tests pass.">
+      <created>1578511667827</created>
+      <option name="number" value="00155" />
+      <option name="presentableId" value="LOCAL-00155" />
       <option name="project" value="LOCAL" />
-      <updated>1575904484162</updated>
+      <updated>1578511667827</updated>
     </task>
-    <task id="LOCAL-00085" summary="Added ptrs to threads">
-      <created>1575907126346</created>
-      <option name="number" value="00085" />
-      <option name="presentableId" value="LOCAL-00085" />
+    <task id="LOCAL-00156" summary="Completed state reading functions. All tests pass.">
+      <created>1578577259788</created>
+      <option name="number" value="00156" />
+      <option name="presentableId" value="LOCAL-00156" />
       <option name="project" value="LOCAL" />
-      <updated>1575907126346</updated>
+      <updated>1578577259788</updated>
     </task>
-    <task id="LOCAL-00086" summary="Added ptrs to threads">
-      <created>1576007290512</created>
-      <option name="number" value="00086" />
-      <option name="presentableId" value="LOCAL-00086" />
+    <task id="LOCAL-00157" summary="Completed state reading functions. All tests pass.">
+      <created>1578578512440</created>
+      <option name="number" value="00157" />
+      <option name="presentableId" value="LOCAL-00157" />
       <option name="project" value="LOCAL" />
-      <updated>1576007290513</updated>
+      <updated>1578578512440</updated>
     </task>
-    <task id="LOCAL-00087" summary="Added ptrs to threads">
-      <created>1576008223200</created>
-      <option name="number" value="00087" />
-      <option name="presentableId" value="LOCAL-00087" />
+    <task id="LOCAL-00158" summary="Completed state reading functions. All tests pass.">
+      <created>1578579009442</created>
+      <option name="number" value="00158" />
+      <option name="presentableId" value="LOCAL-00158" />
       <option name="project" value="LOCAL" />
-      <updated>1576008223200</updated>
+      <updated>1578579009442</updated>
     </task>
-    <task id="LOCAL-00088" summary="Cleaning imports">
-      <created>1576074558261</created>
-      <option name="number" value="00088" />
-      <option name="presentableId" value="LOCAL-00088" />
+    <task id="LOCAL-00159" summary="Completed state reading functions. All tests pass.">
+      <created>1578580374071</created>
+      <option name="number" value="00159" />
+      <option name="presentableId" value="LOCAL-00159" />
       <option name="project" value="LOCAL" />
-      <updated>1576074558261</updated>
+      <updated>1578580374071</updated>
     </task>
-    <task id="LOCAL-00089" summary="Cleaning imports">
-      <created>1576247912555</created>
-      <option name="number" value="00089" />
-      <option name="presentableId" value="LOCAL-00089" />
+    <task id="LOCAL-00160" summary="Completed state reading functions. All tests pass.">
+      <created>1578580397152</created>
+      <option name="number" value="00160" />
+      <option name="presentableId" value="LOCAL-00160" />
       <option name="project" value="LOCAL" />
-      <updated>1576247912555</updated>
+      <updated>1578580397152</updated>
     </task>
-    <task id="LOCAL-00090" summary="Cleaning imports">
-      <created>1576261881115</created>
-      <option name="number" value="00090" />
-      <option name="presentableId" value="LOCAL-00090" />
+    <task id="LOCAL-00161" summary="Completed state reading functions. All tests pass.">
+      <created>1578582573903</created>
+      <option name="number" value="00161" />
+      <option name="presentableId" value="LOCAL-00161" />
       <option name="project" value="LOCAL" />
-      <updated>1576261881115</updated>
+      <updated>1578582573903</updated>
     </task>
-    <task id="LOCAL-00091" summary="Cleaning imports">
-      <created>1576367396394</created>
-      <option name="number" value="00091" />
-      <option name="presentableId" value="LOCAL-00091" />
+    <task id="LOCAL-00162" summary="Completed state reading functions. All tests pass.">
+      <created>1578679862361</created>
+      <option name="number" value="00162" />
+      <option name="presentableId" value="LOCAL-00162" />
       <option name="project" value="LOCAL" />
-      <updated>1576367396395</updated>
+      <updated>1578679862361</updated>
     </task>
-    <task id="LOCAL-00092" summary="Fixed log">
-      <created>1576674402951</created>
-      <option name="number" value="00092" />
-      <option name="presentableId" value="LOCAL-00092" />
+    <task id="LOCAL-00163" summary="Completed surviving under crash">
+      <created>1578681286133</created>
+      <option name="number" value="00163" />
+      <option name="presentableId" value="LOCAL-00163" />
       <option name="project" value="LOCAL" />
-      <updated>1576674402952</updated>
+      <updated>1578681286133</updated>
     </task>
-    <task id="LOCAL-00093" summary="Fixed log">
-      <created>1576675524952</created>
-      <option name="number" value="00093" />
-      <option name="presentableId" value="LOCAL-00093" />
+    <task id="LOCAL-00164" summary="Fixed start problem">
+      <created>1578907398669</created>
+      <option name="number" value="00164" />
+      <option name="presentableId" value="LOCAL-00164" />
       <option name="project" value="LOCAL" />
-      <updated>1576675524952</updated>
+      <updated>1578907398669</updated>
     </task>
-    <option name="localTasksCounter" value="94" />
+    <option name="localTasksCounter" value="165" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -697,124 +714,140 @@
   <component name="VcsManagerConfiguration">
     <option name="CHECK_CODE_SMELLS_BEFORE_PROJECT_COMMIT" value="false" />
     <option name="CHECK_NEW_TODO" value="false" />
-    <MESSAGE value="Added LRU cache" />
-    <MESSAGE value="Adding set DB" />
-    <MESSAGE value="Added block set storage" />
-    <MESSAGE value="Adding sigShareStorage" />
-    <MESSAGE value="Decide on block signing" />
-    <MESSAGE value="Signing blocks now" />
-    <MESSAGE value="Adding block signatures" />
-    <MESSAGE value="Fixed block tests" />
-    <MESSAGE value="Cleaning crypto" />
-    <MESSAGE value="Fixed one-node test" />
-    <MESSAGE value="Fixing exceptions" />
-    <MESSAGE value="Add block proposal header" />
-    <MESSAGE value="Fixed block read" />
-    <MESSAGE value="More exception handling" />
-    <MESSAGE value="Cleaned up LevelDB" />
-    <MESSAGE value="Refactoring DBS" />
-    <MESSAGE value="Added DASigShareDB" />
-    <MESSAGE value="Moving sigshares to DB" />
-    <MESSAGE value="Adding DASigShareDB" />
-    <MESSAGE value="Saving proposal" />
-    <MESSAGE value="BetterDBName" />
-    <MESSAGE value="Add DAProofDB" />
-    <MESSAGE value="Added ptrs to threads" />
     <MESSAGE value="Cleaning imports" />
     <MESSAGE value="Fixed log" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fixed log" />
+    <MESSAGE value="Adding ProposalVectorDB" />
+    <MESSAGE value="Completed proposal vector DB" />
+    <MESSAGE value="Adding outgoing messages db" />
+    <MESSAGE value="Merge branch 'develop' into SKALE-1825-survive-crashes&#10;&#10;# Conflicts:&#10;#&#9;db/PriceDB.cpp" />
+    <MESSAGE value="Moving to json messages" />
+    <MESSAGE value="Adding incoming messages db" />
+    <MESSAGE value="Adding consensusstate db" />
+    <MESSAGE value="Pass full tests. Saving consensus state R" />
+    <MESSAGE value="Saving consensus state" />
+    <MESSAGE value="Making NetworkMessage immutable" />
+    <MESSAGE value="Making NetworkMessage immutable. Full tests pass." />
+    <MESSAGE value="Removing IP from the message" />
+    <MESSAGE value="Removing IP from the message. Full tests pass." />
+    <MESSAGE value="Completed saving consensus state. All tests pass." />
+    <MESSAGE value="Cleaning db writes" />
+    <MESSAGE value="Finished fixing memory leaks. All tests pass." />
+    <MESSAGE value="Reading state from LevelDB" />
+    <MESSAGE value="Reading state from LevelDB. All tests pass." />
+    <MESSAGE value="Reading state from LevelDB. Reading votes," />
+    <MESSAGE value="Reading state from LevelDB. Reading votes. Tests pass." />
+    <MESSAGE value="Completed state reading functions. All tests pass." />
+    <MESSAGE value="Completed surviving under crash" />
+    <MESSAGE value="Fixed start problem" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fixed start problem" />
   </component>
   <component name="WindowStateProjectService">
     <state x="2468" y="216" width="814" height="678" key="#All_in_[committed-block-serialize]" timestamp="1575636402415" />
     <state x="2468" y="216" width="814" height="678" key="#All_in_[committed-block-serialize]/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575636402415" />
-    <state x="2338" y="205" width="1084" height="702" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1576675937314">
+    <state x="2338" y="205" width="1084" height="702" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1578680178160">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state x="2338" y="205" width="1084" height="702" key="#com.intellij.execution.impl.EditConfigurationsDialog/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576675937314" />
+    <state x="2338" y="205" width="1084" height="702" key="#com.intellij.execution.impl.EditConfigurationsDialog/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1578680178160" />
     <state x="2476" y="340" width="798" height="424" key="#com.intellij.fileTypes.FileTypeChooser" timestamp="1576674586401">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
     <state x="2476" y="340" width="798" height="424" key="#com.intellij.fileTypes.FileTypeChooser/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576674586401" />
-    <state x="2644" y="206" width="593" height="693" key="#com.intellij.ide.util.MemberChooser" timestamp="1576673903019">
+    <state x="2644" y="206" width="593" height="693" key="#com.intellij.ide.util.MemberChooser" timestamp="1577716032278">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state x="2644" y="206" width="593" height="693" key="#com.intellij.ide.util.MemberChooser/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576673903019" />
-    <state x="2550" y="243" width="649" height="618" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog" timestamp="1576079242641">
+    <state x="2644" y="206" width="593" height="693" key="#com.intellij.ide.util.MemberChooser/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1577716032278" />
+    <state x="2550" y="243" width="649" height="618" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog" timestamp="1577644610681">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state x="2550" y="243" width="649" height="618" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576079242641" />
-    <state x="2314" y="71" width="1121" height="962" key="CommitChangelistDialog2" timestamp="1576676256781">
+    <state x="2550" y="243" width="649" height="618" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1577644610681" />
+    <state x="2581" y="184" key="#xdebugger.evaluate" timestamp="1577620419368">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state x="2314" y="71" width="1121" height="962" key="CommitChangelistDialog2/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576676256781" />
-    <state x="2613" y="259" width="524" height="594" key="FileChooserDialogImpl" timestamp="1576073838542">
+    <state x="2581" y="184" key="#xdebugger.evaluate/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1577620419368" />
+    <state x="2314" y="71" width="1121" height="962" key="CommitChangelistDialog2" timestamp="1578907397942">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state x="2613" y="259" width="524" height="594" key="FileChooserDialogImpl/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576073838542" />
-    <state width="1860" height="314" key="GridCell.Tab.0.bottom" timestamp="1578482784172">
+    <state x="2314" y="71" width="1121" height="962" key="CommitChangelistDialog2/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1578907397942" />
+    <state x="2613" y="259" width="524" height="594" key="FileChooserDialogImpl" timestamp="1578679722518">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state width="1860" height="314" key="GridCell.Tab.0.bottom/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1578482784172" />
-    <state width="1860" height="314" key="GridCell.Tab.0.center" timestamp="1578482784172">
+    <state x="2613" y="259" width="524" height="594" key="FileChooserDialogImpl/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1578679722518" />
+    <state width="1860" height="108" key="GridCell.Tab.0.bottom" timestamp="1578908657223">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state width="1860" height="314" key="GridCell.Tab.0.center/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1578482784172" />
-    <state width="1860" height="314" key="GridCell.Tab.0.left" timestamp="1578482784172">
+    <state width="1860" height="108" key="GridCell.Tab.0.bottom/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1578908657223" />
+    <state width="1860" height="108" key="GridCell.Tab.0.center" timestamp="1578908657223">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state width="1860" height="314" key="GridCell.Tab.0.left/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1578482784172" />
-    <state width="1860" height="314" key="GridCell.Tab.0.right" timestamp="1578482784172">
+    <state width="1860" height="108" key="GridCell.Tab.0.center/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1578908657223" />
+    <state width="1860" height="108" key="GridCell.Tab.0.left" timestamp="1578908657223">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state width="1860" height="314" key="GridCell.Tab.0.right/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1578482784172" />
-    <state width="1860" height="314" key="GridCell.Tab.1.bottom" timestamp="1578482790955">
+    <state width="1860" height="108" key="GridCell.Tab.0.left/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1578908657223" />
+    <state width="1860" height="108" key="GridCell.Tab.0.right" timestamp="1578908657223">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state width="1860" height="314" key="GridCell.Tab.1.bottom/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1578482790955" />
-    <state width="1860" height="314" key="GridCell.Tab.1.center" timestamp="1578482790955">
+    <state width="1860" height="108" key="GridCell.Tab.0.right/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1578908657223" />
+    <state width="1860" height="314" key="GridCell.Tab.1.bottom" timestamp="1578577062335">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state width="1860" height="314" key="GridCell.Tab.1.center/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1578482790955" />
-    <state width="1860" height="314" key="GridCell.Tab.1.left" timestamp="1578482790955">
+    <state width="1860" height="314" key="GridCell.Tab.1.bottom/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1578577062335" />
+    <state width="1860" height="314" key="GridCell.Tab.1.center" timestamp="1578577062335">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state width="1860" height="314" key="GridCell.Tab.1.left/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1578482790955" />
-    <state width="1860" height="314" key="GridCell.Tab.1.right" timestamp="1578482790955">
+    <state width="1860" height="314" key="GridCell.Tab.1.center/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1578577062335" />
+    <state width="1860" height="314" key="GridCell.Tab.1.left" timestamp="1578577062335">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state width="1860" height="314" key="GridCell.Tab.1.right/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1578482790955" />
+    <state width="1860" height="314" key="GridCell.Tab.1.left/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1578577062335" />
+    <state width="1860" height="314" key="GridCell.Tab.1.right" timestamp="1578577062335">
+      <screen x="1920" y="0" width="1920" height="1080" />
+    </state>
+    <state width="1860" height="314" key="GridCell.Tab.1.right/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1578577062335" />
     <state x="2238" y="100" key="SettingsEditor" timestamp="1576053303654">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state x="2238" y="100" key="SettingsEditor/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576053303654" />
-    <state x="2375" y="210" width="1000" height="684" key="Vcs.Push.Dialog.v2" timestamp="1576675526016">
+    <state x="2238" y="100" key="SettingsEditor/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576759515576" />
+    <state x="2375" y="210" width="1000" height="684" key="Vcs.Push.Dialog.v2" timestamp="1578907399607">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state x="2375" y="210" width="1000" height="684" key="Vcs.Push.Dialog.v2/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576675526016" />
-    <state x="2020" y="125" width="1720" height="855" key="com.intellij.history.integration.ui.views.FileHistoryDialog" timestamp="1575638884892">
+    <state x="2375" y="210" width="1000" height="684" key="Vcs.Push.Dialog.v2/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1578907399607" />
+    <state x="2120" y="225" width="1720" height="855" key="com.intellij.history.integration.ui.views.DirectoryHistoryDialog" timestamp="1578654761086">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state x="2020" y="125" width="1720" height="855" key="com.intellij.history.integration.ui.views.FileHistoryDialog/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575638884892" />
-    <state x="2434" y="329" key="com.intellij.ide.util.TipDialog" timestamp="1575640281237">
+    <state x="2120" y="225" width="1720" height="855" key="com.intellij.history.integration.ui.views.DirectoryHistoryDialog/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1578654761086" />
+    <state x="2020" y="125" width="1720" height="851" key="com.intellij.history.integration.ui.views.FileHistoryDialog" timestamp="1578657503865">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state x="2434" y="329" key="com.intellij.ide.util.TipDialog/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575640281237" />
-    <state x="2188" y="30" width="1125" height="792" key="find.popup" timestamp="1578482149076">
+    <state x="2020" y="125" width="1720" height="851" key="com.intellij.history.integration.ui.views.FileHistoryDialog/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1578657503865" />
+    <state x="2434" y="329" key="com.intellij.ide.util.TipDialog" timestamp="1578681256411">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state x="2188" y="30" width="1125" height="792" key="find.popup/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1578482149076" />
+    <state x="2434" y="329" key="com.intellij.ide.util.TipDialog/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1578681256411" />
+    <state x="2153" y="247" width="1125" height="792" key="find.popup" timestamp="1578908811647">
+      <screen x="1920" y="0" width="1920" height="1080" />
+    </state>
+    <state x="2153" y="247" width="1125" height="792" key="find.popup/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1578908811647" />
     <state x="2479" y="299" width="801" height="506" key="git4idea.merge.GitMergeDialog" timestamp="1575886235995">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
     <state x="2479" y="299" width="801" height="506" key="git4idea.merge.GitMergeDialog/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575886235995" />
-    <state x="2565" y="128" width="620" height="849" key="refactoring.ChangeSignatureDialog" timestamp="1576673917866">
+    <state x="2420" y="299" width="909" height="506" key="git4idea.merge.GitPullDialog" timestamp="1577608528706">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state x="2565" y="128" width="620" height="849" key="refactoring.ChangeSignatureDialog/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576673917866" />
-    <state x="2459" y="45" width="840" height="1034" key="search.everywhere.popup" timestamp="1576079984258">
+    <state x="2420" y="299" width="909" height="506" key="git4idea.merge.GitPullDialog/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1577608528706" />
+    <state x="2565" y="128" width="590" height="833" key="refactoring.ChangeSignatureDialog" timestamp="1578569544825">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state x="2459" y="45" width="840" height="1034" key="search.everywhere.popup/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1576079984258" />
+    <state x="2565" y="128" width="590" height="833" key="refactoring.ChangeSignatureDialog/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1578569544825" />
+    <state x="2460" y="249" key="run.anything.popup" timestamp="1578068294379">
+      <screen x="1920" y="0" width="1920" height="1080" />
+    </state>
+    <state x="2460" y="249" key="run.anything.popup/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1578068294379" />
+    <state x="2459" y="45" width="840" height="1034" key="search.everywhere.popup" timestamp="1577620442448">
+      <screen x="1920" y="0" width="1920" height="1080" />
+    </state>
+    <state x="2459" y="45" width="840" height="1034" key="search.everywhere.popup/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1577620442448" />
     <state x="2566" y="383" width="617" height="338" key="vcs.readOnlyHandler.ReadOnlyStatusDialog" timestamp="1575636402415" />
     <state x="2566" y="383" width="617" height="338" key="vcs.readOnlyHandler.ReadOnlyStatusDialog/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1575636402415" />
   </component>

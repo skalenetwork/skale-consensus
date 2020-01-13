@@ -23,6 +23,7 @@
 
 
 
+#include <db/MsgDB.h>
 #include "SkaleCommon.h"
 #include "Log.h"
 #include "thirdparty/json.hpp"
@@ -64,11 +65,13 @@ TransportType TransportNetwork::transport = TransportType::ZMQ;
 
 
 void TransportNetwork::addToDeferredMessageQueue(ptr<NetworkMessageEnvelope> _me) {
+    CHECK_ARGUMENT(_me);
+
+    auto msg = dynamic_pointer_cast<NetworkMessage>(_me->getMessage());
+
+    getSchain()->getNode()->getIncomingMsgDB()->saveMsg(msg);
+
     auto _blockID = _me->getMessage()->getBlockID();
-
-//    LOG( trace, "Deferring::" + to_string( _blockID ) );
-
-    ASSERT(_me);
 
     ptr<vector<ptr<NetworkMessageEnvelope> > > messageList;
 
@@ -86,9 +89,16 @@ void TransportNetwork::addToDeferredMessageQueue(ptr<NetworkMessageEnvelope> _me
     }
 }
 
-ptr<vector<ptr<NetworkMessageEnvelope> > > TransportNetwork::pullMessagesForBlockID(
-        block_id _blockID) {
-    lock_guard<recursive_mutex> lock(deferredMessageMutex);
+ptr<vector<ptr<NetworkMessageEnvelope> > > TransportNetwork::pullMessagesForCurrentBlockID() {
+
+
+
+
+
+    LOCK(deferredMessageMutex);
+
+
+    block_id currentBlockID = sChain->getLastCommittedBlockID() + 1;
 
 
     auto returnList = make_shared<vector<ptr<NetworkMessageEnvelope>>>();
@@ -97,7 +107,7 @@ ptr<vector<ptr<NetworkMessageEnvelope> > > TransportNetwork::pullMessagesForBloc
     for (auto it = deferredMessageQueue.cbegin();
          it != deferredMessageQueue.cend() /* not hoisted */;
         /* no increment */ ) {
-        if (it->first <= _blockID) {
+        if (it->first <= currentBlockID) {
             for (auto &&msg : *(it->second)) {
                 returnList->push_back(msg);
             }
@@ -108,59 +118,60 @@ ptr<vector<ptr<NetworkMessageEnvelope> > > TransportNetwork::pullMessagesForBloc
         }
     }
 
-//    LOG( trace,
-//        "Pulling deferred BID::" + to_string( _blockID ) + ":" + to_string( returnList->size() ) );
-
     return returnList;
 }
 
 void TransportNetwork::broadcastMessage(ptr<NetworkMessage> _m) {
+
+
     if (_m->getBlockID() <= this->catchupBlocks) {
         return;
     }
 
-    auto ip = inet_addr(getSchain()->getThisNodeInfo()->getBaseIP()->c_str());
-    _m->setIp(ip);
-    node_id oldID = _m->getDstNodeID();
+    try {
 
-    unordered_set<uint64_t> sent;
+        getSchain()->getNode()->getOutgoingMsgDB()->saveMsg(_m);
 
-    while (3 * (sent.size() + 1) < getSchain()->getNodeCount() * 2) {
-        for (auto const &it : *getSchain()->getNode()->getNodeInfosByIndex()) {
-            auto index = (uint64_t) it.second->getSchainIndex();
-            if (index != (getSchain()->getSchainIndex()) && !sent.count(index)) {
-                _m->setDstNodeID(it.second->getNodeID());
-                ASSERT(it.second->getSchainIndex() != getSchain()->getSchainIndex());
-                if (sendMessage(it.second, _m)) {
-                    sent.insert((uint64_t) it.second->getSchainIndex());
-                }
-            }
-        }
-    }
+        unordered_set<uint64_t> sent;
 
-    if (sent.size() + 1 < getSchain()->getNodeCount()) {
-        for (auto const &it : *getSchain()->getNode()->getNodeInfosByIndex()) {
-            auto index = (uint64_t) it.second->getSchainIndex();
-            if (index != (getSchain()->getSchainIndex()) && !sent.count(index)) {
-                {
-                    lock_guard<recursive_mutex> lock(delayedSendsLock);
-                    delayedSends.at(index - 1).push_back({_m, it.second});
-                    if (delayedSends.at(index - 1).size() > 256) {
-                        delayedSends.at(index - 1).pop_front();
+        while (3 * (sent.size() + 1) < getSchain()->getNodeCount() * 2) {
+            for (auto const &it : *getSchain()->getNode()->getNodeInfosByIndex()) {
+                auto index = (uint64_t) it.second->getSchainIndex();
+                if (index != (getSchain()->getSchainIndex()) && !sent.count(index)) {
+                    ASSERT(it.second->getSchainIndex() != getSchain()->getSchainIndex());
+                    if (sendMessage(it.second, _m)) {
+                        sent.insert((uint64_t) it.second->getSchainIndex());
                     }
                 }
             }
         }
-    }
 
-    _m->setDstNodeID(oldID);
-
-    for (auto const &it : *getSchain()->getNode()->getNodeInfosByIndex()) {
-        if (it.second->getSchainIndex() != getSchain()->getSchainIndex()) {
-            _m->setDstNodeID(it.second->getNodeID());
-            confirmMessage(it.second);
+        if (sent.size() + 1 < getSchain()->getNodeCount()) {
+            for (auto const &it : *getSchain()->getNode()->getNodeInfosByIndex()) {
+                auto index = (uint64_t) it.second->getSchainIndex();
+                if (index != (getSchain()->getSchainIndex()) && !sent.count(index)) {
+                    {
+                        lock_guard<recursive_mutex> lock(delayedSendsLock);
+                        delayedSends.at(index - 1).push_back({_m, it.second});
+                        if (delayedSends.at(index - 1).size() > 256) {
+                            delayedSends.at(index - 1).pop_front();
+                        }
+                    }
+                }
+            }
         }
+
+
+        for (auto const &it : *getSchain()->getNode()->getNodeInfosByIndex()) {
+            if (it.second->getSchainIndex() != getSchain()->getSchainIndex()) {
+                confirmMessage(it.second);
+            }
+        }
+
+    } catch (...) {
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
+
 }
 
 void TransportNetwork::networkReadLoop() {
@@ -181,9 +192,8 @@ void TransportNetwork::networkReadLoop() {
 
                 ASSERT(sChain);
 
-                block_id currentBlockID = sChain->getLastCommittedBlockID() + 1;
 
-                postOrDefer(m, currentBlockID);
+                postDeferOrDrop(m);
             } catch (ExitRequestedException &) {
                 return;
             } catch (FatalError &) {
@@ -204,29 +214,49 @@ void TransportNetwork::networkReadLoop() {
     sChain->getNode()->getSockets()->consensusZMQSocket->closeReceive();
 }
 
-void TransportNetwork::postOrDefer(
-        const ptr<NetworkMessageEnvelope> &m, const block_id &currentBlockID) {
-    if (m->getMessage()->getBlockID() > currentBlockID) {
-        addToDeferredMessageQueue(m);
-    } else {
-        auto msg = (NetworkMessage *) m->getMessage().get();
+void TransportNetwork::postDeferOrDrop(const ptr<NetworkMessageEnvelope> &m) {
 
-        if (msg->getMessageType() == MSG_BLOCK_SIGN_BROADCAST) {
+    block_id currentBlockID = sChain->getLastCommittedBlockID() + 1;
+
+
+    auto bid = m->getMessage()->getBlockID();
+
+    if (bid > currentBlockID) {
+        addToDeferredMessageQueue(m);
+        return;
+    }
+
+
+
+    if (bid < currentBlockID) {
+        if (bid + MAX_ACTIVE_CONSENSUSES <= currentBlockID) {
+            // too old, drop
+            return;
+        }
+        else {
             sChain->postMessage(m);
-        } else if (msg->getRound() >
-                   sChain->getBlockConsensusInstance()->getRound(msg->createDestinationProtocolKey()) +
-                   1) {
-            addToDeferredMessageQueue(m);
-        } else if (msg->getRound() == sChain->getBlockConsensusInstance()->getRound(
-                msg->createDestinationProtocolKey()) +
-                                      1 &&
-                   !sChain->getBlockConsensusInstance()->decided(
-                           msg->createDestinationProtocolKey())) {
-            addToDeferredMessageQueue(m);
-        } else {
-            sChain->postMessage(m);
+            return;
+
         }
     }
+
+
+    // now  deal with the case of bid = currentBlockID
+
+    auto msg = dynamic_pointer_cast<NetworkMessage>(m->getMessage());
+
+    CHECK_STATE(msg);
+
+
+    // ask consensus whether to defer
+
+    if (sChain->getBlockConsensusInstance()->shouldPost(msg)) {
+        sChain->postMessage(m);
+    } else {
+        addToDeferredMessageQueue(m);
+
+    }
+
 }
 
 void TransportNetwork::deferredMessagesLoop() {
@@ -240,12 +270,10 @@ void TransportNetwork::deferredMessagesLoop() {
     while (!getSchain()->getNode()->isExitRequested()) {
         ptr<vector<ptr<NetworkMessageEnvelope> > > deferredMessages;
 
-        block_id currentBlockID = sChain->getLastCommittedBlockID() + 1;
-        deferredMessages = pullMessagesForBlockID(currentBlockID);
+        deferredMessages = pullMessagesForCurrentBlockID();
 
         for (auto message : *deferredMessages) {
-            currentBlockID = sChain->getLastCommittedBlockID() + 1;
-            postOrDefer(message, currentBlockID);
+            postDeferOrDrop(message);
         }
 
         for (int i = 0; i < nodeCount; i++) {
@@ -296,108 +324,19 @@ ptr<string> TransportNetwork::ipToString(uint32_t _ip) {
 }
 
 ptr<NetworkMessageEnvelope> TransportNetwork::receiveMessage() {
-    auto buf = make_shared<Buffer>(CONSENSUS_MESSAGE_LEN);
-    auto ip = readMessageFromNetwork(buf);
+    auto buf = make_shared<Buffer>(MAX_CONSENSUS_MESSAGE_LEN);
+    uint64_t readBytes = readMessageFromNetwork(buf);
 
+    auto msg = make_shared<string>((const char *) buf->getBuf()->data(), readBytes);
 
-    if (ip == nullptr) {
-        return nullptr;
-    }
+    auto mptr = NetworkMessage::parseMessage(msg, getSchain());
 
-    uint64_t magicNumber;
-    uint64_t sChainID;
-    uint64_t blockID;
-    uint64_t blockProposerIndex;
-    MsgType msgType;
-    uint64_t msgID;
-    uint64_t srcNodeID;
-    uint64_t dstNodeID;
-    uint64_t round;
-    uint8_t value;
-    uint32_t rawIP;
-
-    char sigShare[BLS_MAX_SIG_LEN + 1];
-
-    memset(sigShare, 0, BLS_MAX_SIG_LEN);
-
-
-    READ(buf, magicNumber);
-
-    if (magicNumber != MAGIC_NUMBER)
-        return nullptr;
-
-    READ(buf, sChainID);
-    READ(buf, blockID);
-    READ(buf, blockProposerIndex);
-    READ(buf, msgType);
-    READ(buf, msgID);
-    READ(buf, srcNodeID);
-    READ(buf, dstNodeID);
-    READ(buf, round);
-    READ(buf, value);
-    READ(buf, rawIP);
-
-
-    if (sChain->getSchainID() != sChainID) {
-        BOOST_THROW_EXCEPTION(
-                InvalidSchainException("unknown Schain id" + to_string(sChainID), __CLASS_NAME__));
-    }
-
-
-    buf->read(sigShare, BLS_MAX_SIG_LEN); /* Flawfinder: ignore */
-
-    auto sig = make_shared<string>(sigShare);
-
-
-    auto ip2 = ipToString(rawIP);
-    if (ip->size() == 0) {
-        ip = ip2;
-    } else {
-        LOG(debug, (*ip + ":" + *ip2).c_str());
-        ASSERT(*ip == *ip2);
-    }
-
-
-    ptr<NodeInfo> realSender = sChain->getNode()->getNodeInfoByIP(ip);
-
+    ptr<NodeInfo> realSender = sChain->getNode()->getNodeInfoByIndex(mptr->getSrcSchainIndex());
 
     if (realSender == nullptr) {
-        BOOST_THROW_EXCEPTION(InvalidSourceIPException("NetworkMessage from unknown IP" + *ip));
+        BOOST_THROW_EXCEPTION(InvalidStateException("NetworkMessage from unknown sender schain index",
+                                                    __CLASS_NAME__));
     }
-
-
-    ptr<NetworkMessage> mptr;
-
-    if (msgType == MsgType::BVB_BROADCAST) {
-        mptr = make_shared<BVBroadcastMessage>(node_id(srcNodeID), node_id(dstNodeID),
-                                               block_id(blockID), schain_index(blockProposerIndex),
-                                               bin_consensus_round(round),
-                                               bin_consensus_value(value), schain_id(sChainID), msg_id(msgID), rawIP,
-                                               sig,
-                                               realSender->getSchainIndex(),
-                                               sChain);
-    } else if (msgType == MsgType::AUX_BROADCAST) {
-        mptr = make_shared<AUXBroadcastMessage>(node_id(srcNodeID), node_id(dstNodeID),
-                                                block_id(blockID), schain_index(blockProposerIndex),
-                                                bin_consensus_round(round),
-                                                bin_consensus_value(value), schain_id(sChainID), msg_id(msgID), rawIP,
-                                                sig,
-                                                realSender->getSchainIndex(),
-                                                sChain);
-    } else if (msgType == MsgType::MSG_BLOCK_SIGN_BROADCAST) {
-        mptr = make_shared<BlockSignBroadcastMessage>(node_id(srcNodeID), node_id(dstNodeID),
-                                                      block_id(blockID), schain_index(blockProposerIndex),
-                                                      schain_id(sChainID), msg_id(msgID), rawIP,
-                                                      sig,
-                                                      realSender->getSchainIndex(),
-                                                      sChain);
-    } else {
-        ASSERT(false);
-    }
-
-
-    ASSERT(sChain);
-
 
     ptr<ProtocolKey> key = mptr->createDestinationProtocolKey();
 
@@ -412,8 +351,8 @@ ptr<NetworkMessageEnvelope> TransportNetwork::receiveMessage() {
 };
 
 
-void TransportNetwork::setTransport(TransportType transport) {
-    TransportNetwork::transport = transport;
+void TransportNetwork::setTransport(TransportType _transport) {
+    TransportNetwork::transport = _transport;
 }
 
 TransportType TransportNetwork::getTransport() {
@@ -457,5 +396,5 @@ void TransportNetwork::confirmMessage(const ptr<NodeInfo> &) {
 
 };
 
-TransportNetwork::~TransportNetwork(){
+TransportNetwork::~TransportNetwork() {
 }

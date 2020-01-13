@@ -38,26 +38,15 @@ class NetworkMessageEnvelope;
 class Schain;
 class ProtocolKey;
 
-
+#include "thirdparty/lrucache.hpp"
 
 class BinConsensusInstance : public ProtocolInstance{
 
-
-    BlockConsensusAgent * blockConsensusInstance;
-
-    block_id blockID;
-
-    schain_index blockProposerIndex;
-
-    node_count nodeCount;
-public:
-    const node_count &getNodeCount() const;
-
-private:
-
-
-    bool isDecided = false;
-
+    BlockConsensusAgent* const blockConsensusInstance;
+    const block_id blockID;
+    const schain_index blockProposerIndex;
+    const node_count nodeCount;
+    const ptr<ProtocolKey> protocolKey;
 
     class Comparator {
     public:
@@ -70,39 +59,40 @@ private:
     };
 
 
-    map<ptr<ProtocolKey>, ptr<BinConsensusInstance>, Comparator> children;
-
-
+    // non-essential debugging
     static recursive_mutex historyMutex;
 
-    static ptr<map<ptr<ProtocolKey>, ptr<BinConsensusInstance>, Comparator>> globalTrueDecisions;
+    // non-essential debugging
+    static ptr<vector<ptr<cache::lru_cache<uint64_t, ptr<BinConsensusInstance>>>>> globalTrueDecisions;
 
-    static ptr<map<ptr<ProtocolKey>, ptr<BinConsensusInstance>, Comparator>> globalFalseDecisions;
+    // non-essential debugging
+    static ptr<vector<ptr<cache::lru_cache<uint64_t, ptr<BinConsensusInstance>>>>> globalFalseDecisions;
+
+
+    // non-essential tracing data tracing proposals for each round
+    map  <bin_consensus_round, bin_consensus_value> proposals;
+
+    // Used to make sure the same message is not broadcast twice. Does not need to be
+    // saved in the DB
+    map<bin_consensus_round, set<bin_consensus_value>> broadcastValues;
 
 #ifdef CONSENSUS_DEBUG
 
+    // non-essential debugging
     static ptr<list<ptr<NetworkMessage>>> msgHistory;
+
+
 #endif
 
+    // THIS FIELDS are requred by the protocol and in general are persisted in LevelDB
 
+
+    bool isDecided = false; // does not have to be persisted in database since it is
+    // enough to persist decidedValue and  decided round
     bin_consensus_value decidedValue;
-
     bin_consensus_round decidedRound;
 
-
-    const ptr<ProtocolKey> protocolKey;
-
     std::atomic<bin_consensus_round> currentRound = bin_consensus_round(0);
-
-    bin_consensus_round commonCoinNextRound = bin_consensus_round(0);
-
-    map  <bin_consensus_round, bin_consensus_value> est;
-
-    map  <bin_consensus_round, bin_consensus_value>  w;
-
-
-
-
 
     map<bin_consensus_round, set<schain_index>> bvbTrueVotes;
     map<bin_consensus_round, set<schain_index>> bvbFalseVotes;
@@ -110,98 +100,63 @@ private:
     map<bin_consensus_round, map<schain_index, ptr<ThresholdSigShare>>> auxTrueVotes;
     map<bin_consensus_round, map<schain_index, ptr<ThresholdSigShare>>> auxFalseVotes;
 
-
-
     map<bin_consensus_round, set<bin_consensus_value>> binValues;
 
-    map<bin_consensus_round, set<bin_consensus_value>> broadcastValues;
+    // END OF ESSENTIAL PROTOCOL FIELDS
+
+    void processNetworkMessageImpl(ptr<NetworkMessageEnvelope> _me);
 
 
-    void processNetworkMessageImpl(ptr<NetworkMessageEnvelope> me);
+    void networkBroadcastValueIfThird(ptr<BVBroadcastMessage>  _m);
+
+    void networkBroadcastValue(ptr<BVBroadcastMessage> _m);
+
+    void setProposal(bin_consensus_round _r, bin_consensus_value _v);
 
 
+    void insertValue(bin_consensus_round _r, bin_consensus_value _v);
 
-    void networkBroadcastValueIfThird(ptr<BVBroadcastMessage>  m);
+    void commitValueIfTwoThirds(ptr<BVBroadcastMessage> _m);
 
-    void networkBroadcastValue(ptr<BVBroadcastMessage> m);
+    void bvbVote(ptr<MessageEnvelope> _me);
 
-
-    void commitValueIfTwoThirds(ptr<BVBroadcastMessage> m);
-
-    void bvbVote(ptr<MessageEnvelope> me);
-
-    void auxVote(ptr<MessageEnvelope> ptr);
+    void auxVote(ptr<MessageEnvelope> _me);
 
 
-    node_count getBVBVoteCount(bin_consensus_value v, bin_consensus_round round);
+    node_count getBVBVoteCount(bin_consensus_value _v, bin_consensus_round _round);
 
-    node_count getAUXVoteCount(bin_consensus_value v, bin_consensus_round round);
+    node_count getAUXVoteCount(bin_consensus_value _v, bin_consensus_round _round);
 
-    bool isThirdVote(ptr<BVBroadcastMessage> m);
+    bool isThirdVote(ptr<BVBroadcastMessage> _m);
 
 
     void proceedWithCommonCoinIfAUXTwoThird(bin_consensus_round _r);
 
-    void auxBroadcastValue(bin_consensus_value v, bin_consensus_round round);
+    void auxBroadcastValue(bin_consensus_round _r, bin_consensus_value _v);
 
-    bool isThird(node_count count);
+    bool isThird(node_count _count);
 
-    bool isTwoThird(node_count count);
+    bool isTwoThird(node_count _count);
 
     void proceedWithCommonCoin(bool _hasTrue, bool _hasFalse, uint64_t _random);
 
-    void proceedWithNewRound(bin_consensus_value value);
+    void proceedWithNewRound(bin_consensus_value _value);
 
     void printHistory();
 
-    void decide(bin_consensus_value b);
+    void decide(bin_consensus_value _b);
 
-    bool isTwoThirdVote(ptr<BVBroadcastMessage> m);
+    bool isTwoThirdVote(ptr<BVBroadcastMessage> _m);
 
-    void ifAlreadyDecidedSendDelayedEstimateForNextRound(bin_consensus_round round);
-
-
-    void initiateProtocolCompletion(ProtocolOutcome outcome);
+    void ifAlreadyDecidedSendDelayedEstimateForNextRound(bin_consensus_round _round);
 
 
-    void processParentCompletedMessage(ptr<InternalMessageEnvelope> me);
-
-    uint64_t totalAUXVotes(bin_consensus_round r);
+    uint64_t totalAUXVotes(bin_consensus_round _r);
 
 
-    void auxSelfVote(bin_consensus_round r, bin_consensus_value v, ptr<ThresholdSigShare> _sigShare);
+    void auxSelfVote(bin_consensus_round _r, bin_consensus_value _v, ptr<ThresholdSigShare> _sigShare);
 
-
-
-public:
-
-
-
-    bool decided() const;
-
-
-    const block_id getBlockID() const;
-
-    const schain_index getBlockProposerIndex() const;
-
-
-    ptr<ProtocolKey> getProtocolKey() {
-        ASSERT(protocolKey);
-        return protocolKey;
-    }
-
-
-
-    void processMessage(ptr<MessageEnvelope> m);
-
-    void processParentProposal(ptr<InternalMessageEnvelope> me);
-
-    BinConsensusInstance(BlockConsensusAgent* instance, block_id _blockId, schain_index _blockProposerIndex);
-
-    bin_consensus_round getCurrentRound();
-
-    void addToHistory(shared_ptr<NetworkMessage> m);
-
+    void addToHistory(shared_ptr<NetworkMessage> _m);
 
     void addBVSelfVoteToHistory(bin_consensus_round _r, bin_consensus_value _v);
 
@@ -213,14 +168,40 @@ public:
 
     void addNextRoundToHistory(bin_consensus_round _r, bin_consensus_value _v);
 
-
-
-
-    static void initHistory();
-
-    BlockConsensusAgent *getBlockConsensusInstance() const;
-
     uint64_t calculateBLSRandom(bin_consensus_round _r);
+
+    void addDecideToGlobalHistory(bin_consensus_value _decidedValue);
+
+    void setCurrentRound(bin_consensus_round _currentRound);
+
+    void setDecidedRoundAndValue(const bin_consensus_round &_decidedRound, const bin_consensus_value &_decidedValue);
+
+    const node_count &getNodeCount() const;
+
+public:
+
+    bool decided() const;
+
+    const block_id getBlockID() const;
+
+    const schain_index getBlockProposerIndex() const;
+
+    ptr<ProtocolKey> getProtocolKey() {
+        ASSERT(protocolKey);
+        return protocolKey;
+    }
+
+
+    void processMessage(ptr<MessageEnvelope> _m);
+
+    void processParentProposal(ptr<InternalMessageEnvelope> _me);
+
+    BinConsensusInstance(BlockConsensusAgent* _instance, block_id _blockId, schain_index _blockProposerIndex,
+            bool _initFromDB = false);
+
+    bin_consensus_round getCurrentRound();
+
+    static void initHistory(node_count _nodeCount);
 
 };
 

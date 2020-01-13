@@ -27,7 +27,7 @@
 
 enum MsgType {CHILD_COMPLETED, PARENT_COMPLETED,
 
-    BVB_BROADCAST, AUX_BROADCAST, BIN_CONSENSUS_COMMIT, BIN_CONSENSUS_HISTORY_DECIDE,
+    MSG_BVB_BROADCAST, MSG_AUX_BROADCAST, BIN_CONSENSUS_COMMIT, BIN_CONSENSUS_HISTORY_DECIDE,
     BIN_CONSENSUS_HISTORY_CC, BIN_CONSENSUS_HISTORY_BVSELF, BIN_CONSENSUS_HISTORY_AUXSELF, BIN_CONSENSUS_HISTORY_NEW_ROUND,
     MSG_BLOCK_CONSENSUS_INIT, MSG_CONSENSUS_PROPOSAL, MSG_BLOCK_SIGN_BROADCAST };
 
@@ -48,18 +48,15 @@ protected:
     MsgType msgType;
     msg_id msgID;
     node_id srcNodeID;
-    node_id dstNodeID;
 
     ptr<ProtocolKey> protocolKey;
 
 public:
     Message(const schain_id &schainID, MsgType msgType, const msg_id &msgID, const node_id &srcNodeID,
-            const node_id &dstNodeID, const block_id &blockID,
-            const schain_index &blockProposerIndex);
+            const block_id &blockID, const schain_index &blockProposerIndex);
 
     node_id getSrcNodeID() const;
-
-    node_id getDstNodeID() const;
+;
 
     msg_id getMessageID() const;
 
@@ -73,10 +70,6 @@ public:
 
 
     ptr<ProtocolKey> createDestinationProtocolKey();
-
-    void setSrcNodeID(const node_id &srcNodeID);
-
-    void setDstNodeID(const node_id &dstNodeID);
 
     const block_id &getBlockID() const;
 

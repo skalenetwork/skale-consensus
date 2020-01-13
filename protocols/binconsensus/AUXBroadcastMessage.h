@@ -38,10 +38,11 @@ public:
 
 
 
-    AUXBroadcastMessage(bin_consensus_round round, bin_consensus_value value, node_id destinationNodeID,
-                        block_id _blockID, schain_index _proposerIndex,
-                        BinConsensusInstance &sourceProtocolInstance);
+    AUXBroadcastMessage(bin_consensus_round _round, bin_consensus_value _value, block_id _blockID,
+                        schain_index _proposerIndex, BinConsensusInstance &_sourceProtocolInstance);
 
-    AUXBroadcastMessage(node_id _srcNodeID, node_id _dstNodeID, block_id _blockID, schain_index _blockProposerIndex, bin_consensus_round _r, bin_consensus_value _value, schain_id _schainId, msg_id _msgID, uint32_t _ip, ptr<string> _signature, schain_index _srcSchainIndex, Schain* _sChain);
+    AUXBroadcastMessage(node_id _srcNodeID, block_id _blockID, schain_index _blockProposerIndex, bin_consensus_round _r,
+                        bin_consensus_value _value, schain_id _schainId, msg_id _msgID, ptr<string> _signature,
+                        schain_index _srcSchainIndex, Schain *_sChain);
 
 };

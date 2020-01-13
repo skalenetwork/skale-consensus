@@ -75,8 +75,7 @@ protected:
 
     void addToDeferredMessageQueue(ptr<NetworkMessageEnvelope> _me);
 
-    ptr<vector<ptr<NetworkMessageEnvelope>>> pullMessagesForBlockID(block_id _blockID);
-
+    ptr<vector<ptr<NetworkMessageEnvelope> > > pullMessagesForCurrentBlockID();
 
     virtual bool sendMessage(const ptr<NodeInfo> &remoteNodeInfo, ptr<NetworkMessage> _msg) = 0;
 
@@ -103,13 +102,13 @@ public:
 
 
 
-    ptr<string> ipToString(uint32_t _ip);
+    static ptr<string> ipToString(uint32_t _ip);
 
     void broadcastMessage(ptr<NetworkMessage> _m);
 
     ptr<NetworkMessageEnvelope> receiveMessage();
 
-    virtual ptr<string> readMessageFromNetwork(ptr<Buffer> buf) = 0;
+    virtual uint64_t readMessageFromNetwork(ptr<Buffer> buf) = 0;
 
     static bool validateIpAddress(ptr<string> &_ip);
 
@@ -121,7 +120,7 @@ public:
 
     void setCatchupBlocks(uint64_t _catchupBlocks);
 
-    void postOrDefer(const ptr<NetworkMessageEnvelope> &m, const block_id &currentBlockID);
+    void postDeferOrDrop(const ptr<NetworkMessageEnvelope> &m);
 
     ~TransportNetwork();
 };

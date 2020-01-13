@@ -47,7 +47,9 @@ void CatchupResponseHeader::setBlockSizes(ptr<list<uint64_t>> _blockSizes) {
     complete = true;
 }
 
-void CatchupResponseHeader::addFields(nlohmann::basic_json<> &_j) {
+void CatchupResponseHeader::addFields(nlohmann::json &_j) {
+
+    Header::addFields(_j);
 
 
     _j["count"] = blockCount;

@@ -41,8 +41,11 @@ MessageOrigin MessageEnvelope::getOrigin() const {
     return origin;
 }
 
-MessageEnvelope::MessageEnvelope(MessageOrigin origin, const ptr<Message> &message,
-                                 const ptr<NodeInfo> &realSender) : origin(origin), message(message),
-                                                                                srcNodeInfo(realSender) {}
+MessageEnvelope::MessageEnvelope(MessageOrigin origin, const ptr<Message> &_message,
+                                 const ptr<NodeInfo> &_realSender) : origin(origin), message(_message),
+                                                                     srcNodeInfo(_realSender) {
+    CHECK_ARGUMENT(_message);
+    CHECK_ARGUMENT(_realSender);
+}
 
 

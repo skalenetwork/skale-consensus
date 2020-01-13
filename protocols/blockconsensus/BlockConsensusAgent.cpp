@@ -47,6 +47,7 @@
 #include "db/BlockProposalDB.h"
 #include "exceptions/InvalidStateException.h"
 #include "db/BlockSigShareDB.h"
+#include "db/BlockDB.h"
 #include "blockfinalize/client/BlockFinalizeDownloader.h"
 #include "blockfinalize/client/BlockFinalizeDownloaderThreadPool.h"
 #include "thirdparty/lrucache.hpp"
@@ -62,9 +63,27 @@
 
 BlockConsensusAgent::BlockConsensusAgent(Schain &_schain) : ProtocolInstance(
         BLOCK_SIGN, _schain) {
-    trueDecisions = make_shared<cache::lru_cache<uint64_t , ptr<set<schain_index>>>>(CONSENSUS_HISTORY);
-    falseDecisions = make_shared<cache::lru_cache<uint64_t , ptr<set<schain_index>>>>(CONSENSUS_HISTORY);
-    decidedIndices = make_shared<cache::lru_cache<uint64_t , schain_index>>(CONSENSUS_HISTORY);
+    trueDecisions = make_shared<cache::lru_cache<uint64_t , ptr<set<schain_index>>>>(MAX_CONSENSUS_HISTORY);
+    falseDecisions = make_shared<cache::lru_cache<uint64_t , ptr<set<schain_index>>>>(MAX_CONSENSUS_HISTORY);
+    decidedIndices = make_shared<cache::lru_cache<uint64_t , schain_index>>(MAX_CONSENSUS_HISTORY);
+
+    for (int i = 0; i <  _schain.getNodeCount(); i++) {
+        children.push_back(make_shared<cache::lru_cache<uint64_t, ptr<BinConsensusInstance>>>(MAX_CONSENSUS_HISTORY));
+    }
+
+    auto blockDB = _schain.getNode()->getBlockDB();
+
+    auto currentBlock = blockDB->readLastCommittedBlockID() + 1;
+
+    for (int i = 0; i <  _schain.getNodeCount(); i++) {
+        children[i]->put((uint64_t) currentBlock, make_shared<BinConsensusInstance>(this, currentBlock, i + 1, true));
+    }
+
+
+
+
+
+
 };
 
 
@@ -117,14 +136,12 @@ void BlockConsensusAgent::propose(bin_consensus_value _proposal, schain_index _i
 
     try {
 
-        auto _nodeID = getSchain()->getNode()->getNodeInfoByIndex(_index)->getNodeID();
-
 
         auto key = make_shared<ProtocolKey>(_id, _index);
 
         auto child = getChild(key);
 
-        auto msg = make_shared<BVBroadcastMessage>(_nodeID, _id, _index, bin_consensus_round(0), _proposal, *child);
+        auto msg = make_shared<BVBroadcastMessage>(_id, _index, bin_consensus_round(0), _proposal, *child);
 
 
         auto id = (uint64_t) msg->getBlockId();
@@ -281,7 +298,6 @@ void BlockConsensusAgent::routeAndProcessMessage(ptr<MessageEnvelope> m) {
         auto blockID = m->getMessage()->getBlockId();
 
         // Future blockid messages shall never get to this point
-        // They are in
         CHECK_ARGUMENT( blockID <= getSchain()->getLastCommittedBlockID() + 1);
 
         if (blockID + MAX_ACTIVE_CONSENSUSES < getSchain()->getLastCommittedBlockID())
@@ -338,19 +354,30 @@ bool BlockConsensusAgent::decided(ptr<ProtocolKey> key) {
     return getChild(key)->decided();
 }
 
-ptr<BinConsensusInstance> BlockConsensusAgent::getChild(ptr<ProtocolKey> key) {
+ptr<BinConsensusInstance> BlockConsensusAgent::getChild(ptr<ProtocolKey> _key) {
+
+
+
+    CHECK_ARGUMENT(_key);
+
+    auto bpi = _key->getBlockProposerIndex();
+    auto bid = _key->getBlockID();
+
+    CHECK_ARGUMENT ((uint64_t) bpi <= (uint64_t) getSchain()->getNodeCount())
+
+
 
     try {
 
-        if ((uint64_t) key->getBlockProposerIndex() > (uint64_t) getSchain()->getNodeCount())
-            return nullptr;
 
-        lock_guard<recursive_mutex> lock(childrenMutex);
+        LOCK(m)
 
-        if (children.count(key) == 0)
-            children[key] = make_shared<BinConsensusInstance>(this, key->getBlockID(), key->getBlockProposerIndex());
+        if (!children.at((uint64_t ) bpi - 1)->exists((uint64_t ) bid)) {
+            children.at((uint64_t) bpi - 1)->put(
+                    (uint64_t ) bid, make_shared<BinConsensusInstance>(this, bid, bpi));
+        }
 
-        return children.at(key);
+        return children.at((uint64_t) bpi - 1)->get((uint64_t ) bid);
 
     } catch (ExitRequestedException &) { throw; } catch (Exception &e) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
@@ -359,3 +386,26 @@ ptr<BinConsensusInstance> BlockConsensusAgent::getChild(ptr<ProtocolKey> key) {
 }
 
 
+bool BlockConsensusAgent::shouldPost(ptr<NetworkMessage> _msg) {
+
+
+    if (_msg->getMessageType() == MSG_BLOCK_SIGN_BROADCAST) {
+        return true;
+    }
+
+    auto key = _msg->createDestinationProtocolKey();
+    auto currentRound = getRound(key);
+    auto r = _msg->getRound();
+
+
+    if (r >  currentRound + 1) { // way in the future
+        return false;
+    }
+
+    if (r == currentRound + 1) { // if the previous round is decided, accept messages from the next round
+        return decided(key);
+    }
+
+
+    return true;
+}

@@ -60,6 +60,7 @@
 
 #include "db/BlockDB.h"
 #include "db/CommittedTransactionDB.h"
+#include "db/ConsensusStateDB.h"
 #include "db/PriceDB.h"
 #include "db/RandomDB.h"
 #include "db/SigDB.h"
@@ -136,10 +137,29 @@ node_id Node::getNodeID() const {
 
 
 ptr<ProposalHashDB> Node::getProposalHashDB() {
-    assert(proposalHashDB != nullptr);
+    CHECK_STATE(proposalHashDB);
     return proposalHashDB;
 }
 
+ptr<ProposalVectorDB> Node::getProposalVectorDB() {
+    CHECK_STATE(proposalVectorDB);
+    return proposalVectorDB;
+}
+
+ptr<MsgDB> Node::getOutgoingMsgDB() {
+    CHECK_STATE(outgoingMsgDB);
+    return outgoingMsgDB;
+}
+
+ptr<MsgDB> Node::getIncomingMsgDB() {
+    CHECK_STATE(incomingMsgDB);
+    return incomingMsgDB;
+}
+
+ptr<ConsensusStateDB> Node::getConsensusStateDB() {
+    CHECK_STATE(consensusStateDB);
+    return consensusStateDB;
+}
 
 ptr<map<schain_index, ptr<NodeInfo> > > Node::getNodeInfosByIndex() const {
     assert(nodeInfosByIndex != nullptr);
@@ -200,17 +220,17 @@ ptr<NodeInfo> Node::getNodeInfoByIP(ptr<string> ip) {
 
 
 ptr<BlockDB> Node::getBlockDB() {
-    ASSERT(blockDB != nullptr);
+    CHECK_STATE(blockDB != nullptr);
     return blockDB;
 }
 
 ptr<RandomDB> Node::getRandomDB() {
-    ASSERT(randomDB != nullptr);
+    CHECK_STATE(randomDB);
     return randomDB;
 }
 
 ptr<PriceDB> Node::getPriceDB() const {
-    ASSERT(priceDB != nullptr)
+    CHECK_STATE(priceDB)
     return priceDB;
 }
 
@@ -247,6 +267,12 @@ uint64_t Node::getMinBlockIntervalMs() const {
 uint64_t Node::getBlockDBSize() const {
     return blockDBSize;
 }
+
+uint64_t Node::getConsensusStateDBSize() const {
+    return consensusStateDBSize;
+}
+
+
 
 uint64_t Node::getCommittedTransactionHistoryLimit() const {
     return committedTransactionsHistory;
@@ -308,16 +334,18 @@ uint64_t Node::getBlockSigShareDBSize() const {
 }
 
 ptr<BlockSigShareDB> Node::getBlockSigShareDB() const {
-    ASSERT(blockSigShareDB != nullptr);
+    CHECK_STATE(blockSigShareDB != nullptr);
     return blockSigShareDB;
 }
 
 ptr<DASigShareDB> Node::getDaSigShareDB() const {
+    CHECK_STATE(daSigShareDB);
     return daSigShareDB;
 }
 
 
 ptr<DAProofDB> Node::getDaProofDB() const {
+    CHECK_STATE(daProofDB);
     return daProofDB;
 }
 
@@ -331,10 +359,8 @@ uint64_t Node::getDaProofDBSize() const {
     return daProofDBSize;
 }
 
-
-
-
 ptr<BlockProposalDB>  Node::getBlockProposalDB() const {
+    CHECK_STATE(blockProposalDB)
     return blockProposalDB;
 }
 

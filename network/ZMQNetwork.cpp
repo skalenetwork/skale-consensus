@@ -56,7 +56,8 @@ using namespace std;
 
 bool ZMQNetwork::sendMessage(const ptr<NodeInfo> &_remoteNodeInfo, ptr<NetworkMessage> _msg) {
 
-    auto buf = _msg->toBuffer();
+
+    auto buf = _msg->serializeToString();
 
     auto ip = _remoteNodeInfo->getBaseIP();
 
@@ -64,21 +65,17 @@ bool ZMQNetwork::sendMessage(const ptr<NodeInfo> &_remoteNodeInfo, ptr<NetworkMe
 
     void *s = sChain->getNode()->getSockets()->consensusZMQSocket->getDestinationSocket(ip, port);
 
-    auto len = buf->getCounter();
-
-    ASSERT(len == CONSENSUS_MESSAGE_LEN);
-
 #ifdef ZMQ_NONBLOCKING
-    return interruptableSend(s, buf->getBuf()->data(), len, true);
+    return interruptableSend(s, buf->data(), buf->size(), true);
 #else
-    return interruptableSend(s, buf->getBuf()->data(), len, false);
+    return interruptableSend(s, buf->data(), buf->size(), false);
 #endif
 
 
 }
 
 
-int ZMQNetwork::interruptableRecv(void *_socket, void *_buf, size_t _len, int _flags) {
+uint64_t ZMQNetwork::interruptableRecv(void *_socket, void *_buf, size_t _len, int _flags) {
 
     int rc = -1;
 
@@ -100,7 +97,7 @@ int ZMQNetwork::interruptableRecv(void *_socket, void *_buf, size_t _len, int _f
         BOOST_THROW_EXCEPTION(NetworkProtocolException("Zmq recv failed " + string(zmq_strerror(errno)), __CLASS_NAME__));
     }
 
-    return rc;
+    return (uint64_t ) rc;
 
 }
 
@@ -145,25 +142,24 @@ bool ZMQNetwork::interruptableSend(void *_socket, void *_buf, size_t _len, bool 
 }
 
 
-ptr<string> ZMQNetwork::readMessageFromNetwork(ptr<Buffer> buf) {
+uint64_t ZMQNetwork::readMessageFromNetwork(ptr<Buffer> buf) {
 
     auto s = sChain->getNode()->getSockets()->consensusZMQSocket->getReceiveSocket();
 
-    auto rc = interruptableRecv(s, buf->getBuf()->data(), CONSENSUS_MESSAGE_LEN, 0);
+    auto rc = interruptableRecv(s, buf->getBuf()->data(), MAX_CONSENSUS_MESSAGE_LEN, 0);
 
-
-    if (rc != CONSENSUS_MESSAGE_LEN) {
-        BOOST_THROW_EXCEPTION(NetworkProtocolException("Incorrect message length:" +
+    if ((uint64_t) rc >= MAX_CONSENSUS_MESSAGE_LEN) {
+        BOOST_THROW_EXCEPTION(NetworkProtocolException("Consensus essage length too large:" +
                                        to_string(rc), __CLASS_NAME__));
     }
 
+    return rc;
 
 #ifndef ZMQ_EXPERIMENTAL
     int zero = 0;
     interruptableSend(s, &zero, 1, 0);
 #endif
 
-    return make_shared<string>("");
 
 }
 

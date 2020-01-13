@@ -25,6 +25,8 @@
 #include "SkaleCommon.h"
 #include "Log.h"
 #include "exceptions/ExitRequestedException.h"
+#include "node/Node.h"
+#include "chains/Schain.h"
 #include "PriceDB.h"
 
 #include "chains/Schain.h"
@@ -40,7 +42,6 @@ const string PriceDB::getFormatVersion() {
 }
 
 
-
 u256 PriceDB::readPrice(block_id _blockID) {
 
     LOG(trace, "Read price for block" + to_string(_blockID));
@@ -48,6 +49,7 @@ u256 PriceDB::readPrice(block_id _blockID) {
     if (_blockID <= 1) {
         return getSchain()->getNode()->getParamUint64(string("DYNAMIC_PRICING_START_PRICE"), 1000);
     }
+
 
     try {
 
@@ -58,7 +60,7 @@ u256 PriceDB::readPrice(block_id _blockID) {
 
         if (price == nullptr) {
             BOOST_THROW_EXCEPTION(InvalidArgumentException("Price for block " +
-            to_string(_blockID) + " is unknown", __CLASS_NAME__));
+                                                           to_string(_blockID) + " is unknown", __CLASS_NAME__));
         }
 
         return u256(price->c_str());

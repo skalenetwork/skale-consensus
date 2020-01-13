@@ -17,6 +17,7 @@
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
     @file LevelDB.cpp
+    @file LevelDB.cpp
     @author Stan Kladko
     @date 2019
 */
@@ -41,7 +42,6 @@
 #include "datastructures/Transaction.h"
 #include "datastructures/PartialHashesList.h"
 #include "node/Node.h"
-#include "datastructures/MyBlockProposal.h"
 #include "datastructures/BlockProposal.h"
 #include "crypto/SHAHash.h"
 #include "exceptions/LevelDBException.h"
@@ -60,9 +60,15 @@ static WriteOptions writeOptions;
 static ReadOptions readOptions;
 
 
+ptr<string> CacheLevelDB::createKey(const block_id _blockId, uint64_t _counter) {
+    return make_shared<string>(
+            getFormatVersion() + ":" + to_string(_blockId) + ":" + to_string(_counter));
+}
+
 ptr<string> CacheLevelDB::createKey(const block_id _blockId) {
     return make_shared<string>(getFormatVersion() + ":" + to_string(_blockId));
 }
+
 
 ptr<string> CacheLevelDB::createKey(block_id _blockId, schain_index _proposerIndex) {
     return make_shared<string>(
@@ -78,7 +84,7 @@ CacheLevelDB::createKey(const block_id &_blockId, const schain_index &_proposerI
 
 
 string CacheLevelDB::createSetKey(block_id _blockId, schain_index _index) {
-    return to_string(_blockId) + ":" + to_string(_index);
+    return getFormatVersion() + ":" + to_string(_blockId) + ":" + to_string(_index);
 }
 
 string CacheLevelDB::createCounterKey(block_id _blockId) {
@@ -142,18 +148,18 @@ bool CacheLevelDB::keyExists(const string &_key) {
 }
 
 
-void CacheLevelDB::writeString(const string &_key, const string &_value) {
+void CacheLevelDB::writeString(const string &_key, const string &_value,
+                               bool _overWrite) {
 
     rotateDBsIfNeeded();
 
     {
         shared_lock<shared_mutex> lock(m);
 
-        if (keyExistsUnsafe(_key)) {
-            LOG(warn, "Double db entry " + this->prefix + "\n" + _key);
+        if ((!_overWrite) && keyExistsUnsafe(_key)) {
+            LOG(trace, "Double db entry " + this->prefix + "\n" + _key);
             return;
         }
-
 
         auto status = db.back()->Put(writeOptions, _key, Slice(_value));
 
@@ -181,19 +187,20 @@ void CacheLevelDB::writeByteArray(const char *_key, size_t _keyLen, const char *
     }
 }
 
-void CacheLevelDB::writeByteArray(string &_key, const char *value,
-                                  size_t _valueLen) {
+void CacheLevelDB::writeByteArray(string &_key, ptr<vector<uint8_t>> _data) {
+
+    CHECK_ARGUMENT(_data);
+
 
     rotateDBsIfNeeded();
 
+    auto value = (const char *) _data->data();
+    auto valueLen = _data->size();
+
     {
         shared_lock<shared_mutex> lock(m);
-
-
-        auto status = db.back()->Put(writeOptions, Slice(_key), Slice(value, _valueLen));
-
+        auto status = db.back()->Put(writeOptions, Slice(_key), Slice(value, valueLen));
         throwExceptionOnError(status);
-
     }
 }
 
@@ -207,6 +214,85 @@ void CacheLevelDB::throwExceptionOnError(Status _status) {
     }
 
 }
+
+ptr<string> CacheLevelDB::readLastKeyInPrefixRange(string &_prefix) {
+
+    ptr<map<string, ptr<string>>> result = nullptr;
+
+    shared_lock<shared_mutex> lock(m);
+
+    for (int i = LEVELDB_PIECES - 1; i >= 0; i--) {
+        ASSERT(db[i]);
+        auto partialResult = readPrefixRangeFromDBUnsafe(_prefix, db[i], true);
+        if (partialResult) {
+            if (result) {
+                result->insert(partialResult->begin(), partialResult->end());
+            } else {
+                result = partialResult;
+            }
+        }
+    }
+
+    if (result->empty()) {
+        return nullptr;
+    }
+
+    return make_shared<string>(result->rbegin()->first);
+
+}
+
+
+ptr<map<string, ptr<string>>> CacheLevelDB::readPrefixRange(string &_prefix) {
+
+
+    ptr<map<string, ptr<string>>> result = nullptr;
+
+    shared_lock<shared_mutex> lock(m);
+
+    for (int i = LEVELDB_PIECES - 1; i >= 0; i--) {
+        ASSERT(db[i]);
+        auto partialResult = readPrefixRangeFromDBUnsafe(_prefix, db[i]);
+        if (partialResult) {
+            if (result) {
+                result->insert(partialResult->begin(), partialResult->end());
+            } else {
+                result = partialResult;
+            }
+        }
+    }
+
+
+    return result;
+
+
+}
+
+ptr<map<string, ptr<string>>> CacheLevelDB::readPrefixRangeFromDBUnsafe(string &_prefix, ptr<leveldb::DB> _db,
+                                                                        bool _lastOnly) {
+
+    CHECK_ARGUMENT(_db);
+
+    ptr<map<string, ptr<string>>> result = make_shared<map<string, ptr<string>>>();
+
+    auto idb = ptr<Iterator>(_db->NewIterator(readOptions));
+
+    if (_lastOnly) {
+        idb->SeekToLast();
+        if (idb->Valid()) {
+            (*result)[idb->key().ToString()] = make_shared<string>(idb->value().ToString());
+            cerr << idb->key().ToString() << endl;
+        }
+        return result;
+    }
+
+    for (idb->Seek(_prefix); idb->Valid() && idb->key().starts_with(_prefix); idb->Next()) {
+        (*result)[idb->key().ToString()] = make_shared<string>(idb->value().ToString());
+    }
+
+
+    return result;
+}
+
 
 uint64_t CacheLevelDB::visitKeys(CacheLevelDB::KeyVisitor *_visitor, uint64_t _maxKeysToVisit) {
 
@@ -309,7 +395,7 @@ uint64_t CacheLevelDB::getActiveDBSize() {
         return size;
 
     } catch (ExitRequestedException &e) { throw; }
-    catch (exception&) {
+    catch (exception &) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
 
@@ -366,6 +452,7 @@ void CacheLevelDB::rotateDBsIfNeeded() {
             auto newDB = openDB(highestDBIndex + 1);
 
             for (int i = 1; i < LEVELDB_PIECES; i++) {
+                db.at(i - 1) = nullptr;
                 db.at(i - 1) = db.at(i);
             }
 
@@ -466,7 +553,7 @@ CacheLevelDB::writeByteArrayToSetUnsafe(const char *_value, uint64_t _valueLen, 
 
     if (keyExistsUnsafe(entryKey)) {
         if (!isDuplicateAddOK)
-            LOG(warn, "Double db entry " + this->prefix + "\n" + to_string(_blockId) + ":" + to_string(_index));
+            LOG(trace, "Double db entry " + this->prefix + "\n" + to_string(_blockId) + ":" + to_string(_index));
         return nullptr;
     }
 
@@ -534,9 +621,9 @@ CacheLevelDB::writeByteArrayToSetUnsafe(const char *_value, uint64_t _valueLen, 
 
 void CacheLevelDB::verify() {
 
-    assert(db.size() == LEVELDB_PIECES);
+    CHECK_STATE(db.size() == LEVELDB_PIECES);
     for (auto &&x : db) {
-        assert(x != nullptr);
+        CHECK_STATE(x != nullptr);
     }
 }
 

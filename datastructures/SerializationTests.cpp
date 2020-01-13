@@ -34,6 +34,7 @@
 #include "SkaleCommon.h"
 #include "exceptions/ParsingException.h"
 #include "crypto/CryptoManager.h"
+#include "chains/Schain.h"
 
 #include "CommittedBlock.h"
 #include "CommittedBlockList.h"
@@ -73,7 +74,9 @@ void test_committed_block_fragment_defragment(bool _fail) {
 
     ConsensusEngine engine;
 
-    auto cryptoManager = make_shared<CryptoManager>();
+    Schain chain;
+
+    auto cryptoManager = make_shared<CryptoManager>(chain);
 
 
     for (int i = 1; i < 200; i++) {
@@ -192,7 +195,8 @@ void test_tx_list_serialize_deserialize(bool _fail) {
 void test_committed_block_serialize_deserialize(bool _fail) {
     boost::random::mt19937 gen;
 
-    auto cryptoManager = make_shared<CryptoManager>();
+    Schain chain;
+    auto cryptoManager = make_shared<CryptoManager>(chain);
 
     boost::random::uniform_int_distribution<> ubyte(0, 255);
 
@@ -229,7 +233,8 @@ void test_committed_block_serialize_deserialize(bool _fail) {
 void test_committed_block_list_serialize_deserialize() {
     boost::random::mt19937 gen;
 
-    auto cryptoManager = make_shared<CryptoManager>();
+    Schain chain;
+    auto cryptoManager = make_shared<CryptoManager>(chain);
 
     boost::random::uniform_int_distribution<> ubyte(0, 255);
 
@@ -330,14 +335,3 @@ public:
     }
 };
 
-
-
-
-
-TEST_CASE_METHOD(CryptoFixture, "Import pem ecdsa key", "[import-ecdsa-key]") {
-
-    //openssl ecparam -name secp256k1 -genkey -noout
-
-    CryptoManager manager;
-
-}

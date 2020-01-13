@@ -40,6 +40,7 @@ FinalProposalResponseHeader::FinalProposalResponseHeader(ptr<string> _sigShare)
 }
 
 void FinalProposalResponseHeader::addFields(nlohmann::basic_json<> &_j) {
+    Header::addFields(_j);
     if (sigShare != nullptr) {
         _j["sigShare"] = *sigShare;
     }

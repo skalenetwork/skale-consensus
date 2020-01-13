@@ -41,7 +41,9 @@ ConsensusEngine *engine;
 class StartFromScratch {
 public:
     StartFromScratch() {
+
         int i = system("rm -rf /tmp/*.db.*");
+        i = system("rm -rf /tmp/*.db");
         i++; // make compiler happy
         Consensust::setConfigDirPath(boost::filesystem::system_complete("."));
 
@@ -125,7 +127,6 @@ TEST_CASE_METHOD(StartFromScratch, "Run basic consensus", "[consensus-basic]") {
 
 TEST_CASE_METHOD(StartFromScratch, "Run two engines", "[consensus-two-engines]") {
     basicRun();
-    system("rm -rf /tmp/*.db.*");
     basicRun();
     SUCCEED();
 }

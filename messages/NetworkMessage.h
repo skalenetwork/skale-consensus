@@ -42,14 +42,16 @@ class Node;
 class ThresholdSigShare;
 class CryptoManager;
 
-static constexpr uint32_t CONSENSUS_MESSAGE_LEN = 73 + BLS_MAX_SIG_LEN;
+static constexpr uint64_t MAX_CONSENSUS_MESSAGE_LEN = 1024;
 
-class NetworkMessage : public Message {
+#include "headers/BasicHeader.h"
 
-
+class NetworkMessage : public Message, public BasicHeader {
 
 protected:
 
+
+    void addFields(nlohmann::json &j) override;
 
 
     string printPrefix = "n";
@@ -58,16 +60,15 @@ protected:
 
     ptr<ThresholdSigShare> sigShare;
 
-    NetworkMessage(MsgType _messageType, node_id _destinationNodeID, block_id _blockID,
-                   schain_index _blockProposerIndex, bin_consensus_round _r, bin_consensus_value _value,
-                   ProtocolInstance &_srcProtocolInstance );
+    NetworkMessage(MsgType _messageType, block_id _blockID, schain_index _blockProposerIndex,
+                   bin_consensus_round _r, bin_consensus_value _value,
+                   ProtocolInstance &_srcProtocolInstance);
 
 
-    NetworkMessage(MsgType messageType, node_id _srcNodeID, node_id _dstNodeID, block_id _blockID,
+    NetworkMessage(MsgType _messageType, node_id _srcNodeID, block_id _blockID,
                    schain_index _blockProposerIndex, bin_consensus_round _r, bin_consensus_value _value,
-                   schain_id _schainId, msg_id _msgID, uint32_t _ip, ptr<string> _sigShareStr,
-                   schain_index _srcSchainIndex, ptr<CryptoManager> _cryptoManager,
-                   uint64_t _totalSigners, uint64_t _requiredSigners);
+                   schain_id _schainId, msg_id _msgID, ptr<string> _sigShareStr,
+                   schain_index _srcSchainIndex, ptr<CryptoManager> _cryptoManager);
 
 
 
@@ -75,6 +76,7 @@ protected:
 public:
 
 
+    schain_index srcSchainIndex;
 
     bin_consensus_round r;
     bin_consensus_value value;
@@ -83,24 +85,18 @@ public:
 
     virtual bin_consensus_value getValue() const;
 
-    msg_len getLen();
-
-    int32_t ip;
-
-
-
-
     virtual ~NetworkMessage(){};
 
     void printMessage();
 
-
-    int32_t getIp() const;
-
     void setIp(int32_t _ip);
 
-    ptr<Buffer> toBuffer();
-
     ptr<ThresholdSigShare> getSigShare() const;
+
+    static ptr<NetworkMessage> parseMessage(ptr<string> _header, Schain* _sChain);
+
+    static const char* getTypeString(MsgType _type );
+
+    const schain_index &getSrcSchainIndex() const;
 
 };

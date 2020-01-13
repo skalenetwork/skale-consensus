@@ -57,13 +57,10 @@ BlockDB::BlockDB(Schain *_sChain, string &_dirname, string &_prefix, node_id _no
                        _nodeId, _maxDBSize, false) {
 
 
-
 }
 
 
 void BlockDB::saveBlock2LevelDB(ptr<CommittedBlock> &_block) {
-
-
 
     CHECK_ARGUMENT(_block->getSignature() != nullptr);
 
@@ -74,23 +71,23 @@ void BlockDB::saveBlock2LevelDB(ptr<CommittedBlock> &_block) {
         auto serializedBlock = _block->serialize();
 
         auto key = createKey(_block->getBlockID());
-
-        auto value = (const char *) serializedBlock->data();
-
-        auto valueLen = serializedBlock->size();
-
-        writeByteArray(*key, value, valueLen);
+        
+        writeByteArray(*key, serializedBlock);
+        writeString(createLastCommittedKey(), to_string(_block->getBlockID()), true);
     } catch (...) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
 
 }
 
-const string BlockDB::getFormatVersion() {
-    return "1.0";
+string BlockDB::createLastCommittedKey() {
+    return getFormatVersion() + ":last";
 }
 
 
+const string BlockDB::getFormatVersion() {
+    return "1.0";
+}
 
 
 void BlockDB::saveBlock(ptr<CommittedBlock> &_block) {
@@ -107,7 +104,6 @@ void BlockDB::saveBlock(ptr<CommittedBlock> &_block) {
     }
 
 }
-
 
 
 ptr<CommittedBlock> BlockDB::getBlock(block_id _blockID, ptr<CryptoManager> _cryptoManager) {
@@ -131,4 +127,20 @@ ptr<CommittedBlock> BlockDB::getBlock(block_id _blockID, ptr<CryptoManager> _cry
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
 
+}
+
+block_id BlockDB::readLastCommittedBlockID() {
+
+    uint64_t  lastBlockId;
+
+    auto key = createLastCommittedKey();
+
+    auto blockStr = readString(key);
+
+    if (!blockStr)
+        return 0;
+
+    stringstream(*blockStr)  >> lastBlockId;
+
+    return lastBlockId;
 }

@@ -48,7 +48,7 @@ public:
 
     FinalProposalResponseHeader(ConnectionStatus _status, ConnectionSubStatus _substatus);
 
-    void addFields(nlohmann::basic_json<> &_j) override;
+    void addFields(nlohmann::json &_j) override;
 
     const ptr<string> getSigShare() const;
 

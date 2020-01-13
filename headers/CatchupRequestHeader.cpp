@@ -57,10 +57,12 @@ CatchupRequestHeader::CatchupRequestHeader(Schain &_sChain, schain_index _dstInd
 
 }
 
-void CatchupRequestHeader::addFields(nlohmann::basic_json<> &j) {
+void CatchupRequestHeader::addFields(nlohmann::json& _j) {
 
-    j["schainID"] = (uint64_t ) schainID;
-    j["blockID"] = (uint64_t ) blockID;
+    Header::addFields(_j);
+
+    _j["schainID"] = (uint64_t ) schainID;
+    _j["blockID"] = (uint64_t ) blockID;
 
 }
 

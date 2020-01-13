@@ -31,6 +31,7 @@
 #include "thirdparty/json.hpp"
 
 
+#include "db/MsgDB.h"
 #include "utils/Time.h"
 #include "abstracttcpserver/ConnectionStatus.h"
 #include "exceptions/InvalidStateException.h"
@@ -40,6 +41,7 @@
 #include "blockproposal/pusher/BlockProposalClientAgent.h"
 #include "headers/BlockProposalRequestHeader.h"
 #include "pendingqueue/PendingTransactionsAgent.h"
+#include "network/TransportNetwork.h"
 
 #include "blockfinalize/client/BlockFinalizeDownloader.h"
 #include "blockproposal/server/BlockProposalServerAgent.h"
@@ -58,6 +60,7 @@
 #include "db/BlockProposalDB.h"
 #include "db/DAProofDB.h"
 #include "db/DASigShareDB.h"
+#include "db/ProposalVectorDB.h"
 #include "network/Sockets.h"
 #include "protocols/ProtocolInstance.h"
 #include "protocols/blockconsensus/BlockConsensusAgent.h"
@@ -242,7 +245,7 @@ void Schain::constructChildAgents() {
         pendingTransactionsAgent = make_shared<PendingTransactionsAgent>(*this);
         blockProposalClient = make_shared<BlockProposalClientAgent>(*this);
         catchupClientAgent = make_shared<CatchupClientAgent>(*this);
-        blockConsensusInstance = make_shared<BlockConsensusAgent>(*this);
+
 
         testMessageGeneratorAgent = make_shared<TestMessageGeneratorAgent>(*this);
         pricingAgent = make_shared<PricingAgent>(*this);
@@ -353,12 +356,14 @@ void Schain::proposeNextBlock(uint64_t _previousBlockTimeStamp, uint32_t _previo
 
         block_id _proposedBlockID((uint64_t) lastCommittedBlockID + 1);
 
-        if (getNode()->getProposalHashDB()->haveProposal(_proposedBlockID, getSchainIndex()))
-            return;
+        ptr<BlockProposal> myProposal;
 
-
-        auto myProposal = pendingTransactionsAgent->buildBlockProposal(_proposedBlockID, _previousBlockTimeStamp,
-                                                                       _previousBlockTimeStampMs);
+        if (getNode()->getProposalHashDB()->haveProposal(_proposedBlockID, getSchainIndex())) {
+            myProposal = getNode()->getBlockProposalDB()->getBlockProposal(_proposedBlockID, getSchainIndex());
+        } else {
+            myProposal = pendingTransactionsAgent->buildBlockProposal(_proposedBlockID, _previousBlockTimeStamp,
+                                                                           _previousBlockTimeStampMs);
+        }
 
         CHECK_STATE(myProposal->getProposerIndex() == getSchainIndex());
         CHECK_STATE(myProposal->getSignature() != nullptr);
@@ -430,6 +435,9 @@ void Schain::processCommittedBlock(ptr<CommittedBlock> _block) {
 }
 
 void Schain::saveBlock(ptr<CommittedBlock> &_block) {
+
+    CHECK_ARGUMENT(_block);
+
     MONITOR(__CLASS_NAME__, __FUNCTION__)
 
     try {
@@ -444,6 +452,8 @@ void Schain::saveBlock(ptr<CommittedBlock> &_block) {
 
 
 void Schain::pushBlockToExtFace(ptr<CommittedBlock> &_block) {
+
+    CHECK_ARGUMENT(_block);
 
     MONITOR2(__CLASS_NAME__, __FUNCTION__, getMaxExternalBlockProcessingTime())
 
@@ -477,6 +487,8 @@ void Schain::pushBlockToExtFace(ptr<CommittedBlock> &_block) {
 void Schain::startConsensus(const block_id _blockID, ptr<BooleanProposalVector> _proposalVector) {
     {
 
+        CHECK_ARGUMENT(_proposalVector);
+
         MONITOR(__CLASS_NAME__, __FUNCTION__)
 
         checkForExit();
@@ -499,29 +511,23 @@ void Schain::startConsensus(const block_id _blockID, ptr<BooleanProposalVector> 
             return;
         }
 
-        if (startedConsensuses.count(_blockID) > 0) {
-            LOG(debug, "already started consensus for this block id");
-            return;
-        }
 
-        startedConsensuses.insert(_blockID);
     }
 
 
     ASSERT(blockConsensusInstance != nullptr && _proposalVector != nullptr);
 
-
     auto message = make_shared<ConsensusProposalMessage>(*this, _blockID, _proposalVector);
 
     auto envelope = make_shared<InternalMessageEnvelope>(ORIGIN_EXTERNAL, message, *this);
 
-
     LOG(debug, "Starting consensus for block id:" + to_string(_blockID));
-
     postMessage(envelope);
 }
 
 void Schain::daProofArrived(ptr<DAProof> _daProof) {
+
+    CHECK_ARGUMENT(_daProof);
 
     MONITOR(__CLASS_NAME__, __FUNCTION__)
 
@@ -534,6 +540,8 @@ void Schain::daProofArrived(ptr<DAProof> _daProof) {
 
 
         if (pv != nullptr) {
+
+            getNode()->getProposalVectorDB()->saveVector(_daProof->getBlockId(), pv);
             startConsensus(_daProof->getBlockId(), pv);
         }
     } catch (ExitRequestedException &e) { throw; }
@@ -558,6 +566,9 @@ void Schain::proposedBlockArrived(ptr<BlockProposal> _proposal) {
 
 
 void Schain::bootstrap(block_id _lastCommittedBlockID, uint64_t _lastCommittedBlockTimeStamp) {
+
+    _lastCommittedBlockID = getNode()->getBlockDB()->readLastCommittedBlockID();
+
 
     LOG(info, "Consensus engine version:" + ConsensusEngine::getEngineVersion());
 
@@ -584,7 +595,14 @@ void Schain::bootstrap(block_id _lastCommittedBlockID, uint64_t _lastCommittedBl
         if (getLastCommittedBlockID() == 0)
             this->pricingAgent->calculatePrice(ConsensusExtFace::transactions_vector(), 0, 0, 0);
 
-        proposeNextBlock(lastCommittedBlockTimeStamp, lastCommittedBlockTimeStampMs);
+       proposeNextBlock(lastCommittedBlockTimeStamp, lastCommittedBlockTimeStampMs);
+       auto proposalVector =  getNode()->getProposalVectorDB()->getVector(_lastCommittedBlockID + 1);
+       if (proposalVector) {
+           auto messages = getNode()->getOutgoingMsgDB()->getMessages(_lastCommittedBlockID + 1);
+           for (auto && m : *messages) {
+               getNode()->getNetwork()->broadcastMessage(m);
+           }
+       }
 
     } catch (exception &e) {
         Exception::logNested(e);
@@ -597,15 +615,23 @@ void Schain::healthCheck() {
 
 
     std::unordered_set<uint64_t> connections;
-
     setHealthCheckFile(1);
 
     auto beginTime = Time::getCurrentTimeSec();
 
     LOG(info, "Waiting to connect to peers");
 
-    while (3 * (connections.size() + 1) < 2 * getNodeCount()) {
-        if (Time::getCurrentTimeSec() - beginTime > 6000) {
+
+    while (connections.size() + 1 < getNodeCount()) {
+
+        if (3 * (connections.size() + 1) >= 2 * getNodeCount()) {
+            if (Time::getCurrentTimeSec() - beginTime > 5) {
+                break;
+            }
+        }
+
+
+        if (Time::getCurrentTimeSec() - beginTime > 15000) {
             setHealthCheckFile(0);
             LOG(err, "Coult not connect to 2/3 of peers");
             exit(110);

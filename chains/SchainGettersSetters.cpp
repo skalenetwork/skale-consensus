@@ -291,5 +291,11 @@ void Schain::joinMonitorThread() {
     return cryptoManager;
 }
 
+void Schain::createBlockConsensusInstance() {
+
+    blockConsensusInstance = make_shared<BlockConsensusAgent>(*this);
+
+}
+
 
 

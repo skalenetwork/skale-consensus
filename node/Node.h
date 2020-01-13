@@ -64,6 +64,9 @@ class RandomDB;
 class PriceDB;
 
 class ProposalHashDB;
+class ProposalVectorDB;
+class MsgDB;
+class ConsensusStateDB;
 
 class TestConfig;
 
@@ -130,10 +133,6 @@ class Node {
 
     ptr<TestConfig> testConfig = nullptr;
 
-public:
-    const ptr<TestConfig> &getTestConfig() const;
-
-private:
     class Comparator {
     public:
         bool operator()(const ptr<string> &a, const ptr<string> &b) const { return *a < *b; }
@@ -159,6 +158,16 @@ private:
     ptr<PriceDB> priceDB = nullptr;
 
     ptr<ProposalHashDB> proposalHashDB = nullptr;
+
+    ptr<ProposalVectorDB> proposalVectorDB = nullptr;
+
+    ptr<MsgDB> outgoingMsgDB = nullptr;
+
+    ptr<MsgDB> incomingMsgDB = nullptr;
+
+    ptr<ConsensusStateDB> consensusStateDB = nullptr;
+
+
 
     ptr<BlockSigShareDB> blockSigShareDB = nullptr;
 
@@ -190,6 +199,10 @@ private:
 
     uint64_t blockDBSize;
     uint64_t proposalHashDBSize;
+    uint64_t proposalVectorDBSize;
+    uint64_t outgoingMsgDBSize;
+    uint64_t incomingMsgDBSize;
+    uint64_t consensusStateDBSize;
     uint64_t daSigShareDBSize;
     uint64_t daProofDBSize;
     uint64_t blockSigShareDBSize;
@@ -205,16 +218,29 @@ private:
 
 public:
 
+
+    const ptr<TestConfig> &getTestConfig() const;
+
     ptr<BlockDB> getBlockDB();
     ptr<RandomDB> getRandomDB();
     ptr<PriceDB> getPriceDB() const;
     ptr<ProposalHashDB> getProposalHashDB();
+    ptr<ProposalVectorDB> getProposalVectorDB();
+    ptr<MsgDB> getOutgoingMsgDB();
+    ptr<MsgDB> getIncomingMsgDB();
+    ptr<ConsensusStateDB> getConsensusStateDB();
     ptr<BlockSigShareDB> getBlockSigShareDB() const;
     ptr<DASigShareDB> getDaSigShareDB() const;
     ptr<DAProofDB> getDaProofDB() const;
     ptr<BlockProposalDB> getBlockProposalDB() const;
 
+
+
     uint64_t getProposalHashDBSize() const;
+    uint64_t getProposalVectorDBSize() const;
+    uint64_t getOutgoingMsgDBSize() const;
+    uint64_t getIncomingMsgDBSize() const;
+    uint64_t getConsensusStateDBSize() const;
     uint64_t getBlockDBSize() const;
     uint64_t getBlockSigShareDBSize() const;
     uint64_t getRandomDBSize() const;

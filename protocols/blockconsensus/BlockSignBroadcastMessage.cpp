@@ -49,7 +49,7 @@ bin_consensus_value BlockSignBroadcastMessage::getValue() const {
 
 BlockSignBroadcastMessage::BlockSignBroadcastMessage(block_id _blockID, schain_index _blockProposerIndex,
                                                      ProtocolInstance &_sourceProtocolInstance)
-        : NetworkMessage(MSG_BLOCK_SIGN_BROADCAST, 0, _blockID, _blockProposerIndex, 0, 0,
+        : NetworkMessage(MSG_BLOCK_SIGN_BROADCAST, _blockID, _blockProposerIndex, 0, 0,
                          _sourceProtocolInstance) {
     printPrefix = "f";
 
@@ -69,14 +69,15 @@ BlockSignBroadcastMessage::BlockSignBroadcastMessage(block_id _blockID, schain_i
 }
 
 
-BlockSignBroadcastMessage::BlockSignBroadcastMessage(node_id _srcNodeID, node_id _dstNodeID, block_id _blockID,
+BlockSignBroadcastMessage::BlockSignBroadcastMessage(node_id _srcNodeID, block_id _blockID,
                                                      schain_index _blockProposerIndex,
-                                                     schain_id _schainId, msg_id _msgID, uint32_t _ip, ptr< string > _sigShare,
-                                                     schain_index _srcSchainIndex, Schain* _sChain)
+                                                     schain_id _schainId, msg_id _msgID, ptr<string> _sigShare,
+                                                     schain_index _srcSchainIndex,
+                                                     Schain *_sChain)
     : NetworkMessage(
-        MSG_BLOCK_SIGN_BROADCAST, _srcNodeID, _dstNodeID, _blockID, _blockProposerIndex, 0, 0, _schainId, _msgID, _ip, _sigShare,
-        _srcSchainIndex, _sChain->getCryptoManager(), _sChain->getTotalSigners(),
-        _sChain->getRequiredSigners()) {
+        MSG_BLOCK_SIGN_BROADCAST, _srcNodeID, _blockID, _blockProposerIndex, 0, 0, _schainId, _msgID, _sigShare,
+        _srcSchainIndex, _sChain->getCryptoManager()) {
+    CHECK_ARGUMENT(_sigShare);
     printPrefix = "F";
 };
 

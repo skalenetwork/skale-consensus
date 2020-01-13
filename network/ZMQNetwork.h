@@ -46,11 +46,11 @@ class ZMQNetwork : public TransportNetwork {
 public:
 
 
-    int interruptableRecv(void *_socket, void *_buf, size_t _len, int _flags);
+    uint64_t interruptableRecv(void *_socket, void *_buf, size_t _len, int _flags);
 
     bool interruptableSend(void *_socket, void *_buf, size_t _len, bool _isNonBlocking = false);
 
-    ptr<string> readMessageFromNetwork(ptr<Buffer> buf);
+    uint64_t readMessageFromNetwork(ptr<Buffer> buf);
 
     ZMQNetwork(Schain &_schain);
 

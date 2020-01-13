@@ -146,7 +146,7 @@ static const uint64_t COMMITTED_TRANSACTIONS_HISTORY = 1000000;
 
 static const uint64_t MAX_ACTIVE_CONSENSUSES = 50;
 
-static const uint64_t CONSENSUS_HISTORY  = 2 * MAX_ACTIVE_CONSENSUSES;
+static const uint64_t MAX_CONSENSUS_HISTORY  = 2 * MAX_ACTIVE_CONSENSUSES;
 
 
 static constexpr uint64_t MAX_CATCHUP_DOWNLOAD_BYTES = 1000000000;
@@ -291,6 +291,10 @@ static const uint64_t  BLOCK_DB_SIZE = 10000000000;
 static const uint64_t  RANDOM_DB_SIZE = 10000000;
 static const uint64_t  PRICE_DB_SIZE = 10000000;
 static const uint64_t  PROPOSAL_HASH_DB_SIZE = 10000000;
+static const uint64_t  PROPOSAL_VECTOR_DB_SIZE = 10000000;
+static const uint64_t  OUTGOING_MSG_DB_SIZE = 10000000;
+static const uint64_t  INCOMING_MSG_DB_SIZE = 10000000;
+static const uint64_t  CONSENSUS_STATE_DB_SIZE = 10000000;
 static const uint64_t  BLOCK_SIG_SHARE_DB_SIZE = 10000000;
 static const uint64_t  DA_SIG_SHARE_DB_SIZE = 10000000;
 static const uint64_t  DA_PROOF_DB_SIZE = 10000000;
