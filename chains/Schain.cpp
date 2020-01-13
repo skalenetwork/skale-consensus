@@ -131,8 +131,6 @@ void Schain::messageThreadProcessingLoop(Schain *s) {
 
         while (!s->getNode()->isExitRequested()) {
             {
-
-
                 unique_lock<mutex> mlock(s->messageMutex);
                 while (s->messageQueue.empty()) {
                     s->messageCond.wait(mlock);
@@ -153,8 +151,6 @@ void Schain::messageThreadProcessingLoop(Schain *s) {
 
             while (!newQueue.empty()) {
                 ptr<MessageEnvelope> m = newQueue.front();
-
-
                 ASSERT((uint64_t) m->getMessage()->getBlockId() != 0);
 
                 try {
