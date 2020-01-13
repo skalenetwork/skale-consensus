@@ -625,7 +625,7 @@ void Schain::healthCheck() {
     while (connections.size() + 1 < getNodeCount()) {
 
         if (3 * (connections.size() + 1) >= 2 * getNodeCount()) {
-            if (Time::getCurrentTimeSec() - beginTime > 5000) {
+            if (Time::getCurrentTimeSec() - beginTime > 5) {
                 break;
             }
         }

@@ -97,7 +97,7 @@ void BinConsensusInstance::processNetworkMessageImpl(ptr<NetworkMessageEnvelope>
 
     addToHistory(dynamic_pointer_cast<NetworkMessage>(_me->getMessage()));
 
-    ASSERT(round <= getCurrentRound() + 1);
+    CHECK_STATE(round <= getCurrentRound() + 1);
 
 
     if (_me->getMessage()->getMessageType() == MSG_BVB_BROADCAST) {
