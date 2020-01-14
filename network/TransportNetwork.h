@@ -73,7 +73,7 @@ protected:
 
     map<block_id, ptr<vector<ptr<NetworkMessageEnvelope>>>> deferredMessageQueue;
 
-    void addToDeferredMessageQueue(ptr<NetworkMessageEnvelope> _me);
+    virtual void addToDeferredMessageQueue(ptr<NetworkMessageEnvelope> _me);
 
     ptr<vector<ptr<NetworkMessageEnvelope> > > pullMessagesForCurrentBlockID();
 

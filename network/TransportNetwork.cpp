@@ -69,7 +69,7 @@ void TransportNetwork::addToDeferredMessageQueue(ptr<NetworkMessageEnvelope> _me
 
     auto msg = dynamic_pointer_cast<NetworkMessage>(_me->getMessage());
 
-    getSchain()->getNode()->getIncomingMsgDB()->saveMsg(msg);
+
 
     auto _blockID = _me->getMessage()->getBlockID();
 
@@ -192,6 +192,7 @@ void TransportNetwork::networkReadLoop() {
 
                 ASSERT(sChain);
 
+                getSchain()->getNode()->getIncomingMsgDB()->saveMsg(dynamic_pointer_cast<NetworkMessage>(m->getMessage()));
 
                 postDeferOrDrop(m);
             } catch (ExitRequestedException &) {
