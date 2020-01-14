@@ -118,6 +118,17 @@ ptr<vector<ptr<NetworkMessageEnvelope> > > TransportNetwork::pullMessagesForCurr
     return returnList;
 }
 
+void TransportNetwork::addToDelayedSends(ptr<NetworkMessage> _m, ptr<NodeInfo> dstNodeInfo) {
+    CHECK_ARGUMENT(_m);
+    CHECK_ARGUMENT(dstNodeInfo);
+    lock_guard<recursive_mutex> lock(delayedSendsLock);
+    auto dstIndex = (uint64_t) dstNodeInfo->getSchainIndex();
+    delayedSends.at(dstIndex - 1).push_back({_m, dstNodeInfo});
+    if (delayedSends.at(dstIndex - 1).size() > MAX_DELAYED_MESSAGE_SENDS) {
+        delayedSends.at(dstIndex - 1).pop_front();
+    }
+}
+
 void TransportNetwork::broadcastMessage(ptr<NetworkMessage> _m) {
 
 
@@ -136,6 +147,7 @@ void TransportNetwork::broadcastMessage(ptr<NetworkMessage> _m) {
             for (auto const &it : *getSchain()->getNode()->getNodeInfosByIndex()) {
                 auto dstNodeInfo = it.second;
                 auto dstIndex = (uint64_t) dstNodeInfo->getSchainIndex();
+
                 if (dstIndex != (getSchain()->getSchainIndex()) && !sent.count(dstIndex)) {
                     if (sendMessage(it.second, _m)) {
                         sent.insert(dstIndex);
@@ -149,15 +161,10 @@ void TransportNetwork::broadcastMessage(ptr<NetworkMessage> _m) {
         // each destination can have MAX_DELAYED_MESSAGE_SENDS
 
         for (auto const &it : *getSchain()->getNode()->getNodeInfosByIndex()) {
-            auto dstIndex = (uint64_t) it.second->getSchainIndex();
+            auto dstNodeInfo = it.second;
+            auto dstIndex = (uint64_t) dstNodeInfo->getSchainIndex();
             if (dstIndex != (getSchain()->getSchainIndex()) && !sent.count(dstIndex)) {
-                {
-                    lock_guard<recursive_mutex> lock(delayedSendsLock);
-                    delayedSends.at(dstIndex - 1).push_back({_m, it.second});
-                    if (delayedSends.at(dstIndex - 1).size() > MAX_DELAYED_MESSAGE_SENDS) {
-                        delayedSends.at(dstIndex - 1).pop_front();
-                    }
-                }
+                addToDelayedSends(_m, dstNodeInfo);
             }
         }
 
@@ -246,12 +253,31 @@ void TransportNetwork::postDeferOrDrop(const ptr<NetworkMessageEnvelope> &m) {
 
 }
 
+void TransportNetwork::trySendingDelayedSends() {
+    auto nodeCount = getSchain()->getNodeCount();
+    auto schainIndex = getSchain()->getSchainIndex();
+
+    for (int i = 0; i < nodeCount; i++) {
+        if (i != (schainIndex - 1)) {
+            lock_guard<recursive_mutex> lock(delayedSendsLock);
+            while (delayedSends.at(i).size() > 0) {
+                auto msg = delayedSends.at(i).front().second;
+                auto dstNodeInfo = delayedSends.at(i).front().first;
+                if (sendMessage(msg, dstNodeInfo)) {
+                    // successfully sent a delayed message, remove it from the list
+                    delayedSends.at(i).pop_front();
+                } {
+                    // could not send a message to this host, no point trying to
+                    // send other delayed messages for this host
+                    break;
+                }
+            }
+        }
+    }
+}
 
 void TransportNetwork::deferredMessagesLoop() {
     setThreadName("DeferMsgLoop", getSchain()->getNode()->getConsensusEngine());
-
-    auto nodeCount = getSchain()->getNodeCount();
-    auto schainIndex = getSchain()->getSchainIndex();
 
     waitOnGlobalStartBarrier();
 
@@ -266,17 +292,7 @@ void TransportNetwork::deferredMessagesLoop() {
                 postDeferOrDrop(message);
             }
 
-            for (int i = 0; i < nodeCount; i++) {
-                if (i != (schainIndex - 1)) {
-                    lock_guard<recursive_mutex> lock(delayedSendsLock);
-                    if (delayedSends.at(i).size() > 0) {
-                        if (sendMessage(
-                                delayedSends.at(i).front().second, delayedSends.at(i).front().first)) {
-                            delayedSends.at(i).pop_front();
-                        }
-                    }
-                }
-            }
+            trySendingDelayedSends();
         }
         catch (ExitRequestedException &) {
             // exit

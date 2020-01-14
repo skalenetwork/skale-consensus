@@ -121,4 +121,8 @@ public:
     void postDeferOrDrop(const ptr<NetworkMessageEnvelope> &m);
 
     ~TransportNetwork();
+
+    void addToDelayedSends(ptr<NetworkMessage> _m, ptr<NodeInfo> dstNodeInfo);
+
+    void trySendingDelayedSends();
 };
