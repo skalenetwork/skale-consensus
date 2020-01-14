@@ -56,6 +56,5 @@ public:
 
     bool sendMessage(const ptr<NodeInfo> &_remoteNodeInfo, ptr<NetworkMessage> _msg);
 
-    virtual void confirmMessage(const ptr<NodeInfo> &remoteNodeInfo);
 };
 

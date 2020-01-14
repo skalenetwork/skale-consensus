@@ -301,6 +301,9 @@ static const uint64_t  DA_PROOF_DB_SIZE = 10000000;
 static const uint64_t  BLOCK_PROPOSAL_DB_SIZE = 100000000;
 
 
+static const uint64_t  MAX_DELAYED_MESSAGE_SENDS = 256;
+
+
 
 extern void setThreadName(std::string const &_n, ConsensusEngine* _engine);
 

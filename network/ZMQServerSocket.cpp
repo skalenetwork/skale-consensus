@@ -43,11 +43,8 @@ void *ZMQServerSocket::getDestinationSocket(ptr<string> _ip, network_port _baseP
         return sendSockets.at(*_ip);
     }
 
-#ifdef ZMQ_EXPERIMENTAL
+
     void *requester = zmq_socket(context, ZMQ_CLIENT);
-#else
-    void *requester = zmq_socket (context, ZMQ_REQ);
-#endif
 
     LOG(debug, getThreadName() + " zmq debug: requester = " +  to_string((uint64_t )requester));
 
@@ -68,20 +65,11 @@ void *ZMQServerSocket::getDestinationSocket(ptr<string> _ip, network_port _baseP
 
 void *ZMQServerSocket::getReceiveSocket()  {
 
-
-
     lock_guard<mutex> lock(mainMutex);
 
-
     if (!receiveSocket) {
-#ifdef ZMQ_EXPERIMENTAL
+
         receiveSocket = zmq_socket(context, ZMQ_SERVER);
-#else
-
-        receiveSocket = zmq_socket (context, ZMQ_REP);
-
-
-#endif
 
         LOG(debug, getThreadName() + " zmq debug: receiveSocket = " + to_string((uint64_t)receiveSocket));
 
@@ -92,15 +80,12 @@ void *ZMQServerSocket::getReceiveSocket()  {
         zmq_setsockopt(receiveSocket, ZMQ_SNDTIMEO, &timeout, sizeof(int));
         zmq_setsockopt(receiveSocket, ZMQ_LINGER, &linger, sizeof(int));
 
-
         int rc = zmq_bind(receiveSocket, ("tcp://" + *bindIP + ":" + to_string(bindPort)).c_str());
         if (rc != 0) {
             BOOST_THROW_EXCEPTION(FatalError(string("Could not bind ZMQ server socket:") + zmq_strerror(errno)));
         }
 
-
         LOG(debug, "Successfull bound ZMQ socket");
-
     }
     return receiveSocket;
 }

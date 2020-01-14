@@ -80,8 +80,6 @@ protected:
     virtual bool sendMessage(const ptr<NodeInfo> &remoteNodeInfo, ptr<NetworkMessage> _msg) = 0;
 
 
-    virtual void confirmMessage(const ptr<NodeInfo> &remoteNodeInfo);
-
 
 
     ptr<thread> networkReadThread;
