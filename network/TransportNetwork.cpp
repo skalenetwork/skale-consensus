@@ -211,6 +211,13 @@ void TransportNetwork::networkReadLoop() {
     sChain->getNode()->getSockets()->consensusZMQSocket->closeReceive();
 }
 
+
+/*
+ * Consensus initially defers messages that come from the "future" - those that
+ * have the block_id or the consensus round larger than currently processed.
+ * These messages are placed in deferredMessage queue to be processed later.
+ * Messages with very old block ids are discarded.
+ */
 void TransportNetwork::postDeferOrDrop(const ptr<NetworkMessageEnvelope> &m) {
 
     block_id currentBlockID = sChain->getLastCommittedBlockID() + 1;
@@ -219,29 +226,19 @@ void TransportNetwork::postDeferOrDrop(const ptr<NetworkMessageEnvelope> &m) {
     auto bid = m->getMessage()->getBlockID();
 
     if (bid > currentBlockID) {
+        // block id is in the future, defer
         addToDeferredMessageQueue(m);
         return;
     }
 
-
-    if (bid < currentBlockID) {
-        if (bid + MAX_ACTIVE_CONSENSUSES <= currentBlockID) {
-            // too old, drop
-            return;
-        } else {
-            sChain->postMessage(m);
-            return;
-
-        }
+    if (bid + MAX_ACTIVE_CONSENSUSES <= currentBlockID) {
+        // too old, drop
+        return;
     }
-
-
-    // now  deal with the case of bid = currentBlockID
 
     auto msg = dynamic_pointer_cast<NetworkMessage>(m->getMessage());
 
     CHECK_STATE(msg);
-
 
     // ask consensus whether to defer
 
@@ -249,10 +246,11 @@ void TransportNetwork::postDeferOrDrop(const ptr<NetworkMessageEnvelope> &m) {
         sChain->postMessage(m);
     } else {
         addToDeferredMessageQueue(m);
-
     }
 
 }
+
+
 
 void TransportNetwork::deferredMessagesLoop() {
     setThreadName("DeferMsgLoop", getSchain()->getNode()->getConsensusEngine());
@@ -266,6 +264,7 @@ void TransportNetwork::deferredMessagesLoop() {
         try {
             ptr<vector<ptr<NetworkMessageEnvelope> > > deferredMessages;
 
+            // Get messages for the current block id
             deferredMessages = pullMessagesForCurrentBlockID();
 
             for (auto message : *deferredMessages) {
