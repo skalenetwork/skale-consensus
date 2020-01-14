@@ -93,11 +93,17 @@ void BinConsensusInstance::ifAlreadyDecidedSendDelayedEstimateForNextRound(bin_c
 void BinConsensusInstance::processNetworkMessageImpl(ptr<NetworkMessageEnvelope> _me) {
 
 
-    auto round = dynamic_pointer_cast<NetworkMessage>(_me->getMessage())->getRound();
+    auto message = dynamic_pointer_cast<NetworkMessage>(_me->getMessage());
+
+    auto bid = message->getBlockID();
+    auto round = message->getRound();
+    auto proposer = message->getBlockProposerIndex();
 
     addToHistory(dynamic_pointer_cast<NetworkMessage>(_me->getMessage()));
 
+    CHECK_STATE(bid == getBlockID())
     CHECK_STATE(round <= getCurrentRound() + 1);
+    CHECK_STATE(proposer == getBlockProposerIndex())
 
 
     if (_me->getMessage()->getMessageType() == MSG_BVB_BROADCAST) {
