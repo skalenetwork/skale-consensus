@@ -389,7 +389,6 @@ uint64_t TransportNetwork::getCatchupBlock() const {
     return catchupBlocks;
 }
 
-
 TransportNetwork::TransportNetwork(Schain &_sChain)
         : Agent(_sChain, false), delayedSends((uint64_t) _sChain.getNodeCount()) {
     auto cfg = _sChain.getNode()->getCfg();
