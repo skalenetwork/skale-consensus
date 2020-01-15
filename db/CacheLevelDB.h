@@ -49,20 +49,16 @@ class CacheLevelDB {
     shared_mutex m;
 
     void verify();
-
-
     ptr<map<schain_index, ptr<string>>> writeByteArrayToSetUnsafe(const char *_value, uint64_t _valueLen, block_id _blockId, schain_index _index);
 
 protected:
-
-    uint64_t totalSigners;
-    uint64_t requiredSigners;
-
 
     node_id nodeId;
     string prefix;
     string dirname;
     uint64_t maxDBSize;
+    uint64_t totalSigners;
+    uint64_t requiredSigners;
     bool isDuplicateAddOK;
     Schain* sChain;
 

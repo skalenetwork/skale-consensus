@@ -228,8 +228,18 @@ const char *NetworkMessage::getTypeString(MsgType _type) {
 
 }
 
-const schain_index &NetworkMessage::getSrcSchainIndex() const {
+schain_index NetworkMessage::getSrcSchainIndex() const {
     return srcSchainIndex;
+}
+
+ptr<SHAHash> NetworkMessage::getHash() {
+    if (hash == nullptr)
+        hash = calculateHash();
+    return hash;
+}
+
+ptr<SHAHash> NetworkMessage::calculateHash() {
+    return nullptr;
 }
 
 

@@ -50,7 +50,7 @@ ptr< SHAHash > Transaction::getHash() {
     if ( hash )
         return hash;
 
-    hash = SHAHash::calculateHash(data->data(), data->size());
+    hash = SHAHash::calculateHash(data);
     return hash;
 
 }

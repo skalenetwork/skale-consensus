@@ -344,6 +344,8 @@ CacheLevelDB::CacheLevelDB(Schain *_sChain, string &_dirName, string &_prefix, n
           requiredSigners(_sChain->getRequiredSigners()),
           isDuplicateAddOK(_isDuplicateAddOK), sChain(_sChain) {
 
+
+
     CHECK_STATE(_sChain != nullptr);
 
     boost::filesystem::path path(dirname);

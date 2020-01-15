@@ -93,17 +93,16 @@ SHAHash::SHAHash(ptr<array<uint8_t, SHA_HASH_LEN>> _hash) {
 
 }
 
-ptr<SHAHash> SHAHash::calculateHash(uint8_t *_data, uint64_t _count) {
+ptr<SHAHash> SHAHash::calculateHash(ptr<vector<uint8_t>> _data) {
 
     CHECK_ARGUMENT(_data != nullptr);
-    CHECK_ARGUMENT(_count > 0);
 
     auto digest = make_shared<array<uint8_t, SHA_HASH_LEN> >();
 
 
     CryptoPP::SHA256 hashObject;
 
-    hashObject.Update(_data, _count);
+    hashObject.Update(_data->data(), _data->size());
     hashObject.Final(digest->data());
 
 
@@ -117,18 +116,18 @@ ptr<SHAHash> SHAHash::merkleTreeMerge(ptr<SHAHash> _left, ptr<SHAHash> _right) {
     CHECK_ARGUMENT(_left != nullptr);
     CHECK_ARGUMENT(_right != nullptr);
 
-    vector<uint8_t> concatenation;
-    concatenation.reserve(2 * SHA_HASH_LEN);
+    auto concatenation = make_shared<vector<uint8_t>>();
+    concatenation->reserve(2 * SHA_HASH_LEN);
 
     auto leftHash = _left->getHash();
 
-    concatenation.insert(concatenation.end(), leftHash->begin(), leftHash->end());
+    concatenation->insert(concatenation->end(), leftHash->begin(), leftHash->end());
 
     auto rightHash = _right->getHash();
-    concatenation.insert(concatenation.end(), rightHash->begin(), rightHash->end());
+    concatenation->insert(concatenation->end(), rightHash->begin(), rightHash->end());
 
 
-    return calculateHash(concatenation.data(), concatenation.size());
+    return calculateHash(concatenation);
 }
 
 ptr<array<uint8_t, SHA_HASH_LEN>> SHAHash::getHash() const {

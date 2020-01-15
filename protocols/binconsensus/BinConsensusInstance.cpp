@@ -486,7 +486,6 @@ void BinConsensusInstance::proceedWithNewRound(bin_consensus_value _value) {
 
     commitValueIfTwoThirds(m);
 
-
 }
 
 void BinConsensusInstance::printHistory() {

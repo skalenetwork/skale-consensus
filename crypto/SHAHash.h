@@ -54,7 +54,7 @@ public:
 
     ptr< string > toHex();
 
-    static ptr<SHAHash> calculateHash(uint8_t* _data, uint64_t _count);
+    static ptr<SHAHash> calculateHash(ptr<vector<uint8_t>> _data);
 
     static ptr<SHAHash> merkleTreeMerge(ptr<SHAHash> _left, ptr<SHAHash> _right);
 

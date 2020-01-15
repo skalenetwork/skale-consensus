@@ -48,11 +48,10 @@ static constexpr uint64_t MAX_CONSENSUS_MESSAGE_LEN = 1024;
 
 class NetworkMessage : public Message, public BasicHeader {
 
+
 protected:
 
-
     void addFields(nlohmann::json &j) override;
-
 
     string printPrefix = "n";
 
@@ -70,16 +69,15 @@ protected:
                    schain_id _schainId, msg_id _msgID, ptr<string> _sigShareStr,
                    schain_index _srcSchainIndex, ptr<CryptoManager> _cryptoManager);
 
-
-
-
-public:
-
-
     schain_index srcSchainIndex;
-
     bin_consensus_round r;
     bin_consensus_value value;
+
+    ptr<SHAHash> hash;
+
+    virtual ptr<SHAHash> calculateHash();
+
+public:
 
     virtual bin_consensus_round getRound() const;
 
@@ -97,6 +95,9 @@ public:
 
     static const char* getTypeString(MsgType _type );
 
-    const schain_index &getSrcSchainIndex() const;
+    schain_index getSrcSchainIndex() const;
+
+
+    ptr<SHAHash> getHash();
 
 };
