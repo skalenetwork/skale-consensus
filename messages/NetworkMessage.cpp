@@ -21,6 +21,7 @@
     @date 2018
 */
 
+
 #include "SkaleCommon.h"
 
 #include "Log.h"
@@ -35,6 +36,7 @@
 #include "chains/Schain.h"
 #include "crypto/ConsensusBLSSigShare.h"
 #include "crypto/CryptoManager.h"
+#include <crypto/SHAHash.h>
 #include "node/NodeInfo.h"
 #include "network/Buffer.h"
 #include "Message.h"
@@ -239,7 +241,36 @@ ptr<SHAHash> NetworkMessage::getHash() {
 }
 
 ptr<SHAHash> NetworkMessage::calculateHash() {
-    return nullptr;
+    CryptoPP::SHA256 sha3;
+
+    SHA3_UPDATE(sha3, schainID);
+    SHA3_UPDATE(sha3, blockID);
+    SHA3_UPDATE(sha3, blockProposerIndex);
+    SHA3_UPDATE(sha3, msgID);
+    SHA3_UPDATE(sha3, srcNodeID);
+    SHA3_UPDATE(sha3, srcSchainIndex);
+
+    CHECK_STATE(type != nullptr);
+
+    uint32_t typeLen = strlen(type);
+    SHA3_UPDATE(sha3, typeLen);
+    sha3.Update((unsigned char*)type, strlen(type));
+
+    uint32_t  sigShareLen = 0;
+
+    if (sigShareString != nullptr) {
+        sigShareLen = sigShareString->size();
+        SHA3_UPDATE(sha3, sigShareLen);
+        sha3.Update((unsigned char *) sigShareString->data(), sigShareLen);
+    } else {
+        SHA3_UPDATE(sha3, sigShareLen);
+    }
+
+
+    auto buf = make_shared<array<uint8_t, SHA_HASH_LEN>>();
+    sha3.Final(buf->data());
+    hash = make_shared<SHAHash>(buf);
+    return hash;
 }
 
 

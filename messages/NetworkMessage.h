@@ -77,6 +77,7 @@ protected:
 
     virtual ptr<SHAHash> calculateHash();
 
+
 public:
 
     virtual bin_consensus_round getRound() const;

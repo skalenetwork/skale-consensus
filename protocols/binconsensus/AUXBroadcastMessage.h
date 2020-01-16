@@ -36,8 +36,6 @@ class BinConsensusInstance;
 class AUXBroadcastMessage : public NetworkMessage{
 public:
 
-
-
     AUXBroadcastMessage(bin_consensus_round _round, bin_consensus_value _value, block_id _blockID,
                         schain_index _proposerIndex, BinConsensusInstance &_sourceProtocolInstance);
 

@@ -37,7 +37,6 @@ class BasicHeader {
 protected:
 
     const char* type = nullptr;
-
     bool complete = false;
 
 public:

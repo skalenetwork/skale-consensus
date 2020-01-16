@@ -30,8 +30,8 @@
 class BinConsensusInstance;
 
 class BVBroadcastMessage : public NetworkMessage{
-public:
 
+public:
 
     BVBroadcastMessage(block_id _blockID, schain_index _blockProposerIndex, bin_consensus_round r,
                        bin_consensus_value value, BinConsensusInstance &sourceProtocolInstance);

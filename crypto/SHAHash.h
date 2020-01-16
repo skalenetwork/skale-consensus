@@ -25,6 +25,7 @@
 #define CONSENSUS_SHAHASH_H
 
 
+#define SHA3_UPDATE(__HASH__, __OBJECT__) __HASH__.Update(reinterpret_cast < uint8_t * > ( &__OBJECT__), sizeof(__OBJECT__))
 
 class SHAHash {
 

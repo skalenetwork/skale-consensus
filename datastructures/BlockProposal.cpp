@@ -60,13 +60,18 @@ ptr<SHAHash> BlockProposal::getHash() {
 
 void BlockProposal::calculateHash() {
     CryptoPP::SHA256 sha3;
-    sha3.Update(reinterpret_cast < uint8_t * > ( &proposerIndex), sizeof(proposerIndex));
-    sha3.Update(reinterpret_cast < uint8_t * > ( &proposerNodeID), sizeof(proposerNodeID));
-    sha3.Update(reinterpret_cast < uint8_t * > ( &schainID      ), sizeof(schainID));
-    sha3.Update(reinterpret_cast < uint8_t * > ( &blockID       ), sizeof(blockID));
-    sha3.Update(reinterpret_cast < uint8_t * > ( &transactionCount ), sizeof(transactionCount));
-    sha3.Update(reinterpret_cast < uint8_t * > ( &timeStamp ), sizeof(timeStamp));
-    sha3.Update(reinterpret_cast < uint8_t * > ( &timeStampMs ), sizeof(timeStampMs));
+    SHA3_UPDATE(sha3, proposerIndex);
+    SHA3_UPDATE(sha3, proposerNodeID);
+    SHA3_UPDATE(sha3, schainID);
+    SHA3_UPDATE(sha3, blockID);
+    SHA3_UPDATE(sha3, transactionCount);
+    SHA3_UPDATE(sha3, timeStamp);
+    SHA3_UPDATE(sha3, timeStampMs );
+
+    uint32_t sz = transactionList->size();
+
+    SHA3_UPDATE(sha3, sz);
+
     if (transactionList->size() > 0) {
         auto merkleRoot = transactionList->calculateTopMerkleRoot();
         sha3.Update(merkleRoot->getHash()->data(), SHA_HASH_LEN);
