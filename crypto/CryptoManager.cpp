@@ -22,6 +22,7 @@
 
 */
 
+
 #include "openssl/bio.h"
 
 #include "openssl/evp.h"
@@ -33,6 +34,7 @@
 #include "SkaleCommon.h"
 #include "Log.h"
 #include "thirdparty/json.hpp"
+#include "messages/NetworkMessage.h"
 #include "chains/Schain.h"
 #include "exceptions/NetworkProtocolException.h"
 #include "SHAHash.h"
@@ -42,6 +44,7 @@
 #include "ConsensusSigShareSet.h"
 #include "MockupSignature.h"
 #include "MockupSigShareSet.h"
+
 #include "node/Node.h"
 #include "monitoring/LivelinessMonitor.h"
 #include "datastructures/BlockProposal.h"
@@ -68,13 +71,12 @@ Schain *CryptoManager::getSchain() const {
     return sChain;
 }
 
-ptr<string> CryptoManager::signECDSA(ptr<SHAHash> _hash) {
+ptr<string> CryptoManager::signMAC(ptr<SHAHash> _hash, schain_index /*_dstIndex */) {
     return _hash->toHex();
 }
 
 
-bool CryptoManager::verifyECDSA(ptr<SHAHash> _hash,
-        ptr<string> _sig) {
+bool CryptoManager::verifyMAC(ptr<SHAHash> _hash, ptr<string> _sig, schain_index /*_dstIndex */) {
     CHECK_ARGUMENT(_hash != nullptr)
     CHECK_ARGUMENT(_sig != nullptr)
     return *_sig == *(_hash->toHex());
@@ -128,8 +130,6 @@ CryptoManager::createSigShareSet(block_id _blockId) {
 }
 
 
-
-
 ptr<ThresholdSigShare>
 CryptoManager::createSigShare(ptr<string> _sigShare, schain_id _schainID, block_id _blockID,
                               schain_index _signerIndex) {
@@ -144,10 +144,30 @@ CryptoManager::createSigShare(ptr<string> _sigShare, schain_id _schainID, block_
 
 void CryptoManager::signProposalECDSA(BlockProposal* _proposal) {
     CHECK_ARGUMENT(_proposal != nullptr);
-    auto signature = signECDSA(_proposal->getHash());
+    auto signature = signMAC(_proposal->getHash(), schain_index());
     CHECK_STATE( signature != nullptr);
     _proposal->addSignature(signature);
 }
+
+ptr<string> CryptoManager::signNetworkMsg(NetworkMessage& _msg) {
+    auto signature = signMAC(_msg.getHash(), schain_index());
+    CHECK_STATE( signature != nullptr);
+    return signature;
+}
+
+bool CryptoManager::verifyNetworkMsg(NetworkMessage& _msg) {
+    auto sig = _msg.getHmac();
+    auto hash = _msg.getHash();
+
+    if (!verifyMAC(hash, sig, schain_index())) {
+        LOG(warn, "ECDSA sig did not verify");
+        return false;
+    }
+
+    return true;
+}
+
+
 
 bool CryptoManager::verifyProposalECDSA(ptr<BlockProposal> _proposal, ptr<string> _hashStr, ptr<string> _signature) {
     CHECK_ARGUMENT(_proposal != nullptr);
@@ -162,7 +182,7 @@ bool CryptoManager::verifyProposalECDSA(ptr<BlockProposal> _proposal, ptr<string
         return false;
     }
 
-    if (!verifyECDSA(hash, _signature)) {
+    if (!verifyMAC(hash, _signature, schain_index())) {
         LOG(warn, "ECDSA sig did not verify");
         return false;
     }
@@ -171,9 +191,6 @@ bool CryptoManager::verifyProposalECDSA(ptr<BlockProposal> _proposal, ptr<string
 
 ptr<ThresholdSignature> CryptoManager::verifyThresholdSig(ptr<SHAHash> _hash, ptr<string> _signature, block_id _blockId) {
     MONITOR(__CLASS_NAME__, __FUNCTION__)
-
-    auto requiredSigners = sChain->getRequiredSigners();
-    auto totalSigners = sChain->getTotalSigners();
 
 
     if (getSchain()->getNode()->isBlsEnabled()) {

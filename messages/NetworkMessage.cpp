@@ -90,6 +90,10 @@ ptr<ThresholdSigShare> NetworkMessage::getSigShare() const {
     return sigShare;
 }
 
+const ptr<string> &NetworkMessage::getHmac() const {
+    return hmac;
+}
+
 
 bin_consensus_round NetworkMessage::getRound() const {
     return r;
@@ -103,10 +107,7 @@ void NetworkMessage::printMessage() {
 
     string s;
 
-
     cerr << "|" << printPrefix << ":" << r << ":v:" << to_string(uint8_t(value)) << "|";
-
-
 }
 
 
@@ -125,6 +126,9 @@ void NetworkMessage::addFields(nlohmann::basic_json<> &j) {
     if (sigShareString != nullptr) {
         j["sss"] = *sigShareString;
     }
+
+    CHECK_STATE(hmac);
+    j["hmac"] = *hmac;
 }
 
 
@@ -240,6 +244,9 @@ ptr<SHAHash> NetworkMessage::getHash() {
     return hash;
 }
 
+
+
+
 ptr<SHAHash> NetworkMessage::calculateHash() {
     CryptoPP::SHA256 sha3;
 
@@ -271,6 +278,10 @@ ptr<SHAHash> NetworkMessage::calculateHash() {
     sha3.Final(buf->data());
     hash = make_shared<SHAHash>(buf);
     return hash;
+}
+
+void NetworkMessage::sign(ptr<CryptoManager> _mgr) {
+    hmac = _mgr->signNetworkMsg(*this);
 }
 
 

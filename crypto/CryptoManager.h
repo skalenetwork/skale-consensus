@@ -25,7 +25,9 @@
 #define SKALED_CRYPTOMANAGER_H
 
 
+
 #include "openssl/ec.h"
+#include "messages/NetworkMessage.h"
 
 class Schain;
 class SHAHash;
@@ -38,15 +40,19 @@ class CryptoManager {
 
 private:
 
+    map<schain_index, ptr<pair<string, array<uint8_t, 16>>>> outgoingMACKeys;
+    map<schain_index, ptr<pair<string, array<uint8_t, 16>>>> incomingMACKeys;
+
+
     uint64_t  totalSigners;
     uint64_t  requiredSigners;
 
     Schain* sChain;
 
 
-    ptr<string> signECDSA(ptr<SHAHash> _hash);
+    ptr<string> signMAC(ptr<SHAHash> _hash, schain_index _dstIndex);
 
-    bool verifyECDSA(ptr<SHAHash> _hash, ptr<string> _sig);
+    bool verifyMAC(ptr<SHAHash> _hash, ptr<string> _sig, schain_index _dstIndex);
 
     ptr<ThresholdSigShare> signSigShare(ptr<SHAHash> _hash, block_id _blockId);
 
@@ -76,6 +82,11 @@ public:
     ptr<ThresholdSigShare> signBinaryConsensusSigShare(ptr<SHAHash> _hash, block_id _blockId);
 
     ptr<ThresholdSigShare> signBlockSigShare(ptr<SHAHash> _hash, block_id _blockId);
+
+
+    ptr<string> signNetworkMsg(NetworkMessage& _msg);
+
+    bool verifyNetworkMsg(NetworkMessage &_msg);
 };
 
 

@@ -41,6 +41,7 @@ class ConsensusBLSSigShare;
 class Node;
 class ThresholdSigShare;
 class CryptoManager;
+class ThresholdSignature;
 
 static constexpr uint64_t MAX_CONSENSUS_MESSAGE_LEN = 1024;
 
@@ -51,13 +52,19 @@ class NetworkMessage : public Message, public BasicHeader {
 
 protected:
 
-    void addFields(nlohmann::json &j) override;
 
     string printPrefix = "n";
 
-    ptr<string> sigShareString;
-
+    schain_index srcSchainIndex;
+    bin_consensus_round r;
+    bin_consensus_value value;
     ptr<ThresholdSigShare> sigShare;
+
+    ptr<SHAHash> hash;
+
+    ptr<string> sigShareString;
+    ptr<string> hmac;
+    ptr<string> hmacKey;
 
     NetworkMessage(MsgType _messageType, block_id _blockID, schain_index _blockProposerIndex,
                    bin_consensus_round _r, bin_consensus_value _value,
@@ -69,16 +76,13 @@ protected:
                    schain_id _schainId, msg_id _msgID, ptr<string> _sigShareStr,
                    schain_index _srcSchainIndex, ptr<CryptoManager> _cryptoManager);
 
-    schain_index srcSchainIndex;
-    bin_consensus_round r;
-    bin_consensus_value value;
-
-    ptr<SHAHash> hash;
-
     virtual ptr<SHAHash> calculateHash();
 
+    void addFields(nlohmann::json &j) override;
 
 public:
+
+    void sign(ptr<CryptoManager> _mgr);
 
     virtual bin_consensus_round getRound() const;
 
@@ -98,7 +102,8 @@ public:
 
     schain_index getSrcSchainIndex() const;
 
-
     ptr<SHAHash> getHash();
+
+    const ptr<string> &getHmac() const;
 
 };

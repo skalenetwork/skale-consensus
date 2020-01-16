@@ -37,6 +37,9 @@ class ProtocolKey;
 
 class Message {
 
+private:
+
+    static atomic<uint64_t>  totalObjects;
 
 protected:
 
@@ -82,9 +85,6 @@ public:
         return totalObjects;
     }
 
-private:
 
-
-    static atomic<uint64_t>  totalObjects;
 
 };

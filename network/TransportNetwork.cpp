@@ -129,6 +129,9 @@ void TransportNetwork::broadcastMessage(ptr<NetworkMessage> _m) {
 
         getSchain()->getNode()->getOutgoingMsgDB()->saveMsg(_m);
 
+        // sign message before sending
+        _m->sign(getSchain()->getCryptoManager());
+
         unordered_set<uint64_t> sent;
 
         while (3 * (sent.size() + 1) < getSchain()->getNodeCount() * 2) {

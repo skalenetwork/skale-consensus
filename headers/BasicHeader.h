@@ -28,9 +28,8 @@ class Buffer;
 class ServerConnection;
 class SHAHash;
 
+#include "thirdparty/json.hpp"
 #include "abstracttcpserver/ConnectionStatus.h"
-
-
 
 class BasicHeader {
 
