@@ -60,7 +60,7 @@ NetworkMessage::NetworkMessage(MsgType _messageType, block_id _blockID, schain_i
     this->r = _r;
     this->value = _value;
     setComplete();
-
+    sign(_srcProtocolInstance.getSchain()->getCryptoManager());
 }
 
 
