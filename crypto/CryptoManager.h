@@ -50,9 +50,9 @@ private:
     Schain* sChain;
 
 
-    ptr<string> signMAC(ptr<SHAHash> _hash, schain_index _dstIndex);
+    ptr<string> signECDSA(ptr<SHAHash> _hash);
 
-    bool verifyECDSASig(ptr<SHAHash> _hash, ptr<string> _sig);
+    bool verifyECDSA(ptr<SHAHash> _hash, ptr<string> _sig);
 
     ptr<ThresholdSigShare> signSigShare(ptr<SHAHash> _hash, block_id _blockId);
 

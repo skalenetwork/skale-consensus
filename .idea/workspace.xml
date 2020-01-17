@@ -32,14 +32,7 @@
     <list default="true" id="e8eb5c74-4268-46a2-ac26-2e919fd9ff42" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/crypto/CryptoManager.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/crypto/CryptoManager.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/messages/NetworkMessage.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/messages/NetworkMessage.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/messages/NetworkMessage.h" beforeDir="false" afterPath="$PROJECT_DIR$/messages/NetworkMessage.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/protocols/binconsensus/AUXBroadcastMessage.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/protocols/binconsensus/AUXBroadcastMessage.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/protocols/binconsensus/AUXBroadcastMessage.h" beforeDir="false" afterPath="$PROJECT_DIR$/protocols/binconsensus/AUXBroadcastMessage.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/protocols/binconsensus/BVBroadcastMessage.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/protocols/binconsensus/BVBroadcastMessage.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/protocols/binconsensus/BVBroadcastMessage.h" beforeDir="false" afterPath="$PROJECT_DIR$/protocols/binconsensus/BVBroadcastMessage.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/protocols/blockconsensus/BlockSignBroadcastMessage.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/protocols/blockconsensus/BlockSignBroadcastMessage.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/protocols/blockconsensus/BlockSignBroadcastMessage.h" beforeDir="false" afterPath="$PROJECT_DIR$/protocols/blockconsensus/BlockSignBroadcastMessage.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crypto/CryptoManager.h" beforeDir="false" afterPath="$PROJECT_DIR$/crypto/CryptoManager.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -343,13 +336,6 @@
       <workItem from="1577725078471" duration="1008000" />
       <workItem from="1577788378952" duration="9662000" />
       <workItem from="1578681255701" duration="4351000" />
-    </task>
-    <task id="LOCAL-00119" summary="Moving to json messages">
-      <created>1577637317673</created>
-      <option name="number" value="00119" />
-      <option name="presentableId" value="LOCAL-00119" />
-      <option name="project" value="LOCAL" />
-      <updated>1577637317673</updated>
     </task>
     <task id="LOCAL-00120" summary="Moving to json messages">
       <created>1577638546662</created>
@@ -687,7 +673,14 @@
       <option name="project" value="LOCAL" />
       <updated>1579260517974</updated>
     </task>
-    <option name="localTasksCounter" value="168" />
+    <task id="LOCAL-00168" summary="SKALE-1980 Signing messages on sent">
+      <created>1579266214815</created>
+      <option name="number" value="00168" />
+      <option name="presentableId" value="LOCAL-00168" />
+      <option name="project" value="LOCAL" />
+      <updated>1579266214815</updated>
+    </task>
+    <option name="localTasksCounter" value="169" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -773,10 +766,10 @@
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
     <state x="2581" y="184" key="#xdebugger.evaluate/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1577620419368" />
-    <state x="2314" y="71" width="1121" height="962" key="CommitChangelistDialog2" timestamp="1579260517508">
+    <state x="2314" y="71" width="1121" height="962" key="CommitChangelistDialog2" timestamp="1579266214331">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state x="2314" y="71" width="1121" height="962" key="CommitChangelistDialog2/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1579260517508" />
+    <state x="2314" y="71" width="1121" height="962" key="CommitChangelistDialog2/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1579266214331" />
     <state x="2613" y="259" width="524" height="594" key="FileChooserDialogImpl" timestamp="1578679722518">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
@@ -845,10 +838,10 @@
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
     <state x="2420" y="299" width="909" height="506" key="git4idea.merge.GitPullDialog/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1577608528706" />
-    <state x="2565" y="128" width="590" height="833" key="refactoring.ChangeSignatureDialog" timestamp="1579266156779">
+    <state x="2565" y="128" width="590" height="833" key="refactoring.ChangeSignatureDialog" timestamp="1579266245917">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
-    <state x="2565" y="128" width="590" height="833" key="refactoring.ChangeSignatureDialog/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1579266156779" />
+    <state x="2565" y="128" width="590" height="833" key="refactoring.ChangeSignatureDialog/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1579266245917" />
     <state x="2460" y="249" key="run.anything.popup" timestamp="1578923948214">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
