@@ -66,17 +66,21 @@ NetworkMessage::NetworkMessage(MsgType _messageType, block_id _blockID, schain_i
 
 NetworkMessage::NetworkMessage(MsgType _messageType, node_id _srcNodeID, block_id _blockID,
                                schain_index _blockProposerIndex, bin_consensus_round _r, bin_consensus_value _value,
-                               schain_id _schainId, msg_id _msgID, ptr<string> _sigShareStr,
+                               schain_id _schainId, msg_id _msgID, ptr<string> _sigShareStr, ptr<string> _ecdsaSig,
                                schain_index _srcSchainIndex, ptr<CryptoManager> _cryptoManager)
         : Message(_schainId, _messageType, _msgID, _srcNodeID, _blockID, _blockProposerIndex),
           BasicHeader(getTypeString(_messageType)) {
 
-    ASSERT(_srcSchainIndex > 0)
+    CHECK_ARGUMENT(_srcSchainIndex > 0)
+    CHECK_ARGUMENT(_ecdsaSig)
+    CHECK_ARGUMENT(_cryptoManager)
 
     this->srcSchainIndex = _srcSchainIndex;
     this->r = _r;
     this->value = _value;
     this->sigShareString = _sigShareStr;
+    this->ecdsaSig = _ecdsaSig;
+
 
     if (_sigShareStr != nullptr) {
         sigShare = _cryptoManager->createSigShare(_sigShareStr, _schainId, _blockID, _srcSchainIndex);
@@ -84,14 +88,16 @@ NetworkMessage::NetworkMessage(MsgType _messageType, node_id _srcNodeID, block_i
 
     setComplete();
 
+    verify(_cryptoManager);
+
 }
 
 ptr<ThresholdSigShare> NetworkMessage::getSigShare() const {
     return sigShare;
 }
 
-const ptr<string> &NetworkMessage::getHmac() const {
-    return hmac;
+const ptr<string> &NetworkMessage::getECDSASig() const {
+    return ecdsaSig;
 }
 
 
@@ -127,8 +133,8 @@ void NetworkMessage::addFields(nlohmann::basic_json<> &j) {
         j["sss"] = *sigShareString;
     }
 
-    CHECK_STATE(hmac);
-    j["hmac"] = *hmac;
+    CHECK_STATE(ecdsaSig);
+    j["sig"] = *ecdsaSig;
 }
 
 
@@ -145,6 +151,7 @@ ptr<NetworkMessage> NetworkMessage::parseMessage(ptr<string> _header, Schain *_s
     uint64_t round;
     uint8_t value;
     ptr<string> sigShare;
+    ptr<string> ecdsaSig;
 
     CHECK_ARGUMENT(_header);
     CHECK_ARGUMENT(_sChain);
@@ -168,6 +175,8 @@ ptr<NetworkMessage> NetworkMessage::parseMessage(ptr<string> _header, Schain *_s
             sigShare = getString(js, "sss");
         }
 
+        ecdsaSig = getString(js, "sig");
+
 
     } catch (ExitRequestedException &) { throw; } catch (...) {
         throw_with_nested(InvalidStateException("Could not parse message", __CLASS_NAME__));
@@ -187,7 +196,7 @@ ptr<NetworkMessage> NetworkMessage::parseMessage(ptr<string> _header, Schain *_s
                                                    block_id(blockID), schain_index(blockProposerIndex),
                                                    bin_consensus_round(round),
                                                    bin_consensus_value(value), schain_id(sChainID), msg_id(msgID),
-                                                   srcSchainIndex,
+                                                   srcSchainIndex, ecdsaSig,
                                                    _sChain);
         } else if (*type == BasicHeader::AUX_BROADCAST) {
             mptr = make_shared<AUXBroadcastMessage>(node_id(srcNodeID),
@@ -195,14 +204,14 @@ ptr<NetworkMessage> NetworkMessage::parseMessage(ptr<string> _header, Schain *_s
                                                     bin_consensus_round(round),
                                                     bin_consensus_value(value), schain_id(sChainID), msg_id(msgID),
                                                     sigShare,
-                                                    srcSchainIndex,
+                                                    srcSchainIndex, ecdsaSig,
                                                     _sChain);
         } else if (*type == BasicHeader::BLOCK_SIG_BROADCAST) {
             mptr = make_shared<BlockSignBroadcastMessage>(node_id(srcNodeID),
                                                           block_id(blockID), schain_index(blockProposerIndex),
                                                           schain_id(sChainID), msg_id(msgID),
                                                           sigShare,
-                                                          srcSchainIndex,
+                                                          srcSchainIndex, ecdsaSig,
                                                           _sChain);
         } else {
             ASSERT(false);
@@ -281,7 +290,12 @@ ptr<SHAHash> NetworkMessage::calculateHash() {
 }
 
 void NetworkMessage::sign(ptr<CryptoManager> _mgr) {
-    hmac = _mgr->signNetworkMsg(*this);
+    ecdsaSig = _mgr->signNetworkMsg(*this);
+
+}
+
+void NetworkMessage::verify(ptr<CryptoManager> _mgr) {
+    CHECK_STATE2(_mgr->verifyNetworkMsg(*this), "ECDSA sig did not verify");
 }
 
 

@@ -47,10 +47,10 @@ BVBroadcastMessage::BVBroadcastMessage(node_id _srcNodeID, block_id _blockID, sc
                                        bin_consensus_round _r,
                                        bin_consensus_value _value, schain_id _schainId, msg_id _msgID,
                                        schain_index _srcSchainIndex,
-                                       Schain *_sChain)
+                                       ptr<string> _ecdsaSig, Schain *_sChain)
     : NetworkMessage(
         MSG_BVB_BROADCAST, _srcNodeID, _blockID, _blockProposerIndex, _r, _value, _schainId, _msgID,
-        nullptr,
+        nullptr, _ecdsaSig,
         _srcSchainIndex, _sChain->getCryptoManager()) {
     printPrefix = "b";
 };

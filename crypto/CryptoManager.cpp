@@ -76,7 +76,7 @@ ptr<string> CryptoManager::signMAC(ptr<SHAHash> _hash, schain_index /*_dstIndex 
 }
 
 
-bool CryptoManager::verifyMAC(ptr<SHAHash> _hash, ptr<string> _sig, schain_index /*_dstIndex */) {
+bool CryptoManager::verifyECDSASig(ptr<SHAHash> _hash, ptr<string> _sig) {
     CHECK_ARGUMENT(_hash != nullptr)
     CHECK_ARGUMENT(_sig != nullptr)
     return *_sig == *(_hash->toHex());
@@ -156,10 +156,10 @@ ptr<string> CryptoManager::signNetworkMsg(NetworkMessage& _msg) {
 }
 
 bool CryptoManager::verifyNetworkMsg(NetworkMessage& _msg) {
-    auto sig = _msg.getHmac();
+    auto sig = _msg.getECDSASig();
     auto hash = _msg.getHash();
 
-    if (!verifyMAC(hash, sig, schain_index())) {
+    if (!verifyECDSASig(hash, sig)) {
         LOG(warn, "ECDSA sig did not verify");
         return false;
     }
@@ -182,7 +182,7 @@ bool CryptoManager::verifyProposalECDSA(ptr<BlockProposal> _proposal, ptr<string
         return false;
     }
 
-    if (!verifyMAC(hash, _signature, schain_index())) {
+    if (!verifyECDSASig(hash, _signature)) {
         LOG(warn, "ECDSA sig did not verify");
         return false;
     }

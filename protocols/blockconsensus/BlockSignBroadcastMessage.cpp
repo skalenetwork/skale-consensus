@@ -70,12 +70,13 @@ BlockSignBroadcastMessage::BlockSignBroadcastMessage(block_id _blockID, schain_i
 
 
 BlockSignBroadcastMessage::BlockSignBroadcastMessage(node_id _srcNodeID, block_id _blockID,
-                                                     schain_index _blockProposerIndex,
-                                                     schain_id _schainId, msg_id _msgID, ptr<string> _sigShare,
-                                                     schain_index _srcSchainIndex,
+                                                     schain_index _blockProposerIndex, schain_id _schainId,
+                                                     msg_id _msgID, ptr<string> _sigShare,
+                                                     schain_index _srcSchainIndex, ptr<string> _ecdsaSig,
                                                      Schain *_sChain)
     : NetworkMessage(
         MSG_BLOCK_SIGN_BROADCAST, _srcNodeID, _blockID, _blockProposerIndex, 0, 0, _schainId, _msgID, _sigShare,
+        _ecdsaSig,
         _srcSchainIndex, _sChain->getCryptoManager()) {
     CHECK_ARGUMENT(_sigShare);
     printPrefix = "F";

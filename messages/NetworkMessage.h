@@ -63,8 +63,7 @@ protected:
     ptr<SHAHash> hash;
 
     ptr<string> sigShareString;
-    ptr<string> hmac;
-    ptr<string> hmacKey;
+    ptr<string> ecdsaSig;
 
     NetworkMessage(MsgType _messageType, block_id _blockID, schain_index _blockProposerIndex,
                    bin_consensus_round _r, bin_consensus_value _value,
@@ -73,7 +72,7 @@ protected:
 
     NetworkMessage(MsgType _messageType, node_id _srcNodeID, block_id _blockID,
                    schain_index _blockProposerIndex, bin_consensus_round _r, bin_consensus_value _value,
-                   schain_id _schainId, msg_id _msgID, ptr<string> _sigShareStr,
+                   schain_id _schainId, msg_id _msgID, ptr<string> _sigShareStr, ptr<string> _ecdsaSig,
                    schain_index _srcSchainIndex, ptr<CryptoManager> _cryptoManager);
 
     virtual ptr<SHAHash> calculateHash();
@@ -83,6 +82,9 @@ protected:
 public:
 
     void sign(ptr<CryptoManager> _mgr);
+
+
+    void verify(ptr<CryptoManager> _mgr);
 
     virtual bin_consensus_round getRound() const;
 
@@ -104,6 +106,6 @@ public:
 
     ptr<SHAHash> getHash();
 
-    const ptr<string> &getHmac() const;
+    const ptr<string> &getECDSASig() const;
 
 };

@@ -52,7 +52,7 @@ private:
 
     ptr<string> signMAC(ptr<SHAHash> _hash, schain_index _dstIndex);
 
-    bool verifyMAC(ptr<SHAHash> _hash, ptr<string> _sig, schain_index _dstIndex);
+    bool verifyECDSASig(ptr<SHAHash> _hash, ptr<string> _sig);
 
     ptr<ThresholdSigShare> signSigShare(ptr<SHAHash> _hash, block_id _blockId);
 
