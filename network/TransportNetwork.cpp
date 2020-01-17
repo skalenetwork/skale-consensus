@@ -127,10 +127,12 @@ void TransportNetwork::broadcastMessage(ptr<NetworkMessage> _m) {
 
     try {
 
-        getSchain()->getNode()->getOutgoingMsgDB()->saveMsg(_m);
+
 
         // sign message before sending
         _m->sign(getSchain()->getCryptoManager());
+
+        getSchain()->getNode()->getOutgoingMsgDB()->saveMsg(_m);
 
         unordered_set<uint64_t> sent;
 
@@ -338,6 +340,8 @@ ptr<NetworkMessageEnvelope> TransportNetwork::receiveMessage() {
     auto msg = make_shared<string>((const char *) buf->getBuf()->data(), readBytes);
 
     auto mptr = NetworkMessage::parseMessage(msg, getSchain());
+
+    mptr->verify(getSchain()->getCryptoManager());
 
     ptr<NodeInfo> realSender = sChain->getNode()->getNodeInfoByIndex(mptr->getSrcSchainIndex());
 
