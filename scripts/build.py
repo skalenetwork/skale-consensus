@@ -66,8 +66,6 @@ print("Current directory is" + os.getcwd())
 print("Got TRAVIS_BUILD_TYPE=" + sys.argv[1])
 print("Got TRAVIS_BUILD_DIR=" + sys.argv[2])
 
-if (len(sys.argv) > 3) :
-    sys.exit()
 
 
 cmakeExecutable = subprocess.check_output(["which", "cmake"])
@@ -77,6 +75,11 @@ print("Running cmake: " + cmakeExecutable)
 
 run ("ccache -M 20G")
 run("./libBLS/deps/build.sh PARALLEL_COUNT=j$(nproc)")
+
+
+if (len(sys.argv) > 3) :
+    sys.exit()
+
 run("cmake . -Bbuild -DCMAKE_BUILD_TYPE=" +  sys.argv[1] +
                         " -DCOVERAGE=ON -DMICROPROFILE_ENABLED=0")
 
