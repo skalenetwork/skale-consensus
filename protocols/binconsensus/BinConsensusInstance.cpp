@@ -615,21 +615,28 @@ BinConsensusInstance::BinConsensusInstance(BlockConsensusAgent *_instance, block
 void BinConsensusInstance::initHistory(node_count _nodeCount) {
 
     CHECK_ARGUMENT(_nodeCount > 0);
-    globalTrueDecisions =
-            make_shared<vector<ptr<cache::lru_cache<uint64_t, ptr<BinConsensusInstance>>>>>();
-    globalFalseDecisions =
-            make_shared<vector<ptr<cache::lru_cache<uint64_t,ptr<BinConsensusInstance>>>>>();
 
-    for (uint64_t i = 0; i < (uint64_t) _nodeCount; i++) {
-        globalTrueDecisions->
-          push_back(make_shared<cache::lru_cache<uint64_t, ptr<BinConsensusInstance>>>(MAX_CONSENSUS_HISTORY));
-        globalFalseDecisions->
-          push_back(make_shared<cache::lru_cache<uint64_t, ptr<BinConsensusInstance>>>(MAX_CONSENSUS_HISTORY));
-    }
+    // if not already inited, init
+
+    if (globalTrueDecisions == nullptr) {
+        globalTrueDecisions =
+                make_shared<vector<ptr<cache::lru_cache<uint64_t, ptr<BinConsensusInstance>>>>>();
+        globalFalseDecisions =
+                make_shared<vector<ptr<cache::lru_cache<uint64_t, ptr<BinConsensusInstance>>>>>();
+
+        for (uint64_t i = 0; i < (uint64_t) _nodeCount; i++) {
+            globalTrueDecisions->
+                    push_back(
+                    make_shared<cache::lru_cache<uint64_t, ptr<BinConsensusInstance>>>(MAX_CONSENSUS_HISTORY));
+            globalFalseDecisions->
+                    push_back(
+                    make_shared<cache::lru_cache<uint64_t, ptr<BinConsensusInstance>>>(MAX_CONSENSUS_HISTORY));
+        }
 
 #ifdef CONSENSUS_DEBUG
-    msgHistory = make_shared<list<ptr<NetworkMessage>>>();
+        msgHistory = make_shared<list<ptr<NetworkMessage>>>();
 #endif
+    }
 }
 
 bin_consensus_round BinConsensusInstance::getCurrentRound() {
