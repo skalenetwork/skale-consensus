@@ -19,3 +19,4 @@ jobs:
     - name: push docker image
       run:  docker push docker.pkg.github.com/skalenetwork/skale-consensus/consensust:latest
 
+
