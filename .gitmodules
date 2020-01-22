@@ -2,3 +2,7 @@
 	path = libBLS
 	url = https://github.com/skalenetwork/libBLS.git
 	branch = master
+[submodule "libjson-rpc-cpp"]
+	path = libjson-rpc-cpp
+	url = https://github.com/skalenetwork/libjson-rpc-cpp
+	branch = develop
