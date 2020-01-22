@@ -1,8 +1,6 @@
-name: Build base container
-on:
-  push:
-    tags:
-      - build_base*
+name: Build consensust coitainer
+on: [push]
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -15,8 +13,8 @@ jobs:
     - name: submodule update
       run: git submodule update --init --recursive
     - name: Build the Docker image
-      run: docker build . --file DockerfileBase --tag  docker.pkg.github.com/skalenetwork/skale-consensus/consensust_base:latest
+      run: docker build . --file Dockerfile --tag  docker.pkg.github.com/skalenetwork/skale-consensus/consensust:latest
     - name: push docker image
-      run:  docker push docker.pkg.github.com/skalenetwork/skale-consensus/consensust_base:latest
+      run:  docker push docker.pkg.github.com/skalenetwork/skale-consensus/consensust:latest
 
 
