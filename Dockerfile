@@ -2,7 +2,7 @@ FROM docker.pkg.github.com/skalenetwork/skale-consensus/consensust_base:latest
 WORKDIR /consensust
 
 COPY . /consensust/src/
-RUN cd /consensust/src; cp -rf COPY ENGINE_VERSION *.* abstracttcpclient ./abstracttcpclient abstracttcpserver \
+RUN cd /consensust/src; cp -rf ENGINE_VERSION *.* abstracttcpclient ./abstracttcpclient abstracttcpserver \
    blockfinalize blockproposal catchup cget chains cmake crypto datastructures db exceptions \
    headers json messages monitoring network node pendingqueue pricing protocols \
    test thirdparty threads scripts utils ..
