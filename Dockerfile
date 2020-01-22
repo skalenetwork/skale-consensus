@@ -1,14 +1,7 @@
 FROM docker.pkg.github.com/skalenetwork/skale-consensus/consensust_base:latest
 WORKDIR /consensust
 COPY ENGINE_VERSION ./
-COPY .clang-format ./
-COPY *.yml ./
-COPY *.cmake ./
-COPY *.cpp ./
-COPY *.h ./
-COPY *.txt ./
-COPY *.c ./
-COPY *.json ./
+COPY *.* ./
 COPY abstracttcpclient ./abstracttcpclient
 COPY abstracttcpserver ./abstracttcpserver
 COPY  blockfinalize ./blockfinalize
@@ -33,6 +26,7 @@ COPY protocols ./protocols
 COPY test ./test
 COPY thirdparty ./thirdparty
 COPY threads ./threads
+COPY scripts ./scripts
 COPY utils ./utils
 
 ENV CC gcc-7
