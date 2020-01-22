@@ -1,12 +1,16 @@
 FROM docker.pkg.github.com/skalenetwork/skale-consensus/consensust_base:latest
 WORKDIR /consensust
 
+
+
+
 COPY . /consensust/src/
 RUN cd /consensust/src; cp -rf ENGINE_VERSION *.* abstracttcpclient ./abstracttcpclient abstracttcpserver \
    blockfinalize blockproposal catchup cget chains cmake crypto datastructures db exceptions \
    headers json messages monitoring network node pendingqueue pricing protocols \
    test thirdparty threads scripts utils ..
 RUN rm -rf /consensust/src
+ENTRYPOINT ["/consensust/scripts/start.sh"]
 
 ENV CC gcc-7
 ENV CXX g++-7

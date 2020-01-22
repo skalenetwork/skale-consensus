@@ -16,7 +16,12 @@ jobs:
       run: git submodule update --init --recursive
     - name: Build the Docker image
       run: docker build . --file DockerfileBase --tag  docker.pkg.github.com/skalenetwork/skale-consensus/consensust_base:latest
+
+    - name: Test docker image
+      run: docker start -ti docker.pkg.github.com/skalenetwork/skale-consensus/consensust_base:latest
+
     - name: push docker image
       run:  docker push docker.pkg.github.com/skalenetwork/skale-consensus/consensust_base:latest
+
 
 
