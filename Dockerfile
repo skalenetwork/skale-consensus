@@ -8,7 +8,6 @@ COPY *.cpp ./
 COPY *.h ./
 COPY *.txt ./
 COPY *.c ./
-COPY *.hpp ./
 COPY *.sh ./
 COPY *.m4 ./
 COPY *.gmp ./
