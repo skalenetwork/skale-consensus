@@ -209,6 +209,11 @@ TEST_CASE_METHOD(StartFromScratch, "Issue different proposals to different nodes
 }
 
 TEST_CASE_METHOD(StartFromScratch, "Test sgx server connection", "[sgx]") {
+
+    jsonrpc::HttpClient::setKeyFileFullPath("/tmp/key");
+    jsonrpc::HttpClient::setCertFileFullPath("/tmp/cert");
+    jsonrpc::HttpClient::setSslClientPort(1026);
+
     jsonrpc::HttpClient client("http://localhost:1027");
     StubClient c(client, jsonrpc::JSONRPC_CLIENT_V2);
 
@@ -244,6 +249,10 @@ TEST_CASE_METHOD(StartFromScratch, "Test sgx server connection", "[sgx]") {
     outFile.open("/tmp/cert");
     outFile << signedCert;
 
+
+    jsonrpc::HttpClient client2("https://localhost:1026");
+    StubClient c2(client2, jsonrpc::JSONRPC_CLIENT_V2);
+    result = c2.SignCertificate(csr);
 
    //c.SignCertificate("hahaha");
 }
