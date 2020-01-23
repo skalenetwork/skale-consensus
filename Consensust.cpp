@@ -26,13 +26,14 @@
 #include "thirdparty/catch.hpp"
 
 
-#include "stubclient.h"
 
 #include "SkaleCommon.h"
 #include "Log.h"
 #include "node/ConsensusEngine.h"
 
 #include "time.h"
+
+#include "stubclient.h"
 #include "Consensust.h"
 
 #ifdef GOOGLE_PROFILE
@@ -203,4 +204,9 @@ TEST_CASE_METHOD(StartFromScratch, "Issue different proposals to different nodes
 
     unsetenv("CORRUPT_PROPOSAL_TEST");
     SUCCEED();
+}
+
+TEST_CASE_METHOD(StartFromScratch, "Test sgx server connection", "[sgx]") {
+    jsonrpc::HttpClient client("http://localhost:1029");
+    StubClient c(client, jsonrpc::JSONRPC_CLIENT_V2);
 }
