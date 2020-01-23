@@ -207,6 +207,8 @@ TEST_CASE_METHOD(StartFromScratch, "Issue different proposals to different nodes
 }
 
 TEST_CASE_METHOD(StartFromScratch, "Test sgx server connection", "[sgx]") {
-    jsonrpc::HttpClient client("http://localhost:1029");
+    jsonrpc::HttpClient client("http://localhost:1027");
     StubClient c(client, jsonrpc::JSONRPC_CLIENT_V2);
+    c.SignCertificate(string("haha"));
+   //c.SignCertificate("hahaha");
 }

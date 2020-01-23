@@ -198,7 +198,7 @@ SET( LINK_LIBRARIES
         Threads::Threads
         ${BOOST_LIBS_4_CONSENSUS}
         ${LIB_NAME_cryptopp} ZeroMQ::libzmq-static leveldb::leveldb
-        jsonrpccpp-client jsonrpccpp-stub jsonrpccpp-common bls ${FF_LIBRARY}
+        jsoncpp jsonrpccpp-client jsonrpccpp-stub jsonrpccpp-common bls ${FF_LIBRARY}
         )
 
 

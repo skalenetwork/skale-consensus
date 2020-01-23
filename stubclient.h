@@ -5,8 +5,6 @@
 #ifndef JSONRPC_CPP_STUB_STUBCLIENT_H_
 #define JSONRPC_CPP_STUB_STUBCLIENT_H_
 
-#include "jsoncpp/json/json.h"
-
 #include "jsonrpccpp/client/client.h"
 #include "jsonrpccpp/client/connectors/httpclient.h"
 #include "jsonrpccpp/server/connectors/httpserver.h"
@@ -247,6 +245,28 @@ public:
         Json::Value p;
         p = Json::nullValue;
         Json::Value result = this->CallMethod("getServerStatus",p);
+        if (result.isObject())
+            return result;
+        else
+            throw jsonrpc::JsonRpcException(jsonrpc::Errors::ERROR_CLIENT_INVALID_RESPONSE, result.toStyledString());
+    }
+
+
+    Json::Value SignCertificate(const std::string& csr){
+        Json::Value p;
+        p["csr"] = csr;
+        Json::Value result = this->CallMethod("SignCertificate",p);
+        if (result.isObject())
+            return result;
+        else
+            throw jsonrpc::JsonRpcException(jsonrpc::Errors::ERROR_CLIENT_INVALID_RESPONSE, result.toStyledString());
+
+    }
+
+    Json::Value GetCertificate(const std::string& hash){
+        Json::Value p;
+        p["hash"] = hash;
+        Json::Value result = this->CallMethod("GetCertificate",p);
         if (result.isObject())
             return result;
         else
