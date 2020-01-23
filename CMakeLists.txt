@@ -5,7 +5,7 @@ include_directories(.)
 include(ExternalProject)
 ExternalProject_Add(libjson-rpc-cpp
         SOURCE_DIR ../libjson-rpc-cpp
-        CMAKE_ARGS -DBUILD_STATIC_LIBS=True -DCMAKE_INSTALL_PREFIX=/tmp/
+        CMAKE_ARGS -DBUILD_STATIC_LIBS=True -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/jsonrpc-build
         BUILD_COMMAND ${CMAKE_COMMAND} -E echo "Starting $<CONFIG> build"
         COMMAND       ${CMAKE_COMMAND} --build <BINARY_DIR> --config $<CONFIG>
         COMMAND       ${CMAKE_COMMAND} -E echo "$<CONFIG> build complete"
@@ -42,8 +42,8 @@ HunterGate(URL "https://github.com/ruslo/hunter/archive/v0.23.76.tar.gz" SHA1 "c
 
 project(consensus)
 
-include_directories( "${DEPS_INSTALL_ROOT}/include" ${CMAKE_BINARY_DIR}/deps/include /tmp/include)
-link_directories( "${DEPS_INSTALL_ROOT}/lib"  "libjson-rpc-cpp-prefix/src/libjson-rpc-cpp-build/lib/")
+include_directories( "${DEPS_INSTALL_ROOT}/include" ${CMAKE_BINARY_DIR}/deps/include ${CMAKE_BINARY_DIR}/jsonrpc-build/include)
+link_directories( "${DEPS_INSTALL_ROOT}/lib"  "${CMAKE_BINARY_DIR}/jsonrpc-build/lib")
 
 set( CMAKE_PREFIX_PATH "${DEPS_INSTALL_ROOT}" )
 
@@ -180,9 +180,8 @@ SET(SRC_FILES
         ${utils_src}
         Agent.h Agent.cpp SkaleCommon.h SkaleCommon.cpp Log.h Log.cpp microprofile.cpp miniz.c)
 
-include_directories( ${BLS_INCLUDE_DIRS} "${DEPS_INSTALL_ROOT}/include" "/tmp/include"
-        )
-link_directories( "${DEPS_INSTALL_ROOT}/lib" "/tmp" )
+include_directories( ${BLS_INCLUDE_DIRS} "${DEPS_INSTALL_ROOT}/include" "${CMAKE_BINARY_DIR}/jsonrpc-build/include")
+link_directories( "${DEPS_INSTALL_ROOT}/lib" "${CMAKE_BINARY_DIR}/jsonrpc-build/lib" )
 
 if( SKALE_HAVE_BOOST_FROM_HUNTER )
     set( BOOST_LIBS_4_CONSENSUS
