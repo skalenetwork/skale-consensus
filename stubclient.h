@@ -254,7 +254,7 @@ public:
 
     Json::Value SignCertificate(const std::string& csr){
         Json::Value p;
-        p["csr"] = csr;
+        p["certificate"] = csr;
         Json::Value result = this->CallMethod("SignCertificate",p);
         if (result.isObject())
             return result;

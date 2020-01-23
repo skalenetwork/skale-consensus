@@ -31,6 +31,8 @@
 #include "Log.h"
 #include "node/ConsensusEngine.h"
 
+#include "iostream"
+#include "fstream"
 #include "time.h"
 
 #include "stubclient.h"
@@ -209,6 +211,39 @@ TEST_CASE_METHOD(StartFromScratch, "Issue different proposals to different nodes
 TEST_CASE_METHOD(StartFromScratch, "Test sgx server connection", "[sgx]") {
     jsonrpc::HttpClient client("http://localhost:1027");
     StubClient c(client, jsonrpc::JSONRPC_CLIENT_V2);
-    c.SignCertificate(string("haha"));
+
+    const std::string VALID_CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+
+    std::random_device random_device;
+    std::mt19937 generator(random_device());
+    std::uniform_int_distribution<int> distribution(0,VALID_CHARS.size() - 1);
+    std::string random_string;
+    std::generate_n(std::back_inserter(random_string), 10, [&]()
+    {
+        return VALID_CHARS[distribution(generator)];
+    });
+    system("bash -c rm -f /tmp/csr /tmp/key /tmp/cert");
+    system(("/usr/bin/openssl req -new -sha256 -nodes -out /tmp/csr  -newkey rsa:2048 -keyout /tmp/key -subj /CN="
+      + random_string).data());
+    string str, csr;
+    ifstream file;
+    file.open("/tmp/csr");
+    while (getline(file, str)) {
+        csr.append(str);
+        csr.append("\n");
+    }
+    auto result = c.SignCertificate(csr);
+    int64_t status = result["status"].asInt64();
+    REQUIRE(status == 0);
+    string hash = result["hash"].asString();
+    result = c.GetCertificate(hash);
+    status = result["status"].asInt64();
+    REQUIRE(status == 0);
+    string signedCert = result["cert"].asString();
+    ofstream outFile;
+    outFile.open("/tmp/cert");
+    outFile << signedCert;
+
+
    //c.SignCertificate("hahaha");
 }
