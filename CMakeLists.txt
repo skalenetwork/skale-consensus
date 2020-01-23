@@ -204,7 +204,7 @@ SET( LINK_LIBRARIES
 
 # consensus library
 
-add_library(consensus ${SRC_FILES})
+add_library(consensus ${SRC_FILES} libjson-rpc-cpp)
 
 target_link_libraries(consensus ${LINK_LIBRARIES})
 add_precompiled_header(consensus SkaleCommon.h FORCE_INCLUDE)
