@@ -2,6 +2,16 @@ cmake_minimum_required(VERSION 3.5)
 
 include_directories(.)
 
+include(ExternalProject)
+ExternalProject_Add(libjson-rpc-cpp
+        SOURCE_DIR ../libjson-rpc-cpp
+        INSTALL_COMMAND ""
+        CMAKE_ARGS -DBUILD_STATIC_LIBS=True
+        BUILD_COMMAND ${CMAKE_COMMAND} -E echo "Starting $<CONFIG> build"
+        COMMAND       ${CMAKE_COMMAND} --build <BINARY_DIR> --config $<CONFIG>
+        COMMAND       ${CMAKE_COMMAND} -E echo "$<CONFIG> build complete"
+        )
+
 option(COVERAGE "Build with code coverage support" OFF)
 if (COVERAGE)
     message(STATUS "**********************")
@@ -34,10 +44,12 @@ HunterGate(URL "https://github.com/ruslo/hunter/archive/v0.23.76.tar.gz" SHA1 "c
 project(consensus)
 
 include_directories( "${DEPS_INSTALL_ROOT}/include" ${CMAKE_BINARY_DIR}/deps/include )
-link_directories( "${DEPS_INSTALL_ROOT}/lib" )
+link_directories( "${DEPS_INSTALL_ROOT}/lib"  "libjson-rpc-cpp-prefix/src/libjson-rpc-cpp-build/lib/")
+
 set( CMAKE_PREFIX_PATH "${DEPS_INSTALL_ROOT}" )
 
 find_library( FF_LIBRARY NAMES "ff" PATHS "${DEPS_INSTALL_ROOT}/lib" )
+
 
 # zeromq
 
@@ -186,7 +198,8 @@ endif()
 SET( LINK_LIBRARIES
         Threads::Threads
         ${BOOST_LIBS_4_CONSENSUS}
-        ${LIB_NAME_cryptopp} ZeroMQ::libzmq-static leveldb::leveldb bls ${FF_LIBRARY}
+        ${LIB_NAME_cryptopp} ZeroMQ::libzmq-static leveldb::leveldb
+        jsonrpccpp-server bls ${FF_LIBRARY}
         )
 
 
