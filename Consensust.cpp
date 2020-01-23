@@ -25,6 +25,9 @@
 
 #include "thirdparty/catch.hpp"
 
+
+#include "stubclient.h"
+
 #include "SkaleCommon.h"
 #include "Log.h"
 #include "node/ConsensusEngine.h"

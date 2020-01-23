@@ -43,7 +43,7 @@ HunterGate(URL "https://github.com/ruslo/hunter/archive/v0.23.76.tar.gz" SHA1 "c
 
 project(consensus)
 
-include_directories( "${DEPS_INSTALL_ROOT}/include" ${CMAKE_BINARY_DIR}/deps/include )
+include_directories( "${DEPS_INSTALL_ROOT}/include" ${CMAKE_BINARY_DIR}/deps/include libjson-rpc-cpp/src/jsonrpccpp)
 link_directories( "${DEPS_INSTALL_ROOT}/lib"  "libjson-rpc-cpp-prefix/src/libjson-rpc-cpp-build/lib/")
 
 set( CMAKE_PREFIX_PATH "${DEPS_INSTALL_ROOT}" )

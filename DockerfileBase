@@ -8,8 +8,8 @@ WORKDIR /consensust
 RUN apt-get update
 RUN apt-get install -yq  libprocps-dev g++-7 valgrind gawk sed libffi-dev ccache libgoogle-perftools-dev \
     flex bison yasm texinfo autotools-dev automake python python-pip \
-    cmake libtool build-essential libtool pkg-config autoconf wget
-RUN apt-get install -yq git
+    cmake libtool build-essential libtool pkg-config autoconf wget git
+RUN apt-get install -yq jsoncpp argtable curl hiredis redis
 
 
 ENV CC gcc-7
