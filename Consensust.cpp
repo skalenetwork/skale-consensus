@@ -252,7 +252,7 @@ TEST_CASE_METHOD(StartFromScratch, "Test sgx server connection", "[sgx]") {
 
     jsonrpc::HttpClient client2("https://localhost:1026");
     StubClient c2(client2, jsonrpc::JSONRPC_CLIENT_V2);
-    result = c2.SignCertificate(csr);
+    result = c2.generateECDSAKey();
 
    //c.SignCertificate("hahaha");
 }
