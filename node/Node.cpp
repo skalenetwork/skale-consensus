@@ -68,7 +68,16 @@
 
 using namespace std;
 
-Node::Node(const nlohmann::json &_cfg, ConsensusEngine *_consensusEngine) {
+Node::Node(const nlohmann::json &_cfg, ConsensusEngine *_consensusEngine,
+           bool _useSGX, ptr<string> _keyName, ptr<vector<string>> _publicKeys) {
+
+    if (_useSGX) {
+        CHECK_ARGUMENT(_keyName && _publicKeys);
+        useSGX = true;
+        keyName = _keyName;
+        publicKeys = _publicKeys;
+    }
+
     this->consensusEngine = _consensusEngine;
     this->nodeInfosByIndex = make_shared<map<schain_index, ptr<NodeInfo> > >();
     this->nodeInfosByIP = make_shared<map<ptr<string>, ptr<NodeInfo>, Comparator> >();

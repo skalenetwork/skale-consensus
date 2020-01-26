@@ -143,6 +143,12 @@ class Node {
     ptr<map<ptr<string>, ptr<NodeInfo>, Comparator> > nodeInfosByIP;
 
 
+    bool useSGX;
+
+    ptr<string> keyName = nullptr;
+    ptr<vector<string>> publicKeys = nullptr;
+
+
     void releaseGlobalServerBarrier();
 
     void releaseGlobalClientBarrier();
@@ -260,7 +266,8 @@ public:
 
 
 
-    Node(const nlohmann::json &_cfg, ConsensusEngine *_consensusEngine);
+    Node(const nlohmann::json &_cfg, ConsensusEngine *_consensusEngine,
+         bool _useSGX, ptr<string> _keyName, ptr<vector<string>> _publicKeys);
 
     ~Node();
 

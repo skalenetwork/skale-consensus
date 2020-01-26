@@ -222,9 +222,16 @@ void ConsensusEngine::parseFullConfigAndCreateNode(const string &configFileConte
 
 }
 
-ptr<Node> ConsensusEngine::readNodeConfigFileAndCreateNode(
-        const fs_path &path, set<node_id> &nodeIDs) {
+ptr<Node> ConsensusEngine::readNodeConfigFileAndCreateNode(const fs_path &path, set<node_id> &_nodeIDs, bool _useSGX,
+                                                           ptr<string> _keyName, ptr<vector<string>> _publicKeys) {
     try {
+
+        if (_useSGX) {
+            CHECK_ARGUMENT(_keyName && _publicKeys);
+        }
+
+
+
         fs_path nodeFileNamePath(path);
 
         nodeFileNamePath /= string(SkaleCommon::NODE_FILE_NAME);
@@ -237,7 +244,7 @@ ptr<Node> ConsensusEngine::readNodeConfigFileAndCreateNode(
 
         checkExistsAndDirectory(schainDirNamePath.string());
 
-        auto node = JSONFactory::createNodeFromJson(nodeFileNamePath.string(), nodeIDs, this);
+        auto node = JSONFactory::createNodeFromJson(nodeFileNamePath.string(), _nodeIDs, this);
 
 
         if (node == nullptr) {
@@ -343,15 +350,21 @@ void ConsensusEngine::parseTestConfigsAndCreateAllNodes(const fs_path &dirname, 
 
         directory_iterator itr2(dirname);
 
+        uint64_t i = 0;
+
         for (; itr2 != end; itr2++) {
             if (!is_directory(itr2->path())) {
                 BOOST_THROW_EXCEPTION(FatalError("Junk file found. Remove it: " + itr2->path().string()));
             }
 
-            readNodeConfigFileAndCreateNode(itr2->path(), nodeIDs);
+            ptr<string> keyName = nullptr;
+            if (useSGX) {
+                CHECK_STATE(i < keyNames->size());
+                keyName = make_shared<string>(keyNames->at(i));
+            }
+            readNodeConfigFileAndCreateNode(itr2->path(), nodeIDs, useSGX, keyName, publicKeys);
+            i++;
         };
-
-
 
         if (nodes.size() == 0) {
             BOOST_THROW_EXCEPTION(FatalError("No valid node dirs found"));
