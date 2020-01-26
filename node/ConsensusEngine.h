@@ -173,7 +173,9 @@ public:
 
     // used for standalone debugging
 
-    void parseConfigsAndCreateAllNodes(const fs_path &dirname);
+    void parseTestConfigsAndCreateAllNodes(const fs_path &dirname,
+            bool useSGX = false, ptr<vector<string>> keyNames = nullptr, ptr<vector<string>>
+            publicKeys = nullptr);
 
     void exitGracefully() override;
 

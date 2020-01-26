@@ -110,7 +110,7 @@ void basicRun() {
         REQUIRE(ConsensusEngine::getEngineVersion().size() > 0);
 
         engine = new ConsensusEngine();
-        engine->parseConfigsAndCreateAllNodes(Consensust::getConfigDirPath());
+        engine->parseTestConfigsAndCreateAllNodes(Consensust::getConfigDirPath());
         engine->slowStartBootStrapTest();
         usleep(1000 * Consensust::getRunningTimeMS()); /* Flawfinder: ignore */
 
@@ -143,7 +143,7 @@ TEST_CASE_METHOD(StartFromScratch, "Use finalization download only", "[consensus
     setenv("TEST_FINALIZATION_DOWNLOAD_ONLY", "1", 1);
 
     engine = new ConsensusEngine();
-    engine->parseConfigsAndCreateAllNodes(Consensust::getConfigDirPath());
+    engine->parseTestConfigsAndCreateAllNodes(Consensust::getConfigDirPath());
     engine->slowStartBootStrapTest();
     usleep(1000 * Consensust::getRunningTimeMS()); /* Flawfinder: ignore */
 
@@ -168,7 +168,7 @@ TEST_CASE_METHOD(StartFromScratch, "Get consensus to stuck", "[consensus-stuck]"
     try {
         auto startTime = time(NULL);
         engine = new ConsensusEngine();
-        engine->parseConfigsAndCreateAllNodes(Consensust::getConfigDirPath());
+        engine->parseTestConfigsAndCreateAllNodes(Consensust::getConfigDirPath());
         engine->slowStartBootStrapTest();
         auto finishTime = time(NULL);
         if (finishTime - startTime < STUCK_TEST_TIME) {
@@ -191,7 +191,7 @@ TEST_CASE_METHOD(StartFromScratch, "Issue different proposals to different nodes
 
     try {
         engine = new ConsensusEngine();
-        engine->parseConfigsAndCreateAllNodes(Consensust::getConfigDirPath());
+        engine->parseTestConfigsAndCreateAllNodes(Consensust::getConfigDirPath());
         engine->slowStartBootStrapTest();
         usleep(1000 * Consensust::getRunningTimeMS()); /* Flawfinder: ignore */
 
@@ -253,16 +253,31 @@ TEST_CASE_METHOD(StartFromScratch, "Test sgx server connection", "[sgx]") {
     jsonrpc::HttpClient client2("https://localhost:1026");
     StubClient c2(client2, jsonrpc::JSONRPC_CLIENT_V2);
 
-    result = c2.generateECDSAKey();
+    for (int i = 0; i < 4; i++) {
 
-    status = result["status"].asInt64();
-    REQUIRE(status == 0);
 
-    vector<string> keyNames;
-    vector<string> publicKeys;
+        result = c2.generateECDSAKey();
 
-    string keyName = result["keyName"].asString();
-    string publicKey = result["publicKey"].asString();
+
+
+        status = result["status"].asInt64();
+        REQUIRE(status == 0);
+
+        vector<string> keyNames;
+        vector<string> publicKeys;
+
+        string keyName = result["keyName"].asString();
+        string publicKey = result["publicKey"].asString();
+        REQUIRE(keyName.size() > 10);
+        REQUIRE(publicKey.size() > 10);
+        REQUIRE(keyName.find("KEK") !=  -1);
+
+        cerr << keyName << endl;
+
+        keyNames.push_back(keyName);
+        publicKeys.push_back(publicKey);
+
+    }
 
    //c.SignCertificate("hahaha");
 }

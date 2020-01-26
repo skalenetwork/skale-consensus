@@ -155,8 +155,6 @@ void ConsensusEngine::logInit() {
 }
 
 
-
-
 const shared_ptr<string> ConsensusEngine::getDataDir() {
     CHECK_STATE(dataDir);
     return dataDir;
@@ -310,7 +308,14 @@ void ConsensusEngine::checkExistsAndFile(const fs_path &_filePath) {
 }
 
 
-void ConsensusEngine::parseConfigsAndCreateAllNodes(const fs_path &dirname) {
+void ConsensusEngine::parseTestConfigsAndCreateAllNodes(const fs_path &dirname, bool useSGX,
+                                                        ptr<vector<string>> keyNames, ptr<vector<string>> publicKeys) {
+
+    if  (useSGX) {
+        CHECK_ARGUMENT(keyNames != nullptr && publicKeys != nullptr);
+        CHECK_ARGUMENT(keyNames->size() == publicKeys->size());
+    }
+
     try {
 
         checkExistsAndDirectory(dirname);
@@ -332,6 +337,9 @@ void ConsensusEngine::parseConfigsAndCreateAllNodes(const fs_path &dirname) {
             nodeCount++;
         };
 
+        if (useSGX) {
+            ASSERT(nodeCount == publicKeys->size());
+        }
 
         directory_iterator itr2(dirname);
 
@@ -342,6 +350,8 @@ void ConsensusEngine::parseConfigsAndCreateAllNodes(const fs_path &dirname) {
 
             readNodeConfigFileAndCreateNode(itr2->path(), nodeIDs);
         };
+
+
 
         if (nodes.size() == 0) {
             BOOST_THROW_EXCEPTION(FatalError("No valid node dirs found"));
@@ -437,8 +447,6 @@ void ConsensusEngine::bootStrapAll() {
 node_count ConsensusEngine::nodesCount() {
     return node_count(nodes.size());
 }
-
-
 
 
 std::string ConsensusEngine::exec(const char *cmd) {
@@ -542,10 +550,6 @@ ConsensusEngine::ConsensusEngine(ConsensusExtFace &_extFace, uint64_t _lastCommi
 };
 
 
-
-
-
-
 ConsensusExtFace *ConsensusEngine::getExtFace() const {
     return extFace;
 }
@@ -584,7 +588,6 @@ void ConsensusEngine::exitGracefully() {
         Exception::logNested(e);
         throw_with_nested(EngineInitException("Engine construction failed", __CLASS_NAME__));
     }
-
 
 
 }
