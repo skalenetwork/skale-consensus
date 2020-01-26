@@ -252,7 +252,17 @@ TEST_CASE_METHOD(StartFromScratch, "Test sgx server connection", "[sgx]") {
 
     jsonrpc::HttpClient client2("https://localhost:1026");
     StubClient c2(client2, jsonrpc::JSONRPC_CLIENT_V2);
+
     result = c2.generateECDSAKey();
+
+    status = result["status"].asInt64();
+    REQUIRE(status == 0);
+
+    vector<string> keyNames;
+    vector<string> publicKeys;
+
+    string keyName = result["keyName"].asString();
+    string publicKey = result["publicKey"].asString();
 
    //c.SignCertificate("hahaha");
 }

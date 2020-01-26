@@ -71,7 +71,7 @@ public:
     Json::Value renameECDSAKey(const std::string& KeyName, const std::string& tempKeyName)
     {
         Json::Value p;
-        p["KeyName"] = KeyName;
+        p["keyName"] = KeyName;
         p["tempKeyName"] = tempKeyName;
         Json::Value result = this->CallMethod("renameECDSAKey",p);
         if (result.isObject())
@@ -146,8 +146,8 @@ public:
     Json::Value DKGVerification(const std::string& publicShares, const std::string& EthKeyName, const std::string& SecretShare, int t, int n, int index)
     {
         Json::Value p;
-        p["EthKeyName"] = EthKeyName;
-        p["SecretShare"] = SecretShare;
+        p["ethKeyName"] = EthKeyName;
+        p["secretShare"] = SecretShare;
         p["index"] = index;
         p["n"] = n;
         p["publicShares"] = publicShares;
@@ -162,13 +162,13 @@ public:
     Json::Value CreateBLSPrivateKey(const std::string & BLSKeyName, const std::string& EthKeyName, const std::string& polyName, const std::string& SecretShare, int t, int n)
     {
         Json::Value p;
-        p["BLSKeyName"] = BLSKeyName;
-        p["EthKeyName"] = EthKeyName;
+        p["blsKeyName"] = BLSKeyName;
+        p["ethKeyName"] = EthKeyName;
         p["polyName"] = polyName;
-        p["SecretShare"] = SecretShare;
+        p["secretShare"] = SecretShare;
         p["n"] = n;
         p["t"] = t;
-        Json::Value result = this->CallMethod("CreateBLSPrivateKey",p);
+        Json::Value result = this->CallMethod("createBLSPrivateKey",p);
         if (result.isObject())
             return result;
         else
@@ -178,9 +178,9 @@ public:
     Json::Value GetBLSPublicKeyShare(const std::string & BLSKeyName)
     {
         Json::Value p;
-        p["BLSKeyName"] = BLSKeyName;
+        p["blsKeyName"] = BLSKeyName;
 
-        Json::Value result = this->CallMethod("GetBLSPublicKeyShare",p);
+        Json::Value result = this->CallMethod("getBLSPublicKeyShare",p);
         if (result.isObject())
             return result;
         else
@@ -192,7 +192,7 @@ public:
         Json::Value p;
         p["polyName"] = polyName;
         p["ind"] = ind;
-        Json::Value result = this->CallMethod("ComplaintResponse",p);
+        Json::Value result = this->CallMethod("complaintResponse",p);
         if (result.isObject())
             return result;
         else
@@ -204,7 +204,7 @@ public:
         Json::Value p;
         p["x"] = x;
 
-        Json::Value result = this->CallMethod("MultG2",p);
+        Json::Value result = this->CallMethod("multG2",p);
         if (result.isObject())
             return result;
         else
@@ -218,7 +218,7 @@ public:
     {
         Json::Value p;
         p = Json::nullValue;
-        Json::Value result = this->CallMethod("GetUnsignedCSRs",p);
+        Json::Value result = this->CallMethod("getUnsignedCSRs",p);
         if (result.isObject())
             return result;
         else
@@ -232,7 +232,7 @@ public:
         Json::Value p;
         p["hash"] = hash;
         p["status"] = status;
-        Json::Value result = this->CallMethod("SignByHash",p);
+        Json::Value result = this->CallMethod("signByHash",p);
         if (result.isObject())
             return result;
         else
@@ -255,7 +255,7 @@ public:
     Json::Value SignCertificate(const std::string& csr){
         Json::Value p;
         p["certificate"] = csr;
-        Json::Value result = this->CallMethod("SignCertificate",p);
+        Json::Value result = this->CallMethod("signCertificate",p);
         if (result.isObject())
             return result;
         else
@@ -266,7 +266,7 @@ public:
     Json::Value GetCertificate(const std::string& hash){
         Json::Value p;
         p["hash"] = hash;
-        Json::Value result = this->CallMethod("GetCertificate",p);
+        Json::Value result = this->CallMethod("getCertificate",p);
         if (result.isObject())
             return result;
         else
