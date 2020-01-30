@@ -105,7 +105,7 @@ void AbstractClientAgent::enqueueItemImpl(ptr<DataStructure> item ) {
             q->push( item );
 
             if (q->size() > MAX_PROPOSAL_QUEUE_SIZE) {
-                // the destination is not
+                // the destination is not accepting proposals, remove older
                 q->pop();
             }
         }
