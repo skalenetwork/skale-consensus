@@ -103,6 +103,11 @@ void AbstractClientAgent::enqueueItemImpl(ptr<DataStructure> item ) {
             std::lock_guard< std::mutex > lock( *queueMutex[schain_index( i )] );
             auto q = itemQueue[schain_index( i )];
             q->push( item );
+
+            if (q->size() > MAX_PROPOSAL_QUEUE_SIZE) {
+                // the destination is not accepting proposals, remove older
+                q->pop();
+            }
         }
         queueCond.at( schain_index( i ) )->notify_all();
     }
