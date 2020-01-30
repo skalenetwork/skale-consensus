@@ -155,34 +155,9 @@ uint64_t ZMQNetwork::readMessageFromNetwork(ptr<Buffer> buf) {
 
     return rc;
 
-#ifndef ZMQ_EXPERIMENTAL
-    int zero = 0;
-    interruptableSend(s, &zero, 1, 0);
-#endif
-
-
 }
 
 
 ZMQNetwork::ZMQNetwork(Schain &_schain) : TransportNetwork(_schain) {}
 
-void ZMQNetwork::confirmMessage(const ptr<NodeInfo>&
-#ifndef ZMQ_EXPERIMENTAL
-                                remoteNodeInfo
-#endif
-) {
 
-
-#ifndef ZMQ_EXPERIMENTAL
-
-
-    auto ip = remoteNodeInfo->getBaseIP();
-
-    auto port = remoteNodeInfo->getPort();
-
-    void *s = sChain->getNode()->getSockets()->consensusZMQSocket->getDestinationSocket(ip, port);
-
-    char response[1];
-    interruptableRecv(s, response, 1, 0);
-#endif
-}

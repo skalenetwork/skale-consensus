@@ -58,8 +58,9 @@ using namespace std;
 void BinConsensusInstance::processMessage(ptr<MessageEnvelope> _m) {
 
 
-    ASSERT(_m->getMessage()->getBlockID() == getBlockID());
-    ASSERT(_m->getMessage()->getBlockProposerIndex() == getBlockProposerIndex());
+    CHECK_STATE(_m->getMessage()->getBlockID() == getBlockID());
+
+    CHECK_STATE(_m->getMessage()->getBlockProposerIndex() == getBlockProposerIndex());
 
 
     auto msgType = _m->getMessage()->getMessageType();
@@ -93,11 +94,16 @@ void BinConsensusInstance::ifAlreadyDecidedSendDelayedEstimateForNextRound(bin_c
 void BinConsensusInstance::processNetworkMessageImpl(ptr<NetworkMessageEnvelope> _me) {
 
 
-    auto round = dynamic_pointer_cast<NetworkMessage>(_me->getMessage())->getRound();
+    auto message = dynamic_pointer_cast<NetworkMessage>(_me->getMessage());
+
+
+    auto round = message->getRound();
 
     addToHistory(dynamic_pointer_cast<NetworkMessage>(_me->getMessage()));
 
-    CHECK_STATE(round <= getCurrentRound() + 1);
+    CHECK_STATE2(round <= getCurrentRound() + 1, to_string(round) + ":" +
+    to_string(getCurrentRound()) + ":" + to_string(getBlockID())) ;
+
 
 
     if (_me->getMessage()->getMessageType() == MSG_BVB_BROADCAST) {

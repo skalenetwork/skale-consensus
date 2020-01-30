@@ -69,7 +69,7 @@ void TransportNetwork::addToDeferredMessageQueue(ptr<NetworkMessageEnvelope> _me
 
     auto msg = dynamic_pointer_cast<NetworkMessage>(_me->getMessage());
 
-    getSchain()->getNode()->getIncomingMsgDB()->saveMsg(msg);
+
 
     auto _blockID = _me->getMessage()->getBlockID();
 
@@ -118,6 +118,17 @@ ptr<vector<ptr<NetworkMessageEnvelope> > > TransportNetwork::pullMessagesForCurr
     return returnList;
 }
 
+void TransportNetwork::addToDelayedSends(ptr<NetworkMessage> _m, ptr<NodeInfo> dstNodeInfo) {
+    CHECK_ARGUMENT(_m);
+    CHECK_ARGUMENT(dstNodeInfo);
+    lock_guard<recursive_mutex> lock(delayedSendsLock);
+    auto dstIndex = (uint64_t) dstNodeInfo->getSchainIndex();
+    delayedSends.at(dstIndex - 1).push_back({_m, dstNodeInfo});
+    if (delayedSends.at(dstIndex - 1).size() > MAX_DELAYED_MESSAGE_SENDS) {
+        delayedSends.at(dstIndex - 1).pop_front();
+    }
+}
+
 void TransportNetwork::broadcastMessage(ptr<NetworkMessage> _m) {
 
 
@@ -131,37 +142,29 @@ void TransportNetwork::broadcastMessage(ptr<NetworkMessage> _m) {
 
         unordered_set<uint64_t> sent;
 
+        // wait until we send to at least 2/3 of participants
         while (3 * (sent.size() + 1) < getSchain()->getNodeCount() * 2) {
             for (auto const &it : *getSchain()->getNode()->getNodeInfosByIndex()) {
-                auto index = (uint64_t) it.second->getSchainIndex();
-                if (index != (getSchain()->getSchainIndex()) && !sent.count(index)) {
-                    ASSERT(it.second->getSchainIndex() != getSchain()->getSchainIndex());
+                auto dstNodeInfo = it.second;
+                auto dstIndex = (uint64_t) dstNodeInfo->getSchainIndex();
+
+                if (dstIndex != (getSchain()->getSchainIndex()) && !sent.count(dstIndex)) {
                     if (sendMessage(it.second, _m)) {
-                        sent.insert((uint64_t) it.second->getSchainIndex());
+                        sent.insert(dstIndex);
                     }
                 }
             }
         }
 
-        if (sent.size() + 1 < getSchain()->getNodeCount()) {
-            for (auto const &it : *getSchain()->getNode()->getNodeInfosByIndex()) {
-                auto index = (uint64_t) it.second->getSchainIndex();
-                if (index != (getSchain()->getSchainIndex()) && !sent.count(index)) {
-                    {
-                        lock_guard<recursive_mutex> lock(delayedSendsLock);
-                        delayedSends.at(index - 1).push_back({_m, it.second});
-                        if (delayedSends.at(index - 1).size() > 256) {
-                            delayedSends.at(index - 1).pop_front();
-                        }
-                    }
-                }
-            }
-        }
-
+        // messages that could not be sent because the receiving nodes were not online are
+        // queued to delayed sends to be tried later. The delayed sends queue for
+        // each destination can have MAX_DELAYED_MESSAGE_SENDS
 
         for (auto const &it : *getSchain()->getNode()->getNodeInfosByIndex()) {
-            if (it.second->getSchainIndex() != getSchain()->getSchainIndex()) {
-                confirmMessage(it.second);
+            auto dstNodeInfo = it.second;
+            auto dstIndex = (uint64_t) dstNodeInfo->getSchainIndex();
+            if (dstIndex != (getSchain()->getSchainIndex()) && !sent.count(dstIndex)) {
+                addToDelayedSends(_m, dstNodeInfo);
             }
         }
 
@@ -189,6 +192,7 @@ void TransportNetwork::networkReadLoop() {
 
                 ASSERT(sChain);
 
+                getSchain()->getNode()->getIncomingMsgDB()->saveMsg(dynamic_pointer_cast<NetworkMessage>(m->getMessage()));
 
                 postDeferOrDrop(m);
             } catch (ExitRequestedException &) {
@@ -211,6 +215,13 @@ void TransportNetwork::networkReadLoop() {
     sChain->getNode()->getSockets()->consensusZMQSocket->closeReceive();
 }
 
+
+/*
+ * Consensus initially defers messages that come from the "future" - those that
+ * have the block_id or the consensus round larger than currently processed.
+ * These messages are placed in deferredMessage queue to be processed later.
+ * Messages with very old block ids are discarded.
+ */
 void TransportNetwork::postDeferOrDrop(const ptr<NetworkMessageEnvelope> &m) {
 
     block_id currentBlockID = sChain->getLastCommittedBlockID() + 1;
@@ -219,29 +230,19 @@ void TransportNetwork::postDeferOrDrop(const ptr<NetworkMessageEnvelope> &m) {
     auto bid = m->getMessage()->getBlockID();
 
     if (bid > currentBlockID) {
+        // block id is in the future, defer
         addToDeferredMessageQueue(m);
         return;
     }
 
-
-    if (bid < currentBlockID) {
-        if (bid + MAX_ACTIVE_CONSENSUSES <= currentBlockID) {
-            // too old, drop
-            return;
-        } else {
-            sChain->postMessage(m);
-            return;
-
-        }
+    if (bid + MAX_ACTIVE_CONSENSUSES <= currentBlockID) {
+        // too old, drop
+        return;
     }
-
-
-    // now  deal with the case of bid = currentBlockID
 
     auto msg = dynamic_pointer_cast<NetworkMessage>(m->getMessage());
 
     CHECK_STATE(msg);
-
 
     // ask consensus whether to defer
 
@@ -249,16 +250,35 @@ void TransportNetwork::postDeferOrDrop(const ptr<NetworkMessageEnvelope> &m) {
         sChain->postMessage(m);
     } else {
         addToDeferredMessageQueue(m);
-
     }
 
 }
 
-void TransportNetwork::deferredMessagesLoop() {
-    setThreadName("DeferMsgLoop", getSchain()->getNode()->getConsensusEngine());
-
+void TransportNetwork::trySendingDelayedSends() {
     auto nodeCount = getSchain()->getNodeCount();
     auto schainIndex = getSchain()->getSchainIndex();
+
+    for (int i = 0; i < nodeCount; i++) {
+        if (i != (schainIndex - 1)) {
+            lock_guard<recursive_mutex> lock(delayedSendsLock);
+            while (delayedSends.at(i).size() > 0) {
+                auto msg = delayedSends.at(i).front().second;
+                auto dstNodeInfo = delayedSends.at(i).front().first;
+                if (sendMessage(msg, dstNodeInfo)) {
+                    // successfully sent a delayed message, remove it from the list
+                    delayedSends.at(i).pop_front();
+                } {
+                    // could not send a message to this host, no point trying to
+                    // send other delayed messages for this host
+                    break;
+                }
+            }
+        }
+    }
+}
+
+void TransportNetwork::deferredMessagesLoop() {
+    setThreadName("DeferMsgLoop", getSchain()->getNode()->getConsensusEngine());
 
     waitOnGlobalStartBarrier();
 
@@ -266,23 +286,14 @@ void TransportNetwork::deferredMessagesLoop() {
         try {
             ptr<vector<ptr<NetworkMessageEnvelope> > > deferredMessages;
 
+            // Get messages for the current block id
             deferredMessages = pullMessagesForCurrentBlockID();
 
             for (auto message : *deferredMessages) {
                 postDeferOrDrop(message);
             }
 
-            for (int i = 0; i < nodeCount; i++) {
-                if (i != (schainIndex - 1)) {
-                    lock_guard<recursive_mutex> lock(delayedSendsLock);
-                    if (delayedSends.at(i).size() > 0) {
-                        if (sendMessage(
-                                delayedSends.at(i).front().second, delayedSends.at(i).front().first)) {
-                            delayedSends.at(i).pop_front();
-                        }
-                    }
-                }
-            }
+            trySendingDelayedSends();
         }
         catch (ExitRequestedException &) {
             // exit
@@ -350,9 +361,7 @@ ptr<NetworkMessageEnvelope> TransportNetwork::receiveMessage() {
                                       "Network Message with corrupt protocol key", __CLASS_NAME__ ));
     };
 
-    return
-            make_shared<NetworkMessageEnvelope>(mptr, realSender
-            );
+    return make_shared<NetworkMessageEnvelope>(mptr, realSender);
 };
 
 
@@ -380,7 +389,6 @@ uint64_t TransportNetwork::getCatchupBlock() const {
     return catchupBlocks;
 }
 
-
 TransportNetwork::TransportNetwork(Schain &_sChain)
         : Agent(_sChain, false), delayedSends((uint64_t) _sChain.getNodeCount()) {
     auto cfg = _sChain.getNode()->getCfg();
@@ -396,10 +404,6 @@ TransportNetwork::TransportNetwork(Schain &_sChain)
         setPacketLoss(pl);
     }
 }
-
-void TransportNetwork::confirmMessage(const ptr<NodeInfo> &) {
-
-};
 
 TransportNetwork::~TransportNetwork() {
 }

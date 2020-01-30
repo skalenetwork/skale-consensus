@@ -92,6 +92,7 @@ dkms.conf
 CMakeCache.txt
 CMakeFiles/
 _3rdParty/
+.idea
 cmake-build-debug/
 consensus_pch/
 consensusd
