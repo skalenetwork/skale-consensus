@@ -128,7 +128,7 @@ CommittedBlock::CommittedBlock(
         uint64_t timeStamp,
         __uint32_t timeStampMs, ptr<string>
         _signature, ptr<string> _thresholdSig)
-        : BlockProposal(sChainId, proposerNodeId, blockId, proposerIndex, transactions, timeStamp,
+        : BlockProposal(sChainId, proposerNodeId, blockId, proposerIndex, transactions, u256(), timeStamp,
                         timeStampMs, _signature, nullptr) {
     CHECK_ARGUMENT(_signature != nullptr);
     CHECK_ARGUMENT(_thresholdSig != nullptr);
@@ -148,7 +148,7 @@ _size,
 
 
 
-    auto p = make_shared<BlockProposal>(1, 1, _blockID, 1, list, MODERN_TIME + 1, 1, nullptr,
+    auto p = make_shared<BlockProposal>(1, 1, _blockID, 1, list, 0, MODERN_TIME + 1, 1, nullptr,
                                         _manager);
 
 

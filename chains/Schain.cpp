@@ -469,7 +469,7 @@ void Schain::pushBlockToExtFace(ptr<CommittedBlock> &_block) {
         if (extFace) {
             extFace->createBlock(*tv, _block->getTimeStamp(), _block->getTimeStampMs(),
                                  (__uint64_t) _block->getBlockID(),
-                                 cur_price);
+                                 cur_price, _block->getStateRoot());
         }
 
     } catch (ExitRequestedException &e) { throw; }

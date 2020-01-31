@@ -21,12 +21,13 @@
     @date 2018
 */
 
+
 #include "SkaleCommon.h"
 #include "Log.h"
 #include "exceptions/FatalError.h"
 #include "thirdparty/json.hpp"
+#include <network/Utils.h>
 #include "crypto/SHAHash.h"
-#include "abstracttcpserver/ConnectionStatus.h"
 #include "BlockProposalRequestHeader.h"
 #include "datastructures/BlockProposal.h"
 #include "datastructures/CommittedBlock.h"
@@ -50,10 +51,12 @@ BlockProposalHeader::BlockProposalHeader(BlockProposal& _block) : Header(Header:
     this->schainID = _block.getSchainID();
     this->blockID = _block.getBlockID();
     this->blockHash = _block.getHash()->toHex();
+    this->stateRoot = _block.getStateRoot();
     this->signature = _block.getSignature();
     this->timeStamp = _block.getTimeStamp();
     this->timeStampMs = _block.getTimeStampMs();
     this->transactionSizes = make_shared<vector<uint64_t>>();
+
 
     auto items = _block.getTransactionList()->getItems();
 
@@ -95,10 +98,9 @@ void BlockProposalHeader::addFields(nlohmann::json &j) {
 
     j["timeStampMs"] = timeStampMs;
 
+    j["sr "] = stateRoot.str();
+
     ASSERT(timeStamp > 0);
-
-
-
 }
 
 BlockProposalHeader::BlockProposalHeader(nlohmann::json& _json) : Header(Header::BLOCK){
@@ -111,6 +113,8 @@ BlockProposalHeader::BlockProposalHeader(nlohmann::json& _json) : Header(Header:
     timeStampMs = Header::getUint32(_json, "timeStampMs" );
     blockHash = Header::getString(_json, "hash" ) ;
     signature = Header::getString(_json, "sig");
+    auto srStr = Header::getString(_json, "sr");
+    stateRoot = u256(*srStr);
 
     Header::nullCheck(_json, "sizes" );
     nlohmann::json jsonTransactionSizes = _json["sizes"];
@@ -147,6 +151,10 @@ uint64_t BlockProposalHeader::getTimeStamp() const {
 
 uint32_t BlockProposalHeader::getTimeStampMs() const {
     return timeStampMs;
+}
+
+const u256 &BlockProposalHeader::getStateRoot() const {
+    return stateRoot;
 }
 
 
