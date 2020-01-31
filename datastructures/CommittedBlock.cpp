@@ -147,8 +147,10 @@ _size,
     static uint64_t MODERN_TIME = 1547640182;
 
 
+    u256 stateRoot =  (uint64_t ) _blockID + 1;
 
-    auto p = make_shared<BlockProposal>(1, 1, _blockID, 1, list, 0, MODERN_TIME + 1, 1, nullptr,
+
+    auto p = make_shared<BlockProposal>(1, 1, _blockID, 1, list, stateRoot , MODERN_TIME + 1, 1, nullptr,
                                         _manager);
 
 
