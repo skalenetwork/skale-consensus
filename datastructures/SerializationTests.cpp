@@ -200,6 +200,8 @@ void test_committed_block_serialize_deserialize(bool _fail) {
 
     boost::random::uniform_int_distribution<> ubyte(0, 255);
 
+    u256 stateRoot;
+
     for (int k = 0; k < 100; k++) {
         for (int i = 0; i < 20; i++) {
             auto t = CommittedBlock::createRandomSample(cryptoManager, i, gen, ubyte);
@@ -225,6 +227,7 @@ void test_committed_block_serialize_deserialize(bool _fail) {
                     throw (e);
                 }
                 REQUIRE(imp != nullptr);
+                REQUIRE(imp->getStateRoot() == t->getStateRoot());
             }
         }
     }

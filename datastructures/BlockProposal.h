@@ -23,6 +23,8 @@
 
 #pragma  once
 
+#include<boost/multiprecision/cpp_int.hpp>
+
 #include "SkaleCommon.h"
 
 #include "DataStructure.h"
@@ -57,6 +59,7 @@ protected:
     transaction_count transactionCount;
     uint64_t  timeStamp = 0;
     uint32_t  timeStampMs = 0;
+    u256 stateRoot = 0;
 
     ptr<TransactionList> transactionList;
     ptr< SHAHash > hash = nullptr;
@@ -79,8 +82,9 @@ public:
     BlockProposal(uint64_t _timeStamp, uint32_t _timeStampMs);
 
     BlockProposal(schain_id _sChainId, node_id _proposerNodeId, block_id _blockID,
-                  schain_index _proposerIndex, ptr<TransactionList> _transactions, uint64_t _timeStamp,
-                  __uint32_t _timeStampMs, ptr<string> _signature, ptr<CryptoManager> _cryptoManager);
+                  schain_index _proposerIndex, ptr<TransactionList> _transactions, u256 _stateRoot,
+                  uint64_t _timeStamp, __uint32_t _timeStampMs, ptr<string> _signature,
+                  ptr<CryptoManager> _cryptoManager);
 
 
     uint64_t getTimeStamp() const;
@@ -122,5 +126,8 @@ public:
     static ptr<BlockProposal> defragment(ptr<BlockProposalFragmentList> _fragmentList, ptr<CryptoManager> _cryptoManager);
 
     ptr<BlockProposalFragment> getFragment(uint64_t _totalFragments, fragment_index _index);
+
+    u256 getStateRoot() const;
+
 };
 

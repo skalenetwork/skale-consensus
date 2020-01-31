@@ -65,14 +65,9 @@ public:
 
     void setStatus( ConnectionStatus _status ) { this->status = _status; }
 
-    static uint64_t getTotalObjects() {
-        return totalObjects;
-    }
 
 private:
 
-
-    static atomic<uint64_t>  totalObjects;
 
 
 };

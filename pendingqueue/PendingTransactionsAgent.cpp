@@ -60,8 +60,9 @@ ptr<BlockProposal> PendingTransactionsAgent::buildBlockProposal(block_id _blockI
     usleep(getNode()->getMinBlockIntervalMs() * 1000);
     MICROPROFILE_LEAVE();
 
-    shared_ptr<vector<ptr<Transaction>>> transactions = createTransactionsListForProposal();
-
+    auto result  = createTransactionsListForProposal();
+    auto transactions = result.first;
+    auto stateRoot = result.second;
 
     while (Time::getCurrentTimeMs() <= _previousBlockTimeStamp * 1000 + _previousBlockTimeStampMs) {
         usleep(10);
@@ -75,7 +76,7 @@ ptr<BlockProposal> PendingTransactionsAgent::buildBlockProposal(block_id _blockI
     auto m = (uint32_t) (currentTime % 1000);
 
     auto myBlockProposal = make_shared<MyBlockProposal>(*sChain, _blockID, sChain->getSchainIndex(),
-            transactionList, sec, m, getSchain()->getCryptoManager());
+            transactionList, stateRoot, sec, m, getSchain()->getCryptoManager());
 
     LOG(trace, "Created proposal, transactions:" + to_string(transactions->size()));
 
@@ -83,13 +84,15 @@ ptr<BlockProposal> PendingTransactionsAgent::buildBlockProposal(block_id _blockI
     return myBlockProposal;
 }
 
-shared_ptr<vector<ptr<Transaction>>> PendingTransactionsAgent::createTransactionsListForProposal() {
+pair<ptr<vector<ptr<Transaction>>>, u256> PendingTransactionsAgent::createTransactionsListForProposal() {
     auto result = make_shared<vector<ptr<Transaction>>>();
 
     size_t need_max = getNode()->getMaxTransactionsPerBlock();
     ConsensusExtFace::transactions_vector tx_vec;
 
     boost::posix_time::ptime t1 = boost::posix_time::microsec_clock::local_time();
+
+    u256 stateRoot = 0;
 
     while(tx_vec.empty()){
 
@@ -101,11 +104,12 @@ shared_ptr<vector<ptr<Transaction>>> PendingTransactionsAgent::createTransaction
             break;
 
         if (sChain->getExtFace()) {
-            tx_vec = sChain->getExtFace()->pendingTransactions(need_max);
+            tx_vec = sChain->getExtFace()->pendingTransactions(need_max, stateRoot);
         } else {
             tx_vec = sChain->getTestMessageGeneratorAgent()->pendingTransactions(need_max);
         }
     }
+
 
     for(const auto& e: tx_vec){
         ptr<Transaction> pt = Transaction::deserialize( make_shared<std::vector<uint8_t>>(e),
@@ -114,7 +118,7 @@ shared_ptr<vector<ptr<Transaction>>> PendingTransactionsAgent::createTransaction
         pushKnownTransaction(pt);
     }
 
-    return result;
+    return {result, stateRoot};
 }
 
 

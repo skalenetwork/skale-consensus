@@ -39,8 +39,6 @@
 
 #include "BasicHeader.h"
 
-
-
 bool BasicHeader::isComplete() const {
     return complete;
 }
@@ -61,6 +59,10 @@ ptr<string> BasicHeader::serializeToString() {
 
     return s;
 
+}
+
+uint64_t BasicHeader::getTotalObjects() {
+    return totalObjects;
 }
 
 ptr<Buffer> BasicHeader::toBuffer() {
@@ -110,10 +112,15 @@ ptr<string> BasicHeader::getString(nlohmann::json &_js, const char *_name) {
     return make_shared<string>(result);
 }
 
-BasicHeader::BasicHeader(const char *_type) : type(_type) {
-
+BasicHeader::BasicHeader(const char *_type) : type(_type)  {
+    totalObjects++;
 }
+
 
 BasicHeader::~BasicHeader() {
+    if (totalObjects > 0)
+        totalObjects--;
 }
 
+
+atomic<uint64_t>  BasicHeader::totalObjects(1);

@@ -36,7 +36,7 @@ public:
 
 
     ReceivedBlockProposal(Schain &_sChain, const block_id &_blockID, const schain_index &_proposerIndex,
-                          const ptr<TransactionList> & _transactions, const uint64_t &_timeStamp,
+                          const ptr<TransactionList> &_transactions, u256 _stateRoot, const uint64_t &_timeStamp,
                           const uint32_t &_timeStampMs, ptr<string> _hash, ptr<string> _signature);
 
 
