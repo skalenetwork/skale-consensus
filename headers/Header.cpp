@@ -33,17 +33,14 @@
 
 
 Header::Header(const char *_type) : BasicHeader(_type){
-    totalObjects++;
 }
 
 
 
 Header::~Header() {
-    totalObjects--;
 }
 
 
-atomic<uint64_t>  Header::totalObjects(0);
 
 void Header::addFields(nlohmann::json &j) {
     j["status"] = status;

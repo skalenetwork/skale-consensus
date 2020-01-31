@@ -98,7 +98,7 @@ void BlockProposalHeader::addFields(nlohmann::json &j) {
 
     j["timeStampMs"] = timeStampMs;
 
-    j["sr "] = stateRoot.str();
+    j["sr"] = stateRoot.str();
 
     ASSERT(timeStamp > 0);
 }
