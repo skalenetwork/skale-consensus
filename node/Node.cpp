@@ -89,7 +89,6 @@ Node::Node(const nlohmann::json &_cfg, ConsensusEngine *_consensusEngine,
 
     try {
         initParamsFromConfig();
-
     } catch (...) {
         throw_with_nested(ParsingException("Could not parse params", __CLASS_NAME__));
     }

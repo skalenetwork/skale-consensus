@@ -29,13 +29,11 @@
 
 ReceivedBlockProposal::ReceivedBlockProposal(Schain &_sChain, const block_id &_blockID,
                                              const schain_index &_proposerIndex,
-                                             const ptr<TransactionList> &_transactions,
+                                             const ptr<TransactionList> &_transactions, u256 _stateRoot,
                                              const uint64_t &_timeStamp,
-                                             const uint32_t &_timeStampMs,
-                                             ptr<string> _hash,
-                                             ptr<string> _signature) : BlockProposal(
+                                             const uint32_t &_timeStampMs, ptr<string> _hash, ptr<string> _signature) : BlockProposal(
         _sChain.getSchainID(), _sChain.getNodeIDByIndex(_proposerIndex), _blockID,
-        _proposerIndex, _transactions,
+        _proposerIndex, _transactions, _stateRoot,
         _timeStamp, _timeStampMs, _signature, nullptr) {
     this->hash = SHAHash::fromHex(_hash);
     this->signature = _signature;
@@ -45,7 +43,8 @@ ReceivedBlockProposal::ReceivedBlockProposal(Schain &_sChain, const block_id &_b
 ReceivedBlockProposal::ReceivedBlockProposal(Schain &_sChain, const block_id &_blockID, const uint64_t &_timeStamp,
                                              const uint32_t &_timeStampMs) : BlockProposal(
         _sChain.getSchainID(), 0, _blockID,
-        0, make_shared<TransactionList>(make_shared<vector<ptr<Transaction >>>()), _timeStamp, _timeStampMs, make_shared<string>("EMPTY"), ptr<CryptoManager>()) {
+        0, make_shared<TransactionList>(make_shared<vector<ptr<Transaction >>>()), 0, _timeStamp, _timeStampMs,
+        make_shared<string>("EMPTY"), ptr<CryptoManager>()) {
     calculateHash();
     totalObjects++;
 }

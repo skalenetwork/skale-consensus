@@ -38,7 +38,13 @@ protected:
     const char* type = nullptr;
     bool complete = false;
 
+    static atomic<uint64_t>  totalObjects;
+
 public:
+
+
+    static uint64_t getTotalObjects();
+
     bool isComplete() const;
 
     static constexpr const char *BLOCK_PROPOSAL_REQ = "BlckPrpslReq";

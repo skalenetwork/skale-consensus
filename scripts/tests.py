@@ -72,10 +72,10 @@ consensustExecutive = getConsensustExecutive()
 
 fullConsensusTest("sixteennodes", consensustExecutive, "[consensus-finalization-download]")
 
-try:
-    fullConsensusTest("two_out_of_four", consensustExecutive, "[consensus-stuck]")
-except:
-    print("Success")
+#try:
+#    fullConsensusTest("two_out_of_four", consensustExecutive, "[consensus-stuck]")
+#except:
+#    print("Success")
 
 
 fullConsensusTest("onenode", consensustExecutive, "[consensus-basic]")

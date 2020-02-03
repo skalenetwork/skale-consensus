@@ -29,10 +29,10 @@
 #include "MyBlockProposal.h"
 
 MyBlockProposal::MyBlockProposal(Schain &_sChain, const block_id &_blockID, const schain_index &_proposerIndex,
-                                 const ptr<TransactionList> _transactions, uint64_t _timeStamp,
+                                 const ptr<TransactionList> _transactions, u256 _stateRoot, uint64_t _timeStamp,
                                  uint32_t _timeStampMs, ptr<CryptoManager> _cryptoManager)
         : BlockProposal(_sChain.getSchainID(), _sChain.getNodeIDByIndex(_proposerIndex), _blockID, _proposerIndex,
-                        _transactions, _timeStamp, _timeStampMs, nullptr, _cryptoManager) {
+                        _transactions, _stateRoot, _timeStamp, _timeStampMs, nullptr, _cryptoManager) {
 
     totalObjects++;
 };

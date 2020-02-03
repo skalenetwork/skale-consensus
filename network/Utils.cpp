@@ -32,6 +32,13 @@
 #include "Utils.h"
 #include "exceptions/InvalidArgumentException.h"
 
+ptr<vector<uint8_t>> Utils::u256ToBigEndianArray(const u256 &_value) {
+// export into 8-bit unsigned values, most significant bit first:
+    auto v = make_shared<vector<uint8_t>>();
+    export_bits(_value, std::back_inserter(*v), 8);
+    return v;
+}
+
 void Utils::checkTime() {
 
 

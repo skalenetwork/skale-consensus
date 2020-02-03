@@ -357,6 +357,7 @@ BlockProposalServerAgent::processProposalRequest(ptr<ServerConnection> _connecti
 
     auto proposal = make_shared<ReceivedBlockProposal>(*sChain, requestHeader->getBlockId(),
                                                        requestHeader->getProposerIndex(), transactionList,
+                                                       requestHeader->getStateRoot(),
                                                        requestHeader->getTimeStamp(),
                                                        requestHeader->getTimeStampMs(),
                                                        requestHeader->getHash(), requestHeader->getSignature());

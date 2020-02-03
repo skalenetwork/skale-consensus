@@ -309,7 +309,6 @@ void BlockConsensusAgent::routeAndProcessMessage(ptr<MessageEnvelope> m) {
         if (blockID + MAX_ACTIVE_CONSENSUSES < getSchain()->getLastCommittedBlockID())
             return; // message has a very old block id, ignore. They need to catchup
 
-
         if (m->getMessage()->getMessageType() == MSG_CONSENSUS_PROPOSAL) {
             this->startConsensusProposal(m->getMessage()->getBlockId(),
                                          ((ConsensusProposalMessage *) m->getMessage().get())->getProposals());
@@ -336,8 +335,6 @@ void BlockConsensusAgent::routeAndProcessMessage(ptr<MessageEnvelope> m) {
 
             {
 
-
-
                 auto child = getChild(key);
 
                 if (child != nullptr) {
@@ -363,7 +360,6 @@ bool BlockConsensusAgent::decided(ptr<ProtocolKey> key) {
 ptr<BinConsensusInstance> BlockConsensusAgent::getChild(ptr<ProtocolKey> _key) {
 
 
-
     CHECK_ARGUMENT(_key);
 
     auto bpi = _key->getBlockProposerIndex();
@@ -371,13 +367,9 @@ ptr<BinConsensusInstance> BlockConsensusAgent::getChild(ptr<ProtocolKey> _key) {
 
     CHECK_ARGUMENT ((uint64_t) bpi <= (uint64_t) getSchain()->getNodeCount())
 
-
-
     try {
 
-
         LOCK(m)
-
         if (!children.at((uint64_t ) bpi - 1)->exists((uint64_t ) bid)) {
             children.at((uint64_t) bpi - 1)->put(
                     (uint64_t ) bid, make_shared<BinConsensusInstance>(this, bid, bpi));

@@ -94,7 +94,7 @@ private:
     recursive_mutex transactionsMutex;
 
 
-    shared_ptr<vector<ptr<Transaction>>> createTransactionsListForProposal();
+    pair<ptr<vector<ptr<Transaction>>>, u256> createTransactionsListForProposal();
 
 public:
 

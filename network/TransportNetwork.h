@@ -73,14 +73,11 @@ protected:
 
     map<block_id, ptr<vector<ptr<NetworkMessageEnvelope>>>> deferredMessageQueue;
 
-    void addToDeferredMessageQueue(ptr<NetworkMessageEnvelope> _me);
+    virtual void addToDeferredMessageQueue(ptr<NetworkMessageEnvelope> _me);
 
     ptr<vector<ptr<NetworkMessageEnvelope> > > pullMessagesForCurrentBlockID();
 
     virtual bool sendMessage(const ptr<NodeInfo> &remoteNodeInfo, ptr<NetworkMessage> _msg) = 0;
-
-    virtual void confirmMessage(const ptr<NodeInfo> &remoteNodeInfo);
-
 
 
     ptr<thread> networkReadThread;
@@ -122,4 +119,8 @@ public:
     void postDeferOrDrop(const ptr<NetworkMessageEnvelope> &m);
 
     ~TransportNetwork();
+
+    void addToDelayedSends(ptr<NetworkMessage> _m, ptr<NodeInfo> dstNodeInfo);
+
+    void trySendingDelayedSends();
 };

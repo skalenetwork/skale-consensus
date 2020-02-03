@@ -40,10 +40,6 @@
 
 #include <boost/multiprecision/cpp_int.hpp>
 
-
-
-
-
 extern thread_local ptr<Log> logThreadLocal_;
 
 using namespace spdlog::level;
@@ -81,19 +77,13 @@ private:
 
     shared_ptr< spdlog::sinks::sink > logRotatingFileSync;
 
-
-
 public:
-
-
 
     void logInit();
 
     static void setConfigLogLevel( string& _s );
 
     ptr<string> getHealthCheckDir() const;
-
-
 
     static void log( level_enum _severity, const string& _message, const string& _className );
 
@@ -102,7 +92,6 @@ public:
     shared_ptr< spdlog::logger > createLogger( const string& loggerName );
 
     static const shared_ptr< string > getDataDir();
-
 
     recursive_mutex mutex;
 
