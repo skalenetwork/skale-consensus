@@ -8,3 +8,6 @@
 [submodule "sgxwallet"]
 	path = sgxwallet
 	url = https://github.com/skalenetwork/sgxwallet.git
+[submodule "libzmq"]
+	path = libzmq
+	url = https://github.com/zeromq/libzmq.git

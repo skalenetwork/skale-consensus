@@ -26,6 +26,7 @@ if (COVERAGE)
 endif ()
 
 add_subdirectory(libBLS)
+add_subdirectory(libzmq)
 
 if( NOT DEFINED DEPS_INSTALL_ROOT )
     set( DEPS_SOURCES_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/libBLS/deps")
@@ -52,9 +53,7 @@ find_library( FF_LIBRARY NAMES "ff" PATHS "${DEPS_INSTALL_ROOT}/lib" )
 
 # zeromq
 
-hunter_add_package(ZeroMQ)
-
-find_package(ZeroMQ CONFIG REQUIRED)
+##find_package(ZeroMQ CONFIG REQUIRED)
 
 #leveldb
 
@@ -180,8 +179,9 @@ SET(SRC_FILES
         ${utils_src}
         Agent.h Agent.cpp SkaleCommon.h SkaleCommon.cpp Log.h Log.cpp microprofile.cpp miniz.c)
 
-include_directories( ${BLS_INCLUDE_DIRS} "${DEPS_INSTALL_ROOT}/include" "${CMAKE_BINARY_DIR}/jsonrpc-build/include")
-link_directories( "${DEPS_INSTALL_ROOT}/lib" "${CMAKE_BINARY_DIR}/jsonrpc-build/lib" )
+include_directories( ${BLS_INCLUDE_DIRS} "${DEPS_INSTALL_ROOT}/include" "${CMAKE_BINARY_DIR}/jsonrpc-build/include"
+        )
+link_directories( "${DEPS_INSTALL_ROOT}/lib" "${CMAKE_BINARY_DIR}/jsonrpc-build/lib" "${CMAKE_BINARY_DIR}/libzmq/lib")
 
 if( SKALE_HAVE_BOOST_FROM_HUNTER )
     set( BOOST_LIBS_4_CONSENSUS
@@ -197,8 +197,8 @@ endif()
 SET( LINK_LIBRARIES
         Threads::Threads
         ${BOOST_LIBS_4_CONSENSUS}
-        ${LIB_NAME_cryptopp} ZeroMQ::libzmq-static leveldb::leveldb
-        jsoncpp jsonrpccpp-client jsonrpccpp-stub jsonrpccpp-common bls ${FF_LIBRARY}
+        ${LIB_NAME_cryptopp} leveldb::leveldb
+        jsoncpp jsonrpccpp-client jsonrpccpp-stub jsonrpccpp-common bls ${FF_LIBRARY} zmqd
         )
 
 
