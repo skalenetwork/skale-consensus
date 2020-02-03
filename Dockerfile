@@ -7,7 +7,7 @@ WORKDIR /consensust
 COPY . /consensust/src/
 RUN cd /consensust/src; cp -rf ENGINE_VERSION *.* abstracttcpclient ./abstracttcpclient abstracttcpserver \
    blockfinalize blockproposal catchup cget chains cmake crypto datastructures db exceptions \
-   headers json messages monitoring network node pendingqueue pricing protocols \
+   headers json libjson-rpc-cpp libzmq messages monitoring network node pendingqueue pricing protocols \
    test thirdparty threads scripts utils ..
 RUN rm -rf /consensust/src
 ENTRYPOINT ["/consensust/scripts/start.sh"]
