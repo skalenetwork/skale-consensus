@@ -266,14 +266,14 @@ TEST_CASE_METHOD(StartFromScratch, "Test sgx server connection", "[sgx]") {
         vector<string> keyNames;
         vector<string> publicKeys;
 
+        cerr << result << endl;
+
         string keyName = result["keyName"].asString();
         string publicKey = result["publicKey"].asString();
         REQUIRE(keyName.size() > 10);
         REQUIRE(publicKey.size() > 10);
-        REQUIRE(keyName.find("KEK") !=  -1);
-
+        REQUIRE(keyName.find("NEK") !=  -1);
         cerr << keyName << endl;
-
         keyNames.push_back(keyName);
         publicKeys.push_back(publicKey);
 
