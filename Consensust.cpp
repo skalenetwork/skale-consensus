@@ -258,8 +258,6 @@ TEST_CASE_METHOD(StartFromScratch, "Test sgx server connection", "[sgx]") {
 
         result = c2.generateECDSAKey();
 
-
-
         status = result["status"].asInt64();
         REQUIRE(status == 0);
 

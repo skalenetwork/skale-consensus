@@ -34,7 +34,7 @@ env:
 matrix:
   include:
     - os: linux
-      dist: xenial
+      dist: bionic
       sudo: required
 
 addons:
