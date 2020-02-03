@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
-include_directories(.)
+include_directories(. ./libzmq/include)
 
 include(ExternalProject)
 ExternalProject_Add(libjson-rpc-cpp
