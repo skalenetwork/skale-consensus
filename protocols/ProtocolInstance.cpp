@@ -41,27 +41,14 @@ msg_id ProtocolInstance::createNetworkMessageID() {
 }
 
 
-ProtocolInstance::ProtocolInstance(
-    ProtocolType _protocolType // unused
-    , Schain& _sChain
-    )
-    : sChain(&_sChain)
-    , protocolType(_protocolType) // unused
-    , messageCounter(0)
-{
+ProtocolInstance::ProtocolInstance(ProtocolType _protocolType, Schain& _sChain)
+    : sChain(&_sChain) , protocolType(_protocolType) , messageCounter(0) {
     totalObjects++;
 }
-
 
 Schain *ProtocolInstance::getSchain() const {
     return sChain;
 }
-
-
-
-
-
-
 
 ProtocolInstance::~ProtocolInstance() {
     totalObjects--;

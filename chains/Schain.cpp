@@ -412,7 +412,7 @@ void Schain::processCommittedBlock(ptr<CommittedBlock> _block) {
             ":KNWN:" + to_string(pendingTransactionsAgent->getKnownTransactionsSize()) + ":MGS:" +
             to_string(Message::getTotalObjects()) + ":INSTS:" + to_string(ProtocolInstance::getTotalObjects()) +
             ":BPS:" +
-            to_string(BlockProposalSet::getTotalObjects()) + ":TLS:" + to_string(TransactionList::getTotalObjects()) +
+            to_string(BlockProposalSet::getTotalObjects())  +
             ":HDRS:" + to_string(Header::getTotalObjects()) + ":SOCK:" + to_string(ClientSocket::getTotalSockets()) +
             ":CONS:" + to_string(ServerConnection::getTotalObjects()));
 

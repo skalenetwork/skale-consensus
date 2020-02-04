@@ -31,6 +31,7 @@
 
 
 TransactionList::TransactionList(ptr<vector<ptr<Transaction>>> _transactions) {
+    totalObjects++;
 
     if (_transactions->size() == 0) {
         transactions = make_shared<vector<ptr<Transaction>>>();
@@ -38,7 +39,7 @@ TransactionList::TransactionList(ptr<vector<ptr<Transaction>>> _transactions) {
     }
 
     CHECK_ARGUMENT(_transactions != nullptr);
-    totalObjects++;
+
     transactions = _transactions;
 }
 
@@ -46,9 +47,10 @@ TransactionList::TransactionList(ptr<vector<ptr<Transaction>>> _transactions) {
 TransactionList::TransactionList( ptr<vector<uint64_t>> _transactionSizes,
     ptr<vector<uint8_t>> _serializedTransactions, uint32_t _offset, bool _checkPartialHash ) {
 
-
     CHECK_ARGUMENT(_serializedTransactions->at(_offset) == '<');
     CHECK_ARGUMENT(_serializedTransactions->at(_serializedTransactions->size() - 1) == '>');
+
+    totalObjects++;
 
     if (_transactionSizes->size() == 0) {
         if ((_serializedTransactions->size()  - _offset) != 2) {
@@ -69,7 +71,6 @@ TransactionList::TransactionList( ptr<vector<uint64_t>> _transactionSizes,
     } else {
         CHECK_ARGUMENT( _serializedTransactions->size() - _offset > 2 );
     }
-
 
     size_t index = _offset + 1;
 
@@ -92,7 +93,7 @@ TransactionList::TransactionList( ptr<vector<uint64_t>> _transactionSizes,
         index += size;
     }
 
-    totalObjects++;
+
 };
 
 
