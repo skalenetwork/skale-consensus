@@ -111,7 +111,7 @@ ClientSocket::ClientSocket(Schain &_sChain, schain_index _destinationIndex, port
     totalSockets++;
 }
 
-atomic<uint64_t> ClientSocket::totalSockets = 0;
+atomic<int64_t> ClientSocket::totalSockets = 0;
 
 uint64_t ClientSocket::getTotalSockets() {
     return totalSockets;

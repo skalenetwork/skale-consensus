@@ -107,4 +107,4 @@ Message::~Message() {
 }
 
 
-atomic<uint64_t>  Message::totalObjects(0);
+atomic<int64_t>  Message::totalObjects(0);

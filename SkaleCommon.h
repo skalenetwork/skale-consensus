@@ -144,7 +144,7 @@ static const uint64_t BLOCK_PROPOSAL_HISTORY_SIZE = 1;
 
 static const uint64_t COMMITTED_TRANSACTIONS_HISTORY = 1000000;
 
-static const uint64_t MAX_ACTIVE_CONSENSUSES = 50;
+static const uint64_t MAX_ACTIVE_CONSENSUSES = 5;
 
 static const uint64_t MAX_CONSENSUS_HISTORY  = 2 * MAX_ACTIVE_CONSENSUSES;
 

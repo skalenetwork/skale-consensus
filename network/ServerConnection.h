@@ -27,17 +27,10 @@ class ServerConnection {
 
     recursive_mutex m;
 
-    static atomic<uint64_t> totalConnections;
-
-
+    static atomic<int64_t> totalObjects;
 
     file_descriptor descriptor;
     ptr<string> ip;
-
-    static void incrementTotalConnections();
-
-    static void decrementTotalConnections();
-
 
 public:
 
@@ -51,7 +44,7 @@ public:
 
     ptr<string> getIP();
 
-    static uint64_t getTotalConnections();
+    static uint64_t getTotalObjects();
 
 };
 

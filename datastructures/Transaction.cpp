@@ -127,7 +127,7 @@ ptr< vector< uint8_t > > Transaction::getData() const {
 
 
 
-atomic<uint64_t>  Transaction::totalObjects(0);
+atomic<int64_t>  Transaction::totalObjects(0);
 
 
 Transaction::~Transaction() {

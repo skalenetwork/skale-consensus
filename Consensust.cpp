@@ -106,8 +106,7 @@ void basicRun() {
         engine = new ConsensusEngine();
         engine->parseConfigsAndCreateAllNodes(Consensust::getConfigDirPath());
         engine->slowStartBootStrapTest();
-        usleep(1000 * Consensust::getRunningTimeMS()); /* Flawfinder: ignore */
-
+        sleep(Consensust::getRunningTimeMS()/1000); /* Flawfinder: ignore */
 
         REQUIRE(engine->nodesCount() > 0);
         REQUIRE(engine->getLargestCommittedBlockID() > 0);

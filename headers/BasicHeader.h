@@ -40,12 +40,12 @@ protected:
 
     bool complete = false;
 
-    static atomic<uint64_t>  totalObjects;
+    static atomic<int64_t>  totalObjects;
 
 public:
 
 
-    static uint64_t getTotalObjects();
+    static int64_t getTotalObjects();
 
     bool isComplete() const;
 

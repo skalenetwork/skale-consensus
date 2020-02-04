@@ -50,7 +50,7 @@ enum ProtocolOutcome { OUTCOME_UNKNOWN, OUTCOME_SUCCESS, OUTCOME_FAILURE, OUTCOM
 class ProtocolInstance {
 
 
-    static atomic<uint64_t>  totalObjects;
+    static atomic<int64_t>  totalObjects;
 
     Schain*  sChain;
 
@@ -92,7 +92,7 @@ public:
     virtual ~ProtocolInstance();
 
 
-    static uint64_t getTotalObjects() {
+    static int64_t getTotalObjects() {
         return totalObjects;
     }
 };
