@@ -80,13 +80,13 @@ public:
     virtual ~Message();
 
 
-    static uint64_t getTotalObjects() {
+    static int64_t getTotalObjects() {
         return totalObjects;
     }
 
 private:
 
 
-    static atomic<uint64_t>  totalObjects;
+    static atomic<int64_t>  totalObjects;
 
 };

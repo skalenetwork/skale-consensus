@@ -35,12 +35,12 @@ protected:
     uint64_t totalSigners;
     uint64_t requiredSigners;
 
-    static atomic<uint64_t>  totalObjects;
+    static atomic<int64_t>  totalObjects;
 
 public:
     virtual ~ThresholdSigShareSet();
 
-    static uint64_t getTotalObjects();
+    static int64_t getTotalObjects();
 
     virtual ptr<ThresholdSignature> mergeSignature() = 0;
 

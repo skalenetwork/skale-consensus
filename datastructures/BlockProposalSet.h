@@ -41,7 +41,7 @@ class BlockProposalSet : public DataStructure  {
 
     map< uint64_t , ptr< BlockProposal > > proposals;
 
-    static atomic<uint64_t>  totalObjects;
+    static atomic<int64_t>  totalObjects;
 
 public:
 
@@ -54,7 +54,7 @@ public:
     ptr<BlockProposal> getProposalByIndex( schain_index _index );
 
 
-    static uint64_t getTotalObjects() {
+    static int64_t getTotalObjects() {
         return totalObjects;
     }
 

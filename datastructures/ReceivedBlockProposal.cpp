@@ -49,7 +49,7 @@ ReceivedBlockProposal::ReceivedBlockProposal(Schain &_sChain, const block_id &_b
     totalObjects++;
 }
 
-atomic<uint64_t>  ReceivedBlockProposal::totalObjects(0);
+atomic<int64_t>  ReceivedBlockProposal::totalObjects(0);
 
 ReceivedBlockProposal::~ReceivedBlockProposal() {
     totalObjects--;

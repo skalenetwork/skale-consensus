@@ -414,7 +414,7 @@ void Schain::processCommittedBlock(ptr<CommittedBlock> _block) {
             ":BPS:" +
             to_string(BlockProposalSet::getTotalObjects()) + ":TLS:" + to_string(TransactionList::getTotalObjects()) +
             ":HDRS:" + to_string(Header::getTotalObjects()) + ":SOCK:" + to_string(ClientSocket::getTotalSockets()) +
-            ":CONS:" + to_string(ServerConnection::getTotalConnections()));
+            ":CONS:" + to_string(ServerConnection::getTotalObjects()));
 
 
         saveBlock(_block);

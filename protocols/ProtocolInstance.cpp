@@ -67,12 +67,4 @@ ProtocolInstance::~ProtocolInstance() {
     totalObjects--;
 }
 
-
-atomic<uint64_t>  ProtocolInstance::totalObjects(0);
-
-
-
-
-
-
-
+atomic<int64_t>  ProtocolInstance::totalObjects(0);

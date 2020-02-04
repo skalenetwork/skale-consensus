@@ -137,7 +137,7 @@ TransactionList::~TransactionList() {
 
 
 
-atomic<uint64_t>  TransactionList::totalObjects(0);
+atomic<int64_t>  TransactionList::totalObjects(0);
 
 size_t TransactionList::size() {
     return transactions->size();

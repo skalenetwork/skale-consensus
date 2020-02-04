@@ -40,7 +40,7 @@ MyBlockProposal::MyBlockProposal(Schain &_sChain, const block_id &_blockID, cons
 
 
 
-atomic<uint64_t>  MyBlockProposal::totalObjects(0);
+atomic<int64_t>  MyBlockProposal::totalObjects(0);
 
 MyBlockProposal::~MyBlockProposal() {
     totalObjects--;

@@ -35,7 +35,7 @@ class ClientSocket {
 
     recursive_mutex m;
 
-    static atomic<uint64_t> totalSockets;
+    static atomic<int64_t> totalSockets;
 
     file_descriptor descriptor = 0;
 

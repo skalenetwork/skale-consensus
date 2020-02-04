@@ -40,7 +40,7 @@ public:
                           const uint32_t &_timeStampMs, ptr<string> _hash, ptr<string> _signature);
 
 
-    static uint64_t getTotalObjects() {
+    static int64_t getTotalObjects() {
         return totalObjects;
     }
 
@@ -48,6 +48,6 @@ public:
 
 private:
 
-    static atomic<uint64_t>  totalObjects;
+    static atomic<int64_t>  totalObjects;
 
 };

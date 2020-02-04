@@ -97,4 +97,4 @@ ptr< BlockProposal > BlockProposalSet::getProposalByIndex( schain_index _index )
     return proposals.at((uint64_t)_index);
 }
 
-atomic<uint64_t>  BlockProposalSet::totalObjects(0);
+atomic<int64_t>  BlockProposalSet::totalObjects(0);
