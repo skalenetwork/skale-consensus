@@ -100,18 +100,19 @@
 
 void Schain::postMessage(ptr<MessageEnvelope> m) {
 
+    MONITOR(__CLASS_NAME__, __FUNCTION__)
 
     checkForExit();
 
 
-    lock_guard<mutex> lock(messageMutex);
-
     ASSERT(m);
     ASSERT((uint64_t) m->getMessage()->getBlockId() != 0);
+    {
+        lock_guard<mutex> lock(messageMutex);
+        messageQueue.push(m);
+        messageCond.notify_all();
+    }
 
-
-    messageQueue.push(m);
-    messageCond.notify_all();
 }
 
 
@@ -141,7 +142,6 @@ void Schain::messageThreadProcessingLoop(Schain *s) {
                 }
 
                 newQueue = s->messageQueue;
-
 
                 while (!s->messageQueue.empty()) {
                     s->messageQueue.pop();
@@ -495,8 +495,6 @@ void Schain::startConsensus(const block_id _blockID, ptr<BooleanProposalVector> 
 
         LOG(debug, "StartConsensusIfNeeded BLOCK NUMBER:" + to_string((_blockID)));
 
-        LOCK(m)
-
         if (_blockID <= getLastCommittedBlockID()) {
             LOG(debug, "Too late to start consensus: already committed " + to_string(lastCommittedBlockID));
             return;
@@ -506,8 +504,6 @@ void Schain::startConsensus(const block_id _blockID, ptr<BooleanProposalVector> 
             LOG(debug, "Consensus is in the future" + to_string(lastCommittedBlockID));
             return;
         }
-
-
     }
 
 

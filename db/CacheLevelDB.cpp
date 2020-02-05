@@ -542,8 +542,6 @@ CacheLevelDB::writeByteArrayToSetUnsafe(const char *_value, uint64_t _valueLen, 
                                         schain_index _index) {
 
 
-    MONITOR(__CLASS_NAME__, __FUNCTION__);
-
 
     assert(_index > 0 && _index <= totalSigners);
 

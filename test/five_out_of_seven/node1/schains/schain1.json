@@ -8,8 +8,7 @@
     { "nodeID": 1114, "ip": "127.0.0.4", "basePort":1231, "schainIndex" : 4},
     { "nodeID": 1115, "ip": "127.0.0.5", "basePort": 1231, "schainIndex" : 5},
     { "nodeID": 1116, "ip": "127.0.0.6", "basePort":1231, "schainIndex" : 6},
-    { "nodeID": 1117, "ip": "127.0.0.7", "basePort":1231, "schainIndex" : 7},
-    { "nodeID": 1118, "ip": "127.0.0.8", "basePort":1231, "schainIndex" : 8}
+    { "nodeID": 1117, "ip": "127.0.0.7", "basePort":1231, "schainIndex" : 7}
 
   ]
 }
