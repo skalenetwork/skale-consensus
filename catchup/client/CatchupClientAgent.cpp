@@ -34,13 +34,10 @@
 #include "network/ClientSocket.h"
 #include "network/IO.h"
 #include "network/TransportNetwork.h"
-#include "node/Node.h"
-
 #include "chains/Schain.h"
-#include "crypto/SHAHash.h"
 #include "datastructures/CommittedBlockList.h"
 #include "exceptions/NetworkProtocolException.h"
-#include "headers/BlockProposalRequestHeader.h"
+#include "exceptions/ConnectionRefusedException.h"
 #include "headers/CatchupRequestHeader.h"
 #include "headers/CatchupResponseHeader.h"
 #include "pendingqueue/PendingTransactionsAgent.h"
@@ -56,7 +53,7 @@ CatchupClientAgent::CatchupClientAgent( Schain& _sChain ) : Agent(_sChain, false
         threadCounter = 0;
 
         if (_sChain.getNodeCount() > 1 ) {
-            this->catchupClientThreadPool = make_shared< CatchupClientThreadPool >( 1, this );
+            this->catchupClientThreadPool = make_shared<CatchupClientThreadPool >( 1, this );
             catchupClientThreadPool->startService();
         }
     } catch (ExitRequestedException &) {throw;} catch (...) {
@@ -74,8 +71,8 @@ void CatchupClientAgent::sync( schain_index _dstIndex ) {
     LOG( debug, "Catchupc step 0: requesting blocks after " +
                     to_string( getSchain()->getLastCommittedBlockID() ) );
 
-    auto header = make_shared< CatchupRequestHeader >( *sChain, _dstIndex );
-    auto socket = make_shared< ClientSocket >( *sChain, _dstIndex, CATCHUP );
+    auto header = make_shared<CatchupRequestHeader >( *sChain, _dstIndex );
+    auto socket = make_shared<ClientSocket >( *sChain, _dstIndex, CATCHUP );
     auto io = getSchain()->getIo();
 
 
@@ -186,11 +183,11 @@ ptr< CommittedBlockList > CatchupClientAgent::readMissingBlocks(
     ptr< ClientSocket > _socket, nlohmann::json responseHeader ) {
     ASSERT( responseHeader > 0 );
 
-    auto blockSizes = make_shared< vector< uint64_t > >();
+    auto blockSizes = make_shared<vector< uint64_t > >();
 
     auto totalSize = parseBlockSizes( responseHeader, blockSizes );
 
-    auto serializedBlocks = make_shared< vector< uint8_t > >( totalSize );
+    auto serializedBlocks = make_shared<vector< uint8_t > >( totalSize );
 
     try {
         getSchain()->getIo()->readBytes(_socket->getDescriptor(),
@@ -237,7 +234,10 @@ void CatchupClientAgent::workerThreadItemSendLoop( CatchupClientAgent* agent ) {
                 agent->sync(destinationSchainIndex );
             } catch ( ExitRequestedException& ) {
                 return;
-            } catch ( exception& e ) {
+            } catch (ConnectionRefusedException& e) {
+                agent->logConnectionRefused(e, destinationSchainIndex);
+            }
+            catch ( exception& e ) {
                 Exception::logNested( e );
             }
 

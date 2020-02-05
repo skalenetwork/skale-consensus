@@ -25,6 +25,7 @@
 #define CONSENSUS_ABSTRACTCLIENTAGENT_H
 
 
+#include <exceptions/ConnectionRefusedException.h>
 #include "abstracttcpclient/AbstractClientAgent.h"
 #include "Agent.h"
 
@@ -61,7 +62,6 @@ public:
     void enqueueItem(ptr<BlockProposal> _item );
 
     void enqueueItem(ptr<DAProof> _item );
-
 };
 
 

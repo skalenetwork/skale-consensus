@@ -149,7 +149,7 @@ ptr<ConsensusExtFace::transactions_vector> TransactionList::createTransactionVec
 
     LOCK(m)
 
-    auto tv = make_shared< ConsensusExtFace::transactions_vector >();
+    auto tv = make_shared<ConsensusExtFace::transactions_vector >();
 
     for ( auto&& t : *getItems() ) {
         tv->push_back( *( t->getData() ) );
@@ -186,7 +186,7 @@ ptr< vector< uint64_t > > TransactionList::createTransactionSizesVector(bool _wr
 
 ptr< TransactionList > TransactionList::createRandomSample( uint64_t _size, boost::random::mt19937& _gen,
                                                        boost::random::uniform_int_distribution<>& _ubyte ) {
-    auto sample = make_shared< vector< ptr< Transaction > > >();
+    auto sample = make_shared<vector< ptr< Transaction > > >();
 
 
     for ( uint32_t j = 0; j < _size; j++ ) {
@@ -196,7 +196,7 @@ ptr< TransactionList > TransactionList::createRandomSample( uint64_t _size, boos
     }
 
 
-    auto result =  make_shared< TransactionList >( sample );
+    auto result =  make_shared<TransactionList >( sample );
 
     if (_size > 0) {
         CHECK_STATE(result->calculateTopMerkleRoot() != nullptr);

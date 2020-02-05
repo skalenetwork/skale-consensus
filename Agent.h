@@ -28,10 +28,12 @@
 #include <mutex>
 
 
+
 class Node;
 class Schain;
 class CommittedBlock;
 class GlobalThreadRegistry;
+class ConnectionRefusedException;
 
 
 class Agent {
@@ -40,7 +42,6 @@ class Agent {
 protected:
 
     bool isServer;
-
 
 
     /**
@@ -66,12 +67,11 @@ protected:
     std::map< schain_index, ptr< std::mutex > > queueMutex;
 
 
-
-protected:
     Schain* sChain;
 
     std::recursive_mutex m;
 
+    map<schain_index, uint64_t> lastConnectionRefusedLogTime;
 
 public:
     Agent( Schain& _sChain, bool isServer, bool _dontRegister = false );
@@ -98,5 +98,7 @@ public:
 
     std::recursive_mutex& getMainMutex() { return m; }
 
+
+    void logConnectionRefused(ConnectionRefusedException &_e, schain_index _index);
 
 };

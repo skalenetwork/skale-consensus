@@ -50,7 +50,7 @@ ConsensusBLSSigShare::ConsensusBLSSigShare(ptr<string> _sigShare, schain_id _sch
                                            schain_index _signerIndex,
                                            uint64_t _totalSigners, uint64_t _requiredSigners)
     : ThresholdSigShare(_schainID, _blockID, _signerIndex) {
-    this->blsSigShare = make_shared< BLSSigShare >( _sigShare, ( uint64_t ) _signerIndex,
+    this->blsSigShare = make_shared<BLSSigShare >( _sigShare, ( uint64_t ) _signerIndex,
             _totalSigners, _requiredSigners);
 }
 
