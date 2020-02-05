@@ -44,6 +44,7 @@
     @date 2018
 */
 
+#include <exceptions/ConnectionRefusedException.h>
 #include "SkaleCommon.h"
 
 #include "Log.h"
@@ -297,8 +298,12 @@ void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(BlockFinalizeDown
                 }
             } catch (ExitRequestedException &) {
                 return;
+            }   catch (ConnectionRefusedException& e) {
+                agent->logConnectionRefused(e, _dstIndex);
+                usleep( agent->getNode()->getWaitAfterNetworkErrorMs() * 1000 );
             } catch (exception &e) {
                 Exception::logNested(e);
+                usleep( agent->getNode()->getWaitAfterNetworkErrorMs() * 1000 );
             }
         };
     } catch (FatalError *e) {

@@ -646,7 +646,7 @@ void Schain::healthCheck() {
                 } catch (ExitRequestedException &) {
                     throw;
                 } catch (std::exception &e) {
-                    usleep(1000000);
+                    usleep(100000);
                 }
             }
         }

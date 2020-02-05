@@ -165,6 +165,7 @@ static constexpr uint64_t MONITORING_INTERVAL_MS = 1000;
 
 static constexpr uint64_t WAIT_AFTER_NETWORK_ERROR_MS = 3000;
 
+static constexpr uint64_t CONNECTION_REFUSED_LOG_INTERVAL_MS = 10 * 60 * 1000;
 
 
 // Non-tunable params
