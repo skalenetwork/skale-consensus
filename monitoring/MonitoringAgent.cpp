@@ -99,23 +99,22 @@ void MonitoringAgent::monitoringLoop(MonitoringAgent *agent) {
     }
 }
 
-void MonitoringAgent::registerMonitor(LivelinessMonitor *_monitor) {
+void MonitoringAgent::registerMonitor(ptr<LivelinessMonitor> _m) {
 
-    CHECK_ARGUMENT(_monitor != nullptr)
+    CHECK_ARGUMENT(_m != nullptr)
+    LOCK(m)
 
-    lock_guard<recursive_mutex> lock(m);
-
-    activeMonitors[(uint64_t) _monitor] = _monitor;
+    activeMonitors[(uint64_t) _m.get()] = _m.get();
 
 }
 
-void MonitoringAgent::unregisterMonitor(LivelinessMonitor *_monitor) {
+void MonitoringAgent::unregisterMonitor(LivelinessMonitor *_m) {
 
-    CHECK_ARGUMENT(_monitor != nullptr);
+    CHECK_ARGUMENT(_m != nullptr);
 
-    lock_guard<recursive_mutex> lock(m);
+    LOCK(m)
 
-    activeMonitors.erase((uint64_t) _monitor);
+    activeMonitors.erase((uint64_t) _m);
 
 }
 

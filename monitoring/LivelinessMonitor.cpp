@@ -40,8 +40,6 @@ LivelinessMonitor::LivelinessMonitor(MonitoringAgent *_agent, const string& _cla
     startTime = Time::getCurrentTimeMs();
     expiryTime = startTime + _maxTime;
     threadId = pthread_self();
-    agent->registerMonitor(this);
-
 }
 
 LivelinessMonitor::~LivelinessMonitor() {

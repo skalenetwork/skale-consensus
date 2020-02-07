@@ -45,8 +45,8 @@ public:
     void join();
 
 
-    void registerMonitor(LivelinessMonitor *m);
+    void registerMonitor(ptr<LivelinessMonitor> _m);
 
-    void unregisterMonitor(LivelinessMonitor *m);
+    void unregisterMonitor(LivelinessMonitor *_m);
 
 };

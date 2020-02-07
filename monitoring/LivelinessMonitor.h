@@ -26,8 +26,14 @@
 
 
 #include "MonitoringAgent.h"
-#define MONITOR2(_C_, _F_, _T_) LivelinessMonitor __L__(getSchain()->getMonitoringAgent().get(), _C_, _F_, _T_);
-#define MONITOR(_C_, _F_) LivelinessMonitor __L__(getSchain()->getMonitoringAgent().get(), _C_, _F_, 2000);
+#define MONITOR2(_C_, _F_, _T_) \
+       auto __L__ = make_shared<LivelinessMonitor>(getSchain()->getMonitoringAgent().get(), _C_, _F_, _T_); \
+       getSchain()->getMonitoringAgent()->registerMonitor(__L__);
+
+#define MONITOR(_C_, _F_) auto __L__ = \
+   make_shared<LivelinessMonitor>(getSchain()->getMonitoringAgent().get(), _C_, _F_, 2000);\
+   getSchain()->getMonitoringAgent()->registerMonitor(__L__);
+
 
 class LivelinessMonitor {
 
