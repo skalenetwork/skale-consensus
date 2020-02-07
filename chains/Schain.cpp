@@ -422,6 +422,7 @@ void Schain::processCommittedBlock(ptr<CommittedBlock> _block) {
         pushBlockToExtFace(_block);
 
         lastCommittedBlockID++;
+        lastCommitTime = Time::getCurrentTimeMs();
 
     } catch (ExitRequestedException &e) { throw; }
     catch (...) {
@@ -579,6 +580,7 @@ void Schain::bootstrap(block_id _lastCommittedBlockID, uint64_t _lastCommittedBl
         ptr<BlockProposal> committedProposal = nullptr;
 
         lastCommittedBlockID = (uint64_t) _lastCommittedBlockID;
+        lastCommitTime = (uint64_t) Time::getCurrentTimeMs();
         lastCommittedBlockTimeStamp = _lastCommittedBlockTimeStamp;
         lastCommittedBlockTimeStampMs = 0;
 

@@ -294,5 +294,9 @@ void Schain::createBlockConsensusInstance() {
 
 }
 
+uint64_t Schain::getLastCommitTime() {
+    return lastCommitTime;
+}
+
 
 
