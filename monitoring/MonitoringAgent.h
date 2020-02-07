@@ -31,7 +31,7 @@ class LivelinessMonitor;
 
 class MonitoringAgent : public Agent  {
 
-    map<uint64_t, LivelinessMonitor*> activeMonitors;
+    map<uint64_t, weak_ptr<LivelinessMonitor>> activeMonitors;
     ptr< MonitoringThreadPool > monitoringThreadPool = nullptr;
 
 public:
