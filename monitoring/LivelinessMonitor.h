@@ -27,22 +27,32 @@
 
 #include "MonitoringAgent.h"
 #define MONITOR2(_C_, _F_, _T_) \
-       auto __L__ = make_shared<LivelinessMonitor>(getSchain()->getMonitoringAgent().get(), _C_, _F_, _T_); \
+       auto __L__ = make_shared<LivelinessMonitor>(getSchain()->getMonitoringAgent(), _C_, _F_, _T_); \
        getSchain()->getMonitoringAgent()->registerMonitor(__L__);
 
 #define MONITOR(_C_, _F_) auto __L__ = \
-   make_shared<LivelinessMonitor>(getSchain()->getMonitoringAgent().get(), _C_, _F_, 2000);\
+   make_shared<LivelinessMonitor>(getSchain()->getMonitoringAgent(), _C_, _F_, 2000);\
    getSchain()->getMonitoringAgent()->registerMonitor(__L__);
 
 
 class LivelinessMonitor {
 
 
+
+
     string cl;
     string function;
     pthread_t  threadId;
+    uint64_t id;
+public:
+    uint64_t getId() const;
 
-    MonitoringAgent* agent = nullptr;
+private:
+
+    static atomic<uint64_t> counter;
+
+
+    weak_ptr<MonitoringAgent> agent;
     uint64_t startTime;
 public:
     uint64_t getStartTime() const;
@@ -60,7 +70,7 @@ public:
 
     virtual ~LivelinessMonitor();
 
-    LivelinessMonitor(MonitoringAgent *_agent, const string& _class, const string& _function, uint64_t _maxTime);
+    LivelinessMonitor(ptr<MonitoringAgent> _agent, const string& _class, const string& _function, uint64_t _maxTime);
 
 };
 

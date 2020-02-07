@@ -117,18 +117,14 @@ void MonitoringAgent::registerMonitor(ptr<LivelinessMonitor> _m) {
 
     CHECK_ARGUMENT(_m != nullptr)
     LOCK(m)
-
-    activeMonitors[(uint64_t) _m.get()] = _m;
-
+    activeMonitors[_m->getId()] = _m;
 }
 
-void MonitoringAgent::unregisterMonitor(LivelinessMonitor *_m) {
-
-    CHECK_ARGUMENT(_m != nullptr);
+void MonitoringAgent::unregisterMonitor(uint64_t _id) {
 
     LOCK(m)
 
-    activeMonitors.erase((uint64_t) _m);
+    activeMonitors.erase(_id);
 
 }
 

@@ -162,7 +162,6 @@ public:
 
     void createBlockConsensusInstance();
 
-
     void joinMonitorThread();
 
     ptr<BlockProposal> getBlockProposal(block_id _blockID, schain_index _schainIndex);

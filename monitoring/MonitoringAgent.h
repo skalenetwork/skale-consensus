@@ -47,6 +47,6 @@ public:
 
     void registerMonitor(ptr<LivelinessMonitor> _m);
 
-    void unregisterMonitor(LivelinessMonitor *_m);
+    void unregisterMonitor(uint64_t _id);
 
 };
