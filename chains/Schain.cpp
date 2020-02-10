@@ -45,6 +45,7 @@
 
 #include "blockfinalize/client/BlockFinalizeDownloader.h"
 #include "blockproposal/server/BlockProposalServerAgent.h"
+#include "datastructures/BooleanProposalVector.h"
 #include "catchup/client/CatchupClientAgent.h"
 #include "catchup/server/CatchupServerAgent.h"
 #include "crypto/ThresholdSignature.h"
@@ -489,6 +490,8 @@ void Schain::startConsensus(const block_id _blockID, ptr<BooleanProposalVector> 
         MONITOR(__CLASS_NAME__, __FUNCTION__)
 
         checkForExit();
+
+        LOG(info, "CONSENS_START: PROPOSING: " + *_proposalVector->toString());
 
         LOG(debug, "Got proposed block set for block:" + to_string(_blockID));
 

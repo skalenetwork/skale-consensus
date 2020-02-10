@@ -126,7 +126,6 @@ class Schain : public Agent {
     atomic<uint64_t>lastCommittedBlockTimeStamp = 0;
     atomic<uint64_t>lastCommittedBlockTimeStampMs;
 
-
     uint64_t maxExternalBlockProcessingTime;
 
     /*** Queue of unprocessed messages for this schain instance
