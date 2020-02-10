@@ -152,12 +152,7 @@ void BinConsensusInstance::processParentProposal(ptr<InternalMessageEnvelope> _m
 
     setProposal(m->r, m->value);
 
-
     networkBroadcastValue(m);
-
-
-    if (isDecided)
-        return;
 
     addBVSelfVoteToHistory(m->r, m->value);
     bvbVote(_me);
