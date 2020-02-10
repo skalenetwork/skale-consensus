@@ -124,9 +124,6 @@ void BinConsensusInstance::processNetworkMessageImpl(ptr<NetworkMessageEnvelope>
 
     } else if (_me->getMessage()->getMessageType() == MSG_AUX_BROADCAST) {
 
-        if (isDecided)
-            return;
-
         auto m = dynamic_pointer_cast<AUXBroadcastMessage>(_me->getMessage());
         ASSERT(m);
         auxVote(_me);
@@ -152,9 +149,11 @@ void BinConsensusInstance::processParentProposal(ptr<InternalMessageEnvelope> _m
 
     setProposal(m->r, m->value);
 
+
     networkBroadcastValue(m);
 
     addBVSelfVoteToHistory(m->r, m->value);
+
     bvbVote(_me);
 
     commitValueIfTwoThirds(m);
@@ -343,7 +342,7 @@ void BinConsensusInstance::commitValueIfTwoThirds(ptr<BVBroadcastMessage> _m) {
             auxBroadcastValue(r, v);
         }
 
-        if (r == getCurrentRound() && !isDecided)
+        if (r == getCurrentRound())
             proceedWithCommonCoinIfAUXTwoThird(r);
 
     }
@@ -578,12 +577,14 @@ BinConsensusInstance::BinConsensusInstance(BlockConsensusAgent *_instance, block
     CHECK_ARGUMENT((uint64_t) _blockProposerIndex > 0);
     CHECK_ARGUMENT(_instance);
 
+
     if (_initFromDB) {
         auto db = _instance->getSchain()->getNode()->getConsensusStateDB();
 
         currentRound = db->readCR(blockID, blockProposerIndex);
         auto result  = db->readDR(blockID, blockProposerIndex);
         isDecided = result.first;
+
         if (isDecided) {
             decidedRound = result.second;
             decidedValue = db->readDV(blockID, blockProposerIndex);
