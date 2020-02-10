@@ -45,6 +45,7 @@
 
 #include "blockfinalize/client/BlockFinalizeDownloader.h"
 #include "blockproposal/server/BlockProposalServerAgent.h"
+#include "datastructures/BooleanProposalVector.h"
 #include "catchup/client/CatchupClientAgent.h"
 #include "catchup/server/CatchupServerAgent.h"
 #include "crypto/ThresholdSignature.h"
@@ -422,6 +423,7 @@ void Schain::processCommittedBlock(ptr<CommittedBlock> _block) {
         pushBlockToExtFace(_block);
 
         lastCommittedBlockID++;
+        lastCommitTime = Time::getCurrentTimeMs();
 
     } catch (ExitRequestedException &e) { throw; }
     catch (...) {
@@ -488,6 +490,8 @@ void Schain::startConsensus(const block_id _blockID, ptr<BooleanProposalVector> 
         MONITOR(__CLASS_NAME__, __FUNCTION__)
 
         checkForExit();
+
+        LOG(info, "BIN_CONSENSUS_START: PROPOSING: " + *_proposalVector->toString());
 
         LOG(debug, "Got proposed block set for block:" + to_string(_blockID));
 
@@ -579,6 +583,7 @@ void Schain::bootstrap(block_id _lastCommittedBlockID, uint64_t _lastCommittedBl
         ptr<BlockProposal> committedProposal = nullptr;
 
         lastCommittedBlockID = (uint64_t) _lastCommittedBlockID;
+        lastCommitTime = (uint64_t) Time::getCurrentTimeMs();
         lastCommittedBlockTimeStamp = _lastCommittedBlockTimeStamp;
         lastCommittedBlockTimeStampMs = 0;
 

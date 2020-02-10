@@ -58,19 +58,33 @@ void MonitoringAgent::monitor() {
     if (ConsensusEngine::isOnTravis())
         return;
 
-    lock_guard<recursive_mutex> lock(m);
+    map<uint64_t, weak_ptr<LivelinessMonitor>> monitorsCopy;
 
-    for (auto &&item: activeMonitors) {
-        LivelinessMonitor *monitor = item.second;
+    {
+        LOCK(m)
 
-        CHECK_STATE(monitor != nullptr);
+        lock_guard<recursive_mutex> lock(m);
 
-        auto currentTime = Time::getCurrentTimeMs();
+        monitorsCopy = activeMonitors;
 
-        if (currentTime > monitor->getExpiryTime()) {
-            LOG(warn, monitor->toString() + " has been stuck for " + to_string(currentTime - monitor->getStartTime()) + " ms");
+    }
+
+    for (auto &&item: monitorsCopy ) {
+
+        ptr<LivelinessMonitor> monitor = item.second.lock();
+
+        if (monitor) {
+
+            CHECK_STATE(monitor != nullptr);
+
+            auto currentTime = Time::getCurrentTimeMs();
+
+            if (currentTime > monitor->getExpiryTime()) {
+                LOG(warn,
+                    monitor->toString() + " has been stuck for " + to_string(currentTime - monitor->getStartTime()) +
+                    " ms");
+            }
         }
-
     }
 }
 
@@ -99,23 +113,18 @@ void MonitoringAgent::monitoringLoop(MonitoringAgent *agent) {
     }
 }
 
-void MonitoringAgent::registerMonitor(LivelinessMonitor *_monitor) {
+void MonitoringAgent::registerMonitor(ptr<LivelinessMonitor> _m) {
 
-    CHECK_ARGUMENT(_monitor != nullptr)
-
-    lock_guard<recursive_mutex> lock(m);
-
-    activeMonitors[(uint64_t) _monitor] = _monitor;
-
+    CHECK_ARGUMENT(_m != nullptr)
+    LOCK(m)
+    activeMonitors[_m->getId()] = _m;
 }
 
-void MonitoringAgent::unregisterMonitor(LivelinessMonitor *_monitor) {
+void MonitoringAgent::unregisterMonitor(uint64_t _id) {
 
-    CHECK_ARGUMENT(_monitor != nullptr);
+    LOCK(m)
 
-    lock_guard<recursive_mutex> lock(m);
-
-    activeMonitors.erase((uint64_t) _monitor);
+    activeMonitors.erase(_id);
 
 }
 

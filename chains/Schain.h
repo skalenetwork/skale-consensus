@@ -118,11 +118,13 @@ class Schain : public Agent {
 
     ptr<string> blockProposerTest;
 
+
+
     atomic<uint64_t> lastCommittedBlockID = 0;
+    atomic<uint64_t> lastCommitTime = 0;
     atomic<uint64_t> bootstrapBlockID = 0;
     atomic<uint64_t>lastCommittedBlockTimeStamp = 0;
     atomic<uint64_t>lastCommittedBlockTimeStampMs;
-
 
     uint64_t maxExternalBlockProcessingTime;
 
@@ -153,11 +155,11 @@ class Schain : public Agent {
 
 public:
 
+    uint64_t getLastCommitTime();
 
     ptr<BlockConsensusAgent> blockConsensusInstance;
 
     void createBlockConsensusInstance();
-
 
     void joinMonitorThread();
 

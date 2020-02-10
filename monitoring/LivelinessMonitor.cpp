@@ -32,7 +32,7 @@
 
 
 
-LivelinessMonitor::LivelinessMonitor(MonitoringAgent *_agent, const string& _class, const string&  _function,
+LivelinessMonitor::LivelinessMonitor(ptr<MonitoringAgent>_agent, const string& _class, const string&  _function,
                                      uint64_t _maxTime) : cl(_class), function(_function), agent(_agent) {
 
     CHECK_ARGUMENT(_agent != nullptr);
@@ -40,18 +40,25 @@ LivelinessMonitor::LivelinessMonitor(MonitoringAgent *_agent, const string& _cla
     startTime = Time::getCurrentTimeMs();
     expiryTime = startTime + _maxTime;
     threadId = pthread_self();
-    agent->registerMonitor(this);
-
+    id = counter++;
 }
 
 LivelinessMonitor::~LivelinessMonitor() {
-    agent->unregisterMonitor(this);
+    auto pointer = agent.lock();
+    if (pointer) {
+        pointer->unregisterMonitor(this->getId());
+    }
 }
 
 string LivelinessMonitor::toString() {
-    return
-            "Node:" + to_string(agent->getSchain()->getNode()->getNodeID()) +
-            ":Thread:" + to_string( (uint64_t) threadId ) + ":" + cl + string("::") + function;
+    auto pointer = agent.lock();
+    if (pointer) {
+        return
+                "Node:" + to_string(pointer->getSchain()->getNode()->getNodeID()) +
+                ":Thread:" + to_string((uint64_t) threadId) + ":" + cl + string("::") + function;
+    } else {
+        return "";
+    }
 }
 
 uint64_t LivelinessMonitor::getExpiryTime() const {
@@ -62,6 +69,10 @@ uint64_t LivelinessMonitor::getStartTime() const {
     return startTime;
 }
 
+atomic<uint64_t> LivelinessMonitor::counter = 0;
 
+uint64_t LivelinessMonitor::getId() const {
+    return id;
+}
 
 
