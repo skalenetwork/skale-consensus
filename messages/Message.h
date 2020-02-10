@@ -39,7 +39,7 @@ class Message {
 
 private:
 
-    static atomic<uint64_t>  totalObjects;
+    static atomic<int64_t>  totalObjects;
 
 protected:
 
@@ -57,9 +57,7 @@ public:
             const block_id &blockID, const schain_index &blockProposerIndex);
 
     node_id getSrcNodeID() const;
-;
 
-    msg_id getMessageID() const;
 
     MsgType getMessageType() const;
 
@@ -81,10 +79,8 @@ public:
     virtual ~Message();
 
 
-    static uint64_t getTotalObjects() {
+    static int64_t getTotalObjects() {
         return totalObjects;
     }
-
-
 
 };

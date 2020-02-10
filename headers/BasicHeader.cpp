@@ -61,7 +61,7 @@ ptr<string> BasicHeader::serializeToString() {
 
 }
 
-uint64_t BasicHeader::getTotalObjects() {
+int64_t BasicHeader::getTotalObjects() {
     return totalObjects;
 }
 
@@ -123,4 +123,4 @@ BasicHeader::~BasicHeader() {
 }
 
 
-atomic<uint64_t>  BasicHeader::totalObjects(1);
+atomic<int64_t>  BasicHeader::totalObjects(1);

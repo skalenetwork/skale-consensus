@@ -144,7 +144,7 @@ static const uint64_t BLOCK_PROPOSAL_HISTORY_SIZE = 1;
 
 static const uint64_t COMMITTED_TRANSACTIONS_HISTORY = 1000000;
 
-static const uint64_t MAX_ACTIVE_CONSENSUSES = 50;
+static const uint64_t MAX_ACTIVE_CONSENSUSES = 5;
 
 static const uint64_t MAX_CONSENSUS_HISTORY  = 2 * MAX_ACTIVE_CONSENSUSES;
 
@@ -165,6 +165,7 @@ static constexpr uint64_t MONITORING_INTERVAL_MS = 1000;
 
 static constexpr uint64_t WAIT_AFTER_NETWORK_ERROR_MS = 3000;
 
+static constexpr uint64_t CONNECTION_REFUSED_LOG_INTERVAL_MS = 10 * 60 * 1000;
 
 
 // Non-tunable params

@@ -80,7 +80,8 @@ int ClientSocket::createTCPSocket() {
     // Init the connection
     if (connect(s, (sockaddr *) remote_addr.get(), sizeof(remote_addr)) < 0) {
         close(s);
-        BOOST_THROW_EXCEPTION(ConnectionRefusedException("Could not connect to server", errno, __CLASS_NAME__));
+        BOOST_THROW_EXCEPTION(ConnectionRefusedException("Couldnt connect to:" +
+                  *getConnectionIP() + ":" + to_string(getConnectionPort()), errno, __CLASS_NAME__));
     };
 
     return s;
@@ -111,7 +112,7 @@ ClientSocket::ClientSocket(Schain &_sChain, schain_index _destinationIndex, port
     totalSockets++;
 }
 
-atomic<uint64_t> ClientSocket::totalSockets = 0;
+atomic<int64_t> ClientSocket::totalSockets = 0;
 
 uint64_t ClientSocket::getTotalSockets() {
     return totalSockets;

@@ -31,6 +31,7 @@
 
 
 TransactionList::TransactionList(ptr<vector<ptr<Transaction>>> _transactions) {
+    totalObjects++;
 
     if (_transactions->size() == 0) {
         transactions = make_shared<vector<ptr<Transaction>>>();
@@ -38,7 +39,7 @@ TransactionList::TransactionList(ptr<vector<ptr<Transaction>>> _transactions) {
     }
 
     CHECK_ARGUMENT(_transactions != nullptr);
-    totalObjects++;
+
     transactions = _transactions;
 }
 
@@ -46,9 +47,10 @@ TransactionList::TransactionList(ptr<vector<ptr<Transaction>>> _transactions) {
 TransactionList::TransactionList( ptr<vector<uint64_t>> _transactionSizes,
     ptr<vector<uint8_t>> _serializedTransactions, uint32_t _offset, bool _checkPartialHash ) {
 
-
     CHECK_ARGUMENT(_serializedTransactions->at(_offset) == '<');
     CHECK_ARGUMENT(_serializedTransactions->at(_serializedTransactions->size() - 1) == '>');
+
+    totalObjects++;
 
     if (_transactionSizes->size() == 0) {
         if ((_serializedTransactions->size()  - _offset) != 2) {
@@ -69,7 +71,6 @@ TransactionList::TransactionList( ptr<vector<uint64_t>> _transactionSizes,
     } else {
         CHECK_ARGUMENT( _serializedTransactions->size() - _offset > 2 );
     }
-
 
     size_t index = _offset + 1;
 
@@ -92,7 +93,7 @@ TransactionList::TransactionList( ptr<vector<uint64_t>> _transactionSizes,
         index += size;
     }
 
-    totalObjects++;
+
 };
 
 
@@ -137,7 +138,7 @@ TransactionList::~TransactionList() {
 
 
 
-atomic<uint64_t>  TransactionList::totalObjects(0);
+atomic<int64_t>  TransactionList::totalObjects(0);
 
 size_t TransactionList::size() {
     return transactions->size();
@@ -148,7 +149,7 @@ ptr<ConsensusExtFace::transactions_vector> TransactionList::createTransactionVec
 
     LOCK(m)
 
-    auto tv = make_shared< ConsensusExtFace::transactions_vector >();
+    auto tv = make_shared<ConsensusExtFace::transactions_vector >();
 
     for ( auto&& t : *getItems() ) {
         tv->push_back( *( t->getData() ) );
@@ -185,7 +186,7 @@ ptr< vector< uint64_t > > TransactionList::createTransactionSizesVector(bool _wr
 
 ptr< TransactionList > TransactionList::createRandomSample( uint64_t _size, boost::random::mt19937& _gen,
                                                        boost::random::uniform_int_distribution<>& _ubyte ) {
-    auto sample = make_shared< vector< ptr< Transaction > > >();
+    auto sample = make_shared<vector< ptr< Transaction > > >();
 
 
     for ( uint32_t j = 0; j < _size; j++ ) {
@@ -195,7 +196,7 @@ ptr< TransactionList > TransactionList::createRandomSample( uint64_t _size, boos
     }
 
 
-    auto result =  make_shared< TransactionList >( sample );
+    auto result =  make_shared<TransactionList >( sample );
 
     if (_size > 0) {
         CHECK_STATE(result->calculateTopMerkleRoot() != nullptr);

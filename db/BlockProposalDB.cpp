@@ -56,6 +56,8 @@ BlockProposalDB::BlockProposalDB(Schain *_sChain, string &_dirName, string &_pre
 
 void BlockProposalDB::addBlockProposal(ptr<BlockProposal> _proposal) {
 
+    MONITOR(__CLASS_NAME__, __FUNCTION__);
+
     CHECK_ARGUMENT(_proposal);
     CHECK_ARGUMENT(_proposal->getSignature() != nullptr);
 

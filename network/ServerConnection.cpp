@@ -29,11 +29,11 @@
 
 using namespace std;
 
-atomic<uint64_t> ServerConnection::totalConnections = 0;
+atomic<int64_t> ServerConnection::totalObjects = 0;
 
 ServerConnection::ServerConnection(unsigned int descriptor, ptr<std::string> ip)  {
 
-    incrementTotalConnections();
+    totalObjects++;
 
     this->descriptor = descriptor;
     this->ip = ip;
@@ -49,10 +49,9 @@ ptr<string> ServerConnection::getIP() {
 }
 
 ServerConnection::~ServerConnection() {
-    decrementTotalConnections();
+    totalObjects--;
     closeConnection();
 }
-
 
 void ServerConnection::closeConnection() {
     LOCK(m)
@@ -61,21 +60,8 @@ void ServerConnection::closeConnection() {
     descriptor = 0;
 }
 
-void ServerConnection::incrementTotalConnections() {
-//    LOG(trace, "+Connections: " + to_string(totalConnections));
-    CHECK_STATE(totalConnections < 1000000);
-    totalConnections++;
-
-}
 
 
-void ServerConnection::decrementTotalConnections() {
-    CHECK_STATE(totalConnections < 1000000);
-    totalConnections--;
-//    LOG(trace, "-Connections: " + to_string(totalConnections));
-
-}
-
-uint64_t ServerConnection::getTotalConnections() {
-    return totalConnections;
+uint64_t ServerConnection::getTotalObjects() {
+    return totalObjects;
 };

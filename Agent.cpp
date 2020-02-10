@@ -21,18 +21,17 @@
     @date 2018
 */
 
+
 #include "SkaleCommon.h"
 #include "Log.h"
 #include "Agent.h"
 
-#include "thirdparty/json.hpp"
+
 #include "node/Node.h"
 #include "chains/Schain.h"
 #include "network/Sockets.h"
-
-#include "crypto/SHAHash.h"
 #include "crypto/ConsensusBLSSigShare.h"
-
+#include <utils/Time.h>
 
 void Agent::notifyAllConditionVariables() {
     dispatchCond.notify_all();
@@ -81,3 +80,22 @@ ptr<GlobalThreadRegistry> Agent::getThreadRegistry() {
 
 
 
+void Agent::logConnectionRefused(ConnectionRefusedException &_e, schain_index _index) {
+    auto logException = true;
+    auto currentTime = Time::getCurrentTimeMs();
+    if (lastConnectionRefusedLogTime.find(_index) != lastConnectionRefusedLogTime.end()) {
+        auto time = lastConnectionRefusedLogTime[_index];
+
+        if ((currentTime - time) > CONNECTION_REFUSED_LOG_INTERVAL_MS) {
+            lastConnectionRefusedLogTime[_index] = currentTime;
+        } else {
+            logException = false;
+        }
+    } else {
+        lastConnectionRefusedLogTime[_index] = currentTime;
+    }
+
+    if (logException) {
+        Exception::logNested((const exception&)_e);
+    }
+}

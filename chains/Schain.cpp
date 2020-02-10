@@ -45,6 +45,7 @@
 
 #include "blockfinalize/client/BlockFinalizeDownloader.h"
 #include "blockproposal/server/BlockProposalServerAgent.h"
+#include "datastructures/BooleanProposalVector.h"
 #include "catchup/client/CatchupClientAgent.h"
 #include "catchup/server/CatchupServerAgent.h"
 #include "crypto/ThresholdSignature.h"
@@ -100,18 +101,19 @@
 
 void Schain::postMessage(ptr<MessageEnvelope> m) {
 
+    MONITOR(__CLASS_NAME__, __FUNCTION__)
 
     checkForExit();
 
 
-    lock_guard<mutex> lock(messageMutex);
-
     ASSERT(m);
     ASSERT((uint64_t) m->getMessage()->getBlockId() != 0);
+    {
+        lock_guard<mutex> lock(messageMutex);
+        messageQueue.push(m);
+        messageCond.notify_all();
+    }
 
-
-    messageQueue.push(m);
-    messageCond.notify_all();
 }
 
 
@@ -141,7 +143,6 @@ void Schain::messageThreadProcessingLoop(Schain *s) {
                 }
 
                 newQueue = s->messageQueue;
-
 
                 while (!s->messageQueue.empty()) {
                     s->messageQueue.pop();
@@ -412,9 +413,9 @@ void Schain::processCommittedBlock(ptr<CommittedBlock> _block) {
             ":KNWN:" + to_string(pendingTransactionsAgent->getKnownTransactionsSize()) + ":MGS:" +
             to_string(Message::getTotalObjects()) + ":INSTS:" + to_string(ProtocolInstance::getTotalObjects()) +
             ":BPS:" +
-            to_string(BlockProposalSet::getTotalObjects()) + ":TLS:" + to_string(TransactionList::getTotalObjects()) +
+            to_string(BlockProposalSet::getTotalObjects())  +
             ":HDRS:" + to_string(Header::getTotalObjects()) + ":SOCK:" + to_string(ClientSocket::getTotalSockets()) +
-            ":CONS:" + to_string(ServerConnection::getTotalConnections()));
+            ":CONS:" + to_string(ServerConnection::getTotalObjects()));
 
 
         saveBlock(_block);
@@ -422,6 +423,7 @@ void Schain::processCommittedBlock(ptr<CommittedBlock> _block) {
         pushBlockToExtFace(_block);
 
         lastCommittedBlockID++;
+        lastCommitTime = Time::getCurrentTimeMs();
 
     } catch (ExitRequestedException &e) { throw; }
     catch (...) {
@@ -489,13 +491,13 @@ void Schain::startConsensus(const block_id _blockID, ptr<BooleanProposalVector> 
 
         checkForExit();
 
+        LOG(info, "BIN_CONSENSUS_START: PROPOSING: " + *_proposalVector->toString());
+
         LOG(debug, "Got proposed block set for block:" + to_string(_blockID));
 
         ASSERT(getNode()->getDaProofDB()->isEnoughProofs(_blockID));
 
         LOG(debug, "StartConsensusIfNeeded BLOCK NUMBER:" + to_string((_blockID)));
-
-        LOCK(m)
 
         if (_blockID <= getLastCommittedBlockID()) {
             LOG(debug, "Too late to start consensus: already committed " + to_string(lastCommittedBlockID));
@@ -506,8 +508,6 @@ void Schain::startConsensus(const block_id _blockID, ptr<BooleanProposalVector> 
             LOG(debug, "Consensus is in the future" + to_string(lastCommittedBlockID));
             return;
         }
-
-
     }
 
 
@@ -583,6 +583,7 @@ void Schain::bootstrap(block_id _lastCommittedBlockID, uint64_t _lastCommittedBl
         ptr<BlockProposal> committedProposal = nullptr;
 
         lastCommittedBlockID = (uint64_t) _lastCommittedBlockID;
+        lastCommitTime = (uint64_t) Time::getCurrentTimeMs();
         lastCommittedBlockTimeStamp = _lastCommittedBlockTimeStamp;
         lastCommittedBlockTimeStampMs = 0;
 
@@ -646,7 +647,7 @@ void Schain::healthCheck() {
                 } catch (ExitRequestedException &) {
                     throw;
                 } catch (std::exception &e) {
-                    usleep(1000000);
+                    usleep(100000);
                 }
             }
         }

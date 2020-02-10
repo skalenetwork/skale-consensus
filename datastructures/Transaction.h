@@ -40,7 +40,7 @@ class SHAHash;
 class Transaction : public DataStructure {
 
 
-    static atomic<uint64_t>  totalObjects;
+    static atomic<int64_t>  totalObjects;
 
     ptr<vector<uint8_t >> data = nullptr;
 
@@ -75,7 +75,7 @@ public:
 
 
 
-    static uint64_t getTotalObjects() {
+    static int64_t getTotalObjects() {
         return totalObjects;
     };
 

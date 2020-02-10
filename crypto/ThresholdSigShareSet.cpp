@@ -26,9 +26,9 @@
 
 #include "ThresholdSigShareSet.h"
 
-atomic< uint64_t > ThresholdSigShareSet::totalObjects( 0 );
+atomic< int64_t > ThresholdSigShareSet::totalObjects( 0 );
 
-uint64_t ThresholdSigShareSet::getTotalObjects() {
+int64_t ThresholdSigShareSet::getTotalObjects() {
     return totalObjects;
 }
 

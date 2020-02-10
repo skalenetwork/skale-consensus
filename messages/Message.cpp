@@ -41,10 +41,6 @@ ptr<ProtocolKey> Message::createDestinationProtocolKey()  {
 
 }
 
-msg_id Message::getMessageID() const {
-    return msgID;
-}
-
 MsgType Message::getMessageType() const {
     return msgType;
 }
@@ -107,4 +103,4 @@ Message::~Message() {
 }
 
 
-atomic<uint64_t>  Message::totalObjects(0);
+atomic<int64_t>  Message::totalObjects(0);

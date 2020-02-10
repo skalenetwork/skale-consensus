@@ -44,6 +44,7 @@
     @date 2018
 */
 
+#include <exceptions/ConnectionRefusedException.h>
 #include "SkaleCommon.h"
 
 #include "Log.h"
@@ -297,8 +298,12 @@ void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(BlockFinalizeDown
                 }
             } catch (ExitRequestedException &) {
                 return;
+            }   catch (ConnectionRefusedException& e) {
+                agent->logConnectionRefused(e, _dstIndex);
+                usleep( agent->getNode()->getWaitAfterNetworkErrorMs() * 1000 );
             } catch (exception &e) {
                 Exception::logNested(e);
+                usleep( agent->getNode()->getWaitAfterNetworkErrorMs() * 1000 );
             }
         };
     } catch (FatalError *e) {
@@ -308,9 +313,10 @@ void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(BlockFinalizeDown
 
 ptr<BlockProposal> BlockFinalizeDownloader::downloadProposal() {
 
+    MONITOR(__CLASS_NAME__, __FUNCTION__);
 
     {
-        MONITOR(__CLASS_NAME__, "Parallel download");
+
 
         threadPool = make_shared<BlockFinalizeDownloaderThreadPool>((uint64_t) getSchain()->getNodeCount(), this);
         threadPool->startService();
@@ -331,8 +337,6 @@ ptr<BlockProposal> BlockFinalizeDownloader::downloadProposal() {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
 }
-
-
 
 BlockFinalizeDownloader::~BlockFinalizeDownloader() {
 

@@ -64,7 +64,7 @@ ptr< partial_sha_hash > Transaction::getPartialHash() {
         return partialHash;
     }
 
-    partialHash = make_shared< partial_sha_hash >();
+    partialHash = make_shared<partial_sha_hash >();
 
     getHash();
 
@@ -127,7 +127,7 @@ ptr< vector< uint8_t > > Transaction::getData() const {
 
 
 
-atomic<uint64_t>  Transaction::totalObjects(0);
+atomic<int64_t>  Transaction::totalObjects(0);
 
 
 Transaction::~Transaction() {
@@ -182,7 +182,7 @@ ptr<Transaction > Transaction::deserialize(
 
 ptr< Transaction > Transaction::createRandomSample( uint64_t _size, boost::random::mt19937& _gen,
                                                     boost::random::uniform_int_distribution<>& _ubyte ) {
-    auto sample = make_shared< vector< uint8_t > >( _size, 0 );
+    auto sample = make_shared<vector< uint8_t > >( _size, 0 );
 
 
     for ( uint32_t j = 0; j < sample->size(); j++ ) {

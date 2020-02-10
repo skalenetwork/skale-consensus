@@ -135,8 +135,6 @@ ptr<CommittedBlock> Schain::getBlock(block_id _blockID) {
 
     MONITOR(__CLASS_NAME__, __FUNCTION__)
 
-    std::lock_guard<std::recursive_mutex> aLock(getMainMutex());
-
     try {
         return getNode()->getBlockDB()->getBlock(_blockID, cryptoManager);
     } catch (ExitRequestedException &) { throw; } catch (...) {
@@ -173,7 +171,6 @@ transaction_count Schain::getMessagesCount() {
         lock_guard<mutex> lock(messageMutex);
         cntMessages = messageQueue.size();
     } // block
-    std::lock_guard<std::recursive_mutex> aLock(getMainMutex());
     return transaction_count(cntMessages);
 }
 
@@ -295,6 +292,10 @@ void Schain::createBlockConsensusInstance() {
 
     blockConsensusInstance = make_shared<BlockConsensusAgent>(*this);
 
+}
+
+uint64_t Schain::getLastCommitTime() {
+    return lastCommitTime;
 }
 
 

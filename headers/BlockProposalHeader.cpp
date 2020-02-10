@@ -119,7 +119,7 @@ BlockProposalHeader::BlockProposalHeader(nlohmann::json& _json) : Header(Header:
     Header::nullCheck(_json, "sizes" );
     nlohmann::json jsonTransactionSizes = _json["sizes"];
 
-    transactionSizes = make_shared< vector< uint64_t > >();
+    transactionSizes = make_shared<vector< uint64_t > >();
 
     for ( auto&& jsize : jsonTransactionSizes ) {
         transactionSizes->push_back( jsize );
