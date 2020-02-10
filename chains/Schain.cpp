@@ -491,7 +491,7 @@ void Schain::startConsensus(const block_id _blockID, ptr<BooleanProposalVector> 
 
         checkForExit();
 
-        LOG(info, "CONSENS_START: PROPOSING: " + *_proposalVector->toString());
+        LOG(info, "BIN_CONSENSUS_START: PROPOSING: " + *_proposalVector->toString());
 
         LOG(debug, "Got proposed block set for block:" + to_string(_blockID));
 
