@@ -25,14 +25,11 @@
 
 #include "thirdparty/catch.hpp"
 
-
-
 #include "SkaleCommon.h"
 #include "Log.h"
 #include "node/ConsensusEngine.h"
 
 #include "iostream"
-#include "fstream"
 #include "time.h"
 
 #include "stubclient.h"
@@ -57,15 +54,12 @@ public:
         HeapProfilerStart("/tmp/consensusd.profile");
 #endif
 
-
-
     };
 
     ~StartFromScratch() {
 #ifdef GOOGLE_PROFILE
         HeapProfilerStop();
 #endif
-
     }
 };
 
@@ -104,8 +98,6 @@ void testLog(const char *message) {
 
 void basicRun() {
     try {
-
-
 
         REQUIRE(ConsensusEngine::getEngineVersion().size() > 0);
 
@@ -153,7 +145,6 @@ TEST_CASE_METHOD(StartFromScratch, "Use finalization download only", "[consensus
     SUCCEED();
 }
 
-
 bool success = false;
 
 void exit_check() {
@@ -181,9 +172,6 @@ TEST_CASE_METHOD(StartFromScratch, "Get consensus to stuck", "[consensus-stuck]"
     delete engine;
     SUCCEED();
 }
-
-
-
 
 TEST_CASE_METHOD(StartFromScratch, "Issue different proposals to different nodes", "[corrupt-proposal]") {
     setenv("CORRUPT_PROPOSAL_TEST", "1", 1);
@@ -231,7 +219,6 @@ TEST_CASE_METHOD(StartFromScratch, "Test sgx server connection", "[sgx]") {
         csr.append("\n");
     }
 
-
     jsonrpc::HttpClient client("http://localhost:1027");
     StubClient c(client, jsonrpc::JSONRPC_CLIENT_V2);
 
@@ -247,7 +234,6 @@ TEST_CASE_METHOD(StartFromScratch, "Test sgx server connection", "[sgx]") {
     outFile.open("/tmp/cert");
     outFile << signedCert;
 
-
     jsonrpc::HttpClient::setKeyFileFullPath("/tmp/key");
     jsonrpc::HttpClient::setCertFileFullPath("/tmp/cert");
     jsonrpc::HttpClient::setSslClientPort(SGX_SSL_PORT);
@@ -255,12 +241,10 @@ TEST_CASE_METHOD(StartFromScratch, "Test sgx server connection", "[sgx]") {
     setenv("sgxKeyFileFullPath", "/tmp/key", 1);
     setenv("certFileFullPath", "/tmp/key", 1);
 
-
     jsonrpc::HttpClient client2("https://localhost:1026");
     StubClient c2(client2, jsonrpc::JSONRPC_CLIENT_V2);
 
     for (int i = 0; i < 4; i++) {
-
 
         result = c2.generateECDSAKey();
 
@@ -286,5 +270,4 @@ TEST_CASE_METHOD(StartFromScratch, "Test sgx server connection", "[sgx]") {
     basicRun();
     SUCCEED();
 
-   //c.SignCertificate("hahaha");
 }

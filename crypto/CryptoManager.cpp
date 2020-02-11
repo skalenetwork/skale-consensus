@@ -30,13 +30,13 @@
 #include "openssl/err.h"
 #include "openssl/ec.h"
 
+#include "stubclient.h"
 
 #include "SkaleCommon.h"
 #include "Log.h"
 #include "thirdparty/json.hpp"
 #include "messages/NetworkMessage.h"
 #include "chains/Schain.h"
-#include "exceptions/NetworkProtocolException.h"
 #include "SHAHash.h"
 #include "ConsensusBLSSigShare.h"
 #include "ConsensusBLSSignature.h"
@@ -50,7 +50,6 @@
 #include "datastructures/BlockProposal.h"
 #include "bls/BLSPrivateKeyShare.h"
 
-
 #include "CryptoManager.h"
 
 
@@ -63,11 +62,16 @@ CryptoManager::CryptoManager(Schain &_sChain) : sChain(&_sChain) {
     if (sgxIP->length() == 0)
         sgxIP = nullptr;
     else {
+        sgxEnabled = true;
         sgxSSLKeyFileFullPath = _sChain.getNode()->getParamString("sgxKeyFileFullPath", empty);
         sgxSSLCertFileFullPath = _sChain.getNode()->getParamString("sgxCertFileFullPath", empty);
 
         ASSERT(sgxSSLKeyFileFullPath->length() > 0);
         ASSERT(sgxSSLCertFileFullPath->length() > 0);
+
+        jsonrpc::HttpClient::setKeyFileFullPath("/tmp/key");
+        jsonrpc::HttpClient::setCertFileFullPath("/tmp/cert");
+        jsonrpc::HttpClient::setSslClientPort(SGX_SSL_PORT);
 
     }
 

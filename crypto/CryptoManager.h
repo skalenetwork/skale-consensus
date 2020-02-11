@@ -47,6 +47,8 @@ private:
     uint64_t  totalSigners;
     uint64_t  requiredSigners;
 
+    bool sgxEnabled = false;
+
     ptr<string> sgxIP;
     ptr<string> sgxSSLKeyFileFullPath;
     ptr<string> sgxSSLCertFileFullPath;

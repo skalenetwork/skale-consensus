@@ -108,7 +108,6 @@ class Node {
 
     bool startedClients;
 
-
     std::atomic_bool exitRequested;
 
     ptr<Log> log = nullptr;
