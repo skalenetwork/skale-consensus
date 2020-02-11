@@ -209,12 +209,6 @@ TEST_CASE_METHOD(StartFromScratch, "Issue different proposals to different nodes
 
 TEST_CASE_METHOD(StartFromScratch, "Test sgx server connection", "[sgx]") {
 
-    jsonrpc::HttpClient::setKeyFileFullPath("/tmp/key");
-    jsonrpc::HttpClient::setCertFileFullPath("/tmp/cert");
-    jsonrpc::HttpClient::setSslClientPort(1026);
-
-    jsonrpc::HttpClient client("http://localhost:1027");
-    StubClient c(client, jsonrpc::JSONRPC_CLIENT_V2);
 
     const std::string VALID_CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
@@ -236,6 +230,11 @@ TEST_CASE_METHOD(StartFromScratch, "Test sgx server connection", "[sgx]") {
         csr.append(str);
         csr.append("\n");
     }
+
+
+    jsonrpc::HttpClient client("http://localhost:1027");
+    StubClient c(client, jsonrpc::JSONRPC_CLIENT_V2);
+
     auto result = c.SignCertificate(csr);
     int64_t status = result["status"].asInt64();
     REQUIRE(status == 0);
@@ -247,6 +246,14 @@ TEST_CASE_METHOD(StartFromScratch, "Test sgx server connection", "[sgx]") {
     ofstream outFile;
     outFile.open("/tmp/cert");
     outFile << signedCert;
+
+
+    jsonrpc::HttpClient::setKeyFileFullPath("/tmp/key");
+    jsonrpc::HttpClient::setCertFileFullPath("/tmp/cert");
+    jsonrpc::HttpClient::setSslClientPort(SGX_SSL_PORT);
+
+    setenv("sgxKeyFileFullPath", "/tmp/key", 1);
+    setenv("certFileFullPath", "/tmp/key", 1);
 
 
     jsonrpc::HttpClient client2("https://localhost:1026");
@@ -275,6 +282,9 @@ TEST_CASE_METHOD(StartFromScratch, "Test sgx server connection", "[sgx]") {
         publicKeys.push_back(publicKey);
 
     }
+
+    basicRun();
+    SUCCEED();
 
    //c.SignCertificate("hahaha");
 }

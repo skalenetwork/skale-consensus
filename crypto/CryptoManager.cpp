@@ -54,17 +54,25 @@
 #include "CryptoManager.h"
 
 
-void CryptoManager::init() {
-    totalSigners = sChain->getTotalSigners();
-    requiredSigners = sChain->getRequiredSigners();
-
-}
-
 
 CryptoManager::CryptoManager(Schain &_sChain) : sChain(&_sChain) {
     CHECK_ARGUMENT(sChain != nullptr);
-    init();
+    static string empty = "";
+    sgxIP = _sChain.getNode()->getParamString("sgxIP", empty);
 
+    if (sgxIP->length() == 0)
+        sgxIP = nullptr;
+    else {
+        sgxSSLKeyFileFullPath = _sChain.getNode()->getParamString("sgxKeyFileFullPath", empty);
+        sgxSSLCertFileFullPath = _sChain.getNode()->getParamString("sgxCertFileFullPath", empty);
+
+        ASSERT(sgxSSLKeyFileFullPath->length() > 0);
+        ASSERT(sgxSSLCertFileFullPath->length() > 0);
+
+    }
+
+    totalSigners = sChain->getTotalSigners();
+    requiredSigners = sChain->getRequiredSigners();
 }
 
 Schain *CryptoManager::getSchain() const {

@@ -47,8 +47,11 @@ private:
     uint64_t  totalSigners;
     uint64_t  requiredSigners;
 
-    Schain* sChain;
+    ptr<string> sgxIP;
+    ptr<string> sgxSSLKeyFileFullPath;
+    ptr<string> sgxSSLCertFileFullPath;
 
+    Schain* sChain;
 
     ptr<string> signECDSA(ptr<SHAHash> _hash);
 
@@ -58,7 +61,6 @@ private:
 
     //EC_KEY* ecdsaKey;
 
-    void init();
 
 public:
 
@@ -82,7 +84,6 @@ public:
     ptr<ThresholdSigShare> signBinaryConsensusSigShare(ptr<SHAHash> _hash, block_id _blockId);
 
     ptr<ThresholdSigShare> signBlockSigShare(ptr<SHAHash> _hash, block_id _blockId);
-
 
     ptr<string> signNetworkMsg(NetworkMessage& _msg);
 

@@ -24,13 +24,11 @@
 #pragma once
 
 
-
 enum MsgType {CHILD_COMPLETED, PARENT_COMPLETED,
 
     MSG_BVB_BROADCAST, MSG_AUX_BROADCAST, BIN_CONSENSUS_COMMIT, BIN_CONSENSUS_HISTORY_DECIDE,
     BIN_CONSENSUS_HISTORY_CC, BIN_CONSENSUS_HISTORY_BVSELF, BIN_CONSENSUS_HISTORY_AUXSELF, BIN_CONSENSUS_HISTORY_NEW_ROUND,
     MSG_BLOCK_CONSENSUS_INIT, MSG_CONSENSUS_PROPOSAL, MSG_BLOCK_SIGN_BROADCAST };
-
 
 class ProtocolInstance;
 class ProtocolKey;
@@ -67,7 +65,6 @@ public:
 
     schain_id getSchainID() const;
 
-
     ptr<ProtocolKey> createDestinationProtocolKey();
 
     const block_id &getBlockID() const;
@@ -77,7 +74,6 @@ public:
     const msg_id &getMsgID() const;
 
     virtual ~Message();
-
 
     static int64_t getTotalObjects() {
         return totalObjects;
