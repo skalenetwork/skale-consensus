@@ -179,8 +179,6 @@ bool CryptoManager::verifyNetworkMsg(NetworkMessage& _msg) {
     return true;
 }
 
-
-
 bool CryptoManager::verifyProposalECDSA(ptr<BlockProposal> _proposal, ptr<string> _hashStr, ptr<string> _signature) {
     CHECK_ARGUMENT(_proposal != nullptr);
     CHECK_ARGUMENT(_hashStr != nullptr)
