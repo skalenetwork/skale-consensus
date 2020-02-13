@@ -88,6 +88,8 @@ CryptoManager::CryptoManager(Schain &_sChain) : sChain(&_sChain) {
         jsonrpc::HttpClient::setCertFileFullPath("/tmp/cert");
         jsonrpc::HttpClient::setSslClientPort(SGX_SSL_PORT);
 
+        jsonrpc::HttpClient httpClient("https://" + *sgxIP + ":1026");
+        sgxClient = make_shared<StubClient>(httpClient, jsonrpc::JSONRPC_CLIENT_V2);
     }
 
     totalSigners = sChain->getTotalSigners();
@@ -99,7 +101,19 @@ Schain *CryptoManager::getSchain() const {
 }
 
 ptr<string> CryptoManager::signECDSA(ptr<SHAHash> _hash) {
-    return _hash->toHex();
+    if (sgxEnabled) {
+        auto result = sgxClient->ecdsaSignMessageHash(16, *sgxECDSAKeyName, *_hash->toHex());
+        auto status = result["status"].asInt64();
+        CHECK_STATE(status == 0);
+        string r = result["signature_r"].asString();
+        string s = result["signature_r"].asString();
+        string v = result["signature_v"].asString();
+
+        return make_shared<string>(r.substr(2) +":" +  s.substr(2) + ":" + v);
+
+    } else {
+        return _hash->toHex();
+    }
 }
 
 bool CryptoManager::verifyECDSA(ptr<SHAHash> _hash, ptr<string> _sig) {

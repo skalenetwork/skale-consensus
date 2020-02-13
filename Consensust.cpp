@@ -241,7 +241,7 @@ TEST_CASE_METHOD(StartFromScratch, "Test sgx server connection", "[sgx]") {
     setenv("sgxKeyFileFullPath", "/tmp/key", 1);
     setenv("certFileFullPath", "/tmp/key", 1);
 
-    jsonrpc::HttpClient client2("https://localhost:1026");
+    jsonrpc::HttpClient client2("https://localhost:" + to_string(SGX_SSL_PORT));
     StubClient c2(client2, jsonrpc::JSONRPC_CLIENT_V2);
 
     vector<string> keyNames;

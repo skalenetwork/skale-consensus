@@ -36,6 +36,7 @@ class ThresholdSigShareSet;
 class ThresholdSigShare;
 class BlockProposal;
 class ThresholdSignature;
+class StubClient;
 class CryptoManager {
 
 private:
@@ -54,6 +55,8 @@ private:
     ptr<string> sgxSSLCertFileFullPath;
     ptr<string> sgxECDSAKeyName;
     ptr<string> sgxECDSAPublicKey;
+
+    ptr<StubClient> sgxClient;
 
 
     Schain* sChain;
