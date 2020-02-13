@@ -633,6 +633,9 @@ void Schain::healthCheck() {
             exit(110);
         }
 
+
+        usleep(100000);
+
         for (int i = 1; i <= getNodeCount(); i++) {
             if (i != (getSchainIndex()) && !connections.count(i)) {
                 try {
@@ -646,7 +649,6 @@ void Schain::healthCheck() {
                 } catch (ExitRequestedException &) {
                     throw;
                 } catch (std::exception &e) {
-                    usleep(100000);
                 }
             }
         }
