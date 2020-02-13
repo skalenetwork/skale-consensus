@@ -102,7 +102,6 @@ ptr<string> CryptoManager::signECDSA(ptr<SHAHash> _hash) {
     return _hash->toHex();
 }
 
-
 bool CryptoManager::verifyECDSA(ptr<SHAHash> _hash, ptr<string> _sig) {
     CHECK_ARGUMENT(_hash != nullptr)
     CHECK_ARGUMENT(_sig != nullptr)

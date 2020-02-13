@@ -244,6 +244,9 @@ TEST_CASE_METHOD(StartFromScratch, "Test sgx server connection", "[sgx]") {
     jsonrpc::HttpClient client2("https://localhost:1026");
     StubClient c2(client2, jsonrpc::JSONRPC_CLIENT_V2);
 
+    vector<string> keyNames;
+    vector<string> publicKeys;
+
     for (int i = 1; i <= 4; i++) {
 
         result = c2.generateECDSAKey();
@@ -251,8 +254,7 @@ TEST_CASE_METHOD(StartFromScratch, "Test sgx server connection", "[sgx]") {
         status = result["status"].asInt64();
         REQUIRE(status == 0);
 
-        vector<string> keyNames;
-        vector<string> publicKeys;
+
 
         cerr << result << endl;
 
@@ -270,6 +272,11 @@ TEST_CASE_METHOD(StartFromScratch, "Test sgx server connection", "[sgx]") {
         keyNames.push_back(keyName);
         publicKeys.push_back(publicKey);
     }
+
+    result = c2.ecdsaSignMessageHash(16, keyNames[0], string("1"));
+    cerr << result << endl;
+    status = result["status"].asInt64();
+    REQUIRE(status == 0);
 
     // basicRun();
     SUCCEED();
