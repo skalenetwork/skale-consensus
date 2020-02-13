@@ -52,6 +52,9 @@ private:
     ptr<string> sgxIP;
     ptr<string> sgxSSLKeyFileFullPath;
     ptr<string> sgxSSLCertFileFullPath;
+    ptr<string> sgxECDSAKeyName;
+    ptr<string> sgxECDSAPublicKey;
+
 
     Schain* sChain;
 

@@ -244,7 +244,7 @@ TEST_CASE_METHOD(StartFromScratch, "Test sgx server connection", "[sgx]") {
     jsonrpc::HttpClient client2("https://localhost:1026");
     StubClient c2(client2, jsonrpc::JSONRPC_CLIENT_V2);
 
-    for (int i = 0; i < 4; i++) {
+    for (int i = 1; i <= 4; i++) {
 
         result = c2.generateECDSAKey();
 
@@ -262,12 +262,16 @@ TEST_CASE_METHOD(StartFromScratch, "Test sgx server connection", "[sgx]") {
         REQUIRE(publicKey.size() > 10);
         REQUIRE(keyName.find("NEK") !=  -1);
         cerr << keyName << endl;
+        cerr << publicKey << endl;
+
+        setenv(("sgxECDSAKeyName." + to_string(i)).data(), keyName.data(), 1);
+        setenv(("sgxECDSAPublicKey." + to_string(i)).data(), publicKey.data(), 1);
+
         keyNames.push_back(keyName);
         publicKeys.push_back(publicKey);
-
     }
 
-    basicRun();
+    // basicRun();
     SUCCEED();
 
 }

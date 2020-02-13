@@ -63,8 +63,23 @@ CryptoManager::CryptoManager(Schain &_sChain) : sChain(&_sChain) {
         sgxIP = nullptr;
     else {
         sgxEnabled = true;
-        sgxSSLKeyFileFullPath = _sChain.getNode()->getParamString("sgxKeyFileFullPath", empty);
-        sgxSSLCertFileFullPath = _sChain.getNode()->getParamString("sgxCertFileFullPath", empty);
+        auto node = _sChain.getNode();
+        sgxSSLKeyFileFullPath = node->getParamString("sgxKeyFileFullPath", empty);
+        sgxSSLCertFileFullPath = node->getParamString("sgxCertFileFullPath", empty);
+        sgxECDSAKeyName = node->getParamString("sgxECDSAKeyName", empty);
+        if (sgxECDSAKeyName->length() == 0) {
+            auto keyName = std::getenv("sgxECDSAKeyName." + _sChain.getSchainIndex());
+            ASSERT(keyName != nullptr);
+            sgxECDSAKeyName = make_shared<string>(keyName);
+        }
+
+        sgxECDSAPublicKey = node->getParamString("sgxECDSAPublicKey", empty);
+        if (sgxECDSAPublicKey->length() == 0) {
+            auto publicKey = std::getenv("sgxECDSAPublicKey." + _sChain.getSchainIndex());
+            ASSERT(publicKey != nullptr);
+            sgxECDSAPublicKey = make_shared<string>(publicKey);
+        }
+
 
         ASSERT(sgxSSLKeyFileFullPath->length() > 0);
         ASSERT(sgxSSLCertFileFullPath->length() > 0);
