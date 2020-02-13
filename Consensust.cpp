@@ -23,6 +23,13 @@
 
 #define CATCH_CONFIG_MAIN
 
+#include <cryptopp/eccrypto.h>
+#include <cryptopp/osrng.h>
+#include <cryptopp/sha.h>
+#include <cryptopp/oids.h>
+#include <cryptopp/hex.h>
+
+
 #include "thirdparty/catch.hpp"
 
 #include "SkaleCommon.h"
@@ -33,11 +40,14 @@
 #include "time.h"
 
 #include "stubclient.h"
+#include <network/Utils.h>
 #include "Consensust.h"
 
 #ifdef GOOGLE_PROFILE
 #include <gperftools/heap-profiler.h>
 #endif
+
+
 
 ConsensusEngine *engine;
 
@@ -273,10 +283,36 @@ TEST_CASE_METHOD(StartFromScratch, "Test sgx server connection", "[sgx]") {
         publicKeys.push_back(publicKey);
     }
 
-    result = c2.ecdsaSignMessageHash(16, keyNames[0], string("1"));
+    string msg = "1";
+
+    unsigned char digest[CryptoPP::SHA256::DIGESTSIZE];
+    CryptoPP::SHA256().CalculateDigest(digest, (unsigned char*) msg.data(), msg.length());
+    auto hexHash = Utils::carray2Hex(digest, SHA_HASH_LEN);
+
+
+    result = c2.ecdsaSignMessageHash(16, keyNames[0], *hexHash);
     cerr << result << endl;
     status = result["status"].asInt64();
-    REQUIRE(status == 0);
+    REQUIRE(status== 0);
+
+    using namespace CryptoPP;
+
+    HexDecoder decoder;
+    auto pb = publicKeys[0];
+    REQUIRE(decoder.Put((unsigned char*) pb.data(), pb.size()) == 0);
+    decoder.MessageEnd();
+    ECP::Point q;
+    size_t len = decoder.MaxRetrievable();
+    q.identity = false;
+    q.x.Decode(decoder, len/2);
+    q.y.Decode(decoder, len/2);
+
+    ECDSA<ECP, SHA256>::PublicKey publicKey;
+    publicKey.Initialize( ASN1::secp256r1(), q );
+
+    ECDSA<ECP, SHA256>::Verifier verifier;
+
+   verifier.VerifyMessage((unsigned char*)msg.data(), msg.length(), (const byte*)signature.data(), signature.size());
 
     // basicRun();
     SUCCEED();
