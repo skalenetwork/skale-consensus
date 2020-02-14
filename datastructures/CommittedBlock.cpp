@@ -53,7 +53,8 @@ ptr<CommittedBlock> CommittedBlock::makeObject(ptr<BlockProposal> _p, ptr<Thresh
     CHECK_ARGUMENT(_p != nullptr);
     CHECK_ARGUMENT(_thresholdSig != nullptr);
     return CommittedBlock::make(_p->getSchainID(), _p->getProposerNodeID(),
-                                _p->getBlockID(), _p->getProposerIndex(), _p->getTransactionList(), _p->getTimeStamp(),
+                                _p->getBlockID(), _p->getProposerIndex(), _p->getTransactionList(),
+                                _p->getStateRoot(), _p->getTimeStamp(),
                                 _p->getTimeStampMs(), _p->getSignature(), _thresholdSig->toString());
 
 
@@ -61,10 +62,11 @@ ptr<CommittedBlock> CommittedBlock::makeObject(ptr<BlockProposal> _p, ptr<Thresh
 
 ptr<CommittedBlock>
 CommittedBlock::make(const schain_id _sChainId, const node_id _proposerNodeId, const block_id _blockId,
-                     schain_index _proposerIndex, ptr<TransactionList> _transactions, uint64_t _timeStamp,
-                     uint64_t _timeStampMs, ptr<string> _signature, ptr<string> _thresholdSig) {
+                     schain_index _proposerIndex, ptr<TransactionList> _transactions,
+                     const u256& _stateRoot, uint64_t _timeStamp, uint64_t _timeStampMs,
+                     ptr<string> _signature, ptr<string> _thresholdSig) {
     return make_shared<CommittedBlock>(_sChainId, _proposerNodeId, _blockId, _proposerIndex, _transactions,
-                                       _timeStamp, _timeStampMs, _signature, _thresholdSig);
+                                       _stateRoot, _timeStamp, _timeStampMs, _signature, _thresholdSig);
 }
 
 
@@ -92,7 +94,8 @@ ptr<CommittedBlock> CommittedBlock::deserialize(ptr<vector<uint8_t> > _serialize
 
     auto block = CommittedBlock::make(blockHeader->getSchainID(), blockHeader->getProposerNodeId(),
                                       blockHeader->getBlockID(), blockHeader->getProposerIndex(),
-                                      list, blockHeader->getTimeStamp(), blockHeader->getTimeStampMs(),
+                                      list, blockHeader->getStateRoot(),
+                                      blockHeader->getTimeStamp(), blockHeader->getTimeStampMs(),
                                       blockHeader->getSignature(),
                                       blockHeader->getThresholdSig());
 
@@ -125,10 +128,11 @@ CommittedBlock::CommittedBlock(
         const block_id &blockId,
         const schain_index &proposerIndex,
         const ptr<TransactionList> &transactions,
+        const u256& stateRoot,
         uint64_t timeStamp,
         __uint32_t timeStampMs, ptr<string>
         _signature, ptr<string> _thresholdSig)
-        : BlockProposal(sChainId, proposerNodeId, blockId, proposerIndex, transactions, u256(), timeStamp,
+        : BlockProposal(sChainId, proposerNodeId, blockId, proposerIndex, transactions, stateRoot, timeStamp,
                         timeStampMs, _signature, nullptr) {
     CHECK_ARGUMENT(_signature != nullptr);
     CHECK_ARGUMENT(_thresholdSig != nullptr);
@@ -155,8 +159,9 @@ _size,
 
 
     return CommittedBlock::make(p->getSchainID(), p->getProposerNodeID(),
-                         p->getBlockID(), p->getProposerIndex(), p->getTransactionList(), p->getTimeStamp(),
-                         p->getTimeStampMs(), p->getSignature(), make_shared<string>("EMPTY"));
+                         p->getBlockID(), p->getProposerIndex(), p->getTransactionList(),
+                         p->getStateRoot(), p->getTimeStamp(), p->getTimeStampMs(),
+                         p->getSignature(), make_shared<string>("EMPTY"));
 }
 
 
