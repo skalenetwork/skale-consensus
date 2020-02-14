@@ -634,7 +634,7 @@ void Schain::healthCheck() {
         }
 
 
-        usleep(100000);
+        usleep(1000000);
 
         for (int i = 1; i <= getNodeCount(); i++) {
             if (i != (getSchainIndex()) && !connections.count(i)) {
