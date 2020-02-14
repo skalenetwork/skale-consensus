@@ -48,22 +48,13 @@ ptr<SHAHash> SHAHash::fromHex(ptr<string> _hex) {
 
     auto result = make_shared<array<uint8_t, SHA_HASH_LEN>>();
 
-    cArrayFromHex(*_hex, result->data(), SHA_HASH_LEN);
+    Utils::cArrayFromHex(*_hex, result->data(), SHA_HASH_LEN);
 
     return make_shared<SHAHash>(result);
 }
 
 
-void SHAHash::cArrayFromHex(string &_hex, uint8_t *_data, size_t len) {
-    if (_hex.size() / 2 != len) {
-        BOOST_THROW_EXCEPTION(InvalidArgumentException("Misformatted string:" + _hex, __CLASS_NAME__));
-    }
 
-    for (size_t i = 0; i < _hex.size() / 2; i++) {
-        _data[i] = Utils::char2int(_hex.at(2 * i)) * 16 + Utils::char2int(_hex.at(2 * i + 1));
-    }
-
-}
 
 
 ptr<string> SHAHash::toHex() {

@@ -99,7 +99,7 @@ CryptoManager::CryptoManager(Schain &_sChain) : sChain(&_sChain) {
     requiredSigners = sChain->getRequiredSigners();
 }
 
-void CryptoManager::setSGXKeyAndCert(string &_keyFullPath, string &_certFullPath) const {
+void CryptoManager::setSGXKeyAndCert(string &_keyFullPath, string &_certFullPath) {
     jsonrpc::HttpClient::setKeyFileFullPath(_keyFullPath);
     jsonrpc::HttpClient::setCertFileFullPath(_certFullPath);
     jsonrpc::HttpClient::setSslClientPort(SGX_SSL_PORT);
@@ -109,17 +109,25 @@ Schain *CryptoManager::getSchain() const {
     return sChain;
 }
 
+
+ptr<string> CryptoManager::sgxSignECDSA(ptr<SHAHash> _hash, string& _keyName,  ptr<StubClient> _sgxClient) {
+    CHECK_ARGUMENT(_sgxClient);
+    auto result = _sgxClient->ecdsaSignMessageHash(16, _keyName, *_hash->toHex());
+    auto status = result["status"].asInt64();
+    CHECK_STATE(status == 0);
+    string r = result["signature_r"].asString();
+    string s = result["signature_r"].asString();
+    string v = result["signature_v"].asString();
+
+    //return make_shared<string>(r.substr(2) + ":" + s.substr(2) + ":" + v);
+    return make_shared<string>(r.substr(2) + s.substr(2));
+
+}
+
 ptr<string> CryptoManager::signECDSA(ptr<SHAHash> _hash) {
+    CHECK_ARGUMENT(_hash);
     if (sgxEnabled) {
-        auto result = sgxClient->ecdsaSignMessageHash(16, *sgxECDSAKeyName, *_hash->toHex());
-        auto status = result["status"].asInt64();
-        CHECK_STATE(status == 0);
-        string r = result["signature_r"].asString();
-        string s = result["signature_r"].asString();
-        string v = result["signature_v"].asString();
-
-        return make_shared<string>(r.substr(2) + ":" + s.substr(2) + ":" + v);
-
+        return sgxSignECDSA(_hash, *sgxECDSAKeyName, sgxClient);
     } else {
         return _hash->toHex();
     }
@@ -298,7 +306,7 @@ pair<ptr<string>, ptr<string>> CryptoManager::generateSGXECDSAKey(ptr<StubClient
 
     CHECK_STATE(keyName->size() > 10);
     CHECK_STATE(publicKey->size() > 10);
-    CHECK_STATE(keyName->find("NEK") != -1);
+    CHECK_STATE(keyName->find("NEK") != string::npos);
     cerr << *keyName << endl;
     cerr << *publicKey << endl;
 

@@ -224,8 +224,8 @@ TEST_CASE_METHOD(StartFromScratch, "Test sgx server connection", "[sgx]") {
     setenv("sgxKeyFileFullPath", keyFilePath.data(), 1);
     setenv("certFileFullPath", certFilePath.data(), 1);
 
-    jsonrpc::HttpClient client2("https://localhost:" + to_string(SGX_SSL_PORT));
-    auto c2  = make_shared<StubClient>(client2, jsonrpc::JSONRPC_CLIENT_V2);
+    jsonrpc::HttpClient client("https://localhost:" + to_string(SGX_SSL_PORT));
+    auto c  = make_shared<StubClient>(client, jsonrpc::JSONRPC_CLIENT_V2);
 
     vector<ptr<string>> keyNames;
     vector<ptr<string>> publicKeys;
@@ -233,8 +233,7 @@ TEST_CASE_METHOD(StartFromScratch, "Test sgx server connection", "[sgx]") {
     using namespace CryptoPP;
 
     for (int i = 1; i <= 4; i++) {
-
-        auto res = CryptoManager::generateSGXECDSAKey(c2);
+        auto res = CryptoManager::generateSGXECDSAKey(c);
         auto keyName = res.first;
         auto publicKey = res.second;
 
@@ -247,20 +246,16 @@ TEST_CASE_METHOD(StartFromScratch, "Test sgx server connection", "[sgx]") {
 
     auto msg = make_shared<vector<uint8_t>>();
     msg->push_back('1');
-
     auto hash = SHAHash::calculateHash(msg);
-    auto hexHash = hash->toHex();
-
-    auto result = c2->ecdsaSignMessageHash(16, *keyNames[0], *hexHash);
-    cerr << result << endl;
-    auto status = result["status"].asInt64();
-    REQUIRE(status== 0);
+    auto sig = CryptoManager::sgxSignECDSA(hash,*keyNames[0],  c) ;
+    //auto rawSig = Utils::carray2Hex(sig)
+    cerr << sig << endl;
 
     auto key = CryptoManager::decodeSGXPublicKey(publicKeys[0]);
 
     CryptoPP::ECDSA<CryptoPP::ECP, CryptoPP::SHA256>::Verifier verifier;
 
-//    verifier.VerifyMessage((unsigned char*)msg.data(), msg.length(), (const byte*)signature.data(), signature.size());
+    //verifier.VerifyMessage((unsigned char*)msg->data(), msg->length(), (const byte*)signature.data(), signature.size());
 
     // basicRun();
     SUCCEED();

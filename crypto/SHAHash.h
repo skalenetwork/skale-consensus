@@ -48,10 +48,7 @@ public:
 
     ptr<array<uint8_t ,SHA_HASH_LEN>> getHash() const;
 
-
     static ptr<SHAHash> fromHex(ptr<string> _hex);
-
-    static void cArrayFromHex(string& _str, uint8_t* data, size_t len);
 
     ptr< string > toHex();
 
