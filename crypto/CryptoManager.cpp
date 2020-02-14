@@ -30,6 +30,12 @@
 #include "openssl/err.h"
 #include "openssl/ec.h"
 
+#include <cryptopp/eccrypto.h>
+#include <cryptopp/osrng.h>
+#include <cryptopp/sha.h>
+#include <cryptopp/oids.h>
+#include <cryptopp/hex.h>
+
 #include "stubclient.h"
 
 #include "SkaleCommon.h"
@@ -51,7 +57,6 @@
 #include "bls/BLSPrivateKeyShare.h"
 
 #include "CryptoManager.h"
-
 
 
 CryptoManager::CryptoManager(Schain &_sChain) : sChain(&_sChain) {
@@ -109,7 +114,7 @@ ptr<string> CryptoManager::signECDSA(ptr<SHAHash> _hash) {
         string s = result["signature_r"].asString();
         string v = result["signature_v"].asString();
 
-        return make_shared<string>(r.substr(2) +":" +  s.substr(2) + ":" + v);
+        return make_shared<string>(r.substr(2) + ":" + s.substr(2) + ":" + v);
 
     } else {
         return _hash->toHex();
@@ -135,6 +140,7 @@ ptr<ThresholdSigShare> CryptoManager::signBinaryConsensusSigShare(ptr<SHAHash> _
 ptr<ThresholdSigShare> CryptoManager::signBlockSigShare(ptr<SHAHash> _hash, block_id _blockId) {
     return signSigShare(_hash, _blockId);
 }
+
 ptr<ThresholdSigShare> CryptoManager::signSigShare(ptr<SHAHash> _hash, block_id _blockId) {
 
 
@@ -182,20 +188,20 @@ CryptoManager::createSigShare(ptr<string> _sigShare, schain_id _schainID, block_
     }
 }
 
-void CryptoManager::signProposalECDSA(BlockProposal* _proposal) {
+void CryptoManager::signProposalECDSA(BlockProposal *_proposal) {
     CHECK_ARGUMENT(_proposal != nullptr);
     auto signature = signECDSA(_proposal->getHash());
-    CHECK_STATE( signature != nullptr);
+    CHECK_STATE(signature != nullptr);
     _proposal->addSignature(signature);
 }
 
-ptr<string> CryptoManager::signNetworkMsg(NetworkMessage& _msg) {
+ptr<string> CryptoManager::signNetworkMsg(NetworkMessage &_msg) {
     auto signature = signECDSA(_msg.getHash());
-    CHECK_STATE( signature != nullptr);
+    CHECK_STATE(signature != nullptr);
     return signature;
 }
 
-bool CryptoManager::verifyNetworkMsg(NetworkMessage& _msg) {
+bool CryptoManager::verifyNetworkMsg(NetworkMessage &_msg) {
     auto sig = _msg.getECDSASig();
     auto hash = _msg.getHash();
 
@@ -214,7 +220,6 @@ bool CryptoManager::verifyProposalECDSA(ptr<BlockProposal> _proposal, ptr<string
     auto hash = _proposal->getHash();
 
 
-
     if (*hash->toHex() != *_hashStr) {
         LOG(warn, "Incorrect proposal hash");
         return false;
@@ -227,7 +232,8 @@ bool CryptoManager::verifyProposalECDSA(ptr<BlockProposal> _proposal, ptr<string
     return true;
 }
 
-ptr<ThresholdSignature> CryptoManager::verifyThresholdSig(ptr<SHAHash> _hash, ptr<string> _signature, block_id _blockId) {
+ptr<ThresholdSignature>
+CryptoManager::verifyThresholdSig(ptr<SHAHash> _hash, ptr<string> _signature, block_id _blockId) {
     MONITOR(__CLASS_NAME__, __FUNCTION__)
 
 
@@ -238,15 +244,14 @@ ptr<ThresholdSignature> CryptoManager::verifyThresholdSig(ptr<SHAHash> _hash, pt
         memcpy(hash->data(), _hash->data(), 32);
 
 
-
-        auto sig = make_shared<ConsensusBLSSignature>(_signature , _blockId, requiredSigners, totalSigners);
+        auto sig = make_shared<ConsensusBLSSignature>(_signature, _blockId, requiredSigners, totalSigners);
 
         if (!sChain->getNode()->getBlsPublicKey()->VerifySig(hash,
-                sig->getBlsSig(), requiredSigners, totalSigners)) {
+                                                             sig->getBlsSig(), requiredSigners, totalSigners)) {
             BOOST_THROW_EXCEPTION(InvalidArgumentException("BLS Signature did not verify",
-                    __CLASS_NAME__));
+                                                           __CLASS_NAME__));
         }
-        return  sig;
+        return sig;
     } else {
 
         auto sig = make_shared<MockupSignature>(_signature, _blockId, requiredSigners, totalSigners);
@@ -255,12 +260,43 @@ ptr<ThresholdSignature> CryptoManager::verifyThresholdSig(ptr<SHAHash> _hash, pt
             BOOST_THROW_EXCEPTION(InvalidArgumentException("Mockup threshold signature did not verify",
                                                            __CLASS_NAME__));
         }
-        return  sig;
+        return sig;
     }
 }
 
+using namespace CryptoPP;
 
+ptr<void> CryptoManager::decodeSGXPublicKey(ptr<string> _keyHex) {
 
+    HexDecoder decoder;
+    CHECK_STATE(decoder.Put((unsigned char *) _keyHex->data(), _keyHex->size()) == 0);
+    decoder.MessageEnd();
+    CryptoPP::ECP::Point q;
+    size_t len = decoder.MaxRetrievable();
+    q.identity = false;
+    q.x.Decode(decoder, len / 2);
+    q.y.Decode(decoder, len / 2);
 
+    auto publicKey = make_shared<ECDSA<CryptoPP::ECP, CryptoPP::SHA256>::PublicKey>();
+    publicKey->Initialize(ASN1::secp256r1(), q);
+    return publicKey;
+}
 
+pair<ptr<string>, ptr<string>> CryptoManager::generateSGXECDSAKey(ptr<StubClient> _c) {
 
+    auto result = _c->generateECDSAKey();
+
+    auto status = result["status"].asInt64();
+    CHECK_STATE(status == 0);
+    cerr << result << endl;
+    auto keyName = make_shared<string>(result["keyName"].asString());
+    auto publicKey = make_shared<string>(result["publicKey"].asString());
+
+    CHECK_STATE(keyName->size() > 10);
+    CHECK_STATE(publicKey->size() > 10);
+    CHECK_STATE(keyName->find("NEK") != -1);
+    cerr << *keyName << endl;
+    cerr << *publicKey << endl;
+
+    return {keyName, publicKey};
+}

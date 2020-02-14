@@ -29,6 +29,7 @@
 #include "openssl/ec.h"
 #include "messages/NetworkMessage.h"
 
+
 class Schain;
 class SHAHash;
 class ConsensusBLSSigShare;
@@ -37,6 +38,12 @@ class ThresholdSigShare;
 class BlockProposal;
 class ThresholdSignature;
 class StubClient;
+class ECP;
+
+namespace CryptoPP {
+    class ECP;
+    template <class EC, class H> struct ECDSA;
+}
 class CryptoManager {
 
 private:
@@ -96,6 +103,9 @@ public:
     ptr<string> signNetworkMsg(NetworkMessage& _msg);
 
     bool verifyNetworkMsg(NetworkMessage &_msg);
+
+    static ptr<void> decodeSGXPublicKey(ptr<string> _keyHex);
+    static pair<ptr<string>, ptr<string>> generateSGXECDSAKey(ptr<StubClient> _c);
 };
 
 

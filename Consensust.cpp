@@ -35,9 +35,11 @@
 #include "SkaleCommon.h"
 #include "Log.h"
 #include "node/ConsensusEngine.h"
+#include "crypto/CryptoManager.h"
 
 #include "iostream"
 #include "time.h"
+#include "crypto/SHAHash.h"
 
 #include "stubclient.h"
 #include <network/Utils.h>
@@ -235,8 +237,8 @@ TEST_CASE_METHOD(StartFromScratch, "Test sgx server connection", "[sgx]") {
     auto result = c.SignCertificate(csr);
     int64_t status = result["status"].asInt64();
     REQUIRE(status == 0);
-    string hash = result["hash"].asString();
-    result = c.GetCertificate(hash);
+    string certHash = result["hash"].asString();
+    result = c.GetCertificate(certHash);
     status = result["status"].asInt64();
     REQUIRE(status == 0);
     string signedCert = result["cert"].asString();
@@ -252,67 +254,42 @@ TEST_CASE_METHOD(StartFromScratch, "Test sgx server connection", "[sgx]") {
     setenv("certFileFullPath", "/tmp/key", 1);
 
     jsonrpc::HttpClient client2("https://localhost:" + to_string(SGX_SSL_PORT));
-    StubClient c2(client2, jsonrpc::JSONRPC_CLIENT_V2);
+    auto c2  = make_shared<StubClient>(client2, jsonrpc::JSONRPC_CLIENT_V2);
 
-    vector<string> keyNames;
-    vector<string> publicKeys;
+    vector<ptr<string>> keyNames;
+    vector<ptr<string>> publicKeys;
+
+    using namespace CryptoPP;
 
     for (int i = 1; i <= 4; i++) {
 
-        result = c2.generateECDSAKey();
+        auto res = CryptoManager::generateSGXECDSAKey(c2);
+        auto keyName = res.first;
+        auto publicKey = res.second;
 
-        status = result["status"].asInt64();
-        REQUIRE(status == 0);
-
-
-
-        cerr << result << endl;
-
-        string keyName = result["keyName"].asString();
-        string publicKey = result["publicKey"].asString();
-        REQUIRE(keyName.size() > 10);
-        REQUIRE(publicKey.size() > 10);
-        REQUIRE(keyName.find("NEK") !=  -1);
-        cerr << keyName << endl;
-        cerr << publicKey << endl;
-
-        setenv(("sgxECDSAKeyName." + to_string(i)).data(), keyName.data(), 1);
-        setenv(("sgxECDSAPublicKey." + to_string(i)).data(), publicKey.data(), 1);
+        setenv(("sgxECDSAKeyName." + to_string(i)).data(), keyName->data(), 1);
+        setenv(("sgxECDSAPublicKey." + to_string(i)).data(), publicKey->data(), 1);
 
         keyNames.push_back(keyName);
         publicKeys.push_back(publicKey);
     }
 
-    string msg = "1";
+    auto msg = make_shared<vector<uint8_t>>();
+    msg->push_back('1');
 
-    unsigned char digest[CryptoPP::SHA256::DIGESTSIZE];
-    CryptoPP::SHA256().CalculateDigest(digest, (unsigned char*) msg.data(), msg.length());
-    auto hexHash = Utils::carray2Hex(digest, SHA_HASH_LEN);
+    auto hash = SHAHash::calculateHash(msg);
+    auto hexHash = hash->toHex();
 
-
-    result = c2.ecdsaSignMessageHash(16, keyNames[0], *hexHash);
+    result = c2->ecdsaSignMessageHash(16, *keyNames[0], *hexHash);
     cerr << result << endl;
     status = result["status"].asInt64();
     REQUIRE(status== 0);
 
-    using namespace CryptoPP;
+    auto key = CryptoManager::decodeSGXPublicKey(publicKeys[0]);
 
-    HexDecoder decoder;
-    auto pb = publicKeys[0];
-    REQUIRE(decoder.Put((unsigned char*) pb.data(), pb.size()) == 0);
-    decoder.MessageEnd();
-    ECP::Point q;
-    size_t len = decoder.MaxRetrievable();
-    q.identity = false;
-    q.x.Decode(decoder, len/2);
-    q.y.Decode(decoder, len/2);
+    CryptoPP::ECDSA<CryptoPP::ECP, CryptoPP::SHA256>::Verifier verifier;
 
-    ECDSA<ECP, SHA256>::PublicKey publicKey;
-    publicKey.Initialize( ASN1::secp256r1(), q );
-
-    ECDSA<ECP, SHA256>::Verifier verifier;
-
-   verifier.VerifyMessage((unsigned char*)msg.data(), msg.length(), (const byte*)signature.data(), signature.size());
+//    verifier.VerifyMessage((unsigned char*)msg.data(), msg.length(), (const byte*)signature.data(), signature.size());
 
     // basicRun();
     SUCCEED();

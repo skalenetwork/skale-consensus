@@ -105,7 +105,6 @@ ptr<SHAHash> SHAHash::calculateHash(ptr<vector<uint8_t>> _data) {
     hashObject.Update(_data->data(), _data->size());
     hashObject.Final(digest->data());
 
-
     auto hash = make_shared<SHAHash>(digest);
 
     return hash;
