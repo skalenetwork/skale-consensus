@@ -107,6 +107,7 @@ public:
     static ptr<void> decodeSGXPublicKey(ptr<string> _keyHex);
     static pair<ptr<string>, ptr<string>> generateSGXECDSAKey(ptr<StubClient> _c);
     static void generateSSLClientCertAndKey(string &_fullPathToDir);
+    static void setSGXKeyAndCert(string &_keyFullPath, string &_certFullPath);
 };
 
 

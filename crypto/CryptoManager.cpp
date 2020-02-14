@@ -89,9 +89,7 @@ CryptoManager::CryptoManager(Schain &_sChain) : sChain(&_sChain) {
         ASSERT(sgxSSLKeyFileFullPath->length() > 0);
         ASSERT(sgxSSLCertFileFullPath->length() > 0);
 
-        jsonrpc::HttpClient::setKeyFileFullPath("/tmp/key");
-        jsonrpc::HttpClient::setCertFileFullPath("/tmp/cert");
-        jsonrpc::HttpClient::setSslClientPort(SGX_SSL_PORT);
+        setSGXKeyAndCert(*sgxSSLKeyFileFullPath, *sgxSSLCertFileFullPath);
 
         jsonrpc::HttpClient httpClient("https://" + *sgxIP + ":1026");
         sgxClient = make_shared<StubClient>(httpClient, jsonrpc::JSONRPC_CLIENT_V2);
@@ -99,6 +97,12 @@ CryptoManager::CryptoManager(Schain &_sChain) : sChain(&_sChain) {
 
     totalSigners = sChain->getTotalSigners();
     requiredSigners = sChain->getRequiredSigners();
+}
+
+void CryptoManager::setSGXKeyAndCert(string &_keyFullPath, string &_certFullPath) const {
+    jsonrpc::HttpClient::setKeyFileFullPath(_keyFullPath);
+    jsonrpc::HttpClient::setCertFileFullPath(_certFullPath);
+    jsonrpc::HttpClient::setSslClientPort(SGX_SSL_PORT);
 }
 
 Schain *CryptoManager::getSchain() const {

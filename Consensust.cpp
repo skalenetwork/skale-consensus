@@ -219,9 +219,8 @@ TEST_CASE_METHOD(StartFromScratch, "Test sgx server connection", "[sgx]") {
     auto certFilePath = certDir + "/cert";
     auto keyFilePath = certDir + "/key";
 
-    jsonrpc::HttpClient::setKeyFileFullPath(keyFilePath);
-    jsonrpc::HttpClient::setCertFileFullPath(certFilePath);
-    jsonrpc::HttpClient::setSslClientPort(SGX_SSL_PORT);
+    CryptoManager::setSGXKeyAndCert(keyFilePath, certFilePath);
+
     setenv("sgxKeyFileFullPath", keyFilePath.data(), 1);
     setenv("certFileFullPath", certFilePath.data(), 1);
 
