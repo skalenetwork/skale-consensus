@@ -300,3 +300,42 @@ pair<ptr<string>, ptr<string>> CryptoManager::generateSGXECDSAKey(ptr<StubClient
 
     return {keyName, publicKey};
 }
+
+
+void CryptoManager::generateSSLClientCertAndKey(string &_fullPathToDir) {
+
+    const std::string VALID_CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+
+    std::random_device random_device;
+    std::mt19937 generator(random_device());
+    std::uniform_int_distribution<int> distribution(0, VALID_CHARS.size() - 1);
+    std::string random_string;
+    std::generate_n(std::back_inserter(random_string), 10, [&]() {
+        return VALID_CHARS[distribution(generator)];
+    });
+    system(("/usr/bin/openssl req -new -sha256 -nodes -out " + _fullPathToDir + "/csr  -newkey rsa:2048 -keyout "
+    + _fullPathToDir+ "/key -subj /CN=" + random_string).data());
+    string str, csr;
+    ifstream file;
+    file.open(_fullPathToDir + "/csr");
+    while (getline(file, str)) {
+        csr.append(str);
+        csr.append("\n");
+    }
+
+    jsonrpc::HttpClient client("http://localhost:1027");
+    StubClient c(client, jsonrpc::JSONRPC_CLIENT_V2);
+
+    auto result = c.SignCertificate(csr);
+    int64_t status = result["status"].asInt64();
+    CHECK_STATE(status == 0);
+    string certHash = result["hash"].asString();
+    result = c.GetCertificate(certHash);
+    status = result["status"].asInt64();
+    CHECK_STATE(status == 0);
+    string signedCert = result["cert"].asString();
+    ofstream outFile;
+    outFile.open(_fullPathToDir + "/cert");
+    outFile << signedCert;
+
+}

@@ -208,56 +208,22 @@ TEST_CASE_METHOD(StartFromScratch, "Issue different proposals to different nodes
 }
 
 
-void generateSSLClientCertAndKey()  {
-
-    const std::string VALID_CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-
-    std::random_device random_device;
-    std::mt19937 generator(random_device());
-    std::uniform_int_distribution<int> distribution(0, VALID_CHARS.size() - 1);
-    std::string random_string;
-    std::generate_n(std::back_inserter(random_string), 10, [&]() {
-        return VALID_CHARS[distribution(generator)];
-    });
-    system("bash -c rm -f /tmp/csr /tmp/key /tmp/cert");
-    system(("/usr/bin/openssl req -new -sha256 -nodes -out /tmp/csr  -newkey rsa:2048 -keyout /tmp/key -subj /CN="
-            + random_string).data());
-    string str, csr;
-    ifstream file;
-    file.open("/tmp/csr");
-    while (getline(file, str)) {
-        csr.append(str);
-        csr.append("\n");
-    }
-
-    jsonrpc::HttpClient client("http://localhost:1027");
-    StubClient c(client, jsonrpc::JSONRPC_CLIENT_V2);
-
-    auto result = c.SignCertificate(csr);
-    int64_t status = result["status"].asInt64();
-    REQUIRE(status == 0);
-    string certHash = result["hash"].asString();
-    result = c.GetCertificate(certHash);
-    status = result["status"].asInt64();
-    REQUIRE(status == 0);
-    string signedCert = result["cert"].asString();
-    ofstream outFile;
-    outFile.open("/tmp/cert");
-    outFile << signedCert;
-
-}
 
 
 TEST_CASE_METHOD(StartFromScratch, "Test sgx server connection", "[sgx]") {
 
-    generateSSLClientCertAndKey();
+    string certDir("/tmp");
 
-    jsonrpc::HttpClient::setKeyFileFullPath("/tmp/key");
-    jsonrpc::HttpClient::setCertFileFullPath("/tmp/cert");
+    CryptoManager::generateSSLClientCertAndKey(certDir);
+
+    auto certFilePath = certDir + "/cert";
+    auto keyFilePath = certDir + "/key";
+
+    jsonrpc::HttpClient::setKeyFileFullPath(keyFilePath);
+    jsonrpc::HttpClient::setCertFileFullPath(certFilePath);
     jsonrpc::HttpClient::setSslClientPort(SGX_SSL_PORT);
-
-    setenv("sgxKeyFileFullPath", "/tmp/key", 1);
-    setenv("certFileFullPath", "/tmp/key", 1);
+    setenv("sgxKeyFileFullPath", keyFilePath.data(), 1);
+    setenv("certFileFullPath", certFilePath.data(), 1);
 
     jsonrpc::HttpClient client2("https://localhost:" + to_string(SGX_SSL_PORT));
     auto c2  = make_shared<StubClient>(client2, jsonrpc::JSONRPC_CLIENT_V2);
