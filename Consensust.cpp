@@ -207,22 +207,21 @@ TEST_CASE_METHOD(StartFromScratch, "Issue different proposals to different nodes
     SUCCEED();
 }
 
-TEST_CASE_METHOD(StartFromScratch, "Test sgx server connection", "[sgx]") {
 
+void generateSSLClientCertAndKey()  {
 
     const std::string VALID_CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
     std::random_device random_device;
     std::mt19937 generator(random_device());
-    std::uniform_int_distribution<int> distribution(0,VALID_CHARS.size() - 1);
+    std::uniform_int_distribution<int> distribution(0, VALID_CHARS.size() - 1);
     std::string random_string;
-    std::generate_n(std::back_inserter(random_string), 10, [&]()
-    {
+    std::generate_n(std::back_inserter(random_string), 10, [&]() {
         return VALID_CHARS[distribution(generator)];
     });
     system("bash -c rm -f /tmp/csr /tmp/key /tmp/cert");
     system(("/usr/bin/openssl req -new -sha256 -nodes -out /tmp/csr  -newkey rsa:2048 -keyout /tmp/key -subj /CN="
-      + random_string).data());
+            + random_string).data());
     string str, csr;
     ifstream file;
     file.open("/tmp/csr");
@@ -245,6 +244,13 @@ TEST_CASE_METHOD(StartFromScratch, "Test sgx server connection", "[sgx]") {
     ofstream outFile;
     outFile.open("/tmp/cert");
     outFile << signedCert;
+
+}
+
+
+TEST_CASE_METHOD(StartFromScratch, "Test sgx server connection", "[sgx]") {
+
+    generateSSLClientCertAndKey();
 
     jsonrpc::HttpClient::setKeyFileFullPath("/tmp/key");
     jsonrpc::HttpClient::setCertFileFullPath("/tmp/cert");
@@ -280,9 +286,9 @@ TEST_CASE_METHOD(StartFromScratch, "Test sgx server connection", "[sgx]") {
     auto hash = SHAHash::calculateHash(msg);
     auto hexHash = hash->toHex();
 
-    result = c2->ecdsaSignMessageHash(16, *keyNames[0], *hexHash);
+    auto result = c2->ecdsaSignMessageHash(16, *keyNames[0], *hexHash);
     cerr << result << endl;
-    status = result["status"].asInt64();
+    auto status = result["status"].asInt64();
     REQUIRE(status== 0);
 
     auto key = CryptoManager::decodeSGXPublicKey(publicKeys[0]);
