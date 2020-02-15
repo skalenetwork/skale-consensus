@@ -55,15 +55,17 @@ public:
 
 
     CommittedBlock(const schain_id &sChainId, const node_id &proposerNodeId, const block_id &blockId,
-                   const schain_index &proposerIndex, const ptr<TransactionList> &transactions, uint64_t timeStamp,
+                   const schain_index &proposerIndex, const ptr<TransactionList> &transactions,
+                   const u256& stateRoot, uint64_t timeStamp,
                    __uint32_t timeStampMs, ptr<string> _signature, ptr<string> _thresholdSig);
 
     ptr<string> getThresholdSig() const;
 
     static ptr<CommittedBlock> makeObject(ptr<BlockProposal> _p, ptr<ThresholdSignature> _thresholdSig);
     static ptr<CommittedBlock> make(schain_id _sChainId, node_id _proposerNodeId, block_id _blockId,
-                                     schain_index _proposerIndex, ptr<TransactionList> _transactions, uint64_t _timeStamp,
-                                     uint64_t _timeStampMs, ptr<string> _signature, ptr<string> _thresholdSig);
+                                     schain_index _proposerIndex, ptr<TransactionList> _transactions,
+                                    const u256& _stateRoot, uint64_t _timeStamp, uint64_t _timeStampMs,
+                                    ptr<string> _signature, ptr<string> _thresholdSig);
 
 
 
