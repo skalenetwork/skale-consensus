@@ -63,11 +63,11 @@ ptr<BlockProposal> PendingTransactionsAgent::buildBlockProposal(block_id _blockI
     auto result  = createTransactionsListForProposal();
     auto transactions = result.first;
     auto stateRoot = result.second;
+    CHECK_STATE(stateRoot != 0)
 
     while (Time::getCurrentTimeMs() <= _previousBlockTimeStamp * 1000 + _previousBlockTimeStampMs) {
         usleep(10);
     }
-
 
     auto transactionList = make_shared<TransactionList>(transactions);
 
@@ -93,6 +93,7 @@ pair<ptr<vector<ptr<Transaction>>>, u256> PendingTransactionsAgent::createTransa
     boost::posix_time::ptime t1 = boost::posix_time::microsec_clock::local_time();
 
     u256 stateRoot = 0;
+    static u256 stateRootSample = 1;
 
     while(tx_vec.empty()){
 
@@ -106,6 +107,8 @@ pair<ptr<vector<ptr<Transaction>>>, u256> PendingTransactionsAgent::createTransa
         if (sChain->getExtFace()) {
             tx_vec = sChain->getExtFace()->pendingTransactions(need_max, stateRoot);
         } else {
+            stateRootSample++;
+            stateRoot = stateRootSample;
             tx_vec = sChain->getTestMessageGeneratorAgent()->pendingTransactions(need_max);
         }
     }
