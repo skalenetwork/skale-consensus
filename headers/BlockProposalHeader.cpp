@@ -115,6 +115,7 @@ BlockProposalHeader::BlockProposalHeader(nlohmann::json& _json) : Header(Header:
     signature = Header::getString(_json, "sig");
     auto srStr = Header::getString(_json, "sr");
     stateRoot = u256(*srStr);
+    CHECK_STATE(stateRoot != 0);
 
     Header::nullCheck(_json, "sizes" );
     nlohmann::json jsonTransactionSizes = _json["sizes"];

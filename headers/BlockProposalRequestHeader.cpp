@@ -53,6 +53,7 @@ BlockProposalRequestHeader::BlockProposalRequestHeader(nlohmann::json _proposalR
     txCount = Header::getUint64(_proposalRequest, "txCount");
     auto stateRootStr = Header::getString(_proposalRequest, "sr");
     stateRoot = u256(*stateRootStr);
+    CHECK_STATE(stateRoot != 0);
 }
 
 BlockProposalRequestHeader::BlockProposalRequestHeader(Schain &_sChain, ptr<BlockProposal> proposal) :
@@ -71,6 +72,7 @@ BlockProposalRequestHeader::BlockProposalRequestHeader(Schain &_sChain, ptr<Bloc
     this->signature = proposal->getSignature();
 
     this->stateRoot = proposal->getStateRoot();
+    CHECK_STATE(stateRoot != 0);
 
     ASSERT(timeStamp > MODERN_TIME);
 
