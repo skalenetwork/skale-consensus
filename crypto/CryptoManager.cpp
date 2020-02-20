@@ -56,11 +56,15 @@
 #include "datastructures/BlockProposal.h"
 #include "bls/BLSPrivateKeyShare.h"
 
+#include "ECDSAVerify.h"
 #include "CryptoManager.h"
 
 
 CryptoManager::CryptoManager(Schain &_sChain) : sChain(&_sChain) {
     CHECK_ARGUMENT(sChain != nullptr);
+
+    ecdsaVerify = make_shared<ECDSAVerify>();
+
     static string empty = "";
     sgxIP = _sChain.getNode()->getParamString("sgxIP", empty);
 

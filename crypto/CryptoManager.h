@@ -45,10 +45,13 @@ namespace CryptoPP {
     template <class EC, class H> struct ECDSA;
 }
 
+class ECDSAVerify;
 
 class CryptoManager {
 
 private:
+
+    ptr<ECDSAVerify> ecdsaVerify;
 
     map<schain_index, ptr<pair<string, array<uint8_t, 16>>>> outgoingMACKeys;
     map<schain_index, ptr<pair<string, array<uint8_t, 16>>>> incomingMACKeys;
