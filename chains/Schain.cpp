@@ -120,6 +120,7 @@ void Schain::postMessage(ptr<MessageEnvelope> m) {
 void Schain::messageThreadProcessingLoop(Schain *s) {
     ASSERT(s);
 
+    setThreadName("msgThreadProcLoop", s->getNode()->getConsensusEngine());
 
     s->waitOnGlobalStartBarrier();
 

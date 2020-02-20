@@ -167,7 +167,7 @@ shared_ptr<spdlog::logger> ConsensusEngine::createLogger(const string &loggerNam
     if (!logger) {
         if (logFileNamePrefix != nullptr) {
             logger = make_shared<spdlog::logger>(loggerName, logRotatingFileSync);
-            logger->flush_on(info);
+            logger->flush_on(debug);
         } else {
             logger = spdlog::stdout_color_mt(loggerName);
         }

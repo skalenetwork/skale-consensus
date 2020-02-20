@@ -42,13 +42,9 @@ class BlockProposalHeader : public Header {
     ptr<vector<uint64_t>> transactionSizes;
     uint64_t timeStamp = 0;
     uint32_t timeStampMs = 0;
+    u256 stateRoot = 0;
 public:
     const u256 &getStateRoot() const;
-
-private:
-    u256 stateRoot = 0;
-
-public:
 
     const ptr<string> &getSignature() const;
 
