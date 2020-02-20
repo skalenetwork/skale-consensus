@@ -18,7 +18,7 @@
 
 
 /*Set a point from another point*/
-void point_set(point R, point P)
+void ECDSAVerify::point_set(point R, point P)
 {
     //Copy the point
     mpz_set(R->x, P->x);
@@ -29,7 +29,8 @@ void point_set(point R, point P)
 
 
 /*Make R a copy of P*/
-void point_copy(point R, point P)
+
+void ECDSAVerify::point_copy(point R, point P)
 {
     //Same as point set
     point_set(R, P);
@@ -37,7 +38,7 @@ void point_copy(point R, point P)
 
 
 /*Release point*/
-void point_clear(point p)
+void ECDSAVerify::point_clear(point p)
 {
     mpz_clear(p->x);
     mpz_clear(p->y);
@@ -45,13 +46,13 @@ void point_clear(point p)
 }
 
 /*Set point to be a infinity*/
-void point_at_infinity(point p)
+void ECDSAVerify::point_at_infinity(point p)
 {
     p->infinity = true;
 }
 
 /*Initialize a point*/
-point point_init()
+point ECDSAVerify::point_init()
 {
     point p;
     p = (point) calloc(sizeof(struct point_s), 1);
@@ -63,18 +64,19 @@ point point_init()
 
 
 
-void number_theory_inverse(mpz_t R, mpz_t A, mpz_t P) {
+void ECDSAVerify::number_theory_inverse(mpz_t R, mpz_t A, mpz_t P) {
     mpz_invert(R, A, P);
 }
 
-void number_theory_exp_modp_ui(mpz_t R, mpz_t a, unsigned long int k, mpz_t P) {
+
+void ECDSAVerify::number_theory_exp_modp_ui(mpz_t R, mpz_t a, unsigned long int k, mpz_t P) {
     //Do this using gmp number theory implementation
     mpz_powm_ui(R, a, k, P);
 }
 
 
 /*Set point R = 2P*/
-void point_doubling(point R, point P, domain_parameters curve)
+void ECDSAVerify::point_doubling(point R, point P, domain_parameters curve)
 {
     //If at infinity
     if(P->infinity)
@@ -121,7 +123,8 @@ void point_doubling(point R, point P, domain_parameters curve)
 }
 
 /*Compare two points return 1 if not the same, returns 0 if they are the same*/
-bool point_cmp(point P, point Q)
+
+bool ECDSAVerify::point_cmp(point P, point Q)
 {
     //If at infinity
     if(P->infinity && Q->infinity)
@@ -134,7 +137,7 @@ bool point_cmp(point P, point Q)
 
 
 /*Set R to the additive inverse of P, in the curve curve*/
-void point_inverse(point R, point P, domain_parameters curve)
+void ECDSAVerify::point_inverse(point R, point P, domain_parameters curve)
 {
     //If at infinity
     if(P->infinity)
@@ -150,7 +153,7 @@ void point_inverse(point R, point P, domain_parameters curve)
 }
 
 /*Addition of point P + Q = result*/
-void point_addition(point result, point P, point Q, domain_parameters curve)
+void ECDSAVerify::point_addition(point result, point P, point Q, domain_parameters curve)
 {
     //If Q is at infinity, set result to P
     if(Q->infinity)
@@ -221,7 +224,7 @@ void point_addition(point result, point P, point Q, domain_parameters curve)
 }
 
 /*Perform scalar multiplication to P, with the factor multiplier, over the curve curve*/
-void point_multiplication(point R, mpz_t multiplier, point P, domain_parameters curve)
+void ECDSAVerify::point_multiplication(point R, mpz_t multiplier, point P, domain_parameters curve)
 {
     //If at infinity R is also at infinity
     if(P->infinity)

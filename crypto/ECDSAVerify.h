@@ -39,6 +39,21 @@ struct signature_s
 typedef struct signature_s* signature;
 
 class ECDSAVerify {
+    static void point_set(point R, point P);
+    static void point_copy(point R, point P);
+    static void point_clear(point p);
+    static void point_at_infinity(point p);
+    static point point_init();
+    static void number_theory_inverse(mpz_t R, mpz_t A, mpz_t P);
+    static void number_theory_exp_modp_ui(mpz_t R, mpz_t a, unsigned long int k, mpz_t P);
+    static void point_doubling(point R, point P, domain_parameters curve);
+    static bool point_cmp(point P, point Q);
+    static void point_inverse(point R, point P, domain_parameters curve);
+    static void point_addition(point result, point P, point Q, domain_parameters curve);
+    static void point_multiplication(point R, mpz_t multiplier, point P, domain_parameters curve);
+
+public:
+    
     static bool signature_verify(mpz_t message, signature sig, point public_key, domain_parameters curve);
 };
 
