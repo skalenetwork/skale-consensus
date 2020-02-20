@@ -39,6 +39,10 @@ struct signature_s
 typedef struct signature_s* signature;
 
 class ECDSAVerify {
+
+
+    domain_parameters curve;
+
     static void point_set(point R, point P);
     static void point_copy(point R, point P);
     static void point_clear(point p);
@@ -52,9 +56,14 @@ class ECDSAVerify {
     static void point_addition(point result, point P, point Q, domain_parameters curve);
     static void point_multiplication(point R, mpz_t multiplier, point P, domain_parameters curve);
 
+    /*Initialize a curve*/
+    domain_parameters domain_parameters_init();
+
 public:
+
+    ECDSAVerify();
     
-    static bool signature_verify(mpz_t message, signature sig, point public_key, domain_parameters curve);
+    bool signature_verify(mpz_t message, signature sig, point public_key);
 };
 
 

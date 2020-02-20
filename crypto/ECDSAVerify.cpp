@@ -264,7 +264,7 @@ This is not the most effecient method of point multiplication, but it's faster t
     }
 }
 
-bool ECDSAVerify::signature_verify(mpz_t message, signature sig, point public_key, domain_parameters curve) {
+bool ECDSAVerify::signature_verify(mpz_t message, signature sig, point public_key) {
 
     //Initialize variables
     mpz_t one, w, u1, u2, t, tt2;
@@ -320,4 +320,73 @@ bool ECDSAVerify::signature_verify(mpz_t message, signature sig, point public_ke
     mpz_clear(tt2);
 
     return result;
+}
+
+/*Sets the name of a curve*/
+void domain_parameters_set_name(domain_parameters curve, char* name)
+{
+    int len = strlen(name);
+    curve->name = (char*)calloc( sizeof(char) * (len+1), 1 );
+    curve->name[len] = '\0';
+    strncpy(curve->name, name, len+1);
+}
+
+
+/*Set point from strings of a base from 2-62*/
+void point_set_str(point p, char *x, char *y, int base)
+{
+    mpz_set_str(p->x, x, base);
+    mpz_set_str(p->y, y, base);
+}
+
+
+/*Set point from hexadecimal strings*/
+void point_set_hex(point p, char *x, char *y)
+{
+    point_set_str(p,x,y,16);
+}
+
+/*Set domain parameters from hexadecimal string*/
+void domain_parameters_set_hex(domain_parameters curve, char* name, char* p, char* a, char* b, char* Gx, char* Gy, char* n, char* h)
+{
+    domain_parameters_set_name(curve, name);
+    mpz_set_str(curve->p, p, 16);
+    mpz_set_str(curve->a, a, 16);
+    mpz_set_str(curve->b, b, 16);
+    point_set_hex(curve->G, Gx, Gy);
+    mpz_set_str(curve->n, n, 16);
+    mpz_set_str(curve->h, h, 16);
+}
+
+
+
+/*Load a curve depending on it's curve number, defined by the enum*/
+void domain_parameters_load_curve(domain_parameters out) {
+            domain_parameters_set_hex(out, (char*)"secp256k1", (char*)
+                                      "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFC2F",
+                                      (char*)"0000000000000000000000000000000000000000000000000000000000000000",
+                                      (char*)"0000000000000000000000000000000000000000000000000000000000000007",
+                                      (char*)"79BE667EF9DCBBAC55A06295CE870B07029BFCDB2DCE28D959F2815B16F81798",
+                                      (char*)"483ADA7726A3C4655DA4FBFC0E1108A8FD17B448A68554199C47D08FFB10D4B8",
+                                      (char*)"FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141",
+                                      (char*)"01");
+}
+
+
+ECDSAVerify::ECDSAVerify() {
+    curve = domain_parameters_init();
+    domain_parameters_load_curve(curve);
+}
+
+/*Initialize a curve*/
+domain_parameters ECDSAVerify::domain_parameters_init()
+{
+    curve = (domain_parameters) calloc(sizeof(struct domain_parameters_s), 1);
+
+    //Initialize all members
+    mpz_init(curve->p); mpz_init(curve->a); mpz_init(curve->b);
+    curve->G = point_init();
+    mpz_init(curve->n);
+    mpz_init(curve->h);
+    return curve;
 }
