@@ -44,6 +44,8 @@ namespace CryptoPP {
     class ECP;
     template <class EC, class H> struct ECDSA;
 }
+
+
 class CryptoManager {
 
 private:
@@ -109,6 +111,7 @@ public:
     static void generateSSLClientCertAndKey(string &_fullPathToDir);
     static void setSGXKeyAndCert(string &_keyFullPath, string &_certFullPath);
     static ptr<string> sgxSignECDSA(ptr<SHAHash> _hash, string& _keyName,  ptr<StubClient> _sgxClient);
+
 };
 
 

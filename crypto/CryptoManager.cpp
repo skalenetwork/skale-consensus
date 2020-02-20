@@ -351,3 +351,12 @@ void CryptoManager::generateSSLClientCertAndKey(string &_fullPathToDir) {
     outFile << signedCert;
 
 }
+
+
+
+
+
+
+
+
+
