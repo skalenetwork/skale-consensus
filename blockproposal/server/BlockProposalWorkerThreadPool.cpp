@@ -40,8 +40,12 @@ BlockProposalWorkerThreadPool::BlockProposalWorkerThreadPool(num_threads _numThr
 }
 
 
-void BlockProposalWorkerThreadPool::createThread(uint64_t /*threadNumber*/) {
+void BlockProposalWorkerThreadPool::createThread(uint64_t threadNumber) {
 
-    this->threadpool.push_back(make_shared<thread>(AbstractServerAgent::workerThreadConnectionProcessingLoop,
-                                                   (BlockProposalServerAgent *) agent));
+    auto func = [threadNumber, this](){
+        setThreadName("BlkPropSrvAg" + to_string(threadNumber), this->agent->getNode()->getConsensusEngine());
+        AbstractServerAgent::workerThreadConnectionProcessingLoop((BlockProposalServerAgent *) agent);
+    };
+
+    this->threadpool.push_back(make_shared<thread>(func));
 }

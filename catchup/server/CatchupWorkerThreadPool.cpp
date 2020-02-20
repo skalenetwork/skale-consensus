@@ -39,8 +39,12 @@ CatchupWorkerThreadPool::CatchupWorkerThreadPool(
 }
 
 
-void CatchupWorkerThreadPool::createThread(uint64_t /*threadNumber*/) {
+void CatchupWorkerThreadPool::createThread(uint64_t threadNumber) {
 
-    this->threadpool.push_back(make_shared<thread>(AbstractServerAgent::workerThreadConnectionProcessingLoop,
-                                                   (CatchupServerAgent*)agent));
+    auto func = [threadNumber, this](){
+        setThreadName("CtchpSrvAg" + to_string(threadNumber), this->agent->getNode()->getConsensusEngine());
+        AbstractServerAgent::workerThreadConnectionProcessingLoop((CatchupServerAgent *) agent);
+    };
+
+    this->threadpool.push_back(make_shared<thread>(func));
 }
