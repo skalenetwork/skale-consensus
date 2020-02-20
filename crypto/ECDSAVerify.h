@@ -55,8 +55,14 @@ class ECDSAVerify {
     static void point_inverse(point R, point P, domain_parameters curve);
     static void point_addition(point result, point P, point Q, domain_parameters curve);
     static void point_multiplication(point R, mpz_t multiplier, point P, domain_parameters curve);
+    static void domain_parameters_set_name(domain_parameters curve, char* name);
+    static void point_set_str(point p, char *x, char *y, int base);
+    static void point_set_hex(point p, char *x, char *y);
+    static void domain_parameters_set_hex(
+            domain_parameters curve, char* name, char* p, char* a, char* b, char* Gx, char* Gy, char* n, char* h);
+    static void domain_parameters_load_curve(domain_parameters out);
 
-    /*Initialize a curve*/
+        /*Initialize a curve*/
     domain_parameters domain_parameters_init();
 
 public:

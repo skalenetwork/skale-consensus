@@ -323,7 +323,7 @@ bool ECDSAVerify::signature_verify(mpz_t message, signature sig, point public_ke
 }
 
 /*Sets the name of a curve*/
-void domain_parameters_set_name(domain_parameters curve, char* name)
+void ECDSAVerify::domain_parameters_set_name(domain_parameters curve, char* name)
 {
     int len = strlen(name);
     curve->name = (char*)calloc( sizeof(char) * (len+1), 1 );
@@ -333,7 +333,7 @@ void domain_parameters_set_name(domain_parameters curve, char* name)
 
 
 /*Set point from strings of a base from 2-62*/
-void point_set_str(point p, char *x, char *y, int base)
+void ECDSAVerify::point_set_str(point p, char *x, char *y, int base)
 {
     mpz_set_str(p->x, x, base);
     mpz_set_str(p->y, y, base);
@@ -341,13 +341,13 @@ void point_set_str(point p, char *x, char *y, int base)
 
 
 /*Set point from hexadecimal strings*/
-void point_set_hex(point p, char *x, char *y)
+void ECDSAVerify::point_set_hex(point p, char *x, char *y)
 {
     point_set_str(p,x,y,16);
 }
 
 /*Set domain parameters from hexadecimal string*/
-void domain_parameters_set_hex(domain_parameters curve, char* name, char* p, char* a, char* b, char* Gx, char* Gy, char* n, char* h)
+void ECDSAVerify::domain_parameters_set_hex(domain_parameters curve, char* name, char* p, char* a, char* b, char* Gx, char* Gy, char* n, char* h)
 {
     domain_parameters_set_name(curve, name);
     mpz_set_str(curve->p, p, 16);
@@ -361,7 +361,7 @@ void domain_parameters_set_hex(domain_parameters curve, char* name, char* p, cha
 
 
 /*Load a curve depending on it's curve number, defined by the enum*/
-void domain_parameters_load_curve(domain_parameters out) {
+void ECDSAVerify::domain_parameters_load_curve(domain_parameters out) {
             domain_parameters_set_hex(out, (char*)"secp256k1", (char*)
                                       "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFC2F",
                                       (char*)"0000000000000000000000000000000000000000000000000000000000000000",
