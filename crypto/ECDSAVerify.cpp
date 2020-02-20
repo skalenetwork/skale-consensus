@@ -9,6 +9,7 @@
 #include <stdbool.h>
 #include "SkaleCommon.h"
 #include "Log.h"
+#include "SHAHash.h"
 #include "ECDSAVerify.h"
 
 /*Verify the integrity of a message using it's signature*/
@@ -264,7 +265,17 @@ This is not the most effecient method of point multiplication, but it's faster t
     }
 }
 
-bool ECDSAVerify::signature_verify(mpz_t message, signature sig, point public_key) {
+bool ECDSAVerify::signature_verify(ptr<SHAHash> hash, signature sig, point public_key) {
+
+    auto hashHex = hash->toHex();
+
+    mpz_t message;
+    mpz_init(message);
+    if (mpz_set_str(message, hashHex->c_str(), 16) == -1) {
+        mpz_clear(message);
+        CHECK_STATE2(false, "mpz_set_str(hashHex) failed");
+    }
+
 
     //Initialize variables
     mpz_t one, w, u1, u2, t, tt2;
@@ -317,7 +328,7 @@ bool ECDSAVerify::signature_verify(mpz_t message, signature sig, point public_ke
     point_clear(t2);
 
     mpz_clear(one); mpz_clear(w); mpz_clear(u1); mpz_clear(u2); mpz_clear(t);
-    mpz_clear(tt2);
+    mpz_clear(tt2); mpz_clear(message);
 
     return result;
 }
