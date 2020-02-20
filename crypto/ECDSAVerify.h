@@ -69,7 +69,7 @@ public:
 
     ECDSAVerify();
     
-    bool signature_verify(ptr<SHAHash> hash, signature sig, point public_key);
+    bool signature_verify(ptr<SHAHash> hash, signature sig, ptr<string> publicKeyHex);
 };
 
 

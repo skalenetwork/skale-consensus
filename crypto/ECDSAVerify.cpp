@@ -265,16 +265,29 @@ This is not the most effecient method of point multiplication, but it's faster t
     }
 }
 
-bool ECDSAVerify::signature_verify(ptr<SHAHash> hash, signature sig, point public_key) {
+bool ECDSAVerify::signature_verify(ptr<SHAHash> hash, signature sig, ptr<string> publicKeyHex) {
 
-    auto hashHex = hash->toHex();
+    CHECK_ARGUMENT(publicKeyHex);
+
+    CHECK_ARGUMENT(publicKeyHex->size() == 2 * 64);
+
+
 
     mpz_t message;
     mpz_init(message);
+    auto hashHex = hash->toHex();
     if (mpz_set_str(message, hashHex->c_str(), 16) == -1) {
         mpz_clear(message);
         CHECK_STATE2(false, "mpz_set_str(hashHex) failed");
     }
+
+
+    auto pKeyXStr = publicKeyHex->substr(0, 64);
+    auto pKeyYStr = publicKeyHex->substr(64);
+
+    auto public_key = point_init();
+    point_set_hex(public_key, (char*) pKeyXStr.c_str(), (char*) pKeyYStr.c_str());
+
 
 
     //Initialize variables
@@ -319,10 +332,9 @@ bool ECDSAVerify::signature_verify(ptr<SHAHash> hash, signature sig, point publi
 
     result = mpz_cmp(sig->r, x->x) == 0 && !x->infinity;
 
-
     clean:
 
-
+    point_clear(public_key);
     point_clear(x);
     point_clear(t1);
     point_clear(t2);
