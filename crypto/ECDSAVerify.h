@@ -64,12 +64,14 @@ class ECDSAVerify {
 
         /*Initialize a curve*/
     domain_parameters domain_parameters_init();
+    void signature_set_hex(signature sig, char* v, char *r, char *s);
 
 public:
 
     ECDSAVerify();
-    
-    bool signature_verify(ptr<SHAHash> hash, signature sig, ptr<string> publicKeyHex);
+
+    signature signature_init();
+    void signature_verify(ptr<SHAHash> hash, ptr<string> sig, ptr<string> publicKeyHex);
 };
 
 

@@ -265,12 +265,45 @@ This is not the most effecient method of point multiplication, but it's faster t
     }
 }
 
-bool ECDSAVerify::signature_verify(ptr<SHAHash> hash, signature sig, ptr<string> publicKeyHex) {
+
+/*Initialize a signature*/
+signature ECDSAVerify::signature_init() {
+    signature sig;
+    sig = (signature) calloc(sizeof(struct signature_s), 1);
+    mpz_init(sig->r);
+    mpz_init(sig->s);
+    sig->v = 0;
+    return sig;
+}
+
+/*Set signature from hexadecimal strings*/
+void ECDSAVerify::signature_set_hex(signature sig, char* v, char *r, char *s) {
+    mpz_set_str(sig->r, r, 16);
+    mpz_set_str(sig->s, s, 16);
+    sig->v = std::strtoul(v, 0, 16);
+}
+
+void ECDSAVerify::signature_verify(ptr<SHAHash> hash, ptr<string> sigStr, ptr<string> publicKeyHex) {
+
+    bool result = false;
 
     CHECK_ARGUMENT(publicKeyHex);
-
+    CHECK_ARGUMENT(sigStr);
+    CHECK_ARGUMENT(sigStr->size() > 10);
     CHECK_ARGUMENT(publicKeyHex->size() == 2 * 64);
 
+    signature sig = signature_init();
+
+    auto firstColon = sigStr->find(":");
+    CHECK_STATE(firstColon == 1);
+    auto secondColon = sigStr->find(":", 2);
+    CHECK_STATE(secondColon != string::npos);
+
+    auto vStr = sigStr->substr(0, 1);
+    auto rStr = sigStr->substr(2, secondColon - 1);
+    auto sStr = sigStr->substr(secondColon + 1);
+
+    signature_set_hex(sig, (char*) vStr.c_str(), (char*) rStr.c_str(), (char*) sStr.c_str());
 
 
     mpz_t message;
@@ -289,7 +322,6 @@ bool ECDSAVerify::signature_verify(ptr<SHAHash> hash, signature sig, ptr<string>
     point_set_hex(public_key, (char*) pKeyXStr.c_str(), (char*) pKeyYStr.c_str());
 
 
-
     //Initialize variables
     mpz_t one, w, u1, u2, t, tt2;
     mpz_init(one); mpz_init(w); mpz_init(u1);
@@ -300,8 +332,6 @@ bool ECDSAVerify::signature_verify(ptr<SHAHash> hash, signature sig, ptr<string>
     point x = point_init();
     point t1 = point_init();
     point t2 = point_init();
-
-    bool result = false;
 
 
     if (mpz_cmp(sig->r, one) < 0 &&
@@ -342,7 +372,7 @@ bool ECDSAVerify::signature_verify(ptr<SHAHash> hash, signature sig, ptr<string>
     mpz_clear(one); mpz_clear(w); mpz_clear(u1); mpz_clear(u2); mpz_clear(t);
     mpz_clear(tt2); mpz_clear(message);
 
-    return result;
+    CHECK_STATE2(result, "Incorrect ECDSA signature");
 }
 
 /*Sets the name of a curve*/
