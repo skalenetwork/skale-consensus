@@ -97,7 +97,8 @@ BlockProposal::BlockProposal(schain_id _sChainId, node_id _proposerNodeId, block
                              ptr<CryptoManager> _cryptoManager)
         : schainID(_sChainId), proposerNodeID(_proposerNodeId), blockID(_blockID),
           proposerIndex(_proposerIndex), timeStamp(_timeStamp), timeStampMs(_timeStampMs),
-          transactionList(_transactions), stateRoot(_stateRoot), signature(_signature) {
+          stateRoot(_stateRoot), transactionList(_transactions),  signature(_signature) {
+
 
     CHECK_ARGUMENT(_cryptoManager != nullptr || _signature != nullptr);
     CHECK_ARGUMENT(_cryptoManager == nullptr || _signature == nullptr);

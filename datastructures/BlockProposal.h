@@ -61,7 +61,7 @@ protected:
     uint32_t  timeStampMs = 0;
     u256 stateRoot = 0;
 
-    ptr<TransactionList> transactionList;
+    ptr<TransactionList> transactionList = nullptr;
     ptr< SHAHash > hash = nullptr;
     ptr<string> signature = nullptr;
 
