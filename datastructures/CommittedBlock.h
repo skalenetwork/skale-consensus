@@ -46,7 +46,7 @@ class CommittedBlock : public BlockProposal {
     static ptr<CommittedBlockHeader> parseBlockHeader(const shared_ptr< string >& header );
 
 protected:
-    ptr<Header> createHeader() override;
+    ptr<BasicHeader> createHeader() override;
 
 public:
 

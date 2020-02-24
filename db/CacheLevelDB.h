@@ -44,9 +44,7 @@ namespace leveldb {
 
 
 class CacheLevelDB {
-    vector<ptr<leveldb::DB>>db;
-    uint64_t  highestDBIndex = 0;
-    shared_mutex m;
+
 
     void verify();
 
@@ -54,6 +52,10 @@ class CacheLevelDB {
     ptr<map<schain_index, ptr<string>>> writeByteArrayToSetUnsafe(const char *_value, uint64_t _valueLen, block_id _blockId, schain_index _index);
 
 protected:
+
+    vector<ptr<leveldb::DB>>db;
+    uint64_t  highestDBIndex = 0;
+    shared_mutex m;
 
     uint64_t totalSigners;
     uint64_t requiredSigners;

@@ -208,7 +208,7 @@ ptr<BlockProposalRequestHeader> BlockProposal::createBlockProposalHeader(Schain 
 }
 
 
-ptr<Header> BlockProposal::createHeader() {
+ptr<BasicHeader> BlockProposal::createHeader() {
     return make_shared<BlockProposalHeader>(*this);
 }
 
@@ -266,7 +266,7 @@ ptr<BlockProposal> BlockProposal::deserialize(ptr<vector<uint8_t> > _serializedP
         blockHeader = parseBlockHeader(headerStr);
     } catch (ExitRequestedException &) { throw; } catch (...) {
         throw_with_nested(ParsingException(
-                "Could not parse committed block header: \n" + *headerStr, __CLASS_NAME__));
+                "Could not parse block header: \n" + *headerStr, __CLASS_NAME__));
     }
 
     auto list = deserializeTransactions(blockHeader, headerStr, _serializedProposal);

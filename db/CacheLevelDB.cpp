@@ -339,10 +339,14 @@ DB *CacheLevelDB::openDB(uint64_t _index) {
 CacheLevelDB::CacheLevelDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize,
                            bool _isDuplicateAddOK)
         : nodeId(_nodeId),
-          prefix(_prefix), dirname(_dirName + "/" + _prefix),
-          maxDBSize(_maxDBSize), totalSigners(_sChain->getTotalSigners()),
+          prefix(_prefix),
+          totalSigners(_sChain->getTotalSigners()),
           requiredSigners(_sChain->getRequiredSigners()),
+          dirname(_dirName + "/" + _prefix),
+          maxDBSize(_maxDBSize),
           isDuplicateAddOK(_isDuplicateAddOK), sChain(_sChain) {
+
+
 
     CHECK_STATE(_sChain != nullptr);
 
