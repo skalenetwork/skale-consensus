@@ -31,10 +31,8 @@ class CatchupClientThreadPool;
 class CatchupResponseHeader;
 
 class CatchupClientAgent : public Agent {
-    int connection;
 
 public:
-    atomic< uint64_t > threadCounter;
 
     ptr< CatchupClientThreadPool > catchupClientThreadPool = nullptr;
 

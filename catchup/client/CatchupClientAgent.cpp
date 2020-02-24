@@ -50,7 +50,6 @@ CatchupClientAgent::CatchupClientAgent( Schain& _sChain ) : Agent(_sChain, false
     try {
         logThreadLocal_ = _sChain.getNode()->getLog();
         this->sChain = &_sChain;
-        threadCounter = 0;
 
         if (_sChain.getNodeCount() > 1 ) {
             this->catchupClientThreadPool = make_shared<CatchupClientThreadPool >( 1, this );

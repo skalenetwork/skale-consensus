@@ -33,8 +33,8 @@ class BooleanProposalVector : public DataStructure {
 
 private:
 
-    uint64_t nodeCount;
-    uint64_t  trueCount;
+    uint64_t nodeCount = 0;
+    uint64_t  trueCount = 0;
     vector<bool> proposals;
 
 public:
