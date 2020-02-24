@@ -71,7 +71,7 @@ public:
     ECDSAVerify();
 
     signature signature_init();
-    void signature_verify(ptr<SHAHash> hash, ptr<string> sig, ptr<string> publicKeyHex);
+    void signature_verify(ptr<SHAHash> hash, ptr<string> publicKeyHex, ptr<string> sigStr);
 };
 
 

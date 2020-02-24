@@ -283,7 +283,7 @@ void ECDSAVerify::signature_set_hex(signature sig, char* v, char *r, char *s) {
     sig->v = std::strtoul(v, 0, 16);
 }
 
-void ECDSAVerify::signature_verify(ptr<SHAHash> hash, ptr<string> sigStr, ptr<string> publicKeyHex) {
+void ECDSAVerify::signature_verify(ptr<SHAHash> hash, ptr<string> publicKeyHex, ptr<string> sigStr) {
 
     bool result = false;
 

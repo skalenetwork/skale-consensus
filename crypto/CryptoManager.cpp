@@ -60,6 +60,7 @@
 #include "CryptoManager.h"
 
 
+
 CryptoManager::CryptoManager(Schain &_sChain) : sChain(&_sChain) {
     CHECK_ARGUMENT(sChain != nullptr);
 
@@ -123,8 +124,12 @@ ptr<string> CryptoManager::sgxSignECDSA(ptr<SHAHash> _hash, string& _keyName,  p
     string s = result["signature_r"].asString();
     string v = result["signature_v"].asString();
 
-    //return make_shared<string>(r.substr(2) + ":" + s.substr(2) + ":" + v);
-    return make_shared<string>(r.substr(2) + s.substr(2));
+    return make_shared<string>(v + ":" +  r.substr(2) + ":" + s.substr(2));
+
+}
+
+void CryptoManager::sgxVerifyECDSA(ptr<SHAHash> _hash, ptr<string> _publicKey, ptr<string> _sig) {
+    ecdsaVerify->signature_verify(_hash, _sig, _publicKey);
 
 }
 
@@ -354,6 +359,15 @@ void CryptoManager::generateSSLClientCertAndKey(string &_fullPathToDir) {
     outFile.open(_fullPathToDir + "/cert");
     outFile << signedCert;
 
+}
+
+CryptoManager::CryptoManager(uint64_t totalSigners, uint64_t requiredSigners, const ptr<string> &sgxIp,
+                             const ptr<string> &sgxSslKeyFileFullPath, const ptr<string> &sgxSslCertFileFullPath,
+                             const ptr<string> &sgxEcdsaKeyName, const vector<ptr<string>> &sgxEcdsaPublicKeys)
+        : totalSigners(totalSigners), requiredSigners(requiredSigners), sgxIP(sgxIp),
+          sgxSSLKeyFileFullPath(sgxSslKeyFileFullPath), sgxSSLCertFileFullPath(sgxSslCertFileFullPath),
+          sgxECDSAKeyName(sgxEcdsaKeyName), sgxECDSAPublicKeys(sgxEcdsaPublicKeys) {
+    this->sgxEnabled = sgxIp != nullptr;
 }
 
 

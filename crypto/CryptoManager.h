@@ -53,9 +53,6 @@ private:
 
     ptr<ECDSAVerify> ecdsaVerify;
 
-    map<schain_index, ptr<pair<string, array<uint8_t, 16>>>> outgoingMACKeys;
-    map<schain_index, ptr<pair<string, array<uint8_t, 16>>>> incomingMACKeys;
-
 
     uint64_t  totalSigners;
     uint64_t  requiredSigners;
@@ -66,12 +63,21 @@ private:
     ptr<string> sgxSSLKeyFileFullPath;
     ptr<string> sgxSSLCertFileFullPath;
     ptr<string> sgxECDSAKeyName;
-    ptr<string> sgxECDSAPublicKey;
+    vector<ptr<string>> sgxECDSAPublicKeys;
+public:
+
+
+    // This constructor is used for testing
+    CryptoManager(uint64_t totalSigners, uint64_t requiredSigners, const ptr<string> &sgxIp,
+                  const ptr<string> &sgxSslKeyFileFullPath, const ptr<string> &sgxSslCertFileFullPath,
+                  const ptr<string> &sgxEcdsaKeyName, const vector<ptr<string>> &sgxEcdsaPublicKeys);
+
+private:
 
     ptr<StubClient> sgxClient;
 
 
-    Schain* sChain;
+    Schain* sChain = nullptr;
 
     ptr<string> signECDSA(ptr<SHAHash> _hash);
 
@@ -113,7 +119,8 @@ public:
     static pair<ptr<string>, ptr<string>> generateSGXECDSAKey(ptr<StubClient> _c);
     static void generateSSLClientCertAndKey(string &_fullPathToDir);
     static void setSGXKeyAndCert(string &_keyFullPath, string &_certFullPath);
-    static ptr<string> sgxSignECDSA(ptr<SHAHash> _hash, string& _keyName,  ptr<StubClient> _sgxClient);
+    ptr<string> sgxSignECDSA(ptr<SHAHash> _hash, string& _keyName,  ptr<StubClient> _sgxClient);
+    void sgxVerifyECDSA(ptr<SHAHash> _hash, ptr<string> _publicKey, ptr<string> _sig);
 
 };
 
