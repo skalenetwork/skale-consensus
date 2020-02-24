@@ -208,7 +208,7 @@ ptr<BlockProposalRequestHeader> BlockProposal::createBlockProposalHeader(Schain 
 }
 
 
-ptr<Header> BlockProposal::createHeader() {
+ptr<BasicHeader> BlockProposal::createHeader() {
     return make_shared<BlockProposalHeader>(*this);
 }
 

@@ -37,7 +37,7 @@ class SHAHash;
 class BlockProposalRequestHeader;
 class CryptoManager;
 class DAProof;
-class Header;
+class BasicHeader;
 class BlockProposalHeader;
 class BlockProposalFragment;
 class BlockProposalFragmentList;
@@ -67,7 +67,7 @@ protected:
 
     void calculateHash();
 
-    virtual ptr<Header> createHeader();
+    virtual ptr<BasicHeader> createHeader();
 
     static ptr<TransactionList> deserializeTransactions(ptr<BlockProposalHeader> _header,
                                                         ptr<string> _headerString,
