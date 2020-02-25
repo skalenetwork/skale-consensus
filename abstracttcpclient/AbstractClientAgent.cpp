@@ -158,11 +158,17 @@ void AbstractClientAgent::workerThreadItemSendLoop( AbstractClientAgent* agent )
                     }
                     catch (ConnectionRefusedException& e) {
                         agent->logConnectionRefused(e, destinationSchainIndex);
+
+                        if ( agent->getNode()->isExitRequested() )
+                            return;
+
                         usleep( agent->getNode()->getWaitAfterNetworkErrorMs() * 1000 );
                     } catch ( exception& e ) {
                         Exception::logNested( e );
+
                         if ( agent->getNode()->isExitRequested() )
                             return;
+
                         usleep( agent->getNode()->getWaitAfterNetworkErrorMs() * 1000 );
                     }
                 }
