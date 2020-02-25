@@ -247,7 +247,7 @@ TEST_CASE_METHOD(StartFromScratch, "Test sgx server connection", "[sgx]") {
 
 
 
-    CryptoManager cm( 16, 11, make_shared<string>("127.0.0.1"),
+    CryptoManager cm( 4, 3, make_shared<string>("127.0.0.1"),
                       make_shared<string>(keyFilePath),
                       make_shared<string>("certFilePath"),
                       keyNames.at(0), publicKeys);
@@ -256,14 +256,14 @@ TEST_CASE_METHOD(StartFromScratch, "Test sgx server connection", "[sgx]") {
     msg->push_back('1');
     auto hash = SHAHash::calculateHash(msg);
     auto sig = cm.sgxSignECDSA(hash,*keyNames[0],  c) ;
+
     //auto rawSig = Utils::carray2Hex(sig)
+
     cerr << sig << endl;
 
+    cm.sgxVerifyECDSA(hash, publicKeys[0], sig);
+
     auto key = CryptoManager::decodeSGXPublicKey(publicKeys[0]);
-
-    CryptoPP::ECDSA<CryptoPP::ECP, CryptoPP::SHA256>::Verifier verifier;
-
-    //verifier.VerifyMessage((unsigned char*)msg->data(), msg->length(), (const byte*)signature.data(), signature.size());
 
     // basicRun();
     SUCCEED();
