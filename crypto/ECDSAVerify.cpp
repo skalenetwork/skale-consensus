@@ -290,11 +290,13 @@ void ECDSAVerify::signature_verify(ptr<SHAHash> hash, ptr<string> publicKeyHex, 
     CHECK_ARGUMENT(publicKeyHex);
     CHECK_ARGUMENT(sigStr);
     CHECK_ARGUMENT(sigStr->size() > 10);
+    cerr << *publicKeyHex<< endl;
     CHECK_ARGUMENT(publicKeyHex->size() == 2 * 64);
 
     signature sig = signature_init();
 
     auto firstColon = sigStr->find(":");
+    cerr << firstColon;
     CHECK_STATE(firstColon == 1);
     auto secondColon = sigStr->find(":", 2);
     CHECK_STATE(secondColon != string::npos);
@@ -332,6 +334,9 @@ void ECDSAVerify::signature_verify(ptr<SHAHash> hash, ptr<string> publicKeyHex, 
     point x = point_init();
     point t1 = point_init();
     point t2 = point_init();
+
+    CHECK_STATE(curve != nullptr);
+    CHECK_STATE(sig != nullptr);
 
 
     if (mpz_cmp(sig->r, one) < 0 &&

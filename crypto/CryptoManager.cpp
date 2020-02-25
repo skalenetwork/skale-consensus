@@ -134,7 +134,7 @@ ptr<string> CryptoManager::sgxSignECDSA(ptr<SHAHash> _hash, string &_keyName, pt
 }
 
 void CryptoManager::sgxVerifyECDSA(ptr<SHAHash> _hash, ptr<string> _publicKey, ptr<string> _sig) {
-    ecdsaVerify->signature_verify(_hash, _sig, _publicKey);
+    ecdsaVerify->signature_verify(_hash, _publicKey, _sig);
 
 }
 
@@ -372,6 +372,7 @@ CryptoManager::CryptoManager(uint64_t totalSigners, uint64_t requiredSigners, co
         : totalSigners(totalSigners), requiredSigners(requiredSigners), sgxIP(sgxIp),
           sgxSSLKeyFileFullPath(sgxSslKeyFileFullPath), sgxSSLCertFileFullPath(sgxSslCertFileFullPath),
           sgxECDSAKeyName(sgxEcdsaKeyName), sgxECDSAPublicKeys(sgxEcdsaPublicKeys) {
+    ecdsaVerify = make_shared<ECDSAVerify>();
     this->sgxEnabled = sgxIp != nullptr;
 }
 
