@@ -294,7 +294,6 @@ void Schain::blockCommitsArrivedThroughCatchup(ptr<CommittedBlockList> _blocks) 
     }
 }
 
-
 void Schain::blockCommitArrived(block_id _committedBlockID, schain_index _proposerIndex, uint64_t _committedTimeStamp,
                                 uint64_t _committedTimeStampMs, ptr<ThresholdSignature> _thresholdSig) {
 
@@ -344,6 +343,21 @@ void Schain::checkForExit() {
     }
 }
 
+// keeps mutex unlocked when exists
+template < class M >
+class mutex_unlocker {
+private:
+    M& mutex_ref;
+    Node& node;
+
+public:
+    mutex_unlocker( M& m, Node& n ) : mutex_ref( m ), node(n) {mutex_ref.unlock(); }
+    ~mutex_unlocker() {
+        if (! node.isExitRequested())
+            mutex_ref.lock();
+    }
+};
+
 void Schain::proposeNextBlock(uint64_t _previousBlockTimeStamp, uint32_t _previousBlockTimeStampMs) {
 
 
@@ -359,6 +373,7 @@ void Schain::proposeNextBlock(uint64_t _previousBlockTimeStamp, uint32_t _previo
         if (getNode()->getProposalHashDB()->haveProposal(_proposedBlockID, getSchainIndex())) {
             myProposal = getNode()->getBlockProposalDB()->getBlockProposal(_proposedBlockID, getSchainIndex());
         } else {
+            mutex_unlocker<std::timed_mutex> unlocker(consensusWorkingMutex, *getNode());
             myProposal = pendingTransactionsAgent->buildBlockProposal(_proposedBlockID, _previousBlockTimeStamp,
                                                                            _previousBlockTimeStampMs);
         }
@@ -772,4 +787,7 @@ void Schain::decideBlock(block_id _blockId, schain_index _proposerIndex, ptr<Thr
 }
 
 // empty constructor is used for tests
-Schain::Schain() : Agent() {}
+Schain::Schain() : Agent() {
+    // should be "normally locked" / will be unlocked when asking for new block proposal
+    consensusWorkingMutex.lock();
+}

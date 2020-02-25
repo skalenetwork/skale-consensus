@@ -27,6 +27,8 @@
 
 #include "Agent.h"
 
+#include <mutex>
+
 class ThresholdSignature;
 class CommittedBlockList;
 class NetworkMessageEnvelope;
@@ -118,7 +120,7 @@ class Schain : public Agent {
 
     ptr<string> blockProposerTest;
 
-
+    std::timed_mutex consensusWorkingMutex;
 
     atomic<uint64_t> lastCommittedBlockID = 0;
     atomic<uint64_t> lastCommitTime = 0;
@@ -210,6 +212,8 @@ public:
     schain_index getSchainIndex() const;
 
     ptr<Node> getNode() const;
+
+    std::timed_mutex& getConsensusWorkingMutex() {return consensusWorkingMutex;}
 
     transaction_count getMessagesCount();
 

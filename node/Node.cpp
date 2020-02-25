@@ -377,11 +377,22 @@ void Node::releaseGlobalClientBarrier() {
 }
 
 void Node::exit() {
+    // exit forcefully after timeout
+    std::timed_mutex& mutex = getSchain()->getConsensusWorkingMutex();
+    bool locked = mutex.try_lock_for( std::chrono::seconds(EXIT_FORCEFULLTY_SECONDS) );
+    auto lock = locked ?
+                std::make_unique<std::lock_guard<std::timed_mutex>>(mutex, std::adopt_lock) :
+                std::unique_ptr<std::lock_guard<std::timed_mutex>>();
+
     if (exitRequested) {
+        assert(false);           // shouldn't be!
         return;
     }
 
     exitRequested = true;
+
+    if(!locked)
+        LOG(warn, "Forcefully exiting Node after " + to_string(EXIT_FORCEFULLTY_SECONDS) + " seconds");
 
     releaseGlobalClientBarrier();
     releaseGlobalServerBarrier();
