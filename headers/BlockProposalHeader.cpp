@@ -44,7 +44,7 @@ using namespace std;
 
 
 
-BlockProposalHeader::BlockProposalHeader(BlockProposal& _block) : Header(Header::BLOCK) {
+BlockProposalHeader::BlockProposalHeader(BlockProposal& _block) : BasicHeader(Header::BLOCK) {
 
     this->proposerIndex = _block.getProposerIndex();
     this->proposerNodeID = _block.getProposerNodeID();
@@ -78,8 +78,6 @@ const block_id &BlockProposalHeader::getBlockID() const {
 
 void BlockProposalHeader::addFields(nlohmann::json &j) {
 
-    Header::addFields(j);
-
     j["schainID"] = (uint64_t ) schainID;
 
     j["proposerIndex"] = (uint64_t ) proposerIndex;
@@ -100,10 +98,12 @@ void BlockProposalHeader::addFields(nlohmann::json &j) {
 
     j["sr"] = stateRoot.str();
 
+    CHECK_STATE(stateRoot != 0);
+
     ASSERT(timeStamp > 0);
 }
 
-BlockProposalHeader::BlockProposalHeader(nlohmann::json& _json) : Header(Header::BLOCK){
+BlockProposalHeader::BlockProposalHeader(nlohmann::json& _json) : BasicHeader(Header::BLOCK){
 
     proposerIndex = schain_index( Header::getUint64(_json, "proposerIndex" ) );
     proposerNodeID = node_id( Header::getUint64(_json, "proposerNodeID" ) );

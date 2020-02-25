@@ -103,7 +103,8 @@ BlockProposal::BlockProposal(schain_id _sChainId, node_id _proposerNodeId, block
                              ptr<CryptoManager> _cryptoManager)
         : schainID(_sChainId), proposerNodeID(_proposerNodeId), blockID(_blockID),
           proposerIndex(_proposerIndex), timeStamp(_timeStamp), timeStampMs(_timeStampMs),
-          transactionList(_transactions), stateRoot(_stateRoot), signature(_signature) {
+          stateRoot(_stateRoot), transactionList(_transactions),  signature(_signature) {
+
 
     CHECK_ARGUMENT(_cryptoManager != nullptr || _signature != nullptr);
     CHECK_ARGUMENT(_cryptoManager == nullptr || _signature == nullptr);
@@ -213,7 +214,7 @@ ptr<BlockProposalRequestHeader> BlockProposal::createBlockProposalHeader(Schain 
 }
 
 
-ptr<Header> BlockProposal::createHeader() {
+ptr<BasicHeader> BlockProposal::createHeader() {
     return make_shared<BlockProposalHeader>(*this);
 }
 
@@ -271,7 +272,7 @@ ptr<BlockProposal> BlockProposal::deserialize(ptr<vector<uint8_t> > _serializedP
         blockHeader = parseBlockHeader(headerStr);
     } catch (ExitRequestedException &) { throw; } catch (...) {
         throw_with_nested(ParsingException(
-                "Could not parse committed block header: \n" + *headerStr, __CLASS_NAME__));
+                "Could not parse block header: \n" + *headerStr, __CLASS_NAME__));
     }
 
     auto list = deserializeTransactions(blockHeader, headerStr, _serializedProposal);

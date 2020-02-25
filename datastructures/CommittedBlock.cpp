@@ -166,7 +166,7 @@ _size,
 
 
 
-ptr<Header> CommittedBlock::createHeader() {
+ptr<BasicHeader> CommittedBlock::createHeader() {
     return make_shared<CommittedBlockHeader>(*this, this->getThresholdSig());
 }
 

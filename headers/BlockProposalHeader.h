@@ -30,7 +30,7 @@ class BlockProposal;
 class Schain;
 class CommittedBlock;
 
-class BlockProposalHeader : public Header {
+class BlockProposalHeader : public BasicHeader {
 
 
     schain_id schainID;

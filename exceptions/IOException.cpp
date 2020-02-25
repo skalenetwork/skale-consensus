@@ -27,4 +27,5 @@
 #include "IOException.h"
 
 IOException::IOException(string _what, int _errno, const string& _className) : NetworkProtocolException(_what + ":" + strerror(_errno), _className) {
+    errNo = _errno;
 }

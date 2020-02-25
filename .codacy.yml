@@ -1,3 +1,4 @@
 ---
-ignore:
-  - 'scripts'
+exclude_paths:
+  - 'scripts/**'
+  - '.github/**'

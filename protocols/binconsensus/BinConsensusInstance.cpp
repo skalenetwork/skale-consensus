@@ -568,7 +568,7 @@ const schain_index BinConsensusInstance::getBlockProposerIndex() const {
 
 BinConsensusInstance::BinConsensusInstance(BlockConsensusAgent *_instance, block_id _blockId,
                                            schain_index _blockProposerIndex, bool _initFromDB) :
-        ProtocolInstance(BIN_CONSENSUS, *_instance->getSchain()),
+        ProtocolInstance(BIN_CONSENSUS, *_instance->getSchain()) ,
         blockConsensusInstance(_instance), blockID(_blockId), blockProposerIndex(_blockProposerIndex),
         nodeCount(_instance ? _instance->getSchain()->getNodeCount() : 0),
         protocolKey(make_shared<ProtocolKey>(_blockId, _blockProposerIndex))
