@@ -60,7 +60,6 @@
 #include "CryptoManager.h"
 
 
-
 CryptoManager::CryptoManager(Schain &_sChain) : sChain(&_sChain) {
     CHECK_ARGUMENT(sChain != nullptr);
 
@@ -83,11 +82,17 @@ CryptoManager::CryptoManager(Schain &_sChain) : sChain(&_sChain) {
             sgxECDSAKeyName = make_shared<string>(keyName);
         }
 
-        sgxECDSAPublicKey = node->getParamString("sgxECDSAPublicKey", empty);
-        if (sgxECDSAPublicKey->length() == 0) {
-            auto publicKey = std::getenv("sgxECDSAPublicKey." + _sChain.getSchainIndex());
-            ASSERT(publicKey != nullptr);
-            sgxECDSAPublicKey = make_shared<string>(publicKey);
+
+        for (int i = 1; i <= _sChain.getNodeCount(); i++) {
+
+            string paramName = "sgxECDSAPublicKey." + to_string(i);
+
+            sgxECDSAPublicKeys.at(i) = node->getParamString(paramName, empty);
+            if (sgxECDSAPublicKeys.at(i)->length() == 0) {
+                auto publicKey = std::getenv(paramName.c_str());
+                ASSERT(publicKey != nullptr);
+                sgxECDSAPublicKeys.at(i) = make_shared<string>(publicKey);
+            }
         }
 
 
@@ -115,7 +120,7 @@ Schain *CryptoManager::getSchain() const {
 }
 
 
-ptr<string> CryptoManager::sgxSignECDSA(ptr<SHAHash> _hash, string& _keyName,  ptr<StubClient> _sgxClient) {
+ptr<string> CryptoManager::sgxSignECDSA(ptr<SHAHash> _hash, string &_keyName, ptr<StubClient> _sgxClient) {
     CHECK_ARGUMENT(_sgxClient);
     auto result = _sgxClient->ecdsaSignMessageHash(16, _keyName, *_hash->toHex());
     auto status = result["status"].asInt64();
@@ -124,7 +129,7 @@ ptr<string> CryptoManager::sgxSignECDSA(ptr<SHAHash> _hash, string& _keyName,  p
     string s = result["signature_r"].asString();
     string v = result["signature_v"].asString();
 
-    return make_shared<string>(v + ":" +  r.substr(2) + ":" + s.substr(2));
+    return make_shared<string>(v + ":" + r.substr(2) + ":" + s.substr(2));
 
 }
 
@@ -335,7 +340,7 @@ void CryptoManager::generateSSLClientCertAndKey(string &_fullPathToDir) {
         return VALID_CHARS[distribution(generator)];
     });
     system(("/usr/bin/openssl req -new -sha256 -nodes -out " + _fullPathToDir + "/csr  -newkey rsa:2048 -keyout "
-    + _fullPathToDir+ "/key -subj /CN=" + random_string).data());
+            + _fullPathToDir + "/key -subj /CN=" + random_string).data());
     string str, csr;
     ifstream file;
     file.open(_fullPathToDir + "/csr");

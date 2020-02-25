@@ -244,10 +244,18 @@ TEST_CASE_METHOD(StartFromScratch, "Test sgx server connection", "[sgx]") {
         publicKeys.push_back(publicKey);
     }
 
+
+
+
+    CryptoManager cm( 16, 11, make_shared<string>("127.0.0.1"),
+                      make_shared<string>(keyFilePath),
+                      make_shared<string>("certFilePath"),
+                      keyNames.at(0), publicKeys);
+
     auto msg = make_shared<vector<uint8_t>>();
     msg->push_back('1');
     auto hash = SHAHash::calculateHash(msg);
-    auto sig = CryptoManager::sgxSignECDSA(hash,*keyNames[0],  c) ;
+    auto sig = cm.sgxSignECDSA(hash,*keyNames[0],  c) ;
     //auto rawSig = Utils::carray2Hex(sig)
     cerr << sig << endl;
 

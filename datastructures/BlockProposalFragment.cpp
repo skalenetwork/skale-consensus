@@ -29,8 +29,7 @@
 BlockProposalFragment::BlockProposalFragment(const block_id &blockId, const uint64_t totalFragments,
                                                const fragment_index &fragmentIndex, const ptr<vector<uint8_t>> &data,
                                                uint64_t _blockSize, ptr<string> _blockHash) :
-        blockId(blockId), totalFragments(totalFragments),
-        fragmentIndex(fragmentIndex), data(data), blockSize(_blockSize), blockHash(_blockHash) {
+        blockId(blockId), blockSize(_blockSize),blockHash(_blockHash),  totalFragments(totalFragments), fragmentIndex(fragmentIndex),  data(data) {
     CHECK_ARGUMENT(totalFragments > 0);
     CHECK_ARGUMENT(fragmentIndex <= totalFragments);
     CHECK_ARGUMENT(data != nullptr);

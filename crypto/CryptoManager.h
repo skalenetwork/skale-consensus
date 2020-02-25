@@ -64,13 +64,6 @@ private:
     ptr<string> sgxSSLCertFileFullPath;
     ptr<string> sgxECDSAKeyName;
     vector<ptr<string>> sgxECDSAPublicKeys;
-public:
-
-
-    // This constructor is used for testing
-    CryptoManager(uint64_t totalSigners, uint64_t requiredSigners, const ptr<string> &sgxIp,
-                  const ptr<string> &sgxSslKeyFileFullPath, const ptr<string> &sgxSslCertFileFullPath,
-                  const ptr<string> &sgxEcdsaKeyName, const vector<ptr<string>> &sgxEcdsaPublicKeys);
 
 private:
 
@@ -89,6 +82,12 @@ private:
 
 
 public:
+
+    // This constructor is used for testing
+    CryptoManager(uint64_t totalSigners, uint64_t requiredSigners, const ptr<string> &sgxIp,
+                  const ptr<string> &sgxSslKeyFileFullPath, const ptr<string> &sgxSslCertFileFullPath,
+                  const ptr<string> &sgxEcdsaKeyName, const vector<ptr<string>> &sgxEcdsaPublicKeys);
+
 
     CryptoManager(Schain& sChain);
 
