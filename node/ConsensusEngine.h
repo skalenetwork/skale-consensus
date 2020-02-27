@@ -50,6 +50,9 @@ class GlobalThreadRegistry;
 
 class ConsensusEngine : public ConsensusInterface {
 
+
+    atomic<consensus_engine_status> status = CONSENSUS_ACTIVE;
+
     static string engineVersion;
 
     ptr<GlobalThreadRegistry> threadRegistry;
@@ -164,16 +167,23 @@ public:
 
     void parseConfigsAndCreateAllNodes(const fs_path &dirname);
 
-    void exitGracefully() override;
+    void exitGracefullyBlocking();
+
+    void exitGracefullyAsync();
+
+    virtual void exitGracefully() override;
+
+    /* consensus status for now can be CONSENSUS_ACTIVE and CONSENSUS_EXITED */
+    virtual consensus_engine_status getStatus() const override;
 
     void bootStrapAll() override;
 
-    uint64_t getEmptyBlockIntervalMs() const {
+    uint64_t getEmptyBlockIntervalMs() const override {
         // HACK assume there is exactly one
         return (*(this->nodes.begin())).second->getEmptyBlockIntervalMs();
     }
 
-    void setEmptyBlockIntervalMs(uint64_t _interval) {
+    void setEmptyBlockIntervalMs(uint64_t _interval) override {
         // HACK assume there is exactly one
         (*(this->nodes.begin())).second->setEmptyBlockIntervalMs(_interval);
     }

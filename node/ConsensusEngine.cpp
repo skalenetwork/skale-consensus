@@ -1,24 +1,24 @@
- /*
-    Copyright (C) 2018-2019 SKALE Labs
+/*
+   Copyright (C) 2018-2019 SKALE Labs
 
-    This file is part of skale-consensus.
+   This file is part of skale-consensus.
 
-    skale-consensus is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Affero General Public License as published
-    by the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+   skale-consensus is free software: you can redistribute it and/or modify
+   it under the terms of the GNU Affero General Public License as published
+   by the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
 
-    skale-consensus is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Affero General Public License for more details.
+   skale-consensus is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU Affero General Public License for more details.
 
-    You should have received a copy of the GNU Affero General Public License
-    along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
+   You should have received a copy of the GNU Affero General Public License
+   along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file ConsensusEngine.cpp
-    @author Stan Kladko
-    @date 2018
+   @file ConsensusEngine.cpp
+   @author Stan Kladko
+   @date 2018
 */
 
 
@@ -153,8 +153,6 @@ void ConsensusEngine::logInit() {
 
     configLogger = createLogger("config");
 }
-
-
 
 
 const shared_ptr<string> ConsensusEngine::getDataDir() {
@@ -439,8 +437,6 @@ node_count ConsensusEngine::nodesCount() {
 }
 
 
-
-
 std::string ConsensusEngine::exec(const char *cmd) {
     std::array<char, 128> buffer;
     std::string result;
@@ -542,17 +538,32 @@ ConsensusEngine::ConsensusEngine(ConsensusExtFace &_extFace, uint64_t _lastCommi
 };
 
 
-
-
-
-
 ConsensusExtFace *ConsensusEngine::getExtFace() const {
     return extFace;
 }
 
 
-void ConsensusEngine::exitGracefully() {
+void ConsensusEngine::exitGracefullyBlocking() {
 
+    exitGracefully();
+
+    while (getStatus() != CONSENSUS_EXITED) {
+        usleep(100000);
+    }
+
+}
+
+
+void ConsensusEngine::exitGracefully() {
+    //run and forget
+    thread([this]() { exitGracefullyAsync(); }).detach();
+}
+
+consensus_engine_status ConsensusEngine::getStatus() const {
+    return status;
+}
+
+void ConsensusEngine::exitGracefullyAsync() {
     try {
 
         auto previouslyCalled = exitRequested.exchange(true);
@@ -582,16 +593,16 @@ void ConsensusEngine::exitGracefully() {
 
     } catch (exception &e) {
         Exception::logNested(e);
-        throw_with_nested(EngineInitException("Engine construction failed", __CLASS_NAME__));
+        throw_with_nested(EngineInitException("Graceful exit failed", __CLASS_NAME__));
     }
 
-
+    status = CONSENSUS_EXITED;
 
 }
 
 
 ConsensusEngine::~ConsensusEngine() {
-    exitGracefully();
+    exitGracefullyBlocking();
     for (auto &n : nodes) {
         assert(n.second->isExitRequested());
     }

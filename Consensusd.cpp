@@ -72,7 +72,7 @@ int main(int argc, char **argv) {
 
     sleep(20);
 
-    engine.exitGracefully();
+    engine.exitGracefullyBlocking();
     cerr << "Exited" << endl;
 
 #ifdef GOOGLE_PROFILE

@@ -31,6 +31,12 @@
 #include <string>
 #include <vector>
 
+enum consensus_engine_status {
+    CONSENSUS_ACTIVE = 0, CONSENSUS_EXITED = 1,
+};
+
+
+
 using u256 = boost::multiprecision::number<boost::multiprecision::backends::cpp_int_backend<256, 256,
         boost::multiprecision::unsigned_magnitude, boost::multiprecision::unchecked, void> >;
 
@@ -44,6 +50,22 @@ public:
 
     virtual void bootStrapAll() = 0;
 
+
+
+    /* exitGracefully is asyncronous and returns immediately
+     you are supposed to
+     a) Receive an exit request from the user
+     b) finish current block processing
+     c) call exitGracefully() to tell consensus it needs to exit
+     d) unblock (return from) pendingTransactions(...) function returning an empty transaction
+       vector
+     e) If you are in createBlock() function, return from it too (it is void)
+     f) call getStatus() from time to time until it returns CONSENSUS_EXITED
+
+     Consensus guarantees that it will not do anything for a particular block ID, until pendingTransactions(...)
+     for this block id returns.
+     */
+
     virtual void exitGracefully() = 0;
 
     virtual u256 getPriceForBlockId(uint64_t _blockId) const = 0;
@@ -51,6 +73,8 @@ public:
     virtual uint64_t getEmptyBlockIntervalMs() const { return -1; }
 
     virtual void setEmptyBlockIntervalMs(uint64_t) {}
+
+    virtual consensus_engine_status getStatus() const = 0;
 };
 
 /**
