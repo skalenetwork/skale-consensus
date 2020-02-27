@@ -473,6 +473,9 @@ void Schain::pushBlockToExtFace(ptr<CommittedBlock> &_block) {
             extFace->createBlock(*tv, _block->getTimeStamp(), _block->getTimeStampMs(),
                                  (__uint64_t) _block->getBlockID(),
                                  cur_price, _block->getStateRoot());
+            // exit immediately if exit has been requested
+            getSchain()->getNode()->exitCheck();
+
         }
 
     } catch (ExitRequestedException &e) { throw; }
