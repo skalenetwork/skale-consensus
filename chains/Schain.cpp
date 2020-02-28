@@ -570,13 +570,14 @@ void Schain::bootstrap(block_id _lastCommittedBlockID, uint64_t _lastCommittedBl
 
     LOG(info, "Consensus engine version:" + ConsensusEngine::getEngineVersion());
 
+    auto _lastCommittedBlockIDInConsensus = getNode()->getBlockDB()->readLastCommittedBlockID();
+
+    LOG(info, "Last committed block in consensus:" + to_string(_lastCommittedBlockIDInConsensus));
+
     checkForExit();
 
     // Step 1: solve block id  mismatch problems
 
-    auto _lastCommittedBlockIDInConsensus = getNode()->getBlockDB()->readLastCommittedBlockID();
-
-    cerr << "_lastCommittedBlockIDInConsensus=" << _lastCommittedBlockIDInConsensus << endl;
 
     if (_lastCommittedBlockIDInConsensus == _lastCommittedBlockID + 1) {
         // consensus has one more block than skaled
@@ -598,77 +599,73 @@ void Schain::bootstrap(block_id _lastCommittedBlockID, uint64_t _lastCommittedBl
             LOG(err, "Bootstrap could not read block from db");
             // The block will be pulled by catchup
         }
+    } else {
+// catch situations that should never happen
+        if (_lastCommittedBlockIDInConsensus < _lastCommittedBlockID) {
+            BOOST_THROW_EXCEPTION(InvalidStateException("_lastCommittedBlockIDInConsensus < _lastCommittedBlockID",
+                                                        __CLASS_NAME__));
+        }
+
+        if (_lastCommittedBlockIDInConsensus > _lastCommittedBlockID + 1) {
+            BOOST_THROW_EXCEPTION(InvalidStateException("_lastCommittedBlockIDInConsensus > _lastCommittedBlockID + 1",
+                                                        __CLASS_NAME__));
+        }
+
     }
 
-}
-
-else {
-// catch situations that should never happen
-if (_lastCommittedBlockIDInConsensus<_lastCommittedBlockID) {
-BOOST_THROW_EXCEPTION(InvalidStateException("_lastCommittedBlockIDInConsensus < _lastCommittedBlockID",
-                                            __CLASS_NAME__));
-}
-
-if (_lastCommittedBlockIDInConsensus > _lastCommittedBlockID + 1) {
-BOOST_THROW_EXCEPTION(InvalidStateException("_lastCommittedBlockIDInConsensus > _lastCommittedBlockID + 1",
-                                            __CLASS_NAME__));
-}
-
-}
-
-MONITOR2(__CLASS_NAME__, __FUNCTION__, getMaxExternalBlockProcessingTime())
+    MONITOR2(__CLASS_NAME__, __FUNCTION__, getMaxExternalBlockProcessingTime())
 
 // Step 2 : Bootstrap
 
-try {
-ASSERT(bootStrapped == false);
-bootStrapped = true;
-bootstrapBlockID.
-store((uint64_t)
-_lastCommittedBlockID);
-ASSERT(_lastCommittedBlockTimeStamp < (uint64_t) 2 * MODERN_TIME);
+    try {
+        ASSERT(bootStrapped == false);
+        bootStrapped = true;
+        bootstrapBlockID.
+                store((uint64_t)
+                              _lastCommittedBlockID);
+        ASSERT(_lastCommittedBlockTimeStamp < (uint64_t) 2 * MODERN_TIME);
 
-LOCK(m)
+        LOCK(m)
 
-ptr<BlockProposal> committedProposal = nullptr;
+        ptr<BlockProposal> committedProposal = nullptr;
 
-lastCommittedBlockID = (uint64_t) _lastCommittedBlockID;
-lastCommitTime = (uint64_t) Time::getCurrentTimeMs();
-lastCommittedBlockTimeStamp = _lastCommittedBlockTimeStamp;
-lastCommittedBlockTimeStampMs = 0;
+        lastCommittedBlockID = (uint64_t) _lastCommittedBlockID;
+        lastCommitTime = (uint64_t) Time::getCurrentTimeMs();
+        lastCommittedBlockTimeStamp = _lastCommittedBlockTimeStamp;
+        lastCommittedBlockTimeStampMs = 0;
 
 
-LOG(info, "Jump starting the system with block:" + to_string(_lastCommittedBlockID));
-if (
+        LOG(info, "Jump starting the system with block:" + to_string(_lastCommittedBlockID));
+        if (
 
-getLastCommittedBlockID()
+                getLastCommittedBlockID()
 
-== 0)
-this->pricingAgent->
+                == 0)
+            this->pricingAgent->
 
-calculatePrice(ConsensusExtFace::transactions_vector(),
+                    calculatePrice(ConsensusExtFace::transactions_vector(),
 
-0, 0, 0);
+                                   0, 0, 0);
 
-proposeNextBlock(lastCommittedBlockTimeStamp, lastCommittedBlockTimeStampMs
-);
-auto proposalVector = getNode()->getProposalVectorDB()->getVector(_lastCommittedBlockID + 1);
-if (proposalVector) {
-auto messages = getNode()->getOutgoingMsgDB()->getMessages(_lastCommittedBlockID + 1);
-for (
-auto &&m
-: *messages) {
-getNode()->getNetwork()->
-broadcastMessage(m);
-}
-}
+        proposeNextBlock(lastCommittedBlockTimeStamp, lastCommittedBlockTimeStampMs
+        );
+        auto proposalVector = getNode()->getProposalVectorDB()->getVector(_lastCommittedBlockID + 1);
+        if (proposalVector) {
+            auto messages = getNode()->getOutgoingMsgDB()->getMessages(_lastCommittedBlockID + 1);
+            for (
+                auto &&m
+                    : *messages) {
+                getNode()->getNetwork()->
+                        broadcastMessage(m);
+            }
+        }
 
-} catch (
-exception &e
-) {
-Exception::logNested(e);
-return;
-}
+    } catch (
+            exception &e
+    ) {
+        Exception::logNested(e);
+        return;
+    }
 }
 
 
