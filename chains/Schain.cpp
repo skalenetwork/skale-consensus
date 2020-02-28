@@ -585,12 +585,10 @@ void Schain::bootstrap(block_id _lastCommittedBlockID, uint64_t _lastCommittedBl
         // Since the snapshot is taken just before a block is processed
         try {
             auto block = getNode()->getBlockDB()->getBlock(_lastCommittedBlockIDInConsensus, getCryptoManager());
-            cerr << "HAVE ONE MORE BLOCK!!!" << endl;
             if (block != nullptr) {
                 // we have one more block in consensus, so we push it out
 
                 pushBlockToExtFace(block);
-                cerr << "Successfully pushed the block" << endl;
                 _lastCommittedBlockID = _lastCommittedBlockID + 1;
             }
         }
