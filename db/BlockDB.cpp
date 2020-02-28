@@ -80,6 +80,9 @@ void BlockDB::saveBlock2LevelDB(ptr<CommittedBlock> &_block) {
 
 }
 
+
+
+
 string BlockDB::createLastCommittedKey() {
     return getFormatVersion() + ":last";
 }
