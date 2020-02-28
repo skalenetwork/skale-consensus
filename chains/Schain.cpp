@@ -576,15 +576,20 @@ void Schain::bootstrap(block_id _lastCommittedBlockID, uint64_t _lastCommittedBl
 
     auto _lastCommittedBlockIDInConsensus = getNode()->getBlockDB()->readLastCommittedBlockID();
 
+    cerr << "_lastCommittedBlockIDInConsensus=" << _lastCommittedBlockIDInConsensus << endl;
+
     if (_lastCommittedBlockIDInConsensus == _lastCommittedBlockID + 1) {
         // consensus has one more block than skaled
         // This happens when starting from a snapshot
         // Since the snapshot is taken just before a block is processed
         try {
             auto block = getNode()->getBlockDB()->getBlock(_lastCommittedBlockIDInConsensus, getCryptoManager());
+            cerr << "HAVE ONE MORE BLOCK!!!" << endl;
             if (block != nullptr) {
                 // we have one more block in consensus, so we push it out
+
                 pushBlockToExtFace(block);
+                cerr << "Successfully pushed the block" << endl;
                 _lastCommittedBlockID = _lastCommittedBlockID + 1;
             }
         }
