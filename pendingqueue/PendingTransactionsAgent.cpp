@@ -106,6 +106,8 @@ pair<ptr<vector<ptr<Transaction>>>, u256> PendingTransactionsAgent::createTransa
 
         if (sChain->getExtFace()) {
             tx_vec = sChain->getExtFace()->pendingTransactions(need_max, stateRoot);
+            // exit immediately if exitGracefully has been requested
+            getSchain()->getNode()->exitCheck();
         } else {
             stateRootSample++;
             stateRoot = stateRootSample;

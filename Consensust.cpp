@@ -120,7 +120,7 @@ void basicRun() {
 
         REQUIRE(engine->nodesCount() > 0);
         REQUIRE(engine->getLargestCommittedBlockID() > 0);
-        engine->exitGracefully();
+        engine->exitGracefullyBlocking();
         delete engine;
     } catch (Exception &e) {
         Exception::logNested(e);
@@ -152,7 +152,7 @@ TEST_CASE_METHOD(StartFromScratch, "Use finalization download only", "[consensus
 
     REQUIRE(engine->nodesCount() > 0);
     REQUIRE(engine->getLargestCommittedBlockID() > 0);
-    engine->exitGracefully();
+    engine->exitGracefullyBlocking();
     delete engine;
     SUCCEED();
 }
@@ -161,7 +161,7 @@ bool success = false;
 
 void exit_check() {
     sleep(STUCK_TEST_TIME);
-    engine->exitGracefully();
+    engine->exitGracefullyBlocking();
 }
 
 TEST_CASE_METHOD(StartFromScratch, "Get consensus to stuck", "[consensus-stuck]") {
@@ -180,7 +180,7 @@ TEST_CASE_METHOD(StartFromScratch, "Get consensus to stuck", "[consensus-stuck]"
     } catch (...) {
         timer.join();
     }
-    engine->exitGracefully();
+    engine->exitGracefullyBlocking();
     delete engine;
     SUCCEED();
 }
@@ -196,7 +196,7 @@ TEST_CASE_METHOD(StartFromScratch, "Issue different proposals to different nodes
 
         REQUIRE(engine->nodesCount() > 0);
         REQUIRE(engine->getLargestCommittedBlockID() == 0);
-        engine->exitGracefully();
+        engine->exitGracefullyBlocking();
         delete engine;
     } catch (Exception &e) {
         Exception::logNested(e);
