@@ -153,6 +153,8 @@ public:
 
 
     ptr<string> readLastKeyInPrefixRange(string &_prefix);
+private:
+    std::string path_to_index(uint64_t index);
 };
 
 
