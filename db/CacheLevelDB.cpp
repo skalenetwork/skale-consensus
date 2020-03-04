@@ -326,7 +326,7 @@ DB *CacheLevelDB::openDB(uint64_t _index) {
         static leveldb::Options options;
         options.create_if_missing = true;
 
-        ASSERT2(leveldb::DB::Open(options, dirname + "/" + "db." + to_string(_index),
+        ASSERT2(leveldb::DB::Open(options, path_to_index(_index),
                                   &dbase).ok(),
                 "Unable to open database");
         return dbase;
@@ -417,7 +417,7 @@ std::pair<uint64_t, uint64_t> CacheLevelDB::findMaxMinDBIndex() {
     copy(directory_iterator(path(dirname)), directory_iterator(), back_inserter(dirs));
     sort(dirs.begin(), dirs.end());
 
-    size_t offset = strlen("db.");
+    size_t offset = string("db.").size();
 
     for (auto &path : dirs) {
         if (is_directory(path)) {
