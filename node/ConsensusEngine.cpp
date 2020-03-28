@@ -191,11 +191,12 @@ void ConsensusEngine::logConfig(level_enum _severity, const string &_message, co
 }
 
 void ConsensusEngine::log(level_enum _severity, const string &_message, const string &_className) {
+    string fullMessage = to_string((uint64_t) getLargestCommittedBlockID() + ":" + _message;
     if (logThreadLocal_ == nullptr) {
         CHECK_STATE(configLogger != nullptr);
-        configLogger->log(_severity, _message);
+        configLogger->log(_severity, fullMessage);
     } else {
-        logThreadLocal_->loggerForClass(_className.c_str())->log(_severity, _message);
+        logThreadLocal_->loggerForClass(_className.c_str())->log(_severity, fullMessage);
     }
 }
 
