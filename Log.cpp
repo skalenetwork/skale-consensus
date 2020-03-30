@@ -91,6 +91,8 @@ Log::Log(node_id _nodeID, ConsensusEngine* _engine) {
 
     CHECK_STATE(_engine);
 
+    engine = _engine;
+
     nodeID = _nodeID;
 
     prefix = make_shared<string>(to_string(_nodeID) + ":");
@@ -122,6 +124,11 @@ Log::Log(node_id _nodeID, ConsensusEngine* _engine) {
 
 const node_id Log::getNodeID() const {
     return nodeID;
+}
+
+ConsensusEngine *Log::getEngine() const {
+    CHECK_STATE(engine);
+    return engine;
 }
 
 
