@@ -26,6 +26,7 @@
 
 
 #include <exceptions/ConnectionRefusedException.h>
+#include <abstracttcpserver/ConnectionStatus.h>
 #include "abstracttcpclient/AbstractClientAgent.h"
 #include "Agent.h"
 
@@ -46,8 +47,8 @@ protected:
 
     void sendItem(ptr<DataStructure> _item, schain_index _dstIndex);
 
-    virtual void sendItemImpl(ptr<DataStructure> _item, shared_ptr<ClientSocket> socket,
-                              schain_index _destIndex) = 0;
+    virtual ConnectionStatus sendItemImpl(ptr<DataStructure> _item, shared_ptr<ClientSocket> socket,
+                                          schain_index _destIndex) = 0;
 
     std::map< schain_index, ptr< queue< ptr< DataStructure > > > > itemQueue;
 

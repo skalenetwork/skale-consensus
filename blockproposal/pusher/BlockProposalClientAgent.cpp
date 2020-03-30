@@ -108,8 +108,8 @@ BlockProposalClientAgent::readAndProcessFinalProposalResponseHeader(
 }
 
 
-void BlockProposalClientAgent::sendItemImpl(ptr<DataStructure> _item, shared_ptr<ClientSocket> _socket,
-                                            schain_index _index) {
+ConnectionStatus BlockProposalClientAgent::sendItemImpl(ptr<DataStructure> _item, shared_ptr<ClientSocket> _socket,
+                                                        schain_index _index) {
 
     CHECK_ARGUMENT(_item != nullptr);
 
@@ -117,30 +117,17 @@ void BlockProposalClientAgent::sendItemImpl(ptr<DataStructure> _item, shared_ptr
 
     if (_proposal != nullptr) {
 
-        while (true) {
-            auto status = sendBlockProposal(_proposal, _socket, _index);
-            if (status != CONNECTION_RETRY_LATER)
-                break;
-            usleep(PROPOSAL_RETRY_INTERVAL_MS);
-        }
-
-
-        return;
+        auto status = sendBlockProposal(_proposal, _socket, _index);
+        return status;
     }
+
 
     ptr<DAProof> _daProof = dynamic_pointer_cast<DAProof>(_item);
 
     if (_daProof != nullptr) {
 
-        while (true) {
-            auto status = sendDAProof(_daProof, _socket);
-            if (status != CONNECTION_RETRY_LATER)
-                break;
-            usleep(PROPOSAL_RETRY_INTERVAL_MS);
-        }
-
-
-        return;
+        auto status = sendDAProof(_daProof, _socket);
+        return status;
     }
 
     assert(false);
@@ -164,12 +151,12 @@ ptr<BlockProposal> BlockProposalClientAgent::corruptProposal(ptr<BlockProposal> 
 }
 
 
-
-ConnectionStatus BlockProposalClientAgent::sendBlockProposal(ptr<BlockProposal> _proposal, shared_ptr<ClientSocket> socket,
-                                                             schain_index _index) {
+ConnectionStatus
+BlockProposalClientAgent::sendBlockProposal(ptr<BlockProposal> _proposal, shared_ptr<ClientSocket> socket,
+                                            schain_index _index) {
 
     INJECT_TEST(CORRUPT_PROPOSAL_TEST,
-            _proposal = corruptProposal(_proposal, _index))
+                _proposal = corruptProposal(_proposal, _index))
 
     LOG(trace, "Proposal step 0: Starting block proposal");
 
@@ -383,7 +370,7 @@ ptr<unordered_set<ptr<partial_sha_hash>, PendingTransactionsAgent::Hasher,
 BlockProposalClientAgent::readMissingHashes(ptr<ClientSocket> _socket, uint64_t _count) {
     ASSERT(_count);
     auto bytesToRead = _count * PARTIAL_SHA_HASH_LEN;
-    auto buffer = make_shared<vector<uint8_t>> (bytesToRead);
+    auto buffer = make_shared<vector<uint8_t>>(bytesToRead);
 
     ASSERT(bytesToRead > 0);
 

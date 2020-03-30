@@ -332,7 +332,7 @@ ptr<vector<uint8_t>> CatchupServerAgent::createBlockFinalizeResponse(nlohmann::j
         auto proposal = getSchain()->getBlockProposal(_blockID, proposerIndex);
 
         if (proposal == nullptr) {
-            LOG(err, "Dont have proposal:" + to_string(proposerIndex));
+            LOG(trace, "Dont have proposal:" + to_string(proposerIndex));
             _responseHeader->setStatusSubStatus(CONNECTION_DISCONNECT, CONNECTION_DONT_HAVE_PROPOSAL);
             _responseHeader->setComplete();
             return nullptr;

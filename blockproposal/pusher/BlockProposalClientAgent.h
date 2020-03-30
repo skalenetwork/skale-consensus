@@ -57,7 +57,7 @@ class BlockProposalClientAgent : public AbstractClientAgent {
     readMissingHashes(ptr<ClientSocket> _socket, uint64_t _count);
 
 
-    void sendItemImpl(ptr<DataStructure> _item, shared_ptr<ClientSocket> _socket, schain_index _index);
+    ConnectionStatus sendItemImpl(ptr<DataStructure> _item, shared_ptr<ClientSocket> _socket, schain_index _index);
 
     ConnectionStatus sendBlockProposal(ptr<BlockProposal> _proposal, shared_ptr<ClientSocket> socket,
                                        schain_index _index);
