@@ -72,6 +72,12 @@ int ClientSocket::createTCPSocket() {
         BOOST_THROW_EXCEPTION(FatalError("Could not create outgoing socket:" + string(strerror(errno))));
     }
 
+    static  int one = 1;
+
+    CHECK_STATE(setsockopt(s, SOL_TCP, TCP_NODELAY, &one, sizeof(one)) == 0);
+
+
+
     if (::bind(s, (struct sockaddr *) bind_addr.get(), sizeof(sockaddr_in)) < 0) {
         close(s);
         BOOST_THROW_EXCEPTION(FatalError("Could not bind socket address" + string(strerror(errno))));

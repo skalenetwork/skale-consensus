@@ -80,21 +80,29 @@ uint64_t AbstractClientAgent::incrementAndReturnThreadCounter() {
 void AbstractClientAgent::sendItem(ptr<DataStructure> _item, schain_index _dstIndex) {
     ASSERT( getNode()->isStarted() );
 
-    auto socket = make_shared<ClientSocket >( *sChain, _dstIndex, portType );
+    while (true) {
+
+        auto socket = make_shared<ClientSocket>(*sChain, _dstIndex, portType);
 
 
-    try {
-        getSchain()->getIo()->writeMagic( socket );
+        try {
+            getSchain()->getIo()->writeMagic(socket);
+        }
+
+        catch (ExitRequestedException &) {
+            throw;
+        } catch (...) {
+            throw_with_nested(NetworkProtocolException("Could not write magic", __CLASS_NAME__));
+        }
+
+
+        if (sendItemImpl(_item, socket, _dstIndex) != CONNECTION_RETRY_LATER) {
+            return;
+        } else {
+            sleep(PROPOSAL_RETRY_INTERVAL_MS * 1000);
+        }
+
     }
-
-    catch ( ExitRequestedException& ) {
-        throw;
-    } catch ( ... ) {
-        throw_with_nested( NetworkProtocolException( "Could not write magic", __CLASS_NAME__ ) );
-    }
-
-
-    sendItemImpl(_item, socket, _dstIndex);
 }
 
 

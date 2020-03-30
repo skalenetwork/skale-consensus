@@ -159,6 +159,8 @@ static constexpr int64_t EMPTY_BLOCK_INTERVAL_MS = 10000;
 
 static constexpr uint64_t MIN_BLOCK_INTERVAL_MS = 1;
 
+static  constexpr uint64_t PROPOSAL_RETRY_INTERVAL_MS = 500;
+
 static constexpr uint64_t CATCHUP_INTERVAL_MS = 10000;
 
 static constexpr uint64_t MONITORING_INTERVAL_MS = 1000;

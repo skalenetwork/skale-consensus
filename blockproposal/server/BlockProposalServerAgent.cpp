@@ -238,6 +238,7 @@ BlockProposalServerAgent::processProposalRequest(ptr<ServerConnection> _connecti
 
         requestHeader = make_shared<BlockProposalRequestHeader>(_proposalRequest, getSchain()->getNodeCount());
         responseHeader = this->createProposalResponseHeader(_connection, *requestHeader);
+
     } catch (ExitRequestedException &) {
         throw;
     } catch (...) {
@@ -450,6 +451,12 @@ ptr<Header> BlockProposalServerAgent::createProposalResponseHeader(ptr<ServerCon
         return responseHeader;
     }
 
+    if ((uint64_t) sChain->getLastCommittedBlockID()  + 1 < (uint64_t) _header.getBlockId()) {
+        responseHeader->setStatusSubStatus(CONNECTION_RETRY_LATER,
+                CONNECTION_BLOCK_PROPOSAL_IN_THE_FUTURE);
+        responseHeader->setComplete();
+        return responseHeader;
+    }
 
     ASSERT(_header.getTimeStamp() > MODERN_TIME);
 
@@ -534,6 +541,15 @@ ptr<Header> BlockProposalServerAgent::createDAProofResponseHeader(ptr<ServerConn
         responseHeader->setComplete();
         return responseHeader;
     }
+
+    if ((uint64_t) sChain->getLastCommittedBlockID()  + 1 < _header.getBlockId()) {
+        responseHeader->setStatusSubStatus(CONNECTION_RETRY_LATER,
+                CONNECTION_BLOCK_PROPOSAL_IN_THE_FUTURE);
+        responseHeader->setComplete();
+        return responseHeader;
+    }
+
+
 
     ptr<SHAHash> blockHash = nullptr;
     try {

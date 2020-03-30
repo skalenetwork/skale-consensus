@@ -76,7 +76,6 @@ void IO::readBytes(file_descriptor _descriptor, ptr<vector<uint8_t>> _buffer, ms
     tv.tv_usec = 0;
     setsockopt(int(_descriptor), SOL_SOCKET, SO_RCVTIMEO, (const char *) &tv, sizeof tv);
 
-
     while (msg_len(bytesRead) < _len) {
 
 
@@ -102,7 +101,7 @@ void IO::readBytes(file_descriptor _descriptor, ptr<vector<uint8_t>> _buffer, ms
             }
 
 
-        } while (result <= 0 && errno == EAGAIN);
+        } while (result < 0 && errno == EAGAIN);
 
         if (result < 0) {
             BOOST_THROW_EXCEPTION(
@@ -144,11 +143,14 @@ void IO::writeBytes(file_descriptor descriptor, ptr<vector<uint8_t>> _buffer, ms
 
     while (msg_len(bytesWritten) < len) {
         int64_t result =
-                write((int) descriptor, _buffer->data() + bytesWritten, (uint64_t) len - bytesWritten);
+                send((int) descriptor, _buffer->data() + bytesWritten, (uint64_t) len - bytesWritten,
+                        MSG_NOSIGNAL);
 
 
         if (sChain->getNode()->isExitRequested())
             BOOST_THROW_EXCEPTION(ExitRequestedException(__CLASS_NAME__));
+
+        assert(result != 0);
 
         if (result < 1) {
             BOOST_THROW_EXCEPTION(IOException("Could not write bytes", errno, __CLASS_NAME__));
@@ -157,6 +159,9 @@ void IO::writeBytes(file_descriptor descriptor, ptr<vector<uint8_t>> _buffer, ms
 
         bytesWritten += result;
     }
+
+    assert (bytesWritten == len);
+
 }
 
 
@@ -265,7 +270,7 @@ nlohmann::json IO::readJsonHeader(file_descriptor descriptor, const char *_error
                   msg_len(sizeof(uint64_t)));
     } catch (ExitRequestedException &) { throw; }
     catch (...) {
-        throw_with_nested(NetworkProtocolException(_errorString + string(":Could not read header"), __CLASS_NAME__));
+        throw_with_nested(NetworkProtocolException(_errorString + string(":Could not read header len"), __CLASS_NAME__));
     }
 
 
