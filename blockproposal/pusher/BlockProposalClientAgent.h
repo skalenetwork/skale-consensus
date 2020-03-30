@@ -59,12 +59,12 @@ class BlockProposalClientAgent : public AbstractClientAgent {
 
     void sendItemImpl(ptr<DataStructure> _item, shared_ptr<ClientSocket> _socket, schain_index _index);
 
-    void sendBlockProposal(ptr<BlockProposal> _proposal, shared_ptr<ClientSocket> socket,
-                           schain_index _index);
+    ConnectionStatus sendBlockProposal(ptr<BlockProposal> _proposal, shared_ptr<ClientSocket> socket,
+                                       schain_index _index);
 
     ptr<BlockProposal> corruptProposal(ptr<BlockProposal> _proposal, schain_index _index);
 
-    void sendDAProof(
+    ConnectionStatus sendDAProof(
             ptr<DAProof> _daProof, shared_ptr<ClientSocket> socket);
 
 
