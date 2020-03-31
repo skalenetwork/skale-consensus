@@ -4,5 +4,5 @@
   "bindIP": "127.0.0.1",
   "basePort":1231,
 
-  "emptyBlockIntervalMs": 10000000
+  "emptyBlockIntervalMs": 1000
 }
