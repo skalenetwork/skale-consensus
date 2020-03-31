@@ -150,11 +150,11 @@ void AbstractServerAgent::acceptTCPConnectionsLoop() {
 
         while (!getSchain()->getNode()->isExitRequested()) {
 
-            static  int one = 1;
+            //static  int one = 1;
 
             int newConnection = accept(s, (sockaddr *) &clientAddress, &sizeOfClientAddress);
 
-            CHECK_STATE(setsockopt(newConnection, SOL_TCP, TCP_NODELAY, &one, sizeof(one)) == 0);
+            //CHECK_STATE(setsockopt(newConnection, SOL_TCP, TCP_NODELAY, &one, sizeof(one)) == 0);
 
             if (getSchain()->getNode()->isExitRequested()) {
                 return;
