@@ -99,7 +99,9 @@ void AbstractClientAgent::sendItem(ptr<DataStructure> _item, schain_index _dstIn
         if (sendItemImpl(_item, socket, _dstIndex) != CONNECTION_RETRY_LATER) {
             return;
         } else {
-            sleep(PROPOSAL_RETRY_INTERVAL_MS * 1000);
+
+            boost::this_thread::sleep(
+                    boost::posix_time::milliseconds(PROPOSAL_RETRY_INTERVAL_MS));
         }
 
     }

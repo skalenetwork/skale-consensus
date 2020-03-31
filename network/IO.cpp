@@ -143,10 +143,7 @@ void IO::writeBytes(file_descriptor descriptor, ptr<vector<uint8_t>> _buffer, ms
 
     while (msg_len(bytesWritten) < len) {
         int64_t result =
-                send((int) descriptor, _buffer->data() + bytesWritten, (uint64_t) len - bytesWritten,
-                        MSG_NOSIGNAL);
-
-
+                write((int) descriptor, _buffer->data() + bytesWritten, (uint64_t) len - bytesWritten);
         if (sChain->getNode()->isExitRequested())
             BOOST_THROW_EXCEPTION(ExitRequestedException(__CLASS_NAME__));
 
