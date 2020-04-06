@@ -37,13 +37,11 @@ class BooleanProposalVector;
 
 class BlockProposalDB : public CacheLevelDB {
 
-    recursive_mutex proposalMutex;
+    recursive_mutex proposalCacheMutex;
 
     ptr<cache::lru_cache<string, ptr<BlockProposal>>> proposalCache;
 
 public:
-
-
 
 
     bool proposalExists(block_id _blockId, schain_index _index);

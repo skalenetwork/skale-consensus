@@ -65,6 +65,20 @@ void BlockProposalDB::addBlockProposal(ptr<BlockProposal> _proposal) {
     LOG(trace, "addBlockProposal blockID_=" + to_string(_proposal->getBlockID()) + " proposerIndex=" +
                to_string(_proposal->getProposerIndex()));
 
+    auto key = createSetKey(_proposal->getBlockID(), _proposal->getProposerIndex());
+
+    {
+
+        LOCK(proposalCacheMutex);
+
+        if (!proposalCache->exists(key)) {
+            proposalCache->put(key, _proposal);
+        }
+    }
+
+
+
+
     try {
 
         ptr<vector<uint8_t> > serialized;
@@ -107,12 +121,17 @@ BlockProposalDB::getSerializedProposalFromLevelDB(block_id _blockID, schain_inde
 ptr<BlockProposal> BlockProposalDB::getBlockProposal(block_id _blockID, schain_index _proposerIndex) {
 
 
-    LOCK(proposalMutex);
+
 
     auto key = createSetKey(_blockID, _proposerIndex);
 
-    if (proposalCache->exists(key)) {
-        return proposalCache->get(key);
+    {
+
+        LOCK(proposalCacheMutex);
+
+        if (proposalCache->exists(key)) {
+            return proposalCache->get(key);
+        }
     }
 
     auto serializedProposal = getSerializedProposalFromLevelDB(_blockID, _proposerIndex);
@@ -125,7 +144,14 @@ ptr<BlockProposal> BlockProposalDB::getBlockProposal(block_id _blockID, schain_i
     if (proposal == nullptr)
         return nullptr;
 
-    proposalCache->put(key, proposal);
+    {
+
+        LOCK(proposalCacheMutex);
+
+        if (!proposalCache->exists(key)) {
+            proposalCache->put(key, proposal);
+        }
+    }
 
     CHECK_STATE(proposal->getSignature() != nullptr);
 
