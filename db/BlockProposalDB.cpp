@@ -51,7 +51,7 @@ using namespace std;
 BlockProposalDB::BlockProposalDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId,
                                  uint64_t _maxDBSize) :
         CacheLevelDB(_sChain, _dirName, _prefix, _nodeId, _maxDBSize, true) {
-    proposalCache = make_shared<cache::lru_cache<string, ptr<BlockProposal>>>(PROPOSAL_CACHE_SIZE);
+    proposalCache = make_shared<cache::lru_cache<string, ptr<BlockProposal>>>((uint64_t)_sChain->getNodeCount() * PROPOSAL_CACHE_SIZE);
 };
 
 void BlockProposalDB::addBlockProposal(ptr<BlockProposal> _proposal) {
@@ -77,6 +77,9 @@ void BlockProposalDB::addBlockProposal(ptr<BlockProposal> _proposal) {
     }
 
 
+    // dont save non-own proposals
+    if (_proposal->getProposerIndex() !=  getSchain()->getSchainIndex())
+        return;
 
 
     try {
