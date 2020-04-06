@@ -166,6 +166,7 @@ void BlockConsensusAgent::decideBlock(block_id _blockId, schain_index _sChainInd
 
     try {
 
+        LOG(info, string("BLOCK_DECIDE: PRPSR:") + to_string(_sChainIndex) + ":BID:" + to_string(_blockId) + "| Now signing block ...");
 
         auto msg = make_shared<BlockSignBroadcastMessage>(_blockId, _sChainIndex, *this);
 
