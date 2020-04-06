@@ -203,6 +203,7 @@ public:
 
     static void initHistory(node_count _nodeCount);
 
+    void initFromDB(const BlockConsensusAgent *_instance);
 };
 
 

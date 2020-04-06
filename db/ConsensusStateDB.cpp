@@ -31,6 +31,9 @@
 
 #include "ConsensusStateDB.h"
 
+_Pragma("GCC diagnostic push")
+_Pragma("GCC diagnostic ignored \"-Wunused-parameter\"")
+
 
 ConsensusStateDB::ConsensusStateDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId,
                                    uint64_t _maxDBSize) : CacheLevelDB(_sChain, _dirName, _prefix, _nodeId,
@@ -103,8 +106,10 @@ ConsensusStateDB::createAUXVoteKey(block_id _blockId, schain_index _proposerInde
 
 
 void ConsensusStateDB::writeCR(block_id _blockId, schain_index _proposerIndex, bin_consensus_round _r) {
+#ifdef CONSENSUS_STATE_PERSISTENCE
     auto key = createCurrentRoundKey(_blockId, _proposerIndex);
     writeString(*key, to_string((uint64_t) _r), true);
+#endif
 }
 
 bin_consensus_round ConsensusStateDB::readCR(block_id _blockId, schain_index _proposerIndex) {
@@ -120,9 +125,10 @@ bin_consensus_round ConsensusStateDB::readCR(block_id _blockId, schain_index _pr
 }
 
 void ConsensusStateDB::writeDR(block_id _blockId, schain_index _proposerIndex, bin_consensus_round _r) {
+#ifdef CONSENSUS_STATE_PERSISTENCE
     auto key = createDecidedRoundKey(_blockId, _proposerIndex);
     writeString(*key, to_string((uint64_t) _r));
-
+#endif
 }
 
 pair<bool, bin_consensus_round> ConsensusStateDB::readDR(block_id _blockId, schain_index _proposerIndex) {
@@ -137,10 +143,12 @@ pair<bool, bin_consensus_round> ConsensusStateDB::readDR(block_id _blockId, scha
 }
 
 void ConsensusStateDB::writeDV(block_id _blockId, schain_index _proposerIndex, bin_consensus_value _v) {
+#ifdef CONSENSUS_STATE_PERSISTENCE
     CHECK_ARGUMENT(_v <= 1)
 
     auto key = createDecidedValueKey(_blockId, _proposerIndex);
     writeString(*key, to_string((uint32_t) (uint8_t) _v));
+#endif
 }
 
 bin_consensus_value ConsensusStateDB::readDV(block_id _blockId, schain_index _proposerIndex) {
@@ -156,15 +164,18 @@ bin_consensus_value ConsensusStateDB::readDV(block_id _blockId, schain_index _pr
 
 void ConsensusStateDB::writePr(block_id _blockId, schain_index _proposerIndex, bin_consensus_round _r,
                                bin_consensus_value _v) {
+#ifdef CONSENSUS_STATE_PERSISTENCE
     CHECK_ARGUMENT(_v <= 1)
     auto key = createProposalKey(_blockId, _proposerIndex, _r);
     writeString(*key, to_string((uint32_t) (uint8_t) _v));
+#endif
 }
 
 
 
 bin_consensus_value ConsensusStateDB::readPR(block_id _blockId, schain_index _proposerIndex,
                                              bin_consensus_round _r) {
+
     auto key = createProposalKey(_blockId, _proposerIndex, _r);
     auto value = readString(*key);
     if (value == nullptr)
@@ -177,9 +188,11 @@ bin_consensus_value ConsensusStateDB::readPR(block_id _blockId, schain_index _pr
 
 void ConsensusStateDB::writeBVBVote(block_id _blockId, schain_index _proposerIndex, bin_consensus_round _r,
                                     schain_index _voterIndex, bin_consensus_value _v) {
+#ifdef CONSENSUS_STATE_PERSISTENCE
     CHECK_ARGUMENT(_v <= 1)
     auto key = createBVBVoteKey(_blockId, _proposerIndex, _r, _voterIndex, _v);
     writeString(*key, "");
+#endif
 
 }
 
@@ -221,10 +234,11 @@ ConsensusStateDB::readBVBVotes(block_id _blockId, schain_index _proposerIndex) {
 
 void ConsensusStateDB::writeBinValue(block_id _blockId, schain_index _proposerIndex, bin_consensus_round _r,
                                      bin_consensus_value _v) {
+#ifdef CONSENSUS_STATE_PERSISTENCE
     CHECK_ARGUMENT(_v <= 1)
     auto key = createBinValueKey(_blockId, _proposerIndex, _r, _v);
     writeString(*key, "");
-
+#endif
 }
 
 ptr<map<bin_consensus_round, set<bin_consensus_value>>>
@@ -288,10 +302,12 @@ ConsensusStateDB::readPRs(block_id _blockId, schain_index _proposerIndex) {
 void ConsensusStateDB::writeAUXVote(block_id _blockId, schain_index _proposerIndex, bin_consensus_round _r,
                                     schain_index _voterIndex,
                                     bin_consensus_value _v, ptr<string> _sigShare) {
+#ifdef CONSENSUS_STATE_PERSISTENCE
     CHECK_ARGUMENT(_v <= 1);
     CHECK_ARGUMENT(_sigShare);
     auto key = createAUXVoteKey(_blockId, _proposerIndex, _r, _voterIndex, _v);
     writeString(*key, *_sigShare);
+#endif
 
 }
 

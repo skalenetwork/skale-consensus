@@ -166,6 +166,7 @@ void BlockConsensusAgent::decideBlock(block_id _blockId, schain_index _sChainInd
 
     try {
 
+        LOG(info, "Signing block:" + to_string(_blockId));
 
         auto msg = make_shared<BlockSignBroadcastMessage>(_blockId, _sChainIndex, *this);
 
