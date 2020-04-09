@@ -63,17 +63,17 @@
 
 BlockConsensusAgent::BlockConsensusAgent(Schain &_schain) : ProtocolInstance(
         BLOCK_SIGN, _schain) {
-    trueDecisions = make_shared<cache::lru_cache<uint64_t , ptr<set<schain_index>>>>(MAX_CONSENSUS_HISTORY);
-    falseDecisions = make_shared<cache::lru_cache<uint64_t , ptr<set<schain_index>>>>(MAX_CONSENSUS_HISTORY);
-    decidedIndices = make_shared<cache::lru_cache<uint64_t , schain_index>>(MAX_CONSENSUS_HISTORY);
+    trueDecisions = make_shared<cache::lru_cache<uint64_t, ptr<map<schain_index, ptr<ChildBVDecidedMessage>>>>>(
+            MAX_CONSENSUS_HISTORY);
+    falseDecisions = make_shared<cache::lru_cache<uint64_t, ptr<map<schain_index, ptr<ChildBVDecidedMessage>>>>>(
+            MAX_CONSENSUS_HISTORY);
+    decidedIndices = make_shared<cache::lru_cache<uint64_t, schain_index>>(MAX_CONSENSUS_HISTORY);
 
 
     BinConsensusInstance::initHistory(_schain.getNodeCount());
 
 
-
-
-    for (int i = 0; i <  _schain.getNodeCount(); i++) {
+    for (int i = 0; i < _schain.getNodeCount(); i++) {
         children.push_back(make_shared<cache::lru_cache<uint64_t, ptr<BinConsensusInstance>>>(MAX_CONSENSUS_HISTORY));
     }
 
@@ -81,13 +81,9 @@ BlockConsensusAgent::BlockConsensusAgent(Schain &_schain) : ProtocolInstance(
 
     auto currentBlock = blockDB->readLastCommittedBlockID() + 1;
 
-    for (int i = 0; i <  _schain.getNodeCount(); i++) {
+    for (int i = 0; i < _schain.getNodeCount(); i++) {
         children[i]->put((uint64_t) currentBlock, make_shared<BinConsensusInstance>(this, currentBlock, i + 1, true));
     }
-
-
-
-
 
 
 };
@@ -162,11 +158,15 @@ void BlockConsensusAgent::propose(bin_consensus_value _proposal, schain_index _i
 }
 
 
-void BlockConsensusAgent::decideBlock(block_id _blockId, schain_index _sChainIndex) {
+void BlockConsensusAgent::decideBlock(block_id _blockId, schain_index _sChainIndex, ptr<string> _stats) {
+
+    CHECK_ARGUMENT(_stats);
 
     try {
 
-        LOG(info, string("BLOCK_DECIDE: PRPSR:") + to_string(_sChainIndex) + ":BID:" + to_string(_blockId) + "| Now signing block ...");
+        LOG(info, string("BLOCK_DECIDE: PRPSR:") + to_string(_sChainIndex) +
+
+                  ":BID:" + to_string(_blockId) + ":STATS:" + *_stats + "| Now signing block ...");
 
         auto msg = make_shared<BlockSignBroadcastMessage>(_blockId, _sChainIndex, *this);
 
@@ -175,9 +175,9 @@ void BlockConsensusAgent::decideBlock(block_id _blockId, schain_index _sChainInd
 
         getSchain()->getNode()->getNetwork()->broadcastMessage(msg);
 
-        ASSERT(!decidedIndices->exists((uint64_t)_blockId));
+        ASSERT(!decidedIndices->exists((uint64_t) _blockId));
 
-        decidedIndices->put((uint64_t )_blockId, _sChainIndex);
+        decidedIndices->put((uint64_t) _blockId, _sChainIndex);
 
 
         if (signature != nullptr) {
@@ -191,9 +191,9 @@ void BlockConsensusAgent::decideBlock(block_id _blockId, schain_index _sChainInd
 }
 
 
-void BlockConsensusAgent::decideEmptyBlock(block_id _blockNumber) {
+void BlockConsensusAgent::decideDefaultBlock(block_id _blockNumber) {
     try {
-        decideBlock(_blockNumber, schain_index(0));
+        decideBlock(_blockNumber, schain_index(0), make_shared<string>("DEFAULT_BLOCK"));
     } catch (ExitRequestedException &) { throw; } catch (Exception &e) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
@@ -216,28 +216,32 @@ void BlockConsensusAgent::reportConsensusAndDecideIfNeeded(ptr<ChildBVDecidedMes
         ASSERT(blockProposerIndex <= nodeCount);
 
 
-        if (decidedIndices->exists((uint64_t) blockID)){return;}
+        if (decidedIndices->exists((uint64_t) blockID)) { return; }
 
 
         if (_msg->getValue()) {
-            if (!trueDecisions->exists((uint64_t )blockID))
-                trueDecisions->put((uint64_t) blockID, make_shared<set<schain_index>>());
+            if (!trueDecisions->exists((uint64_t) blockID))
+                trueDecisions->put((uint64_t) blockID,
+                                   make_shared<map<schain_index, ptr<ChildBVDecidedMessage>>>());
 
-            trueDecisions->get((uint64_t)blockID)->insert(blockProposerIndex);
+            auto map = trueDecisions->get((uint64_t) blockID);
+            map->emplace(blockProposerIndex, _msg);
+
         } else {
-            if (!falseDecisions->exists((uint64_t )blockID))
+            if (!falseDecisions->exists((uint64_t) blockID))
                 falseDecisions->put((uint64_t) blockID,
-                        make_shared<set<schain_index>>());
+                                    make_shared<map<schain_index, ptr<ChildBVDecidedMessage>>>());
 
-            falseDecisions->get((uint64_t)blockID)->insert(blockProposerIndex);
+            auto map = falseDecisions->get((uint64_t) blockID);
+            map->emplace(blockProposerIndex, _msg);
         }
 
 
         if (!trueDecisions->exists((uint64_t) blockID) ||
-                trueDecisions->get((uint64_t) blockID)->empty()) {
+            trueDecisions->get((uint64_t) blockID)->empty()) {
             if (falseDecisions->exists((uint64_t) blockID) &&
-            (uint64_t) falseDecisions->get((uint64_t) blockID)->size() == nodeCount) {
-                decideEmptyBlock(blockID);
+                (uint64_t) falseDecisions->get((uint64_t) blockID)->size() == nodeCount) {
+                decideDefaultBlock(blockID);
             }
             return;
         }
@@ -265,7 +269,12 @@ void BlockConsensusAgent::reportConsensusAndDecideIfNeeded(ptr<ChildBVDecidedMes
             auto index = schain_index(i % nodeCount) + 1;
             if (trueDecisions->exists((uint64_t) blockID) &&
                 trueDecisions->get((uint64_t) blockID)->count(index) > 0) {
-                decideBlock(blockID, index);
+
+                ptr<string> statsString = buildStats(blockID);
+
+
+
+                decideBlock(blockID, index, statsString);
                 return;
             }
             if (!falseDecisions->exists((uint64_t) blockID) ||
@@ -310,7 +319,7 @@ void BlockConsensusAgent::routeAndProcessMessage(ptr<MessageEnvelope> m) {
         auto blockID = m->getMessage()->getBlockId();
 
         // Future blockid messages shall never get to this point
-        CHECK_ARGUMENT( blockID <= getSchain()->getLastCommittedBlockID() + 1);
+        CHECK_ARGUMENT(blockID <= getSchain()->getLastCommittedBlockID() + 1);
 
         if (blockID + MAX_ACTIVE_CONSENSUSES < getSchain()->getLastCommittedBlockID())
             return; // message has a very old block id, ignore. They need to catchup
@@ -376,12 +385,12 @@ ptr<BinConsensusInstance> BlockConsensusAgent::getChild(ptr<ProtocolKey> _key) {
     try {
 
         LOCK(m)
-        if (!children.at((uint64_t ) bpi - 1)->exists((uint64_t ) bid)) {
+        if (!children.at((uint64_t) bpi - 1)->exists((uint64_t) bid)) {
             children.at((uint64_t) bpi - 1)->put(
-                    (uint64_t ) bid, make_shared<BinConsensusInstance>(this, bid, bpi));
+                    (uint64_t) bid, make_shared<BinConsensusInstance>(this, bid, bpi));
         }
 
-        return children.at((uint64_t) bpi - 1)->get((uint64_t ) bid);
+        return children.at((uint64_t) bpi - 1)->get((uint64_t) bid);
 
     } catch (ExitRequestedException &) { throw; } catch (Exception &e) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
@@ -402,7 +411,7 @@ bool BlockConsensusAgent::shouldPost(ptr<NetworkMessage> _msg) {
     auto r = _msg->getRound();
 
 
-    if (r >  currentRound + 1) { // way in the future
+    if (r > currentRound + 1) { // way in the future
         return false;
     }
 
@@ -412,4 +421,49 @@ bool BlockConsensusAgent::shouldPost(ptr<NetworkMessage> _msg) {
 
 
     return true;
+}
+
+ptr<string> BlockConsensusAgent::buildStats(block_id _blockID) {
+
+    ptr<map<schain_index, ptr<ChildBVDecidedMessage>>> tDecisions = nullptr;
+    ptr<map<schain_index, ptr<ChildBVDecidedMessage>>> fDecisions = nullptr;
+
+    if (trueDecisions->exists((uint64_t) _blockID)) {
+        tDecisions = trueDecisions->get((uint64_t) _blockID);
+    }
+
+    if (falseDecisions->exists((uint64_t) _blockID)) {
+        fDecisions = falseDecisions->get((uint64_t) _blockID);
+    }
+
+    auto result = make_shared<string>("");
+
+    for (int i = 1; i <= getSchain()->getNodeCount(); i++) {
+        string stats = to_string(i) + "|";
+        string decision = "";
+        string round = "";
+        string processingTime = "";
+        ptr<ChildBVDecidedMessage> msg = nullptr;
+
+        if (tDecisions && tDecisions->count(i) != 0) {
+            msg = tDecisions->at(i);
+            decision = "1";
+        } else if (fDecisions && fDecisions->count(i) != 0) {
+            decision = "0";
+            msg = fDecisions->at(i);
+        }
+
+        if (msg != nullptr) {
+            round = to_string(msg->getRound());
+            processingTime = to_string(msg->getMaxProcessingTime());
+            stats = stats + "d" + decision + "r" + round + "t" + processingTime + "|";
+        } else {
+            stats += "*|";
+        };
+
+        result->append(stats);
+    }
+
+    return result;
+
 }

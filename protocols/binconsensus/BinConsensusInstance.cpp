@@ -21,15 +21,14 @@
     @date 2018
 */
 
+
+#include "thirdparty/json.hpp"
 #include "SkaleCommon.h"
 #include "Log.h"
 #include "exceptions/FatalError.h"
-#include "thirdparty/json.hpp"
 #include "crypto/ConsensusBLSSigShare.h"
 #include "chains/Schain.h"
 #include "crypto/CryptoManager.h"
-#include "AUXBroadcastMessage.h"
-
 #include "node/NodeInfo.h"
 #include "messages/ParentMessage.h"
 #include "messages/MessageEnvelope.h"
@@ -45,10 +44,13 @@
 #include "db/ConsensusStateDB.h"
 #include "network/TransportNetwork.h"
 #include "protocols/ProtocolInstance.h"
-#include "ChildBVDecidedMessage.h"
-#include "BVBroadcastMessage.h"
 #include "protocols/blockconsensus/BlockConsensusAgent.h"
 #include "crypto/ConsensusSigShareSet.h"
+#include "utils/Time.h"
+
+#include "AUXBroadcastMessage.h"
+#include "ChildBVDecidedMessage.h"
+#include "BVBroadcastMessage.h"
 #include "BinConsensusInstance.h"
 
 
@@ -56,6 +58,10 @@ using namespace std;
 
 
 void BinConsensusInstance::processMessage(ptr<MessageEnvelope> _m) {
+
+    CHECK_STATE(_m);
+
+
 
 
     CHECK_STATE(_m->getMessage()->getBlockID() == getBlockID());
@@ -93,6 +99,9 @@ void BinConsensusInstance::ifAlreadyDecidedSendDelayedEstimateForNextRound(bin_c
 
 void BinConsensusInstance::processNetworkMessageImpl(ptr<NetworkMessageEnvelope> _me) {
 
+    CHECK_STATE(_me)
+
+    updateStats(_me);
 
     auto message = dynamic_pointer_cast<NetworkMessage>(_me->getMessage());
 
@@ -133,6 +142,15 @@ void BinConsensusInstance::processNetworkMessageImpl(ptr<NetworkMessageEnvelope>
     }
 
 
+}
+
+void BinConsensusInstance::updateStats(const ptr<NetworkMessageEnvelope> &_me) {
+
+    auto processingTime = Time::getCurrentTimeMs() - _me->getArrivalTime();
+
+    if (processingTime > maxProcessingTime) {
+        maxProcessingTime = processingTime;
+    }
 }
 
 void BinConsensusInstance::processParentProposal(ptr<InternalMessageEnvelope> _me) {
@@ -544,7 +562,8 @@ void BinConsensusInstance::decide(bin_consensus_value _b) {
 
     addDecideToGlobalHistory(decidedValue);
 
-    auto msg = make_shared<ChildBVDecidedMessage>((bool) _b, *this, this->getProtocolKey());
+    auto msg = make_shared<ChildBVDecidedMessage>((bool) _b, *this, this->getProtocolKey(),
+            this->getCurrentRound(), maxProcessingTime);
 
 
     LOG(debug, "Decided value: " + to_string(decidedValue) + " for blockid:" +

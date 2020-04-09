@@ -48,6 +48,9 @@ class BinConsensusInstance : public ProtocolInstance{
     const node_count nodeCount;
     const ptr<ProtocolKey> protocolKey;
 
+    uint64_t maxProcessingTime = 0;
+
+
     class Comparator {
     public:
         bool operator()(const ptr<ProtocolKey> &a,
@@ -178,6 +181,9 @@ class BinConsensusInstance : public ProtocolInstance{
 
     const node_count &getNodeCount() const;
 
+
+    void updateStats(const ptr<NetworkMessageEnvelope> &_me);
+
 public:
 
     bool decided() const;
@@ -204,6 +210,7 @@ public:
     static void initHistory(node_count _nodeCount);
 
     void initFromDB(const BlockConsensusAgent *_instance);
+
 };
 
 
