@@ -47,20 +47,20 @@ class BlockConsensusAgent : public ProtocolInstance {
 
     vector<ptr<cache::lru_cache<uint64_t, ptr<BinConsensusInstance>>>> children;
 
-    ptr<cache::lru_cache<uint64_t , ptr<set<schain_index>>>> trueDecisions;
-    ptr<cache::lru_cache<uint64_t , ptr<set<schain_index>>>> falseDecisions;
+    ptr<cache::lru_cache<uint64_t , ptr<map<schain_index, ptr<ChildBVDecidedMessage>>>>> trueDecisions;
+    ptr<cache::lru_cache<uint64_t , ptr<map<schain_index, ptr<ChildBVDecidedMessage>>>>> falseDecisions;
     ptr<cache::lru_cache<uint64_t , schain_index>> decidedIndices;
 
 
     void processChildMessageImpl(ptr<InternalMessageEnvelope> _me);
 
-    void decideBlock(block_id _blockId, schain_index _sChainIndex);
+    void decideBlock(block_id _blockId, schain_index _sChainIndex, ptr<string> _stats);
 
     void propose(bin_consensus_value _proposal, schain_index index, block_id _id);
 
     void reportConsensusAndDecideIfNeeded(ptr<ChildBVDecidedMessage> _msg);
 
-    void decideEmptyBlock(block_id _blockNumber);
+    void decideDefaultBlock(block_id _blockNumber);
 
     void startConsensusProposal(block_id _blockID, ptr<BooleanProposalVector> _proposal);
 
@@ -74,6 +74,7 @@ class BlockConsensusAgent : public ProtocolInstance {
     bool decided(ptr<ProtocolKey> key);
 
 
+    ptr<string> buildStats(block_id _blockID);
 
 public:
 

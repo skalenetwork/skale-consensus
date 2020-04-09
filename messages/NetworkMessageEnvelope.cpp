@@ -27,11 +27,19 @@
 #include "thirdparty/json.hpp"
 #include "NetworkMessage.h"
 #include "node/Node.h"
+
 #include "node/NodeInfo.h"
+#include "utils/Time.h"
 #include "MessageEnvelope.h"
 #include "NetworkMessageEnvelope.h"
 
 
 NetworkMessageEnvelope::NetworkMessageEnvelope(
     const ptr< NetworkMessage >& message, const ptr< NodeInfo >& realSender )
-    : MessageEnvelope( ORIGIN_NETWORK, message, realSender ) {}
+    : MessageEnvelope( ORIGIN_NETWORK, message, realSender ) {
+    arrivalTime = Time::getCurrentTimeMs();
+}
+
+uint64_t NetworkMessageEnvelope::getArrivalTime() const {
+    return arrivalTime;
+}
