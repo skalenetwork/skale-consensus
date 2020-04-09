@@ -443,10 +443,8 @@ ptr<string> BlockConsensusAgent::buildStats(block_id _blockID) {
 
     for (int i = 1; i <= getSchain()->getNodeCount(); i++) {
         string stats = to_string(i) + "|";
-        string decision = "";
-        string round = "";
-        string processingTime = "";
         ptr<ChildBVDecidedMessage> msg = nullptr;
+        string decision;
 
         if (tDecisions && tDecisions->count(i) != 0) {
             msg = tDecisions->at(i);
@@ -457,9 +455,11 @@ ptr<string> BlockConsensusAgent::buildStats(block_id _blockID) {
         }
 
         if (msg != nullptr) {
-            round = to_string(msg->getRound());
-            processingTime = to_string(msg->getMaxProcessingTime());
-            stats = stats + "d" + decision + "r" + round + "t" + processingTime + "|";
+            auto round = to_string(msg->getRound());
+            auto processingTime = to_string(msg->getMaxProcessingTimeMs());
+            auto latencyTime = to_string(msg->getMaxLatencyTimeMs());
+            stats = stats + "D" + decision + "R" + round + "P" + processingTime +
+                    "L" + latencyTime + "|";
         } else {
             stats += "*|";
         };

@@ -148,8 +148,18 @@ void BinConsensusInstance::updateStats(const ptr<NetworkMessageEnvelope> &_me) {
 
     auto processingTime = Time::getCurrentTimeMs() - _me->getArrivalTime();
 
-    if (processingTime > maxProcessingTime) {
-        maxProcessingTime = processingTime;
+    if (processingTime > maxProcessingTimeMs) {
+        maxProcessingTimeMs = processingTime;
+    }
+
+    auto m = (NetworkMessage *) _me->getMessage().get();
+
+    auto latencyTime = (int64_t) _me->getArrivalTime() - (int64_t) m->getTimeMs();
+    if (latencyTime < 0)
+        latencyTime = 0;
+
+    if (maxLatencyTimeMs < (uint64_t) latencyTime) {
+        maxLatencyTimeMs = (uint64_t) latencyTime;
     }
 }
 
@@ -565,7 +575,8 @@ void BinConsensusInstance::decide(bin_consensus_value _b) {
     addDecideToGlobalHistory(decidedValue);
 
     auto msg = make_shared<ChildBVDecidedMessage>((bool) _b, *this, this->getProtocolKey(),
-            this->getCurrentRound(), maxProcessingTime);
+                                                  this->getCurrentRound(), maxProcessingTimeMs,
+                                                  maxLatencyTimeMs);
 
 
     LOG(debug, "Decided value: " + to_string(decidedValue) + " for blockid:" +
