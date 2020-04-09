@@ -208,6 +208,11 @@ void BlockConsensusAgent::reportConsensusAndDecideIfNeeded(ptr<ChildBVDecidedMes
         schain_index blockProposerIndex = _msg->getBlockProposerIndex();
         auto blockID = _msg->getBlockId();
 
+        if (blockID <= getSchain()->getLastCommittedBlockID()) {
+            // Old consensus is reporting, already got this block through catchup
+            return;
+        }
+
         ASSERT(blockProposerIndex <= nodeCount);
 
 
