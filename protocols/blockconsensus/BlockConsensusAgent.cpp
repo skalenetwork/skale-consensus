@@ -52,6 +52,7 @@
 #include "blockfinalize/client/BlockFinalizeDownloaderThreadPool.h"
 #include "thirdparty/lrucache.hpp"
 
+#include "utils/Time.h"
 #include "protocols/ProtocolKey.h"
 #include  "protocols/binconsensus/BVBroadcastMessage.h"
 #include  "protocols/binconsensus/BinConsensusInstance.h"
@@ -128,10 +129,10 @@ void BlockConsensusAgent::startConsensusProposal(block_id _blockID, ptr<BooleanP
 void BlockConsensusAgent::processChildMessageImpl(ptr<InternalMessageEnvelope> _me) {
 
 
-    auto m = dynamic_pointer_cast<ChildBVDecidedMessage>(_me->getMessage());
+    auto msg = dynamic_pointer_cast<ChildBVDecidedMessage>(_me->getMessage());
 
 
-    reportConsensusAndDecideIfNeeded(m);
+    reportConsensusAndDecideIfNeeded(msg);
 }
 
 void BlockConsensusAgent::propose(bin_consensus_value _proposal, schain_index _index, block_id _id) {
@@ -143,7 +144,8 @@ void BlockConsensusAgent::propose(bin_consensus_value _proposal, schain_index _i
 
         auto child = getChild(key);
 
-        auto msg = make_shared<BVBroadcastMessage>(_id, _index, bin_consensus_round(0), _proposal, *child);
+        auto msg = make_shared<BVBroadcastMessage>(_id, _index, bin_consensus_round(0), _proposal,
+                Time::getCurrentTimeMs(), *child);
 
 
         auto id = (uint64_t) msg->getBlockId();
@@ -168,7 +170,8 @@ void BlockConsensusAgent::decideBlock(block_id _blockId, schain_index _sChainInd
 
                   ":BID:" + to_string(_blockId) + ":STATS:" + *_stats + "| Now signing block ...");
 
-        auto msg = make_shared<BlockSignBroadcastMessage>(_blockId, _sChainIndex, *this);
+        auto msg = make_shared<BlockSignBroadcastMessage>(_blockId, _sChainIndex,
+                Time::getCurrentTimeMs(), *this);
 
         auto signature = getSchain()->getNode()->getBlockSigShareDB()->checkAndSaveShare(msg->getSigShare(),
                                                                                          getSchain()->getCryptoManager());

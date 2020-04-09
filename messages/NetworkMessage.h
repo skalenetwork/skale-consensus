@@ -50,6 +50,8 @@ class NetworkMessage : public Message, public BasicHeader {
 
 protected:
 
+    uint64_t timeMs;
+
 
     void addFields(nlohmann::json &j) override;
 
@@ -60,17 +62,17 @@ protected:
 
     ptr<ThresholdSigShare> sigShare;
 
-    NetworkMessage(MsgType _messageType, block_id _blockID, schain_index _blockProposerIndex,
-                   bin_consensus_round _r, bin_consensus_value _value,
-                   ProtocolInstance &_srcProtocolInstance);
+    NetworkMessage(MsgType _messageType, block_id _blockID, schain_index _blockProposerIndex, bin_consensus_round _r,
+                   bin_consensus_value _value, uint64_t _timeMs, ProtocolInstance &_srcProtocolInstance);
 
 
-    NetworkMessage(MsgType _messageType, node_id _srcNodeID, block_id _blockID,
-                   schain_index _blockProposerIndex, bin_consensus_round _r, bin_consensus_value _value,
-                   schain_id _schainId, msg_id _msgID, ptr<string> _sigShareStr,
-                   schain_index _srcSchainIndex, ptr<CryptoManager> _cryptoManager);
+    NetworkMessage(MsgType _messageType, node_id _srcNodeID, block_id _blockID, schain_index _blockProposerIndex,
+                   bin_consensus_round _r, bin_consensus_value _value, uint64_t _timeMs, schain_id _schainId,
+                   msg_id _msgID, ptr<string> _sigShareStr, schain_index _srcSchainIndex,
+                   ptr<CryptoManager> _cryptoManager);
 
-
+public:
+    uint64_t getTimeMs() const;
 
 
 public:
@@ -80,6 +82,8 @@ public:
 
     bin_consensus_round r;
     bin_consensus_value value;
+
+
 
     virtual bin_consensus_round getRound() const;
 

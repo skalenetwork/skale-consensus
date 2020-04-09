@@ -383,7 +383,7 @@ void BinConsensusInstance::networkBroadcastValue(ptr<BVBroadcastMessage> _m) {
         return;
 
     auto newMsg = make_shared<BVBroadcastMessage>(_m->getBlockID(), _m->getBlockProposerIndex(), _m->getRound(),
-                                                  _m->getValue(),
+                                                  _m->getValue(), Time::getCurrentTimeMs(),
                                                   *this);
 
     getSchain()->getNode()->getNetwork()->broadcastMessage(newMsg);
@@ -395,7 +395,8 @@ void BinConsensusInstance::networkBroadcastValue(ptr<BVBroadcastMessage> _m) {
 void BinConsensusInstance::auxBroadcastValue(bin_consensus_round _r, bin_consensus_value _v) {
 
 
-    auto m = make_shared<AUXBroadcastMessage>(_r, _v, blockID, blockProposerIndex, *this);
+    auto m = make_shared<AUXBroadcastMessage>(_r, _v, blockID, blockProposerIndex,
+            Time::getCurrentTimeMs(), *this);
 
     auxSelfVote(_r, _v, m->getSigShare());
 
@@ -494,7 +495,8 @@ void BinConsensusInstance::proceedWithNewRound(bin_consensus_value _value) {
     addNextRoundToHistory(getCurrentRound(), _value);
 
     auto m = make_shared<BVBroadcastMessage>(getBlockID(), getBlockProposerIndex(),
-                                             getCurrentRound(), _value, *this);
+                                             getCurrentRound(), _value,
+                                             Time::getCurrentTimeMs(), *this);
 
     ptr<MessageEnvelope> me = make_shared<MessageEnvelope>(ORIGIN_NETWORK, m, getSchain()->getThisNodeInfo());
 
