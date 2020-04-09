@@ -148,8 +148,18 @@ void BinConsensusInstance::updateStats(const ptr<NetworkMessageEnvelope> &_me) {
 
     auto processingTime = Time::getCurrentTimeMs() - _me->getArrivalTime();
 
-    if (processingTime > maxProcessingTime) {
-        maxProcessingTime = processingTime;
+    if (processingTime > maxProcessingTimeMs) {
+        maxProcessingTimeMs = processingTime;
+    }
+
+    auto m = (NetworkMessage *) _me->getMessage().get();
+
+    auto latencyTime = (int64_t) _me->getArrivalTime() - (int64_t) m->getTimeMs();
+    if (latencyTime < 0)
+        latencyTime = 0;
+
+    if (maxLatencyTimeMs < (uint64_t) latencyTime) {
+        maxLatencyTimeMs = (uint64_t) latencyTime;
     }
 }
 
@@ -383,7 +393,7 @@ void BinConsensusInstance::networkBroadcastValue(ptr<BVBroadcastMessage> _m) {
         return;
 
     auto newMsg = make_shared<BVBroadcastMessage>(_m->getBlockID(), _m->getBlockProposerIndex(), _m->getRound(),
-                                                  _m->getValue(),
+                                                  _m->getValue(), Time::getCurrentTimeMs(),
                                                   *this);
 
     getSchain()->getNode()->getNetwork()->broadcastMessage(newMsg);
@@ -395,7 +405,8 @@ void BinConsensusInstance::networkBroadcastValue(ptr<BVBroadcastMessage> _m) {
 void BinConsensusInstance::auxBroadcastValue(bin_consensus_round _r, bin_consensus_value _v) {
 
 
-    auto m = make_shared<AUXBroadcastMessage>(_r, _v, blockID, blockProposerIndex, *this);
+    auto m = make_shared<AUXBroadcastMessage>(_r, _v, blockID, blockProposerIndex,
+            Time::getCurrentTimeMs(), *this);
 
     auxSelfVote(_r, _v, m->getSigShare());
 
@@ -494,7 +505,8 @@ void BinConsensusInstance::proceedWithNewRound(bin_consensus_value _value) {
     addNextRoundToHistory(getCurrentRound(), _value);
 
     auto m = make_shared<BVBroadcastMessage>(getBlockID(), getBlockProposerIndex(),
-                                             getCurrentRound(), _value, *this);
+                                             getCurrentRound(), _value,
+                                             Time::getCurrentTimeMs(), *this);
 
     ptr<MessageEnvelope> me = make_shared<MessageEnvelope>(ORIGIN_NETWORK, m, getSchain()->getThisNodeInfo());
 
@@ -563,7 +575,8 @@ void BinConsensusInstance::decide(bin_consensus_value _b) {
     addDecideToGlobalHistory(decidedValue);
 
     auto msg = make_shared<ChildBVDecidedMessage>((bool) _b, *this, this->getProtocolKey(),
-            this->getCurrentRound(), maxProcessingTime);
+                                                  this->getCurrentRound(), maxProcessingTimeMs,
+                                                  maxLatencyTimeMs);
 
 
     LOG(debug, "Decided value: " + to_string(decidedValue) + " for blockid:" +

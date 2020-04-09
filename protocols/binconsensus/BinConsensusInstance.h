@@ -48,7 +48,8 @@ class BinConsensusInstance : public ProtocolInstance{
     const node_count nodeCount;
     const ptr<ProtocolKey> protocolKey;
 
-    uint64_t maxProcessingTime = 0;
+    uint64_t maxProcessingTimeMs = 0;
+    uint64_t maxLatencyTimeMs = 0;
 
 
     class Comparator {

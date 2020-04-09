@@ -39,10 +39,10 @@ public:
 
 
     AUXBroadcastMessage(bin_consensus_round _round, bin_consensus_value _value, block_id _blockID,
-                        schain_index _proposerIndex, BinConsensusInstance &_sourceProtocolInstance);
+                        schain_index _proposerIndex, uint64_t _time, BinConsensusInstance &_sourceProtocolInstance);
 
     AUXBroadcastMessage(node_id _srcNodeID, block_id _blockID, schain_index _blockProposerIndex, bin_consensus_round _r,
-                        bin_consensus_value _value, schain_id _schainId, msg_id _msgID, ptr<string> _signature,
-                        schain_index _srcSchainIndex, Schain *_sChain);
+                        bin_consensus_value _value, uint64_t _time, schain_id _schainId, msg_id _msgID,
+                        ptr<string> _signature, schain_index _srcSchainIndex, Schain *_sChain);
 
 };
