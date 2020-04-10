@@ -25,6 +25,7 @@
 
 #include "abstracttcpclient/AbstractClientAgent.h"
 #include "pendingqueue/PendingTransactionsAgent.h"
+#include "thirdparty/lrucache.hpp"
 
 
 class ClientSocket;
@@ -43,6 +44,8 @@ class FinalProposalResponseHeader;
 
 
 class BlockProposalClientAgent : public AbstractClientAgent {
+
+    ptr<cache::lru_cache<uint64_t, uint64_t>> sentProposals;
 
     friend class BlockProposalPusherThreadPool;
 

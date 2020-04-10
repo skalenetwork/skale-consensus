@@ -61,6 +61,9 @@
 
 BlockProposalClientAgent::BlockProposalClientAgent(Schain &_sChain)
         : AbstractClientAgent(_sChain, PROPOSAL) {
+
+    sentProposals = make_shared<cache::lru_cache<uint64_t, uint64_t>>(32);
+
     try {
         LOG(debug, "Constructing blockProposalPushAgent");
 
@@ -161,6 +164,11 @@ BlockProposalClientAgent::sendBlockProposal(ptr<BlockProposal> _proposal, shared
     LOG(trace, "Proposal step 0: Starting block proposal");
 
     CHECK_ARGUMENT(_proposal != nullptr);
+
+    assert(sentProposals != nullptr);
+
+    sentProposals->put(  ((uint64_t ) _proposal->getProposerIndex()) +
+                                 1024 * 1024 * (uint64_t) _proposal->getBlockID(), 0);
 
     ptr<Header> header = BlockProposal::createBlockProposalHeader(sChain, _proposal);
 
@@ -310,6 +318,11 @@ ConnectionStatus BlockProposalClientAgent::sendDAProof(
 
 
     LOG(trace, "Proposal step 0: Starting block proposal");
+
+    if (!sentProposals->exists( ((uint64_t ) _daProof->getProposerIndex()) +
+                                        1024 * 1024 *  (uint64_t) _daProof->getBlockId())) {
+        LOG(err, "Sending proof before proposal is sent");
+    }
 
     CHECK_ARGUMENT(_daProof != nullptr);
 
