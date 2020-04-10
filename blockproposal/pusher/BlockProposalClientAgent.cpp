@@ -127,7 +127,7 @@ ConnectionStatus BlockProposalClientAgent::sendItemImpl(ptr<DataStructure> _item
 
         ConnectionStatus status = ConnectionStatus::CONNECTION_STATUS_UNKNOWN;
 
-        auto key = ((uint64_t ) _proposal->getProposerIndex()) +
+        auto key = (uint64_t ) _index +
                    1024 * 1024 * (uint64_t) _proposal->getBlockID();
 
         sentProposals->put(key, status);
@@ -141,22 +141,16 @@ ConnectionStatus BlockProposalClientAgent::sendItemImpl(ptr<DataStructure> _item
 
     if (_daProof != nullptr) {
 
-        auto key = (uint64_t) _daProof->getProposerIndex() +
+        auto key = (uint64_t) _index +
             1024 * 1024 *  (uint64_t) _daProof->getBlockId();
 
         if (!sentProposals->exists(key)) {
             LOG(err, "Sending proof before proposal is sent");
+            assert(false);
         } else if (sentProposals->get(key) != CONNECTION_SUCCESS) {
             LOG(err, "Sending proof after failed proposal send: " +
             to_string(sentProposals->get(key)));
         }
-
-        if (!sentProposals->exists( ((uint64_t ) _daProof->getProposerIndex()) +
-                                    1024 * 1024 *  (uint64_t) _daProof->getBlockId())) {
-            LOG(err, "Sending proof before proposal is sent");
-        }
-
-
 
         auto status = sendDAProof(_daProof, _socket);
         return status;
