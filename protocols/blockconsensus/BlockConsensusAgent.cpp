@@ -187,6 +187,7 @@ void BlockConsensusAgent::decideBlock(block_id _blockId, schain_index _sChainInd
             getSchain()->decideBlock(_blockId, _sChainIndex, signature);
         }
 
+        
     } catch (ExitRequestedException &) { throw; } catch (Exception &e) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
