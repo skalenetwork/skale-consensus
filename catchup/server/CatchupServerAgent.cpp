@@ -126,7 +126,7 @@ void CatchupServerAgent::processNextAvailableConnection(ptr<ServerConnection> _c
     } else if (type->compare(Header::BLOCK_FINALIZE_REQ) == 0) {
         responseHeader = make_shared<BlockFinalizeResponseHeader>();
     } else {
-        responseHeader->setStatusSubStatus(CONNECTION_SERVER_ERROR, CONNECTION_ERROR_INVALID_REQUEST_TYPE);
+        responseHeader->setStatusSubStatus(CONNECTION_ERROR, CONNECTION_ERROR_INVALID_REQUEST_TYPE);
         BOOST_THROW_EXCEPTION(
                 InvalidMessageFormatException("Unknown request type:" + *type, __CLASS_NAME__));
     }
@@ -139,7 +139,7 @@ void CatchupServerAgent::processNextAvailableConnection(ptr<ServerConnection> _c
     catch (ExitRequestedException &) { throw; }
     catch (...) {
         try {
-            responseHeader->setStatus(CONNECTION_SERVER_ERROR);
+            responseHeader->setStatus(CONNECTION_ERROR);
             responseHeader->setComplete();
             send(_connection, responseHeader);
         } catch (ExitRequestedException &) {
@@ -196,7 +196,7 @@ ptr<vector<uint8_t>> CatchupServerAgent::createResponseHeaderAndBinary(ptr<Serve
 
 
         if (sChain->getSchainID() != schainID) {
-            _responseHeader->setStatusSubStatus(CONNECTION_SERVER_ERROR, CONNECTION_ERROR_UNKNOWN_SCHAIN_ID);
+            _responseHeader->setStatusSubStatus(CONNECTION_ERROR, CONNECTION_ERROR_UNKNOWN_SCHAIN_ID);
 
             BOOST_THROW_EXCEPTION(InvalidSchainException("Incorrect schain " + to_string(schainID), __CLASS_NAME__));
 
@@ -206,7 +206,7 @@ ptr<vector<uint8_t>> CatchupServerAgent::createResponseHeaderAndBinary(ptr<Serve
         ptr<NodeInfo> nmi = sChain->getNode()->getNodeInfoByIP(_connectionEnvelope->getIP());
 
         if (nmi == nullptr) {
-            _responseHeader->setStatusSubStatus(CONNECTION_SERVER_ERROR, CONNECTION_ERROR_DONT_KNOW_THIS_NODE);
+            _responseHeader->setStatusSubStatus(CONNECTION_ERROR, CONNECTION_ERROR_DONT_KNOW_THIS_NODE);
             BOOST_THROW_EXCEPTION(
                     InvalidSourceIPException("Could not find node info for IP " + *_connectionEnvelope->getIP()));
         }
