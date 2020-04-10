@@ -109,6 +109,9 @@ void AbstractClientAgent::sendItem(ptr<DataStructure> _item, schain_index _dstIn
 
 
 void AbstractClientAgent::enqueueItemImpl(ptr<DataStructure> item ) {
+
+    LOCK(m)
+
     for ( uint64_t i = 1; i <= ( uint64_t ) this->sChain->getNodeCount(); i++ ) {
         {
             std::lock_guard< std::mutex > lock( *queueMutex[schain_index( i )] );
@@ -133,7 +136,8 @@ void AbstractClientAgent::workerThreadItemSendLoop( AbstractClientAgent* agent )
 
     agent->waitOnGlobalStartBarrier();
 
-    auto destinationSchainIndex = schain_index( agent->incrementAndReturnThreadCounter() + 1 );
+    auto destinationSchainIndex = schain_index(
+            agent->incrementAndReturnThreadCounter() + 1 );
 
     try {
         while ( !agent->getSchain()->getNode()->isExitRequested() ) {
@@ -147,12 +151,12 @@ void AbstractClientAgent::workerThreadItemSendLoop( AbstractClientAgent* agent )
                 }
             }
 
-            ASSERT( agent->itemQueue[destinationSchainIndex] );
+            CHECK_STATE( agent->itemQueue[destinationSchainIndex] );
 
             auto proposal = agent->itemQueue[destinationSchainIndex]->front();
 
 
-            ASSERT( proposal );
+            CHECK_STATE( proposal );
 
             agent->itemQueue[destinationSchainIndex]->pop();
 

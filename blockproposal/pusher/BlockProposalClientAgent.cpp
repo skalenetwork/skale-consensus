@@ -61,6 +61,9 @@
 
 BlockProposalClientAgent::BlockProposalClientAgent(Schain &_sChain)
         : AbstractClientAgent(_sChain, PROPOSAL) {
+
+    sentProposals = make_shared<cache::lru_cache<uint64_t, ConnectionStatus>>(32);
+
     try {
         LOG(debug, "Constructing blockProposalPushAgent");
 
@@ -74,8 +77,9 @@ BlockProposalClientAgent::BlockProposalClientAgent(Schain &_sChain)
 
 
 ptr<MissingTransactionsRequestHeader>
-BlockProposalClientAgent::readAndProcessMissingTransactionsRequestHeader(
+BlockProposalClientAgent::readMissingTransactionsRequestHeader(
         ptr<ClientSocket> _socket) {
+
     auto js =
             sChain->getIo()->readJsonHeader(_socket->getDescriptor(), "Read missing trans request");
     auto mtrh = make_shared<MissingTransactionsRequestHeader>();
@@ -99,12 +103,16 @@ BlockProposalClientAgent::readAndProcessFinalProposalResponseHeader(
             sChain->getIo()->readJsonHeader(_socket->getDescriptor(), "Read final response header");
 
     auto status = (ConnectionStatus) Header::getUint64(js, "status");
+    auto subStatus = (ConnectionSubStatus) Header::getUint64(js, "substatus");
 
-    if (status != CONNECTION_SUCCESS) {
-        LOG(err, "Server refused block sig");
-        return nullptr;
+    if (status == CONNECTION_SUCCESS) {
+
+        return make_shared<FinalProposalResponseHeader>(Header::getString(js, "sigShare"));
+    } else {
+        LOG(err, "Proposal push failed:" + to_string(status)  + ":" + to_string(subStatus) );
+        return make_shared<FinalProposalResponseHeader>(status, subStatus);
     }
-    return make_shared<FinalProposalResponseHeader>(Header::getString(js, "sigShare"));
+
 }
 
 
@@ -117,14 +125,32 @@ ConnectionStatus BlockProposalClientAgent::sendItemImpl(ptr<DataStructure> _item
 
     if (_proposal != nullptr) {
 
-        auto status = sendBlockProposal(_proposal, _socket, _index);
+        ConnectionStatus status = ConnectionStatus::CONNECTION_STATUS_UNKNOWN;
+
+        auto key = (uint64_t ) _index +
+                   1024 * 1024 * (uint64_t) _proposal->getBlockID();
+
+        sentProposals->put(key, status);
+        status = sendBlockProposal(_proposal, _socket, _index);
+        sentProposals->put(key, status);
+
         return status;
     }
-
 
     ptr<DAProof> _daProof = dynamic_pointer_cast<DAProof>(_item);
 
     if (_daProof != nullptr) {
+
+        auto key = (uint64_t) _index +
+            1024 * 1024 *  (uint64_t) _daProof->getBlockId();
+
+        if (!sentProposals->exists(key)) {
+            LOG(err, "Sending proof before proposal is sent");
+            assert(false);
+        } else if (sentProposals->get(key) != CONNECTION_SUCCESS) {
+            LOG(err, "Sending proof after failed proposal send: " +
+            to_string(sentProposals->get(key)));
+        }
 
         auto status = sendDAProof(_daProof, _socket);
         return status;
@@ -181,9 +207,7 @@ BlockProposalClientAgent::sendBlockProposal(ptr<BlockProposal> _proposal, shared
 
     LOG(trace, "Proposal step 2: read proposal response");
 
-
     auto status = (ConnectionStatus) Header::getUint64(response, "status");
-    // auto substatus = (ConnectionSubStatus) Header::getUint64(response, "substatus");
 
 
     if (status != CONNECTION_PROCEED) {
@@ -192,7 +216,6 @@ BlockProposalClientAgent::sendBlockProposal(ptr<BlockProposal> _proposal, shared
     }
 
     auto partialHashesList = _proposal->createPartialHashesList();
-
 
     if (partialHashesList->getTransactionCount() > 0) {
         try {
@@ -212,7 +235,7 @@ BlockProposalClientAgent::sendBlockProposal(ptr<BlockProposal> _proposal, shared
     ptr<MissingTransactionsRequestHeader> missingTransactionHeader;
 
     try {
-        missingTransactionHeader = readAndProcessMissingTransactionsRequestHeader(socket);
+        missingTransactionHeader = readMissingTransactionsRequestHeader(socket);
     } catch (ExitRequestedException &) {
         throw;
     } catch (...) {
@@ -290,18 +313,17 @@ BlockProposalClientAgent::sendBlockProposal(ptr<BlockProposal> _proposal, shared
 
     auto finalHeader = readAndProcessFinalProposalResponseHeader(socket);
 
-    if (finalHeader == nullptr)
-        return status;
+    auto finalStatus = finalHeader->getStatus();
+
+    if (finalStatus != ConnectionStatus::CONNECTION_SUCCESS)
+        return finalStatus;
 
     auto sigShare = getSchain()->getCryptoManager()->createSigShare(finalHeader->getSigShare(),
                                                                     _proposal->getSchainID(),
                                                                     _proposal->getBlockID(), _index);
-
     getSchain()->daProofSigShareArrived(sigShare, _proposal);
 
-    LOG(trace, "Proposal step 7: got sig share");
-
-    return status;
+    return finalStatus;
 }
 
 
@@ -310,6 +332,7 @@ ConnectionStatus BlockProposalClientAgent::sendDAProof(
 
 
     LOG(trace, "Proposal step 0: Starting block proposal");
+
 
     CHECK_ARGUMENT(_daProof != nullptr);
 

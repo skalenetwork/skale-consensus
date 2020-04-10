@@ -41,7 +41,7 @@ class Header : public BasicHeader {
 
 protected:
 
-    ConnectionStatus status = CONNECTION_SERVER_ERROR;
+    ConnectionStatus status = CONNECTION_ERROR;
     ConnectionSubStatus substatus = CONNECTION_ERROR_UNKNOWN_SERVER_ERROR;
 
 public:
