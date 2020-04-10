@@ -62,7 +62,7 @@
 BlockProposalClientAgent::BlockProposalClientAgent(Schain &_sChain)
         : AbstractClientAgent(_sChain, PROPOSAL) {
 
-    sentProposals = make_shared<cache::lru_cache<uint64_t, uint64_t>>(32);
+    sentProposals = make_shared<cache::lru_cache<uint64_t, ConnectionStatus>>(32);
 
     try {
         LOG(debug, "Constructing blockProposalPushAgent");
@@ -121,6 +121,8 @@ ConnectionStatus BlockProposalClientAgent::sendItemImpl(ptr<DataStructure> _item
     if (_proposal != nullptr) {
 
         auto status = sendBlockProposal(_proposal, _socket, _index);
+        sentProposals->put(  ((uint64_t ) _proposal->getProposerIndex()) +
+                             1024 * 1024 * (uint64_t) _proposal->getBlockID(), status);
         return status;
     }
 
@@ -167,8 +169,7 @@ BlockProposalClientAgent::sendBlockProposal(ptr<BlockProposal> _proposal, shared
 
     assert(sentProposals != nullptr);
 
-    sentProposals->put(  ((uint64_t ) _proposal->getProposerIndex()) +
-                                 1024 * 1024 * (uint64_t) _proposal->getBlockID(), 0);
+
 
     ptr<Header> header = BlockProposal::createBlockProposalHeader(sChain, _proposal);
 

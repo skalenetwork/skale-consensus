@@ -45,7 +45,7 @@ class FinalProposalResponseHeader;
 
 class BlockProposalClientAgent : public AbstractClientAgent {
 
-    ptr<cache::lru_cache<uint64_t, uint64_t>> sentProposals;
+    ptr<cache::lru_cache<uint64_t, ConnectionStatus>> sentProposals;
 
     friend class BlockProposalPusherThreadPool;
 
