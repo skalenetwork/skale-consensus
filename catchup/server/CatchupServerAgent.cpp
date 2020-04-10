@@ -333,7 +333,7 @@ ptr<vector<uint8_t>> CatchupServerAgent::createBlockFinalizeResponse(nlohmann::j
 
         if (proposal == nullptr) {
             LOG(trace, "Dont have proposal:" + to_string(proposerIndex));
-            _responseHeader->setStatusSubStatus(CONNECTION_DISCONNECT, CONNECTION_DONT_HAVE_PROPOSAL);
+            _responseHeader->setStatusSubStatus(CONNECTION_DISCONNECT, CONNECTION_FINALIZE_DONT_HAVE_PROPOSAL);
             _responseHeader->setComplete();
             return nullptr;
         }

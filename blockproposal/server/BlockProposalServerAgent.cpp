@@ -577,7 +577,7 @@ ptr<Header> BlockProposalServerAgent::createDAProofResponseHeader(ptr<ServerConn
     auto proposal = getSchain()->getBlockProposal(_header.getBlockId(), _header.getProposerIndex());
 
     if (proposal == nullptr) {
-        responseHeader->setStatusSubStatus(CONNECTION_DISCONNECT, CONNECTION_DONT_HAVE_THIS_PROPOSAL);
+        responseHeader->setStatusSubStatus(CONNECTION_DISCONNECT, CONNECTION_DONT_HAVE_PROPOSAL_FOR_THIS_DA_PROOF);
         responseHeader->setComplete();
         return responseHeader;
     }
@@ -589,7 +589,7 @@ ptr<Header> BlockProposalServerAgent::createDAProofResponseHeader(ptr<ServerConn
     }
 
     if (getNode()->getDaProofDB()->haveDAProof(proposal)) {
-        responseHeader->setStatusSubStatus(CONNECTION_DISCONNECT, CONNECTION_ALREADY_HAVE_DAP_PROOF);
+        responseHeader->setStatusSubStatus(CONNECTION_DISCONNECT, CONNECTION_ALREADY_HAVE_DA_PROOF);
         responseHeader->setComplete();
         return responseHeader;
     }
