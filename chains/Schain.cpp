@@ -773,7 +773,7 @@ void Schain::decideBlock(block_id _blockId, schain_index _proposerIndex, ptr<Thr
 
 
     if (_blockId <= getLastCommittedBlockID()) {
-        LOG(info, "Ignoring old block decide, already got this through catchup: BLOCK_ID" + to_string(_blockId) + ":PRP:" + to_string(_proposerIndex));
+        LOG(info, "Ignoring old block decide, already got this through catchup: BLOCK_ID:" + to_string(_blockId) + ":PRP:" + to_string(_proposerIndex));
         return;
     }
 
