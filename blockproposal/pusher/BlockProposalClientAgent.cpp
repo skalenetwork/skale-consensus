@@ -125,16 +125,38 @@ ConnectionStatus BlockProposalClientAgent::sendItemImpl(ptr<DataStructure> _item
 
     if (_proposal != nullptr) {
 
-        auto status = sendBlockProposal(_proposal, _socket, _index);
+        ConnectionStatus status = ConnectionStatus::CONNECTION_STATUS_UNKNOWN;
 
-        sentProposals->put(  ((uint64_t ) _proposal->getProposerIndex()) +
-                             1024 * 1024 * (uint64_t) _proposal->getBlockID(), status);
+        auto key = ((uint64_t ) _proposal->getProposerIndex()) +
+                   1024 * 1024 * (uint64_t) _proposal->getBlockID();
+
+        sentProposals->put(key, status);
+        status = sendBlockProposal(_proposal, _socket, _index);
+        sentProposals->put(key, status);
+
         return status;
     }
 
     ptr<DAProof> _daProof = dynamic_pointer_cast<DAProof>(_item);
 
     if (_daProof != nullptr) {
+
+        auto key = (uint64_t) _daProof->getProposerIndex() +
+            1024 * 1024 *  (uint64_t) _daProof->getBlockId();
+
+        if (!sentProposals->exists(key)) {
+            LOG(err, "Sending proof before proposal is sent");
+        } else if (sentProposals->get(key) != CONNECTION_SUCCESS) {
+            LOG(err, "Sending proof after failed proposal send: " +
+            to_string(sentProposals->get(key)));
+        }
+
+        if (!sentProposals->exists( ((uint64_t ) _daProof->getProposerIndex()) +
+                                    1024 * 1024 *  (uint64_t) _daProof->getBlockId())) {
+            LOG(err, "Sending proof before proposal is sent");
+        }
+
+
 
         auto status = sendDAProof(_daProof, _socket);
         return status;
@@ -317,10 +339,6 @@ ConnectionStatus BlockProposalClientAgent::sendDAProof(
 
     LOG(trace, "Proposal step 0: Starting block proposal");
 
-    if (!sentProposals->exists( ((uint64_t ) _daProof->getProposerIndex()) +
-                                        1024 * 1024 *  (uint64_t) _daProof->getBlockId())) {
-        LOG(err, "Sending proof before proposal is sent");
-    }
 
     CHECK_ARGUMENT(_daProof != nullptr);
 
