@@ -122,7 +122,8 @@ uint64_t BlockFinalizeDownloader::downloadFragment(schain_index _dstIndex, fragm
 
     try {
 
-        auto header = make_shared<BlockFinalizeRequestHeader>(*sChain, blockId, proposerIndex, _fragmentIndex);
+        auto header = make_shared<BlockFinalizeRequestHeader>(*sChain, blockId, proposerIndex,
+                this->getNode()->getNodeID(), _fragmentIndex);
         auto socket = make_shared<ClientSocket>(*sChain, _dstIndex, CATCHUP);
         auto io = getSchain()->getIo();
 
