@@ -72,17 +72,12 @@ run("chmod +x cmake-3.10.3-Linux-x86_64.sh");
 run("./cmake-3.10.3-Linux-x86_64.sh --skip-license")
 run("ln -s ./cmake-3.10.3-Linux-x86_64/bin/cmake /usr/bin/cmake");
 
-cmakeExecutable = subprocess.check_output(["which", "cmake"])
-
-print("Running cmake: " + cmakeExecutable)
-
-
 run ("ccache -M 20G")
 run("./libBLS/deps/build.sh PARALLEL_COUNT=j$(nproc)")
-run("cmake . -Bbuild -DCMAKE_BUILD_TYPE=" +  sys.argv[1] +
+run("/usr/bin/cmake . -Bbuild -DCMAKE_BUILD_TYPE=" +  sys.argv[1] +
                         " -DCOVERAGE=ON -DMICROPROFILE_ENABLED=0")
 
-run("cmake --build build -- -j4")
+run("/usr/bin/cmake --build build -- -j4")
 
 buildDirName = sys.argv[2] + '/build'
 
