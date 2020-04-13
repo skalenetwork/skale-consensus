@@ -203,7 +203,7 @@ ptr<vector<uint8_t>> CatchupServerAgent::createResponseHeaderAndBinary(ptr<Serve
         };
 
 
-        ptr<NodeInfo> nmi = sChain->getNode()->getNodeInfoByIP(_connectionEnvelope->getIP());
+        ptr<NodeInfo> nmi = sChain->getNode()->getNodeInfoById(_connectionEnvelope->getIP());
 
         if (nmi == nullptr) {
             _responseHeader->setStatusSubStatus(CONNECTION_ERROR, CONNECTION_ERROR_DONT_KNOW_THIS_NODE);

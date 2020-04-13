@@ -212,10 +212,10 @@ ptr<NodeInfo> Node::getNodeInfoByIndex(schain_index _index) {
 }
 
 
-ptr<NodeInfo> Node::getNodeInfoByIP(ptr<string> ip) {
-    if (nodeInfosByIP->count(ip) == 0)
+ptr<NodeInfo> Node::getNodeInfoById(ptr<string> ip) {
+    if (nodeInfosById->count(ip) == 0)
         return nullptr;
-    return nodeInfosByIP->at(ip);
+    return nodeInfosById->at(ip);
 }
 
 

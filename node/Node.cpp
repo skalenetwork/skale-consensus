@@ -71,7 +71,7 @@ using namespace std;
 Node::Node(const nlohmann::json &_cfg, ConsensusEngine *_consensusEngine) {
     this->consensusEngine = _consensusEngine;
     this->nodeInfosByIndex = make_shared<map<schain_index, ptr<NodeInfo> > >();
-    this->nodeInfosByIP = make_shared<map<ptr<string>, ptr<NodeInfo>, Comparator> >();
+    this->nodeInfosById = make_shared<map<ptr<string>, ptr<NodeInfo>, Comparator> >();
 
     this->startedServers = false;
     this->startedClients = false;
@@ -304,7 +304,7 @@ void Node::startClients() {
 
 void Node::setNodeInfo(ptr<NodeInfo> _info) {
     (*nodeInfosByIndex)[_info->getSchainIndex()] = _info;
-    (*nodeInfosByIP)[_info->getBaseIP()] = _info;
+    (*nodeInfosById)[_info->getBaseIP()] = _info;
 }
 
 void Node::setSchain(ptr<Schain> _schain) {

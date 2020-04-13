@@ -140,7 +140,7 @@ class Node {
 
 
     ptr<map<schain_index, ptr<NodeInfo> > > nodeInfosByIndex;
-    ptr<map<ptr<string>, ptr<NodeInfo>, Comparator> > nodeInfosByIP;
+    ptr<map<ptr<string>, ptr<NodeInfo>, Comparator> > nodeInfosById;
 
 
     void releaseGlobalServerBarrier();
@@ -305,7 +305,7 @@ public:
     ptr<NodeInfo> getNodeInfoByIndex(schain_index _index);
 
 
-    ptr<NodeInfo> getNodeInfoByIP(ptr<string> ip);
+    ptr<NodeInfo> getNodeInfoById(ptr<string> ip);
 
     ptr<TransportNetwork> getNetwork() const;
 

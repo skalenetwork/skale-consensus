@@ -420,7 +420,7 @@ ptr<Header> BlockProposalServerAgent::createProposalResponseHeader(ptr<ServerCon
     };
 
 
-    ptr<NodeInfo> nmi = sChain->getNode()->getNodeInfoByIP(_connectionEnvelope->getIP());
+    ptr<NodeInfo> nmi = sChain->getNode()->getNodeInfoById(_connectionEnvelope->getIP());
 
     if (nmi == nullptr) {
         responseHeader->setStatusSubStatus(CONNECTION_ERROR, CONNECTION_ERROR_DONT_KNOW_THIS_NODE);
@@ -511,7 +511,7 @@ ptr<Header> BlockProposalServerAgent::createDAProofResponseHeader(ptr<ServerConn
     };
 
 
-    ptr<NodeInfo> nmi = sChain->getNode()->getNodeInfoByIP(_connectionEnvelope->getIP());
+    ptr<NodeInfo> nmi = sChain->getNode()->getNodeInfoById(_connectionEnvelope->getIP());
 
     if (nmi == nullptr) {
         responseHeader->setStatusSubStatus(CONNECTION_ERROR, CONNECTION_ERROR_DONT_KNOW_THIS_NODE);
