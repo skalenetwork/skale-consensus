@@ -29,8 +29,6 @@ env:
     - TARGET=all
     - TRAVIS_BUILD_TYPE=Debug
 
-
-
 matrix:
   include:
     - os: linux
