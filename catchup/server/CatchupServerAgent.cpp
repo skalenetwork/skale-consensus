@@ -193,17 +193,17 @@ ptr<vector<uint8_t>> CatchupServerAgent::createResponseHeaderAndBinary(ptr<Serve
 
         schain_id schainID = Header::getUint64(_jsonRequest, "schainID");
         block_id blockID = Header::getUint64(_jsonRequest, "blockID");
+        node_id nodeID = Header::getUint64(_jsonRequest, "nodeID");
 
 
         if (sChain->getSchainID() != schainID) {
             _responseHeader->setStatusSubStatus(CONNECTION_ERROR, CONNECTION_ERROR_UNKNOWN_SCHAIN_ID);
-
             BOOST_THROW_EXCEPTION(InvalidSchainException("Incorrect schain " + to_string(schainID), __CLASS_NAME__));
 
         };
 
 
-        ptr<NodeInfo> nmi = sChain->getNode()->getNodeInfoById(_connectionEnvelope->getIP());
+        ptr<NodeInfo> nmi = sChain->getNode()->getNodeInfoById(nodeID);
 
         if (nmi == nullptr) {
             _responseHeader->setStatusSubStatus(CONNECTION_ERROR, CONNECTION_ERROR_DONT_KNOW_THIS_NODE);

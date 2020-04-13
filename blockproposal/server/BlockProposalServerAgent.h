@@ -92,7 +92,7 @@ public:
     createFinalResponseHeader(ptr<ReceivedBlockProposal> _proposal);
 
     ptr<Header> createDAProofResponseHeader(ptr<ServerConnection> _connectionEnvelope,
-                                            SubmitDAProofRequestHeader _header);
+                                            ptr<SubmitDAProofRequestHeader> _header);
 
 
 
