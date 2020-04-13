@@ -1,6 +1,16 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.10)
 
-include_directories(.)
+include_directories(. ./libzmq/include)
+
+include(ExternalProject)
+ExternalProject_Add(libjson-rpc-cpp
+        SOURCE_DIR ../libjson-rpc-cpp
+        CMAKE_ARGS -DBUILD_STATIC_LIBS=True -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/jsonrpc-build
+        BUILD_COMMAND ${CMAKE_COMMAND} -E echo "Starting $<CONFIG> build"
+        COMMAND       ${CMAKE_COMMAND} --build <BINARY_DIR> --config $<CONFIG>
+        COMMAND       ${CMAKE_COMMAND} -E echo "$<CONFIG> build complete"
+        )
+
 
 option(COVERAGE "Build with code coverage support" OFF)
 if (COVERAGE)
@@ -17,6 +27,7 @@ if (COVERAGE)
 endif ()
 
 add_subdirectory(libBLS)
+add_subdirectory(libzmq)
 
 if( NOT DEFINED DEPS_INSTALL_ROOT )
     set( DEPS_SOURCES_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/libBLS/deps")
@@ -41,9 +52,8 @@ find_library( FF_LIBRARY NAMES "ff" PATHS "${DEPS_INSTALL_ROOT}/lib" )
 
 # zeromq
 
-hunter_add_package(ZeroMQ)
 
-find_package(ZeroMQ CONFIG REQUIRED)
+#find_package(ZeroMQ CONFIG REQUIRED)
 
 #leveldb
 
@@ -169,8 +179,8 @@ SET(SRC_FILES
         ${utils_src}
         Agent.h Agent.cpp SkaleCommon.h SkaleCommon.cpp Log.h Log.cpp microprofile.cpp miniz.c)
 
-include_directories( ${BLS_INCLUDE_DIRS} "${DEPS_INSTALL_ROOT}/include" )
-link_directories( "${DEPS_INSTALL_ROOT}/lib" )
+include_directories( ${BLS_INCLUDE_DIRS} "${DEPS_INSTALL_ROOT}/include"  "${CMAKE_BINARY_DIR}/jsonrpc-build/include")
+link_directories( "${DEPS_INSTALL_ROOT}/lib" "${CMAKE_BINARY_DIR}/jsonrpc-build/lib" "${CMAKE_BINARY_DIR}/libzmq/lib")
 
 if( SKALE_HAVE_BOOST_FROM_HUNTER )
     set( BOOST_LIBS_4_CONSENSUS
@@ -186,13 +196,14 @@ endif()
 SET( LINK_LIBRARIES
         Threads::Threads
         ${BOOST_LIBS_4_CONSENSUS}
-        ${LIB_NAME_cryptopp} ZeroMQ::libzmq-static leveldb::leveldb bls ${FF_LIBRARY}
+        ${LIB_NAME_cryptopp} leveldb::leveldb
+        jsoncpp jsonrpccpp-client jsonrpccpp-stub jsonrpccpp-common bls ${FF_LIBRARY} zmqd
         )
 
 
 # consensus library
 
-add_library(consensus ${SRC_FILES})
+add_library(consensus ${SRC_FILES} libjson-rpc-cpp)
 
 target_link_libraries(consensus ${LINK_LIBRARIES})
 add_precompiled_header(consensus SkaleCommon.h FORCE_INCLUDE)
