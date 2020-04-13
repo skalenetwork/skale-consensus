@@ -70,7 +70,8 @@ print("Got TRAVIS_BUILD_DIR=" + sys.argv[2])
 run("wget https://cmake.org/files/v3.10/cmake-3.10.3-Linux-x86_64.sh")
 run("chmod +x cmake-3.10.3-Linux-x86_64.sh");
 run("./cmake-3.10.3-Linux-x86_64.sh --skip-license")
-run("ln -s ./cmake-3.10.3-Linux-x86_64/bin/cmake /usr/local/bin/cmake");
+run("bash -c which cmake")
+run("ln -s ./cmake-3.10.3-Linux-x86_64/bin/cmake /usr/local/bin/cmake")
 
 run ("ccache -M 20G")
 run("./libBLS/deps/build.sh PARALLEL_COUNT=j$(nproc)")
