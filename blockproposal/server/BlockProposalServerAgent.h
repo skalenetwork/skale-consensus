@@ -30,7 +30,7 @@
 class BlockProposalWorkerThreadPool;
 class BlockFinalizeResponseHeader;
 class BlockProposalRequestHeader;
-class DAProofRequestHeader;
+class SubmitDAProofRequestHeader;
 class ReceivedBlockProposal;
 
 
@@ -92,7 +92,7 @@ public:
     createFinalResponseHeader(ptr<ReceivedBlockProposal> _proposal);
 
     ptr<Header> createDAProofResponseHeader(ptr<ServerConnection> _connectionEnvelope,
-                                                                      DAProofRequestHeader _header);
+                                            SubmitDAProofRequestHeader _header);
 
 
 

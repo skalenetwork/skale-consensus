@@ -44,7 +44,7 @@
 #include "headers/MissingTransactionsRequestHeader.h"
 #include "headers/MissingTransactionsResponseHeader.h"
 #include "headers/FinalProposalResponseHeader.h"
-#include "headers/DAProofRequestHeader.h"
+#include "headers/SubmitDAProofRequestHeader.h"
 #include "network/ClientSocket.h"
 #include "network/ServerConnection.h"
 #include "network/IO.h"
@@ -371,7 +371,7 @@ pair<ConnectionStatus, ConnectionSubStatus> BlockProposalClientAgent::sendDAProo
 
     CHECK_ARGUMENT(_daProof != nullptr);
 
-    auto header = make_shared<DAProofRequestHeader>(*getSchain(), _daProof);
+    auto header = make_shared<SubmitDAProofRequestHeader>(*getSchain(), _daProof);
 
     try {
         getSchain()->getIo()->writeHeader(_socket, header);

@@ -73,8 +73,8 @@
 #include "db/ProposalHashDB.h"
 #include "headers/AbstractBlockRequestHeader.h"
 #include "headers/BlockProposalRequestHeader.h"
-#include "headers/DAProofRequestHeader.h"
-#include "headers/DAProofResponseHeader.h"
+#include "headers/SubmitDAProofRequestHeader.h"
+#include "headers/SubmitDAProofResponseHeader.h"
 
 
 #include "crypto/ConsensusBLSSigShare.h"
@@ -205,12 +205,12 @@ void BlockProposalServerAgent::processNextAvailableConnection(ptr<ServerConnecti
 
 void
 BlockProposalServerAgent::processDAProofRequest(ptr<ServerConnection> _connection, nlohmann::json _daProofRequest) {
-    ptr<DAProofRequestHeader> requestHeader = nullptr;
+    ptr<SubmitDAProofRequestHeader> requestHeader = nullptr;
     ptr<Header> responseHeader = nullptr;
 
     try {
 
-        requestHeader = make_shared<DAProofRequestHeader>(_daProofRequest, getSchain()->getNodeCount());
+        requestHeader = make_shared<SubmitDAProofRequestHeader>(_daProofRequest, getSchain()->getNodeCount());
         responseHeader = this->createDAProofResponseHeader(_connection, *requestHeader);
     } catch (ExitRequestedException &) {
         throw;
@@ -499,10 +499,10 @@ ptr<Header> BlockProposalServerAgent::createProposalResponseHeader(ptr<ServerCon
 
 ptr<Header> BlockProposalServerAgent::createDAProofResponseHeader(ptr<ServerConnection>
                                                                   _connectionEnvelope,
-                                                                  DAProofRequestHeader
+                                                                  SubmitDAProofRequestHeader
                                                                   _header) {
 
-    auto responseHeader = make_shared<DAProofResponseHeader>();
+    auto responseHeader = make_shared<SubmitDAProofResponseHeader>();
 
     if (sChain->getSchainID() != _header.getSchainId()) {
         responseHeader->setStatusSubStatus(CONNECTION_ERROR, CONNECTION_ERROR_UNKNOWN_SCHAIN_ID);
