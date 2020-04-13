@@ -58,7 +58,6 @@ addons:
       - automake
       - python
       - python-pip
-      - cmake
       - libtool
       - build-essential
       - pkg-config
