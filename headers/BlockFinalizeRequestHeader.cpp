@@ -72,4 +72,8 @@ void BlockFinalizeRequestHeader::addFields(nlohmann::basic_json<> &jsonRequest) 
 
 }
 
+const node_id &BlockFinalizeRequestHeader::getNodeId() const {
+    return nodeID;
+}
+
 

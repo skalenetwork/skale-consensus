@@ -68,4 +68,8 @@ void CatchupRequestHeader::addFields(nlohmann::json& _j) {
 
 }
 
+const node_id &CatchupRequestHeader::getNodeId() const {
+    return nodeID;
+}
+
 

@@ -44,6 +44,8 @@ public:
 
     void addFields(nlohmann::basic_json<> &jsonRequest) override;
 
+    const node_id &getNodeId() const;
+
 };
 
 
