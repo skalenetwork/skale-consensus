@@ -161,7 +161,7 @@ ptr<ConsensusStateDB> Node::getConsensusStateDB() {
     return consensusStateDB;
 }
 
-ptr<map<schain_index, ptr<NodeInfo> > > Node::getNodeInfosByIndex() const {
+ptr<map<uint64_t , ptr<NodeInfo> > > Node::getNodeInfosByIndex() const {
     CHECK_STATE(nodeInfosByIndex != nullptr);
     return nodeInfosByIndex;
 }
@@ -206,16 +206,16 @@ network_port Node::getBasePort() const {
 
 
 ptr<NodeInfo> Node::getNodeInfoByIndex(schain_index _index) {
-    if (nodeInfosByIndex->count(_index) == 0)
+    if (nodeInfosByIndex->count((uint64_t )_index) == 0)
         return nullptr;;
-    return nodeInfosByIndex->at(_index);
+    return nodeInfosByIndex->at((uint64_t )_index);
 }
 
 
-ptr<NodeInfo> Node::getNodeInfoByIP(ptr<string> ip) {
-    if (nodeInfosByIP->count(ip) == 0)
+ptr<NodeInfo> Node::getNodeInfoById(node_id _id) {
+    if (nodeInfosById->count((uint64_t )_id) == 0)
         return nullptr;
-    return nodeInfosByIP->at(ip);
+    return nodeInfosById->at((uint64_t )_id);
 }
 
 

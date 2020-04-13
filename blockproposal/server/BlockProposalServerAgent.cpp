@@ -73,8 +73,8 @@
 #include "db/ProposalHashDB.h"
 #include "headers/AbstractBlockRequestHeader.h"
 #include "headers/BlockProposalRequestHeader.h"
-#include "headers/DAProofRequestHeader.h"
-#include "headers/DAProofResponseHeader.h"
+#include "headers/SubmitDAProofRequestHeader.h"
+#include "headers/SubmitDAProofResponseHeader.h"
 
 
 #include "crypto/ConsensusBLSSigShare.h"
@@ -205,13 +205,13 @@ void BlockProposalServerAgent::processNextAvailableConnection(ptr<ServerConnecti
 
 void
 BlockProposalServerAgent::processDAProofRequest(ptr<ServerConnection> _connection, nlohmann::json _daProofRequest) {
-    ptr<DAProofRequestHeader> requestHeader = nullptr;
+    ptr<SubmitDAProofRequestHeader> requestHeader = nullptr;
     ptr<Header> responseHeader = nullptr;
 
     try {
 
-        requestHeader = make_shared<DAProofRequestHeader>(_daProofRequest, getSchain()->getNodeCount());
-        responseHeader = this->createDAProofResponseHeader(_connection, *requestHeader);
+        requestHeader = make_shared<SubmitDAProofRequestHeader>(_daProofRequest, getSchain()->getNodeCount());
+        responseHeader = this->createDAProofResponseHeader(_connection, requestHeader);
     } catch (ExitRequestedException &) {
         throw;
     } catch (...) {
@@ -408,7 +408,7 @@ void BlockProposalServerAgent::checkForOldBlock(const block_id &_blockID) {
 }
 
 
-ptr<Header> BlockProposalServerAgent::createProposalResponseHeader(ptr<ServerConnection> _connectionEnvelope,
+ptr<Header> BlockProposalServerAgent::createProposalResponseHeader(ptr<ServerConnection>,
                                                                    BlockProposalRequestHeader &_header) {
     auto responseHeader = make_shared<BlockProposalResponseHeader>();
 
@@ -420,22 +420,17 @@ ptr<Header> BlockProposalServerAgent::createProposalResponseHeader(ptr<ServerCon
     };
 
 
-    ptr<NodeInfo> nmi = sChain->getNode()->getNodeInfoByIP(_connectionEnvelope->getIP());
+    ptr<NodeInfo> nmi = sChain->getNode()->getNodeInfoById(_header.getProposerNodeId());
 
     if (nmi == nullptr) {
         responseHeader->setStatusSubStatus(CONNECTION_ERROR, CONNECTION_ERROR_DONT_KNOW_THIS_NODE);
         responseHeader->setComplete();
-        LOG(err,"Could not find node info for IP " + *_connectionEnvelope->getIP());
+        BOOST_THROW_EXCEPTION(InvalidNodeIDException("Could not find node info for NODE_ID:" + to_string((uint64_t) _header.getProposerNodeId()),
+                               __CLASS_NAME__));
+
         return responseHeader;
     }
 
-
-    if (nmi->getNodeID() != _header.getProposerNodeId()) {
-        responseHeader->setStatusSubStatus(CONNECTION_ERROR, CONNECTION_ERROR_INVALID_NODE_ID);
-        responseHeader->setComplete();
-        LOG(err, "Node ID does not match " + _header.getProposerNodeId());
-        return responseHeader;
-    }
 
     if (nmi->getSchainIndex() != schain_index(_header.getProposerIndex())) {
         responseHeader->setStatusSubStatus(CONNECTION_ERROR, CONNECTION_ERROR_INVALID_NODE_INDEX);
@@ -497,51 +492,47 @@ ptr<Header> BlockProposalServerAgent::createProposalResponseHeader(ptr<ServerCon
     return responseHeader;
 }
 
-ptr<Header> BlockProposalServerAgent::createDAProofResponseHeader(ptr<ServerConnection>
-                                                                  _connectionEnvelope,
-                                                                  DAProofRequestHeader
+ptr<Header> BlockProposalServerAgent::createDAProofResponseHeader(ptr<ServerConnection>,
+                                                                  ptr<SubmitDAProofRequestHeader>
                                                                   _header) {
 
-    auto responseHeader = make_shared<DAProofResponseHeader>();
+    CHECK_ARGUMENT(_header);
 
-    if (sChain->getSchainID() != _header.getSchainId()) {
+    auto responseHeader = make_shared<SubmitDAProofResponseHeader>();
+
+    if (sChain->getSchainID() != _header->getSchainId()) {
         responseHeader->setStatusSubStatus(CONNECTION_ERROR, CONNECTION_ERROR_UNKNOWN_SCHAIN_ID);
         BOOST_THROW_EXCEPTION(
-                InvalidSchainException("Incorrect schain " + to_string(_header.getSchainId()), __CLASS_NAME__));
+                InvalidSchainException("Incorrect schain " + to_string(_header->getSchainId()), __CLASS_NAME__));
     };
 
+    auto nodeId = _header->getProposerNodeId();
 
-    ptr<NodeInfo> nmi = sChain->getNode()->getNodeInfoByIP(_connectionEnvelope->getIP());
+    ptr<NodeInfo> nmi = sChain->getNode()->getNodeInfoById(nodeId);
 
     if (nmi == nullptr) {
         responseHeader->setStatusSubStatus(CONNECTION_ERROR, CONNECTION_ERROR_DONT_KNOW_THIS_NODE);
-        BOOST_THROW_EXCEPTION(InvalidSourceIPException(
-                                      "Could not find node info for IP " + *_connectionEnvelope->getIP()));
+        BOOST_THROW_EXCEPTION(InvalidNodeIDException("Could not find node info for NODE_ID:" + to_string((uint64_t) nodeId),
+                               __CLASS_NAME__));
     }
 
 
-    if (nmi->getNodeID() != _header.getProposerNodeId()) {
-        responseHeader->setStatusSubStatus(CONNECTION_ERROR, CONNECTION_ERROR_INVALID_NODE_ID);
 
-        BOOST_THROW_EXCEPTION(InvalidNodeIDException("Node ID does not match " +
-                                                     _header.getProposerNodeId(), __CLASS_NAME__));
-    }
-
-    if (nmi->getSchainIndex() != schain_index(_header.getProposerIndex())) {
+    if (nmi->getSchainIndex() != schain_index(_header->getProposerIndex())) {
         responseHeader->setStatusSubStatus(CONNECTION_ERROR, CONNECTION_ERROR_INVALID_NODE_INDEX);
         BOOST_THROW_EXCEPTION(InvalidSchainIndexException(
                                       "Node schain index does not match " +
-                                      _header.getProposerIndex(), __CLASS_NAME__ ));
+                                      _header->getProposerIndex(), __CLASS_NAME__ ));
     }
 
 
-    if (sChain->getLastCommittedBlockID() >= _header.getBlockId()) {
+    if (sChain->getLastCommittedBlockID() >= _header->getBlockId()) {
         responseHeader->setStatusSubStatus(CONNECTION_DISCONNECT, CONNECTION_BLOCK_PROPOSAL_TOO_LATE);
         responseHeader->setComplete();
         return responseHeader;
     }
 
-    if ((uint64_t) sChain->getLastCommittedBlockID()  + 1 < _header.getBlockId()) {
+    if ((uint64_t) sChain->getLastCommittedBlockID()  + 1 < _header->getBlockId()) {
         responseHeader->setStatusSubStatus(CONNECTION_RETRY_LATER,
                 CONNECTION_BLOCK_PROPOSAL_IN_THE_FUTURE);
         responseHeader->setComplete();
@@ -552,7 +543,7 @@ ptr<Header> BlockProposalServerAgent::createDAProofResponseHeader(ptr<ServerConn
 
     ptr<SHAHash> blockHash = nullptr;
     try {
-        blockHash = SHAHash::fromHex(_header.getBlockHash());
+        blockHash = SHAHash::fromHex(_header->getBlockHash());
     } catch (...) {
         responseHeader->setStatusSubStatus(CONNECTION_DISCONNECT, CONNECTION_INVALID_HASH);
         responseHeader->setComplete();
@@ -564,7 +555,7 @@ ptr<Header> BlockProposalServerAgent::createDAProofResponseHeader(ptr<ServerConn
     try {
 
         sig = getSchain()->getCryptoManager()->verifyThresholdSig(blockHash,
-                                                                  _header.getSignature(), _header.getBlockId());
+                                                                  _header->getSignature(), _header->getBlockId());
 
     } catch (...) {
         responseHeader->setStatusSubStatus(CONNECTION_DISCONNECT, CONNECTION_SIGNATURE_DID_NOT_VERIFY);
@@ -573,7 +564,7 @@ ptr<Header> BlockProposalServerAgent::createDAProofResponseHeader(ptr<ServerConn
     }
 
 
-    auto proposal = getSchain()->getBlockProposal(_header.getBlockId(), _header.getProposerIndex());
+    auto proposal = getSchain()->getBlockProposal(_header->getBlockId(), _header->getProposerIndex());
 
     if (proposal == nullptr) {
         responseHeader->setStatusSubStatus(CONNECTION_DISCONNECT, CONNECTION_DONT_HAVE_PROPOSAL_FOR_THIS_DA_PROOF);
@@ -581,7 +572,7 @@ ptr<Header> BlockProposalServerAgent::createDAProofResponseHeader(ptr<ServerConn
         return responseHeader;
     }
 
-    if (*proposal->getHash()->toHex() != *_header.getBlockHash()) {
+    if (*proposal->getHash()->toHex() != *_header->getBlockHash()) {
         responseHeader->setStatusSubStatus(CONNECTION_DISCONNECT, CONNECTION_INVALID_HASH);
         responseHeader->setComplete();
         return responseHeader;

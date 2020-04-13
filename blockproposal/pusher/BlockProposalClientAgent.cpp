@@ -44,7 +44,7 @@
 #include "headers/MissingTransactionsRequestHeader.h"
 #include "headers/MissingTransactionsResponseHeader.h"
 #include "headers/FinalProposalResponseHeader.h"
-#include "headers/DAProofRequestHeader.h"
+#include "headers/SubmitDAProofRequestHeader.h"
 #include "network/ClientSocket.h"
 #include "network/ServerConnection.h"
 #include "network/IO.h"
@@ -159,7 +159,6 @@ BlockProposalClientAgent::sendItemImpl(ptr<DataStructure> _item, shared_ptr<Clie
 
         if (!sentProposals->exists(key)) {
             LOG(err, "Sending proof before proposal is sent");
-            ASSERT(false);
         } else if (sentProposals->get(key)->back().first != CONNECTION_SUCCESS) {
             LOG(err, "Sending proof after failed proposal send: " +
                      to_string(sentProposals->get(key)->back().first) + ":" +
@@ -371,7 +370,7 @@ pair<ConnectionStatus, ConnectionSubStatus> BlockProposalClientAgent::sendDAProo
 
     CHECK_ARGUMENT(_daProof != nullptr);
 
-    auto header = make_shared<DAProofRequestHeader>(*getSchain(), _daProof);
+    auto header = make_shared<SubmitDAProofRequestHeader>(*getSchain(), _daProof);
 
     try {
         getSchain()->getIo()->writeHeader(_socket, header);
