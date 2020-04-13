@@ -67,6 +67,11 @@ print("Got TRAVIS_BUILD_TYPE=" + sys.argv[1])
 print("Got TRAVIS_BUILD_DIR=" + sys.argv[2])
 
 
+run("wget https://cmake.org/files/v3.10/cmake-3.10.3-Linux-x86_64.sh")
+run("chmod +x cmake-3.10.3-Linux-x86_64.sh");
+run("./cmake-3.10.3-Linux-x86_64.sh --skip-license")
+run("ln -s ./cmake-3.10.3-Linux-x86_64/bin/cmake /usr/bin/cmake");
+
 cmakeExecutable = subprocess.check_output(["which", "cmake"])
 
 print("Running cmake: " + cmakeExecutable)
