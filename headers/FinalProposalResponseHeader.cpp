@@ -34,7 +34,7 @@ using namespace std;
 FinalProposalResponseHeader::FinalProposalResponseHeader(ptr<string> _sigShare)
         : Header(SIG_SHARE_RSP) {
     CHECK_ARGUMENT(_sigShare != nullptr)
-    this->status = CONNECTION_SUCCESS;
+    setStatusSubStatus(CONNECTION_SUCCESS, CONNECTION_OK);
     sigShare = _sigShare;
     complete = true;
 }
@@ -49,8 +49,7 @@ void FinalProposalResponseHeader::addFields(nlohmann::basic_json<> &_j) {
 FinalProposalResponseHeader::FinalProposalResponseHeader(ConnectionStatus _status, ConnectionSubStatus _substatus)
         : Header(SIG_SHARE_RSP) {
     CHECK_ARGUMENT(_status != CONNECTION_SUCCESS);
-    this->status = _status;
-    this->substatus = _substatus;
+    this->setStatusSubStatus(_status, _substatus);
 }
 
 

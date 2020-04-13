@@ -139,7 +139,7 @@ void CatchupServerAgent::processNextAvailableConnection(ptr<ServerConnection> _c
     catch (ExitRequestedException &) { throw; }
     catch (...) {
         try {
-            responseHeader->setStatus(CONNECTION_ERROR);
+            responseHeader->setStatusSubStatus(CONNECTION_ERROR, CONNECTION_SUBSTATUS_UNKNOWN);
             responseHeader->setComplete();
             send(_connection, responseHeader);
         } catch (ExitRequestedException &) {
@@ -261,7 +261,7 @@ ptr<vector<uint8_t>> CatchupServerAgent::createBlockCatchupResponse(nlohmann::js
 
         if (_blockID >= committedBlockID) {
             LOG(debug, "Catchups: blockID >= committedBlockID");
-            _responseHeader->setStatus(CONNECTION_DISCONNECT);
+            _responseHeader->setStatusSubStatus(CONNECTION_DISCONNECT, CONNECTION_OK);
             _responseHeader->setComplete();
             return nullptr;
         }
@@ -276,7 +276,7 @@ ptr<vector<uint8_t>> CatchupServerAgent::createBlockCatchupResponse(nlohmann::js
             auto serializedBlock = getSchain()->getNode()->getBlockDB()->getSerializedBlockFromLevelDB(i);
 
             if (!serializedBlock) {
-                _responseHeader->setStatus(CONNECTION_DISCONNECT);
+                _responseHeader->setStatusSubStatus(CONNECTION_DISCONNECT, CONNECTION_CATCHUP_DONT_HAVE_THIS_BLOCK );
                 _responseHeader->setComplete();
                 return nullptr;
             }
@@ -289,7 +289,7 @@ ptr<vector<uint8_t>> CatchupServerAgent::createBlockCatchupResponse(nlohmann::js
 
         serializedBlocks->push_back(']');
 
-        _responseHeader->setStatus(CONNECTION_PROCEED);
+        _responseHeader->setStatusSubStatus(CONNECTION_PROCEED, CONNECTION_OK);
 
         _responseHeader->setBlockSizes(blockSizes);
 
@@ -352,7 +352,7 @@ ptr<vector<uint8_t>> CatchupServerAgent::createBlockFinalizeResponse(nlohmann::j
 
         CHECK_STATE(fragment != nullptr);
 
-        _responseHeader->setStatus(CONNECTION_PROCEED);
+        _responseHeader->setStatusSubStatus(CONNECTION_PROCEED, CONNECTION_OK);
 
         auto serializedFragment = fragment->serialize();
 

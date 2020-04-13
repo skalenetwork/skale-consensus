@@ -229,7 +229,7 @@ BlockProposalServerAgent::processDAProofRequest(ptr<ServerConnection> _connectio
     LOG(trace, "Got DA proof");
 }
 
-ConnectionStatus
+pair<ConnectionStatus, ConnectionSubStatus>
 BlockProposalServerAgent::processProposalRequest(ptr<ServerConnection> _connection, nlohmann::json _proposalRequest) {
     ptr<BlockProposalRequestHeader> requestHeader = nullptr;
     ptr<Header> responseHeader = nullptr;
@@ -247,8 +247,8 @@ BlockProposalServerAgent::processProposalRequest(ptr<ServerConnection> _connecti
 
     try {
         send(_connection, responseHeader);
-        if (responseHeader->getStatus() != CONNECTION_PROCEED) {
-            return responseHeader->getStatus();
+        if (responseHeader->getStatusSubStatus().first != CONNECTION_PROCEED) {
+            return responseHeader->getStatusSubStatus();
         }
     } catch (ExitRequestedException &) {
         throw;
@@ -394,7 +394,7 @@ BlockProposalServerAgent::processProposalRequest(ptr<ServerConnection> _connecti
 
     send(_connection, finalResponseHeader);
 
-    return finalResponseHeader->getStatus();
+    return finalResponseHeader->getStatusSubStatus();
 
 }
 
@@ -492,7 +492,7 @@ ptr<Header> BlockProposalServerAgent::createProposalResponseHeader(ptr<ServerCon
         responseHeader->setComplete();
         return responseHeader;
     }
-    responseHeader->setStatus(CONNECTION_PROCEED);
+    responseHeader->setStatusSubStatus(CONNECTION_PROCEED, CONNECTION_OK);
     responseHeader->setComplete();
     return responseHeader;
 }
@@ -597,7 +597,7 @@ ptr<Header> BlockProposalServerAgent::createDAProofResponseHeader(ptr<ServerConn
 
     sChain->daProofArrived(proof);
 
-    responseHeader->setStatus(CONNECTION_SUCCESS);
+    responseHeader->setStatusSubStatus(CONNECTION_SUCCESS, CONNECTION_OK);
     responseHeader->setComplete();
     return responseHeader;
 
@@ -607,7 +607,7 @@ ptr<Header> BlockProposalServerAgent::createDAProofResponseHeader(ptr<ServerConn
 ptr<Header> BlockProposalServerAgent::createFinalResponseHeader(ptr<ReceivedBlockProposal> _proposal) {
     auto sigShare = getSchain()->getCryptoManager()->signDAProofSigShare(_proposal);
     auto responseHeader = make_shared<FinalProposalResponseHeader>(sigShare->toString());
-    responseHeader->setStatus(CONNECTION_SUCCESS);
+    responseHeader->setStatusSubStatus(CONNECTION_SUCCESS, CONNECTION_OK);
     responseHeader->setComplete();
     return responseHeader;
 }

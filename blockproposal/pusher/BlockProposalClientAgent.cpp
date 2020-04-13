@@ -62,7 +62,8 @@
 BlockProposalClientAgent::BlockProposalClientAgent(Schain &_sChain)
         : AbstractClientAgent(_sChain, PROPOSAL) {
 
-    sentProposals = make_shared<cache::lru_cache<uint64_t, ConnectionStatus>>(32);
+    sentProposals = make_shared<cache::lru_cache<uint64_t,
+                   pair<ConnectionStatus, ConnectionSubStatus>>>(32);
 
     try {
         LOG(debug, "Constructing blockProposalPushAgent");
@@ -126,13 +127,14 @@ ConnectionStatus BlockProposalClientAgent::sendItemImpl(ptr<DataStructure> _item
     if (_proposal != nullptr) {
 
         ConnectionStatus status = ConnectionStatus::CONNECTION_STATUS_UNKNOWN;
+        ConnectionSubStatus subStatus = ConnectionSubStatus::CONNECTION_SUBSTATUS_UNKNOWN;
 
         auto key = (uint64_t ) _index +
                    1024 * 1024 * (uint64_t) _proposal->getBlockID();
 
-        sentProposals->put(key, status);
-        status = sendBlockProposal(_proposal, _socket, _index);
-        sentProposals->put(key, status);
+        sentProposals->put(key, {status, subStatus});
+        auto result = sendBlockProposal(_proposal, _socket, _index);
+        sentProposals->put(key, result);
 
         return status;
     }
@@ -147,9 +149,10 @@ ConnectionStatus BlockProposalClientAgent::sendItemImpl(ptr<DataStructure> _item
         if (!sentProposals->exists(key)) {
             LOG(err, "Sending proof before proposal is sent");
             assert(false);
-        } else if (sentProposals->get(key) != CONNECTION_SUCCESS) {
+        } else if (sentProposals->get(key).first != CONNECTION_SUCCESS) {
             LOG(err, "Sending proof after failed proposal send: " +
-            to_string(sentProposals->get(key)));
+            to_string(sentProposals->get(key).first) + ":" +
+            to_string(sentProposals->get(key).second));
         }
 
         auto status = sendDAProof(_daProof, _socket);
@@ -177,7 +180,7 @@ ptr<BlockProposal> BlockProposalClientAgent::corruptProposal(ptr<BlockProposal> 
 }
 
 
-ConnectionStatus
+pair<ConnectionStatus, ConnectionSubStatus>
 BlockProposalClientAgent::sendBlockProposal(ptr<BlockProposal> _proposal, shared_ptr<ClientSocket> socket,
                                             schain_index _index) {
 
@@ -207,12 +210,22 @@ BlockProposalClientAgent::sendBlockProposal(ptr<BlockProposal> _proposal, shared
 
     LOG(trace, "Proposal step 2: read proposal response");
 
-    auto status = (ConnectionStatus) Header::getUint64(response, "status");
+    pair<ConnectionStatus, ConnectionSubStatus> result =
+            { ConnectionStatus::CONNECTION_STATUS_UNKNOWN,
+              ConnectionSubStatus::CONNECTION_SUBSTATUS_UNKNOWN};
 
 
-    if (status != CONNECTION_PROCEED) {
+    try {
+
+        result.first = (ConnectionStatus) Header::getUint64(response, "status");
+        result.second = (ConnectionSubStatus) Header::getUint64(response, "substatus");
+    } catch (...) {
+    }
+
+
+    if (result.first != CONNECTION_PROCEED) {
         LOG(trace, "Proposal Server terminated proposal push");
-        return status;
+        return result;
     }
 
     auto partialHashesList = _proposal->createPartialHashesList();
@@ -313,17 +326,28 @@ BlockProposalClientAgent::sendBlockProposal(ptr<BlockProposal> _proposal, shared
 
     auto finalHeader = readAndProcessFinalProposalResponseHeader(socket);
 
-    auto finalStatus = finalHeader->getStatus();
 
-    if (finalStatus != ConnectionStatus::CONNECTION_SUCCESS)
-        return finalStatus;
+
+    pair<ConnectionStatus, ConnectionSubStatus> finalResult = {
+            ConnectionStatus::CONNECTION_STATUS_UNKNOWN,
+            ConnectionSubStatus::CONNECTION_SUBSTATUS_UNKNOWN
+    };
+
+    try {
+        finalResult = finalHeader->getStatusSubStatus();
+    } catch (...) {
+
+    }
+
+    if (finalResult.first != ConnectionStatus::CONNECTION_SUCCESS)
+        return finalResult;
 
     auto sigShare = getSchain()->getCryptoManager()->createSigShare(finalHeader->getSigShare(),
                                                                     _proposal->getSchainID(),
                                                                     _proposal->getBlockID(), _index);
     getSchain()->daProofSigShareArrived(sigShare, _proposal);
 
-    return finalStatus;
+    return finalResult;
 }
 
 

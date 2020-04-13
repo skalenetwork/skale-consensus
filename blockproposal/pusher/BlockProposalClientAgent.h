@@ -45,7 +45,7 @@ class FinalProposalResponseHeader;
 
 class BlockProposalClientAgent : public AbstractClientAgent {
 
-    ptr<cache::lru_cache<uint64_t, ConnectionStatus>> sentProposals;
+    ptr<cache::lru_cache<uint64_t, pair<ConnectionStatus, ConnectionSubStatus>>> sentProposals;
 
     friend class BlockProposalPusherThreadPool;
 
@@ -62,8 +62,8 @@ class BlockProposalClientAgent : public AbstractClientAgent {
 
     ConnectionStatus sendItemImpl(ptr<DataStructure> _item, shared_ptr<ClientSocket> _socket, schain_index _index);
 
-    ConnectionStatus sendBlockProposal(ptr<BlockProposal> _proposal, shared_ptr<ClientSocket> socket,
-                                       schain_index _index);
+    pair<ConnectionStatus, ConnectionSubStatus> sendBlockProposal(ptr<BlockProposal> _proposal, shared_ptr<ClientSocket> socket,
+                                                                  schain_index _index);
 
     ptr<BlockProposal> corruptProposal(ptr<BlockProposal> _proposal, schain_index _index);
 
