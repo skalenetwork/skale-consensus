@@ -39,7 +39,7 @@ class SHAHash;
 
 class Header : public BasicHeader {
 
-protected:
+private:
 
     ConnectionStatus status = CONNECTION_ERROR;
     ConnectionSubStatus substatus = CONNECTION_ERROR_UNKNOWN_SERVER_ERROR;
@@ -53,22 +53,14 @@ public:
     virtual void addFields(nlohmann::json & j);
 
 
-    ConnectionStatus getStatus() { return status; }
+    pair<ConnectionStatus, ConnectionSubStatus> getStatusSubStatus() { return {status,
+                                                                          substatus};};
 
-    ConnectionSubStatus getSubstatus() { return substatus; }
 
     void setStatusSubStatus( ConnectionStatus _status, ConnectionSubStatus _substatus ) {
         this->status = _status;
         this->substatus = _substatus;
     }
-
-
-    void setStatus( ConnectionStatus _status ) { this->status = _status; }
-
-
-private:
-
-
 
 };
 

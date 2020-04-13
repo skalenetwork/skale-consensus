@@ -257,7 +257,7 @@ void BlockConsensusAgent::reportConsensusAndDecideIfNeeded(ptr<ChildBVDecidedMes
             seed = 1;
         } else {
 
-            assert(blockID - 1 <= getSchain()->getLastCommittedBlockID());
+            CHECK_STATE(blockID - 1 <= getSchain()->getLastCommittedBlockID());
             auto previousBlock = getSchain()->getBlock(blockID - 1);
             if (previousBlock == nullptr)
                 BOOST_THROW_EXCEPTION(InvalidStateException("Can not read block "

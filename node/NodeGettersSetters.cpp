@@ -162,7 +162,7 @@ ptr<ConsensusStateDB> Node::getConsensusStateDB() {
 }
 
 ptr<map<schain_index, ptr<NodeInfo> > > Node::getNodeInfosByIndex() const {
-    assert(nodeInfosByIndex != nullptr);
+    CHECK_STATE(nodeInfosByIndex != nullptr);
     return nodeInfosByIndex;
 }
 

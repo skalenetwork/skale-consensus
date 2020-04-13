@@ -45,7 +45,7 @@ class FinalProposalResponseHeader;
 
 class BlockProposalClientAgent : public AbstractClientAgent {
 
-    ptr<cache::lru_cache<uint64_t, ConnectionStatus>> sentProposals;
+    ptr<cache::lru_cache<uint64_t, ptr<list<pair<ConnectionStatus, ConnectionSubStatus>>>>> sentProposals;
 
     friend class BlockProposalPusherThreadPool;
 
@@ -60,15 +60,16 @@ class BlockProposalClientAgent : public AbstractClientAgent {
     readMissingHashes(ptr<ClientSocket> _socket, uint64_t _count);
 
 
-    ConnectionStatus sendItemImpl(ptr<DataStructure> _item, shared_ptr<ClientSocket> _socket, schain_index _index);
+    pair<ConnectionStatus, ConnectionSubStatus>
+    sendItemImpl(ptr<DataStructure> _item, shared_ptr<ClientSocket> _socket, schain_index _index);
 
-    ConnectionStatus sendBlockProposal(ptr<BlockProposal> _proposal, shared_ptr<ClientSocket> socket,
-                                       schain_index _index);
+    pair<ConnectionStatus, ConnectionSubStatus> sendBlockProposal(ptr<BlockProposal> _proposal, shared_ptr<ClientSocket> socket,
+                                                                  schain_index _index);
 
     ptr<BlockProposal> corruptProposal(ptr<BlockProposal> _proposal, schain_index _index);
 
-    ConnectionStatus sendDAProof(
-            ptr<DAProof> _daProof, shared_ptr<ClientSocket> socket);
+    pair<ConnectionStatus, ConnectionSubStatus> sendDAProof(
+            ptr<DAProof> _daProof, shared_ptr<ClientSocket> _socket);
 
 
 

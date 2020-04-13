@@ -59,7 +59,7 @@ class BlockProposalServerAgent : public AbstractServerAgent {
     ptr<BlockProposalWorkerThreadPool> blockProposalWorkerThreadPool;
 
 
-    ConnectionStatus processProposalRequest(ptr<ServerConnection> _connection, nlohmann::json _proposalRequest);
+    pair<ConnectionStatus, ConnectionSubStatus> processProposalRequest(ptr<ServerConnection> _connection, nlohmann::json _proposalRequest);
 
     void processDAProofRequest(ptr<ServerConnection> _connection, nlohmann::json _daProofRequest);
 
