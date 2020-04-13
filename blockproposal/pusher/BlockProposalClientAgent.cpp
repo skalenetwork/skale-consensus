@@ -159,7 +159,6 @@ BlockProposalClientAgent::sendItemImpl(ptr<DataStructure> _item, shared_ptr<Clie
 
         if (!sentProposals->exists(key)) {
             LOG(err, "Sending proof before proposal is sent");
-            ASSERT(false);
         } else if (sentProposals->get(key)->back().first != CONNECTION_SUCCESS) {
             LOG(err, "Sending proof after failed proposal send: " +
                      to_string(sentProposals->get(key)->back().first) + ":" +
