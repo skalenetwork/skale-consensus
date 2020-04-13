@@ -50,6 +50,7 @@ CatchupRequestHeader::CatchupRequestHeader(Schain &_sChain, schain_index _dstInd
 
     this->schainID = _sChain.getSchainID();
     this->blockID = _sChain.getLastCommittedBlockID();
+    this->nodeID = _sChain.getNode()->getNodeID();
 
     ASSERT(_sChain.getNode()->getNodeInfoByIndex(_dstIndex) != nullptr);
 
@@ -63,6 +64,7 @@ void CatchupRequestHeader::addFields(nlohmann::json& _j) {
 
     _j["schainID"] = (uint64_t ) schainID;
     _j["blockID"] = (uint64_t ) blockID;
+    _j["nodeID"] = (uint64_t) nodeID;
 
 }
 

@@ -38,6 +38,7 @@ class CatchupRequestHeader : public Header{
 
     schain_id schainID;
     block_id blockID;
+    node_id nodeID;
 
 public:
 
