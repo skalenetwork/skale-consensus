@@ -40,6 +40,8 @@ matrix:
 addons:
   apt:
     packages:
+      - software-properties-common
+      - apt-utils
       - libprocps-dev
       - g++-7
       - valgrind
@@ -54,6 +56,22 @@ addons:
       - texinfo
       - autotools-dev
       - automake
+      - python
+      - python-pip
+      - cmake
+      - libtool
+      - build-essential
+      - pkg-config
+      - autoconf
+      - wget
+      - git
+      - libjsoncpp-dev
+      - libargtable2-dev
+      - libcurl4-openssl-dev
+      - libmicrohttpd-dev
+      - libhiredis-dev
+      - redis-server
+      - openssl
     sources:
       - ubuntu-toolchain-r-test
 
