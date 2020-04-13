@@ -408,7 +408,7 @@ void BlockProposalServerAgent::checkForOldBlock(const block_id &_blockID) {
 }
 
 
-ptr<Header> BlockProposalServerAgent::createProposalResponseHeader(ptr<ServerConnection> _connectionEnvelope,
+ptr<Header> BlockProposalServerAgent::createProposalResponseHeader(ptr<ServerConnection>,
                                                                    BlockProposalRequestHeader &_header) {
     auto responseHeader = make_shared<BlockProposalResponseHeader>();
 
@@ -425,17 +425,12 @@ ptr<Header> BlockProposalServerAgent::createProposalResponseHeader(ptr<ServerCon
     if (nmi == nullptr) {
         responseHeader->setStatusSubStatus(CONNECTION_ERROR, CONNECTION_ERROR_DONT_KNOW_THIS_NODE);
         responseHeader->setComplete();
-        LOG(err,"Could not find node info for IP " + *_connectionEnvelope->getIP());
+        BOOST_THROW_EXCEPTION(InvalidNodeIDException("Could not find node info for NODE_ID:" + to_string((uint64_t) _header.getProposerNodeId()),
+                               __CLASS_NAME__));
+
         return responseHeader;
     }
 
-
-    if (nmi->getNodeID() != _header.getProposerNodeId()) {
-        responseHeader->setStatusSubStatus(CONNECTION_ERROR, CONNECTION_ERROR_INVALID_NODE_ID);
-        responseHeader->setComplete();
-        LOG(err, "Node ID does not match " + _header.getProposerNodeId());
-        return responseHeader;
-    }
 
     if (nmi->getSchainIndex() != schain_index(_header.getProposerIndex())) {
         responseHeader->setStatusSubStatus(CONNECTION_ERROR, CONNECTION_ERROR_INVALID_NODE_INDEX);
@@ -497,8 +492,7 @@ ptr<Header> BlockProposalServerAgent::createProposalResponseHeader(ptr<ServerCon
     return responseHeader;
 }
 
-ptr<Header> BlockProposalServerAgent::createDAProofResponseHeader(ptr<ServerConnection>
-                                                                  _connectionEnvelope,
+ptr<Header> BlockProposalServerAgent::createDAProofResponseHeader(ptr<ServerConnection>,
                                                                   ptr<SubmitDAProofRequestHeader>
                                                                   _header) {
 
@@ -512,22 +506,17 @@ ptr<Header> BlockProposalServerAgent::createDAProofResponseHeader(ptr<ServerConn
                 InvalidSchainException("Incorrect schain " + to_string(_header->getSchainId()), __CLASS_NAME__));
     };
 
+    auto nodeId = _header->getProposerNodeId();
 
-    ptr<NodeInfo> nmi = sChain->getNode()->getNodeInfoById(_header->getProposerNodeId());
+    ptr<NodeInfo> nmi = sChain->getNode()->getNodeInfoById(nodeId);
 
     if (nmi == nullptr) {
         responseHeader->setStatusSubStatus(CONNECTION_ERROR, CONNECTION_ERROR_DONT_KNOW_THIS_NODE);
-        BOOST_THROW_EXCEPTION(InvalidSourceIPException(
-                                      "Could not find node info for IP " + *_connectionEnvelope->getIP()));
+        BOOST_THROW_EXCEPTION(InvalidNodeIDException("Could not find node info for NODE_ID:" + to_string((uint64_t) nodeId),
+                               __CLASS_NAME__));
     }
 
 
-    if (nmi->getNodeID() != _header->getProposerNodeId()) {
-        responseHeader->setStatusSubStatus(CONNECTION_ERROR, CONNECTION_ERROR_INVALID_NODE_ID);
-
-        BOOST_THROW_EXCEPTION(InvalidNodeIDException("Node ID does not match " +
-                                                     _header->getProposerNodeId(), __CLASS_NAME__));
-    }
 
     if (nmi->getSchainIndex() != schain_index(_header->getProposerIndex())) {
         responseHeader->setStatusSubStatus(CONNECTION_ERROR, CONNECTION_ERROR_INVALID_NODE_INDEX);

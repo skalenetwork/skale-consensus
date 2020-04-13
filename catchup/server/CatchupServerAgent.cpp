@@ -185,7 +185,7 @@ void CatchupServerAgent::processNextAvailableConnection(ptr<ServerConnection> _c
 }
 
 
-ptr<vector<uint8_t>> CatchupServerAgent::createResponseHeaderAndBinary(ptr<ServerConnection> _connectionEnvelope,
+ptr<vector<uint8_t>> CatchupServerAgent::createResponseHeaderAndBinary(ptr<ServerConnection> ,
                                                                        nlohmann::json _jsonRequest,
                                                                        ptr<Header> &_responseHeader) {
 
@@ -208,7 +208,8 @@ ptr<vector<uint8_t>> CatchupServerAgent::createResponseHeaderAndBinary(ptr<Serve
         if (nmi == nullptr) {
             _responseHeader->setStatusSubStatus(CONNECTION_ERROR, CONNECTION_ERROR_DONT_KNOW_THIS_NODE);
             BOOST_THROW_EXCEPTION(
-                    InvalidSourceIPException("Could not find node info for IP " + *_connectionEnvelope->getIP()));
+                    InvalidNodeIDException("Could not find node info for NODE_ID:" + to_string((uint64_t) nodeID),
+                            __CLASS_NAME__));
         }
 
         auto type = Header::getString(_jsonRequest, "type");
