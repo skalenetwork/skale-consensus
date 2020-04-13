@@ -66,19 +66,12 @@ print("Current directory is" + os.getcwd())
 print("Got TRAVIS_BUILD_TYPE=" + sys.argv[1])
 print("Got TRAVIS_BUILD_DIR=" + sys.argv[2])
 
-
-run("wget https://cmake.org/files/v3.10/cmake-3.10.3-Linux-x86_64.sh")
-run("chmod +x cmake-3.10.3-Linux-x86_64.sh");
-run("./cmake-3.10.3-Linux-x86_64.sh --skip-license")
-run("bash -c which cmake")
-run("ln -s ./cmake-3.10.3-Linux-x86_64/bin/cmake /usr/local/bin/cmake")
-
 run ("ccache -M 20G")
 run("./libBLS/deps/build.sh PARALLEL_COUNT=j$(nproc)")
-run("/usr/local/bin/cmake . -Bbuild -DCMAKE_BUILD_TYPE=" +  sys.argv[1] +
+run("cmake . -Bbuild -DCMAKE_BUILD_TYPE=" +  sys.argv[1] +
                         " -DCOVERAGE=ON -DMICROPROFILE_ENABLED=0")
 
-run("/usr/local/bin/cmake --build build -- -j4")
+run("cmake --build build -- -j4")
 
 buildDirName = sys.argv[2] + '/build'
 
