@@ -55,7 +55,7 @@
 using namespace std;
 
 ptr<SHAHash> BlockProposal::getHash() {
-    assert(hash);
+    CHECK_STATE(hash);
     return hash;
 }
 
@@ -235,8 +235,8 @@ ptr<vector<uint8_t> > BlockProposal::serialize() {
 
 
     auto serializedList = transactionList->serialize(true);
-    assert(serializedList->front() == '<');
-    assert(serializedList->back() == '>');
+    CHECK_STATE(serializedList->front() == '<');
+    CHECK_STATE(serializedList->back() == '>');
 
 
     block->insert(block->end(), serializedList->begin(), serializedList->end());
@@ -248,8 +248,8 @@ ptr<vector<uint8_t> > BlockProposal::serialize() {
     serializedProposal = block;
 
 
-    assert(block->at(sizeof(uint64_t)) == '{');
-    assert(block->back() == '>');
+    CHECK_STATE(block->at(sizeof(uint64_t)) == '{');
+    CHECK_STATE(block->back() == '>');
 
     return block;
 }

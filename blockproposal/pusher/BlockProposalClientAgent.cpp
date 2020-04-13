@@ -63,7 +63,7 @@ BlockProposalClientAgent::BlockProposalClientAgent(Schain &_sChain)
         : AbstractClientAgent(_sChain, PROPOSAL) {
 
     sentProposals = make_shared<cache::lru_cache<uint64_t,
-                   pair<ConnectionStatus, ConnectionSubStatus>>>(32);
+            ptr<list<pair<ConnectionStatus, ConnectionSubStatus>>>>>(32);
 
     try {
         LOG(debug, "Constructing blockProposalPushAgent");
@@ -110,15 +110,16 @@ BlockProposalClientAgent::readAndProcessFinalProposalResponseHeader(
 
         return make_shared<FinalProposalResponseHeader>(Header::getString(js, "sigShare"));
     } else {
-        LOG(err, "Proposal push failed:" + to_string(status)  + ":" + to_string(subStatus) );
+        LOG(err, "Proposal push failed:" + to_string(status) + ":" + to_string(subStatus));
         return make_shared<FinalProposalResponseHeader>(status, subStatus);
     }
 
 }
 
 
-ConnectionStatus BlockProposalClientAgent::sendItemImpl(ptr<DataStructure> _item, shared_ptr<ClientSocket> _socket,
-                                                        schain_index _index) {
+pair<ConnectionStatus, ConnectionSubStatus>
+BlockProposalClientAgent::sendItemImpl(ptr<DataStructure> _item, shared_ptr<ClientSocket> _socket,
+                                       schain_index _index) {
 
     CHECK_ARGUMENT(_item != nullptr);
 
@@ -126,17 +127,27 @@ ConnectionStatus BlockProposalClientAgent::sendItemImpl(ptr<DataStructure> _item
 
     if (_proposal != nullptr) {
 
-        ConnectionStatus status = ConnectionStatus::CONNECTION_STATUS_UNKNOWN;
-        ConnectionSubStatus subStatus = ConnectionSubStatus::CONNECTION_SUBSTATUS_UNKNOWN;
+        pair<ConnectionStatus,
+                ConnectionSubStatus> result = {ConnectionStatus::CONNECTION_STATUS_UNKNOWN,
+                                               ConnectionSubStatus::CONNECTION_SUBSTATUS_UNKNOWN};
 
-        auto key = (uint64_t ) _index +
+        auto key = (uint64_t) _index +
                    1024 * 1024 * (uint64_t) _proposal->getBlockID();
 
-        sentProposals->put(key, {status, subStatus});
-        auto result = sendBlockProposal(_proposal, _socket, _index);
-        sentProposals->put(key, result);
+        if (!sentProposals->exists(key)) {
+            sentProposals->put(key,
+                               make_shared<list<pair<ConnectionStatus, ConnectionSubStatus>>>());
+        }
 
-        return status;
+        try {
+            result = sendBlockProposal(_proposal, _socket, _index);
+        } catch (...) {
+            auto list = sentProposals->get(key);
+            list->push_back(result);
+            throw;
+        }
+
+        return result;
     }
 
     ptr<DAProof> _daProof = dynamic_pointer_cast<DAProof>(_item);
@@ -144,23 +155,22 @@ ConnectionStatus BlockProposalClientAgent::sendItemImpl(ptr<DataStructure> _item
     if (_daProof != nullptr) {
 
         auto key = (uint64_t) _index +
-            1024 * 1024 *  (uint64_t) _daProof->getBlockId();
+                   1024 * 1024 * (uint64_t) _daProof->getBlockId();
 
         if (!sentProposals->exists(key)) {
             LOG(err, "Sending proof before proposal is sent");
-            assert(false);
-        } else if (sentProposals->get(key).first != CONNECTION_SUCCESS) {
+            ASSERT(false);
+        } else if (sentProposals->get(key)->back().first != CONNECTION_SUCCESS) {
             LOG(err, "Sending proof after failed proposal send: " +
-            to_string(sentProposals->get(key).first) + ":" +
-            to_string(sentProposals->get(key).second));
+                     to_string(sentProposals->get(key)->back().first) + ":" +
+                     to_string(sentProposals->get(key)->back().second));
         }
 
         auto status = sendDAProof(_daProof, _socket);
         return status;
     }
 
-    assert(false);
-
+    ASSERT(false);
 
 }
 
@@ -211,8 +221,8 @@ BlockProposalClientAgent::sendBlockProposal(ptr<BlockProposal> _proposal, shared
     LOG(trace, "Proposal step 2: read proposal response");
 
     pair<ConnectionStatus, ConnectionSubStatus> result =
-            { ConnectionStatus::CONNECTION_STATUS_UNKNOWN,
-              ConnectionSubStatus::CONNECTION_SUBSTATUS_UNKNOWN};
+            {ConnectionStatus::CONNECTION_STATUS_UNKNOWN,
+             ConnectionSubStatus::CONNECTION_SUBSTATUS_UNKNOWN};
 
 
     try {
@@ -327,7 +337,6 @@ BlockProposalClientAgent::sendBlockProposal(ptr<BlockProposal> _proposal, shared
     auto finalHeader = readAndProcessFinalProposalResponseHeader(socket);
 
 
-
     pair<ConnectionStatus, ConnectionSubStatus> finalResult = {
             ConnectionStatus::CONNECTION_STATUS_UNKNOWN,
             ConnectionSubStatus::CONNECTION_SUBSTATUS_UNKNOWN
@@ -351,8 +360,8 @@ BlockProposalClientAgent::sendBlockProposal(ptr<BlockProposal> _proposal, shared
 }
 
 
-ConnectionStatus BlockProposalClientAgent::sendDAProof(
-        ptr<DAProof> _daProof, shared_ptr<ClientSocket> socket) {
+pair<ConnectionStatus, ConnectionSubStatus> BlockProposalClientAgent::sendDAProof(
+        ptr<DAProof> _daProof, ptr<ClientSocket> _socket) {
 
 
     LOG(trace, "Proposal step 0: Starting block proposal");
@@ -360,12 +369,12 @@ ConnectionStatus BlockProposalClientAgent::sendDAProof(
 
     CHECK_ARGUMENT(_daProof != nullptr);
 
-    assert(_daProof != nullptr);
+    CHECK_ARGUMENT(_daProof != nullptr);
 
     auto header = make_shared<DAProofRequestHeader>(*getSchain(), _daProof);
 
     try {
-        getSchain()->getIo()->writeHeader(socket, header);
+        getSchain()->getIo()->writeHeader(_socket, header);
     } catch (ExitRequestedException &) {
         throw;
     } catch (...) {
@@ -376,24 +385,25 @@ ConnectionStatus BlockProposalClientAgent::sendDAProof(
     LOG(trace, "DA proof step 1: wrote request header");
 
     auto response =
-            sChain->getIo()->readJsonHeader(socket->getDescriptor(), "Read proposal resp");
+            sChain->getIo()->readJsonHeader(_socket->getDescriptor(), "Read proposal resp");
 
 
     LOG(trace, "DAProof step 2: read response");
 
-    auto status = (ConnectionStatus) Header::getUint64(response, "status");
-    // auto substatus = (ConnectionSubStatus) Header::getUint64(response, "substatus");
+    ConnectionStatus status = ConnectionStatus::CONNECTION_STATUS_UNKNOWN;
+    ConnectionSubStatus substatus = ConnectionSubStatus::CONNECTION_SUBSTATUS_UNKNOWN;
+
+    status = (ConnectionStatus) Header::getUint64(response, "status");
+    substatus = (ConnectionSubStatus) Header::getUint64(response, "substatus");
 
 
     if (status != CONNECTION_SUCCESS) {
 
         if (status == CONNECTION_RETRY_LATER)
-            return status;
-
-        uint64_t substatus = 0;
+            return {status, substatus};
 
         try {
-            substatus = Header::getUint64(response, "substatus");
+            substatus = (ConnectionSubStatus) Header::getUint64(response, "substatus");
         } catch (...) {
 
         }
@@ -403,11 +413,11 @@ ConnectionStatus BlockProposalClientAgent::sendDAProof(
             LOG(err, "Failure submitting DA proof:" + to_string(status) + ":" + to_string(substatus));
         }
 
-        return status;
+        return {status, substatus};
     }
 
 
-    return status;
+    return {status, substatus};
 }
 
 

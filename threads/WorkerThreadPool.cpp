@@ -77,5 +77,4 @@ bool WorkerThreadPool::isJoined() const {
 }
 
 WorkerThreadPool::~WorkerThreadPool(){
-    threadpool.clear();
 }

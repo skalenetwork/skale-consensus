@@ -83,7 +83,7 @@ shared_ptr<spdlog::logger> Log::loggerForClass(const char *_s) {
     if (key == "")
         key = "Main";
 
-    assert(loggers.count(key) > 0);
+    CHECK_STATE(loggers.count(key) > 0);
     return loggers[key];
 }
 

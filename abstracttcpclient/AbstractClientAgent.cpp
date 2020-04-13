@@ -96,7 +96,7 @@ void AbstractClientAgent::sendItem(ptr<DataStructure> _item, schain_index _dstIn
         }
 
 
-        if (sendItemImpl(_item, socket, _dstIndex) != CONNECTION_RETRY_LATER) {
+        if (sendItemImpl(_item, socket, _dstIndex).first != CONNECTION_RETRY_LATER) {
             return;
         } else {
 

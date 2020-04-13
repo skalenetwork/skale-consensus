@@ -67,7 +67,10 @@ namespace cache {
             }
         }
 
-        bool exists(const key_t& key) const {
+        bool exists(const key_t& key)  {
+
+            LOCK(m);
+
             return _cache_items_map.find(key) != _cache_items_map.end();
         }
 

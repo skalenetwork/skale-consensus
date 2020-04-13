@@ -47,8 +47,8 @@ protected:
 
     void sendItem(ptr<DataStructure> _item, schain_index _dstIndex);
 
-    virtual ConnectionStatus sendItemImpl(ptr<DataStructure> _item, shared_ptr<ClientSocket> socket,
-                                          schain_index _destIndex) = 0;
+    virtual pair<ConnectionStatus, ConnectionSubStatus> sendItemImpl(ptr<DataStructure> _item, shared_ptr<ClientSocket> _socket,
+                                                                     schain_index _destIndex) = 0;
 
     std::map< schain_index, ptr< queue< ptr< DataStructure > > > > itemQueue;
 

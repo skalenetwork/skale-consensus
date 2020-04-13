@@ -71,7 +71,7 @@ void setThreadName( std::string const& _n,  ConsensusEngine* engine) {
 std::string getThreadName(){
     char buf[32];
     int ok = pthread_getname_np(pthread_self(), buf, sizeof(buf));
-    ASSERT(ok == 0);
+    CHECK_STATE(ok == 0);
     return std::string(buf);
 }
 
