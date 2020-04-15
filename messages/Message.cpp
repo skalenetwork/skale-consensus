@@ -41,10 +41,6 @@ ptr<ProtocolKey> Message::createDestinationProtocolKey()  {
 
 }
 
-msg_id Message::getMessageID() const {
-    return msgID;
-}
-
 MsgType Message::getMessageType() const {
     return msgType;
 }

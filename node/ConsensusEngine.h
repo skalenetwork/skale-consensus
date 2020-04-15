@@ -112,7 +112,8 @@ public:
 
     static void checkExistsAndFile(const fs_path &filename);
 
-    ptr<Node> readNodeConfigFileAndCreateNode(const fs_path &path, set<node_id> &nodeIDs);
+    ptr<Node> readNodeConfigFileAndCreateNode(const fs_path &path, set<node_id> &nodeIDs, bool _useSGX = false,
+                                              ptr<string> _keyName = nullptr, ptr<vector<string>> _publicKeys = nullptr);
 
 
     void readSchainConfigFiles(ptr<Node> _node, const fs_path &_dirPath);
@@ -165,7 +166,9 @@ public:
 
     // used for standalone debugging
 
-    void parseConfigsAndCreateAllNodes(const fs_path &dirname);
+    void parseTestConfigsAndCreateAllNodes(const fs_path &dirname,
+            bool useSGX = false, ptr<vector<string>> keyNames = nullptr, ptr<vector<string>>
+            publicKeys = nullptr);
 
     void exitGracefullyBlocking();
 

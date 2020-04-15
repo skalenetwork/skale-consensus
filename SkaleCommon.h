@@ -305,6 +305,8 @@ static const uint64_t  BLOCK_PROPOSAL_DB_SIZE = 100000000;
 static const uint64_t  MAX_DELAYED_MESSAGE_SENDS = 256;
 static const uint64_t  MAX_PROPOSAL_QUEUE_SIZE = 8;
 
+static const uint64_t SGX_SSL_PORT = 1026;
+
 
 extern void setThreadName(std::string const &_n, ConsensusEngine* _engine);
 

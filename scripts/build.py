@@ -55,7 +55,7 @@ def run(_command):
     print(">" +_command)
     subprocess.check_call(_command, shell = True)
 
-assert len(sys.argv) == 3
+assert len(sys.argv) >= 3
 
 os.chdir("..")
 

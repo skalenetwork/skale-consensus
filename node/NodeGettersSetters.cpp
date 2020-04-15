@@ -117,6 +117,14 @@ int64_t Node::getParamInt64(const string &_paramName, uint64_t _paramDefault) {
 
 
 ptr<string> Node::getParamString(const string &_paramName, string &_paramDefault) {
+
+    auto result = std::getenv(_paramName.c_str());
+
+    if (result != nullptr) {
+        return make_shared<string>(result);
+    }
+
+
     try {
         if (cfg.find(_paramName) != cfg.end()) {
             return make_shared<string>(cfg.at(_paramName).get<string>());

@@ -37,10 +37,10 @@ public:
 
 
     static ptr<Node> createNodeFromJson(const fs_path &jsonFile, set<node_id> &nodeIDs, ConsensusEngine *
-    _consensusEngine);
+    _consensusEngine, bool _useSGX = false, ptr<string> _keyName = nullptr, ptr<vector<string>> _publicKeys = nullptr);
 
     static ptr<Node> createNodeFromJsonObject(const nlohmann::json &j, set<node_id> &nodeIDs, ConsensusEngine *
-    _engine);
+    _engine,  bool _useSGX = false, ptr<string> _keyName = nullptr, ptr<vector<string>> _publicKeys = nullptr);
 
     static void createAndAddSChainFromJson(ptr<Node> _node, const fs_path &_jsonFile, ConsensusEngine *_engine);
 

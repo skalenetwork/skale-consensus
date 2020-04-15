@@ -29,10 +29,12 @@ env:
     - TARGET=all
     - TRAVIS_BUILD_TYPE=Debug
 
+
+
 matrix:
   include:
     - os: linux
-      dist: xenial
+      dist: bionic
       sudo: required
 
 addons:
