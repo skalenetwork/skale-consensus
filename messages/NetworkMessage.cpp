@@ -57,9 +57,11 @@ NetworkMessage::NetworkMessage(MsgType _messageType, block_id _blockID, schain_i
                   _srcProtocolInstance.getSchain()->getNode()->getNodeID(), _blockID,
                   _blockProposerIndex), BasicHeader(getTypeString(_messageType)) {
 
+
     this->srcSchainIndex = _srcProtocolInstance.getSchain()->getSchainIndex();
     this->r = _r;
     this->value = _value;
+    this->timeMs = _timeMs;
     setComplete();
 }
 
