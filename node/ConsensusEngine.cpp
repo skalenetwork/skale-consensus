@@ -112,7 +112,6 @@ void ConsensusEngine::logInit() {
 
     LOCK(logMutex)
 
-
     spdlog::flush_every(std::chrono::seconds(1));
 
     logThreadLocal_ = nullptr;
@@ -135,7 +134,6 @@ void ConsensusEngine::logInit() {
     } else {
         logFileName = "skaled.log";
     }
-
 
     if (dataDir != nullptr) {
         logFileNamePrefix = make_shared<string>(*dataDir + "/" + logFileName);
@@ -171,6 +169,7 @@ shared_ptr<spdlog::logger> ConsensusEngine::createLogger(const string &loggerNam
         } else {
             logger = spdlog::stdout_color_mt(loggerName);
         }
+        logger->set_pattern("%+", spdlog::pattern_time_type::utc);
     }
 
     CHECK_STATE(logger);
