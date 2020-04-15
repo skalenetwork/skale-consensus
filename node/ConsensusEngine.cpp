@@ -628,11 +628,7 @@ void ConsensusEngine::exitGracefullyAsync() {
         throw_with_nested(EngineInitException("Graceful exit failed", __CLASS_NAME__));
     }
 
-<<<<<<< HEAD
-=======
     status = CONSENSUS_EXITED;
->>>>>>> develop
-
 }
 
 
