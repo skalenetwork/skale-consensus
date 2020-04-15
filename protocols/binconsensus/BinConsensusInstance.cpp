@@ -21,15 +21,14 @@
     @date 2018
 */
 
+
+#include "thirdparty/json.hpp"
 #include "SkaleCommon.h"
 #include "Log.h"
 #include "exceptions/FatalError.h"
-#include "thirdparty/json.hpp"
 #include "crypto/ConsensusBLSSigShare.h"
 #include "chains/Schain.h"
 #include "crypto/CryptoManager.h"
-#include "AUXBroadcastMessage.h"
-
 #include "node/NodeInfo.h"
 #include "messages/ParentMessage.h"
 #include "messages/MessageEnvelope.h"
@@ -45,10 +44,13 @@
 #include "db/ConsensusStateDB.h"
 #include "network/TransportNetwork.h"
 #include "protocols/ProtocolInstance.h"
-#include "ChildBVDecidedMessage.h"
-#include "BVBroadcastMessage.h"
 #include "protocols/blockconsensus/BlockConsensusAgent.h"
 #include "crypto/ConsensusSigShareSet.h"
+#include "utils/Time.h"
+
+#include "AUXBroadcastMessage.h"
+#include "ChildBVDecidedMessage.h"
+#include "BVBroadcastMessage.h"
 #include "BinConsensusInstance.h"
 
 
@@ -56,6 +58,10 @@ using namespace std;
 
 
 void BinConsensusInstance::processMessage(ptr<MessageEnvelope> _m) {
+
+    CHECK_STATE(_m);
+
+
 
 
     CHECK_STATE(_m->getMessage()->getBlockID() == getBlockID());
@@ -93,6 +99,9 @@ void BinConsensusInstance::ifAlreadyDecidedSendDelayedEstimateForNextRound(bin_c
 
 void BinConsensusInstance::processNetworkMessageImpl(ptr<NetworkMessageEnvelope> _me) {
 
+    CHECK_STATE(_me)
+
+    updateStats(_me);
 
     auto message = dynamic_pointer_cast<NetworkMessage>(_me->getMessage());
 
@@ -133,6 +142,25 @@ void BinConsensusInstance::processNetworkMessageImpl(ptr<NetworkMessageEnvelope>
     }
 
 
+}
+
+void BinConsensusInstance::updateStats(const ptr<NetworkMessageEnvelope> &_me) {
+
+    auto processingTime = Time::getCurrentTimeMs() - _me->getArrivalTime();
+
+    if (processingTime > maxProcessingTimeMs) {
+        maxProcessingTimeMs = processingTime;
+    }
+
+    auto m = (NetworkMessage *) _me->getMessage().get();
+
+    auto latencyTime = (int64_t) _me->getArrivalTime() - (int64_t) m->getTimeMs();
+    if (latencyTime < 0)
+        latencyTime = 0;
+
+    if (maxLatencyTimeMs < (uint64_t) latencyTime) {
+        maxLatencyTimeMs = (uint64_t) latencyTime;
+    }
 }
 
 void BinConsensusInstance::processParentProposal(ptr<InternalMessageEnvelope> _me) {
@@ -367,7 +395,7 @@ void BinConsensusInstance::networkBroadcastValue(ptr<BVBroadcastMessage> _m) {
         return;
 
     auto newMsg = make_shared<BVBroadcastMessage>(_m->getBlockID(), _m->getBlockProposerIndex(), _m->getRound(),
-                                                  _m->getValue(),
+                                                  _m->getValue(), Time::getCurrentTimeMs(),
                                                   *this);
 
     getSchain()->getNode()->getNetwork()->broadcastMessage(newMsg);
@@ -378,7 +406,8 @@ void BinConsensusInstance::networkBroadcastValue(ptr<BVBroadcastMessage> _m) {
 
 void BinConsensusInstance::auxBroadcastValue(bin_consensus_round _r, bin_consensus_value _v) {
 
-    auto m = make_shared<AUXBroadcastMessage>(_r, _v, blockID, blockProposerIndex, *this);
+    auto m = make_shared<AUXBroadcastMessage>(_r, _v, blockID, blockProposerIndex,
+            Time::getCurrentTimeMs(), *this);
 
     auxSelfVote(_r, _v, m->getSigShare());
 
@@ -477,7 +506,8 @@ void BinConsensusInstance::proceedWithNewRound(bin_consensus_value _value) {
     addNextRoundToHistory(getCurrentRound(), _value);
 
     auto m = make_shared<BVBroadcastMessage>(getBlockID(), getBlockProposerIndex(),
-                                             getCurrentRound(), _value, *this);
+                                             getCurrentRound(), _value,
+                                             Time::getCurrentTimeMs(), *this);
 
     ptr<MessageEnvelope> me = make_shared<MessageEnvelope>(ORIGIN_NETWORK, m, getSchain()->getThisNodeInfo());
 
@@ -543,7 +573,9 @@ void BinConsensusInstance::decide(bin_consensus_value _b) {
 
     addDecideToGlobalHistory(decidedValue);
 
-    auto msg = make_shared<ChildBVDecidedMessage>((bool) _b, *this, this->getProtocolKey());
+    auto msg = make_shared<ChildBVDecidedMessage>((bool) _b, *this, this->getProtocolKey(),
+                                                  this->getCurrentRound(), maxProcessingTimeMs,
+                                                  maxLatencyTimeMs);
 
 
     LOG(debug, "Decided value: " + to_string(decidedValue) + " for blockid:" +
@@ -579,41 +611,47 @@ BinConsensusInstance::BinConsensusInstance(BlockConsensusAgent *_instance, block
 
 
     if (_initFromDB) {
-        auto db = _instance->getSchain()->getNode()->getConsensusStateDB();
-
-        currentRound = db->readCR(blockID, blockProposerIndex);
-        auto result  = db->readDR(blockID, blockProposerIndex);
-        isDecided = result.first;
-
-        if (isDecided) {
-            decidedRound = result.second;
-            decidedValue = db->readDV(blockID, blockProposerIndex);
-        }
-
-        auto bvVotes = db->readBVBVotes(blockID, blockProposerIndex);
-
-        this->bvbTrueVotes.insert(bvVotes.first->begin(), bvVotes.first->end());
-        this->bvbFalseVotes.insert(bvVotes.second->begin(), bvVotes.second->end());
-
-        auto auxVotes = db->readAUXVotes(blockID, blockProposerIndex,
-                                         _instance->getSchain()->getCryptoManager());
-
-        this->auxTrueVotes.insert(auxVotes.first->begin(), auxVotes.first->end());
-        this->auxFalseVotes.insert(auxVotes.first->begin(), auxVotes.first->end());
-
-        auto bValues = db->readBinValues(blockID, blockProposerIndex);
-
-        this->binValues.insert(bValues->begin(), bValues->end());
-
-        auto props = db->readPRs(blockID, blockProposerIndex);
-
-        this->proposals.insert(props->begin(), props->end());
-
+        initFromDB(_instance);
     }
 }
 
+void BinConsensusInstance::initFromDB(const BlockConsensusAgent*
+#ifdef CONSENSUS_STATE_PERSISTENCE
+                                            _instance
+#endif
+                                                             ) {
+#ifdef CONSENSUS_STATE_PERSISTENCE
+    auto db = _instance->getSchain()->getNode()->getConsensusStateDB();
 
+    currentRound = db->readCR(blockID, blockProposerIndex);
+    auto result = db->readDR(blockID, blockProposerIndex);
+    isDecided = result.first;
 
+    if (isDecided) {
+        decidedRound = result.second;
+        decidedValue = db->readDV(blockID, blockProposerIndex);
+    }
+
+    auto bvVotes = db->readBVBVotes(blockID, blockProposerIndex);
+
+    bvbTrueVotes.insert(bvVotes.first->begin(), bvVotes.first->end());
+    bvbFalseVotes.insert(bvVotes.second->begin(), bvVotes.second->end());
+
+    auto auxVotes = db->readAUXVotes(blockID, blockProposerIndex,
+                                     _instance->getSchain()->getCryptoManager());
+
+    auxTrueVotes.insert(auxVotes.first->begin(), auxVotes.first->end());
+    auxFalseVotes.insert(auxVotes.first->begin(), auxVotes.first->end());
+
+    auto bValues = db->readBinValues(blockID, blockProposerIndex);
+
+    binValues.insert(bValues->begin(), bValues->end());
+
+    auto props = db->readPRs(blockID, blockProposerIndex);
+
+    proposals.insert(props->begin(), props->end());
+#endif
+}
 
 
 void BinConsensusInstance::initHistory(node_count _nodeCount) {

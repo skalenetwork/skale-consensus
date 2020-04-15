@@ -83,13 +83,15 @@ shared_ptr<spdlog::logger> Log::loggerForClass(const char *_s) {
     if (key == "")
         key = "Main";
 
-    assert(loggers.count(key) > 0);
+    CHECK_STATE(loggers.count(key) > 0);
     return loggers[key];
 }
 
 Log::Log(node_id _nodeID, ConsensusEngine* _engine) {
 
     CHECK_STATE(_engine);
+
+    engine = _engine;
 
     nodeID = _nodeID;
 
@@ -122,6 +124,11 @@ Log::Log(node_id _nodeID, ConsensusEngine* _engine) {
 
 const node_id Log::getNodeID() const {
     return nodeID;
+}
+
+ConsensusEngine *Log::getEngine() const {
+    CHECK_STATE(engine);
+    return engine;
 }
 
 

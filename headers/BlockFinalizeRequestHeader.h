@@ -31,16 +31,20 @@ class BlockFinalizeRequestHeader : public AbstractBlockRequestHeader{
 
 
    fragment_index fragmentIndex;
+   node_id        nodeID;
 
 
 public:
 
-    BlockFinalizeRequestHeader(Schain &_sChain, block_id _blockID, schain_index _proposerIndex,
-            fragment_index _fragmentIndex);
+    BlockFinalizeRequestHeader(Schain &_sChain, block_id _blockID,
+            schain_index _proposerIndex, node_id _nodeID,
+                               fragment_index _fragmentIndex);
 
 
 
     void addFields(nlohmann::basic_json<> &jsonRequest) override;
+
+    const node_id &getNodeId() const;
 
 };
 

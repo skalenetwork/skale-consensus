@@ -39,18 +39,19 @@
 #include <crypto/SHAHash.h>
 #include "node/NodeInfo.h"
 #include "network/Buffer.h"
-#include "Message.h"
+#include "utils/Time.h"
 #include "network/TransportNetwork.h"
-#include "NetworkMessageEnvelope.h"
 #include "protocols/binconsensus/BVBroadcastMessage.h"
 #include "protocols/binconsensus/AUXBroadcastMessage.h"
 #include "protocols/blockconsensus/BlockSignBroadcastMessage.h"
+#include "Message.h"
+#include "NetworkMessageEnvelope.h"
 #include "NetworkMessage.h"
 
 
 NetworkMessage::NetworkMessage(MsgType _messageType, block_id _blockID, schain_index _blockProposerIndex,
-                               bin_consensus_round _r, bin_consensus_value _value,
-                               ProtocolInstance &_srcProtocolInstance)
+                               bin_consensus_round _r,
+                               bin_consensus_value _value, uint64_t _timeMs, ProtocolInstance &_srcProtocolInstance)
         : Message(_srcProtocolInstance.getSchain()->getSchainID(),
                   _messageType, _srcProtocolInstance.createNetworkMessageID(),
                   _srcProtocolInstance.getSchain()->getNode()->getNodeID(), _blockID,
@@ -64,7 +65,8 @@ NetworkMessage::NetworkMessage(MsgType _messageType, block_id _blockID, schain_i
 
 
 NetworkMessage::NetworkMessage(MsgType _messageType, node_id _srcNodeID, block_id _blockID,
-                               schain_index _blockProposerIndex, bin_consensus_round _r, bin_consensus_value _value,
+                               schain_index _blockProposerIndex,
+                               bin_consensus_round _r, bin_consensus_value _value, uint64_t _timeMs,
                                schain_id _schainId, msg_id _msgID, ptr<string> _sigShareStr, ptr<string> _ecdsaSig,
                                schain_index _srcSchainIndex, ptr<CryptoManager> _cryptoManager)
         : Message(_schainId, _messageType, _msgID, _srcNodeID, _blockID, _blockProposerIndex),
@@ -73,10 +75,12 @@ NetworkMessage::NetworkMessage(MsgType _messageType, node_id _srcNodeID, block_i
     CHECK_ARGUMENT(_srcSchainIndex > 0)
     CHECK_ARGUMENT(_ecdsaSig)
     CHECK_ARGUMENT(_cryptoManager)
+    CHECK_ARGUMENT(_timeMs > 0);
 
     this->srcSchainIndex = _srcSchainIndex;
     this->r = _r;
     this->value = _value;
+    this->timeMs = _timeMs;
     this->sigShareString = _sigShareStr;
     this->ecdsaSig = _ecdsaSig;
 
@@ -125,6 +129,7 @@ void NetworkMessage::addFields(nlohmann::basic_json<> &j) {
     j["sni"] = (uint64_t )srcNodeID;
     j["ssi"] = (uint64_t) srcSchainIndex;
     j["r"] = (uint64_t )r;
+    j["t"] = (uint64_t) timeMs;
     j["v"] = (uint8_t )value;
 
     if (sigShareString != nullptr) {
@@ -147,6 +152,7 @@ ptr<NetworkMessage> NetworkMessage::parseMessage(ptr<string> _header, Schain *_s
     uint64_t srcNodeID;
     uint64_t srcSchainIndex;
     uint64_t round;
+    uint64_t timeMs;
     uint8_t value;
     ptr<string> sigShare;
     ptr<string> ecdsaSig;
@@ -167,7 +173,9 @@ ptr<NetworkMessage> NetworkMessage::parseMessage(ptr<string> _header, Schain *_s
         srcNodeID = getUint64(js, "sni");
         srcSchainIndex = getUint64(js, "ssi");
         round = getUint64(js, "r");
+        timeMs = getUint64(js, "t");
         value = getUint64(js, "v");
+
 
         if (js.find("sss") != js.end()) {
             sigShare = getString(js, "sss");
@@ -193,20 +201,23 @@ ptr<NetworkMessage> NetworkMessage::parseMessage(ptr<string> _header, Schain *_s
             mptr = make_shared<BVBroadcastMessage>(node_id(srcNodeID),
                                                    block_id(blockID), schain_index(blockProposerIndex),
                                                    bin_consensus_round(round),
-                                                   bin_consensus_value(value), schain_id(sChainID), msg_id(msgID),
+                                                   bin_consensus_value(value), timeMs, schain_id(sChainID), msg_id(msgID),
                                                    srcSchainIndex, ecdsaSig,
                                                    _sChain);
         } else if (*type == BasicHeader::AUX_BROADCAST) {
             mptr = make_shared<AUXBroadcastMessage>(node_id(srcNodeID),
                                                     block_id(blockID), schain_index(blockProposerIndex),
                                                     bin_consensus_round(round),
-                                                    bin_consensus_value(value), schain_id(sChainID), msg_id(msgID),
+                                                    bin_consensus_value(value),
+                                                    timeMs,
+                                                    schain_id(sChainID), msg_id(msgID),
                                                     sigShare,
                                                     srcSchainIndex, ecdsaSig,
                                                     _sChain);
         } else if (*type == BasicHeader::BLOCK_SIG_BROADCAST) {
             mptr = make_shared<BlockSignBroadcastMessage>(node_id(srcNodeID),
                                                           block_id(blockID), schain_index(blockProposerIndex),
+                                                          timeMs,
                                                           schain_id(sChainID), msg_id(msgID),
                                                           sigShare,
                                                           srcSchainIndex, ecdsaSig,
@@ -243,6 +254,10 @@ const char *NetworkMessage::getTypeString(MsgType _type) {
 
 schain_index NetworkMessage::getSrcSchainIndex() const {
     return srcSchainIndex;
+}
+
+uint64_t NetworkMessage::getTimeMs() const {
+    return timeMs;
 }
 
 ptr<SHAHash> NetworkMessage::getHash() {

@@ -32,7 +32,7 @@ class ChildMessage : public InternalMessage {
 
 
 public:
-    ChildMessage(MsgType msgType, ProtocolInstance &srcProtocolInstance, ptr<ProtocolKey> key);
+    ChildMessage(MsgType _msgType, ProtocolInstance& _srcProtocolInstance, ptr<ProtocolKey> _key);
 
 };
 

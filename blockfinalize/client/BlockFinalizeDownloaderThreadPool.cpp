@@ -73,10 +73,8 @@ void BlockFinalizeDownloaderThreadPool::startService() {
 
 BlockFinalizeDownloaderThreadPool::~BlockFinalizeDownloaderThreadPool() {
 
-    assert(joined);
-
-    for (auto&& t : threadpool) {
-        assert (!t->joinable());
+    if (!joined) {
+        cerr << "Destroying non-joined BlockFinalizeDownloaderThreadPool" << "/n";
     }
 
     threadpool.clear();

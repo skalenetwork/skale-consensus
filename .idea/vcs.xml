@@ -22,6 +22,7 @@
     <mapping directory="$PROJECT_DIR$/libBLS/mpir" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/libBLS/pbc" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/libjson-rpc-cpp" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/libzmq" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/sgxwallet" vcs="Git" />
   </component>
 </project>

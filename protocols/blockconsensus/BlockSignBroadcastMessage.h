@@ -26,11 +26,11 @@
 class BlockSignBroadcastMessage : public NetworkMessage{
 public:
 
-    BlockSignBroadcastMessage(block_id _blockID, schain_index _blockProposerIndex,
+    BlockSignBroadcastMessage(block_id _blockID, schain_index _blockProposerIndex, uint64_t _time,
                               ProtocolInstance &_sourceProtocolInstance);
 
     BlockSignBroadcastMessage(node_id _srcNodeID, block_id _blockID,
-                              schain_index _blockProposerIndex, schain_id _schainId,
+                              schain_index _blockProposerIndex,uint64_t _time, schain_id _schainId,
                               msg_id _msgID, ptr<string> _sigShare,
                               schain_index _srcSchainIndex, ptr<string> _ecdsaSig,
                               Schain *_sChain);

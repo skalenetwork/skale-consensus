@@ -16,13 +16,21 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file DAProofResponseHeader.cpp
+    @file DAProofResponseHeader.h
     @author Stan Kladko
     @date 2019
 */
 
-#include "SkaleCommon.h"
-#include "thirdparty/json.hpp"
-#include "DAProofResponseHeader.h"
+#ifndef SKALED_SUBMITDAPROOFRESPONSEHEADER_H
+#define SKALED_SUBMITDAPROOFRESPONSEHEADER_H
 
-DAProofResponseHeader::DAProofResponseHeader() : Header(Header::DA_PROOF_RSP) {}
+
+#include "Header.h"
+
+class SubmitDAProofResponseHeader : public Header {
+public:
+    SubmitDAProofResponseHeader();
+};
+
+
+#endif //SKALED_SUBMITDAPROOFRESPONSEHEADER_H

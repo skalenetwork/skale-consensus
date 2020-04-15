@@ -34,9 +34,13 @@ class ProtocolKey;
 
 class NetworkMessageEnvelope : public MessageEnvelope {
 
+    uint64_t arrivalTime;
+
 public:
     NetworkMessageEnvelope(const ptr <NetworkMessage> &message,
                            const ptr <NodeInfo> &realSender);
+
+    uint64_t getArrivalTime() const;
 
 };
 

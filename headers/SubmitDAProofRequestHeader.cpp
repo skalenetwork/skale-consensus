@@ -36,11 +36,11 @@
 
 #include "AbstractBlockRequestHeader.h"
 
-#include "DAProofRequestHeader.h"
+#include "SubmitDAProofRequestHeader.h"
 
 using namespace std;
 
-DAProofRequestHeader::DAProofRequestHeader(nlohmann::json _proposalRequest, node_count _nodeCount)
+SubmitDAProofRequestHeader::SubmitDAProofRequestHeader(nlohmann::json _proposalRequest, node_count _nodeCount)
         : AbstractBlockRequestHeader(_nodeCount, (schain_id) Header::getUint64(_proposalRequest, "schainID"),
                                      (block_id) Header::getUint64(_proposalRequest, "blockID"),
                                      Header::DA_PROOF_REQ,
@@ -51,7 +51,7 @@ DAProofRequestHeader::DAProofRequestHeader(nlohmann::json _proposalRequest, node
     blockHash = Header::getString(_proposalRequest, "hash");
 }
 
-DAProofRequestHeader::DAProofRequestHeader(Schain &_sChain, ptr<DAProof> _proof) :
+SubmitDAProofRequestHeader::SubmitDAProofRequestHeader(Schain &_sChain, ptr<DAProof> _proof) :
         AbstractBlockRequestHeader(_sChain.getNodeCount(), _sChain.getSchainID(), _proof->getBlockId(),
                                    Header::DA_PROOF_REQ,
                                    _sChain.getSchainIndex()) {
@@ -67,7 +67,7 @@ DAProofRequestHeader::DAProofRequestHeader(Schain &_sChain, ptr<DAProof> _proof)
 
 }
 
-void DAProofRequestHeader::addFields(nlohmann::json &_jsonRequest) {
+void SubmitDAProofRequestHeader::addFields(nlohmann::json &_jsonRequest) {
 
     AbstractBlockRequestHeader::addFields(_jsonRequest);
 
@@ -80,17 +80,17 @@ void DAProofRequestHeader::addFields(nlohmann::json &_jsonRequest) {
     _jsonRequest["hash"] = *blockHash;
 }
 
-const node_id &DAProofRequestHeader::getProposerNodeId() const {
+const node_id &SubmitDAProofRequestHeader::getProposerNodeId() const {
     return proposerNodeID;
 }
 
 
 
-ptr<string> DAProofRequestHeader::getSignature() const {
+ptr<string> SubmitDAProofRequestHeader::getSignature() const {
     return thresholdSig;
 }
 
-ptr<string> DAProofRequestHeader::getBlockHash() const {
+ptr<string> SubmitDAProofRequestHeader::getBlockHash() const {
     return blockHash;
 }
 

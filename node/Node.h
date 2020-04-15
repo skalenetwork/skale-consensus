@@ -138,8 +138,8 @@ class Node {
     };
 
 
-    ptr<map<schain_index, ptr<NodeInfo> > > nodeInfosByIndex;
-    ptr<map<ptr<string>, ptr<NodeInfo>, Comparator> > nodeInfosByIP;
+    ptr<map<uint64_t , ptr<NodeInfo> > > nodeInfosByIndex;
+    ptr<map<uint64_t , ptr<NodeInfo>> > nodeInfosById;
 
 
     bool useSGX;
@@ -291,7 +291,7 @@ public:
 
     nlohmann::json getCfg() const;
 
-    ptr<map<schain_index, ptr<NodeInfo> > > getNodeInfosByIndex() const;
+    ptr<map<uint64_t , ptr<NodeInfo> > > getNodeInfosByIndex() const;
 
     node_id getNodeID() const;
 
@@ -311,7 +311,7 @@ public:
     ptr<NodeInfo> getNodeInfoByIndex(schain_index _index);
 
 
-    ptr<NodeInfo> getNodeInfoByIP(ptr<string> ip);
+    ptr<NodeInfo> getNodeInfoById(node_id _id);
 
     ptr<TransportNetwork> getNetwork() const;
 
@@ -355,7 +355,7 @@ public:
 
     void setEmptyBlockIntervalMs(uint64_t _interval) { this->emptyBlockIntervalMs = _interval; }
 
-    void setNodeInfo(ptr<NodeInfo> _info);
+    void setNodeInfo(ptr<NodeInfo> _nodeInfo);
 
     ConsensusEngine *getConsensusEngine() const;
 

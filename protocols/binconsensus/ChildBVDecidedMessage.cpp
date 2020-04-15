@@ -31,11 +31,28 @@
 
 using namespace std;
 
-ChildBVDecidedMessage::ChildBVDecidedMessage(bool value, ProtocolInstance &srcProtocolInstance, ptr<ProtocolKey> key) : ChildMessage(BIN_CONSENSUS_COMMIT,
-                                                                                                           srcProtocolInstance, key) {
-    this->value = value;
+ChildBVDecidedMessage::ChildBVDecidedMessage(bool _value, ProtocolInstance &_srcProtocolInstance,
+                                             ptr<ProtocolKey> _key, bin_consensus_round _round,
+                                             uint64_t _maxProcessingTimeMs, uint64_t _maxLatencyTimeMs) : ChildMessage(BIN_CONSENSUS_COMMIT,
+                                                                                           _srcProtocolInstance, _key) {
+    this->value = _value;
+    this->round = _round;
+    this->maxProcessingTimeMs = _maxProcessingTimeMs;
+    this->maxLatencyTimeMs = _maxLatencyTimeMs;
 }
 
-bool ChildBVDecidedMessage::getValue() const {
+bool ChildBVDecidedMessage::getValue() {
     return value;
+}
+
+bin_consensus_round ChildBVDecidedMessage::getRound() {
+    return round;
+}
+
+uint64_t ChildBVDecidedMessage::getMaxProcessingTimeMs() {
+    return maxProcessingTimeMs;
+}
+
+uint64_t ChildBVDecidedMessage::getMaxLatencyTimeMs() const {
+    return maxLatencyTimeMs;
 }

@@ -11,6 +11,7 @@ ExternalProject_Add(libjson-rpc-cpp
         COMMAND       ${CMAKE_COMMAND} -E echo "$<CONFIG> build complete"
         )
 
+
 option(COVERAGE "Build with code coverage support" OFF)
 if (COVERAGE)
     message(STATUS "**********************")
@@ -43,17 +44,16 @@ HunterGate(URL "https://github.com/ruslo/hunter/archive/v0.23.76.tar.gz" SHA1 "c
 
 project(consensus)
 
-include_directories( "${DEPS_INSTALL_ROOT}/include" ${CMAKE_BINARY_DIR}/deps/include ${CMAKE_BINARY_DIR}/jsonrpc-build/include)
-link_directories( "${DEPS_INSTALL_ROOT}/lib"  "${CMAKE_BINARY_DIR}/jsonrpc-build/lib")
-
+include_directories( "${DEPS_INSTALL_ROOT}/include" ${CMAKE_BINARY_DIR}/deps/include )
+link_directories( "${DEPS_INSTALL_ROOT}/lib" )
 set( CMAKE_PREFIX_PATH "${DEPS_INSTALL_ROOT}" )
 
 find_library( FF_LIBRARY NAMES "ff" PATHS "${DEPS_INSTALL_ROOT}/lib" )
 
-
 # zeromq
 
-##find_package(ZeroMQ CONFIG REQUIRED)
+
+#find_package(оч CONFIG REQUIRED)
 
 #leveldb
 
@@ -179,8 +179,7 @@ SET(SRC_FILES
         ${utils_src}
         Agent.h Agent.cpp SkaleCommon.h SkaleCommon.cpp Log.h Log.cpp microprofile.cpp miniz.c)
 
-include_directories( ${BLS_INCLUDE_DIRS} "${DEPS_INSTALL_ROOT}/include" "${CMAKE_BINARY_DIR}/jsonrpc-build/include"
-        )
+include_directories( ${BLS_INCLUDE_DIRS} "${DEPS_INSTALL_ROOT}/include"  "${CMAKE_BINARY_DIR}/jsonrpc-build/include")
 link_directories( "${DEPS_INSTALL_ROOT}/lib" "${CMAKE_BINARY_DIR}/jsonrpc-build/lib" "${CMAKE_BINARY_DIR}/libzmq/lib")
 
 if( SKALE_HAVE_BOOST_FROM_HUNTER )
@@ -198,7 +197,7 @@ SET( LINK_LIBRARIES
         Threads::Threads
         ${BOOST_LIBS_4_CONSENSUS}
         ${LIB_NAME_cryptopp} leveldb::leveldb
-        jsoncpp jsonrpccpp-client jsonrpccpp-stub jsonrpccpp-common bls ${FF_LIBRARY} zmqd
+        jsoncpp jsonrpccpp-client jsonrpccpp-stub jsonrpccpp-common bls ${FF_LIBRARY} zmq
         )
 
 

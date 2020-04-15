@@ -80,25 +80,38 @@ uint64_t AbstractClientAgent::incrementAndReturnThreadCounter() {
 void AbstractClientAgent::sendItem(ptr<DataStructure> _item, schain_index _dstIndex) {
     ASSERT( getNode()->isStarted() );
 
-    auto socket = make_shared<ClientSocket >( *sChain, _dstIndex, portType );
+    while (true) {
+
+        auto socket = make_shared<ClientSocket>(*sChain, _dstIndex, portType);
 
 
-    try {
-        getSchain()->getIo()->writeMagic( socket );
+        try {
+            getSchain()->getIo()->writeMagic(socket);
+        }
+
+        catch (ExitRequestedException &) {
+            throw;
+        } catch (...) {
+            throw_with_nested(NetworkProtocolException("Could not write magic", __CLASS_NAME__));
+        }
+
+
+        if (sendItemImpl(_item, socket, _dstIndex).first != CONNECTION_RETRY_LATER) {
+            return;
+        } else {
+
+            boost::this_thread::sleep(
+                    boost::posix_time::milliseconds(PROPOSAL_RETRY_INTERVAL_MS));
+        }
+
     }
-
-    catch ( ExitRequestedException& ) {
-        throw;
-    } catch ( ... ) {
-        throw_with_nested( NetworkProtocolException( "Could not write magic", __CLASS_NAME__ ) );
-    }
-
-
-    sendItemImpl(_item, socket, _dstIndex);
 }
 
 
 void AbstractClientAgent::enqueueItemImpl(ptr<DataStructure> item ) {
+
+    LOCK(m)
+
     for ( uint64_t i = 1; i <= ( uint64_t ) this->sChain->getNodeCount(); i++ ) {
         {
             std::lock_guard< std::mutex > lock( *queueMutex[schain_index( i )] );
@@ -123,7 +136,8 @@ void AbstractClientAgent::workerThreadItemSendLoop( AbstractClientAgent* agent )
 
     agent->waitOnGlobalStartBarrier();
 
-    auto destinationSchainIndex = schain_index( agent->incrementAndReturnThreadCounter() + 1 );
+    auto destinationSchainIndex = schain_index(
+            agent->incrementAndReturnThreadCounter() + 1 );
 
     try {
         while ( !agent->getSchain()->getNode()->isExitRequested() ) {
@@ -137,12 +151,12 @@ void AbstractClientAgent::workerThreadItemSendLoop( AbstractClientAgent* agent )
                 }
             }
 
-            ASSERT( agent->itemQueue[destinationSchainIndex] );
+            CHECK_STATE( agent->itemQueue[destinationSchainIndex] );
 
             auto proposal = agent->itemQueue[destinationSchainIndex]->front();
 
 
-            ASSERT( proposal );
+            CHECK_STATE( proposal );
 
             agent->itemQueue[destinationSchainIndex]->pop();
 

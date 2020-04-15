@@ -41,7 +41,7 @@ void BlockFinalizeResponseHeader::addFields(nlohmann::json &_j) {
     CHECK_STATE(isComplete());
     Header::addFields(_j);
 
-    if (status != CONNECTION_PROCEED)
+    if (getStatusSubStatus().first != CONNECTION_PROCEED)
         return;
 
     CHECK_STATE(blockHash != nullptr);

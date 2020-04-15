@@ -112,7 +112,6 @@ void ConsensusEngine::logInit() {
 
     LOCK(logMutex)
 
-
     spdlog::flush_every(std::chrono::seconds(1));
 
     logThreadLocal_ = nullptr;
@@ -135,7 +134,6 @@ void ConsensusEngine::logInit() {
     } else {
         logFileName = "skaled.log";
     }
-
 
     if (dataDir != nullptr) {
         logFileNamePrefix = make_shared<string>(*dataDir + "/" + logFileName);
@@ -171,6 +169,7 @@ shared_ptr<spdlog::logger> ConsensusEngine::createLogger(const string &loggerNam
         } else {
             logger = spdlog::stdout_color_mt(loggerName);
         }
+        logger->set_pattern("%+", spdlog::pattern_time_type::utc);
     }
 
     CHECK_STATE(logger);
@@ -191,11 +190,19 @@ void ConsensusEngine::logConfig(level_enum _severity, const string &_message, co
 }
 
 void ConsensusEngine::log(level_enum _severity, const string &_message, const string &_className) {
+
     if (logThreadLocal_ == nullptr) {
         CHECK_STATE(configLogger != nullptr);
         configLogger->log(_severity, _message);
     } else {
-        logThreadLocal_->loggerForClass(_className.c_str())->log(_severity, _message);
+
+        auto engine = logThreadLocal_->getEngine();
+        CHECK_STATE(engine);
+
+        string fullMessage = to_string((uint64_t) engine->getLargestCommittedBlockID()) + ":" + _message;
+
+        logThreadLocal_->loggerForClass(_className.c_str())->log(_severity, fullMessage);
+
     }
 }
 

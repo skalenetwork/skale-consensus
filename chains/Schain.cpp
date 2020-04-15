@@ -769,7 +769,14 @@ void Schain::decideBlock(block_id _blockId, schain_index _proposerIndex, ptr<Thr
 
     CHECK_ARGUMENT(_thresholdSig != nullptr);
 
+
     MONITOR2(__CLASS_NAME__, __FUNCTION__, getMaxExternalBlockProcessingTime())
+
+
+    if (_blockId <= getLastCommittedBlockID()) {
+        LOG(info, "Ignoring old block decide, already got this through catchup: BLOCK_ID:" + to_string(_blockId) + ":PRP:" + to_string(_proposerIndex));
+        return;
+    }
 
 
     LOG(debug, "decideBlock:" + to_string(_blockId) + ":PRP:" + to_string(_proposerIndex));
@@ -784,7 +791,6 @@ void Schain::decideBlock(block_id _blockId, schain_index _proposerIndex, ptr<Thr
     try {
 
         if (_proposerIndex == 0) {
-
 
             proposal = createEmptyBlockProposal(_blockId);
             haveProof = true; // empty proposals donot need DAP proofs
