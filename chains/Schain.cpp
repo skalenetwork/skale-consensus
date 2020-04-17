@@ -686,12 +686,14 @@ void Schain::healthCheck() {
             }
         }
 
-
         if (Time::getCurrentTimeSec() - beginTime > 15000) {
             setHealthCheckFile(0);
             LOG(err, "Coult not connect to 2/3 of peers");
             exit(110);
         }
+
+
+        usleep(1000000);
 
         for (int i = 1; i <= getNodeCount(); i++) {
             if (i != (getSchainIndex()) && !connections.count(i)) {
@@ -706,7 +708,6 @@ void Schain::healthCheck() {
                 } catch (ExitRequestedException &) {
                     throw;
                 } catch (std::exception &e) {
-                    usleep(100000);
                 }
             }
         }
