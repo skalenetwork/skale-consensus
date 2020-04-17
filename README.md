@@ -28,7 +28,7 @@ Ensure that the required packages are installed by executing:
 
 ```bash
 sudo apt-get update
-sudo apt-get install -y cmake build-essential libgoogle-perftools-dev libprocps-dev ccache libcurl4-openssl-dev doxegen
+sudo apt-get install -y cmake build-essential libgoogle-perftools-dev libprocps-dev ccache libcurl4-openssl-dev doxygen
 sudo apt-get install -y libffi-dev autotools-dev automake bison flex yasm texinfo
 ```
 
