@@ -83,6 +83,8 @@ class Schain : public Agent {
 
     schain_id  schainID;
 
+    uint64_t emptyBlockIntervalMs;
+
     ptr<TestMessageGeneratorAgent> testMessageGeneratorAgent;
 
     uint64_t startTimeMs;
