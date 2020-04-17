@@ -28,16 +28,14 @@ class Buffer;
 class ServerConnection;
 class SHAHash;
 
+#include "thirdparty/json.hpp"
 #include "abstracttcpserver/ConnectionStatus.h"
-
-
 
 class BasicHeader {
 
 protected:
 
     const char* type = nullptr;
-
     bool complete = false;
 
     static atomic<int64_t>  totalObjects;

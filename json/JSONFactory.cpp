@@ -42,15 +42,21 @@
 #include "JSONFactory.h"
 
 ptr<Node> JSONFactory::createNodeFromJson(const fs_path &jsonFile, set<node_id> &nodeIDs, ConsensusEngine *
-_consensusEngine) {
+_consensusEngine, bool _useSGX, ptr<string> _keyName, ptr<vector<string>> _publicKeys) {
 
     try {
+
+        if (_useSGX) {
+            CHECK_ARGUMENT(_keyName);
+            CHECK_ARGUMENT(_publicKeys)
+        }
 
         nlohmann::json j;
 
         parseJsonFile(j, jsonFile);
 
-        return createNodeFromJsonObject(j, nodeIDs, _consensusEngine);
+        return createNodeFromJsonObject(j, nodeIDs, _consensusEngine, _useSGX, _keyName,
+                _publicKeys);
     } catch (...) {
         throw_with_nested(FatalError(__FUNCTION__ + to_string(__LINE__), __CLASS_NAME__));
     }
@@ -59,7 +65,11 @@ _consensusEngine) {
 }
 
 ptr<Node> JSONFactory::createNodeFromJsonObject(const nlohmann::json &j, set<node_id> &nodeIDs, ConsensusEngine *
-_engine) {
+_engine,  bool _useSGX, ptr<string> _keyName, ptr<vector<string>> _publicKeys) {
+
+    if (_useSGX) {
+        CHECK_ARGUMENT(_keyName && _publicKeys);
+    }
 
     if (j.find("transport") != j.end()) {
         ptr<string> transport = make_shared<string>(j.at("transport").get<string>());
@@ -78,7 +88,7 @@ _engine) {
 
     if (nodeIDs.empty() || nodeIDs.count(node_id(nodeID)) > 0) {
         try {
-            node = make_shared<Node>(j, _engine);
+            node = make_shared<Node>(j, _engine, _useSGX, _keyName, _publicKeys);
         } catch (...) {
             throw_with_nested(FatalError("Could not init node", __CLASS_NAME__));
         }

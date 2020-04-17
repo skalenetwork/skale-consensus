@@ -25,6 +25,7 @@
 #define CONSENSUS_SHAHASH_H
 
 
+#define SHA3_UPDATE(__HASH__, __OBJECT__) __HASH__.Update(reinterpret_cast < uint8_t * > ( &__OBJECT__), sizeof(__OBJECT__))
 
 class SHAHash {
 
@@ -47,14 +48,11 @@ public:
 
     ptr<array<uint8_t ,SHA_HASH_LEN>> getHash() const;
 
-
     static ptr<SHAHash> fromHex(ptr<string> _hex);
-
-    static void cArrayFromHex(string& _str, uint8_t* data, size_t len);
 
     ptr< string > toHex();
 
-    static ptr<SHAHash> calculateHash(uint8_t* _data, uint64_t _count);
+    static ptr<SHAHash> calculateHash(ptr<vector<uint8_t>> _data);
 
     static ptr<SHAHash> merkleTreeMerge(ptr<SHAHash> _left, ptr<SHAHash> _right);
 

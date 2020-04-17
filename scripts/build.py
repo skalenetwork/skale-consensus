@@ -55,7 +55,7 @@ def run(_command):
     print(">" +_command)
     subprocess.check_call(_command, shell = True)
 
-assert len(sys.argv) == 3
+assert len(sys.argv) >= 3
 
 os.chdir("..")
 
@@ -65,12 +65,6 @@ print("Current directory is" + os.getcwd())
 
 print("Got TRAVIS_BUILD_TYPE=" + sys.argv[1])
 print("Got TRAVIS_BUILD_DIR=" + sys.argv[2])
-
-
-cmakeExecutable = subprocess.check_output(["which", "cmake"])
-
-print("Running cmake: " + cmakeExecutable)
-
 
 run ("ccache -M 20G")
 run("./libBLS/deps/build.sh PARALLEL_COUNT=j$(nproc)")

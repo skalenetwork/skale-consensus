@@ -127,7 +127,7 @@ void BinConsensusInstance::processNetworkMessageImpl(ptr<NetworkMessageEnvelope>
 
         networkBroadcastValueIfThird(m);
 
-        ifAlreadyDecidedSendDelayedEstimateForNextRound(m->r);
+        ifAlreadyDecidedSendDelayedEstimateForNextRound(m->getRound());
 
         commitValueIfTwoThirds(m);
 
@@ -137,8 +137,8 @@ void BinConsensusInstance::processNetworkMessageImpl(ptr<NetworkMessageEnvelope>
         ASSERT(m);
         auxVote(_me);
 
-        if (m->r == getCurrentRound())
-            proceedWithCommonCoinIfAUXTwoThird(m->r);
+        if (m->getRound() == getCurrentRound())
+            proceedWithCommonCoinIfAUXTwoThird(m->getRound());
     }
 
 
@@ -172,15 +172,17 @@ void BinConsensusInstance::processParentProposal(ptr<InternalMessageEnvelope> _m
     addToHistory(dynamic_pointer_cast<NetworkMessage>(m));
 
 
-    ASSERT(m->r == 0);
+    ASSERT(m->getRound() == 0);
 
 
-    setProposal(m->r, m->value);
+    setProposal(m->getRound(), m->getValue());
 
 
     networkBroadcastValue(m);
 
-    addBVSelfVoteToHistory(m->r, m->value);
+
+
+    addBVSelfVoteToHistory(m->getRound(), m->getValue());
 
     bvbVote(_me);
 
@@ -251,8 +253,8 @@ void BinConsensusInstance::addCommonCoinToHistory(bin_consensus_round _r, bin_co
 void BinConsensusInstance::bvbVote(ptr<MessageEnvelope> _me) {
 
     BVBroadcastMessage *m = (BVBroadcastMessage *) _me->getMessage().get();
-    bin_consensus_round r = m->r;
-    bin_consensus_value v = m->value;
+    bin_consensus_round r = m->getRound();
+    bin_consensus_value v = m->getValue();
 
     schain_index index = _me->getSrcNodeInfo()->getSchainIndex();
 
@@ -270,8 +272,8 @@ void BinConsensusInstance::bvbVote(ptr<MessageEnvelope> _me) {
 
 void BinConsensusInstance::auxVote(ptr<MessageEnvelope> _me) {
     AUXBroadcastMessage *m = (AUXBroadcastMessage *) _me->getMessage().get();
-    auto r = m->r;
-    bin_consensus_value v = m->value;
+    auto r = m->getRound();
+    bin_consensus_value v = m->getValue();
 
     auto index = _me->getSrcNodeInfo()->getSchainIndex();
 
@@ -336,13 +338,13 @@ bool BinConsensusInstance::isTwoThird(node_count count) {
 }
 
 bool BinConsensusInstance::isThirdVote(ptr<BVBroadcastMessage> _m) {
-    auto voteCount = getBVBVoteCount(_m->value, _m->r);
+    auto voteCount = getBVBVoteCount(_m->getValue(), _m->getRound());
     return isThird(voteCount);
 }
 
 
 bool BinConsensusInstance::isTwoThirdVote(ptr<BVBroadcastMessage> _m) {
-    return isTwoThird(getBVBVoteCount(_m->value, _m->r));
+    return isTwoThird(getBVBVoteCount(_m->getValue(), _m->getRound()));
 }
 
 void BinConsensusInstance::insertValue(bin_consensus_round _r, bin_consensus_value _v) {
@@ -353,8 +355,8 @@ void BinConsensusInstance::insertValue(bin_consensus_round _r, bin_consensus_val
 
 void BinConsensusInstance::commitValueIfTwoThirds(ptr<BVBroadcastMessage> _m) {
 
-    auto r = _m->r;
-    auto v = _m->value;
+    auto r = _m->getRound();
+    auto v = _m->getValue();
 
 
     if (binValues[r].count(v))
@@ -386,8 +388,8 @@ void BinConsensusInstance::networkBroadcastValueIfThird(ptr<BVBroadcastMessage> 
 
 void BinConsensusInstance::networkBroadcastValue(ptr<BVBroadcastMessage> _m) {
 
-    auto v = _m->value;
-    auto r = _m->r;
+    auto v = _m->getValue();
+    auto r = _m->getRound();
 
     if (broadcastValues[r].count(v) > 0)
         return;
@@ -403,7 +405,6 @@ void BinConsensusInstance::networkBroadcastValue(ptr<BVBroadcastMessage> _m) {
 
 
 void BinConsensusInstance::auxBroadcastValue(bin_consensus_round _r, bin_consensus_value _v) {
-
 
     auto m = make_shared<AUXBroadcastMessage>(_r, _v, blockID, blockProposerIndex,
             Time::getCurrentTimeMs(), *this);
@@ -512,12 +513,10 @@ void BinConsensusInstance::proceedWithNewRound(bin_consensus_value _value) {
 
     networkBroadcastValue(m);
 
-    addBVSelfVoteToHistory(m->r, m->value);
+    addBVSelfVoteToHistory(m->getRound(), m->getValue());
     bvbVote(me);
 
-
     commitValueIfTwoThirds(m);
-
 
 }
 
@@ -604,7 +603,8 @@ BinConsensusInstance::BinConsensusInstance(BlockConsensusAgent *_instance, block
         ProtocolInstance(BIN_CONSENSUS, *_instance->getSchain()) ,
         blockConsensusInstance(_instance), blockID(_blockId), blockProposerIndex(_blockProposerIndex),
         nodeCount(_instance ? _instance->getSchain()->getNodeCount() : 0),
-        protocolKey(make_shared<ProtocolKey>(_blockId, _blockProposerIndex)) {
+        protocolKey(make_shared<ProtocolKey>(_blockId, _blockProposerIndex))
+         {
     CHECK_ARGUMENT((uint64_t) _blockId > 0);
     CHECK_ARGUMENT((uint64_t) _blockProposerIndex > 0);
     CHECK_ARGUMENT(_instance);

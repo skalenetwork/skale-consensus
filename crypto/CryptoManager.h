@@ -25,7 +25,10 @@
 #define SKALED_CRYPTOMANAGER_H
 
 
+
 #include "openssl/ec.h"
+#include "messages/NetworkMessage.h"
+
 
 class Schain;
 class SHAHash;
@@ -34,15 +37,40 @@ class ThresholdSigShareSet;
 class ThresholdSigShare;
 class BlockProposal;
 class ThresholdSignature;
+class StubClient;
+class ECP;
+
+namespace CryptoPP {
+    class ECP;
+    template <class EC, class H> struct ECDSA;
+}
+
+class ECDSAVerify;
+
 class CryptoManager {
 
 private:
 
+    ptr<ECDSAVerify> ecdsaVerify;
+
+
     uint64_t  totalSigners;
     uint64_t  requiredSigners;
 
-    Schain* sChain;
+    bool sgxEnabled = false;
 
+    ptr<string> sgxIP;
+    ptr<string> sgxSSLKeyFileFullPath;
+    ptr<string> sgxSSLCertFileFullPath;
+    ptr<string> sgxECDSAKeyName;
+    vector<ptr<string>> sgxECDSAPublicKeys;
+
+private:
+
+    ptr<StubClient> sgxClient;
+
+
+    Schain* sChain = nullptr;
 
     ptr<string> signECDSA(ptr<SHAHash> _hash);
 
@@ -52,9 +80,14 @@ private:
 
     //EC_KEY* ecdsaKey;
 
-    void init();
 
 public:
+
+    // This constructor is used for testing
+    CryptoManager(uint64_t totalSigners, uint64_t requiredSigners, const ptr<string> &sgxIp,
+                  const ptr<string> &sgxSslKeyFileFullPath, const ptr<string> &sgxSslCertFileFullPath,
+                  const ptr<string> &sgxEcdsaKeyName, const vector<ptr<string>> &sgxEcdsaPublicKeys);
+
 
     CryptoManager(Schain& sChain);
 
@@ -76,6 +109,18 @@ public:
     ptr<ThresholdSigShare> signBinaryConsensusSigShare(ptr<SHAHash> _hash, block_id _blockId);
 
     ptr<ThresholdSigShare> signBlockSigShare(ptr<SHAHash> _hash, block_id _blockId);
+
+    ptr<string> signNetworkMsg(NetworkMessage& _msg);
+
+    bool verifyNetworkMsg(NetworkMessage &_msg);
+
+    static ptr<void> decodeSGXPublicKey(ptr<string> _keyHex);
+    static pair<ptr<string>, ptr<string>> generateSGXECDSAKey(ptr<StubClient> _c);
+    static void generateSSLClientCertAndKey(string &_fullPathToDir);
+    static void setSGXKeyAndCert(string &_keyFullPath, string &_certFullPath);
+    ptr<string> sgxSignECDSA(ptr<SHAHash> _hash, string& _keyName,  ptr<StubClient> _sgxClient);
+    void sgxVerifyECDSA(ptr<SHAHash> _hash, ptr<string> _publicKey, ptr<string> _sig);
+
 };
 
 

@@ -108,7 +108,6 @@ class Node {
 
     bool startedClients;
 
-
     std::atomic_bool exitRequested;
 
     ptr<Log> log = nullptr;
@@ -141,6 +140,12 @@ class Node {
 
     ptr<map<uint64_t , ptr<NodeInfo> > > nodeInfosByIndex;
     ptr<map<uint64_t , ptr<NodeInfo>> > nodeInfosById;
+
+
+    bool useSGX;
+
+    ptr<string> keyName = nullptr;
+    ptr<vector<string>> publicKeys = nullptr;
 
 
     void releaseGlobalServerBarrier();
@@ -260,7 +265,8 @@ public:
 
 
 
-    Node(const nlohmann::json &_cfg, ConsensusEngine *_consensusEngine);
+    Node(const nlohmann::json &_cfg, ConsensusEngine *_consensusEngine,
+         bool _useSGX, ptr<string> _keyName, ptr<vector<string>> _publicKeys);
 
     ~Node();
 
