@@ -1,7 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
 
-include_directories(. ./libzmq/include libjson-rpc-cpp/src libjson-rpc-cpp/build/gen
- cryptopp libjson-rpc-cpp/build/gen/jsonrpccpp/common libBLS/bls libBLS)
 
 option(COVERAGE "Build with code coverage support" OFF)
 if (COVERAGE)
@@ -32,7 +30,7 @@ HunterGate(URL "https://github.com/ruslo/hunter/archive/v0.23.76.tar.gz" SHA1 "c
 
 project(consensus)
 
-include_directories( "${DEPS_INSTALL_ROOT}/include" ${CMAKE_BINARY_DIR}/deps/include )
+
 link_directories( "${DEPS_INSTALL_ROOT}/lib libBLS/build libzmq/build/lib libjson-rpc-cpp/build/lib" )
 set( CMAKE_PREFIX_PATH "${DEPS_INSTALL_ROOT}" )
 
@@ -156,7 +154,12 @@ SET(SRC_FILES
         ${utils_src}
         Agent.h Agent.cpp SkaleCommon.h SkaleCommon.cpp Log.h Log.cpp microprofile.cpp miniz.c)
 
-include_directories( . spdlog/include ${BLS_INCLUDE_DIRS} "${DEPS_INSTALL_ROOT}/include"  "${CMAKE_BINARY_DIR}/jsonrpc-build/include")
+
+nclude_directories(. spdlog/include ${BLS_INCLUDE_DIRS} ./libzmq/include libjson-rpc-cpp/src libjson-rpc-cpp/build/gen
+        cryptopp libjson-rpc-cpp/build/gen/jsonrpccpp/common libBLS/bls libBLS
+        "${DEPS_INSTALL_ROOT}/include" ${CMAKE_BINARY_DIR}/deps/include)
+
+
 link_directories( "${DEPS_INSTALL_ROOT}/lib" libjson-rpc-cpp/build/lib
                     libzmq/build/lib libBLS/build cryptopp)
 
