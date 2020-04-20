@@ -160,8 +160,7 @@ include_directories(. spdlog/include ${BLS_INCLUDE_DIRS} ./libzmq/include libjso
         "${DEPS_INSTALL_ROOT}/include" ${CMAKE_BINARY_DIR}/deps/include)
 
 
-link_directories( "${DEPS_INSTALL_ROOT}/lib" libjson-rpc-cpp/build/lib
-                    libzmq/build/lib libBLS/build cryptopp)
+link_directories( "${DEPS_INSTALL_ROOT}/lib" cryptopp)
 
 if( SKALE_HAVE_BOOST_FROM_HUNTER )
     set( BOOST_LIBS_4_CONSENSUS
@@ -178,7 +177,13 @@ SET( LINK_LIBRARIES
         Threads::Threads
         ${BOOST_LIBS_4_CONSENSUS}
         ${LIB_NAME_cryptopp} leveldb::leveldb
-        jsoncpp jsonrpccpp-client jsonrpccpp-stub jsonrpccpp-common bls ${FF_LIBRARY} cryptopp zmq gmp
+        jsoncpp
+        "${CMAKE_CURRENT_SOURCE_DIR}/libjson-rpc-cpp/build/lib/libjsonrpccpp-client.a"
+        "${CMAKE_CURRENT_SOURCE_DIR}/libjson-rpc-cpp/build/lib/libjsonrpccpp-stub.a"
+        "${CMAKE_CURRENT_SOURCE_DIR}/libjson-rpc-cpp/build/lib/libjsonrpccpp-common.a"
+        "${CMAKE_CURRENT_SOURCE_DIR}/libBLS/build/libbls.a"
+        "${CMAKE_CURRENT_SOURCE_DIR}/libzmq/build/lib/libzmq.a"
+        ${FF_LIBRARY} cryptopp gmp gcov
         curl dl z)
 
 
