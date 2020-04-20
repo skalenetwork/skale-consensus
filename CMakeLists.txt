@@ -179,14 +179,14 @@ SET( LINK_LIBRARIES
         ${BOOST_LIBS_4_CONSENSUS}
         ${LIB_NAME_cryptopp} leveldb::leveldb
         jsoncpp jsonrpccpp-client jsonrpccpp-stub jsonrpccpp-common bls ${FF_LIBRARY} cryptopp zmq gmp
-        )
+        curl dl z)
 
 
 # consensus library
 
 add_library(consensus STATIC ${SRC_FILES})
 
-target_link_libraries(consensus LINK_PRIVATE ${LINK_LIBRARIES})
+target_link_libraries(consensus  ${LINK_LIBRARIES})
 add_precompiled_header(consensus SkaleCommon.h FORCE_INCLUDE)
 
 # consensus test agent
@@ -198,9 +198,9 @@ if (CMAKE_PROJECT_NAME STREQUAL "consensus")
 
     #  sudo apt-get install -qq -yy libgoogle-perftools-dev
 
-    target_link_libraries(consensusd LINK_PRIVATE consensus tcmalloc)
+    target_link_libraries(consensusd  consensus tcmalloc)
 else ()
-    target_link_libraries(consensusd LINK_PRIVATE consensus)
+    target_link_libraries(consensusd  consensus)
 endif ()
 
 
