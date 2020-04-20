@@ -92,6 +92,7 @@ install:
   - sudo chmod +x cmake-3.10.3-Linux-x86_64.sh
   - sudo ./cmake-3.10.3-Linux-x86_64.sh --skip-license
   - sudo ln -s ./cmake-3.10.3-Linux-x86_64/bin/cmake /usr/bin/cmake
+  - ./build_deps.sh
   - python ./build.py ${TRAVIS_BUILD_TYPE} ${TRAVIS_BUILD_DIR}
 
 script:
