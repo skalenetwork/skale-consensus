@@ -155,7 +155,7 @@ SET(SRC_FILES
         Agent.h Agent.cpp SkaleCommon.h SkaleCommon.cpp Log.h Log.cpp microprofile.cpp miniz.c)
 
 
-nclude_directories(. spdlog/include ${BLS_INCLUDE_DIRS} ./libzmq/include libjson-rpc-cpp/src libjson-rpc-cpp/build/gen
+include_directories(. spdlog/include ${BLS_INCLUDE_DIRS} ./libzmq/include libjson-rpc-cpp/src libjson-rpc-cpp/build/gen
         cryptopp libjson-rpc-cpp/build/gen/jsonrpccpp/common libBLS/bls libBLS
         "${DEPS_INSTALL_ROOT}/include" ${CMAKE_BINARY_DIR}/deps/include)
 
