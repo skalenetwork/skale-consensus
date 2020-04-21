@@ -47,6 +47,11 @@ hunter_add_package(leveldb)
 find_package(leveldb CONFIG REQUIRED)
 
 
+if (CMAKE_PROJECT_NAME STREQUAL "consensus")
+hunter_add_package(jsoncpp)
+find_package(jsoncpp)
+endif()
+
 #set (CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-Wreturn-type -Winit-self")
 
 
@@ -177,7 +182,7 @@ SET( LINK_LIBRARIES
         Threads::Threads
         ${BOOST_LIBS_4_CONSENSUS}
         ${LIB_NAME_cryptopp} leveldb::leveldb
-        jsoncpp
+        jsoncpp_lib_static
         "${CMAKE_CURRENT_SOURCE_DIR}/libjson-rpc-cpp/build/lib/libjsonrpccpp-client.a"
         "${CMAKE_CURRENT_SOURCE_DIR}/libjson-rpc-cpp/build/lib/libjsonrpccpp-stub.a"
         "${CMAKE_CURRENT_SOURCE_DIR}/libjson-rpc-cpp/build/lib/libjsonrpccpp-common.a"
