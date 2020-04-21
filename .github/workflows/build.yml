@@ -4,8 +4,6 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - name: submodule update
-      run: git submodule update --init --recursive
     - name: update apt
       run: sudo add-apt-repository ppa:ubuntu-toolchain-r/test; sudo apt-get update
     - name: install packages
@@ -22,6 +20,8 @@ jobs:
         sudo chmod +x cmake-3.10.3-Linux-x86_64.sh
         sudo ./cmake-3.10.3-Linux-x86_64.sh --skip-license
         sudo ln -s ./cmake-3.10.3-Linux-x86_64/bin/cmake /usr/bin/cmake
+    - name: submodule update
+      run: git submodule update --init --recursive
     - name: build deps
       run: cd scripts; ./build_deps.sh
     - name: build consensus
