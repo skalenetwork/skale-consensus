@@ -4,6 +4,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+    - uses: actions/checkout@v1
+    - name: submodule update
+      run: git submodule update --init --recursive-
     - name: update apt
       run: sudo add-apt-repository ppa:ubuntu-toolchain-r/test; sudo apt-get update
     - name: install packages
