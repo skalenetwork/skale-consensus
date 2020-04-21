@@ -1,0 +1,26 @@
+name: Build, test and push sim mode container
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - add-apt-repository ppa:ubuntu-toolchain-r/test; sudo apt-get update
+    - name: submodule update
+      run: git submodule update --init --recursive
+    - name: install packages
+      run: >
+        apt-get update; apt-get install -y software-properties-common apt-utils libprocps-dev
+        g++-7 valgrind gawk sed libffi-dev ccache libgoogle-perftools-dev flex
+        bison yasm texinfo autotools-dev automake python
+        python-pip libtool build-essential pkg-config autoconf
+        wget git libjsoncpp-dev libargtable2-dev libcurl4-openssl-dev
+        libmicrohttpd-dev libhiredis-dev redis-server openssl
+    - name: build
+      run: python3 scripts/docker_build.py ${GITHUB_REF##*/} DockerfileSimulation sgxwalletsim ${GITHUB_SHA}
+    - name: test
+      run: python3 scripts/docker_test.py ${GITHUB_REF##*/} DockerfileSimulation sgxwalletsim ${GITHUB_SHA}
+    - name: push
+      run: python3 scripts/docker_push.py ${GITHUB_REF##*/} DockerfileSimulation sgxwalletsim ${GITHUB_SHA}
+
+
+
