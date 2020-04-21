@@ -1,10 +1,11 @@
-name: Build, test and push sim mode container
+name: Build and test skaled
 on: [push]
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - add-apt-repository ppa:ubuntu-toolchain-r/test; sudo apt-get update
+    - name: update apt
+      run: add-apt-repository ppa:ubuntu-toolchain-r/test; sudo apt-get update
     - name: submodule update
       run: git submodule update --init --recursive
     - name: install packages
