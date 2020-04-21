@@ -4,24 +4,26 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - name: update apt
-      run: add-apt-repository ppa:ubuntu-toolchain-r/test; sudo apt-get update
     - name: submodule update
       run: git submodule update --init --recursive
+    - name: update apt
+      run: sudo add-apt-repository ppa:ubuntu-toolchain-r/test; sudo apt-get update
     - name: install packages
       run: >
-        apt-get update; apt-get install -y software-properties-common apt-utils libprocps-dev
+        sudo apt-get update; sudo apt-get install -y software-properties-common apt-utils libprocps-dev
         g++-7 valgrind gawk sed libffi-dev ccache libgoogle-perftools-dev flex
         bison yasm texinfo autotools-dev automake python
         python-pip libtool build-essential pkg-config autoconf
         wget git libjsoncpp-dev libargtable2-dev libcurl4-openssl-dev
         libmicrohttpd-dev libhiredis-dev redis-server openssl
-    - name: build
-      run: python3 scripts/docker_build.py ${GITHUB_REF##*/} DockerfileSimulation sgxwalletsim ${GITHUB_SHA}
-    - name: test
-      run: python3 scripts/docker_test.py ${GITHUB_REF##*/} DockerfileSimulation sgxwalletsim ${GITHUB_SHA}
-    - name: push
-      run: python3 scripts/docker_push.py ${GITHUB_REF##*/} DockerfileSimulation sgxwalletsim ${GITHUB_SHA}
-
-
+    - name: install cmake
+      run: >
+        sudo wget https://cmake.org/files/v3.10/cmake-3.10.3-Linux-x86_64.sh;
+        sudo chmod +x cmake-3.10.3-Linux-x86_64.sh
+        sudo ./cmake-3.10.3-Linux-x86_64.sh --skip-license
+        sudo ln -s ./cmake-3.10.3-Linux-x86_64/bin/cmake /usr/bin/cmake
+    - name: build deps
+      run: cd scripts; ./build_deps.sh
+    - name: build consensus
+      run: cd scripts; python ./build.py Debug /root
 
