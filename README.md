@@ -39,8 +39,8 @@ Clone project and configure build:
 ```bash
 git clone --recurse-submodules https://github.com/skalenetwork/skale-consensus.git
 # Configure the project and create a build directory.
-./libBLS/deps/build.sh # build libBLS's dependencies
-cmake -H. -Bbuild # Configure the build.
+cd scripts;build_deps.sh # build dependencies
+cmake -Bbuild . # Configure the build.
 cmake --build build -- -j$(nproc) # Build all default targets using all cores.
 ```
 
