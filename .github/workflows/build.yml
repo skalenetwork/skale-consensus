@@ -4,40 +4,40 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Prepare ccache timestamp
-          id: ccache_cache_timestamp
-          shell: cmake -P {0}
-          run: |
-          string(TIMESTAMP current_date "%Y-%m-%d-%H;%M;%S" UTC)
-          message("::set-output name=timestamp::${current_date}")
-      - name: ccache cache files
-          uses: actions/cache@v1.1.0
-          with:
-          path: .ccache
-          key: ${ { matrix.config.name } }-ccache-${ { steps.ccache_cache_timestamp.outputs.timestamp } }
-          restore-keys: |
-            ${ { matrix.config.name } }-ccache-
-    - uses: actions/checkout@v1
+    - name: checkout
+      uses: actions/checkout@v1
     - name: submodule update
-      run: git submodule update --init --recursive
+        run: git submodule update --init --recursive
     - name: update apt
-      run: sudo add-apt-repository ppa:ubuntu-toolchain-r/test; sudo apt-get update
+        run: sudo add-apt-repository ppa:ubuntu-toolchain-r/test; sudo apt-get update
     - name: install packages
-      run: >
+        run: >
         sudo apt-get update; sudo apt-get install -y software-properties-common apt-utils libprocps-dev
         g++-7 valgrind gawk sed libffi-dev ccache libgoogle-perftools-dev flex
         bison yasm texinfo autotools-dev automake python
         python-pip libtool build-essential pkg-config autoconf
         wget git libjsoncpp-dev libargtable2-dev libcurl4-openssl-dev
         libmicrohttpd-dev libhiredis-dev redis-server openssl
+    - name: Prepare ccache timestamp
+        id: ccache_cache_timestamp
+        shell: cmake -P {0}
+        run: |
+        string(TIMESTAMP current_date "%Y-%m-%d-%H;%M;%S" UTC)
+        message("::set-output name=timestamp::${current_date}")
+    - name: ccache cache files
+        uses: actions/cache@v1.1.0
+        with:
+        path: .ccache
+        key: ${ { matrix.config.name } }-ccache-${ { steps.ccache_cache_timestamp.outputs.timestamp } }
+        restore-keys: |
+              ${ { matrix.config.name } }-ccache-
     - name: install cmake
-      run: >
+        run: >
         sudo wget https://cmake.org/files/v3.10/cmake-3.10.3-Linux-x86_64.sh;
         sudo chmod +x cmake-3.10.3-Linux-x86_64.sh;
         sudo ./cmake-3.10.3-Linux-x86_64.sh --skip-license;
         sudo ln -s ./cmake-3.10.3-Linux-x86_64/bin/cmake /usr/bin/cmake
     - name: build deps
-      run: cd scripts; ./build_deps.sh
+        run: cd scripts; ./build_deps.sh
     - name: build consensus
-      run: cd scripts; python ./build.py Debug /root
-
+        run: cd scripts; python ./build.py Debug /root
