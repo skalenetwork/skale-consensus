@@ -9,6 +9,7 @@ RUN apt-get install -yq  libprocps-dev g++-7 valgrind gawk sed libffi-dev ccache
     cmake libtool build-essential pkg-config autoconf wget git  libargtable2-dev \
     libmicrohttpd-dev libhiredis-dev redis-server
 RUN apt-get install -yq  openssl libssl-dev
+RUN  apt-get install -yq doxygen
 
 
 
