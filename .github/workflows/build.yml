@@ -92,6 +92,8 @@ jobs:
         sudo ./cmake-3.10.3-Linux-x86_64.sh --skip-license &&
         sudo ln -s ./cmake-3.10.3-Linux-x86_64/bin/cmake /usr/bin/cmake
     - name: build deps
-      run: cd scripts; ./build_deps.sh
+      run: cd scripts && ./build_deps.sh
     - name: build consensus
       run: cd scripts; python ./build.py Debug /root
+    - name: run tests
+      run: cd scripts && ./tests.py ..
