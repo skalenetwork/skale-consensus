@@ -57,7 +57,7 @@ jobs:
     - name: Login to docker
       env:
         GITHUB_TOKEN: ${{ secrets.DOCKER_SECRET }}
-      run: docker login -u skalelabs -p ${GITHUB_TOKEN}
+      run: docker login -u skalelabsci -p ${GITHUB_TOKEN}
     - uses: actions/checkout@v1
     - name: submodule update
       run: git submodule update --init --recursive
