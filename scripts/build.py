@@ -67,7 +67,8 @@ print("Got TRAVIS_BUILD_TYPE=" + sys.argv[1])
 print("Got TRAVIS_BUILD_DIR=" + sys.argv[2])
 
 run ("ccache -M 20G")
-run("./libBLS/deps/build.sh PARALLEL_COUNT=j$(nproc)")
+
+
 run("cmake . -Bbuild -DCMAKE_BUILD_TYPE=" +  sys.argv[1] +
                         " -DCOVERAGE=ON -DMICROPROFILE_ENABLED=0")
 
@@ -76,7 +77,6 @@ run("cmake --build build -- -j4")
 buildDirName = sys.argv[2] + '/build'
 
 print("Build dir:" + buildDirName)
-
 
 run("ls " + buildDirName)
 
