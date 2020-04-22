@@ -1,7 +1,5 @@
 FROM ubuntu:bionic
 
-COPY . /consensust
-WORKDIR /consensust
 
 #RUN apt-get update; apt-get install -yq  software-properties-common apt-utils
 #RUN add-apt-repository ppa:ubuntu-toolchain-r/test; apt-get update
@@ -16,6 +14,9 @@ ENV CC gcc-7
 ENV CXX g++-7
 ENV TARGET all
 ENV TRAVIS_BUILD_TYPE Debug
+
+COPY . /consensust
+WORKDIR /consensust
 
 RUN cd scripts && ./build_deps.sh
 RUN cd scripts && ./build.py Debug /consensust
