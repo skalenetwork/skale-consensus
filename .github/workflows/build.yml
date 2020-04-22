@@ -82,7 +82,7 @@ jobs:
     - name: build deps
       run: cd scripts && ./build_deps.sh
     - name: build consensus
-      run: cd scripts; ./build.py Debug
+      run: cd scripts && ./build.py Debug
     - name: run tests
-      run: scripts/tests.py ${PWD}
+      run: cd scripts && tests.py ${PWD}/..
 
