@@ -56,19 +56,15 @@ jobs:
           docker rmi $(docker image ls -aq) >/dev/null 2>&1
     - name: Login to docker
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: docker login docker.pkg.github.com -u ${GITHUB_ACTOR} -p ${GITHUB_TOKEN}
+        GITHUB_TOKEN: ${{ secrets.DOCKER_SECRET }}
+      run: docker login -u skalelabs -p ${GITHUB_TOKEN}
     - uses: actions/checkout@v1
     - name: submodule update
       run: git submodule update --init --recursive
     - name: Build the Docker image
-      run: docker build . --file DockerfileBase --tag  docker.pkg.github.com/skalenetwork/skale-consensus/consensust_base:latest
-
-    - name: Test docker image
-      run: docker start -ti docker.pkg.github.com/skalenetwork/skale-consensus/consensust_base:latest
-
+      run: docker build . --file DockerfileBase --tag skalenetwork/consensust_base:latest
     - name: push docker image
-      run:  docker push docker.pkg.github.com/skalenetwork/skale-consensus/consensust_base:latest
+      run:  docker push skalenetwork/consensust_base:latest
 
 
 
