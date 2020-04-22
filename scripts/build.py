@@ -71,7 +71,7 @@ run ("ccache -M 20G")
 run("cmake . -Bbuild -DCMAKE_BUILD_TYPE=" +  buildType +
                         " -DCOVERAGE=ON -DMICROPROFILE_ENABLED=0")
 
-run("cmake --build build -- -j4")
+run("cmake --build build -- -j$(nproc)")
 
 assert  os.path.isfile("build/consensust")
 assert  os.path.isfile("build/consensusd")
