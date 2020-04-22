@@ -60,10 +60,8 @@ jobs:
         sudo apt-get autoclean -y >/dev/null 2>&1  && \
         sudo rm -rf /usr/local/lib/android >/dev/null 2>&1 && \
         docker rmi $(docker image ls -aq) >/dev/null 2>&1
-#    - name: Remove swap
-#      run: |
-#        sudo swapoff /swapfile && \
-#        sudo rm -rf /swapfile
+    - name: add repo
+      run: add-apt-repository ppa:ubuntu-toolchain-r/test
     - name: install packages
       run: |
         sudo apt-get update; sudo apt-get install -y software-properties-common apt-utils libprocps-dev \
@@ -72,6 +70,11 @@ jobs:
         python-pip libtool build-essential pkg-config autoconf \
         wget git libargtable2-dev \
         libmicrohttpd-dev libhiredis-dev redis-server openssl  libssl-dev >/dev/null 2>&1;
+
+
+
+
+
     - name: Prepare ccache timestamp
       id: ccache_cache_timestamp
       shell: cmake -P {0}
@@ -85,15 +88,10 @@ jobs:
         key: ${ { matrix.config.name } }-ccache-${ { steps.ccache_cache_timestamp.outputs.timestamp } }
         restore-keys: |
               ${ { matrix.config.name } }-ccache-
-    - name: install cmake
-      run: |
-        sudo wget https://cmake.org/files/v3.10/cmake-3.10.3-Linux-x86_64.sh && \
-        sudo chmod +x cmake-3.10.3-Linux-x86_64.sh && \
-        sudo ./cmake-3.10.3-Linux-x86_64.sh --skip-license && \
-        sudo ln -s ./cmake-3.10.3-Linux-x86_64/bin/cmake /usr/bin/cmake
     - name: build deps
       run: cd scripts && ./build_deps.sh
     - name: build consensus
-      run: cd scripts && python ./build.py Debug /root
+      run: cd scripts && python ./build.py Debug ..
     - name: run tests
       run: cd scripts && ./tests.py ..
+
