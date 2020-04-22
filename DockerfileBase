@@ -1,15 +1,10 @@
 FROM ubuntu:bionic
 
-COPY . /consensust
-WORKDIR /consensust
-
-#RUN apt-get update; apt-get install -yq  software-properties-common apt-utils
-#RUN add-apt-repository ppa:ubuntu-toolchain-r/test; apt-get update
 RUN apt-get update
 RUN apt-get install -yq  libprocps-dev g++-7 valgrind gawk sed libffi-dev ccache libgoogle-perftools-dev \
     flex bison yasm texinfo autotools-dev automake python python-pip \
     cmake libtool build-essential pkg-config autoconf wget git  libargtable2-dev \
-    libmicrohttpd-dev libhiredis-dev redis-server
+    libmicrohttpd-dev libhiredis-dev redis-server openssl libssl-dev doxygen
 
 
 ENV CC gcc-7
@@ -17,7 +12,10 @@ ENV CXX g++-7
 ENV TARGET all
 ENV TRAVIS_BUILD_TYPE Debug
 
-RUN cd scripts; ./build_deps.sh
-RUN cd scripts; ./build.py Debug /consensust
+COPY . /consensust
+WORKDIR /consensust
+
+RUN cd scripts && ./build_deps.sh
+RUN cd scripts && ./build.py Debug /consensust
 
 

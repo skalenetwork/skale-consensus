@@ -188,7 +188,7 @@ SET( LINK_LIBRARIES
         ${CMAKE_CURRENT_SOURCE_DIR}/curl/build/lib/libcurl-d.a
         ${CMAKE_CURRENT_SOURCE_DIR}/jsoncpp/build/src/lib_json/libjsoncpp.a
         "${CMAKE_CURRENT_SOURCE_DIR}/libBLS/deps/openssl/libssl.a"
-        "${CMAKE_CURRENT_SOURCE_DIR}/libBLS/deps/openssl/libcrypto.a" dl z)
+        "${CMAKE_CURRENT_SOURCE_DIR}/libBLS/deps/openssl/libcrypto.a" dl z pthread)
 
 
 # consensus library
