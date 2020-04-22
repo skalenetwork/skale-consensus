@@ -55,7 +55,7 @@ def run(_command):
     print(">" +_command)
     subprocess.check_call(_command, shell = True)
 
-assert len(sys.argv) >= 3
+assert len(sys.argv) >= 2
 
 os.chdir("..")
 
@@ -63,22 +63,16 @@ print("Starting build")
 
 print("Current directory is" + os.getcwd())
 
-print("Got TRAVIS_BUILD_TYPE=" + sys.argv[1])
-print("Got TRAVIS_BUILD_DIR=" + sys.argv[2])
+buildType = sys.argv[1];
+
+print("Got BUILD_TYPE=" + buildType)
 
 run ("ccache -M 20G")
 
-
-run("cmake . -Bbuild -DCMAKE_BUILD_TYPE=" +  sys.argv[1] +
+run("cmake . -Bbuild -DCMAKE_BUILD_TYPE=" +  buildType +
                         " -DCOVERAGE=ON -DMICROPROFILE_ENABLED=0")
 
 run("cmake --build build -- -j4")
-
-buildDirName = sys.argv[2] + '/build'
-
-print("Build dir:" + buildDirName)
-
-run("ls " + buildDirName)
 
 assert  os.path.isfile(sys.argv[2] + '/build/consensust')
 assert  os.path.isfile(sys.argv[2] + '/build/consensusd')
