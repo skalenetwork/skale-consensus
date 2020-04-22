@@ -55,7 +55,6 @@ def run(_command):
     print(">" +_command)
     subprocess.check_call(_command, shell = True)
 
-assert len(sys.argv) >= 2
 
 os.chdir("..")
 
@@ -74,8 +73,8 @@ run("cmake . -Bbuild -DCMAKE_BUILD_TYPE=" +  buildType +
 
 run("cmake --build build -- -j4")
 
-assert  os.path.isfile(sys.argv[2] + '/build/consensust')
-assert  os.path.isfile(sys.argv[2] + '/build/consensusd')
+assert  os.path.isfile("build/consensust")
+assert  os.path.isfile("build/consensusd")
 
 print("Build successfull.")
 
