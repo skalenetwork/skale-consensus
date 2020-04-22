@@ -84,5 +84,5 @@ jobs:
     - name: build consensus
       run: cd scripts && ./build.py Debug
     - name: run tests
-      run: cd scripts && tests.py ${PWD}/..
+      run: cd scripts && tests.py
 

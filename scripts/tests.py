@@ -42,7 +42,7 @@ def unitTest(_consensustExecutive, _testType):
 
 
 def fullConsensusTest(_test, _consensustExecutive, _testType):
-    testDir = root + "/test/" + _test
+    testDir = "test/" + _test
     os.chdir(testDir)
     run ("pwd")
     run("rm -rf " + testDir + "/core")
@@ -51,19 +51,17 @@ def fullConsensusTest(_test, _consensustExecutive, _testType):
 
 
 def getConsensustExecutive():
-    run_without_check("cp -f " + root + "/cmake-build-debug/consensust " + root + "/consensust")
-    run_without_check("cp -f " + root + "/build/consensust " + root + "/consensust")
-    consensustExecutive = root + '/consensust'
+    run_without_check("cp -f cmake-build-debug/consensust consensust")
+    run_without_check("cp -f build/consensust consensust")
+    consensustExecutive = "consensust"
     assert(os.path.isfile(consensustExecutive))
     return consensustExecutive
 
-assert(len(sys.argv) == 2)
-
-root = sys.argv[1]
-
-print("Starting tests. Build root:" + sys.argv[1])
 
 
+print("Starting tests.")
+
+os.chdir("..")
 
 run ("ccache -M 20G")
 
