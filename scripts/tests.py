@@ -53,8 +53,7 @@ def fullConsensusTest(_test, _consensustExecutive, _testType):
 def getConsensustExecutive():
     run_without_check("cp -f cmake-build-debug/consensust consensust")
     run_without_check("cp -f build/consensust consensust")
-    consensustExecutive = "consensust"
-    assert(os.path.isfile(consensustExecutive))
+    consensustExecutive = "../../consensust"
     return consensustExecutive
 
 

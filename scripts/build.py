@@ -57,20 +57,12 @@ def run(_command):
 
 
 os.chdir("..")
-
 print("Starting build")
-
-print("Current directory is" + os.getcwd())
-
 buildType = sys.argv[1];
-
-print("Got BUILD_TYPE=" + buildType)
-
+print("BUILD_TYPE=" + buildType)
 run ("ccache -M 20G")
-
 run("cmake . -Bbuild -DCMAKE_BUILD_TYPE=" +  buildType +
                         " -DCOVERAGE=ON -DMICROPROFILE_ENABLED=0")
-
 run("cmake --build build -- -j$(nproc)")
 
 assert  os.path.isfile("build/consensust")
