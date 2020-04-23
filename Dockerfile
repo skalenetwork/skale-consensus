@@ -1,4 +1,4 @@
-FROM docker.pkg.github.com/skalenetwork/skale-consensus/consensust_base:latest
+FROM skalenetwork/consensust_base:latest
 
 COPY . /consensust
 WORKDIR /consensust
