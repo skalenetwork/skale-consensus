@@ -80,9 +80,9 @@ jobs:
         restore-keys: |
               ${ { matrix.config.name } }-ccache-
     - name: build deps
-      run: cd scripts && ./build_deps.sh
+      run: cd scripts && ./build_deps.sh  > /tmp/log_of_build_deps.txt   2>&1 || ( tail -1000 /tmp/log_of_build_deps.txt && false );
     - name: build consensus
-      run: cd scripts && ./build.py Debug
+      run: cd scripts && ./build.py Debug > /tmp/log_of_build.txt   2>&1 || ( tail -1000 /tmp/log_of_build.txt && false );
     - name: run tests
       run: cd scripts && ./tests.py
 
