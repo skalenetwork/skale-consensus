@@ -84,14 +84,7 @@ find_package(Threads REQUIRED)
 set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_MULTITHREADED ON)
 
-# libgoogle-perftools-dev
-if (CMAKE_PROJECT_NAME STREQUAL "consensus")
-    set(BOOST_ROOT libBLS/deps/deps_inst/x86_or_x64)
-    unset(SKALE_HAVE_BOOST_FROM_HUNTER)
-else()
-#    hunter_add_package(Boost COMPONENTS filesystem system thread log random program_options)
-endif()
-
+hunter_add_package(Boost COMPONENTS filesystem system thread log random program_options)
 find_package(Boost CONFIG REQUIRED filesystem system thread log random program_options)
 
 #Source dirs
@@ -168,8 +161,6 @@ SET(SRC_FILES
 include_directories(. spdlog/include ${BLS_INCLUDE_DIRS} ./libzmq/include libjson-rpc-cpp/src libjson-rpc-cpp/build/gen
         cryptopp libjson-rpc-cpp/build/gen/jsonrpccpp/common libBLS/bls libBLS jsoncpp/include
         "${DEPS_INSTALL_ROOT}/include" ${CMAKE_BINARY_DIR}/deps/include)
-
-
 
 
 if( SKALE_HAVE_BOOST_FROM_HUNTER )
