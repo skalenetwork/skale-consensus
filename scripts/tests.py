@@ -26,55 +26,51 @@ import os
 import subprocess
 import sys
 
+
 def run_without_check(_command):
-    print(">" +_command)
-    subprocess.call(_command, shell = True)
+    print(">" + _command)
+    subprocess.call(_command, shell=True)
 
 
 def run(_command):
-    print(">" +_command)
-    subprocess.check_call(_command, shell = True)
+    print(">" + _command)
+    subprocess.check_call(_command, shell=True)
 
 
 def unitTest(_consensustExecutive, _testType):
     run("rm -f ./core")
-    run(_consensustExecutive + " "  + _testType)
+    run(_consensustExecutive + " " + _testType)
 
 
 def fullConsensusTest(_test, _consensustExecutive, _testType):
-    testDir = root + "/test/" + _test
+    testDir = "test/" + _test
     os.chdir(testDir)
-    run ("pwd")
+    run("pwd")
     run("rm -rf " + testDir + "/core")
     run("rm -rf /tmp/*.db*")
-    run(_consensustExecutive + " "  + _testType)
+    run(_consensustExecutive + " " + _testType)
 
 
 def getConsensustExecutive():
-    run_without_check("cp -f " + root + "/cmake-build-debug/consensust " + root + "/consensust")
-    run_without_check("cp -f " + root + "/build/consensust " + root + "/consensust")
-    consensustExecutive = root + '/consensust'
-    assert(os.path.isfile(consensustExecutive))
+    run_without_check("cp -f cmake-build-debug/consensust consensust")
+    run_without_check("cp -f build/consensust consensust")
+    consensustExecutive = "../../consensust"
     return consensustExecutive
 
-assert(len(sys.argv) == 2)
 
-root = sys.argv[1]
+print("Starting tests.")
 
-print("Starting tests. Build root:" + sys.argv[1])
+os.chdir("..")
 
-
-
-run ("ccache -M 20G")
+run("ccache -M 20G")
 
 consensustExecutive = getConsensustExecutive()
 
-
 fullConsensusTest("sixteennodes", consensustExecutive, "[consensus-finalization-download]")
 
-#try:
+# try:
 #    fullConsensusTest("two_out_of_four", consensustExecutive, "[consensus-stuck]")
-#except:
+# except:
 #    print("Success")
 
 
@@ -85,10 +81,5 @@ fullConsensusTest("sixteennodes", consensustExecutive, "[consensus-basic]")
 fullConsensusTest("fournodes_catchup", consensustExecutive, "[consensus-basic]")
 fullConsensusTest("three_out_of_four", consensustExecutive, "[consensus-basic]")
 
-
 unitTest(consensustExecutive, "[tx-serialize]")
 unitTest(consensustExecutive, "[tx-list-serialize]")
-
-
-
-

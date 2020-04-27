@@ -50,6 +50,7 @@ void Log::setGlobalLogLevel(string &_s) {
 
 
 
+string level_names[]   = SPDLOG_LEVEL_NAMES;
 level_enum Log::logLevelFromString(string &_s) {
     for (int i = 0; i < 7; i++) {
         if (_s == level_names[i]) {
