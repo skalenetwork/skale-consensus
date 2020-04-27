@@ -19,6 +19,7 @@ if( NOT DEFINED DEPS_INSTALL_ROOT )
     set( DEPS_SOURCES_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/libBLS/deps")
     set( DEPS_INSTALL_ROOT "${DEPS_SOURCES_ROOT}/deps_inst/x86_or_x64")
 endif()
+
 message(INFO "---- DEPS_INSTALL_ROOT in consensus is: ${DEPS_INSTALL_ROOT}")
 
 include("cmake/HunterGate.cmake")
@@ -29,7 +30,6 @@ HunterGate(URL "https://github.com/ruslo/hunter/archive/v0.23.76.tar.gz" SHA1 "c
 
 
 project(consensus)
-
 
 link_directories( "${DEPS_INSTALL_ROOT}/lib libBLS/build libzmq/build/lib" )
 link_directories( "${DEPS_INSTALL_ROOT}/lib")
@@ -64,6 +64,7 @@ add_definitions("-DZMQ_NONBLOCKING")
 
 
 if (CMAKE_PROJECT_NAME STREQUAL "consensus")
+    unset(SKALE_HAVE_BOOST_FROM_HUNTER)
     # to install compiler cache:  sudo apt-get install ccache
     find_program(CCACHE_FOUND ccache)
     if (CCACHE_FOUND)
@@ -84,8 +85,10 @@ find_package(Threads REQUIRED)
 set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_MULTITHREADED ON)
 
-hunter_add_package(Boost COMPONENTS filesystem system thread log random program_options)
-find_package(Boost CONFIG REQUIRED filesystem system thread log random program_options)
+
+
+#hunter_add_package(Boost COMPONENTS filesystem system thread log random program_options)
+#find_package(Boost CONFIG REQUIRED filesystem system thread log random program_options)
 
 #Source dirs
 
