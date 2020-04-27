@@ -186,14 +186,6 @@ void Node::initParamsFromConfig() {
     priceDBSize = getParamUint64("priceDBSize", PRICE_DB_SIZE);
     blockProposalDBSize = getParamUint64("blockProposalDBSize", BLOCK_PROPOSAL_DB_SIZE);
 
-    auto emptyBlockIntervalMsTmp = getParamInt64("emptyBlockIntervalMs", EMPTY_BLOCK_INTERVAL_MS);
-
-
-    if (emptyBlockIntervalMsTmp < 0) {
-        emptyBlockIntervalMs = 100000000000000;
-    } else {
-        emptyBlockIntervalMs = emptyBlockIntervalMsTmp;
-    }
 
     simulateNetworkWriteDelayMs = getParamInt64("simulateNetworkWriteDelayMs", 0);
 

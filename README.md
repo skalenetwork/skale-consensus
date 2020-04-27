@@ -28,8 +28,10 @@ Ensure that the required packages are installed by executing:
 
 ```bash
 sudo apt-get update
-sudo apt-get install -y cmake build-essential libgoogle-perftools-dev libprocps-dev
-sudo apt-get install -y libffi-dev autotools-dev automake bison flex yasm texinfo
+sudo apt-get install -yq clibprocps-dev g++-7 valgrind gawk sed libffi-dev ccache libgoogle-perftools-dev \
+    flex bison yasm texinfo autotools-dev automake python python-pip \
+    cmake libtool build-essential pkg-config autoconf wget git  libargtable2-dev \
+    libmicrohttpd-dev libhiredis-dev redis-server openssl libssl-dev doxygen
 ```
 
 ### Building from source on Ubuntu (Development)

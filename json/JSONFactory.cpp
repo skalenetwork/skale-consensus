@@ -145,6 +145,20 @@ void JSONFactory::createAndAddSChainFromJsonObject(ptr<Node> &_node, const nlohm
 
         schain_id schainID(j[nlohmann::json::json_pointer(prefix + "schainID")].get<uint64_t>());
 
+        uint64_t emptyBlockIntervalMs;
+        if ( j.count(prefix + "emptyBlockIntervalMs") != 0 ) {
+            int64_t emptyBlockIntervalMsTmp = j[nlohmann::json::json_pointer(prefix + "emptyBlockIntervalMs")].get<int64_t>();
+            if ( emptyBlockIntervalMsTmp < 0 ) {
+                emptyBlockIntervalMs = 100000000000000;
+            } else {
+                emptyBlockIntervalMs = emptyBlockIntervalMsTmp;
+            }
+        } else {
+            emptyBlockIntervalMs = EMPTY_BLOCK_INTERVAL_MS;
+        }
+
+        _node->setEmptyBlockIntervalMs( emptyBlockIntervalMs );
+
         ptr<NodeInfo> localNodeInfo = nullptr;
 
         vector<ptr<NodeInfo>> remoteNodeInfos;
