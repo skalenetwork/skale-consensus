@@ -22,7 +22,7 @@ ENV TRAVIS_BUILD_TYPE Debug
 COPY . /consensust
 WORKDIR /consensust
 
-RUN cd scripts && ./build_deps.sh
+RUN cd deps && ./build.sh
 RUN cd scripts && ./build.py Debug
 
 
