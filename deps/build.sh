@@ -1956,38 +1956,62 @@ fi
 # 	fi
 # fi
 
-#https://github.com/open-source-parsers/jsoncpp
-#git@github.com:open-source-parsers///.git
+# #https://github.com/open-source-parsers/jsoncpp
+# #git@github.com:open-source-parsers///.git
+# if [ "$WITH_JSONCPP" = "yes" ];
+# then
+# 	echo -e "${COLOR_SEPARATOR}==================== ${COLOR_PROJECT_NAME}libJsonC++${COLOR_SEPARATOR} ===================================${COLOR_RESET}"
+# 	if [ ! -f "$INSTALL_ROOT/lib/libjsoncpp.a" ];
+# 	then
+# 		env_restore
+# 		cd "$SOURCES_ROOT"
+# 		if [ ! -d "jsoncpp" ];
+# 		then
+# 			#
+# 			#echo -e "${COLOR_INFO}getting it from git${COLOR_DOTS}...${COLOR_RESET}"
+# 			#git clone git@github.com:open-source-parsers/jsoncpp.git
+# 			#
+# 			echo -e "${COLOR_INFO}unpacking it${COLOR_DOTS}...${COLOR_RESET}"
+# 			tar -xzf "$PREDOWNLOADED_ROOT/jsoncpp.tar.gz"
+# 			#
+# 			echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
+# 			cd jsoncpp
+# 			mkdir -p build
+# 			cd build
+# 			$CMAKE "${CMAKE_CROSSCOMPILING_OPTS}" -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" \
+# 				-DBUILD_SHARED_LIBS=NO \
+# 				-DBUILD_STATIC_LIBS=YES \
+# 				..
+# 			cd ..
+# 		else
+# 			cd jsoncpp
+# 		fi
+# 		echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
+# 		cd build
+# 		$MAKE ${PARALLEL_MAKE_OPTIONS}
+# 		$MAKE ${PARALLEL_MAKE_OPTIONS} install
+# 		cd "$SOURCES_ROOT"
+# 	else
+# 		echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
+# 	fi
+# fi
+
 if [ "$WITH_JSONCPP" = "yes" ];
 then
-	echo -e "${COLOR_SEPARATOR}==================== ${COLOR_PROJECT_NAME}libJsonC++${COLOR_SEPARATOR} ===================================${COLOR_RESET}"
+	echo -e "${COLOR_SEPARATOR}==================== ${COLOR_PROJECT_NAME}libJsonC++ (recommended, submoduke)${COLOR_SEPARATOR} ==========${COLOR_RESET}"
 	if [ ! -f "$INSTALL_ROOT/lib/libjsoncpp.a" ];
 	then
 		env_restore
 		cd "$SOURCES_ROOT"
-		if [ ! -d "jsoncpp" ];
-		then
-			#
-			#echo -e "${COLOR_INFO}getting it from git${COLOR_DOTS}...${COLOR_RESET}"
-			#git clone git@github.com:open-source-parsers/jsoncpp.git
-			#
-			echo -e "${COLOR_INFO}unpacking it${COLOR_DOTS}...${COLOR_RESET}"
-			tar -xzf "$PREDOWNLOADED_ROOT/jsoncpp.tar.gz"
-			#
-			echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
-			cd jsoncpp
-			mkdir -p build
-			cd build
-			$CMAKE "${CMAKE_CROSSCOMPILING_OPTS}" -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" \
-				-DBUILD_SHARED_LIBS=NO \
-				-DBUILD_STATIC_LIBS=YES \
-				..
-			cd ..
-		else
-			cd jsoncpp
-		fi
-		echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
+		echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
+		cd ../jsoncpp
+		mkdir -p build
 		cd build
+		$CMAKE "${CMAKE_CROSSCOMPILING_OPTS}" -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" \
+			-DBUILD_SHARED_LIBS=NO \
+			-DBUILD_STATIC_LIBS=YES \
+			..
+		echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
 		$MAKE ${PARALLEL_MAKE_OPTIONS}
 		$MAKE ${PARALLEL_MAKE_OPTIONS} install
 		cd "$SOURCES_ROOT"
@@ -1996,56 +2020,98 @@ then
 	fi
 fi
 
-#https://github.com/cinemast/libjson-rpc-cpp
-#git@github.com:cinemast/libjson-rpc-cpp.git
+# #https://github.com/cinemast/libjson-rpc-cpp
+# #git@github.com:cinemast/libjson-rpc-cpp.git
+# if [ "$WITH_JSONRPCCPP" = "yes" ];
+# then
+# 	echo -e "${COLOR_SEPARATOR}==================== ${COLOR_PROJECT_NAME}libJsonRpcC++${COLOR_SEPARATOR} ================================${COLOR_RESET}"
+# 	if [ ! -f "$INSTALL_ROOT/lib/libjsonrpccpp-server.a" ];
+# 	then
+# 		env_restore
+# 		cd "$SOURCES_ROOT"
+# 		if [ ! -d "libjson-rpc-cpp" ];
+# 		then
+# 			#
+# 			#echo -e "${COLOR_INFO}getting it from git${COLOR_DOTS}...${COLOR_RESET}"
+# 			#git clone git@github.com:cinemast/libjson-rpc-cpp.git
+# 			#
+# 			echo -e "${COLOR_INFO}unpacking it${COLOR_DOTS}...${COLOR_RESET}"
+# 			unzip -o "$PREDOWNLOADED_ROOT/libjson-rpc-cpp.zip"
+# 			cp -r libjson-rpc-cpp-develop libjson-rpc-cpp
+# 			#
+# 			echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
+# 			cd libjson-rpc-cpp
+# 			mkdir -p build
+# 			cd build
+# 			$CMAKE "${CMAKE_CROSSCOMPILING_OPTS}" -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" \
+# 				-DBUILD_SHARED_LIBS=NO \
+# 				-DBUILD_STATIC_LIBS=YES \
+# 				-DUNIX_DOMAIN_SOCKET_SERVER=YES \
+# 				-DUNIX_DOMAIN_SOCKET_CLIENT=YES \
+# 				-DFILE_DESCRIPTOR_SERVER=YES \
+# 				-DFILE_DESCRIPTOR_CLIENT=YES \
+# 				-DTCP_SOCKET_SERVER=YES \
+# 				-DTCP_SOCKET_CLIENT=YES \
+# 				-DREDIS_SERVER=NO \
+# 				-DREDIS_CLIENT=NO \
+# 				-DHTTP_SERVER=YES \
+# 				-DHTTP_CLIENT=YES \
+# 				-DCOMPILE_TESTS=NO \
+# 				-DCOMPILE_STUBGEN=YES \
+# 				-DCOMPILE_EXAMPLES=NO \
+# 				-DWITH_COVERAGE=NO \
+# 				-DARGTABLE_INCLUDE_DIR="$SOURCES_ROOT/argtable2/src" \
+# 				-DARGTABLE_LIBRARY="$INSTALL_ROOT/lib/libargtable2${DEBUG_D}.a" \
+# 				-DJSONCPP_INCLUDE_DIR="$INSTALL_ROOT/include" \
+# 				..
+# 			cd ..
+# 		else
+# 			cd libjson-rpc-cpp
+# 		fi
+# 		echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
+# 		cd build
+# 		$MAKE ${PARALLEL_MAKE_OPTIONS}
+# 		$MAKE ${PARALLEL_MAKE_OPTIONS} install
+# 		cd "$SOURCES_ROOT"
+# 	else
+# 		echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
+# 	fi
+# fi
+
 if [ "$WITH_JSONRPCCPP" = "yes" ];
 then
-	echo -e "${COLOR_SEPARATOR}==================== ${COLOR_PROJECT_NAME}libJsonRpcC++${COLOR_SEPARATOR} ================================${COLOR_RESET}"
+	echo -e "${COLOR_SEPARATOR}==================== ${COLOR_PROJECT_NAME}libJsonRpcC++ (recommended, submoduke)${COLOR_SEPARATOR} =======${COLOR_RESET}"
 	if [ ! -f "$INSTALL_ROOT/lib/libjsonrpccpp-server.a" ];
 	then
 		env_restore
 		cd "$SOURCES_ROOT"
-		if [ ! -d "libjson-rpc-cpp" ];
-		then
-			#
-			#echo -e "${COLOR_INFO}getting it from git${COLOR_DOTS}...${COLOR_RESET}"
-			#git clone git@github.com:cinemast/libjson-rpc-cpp.git
-			#
-			echo -e "${COLOR_INFO}unpacking it${COLOR_DOTS}...${COLOR_RESET}"
-			unzip -o "$PREDOWNLOADED_ROOT/libjson-rpc-cpp.zip"
-			cp -r libjson-rpc-cpp-develop libjson-rpc-cpp
-			#
-			echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
-			cd libjson-rpc-cpp
-			mkdir -p build
-			cd build
-			$CMAKE "${CMAKE_CROSSCOMPILING_OPTS}" -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" \
-				-DBUILD_SHARED_LIBS=NO \
-				-DBUILD_STATIC_LIBS=YES \
-				-DUNIX_DOMAIN_SOCKET_SERVER=YES \
-				-DUNIX_DOMAIN_SOCKET_CLIENT=YES \
-				-DFILE_DESCRIPTOR_SERVER=YES \
-				-DFILE_DESCRIPTOR_CLIENT=YES \
-				-DTCP_SOCKET_SERVER=YES \
-				-DTCP_SOCKET_CLIENT=YES \
-				-DREDIS_SERVER=NO \
-				-DREDIS_CLIENT=NO \
-				-DHTTP_SERVER=YES \
-				-DHTTP_CLIENT=YES \
-				-DCOMPILE_TESTS=NO \
-				-DCOMPILE_STUBGEN=YES \
-				-DCOMPILE_EXAMPLES=NO \
-				-DWITH_COVERAGE=NO \
-				-DARGTABLE_INCLUDE_DIR="$SOURCES_ROOT/argtable2/src" \
-				-DARGTABLE_LIBRARY="$INSTALL_ROOT/lib/libargtable2${DEBUG_D}.a" \
-				-DJSONCPP_INCLUDE_DIR="$INSTALL_ROOT/include" \
-				..
-			cd ..
-		else
-			cd libjson-rpc-cpp
-		fi
-		echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
+		cd ../libjson-rpc-cpp
+		#
+		echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
+		mkdir -p build
 		cd build
+		$CMAKE "${CMAKE_CROSSCOMPILING_OPTS}" -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" \
+			-DBUILD_SHARED_LIBS=NO \
+			-DBUILD_STATIC_LIBS=YES \
+			-DUNIX_DOMAIN_SOCKET_SERVER=YES \
+			-DUNIX_DOMAIN_SOCKET_CLIENT=YES \
+			-DFILE_DESCRIPTOR_SERVER=YES \
+			-DFILE_DESCRIPTOR_CLIENT=YES \
+			-DTCP_SOCKET_SERVER=YES \
+			-DTCP_SOCKET_CLIENT=YES \
+			-DREDIS_SERVER=NO \
+			-DREDIS_CLIENT=NO \
+			-DHTTP_SERVER=YES \
+			-DHTTP_CLIENT=YES \
+			-DCOMPILE_TESTS=NO \
+			-DCOMPILE_STUBGEN=YES \
+			-DCOMPILE_EXAMPLES=NO \
+			-DWITH_COVERAGE=NO \
+			-DARGTABLE_INCLUDE_DIR="$SOURCES_ROOT/argtable2/src" \
+			-DARGTABLE_LIBRARY="$INSTALL_ROOT/lib/libargtable2${DEBUG_D}.a" \
+			-DJSONCPP_INCLUDE_DIR="$INSTALL_ROOT/include" \
+			..
+		echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
 		$MAKE ${PARALLEL_MAKE_OPTIONS}
 		$MAKE ${PARALLEL_MAKE_OPTIONS} install
 		cd "$SOURCES_ROOT"
@@ -2053,6 +2119,7 @@ then
 		echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
 	fi
 fi
+
 
 if [ "$WITH_CRYPTOPP" = "yes" ];
 then

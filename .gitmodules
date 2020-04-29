@@ -2,9 +2,6 @@
 	path = libBLS
 	url = https://github.com/skalenetwork/libBLS.git
 	branch = master
-[submodule "libjson-rpc-cpp"]
-	path = libjson-rpc-cpp
-	url = https://github.com/skalenetwork/libjson-rpc-cpp.git
 [submodule "sgxwallet"]
 	path = sgxwallet
 	url = https://github.com/skalenetwork/sgxwallet.git
@@ -23,3 +20,6 @@
 [submodule "jsoncpp"]
 	path = jsoncpp
 	url = https://github.com/open-source-parsers/jsoncpp.git
+[submodule "libjson-rpc-cpp"]
+	path = libjson-rpc-cpp
+	url = https://github.com/skalenetwork/libjson-rpc-cpp.git
