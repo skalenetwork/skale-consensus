@@ -79,8 +79,10 @@ jobs:
         key: ${ { matrix.config.name } }-ccache-${ { steps.ccache_cache_timestamp.outputs.timestamp } }
         restore-keys: |
               ${ { matrix.config.name } }-ccache-
-    - name: build deps
-      run: cd scripts && ./build_deps.sh  > /tmp/log_of_build_deps.txt   2>&1 || ( tail -1000 /tmp/log_of_build_deps.txt && false );
+    - name: build dependencies
+      run: |
+        # cd scripts && ./build_deps.sh  > /tmp/log_of_build_deps.txt   2>&1 || ( tail -1000 /tmp/log_of_build_deps.txt && false );
+        cd deps && ./build.sh && cd ..
     - name: build consensus
       run: cd scripts && ./build.py Debug > /tmp/log_of_build.txt   2>&1 || ( tail -1000 /tmp/log_of_build.txt && false );
     - name: run tests
