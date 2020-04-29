@@ -1,5 +1,7 @@
 #!/bin/bash
 
+export CONSENSUS_DEPS_CHAIN=1
+
 env_save_original() {
 	export > ./saved_environment_on_startup.txt
 }
