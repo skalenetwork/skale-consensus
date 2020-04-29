@@ -1998,7 +1998,7 @@ fi
 
 if [ "$WITH_JSONCPP" = "yes" ];
 then
-	echo -e "${COLOR_SEPARATOR}==================== ${COLOR_PROJECT_NAME}libJsonC++ (recommended, submoduke)${COLOR_SEPARATOR} ==========${COLOR_RESET}"
+	echo -e "${COLOR_SEPARATOR}==================== ${COLOR_PROJECT_NAME}libJsonC++ (recommended, submodule)${COLOR_SEPARATOR} ==========${COLOR_RESET}"
 	if [ ! -f "$INSTALL_ROOT/lib/libjsoncpp.a" ];
 	then
 		env_restore
@@ -2080,7 +2080,7 @@ fi
 
 if [ "$WITH_JSONRPCCPP" = "yes" ];
 then
-	echo -e "${COLOR_SEPARATOR}==================== ${COLOR_PROJECT_NAME}libJsonRpcC++ (recommended, submoduke)${COLOR_SEPARATOR} =======${COLOR_RESET}"
+	echo -e "${COLOR_SEPARATOR}==================== ${COLOR_PROJECT_NAME}libJsonRpcC++ (recommended, submodule)${COLOR_SEPARATOR} =======${COLOR_RESET}"
 	if [ ! -f "$INSTALL_ROOT/lib/libjsonrpccpp-server.a" ];
 	then
 		env_restore
