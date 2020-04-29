@@ -8,7 +8,7 @@ ENV CXX g++-7
 ENV TARGET all
 ENV TRAVIS_BUILD_TYPE Debug
 
-RUN ./build.sh
+RUN deps/build.sh
 RUN cmake . -Bbuild -DCMAKE_BUILD_TYPE=Debug  -DCOVERAGE=ON -DMICROPROFILE_ENABLED=0
 RUN cmake --build build -- -j4
 
