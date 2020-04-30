@@ -80,7 +80,9 @@ jobs:
         restore-keys: |
               ${ { matrix.config.name } }-ccache-
     - name: build dependencies
-      run: cd deps && ./build.sh && cd ..
+      run: |
+        sudo apt-get install nettle-dev gnutls-dev
+        cd deps && ./build.sh && cd ..
     - name: build consensus
       run: cd scripts && ./build.py Debug > /tmp/log_of_build.txt   2>&1 || ( tail -1000 /tmp/log_of_build.txt && false );
     - name: run tests
