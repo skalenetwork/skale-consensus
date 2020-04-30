@@ -2,3 +2,24 @@
 	path = libBLS
 	url = https://github.com/skalenetwork/libBLS.git
 	branch = master
+[submodule "sgxwallet"]
+	path = sgxwallet
+	url = https://github.com/skalenetwork/sgxwallet.git
+[submodule "libzmq"]
+	path = libzmq
+	url = https://github.com/zeromq/libzmq.git
+[submodule "cryptopp"]
+	path = cryptopp
+	url = https://github.com/weidai11/cryptopp.git
+[submodule "spdlog"]
+	path = spdlog
+	url = https://github.com/gabime/spdlog.git
+[submodule "curl"]
+	path = curl
+	url = https://github.com/curl/curl.git
+[submodule "jsoncpp"]
+	path = jsoncpp
+	url = https://github.com/open-source-parsers/jsoncpp.git
+[submodule "libjson-rpc-cpp"]
+	path = libjson-rpc-cpp
+	url = https://github.com/skalenetwork/libjson-rpc-cpp.git

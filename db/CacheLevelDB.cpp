@@ -59,6 +59,9 @@ using namespace leveldb;
 static WriteOptions writeOptions;
 static ReadOptions readOptions;
 
+std::string CacheLevelDB::path_to_index(uint64_t index){
+    return dirname + "/db." + to_string(index);
+}
 
 ptr<string> CacheLevelDB::createKey(const block_id _blockId, uint64_t _counter) {
     return make_shared<string>(
@@ -323,7 +326,7 @@ DB *CacheLevelDB::openDB(uint64_t _index) {
         static leveldb::Options options;
         options.create_if_missing = true;
 
-        ASSERT2(leveldb::DB::Open(options, dirname + "/" + "db." + to_string(_index),
+        ASSERT2(leveldb::DB::Open(options, path_to_index(_index),
                                   &dbase).ok(),
                 "Unable to open database");
         return dbase;
@@ -337,18 +340,20 @@ DB *CacheLevelDB::openDB(uint64_t _index) {
 
 
 CacheLevelDB::CacheLevelDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize,
-                           bool _isDuplicateAddOK)
-        : nodeId(_nodeId),
-          prefix(_prefix),
-          totalSigners(_sChain->getTotalSigners()),
-          requiredSigners(_sChain->getRequiredSigners()),
-          dirname(_dirName + "/" + _prefix),
-          maxDBSize(_maxDBSize),
-          isDuplicateAddOK(_isDuplicateAddOK), sChain(_sChain) {
+                           bool _isDuplicateAddOK) {
 
 
 
-    CHECK_STATE(_sChain != nullptr);
+    CHECK_STATE(_sChain);
+
+    this->sChain = _sChain;
+    this-> nodeId = _nodeId;
+    this->prefix = _prefix;
+    this->totalSigners = _sChain->getTotalSigners();
+    this->requiredSigners = _sChain->getRequiredSigners();
+    this->dirname = _dirName + "/" + _prefix;
+    this->maxDBSize = _maxDBSize;
+    this->isDuplicateAddOK = _isDuplicateAddOK;
 
     boost::filesystem::path path(dirname);
     boost::filesystem::create_directory(path);
@@ -380,7 +385,7 @@ uint64_t CacheLevelDB::getActiveDBSize() {
     try {
         vector<path> files;
 
-        path levelDBPath(dirname + "/" + prefix + "." + to_string(highestDBIndex));
+        path levelDBPath(path_to_index(highestDBIndex));
 
         if (!is_directory(levelDBPath)) {
             return 0;
@@ -414,11 +419,13 @@ std::pair<uint64_t, uint64_t> CacheLevelDB::findMaxMinDBIndex() {
     copy(directory_iterator(path(dirname)), directory_iterator(), back_inserter(dirs));
     sort(dirs.begin(), dirs.end());
 
+    size_t offset = string("db.").size();
+
     for (auto &path : dirs) {
         if (is_directory(path)) {
             auto fileName = path.filename().string();
-            if (fileName.find(prefix) == 0) {
-                auto index = fileName.substr(prefix.size() + 1);
+            if (fileName.find("db.") == 0) {
+                auto index = fileName.substr(offset);
                 auto value = strtoull(index.c_str(), nullptr, 10);
                 if (value != 0) {
                     indices.push_back(value);
@@ -472,7 +479,7 @@ void CacheLevelDB::rotateDBsIfNeeded() {
                     return;
                 }
 
-                auto dbName = dirname + "/" + prefix + "." + to_string(minIndex);
+                auto dbName = path_to_index(minIndex);
                 try {
 
                     boost::filesystem::remove_all(path(dbName));
@@ -547,7 +554,7 @@ CacheLevelDB::writeByteArrayToSetUnsafe(const char *_value, uint64_t _valueLen, 
 
 
 
-    assert(_index > 0 && _index <= totalSigners);
+    CHECK_ARGUMENT(_index > 0 && _index <= totalSigners);
 
 
     string entryKey = createSetKey(_blockId, _index);
@@ -615,7 +622,7 @@ CacheLevelDB::writeByteArrayToSetUnsafe(const char *_value, uint64_t _valueLen, 
         }
     }
 
-    assert(enoughSet->size() == requiredSigners);
+    CHECK_STATE(enoughSet->size() == requiredSigners);
 
     return enoughSet;
 

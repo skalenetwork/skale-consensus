@@ -10,6 +10,9 @@
     <mapping directory="$PROJECT_DIR$/SkaleDeps/libwebsockets" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/SkaleDeps/openssl" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/SkaleDeps/zlib" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cryptopp" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/curl" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/jsoncpp" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/libBLS" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/libBLS/deps/libff" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/libBLS/deps/libff/depends/ate-pairing" vcs="Git" />
@@ -21,5 +24,16 @@
     <mapping directory="$PROJECT_DIR$/libBLS/libff/depends/xbyak" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/libBLS/mpir" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/libBLS/pbc" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/libjson-rpc-cpp" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/libzmq" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/sgxwallet" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/sgxwallet/github-markdown-toc" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/sgxwallet/intel-sgx-ssl" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/sgxwallet/leveldb" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/sgxwallet/libBLS" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/sgxwallet/linux-sgx-driver" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/sgxwallet/sgx-gmp" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/sgxwallet/sgx-software-enable" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/spdlog" vcs="Git" />
   </component>
 </project>

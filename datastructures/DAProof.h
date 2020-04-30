@@ -33,7 +33,7 @@ class DAProofHeader;
 
 class CryptoManager;
 class ThresholdSignature;
-class DAProofRequestHeader;
+class SubmitDAProofRequestHeader;
 
 class DAProof : public DataStructure {
 

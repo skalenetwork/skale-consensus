@@ -50,6 +50,7 @@ void Log::setGlobalLogLevel(string &_s) {
 
 
 
+string level_names[]   = SPDLOG_LEVEL_NAMES;
 level_enum Log::logLevelFromString(string &_s) {
     for (int i = 0; i < 7; i++) {
         if (_s == level_names[i]) {
@@ -83,13 +84,15 @@ shared_ptr<spdlog::logger> Log::loggerForClass(const char *_s) {
     if (key == "")
         key = "Main";
 
-    assert(loggers.count(key) > 0);
+    CHECK_STATE(loggers.count(key) > 0);
     return loggers[key];
 }
 
 Log::Log(node_id _nodeID, ConsensusEngine* _engine) {
 
     CHECK_STATE(_engine);
+
+    engine = _engine;
 
     nodeID = _nodeID;
 
@@ -122,6 +125,11 @@ Log::Log(node_id _nodeID, ConsensusEngine* _engine) {
 
 const node_id Log::getNodeID() const {
     return nodeID;
+}
+
+ConsensusEngine *Log::getEngine() const {
+    CHECK_STATE(engine);
+    return engine;
 }
 
 

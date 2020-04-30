@@ -21,6 +21,7 @@
     @date 2018
 */
 
+
 #include "SkaleCommon.h"
 
 #include "Log.h"
@@ -35,46 +36,56 @@
 #include "chains/Schain.h"
 #include "crypto/ConsensusBLSSigShare.h"
 #include "crypto/CryptoManager.h"
+#include <crypto/SHAHash.h>
 #include "node/NodeInfo.h"
 #include "network/Buffer.h"
-#include "Message.h"
+#include "utils/Time.h"
 #include "network/TransportNetwork.h"
-#include "NetworkMessageEnvelope.h"
 #include "protocols/binconsensus/BVBroadcastMessage.h"
 #include "protocols/binconsensus/AUXBroadcastMessage.h"
 #include "protocols/blockconsensus/BlockSignBroadcastMessage.h"
+#include "Message.h"
+#include "NetworkMessageEnvelope.h"
 #include "NetworkMessage.h"
 
 
 NetworkMessage::NetworkMessage(MsgType _messageType, block_id _blockID, schain_index _blockProposerIndex,
-                               bin_consensus_round _r, bin_consensus_value _value,
-                               ProtocolInstance &_srcProtocolInstance)
+                               bin_consensus_round _r,
+                               bin_consensus_value _value, uint64_t _timeMs, ProtocolInstance &_srcProtocolInstance)
         : Message(_srcProtocolInstance.getSchain()->getSchainID(),
                   _messageType, _srcProtocolInstance.createNetworkMessageID(),
                   _srcProtocolInstance.getSchain()->getNode()->getNodeID(), _blockID,
                   _blockProposerIndex), BasicHeader(getTypeString(_messageType)) {
 
+
     this->srcSchainIndex = _srcProtocolInstance.getSchain()->getSchainIndex();
     this->r = _r;
     this->value = _value;
+    this->timeMs = _timeMs;
     setComplete();
-
 }
 
 
 NetworkMessage::NetworkMessage(MsgType _messageType, node_id _srcNodeID, block_id _blockID,
-                               schain_index _blockProposerIndex, bin_consensus_round _r, bin_consensus_value _value,
-                               schain_id _schainId, msg_id _msgID, ptr<string> _sigShareStr,
+                               schain_index _blockProposerIndex,
+                               bin_consensus_round _r, bin_consensus_value _value, uint64_t _timeMs,
+                               schain_id _schainId, msg_id _msgID, ptr<string> _sigShareStr, ptr<string> _ecdsaSig,
                                schain_index _srcSchainIndex, ptr<CryptoManager> _cryptoManager)
         : Message(_schainId, _messageType, _msgID, _srcNodeID, _blockID, _blockProposerIndex),
           BasicHeader(getTypeString(_messageType)) {
 
-    ASSERT(_srcSchainIndex > 0)
+    CHECK_ARGUMENT(_srcSchainIndex > 0)
+    CHECK_ARGUMENT(_ecdsaSig)
+    CHECK_ARGUMENT(_cryptoManager)
+    CHECK_ARGUMENT(_timeMs > 0);
 
     this->srcSchainIndex = _srcSchainIndex;
     this->r = _r;
     this->value = _value;
+    this->timeMs = _timeMs;
     this->sigShareString = _sigShareStr;
+    this->ecdsaSig = _ecdsaSig;
+
 
     if (_sigShareStr != nullptr) {
         sigShare = _cryptoManager->createSigShare(_sigShareStr, _schainId, _blockID, _srcSchainIndex);
@@ -82,10 +93,15 @@ NetworkMessage::NetworkMessage(MsgType _messageType, node_id _srcNodeID, block_i
 
     setComplete();
 
+
 }
 
 ptr<ThresholdSigShare> NetworkMessage::getSigShare() const {
     return sigShare;
+}
+
+const ptr<string> &NetworkMessage::getECDSASig() const {
+    return ecdsaSig;
 }
 
 
@@ -101,10 +117,7 @@ void NetworkMessage::printMessage() {
 
     string s;
 
-
     cerr << "|" << printPrefix << ":" << r << ":v:" << to_string(uint8_t(value)) << "|";
-
-
 }
 
 
@@ -118,11 +131,15 @@ void NetworkMessage::addFields(nlohmann::basic_json<> &j) {
     j["sni"] = (uint64_t )srcNodeID;
     j["ssi"] = (uint64_t) srcSchainIndex;
     j["r"] = (uint64_t )r;
+    j["t"] = (uint64_t) timeMs;
     j["v"] = (uint8_t )value;
 
     if (sigShareString != nullptr) {
         j["sss"] = *sigShareString;
     }
+
+    CHECK_STATE(ecdsaSig);
+    j["sig"] = *ecdsaSig;
 }
 
 
@@ -137,8 +154,10 @@ ptr<NetworkMessage> NetworkMessage::parseMessage(ptr<string> _header, Schain *_s
     uint64_t srcNodeID;
     uint64_t srcSchainIndex;
     uint64_t round;
+    uint64_t timeMs;
     uint8_t value;
     ptr<string> sigShare;
+    ptr<string> ecdsaSig;
 
     CHECK_ARGUMENT(_header);
     CHECK_ARGUMENT(_sChain);
@@ -156,11 +175,15 @@ ptr<NetworkMessage> NetworkMessage::parseMessage(ptr<string> _header, Schain *_s
         srcNodeID = getUint64(js, "sni");
         srcSchainIndex = getUint64(js, "ssi");
         round = getUint64(js, "r");
+        timeMs = getUint64(js, "t");
         value = getUint64(js, "v");
+
 
         if (js.find("sss") != js.end()) {
             sigShare = getString(js, "sss");
         }
+
+        ecdsaSig = getString(js, "sig");
 
 
     } catch (ExitRequestedException &) { throw; } catch (...) {
@@ -180,23 +203,26 @@ ptr<NetworkMessage> NetworkMessage::parseMessage(ptr<string> _header, Schain *_s
             mptr = make_shared<BVBroadcastMessage>(node_id(srcNodeID),
                                                    block_id(blockID), schain_index(blockProposerIndex),
                                                    bin_consensus_round(round),
-                                                   bin_consensus_value(value), schain_id(sChainID), msg_id(msgID),
-                                                   srcSchainIndex,
+                                                   bin_consensus_value(value), timeMs, schain_id(sChainID), msg_id(msgID),
+                                                   srcSchainIndex, ecdsaSig,
                                                    _sChain);
         } else if (*type == BasicHeader::AUX_BROADCAST) {
             mptr = make_shared<AUXBroadcastMessage>(node_id(srcNodeID),
                                                     block_id(blockID), schain_index(blockProposerIndex),
                                                     bin_consensus_round(round),
-                                                    bin_consensus_value(value), schain_id(sChainID), msg_id(msgID),
+                                                    bin_consensus_value(value),
+                                                    timeMs,
+                                                    schain_id(sChainID), msg_id(msgID),
                                                     sigShare,
-                                                    srcSchainIndex,
+                                                    srcSchainIndex, ecdsaSig,
                                                     _sChain);
         } else if (*type == BasicHeader::BLOCK_SIG_BROADCAST) {
             mptr = make_shared<BlockSignBroadcastMessage>(node_id(srcNodeID),
                                                           block_id(blockID), schain_index(blockProposerIndex),
+                                                          timeMs,
                                                           schain_id(sChainID), msg_id(msgID),
                                                           sigShare,
-                                                          srcSchainIndex,
+                                                          srcSchainIndex, ecdsaSig,
                                                           _sChain);
         } else {
             ASSERT(false);
@@ -228,8 +254,63 @@ const char *NetworkMessage::getTypeString(MsgType _type) {
 
 }
 
-const schain_index &NetworkMessage::getSrcSchainIndex() const {
+schain_index NetworkMessage::getSrcSchainIndex() const {
     return srcSchainIndex;
+}
+
+uint64_t NetworkMessage::getTimeMs() const {
+    return timeMs;
+}
+
+ptr<SHAHash> NetworkMessage::getHash() {
+    if (hash == nullptr)
+        hash = calculateHash();
+    return hash;
+}
+
+
+
+
+ptr<SHAHash> NetworkMessage::calculateHash() {
+    CryptoPP::SHA256 sha3;
+
+    SHA3_UPDATE(sha3, schainID);
+    SHA3_UPDATE(sha3, blockID);
+    SHA3_UPDATE(sha3, blockProposerIndex);
+    SHA3_UPDATE(sha3, msgID);
+    SHA3_UPDATE(sha3, srcNodeID);
+    SHA3_UPDATE(sha3, srcSchainIndex);
+
+    CHECK_STATE(type != nullptr);
+
+    uint32_t typeLen = strlen(type);
+    SHA3_UPDATE(sha3, typeLen);
+    sha3.Update((unsigned char*)type, strlen(type));
+
+    uint32_t  sigShareLen = 0;
+
+    if (sigShareString != nullptr) {
+        sigShareLen = sigShareString->size();
+        SHA3_UPDATE(sha3, sigShareLen);
+        sha3.Update((unsigned char *) sigShareString->data(), sigShareLen);
+    } else {
+        SHA3_UPDATE(sha3, sigShareLen);
+    }
+
+
+    auto buf = make_shared<array<uint8_t, SHA_HASH_LEN>>();
+    sha3.Final(buf->data());
+    hash = make_shared<SHAHash>(buf);
+    return hash;
+}
+
+void NetworkMessage::sign(ptr<CryptoManager> _mgr) {
+    ecdsaSig = _mgr->signNetworkMsg(*this);
+
+}
+
+void NetworkMessage::verify(ptr<CryptoManager> _mgr) {
+    CHECK_STATE2(_mgr->verifyNetworkMsg(*this), "ECDSA sig did not verify");
 }
 
 

@@ -25,11 +25,12 @@
 
 #include "abstracttcpserver/AbstractServerAgent.h"
 #include "pendingqueue/PendingTransactionsAgent.h"
+#include "abstracttcpserver/ConnectionStatus.h"
 
 class BlockProposalWorkerThreadPool;
 class BlockFinalizeResponseHeader;
 class BlockProposalRequestHeader;
-class DAProofRequestHeader;
+class SubmitDAProofRequestHeader;
 class ReceivedBlockProposal;
 
 
@@ -58,7 +59,7 @@ class BlockProposalServerAgent : public AbstractServerAgent {
     ptr<BlockProposalWorkerThreadPool> blockProposalWorkerThreadPool;
 
 
-    void processProposalRequest(ptr<ServerConnection> _connection, nlohmann::json _proposalRequest);
+    pair<ConnectionStatus, ConnectionSubStatus> processProposalRequest(ptr<ServerConnection> _connection, nlohmann::json _proposalRequest);
 
     void processDAProofRequest(ptr<ServerConnection> _connection, nlohmann::json _daProofRequest);
 
@@ -91,7 +92,7 @@ public:
     createFinalResponseHeader(ptr<ReceivedBlockProposal> _proposal);
 
     ptr<Header> createDAProofResponseHeader(ptr<ServerConnection> _connectionEnvelope,
-                                                                      DAProofRequestHeader _header);
+                                            ptr<SubmitDAProofRequestHeader> _header);
 
 
 

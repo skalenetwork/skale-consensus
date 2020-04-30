@@ -23,18 +23,33 @@
 
 #define CATCH_CONFIG_MAIN
 
+#include <cryptopp/eccrypto.h>
+#include <cryptopp/osrng.h>
+#include <cryptopp/sha.h>
+#include <cryptopp/oids.h>
+#include <cryptopp/hex.h>
+
+
 #include "thirdparty/catch.hpp"
 
 #include "SkaleCommon.h"
 #include "Log.h"
 #include "node/ConsensusEngine.h"
+#include "crypto/CryptoManager.h"
 
+#include "iostream"
 #include "time.h"
+#include "crypto/SHAHash.h"
+
+#include "stubclient.h"
+#include <network/Utils.h>
 #include "Consensust.h"
 
 #ifdef GOOGLE_PROFILE
 #include <gperftools/heap-profiler.h>
 #endif
+
+
 
 ConsensusEngine *engine;
 
@@ -51,15 +66,12 @@ public:
         HeapProfilerStart("/tmp/consensusd.profile");
 #endif
 
-
-
     };
 
     ~StartFromScratch() {
 #ifdef GOOGLE_PROFILE
         HeapProfilerStop();
 #endif
-
     }
 };
 
@@ -99,18 +111,16 @@ void testLog(const char *message) {
 void basicRun() {
     try {
 
-
-
         REQUIRE(ConsensusEngine::getEngineVersion().size() > 0);
 
         engine = new ConsensusEngine();
-        engine->parseConfigsAndCreateAllNodes(Consensust::getConfigDirPath());
+        engine->parseTestConfigsAndCreateAllNodes(Consensust::getConfigDirPath());
         engine->slowStartBootStrapTest();
         sleep(Consensust::getRunningTimeMS()/1000); /* Flawfinder: ignore */
 
         REQUIRE(engine->nodesCount() > 0);
         REQUIRE(engine->getLargestCommittedBlockID() > 0);
-        engine->exitGracefully();
+        engine->exitGracefullyBlocking();
         delete engine;
     } catch (Exception &e) {
         Exception::logNested(e);
@@ -136,23 +146,22 @@ TEST_CASE_METHOD(StartFromScratch, "Use finalization download only", "[consensus
     setenv("TEST_FINALIZATION_DOWNLOAD_ONLY", "1", 1);
 
     engine = new ConsensusEngine();
-    engine->parseConfigsAndCreateAllNodes(Consensust::getConfigDirPath());
+    engine->parseTestConfigsAndCreateAllNodes(Consensust::getConfigDirPath());
     engine->slowStartBootStrapTest();
     usleep(1000 * Consensust::getRunningTimeMS()); /* Flawfinder: ignore */
 
     REQUIRE(engine->nodesCount() > 0);
     REQUIRE(engine->getLargestCommittedBlockID() > 0);
-    engine->exitGracefully();
+    engine->exitGracefullyBlocking();
     delete engine;
     SUCCEED();
 }
-
 
 bool success = false;
 
 void exit_check() {
     sleep(STUCK_TEST_TIME);
-    engine->exitGracefully();
+    engine->exitGracefullyBlocking();
 }
 
 TEST_CASE_METHOD(StartFromScratch, "Get consensus to stuck", "[consensus-stuck]") {
@@ -161,7 +170,7 @@ TEST_CASE_METHOD(StartFromScratch, "Get consensus to stuck", "[consensus-stuck]"
     try {
         auto startTime = time(NULL);
         engine = new ConsensusEngine();
-        engine->parseConfigsAndCreateAllNodes(Consensust::getConfigDirPath());
+        engine->parseTestConfigsAndCreateAllNodes(Consensust::getConfigDirPath());
         engine->slowStartBootStrapTest();
         auto finishTime = time(NULL);
         if (finishTime - startTime < STUCK_TEST_TIME) {
@@ -171,26 +180,23 @@ TEST_CASE_METHOD(StartFromScratch, "Get consensus to stuck", "[consensus-stuck]"
     } catch (...) {
         timer.join();
     }
-    engine->exitGracefully();
+    engine->exitGracefullyBlocking();
     delete engine;
     SUCCEED();
 }
-
-
-
 
 TEST_CASE_METHOD(StartFromScratch, "Issue different proposals to different nodes", "[corrupt-proposal]") {
     setenv("CORRUPT_PROPOSAL_TEST", "1", 1);
 
     try {
         engine = new ConsensusEngine();
-        engine->parseConfigsAndCreateAllNodes(Consensust::getConfigDirPath());
+        engine->parseTestConfigsAndCreateAllNodes(Consensust::getConfigDirPath());
         engine->slowStartBootStrapTest();
         usleep(1000 * Consensust::getRunningTimeMS()); /* Flawfinder: ignore */
 
         REQUIRE(engine->nodesCount() > 0);
         REQUIRE(engine->getLargestCommittedBlockID() == 0);
-        engine->exitGracefully();
+        engine->exitGracefullyBlocking();
         delete engine;
     } catch (Exception &e) {
         Exception::logNested(e);
@@ -199,4 +205,67 @@ TEST_CASE_METHOD(StartFromScratch, "Issue different proposals to different nodes
 
     unsetenv("CORRUPT_PROPOSAL_TEST");
     SUCCEED();
+}
+
+
+
+
+TEST_CASE_METHOD(StartFromScratch, "Test sgx server connection", "[sgx]") {
+
+    string certDir("/tmp");
+
+    CryptoManager::generateSSLClientCertAndKey(certDir);
+
+    auto certFilePath = certDir + "/cert";
+    auto keyFilePath = certDir + "/key";
+
+    CryptoManager::setSGXKeyAndCert(keyFilePath, certFilePath);
+
+    setenv("sgxKeyFileFullPath", keyFilePath.data(), 1);
+    setenv("certFileFullPath", certFilePath.data(), 1);
+
+    jsonrpc::HttpClient client("https://localhost:" + to_string(SGX_SSL_PORT));
+    auto c  = make_shared<StubClient>(client, jsonrpc::JSONRPC_CLIENT_V2);
+
+    vector<ptr<string>> keyNames;
+    vector<ptr<string>> publicKeys;
+
+    using namespace CryptoPP;
+
+    for (int i = 1; i <= 4; i++) {
+        auto res = CryptoManager::generateSGXECDSAKey(c);
+        auto keyName = res.first;
+        auto publicKey = res.second;
+
+        setenv(("sgxECDSAKeyName." + to_string(i)).data(), keyName->data(), 1);
+        setenv(("sgxECDSAPublicKey." + to_string(i)).data(), publicKey->data(), 1);
+
+        keyNames.push_back(keyName);
+        publicKeys.push_back(publicKey);
+    }
+
+
+
+
+    CryptoManager cm( 4, 3, make_shared<string>("127.0.0.1"),
+                      make_shared<string>(keyFilePath),
+                      make_shared<string>("certFilePath"),
+                      keyNames.at(0), publicKeys);
+
+    auto msg = make_shared<vector<uint8_t>>();
+    msg->push_back('1');
+    auto hash = SHAHash::calculateHash(msg);
+    auto sig = cm.sgxSignECDSA(hash,*keyNames[0],  c) ;
+
+    //auto rawSig = Utils::carray2Hex(sig)
+
+    cerr << sig << endl;
+
+    cm.sgxVerifyECDSA(hash, publicKeys[0], sig);
+
+    auto key = CryptoManager::decodeSGXPublicKey(publicKeys[0]);
+
+    // basicRun();
+    SUCCEED();
+
 }

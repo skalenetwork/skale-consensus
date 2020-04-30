@@ -29,6 +29,9 @@
 #include "CacheLevelDB.h"
 
 
+_Pragma("GCC diagnostic push")
+_Pragma("GCC diagnostic ignored \"-Wunused-parameter\"")
+
 RandomDB::RandomDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize) :
         CacheLevelDB(_sChain, _dirName, _prefix, _nodeId, _maxDBSize, false) {}
 
@@ -53,9 +56,13 @@ RandomDB::writeRandom(const block_id &_blockId, const schain_index &_proposerInd
                       uint64_t _random) {
 
 
+#ifdef CONSENSUS_STATE_PERSISTENCE
+
     auto key = createKey(_blockId, _proposerIndex, _round);
 
     writeString(*key, to_string(_random));
+
+#endif
 
 }
 

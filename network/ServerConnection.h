@@ -30,15 +30,16 @@ class ServerConnection {
     static atomic<int64_t> totalObjects;
 
     file_descriptor descriptor;
+
     ptr<string> ip;
+
+    void closeConnection();
 
 public:
 
     ServerConnection(unsigned int descriptor, ptr<string>ip);
 
     virtual ~ServerConnection();
-
-    void closeConnection();
 
     file_descriptor getDescriptor();
 

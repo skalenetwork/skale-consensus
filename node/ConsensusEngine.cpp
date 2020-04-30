@@ -1,24 +1,24 @@
- /*
-    Copyright (C) 2018-2019 SKALE Labs
+/*
+   Copyright (C) 2018-2019 SKALE Labs
 
-    This file is part of skale-consensus.
+   This file is part of skale-consensus.
 
-    skale-consensus is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Affero General Public License as published
-    by the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+   skale-consensus is free software: you can redistribute it and/or modify
+   it under the terms of the GNU Affero General Public License as published
+   by the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
 
-    skale-consensus is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Affero General Public License for more details.
+   skale-consensus is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU Affero General Public License for more details.
 
-    You should have received a copy of the GNU Affero General Public License
-    along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
+   You should have received a copy of the GNU Affero General Public License
+   along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file ConsensusEngine.cpp
-    @author Stan Kladko
-    @date 2018
+   @file ConsensusEngine.cpp
+   @author Stan Kladko
+   @date 2018
 */
 
 
@@ -112,7 +112,6 @@ void ConsensusEngine::logInit() {
 
     LOCK(logMutex)
 
-
     spdlog::flush_every(std::chrono::seconds(1));
 
     logThreadLocal_ = nullptr;
@@ -136,7 +135,6 @@ void ConsensusEngine::logInit() {
         logFileName = "skaled.log";
     }
 
-
     if (dataDir != nullptr) {
         logFileNamePrefix = make_shared<string>(*dataDir + "/" + logFileName);
         logRotatingFileSync = make_shared<spdlog::sinks::rotating_file_sink_mt>(*logFileNamePrefix,
@@ -155,8 +153,6 @@ void ConsensusEngine::logInit() {
 }
 
 
-
-
 const shared_ptr<string> ConsensusEngine::getDataDir() {
     CHECK_STATE(dataDir);
     return dataDir;
@@ -173,6 +169,7 @@ shared_ptr<spdlog::logger> ConsensusEngine::createLogger(const string &loggerNam
         } else {
             logger = spdlog::stdout_color_mt(loggerName);
         }
+        logger->set_pattern("%+", spdlog::pattern_time_type::utc);
     }
 
     CHECK_STATE(logger);
@@ -193,11 +190,19 @@ void ConsensusEngine::logConfig(level_enum _severity, const string &_message, co
 }
 
 void ConsensusEngine::log(level_enum _severity, const string &_message, const string &_className) {
+
     if (logThreadLocal_ == nullptr) {
         CHECK_STATE(configLogger != nullptr);
         configLogger->log(_severity, _message);
     } else {
-        logThreadLocal_->loggerForClass(_className.c_str())->log(_severity, _message);
+
+        auto engine = logThreadLocal_->getEngine();
+        CHECK_STATE(engine);
+
+        string fullMessage = to_string((uint64_t) engine->getLargestCommittedBlockID()) + ":" + _message;
+
+        logThreadLocal_->loggerForClass(_className.c_str())->log(_severity, fullMessage);
+
     }
 }
 
@@ -224,9 +229,16 @@ void ConsensusEngine::parseFullConfigAndCreateNode(const string &configFileConte
 
 }
 
-ptr<Node> ConsensusEngine::readNodeConfigFileAndCreateNode(
-        const fs_path &path, set<node_id> &nodeIDs) {
+ptr<Node> ConsensusEngine::readNodeConfigFileAndCreateNode(const fs_path &path, set<node_id> &_nodeIDs, bool _useSGX,
+                                                           ptr<string> _keyName, ptr<vector<string>> _publicKeys) {
     try {
+
+        if (_useSGX) {
+            CHECK_ARGUMENT(_keyName && _publicKeys);
+        }
+
+
+
         fs_path nodeFileNamePath(path);
 
         nodeFileNamePath /= string(SkaleCommon::NODE_FILE_NAME);
@@ -239,7 +251,7 @@ ptr<Node> ConsensusEngine::readNodeConfigFileAndCreateNode(
 
         checkExistsAndDirectory(schainDirNamePath.string());
 
-        auto node = JSONFactory::createNodeFromJson(nodeFileNamePath.string(), nodeIDs, this);
+        auto node = JSONFactory::createNodeFromJson(nodeFileNamePath.string(), _nodeIDs, this);
 
 
         if (node == nullptr) {
@@ -310,7 +322,14 @@ void ConsensusEngine::checkExistsAndFile(const fs_path &_filePath) {
 }
 
 
-void ConsensusEngine::parseConfigsAndCreateAllNodes(const fs_path &dirname) {
+void ConsensusEngine::parseTestConfigsAndCreateAllNodes(const fs_path &dirname, bool useSGX,
+                                                        ptr<vector<string>> keyNames, ptr<vector<string>> publicKeys) {
+
+    if  (useSGX) {
+        CHECK_ARGUMENT(keyNames != nullptr && publicKeys != nullptr);
+        CHECK_ARGUMENT(keyNames->size() == publicKeys->size());
+    }
+
     try {
 
         checkExistsAndDirectory(dirname);
@@ -332,15 +351,26 @@ void ConsensusEngine::parseConfigsAndCreateAllNodes(const fs_path &dirname) {
             nodeCount++;
         };
 
+        if (useSGX) {
+            ASSERT(nodeCount == publicKeys->size());
+        }
 
         directory_iterator itr2(dirname);
+
+        uint64_t i = 0;
 
         for (; itr2 != end; itr2++) {
             if (!is_directory(itr2->path())) {
                 BOOST_THROW_EXCEPTION(FatalError("Junk file found. Remove it: " + itr2->path().string()));
             }
 
-            readNodeConfigFileAndCreateNode(itr2->path(), nodeIDs);
+            ptr<string> keyName = nullptr;
+            if (useSGX) {
+                CHECK_STATE(i < keyNames->size());
+                keyName = make_shared<string>(keyNames->at(i));
+            }
+            readNodeConfigFileAndCreateNode(itr2->path(), nodeIDs, useSGX, keyName, publicKeys);
+            i++;
         };
 
         if (nodes.size() == 0) {
@@ -437,8 +467,6 @@ void ConsensusEngine::bootStrapAll() {
 node_count ConsensusEngine::nodesCount() {
     return node_count(nodes.size());
 }
-
-
 
 
 std::string ConsensusEngine::exec(const char *cmd) {
@@ -542,17 +570,32 @@ ConsensusEngine::ConsensusEngine(ConsensusExtFace &_extFace, uint64_t _lastCommi
 };
 
 
-
-
-
-
 ConsensusExtFace *ConsensusEngine::getExtFace() const {
     return extFace;
 }
 
 
-void ConsensusEngine::exitGracefully() {
+void ConsensusEngine::exitGracefullyBlocking() {
 
+    exitGracefully();
+
+    while (getStatus() != CONSENSUS_EXITED) {
+        usleep(100000);
+    }
+
+}
+
+
+void ConsensusEngine::exitGracefully() {
+    //run and forget
+    thread([this]() { exitGracefullyAsync(); }).detach();
+}
+
+consensus_engine_status ConsensusEngine::getStatus() const {
+    return status;
+}
+
+void ConsensusEngine::exitGracefullyAsync() {
     try {
 
         auto previouslyCalled = exitRequested.exchange(true);
@@ -582,16 +625,15 @@ void ConsensusEngine::exitGracefully() {
 
     } catch (exception &e) {
         Exception::logNested(e);
-        throw_with_nested(EngineInitException("Engine construction failed", __CLASS_NAME__));
+        throw_with_nested(EngineInitException("Graceful exit failed", __CLASS_NAME__));
     }
 
-
-
+    status = CONSENSUS_EXITED;
 }
 
 
 ConsensusEngine::~ConsensusEngine() {
-    exitGracefully();
+    exitGracefullyBlocking();
     for (auto &n : nodes) {
         assert(n.second->isExitRequested());
     }

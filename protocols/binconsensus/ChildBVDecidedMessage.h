@@ -31,10 +31,24 @@
 class ChildBVDecidedMessage : public ChildMessage {
 
     bool value;
-public:
-    bool getValue() const;
+
+    bin_consensus_round round;
+
+    uint64_t maxProcessingTimeMs;
+    uint64_t maxLatencyTimeMs;
 
 public:
-    ChildBVDecidedMessage(bool value, ProtocolInstance &srcProtocolInstance, ptr<ProtocolKey> key);
+    uint64_t getMaxLatencyTimeMs() const;
+
+    bool getValue();
+
+
+    bin_consensus_round getRound();
+
+    uint64_t getMaxProcessingTimeMs();
+
+    ChildBVDecidedMessage(bool _value, ProtocolInstance &_srcProtocolInstance,
+                          ptr<ProtocolKey> _key, bin_consensus_round _round,
+                          uint64_t _maxProcessingTimeMs, uint64_t _maxLatencyTimeMs);
 
 };

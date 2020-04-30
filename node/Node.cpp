@@ -68,10 +68,19 @@
 
 using namespace std;
 
-Node::Node(const nlohmann::json &_cfg, ConsensusEngine *_consensusEngine) {
+Node::Node(const nlohmann::json &_cfg, ConsensusEngine *_consensusEngine,
+           bool _useSGX, ptr<string> _keyName, ptr<vector<string>> _publicKeys) {
+
+    if (_useSGX) {
+        CHECK_ARGUMENT(_keyName && _publicKeys);
+        useSGX = true;
+        keyName = _keyName;
+        publicKeys = _publicKeys;
+    }
+
     this->consensusEngine = _consensusEngine;
-    this->nodeInfosByIndex = make_shared<map<schain_index, ptr<NodeInfo> > >();
-    this->nodeInfosByIP = make_shared<map<ptr<string>, ptr<NodeInfo>, Comparator> >();
+    this->nodeInfosByIndex = make_shared<map<uint64_t , ptr<NodeInfo> > >();
+    this->nodeInfosById = make_shared<map<uint64_t , ptr<NodeInfo>> >();
 
     this->startedServers = false;
     this->startedClients = false;
@@ -177,14 +186,6 @@ void Node::initParamsFromConfig() {
     priceDBSize = getParamUint64("priceDBSize", PRICE_DB_SIZE);
     blockProposalDBSize = getParamUint64("blockProposalDBSize", BLOCK_PROPOSAL_DB_SIZE);
 
-    auto emptyBlockIntervalMsTmp = getParamInt64("emptyBlockIntervalMs", EMPTY_BLOCK_INTERVAL_MS);
-
-
-    if (emptyBlockIntervalMsTmp < 0) {
-        emptyBlockIntervalMs = 100000000000000;
-    } else {
-        emptyBlockIntervalMs = emptyBlockIntervalMsTmp;
-    }
 
     simulateNetworkWriteDelayMs = getParamInt64("simulateNetworkWriteDelayMs", 0);
 
@@ -302,9 +303,11 @@ void Node::startClients() {
     releaseGlobalClientBarrier();
 }
 
-void Node::setNodeInfo(ptr<NodeInfo> _info) {
-    (*nodeInfosByIndex)[_info->getSchainIndex()] = _info;
-    (*nodeInfosByIP)[_info->getBaseIP()] = _info;
+void Node::setNodeInfo(ptr<NodeInfo> _nodeInfo) {
+
+    CHECK_ARGUMENT(_nodeInfo);
+    (*nodeInfosByIndex)[(uint64_t)_nodeInfo->getSchainIndex()] =  _nodeInfo;
+    (*nodeInfosById)[(uint64_t ) _nodeInfo->getNodeID()] = _nodeInfo;
 }
 
 void Node::setSchain(ptr<Schain> _schain) {

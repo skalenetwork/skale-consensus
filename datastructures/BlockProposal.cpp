@@ -55,7 +55,7 @@
 using namespace std;
 
 ptr<SHAHash> BlockProposal::getHash() {
-    assert(hash);
+    CHECK_STATE(hash);
     return hash;
 }
 
@@ -63,19 +63,25 @@ ptr<SHAHash> BlockProposal::getHash() {
 
 void BlockProposal::calculateHash() {
     CryptoPP::SHA256 sha3;
-    sha3.Update(reinterpret_cast < uint8_t * > ( &proposerIndex), sizeof(proposerIndex));
-    sha3.Update(reinterpret_cast < uint8_t * > ( &proposerNodeID), sizeof(proposerNodeID));
-    sha3.Update(reinterpret_cast < uint8_t * > ( &schainID      ), sizeof(schainID));
-    sha3.Update(reinterpret_cast < uint8_t * > ( &blockID       ), sizeof(blockID));
-    sha3.Update(reinterpret_cast < uint8_t * > ( &transactionCount ), sizeof(transactionCount));
-    sha3.Update(reinterpret_cast < uint8_t * > ( &timeStamp ), sizeof(timeStamp));
-    sha3.Update(reinterpret_cast < uint8_t * > ( &timeStampMs ), sizeof(timeStampMs));
+
+
+    SHA3_UPDATE(sha3, proposerIndex);
+    SHA3_UPDATE(sha3, proposerNodeID);
+    SHA3_UPDATE(sha3, schainID);
+    SHA3_UPDATE(sha3, blockID);
+    SHA3_UPDATE(sha3, transactionCount);
+    SHA3_UPDATE(sha3, timeStamp);
+    SHA3_UPDATE(sha3, timeStampMs );
+
+    uint32_t sz = transactionList->size();
+
+    SHA3_UPDATE(sha3, sz);
 
     // export into 8-bit unsigned values, most significant bit first:
-
     auto sr = Utils::u256ToBigEndianArray(getStateRoot());
     auto v = Utils::carray2Hex(sr->data(),  sr->size());
     sha3.Update((unsigned char *) v->data(), v->size());
+
     if (transactionList->size() > 0) {
         auto merkleRoot = transactionList->calculateTopMerkleRoot();
         sha3.Update(merkleRoot->getHash()->data(), SHA_HASH_LEN);
@@ -235,8 +241,8 @@ ptr<vector<uint8_t> > BlockProposal::serialize() {
 
 
     auto serializedList = transactionList->serialize(true);
-    assert(serializedList->front() == '<');
-    assert(serializedList->back() == '>');
+    CHECK_STATE(serializedList->front() == '<');
+    CHECK_STATE(serializedList->back() == '>');
 
 
     block->insert(block->end(), serializedList->begin(), serializedList->end());
@@ -248,8 +254,8 @@ ptr<vector<uint8_t> > BlockProposal::serialize() {
     serializedProposal = block;
 
 
-    assert(block->at(sizeof(uint64_t)) == '{');
-    assert(block->back() == '>');
+    CHECK_STATE(block->at(sizeof(uint64_t)) == '{');
+    CHECK_STATE(block->back() == '>');
 
     return block;
 }

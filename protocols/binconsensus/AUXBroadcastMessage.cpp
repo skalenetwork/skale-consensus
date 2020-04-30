@@ -46,8 +46,9 @@
 
 
 AUXBroadcastMessage::AUXBroadcastMessage(bin_consensus_round _round, bin_consensus_value _value, block_id _blockID,
-                                         schain_index _proposerIndex, BinConsensusInstance &_sourceProtocolInstance)
-        : NetworkMessage(MSG_AUX_BROADCAST, _blockID, _proposerIndex, _round, _value,
+                                         schain_index _proposerIndex, uint64_t _time,
+                                         BinConsensusInstance &_sourceProtocolInstance)
+        : NetworkMessage(MSG_AUX_BROADCAST, _blockID, _proposerIndex, _round, _value, _time,
                          _sourceProtocolInstance) {
     printPrefix = "a";
     auto schain = _sourceProtocolInstance.getSchain();
@@ -68,13 +69,12 @@ AUXBroadcastMessage::AUXBroadcastMessage(bin_consensus_round _round, bin_consens
 }
 
 AUXBroadcastMessage::AUXBroadcastMessage(node_id _srcNodeID, block_id _blockID, schain_index _blockProposerIndex,
-                                         bin_consensus_round _r,
-                                         bin_consensus_value _value, schain_id _schainId, msg_id _msgID,
-                                         ptr<string> _signature,
-                                         schain_index _srcSchainIndex, Schain *_sChain)
+                                         bin_consensus_round _r, bin_consensus_value _value, uint64_t _time, schain_id _schainId,
+                                         msg_id _msgID, ptr<string> _signature, schain_index _srcSchainIndex,
+                                         ptr<string> _ecdsaSig, Schain *_sChain)
         : NetworkMessage(
-        MSG_AUX_BROADCAST, _srcNodeID, _blockID, _blockProposerIndex, _r, _value, _schainId, _msgID,
-        _signature, _srcSchainIndex, _sChain->getCryptoManager()) {
+        MSG_AUX_BROADCAST, _srcNodeID, _blockID, _blockProposerIndex, _r, _value, _time, _schainId, _msgID,
+        _signature, _ecdsaSig, _srcSchainIndex, _sChain->getCryptoManager()) {
     CHECK_ARGUMENT(_signature);
     printPrefix = "a";
 

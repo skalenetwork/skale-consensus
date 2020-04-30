@@ -65,14 +65,14 @@ int main(int argc, char **argv) {
 
     fs_path dirPath(boost::filesystem::system_complete(fs_path(argv[1])));
 
-    engine.parseConfigsAndCreateAllNodes(dirPath);
+    engine.parseTestConfigsAndCreateAllNodes(dirPath);
 
 
     engine.slowStartBootStrapTest();
 
     sleep(20);
 
-    engine.exitGracefully();
+    engine.exitGracefullyBlocking();
     cerr << "Exited" << endl;
 
 #ifdef GOOGLE_PROFILE

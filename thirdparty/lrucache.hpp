@@ -12,11 +12,20 @@
 #include <list>
 #include <cstddef>
 #include <stdexcept>
+#include "SkaleCommon.h"
+
+/*
+ * Synchronized LRU cache
+ */
 
 namespace cache {
 
+
     template<typename key_t, typename value_t>
     class lru_cache {
+
+        std::recursive_mutex m;
+
     public:
         typedef typename std::pair<key_t, value_t> key_value_pair_t;
         typedef typename std::list<key_value_pair_t>::iterator list_iterator_t;
@@ -26,6 +35,9 @@ namespace cache {
         }
 
         void put(const key_t& key, const value_t& value) {
+
+            LOCK(m);
+
             auto it = _cache_items_map.find(key);
             _cache_items_list.push_front(key_value_pair_t(key, value));
             if (it != _cache_items_map.end()) {
@@ -43,6 +55,9 @@ namespace cache {
         }
 
         const value_t& get(const key_t& key) {
+
+            LOCK(m);
+
             auto it = _cache_items_map.find(key);
             if (it == _cache_items_map.end()) {
                 throw std::range_error("There is no such key in cache");
@@ -52,11 +67,15 @@ namespace cache {
             }
         }
 
-        bool exists(const key_t& key) const {
+        bool exists(const key_t& key)  {
+
+            LOCK(m);
+
             return _cache_items_map.find(key) != _cache_items_map.end();
         }
 
         size_t size() const {
+            LOCK(m);
             return _cache_items_map.size();
         }
 

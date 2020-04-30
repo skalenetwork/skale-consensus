@@ -41,6 +41,7 @@ class ConsensusBLSSigShare;
 class Node;
 class ThresholdSigShare;
 class CryptoManager;
+class ThresholdSignature;
 
 static constexpr uint64_t MAX_CONSENSUS_MESSAGE_LEN = 1024;
 
@@ -48,38 +49,47 @@ static constexpr uint64_t MAX_CONSENSUS_MESSAGE_LEN = 1024;
 
 class NetworkMessage : public Message, public BasicHeader {
 
+
 protected:
 
-
-    void addFields(nlohmann::json &j) override;
+    uint64_t timeMs;
 
 
     string printPrefix = "n";
 
-    ptr<string> sigShareString;
-
+    schain_index srcSchainIndex;
+    bin_consensus_round r;
+    bin_consensus_value value;
     ptr<ThresholdSigShare> sigShare;
 
-    NetworkMessage(MsgType _messageType, block_id _blockID, schain_index _blockProposerIndex,
-                   bin_consensus_round _r, bin_consensus_value _value,
-                   ProtocolInstance &_srcProtocolInstance);
+    ptr<SHAHash> hash;
+
+    ptr<string> sigShareString;
+    ptr<string> ecdsaSig;
+
+    NetworkMessage(MsgType _messageType, block_id _blockID, schain_index _blockProposerIndex, bin_consensus_round _r,
+                   bin_consensus_value _value, uint64_t _timeMs, ProtocolInstance &_srcProtocolInstance);
 
 
-    NetworkMessage(MsgType _messageType, node_id _srcNodeID, block_id _blockID,
-                   schain_index _blockProposerIndex, bin_consensus_round _r, bin_consensus_value _value,
-                   schain_id _schainId, msg_id _msgID, ptr<string> _sigShareStr,
+    NetworkMessage(MsgType _messageType, node_id _srcNodeID, block_id _blockID, schain_index _blockProposerIndex,
+                   bin_consensus_round _r, bin_consensus_value _value, uint64_t _timeMs, schain_id _schainId, msg_id _msgID, ptr<string> _sigShareStr, ptr<string> _ecdsaSig,
                    schain_index _srcSchainIndex, ptr<CryptoManager> _cryptoManager);
 
+    virtual ptr<SHAHash> calculateHash();
 
+    void addFields(nlohmann::json &j) override;
+public:
+    uint64_t getTimeMs() const;
 
 
 public:
 
+    void sign(ptr<CryptoManager> _mgr);
 
-    schain_index srcSchainIndex;
 
-    bin_consensus_round r;
-    bin_consensus_value value;
+    void verify(ptr<CryptoManager> _mgr);
+
+
 
     virtual bin_consensus_round getRound() const;
 
@@ -97,6 +107,10 @@ public:
 
     static const char* getTypeString(MsgType _type );
 
-    const schain_index &getSrcSchainIndex() const;
+    schain_index getSrcSchainIndex() const;
+
+    ptr<SHAHash> getHash();
+
+    const ptr<string> &getECDSASig() const;
 
 };

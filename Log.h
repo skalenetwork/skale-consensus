@@ -59,6 +59,8 @@ class logger;
 class Log {
 
 
+    ConsensusEngine* engine;
+
     shared_ptr< string > prefix = nullptr;
 
     node_id nodeID;
@@ -67,6 +69,8 @@ class Log {
         netLogger, dataStructuresLogger, pendingQueueLogger;
 
 public:
+
+    ConsensusEngine *getEngine() const;
 
     Log( node_id _nodeID, ConsensusEngine* _engine);
 

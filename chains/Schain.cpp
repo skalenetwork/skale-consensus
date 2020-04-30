@@ -375,7 +375,7 @@ void Schain::proposeNextBlock(uint64_t _previousBlockTimeStamp, uint32_t _previo
         } else {
             mutex_unlocker<std::timed_mutex> unlocker(consensusWorkingMutex, *getNode());
             myProposal = pendingTransactionsAgent->buildBlockProposal(_proposedBlockID, _previousBlockTimeStamp,
-                                                                           _previousBlockTimeStampMs);
+                                                                      _previousBlockTimeStampMs);
         }
 
         CHECK_STATE(myProposal->getProposerIndex() == getSchainIndex());
@@ -429,7 +429,7 @@ void Schain::processCommittedBlock(ptr<CommittedBlock> _block) {
             ":KNWN:" + to_string(pendingTransactionsAgent->getKnownTransactionsSize()) + ":MGS:" +
             to_string(Message::getTotalObjects()) + ":INSTS:" + to_string(ProtocolInstance::getTotalObjects()) +
             ":BPS:" +
-            to_string(BlockProposalSet::getTotalObjects())  +
+            to_string(BlockProposalSet::getTotalObjects()) +
             ":HDRS:" + to_string(Header::getTotalObjects()) + ":SOCK:" + to_string(ClientSocket::getTotalSockets()) +
             ":CONS:" + to_string(ServerConnection::getTotalObjects()));
 
@@ -488,6 +488,9 @@ void Schain::pushBlockToExtFace(ptr<CommittedBlock> &_block) {
             extFace->createBlock(*tv, _block->getTimeStamp(), _block->getTimeStampMs(),
                                  (__uint64_t) _block->getBlockID(),
                                  cur_price, _block->getStateRoot());
+            // exit immediately if exit has been requested
+            getSchain()->getNode()->exitCheck();
+
         }
 
     } catch (ExitRequestedException &e) { throw; }
@@ -579,19 +582,60 @@ void Schain::proposedBlockArrived(ptr<BlockProposal> _proposal) {
 
 void Schain::bootstrap(block_id _lastCommittedBlockID, uint64_t _lastCommittedBlockTimeStamp) {
 
-    _lastCommittedBlockID = getNode()->getBlockDB()->readLastCommittedBlockID();
-
 
     LOG(info, "Consensus engine version:" + ConsensusEngine::getEngineVersion());
 
+    auto _lastCommittedBlockIDInConsensus = getNode()->getBlockDB()->readLastCommittedBlockID();
+
+    LOG(info, "Last committed block in consensus:" + to_string(_lastCommittedBlockIDInConsensus));
+
     checkForExit();
 
+    // Step 1: solve block id  mismatch problems
+
+
+    if (_lastCommittedBlockIDInConsensus == _lastCommittedBlockID + 1) {
+        // consensus has one more block than skaled
+        // This happens when starting from a snapshot
+        // Since the snapshot is taken just before a block is processed
+        try {
+            auto block = getNode()->getBlockDB()->getBlock(_lastCommittedBlockIDInConsensus, getCryptoManager());
+            if (block != nullptr) {
+                // we have one more block in consensus, so we push it out
+
+                pushBlockToExtFace(block);
+                _lastCommittedBlockID = _lastCommittedBlockID + 1;
+            }
+        }
+        catch (...) {
+            // Cant read the block form db, may be it is corrupt in the  snapshot
+            LOG(err, "Bootstrap could not read block from db");
+            // The block will be pulled by catchup
+        }
+    } else {
+// catch situations that should never happen
+        if (_lastCommittedBlockIDInConsensus < _lastCommittedBlockID) {
+            BOOST_THROW_EXCEPTION(InvalidStateException("_lastCommittedBlockIDInConsensus < _lastCommittedBlockID",
+                                                        __CLASS_NAME__));
+        }
+
+        if (_lastCommittedBlockIDInConsensus > _lastCommittedBlockID + 1) {
+            BOOST_THROW_EXCEPTION(InvalidStateException("_lastCommittedBlockIDInConsensus > _lastCommittedBlockID + 1",
+                                                        __CLASS_NAME__));
+        }
+
+    }
+
     MONITOR2(__CLASS_NAME__, __FUNCTION__, getMaxExternalBlockProcessingTime())
+
+// Step 2 : Bootstrap
 
     try {
         ASSERT(bootStrapped == false);
         bootStrapped = true;
-        bootstrapBlockID.store((uint64_t) _lastCommittedBlockID);
+        bootstrapBlockID.
+                store((uint64_t)
+                              _lastCommittedBlockID);
         ASSERT(_lastCommittedBlockTimeStamp < (uint64_t) 2 * MODERN_TIME);
 
         LOCK(m)
@@ -605,19 +649,33 @@ void Schain::bootstrap(block_id _lastCommittedBlockID, uint64_t _lastCommittedBl
 
 
         LOG(info, "Jump starting the system with block:" + to_string(_lastCommittedBlockID));
-        if (getLastCommittedBlockID() == 0)
-            this->pricingAgent->calculatePrice(ConsensusExtFace::transactions_vector(), 0, 0, 0);
+        if (
 
-       proposeNextBlock(lastCommittedBlockTimeStamp, lastCommittedBlockTimeStampMs);
-       auto proposalVector =  getNode()->getProposalVectorDB()->getVector(_lastCommittedBlockID + 1);
-       if (proposalVector) {
-           auto messages = getNode()->getOutgoingMsgDB()->getMessages(_lastCommittedBlockID + 1);
-           for (auto && m : *messages) {
-               getNode()->getNetwork()->broadcastMessage(m);
-           }
-       }
+                getLastCommittedBlockID()
 
-    } catch (exception &e) {
+                == 0)
+            this->pricingAgent->
+
+                    calculatePrice(ConsensusExtFace::transactions_vector(),
+
+                                   0, 0, 0);
+
+        proposeNextBlock(lastCommittedBlockTimeStamp, lastCommittedBlockTimeStampMs
+        );
+        auto proposalVector = getNode()->getProposalVectorDB()->getVector(_lastCommittedBlockID + 1);
+        if (proposalVector) {
+            auto messages = getNode()->getOutgoingMsgDB()->getMessages(_lastCommittedBlockID + 1);
+            for (
+                auto &&m
+                    : *messages) {
+                getNode()->getNetwork()->
+                        broadcastMessage(m);
+            }
+        }
+
+    } catch (
+            exception &e
+    ) {
         Exception::logNested(e);
         return;
     }
@@ -643,12 +701,14 @@ void Schain::healthCheck() {
             }
         }
 
-
         if (Time::getCurrentTimeSec() - beginTime > 15000) {
             setHealthCheckFile(0);
             LOG(err, "Coult not connect to 2/3 of peers");
             exit(110);
         }
+
+
+        usleep(1000000);
 
         for (int i = 1; i <= getNodeCount(); i++) {
             if (i != (getSchainIndex()) && !connections.count(i)) {
@@ -663,7 +723,6 @@ void Schain::healthCheck() {
                 } catch (ExitRequestedException &) {
                     throw;
                 } catch (std::exception &e) {
-                    usleep(100000);
                 }
             }
         }
@@ -725,7 +784,14 @@ void Schain::decideBlock(block_id _blockId, schain_index _proposerIndex, ptr<Thr
 
     CHECK_ARGUMENT(_thresholdSig != nullptr);
 
+
     MONITOR2(__CLASS_NAME__, __FUNCTION__, getMaxExternalBlockProcessingTime())
+
+
+    if (_blockId <= getLastCommittedBlockID()) {
+        LOG(info, "Ignoring old block decide, already got this through catchup: BLOCK_ID:" + to_string(_blockId) + ":PRP:" + to_string(_proposerIndex));
+        return;
+    }
 
 
     LOG(debug, "decideBlock:" + to_string(_blockId) + ":PRP:" + to_string(_proposerIndex));
@@ -740,7 +806,6 @@ void Schain::decideBlock(block_id _blockId, schain_index _proposerIndex, ptr<Thr
     try {
 
         if (_proposerIndex == 0) {
-
 
             proposal = createEmptyBlockProposal(_blockId);
             haveProof = true; // empty proposals donot need DAP proofs

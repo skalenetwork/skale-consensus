@@ -73,6 +73,7 @@
 #include "datastructures/BlockProposalSet.h"
 #include "datastructures/BlockProposal.h"
 #include "db/BlockProposalDB.h"
+#include "db/DAProofDB.h"
 #include "monitoring/LivelinessMonitor.h"
 #include "exceptions/NetworkProtocolException.h"
 #include "headers/BlockProposalRequestHeader.h"
@@ -121,7 +122,8 @@ uint64_t BlockFinalizeDownloader::downloadFragment(schain_index _dstIndex, fragm
 
     try {
 
-        auto header = make_shared<BlockFinalizeRequestHeader>(*sChain, blockId, proposerIndex, _fragmentIndex);
+        auto header = make_shared<BlockFinalizeRequestHeader>(*sChain, blockId, proposerIndex,
+                this->getNode()->getNodeID(), _fragmentIndex);
         auto socket = make_shared<ClientSocket>(*sChain, _dstIndex, CATCHUP);
         auto io = getSchain()->getIo();
 
@@ -262,34 +264,46 @@ BlockFinalizeDownloader::readBlockFragment(ptr<ClientSocket> _socket, nlohmann::
 
 void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(BlockFinalizeDownloader *agent, schain_index _dstIndex) {
 
-    setThreadName("BlckFinLoop", agent->getSchain()->getNode()->getConsensusEngine());
+    auto sChain = agent->getSchain();
+    auto node = sChain->getNode();
+    auto proposalDB = node->getBlockProposalDB();
+    auto daProofDB = node->getDaProofDB();
+    auto blockId = agent->getBlockId();
+    auto proposerIndex = agent->getProposerIndex();
+    auto sChainIndex = sChain->getSchainIndex();
+    bool testFinalizationDownloadOnly = node->getTestConfig()->isFinalizationDownloadOnly();
+
+    setThreadName("BlckFinLoop", node->getConsensusEngine());
 
     uint64_t next = (uint64_t) _dstIndex;
 
-    agent->getSchain()->getNode()->waitOnGlobalClientStartBarrier();
+    node->waitOnGlobalClientStartBarrier();
 
-    if (next > (uint64_t) agent->getSchain()->getSchainIndex())
+    if (next > (uint64_t) sChainIndex)
         next--;
-
-    auto sChain = agent->getSchain();
-
-    bool testFinalizationDownloadOnly = agent->getSchain()->getNode()->getTestConfig()->isFinalizationDownloadOnly();
-
 
     try {
 
-        while (!sChain->getNode()->isExitRequested()) {
+        while (!node->isExitRequested()) {
 
             if (!testFinalizationDownloadOnly) {
-                // take into account that the same block can come through catchup
-                if (agent->getSchain()->getLastCommittedBlockID() >= agent->blockId ||
-                    agent->getSchain()->getNode()->getBlockProposalDB()->proposalExists(
-                            agent->blockId,
-                            agent->proposerIndex)) {
+                // take into account that the block can
+                //  be in parralel committed through catchup
+                if (sChain->getLastCommittedBlockID() >= blockId) {
                     return;
                 }
-            }
 
+                // take into account that the proposal and da proof can arrive through
+                // BlockproposalServerAgent
+
+                if (proposalDB->proposalExists(blockId, proposerIndex)) {
+                    auto proposal = proposalDB->getBlockProposal(agent->blockId, agent->proposerIndex);
+                    if (daProofDB->haveDAProof(proposal)) {
+                        return;
+                    }
+                }
+
+            }
 
             try {
                 next = agent->downloadFragment(_dstIndex, next);
@@ -298,16 +312,16 @@ void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(BlockFinalizeDown
                 }
             } catch (ExitRequestedException &) {
                 return;
-            }   catch (ConnectionRefusedException& e) {
+            } catch (ConnectionRefusedException &e) {
                 agent->logConnectionRefused(e, _dstIndex);
-                usleep( agent->getNode()->getWaitAfterNetworkErrorMs() * 1000 );
+                usleep(node->getWaitAfterNetworkErrorMs() * 1000);
             } catch (exception &e) {
                 Exception::logNested(e);
-                usleep( agent->getNode()->getWaitAfterNetworkErrorMs() * 1000 );
-            }
+                usleep(node->getWaitAfterNetworkErrorMs() * 1000);
+            };
         };
     } catch (FatalError *e) {
-        agent->getSchain()->getNode()->exitOnFatalError(e->getMessage());
+        node->exitOnFatalError(e->getMessage());
     }
 }
 
@@ -340,6 +354,14 @@ ptr<BlockProposal> BlockFinalizeDownloader::downloadProposal() {
 
 BlockFinalizeDownloader::~BlockFinalizeDownloader() {
 
+}
+
+block_id BlockFinalizeDownloader::getBlockId() {
+    return blockId;
+}
+
+schain_index BlockFinalizeDownloader::getProposerIndex() {
+    return proposerIndex;
 }
 
 

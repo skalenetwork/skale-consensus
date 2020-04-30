@@ -1,6 +1,5 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.10)
 
-include_directories(.)
 
 option(COVERAGE "Build with code coverage support" OFF)
 if (COVERAGE)
@@ -16,8 +15,6 @@ if (COVERAGE)
     set(CMAKE_EXE_LINKER_FLAGS "--coverage ${CMAKE_EXE_LINKER_FLAGS}")
 endif ()
 
-add_subdirectory(libBLS)
-
 if( NOT DEFINED DEPS_INSTALL_ROOT )
     set( DEPS_SOURCES_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/libBLS/deps")
     set( DEPS_INSTALL_ROOT "${DEPS_SOURCES_ROOT}/deps_inst/x86_or_x64")
@@ -30,20 +27,21 @@ include("cmake/precompiledheader.cmake")
 
 HunterGate(URL "https://github.com/ruslo/hunter/archive/v0.23.76.tar.gz" SHA1 "c7b60993e841850e2c449afd454f5d5aa4ec04e4")
 
+add_subdirectory( libBLS )
 
 project(consensus)
 
-include_directories( "${DEPS_INSTALL_ROOT}/include" ${CMAKE_BINARY_DIR}/deps/include )
-link_directories( "${DEPS_INSTALL_ROOT}/lib" )
+include_directories( "${DEPS_INSTALL_ROOT}/include" "${DEPS_INSTALL_ROOT}/include/cryptopp" )
+link_directories( "${DEPS_INSTALL_ROOT}/lib")
 set( CMAKE_PREFIX_PATH "${DEPS_INSTALL_ROOT}" )
 
 find_library( FF_LIBRARY NAMES "ff" PATHS "${DEPS_INSTALL_ROOT}/lib" )
 
 # zeromq
 
-hunter_add_package(ZeroMQ)
 
-find_package(ZeroMQ CONFIG REQUIRED)
+#find_package(оч CONFIG REQUIRED)
+
 
 #leveldb
 
@@ -53,26 +51,20 @@ find_package(leveldb CONFIG REQUIRED)
 
 #set (CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-Wreturn-type -Winit-self")
 
-if (SKALED_LATEST_STANDARD)
-    set(CMAKE_CXX_STANDARD 17)
-    set(LIB_NAME_cryptopp "cryptopp")
-else ()
-    set(CMAKE_CXX_STANDARD 17)
-    hunter_add_package(cryptopp)
-    add_compile_options(-Wall -Wextra -Werror)
-    find_package(cryptopp CONFIG REQUIRED)
-    set(LIB_NAME_cryptopp "cryptopp-static")
-endif ()
 
+set(CMAKE_CXX_STANDARD 17)
+add_compile_options(-Wall -Wextra -Werror)
 add_definitions("-DZMQ_BUILD_DRAFT_API")
 
 add_definitions("-DZMQ_EXPERIMENTAL")
 add_definitions("-DZMQ_NONBLOCKING")
 
+
 #add_definitions(-DGOOGLE_PROFILE) // uncomment to profile
 
 
 if (CMAKE_PROJECT_NAME STREQUAL "consensus")
+    unset(SKALE_HAVE_BOOST_FROM_HUNTER)
     # to install compiler cache:  sudo apt-get install ccache
     find_program(CCACHE_FOUND ccache)
     if (CCACHE_FOUND)
@@ -93,11 +85,10 @@ find_package(Threads REQUIRED)
 set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_MULTITHREADED ON)
 
-hunter_add_package(Boost COMPONENTS filesystem system thread log random program_options)
-find_package(Boost CONFIG REQUIRED filesystem system thread log random program_options)
 
-hunter_add_package(spdlog)
-find_package(spdlog)
+
+#hunter_add_package(Boost COMPONENTS filesystem system thread log random program_options)
+#find_package(Boost CONFIG REQUIRED filesystem system thread log random program_options)
 
 #Source dirs
 
@@ -169,8 +160,10 @@ SET(SRC_FILES
         ${utils_src}
         Agent.h Agent.cpp SkaleCommon.h SkaleCommon.cpp Log.h Log.cpp microprofile.cpp miniz.c)
 
-include_directories( ${BLS_INCLUDE_DIRS} "${DEPS_INSTALL_ROOT}/include" )
-link_directories( "${DEPS_INSTALL_ROOT}/lib" )
+
+include_directories(. spdlog/include ${BLS_INCLUDE_DIRS} ${DEPS_INSTALL_ROOT}/include libBLS/bls libBLS
+        "${DEPS_INSTALL_ROOT}/include" ${CMAKE_BINARY_DIR}/deps/include)
+
 
 if( SKALE_HAVE_BOOST_FROM_HUNTER )
     set( BOOST_LIBS_4_CONSENSUS
@@ -183,20 +176,42 @@ else()
             )
 endif()
 
+set( DASH_D_SUFFIX "" )
+if( ${CMAKE_BUILD_TYPE} MATCHES "Debug" )
+    set( DASH_SUFFIX "-d" )
+endif()
+
+
 SET( LINK_LIBRARIES
-        Threads::Threads
-        ${BOOST_LIBS_4_CONSENSUS}
-        ${LIB_NAME_cryptopp} ZeroMQ::libzmq-static leveldb::leveldb bls ${FF_LIBRARY}
-        )
+    Threads::Threads
+    ${BOOST_LIBS_4_CONSENSUS}
+    ${LIB_NAME_cryptopp}
+    leveldb::leveldb
+    "${DEPS_INSTALL_ROOT}/lib/libjsonrpccpp-client.a"
+    "${DEPS_INSTALL_ROOT}/lib/libjsonrpccpp-stub.a"
+    "${DEPS_INSTALL_ROOT}/lib/libjsonrpccpp-common.a"
+    bls # "${CMAKE_CURRENT_SOURCE_DIR}/libBLS/build/libbls.a"
+    "${DEPS_INSTALL_ROOT}/lib/libzmq.a"
+    ${FF_LIBRARY}
+    "${DEPS_INSTALL_ROOT}/lib/libcryptopp.a"
+    gmp
+    gcov
+    "${DEPS_INSTALL_ROOT}/lib/libcurl${DASH_D_SUFFIX}.a"
+    "${DEPS_INSTALL_ROOT}/lib/libjsoncpp.a"
+    "${DEPS_INSTALL_ROOT}/lib/libssl.a"
+    "${DEPS_INSTALL_ROOT}/lib/libcrypto.a"
+    dl
+    z
+    pthread
+    )
 
 
 # consensus library
 
-add_library(consensus ${SRC_FILES})
+add_library(consensus STATIC ${SRC_FILES})
 
-target_link_libraries(consensus ${LINK_LIBRARIES})
+target_link_libraries(consensus  ${LINK_LIBRARIES})
 add_precompiled_header(consensus SkaleCommon.h FORCE_INCLUDE)
-add_dependencies(consensus bls)
 
 # consensus test agent
 
@@ -205,11 +220,12 @@ add_executable(consensusd Consensusd.h Consensusd.cpp)
 # libgoogle-perftools-dev
 if (CMAKE_PROJECT_NAME STREQUAL "consensus")
 
+    include_directories( ${DEPS_INSTALL_ROOT}/include )
     #  sudo apt-get install -qq -yy libgoogle-perftools-dev
 
-    target_link_libraries(consensusd consensus tcmalloc)
+    target_link_libraries(consensusd  consensus tcmalloc)
 else ()
-    target_link_libraries(consensusd consensus)
+    target_link_libraries(consensusd  consensus)
 endif ()
 
 

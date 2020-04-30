@@ -25,6 +25,7 @@
 
 #include "abstracttcpclient/AbstractClientAgent.h"
 #include "pendingqueue/PendingTransactionsAgent.h"
+#include "thirdparty/lrucache.hpp"
 
 
 class ClientSocket;
@@ -44,10 +45,12 @@ class FinalProposalResponseHeader;
 
 class BlockProposalClientAgent : public AbstractClientAgent {
 
+    ptr<cache::lru_cache<uint64_t, ptr<list<pair<ConnectionStatus, ConnectionSubStatus>>>>> sentProposals;
+
     friend class BlockProposalPusherThreadPool;
 
 
-    ptr<MissingTransactionsRequestHeader> readAndProcessMissingTransactionsRequestHeader(ptr<ClientSocket> _socket);
+    ptr<MissingTransactionsRequestHeader> readMissingTransactionsRequestHeader(ptr<ClientSocket> _socket);
 
 
     ptr<FinalProposalResponseHeader> readAndProcessFinalProposalResponseHeader(ptr<ClientSocket> _socket);
@@ -57,15 +60,16 @@ class BlockProposalClientAgent : public AbstractClientAgent {
     readMissingHashes(ptr<ClientSocket> _socket, uint64_t _count);
 
 
-    void sendItemImpl(ptr<DataStructure> _item, shared_ptr<ClientSocket> _socket, schain_index _index);
+    pair<ConnectionStatus, ConnectionSubStatus>
+    sendItemImpl(ptr<DataStructure> _item, shared_ptr<ClientSocket> _socket, schain_index _index);
 
-    void sendBlockProposal(ptr<BlockProposal> _proposal, shared_ptr<ClientSocket> socket,
-                           schain_index _index);
+    pair<ConnectionStatus, ConnectionSubStatus> sendBlockProposal(ptr<BlockProposal> _proposal, shared_ptr<ClientSocket> socket,
+                                                                  schain_index _index);
 
     ptr<BlockProposal> corruptProposal(ptr<BlockProposal> _proposal, schain_index _index);
 
-    void sendDAProof(
-            ptr<DAProof> _daProof, shared_ptr<ClientSocket> socket);
+    pair<ConnectionStatus, ConnectionSubStatus> sendDAProof(
+            ptr<DAProof> _daProof, shared_ptr<ClientSocket> _socket);
 
 
 

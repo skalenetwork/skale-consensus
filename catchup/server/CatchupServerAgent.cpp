@@ -126,7 +126,7 @@ void CatchupServerAgent::processNextAvailableConnection(ptr<ServerConnection> _c
     } else if (type->compare(Header::BLOCK_FINALIZE_REQ) == 0) {
         responseHeader = make_shared<BlockFinalizeResponseHeader>();
     } else {
-        responseHeader->setStatusSubStatus(CONNECTION_SERVER_ERROR, CONNECTION_ERROR_INVALID_REQUEST_TYPE);
+        responseHeader->setStatusSubStatus(CONNECTION_ERROR, CONNECTION_ERROR_INVALID_REQUEST_TYPE);
         BOOST_THROW_EXCEPTION(
                 InvalidMessageFormatException("Unknown request type:" + *type, __CLASS_NAME__));
     }
@@ -139,7 +139,7 @@ void CatchupServerAgent::processNextAvailableConnection(ptr<ServerConnection> _c
     catch (ExitRequestedException &) { throw; }
     catch (...) {
         try {
-            responseHeader->setStatus(CONNECTION_SERVER_ERROR);
+            responseHeader->setStatusSubStatus(CONNECTION_ERROR, CONNECTION_SUBSTATUS_UNKNOWN);
             responseHeader->setComplete();
             send(_connection, responseHeader);
         } catch (ExitRequestedException &) {
@@ -185,7 +185,7 @@ void CatchupServerAgent::processNextAvailableConnection(ptr<ServerConnection> _c
 }
 
 
-ptr<vector<uint8_t>> CatchupServerAgent::createResponseHeaderAndBinary(ptr<ServerConnection> _connectionEnvelope,
+ptr<vector<uint8_t>> CatchupServerAgent::createResponseHeaderAndBinary(ptr<ServerConnection> ,
                                                                        nlohmann::json _jsonRequest,
                                                                        ptr<Header> &_responseHeader) {
 
@@ -193,22 +193,23 @@ ptr<vector<uint8_t>> CatchupServerAgent::createResponseHeaderAndBinary(ptr<Serve
 
         schain_id schainID = Header::getUint64(_jsonRequest, "schainID");
         block_id blockID = Header::getUint64(_jsonRequest, "blockID");
+        node_id nodeID = Header::getUint64(_jsonRequest, "nodeID");
 
 
         if (sChain->getSchainID() != schainID) {
-            _responseHeader->setStatusSubStatus(CONNECTION_SERVER_ERROR, CONNECTION_ERROR_UNKNOWN_SCHAIN_ID);
-
+            _responseHeader->setStatusSubStatus(CONNECTION_ERROR, CONNECTION_ERROR_UNKNOWN_SCHAIN_ID);
             BOOST_THROW_EXCEPTION(InvalidSchainException("Incorrect schain " + to_string(schainID), __CLASS_NAME__));
 
         };
 
 
-        ptr<NodeInfo> nmi = sChain->getNode()->getNodeInfoByIP(_connectionEnvelope->getIP());
+        ptr<NodeInfo> nmi = sChain->getNode()->getNodeInfoById(nodeID);
 
         if (nmi == nullptr) {
-            _responseHeader->setStatusSubStatus(CONNECTION_SERVER_ERROR, CONNECTION_ERROR_DONT_KNOW_THIS_NODE);
+            _responseHeader->setStatusSubStatus(CONNECTION_ERROR, CONNECTION_ERROR_DONT_KNOW_THIS_NODE);
             BOOST_THROW_EXCEPTION(
-                    InvalidSourceIPException("Could not find node info for IP " + *_connectionEnvelope->getIP()));
+                    InvalidNodeIDException("Could not find node info for NODE_ID:" + to_string((uint64_t) nodeID),
+                            __CLASS_NAME__));
         }
 
         auto type = Header::getString(_jsonRequest, "type");
@@ -261,7 +262,7 @@ ptr<vector<uint8_t>> CatchupServerAgent::createBlockCatchupResponse(nlohmann::js
 
         if (_blockID >= committedBlockID) {
             LOG(debug, "Catchups: blockID >= committedBlockID");
-            _responseHeader->setStatus(CONNECTION_DISCONNECT);
+            _responseHeader->setStatusSubStatus(CONNECTION_DISCONNECT, CONNECTION_OK);
             _responseHeader->setComplete();
             return nullptr;
         }
@@ -276,7 +277,7 @@ ptr<vector<uint8_t>> CatchupServerAgent::createBlockCatchupResponse(nlohmann::js
             auto serializedBlock = getSchain()->getNode()->getBlockDB()->getSerializedBlockFromLevelDB(i);
 
             if (!serializedBlock) {
-                _responseHeader->setStatus(CONNECTION_DISCONNECT);
+                _responseHeader->setStatusSubStatus(CONNECTION_DISCONNECT, CONNECTION_CATCHUP_DONT_HAVE_THIS_BLOCK );
                 _responseHeader->setComplete();
                 return nullptr;
             }
@@ -289,7 +290,7 @@ ptr<vector<uint8_t>> CatchupServerAgent::createBlockCatchupResponse(nlohmann::js
 
         serializedBlocks->push_back(']');
 
-        _responseHeader->setStatus(CONNECTION_PROCEED);
+        _responseHeader->setStatusSubStatus(CONNECTION_PROCEED, CONNECTION_OK);
 
         _responseHeader->setBlockSizes(blockSizes);
 
@@ -332,8 +333,8 @@ ptr<vector<uint8_t>> CatchupServerAgent::createBlockFinalizeResponse(nlohmann::j
         auto proposal = getSchain()->getBlockProposal(_blockID, proposerIndex);
 
         if (proposal == nullptr) {
-            LOG(err, "Dont have proposal:" + to_string(proposerIndex));
-            _responseHeader->setStatusSubStatus(CONNECTION_DISCONNECT, CONNECTION_DONT_HAVE_PROPOSAL);
+            LOG(trace, "Dont have proposal:" + to_string(proposerIndex));
+            _responseHeader->setStatusSubStatus(CONNECTION_DISCONNECT, CONNECTION_FINALIZE_DONT_HAVE_PROPOSAL);
             _responseHeader->setComplete();
             return nullptr;
         }
@@ -352,7 +353,7 @@ ptr<vector<uint8_t>> CatchupServerAgent::createBlockFinalizeResponse(nlohmann::j
 
         CHECK_STATE(fragment != nullptr);
 
-        _responseHeader->setStatus(CONNECTION_PROCEED);
+        _responseHeader->setStatusSubStatus(CONNECTION_PROCEED, CONNECTION_OK);
 
         auto serializedFragment = fragment->serialize();
 

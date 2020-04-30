@@ -32,9 +32,9 @@ void Exception::logNested(const std::exception &e, int level)
 
 
     if (level == 0) {
-        prefix = "!Exception:";
+        prefix = "!Exception: ";
     } else {
-        prefix = "!Caused by:";
+        prefix = "!Caused by: ";
     }
 
     if ((dynamic_cast<const ExitRequestedException*>(&e) != nullptr)) {
