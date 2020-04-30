@@ -19,7 +19,6 @@ if( NOT DEFINED DEPS_INSTALL_ROOT )
     set( DEPS_SOURCES_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/libBLS/deps")
     set( DEPS_INSTALL_ROOT "${DEPS_SOURCES_ROOT}/deps_inst/x86_or_x64")
 endif()
-
 message(INFO "---- DEPS_INSTALL_ROOT in consensus is: ${DEPS_INSTALL_ROOT}")
 
 include("cmake/HunterGate.cmake")
@@ -28,10 +27,11 @@ include("cmake/precompiledheader.cmake")
 
 HunterGate(URL "https://github.com/ruslo/hunter/archive/v0.23.76.tar.gz" SHA1 "c7b60993e841850e2c449afd454f5d5aa4ec04e4")
 
+add_subdirectory( libBLS )
 
 project(consensus)
 
-link_directories( "${DEPS_INSTALL_ROOT}/lib libBLS/build libzmq/build/lib" )
+include_directories( "${DEPS_INSTALL_ROOT}/include" "${DEPS_INSTALL_ROOT}/include/cryptopp" )
 link_directories( "${DEPS_INSTALL_ROOT}/lib")
 set( CMAKE_PREFIX_PATH "${DEPS_INSTALL_ROOT}" )
 
@@ -161,8 +161,7 @@ SET(SRC_FILES
         Agent.h Agent.cpp SkaleCommon.h SkaleCommon.cpp Log.h Log.cpp microprofile.cpp miniz.c)
 
 
-include_directories(. spdlog/include ${BLS_INCLUDE_DIRS} ./libzmq/include libjson-rpc-cpp/src libjson-rpc-cpp/build/gen
-        cryptopp libjson-rpc-cpp/build/gen/jsonrpccpp/common libBLS/bls libBLS jsoncpp/include
+include_directories(. spdlog/include ${BLS_INCLUDE_DIRS} ${DEPS_INSTALL_ROOT}/include libBLS/bls libBLS
         "${DEPS_INSTALL_ROOT}/include" ${CMAKE_BINARY_DIR}/deps/include)
 
 
@@ -177,21 +176,34 @@ else()
             )
 endif()
 
+set( DASH_D_SUFFIX "" )
+if( ${CMAKE_BUILD_TYPE} MATCHES "Debug" )
+    set( DASH_SUFFIX "-d" )
+endif()
+
+
 SET( LINK_LIBRARIES
-        Threads::Threads
-        ${BOOST_LIBS_4_CONSENSUS}
-        ${LIB_NAME_cryptopp} leveldb::leveldb
-        "${CMAKE_CURRENT_SOURCE_DIR}/libjson-rpc-cpp/build/lib/libjsonrpccpp-client.a"
-        "${CMAKE_CURRENT_SOURCE_DIR}/libjson-rpc-cpp/build/lib/libjsonrpccpp-stub.a"
-        "${CMAKE_CURRENT_SOURCE_DIR}/libjson-rpc-cpp/build/lib/libjsonrpccpp-common.a"
-        "${CMAKE_CURRENT_SOURCE_DIR}/libBLS/build/libbls.a"
-        "${CMAKE_CURRENT_SOURCE_DIR}/libzmq/build/lib/libzmq.a"
-        ${FF_LIBRARY}
-        ${CMAKE_CURRENT_SOURCE_DIR}/cryptopp/libcryptopp.a gmp gcov
-        ${CMAKE_CURRENT_SOURCE_DIR}/curl/build/lib/libcurl-d.a
-        ${CMAKE_CURRENT_SOURCE_DIR}/jsoncpp/build/src/lib_json/libjsoncpp.a
-        "${CMAKE_CURRENT_SOURCE_DIR}/libBLS/deps/openssl/libssl.a"
-        "${CMAKE_CURRENT_SOURCE_DIR}/libBLS/deps/openssl/libcrypto.a" dl z pthread)
+    Threads::Threads
+    ${BOOST_LIBS_4_CONSENSUS}
+    ${LIB_NAME_cryptopp}
+    leveldb::leveldb
+    "${DEPS_INSTALL_ROOT}/lib/libjsonrpccpp-client.a"
+    "${DEPS_INSTALL_ROOT}/lib/libjsonrpccpp-stub.a"
+    "${DEPS_INSTALL_ROOT}/lib/libjsonrpccpp-common.a"
+    bls # "${CMAKE_CURRENT_SOURCE_DIR}/libBLS/build/libbls.a"
+    "${DEPS_INSTALL_ROOT}/lib/libzmq.a"
+    ${FF_LIBRARY}
+    "${DEPS_INSTALL_ROOT}/lib/libcryptopp.a"
+    gmp
+    gcov
+    "${DEPS_INSTALL_ROOT}/lib/libcurl${DASH_D_SUFFIX}.a"
+    "${DEPS_INSTALL_ROOT}/lib/libjsoncpp.a"
+    "${DEPS_INSTALL_ROOT}/lib/libssl.a"
+    "${DEPS_INSTALL_ROOT}/lib/libcrypto.a"
+    dl
+    z
+    pthread
+    )
 
 
 # consensus library
@@ -208,7 +220,7 @@ add_executable(consensusd Consensusd.h Consensusd.cpp)
 # libgoogle-perftools-dev
 if (CMAKE_PROJECT_NAME STREQUAL "consensus")
 
-    include_directories(curl/include)
+    include_directories( ${DEPS_INSTALL_ROOT}/include )
     #  sudo apt-get install -qq -yy libgoogle-perftools-dev
 
     target_link_libraries(consensusd  consensus tcmalloc)

@@ -98,3 +98,5 @@ consensus_pch/
 consensusd
 libconsensusd.a
 libBLS/
+/build
+

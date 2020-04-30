@@ -50,7 +50,7 @@ jobs:
           php7.4-tidy php7.4-xml php7.4-xmlrpc php7.4-xsl php7.4-zip php-amqp php-apcu \
           php-igbinary php-memcache php-memcached php-mongodb php-redis php-xdebug \
           php-zmq snmp pollinate libpq-dev postgresql-client powershell ruby-full \
-          sphinxsearch subversion mongodb-org > /dev/null 2>&1;
+          sphinxsearch subversion mongodb-org || true > /dev/null 2>&1;
     - name: Cleanup
       run: |
         sudo apt-get autoremove -y >/dev/null 2>&1 && \
@@ -79,10 +79,15 @@ jobs:
         key: ${ { matrix.config.name } }-ccache-${ { steps.ccache_cache_timestamp.outputs.timestamp } }
         restore-keys: |
               ${ { matrix.config.name } }-ccache-
-    - name: build deps
-      run: cd scripts && ./build_deps.sh  > /tmp/log_of_build_deps.txt   2>&1 || ( tail -1000 /tmp/log_of_build_deps.txt && false );
+    - name: build dependencies
+      run: |
+        sudo apt-get install nettle-dev gnutls-dev
+        cd deps && ./build.sh && cd ..
     - name: build consensus
       run: cd scripts && ./build.py Debug > /tmp/log_of_build.txt   2>&1 || ( tail -1000 /tmp/log_of_build.txt && false );
     - name: run tests
-      run: cd scripts && ./tests.py
+      run: |
+        cd scripts
+        ulimit -n 65535
+        ./tests.py
 
