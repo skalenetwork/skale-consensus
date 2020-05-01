@@ -24,12 +24,10 @@
 #pragma once
 
 
-
-
 #include <arpa/inet.h>
 #include <mutex>
-
 #include <memory>
+#include "SkaleCommon.h"
 #include "node/Node.h"
 
 

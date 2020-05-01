@@ -21,8 +21,8 @@
     @date 2018
 */
 
-#include <unordered_set>
 #include "leveldb/db.h"
+#include <unordered_set>
 
 #include "Log.h"
 #include "SkaleCommon.h"
@@ -31,96 +31,93 @@
 #include "thirdparty/json.hpp"
 
 
-#include "db/MsgDB.h"
-#include "utils/Time.h"
 #include "abstracttcpserver/ConnectionStatus.h"
+#include "blockproposal/pusher/BlockProposalClientAgent.h"
+#include "db/MsgDB.h"
 #include "exceptions/InvalidStateException.h"
-#include "node/ConsensusEngine.h"
+#include "headers/BlockProposalRequestHeader.h"
+#include "network/Network.h"
 #include "node/ConsensusEngine.h"
 #include "node/Node.h"
-#include "blockproposal/pusher/BlockProposalClientAgent.h"
-#include "headers/BlockProposalRequestHeader.h"
 #include "pendingqueue/PendingTransactionsAgent.h"
-#include "network/TransportNetwork.h"
+#include "utils/Time.h"
 
 #include "blockfinalize/client/BlockFinalizeDownloader.h"
 #include "blockproposal/server/BlockProposalServerAgent.h"
-#include "datastructures/BooleanProposalVector.h"
 #include "catchup/client/CatchupClientAgent.h"
 #include "catchup/server/CatchupServerAgent.h"
-#include "crypto/ThresholdSignature.h"
-#include "monitoring/MonitoringAgent.h"
 #include "crypto/ConsensusBLSSigShare.h"
-#include "exceptions/EngineInitException.h"
-#include "exceptions/ParsingException.h"
-#include "messages/InternalMessageEnvelope.h"
-#include "messages/Message.h"
-#include "messages/MessageEnvelope.h"
-#include "messages/NetworkMessageEnvelope.h"
-#include "node/NodeInfo.h"
-#include "db/BlockProposalDB.h"
-#include "db/DAProofDB.h"
-#include "db/DASigShareDB.h"
-#include "db/ProposalVectorDB.h"
-#include "network/Sockets.h"
-#include "protocols/ProtocolInstance.h"
-#include "protocols/blockconsensus/BlockConsensusAgent.h"
-#include "network/ClientSocket.h"
-#include "network/IO.h"
-#include "network/ZMQServerSocket.h"
 #include "crypto/SHAHash.h"
+#include "crypto/ThresholdSignature.h"
 #include "datastructures/BlockProposal.h"
 #include "datastructures/BlockProposalSet.h"
+#include "datastructures/BooleanProposalVector.h"
 #include "datastructures/CommittedBlock.h"
 #include "datastructures/CommittedBlockList.h"
+#include "datastructures/DAProof.h"
 #include "datastructures/MyBlockProposal.h"
 #include "datastructures/ReceivedBlockProposal.h"
 #include "datastructures/Transaction.h"
 #include "datastructures/TransactionList.h"
-#include "datastructures/DAProof.h"
+#include "db/BlockProposalDB.h"
+#include "db/DAProofDB.h"
+#include "db/DASigShareDB.h"
+#include "db/ProposalVectorDB.h"
+#include "exceptions/EngineInitException.h"
 #include "exceptions/ExitRequestedException.h"
-#include "messages/ConsensusProposalMessage.h"
 #include "exceptions/FatalError.h"
+#include "exceptions/ParsingException.h"
+#include "messages/ConsensusProposalMessage.h"
+#include "messages/InternalMessageEnvelope.h"
+#include "messages/Message.h"
+#include "messages/MessageEnvelope.h"
+#include "messages/NetworkMessageEnvelope.h"
+#include "monitoring/MonitoringAgent.h"
+#include "network/ClientSocket.h"
+#include "network/IO.h"
+#include "network/Sockets.h"
+#include "network/ZMQServerSocket.h"
+#include "node/NodeInfo.h"
 #include "pricing/PricingAgent.h"
+#include "protocols/ProtocolInstance.h"
+#include "protocols/blockconsensus/BlockConsensusAgent.h"
 
 
-#include "crypto/bls_include.h"
+#include "Schain.h"
+#include "SchainMessageThreadPool.h"
+#include "SchainTest.h"
+#include "TestConfig.h"
+#include "crypto/CryptoManager.h"
 #include "crypto/ThresholdSigShare.h"
+#include "crypto/bls_include.h"
 #include "db/BlockDB.h"
 #include "db/CacheLevelDB.h"
 #include "db/ProposalHashDB.h"
-#include "pendingqueue/TestMessageGeneratorAgent.h"
-#include "SchainTest.h"
 #include "libBLS/bls/BLSPrivateKeyShare.h"
 #include "monitoring/LivelinessMonitor.h"
-#include "crypto/CryptoManager.h"
-#include "SchainMessageThreadPool.h"
-#include "TestConfig.h"
-#include "Schain.h"
+#include "pendingqueue/TestMessageGeneratorAgent.h"
 
 
-void Schain::postMessage(ptr<MessageEnvelope> m) {
-
-    MONITOR(__CLASS_NAME__, __FUNCTION__)
+void Schain::postMessage( ptr< MessageEnvelope > m ) {
+    MONITOR( __CLASS_NAME__, __FUNCTION__ )
 
     checkForExit();
 
 
-    ASSERT(m);
-    ASSERT((uint64_t) m->getMessage()->getBlockId() != 0);
+    ASSERT( m );
+    ASSERT( ( uint64_t ) m->getMessage()->getBlockId() != 0 );
     {
-        lock_guard<mutex> lock(messageMutex);
-        messageQueue.push(m);
+        lock_guard< mutex > lock( messageMutex );
+        messageQueue.push( m );
         messageCond.notify_all();
     }
-
 }
 
 
-void Schain::messageThreadProcessingLoop(Schain *s) {
-    ASSERT(s);
+void Schain::messageThreadProcessingLoop( Schain* s ) {
+    ASSERT( s );
 
-    setThreadName("msgThreadProcLoop", s->getNode()->getConsensusEngine());
+    setThreadName( "msgThreadProcLoop", s->getNode()->getConsensusEngine() );
 
     s->waitOnGlobalStartBarrier();
 
@@ -130,14 +127,14 @@ void Schain::messageThreadProcessingLoop(Schain *s) {
 
         logThreadLocal_ = s->getNode()->getLog();
 
-        queue<ptr<MessageEnvelope> > newQueue;
+        queue< ptr< MessageEnvelope > > newQueue;
 
-        while (!s->getNode()->isExitRequested()) {
+        while ( !s->getNode()->isExitRequested() ) {
             {
-                unique_lock<mutex> mlock(s->messageMutex);
-                while (s->messageQueue.empty()) {
-                    s->messageCond.wait(mlock);
-                    if (s->getNode()->isExitRequested()) {
+                unique_lock< mutex > mlock( s->messageMutex );
+                while ( s->messageQueue.empty() ) {
+                    s->messageCond.wait( mlock );
+                    if ( s->getNode()->isExitRequested() ) {
                         s->getNode()->getSockets()->consensusZMQSocket->closeSend();
                         return;
                     }
@@ -145,24 +142,24 @@ void Schain::messageThreadProcessingLoop(Schain *s) {
 
                 newQueue = s->messageQueue;
 
-                while (!s->messageQueue.empty()) {
+                while ( !s->messageQueue.empty() ) {
                     s->messageQueue.pop();
                 }
             }
 
 
-            while (!newQueue.empty()) {
-                ptr<MessageEnvelope> m = newQueue.front();
-                ASSERT((uint64_t) m->getMessage()->getBlockId() != 0);
+            while ( !newQueue.empty() ) {
+                ptr< MessageEnvelope > m = newQueue.front();
+                ASSERT( ( uint64_t ) m->getMessage()->getBlockId() != 0 );
 
                 try {
-                    s->getBlockConsensusInstance()->routeAndProcessMessage(m);
-                } catch (exception &e) {
-                    if (s->getNode()->isExitRequested()) {
+                    s->getBlockConsensusInstance()->routeAndProcessMessage( m );
+                } catch ( exception& e ) {
+                    if ( s->getNode()->isExitRequested() ) {
                         s->getNode()->getSockets()->consensusZMQSocket->closeSend();
                         return;
                     }
-                    Exception::logNested(e);
+                    Exception::logNested( e );
                 }
 
                 newQueue.pop();
@@ -171,8 +168,8 @@ void Schain::messageThreadProcessingLoop(Schain *s) {
 
 
         s->getNode()->getSockets()->consensusZMQSocket->closeSend();
-    } catch (FatalError *e) {
-        s->getNode()->exitOnFatalError(e->getMessage());
+    } catch ( FatalError* e ) {
+        s->getNode()->exitOnFatalError( e->getMessage() );
     }
 }
 
@@ -182,577 +179,559 @@ void Schain::startThreads() {
 }
 
 
-Schain::Schain(weak_ptr<Node> _node, schain_index _schainIndex, const schain_id &_schainID, ConsensusExtFace *_extFace)
-        : Agent(
-        *this, true, true), totalTransactions(0), extFace(_extFace), schainID(_schainID), consensusMessageThreadPool(
-        new SchainMessageThreadPool(this)), node(_node), schainIndex(_schainIndex) {
-
+Schain::Schain( weak_ptr< Node > _node, schain_index _schainIndex, const schain_id& _schainID,
+    ConsensusExtFace* _extFace )
+    : Agent( *this, true, true ),
+      totalTransactions( 0 ),
+      extFace( _extFace ),
+      schainID( _schainID ),
+      consensusMessageThreadPool( new SchainMessageThreadPool( this ) ),
+      node( _node ),
+      schainIndex( _schainIndex ) {
     // construct monitoring agent early
-    monitoringAgent = make_shared<MonitoringAgent>(*this);
-    maxExternalBlockProcessingTime = std::max(2 * getNode()->getEmptyBlockIntervalMs(), (uint64_t) 3000);
+    monitoringAgent = make_shared< MonitoringAgent >( *this );
+    maxExternalBlockProcessingTime =
+        std::max( 2 * getNode()->getEmptyBlockIntervalMs(), ( uint64_t ) 3000 );
 
-    MONITOR(__CLASS_NAME__, __FUNCTION__)
+    MONITOR( __CLASS_NAME__, __FUNCTION__ )
 
-    ASSERT(schainIndex > 0);
+    ASSERT( schainIndex > 0 );
 
     try {
+        this->io = make_shared< IO >( this );
 
-        this->io = make_shared<IO>(this);
+        ASSERT( getNode()->getNodeInfosByIndex()->size() > 0 );
 
-        ASSERT(getNode()->getNodeInfosByIndex()->size() > 0);
-
-        for (auto const &iterator : *getNode()->getNodeInfosByIndex()) {
-            if (iterator.second->getNodeID() == getNode()->getNodeID()) {
-                ASSERT(thisNodeInfo == nullptr && iterator.second != nullptr);
+        for ( auto const& iterator : *getNode()->getNodeInfosByIndex() ) {
+            if ( iterator.second->getNodeID() == getNode()->getNodeID() ) {
+                ASSERT( thisNodeInfo == nullptr && iterator.second != nullptr );
                 thisNodeInfo = iterator.second;
             }
         }
 
-        if (thisNodeInfo == nullptr) {
-            BOOST_THROW_EXCEPTION(EngineInitException(
-                                          "Schain: " + to_string((uint64_t) getSchainID()) +
-                                          " does not include current node with IP " + *getNode()->getBindIP() +
-                                          "and node id " + to_string(getNode()->getNodeID()), __CLASS_NAME__));
+        if ( thisNodeInfo == nullptr ) {
+            BOOST_THROW_EXCEPTION( EngineInitException(
+                "Schain: " + to_string( ( uint64_t ) getSchainID() ) +
+                    " does not include current node with IP " + *getNode()->getBindIP() +
+                    "and node id " + to_string( getNode()->getNodeID() ),
+                __CLASS_NAME__ ) );
         }
 
-        ASSERT(getNodeCount() > 0);
+        ASSERT( getNodeCount() > 0 );
 
         constructChildAgents();
 
         string x = SchainTest::NONE;
 
-        blockProposerTest = make_shared<string>(x);
+        blockProposerTest = make_shared< string >( x );
 
-        getNode()->registerAgent(this);
+        getNode()->registerAgent( this );
 
 
-    } catch (ExitRequestedException &) { throw; } catch (...) {
-        throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
+    } catch ( ExitRequestedException& ) {
+        throw;
+    } catch ( ... ) {
+        throw_with_nested( FatalError( __FUNCTION__, __CLASS_NAME__ ) );
     }
-
-
 }
 
 
 void Schain::constructChildAgents() {
-
-    MONITOR(__CLASS_NAME__, __FUNCTION__)
+    MONITOR( __CLASS_NAME__, __FUNCTION__ )
 
     try {
-        LOCK(m)
-        pendingTransactionsAgent = make_shared<PendingTransactionsAgent>(*this);
-        blockProposalClient = make_shared<BlockProposalClientAgent>(*this);
-        catchupClientAgent = make_shared<CatchupClientAgent>(*this);
+        LOCK( m )
+        pendingTransactionsAgent = make_shared< PendingTransactionsAgent >( *this );
+        blockProposalClient = make_shared< BlockProposalClientAgent >( *this );
+        catchupClientAgent = make_shared< CatchupClientAgent >( *this );
 
 
-        testMessageGeneratorAgent = make_shared<TestMessageGeneratorAgent>(*this);
-        pricingAgent = make_shared<PricingAgent>(*this);
-        cryptoManager = make_shared<CryptoManager>(*this);
+        testMessageGeneratorAgent = make_shared< TestMessageGeneratorAgent >( *this );
+        pricingAgent = make_shared< PricingAgent >( *this );
+        cryptoManager = make_shared< CryptoManager >( *this );
 
-    } catch (...) {
-        throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
+    } catch ( ... ) {
+        throw_with_nested( FatalError( __FUNCTION__, __CLASS_NAME__ ) );
     }
 }
 
 
-void Schain::blockCommitsArrivedThroughCatchup(ptr<CommittedBlockList> _blocks) {
-    ASSERT(_blocks);
+void Schain::blockCommitsArrivedThroughCatchup( ptr< CommittedBlockList > _blocks ) {
+    ASSERT( _blocks );
 
     auto b = _blocks->getBlocks();
 
-    ASSERT(b);
+    ASSERT( b );
 
-    if (b->size() == 0) {
+    if ( b->size() == 0 ) {
         return;
     }
 
 
-    LOCK(m)
+    LOCK( m )
 
 
-    atomic<uint64_t> committedIDOld = (uint64_t) getLastCommittedBlockID();
+    atomic< uint64_t > committedIDOld = ( uint64_t ) getLastCommittedBlockID();
 
     uint64_t previosBlockTimeStamp = 0;
     uint64_t previosBlockTimeStampMs = 0;
 
 
-    ASSERT(b->at(0)->getBlockID() <= (uint64_t) getLastCommittedBlockID() + 1);
+    ASSERT( b->at( 0 )->getBlockID() <= ( uint64_t ) getLastCommittedBlockID() + 1 );
 
-    for (size_t i = 0; i < b->size(); i++) {
-        auto t = b->at(i);
+    for ( size_t i = 0; i < b->size(); i++ ) {
+        auto t = b->at( i );
 
-        if ((uint64_t) t->getBlockID() > getLastCommittedBlockID()) {
-            processCommittedBlock(t);
+        if ( ( uint64_t ) t->getBlockID() > getLastCommittedBlockID() ) {
+            processCommittedBlock( t );
             previosBlockTimeStamp = t->getTimeStamp();
             previosBlockTimeStampMs = t->getTimeStampMs();
         }
     }
 
-    if (committedIDOld < getLastCommittedBlockID()) {
-        LOG(info, "BLOCK_CATCHUP: " + to_string(getLastCommittedBlockID() - committedIDOld) + " BLOCKS");
-        proposeNextBlock(previosBlockTimeStamp, previosBlockTimeStampMs);
+    if ( committedIDOld < getLastCommittedBlockID() ) {
+        LOG( info, "BLOCK_CATCHUP: " + to_string( getLastCommittedBlockID() - committedIDOld ) +
+                       " BLOCKS" );
+        proposeNextBlock( previosBlockTimeStamp, previosBlockTimeStampMs );
     }
 }
 
 
-void Schain::blockCommitArrived(block_id _committedBlockID, schain_index _proposerIndex, uint64_t _committedTimeStamp,
-                                uint64_t _committedTimeStampMs, ptr<ThresholdSignature> _thresholdSig) {
-
-
-    MONITOR2(__CLASS_NAME__, __FUNCTION__, getMaxExternalBlockProcessingTime())
+void Schain::blockCommitArrived( block_id _committedBlockID, schain_index _proposerIndex,
+    uint64_t _committedTimeStamp, uint64_t _committedTimeStampMs,
+    ptr< ThresholdSignature > _thresholdSig ) {
+    MONITOR2( __CLASS_NAME__, __FUNCTION__, getMaxExternalBlockProcessingTime() )
 
     checkForExit();
 
-    ASSERT(_committedTimeStamp < (uint64_t) 2 * MODERN_TIME);
+    ASSERT( _committedTimeStamp < ( uint64_t ) 2 * MODERN_TIME );
 
-    LOCK(m)
+    LOCK( m )
 
 
-    if (_committedBlockID <= getLastCommittedBlockID())
+    if ( _committedBlockID <= getLastCommittedBlockID() )
         return;
 
-    ASSERT(_committedBlockID == (getLastCommittedBlockID() + 1) || getLastCommittedBlockID() == 0);
+    ASSERT(
+        _committedBlockID == ( getLastCommittedBlockID() + 1 ) || getLastCommittedBlockID() == 0 );
 
     try {
-
-        ptr<BlockProposal> committedProposal = nullptr;
+        ptr< BlockProposal > committedProposal = nullptr;
 
         lastCommittedBlockTimeStamp = _committedTimeStamp;
         lastCommittedBlockTimeStampMs = _committedTimeStampMs;
 
 
-        committedProposal = getNode()->getBlockProposalDB()->getBlockProposal(_committedBlockID, _proposerIndex);
-        ASSERT(committedProposal);
+        committedProposal =
+            getNode()->getBlockProposalDB()->getBlockProposal( _committedBlockID, _proposerIndex );
+        ASSERT( committedProposal );
 
-        auto newCommittedBlock = CommittedBlock::makeObject(committedProposal, _thresholdSig);
+        auto newCommittedBlock = CommittedBlock::makeObject( committedProposal, _thresholdSig );
 
-        processCommittedBlock(newCommittedBlock);
+        processCommittedBlock( newCommittedBlock );
 
-        proposeNextBlock(_committedTimeStamp, _committedTimeStampMs);
+        proposeNextBlock( _committedTimeStamp, _committedTimeStampMs );
 
-    } catch (ExitRequestedException &e) { throw; }
-    catch (...) {
-        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+    } catch ( ExitRequestedException& e ) {
+        throw;
+    } catch ( ... ) {
+        throw_with_nested( InvalidStateException( __FUNCTION__, __CLASS_NAME__ ) );
     }
-
 }
 
 
 void Schain::checkForExit() {
-    if (getNode()->isExitRequested()) {
-        BOOST_THROW_EXCEPTION(ExitRequestedException(__CLASS_NAME__));
+    if ( getNode()->isExitRequested() ) {
+        BOOST_THROW_EXCEPTION( ExitRequestedException( __CLASS_NAME__ ) );
     }
 }
 
-void Schain::proposeNextBlock(uint64_t _previousBlockTimeStamp, uint32_t _previousBlockTimeStampMs) {
-
-
-    MONITOR2(__CLASS_NAME__, __FUNCTION__, getMaxExternalBlockProcessingTime())
+void Schain::proposeNextBlock(
+    uint64_t _previousBlockTimeStamp, uint32_t _previousBlockTimeStampMs ) {
+    MONITOR2( __CLASS_NAME__, __FUNCTION__, getMaxExternalBlockProcessingTime() )
 
     checkForExit();
     try {
+        block_id _proposedBlockID( ( uint64_t ) lastCommittedBlockID + 1 );
 
-        block_id _proposedBlockID((uint64_t) lastCommittedBlockID + 1);
+        ptr< BlockProposal > myProposal;
 
-        ptr<BlockProposal> myProposal;
-
-        if (getNode()->getProposalHashDB()->haveProposal(_proposedBlockID, getSchainIndex())) {
-            myProposal = getNode()->getBlockProposalDB()->getBlockProposal(_proposedBlockID, getSchainIndex());
+        if ( getNode()->getProposalHashDB()->haveProposal( _proposedBlockID, getSchainIndex() ) ) {
+            myProposal = getNode()->getBlockProposalDB()->getBlockProposal(
+                _proposedBlockID, getSchainIndex() );
         } else {
-            myProposal = pendingTransactionsAgent->buildBlockProposal(_proposedBlockID, _previousBlockTimeStamp,
-                                                                      _previousBlockTimeStampMs);
+            myProposal = pendingTransactionsAgent->buildBlockProposal(
+                _proposedBlockID, _previousBlockTimeStamp, _previousBlockTimeStampMs );
         }
 
-        CHECK_STATE(myProposal->getProposerIndex() == getSchainIndex());
-        CHECK_STATE(myProposal->getSignature() != nullptr);
+        CHECK_STATE( myProposal->getProposerIndex() == getSchainIndex() );
+        CHECK_STATE( myProposal->getSignature() != nullptr );
 
 
-        proposedBlockArrived(myProposal);
+        proposedBlockArrived( myProposal );
 
-        LOG(debug, "PROPOSING BLOCK NUMBER:" + to_string(_proposedBlockID));
+        LOG( debug, "PROPOSING BLOCK NUMBER:" + to_string( _proposedBlockID ) );
 
         auto db = getNode()->getProposalHashDB();
 
-        db->checkAndSaveHash(_proposedBlockID, getSchainIndex(),
-                             myProposal->getHash()->toHex());
+        db->checkAndSaveHash( _proposedBlockID, getSchainIndex(), myProposal->getHash()->toHex() );
 
-        blockProposalClient->enqueueItem(myProposal);
-        auto mySig = getSchain()->getCryptoManager()->signDAProofSigShare(myProposal);
-        getSchain()->daProofSigShareArrived(mySig, myProposal);
+        blockProposalClient->enqueueItem( myProposal );
+        auto mySig = getSchain()->getCryptoManager()->signDAProofSigShare( myProposal );
+        getSchain()->daProofSigShareArrived( mySig, myProposal );
 
-    } catch (ExitRequestedException &e) { throw; }
-    catch (...) {
-        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+    } catch ( ExitRequestedException& e ) {
+        throw;
+    } catch ( ... ) {
+        throw_with_nested( InvalidStateException( __FUNCTION__, __CLASS_NAME__ ) );
     }
-
 }
 
-void Schain::processCommittedBlock(ptr<CommittedBlock> _block) {
-
-    CHECK_STATE(_block->getSignature() != nullptr);
-    MONITOR2(__CLASS_NAME__, __FUNCTION__, getMaxExternalBlockProcessingTime())
+void Schain::processCommittedBlock( ptr< CommittedBlock > _block ) {
+    CHECK_STATE( _block->getSignature() != nullptr );
+    MONITOR2( __CLASS_NAME__, __FUNCTION__, getMaxExternalBlockProcessingTime() )
 
     checkForExit();
 
 
-    LOCK(m)
+    LOCK( m )
 
     try {
-
-        ASSERT(getLastCommittedBlockID() + 1 == _block->getBlockID());
+        ASSERT( getLastCommittedBlockID() + 1 == _block->getBlockID() );
 
         totalTransactions += _block->getTransactionList()->size();
 
-        auto h = _block->getHash()->toHex()->substr(0, 8);
-        LOG(info,
-            "BLOCK_COMMIT: PRPSR:" + to_string(_block->getProposerIndex()) + ":BID: " +
-            to_string(_block->getBlockID()) + ":ROOT:" + _block->getStateRoot().convert_to<string>() +
-            ":HASH:" + h + ":BLOCK_TXS:" + to_string(_block->getTransactionCount()) + ":DMSG:" +
-            to_string(getMessagesCount()) + ":MPRPS:" + to_string(MyBlockProposal::getTotalObjects()) + ":RPRPS:" +
-            to_string(ReceivedBlockProposal::getTotalObjects()) + ":TXS:" + to_string(Transaction::getTotalObjects()) +
-            ":TXLS:" + to_string(TransactionList::getTotalObjects()) +
-            ":KNWN:" + to_string(pendingTransactionsAgent->getKnownTransactionsSize()) + ":MGS:" +
-            to_string(Message::getTotalObjects()) + ":INSTS:" + to_string(ProtocolInstance::getTotalObjects()) +
-            ":BPS:" +
-            to_string(BlockProposalSet::getTotalObjects()) +
-            ":HDRS:" + to_string(Header::getTotalObjects()) + ":SOCK:" + to_string(ClientSocket::getTotalSockets()) +
-            ":CONS:" + to_string(ServerConnection::getTotalObjects()));
+        auto h = _block->getHash()->toHex()->substr( 0, 8 );
+        LOG( info, "BLOCK_COMMIT: PRPSR:" + to_string( _block->getProposerIndex() ) +
+                       ":BID: " + to_string( _block->getBlockID() ) +
+                       ":ROOT:" + _block->getStateRoot().convert_to< string >() + ":HASH:" + h +
+                       ":BLOCK_TXS:" + to_string( _block->getTransactionCount() ) +
+                       ":DMSG:" + to_string( getMessagesCount() ) +
+                       ":MPRPS:" + to_string( MyBlockProposal::getTotalObjects() ) +
+                       ":RPRPS:" + to_string( ReceivedBlockProposal::getTotalObjects() ) +
+                       ":TXS:" + to_string( Transaction::getTotalObjects() ) +
+                       ":TXLS:" + to_string( TransactionList::getTotalObjects() ) + ":KNWN:" +
+                       to_string( pendingTransactionsAgent->getKnownTransactionsSize() ) +
+                       ":MGS:" + to_string( Message::getTotalObjects() ) +
+                       ":INSTS:" + to_string( ProtocolInstance::getTotalObjects() ) +
+                       ":BPS:" + to_string( BlockProposalSet::getTotalObjects() ) +
+                       ":HDRS:" + to_string( Header::getTotalObjects() ) +
+                       ":SOCK:" + to_string( ClientSocket::getTotalSockets() ) +
+                       ":CONS:" + to_string( ServerConnection::getTotalObjects() ) +
+                       ":DSDS:" + to_string(getSchain()->getNode()->getNetwork()->computeTotalDelayedSends()));
 
 
-        saveBlock(_block);
+        saveBlock( _block );
 
-        pushBlockToExtFace(_block);
+        pushBlockToExtFace( _block );
 
         lastCommittedBlockID++;
         lastCommitTime = Time::getCurrentTimeMs();
 
-    } catch (ExitRequestedException &e) { throw; }
-    catch (...) {
-        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+    } catch ( ExitRequestedException& e ) {
+        throw;
+    } catch ( ... ) {
+        throw_with_nested( InvalidStateException( __FUNCTION__, __CLASS_NAME__ ) );
     }
-
 }
 
-void Schain::saveBlock(ptr<CommittedBlock> &_block) {
+void Schain::saveBlock( ptr< CommittedBlock >& _block ) {
+    CHECK_ARGUMENT( _block );
 
-    CHECK_ARGUMENT(_block);
-
-    MONITOR(__CLASS_NAME__, __FUNCTION__)
+    MONITOR( __CLASS_NAME__, __FUNCTION__ )
 
     try {
-
         checkForExit();
-        getNode()->getBlockDB()->saveBlock(_block);
-    } catch (ExitRequestedException &) { throw; } catch (...) {
-        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+        getNode()->getBlockDB()->saveBlock( _block );
+    } catch ( ExitRequestedException& ) {
+        throw;
+    } catch ( ... ) {
+        throw_with_nested( InvalidStateException( __FUNCTION__, __CLASS_NAME__ ) );
     }
-
 }
 
 
-void Schain::pushBlockToExtFace(ptr<CommittedBlock> &_block) {
+void Schain::pushBlockToExtFace( ptr< CommittedBlock >& _block ) {
+    CHECK_ARGUMENT( _block );
 
-    CHECK_ARGUMENT(_block);
-
-    MONITOR2(__CLASS_NAME__, __FUNCTION__, getMaxExternalBlockProcessingTime())
+    MONITOR2( __CLASS_NAME__, __FUNCTION__, getMaxExternalBlockProcessingTime() )
 
     checkForExit();
 
     try {
-
         auto tv = _block->getTransactionList()->createTransactionVector();
 
-        //auto next_price = // VERIFY PRICING
+        // auto next_price = // VERIFY PRICING
 
-        this->pricingAgent->calculatePrice(*tv, _block->getTimeStamp(), _block->getTimeStampMs(), _block->getBlockID());
+        this->pricingAgent->calculatePrice(
+            *tv, _block->getTimeStamp(), _block->getTimeStampMs(), _block->getBlockID() );
 
-        auto cur_price = this->pricingAgent->readPrice(_block->getBlockID() - 1);
+        auto cur_price = this->pricingAgent->readPrice( _block->getBlockID() - 1 );
 
 
-        if (extFace) {
-            extFace->createBlock(*tv, _block->getTimeStamp(), _block->getTimeStampMs(),
-                                 (__uint64_t) _block->getBlockID(),
-                                 cur_price, _block->getStateRoot());
+        if ( extFace ) {
+            extFace->createBlock( *tv, _block->getTimeStamp(), _block->getTimeStampMs(),
+                ( __uint64_t ) _block->getBlockID(), cur_price, _block->getStateRoot() );
             // exit immediately if exit has been requested
             getSchain()->getNode()->exitCheck();
-
         }
 
-    } catch (ExitRequestedException &e) { throw; }
-    catch (...) {
-        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+    } catch ( ExitRequestedException& e ) {
+        throw;
+    } catch ( ... ) {
+        throw_with_nested( InvalidStateException( __FUNCTION__, __CLASS_NAME__ ) );
     }
-
 }
 
 
-void Schain::startConsensus(const block_id _blockID, ptr<BooleanProposalVector> _proposalVector) {
+void Schain::startConsensus(
+    const block_id _blockID, ptr< BooleanProposalVector > _proposalVector ) {
     {
+        CHECK_ARGUMENT( _proposalVector );
 
-        CHECK_ARGUMENT(_proposalVector);
-
-        MONITOR(__CLASS_NAME__, __FUNCTION__)
+        MONITOR( __CLASS_NAME__, __FUNCTION__ )
 
         checkForExit();
 
-        LOG(info, "BIN_CONSENSUS_START: PROPOSING: " + *_proposalVector->toString());
+        LOG( info, "BIN_CONSENSUS_START: PROPOSING: " + *_proposalVector->toString() );
 
-        LOG(debug, "Got proposed block set for block:" + to_string(_blockID));
+        LOG( debug, "Got proposed block set for block:" + to_string( _blockID ) );
 
-        ASSERT(getNode()->getDaProofDB()->isEnoughProofs(_blockID));
+        ASSERT( getNode()->getDaProofDB()->isEnoughProofs( _blockID ) );
 
-        LOG(debug, "StartConsensusIfNeeded BLOCK NUMBER:" + to_string((_blockID)));
+        LOG( debug, "StartConsensusIfNeeded BLOCK NUMBER:" + to_string( ( _blockID ) ) );
 
-        if (_blockID <= getLastCommittedBlockID()) {
-            LOG(debug, "Too late to start consensus: already committed " + to_string(lastCommittedBlockID));
+        if ( _blockID <= getLastCommittedBlockID() ) {
+            LOG( debug, "Too late to start consensus: already committed " +
+                            to_string( lastCommittedBlockID ) );
             return;
         }
 
-        if (_blockID > getLastCommittedBlockID() + 1) {
-            LOG(debug, "Consensus is in the future" + to_string(lastCommittedBlockID));
+        if ( _blockID > getLastCommittedBlockID() + 1 ) {
+            LOG( debug, "Consensus is in the future" + to_string( lastCommittedBlockID ) );
             return;
         }
     }
 
 
-    ASSERT(blockConsensusInstance != nullptr && _proposalVector != nullptr);
+    ASSERT( blockConsensusInstance != nullptr && _proposalVector != nullptr );
 
-    auto message = make_shared<ConsensusProposalMessage>(*this, _blockID, _proposalVector);
+    auto message = make_shared< ConsensusProposalMessage >( *this, _blockID, _proposalVector );
 
-    auto envelope = make_shared<InternalMessageEnvelope>(ORIGIN_EXTERNAL, message, *this);
+    auto envelope = make_shared< InternalMessageEnvelope >( ORIGIN_EXTERNAL, message, *this );
 
-    LOG(debug, "Starting consensus for block id:" + to_string(_blockID));
-    postMessage(envelope);
+    LOG( debug, "Starting consensus for block id:" + to_string( _blockID ) );
+    postMessage( envelope );
 }
 
-void Schain::daProofArrived(ptr<DAProof> _daProof) {
+void Schain::daProofArrived( ptr< DAProof > _daProof ) {
+    CHECK_ARGUMENT( _daProof );
 
-    CHECK_ARGUMENT(_daProof);
-
-    MONITOR(__CLASS_NAME__, __FUNCTION__)
+    MONITOR( __CLASS_NAME__, __FUNCTION__ )
 
     try {
-
-        if (_daProof->getBlockId() <= getLastCommittedBlockID())
+        if ( _daProof->getBlockId() <= getLastCommittedBlockID() )
             return;
 
-        auto pv = getNode()->getDaProofDB()->addDAProof(_daProof);
+        auto pv = getNode()->getDaProofDB()->addDAProof( _daProof );
 
 
-        if (pv != nullptr) {
-
-            getNode()->getProposalVectorDB()->saveVector(_daProof->getBlockId(), pv);
-            startConsensus(_daProof->getBlockId(), pv);
+        if ( pv != nullptr ) {
+            getNode()->getProposalVectorDB()->saveVector( _daProof->getBlockId(), pv );
+            startConsensus( _daProof->getBlockId(), pv );
         }
-    } catch (ExitRequestedException &e) { throw; }
-    catch (...) {
-        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+    } catch ( ExitRequestedException& e ) {
+        throw;
+    } catch ( ... ) {
+        throw_with_nested( InvalidStateException( __FUNCTION__, __CLASS_NAME__ ) );
     }
-
 }
 
 
-void Schain::proposedBlockArrived(ptr<BlockProposal> _proposal) {
+void Schain::proposedBlockArrived( ptr< BlockProposal > _proposal ) {
+    MONITOR( __CLASS_NAME__, __FUNCTION__ )
 
-    MONITOR(__CLASS_NAME__, __FUNCTION__)
-
-    if (_proposal->getBlockID() <= getLastCommittedBlockID())
+    if ( _proposal->getBlockID() <= getLastCommittedBlockID() )
         return;
 
-    CHECK_STATE(_proposal->getSignature() != nullptr);
+    CHECK_STATE( _proposal->getSignature() != nullptr );
 
-    getNode()->getBlockProposalDB()->addBlockProposal(_proposal);
+    getNode()->getBlockProposalDB()->addBlockProposal( _proposal );
 }
 
 
-void Schain::bootstrap(block_id _lastCommittedBlockID, uint64_t _lastCommittedBlockTimeStamp) {
-
-
-    LOG(info, "Consensus engine version:" + ConsensusEngine::getEngineVersion());
+void Schain::bootstrap( block_id _lastCommittedBlockID, uint64_t _lastCommittedBlockTimeStamp ) {
+    LOG( info, "Consensus engine version:" + ConsensusEngine::getEngineVersion() );
 
     auto _lastCommittedBlockIDInConsensus = getNode()->getBlockDB()->readLastCommittedBlockID();
 
-    LOG(info, "Last committed block in consensus:" + to_string(_lastCommittedBlockIDInConsensus));
+    LOG( info,
+        "Last committed block in consensus:" + to_string( _lastCommittedBlockIDInConsensus ) );
 
     checkForExit();
 
     // Step 1: solve block id  mismatch problems
 
 
-    if (_lastCommittedBlockIDInConsensus == _lastCommittedBlockID + 1) {
+    if ( _lastCommittedBlockIDInConsensus == _lastCommittedBlockID + 1 ) {
         // consensus has one more block than skaled
         // This happens when starting from a snapshot
         // Since the snapshot is taken just before a block is processed
         try {
-            auto block = getNode()->getBlockDB()->getBlock(_lastCommittedBlockIDInConsensus, getCryptoManager());
-            if (block != nullptr) {
+            auto block = getNode()->getBlockDB()->getBlock(
+                _lastCommittedBlockIDInConsensus, getCryptoManager() );
+            if ( block != nullptr ) {
                 // we have one more block in consensus, so we push it out
 
-                pushBlockToExtFace(block);
+                pushBlockToExtFace( block );
                 _lastCommittedBlockID = _lastCommittedBlockID + 1;
             }
-        }
-        catch (...) {
+        } catch ( ... ) {
             // Cant read the block form db, may be it is corrupt in the  snapshot
-            LOG(err, "Bootstrap could not read block from db");
+            LOG( err, "Bootstrap could not read block from db" );
             // The block will be pulled by catchup
         }
     } else {
-// catch situations that should never happen
-        if (_lastCommittedBlockIDInConsensus < _lastCommittedBlockID) {
-            BOOST_THROW_EXCEPTION(InvalidStateException("_lastCommittedBlockIDInConsensus < _lastCommittedBlockID",
-                                                        __CLASS_NAME__));
+        // catch situations that should never happen
+        if ( _lastCommittedBlockIDInConsensus < _lastCommittedBlockID ) {
+            BOOST_THROW_EXCEPTION( InvalidStateException(
+                "_lastCommittedBlockIDInConsensus < _lastCommittedBlockID", __CLASS_NAME__ ) );
         }
 
-        if (_lastCommittedBlockIDInConsensus > _lastCommittedBlockID + 1) {
-            BOOST_THROW_EXCEPTION(InvalidStateException("_lastCommittedBlockIDInConsensus > _lastCommittedBlockID + 1",
-                                                        __CLASS_NAME__));
+        if ( _lastCommittedBlockIDInConsensus > _lastCommittedBlockID + 1 ) {
+            BOOST_THROW_EXCEPTION( InvalidStateException(
+                "_lastCommittedBlockIDInConsensus > _lastCommittedBlockID + 1", __CLASS_NAME__ ) );
         }
-
     }
 
-    MONITOR2(__CLASS_NAME__, __FUNCTION__, getMaxExternalBlockProcessingTime())
+    MONITOR2( __CLASS_NAME__, __FUNCTION__, getMaxExternalBlockProcessingTime() )
 
-// Step 2 : Bootstrap
+    // Step 2 : Bootstrap
 
     try {
-        ASSERT(bootStrapped == false);
+        ASSERT( bootStrapped == false );
         bootStrapped = true;
-        bootstrapBlockID.
-                store((uint64_t)
-                              _lastCommittedBlockID);
-        ASSERT(_lastCommittedBlockTimeStamp < (uint64_t) 2 * MODERN_TIME);
+        bootstrapBlockID.store( ( uint64_t ) _lastCommittedBlockID );
+        ASSERT( _lastCommittedBlockTimeStamp < ( uint64_t ) 2 * MODERN_TIME );
 
-        LOCK(m)
+        LOCK( m )
 
-        ptr<BlockProposal> committedProposal = nullptr;
+        ptr< BlockProposal > committedProposal = nullptr;
 
-        lastCommittedBlockID = (uint64_t) _lastCommittedBlockID;
-        lastCommitTime = (uint64_t) Time::getCurrentTimeMs();
+        lastCommittedBlockID = ( uint64_t ) _lastCommittedBlockID;
+        lastCommitTime = ( uint64_t ) Time::getCurrentTimeMs();
         lastCommittedBlockTimeStamp = _lastCommittedBlockTimeStamp;
         lastCommittedBlockTimeStampMs = 0;
 
 
-        LOG(info, "Jump starting the system with block:" + to_string(_lastCommittedBlockID));
-        if (
+        LOG( info, "Jump starting the system with block:" + to_string( _lastCommittedBlockID ) );
+        if ( getLastCommittedBlockID() == 0 )
+            this->pricingAgent-> calculatePrice( ConsensusExtFace::transactions_vector(),
+                    0, 0, 0 );
 
-                getLastCommittedBlockID()
-
-                == 0)
-            this->pricingAgent->
-
-                    calculatePrice(ConsensusExtFace::transactions_vector(),
-
-                                   0, 0, 0);
-
-        proposeNextBlock(lastCommittedBlockTimeStamp, lastCommittedBlockTimeStampMs
-        );
-        auto proposalVector = getNode()->getProposalVectorDB()->getVector(_lastCommittedBlockID + 1);
-        if (proposalVector) {
-            auto messages = getNode()->getOutgoingMsgDB()->getMessages(_lastCommittedBlockID + 1);
-            for (
-                auto &&m
-                    : *messages) {
-                getNode()->getNetwork()->
-                        broadcastMessage(m);
+        proposeNextBlock( lastCommittedBlockTimeStamp, lastCommittedBlockTimeStampMs );
+        auto proposalVector =
+            getNode()->getProposalVectorDB()->getVector( _lastCommittedBlockID + 1 );
+        if ( proposalVector ) {
+            auto messages = getNode()->getOutgoingMsgDB()->getMessages( _lastCommittedBlockID + 1 );
+            for ( auto&& m : *messages ) {
+                getNode()->getNetwork()->broadcastMessage( m );
             }
         }
 
-    } catch (
-            exception &e
-    ) {
-        Exception::logNested(e);
+    } catch ( exception& e ) {
+        Exception::logNested( e );
         return;
     }
 }
 
 
 void Schain::healthCheck() {
-
-
-    std::unordered_set<uint64_t> connections;
-    setHealthCheckFile(1);
+    std::unordered_set< uint64_t > connections;
+    setHealthCheckFile( 1 );
 
     auto beginTime = Time::getCurrentTimeSec();
 
-    LOG(info, "Waiting to connect to peers");
+    LOG( info, "Waiting to connect to peers" );
 
 
-    while (connections.size() + 1 < getNodeCount()) {
-
-        if (3 * (connections.size() + 1) >= 2 * getNodeCount()) {
-            if (Time::getCurrentTimeSec() - beginTime > 5) {
+    while ( connections.size() + 1 < getNodeCount() ) {
+        if ( 3 * ( connections.size() + 1 ) >= 2 * getNodeCount() ) {
+            if ( Time::getCurrentTimeSec() - beginTime > 5 ) {
                 break;
             }
         }
 
-        if (Time::getCurrentTimeSec() - beginTime > 15000) {
-            setHealthCheckFile(0);
-            LOG(err, "Coult not connect to 2/3 of peers");
-            exit(110);
+        if ( Time::getCurrentTimeSec() - beginTime > 15000 ) {
+            setHealthCheckFile( 0 );
+            LOG( err, "Coult not connect to 2/3 of peers" );
+            exit( 110 );
         }
 
 
-        usleep(1000000);
+        usleep( 1000000 );
 
-        for (int i = 1; i <= getNodeCount(); i++) {
-            if (i != (getSchainIndex()) && !connections.count(i)) {
+        for ( int i = 1; i <= getNodeCount(); i++ ) {
+            if ( i != ( getSchainIndex() ) && !connections.count( i ) ) {
                 try {
-                    if (getNode()->isExitRequested()) {
-                        BOOST_THROW_EXCEPTION(ExitRequestedException(__CLASS_NAME__));
+                    if ( getNode()->isExitRequested() ) {
+                        BOOST_THROW_EXCEPTION( ExitRequestedException( __CLASS_NAME__ ) );
                     }
-                    auto socket = make_shared<ClientSocket>(*this, schain_index(i), port_type::PROPOSAL);
-                    LOG(debug, "Health check: connected to peer");
-                    getIo()->writeMagic(socket, true);
-                    connections.insert(i);
-                } catch (ExitRequestedException &) {
+                    auto socket = make_shared< ClientSocket >(
+                        *this, schain_index( i ), port_type::PROPOSAL );
+                    LOG( debug, "Health check: connected to peer" );
+                    getIo()->writeMagic( socket, true );
+                    connections.insert( i );
+                } catch ( ExitRequestedException& ) {
                     throw;
-                } catch (std::exception &e) {
+                } catch ( std::exception& e ) {
                 }
             }
         }
     }
 
-    setHealthCheckFile(2);
+    setHealthCheckFile( 2 );
 }
 
-void Schain::daProofSigShareArrived(ptr<ThresholdSigShare> _sigShare, ptr<BlockProposal> _proposal) {
-
-    MONITOR(__CLASS_NAME__, __FUNCTION__)
+void Schain::daProofSigShareArrived(
+    ptr< ThresholdSigShare > _sigShare, ptr< BlockProposal > _proposal ) {
+    MONITOR( __CLASS_NAME__, __FUNCTION__ )
 
     checkForExit();
-    CHECK_ARGUMENT(_sigShare != nullptr);
-    CHECK_ARGUMENT(_proposal != nullptr);
+    CHECK_ARGUMENT( _sigShare != nullptr );
+    CHECK_ARGUMENT( _proposal != nullptr );
 
 
     try {
-        auto proof = getNode()->getDaSigShareDB()->addAndMergeSigShareAndVerifySig(_sigShare, _proposal);
-        if (proof != nullptr) {
-            getSchain()->daProofArrived(proof);
-            blockProposalClient->enqueueItem(proof);
+        auto proof =
+            getNode()->getDaSigShareDB()->addAndMergeSigShareAndVerifySig( _sigShare, _proposal );
+        if ( proof != nullptr ) {
+            getSchain()->daProofArrived( proof );
+            blockProposalClient->enqueueItem( proof );
         }
-    } catch (ExitRequestedException &) { throw; } catch (...) {
-        LOG(err, "Could not add/merge sig");
-        throw_with_nested(InvalidStateException("Could not add/merge sig", __CLASS_NAME__));
+    } catch ( ExitRequestedException& ) {
+        throw;
+    } catch ( ... ) {
+        LOG( err, "Could not add/merge sig" );
+        throw_with_nested( InvalidStateException( "Could not add/merge sig", __CLASS_NAME__ ) );
     }
 }
 
 
-void Schain::constructServers(ptr<Sockets> _sockets) {
+void Schain::constructServers( ptr< Sockets > _sockets ) {
+    MONITOR( __CLASS_NAME__, __FUNCTION__ )
 
-    MONITOR(__CLASS_NAME__, __FUNCTION__)
-
-    blockProposalServerAgent = make_shared<BlockProposalServerAgent>(*this, _sockets->blockProposalSocket);
-    catchupServerAgent = make_shared<CatchupServerAgent>(*this, _sockets->catchupSocket);
+    blockProposalServerAgent =
+        make_shared< BlockProposalServerAgent >( *this, _sockets->blockProposalSocket );
+    catchupServerAgent = make_shared< CatchupServerAgent >( *this, _sockets->catchupSocket );
 }
 
-ptr<BlockProposal> Schain::createEmptyBlockProposal(block_id _blockId) {
-
+ptr< BlockProposal > Schain::createEmptyBlockProposal( block_id _blockId ) {
     uint64_t sec = lastCommittedBlockTimeStamp;
     uint64_t ms = lastCommittedBlockTimeStampMs;
 
-// Set time for an empty block to be 1 ms more than previous block
-    if (ms == 999) {
+    // Set time for an empty block to be 1 ms more than previous block
+    if ( ms == 999 ) {
         sec++;
         ms = 0;
     } else {
@@ -760,80 +739,75 @@ ptr<BlockProposal> Schain::createEmptyBlockProposal(block_id _blockId) {
     }
 
 
-    return make_shared<ReceivedBlockProposal>(*this, _blockId, sec, ms);
-
+    return make_shared< ReceivedBlockProposal >( *this, _blockId, sec, ms );
 }
 
 
-void Schain::decideBlock(block_id _blockId, schain_index _proposerIndex, ptr<ThresholdSignature> _thresholdSig) {
-
-    CHECK_ARGUMENT(_thresholdSig != nullptr);
-
-
-    MONITOR2(__CLASS_NAME__, __FUNCTION__, getMaxExternalBlockProcessingTime())
+void Schain::finalizeDecidedAndSignedBlock(
+    block_id _blockId, schain_index _proposerIndex, ptr< ThresholdSignature > _thresholdSig ) {
+    CHECK_ARGUMENT( _thresholdSig != nullptr );
 
 
-    if (_blockId <= getLastCommittedBlockID()) {
-        LOG(info, "Ignoring old block decide, already got this through catchup: BLOCK_ID:" + to_string(_blockId) + ":PRP:" + to_string(_proposerIndex));
+    MONITOR2( __CLASS_NAME__, __FUNCTION__, getMaxExternalBlockProcessingTime() )
+
+
+    if ( _blockId <= getLastCommittedBlockID() ) {
+        LOG( info, "Ignoring old block decide, already got this through catchup: BID:" +
+                       to_string( _blockId ) + ":PRP:" + to_string( _proposerIndex ) );
         return;
     }
 
 
-    LOG(debug, "decideBlock:" + to_string(_blockId) + ":PRP:" + to_string(_proposerIndex));
-    LOG(debug, "Total txs:" + to_string(getSchain()->getTotalTransactions()) + " T(s):" +
-               to_string((Time::getCurrentTimeMs() - getSchain()->getStartTimeMs()) / 1000.0));
+    LOG( info, "BLOCK_SIGNED: Now finalizing block ... BID:" + to_string( _blockId ) );
 
-
-    ptr<BlockProposal> proposal = nullptr;
+    ptr< BlockProposal > proposal = nullptr;
 
     bool haveProof = false;
 
     try {
-
-        if (_proposerIndex == 0) {
-
-            proposal = createEmptyBlockProposal(_blockId);
-            haveProof = true; // empty proposals donot need DAP proofs
+        if ( _proposerIndex == 0 ) {
+            proposal = createEmptyBlockProposal( _blockId );
+            haveProof = true;  // empty proposals donot need DAP proofs
         } else {
-            proposal = getNode()->getBlockProposalDB()->getBlockProposal(_blockId, _proposerIndex);
-            if (proposal != nullptr) {
-                haveProof = getNode()->getDaProofDB()->haveDAProof(proposal);
+            proposal =
+                getNode()->getBlockProposalDB()->getBlockProposal( _blockId, _proposerIndex );
+            if ( proposal != nullptr ) {
+                haveProof = getNode()->getDaProofDB()->haveDAProof( proposal );
             }
         }
 
 
-        if (!haveProof || // a proposal without a  DA proof is not trusted and has to be downloaded from others
-            // this switch is for testing only
-            getNode()->getTestConfig()->isFinalizationDownloadOnly()) {
-
+        if ( !haveProof ||  // a proposal without a  DA proof is not trusted and has to be
+                            // downloaded from others this switch is for testing only
+             getNode()->getTestConfig()->isFinalizationDownloadOnly() ) {
             // did not receive proposal from the proposer, pull it in parallel from other hosts
-            // Note that due to the BLS signature proof, 2t hosts out of 3t + 1 total are guaranteed to
-            // posess the proposal
+            // Note that due to the BLS signature proof, 2t hosts out of 3t + 1 total are guaranteed
+            // to posess the proposal
 
-            auto agent = make_unique<BlockFinalizeDownloader>(this, _blockId, _proposerIndex);
+            auto agent = make_unique< BlockFinalizeDownloader >( this, _blockId, _proposerIndex );
 
             {
-                const string message = "Finalization download:" + to_string(_blockId) + ":" +
-                                       to_string(_proposerIndex);
+                const string message = "Finalization download:" + to_string( _blockId ) + ":" +
+                                       to_string( _proposerIndex );
 
-                MONITOR(__CLASS_NAME__, message.c_str());
+                MONITOR( __CLASS_NAME__, message.c_str() );
                 // This will complete successfully also if block arrives through catchup
                 proposal = agent->downloadProposal();
             }
 
-            if (proposal != nullptr) // Nullptr means catchup happened first
-                getNode()->getBlockProposalDB()->addBlockProposal(proposal);
+            if ( proposal != nullptr )  // Nullptr means catchup happened first
+                getNode()->getBlockProposalDB()->addBlockProposal( proposal );
         }
 
-        if (proposal != nullptr)
-            blockCommitArrived(_blockId, _proposerIndex, proposal->getTimeStamp(), proposal->getTimeStampMs(),
-                               _thresholdSig);
+        if ( proposal != nullptr )
+            blockCommitArrived( _blockId, _proposerIndex, proposal->getTimeStamp(),
+                proposal->getTimeStampMs(), _thresholdSig );
 
-    } catch (ExitRequestedException &e) { throw; }
-    catch (...) {
-        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+    } catch ( ExitRequestedException& e ) {
+        throw;
+    } catch ( ... ) {
+        throw_with_nested( InvalidStateException( __FUNCTION__, __CLASS_NAME__ ) );
     }
-
 }
 
 // empty constructor is used for tests

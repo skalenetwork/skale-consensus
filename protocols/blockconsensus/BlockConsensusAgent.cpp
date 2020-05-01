@@ -26,30 +26,30 @@
 #include "exceptions/FatalError.h"
 #include "thirdparty/json.hpp"
 
+#include "blockfinalize/client/BlockFinalizeDownloader.h"
+#include "blockfinalize/client/BlockFinalizeDownloaderThreadPool.h"
+#include "blockproposal/pusher/BlockProposalClientAgent.h"
+#include "chains/Schain.h"
 #include "crypto/SHAHash.h"
 #include "crypto/ThresholdSigShare.h"
-#include "chains/Schain.h"
-#include "node/Node.h"
-#include "network/TransportNetwork.h"
+#include "datastructures/BlockProposal.h"
+#include "datastructures/BooleanProposalVector.h"
+#include "datastructures/TransactionList.h"
+#include "db/BlockDB.h"
+#include "db/BlockProposalDB.h"
+#include "db/BlockSigShareDB.h"
 #include "exceptions/ExitRequestedException.h"
-#include "messages/ParentMessage.h"
+#include "exceptions/InvalidStateException.h"
+#include "messages/ConsensusProposalMessage.h"
 #include "messages/InternalMessageEnvelope.h"
 #include "messages/NetworkMessage.h"
 #include "messages/NetworkMessageEnvelope.h"
-#include "protocols/blockconsensus/BlockSignBroadcastMessage.h"
-#include "pendingqueue/PendingTransactionsAgent.h"
-#include "datastructures/BlockProposal.h"
-#include "datastructures/TransactionList.h"
-#include "blockproposal/pusher/BlockProposalClientAgent.h"
-#include "datastructures/BooleanProposalVector.h"
-#include "messages/ConsensusProposalMessage.h"
+#include "messages/ParentMessage.h"
+#include "network/Network.h"
+#include "node/Node.h"
 #include "node/NodeInfo.h"
-#include "db/BlockProposalDB.h"
-#include "exceptions/InvalidStateException.h"
-#include "db/BlockSigShareDB.h"
-#include "db/BlockDB.h"
-#include "blockfinalize/client/BlockFinalizeDownloader.h"
-#include "blockfinalize/client/BlockFinalizeDownloaderThreadPool.h"
+#include "pendingqueue/PendingTransactionsAgent.h"
+#include "protocols/blockconsensus/BlockSignBroadcastMessage.h"
 #include "thirdparty/lrucache.hpp"
 
 #include "utils/Time.h"
@@ -184,7 +184,7 @@ void BlockConsensusAgent::decideBlock(block_id _blockId, schain_index _sChainInd
 
 
         if (signature != nullptr) {
-            getSchain()->decideBlock(_blockId, _sChainIndex, signature);
+            getSchain()->finalizeDecidedAndSignedBlock( _blockId, _sChainIndex, signature );
         }
 
 
@@ -302,7 +302,14 @@ void BlockConsensusAgent::processBlockSignMessage(ptr<BlockSignBroadcastMessage>
             return;
         }
 
-        getSchain()->decideBlock(_message->getBlockId(), _message->getBlockProposerIndex(), signature);
+        auto proposer = _message->getBlockProposerIndex();
+        auto blockId = _message->getBlockId();
+
+        LOG(info, string("BLOCK_DECIDE (GOT SIG): PRPSR:") + to_string(proposer) +
+                  ":BID:" + to_string(blockId) + "| Now signing block ...");
+
+        getSchain()->finalizeDecidedAndSignedBlock(
+            blockId, proposer, signature );
 
     } catch (ExitRequestedException &e) { throw; }
     catch (...) {

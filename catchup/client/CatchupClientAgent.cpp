@@ -31,15 +31,15 @@
 
 #include "abstracttcpserver/ConnectionStatus.h"
 
-#include "network/ClientSocket.h"
-#include "network/IO.h"
-#include "network/TransportNetwork.h"
 #include "chains/Schain.h"
 #include "datastructures/CommittedBlockList.h"
-#include "exceptions/NetworkProtocolException.h"
 #include "exceptions/ConnectionRefusedException.h"
+#include "exceptions/NetworkProtocolException.h"
 #include "headers/CatchupRequestHeader.h"
 #include "headers/CatchupResponseHeader.h"
+#include "network/ClientSocket.h"
+#include "network/IO.h"
+#include "network/Network.h"
 #include "pendingqueue/PendingTransactionsAgent.h"
 
 #include "CatchupClientAgent.h"

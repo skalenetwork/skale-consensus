@@ -175,7 +175,7 @@ ptr<map<uint64_t , ptr<NodeInfo> > > Node::getNodeInfosByIndex() const {
 }
 
 
-ptr<TransportNetwork> Node::getNetwork() const {
+ptr< Network > Node::getNetwork() const {
     ASSERT(network);
     return network;
 }

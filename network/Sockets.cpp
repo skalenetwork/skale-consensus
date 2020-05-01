@@ -21,14 +21,17 @@
     @date 2018
 */
 
+
+
+#include "thirdparty/json.hpp"
 #include "SkaleCommon.h"
 #include "Log.h"
 #include "exceptions/FatalError.h"
-#include "thirdparty/json.hpp"
-#include "TransportNetwork.h"
-#include "Sockets.h"
+
 #include "TCPServerSocket.h"
 #include "ZMQServerSocket.h"
+#include "Network.h"
+#include "Sockets.h"
 
 
 using namespace std;
@@ -53,7 +56,7 @@ void Sockets::initSockets(ptr<string> &bindIP, uint16_t basePort) {
 ptr<sockaddr_in> Sockets::createSocketAddress(ptr<string>& ip, uint16_t port) {
 
 
-    ASSERT(TransportNetwork::validateIpAddress(ip) > 0);
+    ASSERT( Network::validateIpAddress(ip) > 0);
 
 
     sockaddr_in *a = new sockaddr_in();//(sockaddr_in *) malloc(sizeof(sockaddr_in));
