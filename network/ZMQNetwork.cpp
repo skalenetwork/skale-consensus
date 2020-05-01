@@ -27,9 +27,9 @@
 
 #include "thirdparty/json.hpp"
 
-#include "zmq.h"
+#include "Network.h"
 #include "abstracttcpserver/ConnectionStatus.h"
-#include "TransportNetwork.h"
+#include "zmq.h"
 
 #include "messages/NetworkMessage.h"
 #include "messages/NetworkMessageEnvelope.h"
@@ -158,6 +158,6 @@ uint64_t ZMQNetwork::readMessageFromNetwork(ptr<Buffer> buf) {
 }
 
 
-ZMQNetwork::ZMQNetwork(Schain &_schain) : TransportNetwork(_schain) {}
+ZMQNetwork::ZMQNetwork(Schain &_schain) : Network(_schain) {}
 
 

@@ -39,23 +39,25 @@ class Schain;
 
 enum TransportType {ZMQ};
 
-class TransportNetwork : public Agent  {
+class Network : public Agent  {
 
     vector<recursive_mutex> delayedSendsLocks;
 
     vector<list<pair<ptr<NetworkMessage>,ptr<NodeInfo>>>> delayedSends;
 
 
+
+
     recursive_mutex deferredMutex;
 
+    // used in testing
+
     uint32_t packetLoss = 0;
-public:
-    uint32_t getPacketLoss() const;
 
-    uint64_t getCatchupBlock() const;
-
-private:
     uint64_t   catchupBlocks = 0;
+
+
+
 
 
 protected:
@@ -63,7 +65,7 @@ protected:
     static TransportType transport;
 
 
-    explicit TransportNetwork(Schain& _sChain);
+    explicit Network(Schain& _sChain);
     /**
      * Mutex that controls access to inbox
      */
@@ -116,9 +118,16 @@ public:
 
     void postDeferOrDrop(const ptr<NetworkMessageEnvelope> &m);
 
-    ~TransportNetwork();
+    ~Network();
 
     void addToDelayedSends(ptr<NetworkMessage> _m, ptr<NodeInfo> dstNodeInfo);
 
     void trySendingDelayedSends();
+
+    uint32_t getPacketLoss() const;
+
+    uint64_t getCatchupBlock() const;
+
+    uint64_t computeTotalDelayedSends();
+
 };

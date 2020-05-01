@@ -23,8 +23,8 @@
 
 #pragma  once
 
-#include "TransportNetwork.h"
 #include "Buffer.h"
+#include "Network.h"
 
 class Node;
 class NetworkMessage;
@@ -40,7 +40,7 @@ class Schain;
 class TransactionList;
 
 
-class ZMQNetwork : public TransportNetwork {
+class ZMQNetwork : public Network {
 
 
 public:

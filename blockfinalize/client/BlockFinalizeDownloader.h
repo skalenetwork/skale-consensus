@@ -54,7 +54,7 @@ class Schain;
 class BlockFinalizeResponseHeader;
 class BlockProposalFragment;
 class BlockProposalFragmentList;
-
+class BlockProposal;
 class BlockFinalizeDownloaderThreadPool;
 class BlockProposalSet;
 
@@ -70,8 +70,6 @@ class BlockFinalizeDownloader : public Agent {
 
 
 public:
-
-
 
     atomic< uint64_t > threadCounter;
 

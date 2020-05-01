@@ -44,19 +44,19 @@
 #include "libBLS/bls/BLSPublicKey.h"
 
 
+#include "blockproposal/pusher/BlockProposalClientAgent.h"
 #include "crypto/SHAHash.h"
 #include "datastructures/BlockProposalSet.h"
-#include "blockproposal/pusher/BlockProposalClientAgent.h"
+#include "datastructures/PartialHashesList.h"
 #include "db/BlockProposalDB.h"
 #include "headers/MissingTransactionsRequestHeader.h"
-#include "pendingqueue/PendingTransactionsAgent.h"
-#include "network/TransportNetwork.h"
-#include "network/Sockets.h"
-#include "network/IO.h"
 #include "network/Buffer.h"
+#include "network/IO.h"
+#include "network/Network.h"
 #include "network/ServerConnection.h"
+#include "network/Sockets.h"
 #include "network/TCPServerSocket.h"
-#include "datastructures/PartialHashesList.h"
+#include "pendingqueue/PendingTransactionsAgent.h"
 
 
 #include "AbstractServerAgent.h"

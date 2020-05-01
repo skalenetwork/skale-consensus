@@ -26,8 +26,8 @@
 #include "exceptions/FatalError.h"
 #include "thirdparty/json.hpp"
 
-#include "network/TransportNetwork.h"
 #include "chains/SchainTest.h"
+#include "network/Network.h"
 
 #include "chains/Schain.h"
 
@@ -73,7 +73,7 @@ _engine,  bool _useSGX, ptr<string> _keyName, ptr<vector<string>> _publicKeys) {
 
     if (j.find("transport") != j.end()) {
         ptr<string> transport = make_shared<string>(j.at("transport").get<string>());
-        TransportNetwork::setTransport(TransportType::ZMQ);
+        Network::setTransport(TransportType::ZMQ);
     }
 
 

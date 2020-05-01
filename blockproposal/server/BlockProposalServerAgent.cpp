@@ -57,10 +57,10 @@
 #include "headers/FinalProposalResponseHeader.h"
 #include "headers/Header.h"
 #include "headers/MissingTransactionsRequestHeader.h"
-#include "network/ServerConnection.h"
 #include "network/IO.h"
+#include "network/Network.h"
+#include "network/ServerConnection.h"
 #include "network/Sockets.h"
-#include "network/TransportNetwork.h"
 
 #include "node/Node.h"
 

@@ -25,9 +25,11 @@
 
 #include <mutex>
 
+using namespace  std;
+
 class Sockets;
 
-class TransportNetwork;
+class Network;
 
 class ZMQNetwork;
 
@@ -126,7 +128,7 @@ class Node {
 
     ptr<Sockets> sockets = nullptr;
 
-    ptr<TransportNetwork> network = nullptr;
+    ptr< Network > network = nullptr;
 
     ptr<Schain> sChain = nullptr;
 
@@ -313,7 +315,7 @@ public:
 
     ptr<NodeInfo> getNodeInfoById(node_id _id);
 
-    ptr<TransportNetwork> getNetwork() const;
+    ptr< Network > getNetwork() const;
 
     ptr<string> getBindIP() const;
 

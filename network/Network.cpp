@@ -54,17 +54,17 @@
 #include "messages/Message.h"
 #include "protocols/blockconsensus/BlockConsensusAgent.h"
 
+#include "Buffer.h"
+#include "Network.h"
 #include "messages/NetworkMessageEnvelope.h"
-#include "threads/GlobalThreadRegistry.h"
 #include "network/Sockets.h"
 #include "network/ZMQServerSocket.h"
-#include "Buffer.h"
-#include "TransportNetwork.h"
+#include "threads/GlobalThreadRegistry.h"
 
-TransportType TransportNetwork::transport = TransportType::ZMQ;
+TransportType Network::transport = TransportType::ZMQ;
 
 
-void TransportNetwork::addToDeferredMessageQueue(ptr<NetworkMessageEnvelope> _me) {
+void Network::addToDeferredMessageQueue(ptr<NetworkMessageEnvelope> _me) {
     CHECK_ARGUMENT(_me);
 
     auto msg = dynamic_pointer_cast<NetworkMessage>(_me->getMessage());
@@ -89,7 +89,7 @@ void TransportNetwork::addToDeferredMessageQueue(ptr<NetworkMessageEnvelope> _me
     }
 }
 
-ptr<vector<ptr<NetworkMessageEnvelope> > > TransportNetwork::pullMessagesForCurrentBlockID() {
+ptr<vector<ptr<NetworkMessageEnvelope> > > Network::pullMessagesForCurrentBlockID() {
 
 
     LOCK(deferredMessageMutex);
@@ -118,7 +118,7 @@ ptr<vector<ptr<NetworkMessageEnvelope> > > TransportNetwork::pullMessagesForCurr
     return returnList;
 }
 
-void TransportNetwork::addToDelayedSends(ptr<NetworkMessage> _m, ptr<NodeInfo> dstNodeInfo) {
+void Network::addToDelayedSends(ptr<NetworkMessage> _m, ptr<NodeInfo> dstNodeInfo) {
     CHECK_ARGUMENT(_m);
     CHECK_ARGUMENT(dstNodeInfo);
     auto dstIndex = (uint64_t) dstNodeInfo->getSchainIndex();
@@ -129,7 +129,7 @@ void TransportNetwork::addToDelayedSends(ptr<NetworkMessage> _m, ptr<NodeInfo> d
     }
 }
 
-void TransportNetwork::broadcastMessage(ptr<NetworkMessage> _m) {
+void Network::broadcastMessage(ptr<NetworkMessage> _m) {
 
 
     if (_m->getBlockID() <= this->catchupBlocks) {
@@ -179,7 +179,7 @@ void TransportNetwork::broadcastMessage(ptr<NetworkMessage> _m) {
 
 }
 
-void TransportNetwork::networkReadLoop() {
+void Network::networkReadLoop() {
     setThreadName("NtwkRdLoop", getSchain()->getNode()->getConsensusEngine());
     waitOnGlobalStartBarrier();
 
@@ -227,7 +227,7 @@ void TransportNetwork::networkReadLoop() {
  * These messages are placed in deferredMessage queue to be processed later.
  * Messages with very old block ids are discarded.
  */
-void TransportNetwork::postDeferOrDrop(const ptr<NetworkMessageEnvelope> &m) {
+void Network::postDeferOrDrop(const ptr<NetworkMessageEnvelope> &m) {
 
     block_id currentBlockID = sChain->getLastCommittedBlockID() + 1;
 
@@ -259,7 +259,7 @@ void TransportNetwork::postDeferOrDrop(const ptr<NetworkMessageEnvelope> &m) {
 
 }
 
-void TransportNetwork::trySendingDelayedSends() {
+void Network::trySendingDelayedSends() {
     auto nodeCount = getSchain()->getNodeCount();
     auto schainIndex = getSchain()->getSchainIndex();
 
@@ -282,7 +282,7 @@ void TransportNetwork::trySendingDelayedSends() {
                 if (sendMessage(dstNodeInfo, msg)) {
                     // successfully sent a delayed message, remove it from the list
                     {
-                        LOCK( delayedSendsLocks.at( i ) );
+                        LOCK( delayedSendsLocks.at( i ));
                         delayedSends.at( i ).pop_front();
                     }
                 } {
@@ -296,7 +296,7 @@ void TransportNetwork::trySendingDelayedSends() {
     }
 }
 
-void TransportNetwork::deferredMessagesLoop() {
+void Network::deferredMessagesLoop() {
     setThreadName("DeferMsgLoop", getSchain()->getNode()->getConsensusEngine());
 
     waitOnGlobalStartBarrier();
@@ -327,11 +327,11 @@ void TransportNetwork::deferredMessagesLoop() {
 }
 
 
-void TransportNetwork::startThreads() {
+void Network::startThreads() {
     networkReadThread =
-            make_shared<thread>(std::bind(&TransportNetwork::networkReadLoop, this));
+            make_shared<thread>(std::bind(&Network::networkReadLoop, this));
     deferredMessageThread =
-            make_shared<thread>(std::bind(&TransportNetwork::deferredMessagesLoop, this));
+            make_shared<thread>(std::bind(&Network::deferredMessagesLoop, this));
 
     auto reg = getSchain()->getNode()->getConsensusEngine()->getThreadRegistry();
 
@@ -339,26 +339,26 @@ void TransportNetwork::startThreads() {
     reg->add(deferredMessageThread);
 }
 
-bool TransportNetwork::validateIpAddress(ptr<string> &ip) {
+bool Network::validateIpAddress(ptr<string> &ip) {
     struct sockaddr_in sa;
     int result = inet_pton(AF_INET, ip.get()->c_str(), &(sa.sin_addr));
     return result != 0;
 }
 
 
-void TransportNetwork::waitUntilExit() {
+void Network::waitUntilExit() {
     networkReadThread->join();
     deferredMessageThread->join();
 }
 
-ptr<string> TransportNetwork::ipToString(uint32_t _ip) {
+ptr<string> Network::ipToString(uint32_t _ip) {
     char *ip = (char *) &_ip;
     return make_shared<string>(
             to_string((uint8_t) ip[0]) + "." + to_string((uint8_t) ip[1]) + "." +
             to_string((uint8_t) ip[2]) + "." + to_string((uint8_t) ip[3]));
 }
 
-ptr<NetworkMessageEnvelope> TransportNetwork::receiveMessage() {
+ptr<NetworkMessageEnvelope> Network::receiveMessage() {
     auto buf = make_shared<Buffer>(MAX_CONSENSUS_MESSAGE_LEN);
     uint64_t readBytes = readMessageFromNetwork(buf);
 
@@ -386,31 +386,41 @@ ptr<NetworkMessageEnvelope> TransportNetwork::receiveMessage() {
 };
 
 
-void TransportNetwork::setTransport(TransportType _transport) {
-    TransportNetwork::transport = _transport;
+void Network::setTransport(TransportType _transport) {
+    Network::transport = _transport;
 }
 
-TransportType TransportNetwork::getTransport() {
+TransportType Network::getTransport() {
     return transport;
 }
 
-uint32_t TransportNetwork::getPacketLoss() const {
+uint32_t Network::getPacketLoss() const {
     return packetLoss;
 }
 
-void TransportNetwork::setPacketLoss(uint32_t _packetLoss) {
-    TransportNetwork::packetLoss = _packetLoss;
+void Network::setPacketLoss(uint32_t _packetLoss) {
+    Network::packetLoss = _packetLoss;
 }
 
-void TransportNetwork::setCatchupBlocks(uint64_t _catchupBlocks) {
-    TransportNetwork::catchupBlocks = _catchupBlocks;
+void Network::setCatchupBlocks(uint64_t _catchupBlocks) {
+    Network::catchupBlocks = _catchupBlocks;
 }
 
-uint64_t TransportNetwork::getCatchupBlock() const {
+uint64_t Network::getCatchupBlock() const {
     return catchupBlocks;
 }
 
-TransportNetwork::TransportNetwork(Schain &_sChain)
+uint64_t Network::computeTotalDelayedSends() {
+    uint64_t total = 0;
+    for (uint64_t i = 0; i < delayedSends.size(); i++) {
+        {   LOCK(delayedSendsLocks.at(i))
+            total += delayedSends.at(i).size();
+        }
+    }
+    return total;
+}
+
+Network::Network(Schain &_sChain)
         : Agent(_sChain, false),
       delayedSendsLocks((uint64_t) _sChain.getNodeCount()),
       delayedSends((uint64_t) _sChain.getNodeCount()) {
@@ -430,5 +440,5 @@ TransportNetwork::TransportNetwork(Schain &_sChain)
     }
 }
 
-TransportNetwork::~TransportNetwork() {
+Network::~Network() {
 }

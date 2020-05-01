@@ -58,11 +58,11 @@
 
 #include "abstracttcpserver/ConnectionStatus.h"
 
+#include "chains/TestConfig.h"
 #include "network/ClientSocket.h"
 #include "network/IO.h"
-#include "network/TransportNetwork.h"
+#include "network/Network.h"
 #include "node/Node.h"
-#include "chains/TestConfig.h"
 
 #include "chains/Schain.h"
 #include "crypto/SHAHash.h"
