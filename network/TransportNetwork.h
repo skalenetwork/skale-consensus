@@ -41,11 +41,9 @@ enum TransportType {ZMQ};
 
 class TransportNetwork : public Agent  {
 
-    // used to test catchup
+    vector<recursive_mutex> delayedSendsLocks;
 
-    recursive_mutex delayedSendsLock;
-
-    vector<std::list<pair<ptr<NetworkMessage>,ptr<NodeInfo>>>> delayedSends;
+    vector<list<pair<ptr<NetworkMessage>,ptr<NodeInfo>>>> delayedSends;
 
 
     recursive_mutex deferredMutex;

@@ -121,8 +121,8 @@ ptr<vector<ptr<NetworkMessageEnvelope> > > TransportNetwork::pullMessagesForCurr
 void TransportNetwork::addToDelayedSends(ptr<NetworkMessage> _m, ptr<NodeInfo> dstNodeInfo) {
     CHECK_ARGUMENT(_m);
     CHECK_ARGUMENT(dstNodeInfo);
-    lock_guard<recursive_mutex> lock(delayedSendsLock);
     auto dstIndex = (uint64_t) dstNodeInfo->getSchainIndex();
+    LOCK(delayedSendsLocks.at(dstIndex - 1));
     delayedSends.at(dstIndex - 1).push_back({_m, dstNodeInfo});
     if (delayedSends.at(dstIndex - 1).size() > MAX_DELAYED_MESSAGE_SENDS) {
         delayedSends.at(dstIndex - 1).pop_front();
@@ -265,18 +265,32 @@ void TransportNetwork::trySendingDelayedSends() {
 
     for (int i = 0; i < nodeCount; i++) {
         if (i != (schainIndex - 1)) {
-            lock_guard<recursive_mutex> lock(delayedSendsLock);
-            while (delayedSends.at(i).size() > 0) {
-                auto msg = delayedSends.at(i).front().second;
-                auto dstNodeInfo = delayedSends.at(i).front().first;
-                if (sendMessage(msg, dstNodeInfo)) {
+
+            ptr<NetworkMessage> msg = nullptr;
+            ptr<NodeInfo> dstNodeInfo = nullptr;
+
+            while (true) {
+                {
+                    LOCK( delayedSendsLocks.at( i ) );
+
+                    if ( delayedSends.at( i ).size() == 0 ) {
+                        break;
+                    }
+                    dstNodeInfo = delayedSends.at( i ).front().second;
+                    msg = delayedSends.at( i ).front().first;
+                }
+                if (sendMessage(dstNodeInfo, msg)) {
                     // successfully sent a delayed message, remove it from the list
-                    delayedSends.at(i).pop_front();
+                    {
+                        LOCK( delayedSendsLocks.at( i ) );
+                        delayedSends.at( i ).pop_front();
+                    }
                 } {
                     // could not send a message to this host, no point trying to
                     // send other delayed messages for this host
                     break;
                 }
+
             }
         }
     }
@@ -397,8 +411,12 @@ uint64_t TransportNetwork::getCatchupBlock() const {
 }
 
 TransportNetwork::TransportNetwork(Schain &_sChain)
-        : Agent(_sChain, false), delayedSends((uint64_t) _sChain.getNodeCount()) {
+        : Agent(_sChain, false),
+      delayedSendsLocks((uint64_t) _sChain.getNodeCount()),
+      delayedSends((uint64_t) _sChain.getNodeCount()) {
     auto cfg = _sChain.getNode()->getCfg();
+
+
 
     if (cfg.find("catchupBlocks") != cfg.end()) {
         uint64_t catchupBlock = cfg.at("catchupBlocks").get<uint64_t>();

@@ -779,7 +779,7 @@ void Schain::finalizeDecidedAndSignedBlock(block_id _blockId, schain_index _prop
     }
 
 
-    LOG(info, "Now finalizing block ... ID:" + to_string(_blockId));
+    LOG(info, "BLOCK_SIGNED: Now finalizing block ... BID:" + to_string(_blockId));
     LOG(debug, "Total txs:" + to_string(getSchain()->getTotalTransactions()) + " T(s):" +
                to_string((Time::getCurrentTimeMs() - getSchain()->getStartTimeMs()) / 1000.0));
 
