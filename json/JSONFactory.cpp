@@ -21,8 +21,8 @@
     @date 2018
 */
 
-#include "SkaleCommon.h"
 #include "Log.h"
+#include "SkaleCommon.h"
 #include "exceptions/FatalError.h"
 #include "thirdparty/json.hpp"
 
@@ -31,178 +31,175 @@
 
 #include "chains/Schain.h"
 
-#include "node/NodeInfo.h"
-#include "node/Node.h"
-#include "node/ConsensusEngine.h"
-#include "network/Sockets.h"
 #include "Log.h"
-#include "exceptions/ParsingException.h"
 #include "exceptions/FatalError.h"
+#include "exceptions/ParsingException.h"
+#include "network/Sockets.h"
+#include "node/ConsensusEngine.h"
+#include "node/Node.h"
+#include "node/NodeInfo.h"
 
 #include "JSONFactory.h"
 
-ptr<Node> JSONFactory::createNodeFromJson(const fs_path &jsonFile, set<node_id> &nodeIDs, ConsensusEngine *
-_consensusEngine, bool _useSGX, ptr<string> _keyName, ptr<vector<string>> _publicKeys) {
-
+ptr< Node > JSONFactory::createNodeFromJson( const fs_path& jsonFile, set< node_id >& nodeIDs,
+    ConsensusEngine* _consensusEngine, bool _useSGX, ptr< string > _keyName,
+    ptr< vector< string > > _publicKeys ) {
     try {
-
-        if (_useSGX) {
-            CHECK_ARGUMENT(_keyName);
-            CHECK_ARGUMENT(_publicKeys)
+        if ( _useSGX ) {
+            CHECK_ARGUMENT( _keyName );
+            CHECK_ARGUMENT( _publicKeys )
         }
 
         nlohmann::json j;
 
-        parseJsonFile(j, jsonFile);
+        parseJsonFile( j, jsonFile );
 
-        return createNodeFromJsonObject(j, nodeIDs, _consensusEngine, _useSGX, _keyName,
-                _publicKeys);
-    } catch (...) {
-        throw_with_nested(FatalError(__FUNCTION__ + to_string(__LINE__), __CLASS_NAME__));
+        return createNodeFromJsonObject(
+            j, nodeIDs, _consensusEngine, _useSGX, _keyName, _publicKeys );
+    } catch ( ... ) {
+        throw_with_nested( FatalError( __FUNCTION__ + to_string( __LINE__ ), __CLASS_NAME__ ) );
     }
-
-
 }
 
-ptr<Node> JSONFactory::createNodeFromJsonObject(const nlohmann::json &j, set<node_id> &nodeIDs, ConsensusEngine *
-_engine,  bool _useSGX, ptr<string> _keyName, ptr<vector<string>> _publicKeys) {
-
-    if (_useSGX) {
-        CHECK_ARGUMENT(_keyName && _publicKeys);
+ptr< Node > JSONFactory::createNodeFromJsonObject( const nlohmann::json& j, set< node_id >& nodeIDs,
+    ConsensusEngine* _engine, bool _useSGX, ptr< string > _keyName,
+    ptr< vector< string > > _publicKeys ) {
+    if ( _useSGX ) {
+        CHECK_ARGUMENT( _keyName && _publicKeys );
     }
 
-    if (j.find("transport") != j.end()) {
-        ptr<string> transport = make_shared<string>(j.at("transport").get<string>());
-        Network::setTransport(TransportType::ZMQ);
+    if ( j.find( "transport" ) != j.end() ) {
+        ptr< string > transport = make_shared< string >( j.at( "transport" ).get< string >() );
+        Network::setTransport( TransportType::ZMQ );
     }
 
 
-    if (j.find("logLevelConfig") != j.end()) {
-        ptr<string> logLevel = make_shared<string>(j.at("logLevelConfig").get<string>());
-        _engine->setConfigLogLevel(*logLevel);
+    if ( j.find( "logLevelConfig" ) != j.end() ) {
+        ptr< string > logLevel = make_shared< string >( j.at( "logLevelConfig" ).get< string >() );
+        _engine->setConfigLogLevel( *logLevel );
     }
 
-    uint64_t nodeID = j.at("nodeID").get<uint64_t>();
+    uint64_t nodeID = j.at( "nodeID" ).get< uint64_t >();
 
-    ptr<Node> node = nullptr;
+    ptr< Node > node = nullptr;
 
-    if (nodeIDs.empty() || nodeIDs.count(node_id(nodeID)) > 0) {
+    if ( nodeIDs.empty() || nodeIDs.count( node_id( nodeID ) ) > 0 ) {
         try {
-            node = make_shared<Node>(j, _engine, _useSGX, _keyName, _publicKeys);
-        } catch (...) {
-            throw_with_nested(FatalError("Could not init node", __CLASS_NAME__));
+            node = make_shared< Node >( j, _engine, _useSGX, _keyName, _publicKeys );
+        } catch ( ... ) {
+            throw_with_nested( FatalError( "Could not init node", __CLASS_NAME__ ) );
         }
     }
 
     return node;
-
 }
 
-void JSONFactory::createAndAddSChainFromJson(ptr<Node> _node, const fs_path &_jsonFile, ConsensusEngine *_engine) {
+void JSONFactory::createAndAddSChainFromJson(
+    ptr< Node > _node, const fs_path& _jsonFile, ConsensusEngine* _engine ) {
     try {
-
         nlohmann::json j;
 
 
-        _engine->logConfig(debug, "Parsing json file: " + _jsonFile.string(), __CLASS_NAME__);
+        _engine->logConfig( debug, "Parsing json file: " + _jsonFile.string(), __CLASS_NAME__ );
 
 
-        parseJsonFile(j, _jsonFile);
+        parseJsonFile( j, _jsonFile );
 
-        createAndAddSChainFromJsonObject(_node, j, _engine);
+        createAndAddSChainFromJsonObject( _node, j, _engine );
 
-        if (j.find("blockProposalTest") != j.end()) {
+        if ( j.find( "blockProposalTest" ) != j.end() ) {
+            string test = j["blockProposalTest"].get< string >();
 
-            string test = j["blockProposalTest"].get<string>();
-
-            if (test == SchainTest::NONE) {
-                _node->getSchain()->setBlockProposerTest(SchainTest::NONE);
-            } else if (test == SchainTest::SLOW) {
-                _node->getSchain()->setBlockProposerTest(SchainTest::SLOW);
+            if ( test == SchainTest::NONE ) {
+                _node->getSchain()->setBlockProposerTest( SchainTest::NONE );
+            } else if ( test == SchainTest::SLOW ) {
+                _node->getSchain()->setBlockProposerTest( SchainTest::SLOW );
             } else {
-                BOOST_THROW_EXCEPTION(
-                        ParsingException("Unknown test type parsing schain config:" + test, __CLASS_NAME__));
+                BOOST_THROW_EXCEPTION( ParsingException(
+                    "Unknown test type parsing schain config:" + test, __CLASS_NAME__ ) );
             }
         }
-    } catch (...) {
-        throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
+    } catch ( ... ) {
+        throw_with_nested( FatalError( __FUNCTION__, __CLASS_NAME__ ) );
     }
-
 }
 
-void JSONFactory::createAndAddSChainFromJsonObject(ptr<Node> &_node, const nlohmann::json &j, ConsensusEngine *_engine) {
-
+void JSONFactory::createAndAddSChainFromJsonObject(
+    ptr< Node >& _node, const nlohmann::json& j, ConsensusEngine* _engine ) {
     try {
-
         string prefix = "/";
 
-        if (j.count("skaleConfig") > 0) {
+        if ( j.count( "skaleConfig" ) > 0 ) {
             prefix = "/skaleConfig/nodeInfo/";
-
         }
 
-        string schainName = j[nlohmann::json::json_pointer(prefix + "schainName")].get<string>();
+        string schainName =
+            j[nlohmann::json::json_pointer( prefix + "schainName" )].get< string >();
 
-        schain_id schainID(j[nlohmann::json::json_pointer(prefix + "schainID")].get<uint64_t>());
+        schain_id schainID(
+            j[nlohmann::json::json_pointer( prefix + "schainID" )].get< uint64_t >() );
 
         uint64_t emptyBlockIntervalMs;
-        if ( j.count(prefix + "emptyBlockIntervalMs") != 0 ) {
-            int64_t emptyBlockIntervalMsTmp = j[nlohmann::json::json_pointer(prefix + "emptyBlockIntervalMs")].get<int64_t>();
-            if ( emptyBlockIntervalMsTmp < 0 ) {
-                emptyBlockIntervalMs = 100000000000000;
-            } else {
-                emptyBlockIntervalMs = emptyBlockIntervalMsTmp;
-            }
+        int64_t emptyBlockIntervalMsTmp;
+
+        try {
+            emptyBlockIntervalMsTmp =
+                j[nlohmann::json::json_pointer( prefix + "emptyBlockIntervalMs" )].get< int64_t >();
+        } catch ( ... ) {
+            emptyBlockIntervalMsTmp = EMPTY_BLOCK_INTERVAL_MS;
+        }
+
+        if ( emptyBlockIntervalMsTmp < 0 ) {
+            emptyBlockIntervalMs = 100000000000000;
         } else {
-            emptyBlockIntervalMs = EMPTY_BLOCK_INTERVAL_MS;
+            emptyBlockIntervalMs = emptyBlockIntervalMsTmp;
         }
 
         _node->setEmptyBlockIntervalMs( emptyBlockIntervalMs );
 
-        ptr<NodeInfo> localNodeInfo = nullptr;
+        ptr< NodeInfo > localNodeInfo = nullptr;
 
-        vector<ptr<NodeInfo>> remoteNodeInfos;
+        vector< ptr< NodeInfo > > remoteNodeInfos;
 
-        nlohmann::json nodes = j[nlohmann::json::json_pointer(prefix + "nodes")];
+        nlohmann::json nodes = j[nlohmann::json::json_pointer( prefix + "nodes" )];
 
-        for (auto it = nodes.begin(); it != nodes.end(); ++it) {
+        for ( auto it = nodes.begin(); it != nodes.end(); ++it ) {
+            node_id nodeID( ( *it )["nodeID"].get< uint64_t >() );
 
-            node_id nodeID((*it)["nodeID"].get<uint64_t>());
+            _engine->logConfig( trace,
+                to_string( _node->getNodeID() ) + ": Adding node:" + to_string( nodeID ),
+                __CLASS_NAME__ );
 
-            _engine->logConfig(trace, to_string(_node->getNodeID()) + ": Adding node:" + to_string(nodeID), __CLASS_NAME__);
+            ptr< string > ip = make_shared< string >( ( *it ).at( "ip" ).get< string >() );
 
-            ptr<string> ip = make_shared<string>((*it).at("ip").get<string>());
+            network_port port( ( *it )["basePort"].get< int >() );
 
-            network_port port((*it)["basePort"].get<int>());
-
-            schain_index schainIndex((*it)["schainIndex"].get<uint64_t>());
+            schain_index schainIndex( ( *it )["schainIndex"].get< uint64_t >() );
 
 
-            auto rni = make_shared<NodeInfo>(nodeID, ip, port, schainID, schainIndex);
+            auto rni = make_shared< NodeInfo >( nodeID, ip, port, schainID, schainIndex );
 
-            if (nodeID == _node->getNodeID())
+            if ( nodeID == _node->getNodeID() )
                 localNodeInfo = rni;
 
-            remoteNodeInfos.push_back(rni);
+            remoteNodeInfos.push_back( rni );
         }
 
-        ASSERT(localNodeInfo);
-        Node::initSchain(_node, localNodeInfo, remoteNodeInfos, _engine->getExtFace());
-    } catch (...) {
-        throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
+        ASSERT( localNodeInfo );
+        Node::initSchain( _node, localNodeInfo, remoteNodeInfos, _engine->getExtFace() );
+    } catch ( ... ) {
+        throw_with_nested( FatalError( __FUNCTION__, __CLASS_NAME__ ) );
     }
-
 }
 
-void JSONFactory::parseJsonFile(nlohmann::json &j, const fs_path &configFile) {
+void JSONFactory::parseJsonFile( nlohmann::json& j, const fs_path& configFile ) {
+    ifstream f( configFile.c_str() );
 
-
-    ifstream f(configFile.c_str());
-
-    if (f.good()) {
+    if ( f.good() ) {
         f >> j;
     } else {
-        BOOST_THROW_EXCEPTION(FatalError("Could not find config file: JSON file does not exist " + configFile.string(),
-                                         __CLASS_NAME__));
+        BOOST_THROW_EXCEPTION( FatalError(
+            "Could not find config file: JSON file does not exist " + configFile.string(),
+            __CLASS_NAME__ ) );
     }
 }
