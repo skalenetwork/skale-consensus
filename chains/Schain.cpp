@@ -765,7 +765,7 @@ ptr<BlockProposal> Schain::createEmptyBlockProposal(block_id _blockId) {
 }
 
 
-void Schain::decideBlock(block_id _blockId, schain_index _proposerIndex, ptr<ThresholdSignature> _thresholdSig) {
+void Schain::finalizeDecidedAndSignedBlock(block_id _blockId, schain_index _proposerIndex, ptr<ThresholdSignature> _thresholdSig) {
 
     CHECK_ARGUMENT(_thresholdSig != nullptr);
 
@@ -774,12 +774,12 @@ void Schain::decideBlock(block_id _blockId, schain_index _proposerIndex, ptr<Thr
 
 
     if (_blockId <= getLastCommittedBlockID()) {
-        LOG(info, "Ignoring old block decide, already got this through catchup: BLOCK_ID:" + to_string(_blockId) + ":PRP:" + to_string(_proposerIndex));
+        LOG(info, "Ignoring old block decide, already got this through catchup: BID:" + to_string(_blockId) + ":PRP:" + to_string(_proposerIndex));
         return;
     }
 
 
-    LOG(debug, "decideBlock:" + to_string(_blockId) + ":PRP:" + to_string(_proposerIndex));
+    LOG(info, "Now finalizing block ... ID:" + to_string(_blockId));
     LOG(debug, "Total txs:" + to_string(getSchain()->getTotalTransactions()) + " T(s):" +
                to_string((Time::getCurrentTimeMs() - getSchain()->getStartTimeMs()) / 1000.0));
 

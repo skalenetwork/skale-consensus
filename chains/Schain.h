@@ -252,6 +252,6 @@ public:
     ptr<CryptoManager> getCryptoManager() const;
 
 
-    void decideBlock(block_id _blockId, schain_index _proposerIndex, ptr<ThresholdSignature> _signature);
+    void finalizeDecidedAndSignedBlock(block_id _blockId, schain_index _proposerIndex, ptr<ThresholdSignature> _thresholdSig );
 
 };

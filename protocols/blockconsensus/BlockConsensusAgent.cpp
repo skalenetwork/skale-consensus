@@ -184,7 +184,7 @@ void BlockConsensusAgent::decideBlock(block_id _blockId, schain_index _sChainInd
 
 
         if (signature != nullptr) {
-            getSchain()->decideBlock(_blockId, _sChainIndex, signature);
+            getSchain()->finalizeDecidedAndSignedBlock( _blockId, _sChainIndex, signature );
         }
 
 
@@ -302,7 +302,14 @@ void BlockConsensusAgent::processBlockSignMessage(ptr<BlockSignBroadcastMessage>
             return;
         }
 
-        getSchain()->decideBlock(_message->getBlockId(), _message->getBlockProposerIndex(), signature);
+        auto proposer = _message->getBlockProposerIndex();
+        auto blockId = _message->getBlockId();
+
+        LOG(info, string("BLOCK_DECIDE (GOT SIG): PRPSR:") + to_string(proposer) +
+                  ":BID:" + to_string(blockId) + "| Now signing block ...");
+
+        getSchain()->finalizeDecidedAndSignedBlock(
+            blockId, proposer, signature );
 
     } catch (ExitRequestedException &e) { throw; }
     catch (...) {
