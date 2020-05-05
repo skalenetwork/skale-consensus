@@ -217,25 +217,23 @@ add_precompiled_header(consensus SkaleCommon.h FORCE_INCLUDE)
 
 add_executable(consensusd Consensusd.h Consensusd.cpp)
 
-# libgoogle-perftools-dev
-if (CMAKE_PROJECT_NAME STREQUAL "consensus")
-
-    include_directories( ${DEPS_INSTALL_ROOT}/include )
-    #  sudo apt-get install -qq -yy libgoogle-perftools-dev
-
-    target_link_libraries(consensusd  consensus tcmalloc)
-else ()
+# # libgoogle-perftools-dev
+# if (CMAKE_PROJECT_NAME STREQUAL "consensus")
+#     include_directories( ${DEPS_INSTALL_ROOT}/include )
+#     #  sudo apt-get install -qq -yy libgoogle-perftools-dev
+#     target_link_libraries(consensusd  consensus tcmalloc)
+# else ()
     target_link_libraries(consensusd  consensus)
-endif ()
+# endif ()
 
 
 
 add_executable(consensust Consensust.h Consensust.cpp datastructures/SerializationTests.cpp db/DBTests.cpp)
 
-# libgoogle-perftools-dev
-if (CMAKE_PROJECT_NAME STREQUAL "consensus")
-    #  sudo apt-get install -qq -yy libgoogle-perftools-dev
-    target_link_libraries(consensust consensus tcmalloc)
-else ()
+# # libgoogle-perftools-dev
+# if (CMAKE_PROJECT_NAME STREQUAL "consensus")
+#     #  sudo apt-get install -qq -yy libgoogle-perftools-dev
+#     target_link_libraries(consensust consensus tcmalloc)
+# else ()
     target_link_libraries(consensust consensus)
-endif ()
+# endif ()
