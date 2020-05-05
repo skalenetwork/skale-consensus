@@ -54,9 +54,9 @@ def fullConsensusTest(_test, _consensustExecutive, _testType):
 
 
 def getConsensustExecutive():
-    run_without_check("cp -f cmake-build-debug/consensust consensust")
-    run_without_check("cp -f build/consensust consensust")
-    consensustExecutive = "../../consensust"
+    run_without_check("cp -f cmake-build-debug/consensust /tmp/consensust")
+    run_without_check("cp -f build/consensust /tmp/consensust")
+    consensustExecutive = "/tmp/consensust"
     return consensustExecutive
 
 
@@ -67,6 +67,10 @@ os.chdir("..")
 run("ccache -M 20G")
 
 consensustExecutive = getConsensustExecutive()
+
+unitTest(consensustExecutive, "[tx-serialize]")
+unitTest(consensustExecutive, "[tx-list-serialize]")   
+
 
 fullConsensusTest("sixteennodes", consensustExecutive, "[consensus-finalization-download]")
 
