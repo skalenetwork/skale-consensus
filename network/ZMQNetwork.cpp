@@ -63,7 +63,7 @@ bool ZMQNetwork::sendMessage(const ptr<NodeInfo> &_remoteNodeInfo, ptr<NetworkMe
 
     auto port = _remoteNodeInfo->getPort();
 
-    void *s = sChain->getNode()->getSockets()->consensusZMQSocket->getDestinationSocket(ip, port);
+    void *s = sChain->getNode()->getSockets()->consensusZMQSockets->getDestinationSocket(ip, port);
 
 #ifdef ZMQ_NONBLOCKING
     return interruptableSend(s, buf->data(), buf->size(), true);
@@ -144,7 +144,7 @@ bool ZMQNetwork::interruptableSend(void *_socket, void *_buf, size_t _len, bool 
 
 uint64_t ZMQNetwork::readMessageFromNetwork(ptr<Buffer> buf) {
 
-    auto s = sChain->getNode()->getSockets()->consensusZMQSocket->getReceiveSocket();
+    auto s = sChain->getNode()->getSockets()->consensusZMQSockets->getReceiveSocket();
 
     auto rc = interruptableRecv(s, buf->getBuf()->data(), MAX_CONSENSUS_MESSAGE_LEN, 0);
 

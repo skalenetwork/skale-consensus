@@ -38,7 +38,6 @@ ServerSocket::ServerSocket(ptr<string> &_bindIP, uint16_t _basePort, port_type _
 
     ASSERT( Utils::isValidIpAddress( _bindIP ) );
 
-    this->socketaddr = Sockets::createSocketAddress( bindIP, bindPort );
 
     LOG(debug, "Binding ip: " + *_bindIP + " " + to_string(bindPort) + " " +
                to_string(_basePort));
@@ -49,7 +48,6 @@ ServerSocket::ServerSocket(ptr<string> &_bindIP, uint16_t _basePort, port_type _
 
 
 ServerSocket::~ServerSocket() {
-    closeSocket();
 }
 
 

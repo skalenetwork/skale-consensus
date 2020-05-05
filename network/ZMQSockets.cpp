@@ -93,6 +93,8 @@ void * ZMQSockets::getReceiveSocket()  {
 
 void ZMQSockets::closeReceive() {
 
+    LOCK(m);
+
     if(receiveSocket){
         receiveSocket = nullptr;
         zmq_close(receiveSocket);
@@ -101,6 +103,7 @@ void ZMQSockets::closeReceive() {
 
 
 void ZMQSockets::closeSend() {
+    LOCK(m);
     for (auto &&item : sendSockets) {
         if(item.second){
             LOG(debug, getThreadName() + " zmq debug in closeSend(): closing " + to_string((uint64_t) item.second));
@@ -111,14 +114,26 @@ void ZMQSockets::closeSend() {
 }
 
 
-void ZMQSockets::terminate() {
+void ZMQSockets::closeAndCleanupAll() {
+    LOCK(m);
+
+    if (terminated) {
+        return;
+    }
+
+
+    terminated = false;
+
     closeSend();
     closeReceive();
     zmq_ctx_shutdown(context);
     zmq_ctx_term(context);
+
 }
 
 
 ZMQSockets::~ZMQSockets() {
+    // last resort
+    closeAndCleanupAll();
 }
 

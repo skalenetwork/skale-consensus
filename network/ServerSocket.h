@@ -28,11 +28,12 @@ class ServerSocket {
 
 protected:
 
+    recursive_mutex m;
+
     ptr< string > bindIP;
 
     uint32_t bindPort;
 
-    ptr< sockaddr_in > socketaddr;
 
 public:
 
@@ -40,5 +41,5 @@ public:
 
     virtual ~ServerSocket();
 
-    virtual void closeSocket() {};
+    virtual void closeAndCleanupAll() = 0;
 };

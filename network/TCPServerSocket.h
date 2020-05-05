@@ -32,6 +32,7 @@
 class TCPServerSocket : public ServerSocket{
 
 
+    ptr< sockaddr_in > socketaddr;
 
     int descriptor = 0;
 
@@ -48,6 +49,6 @@ public:
 
     virtual ~TCPServerSocket();
 
-    void closeSocket();
+    void closeAndCleanupAll();
 
 };

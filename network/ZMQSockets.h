@@ -31,6 +31,8 @@ static const int ZMQ_TIMEOUT = 1000;
 
 class ZMQSockets : public ServerSocket {
 
+    bool terminated = false;
+
     mutex mainMutex;
 
     void *context;
@@ -52,12 +54,7 @@ public:
 
     void closeSend();
 
-    void terminate();
-
-
-    void closeSocket() {
-    }
-
+    void closeAndCleanupAll();
 
     virtual ~ZMQSockets();
 

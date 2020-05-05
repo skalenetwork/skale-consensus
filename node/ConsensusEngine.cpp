@@ -605,7 +605,7 @@ void ConsensusEngine::exitGracefullyAsync() {
         }
 
 
-        for (auto const it : nodes) {
+        for (auto&&  it : nodes) {
             it.second->exit();
         }
 
@@ -613,13 +613,13 @@ void ConsensusEngine::exitGracefullyAsync() {
         threadRegistry->joinAll();
 
 
-        for (auto const it : nodes) {
+        for (auto && it : nodes) {
             if (it.second->getSockets())
-                it.second->getSockets()->getConsensusZMQSocket()->terminate();
+                it.second->getSockets()->getConsensusZMQSockets()->closeAndCleanupAll();
         }
 
 
-        for (auto const it : nodes) {
+        for (auto && it : nodes) {
             it.second->getSchain()->joinMonitorThread();
         }
 

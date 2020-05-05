@@ -48,9 +48,9 @@ public:
 
 
 
-    ptr< ZMQSockets > consensusZMQSocket = nullptr;
+    ptr< ZMQSockets > consensusZMQSockets = nullptr;
 
-    ptr< ZMQSockets > getConsensusZMQSocket() const;
+    ptr< ZMQSockets > getConsensusZMQSockets() const;
 
 
     ptr<TCPServerSocket> blockProposalSocket;

@@ -206,7 +206,7 @@ void Network::networkReadLoop() {
                 throw;
             } catch (exception &e) {
                 if (sChain->getNode()->isExitRequested()) {
-                    sChain->getNode()->getSockets()->consensusZMQSocket->closeReceive();
+                    sChain->getNode()->getSockets()->consensusZMQSockets->closeReceive();
                     return;
                 }
                 Exception::logNested(e);
@@ -217,7 +217,7 @@ void Network::networkReadLoop() {
         sChain->getNode()->exitOnFatalError(e.getMessage());
     }
 
-    sChain->getNode()->getSockets()->consensusZMQSocket->closeReceive();
+    sChain->getNode()->getSockets()->consensusZMQSockets->closeReceive();
 }
 
 
