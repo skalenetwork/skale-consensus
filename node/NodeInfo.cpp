@@ -55,8 +55,8 @@ ptr<sockaddr_in> NodeInfo::getSocketaddr() {
 }
 
 ptr<string> NodeInfo::getBaseIP() {
-    ASSERT(ip);
-    return ip;
+    CHECK_STATE( ipAddress );
+    return ipAddress;
 }
 
 
@@ -67,7 +67,7 @@ schain_id NodeInfo::getSchainID() const {
 
 NodeInfo::NodeInfo(node_id nodeID, ptr<string> &ip, network_port port, schain_id schainID, schain_index schainIndex) :
         nodeID(nodeID),
-        ip(ip),
+      ipAddress(ip),
         port(port),
         schainID(
                 schainID),

@@ -76,14 +76,14 @@
 #include "spdlog/spdlog.h"
 
 #include "chains/Schain.h"
-#include "libBLS/bls/BLSSignature.h"
-#include "libBLS/bls/BLSPublicKey.h"
-#include "libBLS/bls/BLSPrivateKeyShare.h"
 #include "exceptions/EngineInitException.h"
 #include "json/JSONFactory.h"
+#include "libBLS/bls/BLSPrivateKeyShare.h"
+#include "libBLS/bls/BLSPublicKey.h"
+#include "libBLS/bls/BLSSignature.h"
 #include "network/Sockets.h"
 #include "network/Utils.h"
-#include "network/ZMQServerSocket.h"
+#include "network/ZMQSockets.h"
 #include "protocols/ProtocolKey.h"
 #include "protocols/binconsensus/BinConsensusInstance.h"
 
@@ -605,7 +605,7 @@ void ConsensusEngine::exitGracefullyAsync() {
         }
 
 
-        for (auto const it : nodes) {
+        for (auto&&  it : nodes) {
             it.second->exit();
         }
 
@@ -613,13 +613,13 @@ void ConsensusEngine::exitGracefullyAsync() {
         threadRegistry->joinAll();
 
 
-        for (auto const it : nodes) {
+        for (auto && it : nodes) {
             if (it.second->getSockets())
-                it.second->getSockets()->getConsensusZMQSocket()->terminate();
+                it.second->getSockets()->getConsensusZMQSockets()->closeAndCleanupAll();
         }
 
 
-        for (auto const it : nodes) {
+        for (auto && it : nodes) {
             it.second->getSchain()->joinMonitorThread();
         }
 

@@ -27,7 +27,7 @@ class NodeInfo {
 
     node_id nodeID;
 
-    ptr<string> ip;
+    ptr<string> ipAddress;
 
     network_port port;
 

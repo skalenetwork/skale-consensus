@@ -29,34 +29,33 @@
 
 static const int ZMQ_TIMEOUT = 1000;
 
-class ZMQServerSocket : public ServerSocket {
+class ZMQSockets : public ServerSocket {
 
-    mutex mainMutex;
+    bool terminated = false;
 
     void *context;
 
-    map<string, void *> sendSockets;
+    map<schain_index, void *> sendSockets;
 
     void *receiveSocket = nullptr;
 
 public:
 
-
-    ZMQServerSocket(ptr<string> &_bindIP, uint16_t _basePort, port_type _portType);
+    ZMQSockets(ptr<string> &_bindIP, uint16_t _basePort, port_type _portType);
 
 
     void *getReceiveSocket();
 
-    void *getDestinationSocket(ptr<string> _ip, network_port _basePort);
+    void* getDestinationSocket( ptr< NodeInfo > _remoteNodeInfo );
 
 
     void closeReceive();
 
     void closeSend();
 
-    void terminate();
+    void closeAndCleanupAll();
 
-    virtual ~ZMQServerSocket();
+    virtual ~ZMQSockets();
 
 
 };

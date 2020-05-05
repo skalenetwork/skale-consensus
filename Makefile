@@ -3927,32 +3927,32 @@ network/ZMQNetwork.cpp.s:
 	$(MAKE) -f CMakeFiles/consensus.dir/build.make CMakeFiles/consensus.dir/network/ZMQNetwork.cpp.s
 .PHONY : network/ZMQNetwork.cpp.s
 
-network/ZMQServerSocket.o: network/ZMQServerSocket.cpp.o
+network/ZMQSockets.o: network/ZMQSockets.cpp.o
 
-.PHONY : network/ZMQServerSocket.o
+.PHONY : network/ZMQSockets.o
 
 # target to build an object file
-network/ZMQServerSocket.cpp.o:
-	$(MAKE) -f CMakeFiles/consensus.dir/build.make CMakeFiles/consensus.dir/network/ZMQServerSocket.cpp.o
-.PHONY : network/ZMQServerSocket.cpp.o
+network/ZMQSockets.cpp.o:
+	$(MAKE) -f CMakeFiles/consensus.dir/build.make CMakeFiles/consensus.dir/network/ZMQSockets.cpp.o
+.PHONY : network/ZMQSockets.cpp.o
 
-network/ZMQServerSocket.i: network/ZMQServerSocket.cpp.i
+network/ZMQSockets.i: network/ZMQSockets.cpp.i
 
-.PHONY : network/ZMQServerSocket.i
+.PHONY : network/ZMQSockets.i
 
 # target to preprocess a source file
-network/ZMQServerSocket.cpp.i:
-	$(MAKE) -f CMakeFiles/consensus.dir/build.make CMakeFiles/consensus.dir/network/ZMQServerSocket.cpp.i
-.PHONY : network/ZMQServerSocket.cpp.i
+network/ZMQSockets.cpp.i:
+	$(MAKE) -f CMakeFiles/consensus.dir/build.make CMakeFiles/consensus.dir/network/ZMQSockets.cpp.i
+.PHONY : network/ZMQSockets.cpp.i
 
-network/ZMQServerSocket.s: network/ZMQServerSocket.cpp.s
+network/ZMQSockets.s: network/ZMQSockets.cpp.s
 
-.PHONY : network/ZMQServerSocket.s
+.PHONY : network/ZMQSockets.s
 
 # target to generate assembly for a file
-network/ZMQServerSocket.cpp.s:
-	$(MAKE) -f CMakeFiles/consensus.dir/build.make CMakeFiles/consensus.dir/network/ZMQServerSocket.cpp.s
-.PHONY : network/ZMQServerSocket.cpp.s
+network/ZMQSockets.cpp.s:
+	$(MAKE) -f CMakeFiles/consensus.dir/build.make CMakeFiles/consensus.dir/network/ZMQSockets.cpp.s
+.PHONY : network/ZMQSockets.cpp.s
 
 node/ConsensusEngine.o: node/ConsensusEngine.cpp.o
 
@@ -4953,9 +4953,9 @@ help:
 	@echo "... network/ZMQNetwork.o"
 	@echo "... network/ZMQNetwork.i"
 	@echo "... network/ZMQNetwork.s"
-	@echo "... network/ZMQServerSocket.o"
-	@echo "... network/ZMQServerSocket.i"
-	@echo "... network/ZMQServerSocket.s"
+	@echo "... network/ZMQSockets.o"
+	@echo "... network/ZMQSockets.i"
+	@echo "... network/ZMQSockets.s"
 	@echo "... node/ConsensusEngine.o"
 	@echo "... node/ConsensusEngine.i"
 	@echo "... node/ConsensusEngine.s"

@@ -25,22 +25,32 @@
 #include "Log.h"
 #include "exceptions/FatalError.h"
 
-#include "zmq.h"
+#include "ZMQSockets.h"
+#include "node/NodeInfo.h"
 #include "exceptions/FatalError.h"
-#include "ZMQServerSocket.h"
+#include "zmq.h"
 
-ZMQServerSocket::ZMQServerSocket(ptr<string> &_bindIP, uint16_t _basePort, port_type _portType) : ServerSocket(_bindIP,
+ZMQSockets::ZMQSockets(ptr<string> &_bindIP, uint16_t _basePort, port_type _portType) : ServerSocket(_bindIP,
                                                                                                                _basePort,
                                                                                                                _portType) {
     context = zmq_ctx_new();
 }
 
-void *ZMQServerSocket::getDestinationSocket(ptr<string> _ip, network_port _basePort) {
+void* ZMQSockets::getDestinationSocket( ptr< NodeInfo > _remoteNodeInfo ) {
 
-    lock_guard<mutex> lock(mainMutex);
+    LOCK(m)
 
-    if (sendSockets.count(*_ip) > 0) {
-        return sendSockets.at(*_ip);
+    CHECK_ARGUMENT(_remoteNodeInfo)
+
+
+    auto ipAddress = _remoteNodeInfo->getBaseIP();
+
+    auto basePort = _remoteNodeInfo->getPort();
+
+    auto schainIndex = _remoteNodeInfo->getSchainIndex();
+
+    if (sendSockets.count( schainIndex ) > 0) {
+        return sendSockets.at( schainIndex );
     }
 
 
@@ -56,16 +66,16 @@ void *ZMQServerSocket::getDestinationSocket(ptr<string> _ip, network_port _baseP
     zmq_setsockopt(requester, ZMQ_LINGER, &linger, sizeof(int));
 
 
-    int result = zmq_connect(requester, ("tcp://" + *_ip + ":" + to_string(_basePort + BINARY_CONSENSUS)).c_str());
+    int result = zmq_connect(requester, ("tcp://" + *ipAddress + ":" + to_string(basePort + BINARY_CONSENSUS)).c_str());
     LOG(debug, "Connected ZMQ socket" + to_string(result));
-    sendSockets[*_ip] = requester;
+    sendSockets[schainIndex] = requester;
 
     return requester;
 }
 
-void *ZMQServerSocket::getReceiveSocket()  {
+void * ZMQSockets::getReceiveSocket()  {
 
-    lock_guard<mutex> lock(mainMutex);
+    LOCK(m)
 
     if (!receiveSocket) {
 
@@ -91,7 +101,9 @@ void *ZMQServerSocket::getReceiveSocket()  {
 }
 
 
-void ZMQServerSocket::closeReceive() {
+void ZMQSockets::closeReceive() {
+
+    LOCK(m);
 
     if(receiveSocket){
         receiveSocket = nullptr;
@@ -100,7 +112,8 @@ void ZMQServerSocket::closeReceive() {
 }
 
 
-void ZMQServerSocket::closeSend() {
+void ZMQSockets::closeSend() {
+    LOCK(m);
     for (auto &&item : sendSockets) {
         if(item.second){
             LOG(debug, getThreadName() + " zmq debug in closeSend(): closing " + to_string((uint64_t) item.second));
@@ -111,14 +124,26 @@ void ZMQServerSocket::closeSend() {
 }
 
 
-void ZMQServerSocket::terminate() {
+void ZMQSockets::closeAndCleanupAll() {
+    LOCK(m);
+
+    if (terminated) {
+        return;
+    }
+
+
+    terminated = false;
+
     closeSend();
     closeReceive();
     zmq_ctx_shutdown(context);
     zmq_ctx_term(context);
+
 }
 
 
-ZMQServerSocket::~ZMQServerSocket() {
+ZMQSockets::~ZMQSockets() {
+    // last resort
+    closeAndCleanupAll();
 }
 

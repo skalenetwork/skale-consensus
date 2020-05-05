@@ -1,0 +1,7 @@
+{
+  "nodeName":  "Node4",
+  "nodeID": 1115,
+  "bindIP": "127.0.0.1",
+  "basePort":1261,
+  "simulateNetworkWriteDelayMs": 100
+}

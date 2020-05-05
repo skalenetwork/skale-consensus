@@ -76,7 +76,7 @@
 #include "network/ClientSocket.h"
 #include "network/IO.h"
 #include "network/Sockets.h"
-#include "network/ZMQServerSocket.h"
+#include "network/ZMQSockets.h"
 #include "node/NodeInfo.h"
 #include "pricing/PricingAgent.h"
 #include "protocols/ProtocolInstance.h"
@@ -135,7 +135,7 @@ void Schain::messageThreadProcessingLoop( Schain* s ) {
                 while ( s->messageQueue.empty() ) {
                     s->messageCond.wait( mlock );
                     if ( s->getNode()->isExitRequested() ) {
-                        s->getNode()->getSockets()->consensusZMQSocket->closeSend();
+                        s->getNode()->getSockets()->consensusZMQSockets->closeSend();
                         return;
                     }
                 }
@@ -156,7 +156,7 @@ void Schain::messageThreadProcessingLoop( Schain* s ) {
                     s->getBlockConsensusInstance()->routeAndProcessMessage( m );
                 } catch ( exception& e ) {
                     if ( s->getNode()->isExitRequested() ) {
-                        s->getNode()->getSockets()->consensusZMQSocket->closeSend();
+                        s->getNode()->getSockets()->consensusZMQSockets->closeSend();
                         return;
                     }
                     Exception::logNested( e );
@@ -167,7 +167,7 @@ void Schain::messageThreadProcessingLoop( Schain* s ) {
         }
 
 
-        s->getNode()->getSockets()->consensusZMQSocket->closeSend();
+        s->getNode()->getSockets()->consensusZMQSockets->closeSend();
     } catch ( FatalError* e ) {
         s->getNode()->exitOnFatalError( e->getMessage() );
     }

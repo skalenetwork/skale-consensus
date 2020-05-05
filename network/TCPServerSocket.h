@@ -32,6 +32,10 @@
 class TCPServerSocket : public ServerSocket{
 
 
+    ptr< sockaddr_in > socketaddr;
+
+    int descriptor = 0;
+
     int createAndBindTCPSocket();
 
 public:
@@ -41,7 +45,10 @@ public:
     void touch();
 
 
+    int getDescriptor();
 
     virtual ~TCPServerSocket();
+
+    void closeAndCleanupAll();
 
 };

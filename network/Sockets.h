@@ -33,7 +33,7 @@
 
 class ServerSocker;
 class TCPServerSocket;
-class ZMQServerSocket;
+class ZMQSockets;
 
 class Sockets {
 
@@ -48,9 +48,9 @@ public:
 
 
 
-    ptr<ZMQServerSocket> consensusZMQSocket = nullptr;
+    ptr< ZMQSockets > consensusZMQSockets = nullptr;
 
-    ptr<ZMQServerSocket> getConsensusZMQSocket() const;
+    ptr< ZMQSockets > getConsensusZMQSockets() const;
 
 
     ptr<TCPServerSocket> blockProposalSocket;

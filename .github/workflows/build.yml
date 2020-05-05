@@ -89,5 +89,5 @@ jobs:
       run: |
         cd scripts
         ulimit -n 65535
-        ./tests.py
+        ./tests.py | > /tmp/log_of_test.txt   2>&1 || ( tail -1000 /tmp/log_of_test.txt && false );
 

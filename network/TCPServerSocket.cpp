@@ -21,12 +21,13 @@
     @date 2018
 */
 
+
+#include <boost/asio.hpp>
+#include "Network.h"
 #include "SkaleCommon.h"
 #include "Log.h"
 #include "exceptions/FatalError.h"
-
-#include "exceptions/FatalError.h"
-#include <boost/asio.hpp>
+#include "Sockets.h"
 #include "TCPServerSocket.h"
 
 int TCPServerSocket::createAndBindTCPSocket() {
@@ -39,12 +40,9 @@ int TCPServerSocket::createAndBindTCPSocket() {
 
     }
 
-
     int iSetOption = 1;
 
-
     setsockopt(s, SOL_SOCKET, SO_REUSEADDR, (char *) &iSetOption, sizeof(iSetOption));
-
 
     if (::bind(s, (struct sockaddr *) socketaddr.get(), sizeof(sockaddr_in)) < 0) {
 
@@ -63,14 +61,17 @@ int TCPServerSocket::createAndBindTCPSocket() {
 
 TCPServerSocket::TCPServerSocket(ptr<string> &_bindIP, uint16_t _basePort, port_type _portType) : ServerSocket(_bindIP,
                                                                                                                _basePort,
+
                                                                                                                _portType) {
+    this->socketaddr = Sockets::createSocketAddress( bindIP, bindPort );
     descriptor = createAndBindTCPSocket();
-    ASSERT(descriptor > 0);
+    CHECK_STATE(descriptor > 0);
 }
 
 
 TCPServerSocket::~TCPServerSocket() {
-    close(descriptor);
+    if (descriptor != 0)
+        close( descriptor );
 }
 
 void TCPServerSocket::touch() {
@@ -81,4 +82,15 @@ void TCPServerSocket::touch() {
     sock.connect(ep);
 }
 
+int TCPServerSocket::getDescriptor() {
+    return descriptor;
+}
 
+
+void TCPServerSocket::closeAndCleanupAll() {
+    LOCK(m)
+    if (descriptor != 0) {
+        close( descriptor );
+        descriptor = 0;
+    }
+}
