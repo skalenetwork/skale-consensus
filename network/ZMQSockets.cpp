@@ -26,6 +26,7 @@
 #include "exceptions/FatalError.h"
 
 #include "ZMQSockets.h"
+#include "node/NodeInfo.h"
 #include "exceptions/FatalError.h"
 #include "zmq.h"
 
@@ -35,12 +36,21 @@ ZMQSockets::ZMQSockets(ptr<string> &_bindIP, uint16_t _basePort, port_type _port
     context = zmq_ctx_new();
 }
 
-void * ZMQSockets::getDestinationSocket(ptr<string> _ip, network_port _basePort) {
+void* ZMQSockets::getDestinationSocket( ptr< NodeInfo > _remoteNodeInfo ) {
 
-    lock_guard<mutex> lock(mainMutex);
+    LOCK(m)
 
-    if (sendSockets.count(*_ip) > 0) {
-        return sendSockets.at(*_ip);
+    CHECK_ARGUMENT(_remoteNodeInfo)
+
+
+    auto ipAddress = _remoteNodeInfo->getBaseIP();
+
+    auto basePort = _remoteNodeInfo->getPort();
+
+    auto schainIndex = _remoteNodeInfo->getSchainIndex();
+
+    if (sendSockets.count( schainIndex ) > 0) {
+        return sendSockets.at( schainIndex );
     }
 
 
@@ -56,16 +66,16 @@ void * ZMQSockets::getDestinationSocket(ptr<string> _ip, network_port _basePort)
     zmq_setsockopt(requester, ZMQ_LINGER, &linger, sizeof(int));
 
 
-    int result = zmq_connect(requester, ("tcp://" + *_ip + ":" + to_string(_basePort + BINARY_CONSENSUS)).c_str());
+    int result = zmq_connect(requester, ("tcp://" + *ipAddress + ":" + to_string(basePort + BINARY_CONSENSUS)).c_str());
     LOG(debug, "Connected ZMQ socket" + to_string(result));
-    sendSockets[*_ip] = requester;
+    sendSockets[schainIndex] = requester;
 
     return requester;
 }
 
 void * ZMQSockets::getReceiveSocket()  {
 
-    lock_guard<mutex> lock(mainMutex);
+    LOCK(m)
 
     if (!receiveSocket) {
 

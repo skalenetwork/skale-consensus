@@ -33,21 +33,20 @@ class ZMQSockets : public ServerSocket {
 
     bool terminated = false;
 
-    mutex mainMutex;
-
     void *context;
 
-    map<string, void *> sendSockets;
+    map<schain_index, void *> sendSockets;
 
     void *receiveSocket = nullptr;
 
 public:
+
     ZMQSockets(ptr<string> &_bindIP, uint16_t _basePort, port_type _portType);
 
 
     void *getReceiveSocket();
 
-    void *getDestinationSocket(ptr<string> _ip, network_port _basePort);
+    void* getDestinationSocket( ptr< NodeInfo > _remoteNodeInfo );
 
 
     void closeReceive();

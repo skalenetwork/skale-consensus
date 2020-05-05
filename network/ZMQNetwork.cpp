@@ -59,11 +59,8 @@ bool ZMQNetwork::sendMessage(const ptr<NodeInfo> &_remoteNodeInfo, ptr<NetworkMe
 
     auto buf = _msg->serializeToString();
 
-    auto ip = _remoteNodeInfo->getBaseIP();
-
-    auto port = _remoteNodeInfo->getPort();
-
-    void *s = sChain->getNode()->getSockets()->consensusZMQSockets->getDestinationSocket(ip, port);
+    void *s = sChain->getNode()->getSockets()->consensusZMQSockets->getDestinationSocket(
+                                                                      _remoteNodeInfo);
 
 #ifdef ZMQ_NONBLOCKING
     return interruptableSend(s, buf->data(), buf->size(), true);
