@@ -28,9 +28,6 @@ class ServerSocket {
 
 protected:
 
-
-    int descriptor = 0;
-
     ptr< string > bindIP;
 
     uint32_t bindPort;
@@ -39,11 +36,9 @@ protected:
 
 public:
 
-    int getDescriptor();
-
     ServerSocket(ptr<string> &_bindIP, uint16_t _basePort, port_type  _portType);
 
     virtual ~ServerSocket();
 
-    void closeSocket();
+    virtual void closeSocket() {};
 };

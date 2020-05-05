@@ -54,6 +54,11 @@ public:
 
     void terminate();
 
+
+    void closeSocket() {
+    }
+
+
     virtual ~ZMQSockets();
 
 

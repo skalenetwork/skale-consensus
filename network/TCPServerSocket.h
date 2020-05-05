@@ -32,6 +32,9 @@
 class TCPServerSocket : public ServerSocket{
 
 
+
+    int descriptor = 0;
+
     int createAndBindTCPSocket();
 
 public:
@@ -41,7 +44,10 @@ public:
     void touch();
 
 
+    int getDescriptor();
 
     virtual ~TCPServerSocket();
+
+    void closeSocket();
 
 };

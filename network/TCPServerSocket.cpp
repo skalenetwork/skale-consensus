@@ -80,4 +80,11 @@ void TCPServerSocket::touch() {
     sock.connect(ep);
 }
 
+int TCPServerSocket::getDescriptor() {
+    return descriptor;
+}
 
+
+void TCPServerSocket::closeSocket() {
+    close( descriptor );
+}

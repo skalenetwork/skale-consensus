@@ -45,9 +45,7 @@ ServerSocket::ServerSocket(ptr<string> &_bindIP, uint16_t _basePort, port_type _
 
 }
 
-int ServerSocket::getDescriptor() {
-    return descriptor;
-}
+
 
 
 ServerSocket::~ServerSocket() {
@@ -55,6 +53,4 @@ ServerSocket::~ServerSocket() {
 }
 
 
-void ServerSocket::closeSocket() {
-    close( descriptor );
-}
+

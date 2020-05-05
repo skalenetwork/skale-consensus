@@ -144,7 +144,7 @@ void AbstractServerAgent::acceptTCPConnectionsLoop() {
     struct sockaddr_in clientAddress;
     socklen_t sizeOfClientAddress = sizeof(clientAddress);
     ASSERT(this->socket > 0);
-    auto s = this->socket->getDescriptor();
+    auto s = dynamic_pointer_cast<TCPServerSocket>(this->socket)->getDescriptor();
     ASSERT(s > 0);
     try {
 
