@@ -36,12 +36,15 @@ void GlobalThreadRegistry::joinAll() {
 
     LOCK(m)
 
-    joined = true;
+    if (joined)
+        return;
+
 
     for (auto &&thread : GlobalThreadRegistry::allThreads) {
         thread->join();
-        ASSERT(!thread->joinable());
     }
+
+    joined = true;
 
     allThreads.clear();
 }

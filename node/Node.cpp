@@ -353,9 +353,15 @@ void Node::waitOnGlobalServerStartBarrier(Agent *agent) {
 }
 
 void Node::releaseGlobalServerBarrier() {
+
+    auto previouslyCalled = startedServers.exchange(true);
+
+    if (previouslyCalled) {
+        return;
+    }
+
     std::lock_guard<std::mutex> lock(threadServerCondMutex);
 
-    startedServers = true;
     threadServerConditionVariable.notify_all();
 }
 
@@ -371,20 +377,26 @@ void Node::waitOnGlobalClientStartBarrier() {
 
 
 void Node::releaseGlobalClientBarrier() {
+
+    auto previouslyCalled = startedClients.exchange(true);
+
+    if (previouslyCalled) {
+        return;
+    }
+
     std::lock_guard<std::mutex> lock(threadClientCondMutex);
 
-    //    ASSERT(!startedClients);
-
-    startedClients = true;
     threadClientConditionVariable.notify_all();
 }
 
 void Node::exit() {
-    if (exitRequested) {
+
+
+    auto previouslyCalled = exitRequested.exchange(true);
+
+    if (previouslyCalled) {
         return;
     }
-
-    exitRequested = true;
 
     releaseGlobalClientBarrier();
     releaseGlobalServerBarrier();
@@ -398,7 +410,7 @@ void Node::exit() {
 void Node::closeAllSocketsAndNotifyAllAgentsAndThreads() {
     getSchain()->getNode()->threadServerConditionVariable.notify_all();
 
-    ASSERT(agents.size() > 0);
+    CHECK_STATE(agents.size() > 0);
 
     for (auto &&agent : agents) {
         agent->notifyAllConditionVariables();
@@ -409,6 +421,10 @@ void Node::closeAllSocketsAndNotifyAllAgentsAndThreads() {
 
     if (sockets && sockets->catchupSocket)
         sockets->catchupSocket->touch();
+
+    if (sockets)
+        sockets->getConsensusZMQSockets()->closeAndCleanupAll();
+
 }
 
 
