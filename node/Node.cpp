@@ -354,11 +354,7 @@ void Node::waitOnGlobalServerStartBarrier(Agent *agent) {
 
 void Node::releaseGlobalServerBarrier() {
 
-    auto previouslyCalled = startedServers.exchange(true);
-
-    if (previouslyCalled) {
-        return;
-    }
+    RETURN_IF_PREVIOUSLY_CALLED(startedServers)
 
     std::lock_guard<std::mutex> lock(threadServerCondMutex);
 
@@ -378,11 +374,7 @@ void Node::waitOnGlobalClientStartBarrier() {
 
 void Node::releaseGlobalClientBarrier() {
 
-    auto previouslyCalled = startedClients.exchange(true);
-
-    if (previouslyCalled) {
-        return;
-    }
+    RETURN_IF_PREVIOUSLY_CALLED(startedClients)
 
     std::lock_guard<std::mutex> lock(threadClientCondMutex);
 
@@ -392,11 +384,7 @@ void Node::releaseGlobalClientBarrier() {
 void Node::exit() {
 
 
-    auto previouslyCalled = exitRequested.exchange(true);
-
-    if (previouslyCalled) {
-        return;
-    }
+    RETURN_IF_PREVIOUSLY_CALLED(exitRequested);
 
     releaseGlobalClientBarrier();
     releaseGlobalServerBarrier();
