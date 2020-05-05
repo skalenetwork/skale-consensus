@@ -49,16 +49,6 @@ int ServerSocket::getDescriptor() {
     return descriptor;
 }
 
-ptr< std::string >& ServerSocket::getBindIP() {
-    return bindIP;
-}
-
-uint32_t ServerSocket::getBindPort() {
-    return bindPort;
-}
-
-
-
 
 ServerSocket::~ServerSocket() {
     closeSocket();

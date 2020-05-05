@@ -25,8 +25,6 @@
 
 
 class ServerSocket {
-    // Node& node; // l_sergiy: clang did detected this as unused
-
 
 protected:
 
@@ -42,10 +40,6 @@ protected:
 public:
 
     int getDescriptor();
-
-    ptr< string >& getBindIP();
-
-    uint32_t getBindPort();
 
     ServerSocket(ptr<string> &_bindIP, uint16_t _basePort, port_type  _portType);
 
