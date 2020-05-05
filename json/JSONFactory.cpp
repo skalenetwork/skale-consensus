@@ -126,25 +126,44 @@ void JSONFactory::createAndAddSChainFromJson(
 
 void JSONFactory::createAndAddSChainFromJsonObject(
     ptr< Node >& _node, const nlohmann::json& j, ConsensusEngine* _engine ) {
+    nlohmann::json element;
+
     try {
-        string prefix = "/";
 
         if ( j.count( "skaleConfig" ) > 0 ) {
-            prefix = "/skaleConfig/nodeInfo/";
+            element = j.at( "skaleConfig" );
+            try {
+                element = element.at( "nodeInfo" );
+            } catch ( ... ) {
+                BOOST_THROW_EXCEPTION(
+                    InvalidStateException( "Couldnt find nodeInfo element in skaleConfig", __CLASS_NAME__ ) );
+            }
+        } else {
+            element = j;
         }
 
-        string schainName =
-            j[nlohmann::json::json_pointer( prefix + "schainName" )].get< string >();
+        string schainName;
+        schain_id schainID;
 
-        schain_id schainID(
-            j[nlohmann::json::json_pointer( prefix + "schainID" )].get< uint64_t >() );
+        try {
+            schainName = element.at( "schainName" ).get< string >();
+        } catch ( ... ) {
+            BOOST_THROW_EXCEPTION(
+                InvalidStateException( "Couldnt find schainName in json config", __CLASS_NAME__ ) );
+        }
+
+        try {
+            schainID = element.at( "schainID" ).get< uint64_t >();
+        } catch ( ... ) {
+            BOOST_THROW_EXCEPTION(
+                InvalidStateException( "Couldnt find schainName in json config", __CLASS_NAME__ ) );
+        }
 
         uint64_t emptyBlockIntervalMs;
         int64_t emptyBlockIntervalMsTmp;
 
         try {
-            emptyBlockIntervalMsTmp =
-                j[nlohmann::json::json_pointer( prefix + "emptyBlockIntervalMs" )].get< int64_t >();
+            emptyBlockIntervalMsTmp = element.at( "emptyBlockIntervalMs" ).get< int64_t >();
         } catch ( ... ) {
             emptyBlockIntervalMsTmp = EMPTY_BLOCK_INTERVAL_MS;
         }
@@ -161,10 +180,24 @@ void JSONFactory::createAndAddSChainFromJsonObject(
 
         vector< ptr< NodeInfo > > remoteNodeInfos;
 
-        nlohmann::json nodes = j[nlohmann::json::json_pointer( prefix + "nodes" )];
+        nlohmann::json nodes;
+
+        try {
+            nodes = element.at( "nodes" );
+        } catch ( ... ) {
+            BOOST_THROW_EXCEPTION(
+                InvalidStateException( "Couldnt find nodes in json config", __CLASS_NAME__ ) );
+        }
 
         for ( auto it = nodes.begin(); it != nodes.end(); ++it ) {
-            node_id nodeID( ( *it )["nodeID"].get< uint64_t >() );
+            node_id nodeID;
+
+            try {
+                nodeID = it->at( "nodeID" ).get< uint64_t >();
+            } catch ( ... ) {
+                BOOST_THROW_EXCEPTION(
+                    InvalidStateException( "Couldnt find nodeID in json config", __CLASS_NAME__ ) );
+            }
 
             _engine->logConfig( trace,
                 to_string( _node->getNodeID() ) + ": Adding node:" + to_string( nodeID ),
@@ -172,10 +205,24 @@ void JSONFactory::createAndAddSChainFromJsonObject(
 
             ptr< string > ip = make_shared< string >( ( *it ).at( "ip" ).get< string >() );
 
-            network_port port( ( *it )["basePort"].get< int >() );
+            network_port port;
 
-            schain_index schainIndex( ( *it )["schainIndex"].get< uint64_t >() );
+            try {
+                port = it ->at( "basePort" ).get< int >();
+            } catch ( ... ) {
+                BOOST_THROW_EXCEPTION(
+                    InvalidStateException( "Couldnt find basePort in json config", __CLASS_NAME__ ) );
+            }
 
+
+            schain_index schainIndex;
+
+            try {
+                schainIndex = it->at( "schainIndex" ).get< uint64_t >();
+            } catch ( ... ) {
+                BOOST_THROW_EXCEPTION(
+                    InvalidStateException( "Couldnt find schainIndex in json config", __CLASS_NAME__ ) );
+            }
 
             auto rni = make_shared< NodeInfo >( nodeID, ip, port, schainID, schainIndex );
 
