@@ -606,18 +606,16 @@ void ConsensusEngine::exitGracefullyAsync() {
 
 
         for (auto&&  it : nodes) {
-            it.second->exit();
+            try {
+                it.second->exit();
+            } catch (exception& e) {
+                Exception::logNested(e);
+            }
         }
+
 
 
         threadRegistry->joinAll();
-
-
-        for (auto && it : nodes) {
-            if (it.second->getSockets())
-                it.second->getSockets()->getConsensusZMQSockets()->closeAndCleanupAll();
-        }
-
 
         for (auto && it : nodes) {
             it.second->getSchain()->joinMonitorThread();
@@ -625,9 +623,8 @@ void ConsensusEngine::exitGracefullyAsync() {
 
     } catch (exception &e) {
         Exception::logNested(e);
-        throw_with_nested(EngineInitException("Graceful exit failed", __CLASS_NAME__));
+        status = CONSENSUS_EXITED;
     }
-
     status = CONSENSUS_EXITED;
 }
 

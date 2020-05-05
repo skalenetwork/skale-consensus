@@ -106,9 +106,9 @@ class Node {
     std::condition_variable threadClientConditionVariable;
 
 
-    bool startedServers;
+    std::atomic_bool startedServers;
 
-    bool startedClients;
+    std::atomic_bool startedClients;
 
     std::atomic_bool exitRequested;
 

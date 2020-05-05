@@ -357,3 +357,7 @@ extern std::string getThreadName();
 
 #define LOCK(_M_) lock_guard<recursive_mutex> _lock_(_M_);
 
+#define RETURN_IF_PREVIOUSLY_CALLED(__BOOL__) \
+    auto __previouslyCalled = __BOOL__.exchange(true); \
+    if (__previouslyCalled) { return;}
+
