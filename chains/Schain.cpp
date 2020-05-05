@@ -76,7 +76,7 @@
 #include "network/ClientSocket.h"
 #include "network/IO.h"
 #include "network/Sockets.h"
-#include "network/ZMQServerSocket.h"
+#include "network/ZMQSockets.h"
 #include "node/NodeInfo.h"
 #include "pricing/PricingAgent.h"
 #include "protocols/ProtocolInstance.h"

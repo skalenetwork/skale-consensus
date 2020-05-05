@@ -29,7 +29,7 @@
 
 static const int ZMQ_TIMEOUT = 1000;
 
-class ZMQServerSocket : public ServerSocket {
+class ZMQSockets : public ServerSocket {
 
     mutex mainMutex;
 
@@ -40,9 +40,7 @@ class ZMQServerSocket : public ServerSocket {
     void *receiveSocket = nullptr;
 
 public:
-
-
-    ZMQServerSocket(ptr<string> &_bindIP, uint16_t _basePort, port_type _portType);
+    ZMQSockets(ptr<string> &_bindIP, uint16_t _basePort, port_type _portType);
 
 
     void *getReceiveSocket();
@@ -56,7 +54,7 @@ public:
 
     void terminate();
 
-    virtual ~ZMQServerSocket();
+    virtual ~ZMQSockets();
 
 
 };

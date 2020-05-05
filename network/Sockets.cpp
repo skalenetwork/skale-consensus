@@ -28,10 +28,10 @@
 #include "Log.h"
 #include "exceptions/FatalError.h"
 
-#include "TCPServerSocket.h"
-#include "ZMQServerSocket.h"
 #include "Network.h"
 #include "Sockets.h"
+#include "TCPServerSocket.h"
+#include "ZMQSockets.h"
 
 
 using namespace std;
@@ -42,7 +42,7 @@ void Sockets::initSockets(ptr<string> &bindIP, uint16_t basePort) {
 
     LOG(debug, "Initing network processing\n");
 
-    consensusZMQSocket = make_shared<ZMQServerSocket>(bindIP, basePort, BINARY_CONSENSUS);
+    consensusZMQSocket = make_shared< ZMQSockets >(bindIP, basePort, BINARY_CONSENSUS);
 
 
     blockProposalSocket = make_shared<TCPServerSocket>(bindIP, basePort, PROPOSAL);
@@ -79,7 +79,7 @@ Node &Sockets::getNode() const {
     return node;
 }
 
-ptr<ZMQServerSocket> Sockets::getConsensusZMQSocket() const {
+ptr< ZMQSockets > Sockets::getConsensusZMQSocket() const {
     return consensusZMQSocket;
 }
 

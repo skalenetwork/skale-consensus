@@ -2092,10 +2092,10 @@
 		<Unit filename="/d/skale-consensus/network/ZMQNetwork.h">
 			<Option target="consensus"/>
 		</Unit>
-		<Unit filename="/d/skale-consensus/network/ZMQServerSocket.cpp">
+		<Unit filename="/d/skale-consensus/network/ZMQSockets.cpp">
 			<Option target="consensus"/>
 		</Unit>
-		<Unit filename="/d/skale-consensus/network/ZMQServerSocket.h">
+		<Unit filename="/d/skale-consensus/network/ZMQSockets.h">
 			<Option target="consensus"/>
 		</Unit>
 		<Unit filename="/d/skale-consensus/node/ConsensusEngine.cpp">

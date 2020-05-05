@@ -51,7 +51,7 @@
 #include "network/Sockets.h"
 #include "network/TCPServerSocket.h"
 #include "network/ZMQNetwork.h"
-#include "network/ZMQServerSocket.h"
+#include "network/ZMQSockets.h"
 #include "node/NodeInfo.h"
 
 #include "catchup/server/CatchupServerAgent.h"

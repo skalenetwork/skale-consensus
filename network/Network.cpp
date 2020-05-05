@@ -58,7 +58,7 @@
 #include "Network.h"
 #include "messages/NetworkMessageEnvelope.h"
 #include "network/Sockets.h"
-#include "network/ZMQServerSocket.h"
+#include "network/ZMQSockets.h"
 #include "threads/GlobalThreadRegistry.h"
 
 TransportType Network::transport = TransportType::ZMQ;

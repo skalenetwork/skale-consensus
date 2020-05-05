@@ -25,17 +25,17 @@
 #include "Log.h"
 #include "exceptions/FatalError.h"
 
-#include "zmq.h"
+#include "ZMQSockets.h"
 #include "exceptions/FatalError.h"
-#include "ZMQServerSocket.h"
+#include "zmq.h"
 
-ZMQServerSocket::ZMQServerSocket(ptr<string> &_bindIP, uint16_t _basePort, port_type _portType) : ServerSocket(_bindIP,
+ZMQSockets::ZMQSockets(ptr<string> &_bindIP, uint16_t _basePort, port_type _portType) : ServerSocket(_bindIP,
                                                                                                                _basePort,
                                                                                                                _portType) {
     context = zmq_ctx_new();
 }
 
-void *ZMQServerSocket::getDestinationSocket(ptr<string> _ip, network_port _basePort) {
+void * ZMQSockets::getDestinationSocket(ptr<string> _ip, network_port _basePort) {
 
     lock_guard<mutex> lock(mainMutex);
 
@@ -63,7 +63,7 @@ void *ZMQServerSocket::getDestinationSocket(ptr<string> _ip, network_port _baseP
     return requester;
 }
 
-void *ZMQServerSocket::getReceiveSocket()  {
+void * ZMQSockets::getReceiveSocket()  {
 
     lock_guard<mutex> lock(mainMutex);
 
@@ -91,7 +91,7 @@ void *ZMQServerSocket::getReceiveSocket()  {
 }
 
 
-void ZMQServerSocket::closeReceive() {
+void ZMQSockets::closeReceive() {
 
     if(receiveSocket){
         receiveSocket = nullptr;
@@ -100,7 +100,7 @@ void ZMQServerSocket::closeReceive() {
 }
 
 
-void ZMQServerSocket::closeSend() {
+void ZMQSockets::closeSend() {
     for (auto &&item : sendSockets) {
         if(item.second){
             LOG(debug, getThreadName() + " zmq debug in closeSend(): closing " + to_string((uint64_t) item.second));
@@ -111,7 +111,7 @@ void ZMQServerSocket::closeSend() {
 }
 
 
-void ZMQServerSocket::terminate() {
+void ZMQSockets::terminate() {
     closeSend();
     closeReceive();
     zmq_ctx_shutdown(context);
@@ -119,6 +119,6 @@ void ZMQServerSocket::terminate() {
 }
 
 
-ZMQServerSocket::~ZMQServerSocket() {
+ZMQSockets::~ZMQSockets() {
 }
 

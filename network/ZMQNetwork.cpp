@@ -49,7 +49,7 @@
 #include "ZMQNetwork.h"
 #include "Buffer.h"
 
-#include "ZMQServerSocket.h"
+#include "ZMQSockets.h"
 
 using namespace std;
 
