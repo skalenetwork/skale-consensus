@@ -117,10 +117,8 @@ void JSONFactory::createAndAddSChainFromJson(
     }
 }
 
-void JSONFactory::createAndAddSChainFromJsonObject(
-    ptr< Node >& _node, const nlohmann::json& j, ConsensusEngine* _engine ) {
-    nlohmann::json element;
-
+void JSONFactory::createAndAddSChainFromJsonObject( ptr< Node >& _node, const nlohmann::json& j,
+    const nlohmann::json& jRoot, ConsensusEngine* _engine ) {
     try {
 
         if ( j.count( "skaleConfig" ) > 0 ) {
@@ -156,7 +154,11 @@ void JSONFactory::createAndAddSChainFromJsonObject(
         int64_t emptyBlockIntervalMsTmp;
 
         try {
-            emptyBlockIntervalMsTmp = element.at( "emptyBlockIntervalMs" ).get< int64_t >();
+            emptyBlockIntervalMsTmp =
+                // j[nlohmann::json::json_pointer( prefix + "emptyBlockIntervalMs" )].get< int64_t
+                // >();
+                jRoot[nlohmann::json::json_pointer( "/skaleConfig/nodeInfo/emptyBlockIntervalMs" )]
+                    .get< int64_t >();
         } catch ( ... ) {
             emptyBlockIntervalMsTmp = EMPTY_BLOCK_INTERVAL_MS;
         }

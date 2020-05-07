@@ -32,21 +32,21 @@ class ConsensusExtFace;
 class ConsensusEngine;
 
 class JSONFactory {
-
 public:
+    static ptr< Node > createNodeFromJson( const fs_path& jsonFile, set< node_id >& nodeIDs,
+        ConsensusEngine* _consensusEngine, bool _useSGX = false, ptr< string > _keyName = nullptr,
+        ptr< vector< string > > _publicKeys = nullptr );
 
+    static ptr< Node > createNodeFromJsonObject( const nlohmann::json& j, set< node_id >& nodeIDs,
+        ConsensusEngine* _engine, bool _useSGX = false, ptr< string > _keyName = nullptr,
+        ptr< vector< string > > _publicKeys = nullptr );
 
-    static ptr<Node> createNodeFromJson(const fs_path &jsonFile, set<node_id> &nodeIDs, ConsensusEngine *
-    _consensusEngine, bool _useSGX = false, ptr<string> _keyName = nullptr, ptr<vector<string>> _publicKeys = nullptr);
+    static void createAndAddSChainFromJson(
+        ptr< Node > _node, const fs_path& _jsonFile, ConsensusEngine* _engine );
 
-    static ptr<Node> createNodeFromJsonObject(const nlohmann::json &j, set<node_id> &nodeIDs, ConsensusEngine *
-    _engine,  bool _useSGX = false, ptr<string> _keyName = nullptr, ptr<vector<string>> _publicKeys = nullptr);
+    static void createAndAddSChainFromJsonObject( ptr< Node >& _node, const nlohmann::json& j,
+        const nlohmann::json& jRoot, ConsensusEngine* _engine );
 
-    static void createAndAddSChainFromJson(ptr<Node> _node, const fs_path &_jsonFile, ConsensusEngine *_engine);
-
-    static void createAndAddSChainFromJsonObject(ptr<Node> &_node, const nlohmann::json &j, const nlohmann::json& jRoot, ConsensusEngine *_engine);
-
-    static void parseJsonFile(nlohmann::json &j, const fs_path &configFile);
-
+    static void parseJsonFile( nlohmann::json& j, const fs_path& configFile );
 };
 
