@@ -98,18 +98,11 @@ void JSONFactory::createAndAddSChainFromJson(
     ptr< Node > _node, const fs_path& _jsonFile, ConsensusEngine* _engine ) {
     try {
         nlohmann::json j;
-
-
         _engine->logConfig( debug, "Parsing json file: " + _jsonFile.string(), __CLASS_NAME__ );
-
-
         parseJsonFile( j, _jsonFile );
-
-        createAndAddSChainFromJsonObject( _node, j, _engine );
-
+        createAndAddSChainFromJsonObject( _node, j, j, _engine );
         if ( j.find( "blockProposalTest" ) != j.end() ) {
             string test = j["blockProposalTest"].get< string >();
-
             if ( test == SchainTest::NONE ) {
                 _node->getSchain()->setBlockProposerTest( SchainTest::NONE );
             } else if ( test == SchainTest::SLOW ) {

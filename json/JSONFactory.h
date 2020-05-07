@@ -44,7 +44,7 @@ public:
 
     static void createAndAddSChainFromJson(ptr<Node> _node, const fs_path &_jsonFile, ConsensusEngine *_engine);
 
-    static void createAndAddSChainFromJsonObject(ptr<Node> &_node, const nlohmann::json &j, ConsensusEngine *_engine);
+    static void createAndAddSChainFromJsonObject(ptr<Node> &_node, const nlohmann::json &j, const nlohmann::json& jRoot, ConsensusEngine *_engine);
 
     static void parseJsonFile(nlohmann::json &j, const fs_path &configFile);
 

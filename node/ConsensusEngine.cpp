@@ -207,26 +207,23 @@ void ConsensusEngine::log(level_enum _severity, const string &_message, const st
 }
 
 
-void ConsensusEngine::parseFullConfigAndCreateNode(const string &configFileContents) {
-
+void ConsensusEngine::parseFullConfigAndCreateNode( const string& configFileContents ) {
     try {
+        nlohmann::json j = nlohmann::json::parse( configFileContents );
 
-        nlohmann::json j = nlohmann::json::parse(configFileContents);
+        std::set< node_id > dummy;
 
-        std::set<node_id> dummy;
+        auto node =
+            JSONFactory::createNodeFromJsonObject( j["skaleConfig"]["nodeInfo"], dummy, this );
 
-        auto node = JSONFactory::createNodeFromJsonObject(j["skaleConfig"]["nodeInfo"], dummy, this);
-
-        JSONFactory::createAndAddSChainFromJsonObject(
-                node, j["skaleConfig"]["sChain"], this);
+        JSONFactory::createAndAddSChainFromJsonObject( node, j["skaleConfig"]["sChain"], j, this );
 
         nodes[node->getNodeID()] = node;
 
-    } catch (Exception &e) {
-        Exception::logNested(e);
+    } catch ( Exception& e ) {
+        Exception::logNested( e );
         throw;
     }
-
 }
 
 ptr<Node> ConsensusEngine::readNodeConfigFileAndCreateNode(const fs_path &path, set<node_id> &_nodeIDs, bool _useSGX,
