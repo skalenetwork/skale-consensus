@@ -4,7 +4,6 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-
     - name: cmake version
       run: cmake -version && uname -v
     - name: install cmake
