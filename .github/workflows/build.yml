@@ -51,13 +51,12 @@ jobs:
           php-igbinary php-memcache php-memcached php-mongodb php-redis php-xdebug \
           php-zmq snmp pollinate libpq-dev postgresql-client powershell ruby-full \
           sphinxsearch subversion mongodb-org || true > /dev/null 2>&1;
-      - name: Cleanup
+    - name: Cleanup
       run: |
         sudo apt-get autoremove -y >/dev/null 2>&1 && \
         sudo apt-get autoclean -y >/dev/null 2>&1  && \
         sudo rm -rf /usr/local/lib/android >/dev/null 2>&1 && \
         docker rmi $(docker image ls -aq) >/dev/null 2>&1
-
     - name: install cmake
         run: |
           wget --no-check-certificate https://cmake.org/files/v3.10/cmake-3.10.0-Linux-x86_64.sh && \
@@ -73,9 +72,6 @@ jobs:
         python-pip libtool build-essential pkg-config autoconf \
         wget git libargtable2-dev \
         libmicrohttpd-dev libhiredis-dev redis-server openssl  libssl-dev >/dev/null 2>&1;
-
-
-
 
 
     - name: Prepare ccache timestamp
