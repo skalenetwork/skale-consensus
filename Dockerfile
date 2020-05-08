@@ -9,7 +9,7 @@ ENV TARGET all
 
 RUN deps/build.sh
 RUN cmake . -Bbuild -DCMAKE_BUILD_TYPE=Debug  -DCOVERAGE=ON -DMICROPROFILE_ENABLED=0
-RUN cmake --build build -- -j4
+RUN bash -c "cmake --build build -- -j$(nproc)"
 
 ENTRYPOINT ["/consensust/scripts/start.sh"]
 
