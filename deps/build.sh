@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 export CONSENSUS_DEPS_CHAIN=1
 
 env_save_original() {
