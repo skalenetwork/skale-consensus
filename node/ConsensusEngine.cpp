@@ -493,7 +493,7 @@ void ConsensusEngine::systemHealthCheck() {
     int noFiles = std::strtol(ulimit.c_str(), NULL, 10);
 
     noUlimitCheck = std::getenv("NO_ULIMIT_CHECK") != nullptr;
-    onTravis = std::getenv("TRAVIS_BUILD_TYPE") != nullptr;
+    onTravis = std::getenv("CI_BUILD") != nullptr;
 
     if (noFiles < 65535 && !noUlimitCheck && !onTravis) {
 
