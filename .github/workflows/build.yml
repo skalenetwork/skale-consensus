@@ -66,6 +66,18 @@ jobs:
         wget git libargtable2-dev \
         libmicrohttpd-dev libhiredis-dev redis-server openssl  libssl-dev >/dev/null 2>&1;
 
+    - name: cmake version
+      run: cmake -version && uname -v
+        sudo apt-get update; sudo apt-get install -y software-properties-common apt-utils libprocps-dev \
+        g++-7 valgrind gawk sed cmake libffi-dev ccache libgoogle-perftools-dev flex \
+        bison yasm texinfo autotools-dev automake python \
+        python-pip libtool build-essential pkg-config autoconf \
+        wget git libargtable2-dev \
+        libmicrohttpd-dev libhiredis-dev redis-server openssl  libssl-dev >/dev/null 2>&1;
+
+
+
+
     - name: Prepare ccache timestamp
       id: ccache_cache_timestamp
       shell: cmake -P {0}
