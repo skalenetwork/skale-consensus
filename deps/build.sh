@@ -168,7 +168,7 @@ then
 else
 	simple_find_tool_program "glibtoolize" "LIBTOOLIZE" "no"
 fi
-simple_find_tool_program "shtool" "SHTOOL" "yes"
+###simple_find_tool_program "shtool" "SHTOOL" "yes"
 simple_find_tool_program "pkg-config" "PKG_CONFIG" "yes"
 simple_find_tool_program "sed" "SED" "no"
 simple_find_tool_program "awk" "AWK" "no"
