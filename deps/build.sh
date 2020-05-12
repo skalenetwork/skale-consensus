@@ -75,7 +75,8 @@ WORKING_DIR_NEW=$("$READLINK" -f "$WORKING_DIR_NEW")
 cd "$WORKING_DIR_NEW"
 
 cd "$WORKING_DIR_NEW/../libBLS/deps"
-./build.sh || true
+./build.sh
+echo "BLS deps visible build result" $?
 cd ../../deps
 
 #
@@ -151,8 +152,8 @@ simple_find_tool_program () { # program_name, var_name_to_export_full_path, is_o
 simple_find_tool_program "make" "MAKE" "no"
 simple_find_tool_program "makeinfo" "MAKEINFO" "no"
 simple_find_tool_program "cmake" "CMAKE" "no"
-simple_find_tool_program "ccmake" "CCMAKE" "yes"
-simple_find_tool_program "scons" "SCONS" "yes"
+#simple_find_tool_program "ccmake" "CCMAKE" "yes"
+#simple_find_tool_program "scons" "SCONS" "yes"
 simple_find_tool_program "wget" "WGET" "no"
 simple_find_tool_program "autoconf" "AUTOCONF" "no"
 simple_find_tool_program "autogen" "AUTOGEN" "yes"
@@ -169,7 +170,8 @@ simple_find_tool_program "pkg-config" "PKG_CONFIG" "yes"
 simple_find_tool_program "sed" "SED" "no"
 simple_find_tool_program "awk" "AWK" "no"
 simple_find_tool_program "yasm" "YASM" "no"
-simple_find_tool_program "nasm" "NASM" "yes"
+#simple_find_tool_program "nasm" "NASM" "yes"
+
 
 echo -e "${COLOR_SEPARATOR}===================================================================${COLOR_RESET}"
 echo -e "${COLOR_YELLOW}CONSENSUS dependencies build actions...${COLOR_RESET}"
@@ -601,9 +603,13 @@ env_save() {
 }
 
 env_restore() {
-	ENV_RESTORE_CMD="source \"${SOURCES_ROOT}/saved_environment_pre_configured.txt\""
-	#env_clear_all
-	$ENV_RESTORE_CMD
+	if [ -f "${SOURCES_ROOT}/saved_environment_pre_configured.txt" ]; then
+    	#echo "\"${SOURCES_ROOT}/saved_environment_pre_configured.txt\" exist, can restore env"
+		#ENV_RESTORE_CMD="source \"${SOURCES_ROOT}/saved_environment_pre_configured.txt\""
+		#env_clear_all
+		#$ENV_RESTORE_CMD || true &> /dev/null
+		source "${SOURCES_ROOT}/saved_environment_pre_configured.txt"
+	fi
 }
 
 # we will save env now, next times we will only restore it)
