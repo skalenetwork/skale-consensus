@@ -75,7 +75,7 @@ WORKING_DIR_NEW=$("$READLINK" -f "$WORKING_DIR_NEW")
 cd "$WORKING_DIR_NEW"
 
 cd "$WORKING_DIR_NEW/../libBLS/deps"
-./build.sh
+./build.sh || true
 cd ../../deps
 
 #
