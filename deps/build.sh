@@ -159,7 +159,7 @@ simple_find_tool_program "cmake" "CMAKE" "no"
 #simple_find_tool_program "scons" "SCONS" "yes"
 simple_find_tool_program "wget" "WGET" "no"
 simple_find_tool_program "autoconf" "AUTOCONF" "no"
-simple_find_tool_program "autogen" "AUTOGEN" "yes"
+###simple_find_tool_program "autogen" "AUTOGEN" "yes"
 simple_find_tool_program "automake" "AUTOMAKE" "yes"
 simple_find_tool_program "m4" "M4" "yes"
 if [ ! "$UNIX_SYSTEM_NAME" = "Darwin" ];
