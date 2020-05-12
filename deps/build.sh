@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 export CONSENSUS_DEPS_CHAIN=1
 
 env_save_original() {
@@ -74,6 +76,7 @@ cd "$WORKING_DIR_NEW"
 
 cd "$WORKING_DIR_NEW/../libBLS/deps"
 ./build.sh
+echo "BLS deps visible build result" $?
 cd ../../deps
 
 #
@@ -99,6 +102,7 @@ done
 #
 
 simple_find_tool_program () { # program_name, var_name_to_export_full_path, is_optional("yes" or "no")
+	echo -e "checking for tool program: $1"
 	#echo $1
 	#echo $2
 	#
@@ -107,18 +111,20 @@ simple_find_tool_program () { # program_name, var_name_to_export_full_path, is_o
 	#
 	$TMP_CMD
 	TMP_CMD="echo ${!2}"
-	#echo "TMP_CMD is" $TMP_CMD
+	echo -e "....will invoke.......... $TMP_CMD"
 	TMP_VAL="$($TMP_CMD)"
-	#echo "TMP_VAL is" $TMP_VAL
+	echo -e "....got invoke result.... $TMP_VAL"
 	if [ "$TMP_VAL" = "" ];
 	then
 		TMP_CMD="export $2=/usr/local/bin/$1"
 		$TMP_CMD
 		TMP_CMD="echo ${!2}"
+		echo -e "....will invoke.......... $TMP_CMD"
 		TMP_VAL="$($TMP_CMD)"
+		echo -e "....got invoke result.... $TMP_VAL"
 		if [ -f "$TMP_VAL" ];
 		then
-			#echo -e "${COLOR_SUCCESS}SUCCESS: $2 found as $TMP_VAL" "${COLOR_RESET}"
+			echo -e "....${COLOR_SUCCESS}SUCCESS: $2 found as $TMP_VAL" "${COLOR_RESET}"
 			return 0
 		fi
 		#TMP_CMD="export $2=/opt/local/bin/$1"
@@ -133,14 +139,14 @@ simple_find_tool_program () { # program_name, var_name_to_export_full_path, is_o
 	fi
 	if [ -f "$TMP_VAL" ];
 	then
-		#echo -e "${COLOR_SUCCESS}SUCCESS: $2 found as $TMP_VAL" "${COLOR_RESET}"
+		echo -e "....${COLOR_SUCCESS}SUCCESS: $2 found as $TMP_VAL" "${COLOR_RESET}"
 		return 0
 	fi
 	if [ "$3" = "yes" ];
 	then
 		return 0
 	fi
-	echo -e "${COLOR_ERROR}error: $2 tool was not found by deps build script${COLOR_RESET}"
+	echo -e "....${COLOR_ERROR}error: $2 tool was not found by deps build script${COLOR_RESET}"
 	cd "$WORKING_DIR_OLD"
 	env_restore_original
 	exit 255
@@ -149,11 +155,11 @@ simple_find_tool_program () { # program_name, var_name_to_export_full_path, is_o
 simple_find_tool_program "make" "MAKE" "no"
 simple_find_tool_program "makeinfo" "MAKEINFO" "no"
 simple_find_tool_program "cmake" "CMAKE" "no"
-simple_find_tool_program "ccmake" "CCMAKE" "yes"
-simple_find_tool_program "scons" "SCONS" "yes"
+#simple_find_tool_program "ccmake" "CCMAKE" "yes"
+#simple_find_tool_program "scons" "SCONS" "yes"
 simple_find_tool_program "wget" "WGET" "no"
 simple_find_tool_program "autoconf" "AUTOCONF" "no"
-simple_find_tool_program "autogen" "AUTOGEN" "yes"
+###simple_find_tool_program "autogen" "AUTOGEN" "yes"
 simple_find_tool_program "automake" "AUTOMAKE" "yes"
 simple_find_tool_program "m4" "M4" "yes"
 if [ ! "$UNIX_SYSTEM_NAME" = "Darwin" ];
@@ -162,12 +168,13 @@ then
 else
 	simple_find_tool_program "glibtoolize" "LIBTOOLIZE" "no"
 fi
-simple_find_tool_program "shtool" "SHTOOL" "yes"
+###simple_find_tool_program "shtool" "SHTOOL" "yes"
 simple_find_tool_program "pkg-config" "PKG_CONFIG" "yes"
 simple_find_tool_program "sed" "SED" "no"
 simple_find_tool_program "awk" "AWK" "no"
 simple_find_tool_program "yasm" "YASM" "no"
-simple_find_tool_program "nasm" "NASM" "yes"
+#simple_find_tool_program "nasm" "NASM" "yes"
+
 
 echo -e "${COLOR_SEPARATOR}===================================================================${COLOR_RESET}"
 echo -e "${COLOR_YELLOW}CONSENSUS dependencies build actions...${COLOR_RESET}"
@@ -599,9 +606,13 @@ env_save() {
 }
 
 env_restore() {
-	ENV_RESTORE_CMD="source \"${SOURCES_ROOT}/saved_environment_pre_configured.txt\""
-	#env_clear_all
-	$ENV_RESTORE_CMD
+	if [ -f "${SOURCES_ROOT}/saved_environment_pre_configured.txt" ]; then
+    	#echo "\"${SOURCES_ROOT}/saved_environment_pre_configured.txt\" exist, can restore env"
+		#ENV_RESTORE_CMD="source \"${SOURCES_ROOT}/saved_environment_pre_configured.txt\""
+		#env_clear_all
+		#$ENV_RESTORE_CMD || true &> /dev/null
+		source "${SOURCES_ROOT}/saved_environment_pre_configured.txt"
+	fi
 }
 
 # we will save env now, next times we will only restore it)
