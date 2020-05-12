@@ -64,6 +64,16 @@ jobs:
         ./cmake-3.10.0-Linux-x86_64.sh --skip-license --include-subdir && \
         sudo ln -sf `pwd`/cmake-3.10.0-Linux-x86_64/bin/* /usr/local/bin
 
+    - name: install packages
+      run: |
+        sudo apt-get update; sudo apt-get install -y software-properties-common apt-utils libprocps-dev \
+        g++-7 valgrind gawk sed libffi-dev ccache libgoogle-perftools-dev flex \
+        bison yasm texinfo \
+        autotools-dev autogen automake autoconf m4 shtool pkg-config sed gawk yasm nasm \
+        python python-pip libtool build-essential
+        # wget git libargtable2-dev \
+        # libmicrohttpd-dev libhiredis-dev redis-server openssl  libssl-dev >/dev/null 2>&1;
+
     - name: Login to docker
       env:
         GITHUB_TOKEN: ${{ secrets.DOCKER_SECRET }}

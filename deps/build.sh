@@ -102,7 +102,7 @@ done
 #
 
 simple_find_tool_program () { # program_name, var_name_to_export_full_path, is_optional("yes" or "no")
-	echo -e "checking for tool program:" $1
+	echo -e "checking for tool program: $1"
 	#echo $1
 	#echo $2
 	#
