@@ -4,18 +4,23 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+
     - name: checkout
       uses: actions/checkout@v1
+
     - name: submodule update
       run: git submodule update --init --recursive
+
     - name: update apt
       run: sudo add-apt-repository ppa:ubuntu-toolchain-r/test; sudo apt-get update
+
     - name: Free disk space
       run: |
         sudo apt-get remove -yq cmake libjsoncpp-dev aria2 ansible azure-cli shellcheck rpm xorriso zsync \
           clang-6.0 lldb-6.0 lld-6.0 clang-format-6.0 clang-8 lldb-8 lld-8 clang-format-8 \
           clang-9 lldb-9 lld-9 clangd-9 clang-format-9 dotnet-sdk-3.0 dotnet-sdk-3.1=3.1.101-1 \
           esl-erlang firefox g++-8 g++-9 gfortran-8 gfortran-9 google-chrome-stable >/dev/null 2>&1;
+
     - name: Free more disk space
       run: |
         sudo apt-get remove  -yq  \
@@ -51,18 +56,20 @@ jobs:
           php-igbinary php-memcache php-memcached php-mongodb php-redis php-xdebug \
           php-zmq snmp pollinate libpq-dev postgresql-client powershell ruby-full \
           sphinxsearch subversion mongodb-org || true > /dev/null 2>&1;
+
     - name: Cleanup
       run: |
         sudo apt-get autoremove -y >/dev/null 2>&1 && \
         sudo apt-get autoclean -y >/dev/null 2>&1  && \
         sudo rm -rf /usr/local/lib/android >/dev/null 2>&1 && \
         docker rmi $(docker image ls -aq) >/dev/null 2>&1
+
     - name: install cmake
       run: |
-          wget --no-check-certificate https://cmake.org/files/v3.10/cmake-3.10.0-Linux-x86_64.sh && \
-          chmod +x cmake-3.10.0-Linux-x86_64.sh && \
-          ./cmake-3.10.0-Linux-x86_64.sh --skip-license --include-subdir && \
-          sudo ln -sf `pwd`/cmake-3.10.0-Linux-x86_64/bin/* /usr/local/bin
+        wget --no-check-certificate https://cmake.org/files/v3.10/cmake-3.10.0-Linux-x86_64.sh && \
+        chmod +x cmake-3.10.0-Linux-x86_64.sh && \
+        ./cmake-3.10.0-Linux-x86_64.sh --skip-license --include-subdir && \
+        sudo ln -sf `pwd`/cmake-3.10.0-Linux-x86_64/bin/* /usr/local/bin
 
     - name: install packages
       run: |
@@ -80,6 +87,7 @@ jobs:
       run: |
         string(TIMESTAMP current_date "%Y-%m-%d-%H;%M;%S" UTC)
         message("::set-output name=timestamp::${current_date}")
+
     - name: ccache cache files
       uses: actions/cache@v1.1.0
       with:
@@ -89,14 +97,17 @@ jobs:
               ${ { matrix.config.name } }-ccache-
     - name: build dependencies
       run: |
-        sudo apt-get install nettle-dev gnutls-dev  && \
-        cd deps && ./build.sh || true; cd ..
+        sudo apt-get install nettle-dev gnutls-dev
+        cd deps && ./build.sh && cd ..
+
     - name: verify jsonrpc has been built
-      run:  ls libBLS/deps/deps_inst/x86_or_x64/include/jsonrpccpp/client.h
+      run: ls libBLS/deps/deps_inst/x86_or_x64/include/jsonrpccpp/client.h
+
     - name: build consensus
       run: |
         cd scripts && ./build.py Debug > /tmp/log_of_build.txt   2>&1 || ( tail -1000 /tmp/log_of_build.txt && false );
+
     - name: run tests
-      run: |
-        cd scripts && export CI_BUILD=1 && ./tests.py
+      run: cd scripts && export CI_BUILD=1 && ./tests.py && cd ..
+
 
