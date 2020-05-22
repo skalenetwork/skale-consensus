@@ -20,12 +20,12 @@
     @author Stan Kladko
     @date 2019
 */
-
-
 #include "SkaleCommon.h"
-#include "Log.h"
+#include "SkaleLog.h"
+
 #include "exceptions/LevelDBException.h"
 #include "LevelDBException.h"
+
 
 
 LevelDBException::LevelDBException(const string &_message, const string &_className) :

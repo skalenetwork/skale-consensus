@@ -21,10 +21,15 @@
     @date 2019
 */
 
+
 #include "SkaleCommon.h"
-#include "Log.h"
+#include "SkaleLog.h"
+
 #include "crypto/SHAHash.h"
+
 #include "ListOfHashes.h"
+
+
 
 
 ptr<SHAHash> ListOfHashes::calculateTopMerkleRoot() {

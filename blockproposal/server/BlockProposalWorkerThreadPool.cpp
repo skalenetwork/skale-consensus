@@ -21,9 +21,9 @@
     @date 2018
 */
 
-#include "SkaleCommon.h"
 #include "Agent.h"
-#include "Log.h"
+#include "SkaleCommon.h"
+#include "SkaleLog.h"
 
 #include "thirdparty/json.hpp"
 #include "abstracttcpserver/AbstractServerAgent.h"

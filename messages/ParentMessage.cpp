@@ -21,11 +21,12 @@
     @date 2018
 */
 
+
 #include "SkaleCommon.h"
-#include "Log.h"
-#include "exceptions/FatalError.h"
+#include "SkaleLog.h"
+
 #include "protocols/ProtocolInstance.h"
-#include "NetworkMessage.h"
+
 #include "ParentMessage.h"
 
 ParentMessage::ParentMessage( MsgType msgType, ProtocolInstance& srcProtocolInstance,

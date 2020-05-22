@@ -22,9 +22,9 @@
 */
 
 
-#include "SkaleCommon.h"
-#include "Log.h"
 #include "Agent.h"
+#include "SkaleCommon.h"
+#include "SkaleLog.h"
 
 
 #include "node/Node.h"

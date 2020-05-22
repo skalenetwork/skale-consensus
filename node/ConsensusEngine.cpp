@@ -27,10 +27,10 @@
 #include "openssl/pem.h"
 #include "openssl/err.h"
 
-#include "SkaleCommon.h"
-#include "Log.h"
-#include "exceptions/FatalError.h"
 #include "Agent.h"
+#include "SkaleCommon.h"
+#include "SkaleLog.h"
+#include "exceptions/FatalError.h"
 #include "thirdparty/json.hpp"
 #include "threads/GlobalThreadRegistry.h"
 
@@ -179,7 +179,7 @@ shared_ptr<spdlog::logger> ConsensusEngine::createLogger(const string &loggerNam
 
 
 void ConsensusEngine::setConfigLogLevel(string &_s) {
-    auto configLogLevel = Log::logLevelFromString(_s);
+    auto configLogLevel = SkaleLog::logLevelFromString(_s);
     CHECK_STATE(configLogger != nullptr);
     configLogger->set_level(configLogLevel);
 }

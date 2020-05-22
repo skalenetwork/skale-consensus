@@ -28,7 +28,7 @@
 
 
 #include "SkaleCommon.h"
-#include "Log.h"
+#include "SkaleLog.h"
 #include "exceptions/SerializeException.h"
 
 #include "BlockProposalFragment.h"

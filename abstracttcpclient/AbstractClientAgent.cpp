@@ -20,8 +20,8 @@
     @author Stan Kladko
     @date 2019
 */
-#include "Log.h"
 #include "SkaleCommon.h"
+#include "SkaleLog.h"
 #include "thirdparty/json.hpp"
 
 #include "Agent.h"

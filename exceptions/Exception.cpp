@@ -21,10 +21,10 @@
     @date 2018
 */
 
-#include "SkaleCommon.h"
-#include "Log.h"
-#include "ExitRequestedException.h"
 #include "Exception.h"
+#include "ExitRequestedException.h"
+#include "SkaleCommon.h"
+#include "SkaleLog.h"
 
 void Exception::logNested(const std::exception &e, int level)
 {

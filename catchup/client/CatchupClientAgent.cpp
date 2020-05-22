@@ -23,7 +23,7 @@
 
 #include "SkaleCommon.h"
 
-#include "Log.h"
+#include "SkaleLog.h"
 #include "exceptions/ExitRequestedException.h"
 #include "exceptions/FatalError.h"
 

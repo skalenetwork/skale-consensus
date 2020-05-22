@@ -22,11 +22,14 @@
 */
 
 #include "SkaleCommon.h"
-#include "Log.h"
-#include "exceptions/FatalError.h"
-#include "protocols/ProtocolKey.h"
+#include "SkaleLog.h"
+
 #include "protocols/ProtocolInstance.h"
+#include "protocols/ProtocolKey.h"
+
+
 #include "ChildMessage.h"
+
 
 ChildMessage::ChildMessage(MsgType _msgType, ProtocolInstance &srcProtocolInstance,
                            ptr<ProtocolKey> _key) : InternalMessage(_msgType, srcProtocolInstance, _key) {}

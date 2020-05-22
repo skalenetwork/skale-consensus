@@ -56,7 +56,7 @@ class logger;
     ConsensusEngine::log( __SEVERITY__, __MESSAGE__, className( __PRETTY_FUNCTION__ ) )
 
 
-class Log {
+class SkaleLog {
 
 
     ConsensusEngine* engine;
@@ -72,7 +72,7 @@ public:
 
     ConsensusEngine *getEngine() const;
 
-    Log( node_id _nodeID, ConsensusEngine* _engine);
+    SkaleLog( node_id _nodeID, ConsensusEngine* _engine);
 
     const node_id getNodeID() const;
 

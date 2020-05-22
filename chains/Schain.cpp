@@ -24,8 +24,8 @@
 #include "leveldb/db.h"
 #include <unordered_set>
 
-#include "Log.h"
 #include "SkaleCommon.h"
+#include "SkaleLog.h"
 #include "exceptions/FatalError.h"
 #include "exceptions/InvalidArgumentException.h"
 #include "thirdparty/json.hpp"

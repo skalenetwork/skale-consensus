@@ -25,7 +25,7 @@
 
 #include "exceptions/ParsingException.h"
 
-#include "Log.h"
+#include "SkaleLog.h"
 #include "exceptions/ConnectionRefusedException.h"
 #include "spdlog/sinks/rotating_file_sink.h"
 #include "spdlog/sinks/stdout_color_sinks.h"
@@ -38,7 +38,7 @@ using namespace std;
 
 
 
-void Log::setGlobalLogLevel(string &_s) {
+void SkaleLog::setGlobalLogLevel(string &_s) {
     globalLogLevel = logLevelFromString(_s);
 
     for (auto &&item : loggers) {
@@ -51,7 +51,7 @@ void Log::setGlobalLogLevel(string &_s) {
 
 
 string level_names[]   = SPDLOG_LEVEL_NAMES;
-level_enum Log::logLevelFromString(string &_s) {
+level_enum SkaleLog::logLevelFromString(string &_s) {
     for (int i = 0; i < 7; i++) {
         if (_s == level_names[i]) {
             return level_enum(i);
@@ -62,7 +62,7 @@ level_enum Log::logLevelFromString(string &_s) {
     BOOST_THROW_EXCEPTION(ParsingException("Unknown level name " + _s, __CLASS_NAME__));
 }
 
-shared_ptr<spdlog::logger> Log::loggerForClass(const char *_s) {
+shared_ptr<spdlog::logger> SkaleLog::loggerForClass(const char *_s) {
     string key;
 
     if (strstr(_s, "Proposal"))
@@ -88,7 +88,7 @@ shared_ptr<spdlog::logger> Log::loggerForClass(const char *_s) {
     return loggers[key];
 }
 
-Log::Log(node_id _nodeID, ConsensusEngine* _engine) {
+SkaleLog::SkaleLog(node_id _nodeID, ConsensusEngine* _engine) {
 
     CHECK_STATE(_engine);
 
@@ -123,11 +123,11 @@ Log::Log(node_id _nodeID, ConsensusEngine* _engine) {
 
 
 
-const node_id Log::getNodeID() const {
+const node_id SkaleLog::getNodeID() const {
     return nodeID;
 }
 
-ConsensusEngine *Log::getEngine() const {
+ConsensusEngine * SkaleLog::getEngine() const {
     CHECK_STATE(engine);
     return engine;
 }

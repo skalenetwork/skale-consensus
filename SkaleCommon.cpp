@@ -24,7 +24,7 @@
 #include "SkaleCommon.h"
 
 
-#include "Log.h"
+#include "SkaleLog.h"
 #include "exceptions/FatalError.h"
 
 
@@ -75,4 +75,4 @@ std::string getThreadName(){
     return std::string(buf);
 }
 
-thread_local ptr<Log> logThreadLocal_ = nullptr;
+thread_local ptr< SkaleLog > logThreadLocal_ = nullptr;

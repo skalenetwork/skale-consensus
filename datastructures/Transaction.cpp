@@ -33,10 +33,9 @@
 
 
 #include "SkaleCommon.h"
-#include "Log.h"
+#include "SkaleLog.h"
 #include "chains/Schain.h"
 #include "crypto/SHAHash.h"
-
 
 
 #include "Transaction.h"

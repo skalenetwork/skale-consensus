@@ -22,9 +22,11 @@
 */
 
 #include "SkaleCommon.h"
-#include "Log.h"
+#include "SkaleLog.h"
+
 #include "exceptions/EngineInitException.h"
 #include "EngineInitException.h"
+
 
 
 EngineInitException::EngineInitException(const string &_message, const string &_className) :

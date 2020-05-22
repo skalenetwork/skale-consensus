@@ -22,12 +22,12 @@
 */
 
 #include "SkaleCommon.h"
-#include "Log.h"
-#include "thirdparty/json.hpp"
-#include "exceptions/FatalError.h"
-#include "crypto/bls_include.h"
+#include "SkaleLog.h"
 #include "crypto/ConsensusBLSSignature.h"
 #include "crypto/SHAHash.h"
+#include "crypto/bls_include.h"
+#include "exceptions/FatalError.h"
+#include "thirdparty/json.hpp"
 
 #include "chains/Schain.h"
 #include "node/Node.h"

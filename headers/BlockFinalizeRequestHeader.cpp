@@ -23,8 +23,8 @@
 
 
 #include "SkaleCommon.h"
+#include "SkaleLog.h"
 #include "crypto/SHAHash.h"
-#include "Log.h"
 #include "exceptions/FatalError.h"
 #include "exceptions/InvalidArgumentException.h"
 

@@ -20,17 +20,19 @@
     @author Stan Kladko
     @date 2019
 */
-
 #include "SkaleCommon.h"
-#include "Log.h"
-#include "thirdparty/json.hpp"
+#include "SkaleLog.h"
+
+
+#include "chains/Schain.h"
 #include "crypto/bls_include.h"
 #include "exceptions/FatalError.h"
-#include "chains/Schain.h"
 #include "node/Node.h"
 #include "protocols/ProtocolKey.h"
 #include "protocols/binconsensus/BinConsensusInstance.h"
 #include "protocols/blockconsensus/BlockConsensusAgent.h"
+#include "thirdparty/json.hpp"
+
 #include "HistoryMessage.h"
 
 HistoryMessage::HistoryMessage(MsgType _messageType, bin_consensus_round _r, bin_consensus_value _value,

@@ -22,8 +22,8 @@
 */
 
 #pragma once
-#include "Log.h"
 #include "Exception.h"
+#include "SkaleLog.h"
 
 class ParsingException : public Exception  {
 public:

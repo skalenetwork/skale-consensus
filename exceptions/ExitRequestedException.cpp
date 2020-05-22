@@ -22,11 +22,7 @@
 */
 
 
-#include "SkaleCommon.h"
-#include "Log.h"
-#include "exceptions/FatalError.h"
 #include "ExitRequestedException.h"
-
-
-
-
+#include "SkaleCommon.h"
+#include "SkaleLog.h"
+#include "exceptions/FatalError.h"

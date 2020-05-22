@@ -23,10 +23,10 @@
 
 
 #include "SkaleCommon.h"
-#include "Log.h"
+#include "SkaleLog.h"
 #include "chains/Schain.h"
-#include "exceptions/InvalidStateException.h"
 #include "datastructures/CommittedBlock.h"
+#include "exceptions/InvalidStateException.h"
 
 #include "BlockDB.h"
 #include "CacheLevelDB.h"

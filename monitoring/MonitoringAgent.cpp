@@ -21,12 +21,12 @@
     @date 2018
 */
 
-#include <node/ConsensusEngine.h>
 #include "SkaleCommon.h"
-#include "Log.h"
+#include "SkaleLog.h"
 #include "exceptions/ExitRequestedException.h"
 #include "exceptions/FatalError.h"
 #include "thirdparty/json.hpp"
+#include <node/ConsensusEngine.h>
 
 #include "utils/Time.h"
 #include "node/Node.h"

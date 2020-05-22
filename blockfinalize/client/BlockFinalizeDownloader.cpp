@@ -47,10 +47,9 @@
 #include <exceptions/ConnectionRefusedException.h>
 #include "SkaleCommon.h"
 
-#include "Log.h"
+#include "SkaleLog.h"
 #include "exceptions/ExitRequestedException.h"
 #include "exceptions/FatalError.h"
-#include "exceptions/InvalidStateException.h"
 #include "exceptions/InvalidStateException.h"
 
 

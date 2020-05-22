@@ -21,19 +21,17 @@
     @date 2018
 */
 
+#include "pendingqueue/TestMessageGeneratorAgent.h"
+#include "PendingTransactionsAgent.h"
 #include "SkaleCommon.h"
-#include "Log.h"
-#include "exceptions/FatalError.h"
-#include "thirdparty/json.hpp"
-#include "node/Node.h"
+#include "SkaleLog.h"
 #include "chains/Schain.h"
 #include "chains/SchainTest.h"
 #include "datastructures/Transaction.h"
-#include "chains/Schain.h"
-#include "pendingqueue/TestMessageGeneratorAgent.h"
-#include "datastructures/Transaction.h"
+#include "exceptions/FatalError.h"
 #include "node/ConsensusEngine.h"
-#include "PendingTransactionsAgent.h"
+#include "node/Node.h"
+#include "thirdparty/json.hpp"
 
 
 TestMessageGeneratorAgent::TestMessageGeneratorAgent(Schain& _sChain_) : Agent(_sChain_, false) {

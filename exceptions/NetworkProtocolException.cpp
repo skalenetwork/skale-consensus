@@ -21,9 +21,9 @@
     @date 2018
 */
 
-#include "SkaleCommon.h"
-#include "Log.h"
 #include "NetworkProtocolException.h"
+#include "SkaleCommon.h"
+#include "SkaleLog.h"
 
 NetworkProtocolException::NetworkProtocolException(const std::string &_message,
         const string & _className) : Exception(_message, _className) {}

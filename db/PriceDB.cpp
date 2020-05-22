@@ -22,12 +22,12 @@
 */
 
 
+#include "PriceDB.h"
 #include "SkaleCommon.h"
-#include "Log.h"
+#include "SkaleLog.h"
+#include "chains/Schain.h"
 #include "exceptions/ExitRequestedException.h"
 #include "node/Node.h"
-#include "chains/Schain.h"
-#include "PriceDB.h"
 
 #include "chains/Schain.h"
 

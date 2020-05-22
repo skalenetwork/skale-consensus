@@ -23,10 +23,10 @@
 
 #pragma once
 
-#include "SkaleCommon.h"
-#include "Log.h"
-#include "exceptions/FatalError.h"
 #include "Exception.h"
+#include "SkaleCommon.h"
+#include "SkaleLog.h"
+#include "exceptions/FatalError.h"
 
 class InvalidSchainIndexException : public Exception {
 public:

@@ -25,12 +25,12 @@
 #include <boost/iostreams/stream.hpp>
 
 
-#include "Log.h"
-#include "SkaleCommon.h"
-#include "thirdparty/json.hpp"
-#include "exceptions/InvalidStateException.h"
 #include "BlockProposal.h"
 #include "DAProof.h"
+#include "SkaleCommon.h"
+#include "SkaleLog.h"
+#include "exceptions/InvalidStateException.h"
+#include "thirdparty/json.hpp"
 
 
 DAProof::DAProof(ptr<BlockProposal> _p, ptr<ThresholdSignature> _thresholdSignature) {

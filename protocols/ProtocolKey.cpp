@@ -22,16 +22,9 @@
 */
 
 #include "SkaleCommon.h"
-#include "Log.h"
+#include "SkaleLog.h"
 #include "exceptions/FatalError.h"
-#include "messages/NetworkMessage.h"
-#include "ProtocolInstance.h"
 #include "ProtocolKey.h"
-
-
-
-
-
 
 ProtocolKey::ProtocolKey(const ProtocolKey &key) :
         blockID(key.blockID),

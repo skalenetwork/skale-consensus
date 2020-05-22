@@ -21,9 +21,9 @@
     @date 2018
 */
 
-#include "SkaleCommon.h"
-#include "Log.h"
 #include "InvalidStateException.h"
+#include "SkaleCommon.h"
+#include "SkaleLog.h"
 
 InvalidStateException::InvalidStateException(const std::string &_message, const string& _className) :
                       Exception(_message, _className) {

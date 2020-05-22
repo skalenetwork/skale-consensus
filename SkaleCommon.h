@@ -88,7 +88,7 @@
 #include <boost/crc.hpp>
 
 class ConsensusEngine;
-class Log;
+class SkaleLog;
 
 
 #define BOOST_STRONG_TYPEDEF(T, D)                                                     \

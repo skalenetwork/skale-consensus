@@ -20,12 +20,3 @@
     @author Stan Kladko
     @date 2018
 */
-
-#include "SkaleCommon.h"
-#include "Log.h"
-#include "exceptions/FatalError.h"
-#include "crypto/SHAHash.h"
-#include "datastructures/BlockProposalSet.h"
-#include "protocols/ProtocolKey.h"
-#include "BlockConsensusParentConsensusInitMessage.h"
-

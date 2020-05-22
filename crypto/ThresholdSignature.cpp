@@ -20,14 +20,9 @@
     @author Stan Kladko
     @date 2019
 */
-
 #include "SkaleCommon.h"
-#include "Log.h"
-#include "ConsensusBLSSignature.h"
-#include "libBLS/bls/BLSSignature.h"
-#include "thirdparty/json.hpp"
+
 #include "network/Utils.h"
-#include "crypto/bls_include.h"
 
 #include "ThresholdSignature.h"
 

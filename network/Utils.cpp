@@ -21,16 +21,15 @@
     @date 2018
 */
 
+#include "thirdparty/json.hpp"
+
 #include "SkaleCommon.h"
-#include "Log.h"
-#include "thirdparty/json.hpp"
-#include "crypto/SHAHash.h"
-#include "network/Utils.h"
-#include "headers/Header.h"
-#include "thirdparty/json.hpp"
+#include "SkaleLog.h"
+
 #include "exceptions/FatalError.h"
-#include "Utils.h"
 #include "exceptions/InvalidArgumentException.h"
+
+#include "Utils.h"
 
 ptr<vector<uint8_t>> Utils::u256ToBigEndianArray(const u256 &_value) {
 // export into 8-bit unsigned values, most significant bit first:
@@ -45,8 +44,6 @@ void Utils::checkTime() {
     if (getenv("NO_NTP_CHECK") != nullptr) {
         return;
     }
-
-
 
 
     auto ip = gethostbyname("pool.ntp.org");

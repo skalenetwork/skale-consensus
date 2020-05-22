@@ -33,17 +33,17 @@
 #include "thirdparty/catch.hpp"
 
 #include "SkaleCommon.h"
-#include "Log.h"
-#include "node/ConsensusEngine.h"
+#include "SkaleLog.h"
 #include "crypto/CryptoManager.h"
+#include "node/ConsensusEngine.h"
 
 #include "iostream"
 #include "time.h"
 #include "crypto/SHAHash.h"
 
-#include "stubclient.h"
-#include <network/Utils.h>
 #include "Consensust.h"
+#include "JsonStubClient.h"
+#include <network/Utils.h>
 
 #ifdef GOOGLE_PROFILE
 #include <gperftools/heap-profiler.h>

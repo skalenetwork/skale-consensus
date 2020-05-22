@@ -22,11 +22,13 @@
 */
 
 #include "SkaleCommon.h"
-#include "Log.h"
-#include "exceptions/FatalError.h"
-#include "thirdparty/json.hpp"
+#include "SkaleLog.h"
+
 #include "NetworkMessage.h"
+
+#include "exceptions/FatalError.h"
 #include "node/Node.h"
+#include "thirdparty/json.hpp"
 
 #include "node/NodeInfo.h"
 #include "utils/Time.h"

@@ -21,14 +21,14 @@
     @date 2018
 */
 
-#include "SkaleCommon.h"
 #include "Agent.h"
-#include "Log.h"
+#include "CatchupServerAgent.h"
+#include "SkaleCommon.h"
+#include "SkaleLog.h"
+#include "abstracttcpserver/AbstractServerAgent.h"
 #include "exceptions/FatalError.h"
 #include "thirdparty/json.hpp"
-#include "abstracttcpserver/AbstractServerAgent.h"
 #include "threads/WorkerThreadPool.h"
-#include "CatchupServerAgent.h"
 
 
 CatchupWorkerThreadPool::CatchupWorkerThreadPool(

@@ -23,9 +23,9 @@
 
 
 #include "SkaleCommon.h"
-#include "Log.h"
-#include "thirdparty/json.hpp"
+#include "SkaleLog.h"
 #include "exceptions/InvalidArgumentException.h"
+#include "thirdparty/json.hpp"
 
 #include "AbstractBlockRequestHeader.h"
 #include "BlockFinalizeResponseHeader.h"

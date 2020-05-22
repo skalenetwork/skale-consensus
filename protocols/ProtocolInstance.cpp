@@ -22,17 +22,17 @@
 */
 
 #include "SkaleCommon.h"
-#include "Log.h"
-#include "exceptions/FatalError.h"
-#include "thirdparty/json.hpp"
+#include "SkaleLog.h"
 #include "abstracttcpserver/ConnectionStatus.h"
+#include "blockproposal/pusher/BlockProposalClientAgent.h"
+#include "chains/Schain.h"
+#include "db/BlockProposalDB.h"
+#include "exceptions/FatalError.h"
 #include "messages/ParentMessage.h"
 #include "pendingqueue/PendingTransactionsAgent.h"
-#include "blockproposal/pusher/BlockProposalClientAgent.h"
-#include "db/BlockProposalDB.h"
-#include "chains/Schain.h"
 #include "protocols/ProtocolKey.h"
 #include "protocols/binconsensus/BinConsensusInstance.h"
+#include "thirdparty/json.hpp"
 
 
 msg_id ProtocolInstance::createNetworkMessageID() {

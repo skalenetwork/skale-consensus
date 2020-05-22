@@ -21,10 +21,10 @@
     @date 2018
 */
 
-#include "SkaleCommon.h"
-#include "Log.h"
 #include "exceptions/FatalError.h"
 #include "FatalError.h"
+#include "SkaleCommon.h"
+#include "SkaleLog.h"
 
 FatalError::FatalError(const std::string &_message, const string& _className) : Exception(_message, _className) {
     fatal = true;

@@ -22,8 +22,8 @@
 */
 
 #pragma once
-#include "Log.h"
 #include "Exception.h"
+#include "SkaleLog.h"
 
 class SerializeException : public Exception  {
 public:
