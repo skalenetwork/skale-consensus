@@ -49,7 +49,7 @@ class ECDSAVerify;
 
 class CryptoManager {
 
-private:
+
 
     ptr<ECDSAVerify> ecdsaVerify;
 
@@ -64,8 +64,6 @@ private:
     ptr<string> sgxSSLCertFileFullPath;
     ptr<string> sgxECDSAKeyName;
     vector<ptr<string>> sgxECDSAPublicKeys;
-
-private:
 
     ptr<StubClient> sgxClient;
 
@@ -119,7 +117,7 @@ public:
     static void generateSSLClientCertAndKey(string &_fullPathToDir);
     static void setSGXKeyAndCert(string &_keyFullPath, string &_certFullPath);
     ptr<string> sgxSignECDSA(ptr<SHAHash> _hash, string& _keyName,  ptr<StubClient> _sgxClient);
-    void sgxVerifyECDSA(ptr<SHAHash> _hash, ptr<string> _publicKey, ptr<string> _sig);
+    bool sgxVerifyECDSA(ptr<SHAHash> _hash, ptr<string> _publicKey, ptr<string> _sig);
 
 };
 

@@ -138,9 +138,31 @@ ptr<string> CryptoManager::sgxSignECDSA(ptr<SHAHash> _hash, string &_keyName, pt
 
 }
 
-void CryptoManager::sgxVerifyECDSA(ptr<SHAHash> _hash, ptr<string> _publicKey, ptr<string> _sig) {
-    ecdsaVerify->signature_verify(_hash, _publicKey, _sig);
+bool CryptoManager::sgxVerifyECDSA(ptr<SHAHash> _hash, ptr<string> _publicKey, ptr<string> _sig) {
 
+    CHECK_ARGUMENT(_hash);
+    CHECK_ARGUMENT(_sig);
+    CHECK_ARGUMENT(_publicKey);
+
+    auto firstColumn = _sig->find(":");
+
+    if (firstColumn == string::npos || firstColumn == _sig->length() - 1) {
+        LOG(warn, "Misfomatted signature");
+        return false;
+    }
+
+    auto secondColumn = _sig->find( ":", firstColumn + 1);
+
+    if (secondColumn == string::npos || secondColumn == _sig->length() - 1) {
+        LOG(warn, "Misformatted signature");
+        return false;
+    }
+
+    auto r = _sig->substr(firstColumn + 1, secondColumn - firstColumn - 1);
+    auto s = _sig->substr(secondColumn + 1, _sig->length() - secondColumn - 1);
+
+    return ecdsaVerify->verifyECDSASig(*_publicKey, _hash->toHex()->c_str(),
+        r.c_str(), s.c_str());
 }
 
 ptr<string> CryptoManager::signECDSA(ptr<SHAHash> _hash) {

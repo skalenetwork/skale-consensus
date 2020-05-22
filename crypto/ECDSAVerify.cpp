@@ -12,9 +12,11 @@
 
 #include "SkaleCommon.h"
 #include "SkaleLog.h"
-#include "SHAHash.h"
 
-bool verifyECDSASig(string& pubKeyStr, const char *hashHex, const char *signatureR,
+
+#include "ECDSAVerify.h"
+
+bool ECDSAVerify::verifyECDSASig(string& pubKeyStr, const char *hashHex, const char *signatureR,
                     const char *signatureS) {
 
     bool result = false;
