@@ -69,6 +69,31 @@
 #include "ECDSAVerify.h"
 
 
+CryptoManager::CryptoManager( uint64_t totalSigners, uint64_t requiredSigners,
+                              const ptr< string >& sgxIp, const ptr< string >& sgxSslKeyFileFullPath,
+                              const ptr< string >& sgxSslCertFileFullPath, const ptr< string >& sgxEcdsaKeyName,
+                              const vector< ptr< string > >& sgxEcdsaPublicKeys )
+    : totalSigners( totalSigners ),
+      requiredSigners( requiredSigners ),
+      sgxIP( sgxIp ),
+      sgxSSLKeyFileFullPath( sgxSslKeyFileFullPath ),
+      sgxSSLCertFileFullPath( sgxSslCertFileFullPath ),
+      sgxECDSAKeyName( sgxEcdsaKeyName ),
+      sgxECDSAPublicKeys( sgxEcdsaPublicKeys ) {
+
+    this->sgxEnabled = (sgxIp != nullptr);
+
+
+    if (sgxEnabled) {
+        httpClient = make_shared<jsonrpc::HttpClient>("https://" + *sgxIP + ":" +
+                                                      to_string(SGX_SSL_PORT));
+        sgxClient = make_shared< StubClient >( *httpClient, jsonrpc::JSONRPC_CLIENT_V2 );
+    }
+
+
+}
+
+
 CryptoManager::CryptoManager( Schain& _sChain ) : sChain( &_sChain ) {
     CHECK_ARGUMENT( sChain != nullptr );
 
@@ -76,8 +101,10 @@ CryptoManager::CryptoManager( Schain& _sChain ) : sChain( &_sChain ) {
     static string empty = "";
     sgxIP = _sChain.getNode()->getParamString( "sgxIP", empty );
 
-    if ( sgxIP->length() == 0 )
+    if ( sgxIP->length() == 0 ) {
         sgxIP = nullptr;
+        sgxEnabled = false;
+    }
     else {
         sgxEnabled = true;
         auto node = _sChain.getNode();
@@ -108,7 +135,8 @@ CryptoManager::CryptoManager( Schain& _sChain ) : sChain( &_sChain ) {
 
         setSGXKeyAndCert( *sgxSSLKeyFileFullPath, *sgxSSLCertFileFullPath );
 
-        httpClient = make_shared<jsonrpc::HttpClient>("https://" + *sgxIP + ":1026" );
+        httpClient = make_shared<jsonrpc::HttpClient>("https://" + *sgxIP +
+                                                          to_string(SGX_SSL_PORT));
         sgxClient = make_shared< StubClient >( *httpClient, jsonrpc::JSONRPC_CLIENT_V2 );
     }
 
@@ -127,10 +155,8 @@ Schain* CryptoManager::getSchain() const {
 }
 
 
-ptr< string > CryptoManager::sgxSignECDSA(
-    ptr< SHAHash > _hash, string& _keyName, ptr< StubClient > _sgxClient ) {
-    CHECK_ARGUMENT( _sgxClient );
-    auto result = _sgxClient->ecdsaSignMessageHash( 16, _keyName, *_hash->toHex() );
+ptr< string > CryptoManager::sgxSignECDSA( ptr< SHAHash > _hash, string& _keyName ) {
+    auto result = getSgxClient()->ecdsaSignMessageHash( 16, _keyName, *_hash->toHex() );
     auto status = result["status"].asInt64();
     CHECK_STATE( status == 0 );
     string r = result["signature_r"].asString();
@@ -234,7 +260,7 @@ bool CryptoManager::sgxVerifyECDSA(
 ptr< string > CryptoManager::signECDSA( ptr< SHAHash > _hash ) {
     CHECK_ARGUMENT( _hash );
     if ( sgxEnabled ) {
-        return sgxSignECDSA( _hash, *sgxECDSAKeyName, sgxClient );
+        return sgxSignECDSA( _hash, *sgxECDSAKeyName );
     } else {
         return _hash->toHex();
     }
@@ -467,16 +493,7 @@ void CryptoManager::generateSSLClientCertAndKey( string& _fullPathToDir ) {
     outFile << signedCert;
 }
 
-CryptoManager::CryptoManager( uint64_t totalSigners, uint64_t requiredSigners,
-    const ptr< string >& sgxIp, const ptr< string >& sgxSslKeyFileFullPath,
-    const ptr< string >& sgxSslCertFileFullPath, const ptr< string >& sgxEcdsaKeyName,
-    const vector< ptr< string > >& sgxEcdsaPublicKeys )
-    : totalSigners( totalSigners ),
-      requiredSigners( requiredSigners ),
-      sgxIP( sgxIp ),
-      sgxSSLKeyFileFullPath( sgxSslKeyFileFullPath ),
-      sgxSSLCertFileFullPath( sgxSslCertFileFullPath ),
-      sgxECDSAKeyName( sgxEcdsaKeyName ),
-      sgxECDSAPublicKeys( sgxEcdsaPublicKeys ) {
-    this->sgxEnabled = sgxIp != nullptr;
+ptr< StubClient > CryptoManager::getSgxClient() const {
+    CHECK_STATE(sgxClient);
+    return sgxClient;
 }

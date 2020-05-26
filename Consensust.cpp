@@ -255,7 +255,7 @@ TEST_CASE_METHOD(StartFromScratch, "Test sgx server connection", "[sgx]") {
     auto msg = make_shared<vector<uint8_t>>();
     msg->push_back('1');
     auto hash = SHAHash::calculateHash(msg);
-    auto sig = cm.sgxSignECDSA(hash,*keyNames[0],  c) ;
+    auto sig = cm.sgxSignECDSA( hash, *keyNames[0] );
 
     REQUIRE(cm.sgxVerifyECDSA(hash, publicKeys[0], sig));
 

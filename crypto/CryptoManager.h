@@ -55,6 +55,10 @@ class CryptoManager {
 
     ptr< StubClient > sgxClient = nullptr;
 
+
+    ptr< StubClient > getSgxClient() const;
+
+
     ptr< jsonrpc::HttpClient > httpClient = nullptr;
 
     uint64_t totalSigners;
@@ -120,8 +124,8 @@ public:
 
     static void generateSSLClientCertAndKey( string& _fullPathToDir );
     static void setSGXKeyAndCert( string& _keyFullPath, string& _certFullPath );
-    ptr< string > sgxSignECDSA(
-        ptr< SHAHash > _hash, string& _keyName, ptr< StubClient > _sgxClient );
+
+    ptr< string > sgxSignECDSA( ptr< SHAHash > _hash, string& _keyName );
     bool sgxVerifyECDSA( ptr< SHAHash > _hash, ptr< string > _publicKey, ptr< string > _sig );
 };
 
