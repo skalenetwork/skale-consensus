@@ -48,6 +48,7 @@
 #include <gmp.h>
 #include "secure_enclave/Verify.h"
 
+
 #include "ConsensusBLSSigShare.h"
 #include "ConsensusBLSSignature.h"
 #include "ConsensusSigShareSet.h"
@@ -133,7 +134,7 @@ ptr< string > CryptoManager::sgxSignECDSA(
     auto status = result["status"].asInt64();
     CHECK_STATE( status == 0 );
     string r = result["signature_r"].asString();
-    string s = result["signature_r"].asString();
+    string s = result["signature_s"].asString();
     string v = result["signature_v"].asString();
 
     return make_shared< string >( v + ":" + r.substr( 2 ) + ":" + s.substr( 2 ) );
@@ -147,13 +148,15 @@ bool CryptoManager::sgxVerifyECDSA(
 
     bool result = false;
 
-    signature sig;
-    domain_parameters curve;
+    signature sig = NULL;
+    domain_parameters curve = NULL;
     mpz_t msgMpz;
-    point publicKey;
+    point publicKey = NULL;
 
     try {
         sig = signature_init();
+
+        CHECK_STATE( sig );
 
         auto firstColumn = _sig->find( ":" );
 
@@ -164,6 +167,7 @@ bool CryptoManager::sgxVerifyECDSA(
 
         auto secondColumn = _sig->find( ":", firstColumn + 1 );
 
+
         if ( secondColumn == string::npos || secondColumn == _sig->length() - 1 ) {
             LOG( warn, "Misformatted signature" );
             throw exception();
@@ -172,6 +176,13 @@ bool CryptoManager::sgxVerifyECDSA(
         auto r = _sig->substr( firstColumn + 1, secondColumn - firstColumn - 1 );
         auto s = _sig->substr( secondColumn + 1, _sig->length() - secondColumn - 1 );
 
+        if ( r == s ) {
+            LOG( warn, "r == s " );
+            throw exception();
+        }
+
+
+        CHECK_STATE( firstColumn != secondColumn );
 
         if ( _publicKey->size() != 128 ) {
             LOG( warn, "ECDSA verify fail: _publicKey->size() != 128" );
@@ -194,13 +205,11 @@ bool CryptoManager::sgxVerifyECDSA(
             throw exception();
         }
 
+
         if ( signature_set_str( sig, r.c_str(), s.c_str(), 16 ) != 0 ) {
             LOG( warn, "Misformatted ECDSA sig " );
         }
 
-        if ( signature_set_str( sig, r.c_str(), s.c_str(), 16 ) != 0 ) {
-            LOG( warn, "Incorrect publu" );
-        }
 
         if ( point_set_hex( publicKey, pubKeyR.c_str(), pubKeyS.c_str() ) != 0 ) {
             LOG( warn, "Incorrect public key" );
@@ -456,6 +465,5 @@ CryptoManager::CryptoManager( uint64_t totalSigners, uint64_t requiredSigners,
       sgxSSLCertFileFullPath( sgxSslCertFileFullPath ),
       sgxECDSAKeyName( sgxEcdsaKeyName ),
       sgxECDSAPublicKeys( sgxEcdsaPublicKeys ) {
-
     this->sgxEnabled = sgxIp != nullptr;
 }
