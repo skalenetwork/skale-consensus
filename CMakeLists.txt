@@ -55,7 +55,7 @@ find_package(leveldb CONFIG REQUIRED)
 set(CMAKE_CXX_STANDARD 17)
 add_compile_options(-Wall -Wextra -Werror)
 add_definitions("-DZMQ_BUILD_DRAFT_API")
-
+add_definitions("-DUSER_SPACE")
 add_definitions("-DZMQ_EXPERIMENTAL")
 add_definitions("-DZMQ_NONBLOCKING")
 
@@ -158,7 +158,13 @@ SET(SRC_FILES
         ${exceptions_src}
         ${monitoring_src}
         ${utils_src}
-        Agent.h Agent.cpp SkaleCommon.h SkaleCommon.cpp SkaleLog.h SkaleLog.cpp microprofile.cpp miniz.c)
+        Agent.h Agent.cpp SkaleCommon.cpp SkaleLog.cpp microprofile.cpp miniz.c
+        sgxwallet/secure_enclave/Point.c
+        sgxwallet/secure_enclave/DomainParameters.c
+        sgxwallet/secure_enclave/NumberTheory.c
+        sgxwallet/secure_enclave/Signature.c
+        sgxwallet/secure_enclave/Curves.c
+        )
 
 
 include_directories(. spdlog/include ${BLS_INCLUDE_DIRS} ${DEPS_INSTALL_ROOT}/include libBLS/bls libBLS
@@ -211,7 +217,6 @@ SET( LINK_LIBRARIES
 add_library(consensus STATIC ${SRC_FILES})
 
 target_link_libraries(consensus  ${LINK_LIBRARIES})
-add_precompiled_header(consensus SkaleCommon.h FORCE_INCLUDE)
 
 # consensus test agent
 
@@ -225,8 +230,6 @@ add_executable(consensusd Consensusd.h Consensusd.cpp)
 # else ()
     target_link_libraries(consensusd  consensus)
 # endif ()
-
-
 
 add_executable(consensust Consensust.h Consensust.cpp datastructures/SerializationTests.cpp db/DBTests.cpp)
 
