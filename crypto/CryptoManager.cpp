@@ -41,8 +41,14 @@
 
 #include <jsonrpccpp/client/connectors/httpclient.h>
 
+
+
+
 #include "SkaleCommon.h"
 #include "SkaleLog.h"
+
+#include <gmp.h>
+#include "secure_enclave/Verify.h"
 
 #include "ConsensusBLSSigShare.h"
 #include "ConsensusBLSSignature.h"
@@ -142,27 +148,81 @@ bool CryptoManager::sgxVerifyECDSA(ptr<SHAHash> _hash, ptr<string> _publicKey, p
 
     CHECK_ARGUMENT(_hash);
     CHECK_ARGUMENT(_sig);
-    CHECK_ARGUMENT(_publicKey);
+    CHECK_ARGUMENT(_publicKey)
 
-    auto firstColumn = _sig->find(":");
+    bool result = false;
 
-    if (firstColumn == string::npos || firstColumn == _sig->length() - 1) {
-        LOG(warn, "Misfomatted signature");
-        return false;
+    signature sig;
+    domain_parameters curve;
+    mpz_t msgMpz;
+    point publicKey;
+
+    try {
+
+        sig = signature_init();
+
+        auto firstColumn = _sig->find( ":" );
+
+        if ( firstColumn == string::npos || firstColumn == _sig->length() - 1 ) {
+            LOG( warn, "Misfomatted signature" );
+            throw exception();
+        }
+
+        auto secondColumn = _sig->find( ":", firstColumn + 1 );
+
+        if ( secondColumn == string::npos || secondColumn == _sig->length() - 1 ) {
+            LOG( warn, "Misformatted signature" );
+            throw exception();
+        }
+
+        auto r = _sig->substr( firstColumn + 1, secondColumn - firstColumn - 1 );
+        auto s = _sig->substr( secondColumn + 1, _sig->length() - secondColumn - 1 );
+
+
+        if ( _publicKey->size() != 128 ) {
+            LOG( warn, "ECDSA verify fail: _publicKey->size() != 128" );
+            throw exception();
+        }
+
+        auto pubKeyR = _publicKey->substr( 0, 64 );
+        auto pubKeyS = _publicKey->substr( 64, 128 );
+        curve  = domain_parameters_init();
+        domain_parameters_load_curve( curve, secp256k1 );
+        publicKey = point_init();
+
+
+
+        mpz_init( msgMpz );
+
+        auto hashHex = _hash->toHex();
+
+        if ( mpz_set_str( msgMpz, hashHex->c_str(), 16 ) == -1 ) {
+            LOG( warn, "invalid message hash " + *hashHex );
+            throw exception();
+        }
+
+        if ( signature_set_str( sig, r.c_str(), s.c_str(), 16 ) != 0 ) {
+            LOG( warn, "Misformatted ECDSA sig " );
+        }
+        point_set_hex( publicKey, pubKeyR.c_str(), pubKeyS.c_str() );
+        if ( !signature_verify( msgMpz, sig, publicKey, curve ) ) {
+            LOG( warn, "ECDSA sig not verified" );
+            throw exception();
+        }
+
+        result = true;
+    } catch (...) {
+
     }
 
-    auto secondColumn = _sig->find( ":", firstColumn + 1);
+    mpz_clear(msgMpz);
+    domain_parameters_clear(curve);
+    point_clear(publicKey);
+    signature_free(sig);
 
-    if (secondColumn == string::npos || secondColumn == _sig->length() - 1) {
-        LOG(warn, "Misformatted signature");
-        return false;
-    }
+    return result;
 
-    auto r = _sig->substr(firstColumn + 1, secondColumn - firstColumn - 1);
-    auto s = _sig->substr(secondColumn + 1, _sig->length() - secondColumn - 1);
 
-    return ecdsaVerify->verifyECDSASig(*_publicKey, _hash->toHex()->c_str(),
-        r.c_str(), s.c_str());
 }
 
 ptr<string> CryptoManager::signECDSA(ptr<SHAHash> _hash) {
