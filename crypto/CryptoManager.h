@@ -51,7 +51,7 @@ class CryptoManager {
 
 
 
-    ptr<ECDSAVerify> ecdsaVerify;
+
 
 
     uint64_t  totalSigners;

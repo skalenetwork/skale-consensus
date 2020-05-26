@@ -261,7 +261,7 @@ TEST_CASE_METHOD(StartFromScratch, "Test sgx server connection", "[sgx]") {
 
     cerr << sig << endl;
 
-    cm.sgxVerifyECDSA(hash, publicKeys[0], sig);
+    REQUIRE(cm.sgxVerifyECDSA(hash, publicKeys[0], sig));
 
     auto key = CryptoManager::decodeSGXPublicKey(publicKeys[0]);
 
