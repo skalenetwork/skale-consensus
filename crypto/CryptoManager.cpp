@@ -108,8 +108,8 @@ CryptoManager::CryptoManager( Schain& _sChain ) : sChain( &_sChain ) {
 
         setSGXKeyAndCert( *sgxSSLKeyFileFullPath, *sgxSSLCertFileFullPath );
 
-        jsonrpc::HttpClient httpClient( "https://" + *sgxIP + ":1026" );
-        sgxClient = make_shared< StubClient >( httpClient, jsonrpc::JSONRPC_CLIENT_V2 );
+        httpClient = make_shared<jsonrpc::HttpClient>("https://" + *sgxIP + ":1026" );
+        sgxClient = make_shared< StubClient >( *httpClient, jsonrpc::JSONRPC_CLIENT_V2 );
     }
 
     totalSigners = sChain->getTotalSigners();
@@ -144,7 +144,7 @@ bool CryptoManager::sgxVerifyECDSA(
     ptr< SHAHash > _hash, ptr< string > _publicKey, ptr< string > _sig ) {
     CHECK_ARGUMENT( _hash );
     CHECK_ARGUMENT( _sig );
-    CHECK_ARGUMENT( _publicKey )
+    CHECK_ARGUMENT( _publicKey );
 
     bool result = false;
 
@@ -397,7 +397,19 @@ ptr< void > CryptoManager::decodeSGXPublicKey( ptr< string > _keyHex ) {
     return publicKey;
 }
 
+
+ptr<string> CryptoManager::getSGXPublicKey(ptr<string> _keyName, ptr< StubClient > _c) {
+    CHECK_STATE(_keyName);
+    CHECK_ARGUMENT(_c);
+    auto result = _c->getPublicECDSAKey(*_keyName);
+    auto publicKey = make_shared< string >( result["publicKey"].asString() );
+    return publicKey;
+}
+
 pair< ptr< string >, ptr< string > > CryptoManager::generateSGXECDSAKey( ptr< StubClient > _c ) {
+
+    CHECK_ARGUMENT(_c);
+
     auto result = _c->generateECDSAKey();
 
     auto status = result["status"].asInt64();
@@ -409,8 +421,9 @@ pair< ptr< string >, ptr< string > > CryptoManager::generateSGXECDSAKey( ptr< St
     CHECK_STATE( keyName->size() > 10 );
     CHECK_STATE( publicKey->size() > 10 );
     CHECK_STATE( keyName->find( "NEK" ) != string::npos );
-    cerr << *keyName << endl;
-    cerr << *publicKey << endl;
+
+
+    auto publicKey2 = getSGXPublicKey(keyName, _c);
 
     return { keyName, publicKey };
 }

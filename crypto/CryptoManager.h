@@ -25,9 +25,8 @@
 #define SKALED_CRYPTOMANAGER_H
 
 
-
-#include "openssl/ec.h"
 #include "messages/NetworkMessage.h"
+#include "openssl/ec.h"
 
 
 class Schain;
@@ -41,85 +40,90 @@ class StubClient;
 class ECP;
 
 namespace CryptoPP {
-    class ECP;
-    template <class EC, class H> struct ECDSA;
-}
+class ECP;
+template < class EC, class H >
+struct ECDSA;
+}  // namespace CryptoPP
 
 class ECDSAVerify;
 
+namespace jsonrpc {
+class HttpClient;
+}
+
 class CryptoManager {
 
+    ptr< StubClient > sgxClient = nullptr;
 
+    ptr< jsonrpc::HttpClient > httpClient = nullptr;
 
-
-
-
-    uint64_t  totalSigners;
-    uint64_t  requiredSigners;
+    uint64_t totalSigners;
+    uint64_t requiredSigners;
 
     bool sgxEnabled = false;
 
-    ptr<string> sgxIP;
-    ptr<string> sgxSSLKeyFileFullPath;
-    ptr<string> sgxSSLCertFileFullPath;
-    ptr<string> sgxECDSAKeyName;
-    vector<ptr<string>> sgxECDSAPublicKeys;
-
-    ptr<StubClient> sgxClient;
+    ptr< string > sgxIP;
+    ptr< string > sgxSSLKeyFileFullPath;
+    ptr< string > sgxSSLCertFileFullPath;
+    ptr< string > sgxECDSAKeyName;
+    vector< ptr< string > > sgxECDSAPublicKeys;
 
 
     Schain* sChain = nullptr;
 
-    ptr<string> signECDSA(ptr<SHAHash> _hash);
+    ptr< string > signECDSA( ptr< SHAHash > _hash );
 
-    bool verifyECDSA(ptr<SHAHash> _hash, ptr<string> _sig);
+    bool verifyECDSA( ptr< SHAHash > _hash, ptr< string > _sig );
 
-    ptr<ThresholdSigShare> signSigShare(ptr<SHAHash> _hash, block_id _blockId);
-
-    //EC_KEY* ecdsaKey;
+    ptr< ThresholdSigShare > signSigShare( ptr< SHAHash > _hash, block_id _blockId );
 
 
 public:
-
     // This constructor is used for testing
-    CryptoManager(uint64_t totalSigners, uint64_t requiredSigners, const ptr<string> &sgxIp,
-                  const ptr<string> &sgxSslKeyFileFullPath, const ptr<string> &sgxSslCertFileFullPath,
-                  const ptr<string> &sgxEcdsaKeyName, const vector<ptr<string>> &sgxEcdsaPublicKeys);
+    CryptoManager( uint64_t totalSigners, uint64_t requiredSigners, const ptr< string >& sgxIp,
+        const ptr< string >& sgxSslKeyFileFullPath, const ptr< string >& sgxSslCertFileFullPath,
+        const ptr< string >& sgxEcdsaKeyName, const vector< ptr< string > >& sgxEcdsaPublicKeys );
 
 
-    CryptoManager(Schain& sChain);
+    CryptoManager( Schain& sChain );
 
-    Schain *getSchain() const;
+    Schain* getSchain() const;
 
-    ptr<ThresholdSignature> verifyThresholdSig(ptr<SHAHash> _hash, ptr<string> _signature, block_id _blockId);
+    ptr< ThresholdSignature > verifyThresholdSig(
+        ptr< SHAHash > _hash, ptr< string > _signature, block_id _blockId );
 
-    ptr<ThresholdSigShareSet> createSigShareSet(block_id _blockId);
+    ptr< ThresholdSigShareSet > createSigShareSet( block_id _blockId );
 
-    ptr<ThresholdSigShare>
-    createSigShare(ptr<string> _sigShare, schain_id _schainID, block_id _blockID, schain_index _signerIndex);
+    ptr< ThresholdSigShare > createSigShare( ptr< string > _sigShare, schain_id _schainID,
+        block_id _blockID, schain_index _signerIndex );
 
-    void signProposalECDSA(BlockProposal* _proposal);
+    void signProposalECDSA( BlockProposal* _proposal );
 
-    bool verifyProposalECDSA(ptr<BlockProposal> _proposal, ptr<string> _hashStr, ptr<string> _signature);
+    bool verifyProposalECDSA(
+        ptr< BlockProposal > _proposal, ptr< string > _hashStr, ptr< string > _signature );
 
-    ptr<ThresholdSigShare> signDAProofSigShare(ptr<BlockProposal> _p);
+    ptr< ThresholdSigShare > signDAProofSigShare( ptr< BlockProposal > _p );
 
-    ptr<ThresholdSigShare> signBinaryConsensusSigShare(ptr<SHAHash> _hash, block_id _blockId);
+    ptr< ThresholdSigShare > signBinaryConsensusSigShare( ptr< SHAHash > _hash, block_id _blockId );
 
-    ptr<ThresholdSigShare> signBlockSigShare(ptr<SHAHash> _hash, block_id _blockId);
+    ptr< ThresholdSigShare > signBlockSigShare( ptr< SHAHash > _hash, block_id _blockId );
 
-    ptr<string> signNetworkMsg(NetworkMessage& _msg);
+    ptr< string > signNetworkMsg( NetworkMessage& _msg );
 
-    bool verifyNetworkMsg(NetworkMessage &_msg);
+    bool verifyNetworkMsg( NetworkMessage& _msg );
 
-    static ptr<void> decodeSGXPublicKey(ptr<string> _keyHex);
-    static pair<ptr<string>, ptr<string>> generateSGXECDSAKey(ptr<StubClient> _c);
-    static void generateSSLClientCertAndKey(string &_fullPathToDir);
-    static void setSGXKeyAndCert(string &_keyFullPath, string &_certFullPath);
-    ptr<string> sgxSignECDSA(ptr<SHAHash> _hash, string& _keyName,  ptr<StubClient> _sgxClient);
-    bool sgxVerifyECDSA(ptr<SHAHash> _hash, ptr<string> _publicKey, ptr<string> _sig);
+    static ptr< void > decodeSGXPublicKey( ptr< string > _keyHex );
 
+    static pair< ptr< string >, ptr< string > > generateSGXECDSAKey( ptr< StubClient > _c );
+
+    static ptr< string > getSGXPublicKey( ptr< string > _keyName, ptr< StubClient > _c );
+
+    static void generateSSLClientCertAndKey( string& _fullPathToDir );
+    static void setSGXKeyAndCert( string& _keyFullPath, string& _certFullPath );
+    ptr< string > sgxSignECDSA(
+        ptr< SHAHash > _hash, string& _keyName, ptr< StubClient > _sgxClient );
+    bool sgxVerifyECDSA( ptr< SHAHash > _hash, ptr< string > _publicKey, ptr< string > _sig );
 };
 
 
-#endif //SKALED_CRYPTOMANAGER_H
+#endif  // SKALED_CRYPTOMANAGER_H

@@ -257,15 +257,10 @@ TEST_CASE_METHOD(StartFromScratch, "Test sgx server connection", "[sgx]") {
     auto hash = SHAHash::calculateHash(msg);
     auto sig = cm.sgxSignECDSA(hash,*keyNames[0],  c) ;
 
-    //auto rawSig = Utils::carray2Hex(sig)
-
-    cerr << sig << endl;
-
     REQUIRE(cm.sgxVerifyECDSA(hash, publicKeys[0], sig));
 
     auto key = CryptoManager::decodeSGXPublicKey(publicKeys[0]);
 
-    // basicRun();
     SUCCEED();
 
 }
