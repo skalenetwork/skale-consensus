@@ -12,7 +12,12 @@ jobs:
       run: git submodule update --init --recursive
 
     - name: try docker compose;
-      run: cd sgxwallet/run_sgx_sim && docker-compose pull && docker-compose-up
+      run: cd sgxwallet/run_sgx_sim && docker-compose pull && docker-compose up -d
+
+    - name: ls
+        run: ls
+
+
 
 
     - name: update apt
