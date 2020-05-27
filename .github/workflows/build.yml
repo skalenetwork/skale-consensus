@@ -11,6 +11,10 @@ jobs:
     - name: submodule update
       run: git submodule update --init --recursive
 
+    - name: try docker compose;
+      run: cd sgxwallet/run_sgx_sim && docker-compose pull && docker-compose-up
+
+
     - name: update apt
       run: sudo add-apt-repository ppa:ubuntu-toolchain-r/test; sudo apt-get update
 
