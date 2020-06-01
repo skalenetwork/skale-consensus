@@ -15,10 +15,7 @@ jobs:
       run: cd sgxwallet/run_sgx_sim && docker-compose pull && docker-compose up -d
 
     - name: ls
-        run: ls
-
-
-
+      run: ls
 
     - name: update apt
       run: sudo add-apt-repository ppa:ubuntu-toolchain-r/test; sudo apt-get update
