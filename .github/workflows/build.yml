@@ -6,14 +6,13 @@ jobs:
     steps:
 
 
+
     - name: checkout
       uses: actions/checkout@v1
 
     - name: submodule update
       run: git submodule update --init --recursive
 
-    - name: try docker compose;
-      run: cd sgxwallet/run_sgx_sim && docker-compose pull && docker-compose up -d
 
     - name: ls
       run: ls
@@ -66,10 +65,13 @@ jobs:
 
     - name: Cleanup
       run: |
-        sudo apt-get autoremove -y
-        sudo apt-get autoclean -y
-        sudo rm -rf /usr/local/lib/android
-        docker rmi $(docker image ls -aq)
+        sudo apt-get autoremove -y >/dev/null 2>&1
+        sudo apt-get autoclean -y >/dev/null 2>&1
+        sudo rm -rf /usr/local/lib/android >/dev/null 2>&1
+        sudo docker rmi $(docker image ls -aq) >/dev/null 2>&1
+
+    - name: try docker compose;
+      run: cd sgxwallet/run_sgx_sim && docker-compose pull && docker-compose up -d
 
     - name: install cmake
       run: |
