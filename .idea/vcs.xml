@@ -2,16 +2,11 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/SkaleDeps/argtable2" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/SkaleDeps/curl" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/SkaleDeps/libcryptopp" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/SkaleDeps/libmicrohttpd" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/SkaleDeps/libuv" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/SkaleDeps/libwebsockets" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/SkaleDeps/openssl" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/SkaleDeps/zlib" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/cryptopp" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/curl" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/deps/argtable2" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/deps/curl" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/deps/libcryptopp" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/deps/libmicrohttpd" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/deps/zlib" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/jsoncpp" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/libBLS" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/libBLS/deps/libff" vcs="Git" />
@@ -19,11 +14,6 @@
     <mapping directory="$PROJECT_DIR$/libBLS/deps/libff/depends/xbyak" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/libBLS/deps/openssl" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/libBLS/deps/pbc" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/libBLS/libff" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/libBLS/libff/depends/ate-pairing" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/libBLS/libff/depends/xbyak" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/libBLS/mpir" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/libBLS/pbc" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/libjson-rpc-cpp" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/libzmq" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/sgxwallet" vcs="Git" />
