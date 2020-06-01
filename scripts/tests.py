@@ -67,11 +67,12 @@ run("ccache -M 20G")
 
 consensustExecutive = getConsensustExecutive()
 
+unitTest(consensustExecutive, "[sgx]")
 unitTest(consensustExecutive, "[tx-serialize]")
 unitTest(consensustExecutive, "[tx-list-serialize]")   
 
 
-fullConsensusTest("sixteennodes", consensustExecutive, "[consensus-finalization-download]")
+# fullConsensusTest("sixteennodes", consensustExecutive, "[consensus-finalization-download]")
 
 # try:
 #    fullConsensusTest("two_out_of_four", consensustExecutive, "[consensus-stuck]")
