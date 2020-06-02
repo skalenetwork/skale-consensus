@@ -16,7 +16,7 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file ZMQServerSocket.cpp
+    @file ZMQSockets.cpp
     @author Stan Kladko
     @date 2018
 */
