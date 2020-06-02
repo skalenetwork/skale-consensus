@@ -22,10 +22,10 @@
 */
 
 #pragma once
-#include "Exception.h"
+#include "SkaleException.h"
 #include "SkaleLog.h"
 
-class ParsingException : public Exception  {
+class ParsingException : public SkaleException  {
 public:
     ParsingException(const std::string &_message,  const string& _className);
 

@@ -26,4 +26,4 @@
 #include "SkaleLog.h"
 
 NetworkProtocolException::NetworkProtocolException(const std::string &_message,
-        const string & _className) : Exception(_message, _className) {}
+        const string & _className) :SkaleException(_message, _className) {}

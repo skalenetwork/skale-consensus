@@ -123,7 +123,7 @@ void basicRun() {
         engine->exitGracefullyBlocking();
         delete engine;
     } catch (Exception &e) {
-        Exception::logNested(e);
+        SkaleException::logNested(e);
         throw;
     }
 }
@@ -199,7 +199,7 @@ TEST_CASE_METHOD(StartFromScratch, "Issue different proposals to different nodes
         engine->exitGracefullyBlocking();
         delete engine;
     } catch (Exception &e) {
-        Exception::logNested(e);
+        SkaleException::logNested(e);
         throw;
     }
 

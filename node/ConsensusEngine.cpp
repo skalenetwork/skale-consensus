@@ -223,7 +223,7 @@ void ConsensusEngine::parseFullConfigAndCreateNode(const string &configFileConte
         nodes[node->getNodeID()] = node;
 
     } catch (Exception &e) {
-        Exception::logNested(e);
+        SkaleException::logNested(e);
         throw;
     }
 
@@ -266,7 +266,7 @@ ptr<Node> ConsensusEngine::readNodeConfigFileAndCreateNode(const fs_path &path, 
         return node;
 
     } catch (Exception &e) {
-        Exception::logNested(e);
+        SkaleException::logNested(e);
         throw;
     }
 }
@@ -384,7 +384,7 @@ void ConsensusEngine::parseTestConfigsAndCreateAllNodes(const fs_path &dirname, 
         LOG(trace, "Parsed configs and created " + to_string(ConsensusEngine::nodesCount()) +
                    " nodes");
     } catch (exception &e) {
-        Exception::logNested(e);
+        SkaleException::logNested(e);
         throw;
     }
 }
@@ -409,7 +409,7 @@ void ConsensusEngine::startAll() {
 
     catch (Exception &e) {
 
-        Exception::logNested(e);
+        SkaleException::logNested(e);
 
         for (auto const it : nodes) {
             if (!it.second->isExitRequested()) {
@@ -457,7 +457,7 @@ void ConsensusEngine::bootStrapAll() {
 
         spdlog::shutdown();
 
-        Exception::logNested(e);
+        SkaleException::logNested(e);
 
         throw_with_nested(EngineInitException("Consensus engine bootstrap failed", __CLASS_NAME__));
     }
@@ -530,7 +530,7 @@ ConsensusEngine::ConsensusEngine() : exitRequested(false) {
     try {
         init();
     } catch (exception &e) {
-        Exception::logNested(e);
+        SkaleException::logNested(e);
         throw_with_nested(EngineInitException("Engine construction failed", __CLASS_NAME__));
     }
 }
@@ -564,7 +564,7 @@ ConsensusEngine::ConsensusEngine(ConsensusExtFace &_extFace, uint64_t _lastCommi
         lastCommittedBlockTimeStamp = _lastCommittedBlockTimeStamp;
 
     } catch (exception &e) {
-        Exception::logNested(e);
+        SkaleException::logNested(e);
         throw_with_nested(EngineInitException("Engine construction failed", __CLASS_NAME__));
     }
 };
@@ -609,7 +609,7 @@ void ConsensusEngine::exitGracefullyAsync() {
             try {
                 it.second->exit();
             } catch (exception& e) {
-                Exception::logNested(e);
+                SkaleException::logNested(e);
             }
         }
 
@@ -622,7 +622,7 @@ void ConsensusEngine::exitGracefullyAsync() {
         }
 
     } catch (exception &e) {
-        Exception::logNested(e);
+        SkaleException::logNested(e);
         status = CONSENSUS_EXITED;
     }
     status = CONSENSUS_EXITED;

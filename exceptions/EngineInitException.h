@@ -22,9 +22,9 @@
 */
 
 #pragma  once
-#include "Exception.h"
+#include "SkaleException.h"
 
-class EngineInitException : public Exception {
+class EngineInitException : public SkaleException {
 public:
     EngineInitException(const std::string &_message, const string& _className);
 

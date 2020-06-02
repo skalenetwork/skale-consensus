@@ -22,9 +22,9 @@
 */
 
 #pragma  once
-#include "Exception.h"
+#include "SkaleException.h"
 
-class InvalidHashException : public Exception {
+class InvalidHashException : public SkaleException {
 public:
     InvalidHashException(const std::string &_message, const string& _className);
 };

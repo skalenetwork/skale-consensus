@@ -30,5 +30,5 @@
 
 
 EngineInitException::EngineInitException(const string &_message, const string &_className) :
-        Exception("Engine init failed:" + _message, _className) {}
+       SkaleException("Engine init failed:" + _message, _className) {}
 

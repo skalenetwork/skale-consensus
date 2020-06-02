@@ -23,13 +23,13 @@
 
 #pragma once
 
-#include "Exception.h"
+#include "SkaleException.h"
 #include "SkaleCommon.h"
 #include "SkaleLog.h"
 #include "exceptions/FatalError.h"
 
-class InvalidSchainIndexException : public Exception {
+class InvalidSchainIndexException : public SkaleException {
 public:
-    InvalidSchainIndexException(const string &_message, const string _className) : Exception(_message, _className) {}
+    InvalidSchainIndexException(const string &_message, const string _className) :SkaleException(_message, _className) {}
 
 };

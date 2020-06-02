@@ -117,7 +117,7 @@ void test_committed_block_fragment_defragment(bool _fail) {
             try {
                 imp = CommittedBlock::defragment(list, cryptoManager);
             } catch (Exception &e) {
-                Exception::logNested(e, err);
+                SkaleException::logNested(e, err);
                 throw (e);
             }
             REQUIRE(imp != nullptr);
@@ -223,7 +223,7 @@ void test_committed_block_serialize_deserialize(bool _fail) {
                 try {
                     imp = CommittedBlock::deserialize(out, cryptoManager);
                 } catch (ParsingException &e) {
-                    Exception::logNested(e, err);
+                    SkaleException::logNested(e, err);
                     throw (e);
                 }
                 REQUIRE(imp != nullptr);
@@ -256,7 +256,7 @@ void test_committed_block_list_serialize_deserialize() {
             try {
                 imp = CommittedBlockList::deserialize(cryptoManager, t->createSizes(), out, 0);
             } catch (ParsingException &e) {
-                Exception::logNested(e, err);
+                SkaleException::logNested(e, err);
                 throw (e);
             }
             REQUIRE(imp != nullptr);

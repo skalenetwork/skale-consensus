@@ -207,7 +207,7 @@ void Network::networkReadLoop() {
                     sChain->getNode()->getSockets()->consensusZMQSockets->closeReceive();
                     return;
                 }
-                Exception::logNested(e);
+                SkaleException::logNested(e);
             }
 
         }  // while
@@ -318,7 +318,7 @@ void Network::deferredMessagesLoop() {
             return;
         } catch (Exception &e) {
             // print the error and continue the loop
-            Exception::logNested(e);
+            SkaleException::logNested(e);
         }
         usleep(100000);
     }

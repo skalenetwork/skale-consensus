@@ -16,16 +16,38 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file InvalidStateException.cpp
+    @fileSkaleException.cpp
     @author Stan Kladko
     @date 2018
 */
 
-#include "InvalidStateException.h"
+#include "SkaleException.h"
+#include "ExitRequestedException.h"
 #include "SkaleCommon.h"
 #include "SkaleLog.h"
 
-InvalidStateException::InvalidStateException(const std::string &_message, const string& _className) :
-                     SkaleException(_message, _className) {
-    fatal = false;
+void SkaleSkaleException::logNested(const std::exception &e, int level)
+{
+    string prefix;
+
+
+    if (level == 0) {
+        prefix = "!Exception: ";
+    } else {
+        prefix = "!Caused by: ";
+    }
+
+    if ((dynamic_cast<const ExitRequestedException*>(&e) != nullptr)) {
+        LOG(info, string(level, ' ') + prefix + e.what());
+    } if (dynamic_cast<const std::nested_exception*>(&e) == nullptr) {
+        LOG(err, string(level, ' ') + prefix + e.what());
+        return;
+    } else {
+        LOG(err, string(level, ' ') + prefix + e.what());
+    }
+    try {
+        std::rethrow_if_nested(e);
+    } catch(const std::exception& e) {
+        logNested(e, level + 1);
+    } catch(...) {}
 }

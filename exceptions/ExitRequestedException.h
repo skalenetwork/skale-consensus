@@ -22,10 +22,10 @@
 */
 
 #pragma  once
-#include "Exception.h"
+#include "SkaleException.h"
 
-class ExitRequestedException : public Exception {
+class ExitRequestedException : public SkaleException {
 public:
 
-    ExitRequestedException(const std::string& _className ) : Exception("Exit requested", _className){};
+    ExitRequestedException(const std::string& _className ) :SkaleException("Exit requested", _className){};
 };

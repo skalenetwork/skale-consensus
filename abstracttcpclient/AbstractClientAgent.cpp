@@ -27,7 +27,7 @@
 #include "Agent.h"
 #include "abstracttcpclient/AbstractClientAgent.h"
 #include "node/Node.h"
-#include "exceptions/Exception.h"
+#include "exceptions/SkaleException.h"
 #include "exceptions/ExitRequestedException.h"
 #include <exceptions/ConnectionRefusedException.h>
 #include <utils/Time.h>
@@ -178,7 +178,7 @@ void AbstractClientAgent::workerThreadItemSendLoop( AbstractClientAgent* agent )
 
                         usleep( agent->getNode()->getWaitAfterNetworkErrorMs() * 1000 );
                     } catch ( exception& e ) {
-                        Exception::logNested( e );
+                        SkaleException::logNested( e );
 
                         if ( agent->getNode()->isExitRequested() )
                             return;
@@ -191,12 +191,12 @@ void AbstractClientAgent::workerThreadItemSendLoop( AbstractClientAgent* agent )
     }
 
     catch (FatalError& e ) {
-        Exception::logNested(e);
+        SkaleException::logNested(e);
         agent->getNode()->exitOnFatalError( e.getMessage() );
     } catch (ExitRequestedException& e ) {
         return;
-    } catch (Exception& e) {
-        Exception::logNested(e);
+    } catch (SkaleException& e) {
+        SkaleException::logNested(e);
     }
 }
 

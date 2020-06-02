@@ -70,7 +70,7 @@ CommittedBlockList::CommittedBlockList(ptr<CryptoManager> _cryptoManager, ptr<ve
             counter++;
         }
     } catch (exception &e) {
-        Exception::logNested(e);
+        SkaleException::logNested(e);
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
 };

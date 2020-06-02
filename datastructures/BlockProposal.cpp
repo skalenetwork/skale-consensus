@@ -299,7 +299,7 @@ BlockProposal::defragment(ptr<BlockProposalFragmentList> _fragmentList, ptr<Cryp
     try {
         return deserialize(_fragmentList->serialize(), _cryptoManager);
     } catch (exception &e) {
-        Exception::logNested(e);
+        SkaleException::logNested(e);
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
 }

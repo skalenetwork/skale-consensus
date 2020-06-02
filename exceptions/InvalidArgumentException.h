@@ -22,11 +22,11 @@
 */
 
 #pragma once
-#include "Exception.h"
+#include "SkaleException.h"
 
 #include <string>
 
-class InvalidArgumentException : public Exception {
+class InvalidArgumentException : public SkaleException {
 public:
     InvalidArgumentException( const std::string& _message, const std::string& _className );
 };

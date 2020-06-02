@@ -104,7 +104,7 @@ void MonitoringAgent::monitoringLoop(MonitoringAgent *agent) {
             } catch (ExitRequestedException &) {
                 return;
             } catch (exception &e) {
-                Exception::logNested(e);
+                SkaleException::logNested(e);
             }
 
         };

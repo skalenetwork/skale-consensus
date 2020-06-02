@@ -23,9 +23,9 @@
 
 #pragma once
 
-#include "Exception.h"
+#include "SkaleException.h"
 
-class CouldNotReadPartialDataHashesException : public Exception {
+class CouldNotReadPartialDataHashesException : public SkaleException {
 
 public:
     CouldNotReadPartialDataHashesException(const std::string &_message,  const string& _className);

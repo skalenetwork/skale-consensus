@@ -159,7 +159,7 @@ void Schain::messageThreadProcessingLoop( Schain* s ) {
                         s->getNode()->getSockets()->consensusZMQSockets->closeSend();
                         return;
                     }
-                    Exception::logNested( e );
+                    SkaleException::logNested( e );
                 }
 
                 newQueue.pop();
@@ -640,7 +640,7 @@ void Schain::bootstrap( block_id _lastCommittedBlockID, uint64_t _lastCommittedB
         }
 
     } catch ( exception& e ) {
-        Exception::logNested( e );
+        SkaleException::logNested( e );
         return;
     }
 }

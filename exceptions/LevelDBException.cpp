@@ -29,5 +29,5 @@
 
 
 LevelDBException::LevelDBException(const string &_message, const string &_className) :
-        Exception("LevelDB:" + _message, _className) {}
+       SkaleException("LevelDB:" + _message, _className) {}
 

@@ -96,6 +96,6 @@ void Agent::logConnectionRefused(ConnectionRefusedException &_e, schain_index _i
     }
 
     if (logException) {
-        Exception::logNested((const exception&)_e);
+        SkaleException::logNested((const exception&)_e);
     }
 }
