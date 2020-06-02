@@ -86,10 +86,6 @@ set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_MULTITHREADED ON)
 
 
-
-#hunter_add_package(Boost COMPONENTS filesystem system thread log random program_options)
-#find_package(Boost CONFIG REQUIRED filesystem system thread log random program_options)
-
 #Source dirs
 
 AUX_SOURCE_DIRECTORY(. root_src)
