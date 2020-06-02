@@ -26,7 +26,7 @@
 #include "SkaleCommon.h"
 #include "SkaleLog.h"
 
-void SkaleSkaleException::logNested(const std::exception &e, int level)
+void SkaleException::logNested(const std::exception &e, int level)
 {
     string prefix;
 

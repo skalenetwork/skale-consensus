@@ -316,7 +316,7 @@ void Network::deferredMessagesLoop() {
             // exit
             LOG(info, "Exit requested, exiting deferred messages loop");
             return;
-        } catch (Exception &e) {
+        } catch (SkaleException &e) {
             // print the error and continue the loop
             SkaleException::logNested(e);
         }

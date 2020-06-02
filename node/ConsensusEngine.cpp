@@ -222,7 +222,7 @@ void ConsensusEngine::parseFullConfigAndCreateNode(const string &configFileConte
 
         nodes[node->getNodeID()] = node;
 
-    } catch (Exception &e) {
+    } catch (SkaleException &e) {
         SkaleException::logNested(e);
         throw;
     }
@@ -265,7 +265,7 @@ ptr<Node> ConsensusEngine::readNodeConfigFileAndCreateNode(const fs_path &path, 
         nodes[node->getNodeID()] = node;
         return node;
 
-    } catch (Exception &e) {
+    } catch (SkaleException &e) {
         SkaleException::logNested(e);
         throw;
     }
@@ -407,7 +407,7 @@ void ConsensusEngine::startAll() {
         LOG(info, "Started all nodes");
     }
 
-    catch (Exception &e) {
+    catch (SkaleException &e) {
 
         SkaleException::logNested(e);
 

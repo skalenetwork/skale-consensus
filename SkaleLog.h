@@ -43,7 +43,7 @@ using namespace std;
 
 
 
-class Exception;
+class SkaleException;
 
 
 namespace spdlog {

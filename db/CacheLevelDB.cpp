@@ -483,7 +483,7 @@ void CacheLevelDB::rotateDBsIfNeeded() {
                 try {
 
                     boost::filesystem::remove_all(path(dbName));
-                } catch (Exception &e) {
+                } catch (SkaleException &e) {
                     LOG(err, "Could not remove db:" + dbName);
                 }
             }

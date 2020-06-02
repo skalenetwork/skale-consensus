@@ -356,7 +356,7 @@ ptr<TransactionList> BlockProposal::deserializeTransactions(ptr<BlockProposalHea
     try {
         list = TransactionList::deserialize(
                 _header->getTransactionSizes(), _serializedBlock, headerSize + sizeof(headerSize), true);
-    } catch (Exception &e) {
+    } catch (SkaleException &e) {
         throw_with_nested(
                 ParsingException("Could not parse transactions after header. Header: \n" + *_headerString +
                                  " Transactions size:" + to_string(_serializedBlock->size()),

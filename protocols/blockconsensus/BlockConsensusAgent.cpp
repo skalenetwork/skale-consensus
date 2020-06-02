@@ -120,7 +120,7 @@ void BlockConsensusAgent::startConsensusProposal(block_id _blockID, ptr<BooleanP
             propose(x, schain_index(i), _blockID);
         }
 
-    } catch (ExitRequestedException &) { throw; } catch (Exception &e) {
+    } catch (ExitRequestedException &) { throw; } catch (SkaleException &e) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
 }
@@ -188,7 +188,7 @@ void BlockConsensusAgent::decideBlock(block_id _blockId, schain_index _sChainInd
         }
 
 
-    } catch (ExitRequestedException &) { throw; } catch (Exception &e) {
+    } catch (ExitRequestedException &) { throw; } catch (SkaleException &e) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
 
@@ -198,7 +198,7 @@ void BlockConsensusAgent::decideBlock(block_id _blockId, schain_index _sChainInd
 void BlockConsensusAgent::decideDefaultBlock(block_id _blockNumber) {
     try {
         decideBlock(_blockNumber, schain_index(0), make_shared<string>("DEFAULT_BLOCK"));
-    } catch (ExitRequestedException &) { throw; } catch (Exception &e) {
+    } catch (ExitRequestedException &) { throw; } catch (SkaleException &e) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
 }
@@ -286,7 +286,7 @@ void BlockConsensusAgent::reportConsensusAndDecideIfNeeded(ptr<ChildBVDecidedMes
                 return;
             }
         }
-    } catch (ExitRequestedException &) { throw; } catch (Exception &e) {
+    } catch (ExitRequestedException &) { throw; } catch (SkaleException &e) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
 
@@ -403,7 +403,7 @@ ptr<BinConsensusInstance> BlockConsensusAgent::getChild(ptr<ProtocolKey> _key) {
 
         return children.at((uint64_t) bpi - 1)->get((uint64_t) bid);
 
-    } catch (ExitRequestedException &) { throw; } catch (Exception &e) {
+    } catch (ExitRequestedException &) { throw; } catch (SkaleException &e) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
 

@@ -122,7 +122,7 @@ void basicRun() {
         REQUIRE(engine->getLargestCommittedBlockID() > 0);
         engine->exitGracefullyBlocking();
         delete engine;
-    } catch (Exception &e) {
+    } catch (SkaleException &e) {
         SkaleException::logNested(e);
         throw;
     }
@@ -198,7 +198,7 @@ TEST_CASE_METHOD(StartFromScratch, "Issue different proposals to different nodes
         REQUIRE(engine->getLargestCommittedBlockID() == 0);
         engine->exitGracefullyBlocking();
         delete engine;
-    } catch (Exception &e) {
+    } catch (SkaleException &e) {
         SkaleException::logNested(e);
         throw;
     }

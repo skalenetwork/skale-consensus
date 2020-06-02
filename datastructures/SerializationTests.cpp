@@ -116,7 +116,7 @@ void test_committed_block_fragment_defragment(bool _fail) {
 
             try {
                 imp = CommittedBlock::defragment(list, cryptoManager);
-            } catch (Exception &e) {
+            } catch (SkaleException &e) {
                 SkaleException::logNested(e, err);
                 throw (e);
             }
