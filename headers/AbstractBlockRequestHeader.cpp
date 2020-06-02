@@ -23,12 +23,12 @@
 
 
 #include "SkaleCommon.h"
-#include "Log.h"
-#include "thirdparty/json.hpp"
-#include "exceptions/InvalidArgumentException.h"
+#include "SkaleLog.h"
+#include "chains/Schain.h"
 #include "crypto/SHAHash.h"
 #include "datastructures/BlockProposal.h"
-#include "chains/Schain.h"
+#include "exceptions/InvalidArgumentException.h"
+#include "thirdparty/json.hpp"
 
 #include "AbstractBlockRequestHeader.h"
 

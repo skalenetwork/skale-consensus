@@ -21,16 +21,15 @@
     @date 2018
 */
 
-
-#include "Log.h"
 #include "SkaleCommon.h"
-#include "crypto/SHAHash.h"
-#include "exceptions/NetworkProtocolException.h"
-#include "exceptions/InvalidStateException.h"
+#include "SkaleLog.h"
+
 #include "crypto/CryptoManager.h"
+#include "crypto/SHAHash.h"
+#include "exceptions/InvalidStateException.h"
+
 #include "CommittedBlock.h"
 #include "CommittedBlockList.h"
-
 
 CommittedBlockList::CommittedBlockList(ptr<vector<ptr<CommittedBlock> > > _blocks) {
     ASSERT(_blocks);
@@ -71,7 +70,7 @@ CommittedBlockList::CommittedBlockList(ptr<CryptoManager> _cryptoManager, ptr<ve
             counter++;
         }
     } catch (exception &e) {
-        Exception::logNested(e);
+        SkaleException::logNested(e);
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
 };

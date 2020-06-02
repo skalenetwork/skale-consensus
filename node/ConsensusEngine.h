@@ -40,7 +40,7 @@
 
 #include <boost/multiprecision/cpp_int.hpp>
 
-extern thread_local ptr<Log> logThreadLocal_;
+extern thread_local ptr< SkaleLog > logThreadLocal_;
 
 using namespace spdlog::level;
 

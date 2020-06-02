@@ -21,11 +21,11 @@
     @date 2018
 */
 
-#include "Log.h"
 #include "SkaleCommon.h"
+#include "SkaleLog.h"
 #include "exceptions/FatalError.h"
-#include "exceptions/InvalidStateException.h"
 #include "exceptions/InvalidArgumentException.h"
+#include "exceptions/InvalidStateException.h"
 
 #include "thirdparty/json.hpp"
 

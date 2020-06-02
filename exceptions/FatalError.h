@@ -22,11 +22,11 @@
 */
 
 #pragma once
-#include "Exception.h"
+#include "SkaleException.h"
 
 #include <string>
 
-class FatalError : public Exception {
+class FatalError : public SkaleException {
 public:
     FatalError( const std::string& _message, const std::string& _className = "" );
 };

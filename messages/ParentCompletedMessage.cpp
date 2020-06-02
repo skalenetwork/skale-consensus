@@ -22,9 +22,10 @@
 */
 
 #include "SkaleCommon.h"
-#include "Log.h"
-#include "exceptions/FatalError.h"
+#include "SkaleLog.h"
+
 #include "ParentCompletedMessage.h"
+#include "exceptions/FatalError.h"
 
 ParentCompletedMessage::ParentCompletedMessage(ProtocolInstance &srcProtocolInstance,
                                                const ptr<ProtocolKey> &dstProtocolKey) : ParentMessage(PARENT_COMPLETED,

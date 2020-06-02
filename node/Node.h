@@ -112,7 +112,7 @@ class Node {
 
     std::atomic_bool exitRequested;
 
-    ptr<Log> log = nullptr;
+    ptr< SkaleLog > log = nullptr;
     ptr<string> name = nullptr;
 
     ptr<string> bindIP = nullptr;
@@ -288,7 +288,7 @@ public:
 
     void waitOnGlobalClientStartBarrier();
 
-    ptr<Log> getLog() const;
+    ptr< SkaleLog > getLog() const;
 
 
     nlohmann::json getCfg() const;

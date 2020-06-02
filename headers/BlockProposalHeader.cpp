@@ -20,22 +20,21 @@
     @author Stan Kladko
     @date 2018
 */
-
-
 #include "SkaleCommon.h"
-#include "Log.h"
-#include "exceptions/FatalError.h"
-#include "thirdparty/json.hpp"
-#include <network/Utils.h>
+#include "SkaleLog.h"
+
 #include "crypto/SHAHash.h"
-#include "BlockProposalRequestHeader.h"
 #include "datastructures/BlockProposal.h"
 #include "datastructures/CommittedBlock.h"
 #include "datastructures/Transaction.h"
 #include "datastructures/TransactionList.h"
-
+#include "exceptions/FatalError.h"
+#include "thirdparty/json.hpp"
+#include <network/Utils.h>
 #include "chains/Schain.h"
+#include "BlockProposalRequestHeader.h"
 #include "BlockProposalHeader.h"
+
 
 
 using namespace std;

@@ -20,10 +20,10 @@
     @author Stan Kladko
     @date 2019
 */
-#include "SkaleCommon.h"
-#include "Log.h"
-#include "Time.h"
 
+#include "SkaleCommon.h"
+#include "SkaleLog.h"
+#include "Time.h"
 
 using namespace std::chrono;
 

@@ -22,10 +22,9 @@
 */
 
 #include "SkaleCommon.h"
-#include "Log.h"
 #include "exceptions/FatalError.h"
 #include "CouldNotReadPartialDataHashesException.h"
 
 CouldNotReadPartialDataHashesException::CouldNotReadPartialDataHashesException(const std::string &_message,
-        const string& _className) :  Exception(
+        const string& _className) : SkaleException(
         _message, _className) {}

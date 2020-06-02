@@ -22,10 +22,10 @@
 */
 
 #include "SkaleCommon.h"
-#include "Log.h"
-#include "exceptions/Exception.h"
-#include "exceptions/InvalidArgumentException.h"
+#include "SkaleLog.h"
+#include "exceptions/SkaleException.h"
 #include "exceptions/FatalError.h"
+#include "exceptions/InvalidArgumentException.h"
 
 #include "Buffer.h"
 

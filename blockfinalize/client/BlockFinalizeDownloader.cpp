@@ -47,10 +47,9 @@
 #include <exceptions/ConnectionRefusedException.h>
 #include "SkaleCommon.h"
 
-#include "Log.h"
+#include "SkaleLog.h"
 #include "exceptions/ExitRequestedException.h"
 #include "exceptions/FatalError.h"
-#include "exceptions/InvalidStateException.h"
 #include "exceptions/InvalidStateException.h"
 
 
@@ -316,7 +315,7 @@ void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(BlockFinalizeDown
                 agent->logConnectionRefused(e, _dstIndex);
                 usleep(node->getWaitAfterNetworkErrorMs() * 1000);
             } catch (exception &e) {
-                Exception::logNested(e);
+                SkaleException::logNested(e);
                 usleep(node->getWaitAfterNetworkErrorMs() * 1000);
             };
         };
@@ -347,7 +346,7 @@ ptr<BlockProposal> BlockFinalizeDownloader::downloadProposal() {
             return nullptr;
         }
     } catch (ExitRequestedException &) { throw; } catch (exception &e) {
-        Exception::logNested(e);
+        SkaleException::logNested(e);
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
 }

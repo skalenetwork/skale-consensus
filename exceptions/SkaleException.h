@@ -16,38 +16,36 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file Exception.cpp
+    @fileSkaleException.h
     @author Stan Kladko
     @date 2018
 */
 
-#include "SkaleCommon.h"
-#include "Log.h"
-#include "ExitRequestedException.h"
-#include "Exception.h"
+#pragma once
 
-void Exception::logNested(const std::exception &e, int level)
-{
-    string prefix;
+#include <boost/exception/exception.hpp>
+#include <exception>
+#include <string>
 
-
-    if (level == 0) {
-        prefix = "!Exception: ";
-    } else {
-        prefix = "!Caused by: ";
+class SkaleException : public std::exception, public boost::exception {
+public:
+    SkaleException( const std::string& _message, const std::string& _className ) {
+        message = _className + ":" + _message;
+    }
+    const char* what() const noexcept override {
+        return message.empty() ? std::exception::what() : message.c_str();
     }
 
-    if ((dynamic_cast<const ExitRequestedException*>(&e) != nullptr)) {
-        LOG(info, string(level, ' ') + prefix + e.what());
-    } if (dynamic_cast<const std::nested_exception*>(&e) == nullptr) {
-        LOG(err, string(level, ' ') + prefix + e.what());
-        return;
-    } else {
-        LOG(err, string(level, ' ') + prefix + e.what());
-    }
-    try {
-        std::rethrow_if_nested(e);
-    } catch(const std::exception& e) {
-        logNested(e, level + 1);
-    } catch(...) {}
-}
+    const std::string& getMessage() const { return message; }
+
+    bool isFatal() const { return fatal; }
+
+private:
+    std::string message;
+
+protected:
+    bool fatal = false;
+
+public:
+    static void logNested( const std::exception& e, int level = 0 );
+};

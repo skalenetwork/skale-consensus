@@ -22,8 +22,8 @@
 */
 
 
-#include "Log.h"
 #include "SkaleCommon.h"
+#include "SkaleLog.h"
 #include "blockproposal/pusher/BlockProposalClientAgent.h"
 #include "chains/Schain.h"
 #include "crypto/ConsensusBLSSigShare.h"

@@ -21,10 +21,10 @@
     @date 2018
 */
 
-#include "crypto/bls_include.h"
-#include "SkaleCommon.h"
 #include "Agent.h"
-#include "Log.h"
+#include "SkaleCommon.h"
+#include "SkaleLog.h"
+#include "crypto/bls_include.h"
 
 #include "exceptions/FatalError.h"
 #include "exceptions/ExitRequestedException.h"
@@ -107,7 +107,7 @@ void AbstractServerAgent::workerThreadConnectionProcessingLoop(void *_params) {
             connection = server->workerThreadWaitandPopConnection();
             server->processNextAvailableConnection(connection);;
         } catch (exception &e) {
-            Exception::logNested(e);
+            SkaleException::logNested(e);
         }
     }
 }

@@ -23,8 +23,8 @@
 
 #include "leveldb/db.h"
 
-#include "Log.h"
 #include "SkaleCommon.h"
+#include "SkaleLog.h"
 
 
 #include "exceptions/ExitRequestedException.h"
@@ -196,7 +196,7 @@ Schain *Node::getSchain() const {
 }
 
 
-ptr<Log> Node::getLog() const {
+ptr< SkaleLog > Node::getLog() const {
     ASSERT(log);
     return log;
 }

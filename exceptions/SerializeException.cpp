@@ -21,13 +21,13 @@
     @date 2018
 */
 
-#include "SkaleCommon.h"
-#include "Log.h"
-#include "exceptions/FatalError.h"
 #include "SerializeException.h"
+#include "SkaleCommon.h"
+#include "SkaleLog.h"
+#include "exceptions/FatalError.h"
 
 SerializeException::SerializeException(const std::string &_message,  const string& _className)
-                                                                                    : Exception(_message, _className) {
+                                                                                    :SkaleException(_message, _className) {
 
 
 }

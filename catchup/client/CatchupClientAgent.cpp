@@ -23,7 +23,7 @@
 
 #include "SkaleCommon.h"
 
-#include "Log.h"
+#include "SkaleLog.h"
 #include "exceptions/ExitRequestedException.h"
 #include "exceptions/FatalError.h"
 
@@ -237,7 +237,7 @@ void CatchupClientAgent::workerThreadItemSendLoop( CatchupClientAgent* agent ) {
                 agent->logConnectionRefused(e, destinationSchainIndex);
             }
             catch ( exception& e ) {
-                Exception::logNested( e );
+                SkaleException::logNested( e );
             }
 
             destinationSchainIndex = nextSyncNodeIndex(agent, destinationSchainIndex );

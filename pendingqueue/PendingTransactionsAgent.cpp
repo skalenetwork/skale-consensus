@@ -21,14 +21,14 @@
     @date 2018
 */
 
-#include <unordered_set>
 #include "SkaleCommon.h"
-#include "Log.h"
-#include "exceptions/FatalError.h"
-#include "thirdparty/json.hpp"
-#include "leveldb/db.h"
-#include "db/CacheLevelDB.h"
+#include "SkaleLog.h"
 #include "db/BlockDB.h"
+#include "db/CacheLevelDB.h"
+#include "exceptions/FatalError.h"
+#include "leveldb/db.h"
+#include "thirdparty/json.hpp"
+#include <unordered_set>
 
 #include "utils/Time.h"
 #include "crypto/SHAHash.h"

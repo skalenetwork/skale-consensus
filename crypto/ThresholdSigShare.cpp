@@ -21,14 +21,14 @@
     @date 2019
 */
 
-#include "ConsensusBLSSigShare.h"
-#include "BLSSigShare.h"
-#include "bls_include.h"
-#include "thirdparty/json.hpp"
-#include "network/Utils.h"
-#include "Log.h"
-#include "SkaleCommon.h"
 #include "ThresholdSigShare.h"
+#include "BLSSigShare.h"
+#include "ConsensusBLSSigShare.h"
+#include "SkaleCommon.h"
+#include "SkaleLog.h"
+#include "bls_include.h"
+#include "network/Utils.h"
+#include "thirdparty/json.hpp"
 
 
 block_id ThresholdSigShare::getBlockId() const {

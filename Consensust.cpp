@@ -33,17 +33,17 @@
 #include "thirdparty/catch.hpp"
 
 #include "SkaleCommon.h"
-#include "Log.h"
-#include "node/ConsensusEngine.h"
+#include "SkaleLog.h"
 #include "crypto/CryptoManager.h"
+#include "node/ConsensusEngine.h"
 
 #include "iostream"
 #include "time.h"
 #include "crypto/SHAHash.h"
 
-#include "stubclient.h"
-#include <network/Utils.h>
 #include "Consensust.h"
+#include "JsonStubClient.h"
+#include <network/Utils.h>
 
 #ifdef GOOGLE_PROFILE
 #include <gperftools/heap-profiler.h>
@@ -122,8 +122,8 @@ void basicRun() {
         REQUIRE(engine->getLargestCommittedBlockID() > 0);
         engine->exitGracefullyBlocking();
         delete engine;
-    } catch (Exception &e) {
-        Exception::logNested(e);
+    } catch (SkaleException &e) {
+        SkaleException::logNested(e);
         throw;
     }
 }
@@ -198,8 +198,8 @@ TEST_CASE_METHOD(StartFromScratch, "Issue different proposals to different nodes
         REQUIRE(engine->getLargestCommittedBlockID() == 0);
         engine->exitGracefullyBlocking();
         delete engine;
-    } catch (Exception &e) {
-        Exception::logNested(e);
+    } catch (SkaleException &e) {
+        SkaleException::logNested(e);
         throw;
     }
 
@@ -255,17 +255,12 @@ TEST_CASE_METHOD(StartFromScratch, "Test sgx server connection", "[sgx]") {
     auto msg = make_shared<vector<uint8_t>>();
     msg->push_back('1');
     auto hash = SHAHash::calculateHash(msg);
-    auto sig = cm.sgxSignECDSA(hash,*keyNames[0],  c) ;
+    auto sig = cm.sgxSignECDSA( hash, *keyNames[0] );
 
-    //auto rawSig = Utils::carray2Hex(sig)
-
-    cerr << sig << endl;
-
-    cm.sgxVerifyECDSA(hash, publicKeys[0], sig);
+    REQUIRE(cm.sgxVerifyECDSA(hash, publicKeys[0], sig));
 
     auto key = CryptoManager::decodeSGXPublicKey(publicKeys[0]);
 
-    // basicRun();
     SUCCEED();
 
 }

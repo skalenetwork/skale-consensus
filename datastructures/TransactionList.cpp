@@ -21,13 +21,13 @@
     @date 2018
 */
 
-#include "SkaleCommon.h"
+#include "TransactionList.h"
 #include "Agent.h"
-#include "Log.h"
+#include "SkaleCommon.h"
+#include "SkaleLog.h"
+#include "Transaction.h"
 #include "exceptions/InvalidArgumentException.h"
 #include "exceptions/ParsingException.h"
-#include "Transaction.h"
-#include "TransactionList.h"
 
 
 TransactionList::TransactionList(ptr<vector<ptr<Transaction>>> _transactions) {

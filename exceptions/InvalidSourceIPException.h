@@ -23,14 +23,14 @@
 
 #pragma once
 
+#include "SkaleException.h"
 #include "SkaleCommon.h"
-#include "Log.h"
+#include "SkaleLog.h"
 #include "exceptions/FatalError.h"
-#include "Exception.h"
 
-class InvalidSourceIPException : public Exception {
+class InvalidSourceIPException : public SkaleException {
 public:
-    InvalidSourceIPException(const string &_message, const string _className = "") : Exception(_message, _className) {}
+    InvalidSourceIPException(const string &_message, const string _className = "") :SkaleException(_message, _className) {}
 
 };
 

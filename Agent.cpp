@@ -22,9 +22,9 @@
 */
 
 
-#include "SkaleCommon.h"
-#include "Log.h"
 #include "Agent.h"
+#include "SkaleCommon.h"
+#include "SkaleLog.h"
 
 
 #include "node/Node.h"
@@ -96,6 +96,6 @@ void Agent::logConnectionRefused(ConnectionRefusedException &_e, schain_index _i
     }
 
     if (logException) {
-        Exception::logNested((const exception&)_e);
+        SkaleException::logNested((const exception&)_e);
     }
 }

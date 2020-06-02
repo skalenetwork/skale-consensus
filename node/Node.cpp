@@ -23,8 +23,8 @@
 
 #include "leveldb/db.h"
 
-#include "Log.h"
 #include "SkaleCommon.h"
+#include "SkaleLog.h"
 
 
 #include "exceptions/ExitRequestedException.h"
@@ -140,7 +140,7 @@ void Node::initLevelDBs() {
 }
 
 void Node::initLogging() {
-    log = make_shared<Log>(nodeID, getConsensusEngine());
+    log = make_shared< SkaleLog >(nodeID, getConsensusEngine());
 
     if (cfg.find("logLevel") != cfg.end()) {
         ptr<string> logLevel = make_shared<string>(cfg.at("logLevel").get<string>());
@@ -152,7 +152,7 @@ void Node::initLogging() {
         if (cfg.find(category) != cfg.end()) {
             ptr<string> logLevel = make_shared<string>(cfg.at(category).get<string>());
             LOG(info, "Setting log level:" + category + ":" + *logLevel);
-            log->loggers[item.first]->set_level(Log::logLevelFromString(*logLevel));
+            log->loggers[item.first]->set_level( SkaleLog::logLevelFromString(*logLevel));
         }
     }
 }

@@ -25,11 +25,11 @@
 #include <boost/iostreams/stream.hpp>
 
 
-#include "Log.h"
 #include "SkaleCommon.h"
-#include "thirdparty/json.hpp"
+#include "SkaleLog.h"
 #include "crypto/CryptoManager.h"
 #include "crypto/ThresholdSignature.h"
+#include "thirdparty/json.hpp"
 
 #include "abstracttcpserver/ConnectionStatus.h"
 #include "chains/Schain.h"

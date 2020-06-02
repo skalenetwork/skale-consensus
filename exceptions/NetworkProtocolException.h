@@ -23,12 +23,12 @@
 
 #pragma  once
 
+#include "SkaleException.h"
 #include "SkaleCommon.h"
-#include "Log.h"
+#include "SkaleLog.h"
 #include "exceptions/FatalError.h"
-#include "Exception.h"
 
-class NetworkProtocolException : public  Exception {
+class NetworkProtocolException : public SkaleException {
 public:
     NetworkProtocolException(const std::string &_message, const string& _className);
 };

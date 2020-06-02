@@ -21,9 +21,9 @@
     @date 2018
 */
 
-#include <leveldb/options.h>
 #include "SkaleCommon.h"
-#include "Log.h"
+#include "SkaleLog.h"
+#include <leveldb/options.h>
 
 #include "leveldb/db.h"
 

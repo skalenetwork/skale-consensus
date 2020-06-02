@@ -21,9 +21,9 @@
     @date 2019
 */
 
-#include "SkaleCommon.h"
 #include "Agent.h"
-#include "Log.h"
+#include "SkaleCommon.h"
+#include "SkaleLog.h"
 #include "exceptions/FatalError.h"
 #include "thirdparty/json.hpp"
 

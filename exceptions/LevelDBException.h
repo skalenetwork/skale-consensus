@@ -22,9 +22,9 @@
 */
 
 #pragma  once
-#include "Exception.h"
+#include "SkaleException.h"
 
-class LevelDBException : public Exception {
+class LevelDBException : public SkaleException {
 public:
     LevelDBException(const std::string &_message, const string& _className);
 

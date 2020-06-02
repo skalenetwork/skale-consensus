@@ -22,11 +22,11 @@
 */
 
 #include "SkaleCommon.h"
+#include "SkaleLog.h"
+#include "abstracttcpserver/ConnectionStatus.h"
 #include "crypto/SHAHash.h"
-#include "Log.h"
 #include "exceptions/FatalError.h"
 #include "thirdparty/json.hpp"
-#include "abstracttcpserver/ConnectionStatus.h"
 
 #include "datastructures/BlockProposal.h"
 #include "node/Node.h"

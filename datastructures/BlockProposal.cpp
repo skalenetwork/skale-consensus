@@ -27,7 +27,7 @@
 
 
 #include "SkaleCommon.h"
-#include "Log.h"
+#include "SkaleLog.h"
 
 #include <network/Utils.h>
 #include "exceptions/FatalError.h"
@@ -299,7 +299,7 @@ BlockProposal::defragment(ptr<BlockProposalFragmentList> _fragmentList, ptr<Cryp
     try {
         return deserialize(_fragmentList->serialize(), _cryptoManager);
     } catch (exception &e) {
-        Exception::logNested(e);
+        SkaleException::logNested(e);
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
 }
@@ -356,7 +356,7 @@ ptr<TransactionList> BlockProposal::deserializeTransactions(ptr<BlockProposalHea
     try {
         list = TransactionList::deserialize(
                 _header->getTransactionSizes(), _serializedBlock, headerSize + sizeof(headerSize), true);
-    } catch (Exception &e) {
+    } catch (SkaleException &e) {
         throw_with_nested(
                 ParsingException("Could not parse transactions after header. Header: \n" + *_headerString +
                                  " Transactions size:" + to_string(_serializedBlock->size()),

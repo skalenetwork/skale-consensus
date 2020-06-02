@@ -21,10 +21,13 @@
     @date 2019
 */
 
-#include "SkaleCommon.h"
-#include "Log.h"
 #include "thirdparty/json.hpp"
+
+#include "SkaleCommon.h"
+#include "SkaleLog.h"
+
 #include "CommittedBlockHeader.h"
+
 
 CommittedBlockHeader::CommittedBlockHeader(BlockProposal &block, const ptr<string> &thresholdSig) : BlockProposalHeader(
         block), thresholdSig(thresholdSig) {

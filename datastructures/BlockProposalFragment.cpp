@@ -21,7 +21,7 @@
     @date 2019
 */
 #include "SkaleCommon.h"
-#include "Log.h"
+#include "SkaleLog.h"
 #include "exceptions/ParsingException.h"
 
 #include "BlockProposalFragment.h"

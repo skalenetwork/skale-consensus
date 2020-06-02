@@ -21,12 +21,15 @@
     @date 2018
 */
 
-
 #include <boost/asio.hpp>
-#include "Network.h"
+
 #include "SkaleCommon.h"
-#include "Log.h"
+#include "SkaleLog.h"
+
+
 #include "exceptions/FatalError.h"
+
+#include "Network.h"
 #include "Sockets.h"
 #include "TCPServerSocket.h"
 

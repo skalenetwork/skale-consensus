@@ -32,10 +32,10 @@
 #include "exceptions/ExitRequestedException.h"
 
 #include "SkaleCommon.h"
-#include "Log.h"
-#include "thirdparty/json.hpp"
+#include "SkaleLog.h"
 #include "leveldb/db.h"
 #include "leveldb/write_batch.h"
+#include "thirdparty/json.hpp"
 
 #include "chains/Schain.h"
 #include "datastructures/TransactionList.h"
@@ -483,7 +483,7 @@ void CacheLevelDB::rotateDBsIfNeeded() {
                 try {
 
                     boost::filesystem::remove_all(path(dbName));
-                } catch (Exception &e) {
+                } catch (SkaleException &e) {
                     LOG(err, "Could not remove db:" + dbName);
                 }
             }

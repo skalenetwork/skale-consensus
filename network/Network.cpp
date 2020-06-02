@@ -22,19 +22,16 @@
 */
 
 
-
-#include <db/MsgDB.h>
 #include "SkaleCommon.h"
-#include "Log.h"
-#include "thirdparty/json.hpp"
+#include "SkaleLog.h"
 #include "abstracttcpserver/ConnectionStatus.h"
 #include "blockproposal/pusher/BlockProposalClientAgent.h"
-#include "db/BlockProposalDB.h"
 #include "blockproposal/server/BlockProposalWorkerThreadPool.h"
 #include "chains/Schain.h"
 #include "crypto/ConsensusBLSSigShare.h"
 #include "crypto/SHAHash.h"
 #include "datastructures/BlockProposal.h"
+#include "db/BlockProposalDB.h"
 #include "exceptions/FatalError.h"
 #include "messages/NetworkMessage.h"
 #include "node/Node.h"
@@ -43,6 +40,7 @@
 #include "protocols/binconsensus/BVBroadcastMessage.h"
 #include "protocols/blockconsensus/BlockSignBroadcastMessage.h"
 #include "thirdparty/json.hpp"
+#include <db/MsgDB.h>
 
 #include "unordered_set"
 
@@ -209,7 +207,7 @@ void Network::networkReadLoop() {
                     sChain->getNode()->getSockets()->consensusZMQSockets->closeReceive();
                     return;
                 }
-                Exception::logNested(e);
+                SkaleException::logNested(e);
             }
 
         }  // while
@@ -318,9 +316,9 @@ void Network::deferredMessagesLoop() {
             // exit
             LOG(info, "Exit requested, exiting deferred messages loop");
             return;
-        } catch (Exception &e) {
+        } catch (SkaleException &e) {
             // print the error and continue the loop
-            Exception::logNested(e);
+            SkaleException::logNested(e);
         }
         usleep(100000);
     }

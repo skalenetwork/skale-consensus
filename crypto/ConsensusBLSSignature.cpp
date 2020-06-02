@@ -22,10 +22,8 @@
 */
 
 
-
-
 #include "SkaleCommon.h"
-#include "Log.h"
+#include "SkaleLog.h"
 #include "crypto/bls_include.h"
 #include "network/Utils.h"
 #include "thirdparty/json.hpp"

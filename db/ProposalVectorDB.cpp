@@ -23,11 +23,11 @@
 
 
 #include "SkaleCommon.h"
-#include "Log.h"
-#include "crypto/SHAHash.h"
+#include "SkaleLog.h"
 #include "chains/Schain.h"
-#include "exceptions/InvalidStateException.h"
+#include "crypto/SHAHash.h"
 #include "datastructures/BooleanProposalVector.h"
+#include "exceptions/InvalidStateException.h"
 
 #include "ProposalVectorDB.h"
 #include "CacheLevelDB.h"

@@ -23,7 +23,7 @@
 
 
 #include "SkaleCommon.h"
-#include "Log.h"
+#include "SkaleLog.h"
 
 #include "chains/Schain.h"
 #include "crypto/CryptoManager.h"

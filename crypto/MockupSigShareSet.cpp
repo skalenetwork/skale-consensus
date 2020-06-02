@@ -20,20 +20,21 @@
     @author Stan Kladko
     @date 2019
 */
-
 #include "SkaleCommon.h"
-#include "Log.h"
-#include "exceptions/FatalError.h"
+#include "SkaleLog.h"
+
 #include "bls_include.h"
+#include "exceptions/FatalError.h"
 #include "node/ConsensusEngine.h"
-#include "SHAHash.h"
-#include "MockupSignature.h"
 
 #include "chains/Schain.h"
 #include "pendingqueue/PendingTransactionsAgent.h"
 #include "MockupSigShare.h"
-#include "BLSSigShareSet.h"
+
+#include "MockupSignature.h"
+
 #include "MockupSigShareSet.h"
+
 
 
 using namespace std;

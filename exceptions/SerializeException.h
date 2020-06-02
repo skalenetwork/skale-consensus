@@ -22,10 +22,10 @@
 */
 
 #pragma once
-#include "Log.h"
-#include "Exception.h"
+#include "SkaleException.h"
+#include "SkaleLog.h"
 
-class SerializeException : public Exception  {
+class SerializeException : public SkaleException  {
 public:
     SerializeException(const std::string &_message,  const string& _className);
 

@@ -22,8 +22,8 @@
 */
 
 #include "SkaleCommon.h"
+#include "SkaleLog.h"
 #include "thirdparty/json.hpp"
-#include "Log.h"
 
 #include "headers/Header.h"
 #include "network/Utils.h"

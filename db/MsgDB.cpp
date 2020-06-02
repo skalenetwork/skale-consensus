@@ -23,9 +23,9 @@
 
 
 #include "SkaleCommon.h"
-#include "Log.h"
-#include "crypto/SHAHash.h"
+#include "SkaleLog.h"
 #include "chains/Schain.h"
+#include "crypto/SHAHash.h"
 #include "exceptions/InvalidStateException.h"
 #include "messages/NetworkMessage.h"
 

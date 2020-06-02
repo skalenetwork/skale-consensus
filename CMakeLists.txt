@@ -31,7 +31,7 @@ add_subdirectory( libBLS )
 
 project(consensus)
 
-include_directories( "${DEPS_INSTALL_ROOT}/include" "${DEPS_INSTALL_ROOT}/include/cryptopp" )
+include_directories( "${DEPS_INSTALL_ROOT}/include" "${DEPS_INSTALL_ROOT}/include/cryptopp" sgxwallet)
 link_directories( "${DEPS_INSTALL_ROOT}/lib")
 set( CMAKE_PREFIX_PATH "${DEPS_INSTALL_ROOT}" )
 
@@ -55,7 +55,7 @@ find_package(leveldb CONFIG REQUIRED)
 set(CMAKE_CXX_STANDARD 17)
 add_compile_options(-Wall -Wextra -Werror)
 add_definitions("-DZMQ_BUILD_DRAFT_API")
-
+add_definitions("-DUSER_SPACE")
 add_definitions("-DZMQ_EXPERIMENTAL")
 add_definitions("-DZMQ_NONBLOCKING")
 
@@ -85,10 +85,6 @@ find_package(Threads REQUIRED)
 set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_MULTITHREADED ON)
 
-
-
-#hunter_add_package(Boost COMPONENTS filesystem system thread log random program_options)
-#find_package(Boost CONFIG REQUIRED filesystem system thread log random program_options)
 
 #Source dirs
 
@@ -158,7 +154,13 @@ SET(SRC_FILES
         ${exceptions_src}
         ${monitoring_src}
         ${utils_src}
-        Agent.h Agent.cpp SkaleCommon.h SkaleCommon.cpp Log.h Log.cpp microprofile.cpp miniz.c)
+        Agent.h Agent.cpp SkaleCommon.cpp SkaleLog.cpp microprofile.cpp miniz.c
+        sgxwallet/secure_enclave/Point.c
+        sgxwallet/secure_enclave/DomainParameters.c
+        sgxwallet/secure_enclave/NumberTheory.c
+        sgxwallet/secure_enclave/Signature.c
+        sgxwallet/secure_enclave/Curves.c
+        )
 
 
 include_directories(. spdlog/include ${BLS_INCLUDE_DIRS} ${DEPS_INSTALL_ROOT}/include libBLS/bls libBLS
@@ -211,7 +213,6 @@ SET( LINK_LIBRARIES
 add_library(consensus STATIC ${SRC_FILES})
 
 target_link_libraries(consensus  ${LINK_LIBRARIES})
-add_precompiled_header(consensus SkaleCommon.h FORCE_INCLUDE)
 
 # consensus test agent
 
@@ -225,8 +226,6 @@ add_executable(consensusd Consensusd.h Consensusd.cpp)
 # else ()
     target_link_libraries(consensusd  consensus)
 # endif ()
-
-
 
 add_executable(consensust Consensust.h Consensust.cpp datastructures/SerializationTests.cpp db/DBTests.cpp)
 
