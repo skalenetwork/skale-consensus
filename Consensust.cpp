@@ -103,25 +103,31 @@ void Consensust::setConfigDirPath(const fs_path &_configDirPath) {
     Consensust::configDirPath = _configDirPath;
 }
 
+void Consensust::useCorruptConfigs() {
+    configDirPath += "/corrupt";
+}
+
 
 void testLog(const char *message) {
     printf("TEST_LOG: %s\n", message);
 }
 
-void basicRun() {
+block_id basicRun(block_id _lastId = 0) {
     try {
 
         REQUIRE(ConsensusEngine::getEngineVersion().size() > 0);
 
-        engine = new ConsensusEngine();
+        engine = new ConsensusEngine(_lastId);
         engine->parseTestConfigsAndCreateAllNodes(Consensust::getConfigDirPath());
         engine->slowStartBootStrapTest();
         sleep(Consensust::getRunningTimeMS()/1000); /* Flawfinder: ignore */
 
         REQUIRE(engine->nodesCount() > 0);
-        REQUIRE(engine->getLargestCommittedBlockID() > 0);
+        auto lastId = engine->getLargestCommittedBlockID();
+        REQUIRE(lastId > 0);
         engine->exitGracefullyBlocking();
         delete engine;
+        return lastId;
     } catch (SkaleException &e) {
         SkaleException::logNested(e);
         throw;
@@ -135,8 +141,15 @@ TEST_CASE_METHOD(StartFromScratch, "Run basic consensus", "[consensus-basic]") {
 }
 
 TEST_CASE_METHOD(StartFromScratch, "Run two engines", "[consensus-two-engines]") {
-    basicRun();
-    basicRun();
+    auto lastId = basicRun();
+    basicRun(lastId);
+    SUCCEED();
+}
+
+TEST_CASE_METHOD(StartFromScratch, "Change schain index", "[change-schain-index]") {
+    auto lastId = basicRun();
+    Consensust::useCorruptConfigs();
+    REQUIRE_THROWS(basicRun(lastId));
     SUCCEED();
 }
 

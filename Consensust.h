@@ -37,6 +37,8 @@ public:
 
     static void setConfigDirPath(const fs_path &_configDirPath);
 
+    static void useCorruptConfigs();
+
     static uint64_t getRunningTimeMS();
 
 
