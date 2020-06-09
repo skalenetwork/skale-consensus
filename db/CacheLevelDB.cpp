@@ -78,6 +78,7 @@ ptr<string> CacheLevelDB::createKey(block_id _blockId, schain_index _proposerInd
             getFormatVersion() + ":" + to_string(_blockId) + ":" + to_string(_proposerIndex));
 }
 
+
 ptr<string>
 CacheLevelDB::createKey(const block_id &_blockId, const schain_index &_proposerIndex,
                         const bin_consensus_round &_round) {
@@ -86,23 +87,19 @@ CacheLevelDB::createKey(const block_id &_blockId, const schain_index &_proposerI
 }
 
 
-string CacheLevelDB::createSetKey(block_id _blockId, schain_index _index) {
-    return getFormatVersion() + ":" + to_string(_blockId) + ":" + to_string(_index);
-}
-
 string CacheLevelDB::createCounterKey(block_id _blockId) {
     return getFormatVersion() + ":COUNTER:" + to_string(_blockId);
 }
 
 
 ptr<string> CacheLevelDB::readStringFromBlockSet(block_id _blockId, schain_index _index) {
-    auto key = createSetKey(_blockId, _index);
-    return readString(key);
+    auto key = createKey(_blockId, _index);
+    return readString(*key);
 }
 
 
 bool CacheLevelDB::keyExistsInSet(block_id _blockId, schain_index _index) {
-    return keyExists(createSetKey(_blockId, _index));
+    return keyExists(*createKey(_blockId, _index));
 }
 
 Schain *CacheLevelDB::getSchain() const {
@@ -557,10 +554,10 @@ CacheLevelDB::writeByteArrayToSetUnsafe(const char *_value, uint64_t _valueLen, 
     CHECK_ARGUMENT(_index > 0 && _index <= totalSigners);
 
 
-    string entryKey = createSetKey(_blockId, _index);
+    auto entryKey = createKey(_blockId, _index);
 
 
-    if (keyExistsUnsafe(entryKey)) {
+    if (keyExistsUnsafe(*entryKey)) {
         if (!isDuplicateAddOK)
             LOG(trace, "Double db entry " + this->prefix + "\n" + to_string(_blockId) + ":" + to_string(_index));
         return nullptr;
@@ -599,7 +596,7 @@ CacheLevelDB::writeByteArrayToSetUnsafe(const char *_value, uint64_t _valueLen, 
         count++;
 
         batch.Put(counterKey, to_string(count));
-        batch.Put(entryKey, Slice(_value, _valueLen));
+        batch.Put(*entryKey, Slice(_value, _valueLen));
         CHECK_STATE2(containingDb->Write(writeOptions, &batch).ok(), "Could not write LevelDB");
     }
 
@@ -612,8 +609,8 @@ CacheLevelDB::writeByteArrayToSetUnsafe(const char *_value, uint64_t _valueLen, 
     auto enoughSet = make_shared<map<schain_index, ptr<string>>>();
 
     for (uint64_t i = 1; i <= totalSigners; i++) {
-        auto key = createSetKey(_blockId, schain_index(i));
-        auto entry = readStringUnsafe(key);
+        auto key = createKey(_blockId, schain_index(i));
+        auto entry = readStringUnsafe(*key);
 
         if (entry != nullptr)
             (*enoughSet)[schain_index(i)] = entry;

@@ -65,14 +65,14 @@ void BlockProposalDB::addBlockProposal(ptr<BlockProposal> _proposal) {
     LOG(trace, "addBlockProposal blockID_=" + to_string(_proposal->getBlockID()) + " proposerIndex=" +
                to_string(_proposal->getProposerIndex()));
 
-    auto key = createSetKey(_proposal->getBlockID(), _proposal->getProposerIndex());
+    auto key = createKey(_proposal->getBlockID(), _proposal->getProposerIndex());
 
     {
 
         LOCK(proposalCacheMutex);
 
-        if (!proposalCache->exists(key)) {
-            proposalCache->put(key, _proposal);
+        if (!proposalCache->exists(*key)) {
+            proposalCache->put(*key, _proposal);
         }
     }
 
@@ -125,14 +125,14 @@ ptr<BlockProposal> BlockProposalDB::getBlockProposal(block_id _blockID, schain_i
 
 
 
-    auto key = createSetKey(_blockID, _proposerIndex);
+    auto key = createKey(_blockID, _proposerIndex);
 
     {
 
         LOCK(proposalCacheMutex);
 
-        if (proposalCache->exists(key)) {
-            return proposalCache->get(key);
+        if (proposalCache->exists(*key)) {
+            return proposalCache->get(*key);
         }
     }
 
@@ -150,8 +150,8 @@ ptr<BlockProposal> BlockProposalDB::getBlockProposal(block_id _blockID, schain_i
 
         LOCK(proposalCacheMutex);
 
-        if (!proposalCache->exists(key)) {
-            proposalCache->put(key, proposal);
+        if (!proposalCache->exists(*key)) {
+            proposalCache->put(*key, proposal);
         }
     }
 

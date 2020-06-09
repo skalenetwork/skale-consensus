@@ -89,8 +89,6 @@ protected:
     ptr<string>
     createKey(const block_id &_blockId, const schain_index &_proposerIndex, const bin_consensus_round &_round);
 
-    string createSetKey(block_id _blockId, schain_index _index);
-
     string createCounterKey(block_id _block_id);
 
     bool keyExists(const string &_key);
