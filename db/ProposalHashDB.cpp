@@ -36,6 +36,21 @@
 ProposalHashDB::ProposalHashDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize)
         : CacheLevelDB(_sChain, _dirName, _prefix,
                        _nodeId, _maxDBSize, false) {
+
+    static string SCHAIN_INDEX = "schainIndex";
+
+    auto index = this->readString(SCHAIN_INDEX);
+
+    if (index == nullptr) {
+        this->writeString(SCHAIN_INDEX, to_string((uint64_t)_sChain->getSchainIndex()));
+    } else {
+        if (to_string((uint64_t ) getSchain()->getSchainIndex()) != *index) {
+            BOOST_THROW_EXCEPTION(FatalError(
+                "Schain index of this node changed in the config."
+                "This should never happen.  Fix the config and restart the node."));
+        }
+    }
+
 }
 
 
