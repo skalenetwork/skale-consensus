@@ -348,7 +348,9 @@ void ConsensusEngine::parseTestConfigsAndCreateAllNodes(const fs_path &dirname, 
             if (!is_directory(itr->path())) {
                 BOOST_THROW_EXCEPTION(FatalError("Junk file found. Remove it: " + itr->path().string()));
             }
-            nodeCount++;
+
+            if (itr->path().filename().string().find("corrupt") == string::npos)
+                nodeCount++;
         };
 
         if (useSGX) {
@@ -362,6 +364,10 @@ void ConsensusEngine::parseTestConfigsAndCreateAllNodes(const fs_path &dirname, 
         for (; itr2 != end; itr2++) {
             if (!is_directory(itr2->path())) {
                 BOOST_THROW_EXCEPTION(FatalError("Junk file found. Remove it: " + itr2->path().string()));
+            }
+
+            if (itr2->path().filename().string().find("corrupt") != string::npos) {
+                continue;
             }
 
             ptr<string> keyName = nullptr;
@@ -526,9 +532,10 @@ void ConsensusEngine::init() {
 }
 
 
-ConsensusEngine::ConsensusEngine() : exitRequested(false) {
+ConsensusEngine::ConsensusEngine(block_id _lastId) : exitRequested(false) {
     try {
         init();
+        lastCommittedBlockID = _lastId;
     } catch (exception &e) {
         SkaleException::logNested(e);
         throw_with_nested(EngineInitException("Engine construction failed", __CLASS_NAME__));

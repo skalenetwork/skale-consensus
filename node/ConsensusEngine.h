@@ -144,7 +144,7 @@ public:
 
     block_id getLargestCommittedBlockID();
 
-    ConsensusEngine();
+    ConsensusEngine(block_id _lastId = 0);
 
     ~ConsensusEngine() override;
 

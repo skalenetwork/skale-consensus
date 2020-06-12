@@ -67,7 +67,7 @@ run("ccache -M 20G")
 
 consensustExecutive = getConsensustExecutive()
 
-unitTest(consensustExecutive, "[sgx]")
+#unitTest(consensustExecutive, "[sgx]")
 unitTest(consensustExecutive, "[tx-serialize]")
 unitTest(consensustExecutive, "[tx-list-serialize]")   
 
