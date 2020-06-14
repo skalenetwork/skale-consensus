@@ -504,7 +504,7 @@ void ConsensusEngine::systemHealthCheck() {
     if (noFiles < 65535 && !noUlimitCheck && !onTravis) {
 
         const char *error = "File descriptor limit (ulimit -n) is less than 65535. Set it to 65535 or more as described"
-                            "in https://bugs.launchpad.net/ubuntu/+source/lightdm/+bug/1627769\n";
+                            " in https://bugs.launchpad.net/ubuntu/+source/lightdm/+bug/1627769\n";
         cerr << error;
         BOOST_THROW_EXCEPTION(EngineInitException(error, __CLASS_NAME__));
     }
