@@ -1,7 +1,7 @@
 # SKALE Consensus: a BFT Consensus engine in C++
 
 [![Discord](https://img.shields.io/discord/534485763354787851.svg)](https://discord.gg/vvUtWJB)
-[![Build Status](https://travis-ci.com/skalenetwork/skale-consensus.svg?branch=develop)](https://travis-ci.com/skalenetwork/skale-consensus)
+![Build and test skale-consensus](https://github.com/skalenetwork/skale-consensus/workflows/Build%20and%20test%20skale-consensus/badge.svg)
 
 SKALE consensus utilizes multiple block proposers.  Block proposers distribute proposals to nodes and collect a BLS-signature based data availability proofs. An Asynchronous Binary Byzantine Agreement is then executed for each block proposal to reach consensus on whether it is data-available.  If multiple block proposals are known to be data-available, a BLS-based common coin is used to select the winning proposal that is committed to the chain.
 
@@ -14,7 +14,7 @@ SKALE Consensus uses an Asynchronous Binary Byzantine Agreement (ABBA) protocol.
 
 ## An important note about production readiness:
 
-The SKALE consensus is still in active development and contains bugs. This software should be regarded as _alpha software_. Development is still subject to competing the specification, security hardening, further testing, and breaking changes.  **This consensus engine has not yet been reviewed or audited for security.**
+The SKALE consensus is still in active development and contains bugs. This software should be regarded as _alpha software_. Development is still subject to competing the specification, security hardening, further testing, and breaking changes.  **This consensus engine has not yet been reviewed or audited for security.** Please see [SECURITY.md](SECURITY.md) for reporting policies.
 
 ## Roadmap
 
@@ -28,10 +28,11 @@ Ensure that the required packages are installed by executing:
 
 ```bash
 sudo apt-get update
-sudo apt-get install -yq clibprocps-dev g++-7 valgrind gawk sed libffi-dev ccache libgoogle-perftools-dev \
-    flex bison yasm texinfo autotools-dev automake python python-pip \
-    cmake libtool build-essential pkg-config autoconf wget git  libargtable2-dev \
-    libmicrohttpd-dev libhiredis-dev redis-server openssl libssl-dev doxygen
+sudo apt-get install -yq libprocps-dev g++-7 valgrind gawk sed libffi-dev ccache \
+    libgoogle-perftools-dev flex bison yasm texinfo autotools-dev automake \
+    python python-pip cmake libtool build-essential pkg-config autoconf wget \
+    git  libargtable2-dev libmicrohttpd-dev libhiredis-dev redis-server openssl \
+    libssl-dev doxygen
 ```
 
 ### Building from source on Ubuntu (Development)
@@ -42,7 +43,7 @@ Clone project and configure build:
 git clone --recurse-submodules https://github.com/skalenetwork/skale-consensus.git
 # Configure the project and create a build directory.
 cd scripts; ./build_deps.sh # build dependencies
-cmake -Bbuild . # Configure the build.
+cd ..; cmake . -Bbuild # Configure the build.
 cmake --build build -- -j$(nproc) # Build all default targets using all cores.
 ```
 
