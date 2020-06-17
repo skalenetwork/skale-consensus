@@ -79,7 +79,6 @@ class CryptoManager {
     ptr< string > sgxECDSAKeyName;
     vector< ptr< string > > sgxECDSAPublicKeys;
 
-
     Schain* sChain = nullptr;
 
     ptr< string > signECDSA( ptr< SHAHash > _hash );

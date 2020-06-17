@@ -440,5 +440,9 @@ void Node::exitOnFatalError(const string &_message) {
     }
     LOG(critical, _message);
 }
-
-
+const ptr< string >& Node::getEcdsaKeyName() const {
+    return ecdsaKeyName;
+}
+void Node::setEcdsaKeyName( const ptr< string >& _ecdsaKeyName ) {
+    Node::ecdsaKeyName = _ecdsaKeyName;
+}

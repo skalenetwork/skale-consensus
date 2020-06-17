@@ -184,7 +184,12 @@ class Node {
 
     ptr<BlockProposalDB> blockProposalDB = nullptr;
 
+    ptr<string> ecdsaKeyName;
 
+public:
+    const ptr< string >& getEcdsaKeyName() const;
+    void setEcdsaKeyName( const ptr< string >& _ecdsaKeyName );
+private:
     uint64_t catchupIntervalMS;
 
     uint64_t monitoringIntervalMS;
