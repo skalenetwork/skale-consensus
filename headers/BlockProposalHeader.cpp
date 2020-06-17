@@ -21,7 +21,7 @@
     @date 2018
 */
 #include "SkaleCommon.h"
-#include "SkaleLog.h"
+#include "Log.h"
 
 #include "crypto/SHAHash.h"
 #include "datastructures/BlockProposal.h"

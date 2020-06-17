@@ -29,7 +29,7 @@
 
 #include "Agent.h"
 #include "SkaleCommon.h"
-#include "SkaleLog.h"
+#include "Log.h"
 #include "exceptions/FatalError.h"
 #include "thirdparty/json.hpp"
 #include "threads/GlobalThreadRegistry.h"

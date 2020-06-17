@@ -24,7 +24,7 @@
 #include "thirdparty/catch.hpp"
 
 #include "SkaleCommon.h"
-#include "SkaleLog.h"
+#include "Log.h"
 #include "exceptions/FatalError.h"
 #include "thirdparty/json.hpp"
 
@@ -33,7 +33,7 @@
 
 #include "chains/Schain.h"
 
-#include "SkaleLog.h"
+#include "Log.h"
 #include "exceptions/FatalError.h"
 #include "exceptions/ParsingException.h"
 #include "network/Sockets.h"
@@ -263,24 +263,27 @@ pair< ptr< vector< string > >, ptr< vector< string > > > JSONFactory::parseTestK
     parseJsonFile(j, configFile);
 
 
-    auto ecdsaKeyNamesArray = j.at("ecdsaKeyNames");
-    auto blsKeyNamesArray = j.at("blsKeyNames");
+    auto ecdsaKeyNamesObject = j.at("ecdsaKeyNames");
+    auto blsKeyNamesObject = j.at("blsKeyNames");
 
-    CHECK_STATE(ecdsaKeyNamesArray.is_array());
-    CHECK_STATE(blsKeyNamesArray.is_array());
+    CHECK_STATE( ecdsaKeyNamesObject.is_object());
+    CHECK_STATE( blsKeyNamesObject.is_object());
 
 
-    CHECK_STATE(ecdsaKeyNamesArray.size() == _totalNodes);
-    CHECK_STATE(blsKeyNamesArray.size() == _totalNodes);
+    CHECK_STATE( ecdsaKeyNamesObject.size() == _totalNodes);
+    CHECK_STATE( blsKeyNamesObject.size() == _totalNodes);
 
-    for (auto&& it : ecdsaKeyNamesArray) {
-        ecdsaKeyNames->push_back(it);
+    for (uint64_t i = 1; i <= _totalNodes; i++ ) {
+        auto ecdsaKeyName = ecdsaKeyNamesObject.at(to_string(i));
+        ecdsaKeyNames->push_back( ecdsaKeyName );
+
+        auto blsKeyName = blsKeyNamesObject.at(to_string(i));
+        blsKeyNames->push_back( blsKeyName );
     }
 
 
-    for (auto&& it : blsKeyNamesArray) {
-        blsKeyNames->push_back(it);
-    }
+    CHECK_STATE(ecdsaKeyNames->size() == _totalNodes );
+    CHECK_STATE(blsKeyNames->size() == _totalNodes );
 
     return {ecdsaKeyNames, blsKeyNames};
 }

@@ -23,7 +23,7 @@
 
 #include "CouldNotSendMessageException.h"
 #include "SkaleCommon.h"
-#include "SkaleLog.h"
+#include "Log.h"
 #include "exceptions/FatalError.h"
 
 CouldNotSendMessageException::CouldNotSendMessageException(const std::string &_message,  const string& _className) :

@@ -24,7 +24,7 @@
 
 #include "Agent.h"
 #include "SkaleCommon.h"
-#include "SkaleLog.h"
+#include "Log.h"
 
 
 #include "node/Node.h"

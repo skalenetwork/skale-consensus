@@ -24,7 +24,7 @@
 #include "TransactionList.h"
 #include "Agent.h"
 #include "SkaleCommon.h"
-#include "SkaleLog.h"
+#include "Log.h"
 #include "Transaction.h"
 #include "exceptions/InvalidArgumentException.h"
 #include "exceptions/ParsingException.h"

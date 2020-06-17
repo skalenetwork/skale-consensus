@@ -23,7 +23,7 @@
 
 #pragma once
 #include "SkaleException.h"
-#include "SkaleLog.h"
+#include "Log.h"
 
 class SerializeException : public SkaleException  {
 public:

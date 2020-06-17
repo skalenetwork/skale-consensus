@@ -25,7 +25,7 @@
 #include "BLSSigShare.h"
 #include "ConsensusBLSSigShare.h"
 #include "SkaleCommon.h"
-#include "SkaleLog.h"
+#include "Log.h"
 #include "bls_include.h"
 #include "network/Utils.h"
 #include "thirdparty/json.hpp"

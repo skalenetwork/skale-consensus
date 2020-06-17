@@ -23,7 +23,7 @@
 
 #include "InvalidStateException.h"
 #include "SkaleCommon.h"
-#include "SkaleLog.h"
+#include "Log.h"
 
 InvalidStateException::InvalidStateException(const std::string &_message, const string& _className) :
                      SkaleException(_message, _className) {

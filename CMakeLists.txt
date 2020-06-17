@@ -154,7 +154,7 @@ SET(SRC_FILES
         ${exceptions_src}
         ${monitoring_src}
         ${utils_src}
-        Agent.h Agent.cpp SkaleCommon.cpp SkaleLog.cpp microprofile.cpp miniz.c
+        Agent.h Agent.cpp SkaleCommon.cpp Log.cpp microprofile.cpp miniz.c
         sgxwallet/secure_enclave/Point.c
         sgxwallet/secure_enclave/DomainParameters.c
         sgxwallet/secure_enclave/NumberTheory.c

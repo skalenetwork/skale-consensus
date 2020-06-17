@@ -25,7 +25,7 @@
 #include <unordered_set>
 
 #include "SkaleCommon.h"
-#include "SkaleLog.h"
+#include "Log.h"
 #include "exceptions/FatalError.h"
 #include "exceptions/InvalidArgumentException.h"
 #include "thirdparty/json.hpp"

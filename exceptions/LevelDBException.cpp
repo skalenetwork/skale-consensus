@@ -21,7 +21,7 @@
     @date 2019
 */
 #include "SkaleCommon.h"
-#include "SkaleLog.h"
+#include "Log.h"
 
 #include "exceptions/LevelDBException.h"
 #include "LevelDBException.h"

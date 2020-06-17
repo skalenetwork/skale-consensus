@@ -23,7 +23,7 @@
 
 #include "InvalidArgumentException.h"
 #include "SkaleCommon.h"
-#include "SkaleLog.h"
+#include "Log.h"
 
 InvalidArgumentException::InvalidArgumentException(const std::string &_message, const string& _className) :
                      SkaleException(_message, _className) {

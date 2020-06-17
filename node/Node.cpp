@@ -24,7 +24,7 @@
 #include "leveldb/db.h"
 
 #include "SkaleCommon.h"
-#include "SkaleLog.h"
+#include "Log.h"
 
 
 #include "exceptions/ExitRequestedException.h"

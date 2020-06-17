@@ -59,13 +59,6 @@ SUCCEED();
 
 
 TEST_CASE("Parse sgx keys", "[sgx-parse]") {
-auto result = JSONFactory::parseTestKeyNamesFromJson("../run_sgx_test/sgx_data/4node.json", 4);
-
-CHECK_STATE(result.first->size() == 4 );
-CHECK_STATE(result.second->size() == 4 );
-
-JSONFactory::parseTestKeyNamesFromJson("../run_sgx_test/sgx_data/16node.json", 16);
-
-CHECK_STATE(result.first->size() == 16 );
-CHECK_STATE(result.second->size() == 16 );
+    auto result = JSONFactory::parseTestKeyNamesFromJson( "run_sgx_test/sgx_data/4node.json", 4 );
+    result = JSONFactory::parseTestKeyNamesFromJson( "run_sgx_test/sgx_data/16node.json", 16 );
 }

@@ -24,7 +24,7 @@
 #include "thirdparty/json.hpp"
 
 #include "SkaleCommon.h"
-#include "SkaleLog.h"
+#include "Log.h"
 
 #include "CommittedBlockHeader.h"
 

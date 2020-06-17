@@ -27,7 +27,7 @@
 
 
 #include "SkaleCommon.h"
-#include "SkaleLog.h"
+#include "Log.h"
 
 #include <network/Utils.h>
 #include "exceptions/FatalError.h"

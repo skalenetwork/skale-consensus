@@ -51,6 +51,9 @@ public:
     static pair<ptr<vector<string>>, ptr<vector<string>>> parseTestKeyNamesFromJson(const fs_path &configFile,
         uint64_t _totalNodes);
 
+    static pair<ptr<vector<string>>, ptr<vector<string>>> parseAllTestKeyNames(const fs_path & _dir);
+
+
 
 };
 

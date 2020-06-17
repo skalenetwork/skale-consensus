@@ -28,7 +28,7 @@
 #include "BlockProposal.h"
 #include "DAProof.h"
 #include "SkaleCommon.h"
-#include "SkaleLog.h"
+#include "Log.h"
 #include "exceptions/InvalidStateException.h"
 #include "thirdparty/json.hpp"
 

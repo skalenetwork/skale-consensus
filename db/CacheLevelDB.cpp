@@ -32,7 +32,7 @@
 #include "exceptions/ExitRequestedException.h"
 
 #include "SkaleCommon.h"
-#include "SkaleLog.h"
+#include "Log.h"
 #include "leveldb/db.h"
 #include "leveldb/write_batch.h"
 #include "thirdparty/json.hpp"

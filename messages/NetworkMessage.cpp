@@ -27,7 +27,7 @@
 #include "Message.h"
 #include "NetworkMessage.h"
 #include "NetworkMessageEnvelope.h"
-#include "SkaleLog.h"
+#include "Log.h"
 #include "chains/Schain.h"
 #include "crypto/ConsensusBLSSigShare.h"
 #include "crypto/CryptoManager.h"

@@ -23,7 +23,7 @@
 
 
 #include "SkaleCommon.h"
-#include "SkaleLog.h"
+#include "Log.h"
 #include "crypto/bls_include.h"
 #include "network/Utils.h"
 #include "thirdparty/json.hpp"

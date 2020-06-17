@@ -23,6 +23,6 @@
 
 #include "NTPClient.h"
 #include "SkaleCommon.h"
-#include "SkaleLog.h"
+#include "Log.h"
 #include "Utils.h"
 #include "exceptions/FatalError.h"
