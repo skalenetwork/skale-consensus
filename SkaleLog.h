@@ -70,7 +70,7 @@ class SkaleLog {
 
 public:
 
-    Consensus  Engine *getEngine() const;
+    ConsensusEngine *getEngine() const;
 
     SkaleLog( node_id _nodeID, ConsensusEngine* _engine);
 
