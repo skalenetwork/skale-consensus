@@ -29,6 +29,13 @@
 #include "openssl/ec.h"
 
 
+#define USER_SPACE 1
+#include "sgxwallet/secure_enclave/Point.h"
+#include "sgxwallet/secure_enclave/DomainParameters.h"
+#include "sgxwallet/secure_enclave/NumberTheory.h"
+#include "sgxwallet/secure_enclave/Signature.h"
+#include "sgxwallet/secure_enclave/Curves.h"
+
 class Schain;
 class SHAHash;
 class ConsensusBLSSigShare;

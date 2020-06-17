@@ -21,6 +21,8 @@
     @date 2018
 */
 
+#include "thirdparty/catch.hpp"
+
 #include "SkaleCommon.h"
 #include "SkaleLog.h"
 #include "exceptions/FatalError.h"
@@ -250,3 +252,36 @@ void JSONFactory::parseJsonFile( nlohmann::json& j, const fs_path& configFile ) 
             __CLASS_NAME__ ) );
     }
 }
+pair< ptr< vector< string > >, ptr< vector< string > > > JSONFactory::parseTestKeyNamesFromJson(
+    const fs_path& configFile, uint64_t _totalNodes) {
+
+    auto ecdsaKeyNames = make_shared<vector<string>>();
+    auto blsKeyNames = make_shared<vector<string>>();
+
+    nlohmann::json j;
+
+    parseJsonFile(j, configFile);
+
+
+    auto ecdsaKeyNamesArray = j.at("ecdsaKeyNames");
+    auto blsKeyNamesArray = j.at("blsKeyNames");
+
+    CHECK_STATE(ecdsaKeyNamesArray.is_array());
+    CHECK_STATE(blsKeyNamesArray.is_array());
+
+
+    CHECK_STATE(ecdsaKeyNamesArray.size() == _totalNodes);
+    CHECK_STATE(blsKeyNamesArray.size() == _totalNodes);
+
+    for (auto&& it : ecdsaKeyNamesArray) {
+        ecdsaKeyNames->push_back(it);
+    }
+
+
+    for (auto&& it : blsKeyNamesArray) {
+        blsKeyNames->push_back(it);
+    }
+
+    return {ecdsaKeyNames, blsKeyNames};
+}
+

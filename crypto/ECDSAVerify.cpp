@@ -8,7 +8,8 @@
 #include <gmp.h>
 #include <stdbool.h>
 
-#include "secure_enclave/Verify.h"
+
+
 
 #include "SkaleCommon.h"
 #include "SkaleLog.h"

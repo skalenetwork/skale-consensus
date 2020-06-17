@@ -46,8 +46,6 @@
 #include "SkaleLog.h"
 
 #include <gmp.h>
-#include "secure_enclave/Verify.h"
-
 
 #include "ConsensusBLSSigShare.h"
 #include "ConsensusBLSSignature.h"
@@ -66,7 +64,6 @@
 #include "node/Node.h"
 
 #include "CryptoManager.h"
-#include "ECDSAVerify.h"
 
 
 CryptoManager::CryptoManager( uint64_t totalSigners, uint64_t requiredSigners,

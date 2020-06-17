@@ -41,6 +41,9 @@
 #include "time.h"
 #include "crypto/SHAHash.h"
 
+#include "json/JSONFactory.h"
+
+
 #include "Consensust.h"
 #include "JsonStubClient.h"
 #include <network/Utils.h>
@@ -135,41 +138,6 @@ block_id basicRun(block_id _lastId = 0) {
 }
 
 
-TEST_CASE_METHOD(StartFromScratch, "Run basic consensus", "[consensus-basic]") {
-    basicRun();
-    SUCCEED();
-}
-
-TEST_CASE_METHOD(StartFromScratch, "Run two engines", "[consensus-two-engines]") {
-    auto lastId = basicRun();
-    basicRun(lastId);
-    SUCCEED();
-}
-
-TEST_CASE_METHOD(StartFromScratch, "Change schain index", "[change-schain-index]") {
-    auto lastId = basicRun();
-    Consensust::useCorruptConfigs();
-    REQUIRE_THROWS(basicRun(lastId));
-    SUCCEED();
-}
-
-
-TEST_CASE_METHOD(StartFromScratch, "Use finalization download only", "[consensus-finalization-download]") {
-
-    setenv("TEST_FINALIZATION_DOWNLOAD_ONLY", "1", 1);
-
-    engine = new ConsensusEngine();
-    engine->parseTestConfigsAndCreateAllNodes(Consensust::getConfigDirPath());
-    engine->slowStartBootStrapTest();
-    usleep(1000 * Consensust::getRunningTimeMS()); /* Flawfinder: ignore */
-
-    REQUIRE(engine->nodesCount() > 0);
-    REQUIRE(engine->getLargestCommittedBlockID() > 0);
-    engine->exitGracefullyBlocking();
-    delete engine;
-    SUCCEED();
-}
-
 bool success = false;
 
 void exit_check() {
@@ -177,103 +145,12 @@ void exit_check() {
     engine->exitGracefullyBlocking();
 }
 
-TEST_CASE_METHOD(StartFromScratch, "Get consensus to stuck", "[consensus-stuck]") {
-    testLog("Parsing configs");
-    std::thread timer(exit_check);
-    try {
-        auto startTime = time(NULL);
-        engine = new ConsensusEngine();
-        engine->parseTestConfigsAndCreateAllNodes(Consensust::getConfigDirPath());
-        engine->slowStartBootStrapTest();
-        auto finishTime = time(NULL);
-        if (finishTime - startTime < STUCK_TEST_TIME) {
-            printf("Consensus did not get stuck");
-            REQUIRE(false);
-        }
-    } catch (...) {
-        timer.join();
-    }
-    engine->exitGracefullyBlocking();
-    delete engine;
-    SUCCEED();
-}
-
-TEST_CASE_METHOD(StartFromScratch, "Issue different proposals to different nodes", "[corrupt-proposal]") {
-    setenv("CORRUPT_PROPOSAL_TEST", "1", 1);
-
-    try {
-        engine = new ConsensusEngine();
-        engine->parseTestConfigsAndCreateAllNodes(Consensust::getConfigDirPath());
-        engine->slowStartBootStrapTest();
-        usleep(1000 * Consensust::getRunningTimeMS()); /* Flawfinder: ignore */
-
-        REQUIRE(engine->nodesCount() > 0);
-        REQUIRE(engine->getLargestCommittedBlockID() == 0);
-        engine->exitGracefullyBlocking();
-        delete engine;
-    } catch (SkaleException &e) {
-        SkaleException::logNested(e);
-        throw;
-    }
-
-    unsetenv("CORRUPT_PROPOSAL_TEST");
-    SUCCEED();
-}
 
 
 
 
-TEST_CASE_METHOD(StartFromScratch, "Test sgx server connection", "[sgx]") {
-
-    string certDir("/tmp");
-
-    CryptoManager::generateSSLClientCertAndKey(certDir);
-
-    auto certFilePath = certDir + "/cert";
-    auto keyFilePath = certDir + "/key";
-
-    CryptoManager::setSGXKeyAndCert(keyFilePath, certFilePath);
-
-    setenv("sgxKeyFileFullPath", keyFilePath.data(), 1);
-    setenv("certFileFullPath", certFilePath.data(), 1);
-
-    jsonrpc::HttpClient client("https://localhost:" + to_string(SGX_SSL_PORT));
-    auto c  = make_shared<StubClient>(client, jsonrpc::JSONRPC_CLIENT_V2);
-
-    vector<ptr<string>> keyNames;
-    vector<ptr<string>> publicKeys;
-
-    using namespace CryptoPP;
-
-    for (int i = 1; i <= 4; i++) {
-        auto res = CryptoManager::generateSGXECDSAKey(c);
-        auto keyName = res.first;
-        auto publicKey = res.second;
-
-        setenv(("sgxECDSAKeyName." + to_string(i)).data(), keyName->data(), 1);
-        setenv(("sgxECDSAPublicKey." + to_string(i)).data(), publicKey->data(), 1);
-
-        keyNames.push_back(keyName);
-        publicKeys.push_back(publicKey);
-    }
+#include "unittests/consensus_tests.cpp"
+#include "unittests/sgx_tests.cpp"
 
 
 
-
-    CryptoManager cm( 4, 3, make_shared<string>("127.0.0.1"),
-                      make_shared<string>(keyFilePath),
-                      make_shared<string>("certFilePath"),
-                      keyNames.at(0), publicKeys);
-
-    auto msg = make_shared<vector<uint8_t>>();
-    msg->push_back('1');
-    auto hash = SHAHash::calculateHash(msg);
-    auto sig = cm.sgxSignECDSA( hash, *keyNames[0] );
-
-    REQUIRE(cm.sgxVerifyECDSA(hash, publicKeys[0], sig));
-
-    auto key = CryptoManager::decodeSGXPublicKey(publicKeys[0]);
-
-    SUCCEED();
-
-}

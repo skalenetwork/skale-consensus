@@ -67,11 +67,6 @@ class ConsensusEngine : public ConsensusInterface {
 
     shared_ptr<string> healthCheckDir;
     shared_ptr<string> dbDir;
-public:
-    ptr<string> getDbDir() const;
-
-
-private:
 
     static recursive_mutex logMutex;
 
@@ -81,6 +76,8 @@ private:
     shared_ptr< spdlog::sinks::sink > logRotatingFileSync;
 
 public:
+
+    ptr<string> getDbDir() const;
 
     void logInit();
 

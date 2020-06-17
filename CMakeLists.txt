@@ -31,7 +31,7 @@ add_subdirectory( libBLS )
 
 project(consensus)
 
-include_directories( "${DEPS_INSTALL_ROOT}/include" "${DEPS_INSTALL_ROOT}/include/cryptopp" sgxwallet)
+include_directories( "${DEPS_INSTALL_ROOT}/include" "${DEPS_INSTALL_ROOT}/include/cryptopp")
 link_directories( "${DEPS_INSTALL_ROOT}/lib")
 set( CMAKE_PREFIX_PATH "${DEPS_INSTALL_ROOT}" )
 
