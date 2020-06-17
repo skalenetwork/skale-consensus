@@ -59,6 +59,16 @@ SUCCEED();
 
 
 TEST_CASE("Parse sgx keys", "[sgx-parse]") {
-    auto result = JSONFactory::parseTestKeyNamesFromJson( "run_sgx_test/sgx_data/4node.json", 4 );
-    result = JSONFactory::parseTestKeyNamesFromJson( "run_sgx_test/sgx_data/16node.json", 16 );
+    ptr<vector<string>> ecdsaKeyNames = nullptr;
+    ptr<vector<string>> blsKeyNames = nullptr;
+    ptr<vector<array<string,4>>> ecdsaPublicKeys = nullptr;
+
+    tie(ecdsaKeyNames, blsKeyNames, ecdsaPublicKeys) =
+        JSONFactory::parseTestKeyNamesFromJson( "run_sgx_test/sgx_data/4node.json", 4 );
+
+    tie(ecdsaKeyNames, blsKeyNames, ecdsaPublicKeys) =
+        JSONFactory::parseTestKeyNamesFromJson( "run_sgx_test/sgx_data/16node.json", 16 );
+
+
+
 }

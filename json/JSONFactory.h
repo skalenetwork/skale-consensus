@@ -48,7 +48,9 @@ public:
 
     static void parseJsonFile(nlohmann::json &j, const fs_path &configFile);
 
-    static pair<ptr<vector<string>>, ptr<vector<string>>> parseTestKeyNamesFromJson(const fs_path &configFile,
+    static tuple< ptr< vector< string > >,
+        ptr< vector< string > >,
+        ptr<vector<array<string,4>>>> parseTestKeyNamesFromJson(const fs_path &configFile,
         uint64_t _totalNodes);
 
     static pair<ptr<vector<string>>, ptr<vector<string>>> parseAllTestKeyNames(const fs_path & _dir);
