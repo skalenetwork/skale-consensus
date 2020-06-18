@@ -734,8 +734,16 @@ ptr<string> ConsensusEngine::getDbDir() const {
 void ConsensusEngine::setTestKeys(
     string _configFile, uint64_t _totalNodes, uint64_t _requiredNodes ) {
 
+    CHECK_STATE(!useTestSGXKeys)
+    CHECK_STATE(!useSGX)
 
     tie(ecdsaKeyNames, ecdsaPublicKeys, blsKeyNames, blsPublicKeys, blsPublicKey) =
         JSONFactory::parseTestKeyNamesFromJson( _configFile, _totalNodes, _requiredNodes );
+
+    CHECK_STATE(ecdsaKeyNames);CHECK_STATE(ecdsaPublicKeys); CHECK_STATE(blsKeyNames);
+    CHECK_STATE(blsPublicKeys); CHECK_STATE(blsPublicKey);
+
+    useTestSGXKeys = true;
+    useSGX = true;
 
 }

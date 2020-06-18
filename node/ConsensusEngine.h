@@ -50,6 +50,9 @@ class GlobalThreadRegistry;
 
 class ConsensusEngine : public ConsensusInterface {
 
+    bool useTestSGXKeys = false;
+    bool useSGX = false;
+
     ptr<vector<string>> ecdsaKeyNames = nullptr;
     ptr<vector<string>> blsKeyNames = nullptr;
     ptr<vector<string>> ecdsaPublicKeys = nullptr;
