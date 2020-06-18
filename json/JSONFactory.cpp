@@ -267,12 +267,14 @@ using namespace jsonrpc;
 
 tuple< ptr< vector< string > >,
        ptr< vector< string > >,
+       ptr< vector<string>>,
        ptr<vector<array<string,4>>>> JSONFactory::parseTestKeyNamesFromJson(
     const fs_path& configFile, uint64_t _totalNodes) {
 
     CHECK_ARGUMENT(_totalNodes > 0);
 
     auto ecdsaKeyNames = make_shared<vector<string>>();
+    auto ecdsaPublicKeys = make_shared<vector<string>>();
     auto blsKeyNames = make_shared<vector<string>>();
     auto blsPublicKeys = make_shared<vector<array<string,4>>>(_totalNodes);
 
@@ -306,11 +308,22 @@ tuple< ptr< vector< string > >,
     HttpClient client(RPC_ENDPOINT);
     StubClient c(client, JSONRPC_CLIENT_V2);
 
+
+    for (uint64_t i = 0; i < _totalNodes; i++) {
+        auto response = c.getPublicECDSAKey(ecdsaKeyNames->at(i));
+        CHECK_STATE( response["status"] == 0 );
+
+        auto publicKey = response["publicKey"].asString();
+
+        ecdsaPublicKeys->push_back(publicKey);
+    }
+
+
+
     for (uint64_t i = 0; i < _totalNodes; i++) {
         auto response = c.getBLSPublicKeyShare( blsKeyNames->at( i ) );
         CHECK_STATE( response["status"] == 0 );
 
-        cerr << response << endl;
         auto fourPieces = response["blsPublicKeyShare"];
 
         CHECK_STATE( fourPieces.size() == 4 );
@@ -320,6 +333,12 @@ tuple< ptr< vector< string > >,
         }
     }
 
-    return {ecdsaKeyNames, blsKeyNames, blsPublicKeys};
+    CHECK_STATE(ecdsaKeyNames->size() == _totalNodes)
+    CHECK_STATE(blsKeyNames->size() == _totalNodes)
+    CHECK_STATE(ecdsaPublicKeys->size() == _totalNodes)
+    CHECK_STATE(blsPublicKeys->size() == _totalNodes)
+
+
+    return {ecdsaKeyNames, ecdsaPublicKeys, blsKeyNames, blsPublicKeys};
 }
 
