@@ -32,6 +32,8 @@
 #include <jsonrpccpp/client/connectors/httpclient.h>
 #include <jsonrpccpp/server/connectors/httpserver.h>
 #include <libBLS/bls/BLSPublicKeyShare.h>
+#include <libBLS/bls/BLSSigShare.h>
+#include <libBLS/bls/BLSSigShareSet.h>
 
 #include "Log.h"
 #include "SkaleCommon.h"
@@ -50,6 +52,7 @@
 #include "node/ConsensusEngine.h"
 #include "node/Node.h"
 #include "node/NodeInfo.h"
+#include "crypto/SHAHash.h"
 
 #include "JSONFactory.h"
 
@@ -279,9 +282,11 @@ tuple< ptr< vector< string > >,
     CHECK_ARGUMENT(_totalNodes > 0);
 
     auto ecdsaKeyNames = make_shared<vector<string>>();
-    auto ecdsaPublicKeys = make_shared<vector<string>>();
+    auto ecdsaPublicKeyNames = make_shared<vector<string>>();
     auto blsKeyNames = make_shared<vector<string>>();
-    auto blsPublicKeys = make_shared<vector<ptr<vector<string>>>>();
+    auto blsPublicKeyNames = make_shared<vector<ptr<vector<string>>>>();
+
+
 
     nlohmann::json j;
 
@@ -320,7 +325,7 @@ tuple< ptr< vector< string > >,
 
         auto publicKey = response["publicKey"].asString();
 
-        ecdsaPublicKeys->push_back(publicKey);
+        ecdsaPublicKeyNames->push_back(publicKey);
     }
 
 
@@ -333,10 +338,10 @@ tuple< ptr< vector< string > >,
 
         CHECK_STATE( fourPieces.size() == 4 );
 
-        blsPublicKeys->push_back(make_shared<vector<string>>());
+        blsPublicKeyNames->push_back(make_shared<vector<string>>());
 
         for ( uint64_t k = 0; k < 4; k++ ) {
-            blsPublicKeys->back()->push_back(fourPieces[(int)k].asString());
+            blsPublicKeyNames->back()->push_back(fourPieces[(int)k].asString());
         }
     }
 
@@ -344,8 +349,8 @@ tuple< ptr< vector< string > >,
 
     CHECK_STATE(ecdsaKeyNames->size() == _totalNodes)
     CHECK_STATE(blsKeyNames->size() == _totalNodes)
-    CHECK_STATE(ecdsaPublicKeys->size() == _totalNodes)
-    CHECK_STATE(blsPublicKeys->size() == _totalNodes)
+    CHECK_STATE( ecdsaPublicKeyNames->size() == _totalNodes)
+    CHECK_STATE( blsPublicKeyNames->size() == _totalNodes)
 
     // create pub key
 
@@ -355,7 +360,8 @@ tuple< ptr< vector< string > >,
     for (uint64_t i = 0; i < _requiredNodes; i++) {
 
         blsPublicKeysMap->emplace(i + 1,
-            make_shared<BLSPublicKeyShare>(blsPublicKeys->at(i), _requiredNodes, _totalNodes));
+            make_shared<BLSPublicKeyShare>(
+                       blsPublicKeyNames->at(i), _requiredNodes, _totalNodes));
     }
 
 
@@ -368,7 +374,37 @@ tuple< ptr< vector< string > >,
 
     CHECK_STATE(blsPublicKeyVect->size() == 4)
 
+    // sign verify a sample sig
 
-    return {ecdsaKeyNames, ecdsaPublicKeys, blsKeyNames, blsPublicKeys, blsPublicKeyVect};
+    vector<Json::Value> blsSigShares(_totalNodes);
+    BLSSigShareSet sigShareSet(_requiredNodes, _totalNodes);
+
+    auto SAMPLE_HASH = make_shared<string>("09c6137b97cdf159b9950f1492ee059d1e2b10eaf7d51f3a97d61f2eee2e81db");
+
+
+    auto hash = SHAHash::fromHex(SAMPLE_HASH);
+
+    for (uint64_t i = 0; i < _requiredNodes; i++) {
+
+        blsSigShares.at(i) = c.blsSignMessageHash(blsKeyNames->at(i),
+            *SAMPLE_HASH,
+            _requiredNodes, _totalNodes, i + 1);
+        CHECK_STATE(blsSigShares[i]["status"] == 0);
+        ptr<string> sig_share_ptr = make_shared<string>(blsSigShares[i]["signatureShare"].asString());
+        BLSSigShare sig(sig_share_ptr, i + 1, _requiredNodes, _totalNodes);
+        sigShareSet.addSigShare(make_shared<BLSSigShare>(sig));
+
+        auto pubKey = blsPublicKeysMap->at(i+1);
+
+        CHECK_STATE(pubKey->VerifySigWithHelper(hash->getHash(),
+            make_shared<BLSSigShare>(sig), _requiredNodes, _totalNodes));
+
+    }
+
+    ptr<BLSSignature> commonSig = sigShareSet.merge();
+
+    CHECK_STATE(blsPublicKey->VerifySigWithHelper(hash->getHash(), commonSig, _requiredNodes, _totalNodes));
+
+    return {ecdsaKeyNames, ecdsaPublicKeyNames, blsKeyNames, blsPublicKeyNames, blsPublicKeyVect};
 }
 
