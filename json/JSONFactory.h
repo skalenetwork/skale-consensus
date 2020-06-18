@@ -51,7 +51,8 @@ public:
     static tuple< ptr< vector< string > >,
         ptr<vector<string>>,
         ptr< vector< string > >,
-        ptr<vector<ptr<vector<string>>>>> parseTestKeyNamesFromJson(const fs_path &configFile,
+        ptr<vector<ptr<vector<string>>>>,
+        ptr<vector<string>>> parseTestKeyNamesFromJson(const fs_path &configFile,
         uint64_t _totalNodes, uint64_t _requiredNodes);
 
     static pair<ptr<vector<string>>, ptr<vector<string>>> parseAllTestKeyNames(const fs_path & _dir);

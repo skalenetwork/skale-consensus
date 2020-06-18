@@ -271,7 +271,8 @@ using namespace jsonrpc;
 tuple< ptr< vector< string > >,
        ptr< vector< string > >,
        ptr< vector<string>>,
-       ptr<vector<ptr<vector<string>>>>> JSONFactory::parseTestKeyNamesFromJson(
+       ptr<vector<ptr<vector<string>>>>,
+       ptr<vector<string>>> JSONFactory::parseTestKeyNamesFromJson(
     const fs_path& configFile, uint64_t _totalNodes, uint64_t _requiredNodes
     ) {
 
@@ -361,9 +362,11 @@ tuple< ptr< vector< string > >,
     auto blsPublicKey = make_shared<BLSPublicKey>(blsPublicKeysMap,
                             _requiredNodes, _totalNodes);
 
+    auto blsPublicKeyVect = blsPublicKey->toString();
+
+    CHECK_STATE(blsPublicKeyVect != nullptr);
 
 
-
-    return {ecdsaKeyNames, ecdsaPublicKeys, blsKeyNames, blsPublicKeys};
+    return {ecdsaKeyNames, ecdsaPublicKeys, blsKeyNames, blsPublicKeys, blsPublicKeyVect};
 }
 
