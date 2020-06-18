@@ -230,11 +230,16 @@ void ConsensusEngine::parseFullConfigAndCreateNode(const string &configFileConte
 }
 
 ptr<Node> ConsensusEngine::readNodeConfigFileAndCreateNode(const fs_path &path, set<node_id> &_nodeIDs, bool _useSGX,
-                                                           ptr<string> _keyName, ptr<vector<string>> _publicKeys) {
+                                                           ptr<string> _ecdsaKeyName,
+                                                           ptr<vector<string>> _ecdsaPublicKeys,
+                                                           ptr<string> _blsKeyName,
+                                                           ptr<vector<ptr<vector<string>>>> _blsPublicKeys
+                                                           ) {
     try {
 
         if (_useSGX) {
-            CHECK_ARGUMENT(_keyName && _publicKeys);
+            CHECK_ARGUMENT(_ecdsaKeyName && _ecdsaPublicKeys );
+            CHECK_ARGUMENT(_blsKeyName && _blsPublicKeys );
         }
 
 
