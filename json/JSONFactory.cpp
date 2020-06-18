@@ -57,12 +57,18 @@
 #include "JSONFactory.h"
 
 ptr< Node > JSONFactory::createNodeFromJson( const fs_path& jsonFile, set< node_id >& nodeIDs,
-    ConsensusEngine* _consensusEngine, bool _useSGX, ptr< string > _keyName,
-    ptr< vector< string > > _publicKeys ) {
+    ConsensusEngine* _consensusEngine, bool _useSGX,
+                                             ptr<string> _ecdsaKeyName,
+                                             ptr<vector<string>> _ecdsaPublicKeys,
+                                             ptr<string> _blsKeyName,
+                                             ptr<vector<ptr<vector<string>>>> _blsPublicKeys
+
+
+    ) {
     try {
         if ( _useSGX ) {
-            CHECK_ARGUMENT( _keyName );
-            CHECK_ARGUMENT( _publicKeys )
+            CHECK_ARGUMENT( _ecdsaKeyName ); CHECK_ARGUMENT( _ecdsaPublicKeys );
+            CHECK_ARGUMENT( _blsKeyName ); CHECK_ARGUMENT( _blsPublicKeys );
         }
 
         nlohmann::json j;
@@ -70,7 +76,7 @@ ptr< Node > JSONFactory::createNodeFromJson( const fs_path& jsonFile, set< node_
         parseJsonFile( j, jsonFile );
 
         return createNodeFromJsonObject(
-            j, nodeIDs, _consensusEngine, _useSGX, _keyName, _publicKeys );
+            j, nodeIDs, _consensusEngine, _useSGX, _ecdsaKeyName, _ecdsaPublicKeys );
     } catch ( ... ) {
         throw_with_nested( FatalError( __FUNCTION__ + to_string( __LINE__ ), __CLASS_NAME__ ) );
     }

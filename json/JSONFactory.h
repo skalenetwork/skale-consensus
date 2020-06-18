@@ -37,7 +37,13 @@ public:
 
 
     static ptr<Node> createNodeFromJson(const fs_path &jsonFile, set<node_id> &nodeIDs, ConsensusEngine *
-    _consensusEngine, bool _useSGX = false, ptr<string> _keyName = nullptr, ptr<vector<string>> _publicKeys = nullptr);
+    _consensusEngine, bool _useSGX = false,
+                                        ptr<string> _ecdsaKeyName = nullptr,
+                                        ptr<vector<string>> _ecdsaPublicKeys = nullptr,
+                                        ptr<string> _blsKeyName = nullptr ,
+                                        ptr<vector<ptr<vector<string>>>> _blsPublicKeys = nullptr
+
+        );
 
     static ptr<Node> createNodeFromJsonObject(const nlohmann::json &j, set<node_id> &nodeIDs, ConsensusEngine *
     _engine,  bool _useSGX = false, ptr<string> _keyName = nullptr, ptr<vector<string>> _publicKeys = nullptr);

@@ -369,13 +369,17 @@ void ConsensusEngine::parseTestConfigsAndCreateAllNodes( const fs_path& dirname 
                 continue;
             }
 
-            ptr<string> keyName = nullptr;
+            ptr<string> ecdsaKeyName = nullptr;
+            ptr<string> blsKeyName = nullptr;
             if (useSGX) {
                 CHECK_STATE(i < ecdsaKeyNames->size());
-                keyName = make_shared<string>(ecdsaKeyNames->at(i));
+                CHECK_STATE(i < blsKeyNames->size());
+                ecdsaKeyName = make_shared<string>(ecdsaKeyNames->at(i));
+                blsKeyName = make_shared<string>(ecdsaKeyNames->at(i));
             }
 
-            readNodeConfigFileAndCreateNode(itr2->path(), nodeIDs, useSGX, keyName, ecdsaPublicKeys);
+            readNodeConfigFileAndCreateNode(itr2->path(), nodeIDs, useSGX, ecdsaKeyName, ecdsaPublicKeys,
+                blsKeyName, blsPublicKeys);
 
             i++;
         };
