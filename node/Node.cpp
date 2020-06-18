@@ -405,12 +405,22 @@ void Node::exitOnFatalError(const string &_message) {
     }
     LOG(critical, _message);
 }
-const ptr< string >& Node::getEcdsaKeyName() const {
+
+bool Node::isSgxEnabled() {
+    return sgxEnabled;
+}
+ptr< string > Node::getEcdsaKeyName() {
     return ecdsaKeyName;
 }
-void Node::setEcdsaKeyName( const ptr< string >& _ecdsaKeyName ) {
-    Node::ecdsaKeyName = _ecdsaKeyName;
+ptr< vector< string > > Node::getEcdsaPublicKeys() {
+    return ecdsaPublicKeys;
 }
-bool Node::isSgxEnabled() const {
-    return sgxEnabled;
+ptr< string > Node::getBlsKeyName() {
+    return blsKeyName;
+}
+ptr< vector< ptr< vector< string > > > > Node::getBlsPublicKeys() {
+    return blsPublicKeys;
+}
+ptr< vector< string > > Node::getBlsPublicKeyStr() {
+    return blsPublicKeyStr;
 }

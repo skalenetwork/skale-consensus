@@ -25,7 +25,7 @@
 
 #include <mutex>
 
-using namespace  std;
+using namespace std;
 
 class Sockets;
 
@@ -78,20 +78,17 @@ class DASigShareDB;
 class DAProofDB;
 
 namespace leveldb {
-    class DB;
+class DB;
 }
 
 
-enum PricingStrategyEnum {
-    ZERO, DOS_PROTECT
-};
+enum PricingStrategyEnum { ZERO, DOS_PROTECT };
 
 
 class Node {
+    ConsensusEngine* consensusEngine;
 
-    ConsensusEngine *consensusEngine;
-
-    vector<Agent *> agents;
+    vector< Agent* > agents;
 
     node_id nodeID;
 
@@ -113,9 +110,9 @@ class Node {
     std::atomic_bool exitRequested;
 
     ptr< SkaleLog > log = nullptr;
-    ptr<string> name = nullptr;
+    ptr< string > name = nullptr;
 
-    ptr<string> bindIP = nullptr;
+    ptr< string > bindIP = nullptr;
 
 
     nlohmann::json cfg;
@@ -126,37 +123,34 @@ class Node {
 
     PricingStrategyEnum DOS_PROTECT;
 
-    ptr<Sockets> sockets = nullptr;
+    ptr< Sockets > sockets = nullptr;
 
     ptr< Network > network = nullptr;
 
-    ptr<Schain> sChain = nullptr;
+    ptr< Schain > sChain = nullptr;
 
-    ptr<TestConfig> testConfig = nullptr;
+    ptr< TestConfig > testConfig = nullptr;
 
     class Comparator {
     public:
-        bool operator()(const ptr<string> &a, const ptr<string> &b) const { return *a < *b; }
+        bool operator()( const ptr< string >& a, const ptr< string >& b ) const { return *a < *b; }
     };
 
 
-    ptr<map<uint64_t , ptr<NodeInfo> > > nodeInfosByIndex;
-    ptr<map<uint64_t , ptr<NodeInfo>> > nodeInfosById;
+    ptr< map< uint64_t, ptr< NodeInfo > > > nodeInfosByIndex;
+    ptr< map< uint64_t, ptr< NodeInfo > > > nodeInfosById;
 
 
     bool sgxEnabled = false;
 
-public:
-    bool isSgxEnabled() const;
+    ptr< string > ecdsaKeyName = nullptr;
+    ptr< vector< string > > ecdsaPublicKeys = nullptr;
+    ptr< string > blsKeyName = nullptr;
+    ptr< vector< ptr< vector< string > > > > blsPublicKeys = nullptr;
+    ptr< vector< string > > blsPublicKeyStr = nullptr;
+
 private:
-    ptr<string> ecdsaKeyName = nullptr;
-    ptr<vector<string>> ecdsaPublicKeys = nullptr;
-
-    ptr<string> blsKeyName = nullptr;
-    ptr<vector<ptr<vector<string>>>> blsPublicKeys = nullptr;
-    ptr<vector<string>> blsPublicKeyStr = nullptr;
-
-    ptr<BLSPublicKey> blsPublicKey = nullptr;
+    ptr< BLSPublicKey > blsPublicKey = nullptr;
 
     void releaseGlobalServerBarrier();
 
@@ -166,38 +160,31 @@ private:
     void closeAllSocketsAndNotifyAllAgentsAndThreads();
 
 
-    ptr<BlockDB> blockDB = nullptr;
+    ptr< BlockDB > blockDB = nullptr;
 
-    ptr<RandomDB> randomDB = nullptr;
+    ptr< RandomDB > randomDB = nullptr;
 
-    ptr<PriceDB> priceDB = nullptr;
+    ptr< PriceDB > priceDB = nullptr;
 
-    ptr<ProposalHashDB> proposalHashDB = nullptr;
+    ptr< ProposalHashDB > proposalHashDB = nullptr;
 
-    ptr<ProposalVectorDB> proposalVectorDB = nullptr;
+    ptr< ProposalVectorDB > proposalVectorDB = nullptr;
 
-    ptr<MsgDB> outgoingMsgDB = nullptr;
+    ptr< MsgDB > outgoingMsgDB = nullptr;
 
-    ptr<MsgDB> incomingMsgDB = nullptr;
+    ptr< MsgDB > incomingMsgDB = nullptr;
 
-    ptr<ConsensusStateDB> consensusStateDB = nullptr;
-
-
-
-    ptr<BlockSigShareDB> blockSigShareDB = nullptr;
-
-    ptr<DASigShareDB> daSigShareDB = nullptr;
-
-    ptr<DAProofDB> daProofDB = nullptr;
-
-    ptr<BlockProposalDB> blockProposalDB = nullptr;
+    ptr< ConsensusStateDB > consensusStateDB = nullptr;
 
 
+    ptr< BlockSigShareDB > blockSigShareDB = nullptr;
 
-public:
-    const ptr< string >& getEcdsaKeyName() const;
-    void setEcdsaKeyName( const ptr< string >& _ecdsaKeyName );
-private:
+    ptr< DASigShareDB > daSigShareDB = nullptr;
+
+    ptr< DAProofDB > daProofDB = nullptr;
+
+    ptr< BlockProposalDB > blockProposalDB = nullptr;
+
     uint64_t catchupIntervalMS;
 
     uint64_t monitoringIntervalMS;
@@ -231,26 +218,30 @@ private:
     uint64_t blockProposalDBSize;
 
 
-
-
 public:
+    ptr< string > getEcdsaKeyName();
+    ptr< vector< string > > getEcdsaPublicKeys();
+    ptr< string > getBlsKeyName();
+    ptr< vector< ptr< vector< string > > > > getBlsPublicKeys();
+    ptr< vector< string > > getBlsPublicKeyStr();
 
 
-    const ptr<TestConfig> &getTestConfig() const;
+    bool isSgxEnabled() ;
 
-    ptr<BlockDB> getBlockDB();
-    ptr<RandomDB> getRandomDB();
-    ptr<PriceDB> getPriceDB() const;
-    ptr<ProposalHashDB> getProposalHashDB();
-    ptr<ProposalVectorDB> getProposalVectorDB();
-    ptr<MsgDB> getOutgoingMsgDB();
-    ptr<MsgDB> getIncomingMsgDB();
-    ptr<ConsensusStateDB> getConsensusStateDB();
-    ptr<BlockSigShareDB> getBlockSigShareDB() const;
-    ptr<DASigShareDB> getDaSigShareDB() const;
-    ptr<DAProofDB> getDaProofDB() const;
-    ptr<BlockProposalDB> getBlockProposalDB() const;
+    const ptr< TestConfig >& getTestConfig() const;
 
+    ptr< BlockDB > getBlockDB();
+    ptr< RandomDB > getRandomDB();
+    ptr< PriceDB > getPriceDB() const;
+    ptr< ProposalHashDB > getProposalHashDB();
+    ptr< ProposalVectorDB > getProposalVectorDB();
+    ptr< MsgDB > getOutgoingMsgDB();
+    ptr< MsgDB > getIncomingMsgDB();
+    ptr< ConsensusStateDB > getConsensusStateDB();
+    ptr< BlockSigShareDB > getBlockSigShareDB() const;
+    ptr< DASigShareDB > getDaSigShareDB() const;
+    ptr< DAProofDB > getDaProofDB() const;
+    ptr< BlockProposalDB > getBlockProposalDB() const;
 
 
     uint64_t getProposalHashDBSize() const;
@@ -266,22 +257,17 @@ public:
     uint64_t getDaProofDBSize() const;
     uint64_t getBlockProposalDBSize() const;
     uint64_t getSimulateNetworkWriteDelayMs() const;
-    ptr<BLSPublicKey> getBlsPublicKey() const;
-    ptr<BLSPrivateKeyShare> getBlsPrivateKey() const;
-
+    ptr< BLSPublicKey > getBlsPublicKey() const;
 
 
     void initLevelDBs();
     bool isStarted() const;
 
 
-
-    Node(const nlohmann::json &_cfg, ConsensusEngine *_consensusEngine,
-         bool _useSGX, ptr< string > _ecdsaKeyName,
-         ptr< vector< string > > _ecdsaPublicKeys, ptr< string > _blsKeyName,
-         ptr< vector< ptr< vector< string > > > > _blsPublicKeys,
-         ptr< vector< string > > _blsPublicKey
-        );
+    Node( const nlohmann::json& _cfg, ConsensusEngine* _consensusEngine, bool _useSGX,
+        ptr< string > _ecdsaKeyName, ptr< vector< string > > _ecdsaPublicKeys,
+        ptr< string > _blsKeyName, ptr< vector< ptr< vector< string > > > > _blsPublicKeys,
+        ptr< vector< string > > _blsPublicKey );
 
     ~Node();
 
@@ -290,14 +276,14 @@ public:
 
     void exit();
 
-    void exitOnFatalError(const string &message);
+    void exitOnFatalError( const string& message );
 
-    void setSchain(ptr<Schain> _schain);
+    void setSchain( ptr< Schain > _schain );
 
-    static void
-    initSchain(ptr<Node> _node, ptr<NodeInfo> _localNodeInfo, const vector<ptr<NodeInfo> > &remoteNodeInfos, ConsensusExtFace *_extFace);
+    static void initSchain( ptr< Node > _node, ptr< NodeInfo > _localNodeInfo,
+        const vector< ptr< NodeInfo > >& remoteNodeInfos, ConsensusExtFace* _extFace );
 
-    void waitOnGlobalServerStartBarrier(Agent *agent);
+    void waitOnGlobalServerStartBarrier( Agent* agent );
 
     void waitOnGlobalClientStartBarrier();
 
@@ -306,35 +292,35 @@ public:
 
     nlohmann::json getCfg() const;
 
-    ptr<map<uint64_t , ptr<NodeInfo> > > getNodeInfosByIndex() const;
+    ptr< map< uint64_t, ptr< NodeInfo > > > getNodeInfosByIndex() const;
 
     node_id getNodeID() const;
 
 
-    Sockets *getSockets() const;
+    Sockets* getSockets() const;
 
 
-    Schain *getSchain() const;
+    Schain* getSchain() const;
 
-    void registerAgent(Agent *_agent);
+    void registerAgent( Agent* _agent );
 
     bool isExitRequested();
 
     void exitCheck();
 
 
-    ptr<NodeInfo> getNodeInfoByIndex(schain_index _index);
+    ptr< NodeInfo > getNodeInfoByIndex( schain_index _index );
 
 
-    ptr<NodeInfo> getNodeInfoById(node_id _id);
+    ptr< NodeInfo > getNodeInfoById( node_id _id );
 
     ptr< Network > getNetwork() const;
 
-    ptr<string> getBindIP() const;
+    ptr< string > getBindIP() const;
 
     network_port getBasePort() const;
 
-    void setBasePort(const network_port &_basePort);
+    void setBasePort( const network_port& _basePort );
 
     uint64_t getCommittedTransactionHistoryLimit() const;
 
@@ -356,11 +342,11 @@ public:
 
     uint64_t getWaitAfterNetworkErrorMs();
 
-    uint64_t getParamUint64(const string &_paramName, uint64_t paramDefault);
+    uint64_t getParamUint64( const string& _paramName, uint64_t paramDefault );
 
-    int64_t getParamInt64(const string &_paramName, uint64_t _paramDefault);
+    int64_t getParamInt64( const string& _paramName, uint64_t _paramDefault );
 
-    ptr<string> getParamString(const string &_paramName, string &_paramDefault);
+    ptr< string > getParamString( const string& _paramName, string& _paramDefault );
 
     void initParamsFromConfig();
 
@@ -368,11 +354,9 @@ public:
 
     void initBLSKeys();
 
-    void setEmptyBlockIntervalMs(uint64_t _interval) { this->emptyBlockIntervalMs = _interval; }
+    void setEmptyBlockIntervalMs( uint64_t _interval ) { this->emptyBlockIntervalMs = _interval; }
 
-    void setNodeInfo(ptr<NodeInfo> _nodeInfo);
+    void setNodeInfo( ptr< NodeInfo > _nodeInfo );
 
-    ConsensusEngine *getConsensusEngine() const;
-
-
+    ConsensusEngine* getConsensusEngine() const;
 };
