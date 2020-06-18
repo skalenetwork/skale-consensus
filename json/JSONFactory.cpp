@@ -366,6 +366,8 @@ tuple< ptr< vector< string > >,
 
     CHECK_STATE(blsPublicKeyVect != nullptr);
 
+    CHECK_STATE(blsPublicKeyVect->size() == 4)
+
 
     return {ecdsaKeyNames, ecdsaPublicKeys, blsKeyNames, blsPublicKeys, blsPublicKeyVect};
 }
