@@ -294,12 +294,7 @@ ptr<BLSPublicKey> Node::getBlsPublicKey() const {
     return blsPublicKey;
 }
 
-ptr<BLSPrivateKeyShare> Node::getBlsPrivateKey() const {
-    if (!blsPrivateKey) {
-        BOOST_THROW_EXCEPTION(FatalError("Null BLS private key", __CLASS_NAME__));
-    }
-    return blsPrivateKey;
-}
+
 
 
 void Node::setBasePort(const network_port &_basePort) {
@@ -321,9 +316,7 @@ bool Node::isExitRequested() {
 }
 
 
-bool Node::isBlsEnabled() const {
-    return isBLSEnabled;
-}
+
 
 bool Node::isStarted() const {
     return startedServers;

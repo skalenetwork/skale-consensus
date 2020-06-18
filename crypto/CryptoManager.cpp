@@ -288,7 +288,9 @@ ptr< ThresholdSigShare > CryptoManager::signBlockSigShare(
 ptr< ThresholdSigShare > CryptoManager::signSigShare( ptr< SHAHash > _hash, block_id _blockId ) {
     MONITOR( __CLASS_NAME__, __FUNCTION__ )
 
-    if ( getSchain()->getNode()->isBlsEnabled() ) {
+    if ( getSchain()->getNode()->isSgxEnabled() ) {
+
+        /*
         auto hash = make_shared< std::array< uint8_t, 32 > >();
 
         memcpy( hash->data(), _hash->data(), 32 );
@@ -297,6 +299,9 @@ ptr< ThresholdSigShare > CryptoManager::signSigShare( ptr< SHAHash > _hash, bloc
             hash, ( uint64_t ) sChain->getSchainIndex() );
 
         return make_shared< ConsensusBLSSigShare >( blsShare, sChain->getSchainID(), _blockId );
+
+         */
+        return nullptr;
 
 
     } else {
@@ -307,7 +312,7 @@ ptr< ThresholdSigShare > CryptoManager::signSigShare( ptr< SHAHash > _hash, bloc
 }
 
 ptr< ThresholdSigShareSet > CryptoManager::createSigShareSet( block_id _blockId ) {
-    if ( getSchain()->getNode()->isBlsEnabled() ) {
+    if ( getSchain()->getNode()->isSgxEnabled() ) {
         return make_shared< ConsensusSigShareSet >( _blockId, totalSigners, requiredSigners );
     } else {
         return make_shared< MockupSigShareSet >( _blockId, totalSigners, requiredSigners );
@@ -317,7 +322,7 @@ ptr< ThresholdSigShareSet > CryptoManager::createSigShareSet( block_id _blockId 
 
 ptr< ThresholdSigShare > CryptoManager::createSigShare(
     ptr< string > _sigShare, schain_id _schainID, block_id _blockID, schain_index _signerIndex ) {
-    if ( getSchain()->getNode()->isBlsEnabled() ) {
+    if ( getSchain()->getNode()->isSgxEnabled()) {
         return make_shared< ConsensusBLSSigShare >(
             _sigShare, _schainID, _blockID, _signerIndex, totalSigners, requiredSigners );
     } else {
@@ -376,7 +381,7 @@ ptr< ThresholdSignature > CryptoManager::verifyThresholdSig(
     MONITOR( __CLASS_NAME__, __FUNCTION__ )
 
 
-    if ( getSchain()->getNode()->isBlsEnabled() ) {
+    if ( getSchain()->getNode()->isSgxEnabled() ) {
         auto hash = make_shared< std::array< uint8_t, 32 > >();
 
         memcpy( hash->data(), _hash->data(), 32 );

@@ -79,7 +79,7 @@ Node::Node(const nlohmann::json &_cfg, ConsensusEngine *_consensusEngine,
         CHECK_ARGUMENT(_blsKeyName && _blsPublicKeys);
         CHECK_ARGUMENT(_blsPublicKey && _blsPublicKey->size() == 4);
 
-        useSGX = true;
+        sgxEnabled = true;
 
         ecdsaKeyName = _ecdsaKeyName;
         ecdsaPublicKeys = _ecdsaPublicKeys;
@@ -87,6 +87,11 @@ Node::Node(const nlohmann::json &_cfg, ConsensusEngine *_consensusEngine,
         blsKeyName = _blsKeyName;
         blsPublicKeys = _blsPublicKeys;
         blsPublicKeyStr = _blsPublicKey;
+
+
+        blsPublicKey = make_shared<BLSPublicKey>(
+                blsPublicKeyStr, sChain->getTotalSigners(), sChain->getRequiredSigners());
+
 
     }
 
@@ -224,7 +229,6 @@ Node::~Node() {}
 
 
 void Node::startServers() {
-    initBLSKeys();
 
     ASSERT(!startedServers);
 
@@ -257,58 +261,7 @@ void Node::startServers() {
     releaseGlobalServerBarrier();
 }
 
-void Node::initBLSKeys() {
-    auto prkStr = consensusEngine->getBlsPrivateKey();
-    auto pbkStr1 = consensusEngine->getBlsPublicKey1();
-    auto pbkStr2 = consensusEngine->getBlsPublicKey2();
-    auto pbkStr3 = consensusEngine->getBlsPublicKey3();
-    auto pbkStr4 = consensusEngine->getBlsPublicKey4();
 
-    if (prkStr.size() > 0 && pbkStr1.size() > 0 && pbkStr2.size() > 0 && pbkStr3.size() > 0 &&
-        pbkStr4.size() > 0) {
-    } else {
-        isBLSEnabled = true;
-        try {
-            prkStr = cfg.at("insecureTestBLSPrivateKey").get<string>();
-            pbkStr1 = cfg.at("insecureTestBLSPublicKey1").get<string>();
-            pbkStr2 = cfg.at("insecureTestBLSPublicKey2").get<string>();
-            pbkStr3 = cfg.at("insecureTestBLSPublicKey3").get<string>();
-            pbkStr4 = cfg.at("insecureTestBLSPublicKey4").get<string>();
-        } catch (exception &e) {
-            isBLSEnabled = false;
-            /*throw_with_nested(ParsingException(
-                    "Could not find bls key. You need to set it through either skaled or config
-               file\n" + string(e.what()), __CLASS_NAME__));
-                    */
-        }
-
-
-        if (prkStr.size() > 0 && pbkStr1.size() > 0 && pbkStr2.size() > 0 && pbkStr3.size() > 0 &&
-            pbkStr4.size() > 0) {
-        } else {
-            isBLSEnabled = false;
-            /*
-            throw FatalError("Empty bls key. You need to set it through either skaled or config
-            file");
-             */
-        }
-    }
-
-    if (isBLSEnabled) {
-        blsPrivateKey = make_shared<BLSPrivateKeyShare>(
-                prkStr, sChain->getTotalSigners(), sChain->getRequiredSigners());
-
-        auto publicKeyStr = make_shared<vector<string> >();
-
-        publicKeyStr->push_back(pbkStr1);
-        publicKeyStr->push_back(pbkStr2);
-        publicKeyStr->push_back(pbkStr3);
-        publicKeyStr->push_back(pbkStr4);
-
-        blsPublicKey = make_shared<BLSPublicKey>(
-                publicKeyStr, sChain->getTotalSigners(), sChain->getRequiredSigners());
-    }
-}
 
 void Node::startClients() {
     sChain->healthCheck();
@@ -457,4 +410,7 @@ const ptr< string >& Node::getEcdsaKeyName() const {
 }
 void Node::setEcdsaKeyName( const ptr< string >& _ecdsaKeyName ) {
     Node::ecdsaKeyName = _ecdsaKeyName;
+}
+bool Node::isSgxEnabled() const {
+    return sgxEnabled;
 }

@@ -144,14 +144,19 @@ class Node {
     ptr<map<uint64_t , ptr<NodeInfo>> > nodeInfosById;
 
 
-    bool useSGX = false;
+    bool sgxEnabled = false;
 
+public:
+    bool isSgxEnabled() const;
+private:
     ptr<string> ecdsaKeyName = nullptr;
     ptr<vector<string>> ecdsaPublicKeys = nullptr;
 
     ptr<string> blsKeyName = nullptr;
     ptr<vector<ptr<vector<string>>>> blsPublicKeys = nullptr;
     ptr<vector<string>> blsPublicKeyStr = nullptr;
+
+    ptr<BLSPublicKey> blsPublicKey = nullptr;
 
     void releaseGlobalServerBarrier();
 
@@ -225,11 +230,8 @@ private:
     uint64_t priceDBSize;
     uint64_t blockProposalDBSize;
 
-    ptr<BLSPublicKey> blsPublicKey;
-    ptr<BLSPrivateKeyShare> blsPrivateKey;
 
 
-    bool isBLSEnabled = false;
 
 public:
 
@@ -263,7 +265,6 @@ public:
     uint64_t getDaSigShareDBSize() const;
     uint64_t getDaProofDBSize() const;
     uint64_t getBlockProposalDBSize() const;
-    bool isBlsEnabled() const;
     uint64_t getSimulateNetworkWriteDelayMs() const;
     ptr<BLSPublicKey> getBlsPublicKey() const;
     ptr<BLSPrivateKeyShare> getBlsPrivateKey() const;
