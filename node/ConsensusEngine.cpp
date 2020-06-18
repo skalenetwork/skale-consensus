@@ -322,13 +322,7 @@ void ConsensusEngine::checkExistsAndFile(const fs_path &_filePath) {
 }
 
 
-void ConsensusEngine::parseTestConfigsAndCreateAllNodes(const fs_path &dirname, bool useSGX,
-                                                        ptr<vector<string>> keyNames, ptr<vector<string>> publicKeys) {
-
-    if  (useSGX) {
-        CHECK_ARGUMENT(keyNames != nullptr && publicKeys != nullptr);
-        CHECK_ARGUMENT(keyNames->size() == publicKeys->size());
-    }
+void ConsensusEngine::parseTestConfigsAndCreateAllNodes( const fs_path& dirname ) {
 
     try {
 
@@ -354,7 +348,7 @@ void ConsensusEngine::parseTestConfigsAndCreateAllNodes(const fs_path &dirname, 
         };
 
         if (useSGX) {
-            ASSERT(nodeCount == publicKeys->size());
+            ASSERT(nodeCount == this->ecdsaPublicKeys->size());
         }
 
         directory_iterator itr2(dirname);
@@ -372,10 +366,12 @@ void ConsensusEngine::parseTestConfigsAndCreateAllNodes(const fs_path &dirname, 
 
             ptr<string> keyName = nullptr;
             if (useSGX) {
-                CHECK_STATE(i < keyNames->size());
-                keyName = make_shared<string>(keyNames->at(i));
+                CHECK_STATE(i < ecdsaKeyNames->size());
+                keyName = make_shared<string>(ecdsaKeyNames->at(i));
             }
-            readNodeConfigFileAndCreateNode(itr2->path(), nodeIDs, useSGX, keyName, publicKeys);
+
+            readNodeConfigFileAndCreateNode(itr2->path(), nodeIDs, useSGX, keyName, ecdsaPublicKeys);
+
             i++;
         };
 

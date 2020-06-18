@@ -27,7 +27,7 @@ TEST_CASE_METHOD(StartFromScratch, "Use finalization download only", "[consensus
 setenv("TEST_FINALIZATION_DOWNLOAD_ONLY", "1", 1);
 
 engine = new ConsensusEngine();
-engine->parseTestConfigsAndCreateAllNodes(Consensust::getConfigDirPath());
+engine->parseTestConfigsAndCreateAllNodes( Consensust::getConfigDirPath() );
 engine->slowStartBootStrapTest();
 usleep(1000 * Consensust::getRunningTimeMS()); /* Flawfinder: ignore */
 
@@ -45,7 +45,7 @@ std::thread timer(exit_check);
 try {
 auto startTime = time(NULL);
 engine = new ConsensusEngine();
-engine->parseTestConfigsAndCreateAllNodes(Consensust::getConfigDirPath());
+engine->parseTestConfigsAndCreateAllNodes( Consensust::getConfigDirPath() );
 engine->slowStartBootStrapTest();
 auto finishTime = time(NULL);
 if (finishTime - startTime < STUCK_TEST_TIME) {
@@ -65,7 +65,7 @@ setenv("CORRUPT_PROPOSAL_TEST", "1", 1);
 
 try {
 engine = new ConsensusEngine();
-engine->parseTestConfigsAndCreateAllNodes(Consensust::getConfigDirPath());
+engine->parseTestConfigsAndCreateAllNodes( Consensust::getConfigDirPath() );
 engine->slowStartBootStrapTest();
 usleep(1000 * Consensust::getRunningTimeMS()); /* Flawfinder: ignore */
 
