@@ -23,15 +23,18 @@
 
 #include "thirdparty/catch.hpp"
 
+#include "BLSPublicKey.h"
+
 
 #include "sgxwallet/abstractstubserver.h"
 #include "sgxwallet/stubclient.h"
-#include <jsonrpccpp/server/connectors/httpserver.h>
-#include <jsonrpccpp/client/connectors/httpclient.h>
 #include <jsonrpccpp/client.h>
+#include <jsonrpccpp/client/connectors/httpclient.h>
+#include <jsonrpccpp/server/connectors/httpserver.h>
+#include <libBLS/bls/BLSPublicKeyShare.h>
 
-#include "SkaleCommon.h"
 #include "Log.h"
+#include "SkaleCommon.h"
 #include "exceptions/FatalError.h"
 #include "thirdparty/json.hpp"
 
@@ -268,15 +271,16 @@ using namespace jsonrpc;
 tuple< ptr< vector< string > >,
        ptr< vector< string > >,
        ptr< vector<string>>,
-       ptr<vector<array<string,4>>>> JSONFactory::parseTestKeyNamesFromJson(
-    const fs_path& configFile, uint64_t _totalNodes) {
+       ptr<vector<ptr<vector<string>>>>> JSONFactory::parseTestKeyNamesFromJson(
+    const fs_path& configFile, uint64_t _totalNodes, uint64_t _requiredNodes
+    ) {
 
     CHECK_ARGUMENT(_totalNodes > 0);
 
     auto ecdsaKeyNames = make_shared<vector<string>>();
     auto ecdsaPublicKeys = make_shared<vector<string>>();
     auto blsKeyNames = make_shared<vector<string>>();
-    auto blsPublicKeys = make_shared<vector<array<string,4>>>(_totalNodes);
+    auto blsPublicKeys = make_shared<vector<ptr<vector<string>>>>();
 
     nlohmann::json j;
 
@@ -328,15 +332,36 @@ tuple< ptr< vector< string > >,
 
         CHECK_STATE( fourPieces.size() == 4 );
 
+        blsPublicKeys->push_back(make_shared<vector<string>>());
+
         for ( uint64_t k = 0; k < 4; k++ ) {
-            blsPublicKeys->at(i)[k] = fourPieces[(int)k].asString();
+            blsPublicKeys->back()->push_back(fourPieces[(int)k].asString());
         }
     }
+
+
 
     CHECK_STATE(ecdsaKeyNames->size() == _totalNodes)
     CHECK_STATE(blsKeyNames->size() == _totalNodes)
     CHECK_STATE(ecdsaPublicKeys->size() == _totalNodes)
     CHECK_STATE(blsPublicKeys->size() == _totalNodes)
+
+    // create pub key
+
+
+    auto blsPublicKeysMap = make_shared<map<size_t, shared_ptr<BLSPublicKeyShare>>>();
+
+    for (uint64_t i = 0; i < _requiredNodes; i++) {
+
+        blsPublicKeysMap->emplace(i + 1,
+            make_shared<BLSPublicKeyShare>(blsPublicKeys->at(i), _requiredNodes, _totalNodes));
+    }
+
+
+    auto blsPublicKey = make_shared<BLSPublicKey>(blsPublicKeysMap,
+                            _requiredNodes, _totalNodes);
+
+
 
 
     return {ecdsaKeyNames, ecdsaPublicKeys, blsKeyNames, blsPublicKeys};
