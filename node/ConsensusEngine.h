@@ -50,6 +50,12 @@ class GlobalThreadRegistry;
 
 class ConsensusEngine : public ConsensusInterface {
 
+    ptr<vector<string>> ecdsaKeyNames = nullptr;
+    ptr<vector<string>> blsKeyNames = nullptr;
+    ptr<vector<string>> ecdsaPublicKeys = nullptr;
+    ptr<vector<ptr<vector<string>>>> blsPublicKeys = nullptr;
+    ptr<vector<string>> blsPublicKey = nullptr;
+
 
     atomic<consensus_engine_status> status = CONSENSUS_ACTIVE;
 
@@ -214,5 +220,7 @@ public:
     static string getEngineVersion();
 
     ptr<GlobalThreadRegistry> getThreadRegistry() const;
+
+    void setTestKeys( string _configFile, uint64_t _totalNodes, uint64_t _requiredNodes );
 
 };

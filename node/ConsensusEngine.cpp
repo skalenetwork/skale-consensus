@@ -731,4 +731,11 @@ shared_ptr<string> ConsensusEngine::getHealthCheckDir() const {
 ptr<string> ConsensusEngine::getDbDir() const {
     return dbDir;
 }
+void ConsensusEngine::setTestKeys(
+    string _configFile, uint64_t _totalNodes, uint64_t _requiredNodes ) {
 
+
+    tie(ecdsaKeyNames, ecdsaPublicKeys, blsKeyNames, blsPublicKeys, blsPublicKey) =
+        JSONFactory::parseTestKeyNamesFromJson( _configFile, _totalNodes, _requiredNodes );
+
+}
