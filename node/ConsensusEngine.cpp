@@ -215,7 +215,8 @@ void ConsensusEngine::parseFullConfigAndCreateNode(const string &configFileConte
 
         std::set<node_id> dummy;
 
-        auto node = JSONFactory::createNodeFromJsonObject(j["skaleConfig"]["nodeInfo"], dummy, this);
+        auto node = JSONFactory::createNodeFromJsonObject(j["skaleConfig"]["nodeInfo"], dummy, this,
+            false, nullptr, nullptr,nullptr,nullptr,nullptr);
 
         JSONFactory::createAndAddSChainFromJsonObject(
                 node, j["skaleConfig"]["sChain"], this);
@@ -233,15 +234,16 @@ ptr<Node> ConsensusEngine::readNodeConfigFileAndCreateNode(const fs_path &path, 
                                                            ptr<string> _ecdsaKeyName,
                                                            ptr<vector<string>> _ecdsaPublicKeys,
                                                            ptr<string> _blsKeyName,
-                                                           ptr<vector<ptr<vector<string>>>> _blsPublicKeys
+                                                           ptr<vector<ptr<vector<string>>>> _blsPublicKeys,
+                                                           ptr<vector<string>> _blsPublicKey
                                                            ) {
     try {
 
         if (_useSGX) {
             CHECK_ARGUMENT(_ecdsaKeyName && _ecdsaPublicKeys );
             CHECK_ARGUMENT(_blsKeyName && _blsPublicKeys );
+            CHECK_ARGUMENT(_blsPublicKey && _blsPublicKey->size() == 4 );
         }
-
 
 
         fs_path nodeFileNamePath(path);
@@ -256,7 +258,8 @@ ptr<Node> ConsensusEngine::readNodeConfigFileAndCreateNode(const fs_path &path, 
 
         checkExistsAndDirectory(schainDirNamePath.string());
 
-        auto node = JSONFactory::createNodeFromJson(nodeFileNamePath.string(), _nodeIDs, this);
+        auto node = JSONFactory::createNodeFromJson(nodeFileNamePath.string(), _nodeIDs, this,
+            _useSGX, _ecdsaKeyName, _ecdsaPublicKeys, _blsKeyName, _blsPublicKeys, _blsPublicKey);
 
 
         if (node == nullptr) {
@@ -379,7 +382,7 @@ void ConsensusEngine::parseTestConfigsAndCreateAllNodes( const fs_path& dirname 
             }
 
             readNodeConfigFileAndCreateNode(itr2->path(), nodeIDs, useSGX, ecdsaKeyName, ecdsaPublicKeys,
-                blsKeyName, blsPublicKeys);
+                blsKeyName, blsPublicKeys, blsPublicKey);
 
             i++;
         };

@@ -69,13 +69,25 @@
 using namespace std;
 
 Node::Node(const nlohmann::json &_cfg, ConsensusEngine *_consensusEngine,
-           bool _useSGX, ptr<string> _keyName, ptr<vector<string>> _publicKeys) {
+           bool _useSGX, ptr< string > _ecdsaKeyName,
+           ptr< vector< string > > _ecdsaPublicKeys, ptr< string > _blsKeyName,
+           ptr< vector< ptr< vector< string > > > > _blsPublicKeys,
+           ptr< vector< string > > _blsPublicKey) {
 
     if (_useSGX) {
-        CHECK_ARGUMENT(_keyName && _publicKeys);
+        CHECK_ARGUMENT(_ecdsaKeyName && _ecdsaPublicKeys);
+        CHECK_ARGUMENT(_blsKeyName && _blsPublicKeys);
+        CHECK_ARGUMENT(_blsPublicKey && _blsPublicKey->size() == 4);
+
         useSGX = true;
-        keyName = _keyName;
-        publicKeys = _publicKeys;
+
+        ecdsaKeyName = _ecdsaKeyName;
+        ecdsaPublicKeys = _ecdsaPublicKeys;
+
+        blsKeyName = _blsKeyName;
+        blsPublicKeys = _blsPublicKeys;
+        blsPublicKeyStr = _blsPublicKey;
+
     }
 
     this->consensusEngine = _consensusEngine;

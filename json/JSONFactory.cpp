@@ -46,29 +46,28 @@
 #include "chains/Schain.h"
 
 #include "Log.h"
+#include "crypto/SHAHash.h"
 #include "exceptions/FatalError.h"
 #include "exceptions/ParsingException.h"
 #include "network/Sockets.h"
 #include "node/ConsensusEngine.h"
 #include "node/Node.h"
 #include "node/NodeInfo.h"
-#include "crypto/SHAHash.h"
 
 #include "JSONFactory.h"
 
 ptr< Node > JSONFactory::createNodeFromJson( const fs_path& jsonFile, set< node_id >& nodeIDs,
-    ConsensusEngine* _consensusEngine, bool _useSGX,
-                                             ptr<string> _ecdsaKeyName,
-                                             ptr<vector<string>> _ecdsaPublicKeys,
-                                             ptr<string> _blsKeyName,
-                                             ptr<vector<ptr<vector<string>>>> _blsPublicKeys
-
-
-    ) {
+    ConsensusEngine* _consensusEngine, bool _useSGX, ptr< string > _ecdsaKeyName,
+    ptr< vector< string > > _ecdsaPublicKeys, ptr< string > _blsKeyName,
+    ptr< vector< ptr< vector< string > > > > _blsPublicKeys,
+    ptr< vector< string > > _blsPublicKey ) {
     try {
         if ( _useSGX ) {
-            CHECK_ARGUMENT( _ecdsaKeyName ); CHECK_ARGUMENT( _ecdsaPublicKeys );
-            CHECK_ARGUMENT( _blsKeyName ); CHECK_ARGUMENT( _blsPublicKeys );
+            CHECK_ARGUMENT( _ecdsaKeyName );
+            CHECK_ARGUMENT( _ecdsaPublicKeys );
+            CHECK_ARGUMENT( _blsKeyName );
+            CHECK_ARGUMENT( _blsPublicKeys );
+            CHECK_ARGUMENT( _blsPublicKey && _blsPublicKey->size() == 4 );
         }
 
         nlohmann::json j;
@@ -76,17 +75,26 @@ ptr< Node > JSONFactory::createNodeFromJson( const fs_path& jsonFile, set< node_
         parseJsonFile( j, jsonFile );
 
         return createNodeFromJsonObject(
-            j, nodeIDs, _consensusEngine, _useSGX, _ecdsaKeyName, _ecdsaPublicKeys );
+            j, nodeIDs, _consensusEngine, _useSGX,
+            _ecdsaKeyName, _ecdsaPublicKeys,
+            _blsKeyName, _blsPublicKeys,
+            _blsPublicKey
+            );
     } catch ( ... ) {
         throw_with_nested( FatalError( __FUNCTION__ + to_string( __LINE__ ), __CLASS_NAME__ ) );
     }
 }
 
 ptr< Node > JSONFactory::createNodeFromJsonObject( const nlohmann::json& j, set< node_id >& nodeIDs,
-    ConsensusEngine* _engine, bool _useSGX, ptr< string > _keyName,
-    ptr< vector< string > > _publicKeys ) {
+    ConsensusEngine* _engine,
+    bool _useSGX, ptr< string > _ecdsaKeyName, ptr< vector< string > > _ecdsaPublicKeys,
+    ptr< string > _blsKeyName, ptr< vector< ptr< vector< string > > > > _blsPublicKeys,
+    ptr< vector< string > > _blsPublicKey ) {
     if ( _useSGX ) {
-        CHECK_ARGUMENT( _keyName && _publicKeys );
+        CHECK_ARGUMENT( _ecdsaKeyName && _ecdsaPublicKeys );
+        CHECK_ARGUMENT( _blsKeyName && _blsPublicKeys );
+        CHECK_ARGUMENT( _blsPublicKey && _blsPublicKey->size() == 4 );
+
     }
 
     if ( j.find( "transport" ) != j.end() ) {
@@ -106,7 +114,9 @@ ptr< Node > JSONFactory::createNodeFromJsonObject( const nlohmann::json& j, set<
 
     if ( nodeIDs.empty() || nodeIDs.count( node_id( nodeID ) ) > 0 ) {
         try {
-            node = make_shared< Node >( j, _engine, _useSGX, _keyName, _publicKeys );
+            node = make_shared< Node >( j, _engine, _useSGX,
+                _ecdsaKeyName, _ecdsaPublicKeys,
+                _blsKeyName, _blsPublicKeys, _blsPublicKey);
         } catch ( ... ) {
             throw_with_nested( FatalError( "Could not init node", __CLASS_NAME__ ) );
         }
@@ -150,14 +160,13 @@ void JSONFactory::createAndAddSChainFromJsonObject(
     nlohmann::json element;
 
     try {
-
         if ( j.count( "skaleConfig" ) > 0 ) {
             element = j.at( "skaleConfig" );
             try {
                 element = element.at( "nodeInfo" );
             } catch ( ... ) {
-                BOOST_THROW_EXCEPTION(
-                    InvalidStateException( "Couldnt find nodeInfo element in skaleConfig", __CLASS_NAME__ ) );
+                BOOST_THROW_EXCEPTION( InvalidStateException(
+                    "Couldnt find nodeInfo element in skaleConfig", __CLASS_NAME__ ) );
             }
         } else {
             element = j;
@@ -229,10 +238,10 @@ void JSONFactory::createAndAddSChainFromJsonObject(
             network_port port;
 
             try {
-                port = it ->at( "basePort" ).get< int >();
+                port = it->at( "basePort" ).get< int >();
             } catch ( ... ) {
-                BOOST_THROW_EXCEPTION(
-                    InvalidStateException( "Couldnt find basePort in json config", __CLASS_NAME__ ) );
+                BOOST_THROW_EXCEPTION( InvalidStateException(
+                    "Couldnt find basePort in json config", __CLASS_NAME__ ) );
             }
 
 
@@ -241,8 +250,8 @@ void JSONFactory::createAndAddSChainFromJsonObject(
             try {
                 schainIndex = it->at( "schainIndex" ).get< uint64_t >();
             } catch ( ... ) {
-                BOOST_THROW_EXCEPTION(
-                    InvalidStateException( "Couldnt find schainIndex in json config", __CLASS_NAME__ ) );
+                BOOST_THROW_EXCEPTION( InvalidStateException(
+                    "Couldnt find schainIndex in json config", __CLASS_NAME__ ) );
             }
 
             auto rni = make_shared< NodeInfo >( nodeID, ip, port, schainID, schainIndex );
@@ -273,70 +282,64 @@ void JSONFactory::parseJsonFile( nlohmann::json& j, const fs_path& configFile ) 
 }
 
 
-#define RPC_ENDPOINT  "http://localhost:1029"
+#define RPC_ENDPOINT "http://localhost:1029"
 
 using namespace jsonrpc;
 
-tuple< ptr< vector< string > >,
-       ptr< vector< string > >,
-       ptr< vector<string>>,
-       ptr<vector<ptr<vector<string>>>>,
-       ptr<vector<string>>> JSONFactory::parseTestKeyNamesFromJson(
-    const fs_path& configFile, uint64_t _totalNodes, uint64_t _requiredNodes
-    ) {
+tuple< ptr< vector< string > >, ptr< vector< string > >, ptr< vector< string > >,
+    ptr< vector< ptr< vector< string > > > >, ptr< vector< string > > >
+JSONFactory::parseTestKeyNamesFromJson(
+    const fs_path& configFile, uint64_t _totalNodes, uint64_t _requiredNodes ) {
+    CHECK_ARGUMENT( _totalNodes > 0 );
 
-    CHECK_ARGUMENT(_totalNodes > 0);
-
-    auto ecdsaKeyNames = make_shared<vector<string>>();
-    auto ecdsaPublicKeyNames = make_shared<vector<string>>();
-    auto blsKeyNames = make_shared<vector<string>>();
-    auto blsPublicKeyNames = make_shared<vector<ptr<vector<string>>>>();
-
+    auto ecdsaKeyNames = make_shared< vector< string > >();
+    auto ecdsaPublicKeyNames = make_shared< vector< string > >();
+    auto blsKeyNames = make_shared< vector< string > >();
+    auto blsPublicKeyNames = make_shared< vector< ptr< vector< string > > > >();
 
 
     nlohmann::json j;
 
-    parseJsonFile(j, configFile);
+    parseJsonFile( j, configFile );
 
 
-    auto ecdsaKeyNamesObject = j.at("ecdsaKeyNames");
-    auto blsKeyNamesObject = j.at("blsKeyNames");
+    auto ecdsaKeyNamesObject = j.at( "ecdsaKeyNames" );
+    auto blsKeyNamesObject = j.at( "blsKeyNames" );
 
-    CHECK_STATE( ecdsaKeyNamesObject.is_object());
-    CHECK_STATE( blsKeyNamesObject.is_object());
+    CHECK_STATE( ecdsaKeyNamesObject.is_object() );
+    CHECK_STATE( blsKeyNamesObject.is_object() );
 
 
-    CHECK_STATE( ecdsaKeyNamesObject.size() == _totalNodes);
-    CHECK_STATE( blsKeyNamesObject.size() == _totalNodes);
+    CHECK_STATE( ecdsaKeyNamesObject.size() == _totalNodes );
+    CHECK_STATE( blsKeyNamesObject.size() == _totalNodes );
 
-    for (uint64_t i = 1; i <= _totalNodes; i++ ) {
-        auto ecdsaKeyName = ecdsaKeyNamesObject.at(to_string(i));
+    for ( uint64_t i = 1; i <= _totalNodes; i++ ) {
+        auto ecdsaKeyName = ecdsaKeyNamesObject.at( to_string( i ) );
         ecdsaKeyNames->push_back( ecdsaKeyName );
 
-        auto blsKeyName = blsKeyNamesObject.at(to_string(i));
+        auto blsKeyName = blsKeyNamesObject.at( to_string( i ) );
         blsKeyNames->push_back( blsKeyName );
     }
 
 
-    CHECK_STATE(ecdsaKeyNames->size() == _totalNodes );
-    CHECK_STATE(blsKeyNames->size() == _totalNodes );
+    CHECK_STATE( ecdsaKeyNames->size() == _totalNodes );
+    CHECK_STATE( blsKeyNames->size() == _totalNodes );
 
-    HttpClient client(RPC_ENDPOINT);
-    StubClient c(client, JSONRPC_CLIENT_V2);
+    HttpClient client( RPC_ENDPOINT );
+    StubClient c( client, JSONRPC_CLIENT_V2 );
 
 
-    for (uint64_t i = 0; i < _totalNodes; i++) {
-        auto response = c.getPublicECDSAKey(ecdsaKeyNames->at(i));
+    for ( uint64_t i = 0; i < _totalNodes; i++ ) {
+        auto response = c.getPublicECDSAKey( ecdsaKeyNames->at( i ) );
         CHECK_STATE( response["status"] == 0 );
 
         auto publicKey = response["publicKey"].asString();
 
-        ecdsaPublicKeyNames->push_back(publicKey);
+        ecdsaPublicKeyNames->push_back( publicKey );
     }
 
 
-
-    for (uint64_t i = 0; i < _totalNodes; i++) {
+    for ( uint64_t i = 0; i < _totalNodes; i++ ) {
         auto response = c.getBLSPublicKeyShare( blsKeyNames->at( i ) );
         CHECK_STATE( response["status"] == 0 );
 
@@ -344,73 +347,70 @@ tuple< ptr< vector< string > >,
 
         CHECK_STATE( fourPieces.size() == 4 );
 
-        blsPublicKeyNames->push_back(make_shared<vector<string>>());
+        blsPublicKeyNames->push_back( make_shared< vector< string > >() );
 
         for ( uint64_t k = 0; k < 4; k++ ) {
-            blsPublicKeyNames->back()->push_back(fourPieces[(int)k].asString());
+            blsPublicKeyNames->back()->push_back( fourPieces[( int ) k].asString() );
         }
     }
 
 
-
-    CHECK_STATE(ecdsaKeyNames->size() == _totalNodes)
-    CHECK_STATE(blsKeyNames->size() == _totalNodes)
-    CHECK_STATE( ecdsaPublicKeyNames->size() == _totalNodes)
-    CHECK_STATE( blsPublicKeyNames->size() == _totalNodes)
+    CHECK_STATE( ecdsaKeyNames->size() == _totalNodes )
+    CHECK_STATE( blsKeyNames->size() == _totalNodes )
+    CHECK_STATE( ecdsaPublicKeyNames->size() == _totalNodes )
+    CHECK_STATE( blsPublicKeyNames->size() == _totalNodes )
 
     // create pub key
 
 
-    auto blsPublicKeysMap = make_shared<map<size_t, shared_ptr<BLSPublicKeyShare>>>();
+    auto blsPublicKeysMap = make_shared< map< size_t, shared_ptr< BLSPublicKeyShare > > >();
 
-    for (uint64_t i = 0; i < _requiredNodes; i++) {
-
-        blsPublicKeysMap->emplace(i + 1,
-            make_shared<BLSPublicKeyShare>(
-                       blsPublicKeyNames->at(i), _requiredNodes, _totalNodes));
+    for ( uint64_t i = 0; i < _requiredNodes; i++ ) {
+        blsPublicKeysMap->emplace(
+            i + 1, make_shared< BLSPublicKeyShare >(
+                       blsPublicKeyNames->at( i ), _requiredNodes, _totalNodes ) );
     }
 
 
-    auto blsPublicKey = make_shared<BLSPublicKey>(blsPublicKeysMap,
-                            _requiredNodes, _totalNodes);
+    auto blsPublicKey =
+        make_shared< BLSPublicKey >( blsPublicKeysMap, _requiredNodes, _totalNodes );
 
     auto blsPublicKeyVect = blsPublicKey->toString();
 
-    CHECK_STATE(blsPublicKeyVect != nullptr);
+    CHECK_STATE( blsPublicKeyVect != nullptr );
 
-    CHECK_STATE(blsPublicKeyVect->size() == 4)
+    CHECK_STATE( blsPublicKeyVect->size() == 4 )
 
     // sign verify a sample sig
 
-    vector<Json::Value> blsSigShares(_totalNodes);
-    BLSSigShareSet sigShareSet(_requiredNodes, _totalNodes);
+    vector< Json::Value > blsSigShares( _totalNodes );
+    BLSSigShareSet sigShareSet( _requiredNodes, _totalNodes );
 
-    auto SAMPLE_HASH = make_shared<string>("09c6137b97cdf159b9950f1492ee059d1e2b10eaf7d51f3a97d61f2eee2e81db");
+    auto SAMPLE_HASH =
+        make_shared< string >( "09c6137b97cdf159b9950f1492ee059d1e2b10eaf7d51f3a97d61f2eee2e81db" );
 
 
-    auto hash = SHAHash::fromHex(SAMPLE_HASH);
+    auto hash = SHAHash::fromHex( SAMPLE_HASH );
 
-    for (uint64_t i = 0; i < _requiredNodes; i++) {
+    for ( uint64_t i = 0; i < _requiredNodes; i++ ) {
+        blsSigShares.at( i ) = c.blsSignMessageHash(
+            blsKeyNames->at( i ), *SAMPLE_HASH, _requiredNodes, _totalNodes, i + 1 );
+        CHECK_STATE( blsSigShares[i]["status"] == 0 );
+        ptr< string > sig_share_ptr =
+            make_shared< string >( blsSigShares[i]["signatureShare"].asString() );
+        BLSSigShare sig( sig_share_ptr, i + 1, _requiredNodes, _totalNodes );
+        sigShareSet.addSigShare( make_shared< BLSSigShare >( sig ) );
 
-        blsSigShares.at(i) = c.blsSignMessageHash(blsKeyNames->at(i),
-            *SAMPLE_HASH,
-            _requiredNodes, _totalNodes, i + 1);
-        CHECK_STATE(blsSigShares[i]["status"] == 0);
-        ptr<string> sig_share_ptr = make_shared<string>(blsSigShares[i]["signatureShare"].asString());
-        BLSSigShare sig(sig_share_ptr, i + 1, _requiredNodes, _totalNodes);
-        sigShareSet.addSigShare(make_shared<BLSSigShare>(sig));
+        auto pubKey = blsPublicKeysMap->at( i + 1 );
 
-        auto pubKey = blsPublicKeysMap->at(i+1);
-
-        CHECK_STATE(pubKey->VerifySigWithHelper(hash->getHash(),
-            make_shared<BLSSigShare>(sig), _requiredNodes, _totalNodes));
-
+        CHECK_STATE( pubKey->VerifySigWithHelper(
+            hash->getHash(), make_shared< BLSSigShare >( sig ), _requiredNodes, _totalNodes ) );
     }
 
-    ptr<BLSSignature> commonSig = sigShareSet.merge();
+    ptr< BLSSignature > commonSig = sigShareSet.merge();
 
-    CHECK_STATE(blsPublicKey->VerifySigWithHelper(hash->getHash(), commonSig, _requiredNodes, _totalNodes));
+    CHECK_STATE( blsPublicKey->VerifySigWithHelper(
+        hash->getHash(), commonSig, _requiredNodes, _totalNodes ) );
 
-    return {ecdsaKeyNames, ecdsaPublicKeyNames, blsKeyNames, blsPublicKeyNames, blsPublicKeyVect};
+    return { ecdsaKeyNames, ecdsaPublicKeyNames, blsKeyNames, blsPublicKeyNames, blsPublicKeyVect };
 }
-

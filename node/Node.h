@@ -144,11 +144,14 @@ class Node {
     ptr<map<uint64_t , ptr<NodeInfo>> > nodeInfosById;
 
 
-    bool useSGX;
+    bool useSGX = false;
 
-    ptr<string> keyName = nullptr;
-    ptr<vector<string>> publicKeys = nullptr;
+    ptr<string> ecdsaKeyName = nullptr;
+    ptr<vector<string>> ecdsaPublicKeys = nullptr;
 
+    ptr<string> blsKeyName = nullptr;
+    ptr<vector<ptr<vector<string>>>> blsPublicKeys = nullptr;
+    ptr<vector<string>> blsPublicKeyStr = nullptr;
 
     void releaseGlobalServerBarrier();
 
@@ -184,7 +187,7 @@ class Node {
 
     ptr<BlockProposalDB> blockProposalDB = nullptr;
 
-    ptr<string> ecdsaKeyName;
+
 
 public:
     const ptr< string >& getEcdsaKeyName() const;
@@ -273,7 +276,11 @@ public:
 
 
     Node(const nlohmann::json &_cfg, ConsensusEngine *_consensusEngine,
-         bool _useSGX, ptr<string> _keyName, ptr<vector<string>> _publicKeys);
+         bool _useSGX, ptr< string > _ecdsaKeyName,
+         ptr< vector< string > > _ecdsaPublicKeys, ptr< string > _blsKeyName,
+         ptr< vector< ptr< vector< string > > > > _blsPublicKeys,
+         ptr< vector< string > > _blsPublicKey
+        );
 
     ~Node();
 

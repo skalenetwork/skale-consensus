@@ -122,7 +122,8 @@ public:
                                               ptr<string> _ecdsaKeyName = nullptr,
         ptr<vector<string>> _ecdsaPublicKeys = nullptr,
         ptr<string> _blsKeyName = nullptr,
-        ptr<vector<ptr<vector<string>>>> _blsPublicKeys = nullptr);
+        ptr<vector<ptr<vector<string>>>> _blsPublicKeys = nullptr,
+        ptr<vector<string>> _blsPublicKey = nullptr);
 
 
     void readSchainConfigFiles(ptr<Node> _node, const fs_path &_dirPath);
