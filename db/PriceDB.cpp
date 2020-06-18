@@ -24,7 +24,7 @@
 
 #include "PriceDB.h"
 #include "SkaleCommon.h"
-#include "SkaleLog.h"
+#include "Log.h"
 #include "chains/Schain.h"
 #include "exceptions/ExitRequestedException.h"
 #include "node/Node.h"

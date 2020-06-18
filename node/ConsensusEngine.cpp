@@ -29,7 +29,7 @@
 
 #include "Agent.h"
 #include "SkaleCommon.h"
-#include "SkaleLog.h"
+#include "Log.h"
 #include "exceptions/FatalError.h"
 #include "thirdparty/json.hpp"
 #include "threads/GlobalThreadRegistry.h"
@@ -215,7 +215,8 @@ void ConsensusEngine::parseFullConfigAndCreateNode(const string &configFileConte
 
         std::set<node_id> dummy;
 
-        auto node = JSONFactory::createNodeFromJsonObject(j["skaleConfig"]["nodeInfo"], dummy, this);
+        auto node = JSONFactory::createNodeFromJsonObject(j["skaleConfig"]["nodeInfo"], dummy, this,
+            false, nullptr, nullptr,nullptr,nullptr,nullptr);
 
         JSONFactory::createAndAddSChainFromJsonObject(
                 node, j["skaleConfig"]["sChain"], this);
@@ -230,13 +231,19 @@ void ConsensusEngine::parseFullConfigAndCreateNode(const string &configFileConte
 }
 
 ptr<Node> ConsensusEngine::readNodeConfigFileAndCreateNode(const fs_path &path, set<node_id> &_nodeIDs, bool _useSGX,
-                                                           ptr<string> _keyName, ptr<vector<string>> _publicKeys) {
+                                                           ptr<string> _ecdsaKeyName,
+                                                           ptr<vector<string>> _ecdsaPublicKeys,
+                                                           ptr<string> _blsKeyName,
+                                                           ptr<vector<ptr<vector<string>>>> _blsPublicKeys,
+                                                           ptr<vector<string>> _blsPublicKey
+                                                           ) {
     try {
 
         if (_useSGX) {
-            CHECK_ARGUMENT(_keyName && _publicKeys);
+            CHECK_ARGUMENT(_ecdsaKeyName && _ecdsaPublicKeys );
+            CHECK_ARGUMENT(_blsKeyName && _blsPublicKeys );
+            CHECK_ARGUMENT(_blsPublicKey && _blsPublicKey->size() == 4 );
         }
-
 
 
         fs_path nodeFileNamePath(path);
@@ -251,7 +258,8 @@ ptr<Node> ConsensusEngine::readNodeConfigFileAndCreateNode(const fs_path &path, 
 
         checkExistsAndDirectory(schainDirNamePath.string());
 
-        auto node = JSONFactory::createNodeFromJson(nodeFileNamePath.string(), _nodeIDs, this);
+        auto node = JSONFactory::createNodeFromJson(nodeFileNamePath.string(), _nodeIDs, this,
+            _useSGX, _ecdsaKeyName, _ecdsaPublicKeys, _blsKeyName, _blsPublicKeys, _blsPublicKey);
 
 
         if (node == nullptr) {
@@ -322,13 +330,7 @@ void ConsensusEngine::checkExistsAndFile(const fs_path &_filePath) {
 }
 
 
-void ConsensusEngine::parseTestConfigsAndCreateAllNodes(const fs_path &dirname, bool useSGX,
-                                                        ptr<vector<string>> keyNames, ptr<vector<string>> publicKeys) {
-
-    if  (useSGX) {
-        CHECK_ARGUMENT(keyNames != nullptr && publicKeys != nullptr);
-        CHECK_ARGUMENT(keyNames->size() == publicKeys->size());
-    }
+void ConsensusEngine::parseTestConfigsAndCreateAllNodes( const fs_path& dirname ) {
 
     try {
 
@@ -354,7 +356,7 @@ void ConsensusEngine::parseTestConfigsAndCreateAllNodes(const fs_path &dirname, 
         };
 
         if (useSGX) {
-            ASSERT(nodeCount == publicKeys->size());
+            ASSERT(nodeCount == this->ecdsaPublicKeys->size());
         }
 
         directory_iterator itr2(dirname);
@@ -370,12 +372,18 @@ void ConsensusEngine::parseTestConfigsAndCreateAllNodes(const fs_path &dirname, 
                 continue;
             }
 
-            ptr<string> keyName = nullptr;
+            ptr<string> ecdsaKeyName = nullptr;
+            ptr<string> blsKeyName = nullptr;
             if (useSGX) {
-                CHECK_STATE(i < keyNames->size());
-                keyName = make_shared<string>(keyNames->at(i));
+                CHECK_STATE(i < ecdsaKeyNames->size());
+                CHECK_STATE(i < blsKeyNames->size());
+                ecdsaKeyName = make_shared<string>(ecdsaKeyNames->at(i));
+                blsKeyName = make_shared<string>(ecdsaKeyNames->at(i));
             }
-            readNodeConfigFileAndCreateNode(itr2->path(), nodeIDs, useSGX, keyName, publicKeys);
+
+            readNodeConfigFileAndCreateNode(itr2->path(), nodeIDs, useSGX, ecdsaKeyName, ecdsaPublicKeys,
+                blsKeyName, blsPublicKeys, blsPublicKey);
+
             i++;
         };
 
@@ -731,4 +739,19 @@ shared_ptr<string> ConsensusEngine::getHealthCheckDir() const {
 ptr<string> ConsensusEngine::getDbDir() const {
     return dbDir;
 }
+void ConsensusEngine::setTestKeys(
+    string _configFile, uint64_t _totalNodes, uint64_t _requiredNodes ) {
 
+    CHECK_STATE(!useTestSGXKeys)
+    CHECK_STATE(!useSGX)
+
+    tie(ecdsaKeyNames, ecdsaPublicKeys, blsKeyNames, blsPublicKeys, blsPublicKey) =
+        JSONFactory::parseTestKeyNamesFromJson( _configFile, _totalNodes, _requiredNodes );
+
+    CHECK_STATE(ecdsaKeyNames);CHECK_STATE(ecdsaPublicKeys); CHECK_STATE(blsKeyNames);
+    CHECK_STATE(blsPublicKeys); CHECK_STATE(blsPublicKey);
+
+    useTestSGXKeys = true;
+    useSGX = true;
+
+}

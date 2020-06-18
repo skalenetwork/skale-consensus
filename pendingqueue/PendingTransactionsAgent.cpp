@@ -22,7 +22,7 @@
 */
 
 #include "SkaleCommon.h"
-#include "SkaleLog.h"
+#include "Log.h"
 #include "db/BlockDB.h"
 #include "db/CacheLevelDB.h"
 #include "exceptions/FatalError.h"

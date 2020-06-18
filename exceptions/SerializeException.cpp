@@ -23,7 +23,7 @@
 
 #include "SerializeException.h"
 #include "SkaleCommon.h"
-#include "SkaleLog.h"
+#include "Log.h"
 #include "exceptions/FatalError.h"
 
 SerializeException::SerializeException(const std::string &_message,  const string& _className)

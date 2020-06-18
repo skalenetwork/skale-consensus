@@ -24,7 +24,7 @@
 #include "Agent.h"
 #include "CatchupServerAgent.h"
 #include "SkaleCommon.h"
-#include "SkaleLog.h"
+#include "Log.h"
 #include "abstracttcpserver/AbstractServerAgent.h"
 #include "exceptions/FatalError.h"
 #include "thirdparty/json.hpp"

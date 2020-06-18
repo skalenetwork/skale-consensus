@@ -144,11 +144,19 @@ class Node {
     ptr<map<uint64_t , ptr<NodeInfo>> > nodeInfosById;
 
 
-    bool useSGX;
+    bool sgxEnabled = false;
 
-    ptr<string> keyName = nullptr;
-    ptr<vector<string>> publicKeys = nullptr;
+public:
+    bool isSgxEnabled() const;
+private:
+    ptr<string> ecdsaKeyName = nullptr;
+    ptr<vector<string>> ecdsaPublicKeys = nullptr;
 
+    ptr<string> blsKeyName = nullptr;
+    ptr<vector<ptr<vector<string>>>> blsPublicKeys = nullptr;
+    ptr<vector<string>> blsPublicKeyStr = nullptr;
+
+    ptr<BLSPublicKey> blsPublicKey = nullptr;
 
     void releaseGlobalServerBarrier();
 
@@ -185,6 +193,11 @@ class Node {
     ptr<BlockProposalDB> blockProposalDB = nullptr;
 
 
+
+public:
+    const ptr< string >& getEcdsaKeyName() const;
+    void setEcdsaKeyName( const ptr< string >& _ecdsaKeyName );
+private:
     uint64_t catchupIntervalMS;
 
     uint64_t monitoringIntervalMS;
@@ -217,11 +230,8 @@ class Node {
     uint64_t priceDBSize;
     uint64_t blockProposalDBSize;
 
-    ptr<BLSPublicKey> blsPublicKey;
-    ptr<BLSPrivateKeyShare> blsPrivateKey;
 
 
-    bool isBLSEnabled = false;
 
 public:
 
@@ -255,7 +265,6 @@ public:
     uint64_t getDaSigShareDBSize() const;
     uint64_t getDaProofDBSize() const;
     uint64_t getBlockProposalDBSize() const;
-    bool isBlsEnabled() const;
     uint64_t getSimulateNetworkWriteDelayMs() const;
     ptr<BLSPublicKey> getBlsPublicKey() const;
     ptr<BLSPrivateKeyShare> getBlsPrivateKey() const;
@@ -268,7 +277,11 @@ public:
 
 
     Node(const nlohmann::json &_cfg, ConsensusEngine *_consensusEngine,
-         bool _useSGX, ptr<string> _keyName, ptr<vector<string>> _publicKeys);
+         bool _useSGX, ptr< string > _ecdsaKeyName,
+         ptr< vector< string > > _ecdsaPublicKeys, ptr< string > _blsKeyName,
+         ptr< vector< ptr< vector< string > > > > _blsPublicKeys,
+         ptr< vector< string > > _blsPublicKey
+        );
 
     ~Node();
 

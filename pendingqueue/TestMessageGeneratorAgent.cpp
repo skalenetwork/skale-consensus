@@ -24,7 +24,7 @@
 #include "pendingqueue/TestMessageGeneratorAgent.h"
 #include "PendingTransactionsAgent.h"
 #include "SkaleCommon.h"
-#include "SkaleLog.h"
+#include "Log.h"
 #include "chains/Schain.h"
 #include "chains/SchainTest.h"
 #include "datastructures/Transaction.h"

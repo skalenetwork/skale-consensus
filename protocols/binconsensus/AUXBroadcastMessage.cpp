@@ -22,7 +22,7 @@
 */
 
 #include "SkaleCommon.h"
-#include "SkaleLog.h"
+#include "Log.h"
 #include "crypto/ConsensusBLSSignature.h"
 #include "crypto/SHAHash.h"
 #include "crypto/bls_include.h"

@@ -24,7 +24,7 @@
 #include "SkaleException.h"
 #include "ExitRequestedException.h"
 #include "SkaleCommon.h"
-#include "SkaleLog.h"
+#include "Log.h"
 
 void SkaleException::logNested(const std::exception &e, int level)
 {

@@ -21,7 +21,7 @@
     @date 2019
 */
 #include "SkaleCommon.h"
-#include "SkaleLog.h"
+#include "Log.h"
 
 #include "bls_include.h"
 #include "exceptions/FatalError.h"

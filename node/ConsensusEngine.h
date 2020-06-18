@@ -50,6 +50,15 @@ class GlobalThreadRegistry;
 
 class ConsensusEngine : public ConsensusInterface {
 
+    bool useTestSGXKeys = false;
+    bool useSGX = false;
+
+    ptr<vector<string>> ecdsaKeyNames = nullptr;
+    ptr<vector<string>> blsKeyNames = nullptr;
+    ptr<vector<string>> ecdsaPublicKeys = nullptr;
+    ptr<vector<ptr<vector<string>>>> blsPublicKeys = nullptr;
+    ptr<vector<string>> blsPublicKey = nullptr;
+
 
     atomic<consensus_engine_status> status = CONSENSUS_ACTIVE;
 
@@ -67,11 +76,6 @@ class ConsensusEngine : public ConsensusInterface {
 
     shared_ptr<string> healthCheckDir;
     shared_ptr<string> dbDir;
-public:
-    ptr<string> getDbDir() const;
-
-
-private:
 
     static recursive_mutex logMutex;
 
@@ -81,6 +85,8 @@ private:
     shared_ptr< spdlog::sinks::sink > logRotatingFileSync;
 
 public:
+
+    ptr<string> getDbDir() const;
 
     void logInit();
 
@@ -113,7 +119,11 @@ public:
     static void checkExistsAndFile(const fs_path &filename);
 
     ptr<Node> readNodeConfigFileAndCreateNode(const fs_path &path, set<node_id> &nodeIDs, bool _useSGX = false,
-                                              ptr<string> _keyName = nullptr, ptr<vector<string>> _publicKeys = nullptr);
+                                              ptr<string> _ecdsaKeyName = nullptr,
+        ptr<vector<string>> _ecdsaPublicKeys = nullptr,
+        ptr<string> _blsKeyName = nullptr,
+        ptr<vector<ptr<vector<string>>>> _blsPublicKeys = nullptr,
+        ptr<vector<string>> _blsPublicKey = nullptr);
 
 
     void readSchainConfigFiles(ptr<Node> _node, const fs_path &_dirPath);
@@ -166,9 +176,7 @@ public:
 
     // used for standalone debugging
 
-    void parseTestConfigsAndCreateAllNodes(const fs_path &dirname,
-            bool useSGX = false, ptr<vector<string>> keyNames = nullptr, ptr<vector<string>>
-            publicKeys = nullptr);
+    void parseTestConfigsAndCreateAllNodes( const fs_path& dirname );
 
     void exitGracefullyBlocking();
 
@@ -217,5 +225,7 @@ public:
     static string getEngineVersion();
 
     ptr<GlobalThreadRegistry> getThreadRegistry() const;
+
+    void setTestKeys( string _configFile, uint64_t _totalNodes, uint64_t _requiredNodes );
 
 };

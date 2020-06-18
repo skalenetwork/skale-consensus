@@ -26,7 +26,7 @@
 
 
 #include "SkaleCommon.h"
-#include "SkaleLog.h"
+#include "Log.h"
 #include "crypto/CryptoManager.h"
 #include "crypto/ThresholdSignature.h"
 #include "thirdparty/json.hpp"

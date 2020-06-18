@@ -22,7 +22,7 @@
 */
 
 #include "SkaleCommon.h"
-#include "SkaleLog.h"
+#include "Log.h"
 #include "Time.h"
 
 using namespace std::chrono;

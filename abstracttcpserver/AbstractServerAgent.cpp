@@ -23,7 +23,7 @@
 
 #include "Agent.h"
 #include "SkaleCommon.h"
-#include "SkaleLog.h"
+#include "Log.h"
 #include "crypto/bls_include.h"
 
 #include "exceptions/FatalError.h"

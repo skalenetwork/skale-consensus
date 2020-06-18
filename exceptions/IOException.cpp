@@ -23,7 +23,7 @@
 
 #include "IOException.h"
 #include "SkaleCommon.h"
-#include "SkaleLog.h"
+#include "Log.h"
 #include "exceptions/FatalError.h"
 
 IOException::IOException(string _what, int _errno, const string& _className) : NetworkProtocolException(_what + ":" + strerror(_errno), _className) {

@@ -25,7 +25,7 @@
 
 #include "exceptions/ParsingException.h"
 
-#include "SkaleLog.h"
+#include "Log.h"
 #include "exceptions/ConnectionRefusedException.h"
 #include "spdlog/sinks/rotating_file_sink.h"
 #include "spdlog/sinks/stdout_color_sinks.h"

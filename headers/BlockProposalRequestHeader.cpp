@@ -22,7 +22,7 @@
 */
 
 #include "SkaleCommon.h"
-#include "SkaleLog.h"
+#include "Log.h"
 #include "abstracttcpserver/ConnectionStatus.h"
 #include "crypto/SHAHash.h"
 #include "exceptions/FatalError.h"

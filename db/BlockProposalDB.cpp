@@ -23,7 +23,7 @@
 
 #include "Agent.h"
 #include "SkaleCommon.h"
-#include "SkaleLog.h"
+#include "Log.h"
 #include "abstracttcpserver/ConnectionStatus.h"
 #include "blockproposal/pusher/BlockProposalClientAgent.h"
 #include "chains/Schain.h"
