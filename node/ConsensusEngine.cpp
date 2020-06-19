@@ -375,8 +375,6 @@ void ConsensusEngine::parseTestConfigsAndCreateAllNodes( const fs_path& dirname 
             }
         }
 
-        assert(useSGX);
-
         if (useSGX) {
             CHECK_STATE(ecdsaPublicKeys); CHECK_STATE(ecdsaKeyNames);
             CHECK_STATE(blsKeyNames); CHECK_STATE(blsPublicKeys); CHECK_STATE(blsPublicKey);
