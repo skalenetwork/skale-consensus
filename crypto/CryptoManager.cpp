@@ -79,13 +79,11 @@ void CryptoManager::initSGX() {
         httpClient = make_shared<jsonrpc::HttpClient>(*sgxURL);
         sgxClient = make_shared< StubClient >( *httpClient, jsonrpc::JSONRPC_CLIENT_V2 );
 
-        cerr << "here"  << endl;
+
 
         blsPublicKeyObj = make_shared<BLSPublicKey>(
-            sgxBLSPublicKey, sChain->getTotalSigners(), sChain->getRequiredSigners());
-
-        cerr << "There"  << endl;
-
+            getSgxBlsPublicKey(), sChain->getRequiredSigners(),
+            sChain->getTotalSigners());
 
     }
 
@@ -460,7 +458,7 @@ ptr< void > CryptoManager::decodeSGXPublicKey( ptr< string > _keyHex ) {
 }
 
 
-ptr<string> CryptoManager::getSGXPublicKey(ptr<string> _keyName, ptr< StubClient > _c) {
+ptr<string> CryptoManager::getSGXEcdsaPublicKey(ptr<string> _keyName, ptr< StubClient > _c) {
     CHECK_STATE(_keyName);
     CHECK_ARGUMENT(_c);
     auto result = _c->getPublicECDSAKey(*_keyName);
@@ -485,7 +483,7 @@ pair< ptr< string >, ptr< string > > CryptoManager::generateSGXECDSAKey( ptr< St
     CHECK_STATE( keyName->find( "NEK" ) != string::npos );
 
 
-    auto publicKey2 = getSGXPublicKey(keyName, _c);
+    auto publicKey2 = getSGXEcdsaPublicKey( keyName, _c );
 
     return { keyName, publicKey };
 }

@@ -137,7 +137,7 @@ public:
 
     static pair< ptr< string >, ptr< string > > generateSGXECDSAKey( ptr< StubClient > _c );
 
-    static ptr< string > getSGXPublicKey( ptr< string > _keyName, ptr< StubClient > _c );
+    static ptr< string > getSGXEcdsaPublicKey( ptr< string > _keyName, ptr< StubClient > _c );
 
     static void generateSSLClientCertAndKey( string& _fullPathToDir );
     static void setSGXKeyAndCert( string& _keyFullPath, string& _certFullPath );
