@@ -30,11 +30,12 @@
 
 
 #define USER_SPACE 1
-#include "sgxwallet/secure_enclave/Point.h"
+
 #include "sgxwallet/secure_enclave/DomainParameters.h"
-#include "sgxwallet/secure_enclave/NumberTheory.h"
-#include "sgxwallet/secure_enclave/Signature.h"
 #include "sgxwallet/secure_enclave/Curves.h"
+#include "sgxwallet/secure_enclave/NumberTheory.h"
+#include "sgxwallet/secure_enclave/Point.h"
+#include "sgxwallet/secure_enclave/Signature.h"
 
 class Schain;
 class SHAHash;
@@ -45,6 +46,7 @@ class BlockProposal;
 class ThresholdSignature;
 class StubClient;
 class ECP;
+class BLSPublicKey;
 
 namespace CryptoPP {
 class ECP;
@@ -59,7 +61,6 @@ class HttpClient;
 }
 
 class CryptoManager {
-
     ptr< StubClient > sgxClient = nullptr;
 
 
@@ -72,12 +73,19 @@ class CryptoManager {
     uint64_t requiredSigners;
 
     bool isSGXEnabled = false;
+    bool isHTTPSEnabled = true;
 
-    ptr<string> sgxURL;
+    ptr< string > sgxURL;
     ptr< string > sgxSSLKeyFileFullPath;
     ptr< string > sgxSSLCertFileFullPath;
     ptr< string > sgxECDSAKeyName;
-    ptr<vector< string >> sgxECDSAPublicKeys;
+    ptr< vector< string > > sgxECDSAPublicKeys;
+    ptr< string > sgxBlsKeyName;
+    ptr< vector< ptr< vector< string > > > > sgxBLSPublicKeys;
+    ptr< vector< string > > sgxBLSPublicKey;
+
+    ptr< BLSPublicKey > blsPublicKeyObj = nullptr;
+
 
     Schain* sChain = nullptr;
 
@@ -92,11 +100,9 @@ class CryptoManager {
 public:
     // This constructor is used for testing
     CryptoManager( uint64_t _totalSigners, uint64_t _requiredSigners, bool _isSGXEnabled,
-        ptr< string > _sgxURL = nullptr,
-        ptr< string > _sgxSslKeyFileFullPath = nullptr,
-        ptr< string > _sgxSslCertFileFullPath = nullptr,
-        ptr< string > _sgxEcdsaKeyName = nullptr,
-        ptr<vector<string>> _sgxEcdsaPublicKeys = nullptr);
+        ptr< string > _sgxURL = nullptr, ptr< string > _sgxSslKeyFileFullPath = nullptr,
+        ptr< string > _sgxSslCertFileFullPath = nullptr, ptr< string > _sgxEcdsaKeyName = nullptr,
+        ptr< vector< string > > _sgxEcdsaPublicKeys = nullptr );
 
     CryptoManager( Schain& sChain );
 

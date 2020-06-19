@@ -69,22 +69,18 @@
 void CryptoManager::initSGX() {
 
     if ( isSGXEnabled ) {
+        if ( isHTTPSEnabled ) {
+            CHECK_STATE( sgxSSLKeyFileFullPath );
+            CHECK_STATE( sgxSSLCertFileFullPath );
+            setSGXKeyAndCert( *sgxSSLKeyFileFullPath, *sgxSSLCertFileFullPath );
+        }
 
-        CHECK_STATE(sgxSSLKeyFileFullPath);
-        CHECK_STATE(sgxSSLCertFileFullPath);
-
-        setSGXKeyAndCert( *sgxSSLKeyFileFullPath, *sgxSSLCertFileFullPath );
-
-        httpClient = make_shared<jsonrpc::HttpClient>(*sgxURL);
-        sgxClient = make_shared< StubClient >( *httpClient, jsonrpc::JSONRPC_CLIENT_V2 );
 
         httpClient = make_shared<jsonrpc::HttpClient>(*sgxURL);
         sgxClient = make_shared< StubClient >( *httpClient, jsonrpc::JSONRPC_CLIENT_V2 );
 
-/*        blsPublicKey = make_shared<BLSPublicKey>(
-            blsPublicKeyStr, sChain->getTotalSigners(), sChain->getRequiredSigners());
-*/
-
+        blsPublicKeyObj = make_shared<BLSPublicKey>(
+            sgxBLSPublicKey, sChain->getTotalSigners(), sChain->getRequiredSigners());
     }
 
 }
@@ -108,6 +104,7 @@ CryptoManager::CryptoManager( uint64_t _totalSigners, uint64_t _requiredSigners,
         CHECK_ARGUMENT(_sgxSslCertFileFullPath);
         CHECK_ARGUMENT(_sgxEcdsaKeyName);
         CHECK_ARGUMENT(_sgxEcdsaPublicKeys);
+
 
         sgxURL = _sgxURL;
         sgxSSLKeyFileFullPath =  _sgxSslKeyFileFullPath;
@@ -137,6 +134,26 @@ CryptoManager::CryptoManager( Schain& _sChain ) : sChain( &_sChain ) {
         sgxSSLKeyFileFullPath = node->getSgxSslKeyFileFullPath();
         sgxECDSAKeyName = node->getEcdsaKeyName();
         sgxECDSAPublicKeys = node->getEcdsaPublicKeys();
+        sgxBlsKeyName = node->getBlsKeyName();
+        sgxBLSPublicKeys = node->getBlsPublicKeys();
+        sgxBLSPublicKey = node->getBlsPublicKeyStr();
+
+        CHECK_STATE(sgxURL);
+        CHECK_STATE(sgxECDSAKeyName);
+        CHECK_STATE(sgxECDSAPublicKeys);
+        CHECK_STATE(sgxBlsKeyName);
+        CHECK_STATE(sgxBLSPublicKeys);
+        CHECK_STATE(sgxBLSPublicKey);
+
+        isHTTPSEnabled = sgxURL->find("https:/") != string::npos;
+
+        if (isHTTPSEnabled) {
+            CHECK_STATE( sgxSSLCertFileFullPath );
+            CHECK_STATE( sgxSSLKeyFileFullPath );
+        }
+
+
+
 
 
         initSGX();
