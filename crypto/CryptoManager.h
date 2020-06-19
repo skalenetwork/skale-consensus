@@ -86,7 +86,9 @@ class CryptoManager {
 
     ptr< BLSPublicKey > blsPublicKeyObj = nullptr;
 
-
+public:
+    const ptr< BLSPublicKey >& getBlsPublicKeyObj() const;
+private:
     Schain* sChain = nullptr;
 
     ptr< string > signECDSA( ptr< SHAHash > _hash );
@@ -142,6 +144,8 @@ public:
 
     ptr< string > sgxSignECDSA( ptr< SHAHash > _hash, string& _keyName );
     bool sgxVerifyECDSA( ptr< SHAHash > _hash, ptr< string > _publicKey, ptr< string > _sig );
+
+    ptr< vector< string > > getSgxBlsPublicKey();
 };
 
 

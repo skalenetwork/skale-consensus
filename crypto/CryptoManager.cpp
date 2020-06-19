@@ -79,10 +79,20 @@ void CryptoManager::initSGX() {
         httpClient = make_shared<jsonrpc::HttpClient>(*sgxURL);
         sgxClient = make_shared< StubClient >( *httpClient, jsonrpc::JSONRPC_CLIENT_V2 );
 
+        cerr << "here"  << endl;
+
         blsPublicKeyObj = make_shared<BLSPublicKey>(
             sgxBLSPublicKey, sChain->getTotalSigners(), sChain->getRequiredSigners());
+
+        cerr << "There"  << endl;
+
+
     }
 
+}
+ptr< vector< string > > CryptoManager::getSgxBlsPublicKey() {
+    CHECK_STATE(sgxBLSPublicKey && sgxBLSPublicKey->size() == 4);
+    return sgxBLSPublicKey;
 }
 
 CryptoManager::CryptoManager( uint64_t _totalSigners, uint64_t _requiredSigners,
@@ -136,7 +146,7 @@ CryptoManager::CryptoManager( Schain& _sChain ) : sChain( &_sChain ) {
         sgxECDSAPublicKeys = node->getEcdsaPublicKeys();
         sgxBlsKeyName = node->getBlsKeyName();
         sgxBLSPublicKeys = node->getBlsPublicKeys();
-        sgxBLSPublicKey = node->getBlsPublicKeyStr();
+        sgxBLSPublicKey = node->getBlsPublicKey();
 
         CHECK_STATE(sgxURL);
         CHECK_STATE(sgxECDSAKeyName);
@@ -414,7 +424,7 @@ ptr< ThresholdSignature > CryptoManager::verifyThresholdSig(
         auto sig = make_shared< ConsensusBLSSignature >(
             _signature, _blockId, requiredSigners, totalSigners );
 
-        if ( !sChain->getNode()->getBlsPublicKey()->VerifySig(
+        if ( !blsPublicKeyObj->VerifySig(
                  hash, sig->getBlsSig(), requiredSigners, totalSigners ) ) {
             BOOST_THROW_EXCEPTION(
                 InvalidArgumentException( "BLS Signature did not verify", __CLASS_NAME__ ) );
@@ -522,4 +532,8 @@ void CryptoManager::generateSSLClientCertAndKey( string& _fullPathToDir ) {
 ptr< StubClient > CryptoManager::getSgxClient() const {
     CHECK_STATE(sgxClient);
     return sgxClient;
+}
+const ptr< BLSPublicKey >& CryptoManager::getBlsPublicKeyObj() const {
+    CHECK_STATE(blsPublicKeyObj);
+    return blsPublicKeyObj;
 }

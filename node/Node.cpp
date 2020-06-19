@@ -79,8 +79,10 @@ Node::Node(const nlohmann::json &_cfg, ConsensusEngine *_consensusEngine,
 
     if (_useSGX) {
         CHECK_ARGUMENT(_sgxURL);
-        CHECK_ARGUMENT(_sgxSSLKeyFileFullPath);
-        CHECK_ARGUMENT(_sgxSSLCertFileFullPath);
+        if (_sgxURL->find("https:/") != string::npos) {
+            CHECK_ARGUMENT( _sgxSSLKeyFileFullPath );
+            CHECK_ARGUMENT( _sgxSSLCertFileFullPath );
+        }
         CHECK_ARGUMENT(_ecdsaKeyName && _ecdsaPublicKeys);
         CHECK_ARGUMENT(_blsKeyName && _blsPublicKeys);
         CHECK_ARGUMENT(_blsPublicKey && _blsPublicKey->size() == 4);
@@ -92,11 +94,9 @@ Node::Node(const nlohmann::json &_cfg, ConsensusEngine *_consensusEngine,
 
         blsKeyName = _blsKeyName;
         blsPublicKeys = _blsPublicKeys;
-        blsPublicKeyStr = _blsPublicKey;
+        blsPublicKey = _blsPublicKey;
 
 
-        blsPublicKey = make_shared<BLSPublicKey>(
-                blsPublicKeyStr, sChain->getTotalSigners(), sChain->getRequiredSigners());
 
 
         static string empty("");
@@ -434,6 +434,6 @@ ptr< string > Node::getBlsKeyName() {
 ptr< vector< ptr< vector< string > > > > Node::getBlsPublicKeys() {
     return blsPublicKeys;
 }
-ptr< vector< string > > Node::getBlsPublicKeyStr() {
-    return blsPublicKeyStr;
+ptr< vector< string > > Node::getBlsPublicKey() {
+    return blsPublicKey;
 }

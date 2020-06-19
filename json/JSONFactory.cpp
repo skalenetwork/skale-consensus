@@ -74,7 +74,7 @@ ptr< Node > JSONFactory::createNodeFromJsonFile( const fs_path& jsonFile, set< n
             CHECK_ARGUMENT( _blsKeyName );
             CHECK_ARGUMENT( _blsPublicKeys );
             CHECK_ARGUMENT( _blsPublicKey && _blsPublicKey->size() == 4 );
-            sgxUrl = make_shared<string>("https://localhost:1026");
+            sgxUrl = make_shared<string>("http://localhost:1026");
         }
 
         nlohmann::json j;
