@@ -121,6 +121,7 @@ block_id basicRun(block_id _lastId = 0) {
         REQUIRE(ConsensusEngine::getEngineVersion().size() > 0);
 
         engine = new ConsensusEngine(_lastId);
+
         engine->parseTestConfigsAndCreateAllNodes( Consensust::getConfigDirPath() );
         engine->slowStartBootStrapTest();
         sleep(Consensust::getRunningTimeMS()/1000); /* Flawfinder: ignore */

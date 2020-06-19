@@ -355,8 +355,27 @@ void ConsensusEngine::parseTestConfigsAndCreateAllNodes( const fs_path& dirname 
                 nodeCount++;
         };
 
+        cerr <<  dirname << endl;
+
+        bool sgxDirExists = is_directory(dirname.string() + "/../../run_sgx_test/sgx_data");
+
+        string filePath;
+
+        if (sgxDirExists) {
+            filePath = dirname.string() + "/../../run_sgx_test/sgx_data" +
+               "/" + to_string(nodeCount) + "node.json";
+            if (is_regular_file(filePath)) {
+                CHECK_STATE(nodeCount % 3 == 1);
+                this->setTestKeys(filePath, nodeCount, nodeCount - 1 / 3);
+            }
+        }
+
+        assert(useSGX);
+
         if (useSGX) {
-            ASSERT(nodeCount == this->ecdsaPublicKeys->size());
+            CHECK_STATE(ecdsaPublicKeys); CHECK_STATE(ecdsaKeyNames);
+            CHECK_STATE(blsKeyNames); CHECK_STATE(blsPublicKeys); CHECK_STATE(blsPublicKey);
+            CHECK_STATE(nodeCount == ecdsaPublicKeys->size());
         }
 
         directory_iterator itr2(dirname);
@@ -751,7 +770,7 @@ void ConsensusEngine::setTestKeys(
     CHECK_STATE(ecdsaKeyNames);CHECK_STATE(ecdsaPublicKeys); CHECK_STATE(blsKeyNames);
     CHECK_STATE(blsPublicKeys); CHECK_STATE(blsPublicKey);
 
-    useTestSGXKeys = true;
     useSGX = true;
+    useTestSGXKeys = true;
 
 }
