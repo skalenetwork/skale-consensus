@@ -69,12 +69,18 @@
 using namespace std;
 
 Node::Node(const nlohmann::json &_cfg, ConsensusEngine *_consensusEngine,
-           bool _useSGX, ptr< string > _ecdsaKeyName,
+           bool _useSGX, ptr<string> _sgxURL,
+           ptr<string> _sgxSSLKeyFileFullPath,
+           ptr<string> _sgxSSLCertFileFullPath,
+           ptr< string > _ecdsaKeyName,
            ptr< vector< string > > _ecdsaPublicKeys, ptr< string > _blsKeyName,
            ptr< vector< ptr< vector< string > > > > _blsPublicKeys,
            ptr< vector< string > > _blsPublicKey) {
 
     if (_useSGX) {
+        CHECK_ARGUMENT(_sgxURL);
+        CHECK_ARGUMENT(_sgxSSLKeyFileFullPath);
+        CHECK_ARGUMENT(_sgxSSLCertFileFullPath);
         CHECK_ARGUMENT(_ecdsaKeyName && _ecdsaPublicKeys);
         CHECK_ARGUMENT(_blsKeyName && _blsPublicKeys);
         CHECK_ARGUMENT(_blsPublicKey && _blsPublicKey->size() == 4);
@@ -91,6 +97,13 @@ Node::Node(const nlohmann::json &_cfg, ConsensusEngine *_consensusEngine,
 
         blsPublicKey = make_shared<BLSPublicKey>(
                 blsPublicKeyStr, sChain->getTotalSigners(), sChain->getRequiredSigners());
+
+
+        static string empty("");
+
+        sgxURL = _sgxURL;
+        sgxSSLKeyFileFullPath = _sgxSSLKeyFileFullPath;
+        sgxSSLCertFileFullPath = _sgxSSLCertFileFullPath;
 
 
     }

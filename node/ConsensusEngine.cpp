@@ -216,7 +216,7 @@ void ConsensusEngine::parseFullConfigAndCreateNode(const string &configFileConte
         std::set<node_id> dummy;
 
         auto node = JSONFactory::createNodeFromJsonObject(j["skaleConfig"]["nodeInfo"], dummy, this,
-            false, nullptr, nullptr,nullptr,nullptr,nullptr);
+            false, nullptr, nullptr, nullptr, nullptr, nullptr,nullptr,nullptr,nullptr);
 
         JSONFactory::createAndAddSChainFromJsonObject(
                 node, j["skaleConfig"]["sChain"], this);
@@ -231,6 +231,8 @@ void ConsensusEngine::parseFullConfigAndCreateNode(const string &configFileConte
 }
 
 ptr<Node> ConsensusEngine::readNodeConfigFileAndCreateNode(const fs_path &path, set<node_id> &_nodeIDs, bool _useSGX,
+                                                           ptr<string> _sgxSSLKeyFileFullPath,
+                                                           ptr<string> _sgxSSLCertFileFullPath,
                                                            ptr<string> _ecdsaKeyName,
                                                            ptr<vector<string>> _ecdsaPublicKeys,
                                                            ptr<string> _blsKeyName,
@@ -258,8 +260,11 @@ ptr<Node> ConsensusEngine::readNodeConfigFileAndCreateNode(const fs_path &path, 
 
         checkExistsAndDirectory(schainDirNamePath.string());
 
-        auto node = JSONFactory::createNodeFromJson(nodeFileNamePath.string(), _nodeIDs, this,
-            _useSGX, _ecdsaKeyName, _ecdsaPublicKeys, _blsKeyName, _blsPublicKeys, _blsPublicKey);
+
+
+
+        auto node = JSONFactory::createNodeFromJsonFile( nodeFileNamePath.string(), _nodeIDs, this,
+            _useSGX, _sgxSSLKeyFileFullPath, _sgxSSLCertFileFullPath, _ecdsaKeyName, _ecdsaPublicKeys, _blsKeyName, _blsPublicKeys, _blsPublicKey );
 
 
         if (node == nullptr) {
@@ -400,7 +405,10 @@ void ConsensusEngine::parseTestConfigsAndCreateAllNodes( const fs_path& dirname 
                 blsKeyName = make_shared<string>(ecdsaKeyNames->at(i));
             }
 
-            readNodeConfigFileAndCreateNode(itr2->path(), nodeIDs, useSGX, ecdsaKeyName, ecdsaPublicKeys,
+
+            // cert and key file name for tests come from the config
+            readNodeConfigFileAndCreateNode(itr2->path(), nodeIDs, useSGX,
+                nullptr, nullptr, ecdsaKeyName, ecdsaPublicKeys,
                 blsKeyName, blsPublicKeys, blsPublicKey);
 
             i++;

@@ -66,26 +66,59 @@
 #include "CryptoManager.h"
 
 
-CryptoManager::CryptoManager( uint64_t totalSigners, uint64_t requiredSigners,
-                              const ptr< string >& sgxIp, const ptr< string >& sgxSslKeyFileFullPath,
-                              const ptr< string >& sgxSslCertFileFullPath, const ptr< string >& sgxEcdsaKeyName,
-                              const vector< ptr< string > >& sgxEcdsaPublicKeys )
-    : totalSigners( totalSigners ),
-      requiredSigners( requiredSigners ),
-      sgxIP( sgxIp ),
-      sgxSSLKeyFileFullPath( sgxSslKeyFileFullPath ),
-      sgxSSLCertFileFullPath( sgxSslCertFileFullPath ),
-      sgxECDSAKeyName( sgxEcdsaKeyName ),
-      sgxECDSAPublicKeys( sgxEcdsaPublicKeys ) {
+void CryptoManager::initSGX() {
 
-    this->sgxEnabled = (sgxIp != nullptr);
+    if ( isSGXEnabled ) {
 
+        CHECK_STATE(sgxSSLKeyFileFullPath);
+        CHECK_STATE(sgxSSLCertFileFullPath);
 
-    if (sgxEnabled) {
-        httpClient = make_shared<jsonrpc::HttpClient>("https://" + *sgxIP + ":" +
-                                                      to_string(SGX_SSL_PORT));
+        setSGXKeyAndCert( *sgxSSLKeyFileFullPath, *sgxSSLCertFileFullPath );
+
+        httpClient = make_shared<jsonrpc::HttpClient>(*sgxURL);
         sgxClient = make_shared< StubClient >( *httpClient, jsonrpc::JSONRPC_CLIENT_V2 );
+
+        httpClient = make_shared<jsonrpc::HttpClient>(*sgxURL);
+        sgxClient = make_shared< StubClient >( *httpClient, jsonrpc::JSONRPC_CLIENT_V2 );
+
+/*        blsPublicKey = make_shared<BLSPublicKey>(
+            blsPublicKeyStr, sChain->getTotalSigners(), sChain->getRequiredSigners());
+*/
+
     }
+
+}
+
+CryptoManager::CryptoManager( uint64_t _totalSigners, uint64_t _requiredSigners,
+    bool _isSGXEnabled,
+    ptr< string > _sgxURL, ptr< string > _sgxSslKeyFileFullPath,
+    ptr< string > _sgxSslCertFileFullPath,
+    ptr< string > _sgxEcdsaKeyName,
+    ptr<vector< string > > _sgxEcdsaPublicKeys ) {
+
+    totalSigners =  _totalSigners;
+    requiredSigners = _requiredSigners;
+
+
+    isSGXEnabled = _isSGXEnabled;
+
+    if ( _isSGXEnabled ) {
+        CHECK_ARGUMENT(sgxURL);
+        CHECK_ARGUMENT(_sgxSslKeyFileFullPath);
+        CHECK_ARGUMENT(_sgxSslCertFileFullPath);
+        CHECK_ARGUMENT(_sgxEcdsaKeyName);
+        CHECK_ARGUMENT(_sgxEcdsaPublicKeys);
+
+        sgxURL = _sgxURL;
+        sgxSSLKeyFileFullPath =  _sgxSslKeyFileFullPath;
+        sgxSSLKeyFileFullPath =  _sgxSslKeyFileFullPath;
+        sgxSSLCertFileFullPath =  _sgxSslCertFileFullPath;
+        sgxECDSAKeyName =  _sgxEcdsaKeyName;
+        sgxECDSAPublicKeys = _sgxEcdsaPublicKeys;
+        sgxURL = _sgxURL;
+    }
+
+    initSGX();
 
 
 }
@@ -94,47 +127,21 @@ CryptoManager::CryptoManager( uint64_t totalSigners, uint64_t requiredSigners,
 CryptoManager::CryptoManager( Schain& _sChain ) : sChain( &_sChain ) {
     CHECK_ARGUMENT( sChain != nullptr );
 
+    isSGXEnabled = _sChain.getNode()->isSgxEnabled();
 
-    static string empty = "";
-    sgxIP = _sChain.getNode()->getParamString( "sgxIP", empty );
+    if (isSGXEnabled) {
 
-    if ( sgxIP->length() == 0 ) {
-        sgxIP = nullptr;
-        sgxEnabled = false;
-    }
-    else {
-        sgxEnabled = true;
         auto node = _sChain.getNode();
-        sgxSSLKeyFileFullPath = node->getParamString( "sgxKeyFileFullPath", empty );
-        sgxSSLCertFileFullPath = node->getParamString( "sgxCertFileFullPath", empty );
-        sgxECDSAKeyName = node->getParamString( "sgxECDSAKeyName", empty );
-        if ( sgxECDSAKeyName->length() == 0 ) {
-            auto keyName = std::getenv( "sgxECDSAKeyName." + _sChain.getSchainIndex() );
-            ASSERT( keyName != nullptr );
-            sgxECDSAKeyName = make_shared< string >( keyName );
-        }
+        sgxURL = node->getSgxUrl();
+        sgxSSLCertFileFullPath = node->getSgxSslCertFileFullPath();
+        sgxSSLKeyFileFullPath = node->getSgxSslKeyFileFullPath();
+        sgxECDSAKeyName = node->getEcdsaKeyName();
+        sgxECDSAPublicKeys = node->getEcdsaPublicKeys();
 
 
-        for ( int i = 1; i <= _sChain.getNodeCount(); i++ ) {
-            string paramName = "sgxECDSAPublicKey." + to_string( i );
-
-            sgxECDSAPublicKeys.at( i ) = node->getParamString( paramName, empty );
-            if ( sgxECDSAPublicKeys.at( i )->length() == 0 ) {
-                auto publicKey = std::getenv( paramName.c_str() );
-                ASSERT( publicKey != nullptr );
-                sgxECDSAPublicKeys.at( i ) = make_shared< string >( publicKey );
-            }
-        }
+        initSGX();
 
 
-        ASSERT( sgxSSLKeyFileFullPath->length() > 0 );
-        ASSERT( sgxSSLCertFileFullPath->length() > 0 );
-
-        setSGXKeyAndCert( *sgxSSLKeyFileFullPath, *sgxSSLCertFileFullPath );
-
-        httpClient = make_shared<jsonrpc::HttpClient>("https://" + *sgxIP +
-                                                          to_string(SGX_SSL_PORT));
-        sgxClient = make_shared< StubClient >( *httpClient, jsonrpc::JSONRPC_CLIENT_V2 );
     }
 
     totalSigners = sChain->getTotalSigners();
@@ -256,7 +263,7 @@ bool CryptoManager::sgxVerifyECDSA(
 
 ptr< string > CryptoManager::signECDSA( ptr< SHAHash > _hash ) {
     CHECK_ARGUMENT( _hash );
-    if ( sgxEnabled ) {
+    if ( isSGXEnabled ) {
         return sgxSignECDSA( _hash, *sgxECDSAKeyName );
     } else {
         return _hash->toHex();

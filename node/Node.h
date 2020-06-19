@@ -143,14 +143,22 @@ class Node {
 
     bool sgxEnabled = false;
 
+
+
     ptr< string > ecdsaKeyName = nullptr;
     ptr< vector< string > > ecdsaPublicKeys = nullptr;
     ptr< string > blsKeyName = nullptr;
     ptr< vector< ptr< vector< string > > > > blsPublicKeys = nullptr;
     ptr< vector< string > > blsPublicKeyStr = nullptr;
 
-private:
+    ptr<string> sgxURL = nullptr;
     ptr< BLSPublicKey > blsPublicKey = nullptr;
+
+
+    ptr<string> sgxSSLKeyFileFullPath = nullptr;
+    ptr<string> sgxSSLCertFileFullPath = nullptr;
+
+
 
     void releaseGlobalServerBarrier();
 
@@ -265,6 +273,9 @@ public:
 
 
     Node( const nlohmann::json& _cfg, ConsensusEngine* _consensusEngine, bool _useSGX,
+        ptr<string> _sgxURL,
+          ptr<string> _sgxSSLKeyFileFullPath,
+    ptr<string> _sgxSSLCertFileFullPath,
         ptr< string > _ecdsaKeyName, ptr< vector< string > > _ecdsaPublicKeys,
         ptr< string > _blsKeyName, ptr< vector< ptr< vector< string > > > > _blsPublicKeys,
         ptr< vector< string > > _blsPublicKey );
@@ -357,4 +368,8 @@ public:
     void setNodeInfo( ptr< NodeInfo > _nodeInfo );
 
     ConsensusEngine* getConsensusEngine() const;
+
+    ptr< string > getSgxUrl();
+    ptr< string > getSgxSslKeyFileFullPath();
+    ptr< string > getSgxSslCertFileFullPath();
 };

@@ -56,11 +56,17 @@
 
 #include "JSONFactory.h"
 
-ptr< Node > JSONFactory::createNodeFromJson( const fs_path& jsonFile, set< node_id >& nodeIDs,
-    ConsensusEngine* _consensusEngine, bool _useSGX, ptr< string > _ecdsaKeyName,
+ptr< Node > JSONFactory::createNodeFromJsonFile( const fs_path& jsonFile, set< node_id >& nodeIDs,
+    ConsensusEngine* _consensusEngine, bool _useSGX,
+                                                 ptr<string> _sgxSSLKeyFileFullPath,
+                                                 ptr<string> _sgxSSLCertFileFullPath,
+    ptr< string > _ecdsaKeyName,
     ptr< vector< string > > _ecdsaPublicKeys, ptr< string > _blsKeyName,
     ptr< vector< ptr< vector< string > > > > _blsPublicKeys,
     ptr< vector< string > > _blsPublicKey ) {
+
+    ptr<string> sgxUrl = nullptr;
+
     try {
         if ( _useSGX ) {
             CHECK_ARGUMENT( _ecdsaKeyName );
@@ -68,14 +74,19 @@ ptr< Node > JSONFactory::createNodeFromJson( const fs_path& jsonFile, set< node_
             CHECK_ARGUMENT( _blsKeyName );
             CHECK_ARGUMENT( _blsPublicKeys );
             CHECK_ARGUMENT( _blsPublicKey && _blsPublicKey->size() == 4 );
+            sgxUrl = make_shared<string>("https://localhost:1026");
         }
 
         nlohmann::json j;
 
         parseJsonFile( j, jsonFile );
 
+
         return createNodeFromJsonObject(
             j, nodeIDs, _consensusEngine, _useSGX,
+            sgxUrl,
+            _sgxSSLKeyFileFullPath,
+            _sgxSSLCertFileFullPath,
             _ecdsaKeyName, _ecdsaPublicKeys,
             _blsKeyName, _blsPublicKeys,
             _blsPublicKey
@@ -87,9 +98,27 @@ ptr< Node > JSONFactory::createNodeFromJson( const fs_path& jsonFile, set< node_
 
 ptr< Node > JSONFactory::createNodeFromJsonObject( const nlohmann::json& j, set< node_id >& nodeIDs,
     ConsensusEngine* _engine,
-    bool _useSGX, ptr< string > _ecdsaKeyName, ptr< vector< string > > _ecdsaPublicKeys,
+    bool _useSGX,
+    ptr<string> _sgxURL,
+    ptr<string> _sgxSSLKeyFileFullPath,
+    ptr<string> _sgxSSLCertFileFullPath,
+    ptr< string > _ecdsaKeyName, ptr< vector< string > > _ecdsaPublicKeys,
     ptr< string > _blsKeyName, ptr< vector< ptr< vector< string > > > > _blsPublicKeys,
     ptr< vector< string > > _blsPublicKey ) {
+
+
+    string empty = "";
+
+    if (_useSGX) {
+        if (!_sgxSSLKeyFileFullPath && (j.count("sgxKeyFileFullPath") > 0)) {
+            _sgxSSLKeyFileFullPath = make_shared<string>(j.at("sgxKeyFileFullPath").get<string>());
+        }
+        if (!_sgxSSLCertFileFullPath && (j.count("sgxCertFileFullPath") > 0 )) {
+            _sgxSSLCertFileFullPath =
+                make_shared<string>(j.at("sgxCertFileFullPath").get<string>());
+        }
+    }
+
     if ( _useSGX ) {
         CHECK_ARGUMENT( _ecdsaKeyName && _ecdsaPublicKeys );
         CHECK_ARGUMENT( _blsKeyName && _blsPublicKeys );
@@ -97,10 +126,8 @@ ptr< Node > JSONFactory::createNodeFromJsonObject( const nlohmann::json& j, set<
 
     }
 
-    if ( j.find( "transport" ) != j.end() ) {
-        ptr< string > transport = make_shared< string >( j.at( "transport" ).get< string >() );
-        Network::setTransport( TransportType::ZMQ );
-    }
+    Network::setTransport( TransportType::ZMQ );
+
 
 
     if ( j.find( "logLevelConfig" ) != j.end() ) {
@@ -114,7 +141,12 @@ ptr< Node > JSONFactory::createNodeFromJsonObject( const nlohmann::json& j, set<
 
     if ( nodeIDs.empty() || nodeIDs.count( node_id( nodeID ) ) > 0 ) {
         try {
-            node = make_shared< Node >( j, _engine, _useSGX,
+
+
+            node = make_shared<Node> ( j, _engine, _useSGX,
+                _sgxURL,
+                _sgxSSLKeyFileFullPath,
+                _sgxSSLCertFileFullPath,
                 _ecdsaKeyName, _ecdsaPublicKeys,
                 _blsKeyName, _blsPublicKeys, _blsPublicKey);
         } catch ( ... ) {

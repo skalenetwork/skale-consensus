@@ -71,13 +71,13 @@ class CryptoManager {
     uint64_t totalSigners;
     uint64_t requiredSigners;
 
-    bool sgxEnabled = false;
+    bool isSGXEnabled = false;
 
-    ptr< string > sgxIP;
+    ptr<string> sgxURL;
     ptr< string > sgxSSLKeyFileFullPath;
     ptr< string > sgxSSLCertFileFullPath;
     ptr< string > sgxECDSAKeyName;
-    vector< ptr< string > > sgxECDSAPublicKeys;
+    ptr<vector< string >> sgxECDSAPublicKeys;
 
     Schain* sChain = nullptr;
 
@@ -87,13 +87,16 @@ class CryptoManager {
 
     ptr< ThresholdSigShare > signSigShare( ptr< SHAHash > _hash, block_id _blockId );
 
+    void initSGX();
 
 public:
     // This constructor is used for testing
-    CryptoManager( uint64_t totalSigners, uint64_t requiredSigners, const ptr< string >& sgxIp,
-        const ptr< string >& sgxSslKeyFileFullPath, const ptr< string >& sgxSslCertFileFullPath,
-        const ptr< string >& sgxEcdsaKeyName, const vector< ptr< string > >& sgxEcdsaPublicKeys );
-
+    CryptoManager( uint64_t _totalSigners, uint64_t _requiredSigners, bool _isSGXEnabled,
+        ptr< string > _sgxURL = nullptr,
+        ptr< string > _sgxSslKeyFileFullPath = nullptr,
+        ptr< string > _sgxSslCertFileFullPath = nullptr,
+        ptr< string > _sgxEcdsaKeyName = nullptr,
+        ptr<vector<string>> _sgxEcdsaPublicKeys = nullptr);
 
     CryptoManager( Schain& sChain );
 
