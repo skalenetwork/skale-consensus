@@ -33,7 +33,7 @@ class ConsensusEngine;
 
 class JSONFactory {
 public:
-    static ptr< Node > createNodeFromJsonFile( const fs_path& jsonFile, set< node_id >& nodeIDs,
+    static ptr< Node > createNodeFromJsonFile( ptr<string> _sgxUrl, const fs_path& jsonFile, set< node_id >& nodeIDs,
         ConsensusEngine* _consensusEngine, bool _useSGX, ptr< string > _sgxSSLKeyFileFullPath,
         ptr< string > _sgxSSLCertFileFullPath, ptr< string > _ecdsaKeyName,
         ptr< vector< string > > _ecdsaPublicKeys, ptr< string > _blsKeyName,
@@ -60,9 +60,10 @@ public:
 
     static tuple< ptr< vector< string > >, ptr< vector< string > >, ptr< vector< string > >,
         ptr< vector< ptr< vector< string > > > >, ptr< vector< string > > >
-    parseTestKeyNamesFromJson(
-        const fs_path& configFile, uint64_t _totalNodes, uint64_t _requiredNodes );
+    parseTestKeyNamesFromJson(ptr<string> _sgxServer4Url,  const fs_path& configFile, uint64_t _totalNodes,
+        uint64_t _requiredNodes);
 
     static pair< ptr< vector< string > >, ptr< vector< string > > > parseAllTestKeyNames(
+        ptr<string> _sgxServerUrl,
         const fs_path& _dir );
 };

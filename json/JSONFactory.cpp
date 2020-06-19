@@ -56,7 +56,8 @@
 
 #include "JSONFactory.h"
 
-ptr< Node > JSONFactory::createNodeFromJsonFile( const fs_path& jsonFile, set< node_id >& nodeIDs,
+ptr< Node > JSONFactory::createNodeFromJsonFile(
+    ptr<string> _sgxUrl, const fs_path& jsonFile, set< node_id >& nodeIDs,
     ConsensusEngine* _consensusEngine, bool _useSGX,
                                                  ptr<string> _sgxSSLKeyFileFullPath,
                                                  ptr<string> _sgxSSLCertFileFullPath,
@@ -74,7 +75,7 @@ ptr< Node > JSONFactory::createNodeFromJsonFile( const fs_path& jsonFile, set< n
             CHECK_ARGUMENT( _blsKeyName );
             CHECK_ARGUMENT( _blsPublicKeys );
             CHECK_ARGUMENT( _blsPublicKey && _blsPublicKey->size() == 4 );
-            sgxUrl = make_shared<string>("http://localhost:1026");
+            sgxUrl = _sgxUrl;
         }
 
         nlohmann::json j;
@@ -314,14 +315,12 @@ void JSONFactory::parseJsonFile( nlohmann::json& j, const fs_path& configFile ) 
 }
 
 
-#define RPC_ENDPOINT "http://localhost:1029"
-
 using namespace jsonrpc;
 
 tuple< ptr< vector< string > >, ptr< vector< string > >, ptr< vector< string > >,
     ptr< vector< ptr< vector< string > > > >, ptr< vector< string > > >
-JSONFactory::parseTestKeyNamesFromJson(
-    const fs_path& configFile, uint64_t _totalNodes, uint64_t _requiredNodes ) {
+JSONFactory::parseTestKeyNamesFromJson( ptr<string> _sgxServerURL, const fs_path& configFile, uint64_t _totalNodes,
+    uint64_t _requiredNodes) {
     CHECK_ARGUMENT( _totalNodes > 0 );
 
     auto ecdsaKeyNames = make_shared< vector< string > >();
@@ -357,7 +356,7 @@ JSONFactory::parseTestKeyNamesFromJson(
     CHECK_STATE( ecdsaKeyNames->size() == _totalNodes );
     CHECK_STATE( blsKeyNames->size() == _totalNodes );
 
-    HttpClient client( RPC_ENDPOINT );
+    HttpClient client(*_sgxServerURL);
     StubClient c( client, JSONRPC_CLIENT_V2 );
 
 

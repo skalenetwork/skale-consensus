@@ -52,6 +52,7 @@ class ConsensusEngine : public ConsensusInterface {
 
     bool useTestSGXKeys = false;
     bool useSGX = false;
+    ptr<string> sgxServerUrl = nullptr;
 
     ptr<vector<string>> ecdsaKeyNames = nullptr;
     ptr<vector<string>> blsKeyNames = nullptr;
@@ -211,13 +212,7 @@ public:
 
     const string &getBlsPublicKey1() const;
 
-    const string &getBlsPublicKey2() const;
 
-    const string &getBlsPublicKey3() const;
-
-    const string &getBlsPublicKey4() const;
-
-    const string &getBlsPrivateKey() const;
 
     u256 getPriceForBlockId(uint64_t _blockId) const override;
 
@@ -228,6 +223,7 @@ public:
 
     ptr<GlobalThreadRegistry> getThreadRegistry() const;
 
-    void setTestKeys( string _configFile, uint64_t _totalNodes, uint64_t _requiredNodes );
+    void setTestKeys(
+        ptr<string> _sgxServerURL, string _configFile, uint64_t _totalNodes, uint64_t _requiredNodes );
 
 };

@@ -263,7 +263,8 @@ ptr<Node> ConsensusEngine::readNodeConfigFileAndCreateNode(const fs_path &path, 
 
 
 
-        auto node = JSONFactory::createNodeFromJsonFile( nodeFileNamePath.string(), _nodeIDs, this,
+        auto node = JSONFactory::createNodeFromJsonFile(sgxServerUrl,
+            nodeFileNamePath.string(), _nodeIDs, this,
             _useSGX, _sgxSSLKeyFileFullPath, _sgxSSLCertFileFullPath, _ecdsaKeyName, _ecdsaPublicKeys, _blsKeyName, _blsPublicKeys, _blsPublicKey );
 
 
@@ -360,7 +361,6 @@ void ConsensusEngine::parseTestConfigsAndCreateAllNodes( const fs_path& dirname 
                 nodeCount++;
         };
 
-        cerr <<  dirname << endl;
 
         bool sgxDirExists = is_directory(dirname.string() + "/../../run_sgx_test/sgx_data");
 
@@ -371,7 +371,8 @@ void ConsensusEngine::parseTestConfigsAndCreateAllNodes( const fs_path& dirname 
                "/" + to_string(nodeCount) + "node.json";
             if (is_regular_file(filePath)) {
                 CHECK_STATE(nodeCount % 3 == 1);
-                this->setTestKeys(filePath, nodeCount, nodeCount - 1 / 3);
+                sgxServerUrl = make_shared<string>("http://localhost:1029");
+                this->setTestKeys(sgxServerUrl, filePath, nodeCount, nodeCount - 1 / 3);
             }
         }
 
@@ -677,25 +678,7 @@ ConsensusEngine::~ConsensusEngine() {
     nodes.clear();
 }
 
-const string &ConsensusEngine::getBlsPublicKey1() const {
-    return blsPublicKey1;
-}
 
-const string &ConsensusEngine::getBlsPublicKey2() const {
-    return blsPublicKey2;
-}
-
-const string &ConsensusEngine::getBlsPublicKey3() const {
-    return blsPublicKey3;
-}
-
-const string &ConsensusEngine::getBlsPublicKey4() const {
-    return blsPublicKey4;
-}
-
-const string &ConsensusEngine::getBlsPrivateKey() const {
-    return blsPrivateKey;
-}
 
 block_id ConsensusEngine::getLargestCommittedBlockID() {
 
@@ -764,14 +747,19 @@ shared_ptr<string> ConsensusEngine::getHealthCheckDir() const {
 ptr<string> ConsensusEngine::getDbDir() const {
     return dbDir;
 }
-void ConsensusEngine::setTestKeys(
+void ConsensusEngine::setTestKeys(ptr<string> _sgxServerUrl,
     string _configFile, uint64_t _totalNodes, uint64_t _requiredNodes ) {
+
+    CHECK_ARGUMENT(_sgxServerUrl);
+
+    sgxServerUrl = _sgxServerUrl;
 
     CHECK_STATE(!useTestSGXKeys)
     CHECK_STATE(!useSGX)
 
     tie(ecdsaKeyNames, ecdsaPublicKeys, blsKeyNames, blsPublicKeys, blsPublicKey) =
-        JSONFactory::parseTestKeyNamesFromJson( _configFile, _totalNodes, _requiredNodes );
+        JSONFactory::parseTestKeyNamesFromJson(sgxServerUrl,
+            _configFile, _totalNodes, _requiredNodes);
 
     CHECK_STATE(ecdsaKeyNames);CHECK_STATE(ecdsaPublicKeys); CHECK_STATE(blsKeyNames);
     CHECK_STATE(blsPublicKeys); CHECK_STATE(blsPublicKey);
