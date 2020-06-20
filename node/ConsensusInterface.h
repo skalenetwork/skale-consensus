@@ -95,6 +95,20 @@ public:
     virtual ~ConsensusExtFace() = default;
 
     virtual void terminateApplication() {};
+
+
+    /* Set sgx key info */
+
+    void setSGXKeyInfo( shared_ptr< string > _sgxServerURL,
+                        shared_ptr<string> _ecdsaKeyName,
+                       // array of ECDSA publicKeys of all nodes, including this node
+                        shared_ptr<vector<string>> _ecdsaPublicKeys,
+                        shared_ptr<string> _blsKeyName,
+                       // array of BLS public key shares of all nodes, including this node
+                       // each BLS public key share is a vector of 4 strings.
+                        shared_ptr<vector<shared_ptr<vector<string>>>> _blsPublicKeyShares,
+                        shared_ptr<string> _blsPublicKey);
+
 };
 
 #endif  // CONSENSUSINTERFACE_H
