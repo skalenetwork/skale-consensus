@@ -104,7 +104,7 @@ CryptoManager::CryptoManager( uint64_t _totalSigners, uint64_t _requiredSigners,
     isSGXEnabled = _isSGXEnabled;
 
     if ( _isSGXEnabled ) {
-        CHECK_ARGUMENT( sgxURL );
+        CHECK_ARGUMENT(_sgxURL );
         CHECK_ARGUMENT( _sgxSslKeyFileFullPath );
         CHECK_ARGUMENT( _sgxSslCertFileFullPath );
         CHECK_ARGUMENT( _sgxEcdsaKeyName );
@@ -286,7 +286,10 @@ bool CryptoManager::sgxVerifyECDSA(
 ptr< string > CryptoManager::signECDSA( ptr< SHAHash > _hash ) {
     CHECK_ARGUMENT( _hash );
     if ( isSGXEnabled ) {
-        return sgxSignECDSA( _hash, *sgxECDSAKeyName );
+        auto result = sgxSignECDSA( _hash, *sgxECDSAKeyName );
+        CHECK_STATE(verifyECDSA(_hash,
+            result, getSchain()->getNode()->getNodeID()));
+        return result;
     } else {
         return _hash->toHex();
     }
@@ -295,10 +298,17 @@ ptr< string > CryptoManager::signECDSA( ptr< SHAHash > _hash ) {
 bool CryptoManager::verifyECDSA( ptr< SHAHash > _hash, ptr< string > _sig, node_id _nodeId ) {
     CHECK_ARGUMENT( _hash != nullptr )
     CHECK_ARGUMENT( _sig != nullptr )
+
+    cerr << "Verifying signature:" + *_hash->toHex() + ":" + *_sig + ":" + to_string(_nodeId) << endl;
+
     if ( isSGXEnabled ) {
+
+
         auto pubKey = ecdsaPublicKeyMap.at( _nodeId );
         CHECK_STATE(pubKey);
-        return sgxVerifyECDSA( _hash, pubKey, _sig );
+        auto result = sgxVerifyECDSA( _hash, pubKey, _sig );
+
+        return result;
     } else {
         // mockup - used for testing
         return *_sig == *( _hash->toHex() );
