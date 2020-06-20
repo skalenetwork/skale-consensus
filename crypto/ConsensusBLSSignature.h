@@ -47,6 +47,7 @@ public:
 
     std::shared_ptr<std::string> toString();
 
+
     uint64_t getRandom();
 
     ptr<BLSSignature> getBlsSig() const;
