@@ -774,7 +774,7 @@ void ConsensusEngine::setTestKeys(ptr<string> _sgxServerUrl,
 }
 void ConsensusEngine::setSGXKeyInfo(ptr< string > _sgxServerURL,  ptr< string > _ecdsaKeyName,
     ptr< vector< string > > _ecdsaPublicKeys, ptr< string > _blsKeyName,
-    ptr< vector< ptr< vector< string > > > > _blsPublicKeyShares, ptr<string>
+    ptr< vector< ptr< vector< string > > > > _blsPublicKeyShares, ptr<vector<string>>
         _blsPublicKey) {
 
 
@@ -783,6 +783,8 @@ void ConsensusEngine::setSGXKeyInfo(ptr< string > _sgxServerURL,  ptr< string > 
     CHECK_STATE(_blsKeyName);
     CHECK_STATE(_blsPublicKeyShares);
     CHECK_STATE(_ecdsaPublicKeys);
+    CHECK_STATE(_ecdsaPublicKeys);
+    CHECK_STATE(_blsPublicKey);
 
     this->sgxServerUrl = _sgxServerURL;
     this->isSGXEnabled = true;
@@ -792,5 +794,6 @@ void ConsensusEngine::setSGXKeyInfo(ptr< string > _sgxServerURL,  ptr< string > 
     this->ecdsaPublicKeys = _ecdsaPublicKeys;
     this->ecdsaKeyName = _ecdsaKeyName;
     this->blsKeyName = _blsKeyName;
+    this->blsPublicKey = _blsPublicKey;
 
 }

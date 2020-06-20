@@ -107,7 +107,7 @@ public:
                        // array of BLS public key shares of all nodes, including this node
                        // each BLS public key share is a vector of 4 strings.
                         shared_ptr<vector<shared_ptr<vector<string>>>> _blsPublicKeyShares,
-                        shared_ptr<string> _blsPublicKey);
+                        shared_ptr<vector<string>> _blsPublicKey);
 
 };
 
