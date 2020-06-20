@@ -427,9 +427,9 @@ JSONFactory::parseTestKeyNamesFromJson( ptr<string> _sgxServerURL, const fs_path
         blsSigShares.at( i ) = c.blsSignMessageHash(
             blsKeyNames->at( i ), *SAMPLE_HASH, _requiredNodes, _totalNodes, i + 1 );
         CHECK_STATE( blsSigShares[i]["status"] == 0 );
-        ptr< string > sig_share_ptr =
+        ptr< string > sigShare =
             make_shared< string >( blsSigShares[i]["signatureShare"].asString() );
-        BLSSigShare sig( sig_share_ptr, i + 1, _requiredNodes, _totalNodes );
+        BLSSigShare sig( sigShare, i + 1, _requiredNodes, _totalNodes );
         sigShareSet.addSigShare( make_shared< BLSSigShare >( sig ) );
 
         auto pubKey = blsPublicKeysMap->at( i + 1 );

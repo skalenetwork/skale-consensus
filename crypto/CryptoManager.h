@@ -84,16 +84,21 @@ class CryptoManager {
     ptr< vector< ptr< vector< string > > > > sgxBLSPublicKeys;
     ptr< vector< string > > sgxBLSPublicKey;
 
+
+    map<node_id, ptr<string>> ecdsaPublicKeyMap;
+    map<node_id, ptr<vector<string>>> blsPublicKeyMap;
+
+
+
+
     ptr< BLSPublicKey > blsPublicKeyObj = nullptr;
 
-public:
-    const ptr< BLSPublicKey >& getBlsPublicKeyObj() const;
 private:
     Schain* sChain = nullptr;
 
     ptr< string > signECDSA( ptr< SHAHash > _hash );
 
-    bool verifyECDSA( ptr< SHAHash > _hash, ptr< string > _sig );
+    bool verifyECDSA( ptr< SHAHash > _hash, ptr< string > _sig, node_id _nodeId );
 
     ptr< ThresholdSigShare > signSigShare( ptr< SHAHash > _hash, block_id _blockId );
 
@@ -143,9 +148,16 @@ public:
     static void setSGXKeyAndCert( string& _keyFullPath, string& _certFullPath );
 
     ptr< string > sgxSignECDSA( ptr< SHAHash > _hash, string& _keyName );
+
+
+
     bool sgxVerifyECDSA( ptr< SHAHash > _hash, ptr< string > _publicKey, ptr< string > _sig );
 
     ptr< vector< string > > getSgxBlsPublicKey();
+    ptr< string > getSgxBlsKeyName();
+
+
+    ptr< BLSPublicKey > getBlsPublicKeyObj() const;
 };
 
 
