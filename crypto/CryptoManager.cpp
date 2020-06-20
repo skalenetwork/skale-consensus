@@ -96,6 +96,10 @@ CryptoManager::CryptoManager( uint64_t _totalSigners, uint64_t _requiredSigners,
     ptr< string > _sgxURL, ptr< string > _sgxSslKeyFileFullPath,
     ptr< string > _sgxSslCertFileFullPath, ptr< string > _sgxEcdsaKeyName,
     ptr< vector< string > > _sgxEcdsaPublicKeys ) {
+
+    CHECK_ARGUMENT(_totalSigners > _requiredSigners);
+
+
     totalSigners = _totalSigners;
     requiredSigners = _requiredSigners;
 
@@ -125,6 +129,12 @@ CryptoManager::CryptoManager( uint64_t _totalSigners, uint64_t _requiredSigners,
 
 CryptoManager::CryptoManager( Schain& _sChain ) : sChain( &_sChain ) {
     CHECK_ARGUMENT( sChain != nullptr );
+
+
+    totalSigners = getSchain()->getTotalSigners();
+    requiredSigners = getSchain()->getRequiredSigners();
+
+    CHECK_ARGUMENT(totalSigners > requiredSigners);
 
     isSGXEnabled = _sChain.getNode()->isSgxEnabled();
 
@@ -166,6 +176,7 @@ CryptoManager::CryptoManager( Schain& _sChain ) : sChain( &_sChain ) {
 
 
         initSGX();
+
 
         blsPublicKeyObj = make_shared< BLSPublicKey >(
             getSgxBlsPublicKey(), requiredSigners, totalSigners );
@@ -369,6 +380,10 @@ ptr< ThresholdSigShareSet > CryptoManager::createSigShareSet( block_id _blockId 
 
 ptr< ThresholdSigShare > CryptoManager::createSigShare(
     ptr< string > _sigShare, schain_id _schainID, block_id _blockID, schain_index _signerIndex ) {
+
+    CHECK_STATE(totalSigners > requiredSigners);
+
+
     if ( getSchain()->getNode()->isSgxEnabled() ) {
         return make_shared< ConsensusBLSSigShare >(
             _sigShare, _schainID, _blockID, _signerIndex, totalSigners, requiredSigners );
