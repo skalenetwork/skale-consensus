@@ -80,8 +80,7 @@ void CryptoManager::initSGX() {
         sgxClient = make_shared< StubClient >( *httpClient, jsonrpc::JSONRPC_CLIENT_V2 );
 
 
-        blsPublicKeyObj = make_shared< BLSPublicKey >(
-            getSgxBlsPublicKey(), sChain->getRequiredSigners(), sChain->getTotalSigners() );
+
     }
 }
 ptr< vector< string > > CryptoManager::getSgxBlsPublicKey() {
@@ -157,6 +156,9 @@ CryptoManager::CryptoManager( Schain& _sChain ) : sChain( &_sChain ) {
 
         isHTTPSEnabled = sgxURL->find( "https:/" ) != string::npos;
 
+        totalSigners = sChain->getTotalSigners();
+        requiredSigners = sChain->getRequiredSigners();
+
         if ( isHTTPSEnabled ) {
             CHECK_STATE( sgxSSLCertFileFullPath );
             CHECK_STATE( sgxSSLKeyFileFullPath );
@@ -164,10 +166,12 @@ CryptoManager::CryptoManager( Schain& _sChain ) : sChain( &_sChain ) {
 
 
         initSGX();
+
+        blsPublicKeyObj = make_shared< BLSPublicKey >(
+            getSgxBlsPublicKey(), requiredSigners, totalSigners );
     }
 
-    totalSigners = sChain->getTotalSigners();
-    requiredSigners = sChain->getRequiredSigners();
+
 }
 
 void CryptoManager::setSGXKeyAndCert( string& _keyFullPath, string& _certFullPath ) {
