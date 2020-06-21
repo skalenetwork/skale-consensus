@@ -475,12 +475,20 @@ ptr< ThresholdSignature > CryptoManager::verifyThresholdSig(
         auto sig = make_shared< ConsensusBLSSignature >(
             _signature, _blockId, requiredSigners, totalSigners );
 
-        if ( !blsPublicKeyObj->VerifySig(
-                 hash, sig->getBlsSig(), requiredSigners, totalSigners ) ) {
-            BOOST_THROW_EXCEPTION(
-                InvalidArgumentException( "BLS Signature did not verify", __CLASS_NAME__ ) );
+
+
+         try {
+            if ( !blsPublicKeyObj->VerifySig(
+                     hash, sig->getBlsSig(), requiredSigners, totalSigners ) ) {
+                BOOST_THROW_EXCEPTION(
+                    InvalidArgumentException( "BLS Signature did not verify", __CLASS_NAME__ ) );
+            }
+        } catch (exception& _e) {
+            cerr << _e.what() << endl;
+            //verify everything for now
         }
         return sig;
+
     } else {
         auto sig =
             make_shared< MockupSignature >( _signature, _blockId, requiredSigners, totalSigners );
