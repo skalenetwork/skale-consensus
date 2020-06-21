@@ -153,6 +153,10 @@ public:
 
     bool sgxVerifyECDSA( ptr< SHAHash > _hash, ptr< string > _publicKey, ptr< string > _sig );
 
+    bool verifyECDSASigRS( string& pubKeyStr, const char* hashHex, const char* signatureR,
+                                        const char* signatureS, int base );
+
+
     ptr< vector< string > > getSgxBlsPublicKey();
     ptr< string > getSgxBlsKeyName();
 

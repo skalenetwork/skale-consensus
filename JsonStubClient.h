@@ -91,6 +91,9 @@ public:
             throw jsonrpc::JsonRpcException(jsonrpc::Errors::ERROR_CLIENT_INVALID_RESPONSE, result.toStyledString());
     }
 
+
+
+
     Json::Value ecdsaSignMessageHash(int base, const std::string& keyName, const std::string& messageHash)
     {
         Json::Value p;
