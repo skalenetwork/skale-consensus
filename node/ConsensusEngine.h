@@ -53,6 +53,9 @@ class ConsensusEngine : public ConsensusInterface {
     bool isSGXEnabled = false;
     ptr< string > sgxServerUrl = nullptr;
 
+    ptr<string> sgxSSLKeyFileFullPath = nullptr;
+    ptr<string> sgxSSLCertFileFullPath = nullptr;
+
     ptr<string> ecdsaKeyName = nullptr;
 
 public:
@@ -217,14 +220,18 @@ public:
     void setTestKeys( ptr< string > _sgxServerURL, string _configFile, uint64_t _totalNodes,
         uint64_t _requiredNodes );
 
-    void setSGXKeyInfo(ptr< string > _sgxServerURL, ptr<string> _ecdsaKeyName,
+    void setSGXKeyInfo(ptr< string > _sgxServerURL,
+        ptr<string> _sgxSSLKeyFileFullPath,
+        ptr<string> _sgxSSLCertFileFullPath,
+        ptr<string> _ecdsaKeyName,
         // array of ECDSA publicKeys of all nodes, including this node
                        ptr<vector<string>> _ecdsaPublicKeys,
                        ptr<string> _blsKeyName,
         // array of BLS public key shares of all nodes, including this node
         // each BLS public key share is a vector of 4 strings.
                        ptr<vector<ptr<vector<string>>>> _blsPublicKeyShares,
-                       ptr<vector<string>> _blsPublicKey);
+                       uint64_t _requiredSigners,
+                       uint64_t _totalSigners);
 
 
 };
