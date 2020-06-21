@@ -200,7 +200,8 @@ ptr< string > CryptoManager::sgxSignECDSA( ptr< SHAHash > _hash, string& _keyNam
 
     auto ret =  make_shared< string >( v + ":" + r.substr( 2 ) + ":" + s.substr( 2 ) );
 
-    cerr << "Signed:"<< *ret;
+
+    cerr << "Signed:"<< *ret <<  ":" << _keyName << ":" << *_hash->toHex() << endl;
 
     return ret;
 
@@ -223,18 +224,19 @@ bool CryptoManager::verifyECDSASigRS( string& pubKeyStr, const char* hashHex, co
     mpz_t msgMpz;
     mpz_init(msgMpz);
     if (mpz_set_str(msgMpz, hashHex, 16) == -1) {
-        spdlog::error("invalid message hash {}", hashHex);
+        LOG(err, "invalid message hash" + string(hashHex));
         goto clean;
     }
 
     if (signature_set_str(sig, signatureR, signatureS, base) != 0) {
-        spdlog::error("Failed to set str signature");
+        LOG(err, "Failed to set str signature");
         goto clean;
     }
 
     point_set_hex(publicKey, x.c_str(), y.c_str());
+
     if (!signature_verify(msgMpz, sig, publicKey, curve)) {
-        spdlog::error("ECDSA sig not verified");
+        LOG(err, "ECDSA sig not verified");
         goto clean;
     }
 
@@ -309,7 +311,7 @@ ptr< string > CryptoManager::signECDSA( ptr< SHAHash > _hash ) {
     CHECK_ARGUMENT( _hash );
     if ( isSGXEnabled ) {
         auto result = sgxSignECDSA( _hash, *sgxECDSAKeyName );
-        CHECK_STATE( verifyECDSA( _hash, result, getSchain()->getNode()->getNodeID() ) );
+        CHECK_STATE(verifyECDSA( _hash, result, getSchain()->getNode()->getNodeID() ) );
         return result;
     } else {
         return _hash->toHex();
@@ -320,17 +322,28 @@ bool CryptoManager::verifyECDSA( ptr< SHAHash > _hash, ptr< string > _sig, node_
     CHECK_ARGUMENT( _hash != nullptr )
     CHECK_ARGUMENT( _sig != nullptr )
 
-    cerr << "Verifying signature:" + *_hash->toHex() + ":" + *_sig + ":" + to_string( _nodeId )
-         << endl;
+    cerr << "Verifying signature:" + *_sig + ":" + to_string( _nodeId ) + ":" + *_hash->toHex() << endl;
 
     if ( isSGXEnabled ) {
         auto pubKey = ecdsaPublicKeyMap.at( _nodeId );
+
+        cerr << "Pubkey:" << *pubKey << endl;
+
         CHECK_STATE( pubKey );
         auto result = sgxVerifyECDSA( _hash, pubKey, _sig );
 
         return result;
     } else {
         // mockup - used for testing
+
+        //
+
+        if (_sig->find(":") != string::npos) {
+            LOG(critical, "Misconfiguration: this node is in mockup signature mode,"
+                "but other node sent a real signature ");
+            assert(false);
+        }
+
         return *_sig == *( _hash->toHex() );
     }
 }
