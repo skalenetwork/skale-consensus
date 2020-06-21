@@ -450,3 +450,18 @@ JSONFactory::parseTestKeyNamesFromJson( ptr<string> _sgxServerURL, const fs_path
 
     return { ecdsaKeyNames, ecdsaPublicKeyNames, blsKeyNames, blsPublicKeyNames, blsPublicKeyVect };
 }
+
+
+ptr<vector<string>> JSONFactory::splitString(const string& _str, const string& _delim ){
+    auto tokens = make_shared<vector<string>>();
+    size_t prev = 0, pos = 0;
+    do {
+        pos = _str.find( _delim, prev);
+        if (pos == string::npos) pos = _str.length();
+        string token = _str.substr(prev, pos-prev);
+        if (!token.empty()) tokens->push_back(token);
+        prev = pos + _delim.length();
+    } while (pos < _str.length() && prev < _str.length());
+
+    return tokens;
+}

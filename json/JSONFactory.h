@@ -66,4 +66,7 @@ public:
     static pair< ptr< vector< string > >, ptr< vector< string > > > parseAllTestKeyNames(
         ptr<string> _sgxServerUrl,
         const fs_path& _dir );
+
+    ptr<vector<string>> splitString(const string& str, const string& _delim = ":");
+
 };
