@@ -1,12 +1,15 @@
 version: '3'
 services:
   sgxwallet:
-    image: skalenetwork/sgxwallet_sim:develop-latest 
+    image: skalenetwork/sgxwallet:develop-latest 
     ports:
       - "1026:1026"
       - "1027:1027"
       - "1028:1028"
       - "1029:1029"
+    devices:
+      - "/dev/isgx"
+      - "/dev/mei0"
     volumes:
       - ./sgx_data:/usr/src/sdk/sgx_data
       -  /dev/urandom:/dev/random
