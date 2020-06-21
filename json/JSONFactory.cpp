@@ -56,11 +56,18 @@
 
 #include "JSONFactory.h"
 
-ptr< Node > JSONFactory::createNodeFromJson( const fs_path& jsonFile, set< node_id >& nodeIDs,
-    ConsensusEngine* _consensusEngine, bool _useSGX, ptr< string > _ecdsaKeyName,
+ptr< Node > JSONFactory::createNodeFromJsonFile(
+    ptr<string> _sgxUrl, const fs_path& jsonFile, set< node_id >& nodeIDs,
+    ConsensusEngine* _consensusEngine, bool _useSGX,
+                                                 ptr<string> _sgxSSLKeyFileFullPath,
+                                                 ptr<string> _sgxSSLCertFileFullPath,
+    ptr< string > _ecdsaKeyName,
     ptr< vector< string > > _ecdsaPublicKeys, ptr< string > _blsKeyName,
     ptr< vector< ptr< vector< string > > > > _blsPublicKeys,
     ptr< vector< string > > _blsPublicKey ) {
+
+    ptr<string> sgxUrl = nullptr;
+
     try {
         if ( _useSGX ) {
             CHECK_ARGUMENT( _ecdsaKeyName );
@@ -68,14 +75,19 @@ ptr< Node > JSONFactory::createNodeFromJson( const fs_path& jsonFile, set< node_
             CHECK_ARGUMENT( _blsKeyName );
             CHECK_ARGUMENT( _blsPublicKeys );
             CHECK_ARGUMENT( _blsPublicKey && _blsPublicKey->size() == 4 );
+            sgxUrl = _sgxUrl;
         }
 
         nlohmann::json j;
 
         parseJsonFile( j, jsonFile );
 
+
         return createNodeFromJsonObject(
             j, nodeIDs, _consensusEngine, _useSGX,
+            sgxUrl,
+            _sgxSSLKeyFileFullPath,
+            _sgxSSLCertFileFullPath,
             _ecdsaKeyName, _ecdsaPublicKeys,
             _blsKeyName, _blsPublicKeys,
             _blsPublicKey
@@ -87,20 +99,35 @@ ptr< Node > JSONFactory::createNodeFromJson( const fs_path& jsonFile, set< node_
 
 ptr< Node > JSONFactory::createNodeFromJsonObject( const nlohmann::json& j, set< node_id >& nodeIDs,
     ConsensusEngine* _engine,
-    bool _useSGX, ptr< string > _ecdsaKeyName, ptr< vector< string > > _ecdsaPublicKeys,
+    bool _useSGX,
+    ptr<string> _sgxURL,
+    ptr<string> _sgxSSLKeyFileFullPath,
+    ptr<string> _sgxSSLCertFileFullPath,
+    ptr< string > _ecdsaKeyName, ptr< vector< string > > _ecdsaPublicKeys,
     ptr< string > _blsKeyName, ptr< vector< ptr< vector< string > > > > _blsPublicKeys,
     ptr< vector< string > > _blsPublicKey ) {
-    if ( _useSGX ) {
+
+
+    string empty = "";
+
+    if (_useSGX) {
+        if (!_sgxSSLKeyFileFullPath && (j.count("sgxKeyFileFullPath") > 0)) {
+            _sgxSSLKeyFileFullPath = make_shared<string>(j.at("sgxKeyFileFullPath").get<string>());
+        }
+        if (!_sgxSSLCertFileFullPath && (j.count("sgxCertFileFullPath") > 0 )) {
+            _sgxSSLCertFileFullPath =
+                make_shared<string>(j.at("sgxCertFileFullPath").get<string>());
+        }
+
         CHECK_ARGUMENT( _ecdsaKeyName && _ecdsaPublicKeys );
         CHECK_ARGUMENT( _blsKeyName && _blsPublicKeys );
         CHECK_ARGUMENT( _blsPublicKey && _blsPublicKey->size() == 4 );
-
+        CHECK_STATE(JSONFactory::splitString(*_ecdsaKeyName)->size() == 2);
+        CHECK_STATE(JSONFactory::splitString(*_blsKeyName)->size() == 7);
     }
 
-    if ( j.find( "transport" ) != j.end() ) {
-        ptr< string > transport = make_shared< string >( j.at( "transport" ).get< string >() );
-        Network::setTransport( TransportType::ZMQ );
-    }
+    Network::setTransport( TransportType::ZMQ );
+
 
 
     if ( j.find( "logLevelConfig" ) != j.end() ) {
@@ -114,7 +141,12 @@ ptr< Node > JSONFactory::createNodeFromJsonObject( const nlohmann::json& j, set<
 
     if ( nodeIDs.empty() || nodeIDs.count( node_id( nodeID ) ) > 0 ) {
         try {
-            node = make_shared< Node >( j, _engine, _useSGX,
+
+
+            node = make_shared<Node> ( j, _engine, _useSGX,
+                _sgxURL,
+                _sgxSSLKeyFileFullPath,
+                _sgxSSLCertFileFullPath,
                 _ecdsaKeyName, _ecdsaPublicKeys,
                 _blsKeyName, _blsPublicKeys, _blsPublicKey);
         } catch ( ... ) {
@@ -282,14 +314,12 @@ void JSONFactory::parseJsonFile( nlohmann::json& j, const fs_path& configFile ) 
 }
 
 
-#define RPC_ENDPOINT "http://localhost:1029"
-
 using namespace jsonrpc;
 
 tuple< ptr< vector< string > >, ptr< vector< string > >, ptr< vector< string > >,
     ptr< vector< ptr< vector< string > > > >, ptr< vector< string > > >
-JSONFactory::parseTestKeyNamesFromJson(
-    const fs_path& configFile, uint64_t _totalNodes, uint64_t _requiredNodes ) {
+JSONFactory::parseTestKeyNamesFromJson( ptr<string> _sgxServerURL, const fs_path& configFile, uint64_t _totalNodes,
+    uint64_t _requiredNodes) {
     CHECK_ARGUMENT( _totalNodes > 0 );
 
     auto ecdsaKeyNames = make_shared< vector< string > >();
@@ -314,10 +344,21 @@ JSONFactory::parseTestKeyNamesFromJson(
     CHECK_STATE( blsKeyNamesObject.size() == _totalNodes );
 
     for ( uint64_t i = 1; i <= _totalNodes; i++ ) {
-        auto ecdsaKeyName = ecdsaKeyNamesObject.at( to_string( i ) );
+
+        auto key = to_string(i);
+        string fullKey(3 - key.size(), '0');
+        fullKey.append(key);
+
+        auto ecdsaKeyName = ecdsaKeyNamesObject.at( fullKey );
+        CHECK_STATE(JSONFactory::splitString(ecdsaKeyName)->size() == 2);
         ecdsaKeyNames->push_back( ecdsaKeyName );
 
-        auto blsKeyName = blsKeyNamesObject.at( to_string( i ) );
+        auto blsKeyName = blsKeyNamesObject.at( fullKey );
+
+
+        CHECK_STATE(JSONFactory::splitString(blsKeyName)->size() == 7);
+
+
         blsKeyNames->push_back( blsKeyName );
     }
 
@@ -325,7 +366,7 @@ JSONFactory::parseTestKeyNamesFromJson(
     CHECK_STATE( ecdsaKeyNames->size() == _totalNodes );
     CHECK_STATE( blsKeyNames->size() == _totalNodes );
 
-    HttpClient client( RPC_ENDPOINT );
+    HttpClient client(*_sgxServerURL);
     StubClient c( client, JSONRPC_CLIENT_V2 );
 
 
@@ -340,6 +381,9 @@ JSONFactory::parseTestKeyNamesFromJson(
 
 
     for ( uint64_t i = 0; i < _totalNodes; i++ ) {
+
+
+
         auto response = c.getBLSPublicKeyShare( blsKeyNames->at( i ) );
         CHECK_STATE( response["status"] == 0 );
 
@@ -396,9 +440,9 @@ JSONFactory::parseTestKeyNamesFromJson(
         blsSigShares.at( i ) = c.blsSignMessageHash(
             blsKeyNames->at( i ), *SAMPLE_HASH, _requiredNodes, _totalNodes, i + 1 );
         CHECK_STATE( blsSigShares[i]["status"] == 0 );
-        ptr< string > sig_share_ptr =
+        ptr< string > sigShare =
             make_shared< string >( blsSigShares[i]["signatureShare"].asString() );
-        BLSSigShare sig( sig_share_ptr, i + 1, _requiredNodes, _totalNodes );
+        BLSSigShare sig( sigShare, i + 1, _requiredNodes, _totalNodes );
         sigShareSet.addSigShare( make_shared< BLSSigShare >( sig ) );
 
         auto pubKey = blsPublicKeysMap->at( i + 1 );
@@ -413,4 +457,19 @@ JSONFactory::parseTestKeyNamesFromJson(
         hash->getHash(), commonSig, _requiredNodes, _totalNodes ) );
 
     return { ecdsaKeyNames, ecdsaPublicKeyNames, blsKeyNames, blsPublicKeyNames, blsPublicKeyVect };
+}
+
+
+ptr<vector<string>> JSONFactory::splitString(const string& _str, const string& _delim ){
+    auto tokens = make_shared<vector<string>>();
+    size_t prev = 0, pos = 0;
+    do {
+        pos = _str.find( _delim, prev);
+        if (pos == string::npos) pos = _str.length();
+        string token = _str.substr(prev, pos-prev);
+        if (!token.empty()) tokens->push_back(token);
+        prev = pos + _delim.length();
+    } while (pos < _str.length() && prev < _str.length());
+
+    return tokens;
 }

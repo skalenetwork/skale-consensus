@@ -49,5 +49,7 @@ void SkaleException::logNested(const std::exception &e, int level)
         std::rethrow_if_nested(e);
     } catch(const std::exception& e) {
         logNested(e, level + 1);
-    } catch(...) {}
+    } catch(...) {
+        LOG(err, string(level, ' ') + prefix + "Unknown throwable");
+    }
 }

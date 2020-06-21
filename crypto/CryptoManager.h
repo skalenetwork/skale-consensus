@@ -30,11 +30,12 @@
 
 
 #define USER_SPACE 1
-#include "sgxwallet/secure_enclave/Point.h"
+
 #include "sgxwallet/secure_enclave/DomainParameters.h"
-#include "sgxwallet/secure_enclave/NumberTheory.h"
-#include "sgxwallet/secure_enclave/Signature.h"
 #include "sgxwallet/secure_enclave/Curves.h"
+#include "sgxwallet/secure_enclave/NumberTheory.h"
+#include "sgxwallet/secure_enclave/Point.h"
+#include "sgxwallet/secure_enclave/Signature.h"
 
 class Schain;
 class SHAHash;
@@ -45,6 +46,7 @@ class BlockProposal;
 class ThresholdSignature;
 class StubClient;
 class ECP;
+class BLSPublicKey;
 
 namespace CryptoPP {
 class ECP;
@@ -60,6 +62,9 @@ class HttpClient;
 
 class CryptoManager {
 
+
+    recursive_mutex clientLock;
+
     ptr< StubClient > sgxClient = nullptr;
 
 
@@ -71,29 +76,44 @@ class CryptoManager {
     uint64_t totalSigners;
     uint64_t requiredSigners;
 
-    bool sgxEnabled = false;
+    bool isSGXEnabled = false;
+    bool isHTTPSEnabled = true;
 
-    ptr< string > sgxIP;
+    ptr< string > sgxURL;
     ptr< string > sgxSSLKeyFileFullPath;
     ptr< string > sgxSSLCertFileFullPath;
     ptr< string > sgxECDSAKeyName;
-    vector< ptr< string > > sgxECDSAPublicKeys;
+    ptr< vector< string > > sgxECDSAPublicKeys;
+    ptr< string > sgxBlsKeyName;
+    ptr< vector< ptr< vector< string > > > > sgxBLSPublicKeys;
+    ptr< vector< string > > sgxBLSPublicKey;
 
+
+    map<node_id, ptr<string>> ecdsaPublicKeyMap;
+    map<node_id, ptr<vector<string>>> blsPublicKeyMap;
+
+
+
+
+    ptr< BLSPublicKey > blsPublicKeyObj = nullptr;
+
+private:
     Schain* sChain = nullptr;
 
     ptr< string > signECDSA( ptr< SHAHash > _hash );
 
-    bool verifyECDSA( ptr< SHAHash > _hash, ptr< string > _sig );
+    bool verifyECDSA( ptr< SHAHash > _hash, ptr< string > _sig, node_id _nodeId );
 
     ptr< ThresholdSigShare > signSigShare( ptr< SHAHash > _hash, block_id _blockId );
 
+    void initSGX();
 
 public:
     // This constructor is used for testing
-    CryptoManager( uint64_t totalSigners, uint64_t requiredSigners, const ptr< string >& sgxIp,
-        const ptr< string >& sgxSslKeyFileFullPath, const ptr< string >& sgxSslCertFileFullPath,
-        const ptr< string >& sgxEcdsaKeyName, const vector< ptr< string > >& sgxEcdsaPublicKeys );
-
+    CryptoManager( uint64_t _totalSigners, uint64_t _requiredSigners, bool _isSGXEnabled,
+        ptr< string > _sgxURL = nullptr, ptr< string > _sgxSslKeyFileFullPath = nullptr,
+        ptr< string > _sgxSslCertFileFullPath = nullptr, ptr< string > _sgxEcdsaKeyName = nullptr,
+        ptr< vector< string > > _sgxEcdsaPublicKeys = nullptr );
 
     CryptoManager( Schain& sChain );
 
@@ -126,13 +146,26 @@ public:
 
     static pair< ptr< string >, ptr< string > > generateSGXECDSAKey( ptr< StubClient > _c );
 
-    static ptr< string > getSGXPublicKey( ptr< string > _keyName, ptr< StubClient > _c );
+    static ptr< string > getSGXEcdsaPublicKey( ptr< string > _keyName, ptr< StubClient > _c );
 
     static void generateSSLClientCertAndKey( string& _fullPathToDir );
     static void setSGXKeyAndCert( string& _keyFullPath, string& _certFullPath );
 
     ptr< string > sgxSignECDSA( ptr< SHAHash > _hash, string& _keyName );
+
+
+
     bool sgxVerifyECDSA( ptr< SHAHash > _hash, ptr< string > _publicKey, ptr< string > _sig );
+
+    bool verifyECDSASigRS( string& pubKeyStr, const char* hashHex, const char* signatureR,
+                                        const char* signatureS, int base );
+
+
+    ptr< vector< string > > getSgxBlsPublicKey();
+    ptr< string > getSgxBlsKeyName();
+
+
+    ptr< BLSPublicKey > getBlsPublicKeyObj() const;
 };
 
 

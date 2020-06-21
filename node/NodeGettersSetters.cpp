@@ -287,12 +287,6 @@ uint64_t Node::getCommittedTransactionHistoryLimit() const {
 }
 
 
-ptr<BLSPublicKey> Node::getBlsPublicKey() const {
-    if (!blsPublicKey) {
-        BOOST_THROW_EXCEPTION(FatalError("Null BLS public key", __CLASS_NAME__));
-    }
-    return blsPublicKey;
-}
 
 
 
@@ -372,4 +366,13 @@ uint64_t Node::getBlockProposalDBSize() const {
 ConsensusEngine *Node::getConsensusEngine() const {
     return consensusEngine;
 }
+ptr< string > Node::getSgxUrl()  {
+    return sgxURL;
+}
+ptr< string > Node::getSgxSslKeyFileFullPath()  {
+    return sgxSSLKeyFileFullPath;
+}
 
+ptr< string > Node::getSgxSslCertFileFullPath() {
+    return sgxSSLCertFileFullPath;
+}

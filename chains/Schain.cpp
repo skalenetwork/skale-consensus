@@ -698,6 +698,7 @@ void Schain::daProofSigShareArrived(
     MONITOR( __CLASS_NAME__, __FUNCTION__ )
 
     checkForExit();
+
     CHECK_ARGUMENT( _sigShare != nullptr );
     CHECK_ARGUMENT( _proposal != nullptr );
 

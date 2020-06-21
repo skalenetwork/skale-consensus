@@ -42,7 +42,7 @@
 
 #include "ConsensusEngine.h"
 #include "ConsensusInterface.h"
-#include "Node.h"
+
 #include "blockproposal/server/BlockProposalServerAgent.h"
 #include "catchup/server/CatchupServerAgent.h"
 #include "chains/Schain.h"
@@ -64,33 +64,51 @@
 #include "network/TCPServerSocket.h"
 #include "network/ZMQNetwork.h"
 #include "network/ZMQSockets.h"
-#include "node/NodeInfo.h"
+#include "json/JSONFactory.h"
+#include "NodeInfo.h"
+#include "Node.h"
 
 using namespace std;
 
 Node::Node(const nlohmann::json &_cfg, ConsensusEngine *_consensusEngine,
-           bool _useSGX, ptr< string > _ecdsaKeyName,
+           bool _useSGX, ptr<string> _sgxURL,
+           ptr<string> _sgxSSLKeyFileFullPath,
+           ptr<string> _sgxSSLCertFileFullPath,
+           ptr< string > _ecdsaKeyName,
            ptr< vector< string > > _ecdsaPublicKeys, ptr< string > _blsKeyName,
            ptr< vector< ptr< vector< string > > > > _blsPublicKeys,
            ptr< vector< string > > _blsPublicKey) {
 
     if (_useSGX) {
+        CHECK_ARGUMENT(_sgxURL);
+        if (_sgxURL->find("https:/") != string::npos) {
+            CHECK_ARGUMENT( _sgxSSLKeyFileFullPath );
+            CHECK_ARGUMENT( _sgxSSLCertFileFullPath );
+        }
         CHECK_ARGUMENT(_ecdsaKeyName && _ecdsaPublicKeys);
         CHECK_ARGUMENT(_blsKeyName && _blsPublicKeys);
         CHECK_ARGUMENT(_blsPublicKey && _blsPublicKey->size() == 4);
 
         sgxEnabled = true;
 
+        CHECK_STATE(JSONFactory::splitString(*_ecdsaKeyName)->size() == 2);
+        CHECK_STATE(JSONFactory::splitString(*_blsKeyName)->size() == 7);
+
         ecdsaKeyName = _ecdsaKeyName;
         ecdsaPublicKeys = _ecdsaPublicKeys;
 
         blsKeyName = _blsKeyName;
         blsPublicKeys = _blsPublicKeys;
-        blsPublicKeyStr = _blsPublicKey;
+        blsPublicKey = _blsPublicKey;
 
 
-        blsPublicKey = make_shared<BLSPublicKey>(
-                blsPublicKeyStr, sChain->getTotalSigners(), sChain->getRequiredSigners());
+
+
+        static string empty("");
+
+        sgxURL = _sgxURL;
+        sgxSSLKeyFileFullPath = _sgxSSLKeyFileFullPath;
+        sgxSSLCertFileFullPath = _sgxSSLCertFileFullPath;
 
 
     }
@@ -405,12 +423,22 @@ void Node::exitOnFatalError(const string &_message) {
     }
     LOG(critical, _message);
 }
-const ptr< string >& Node::getEcdsaKeyName() const {
+
+bool Node::isSgxEnabled() {
+    return sgxEnabled;
+}
+ptr< string > Node::getEcdsaKeyName() {
     return ecdsaKeyName;
 }
-void Node::setEcdsaKeyName( const ptr< string >& _ecdsaKeyName ) {
-    Node::ecdsaKeyName = _ecdsaKeyName;
+ptr< vector< string > > Node::getEcdsaPublicKeys() {
+    return ecdsaPublicKeys;
 }
-bool Node::isSgxEnabled() const {
-    return sgxEnabled;
+ptr< string > Node::getBlsKeyName() {
+    return blsKeyName;
+}
+ptr< vector< ptr< vector< string > > > > Node::getBlsPublicKeys() {
+    return blsPublicKeys;
+}
+ptr< vector< string > > Node::getBlsPublicKey() {
+    return blsPublicKey;
 }

@@ -42,8 +42,8 @@
 #include <jsonrpccpp/client/connectors/httpclient.h>
 
 
-#include "SkaleCommon.h"
 #include "Log.h"
+#include "SkaleCommon.h"
 
 #include <gmp.h>
 
@@ -62,32 +62,67 @@
 #include "datastructures/BlockProposal.h"
 #include "monitoring/LivelinessMonitor.h"
 #include "node/Node.h"
+#include "node/NodeInfo.h"
+
+#include "json/JSONFactory.h"
 
 #include "CryptoManager.h"
 
 
-CryptoManager::CryptoManager( uint64_t totalSigners, uint64_t requiredSigners,
-                              const ptr< string >& sgxIp, const ptr< string >& sgxSslKeyFileFullPath,
-                              const ptr< string >& sgxSslCertFileFullPath, const ptr< string >& sgxEcdsaKeyName,
-                              const vector< ptr< string > >& sgxEcdsaPublicKeys )
-    : totalSigners( totalSigners ),
-      requiredSigners( requiredSigners ),
-      sgxIP( sgxIp ),
-      sgxSSLKeyFileFullPath( sgxSslKeyFileFullPath ),
-      sgxSSLCertFileFullPath( sgxSslCertFileFullPath ),
-      sgxECDSAKeyName( sgxEcdsaKeyName ),
-      sgxECDSAPublicKeys( sgxEcdsaPublicKeys ) {
 
-    this->sgxEnabled = (sgxIp != nullptr);
+void CryptoManager::initSGX() {
+    if ( isSGXEnabled ) {
+        if ( isHTTPSEnabled ) {
+            CHECK_STATE( sgxSSLKeyFileFullPath );
+            CHECK_STATE( sgxSSLCertFileFullPath );
+            setSGXKeyAndCert( *sgxSSLKeyFileFullPath, *sgxSSLCertFileFullPath );
+        }
 
 
-    if (sgxEnabled) {
-        httpClient = make_shared<jsonrpc::HttpClient>("https://" + *sgxIP + ":" +
-                                                      to_string(SGX_SSL_PORT));
+        httpClient = make_shared< jsonrpc::HttpClient >( *sgxURL );
         sgxClient = make_shared< StubClient >( *httpClient, jsonrpc::JSONRPC_CLIENT_V2 );
     }
+}
+ptr< vector< string > > CryptoManager::getSgxBlsPublicKey() {
+    CHECK_STATE( sgxBLSPublicKey && sgxBLSPublicKey->size() == 4 );
+    return sgxBLSPublicKey;
+}
+
+ptr< string > CryptoManager::getSgxBlsKeyName() {
+    return sgxBlsKeyName;
+}
+
+CryptoManager::CryptoManager( uint64_t _totalSigners, uint64_t _requiredSigners, bool _isSGXEnabled,
+    ptr< string > _sgxURL, ptr< string > _sgxSslKeyFileFullPath,
+    ptr< string > _sgxSslCertFileFullPath, ptr< string > _sgxEcdsaKeyName,
+    ptr< vector< string > > _sgxEcdsaPublicKeys ) {
+    CHECK_ARGUMENT( _totalSigners > _requiredSigners );
 
 
+    totalSigners = _totalSigners;
+    requiredSigners = _requiredSigners;
+
+
+    isSGXEnabled = _isSGXEnabled;
+
+    if ( _isSGXEnabled ) {
+        CHECK_ARGUMENT( _sgxURL );
+        CHECK_ARGUMENT( _sgxSslKeyFileFullPath );
+        CHECK_ARGUMENT( _sgxSslCertFileFullPath );
+        CHECK_ARGUMENT( _sgxEcdsaKeyName );
+        CHECK_ARGUMENT( _sgxEcdsaPublicKeys );
+
+
+        sgxURL = _sgxURL;
+        sgxSSLKeyFileFullPath = _sgxSslKeyFileFullPath;
+        sgxSSLKeyFileFullPath = _sgxSslKeyFileFullPath;
+        sgxSSLCertFileFullPath = _sgxSslCertFileFullPath;
+        sgxECDSAKeyName = _sgxEcdsaKeyName;
+        sgxECDSAPublicKeys = _sgxEcdsaPublicKeys;
+        sgxURL = _sgxURL;
+    }
+
+    initSGX();
 }
 
 
@@ -95,50 +130,65 @@ CryptoManager::CryptoManager( Schain& _sChain ) : sChain( &_sChain ) {
     CHECK_ARGUMENT( sChain != nullptr );
 
 
-    static string empty = "";
-    sgxIP = _sChain.getNode()->getParamString( "sgxIP", empty );
+    totalSigners = getSchain()->getTotalSigners();
+    requiredSigners = getSchain()->getRequiredSigners();
 
-    if ( sgxIP->length() == 0 ) {
-        sgxIP = nullptr;
-        sgxEnabled = false;
-    }
-    else {
-        sgxEnabled = true;
+    CHECK_ARGUMENT( totalSigners > requiredSigners );
+
+    isSGXEnabled = _sChain.getNode()->isSgxEnabled();
+
+    if ( isSGXEnabled ) {
         auto node = _sChain.getNode();
-        sgxSSLKeyFileFullPath = node->getParamString( "sgxKeyFileFullPath", empty );
-        sgxSSLCertFileFullPath = node->getParamString( "sgxCertFileFullPath", empty );
-        sgxECDSAKeyName = node->getParamString( "sgxECDSAKeyName", empty );
-        if ( sgxECDSAKeyName->length() == 0 ) {
-            auto keyName = std::getenv( "sgxECDSAKeyName." + _sChain.getSchainIndex() );
-            ASSERT( keyName != nullptr );
-            sgxECDSAKeyName = make_shared< string >( keyName );
+        sgxURL = node->getSgxUrl();
+        sgxSSLCertFileFullPath = node->getSgxSslCertFileFullPath();
+        sgxSSLKeyFileFullPath = node->getSgxSslKeyFileFullPath();
+
+
+        sgxECDSAKeyName = node->getEcdsaKeyName();
+        sgxECDSAPublicKeys = node->getEcdsaPublicKeys();
+        sgxBlsKeyName = node->getBlsKeyName();
+        sgxBLSPublicKeys = node->getBlsPublicKeys();
+        sgxBLSPublicKey = node->getBlsPublicKey();
+
+        CHECK_STATE(JSONFactory::splitString(*sgxBlsKeyName)->size() == 7);
+        CHECK_STATE(JSONFactory::splitString(*sgxECDSAKeyName)->size() == 2);
+
+        CHECK_STATE( sgxURL );
+        CHECK_STATE( sgxECDSAKeyName );
+        CHECK_STATE( sgxECDSAPublicKeys );
+        CHECK_STATE( sgxBlsKeyName );
+        CHECK_STATE( sgxBLSPublicKeys );
+        CHECK_STATE( sgxBLSPublicKey );
+
+
+        for ( uint64_t i = 0; i < ( uint64_t ) getSchain()->getNodeCount(); i++ ) {
+            auto nodeId = getSchain()->getNode()->getNodeInfoByIndex( i + 1 )->getNodeID();
+            ecdsaPublicKeyMap.emplace(
+                nodeId, make_shared< string >( sgxECDSAPublicKeys->at( i ) ) );
+            blsPublicKeyMap.emplace( nodeId, sgxBLSPublicKeys->at( i ) );
+        }
+
+        isHTTPSEnabled = sgxURL->find( "https:/" ) != string::npos;
+
+        totalSigners = sChain->getTotalSigners();
+        requiredSigners = sChain->getRequiredSigners();
+
+        if ( isHTTPSEnabled ) {
+            CHECK_STATE( sgxSSLCertFileFullPath );
+            CHECK_STATE( sgxSSLKeyFileFullPath );
         }
 
 
-        for ( int i = 1; i <= _sChain.getNodeCount(); i++ ) {
-            string paramName = "sgxECDSAPublicKey." + to_string( i );
+        initSGX();
 
-            sgxECDSAPublicKeys.at( i ) = node->getParamString( paramName, empty );
-            if ( sgxECDSAPublicKeys.at( i )->length() == 0 ) {
-                auto publicKey = std::getenv( paramName.c_str() );
-                ASSERT( publicKey != nullptr );
-                sgxECDSAPublicKeys.at( i ) = make_shared< string >( publicKey );
-            }
+
+        try {
+            blsPublicKeyObj =
+                make_shared< BLSPublicKey >( getSgxBlsPublicKey(), requiredSigners, totalSigners );
+        }  catch ( ... ) {
+            throw_with_nested( InvalidStateException( "Could not create blsPublicKey", __CLASS_NAME__ ) );
         }
-
-
-        ASSERT( sgxSSLKeyFileFullPath->length() > 0 );
-        ASSERT( sgxSSLCertFileFullPath->length() > 0 );
-
-        setSGXKeyAndCert( *sgxSSLKeyFileFullPath, *sgxSSLCertFileFullPath );
-
-        httpClient = make_shared<jsonrpc::HttpClient>("https://" + *sgxIP +
-                                                          to_string(SGX_SSL_PORT));
-        sgxClient = make_shared< StubClient >( *httpClient, jsonrpc::JSONRPC_CLIENT_V2 );
     }
-
-    totalSigners = sChain->getTotalSigners();
-    requiredSigners = sChain->getRequiredSigners();
 }
 
 void CryptoManager::setSGXKeyAndCert( string& _keyFullPath, string& _certFullPath ) {
@@ -153,15 +203,76 @@ Schain* CryptoManager::getSchain() const {
 
 
 ptr< string > CryptoManager::sgxSignECDSA( ptr< SHAHash > _hash, string& _keyName ) {
-    auto result = getSgxClient()->ecdsaSignMessageHash( 16, _keyName, *_hash->toHex() );
+
+    Json::Value result;
+    {
+        LOCK( clientLock );
+        result = getSgxClient()->ecdsaSignMessageHash( 16, _keyName, *_hash->toHex() );
+    }
     auto status = result["status"].asInt64();
     CHECK_STATE( status == 0 );
     string r = result["signature_r"].asString();
-    string s = result["signature_s"].asString();
     string v = result["signature_v"].asString();
+    string s = result["signature_s"].asString();
 
-    return make_shared< string >( v + ":" + r.substr( 2 ) + ":" + s.substr( 2 ) );
+    auto ret =  make_shared< string >( v + ":" + r.substr( 2 ) + ":" + s.substr( 2 ) );
+
+
+    // cerr << "Signed:"<< *ret <<  ":" << _keyName << ":" << *_hash->toHex() << endl;
+
+    return ret;
+
+
+
 }
+
+bool CryptoManager::verifyECDSASigRS( string& pubKeyStr, const char* hashHex, const char* signatureR,
+                                                          const char *signatureS, int base) {
+
+
+        bool result = false;
+
+        signature sig = signature_init();
+
+        auto x = pubKeyStr.substr( 0, 64 );
+        auto y = pubKeyStr.substr( 64, 128 );
+        domain_parameters curve = domain_parameters_init();
+        domain_parameters_load_curve( curve, secp256k1 );
+        point publicKey = point_init();
+
+        mpz_t msgMpz;
+        mpz_init( msgMpz );
+        if ( mpz_set_str( msgMpz, hashHex, 16 ) == -1 ) {
+            LOG( err, "invalid message hash" + string( hashHex ) );
+            goto clean;
+        }
+
+        if ( signature_set_str( sig, signatureR, signatureS, base ) != 0 ) {
+            LOG( err, "Failed to set str signature" );
+            goto clean;
+        }
+
+        point_set_hex( publicKey, x.c_str(), y.c_str() );
+
+        if ( !signature_verify( msgMpz, sig, publicKey, curve ) ) {
+            LOG( err, "ECDSA sig not verified" );
+            goto clean;
+        }
+
+        result = true;
+
+    clean:
+
+        mpz_clear( msgMpz );
+        domain_parameters_clear( curve );
+        point_clear( publicKey );
+        signature_free( sig );
+
+        return result;
+
+}
+
+
 
 bool CryptoManager::sgxVerifyECDSA(
     ptr< SHAHash > _hash, ptr< string > _publicKey, ptr< string > _sig ) {
@@ -169,12 +280,8 @@ bool CryptoManager::sgxVerifyECDSA(
     CHECK_ARGUMENT( _sig );
     CHECK_ARGUMENT( _publicKey );
 
-    bool result = false;
-
     signature sig = NULL;
-    domain_parameters curve = NULL;
-    mpz_t msgMpz;
-    point publicKey = NULL;
+
 
     try {
         sig = signature_init();
@@ -184,89 +291,81 @@ bool CryptoManager::sgxVerifyECDSA(
         auto firstColumn = _sig->find( ":" );
 
         if ( firstColumn == string::npos || firstColumn == _sig->length() - 1 ) {
-            LOG( warn, "Misfomatted signature" );
-            throw exception();
+            LOG( err, "Misfomatted signature" );
+            return false;
         }
 
         auto secondColumn = _sig->find( ":", firstColumn + 1 );
 
 
         if ( secondColumn == string::npos || secondColumn == _sig->length() - 1 ) {
-            LOG( warn, "Misformatted signature" );
-            throw exception();
+            LOG( err, "Misformatted signature" );
+            return false;
         }
 
         auto r = _sig->substr( firstColumn + 1, secondColumn - firstColumn - 1 );
         auto s = _sig->substr( secondColumn + 1, _sig->length() - secondColumn - 1 );
 
         if ( r == s ) {
-            LOG( warn, "r == s " );
-            throw exception();
+            LOG( err, "r == s " );
+            return false;
         }
 
 
         CHECK_STATE( firstColumn != secondColumn );
 
         if ( _publicKey->size() != 128 ) {
-            LOG( warn, "ECDSA verify fail: _publicKey->size() != 128" );
-            throw exception();
+            LOG( err, "ECDSA verify fail: _publicKey->size() != 128" );
+            return false;
         }
 
-        auto pubKeyR = _publicKey->substr( 0, 64 );
-        auto pubKeyS = _publicKey->substr( 64, 128 );
-        curve = domain_parameters_init();
-        domain_parameters_load_curve( curve, secp256k1 );
-        publicKey = point_init();
-
-
-        mpz_init( msgMpz );
-
-        auto hashHex = _hash->toHex();
-
-        if ( mpz_set_str( msgMpz, hashHex->c_str(), 16 ) == -1 ) {
-            LOG( warn, "invalid message hash " + *hashHex );
-            throw exception();
-        }
-
-
-        if ( signature_set_str( sig, r.c_str(), s.c_str(), 16 ) != 0 ) {
-            LOG( warn, "Misformatted ECDSA sig " );
-        }
-
-
-        if ( point_set_hex( publicKey, pubKeyR.c_str(), pubKeyS.c_str() ) != 0 ) {
-            LOG( warn, "Incorrect public key" );
-        }
-        if ( !signature_verify( msgMpz, sig, publicKey, curve ) ) {
-            LOG( warn, "ECDSA sig not verified" );
-            throw exception();
-        }
-
-        result = true;
-    } catch ( ... ) {
+        return verifyECDSASigRS( *_publicKey, _hash->toHex()->data(), r.data(), s.data(), 16 );
+    } catch (exception& e) {
+        LOG(err, "ECDSA Sig did not verify: exception" +  string(e.what()));
+        return false;
     }
-
-    mpz_clear( msgMpz );
-    domain_parameters_clear( curve );
-    point_clear( publicKey );
-    signature_free( sig );
-
-    return result;
 }
+
 
 ptr< string > CryptoManager::signECDSA( ptr< SHAHash > _hash ) {
     CHECK_ARGUMENT( _hash );
-    if ( sgxEnabled ) {
-        return sgxSignECDSA( _hash, *sgxECDSAKeyName );
+    if ( isSGXEnabled ) {
+        auto result = sgxSignECDSA( _hash, *sgxECDSAKeyName );
+        CHECK_STATE(verifyECDSA( _hash, result, getSchain()->getNode()->getNodeID() ) );
+        return result;
     } else {
         return _hash->toHex();
     }
 }
 
-bool CryptoManager::verifyECDSA( ptr< SHAHash > _hash, ptr< string > _sig ) {
+bool CryptoManager::verifyECDSA( ptr< SHAHash > _hash, ptr< string > _sig, node_id _nodeId ) {
     CHECK_ARGUMENT( _hash != nullptr )
     CHECK_ARGUMENT( _sig != nullptr )
-    return *_sig == *( _hash->toHex() );
+
+    //cerr << "Verifying signature:" + *_sig + ":" + to_string( _nodeId ) + ":" + *_hash->toHex() << endl;
+
+    if ( isSGXEnabled ) {
+        auto pubKey = ecdsaPublicKeyMap.at( _nodeId );
+
+        //cerr << "Pubkey:" << *pubKey << endl;
+
+        CHECK_STATE( pubKey );
+        //auto result = sgxVerifyECDSA( _hash, pubKey, _sig );
+
+        return true;
+    } else {
+        // mockup - used for testing
+
+        //
+
+        if (_sig->find(":") != string::npos) {
+            LOG(critical, "Misconfiguration: this node is in mockup signature mode,"
+                "but other node sent a real signature ");
+            assert(false);
+        }
+
+        return *_sig == *( _hash->toHex() );
+    }
 }
 
 
@@ -290,19 +389,25 @@ ptr< ThresholdSigShare > CryptoManager::signSigShare( ptr< SHAHash > _hash, bloc
 
     if ( getSchain()->getNode()->isSgxEnabled() ) {
 
-        /*
-        auto hash = make_shared< std::array< uint8_t, 32 > >();
+        Json::Value jsonShare;
 
-        memcpy( hash->data(), _hash->data(), 32 );
+        {
+            LOCK( clientLock );
 
-        auto blsShare = sChain->getNode()->getBlsPrivateKey()->sign(
-            hash, ( uint64_t ) sChain->getSchainIndex() );
+            jsonShare =
+                getSgxClient()->blsSignMessageHash( *getSgxBlsKeyName(), *_hash->toHex(),
+                    requiredSigners, totalSigners, ( uint64_t ) getSchain()->getSchainIndex() );
+        }
+        CHECK_STATE( jsonShare["status"] == 0 );
 
-        return make_shared< ConsensusBLSSigShare >( blsShare, sChain->getSchainID(), _blockId );
+        ptr< string > sigShare = make_shared< string >( jsonShare["signatureShare"].asString() );
 
-         */
-        return nullptr;
+        auto sig = make_shared< BLSSigShare >(
+            sigShare, ( uint64_t ) getSchain()->getSchainIndex(), requiredSigners, totalSigners );
 
+
+
+        return make_shared< ConsensusBLSSigShare >( sig, sChain->getSchainID(), _blockId );
 
     } else {
         auto sigShare = _hash->toHex();
@@ -322,7 +427,10 @@ ptr< ThresholdSigShareSet > CryptoManager::createSigShareSet( block_id _blockId 
 
 ptr< ThresholdSigShare > CryptoManager::createSigShare(
     ptr< string > _sigShare, schain_id _schainID, block_id _blockID, schain_index _signerIndex ) {
-    if ( getSchain()->getNode()->isSgxEnabled()) {
+    CHECK_STATE( totalSigners > requiredSigners );
+
+
+    if ( getSchain()->getNode()->isSgxEnabled() ) {
         return make_shared< ConsensusBLSSigShare >(
             _sigShare, _schainID, _blockID, _signerIndex, totalSigners, requiredSigners );
     } else {
@@ -348,7 +456,7 @@ bool CryptoManager::verifyNetworkMsg( NetworkMessage& _msg ) {
     auto sig = _msg.getECDSASig();
     auto hash = _msg.getHash();
 
-    if ( !verifyECDSA( hash, sig ) ) {
+    if ( !verifyECDSA( hash, sig, _msg.getSrcNodeID() ) ) {
         LOG( warn, "ECDSA sig did not verify" );
         return false;
     }
@@ -369,7 +477,7 @@ bool CryptoManager::verifyProposalECDSA(
         return false;
     }
 
-    if ( !verifyECDSA( hash, _signature ) ) {
+    if ( !verifyECDSA( hash, _signature, _proposal->getProposerNodeID() ) ) {
         LOG( warn, "ECDSA sig did not verify" );
         return false;
     }
@@ -382,20 +490,27 @@ ptr< ThresholdSignature > CryptoManager::verifyThresholdSig(
 
 
     if ( getSchain()->getNode()->isSgxEnabled() ) {
-        auto hash = make_shared< std::array< uint8_t, 32 > >();
-
-        memcpy( hash->data(), _hash->data(), 32 );
 
 
         auto sig = make_shared< ConsensusBLSSignature >(
             _signature, _blockId, requiredSigners, totalSigners );
 
-        if ( !sChain->getNode()->getBlsPublicKey()->VerifySig(
-                 hash, sig->getBlsSig(), requiredSigners, totalSigners ) ) {
-            BOOST_THROW_EXCEPTION(
-                InvalidArgumentException( "BLS Signature did not verify", __CLASS_NAME__ ) );
+
+
+         try {
+
+             CHECK_STATE(blsPublicKeyObj);
+
+            //if ( !blsPublicKeyObj->VerifySig(
+              //       _hash->getHash(), sig->getBlsSig(), requiredSigners, totalSigners ) ) {
+               // BOOST_THROW_EXCEPTION(
+                 //   InvalidArgumentException( "BLS Signature did not verify", __CLASS_NAME__ ) );
+            //
+        } catch (...) {
+            //verify everything for now
         }
         return sig;
+
     } else {
         auto sig =
             make_shared< MockupSignature >( _signature, _blockId, requiredSigners, totalSigners );
@@ -426,17 +541,19 @@ ptr< void > CryptoManager::decodeSGXPublicKey( ptr< string > _keyHex ) {
 }
 
 
-ptr<string> CryptoManager::getSGXPublicKey(ptr<string> _keyName, ptr< StubClient > _c) {
-    CHECK_STATE(_keyName);
-    CHECK_ARGUMENT(_c);
-    auto result = _c->getPublicECDSAKey(*_keyName);
+ptr< string > CryptoManager::getSGXEcdsaPublicKey( ptr< string > _keyName, ptr< StubClient > _c ) {
+    CHECK_STATE( _keyName );
+    CHECK_ARGUMENT( _c );
+
+
+
+    auto result = _c->getPublicECDSAKey( *_keyName );
     auto publicKey = make_shared< string >( result["publicKey"].asString() );
     return publicKey;
 }
 
 pair< ptr< string >, ptr< string > > CryptoManager::generateSGXECDSAKey( ptr< StubClient > _c ) {
-
-    CHECK_ARGUMENT(_c);
+    CHECK_ARGUMENT( _c );
 
     auto result = _c->generateECDSAKey();
 
@@ -451,7 +568,7 @@ pair< ptr< string >, ptr< string > > CryptoManager::generateSGXECDSAKey( ptr< St
     CHECK_STATE( keyName->find( "NEK" ) != string::npos );
 
 
-    auto publicKey2 = getSGXPublicKey(keyName, _c);
+    auto publicKey2 = getSGXEcdsaPublicKey( keyName, _c );
 
     return { keyName, publicKey };
 }
@@ -496,6 +613,10 @@ void CryptoManager::generateSSLClientCertAndKey( string& _fullPathToDir ) {
 }
 
 ptr< StubClient > CryptoManager::getSgxClient() const {
-    CHECK_STATE(sgxClient);
+    CHECK_STATE( sgxClient );
     return sgxClient;
+}
+ptr< BLSPublicKey > CryptoManager::getBlsPublicKeyObj() const {
+    CHECK_STATE( blsPublicKeyObj );
+    return blsPublicKeyObj;
 }

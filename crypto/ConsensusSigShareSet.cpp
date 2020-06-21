@@ -42,8 +42,7 @@ using namespace std;
 
 
 ConsensusSigShareSet::ConsensusSigShareSet(block_id _blockId, size_t _totalSigners, size_t _requiredSigners )
-    : ThresholdSigShareSet(_blockId, _totalSigners, _requiredSigners), blsSet(_totalSigners, _requiredSigners)  {
-
+    : ThresholdSigShareSet(_blockId, _totalSigners, _requiredSigners), blsSet(_requiredSigners, _totalSigners)  {
 
     totalObjects++;
 }
@@ -55,10 +54,17 @@ ConsensusSigShareSet::~ConsensusSigShareSet() {
 
 
 ptr<ThresholdSignature > ConsensusSigShareSet::mergeSignature() {
-    auto blsShare = blsSet.merge();
+
+        CHECK_STATE(blsSet.isEnough());
+        auto blsSig = blsSet.merge();
+
+        CHECK_STATE(blsSig);
+
+        return make_shared<ConsensusBLSSignature>( blsSig, blockId,
+                                                   blsSig->getTotalSigners(), blsSig->getRequiredSigners());
+
     // BOOST_REQUIRE(obj.Verification(hash, common_signature, pk) == false);
-    return make_shared<ConsensusBLSSignature>( blsShare->getSig(), blockId,
-            blsShare->getTotalSigners(), blsShare->getRequiredSigners());
+
 }
 
 bool ConsensusSigShareSet::isEnough() {

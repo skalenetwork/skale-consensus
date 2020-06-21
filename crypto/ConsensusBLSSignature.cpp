@@ -22,43 +22,64 @@
 */
 
 
-#include "SkaleCommon.h"
 #include "Log.h"
+#include "SkaleCommon.h"
 #include "crypto/bls_include.h"
 #include "network/Utils.h"
 #include "thirdparty/json.hpp"
 
-#include "libBLS/bls/BLSSignature.h"
 #include "ConsensusBLSSignature.h"
 #include "ThresholdSignature.h"
+#include "libBLS/bls/BLSSignature.h"
 
 
 ConsensusBLSSignature::ConsensusBLSSignature(
     ptr< string > _s, block_id _blockID, size_t _totalSigners, size_t _requiredSigners )
-    : ThresholdSignature(_blockID, _totalSigners, _requiredSigners){
-    blsSig = make_shared<BLSSignature>( _s, _totalSigners, _requiredSigners );
+    : ThresholdSignature( _blockID, _totalSigners, _requiredSigners ) {
+    try {
+        blsSig = make_shared< BLSSignature >( _s, _totalSigners, _requiredSigners );
+    } catch ( ... ) {
+        throw_with_nested(
+            InvalidStateException( "Could not create BLSSignature from string", __CLASS_NAME__ ) );
+    }
 }
 
 
-static string dummy_string("");
+static string dummy_string( "" );
 
-ConsensusBLSSignature::ConsensusBLSSignature( ptr< libff::alt_bn128_G1 > _s, block_id _blockID,
-    size_t _totalSigners, size_t _requiredSigners )
-    : ThresholdSignature(_blockID, _totalSigners, _requiredSigners) {
-    blsSig = make_shared<BLSSignature>(_s, dummy_string, _totalSigners, _requiredSigners );
+ConsensusBLSSignature::ConsensusBLSSignature(
+    ptr< BLSSignature > _blsSig, block_id _blockID, size_t _totalSigners, size_t _requiredSigners )
+    : ThresholdSignature( _blockID, _totalSigners, _requiredSigners ) {
+    try {
+        CHECK_ARGUMENT(_blsSig);
+        blsSig = _blsSig;
+    } catch ( ... ) {
+        throw_with_nested(
+            InvalidStateException( "Could not create BLSSignature from object", __CLASS_NAME__ ) );
+    }
 }
 
-std::shared_ptr<std::string> ConsensusBLSSignature::toString() {
-    return blsSig->toString();
+std::shared_ptr< std::string > ConsensusBLSSignature::toString() {
+    try {
+        return blsSig->toString();
+    } catch ( ... ) {
+        throw_with_nested( InvalidStateException( "Could not toString() sig", __CLASS_NAME__ ) );
+    }
 };
 
 uint64_t ConsensusBLSSignature::getRandom() {
-    auto sig = blsSig->getSig();
-    sig->to_affine_coordinates();
-    auto result = sig->X.as_ulong() + sig->Y.as_ulong();
-    return result;
+
+    try {
+        auto sig = blsSig->getSig();
+        sig->to_affine_coordinates();
+        auto result = sig->X.as_ulong() + sig->Y.as_ulong();
+        return result;
+    } catch ( ... ) {
+        throw_with_nested( InvalidStateException( "Could not getRandom()", __CLASS_NAME__ ) );
+    }
+
 }
 
-ptr<BLSSignature> ConsensusBLSSignature::getBlsSig() const {
+ptr< BLSSignature > ConsensusBLSSignature::getBlsSig() const {
     return blsSig;
 }

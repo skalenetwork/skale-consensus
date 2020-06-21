@@ -95,6 +95,25 @@ public:
     virtual ~ConsensusExtFace() = default;
 
     virtual void terminateApplication() {};
+
+
+    /* Set sgx key info */
+
+    void setSGXKeyInfo( shared_ptr< string > _sgxServerURL,
+                         // SSL key file full path. Can be null if the server does not require a client cert
+                        shared_ptr<string> _sgxSSLKeyFileFullPath,
+                        // SSL cert file full path. Can be null if the server does not require a client cert
+                        shared_ptr<string> _sgxSSLCertFileFullPath,
+                        // ecdsaKeyName of this node on the SGX server
+                        shared_ptr<string> _ecdsaKeyName,
+                        // array of ECDSA public keys of all nodes, including this node
+                        shared_ptr<vector<string>> _ecdsaPublicKeys,
+                        // blsKeyName of this node on the SGX server
+                        shared_ptr<string> _blsKeyName,
+                       // array of BLS public key shares of all nodes, including this node
+                       // each BLS public key share is a vector of 4 strings.
+                        shared_ptr<vector<shared_ptr<vector<string>>>> _blsPublicKeyShares);
+
 };
 
 #endif  // CONSENSUSINTERFACE_H
