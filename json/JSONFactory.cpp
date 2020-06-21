@@ -345,10 +345,15 @@ JSONFactory::parseTestKeyNamesFromJson( ptr<string> _sgxServerURL, const fs_path
     CHECK_STATE( blsKeyNamesObject.size() == _totalNodes );
 
     for ( uint64_t i = 1; i <= _totalNodes; i++ ) {
-        auto ecdsaKeyName = ecdsaKeyNamesObject.at( to_string( i ) );
+
+        auto key = to_string(i);
+        string fullKey(3 - key.size(), '0');
+        fullKey.append(key);
+
+        auto ecdsaKeyName = ecdsaKeyNamesObject.at( fullKey );
         ecdsaKeyNames->push_back( ecdsaKeyName );
 
-        auto blsKeyName = blsKeyNamesObject.at( to_string( i ) );
+        auto blsKeyName = blsKeyNamesObject.at( fullKey );
         blsKeyNames->push_back( blsKeyName );
     }
 
