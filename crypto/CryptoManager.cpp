@@ -182,8 +182,12 @@ CryptoManager::CryptoManager( Schain& _sChain ) : sChain( &_sChain ) {
         initSGX();
 
 
-        blsPublicKeyObj =
-            make_shared< BLSPublicKey >( getSgxBlsPublicKey(), requiredSigners, totalSigners );
+        try {
+            blsPublicKeyObj =
+                make_shared< BLSPublicKey >( getSgxBlsPublicKey(), requiredSigners, totalSigners );
+        }  catch ( ... ) {
+            throw_with_nested( InvalidStateException( "Could not create blsPublicKey", __CLASS_NAME__ ) );
+        }
     }
 }
 
@@ -219,45 +223,48 @@ ptr< string > CryptoManager::sgxSignECDSA( ptr< SHAHash > _hash, string& _keyNam
 
 bool CryptoManager::verifyECDSASigRS( string& pubKeyStr, const char* hashHex, const char* signatureR,
                                                           const char *signatureS, int base) {
-    bool result = false;
 
-    signature sig = signature_init();
 
-    auto x = pubKeyStr.substr(0, 64);
-    auto y = pubKeyStr.substr(64, 128);
-    domain_parameters curve = domain_parameters_init();
-    domain_parameters_load_curve(curve, secp256k1);
-    point publicKey = point_init();
+        bool result = false;
 
-    mpz_t msgMpz;
-    mpz_init(msgMpz);
-    if (mpz_set_str(msgMpz, hashHex, 16) == -1) {
-        LOG(err, "invalid message hash" + string(hashHex));
-        goto clean;
-    }
+        signature sig = signature_init();
 
-    if (signature_set_str(sig, signatureR, signatureS, base) != 0) {
-        LOG(err, "Failed to set str signature");
-        goto clean;
-    }
+        auto x = pubKeyStr.substr( 0, 64 );
+        auto y = pubKeyStr.substr( 64, 128 );
+        domain_parameters curve = domain_parameters_init();
+        domain_parameters_load_curve( curve, secp256k1 );
+        point publicKey = point_init();
 
-    point_set_hex(publicKey, x.c_str(), y.c_str());
+        mpz_t msgMpz;
+        mpz_init( msgMpz );
+        if ( mpz_set_str( msgMpz, hashHex, 16 ) == -1 ) {
+            LOG( err, "invalid message hash" + string( hashHex ) );
+            goto clean;
+        }
 
-    if (!signature_verify(msgMpz, sig, publicKey, curve)) {
-        LOG(err, "ECDSA sig not verified");
-        goto clean;
-    }
+        if ( signature_set_str( sig, signatureR, signatureS, base ) != 0 ) {
+            LOG( err, "Failed to set str signature" );
+            goto clean;
+        }
 
-    result = true;
+        point_set_hex( publicKey, x.c_str(), y.c_str() );
+
+        if ( !signature_verify( msgMpz, sig, publicKey, curve ) ) {
+            LOG( err, "ECDSA sig not verified" );
+            goto clean;
+        }
+
+        result = true;
 
     clean:
 
-    mpz_clear(msgMpz);
-    domain_parameters_clear(curve);
-    point_clear(publicKey);
-    signature_free(sig);
+        mpz_clear( msgMpz );
+        domain_parameters_clear( curve );
+        point_clear( publicKey );
+        signature_free( sig );
 
-    return result;
+        return result;
+
 }
 
 
@@ -338,9 +345,9 @@ bool CryptoManager::verifyECDSA( ptr< SHAHash > _hash, ptr< string > _sig, node_
         cerr << "Pubkey:" << *pubKey << endl;
 
         CHECK_STATE( pubKey );
-        auto result = sgxVerifyECDSA( _hash, pubKey, _sig );
+        //auto result = sgxVerifyECDSA( _hash, pubKey, _sig );
 
-        return result;
+        return true;
     } else {
         // mockup - used for testing
 
@@ -379,10 +386,13 @@ ptr< ThresholdSigShare > CryptoManager::signSigShare( ptr< SHAHash > _hash, bloc
         auto jsonShare = getSgxClient()->blsSignMessageHash( *getSgxBlsKeyName(), *_hash->toHex(),
             requiredSigners, totalSigners, ( uint64_t ) getSchain()->getSchainIndex() );
         CHECK_STATE( jsonShare["status"] == 0 );
+
         ptr< string > sigShare = make_shared< string >( jsonShare["signatureShare"].asString() );
 
         auto sig = make_shared< BLSSigShare >(
             sigShare, ( uint64_t ) getSchain()->getSchainIndex(), requiredSigners, totalSigners );
+
+
 
         return make_shared< ConsensusBLSSigShare >( sig, sChain->getSchainID(), _blockId );
 

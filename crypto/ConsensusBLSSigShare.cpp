@@ -48,8 +48,16 @@ ConsensusBLSSigShare::ConsensusBLSSigShare(ptr<string> _sigShare, schain_id _sch
                                            schain_index _signerIndex,
                                            uint64_t _totalSigners, uint64_t _requiredSigners)
     : ThresholdSigShare(_schainID, _blockID, _signerIndex) {
-    this->blsSigShare = make_shared<BLSSigShare >( _sigShare, ( uint64_t ) _signerIndex,
-            _totalSigners, _requiredSigners);
+
+    try {
+
+
+
+        this->blsSigShare = make_shared< BLSSigShare >(
+            _sigShare, ( uint64_t ) _signerIndex, _requiredSigners, _totalSigners );
+    }  catch ( ... ) {
+        throw_with_nested( InvalidStateException( "Could not create BLSSigShare", __CLASS_NAME__ ) );
+    }
 }
 
 ConsensusBLSSigShare::~ConsensusBLSSigShare() {
@@ -57,5 +65,9 @@ ConsensusBLSSigShare::~ConsensusBLSSigShare() {
 }
 
 ptr<std::string> ConsensusBLSSigShare::toString() {
-    return getBlsSigShare()->toString();
+    try {
+        return getBlsSigShare()->toString();
+    }  catch ( ... ) {
+        throw_with_nested( InvalidStateException( "Could not toString() sig share", __CLASS_NAME__ ) );
+    }
 }

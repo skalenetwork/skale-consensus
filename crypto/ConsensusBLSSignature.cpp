@@ -40,7 +40,7 @@ ConsensusBLSSignature::ConsensusBLSSignature(
         blsSig = make_shared< BLSSignature >( _s, _totalSigners, _requiredSigners );
     } catch ( ... ) {
         throw_with_nested(
-            InvalidStateException( "Could not correct BLSSignature", __CLASS_NAME__ ) );
+            InvalidStateException( "Could not create BLSSignature from string", __CLASS_NAME__ ) );
     }
 }
 
@@ -54,7 +54,7 @@ ConsensusBLSSignature::ConsensusBLSSignature( ptr< libff::alt_bn128_G1 > _s, blo
         blsSig = make_shared< BLSSignature >( _s, dummy_string, _totalSigners, _requiredSigners );
     } catch ( ... ) {
         throw_with_nested(
-            InvalidStateException( "Could not correct BLSSignature", __CLASS_NAME__ ) );
+            InvalidStateException( "Could not create BLSSignature from object", __CLASS_NAME__ ) );
     }
 }
 
