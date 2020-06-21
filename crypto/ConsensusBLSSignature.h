@@ -42,7 +42,7 @@ public:
         ptr< string > _s, block_id _blockID, size_t _totalSigners, size_t _requiredSigners );
 
 
-    ConsensusBLSSignature( ptr< libff::alt_bn128_G1 > _s, block_id _blockID, size_t _totalSigners,
+    ConsensusBLSSignature( ptr< BLSSignature > _blsSig, block_id _blockID, size_t _totalSigners,
         size_t _requiredSigners );
 
     std::shared_ptr<std::string> toString();

@@ -61,6 +61,10 @@ class HttpClient;
 }
 
 class CryptoManager {
+
+
+    recursive_mutex clientLock;
+
     ptr< StubClient > sgxClient = nullptr;
 
 

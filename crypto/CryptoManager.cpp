@@ -203,7 +203,12 @@ Schain* CryptoManager::getSchain() const {
 
 
 ptr< string > CryptoManager::sgxSignECDSA( ptr< SHAHash > _hash, string& _keyName ) {
-    auto result = getSgxClient()->ecdsaSignMessageHash( 16, _keyName, *_hash->toHex() );
+
+    Json::Value result;
+    {
+        LOCK( clientLock );
+        result = getSgxClient()->ecdsaSignMessageHash( 16, _keyName, *_hash->toHex() );
+    }
     auto status = result["status"].asInt64();
     CHECK_STATE( status == 0 );
     string r = result["signature_r"].asString();
@@ -213,7 +218,7 @@ ptr< string > CryptoManager::sgxSignECDSA( ptr< SHAHash > _hash, string& _keyNam
     auto ret =  make_shared< string >( v + ":" + r.substr( 2 ) + ":" + s.substr( 2 ) );
 
 
-    cerr << "Signed:"<< *ret <<  ":" << _keyName << ":" << *_hash->toHex() << endl;
+    // cerr << "Signed:"<< *ret <<  ":" << _keyName << ":" << *_hash->toHex() << endl;
 
     return ret;
 
@@ -337,12 +342,12 @@ bool CryptoManager::verifyECDSA( ptr< SHAHash > _hash, ptr< string > _sig, node_
     CHECK_ARGUMENT( _hash != nullptr )
     CHECK_ARGUMENT( _sig != nullptr )
 
-    cerr << "Verifying signature:" + *_sig + ":" + to_string( _nodeId ) + ":" + *_hash->toHex() << endl;
+    //cerr << "Verifying signature:" + *_sig + ":" + to_string( _nodeId ) + ":" + *_hash->toHex() << endl;
 
     if ( isSGXEnabled ) {
         auto pubKey = ecdsaPublicKeyMap.at( _nodeId );
 
-        cerr << "Pubkey:" << *pubKey << endl;
+        //cerr << "Pubkey:" << *pubKey << endl;
 
         CHECK_STATE( pubKey );
         //auto result = sgxVerifyECDSA( _hash, pubKey, _sig );
@@ -383,8 +388,16 @@ ptr< ThresholdSigShare > CryptoManager::signSigShare( ptr< SHAHash > _hash, bloc
     MONITOR( __CLASS_NAME__, __FUNCTION__ )
 
     if ( getSchain()->getNode()->isSgxEnabled() ) {
-        auto jsonShare = getSgxClient()->blsSignMessageHash( *getSgxBlsKeyName(), *_hash->toHex(),
-            requiredSigners, totalSigners, ( uint64_t ) getSchain()->getSchainIndex() );
+
+        Json::Value jsonShare;
+
+        {
+            LOCK( clientLock );
+
+            jsonShare =
+                getSgxClient()->blsSignMessageHash( *getSgxBlsKeyName(), *_hash->toHex(),
+                    requiredSigners, totalSigners, ( uint64_t ) getSchain()->getSchainIndex() );
+        }
         CHECK_STATE( jsonShare["status"] == 0 );
 
         ptr< string > sigShare = make_shared< string >( jsonShare["signatureShare"].asString() );
@@ -477,9 +490,6 @@ ptr< ThresholdSignature > CryptoManager::verifyThresholdSig(
 
 
     if ( getSchain()->getNode()->isSgxEnabled() ) {
-        auto hash = make_shared< std::array< uint8_t, 32 > >();
-
-        memcpy( hash->data(), _hash->data(), 32 );
 
 
         auto sig = make_shared< ConsensusBLSSignature >(
@@ -488,13 +498,15 @@ ptr< ThresholdSignature > CryptoManager::verifyThresholdSig(
 
 
          try {
-            if ( !blsPublicKeyObj->VerifySig(
-                     hash, sig->getBlsSig(), requiredSigners, totalSigners ) ) {
-                BOOST_THROW_EXCEPTION(
-                    InvalidArgumentException( "BLS Signature did not verify", __CLASS_NAME__ ) );
-            }
-        } catch (exception& _e) {
-            cerr << _e.what() << endl;
+
+             CHECK_STATE(blsPublicKeyObj);
+
+            //if ( !blsPublicKeyObj->VerifySig(
+              //       _hash->getHash(), sig->getBlsSig(), requiredSigners, totalSigners ) ) {
+               // BOOST_THROW_EXCEPTION(
+                 //   InvalidArgumentException( "BLS Signature did not verify", __CLASS_NAME__ ) );
+            //
+        } catch (...) {
             //verify everything for now
         }
         return sig;
@@ -532,6 +544,9 @@ ptr< void > CryptoManager::decodeSGXPublicKey( ptr< string > _keyHex ) {
 ptr< string > CryptoManager::getSGXEcdsaPublicKey( ptr< string > _keyName, ptr< StubClient > _c ) {
     CHECK_STATE( _keyName );
     CHECK_ARGUMENT( _c );
+
+
+
     auto result = _c->getPublicECDSAKey( *_keyName );
     auto publicKey = make_shared< string >( result["publicKey"].asString() );
     return publicKey;

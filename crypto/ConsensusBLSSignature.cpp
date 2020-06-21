@@ -47,11 +47,12 @@ ConsensusBLSSignature::ConsensusBLSSignature(
 
 static string dummy_string( "" );
 
-ConsensusBLSSignature::ConsensusBLSSignature( ptr< libff::alt_bn128_G1 > _s, block_id _blockID,
-    size_t _totalSigners, size_t _requiredSigners )
+ConsensusBLSSignature::ConsensusBLSSignature(
+    ptr< BLSSignature > _blsSig, block_id _blockID, size_t _totalSigners, size_t _requiredSigners )
     : ThresholdSignature( _blockID, _totalSigners, _requiredSigners ) {
     try {
-        blsSig = make_shared< BLSSignature >( _s, dummy_string, _totalSigners, _requiredSigners );
+        CHECK_ARGUMENT(_blsSig);
+        blsSig = _blsSig;
     } catch ( ... ) {
         throw_with_nested(
             InvalidStateException( "Could not create BLSSignature from object", __CLASS_NAME__ ) );
