@@ -64,7 +64,10 @@
 #include "node/Node.h"
 #include "node/NodeInfo.h"
 
+#include "json/JSONFactory.h"
+
 #include "CryptoManager.h"
+
 
 
 void CryptoManager::initSGX() {
@@ -139,11 +142,16 @@ CryptoManager::CryptoManager( Schain& _sChain ) : sChain( &_sChain ) {
         sgxURL = node->getSgxUrl();
         sgxSSLCertFileFullPath = node->getSgxSslCertFileFullPath();
         sgxSSLKeyFileFullPath = node->getSgxSslKeyFileFullPath();
+
+
         sgxECDSAKeyName = node->getEcdsaKeyName();
         sgxECDSAPublicKeys = node->getEcdsaPublicKeys();
         sgxBlsKeyName = node->getBlsKeyName();
         sgxBLSPublicKeys = node->getBlsPublicKeys();
         sgxBLSPublicKey = node->getBlsPublicKey();
+
+        CHECK_STATE(JSONFactory::splitString(*sgxBlsKeyName)->size() == 7);
+        CHECK_STATE(JSONFactory::splitString(*sgxECDSAKeyName)->size() == 2);
 
         CHECK_STATE( sgxURL );
         CHECK_STATE( sgxECDSAKeyName );

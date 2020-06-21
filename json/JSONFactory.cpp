@@ -118,13 +118,12 @@ ptr< Node > JSONFactory::createNodeFromJsonObject( const nlohmann::json& j, set<
             _sgxSSLCertFileFullPath =
                 make_shared<string>(j.at("sgxCertFileFullPath").get<string>());
         }
-    }
 
-    if ( _useSGX ) {
         CHECK_ARGUMENT( _ecdsaKeyName && _ecdsaPublicKeys );
         CHECK_ARGUMENT( _blsKeyName && _blsPublicKeys );
         CHECK_ARGUMENT( _blsPublicKey && _blsPublicKey->size() == 4 );
-
+        CHECK_STATE(JSONFactory::splitString(*_ecdsaKeyName)->size() == 2);
+        CHECK_STATE(JSONFactory::splitString(*_blsKeyName)->size() == 7);
     }
 
     Network::setTransport( TransportType::ZMQ );
@@ -351,9 +350,15 @@ JSONFactory::parseTestKeyNamesFromJson( ptr<string> _sgxServerURL, const fs_path
         fullKey.append(key);
 
         auto ecdsaKeyName = ecdsaKeyNamesObject.at( fullKey );
+        CHECK_STATE(JSONFactory::splitString(ecdsaKeyName)->size() == 2);
         ecdsaKeyNames->push_back( ecdsaKeyName );
 
         auto blsKeyName = blsKeyNamesObject.at( fullKey );
+
+
+        CHECK_STATE(JSONFactory::splitString(blsKeyName)->size() == 7);
+
+
         blsKeyNames->push_back( blsKeyName );
     }
 
@@ -376,6 +381,9 @@ JSONFactory::parseTestKeyNamesFromJson( ptr<string> _sgxServerURL, const fs_path
 
 
     for ( uint64_t i = 0; i < _totalNodes; i++ ) {
+
+
+
         auto response = c.getBLSPublicKeyShare( blsKeyNames->at( i ) );
         CHECK_STATE( response["status"] == 0 );
 

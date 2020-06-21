@@ -220,8 +220,8 @@ void ConsensusEngine::parseFullConfigAndCreateNode(const string &configFileConte
         if (this->isSGXEnabled ) {
             node =
                 JSONFactory::createNodeFromJsonObject( j["skaleConfig"]["nodeInfo"], dummy, this,
-                                                       true, sgxServerUrl, nullptr, nullptr, ecdsaKeyName, ecdsaPublicKeys,
-                                                       blsKeyName, blsPublicKeys, blsPublicKey );
+                                                       true, sgxServerUrl, nullptr, nullptr, getEcdsaKeyName(), ecdsaPublicKeys,
+                                                       getBlsKeyName(), blsPublicKeys, blsPublicKey );
         }
             else {
             node =
@@ -406,20 +406,20 @@ void ConsensusEngine::parseTestConfigsAndCreateAllNodes( const fs_path& dirname 
                 continue;
             }
 
-            ptr<string> ecdsaKeyName = nullptr;
-            ptr<string> blsKeyName = nullptr;
+            ptr<string> ecdsaKey = nullptr;
+            ptr<string> blsKey = nullptr;
             if ( isSGXEnabled ) {
                 CHECK_STATE(i < ecdsaKeyNames->size());
                 CHECK_STATE(i < blsKeyNames->size());
-                ecdsaKeyName = make_shared<string>(ecdsaKeyNames->at(i));
-                blsKeyName = make_shared<string>(ecdsaKeyNames->at(i));
+                ecdsaKey = make_shared<string>(ecdsaKeyNames->at(i));
+                blsKey = make_shared<string>(blsKeyNames->at(i));
             }
 
 
             // cert and key file name for tests come from the config
             readNodeConfigFileAndCreateNode(itr2->path(), nodeIDs, isSGXEnabled,
-                nullptr, nullptr, ecdsaKeyName, ecdsaPublicKeys,
-                blsKeyName, blsPublicKeys, blsPublicKey);
+                nullptr, nullptr, ecdsaKey, ecdsaPublicKeys,
+                blsKey, blsPublicKeys, blsPublicKey);
 
             i++;
         };
@@ -792,8 +792,23 @@ void ConsensusEngine::setSGXKeyInfo(ptr< string > _sgxServerURL,  ptr< string > 
 
     this->blsPublicKeys = _blsPublicKeyShares;
     this->ecdsaPublicKeys = _ecdsaPublicKeys;
-    this->ecdsaKeyName = _ecdsaKeyName;
-    this->blsKeyName = _blsKeyName;
+    setEcdsaKeyName(_ecdsaKeyName);
+    setBlsKeyName(_blsKeyName);
     this->blsPublicKey = _blsPublicKey;
 
+}
+const ptr< string >& ConsensusEngine::getEcdsaKeyName() const {
+    return ecdsaKeyName;
+}
+const ptr< string >& ConsensusEngine::getBlsKeyName() const {
+    CHECK_STATE(JSONFactory::splitString(*blsKeyName)->size() == 7);
+    return blsKeyName;
+}
+void ConsensusEngine::setEcdsaKeyName( const ptr< string >& _ecdsaKeyName ) {
+    CHECK_STATE(JSONFactory::splitString(*_ecdsaKeyName)->size() == 2);
+    ecdsaKeyName = _ecdsaKeyName;
+}
+void ConsensusEngine::setBlsKeyName( const ptr< string >& _blsKeyName ) {
+    CHECK_STATE(JSONFactory::splitString(*_blsKeyName)->size() == 7);
+    blsKeyName = _blsKeyName;
 }

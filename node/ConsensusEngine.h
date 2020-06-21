@@ -54,7 +54,17 @@ class ConsensusEngine : public ConsensusInterface {
     ptr< string > sgxServerUrl = nullptr;
 
     ptr<string> ecdsaKeyName = nullptr;
+
+public:
+    void setEcdsaKeyName( const ptr< string >& ecdsaKeyName );
+    void setBlsKeyName( const ptr< string >& blsKeyName );
+private:
     ptr<string> blsKeyName = nullptr;
+
+public:
+    const ptr< string >& getEcdsaKeyName() const;
+    const ptr< string >& getBlsKeyName() const;
+private:
     ptr< vector< string > > ecdsaKeyNames = nullptr;
     ptr< vector< string > > blsKeyNames = nullptr;
     ptr< vector< string > > ecdsaPublicKeys = nullptr;

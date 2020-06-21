@@ -67,6 +67,6 @@ public:
         ptr<string> _sgxServerUrl,
         const fs_path& _dir );
 
-    ptr<vector<string>> splitString(const string& str, const string& _delim = ":");
+    static ptr<vector<string>> splitString(const string& str, const string& _delim = ":");
 
 };

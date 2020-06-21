@@ -42,7 +42,7 @@
 
 #include "ConsensusEngine.h"
 #include "ConsensusInterface.h"
-#include "Node.h"
+
 #include "blockproposal/server/BlockProposalServerAgent.h"
 #include "catchup/server/CatchupServerAgent.h"
 #include "chains/Schain.h"
@@ -64,7 +64,9 @@
 #include "network/TCPServerSocket.h"
 #include "network/ZMQNetwork.h"
 #include "network/ZMQSockets.h"
-#include "node/NodeInfo.h"
+#include "json/JSONFactory.h"
+#include "NodeInfo.h"
+#include "Node.h"
 
 using namespace std;
 
@@ -88,6 +90,9 @@ Node::Node(const nlohmann::json &_cfg, ConsensusEngine *_consensusEngine,
         CHECK_ARGUMENT(_blsPublicKey && _blsPublicKey->size() == 4);
 
         sgxEnabled = true;
+
+        CHECK_STATE(JSONFactory::splitString(*_ecdsaKeyName)->size() == 2);
+        CHECK_STATE(JSONFactory::splitString(*_blsKeyName)->size() == 7);
 
         ecdsaKeyName = _ecdsaKeyName;
         ecdsaPublicKeys = _ecdsaPublicKeys;

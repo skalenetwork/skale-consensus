@@ -36,7 +36,6 @@
 
 ConsensusBLSSigShare::ConsensusBLSSigShare(ptr<BLSSigShare> _s, schain_id _schainId, block_id _blockID)
     : ThresholdSigShare(_schainId, _blockID, _s->getSignerIndex()) {
-    ASSERT(false);
     ASSERT(_s != nullptr );
     blsSigShare = _s;
 }
