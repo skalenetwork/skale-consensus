@@ -352,7 +352,7 @@ bool CryptoManager::verifyECDSA( ptr< SHAHash > _hash, ptr< string > _sig, node_
         CHECK_STATE( pubKey );
         auto result = sgxVerifyECDSA( _hash, pubKey, _sig );
 
-        return true;
+        return result;
     } else {
         // mockup - used for testing
 
