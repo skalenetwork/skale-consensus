@@ -216,14 +216,7 @@ ptr< string > CryptoManager::sgxSignECDSA( ptr< SHAHash > _hash, string& _keyNam
     string s = result["signature_s"].asString();
 
     auto ret =  make_shared< string >( v + ":" + r.substr( 2 ) + ":" + s.substr( 2 ) );
-
-
-    // cerr << "Signed:"<< *ret <<  ":" << _keyName << ":" << *_hash->toHex() << endl;
-
     return ret;
-
-
-
 }
 
 bool CryptoManager::verifyECDSASigRS( string& pubKeyStr, const char* hashHex, const char* signatureR,
@@ -342,12 +335,10 @@ bool CryptoManager::verifyECDSA( ptr< SHAHash > _hash, ptr< string > _sig, node_
     CHECK_ARGUMENT( _hash != nullptr )
     CHECK_ARGUMENT( _sig != nullptr )
 
-    cerr << "Verifying signature:" + *_sig + ":" + to_string( _nodeId ) + ":" + *_hash->toHex() << endl;
-
     if ( isSGXEnabled ) {
         auto pubKey = ecdsaPublicKeyMap.at( _nodeId );
 
-        cerr << "Pubkey:" << *pubKey << endl;
+
 
         CHECK_STATE( pubKey );
         auto result = sgxVerifyECDSA( _hash, pubKey, _sig );
@@ -559,7 +550,7 @@ pair< ptr< string >, ptr< string > > CryptoManager::generateSGXECDSAKey( ptr< St
 
     auto status = result["status"].asInt64();
     CHECK_STATE( status == 0 );
-    cerr << result << endl;
+
     auto keyName = make_shared< string >( result["keyName"].asString() );
     auto publicKey = make_shared< string >( result["publicKey"].asString() );
 
