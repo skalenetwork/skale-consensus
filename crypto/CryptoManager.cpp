@@ -342,15 +342,15 @@ bool CryptoManager::verifyECDSA( ptr< SHAHash > _hash, ptr< string > _sig, node_
     CHECK_ARGUMENT( _hash != nullptr )
     CHECK_ARGUMENT( _sig != nullptr )
 
-    //cerr << "Verifying signature:" + *_sig + ":" + to_string( _nodeId ) + ":" + *_hash->toHex() << endl;
+    cerr << "Verifying signature:" + *_sig + ":" + to_string( _nodeId ) + ":" + *_hash->toHex() << endl;
 
     if ( isSGXEnabled ) {
         auto pubKey = ecdsaPublicKeyMap.at( _nodeId );
 
-        //cerr << "Pubkey:" << *pubKey << endl;
+        cerr << "Pubkey:" << *pubKey << endl;
 
         CHECK_STATE( pubKey );
-        //auto result = sgxVerifyECDSA( _hash, pubKey, _sig );
+        auto result = sgxVerifyECDSA( _hash, pubKey, _sig );
 
         return true;
     } else {
