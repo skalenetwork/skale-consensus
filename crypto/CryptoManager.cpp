@@ -133,7 +133,7 @@ CryptoManager::CryptoManager( Schain& _sChain ) : sChain( &_sChain ) {
     totalSigners = getSchain()->getTotalSigners();
     requiredSigners = getSchain()->getRequiredSigners();
 
-    CHECK_ARGUMENT( totalSigners > requiredSigners );
+    CHECK_ARGUMENT( totalSigners >= requiredSigners );
 
     isSGXEnabled = _sChain.getNode()->isSgxEnabled();
 
@@ -427,7 +427,7 @@ ptr< ThresholdSigShareSet > CryptoManager::createSigShareSet( block_id _blockId 
 
 ptr< ThresholdSigShare > CryptoManager::createSigShare(
     ptr< string > _sigShare, schain_id _schainID, block_id _blockID, schain_index _signerIndex ) {
-    CHECK_STATE( totalSigners > requiredSigners );
+    CHECK_STATE( totalSigners >= requiredSigners );
 
 
     if ( getSchain()->getNode()->isSgxEnabled() ) {
