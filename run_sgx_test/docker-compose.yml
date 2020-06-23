@@ -7,9 +7,6 @@ services:
       - "1027:1027"
       - "1028:1028"
       - "1029:1029"
-    devices:
-      - "/dev/isgx"
-      - "/dev/mei0"
     volumes:
       - ./sgx_data:/usr/src/sdk/sgx_data
       -  /dev/urandom:/dev/random
