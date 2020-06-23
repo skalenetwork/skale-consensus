@@ -37,7 +37,7 @@ ConsensusBLSSignature::ConsensusBLSSignature(
     ptr< string > _s, block_id _blockID, size_t _totalSigners, size_t _requiredSigners )
     : ThresholdSignature( _blockID, _totalSigners, _requiredSigners ) {
     try {
-        blsSig = make_shared< BLSSignature >( _s, _totalSigners, _requiredSigners );
+        blsSig = make_shared< BLSSignature >( _s, _requiredSigners, _totalSigners );
     } catch ( ... ) {
         throw_with_nested(
             InvalidStateException( "Could not create BLSSignature from string", __CLASS_NAME__ ) );

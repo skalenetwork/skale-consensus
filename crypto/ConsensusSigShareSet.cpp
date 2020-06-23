@@ -56,14 +56,16 @@ ConsensusSigShareSet::~ConsensusSigShareSet() {
 ptr<ThresholdSignature > ConsensusSigShareSet::mergeSignature() {
 
         CHECK_STATE(blsSet.isEnough());
+
         auto blsSig = blsSet.merge();
 
         CHECK_STATE(blsSig);
 
-        return make_shared<ConsensusBLSSignature>( blsSig, blockId,
+        auto sig = make_shared<ConsensusBLSSignature>( blsSig, blockId,
                                                    blsSig->getTotalSigners(), blsSig->getRequiredSigners());
 
-    // BOOST_REQUIRE(obj.Verification(hash, common_signature, pk) == false);
+
+        return sig;
 
 }
 
