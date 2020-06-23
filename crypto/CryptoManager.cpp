@@ -487,19 +487,14 @@ ptr< ThresholdSignature > CryptoManager::verifyThresholdSig(
             _signature, _blockId, totalSigners, requiredSigners );
 
 
-
-         try {
-
              CHECK_STATE(blsPublicKeyObj);
 
-            //if ( !blsPublicKeyObj->VerifySig(
-              //       _hash->getHash(), sig->getBlsSig(), requiredSigners, totalSigners ) ) {
-               // BOOST_THROW_EXCEPTION(
-                 //   InvalidArgumentException( "BLS Signature did not verify", __CLASS_NAME__ ) );
-            //
-        } catch (...) {
-            //verify everything for now
-        }
+            if ( !blsPublicKeyObj->VerifySig(
+                    _hash->getHash(), sig->getBlsSig(), requiredSigners, totalSigners ) ) {
+                BOOST_THROW_EXCEPTION(
+                        InvalidStateException("BLS Signature did not verify", __CLASS_NAME__));
+            }
+
         return sig;
 
     } else {
@@ -535,7 +530,6 @@ ptr< void > CryptoManager::decodeSGXPublicKey( ptr< string > _keyHex ) {
 ptr< string > CryptoManager::getSGXEcdsaPublicKey( ptr< string > _keyName, ptr< StubClient > _c ) {
     CHECK_STATE( _keyName );
     CHECK_ARGUMENT( _c );
-
 
 
     auto result = _c->getPublicECDSAKey( *_keyName );

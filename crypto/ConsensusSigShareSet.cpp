@@ -56,12 +56,14 @@ ConsensusSigShareSet::~ConsensusSigShareSet() {
 ptr<ThresholdSignature > ConsensusSigShareSet::mergeSignature() {
 
         CHECK_STATE(blsSet.isEnough());
+
         auto blsSig = blsSet.merge();
 
         CHECK_STATE(blsSig);
 
         auto sig = make_shared<ConsensusBLSSignature>( blsSig, blockId,
                                                    blsSig->getTotalSigners(), blsSig->getRequiredSigners());
+
 
         return sig;
 
