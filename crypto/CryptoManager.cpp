@@ -484,7 +484,7 @@ ptr< ThresholdSignature > CryptoManager::verifyThresholdSig(
 
 
         auto sig = make_shared< ConsensusBLSSignature >(
-            _signature, _blockId, requiredSigners, totalSigners );
+            _signature, _blockId, totalSigners, requiredSigners );
 
 
 
