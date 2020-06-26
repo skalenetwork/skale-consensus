@@ -58,7 +58,7 @@ public:
     uint64_t  BLOCK_PROPOSAL_DB_SIZE;
 
 public:
-    StorageLimits( uint64_t storageUnitBytes);
+    StorageLimits( uint64_t _totalStorageLimitBytes );
 };
 
 

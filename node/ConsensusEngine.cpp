@@ -539,7 +539,7 @@ void ConsensusEngine::systemHealthCheck() {
 
 void ConsensusEngine::init() {
 
-    storageLimits = make_shared<StorageLimits>( DEFAULT_DB_STORAGE_UNIT );
+    storageLimits = make_shared<StorageLimits>( DEFAULT_DB_STORAGE_LIMIT );
 
     libff::init_alt_bn128_params();
 
@@ -811,14 +811,11 @@ void ConsensusEngine::setBlsKeyName( ptr< string > _blsKeyName ) {
 }
 
 void ConsensusEngine::setTotalStorageLimitBytes( uint64_t _storageLimitBytes ) {
-    totalStorageLimitBytes =  _storageLimitBytes;
 
-    storageLimits = make_shared<StorageLimits>(_storageLimitBytes / (LEVELDB_SHARDS + 1) );
+    storageLimits = make_shared<StorageLimits>(_storageLimitBytes);
 
 }
-uint64_t ConsensusEngine::getTotalStorageLimitBytes() const {
-    return totalStorageLimitBytes;
-}
+
 ptr< StorageLimits > ConsensusEngine::getStorageLimits() const {
     return storageLimits;
 }

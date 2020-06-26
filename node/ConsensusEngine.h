@@ -92,14 +92,10 @@ class ConsensusEngine : public ConsensusInterface {
 
     shared_ptr< spdlog::sinks::sink > logRotatingFileSync;
 
-    uint64_t totalStorageLimitBytes = 0;
-
     ptr<StorageLimits> storageLimits = nullptr;
 
 public:
     ptr< StorageLimits > getStorageLimits() const;
-
-public:
 
     void setEcdsaKeyName( ptr< string > _ecdsaKeyName );
     void setBlsKeyName( ptr< string > _blsKeyName );
