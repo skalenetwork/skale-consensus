@@ -108,6 +108,8 @@ private:
 
     void initSGXClient();
 
+    static uint64_t parseSGXPort( ptr< string > _url );
+
 public:
     // This constructor is used for testing
     CryptoManager( uint64_t _totalSigners, uint64_t _requiredSigners, bool _isSGXEnabled,
@@ -150,6 +152,9 @@ public:
 
     static void generateSSLClientCertAndKey( string& _fullPathToDir );
     static void setSGXKeyAndCert( string& _keyFullPath, string& _certFullPath );
+
+
+
 
     ptr< string > sgxSignECDSA( ptr< SHAHash > _hash, string& _keyName );
 
