@@ -135,7 +135,9 @@ ptr<Transaction> PendingTransactionsAgent::getKnownTransactionByPartialHash(ptr<
 }
 
 void PendingTransactionsAgent::pushKnownTransaction(ptr<Transaction> _transaction) {
-    lock_guard<recursive_mutex> lock(transactionsMutex);
+    LOCK(transactionsMutex);
+    CHECK_ARGUMENT(_transaction);
+
     if (knownTransactions.count(_transaction->getPartialHash())) {
         LOG(trace, "Duplicate transaction pushed to known transactions");
         return;
