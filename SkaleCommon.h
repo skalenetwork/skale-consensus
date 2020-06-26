@@ -140,6 +140,8 @@ class SkaleLog;
 
 using namespace std;
 
+static const uint64_t LEVELDB_SHARDS = 4;
+
 static const uint64_t BLOCK_PROPOSAL_HISTORY_SIZE = 1;
 
 static const uint64_t COMMITTED_TRANSACTIONS_HISTORY = 1000000;

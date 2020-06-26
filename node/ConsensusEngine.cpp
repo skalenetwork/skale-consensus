@@ -538,6 +538,9 @@ void ConsensusEngine::systemHealthCheck() {
 }
 
 void ConsensusEngine::init() {
+
+    storageLimits = make_shared<StorageLimits>( DEFAULT_DB_STORAGE_UNIT );
+
     libff::init_alt_bn128_params();
 
     threadRegistry = make_shared< GlobalThreadRegistry >();
@@ -561,7 +564,7 @@ ConsensusEngine::ConsensusEngine( block_id _lastId ) : exitRequested( false ) {
         init();
         lastCommittedBlockID = _lastId;
 
-        storageLimits = make_shared<StorageLimits>( DEFAULT_DB_STORAGE_UNIT );
+
 
 
     } catch ( exception& e ) {
@@ -809,6 +812,9 @@ void ConsensusEngine::setBlsKeyName( ptr< string > _blsKeyName ) {
 
 void ConsensusEngine::setTotalStorageLimitBytes( uint64_t _storageLimitBytes ) {
     totalStorageLimitBytes =  _storageLimitBytes;
+
+    storageLimits = make_shared<StorageLimits>(_storageLimitBytes / (LEVELDB_SHARDS + 1) );
+
 }
 uint64_t ConsensusEngine::getTotalStorageLimitBytes() const {
     return totalStorageLimitBytes;
