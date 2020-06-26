@@ -70,14 +70,22 @@
 
 
 
-void CryptoManager::initSGX() {
+void CryptoManager::initSGXClient() {
     if ( isSGXEnabled ) {
         if ( isHTTPSEnabled ) {
-            CHECK_STATE( sgxSSLKeyFileFullPath );
-            CHECK_STATE( sgxSSLCertFileFullPath );
-            setSGXKeyAndCert( *sgxSSLKeyFileFullPath, *sgxSSLCertFileFullPath );
-        }
+            if ( sgxSSLKeyFileFullPath  && sgxSSLCertFileFullPath ) {
+                LOG(info, string("Setting sgxSSLKeyFileFullPath to ")
+                               + *sgxSSLKeyFileFullPath );
 
+                LOG(info, string("Setting sgxCertKeyFileFullPath to ")
+                          + *sgxSSLCertFileFullPath );
+                setSGXKeyAndCert( *sgxSSLKeyFileFullPath, *sgxSSLCertFileFullPath );
+            } {
+                LOG(info, string("Setting sgxSSLKeyCertFileFullPath  is not set."
+                                   "Assuming SGX server does not require client certs"));
+
+            }
+        }
 
         httpClient = make_shared< jsonrpc::HttpClient >( *sgxURL );
         sgxClient = make_shared< StubClient >( *httpClient, jsonrpc::JSONRPC_CLIENT_V2 );
@@ -89,6 +97,7 @@ ptr< vector< string > > CryptoManager::getSgxBlsPublicKey() {
 }
 
 ptr< string > CryptoManager::getSgxBlsKeyName() {
+    CHECK_STATE(sgxBlsKeyName);
     return sgxBlsKeyName;
 }
 
@@ -96,8 +105,8 @@ CryptoManager::CryptoManager( uint64_t _totalSigners, uint64_t _requiredSigners,
     ptr< string > _sgxURL, ptr< string > _sgxSslKeyFileFullPath,
     ptr< string > _sgxSslCertFileFullPath, ptr< string > _sgxEcdsaKeyName,
     ptr< vector< string > > _sgxEcdsaPublicKeys ) {
-    CHECK_ARGUMENT( _totalSigners > _requiredSigners );
 
+    CHECK_ARGUMENT( _totalSigners >= _requiredSigners );
 
     totalSigners = _totalSigners;
     requiredSigners = _requiredSigners;
@@ -107,11 +116,8 @@ CryptoManager::CryptoManager( uint64_t _totalSigners, uint64_t _requiredSigners,
 
     if ( _isSGXEnabled ) {
         CHECK_ARGUMENT( _sgxURL );
-        CHECK_ARGUMENT( _sgxSslKeyFileFullPath );
-        CHECK_ARGUMENT( _sgxSslCertFileFullPath );
         CHECK_ARGUMENT( _sgxEcdsaKeyName );
         CHECK_ARGUMENT( _sgxEcdsaPublicKeys );
-
 
         sgxURL = _sgxURL;
         sgxSSLKeyFileFullPath = _sgxSslKeyFileFullPath;
@@ -119,16 +125,28 @@ CryptoManager::CryptoManager( uint64_t _totalSigners, uint64_t _requiredSigners,
         sgxSSLCertFileFullPath = _sgxSslCertFileFullPath;
         sgxECDSAKeyName = _sgxEcdsaKeyName;
         sgxECDSAPublicKeys = _sgxEcdsaPublicKeys;
-        sgxURL = _sgxURL;
     }
 
-    initSGX();
+    initSGXClient();
+}
+
+
+uint32_t  getSGXPort(ptr<string> _url) {
+
+    size_t found = _url->find_first_of(":");
+    if (found == string::npos) {
+        BOOST_THROW_EXCEPTION(InvalidStateException("SGX URL does not include port "
+                                 + *_url, __CLASS_NAME__));
+    }
+    string host=_url->substr(0,found);
+    size_t found1 =_url->find_first_of("/");
+    string port =_url->substr(found+1,found1-found-1);
+    return stoi(port);
+
 }
 
 
 CryptoManager::CryptoManager( Schain& _sChain ) : sChain( &_sChain ) {
-    CHECK_ARGUMENT( sChain != nullptr );
-
 
     totalSigners = getSchain()->getTotalSigners();
     requiredSigners = getSchain()->getRequiredSigners();
@@ -142,16 +160,14 @@ CryptoManager::CryptoManager( Schain& _sChain ) : sChain( &_sChain ) {
         sgxURL = node->getSgxUrl();
         sgxSSLCertFileFullPath = node->getSgxSslCertFileFullPath();
         sgxSSLKeyFileFullPath = node->getSgxSslKeyFileFullPath();
-
-
         sgxECDSAKeyName = node->getEcdsaKeyName();
         sgxECDSAPublicKeys = node->getEcdsaPublicKeys();
         sgxBlsKeyName = node->getBlsKeyName();
         sgxBLSPublicKeys = node->getBlsPublicKeys();
         sgxBLSPublicKey = node->getBlsPublicKey();
 
-        CHECK_STATE(JSONFactory::splitString(*sgxBlsKeyName)->size() == 7);
-        CHECK_STATE(JSONFactory::splitString(*sgxECDSAKeyName)->size() == 2);
+
+
 
         CHECK_STATE( sgxURL );
         CHECK_STATE( sgxECDSAKeyName );
@@ -160,6 +176,8 @@ CryptoManager::CryptoManager( Schain& _sChain ) : sChain( &_sChain ) {
         CHECK_STATE( sgxBLSPublicKeys );
         CHECK_STATE( sgxBLSPublicKey );
 
+        CHECK_STATE(JSONFactory::splitString(*sgxBlsKeyName)->size() == 7);
+        CHECK_STATE(JSONFactory::splitString(*sgxECDSAKeyName)->size() == 2);
 
         for ( uint64_t i = 0; i < ( uint64_t ) getSchain()->getNodeCount(); i++ ) {
             auto nodeId = getSchain()->getNode()->getNodeInfoByIndex( i + 1 )->getNodeID();
@@ -170,16 +188,8 @@ CryptoManager::CryptoManager( Schain& _sChain ) : sChain( &_sChain ) {
 
         isHTTPSEnabled = sgxURL->find( "https:/" ) != string::npos;
 
-        totalSigners = sChain->getTotalSigners();
-        requiredSigners = sChain->getRequiredSigners();
 
-        if ( isHTTPSEnabled ) {
-            CHECK_STATE( sgxSSLCertFileFullPath );
-            CHECK_STATE( sgxSSLKeyFileFullPath );
-        }
-
-
-        initSGX();
+        initSGXClient();
 
 
         try {

@@ -106,7 +106,7 @@ private:
 
     ptr< ThresholdSigShare > signSigShare( ptr< SHAHash > _hash, block_id _blockId );
 
-    void initSGX();
+    void initSGXClient();
 
 public:
     // This constructor is used for testing
