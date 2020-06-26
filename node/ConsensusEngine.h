@@ -46,6 +46,7 @@ using namespace spdlog::level;
 
 
 class GlobalThreadRegistry;
+class StorageLimits;
 
 
 class ConsensusEngine : public ConsensusInterface {
@@ -92,6 +93,11 @@ class ConsensusEngine : public ConsensusInterface {
     shared_ptr< spdlog::sinks::sink > logRotatingFileSync;
 
     uint64_t totalStorageLimitBytes = 0;
+
+    ptr<StorageLimits> storageLimits = nullptr;
+
+public:
+    ptr< StorageLimits > getStorageLimits() const;
 
 public:
 
@@ -236,5 +242,5 @@ public:
                        uint64_t _totalSigners);
 
     void setTotalStorageLimitBytes(uint64_t _storageLimitBytes);
-
+    uint64_t getTotalStorageLimitBytes() const;
 };

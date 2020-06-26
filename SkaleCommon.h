@@ -290,18 +290,8 @@ static const num_threads NUM_SCHAIN_THREADS = num_threads(1);
 
 static const num_threads NUM_DISPATCH_THREADS = num_threads(1);
 
-static const uint64_t  BLOCK_DB_SIZE = 10000000000;
-static const uint64_t  RANDOM_DB_SIZE = 10000000;
-static const uint64_t  PRICE_DB_SIZE = 10000000;
-static const uint64_t  PROPOSAL_HASH_DB_SIZE = 10000000;
-static const uint64_t  PROPOSAL_VECTOR_DB_SIZE = 10000000;
-static const uint64_t  OUTGOING_MSG_DB_SIZE = 10000000;
-static const uint64_t  INCOMING_MSG_DB_SIZE = 10000000;
-static const uint64_t  CONSENSUS_STATE_DB_SIZE = 10000000;
-static const uint64_t  BLOCK_SIG_SHARE_DB_SIZE = 10000000;
-static const uint64_t  DA_SIG_SHARE_DB_SIZE = 10000000;
-static const uint64_t  DA_PROOF_DB_SIZE = 10000000;
-static const uint64_t  BLOCK_PROPOSAL_DB_SIZE = 100000000;
+static const uint64_t DEFAULT_DB_STORAGE_UNIT = 1000000; // One Megabyte
+
 static const uint64_t  MAX_DELAYED_MESSAGE_SENDS = 256;
 static const uint64_t  MAX_PROPOSAL_QUEUE_SIZE = 8;
 

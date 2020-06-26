@@ -102,11 +102,10 @@ CryptoManager::CryptoManager( uint64_t _totalSigners, uint64_t _requiredSigners,
     ptr< string > _sgxURL, ptr< string > _sgxSslKeyFileFullPath,
     ptr< string > _sgxSslCertFileFullPath, ptr< string > _sgxEcdsaKeyName,
     ptr< vector< string > > _sgxEcdsaPublicKeys ) {
-    CHECK_ARGUMENT( _totalSigners >= _requiredSigners );
 
+    CHECK_ARGUMENT( _totalSigners >= _requiredSigners );
     totalSigners = _totalSigners;
     requiredSigners = _requiredSigners;
-
 
     isSGXEnabled = _isSGXEnabled;
 
@@ -116,7 +115,6 @@ CryptoManager::CryptoManager( uint64_t _totalSigners, uint64_t _requiredSigners,
         CHECK_ARGUMENT( _sgxEcdsaPublicKeys );
 
         sgxURL = _sgxURL;
-        sgxSSLKeyFileFullPath = _sgxSslKeyFileFullPath;
         sgxSSLKeyFileFullPath = _sgxSslKeyFileFullPath;
         sgxSSLCertFileFullPath = _sgxSslCertFileFullPath;
         sgxECDSAKeyName = _sgxEcdsaKeyName;

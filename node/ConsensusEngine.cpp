@@ -91,6 +91,9 @@
 #include "exceptions/FatalError.h"
 
 #include "ConsensusEngine.h"
+
+#include "db/StorageLimits.h"
+
 #include "ENGINE_VERSION"
 
 using namespace boost::filesystem;
@@ -557,6 +560,10 @@ ConsensusEngine::ConsensusEngine( block_id _lastId ) : exitRequested( false ) {
     try {
         init();
         lastCommittedBlockID = _lastId;
+
+        storageLimits = make_shared<StorageLimits>( DEFAULT_DB_STORAGE_UNIT );
+
+
     } catch ( exception& e ) {
         SkaleException::logNested( e );
         throw_with_nested( EngineInitException( "Engine construction failed", __CLASS_NAME__ ) );
@@ -799,6 +806,13 @@ void ConsensusEngine::setBlsKeyName( ptr< string > _blsKeyName ) {
     CHECK_STATE( JSONFactory::splitString( *_blsKeyName )->size() == 7 );
     blsKeyName = _blsKeyName;
 }
+
 void ConsensusEngine::setTotalStorageLimitBytes( uint64_t _storageLimitBytes ) {
     totalStorageLimitBytes =  _storageLimitBytes;
+}
+uint64_t ConsensusEngine::getTotalStorageLimitBytes() const {
+    return totalStorageLimitBytes;
+}
+ptr< StorageLimits > ConsensusEngine::getStorageLimits() const {
+    return storageLimits;
 }
