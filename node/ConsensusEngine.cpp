@@ -749,6 +749,7 @@ void ConsensusEngine::setSGXKeyInfo( ptr< string > _sgxServerURL,
     CHECK_STATE( _blsPublicKeyShares );
     CHECK_STATE( _ecdsaPublicKeys );
     CHECK_STATE( _ecdsaPublicKeys );
+    CHECK_STATE(_totalSigners >= _requiredSigners);
 
     this->sgxServerUrl = _sgxServerURL;
     this->isSGXEnabled = true;
@@ -780,18 +781,21 @@ void ConsensusEngine::setSGXKeyInfo( ptr< string > _sgxServerURL,
     sgxSSLCertFileFullPath = _sgxSSLCertFileFullPath;
     sgxSSLKeyFileFullPath = _sgxSSLKeyFileFullPath;
 }
-const ptr< string >& ConsensusEngine::getEcdsaKeyName() const {
+ptr< string > ConsensusEngine::getEcdsaKeyName() const {
+    CHECK_STATE(ecdsaKeyName);
     return ecdsaKeyName;
 }
-const ptr< string >& ConsensusEngine::getBlsKeyName() const {
-    CHECK_STATE( JSONFactory::splitString( *blsKeyName )->size() == 7 );
+ptr< string > ConsensusEngine::getBlsKeyName() const {
+    CHECK_STATE(blsKeyName);
     return blsKeyName;
 }
-void ConsensusEngine::setEcdsaKeyName( const ptr< string >& _ecdsaKeyName ) {
+void ConsensusEngine::setEcdsaKeyName( ptr< string > _ecdsaKeyName ) {
+    CHECK_ARGUMENT(_ecdsaKeyName);
     CHECK_STATE( JSONFactory::splitString( *_ecdsaKeyName )->size() == 2 );
     ecdsaKeyName = _ecdsaKeyName;
 }
-void ConsensusEngine::setBlsKeyName( const ptr< string >& _blsKeyName ) {
+void ConsensusEngine::setBlsKeyName( ptr< string > _blsKeyName ) {
+    CHECK_ARGUMENT(_blsKeyName);
     CHECK_STATE( JSONFactory::splitString( *_blsKeyName )->size() == 7 );
     blsKeyName = _blsKeyName;
 }

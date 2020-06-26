@@ -146,7 +146,6 @@ void Transaction::serializeInto( ptr< vector< uint8_t > > _out, bool _writeParti
     _out->insert( _out->end(), data->begin(), data->end() );
 
     if (_writePartialHash) {
-
         auto h = getPartialHash();
         _out->insert( _out->end(), h->begin(), h->end() );
     }
