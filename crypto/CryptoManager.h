@@ -151,7 +151,7 @@ public:
     static ptr< string > getSGXEcdsaPublicKey( ptr< string > _keyName, ptr< StubClient > _c );
 
     static void generateSSLClientCertAndKey( string& _fullPathToDir );
-    static void setSGXKeyAndCert( string& _keyFullPath, string& _certFullPath );
+    static void setSGXKeyAndCert( string& _keyFullPath, string& _certFullPath, uint64_t _sgxPort );
 
 
 

@@ -799,3 +799,6 @@ void ConsensusEngine::setBlsKeyName( ptr< string > _blsKeyName ) {
     CHECK_STATE( JSONFactory::splitString( *_blsKeyName )->size() == 7 );
     blsKeyName = _blsKeyName;
 }
+void ConsensusEngine::setTotalStorageLimitBytes( uint64_t _storageLimitBytes ) {
+    totalStorageLimitBytes =  _storageLimitBytes;
+}

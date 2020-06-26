@@ -60,8 +60,6 @@ class ConsensusEngine : public ConsensusInterface {
 
     ptr<string> blsKeyName = nullptr;
 
-
-
     ptr< vector< string > > ecdsaKeyNames = nullptr;
     ptr< vector< string > > blsKeyNames = nullptr;
     ptr< vector< string > > ecdsaPublicKeys = nullptr;
@@ -92,6 +90,8 @@ class ConsensusEngine : public ConsensusInterface {
     shared_ptr< string > logFileNamePrefix;
 
     shared_ptr< spdlog::sinks::sink > logRotatingFileSync;
+
+    uint64_t totalStorageLimitBytes = 0;
 
 public:
 

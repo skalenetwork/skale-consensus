@@ -74,12 +74,11 @@ void CryptoManager::initSGXClient() {
         if ( isHTTPSEnabled ) {
             if ( sgxSSLKeyFileFullPath && sgxSSLCertFileFullPath ) {
                 LOG( info, string( "Setting sgxSSLKeyFileFullPath to " ) + *sgxSSLKeyFileFullPath );
-
                 LOG( info,
                     string( "Setting sgxCertKeyFileFullPath to " ) + *sgxSSLCertFileFullPath );
-                setSGXKeyAndCert( *sgxSSLKeyFileFullPath, *sgxSSLCertFileFullPath );
-            }
-            {
+                setSGXKeyAndCert(
+                    *sgxSSLKeyFileFullPath, *sgxSSLCertFileFullPath, parseSGXPort(sgxURL));
+            } else {
                 LOG( info, string( "Setting sgxSSLKeyCertFileFullPath  is not set."
                                    "Assuming SGX server does not require client certs" ) );
             }
@@ -205,10 +204,11 @@ CryptoManager::CryptoManager( Schain& _sChain ) : sChain( &_sChain ) {
     }
 }
 
-void CryptoManager::setSGXKeyAndCert( string& _keyFullPath, string& _certFullPath ) {
+void CryptoManager::setSGXKeyAndCert(
+    string& _keyFullPath, string& _certFullPath, uint64_t _sgxPort ) {
     jsonrpc::HttpClient::setKeyFileFullPath( _keyFullPath );
     jsonrpc::HttpClient::setCertFileFullPath( _certFullPath );
-    jsonrpc::HttpClient::setSslClientPort( SGX_SSL_PORT );
+    jsonrpc::HttpClient::setSslClientPort(_sgxPort);
 }
 
 Schain* CryptoManager::getSchain() const {
