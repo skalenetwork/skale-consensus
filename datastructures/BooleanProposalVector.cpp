@@ -30,7 +30,8 @@
 
 BooleanProposalVector::BooleanProposalVector(node_count _nodeCount, ptr<map<schain_index, ptr<string>>>
 _receivedDAProofs) : nodeCount(_nodeCount) {
-    CHECK_ARGUMENT(_receivedDAProofs != nullptr);
+
+    CHECK_ARGUMENT(_receivedDAProofs);
 
     proposals.push_back(false);
 
@@ -75,7 +76,6 @@ uint64_t BooleanProposalVector::getTrueCount() const {
 }
 
 ptr<string> BooleanProposalVector::toString() {
-
     auto vectorStr = make_shared<string>();
     for (uint64_t i = 1; i <= nodeCount; i++) {
         auto value = (proposals.at(i) ? "1" : "0");

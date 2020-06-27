@@ -41,7 +41,7 @@ using namespace std;
 
 
 bool BlockProposalSet::add(ptr<BlockProposal> _proposal) {
-    CHECK_ARGUMENT( _proposal  != nullptr);
+    CHECK_ARGUMENT( _proposal);
 
     LOCK(m)
 
@@ -65,7 +65,7 @@ bool BlockProposalSet::add(ptr<BlockProposal> _proposal) {
 
 BlockProposalSet::BlockProposalSet(Schain* _sChain, block_id _blockId)
     : blockId(_blockId){
-    CHECK_ARGUMENT(_sChain != nullptr);
+    CHECK_ARGUMENT(_sChain);
     CHECK_ARGUMENT(_blockId > 0);
 
     nodeCount = _sChain->getNodeCount();
@@ -81,13 +81,9 @@ node_count BlockProposalSet::getCount() {
     return ( node_count ) proposals.size();
 }
 
-
-
-
 ptr< BlockProposal > BlockProposalSet::getProposalByIndex( schain_index _index ) {
 
     CHECK_ARGUMENT(_index > 0 && (uint64_t ) _index <= nodeCount)
-
     LOCK(m)
 
     if ( proposals.count((uint64_t) _index) == 0 ) {

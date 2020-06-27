@@ -61,7 +61,7 @@ public:
 
     ptr<string> getThresholdSig() const;
 
-    static ptr<CommittedBlock> makeObject(ptr<BlockProposal> _p, ptr<ThresholdSignature> _thresholdSig);
+    static ptr<CommittedBlock> makeObject(ptr<BlockProposal> _proposal, ptr<ThresholdSignature> _thresholdSig);
     static ptr<CommittedBlock> make(schain_id _sChainId, node_id _proposerNodeId, block_id _blockId,
                                      schain_index _proposerIndex, ptr<TransactionList> _transactions,
                                     const u256& _stateRoot, uint64_t _timeStamp, uint64_t _timeStampMs,

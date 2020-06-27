@@ -26,25 +26,30 @@
 
 #include "BlockProposalFragment.h"
 
-BlockProposalFragment::BlockProposalFragment(const block_id &blockId, const uint64_t totalFragments,
-                                               const fragment_index &fragmentIndex, const ptr<vector<uint8_t>> &data,
+BlockProposalFragment::BlockProposalFragment(const block_id & _blockId, const uint64_t _totalFragments,
+                                               const fragment_index &_fragmentIndex, const ptr<vector<uint8_t>> & _data,
                                                uint64_t _blockSize, ptr<string> _blockHash) :
-        blockId(blockId), blockSize(_blockSize),blockHash(_blockHash),  totalFragments(totalFragments), fragmentIndex(fragmentIndex),  data(data) {
-    CHECK_ARGUMENT(totalFragments > 0);
-    CHECK_ARGUMENT(fragmentIndex <= totalFragments);
-    CHECK_ARGUMENT(data != nullptr);
-    CHECK_ARGUMENT(blockId > 0);
-    CHECK_ARGUMENT(data->size() > 0);
-    if (data->size() < 3) {
+        blockId( _blockId ), blockSize(_blockSize),blockHash(_blockHash),  totalFragments( _totalFragments ), fragmentIndex(_fragmentIndex),  data( _data ) {
+
+
+    CHECK_ARGUMENT(_blockHash);
+    CHECK_ARGUMENT( _data );
+
+    CHECK_ARGUMENT( _totalFragments > 0);
+    CHECK_ARGUMENT(_fragmentIndex <= _totalFragments );
+
+    CHECK_ARGUMENT( _blockId > 0);
+    CHECK_ARGUMENT( _data->size() > 0);
+    if ( _data->size() < 3) {
         BOOST_THROW_EXCEPTION(ParsingException("Data fragment too short:" +
-         to_string(data->size()), __CLASS_NAME__));
+         to_string( _data->size()), __CLASS_NAME__));
     }
 
-    if(data->front() != '<') {
+    if( _data->front() != '<') {
         BOOST_THROW_EXCEPTION(ParsingException("Data fragment does not start with <", __CLASS_NAME__));
     }
 
-    if(data->back() != '>') {
+    if( _data->back() != '>') {
         BOOST_THROW_EXCEPTION(ParsingException("Data fragment does not end with >", __CLASS_NAME__));
     }
 }
@@ -54,6 +59,7 @@ uint64_t BlockProposalFragment::getBlockSize() const {
 }
 
 ptr<string> BlockProposalFragment::getBlockHash() const {
+    CHECK_STATE(blockHash);
     return blockHash;
 }
 
@@ -71,5 +77,6 @@ fragment_index BlockProposalFragment::getIndex() const {
 }
 
 ptr<vector<uint8_t>> BlockProposalFragment::serialize() const {
+    CHECK_STATE(data);
     return data;
 }

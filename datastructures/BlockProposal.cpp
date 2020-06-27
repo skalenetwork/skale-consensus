@@ -193,6 +193,7 @@ void BlockProposal::addSignature(ptr<string> _signature) {
 
 ptr<string> BlockProposal::getSignature() {
     LOCK(m)
+    CHECK_STATE(signature);
     return signature;
 }
 
