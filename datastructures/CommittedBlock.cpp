@@ -122,13 +122,14 @@ ptr<CommittedBlock> CommittedBlock::deserialize(ptr<vector<uint8_t> > _serialize
 }
 
 
-ptr<CommittedBlockHeader> CommittedBlock::parseBlockHeader(const shared_ptr<string> &header) {
-    CHECK_ARGUMENT(header != nullptr);
-    CHECK_ARGUMENT(header->size() > 2);
-    CHECK_ARGUMENT2(header->at(0) == '{', "Block header does not start with {");
-    CHECK_ARGUMENT2(header->at(header->size() - 1) == '}', "Block header does not end with }");
+ptr<CommittedBlockHeader> CommittedBlock::parseBlockHeader(const shared_ptr<string> & _header ) {
+    CHECK_ARGUMENT( _header );
+    CHECK_ARGUMENT( _header->size() > 2);
+    CHECK_ARGUMENT2( _header->at(0) == '{', "Block header does not start with {");
+    CHECK_ARGUMENT2(
+        _header->at( _header->size() - 1) == '}', "Block header does not end with }");
 
-    auto js = nlohmann::json::parse(*header);
+    auto js = nlohmann::json::parse(*_header );
 
     return make_shared<CommittedBlockHeader>(js);
 
@@ -152,8 +153,8 @@ CommittedBlock::CommittedBlock(
         _signature, ptr<string> _thresholdSig)
         : BlockProposal(sChainId, proposerNodeId, blockId, proposerIndex, transactions, stateRoot, timeStamp,
                         timeStampMs, _signature, nullptr) {
-    CHECK_ARGUMENT(_signature != nullptr);
-    CHECK_ARGUMENT(_thresholdSig != nullptr);
+    CHECK_ARGUMENT(_signature);
+    CHECK_ARGUMENT(_thresholdSig);
     this->thresholdSig = _thresholdSig;
 }
 

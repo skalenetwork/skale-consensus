@@ -43,7 +43,7 @@ class CommittedBlock : public BlockProposal {
 
     ptr<string> thresholdSig = nullptr;
 
-    static ptr<CommittedBlockHeader> parseBlockHeader(const shared_ptr< string >& header );
+    static ptr<CommittedBlockHeader> parseBlockHeader(const shared_ptr< string >& _header );
 
 protected:
     ptr<BasicHeader> createHeader() override;
