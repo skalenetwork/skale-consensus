@@ -43,39 +43,35 @@ class BlockProposalHeader : public BasicHeader {
     uint64_t timeStamp = 0;
     uint32_t timeStampMs = 0;
     u256 stateRoot = 0;
+
 public:
-    const u256 &getStateRoot() const;
+    u256 getStateRoot();
 
-    const ptr<string> &getSignature() const;
+    ptr< string > getSignature();
 
-    const schain_id &getSchainID() const;
+    schain_id getSchainID();
 
-    const block_id &getBlockID() const;
-
+    block_id getBlockID();
 
     BlockProposalHeader(nlohmann::json& _json);
 
     BlockProposalHeader(BlockProposal & _block);
 
-    ptr<string> getBlockHash() const {
+    ptr<string> getBlockHash() {
         return blockHash;
     }
 
     void addFields(nlohmann::json &j) override;
 
-    const ptr<vector<uint64_t>> &getTransactionSizes() const;
+    ptr<vector<uint64_t>> getTransactionSizes();
 
+    schain_index getProposerIndex();
 
-    const schain_index &getProposerIndex() const;
+    node_id getProposerNodeId();
 
-    const node_id &getProposerNodeId() const;
+    uint64_t getTimeStamp();
 
-
-    uint64_t getTimeStamp() const;
-
-    uint32_t getTimeStampMs() const;
-
-
+    uint32_t getTimeStampMs() ;
 };
 
 

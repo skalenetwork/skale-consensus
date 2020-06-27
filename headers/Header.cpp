@@ -22,6 +22,7 @@
 */
 
 #include "SkaleCommon.h"
+#include "Log.h"
 #include "exceptions/FatalError.h"
 
 #include "thirdparty/json.hpp"
@@ -33,6 +34,7 @@
 
 
 Header::Header(const char *_type) : BasicHeader(_type){
+    CHECK_ARGUMENT(_type);
 }
 
 

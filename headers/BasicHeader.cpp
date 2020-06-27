@@ -81,19 +81,22 @@ ptr<Buffer> BasicHeader::toBuffer() {
 
 
 
-void BasicHeader::nullCheck(nlohmann::json &js, const char *name) {
-    if (js.find(name) == js.end()) {
-        BOOST_THROW_EXCEPTION(NetworkProtocolException("Null " + string(name) + " in json", __CLASS_NAME__));
+void BasicHeader::nullCheck(nlohmann::json &js, const char * _name ) {
+    CHECK_ARGUMENT( _name );
+    if (js.find( _name ) == js.end()) {
+        BOOST_THROW_EXCEPTION(NetworkProtocolException("Null " + string( _name ) + " in json", __CLASS_NAME__));
     }
 };
 
 uint64_t BasicHeader::getUint64(nlohmann::json &_js, const char *_name) {
+    CHECK_ARGUMENT(_name);
     nullCheck(_js, _name);
     uint64_t result = _js[_name];
     return result;
 };
 
 int32_t BasicHeader::getInt32(nlohmann::json &_js, const char *_name) {
+    CHECK_ARGUMENT(_name);
     nullCheck(_js, _name);
     int32_t result = _js[_name];
     return result;
@@ -102,18 +105,21 @@ int32_t BasicHeader::getInt32(nlohmann::json &_js, const char *_name) {
 
 
 uint32_t BasicHeader::getUint32(nlohmann::json &_js, const char *_name) {
+    CHECK_ARGUMENT(_name);
     nullCheck(_js, _name);
     uint32_t result = _js[_name];
     return result;
 };
 
 ptr<string> BasicHeader::getString(nlohmann::json &_js, const char *_name) {
+    CHECK_ARGUMENT(_name);
     nullCheck(_js, _name);
     string result = _js[_name];
     return make_shared<string>(result);
 }
 
 BasicHeader::BasicHeader(const char *_type) : type(_type)  {
+    CHECK_ARGUMENT(_type);
     totalObjects++;
 }
 
