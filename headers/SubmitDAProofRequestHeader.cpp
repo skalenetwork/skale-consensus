@@ -58,14 +58,15 @@ SubmitDAProofRequestHeader::SubmitDAProofRequestHeader(Schain &_sChain, ptr<DAPr
                                    Header::DA_PROOF_REQ,
                                    _sChain.getSchainIndex()) {
 
-
-
+    CHECK_ARGUMENT(_proof);
 
     this->proposerNodeID = _sChain.getNode()->getNodeID();
 
     this->thresholdSig = _proof->getThresholdSig()->toString();
+    CHECK_STATE(thresholdSig);
 
     this->blockHash = _proof->getHash()->toHex();
+    CHECK_STATE(blockHash);
 
     complete = true;
 
@@ -79,8 +80,9 @@ void SubmitDAProofRequestHeader::addFields(nlohmann::json &_jsonRequest) {
     _jsonRequest["proposerNodeID"] = (uint64_t) proposerNodeID;
     _jsonRequest["proposerIndex"] = (uint64_t) proposerIndex;
     _jsonRequest["blockID"] = (uint64_t) blockID;
-    CHECK_STATE(thresholdSig != nullptr);
+     CHECK_STATE(thresholdSig);
     _jsonRequest["thrSig"] = *thresholdSig;
+     CHECK_STATE(blockHash);
     _jsonRequest["hash"] = *blockHash;
 }
 

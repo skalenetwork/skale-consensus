@@ -62,10 +62,12 @@ schain_index DAProof::getProposerIndex() const {
 }
 
 ptr<ThresholdSignature> DAProof::getThresholdSig() const {
+    CHECK_STATE(thresholdSig);
     return thresholdSig;
 }
 
 ptr<SHAHash> DAProof::getHash() const {
+    CHECK_STATE(hash);
     return hash;
 }
 

@@ -41,12 +41,12 @@ CommittedBlockHeader::CommittedBlockHeader(nlohmann::json &json) : BlockProposal
 
  ptr<string> CommittedBlockHeader::getThresholdSig()  {
      CHECK_STATE(thresholdSig);
-    return thresholdSig;
+     return thresholdSig;
 }
 
 void CommittedBlockHeader::addFields(nlohmann::basic_json<> &j) {
     BlockProposalHeader::addFields(j);
-
+    CHECK_STATE(thresholdSig);
     j["thrSig"] = *thresholdSig;
 }
 
