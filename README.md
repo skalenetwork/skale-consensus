@@ -16,24 +16,34 @@ SKALE Consensus uses an Asynchronous Binary Byzantine Agreement (ABBA) protocol.
 
 The SKALE consensus is still in active development and contains bugs. This software should be regarded as _alpha software_. Development is still subject to competing the specification, security hardening, further testing, and breaking changes.  **This consensus engine has not yet been reviewed or audited for security.** Please see [SECURITY.md](SECURITY.md) for reporting policies.
 
-## Roadmap
-
-_to be posted soon_
-
 ## Installation Requirements
 
-SKALE consensus has been built and tested on Ubuntu.
+SKALE consensus has been built and tested on Ubuntu with Cmake 3.10.
+
+<details>
+    <summary>Click to expand:</summary>
+
+Install Cmake:
+
+```bash
+wget https://cmake.org/files/v3.10/cmake-3.10.0-Linux-x86_64.sh && \
+    chmod +x cmake-3.10.0-Linux-x86_64.sh && \
+    ./cmake-3.10.0-Linux-x86_64.sh --skip-license --include-subdir && \
+    sudo ln -sf `pwd`/cmake-3.10.0-Linux-x86_64/bin/* /usr/local/bin
+```
 
 Ensure that the required packages are installed by executing:
 
 ```bash
 sudo apt-get update
-sudo apt-get install -yq libprocps-dev g++-7 valgrind gawk sed libffi-dev ccache \
-    libgoogle-perftools-dev flex bison yasm texinfo autotools-dev automake \
-    python python-pip cmake libtool build-essential pkg-config autoconf wget \
-    git  libargtable2-dev libmicrohttpd-dev libhiredis-dev redis-server openssl \
-    libssl-dev doxygen
+sudo apt-get install -yq software-properties-common apt-utils libprocps-dev \
+        g++-7 valgrind gawk sed libffi-dev ccache libgoogle-perftools-dev flex \
+        bison yasm texinfo \
+        autotools-dev autogen automake autoconf m4 shtool pkg-config sed gawk yasm nasm \
+        python python-pip libtool build-essential
 ```
+
+</details>
 
 ### Building from source on Ubuntu (Development)
 
@@ -42,18 +52,21 @@ Clone project and configure build:
 ```bash
 git clone --recurse-submodules https://github.com/skalenetwork/skale-consensus.git
 # Configure the project and create a build directory.
-cd scripts; ./build_deps.sh # build dependencies
-cd ..; cmake . -Bbuild # Configure the build.
-cmake --build build -- -j$(nproc) # Build all default targets using all cores.
+cd scripts && ./build.sh && cd ..   # build dependencies
+cd scripts && ./build.py Debug      # build consensus in Debug mode
 ```
 
 ### Running tests
 
-Navigate to the testing directories and run `./consensusd .`
+```bash
+cd scripts && ./tests.py
+```
+
+Refer to the [docs](docs/) folder for more information.
 
 ## Libraries
 
--   [libBLS by SKALE Labs](https://skalelabs.com/)
+-   [libBLS](https://github.com/skalenetwork/libBLS/)
 
 ## Contributing
 
