@@ -235,7 +235,6 @@ ptr<vector<uint8_t>> CatchupServerAgent::createResponseHeaderAndBinary(ptr<Serve
 
         }
 
-        CHECK_STATE(serializedBinary);
 
         return serializedBinary;
     }
