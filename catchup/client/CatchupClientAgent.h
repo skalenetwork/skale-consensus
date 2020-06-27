@@ -43,7 +43,7 @@ public:
     void sync( schain_index _dstIndex );
 
 
-    static void workerThreadItemSendLoop( CatchupClientAgent* agent );
+    static void workerThreadItemSendLoop( CatchupClientAgent* _agent );
 
     nlohmann::json readCatchupResponseHeader( ptr< ClientSocket > _socket );
 
@@ -55,5 +55,5 @@ public:
     size_t parseBlockSizes( nlohmann::json _responseHeader, ptr< vector< uint64_t > > _blockSizes );
 
     static schain_index nextSyncNodeIndex(
-        const CatchupClientAgent* agent, schain_index _destinationSchainIndex );
+        const CatchupClientAgent* _agent, schain_index _destinationSchainIndex );
 };

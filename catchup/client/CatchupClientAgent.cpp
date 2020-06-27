@@ -46,23 +46,28 @@
 #include "CatchupClientThreadPool.h"
 
 
-CatchupClientAgent::CatchupClientAgent( Schain& _sChain ) : Agent(_sChain, false ) {
+CatchupClientAgent::CatchupClientAgent( Schain& _sChain ) : Agent( _sChain, false ) {
     try {
         logThreadLocal_ = _sChain.getNode()->getLog();
         this->sChain = &_sChain;
 
-        if (_sChain.getNodeCount() > 1 ) {
-            this->catchupClientThreadPool = make_shared<CatchupClientThreadPool >( 1, this );
+        if ( _sChain.getNodeCount() > 1 ) {
+            this->catchupClientThreadPool = make_shared< CatchupClientThreadPool >( 1, this );
             catchupClientThreadPool->startService();
         }
-    } catch (ExitRequestedException &) {throw;} catch (...) {
+    } catch ( ExitRequestedException& ) {
+        throw;
+    } catch ( ... ) {
         throw_with_nested( FatalError( __FUNCTION__, __CLASS_NAME__ ) );
     }
 }
 
 
 nlohmann::json CatchupClientAgent::readCatchupResponseHeader( ptr< ClientSocket > _socket ) {
-    return sChain->getIo()->readJsonHeader( _socket->getDescriptor(), "Read catchup response" );
+    CHECK_ARGUMENT( _socket );
+    auto result =
+        sChain->getIo()->readJsonHeader( _socket->getDescriptor(), "Read catchup response" );
+    return result;
 }
 
 
@@ -70,10 +75,10 @@ void CatchupClientAgent::sync( schain_index _dstIndex ) {
     LOG( debug, "Catchupc step 0: requesting blocks after " +
                     to_string( getSchain()->getLastCommittedBlockID() ) );
 
-    auto header = make_shared<CatchupRequestHeader >( *sChain, _dstIndex );
-    auto socket = make_shared<ClientSocket >( *sChain, _dstIndex, CATCHUP );
+    auto header = make_shared< CatchupRequestHeader >( *sChain, _dstIndex );
+    auto socket = make_shared< ClientSocket >( *sChain, _dstIndex, CATCHUP );
     auto io = getSchain()->getIo();
-
+    CHECK_STATE( io );
 
     try {
         io->writeMagic( socket );
@@ -129,6 +134,7 @@ void CatchupClientAgent::sync( schain_index _dstIndex ) {
 
     try {
         blocks = readMissingBlocks( socket, response );
+        CHECK_STATE( blocks );
     } catch ( ExitRequestedException& ) {
         throw;
     } catch ( ... ) {
@@ -146,6 +152,9 @@ void CatchupClientAgent::sync( schain_index _dstIndex ) {
 size_t CatchupClientAgent::parseBlockSizes(
     nlohmann::json _responseHeader, ptr< vector< uint64_t > > _blockSizes ) {
     nlohmann::json jsonSizes = _responseHeader["sizes"];
+
+    CHECK_ARGUMENT( _blockSizes );
+
 
     if ( !jsonSizes.is_array() ) {
         BOOST_THROW_EXCEPTION(
@@ -180,17 +189,18 @@ size_t CatchupClientAgent::parseBlockSizes(
 
 ptr< CommittedBlockList > CatchupClientAgent::readMissingBlocks(
     ptr< ClientSocket > _socket, nlohmann::json responseHeader ) {
-    ASSERT( responseHeader > 0 );
+    CHECK_ARGUMENT( responseHeader > 0 );
+    CHECK_ARGUMENT( _socket );
 
-    auto blockSizes = make_shared<vector< uint64_t > >();
+    auto blockSizes = make_shared< vector< uint64_t > >();
 
     auto totalSize = parseBlockSizes( responseHeader, blockSizes );
 
-    auto serializedBlocks = make_shared<vector< uint8_t > >( totalSize );
+    auto serializedBlocks = make_shared< vector< uint8_t > >( totalSize );
 
     try {
-        getSchain()->getIo()->readBytes(_socket->getDescriptor(),
-                                        serializedBlocks, msg_len(totalSize));
+        getSchain()->getIo()->readBytes(
+            _socket->getDescriptor(), serializedBlocks, msg_len( totalSize ) );
     } catch ( ExitRequestedException& ) {
         throw;
     } catch ( ... ) {
@@ -206,7 +216,9 @@ ptr< CommittedBlockList > CatchupClientAgent::readMissingBlocks(
     ptr< CommittedBlockList > blockList = nullptr;
 
     try {
-        blockList = CommittedBlockList::deserialize(getSchain()->getCryptoManager(),  blockSizes, serializedBlocks, 0);
+        blockList = CommittedBlockList::deserialize(
+            getSchain()->getCryptoManager(), blockSizes, serializedBlocks, 0 );
+        CHECK_STATE( blockList );
     } catch ( ExitRequestedException& ) {
         throw;
     } catch ( ... ) {
@@ -218,44 +230,48 @@ ptr< CommittedBlockList > CatchupClientAgent::readMissingBlocks(
 }
 
 
-void CatchupClientAgent::workerThreadItemSendLoop( CatchupClientAgent* agent ) {
-    setThreadName("CatchupClient", agent->getNode()->getConsensusEngine());
+void CatchupClientAgent::workerThreadItemSendLoop( CatchupClientAgent* _agent ) {
+    setThreadName( "CatchupClient", _agent->getNode()->getConsensusEngine() );
 
-    agent->waitOnGlobalStartBarrier();
+    CHECK_ARGUMENT( _agent );
 
-    auto destinationSchainIndex = schain_index(1 );
+    _agent->waitOnGlobalStartBarrier();
+
+    auto destinationSchainIndex = schain_index( 1 );
 
     try {
-        while ( !agent->getSchain()->getNode()->isExitRequested() ) {
-            usleep( agent->getNode()->getCatchupIntervalMs() * 1000 );
+        while ( !_agent->getSchain()->getNode()->isExitRequested() ) {
+            usleep( _agent->getNode()->getCatchupIntervalMs() * 1000 );
 
             try {
-                agent->sync(destinationSchainIndex );
+                _agent->sync( destinationSchainIndex );
             } catch ( ExitRequestedException& ) {
                 return;
-            } catch (ConnectionRefusedException& e) {
-                agent->logConnectionRefused(e, destinationSchainIndex);
-            }
-            catch ( exception& e ) {
+            } catch ( ConnectionRefusedException& e ) {
+                _agent->logConnectionRefused( e, destinationSchainIndex );
+            } catch ( exception& e ) {
                 SkaleException::logNested( e );
             }
 
-            destinationSchainIndex = nextSyncNodeIndex(agent, destinationSchainIndex );
+            destinationSchainIndex = nextSyncNodeIndex( _agent, destinationSchainIndex );
         };
     } catch ( FatalError* e ) {
-        agent->getNode()->exitOnFatalError( e->getMessage() );
+        _agent->getNode()->exitOnFatalError( e->getMessage() );
     }
 }
 
 schain_index CatchupClientAgent::nextSyncNodeIndex(
-    const CatchupClientAgent* agent, schain_index _destinationSchainIndex ) {
-    auto nodeCount = ( uint64_t ) agent->getSchain()->getNodeCount();
+    const CatchupClientAgent* _agent, schain_index _destinationSchainIndex ) {
+
+    CHECK_ARGUMENT( _agent );
+
+    auto nodeCount = ( uint64_t ) _agent->getSchain()->getNodeCount();
 
     auto index = _destinationSchainIndex - 1;
 
     do {
         index = ( ( uint64_t ) index + 1 ) % nodeCount;
-    } while ( index == ( agent->getSchain()->getSchainIndex() - 1 ) );
+    } while ( index == ( _agent->getSchain()->getSchainIndex() - 1 ) );
 
     return index + 1;
 }

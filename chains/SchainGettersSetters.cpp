@@ -98,7 +98,7 @@
 
 
 const ptr<IO> Schain::getIo() const {
-    CHECK_STATE(io != nullptr);
+    CHECK_STATE(io);
     return io;
 }
 

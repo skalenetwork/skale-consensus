@@ -44,9 +44,9 @@ CatchupClientThreadPool::CatchupClientThreadPool(
 
 void CatchupClientThreadPool::createThread(uint64_t /*number*/) {
 
-    auto a = (CatchupClientAgent*) agent;
+    CHECK_STATE(agent);
 
-    this->threadpool.push_back(make_shared<thread>(CatchupClientAgent::workerThreadItemSendLoop, a));
+    this->threadpool.push_back(make_shared<thread>(CatchupClientAgent::workerThreadItemSendLoop, (CatchupClientAgent*) agent));
 
 }
 
