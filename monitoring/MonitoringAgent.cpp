@@ -108,8 +108,8 @@ void MonitoringAgent::monitoringLoop(MonitoringAgent *agent) {
             }
 
         };
-    } catch (FatalError *e) {
-        agent->getSchain()->getNode()->exitOnFatalError(e->getMessage());
+    } catch (FatalError& e) {
+        agent->getSchain()->getNode()->exitOnFatalError(e.getMessage());
     }
 }
 

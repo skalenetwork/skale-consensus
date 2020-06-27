@@ -83,7 +83,7 @@ public:
     uint64_t downloadFragment(schain_index _dstIndex, fragment_index _fragmentIndex);
 
 
-    static void workerThreadFragmentDownloadLoop(BlockFinalizeDownloader* agent, schain_index _dstIndex );
+    static void workerThreadFragmentDownloadLoop(BlockFinalizeDownloader* _agent, schain_index _dstIndex );
 
     nlohmann::json readBlockFinalizeResponseHeader( ptr< ClientSocket > _socket );
 

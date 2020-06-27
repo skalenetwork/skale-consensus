@@ -50,15 +50,17 @@ BlockFinalizeDownloaderThreadPool::BlockFinalizeDownloaderThreadPool(
 
 void BlockFinalizeDownloaderThreadPool::createThread(uint64_t number) {
 
-    auto p = (BlockFinalizeDownloader*)agent;
+    auto downloader = (BlockFinalizeDownloader*)agent;
+
+    CHECK_STATE( downloader );
 
     uint64_t index = number + 1;
 
-    if (index == p->getSchain()->getSchainIndex())
+    if (index == downloader->getSchain()->getSchainIndex())
         return;
 
     this->threadpool.push_back(make_shared<thread>(
-            BlockFinalizeDownloader::workerThreadFragmentDownloadLoop, p, index));
+            BlockFinalizeDownloader::workerThreadFragmentDownloadLoop, downloader, index));
 
 }
 
