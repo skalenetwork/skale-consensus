@@ -82,7 +82,7 @@ public:
     virtual void processNextAvailableConnection(ptr<ServerConnection> _connection) = 0;
 
 
-    virtual ptr<PartialHashesList> readPartialHashes(ptr<ServerConnection> _connectionEnvelope_, transaction_count _txCount);
+    virtual ptr<PartialHashesList> readPartialHashes(ptr<ServerConnection> _connectionEnvelope, transaction_count _txCount);
 
 
 

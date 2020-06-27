@@ -77,9 +77,8 @@ BlockProposalClientAgent::BlockProposalClientAgent(Schain &_sChain)
 }
 
 
-ptr<MissingTransactionsRequestHeader>
-BlockProposalClientAgent::readMissingTransactionsRequestHeader(
-        ptr<ClientSocket> _socket) {
+ptr<MissingTransactionsRequestHeader> BlockProposalClientAgent::readMissingTransactionsRequestHeader(
+                                                      ptr<ClientSocket> _socket) {
 
     auto js =
             sChain->getIo()->readJsonHeader(_socket->getDescriptor(), "Read missing trans request");
@@ -97,8 +96,7 @@ BlockProposalClientAgent::readMissingTransactionsRequestHeader(
     return mtrh;
 }
 
-ptr<FinalProposalResponseHeader>
-BlockProposalClientAgent::readAndProcessFinalProposalResponseHeader(
+ptr<FinalProposalResponseHeader> BlockProposalClientAgent::readAndProcessFinalProposalResponseHeader(
         ptr<ClientSocket> _socket) {
     auto js =
             sChain->getIo()->readJsonHeader(_socket->getDescriptor(), "Read final response header");
@@ -107,13 +105,11 @@ BlockProposalClientAgent::readAndProcessFinalProposalResponseHeader(
     auto subStatus = (ConnectionSubStatus) Header::getUint64(js, "substatus");
 
     if (status == CONNECTION_SUCCESS) {
-
         return make_shared<FinalProposalResponseHeader>(Header::getString(js, "sigShare"));
     } else {
         LOG(err, "Proposal push failed:" + to_string(status) + ":" + to_string(subStatus));
         return make_shared<FinalProposalResponseHeader>(status, subStatus);
     }
-
 }
 
 
@@ -121,7 +117,8 @@ pair<ConnectionStatus, ConnectionSubStatus>
 BlockProposalClientAgent::sendItemImpl(ptr<DataStructure> _item, shared_ptr<ClientSocket> _socket,
                                        schain_index _index) {
 
-    CHECK_ARGUMENT(_item != nullptr);
+    CHECK_ARGUMENT(_item);
+    CHECK_ARGUMENT(_socket);
 
     ptr<BlockProposal> _proposal = dynamic_pointer_cast<BlockProposal>(_item);
 
@@ -190,20 +187,25 @@ ptr<BlockProposal> BlockProposalClientAgent::corruptProposal(ptr<BlockProposal> 
 
 
 pair<ConnectionStatus, ConnectionSubStatus>
-BlockProposalClientAgent::sendBlockProposal(ptr<BlockProposal> _proposal, shared_ptr<ClientSocket> socket,
+BlockProposalClientAgent::sendBlockProposal(ptr<BlockProposal> _proposal, shared_ptr<ClientSocket> _socket,
                                             schain_index _index) {
+
+    CHECK_ARGUMENT(_proposal);
+    CHECK_ARGUMENT( _socket );
+
 
     INJECT_TEST(CORRUPT_PROPOSAL_TEST,
                 _proposal = corruptProposal(_proposal, _index))
 
     LOG(trace, "Proposal step 0: Starting block proposal");
 
-    CHECK_ARGUMENT(_proposal != nullptr);
 
     ptr<Header> header = BlockProposal::createBlockProposalHeader(sChain, _proposal);
 
+    CHECK_STATE(header);
+
     try {
-        getSchain()->getIo()->writeHeader(socket, header);
+        getSchain()->getIo()->writeHeader( _socket, header);
     } catch (ExitRequestedException &) {
         throw;
     } catch (...) {
@@ -214,7 +216,7 @@ BlockProposalClientAgent::sendBlockProposal(ptr<BlockProposal> _proposal, shared
     LOG(trace, "Proposal step 1: wrote proposal header");
 
     auto response =
-            sChain->getIo()->readJsonHeader(socket->getDescriptor(), "Read proposal resp");
+            sChain->getIo()->readJsonHeader( _socket->getDescriptor(), "Read proposal resp");
 
 
     LOG(trace, "Proposal step 2: read proposal response");
@@ -239,10 +241,12 @@ BlockProposalClientAgent::sendBlockProposal(ptr<BlockProposal> _proposal, shared
 
     auto partialHashesList = _proposal->createPartialHashesList();
 
+    CHECK_STATE(partialHashesList);
+
     if (partialHashesList->getTransactionCount() > 0) {
         try {
             getSchain()->getIo()->writeBytesVector(
-                    socket->getDescriptor(), partialHashesList->getPartialHashes());
+                _socket->getDescriptor(), partialHashesList->getPartialHashes());
         } catch (ExitRequestedException &) {
             throw;
         } catch (...) {
@@ -257,7 +261,8 @@ BlockProposalClientAgent::sendBlockProposal(ptr<BlockProposal> _proposal, shared
     ptr<MissingTransactionsRequestHeader> missingTransactionHeader;
 
     try {
-        missingTransactionHeader = readMissingTransactionsRequestHeader(socket);
+        missingTransactionHeader = readMissingTransactionsRequestHeader( _socket );
+        CHECK_STATE(missingTransactionHeader);
     } catch (ExitRequestedException &) {
         throw;
     } catch (...) {
@@ -277,7 +282,8 @@ BlockProposalClientAgent::sendBlockProposal(ptr<BlockProposal> _proposal, shared
                 missingHashes;
 
         try {
-            missingHashes = readMissingHashes(socket, count);
+            missingHashes = readMissingHashes( _socket, count);
+            CHECK_STATE(missingHashes);
         } catch (ExitRequestedException &) {
             throw;
         } catch (...) {
@@ -306,7 +312,7 @@ BlockProposalClientAgent::sendBlockProposal(ptr<BlockProposal> _proposal, shared
         auto mtrh = make_shared<MissingTransactionsResponseHeader>(missingTransactionsSizes);
 
         try {
-            getSchain()->getIo()->writeHeader(socket, mtrh);
+            getSchain()->getIo()->writeHeader( _socket, mtrh);
         } catch (ExitRequestedException &) {
             throw;
         } catch (...) {
@@ -319,10 +325,11 @@ BlockProposalClientAgent::sendBlockProposal(ptr<BlockProposal> _proposal, shared
         LOG(trace, "Proposal step 5: sent missing transactions header");
 
 
-        auto mtrm = make_shared<TransactionList>(missingTransactions);
+        auto missingTransactionsList = make_shared<TransactionList>(missingTransactions);
 
         try {
-            getSchain()->getIo()->writeBytesVector(socket->getDescriptor(), mtrm->serialize(false));
+            getSchain()->getIo()->writeBytesVector(
+                _socket->getDescriptor(), missingTransactionsList->serialize(false));
         } catch (ExitRequestedException &) {
             throw;
         } catch (...) {
@@ -333,7 +340,9 @@ BlockProposalClientAgent::sendBlockProposal(ptr<BlockProposal> _proposal, shared
         LOG(trace, "Proposal step 6: sent missing transactions");
     }
 
-    auto finalHeader = readAndProcessFinalProposalResponseHeader(socket);
+    auto finalHeader = readAndProcessFinalProposalResponseHeader( _socket );
+
+    CHECK_STATE(finalHeader);
 
 
     pair<ConnectionStatus, ConnectionSubStatus> finalResult = {
@@ -343,9 +352,7 @@ BlockProposalClientAgent::sendBlockProposal(ptr<BlockProposal> _proposal, shared
 
     try {
         finalResult = finalHeader->getStatusSubStatus();
-    } catch (...) {
-
-    }
+    } catch (...) {}
 
     if (finalResult.first != ConnectionStatus::CONNECTION_SUCCESS)
         return finalResult;
@@ -353,6 +360,8 @@ BlockProposalClientAgent::sendBlockProposal(ptr<BlockProposal> _proposal, shared
     auto sigShare = getSchain()->getCryptoManager()->createSigShare(finalHeader->getSigShare(),
                                                                     _proposal->getSchainID(),
                                                                     _proposal->getBlockID(), _index);
+    CHECK_STATE(sigShare);
+
     getSchain()->daProofSigShareArrived(sigShare, _proposal);
 
     return finalResult;
@@ -363,12 +372,11 @@ pair<ConnectionStatus, ConnectionSubStatus> BlockProposalClientAgent::sendDAProo
         ptr<DAProof> _daProof, ptr<ClientSocket> _socket) {
 
 
+    CHECK_ARGUMENT(_daProof);
+    CHECK_ARGUMENT(_socket);
+
+
     LOG(trace, "Proposal step 0: Starting block proposal");
-
-
-    CHECK_ARGUMENT(_daProof != nullptr);
-
-    CHECK_ARGUMENT(_daProof != nullptr);
 
     auto header = make_shared<SubmitDAProofRequestHeader>(*getSchain(), _daProof);
 
@@ -424,11 +432,13 @@ ptr<unordered_set<ptr<partial_sha_hash>, PendingTransactionsAgent::Hasher,
         PendingTransactionsAgent::Equal> >
 
 BlockProposalClientAgent::readMissingHashes(ptr<ClientSocket> _socket, uint64_t _count) {
-    ASSERT(_count);
+    CHECK_ARGUMENT(_socket);
+    CHECK_ARGUMENT(_count > 0);
+
     auto bytesToRead = _count * PARTIAL_SHA_HASH_LEN;
     auto buffer = make_shared<vector<uint8_t>>(bytesToRead);
 
-    ASSERT(bytesToRead > 0);
+    CHECK_STATE(bytesToRead > 0);
 
 
     try {
@@ -455,15 +465,11 @@ BlockProposalClientAgent::readMissingHashes(ptr<ClientSocket> _socket, uint64_t 
             }
 
             result->insert(hash);
-            ASSERT(result->count(hash));
         }
     } catch (ExitRequestedException &) { throw; } catch (...) {
         throw_with_nested(NetworkProtocolException(
                 "Could not read missing transaction hashes:" + to_string(_count), __CLASS_NAME__));
     }
-
-
-    ASSERT(result->size() == _count);
 
     return result;
 }

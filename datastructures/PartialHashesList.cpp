@@ -50,6 +50,7 @@ transaction_count PartialHashesList::getTransactionCount() const {
 }
 
 ptr<vector<uint8_t> > PartialHashesList::getPartialHashes() const {
+    CHECK_STATE(partialHashes);
     return partialHashes;
 }
 

@@ -85,9 +85,12 @@
 
 
 ptr<unordered_map<ptr<partial_sha_hash>, ptr<Transaction>, PendingTransactionsAgent::Hasher, PendingTransactionsAgent::Equal> >
-BlockProposalServerAgent::readMissingTransactions(ptr<ServerConnection> connectionEnvelope_,
-                                                  nlohmann::json missingTransactionsResponseHeader) {
-    ASSERT(missingTransactionsResponseHeader > 0);
+BlockProposalServerAgent::readMissingTransactions(ptr<ServerConnection> _connectionEnvelope,
+                                                  nlohmann::json missingTransactionsResponseHeader)  {
+
+
+    CHECK_ARGUMENT(_connectionEnvelope);
+    CHECK_STATE(missingTransactionsResponseHeader > 0);
 
     auto transactionSizes = make_shared<vector<uint64_t> >();
 
@@ -109,7 +112,8 @@ BlockProposalServerAgent::readMissingTransactions(ptr<ServerConnection> connecti
 
 
     try {
-        getSchain()->getIo()->readBytes(connectionEnvelope_, serializedTransactions,
+        getSchain()->getIo()->readBytes(
+            _connectionEnvelope, serializedTransactions,
                                         msg_len(totalSize));
     } catch (ExitRequestedException &) {
         throw;
@@ -119,7 +123,11 @@ BlockProposalServerAgent::readMissingTransactions(ptr<ServerConnection> connecti
 
     auto list = TransactionList::deserialize(transactionSizes, serializedTransactions, 0, false);
 
+    CHECK_STATE(list);
+
     auto trs = list->getItems();
+
+    CHECK_STATE(trs);
 
     auto missed = make_shared<unordered_map<ptr<partial_sha_hash>, ptr<Transaction>, PendingTransactionsAgent::Hasher, PendingTransactionsAgent::Equal> >();
 
@@ -132,17 +140,20 @@ BlockProposalServerAgent::readMissingTransactions(ptr<ServerConnection> connecti
 
 pair<ptr<map<uint64_t, ptr<Transaction> > >, ptr<map<uint64_t, ptr<partial_sha_hash> > > >
 BlockProposalServerAgent::getPresentAndMissingTransactions(Schain &_sChain, ptr<Header> /*tcpHeader*/,
-                                                           ptr<PartialHashesList> _phm) {
+                                                           ptr<PartialHashesList> _phList ) {
+
+    CHECK_ARGUMENT( _phList );
+
     LOG(debug, "Calculating missing hashes");
 
-    auto transactionsCount = _phm->getTransactionCount();
+    auto transactionsCount = _phList->getTransactionCount();
 
     auto presentTransactions = make_shared<map<uint64_t, ptr<Transaction> > >();
     auto missingHashes = make_shared<map<uint64_t, ptr<partial_sha_hash> > >();
 
     for (uint64_t i = 0; i < transactionsCount; i++) {
-        auto hash = _phm->getPartialHash(i);
-        ASSERT(hash);
+        auto hash = _phList->getPartialHash(i);
+        CHECK_STATE(hash);
         auto transaction = _sChain.getPendingTransactionsAgent()->getKnownTransactionByPartialHash(hash);
         if (transaction == nullptr) {
             (*missingHashes)[i] = hash;
@@ -169,6 +180,8 @@ void BlockProposalServerAgent::processNextAvailableConnection(ptr<ServerConnecti
 
     MONITOR(__CLASS_NAME__, __FUNCTION__);
 
+    CHECK_ARGUMENT(_connection);
+
     try {
         sChain->getIo()->readMagic(_connection->getDescriptor());
     } catch (ExitRequestedException &) {
@@ -193,6 +206,8 @@ void BlockProposalServerAgent::processNextAvailableConnection(ptr<ServerConnecti
 
     auto type = Header::getString(clientRequest, "type");
 
+    CHECK_STATE(type);
+
     if (strcmp(type->data(), Header::BLOCK_PROPOSAL_REQ) == 0) {
         processProposalRequest(_connection, clientRequest);
     } else if (strcmp(type->data(), Header::DA_PROOF_REQ) == 0) {
@@ -205,6 +220,9 @@ void BlockProposalServerAgent::processNextAvailableConnection(ptr<ServerConnecti
 
 void
 BlockProposalServerAgent::processDAProofRequest(ptr<ServerConnection> _connection, nlohmann::json _daProofRequest) {
+
+    CHECK_ARGUMENT(_connection);
+
     ptr<SubmitDAProofRequestHeader> requestHeader = nullptr;
     ptr<Header> responseHeader = nullptr;
 
@@ -212,6 +230,9 @@ BlockProposalServerAgent::processDAProofRequest(ptr<ServerConnection> _connectio
 
         requestHeader = make_shared<SubmitDAProofRequestHeader>(_daProofRequest, getSchain()->getNodeCount());
         responseHeader = this->createDAProofResponseHeader(_connection, requestHeader);
+
+        CHECK_STATE(responseHeader);
+
     } catch (ExitRequestedException &) {
         throw;
     } catch (...) {
@@ -231,13 +252,17 @@ BlockProposalServerAgent::processDAProofRequest(ptr<ServerConnection> _connectio
 
 pair<ConnectionStatus, ConnectionSubStatus>
 BlockProposalServerAgent::processProposalRequest(ptr<ServerConnection> _connection, nlohmann::json _proposalRequest) {
+
+    CHECK_ARGUMENT(_connection);
+
     ptr<BlockProposalRequestHeader> requestHeader = nullptr;
     ptr<Header> responseHeader = nullptr;
 
     try {
 
         requestHeader = make_shared<BlockProposalRequestHeader>(_proposalRequest, getSchain()->getNodeCount());
-        responseHeader = this->createProposalResponseHeader(_connection, *requestHeader);
+        responseHeader = createProposalResponseHeader(_connection, *requestHeader);
+        CHECK_STATE(responseHeader);
 
     } catch (ExitRequestedException &) {
         throw;
@@ -260,6 +285,7 @@ BlockProposalServerAgent::processProposalRequest(ptr<ServerConnection> _connecti
 
     try {
         partialHashesList = readPartialHashes(_connection, requestHeader->getTxCount());
+        CHECK_STATE(partialHashesList);
     } catch (ExitRequestedException &) {
         throw;
     } catch (...) {
@@ -270,6 +296,10 @@ BlockProposalServerAgent::processProposalRequest(ptr<ServerConnection> _connecti
 
     auto presentTransactions = result.first;
     auto missingTransactionHashes = result.second;
+
+    CHECK_STATE(presentTransactions);
+    CHECK_STATE(missingTransactionHashes);
+
     auto missingHashesRequestHeader = make_shared<MissingTransactionsRequestHeader>(missingTransactionHashes);
 
     try {
@@ -302,7 +332,6 @@ BlockProposalServerAgent::processProposalRequest(ptr<ServerConnection> _connecti
 
         missingTransactions = readMissingTransactions(_connection, missingMessagesResponseHeader);
 
-
         if (missingTransactions == nullptr) {
             BOOST_THROW_EXCEPTION(CouldNotReadPartialDataHashesException(
                                           "Null missing transactions", __CLASS_NAME__ ));
@@ -310,6 +339,7 @@ BlockProposalServerAgent::processProposalRequest(ptr<ServerConnection> _connecti
 
 
         for (auto &&item : *missingTransactions) {
+            CHECK_STATE(item.second);
             sChain->getPendingTransactionsAgent()->pushKnownTransaction(item.second);
         }
     }
@@ -379,7 +409,10 @@ BlockProposalServerAgent::processProposalRequest(ptr<ServerConnection> _connecti
 
         }
 
-        finalResponseHeader = this->createFinalResponseHeader(proposal);
+        finalResponseHeader = createFinalResponseHeader(proposal);
+
+        CHECK_STATE(finalResponseHeader);
+        CHECK_STATE(proposal);
 
         sChain->proposedBlockArrived(proposal);
 
@@ -391,6 +424,8 @@ BlockProposalServerAgent::processProposalRequest(ptr<ServerConnection> _connecti
     }
 
     err:
+
+    CHECK_STATE(finalResponseHeader);
 
     send(_connection, finalResponseHeader);
 
@@ -410,6 +445,7 @@ void BlockProposalServerAgent::checkForOldBlock(const block_id &_blockID) {
 
 ptr<Header> BlockProposalServerAgent::createProposalResponseHeader(ptr<ServerConnection>,
                                                                    BlockProposalRequestHeader &_header) {
+
     auto responseHeader = make_shared<BlockProposalResponseHeader>();
 
     if (sChain->getSchainID() != _header.getSchainId()) {
@@ -425,9 +461,7 @@ ptr<Header> BlockProposalServerAgent::createProposalResponseHeader(ptr<ServerCon
     if (nmi == nullptr) {
         responseHeader->setStatusSubStatus(CONNECTION_ERROR, CONNECTION_ERROR_DONT_KNOW_THIS_NODE);
         responseHeader->setComplete();
-        BOOST_THROW_EXCEPTION(InvalidNodeIDException("Could not find node info for NODE_ID:" + to_string((uint64_t) _header.getProposerNodeId()),
-                               __CLASS_NAME__));
-
+        LOG(err, "Could not find node info for NODE_ID:" + to_string((uint64_t) _header.getProposerNodeId()));
         return responseHeader;
     }
 
@@ -516,8 +550,6 @@ ptr<Header> BlockProposalServerAgent::createDAProofResponseHeader(ptr<ServerConn
                                __CLASS_NAME__));
     }
 
-
-
     if (nmi->getSchainIndex() != schain_index(_header->getProposerIndex())) {
         responseHeader->setStatusSubStatus(CONNECTION_ERROR, CONNECTION_ERROR_INVALID_NODE_INDEX);
         BOOST_THROW_EXCEPTION(InvalidSchainIndexException(
@@ -544,6 +576,7 @@ ptr<Header> BlockProposalServerAgent::createDAProofResponseHeader(ptr<ServerConn
     ptr<SHAHash> blockHash = nullptr;
     try {
         blockHash = SHAHash::fromHex(_header->getBlockHash());
+        CHECK_STATE(blockHash);
     } catch (...) {
         responseHeader->setStatusSubStatus(CONNECTION_DISCONNECT, CONNECTION_INVALID_HASH);
         responseHeader->setComplete();
@@ -556,6 +589,7 @@ ptr<Header> BlockProposalServerAgent::createDAProofResponseHeader(ptr<ServerConn
 
         sig = getSchain()->getCryptoManager()->verifyThresholdSig(blockHash,
                                                                   _header->getSignature(), _header->getBlockId());
+        CHECK_STATE(sig);
 
     } catch (...) {
         responseHeader->setStatusSubStatus(CONNECTION_DISCONNECT, CONNECTION_SIGNATURE_DID_NOT_VERIFY);
@@ -596,6 +630,8 @@ ptr<Header> BlockProposalServerAgent::createDAProofResponseHeader(ptr<ServerConn
 
 
 ptr<Header> BlockProposalServerAgent::createFinalResponseHeader(ptr<ReceivedBlockProposal> _proposal) {
+
+    CHECK_ARGUMENT(_proposal);
     auto sigShare = getSchain()->getCryptoManager()->signDAProofSigShare(_proposal);
     CHECK_STATE(sigShare);
     auto responseHeader = make_shared<FinalProposalResponseHeader>(sigShare->toString());
@@ -612,9 +648,10 @@ BlockProposalServerAgent::readMissingTransactionsResponseHeader(ptr<ServerConnec
     return js;
 }
 
-ptr<PartialHashesList> AbstractServerAgent::readPartialHashes(ptr<ServerConnection> _connectionEnvelope_,
+ptr<PartialHashesList> AbstractServerAgent::readPartialHashes(ptr<ServerConnection> _connectionEnvelope,
                                                               transaction_count _txCount) {
 
+    CHECK_ARGUMENT( _connectionEnvelope );
 
     if (_txCount > (uint64_t) getNode()->getMaxTransactionsPerBlock()) {
         BOOST_THROW_EXCEPTION(NetworkProtocolException("Too many transactions", __CLASS_NAME__));
@@ -624,7 +661,7 @@ ptr<PartialHashesList> AbstractServerAgent::readPartialHashes(ptr<ServerConnecti
 
     if (_txCount != 0) {
         try {
-            getSchain()->getIo()->readBytes(_connectionEnvelope_,
+            getSchain()->getIo()->readBytes( _connectionEnvelope,
                                             partialHashesList->getPartialHashes(),
                                             msg_len((uint64_t) partialHashesList->getTransactionCount() *
                                                     PARTIAL_SHA_HASH_LEN));

@@ -87,10 +87,12 @@ const node_id &SubmitDAProofRequestHeader::getProposerNodeId() const {
 
 
 ptr<string> SubmitDAProofRequestHeader::getSignature() const {
+    CHECK_STATE(thresholdSig);
     return thresholdSig;
 }
 
 ptr<string> SubmitDAProofRequestHeader::getBlockHash() const {
+    CHECK_STATE(blockHash);
     return blockHash;
 }
 

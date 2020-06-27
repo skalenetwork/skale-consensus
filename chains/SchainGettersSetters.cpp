@@ -104,13 +104,13 @@ const ptr<IO> Schain::getIo() const {
 
 
 ptr<PendingTransactionsAgent> Schain::getPendingTransactionsAgent() const {
-    CHECK_STATE(pendingTransactionsAgent != nullptr)
+    CHECK_STATE(pendingTransactionsAgent)
     return pendingTransactionsAgent;
 }
 
 
 ptr<MonitoringAgent> Schain::getMonitoringAgent() const {
-    CHECK_STATE(monitoringAgent != nullptr)
+    CHECK_STATE(monitoringAgent)
     return monitoringAgent;
 }
 
@@ -284,7 +284,7 @@ void Schain::joinMonitorThread() {
 }
 
  ptr<CryptoManager> Schain::getCryptoManager() const {
-    ASSERT(cryptoManager != nullptr);
+    CHECK_STATE(cryptoManager);
     return cryptoManager;
 }
 

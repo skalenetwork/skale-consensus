@@ -163,6 +163,7 @@ node_id BlockProposal::getProposerNodeID() const {
 
 
 ptr<TransactionList> BlockProposal::getTransactionList() {
+    CHECK_STATE(transactionList);
     return transactionList;
 }
 
