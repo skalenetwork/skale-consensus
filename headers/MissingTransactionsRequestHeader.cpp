@@ -46,7 +46,6 @@ Header(Header::MISSING_TRANSACTIONS_REQ){
 MissingTransactionsRequestHeader::MissingTransactionsRequestHeader(ptr<map<uint64_t, ptr<partial_sha_hash>>> _missingMessages)
         : MissingTransactionsRequestHeader() {
 
-     CHECK_ARGUMENT(_missingMessages);
      this->missingTransactionsCount = _missingMessages->size();
      complete = true;
 

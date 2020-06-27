@@ -48,17 +48,13 @@ SubmitDAProofRequestHeader::SubmitDAProofRequestHeader(nlohmann::json _proposalR
 
     proposerNodeID = (node_id) Header::getUint64(_proposalRequest, "proposerNodeID");
     thresholdSig = Header::getString(_proposalRequest, "thrSig");
-    CHECK_STATE(thresholdSig);
     blockHash = Header::getString(_proposalRequest, "hash");
-    CHECK_STATE(blockHash);
 }
 
-SubmitDAProofRequestHeader::SubmitDAProofRequestHeader(Schain &_sChain, ptr<DAProof> _proof, block_id _blockId) :
-        AbstractBlockRequestHeader(_sChain.getNodeCount(), _sChain.getSchainID(), _blockId,
+SubmitDAProofRequestHeader::SubmitDAProofRequestHeader(Schain &_sChain, ptr<DAProof> _proof) :
+        AbstractBlockRequestHeader(_sChain.getNodeCount(), _sChain.getSchainID(), _proof->getBlockId(),
                                    Header::DA_PROOF_REQ,
                                    _sChain.getSchainIndex()) {
-
-
 
 
     this->proposerNodeID = _sChain.getNode()->getNodeID();
@@ -84,18 +80,18 @@ void SubmitDAProofRequestHeader::addFields(nlohmann::json &_jsonRequest) {
     _jsonRequest["hash"] = *blockHash;
 }
 
- node_id SubmitDAProofRequestHeader::getProposerNodeId()  {
+const node_id &SubmitDAProofRequestHeader::getProposerNodeId() const {
     return proposerNodeID;
 }
 
 
 
-ptr<string> SubmitDAProofRequestHeader::getSignature()  {
+ptr<string> SubmitDAProofRequestHeader::getSignature() const {
     CHECK_STATE(thresholdSig);
     return thresholdSig;
 }
 
-ptr<string> SubmitDAProofRequestHeader::getBlockHash()  {
+ptr<string> SubmitDAProofRequestHeader::getBlockHash() const {
     CHECK_STATE(blockHash);
     return blockHash;
 }

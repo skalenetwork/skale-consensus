@@ -29,18 +29,17 @@
 #include "CommittedBlockHeader.h"
 
 
-CommittedBlockHeader::CommittedBlockHeader(BlockProposal &block,  ptr<string> thresholdSig) : BlockProposalHeader(
+CommittedBlockHeader::CommittedBlockHeader(BlockProposal &block, const ptr<string> &thresholdSig) : BlockProposalHeader(
         block), thresholdSig(thresholdSig) {
-    CHECK_ARGUMENT(thresholdSig);
+    CHECK_ARGUMENT(thresholdSig != nullptr);
 }
 
 CommittedBlockHeader::CommittedBlockHeader(nlohmann::json &json) : BlockProposalHeader(json) {
     thresholdSig = Header::getString(json, "thrSig");
-    CHECK_STATE(thresholdSig);
+    CHECK_STATE(thresholdSig != nullptr);
 }
 
- ptr<string> CommittedBlockHeader::getThresholdSig()  {
-     CHECK_STATE(thresholdSig);
+const ptr<string> &CommittedBlockHeader::getThresholdSig() const {
     return thresholdSig;
 }
 

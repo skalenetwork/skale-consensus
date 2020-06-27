@@ -42,6 +42,8 @@ class FinalProposalResponseHeader : public Header {
 
 public:
 
+
+
     FinalProposalResponseHeader(ptr <string> sigShare);
 
     FinalProposalResponseHeader(ConnectionStatus _status, ConnectionSubStatus _substatus);
