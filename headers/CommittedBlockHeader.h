@@ -31,11 +31,11 @@ class CommittedBlockHeader : public BlockProposalHeader {
     ptr<string> thresholdSig;
 
 public:
-    CommittedBlockHeader(BlockProposal &block, const ptr<string> &thresholdSig);
+    CommittedBlockHeader(BlockProposal &block,  ptr<string> thresholdSig);
 
     CommittedBlockHeader(nlohmann::json &json);
 
-    const ptr<string> &getThresholdSig() const;
+     ptr<string> getThresholdSig() ;
 
     void addFields(nlohmann::basic_json<> &j) override;
 };
