@@ -191,24 +191,24 @@ Sockets *Node::getSockets() const {
 }
 
 Schain *Node::getSchain() const {
-    CHECK_STATE(sChain);
+    ASSERT(sChain);
     return sChain.get();
 }
 
 
 ptr< SkaleLog > Node::getLog() const {
-    CHECK_STATE(log);
+    ASSERT(log);
     return log;
 }
 
 
 ptr<string> Node::getBindIP() const {
-    CHECK_STATE(bindIP);
+    ASSERT(bindIP != nullptr);
     return bindIP;
 }
 
 network_port Node::getBasePort() const {
-    CHECK_STATE(basePort > 0);
+    ASSERT(basePort > 0);
     return basePort;
 }
 
@@ -300,8 +300,8 @@ uint64_t Node::getSimulateNetworkWriteDelayMs() const {
     return simulateNetworkWriteDelayMs;
 }
 
-ptr<TestConfig> Node::getTestConfig()  {
-    CHECK_STATE(testConfig)
+const ptr<TestConfig> &Node::getTestConfig() const {
+    CHECK_STATE(testConfig != nullptr)
     return testConfig;
 }
 

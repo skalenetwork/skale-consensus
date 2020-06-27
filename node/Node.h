@@ -133,7 +133,7 @@ class Node {
 
     class Comparator {
     public:
-        bool operator()(  ptr< string >& a,  ptr< string >& b )  { return *a < *b; }
+        bool operator()( const ptr< string >& a, const ptr< string >& b ) const { return *a < *b; }
     };
 
 
@@ -236,43 +236,43 @@ public:
 
     bool isSgxEnabled() ;
 
-    ptr< TestConfig > getTestConfig();
+    const ptr< TestConfig >& getTestConfig() const;
 
     ptr< BlockDB > getBlockDB();
     ptr< RandomDB > getRandomDB();
-    ptr< PriceDB > getPriceDB() ;
+    ptr< PriceDB > getPriceDB() const;
     ptr< ProposalHashDB > getProposalHashDB();
     ptr< ProposalVectorDB > getProposalVectorDB();
     ptr< MsgDB > getOutgoingMsgDB();
     ptr< MsgDB > getIncomingMsgDB();
     ptr< ConsensusStateDB > getConsensusStateDB();
-    ptr< BlockSigShareDB > getBlockSigShareDB() ;
-    ptr< DASigShareDB > getDaSigShareDB() ;
-    ptr< DAProofDB > getDaProofDB() ;
-    ptr< BlockProposalDB > getBlockProposalDB() ;
+    ptr< BlockSigShareDB > getBlockSigShareDB() const;
+    ptr< DASigShareDB > getDaSigShareDB() const;
+    ptr< DAProofDB > getDaProofDB() const;
+    ptr< BlockProposalDB > getBlockProposalDB() const;
 
 
-    uint64_t getProposalHashDBSize() ;
-    uint64_t getProposalVectorDBSize() ;
-    uint64_t getOutgoingMsgDBSize() ;
-    uint64_t getIncomingMsgDBSize() ;
-    uint64_t getConsensusStateDBSize() ;
-    uint64_t getBlockDBSize() ;
-    uint64_t getBlockSigShareDBSize() ;
-    uint64_t getRandomDBSize() ;
-    uint64_t getPriceDBSize() ;
-    uint64_t getDaSigShareDBSize() ;
-    uint64_t getDaProofDBSize() ;
-    uint64_t getBlockProposalDBSize() ;
-    uint64_t getSimulateNetworkWriteDelayMs() ;
-    ptr< BLSPublicKey > getBlsPublicKey() ;
+    uint64_t getProposalHashDBSize() const;
+    uint64_t getProposalVectorDBSize() const;
+    uint64_t getOutgoingMsgDBSize() const;
+    uint64_t getIncomingMsgDBSize() const;
+    uint64_t getConsensusStateDBSize() const;
+    uint64_t getBlockDBSize() const;
+    uint64_t getBlockSigShareDBSize() const;
+    uint64_t getRandomDBSize() const;
+    uint64_t getPriceDBSize() const;
+    uint64_t getDaSigShareDBSize() const;
+    uint64_t getDaProofDBSize() const;
+    uint64_t getBlockProposalDBSize() const;
+    uint64_t getSimulateNetworkWriteDelayMs() const;
+    ptr< BLSPublicKey > getBlsPublicKey() const;
 
 
     void initLevelDBs();
-    bool isStarted() ;
+    bool isStarted() const;
 
 
-    Node(  nlohmann::json& _cfg, ConsensusEngine* _consensusEngine, bool _useSGX,
+    Node( const nlohmann::json& _cfg, ConsensusEngine* _consensusEngine, bool _useSGX,
         ptr<string> _sgxURL,
           ptr<string> _sgxSSLKeyFileFullPath,
     ptr<string> _sgxSSLCertFileFullPath,
@@ -287,31 +287,31 @@ public:
 
     void exit();
 
-    void exitOnFatalError(  string& message );
+    void exitOnFatalError( const string& message );
 
     void setSchain( ptr< Schain > _schain );
 
     static void initSchain( ptr< Node > _node, ptr< NodeInfo > _localNodeInfo,
-         vector< ptr< NodeInfo > >& remoteNodeInfos, ConsensusExtFace* _extFace );
+        const vector< ptr< NodeInfo > >& remoteNodeInfos, ConsensusExtFace* _extFace );
 
     void waitOnGlobalServerStartBarrier( Agent* agent );
 
     void waitOnGlobalClientStartBarrier();
 
-    ptr< SkaleLog > getLog() ;
+    ptr< SkaleLog > getLog() const;
 
 
-    nlohmann::json getCfg() ;
+    nlohmann::json getCfg() const;
 
-    ptr< map< uint64_t, ptr< NodeInfo > > > getNodeInfosByIndex() ;
+    ptr< map< uint64_t, ptr< NodeInfo > > > getNodeInfosByIndex() const;
 
-    node_id getNodeID() ;
-
-
-    Sockets* getSockets() ;
+    node_id getNodeID() const;
 
 
-    Schain* getSchain() ;
+    Sockets* getSockets() const;
+
+
+    Schain* getSchain() const;
 
     void registerAgent( Agent* _agent );
 
@@ -325,15 +325,15 @@ public:
 
     ptr< NodeInfo > getNodeInfoById( node_id _id );
 
-    ptr< Network > getNetwork() ;
+    ptr< Network > getNetwork() const;
 
-    ptr< string > getBindIP() ;
+    ptr< string > getBindIP() const;
 
-    network_port getBasePort() ;
+    network_port getBasePort() const;
 
-    void setBasePort(  network_port& _basePort );
+    void setBasePort( const network_port& _basePort );
 
-    uint64_t getCommittedTransactionHistoryLimit() ;
+    uint64_t getCommittedTransactionHistoryLimit() const;
 
 
     void startClients();
@@ -343,21 +343,21 @@ public:
     uint64_t getMonitoringIntervalMs();
 
 
-    uint64_t getEmptyBlockIntervalMs() ;
+    uint64_t getEmptyBlockIntervalMs() const;
 
-    uint64_t getMaxCatchupDownloadBytes() ;
+    uint64_t getMaxCatchupDownloadBytes() const;
 
-    uint64_t getMaxTransactionsPerBlock() ;
+    uint64_t getMaxTransactionsPerBlock() const;
 
-    uint64_t getMinBlockIntervalMs() ;
+    uint64_t getMinBlockIntervalMs() const;
 
     uint64_t getWaitAfterNetworkErrorMs();
 
-    uint64_t getParamUint64(  string& _paramName, uint64_t paramDefault );
+    uint64_t getParamUint64( const string& _paramName, uint64_t paramDefault );
 
-    int64_t getParamInt64(  string& _paramName, uint64_t _paramDefault );
+    int64_t getParamInt64( const string& _paramName, uint64_t _paramDefault );
 
-    ptr< string > getParamString(  string& _paramName, string& _paramDefault );
+    ptr< string > getParamString( const string& _paramName, string& _paramDefault );
 
     void initParamsFromConfig();
 
@@ -367,7 +367,7 @@ public:
 
     void setNodeInfo( ptr< NodeInfo > _nodeInfo );
 
-    ConsensusEngine* getConsensusEngine() ;
+    ConsensusEngine* getConsensusEngine() const;
 
     ptr< string > getSgxUrl();
     ptr< string > getSgxSslKeyFileFullPath();

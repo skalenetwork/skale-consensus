@@ -60,8 +60,8 @@ public:
 
     static tuple< ptr< vector< string > >, ptr< vector< string > >, ptr< vector< string > >,
         ptr< vector< ptr< vector< string > > > >, ptr< vector< string > > >
-    parseTestKeyNamesFromJson(ptr<string> _sgxServer4Url,  const fs_path& configFile, uint64_t _totalSigners,
-        uint64_t _requiredSigners );
+    parseTestKeyNamesFromJson(ptr<string> _sgxServer4Url,  const fs_path& configFile, uint64_t _totalNodes,
+        uint64_t _requiredNodes);
 
     static pair< ptr< vector< string > >, ptr< vector< string > > > parseAllTestKeyNames(
         ptr<string> _sgxServerUrl,
