@@ -52,7 +52,7 @@ CatchupRequestHeader::CatchupRequestHeader(Schain &_sChain, schain_index _dstInd
     this->blockID = _sChain.getLastCommittedBlockID();
     this->nodeID = _sChain.getNode()->getNodeID();
 
-    CHECK_STATE(_sChain.getNode()->getNodeInfoByIndex(_dstIndex));
+    ASSERT(_sChain.getNode()->getNodeInfoByIndex(_dstIndex) != nullptr);
 
     complete = true;
 
@@ -68,7 +68,7 @@ void CatchupRequestHeader::addFields(nlohmann::json& _j) {
 
 }
 
-node_id CatchupRequestHeader::getNodeId()  {
+const node_id &CatchupRequestHeader::getNodeId() const {
     return nodeID;
 }
 
