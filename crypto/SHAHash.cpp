@@ -58,9 +58,7 @@ ptr<SHAHash> SHAHash::fromHex(ptr<string> _hex) {
 
 
 ptr<string> SHAHash::toHex() {
-     auto result = Utils::carray2Hex(hash->data(), SHA_HASH_LEN);
-     CHECK_STATE(result);
-     return result;
+    return Utils::carray2Hex(hash->data(), SHA_HASH_LEN);
 }
 
 
