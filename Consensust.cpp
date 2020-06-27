@@ -122,6 +122,8 @@ block_id basicRun(block_id _lastId = 0) {
 
         engine = new ConsensusEngine(_lastId);
 
+        engine->setTotalStorageLimitBytes(1000000000);
+
         engine->parseTestConfigsAndCreateAllNodes( Consensust::getConfigDirPath() );
         engine->slowStartBootStrapTest();
         sleep(Consensust::getRunningTimeMS()/1000); /* Flawfinder: ignore */

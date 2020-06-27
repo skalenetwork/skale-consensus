@@ -38,8 +38,11 @@ void SkaleException::logNested(const std::exception &e, int level)
     }
 
     if ((dynamic_cast<const ExitRequestedException*>(&e) != nullptr)) {
+
+        prefix = "Consensus exiting: ";
+
         LOG(info, string(level, ' ') + prefix + e.what());
-    } if (dynamic_cast<const std::nested_exception*>(&e) == nullptr) {
+    } else if (dynamic_cast<const std::nested_exception*>(&e) == nullptr) {
         LOG(err, string(level, ' ') + prefix + e.what());
         return;
     } else {

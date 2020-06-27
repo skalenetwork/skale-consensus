@@ -46,6 +46,7 @@ using namespace spdlog::level;
 
 
 class GlobalThreadRegistry;
+class StorageLimits;
 
 
 class ConsensusEngine : public ConsensusInterface {
@@ -58,16 +59,8 @@ class ConsensusEngine : public ConsensusInterface {
 
     ptr<string> ecdsaKeyName = nullptr;
 
-public:
-    void setEcdsaKeyName( const ptr< string >& ecdsaKeyName );
-    void setBlsKeyName( const ptr< string >& blsKeyName );
-private:
     ptr<string> blsKeyName = nullptr;
 
-public:
-    const ptr< string >& getEcdsaKeyName() const;
-    const ptr< string >& getBlsKeyName() const;
-private:
     ptr< vector< string > > ecdsaKeyNames = nullptr;
     ptr< vector< string > > blsKeyNames = nullptr;
     ptr< vector< string > > ecdsaPublicKeys = nullptr;
@@ -99,7 +92,18 @@ private:
 
     shared_ptr< spdlog::sinks::sink > logRotatingFileSync;
 
+    ptr<StorageLimits> storageLimits = nullptr;
+
 public:
+    ptr< StorageLimits > getStorageLimits() const;
+
+    void setEcdsaKeyName( ptr< string > _ecdsaKeyName );
+    void setBlsKeyName( ptr< string > _blsKeyName );
+
+    ptr< string > getEcdsaKeyName() const;
+    ptr< string > getBlsKeyName() const;
+
+
     ptr< string > getDbDir() const;
 
     void logInit();
@@ -233,5 +237,6 @@ public:
                        uint64_t _requiredSigners,
                        uint64_t _totalSigners);
 
-
+    void setTotalStorageLimitBytes(uint64_t _storageLimitBytes);
+    uint64_t getTotalStorageLimitBytes() const;
 };

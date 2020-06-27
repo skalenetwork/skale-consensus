@@ -111,9 +111,6 @@ Transaction::Transaction( const ptr< vector< uint8_t > > _trx, bool _includesPar
     CHECK_STATE(data != nullptr);
     CHECK_STATE(data->size() > 0);
 
-
-
-
     totalObjects++;
 };
 
@@ -149,7 +146,6 @@ void Transaction::serializeInto( ptr< vector< uint8_t > > _out, bool _writeParti
     _out->insert( _out->end(), data->begin(), data->end() );
 
     if (_writePartialHash) {
-
         auto h = getPartialHash();
         _out->insert( _out->end(), h->begin(), h->end() );
     }

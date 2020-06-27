@@ -65,6 +65,7 @@
 #include "network/ZMQNetwork.h"
 #include "network/ZMQSockets.h"
 #include "json/JSONFactory.h"
+#include "db/StorageLimits.h"
 #include "NodeInfo.h"
 #include "Node.h"
 
@@ -194,6 +195,12 @@ void Node::initLogging() {
 
 
 void Node::initParamsFromConfig() {
+
+    auto engine = getConsensusEngine();
+    CHECK_STATE(engine);
+    auto storageLimits = engine->getStorageLimits();
+    CHECK_STATE(storageLimits);
+
     nodeID = cfg.at("nodeID").get<uint64_t>();
     name = make_shared<string>(cfg.at("nodeName").get<string>());
     bindIP = make_shared<string>(cfg.at("bindIP").get<string>());
@@ -207,19 +214,21 @@ void Node::initParamsFromConfig() {
     maxCatchupDownloadBytes = getParamUint64("maxCatchupDownloadBytes", MAX_CATCHUP_DOWNLOAD_BYTES);
     maxTransactionsPerBlock = getParamUint64("maxTransactionsPerBlock", MAX_TRANSACTIONS_PER_BLOCK);
     minBlockIntervalMs = getParamUint64("minBlockIntervalMs", MIN_BLOCK_INTERVAL_MS);
-    blockDBSize = getParamUint64("blockDBSize", BLOCK_DB_SIZE);
-    proposalHashDBSize = getParamUint64("proposalHashDBSize", PROPOSAL_HASH_DB_SIZE);
-    proposalVectorDBSize = getParamUint64("proposalVectorDBSize", PROPOSAL_VECTOR_DB_SIZE);
-    outgoingMsgDBSize = getParamUint64("outgoingMsgDBSize", OUTGOING_MSG_DB_SIZE);
-    incomingMsgDBSize = getParamUint64("incomingMsgDBSize", INCOMING_MSG_DB_SIZE);
-    consensusStateDBSize = getParamUint64("consensusStateDBSize", CONSENSUS_STATE_DB_SIZE);
 
-    blockSigShareDBSize = getParamUint64("blockSigShareDBSize", BLOCK_SIG_SHARE_DB_SIZE);
-    daSigShareDBSize = getParamUint64("daSigShareDBSize", DA_SIG_SHARE_DB_SIZE);
-    daProofDBSize = getParamUint64("daProofDBSize", DA_PROOF_DB_SIZE);
-    randomDBSize = getParamUint64("randomDBSize", RANDOM_DB_SIZE);
-    priceDBSize = getParamUint64("priceDBSize", PRICE_DB_SIZE);
-    blockProposalDBSize = getParamUint64("blockProposalDBSize", BLOCK_PROPOSAL_DB_SIZE);
+
+    blockDBSize = getParamUint64("blockDBSize", storageLimits->getBlockDbSize());
+    proposalHashDBSize = getParamUint64("proposalHashDBSize", storageLimits->getProposalHashDbSize() );
+    proposalVectorDBSize = getParamUint64("proposalVectorDBSize", storageLimits->getProposalVectorDbSize());
+    outgoingMsgDBSize = getParamUint64("outgoingMsgDBSize", storageLimits->getOutgoingMsgDbSize());
+    incomingMsgDBSize = getParamUint64("incomingMsgDBSize", storageLimits->getIncomingMsgDbSize());
+    consensusStateDBSize = getParamUint64("consensusStateDBSize", storageLimits->getConsensusStateDbSize());
+
+    blockSigShareDBSize = getParamUint64("blockSigShareDBSize", storageLimits->getBlockSigShareDbSize());
+    daSigShareDBSize = getParamUint64("daSigShareDBSize", storageLimits->getDaSigShareDbSize());
+    daProofDBSize = getParamUint64("daProofDBSize", storageLimits->getDaProofDbSize());
+    randomDBSize = getParamUint64("randomDBSize", storageLimits->getRandomDbSize());
+    priceDBSize = getParamUint64("priceDBSize", storageLimits->getPriceDbSize());
+    blockProposalDBSize = getParamUint64("blockProposalDBSize", storageLimits->getBlockProposalDbSize());
 
 
     simulateNetworkWriteDelayMs = getParamInt64("simulateNetworkWriteDelayMs", 0);

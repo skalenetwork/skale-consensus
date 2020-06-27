@@ -10,7 +10,7 @@ TEST_CASE_METHOD( StartFromScratch, "Test sgx server connection", "[sgx]" ) {
     auto certFilePath = certDir + "/cert";
     auto keyFilePath = certDir + "/key";
 
-    CryptoManager::setSGXKeyAndCert( keyFilePath, certFilePath );
+    CryptoManager::setSGXKeyAndCert( keyFilePath, certFilePath, SGX_SSL_PORT );
 
     setenv( "sgxKeyFileFullPath", keyFilePath.data(), 1 );
     setenv( "certFileFullPath", certFilePath.data(), 1 );

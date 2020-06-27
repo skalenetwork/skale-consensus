@@ -114,7 +114,7 @@ ptr<string> CacheLevelDB::readString(string &_key) {
 
 ptr<string> CacheLevelDB::readStringUnsafe(string &_key) {
 
-    for (int i = LEVELDB_PIECES - 1; i >= 0; i--) {
+    for (int i = LEVELDB_SHARDS - 1; i >= 0; i--) {
         auto result = make_shared<string>();
         ASSERT(db[i] != nullptr);
         auto status = db[i]->Get(readOptions, _key, &*result);
@@ -128,7 +128,7 @@ ptr<string> CacheLevelDB::readStringUnsafe(string &_key) {
 
 bool CacheLevelDB::keyExistsUnsafe(const string &_key) {
 
-    for (int i = LEVELDB_PIECES - 1; i >= 0; i--) {
+    for (int i = LEVELDB_SHARDS - 1; i >= 0; i--) {
         auto result = make_shared<string>();
         ASSERT(db[i] != nullptr);
         auto status = db[i]->Get(readOptions, _key, &*result);
@@ -221,7 +221,7 @@ ptr<string> CacheLevelDB::readLastKeyInPrefixRange(string &_prefix) {
 
     shared_lock<shared_mutex> lock(m);
 
-    for (int i = LEVELDB_PIECES - 1; i >= 0; i--) {
+    for (int i = LEVELDB_SHARDS - 1; i >= 0; i--) {
         ASSERT(db[i]);
         auto partialResult = readPrefixRangeFromDBUnsafe(_prefix, db[i], true);
         if (partialResult) {
@@ -249,7 +249,7 @@ ptr<map<string, ptr<string>>> CacheLevelDB::readPrefixRange(string &_prefix) {
 
     shared_lock<shared_mutex> lock(m);
 
-    for (int i = LEVELDB_PIECES - 1; i >= 0; i--) {
+    for (int i = LEVELDB_SHARDS - 1; i >= 0; i--) {
         ASSERT(db[i]);
         auto partialResult = readPrefixRangeFromDBUnsafe(_prefix, db[i]);
         if (partialResult) {
@@ -359,12 +359,12 @@ CacheLevelDB::CacheLevelDB(Schain *_sChain, string &_dirName, string &_prefix, n
 
     highestDBIndex = findMaxMinDBIndex().first;
 
-    if (highestDBIndex < LEVELDB_PIECES) {
-        highestDBIndex = LEVELDB_PIECES;
+    if (highestDBIndex < LEVELDB_SHARDS ) {
+        highestDBIndex = LEVELDB_SHARDS;
     }
 
 
-    for (auto i = highestDBIndex - LEVELDB_PIECES + 1; i <= highestDBIndex; i++) {
+    for (auto i = highestDBIndex - LEVELDB_SHARDS + 1; i <= highestDBIndex; i++) {
         leveldb::DB *dbase = openDB(i);
         db.push_back(shared_ptr<leveldb::DB>(dbase));
     }
@@ -459,18 +459,18 @@ void CacheLevelDB::rotateDBsIfNeeded() {
 
             auto newDB = openDB(highestDBIndex + 1);
 
-            for (int i = 1; i < LEVELDB_PIECES; i++) {
+            for (uint64_t i = 1; i < LEVELDB_SHARDS; i++) {
                 db.at(i - 1) = nullptr;
                 db.at(i - 1) = db.at(i);
             }
 
-            db[LEVELDB_PIECES - 1] = shared_ptr<leveldb::DB>(newDB);
+            db[LEVELDB_SHARDS - 1] = shared_ptr<leveldb::DB>(newDB);
 
             highestDBIndex++;
 
             uint64_t minIndex;
 
-            while ((minIndex = findMaxMinDBIndex().second) + LEVELDB_PIECES <= highestDBIndex) {
+            while ((minIndex = findMaxMinDBIndex().second) + LEVELDB_SHARDS <= highestDBIndex) {
 
                 if (minIndex == 0) {
                     return;
@@ -570,7 +570,7 @@ CacheLevelDB::writeByteArrayToSetUnsafe(const char *_value, uint64_t _valueLen, 
 
     auto counterKey = createCounterKey(_blockId);
 
-    for (int i = LEVELDB_PIECES - 1; i >= 0; i--) {
+    for (int i = LEVELDB_SHARDS - 1; i >= 0; i--) {
         ASSERT(db[i] != nullptr);
         auto status = db[i]->Get(readOptions, counterKey, &*result);
         throwExceptionOnError(status);
@@ -627,7 +627,7 @@ CacheLevelDB::writeByteArrayToSetUnsafe(const char *_value, uint64_t _valueLen, 
 
 void CacheLevelDB::verify() {
 
-    CHECK_STATE(db.size() == LEVELDB_PIECES);
+    CHECK_STATE(db.size() == LEVELDB_SHARDS );
     for (auto &&x : db) {
         CHECK_STATE(x != nullptr);
     }

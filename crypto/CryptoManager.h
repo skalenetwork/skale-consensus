@@ -106,7 +106,9 @@ private:
 
     ptr< ThresholdSigShare > signSigShare( ptr< SHAHash > _hash, block_id _blockId );
 
-    void initSGX();
+    void initSGXClient();
+
+    static uint64_t parseSGXPort( ptr< string > _url );
 
 public:
     // This constructor is used for testing
@@ -149,7 +151,10 @@ public:
     static ptr< string > getSGXEcdsaPublicKey( ptr< string > _keyName, ptr< StubClient > _c );
 
     static void generateSSLClientCertAndKey( string& _fullPathToDir );
-    static void setSGXKeyAndCert( string& _keyFullPath, string& _certFullPath );
+    static void setSGXKeyAndCert( string& _keyFullPath, string& _certFullPath, uint64_t _sgxPort );
+
+
+
 
     ptr< string > sgxSignECDSA( ptr< SHAHash > _hash, string& _keyName );
 

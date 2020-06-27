@@ -39,9 +39,6 @@ namespace leveldb {
 }
 
 
-#define LEVELDB_PIECES 4
-
-
 
 class CacheLevelDB {
 

@@ -117,9 +117,9 @@ void AbstractServerAgent::send(ptr<ServerConnection> _connectionEnvelope,
                                ptr<Header> _header) {
 
 
-    ASSERT(_connectionEnvelope);
-    ASSERT(_header);
-    ASSERT(_header->isComplete());
+    CHECK_ARGUMENT(_connectionEnvelope);
+    CHECK_ARGUMENT(_header);
+    CHECK_ARGUMENT(_header->isComplete());
     auto buf = _header->toBuffer();
     getSchain()->getIo()->writeBuf(_connectionEnvelope->getDescriptor(), buf);
 }
