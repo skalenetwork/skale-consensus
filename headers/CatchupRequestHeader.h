@@ -50,6 +50,6 @@ public:
 
     void addFields(nlohmann::basic_json<> &j) override;
 
-    const node_id &getNodeId() const;
+    node_id getNodeId();
 
 };
