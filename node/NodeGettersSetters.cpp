@@ -364,6 +364,7 @@ uint64_t Node::getBlockProposalDBSize() const {
 }
 
 ConsensusEngine *Node::getConsensusEngine() const {
+    CHECK_STATE(consensusEngine);
     return consensusEngine;
 }
 ptr< string > Node::getSgxUrl()  {

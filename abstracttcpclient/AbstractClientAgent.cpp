@@ -78,7 +78,10 @@ uint64_t AbstractClientAgent::incrementAndReturnThreadCounter() {
 
 
 void AbstractClientAgent::sendItem(ptr<DataStructure> _item, schain_index _dstIndex) {
-    ASSERT( getNode()->isStarted() );
+
+    CHECK_ARGUMENT(_item);
+
+    CHECK_STATE( getNode()->isStarted() );
 
     while (true) {
 
@@ -108,15 +111,18 @@ void AbstractClientAgent::sendItem(ptr<DataStructure> _item, schain_index _dstIn
 }
 
 
-void AbstractClientAgent::enqueueItemImpl(ptr<DataStructure> item ) {
+void AbstractClientAgent::enqueueItemImpl(ptr<DataStructure> _item ) {
+
+    CHECK_ARGUMENT( _item );
 
     LOCK(m)
 
-    for ( uint64_t i = 1; i <= ( uint64_t ) this->sChain->getNodeCount(); i++ ) {
+    for ( uint64_t i = 1; i <= ( uint64_t ) getSchain()->getNodeCount(); i++ ) {
         {
-            std::lock_guard< std::mutex > lock( *queueMutex[schain_index( i )] );
+            lock_guard< std::mutex > lock( *queueMutex[schain_index( i )] );
             auto q = itemQueue[schain_index( i )];
-            q->push( item );
+            CHECK_STATE(q);
+            q->push( _item );
 
             if (q->size() > MAX_PROPOSAL_QUEUE_SIZE) {
                 // the destination is not accepting proposals, remove older
@@ -132,7 +138,9 @@ void AbstractClientAgent::enqueueItemImpl(ptr<DataStructure> item ) {
 
 void AbstractClientAgent::workerThreadItemSendLoop( AbstractClientAgent* agent ) {
 
-    setThreadName("BlockPropClnt", agent->getSchain()->getNode()->getConsensusEngine());
+    CHECK_STATE(agent);
+
+    setThreadName("BlockPopClnt", agent->getSchain()->getNode()->getConsensusEngine());
 
     agent->waitOnGlobalStartBarrier();
 
@@ -154,7 +162,6 @@ void AbstractClientAgent::workerThreadItemSendLoop( AbstractClientAgent* agent )
             CHECK_STATE( agent->itemQueue[destinationSchainIndex] );
 
             auto proposal = agent->itemQueue[destinationSchainIndex]->front();
-
 
             CHECK_STATE( proposal );
 
@@ -201,10 +208,12 @@ void AbstractClientAgent::workerThreadItemSendLoop( AbstractClientAgent* agent )
 }
 
 void AbstractClientAgent::enqueueItem(ptr<BlockProposal> _item) {
+    CHECK_ARGUMENT(_item);
     enqueueItemImpl(_item);
 }
 
 void AbstractClientAgent::enqueueItem(ptr<DAProof> _item) {
+    CHECK_ARGUMENT(_item);
     enqueueItemImpl(_item);
 }
 

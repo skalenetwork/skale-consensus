@@ -67,7 +67,7 @@ public:
 
 
 
-    void pushToQueueAndNotifyWorkers(ptr<ServerConnection> connectionEnvelope);
+    void pushToQueueAndNotifyWorkers(ptr<ServerConnection> _connectionEnvelope );
 
     ptr<ServerConnection> workerThreadWaitandPopConnection();
 

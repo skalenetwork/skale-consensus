@@ -168,8 +168,8 @@ void Schain::messageThreadProcessingLoop( Schain* s ) {
 
 
         s->getNode()->getSockets()->consensusZMQSockets->closeSend();
-    } catch ( FatalError* e ) {
-        s->getNode()->exitOnFatalError( e->getMessage() );
+    } catch ( FatalError& e ) {
+        s->getNode()->exitOnFatalError( e.getMessage() );
     }
 }
 

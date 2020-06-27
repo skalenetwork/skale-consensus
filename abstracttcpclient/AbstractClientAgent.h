@@ -54,7 +54,7 @@ protected:
 
     uint64_t incrementAndReturnThreadCounter();
 
-    void enqueueItemImpl(ptr<DataStructure> item );
+    void enqueueItemImpl(ptr<DataStructure> _item );
 
 public:
 

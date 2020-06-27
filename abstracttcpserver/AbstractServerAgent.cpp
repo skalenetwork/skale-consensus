@@ -62,9 +62,10 @@
 #include "AbstractServerAgent.h"
 
 
-void AbstractServerAgent::pushToQueueAndNotifyWorkers(ptr<ServerConnection> connectionEnvelope) {
+void AbstractServerAgent::pushToQueueAndNotifyWorkers(ptr<ServerConnection> _connectionEnvelope ) {
+    CHECK_ARGUMENT( _connectionEnvelope );
     lock_guard<mutex> lock(incomingTCPConnectionsMutex);
-    incomingTCPConnections.push(connectionEnvelope);
+    incomingTCPConnections.push( _connectionEnvelope );
     incomingTCPConnectionsCond.notify_all();
 }
 
@@ -78,26 +79,28 @@ ptr<ServerConnection> AbstractServerAgent::workerThreadWaitandPopConnection() {
     }
 
 
-    ASSERT(!incomingTCPConnections.empty());
+    CHECK_STATE(!incomingTCPConnections.empty());
 
-    ptr<ServerConnection> ce = incomingTCPConnections.front();
+    ptr<ServerConnection> connection = incomingTCPConnections.front();
+
+    CHECK_STATE( connection );
 
     incomingTCPConnections.pop();
 
-    return ce;
+    return connection;
 
 }
 
 
 void AbstractServerAgent::workerThreadConnectionProcessingLoop(void *_params) {
 
+    CHECK_ARGUMENT(_params);
     AbstractServerAgent *server = (reinterpret_cast < AbstractServerAgent * > ( _params ));
+    CHECK_STATE(server);
 
     server->waitOnGlobalStartBarrier();
 
-
     LOG(trace, "Started server loop");
-
 
     while (!server->getNode()->isExitRequested()) {
 
@@ -105,6 +108,7 @@ void AbstractServerAgent::workerThreadConnectionProcessingLoop(void *_params) {
         try {
 
             connection = server->workerThreadWaitandPopConnection();
+            CHECK_STATE(connection);
             server->processNextAvailableConnection(connection);;
         } catch (exception &e) {
             SkaleException::logNested(e);
@@ -120,6 +124,7 @@ void AbstractServerAgent::send(ptr<ServerConnection> _connectionEnvelope,
     CHECK_ARGUMENT(_connectionEnvelope);
     CHECK_ARGUMENT(_header);
     CHECK_ARGUMENT(_header->isComplete());
+
     auto buf = _header->toBuffer();
     getSchain()->getIo()->writeBuf(_connectionEnvelope->getDescriptor(), buf);
 }
@@ -150,10 +155,11 @@ void AbstractServerAgent::acceptTCPConnectionsLoop() {
 
         while (!getSchain()->getNode()->isExitRequested()) {
 
-            //static  int one = 1;
+
 
             int newConnection = accept(s, (sockaddr *) &clientAddress, &sizeOfClientAddress);
 
+            //static  int one = 1;
             //CHECK_STATE(setsockopt(newConnection, SOL_TCP, TCP_NODELAY, &one, sizeof(one)) == 0);
 
             if (getSchain()->getNode()->isExitRequested()) {
@@ -164,13 +170,13 @@ void AbstractServerAgent::acceptTCPConnectionsLoop() {
                 BOOST_THROW_EXCEPTION(NetworkProtocolException("accept failed:" + string(strerror(errno)), __CLASS_NAME__));
             }
 
-            char *ip(inet_ntoa(clientAddress.sin_addr));
+            auto ip = make_shared<string>(inet_ntoa(clientAddress.sin_addr));
 
-            this->pushToQueueAndNotifyWorkers(make_shared<ServerConnection>(newConnection, make_shared<string>(ip)));
+            this->pushToQueueAndNotifyWorkers(make_shared<ServerConnection>(newConnection, ip));
 
         }
-    } catch (FatalError *e) {
-        getNode()->exitOnFatalError(e->getMessage());
+    } catch (FatalError& e) {
+        getNode()->exitOnFatalError(e.getMessage());
     }
 }
 
