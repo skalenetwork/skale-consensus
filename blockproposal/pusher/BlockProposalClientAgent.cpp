@@ -378,7 +378,10 @@ pair<ConnectionStatus, ConnectionSubStatus> BlockProposalClientAgent::sendDAProo
 
     LOG(trace, "Proposal step 0: Starting block proposal");
 
-    auto header = make_shared<SubmitDAProofRequestHeader>(*getSchain(), _daProof);
+    CHECK_STATE(_daProof);
+
+    auto header = make_shared<SubmitDAProofRequestHeader>(*getSchain(), _daProof,
+        _daProof->getBlockId());
 
     try {
         getSchain()->getIo()->writeHeader(_socket, header);

@@ -49,9 +49,12 @@ BlockProposalRequestHeader::BlockProposalRequestHeader(nlohmann::json _proposalR
     timeStamp = Header::getUint64(_proposalRequest, "timeStamp");
     timeStampMs = Header::getUint32(_proposalRequest, "timeStampMs");
     hash = Header::getString(_proposalRequest, "hash");
+    CHECK_STATE(hash);
     signature = Header::getString(_proposalRequest, "sig");
+    CHECK_STATE(signature);
     txCount = Header::getUint64(_proposalRequest, "txCount");
     auto stateRootStr = Header::getString(_proposalRequest, "sr");
+    CHECK_STATE(stateRootStr);
     stateRoot = u256(*stateRootStr);
     CHECK_STATE(stateRoot != 0);
 }
@@ -62,19 +65,20 @@ BlockProposalRequestHeader::BlockProposalRequestHeader(Schain &_sChain, ptr<Bloc
                                    _sChain.getSchainIndex()) {
 
 
-    this->proposerNodeID = _sChain.getNode()->getNodeID();
-    this->txCount = (uint64_t) proposal->getTransactionCount();
-    this->timeStamp = proposal->getTimeStamp();
-    this->timeStampMs = proposal->getTimeStampMs();
+    proposerNodeID = _sChain.getNode()->getNodeID();
+    txCount = (uint64_t) proposal->getTransactionCount();
+    timeStamp = proposal->getTimeStamp();
+    timeStampMs = proposal->getTimeStampMs();
 
-    this->hash = proposal->getHash()->toHex();
+    hash = proposal->getHash()->toHex();
+    CHECK_STATE(hash);
 
-    this->signature = proposal->getSignature();
+    signature = proposal->getSignature();
 
-    this->stateRoot = proposal->getStateRoot();
+    stateRoot = proposal->getStateRoot();
+
     CHECK_STATE(stateRoot != 0);
-
-    ASSERT(timeStamp > MODERN_TIME);
+    CHECK_STATE(timeStamp > MODERN_TIME);
 
     complete = true;
 
@@ -89,41 +93,43 @@ void BlockProposalRequestHeader::addFields(nlohmann::basic_json<> &jsonRequest) 
     jsonRequest["proposerIndex"] = (uint64_t) proposerIndex;
     jsonRequest["blockID"] = (uint64_t) blockID;
     jsonRequest["txCount"] = txCount;
-    ASSERT(timeStamp > MODERN_TIME);
+    CHECK_STATE(timeStamp > MODERN_TIME);
     jsonRequest["timeStamp"] = timeStamp;
     jsonRequest["timeStampMs"] = timeStampMs;
-    CHECK_STATE(hash != nullptr);
-    CHECK_STATE(signature != nullptr);
+    CHECK_STATE(hash);
+    CHECK_STATE(signature);
     jsonRequest["hash"] = *hash;
     jsonRequest["sig"] = *signature;
     jsonRequest["sr"] = stateRoot.str();
 }
 
-const node_id &BlockProposalRequestHeader::getProposerNodeId() const {
+ node_id BlockProposalRequestHeader::getProposerNodeId()  {
     return proposerNodeID;
 }
 
-const ptr<string> &BlockProposalRequestHeader::getHash() const {
+ ptr<string> BlockProposalRequestHeader::getHash()  {
+    CHECK_STATE(hash);
     return hash;
 }
 
-uint64_t BlockProposalRequestHeader::getTxCount() const {
+uint64_t BlockProposalRequestHeader::getTxCount()  {
     return txCount;
 }
 
-uint64_t BlockProposalRequestHeader::getTimeStamp() const {
+uint64_t BlockProposalRequestHeader::getTimeStamp()  {
     return timeStamp;
 }
 
-uint32_t BlockProposalRequestHeader::getTimeStampMs() const {
+uint32_t BlockProposalRequestHeader::getTimeStampMs()  {
     return timeStampMs;
 }
 
-ptr<string> BlockProposalRequestHeader::getSignature() const {
+ptr<string> BlockProposalRequestHeader::getSignature()  {
+    CHECK_STATE(signature);
     return signature;
 }
 
-const u256 &BlockProposalRequestHeader::getStateRoot() const {
+ u256 BlockProposalRequestHeader::getStateRoot()  {
     return stateRoot;
 }
 

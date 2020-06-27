@@ -50,19 +50,19 @@ public:
 
     void addFields(nlohmann::basic_json<> &jsonRequest) override;
 
-    const node_id &getProposerNodeId() const;
+    node_id getProposerNodeId();
 
-    const ptr<string> &getHash() const;
+    ptr<string> getHash();
 
-    uint64_t getTxCount() const;
+    uint64_t getTxCount();
 
-    uint64_t getTimeStamp() const;
+    uint64_t getTimeStamp();
 
-    uint32_t getTimeStampMs() const;
+    uint32_t getTimeStampMs();
 
-    ptr<string> getSignature() const;
+    ptr<string> getSignature();
 
-    const u256 &getStateRoot() const;
+    u256 getStateRoot();
 
 };
 

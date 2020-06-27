@@ -133,6 +133,7 @@ BlockProposalHeader::BlockProposalHeader(nlohmann::json& _json) : BasicHeader(He
 }
 
 ptr< string > BlockProposalHeader::getSignature()  {
+    CHECK_STATE(signature);
     return signature;
 }
 
