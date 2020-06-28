@@ -35,4 +35,7 @@
 
 InternalMessageEnvelope::InternalMessageEnvelope(MessageOrigin _origin, const ptr<Message> _message, Schain& _subchain,
                                                  ptr<ProtocolKey> _srcProtocolKey): MessageEnvelope(
-        _origin, _message, _subchain.getThisNodeInfo()), srcProtocolKey(_srcProtocolKey) {}
+        _origin, _message, _subchain.getThisNodeInfo()), srcProtocolKey(_srcProtocolKey) {
+    // STRANGE
+    // CHECK_ARGUMENT(_srcProtocolKey);
+}

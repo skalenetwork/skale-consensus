@@ -66,10 +66,10 @@ public:
 
     void writeMagic(ptr<ClientSocket> _socket, bool _isPing = false);
 
-    void writeBytesVector(file_descriptor socket, ptr<vector<uint8_t>> bytes);
+    void writeBytesVector(file_descriptor _socket, ptr<vector<uint8_t>> _bytes );
 
 
-    void writePartialHashes(file_descriptor socket, ptr<map<uint64_t, ptr<partial_sha_hash>>> hashes);
+    void writePartialHashes(file_descriptor _socket, ptr<map<uint64_t, ptr<partial_sha_hash>>> _hashes );
 
 
     void readMagic(file_descriptor descriptor);

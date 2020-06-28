@@ -36,7 +36,7 @@ class InternalMessage : public Message {
 
 public:
 
-    InternalMessage(MsgType msgType, ProtocolInstance &srcProtocolInstance, const ptr<ProtocolKey> &protocolKey);
+    InternalMessage(MsgType _msgType, ProtocolInstance & _srcProtocolInstance, const ptr<ProtocolKey> & _protocolKey );
 
 
 

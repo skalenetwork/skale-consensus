@@ -45,16 +45,17 @@
 
 using namespace std;
 
-void IO::readBytes(ptr<ServerConnection> env, ptr<vector<uint8_t>> _buffer, msg_len len) {
-    return readBytes(env->getDescriptor(), _buffer, len);
+void IO::readBytes(ptr<ServerConnection> _env, ptr<vector<uint8_t>> _buffer, msg_len len) {
+    CHECK_ARGUMENT( _env );
+    CHECK_ARGUMENT(_buffer);
+    return readBytes( _env->getDescriptor(), _buffer, len);
 }
 
-void IO::readBuf(file_descriptor descriptor, ptr<Buffer> buf, msg_len len) {
-    CHECK_ARGUMENT(buf != nullptr);
+void IO::readBuf(file_descriptor descriptor, ptr<Buffer> _buf, msg_len len) {
+    CHECK_ARGUMENT(_buf);
     CHECK_ARGUMENT(len > 0);
-    CHECK_ARGUMENT(buf->getSize() >= len);
-
-    return readBytes(descriptor, buf->getBuf(), len);
+    CHECK_ARGUMENT( _buf->getSize() >= len);
+    return readBytes(descriptor, _buf->getBuf(), len);
 }
 
 
@@ -62,7 +63,7 @@ void IO::readBytes(file_descriptor _descriptor, ptr<vector<uint8_t>> _buffer, ms
     // fd_set read_set;
     // struct timeval timeout;
 
-    CHECK_ARGUMENT(_buffer != nullptr)
+    CHECK_ARGUMENT(_buffer)
     CHECK_ARGUMENT(_len > 0)
     CHECK_ARGUMENT(_buffer->size() >= _len)
 
@@ -78,7 +79,6 @@ void IO::readBytes(file_descriptor _descriptor, ptr<vector<uint8_t>> _buffer, ms
 
     while (msg_len(bytesRead) < _len) {
 
-
         if (sChain->getNode()->isExitRequested())
             BOOST_THROW_EXCEPTION(ExitRequestedException(__CLASS_NAME__));
 
@@ -87,7 +87,6 @@ void IO::readBytes(file_descriptor _descriptor, ptr<vector<uint8_t>> _buffer, ms
         do {
 
             result = recv(int(_descriptor), _buffer->data() + bytesRead, uint64_t(_len) - bytesRead, 0);
-
 
             if (sChain->getNode()->isExitRequested())
                 BOOST_THROW_EXCEPTION(ExitRequestedException(__CLASS_NAME__));
@@ -111,7 +110,6 @@ void IO::readBytes(file_descriptor _descriptor, ptr<vector<uint8_t>> _buffer, ms
         if (result == 0) {
             BOOST_THROW_EXCEPTION(NetworkProtocolException("The peer shut down the socket, bytes to read:" +
                                                            to_string(uint64_t(_len) - bytesRead), __CLASS_NAME__));
-
         }
 
         bytesRead += result;
@@ -119,23 +117,22 @@ void IO::readBytes(file_descriptor _descriptor, ptr<vector<uint8_t>> _buffer, ms
         // LOG(trace, "IO bytes read:" + to_string( bytesRead ) );
     }
 
-    assert ((uint64_t ) bytesRead == (uint64_t ) _len);
+    CHECK_STATE(bytesRead == (int64_t )(uint64_t ) _len);
 
 }
 
 
 void IO::writeBytes(file_descriptor descriptor, ptr<vector<uint8_t>> _buffer, msg_len len) {
 
-    CHECK_ARGUMENT(_buffer != nullptr);
+    CHECK_ARGUMENT(_buffer);
     CHECK_ARGUMENT(!_buffer->empty());
     CHECK_ARGUMENT(len <= _buffer->size())
+    CHECK_ARGUMENT(len > 0);
+    CHECK_ARGUMENT(descriptor != 0);
 
 
     usleep(sChain->getNode()->getSimulateNetworkWriteDelayMs() * 1000);
 
-    CHECK_ARGUMENT(_buffer != nullptr);
-    CHECK_ARGUMENT(len > 0);
-    CHECK_ARGUMENT(descriptor != 0);
 
     //    setsockopt( int( descriptor ), SOL_SOCKET, SO_SNDTIMEO, &timeout, sizeof( int ) );
 
@@ -147,30 +144,30 @@ void IO::writeBytes(file_descriptor descriptor, ptr<vector<uint8_t>> _buffer, ms
         if (sChain->getNode()->isExitRequested())
             BOOST_THROW_EXCEPTION(ExitRequestedException(__CLASS_NAME__));
 
-        assert(result != 0);
+        CHECK_STATE(result != 0);
 
         if (result < 1) {
             BOOST_THROW_EXCEPTION(IOException("Could not write bytes", errno, __CLASS_NAME__));
         }
 
-
         bytesWritten += result;
     }
 
-    assert (bytesWritten == len);
+    CHECK_STATE(bytesWritten == len);
 
 }
 
 
 
-void IO::writeBuf(file_descriptor descriptor, ptr<Buffer> buf) {
-    CHECK_ARGUMENT(buf != nullptr);
-    CHECK_ARGUMENT(buf->getBuf() != nullptr);
-    writeBytes(descriptor, buf->getBuf(), msg_len(buf->getCounter()));
+void IO::writeBuf(file_descriptor _descriptor, ptr<Buffer> _buf ) {
+    CHECK_ARGUMENT( _buf);
+    CHECK_ARGUMENT( _buf->getBuf());
+    writeBytes( _descriptor, _buf->getBuf(), msg_len( _buf->getCounter()));
 }
 
 void IO::writeMagic(ptr<ClientSocket> _socket, bool _isPing) {
 
+    CHECK_ARGUMENT(_socket);
 
     uint64_t magic;
 
@@ -182,7 +179,6 @@ void IO::writeMagic(ptr<ClientSocket> _socket, bool _isPing) {
 
     auto buf = make_shared<vector<uint8_t>>(sizeof(magic));
 
-
     memcpy(buf->data(), &magic, sizeof(magic));
 
     try {
@@ -192,35 +188,35 @@ void IO::writeMagic(ptr<ClientSocket> _socket, bool _isPing) {
     catch (...) {
         throw;
     }
-
 }
 
 
-void IO::writeHeader(ptr<ClientSocket> socket, ptr<Header> header) {
-    CHECK_ARGUMENT(socket);
-    CHECK_ARGUMENT(header);
-    CHECK_ARGUMENT(header->isComplete());
-    writeBuf(socket->getDescriptor(), header->toBuffer());
+void IO::writeHeader(ptr<ClientSocket> _socket, ptr<Header> _header) {
+    CHECK_ARGUMENT(_socket);
+    CHECK_ARGUMENT(_header);
+    CHECK_ARGUMENT(_header->isComplete());
+    writeBuf(_socket->getDescriptor(), _header->toBuffer());
 }
 
-void IO::writeBytesVector(file_descriptor socket, ptr<vector<uint8_t> > bytes) {
-    writeBytes(socket, bytes, msg_len(bytes->size()));
+void IO::writeBytesVector(file_descriptor _socket, ptr<vector<uint8_t> > _bytes ) {
+    writeBytes( _socket, _bytes, msg_len( _bytes->size()));
 }
 
 void IO::writePartialHashes(
-        file_descriptor socket, ptr<map<uint64_t, ptr<partial_sha_hash>>> hashes) {
-    CHECK_ARGUMENT(hashes->size() > 0);
+        file_descriptor _socket, ptr<map<uint64_t, ptr<partial_sha_hash>>> _hashes ) {
+    CHECK_ARGUMENT(_hashes);
+    CHECK_ARGUMENT( _hashes->size() > 0);
 
-    auto buffer = make_shared<vector<uint8_t> >(hashes->size() * PARTIAL_SHA_HASH_LEN);
+    auto buffer = make_shared<vector<uint8_t> >( _hashes->size() * PARTIAL_SHA_HASH_LEN);
 
     uint64_t counter = 0;
-    for (auto &&item: *hashes) {
+    for (auto &&item: *_hashes ) {
         memcpy(buffer->data() + counter * PARTIAL_SHA_HASH_LEN, item.second->data(),
                PARTIAL_SHA_HASH_LEN);
         counter++;
     }
 
-    return writeBytesVector(socket, buffer);
+    return writeBytesVector( _socket, buffer);
 }
 
 IO::IO(Schain *_sChain) : sChain(_sChain) {
@@ -255,11 +251,9 @@ void IO::readMagic(file_descriptor descriptor) {
 
 nlohmann::json IO::readJsonHeader(file_descriptor descriptor, const char *_errorString) {
 
+    CHECK_ARGUMENT(_errorString);
 
     auto buf2 = make_shared<vector<uint8_t>>(sizeof(uint64_t));
-
-
-    ptr<Buffer> buf = nullptr;
 
     try {
         readBytes(descriptor,
@@ -279,7 +273,7 @@ nlohmann::json IO::readJsonHeader(file_descriptor descriptor, const char *_error
                 ParsingException(_errorString + string(":Invalid Header len") + to_string(headerLen), __CLASS_NAME__));
     }
 
-    buf = make_shared<Buffer>(headerLen);
+    ptr<Buffer> buf = make_shared<Buffer>(headerLen);
 
     try {
         sChain->getIo()->
@@ -296,7 +290,6 @@ nlohmann::json IO::readJsonHeader(file_descriptor descriptor, const char *_error
 
     auto s = make_shared<string>((const char *) buf->getBuf()->data(), (size_t) buf->getBuf()->size());
 
-
     LOG(trace, "Read JSON header" + *s);
 
     nlohmann::json js;
@@ -309,6 +302,4 @@ nlohmann::json IO::readJsonHeader(file_descriptor descriptor, const char *_error
     }
 
     return js;
-
-
 };

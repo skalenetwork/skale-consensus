@@ -77,6 +77,8 @@ NetworkMessage::NetworkMessage(MsgType _messageType, node_id _srcNodeID, block_i
 
     CHECK_ARGUMENT(_srcSchainIndex > 0)
     CHECK_ARGUMENT(_ecdsaSig)
+    // STRANGE
+    //CHECK_ARGUMENT(_sigShareStr);
     CHECK_ARGUMENT(_cryptoManager)
     CHECK_ARGUMENT(_timeMs > 0);
 
@@ -90,10 +92,10 @@ NetworkMessage::NetworkMessage(MsgType _messageType, node_id _srcNodeID, block_i
 
     if (_sigShareStr != nullptr) {
         sigShare = _cryptoManager->createSigShare(_sigShareStr, _schainId, _blockID, _srcSchainIndex);
+        CHECK_STATE(sigShare);
     }
 
     setComplete();
-
 
 }
 
@@ -117,9 +119,7 @@ bin_consensus_value NetworkMessage::getValue() const {
 }
 
 void NetworkMessage::printMessage() {
-
     string s;
-
     cerr << "|" << printPrefix << ":" << r << ":v:" << to_string(uint8_t(value)) << "|";
 }
 
@@ -168,7 +168,6 @@ ptr<NetworkMessage> NetworkMessage::parseMessage(ptr<string> _header, Schain *_s
 
         auto js = nlohmann::json::parse(*_header);
 
-
         sChainID = getUint64(js, "si");
         blockID = getUint64(js, "bi");
         blockProposerIndex = getUint64(js, "bpi");
@@ -185,7 +184,7 @@ ptr<NetworkMessage> NetworkMessage::parseMessage(ptr<string> _header, Schain *_s
         }
 
         ecdsaSig = getString(js, "sig");
-
+        CHECK_STATE(ecdsaSig);
 
     } catch (ExitRequestedException &) { throw; } catch (...) {
         throw_with_nested(InvalidStateException("Could not parse message", __CLASS_NAME__));
@@ -198,17 +197,17 @@ ptr<NetworkMessage> NetworkMessage::parseMessage(ptr<string> _header, Schain *_s
                     InvalidSchainException("unknown Schain id" + to_string(sChainID), __CLASS_NAME__));
         }
 
-        ptr<NetworkMessage> mptr = nullptr;
+        ptr<NetworkMessage> nwkMsg = nullptr;
 
         if (*type == BasicHeader::BV_BROADCAST) {
-            mptr = make_shared<BVBroadcastMessage>(node_id(srcNodeID),
+            nwkMsg = make_shared<BVBroadcastMessage>(node_id(srcNodeID),
                                                    block_id(blockID), schain_index(blockProposerIndex),
                                                    bin_consensus_round(round),
                                                    bin_consensus_value(value), timeMs, schain_id(sChainID), msg_id(msgID),
                                                    srcSchainIndex, ecdsaSig,
                                                    _sChain);
         } else if (*type == BasicHeader::AUX_BROADCAST) {
-            mptr = make_shared<AUXBroadcastMessage>(node_id(srcNodeID),
+            nwkMsg = make_shared<AUXBroadcastMessage>(node_id(srcNodeID),
                                                     block_id(blockID), schain_index(blockProposerIndex),
                                                     bin_consensus_round(round),
                                                     bin_consensus_value(value),
@@ -218,7 +217,7 @@ ptr<NetworkMessage> NetworkMessage::parseMessage(ptr<string> _header, Schain *_s
                                                     srcSchainIndex, ecdsaSig,
                                                     _sChain);
         } else if (*type == BasicHeader::BLOCK_SIG_BROADCAST) {
-            mptr = make_shared<BlockSignBroadcastMessage>(node_id(srcNodeID),
+            nwkMsg = make_shared<BlockSignBroadcastMessage>(node_id(srcNodeID),
                                                           block_id(blockID), schain_index(blockProposerIndex),
                                                           timeMs,
                                                           schain_id(sChainID), msg_id(msgID),
@@ -229,7 +228,7 @@ ptr<NetworkMessage> NetworkMessage::parseMessage(ptr<string> _header, Schain *_s
             CHECK_STATE(false);
         }
 
-        return mptr;
+        return nwkMsg;
 
     } catch (ExitRequestedException &) { throw; } catch (...) {
         throw_with_nested(InvalidStateException("Could not create message", __CLASS_NAME__));
@@ -252,7 +251,6 @@ const char *NetworkMessage::getTypeString(MsgType _type) {
             return "history";
         };
     }
-
 }
 
 schain_index NetworkMessage::getSrcSchainIndex() const {
@@ -280,7 +278,7 @@ ptr<SHAHash> NetworkMessage::calculateHash() {
     SHA3_UPDATE(sha3, srcNodeID);
     SHA3_UPDATE(sha3, srcSchainIndex);
 
-    CHECK_STATE(type != nullptr);
+    CHECK_STATE(type);
 
     uint32_t typeLen = strlen(type);
     SHA3_UPDATE(sha3, typeLen);
@@ -304,6 +302,7 @@ ptr<SHAHash> NetworkMessage::calculateHash() {
 }
 
 void NetworkMessage::sign(ptr<CryptoManager> _mgr) {
+    CHECK_ARGUMENT(_mgr);
     ecdsaSig = _mgr->signNetworkMsg(*this);
     CHECK_STATE(ecdsaSig);
 }
