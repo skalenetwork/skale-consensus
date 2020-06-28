@@ -40,11 +40,9 @@ ptr<vector<uint8_t>> Utils::u256ToBigEndianArray(const u256 &_value) {
 
 void Utils::checkTime() {
 
-
     if (getenv("NO_NTP_CHECK") != nullptr) {
         return;
     }
-
 
     auto ip = gethostbyname("pool.ntp.org");
     auto fd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);

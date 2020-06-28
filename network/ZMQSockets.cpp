@@ -30,18 +30,15 @@
 #include "exceptions/FatalError.h"
 #include "zmq.h"
 
-ZMQSockets::ZMQSockets(ptr<string> &_bindIP, uint16_t _basePort, port_type _portType) : ServerSocket(_bindIP,
-                                                                                                               _basePort,
-                                                                                                               _portType) {
+ZMQSockets::ZMQSockets(ptr<string> &_bindIP, uint16_t _basePort, port_type _portType) :
+      ServerSocket(_bindIP,_basePort, _portType) {
+    CHECK_ARGUMENT(_bindIP);
     context = zmq_ctx_new();
 }
 
 void* ZMQSockets::getDestinationSocket( ptr< NodeInfo > _remoteNodeInfo ) {
-
+    CHECK_ARGUMENT(_remoteNodeInfo);
     LOCK(m)
-
-    CHECK_ARGUMENT(_remoteNodeInfo)
-
 
     auto ipAddress = _remoteNodeInfo->getBaseIP();
 
@@ -53,8 +50,9 @@ void* ZMQSockets::getDestinationSocket( ptr< NodeInfo > _remoteNodeInfo ) {
         return sendSockets.at( schainIndex );
     }
 
-
     void *requester = zmq_socket(context, ZMQ_CLIENT);
+
+    CHECK_STATE(requester);
 
     LOG(debug, getThreadName() + " zmq debug: requester = " +  to_string((uint64_t )requester));
 
@@ -80,6 +78,8 @@ void * ZMQSockets::getReceiveSocket()  {
     if (!receiveSocket) {
 
         receiveSocket = zmq_socket(context, ZMQ_SERVER);
+
+        CHECK_STATE(receiveSocket);
 
         LOG(debug, getThreadName() + " zmq debug: receiveSocket = " + to_string((uint64_t)receiveSocket));
 

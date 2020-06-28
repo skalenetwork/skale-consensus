@@ -32,42 +32,38 @@
 #include "TCPServerSocket.h"
 #include "ZMQSockets.h"
 
-
 using namespace std;
 
-void Sockets::initSockets(ptr<string> &bindIP, uint16_t basePort) {
+void Sockets::initSockets(ptr<string> & _bindIP, uint16_t _basePort ) {
 
-
+    CHECK_ARGUMENT( _bindIP );
 
     LOG(debug, "Initing network processing\n");
 
-    consensusZMQSockets = make_shared< ZMQSockets >(bindIP, basePort, BINARY_CONSENSUS);
-
-
-    blockProposalSocket = make_shared<TCPServerSocket>(bindIP, basePort, PROPOSAL);
-    catchupSocket = make_shared<TCPServerSocket>(bindIP, basePort, CATCHUP);
+    consensusZMQSockets = make_shared< ZMQSockets >( _bindIP, _basePort, BINARY_CONSENSUS);
+    blockProposalSocket = make_shared<TCPServerSocket>( _bindIP, _basePort, PROPOSAL);
+    catchupSocket = make_shared<TCPServerSocket>( _bindIP, _basePort, CATCHUP);
 }
 
 
 
 
 
-ptr<sockaddr_in> Sockets::createSocketAddress(ptr<string>& ip, uint16_t port) {
+ptr<sockaddr_in> Sockets::createSocketAddress(ptr<string>& _ip, uint16_t port) {
 
+    CHECK_ARGUMENT( _ip );
 
-    ASSERT( Network::validateIpAddress(ip) > 0);
-
+    CHECK_STATE(Network::validateIpAddress( _ip ) > 0);
 
     sockaddr_in *a = new sockaddr_in();//(sockaddr_in *) malloc(sizeof(sockaddr_in));
 
     memset(a, 0, sizeof(struct sockaddr_in));
 
-    uint32_t ipbin = inet_addr(ip->c_str());
+    uint32_t ipbin = inet_addr( _ip->c_str());
 
     a->sin_family = AF_INET;
     a->sin_port = htons(port);
     a->sin_addr.s_addr = ipbin;
-
 
     return ptr<sockaddr_in>(a);
 }
@@ -79,6 +75,7 @@ Node &Sockets::getNode() const {
 }
 
 ptr< ZMQSockets > Sockets::getConsensusZMQSockets() const {
+    CHECK_STATE(consensusZMQSockets);
     return consensusZMQSockets;
 }
 

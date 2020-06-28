@@ -31,12 +31,12 @@ using namespace std;
 
 atomic<int64_t> ServerConnection::totalObjects = 0;
 
-ServerConnection::ServerConnection(unsigned int descriptor, ptr<std::string> ip)  {
+ServerConnection::ServerConnection(unsigned int _descriptor, ptr<std::string> _ip )  {
 
     totalObjects++;
 
-    this->descriptor = descriptor;
-    this->ip = ip;
+    this->descriptor = _descriptor;
+    this->ip = _ip;
 
 }
 
@@ -45,6 +45,7 @@ file_descriptor ServerConnection::getDescriptor()  {
 }
 
 ptr<string> ServerConnection::getIP() {
+    CHECK_STATE(ip);
     return ip;
 }
 

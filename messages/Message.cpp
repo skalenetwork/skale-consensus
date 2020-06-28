@@ -55,8 +55,6 @@ node_id Message::getSrcNodeID() const {
 }
 
 
-
-
 const block_id Message::getBlockId() const {
     return blockID;
 }
@@ -64,10 +62,6 @@ const block_id Message::getBlockId() const {
 schain_index Message::getBlockProposerIndex() const {
     return blockProposerIndex;
 }
-
-
-
-
 
 Message::Message(const schain_id &schainID, MsgType msgType, const msg_id &msgID, const node_id &srcNodeID,
                  const block_id &blockID, const schain_index &blockProposerIndex) : schainID(schainID),

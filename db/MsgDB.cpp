@@ -45,9 +45,7 @@ MsgDB::saveMsg(ptr<NetworkMessage> _msg) {
 
     static atomic<uint64_t> msgCounter = 0;
 
-
     CHECK_ARGUMENT(_msg);
-
 
     lock_guard<recursive_mutex> lock(m);
 

@@ -34,10 +34,11 @@
 ServerSocket::ServerSocket(ptr<string> &_bindIP, uint16_t _basePort, port_type _portType)
     : bindIP( _bindIP ) {
 
+    CHECK_ARGUMENT(_bindIP);
+
     bindPort = _basePort + _portType;
 
-    ASSERT( Utils::isValidIpAddress( _bindIP ) );
-
+    CHECK_STATE(Utils::isValidIpAddress( _bindIP ) );
 
     LOG(debug, "Binding ip: " + *_bindIP + " " + to_string(bindPort) + " " +
                to_string(_basePort));

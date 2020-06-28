@@ -21,29 +21,29 @@
     @date 2018
 */
 
-#include "SkaleCommon.h"
 #include "Log.h"
+#include "SkaleCommon.h"
 #include "exceptions/FatalError.h"
 
-#include "thirdparty/json.hpp"
-#include "chains/Schain.h"
 #include "Sockets.h"
+#include "chains/Schain.h"
+#include "thirdparty/json.hpp"
 
-#include "node/NodeInfo.h"
+#include "ClientSocket.h"
 #include "ServerConnection.h"
+#include "exceptions/ConnectionRefusedException.h"
 #include "exceptions/FatalError.h"
 #include "exceptions/NetworkProtocolException.h"
-#include "exceptions/ConnectionRefusedException.h"
-#include "ClientSocket.h"
+#include "node/NodeInfo.h"
 
 using namespace std;
 
 
 void ClientSocket::closeSocket() {
-    LOCK(m)
+    LOCK( m )
 
-    if (descriptor != 0)
-        close((int) descriptor);
+    if ( descriptor != 0 )
+        close( ( int ) descriptor );
     descriptor = 0;
 }
 
@@ -52,7 +52,8 @@ file_descriptor ClientSocket::getDescriptor() {
     return descriptor;
 }
 
-ptr<std::string> ClientSocket::getConnectionIP() {
+ptr< std::string > ClientSocket::getConnectionIP() {
+    CHECK_STATE( remoteIP );
     return remoteIP;
 }
 
@@ -60,59 +61,74 @@ network_port ClientSocket::getConnectionPort() {
     return remotePort;
 }
 
-ptr<sockaddr_in> ClientSocket::getSocketaddr() {
-    return remote_addr;
+ptr< sockaddr_in > ClientSocket::getSocketaddr() {
+    CHECK_STATE( remoteAddr );
+    return remoteAddr;
 }
 
 
 int ClientSocket::createTCPSocket() {
     int s;
 
-    if ((s = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0) {
-        BOOST_THROW_EXCEPTION(FatalError("Could not create outgoing socket:" + string(strerror(errno))));
+
+    if ( ( s = socket( AF_INET, SOCK_STREAM, IPPROTO_TCP ) ) < 0 ) {
+        BOOST_THROW_EXCEPTION(
+            FatalError( "Could not create outgoing socket:" + string( strerror( errno ) ) ) );
     }
 
-    if (::bind(s, (struct sockaddr *) bind_addr.get(), sizeof(sockaddr_in)) < 0) {
-        close(s);
-        BOOST_THROW_EXCEPTION(FatalError("Could not bind socket address" + string(strerror(errno))));
+    CHECK_STATE(bindAddr);
+
+    if ( ::bind( s, ( struct sockaddr* ) bindAddr.get(), sizeof( sockaddr_in ) ) < 0 ) {
+        close( s );
+        BOOST_THROW_EXCEPTION(
+            FatalError( "Could not bind socket address" + string( strerror( errno ) ) ) );
     }
 
     // Init the connection
-    if (connect(s, (sockaddr *) remote_addr.get(), sizeof(remote_addr)) < 0) {
-        close(s);
-        BOOST_THROW_EXCEPTION(ConnectionRefusedException("Couldnt connect to:" +
-                  *getConnectionIP() + ":" + to_string(getConnectionPort()), errno, __CLASS_NAME__));
+    CHECK_STATE(remoteAddr);
+
+    if ( connect( s, ( sockaddr* ) remoteAddr.get(), sizeof( remoteAddr ) ) < 0 ) {
+        close( s );
+        BOOST_THROW_EXCEPTION( ConnectionRefusedException(
+            "Couldnt connect to:" + *getConnectionIP() + ":" + to_string( getConnectionPort() ),
+            errno, __CLASS_NAME__ ) );
     };
 
     return s;
 }
 
 
-ClientSocket::ClientSocket(Schain &_sChain, schain_index _destinationIndex, port_type portType)
-        : bindIP(_sChain.getNode()->getBindIP()) {
-    if (_sChain.getNode()->getNodeInfoByIndex(_destinationIndex) == nullptr) {
-        BOOST_THROW_EXCEPTION(FatalError("Could not find node with destination index "));
+ClientSocket::ClientSocket( Schain& _sChain, schain_index _destinationIndex, port_type portType )
+    : bindIP( _sChain.getNode()->getBindIP() ) {
+    if ( _sChain.getNode()->getNodeInfoByIndex( _destinationIndex ) == nullptr ) {
+        BOOST_THROW_EXCEPTION( FatalError( "Could not find node with destination index " ) );
     }
 
-    ptr<NodeInfo> ni = _sChain.getNode()->getNodeInfoByIndex(_destinationIndex);
+    ptr< NodeInfo > ni = _sChain.getNode()->getNodeInfoByIndex( _destinationIndex );
+
+    CHECK_STATE(ni);
 
 
     remoteIP = ni->getBaseIP();
+    CHECK_STATE(remoteIP);
+
     remotePort = ni->getPort() + portType;
 
 
-    this->remote_addr = Sockets::createSocketAddress(remoteIP, (uint16_t) remotePort);
-    this->bind_addr = Sockets::createSocketAddress(bindIP, 0);
+    this->remoteAddr = Sockets::createSocketAddress( remoteIP, ( uint16_t ) remotePort );
+    CHECK_STATE(remoteAddr);
+    this->bindAddr = Sockets::createSocketAddress( bindIP, 0 );
 
+    CHECK_STATE(bindAddr);
 
     descriptor = createTCPSocket();
 
-    ASSERT(descriptor != 0);
+    CHECK_STATE( descriptor != 0 );
 
     totalSockets++;
 }
 
-atomic<int64_t> ClientSocket::totalSockets = 0;
+atomic< int64_t > ClientSocket::totalSockets = 0;
 
 uint64_t ClientSocket::getTotalSockets() {
     return totalSockets;

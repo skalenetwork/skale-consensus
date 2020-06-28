@@ -78,7 +78,6 @@ void IO::readBytes(file_descriptor _descriptor, ptr<vector<uint8_t>> _buffer, ms
     setsockopt(int(_descriptor), SOL_SOCKET, SO_RCVTIMEO, (const char *) &tv, sizeof tv);
 
     while (msg_len(bytesRead) < _len) {
-
         if (sChain->getNode()->isExitRequested())
             BOOST_THROW_EXCEPTION(ExitRequestedException(__CLASS_NAME__));
 
@@ -286,7 +285,6 @@ nlohmann::json IO::readJsonHeader(file_descriptor descriptor, const char *_error
                         _errorString + string(":Could not read msg_len bytes from buffer:") + to_string(headerLen),
                         __CLASS_NAME__));
     }
-
 
     auto s = make_shared<string>((const char *) buf->getBuf()->data(), (size_t) buf->getBuf()->size());
 

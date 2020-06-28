@@ -158,7 +158,6 @@ const shared_ptr< string > ConsensusEngine::getDataDir() {
     return dataDir;
 }
 
-
 shared_ptr< spdlog::logger > ConsensusEngine::createLogger( const string& loggerName ) {
     shared_ptr< spdlog::logger > logger = spdlog::get( loggerName );
 
@@ -240,6 +239,8 @@ ptr< Node > ConsensusEngine::readNodeConfigFileAndCreateNode( const fs_path& pat
     ptr< vector< string > > _ecdsaPublicKeys, ptr< string > _blsKeyName,
     ptr< vector< ptr< vector< string > > > > _blsPublicKeys,
     ptr< vector< string > > _blsPublicKey ) {
+
+
     try {
         if ( _useSGX ) {
             CHECK_ARGUMENT( _ecdsaKeyName && _ecdsaPublicKeys );
@@ -260,7 +261,6 @@ ptr< Node > ConsensusEngine::readNodeConfigFileAndCreateNode( const fs_path& pat
 
         checkExistsAndDirectory( schainDirNamePath.string() );
 
-
         auto node = JSONFactory::createNodeFromJsonFile( sgxServerUrl, nodeFileNamePath.string(),
             _nodeIDs, this, _useSGX, _sgxSSLKeyFileFullPath, _sgxSSLCertFileFullPath, _ecdsaKeyName,
             _ecdsaPublicKeys, _blsKeyName, _blsPublicKeys, _blsPublicKey );
@@ -272,7 +272,7 @@ ptr< Node > ConsensusEngine::readNodeConfigFileAndCreateNode( const fs_path& pat
 
         readSchainConfigFiles( node, schainDirNamePath.string() );
 
-        ASSERT( nodes.count( node->getNodeID() ) == 0 );
+        CHECK_STATE( nodes.count( node->getNodeID() ) == 0 );
 
         nodes[node->getNodeID()] = node;
         return node;
@@ -286,8 +286,9 @@ ptr< Node > ConsensusEngine::readNodeConfigFileAndCreateNode( const fs_path& pat
 
 void ConsensusEngine::readSchainConfigFiles( ptr< Node > _node, const fs_path& _dirPath ) {
 
-    try {
+    CHECK_ARGUMENT(_node);
 
+    try {
 
         checkExistsAndDirectory( _dirPath );
 
@@ -338,7 +339,6 @@ void ConsensusEngine::checkExistsAndFile( const fs_path& _filePath ) {
 void ConsensusEngine::parseTestConfigsAndCreateAllNodes( const fs_path& dirname ) {
     try {
         checkExistsAndDirectory( dirname );
-
 
         // cycle through the directory
 
@@ -418,7 +418,7 @@ void ConsensusEngine::parseTestConfigsAndCreateAllNodes( const fs_path& dirname 
             BOOST_THROW_EXCEPTION( FatalError( "No valid node dirs found" ) );
         }
 
-        ASSERT( nodeCount == nodes.size() );
+        CHECK_STATE( nodeCount == nodes.size() );
 
         BinConsensusInstance::initHistory( nodes.begin()->second->getSchain()->getNodeCount() );
 
@@ -435,13 +435,15 @@ void ConsensusEngine::startAll() {
     cout << "Starting consensus engine ...";
 
     try {
-        for ( auto const it : nodes ) {
+        for ( auto && it : nodes ) {
+            CHECK_STATE(it.second);
             it.second->startServers();
             LOG( info, "Started servers" + to_string( it.second->getNodeID() ) );
         }
 
 
-        for ( auto const it : nodes ) {
+        for (auto&& it : nodes ) {
+            CHECK_STATE(it.second);
             it.second->startClients();
             LOG( info, "Started clients" + to_string( it.second->getNodeID() ) );
         }
@@ -451,8 +453,8 @@ void ConsensusEngine::startAll() {
 
     catch ( SkaleException& e ) {
         SkaleException::logNested( e );
-
-        for ( auto const it : nodes ) {
+        for ( auto&& it : nodes ) {
+            CHECK_STATE(it.second);
             if ( !it.second->isExitRequested() ) {
                 it.second->exitOnFatalError( e.getMessage() );
             }
@@ -465,11 +467,13 @@ void ConsensusEngine::startAll() {
 }
 
 void ConsensusEngine::slowStartBootStrapTest() {
-    for ( auto const it : nodes ) {
+    for ( auto&& it : nodes ) {
+        CHECK_STATE(it.second);
         it.second->startServers();
     }
 
-    for ( auto const it : nodes ) {
+    for ( auto&& it : nodes ) {
+        CHECK_STATE(it.second);
         it.second->startClients();
         it.second->getSchain()->bootstrap( lastCommittedBlockID, lastCommittedBlockTimeStamp );
     }
@@ -479,21 +483,23 @@ void ConsensusEngine::slowStartBootStrapTest() {
 
 void ConsensusEngine::bootStrapAll() {
     try {
-        for ( auto const it : nodes ) {
+        for ( auto&& it : nodes ) {
             LOG( trace, "Bootstrapping node" );
+            CHECK_STATE(it.second);
             it.second->getSchain()->bootstrap( lastCommittedBlockID, lastCommittedBlockTimeStamp );
             LOG( trace, "Bootstrapped node" );
         }
     } catch ( exception& e ) {
-        for ( auto const it : nodes ) {
+        for ( auto&& it : nodes ) {
+            CHECK_STATE(it.second);
             if ( !it.second->isExitRequested() ) {
                 it.second->exitOnFatalError( e.what() );
             }
         }
 
-        spdlog::shutdown();
-
         SkaleException::logNested( e );
+
+        spdlog::shutdown();
 
         throw_with_nested(
             EngineInitException( "Consensus engine bootstrap failed", __CLASS_NAME__ ) );
@@ -507,6 +513,8 @@ node_count ConsensusEngine::nodesCount() {
 
 
 std::string ConsensusEngine::exec( const char* cmd ) {
+    CHECK_ARGUMENT(cmd);
+
     std::array< char, 128 > buffer;
     std::string result;
     std::unique_ptr< FILE, decltype( &pclose ) > pipe( popen( cmd, "r" ), pclose );
@@ -549,12 +557,12 @@ void ConsensusEngine::init() {
 
     cout << "Consensus engine version:" + ConsensusEngine::getEngineVersion() << endl;
 
-
     storageLimits = make_shared<StorageLimits>( DEFAULT_DB_STORAGE_LIMIT );
 
     libff::init_alt_bn128_params();
 
     threadRegistry = make_shared< GlobalThreadRegistry >();
+
     logInit();
 
 
@@ -574,10 +582,6 @@ ConsensusEngine::ConsensusEngine( block_id _lastId ) : exitRequested( false ) {
     try {
         init();
         lastCommittedBlockID = _lastId;
-
-
-
-
     } catch ( exception& e ) {
         SkaleException::logNested( e );
         throw_with_nested( EngineInitException( "Engine construction failed", __CLASS_NAME__ ) );
@@ -590,13 +594,13 @@ ConsensusEngine::ConsensusEngine( ConsensusExtFace& _extFace, uint64_t _lastComm
     try {
         init();
 
-        ASSERT( _lastCommittedBlockTimeStamp < ( uint64_t ) 2 * MODERN_TIME );
+        CHECK_STATE( _lastCommittedBlockTimeStamp < ( uint64_t ) 2 * MODERN_TIME );
 
 
         extFace = &_extFace;
         lastCommittedBlockID = block_id( _lastCommittedBlockID );
 
-        ASSERT2( ( _lastCommittedBlockTimeStamp >= MODERN_TIME || _lastCommittedBlockID == 0 ),
+        CHECK_STATE2( ( _lastCommittedBlockTimeStamp >= MODERN_TIME || _lastCommittedBlockID == 0 ),
             "Invalid last committed block time stamp " );
 
 
@@ -642,6 +646,7 @@ void ConsensusEngine::exitGracefullyAsync() {
 
 
         for ( auto&& it : nodes ) {
+            CHECK_STATE(it.second);
             try {
                 it.second->exit();
             } catch ( exception& e ) {
@@ -649,6 +654,7 @@ void ConsensusEngine::exitGracefullyAsync() {
             }
         }
 
+        CHECK_STATE(threadRegistry);
 
         threadRegistry->joinAll();
 
@@ -663,12 +669,8 @@ void ConsensusEngine::exitGracefullyAsync() {
     status = CONSENSUS_EXITED;
 }
 
-
 ConsensusEngine::~ConsensusEngine() {
     exitGracefullyBlocking();
-    for ( auto& n : nodes ) {
-        assert( n.second->isExitRequested() );
-    }
     nodes.clear();
 }
 
@@ -677,6 +679,9 @@ block_id ConsensusEngine::getLargestCommittedBlockID() {
     block_id id = 0;
 
     for ( auto&& item : nodes ) {
+
+        CHECK_STATE(item.second);
+
         auto id2 = item.second->getSchain()->getLastCommittedBlockID();
 
         if ( id2 > id ) {
@@ -688,9 +693,10 @@ block_id ConsensusEngine::getLargestCommittedBlockID() {
 }
 
 u256 ConsensusEngine::getPriceForBlockId( uint64_t _blockId ) const {
-    ASSERT( nodes.size() == 1 );
+    CHECK_STATE( nodes.size() == 1 );
 
     for ( auto&& item : nodes ) {
+        CHECK_STATE(item.second);
         return item.second->getSchain()->getPriceForBlockId( _blockId );
     }
 
@@ -727,20 +733,22 @@ uint64_t ConsensusEngine::getEngineID() const {
 }
 
 ptr< GlobalThreadRegistry > ConsensusEngine::getThreadRegistry() const {
+    CHECK_STATE(threadRegistry);
     return threadRegistry;
 }
 
 shared_ptr< string > ConsensusEngine::getHealthCheckDir() const {
+    CHECK_STATE(healthCheckDir);
     return healthCheckDir;
 }
 
 ptr< string > ConsensusEngine::getDbDir() const {
+    CHECK_STATE(dbDir);
     return dbDir;
 }
 void ConsensusEngine::setTestKeys( ptr< string > _sgxServerUrl, string _configFile,
     uint64_t _totalNodes, uint64_t _requiredNodes ) {
     CHECK_ARGUMENT( _sgxServerUrl );
-
     sgxServerUrl = _sgxServerUrl;
 
     CHECK_STATE( !useTestSGXKeys )
@@ -828,5 +836,6 @@ void ConsensusEngine::setTotalStorageLimitBytes( uint64_t _storageLimitBytes ) {
 }
 
 ptr< StorageLimits > ConsensusEngine::getStorageLimits() const {
+    CHECK_STATE(storageLimits);
     return storageLimits;
 }
