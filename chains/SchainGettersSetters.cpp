@@ -197,13 +197,13 @@ ptr<BlockConsensusAgent> Schain::getBlockConsensusInstance() {
 
 
 ptr<NodeInfo> Schain::getThisNodeInfo() const {
-    CHECK_STATE(thisNodeInfo != nullptr)
+    CHECK_STATE(thisNodeInfo)
     return thisNodeInfo;
 }
 
 
 ptr<TestMessageGeneratorAgent> Schain::getTestMessageGeneratorAgent() const {
-    CHECK_STATE(testMessageGeneratorAgent != nullptr)
+    CHECK_STATE(testMessageGeneratorAgent)
     return testMessageGeneratorAgent;
 }
 
@@ -228,6 +228,7 @@ block_id Schain::getBootstrapBlockID() const {
 
 void Schain::setHealthCheckFile(uint64_t status) {
     auto engine = getNode()->getConsensusEngine();
+    CHECK_STATE(engine);
     string fileName = engine->getHealthCheckDir()->append("/HEALTH_CHECK");
     auto id = engine->getEngineID();
     if (id > 1) {
@@ -257,7 +258,7 @@ uint64_t Schain::getRequiredSigners() {
 
 
 u256 Schain::getPriceForBlockId(uint64_t _blockId) {
-    CHECK_STATE(pricingAgent != nullptr);
+    CHECK_STATE(pricingAgent);
     return pricingAgent->readPrice(_blockId);
 }
 
@@ -267,6 +268,7 @@ ptr<string> Schain::getBlockProposerTest() const {
 }
 
 void Schain::setBlockProposerTest(const char *_blockProposerTest) {
+    CHECK_ARGUMENT(_blockProposerTest);
     blockProposerTest = make_shared<string>(_blockProposerTest);
 }
 
@@ -280,6 +282,7 @@ uint64_t Schain::getMaxExternalBlockProcessingTime() const {
 }
 
 void Schain::joinMonitorThread() {
+    CHECK_STATE(monitoringAgent);
     monitoringAgent->join();
 }
 
@@ -289,14 +292,9 @@ void Schain::joinMonitorThread() {
 }
 
 void Schain::createBlockConsensusInstance() {
-
     blockConsensusInstance = make_shared<BlockConsensusAgent>(*this);
-
 }
 
 uint64_t Schain::getLastCommitTime() {
     return lastCommitTime;
 }
-
-
-

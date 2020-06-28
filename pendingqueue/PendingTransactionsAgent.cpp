@@ -62,6 +62,7 @@ ptr<BlockProposal> PendingTransactionsAgent::buildBlockProposal(block_id _blockI
 
     auto result  = createTransactionsListForProposal();
     auto transactions = result.first;
+    CHECK_STATE(transactions);
     auto stateRoot = result.second;
     CHECK_STATE(stateRoot != 0)
 
@@ -80,7 +81,11 @@ ptr<BlockProposal> PendingTransactionsAgent::buildBlockProposal(block_id _blockI
 
     LOG(trace, "Created proposal, transactions:" + to_string(transactions->size()));
 
-    transactionCounter += (uint64_t) myBlockProposal->createPartialHashesList()->getTransactionCount();
+    auto pHashesList = myBlockProposal->createPartialHashesList();
+    CHECK_STATE(pHashesList);
+
+    transactionCounter += (uint64_t) pHashesList->getTransactionCount();
+
     return myBlockProposal;
 }
 
@@ -88,6 +93,7 @@ pair<ptr<vector<ptr<Transaction>>>, u256> PendingTransactionsAgent::createTransa
     auto result = make_shared<vector<ptr<Transaction>>>();
 
     size_t need_max = getNode()->getMaxTransactionsPerBlock();
+
     ConsensusExtFace::transactions_vector tx_vec;
 
     boost::posix_time::ptime t1 = boost::posix_time::microsec_clock::local_time();
