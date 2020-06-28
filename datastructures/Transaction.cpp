@@ -50,8 +50,8 @@ ptr< SHAHash > Transaction::getHash() {
         return hash;
 
     hash = SHAHash::calculateHash(data);
+    CHECK_STATE(hash);
     return hash;
-
 }
 
 
@@ -141,8 +141,8 @@ uint64_t Transaction::getSerializedSize(bool _writePartialHash) {
 void Transaction::serializeInto( ptr< vector< uint8_t > > _out, bool _writePartialHash ) {
 
     LOCK(m)
+    CHECK_ARGUMENT( _out)
 
-    CHECK_ARGUMENT( _out != nullptr )
     _out->insert( _out->end(), data->begin(), data->end() );
 
     if (_writePartialHash) {
@@ -155,18 +155,18 @@ void Transaction::serializeInto( ptr< vector< uint8_t > > _out, bool _writeParti
 
 
 ptr<Transaction > Transaction::deserialize(
-    const ptr< vector< uint8_t > > data, uint64_t _startIndex, uint64_t _len, bool _verifyPartialHashes ) {
+    const ptr< vector< uint8_t > > _data, uint64_t _startIndex, uint64_t _len, bool _verifyPartialHashes ) {
 
-    CHECK_ARGUMENT(data != nullptr);
+    CHECK_ARGUMENT( _data );
 
-    CHECK_ARGUMENT2(_startIndex + _len <= data->size(),
+    CHECK_ARGUMENT2(_startIndex + _len <= _data->size(),
                     to_string(_startIndex) + " " + to_string(_len) + " " +
-                    to_string(data->size()))
+                    to_string( _data->size()))
 
     CHECK_ARGUMENT(_len > 0);
 
-    auto transactionData = make_shared<vector<uint8_t>>(data->begin() + _startIndex,
-                                                        data->begin() + _startIndex + _len);
+    auto transactionData = make_shared<vector<uint8_t>>(
+        _data->begin() + _startIndex, _data->begin() + _startIndex + _len);
 
 
 

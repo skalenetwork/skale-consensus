@@ -71,7 +71,7 @@ public:
 
 
     static ptr<Transaction > deserialize(
-            const ptr< vector< uint8_t > > data, uint64_t _startIndex, uint64_t _len, bool _verifyPartialHashes );
+            const ptr< vector< uint8_t > > _data, uint64_t _startIndex, uint64_t _len, bool _verifyPartialHashes );
 
 
 
