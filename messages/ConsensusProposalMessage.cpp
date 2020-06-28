@@ -37,5 +37,6 @@ ConsensusProposalMessage::ConsensusProposalMessage(Schain& _sChain, const block_
 
 
 const ptr<BooleanProposalVector> ConsensusProposalMessage::getProposals() const {
+    CHECK_STATE(proposals);
     return proposals;
 }

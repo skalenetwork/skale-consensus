@@ -23,6 +23,7 @@
 
 
 #include "SkaleCommon.h"
+#include "Log.h"
 
 #include "Message.h"
 #include "NetworkMessage.h"
@@ -97,10 +98,12 @@ NetworkMessage::NetworkMessage(MsgType _messageType, node_id _srcNodeID, block_i
 }
 
 ptr<ThresholdSigShare> NetworkMessage::getSigShare() const {
+    CHECK_STATE(sigShare);
     return sigShare;
 }
 
 const ptr<string> &NetworkMessage::getECDSASig() const {
+    CHECK_STATE(ecdsaSig);
     return ecdsaSig;
 }
 
@@ -134,7 +137,7 @@ void NetworkMessage::addFields(nlohmann::basic_json<> &j) {
     j["t"] = (uint64_t) timeMs;
     j["v"] = (uint8_t )value;
 
-    if (sigShareString != nullptr) {
+    if (sigShareString) {
         j["sss"] = *sigShareString;
     }
 
@@ -142,9 +145,8 @@ void NetworkMessage::addFields(nlohmann::basic_json<> &j) {
     j["sig"] = *ecdsaSig;
 }
 
-
-
 ptr<NetworkMessage> NetworkMessage::parseMessage(ptr<string> _header, Schain *_sChain) {
+
 
     uint64_t sChainID;
     uint64_t blockID;
@@ -178,7 +180,6 @@ ptr<NetworkMessage> NetworkMessage::parseMessage(ptr<string> _header, Schain *_s
         timeMs = getUint64(js, "t");
         value = getUint64(js, "v");
 
-
         if (js.find("sss") != js.end()) {
             sigShare = getString(js, "sss");
         }
@@ -197,7 +198,7 @@ ptr<NetworkMessage> NetworkMessage::parseMessage(ptr<string> _header, Schain *_s
                     InvalidSchainException("unknown Schain id" + to_string(sChainID), __CLASS_NAME__));
         }
 
-        ptr<NetworkMessage> mptr;
+        ptr<NetworkMessage> mptr = nullptr;
 
         if (*type == BasicHeader::BV_BROADCAST) {
             mptr = make_shared<BVBroadcastMessage>(node_id(srcNodeID),
@@ -225,7 +226,7 @@ ptr<NetworkMessage> NetworkMessage::parseMessage(ptr<string> _header, Schain *_s
                                                           srcSchainIndex, ecdsaSig,
                                                           _sChain);
         } else {
-            ASSERT(false);
+            CHECK_STATE(false);
         }
 
         return mptr;
@@ -265,11 +266,9 @@ uint64_t NetworkMessage::getTimeMs() const {
 ptr<SHAHash> NetworkMessage::getHash() {
     if (hash == nullptr)
         hash = calculateHash();
+    CHECK_STATE(hash);
     return hash;
 }
-
-
-
 
 ptr<SHAHash> NetworkMessage::calculateHash() {
     CryptoPP::SHA256 sha3;
@@ -306,13 +305,10 @@ ptr<SHAHash> NetworkMessage::calculateHash() {
 
 void NetworkMessage::sign(ptr<CryptoManager> _mgr) {
     ecdsaSig = _mgr->signNetworkMsg(*this);
-
+    CHECK_STATE(ecdsaSig);
 }
 
 void NetworkMessage::verify(ptr<CryptoManager> _mgr) {
+    CHECK_ARGUMENT(_mgr);
     CHECK_STATE2(_mgr->verifyNetworkMsg(*this), "ECDSA sig did not verify");
 }
-
-
-
-

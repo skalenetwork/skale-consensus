@@ -54,6 +54,7 @@ public:
 
 
     ptr<NodeInfo> getSrcNodeInfo() const {
+        CHECK_STATE(srcNodeInfo);
         return srcNodeInfo;
     }
 

@@ -106,7 +106,7 @@ ptr<SHAHash> SHAHash::merkleTreeMerge(ptr<SHAHash> _left, ptr<SHAHash> _right) {
     auto rightHash = _right->getHash();
     CHECK_STATE(rightHash);
 
-    concatenation->insert(concatenation->end(), rightHash->begin(), rightHash->end());]
+    concatenation->insert(concatenation->end(), rightHash->begin(), rightHash->end());
 
     return calculateHash(concatenation);
 }

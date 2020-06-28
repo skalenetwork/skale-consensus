@@ -33,6 +33,7 @@
 
 
 ptr<Message> MessageEnvelope::getMessage() const {
+    CHECK_STATE(message);
     return message;
 }
 

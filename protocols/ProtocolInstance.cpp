@@ -47,6 +47,7 @@ ProtocolInstance::ProtocolInstance(ProtocolType _protocolType, Schain& _sChain)
 }
 
 Schain *ProtocolInstance::getSchain() const {
+    CHECK_STATE(sChain);
     return sChain;
 }
 

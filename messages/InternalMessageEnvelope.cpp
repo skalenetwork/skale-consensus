@@ -21,8 +21,9 @@
     @date 2018
 */
 
+#include "SkaleCommon.h"
+#include "Log.h"
 #include "chains/Schain.h"
-
 
 #include "protocols/ProtocolKey.h"
 #include "Message.h"

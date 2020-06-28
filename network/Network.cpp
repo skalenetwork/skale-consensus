@@ -129,6 +129,7 @@ void Network::addToDelayedSends(ptr<NetworkMessage> _m, ptr<NodeInfo> dstNodeInf
 
 void Network::broadcastMessage(ptr<NetworkMessage> _m) {
 
+    CHECK_ARGUMENT(_m);
 
     if (_m->getBlockID() <= this->catchupBlocks) {
         return;
