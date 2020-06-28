@@ -32,64 +32,55 @@
 #include "SHAHash.h"
 
 void SHAHash::print() {
+    CHECK_STATE(hash);
     for (size_t i = 0; i < SHA_HASH_LEN; i++) {
         cerr << to_string(hash->at(i));
     }
-
 }
 
 
 uint8_t SHAHash::at(uint32_t _position) {
+    CHECK_STATE(hash);
     return hash->at(_position);
 }
 
 
 ptr<SHAHash> SHAHash::fromHex(ptr<string> _hex) {
-
+    CHECK_ARGUMENT(_hex);
     auto result = make_shared<array<uint8_t, SHA_HASH_LEN>>();
-
     Utils::cArrayFromHex(*_hex, result->data(), SHA_HASH_LEN);
-
     return make_shared<SHAHash>(result);
 }
 
-
-
-
-
 ptr<string> SHAHash::toHex() {
-    return Utils::carray2Hex(hash->data(), SHA_HASH_LEN);
+    CHECK_STATE(hash);
+    auto result = Utils::carray2Hex(hash->data(), SHA_HASH_LEN);
+    CHECK_STATE(result);
+    return result;
 }
 
 
-int SHAHash::compare(ptr<SHAHash> hash2) {
-
+int SHAHash::compare(ptr<SHAHash> _hash2 ) {
+    CHECK_ARGUMENT( _hash2 );
+    CHECK_STATE(hash);
 
     for (size_t i = 0; i < SHA_HASH_LEN; i++) {
-
-
-        if (hash->at(i) < hash2->at(i))
+        if (hash->at(i) < _hash2->at(i))
             return -1;
-        if (hash->at(i) > hash2->at(i))
+        if (hash->at(i) > _hash2->at(i))
             return 1;
     }
-
     return 0;
-
-
 }
 
 SHAHash::SHAHash(ptr<array<uint8_t, SHA_HASH_LEN>> _hash) {
+    CHECK_ARGUMENT(_hash);
     hash = _hash;
-
 }
 
 ptr<SHAHash> SHAHash::calculateHash(ptr<vector<uint8_t>> _data) {
-
-    CHECK_ARGUMENT(_data != nullptr);
-
+    CHECK_ARGUMENT(_data);
     auto digest = make_shared<array<uint8_t, SHA_HASH_LEN> >();
-
 
     CryptoPP::SHA256 hashObject;
 
@@ -97,25 +88,25 @@ ptr<SHAHash> SHAHash::calculateHash(ptr<vector<uint8_t>> _data) {
     hashObject.Final(digest->data());
 
     auto hash = make_shared<SHAHash>(digest);
-
     return hash;
-
 }
 
 ptr<SHAHash> SHAHash::merkleTreeMerge(ptr<SHAHash> _left, ptr<SHAHash> _right) {
-    CHECK_ARGUMENT(_left != nullptr);
-    CHECK_ARGUMENT(_right != nullptr);
+    CHECK_ARGUMENT(_left);
+    CHECK_ARGUMENT(_right);
 
     auto concatenation = make_shared<vector<uint8_t>>();
     concatenation->reserve(2 * SHA_HASH_LEN);
 
     auto leftHash = _left->getHash();
+    CHECK_STATE(leftHash);
 
     concatenation->insert(concatenation->end(), leftHash->begin(), leftHash->end());
 
     auto rightHash = _right->getHash();
-    concatenation->insert(concatenation->end(), rightHash->begin(), rightHash->end());
+    CHECK_STATE(rightHash);
 
+    concatenation->insert(concatenation->end(), rightHash->begin(), rightHash->end());]
 
     return calculateHash(concatenation);
 }

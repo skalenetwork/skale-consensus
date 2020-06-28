@@ -31,7 +31,6 @@ block_id ThresholdSignature::getBlockId() const {
 }
 
 ThresholdSignature::~ThresholdSignature() {
-
 }
 
 ThresholdSignature::ThresholdSignature(const block_id &blockId, uint64_t totalSigners, uint64_t requiredSigners)

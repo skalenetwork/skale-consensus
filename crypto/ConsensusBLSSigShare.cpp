@@ -34,14 +34,16 @@
 #include "ConsensusBLSSigShare.h"
 
 
-ConsensusBLSSigShare::ConsensusBLSSigShare(ptr<BLSSigShare> _s, schain_id _schainId, block_id _blockID)
-    : ThresholdSigShare(_schainId, _blockID, _s->getSignerIndex()) {
-    ASSERT(_s != nullptr );
-    blsSigShare = _s;
+ConsensusBLSSigShare::ConsensusBLSSigShare(ptr<BLSSigShare> _sig, schain_id _schainId, block_id _blockID)
+    : ThresholdSigShare(_schainId, _blockID, 1) {
+    CHECK_ARGUMENT( _sig );
+    this->signerIndex = _sig->getSignerIndex();
+    blsSigShare = _sig;
 }
 
 
 ptr< BLSSigShare > ConsensusBLSSigShare::getBlsSigShare() const {
+    CHECK_STATE(blsSigShare);
     return blsSigShare;
 }
 ConsensusBLSSigShare::ConsensusBLSSigShare(ptr<string> _sigShare, schain_id _schainID, block_id _blockID,
@@ -49,9 +51,9 @@ ConsensusBLSSigShare::ConsensusBLSSigShare(ptr<string> _sigShare, schain_id _sch
                                            uint64_t _totalSigners, uint64_t _requiredSigners)
     : ThresholdSigShare(_schainID, _blockID, _signerIndex) {
 
+    CHECK_ARGUMENT(_sigShare);
+
     try {
-
-
 
         this->blsSigShare = make_shared< BLSSigShare >(
             _sigShare, ( uint64_t ) _signerIndex, _requiredSigners, _totalSigners );
@@ -66,7 +68,9 @@ ConsensusBLSSigShare::~ConsensusBLSSigShare() {
 
 ptr<std::string> ConsensusBLSSigShare::toString() {
     try {
-        return getBlsSigShare()->toString();
+        auto result = getBlsSigShare()->toString();
+        CHECK_STATE(result);
+        return result;
     }  catch ( ... ) {
         throw_with_nested( InvalidStateException( "Could not toString() sig share", __CLASS_NAME__ ) );
     }

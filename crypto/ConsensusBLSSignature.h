@@ -39,7 +39,7 @@ class ConsensusBLSSignature : public ThresholdSignature {
 public:
 
     ConsensusBLSSignature(
-        ptr< string > _s, block_id _blockID, size_t _totalSigners, size_t _requiredSigners );
+        ptr< string > _sig, block_id _blockID, size_t _totalSigners, size_t _requiredSigners );
 
 
     ConsensusBLSSignature( ptr< BLSSignature > _blsSig, block_id _blockID, size_t _totalSigners,

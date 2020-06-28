@@ -21,8 +21,8 @@
     @date 2019
 */
 
-#include "SkaleCommon.h"
 #include "Log.h"
+#include "SkaleCommon.h"
 
 #include "ConsensusBLSSignature.h"
 #include "SHAHash.h"
@@ -30,9 +30,9 @@
 #include "exceptions/FatalError.h"
 #include "node/ConsensusEngine.h"
 
+#include "ConsensusBLSSigShare.h"
 #include "chains/Schain.h"
 #include "pendingqueue/PendingTransactionsAgent.h"
-#include "ConsensusBLSSigShare.h"
 
 #include "BLSSigShareSet.h"
 #include "ConsensusSigShareSet.h"
@@ -41,9 +41,10 @@
 using namespace std;
 
 
-ConsensusSigShareSet::ConsensusSigShareSet(block_id _blockId, size_t _totalSigners, size_t _requiredSigners )
-    : ThresholdSigShareSet(_blockId, _totalSigners, _requiredSigners), blsSet(_requiredSigners, _totalSigners)  {
-
+ConsensusSigShareSet::ConsensusSigShareSet(
+    block_id _blockId, size_t _totalSigners, size_t _requiredSigners )
+    : ThresholdSigShareSet( _blockId, _totalSigners, _requiredSigners ),
+      blsSet( _requiredSigners, _totalSigners ) {
     totalObjects++;
 }
 
@@ -52,27 +53,19 @@ ConsensusSigShareSet::~ConsensusSigShareSet() {
 }
 
 
+ptr< ThresholdSignature > ConsensusSigShareSet::mergeSignature() {
+    CHECK_STATE( blsSet.isEnough() );
+    auto blsSig = blsSet.merge();
+    CHECK_STATE( blsSig );
 
-ptr<ThresholdSignature > ConsensusSigShareSet::mergeSignature() {
-
-        CHECK_STATE(blsSet.isEnough());
-
-        auto blsSig = blsSet.merge();
-
-        CHECK_STATE(blsSig);
-
-        auto sig = make_shared<ConsensusBLSSignature>( blsSig, blockId,
-                                                   blsSig->getTotalSigners(), blsSig->getRequiredSigners());
-
-
-        return sig;
-
+    auto sig = make_shared< ConsensusBLSSignature >(
+        blsSig, blockId, blsSig->getTotalSigners(), blsSig->getRequiredSigners() );
+    return sig;
 }
 
 bool ConsensusSigShareSet::isEnough() {
     return blsSet.isEnough();
 }
-
 
 
 bool ConsensusSigShareSet::isEnoughMinusOne() {
@@ -81,14 +74,10 @@ bool ConsensusSigShareSet::isEnoughMinusOne() {
 }
 
 
-bool ConsensusSigShareSet::addSigShare(shared_ptr<ThresholdSigShare> _sigShare) {
+bool ConsensusSigShareSet::addSigShare( shared_ptr< ThresholdSigShare > _sigShare ) {
+    CHECK_ARGUMENT( _sigShare);
+    ptr< ConsensusBLSSigShare > s = dynamic_pointer_cast< ConsensusBLSSigShare >( _sigShare );
+    CHECK_STATE(s);
 
-    CHECK_ARGUMENT(_sigShare != nullptr);
-
-    ptr<ConsensusBLSSigShare> s = dynamic_pointer_cast<ConsensusBLSSigShare>(_sigShare);
-
-    ASSERT(s != nullptr);
-
-    return blsSet.addSigShare(s->getBlsSigShare());
+    return blsSet.addSigShare( s->getBlsSigShare() );
 }
-

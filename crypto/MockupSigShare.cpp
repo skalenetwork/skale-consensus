@@ -34,6 +34,7 @@ MockupSigShare::MockupSigShare(ptr<string> _sigShare, schain_id _schainID, block
                                size_t _totalSigners, size_t _requiredSigners)
     : ThresholdSigShare(_schainID, _blockID, _signerIndex) {
 
+    CHECK_ARGUMENT(_sigShare);
     CHECK_ARGUMENT(_requiredSigners <= _totalSigners);
     this->totalSigners = _totalSigners;
     this->requiredSigners = _requiredSigners;
@@ -45,5 +46,6 @@ MockupSigShare::~MockupSigShare() {
 }
 
 ptr<std::string> MockupSigShare::toString() {
+    CHECK_STATE(sigShare);
     return sigShare;
 }

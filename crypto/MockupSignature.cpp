@@ -46,8 +46,6 @@ std::shared_ptr<std::string> MockupSignature::toString() {
 };
 
 uint64_t MockupSignature::getRandom() {
-
     uint64_t  bi = (uint64_t ) blockId;
-
     return (bi * bi ) % 3 + bi;
 }

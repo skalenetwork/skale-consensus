@@ -40,14 +40,14 @@ class MockupSigShareSet : public ThresholdSigShareSet {
 
     bool wasMerged = false;
 
-    std::map<size_t, std::shared_ptr<MockupSigShare> > sigShares;
+    std::map<size_t, ptr<MockupSigShare> > sigShares;
 
 public:
     MockupSigShareSet(block_id _blockId, size_t _totalSigners, size_t _requiredSigners );
 
     ptr<ThresholdSignature> mergeSignature();
 
-    bool addSigShare(shared_ptr<ThresholdSigShare> _sigShare);
+    bool addSigShare(ptr<ThresholdSigShare> _sigShare);
 
     bool isEnough();
 
