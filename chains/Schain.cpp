@@ -561,7 +561,8 @@ void Schain::proposedBlockArrived( ptr< BlockProposal > _proposal ) {
 
 
 void Schain::bootstrap( block_id _lastCommittedBlockID, uint64_t _lastCommittedBlockTimeStamp ) {
-    LOG( info, "Consensus engine version:" + ConsensusEngine::getEngineVersion() );
+
+    cout << "Bootstrapping consensus ..." << endl;
 
     auto _lastCommittedBlockIDInConsensus = getNode()->getBlockDB()->readLastCommittedBlockID();
 

@@ -105,17 +105,21 @@ BlockProposal::BlockProposal(schain_id _sChainId, node_id _proposerNodeId, block
           proposerIndex(_proposerIndex), timeStamp(_timeStamp), timeStampMs(_timeStampMs),
           stateRoot(_stateRoot), transactionList(_transactions),  signature(_signature) {
 
+    CHECK_ARGUMENT(_transactions);
+
 
     CHECK_ARGUMENT(_cryptoManager != nullptr || _signature != nullptr);
     CHECK_ARGUMENT(_cryptoManager == nullptr || _signature == nullptr);
 
-    ASSERT(timeStamp > MODERN_TIME);
+    CHECK_STATE(timeStamp > MODERN_TIME);
+
     transactionCount = transactionList->getItems()->size();
     calculateHash();
 
     if (_cryptoManager != nullptr) {
         _cryptoManager->signProposalECDSA(this);
     } else {
+        CHECK_ARGUMENT(_signature);
         signature = _signature;
     }
 }
@@ -124,6 +128,9 @@ BlockProposal::BlockProposal(schain_id _sChainId, node_id _proposerNodeId, block
 ptr<PartialHashesList> BlockProposal::createPartialHashesList() {
 
     auto s = (uint64_t) this->transactionCount * PARTIAL_SHA_HASH_LEN;
+
+    CHECK_STATE(transactionList);
+
     auto t = transactionList->getItems();
 
     if (s > MAX_BUFFER_SIZE) {
@@ -186,7 +193,7 @@ uint32_t BlockProposal::getTimeStampMs() const {
 
 void BlockProposal::addSignature(ptr<string> _signature) {
     LOCK(m)
-    CHECK_ARGUMENT(_signature != nullptr)
+    CHECK_ARGUMENT(_signature)
     CHECK_STATE(signature == nullptr)
     signature = _signature;
 }
@@ -200,9 +207,8 @@ ptr<string> BlockProposal::getSignature() {
 ptr<BlockProposalRequestHeader> BlockProposal::createBlockProposalHeader(Schain *_sChain,
                                                                          ptr<BlockProposal> _proposal) {
 
-
-    CHECK_ARGUMENT(_sChain != nullptr);
-    CHECK_ARGUMENT(_proposal != nullptr);
+    CHECK_ARGUMENT(_sChain);
+    CHECK_ARGUMENT(_proposal);
 
     LOCK(_proposal->m);
 
@@ -222,27 +228,23 @@ ptr<BasicHeader> BlockProposal::createHeader() {
 
 ptr<vector<uint8_t> > BlockProposal::serialize() {
 
-
     LOCK(m)
 
     if (serializedProposal != nullptr)
         return serializedProposal;
 
-
     auto blockHeader = createHeader();
 
     auto buf = blockHeader->toBuffer();
 
+    CHECK_STATE(buf);
     CHECK_STATE(buf->getBuf()->at(sizeof(uint64_t)) == '{');
     CHECK_STATE(buf->getBuf()->at(buf->getCounter() - 1) == '}');
 
     auto block = make_shared<vector<uint8_t> >();
 
-    CHECK_STATE(block);
-
     block->insert(
             block->end(), buf->getBuf()->begin(), buf->getBuf()->begin() + buf->getCounter());
-
 
     CHECK_STATE(transactionList);
 

@@ -427,6 +427,9 @@ void ConsensusEngine::parseTestConfigsAndCreateAllNodes( const fs_path& dirname 
 }
 
 void ConsensusEngine::startAll() {
+
+    cout << "Starting consensus engine ...";
+
     try {
         for ( auto const it : nodes ) {
             it.second->startServers();
@@ -538,6 +541,10 @@ void ConsensusEngine::systemHealthCheck() {
 }
 
 void ConsensusEngine::init() {
+
+
+    cout << "Consensus engine version:" + ConsensusEngine::getEngineVersion() << endl;
+
 
     storageLimits = make_shared<StorageLimits>( DEFAULT_DB_STORAGE_LIMIT );
 

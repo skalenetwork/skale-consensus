@@ -75,7 +75,6 @@ ptr<Buffer> BasicHeader::toBuffer() {
     buf->write(&len, sizeof(len));
     buf->write((void *) s->data(), len);
     CHECK_STATE(buf->getCounter() >= 10);
-
     return buf;
 }
 
