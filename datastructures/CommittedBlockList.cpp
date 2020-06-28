@@ -32,8 +32,8 @@
 #include "CommittedBlockList.h"
 
 CommittedBlockList::CommittedBlockList(ptr<vector<ptr<CommittedBlock> > > _blocks) {
-    ASSERT(_blocks);
-    ASSERT(_blocks->size() > 0);
+    CHECK_ARGUMENT(_blocks);
+    CHECK_ARGUMENT(_blocks->size() > 0);
 
     blocks = _blocks;
 }
@@ -41,6 +41,12 @@ CommittedBlockList::CommittedBlockList(ptr<vector<ptr<CommittedBlock> > > _block
 
 CommittedBlockList::CommittedBlockList(ptr<CryptoManager> _cryptoManager, ptr<vector<uint64_t> > _blockSizes, ptr<vector<uint8_t> > _serializedBlocks,
                                        uint64_t _offset) {
+
+    CHECK_ARGUMENT(_cryptoManager);
+    CHECK_ARGUMENT(_blockSizes);
+    CHECK_ARGUMENT(_serializedBlocks);
+
+
     CHECK_ARGUMENT(_serializedBlocks->at(_offset) == '[');
     CHECK_ARGUMENT(_serializedBlocks->at(_serializedBlocks->size() - 1) == ']');
 
@@ -55,12 +61,13 @@ CommittedBlockList::CommittedBlockList(ptr<CryptoManager> _cryptoManager, ptr<ve
         for (auto &&size : *_blockSizes) {
             auto endIndex = index + size;
 
-            ASSERT(endIndex <= _serializedBlocks->size());
+            CHECK_STATE(endIndex <= _serializedBlocks->size());
 
             auto blockData = make_shared<vector<uint8_t> >(_serializedBlocks->begin() + index,
                                                            _serializedBlocks->begin() + endIndex);
 
             CommittedBlock::serializedSanityCheck(blockData);
+
             auto block = CommittedBlock::deserialize(blockData, _cryptoManager);
 
             blocks->push_back(block);

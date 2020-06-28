@@ -54,8 +54,8 @@ public:
     CommittedBlock( uint64_t timeStamp, uint32_t timeStampMs );
 
 
-    CommittedBlock(const schain_id &sChainId, const node_id &proposerNodeId, const block_id &blockId,
-                   const schain_index &proposerIndex, const ptr<TransactionList> &transactions,
+    CommittedBlock(const schain_id & _schainId, const node_id & _proposerNodeId, const block_id & _blockId,
+                   const schain_index & _proposerIndex, const ptr<TransactionList> & _transactions,
                    const u256& stateRoot, uint64_t timeStamp,
                    __uint32_t timeStampMs, ptr<string> _signature, ptr<string> _thresholdSig);
 

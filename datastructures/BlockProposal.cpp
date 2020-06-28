@@ -238,11 +238,18 @@ ptr<vector<uint8_t> > BlockProposal::serialize() {
 
     auto block = make_shared<vector<uint8_t> >();
 
+    CHECK_STATE(block);
+
     block->insert(
             block->end(), buf->getBuf()->begin(), buf->getBuf()->begin() + buf->getCounter());
 
 
+    CHECK_STATE(transactionList);
+
     auto serializedList = transactionList->serialize(true);
+
+    CHECK_STATE(serializedList);
+
     CHECK_STATE(serializedList->front() == '<');
     CHECK_STATE(serializedList->back() == '>');
 
@@ -253,8 +260,9 @@ ptr<vector<uint8_t> > BlockProposal::serialize() {
         CHECK_STATE(block->size() == buf->getCounter() + 2);
     }
 
-    serializedProposal = block;
+    CHECK_STATE(block);
 
+    serializedProposal = block;
 
     CHECK_STATE(block->at(sizeof(uint64_t)) == '{');
     CHECK_STATE(block->back() == '>');
@@ -266,12 +274,18 @@ ptr<vector<uint8_t> > BlockProposal::serialize() {
 ptr<BlockProposal> BlockProposal::deserialize(ptr<vector<uint8_t> > _serializedProposal,
                                               ptr<CryptoManager> _manager) {
 
+    CHECK_ARGUMENT(_serializedProposal);
+    CHECK_ARGUMENT(_manager);
+
     ptr<string> headerStr = BlockProposal::extractHeader(_serializedProposal);
+
+    CHECK_STATE(headerStr);
 
     ptr<BlockProposalHeader> blockHeader;
 
     try {
         blockHeader = parseBlockHeader(headerStr);
+        CHECK_STATE(blockHeader);
     } catch (ExitRequestedException &) { throw; } catch (...) {
         throw_with_nested(ParsingException(
                 "Could not parse block header: \n" + *headerStr, __CLASS_NAME__));
@@ -279,9 +293,11 @@ ptr<BlockProposal> BlockProposal::deserialize(ptr<vector<uint8_t> > _serializedP
 
     auto list = deserializeTransactions(blockHeader, headerStr, _serializedProposal);
 
+    CHECK_STATE(list);
+
     auto sig = blockHeader->getSignature();
 
-    ASSERT(sig != nullptr);
+    CHECK_STATE(sig);
 
     auto proposal = make_shared<BlockProposal>(blockHeader->getSchainID(), blockHeader->getProposerNodeId(),
                                                blockHeader->getBlockID(), blockHeader->getProposerIndex(),
@@ -298,8 +314,14 @@ ptr<BlockProposal> BlockProposal::deserialize(ptr<vector<uint8_t> > _serializedP
 
 ptr<BlockProposal>
 BlockProposal::defragment(ptr<BlockProposalFragmentList> _fragmentList, ptr<CryptoManager> _cryptoManager) {
+
+    CHECK_ARGUMENT(_fragmentList);
+    CHECK_ARGUMENT(_cryptoManager);
+
     try {
-        return deserialize(_fragmentList->serialize(), _cryptoManager);
+        auto result = deserialize(_fragmentList->serialize(), _cryptoManager);
+        CHECK_STATE(result);
+        return result;
     } catch (exception &e) {
         SkaleException::logNested(e);
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
@@ -312,45 +334,48 @@ ptr<BlockProposalFragment> BlockProposal::getFragment(uint64_t _totalFragments, 
     CHECK_ARGUMENT(_index <= _totalFragments);
     LOCK(m)
 
-    auto sBlock = serialize();
-    auto blockSize = sBlock->size();
+    auto serializedBlock = serialize();
+
+    CHECK_STATE( serializedBlock );
+
+    auto blockSize = serializedBlock->size();
 
     uint64_t fragmentStandardSize;
 
     if (blockSize % _totalFragments == 0) {
-        fragmentStandardSize = sBlock->size() / _totalFragments;
+        fragmentStandardSize = serializedBlock->size() / _totalFragments;
     } else {
-        fragmentStandardSize = sBlock->size() / _totalFragments + 1;
+        fragmentStandardSize = serializedBlock->size() / _totalFragments + 1;
     }
 
     auto startIndex = fragmentStandardSize * ((uint64_t) _index - 1);
 
-
     auto fragmentData = make_shared<vector<uint8_t>>();
+
     fragmentData->reserve(fragmentStandardSize + 2);
 
     fragmentData->push_back('<');
 
-
     if (_index == _totalFragments) {
-        fragmentData->insert(fragmentData->begin() + 1, sBlock->begin() + startIndex,
-                             sBlock->end());
-
+        fragmentData->insert(fragmentData->begin() + 1, serializedBlock->begin() + startIndex,
+            serializedBlock->end());
     } else {
-        fragmentData->insert(fragmentData->begin() + 1, sBlock->begin() + startIndex,
-                             sBlock->begin() + startIndex + fragmentStandardSize);
+        fragmentData->insert(fragmentData->begin() + 1, serializedBlock->begin() + startIndex,
+            serializedBlock->begin() + startIndex + fragmentStandardSize);
     }
 
     fragmentData->push_back('>');
 
-
-    return make_shared<BlockProposalFragment>(getBlockID(), _totalFragments, _index, fragmentData,
-                                              sBlock->size(), getHash()->toHex());
+    return make_shared<BlockProposalFragment>(getBlockID(), _totalFragments, _index, fragmentData, serializedBlock->size(), getHash()->toHex());
 }
 
 ptr<TransactionList> BlockProposal::deserializeTransactions(ptr<BlockProposalHeader> _header,
                                                             ptr<string> _headerString,
                                                             ptr<vector<uint8_t> > _serializedBlock) {
+
+    CHECK_ARGUMENT(_header);
+    CHECK_ARGUMENT(_headerString);
+    CHECK_ARGUMENT(_serializedBlock);
 
     auto headerSize = _headerString->size();
 
@@ -358,6 +383,8 @@ ptr<TransactionList> BlockProposal::deserializeTransactions(ptr<BlockProposalHea
     try {
         list = TransactionList::deserialize(
                 _header->getTransactionSizes(), _serializedBlock, headerSize + sizeof(headerSize), true);
+        CHECK_STATE(list);
+
     } catch (SkaleException &e) {
         throw_with_nested(
                 ParsingException("Could not parse transactions after header. Header: \n" + *_headerString +
@@ -373,7 +400,7 @@ ptr<TransactionList> BlockProposal::deserializeTransactions(ptr<BlockProposalHea
 
 ptr<string> BlockProposal::extractHeader(ptr<vector<uint8_t> > _serializedBlock) {
 
-    CHECK_ARGUMENT(_serializedBlock != nullptr);
+    CHECK_ARGUMENT(_serializedBlock);
 
     uint64_t headerSize = 0;
 
@@ -406,17 +433,17 @@ ptr<string> BlockProposal::extractHeader(ptr<vector<uint8_t> > _serializedBlock)
     in.read((char *) header->c_str(), headerSize); /* Flawfinder: ignore */
 
     return header;
-
 }
 
 
-ptr<BlockProposalHeader> BlockProposal::parseBlockHeader(const shared_ptr<string> &header) {
-    CHECK_ARGUMENT(header != nullptr);
-    CHECK_ARGUMENT(header->size() > 2);
-    CHECK_ARGUMENT2(header->at(0) == '{', "Block header does not start with {");
-    CHECK_ARGUMENT2(header->at(header->size() - 1) == '}', "Block header does not end with }");
+ptr<BlockProposalHeader> BlockProposal::parseBlockHeader(const shared_ptr<string> & _header ) {
+    CHECK_ARGUMENT( _header );
+    CHECK_ARGUMENT( _header->size() > 2);
+    CHECK_ARGUMENT2( _header->at(0) == '{', "Block header does not start with {");
+    CHECK_ARGUMENT2(
+        _header->at( _header->size() - 1) == '}', "Block header does not end with }");
 
-    auto js = nlohmann::json::parse(*header);
+    auto js = nlohmann::json::parse(*_header );
 
     return make_shared<BlockProposalHeader>(js);
 

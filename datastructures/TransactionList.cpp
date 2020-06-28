@@ -159,8 +159,6 @@ ptr<ConsensusExtFace::transactions_vector> TransactionList::createTransactionVec
 ptr< TransactionList > TransactionList::deserialize( ptr< vector< uint64_t > > _transactionSizes,
     ptr< vector< uint8_t > > _serializedTransactions, uint32_t _offset, bool _writePartialHash ) {
 
-
-
     return ptr< TransactionList >(
         new TransactionList( _transactionSizes, _serializedTransactions, _offset, _writePartialHash ) );
 }

@@ -78,8 +78,8 @@ CommittedBlock::make(const schain_id _sChainId, const node_id _proposerNodeId, c
 
 void CommittedBlock::serializedSanityCheck(ptr<vector<uint8_t> > _serializedBlock) {
     CHECK_ARGUMENT(_serializedBlock);
-    CHECK_STATE(_serializedBlock->at(sizeof(uint64_t)) == '{');
-    CHECK_STATE(_serializedBlock->back() == '>');
+    CHECK_ARGUMENT(_serializedBlock->at(sizeof(uint64_t)) == '{');
+    CHECK_ARGUMENT(_serializedBlock->back() == '>');
 };
 
 
@@ -118,6 +118,7 @@ ptr<CommittedBlock> CommittedBlock::deserialize(ptr<vector<uint8_t> > _serialize
     CHECK_STATE(block);
 
     _manager->verifyProposalECDSA(block, blockHeader->getBlockHash(), blockHeader->getSignature());
+
     return block;
 }
 
@@ -142,17 +143,18 @@ CommittedBlock::CommittedBlock(uint64_t
 
 
 CommittedBlock::CommittedBlock(
-        const schain_id &sChainId,
-        const node_id &proposerNodeId,
-        const block_id &blockId,
-        const schain_index &proposerIndex,
-        const ptr<TransactionList> &transactions,
+        const schain_id & _schainId,
+        const node_id & _proposerNodeId,
+        const block_id & _blockId,
+        const schain_index & _proposerIndex,
+        const ptr<TransactionList> & _transactions,
         const u256& stateRoot,
         uint64_t timeStamp,
         __uint32_t timeStampMs, ptr<string>
         _signature, ptr<string> _thresholdSig)
-        : BlockProposal(sChainId, proposerNodeId, blockId, proposerIndex, transactions, stateRoot, timeStamp,
+        : BlockProposal( _schainId, _proposerNodeId, _blockId, _proposerIndex, _transactions, stateRoot, timeStamp,
                         timeStampMs, _signature, nullptr) {
+    CHECK_ARGUMENT( _transactions );
     CHECK_ARGUMENT(_signature);
     CHECK_ARGUMENT(_thresholdSig);
     this->thresholdSig = _thresholdSig;
@@ -190,5 +192,6 @@ ptr<BasicHeader> CommittedBlock::createHeader() {
 }
 
 ptr<string> CommittedBlock::getThresholdSig() const {
+    CHECK_STATE(thresholdSig);
     return thresholdSig;
 }

@@ -33,16 +33,16 @@
 #include "thirdparty/json.hpp"
 
 
-DAProof::DAProof(ptr<BlockProposal> _p, ptr<ThresholdSignature> _thresholdSignature) {
-    CHECK_ARGUMENT(_p != nullptr);
-    CHECK_ARGUMENT(_thresholdSignature != nullptr);
+DAProof::DAProof(ptr<BlockProposal> _proposal, ptr<ThresholdSignature> _thresholdSignature) {
+    CHECK_ARGUMENT( _proposal );
+    CHECK_ARGUMENT(_thresholdSignature);
 
     this->thresholdSig = _thresholdSignature;
-    this->schainID = _p->getSchainID();
-    this->blockID = _p->getBlockID();
-    this->proposerIndex = _p->getProposerIndex();
-    this->proposerNodeID = _p->getProposerNodeID();
-    this->hash = _p->getHash();
+    this->schainID = _proposal->getSchainID();
+    this->blockID = _proposal->getBlockID();
+    this->proposerIndex = _proposal->getProposerIndex();
+    this->proposerNodeID = _proposal->getProposerNodeID();
+    this->hash = _proposal->getHash();
 }
 
 schain_id DAProof::getSchainId() const {
@@ -62,11 +62,11 @@ schain_index DAProof::getProposerIndex() const {
 }
 
 ptr<ThresholdSignature> DAProof::getThresholdSig() const {
+    CHECK_STATE(thresholdSig);
     return thresholdSig;
 }
 
 ptr<SHAHash> DAProof::getHash() const {
+    CHECK_STATE(hash);
     return hash;
 }
-
-

@@ -58,6 +58,7 @@ public:
     BlockProposalHeader(BlockProposal & _block);
 
     ptr<string> getBlockHash() {
+        CHECK_STATE(blockHash);
         return blockHash;
     }
 
