@@ -121,6 +121,7 @@ ptr<SHAHash> SHAHash::merkleTreeMerge(ptr<SHAHash> _left, ptr<SHAHash> _right) {
 }
 
 ptr<array<uint8_t, SHA_HASH_LEN>> SHAHash::getHash() const {
+    CHECK_STATE(hash);
     return hash;
 }
 

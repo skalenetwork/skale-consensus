@@ -41,6 +41,7 @@ MockupSignature::MockupSignature(
 
 
 std::shared_ptr<std::string> MockupSignature::toString() {
+    CHECK_STATE(s);
     return s;
 };
 

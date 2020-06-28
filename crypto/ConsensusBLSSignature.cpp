@@ -81,5 +81,6 @@ uint64_t ConsensusBLSSignature::getRandom() {
 }
 
 ptr< BLSSignature > ConsensusBLSSignature::getBlsSig() const {
+    CHECK_STATE(blsSig);
     return blsSig;
 }
