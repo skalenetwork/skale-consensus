@@ -130,7 +130,7 @@ bool CacheLevelDB::keyExistsUnsafe(const string &_key) {
 
     for (int i = LEVELDB_SHARDS - 1; i >= 0; i--) {
         auto result = make_shared<string>();
-        ASSERT(db[i] != nullptr);
+        CHECK_STATE(db[i]);
         auto status = db[i]->Get(readOptions, _key, &*result);
         throwExceptionOnError(status);
         if (!status.IsNotFound())
@@ -168,8 +168,10 @@ void CacheLevelDB::writeString(const string &_key, const string &_value,
 }
 
 
-void CacheLevelDB::writeByteArray(const char *_key, size_t _keyLen, const char *value,
+void CacheLevelDB::writeByteArray(const char *_key, size_t _keyLen, const char * _value,
                                   size_t _valueLen) {
+
+    CHECK_ARGUMENT(_key);
 
     rotateDBsIfNeeded();
 
@@ -181,7 +183,7 @@ void CacheLevelDB::writeByteArray(const char *_key, size_t _keyLen, const char *
             return;
         }
 
-        auto status = db.back()->Put(writeOptions, Slice(_key, _keyLen), Slice(value, _valueLen));
+        auto status = db.back()->Put(writeOptions, Slice(_key, _keyLen), Slice( _value, _valueLen));
 
         throwExceptionOnError(status);
     }
@@ -190,7 +192,6 @@ void CacheLevelDB::writeByteArray(const char *_key, size_t _keyLen, const char *
 void CacheLevelDB::writeByteArray(string &_key, ptr<vector<uint8_t>> _data) {
 
     CHECK_ARGUMENT(_data);
-
 
     rotateDBsIfNeeded();
 
@@ -222,8 +223,8 @@ ptr<string> CacheLevelDB::readLastKeyInPrefixRange(string &_prefix) {
     shared_lock<shared_mutex> lock(m);
 
     for (int i = LEVELDB_SHARDS - 1; i >= 0; i--) {
-        ASSERT(db[i]);
-        auto partialResult = readPrefixRangeFromDBUnsafe(_prefix, db[i], true);
+        CHECK_STATE(db.at(i));
+        auto partialResult = readPrefixRangeFromDBUnsafe(_prefix, db.at(i), true);
         if (partialResult) {
             if (result) {
                 result->insert(partialResult->begin(), partialResult->end());
@@ -244,13 +245,12 @@ ptr<string> CacheLevelDB::readLastKeyInPrefixRange(string &_prefix) {
 
 ptr<map<string, ptr<string>>> CacheLevelDB::readPrefixRange(string &_prefix) {
 
-
     ptr<map<string, ptr<string>>> result = nullptr;
 
     shared_lock<shared_mutex> lock(m);
 
     for (int i = LEVELDB_SHARDS - 1; i >= 0; i--) {
-        ASSERT(db[i]);
+        CHECK_STATE(db.at(i));
         auto partialResult = readPrefixRangeFromDBUnsafe(_prefix, db[i]);
         if (partialResult) {
             if (result) {
@@ -280,7 +280,6 @@ ptr<map<string, ptr<string>>> CacheLevelDB::readPrefixRangeFromDBUnsafe(string &
         idb->SeekToLast();
         if (idb->Valid()) {
             (*result)[idb->key().ToString()] = make_shared<string>(idb->value().ToString());
-            cerr << idb->key().ToString() << endl;
         }
         return result;
     }
@@ -300,7 +299,7 @@ uint64_t CacheLevelDB::visitKeys(CacheLevelDB::KeyVisitor *_visitor, uint64_t _m
 
     uint64_t readCounter = 0;
 
-    leveldb::Iterator *it = db.back()->NewIterator(readOptions);
+    auto it = unique_ptr<leveldb::Iterator>(db.back()->NewIterator(readOptions));
     for (it->SeekToFirst(); it->Valid(); it->Next()) {
         _visitor->visitDBKey(it->key().data());
         readCounter++;
@@ -309,13 +308,11 @@ uint64_t CacheLevelDB::visitKeys(CacheLevelDB::KeyVisitor *_visitor, uint64_t _m
         }
     }
 
-    delete it;
-
     return readCounter;
 }
 
 
-DB *CacheLevelDB::openDB(uint64_t _index) {
+shared_ptr<leveldb::DB> CacheLevelDB::openDB(uint64_t _index) {
 
     try {
         leveldb::DB *dbase = nullptr;
@@ -323,10 +320,12 @@ DB *CacheLevelDB::openDB(uint64_t _index) {
         static leveldb::Options options;
         options.create_if_missing = true;
 
-        ASSERT2(leveldb::DB::Open(options, path_to_index(_index),
+        CHECK_STATE2(leveldb::DB::Open(options, path_to_index(_index),
                                   &dbase).ok(),
                 "Unable to open database");
-        return dbase;
+        CHECK_STATE(dbase);
+
+        return ptr<DB>(dbase);
 
     } catch (ExitRequestedException &e) { throw; }
     catch (...) {
@@ -365,8 +364,9 @@ CacheLevelDB::CacheLevelDB(Schain *_sChain, string &_dirName, string &_prefix, n
 
 
     for (auto i = highestDBIndex - LEVELDB_SHARDS + 1; i <= highestDBIndex; i++) {
-        leveldb::DB *dbase = openDB(i);
-        db.push_back(shared_ptr<leveldb::DB>(dbase));
+        auto dbase = openDB(i);
+        CHECK_STATE(dbase);
+        db.push_back(dbase);
     }
 
     verify();
