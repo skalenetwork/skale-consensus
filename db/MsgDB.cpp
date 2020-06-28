@@ -45,28 +45,32 @@ MsgDB::saveMsg(ptr<NetworkMessage> _msg) {
 
     static atomic<uint64_t> msgCounter = 0;
 
+
+    CHECK_ARGUMENT(_msg);
+
+
     lock_guard<recursive_mutex> lock(m);
 
     try {
 
+        auto serialized = _msg->serializeToString();
 
-        CHECK_STATE(_msg);
-
-
-        auto s = _msg->serializeToString();
+        CHECK_STATE(serialized);
 
         auto currentCounter = msgCounter++;
 
         auto key = createKey(_msg->getBlockID(), currentCounter);
 
+        CHECK_STATE(key);
+
         auto previous = readString(*key);
 
         if (previous == nullptr) {
-            writeString(*key, *s);
+            writeString(*key, *serialized );
             return true;
         }
 
-        return (*previous == *s);
+        return (*previous == *serialized );
 
     } catch (...) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
@@ -76,12 +80,9 @@ MsgDB::saveMsg(ptr<NetworkMessage> _msg) {
 
 ptr<vector<ptr<NetworkMessage>>> MsgDB::getMessages(block_id _blockID) {
 
-
     auto result = make_shared<vector<ptr<NetworkMessage>>>();
 
     lock_guard<recursive_mutex> lock(m);
-
-
 
     try {
 
@@ -98,7 +99,6 @@ ptr<vector<ptr<NetworkMessage>>> MsgDB::getMessages(block_id _blockID) {
         }
 
         return result;
-
 
     } catch (...) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));

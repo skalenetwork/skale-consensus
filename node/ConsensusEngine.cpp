@@ -285,7 +285,10 @@ ptr< Node > ConsensusEngine::readNodeConfigFileAndCreateNode( const fs_path& pat
 
 
 void ConsensusEngine::readSchainConfigFiles( ptr< Node > _node, const fs_path& _dirPath ) {
+
     try {
+
+
         checkExistsAndDirectory( _dirPath );
 
         directory_iterator itr( _dirPath );
@@ -305,6 +308,7 @@ void ConsensusEngine::readSchainConfigFiles( ptr< Node > _node, const fs_path& _
     } catch ( ... ) {
         throw_with_nested( FatalError( __FUNCTION__, __CLASS_NAME__ ) );
     }
+
 }
 
 
