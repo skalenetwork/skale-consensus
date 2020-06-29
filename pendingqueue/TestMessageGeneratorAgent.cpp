@@ -51,7 +51,7 @@ ConsensusExtFace::transactions_vector TestMessageGeneratorAgent::pendingTransact
 
     CHECK_STATE(test);
 
-    if (test == SchainTest::NONE)
+    if (*test == SchainTest::NONE)
         return result;
 
     for (uint64_t i = 0; i < _limit; i++) {
