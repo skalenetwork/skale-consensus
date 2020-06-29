@@ -29,7 +29,7 @@ using namespace std::chrono;
 
 uint64_t Time::getCurrentTimeSec() {
     uint64_t result = getCurrentTimeMs() / 1000;
-    ASSERT(result < (uint64_t) MODERN_TIME + 1000000000);
+    CHECK_STATE(result < (uint64_t) MODERN_TIME + 1000000000);
     return result;
 }
 

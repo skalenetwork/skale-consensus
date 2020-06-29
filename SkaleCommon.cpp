@@ -40,14 +40,14 @@
     extern "C" void MicroProfileOnThreadCreate( const char* );
 #endif
 
-void setThreadName( std::string const& _n,  ConsensusEngine* engine) {
+void setThreadName( std::string const& _n,  ConsensusEngine* _engine ) {
 
     string prefix;
 
-    CHECK_STATE(engine != nullptr);
+    CHECK_STATE( _engine );
 
 
-    if (engine->getNodeIDs().size() > 1) {
+    if ( _engine->getNodeIDs().size() > 1) {
         prefix = to_string(logThreadLocal_->getNodeID());
     } else {
         prefix = "";

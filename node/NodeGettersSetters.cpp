@@ -186,34 +186,37 @@ nlohmann::json Node::getCfg() const {
 
 
 Sockets *Node::getSockets() const {
-    // ASSERT(sockets);
+    CHECK_STATE(sockets);
     return sockets.get();
 }
 
 Schain *Node::getSchain() const {
-    ASSERT(sChain);
+    CHECK_STATE(sChain);
     return sChain.get();
 }
 
 
 ptr< SkaleLog > Node::getLog() const {
-    ASSERT(log);
+    CHECK_STATE(log);
     return log;
 }
 
 
 ptr<string> Node::getBindIP() const {
-    ASSERT(bindIP != nullptr);
+    CHECK_STATE(bindIP);
     return bindIP;
 }
 
 network_port Node::getBasePort() const {
-    ASSERT(basePort > 0);
+    CHECK_STATE(basePort > 0);
     return basePort;
 }
 
 
 ptr<NodeInfo> Node::getNodeInfoByIndex(schain_index _index) {
+
+    CHECK_STATE(nodeInfosByIndex);
+
     if (nodeInfosByIndex->count((uint64_t )_index) == 0)
         return nullptr;;
     return nodeInfosByIndex->at((uint64_t )_index);
@@ -221,14 +224,18 @@ ptr<NodeInfo> Node::getNodeInfoByIndex(schain_index _index) {
 
 
 ptr<NodeInfo> Node::getNodeInfoById(node_id _id) {
+
+    CHECK_STATE(nodeInfosById);
+
     if (nodeInfosById->count((uint64_t )_id) == 0)
         return nullptr;
+
     return nodeInfosById->at((uint64_t )_id);
 }
 
 
 ptr<BlockDB> Node::getBlockDB() {
-    CHECK_STATE(blockDB != nullptr);
+    CHECK_STATE(blockDB);
     return blockDB;
 }
 
@@ -286,11 +293,6 @@ uint64_t Node::getCommittedTransactionHistoryLimit() const {
     return committedTransactionsHistory;
 }
 
-
-
-
-
-
 void Node::setBasePort(const network_port &_basePort) {
     CHECK_ARGUMENT(_basePort > 0);
     basePort = _basePort;
@@ -301,7 +303,7 @@ uint64_t Node::getSimulateNetworkWriteDelayMs() const {
 }
 
 const ptr<TestConfig> &Node::getTestConfig() const {
-    CHECK_STATE(testConfig != nullptr)
+    CHECK_STATE(testConfig)
     return testConfig;
 }
 
@@ -329,7 +331,7 @@ uint64_t Node::getBlockSigShareDBSize() const {
 }
 
 ptr<BlockSigShareDB> Node::getBlockSigShareDB() const {
-    CHECK_STATE(blockSigShareDB != nullptr);
+    CHECK_STATE(blockSigShareDB);
     return blockSigShareDB;
 }
 
@@ -338,17 +340,14 @@ ptr<DASigShareDB> Node::getDaSigShareDB() const {
     return daSigShareDB;
 }
 
-
 ptr<DAProofDB> Node::getDaProofDB() const {
     CHECK_STATE(daProofDB);
     return daProofDB;
 }
 
-
 uint64_t Node::getDaSigShareDBSize() const {
     return daSigShareDBSize;
 }
-
 
 uint64_t Node::getDaProofDBSize() const {
     return daProofDBSize;
@@ -368,12 +367,15 @@ ConsensusEngine *Node::getConsensusEngine() const {
     return consensusEngine;
 }
 ptr< string > Node::getSgxUrl()  {
+    CHECK_STATE(sgxURL);
     return sgxURL;
 }
 ptr< string > Node::getSgxSslKeyFileFullPath()  {
+    CHECK_STATE(sgxSSLCertFileFullPath);
     return sgxSSLKeyFileFullPath;
 }
 
 ptr< string > Node::getSgxSslCertFileFullPath() {
+    CHECK_STATE(sgxSSLCertFileFullPath);
     return sgxSSLCertFileFullPath;
 }
