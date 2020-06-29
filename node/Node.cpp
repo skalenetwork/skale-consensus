@@ -409,6 +409,7 @@ void Node::closeAllSocketsAndNotifyAllAgentsAndThreads() {
 
 
 void Node::registerAgent(Agent *_agent) {
+    CHECK_ARGUMENT(_agent);
     agents.push_back(_agent);
 }
 

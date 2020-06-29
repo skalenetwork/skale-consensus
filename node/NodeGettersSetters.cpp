@@ -170,7 +170,7 @@ ptr<ConsensusStateDB> Node::getConsensusStateDB() {
 }
 
 ptr<map<uint64_t , ptr<NodeInfo> > > Node::getNodeInfosByIndex() const {
-    CHECK_STATE(nodeInfosByIndex != nullptr);
+    CHECK_STATE(nodeInfosByIndex);
     return nodeInfosByIndex;
 }
 

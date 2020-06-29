@@ -179,7 +179,7 @@ public:
 
     void startThreads();
 
-    static void messageThreadProcessingLoop(Schain *_s);
+    static void messageThreadProcessingLoop(Schain * _sChain );
 
     uint64_t getLastCommittedBlockTimeStamp();
 
@@ -195,13 +195,13 @@ public:
                             uint64_t _committedTimeStampMs, ptr<ThresholdSignature> _thresholdSig);
 
 
-    void blockCommitsArrivedThroughCatchup(ptr<CommittedBlockList> _blocks);
+    void blockCommitsArrivedThroughCatchup(ptr<CommittedBlockList> _blockList );
 
     void daProofSigShareArrived(ptr<ThresholdSigShare> _sigShare, ptr<BlockProposal> _proposal);
 
     const ptr<IO> getIo() const;
 
-    void postMessage(ptr<MessageEnvelope> m);
+    void postMessage(ptr<MessageEnvelope> _me );
 
     ptr<PendingTransactionsAgent> getPendingTransactionsAgent() const;
 
