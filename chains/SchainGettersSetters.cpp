@@ -160,7 +160,7 @@ ptr<Node> Schain::getNode() const {
 node_count Schain::getNodeCount() {
 
     auto count = node_count(getNode()->getNodeInfosByIndex()->size());
-    ASSERT(count > 0);
+    CHECK_STATE(count > 0);
     return count;
 }
 

@@ -319,7 +319,6 @@ void Schain::blockCommitArrived( block_id _committedBlockID, schain_index _propo
         lastCommittedBlockTimeStamp = _committedTimeStamp;
         lastCommittedBlockTimeStampMs = _committedTimeStampMs;
 
-
         committedProposal =
             getNode()->getBlockProposalDB()->getBlockProposal( _committedBlockID, _proposerIndex );
         ASSERT( committedProposal );
@@ -362,6 +361,8 @@ void Schain::proposeNextBlock(
                 _proposedBlockID, _previousBlockTimeStamp, _previousBlockTimeStampMs );
         }
 
+        CHECK_STATE(myProposal);
+
         CHECK_STATE( myProposal->getProposerIndex() == getSchainIndex() );
         CHECK_STATE( myProposal->getSignature() != nullptr );
 
@@ -375,7 +376,11 @@ void Schain::proposeNextBlock(
         db->checkAndSaveHash( _proposedBlockID, getSchainIndex(), myProposal->getHash()->toHex() );
 
         blockProposalClient->enqueueItem( myProposal );
+
         auto mySig = getSchain()->getCryptoManager()->signDAProofSigShare( myProposal );
+
+        CHECK_STATE(mySig);
+
         getSchain()->daProofSigShareArrived( mySig, myProposal );
 
     } catch ( ExitRequestedException& e ) {
@@ -386,16 +391,15 @@ void Schain::proposeNextBlock(
 }
 
 void Schain::processCommittedBlock( ptr< CommittedBlock > _block ) {
-    CHECK_STATE( _block->getSignature() != nullptr );
+    CHECK_ARGUMENT(_block);
     MONITOR2( __CLASS_NAME__, __FUNCTION__, getMaxExternalBlockProcessingTime() )
 
     checkForExit();
 
-
     LOCK( m )
 
     try {
-        ASSERT( getLastCommittedBlockID() + 1 == _block->getBlockID() );
+        CHECK_STATE( getLastCommittedBlockID() + 1 == _block->getBlockID() );
 
         totalTransactions += _block->getTransactionList()->size();
 
@@ -464,12 +468,12 @@ void Schain::pushBlockToExtFace( ptr< CommittedBlock >& _block ) {
         this->pricingAgent->calculatePrice(
             *tv, _block->getTimeStamp(), _block->getTimeStampMs(), _block->getBlockID() );
 
-        auto cur_price = this->pricingAgent->readPrice( _block->getBlockID() - 1 );
+        auto currentPrice = this->pricingAgent->readPrice( _block->getBlockID() - 1 );
 
 
         if ( extFace ) {
             extFace->createBlock( *tv, _block->getTimeStamp(), _block->getTimeStampMs(),
-                ( __uint64_t ) _block->getBlockID(), cur_price, _block->getStateRoot() );
+                ( __uint64_t ) _block->getBlockID(), currentPrice, _block->getStateRoot() );
             // exit immediately if exit has been requested
             getSchain()->getNode()->exitCheck();
         }
