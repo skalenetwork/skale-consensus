@@ -85,16 +85,11 @@ BlockConsensusAgent::BlockConsensusAgent(Schain &_schain) : ProtocolInstance(
     for (int i = 0; i < _schain.getNodeCount(); i++) {
         children[i]->put((uint64_t) currentBlock, make_shared<BinConsensusInstance>(this, currentBlock, i + 1, true));
     }
-
-
 };
 
 
 void BlockConsensusAgent::startConsensusProposal(block_id _blockID, ptr<BooleanProposalVector> _proposal) {
-
-
     try {
-
         if (getSchain()->getLastCommittedBlockID() >= _blockID) {
             LOG(debug, "Terminating consensus proposal since already committed.");
         }
@@ -128,9 +123,9 @@ void BlockConsensusAgent::startConsensusProposal(block_id _blockID, ptr<BooleanP
 
 void BlockConsensusAgent::processChildMessageImpl(ptr<InternalMessageEnvelope> _me) {
 
+    CHECK_ARGUMENT(_me);
 
     auto msg = dynamic_pointer_cast<ChildBVDecidedMessage>(_me->getMessage());
-
 
     reportConsensusAndDecideIfNeeded(msg);
 }
@@ -138,7 +133,6 @@ void BlockConsensusAgent::processChildMessageImpl(ptr<InternalMessageEnvelope> _
 void BlockConsensusAgent::propose(bin_consensus_value _proposal, schain_index _index, block_id _id) {
 
     try {
-
 
         auto key = make_shared<ProtocolKey>(_id, _index);
 
@@ -149,7 +143,8 @@ void BlockConsensusAgent::propose(bin_consensus_value _proposal, schain_index _i
 
 
         auto id = (uint64_t) msg->getBlockId();
-        ASSERT(id != 0);
+
+        CHECK_STATE(id != 0);
 
         child->processParentProposal(make_shared<InternalMessageEnvelope>(ORIGIN_PARENT, msg, *getSchain()));
 
@@ -187,7 +182,6 @@ void BlockConsensusAgent::decideBlock(block_id _blockId, schain_index _sChainInd
             getSchain()->finalizeDecidedAndSignedBlock( _blockId, _sChainIndex, signature );
         }
 
-
     } catch (ExitRequestedException &) { throw; } catch (SkaleException &e) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
@@ -206,6 +200,8 @@ void BlockConsensusAgent::decideDefaultBlock(block_id _blockNumber) {
 
 void BlockConsensusAgent::reportConsensusAndDecideIfNeeded(ptr<ChildBVDecidedMessage> _msg) {
 
+    CHECK_ARGUMENT(_msg);
+
     try {
 
         auto nodeCount = (uint64_t) getSchain()->getNodeCount();
@@ -217,11 +213,9 @@ void BlockConsensusAgent::reportConsensusAndDecideIfNeeded(ptr<ChildBVDecidedMes
             return;
         }
 
-        ASSERT(blockProposerIndex <= nodeCount);
-
+        CHECK_STATE(blockProposerIndex <= nodeCount);
 
         if (decidedIndices->exists((uint64_t) blockID)) { return; }
-
 
         if (_msg->getValue()) {
             if (!trueDecisions->exists((uint64_t) blockID))
@@ -250,7 +244,6 @@ void BlockConsensusAgent::reportConsensusAndDecideIfNeeded(ptr<ChildBVDecidedMes
             return;
         }
 
-
         uint64_t seed;
 
         if (blockID <= 1) {
@@ -276,9 +269,10 @@ void BlockConsensusAgent::reportConsensusAndDecideIfNeeded(ptr<ChildBVDecidedMes
 
                 ptr<string> statsString = buildStats(blockID);
 
-
+                CHECK_STATE(statsString);
 
                 decideBlock(blockID, index, statsString);
+
                 return;
             }
             if (!falseDecisions->exists((uint64_t) blockID) ||
@@ -319,15 +313,17 @@ void BlockConsensusAgent::processBlockSignMessage(ptr<BlockSignBroadcastMessage>
 };
 
 
-void BlockConsensusAgent::routeAndProcessMessage(ptr<MessageEnvelope> m) {
+void BlockConsensusAgent::routeAndProcessMessage(ptr<MessageEnvelope> _me ) {
+
+    CHECK_ARGUMENT( _me );
 
     try {
 
 
-        CHECK_ARGUMENT(m->getMessage()->getBlockId() > 0);
-        CHECK_ARGUMENT(m->getOrigin() != ORIGIN_PARENT);
+        CHECK_ARGUMENT( _me->getMessage()->getBlockId() > 0);
+        CHECK_ARGUMENT( _me->getOrigin() != ORIGIN_PARENT);
 
-        auto blockID = m->getMessage()->getBlockId();
+        auto blockID = _me->getMessage()->getBlockId();
 
         // Future blockid messages shall never get to this point
         CHECK_ARGUMENT(blockID <= getSchain()->getLastCommittedBlockID() + 1);
@@ -335,27 +331,43 @@ void BlockConsensusAgent::routeAndProcessMessage(ptr<MessageEnvelope> m) {
         if (blockID + MAX_ACTIVE_CONSENSUSES < getSchain()->getLastCommittedBlockID())
             return; // message has a very old block id, ignore. They need to catchup
 
-        if (m->getMessage()->getMessageType() == MSG_CONSENSUS_PROPOSAL) {
-            this->startConsensusProposal(m->getMessage()->getBlockId(),
-                                         ((ConsensusProposalMessage *) m->getMessage().get())->getProposals());
+        if ( _me->getMessage()->getMessageType() == MSG_CONSENSUS_PROPOSAL) {
+
+            auto consensusProposalMessage =
+                dynamic_pointer_cast<ConsensusProposalMessage>( _me->getMessage());
+
+            this->startConsensusProposal(
+                _me->getMessage()->getBlockId(),
+                                         consensusProposalMessage->getProposals());
             return;
         }
 
-        if (m->getMessage()->getMessageType() == MSG_BLOCK_SIGN_BROADCAST) {
-            this->processBlockSignMessage(dynamic_pointer_cast<BlockSignBroadcastMessage>(m->getMessage()));
+        if ( _me->getMessage()->getMessageType() == MSG_BLOCK_SIGN_BROADCAST) {
+
+            auto blockSignBroadcastMessage = dynamic_pointer_cast<BlockSignBroadcastMessage>( _me->getMessage());
+
+            CHECK_STATE(blockSignBroadcastMessage);
+
+            this->processBlockSignMessage(dynamic_pointer_cast<BlockSignBroadcastMessage>( _me->getMessage()));
             return;
         }
 
-        if (m->getOrigin() == ORIGIN_CHILD) {
-            LOG(debug, "Got child message " + to_string(m->getMessage()->getBlockId()) + ":" +
-                       to_string(m->getMessage()->getBlockProposerIndex()));
+        if ( _me->getOrigin() == ORIGIN_CHILD) {
+            LOG(debug, "Got child message " + to_string( _me->getMessage()->getBlockId()) + ":" +
+                       to_string( _me->getMessage()->getBlockProposerIndex()));
 
-            return processChildMessageImpl(dynamic_pointer_cast<InternalMessageEnvelope>(m));
+            auto internalMessageEnvelope = dynamic_pointer_cast<InternalMessageEnvelope>( _me );
+
+            CHECK_STATE(internalMessageEnvelope);
+
+            return processChildMessageImpl(internalMessageEnvelope);
 
         }
 
 
-        ptr<ProtocolKey> key = m->getMessage()->createDestinationProtocolKey();
+        ptr<ProtocolKey> key = _me->getMessage()->createDestinationProtocolKey();
+
+        CHECK_STATE(key);
 
         {
 
@@ -364,7 +376,7 @@ void BlockConsensusAgent::routeAndProcessMessage(ptr<MessageEnvelope> m) {
                 auto child = getChild(key);
 
                 if (child != nullptr) {
-                    return child->processMessage(m);
+                    return child->processMessage( _me );
                 }
             }
         }

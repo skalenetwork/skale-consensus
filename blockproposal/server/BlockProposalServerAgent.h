@@ -71,13 +71,13 @@ public:
     ~BlockProposalServerAgent() override;
 
     ptr<unordered_map<ptr<partial_sha_hash>, ptr<Transaction>, PendingTransactionsAgent::Hasher, PendingTransactionsAgent::Equal>>
-    readMissingTransactions(ptr<ServerConnection> connectionEnvelope_, nlohmann::json missingTransactionsResponseHeader);
+    readMissingTransactions(ptr<ServerConnection> _connectionEnvelope, nlohmann::json missingTransactionsResponseHeader);
 
 
     pair<ptr<map<uint64_t, ptr<Transaction>>>,
             ptr<map<uint64_t, ptr<partial_sha_hash>>>> getPresentAndMissingTransactions(Schain &_sChain,
                                                                                          ptr<Header>,
-                                                                                         ptr<PartialHashesList> _phm);
+                                                                                         ptr<PartialHashesList> _phList );
 
 
     BlockProposalWorkerThreadPool *getBlockProposalWorkerThreadPool() const;

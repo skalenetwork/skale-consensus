@@ -36,8 +36,9 @@ ptr<vector<uint8_t> > BlockDB::getSerializedBlockFromLevelDB(block_id _blockID) 
     try {
 
         auto key = createKey(_blockID);
-
+        CHECK_STATE(key);
         auto value = readString(*key);
+        CHECK_STATE(value);
 
         if (value) {
             auto serializedBlock = make_shared<vector<uint8_t>>();
@@ -55,13 +56,12 @@ ptr<vector<uint8_t> > BlockDB::getSerializedBlockFromLevelDB(block_id _blockID) 
 BlockDB::BlockDB(Schain *_sChain, string &_dirname, string &_prefix, node_id _nodeId, uint64_t _maxDBSize)
         : CacheLevelDB(_sChain, _dirname, _prefix,
                        _nodeId, _maxDBSize, false) {
-
-
 }
 
 
 void BlockDB::saveBlock2LevelDB(ptr<CommittedBlock> &_block) {
 
+    CHECK_ARGUMENT(_block);
     CHECK_ARGUMENT(_block->getSignature() != nullptr);
 
     LOCK(m)
@@ -70,8 +70,10 @@ void BlockDB::saveBlock2LevelDB(ptr<CommittedBlock> &_block) {
 
         auto serializedBlock = _block->serialize();
 
+        CHECK_STATE(serializedBlock);
+
         auto key = createKey(_block->getBlockID());
-        
+        CHECK_STATE(key);
         writeByteArray(*key, serializedBlock);
         writeString(createLastCommittedKey(), to_string(_block->getBlockID()), true);
     } catch (...) {
@@ -96,7 +98,8 @@ const string BlockDB::getFormatVersion() {
 void BlockDB::saveBlock(ptr<CommittedBlock> &_block) {
 
 
-    CHECK_ARGUMENT(_block->getSignature() != nullptr);
+    CHECK_ARGUMENT(_block);
+    CHECK_ARGUMENT(_block->getSignature());
 
     try {
         LOCK(m)
@@ -111,6 +114,7 @@ void BlockDB::saveBlock(ptr<CommittedBlock> &_block) {
 
 ptr<CommittedBlock> BlockDB::getBlock(block_id _blockID, ptr<CryptoManager> _cryptoManager) {
 
+    CHECK_ARGUMENT(_cryptoManager);
 
     std::lock_guard<std::recursive_mutex> lock(m);
 
@@ -119,11 +123,13 @@ ptr<CommittedBlock> BlockDB::getBlock(block_id _blockID, ptr<CryptoManager> _cry
         auto serializedBlock = getSerializedBlockFromLevelDB(_blockID);
 
         if (serializedBlock == nullptr) {
-            cerr << "got null" << endl;
+            LOG(err, "Got null block in BlockDB::getBlock");
             return nullptr;
         }
 
-        return CommittedBlock::deserialize(serializedBlock, _cryptoManager);
+        auto result = CommittedBlock::deserialize(serializedBlock, _cryptoManager);
+        CHECK_STATE(result);
+        return result;
     }
 
     catch (...) {

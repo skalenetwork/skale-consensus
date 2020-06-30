@@ -63,7 +63,7 @@ class BlockProposalClientAgent : public AbstractClientAgent {
     pair<ConnectionStatus, ConnectionSubStatus>
     sendItemImpl(ptr<DataStructure> _item, shared_ptr<ClientSocket> _socket, schain_index _index);
 
-    pair<ConnectionStatus, ConnectionSubStatus> sendBlockProposal(ptr<BlockProposal> _proposal, shared_ptr<ClientSocket> socket,
+    pair<ConnectionStatus, ConnectionSubStatus> sendBlockProposal(ptr<BlockProposal> _proposal, shared_ptr<ClientSocket> _socket,
                                                                   schain_index _index);
 
     ptr<BlockProposal> corruptProposal(ptr<BlockProposal> _proposal, schain_index _index);

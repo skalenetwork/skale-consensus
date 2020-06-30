@@ -91,7 +91,7 @@ public:
     bool shouldPost(ptr<NetworkMessage> _msg);
 
 
-    void routeAndProcessMessage(ptr<MessageEnvelope> m);
+    void routeAndProcessMessage(ptr<MessageEnvelope> _me );
 
 };
 

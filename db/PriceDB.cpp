@@ -55,6 +55,7 @@ u256 PriceDB::readPrice(block_id _blockID) {
 
 
         auto key = createKey(_blockID);
+        CHECK_STATE(key);
 
         auto price = readString(*key);
 
@@ -78,6 +79,7 @@ void PriceDB::savePrice(u256 _price, block_id _blockID) {
     try {
 
         auto key = createKey(_blockID);
+        CHECK_STATE(key);
 
         auto value = _price.str();
 

@@ -56,6 +56,8 @@ using namespace std;
 
 bool ZMQNetwork::sendMessage(const ptr<NodeInfo> &_remoteNodeInfo, ptr<NetworkMessage> _msg) {
 
+    CHECK_ARGUMENT(_remoteNodeInfo);
+    CHECK_ARGUMENT(_msg);
 
     auto buf = _msg->serializeToString();
 

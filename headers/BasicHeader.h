@@ -70,7 +70,7 @@ public:
 
     void setComplete() { complete = true; }
 
-    static void nullCheck( nlohmann::json& js, const char* name );
+    static void nullCheck( nlohmann::json& js, const char* _name );
 
 
     ptr<string> serializeToString();

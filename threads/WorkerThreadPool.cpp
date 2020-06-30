@@ -49,7 +49,7 @@ void WorkerThreadPool::startService() {
 
 WorkerThreadPool::WorkerThreadPool(num_threads _numThreads, Agent *_agent, bool _dontJoinGlobalRegistry) {
     CHECK_ARGUMENT(_numThreads > 0);
-    CHECK_ARGUMENT(_agent != nullptr);
+    CHECK_ARGUMENT(_agent);
     LOG(trace, "Started threads count:" + to_string(_numThreads));
     this->dontJoinGlobalRegistry = _dontJoinGlobalRegistry;
     this->agent = _agent;

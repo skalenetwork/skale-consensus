@@ -46,14 +46,15 @@ const string ConsensusStateDB::getFormatVersion() {
 
 
 ptr<string> ConsensusStateDB::createCurrentRoundKey(block_id _blockId, schain_index _proposerIndex) {
-
     auto key = createKey(_blockId, _proposerIndex);
+    CHECK_STATE(key);
     key->append(":cr");
     return key;
 }
 
 ptr<string> ConsensusStateDB::createDecidedRoundKey(block_id _blockId, schain_index _proposerIndex) {
     auto key = createKey(_blockId, _proposerIndex);
+    CHECK_STATE(key);
     key->append(":dr");
     return key;
 
@@ -61,6 +62,7 @@ ptr<string> ConsensusStateDB::createDecidedRoundKey(block_id _blockId, schain_in
 
 ptr<string> ConsensusStateDB::createDecidedValueKey(block_id _blockId, schain_index _proposerIndex) {
     auto key = createKey(_blockId, _proposerIndex);
+    CHECK_STATE(key);
     key->append(":dv");
     return key;
 }
@@ -69,6 +71,7 @@ ptr<string> ConsensusStateDB::createDecidedValueKey(block_id _blockId, schain_in
 ptr<string>
 ConsensusStateDB::createProposalKey(block_id _blockId, schain_index _proposerIndex, bin_consensus_round _r) {
     auto key = createKey(_blockId, _proposerIndex);
+    CHECK_STATE(key);
     key->append(":prp:").append(to_string(_r));
     return key;
 }
@@ -77,6 +80,7 @@ ptr<string>
 ConsensusStateDB::createBVBVoteKey(block_id _blockId, schain_index _proposerIndex, bin_consensus_round _r,
                                    schain_index _voterIndex, bin_consensus_value _v) {
     auto key = createKey(_blockId, _proposerIndex);
+    CHECK_STATE(key);
     key->
             append(":bvb:").append(to_string(_r)).append(":").append(to_string(_voterIndex)).append(":").append(
             to_string(
@@ -321,7 +325,11 @@ ConsensusStateDB::readAUXVotes(block_id _blockId, schain_index _proposerIndex, p
     auto falseMap = make_shared<map<bin_consensus_round, map<schain_index, ptr<ThresholdSigShare>>>>();
 
 
-    auto prefix = createKey(_blockId, _proposerIndex)->append(":aux:");
+    auto key = createKey(_blockId, _proposerIndex);
+    CHECK_STATE(key);
+
+    auto prefix = key->append(":aux:");
+
     auto keysAndValues = readPrefixRange(prefix);
 
     if (keysAndValues == nullptr) {

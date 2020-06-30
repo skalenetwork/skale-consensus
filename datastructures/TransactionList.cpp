@@ -31,6 +31,9 @@
 
 
 TransactionList::TransactionList(ptr<vector<ptr<Transaction>>> _transactions) {
+
+    CHECK_ARGUMENT(_transactions);
+
     totalObjects++;
 
     if (_transactions->size() == 0) {
@@ -46,6 +49,9 @@ TransactionList::TransactionList(ptr<vector<ptr<Transaction>>> _transactions) {
 
 TransactionList::TransactionList( ptr<vector<uint64_t>> _transactionSizes,
     ptr<vector<uint8_t>> _serializedTransactions, uint32_t _offset, bool _checkPartialHash ) {
+
+    CHECK_ARGUMENT(_transactionSizes);
+    CHECK_ARGUMENT(_serializedTransactions);
 
     CHECK_ARGUMENT(_serializedTransactions->at(_offset) == '<');
     CHECK_ARGUMENT(_serializedTransactions->at(_serializedTransactions->size() - 1) == '>');
@@ -84,6 +90,7 @@ TransactionList::TransactionList( ptr<vector<uint64_t>> _transactionSizes,
         try {
             auto transaction =
                 Transaction::deserialize( _serializedTransactions, index, size, _checkPartialHash );
+            CHECK_STATE(transaction);
             transactions->push_back(transaction);
         } catch (...) {
             throw_with_nested(ParsingException("Could not parse transaction:" + to_string(index) + ":size:" +
@@ -98,6 +105,7 @@ TransactionList::TransactionList( ptr<vector<uint64_t>> _transactionSizes,
 
 
 ptr<vector<ptr<Transaction>>> TransactionList::getItems() {
+    CHECK_STATE(transactions);
     return transactions;
 }
 
@@ -107,7 +115,6 @@ ptr<vector<uint8_t> > TransactionList::serialize( bool _writeTxPartialHash ) {
 
     if (serializedTransactions)
         return serializedTransactions;
-
 
     size_t totalSize = 0;
 
@@ -141,6 +148,7 @@ TransactionList::~TransactionList() {
 atomic<int64_t>  TransactionList::totalObjects(0);
 
 size_t TransactionList::size() {
+    CHECK_STATE(transactions);
     return transactions->size();
 }
 
@@ -159,7 +167,8 @@ ptr<ConsensusExtFace::transactions_vector> TransactionList::createTransactionVec
 ptr< TransactionList > TransactionList::deserialize( ptr< vector< uint64_t > > _transactionSizes,
     ptr< vector< uint8_t > > _serializedTransactions, uint32_t _offset, bool _writePartialHash ) {
 
-
+    CHECK_ARGUMENT(_transactionSizes);
+    CHECK_ARGUMENT(_serializedTransactions);
 
     return ptr< TransactionList >(
         new TransactionList( _transactionSizes, _serializedTransactions, _offset, _writePartialHash ) );
@@ -169,6 +178,8 @@ ptr< vector< uint64_t > > TransactionList::createTransactionSizesVector(bool _wr
     LOCK(m)
 
     auto ret = make_shared<vector<uint64_t>>();
+
+    CHECK_STATE(transactions);
 
     for (auto&& t : *transactions) {
         auto x= (t->getSerializedSize(_writePartialHash));
@@ -188,13 +199,10 @@ ptr< TransactionList > TransactionList::createRandomSample( uint64_t _size, boos
                                                        boost::random::uniform_int_distribution<>& _ubyte ) {
     auto sample = make_shared<vector< ptr< Transaction > > >();
 
-
     for ( uint32_t j = 0; j < _size; j++ ) {
         auto trx = Transaction::createRandomSample( _size, _gen, _ubyte );
-
         sample->push_back( trx );
     }
-
 
     auto result =  make_shared<TransactionList >( sample );
 

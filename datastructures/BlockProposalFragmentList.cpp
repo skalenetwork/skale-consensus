@@ -75,10 +75,10 @@ uint64_t BlockProposalFragmentList::nextIndexToRetrieve() {
 
 bool BlockProposalFragmentList::addFragment(ptr<BlockProposalFragment> _fragment, uint64_t &nextIndex) {
 
+    CHECK_ARGUMENT(_fragment);
     CHECK_ARGUMENT(_fragment->getBlockId() == blockID);
     CHECK_ARGUMENT(_fragment->getIndex() > 0)
     CHECK_ARGUMENT(_fragment->getIndex() <= totalFragments);
-    CHECK_ARGUMENT(_fragment->serialize() != nullptr)
 
     LOCK(m)
 
@@ -115,12 +115,12 @@ bool BlockProposalFragmentList::addFragment(ptr<BlockProposalFragment> _fragment
     }
 
 
-    ASSERT(missingFragments.size() > 0);
+    CHECK_STATE(missingFragments.size() > 0);
 
 
     nextIndex = nextIndexToRetrieve();
 
-    ASSERT(nextIndex > 0);
+    CHECK_STATE(nextIndex > 0);
 
 
 
@@ -155,10 +155,7 @@ ptr<vector<uint8_t>> BlockProposalFragmentList::serialize() {
 
     auto result = make_shared<vector<uint8_t >>();
 
-
-
     CHECK_STATE(isComplete());
-
     CHECK_STATE(!isSerialized)
 
     LOCK(m)
@@ -170,6 +167,7 @@ ptr<vector<uint8_t>> BlockProposalFragmentList::serialize() {
     try {
 
         for (auto &&item : fragments) {
+            CHECK_STATE(item.second);
             totalLen += item.second->size() - 2;
         }
 
@@ -177,6 +175,7 @@ ptr<vector<uint8_t>> BlockProposalFragmentList::serialize() {
 
         for (auto &&item : fragments) {
             auto fragment = item.second;
+            CHECK_STATE(fragment);
             result->insert(result->end(), fragment->begin() + 1, fragment->end() - 1);
         }
 
@@ -187,7 +186,7 @@ ptr<vector<uint8_t>> BlockProposalFragmentList::serialize() {
 
     CHECK_STATE(result->size() == totalLen);
 
-    CHECK_STATE((*result)[sizeof(uint64_t)] == '{');
+    CHECK_STATE(result->at(sizeof(uint64_t)) == '{');
     CHECK_STATE(result->back() == '>');
     return result;
 }

@@ -59,13 +59,13 @@ void BlockProposalDB::addBlockProposal(ptr<BlockProposal> _proposal) {
     MONITOR(__CLASS_NAME__, __FUNCTION__);
 
     CHECK_ARGUMENT(_proposal);
-    CHECK_ARGUMENT(_proposal->getSignature() != nullptr);
-
+    CHECK_ARGUMENT(_proposal->getSignature());
 
     LOG(trace, "addBlockProposal blockID_=" + to_string(_proposal->getBlockID()) + " proposerIndex=" +
                to_string(_proposal->getProposerIndex()));
 
     auto key = createKey(_proposal->getBlockID(), _proposal->getProposerIndex());
+    CHECK_STATE(key);
 
     {
 
@@ -75,7 +75,6 @@ void BlockProposalDB::addBlockProposal(ptr<BlockProposal> _proposal) {
             proposalCache->put(*key, _proposal);
         }
     }
-
 
     // dont save non-own proposals
     if (_proposal->getProposerIndex() !=  getSchain()->getSchainIndex())
@@ -87,6 +86,7 @@ void BlockProposalDB::addBlockProposal(ptr<BlockProposal> _proposal) {
         ptr<vector<uint8_t> > serialized;
 
         serialized = _proposal->serialize();
+        CHECK_STATE(serialized);
 
         this->writeByteArrayToSet((const char *) serialized->data(), serialized->size(), _proposal->getBlockID(),
                                   _proposal->getProposerIndex());
@@ -105,6 +105,7 @@ BlockProposalDB::getSerializedProposalFromLevelDB(block_id _blockID, schain_inde
     try {
 
         auto value = readStringFromBlockSet(_blockID, _proposerIndex);
+        CHECK_STATE(value);
 
         if (value) {
             auto serializedBlock = make_shared<vector<uint8_t>>();
@@ -122,10 +123,8 @@ BlockProposalDB::getSerializedProposalFromLevelDB(block_id _blockID, schain_inde
 
 ptr<BlockProposal> BlockProposalDB::getBlockProposal(block_id _blockID, schain_index _proposerIndex) {
 
-
-
-
     auto key = createKey(_blockID, _proposerIndex);
+    CHECK_STATE(key);
 
     {
 
@@ -148,14 +147,14 @@ ptr<BlockProposal> BlockProposalDB::getBlockProposal(block_id _blockID, schain_i
 
     {
 
+        CHECK_STATE(proposalCache);
         LOCK(proposalCacheMutex);
-
         if (!proposalCache->exists(*key)) {
             proposalCache->put(*key, proposal);
         }
     }
 
-    CHECK_STATE(proposal->getSignature() != nullptr);
+    CHECK_STATE(proposal->getSignature());
 
     return proposal;
 }

@@ -43,16 +43,17 @@
 BlockSigShareDB::BlockSigShareDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId,
                                  uint64_t _maxDBSize)
         : CacheLevelDB(_sChain, _dirName, _prefix, _nodeId, _maxDBSize, false) {
-    CHECK_ARGUMENT(sChain != nullptr);
 }
 
 
 ptr<ThresholdSignature>
 BlockSigShareDB::checkAndSaveShare(ptr<ThresholdSigShare> _sigShare, ptr<CryptoManager> _cryptoManager) {
     try {
-        CHECK_ARGUMENT(_sigShare != nullptr);
-        CHECK_ARGUMENT(_cryptoManager != nullptr);
+        CHECK_ARGUMENT(_sigShare);
+        CHECK_ARGUMENT(_cryptoManager);
+
         auto sigShareString = _sigShare->toString();
+        CHECK_STATE(sigShareString);
 
         LOCK(sigShareMutex)
 
@@ -61,20 +62,23 @@ BlockSigShareDB::checkAndSaveShare(ptr<ThresholdSigShare> _sigShare, ptr<CryptoM
         if (enoughSet == nullptr)
             return nullptr;
 
-        auto s = _cryptoManager->createSigShareSet(_sigShare->getBlockId());
+        auto _sigShareSet = _cryptoManager->createSigShareSet(_sigShare->getBlockId());
+        CHECK_STATE(_sigShareSet);
 
         for (auto &&item : *enoughSet) {
+
             auto nodeInfo = sChain->getNode()->getNodeInfoByIndex(item.first);
-            CHECK_STATE(nodeInfo != nullptr);
+            CHECK_STATE(nodeInfo);
+            CHECK_STATE(item.second);
             auto sigShare = _cryptoManager->createSigShare(item.second, sChain->getSchainID(),
                                                            _sigShare->getBlockId(), item.first);
-            s->addSigShare(sigShare);
+            CHECK_STATE(sigShare);
+            _sigShareSet->addSigShare(sigShare);
         }
 
-
-        CHECK_STATE(s->isEnough());
-        auto signature = s->mergeSignature();
-        CHECK_STATE(signature != nullptr);
+        CHECK_STATE(_sigShareSet->isEnough());
+        auto signature = _sigShareSet->mergeSignature();
+        CHECK_STATE(signature);
         return signature;
     } catch (ExitRequestedException &) { throw; } catch (...) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));

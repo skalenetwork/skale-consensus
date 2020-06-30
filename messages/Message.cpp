@@ -38,7 +38,6 @@ ptr<ProtocolKey> Message::createDestinationProtocolKey()  {
         protocolKey = make_shared<ProtocolKey>(blockID, blockProposerIndex);
     }
     return protocolKey;
-
 }
 
 MsgType Message::getMessageType() const {
@@ -56,10 +55,7 @@ node_id Message::getSrcNodeID() const {
 }
 
 
-
-
 const block_id Message::getBlockId() const {
-
     return blockID;
 }
 
@@ -67,19 +63,14 @@ schain_index Message::getBlockProposerIndex() const {
     return blockProposerIndex;
 }
 
-
-
-
-
 Message::Message(const schain_id &schainID, MsgType msgType, const msg_id &msgID, const node_id &srcNodeID,
                  const block_id &blockID, const schain_index &blockProposerIndex) : schainID(schainID),
                                                                                     blockID(blockID),
                                                                                     blockProposerIndex(blockProposerIndex),
                                                                                     msgType(msgType), msgID(msgID),
-
                                                                                     srcNodeID(srcNodeID) {
     if ((uint64_t)blockID == 0) {
-        ASSERT(false);
+        CHECK_STATE(false);
     }
     totalObjects++;
 }
@@ -97,10 +88,8 @@ const msg_id &Message::getMsgID() const {
     return msgID;
 }
 
-
 Message::~Message() {
     totalObjects--;
 }
-
 
 atomic<int64_t>  Message::totalObjects(0);

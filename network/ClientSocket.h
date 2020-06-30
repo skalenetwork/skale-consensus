@@ -45,9 +45,9 @@ class ClientSocket {
 
     network_port remotePort;
 
-    ptr<sockaddr_in> remote_addr;
+    ptr<sockaddr_in> remoteAddr;
 
-    ptr<sockaddr_in> bind_addr;
+    ptr<sockaddr_in> bindAddr;
 
     void closeSocket();
 

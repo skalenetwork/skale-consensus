@@ -40,7 +40,7 @@ public:
 
     uint8_t at(uint32_t _position);
 
-    int compare(ptr<SHAHash> hash);
+    int compare(ptr<SHAHash> _hash2 );
 
     uint8_t * data() {
         return hash->data();

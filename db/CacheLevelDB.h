@@ -72,7 +72,7 @@ protected:
         ptr<map<schain_index, ptr<string>>>
     writeByteArrayToSet(const char *_value, uint64_t _valueLen, block_id _blockId, schain_index _index);
 
-    void writeByteArray(const char *_key, size_t _keyLen, const char *value,
+    void writeByteArray(const char *_key, size_t _keyLen, const char * _value,
                         size_t _valueLen);
     void writeByteArray(string &_key, ptr<vector<uint8_t>> _data);
 
@@ -98,7 +98,7 @@ protected:
 
     void rotateDBsIfNeeded();
 
-    leveldb::DB *openDB(uint64_t _index);
+    ptr<leveldb::DB> openDB(uint64_t _index);
 
     uint64_t readCount(block_id _blockId);
 

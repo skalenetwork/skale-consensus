@@ -57,35 +57,32 @@
 using namespace std;
 
 
-void BinConsensusInstance::processMessage(ptr<MessageEnvelope> _m) {
+void BinConsensusInstance::processMessage(ptr<MessageEnvelope> _me ) {
 
-    CHECK_STATE(_m);
+    CHECK_ARGUMENT( _me );
+    auto msg = _me->getMessage();
+    CHECK_STATE(msg);
 
+    CHECK_STATE(msg->getBlockID() == getBlockID());
+    CHECK_STATE(msg->getBlockProposerIndex() == getBlockProposerIndex());
 
+    auto msgType = _me->getMessage()->getMessageType();
 
-
-    CHECK_STATE(_m->getMessage()->getBlockID() == getBlockID());
-
-    CHECK_STATE(_m->getMessage()->getBlockProposerIndex() == getBlockProposerIndex());
-
-
-    auto msgType = _m->getMessage()->getMessageType();
-
-    auto msgOrigin = _m->getOrigin();
-
+    auto msgOrigin = _me->getOrigin();
 
     if (msgOrigin == ORIGIN_NETWORK) {
 
         if (msgType != MSG_BVB_BROADCAST && msgType != MSG_AUX_BROADCAST)
             return;
 
-        processNetworkMessageImpl(dynamic_pointer_cast<NetworkMessageEnvelope>(_m));
-
+        auto nwe = dynamic_pointer_cast<NetworkMessageEnvelope>( _me );
+        CHECK_STATE(nwe);
+        processNetworkMessageImpl(nwe);
         return;
-
-
     } else if (msgOrigin == ORIGIN_PARENT) {
-        processParentProposal(dynamic_pointer_cast<InternalMessageEnvelope>(_m));
+        auto ime = dynamic_pointer_cast<InternalMessageEnvelope>( _me );
+        CHECK_STATE(ime);
+        processParentProposal(ime);
     }
 }
 
@@ -98,53 +95,35 @@ void BinConsensusInstance::ifAlreadyDecidedSendDelayedEstimateForNextRound(bin_c
 
 
 void BinConsensusInstance::processNetworkMessageImpl(ptr<NetworkMessageEnvelope> _me) {
-
     CHECK_STATE(_me)
-
     updateStats(_me);
 
     auto message = dynamic_pointer_cast<NetworkMessage>(_me->getMessage());
-
-
+    CHECK_STATE(message);
     auto round = message->getRound();
-
-    addToHistory(dynamic_pointer_cast<NetworkMessage>(_me->getMessage()));
+    addToHistory(message);
 
     CHECK_STATE2(round <= getCurrentRound() + 1, to_string(round) + ":" +
     to_string(getCurrentRound()) + ":" + to_string(getBlockID())) ;
-
-
-
     if (_me->getMessage()->getMessageType() == MSG_BVB_BROADCAST) {
-
-
         auto m = dynamic_pointer_cast<BVBroadcastMessage>(_me->getMessage());
-
-
-        ASSERT(m);
-
+        CHECK_STATE(m);
         bvbVote(_me);
-
         networkBroadcastValueIfThird(m);
-
         ifAlreadyDecidedSendDelayedEstimateForNextRound(m->getRound());
-
         commitValueIfTwoThirds(m);
-
     } else if (_me->getMessage()->getMessageType() == MSG_AUX_BROADCAST) {
-
         auto m = dynamic_pointer_cast<AUXBroadcastMessage>(_me->getMessage());
-        ASSERT(m);
+        CHECK_STATE(m);
         auxVote(_me);
-
         if (m->getRound() == getCurrentRound())
             proceedWithCommonCoinIfAUXTwoThird(m->getRound());
     }
-
-
 }
 
 void BinConsensusInstance::updateStats(const ptr<NetworkMessageEnvelope> &_me) {
+
+    CHECK_ARGUMENT(_me);
 
     auto processingTime = Time::getCurrentTimeMs() - _me->getArrivalTime();
 
@@ -152,7 +131,8 @@ void BinConsensusInstance::updateStats(const ptr<NetworkMessageEnvelope> &_me) {
         maxProcessingTimeMs = processingTime;
     }
 
-    auto m = (NetworkMessage *) _me->getMessage().get();
+    auto m = dynamic_pointer_cast<NetworkMessage>(_me->getMessage());
+    CHECK_STATE(m);
 
     auto latencyTime = (int64_t) _me->getArrivalTime() - (int64_t) m->getTimeMs();
     if (latencyTime < 0)
@@ -168,19 +148,13 @@ void BinConsensusInstance::processParentProposal(ptr<InternalMessageEnvelope> _m
 
     auto m = dynamic_pointer_cast<BVBroadcastMessage>(_me->getMessage());
 
-
     addToHistory(dynamic_pointer_cast<NetworkMessage>(m));
 
-
-    ASSERT(m->getRound() == 0);
-
+    CHECK_STATE(m->getRound() == 0);
 
     setProposal(m->getRound(), m->getValue());
 
-
     networkBroadcastValue(m);
-
-
 
     addBVSelfVoteToHistory(m->getRound(), m->getValue());
 
@@ -252,7 +226,8 @@ void BinConsensusInstance::addCommonCoinToHistory(bin_consensus_round _r, bin_co
 
 void BinConsensusInstance::bvbVote(ptr<MessageEnvelope> _me) {
 
-    BVBroadcastMessage *m = (BVBroadcastMessage *) _me->getMessage().get();
+    auto m = dynamic_pointer_cast<BVBroadcastMessage>(_me->getMessage());
+    CHECK_STATE(m);
     bin_consensus_round r = m->getRound();
     bin_consensus_value v = m->getValue();
 
@@ -271,7 +246,7 @@ void BinConsensusInstance::bvbVote(ptr<MessageEnvelope> _me) {
 
 
 void BinConsensusInstance::auxVote(ptr<MessageEnvelope> _me) {
-    AUXBroadcastMessage *m = (AUXBroadcastMessage *) _me->getMessage().get();
+    auto m = dynamic_pointer_cast<AUXBroadcastMessage>(_me->getMessage());
     auto r = m->getRound();
     bin_consensus_value v = m->getValue();
 
@@ -282,8 +257,6 @@ void BinConsensusInstance::auxVote(ptr<MessageEnvelope> _me) {
     getSchain()->getNode()->getConsensusStateDB()->writeAUXVote(getBlockID(),
                                                                 getBlockProposerIndex(), r, index, v,
                                                                 sigShare->toString());
-
-
     if (v) {
         auxTrueVotes[r][index] = sigShare;
     } else {
@@ -299,16 +272,14 @@ uint64_t BinConsensusInstance::totalAUXVotes(bin_consensus_round r) {
 
 void BinConsensusInstance::auxSelfVote(bin_consensus_round _r,
         bin_consensus_value _v, ptr<ThresholdSigShare> _sigShare) {
-    ASSERT(_sigShare);
+    CHECK_STATE(_sigShare);
 
     addAUXSelfVoteToHistory(_r, _v);
-
 
     getSchain()->getNode()->getConsensusStateDB()->writeAUXVote(getBlockID(),
                                                                 getBlockProposerIndex(), _r,
                                                                 getSchain()->getSchainIndex(), _v,
                                                                 _sigShare->toString());
-
     if (_v) {
         ASSERT(auxTrueVotes[_r].count(getSchain()->getSchainIndex()) == 0);
         auxTrueVotes[_r][getSchain()->getSchainIndex()] = _sigShare;
@@ -361,7 +332,6 @@ void BinConsensusInstance::commitValueIfTwoThirds(ptr<BVBroadcastMessage> _m) {
 
     if (binValues[r].count(v))
         return;
-
 
     if (isTwoThirdVote(_m)) {
         bool didAUXBroadcast = binValues[r].size() > 0;

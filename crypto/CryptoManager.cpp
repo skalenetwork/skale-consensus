@@ -289,10 +289,8 @@ bool CryptoManager::sgxVerifyECDSA(
 
     signature sig = NULL;
 
-
     try {
         sig = signature_init();
-
         CHECK_STATE( sig );
 
         auto firstColumn = _sig->find( ":" );
@@ -346,27 +344,21 @@ ptr< string > CryptoManager::signECDSA( ptr< SHAHash > _hash ) {
 }
 
 bool CryptoManager::verifyECDSA( ptr< SHAHash > _hash, ptr< string > _sig, node_id _nodeId ) {
-    CHECK_ARGUMENT( _hash != nullptr )
-    CHECK_ARGUMENT( _sig != nullptr )
+    CHECK_ARGUMENT( _hash)
+    CHECK_ARGUMENT( _sig)
 
     if ( isSGXEnabled ) {
         auto pubKey = ecdsaPublicKeyMap.at( _nodeId );
-
-
         CHECK_STATE( pubKey );
         auto result = sgxVerifyECDSA( _hash, pubKey, _sig );
-
         return result;
     } else {
         // mockup - used for testing
-
-        //
-
         if ( _sig->find( ":" ) != string::npos ) {
             LOG( critical,
                 "Misconfiguration: this node is in mockup signature mode,"
                 "but other node sent a real signature " );
-            assert( false );
+            ASSERT( false );
         }
 
         return *_sig == *( _hash->toHex() );
@@ -376,26 +368,31 @@ bool CryptoManager::verifyECDSA( ptr< SHAHash > _hash, ptr< string > _sig, node_
 
 ptr< ThresholdSigShare > CryptoManager::signDAProofSigShare( ptr< BlockProposal > _p ) {
     CHECK_ARGUMENT( _p);
-    return signSigShare( _p->getHash(), _p->getBlockID() );
+
+    auto result = signSigShare( _p->getHash(), _p->getBlockID() );
+    CHECK_STATE(result);
+    return result;
 }
 
 ptr< ThresholdSigShare > CryptoManager::signBinaryConsensusSigShare(
     ptr< SHAHash > _hash, block_id _blockId ) {
     CHECK_ARGUMENT(_hash);
-    return signSigShare( _hash, _blockId );
+    auto result =  signSigShare( _hash, _blockId );
+    CHECK_STATE(result);
+    return result;
 }
 
 ptr< ThresholdSigShare > CryptoManager::signBlockSigShare(
     ptr< SHAHash > _hash, block_id _blockId ) {
     CHECK_ARGUMENT(_hash);
-    return signSigShare( _hash, _blockId );
+    auto result= signSigShare( _hash, _blockId );
+    CHECK_STATE(result);
+    return result;
 }
 
 ptr< ThresholdSigShare > CryptoManager::signSigShare( ptr< SHAHash > _hash, block_id _blockId ) {
 
-
     CHECK_ARGUMENT(_hash);
-
     MONITOR( __CLASS_NAME__, __FUNCTION__ )
 
     if ( getSchain()->getNode()->isSgxEnabled() ) {
@@ -407,14 +404,13 @@ ptr< ThresholdSigShare > CryptoManager::signSigShare( ptr< SHAHash > _hash, bloc
             jsonShare = getSgxClient()->blsSignMessageHash( *getSgxBlsKeyName(), *_hash->toHex(),
                 requiredSigners, totalSigners, ( uint64_t ) getSchain()->getSchainIndex() );
         }
+
         CHECK_STATE( jsonShare["status"] == 0 );
 
         ptr< string > sigShare = make_shared< string >( jsonShare["signatureShare"].asString() );
 
         auto sig = make_shared< BLSSigShare >(
             sigShare, ( uint64_t ) getSchain()->getSchainIndex(), requiredSigners, totalSigners );
-
-
         return make_shared< ConsensusBLSSigShare >( sig, sChain->getSchainID(), _blockId );
 
     } else {
@@ -451,7 +447,7 @@ ptr< ThresholdSigShare > CryptoManager::createSigShare(
 void CryptoManager::signProposalECDSA( BlockProposal* _proposal ) {
     CHECK_ARGUMENT( _proposal);
     auto signature = signECDSA( _proposal->getHash() );
-    CHECK_STATE( signature);
+    CHECK_STATE(signature);
     _proposal->addSignature( signature );
 }
 
@@ -462,6 +458,7 @@ ptr< string > CryptoManager::signNetworkMsg( NetworkMessage& _msg ) {
 }
 
 bool CryptoManager::verifyNetworkMsg( NetworkMessage& _msg ) {
+
     auto sig = _msg.getECDSASig();
     auto hash = _msg.getHash();
 
@@ -479,9 +476,9 @@ bool CryptoManager::verifyNetworkMsg( NetworkMessage& _msg ) {
 bool CryptoManager::verifyProposalECDSA(
     ptr< BlockProposal > _proposal, ptr< string > _hashStr, ptr< string > _signature ) {
 
-    CHECK_ARGUMENT( _proposal != nullptr );
-    CHECK_ARGUMENT( _hashStr != nullptr )
-    CHECK_ARGUMENT( _signature != nullptr )
+    CHECK_ARGUMENT( _proposal);
+    CHECK_ARGUMENT( _hashStr)
+    CHECK_ARGUMENT( _signature)
 
     auto hash = _proposal->getHash();
 
@@ -509,7 +506,6 @@ ptr< ThresholdSignature > CryptoManager::verifyThresholdSig(
     if ( getSchain()->getNode()->isSgxEnabled() ) {
         auto sig = make_shared< ConsensusBLSSignature >(
             _signature, _blockId, totalSigners, requiredSigners );
-
 
         CHECK_STATE( blsPublicKeyObj );
 
@@ -579,6 +575,8 @@ pair< ptr< string >, ptr< string > > CryptoManager::generateSGXECDSAKey( ptr< St
 
 
     auto publicKey2 = getSGXEcdsaPublicKey( keyName, _c );
+
+    CHECK_STATE(publicKey2);
 
     return { keyName, publicKey };
 }

@@ -43,8 +43,8 @@ using namespace std;
 MockupSigShareSet::MockupSigShareSet(block_id _blockId, size_t _totalSigners, size_t _requiredSigners)
         : ThresholdSigShareSet(_blockId, _totalSigners, _requiredSigners){
 
-    ASSERT(_requiredSigners > 0);
-    ASSERT(_requiredSigners <= totalSigners);
+    CHECK_ARGUMENT(_requiredSigners > 0);
+    CHECK_ARGUMENT(_requiredSigners <= totalSigners);
 
     totalObjects++;
 }
@@ -61,22 +61,22 @@ ptr<ThresholdSignature> MockupSigShareSet::mergeSignature() {
     ptr<string> h = nullptr;
 
     for (auto&& item : sigShares) {
+        CHECK_STATE(item.second);
+
         if (h == nullptr) {
             h = item.second->toString();
         } else {
             CHECK_STATE(*h == *item.second->toString());
         }
     }
-    ASSERT((h != nullptr));
+    CHECK_STATE(h);
 
     return make_shared<MockupSignature>(h, blockId,
                                         totalSigners, requiredSigners);
 }
 
 bool MockupSigShareSet::isEnough() {
-
     LOCK(m)
-
     return (sigShares.size() >= requiredSigners);
 }
 

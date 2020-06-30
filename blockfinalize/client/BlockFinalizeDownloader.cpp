@@ -90,17 +90,16 @@ BlockFinalizeDownloader::BlockFinalizeDownloader(Schain *_sChain, block_id _bloc
           proposerIndex(_proposerIndex),
           fragmentList(_blockId, (uint64_t) _sChain->getNodeCount() - 1) {
 
-    CHECK_ARGUMENT(_sChain != nullptr);
+    CHECK_ARGUMENT(_sChain);
 
     ASSERT(_sChain->getNodeCount() > 1);
 
     try {
         logThreadLocal_ = _sChain->getNode()->getLog();
 
-        CHECK_STATE(sChain != nullptr);
+        CHECK_STATE(sChain);
 
         threadCounter = 0;
-
 
     }
     catch (ExitRequestedException &) { throw; }
@@ -112,12 +111,12 @@ BlockFinalizeDownloader::BlockFinalizeDownloader(Schain *_sChain, block_id _bloc
 
 nlohmann::json BlockFinalizeDownloader::readBlockFinalizeResponseHeader(ptr<ClientSocket> _socket) {
     MONITOR(__CLASS_NAME__, __FUNCTION__);
+    CHECK_ARGUMENT(_socket);
     return getSchain()->getIo()->readJsonHeader(_socket->getDescriptor(), "Read BlockFinalize response");
 }
 
 
 uint64_t BlockFinalizeDownloader::downloadFragment(schain_index _dstIndex, fragment_index _fragmentIndex) {
-
 
     try {
 
@@ -172,9 +171,9 @@ uint64_t BlockFinalizeDownloader::downloadFragment(schain_index _dstIndex, fragm
 
         ptr<BlockProposalFragment> blockFragment = nullptr;
 
-
         try {
             blockFragment = readBlockFragment(socket, response, _fragmentIndex, getSchain()->getNodeCount());
+            CHECK_ARGUMENT(blockFragment);
         } catch (ExitRequestedException &) { throw; } catch (...) {
             auto errString = "BlockFinalizec step 3: can not read fragment";
             LOG(err, errString);
@@ -226,6 +225,8 @@ ptr<BlockProposalFragment>
 BlockFinalizeDownloader::readBlockFragment(ptr<ClientSocket> _socket, nlohmann::json responseHeader,
                                            fragment_index _fragmentIndex, node_count _nodeCount) {
 
+    CHECK_ARGUMENT(_socket);
+
     CHECK_ARGUMENT(responseHeader > 0);
 
     MONITOR(__CLASS_NAME__, __FUNCTION__);
@@ -261,14 +262,18 @@ BlockFinalizeDownloader::readBlockFragment(ptr<ClientSocket> _socket, nlohmann::
 }
 
 
-void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(BlockFinalizeDownloader *agent, schain_index _dstIndex) {
+void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(BlockFinalizeDownloader * _agent, schain_index _dstIndex) {
 
-    auto sChain = agent->getSchain();
+
+    CHECK_STATE( _agent );
+
+
+    auto sChain = _agent->getSchain();
     auto node = sChain->getNode();
     auto proposalDB = node->getBlockProposalDB();
     auto daProofDB = node->getDaProofDB();
-    auto blockId = agent->getBlockId();
-    auto proposerIndex = agent->getProposerIndex();
+    auto blockId = _agent->getBlockId();
+    auto proposerIndex = _agent->getProposerIndex();
     auto sChainIndex = sChain->getSchainIndex();
     bool testFinalizationDownloadOnly = node->getTestConfig()->isFinalizationDownloadOnly();
 
@@ -287,7 +292,7 @@ void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(BlockFinalizeDown
 
             if (!testFinalizationDownloadOnly) {
                 // take into account that the block can
-                //  be in parralel committed through catchup
+                //  be in parallel committed through catchup
                 if (sChain->getLastCommittedBlockID() >= blockId) {
                     return;
                 }
@@ -296,7 +301,8 @@ void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(BlockFinalizeDown
                 // BlockproposalServerAgent
 
                 if (proposalDB->proposalExists(blockId, proposerIndex)) {
-                    auto proposal = proposalDB->getBlockProposal(agent->blockId, agent->proposerIndex);
+                    auto proposal = proposalDB->getBlockProposal( _agent->blockId, _agent->proposerIndex);
+                    CHECK_STATE(proposal);
                     if (daProofDB->haveDAProof(proposal)) {
                         return;
                     }
@@ -305,22 +311,22 @@ void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(BlockFinalizeDown
             }
 
             try {
-                next = agent->downloadFragment(_dstIndex, next);
+                next = _agent->downloadFragment(_dstIndex, next);
                 if (next == 0) {
                     return;
                 }
             } catch (ExitRequestedException &) {
                 return;
             } catch (ConnectionRefusedException &e) {
-                agent->logConnectionRefused(e, _dstIndex);
+                _agent->logConnectionRefused(e, _dstIndex);
                 usleep(node->getWaitAfterNetworkErrorMs() * 1000);
             } catch (exception &e) {
                 SkaleException::logNested(e);
                 usleep(node->getWaitAfterNetworkErrorMs() * 1000);
             };
         };
-    } catch (FatalError *e) {
-        node->exitOnFatalError(e->getMessage());
+    } catch (FatalError& e) {
+        node->exitOnFatalError(e.getMessage());
     }
 }
 
@@ -329,18 +335,16 @@ ptr<BlockProposal> BlockFinalizeDownloader::downloadProposal() {
     MONITOR(__CLASS_NAME__, __FUNCTION__);
 
     {
-
-
         threadPool = make_shared<BlockFinalizeDownloaderThreadPool>((uint64_t) getSchain()->getNodeCount(), this);
         threadPool->startService();
         threadPool->joinAll();
-
     }
 
     try {
 
         if (fragmentList.isComplete()) {
             auto block = BlockProposal::deserialize(fragmentList.serialize(), getSchain()->getCryptoManager());
+            CHECK_STATE(block);
             return block;
         } else {
             return nullptr;
@@ -351,9 +355,7 @@ ptr<BlockProposal> BlockFinalizeDownloader::downloadProposal() {
     }
 }
 
-BlockFinalizeDownloader::~BlockFinalizeDownloader() {
-
-}
+BlockFinalizeDownloader::~BlockFinalizeDownloader() {}
 
 block_id BlockFinalizeDownloader::getBlockId() {
     return blockId;

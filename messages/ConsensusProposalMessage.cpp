@@ -31,11 +31,14 @@ ConsensusProposalMessage::ConsensusProposalMessage(Schain& _sChain, const block_
         _sChain.getSchainID(), MSG_CONSENSUS_PROPOSAL,
         msg_id(0), node_id(0), _blockID,
         schain_index(1)) {
+
+    CHECK_ARGUMENT(_proposals);
     this->proposals = _proposals;
 
 }
 
 
 const ptr<BooleanProposalVector> ConsensusProposalMessage::getProposals() const {
+    CHECK_STATE(proposals);
     return proposals;
 }

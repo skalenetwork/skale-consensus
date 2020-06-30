@@ -199,7 +199,7 @@ public:
     }
 
 
-    void processMessage(ptr<MessageEnvelope> _m);
+    void processMessage(ptr<MessageEnvelope> _me );
 
     void processParentProposal(ptr<InternalMessageEnvelope> _me);
 

@@ -88,19 +88,23 @@ void MonitoringAgent::monitor() {
     }
 }
 
-void MonitoringAgent::monitoringLoop(MonitoringAgent *agent) {
-    setThreadName("MonitoringLoop", agent->getSchain()->getNode()->getConsensusEngine());
+void MonitoringAgent::monitoringLoop(MonitoringAgent *_agent) {
+
+
+    CHECK_ARGUMENT(_agent);
+
+    setThreadName("MonitoringLoop", _agent->getSchain()->getNode()->getConsensusEngine());
 
 
     LOG(info, "Monitoring agent started monitoring");
 
 
     try {
-        while (!agent->getSchain()->getNode()->isExitRequested()) {
-            usleep(agent->getSchain()->getNode()->getMonitoringIntervalMs() * 1000);
+        while (!_agent->getSchain()->getNode()->isExitRequested()) {
+            usleep(_agent->getSchain()->getNode()->getMonitoringIntervalMs() * 1000);
 
             try {
-                agent->monitor();
+                _agent->monitor();
             } catch (ExitRequestedException &) {
                 return;
             } catch (exception &e) {
@@ -108,14 +112,14 @@ void MonitoringAgent::monitoringLoop(MonitoringAgent *agent) {
             }
 
         };
-    } catch (FatalError *e) {
-        agent->getSchain()->getNode()->exitOnFatalError(e->getMessage());
+    } catch (FatalError& e) {
+        _agent->getSchain()->getNode()->exitOnFatalError(e.getMessage());
     }
 }
 
 void MonitoringAgent::registerMonitor(ptr<LivelinessMonitor> _m) {
 
-    CHECK_ARGUMENT(_m != nullptr)
+    CHECK_ARGUMENT(_m)
     LOCK(m)
     activeMonitors[_m->getId()] = _m;
 }
@@ -130,5 +134,6 @@ void MonitoringAgent::unregisterMonitor(uint64_t _id) {
 
 
 void MonitoringAgent::join() {
-    this->monitoringThreadPool->joinAll();
+    CHECK_STATE(monitoringThreadPool);
+    monitoringThreadPool->joinAll();
 }

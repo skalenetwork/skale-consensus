@@ -75,7 +75,7 @@ protected:
 
     static ptr<string> extractHeader(ptr<vector<uint8_t>> _serializedBlock);
 
-    static ptr<BlockProposalHeader> parseBlockHeader(const shared_ptr<string> &header);
+    static ptr<BlockProposalHeader> parseBlockHeader(const shared_ptr<string> & _header );
 public:
 
 

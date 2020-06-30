@@ -42,16 +42,18 @@ ProposalVectorDB::ProposalVectorDB(Schain *_sChain, string &_dirName, string &_p
 bool
 ProposalVectorDB::saveVector(block_id _proposalBlockID, ptr<BooleanProposalVector> _proposalVector) {
 
+    CHECK_ARGUMENT(_proposalVector);
 
     lock_guard<recursive_mutex> lock(m);
 
-    CHECK_STATE(_proposalVector);
-
     auto proposalString = _proposalVector->toString();
+
+    CHECK_STATE(proposalString);
 
     try {
 
         auto key = createKey(_proposalBlockID);
+        CHECK_STATE(key);
 
         auto previous = readString(*key);
 
@@ -71,12 +73,12 @@ ProposalVectorDB::saveVector(block_id _proposalBlockID, ptr<BooleanProposalVecto
 ptr<BooleanProposalVector>
 ProposalVectorDB::getVector(block_id _blockID) {
 
-
     lock_guard<recursive_mutex> lock(m);
 
     try {
 
         auto key = createKey(_blockID);
+        CHECK_STATE(key);
 
         auto value = readString(*key);
 

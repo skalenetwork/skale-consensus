@@ -35,7 +35,7 @@
 
 
 TestMessageGeneratorAgent::TestMessageGeneratorAgent(Schain& _sChain_) : Agent(_sChain_, false) {
-    ASSERT(_sChain_.getNodeCount() > 0);
+    CHECK_STATE(_sChain_.getNodeCount() > 0);
 }
 
 
@@ -47,7 +47,11 @@ ConsensusExtFace::transactions_vector TestMessageGeneratorAgent::pendingTransact
     ConsensusExtFace::transactions_vector result;
 
 
-    if (*sChain->getBlockProposerTest() == SchainTest::NONE)
+    auto test = sChain->getBlockProposerTest();
+
+    CHECK_STATE(test);
+
+    if (*test == SchainTest::NONE)
         return result;
 
     for (uint64_t i = 0; i < _limit; i++) {

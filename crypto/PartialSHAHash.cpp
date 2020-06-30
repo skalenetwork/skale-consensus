@@ -23,6 +23,7 @@
 
 
 #include "SkaleCommon.h"
+#include "Log.h"
 #include "thirdparty/json.hpp"
 #include "headers/Header.h"
 #include "PartialSHAHash.h"
@@ -30,22 +31,25 @@
 
 
 void PartialSHAHash::print() {
+    CHECK_STATE(hash);
     for (size_t i = 0; i < PARTIAL_SHA_HASH_LEN; i++) {
-        cerr << to_string((*hash)[i]);
+        cerr << to_string(hash->at(i));
     }
-
 }
 
 uint8_t PartialSHAHash::at(uint32_t _position) {
+    CHECK_STATE(hash);
     return hash->at(_position);
 }
 
 ptr< PartialSHAHash > PartialSHAHash::hex2sha( ptr< string > _hex ) {
 
+    CHECK_STATE(_hex);
+
     auto result = make_shared<array<uint8_t, PARTIAL_SHA_HASH_LEN>>();
 
     for ( size_t i = 0; i < PARTIAL_SHA_HASH_LEN; i++ ) {
-        (*result)[i] = Utils::char2int(_hex->at(i) ) * 16 + Utils::char2int(_hex->at(i + 1));
+        result->at(i) = Utils::char2int(_hex->at(i) ) * 16 + Utils::char2int(_hex->at(i + 1));
     }
 
     return make_shared<PartialSHAHash>( result );
@@ -55,38 +59,37 @@ ptr< PartialSHAHash > PartialSHAHash::hex2sha( ptr< string > _hex ) {
 
 
 
-int PartialSHAHash::compare(ptr<PartialSHAHash> hash2) {
+int PartialSHAHash::compare(ptr<PartialSHAHash> _hash2 ) {
+    CHECK_ARGUMENT(_hash2);
+    CHECK_STATE(hash);
     for (size_t i = 0; i < PARTIAL_SHA_HASH_LEN; i++) {
-        if (hash->at(i) < hash2->at(i))
+        if (hash->at(i) < _hash2->at(i))
             return -1;
-        if (hash->at(i) > hash2->at(i))
+        if (hash->at(i) > _hash2->at(i))
             return 1;
     }
     return 0;
-
-
 }
 
 PartialSHAHash::PartialSHAHash(ptr<array<uint8_t, PARTIAL_SHA_HASH_LEN>> _hash) {
+    CHECK_ARGUMENT(_hash);
     hash = _hash;
-
 }
 
 
 
 ptr< PartialSHAHash > PartialSHAHash::fromHex(ptr<string> _hex) {
-
+    CHECK_ARGUMENT(_hex);
     auto result = make_shared<array<uint8_t, PARTIAL_SHA_HASH_LEN>>();
-
     for ( size_t i = 0; i < PARTIAL_SHA_HASH_LEN; i++ ) {
         result->at(i) = Utils::char2int(_hex->at(2*i) ) * 16 + Utils::char2int(_hex->at(2* i + 1));
     }
-
     return make_shared<PartialSHAHash>(result);
 }
 
 
 ptr< string > PartialSHAHash::toHex() {
+    CHECK_STATE(hash);
     return Utils::carray2Hex(hash->data(), PARTIAL_SHA_HASH_LEN);
 }
 

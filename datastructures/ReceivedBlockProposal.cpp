@@ -22,6 +22,7 @@
 */
 
 #include "SkaleCommon.h"
+#include "Log.h"
 #include "datastructures/TransactionList.h"
 #include "crypto/SHAHash.h"
 #include "chains/Schain.h"
@@ -35,7 +36,15 @@ ReceivedBlockProposal::ReceivedBlockProposal(Schain &_sChain, const block_id &_b
         _sChain.getSchainID(), _sChain.getNodeIDByIndex(_proposerIndex), _blockID,
         _proposerIndex, _transactions, _stateRoot,
         _timeStamp, _timeStampMs, _signature, nullptr) {
+
+    CHECK_ARGUMENT(_transactions);
+    CHECK_ARGUMENT(_hash);
+    CHECK_ARGUMENT(_signature);
+
+
     this->hash = SHAHash::fromHex(_hash);
+
+
     this->signature = _signature;
     totalObjects++;
 }

@@ -89,15 +89,11 @@ void Network::addToDeferredMessageQueue(ptr<NetworkMessageEnvelope> _me) {
 
 ptr<vector<ptr<NetworkMessageEnvelope> > > Network::pullMessagesForCurrentBlockID() {
 
-
     LOCK(deferredMessageMutex);
-
 
     block_id currentBlockID = sChain->getLastCommittedBlockID() + 1;
 
-
     auto returnList = make_shared<vector<ptr<NetworkMessageEnvelope>>>();
-
 
     for (auto it = deferredMessageQueue.cbegin();
          it != deferredMessageQueue.cend() /* not hoisted */;
@@ -116,32 +112,29 @@ ptr<vector<ptr<NetworkMessageEnvelope> > > Network::pullMessagesForCurrentBlockI
     return returnList;
 }
 
-void Network::addToDelayedSends(ptr<NetworkMessage> _m, ptr<NodeInfo> dstNodeInfo) {
+void Network::addToDelayedSends(ptr<NetworkMessage> _m, ptr<NodeInfo> _dstNodeInfo ) {
     CHECK_ARGUMENT(_m);
-    CHECK_ARGUMENT(dstNodeInfo);
-    auto dstIndex = (uint64_t) dstNodeInfo->getSchainIndex();
+    CHECK_ARGUMENT( _dstNodeInfo );
+    auto dstIndex = (uint64_t) _dstNodeInfo->getSchainIndex();
     LOCK(delayedSendsLocks.at(dstIndex - 1));
-    delayedSends.at(dstIndex - 1).push_back({_m, dstNodeInfo});
+    delayedSends.at(dstIndex - 1).push_back({_m, _dstNodeInfo });
     if (delayedSends.at(dstIndex - 1).size() > MAX_DELAYED_MESSAGE_SENDS) {
         delayedSends.at(dstIndex - 1).pop_front();
     }
 }
 
-void Network::broadcastMessage(ptr<NetworkMessage> _m) {
+void Network::broadcastMessage(ptr<NetworkMessage> _msg ) {
 
+    CHECK_ARGUMENT( _msg );
 
-    if (_m->getBlockID() <= this->catchupBlocks) {
+    if ( _msg->getBlockID() <= this->catchupBlocks) {
         return;
     }
 
     try {
-
-
-
         // sign message before sending
-        _m->sign(getSchain()->getCryptoManager());
-
-        getSchain()->getNode()->getOutgoingMsgDB()->saveMsg(_m);
+        _msg->sign(getSchain()->getCryptoManager());
+        getSchain()->getNode()->getOutgoingMsgDB()->saveMsg( _msg );
 
         unordered_set<uint64_t> sent;
 
@@ -152,7 +145,7 @@ void Network::broadcastMessage(ptr<NetworkMessage> _m) {
                 auto dstIndex = (uint64_t) dstNodeInfo->getSchainIndex();
 
                 if (dstIndex != (getSchain()->getSchainIndex()) && !sent.count(dstIndex)) {
-                    if (sendMessage(it.second, _m)) {
+                    if (sendMessage(it.second, _msg )) {
                         sent.insert(dstIndex);
                     }
                 }
@@ -165,9 +158,10 @@ void Network::broadcastMessage(ptr<NetworkMessage> _m) {
 
         for (auto const &it : *getSchain()->getNode()->getNodeInfosByIndex()) {
             auto dstNodeInfo = it.second;
+            CHECK_STATE(dstNodeInfo);
             auto dstIndex = (uint64_t) dstNodeInfo->getSchainIndex();
             if (dstIndex != (getSchain()->getSchainIndex()) && !sent.count(dstIndex)) {
-                addToDelayedSends(_m, dstNodeInfo);
+                addToDelayedSends( _msg, dstNodeInfo);
             }
         }
 
@@ -193,7 +187,7 @@ void Network::networkReadLoop() {
                     continue;
                 }
 
-                ASSERT(sChain);
+                CHECK_STATE(sChain);
 
                 getSchain()->getNode()->getIncomingMsgDB()->saveMsg(dynamic_pointer_cast<NetworkMessage>(m->getMessage()));
 
@@ -225,16 +219,17 @@ void Network::networkReadLoop() {
  * These messages are placed in deferredMessage queue to be processed later.
  * Messages with very old block ids are discarded.
  */
-void Network::postDeferOrDrop(const ptr<NetworkMessageEnvelope> &m) {
+void Network::postDeferOrDrop(const ptr<NetworkMessageEnvelope> & _me ) {
+
+    CHECK_ARGUMENT( _me );
 
     block_id currentBlockID = sChain->getLastCommittedBlockID() + 1;
 
-
-    auto bid = m->getMessage()->getBlockID();
+    auto bid = _me->getMessage()->getBlockID();
 
     if (bid > currentBlockID) {
         // block id is in the future, defer
-        addToDeferredMessageQueue(m);
+        addToDeferredMessageQueue( _me );
         return;
     }
 
@@ -243,16 +238,16 @@ void Network::postDeferOrDrop(const ptr<NetworkMessageEnvelope> &m) {
         return;
     }
 
-    auto msg = dynamic_pointer_cast<NetworkMessage>(m->getMessage());
+    auto msg = dynamic_pointer_cast<NetworkMessage>( _me->getMessage());
 
     CHECK_STATE(msg);
 
     // ask consensus whether to defer
 
     if (sChain->getBlockConsensusInstance()->shouldPost(msg)) {
-        sChain->postMessage(m);
+        sChain->postMessage( _me );
     } else {
-        addToDeferredMessageQueue(m);
+        addToDeferredMessageQueue( _me );
     }
 
 }
@@ -274,8 +269,11 @@ void Network::trySendingDelayedSends() {
                     if ( delayedSends.at( i ).size() == 0 ) {
                         break;
                     }
-                    dstNodeInfo = delayedSends.at( i ).front().second;
                     msg = delayedSends.at( i ).front().first;
+                    dstNodeInfo = delayedSends.at( i ).front().second;
+                    CHECK_STATE(dstNodeInfo);
+                    CHECK_STATE(msg);
+
                 }
                 if (sendMessage(dstNodeInfo, msg)) {
                     // successfully sent a delayed message, remove it from the list
@@ -305,6 +303,8 @@ void Network::deferredMessagesLoop() {
 
             // Get messages for the current block id
             deferredMessages = pullMessagesForCurrentBlockID();
+
+            CHECK_STATE(deferredMessages);
 
             for (auto message : *deferredMessages) {
                 postDeferOrDrop(message);
@@ -337,9 +337,10 @@ void Network::startThreads() {
     reg->add(deferredMessageThread);
 }
 
-bool Network::validateIpAddress(ptr<string> &ip) {
+bool Network::validateIpAddress(ptr<string> & _ip ) {
+    CHECK_ARGUMENT( _ip );
     struct sockaddr_in sa;
-    int result = inet_pton(AF_INET, ip.get()->c_str(), &(sa.sin_addr));
+    int result = inet_pton(AF_INET, _ip.get()->c_str(), &(sa.sin_addr));
     return result != 0;
 }
 
@@ -358,11 +359,14 @@ ptr<string> Network::ipToString(uint32_t _ip) {
 
 ptr<NetworkMessageEnvelope> Network::receiveMessage() {
     auto buf = make_shared<Buffer>(MAX_CONSENSUS_MESSAGE_LEN);
+
     uint64_t readBytes = readMessageFromNetwork(buf);
 
     auto msg = make_shared<string>((const char *) buf->getBuf()->data(), readBytes);
 
     auto mptr = NetworkMessage::parseMessage(msg, getSchain());
+
+    CHECK_STATE(mptr);
 
     mptr->verify(getSchain()->getCryptoManager());
 
@@ -374,6 +378,8 @@ ptr<NetworkMessageEnvelope> Network::receiveMessage() {
     }
 
     ptr<ProtocolKey> key = mptr->createDestinationProtocolKey();
+
+    CHECK_STATE(key);
 
     if (key == nullptr) {
         BOOST_THROW_EXCEPTION(InvalidMessageFormatException(

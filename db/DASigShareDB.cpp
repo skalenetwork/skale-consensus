@@ -68,7 +68,8 @@ const string DASigShareDB::getFormatVersion() {
 ptr<DAProof> DASigShareDB::addAndMergeSigShareAndVerifySig(ptr<ThresholdSigShare> _sigShare,
                                                            ptr<BlockProposal> _proposal) {
 
-    ASSERT(_sigShare);
+    CHECK_ARGUMENT(_sigShare);
+    CHECK_ARGUMENT(_proposal);
 
     LOCK(sigShareMutex)
 
@@ -92,6 +93,7 @@ ptr<DAProof> DASigShareDB::addAndMergeSigShareAndVerifySig(ptr<ThresholdSigShare
 
         LOG(trace, "Merged signature");
         auto sig = set->mergeSignature();
+        CHECK_STATE(sig);
         sChain->getCryptoManager()->verifyThresholdSig(
                 _proposal->getHash(), sig->toString(), _sigShare->getBlockId());
         auto proof = make_shared<DAProof>(_proposal, sig);

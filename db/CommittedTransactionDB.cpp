@@ -43,7 +43,10 @@ const string CommittedTransactionDB::getFormatVersion() {
 
 void CommittedTransactionDB::writeCommittedTransaction(ptr<Transaction> _t, __uint64_t _committedTransactionCounter) {
 
-    auto key = (const char *) _t->getPartialHash()->data();
+    CHECK_ARGUMENT(_t);
+    auto hash = _t->getPartialHash();
+    CHECK_STATE(hash);
+    auto key = (const char *) hash->data();
     auto keyLen = PARTIAL_SHA_HASH_LEN;
     auto value = (const char *) &_committedTransactionCounter;
     auto valueLen = sizeof(_committedTransactionCounter);

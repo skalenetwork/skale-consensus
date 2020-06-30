@@ -45,7 +45,9 @@ uint64_t
 RandomDB::readRandom(const block_id &_blockId, const schain_index &_proposerIndex, const bin_consensus_round &_round) {
 
     auto key = createKey(_blockId, _proposerIndex, _round);
+    CHECK_STATE(key);
     auto value = readString(*key);
+    CHECK_STATE(value);
     return stoul(*value);
 
 }
@@ -59,6 +61,7 @@ RandomDB::writeRandom(const block_id &_blockId, const schain_index &_proposerInd
 #ifdef CONSENSUS_STATE_PERSISTENCE
 
     auto key = createKey(_blockId, _proposerIndex, _round);
+    CHECK_STATE(key);
 
     writeString(*key, to_string(_random));
 

@@ -58,11 +58,14 @@ bool
 ProposalHashDB::checkAndSaveHash(block_id _proposalBlockID, schain_index _proposerIndex, ptr<string> _proposalHash) {
 
 
+    CHECK_ARGUMENT(_proposalHash);
+
     lock_guard<recursive_mutex> lock(m);
 
     try {
 
         auto key = createKey(_proposalBlockID, _proposerIndex);
+        CHECK_STATE(key);
 
         auto previous = readString(*key);
 
@@ -88,6 +91,7 @@ ProposalHashDB::haveProposal(block_id _proposalBlockID, schain_index _proposerIn
     try {
 
         auto key = createKey(_proposalBlockID, _proposerIndex);
+        CHECK_STATE(key);
 
         auto previous = readString(*key);
 

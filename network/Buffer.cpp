@@ -31,7 +31,7 @@
 
 void Buffer::write(void *data, size_t dataLen) {
 
-    ASSERT(counter + dataLen <= size);
+    CHECK_STATE(counter + dataLen <= size);
 
     memcpy(buf.get()->data() + counter, data, dataLen);
 
@@ -40,6 +40,8 @@ void Buffer::write(void *data, size_t dataLen) {
 }
 
 void Buffer::read(void *data, size_t dataLen) {
+
+    CHECK_ARGUMENT(data);
 
     if (counter + dataLen > buf->size()) {
         BOOST_THROW_EXCEPTION(FatalError("Overflowing buffer read:" +
@@ -60,7 +62,6 @@ Buffer::Buffer(size_t _size) {
     this->size = _size;
     buf = make_shared<vector<uint8_t>>(size);
     std::fill(buf->begin(), buf->end(), 0);
-
 }
 
 size_t Buffer::getSize() const {
@@ -68,6 +69,7 @@ size_t Buffer::getSize() const {
 }
 
 ptr<vector<uint8_t>> Buffer::getBuf() const {
+    CHECK_STATE(buf);
     return buf;
 }
 
@@ -78,7 +80,7 @@ void Buffer::consume(char c) {
     read(&dummy, sizeof(char));
 
     if(dummy != c) {
-        ASSERT(0);
+        CHECK_STATE(false);
     }
 
 }

@@ -45,9 +45,6 @@ class Network : public Agent  {
 
     vector<list<pair<ptr<NetworkMessage>,ptr<NodeInfo>>>> delayedSends;
 
-
-
-
     recursive_mutex deferredMutex;
 
     // used in testing
@@ -100,7 +97,7 @@ public:
 
     static ptr<string> ipToString(uint32_t _ip);
 
-    void broadcastMessage(ptr<NetworkMessage> _m);
+    void broadcastMessage(ptr<NetworkMessage> _msg );
 
     ptr<NetworkMessageEnvelope> receiveMessage();
 
@@ -116,11 +113,11 @@ public:
 
     void setCatchupBlocks(uint64_t _catchupBlocks);
 
-    void postDeferOrDrop(const ptr<NetworkMessageEnvelope> &m);
+    void postDeferOrDrop(const ptr<NetworkMessageEnvelope> & _me );
 
     ~Network();
 
-    void addToDelayedSends(ptr<NetworkMessage> _m, ptr<NodeInfo> dstNodeInfo);
+    void addToDelayedSends(ptr<NetworkMessage> _m, ptr<NodeInfo> _dstNodeInfo );
 
     void trySendingDelayedSends();
 

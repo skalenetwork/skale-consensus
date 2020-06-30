@@ -35,7 +35,7 @@
 LivelinessMonitor::LivelinessMonitor(ptr<MonitoringAgent>_agent, const string& _class, const string&  _function,
                                      uint64_t _maxTime) : cl(_class), function(_function), agent(_agent) {
 
-    CHECK_ARGUMENT(_agent != nullptr);
+    CHECK_ARGUMENT(_agent);
 
     startTime = Time::getCurrentTimeMs();
     expiryTime = startTime + _maxTime;

@@ -294,7 +294,7 @@ public:
     static void initSchain( ptr< Node > _node, ptr< NodeInfo > _localNodeInfo,
         const vector< ptr< NodeInfo > >& remoteNodeInfos, ConsensusExtFace* _extFace );
 
-    void waitOnGlobalServerStartBarrier( Agent* agent );
+    void waitOnGlobalServerStartBarrier( Agent* _agent );
 
     void waitOnGlobalClientStartBarrier();
 

@@ -44,7 +44,7 @@ void BlockFinalizeResponseHeader::addFields(nlohmann::json &_j) {
     if (getStatusSubStatus().first != CONNECTION_PROCEED)
         return;
 
-    CHECK_STATE(blockHash != nullptr);
+    CHECK_STATE(blockHash);
     _j["blockHash"] = *blockHash;
     _j["fragmentSize"] = (uint64_t) fragmentSize;
     _j["blockSize"] = (uint64_t) blockSize;
@@ -54,7 +54,7 @@ void BlockFinalizeResponseHeader::setFragmentParams(uint64_t _fragmentSize, uint
 
     CHECK_ARGUMENT(_fragmentSize > 2)
     CHECK_ARGUMENT(_blockSize > 16)
-    CHECK_ARGUMENT(_hash != nullptr)
+    CHECK_ARGUMENT(_hash)
 
 
     fragmentSize = _fragmentSize;

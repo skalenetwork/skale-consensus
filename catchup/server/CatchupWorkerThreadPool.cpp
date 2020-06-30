@@ -34,8 +34,6 @@
 CatchupWorkerThreadPool::CatchupWorkerThreadPool(
         num_threads _numThreads, Agent *_agent) :
         WorkerThreadPool(_numThreads, _agent, false) {
-
-
 }
 
 

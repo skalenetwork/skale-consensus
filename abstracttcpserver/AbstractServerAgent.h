@@ -67,7 +67,7 @@ public:
 
 
 
-    void pushToQueueAndNotifyWorkers(ptr<ServerConnection> connectionEnvelope);
+    void pushToQueueAndNotifyWorkers(ptr<ServerConnection> _connectionEnvelope );
 
     ptr<ServerConnection> workerThreadWaitandPopConnection();
 
@@ -82,7 +82,7 @@ public:
     virtual void processNextAvailableConnection(ptr<ServerConnection> _connection) = 0;
 
 
-    virtual ptr<PartialHashesList> readPartialHashes(ptr<ServerConnection> _connectionEnvelope_, transaction_count _txCount);
+    virtual ptr<PartialHashesList> readPartialHashes(ptr<ServerConnection> _connectionEnvelope, transaction_count _txCount);
 
 
 

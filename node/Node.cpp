@@ -303,7 +303,7 @@ void Node::setNodeInfo(ptr<NodeInfo> _nodeInfo) {
 }
 
 void Node::setSchain(ptr<Schain> _schain) {
-    assert (this->sChain == nullptr);
+    CHECK_STATE(sChain == nullptr);
     this->sChain = _schain;
     initLevelDBs();
 
@@ -334,8 +334,10 @@ void Node::initSchain(ptr<Node> _node, ptr<NodeInfo> _localNodeInfo, const vecto
 }
 
 
-void Node::waitOnGlobalServerStartBarrier(Agent *agent) {
-    logThreadLocal_ = agent->getSchain()->getNode()->getLog();
+void Node::waitOnGlobalServerStartBarrier(Agent * _agent ) {
+    CHECK_ARGUMENT( _agent );
+
+    logThreadLocal_ = _agent->getSchain()->getNode()->getLog();
 
 
     std::unique_lock<std::mutex> mlock(threadServerCondMutex);
@@ -375,7 +377,6 @@ void Node::releaseGlobalClientBarrier() {
 
 void Node::exit() {
 
-
     RETURN_IF_PREVIOUSLY_CALLED(exitRequested);
 
     releaseGlobalClientBarrier();
@@ -409,6 +410,7 @@ void Node::closeAllSocketsAndNotifyAllAgentsAndThreads() {
 
 
 void Node::registerAgent(Agent *_agent) {
+    CHECK_ARGUMENT(_agent);
     agents.push_back(_agent);
 }
 
@@ -437,17 +439,22 @@ bool Node::isSgxEnabled() {
     return sgxEnabled;
 }
 ptr< string > Node::getEcdsaKeyName() {
+    CHECK_STATE(ecdsaKeyName);
     return ecdsaKeyName;
 }
 ptr< vector< string > > Node::getEcdsaPublicKeys() {
+    CHECK_STATE(ecdsaPublicKeys);
     return ecdsaPublicKeys;
 }
 ptr< string > Node::getBlsKeyName() {
+    CHECK_STATE(blsKeyName);
     return blsKeyName;
 }
 ptr< vector< ptr< vector< string > > > > Node::getBlsPublicKeys() {
+    CHECK_STATE(blsPublicKeys);
     return blsPublicKeys;
 }
 ptr< vector< string > > Node::getBlsPublicKey() {
+    CHECK_STATE(blsPublicKey);
     return blsPublicKey;
 }

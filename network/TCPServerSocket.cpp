@@ -23,8 +23,8 @@
 
 #include <boost/asio.hpp>
 
-#include "SkaleCommon.h"
 #include "Log.h"
+#include "SkaleCommon.h"
 
 
 #include "exceptions/FatalError.h"
@@ -34,55 +34,52 @@
 #include "TCPServerSocket.h"
 
 int TCPServerSocket::createAndBindTCPSocket() {
-    LOG(debug, "Creating TCP listen socket");
+    LOG( debug, "Creating TCP listen socket" );
     int s;
 
-    if ((s = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-
-        BOOST_THROW_EXCEPTION(FatalError("Could not create read socket"));
-
+    if ( ( s = socket( AF_INET, SOCK_STREAM, 0 ) ) < 0 ) {
+        BOOST_THROW_EXCEPTION( FatalError( "Could not create read socket" ) );
     }
 
     int iSetOption = 1;
 
-    setsockopt(s, SOL_SOCKET, SO_REUSEADDR, (char *) &iSetOption, sizeof(iSetOption));
+    setsockopt( s, SOL_SOCKET, SO_REUSEADDR, ( char* ) &iSetOption, sizeof( iSetOption ) );
 
-    if (::bind(s, (struct sockaddr *) socketaddr.get(), sizeof(sockaddr_in)) < 0) {
-
-        BOOST_THROW_EXCEPTION(FatalError("Could not bind the TCP socket: error " + to_string(errno)));
-
+    if ( ::bind( s, ( struct sockaddr* ) socketaddr.get(), sizeof( sockaddr_in ) ) < 0 ) {
+        BOOST_THROW_EXCEPTION(
+            FatalError( "Could not bind the TCP socket: error " + to_string( errno ) ) );
     }
 
     // Init the connection
-    listen(s, SOCKET_BACKLOG);
+    listen( s, SOCKET_BACKLOG );
 
-    LOG(debug, "Successfully created TCP listen socket");
+    LOG( debug, "Successfully created TCP listen socket" );
 
     return s;
 }
 
 
-TCPServerSocket::TCPServerSocket(ptr<string> &_bindIP, uint16_t _basePort, port_type _portType) : ServerSocket(_bindIP,
-                                                                                                               _basePort,
+TCPServerSocket::TCPServerSocket( ptr< string >& _bindIP, uint16_t _basePort, port_type _portType )
+    : ServerSocket( _bindIP, _basePort, _portType ) {
 
-                                                                                                               _portType) {
-    this->socketaddr = Sockets::createSocketAddress( bindIP, bindPort );
+    socketaddr = Sockets::createSocketAddress( bindIP, bindPort );
+    CHECK_STATE(socketaddr);
     descriptor = createAndBindTCPSocket();
-    CHECK_STATE(descriptor > 0);
+    CHECK_STATE( descriptor > 0 );
 }
 
 
 TCPServerSocket::~TCPServerSocket() {
-    if (descriptor != 0)
+    if ( descriptor != 0 )
         close( descriptor );
 }
 
 void TCPServerSocket::touch() {
     using namespace boost::asio;
-    ip::tcp::endpoint ep( ip::address::from_string(*bindIP), bindPort);
+    ip::tcp::endpoint ep( ip::address::from_string( *bindIP ), bindPort );
     io_service service;
-    ip::tcp::socket sock(service);
-    sock.connect(ep);
+    ip::tcp::socket sock( service );
+    sock.connect( ep );
 }
 
 int TCPServerSocket::getDescriptor() {
@@ -91,8 +88,8 @@ int TCPServerSocket::getDescriptor() {
 
 
 void TCPServerSocket::closeAndCleanupAll() {
-    LOCK(m)
-    if (descriptor != 0) {
+    LOCK( m )
+    if ( descriptor != 0 ) {
         close( descriptor );
         descriptor = 0;
     }

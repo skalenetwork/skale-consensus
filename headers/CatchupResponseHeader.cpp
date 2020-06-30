@@ -40,6 +40,8 @@ CatchupResponseHeader::CatchupResponseHeader() : Header(Header::BLOCK_CATCHUP_RS
 
 void CatchupResponseHeader::setBlockSizes(ptr<list<uint64_t>> _blockSizes) {
 
+    CHECK_ARGUMENT(_blockSizes);
+
     blockCount = _blockSizes->size();
 
     blockSizes = _blockSizes;

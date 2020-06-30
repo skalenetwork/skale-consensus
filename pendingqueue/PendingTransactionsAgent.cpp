@@ -62,6 +62,7 @@ ptr<BlockProposal> PendingTransactionsAgent::buildBlockProposal(block_id _blockI
 
     auto result  = createTransactionsListForProposal();
     auto transactions = result.first;
+    CHECK_STATE(transactions);
     auto stateRoot = result.second;
     CHECK_STATE(stateRoot != 0)
 
@@ -80,7 +81,11 @@ ptr<BlockProposal> PendingTransactionsAgent::buildBlockProposal(block_id _blockI
 
     LOG(trace, "Created proposal, transactions:" + to_string(transactions->size()));
 
-    transactionCounter += (uint64_t) myBlockProposal->createPartialHashesList()->getTransactionCount();
+    auto pHashesList = myBlockProposal->createPartialHashesList();
+    CHECK_STATE(pHashesList);
+
+    transactionCounter += (uint64_t) pHashesList->getTransactionCount();
+
     return myBlockProposal;
 }
 
@@ -88,14 +93,15 @@ pair<ptr<vector<ptr<Transaction>>>, u256> PendingTransactionsAgent::createTransa
     auto result = make_shared<vector<ptr<Transaction>>>();
 
     size_t need_max = getNode()->getMaxTransactionsPerBlock();
-    ConsensusExtFace::transactions_vector tx_vec;
+
+    ConsensusExtFace::transactions_vector txVector;
 
     boost::posix_time::ptime t1 = boost::posix_time::microsec_clock::local_time();
 
     u256 stateRoot = 0;
     static u256 stateRootSample = 1;
 
-    while(tx_vec.empty()){
+    while( txVector.empty()){
 
         getSchain()->getNode()->exitCheck();
         boost::posix_time::ptime t2 = boost::posix_time::microsec_clock::local_time();
@@ -105,18 +111,18 @@ pair<ptr<vector<ptr<Transaction>>>, u256> PendingTransactionsAgent::createTransa
             break;
 
         if (sChain->getExtFace()) {
-            tx_vec = sChain->getExtFace()->pendingTransactions(need_max, stateRoot);
+            txVector = sChain->getExtFace()->pendingTransactions(need_max, stateRoot);
             // exit immediately if exitGracefully has been requested
             getSchain()->getNode()->exitCheck();
         } else {
             stateRootSample++;
             stateRoot = stateRootSample;
-            tx_vec = sChain->getTestMessageGeneratorAgent()->pendingTransactions(need_max);
+            txVector = sChain->getTestMessageGeneratorAgent()->pendingTransactions(need_max);
         }
     }
 
 
-    for(const auto& e: tx_vec){
+    for(const auto& e: txVector ){
         ptr<Transaction> pt = Transaction::deserialize( make_shared<std::vector<uint8_t>>(e),
                 0,e.size(), false );
         result->push_back(pt);
@@ -135,19 +141,28 @@ ptr<Transaction> PendingTransactionsAgent::getKnownTransactionByPartialHash(ptr<
 }
 
 void PendingTransactionsAgent::pushKnownTransaction(ptr<Transaction> _transaction) {
-    LOCK(transactionsMutex);
+
     CHECK_ARGUMENT(_transaction);
+
+    LOCK(transactionsMutex);
+
 
     if (knownTransactions.count(_transaction->getPartialHash())) {
         LOG(trace, "Duplicate transaction pushed to known transactions");
         return;
     }
-    knownTransactions[_transaction->getPartialHash()] = _transaction;
+
+    auto partialHash =  _transaction->getPartialHash();
+
+    CHECK_STATE(partialHash);
+
+    knownTransactions[partialHash] = _transaction;
 
 
     while (knownTransactions.size() > KNOWN_TRANSACTIONS_HISTORY) {
-        auto t1 = knownTransactions.begin()->first;
-        knownTransactions.erase(t1);
+        auto tx = knownTransactions.begin()->first;
+        CHECK_STATE(tx);
+        knownTransactions.erase(tx);
     }
 }
 

@@ -33,7 +33,9 @@ PartialHashesList::~PartialHashesList() {}
 
 PartialHashesList::PartialHashesList(
         transaction_count _transactionCount, ptr<vector<uint8_t> > _partialHashes)
-        : transactionCount(_transactionCount), partialHashes(_partialHashes) {}
+        : transactionCount(_transactionCount), partialHashes(_partialHashes) {
+    CHECK_ARGUMENT(_partialHashes);
+}
 
 PartialHashesList::PartialHashesList(transaction_count _transactionCount)
         : transactionCount(_transactionCount) {
@@ -50,16 +52,21 @@ transaction_count PartialHashesList::getTransactionCount() const {
 }
 
 ptr<vector<uint8_t> > PartialHashesList::getPartialHashes() const {
+    CHECK_STATE(partialHashes);
     return partialHashes;
 }
 
 
 ptr<partial_sha_hash> PartialHashesList::getPartialHash(uint64_t i) {
+
     if (i >= transactionCount) {
         BOOST_THROW_EXCEPTION(
                 NetworkProtocolException("Index i is more than messageCount:" + to_string(i), __CLASS_NAME__));
     }
     auto hash = make_shared<array<uint8_t, PARTIAL_SHA_HASH_LEN> >();
+
+
+    CHECK_STATE(partialHashes);
 
     for (size_t j = 0; j < PARTIAL_SHA_HASH_LEN; j++) {
         hash->at(j) = partialHashes->at(PARTIAL_SHA_HASH_LEN * i + j);

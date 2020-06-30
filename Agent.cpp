@@ -44,6 +44,7 @@ void Agent::notifyAllConditionVariables() {
 
 
 Schain *Agent::getSchain() const {
+    CHECK_STATE(sChain);
     return sChain;
 }
 
