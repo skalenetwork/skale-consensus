@@ -133,6 +133,7 @@ uint64_t CryptoManager::parseSGXPort( ptr< string > _url ) {
         BOOST_THROW_EXCEPTION(
             InvalidStateException( "SGX URL does not include port " + *_url, __CLASS_NAME__ ) );
     }
+
     
     string end = _url->substr(found + 1 );
     
@@ -144,6 +145,7 @@ uint64_t CryptoManager::parseSGXPort( ptr< string > _url ) {
   
  
     string port = _end->substr( 0, found1 - 1 );
+
 
 
     uint64_t result;
