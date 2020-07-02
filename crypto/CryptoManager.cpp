@@ -137,14 +137,14 @@ uint64_t CryptoManager::parseSGXPort( ptr< string > _url ) {
     
     string end = _url->substr(found + 1 );
     
-    size_t found1 = end->find_first_of( "/" );
+    size_t found1 = end.find_first_of( "/" );
     
     if ( found1 == string::npos ) {
-        found1 = end->size();
+        found1 = end.size();
     }
   
  
-    string port = _end->substr( 0, found1 - 1 );
+    string port = _end.substr( 0, found1 - 1 );
 
 
 
