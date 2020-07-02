@@ -23,6 +23,7 @@
 
 #include "thirdparty/catch.hpp"
 
+#undef CHECK
 #include "BLSPublicKey.h"
 
 
