@@ -67,6 +67,7 @@ public:
 
 #ifdef GOOGLE_PROFILE
         HeapProfilerStart("/tmp/consensusd.profile");
+        HeapProfilerStart("/tmp/consensusd.profile");
 #endif
 
     };

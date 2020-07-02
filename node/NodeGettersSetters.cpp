@@ -371,11 +371,9 @@ ptr< string > Node::getSgxUrl()  {
     return sgxURL;
 }
 ptr< string > Node::getSgxSslKeyFileFullPath()  {
-    CHECK_STATE(sgxSSLCertFileFullPath);
     return sgxSSLKeyFileFullPath;
 }
 
 ptr< string > Node::getSgxSslCertFileFullPath() {
-    CHECK_STATE(sgxSSLCertFileFullPath);
     return sgxSSLCertFileFullPath;
 }

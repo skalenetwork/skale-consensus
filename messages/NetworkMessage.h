@@ -23,6 +23,7 @@
 
 #pragma once
 
+#undef CHECK
 #include "crypto/bls_include.h"
 
 #include "Message.h"
