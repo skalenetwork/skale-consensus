@@ -128,19 +128,24 @@ CryptoManager::CryptoManager( uint64_t _totalSigners, uint64_t _requiredSigners,
 uint64_t CryptoManager::parseSGXPort( ptr< string > _url ) {
     CHECK_ARGUMENT(_url);
     size_t found = _url->find_first_of( ":" );
+    
     if ( found == string::npos ) {
         BOOST_THROW_EXCEPTION(
             InvalidStateException( "SGX URL does not include port " + *_url, __CLASS_NAME__ ) );
     }
-    string host = _url->substr( 0, found );
-    size_t found1 = _url->find_first_of( "/" );
+
+    
+    string end = _url->substr(found + 1 );
+    
+    size_t found1 = end->find_first_of( "/" );
     
     if ( found1 == string::npos ) {
-        found1 = _url->size();
+        found1 = end->size();
     }
-   
+  
  
-    string port = _url->substr( found + 1, found1 - found - 1 );
+    string port = _end->substr( 0, found1 - 1 );
+
 
 
     uint64_t result;
