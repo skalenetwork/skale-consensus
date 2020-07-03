@@ -145,7 +145,6 @@ uint64_t CryptoManager::parseSGXPort( ptr< string > _url ) {
   
  
     string port = end.substr( found1 + 1, end.size() - found1 );
-    std::cout << "PORT: " << port << std::endl;
 
 
 
