@@ -137,14 +137,15 @@ uint64_t CryptoManager::parseSGXPort( ptr< string > _url ) {
     
     string end = _url->substr(found + 1 );
     
-    size_t found1 = end.find_first_of( "/" );
+    size_t found1 = end.find_first_of( ":" );
     
     if ( found1 == string::npos ) {
         found1 = end.size();
     }
   
  
-    string port = end.substr( 0, found1 - 1 );
+    string port = end.substr( found1 + 1, end.size() - found1 );
+    std::cout << "PORT: " << port << std::endl;
 
 
 
@@ -154,7 +155,7 @@ uint64_t CryptoManager::parseSGXPort( ptr< string > _url ) {
         result = stoi( port );
     } catch ( ... ) {
         throw_with_nested(InvalidStateException(
-                  "Could not find port in URL", __CLASS_NAME__));
+                  "Could not find port in URL " + *_url, __CLASS_NAME__));
     }
     return result;
 }
