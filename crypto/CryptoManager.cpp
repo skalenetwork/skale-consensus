@@ -456,6 +456,9 @@ ptr< ThresholdSigShare > CryptoManager::createSigShare(
 }
 
 void CryptoManager::signProposalECDSA( BlockProposal* _proposal ) {
+
+    MONITOR( __CLASS_NAME__, __FUNCTION__)
+
     CHECK_ARGUMENT( _proposal);
     auto signature = signECDSA( _proposal->getHash() );
     CHECK_STATE(signature);
