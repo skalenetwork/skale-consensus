@@ -693,6 +693,8 @@ void Schain::healthCheck() {
         }
     }
 
+    LOG( info, "Successfully connected to two thirds of peers" );
+
     setHealthCheckFile( 2 );
 }
 

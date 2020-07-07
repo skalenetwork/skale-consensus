@@ -21,29 +21,30 @@
     @date 2018
 */
 
-#include "SkaleCommon.h"
 #include "Log.h"
+#include "SkaleCommon.h"
 #include "db/BlockDB.h"
 #include "db/CacheLevelDB.h"
 #include "exceptions/FatalError.h"
 #include "leveldb/db.h"
 #include "thirdparty/json.hpp"
+#include <monitoring/LivelinessMonitor.h>
 #include <unordered_set>
 
-#include "utils/Time.h"
-#include "crypto/SHAHash.h"
+#include "PendingTransactionsAgent.h"
+#include "chains/Schain.h"
 #include "crypto/CryptoManager.h"
+#include "crypto/SHAHash.h"
 #include "datastructures/BlockProposal.h"
 #include "datastructures/MyBlockProposal.h"
-#include "node/Node.h"
 #include "datastructures/PartialHashesList.h"
 #include "datastructures/Transaction.h"
 #include "datastructures/TransactionList.h"
-#include "pendingqueue/TestMessageGeneratorAgent.h"
-#include "chains/Schain.h"
-#include "node/ConsensusEngine.h"
-#include "PendingTransactionsAgent.h"
 #include "db/CommittedTransactionDB.h"
+#include "node/ConsensusEngine.h"
+#include "node/Node.h"
+#include "pendingqueue/TestMessageGeneratorAgent.h"
+#include "utils/Time.h"
 
 #include "microprofile.h"
 
@@ -90,6 +91,9 @@ ptr<BlockProposal> PendingTransactionsAgent::buildBlockProposal(block_id _blockI
 }
 
 pair<ptr<vector<ptr<Transaction>>>, u256> PendingTransactionsAgent::createTransactionsListForProposal() {
+
+    MONITOR2( __CLASS_NAME__, __FUNCTION__, getSchain()->getMaxExternalBlockProcessingTime() )
+
     auto result = make_shared<vector<ptr<Transaction>>>();
 
     size_t need_max = getNode()->getMaxTransactionsPerBlock();
