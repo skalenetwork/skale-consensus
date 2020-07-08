@@ -434,7 +434,6 @@ JSONFactory::parseTestKeyNamesFromJson( ptr<string> _sgxServerURL, const fs_path
     auto SAMPLE_HASH =
         make_shared< string >( "09c6137b97cdf159b9950f1492ee059d1e2b10eaf7d51f3a97d61f2eee2e81db" );
 
-
     auto hash = SHAHash::fromHex( SAMPLE_HASH );
 
     for ( uint64_t i = 0; i < _requiredNodes; i++ ) {
