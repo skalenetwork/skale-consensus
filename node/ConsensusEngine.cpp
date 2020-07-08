@@ -460,8 +460,6 @@ void ConsensusEngine::startAll() {
             }
         }
 
-        spdlog::shutdown();
-
         throw_with_nested( EngineInitException( "Start all failed", __CLASS_NAME__ ) );
     }
 }
@@ -498,8 +496,6 @@ void ConsensusEngine::bootStrapAll() {
         }
 
         SkaleException::logNested( e );
-
-        spdlog::shutdown();
 
         throw_with_nested(
             EngineInitException( "Consensus engine bootstrap failed", __CLASS_NAME__ ) );
