@@ -372,14 +372,7 @@ JSONFactory::parseTestKeyNamesFromJson( ptr<string> _sgxServerURL, const fs_path
     StubClient c( client, JSONRPC_CLIENT_V2 );
 
 
-    for ( uint64_t i = 0; i < _totalNodes; i++ ) {
-        auto response = c.getPublicECDSAKey( ecdsaKeyNames->at( i ) );
-        CHECK_STATE( response["status"] == 0 );
 
-        auto publicKey = response["publicKey"].asString();
-
-        ecdsaPublicKeys->push_back( publicKey );
-    }
 
 
     LOG(info, "Getting BLS Public Key Shares.");
@@ -403,10 +396,6 @@ JSONFactory::parseTestKeyNamesFromJson( ptr<string> _sgxServerURL, const fs_path
     }
 
 
-    CHECK_STATE( ecdsaKeyNames->size() == _totalNodes )
-    CHECK_STATE( blsKeyNames->size() == _totalNodes )
-    CHECK_STATE( ecdsaPublicKeys->size() == _totalNodes )
-    CHECK_STATE( blsPublicKeys->size() == _totalNodes )
 
     // create pub key
 
@@ -468,7 +457,27 @@ JSONFactory::parseTestKeyNamesFromJson( ptr<string> _sgxServerURL, const fs_path
     CHECK_STATE( blsPublicKey->VerifySigWithHelper(
         hash->getHash(), commonSig, _requiredNodes, _totalNodes ) );
 
+
+
+    for ( uint64_t i = 0; i < _totalNodes; i++ ) {
+        auto response = c.getPublicECDSAKey( ecdsaKeyNames->at( i ) );
+        CHECK_STATE( response["status"] == 0 );
+
+        auto publicKey = response["publicKey"].asString();
+
+        ecdsaPublicKeys->push_back( publicKey );
+    }
+
+
+    CHECK_STATE( ecdsaKeyNames->size() == _totalNodes )
+    CHECK_STATE( blsKeyNames->size() == _totalNodes )
+    CHECK_STATE( ecdsaPublicKeys->size() == _totalNodes )
+    CHECK_STATE( blsPublicKeys->size() == _totalNodes )
+
+
+
     return { ecdsaKeyNames, ecdsaPublicKeys, blsKeyNames, blsPublicKeys, blsPublicKey };
+
 }
 
 
