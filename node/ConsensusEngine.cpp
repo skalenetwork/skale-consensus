@@ -786,10 +786,17 @@ void ConsensusEngine::setSGXKeyInfo( ptr< string > _sgxServerURL,
     setBlsKeyName( _blsKeyName );
 
 
+
+
     map< size_t, shared_ptr< BLSPublicKeyShare > > blsPubKeyShares;
 
 
+
+
     for ( uint64_t i = 0; i < _requiredSigners; i++ ) {
+
+        LOG(info, "Parsing BLS key share:" + blsPublicKeys->at(i)->at(0));
+
         BLSPublicKeyShare pubKey( blsPublicKeys->at( i ), _requiredSigners, _totalSigners );
 
         blsPubKeyShares[i + 1] = make_shared< BLSPublicKeyShare >( pubKey );
