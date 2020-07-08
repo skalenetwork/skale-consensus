@@ -345,7 +345,8 @@ bool CryptoManager::sgxVerifyECDSA(
 
 ptr< string > CryptoManager::signECDSA( ptr< SHAHash > _hash ) {
     CHECK_ARGUMENT( _hash );
-    if ( isSGXEnabled ) {
+    if (false) { // temporarily disavled ecdsa
+    //if ( isSGXEnabled ) {
         auto result = sgxSignECDSA( _hash, *sgxECDSAKeyName );
         CHECK_STATE( verifyECDSA( _hash, result, getSchain()->getNode()->getNodeID() ) );
         return result;
@@ -357,8 +358,8 @@ ptr< string > CryptoManager::signECDSA( ptr< SHAHash > _hash ) {
 bool CryptoManager::verifyECDSA( ptr< SHAHash > _hash, ptr< string > _sig, node_id _nodeId ) {
     CHECK_ARGUMENT( _hash)
     CHECK_ARGUMENT( _sig)
-
-    if ( isSGXEnabled ) {
+    if (false) { // temporarily disable ECDSA
+    //if ( isSGXEnabled ) {
         auto pubKey = ecdsaPublicKeyMap.at( _nodeId );
         CHECK_STATE( pubKey );
         auto result = sgxVerifyECDSA( _hash, pubKey, _sig );
