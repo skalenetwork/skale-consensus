@@ -65,7 +65,7 @@ class ConsensusEngine : public ConsensusInterface {
     ptr< vector< string > > blsKeyNames = nullptr;
     ptr< vector< string > > ecdsaPublicKeys = nullptr;
     ptr< vector< ptr< vector< string > > > > blsPublicKeys = nullptr;
-    ptr< vector< string > > blsPublicKey = nullptr;
+    ptr< BLSPublicKey > blsPublicKey = nullptr;
 
 
     atomic< consensus_engine_status > status = CONSENSUS_ACTIVE;
@@ -141,7 +141,7 @@ public:
         ptr< string > _sgxSSLCertFileFullPath = nullptr, ptr< string > _ecdsaKeyName = nullptr,
         ptr< vector< string > > _ecdsaPublicKeys = nullptr, ptr< string > _blsKeyName = nullptr,
         ptr< vector< ptr< vector< string > > > > _blsPublicKeys = nullptr,
-        ptr< vector< string > > _blsPublicKey = nullptr );
+        ptr< BLSPublicKey > _blsPublicKey = nullptr );
 
 
     void readSchainConfigFiles( ptr< Node > _node, const fs_path& _dirPath );

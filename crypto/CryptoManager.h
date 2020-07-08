@@ -86,7 +86,7 @@ class CryptoManager {
     ptr< vector< string > > sgxECDSAPublicKeys;
     ptr< string > sgxBlsKeyName;
     ptr< vector< ptr< vector< string > > > > sgxBLSPublicKeys;
-    ptr< vector< string > > sgxBLSPublicKey;
+    ptr< BLSPublicKey > sgxBLSPublicKey;
 
 
     map<node_id, ptr<string>> ecdsaPublicKeyMap;
@@ -166,7 +166,7 @@ public:
                                         const char* signatureS, int base );
 
 
-    ptr< vector< string > > getSgxBlsPublicKey();
+    ptr< BLSPublicKey > getSgxBlsPublicKey();
     ptr< string > getSgxBlsKeyName();
 
 

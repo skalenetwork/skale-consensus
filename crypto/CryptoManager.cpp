@@ -88,8 +88,8 @@ void CryptoManager::initSGXClient() {
         sgxClient = make_shared< StubClient >( *httpClient, jsonrpc::JSONRPC_CLIENT_V2 );
     }
 }
-ptr< vector< string > > CryptoManager::getSgxBlsPublicKey() {
-    CHECK_STATE( sgxBLSPublicKey && sgxBLSPublicKey->size() == 4 );
+ptr< BLSPublicKey > CryptoManager::getSgxBlsPublicKey() {
+    CHECK_STATE( sgxBLSPublicKey);
     return sgxBLSPublicKey;
 }
 
@@ -204,8 +204,7 @@ CryptoManager::CryptoManager( Schain& _sChain ) : sChain( &_sChain ) {
 
 
         try {
-            blsPublicKeyObj =
-                make_shared< BLSPublicKey >( getSgxBlsPublicKey(), requiredSigners, totalSigners );
+            blsPublicKeyObj =  getSgxBlsPublicKey();
         } catch ( ... ) {
             throw_with_nested(
                 InvalidStateException( "Could not create blsPublicKey", __CLASS_NAME__ ) );

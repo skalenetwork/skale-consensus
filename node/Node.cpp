@@ -78,7 +78,7 @@ Node::Node(const nlohmann::json &_cfg, ConsensusEngine *_consensusEngine,
            ptr< string > _ecdsaKeyName,
            ptr< vector< string > > _ecdsaPublicKeys, ptr< string > _blsKeyName,
            ptr< vector< ptr< vector< string > > > > _blsPublicKeys,
-           ptr< vector< string > > _blsPublicKey) {
+           ptr< BLSPublicKey > _blsPublicKey) {
 
     if (_useSGX) {
         CHECK_ARGUMENT(_sgxURL);
@@ -88,7 +88,7 @@ Node::Node(const nlohmann::json &_cfg, ConsensusEngine *_consensusEngine,
         }
         CHECK_ARGUMENT(_ecdsaKeyName && _ecdsaPublicKeys);
         CHECK_ARGUMENT(_blsKeyName && _blsPublicKeys);
-        CHECK_ARGUMENT(_blsPublicKey && _blsPublicKey->size() == 4);
+        CHECK_ARGUMENT(_blsPublicKey);
 
         sgxEnabled = true;
 
@@ -454,7 +454,7 @@ ptr< vector< ptr< vector< string > > > > Node::getBlsPublicKeys() {
     CHECK_STATE(blsPublicKeys);
     return blsPublicKeys;
 }
-ptr< vector< string > > Node::getBlsPublicKey() {
+ptr< BLSPublicKey > Node::getBlsPublicKey() {
     CHECK_STATE(blsPublicKey);
     return blsPublicKey;
 }

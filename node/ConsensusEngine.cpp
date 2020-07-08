@@ -238,14 +238,14 @@ ptr< Node > ConsensusEngine::readNodeConfigFileAndCreateNode( const fs_path& pat
     ptr< string > _sgxSSLCertFileFullPath, ptr< string > _ecdsaKeyName,
     ptr< vector< string > > _ecdsaPublicKeys, ptr< string > _blsKeyName,
     ptr< vector< ptr< vector< string > > > > _blsPublicKeys,
-    ptr< vector< string > > _blsPublicKey ) {
+    ptr< BLSPublicKey > _blsPublicKey ) {
 
 
     try {
         if ( _useSGX ) {
             CHECK_ARGUMENT( _ecdsaKeyName && _ecdsaPublicKeys );
             CHECK_ARGUMENT( _blsKeyName && _blsPublicKeys );
-            CHECK_ARGUMENT( _blsPublicKey && _blsPublicKey->size() == 4 );
+            CHECK_ARGUMENT( _blsPublicKey);
         }
 
 
@@ -797,11 +797,8 @@ void ConsensusEngine::setSGXKeyInfo( ptr< string > _sgxServerURL,
 
     // create pub key
 
-    BLSPublicKey blsPublicKeyObj(
-        make_shared< map< size_t, shared_ptr< BLSPublicKeyShare > > >( blsPubKeyShares ),
-        _requiredSigners, _totalSigners );
-
-    blsPublicKey = blsPublicKeyObj.toString();
+    blsPublicKey = make_shared<BLSPublicKey>(make_shared< map< size_t, shared_ptr< BLSPublicKeyShare > > >( blsPubKeyShares ),
+                                                     _requiredSigners, _totalSigners );
 
     sgxSSLCertFileFullPath = _sgxSSLCertFileFullPath;
     sgxSSLKeyFileFullPath = _sgxSSLKeyFileFullPath;

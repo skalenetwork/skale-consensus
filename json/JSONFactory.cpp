@@ -65,7 +65,7 @@ ptr< Node > JSONFactory::createNodeFromJsonFile(
     ptr< string > _ecdsaKeyName,
     ptr< vector< string > > _ecdsaPublicKeys, ptr< string > _blsKeyName,
     ptr< vector< ptr< vector< string > > > > _blsPublicKeys,
-    ptr< vector< string > > _blsPublicKey ) {
+    ptr< BLSPublicKey > _blsPublicKey ) {
 
     ptr<string> sgxUrl = nullptr;
 
@@ -75,7 +75,7 @@ ptr< Node > JSONFactory::createNodeFromJsonFile(
             CHECK_ARGUMENT( _ecdsaPublicKeys );
             CHECK_ARGUMENT( _blsKeyName );
             CHECK_ARGUMENT( _blsPublicKeys );
-            CHECK_ARGUMENT( _blsPublicKey && _blsPublicKey->size() == 4 );
+            CHECK_ARGUMENT( _blsPublicKey );
             sgxUrl = _sgxUrl;
         }
 
@@ -106,7 +106,7 @@ ptr< Node > JSONFactory::createNodeFromJsonObject( const nlohmann::json& j, set<
     ptr<string> _sgxSSLCertFileFullPath,
     ptr< string > _ecdsaKeyName, ptr< vector< string > > _ecdsaPublicKeys,
     ptr< string > _blsKeyName, ptr< vector< ptr< vector< string > > > > _blsPublicKeys,
-    ptr< vector< string > > _blsPublicKey ) {
+    ptr<  BLSPublicKey  > _blsPublicKey ) {
 
 
     string empty = "";
@@ -122,7 +122,7 @@ ptr< Node > JSONFactory::createNodeFromJsonObject( const nlohmann::json& j, set<
 
         CHECK_ARGUMENT( _ecdsaKeyName && _ecdsaPublicKeys );
         CHECK_ARGUMENT( _blsKeyName && _blsPublicKeys );
-        CHECK_ARGUMENT( _blsPublicKey && _blsPublicKey->size() == 4 );
+        CHECK_ARGUMENT( _blsPublicKey);
         CHECK_STATE(JSONFactory::splitString(*_ecdsaKeyName)->size() == 2);
         CHECK_STATE(JSONFactory::splitString(*_blsKeyName)->size() == 7);
     }
@@ -318,7 +318,7 @@ void JSONFactory::parseJsonFile( nlohmann::json& j, const fs_path& configFile ) 
 using namespace jsonrpc;
 
 tuple< ptr< vector< string > >, ptr< vector< string > >, ptr< vector< string > >,
-    ptr< vector< ptr< vector< string > > > >, ptr< vector< string > > >
+    ptr< vector< ptr< vector< string > > > >, ptr< BLSPublicKey>>
 JSONFactory::parseTestKeyNamesFromJson( ptr<string> _sgxServerURL, const fs_path& configFile, uint64_t _totalNodes,
     uint64_t _requiredNodes) {
     CHECK_ARGUMENT( _totalNodes > 0 );
@@ -457,7 +457,7 @@ JSONFactory::parseTestKeyNamesFromJson( ptr<string> _sgxServerURL, const fs_path
     CHECK_STATE( blsPublicKey->VerifySigWithHelper(
         hash->getHash(), commonSig, _requiredNodes, _totalNodes ) );
 
-    return { ecdsaKeyNames, ecdsaPublicKeyNames, blsKeyNames, blsPublicKeyNames, blsPublicKeyVect };
+    return { ecdsaKeyNames, ecdsaPublicKeyNames, blsKeyNames, blsPublicKeyNames, blsPublicKey };
 }
 
 

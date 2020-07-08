@@ -149,7 +149,7 @@ class Node {
     ptr< vector< string > > ecdsaPublicKeys = nullptr;
     ptr< string > blsKeyName = nullptr;
     ptr< vector< ptr< vector< string > > > > blsPublicKeys = nullptr;
-    ptr< vector< string > > blsPublicKey = nullptr;
+    ptr< BLSPublicKey > blsPublicKey = nullptr;
 
     ptr<string> sgxURL = nullptr;
 
@@ -231,7 +231,7 @@ public:
     ptr< vector< string > > getEcdsaPublicKeys();
     ptr< string > getBlsKeyName();
     ptr< vector< ptr< vector< string > > > > getBlsPublicKeys();
-    ptr< vector< string > > getBlsPublicKey();
+    ptr< BLSPublicKey > getBlsPublicKey();
 
 
     bool isSgxEnabled() ;
@@ -278,7 +278,7 @@ public:
     ptr<string> _sgxSSLCertFileFullPath,
         ptr< string > _ecdsaKeyName, ptr< vector< string > > _ecdsaPublicKeys,
         ptr< string > _blsKeyName, ptr< vector< ptr< vector< string > > > > _blsPublicKeys,
-        ptr< vector< string > > _blsPublicKey );
+        ptr< BLSPublicKey > _blsPublicKey );
 
     ~Node();
 
