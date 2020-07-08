@@ -383,8 +383,6 @@ JSONFactory::parseTestKeyNamesFromJson( ptr<string> _sgxServerURL, const fs_path
 
     for ( uint64_t i = 0; i < _totalNodes; i++ ) {
 
-
-
         auto response = c.getBLSPublicKeyShare( blsKeyNames->at( i ) );
         CHECK_STATE( response["status"] == 0 );
 
@@ -407,24 +405,21 @@ JSONFactory::parseTestKeyNamesFromJson( ptr<string> _sgxServerURL, const fs_path
 
     // create pub key
 
-
-    auto blsPublicKeysMap = make_shared< map< size_t, shared_ptr< BLSPublicKeyShare > > >();
+    auto blsPublicKeysMap = make_shared< map< size_t, ptr< BLSPublicKeyShare > > >();
 
     for ( uint64_t i = 0; i < _requiredNodes; i++ ) {
-        blsPublicKeysMap->emplace(
-            i + 1, make_shared< BLSPublicKeyShare >(
-                       blsPublicKeyNames->at( i ), _requiredNodes, _totalNodes ) );
+        blsPublicKeysMap->insert(std::pair<size_t, ptr<BLSPublicKeyShare>>(i + 1 , make_shared< BLSPublicKeyShare >(
+                       blsPublicKeyNames->at( i ), _requiredNodes, _totalNodes )) );
     }
 
 
     auto blsPublicKey =
-        make_shared< BLSPublicKey >( blsPublicKeysMap, _requiredNodes, _totalNodes );
+        make_shared<BLSPublicKey>( blsPublicKeysMap, _requiredNodes, _totalNodes );
 
-    auto blsPublicKeyVect = blsPublicKey->toString();
+    cerr << "Created key!!" << endl;
 
-    CHECK_STATE( blsPublicKeyVect != nullptr );
 
-    CHECK_STATE( blsPublicKeyVect->size() == 4 )
+
 
     // sign verify a sample sig
 
