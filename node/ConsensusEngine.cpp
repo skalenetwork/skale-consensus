@@ -87,6 +87,7 @@
 #include "protocols/ProtocolKey.h"
 #include "protocols/binconsensus/BinConsensusInstance.h"
 
+#include "bls/BLSutils.h"
 
 #include "exceptions/FatalError.h"
 
@@ -557,7 +558,8 @@ void ConsensusEngine::init() {
 
     storageLimits = make_shared<StorageLimits>( DEFAULT_DB_STORAGE_LIMIT );
 
-    libff::init_alt_bn128_params();
+
+    BLSutils::initBLS();
 
     threadRegistry = make_shared< GlobalThreadRegistry >();
 

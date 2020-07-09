@@ -24,6 +24,7 @@
 #include "thirdparty/catch.hpp"
 
 #undef CHECK
+#include "bls/BLSutils.h"
 #include "BLSPublicKey.h"
 
 
@@ -401,6 +402,8 @@ JSONFactory::parseTestKeyNamesFromJson( ptr<string> _sgxServerURL, const fs_path
             CHECK_STATE(element.is<string>())
 
             auto keyPiece = element.asString();
+
+            CHECK_STATE(strlen(keyPiece.c_str()) ==  keyPiece.size());
 
             CHECK_STATE(keyPiece.size() > 0);
 
