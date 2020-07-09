@@ -338,6 +338,9 @@ void ConsensusEngine::checkExistsAndFile( const fs_path& _filePath ) {
 
 
 void ConsensusEngine::parseTestConfigsAndCreateAllNodes( const fs_path& dirname ) {
+
+
+
     try {
         checkExistsAndDirectory( dirname );
 
@@ -375,7 +378,6 @@ void ConsensusEngine::parseTestConfigsAndCreateAllNodes( const fs_path& dirname 
             }
         }
 
-        exit(-1);
 
         if ( isSGXEnabled ) {
             CHECK_STATE( ecdsaPublicKeys );
@@ -750,6 +752,9 @@ void ConsensusEngine::setTestKeys( ptr< string > _sgxServerUrl, string _configFi
     uint64_t _totalNodes, uint64_t _requiredNodes ) {
     CHECK_ARGUMENT( _sgxServerUrl );
     sgxServerUrl = _sgxServerUrl;
+
+    //static atomic<bool> called = false;
+    //assert(!called.exchange(true));
 
     CHECK_STATE( !useTestSGXKeys )
     CHECK_STATE( !isSGXEnabled )
