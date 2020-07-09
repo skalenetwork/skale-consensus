@@ -24,6 +24,7 @@
 #include "thirdparty/catch.hpp"
 
 #undef CHECK
+#include "bls/BLSutils.h"
 #include "BLSPublicKey.h"
 
 
@@ -65,7 +66,7 @@ ptr< Node > JSONFactory::createNodeFromJsonFile(
     ptr< string > _ecdsaKeyName,
     ptr< vector< string > > _ecdsaPublicKeys, ptr< string > _blsKeyName,
     ptr< vector< ptr< vector< string > > > > _blsPublicKeys,
-    ptr< vector< string > > _blsPublicKey ) {
+    ptr< BLSPublicKey > _blsPublicKey ) {
 
     ptr<string> sgxUrl = nullptr;
 
@@ -75,7 +76,7 @@ ptr< Node > JSONFactory::createNodeFromJsonFile(
             CHECK_ARGUMENT( _ecdsaPublicKeys );
             CHECK_ARGUMENT( _blsKeyName );
             CHECK_ARGUMENT( _blsPublicKeys );
-            CHECK_ARGUMENT( _blsPublicKey && _blsPublicKey->size() == 4 );
+            CHECK_ARGUMENT( _blsPublicKey );
             sgxUrl = _sgxUrl;
         }
 
@@ -106,7 +107,7 @@ ptr< Node > JSONFactory::createNodeFromJsonObject( const nlohmann::json& j, set<
     ptr<string> _sgxSSLCertFileFullPath,
     ptr< string > _ecdsaKeyName, ptr< vector< string > > _ecdsaPublicKeys,
     ptr< string > _blsKeyName, ptr< vector< ptr< vector< string > > > > _blsPublicKeys,
-    ptr< vector< string > > _blsPublicKey ) {
+    ptr<  BLSPublicKey  > _blsPublicKey ) {
 
 
     string empty = "";
@@ -122,7 +123,7 @@ ptr< Node > JSONFactory::createNodeFromJsonObject( const nlohmann::json& j, set<
 
         CHECK_ARGUMENT( _ecdsaKeyName && _ecdsaPublicKeys );
         CHECK_ARGUMENT( _blsKeyName && _blsPublicKeys );
-        CHECK_ARGUMENT( _blsPublicKey && _blsPublicKey->size() == 4 );
+        CHECK_ARGUMENT( _blsPublicKey);
         CHECK_STATE(JSONFactory::splitString(*_ecdsaKeyName)->size() == 2);
         CHECK_STATE(JSONFactory::splitString(*_blsKeyName)->size() == 7);
     }
@@ -317,16 +318,19 @@ void JSONFactory::parseJsonFile( nlohmann::json& j, const fs_path& configFile ) 
 
 using namespace jsonrpc;
 
+
+
 tuple< ptr< vector< string > >, ptr< vector< string > >, ptr< vector< string > >,
-    ptr< vector< ptr< vector< string > > > >, ptr< vector< string > > >
+    ptr< vector< ptr< vector< string > > > >, ptr< BLSPublicKey>>
 JSONFactory::parseTestKeyNamesFromJson( ptr<string> _sgxServerURL, const fs_path& configFile, uint64_t _totalNodes,
     uint64_t _requiredNodes) {
     CHECK_ARGUMENT( _totalNodes > 0 );
+    CHECK_STATE(_totalNodes >= _requiredNodes);
 
     auto ecdsaKeyNames = make_shared< vector< string > >();
-    auto ecdsaPublicKeyNames = make_shared< vector< string > >();
+    auto ecdsaPublicKeys = make_shared< vector< string > >();
     auto blsKeyNames = make_shared< vector< string > >();
-    auto blsPublicKeyNames = make_shared< vector< ptr< vector< string > > > >();
+    auto blsPublicKeys = make_shared< vector< ptr< vector< string > > > >();
 
 
     nlohmann::json j;
@@ -371,60 +375,70 @@ JSONFactory::parseTestKeyNamesFromJson( ptr<string> _sgxServerURL, const fs_path
     StubClient c( client, JSONRPC_CLIENT_V2 );
 
 
-    for ( uint64_t i = 0; i < _totalNodes; i++ ) {
-        auto response = c.getPublicECDSAKey( ecdsaKeyNames->at( i ) );
-        CHECK_STATE( response["status"] == 0 );
 
-        auto publicKey = response["publicKey"].asString();
 
-        ecdsaPublicKeyNames->push_back( publicKey );
-    }
 
+    LOG(info, "Getting BLS Public Key Shares.");
 
     for ( uint64_t i = 0; i < _totalNodes; i++ ) {
-
-
 
         auto response = c.getBLSPublicKeyShare( blsKeyNames->at( i ) );
         CHECK_STATE( response["status"] == 0 );
 
         auto fourPieces = response["blsPublicKeyShare"];
 
+        CHECK_STATE(fourPieces.isArray());
+
         CHECK_STATE( fourPieces.size() == 4 );
 
-        blsPublicKeyNames->push_back( make_shared< vector< string > >() );
+        blsPublicKeys->push_back( make_shared< vector< string > >() );
 
         for ( uint64_t k = 0; k < 4; k++ ) {
-            blsPublicKeyNames->back()->push_back( fourPieces[( int ) k].asString() );
+
+            auto element = fourPieces[(int) k];
+
+            CHECK_STATE(element.is<string>())
+
+            string  keyPiece;
+            keyPiece += element.asString();
+
+            CHECK_STATE(strlen(keyPiece.c_str()) ==  keyPiece.size());
+            CHECK_STATE(keyPiece.size() > 0);
+
+            blsPublicKeys->back()->push_back( keyPiece );
         }
     }
 
 
-    CHECK_STATE( ecdsaKeyNames->size() == _totalNodes )
-    CHECK_STATE( blsKeyNames->size() == _totalNodes )
-    CHECK_STATE( ecdsaPublicKeyNames->size() == _totalNodes )
-    CHECK_STATE( blsPublicKeyNames->size() == _totalNodes )
 
     // create pub key
 
-
-    auto blsPublicKeysMap = make_shared< map< size_t, shared_ptr< BLSPublicKeyShare > > >();
+    auto blsPublicKeysMap = make_shared< map< size_t, ptr< BLSPublicKeyShare > > >();
 
     for ( uint64_t i = 0; i < _requiredNodes; i++ ) {
-        blsPublicKeysMap->emplace(
-            i + 1, make_shared< BLSPublicKeyShare >(
-                       blsPublicKeyNames->at( i ), _requiredNodes, _totalNodes ) );
+
+        LOG(info, "Processing bls key share:" + blsPublicKeys->at(i)->at(0) + ":" +
+            blsPublicKeys->at(i)->at(1) + ":" + blsPublicKeys->at(i)->at(2) + ":" +
+            blsPublicKeys->at(i)->at(3));
+
+        auto share = make_shared< BLSPublicKeyShare >(
+        blsPublicKeys->at( i ), _requiredNodes, _totalNodes );
+
+        CHECK_STATE(share->getPublicKey());
+
+        blsPublicKeysMap->insert(std::pair<size_t, ptr<BLSPublicKeyShare>>(i + 1 , share));
     }
 
 
+    LOG(info, "Computing BLS Public Key");
+
     auto blsPublicKey =
-        make_shared< BLSPublicKey >( blsPublicKeysMap, _requiredNodes, _totalNodes );
+        make_shared<BLSPublicKey>( blsPublicKeysMap, _requiredNodes, _totalNodes );
 
-    auto blsPublicKeyVect = blsPublicKey->toString();
+    LOG(info, "Computed BLS Public Key");
 
-    CHECK_STATE( blsPublicKeyVect != nullptr );
+    LOG(info, "Verifying a sample sig");
 
-    CHECK_STATE( blsPublicKeyVect->size() == 4 )
 
     // sign verify a sample sig
 
@@ -434,15 +448,17 @@ JSONFactory::parseTestKeyNamesFromJson( ptr<string> _sgxServerURL, const fs_path
     auto SAMPLE_HASH =
         make_shared< string >( "09c6137b97cdf159b9950f1492ee059d1e2b10eaf7d51f3a97d61f2eee2e81db" );
 
-
     auto hash = SHAHash::fromHex( SAMPLE_HASH );
 
     for ( uint64_t i = 0; i < _requiredNodes; i++ ) {
         blsSigShares.at( i ) = c.blsSignMessageHash(
             blsKeyNames->at( i ), *SAMPLE_HASH, _requiredNodes, _totalNodes, i + 1 );
         CHECK_STATE( blsSigShares[i]["status"] == 0 );
-        ptr< string > sigShare =
-            make_shared< string >( blsSigShares[i]["signatureShare"].asString() );
+
+        string sigShareStr;
+        sigShareStr += blsSigShares[i]["signatureShare"].asString();
+        ptr< string > sigShare = make_shared< string >(sigShareStr );
+
         BLSSigShare sig( sigShare, i + 1, _requiredNodes, _totalNodes );
         sigShareSet.addSigShare( make_shared< BLSSigShare >( sig ) );
 
@@ -457,7 +473,31 @@ JSONFactory::parseTestKeyNamesFromJson( ptr<string> _sgxServerURL, const fs_path
     CHECK_STATE( blsPublicKey->VerifySigWithHelper(
         hash->getHash(), commonSig, _requiredNodes, _totalNodes ) );
 
-    return { ecdsaKeyNames, ecdsaPublicKeyNames, blsKeyNames, blsPublicKeyNames, blsPublicKeyVect };
+
+    LOG(info, "Verified a sample sig");
+
+    LOG(info, "Getting ECDSA keys");
+
+    for ( uint64_t i = 0; i < _totalNodes; i++ ) {
+        auto response = c.getPublicECDSAKey( ecdsaKeyNames->at( i ) );
+
+        CHECK_STATE( response["status"] == 0 );
+
+        string publicKey;
+        publicKey += response["publicKey"].asString();
+        ecdsaPublicKeys->push_back( publicKey );
+    }
+
+
+    CHECK_STATE( ecdsaKeyNames->size() == _totalNodes )
+    CHECK_STATE( blsKeyNames->size() == _totalNodes )
+    CHECK_STATE( ecdsaPublicKeys->size() == _totalNodes )
+    CHECK_STATE( blsPublicKeys->size() == _totalNodes );
+
+    LOG(info, "Got ECDSA keys");
+
+    return { ecdsaKeyNames, ecdsaPublicKeys, blsKeyNames, blsPublicKeys, blsPublicKey };
+
 }
 
 

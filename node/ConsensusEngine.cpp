@@ -87,6 +87,7 @@
 #include "protocols/ProtocolKey.h"
 #include "protocols/binconsensus/BinConsensusInstance.h"
 
+#include "bls/BLSutils.h"
 
 #include "exceptions/FatalError.h"
 
@@ -238,14 +239,14 @@ ptr< Node > ConsensusEngine::readNodeConfigFileAndCreateNode( const fs_path& pat
     ptr< string > _sgxSSLCertFileFullPath, ptr< string > _ecdsaKeyName,
     ptr< vector< string > > _ecdsaPublicKeys, ptr< string > _blsKeyName,
     ptr< vector< ptr< vector< string > > > > _blsPublicKeys,
-    ptr< vector< string > > _blsPublicKey ) {
+    ptr< BLSPublicKey > _blsPublicKey ) {
 
 
     try {
         if ( _useSGX ) {
             CHECK_ARGUMENT( _ecdsaKeyName && _ecdsaPublicKeys );
             CHECK_ARGUMENT( _blsKeyName && _blsPublicKeys );
-            CHECK_ARGUMENT( _blsPublicKey && _blsPublicKey->size() == 4 );
+            CHECK_ARGUMENT( _blsPublicKey);
         }
 
 
@@ -337,6 +338,9 @@ void ConsensusEngine::checkExistsAndFile( const fs_path& _filePath ) {
 
 
 void ConsensusEngine::parseTestConfigsAndCreateAllNodes( const fs_path& dirname ) {
+
+
+
     try {
         checkExistsAndDirectory( dirname );
 
@@ -373,6 +377,7 @@ void ConsensusEngine::parseTestConfigsAndCreateAllNodes( const fs_path& dirname 
                 this->setTestKeys( sgxServerUrl, filePath, nodeCount, nodeCount - 1 / 3 );
             }
         }
+
 
         if ( isSGXEnabled ) {
             CHECK_STATE( ecdsaPublicKeys );
@@ -460,8 +465,6 @@ void ConsensusEngine::startAll() {
             }
         }
 
-        spdlog::shutdown();
-
         throw_with_nested( EngineInitException( "Start all failed", __CLASS_NAME__ ) );
     }
 }
@@ -498,8 +501,6 @@ void ConsensusEngine::bootStrapAll() {
         }
 
         SkaleException::logNested( e );
-
-        spdlog::shutdown();
 
         throw_with_nested(
             EngineInitException( "Consensus engine bootstrap failed", __CLASS_NAME__ ) );
@@ -559,7 +560,8 @@ void ConsensusEngine::init() {
 
     storageLimits = make_shared<StorageLimits>( DEFAULT_DB_STORAGE_LIMIT );
 
-    libff::init_alt_bn128_params();
+
+    BLSutils::initBLS();
 
     threadRegistry = make_shared< GlobalThreadRegistry >();
 
@@ -751,6 +753,9 @@ void ConsensusEngine::setTestKeys( ptr< string > _sgxServerUrl, string _configFi
     CHECK_ARGUMENT( _sgxServerUrl );
     sgxServerUrl = _sgxServerUrl;
 
+    //static atomic<bool> called = false;
+    //assert(!called.exchange(true));
+
     CHECK_STATE( !useTestSGXKeys )
     CHECK_STATE( !isSGXEnabled )
 
@@ -790,10 +795,17 @@ void ConsensusEngine::setSGXKeyInfo( ptr< string > _sgxServerURL,
     setBlsKeyName( _blsKeyName );
 
 
+
+
     map< size_t, shared_ptr< BLSPublicKeyShare > > blsPubKeyShares;
 
 
+
+
     for ( uint64_t i = 0; i < _requiredSigners; i++ ) {
+
+        LOG(info, "Parsing BLS key share:" + blsPublicKeys->at(i)->at(0));
+
         BLSPublicKeyShare pubKey( blsPublicKeys->at( i ), _requiredSigners, _totalSigners );
 
         blsPubKeyShares[i + 1] = make_shared< BLSPublicKeyShare >( pubKey );
@@ -801,11 +813,8 @@ void ConsensusEngine::setSGXKeyInfo( ptr< string > _sgxServerURL,
 
     // create pub key
 
-    BLSPublicKey blsPublicKeyObj(
-        make_shared< map< size_t, shared_ptr< BLSPublicKeyShare > > >( blsPubKeyShares ),
-        _requiredSigners, _totalSigners );
-
-    blsPublicKey = blsPublicKeyObj.toString();
+    blsPublicKey = make_shared<BLSPublicKey>(make_shared< map< size_t, shared_ptr< BLSPublicKeyShare > > >( blsPubKeyShares ),
+                                                     _requiredSigners, _totalSigners );
 
     sgxSSLCertFileFullPath = _sgxSSLCertFileFullPath;
     sgxSSLKeyFileFullPath = _sgxSSLKeyFileFullPath;

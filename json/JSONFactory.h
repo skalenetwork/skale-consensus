@@ -38,7 +38,7 @@ public:
         ptr< string > _sgxSSLCertFileFullPath, ptr< string > _ecdsaKeyName,
         ptr< vector< string > > _ecdsaPublicKeys, ptr< string > _blsKeyName,
         ptr< vector< ptr< vector< string > > > > _blsPublicKeys,
-        ptr< vector< string > > _blsPublicKey );
+        ptr< BLSPublicKey > _blsPublicKey );
 
     static ptr< Node > createNodeFromJsonObject(
         const nlohmann::json& j, set< node_id >& nodeIDs, ConsensusEngine* _engine, bool _useSGX,
@@ -46,7 +46,7 @@ public:
         ptr< string > _sgxSSLKeyFileFullPath, ptr< string > _sgxSSLCertFileFullPath,
         ptr< string > _ecdsaKeyName, ptr< vector< string > > _ecdsaPublicKeys,
         ptr< string > _blsKeyName, ptr< vector< ptr< vector< string > > > > _blsPublicKeys,
-        ptr< vector< string > > _blsPublicKey
+        ptr< BLSPublicKey > _blsPublicKey
 
     );
 
@@ -59,7 +59,7 @@ public:
     static void parseJsonFile( nlohmann::json& j, const fs_path& configFile );
 
     static tuple< ptr< vector< string > >, ptr< vector< string > >, ptr< vector< string > >,
-        ptr< vector< ptr< vector< string > > > >, ptr< vector< string > > >
+        ptr< vector< ptr< vector< string > > > >, ptr<BLSPublicKey>>
     parseTestKeyNamesFromJson(ptr<string> _sgxServer4Url,  const fs_path& configFile, uint64_t _totalNodes,
         uint64_t _requiredNodes);
 
