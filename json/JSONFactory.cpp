@@ -385,8 +385,6 @@ JSONFactory::parseTestKeyNamesFromJson( ptr<string> _sgxServerURL, const fs_path
         auto response = c.getBLSPublicKeyShare( blsKeyNames->at( i ) );
         CHECK_STATE( response["status"] == 0 );
 
-        cerr << response << endl;
-
         auto fourPieces = response["blsPublicKeyShare"];
 
         CHECK_STATE(fourPieces.isArray());
@@ -401,10 +399,10 @@ JSONFactory::parseTestKeyNamesFromJson( ptr<string> _sgxServerURL, const fs_path
 
             CHECK_STATE(element.is<string>())
 
-            auto keyPiece = element.asString();
+            string  keyPiece;
+            keyPiece += element.asString();
 
             CHECK_STATE(strlen(keyPiece.c_str()) ==  keyPiece.size());
-
             CHECK_STATE(keyPiece.size() > 0);
 
             blsPublicKeys->back()->push_back( keyPiece );
@@ -439,7 +437,7 @@ JSONFactory::parseTestKeyNamesFromJson( ptr<string> _sgxServerURL, const fs_path
 
     LOG(info, "Computed BLS Public Key");
 
-
+    LOG(info, "Verifying a sample sig");
 
 
     // sign verify a sample sig
@@ -456,8 +454,11 @@ JSONFactory::parseTestKeyNamesFromJson( ptr<string> _sgxServerURL, const fs_path
         blsSigShares.at( i ) = c.blsSignMessageHash(
             blsKeyNames->at( i ), *SAMPLE_HASH, _requiredNodes, _totalNodes, i + 1 );
         CHECK_STATE( blsSigShares[i]["status"] == 0 );
-        ptr< string > sigShare =
-            make_shared< string >( blsSigShares[i]["signatureShare"].asString() );
+
+        string sigShareStr;
+        sigShareStr += blsSigShares[i]["signatureShare"].asString();
+        ptr< string > sigShare = make_shared< string >(sigShareStr );
+
         BLSSigShare sig( sigShare, i + 1, _requiredNodes, _totalNodes );
         sigShareSet.addSigShare( make_shared< BLSSigShare >( sig ) );
 
@@ -473,14 +474,17 @@ JSONFactory::parseTestKeyNamesFromJson( ptr<string> _sgxServerURL, const fs_path
         hash->getHash(), commonSig, _requiredNodes, _totalNodes ) );
 
 
+    LOG(info, "Verified a sample sig");
+
+    LOG(info, "Getting ECDSA keys");
 
     for ( uint64_t i = 0; i < _totalNodes; i++ ) {
         auto response = c.getPublicECDSAKey( ecdsaKeyNames->at( i ) );
+
         CHECK_STATE( response["status"] == 0 );
 
-        auto publicKey = response["publicKey"].asString();
-
-
+        string publicKey;
+        publicKey += response["publicKey"].asString();
         ecdsaPublicKeys->push_back( publicKey );
     }
 
@@ -488,9 +492,9 @@ JSONFactory::parseTestKeyNamesFromJson( ptr<string> _sgxServerURL, const fs_path
     CHECK_STATE( ecdsaKeyNames->size() == _totalNodes )
     CHECK_STATE( blsKeyNames->size() == _totalNodes )
     CHECK_STATE( ecdsaPublicKeys->size() == _totalNodes )
-    CHECK_STATE( blsPublicKeys->size() == _totalNodes )
+    CHECK_STATE( blsPublicKeys->size() == _totalNodes );
 
-
+    LOG(info, "Got ECDSA keys");
 
     return { ecdsaKeyNames, ecdsaPublicKeys, blsKeyNames, blsPublicKeys, blsPublicKey };
 
