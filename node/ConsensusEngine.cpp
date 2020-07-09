@@ -374,6 +374,8 @@ void ConsensusEngine::parseTestConfigsAndCreateAllNodes( const fs_path& dirname 
             }
         }
 
+        exit(-1);
+
         if ( isSGXEnabled ) {
             CHECK_STATE( ecdsaPublicKeys );
             CHECK_STATE( ecdsaKeyNames );

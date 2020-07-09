@@ -317,6 +317,8 @@ void JSONFactory::parseJsonFile( nlohmann::json& j, const fs_path& configFile ) 
 
 using namespace jsonrpc;
 
+
+
 tuple< ptr< vector< string > >, ptr< vector< string > >, ptr< vector< string > >,
     ptr< vector< ptr< vector< string > > > >, ptr< BLSPublicKey>>
 JSONFactory::parseTestKeyNamesFromJson( ptr<string> _sgxServerURL, const fs_path& configFile, uint64_t _totalNodes,
@@ -386,12 +388,23 @@ JSONFactory::parseTestKeyNamesFromJson( ptr<string> _sgxServerURL, const fs_path
 
         auto fourPieces = response["blsPublicKeyShare"];
 
+        CHECK_STATE(fourPieces.isArray());
+
         CHECK_STATE( fourPieces.size() == 4 );
 
         blsPublicKeys->push_back( make_shared< vector< string > >() );
 
         for ( uint64_t k = 0; k < 4; k++ ) {
-            blsPublicKeys->back()->push_back( fourPieces[( int ) k].asString() );
+
+            auto element = fourPieces[(int) k];
+
+            CHECK_STATE(element.is<string>())
+
+            auto keyPiece = element.asString();
+
+            CHECK_STATE(keyPiece.size() > 0);
+
+            blsPublicKeys->back()->push_back( keyPiece );
         }
     }
 
@@ -463,6 +476,7 @@ JSONFactory::parseTestKeyNamesFromJson( ptr<string> _sgxServerURL, const fs_path
         CHECK_STATE( response["status"] == 0 );
 
         auto publicKey = response["publicKey"].asString();
+
 
         ecdsaPublicKeys->push_back( publicKey );
     }
