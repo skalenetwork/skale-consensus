@@ -105,7 +105,6 @@ BlockProposalDB::getSerializedProposalFromLevelDB(block_id _blockID, schain_inde
     try {
 
         auto value = readStringFromBlockSet(_blockID, _proposerIndex);
-        CHECK_STATE(value);
 
         if (value) {
             auto serializedBlock = make_shared<vector<uint8_t>>();

@@ -69,6 +69,7 @@
 
 #include <libBLS/bls/BLSPublicKeyShare.h>
 #include <boost/multiprecision/cpp_int.hpp>
+#include <libff/common/profiling.hpp>
 
 
 #include "spdlog/sinks/rotating_file_sink.h"
@@ -560,6 +561,8 @@ void ConsensusEngine::init() {
 
     storageLimits = make_shared<StorageLimits>( DEFAULT_DB_STORAGE_LIMIT );
 
+
+    libff::inhibit_profiling_counters = true;
 
     BLSutils::initBLS();
 
