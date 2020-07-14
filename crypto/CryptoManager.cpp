@@ -243,7 +243,7 @@ MPZNumber::~MPZNumber() {
     mpz_clear(this->number);
 }
 
-std::tuple<ptr<MPZNumber>, ptr<string>>  CryptoManager::trustedGenerateEcdsaKey() {
+std::tuple<ptr<MPZNumber>, ptr<string>>  CryptoManager::localGenerateEcdsaKey() {
 
     domain_parameters curve = domain_parameters_init();
     domain_parameters_load_curve(curve, secp256k1);
@@ -429,6 +429,10 @@ ptr< string > CryptoManager::localSignECDSA( ptr< SHAHash > _hash, block_id _blo
             CHECK_STATE(item.second);
             privateKey = item.first;
             publicKey = item.second;
+        } else {
+            auto&& [privateKey, publicKey] = localGenerateEcdsaKey();
+            sessionKeys[(uint64_t) _blockID] =
+                pair<ptr<MPZNumber>, ptr<string>>(privateKey, publicKey);
         }
     }
 
@@ -443,7 +447,6 @@ ptr< string > CryptoManager::localSignECDSA( ptr< SHAHash > _hash, block_id _blo
     signature sign = signature_init();
 
     signature_sign(sign, msgMpz, privateKey->number, ecdsaCurve);
-
 
     char arrR[mpz_sizeinbase(sign->r, 16) + 2];
     mpz_get_str(arrR, 16, sign->r);

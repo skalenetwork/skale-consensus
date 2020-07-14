@@ -107,7 +107,7 @@ class CryptoManager {
     map<node_id, ptr<string>> ecdsaPublicKeyMap;
     map<node_id, ptr<vector<string>>> blsPublicKeyMap;
 
-    std::tuple<ptr<MPZNumber> , ptr<string>> trustedGenerateEcdsaKey();
+    std::tuple<ptr<MPZNumber> , ptr<string>> localGenerateEcdsaKey();
 
     ptr< BLSPublicKey > blsPublicKeyObj = nullptr;
 
