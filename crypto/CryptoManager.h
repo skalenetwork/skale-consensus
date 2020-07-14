@@ -119,10 +119,10 @@ class CryptoManager {
 
     ptr< string > signECDSA( ptr< SHAHash > _hash );
 
-    tuple<ptr< string >, ptr<string>> signECDSALocal( ptr< SHAHash > _hash, block_id _blockId) ;
+    tuple<ptr< string >, ptr<string>> sessionSignECDSA( ptr< SHAHash > _hash, block_id _blockId) ;
 
 
-    bool verifyECDSALocal( ptr< SHAHash > _hash, ptr< string > _sig,
+    bool sessionVerifyECDSA( ptr< SHAHash > _hash, ptr< string > _sig,
                            ptr<string> _publicKey, node_id _nodeId );
 
     bool verifyECDSA( ptr< SHAHash > _hash, ptr< string > _sig, node_id _nodeId );
@@ -181,11 +181,10 @@ public:
 
     ptr< string > sgxSignECDSA( ptr< SHAHash > _hash, string& _keyName );
 
-    tuple<ptr< string >, ptr<string>> localSignECDSA( ptr< SHAHash > _hash, block_id _blockID );
+    tuple<ptr< string >, ptr<string>> sessionSignECDSAInternal( ptr< SHAHash > _hash, block_id _blockID );
 
 
-
-    bool localVerifyECDSA( ptr< SHAHash > _hash, ptr< string > _publicKey, ptr< string > _sig );
+    bool localVerifyECDSAInternal( ptr< SHAHash > _hash, ptr< string > _sig, ptr< string > _publicKey );
 
     bool verifyECDSASigRS( string& pubKeyStr, const char* hashHex, const char* signatureR,
                                         const char* signatureS, int base );
