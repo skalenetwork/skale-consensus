@@ -42,6 +42,7 @@
 #include <jsonrpccpp/client/connectors/httpclient.h>
 
 
+
 #include "Log.h"
 #include "SkaleCommon.h"
 
@@ -103,7 +104,7 @@ ptr< string > CryptoManager::getSgxBlsKeyName() {
 CryptoManager::CryptoManager( uint64_t _totalSigners, uint64_t _requiredSigners, bool _isSGXEnabled,
     ptr< string > _sgxURL, ptr< string > _sgxSslKeyFileFullPath,
     ptr< string > _sgxSslCertFileFullPath, ptr< string > _sgxEcdsaKeyName,
-    ptr< vector< string > > _sgxEcdsaPublicKeys ) {
+    ptr< vector< string > > _sgxEcdsaPublicKeys ) : sessionKeys(SESSION_KEY_CACHE_SIZE) {
 
     CHECK_ARGUMENT( _totalSigners >= _requiredSigners );
     totalSigners = _totalSigners;
@@ -162,7 +163,8 @@ uint64_t CryptoManager::parseSGXPort( ptr< string > _url ) {
 }
 
 
-CryptoManager::CryptoManager( Schain& _sChain ) : sChain( &_sChain ) {
+CryptoManager::CryptoManager( Schain& _sChain ) : sessionKeys(SESSION_KEY_CACHE_SIZE),
+      sChain( &_sChain )   {
     totalSigners = getSchain()->getTotalSigners();
     requiredSigners = getSchain()->getRequiredSigners();
 
@@ -243,6 +245,13 @@ MPZNumber::~MPZNumber() {
     mpz_clear(this->number);
 }
 
+using namespace std;
+unsigned long long int random_value = 0; //Declare value to store data into
+size_t size = sizeof(random_value); //Declare size of data
+
+
+static ifstream urandom("/dev/urandom", ios::in|ios::binary); //Open stream
+
 std::tuple<ptr<MPZNumber>, ptr<string>>  CryptoManager::localGenerateEcdsaKey() {
 
     domain_parameters curve = domain_parameters_init();
@@ -250,7 +259,10 @@ std::tuple<ptr<MPZNumber>, ptr<string>>  CryptoManager::localGenerateEcdsaKey() 
 
     unsigned char *rand_char = (unsigned char *) calloc(32, 1);
 
-    //get_global_random(rand_char, 32);
+    CHECK_STATE(urandom);
+    urandom.read(reinterpret_cast<char*>(rand_char), 32); //Read from urandom
+    CHECK_STATE(urandom);
+
 
     mpz_t seed;
     mpz_init(seed);
@@ -326,12 +338,16 @@ void CryptoManager::signature_sign(signature sig, mpz_t message, mpz_t private_k
 
         unsigned char *rand_char = (unsigned char *) calloc(32, 1);
 
-        //get_global_random(rand_char, 32);
+        CHECK_STATE(urandom);
+        urandom.read(reinterpret_cast<char*>(rand_char), 32); //Read from urandom
+        CHECK_STATE(urandom);
 
         signature_sign_start:
 
 
-        //get_global_random(rand_char, 32);
+        CHECK_STATE(urandom);
+        urandom.read(reinterpret_cast<char*>(rand_char), 32); //Read from urandom
+        CHECK_STATE(urandom);
 
         mpz_import(seed, 32, 1, sizeof(rand_char[0]), 0, 0, rand_char);
 
@@ -423,16 +439,16 @@ tuple<ptr< string >, ptr<string>> CryptoManager::localSignECDSA( ptr< SHAHash > 
     {
         LOCK(sessionKeysLock);
 
-        if (sessionKeys.count((uint64_t) _blockID) != 0) {
-            auto item = sessionKeys[(uint64_t) _blockID];
+        if (sessionKeys.exists((uint64_t) _blockID)) {
+            auto item = sessionKeys.get((uint64_t) _blockID);
             CHECK_STATE(item.first);
             CHECK_STATE(item.second);
             privateKey = item.first;
             publicKey = item.second;
         } else {
             tie(privateKey, publicKey) = localGenerateEcdsaKey();
-            sessionKeys[(uint64_t) _blockID] =
-                pair<ptr<MPZNumber>, ptr<string>>(privateKey, publicKey);
+            sessionKeys.put((uint64_t) _blockID,
+                pair<ptr<MPZNumber>, ptr<string>>(privateKey, publicKey));
         }
     }
 
@@ -594,8 +610,8 @@ bool CryptoManager::localVerifyECDSA(
 
 ptr< string > CryptoManager::signECDSA( ptr< SHAHash > _hash ) {
     CHECK_ARGUMENT( _hash );
-    if (false) { // temporarily disavled ecdsa
-    //if ( isSGXEnabled ) {
+
+    if ( isSGXEnabled ) {
         auto result = sgxSignECDSA( _hash, *sgxECDSAKeyName );
         CHECK_STATE( verifyECDSA( _hash, result, getSchain()->getNode()->getNodeID() ) );
         return result;
@@ -607,8 +623,7 @@ ptr< string > CryptoManager::signECDSA( ptr< SHAHash > _hash ) {
 
 tuple<ptr< string >, ptr<string>> CryptoManager::signECDSALocal( ptr< SHAHash > _hash, block_id _blockId ) {
     CHECK_ARGUMENT( _hash );
-    if (false) { // temporarily disavled ecdsa
-        //if ( isSGXEnabled ) {
+    if ( isSGXEnabled ) {
         auto result = localSignECDSA( _hash, _blockId );
         //CHECK_STATE( verifyECDSA( _hash, result, getSchain()->getNode()->getNodeID() ) );
         return result;
@@ -624,6 +639,7 @@ bool CryptoManager::verifyECDSALocal( ptr< SHAHash > _hash, ptr< string > _sig,
     CHECK_ARGUMENT( _hash)
     CHECK_ARGUMENT( _sig)
     CHECK_ARGUMENT(_publicKey);
+    assert(isSGXEnabled);
     if ( isSGXEnabled ) {
         auto pubKey = ecdsaPublicKeyMap.at( _nodeId );
         CHECK_STATE( pubKey );
@@ -757,13 +773,14 @@ void CryptoManager::signProposalECDSA( BlockProposal* _proposal ) {
 }
 
 tuple<ptr< string >,ptr<string>> CryptoManager::signNetworkMsg( NetworkMessage& _msg ) {
+    MONITOR(__CLASS_NAME__, __FUNCTION__ );
     auto&&[signature, publicKey] = signECDSALocal( _msg.getHash(), _msg.getBlockId());
     CHECK_STATE( signature);
     return {signature, publicKey};
 }
 
 bool CryptoManager::verifyNetworkMsg( NetworkMessage& _msg ) {
-
+    MONITOR(__CLASS_NAME__, __FUNCTION__ );
     auto sig = _msg.getECDSASig();
     auto hash = _msg.getHash();
     auto publicKey = _msg.getPublicKey();

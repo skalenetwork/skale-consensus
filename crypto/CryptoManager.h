@@ -37,6 +37,8 @@
 #include "sgxwallet/secure_enclave/Point.h"
 #include "sgxwallet/secure_enclave/Signature.h"
 
+#include "thirdparty/lrucache.hpp"
+
 class Schain;
 class SHAHash;
 class ConsensusBLSSigShare;
@@ -75,7 +77,7 @@ class CryptoManager {
 
 
 
-    map<uint64_t, pair<ptr<MPZNumber>, ptr<string>>> sessionKeys;
+    cache::lru_cache<uint64_t, pair<ptr<MPZNumber>, ptr<string>>> sessionKeys;
 
     recursive_mutex clientLock;
     recursive_mutex sessionKeysLock;
