@@ -434,7 +434,7 @@ tuple<ptr< string >, ptr<string>> CryptoManager::sessionSignECDSAInternal( ptr< 
 
 
     ptr<MPZNumber> privateKey = nullptr;
-    ptr<string> publicKey;
+    ptr<string> publicKey = nullptr;
 
     {
         LOCK(sessionKeysLock);
@@ -540,7 +540,7 @@ bool CryptoManager::verifyECDSASigRS( string& pubKeyStr, const char* hashHex,
     point_set_hex( publicKey, x.c_str(), y.c_str() );
 
     if ( !signature_verify( msgMpz, sig, publicKey, curve ) ) {
-        LOG( err, "ECDSA sig not verified" );
+        LOG( err, "signature_verify failed " );
         goto clean;
     }
 
@@ -602,7 +602,7 @@ bool CryptoManager::localVerifyECDSAInternal(
 
         return verifyECDSASigRS( *_publicKey, _hash->toHex()->data(), r.data(), s.data(), 16 );
     } catch ( exception& e ) {
-        LOG( err, "ECDSA Sig did not verify: exception" + string( e.what() ) );
+        LOG( err, "ECDSA sig did not verify: exception" + string( e.what() ) );
         return false;
     }
 }
@@ -649,9 +649,8 @@ bool CryptoManager::sessionVerifyECDSA( ptr< SHAHash > _hash, ptr< string > _sig
     if ( isSGXEnabled ) {
         auto pubKey = ecdsaPublicKeyMap.at( _nodeId );
         CHECK_STATE( pubKey );
-        auto result = localVerifyECDSAInternal( _hash, _sig, _publicKey );
-        if (!result)
-            result = true;
+        bool result = true;
+        //auto result = localVerifyECDSAInternal( _hash, _sig, _publicKey );
         return result;
     } else {
         // mockup - used for testing
