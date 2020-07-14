@@ -120,6 +120,9 @@ class CryptoManager {
     tuple<ptr< string >, ptr<string>> signECDSALocal( ptr< SHAHash > _hash, block_id _blockId) ;
 
 
+    bool verifyECDSALocal( ptr< SHAHash > _hash, ptr< string > _sig,
+                           ptr<string> _publicKey, node_id _nodeId );
+
     bool verifyECDSA( ptr< SHAHash > _hash, ptr< string > _sig, node_id _nodeId );
 
     ptr< ThresholdSigShare > signSigShare( ptr< SHAHash > _hash, block_id _blockId );

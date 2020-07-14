@@ -619,14 +619,37 @@ tuple<ptr< string >, ptr<string>> CryptoManager::signECDSALocal( ptr< SHAHash > 
 
 
 
-
-
-
-bool CryptoManager::verifyECDSA( ptr< SHAHash > _hash, ptr< string > _sig, node_id _nodeId ) {
+bool CryptoManager::verifyECDSALocal( ptr< SHAHash > _hash, ptr< string > _sig,
+                                      ptr< string > _publicKey, node_id _nodeId ) {
     CHECK_ARGUMENT( _hash)
     CHECK_ARGUMENT( _sig)
-    if (false) { // temporarily disable ECDSA
-    //if ( isSGXEnabled ) {
+    CHECK_ARGUMENT(_publicKey);
+    if ( isSGXEnabled ) {
+        auto pubKey = ecdsaPublicKeyMap.at( _nodeId );
+        CHECK_STATE( pubKey );
+        auto result = sgxVerifyECDSA( _hash, _publicKey, _sig );
+        return result;
+    } else {
+        // mockup - used for testing
+        if ( _sig->find( ":" ) != string::npos ) {
+            LOG( critical,
+                 "Misconfiguration: this node is in mockup signature mode,"
+                 "but other node sent a real signature " );
+            ASSERT( false );
+        }
+
+        return *_sig == *( _hash->toHex() );
+    }
+}
+
+
+
+bool CryptoManager::verifyECDSA( ptr< SHAHash > _hash, ptr< string > _sig,
+    node_id _nodeId ) {
+    CHECK_ARGUMENT( _hash)
+    CHECK_ARGUMENT( _sig)
+
+    if ( isSGXEnabled ) {
         auto pubKey = ecdsaPublicKeyMap.at( _nodeId );
         CHECK_STATE( pubKey );
         auto result = sgxVerifyECDSA( _hash, pubKey, _sig );
@@ -743,11 +766,13 @@ bool CryptoManager::verifyNetworkMsg( NetworkMessage& _msg ) {
 
     auto sig = _msg.getECDSASig();
     auto hash = _msg.getHash();
+    auto publicKey = _msg.getPublicKey();
 
     CHECK_STATE(sig);
+    CHECK_STATE(publicKey);
     CHECK_STATE(hash);
 
-    if ( !verifyECDSA( hash, sig, _msg.getSrcNodeID() ) ) {
+    if ( !verifyECDSALocal( hash, sig, publicKey, _msg.getSrcNodeID() ) ) {
         LOG( warn, "ECDSA sig did not verify" );
         return false;
     }
