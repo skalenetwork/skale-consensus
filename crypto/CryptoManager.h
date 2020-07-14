@@ -60,6 +60,17 @@ namespace jsonrpc {
 class HttpClient;
 }
 
+class MPZNumber {
+
+public:
+
+    MPZNumber();
+    ~MPZNumber();
+    mpz_t number;
+};
+
+
+
 class CryptoManager {
 
 
@@ -92,8 +103,7 @@ class CryptoManager {
     map<node_id, ptr<string>> ecdsaPublicKeyMap;
     map<node_id, ptr<vector<string>>> blsPublicKeyMap;
 
-
-
+    std::tuple<ptr<MPZNumber> , ptr<string>> trustedGenerateEcdsaKey();
 
     ptr< BLSPublicKey > blsPublicKeyObj = nullptr;
 

@@ -69,6 +69,8 @@
 #include "CryptoManager.h"
 
 
+
+
 void CryptoManager::initSGXClient() {
     if ( isSGXEnabled ) {
         if ( isHTTPSEnabled ) {
@@ -228,10 +230,20 @@ static domain_parameters ecdsaCurve = NULL;
 
 #define ECDSA_SKEY_LEN 65
 #define ECDSA_SKEY_BASE 16
-#define BUF_LEN 16
 
-void trustedGenerateEcdsaKey(int , char *,
-                             uint8_t *, uint32_t *, char *pub_key_x, char *pub_key_y) {
+#define BUF_SIZE 1024
+#define PUB_KEY_SIZE 64
+
+
+MPZNumber::MPZNumber() {
+    mpz_init(this->number);
+}
+
+MPZNumber::~MPZNumber() {
+    mpz_clear(this->number);
+}
+
+std::tuple<ptr<MPZNumber>, ptr<string>>  CryptoManager::trustedGenerateEcdsaKey() {
 
     domain_parameters curve = domain_parameters_init();
     domain_parameters_load_curve(curve, secp256k1);
@@ -246,39 +258,44 @@ void trustedGenerateEcdsaKey(int , char *,
 
     free(rand_char);
 
-    mpz_t skey;
-    mpz_init(skey);
-    mpz_mod(skey, seed, curve->p);
+    auto sKey = make_shared<MPZNumber>();
+
+    mpz_mod( sKey->number, seed, curve->p);
     mpz_clear(seed);
 
     //Public key
     point Pkey = point_init();
 
-    signature_extract_public_key(Pkey, skey, curve);
+    signature_extract_public_key(Pkey, sKey->number, curve);
 
-    int len = mpz_sizeinbase(Pkey->x, ECDSA_SKEY_BASE) + 2;
-    char arr_x[len];
+    char pub_key_x[BUF_SIZE];
+    char pub_key_y[BUF_SIZE];
+
+    char arr_x[mpz_sizeinbase(Pkey->x, ECDSA_SKEY_BASE) + 2];
     mpz_get_str(arr_x, ECDSA_SKEY_BASE, Pkey->x);
-    int n_zeroes = 64 - strlen(arr_x);
+    int n_zeroes = PUB_KEY_SIZE - strlen(arr_x);
     for (int i = 0; i < n_zeroes; i++) {
         pub_key_x[i] = '0';
     }
-
-    strncpy(pub_key_x + n_zeroes, arr_x, 1024 - n_zeroes);
+    strncpy(pub_key_x + n_zeroes, arr_x, BUF_SIZE - n_zeroes);
 
     char arr_y[mpz_sizeinbase(Pkey->y, ECDSA_SKEY_BASE) + 2];
     mpz_get_str(arr_y, ECDSA_SKEY_BASE, Pkey->y);
-    n_zeroes = 64 - strlen(arr_y);
+    n_zeroes = PUB_KEY_SIZE - strlen(arr_y);
     for (int i = 0; i < n_zeroes; i++) {
         pub_key_y[i] = '0';
     }
-    strncpy(pub_key_y + n_zeroes, arr_y, 1024 - n_zeroes);
-    char skey_str[mpz_sizeinbase(skey, ECDSA_SKEY_BASE) + 2];
-    mpz_get_str(skey_str, ECDSA_SKEY_BASE, skey);
+    strncpy(pub_key_y + n_zeroes, arr_y, BUF_SIZE - n_zeroes);
 
-    mpz_clear(skey);
+
+    auto pKey = make_shared<string>(string(pub_key_x) + string(pub_key_y));
+
+    //mpz_clear(skey);
     domain_parameters_clear(curve);
     point_clear(Pkey);
+
+    return {sKey, pKey};
+
 }
 
 void CryptoManager::signature_sign(signature sig, mpz_t message, mpz_t private_key, domain_parameters curve) {
