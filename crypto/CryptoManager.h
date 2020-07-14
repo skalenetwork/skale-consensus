@@ -74,7 +74,11 @@ public:
 class CryptoManager {
 
 
+
+    map<uint64_t, pair<ptr<MPZNumber>, ptr<string>>> sessionKeys;
+
     recursive_mutex clientLock;
+    recursive_mutex sessionKeysLock;
 
     ptr< StubClient > sgxClient = nullptr;
 
@@ -172,7 +176,7 @@ public:
 
     ptr< string > sgxSignECDSA( ptr< SHAHash > _hash, string& _keyName );
 
-    ptr< string > localSignECDSA( ptr< SHAHash > _hash);
+    ptr< string > localSignECDSA( ptr< SHAHash > _hash, block_id _blockID );
 
 
 

@@ -406,8 +406,7 @@ void CryptoManager::signature_sign(signature sig, mpz_t message, mpz_t private_k
 }
 
 
-
-ptr< string > CryptoManager::localSignECDSA( ptr< SHAHash > _hash) {
+ptr< string > CryptoManager::localSignECDSA( ptr< SHAHash > _hash, block_id _blockID ) {
 
     CHECK_ARGUMENT(_hash);
 
@@ -417,30 +416,33 @@ ptr< string > CryptoManager::localSignECDSA( ptr< SHAHash > _hash) {
         domain_parameters_load_curve(ecdsaCurve, secp256k1);
     }
 
-    char skey[ECDSA_SKEY_LEN];
 
-    mpz_t privateKeyMpz;
-    mpz_init(privateKeyMpz);
+    ptr<MPZNumber> privateKey = nullptr;
+    ptr<string> publicKey;
 
-    if (mpz_set_str(privateKeyMpz, skey, ECDSA_SKEY_BASE) == -1) {
-        mpz_clear(privateKeyMpz);
-        BOOST_THROW_EXCEPTION(
-            InvalidStateException("mpz_set_str ECDSA failed for private key", __CLASS_NAME__));
-    };
+    {
+        LOCK(sessionKeysLock);
 
+        if (sessionKeys.count((uint64_t) _blockID) != 0) {
+            auto item = sessionKeys[(uint64_t) _blockID];
+            CHECK_STATE(item.first);
+            CHECK_STATE(item.second);
+            privateKey = item.first;
+            publicKey = item.second;
+        }
+    }
 
     mpz_t msgMpz;
     mpz_init(msgMpz);
 
     if (mpz_set_str(msgMpz, _hash->toHex()->c_str(), 16) == -1) {
-        mpz_clear(privateKeyMpz);
         mpz_clear(msgMpz);
         BOOST_THROW_EXCEPTION(InvalidStateException("Can mpz_set_str hash", __CLASS_NAME__));
     };
 
     signature sign = signature_init();
 
-    signature_sign(sign, msgMpz, privateKeyMpz, ecdsaCurve);
+    signature_sign(sign, msgMpz, privateKey->number, ecdsaCurve);
 
 
     char arrR[mpz_sizeinbase(sign->r, 16) + 2];
@@ -456,13 +458,11 @@ ptr< string > CryptoManager::localSignECDSA( ptr< SHAHash > _hash) {
 
     auto ret = make_shared< string >( v + ":" + r.substr( 2 ) + ":" + s.substr( 2 ) );
 
-    mpz_clear(privateKeyMpz);
     mpz_clear(msgMpz);
     signature_free(sign);
 
     return ret;
 }
-
 
 
 
@@ -603,7 +603,7 @@ ptr< string > CryptoManager::signECDSALocal( ptr< SHAHash > _hash ) {
     CHECK_ARGUMENT( _hash );
     if (false) { // temporarily disavled ecdsa
         //if ( isSGXEnabled ) {
-        auto result = localSignECDSA( _hash);
+        auto result = localSignECDSA( _hash, block_id() );
         //CHECK_STATE( verifyECDSA( _hash, result, getSchain()->getNode()->getNodeID() ) );
         return result;
     } else {
