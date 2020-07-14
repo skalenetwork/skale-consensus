@@ -97,10 +97,14 @@ class CryptoManager {
 
     ptr< BLSPublicKey > blsPublicKeyObj = nullptr;
 
-private:
     Schain* sChain = nullptr;
 
+    void signature_sign(signature sig, mpz_t message, mpz_t private_key, domain_parameters curve);
+
     ptr< string > signECDSA( ptr< SHAHash > _hash );
+
+    ptr< string >signECDSALocal( ptr< SHAHash > _hash) ;
+
 
     bool verifyECDSA( ptr< SHAHash > _hash, ptr< string > _sig, node_id _nodeId );
 
@@ -157,6 +161,8 @@ public:
 
 
     ptr< string > sgxSignECDSA( ptr< SHAHash > _hash, string& _keyName );
+
+    ptr< string > localSignECDSA( ptr< SHAHash > _hash);
 
 
 

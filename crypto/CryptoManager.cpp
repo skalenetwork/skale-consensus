@@ -224,6 +224,179 @@ Schain* CryptoManager::getSchain() const {
 }
 
 
+static domain_parameters ecdsaCurve = NULL;
+
+#define ECDSA_SKEY_LEN 65
+#define ECDSA_SKEY_BASE 16
+
+void CryptoManager::signature_sign(signature sig, mpz_t message, mpz_t private_key, domain_parameters curve) {
+    //message must not have a bit length longer than that of n
+    //see: Guide to Elliptic Curve Cryptography, section 4.4.1.
+
+    for (int i = 0; i < 1; i++ ) {
+
+        assert(mpz_sizeinbase(message, 2) <= mpz_sizeinbase(curve->n, 2));
+
+        point Q = point_init();
+
+        //Initializing variables
+        mpz_t k, x, r, t1, t2, t3, t4, t5, s, n_div_2, rem, neg, seed;
+        mpz_init(k);
+        mpz_init(x);
+        mpz_init(r);
+        mpz_init(t1);
+        mpz_init(t2);
+        mpz_init(t3);
+        mpz_init(s);
+        mpz_init(t4);
+        mpz_init(t5);
+        mpz_init(n_div_2);
+        mpz_init(rem);
+        mpz_init(neg);
+        mpz_init(seed);
+
+        unsigned char *rand_char = (unsigned char *) calloc(32, 1);
+
+        //get_global_random(rand_char, 32);
+
+        signature_sign_start:
+
+
+        //get_global_random(rand_char, 32);
+
+        mpz_import(seed, 32, 1, sizeof(rand_char[0]), 0, 0, rand_char);
+
+        mpz_mod(k, seed, curve->p);
+
+        //mpz_set_str(k, "49a0d7b786ec9cde0d0721d72804befd06571c974b191efb42ecf322ba9ddd9a", 16);
+        //  mpz_set_str(k, "DC87789C4C1A09C97FF4DE72C0D0351F261F10A2B9009C80AEE70DDEC77201A0", 16);
+        //mpz_set_str(k,"29932781130098090011281004827843485745127563886526054275935615017309884975795",10);
+
+        //Calculate x
+        point_multiplication(Q, k, curve->G, curve);
+        mpz_set(x, Q->x);
+
+        //Calculate r
+        mpz_mod(r, x, curve->n);
+        if (!mpz_sgn(r))    //Start over if r=0, note haven't been tested memory might die :)
+            goto signature_sign_start;
+
+
+        //Calculate s
+        //s = k¯¹(e+d*r) mod n = (k¯¹ mod n) * ((e+d*r) mod n) mod n
+        //number_theory_inverse(t1, k, curve->n);//t1 = k¯¹ mod n
+        mpz_invert(t1, k, curve->n);
+        mpz_mul(t2, private_key, r);    //t2 = d*r
+        mpz_add(t3, message, t2);    //t3 = e+t2
+        mpz_mod(t4, t3, curve->n);    //t2 = t3 mod n
+        mpz_mul(t5, t4, t1);        //t3 = t2 * t1
+        mpz_mod(s, t5, curve->n);    //s = t3 mod n
+
+        //Calculate v
+
+        mpz_mod_ui(rem, Q->y, 2);
+        mpz_t s_mul_2;
+        mpz_init(s_mul_2);
+        mpz_mul_ui(s_mul_2, s, 2);
+
+        unsigned b = 0;
+        if (mpz_cmp(s_mul_2, curve->n) > 0) {
+            b = 1;
+        }
+        sig->v = mpz_get_ui(rem) ^ b;
+
+        mpz_cdiv_q_ui(n_div_2, curve->n, 2);
+
+        if (mpz_cmp(s, n_div_2) > 0) {
+            mpz_sub(neg, curve->n, s);
+            mpz_set(s, neg);
+        }
+
+        //Set signature
+        mpz_set(sig->r, r);
+        mpz_set(sig->s, s);
+
+        free(rand_char);
+        point_clear(Q);
+
+        mpz_clear(k);
+        mpz_clear(r);
+        mpz_clear(s);
+        mpz_clear(x);
+        mpz_clear(rem);
+        mpz_clear(neg);
+        mpz_clear(t1);
+        mpz_clear(t2);
+        mpz_clear(t3);
+        mpz_clear(seed);
+        mpz_clear(n_div_2);
+        mpz_clear(s_mul_2);
+
+    }
+
+}
+
+
+
+ptr< string > CryptoManager::localSignECDSA( ptr< SHAHash > _hash) {
+
+    CHECK_ARGUMENT(_hash);
+
+
+    if (!ecdsaCurve) {
+        ecdsaCurve = domain_parameters_init();
+        domain_parameters_load_curve(ecdsaCurve, secp256k1);
+    }
+
+    char skey[ECDSA_SKEY_LEN];
+
+    mpz_t privateKeyMpz;
+    mpz_init(privateKeyMpz);
+
+    if (mpz_set_str(privateKeyMpz, skey, ECDSA_SKEY_BASE) == -1) {
+        mpz_clear(privateKeyMpz);
+        BOOST_THROW_EXCEPTION(
+            InvalidStateException("mpz_set_str ECDSA failed for private key", __CLASS_NAME__));
+    };
+
+
+    mpz_t msgMpz;
+    mpz_init(msgMpz);
+
+    if (mpz_set_str(msgMpz, _hash->toHex()->c_str(), 16) == -1) {
+        mpz_clear(privateKeyMpz);
+        mpz_clear(msgMpz);
+        BOOST_THROW_EXCEPTION(InvalidStateException("Can mpz_set_str hash", __CLASS_NAME__));
+    };
+
+    signature sign = signature_init();
+
+    signature_sign(sign, msgMpz, privateKeyMpz, ecdsaCurve);
+
+
+    char arrR[mpz_sizeinbase(sign->r, 16) + 2];
+    mpz_get_str(arrR, 16, sign->r);
+
+
+    char arrS[mpz_sizeinbase(sign->s, 16) + 2];
+    mpz_get_str(arrS, 16, sign->s);
+
+    string r(arrR);
+    string s(arrS);
+    string v = to_string(sign->v);
+
+    auto ret = make_shared< string >( v + ":" + r.substr( 2 ) + ":" + s.substr( 2 ) );
+
+    mpz_clear(privateKeyMpz);
+    mpz_clear(msgMpz);
+    signature_free(sign);
+
+    return ret;
+}
+
+
+
+
 ptr< string > CryptoManager::sgxSignECDSA( ptr< SHAHash > _hash, string& _keyName ) {
 
     CHECK_ARGUMENT(_hash);
@@ -242,6 +415,8 @@ ptr< string > CryptoManager::sgxSignECDSA( ptr< SHAHash > _hash, string& _keyNam
     auto ret = make_shared< string >( v + ":" + r.substr( 2 ) + ":" + s.substr( 2 ) );
     return ret;
 }
+
+
 
 bool CryptoManager::verifyECDSASigRS( string& pubKeyStr, const char* hashHex,
     const char* signatureR, const char* signatureS, int base ) {
@@ -353,6 +528,24 @@ ptr< string > CryptoManager::signECDSA( ptr< SHAHash > _hash ) {
         return _hash->toHex();
     }
 }
+
+
+ptr< string > CryptoManager::signECDSALocal( ptr< SHAHash > _hash ) {
+    CHECK_ARGUMENT( _hash );
+    if (false) { // temporarily disavled ecdsa
+        //if ( isSGXEnabled ) {
+        auto result = localSignECDSA( _hash);
+        //CHECK_STATE( verifyECDSA( _hash, result, getSchain()->getNode()->getNodeID() ) );
+        return result;
+    } else {
+        return _hash->toHex();
+    }
+}
+
+
+
+
+
 
 bool CryptoManager::verifyECDSA( ptr< SHAHash > _hash, ptr< string > _sig, node_id _nodeId ) {
     CHECK_ARGUMENT( _hash)
