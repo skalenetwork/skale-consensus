@@ -406,7 +406,7 @@ void CryptoManager::signature_sign(signature sig, mpz_t message, mpz_t private_k
 }
 
 
-ptr< string > CryptoManager::localSignECDSA( ptr< SHAHash > _hash, block_id _blockID ) {
+tuple<ptr< string >, ptr<string>> CryptoManager::localSignECDSA( ptr< SHAHash > _hash, block_id _blockID ) {
 
     CHECK_ARGUMENT(_hash);
 
@@ -430,7 +430,7 @@ ptr< string > CryptoManager::localSignECDSA( ptr< SHAHash > _hash, block_id _blo
             privateKey = item.first;
             publicKey = item.second;
         } else {
-            auto&& [privateKey, publicKey] = localGenerateEcdsaKey();
+            tie(privateKey, publicKey) = localGenerateEcdsaKey();
             sessionKeys[(uint64_t) _blockID] =
                 pair<ptr<MPZNumber>, ptr<string>>(privateKey, publicKey);
         }
@@ -464,7 +464,10 @@ ptr< string > CryptoManager::localSignECDSA( ptr< SHAHash > _hash, block_id _blo
     mpz_clear(msgMpz);
     signature_free(sign);
 
-    return ret;
+    CHECK_STATE(ret);
+    CHECK_STATE(publicKey);
+
+    return {ret, publicKey};
 }
 
 
@@ -602,15 +605,15 @@ ptr< string > CryptoManager::signECDSA( ptr< SHAHash > _hash ) {
 }
 
 
-ptr< string > CryptoManager::signECDSALocal( ptr< SHAHash > _hash ) {
+tuple<ptr< string >, ptr<string>> CryptoManager::signECDSALocal( ptr< SHAHash > _hash, block_id _blockId ) {
     CHECK_ARGUMENT( _hash );
     if (false) { // temporarily disavled ecdsa
         //if ( isSGXEnabled ) {
-        auto result = localSignECDSA( _hash, block_id() );
+        auto result = localSignECDSA( _hash, _blockId );
         //CHECK_STATE( verifyECDSA( _hash, result, getSchain()->getNode()->getNodeID() ) );
         return result;
     } else {
-        return _hash->toHex();
+        return {_hash->toHex(), make_shared<string>("")};
     }
 }
 
@@ -730,10 +733,10 @@ void CryptoManager::signProposalECDSA( BlockProposal* _proposal ) {
     _proposal->addSignature( signature );
 }
 
-ptr< string > CryptoManager::signNetworkMsg( NetworkMessage& _msg ) {
-    auto signature = signECDSA( _msg.getHash() );
+tuple<ptr< string >,ptr<string>> CryptoManager::signNetworkMsg( NetworkMessage& _msg ) {
+    auto&&[signature, publicKey] = signECDSALocal( _msg.getHash(), _msg.getBlockId());
     CHECK_STATE( signature);
-    return signature;
+    return {signature, publicKey};
 }
 
 bool CryptoManager::verifyNetworkMsg( NetworkMessage& _msg ) {

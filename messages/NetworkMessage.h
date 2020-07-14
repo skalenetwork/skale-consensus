@@ -67,6 +67,7 @@ protected:
 
     ptr<string> sigShareString;
     ptr<string> ecdsaSig;
+    ptr<string> publicKey;
 
     NetworkMessage(MsgType _messageType, block_id _blockID, schain_index _blockProposerIndex, bin_consensus_round _r,
                    bin_consensus_value _value, uint64_t _timeMs, ProtocolInstance &_srcProtocolInstance);
@@ -74,6 +75,7 @@ protected:
 
     NetworkMessage(MsgType _messageType, node_id _srcNodeID, block_id _blockID, schain_index _blockProposerIndex,
                    bin_consensus_round _r, bin_consensus_value _value, uint64_t _timeMs, schain_id _schainId, msg_id _msgID, ptr<string> _sigShareStr, ptr<string> _ecdsaSig,
+                   ptr<string> _publicKey,
                    schain_index _srcSchainIndex, ptr<CryptoManager> _cryptoManager);
 
     virtual ptr<SHAHash> calculateHash();
@@ -113,5 +115,5 @@ public:
     ptr<SHAHash> getHash();
 
     const ptr<string> &getECDSASig() const;
-
+    const ptr< string >& getPublicKey() const;
 };

@@ -117,7 +117,7 @@ class CryptoManager {
 
     ptr< string > signECDSA( ptr< SHAHash > _hash );
 
-    ptr< string >signECDSALocal( ptr< SHAHash > _hash) ;
+    tuple<ptr< string >, ptr<string>> signECDSALocal( ptr< SHAHash > _hash, block_id _blockId) ;
 
 
     bool verifyECDSA( ptr< SHAHash > _hash, ptr< string > _sig, node_id _nodeId );
@@ -158,7 +158,7 @@ public:
 
     ptr< ThresholdSigShare > signBlockSigShare( ptr< SHAHash > _hash, block_id _blockId );
 
-    ptr< string > signNetworkMsg( NetworkMessage& _msg );
+    tuple<ptr< string >, ptr<string>> signNetworkMsg( NetworkMessage& _msg );
 
     bool verifyNetworkMsg( NetworkMessage& _msg );
 
@@ -176,7 +176,7 @@ public:
 
     ptr< string > sgxSignECDSA( ptr< SHAHash > _hash, string& _keyName );
 
-    ptr< string > localSignECDSA( ptr< SHAHash > _hash, block_id _blockID );
+    tuple<ptr< string >, ptr<string>> localSignECDSA( ptr< SHAHash > _hash, block_id _blockID );
 
 
 
