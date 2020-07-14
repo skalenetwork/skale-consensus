@@ -541,7 +541,7 @@ clean:
 }
 
 
-bool CryptoManager::sgxVerifyECDSA(
+bool CryptoManager::localVerifyECDSA(
     ptr< SHAHash > _hash, ptr< string > _publicKey, ptr< string > _sig ) {
     CHECK_ARGUMENT( _hash );
     CHECK_ARGUMENT( _sig );
@@ -627,7 +627,7 @@ bool CryptoManager::verifyECDSALocal( ptr< SHAHash > _hash, ptr< string > _sig,
     if ( isSGXEnabled ) {
         auto pubKey = ecdsaPublicKeyMap.at( _nodeId );
         CHECK_STATE( pubKey );
-        auto result = sgxVerifyECDSA( _hash, _publicKey, _sig );
+        auto result = localVerifyECDSA( _hash, _publicKey, _sig );
         return result;
     } else {
         // mockup - used for testing
@@ -652,7 +652,7 @@ bool CryptoManager::verifyECDSA( ptr< SHAHash > _hash, ptr< string > _sig,
     if ( isSGXEnabled ) {
         auto pubKey = ecdsaPublicKeyMap.at( _nodeId );
         CHECK_STATE( pubKey );
-        auto result = sgxVerifyECDSA( _hash, pubKey, _sig );
+        auto result = localVerifyECDSA( _hash, pubKey, _sig );
         return result;
     } else {
         // mockup - used for testing
