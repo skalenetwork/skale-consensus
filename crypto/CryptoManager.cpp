@@ -422,7 +422,7 @@ void CryptoManager::signature_sign(signature sig, mpz_t message, mpz_t private_k
 }
 
 
-tuple<ptr< string >, ptr<string>> CryptoManager::sessionSignECDSAInternal( ptr< SHAHash > _hash, block_id _blockID ) {
+tuple<ptr< string >, ptr<string>, ptr<string>> CryptoManager::sessionSignECDSAInternal( ptr< SHAHash > _hash, block_id _blockID ) {
 
     CHECK_ARGUMENT(_hash);
 
@@ -467,11 +467,11 @@ tuple<ptr< string >, ptr<string>> CryptoManager::sessionSignECDSAInternal( ptr< 
             auto pKeyhash = SHAHash::calculateHash(bytesToHash);
 
             CHECK_STATE(sgxECDSAKeyName);
-            auto pubKeySig = sgxSignECDSA(pKeyhash, *sgxECDSAKeyName);
-            CHECK_STATE(pubKeySig);
+            pkSig = sgxSignECDSA(pKeyhash, *sgxECDSAKeyName);
+            CHECK_STATE(pkSig);
 
             sessionKeys.put((uint64_t) _blockID,
-                            {privateKey, publicKey, pubKeySig});
+                            {privateKey, publicKey, pkSig});
         }
     }
 
@@ -505,8 +505,9 @@ tuple<ptr< string >, ptr<string>> CryptoManager::sessionSignECDSAInternal( ptr< 
 
     CHECK_STATE(ret);
     CHECK_STATE(publicKey);
+    CHECK_STATE(pkSig);
 
-    return {ret, publicKey};
+    return {ret, publicKey, pkSig};
 }
 
 
@@ -645,28 +646,25 @@ ptr< string > CryptoManager::signECDSA( ptr< SHAHash > _hash ) {
 }
 
 
-tuple<ptr< string >, ptr<string>> CryptoManager::sessionSignECDSA( ptr< SHAHash > _hash, block_id _blockId ) {
+tuple<ptr< string >, ptr<string>, ptr<string>> CryptoManager::sessionSignECDSA( ptr< SHAHash > _hash, block_id _blockId ) {
     CHECK_ARGUMENT( _hash );
     if ( isSGXEnabled ) {
         ptr<string> signature = nullptr;
         ptr<string> pubKey = nullptr;
+        ptr<string> pkSig = nullptr;
 
-
-
-
-
-
-        tie(signature, pubKey) = sessionSignECDSAInternal( _hash, _blockId );
+        tie(signature, pubKey, pkSig) = sessionSignECDSAInternal( _hash, _blockId );
         CHECK_STATE(signature);
         CHECK_STATE(pubKey);
+        CHECK_STATE(pkSig);
+
         CHECK_STATE( sessionVerifyECDSA( _hash, signature, pubKey,
             getSchain()->getNode()->getNodeID())) ;
-        return {signature, pubKey};
+        return {signature, pubKey, pkSig};
     } else {
-        return {_hash->toHex(), make_shared<string>("")};
+        return {_hash->toHex(), make_shared<string>(""), make_shared<string>("")};
     }
 }
-
 
 
 bool CryptoManager::sessionVerifyECDSA( ptr< SHAHash > _hash, ptr< string > _sig,
@@ -810,8 +808,11 @@ void CryptoManager::signProposalECDSA( BlockProposal* _proposal ) {
 
 tuple<ptr< string >,ptr<string>> CryptoManager::signNetworkMsg( NetworkMessage& _msg ) {
     MONITOR(__CLASS_NAME__, __FUNCTION__ );
-    auto&&[signature, publicKey] = sessionSignECDSA( _msg.getHash(), _msg.getBlockId() );
+    auto&&[signature, publicKey, pkSig] = sessionSignECDSA( _msg.getHash(), _msg.getBlockId() );
     CHECK_STATE( signature);
+    CHECK_STATE( publicKey);
+    CHECK_STATE( pkSig);
+
     return {signature, publicKey};
 }
 
