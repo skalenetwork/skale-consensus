@@ -148,7 +148,7 @@ void ConsensusEngine::logInit() {
         logFileName = "skaled.log";
     }
 
-    if ( dataDir != nullptr ) {
+    if (logDir != nullptr ) {
         logFileNamePrefix = make_shared< string >( *logDir + "/" + logFileName );
         logRotatingFileSync = make_shared< spdlog::sinks::rotating_file_sink_mt >(
             *logFileNamePrefix, 10 * 1024 * 1024, 5 );
