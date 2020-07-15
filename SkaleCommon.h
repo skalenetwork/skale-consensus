@@ -150,6 +150,8 @@ static const uint64_t MAX_ACTIVE_CONSENSUSES = 5;
 
 static const uint64_t MAX_CONSENSUS_HISTORY  = 2 * MAX_ACTIVE_CONSENSUSES;
 
+static const uint64_t SESSION_KEY_CACHE_SIZE  = 256;
+
 
 static constexpr uint64_t MAX_CATCHUP_DOWNLOAD_BYTES = 1000000000;
 

@@ -33,6 +33,7 @@ public:
                               schain_index _blockProposerIndex,uint64_t _time, schain_id _schainId,
                               msg_id _msgID, ptr<string> _sigShare,
                               schain_index _srcSchainIndex, ptr<string> _ecdsaSig,
+                              ptr<string> _pubKey, ptr<string> _pkSig,
                               Schain *_sChain);
 
     virtual bin_consensus_round getRound() const override ;

@@ -37,6 +37,8 @@
 #include "sgxwallet/secure_enclave/Point.h"
 #include "sgxwallet/secure_enclave/Signature.h"
 
+#include "thirdparty/lrucache.hpp"
+
 class Schain;
 class SHAHash;
 class ConsensusBLSSigShare;
@@ -60,10 +62,25 @@ namespace jsonrpc {
 class HttpClient;
 }
 
+class MPZNumber {
+
+public:
+
+    MPZNumber();
+    ~MPZNumber();
+    mpz_t number;
+};
+
+
+
 class CryptoManager {
 
 
+
+    cache::lru_cache<uint64_t, tuple<ptr<MPZNumber>, ptr<string>, ptr<string>>> sessionKeys;
+
     recursive_mutex clientLock;
+    recursive_mutex sessionKeysLock;
 
     ptr< StubClient > sgxClient = nullptr;
 
@@ -92,15 +109,21 @@ class CryptoManager {
     map<node_id, ptr<string>> ecdsaPublicKeyMap;
     map<node_id, ptr<vector<string>>> blsPublicKeyMap;
 
-
-
+    std::tuple<ptr<MPZNumber> , ptr<string>> localGenerateEcdsaKey();
 
     ptr< BLSPublicKey > blsPublicKeyObj = nullptr;
 
-private:
     Schain* sChain = nullptr;
 
+    void signature_sign(signature sig, mpz_t message, mpz_t private_key, domain_parameters curve);
+
     ptr< string > signECDSA( ptr< SHAHash > _hash );
+
+    tuple<ptr< string >, ptr<string>, ptr<string>> sessionSignECDSA( ptr< SHAHash > _hash, block_id _blockId) ;
+
+
+    bool sessionVerifyECDSA( ptr< SHAHash > _hash, ptr< string > _sig,
+                           ptr<string> _publicKey, node_id _nodeId );
 
     bool verifyECDSA( ptr< SHAHash > _hash, ptr< string > _sig, node_id _nodeId );
 
@@ -140,7 +163,7 @@ public:
 
     ptr< ThresholdSigShare > signBlockSigShare( ptr< SHAHash > _hash, block_id _blockId );
 
-    ptr< string > signNetworkMsg( NetworkMessage& _msg );
+    tuple<ptr< string >, ptr<string>, ptr<string>> signNetworkMsg( NetworkMessage& _msg );
 
     bool verifyNetworkMsg( NetworkMessage& _msg );
 
@@ -154,13 +177,11 @@ public:
     static void setSGXKeyAndCert( string& _keyFullPath, string& _certFullPath, uint64_t _sgxPort );
 
 
-
-
     ptr< string > sgxSignECDSA( ptr< SHAHash > _hash, string& _keyName );
 
+    tuple<ptr< string >, ptr<string>, ptr<string>> sessionSignECDSAInternal( ptr< SHAHash > _hash, block_id _blockID );
 
-
-    bool sgxVerifyECDSA( ptr< SHAHash > _hash, ptr< string > _publicKey, ptr< string > _sig );
+    bool localVerifyECDSAInternal( ptr< SHAHash > _hash, ptr< string > _sig, ptr< string > _publicKey );
 
     bool verifyECDSASigRS( string& pubKeyStr, const char* hashHex, const char* signatureR,
                                         const char* signatureS, int base );
@@ -171,6 +192,9 @@ public:
 
 
     ptr< BLSPublicKey > getBlsPublicKeyObj() const;
+
+    static ptr< SHAHash > calculatePublicKeyHash(
+        ptr< string > publicKey, block_id _blockID);
 };
 
 

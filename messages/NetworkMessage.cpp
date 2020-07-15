@@ -71,12 +71,15 @@ NetworkMessage::NetworkMessage(MsgType _messageType, node_id _srcNodeID, block_i
                                schain_index _blockProposerIndex,
                                bin_consensus_round _r, bin_consensus_value _value, uint64_t _timeMs,
                                schain_id _schainId, msg_id _msgID, ptr<string> _sigShareStr, ptr<string> _ecdsaSig,
+                               ptr<string> _publicKey, ptr<string> _pkSig,
                                schain_index _srcSchainIndex, ptr<CryptoManager> _cryptoManager)
         : Message(_schainId, _messageType, _msgID, _srcNodeID, _blockID, _blockProposerIndex),
           BasicHeader(getTypeString(_messageType)) {
 
     CHECK_ARGUMENT(_srcSchainIndex > 0)
     CHECK_ARGUMENT(_ecdsaSig)
+    CHECK_ARGUMENT(_publicKey)
+    CHECK_ARGUMENT(_pkSig)
     // STRANGE
     //CHECK_ARGUMENT(_sigShareStr);
     CHECK_ARGUMENT(_cryptoManager)
@@ -88,6 +91,9 @@ NetworkMessage::NetworkMessage(MsgType _messageType, node_id _srcNodeID, block_i
     this->timeMs = _timeMs;
     this->sigShareString = _sigShareStr;
     this->ecdsaSig = _ecdsaSig;
+    this->publicKey = _publicKey;
+    this->pkSig = _pkSig;
+
 
 
     if (_sigShareStr != nullptr) {
@@ -97,6 +103,12 @@ NetworkMessage::NetworkMessage(MsgType _messageType, node_id _srcNodeID, block_i
 
     setComplete();
 
+}
+const ptr< string >& NetworkMessage::getPublicKey() const {
+    return publicKey;
+}
+const ptr< string >& NetworkMessage::getPkSig() const {
+    return pkSig;
 }
 
 ptr<ThresholdSigShare> NetworkMessage::getSigShare() const {
@@ -143,6 +155,8 @@ void NetworkMessage::addFields(nlohmann::basic_json<> &j) {
 
     CHECK_STATE(ecdsaSig);
     j["sig"] = *ecdsaSig;
+    j["pk"] = *publicKey;
+    j["pks"] = *pkSig;
 }
 
 ptr<NetworkMessage> NetworkMessage::parseMessage(ptr<string> _header, Schain *_sChain) {
@@ -160,6 +174,8 @@ ptr<NetworkMessage> NetworkMessage::parseMessage(ptr<string> _header, Schain *_s
     uint8_t value;
     ptr<string> sigShare;
     ptr<string> ecdsaSig;
+    ptr<string> publicKey;
+    ptr<string> pkSig;
 
     CHECK_ARGUMENT(_header);
     CHECK_ARGUMENT(_sChain);
@@ -184,7 +200,11 @@ ptr<NetworkMessage> NetworkMessage::parseMessage(ptr<string> _header, Schain *_s
         }
 
         ecdsaSig = getString(js, "sig");
+        publicKey = getString(js, "pk");
+        pkSig = getString(js, "pks");
         CHECK_STATE(ecdsaSig);
+        CHECK_STATE(publicKey);
+        CHECK_STATE(pkSig);
 
     } catch (ExitRequestedException &) { throw; } catch (...) {
         throw_with_nested(InvalidStateException("Could not parse message", __CLASS_NAME__));
@@ -204,7 +224,7 @@ ptr<NetworkMessage> NetworkMessage::parseMessage(ptr<string> _header, Schain *_s
                                                    block_id(blockID), schain_index(blockProposerIndex),
                                                    bin_consensus_round(round),
                                                    bin_consensus_value(value), timeMs, schain_id(sChainID), msg_id(msgID),
-                                                   srcSchainIndex, ecdsaSig,
+                                                   srcSchainIndex, ecdsaSig, publicKey, pkSig,
                                                    _sChain);
         } else if (*type == BasicHeader::AUX_BROADCAST) {
             nwkMsg = make_shared<AUXBroadcastMessage>(node_id(srcNodeID),
@@ -214,7 +234,7 @@ ptr<NetworkMessage> NetworkMessage::parseMessage(ptr<string> _header, Schain *_s
                                                     timeMs,
                                                     schain_id(sChainID), msg_id(msgID),
                                                     sigShare,
-                                                    srcSchainIndex, ecdsaSig,
+                                                    srcSchainIndex, ecdsaSig, publicKey, pkSig,
                                                     _sChain);
         } else if (*type == BasicHeader::BLOCK_SIG_BROADCAST) {
             nwkMsg = make_shared<BlockSignBroadcastMessage>(node_id(srcNodeID),
@@ -222,7 +242,7 @@ ptr<NetworkMessage> NetworkMessage::parseMessage(ptr<string> _header, Schain *_s
                                                           timeMs,
                                                           schain_id(sChainID), msg_id(msgID),
                                                           sigShare,
-                                                          srcSchainIndex, ecdsaSig,
+                                                          srcSchainIndex, ecdsaSig, publicKey, pkSig,
                                                           _sChain);
         } else {
             CHECK_STATE(false);
@@ -303,8 +323,10 @@ ptr<SHAHash> NetworkMessage::calculateHash() {
 
 void NetworkMessage::sign(ptr<CryptoManager> _mgr) {
     CHECK_ARGUMENT(_mgr);
-    ecdsaSig = _mgr->signNetworkMsg(*this);
+    tie(ecdsaSig, publicKey, pkSig) = _mgr->signNetworkMsg(*this);
     CHECK_STATE(ecdsaSig);
+    CHECK_STATE(publicKey);
+    CHECK_STATE(pkSig);
 }
 
 void NetworkMessage::verify(ptr<CryptoManager> _mgr) {
