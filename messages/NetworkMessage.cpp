@@ -105,6 +105,9 @@ NetworkMessage::NetworkMessage(MsgType _messageType, node_id _srcNodeID, block_i
 const ptr< string >& NetworkMessage::getPublicKey() const {
     return publicKey;
 }
+const ptr< string >& NetworkMessage::getPkSig() const {
+    return pkSig;
+}
 
 ptr<ThresholdSigShare> NetworkMessage::getSigShare() const {
     CHECK_STATE(sigShare);
@@ -151,6 +154,7 @@ void NetworkMessage::addFields(nlohmann::basic_json<> &j) {
     CHECK_STATE(ecdsaSig);
     j["sig"] = *ecdsaSig;
     j["pk"] = *publicKey;
+    j["pks"] = *pkSig;
 }
 
 ptr<NetworkMessage> NetworkMessage::parseMessage(ptr<string> _header, Schain *_sChain) {
@@ -313,9 +317,10 @@ ptr<SHAHash> NetworkMessage::calculateHash() {
 
 void NetworkMessage::sign(ptr<CryptoManager> _mgr) {
     CHECK_ARGUMENT(_mgr);
-    tie(ecdsaSig, publicKey) = _mgr->signNetworkMsg(*this);
+    tie(ecdsaSig, publicKey, pkSig) = _mgr->signNetworkMsg(*this);
     CHECK_STATE(ecdsaSig);
     CHECK_STATE(publicKey);
+    CHECK_STATE(pkSig);
 }
 
 void NetworkMessage::verify(ptr<CryptoManager> _mgr) {

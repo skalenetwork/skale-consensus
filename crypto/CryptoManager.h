@@ -163,7 +163,7 @@ public:
 
     ptr< ThresholdSigShare > signBlockSigShare( ptr< SHAHash > _hash, block_id _blockId );
 
-    tuple<ptr< string >, ptr<string>> signNetworkMsg( NetworkMessage& _msg );
+    tuple<ptr< string >, ptr<string>, ptr<string>> signNetworkMsg( NetworkMessage& _msg );
 
     bool verifyNetworkMsg( NetworkMessage& _msg );
 

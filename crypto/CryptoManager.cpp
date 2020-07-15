@@ -451,23 +451,27 @@ tuple<ptr< string >, ptr<string>, ptr<string>> CryptoManager::sessionSignECDSAIn
         } else {
             tie(privateKey, publicKey) = localGenerateEcdsaKey();
 
-            auto bytesToHash = make_shared<vector<uint8_t>>();
+            ptr<SHAHash> pKeyHash = nullptr;
 
-            auto bId = (uint64_t) _blockID;
-            auto bidP = (uint8_t*) &bId;
+            {
+                auto bytesToHash = make_shared< vector< uint8_t > >();
 
-            for (uint64_t i = 0; i < sizeof(uint64_t); i++) {
-                bytesToHash->push_back(bidP[i]);
+                auto bId = ( uint64_t ) _blockID;
+                auto bidP = ( uint8_t* ) &bId;
+
+                for ( uint64_t i = 0; i < sizeof( uint64_t ); i++ ) {
+                    bytesToHash->push_back( bidP[i] );
+                }
+
+                for ( uint64_t i = 0; i < publicKey->size(); i++ ) {
+                    bytesToHash->push_back( publicKey->at( i ) );
+                }
+
+                pKeyHash = SHAHash::calculateHash( bytesToHash );
             }
-
-            for (uint64_t i = 0; i < publicKey->size(); i++) {
-                bytesToHash->push_back(publicKey->at(i));
-            }
-
-            auto pKeyhash = SHAHash::calculateHash(bytesToHash);
 
             CHECK_STATE(sgxECDSAKeyName);
-            pkSig = sgxSignECDSA(pKeyhash, *sgxECDSAKeyName);
+            pkSig = sgxSignECDSA(pKeyHash, *sgxECDSAKeyName);
             CHECK_STATE(pkSig);
 
             sessionKeys.put((uint64_t) _blockID,
@@ -806,14 +810,14 @@ void CryptoManager::signProposalECDSA( BlockProposal* _proposal ) {
     _proposal->addSignature( signature );
 }
 
-tuple<ptr< string >,ptr<string>> CryptoManager::signNetworkMsg( NetworkMessage& _msg ) {
+tuple<ptr< string >,ptr<string>, ptr<string>> CryptoManager::signNetworkMsg( NetworkMessage& _msg ) {
     MONITOR(__CLASS_NAME__, __FUNCTION__ );
     auto&&[signature, publicKey, pkSig] = sessionSignECDSA( _msg.getHash(), _msg.getBlockId() );
     CHECK_STATE( signature);
     CHECK_STATE( publicKey);
     CHECK_STATE( pkSig);
 
-    return {signature, publicKey};
+    return {signature, publicKey, pkSig};
 }
 
 bool CryptoManager::verifyNetworkMsg( NetworkMessage& _msg ) {
@@ -821,10 +825,18 @@ bool CryptoManager::verifyNetworkMsg( NetworkMessage& _msg ) {
     auto sig = _msg.getECDSASig();
     auto hash = _msg.getHash();
     auto publicKey = _msg.getPublicKey();
+    auto pkSig = _msg.getPkSig();
 
     CHECK_STATE(sig);
     CHECK_STATE(publicKey);
+    CHECK_STATE(pkSig);
     CHECK_STATE(hash);
+
+    if ( !verifyECDSA( hash, sig, _msg.getSrcNodeID() ) ) {
+        LOG( warn, "PubKey ECDSA sig did not verify" );
+        return false;
+    }
+
 
     if ( !sessionVerifyECDSA( hash, sig, publicKey, _msg.getSrcNodeID() ) ) {
         LOG( warn, "ECDSA sig did not verify" );

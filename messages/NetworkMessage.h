@@ -68,6 +68,8 @@ protected:
     ptr<string> sigShareString;
     ptr<string> ecdsaSig;
     ptr<string> publicKey;
+    ptr<string> pkSig;
+
 
     NetworkMessage(MsgType _messageType, block_id _blockID, schain_index _blockProposerIndex, bin_consensus_round _r,
                    bin_consensus_value _value, uint64_t _timeMs, ProtocolInstance &_srcProtocolInstance);
@@ -116,4 +118,5 @@ public:
 
     const ptr<string> &getECDSASig() const;
     const ptr< string >& getPublicKey() const;
+    const ptr< string >& getPkSig() const;
 };
