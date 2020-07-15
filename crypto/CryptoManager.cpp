@@ -453,22 +453,7 @@ tuple<ptr< string >, ptr<string>, ptr<string>> CryptoManager::sessionSignECDSAIn
 
             ptr<SHAHash> pKeyHash = nullptr;
 
-            {
-                auto bytesToHash = make_shared< vector< uint8_t > >();
-
-                auto bId = ( uint64_t ) _blockID;
-                auto bidP = ( uint8_t* ) &bId;
-
-                for ( uint64_t i = 0; i < sizeof( uint64_t ); i++ ) {
-                    bytesToHash->push_back( bidP[i] );
-                }
-
-                for ( uint64_t i = 0; i < publicKey->size(); i++ ) {
-                    bytesToHash->push_back( publicKey->at( i ) );
-                }
-
-                pKeyHash = SHAHash::calculateHash( bytesToHash );
-            }
+            pKeyHash = calculatePublicKeyHash( publicKey, _blockID);
 
             CHECK_STATE(sgxECDSAKeyName);
             pkSig = sgxSignECDSA(pKeyHash, *sgxECDSAKeyName);
@@ -514,6 +499,23 @@ tuple<ptr< string >, ptr<string>, ptr<string>> CryptoManager::sessionSignECDSAIn
     return {ret, publicKey, pkSig};
 }
 
+ptr< SHAHash > CryptoManager::calculatePublicKeyHash(
+    ptr< string > publicKey, block_id _blockID) {
+        auto bytesToHash = make_shared< vector< uint8_t > >();
+
+        auto bId = ( uint64_t ) _blockID;
+        auto bidP = ( uint8_t* ) &bId;
+
+        for ( uint64_t i = 0; i < sizeof( uint64_t ); i++ ) {
+            bytesToHash->push_back( bidP[i] );
+        }
+
+        for ( uint64_t i = 0; i < publicKey->size(); i++ ) {
+            bytesToHash->push_back( publicKey->at( i ) );
+        }
+
+        return SHAHash::calculateHash( bytesToHash );
+}
 
 
 ptr< string > CryptoManager::sgxSignECDSA( ptr< SHAHash > _hash, string& _keyName ) {
@@ -832,10 +834,13 @@ bool CryptoManager::verifyNetworkMsg( NetworkMessage& _msg ) {
     CHECK_STATE(pkSig);
     CHECK_STATE(hash);
 
-    if ( !verifyECDSA( hash, sig, _msg.getSrcNodeID() ) ) {
+    auto pkeyHash = calculatePublicKeyHash(publicKey, _msg.getBlockID());
+
+    /*if ( !verifyECDSA( pkeyHash, sig, _msg.getSrcNodeID() ) ) {
         LOG( warn, "PubKey ECDSA sig did not verify" );
         return false;
     }
+     */
 
 
     if ( !sessionVerifyECDSA( hash, sig, publicKey, _msg.getSrcNodeID() ) ) {

@@ -77,7 +77,7 @@ protected:
 
     NetworkMessage(MsgType _messageType, node_id _srcNodeID, block_id _blockID, schain_index _blockProposerIndex,
                    bin_consensus_round _r, bin_consensus_value _value, uint64_t _timeMs, schain_id _schainId, msg_id _msgID, ptr<string> _sigShareStr, ptr<string> _ecdsaSig,
-                   ptr<string> _publicKey,
+                   ptr<string> _publicKey, ptr<string> _pkSig,
                    schain_index _srcSchainIndex, ptr<CryptoManager> _cryptoManager);
 
     virtual ptr<SHAHash> calculateHash();

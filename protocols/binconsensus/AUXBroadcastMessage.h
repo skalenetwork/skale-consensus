@@ -45,6 +45,6 @@ public:
                         bin_consensus_round _r, bin_consensus_value _value, uint64_t _time, schain_id _schainId,
                         msg_id _msgID,
                         ptr<string> _signature, schain_index _srcSchainIndex,
-                        ptr<string> _ecdsaSig, ptr<string> _pubKey, Schain *_sChain);
+                        ptr<string> _ecdsaSig, ptr<string> _pubKey, ptr<string> _pkSig,  Schain *_sChain);
 
 };

@@ -192,6 +192,9 @@ public:
 
 
     ptr< BLSPublicKey > getBlsPublicKeyObj() const;
+
+    static ptr< SHAHash > calculatePublicKeyHash(
+        ptr< string > publicKey, block_id _blockID);
 };
 
 
