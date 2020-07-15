@@ -435,20 +435,43 @@ tuple<ptr< string >, ptr<string>> CryptoManager::sessionSignECDSAInternal( ptr< 
 
     ptr<MPZNumber> privateKey = nullptr;
     ptr<string> publicKey = nullptr;
+    ptr<string> pkSig = nullptr;
+
+
 
     {
         LOCK(sessionKeysLock);
 
         if (sessionKeys.exists((uint64_t) _blockID)) {
-            auto item = sessionKeys.get((uint64_t) _blockID);
-            CHECK_STATE(item.first);
-            CHECK_STATE(item.second);
-            privateKey = item.first;
-            publicKey = item.second;
+            tie(privateKey, publicKey, pkSig) = sessionKeys.get((uint64_t) _blockID);
+            CHECK_STATE(privateKey);
+            CHECK_STATE(publicKey);
+            CHECK_STATE(pkSig);
+
         } else {
             tie(privateKey, publicKey) = localGenerateEcdsaKey();
+
+            auto bytesToHash = make_shared<vector<uint8_t>>();
+
+            auto bId = (uint64_t) _blockID;
+            auto bidP = (uint8_t*) &bId;
+
+            for (uint64_t i = 0; i < sizeof(uint64_t); i++) {
+                bytesToHash->push_back(bidP[i]);
+            }
+
+            for (uint64_t i = 0; i < publicKey->size(); i++) {
+                bytesToHash->push_back(publicKey->at(i));
+            }
+
+            auto pKeyhash = SHAHash::calculateHash(bytesToHash);
+
+            CHECK_STATE(sgxECDSAKeyName);
+            auto pubKeySig = sgxSignECDSA(pKeyhash, *sgxECDSAKeyName);
+            CHECK_STATE(pubKeySig);
+
             sessionKeys.put((uint64_t) _blockID,
-                pair<ptr<MPZNumber>, ptr<string>>(privateKey, publicKey));
+                            {privateKey, publicKey, pubKeySig});
         }
     }
 
@@ -612,6 +635,7 @@ ptr< string > CryptoManager::signECDSA( ptr< SHAHash > _hash ) {
     CHECK_ARGUMENT( _hash );
 
     if ( isSGXEnabled ) {
+        CHECK_STATE(sgxECDSAKeyName)
         auto result = sgxSignECDSA( _hash, *sgxECDSAKeyName );
         CHECK_STATE( verifyECDSA( _hash, result, getSchain()->getNode()->getNodeID() ) );
         return result;
@@ -626,6 +650,11 @@ tuple<ptr< string >, ptr<string>> CryptoManager::sessionSignECDSA( ptr< SHAHash 
     if ( isSGXEnabled ) {
         ptr<string> signature = nullptr;
         ptr<string> pubKey = nullptr;
+
+
+
+
+
 
         tie(signature, pubKey) = sessionSignECDSAInternal( _hash, _blockId );
         CHECK_STATE(signature);

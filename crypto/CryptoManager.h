@@ -77,7 +77,7 @@ class CryptoManager {
 
 
 
-    cache::lru_cache<uint64_t, pair<ptr<MPZNumber>, ptr<string>>> sessionKeys;
+    cache::lru_cache<uint64_t, tuple<ptr<MPZNumber>, ptr<string>, ptr<string>>> sessionKeys;
 
     recursive_mutex clientLock;
     recursive_mutex sessionKeysLock;
@@ -177,12 +177,9 @@ public:
     static void setSGXKeyAndCert( string& _keyFullPath, string& _certFullPath, uint64_t _sgxPort );
 
 
-
-
     ptr< string > sgxSignECDSA( ptr< SHAHash > _hash, string& _keyName );
 
     tuple<ptr< string >, ptr<string>> sessionSignECDSAInternal( ptr< SHAHash > _hash, block_id _blockID );
-
 
     bool localVerifyECDSAInternal( ptr< SHAHash > _hash, ptr< string > _sig, ptr< string > _publicKey );
 
