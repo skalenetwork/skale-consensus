@@ -81,6 +81,7 @@ class ConsensusEngine : public ConsensusInterface {
     static shared_ptr< spdlog::logger > configLogger;
 
     static shared_ptr< string > dataDir;
+    static shared_ptr< string > logDir;
 
     shared_ptr< string > healthCheckDir;
     shared_ptr< string > dbDir;
@@ -119,6 +120,7 @@ public:
     shared_ptr< spdlog::logger > createLogger( const string& loggerName );
 
     static const shared_ptr< string > getDataDir();
+    static const shared_ptr< string > getLogDir();
 
     recursive_mutex mutex;
 

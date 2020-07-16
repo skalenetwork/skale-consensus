@@ -105,6 +105,8 @@ shared_ptr< spdlog::logger > ConsensusEngine::configLogger = nullptr;
 
 shared_ptr< string > ConsensusEngine::dataDir = nullptr;
 
+shared_ptr< string > ConsensusEngine::logDir = nullptr;
+
 recursive_mutex ConsensusEngine::logMutex;
 
 atomic< uint64_t > ConsensusEngine::engineCounter;
@@ -129,6 +131,15 @@ void ConsensusEngine::logInit() {
         }
     }
 
+    if ( logDir == nullptr ) {
+        char* d = std::getenv( "LOG_DIR" );
+
+        if ( d != nullptr ) {
+            logDir = make_shared< string >( d );
+            cerr << "Found log dir:" << *logDir << endl;
+        }
+    }
+
 
     string logFileName;
     if ( engineID > 1 ) {
@@ -137,17 +148,21 @@ void ConsensusEngine::logInit() {
         logFileName = "skaled.log";
     }
 
-    if ( dataDir != nullptr ) {
-        logFileNamePrefix = make_shared< string >( *dataDir + "/" + logFileName );
+    if (logDir != nullptr ) {
+        logFileNamePrefix = make_shared< string >( *logDir + "/" + logFileName );
         logRotatingFileSync = make_shared< spdlog::sinks::rotating_file_sink_mt >(
             *logFileNamePrefix, 10 * 1024 * 1024, 5 );
+    } else {
+        logFileNamePrefix = nullptr;
+        logRotatingFileSync = nullptr;
+    }
+
+    if (dataDir != nullptr ) {
         healthCheckDir = dataDir;
         dbDir = dataDir;
     } else {
         healthCheckDir = make_shared< string >( "/tmp" );
         dbDir = healthCheckDir;
-        logFileNamePrefix = nullptr;
-        logRotatingFileSync = nullptr;
     }
 
 
@@ -158,6 +173,11 @@ void ConsensusEngine::logInit() {
 const shared_ptr< string > ConsensusEngine::getDataDir() {
     CHECK_STATE( dataDir );
     return dataDir;
+}
+
+const shared_ptr< string > ConsensusEngine::getLogDir() {
+    CHECK_STATE( logDir );
+    return logDir;
 }
 
 shared_ptr< spdlog::logger > ConsensusEngine::createLogger( const string& loggerName ) {
