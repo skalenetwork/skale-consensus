@@ -140,9 +140,12 @@ void ZMQSockets::closeAndCleanupAll() {
     closeSend();
     closeReceive();
     zmq_ctx_shutdown(context);
+
+    cerr << "Cleaning up ZMQ .." << endl;
+
     zmq_ctx_term(context);
 
-    cerr << "Cleaned up ZMQ";
+    cerr << "Cleaned up ZMQ" << endl;
 
 }
 
