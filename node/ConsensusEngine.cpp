@@ -152,13 +152,17 @@ void ConsensusEngine::logInit() {
         logFileNamePrefix = make_shared< string >( *logDir + "/" + logFileName );
         logRotatingFileSync = make_shared< spdlog::sinks::rotating_file_sink_mt >(
             *logFileNamePrefix, 10 * 1024 * 1024, 5 );
+    } else {
+        logFileNamePrefix = nullptr;
+        logRotatingFileSync = nullptr;
+    }
+
+    if (dataDir != nullptr ) {
         healthCheckDir = dataDir;
         dbDir = dataDir;
     } else {
         healthCheckDir = make_shared< string >( "/tmp" );
         dbDir = healthCheckDir;
-        logFileNamePrefix = nullptr;
-        logRotatingFileSync = nullptr;
     }
 
 
