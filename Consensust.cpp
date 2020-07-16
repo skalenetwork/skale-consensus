@@ -132,7 +132,9 @@ block_id basicRun(block_id _lastId = 0) {
         REQUIRE(engine->nodesCount() > 0);
         auto lastId = engine->getLargestCommittedBlockID();
         REQUIRE(lastId > 0);
+        cerr << "exiting" << endl;
         engine->exitGracefullyBlocking();
+        abort();
         delete engine;
         return lastId;
     } catch (SkaleException &e) {

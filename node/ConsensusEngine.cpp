@@ -148,7 +148,7 @@ void ConsensusEngine::logInit() {
         logFileName = "skaled.log";
     }
 
-    if (logDir != nullptr ) {
+    if ( logDir != nullptr ) {
         logFileNamePrefix = make_shared< string >( *logDir + "/" + logFileName );
         logRotatingFileSync = make_shared< spdlog::sinks::rotating_file_sink_mt >(
             *logFileNamePrefix, 10 * 1024 * 1024, 5 );
@@ -157,7 +157,7 @@ void ConsensusEngine::logInit() {
         logRotatingFileSync = nullptr;
     }
 
-    if (dataDir != nullptr ) {
+    if ( dataDir != nullptr ) {
         healthCheckDir = dataDir;
         dbDir = dataDir;
     } else {
@@ -259,15 +259,12 @@ ptr< Node > ConsensusEngine::readNodeConfigFileAndCreateNode( const fs_path& pat
     set< node_id >& _nodeIDs, bool _useSGX, ptr< string > _sgxSSLKeyFileFullPath,
     ptr< string > _sgxSSLCertFileFullPath, ptr< string > _ecdsaKeyName,
     ptr< vector< string > > _ecdsaPublicKeys, ptr< string > _blsKeyName,
-    ptr< vector< ptr< vector< string > > > > _blsPublicKeys,
-    ptr< BLSPublicKey > _blsPublicKey ) {
-
-
+    ptr< vector< ptr< vector< string > > > > _blsPublicKeys, ptr< BLSPublicKey > _blsPublicKey ) {
     try {
         if ( _useSGX ) {
             CHECK_ARGUMENT( _ecdsaKeyName && _ecdsaPublicKeys );
             CHECK_ARGUMENT( _blsKeyName && _blsPublicKeys );
-            CHECK_ARGUMENT( _blsPublicKey);
+            CHECK_ARGUMENT( _blsPublicKey );
         }
 
 
@@ -307,11 +304,9 @@ ptr< Node > ConsensusEngine::readNodeConfigFileAndCreateNode( const fs_path& pat
 
 
 void ConsensusEngine::readSchainConfigFiles( ptr< Node > _node, const fs_path& _dirPath ) {
-
-    CHECK_ARGUMENT(_node);
+    CHECK_ARGUMENT( _node );
 
     try {
-
         checkExistsAndDirectory( _dirPath );
 
         directory_iterator itr( _dirPath );
@@ -331,7 +326,6 @@ void ConsensusEngine::readSchainConfigFiles( ptr< Node > _node, const fs_path& _
     } catch ( ... ) {
         throw_with_nested( FatalError( __FUNCTION__, __CLASS_NAME__ ) );
     }
-
 }
 
 
@@ -359,9 +353,6 @@ void ConsensusEngine::checkExistsAndFile( const fs_path& _filePath ) {
 
 
 void ConsensusEngine::parseTestConfigsAndCreateAllNodes( const fs_path& dirname ) {
-
-
-
     try {
         checkExistsAndDirectory( dirname );
 
@@ -457,19 +448,18 @@ void ConsensusEngine::parseTestConfigsAndCreateAllNodes( const fs_path& dirname 
 }
 
 void ConsensusEngine::startAll() {
-
     cout << "Starting consensus engine ...";
 
     try {
-        for ( auto && it : nodes ) {
-            CHECK_STATE(it.second);
+        for ( auto&& it : nodes ) {
+            CHECK_STATE( it.second );
             it.second->startServers();
             LOG( info, "Started servers" + to_string( it.second->getNodeID() ) );
         }
 
 
-        for (auto&& it : nodes ) {
-            CHECK_STATE(it.second);
+        for ( auto&& it : nodes ) {
+            CHECK_STATE( it.second );
             it.second->startClients();
             LOG( info, "Started clients" + to_string( it.second->getNodeID() ) );
         }
@@ -480,7 +470,7 @@ void ConsensusEngine::startAll() {
     catch ( SkaleException& e ) {
         SkaleException::logNested( e );
         for ( auto&& it : nodes ) {
-            CHECK_STATE(it.second);
+            CHECK_STATE( it.second );
             if ( !it.second->isExitRequested() ) {
                 it.second->exitOnFatalError( e.getMessage() );
             }
@@ -492,12 +482,12 @@ void ConsensusEngine::startAll() {
 
 void ConsensusEngine::slowStartBootStrapTest() {
     for ( auto&& it : nodes ) {
-        CHECK_STATE(it.second);
+        CHECK_STATE( it.second );
         it.second->startServers();
     }
 
     for ( auto&& it : nodes ) {
-        CHECK_STATE(it.second);
+        CHECK_STATE( it.second );
         it.second->startClients();
         it.second->getSchain()->bootstrap( lastCommittedBlockID, lastCommittedBlockTimeStamp );
     }
@@ -509,13 +499,13 @@ void ConsensusEngine::bootStrapAll() {
     try {
         for ( auto&& it : nodes ) {
             LOG( trace, "Bootstrapping node" );
-            CHECK_STATE(it.second);
+            CHECK_STATE( it.second );
             it.second->getSchain()->bootstrap( lastCommittedBlockID, lastCommittedBlockTimeStamp );
             LOG( trace, "Bootstrapped node" );
         }
     } catch ( exception& e ) {
         for ( auto&& it : nodes ) {
-            CHECK_STATE(it.second);
+            CHECK_STATE( it.second );
             if ( !it.second->isExitRequested() ) {
                 it.second->exitOnFatalError( e.what() );
             }
@@ -535,7 +525,7 @@ node_count ConsensusEngine::nodesCount() {
 
 
 std::string ConsensusEngine::exec( const char* cmd ) {
-    CHECK_ARGUMENT(cmd);
+    CHECK_ARGUMENT( cmd );
 
     std::array< char, 128 > buffer;
     std::string result;
@@ -575,11 +565,9 @@ void ConsensusEngine::systemHealthCheck() {
 }
 
 void ConsensusEngine::init() {
-
-
     cout << "Consensus engine version:" + ConsensusEngine::getEngineVersion() << endl;
 
-    storageLimits = make_shared<StorageLimits>( DEFAULT_DB_STORAGE_LIMIT );
+    storageLimits = make_shared< StorageLimits >( DEFAULT_DB_STORAGE_LIMIT );
 
 
     libff::inhibit_profiling_counters = true;
@@ -671,22 +659,30 @@ void ConsensusEngine::exitGracefullyAsync() {
 
 
         for ( auto&& it : nodes ) {
-            CHECK_STATE(it.second);
-            try {
-                it.second->exit();
-            } catch ( exception& e ) {
-                SkaleException::logNested( e );
-            }
+            // run and forget
+
+            auto node = it.second;
+
+            CHECK_STATE( it.second );
+
+            // run and forget
+
+            thread( [this, node]() {
+                try {
+                    node->exit();
+                } catch ( exception& e ) {
+                    SkaleException::logNested( e );
+                } catch (...) {};
+            } ).detach();
         }
 
-        CHECK_STATE(threadRegistry);
+        CHECK_STATE( threadRegistry );
 
         threadRegistry->joinAll();
 
         for ( auto&& it : nodes ) {
             it.second->getSchain()->joinMonitorThread();
         }
-
     } catch ( exception& e ) {
         SkaleException::logNested( e );
         status = CONSENSUS_EXITED;
@@ -704,8 +700,7 @@ block_id ConsensusEngine::getLargestCommittedBlockID() {
     block_id id = 0;
 
     for ( auto&& item : nodes ) {
-
-        CHECK_STATE(item.second);
+        CHECK_STATE( item.second );
 
         auto id2 = item.second->getSchain()->getLastCommittedBlockID();
 
@@ -721,7 +716,7 @@ u256 ConsensusEngine::getPriceForBlockId( uint64_t _blockId ) const {
     CHECK_STATE( nodes.size() == 1 );
 
     for ( auto&& item : nodes ) {
-        CHECK_STATE(item.second);
+        CHECK_STATE( item.second );
         return item.second->getSchain()->getPriceForBlockId( _blockId );
     }
 
@@ -758,17 +753,17 @@ uint64_t ConsensusEngine::getEngineID() const {
 }
 
 ptr< GlobalThreadRegistry > ConsensusEngine::getThreadRegistry() const {
-    CHECK_STATE(threadRegistry);
+    CHECK_STATE( threadRegistry );
     return threadRegistry;
 }
 
 shared_ptr< string > ConsensusEngine::getHealthCheckDir() const {
-    CHECK_STATE(healthCheckDir);
+    CHECK_STATE( healthCheckDir );
     return healthCheckDir;
 }
 
 ptr< string > ConsensusEngine::getDbDir() const {
-    CHECK_STATE(dbDir);
+    CHECK_STATE( dbDir );
     return dbDir;
 }
 void ConsensusEngine::setTestKeys( ptr< string > _sgxServerUrl, string _configFile,
@@ -776,8 +771,8 @@ void ConsensusEngine::setTestKeys( ptr< string > _sgxServerUrl, string _configFi
     CHECK_ARGUMENT( _sgxServerUrl );
     sgxServerUrl = _sgxServerUrl;
 
-    //static atomic<bool> called = false;
-    //assert(!called.exchange(true));
+    // static atomic<bool> called = false;
+    // assert(!called.exchange(true));
 
     CHECK_STATE( !useTestSGXKeys )
     CHECK_STATE( !isSGXEnabled )
@@ -806,7 +801,7 @@ void ConsensusEngine::setSGXKeyInfo( ptr< string > _sgxServerURL,
     CHECK_STATE( _blsPublicKeyShares );
     CHECK_STATE( _ecdsaPublicKeys );
     CHECK_STATE( _ecdsaPublicKeys );
-    CHECK_STATE(_totalSigners >= _requiredSigners);
+    CHECK_STATE( _totalSigners >= _requiredSigners );
 
     this->sgxServerUrl = _sgxServerURL;
     this->isSGXEnabled = true;
@@ -818,16 +813,11 @@ void ConsensusEngine::setSGXKeyInfo( ptr< string > _sgxServerURL,
     setBlsKeyName( _blsKeyName );
 
 
-
-
     map< size_t, shared_ptr< BLSPublicKeyShare > > blsPubKeyShares;
 
 
-
-
     for ( uint64_t i = 0; i < _requiredSigners; i++ ) {
-
-        LOG(info, "Parsing BLS key share:" + blsPublicKeys->at(i)->at(0));
+        LOG( info, "Parsing BLS key share:" + blsPublicKeys->at( i )->at( 0 ) );
 
         BLSPublicKeyShare pubKey( blsPublicKeys->at( i ), _requiredSigners, _totalSigners );
 
@@ -836,38 +826,37 @@ void ConsensusEngine::setSGXKeyInfo( ptr< string > _sgxServerURL,
 
     // create pub key
 
-    blsPublicKey = make_shared<BLSPublicKey>(make_shared< map< size_t, shared_ptr< BLSPublicKeyShare > > >( blsPubKeyShares ),
-                                                     _requiredSigners, _totalSigners );
+    blsPublicKey = make_shared< BLSPublicKey >(
+        make_shared< map< size_t, shared_ptr< BLSPublicKeyShare > > >( blsPubKeyShares ),
+        _requiredSigners, _totalSigners );
 
     sgxSSLCertFileFullPath = _sgxSSLCertFileFullPath;
     sgxSSLKeyFileFullPath = _sgxSSLKeyFileFullPath;
 }
 ptr< string > ConsensusEngine::getEcdsaKeyName() const {
-    CHECK_STATE(ecdsaKeyName);
+    CHECK_STATE( ecdsaKeyName );
     return ecdsaKeyName;
 }
 ptr< string > ConsensusEngine::getBlsKeyName() const {
-    CHECK_STATE(blsKeyName);
+    CHECK_STATE( blsKeyName );
     return blsKeyName;
 }
 void ConsensusEngine::setEcdsaKeyName( ptr< string > _ecdsaKeyName ) {
-    CHECK_ARGUMENT(_ecdsaKeyName);
+    CHECK_ARGUMENT( _ecdsaKeyName );
     CHECK_STATE( JSONFactory::splitString( *_ecdsaKeyName )->size() == 2 );
     ecdsaKeyName = _ecdsaKeyName;
 }
 void ConsensusEngine::setBlsKeyName( ptr< string > _blsKeyName ) {
-    CHECK_ARGUMENT(_blsKeyName);
+    CHECK_ARGUMENT( _blsKeyName );
     CHECK_STATE( JSONFactory::splitString( *_blsKeyName )->size() == 7 );
     blsKeyName = _blsKeyName;
 }
 
 void ConsensusEngine::setTotalStorageLimitBytes( uint64_t _storageLimitBytes ) {
-
-    storageLimits = make_shared<StorageLimits>(_storageLimitBytes);
-
+    storageLimits = make_shared< StorageLimits >( _storageLimitBytes );
 }
 
 ptr< StorageLimits > ConsensusEngine::getStorageLimits() const {
-    CHECK_STATE(storageLimits);
+    CHECK_STATE( storageLimits );
     return storageLimits;
 }

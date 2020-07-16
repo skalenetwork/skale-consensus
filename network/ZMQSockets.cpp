@@ -125,6 +125,9 @@ void ZMQSockets::closeSend() {
 
 
 void ZMQSockets::closeAndCleanupAll() {
+
+    cerr << "Cleaning up ZMQ";
+
     LOCK(m);
 
     if (terminated) {
@@ -138,6 +141,8 @@ void ZMQSockets::closeAndCleanupAll() {
     closeReceive();
     zmq_ctx_shutdown(context);
     zmq_ctx_term(context);
+
+    cerr << "Cleaned up ZMQ";
 
 }
 
