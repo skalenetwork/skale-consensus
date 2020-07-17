@@ -57,7 +57,7 @@ void* ZMQSockets::getDestinationSocket( ptr< NodeInfo > _remoteNodeInfo ) {
     LOG(debug, getThreadName() + " zmq debug: requester = " +  to_string((uint64_t )requester));
 
     int timeout = ZMQ_TIMEOUT;
-    int linger= 1000;
+    int linger= 0;
 
     zmq_setsockopt(requester, ZMQ_SNDTIMEO, &timeout, sizeof(int));
     zmq_setsockopt(requester, ZMQ_RCVTIMEO, &timeout, sizeof(int));
@@ -84,7 +84,7 @@ void * ZMQSockets::getReceiveSocket()  {
         LOG(debug, getThreadName() + " zmq debug: receiveSocket = " + to_string((uint64_t)receiveSocket));
 
         int timeout = ZMQ_TIMEOUT;
-        int linger= 1000;
+        int linger= 0;
 
         zmq_setsockopt(receiveSocket, ZMQ_RCVTIMEO, &timeout, sizeof(int));
         zmq_setsockopt(receiveSocket, ZMQ_SNDTIMEO, &timeout, sizeof(int));
