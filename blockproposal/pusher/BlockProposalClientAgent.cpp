@@ -318,7 +318,7 @@ BlockProposalClientAgent::sendBlockProposal(ptr<BlockProposal> _proposal, shared
         } catch (...) {
             auto errString =
                     "Proposal: unexpected server disconnect writing missing txs response header";
-            throw_with_nested(new NetworkProtocolException(errString, __CLASS_NAME__));
+            throw_with_nested(NetworkProtocolException(errString, __CLASS_NAME__));
         }
 
 
@@ -330,11 +330,11 @@ BlockProposalClientAgent::sendBlockProposal(ptr<BlockProposal> _proposal, shared
         try {
             getSchain()->getIo()->writeBytesVector(
                 _socket->getDescriptor(), missingTransactionsList->serialize(false));
-        } catch (ExitRequestedException &) {
+        } catch (ExitRequestedException&) {
             throw;
         } catch (...) {
             auto errString = "Proposal: unexpected server disconnect  writing missing hashes";
-            throw_with_nested(new NetworkProtocolException(errString, __CLASS_NAME__));
+            throw_with_nested(NetworkProtocolException(errString, __CLASS_NAME__));
         }
 
         LOG(trace, "Proposal step 6: sent missing transactions");
