@@ -194,17 +194,30 @@ CryptoManager::CryptoManager( Schain& _sChain ) : sessionKeys(SESSION_KEY_CACHE_
         CHECK_STATE( JSONFactory::splitString( *sgxBlsKeyName )->size() == 7 );
         CHECK_STATE( JSONFactory::splitString( *sgxECDSAKeyName )->size() == 2 );
 
-        for ( uint64_t i = 0; i < ( uint64_t ) getSchain()->getNodeCount(); i++ ) {
-            auto nodeId = getSchain()->getNode()->getNodeInfoByIndex( i + 1 )->getNodeID();
-            ecdsaPublicKeyMap.emplace(
-                nodeId, make_shared< string >( sgxECDSAPublicKeys->at( i ) ) );
-            blsPublicKeyMap.emplace( nodeId, sgxBLSPublicKeys->at( i ) );
-        }
-
         isHTTPSEnabled = sgxURL->find( "https:/" ) != string::npos;
 
 
         initSGXClient();
+
+
+        for ( uint64_t i = 0; i < ( uint64_t ) getSchain()->getNodeCount(); i++ ) {
+            auto nodeId = getSchain()->getNode()->getNodeInfoByIndex( i + 1 )->getNodeID();
+            ecdsaPublicKeyMap[(uint64_t )nodeId] = make_shared< string >( sgxECDSAPublicKeys->at( i ) );
+            blsPublicKeyMap[(uint64_t ) nodeId] = sgxBLSPublicKeys->at( i );
+
+            if (nodeId == getSchain()->getThisNodeInfo()->getNodeID()) {
+                auto publicKey = getSGXEcdsaPublicKey(sgxECDSAKeyName, this->sgxClient);
+                if (*publicKey != sgxECDSAPublicKeys->at(i)) {
+                    BOOST_THROW_EXCEPTION(
+                        InvalidStateException("Misconfiguration. \n Configured ECDSA public key for this node \n" +
+                                                   sgxECDSAPublicKeys->at(i) +
+                                               " \n is not equal to the public key for \n " +
+                                               *sgxECDSAKeyName + "\n  on the SGX server: \n" + *publicKey,
+                                                __CLASS_NAME__));
+                };
+            }
+        }
+
 
 
         try {
@@ -680,7 +693,7 @@ bool CryptoManager::sessionVerifyECDSA( ptr< SHAHash > _hash, ptr< string > _sig
     CHECK_ARGUMENT(_publicKey);
 
     if ( isSGXEnabled ) {
-        auto pubKey = ecdsaPublicKeyMap.at( _nodeId );
+        auto pubKey = ecdsaPublicKeyMap.at((uint64_t )_nodeId );
         CHECK_STATE( pubKey );
         bool result = true;
         //auto result = localVerifyECDSAInternal( _hash, _sig, _publicKey );
@@ -706,7 +719,7 @@ bool CryptoManager::verifyECDSA( ptr< SHAHash > _hash, ptr< string > _sig,
     CHECK_ARGUMENT( _sig)
 
     if ( isSGXEnabled ) {
-        auto pubKey = ecdsaPublicKeyMap.at( _nodeId );
+        auto pubKey = ecdsaPublicKeyMap.at((uint64_t ) _nodeId );
         CHECK_STATE( pubKey );
         auto result = localVerifyECDSAInternal( _hash, _sig, pubKey );
         return result;
@@ -929,11 +942,18 @@ ptr< void > CryptoManager::decodeSGXPublicKey( ptr< string > _keyHex ) {
 
 
 ptr< string > CryptoManager::getSGXEcdsaPublicKey( ptr< string > _keyName, ptr< StubClient > _c ) {
+
+
     CHECK_ARGUMENT( _keyName );
     CHECK_ARGUMENT( _c );
 
+    LOG(info, "Getting ECDSA public key for " + *_keyName);
+
     auto result = _c->getPublicECDSAKey( *_keyName );
     auto publicKey = make_shared< string >( result["publicKey"].asString() );
+
+    LOG(info, "Got ECDSA public key: " + *publicKey);
+
     return publicKey;
 }
 

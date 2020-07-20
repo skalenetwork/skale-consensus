@@ -105,6 +105,9 @@ Node::Node(const nlohmann::json &_cfg, ConsensusEngine *_consensusEngine,
 
 
 
+
+
+
         static string empty("");
 
         sgxURL = _sgxURL;
