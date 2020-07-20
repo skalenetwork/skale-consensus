@@ -24,18 +24,11 @@
 #include "SkaleCommon.h"
 #include "Log.h"
 #include "chains/Schain.h"
-
-#include "protocols/ProtocolKey.h"
 #include "Message.h"
-#include "InternalMessage.h"
-
 #include "MessageEnvelope.h"
 #include "InternalMessageEnvelope.h"
 
 
-InternalMessageEnvelope::InternalMessageEnvelope(MessageOrigin _origin, const ptr<Message> _message, Schain& _subchain,
-                                                 ptr<ProtocolKey> _srcProtocolKey): MessageEnvelope(
-        _origin, _message, _subchain.getThisNodeInfo()), srcProtocolKey(_srcProtocolKey) {
-    // STRANGE
-    // CHECK_ARGUMENT(_srcProtocolKey);
+InternalMessageEnvelope::InternalMessageEnvelope(MessageOrigin _origin, const ptr<Message> _message, Schain& _subchain): MessageEnvelope(
+        _origin, _message, _subchain.getThisNodeInfo()) {
 }

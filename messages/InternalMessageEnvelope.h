@@ -31,9 +31,5 @@ class InternalMessageEnvelope : public MessageEnvelope {
     ptr< ProtocolKey > srcProtocolKey;
 
 public:
-    InternalMessageEnvelope(MessageOrigin _origin, const ptr< Message > _message, Schain& _subchain,
-                            ptr< ProtocolKey > _srcProtocolKey = nullptr );
-
-
-    const ptr< ProtocolKey > getSrcProtocolKey() const { return srcProtocolKey; }
+    InternalMessageEnvelope(MessageOrigin _origin, const ptr< Message > _message, Schain& _subchain);
 };
