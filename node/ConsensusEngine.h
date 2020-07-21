@@ -150,7 +150,7 @@ public:
 
     static void checkExistsAndFile( const fs_path& filename );
 
-    ptr< Node > readNodeConfigFileAndCreateNode( const fs_path& path, set< node_id >& nodeIDs,
+    ptr< Node > readNodeConfigFileAndCreateNode( const string path, set< node_id >& nodeIDs,
         bool _useSGX = false, ptr< string > _sgxSSLKeyFileFullPath = nullptr,
         ptr< string > _sgxSSLCertFileFullPath = nullptr, ptr< string > _ecdsaKeyName = nullptr,
         ptr< vector< string > > _ecdsaPublicKeys = nullptr, ptr< string > _blsKeyName = nullptr,
