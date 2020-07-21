@@ -255,7 +255,7 @@ void ConsensusEngine::parseFullConfigAndCreateNode( const string& configFileCont
     }
 }
 
-ptr< Node > ConsensusEngine::readNodeConfigFileAndCreateNode( const fs_path& path,
+ptr< Node > ConsensusEngine::readNodeConfigFileAndCreateNode( const string path,
     set< node_id >& _nodeIDs, bool _useSGX, ptr< string > _sgxSSLKeyFileFullPath,
     ptr< string > _sgxSSLCertFileFullPath, ptr< string > _ecdsaKeyName,
     ptr< vector< string > > _ecdsaPublicKeys, ptr< string > _blsKeyName,
@@ -402,7 +402,8 @@ void ConsensusEngine::parseTestConfigsAndCreateAllNodes( const fs_path& dirname 
 
         directory_iterator itr2( dirname );
 
-        uint64_t i = 0;
+
+        vector<string> dirNames;
 
         for ( ; itr2 != end; itr2++ ) {
             if ( !is_directory( itr2->path() ) ) {
@@ -414,21 +415,35 @@ void ConsensusEngine::parseTestConfigsAndCreateAllNodes( const fs_path& dirname 
                 continue;
             }
 
+            if ( !is_directory( itr2->path() ) ) {
+                BOOST_THROW_EXCEPTION(
+                    FatalError( "Junk file found. Remove it: " + itr2->path().string() ) );
+            }
+
+            if ( itr2->path().filename().string().find( "corrupt" ) != string::npos ) {
+                continue;
+            }
+
+            dirNames.push_back(itr2->path().string());
+        }
+
+        sort(dirNames.begin(), dirNames.end());
+
+        for (uint64_t  j=0; j< dirNames.size(); j++) {
+
             ptr< string > ecdsaKey = nullptr;
             ptr< string > blsKey = nullptr;
             if ( isSGXEnabled ) {
-                CHECK_STATE( i < ecdsaKeyNames->size() );
-                CHECK_STATE( i < blsKeyNames->size() );
-                ecdsaKey = make_shared< string >( ecdsaKeyNames->at( i ) );
-                blsKey = make_shared< string >( blsKeyNames->at( i ) );
+                CHECK_STATE( j < ecdsaKeyNames->size() );
+                CHECK_STATE( j < blsKeyNames->size() );
+                ecdsaKey = make_shared< string >( ecdsaKeyNames->at( j ) );
+                blsKey = make_shared< string >( blsKeyNames->at( j ) );
             }
 
-
             // cert and key file name for tests come from the config
-            readNodeConfigFileAndCreateNode( itr2->path(), nodeIDs, isSGXEnabled, nullptr, nullptr,
+            readNodeConfigFileAndCreateNode( dirNames.at(j), nodeIDs, isSGXEnabled, nullptr, nullptr,
                 ecdsaKey, ecdsaPublicKeys, blsKey, blsPublicKeys, blsPublicKey );
 
-            i++;
         };
 
         if ( nodes.size() == 0 ) {

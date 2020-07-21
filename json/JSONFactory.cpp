@@ -479,12 +479,17 @@ JSONFactory::parseTestKeyNamesFromJson( ptr<string> _sgxServerURL, const fs_path
     LOG(info, "Getting ECDSA keys");
 
     for ( uint64_t i = 0; i < _totalNodes; i++ ) {
+
+        LOG(info, "Getting ECDSA public key for " + ecdsaKeyNames->at(i));
+
         auto response = c.getPublicECDSAKey( ecdsaKeyNames->at( i ) );
 
         CHECK_STATE( response["status"] == 0 );
 
-        string publicKey;
-        publicKey += response["publicKey"].asString();
+        auto publicKey = response["publicKey"].asString();
+
+        LOG(info, "Got ECDSA public key:" + publicKey);
+
         ecdsaPublicKeys->push_back( publicKey );
     }
 

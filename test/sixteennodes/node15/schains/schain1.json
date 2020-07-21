@@ -1,4 +1,4 @@
-{
+ {
   "schainName": "TestChain",
   "schainID": 1,
   "nodes": [
@@ -10,9 +10,6 @@
     { "nodeID": 1116, "ip": "127.0.0.6", "basePort":1231, "schainIndex" : 6},
     { "nodeID": 1117, "ip": "127.0.0.7", "basePort":1231, "schainIndex" : 7},
     { "nodeID": 1118, "ip": "127.0.0.8", "basePort":1231, "schainIndex" : 8},
-
-
-
     { "nodeID": 1119, "ip": "127.0.0.9", "basePort": 1231, "schainIndex" : 9},
     { "nodeID": 1120, "ip": "127.0.0.10", "basePort":1231, "schainIndex" : 10},
     { "nodeID": 1121, "ip": "127.0.0.11", "basePort":1231, "schainIndex" : 11},
@@ -25,6 +22,6 @@
   ],
 
 
-  "blockProposalTest": "SLOW"
+   "blockProposalTest": "SLOW"
 
-}
+ }

@@ -365,6 +365,8 @@ public:
 
     void setEmptyBlockIntervalMs( uint64_t _interval ) { this->emptyBlockIntervalMs = _interval; }
 
+    void testNodeInfos();
+
     void setNodeInfo( ptr< NodeInfo > _nodeInfo );
 
     ConsensusEngine* getConsensusEngine() const;

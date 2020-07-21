@@ -126,26 +126,25 @@ void ZMQSockets::closeSend() {
 
 void ZMQSockets::closeAndCleanupAll() {
 
-    cerr << "Cleaning up ZMQ";
+
 
     LOCK(m);
 
-    if (terminated) {
+    if (terminated.exchange(true)) {
         return;
     }
 
-
-    terminated = false;
+    LOG(info, "Cleaning up ZMQ sockets");
 
     closeSend();
     closeReceive();
     zmq_ctx_shutdown(context);
 
-    cerr << "Cleaning up ZMQ .." << endl;
+    LOG(info, "Closing ZMQ context");
 
     zmq_ctx_term(context);
 
-    cerr << "Cleaned up ZMQ" << endl;
+    LOG(info, "Closed ZMQ");
 
 }
 
