@@ -657,7 +657,7 @@ ptr< string > CryptoManager::signECDSA( ptr< SHAHash > _hash ) {
     if ( isSGXEnabled ) {
         CHECK_STATE(sgxECDSAKeyName)
         auto result = sgxSignECDSA( _hash, *sgxECDSAKeyName );
-        CHECK_STATE( verifyECDSA( _hash, result, getSchain()->getNode()->getNodeID() ) );
+        //CHECK_STATE( verifyECDSA( _hash, result, getSchain()->getNode()->getNodeID() ) );
         return result;
     } else {
         return _hash->toHex();
@@ -849,12 +849,10 @@ bool CryptoManager::verifyNetworkMsg( NetworkMessage& _msg ) {
 
     auto pkeyHash = calculatePublicKeyHash(publicKey, _msg.getBlockID());
 
-    /*if ( !verifyECDSA( pkeyHash, sig, _msg.getSrcNodeID() ) ) {
+    if ( !verifyECDSA( pkeyHash, pkSig, _msg.getSrcNodeID() ) ) {
         LOG( warn, "PubKey ECDSA sig did not verify" );
         return false;
     }
-     */
-
 
     if ( !sessionVerifyECDSA( hash, sig, publicKey, _msg.getSrcNodeID() ) ) {
         LOG( warn, "ECDSA sig did not verify" );
