@@ -95,7 +95,19 @@ class ConsensusEngine : public ConsensusInterface {
 
     ptr<StorageLimits> storageLimits = nullptr;
 
+
+
+
+
+
+
+
 public:
+
+    // used for testing only
+    ptr< map< uint64_t, ptr< NodeInfo > > > testNodeInfosByIndex = nullptr;
+    ptr< map< uint64_t, ptr< NodeInfo > > > testNodeInfosById = nullptr;
+
     ptr< StorageLimits > getStorageLimits() const;
 
     void setEcdsaKeyName( ptr< string > _ecdsaKeyName );

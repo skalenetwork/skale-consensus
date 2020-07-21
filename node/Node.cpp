@@ -298,6 +298,40 @@ void Node::startClients() {
     releaseGlobalClientBarrier();
 }
 
+void Node::testNodeInfos() {
+    auto engine = getConsensusEngine();
+    CHECK_STATE(engine);
+    if (engine->testNodeInfosById == nullptr) {
+        engine->testNodeInfosById = nodeInfosById;
+    } else {
+        CHECK_STATE(engine->testNodeInfosById->size() == nodeInfosById->size())
+        for (auto&& item : *engine->testNodeInfosById) {
+            CHECK_STATE2(nodeInfosById->count(item.first) == 1,
+                "Could not find node_id " + to_string(item.first) );
+            CHECK_STATE(nodeInfosById->at(item.first)->getNodeID() == item.second->getNodeID());
+            CHECK_STATE(nodeInfosById->at(item.first)->getSchainIndex() == item.second->getSchainIndex());
+        }
+    }
+
+    if (engine->testNodeInfosByIndex == nullptr) {
+        CHECK_STATE(nodeInfosByIndex);
+        engine->testNodeInfosByIndex = nodeInfosByIndex;
+    } else {
+        CHECK_STATE(engine->testNodeInfosByIndex->size() == nodeInfosByIndex->size())
+        for (auto&& item : *engine->testNodeInfosByIndex) {
+            CHECK_STATE2(nodeInfosByIndex->count(item.first) == 1,
+                         "Could not find schain index " + to_string(item.first) );
+            CHECK_STATE(nodeInfosByIndex->at(item.first)->getNodeID() == item.second->getNodeID());
+            CHECK_STATE(nodeInfosByIndex->at(item.first)->getSchainIndex() == item.second->getSchainIndex());
+        }
+    }
+
+    ptr< map< uint64_t, ptr< NodeInfo > > > testNodeInfosByIndex;
+    ptr< map< uint64_t, ptr< NodeInfo > > > testNodeInfosById;
+
+}
+
+
 void Node::setNodeInfo(ptr<NodeInfo> _nodeInfo) {
 
     CHECK_ARGUMENT(_nodeInfo);
@@ -322,6 +356,12 @@ void Node::initSchain(ptr<Node> _node, ptr<NodeInfo> _localNodeInfo, const vecto
             _node->setNodeInfo(rni);
             LOG(debug, "Got IP" + *rni->getBaseIP());
         }
+
+
+        _node->testNodeInfos();
+
+
+
 
         auto sChain = make_shared<Schain>(
                 _node, _localNodeInfo->getSchainIndex(), _localNodeInfo->getSchainID(), _extFace);
