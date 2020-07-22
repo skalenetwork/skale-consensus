@@ -69,6 +69,8 @@
 
 #include "json/JSONFactory.h"
 
+#include "network/Utils.h"
+
 #include "CryptoManager.h"
 #include "OpenSSLECDSAPrivateKey.h"
 
@@ -552,6 +554,19 @@ bool CryptoManager::signECDSASigRSOpenSSL( string& pubKeyStr, const char* hash )
     ECDSA_SIG* signature = ECDSA_do_sign( ( const unsigned char* ) hash, 32, ecKey->getEcKey() );
 
     CHECK_STATE(signature);
+
+    uint64_t  sigLen = i2d_ECDSA_SIG(signature, nullptr);
+
+    vector<unsigned char> sigDer(sigLen, 0);
+
+    auto pointer = sigDer.data();
+
+    CHECK_STATE(i2d_ECDSA_SIG(signature, &(pointer)) > 0);
+
+    auto hexSig = Utils::carray2Hex(sigDer.data(), sigLen);
+
+    CHECK_STATE(hexSig);
+
     CHECK_STATE(ECDSA_do_verify( ( const unsigned char* ) hash, 32, signature, ecKey->getEcKey() ) == 1)
 
     return true;
