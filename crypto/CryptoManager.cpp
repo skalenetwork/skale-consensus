@@ -267,60 +267,13 @@ size_t size = sizeof( random_value );     // Declare size of data
 
 static ifstream urandom( "/dev/urandom", ios::in | ios::binary );  // Open stream
 
-std::tuple< ptr< MPZNumber >, ptr< string > > CryptoManager::localGenerateEcdsaKey() {
-    domain_parameters curve = domain_parameters_init();
-    domain_parameters_load_curve( curve, secp256k1 );
+std::tuple< ptr< OpenSSLECDSAKey >, ptr< string > > CryptoManager::localGenerateEcdsaKey() {
 
-    unsigned char* rand_char = ( unsigned char* ) calloc( 32, 1 );
-
-    CHECK_STATE( urandom );
-    urandom.read( reinterpret_cast< char* >( rand_char ), 32 );  // Read from urandom
-    CHECK_STATE( urandom );
+    auto key = OpenSSLECDSAKey::generateKey();
+    auto pKey = key->getPublicKey();
 
 
-    mpz_t seed;
-    mpz_init( seed );
-    mpz_import( seed, 32, 1, sizeof( rand_char[0] ), 0, 0, rand_char );
-
-    free( rand_char );
-
-    auto sKey = make_shared< MPZNumber >();
-
-    mpz_mod( sKey->number, seed, curve->p );
-    mpz_clear( seed );
-
-    // Public key
-    point Pkey = point_init();
-
-    signature_extract_public_key( Pkey, sKey->number, curve );
-
-    char pub_key_x[BUF_SIZE];
-    char pub_key_y[BUF_SIZE];
-
-    char arr_x[mpz_sizeinbase( Pkey->x, ECDSA_SKEY_BASE ) + 2];
-    mpz_get_str( arr_x, ECDSA_SKEY_BASE, Pkey->x );
-    int n_zeroes = PUB_KEY_SIZE - strlen( arr_x );
-    for ( int i = 0; i < n_zeroes; i++ ) {
-        pub_key_x[i] = '0';
-    }
-    strncpy( pub_key_x + n_zeroes, arr_x, BUF_SIZE - n_zeroes );
-
-    char arr_y[mpz_sizeinbase( Pkey->y, ECDSA_SKEY_BASE ) + 2];
-    mpz_get_str( arr_y, ECDSA_SKEY_BASE, Pkey->y );
-    n_zeroes = PUB_KEY_SIZE - strlen( arr_y );
-    for ( int i = 0; i < n_zeroes; i++ ) {
-        pub_key_y[i] = '0';
-    }
-    strncpy( pub_key_y + n_zeroes, arr_y, BUF_SIZE - n_zeroes );
-
-
-    auto pKey = make_shared< string >( string( pub_key_x ) + string( pub_key_y ) );
-
-    // mpz_clear(skey);
-    domain_parameters_clear( curve );
-    point_clear( Pkey );
-
-    return { sKey, pKey };
+    return { key, pKey };
 }
 
 void CryptoManager::signature_sign(
@@ -444,7 +397,8 @@ tuple< ptr< string >, ptr< string >, ptr< string > > CryptoManager::sessionSignE
     }
 
 
-    ptr< MPZNumber > privateKey = nullptr;
+//    ptr< MPZNumber > privateKey = nullptr;
+    ptr< OpenSSLECDSAKey > privateKey = nullptr;
     ptr< string > publicKey = nullptr;
     ptr< string > pkSig = nullptr;
 
@@ -473,37 +427,7 @@ tuple< ptr< string >, ptr< string >, ptr< string > > CryptoManager::sessionSignE
         }
     }
 
-    mpz_t msgMpz;
-    mpz_init( msgMpz );
-
-    if ( mpz_set_str( msgMpz, _hash->toHex()->c_str(), 16 ) == -1 ) {
-        mpz_clear( msgMpz );
-        BOOST_THROW_EXCEPTION( InvalidStateException( "Can mpz_set_str hash", __CLASS_NAME__ ) );
-    };
-
-    signature sign = signature_init();
-
-    signature_sign( sign, msgMpz, privateKey->number, ecdsaCurve );
-
-    char arrR[mpz_sizeinbase( sign->r, 16 ) + 2];
-    mpz_get_str( arrR, 16, sign->r );
-
-
-    char arrS[mpz_sizeinbase( sign->s, 16 ) + 2];
-    mpz_get_str( arrS, 16, sign->s );
-
-    string r( arrR );
-    string s( arrS );
-    string v = to_string( sign->v );
-
-    auto ret = make_shared< string >( v + ":" + r.substr( 2 ) + ":" + s.substr( 2 ) );
-
-    mpz_clear( msgMpz );
-    signature_free( sign );
-
-    CHECK_STATE( ret );
-    CHECK_STATE( publicKey );
-    CHECK_STATE( pkSig );
+    auto ret = privateKey->signHash((const char*) _hash->data());
 
     return { ret, publicKey, pkSig };
 }
@@ -756,8 +680,7 @@ tuple< ptr< string >, ptr< string >, ptr< string > > CryptoManager::sessionSignE
         CHECK_STATE( pubKey );
         CHECK_STATE( pkSig );
 
-        CHECK_STATE(
-            sessionVerifyECDSA( _hash, signature, pubKey, getSchain()->getNode()->getNodeID() ) );
+        CHECK_STATE( sessionVerifyECDSA( _hash, signature, pubKey ) );
         return { signature, pubKey, pkSig };
     } else {
         return { _hash->toHex(), make_shared< string >( "" ), make_shared< string >( "" ) };
@@ -766,17 +689,18 @@ tuple< ptr< string >, ptr< string >, ptr< string > > CryptoManager::sessionSignE
 
 
 bool CryptoManager::sessionVerifyECDSA(
-    ptr< SHAHash > _hash, ptr< string > _sig, ptr< string > _publicKey, node_id _nodeId ) {
+    ptr< SHAHash > _hash, ptr< string > _sig, ptr< string > _publicKey ) {
     CHECK_ARGUMENT( _hash )
     CHECK_ARGUMENT( _sig )
     CHECK_ARGUMENT( _publicKey );
 
     if ( isSGXEnabled ) {
-        auto pubKey = ecdsaPublicKeyMap.at( ( uint64_t ) _nodeId );
-        CHECK_STATE( pubKey );
-        bool result = true;
-        // auto result = localVerifyECDSAInternal( _hash, _sig, _publicKey );
-        return result;
+
+        auto pkey = make_shared<OpenSSLECDSAKey>(_publicKey);
+
+
+        return pkey->verifyHash(_sig, (const char*) _hash->data());
+
     } else {
         // mockup - used for testing
         if ( _sig->find( ":" ) != string::npos ) {
@@ -929,7 +853,7 @@ bool CryptoManager::verifyNetworkMsg( NetworkMessage& _msg ) {
         return false;
     }
 
-    if ( !sessionVerifyECDSA( hash, sig, publicKey, _msg.getSrcNodeID() ) ) {
+    if ( !sessionVerifyECDSA( hash, sig, publicKey ) ) {
         LOG( warn, "ECDSA sig did not verify" );
         return false;
     }

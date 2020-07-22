@@ -72,12 +72,15 @@ public:
 };
 
 
+class  OpenSSLECDSAKey;
 
 class CryptoManager {
 
 
 
-    cache::lru_cache<uint64_t, tuple<ptr<MPZNumber>, ptr<string>, ptr<string>>> sessionKeys;
+//    cache::lru_cache<uint64_t, tuple<ptr<MPZNumber>, ptr<string>, ptr<string>>> sessionKeys;
+
+    cache::lru_cache<uint64_t, tuple<ptr<OpenSSLECDSAKey>, ptr<string>, ptr<string>>> sessionKeys;
 
     recursive_mutex clientLock;
     recursive_mutex sessionKeysLock;
@@ -109,7 +112,7 @@ class CryptoManager {
     map<uint64_t , ptr<string>> ecdsaPublicKeyMap;
     map<uint64_t , ptr<vector<string>>> blsPublicKeyMap;
 
-    std::tuple<ptr<MPZNumber> , ptr<string>> localGenerateEcdsaKey();
+    std::tuple<ptr<OpenSSLECDSAKey> , ptr<string>> localGenerateEcdsaKey();
 
     ptr< BLSPublicKey > blsPublicKeyObj = nullptr;
 
@@ -122,8 +125,7 @@ class CryptoManager {
     tuple<ptr< string >, ptr<string>, ptr<string>> sessionSignECDSA( ptr< SHAHash > _hash, block_id _blockId) ;
 
 
-    bool sessionVerifyECDSA( ptr< SHAHash > _hash, ptr< string > _sig,
-                           ptr<string> _publicKey, node_id _nodeId );
+    bool sessionVerifyECDSA( ptr< SHAHash > _hash, ptr< string > _sig, ptr< string > _publicKey );
 
     bool verifyECDSA( ptr< SHAHash > _hash, ptr< string > _sig, node_id _nodeId );
 
