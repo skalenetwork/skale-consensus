@@ -38,7 +38,11 @@ public:
     virtual ~OpenSSLECDSAPrivateKey();
 
     static ptr<OpenSSLECDSAPrivateKey> generateKey();
+
     EC_KEY* getEcKey() const;
+
+    ptr<string> signHash(const char* hash);
+
 };
 
 

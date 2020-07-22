@@ -551,23 +551,25 @@ bool CryptoManager::signECDSASigRSOpenSSL( string& pubKeyStr, const char* hash )
 
     auto ecKey = OpenSSLECDSAPrivateKey::generateKey();
 
-    ECDSA_SIG* signature = ECDSA_do_sign( ( const unsigned char* ) hash, 32, ecKey->getEcKey() );
+    auto signature = ecKey->signHash(hash);
 
     CHECK_STATE(signature);
 
-    uint64_t  sigLen = i2d_ECDSA_SIG(signature, nullptr);
+    CHECK_STATE(signature->size() % 2 == 0);
 
-    vector<unsigned char> sigDer(sigLen, 0);
+    auto len = signature->size() / 2;
 
-    auto pointer = sigDer.data();
+    vector<unsigned char> derSig(len);
 
-    CHECK_STATE(i2d_ECDSA_SIG(signature, &(pointer)) > 0);
+    Utils::cArrayFromHex(*signature, derSig.data(), derSig.size());
 
-    auto hexSig = Utils::carray2Hex(sigDer.data(), sigLen);
+    auto p = (const unsigned char*) derSig.data();
 
-    CHECK_STATE(hexSig);
+    ECDSA_SIG * sig = d2i_ECDSA_SIG( nullptr, &p, (long) derSig.size());
 
-    CHECK_STATE(ECDSA_do_verify( ( const unsigned char* ) hash, 32, signature, ecKey->getEcKey() ) == 1)
+    CHECK_STATE(sig);
+
+    CHECK_STATE(ECDSA_do_verify( ( const unsigned char* ) hash, 32, sig, ecKey->getEcKey() ) == 1)
 
     return true;
 }

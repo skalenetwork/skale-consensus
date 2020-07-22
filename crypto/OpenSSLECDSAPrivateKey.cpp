@@ -27,7 +27,10 @@
 
 
 #include "Log.h"
+
+#include "network/Utils.h"
 #include "OpenSSLECDSAPrivateKey.h"
+
 #include "SkaleCommon.h"
 OpenSSLECDSAPrivateKey::OpenSSLECDSAPrivateKey( EC_KEY* _ecKey ) {
     CHECK_STATE( ecKey );
@@ -60,4 +63,27 @@ EC_GROUP* OpenSSLECDSAPrivateKey::ecgroup = nullptr;
 EC_KEY* OpenSSLECDSAPrivateKey::getEcKey() const {
     CHECK_STATE(ecKey);
     return ecKey;
+}
+ptr< string > OpenSSLECDSAPrivateKey::signHash( const char* _hash ) {
+
+    CHECK_ARGUMENT(_hash);
+    CHECK_STATE(ecKey);
+
+    ECDSA_SIG* signature = ECDSA_do_sign( ( const unsigned char* ) _hash, 32, ecKey );
+
+    CHECK_STATE(signature);
+
+    uint64_t  sigLen = i2d_ECDSA_SIG(signature, nullptr);
+
+    vector<unsigned char> sigDer(sigLen, 0);
+
+    auto pointer = sigDer.data();
+
+    CHECK_STATE(i2d_ECDSA_SIG(signature, &(pointer)) > 0);
+
+    auto hexSig = Utils::carray2Hex(sigDer.data(), sigLen);
+
+    CHECK_STATE(hexSig);
+
+    return hexSig;
 }
