@@ -551,6 +551,8 @@ bool CryptoManager::signECDSASigRSOpenSSL( string& pubKeyStr, const char* hash )
 
     auto ecKey = OpenSSLECDSAPrivateKey::generateKey();
 
+    auto pubKey = ecKey->getPublicKey();
+
     auto signature = ecKey->signHash(hash);
 
     return ecKey->verifyHash(signature, hash);

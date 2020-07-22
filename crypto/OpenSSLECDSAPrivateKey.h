@@ -27,6 +27,8 @@
 
 class OpenSSLECDSAPrivateKey {
 
+    bool isPrivate = false;
+
     EC_KEY *ecKey = nullptr;
 
     static EC_GROUP *ecgroup;
@@ -43,7 +45,7 @@ public:
 
     ptr<string> signHash(const char* hash);
 
-    ptr<OpenSSLECDSAPrivateKey> getPublicKey();
+    ptr<string> getPublicKey();
 
     bool verifyHash( ptr<string> _signature, const char* _hash );
 

@@ -42,6 +42,7 @@
 OpenSSLECDSAPrivateKey::OpenSSLECDSAPrivateKey( EC_KEY* _ecKey ) {
     CHECK_STATE( ecKey );
     this->ecKey = _ecKey;
+    isPrivate = true;
 }
 OpenSSLECDSAPrivateKey::~OpenSSLECDSAPrivateKey() {
     if ( ecKey )
@@ -72,16 +73,25 @@ EC_KEY* OpenSSLECDSAPrivateKey::getEcKey() const {
     return ecKey;
 }
 
-ptr<OpenSSLECDSAPrivateKey> OpenSSLECDSAPrivateKey::getPublicKey() {
+ptr<string> OpenSSLECDSAPrivateKey::getPublicKey() {
     auto pubKeyComponent = EC_KEY_get0_public_key(ecKey);
 
     CHECK_STATE(pubKeyComponent);
 
-    auto pubKey = EC_KEY_new();
+    if ( ecgroup == nullptr ) {
+        ecgroup = EC_GROUP_new_by_curve_name( NID_secp192k1 );
+        CHECK_STATE( ecgroup );
+    }
 
-    CHECK_STATE(EC_KEY_set_public_key(pubKey, pubKeyComponent) == 1);
+    auto hex = EC_POINT_point2hex( ecgroup, pubKeyComponent, POINT_CONVERSION_COMPRESSED, NULL );
 
-    return make_shared<OpenSSLECDSAPrivateKey>(pubKey);
+    CHECK_STATE(hex);
+
+    auto result = make_shared<string>(hex);
+
+    OPENSSL_free(hex);
+
+    return result;
 }
 
 bool OpenSSLECDSAPrivateKey::verifyHash( ptr<string> _signature, const char* _hash ) {
