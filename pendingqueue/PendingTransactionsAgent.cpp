@@ -105,14 +105,9 @@ pair<ptr<vector<ptr<Transaction>>>, u256> PendingTransactionsAgent::createTransa
     u256 stateRoot = 0;
     static u256 stateRootSample = 1;
 
-    while( txVector.empty()){
+    while( txVector.empty() ){
 
         getSchain()->getNode()->exitCheck();
-        boost::posix_time::ptime t2 = boost::posix_time::microsec_clock::local_time();
-        boost::posix_time::time_duration diff = t2 - t1;
-
-        if((uint64_t ) diff.total_milliseconds() >= getSchain()->getNode()->getEmptyBlockIntervalMs())
-            break;
 
         if (sChain->getExtFace()) {
             txVector = sChain->getExtFace()->pendingTransactions(need_max, stateRoot);
@@ -123,8 +118,14 @@ pair<ptr<vector<ptr<Transaction>>>, u256> PendingTransactionsAgent::createTransa
             stateRoot = stateRootSample;
             txVector = sChain->getTestMessageGeneratorAgent()->pendingTransactions(need_max);
         }
-    }
 
+        boost::posix_time::ptime t2 = boost::posix_time::microsec_clock::local_time();
+        boost::posix_time::time_duration diff = t2 - t1;
+
+        if( this->sChain->getLastCommittedBlockID() == 0 || (uint64_t ) diff.total_milliseconds() >= getSchain()->getNode()->getEmptyBlockIntervalMs())
+            break;
+
+    }// while
 
     for(const auto& e: txVector ){
         ptr<Transaction> pt = Transaction::deserialize( make_shared<std::vector<uint8_t>>(e),
