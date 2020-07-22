@@ -25,7 +25,7 @@
 #define OPENSSLECDSAPRIVATEKEY_H
 
 
-class OpenSSLECDSAPrivateKey {
+class OpenSSLECDSAKey {
 
     bool isPrivate = false;
 
@@ -34,12 +34,13 @@ class OpenSSLECDSAPrivateKey {
     static EC_GROUP *ecgroup;
 
 public:
+    OpenSSLECDSAKey( EC_KEY* _eckey );
 
-    OpenSSLECDSAPrivateKey( EC_KEY* eckey );
+    OpenSSLECDSAKey( ptr<string> _publicKey );
 
-    virtual ~OpenSSLECDSAPrivateKey();
+    virtual ~OpenSSLECDSAKey();
 
-    static ptr<OpenSSLECDSAPrivateKey> generateKey();
+    static ptr< OpenSSLECDSAKey > generateKey();
 
     EC_KEY* getEcKey() const;
 

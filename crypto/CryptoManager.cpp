@@ -72,7 +72,7 @@
 #include "network/Utils.h"
 
 #include "CryptoManager.h"
-#include "OpenSSLECDSAPrivateKey.h"
+#include "OpenSSLECDSAKey.h"
 
 
 void CryptoManager::initSGXClient() {
@@ -545,17 +545,22 @@ ptr< string > CryptoManager::sgxSignECDSA( ptr< SHAHash > _hash, string& _keyNam
 }
 
 
-bool CryptoManager::signECDSASigRSOpenSSL( string& pubKeyStr, const char* hash ) {
-    CHECK_STATE( pubKeyStr.size() == 128 )
-    CHECK_ARGUMENT( hash );
+bool CryptoManager::signECDSASigRSOpenSSL( const char* _hash ) {
 
-    auto ecKey = OpenSSLECDSAPrivateKey::generateKey();
 
-    auto pubKey = ecKey->getPublicKey();
+    CHECK_ARGUMENT( _hash );
 
-    auto signature = ecKey->signHash(hash);
+    auto ecKey = OpenSSLECDSAKey::generateKey();
 
-    return ecKey->verifyHash(signature, hash);
+    auto pubKeyStr = ecKey->getPublicKey();
+
+    auto pubKey = make_shared<OpenSSLECDSAKey>(pubKeyStr);
+
+    CHECK_STATE(pubKey);
+
+    auto signature = ecKey->signHash(_hash);
+
+    return pubKey->verifyHash(signature, _hash);
 
 }
 
@@ -711,7 +716,7 @@ bool CryptoManager::localVerifyECDSAInternal(
             return false;
         }
 
-        verifyECDSASigRSOpenSSL( *_publicKey, ( const char* ) _hash->data(), r.data(), s.data() );
+        signECDSASigRSOpenSSL((const char*) _hash->data());
         return verifyECDSASigRS( *_publicKey, _hash->toHex()->data(), r.data(), s.data(), 16 );
     } catch ( exception& e ) {
         LOG( err, "ECDSA sig did not verify: exception" + string( e.what() ) );

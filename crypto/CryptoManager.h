@@ -184,7 +184,7 @@ public:
     bool localVerifyECDSAInternal( ptr< SHAHash > _hash, ptr< string > _sig, ptr< string > _publicKey );
 
 
-    bool signECDSASigRSOpenSSL(string& pubKeyStr, const char* hash);
+    bool signECDSASigRSOpenSSL( const char* hash );
 
     bool verifyECDSASigRSOpenSSL(
         string& pubKeyStr, const char* hashHex, const char* signatureR, const char* signatureS );

@@ -35,20 +35,20 @@
 
 #include "Log.h"
 
+#include "OpenSSLECDSAKey.h"
 #include "network/Utils.h"
-#include "OpenSSLECDSAPrivateKey.h"
 
 #include "SkaleCommon.h"
-OpenSSLECDSAPrivateKey::OpenSSLECDSAPrivateKey( EC_KEY* _ecKey ) {
+OpenSSLECDSAKey::OpenSSLECDSAKey( EC_KEY* _ecKey ) {
     CHECK_STATE( ecKey );
     this->ecKey = _ecKey;
     isPrivate = true;
 }
-OpenSSLECDSAPrivateKey::~OpenSSLECDSAPrivateKey() {
+OpenSSLECDSAKey::~OpenSSLECDSAKey() {
     if ( ecKey )
         EC_KEY_free( ecKey );
 }
-ptr< OpenSSLECDSAPrivateKey > OpenSSLECDSAPrivateKey::generateKey() {
+ptr< OpenSSLECDSAKey > OpenSSLECDSAKey::generateKey() {
     EC_KEY* eckey = EC_KEY_new();
     CHECK_STATE( eckey );
 
@@ -62,18 +62,18 @@ ptr< OpenSSLECDSAPrivateKey > OpenSSLECDSAPrivateKey::generateKey() {
 
     CHECK_STATE(EC_KEY_generate_key(eckey) == 1)
 
-    return make_shared< OpenSSLECDSAPrivateKey >( eckey );
+    return make_shared< OpenSSLECDSAKey >( eckey );
 }
 
 
-EC_GROUP* OpenSSLECDSAPrivateKey::ecgroup = nullptr;
+EC_GROUP* OpenSSLECDSAKey::ecgroup = nullptr;
 
-EC_KEY* OpenSSLECDSAPrivateKey::getEcKey() const {
+EC_KEY* OpenSSLECDSAKey::getEcKey() const {
     CHECK_STATE(ecKey);
     return ecKey;
 }
 
-ptr<string> OpenSSLECDSAPrivateKey::getPublicKey() {
+ptr<string> OpenSSLECDSAKey::getPublicKey() {
     auto pubKeyComponent = EC_KEY_get0_public_key(ecKey);
 
     CHECK_STATE(pubKeyComponent);
@@ -94,7 +94,7 @@ ptr<string> OpenSSLECDSAPrivateKey::getPublicKey() {
     return result;
 }
 
-bool OpenSSLECDSAPrivateKey::verifyHash( ptr<string> _signature, const char* _hash ) {
+bool OpenSSLECDSAKey::verifyHash( ptr<string> _signature, const char* _hash ) {
     CHECK_ARGUMENT( _signature );
     CHECK_ARGUMENT(_hash);
 
@@ -121,10 +121,13 @@ bool OpenSSLECDSAPrivateKey::verifyHash( ptr<string> _signature, const char* _ha
 }
 
 
-ptr< string > OpenSSLECDSAPrivateKey::signHash( const char* _hash ) {
+ptr< string > OpenSSLECDSAKey::signHash( const char* _hash ) {
+
+
 
     CHECK_ARGUMENT(_hash);
     CHECK_STATE(ecKey);
+    CHECK_STATE(isPrivate);
 
     ECDSA_SIG* signature = ECDSA_do_sign( ( const unsigned char* ) _hash, 32, ecKey );
 
@@ -143,4 +146,37 @@ ptr< string > OpenSSLECDSAPrivateKey::signHash( const char* _hash ) {
     CHECK_STATE(hexSig);
 
     return hexSig;
+}
+OpenSSLECDSAKey::OpenSSLECDSAKey( ptr< string > _publicKey ) {
+
+    CHECK_ARGUMENT(_publicKey);
+
+    isPrivate = false;
+
+
+    if ( ecgroup == nullptr ) {
+        ecgroup = EC_GROUP_new_by_curve_name( NID_secp192k1 );
+        CHECK_STATE( ecgroup );
+    }
+
+    auto point = EC_POINT_hex2point(ecgroup, _publicKey->c_str(), nullptr, nullptr );
+
+    CHECK_STATE(point);
+
+    auto pubKey = EC_KEY_new();
+
+    CHECK_STATE(pubKey);
+
+    auto status = EC_KEY_set_public_key(pubKey, point);
+
+    EC_POINT_clear_free(point);
+
+    if (status != 1) {
+        EC_KEY_free(pubKey);
+    }
+
+    CHECK_STATE(status == 1);
+
+    this->ecKey = pubKey;
+
 }
