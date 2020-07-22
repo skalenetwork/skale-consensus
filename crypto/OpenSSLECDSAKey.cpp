@@ -39,8 +39,9 @@
 #include "network/Utils.h"
 
 #include "SkaleCommon.h"
+
 OpenSSLECDSAKey::OpenSSLECDSAKey( EC_KEY* _ecKey ) {
-    CHECK_STATE( ecKey );
+    CHECK_STATE( _ecKey );
     this->ecKey = _ecKey;
     isPrivate = true;
 }
@@ -49,7 +50,7 @@ OpenSSLECDSAKey::~OpenSSLECDSAKey() {
         EC_KEY_free( ecKey );
 }
 ptr< OpenSSLECDSAKey > OpenSSLECDSAKey::generateKey() {
-    EC_KEY* eckey = EC_KEY_new();
+    EC_KEY* eckey = EC_KEY_new_by_curve_name(NID_secp192k1);
     CHECK_STATE( eckey );
 
 
@@ -61,6 +62,8 @@ ptr< OpenSSLECDSAKey > OpenSSLECDSAKey::generateKey() {
     CHECK_STATE(EC_KEY_set_group(eckey,ecgroup) == 1);
 
     CHECK_STATE(EC_KEY_generate_key(eckey) == 1)
+
+    CHECK_STATE(eckey);
 
     return make_shared< OpenSSLECDSAKey >( eckey );
 }
@@ -151,6 +154,8 @@ OpenSSLECDSAKey::OpenSSLECDSAKey( ptr< string > _publicKey ) {
 
     CHECK_ARGUMENT(_publicKey);
 
+
+
     isPrivate = false;
 
 
@@ -159,11 +164,14 @@ OpenSSLECDSAKey::OpenSSLECDSAKey( ptr< string > _publicKey ) {
         CHECK_STATE( ecgroup );
     }
 
-    auto point = EC_POINT_hex2point(ecgroup, _publicKey->c_str(), nullptr, nullptr );
+
+
+    auto point = EC_POINT_hex2point(ecgroup, _publicKey->c_str(), nullptr, nullptr);
 
     CHECK_STATE(point);
 
-    auto pubKey = EC_KEY_new();
+
+    auto pubKey = EC_KEY_new_by_curve_name(NID_secp192k1);
 
     CHECK_STATE(pubKey);
 
@@ -173,6 +181,8 @@ OpenSSLECDSAKey::OpenSSLECDSAKey( ptr< string > _publicKey ) {
 
     if (status != 1) {
         EC_KEY_free(pubKey);
+        cerr << ERR_error_string(ERR_get_error(), NULL) << endl;
+
     }
 
     CHECK_STATE(status == 1);

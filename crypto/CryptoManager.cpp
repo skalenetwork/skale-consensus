@@ -552,7 +552,11 @@ bool CryptoManager::signECDSASigRSOpenSSL( const char* _hash ) {
 
     auto ecKey = OpenSSLECDSAKey::generateKey();
 
+    CHECK_STATE(ecKey);
+
     auto pubKeyStr = ecKey->getPublicKey();
+
+    CHECK_STATE(pubKeyStr);
 
     auto pubKey = make_shared<OpenSSLECDSAKey>(pubKeyStr);
 
