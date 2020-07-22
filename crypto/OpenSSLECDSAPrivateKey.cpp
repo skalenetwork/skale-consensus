@@ -64,6 +64,34 @@ EC_KEY* OpenSSLECDSAPrivateKey::getEcKey() const {
     CHECK_STATE(ecKey);
     return ecKey;
 }
+
+bool OpenSSLECDSAPrivateKey::verifyHash( ptr<string> _signature, const char* _hash ) {
+    CHECK_ARGUMENT( _signature );
+    CHECK_ARGUMENT(_hash);
+
+    CHECK_STATE( _signature->size() % 2 == 0 );
+
+    auto len = _signature->size() / 2;
+
+    vector< unsigned char > derSig( len );
+
+    Utils::cArrayFromHex( *_signature, derSig.data(), derSig.size() );
+
+    auto p = ( const unsigned char* ) derSig.data();
+
+    ECDSA_SIG* sig = d2i_ECDSA_SIG( nullptr, &p, ( long ) derSig.size() );
+
+    CHECK_STATE( sig );
+
+    auto status = ECDSA_do_verify( ( const unsigned char* ) _hash, 32, sig, ecKey);
+
+    CHECK_STATE(status >= 0);
+
+    return status == 1;
+
+}
+
+
 ptr< string > OpenSSLECDSAPrivateKey::signHash( const char* _hash ) {
 
     CHECK_ARGUMENT(_hash);

@@ -43,6 +43,8 @@ public:
 
     ptr<string> signHash(const char* hash);
 
+    bool verifyHash( ptr<string> _signature, const char* _hash );
+
 };
 
 
