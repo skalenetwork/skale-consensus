@@ -26,6 +26,13 @@
 #include <openssl/obj_mac.h>  // for NID_secp192k1
 
 
+#include "openssl/x509.h"
+#include "openssl/ecdsa.h"
+#include "openssl/err.h"
+#include "openssl/bn.h"
+#include "openssl/sha.h"
+
+
 #include "Log.h"
 
 #include "network/Utils.h"
@@ -63,6 +70,18 @@ EC_GROUP* OpenSSLECDSAPrivateKey::ecgroup = nullptr;
 EC_KEY* OpenSSLECDSAPrivateKey::getEcKey() const {
     CHECK_STATE(ecKey);
     return ecKey;
+}
+
+ptr<OpenSSLECDSAPrivateKey> OpenSSLECDSAPrivateKey::getPublicKey() {
+    auto pubKeyComponent = EC_KEY_get0_public_key(ecKey);
+
+    CHECK_STATE(pubKeyComponent);
+
+    auto pubKey = EC_KEY_new();
+
+    CHECK_STATE(EC_KEY_set_public_key(pubKey, pubKeyComponent) == 1);
+
+    return make_shared<OpenSSLECDSAPrivateKey>(pubKey);
 }
 
 bool OpenSSLECDSAPrivateKey::verifyHash( ptr<string> _signature, const char* _hash ) {

@@ -43,6 +43,8 @@ public:
 
     ptr<string> signHash(const char* hash);
 
+    ptr<OpenSSLECDSAPrivateKey> getPublicKey();
+
     bool verifyHash( ptr<string> _signature, const char* _hash );
 
 };
