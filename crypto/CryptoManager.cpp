@@ -725,7 +725,10 @@ bool CryptoManager::verifyECDSA( ptr< SHAHash > _hash, ptr< string > _sig, node_
         auto pubKey = ecdsaPublicKeyMap.at( ( uint64_t ) _nodeId );
         CHECK_STATE( pubKey );
         auto result = localVerifyECDSAInternal( _hash, _sig, pubKey );
+
         return result;
+
+
     } else {
         // mockup - used for testing
         if ( _sig->find( ":" ) != string::npos ) {
@@ -734,6 +737,8 @@ bool CryptoManager::verifyECDSA( ptr< SHAHash > _hash, ptr< string > _sig, node_
                 "but other node sent a real signature " );
             ASSERT( false );
         }
+
+
 
         return *_sig == *( _hash->toHex() );
     }
@@ -860,9 +865,11 @@ bool CryptoManager::verifyNetworkMsg( NetworkMessage& _msg ) {
 
     auto pkeyHash = calculatePublicKeyHash( publicKey, _msg.getBlockID() );
 
-    if ( !verifyECDSA( pkeyHash, pkSig, _msg.getSrcNodeID() ) ) {
-        LOG( warn, "PubKey ECDSA sig did not verify" );
-        return false;
+    if (isSGXEnabled) {
+        if ( !verifyECDSA( pkeyHash, pkSig, _msg.getSrcNodeID() ) ) {
+            LOG( warn, "PubKey ECDSA sig did not verify" );
+            return false;
+        }
     }
 
     if ( !sessionVerifyECDSA( hash, sig, publicKey ) ) {
