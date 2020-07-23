@@ -17,6 +17,7 @@ public:
 
     Json::Value importBLSKeyShare(const std::string& keyShare, const std::string& keyShareName, int t, int n, int index)
     {
+
         Json::Value p;
         p["index"] = index;
         p["keyShare"] = keyShare;
@@ -32,6 +33,7 @@ public:
 
     Json::Value blsSignMessageHash(const std::string& keyShareName, const std::string& messageHash, int t, int n, int signerIndex)
     {
+
         Json::Value p;
         p["keyShareName"] = keyShareName;
         p["messageHash"] = messageHash;
@@ -47,6 +49,8 @@ public:
 
     Json::Value importECDSAKey(const std::string& key, const std::string& keyName)
     {
+
+
         Json::Value p;
         p["key"] = key;
         p["keyName"] = keyName;
@@ -59,6 +63,8 @@ public:
 
     Json::Value generateECDSAKey()
     {
+
+
         Json::Value p;
         p = Json::nullValue;
         Json::Value result = this->CallMethod("generateECDSAKey",p);
@@ -82,6 +88,7 @@ public:
 
     Json::Value getPublicECDSAKey(const std::string& keyName)
     {
+
         Json::Value p;
         p["keyName"] = keyName;
         Json::Value result = this->CallMethod("getPublicECDSAKey",p);
@@ -96,6 +103,7 @@ public:
 
     Json::Value ecdsaSignMessageHash(int base, const std::string& keyName, const std::string& messageHash)
     {
+
         Json::Value p;
         p["base"] = base;
         p["keyName"] = keyName;
@@ -109,6 +117,7 @@ public:
 
     Json::Value generateDKGPoly(const std::string& polyName, int t)
     {
+
         Json::Value p;
         p["polyName"] = polyName;
         p["t"] = t;
@@ -121,6 +130,7 @@ public:
 
     Json::Value getVerificationVector(const std::string& polyName, int t, int n)
     {
+
         Json::Value p;
         p["polyName"] = polyName;
         p["n"] = n;
@@ -134,6 +144,7 @@ public:
 
     Json::Value getSecretShare(const std::string& polyName, const Json::Value& publicKeys, int t, int n)
     {
+
         Json::Value p;
         p["polyName"] = polyName;
         p["publicKeys"] = publicKeys;
@@ -148,6 +159,7 @@ public:
 
     Json::Value DKGVerification(const std::string& publicShares, const std::string& EthKeyName, const std::string& SecretShare, int t, int n, int index)
     {
+
         Json::Value p;
         p["ethKeyName"] = EthKeyName;
         p["secretShare"] = SecretShare;
@@ -164,6 +176,7 @@ public:
 
     Json::Value CreateBLSPrivateKey(const std::string & BLSKeyName, const std::string& EthKeyName, const std::string& polyName, const std::string& SecretShare, int t, int n)
     {
+
         Json::Value p;
         p["blsKeyName"] = BLSKeyName;
         p["ethKeyName"] = EthKeyName;
@@ -180,6 +193,7 @@ public:
 
     Json::Value GetBLSPublicKeyShare(const std::string & BLSKeyName)
     {
+
         Json::Value p;
         p["blsKeyName"] = BLSKeyName;
 
@@ -192,6 +206,7 @@ public:
 
     Json::Value ComplaintResponse(const std::string& polyName, int ind)
     {
+
         Json::Value p;
         p["polyName"] = polyName;
         p["ind"] = ind;
@@ -256,6 +271,7 @@ public:
 
 
     Json::Value SignCertificate(const std::string& csr){
+
         Json::Value p;
         p["certificate"] = csr;
         Json::Value result = this->CallMethod("signCertificate",p);

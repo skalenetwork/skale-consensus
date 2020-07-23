@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2018-2019 SKALE Labs
+    Copyright (C) 2020-present SKALE Labs
 
     This file is part of skale-consensus.
 
@@ -16,41 +16,43 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file ConsensusTest.h
+    @file OpenSSLECDSAPrivateKey.h
     @author Stan Kladko
-    @date 2018
+    @date 2020
 */
 
-#pragma once
+#ifndef OPENSSLECDSAPRIVATEKEY_H
+#define OPENSSLECDSAPRIVATEKEY_H
 
 
-#define DEFAULT_RUNNING_TIME_MS 50000
-#define STUCK_TEST_TIME 5
+class OpenSSLECDSAKey {
 
-class Consensust {
+    bool isPrivate = false;
 
-    static uint64_t runningTimeMs;
-    static fs_path configDirPath;
+    EC_KEY *ecKey = nullptr;
+
+    static EC_GROUP *ecgroup;
 
 public:
-    static const fs_path &getConfigDirPath();
+    OpenSSLECDSAKey( EC_KEY* _eckey );
 
-    static void setConfigDirPath(const fs_path &_configDirPath);
+    OpenSSLECDSAKey( ptr<string> _publicKey );
 
-    static void useCorruptConfigs();
+    virtual ~OpenSSLECDSAKey();
 
-    static uint64_t getRunningTimeMS();
+    static ptr< OpenSSLECDSAKey > generateKey();
 
+    EC_KEY* getEcKey() const;
 
-    static void testInit();
+    ptr<string> signHash(const char* hash);
 
-    static void testFinalize();
+    ptr<string> getPublicKey();
 
-
+    bool verifyHash( ptr<string> _signature, const char* _hash );
 
 };
 
 
 
 
-
+#endif  // OPENSSLECDSAPRIVATEKEY_H

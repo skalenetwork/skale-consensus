@@ -156,9 +156,9 @@ uint Utils::char2int(char _input) {
 }
 
 void Utils::cArrayFromHex(string &_hex, uint8_t *_data, size_t len) {
-    if (_hex.size() / 2 != len) {
-        BOOST_THROW_EXCEPTION(InvalidArgumentException("Misformatted string:" + _hex, __CLASS_NAME__));
-    }
+
+    CHECK_ARGUMENT(_hex.size() % 2 == 0);
+    CHECK_ARGUMENT(_hex.size() / 2 == len);
 
     for (size_t i = 0; i < _hex.size() / 2; i++) {
         _data[i] = Utils::char2int(_hex.at(2 * i)) * 16 + Utils::char2int(_hex.at(2 * i + 1));

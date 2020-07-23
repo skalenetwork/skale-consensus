@@ -56,7 +56,9 @@
 #include "node/Node.h"
 #include "node/NodeInfo.h"
 
+#include "crypto/CryptoManager.h"
 #include "JSONFactory.h"
+
 
 ptr< Node > JSONFactory::createNodeFromJsonFile(
     ptr<string> _sgxUrl, const fs_path& jsonFile, set< node_id >& nodeIDs,
@@ -382,7 +384,13 @@ JSONFactory::parseTestKeyNamesFromJson( ptr<string> _sgxServerURL, const fs_path
 
     for ( uint64_t i = 0; i < _totalNodes; i++ ) {
 
-        auto response = c.getBLSPublicKeyShare( blsKeyNames->at( i ) );
+        Json::Value response;
+
+
+        RETRY_BEGIN
+        response = c.getBLSPublicKeyShare( blsKeyNames->at( i ) );
+        RETRY_END
+
         CHECK_STATE( response["status"] == 0 );
 
         auto fourPieces = response["blsPublicKeyShare"];
@@ -451,8 +459,15 @@ JSONFactory::parseTestKeyNamesFromJson( ptr<string> _sgxServerURL, const fs_path
     auto hash = SHAHash::fromHex( SAMPLE_HASH );
 
     for ( uint64_t i = 0; i < _requiredNodes; i++ ) {
-        blsSigShares.at( i ) = c.blsSignMessageHash(
-            blsKeyNames->at( i ), *SAMPLE_HASH, _requiredNodes, _totalNodes, i + 1 );
+        {
+            RETRY_BEGIN
+            blsSigShares.at( i ) = c.blsSignMessageHash(
+                blsKeyNames->at( i ), *SAMPLE_HASH, _requiredNodes, _totalNodes, i + 1 );
+            RETRY_END
+        }
+
+
+
         CHECK_STATE( blsSigShares[i]["status"] == 0 );
 
         string sigShareStr;
