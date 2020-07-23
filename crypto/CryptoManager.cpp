@@ -108,7 +108,7 @@ CryptoManager::CryptoManager( uint64_t _totalSigners, uint64_t _requiredSigners,
     ptr< string > _sgxURL, ptr< string > _sgxSslKeyFileFullPath,
     ptr< string > _sgxSslCertFileFullPath, ptr< string > _sgxEcdsaKeyName,
     ptr< vector< string > > _sgxEcdsaPublicKeys )
-    : sessionKeys( SESSION_KEY_CACHE_SIZE ) {
+    : sessionKeys( SESSION_KEY_CACHE_SIZE ), sessionPublicKeys(SESSION_PUBLIC_KEY_CACHE_SIZE ) {
     CHECK_ARGUMENT( _totalSigners >= _requiredSigners );
     totalSigners = _totalSigners;
     requiredSigners = _requiredSigners;
@@ -166,7 +166,8 @@ uint64_t CryptoManager::parseSGXPort( ptr< string > _url ) {
 
 
 CryptoManager::CryptoManager( Schain& _sChain )
-    : sessionKeys( SESSION_KEY_CACHE_SIZE ), sChain( &_sChain ) {
+    : sessionKeys( SESSION_KEY_CACHE_SIZE ),
+      sessionPublicKeys( SESSION_PUBLIC_KEY_CACHE_SIZE ), sChain( &_sChain ) {
     totalSigners = getSchain()->getTotalSigners();
     requiredSigners = getSchain()->getRequiredSigners();
 
@@ -407,6 +408,7 @@ tuple< ptr< string >, ptr< string >, ptr< string > > CryptoManager::sessionSignE
         LOCK( sessionKeysLock );
 
         if ( sessionKeys.exists( ( uint64_t ) _blockID ) ) {
+
             tie( privateKey, publicKey, pkSig ) = sessionKeys.get( ( uint64_t ) _blockID );
             CHECK_STATE( privateKey );
             CHECK_STATE( publicKey );
@@ -846,6 +848,16 @@ bool CryptoManager::verifyNetworkMsg( NetworkMessage& _msg ) {
     CHECK_STATE( pkSig );
     CHECK_STATE( hash );
 
+
+    {
+        LOCK(publicSessionKeysLock)
+
+        if (sessionPublicKeys.exists(*pkSig)) {
+            auto publicKey2 = sessionPublicKeys.get(*pkSig);
+            return (publicKey2 == *publicKey);
+        }
+    }
+
     auto pkeyHash = calculatePublicKeyHash( publicKey, _msg.getBlockID() );
 
     if ( !verifyECDSA( pkeyHash, pkSig, _msg.getSrcNodeID() ) ) {
@@ -856,6 +868,13 @@ bool CryptoManager::verifyNetworkMsg( NetworkMessage& _msg ) {
     if ( !sessionVerifyECDSA( hash, sig, publicKey ) ) {
         LOG( warn, "ECDSA sig did not verify" );
         return false;
+    }
+
+
+    {
+        LOCK(publicSessionKeysLock)
+        if (!sessionPublicKeys.exists(*pkSig))
+            sessionPublicKeys.put(*pkSig, *publicKey);
     }
 
     return true;

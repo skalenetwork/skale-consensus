@@ -38,6 +38,7 @@
 #include "sgxwallet/secure_enclave/Signature.h"
 
 #include "thirdparty/lrucache.hpp"
+#include "thirdparty/lru_ordered_cache.hpp"
 
 class Schain;
 class SHAHash;
@@ -81,9 +82,11 @@ class CryptoManager {
 //    cache::lru_cache<uint64_t, tuple<ptr<MPZNumber>, ptr<string>, ptr<string>>> sessionKeys;
 
     cache::lru_cache<uint64_t, tuple<ptr<OpenSSLECDSAKey>, ptr<string>, ptr<string>>> sessionKeys;
+    cache::lru_ordered_cache<string, string> sessionPublicKeys;
 
     recursive_mutex clientLock;
     recursive_mutex sessionKeysLock;
+    recursive_mutex publicSessionKeysLock;
 
     ptr< StubClient > sgxClient = nullptr;
 

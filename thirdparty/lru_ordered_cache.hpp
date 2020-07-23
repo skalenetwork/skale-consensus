@@ -5,10 +5,10 @@
  * Created on June 20, 2013, 5:09 PM
  */
 
-#ifndef _LRUCACHE_HPP_INCLUDED_
-#define	_LRUCACHE_HPP_INCLUDED_
+#ifndef _LRUORDEREDCACHE_HPP_INCLUDED_
+#define	_LRUORDEREDCACHE_HPP_INCLUDED_
 
-#include <unordered_map>
+#include <map>
 #include <list>
 #include <string>
 #include <cstddef>
@@ -23,7 +23,7 @@ namespace cache {
 
 
     template<typename key_t, typename value_t>
-    class lru_cache {
+    class lru_ordered_cache {
 
         std::recursive_mutex m;
 
@@ -31,7 +31,7 @@ namespace cache {
         typedef typename std::pair<key_t, value_t> key_value_pair_t;
         typedef typename std::list<key_value_pair_t>::iterator list_iterator_t;
 
-        lru_cache(size_t max_size) :
+        lru_ordered_cache(size_t max_size) :
                 _max_size(max_size) {
         }
 
@@ -82,7 +82,7 @@ namespace cache {
 
     private:
         std::list<key_value_pair_t> _cache_items_list;
-        std::unordered_map<key_t, list_iterator_t> _cache_items_map;
+        std::map<key_t, list_iterator_t> _cache_items_map;
         size_t _max_size;
     };
 
