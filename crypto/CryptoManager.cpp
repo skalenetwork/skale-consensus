@@ -75,6 +75,9 @@
 #include "OpenSSLECDSAKey.h"
 
 
+
+
+
 void CryptoManager::initSGXClient() {
     if ( isSGXEnabled ) {
         if ( isHTTPSEnabled ) {
@@ -108,7 +111,7 @@ CryptoManager::CryptoManager( uint64_t _totalSigners, uint64_t _requiredSigners,
     ptr< string > _sgxURL, ptr< string > _sgxSslKeyFileFullPath,
     ptr< string > _sgxSslCertFileFullPath, ptr< string > _sgxEcdsaKeyName,
     ptr< vector< string > > _sgxEcdsaPublicKeys )
-    : sessionKeys( SESSION_KEY_CACHE_SIZE ), sessionPublicKeys(SESSION_PUBLIC_KEY_CACHE_SIZE ) {
+    : sessionKeys( SESSION_KEY_CACHE_SIZE ), sessionPublicKeys( SESSION_PUBLIC_KEY_CACHE_SIZE ) {
     CHECK_ARGUMENT( _totalSigners >= _requiredSigners );
     totalSigners = _totalSigners;
     requiredSigners = _requiredSigners;
@@ -167,7 +170,8 @@ uint64_t CryptoManager::parseSGXPort( ptr< string > _url ) {
 
 CryptoManager::CryptoManager( Schain& _sChain )
     : sessionKeys( SESSION_KEY_CACHE_SIZE ),
-      sessionPublicKeys( SESSION_PUBLIC_KEY_CACHE_SIZE ), sChain( &_sChain ) {
+      sessionPublicKeys( SESSION_PUBLIC_KEY_CACHE_SIZE ),
+      sChain( &_sChain ) {
     totalSigners = getSchain()->getTotalSigners();
     requiredSigners = getSchain()->getRequiredSigners();
 
@@ -269,10 +273,8 @@ size_t size = sizeof( random_value );     // Declare size of data
 static ifstream urandom( "/dev/urandom", ios::in | ios::binary );  // Open stream
 
 std::tuple< ptr< OpenSSLECDSAKey >, ptr< string > > CryptoManager::localGenerateEcdsaKey() {
-
     auto key = OpenSSLECDSAKey::generateKey();
     auto pKey = key->getPublicKey();
-
 
     return { key, pKey };
 }
@@ -398,7 +400,7 @@ tuple< ptr< string >, ptr< string >, ptr< string > > CryptoManager::sessionSignE
     }
 
 
-//    ptr< MPZNumber > privateKey = nullptr;
+    //    ptr< MPZNumber > privateKey = nullptr;
     ptr< OpenSSLECDSAKey > privateKey = nullptr;
     ptr< string > publicKey = nullptr;
     ptr< string > pkSig = nullptr;
@@ -408,7 +410,6 @@ tuple< ptr< string >, ptr< string >, ptr< string > > CryptoManager::sessionSignE
         LOCK( sessionKeysLock );
 
         if ( sessionKeys.exists( ( uint64_t ) _blockID ) ) {
-
             tie( privateKey, publicKey, pkSig ) = sessionKeys.get( ( uint64_t ) _blockID );
             CHECK_STATE( privateKey );
             CHECK_STATE( publicKey );
@@ -429,7 +430,7 @@ tuple< ptr< string >, ptr< string >, ptr< string > > CryptoManager::sessionSignE
         }
     }
 
-    auto ret = privateKey->signHash((const char*) _hash->data());
+    auto ret = privateKey->signHash( ( const char* ) _hash->data() );
 
     return { ret, publicKey, pkSig };
 }
@@ -452,14 +453,21 @@ ptr< SHAHash > CryptoManager::calculatePublicKeyHash( ptr< string > publicKey, b
 }
 
 
+
 ptr< string > CryptoManager::sgxSignECDSA( ptr< SHAHash > _hash, string& _keyName ) {
     CHECK_ARGUMENT( _hash );
 
     Json::Value result;
-    {
-        LOCK( clientLock );
-        result = getSgxClient()->ecdsaSignMessageHash( 16, _keyName, *_hash->toHex() );
-    }
+
+    RETRY_BEGIN
+            {
+                LOCK( clientLock );
+                result = getSgxClient()->ecdsaSignMessageHash( 16, _keyName, *_hash->toHex() );
+                break;
+            }
+    RETRY_END
+
+
     auto status = result["status"].asInt64();
     CHECK_STATE( status == 0 );
     string r = result["signature_r"].asString();
@@ -472,26 +480,23 @@ ptr< string > CryptoManager::sgxSignECDSA( ptr< SHAHash > _hash, string& _keyNam
 
 
 bool CryptoManager::signECDSASigRSOpenSSL( const char* _hash ) {
-
-
     CHECK_ARGUMENT( _hash );
 
     auto ecKey = OpenSSLECDSAKey::generateKey();
 
-    CHECK_STATE(ecKey);
+    CHECK_STATE( ecKey );
 
     auto pubKeyStr = ecKey->getPublicKey();
 
-    CHECK_STATE(pubKeyStr);
+    CHECK_STATE( pubKeyStr );
 
-    auto pubKey = make_shared<OpenSSLECDSAKey>(pubKeyStr);
+    auto pubKey = make_shared< OpenSSLECDSAKey >( pubKeyStr );
 
-    CHECK_STATE(pubKey);
+    CHECK_STATE( pubKey );
 
-    auto signature = ecKey->signHash(_hash);
+    auto signature = ecKey->signHash( _hash );
 
-    return pubKey->verifyHash(signature, _hash);
-
+    return pubKey->verifyHash( signature, _hash );
 }
 
 
@@ -646,7 +651,7 @@ bool CryptoManager::localVerifyECDSAInternal(
             return false;
         }
 
-        signECDSASigRSOpenSSL((const char*) _hash->data());
+        signECDSASigRSOpenSSL( ( const char* ) _hash->data() );
         return verifyECDSASigRS( *_publicKey, _hash->toHex()->data(), r.data(), s.data(), 16 );
     } catch ( exception& e ) {
         LOG( err, "ECDSA sig did not verify: exception" + string( e.what() ) );
@@ -697,11 +702,10 @@ bool CryptoManager::sessionVerifyECDSA(
     CHECK_ARGUMENT( _publicKey );
 
     if ( isSGXEnabled ) {
+        auto pkey = make_shared< OpenSSLECDSAKey >( _publicKey );
 
-        auto pkey = make_shared<OpenSSLECDSAKey>(_publicKey);
 
-
-        return pkey->verifyHash(_sig, (const char*) _hash->data());
+        return pkey->verifyHash( _sig, ( const char* ) _hash->data() );
 
     } else {
         // mockup - used for testing
@@ -737,7 +741,6 @@ bool CryptoManager::verifyECDSA( ptr< SHAHash > _hash, ptr< string > _sig, node_
                 "but other node sent a real signature " );
             ASSERT( false );
         }
-
 
 
         return *_sig == *( _hash->toHex() );
@@ -776,12 +779,17 @@ ptr< ThresholdSigShare > CryptoManager::signSigShare( ptr< SHAHash > _hash, bloc
     if ( getSchain()->getNode()->isSgxEnabled() ) {
         Json::Value jsonShare;
 
+
+        RETRY_BEGIN
+
         {
             LOCK( clientLock );
 
             jsonShare = getSgxClient()->blsSignMessageHash( *getSgxBlsKeyName(), *_hash->toHex(),
                 requiredSigners, totalSigners, ( uint64_t ) getSchain()->getSchainIndex() );
         }
+
+        RETRY_END
 
         CHECK_STATE( jsonShare["status"] == 0 );
 
@@ -855,17 +863,17 @@ bool CryptoManager::verifyNetworkMsg( NetworkMessage& _msg ) {
 
 
     {
-        LOCK(publicSessionKeysLock)
+        LOCK( publicSessionKeysLock )
 
-        if (sessionPublicKeys.exists(*pkSig)) {
-            auto publicKey2 = sessionPublicKeys.get(*pkSig);
-            return (publicKey2 == *publicKey);
+        if ( sessionPublicKeys.exists( *pkSig ) ) {
+            auto publicKey2 = sessionPublicKeys.get( *pkSig );
+            return ( publicKey2 == *publicKey );
         }
     }
 
     auto pkeyHash = calculatePublicKeyHash( publicKey, _msg.getBlockID() );
 
-    if (isSGXEnabled) {
+    if ( isSGXEnabled ) {
         if ( !verifyECDSA( pkeyHash, pkSig, _msg.getSrcNodeID() ) ) {
             LOG( warn, "PubKey ECDSA sig did not verify" );
             return false;
@@ -879,9 +887,9 @@ bool CryptoManager::verifyNetworkMsg( NetworkMessage& _msg ) {
 
 
     {
-        LOCK(publicSessionKeysLock)
-        if (!sessionPublicKeys.exists(*pkSig))
-            sessionPublicKeys.put(*pkSig, *publicKey);
+        LOCK( publicSessionKeysLock )
+        if ( !sessionPublicKeys.exists( *pkSig ) )
+            sessionPublicKeys.put( *pkSig, *publicKey );
     }
 
     return true;
@@ -968,7 +976,17 @@ ptr< string > CryptoManager::getSGXEcdsaPublicKey( ptr< string > _keyName, ptr< 
 
     LOG( info, "Getting ECDSA public key for " + *_keyName );
 
-    auto result = _c->getPublicECDSAKey( *_keyName );
+    Json::Value result;
+
+    RETRY_BEGIN
+
+    {
+        result = _c->getPublicECDSAKey( *_keyName );
+    }
+
+    RETRY_END
+
+
     auto publicKey = make_shared< string >( result["publicKey"].asString() );
 
     LOG( info, "Got ECDSA public key: " + *publicKey );
@@ -979,7 +997,10 @@ ptr< string > CryptoManager::getSGXEcdsaPublicKey( ptr< string > _keyName, ptr< 
 pair< ptr< string >, ptr< string > > CryptoManager::generateSGXECDSAKey( ptr< StubClient > _c ) {
     CHECK_ARGUMENT( _c );
 
-    auto result = _c->generateECDSAKey();
+    Json::Value result;
+    RETRY_BEGIN
+    result = _c->generateECDSAKey();
+    RETRY_END
     auto status = result["status"].asInt64();
     CHECK_STATE( status == 0 );
 
@@ -1024,11 +1045,20 @@ void CryptoManager::generateSSLClientCertAndKey( string& _fullPathToDir ) {
     jsonrpc::HttpClient client( "http://localhost:1027" );
     StubClient c( client, jsonrpc::JSONRPC_CLIENT_V2 );
 
-    auto result = c.SignCertificate( csr );
+    Json::Value result;
+
+    RETRY_BEGIN
+    result = c.SignCertificate( csr );
+    RETRY_END
+
     int64_t status = result["status"].asInt64();
     CHECK_STATE( status == 0 );
     string certHash = result["hash"].asString();
+
+    RETRY_BEGIN
     result = c.GetCertificate( certHash );
+    RETRY_END
+
     status = result["status"].asInt64();
     CHECK_STATE( status == 0 );
     string signedCert = result["cert"].asString();

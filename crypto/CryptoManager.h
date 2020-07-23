@@ -208,5 +208,11 @@ public:
         ptr< string > publicKey, block_id _blockID);
 };
 
+#define RETRY_BEGIN while (true) { try {
+#define RETRY_END         } catch ( exception& e ) { \
+if ( e.what() && string( e.what() ).find( "Could not connect" ) != string::npos ) { \
+LOG( err, "Could not connext to sgx server, retrying ... \n" + string( e.what() ) ); \
+sleep( 10 ); \
+} else { throw; } } }
 
 #endif  // SKALED_CRYPTOMANAGER_H
