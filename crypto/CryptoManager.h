@@ -213,6 +213,6 @@ public:
 if ( e.what() && string( e.what() ).find( "Could not connect" ) != string::npos ) { \
 LOG( err, "Could not connext to sgx server, retrying ... \n" + string( e.what() ) ); \
 sleep( 10 ); \
-} else { throw; } } }
+} else { cerr << "haha" << endl; throw; } } }
 
 #endif  // SKALED_CRYPTOMANAGER_H
