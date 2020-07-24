@@ -297,6 +297,8 @@ ptr<SHAHash> NetworkMessage::calculateHash() {
     SHA3_UPDATE(sha3, msgID);
     SHA3_UPDATE(sha3, srcNodeID);
     SHA3_UPDATE(sha3, srcSchainIndex);
+    SHA3_UPDATE(sha3, r);
+    SHA3_UPDATE(sha3, value);
 
     CHECK_STATE(type);
 
