@@ -62,6 +62,14 @@ ptr<SHAHash> BlockProposal::getHash() {
 
 
 void BlockProposal::calculateHash() {
+
+
+
+
+
+
+
+
     CryptoPP::SHA256 sha3;
 
 

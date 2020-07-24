@@ -67,11 +67,11 @@ public:
 
     ptr<ProtocolKey> createDestinationProtocolKey();
 
-    const block_id &getBlockID() const;
+    block_id getBlockID();
 
-    MsgType getMsgType() const;
+    MsgType getMsgType();
 
-    const msg_id &getMsgID() const;
+    msg_id getMsgID();
 
     virtual ~Message();
 
