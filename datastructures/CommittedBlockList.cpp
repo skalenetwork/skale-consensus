@@ -21,8 +21,8 @@
     @date 2018
 */
 
-#include "SkaleCommon.h"
 #include "Log.h"
+#include "SkaleCommon.h"
 
 #include "crypto/CryptoManager.h"
 #include "crypto/SHAHash.h"
@@ -31,108 +31,115 @@
 #include "CommittedBlock.h"
 #include "CommittedBlockList.h"
 
-CommittedBlockList::CommittedBlockList(ptr<vector<ptr<CommittedBlock> > > _blocks) {
-    CHECK_ARGUMENT(_blocks);
-    CHECK_ARGUMENT(_blocks->size() > 0);
+CommittedBlockList::CommittedBlockList( ptr< vector< ptr< CommittedBlock > > > _blocks ) {
+    CHECK_ARGUMENT( _blocks );
+    CHECK_ARGUMENT( _blocks->size() > 0 );
 
     blocks = _blocks;
 }
 
 
-CommittedBlockList::CommittedBlockList(ptr<CryptoManager> _cryptoManager, ptr<vector<uint64_t> > _blockSizes, ptr<vector<uint8_t> > _serializedBlocks,
-                                       uint64_t _offset) {
+CommittedBlockList::CommittedBlockList( ptr< CryptoManager > _cryptoManager,
+    ptr< vector< uint64_t > > _blockSizes, ptr< vector< uint8_t > > _serializedBlocks,
+    uint64_t _offset ) {
+    CHECK_ARGUMENT( _cryptoManager );
+    CHECK_ARGUMENT( _blockSizes );
+    CHECK_ARGUMENT( _serializedBlocks );
 
-    CHECK_ARGUMENT(_cryptoManager);
-    CHECK_ARGUMENT(_blockSizes);
-    CHECK_ARGUMENT(_serializedBlocks);
 
+    CHECK_ARGUMENT( _serializedBlocks->at( _offset ) == '[' );
+    CHECK_ARGUMENT( _serializedBlocks->at( _serializedBlocks->size() - 1 ) == ']' );
 
-    CHECK_ARGUMENT(_serializedBlocks->at(_offset) == '[');
-    CHECK_ARGUMENT(_serializedBlocks->at(_serializedBlocks->size() - 1) == ']');
+    uint64_t counter = 0;
+    size_t index = 0;
+    size_t endIndex = 0;
 
     try {
+        index = _offset + 1;
 
+        blocks = make_shared< vector< ptr< CommittedBlock > > >();
 
-        size_t index = _offset + 1;
-        uint64_t counter = 0;
+        for ( auto&& size : *_blockSizes ) {
+            endIndex = index + size;
 
-        blocks = make_shared<vector<ptr<CommittedBlock> > >();
+            CHECK_STATE( endIndex <= _serializedBlocks->size() );
 
-        for (auto &&size : *_blockSizes) {
-            auto endIndex = index + size;
+            auto blockData = make_shared< vector< uint8_t > >(
+                _serializedBlocks->begin() + index, _serializedBlocks->begin() + endIndex );
 
-            CHECK_STATE(endIndex <= _serializedBlocks->size());
+            CommittedBlock::serializedSanityCheck( blockData );
 
-            auto blockData = make_shared<vector<uint8_t> >(_serializedBlocks->begin() + index,
-                                                           _serializedBlocks->begin() + endIndex);
+            auto block = CommittedBlock::deserialize( blockData, _cryptoManager );
 
-            CommittedBlock::serializedSanityCheck(blockData);
-
-            auto block = CommittedBlock::deserialize(blockData, _cryptoManager);
-
-            blocks->push_back(block);
+            blocks->push_back( block );
 
             index = endIndex;
 
             counter++;
         }
-    } catch (exception &e) {
-        SkaleException::logNested(e);
-        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+    } catch ( ... ) {
+        throw_with_nested( InvalidStateException(
+            "Could not create block list. \n"
+                "LIST_SIZE:" + to_string(_blockSizes->size()) +
+                ":SERIALIZED_BLOCK_SIZE:" + to_string(_serializedBlocks->size()) +
+                ":OFFSET:" + to_string(_offset) +
+                ":COUNTER:" + to_string(counter) +
+                ":INDEX:" + to_string(index) +
+                ":END_INDEX:" + to_string(endIndex), __CLASS_NAME__ ) );
     }
 };
 
 
-ptr<vector<ptr<CommittedBlock> > > CommittedBlockList::getBlocks() {
+ptr< vector< ptr< CommittedBlock > > > CommittedBlockList::getBlocks() {
     return blocks;
 }
 
-shared_ptr<vector<uint8_t> > CommittedBlockList::serialize() {
+shared_ptr< vector< uint8_t > > CommittedBlockList::serialize() {
+    LOCK( m )
 
-    LOCK(m)
+    auto serializedBlocks = make_shared< vector< uint8_t > >();
 
-    auto serializedBlocks = make_shared<vector<uint8_t> >();
+    serializedBlocks->push_back( '[' );
 
-    serializedBlocks->push_back('[');
-
-    for (auto &&block : *blocks) {
+    for ( auto&& block : *blocks ) {
         auto data = block->serialize();
-        serializedBlocks->insert(serializedBlocks->end(), data->begin(), data->end());
+        serializedBlocks->insert( serializedBlocks->end(), data->begin(), data->end() );
     }
 
-    serializedBlocks->push_back(']');
+    serializedBlocks->push_back( ']' );
 
     return serializedBlocks;
 }
 
 
-ptr<CommittedBlockList> CommittedBlockList::createRandomSample(
-        ptr<CryptoManager> _cryptoManager, uint64_t _size, boost::random::mt19937 &_gen,
-                                                               boost::random::uniform_int_distribution<> &_ubyte) {
-    auto blcks = make_shared<vector<ptr<CommittedBlock> > >();
+ptr< CommittedBlockList > CommittedBlockList::createRandomSample(
+    ptr< CryptoManager > _cryptoManager, uint64_t _size, boost::random::mt19937& _gen,
+    boost::random::uniform_int_distribution<>& _ubyte ) {
+    auto blcks = make_shared< vector< ptr< CommittedBlock > > >();
 
-    for (uint32_t i = 0; i < _size; i++) {
-        auto block = CommittedBlock::createRandomSample( _cryptoManager, _size - 1, _gen, _ubyte, i);
-        blcks->push_back(block);
+    for ( uint32_t i = 0; i < _size; i++ ) {
+        auto block =
+            CommittedBlock::createRandomSample( _cryptoManager, _size - 1, _gen, _ubyte, i );
+        blcks->push_back( block );
     }
 
-    return make_shared<CommittedBlockList>(blcks);
+    return make_shared< CommittedBlockList >( blcks );
 }
 
-ptr<CommittedBlockList>
-CommittedBlockList::deserialize(ptr<CryptoManager> _cryptoManager, ptr<vector<uint64_t> > _blockSizes, ptr<vector<uint8_t> > _serializedBlocks,
-                                uint64_t _offset) {
-    return ptr<CommittedBlockList>(new CommittedBlockList(_cryptoManager,_blockSizes, _serializedBlocks, _offset));
+ptr< CommittedBlockList > CommittedBlockList::deserialize( ptr< CryptoManager > _cryptoManager,
+    ptr< vector< uint64_t > > _blockSizes, ptr< vector< uint8_t > > _serializedBlocks,
+    uint64_t _offset ) {
+    return ptr< CommittedBlockList >(
+        new CommittedBlockList( _cryptoManager, _blockSizes, _serializedBlocks, _offset ) );
 }
 
-ptr<vector<uint64_t> > CommittedBlockList::createSizes() {
+ptr< vector< uint64_t > > CommittedBlockList::createSizes() {
+    LOCK( m )
 
-    LOCK(m)
+    auto ret = make_shared< vector< uint64_t > >();
 
-    auto ret = make_shared<vector<uint64_t> >();
-
-    for (auto &&block : *blocks) {
-        ret->push_back(block->serialize()->size());
+    for ( auto&& block : *blocks ) {
+        ret->push_back( block->serialize()->size() );
     }
 
     return ret;

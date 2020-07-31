@@ -726,6 +726,12 @@ bool CryptoManager::verifyECDSA( ptr< SHAHash > _hash, ptr< string > _sig, node_
     CHECK_ARGUMENT( _sig )
 
     if ( isSGXEnabled ) {
+
+        if (ecdsaPublicKeyMap.count(( uint64_t ) _nodeId) == 0) {
+            // if there is no key report the signature as failed
+            return false;
+        }
+
         auto pubKey = ecdsaPublicKeyMap.at( ( uint64_t ) _nodeId );
         CHECK_STATE( pubKey );
         auto result = localVerifyECDSAInternal( _hash, _sig, pubKey );
