@@ -219,9 +219,7 @@ ptr< CommittedBlockList > CatchupClientAgent::readMissingBlocks(
         blockList = CommittedBlockList::deserialize(
             getSchain()->getCryptoManager(), blockSizes, serializedBlocks, 0 );
         CHECK_STATE( blockList );
-    } catch ( ExitRequestedException& ) {
-        throw;
-    } catch ( ... ) {
+    } catch ( ExitRequestedException& ) { throw; } catch ( ... ) {
         throw_with_nested(
             NetworkProtocolException( "Could not parse block list", __CLASS_NAME__ ) );
     }
