@@ -62,6 +62,14 @@ ptr<SHAHash> BlockProposal::getHash() {
 
 
 void BlockProposal::calculateHash() {
+
+
+
+
+
+
+
+
     CryptoPP::SHA256 sha3;
 
 
@@ -387,7 +395,7 @@ ptr<TransactionList> BlockProposal::deserializeTransactions(ptr<BlockProposalHea
                 _header->getTransactionSizes(), _serializedBlock, headerSize + sizeof(headerSize), true);
         CHECK_STATE(list);
 
-    } catch (SkaleException &e) {
+    } catch (...) {
         throw_with_nested(
                 ParsingException("Could not parse transactions after header. Header: \n" + *_headerString +
                                  " Transactions size:" + to_string(_serializedBlock->size()),

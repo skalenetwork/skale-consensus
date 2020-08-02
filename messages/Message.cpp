@@ -76,15 +76,15 @@ Message::Message(const schain_id &schainID, MsgType msgType, const msg_id &msgID
 }
 
 
-const block_id &Message::getBlockID() const {
+block_id Message::getBlockID()  {
     return blockID;
 }
 
-MsgType Message::getMsgType() const {
+MsgType Message::getMsgType() {
     return msgType;
 }
 
-const msg_id &Message::getMsgID() const {
+msg_id Message::getMsgID() {
     return msgID;
 }
 

@@ -38,6 +38,7 @@
 #include "sgxwallet/secure_enclave/Signature.h"
 
 #include "thirdparty/lrucache.hpp"
+#include "thirdparty/lru_ordered_cache.hpp"
 
 class Schain;
 class SHAHash;
@@ -72,15 +73,20 @@ public:
 };
 
 
+class  OpenSSLECDSAKey;
 
 class CryptoManager {
 
 
 
-    cache::lru_cache<uint64_t, tuple<ptr<MPZNumber>, ptr<string>, ptr<string>>> sessionKeys;
+//    cache::lru_cache<uint64_t, tuple<ptr<MPZNumber>, ptr<string>, ptr<string>>> sessionKeys;
+
+    cache::lru_cache<uint64_t, tuple<ptr<OpenSSLECDSAKey>, ptr<string>, ptr<string>>> sessionKeys;
+    cache::lru_ordered_cache<string, string> sessionPublicKeys;
 
     recursive_mutex clientLock;
     recursive_mutex sessionKeysLock;
+    recursive_mutex publicSessionKeysLock;
 
     ptr< StubClient > sgxClient = nullptr;
 
@@ -106,10 +112,10 @@ class CryptoManager {
     ptr< BLSPublicKey > sgxBLSPublicKey;
 
 
-    map<node_id, ptr<string>> ecdsaPublicKeyMap;
-    map<node_id, ptr<vector<string>>> blsPublicKeyMap;
+    map<uint64_t , ptr<string>> ecdsaPublicKeyMap;
+    map<uint64_t , ptr<vector<string>>> blsPublicKeyMap;
 
-    std::tuple<ptr<MPZNumber> , ptr<string>> localGenerateEcdsaKey();
+    std::tuple<ptr<OpenSSLECDSAKey> , ptr<string>> localGenerateEcdsaKey();
 
     ptr< BLSPublicKey > blsPublicKeyObj = nullptr;
 
@@ -122,8 +128,7 @@ class CryptoManager {
     tuple<ptr< string >, ptr<string>, ptr<string>> sessionSignECDSA( ptr< SHAHash > _hash, block_id _blockId) ;
 
 
-    bool sessionVerifyECDSA( ptr< SHAHash > _hash, ptr< string > _sig,
-                           ptr<string> _publicKey, node_id _nodeId );
+    bool sessionVerifyECDSA( ptr< SHAHash > _hash, ptr< string > _sig, ptr< string > _publicKey );
 
     bool verifyECDSA( ptr< SHAHash > _hash, ptr< string > _sig, node_id _nodeId );
 
@@ -183,6 +188,12 @@ public:
 
     bool localVerifyECDSAInternal( ptr< SHAHash > _hash, ptr< string > _sig, ptr< string > _publicKey );
 
+
+    bool signECDSASigRSOpenSSL( const char* hash );
+
+    bool verifyECDSASigRSOpenSSL(
+        string& pubKeyStr, const char* hashHex, const char* signatureR, const char* signatureS );
+
     bool verifyECDSASigRS( string& pubKeyStr, const char* hashHex, const char* signatureR,
                                         const char* signatureS, int base );
 
@@ -197,5 +208,11 @@ public:
         ptr< string > publicKey, block_id _blockID);
 };
 
+#define RETRY_BEGIN while (true) { try {
+#define RETRY_END   ; break ;} catch ( exception& e ) { \
+  if ( e.what() && string( e.what() ).find( "Could not connect" ) != string::npos ) { \
+  LOG( err, "Could not connext to sgx server, retrying ... \n" + string( e.what() ) ); \
+  sleep( 60 ); \
+  } else { throw; } } }
 
 #endif  // SKALED_CRYPTOMANAGER_H

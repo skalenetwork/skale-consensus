@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2018-2019 SKALE Labs
+    Copyright (C) 2020-present SKALE Labs
 
     This file is part of skale-consensus.
 
@@ -16,19 +16,43 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file InternalMessageEnvelope.cpp
+    @file OpenSSLECDSAPrivateKey.h
     @author Stan Kladko
-    @date 2018
+    @date 2020
 */
 
-#include "SkaleCommon.h"
-#include "Log.h"
-#include "chains/Schain.h"
-#include "Message.h"
-#include "MessageEnvelope.h"
-#include "InternalMessageEnvelope.h"
+#ifndef OPENSSLECDSAPRIVATEKEY_H
+#define OPENSSLECDSAPRIVATEKEY_H
 
 
-InternalMessageEnvelope::InternalMessageEnvelope(MessageOrigin _origin, const ptr<Message> _message, Schain& _subchain): MessageEnvelope(
-        _origin, _message, _subchain.getThisNodeInfo()) {
-}
+class OpenSSLECDSAKey {
+
+    bool isPrivate = false;
+
+    EC_KEY *ecKey = nullptr;
+
+    static EC_GROUP *ecgroup;
+
+public:
+    OpenSSLECDSAKey( EC_KEY* _eckey );
+
+    OpenSSLECDSAKey( ptr<string> _publicKey );
+
+    virtual ~OpenSSLECDSAKey();
+
+    static ptr< OpenSSLECDSAKey > generateKey();
+
+    EC_KEY* getEcKey() const;
+
+    ptr<string> signHash(const char* hash);
+
+    ptr<string> getPublicKey();
+
+    bool verifyHash( ptr<string> _signature, const char* _hash );
+
+};
+
+
+
+
+#endif  // OPENSSLECDSAPRIVATEKEY_H

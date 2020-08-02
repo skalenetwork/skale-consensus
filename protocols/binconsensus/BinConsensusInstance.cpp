@@ -552,7 +552,7 @@ void BinConsensusInstance::decide(bin_consensus_value _b) {
                to_string(getBlockID()) + " proposer:" +
                to_string(getBlockProposerIndex()));
 
-    auto envelope = make_shared<InternalMessageEnvelope>(ORIGIN_CHILD, msg, *getSchain(), getProtocolKey());
+    auto envelope = make_shared<InternalMessageEnvelope>(ORIGIN_CHILD, msg, *getSchain());
 
     blockConsensusInstance->routeAndProcessMessage(envelope);
 
