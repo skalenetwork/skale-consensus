@@ -51,6 +51,9 @@
 #include "monitoring/LivelinessMonitor.h"
 
 #include "CacheLevelDB.h"
+#include "leveldb/cache.h"
+
+
 
 
 using namespace leveldb;
@@ -325,6 +328,22 @@ shared_ptr<leveldb::DB> CacheLevelDB::openDB(uint64_t _index) {
         leveldb::DB *dbase = nullptr;
 
         static leveldb::Options options;
+
+        auto maxFiles = getSchain()->getNode()->getParamInt64(
+            "maxOpenLeveldbFiles", 0);
+
+        if (maxFiles != 0) {
+            options.max_open_files = maxFiles;
+        }
+
+
+        auto blockCache = getSchain()->getNode()->getParamInt64(
+            "levelDbBlockCache", 0);
+
+        if (blockCache != 0) {
+            options.block_cache = leveldb::NewLRUCache(blockCache * 1048576);
+        };
+
         options.create_if_missing = true;
 
         CHECK_STATE2(leveldb::DB::Open(options, path_to_index(_index),

@@ -653,7 +653,6 @@ bool CryptoManager::localVerifyECDSAInternal(
             goto clean;
         }
 
-        signECDSASigRSOpenSSL( ( const char* ) _hash->data() );
         returnValue = verifyECDSASigRS( *_publicKey, _hash->toHex()->data(), r.data(), s.data(), 16 );
     } catch ( exception& e ) {
         LOG( err, "ECDSA sig did not verify: exception" + string( e.what() ) );
