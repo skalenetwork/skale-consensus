@@ -672,9 +672,12 @@ void ConsensusEngine::exitGracefullyAsync() {
             return;
         }
 
+        std::cerr << "exitGracefullyAsync before loop" << std::endl;
 
         for ( auto&& it : nodes ) {
             // run and forget
+
+            std::cerr << "exitGracefullyAsync in loop" << std::endl;
 
             auto node = it.second;
 
@@ -684,11 +687,14 @@ void ConsensusEngine::exitGracefullyAsync() {
 
             thread( [this, node]() {
                 try {
+                    std::cerr << "thread before exit" << std::endl;
                     node->exit();
+                    std::cerr << "thread after exit" << std::endl;
                 } catch ( exception& e ) {
                     SkaleException::logNested( e );
                 } catch (...) {};
             } ).detach();
+
         }
 
         CHECK_STATE( threadRegistry );
@@ -707,6 +713,7 @@ void ConsensusEngine::exitGracefullyAsync() {
 
 ConsensusEngine::~ConsensusEngine() {
     exitGracefullyBlocking();
+    std::cerr << "nodes.clear()!!" << std::endl;
     nodes.clear();
 }
 
