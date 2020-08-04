@@ -614,25 +614,27 @@ bool CryptoManager::localVerifyECDSAInternal(
     CHECK_ARGUMENT( _sig );
     CHECK_ARGUMENT( _publicKey );
 
+    bool returnValue = false;
+
     signature sig = NULL;
 
     try {
         sig = signature_init();
+
         CHECK_STATE( sig );
 
         auto firstColumn = _sig->find( ":" );
 
         if ( firstColumn == string::npos || firstColumn == _sig->length() - 1 ) {
             LOG( err, "Misfomatted signature" );
-            return false;
+            goto clean;
         }
 
         auto secondColumn = _sig->find( ":", firstColumn + 1 );
 
-
         if ( secondColumn == string::npos || secondColumn == _sig->length() - 1 ) {
             LOG( err, "Misformatted signature" );
-            return false;
+            goto clean;
         }
 
         auto r = _sig->substr( firstColumn + 1, secondColumn - firstColumn - 1 );
@@ -640,7 +642,7 @@ bool CryptoManager::localVerifyECDSAInternal(
 
         if ( r == s ) {
             LOG( err, "r == s " );
-            return false;
+            goto clean;
         }
 
 
@@ -648,15 +650,24 @@ bool CryptoManager::localVerifyECDSAInternal(
 
         if ( _publicKey->size() != 128 ) {
             LOG( err, "ECDSA verify fail: _publicKey->size() != 128" );
-            return false;
+            goto clean;
         }
 
-        signECDSASigRSOpenSSL( ( const char* ) _hash->data() );
-        return verifyECDSASigRS( *_publicKey, _hash->toHex()->data(), r.data(), s.data(), 16 );
+        returnValue = verifyECDSASigRS( *_publicKey, _hash->toHex()->data(), r.data(), s.data(), 16 );
     } catch ( exception& e ) {
         LOG( err, "ECDSA sig did not verify: exception" + string( e.what() ) );
-        return false;
+        returnValue = false;
+        goto clean;
     }
+
+
+clean:
+    if (sig) {
+        signature_free( sig );
+    }
+
+    return returnValue;
+
 }
 
 
