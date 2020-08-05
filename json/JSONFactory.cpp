@@ -391,12 +391,12 @@ JSONFactory::parseTestKeyNamesFromJson( ptr<string> _sgxServerURL, const fs_path
         response = c.getBLSPublicKeyShare( blsKeyNames->at( i ) );
         RETRY_END
 
-        CHECK_STATE( response["status"] == 0 );
+        auto status = getInt64(response, "status");
+        CHECK_STATE( status == 0 );
 
         auto fourPieces = response["blsPublicKeyShare"];
-
+        CHECK_STATE(fourPieces);
         CHECK_STATE(fourPieces.isArray());
-
         CHECK_STATE( fourPieces.size() == 4 );
 
         blsPublicKeys->push_back( make_shared< vector< string > >() );
@@ -404,7 +404,7 @@ JSONFactory::parseTestKeyNamesFromJson( ptr<string> _sgxServerURL, const fs_path
         for ( uint64_t k = 0; k < 4; k++ ) {
 
             auto element = fourPieces[(int) k];
-
+            CHECK_STATE(element)
             CHECK_STATE(element.is<string>())
 
             string  keyPiece;
@@ -468,10 +468,10 @@ JSONFactory::parseTestKeyNamesFromJson( ptr<string> _sgxServerURL, const fs_path
 
 
 
-        CHECK_STATE( blsSigShares[i]["status"] == 0 );
+        CHECK_STATE( getInt64(blsSigShares[i], "status") == 0 );
 
         string sigShareStr;
-        sigShareStr += blsSigShares[i]["signatureShare"].asString();
+        sigShareStr += getString(blsSigShares[i],"signatureShare");
         ptr< string > sigShare = make_shared< string >(sigShareStr );
 
         BLSSigShare sig( sigShare, i + 1, _requiredNodes, _totalNodes );
@@ -499,9 +499,9 @@ JSONFactory::parseTestKeyNamesFromJson( ptr<string> _sgxServerURL, const fs_path
 
         auto response = c.getPublicECDSAKey( ecdsaKeyNames->at( i ) );
 
-        CHECK_STATE( response["status"] == 0 );
+        CHECK_STATE( getInt64(response,"status") == 0 );
 
-        auto publicKey = response["publicKey"].asString();
+        auto publicKey = getString(response, "publicKey");
 
         LOG(info, "Got ECDSA public key:" + publicKey);
 
@@ -533,4 +533,19 @@ ptr<vector<string>> JSONFactory::splitString(const string& _str, const string& _
     } while (pos < _str.length() && prev < _str.length());
 
     return tokens;
+}
+
+
+int64_t JSONFactory::getInt64(Json::Value& _json, const char* key) {
+    CHECK_STATE(_json);
+    CHECK_STATE(key);
+    auto value = _json[key];
+    CHECK_STATE(value && value.isInt64())
+    return value.asInt64();
+}
+
+string JSONFactory::getString(Json::Value& _json, const char* key) {
+    auto value = _json[key];
+    CHECK_STATE(value && value.isString())
+    return value.asString();
 }
