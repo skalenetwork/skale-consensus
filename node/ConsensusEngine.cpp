@@ -647,7 +647,11 @@ ConsensusExtFace* ConsensusEngine::getExtFace() const {
 
 
 void ConsensusEngine::exitGracefullyBlocking() {
-    exitGracefully();
+
+    // !! if we don't check this - exitGracefullyAsync()
+    // will try to exit on deleted object!
+    if( getStatus() != CONSENSUS_EXITED )
+        exitGracefully();
 
     while ( getStatus() != CONSENSUS_EXITED ) {
         usleep( 100000 );
