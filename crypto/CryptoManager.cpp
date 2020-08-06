@@ -45,6 +45,8 @@
 #include <openssl/ecdsa.h>    // for ECDSA_do_sign, ECDSA_do_verify
 #include <openssl/obj_mac.h>  // for NID_secp192k1
 
+#include <sys/types.h>
+
 #include "Log.h"
 #include "SkaleCommon.h"
 
@@ -75,9 +77,6 @@
 #include "OpenSSLECDSAKey.h"
 
 
-
-
-
 void CryptoManager::initSGXClient() {
     if ( isSGXEnabled ) {
         if ( isHTTPSEnabled ) {
@@ -92,9 +91,6 @@ void CryptoManager::initSGXClient() {
                                    "Assuming SGX server does not require client certs" ) );
             }
         }
-
-        httpClient = make_shared< jsonrpc::HttpClient >( *sgxURL );
-        sgxClient = make_shared< StubClient >( *httpClient, jsonrpc::JSONRPC_CLIENT_V2 );
     }
 }
 ptr< BLSPublicKey > CryptoManager::getSgxBlsPublicKey() {
@@ -214,7 +210,7 @@ CryptoManager::CryptoManager( Schain& _sChain )
             blsPublicKeyMap[( uint64_t ) nodeId] = sgxBLSPublicKeys->at( i );
 
             if ( nodeId == getSchain()->getThisNodeInfo()->getNodeID() ) {
-                auto publicKey = getSGXEcdsaPublicKey( sgxECDSAKeyName, this->sgxClient );
+                auto publicKey = getSGXEcdsaPublicKey( sgxECDSAKeyName, getSgxClient() );
                 if ( *publicKey != sgxECDSAPublicKeys->at( i ) ) {
                     BOOST_THROW_EXCEPTION( InvalidStateException(
                         "Misconfiguration. \n Configured ECDSA public key for this node \n" +
@@ -453,26 +449,21 @@ ptr< SHAHash > CryptoManager::calculatePublicKeyHash( ptr< string > publicKey, b
 }
 
 
-
 ptr< string > CryptoManager::sgxSignECDSA( ptr< SHAHash > _hash, string& _keyName ) {
     CHECK_ARGUMENT( _hash );
 
     Json::Value result;
 
     RETRY_BEGIN
-            {
-                LOCK( clientLock );
-                result = getSgxClient()->ecdsaSignMessageHash( 16, _keyName, *_hash->toHex() );
-                break;
-            }
+    result = getSgxClient()->ecdsaSignMessageHash( 16, _keyName, *_hash->toHex() );
     RETRY_END
 
 
-    auto status = result["status"].asInt64();
+    auto status = JSONFactory::getInt64( result, "status" );
     CHECK_STATE( status == 0 );
-    string r = result["signature_r"].asString();
-    string v = result["signature_v"].asString();
-    string s = result["signature_s"].asString();
+    string r = JSONFactory::getString(result,"signature_r");
+    string v = JSONFactory::getString(result, "signature_v");
+    string s = JSONFactory::getString(result, "signature_s");
 
     auto ret = make_shared< string >( v + ":" + r.substr( 2 ) + ":" + s.substr( 2 ) );
     return ret;
@@ -614,25 +605,27 @@ bool CryptoManager::localVerifyECDSAInternal(
     CHECK_ARGUMENT( _sig );
     CHECK_ARGUMENT( _publicKey );
 
+    bool returnValue = false;
+
     signature sig = NULL;
 
     try {
         sig = signature_init();
+
         CHECK_STATE( sig );
 
         auto firstColumn = _sig->find( ":" );
 
         if ( firstColumn == string::npos || firstColumn == _sig->length() - 1 ) {
             LOG( err, "Misfomatted signature" );
-            return false;
+            goto clean;
         }
 
         auto secondColumn = _sig->find( ":", firstColumn + 1 );
 
-
         if ( secondColumn == string::npos || secondColumn == _sig->length() - 1 ) {
             LOG( err, "Misformatted signature" );
-            return false;
+            goto clean;
         }
 
         auto r = _sig->substr( firstColumn + 1, secondColumn - firstColumn - 1 );
@@ -640,7 +633,7 @@ bool CryptoManager::localVerifyECDSAInternal(
 
         if ( r == s ) {
             LOG( err, "r == s " );
-            return false;
+            goto clean;
         }
 
 
@@ -648,15 +641,24 @@ bool CryptoManager::localVerifyECDSAInternal(
 
         if ( _publicKey->size() != 128 ) {
             LOG( err, "ECDSA verify fail: _publicKey->size() != 128" );
-            return false;
+            goto clean;
         }
 
-        signECDSASigRSOpenSSL( ( const char* ) _hash->data() );
-        return verifyECDSASigRS( *_publicKey, _hash->toHex()->data(), r.data(), s.data(), 16 );
+        returnValue =
+            verifyECDSASigRS( *_publicKey, _hash->toHex()->data(), r.data(), s.data(), 16 );
     } catch ( exception& e ) {
         LOG( err, "ECDSA sig did not verify: exception" + string( e.what() ) );
-        return false;
+        returnValue = false;
+        goto clean;
     }
+
+
+clean:
+    if ( sig ) {
+        signature_free( sig );
+    }
+
+    return returnValue;
 }
 
 
@@ -726,8 +728,7 @@ bool CryptoManager::verifyECDSA( ptr< SHAHash > _hash, ptr< string > _sig, node_
     CHECK_ARGUMENT( _sig )
 
     if ( isSGXEnabled ) {
-
-        if (ecdsaPublicKeyMap.count(( uint64_t ) _nodeId) == 0) {
+        if ( ecdsaPublicKeyMap.count( ( uint64_t ) _nodeId ) == 0 ) {
             // if there is no key report the signature as failed
             return false;
         }
@@ -787,19 +788,15 @@ ptr< ThresholdSigShare > CryptoManager::signSigShare( ptr< SHAHash > _hash, bloc
 
 
         RETRY_BEGIN
-
-        {
-            LOCK( clientLock );
-
-            jsonShare = getSgxClient()->blsSignMessageHash( *getSgxBlsKeyName(), *_hash->toHex(),
-                requiredSigners, totalSigners, ( uint64_t ) getSchain()->getSchainIndex() );
-        }
-
+        jsonShare = getSgxClient()->blsSignMessageHash( *getSgxBlsKeyName(), *_hash->toHex(),
+            requiredSigners, totalSigners, ( uint64_t ) getSchain()->getSchainIndex() );
         RETRY_END
 
-        CHECK_STATE( jsonShare["status"] == 0 );
+        auto status = JSONFactory::getInt64( jsonShare, "status" );
+        CHECK_STATE( status == 0 );
 
-        ptr< string > sigShare = make_shared< string >( jsonShare["signatureShare"].asString() );
+        ptr< string > sigShare = make_shared< string >(
+            JSONFactory::getString(jsonShare, "signatureShare"));
 
         auto sig = make_shared< BLSSigShare >(
             sigShare, ( uint64_t ) getSchain()->getSchainIndex(), requiredSigners, totalSigners );
@@ -985,15 +982,14 @@ ptr< string > CryptoManager::getSGXEcdsaPublicKey( ptr< string > _keyName, ptr< 
     Json::Value result;
 
     RETRY_BEGIN
-
-    {
-        result = _c->getPublicECDSAKey( *_keyName );
-    }
-
+    result = _c->getPublicECDSAKey( *_keyName );
     RETRY_END
 
+    auto status = JSONFactory::getInt64(result, "status");
+    CHECK_STATE( status == 0 );
 
-    auto publicKey = make_shared< string >( result["publicKey"].asString() );
+    auto publicKey = make_shared< string >(
+        JSONFactory::getString(result,"publicKey"));
 
     LOG( info, "Got ECDSA public key: " + *publicKey );
 
@@ -1007,16 +1003,17 @@ pair< ptr< string >, ptr< string > > CryptoManager::generateSGXECDSAKey( ptr< St
     RETRY_BEGIN
     result = _c->generateECDSAKey();
     RETRY_END
-    auto status = result["status"].asInt64();
+    auto status = JSONFactory::getInt64(result, "status");
     CHECK_STATE( status == 0 );
 
-    auto keyName = make_shared< string >( result["keyName"].asString() );
-    auto publicKey = make_shared< string >( result["publicKey"].asString() );
+    auto keyName = make_shared< string >(
+        JSONFactory::getString(result, "keyName"));
+    auto publicKey = make_shared< string >(
+        JSONFactory::getString(result,"publicKey"));
 
     CHECK_STATE( keyName->size() > 10 );
     CHECK_STATE( publicKey->size() > 10 );
     CHECK_STATE( keyName->find( "NEK" ) != string::npos );
-
 
     auto publicKey2 = getSGXEcdsaPublicKey( keyName, _c );
 
@@ -1057,25 +1054,39 @@ void CryptoManager::generateSSLClientCertAndKey( string& _fullPathToDir ) {
     result = c.SignCertificate( csr );
     RETRY_END
 
-    int64_t status = result["status"].asInt64();
+    auto status = JSONFactory::getInt64(result, "status");
     CHECK_STATE( status == 0 );
-    string certHash = result["hash"].asString();
+    string certHash = JSONFactory::getString(result, "hash");
 
     RETRY_BEGIN
     result = c.GetCertificate( certHash );
     RETRY_END
 
-    status = result["status"].asInt64();
+    status = JSONFactory::getInt64(result,"status");
     CHECK_STATE( status == 0 );
-    string signedCert = result["cert"].asString();
+
+    string signedCert = JSONFactory::getString(result, "cert");
     ofstream outFile;
     outFile.open( _fullPathToDir + "/cert" );
     outFile << signedCert;
 }
 
-ptr< StubClient > CryptoManager::getSgxClient() const {
-    CHECK_STATE( sgxClient );
-    return sgxClient;
+
+
+ptr< StubClient > CryptoManager::getSgxClient() {
+    auto tid = ( uint64_t ) pthread_self();
+
+    if ( httpClients.count( tid ) == 0 ) {
+        CHECK_STATE( sgxClients.count( tid ) == 0 );
+
+        auto httpClient = make_shared< jsonrpc::HttpClient >( *sgxURL );
+
+        httpClients.insert( { tid, httpClient } );
+        sgxClients.insert(
+            { tid, make_shared< StubClient >( *httpClient, jsonrpc::JSONRPC_CLIENT_V2 ) } );
+    }
+
+    return sgxClients.at( tid );
 }
 ptr< BLSPublicKey > CryptoManager::getBlsPublicKeyObj() const {
     CHECK_STATE( blsPublicKeyObj );

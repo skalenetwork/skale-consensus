@@ -84,17 +84,18 @@ class CryptoManager {
     cache::lru_cache<uint64_t, tuple<ptr<OpenSSLECDSAKey>, ptr<string>, ptr<string>>> sessionKeys;
     cache::lru_ordered_cache<string, string> sessionPublicKeys;
 
-    recursive_mutex clientLock;
+
     recursive_mutex sessionKeysLock;
     recursive_mutex publicSessionKeysLock;
 
-    ptr< StubClient > sgxClient = nullptr;
+    map<uint64_t , ptr< jsonrpc::HttpClient >> httpClients;
+    map<uint64_t , ptr< StubClient >> sgxClients;
 
 
-    ptr< StubClient > getSgxClient() const;
+    ptr< StubClient > getSgxClient();
 
 
-    ptr< jsonrpc::HttpClient > httpClient = nullptr;
+
 
     uint64_t totalSigners;
     uint64_t requiredSigners;
