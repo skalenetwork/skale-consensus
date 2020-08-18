@@ -23,6 +23,7 @@
 
 #pragma once
 
+#include <json/value.h>
 class Node;
 
 class NodeInfo;
@@ -69,4 +70,7 @@ public:
 
     static ptr<vector<string>> splitString(const string& str, const string& _delim = ":");
 
+    static int64_t getInt64( Json::Value& _json, const char* key );
+
+    static string getString( Json::Value& _json, const char* key );
 };
