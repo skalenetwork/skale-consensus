@@ -62,6 +62,7 @@
 #include "AbstractServerAgent.h"
 
 #include <exception>
+#include <chrono>
 
 void AbstractServerAgent::pushToQueueAndNotifyWorkers(ptr<ServerConnection> _connectionEnvelope ) {
     CHECK_ARGUMENT( _connectionEnvelope );
@@ -77,10 +78,11 @@ ptr<ServerConnection> AbstractServerAgent::workerThreadWaitandPopConnection() {
     while (incomingTCPConnections.empty()) {
         if( getSchain()->getNode()->isExitRequested() )
             return nullptr;
-        incomingTCPConnectionsCond.wait(mlock);
+        incomingTCPConnectionsCond.wait_for( mlock, std::chrono::milliseconds( 1000 ) ); // incomingTCPConnectionsCond.wait(mlock);
         getSchain()->getNode()->exitCheck();
     }
-
+    if( getSchain()->getNode()->isExitRequested() )
+        return nullptr;
 
     CHECK_STATE(!incomingTCPConnections.empty());
 

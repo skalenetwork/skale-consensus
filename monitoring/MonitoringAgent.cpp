@@ -71,6 +71,9 @@ void MonitoringAgent::monitor() {
 
     for (auto &&item: monitorsCopy ) {
 
+        if( sChain->getNode()->isExitRequested() )
+            return;
+
         ptr<LivelinessMonitor> monitor = item.second.lock();
 
         if (monitor) {
