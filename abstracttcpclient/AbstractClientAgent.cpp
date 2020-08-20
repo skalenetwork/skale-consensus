@@ -154,6 +154,8 @@ void AbstractClientAgent::workerThreadItemSendLoop( AbstractClientAgent* agent )
 
 
                 while ( agent->itemQueue[destinationSchainIndex]->empty() ) {
+                    if( agent->getSchain()->getNode()->isExitRequested() )
+                        return;
                     agent->getSchain()->getNode()->exitCheck();
                     agent->queueCond[destinationSchainIndex]->wait( mlock );
                 }
@@ -173,6 +175,8 @@ void AbstractClientAgent::workerThreadItemSendLoop( AbstractClientAgent* agent )
                 bool sent = false;
 
                 while ( !sent ) {
+                    if( agent->getSchain()->getNode()->isExitRequested() )
+                        return;
                     try {
                         agent->sendItem(proposal, destinationSchainIndex);
                         sent = true;

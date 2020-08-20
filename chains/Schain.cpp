@@ -143,11 +143,19 @@ void Schain::messageThreadProcessingLoop( Schain* _sChain ) {
                 newQueue = _sChain->messageQueue;
 
                 while ( !_sChain->messageQueue.empty() ) {
+                    if ( _sChain->getNode()->isExitRequested() ) {
+                        _sChain->getNode()->getSockets()->consensusZMQSockets->closeSend();
+                        return;
+                    }
                     _sChain->messageQueue.pop();
                 }
             }
 
             while ( !newQueue.empty() ) {
+                if ( _sChain->getNode()->isExitRequested() ) {
+                    _sChain->getNode()->getSockets()->consensusZMQSockets->closeSend();
+                    return;
+                }
                 ptr< MessageEnvelope > m = newQueue.front();
                 CHECK_STATE( ( uint64_t ) m->getMessage()->getBlockId() != 0 );
 

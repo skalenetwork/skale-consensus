@@ -61,6 +61,7 @@
 
 #include "AbstractServerAgent.h"
 
+#include <exception>
 
 void AbstractServerAgent::pushToQueueAndNotifyWorkers(ptr<ServerConnection> _connectionEnvelope ) {
     CHECK_ARGUMENT( _connectionEnvelope );
@@ -74,6 +75,8 @@ ptr<ServerConnection> AbstractServerAgent::workerThreadWaitandPopConnection() {
     unique_lock<mutex> mlock(incomingTCPConnectionsMutex);
 
     while (incomingTCPConnections.empty()) {
+        if( getSchain()->getNode()->isExitRequested() )
+            return nullptr;
         incomingTCPConnectionsCond.wait(mlock);
         getSchain()->getNode()->exitCheck();
     }
@@ -108,8 +111,10 @@ void AbstractServerAgent::workerThreadConnectionProcessingLoop(void *_params) {
         try {
 
             connection = server->workerThreadWaitandPopConnection();
+            if( server->getNode()->isExitRequested() )
+                return; // notice - connection is nullptr in this case
             CHECK_STATE(connection);
-            server->processNextAvailableConnection(connection);;
+            server->processNextAvailableConnection(connection);
         } catch (exception &e) {
             SkaleException::logNested(e);
         }

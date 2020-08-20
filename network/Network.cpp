@@ -307,6 +307,8 @@ void Network::deferredMessagesLoop() {
             CHECK_STATE(deferredMessages);
 
             for (auto message : *deferredMessages) {
+                if( getSchain()->getNode()->isExitRequested() )
+                    return;
                 postDeferOrDrop(message);
             }
 

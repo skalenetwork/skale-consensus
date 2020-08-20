@@ -99,6 +99,8 @@ void BlockConsensusAgent::startConsensusProposal(block_id _blockID, ptr<BooleanP
         uint64_t truthCount = 0;
 
         for (size_t i = 0; i < getSchain()->getNodeCount(); i++) {
+            if( getSchain()->getNode()->isExitRequested() )
+                return;
             if (_proposal->getProposalValue(schain_index(i + 1)))
                 truthCount++;
         }
@@ -107,6 +109,8 @@ void BlockConsensusAgent::startConsensusProposal(block_id _blockID, ptr<BooleanP
 
 
         for (uint64_t i = 1; i <= (uint64_t) getSchain()->getNodeCount(); i++) {
+            if( getSchain()->getNode()->isExitRequested() )
+                return;
 
             bin_consensus_value x;
 
