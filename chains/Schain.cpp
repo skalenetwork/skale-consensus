@@ -679,6 +679,9 @@ void Schain::healthCheck() {
             exit( 110 );
         }
 
+        if ( getNode()->isExitRequested() ) {
+            BOOST_THROW_EXCEPTION( ExitRequestedException( __CLASS_NAME__ ) );
+        }
 
         usleep( 1000000 );
 
