@@ -467,7 +467,7 @@ void ConsensusEngine::startAll() {
 
     try {
         for ( auto&& it : nodes ) {
-            if ( !it.second->isExitRequested() ) {
+            if ( it.second->isExitRequested() ) {
                 return;
             }
             CHECK_STATE( it.second );
@@ -477,7 +477,7 @@ void ConsensusEngine::startAll() {
 
 
         for ( auto&& it : nodes ) {
-            if ( !it.second->isExitRequested() ) {
+            if ( it.second->isExitRequested() ) {
                 return;
             }
             CHECK_STATE( it.second );
