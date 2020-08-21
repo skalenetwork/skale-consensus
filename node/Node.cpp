@@ -69,6 +69,8 @@
 #include "NodeInfo.h"
 #include "Node.h"
 
+#include <chrono>
+
 using namespace std;
 
 Node::Node(const nlohmann::json &_cfg, ConsensusEngine *_consensusEngine,
@@ -294,7 +296,11 @@ void Node::startServers() {
 
 
 void Node::startClients() {
+    if( isExitRequested() )
+        return;
     sChain->healthCheck();
+    if( isExitRequested() )
+        return;
     releaseGlobalClientBarrier();
 }
 
@@ -404,7 +410,7 @@ void Node::waitOnGlobalClientStartBarrier() {
 
     std::unique_lock<std::mutex> mlock(threadClientCondMutex);
     while (!startedClients) {
-        threadClientConditionVariable.wait(mlock);
+        threadClientConditionVariable.wait_for( mlock, std::chrono::milliseconds( 5000 ) ); // threadClientConditionVariable.wait(mlock);
     }
 }
 
