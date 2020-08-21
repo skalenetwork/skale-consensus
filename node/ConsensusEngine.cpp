@@ -467,6 +467,9 @@ void ConsensusEngine::startAll() {
 
     try {
         for ( auto&& it : nodes ) {
+            if ( !it.second->isExitRequested() ) {
+                return;
+            }
             CHECK_STATE( it.second );
             it.second->startServers();
             LOG( info, "Started servers" + to_string( it.second->getNodeID() ) );
@@ -474,6 +477,9 @@ void ConsensusEngine::startAll() {
 
 
         for ( auto&& it : nodes ) {
+            if ( !it.second->isExitRequested() ) {
+                return;
+            }
             CHECK_STATE( it.second );
             it.second->startClients();
             LOG( info, "Started clients" + to_string( it.second->getNodeID() ) );

@@ -685,6 +685,10 @@ void Schain::healthCheck() {
 
         usleep( 1000000 );
 
+        if ( getNode()->isExitRequested() ) {
+            BOOST_THROW_EXCEPTION( ExitRequestedException( __CLASS_NAME__ ) );
+        }
+
         for ( int i = 1; i <= getNodeCount(); i++ ) {
             if ( i != ( getSchainIndex() ) && !connections.count( i ) ) {
                 try {

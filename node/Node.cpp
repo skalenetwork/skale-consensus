@@ -296,7 +296,11 @@ void Node::startServers() {
 
 
 void Node::startClients() {
+    if( isExitRequested() )
+        return;
     sChain->healthCheck();
+    if( isExitRequested() )
+        return;
     releaseGlobalClientBarrier();
 }
 
