@@ -53,7 +53,6 @@ void CatchupResponseHeader::addFields(nlohmann::json &_j) {
 
     Header::addFields(_j);
 
-
     _j["count"] = blockCount;
 
     if (blockSizes != nullptr)
