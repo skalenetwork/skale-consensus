@@ -789,7 +789,7 @@ ptr< ThresholdSigShare > CryptoManager::signSigShare( ptr< SHAHash > _hash, bloc
 
         RETRY_BEGIN
         jsonShare = getSgxClient()->blsSignMessageHash( *getSgxBlsKeyName(), *_hash->toHex(),
-            requiredSigners, totalSigners, ( uint64_t ) getSchain()->getSchainIndex() );
+            requiredSigners, totalSigners );
         RETRY_END
 
         auto status = JSONFactory::getInt64( jsonShare, "status" );

@@ -248,7 +248,8 @@ void IO::readMagic(file_descriptor descriptor) {
 
 }
 
-nlohmann::json IO::readJsonHeader(file_descriptor descriptor, const char *_errorString) {
+nlohmann::json IO::readJsonHeader(file_descriptor descriptor, const char *_errorString,
+    uint64_t _maxHeaderLen) {
 
     CHECK_ARGUMENT(_errorString);
 
@@ -266,7 +267,7 @@ nlohmann::json IO::readJsonHeader(file_descriptor descriptor, const char *_error
 
     uint64_t headerLen = *(uint64_t*) buf2->data();
 
-    if (headerLen < 2 || headerLen >= MAX_HEADER_SIZE) {
+    if (headerLen < 2 || headerLen > _maxHeaderLen) {
         LOG(err, "Total Len:" + to_string(headerLen));
         BOOST_THROW_EXCEPTION(
                 ParsingException(_errorString + string(":Invalid Header len") + to_string(headerLen), __CLASS_NAME__));
