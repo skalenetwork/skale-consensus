@@ -23,7 +23,6 @@
 
 #pragma once
 
-
 #define DEFAULT_RUNNING_TIME_MS 50000
 #define STUCK_TEST_TIME 5
 
