@@ -65,6 +65,9 @@
 
 #include "bls.h"
 
+#include "datastructures/CommittedBlock.h"
+#include "datastructures/TransactionList.h"
+
 #pragma GCC diagnostic pop
 
 #include <libBLS/bls/BLSPublicKeyShare.h>
@@ -891,4 +894,33 @@ void ConsensusEngine::setTotalStorageLimitBytes( uint64_t _storageLimitBytes ) {
 ptr< StorageLimits > ConsensusEngine::getStorageLimits() const {
     CHECK_STATE( storageLimits );
     return storageLimits;
+}
+
+tuple< ptr< ConsensusExtFace::transactions_vector >, uint32_t, uint32_t, u256, u256 >
+ConsensusEngine::getBlock(block_id _blockId) {
+
+    CHECK_STATE(nodes.size()  > 0)
+
+
+    auto node = nodes.begin()->second;
+
+    CHECK_STATE(node)
+
+    auto schain = nodes.begin()->second->getSchain();
+
+    CHECK_STATE(schain);
+
+    auto committedBlock = schain->getBlock(_blockId);
+
+    if (!committedBlock) {
+        return {nullptr, 0, 0, 0, 0};
+    }
+
+    auto timeStampS = committedBlock->getTimeStamp();
+    auto timeStampMs = committedBlock->getTimeStampMs();
+    auto stateRoot = committedBlock->getStateRoot();
+    auto currentPrice = schain->getPriceForBlockId((uint64_t) committedBlock->getBlockID() - 1);
+    auto tv = committedBlock->getTransactionList()->createTransactionVector();
+
+    return {tv, timeStampS, timeStampMs, currentPrice, stateRoot};
 }
