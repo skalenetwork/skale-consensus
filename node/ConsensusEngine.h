@@ -161,17 +161,30 @@ public:
 
     set< node_id > nodeIDs;
 
-    /* Returns for a block
-     * pointer to transaction vector
-     * timeStampSec
-     * timeStampMS
-     * gasPrice
-     * stateRoot
-     * If the block is not found, return nullptr as transaction vector
+    /* Returns an old block from the consensus storage.
+     * The block is an EXACT COPY of the info that was earlier provided by
+     * ConsensusExtface::createBlock(...)
+     *
+     * The return values are:
+     *
+     *  shared pointer to transaction vector
+     *  timeStampSec
+     *  timeStampMS
+     *  gasPrice
+     *  stateRoot
+     *
+     *  If the block is not found (block is too old or in the future), will return nullptr as transaction vector,
+     *  the remaining return values will be set to zero
+     *
+     *   Example of usage:
+     *
+     *   auto [transactions, timestampS, timeStampMs, price, stateRoot]  = engine->getBlock(1);
+     *   if (transactions != nullptr) {
+     *      ...
+     *   }
      */
 
-    tuple<ptr<ConsensusExtFace::transactions_vector>,  uint32_t , uint32_t , u256, u256> getBlock();
-
+    tuple<ptr<ConsensusExtFace::transactions_vector>,  uint32_t , uint32_t , u256, u256> getBlock(block_id _blockID);
 
     set< node_id >& getNodeIDs();
 
@@ -256,5 +269,6 @@ public:
                        uint64_t _totalSigners);
 
     void setTotalStorageLimitBytes(uint64_t _storageLimitBytes);
+
     uint64_t getTotalStorageLimitBytes() const;
 };

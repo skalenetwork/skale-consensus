@@ -132,7 +132,17 @@ block_id basicRun(block_id _lastId = 0) {
         REQUIRE(engine->nodesCount() > 0);
         auto lastId = engine->getLargestCommittedBlockID();
         REQUIRE(lastId > 0);
-        cerr << "exiting" << endl;
+
+
+        auto [transactions, timestampS, timestampMs, price, stateRoot]  = engine->getBlock(1);
+
+
+        REQUIRE(transactions);
+        REQUIRE(timestampS > 0);
+        REQUIRE(timestampMs > 0);
+
+        cerr << price << ":" << stateRoot << endl;
+        cerr << "exiting ..." << endl;
         engine->exitGracefullyBlocking();
         delete engine;
         return lastId;
