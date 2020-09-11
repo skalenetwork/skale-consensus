@@ -95,13 +95,6 @@ class ConsensusEngine : public ConsensusInterface {
 
     ptr<StorageLimits> storageLimits = nullptr;
 
-
-
-
-
-
-
-
 public:
 
     // used for testing only
@@ -167,6 +160,17 @@ public:
     uint64_t lastCommittedBlockTimeStamp = 0;
 
     set< node_id > nodeIDs;
+
+    /* Returns for a block
+     * pointer to transaction vector
+     * timeStampSec
+     * timeStampMS
+     * gasPrice
+     * stateRoot
+     * If the block is not found, return nullptr as transaction vector
+     */
+
+    tuple<ptr<ConsensusExtFace::transactions_vector>,  uint32_t , uint32_t , u256, u256> getBlock();
 
 
     set< node_id >& getNodeIDs();

@@ -892,3 +892,20 @@ ptr< StorageLimits > ConsensusEngine::getStorageLimits() const {
     CHECK_STATE( storageLimits );
     return storageLimits;
 }
+
+tuple< ptr< ConsensusExtFace::transactions_vector >, uint32_t, uint32_t, u256, u256 >
+ConsensusEngine::getBlock() {
+
+    CHECK_STATE(nodes.size()  > 0)
+
+
+    auto node = nodes.begin()->second;
+
+    CHECK_STATE(node)
+
+    auto schain = nodes.begin()->second->getSchain();
+
+    CHECK_STATE(schain);
+
+    return tuple< ptr< ConsensusExtFace::transactions_vector >, uint32_t, uint32_t, u256, u256 >();
+}
