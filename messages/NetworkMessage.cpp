@@ -50,8 +50,6 @@
 #include <crypto/SHAHash.h>
 
 #include "thirdparty/rapidjson/document.h"
-#include "thirdparty/rapidjson/writer.h"
-#include "thirdparty/rapidjson/stringbuffer.h"
 
 
 NetworkMessage::NetworkMessage(MsgType _messageType, block_id _blockID, schain_index _blockProposerIndex,
@@ -194,19 +192,17 @@ ptr<NetworkMessage> NetworkMessage::parseMessage(ptr<string> _header, Schain *_s
         d.Parse(_header->data());
 
         CHECK_STATE(!d.HasParseError());
-        CHECK_STATE(d.IsObject());
-        CHECK_STATE(d.HasMember("si"));
-        CHECK_STATE(d["si"].IsUint64());
-        sChainID = d["si"].GetUint64();
+        CHECK_STATE(d.IsObject());;
+        sChainID = getUint64Rapid(d, "si");
         blockID = getUint64(js, "bi");
-        blockProposerIndex = getUint64(js, "bpi");
+        blockProposerIndex = getUint64Rapid(d, "bpi");
         type = getString(js, "type");
-        msgID = getUint64(js, "mi");
-        srcNodeID = getUint64(js, "sni");
-        srcSchainIndex = getUint64(js, "ssi");
-        round = getUint64(js, "r");
-        timeMs = getUint64(js, "t");
-        value = getUint64(js, "v");
+        msgID = getUint64Rapid(d, "mi");
+        srcNodeID = getUint64Rapid(d, "sni");
+        srcSchainIndex = getUint64Rapid(d, "ssi");
+        round = getUint64Rapid(d, "r");
+        timeMs = getUint64Rapid(d, "t");
+        value = getUint64Rapid(d, "v");
 
         if (js.find("sss") != js.end()) {
             sigShare = getString(js, "sss");
