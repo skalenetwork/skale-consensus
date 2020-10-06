@@ -49,6 +49,10 @@
 #include "utils/Time.h"
 #include <crypto/SHAHash.h>
 
+#include "thirdparty/rapidjson/document.h"
+#include "thirdparty/rapidjson/writer.h"
+#include "thirdparty/rapidjson/stringbuffer.h"
+
 
 NetworkMessage::NetworkMessage(MsgType _messageType, block_id _blockID, schain_index _blockProposerIndex,
                                bin_consensus_round _r,
@@ -159,6 +163,8 @@ void NetworkMessage::addFields(nlohmann::basic_json<> &j) {
     j["pks"] = *pkSig;
 }
 
+using namespace rapidjson;
+
 ptr<NetworkMessage> NetworkMessage::parseMessage(ptr<string> _header, Schain *_sChain) {
 
 
@@ -184,7 +190,14 @@ ptr<NetworkMessage> NetworkMessage::parseMessage(ptr<string> _header, Schain *_s
 
         auto js = nlohmann::json::parse(*_header);
 
-        sChainID = getUint64(js, "si");
+        Document d;
+        d.Parse(_header->data());
+
+        CHECK_STATE(!d.HasParseError());
+        CHECK_STATE(d.IsObject());
+        CHECK_STATE(d.HasMember("si"));
+        CHECK_STATE(d["si"].IsUint64());
+        sChainID = d["si"].GetUint64();
         blockID = getUint64(js, "bi");
         blockProposerIndex = getUint64(js, "bpi");
         type = getString(js, "type");
