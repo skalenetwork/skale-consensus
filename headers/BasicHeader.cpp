@@ -98,6 +98,14 @@ uint64_t BasicHeader::getUint64Rapid(rapidjson::Document &_d, const char *_name)
     return _d[_name].GetUint64();
 };
 
+ptr<string> BasicHeader::getStringRapid(rapidjson::Document &_d, const char *_name) {
+    CHECK_ARGUMENT(_name);
+    CHECK_STATE(_d.HasMember(_name));
+    CHECK_STATE(_d[_name].IsString());
+    return make_shared<string>(_d[_name].GetString());
+};
+
+
 int32_t BasicHeader::getInt32(nlohmann::json &_js, const char *_name) {
     CHECK_ARGUMENT(_name);
     nullCheck(_js, _name);

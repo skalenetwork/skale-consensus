@@ -186,17 +186,15 @@ ptr<NetworkMessage> NetworkMessage::parseMessage(ptr<string> _header, Schain *_s
 
     try {
 
-        auto js = nlohmann::json::parse(*_header);
-
         Document d;
         d.Parse(_header->data());
 
         CHECK_STATE(!d.HasParseError());
         CHECK_STATE(d.IsObject());;
         sChainID = getUint64Rapid(d, "si");
-        blockID = getUint64(js, "bi");
+        blockID = getUint64Rapid(d, "bi");
         blockProposerIndex = getUint64Rapid(d, "bpi");
-        type = getString(js, "type");
+        type = getStringRapid(d, "type");
         msgID = getUint64Rapid(d, "mi");
         srcNodeID = getUint64Rapid(d, "sni");
         srcSchainIndex = getUint64Rapid(d, "ssi");
@@ -204,13 +202,13 @@ ptr<NetworkMessage> NetworkMessage::parseMessage(ptr<string> _header, Schain *_s
         timeMs = getUint64Rapid(d, "t");
         value = getUint64Rapid(d, "v");
 
-        if (js.find("sss") != js.end()) {
-            sigShare = getString(js, "sss");
+        if (d.HasMember("sss")) {
+            sigShare = getStringRapid(d, "sss");
         }
 
-        ecdsaSig = getString(js, "sig");
-        publicKey = getString(js, "pk");
-        pkSig = getString(js, "pks");
+        ecdsaSig = getStringRapid(d, "sig");
+        publicKey = getStringRapid(d, "pk");
+        pkSig = getStringRapid(d, "pks");
         CHECK_STATE(ecdsaSig);
         CHECK_STATE(publicKey);
         CHECK_STATE(pkSig);
