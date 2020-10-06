@@ -21,12 +21,17 @@
     @date 2018
 */
 
+#include "thirdparty/rapidjson/document.h"
+#include "thirdparty/json.hpp"
+#include "thirdparty/rapidjson/prettywriter.h" // for stringify JSON
+
 
 #include "SkaleCommon.h"
 #include "Log.h"
 
+
 #include "Message.h"
-#include "NetworkMessage.h"
+
 #include "NetworkMessageEnvelope.h"
 #include "Log.h"
 #include "chains/Schain.h"
@@ -45,11 +50,12 @@
 #include "protocols/binconsensus/BVBroadcastMessage.h"
 #include "protocols/binconsensus/BinConsensusInstance.h"
 #include "protocols/blockconsensus/BlockSignBroadcastMessage.h"
-#include "thirdparty/json.hpp"
+
 #include "utils/Time.h"
 #include <crypto/SHAHash.h>
 
-#include "thirdparty/rapidjson/document.h"
+
+#include "NetworkMessage.h"
 
 
 NetworkMessage::NetworkMessage(MsgType _messageType, block_id _blockID, schain_index _blockProposerIndex,
@@ -138,8 +144,68 @@ void NetworkMessage::printMessage() {
 }
 
 
-void NetworkMessage::addFields(nlohmann::basic_json<> &j) {
+using namespace rapidjson;
 
+ptr<string> NetworkMessage::serializeToString() {
+    ASSERT(complete);
+
+
+    StringBuffer sb;
+    Writer<StringBuffer> writer(sb);
+
+    writer.StartObject();
+
+    CHECK_STATE(type != nullptr);
+
+    writer.String("type");
+    writer.String(type);
+    writer.String("si");
+    writer.Uint64((uint64_t ) schainID);
+    writer.String("bi");
+    writer.Uint64((uint64_t )blockID);
+    writer.String("bpi");
+    writer.Uint64((uint64_t )getBlockProposerIndex());
+    writer.String("mt");
+    writer.Uint64((uint64_t )msgType);
+    writer.String("mi");
+    writer.Uint64((uint64_t )msgID);
+    writer.String("sni");
+    writer.Uint64((uint64_t) srcNodeID);
+    writer.String("ssi");
+    writer.Uint64((uint64_t) srcSchainIndex);
+    writer.String("r");
+    writer.Uint64((uint64_t )r);
+    writer.String("t");
+    writer.Uint64((uint64_t) timeMs);
+    writer.String("v");
+    writer.Uint64((uint8_t )value);
+
+    if (sigShareString) {
+        writer.String("sss");
+        writer.String(sigShareString->data(), sigShareString->size());
+    }
+
+    CHECK_STATE(ecdsaSig);
+    writer.String("sig");
+    writer.String(ecdsaSig->data(), ecdsaSig->size());
+    writer.String("pk");
+    writer.String(publicKey->data(), publicKey->size());
+    writer.String("pks");
+    writer.String(pkSig->data(), pkSig->size());
+
+    writer.EndObject();
+    writer.Flush();
+    auto s  = make_shared<string>(sb.GetString());
+
+    CHECK_STATE(s->size() > 16);
+
+    return s;
+
+}
+
+void NetworkMessage::addFields(nlohmann::basic_json<>& ) {
+
+    /*
     j["si"] = (uint64_t ) schainID;
     j["bi"] = (uint64_t )blockID;
     j["bpi"] = (uint64_t )getBlockProposerIndex();
@@ -159,9 +225,10 @@ void NetworkMessage::addFields(nlohmann::basic_json<> &j) {
     j["sig"] = *ecdsaSig;
     j["pk"] = *publicKey;
     j["pks"] = *pkSig;
+     */
+    CHECK_STATE(false); // not used anymore
 }
 
-using namespace rapidjson;
 
 ptr<NetworkMessage> NetworkMessage::parseMessage(ptr<string> _header, Schain *_sChain) {
 

@@ -116,6 +116,9 @@ public:
 
     ptr<SHAHash> getHash();
 
+    virtual ptr<string> serializeToString() override;
+
+
     const ptr<string> &getECDSASig() const;
     const ptr< string >& getPublicKey() const;
     const ptr< string >& getPkSig() const;

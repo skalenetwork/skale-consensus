@@ -94,8 +94,9 @@ uint64_t BasicHeader::getUint64(nlohmann::json &_js, const char *_name) {
 uint64_t BasicHeader::getUint64Rapid(rapidjson::Document &_d, const char *_name) {
     CHECK_ARGUMENT(_name);
     CHECK_STATE(_d.HasMember(_name));
-    CHECK_STATE(_d[_name].IsUint64());
-    return _d[_name].GetUint64();
+    const rapidjson::Value& a = _d[_name];
+    CHECK_STATE(a.IsUint64());
+    return a.GetUint64();
 };
 
 ptr<string> BasicHeader::getStringRapid(rapidjson::Document &_d, const char *_name) {

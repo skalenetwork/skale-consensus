@@ -74,7 +74,8 @@ public:
     static void nullCheck( nlohmann::json& js, const char* _name );
 
 
-    ptr<string> serializeToString();
+    virtual ptr<string> serializeToString();
+
 
     ptr< Buffer > toBuffer();
 
