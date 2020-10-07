@@ -191,7 +191,7 @@ shared_ptr< spdlog::logger > ConsensusEngine::createLogger( const string& logger
             logger = make_shared< spdlog::logger >( loggerName, logRotatingFileSync );
             logger->flush_on( debug );
         } else {
-            logger = spdlog::stdout_color_mt( loggerName );
+            logger = spdlog::stdout_color_mt( loggerName, spdlog::color_mode::never );
         }
         logger->set_pattern( "%+", spdlog::pattern_time_type::utc );
     }
