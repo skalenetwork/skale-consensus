@@ -254,4 +254,5 @@ public:
 
     void finalizeDecidedAndSignedBlock(block_id _blockId, schain_index _proposerIndex, ptr<ThresholdSignature> _thresholdSig );
 
+    void tryStartingConsensus( const ptr< BooleanProposalVector >& pv, const block_id& bid );
 };

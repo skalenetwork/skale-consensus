@@ -547,14 +547,20 @@ void Schain::daProofArrived( ptr< DAProof > _daProof ) {
 
 
         if ( pv != nullptr ) {
-            getNode()->getProposalVectorDB()->saveVector( _daProof->getBlockId(), pv );
-            startConsensus( _daProof->getBlockId(), pv );
+
+            auto bid = _daProof->getBlockId();
+
+            tryStartingConsensus( pv, bid );
         }
     } catch ( ExitRequestedException& e ) {
         throw;
     } catch ( ... ) {
         throw_with_nested( InvalidStateException( __FUNCTION__, __CLASS_NAME__ ) );
     }
+}
+void Schain::tryStartingConsensus( const ptr< BooleanProposalVector >& pv, const block_id& bid ) {
+    getNode()->getProposalVectorDB()->saveVector( bid, pv );
+    startConsensus( bid, pv );
 }
 
 
