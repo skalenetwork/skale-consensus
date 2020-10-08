@@ -38,7 +38,7 @@ public:
 
     ProposalVectorDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize);
 
-    bool saveVector(block_id _proposalBlockID, ptr<BooleanProposalVector> _proposalVector);
+    bool trySavingProposalVector(block_id _proposalBlockID, ptr<BooleanProposalVector> _proposalVector);
 
     ptr<BooleanProposalVector> getVector(block_id _blockID);
 

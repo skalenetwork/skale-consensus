@@ -550,6 +550,8 @@ void Schain::daProofArrived( ptr< DAProof > _daProof ) {
 
             auto bid = _daProof->getBlockId();
 
+            // try starting consensus. It may already have been started due to
+            // block proposal receipt timeout
             tryStartingConsensus( pv, bid );
         }
     } catch ( ExitRequestedException& e ) {
@@ -558,9 +560,12 @@ void Schain::daProofArrived( ptr< DAProof > _daProof ) {
         throw_with_nested( InvalidStateException( __FUNCTION__, __CLASS_NAME__ ) );
     }
 }
+
+// Consensus is started after 2/3 N + 1 proposals are received, or BlockProposalTimeout is reached
 void Schain::tryStartingConsensus( const ptr< BooleanProposalVector >& pv, const block_id& bid ) {
-    getNode()->getProposalVectorDB()->saveVector( bid, pv );
-    startConsensus( bid, pv );
+    auto needToStartConsensus = getNode()->getProposalVectorDB()->trySavingProposalVector( bid, pv );
+    if (needToStartConsensus)
+        startConsensus( bid, pv );
 }
 
 
