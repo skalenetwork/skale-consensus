@@ -58,6 +58,8 @@ void MonitoringAgent::monitor() {
     if (ConsensusEngine::isOnTravis())
         return;
 
+
+
     map<uint64_t, weak_ptr<LivelinessMonitor>> monitorsCopy;
 
     {
@@ -89,6 +91,8 @@ void MonitoringAgent::monitor() {
             }
         }
     }
+
+
 }
 
 void MonitoringAgent::monitoringLoop(MonitoringAgent *_agent) {
@@ -108,6 +112,16 @@ void MonitoringAgent::monitoringLoop(MonitoringAgent *_agent) {
 
             try {
                 _agent->monitor();
+
+                auto blockId = _agent->getSchain()->getLastCommittedBlockID() + 1;
+
+                if (blockId > 2 && Time::getCurrentTimeMs() - _agent->getSchain()->getLastCommitTimeMs()
+                                   > BLOCK_PROPOSAL_RECEIVE_TIMEOUT_MS) {
+                    try {
+                        _agent->getSchain()->blockProposalReceiptTimeoutArrived(blockId);
+                    } catch (...) {}
+                }
+
             } catch (ExitRequestedException &) {
                 return;
             } catch (exception &e) {

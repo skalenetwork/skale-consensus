@@ -39,8 +39,12 @@ ProposalVectorDB::ProposalVectorDB(Schain *_sChain, string &_dirName, string &_p
 }
 
 
+
+// Proposal vector may already be saved in DB and consensus may already be started
+// Then do not save
+// Return if it was saved.
 bool
-ProposalVectorDB::saveVector(block_id _proposalBlockID, ptr<BooleanProposalVector> _proposalVector) {
+ProposalVectorDB::trySavingProposalVector(block_id _proposalBlockID, ptr<BooleanProposalVector> _proposalVector) {
 
     CHECK_ARGUMENT(_proposalVector);
 
@@ -60,9 +64,9 @@ ProposalVectorDB::saveVector(block_id _proposalBlockID, ptr<BooleanProposalVecto
         if (previous == nullptr) {
             writeString(*key, *proposalString);
             return true;
+        } else {
+            return false;
         }
-
-        return (*previous == *proposalString);
 
     } catch (...) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));

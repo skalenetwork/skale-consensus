@@ -27,9 +27,6 @@
 #include "exceptions/InvalidArgumentException.h"
 
 #include "abstracttcpserver/ConnectionStatus.h"
-
-#include "thirdparty/json.hpp"
-
 #include "abstracttcpserver/AbstractServerAgent.h"
 #include "exceptions/ParsingException.h"
 #include "exceptions/NetworkProtocolException.h"
@@ -93,6 +90,22 @@ uint64_t BasicHeader::getUint64(nlohmann::json &_js, const char *_name) {
     uint64_t result = _js[_name];
     return result;
 };
+
+uint64_t BasicHeader::getUint64Rapid(rapidjson::Document &_d, const char *_name) {
+    CHECK_ARGUMENT(_name);
+    CHECK_STATE(_d.HasMember(_name));
+    const rapidjson::Value& a = _d[_name];
+    CHECK_STATE(a.IsUint64());
+    return a.GetUint64();
+};
+
+ptr<string> BasicHeader::getStringRapid(rapidjson::Document &_d, const char *_name) {
+    CHECK_ARGUMENT(_name);
+    CHECK_STATE(_d.HasMember(_name));
+    CHECK_STATE(_d[_name].IsString());
+    return make_shared<string>(_d[_name].GetString());
+};
+
 
 int32_t BasicHeader::getInt32(nlohmann::json &_js, const char *_name) {
     CHECK_ARGUMENT(_name);

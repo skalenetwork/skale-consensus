@@ -295,6 +295,6 @@ void Schain::createBlockConsensusInstance() {
     blockConsensusInstance = make_shared<BlockConsensusAgent>(*this);
 }
 
-uint64_t Schain::getLastCommitTime() {
-    return lastCommitTime;
+uint64_t Schain::getLastCommitTimeMs() {
+    return lastCommitTimeMs;
 }

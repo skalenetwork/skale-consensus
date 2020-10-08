@@ -96,6 +96,22 @@ ptr<BooleanProposalVector> DAProofDB::addDAProof(ptr<DAProof> _daProof) {
     return proposalVector;
 }
 
+
+ptr<BooleanProposalVector> DAProofDB::getCurrentProposalVector(block_id _blockID) {
+
+    LOCK(daProofMutex)
+
+    LOG(trace, "Adding daProof");
+
+    auto daProofSet = this->readSet(_blockID);
+
+    CHECK_STATE(daProofSet);
+
+    auto proposalVector = make_shared<BooleanProposalVector>(node_count(totalSigners), daProofSet);
+    LOG(trace, "Created proposal vector");
+    return proposalVector;
+}
+
 bool DAProofDB::isEnoughProofs(block_id _blockID) {
     return isEnough(_blockID);
 }

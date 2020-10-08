@@ -29,6 +29,7 @@ class ServerConnection;
 class SHAHash;
 
 #include "thirdparty/json.hpp"
+#include "thirdparty/rapidjson/document.h"
 #include "abstracttcpserver/ConnectionStatus.h"
 
 class BasicHeader {
@@ -73,7 +74,8 @@ public:
     static void nullCheck( nlohmann::json& js, const char* _name );
 
 
-    ptr<string> serializeToString();
+    virtual ptr<string> serializeToString();
+
 
     ptr< Buffer > toBuffer();
 
@@ -81,6 +83,10 @@ public:
     virtual void addFields(nlohmann::json & j ) = 0;
 
     static uint64_t getUint64( nlohmann::json& _js, const char* _name );
+
+    static ptr<string> getStringRapid(rapidjson::Document &_d, const char *_name);
+
+    static uint64_t getUint64Rapid(rapidjson::Document &_d, const char *_name);
 
     static uint32_t getUint32( nlohmann::json& _js, const char* _name );
 

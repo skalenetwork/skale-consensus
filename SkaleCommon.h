@@ -303,6 +303,8 @@ static const uint64_t  MAX_PROPOSAL_QUEUE_SIZE = 8;
 
 static const uint64_t SGX_SSL_PORT = 1026;
 
+static const uint64_t BLOCK_PROPOSAL_RECEIVE_TIMEOUT_MS = 120000;
+
 
 extern void setThreadName(std::string const &_n, ConsensusEngine* _engine);
 
