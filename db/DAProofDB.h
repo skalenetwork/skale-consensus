@@ -52,6 +52,8 @@ public:
 
     ptr<BooleanProposalVector> addDAProof(ptr<DAProof> _daProof);
 
+    ptr<BooleanProposalVector> getCurrentProposalVector(block_id _blockID);
+
     const string getFormatVersion();
 
     bool haveDAProof(ptr<BlockProposal> _proposal);

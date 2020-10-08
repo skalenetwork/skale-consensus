@@ -121,7 +121,7 @@ class Schain : public Agent {
 
 
     atomic<uint64_t> lastCommittedBlockID = 0;
-    atomic<uint64_t> lastCommitTime = 0;
+    atomic<uint64_t> lastCommitTimeMs = 0;
     atomic<uint64_t> bootstrapBlockID = 0;
     atomic<uint64_t>lastCommittedBlockTimeStamp = 0;
     atomic<uint64_t>lastCommittedBlockTimeStampMs = 0;
@@ -155,7 +155,7 @@ class Schain : public Agent {
 
 public:
 
-    uint64_t getLastCommitTime();
+    uint64_t getLastCommitTimeMs();
 
     ptr<BlockConsensusAgent> blockConsensusInstance;
 
@@ -190,6 +190,8 @@ public:
     void proposedBlockArrived(ptr<BlockProposal> _proposal);
 
     void daProofArrived(ptr<DAProof> _daProof);
+
+    void blockProposalReceiptTimeoutArrived(block_id _blockID);
 
     void blockCommitArrived(block_id _committedBlockID, schain_index _proposerIndex, uint64_t _committedTimeStamp,
                             uint64_t _committedTimeStampMs, ptr<ThresholdSignature> _thresholdSig);

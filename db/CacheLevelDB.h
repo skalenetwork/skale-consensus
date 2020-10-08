@@ -72,6 +72,12 @@ protected:
         ptr<map<schain_index, ptr<string>>>
     writeByteArrayToSet(const char *_value, uint64_t _valueLen, block_id _blockId, schain_index _index);
 
+    ptr<map<schain_index, ptr<string>>> readSet(block_id _blockId);
+
+    ptr<map<schain_index, ptr<string>>> readSetUnsafe(block_id _blockId);
+
+
+
     void writeByteArray(const char *_key, size_t _keyLen, const char * _value,
                         size_t _valueLen);
     void writeByteArray(string &_key, ptr<vector<uint8_t>> _data);

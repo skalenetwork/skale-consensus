@@ -552,6 +552,16 @@ CacheLevelDB::writeStringToSet(const string &_value, block_id _blockId, schain_i
                                _index);
 }
 
+ptr<map<schain_index, ptr<string>>>
+CacheLevelDB::readSet(block_id _blockId) {
+
+
+        shared_lock<shared_mutex> lock(m);
+
+        return readSetUnsafe(_blockId);
+
+}
+
 
 ptr<map<schain_index, ptr<string>>>
 CacheLevelDB::writeByteArrayToSet(const char *_value, uint64_t _valueLen, block_id _blockId, schain_index _index) {
@@ -564,6 +574,27 @@ CacheLevelDB::writeByteArrayToSet(const char *_value, uint64_t _valueLen, block_
         return writeByteArrayToSetUnsafe(_value, _valueLen, _blockId, _index);
 
     }
+
+}
+
+
+ptr<map<schain_index, ptr<string>>>
+CacheLevelDB::readSetUnsafe(block_id _blockId) {
+
+    auto enoughSet = make_shared<map<schain_index, ptr<string>>>();
+
+    for (uint64_t i = 1; i <= totalSigners; i++) {
+        auto key = createKey(_blockId, schain_index(i));
+        auto entry = readStringUnsafe(*key);
+
+        if (entry != nullptr)
+            (*enoughSet)[schain_index(i)] = entry;
+        if (enoughSet->size() == requiredSigners) {
+            break;
+        }
+    }
+
+    return enoughSet;
 
 }
 
