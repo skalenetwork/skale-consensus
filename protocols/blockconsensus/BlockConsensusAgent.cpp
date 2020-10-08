@@ -105,9 +105,6 @@ void BlockConsensusAgent::startConsensusProposal(block_id _blockID, ptr<BooleanP
                 truthCount++;
         }
 
-        ASSERT(3 * truthCount > getSchain()->getNodeCount() * 2);
-
-
         for (uint64_t i = 1; i <= (uint64_t) getSchain()->getNodeCount(); i++) {
             if( getSchain()->getNode()->isExitRequested() )
                 return;
