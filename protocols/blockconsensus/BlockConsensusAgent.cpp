@@ -94,16 +94,8 @@ void BlockConsensusAgent::startConsensusProposal(block_id _blockID, ptr<BooleanP
             LOG(debug, "Terminating consensus proposal since already committed.");
         }
 
-        LOG(debug, "CONSENSUS START:BLOCK:" + to_string(_blockID));
+        LOG(info, "CONSENSUS START:BLOCK:" + to_string(_blockID));
 
-        uint64_t truthCount = 0;
-
-        for (size_t i = 0; i < getSchain()->getNodeCount(); i++) {
-            if( getSchain()->getNode()->isExitRequested() )
-                return;
-            if (_proposal->getProposalValue(schain_index(i + 1)))
-                truthCount++;
-        }
 
         for (uint64_t i = 1; i <= (uint64_t) getSchain()->getNodeCount(); i++) {
             if( getSchain()->getNode()->isExitRequested() )

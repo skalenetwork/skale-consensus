@@ -50,9 +50,9 @@ ReceivedBlockProposal::ReceivedBlockProposal(Schain &_sChain, const block_id &_b
 }
 
 ReceivedBlockProposal::ReceivedBlockProposal(Schain &_sChain, const block_id &_blockID, const uint64_t &_timeStamp,
-                                             const uint32_t &_timeStampMs) : BlockProposal(
+                                             const uint32_t &_timeStampMs, u256 _stateRoot) : BlockProposal(
         _sChain.getSchainID(), 0, _blockID,
-        0, make_shared<TransactionList>(make_shared<vector<ptr<Transaction >>>()), 0, _timeStamp, _timeStampMs,
+        0, make_shared<TransactionList>(make_shared<vector<ptr<Transaction >>>()), _stateRoot, _timeStamp, _timeStampMs,
         make_shared<string>("EMPTY"), ptr<CryptoManager>()) {
     calculateHash();
     totalObjects++;

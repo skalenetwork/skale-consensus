@@ -317,7 +317,7 @@ void Schain::blockCommitArrived( block_id _committedBlockID, schain_index _propo
     if ( _committedBlockID <= getLastCommittedBlockID() )
         return;
 
-    ASSERT(
+    CHECK_STATE(
         _committedBlockID == ( getLastCommittedBlockID() + 1 ) || getLastCommittedBlockID() == 0 );
 
     try {
@@ -326,9 +326,13 @@ void Schain::blockCommitArrived( block_id _committedBlockID, schain_index _propo
         lastCommittedBlockTimeStamp = _committedTimeStamp;
         lastCommittedBlockTimeStampMs = _committedTimeStampMs;
 
-        committedProposal =
-            getNode()->getBlockProposalDB()->getBlockProposal( _committedBlockID, _proposerIndex );
-        ASSERT( committedProposal );
+        if (_proposerIndex > 0) {
+            committedProposal = getNode()->getBlockProposalDB()->getBlockProposal(
+                _committedBlockID, _proposerIndex );
+        } else {
+            committedProposal = createEmptyBlockProposal(_committedBlockID);
+        }
+        CHECK_STATE( committedProposal );
 
         auto newCommittedBlock = CommittedBlock::makeObject( committedProposal, _thresholdSig );
 
@@ -503,11 +507,9 @@ void Schain::startConsensus(
 
         checkForExit();
 
-        LOG( info, "BIN_CONSENSUS_START: PROPOSING: " + *_proposalVector->toString() );
+        LOG( debug, "BIN_CONSENSUS_START: PROPOSING: " + *_proposalVector->toString() );
 
         LOG( debug, "Got proposed block set for block:" + to_string( _blockID ) );
-
-        ASSERT( getNode()->getDaProofDB()->isEnoughProofs( _blockID ) );
 
         LOG( debug, "StartConsensusIfNeeded BLOCK NUMBER:" + to_string( ( _blockID ) ) );
 
@@ -524,7 +526,8 @@ void Schain::startConsensus(
     }
 
 
-    ASSERT( blockConsensusInstance != nullptr && _proposalVector != nullptr );
+    CHECK_STATE( blockConsensusInstance);
+    CHECK_STATE(_proposalVector);
 
     auto message = make_shared< ConsensusProposalMessage >( *this, _blockID, _proposalVector );
 
@@ -653,10 +656,10 @@ void Schain::bootstrap( block_id _lastCommittedBlockID, uint64_t _lastCommittedB
     // Step 2 : Bootstrap
 
     try {
-        ASSERT( bootStrapped == false );
+        CHECK_STATE(!bootStrapped);
         bootStrapped = true;
         bootstrapBlockID.store( ( uint64_t ) _lastCommittedBlockID );
-        ASSERT( _lastCommittedBlockTimeStamp < ( uint64_t ) 2 * MODERN_TIME );
+        CHECK_STATE(_lastCommittedBlockTimeStamp < ( uint64_t ) 2 * MODERN_TIME );
 
         LOCK( m )
 
@@ -791,8 +794,12 @@ ptr< BlockProposal > Schain::createEmptyBlockProposal( block_id _blockId ) {
         ms++;
     }
 
+    auto myProposal = getNode()->getBlockProposalDB()->getBlockProposal(_blockId,
+        getSchainIndex());
 
-    return make_shared< ReceivedBlockProposal >( *this, _blockId, sec, ms );
+    CHECK_STATE(myProposal);
+
+    return make_shared< ReceivedBlockProposal >( *this, _blockId, sec, ms, myProposal->getStateRoot() );
 }
 
 
