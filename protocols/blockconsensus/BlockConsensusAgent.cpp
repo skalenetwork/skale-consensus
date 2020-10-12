@@ -417,7 +417,6 @@ ptr<BinConsensusInstance> BlockConsensusAgent::getChild(ptr<ProtocolKey> _key) {
 
 bool BlockConsensusAgent::shouldPost(ptr<NetworkMessage> _msg) {
 
-
     if (_msg->getMessageType() == MSG_BLOCK_SIGN_BROADCAST) {
         return true;
     }
@@ -425,7 +424,6 @@ bool BlockConsensusAgent::shouldPost(ptr<NetworkMessage> _msg) {
     auto key = _msg->createDestinationProtocolKey();
     auto currentRound = getRound(key);
     auto r = _msg->getRound();
-
 
     if (r > currentRound + 1) { // way in the future
         return false;
