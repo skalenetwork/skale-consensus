@@ -417,7 +417,6 @@ ptr<BinConsensusInstance> BlockConsensusAgent::getChild(ptr<ProtocolKey> _key) {
 
 bool BlockConsensusAgent::shouldPost(ptr<NetworkMessage> _msg) {
 
-
     if (_msg->getMessageType() == MSG_BLOCK_SIGN_BROADCAST) {
         return true;
     }
