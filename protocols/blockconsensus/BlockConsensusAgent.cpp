@@ -426,7 +426,6 @@ bool BlockConsensusAgent::shouldPost(ptr<NetworkMessage> _msg) {
     auto currentRound = getRound(key);
     auto r = _msg->getRound();
 
-
     if (r > currentRound + 1) { // way in the future
         return false;
     }
