@@ -533,10 +533,9 @@ bool CryptoManager::verifyECDSASigRSOpenSSL(
                             ( const unsigned char* ) hashHex, 32, signature, eckey );
                         const int verify_success = 1;
                         if ( verify_success != verify_status ) {
-                            printf( "Failed to verify EC Signature\n" );
+                            LOG(warn, "Failed to verify EC Signature\n");
                             function_status = -1;
                         } else {
-                            printf( "Verifed EC Signature\n" );
                             function_status = 1;
                         }
                     }
@@ -549,55 +548,6 @@ bool CryptoManager::verifyECDSASigRSOpenSSL(
 
     return function_status == 1;
 }
-
-
-bool CryptoManager::verifyECDSASigRS( string& pubKeyStr, const char* hashHex,
-    const char* signatureR, const char* signatureS, int base ) {
-    CHECK_ARGUMENT( hashHex );
-    CHECK_ARGUMENT( signatureR );
-    CHECK_ARGUMENT( signatureS );
-
-    bool result = false;
-
-    signature sig = signature_init();
-
-    auto x = pubKeyStr.substr( 0, 64 );
-    auto y = pubKeyStr.substr( 64, 128 );
-    domain_parameters curve = domain_parameters_init();
-    domain_parameters_load_curve( curve, secp256k1 );
-    point publicKey = point_init();
-
-    mpz_t msgMpz;
-    mpz_init( msgMpz );
-    if ( mpz_set_str( msgMpz, hashHex, 16 ) == -1 ) {
-        LOG( err, "invalid message hash" + string( hashHex ) );
-        goto clean;
-    }
-
-    if ( signature_set_str( sig, signatureR, signatureS, base ) != 0 ) {
-        LOG( err, "Failed to set str signature" );
-        goto clean;
-    }
-
-    point_set_hex( publicKey, x.c_str(), y.c_str() );
-
-    if ( !signature_verify( msgMpz, sig, publicKey, curve ) ) {
-        LOG( err, "signature_verify failed " );
-        goto clean;
-    }
-
-    result = true;
-
-clean:
-
-    mpz_clear( msgMpz );
-    domain_parameters_clear( curve );
-    point_clear( publicKey );
-    signature_free( sig );
-
-    return result;
-}
-
 
 bool CryptoManager::localVerifyECDSAInternal(
     ptr< SHAHash > _hash, ptr< string > _sig, ptr< string > _publicKey ) {
@@ -645,13 +595,12 @@ bool CryptoManager::localVerifyECDSAInternal(
         }
 
         returnValue =
-            verifyECDSASigRS( *_publicKey, _hash->toHex()->data(), r.data(), s.data(), 16 );
+            verifyECDSASigRSOpenSSL( *_publicKey, _hash->toHex()->data(), r.data(), s.data());
     } catch ( exception& e ) {
         LOG( err, "ECDSA sig did not verify: exception" + string( e.what() ) );
         returnValue = false;
         goto clean;
     }
-
 
 clean:
     if ( sig ) {
