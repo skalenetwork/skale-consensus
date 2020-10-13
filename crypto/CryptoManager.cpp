@@ -491,11 +491,68 @@ bool CryptoManager::signECDSASigRSOpenSSL( const char* _hash ) {
 }
 
 
-#include "utils/Time.h"
+bool CryptoManager::verifyECDSASigRSOpenSSL(
+    string& pubKeyStr, const char* hashHex, const char* signatureR, const char* signatureS ) {
+    CHECK_STATE( pubKeyStr.size() == 128 )
+    CHECK_ARGUMENT( hashHex );
+    CHECK_ARGUMENT( signatureR );
+    CHECK_ARGUMENT( signatureS );
+
+    // bool result = false;
+
+    int function_status = -1;
+    EC_KEY* eckey = EC_KEY_new();
+    if ( NULL == eckey ) {
+        printf( "Failed to create new EC Key\n" );
+        function_status = -1;
+    } else {
+        EC_GROUP* ecgroup = EC_GROUP_new_by_curve_name( NID_secp192k1 );
+        if ( NULL == ecgroup ) {
+            printf( "Failed to create new EC Group\n" );
+            function_status = -1;
+        } else {
+            int set_group_status = EC_KEY_set_group( eckey, ecgroup );
+            const int set_group_success = 1;
+            if ( set_group_success != set_group_status ) {
+                printf( "Failed to set group for EC Key\n" );
+                function_status = -1;
+            } else {
+                const int gen_success = 1;
+                int gen_status = EC_KEY_generate_key( eckey );
+                if ( gen_success != gen_status ) {
+                    printf( "Failed to generate EC Key\n" );
+                    function_status = -1;
+                } else {
+                    ECDSA_SIG* signature =
+                        ECDSA_do_sign( ( const unsigned char* ) hashHex, 32, eckey );
+                    if ( NULL == signature ) {
+                        printf( "Failed to generate EC Signature\n" );
+                        function_status = -1;
+                    } else {
+                        int verify_status = ECDSA_do_verify(
+                            ( const unsigned char* ) hashHex, 32, signature, eckey );
+                        const int verify_success = 1;
+                        if ( verify_success != verify_status ) {
+                            printf( "Failed to verify EC Signature\n" );
+                            function_status = -1;
+                        } else {
+                            printf( "Verifed EC Signature\n" );
+                            function_status = 1;
+                        }
+                    }
+                }
+            }
+            EC_GROUP_free( ecgroup );
+        }
+        EC_KEY_free( eckey );
+    }
+
+    return function_status == 1;
+}
+
 
 bool CryptoManager::verifyECDSASigRS( string& pubKeyStr, const char* hashHex,
     const char* signatureR, const char* signatureS, int base ) {
-
     CHECK_ARGUMENT( hashHex );
     CHECK_ARGUMENT( signatureR );
     CHECK_ARGUMENT( signatureS );
@@ -510,8 +567,6 @@ bool CryptoManager::verifyECDSASigRS( string& pubKeyStr, const char* hashHex,
     domain_parameters_load_curve( curve, secp256k1 );
     point publicKey = point_init();
 
-    CHECK_STATE(point_set_hex( publicKey, x.c_str(), y.c_str() ) == 0);
-
     mpz_t msgMpz;
     mpz_init( msgMpz );
     if ( mpz_set_str( msgMpz, hashHex, 16 ) == -1 ) {
@@ -524,6 +579,7 @@ bool CryptoManager::verifyECDSASigRS( string& pubKeyStr, const char* hashHex,
         goto clean;
     }
 
+    point_set_hex( publicKey, x.c_str(), y.c_str() );
 
     if ( !signature_verify( msgMpz, sig, publicKey, curve ) ) {
         LOG( err, "signature_verify failed " );
@@ -538,8 +594,6 @@ clean:
     domain_parameters_clear( curve );
     point_clear( publicKey );
     signature_free( sig );
-
-
 
     return result;
 }
