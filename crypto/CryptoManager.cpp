@@ -496,8 +496,6 @@ bool CryptoManager::signECDSASigRSOpenSSL( const char* _hash ) {
 bool CryptoManager::verifyECDSASigRS( string& pubKeyStr, const char* hashHex,
     const char* signatureR, const char* signatureS, int base ) {
 
-    auto current = Time::getCurrentTimeMs();
-
     CHECK_ARGUMENT( hashHex );
     CHECK_ARGUMENT( signatureR );
     CHECK_ARGUMENT( signatureS );
@@ -512,7 +510,7 @@ bool CryptoManager::verifyECDSASigRS( string& pubKeyStr, const char* hashHex,
     domain_parameters_load_curve( curve, secp256k1 );
     point publicKey = point_init();
 
-    point_set_hex( publicKey, x.c_str(), y.c_str() );
+    CHECK_STATE(point_set_hex( publicKey, x.c_str(), y.c_str() ) == 0);
 
     mpz_t msgMpz;
     mpz_init( msgMpz );
