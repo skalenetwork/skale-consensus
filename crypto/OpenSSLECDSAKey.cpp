@@ -23,7 +23,7 @@
 
 #include <openssl/ec.h>  // for EC_GROUP_new_by_curve_name, EC_GROUP_free, EC_KEY_new, EC_KEY_set_group, EC_KEY_generate_key, EC_KEY_free
 #include <openssl/ecdsa.h>    // for ECDSA_do_sign, ECDSA_do_verify
-#include <openssl/obj_mac.h>  // for NID_secp192k1
+#include <openssl/obj_mac.h>  // for NID_secp256k1
 
 
 #include "openssl/x509.h"
@@ -50,12 +50,12 @@ OpenSSLECDSAKey::~OpenSSLECDSAKey() {
         EC_KEY_free( ecKey );
 }
 ptr< OpenSSLECDSAKey > OpenSSLECDSAKey::generateKey() {
-    EC_KEY* eckey = EC_KEY_new_by_curve_name(NID_secp192k1);
+    EC_KEY* eckey = EC_KEY_new_by_curve_name(NID_secp256k1);
     CHECK_STATE( eckey );
 
 
     if ( ecgroup == nullptr ) {
-        ecgroup = EC_GROUP_new_by_curve_name( NID_secp192k1 );
+        ecgroup = EC_GROUP_new_by_curve_name( NID_secp256k1 );
         CHECK_STATE( ecgroup );
     }
 
@@ -82,7 +82,7 @@ ptr<string> OpenSSLECDSAKey::getPublicKey() {
     CHECK_STATE(pubKeyComponent);
 
     if ( ecgroup == nullptr ) {
-        ecgroup = EC_GROUP_new_by_curve_name( NID_secp192k1 );
+        ecgroup = EC_GROUP_new_by_curve_name( NID_secp256k1 );
         CHECK_STATE( ecgroup );
     }
 
@@ -160,7 +160,7 @@ OpenSSLECDSAKey::OpenSSLECDSAKey( ptr< string > _publicKey ) {
 
 
     if ( ecgroup == nullptr ) {
-        ecgroup = EC_GROUP_new_by_curve_name( NID_secp192k1 );
+        ecgroup = EC_GROUP_new_by_curve_name( NID_secp256k1 );
         CHECK_STATE( ecgroup );
     }
 
@@ -171,7 +171,7 @@ OpenSSLECDSAKey::OpenSSLECDSAKey( ptr< string > _publicKey ) {
     CHECK_STATE(point);
 
 
-    auto pubKey = EC_KEY_new_by_curve_name(NID_secp192k1);
+    auto pubKey = EC_KEY_new_by_curve_name(NID_secp256k1);
 
     CHECK_STATE(pubKey);
 
@@ -182,7 +182,6 @@ OpenSSLECDSAKey::OpenSSLECDSAKey( ptr< string > _publicKey ) {
     if (status != 1) {
         EC_KEY_free(pubKey);
         cerr << ERR_error_string(ERR_get_error(), NULL) << endl;
-
     }
 
     CHECK_STATE(status == 1);

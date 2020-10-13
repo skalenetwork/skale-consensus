@@ -43,7 +43,7 @@
 
 #include <openssl/ec.h>  // for EC_GROUP_new_by_curve_name, EC_GROUP_free, EC_KEY_new, EC_KEY_set_group, EC_KEY_generate_key, EC_KEY_free
 #include <openssl/ecdsa.h>    // for ECDSA_do_sign, ECDSA_do_verify
-#include <openssl/obj_mac.h>  // for NID_secp192k1
+#include <openssl/obj_mac.h>  // for NID_secp256k1
 
 #include <sys/types.h>
 
@@ -318,10 +318,6 @@ void CryptoManager::signature_sign(
 
         mpz_mod( k, seed, curve->p );
 
-        // mpz_set_str(k, "49a0d7b786ec9cde0d0721d72804befd06571c974b191efb42ecf322ba9ddd9a", 16);
-        //  mpz_set_str(k, "DC87789C4C1A09C97FF4DE72C0D0351F261F10A2B9009C80AEE70DDEC77201A0", 16);
-        // mpz_set_str(k,"29932781130098090011281004827843485745127563886526054275935615017309884975795",10);
-
         // Calculate x
         point_multiplication( Q, k, curve->G, curve );
         mpz_set( x, Q->x );
@@ -506,7 +502,7 @@ bool CryptoManager::verifyECDSASigRSOpenSSL(
         printf( "Failed to create new EC Key\n" );
         function_status = -1;
     } else {
-        EC_GROUP* ecgroup = EC_GROUP_new_by_curve_name( NID_secp192k1 );
+        EC_GROUP* ecgroup = EC_GROUP_new_by_curve_name( NID_secp256k1 );
         if ( NULL == ecgroup ) {
             printf( "Failed to create new EC Group\n" );
             function_status = -1;
@@ -550,50 +546,53 @@ bool CryptoManager::verifyECDSASigRSOpenSSL(
     return function_status == 1;
 }
 
+#include <openssl/bn.h>
+
+#include "utils/Time.h"
 
 bool CryptoManager::verifyECDSASigRS( string& pubKeyStr, const char* hashHex,
-    const char* signatureR, const char* signatureS, int base ) {
+    const char* signatureR, const char* signatureS, int  ) {
     CHECK_ARGUMENT( hashHex );
     CHECK_ARGUMENT( signatureR );
     CHECK_ARGUMENT( signatureS );
 
     bool result = false;
 
-    signature sig = signature_init();
 
     auto x = pubKeyStr.substr( 0, 64 );
     auto y = pubKeyStr.substr( 64, 128 );
-    domain_parameters curve = domain_parameters_init();
-    domain_parameters_load_curve( curve, secp256k1 );
-    point publicKey = point_init();
 
-    mpz_t msgMpz;
-    mpz_init( msgMpz );
-    if ( mpz_set_str( msgMpz, hashHex, 16 ) == -1 ) {
-        LOG( err, "invalid message hash" + string( hashHex ) );
-        goto clean;
-    }
+    BIGNUM* xBN = BN_new();
+    BIGNUM* yBN = BN_new();
+    BIGNUM* rBN = BN_new();
+    BIGNUM* sBN = BN_new();
 
-    if ( signature_set_str( sig, signatureR, signatureS, base ) != 0 ) {
-        LOG( err, "Failed to set str signature" );
-        goto clean;
-    }
 
-    point_set_hex( publicKey, x.c_str(), y.c_str() );
+    CHECK_STATE(BN_hex2bn(&xBN, x.c_str()) != 0);
+    CHECK_STATE(BN_hex2bn(&yBN, y.c_str()) != 0);
+    CHECK_STATE(BN_hex2bn(&rBN, signatureR) != 0);
+    CHECK_STATE(BN_hex2bn(&sBN, signatureS) != 0);
 
-    if ( !signature_verify( msgMpz, sig, publicKey, curve ) ) {
-        LOG( err, "signature_verify failed " );
-        goto clean;
-    }
+    auto pubKey = EC_KEY_new_by_curve_name(NID_secp256k1);
+    CHECK_STATE(EC_KEY_set_public_key_affine_coordinates(pubKey, xBN, yBN) == 1);
+
+    auto oSig = ECDSA_SIG_new();
+
+    CHECK_STATE(ECDSA_SIG_set0(oSig, rBN, sBN) != 0);
+
+    vector< unsigned char > derHash( 32 );
+
+    string hex(hashHex);
+
+    Utils::cArrayFromHex( hex, derHash.data(), 32 );
+
+    CHECK_STATE(ECDSA_do_verify( ( const unsigned char* )
+                                      derHash.data(), 32, oSig, pubKey) == 1)
+
 
     result = true;
 
-clean:
-
-    mpz_clear( msgMpz );
-    domain_parameters_clear( curve );
-    point_clear( publicKey );
-    signature_free( sig );
+//clean:
 
     return result;
 }
@@ -705,7 +704,6 @@ bool CryptoManager::sessionVerifyECDSA(
 
     if ( isSGXEnabled ) {
         auto pkey = make_shared< OpenSSLECDSAKey >( _publicKey );
-
 
         return pkey->verifyHash( _sig, ( const char* ) _hash->data() );
 
