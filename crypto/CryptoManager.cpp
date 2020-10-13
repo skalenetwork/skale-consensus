@@ -491,63 +491,61 @@ bool CryptoManager::signECDSASigRSOpenSSL( const char* _hash ) {
 }
 
 
-bool CryptoManager::verifyECDSASigRSOpenSSL(
-    string& pubKeyStr, const char* hashHex, const char* signatureR, const char* signatureS ) {
-    CHECK_STATE( pubKeyStr.size() == 128 )
+#include "utils/Time.h"
+
+bool CryptoManager::verifyECDSASigRS( string& pubKeyStr, const char* hashHex,
+    const char* signatureR, const char* signatureS, int base ) {
+
+    auto current = Time::getCurrentTimeMs();
+
     CHECK_ARGUMENT( hashHex );
     CHECK_ARGUMENT( signatureR );
     CHECK_ARGUMENT( signatureS );
 
-    // bool result = false;
+    bool result = false;
 
-    int function_status = -1;
-    EC_KEY* eckey = EC_KEY_new();
-    if ( NULL == eckey ) {
-        printf( "Failed to create new EC Key\n" );
-        function_status = -1;
-    } else {
-        EC_GROUP* ecgroup = EC_GROUP_new_by_curve_name( NID_secp192k1 );
-        if ( NULL == ecgroup ) {
-            printf( "Failed to create new EC Group\n" );
-            function_status = -1;
-        } else {
-            int set_group_status = EC_KEY_set_group( eckey, ecgroup );
-            const int set_group_success = 1;
-            if ( set_group_success != set_group_status ) {
-                printf( "Failed to set group for EC Key\n" );
-                function_status = -1;
-            } else {
-                const int gen_success = 1;
-                int gen_status = EC_KEY_generate_key( eckey );
-                if ( gen_success != gen_status ) {
-                    printf( "Failed to generate EC Key\n" );
-                    function_status = -1;
-                } else {
-                    ECDSA_SIG* signature =
-                        ECDSA_do_sign( ( const unsigned char* ) hashHex, 32, eckey );
-                    if ( NULL == signature ) {
-                        printf( "Failed to generate EC Signature\n" );
-                        function_status = -1;
-                    } else {
-                        int verify_status = ECDSA_do_verify(
-                            ( const unsigned char* ) hashHex, 32, signature, eckey );
-                        const int verify_success = 1;
-                        if ( verify_success != verify_status ) {
-                            LOG(warn, "Failed to verify EC Signature\n");
-                            function_status = -1;
-                        } else {
-                            function_status = 1;
-                        }
-                    }
-                }
-            }
-            EC_GROUP_free( ecgroup );
-        }
-        EC_KEY_free( eckey );
+    signature sig = signature_init();
+
+    auto x = pubKeyStr.substr( 0, 64 );
+    auto y = pubKeyStr.substr( 64, 128 );
+    domain_parameters curve = domain_parameters_init();
+    domain_parameters_load_curve( curve, secp256k1 );
+    point publicKey = point_init();
+
+    point_set_hex( publicKey, x.c_str(), y.c_str() );
+
+    mpz_t msgMpz;
+    mpz_init( msgMpz );
+    if ( mpz_set_str( msgMpz, hashHex, 16 ) == -1 ) {
+        LOG( err, "invalid message hash" + string( hashHex ) );
+        goto clean;
     }
 
-    return function_status == 1;
+    if ( signature_set_str( sig, signatureR, signatureS, base ) != 0 ) {
+        LOG( err, "Failed to set str signature" );
+        goto clean;
+    }
+
+
+    if ( !signature_verify( msgMpz, sig, publicKey, curve ) ) {
+        LOG( err, "signature_verify failed " );
+        goto clean;
+    }
+
+    result = true;
+
+clean:
+
+    mpz_clear( msgMpz );
+    domain_parameters_clear( curve );
+    point_clear( publicKey );
+    signature_free( sig );
+
+
+
+    return result;
 }
+
 
 bool CryptoManager::localVerifyECDSAInternal(
     ptr< SHAHash > _hash, ptr< string > _sig, ptr< string > _publicKey ) {
@@ -595,12 +593,13 @@ bool CryptoManager::localVerifyECDSAInternal(
         }
 
         returnValue =
-            verifyECDSASigRSOpenSSL( *_publicKey, _hash->toHex()->data(), r.data(), s.data());
+            verifyECDSASigRS( *_publicKey, _hash->toHex()->data(), r.data(), s.data(), 16 );
     } catch ( exception& e ) {
         LOG( err, "ECDSA sig did not verify: exception" + string( e.what() ) );
         returnValue = false;
         goto clean;
     }
+
 
 clean:
     if ( sig ) {
