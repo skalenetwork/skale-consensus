@@ -33,26 +33,25 @@ class OpenSSLECDSAKey {
 
     static EC_GROUP *ecgroup;
 
-public:
-    OpenSSLECDSAKey( EC_KEY* _eckey );
 
-    OpenSSLECDSAKey( ptr<string> _publicKey );
+public:
+
+    OpenSSLECDSAKey( EC_KEY* _eckey, bool _isPrivate );
+
+    static ptr<OpenSSLECDSAKey> makeKey( ptr<string> _publicKey, bool _isSGXKey );
 
     virtual ~OpenSSLECDSAKey();
 
     static ptr< OpenSSLECDSAKey > generateKey();
 
-    EC_KEY* getEcKey() const;
-
-    ptr<string> signHash(const char* hash);
-
     ptr<string> getPublicKey();
 
-    bool verifyHash( ptr<string> _signature, const char* _hash );
+    ptr<string> sessionSign(const char* hash);
+
+    bool sessionVerifySig( ptr<string> _signature, const char* _hash );
+
+    bool verifySGXSig(ptr<string> _sig, const char* _hash);
 
 };
-
-
-
 
 #endif  // OPENSSLECDSAPRIVATEKEY_H

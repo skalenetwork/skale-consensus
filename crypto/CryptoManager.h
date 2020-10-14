@@ -122,16 +122,14 @@ class CryptoManager {
 
     Schain* sChain = nullptr;
 
-    void signature_sign(signature sig, mpz_t message, mpz_t private_key, domain_parameters curve);
 
-    ptr< string > signECDSA( ptr< SHAHash > _hash );
+    ptr< string > sign( ptr< SHAHash > _hash );
 
-    tuple<ptr< string >, ptr<string>, ptr<string>> sessionSignECDSA( ptr< SHAHash > _hash, block_id _blockId) ;
+    tuple<ptr< string >, ptr<string>, ptr<string>> sessionSign( ptr< SHAHash > _hash, block_id _blockId) ;
 
+    bool sessionVerifySig( ptr< SHAHash > _hash, ptr< string > _sig, ptr< string > _publicKey );
 
-    bool sessionVerifyECDSA( ptr< SHAHash > _hash, ptr< string > _sig, ptr< string > _publicKey );
-
-    bool verifyECDSA( ptr< SHAHash > _hash, ptr< string > _sig, node_id _nodeId );
+    bool verifySig( ptr< SHAHash > _hash, ptr< string > _sig, node_id _nodeId );
 
     ptr< ThresholdSigShare > signSigShare( ptr< SHAHash > _hash, block_id _blockId );
 
@@ -158,7 +156,7 @@ public:
     ptr< ThresholdSigShare > createSigShare( ptr< string > _sigShare, schain_id _schainID,
         block_id _blockID, schain_index _signerIndex );
 
-    void signProposalECDSA( BlockProposal* _proposal );
+    void signProposal( BlockProposal* _proposal );
 
     bool verifyProposalECDSA(
         ptr< BlockProposal > _proposal, ptr< string > _hashStr, ptr< string > _signature );
@@ -185,15 +183,9 @@ public:
 
     ptr< string > sgxSignECDSA( ptr< SHAHash > _hash, string& _keyName );
 
-    tuple<ptr< string >, ptr<string>, ptr<string>> sessionSignECDSAInternal( ptr< SHAHash > _hash, block_id _blockID );
+    tuple<ptr< string >, ptr<string>, ptr<string>> sessionSignECDSA( ptr< SHAHash > _hash, block_id _blockID );
 
-    bool localVerifyECDSAInternal( ptr< SHAHash > _hash, ptr< string > _sig, ptr< string > _publicKey );
-
-
-    bool signECDSASigRSOpenSSL( const char* hash );
-
-    bool verifyECDSASigRSOpenSSL(
-        string& pubKeyStr, const char* hashHex, const char* signatureR, const char* signatureS );
+    bool verifyECDSA( ptr< SHAHash > _hash, ptr< string > _sig, ptr< string > _publicKey );
 
 
     bool verifyECDSASigRS( string& pubKeyStr, const char* hashHex,
@@ -202,9 +194,6 @@ public:
 
     ptr< BLSPublicKey > getSgxBlsPublicKey();
     ptr< string > getSgxBlsKeyName();
-
-
-    ptr< BLSPublicKey > getBlsPublicKeyObj() const;
 
     static ptr< SHAHash > calculatePublicKeyHash(
         ptr< string > publicKey, block_id _blockID);
