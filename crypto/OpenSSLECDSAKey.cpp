@@ -150,10 +150,9 @@ ptr< string > OpenSSLECDSAKey::signHash( const char* _hash ) {
 
     return hexSig;
 }
-OpenSSLECDSAKey::OpenSSLECDSAKey( ptr< string > _publicKey ) {
+OpenSSLECDSAKey::OpenSSLECDSAKey( ptr< string > _publicKey, bool  ) {
 
     CHECK_ARGUMENT(_publicKey);
-
 
 
     isPrivate = false;
@@ -163,8 +162,6 @@ OpenSSLECDSAKey::OpenSSLECDSAKey( ptr< string > _publicKey ) {
         ecgroup = EC_GROUP_new_by_curve_name( NID_secp256k1 );
         CHECK_STATE( ecgroup );
     }
-
-
 
     auto point = EC_POINT_hex2point(ecgroup, _publicKey->c_str(), nullptr, nullptr);
 

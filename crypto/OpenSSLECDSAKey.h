@@ -33,10 +33,12 @@ class OpenSSLECDSAKey {
 
     static EC_GROUP *ecgroup;
 
+
 public:
+
     OpenSSLECDSAKey( EC_KEY* _eckey );
 
-    OpenSSLECDSAKey( ptr<string> _publicKey );
+    OpenSSLECDSAKey( ptr<string> _publicKey, bool _isSGXKey );
 
     virtual ~OpenSSLECDSAKey();
 
@@ -51,8 +53,5 @@ public:
     bool verifyHash( ptr<string> _signature, const char* _hash );
 
 };
-
-
-
 
 #endif  // OPENSSLECDSAPRIVATEKEY_H
