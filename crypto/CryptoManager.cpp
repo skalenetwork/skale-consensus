@@ -365,9 +365,26 @@ ptr< string > CryptoManager::sgxSignECDSA( ptr< SHAHash > _hash, string& _keyNam
 
 bool CryptoManager::verifyECDSA(
     ptr< SHAHash > _hash, ptr< string > _sig, ptr< string > _publicKey ) {
+
+    auto key = make_shared<OpenSSLECDSAKey>(_publicKey, true);
+
+    CHECK_ARGUMENT( _publicKey );
+    CHECK_ARGUMENT( _publicKey->size() != 128 );
+
+    auto x = _publicKey->substr( 0, 64 );
+    auto y = _publicKey->substr( 64, 128 );
+    BIGNUM* xBN = BN_new();
+    BIGNUM* yBN = BN_new();
+    CHECK_STATE(BN_hex2bn(&xBN, x.c_str()) != 0);
+    CHECK_STATE(BN_hex2bn(&yBN, y.c_str()) != 0);
+    auto pubKey = EC_KEY_new_by_curve_name(NID_secp256k1);
+    CHECK_STATE(EC_KEY_set_public_key_affine_coordinates(pubKey, xBN, yBN) == 1);
+
+
     CHECK_ARGUMENT( _hash );
     CHECK_ARGUMENT( _sig );
-    CHECK_ARGUMENT( _publicKey );
+
+
 
     bool returnValue = false;
 
@@ -397,27 +414,14 @@ bool CryptoManager::verifyECDSA(
 
         CHECK_STATE( firstColumn != secondColumn );
 
-        if ( _publicKey->size() != 128 ) {
-            LOG( err, "ECDSA verify fail: _publicKey->size() != 128" );
-            goto clean;
-        }
 
 
-        auto x = _publicKey->substr( 0, 64 );
-        auto y = _publicKey->substr( 64, 128 );
-
-        BIGNUM* xBN = BN_new();
-        BIGNUM* yBN = BN_new();
         BIGNUM* rBN = BN_new();
         BIGNUM* sBN = BN_new();
 
-        CHECK_STATE(BN_hex2bn(&xBN, x.c_str()) != 0);
-        CHECK_STATE(BN_hex2bn(&yBN, y.c_str()) != 0);
         CHECK_STATE(BN_hex2bn(&rBN, r.c_str()) != 0);
         CHECK_STATE(BN_hex2bn(&sBN, s.c_str()) != 0);
 
-        auto pubKey = EC_KEY_new_by_curve_name(NID_secp256k1);
-        CHECK_STATE(EC_KEY_set_public_key_affine_coordinates(pubKey, xBN, yBN) == 1);
 
         auto oSig = ECDSA_SIG_new();
 

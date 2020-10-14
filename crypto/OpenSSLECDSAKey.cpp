@@ -26,11 +26,11 @@
 #include <openssl/obj_mac.h>  // for NID_secp256k1
 
 
-#include "openssl/x509.h"
+#include "openssl/bn.h"
 #include "openssl/ecdsa.h"
 #include "openssl/err.h"
-#include "openssl/bn.h"
 #include "openssl/sha.h"
+#include "openssl/x509.h"
 
 
 #include "Log.h"
@@ -50,7 +50,7 @@ OpenSSLECDSAKey::~OpenSSLECDSAKey() {
         EC_KEY_free( ecKey );
 }
 ptr< OpenSSLECDSAKey > OpenSSLECDSAKey::generateKey() {
-    EC_KEY* eckey = EC_KEY_new_by_curve_name(NID_secp256k1);
+    EC_KEY* eckey = EC_KEY_new_by_curve_name( NID_secp256k1 );
     CHECK_STATE( eckey );
 
 
@@ -59,11 +59,11 @@ ptr< OpenSSLECDSAKey > OpenSSLECDSAKey::generateKey() {
         CHECK_STATE( ecgroup );
     }
 
-    CHECK_STATE(EC_KEY_set_group(eckey,ecgroup) == 1);
+    CHECK_STATE( EC_KEY_set_group( eckey, ecgroup ) == 1 );
 
-    CHECK_STATE(EC_KEY_generate_key(eckey) == 1)
+    CHECK_STATE( EC_KEY_generate_key( eckey ) == 1 )
 
-    CHECK_STATE(eckey);
+    CHECK_STATE( eckey );
 
     return make_shared< OpenSSLECDSAKey >( eckey );
 }
@@ -72,14 +72,14 @@ ptr< OpenSSLECDSAKey > OpenSSLECDSAKey::generateKey() {
 EC_GROUP* OpenSSLECDSAKey::ecgroup = nullptr;
 
 EC_KEY* OpenSSLECDSAKey::getEcKey() const {
-    CHECK_STATE(ecKey);
+    CHECK_STATE( ecKey );
     return ecKey;
 }
 
-ptr<string> OpenSSLECDSAKey::getPublicKey() {
-    auto pubKeyComponent = EC_KEY_get0_public_key(ecKey);
+ptr< string > OpenSSLECDSAKey::getPublicKey() {
+    auto pubKeyComponent = EC_KEY_get0_public_key( ecKey );
 
-    CHECK_STATE(pubKeyComponent);
+    CHECK_STATE( pubKeyComponent );
 
     if ( ecgroup == nullptr ) {
         ecgroup = EC_GROUP_new_by_curve_name( NID_secp256k1 );
@@ -88,18 +88,18 @@ ptr<string> OpenSSLECDSAKey::getPublicKey() {
 
     auto hex = EC_POINT_point2hex( ecgroup, pubKeyComponent, POINT_CONVERSION_COMPRESSED, NULL );
 
-    CHECK_STATE(hex);
+    CHECK_STATE( hex );
 
-    auto result = make_shared<string>(hex);
+    auto result = make_shared< string >( hex );
 
-    OPENSSL_free(hex);
+    OPENSSL_free( hex );
 
     return result;
 }
 
-bool OpenSSLECDSAKey::verifyHash( ptr<string> _signature, const char* _hash ) {
+bool OpenSSLECDSAKey::verifyHash( ptr< string > _signature, const char* _hash ) {
     CHECK_ARGUMENT( _signature );
-    CHECK_ARGUMENT(_hash);
+    CHECK_ARGUMENT( _hash );
 
     CHECK_STATE( _signature->size() % 2 == 0 );
 
@@ -115,74 +115,63 @@ bool OpenSSLECDSAKey::verifyHash( ptr<string> _signature, const char* _hash ) {
 
     CHECK_STATE( sig );
 
-    auto status = ECDSA_do_verify( ( const unsigned char* ) _hash, 32, sig, ecKey);
+    auto status = ECDSA_do_verify( ( const unsigned char* ) _hash, 32, sig, ecKey );
 
-    CHECK_STATE(status >= 0);
+    CHECK_STATE( status >= 0 );
 
     return status == 1;
-
 }
 
 
 ptr< string > OpenSSLECDSAKey::signHash( const char* _hash ) {
-
-
-
-    CHECK_ARGUMENT(_hash);
-    CHECK_STATE(ecKey);
-    CHECK_STATE(isPrivate);
+    CHECK_ARGUMENT( _hash );
+    CHECK_STATE( ecKey );
+    CHECK_STATE( isPrivate );
 
     ECDSA_SIG* signature = ECDSA_do_sign( ( const unsigned char* ) _hash, 32, ecKey );
 
-    CHECK_STATE(signature);
+    CHECK_STATE( signature );
 
-    uint64_t  sigLen = i2d_ECDSA_SIG(signature, nullptr);
+    uint64_t sigLen = i2d_ECDSA_SIG( signature, nullptr );
 
-    vector<unsigned char> sigDer(sigLen, 0);
+    vector< unsigned char > sigDer( sigLen, 0 );
 
     auto pointer = sigDer.data();
 
-    CHECK_STATE(i2d_ECDSA_SIG(signature, &(pointer)) > 0);
+    CHECK_STATE( i2d_ECDSA_SIG( signature, &( pointer ) ) > 0 );
 
-    auto hexSig = Utils::carray2Hex(sigDer.data(), sigLen);
+    auto hexSig = Utils::carray2Hex( sigDer.data(), sigLen );
 
-    CHECK_STATE(hexSig);
+    CHECK_STATE( hexSig );
 
     return hexSig;
 }
-OpenSSLECDSAKey::OpenSSLECDSAKey( ptr< string > _publicKey, bool  ) {
-
-    CHECK_ARGUMENT(_publicKey);
-
+OpenSSLECDSAKey::OpenSSLECDSAKey( ptr< string > _publicKey, bool _isSGX ) {
+    CHECK_ARGUMENT( _publicKey );
 
     isPrivate = false;
-
 
     if ( ecgroup == nullptr ) {
         ecgroup = EC_GROUP_new_by_curve_name( NID_secp256k1 );
         CHECK_STATE( ecgroup );
     }
 
-    auto point = EC_POINT_hex2point(ecgroup, _publicKey->c_str(), nullptr, nullptr);
-
-    CHECK_STATE(point);
-
-
-    auto pubKey = EC_KEY_new_by_curve_name(NID_secp256k1);
-
-    CHECK_STATE(pubKey);
-
-    auto status = EC_KEY_set_public_key(pubKey, point);
-
-    EC_POINT_clear_free(point);
-
-    if (status != 1) {
-        EC_KEY_free(pubKey);
-        cerr << ERR_error_string(ERR_get_error(), NULL) << endl;
+    auto pubKey = EC_KEY_new_by_curve_name( NID_secp256k1 );
+    CHECK_STATE( pubKey );
+    if ( _isSGX ) {
+        auto x = _publicKey->substr( 0, 64 );
+        auto y = _publicKey->substr( 64, 128 );
+        auto xBN = BN_new();
+        auto yBN = BN_new();
+        CHECK_STATE( BN_hex2bn( &xBN, x.c_str() ) != 0 );
+        CHECK_STATE( BN_hex2bn( &yBN, y.c_str() ) != 0 );
+        CHECK_STATE( EC_KEY_set_public_key_affine_coordinates( pubKey, xBN, yBN ) == 1 );
+    } else {
+        auto point = EC_POINT_hex2point( ecgroup, _publicKey->c_str(), nullptr, nullptr );
+        CHECK_STATE( point );
+        CHECK_STATE( EC_KEY_set_public_key( pubKey, point ) == 1 );
+        EC_POINT_clear_free( point );
     }
 
-    CHECK_STATE(status == 1);
-
     this->ecKey = pubKey;
-
 }
