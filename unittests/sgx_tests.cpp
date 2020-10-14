@@ -45,8 +45,7 @@ TEST_CASE_METHOD( StartFromScratch, "Test sgx server connection", "[sgx]" ) {
     auto hash = SHAHash::calculateHash( msg );
     auto sig = cm.sgxSignECDSA( hash, keyNames->at(0) );
 
-    REQUIRE(
-        cm.localVerifyECDSAInternal( hash, sig, make_shared< string >( publicKeys->at( 0 ) ) ) );
+    REQUIRE( cm.verifyECDSA( hash, sig, make_shared< string >( publicKeys->at( 0 ) ) ) );
 
     auto key = CryptoManager::decodeSGXPublicKey( make_shared<string>(publicKeys->at(0)) );
 
