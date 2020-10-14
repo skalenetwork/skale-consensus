@@ -97,7 +97,66 @@ ptr< string > OpenSSLECDSAKey::getPublicKey() {
     return result;
 }
 
-bool OpenSSLECDSAKey::verifyHash( ptr< string > _signature, const char* _hash ) {
+bool OpenSSLECDSAKey::verifyHash(ptr<string> _sig, const char* _hash) {
+
+    bool returnValue = false;
+
+    try {
+
+        auto firstColumn = _sig->find( ":" );
+
+        if ( firstColumn == string::npos || firstColumn == _sig->length() - 1 ) {
+            LOG( err, "Misfomatted signature" );
+            goto clean;
+        }
+
+        auto secondColumn = _sig->find( ":", firstColumn + 1 );
+
+        if ( secondColumn == string::npos || secondColumn == _sig->length() - 1 ) {
+            LOG( err, "Misformatted signature" );
+            goto clean;
+        }
+
+        auto r = _sig->substr( firstColumn + 1, secondColumn - firstColumn - 1 );
+        auto s = _sig->substr( secondColumn + 1, _sig->length() - secondColumn - 1 );
+
+        if ( r == s ) {
+            LOG( err, "r == s " );
+            goto clean;
+        }
+
+        CHECK_STATE( firstColumn != secondColumn );
+
+        BIGNUM* rBN = BN_new();
+        BIGNUM* sBN = BN_new();
+
+        CHECK_STATE(BN_hex2bn(&rBN, r.c_str()) != 0);
+        CHECK_STATE(BN_hex2bn(&sBN, s.c_str()) != 0);
+
+
+        auto oSig = ECDSA_SIG_new();
+
+        CHECK_STATE(oSig);
+
+        CHECK_STATE(ECDSA_SIG_set0(oSig, rBN, sBN) != 0);
+
+        CHECK_STATE(ECDSA_do_verify( ( const unsigned char* )
+                                         _hash, 32, oSig, this->ecKey) == 1);
+
+        returnValue = true;
+
+    } catch ( exception& e ) {
+        LOG( err, "ECDSA sig did not verify: exception" + string( e.what() ) );
+        returnValue = false;
+
+    }
+
+    clean:
+
+    return returnValue;
+}
+
+bool OpenSSLECDSAKey::sessionVerifyHash( ptr< string > _signature, const char* _hash ) {
     CHECK_ARGUMENT( _signature );
     CHECK_ARGUMENT( _hash );
 

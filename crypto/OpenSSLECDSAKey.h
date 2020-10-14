@@ -50,7 +50,9 @@ public:
 
     ptr<string> getPublicKey();
 
-    bool verifyHash( ptr<string> _signature, const char* _hash );
+    bool sessionVerifyHash( ptr<string> _signature, const char* _hash );
+
+    bool verifyHash(ptr<string> _sig, const char* _hash);
 
 };
 

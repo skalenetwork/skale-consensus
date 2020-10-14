@@ -368,83 +368,8 @@ bool CryptoManager::verifyECDSA(
 
     auto key = make_shared<OpenSSLECDSAKey>(_publicKey, true);
 
-    CHECK_ARGUMENT( _publicKey );
-    CHECK_ARGUMENT( _publicKey->size() != 128 );
-
-    auto x = _publicKey->substr( 0, 64 );
-    auto y = _publicKey->substr( 64, 128 );
-    BIGNUM* xBN = BN_new();
-    BIGNUM* yBN = BN_new();
-    CHECK_STATE(BN_hex2bn(&xBN, x.c_str()) != 0);
-    CHECK_STATE(BN_hex2bn(&yBN, y.c_str()) != 0);
-    auto pubKey = EC_KEY_new_by_curve_name(NID_secp256k1);
-    CHECK_STATE(EC_KEY_set_public_key_affine_coordinates(pubKey, xBN, yBN) == 1);
-
-
-    CHECK_ARGUMENT( _hash );
-    CHECK_ARGUMENT( _sig );
-
-
-
-    bool returnValue = false;
-
-    try {
-
-        auto firstColumn = _sig->find( ":" );
-
-        if ( firstColumn == string::npos || firstColumn == _sig->length() - 1 ) {
-            LOG( err, "Misfomatted signature" );
-            goto clean;
-        }
-
-        auto secondColumn = _sig->find( ":", firstColumn + 1 );
-
-        if ( secondColumn == string::npos || secondColumn == _sig->length() - 1 ) {
-            LOG( err, "Misformatted signature" );
-            goto clean;
-        }
-
-        auto r = _sig->substr( firstColumn + 1, secondColumn - firstColumn - 1 );
-        auto s = _sig->substr( secondColumn + 1, _sig->length() - secondColumn - 1 );
-
-        if ( r == s ) {
-            LOG( err, "r == s " );
-            goto clean;
-        }
-
-        CHECK_STATE( firstColumn != secondColumn );
-
-
-
-        BIGNUM* rBN = BN_new();
-        BIGNUM* sBN = BN_new();
-
-        CHECK_STATE(BN_hex2bn(&rBN, r.c_str()) != 0);
-        CHECK_STATE(BN_hex2bn(&sBN, s.c_str()) != 0);
-
-
-        auto oSig = ECDSA_SIG_new();
-
-        CHECK_STATE(oSig);
-
-        CHECK_STATE(ECDSA_SIG_set0(oSig, rBN, sBN) != 0);
-
-        CHECK_STATE(ECDSA_do_verify( ( const unsigned char* )
-                                         _hash->data(), 32, oSig, pubKey) == 1);
-
-        returnValue = true;
-
-    } catch ( exception& e ) {
-        LOG( err, "ECDSA sig did not verify: exception" + string( e.what() ) );
-        returnValue = false;
-
-    }
-
-    clean:
-
-    return returnValue;
+    return key->verifyHash(_sig, (const char*)_hash->data());
 }
-
 
 ptr< string > CryptoManager::sign( ptr< SHAHash > _hash ) {
     CHECK_ARGUMENT( _hash );
@@ -487,7 +412,7 @@ bool CryptoManager::sessionVerifySig(
     if ( isSGXEnabled ) {
         auto pkey = make_shared< OpenSSLECDSAKey >( _publicKey, false );
 
-        return pkey->verifyHash( _sig, ( const char* ) _hash->data() );
+        return pkey->sessionVerifyHash( _sig, ( const char* ) _hash->data() );
 
     } else {
         // mockup - used for testing
