@@ -109,8 +109,7 @@ bool OpenSSLECDSAKey::verifySGXSig( ptr< string > _sig, const char* _hash ) {
     bool returnValue = false;
     BIGNUM* rBN = BN_new();
     BIGNUM* sBN = BN_new();
-    ECDSA_SIG* oSig = ECDSA_SIG_new();
-    CHECK_STATE( oSig );
+    ECDSA_SIG* oSig = nullptr;
     CHECK_STATE( rBN );
     CHECK_STATE( sBN );
     string r, s;
@@ -151,6 +150,8 @@ bool OpenSSLECDSAKey::verifySGXSig( ptr< string > _sig, const char* _hash ) {
         goto clean;
     };
 
+    oSig = ECDSA_SIG_new();
+
     if ( ECDSA_SIG_set0( oSig, rBN, sBN ) == 0 ) {
         LOG( warn, "ECDSA_SIG_set0( oSig, rBN, sBN ) == 0" );
         goto clean;
@@ -160,10 +161,14 @@ bool OpenSSLECDSAKey::verifySGXSig( ptr< string > _sig, const char* _hash ) {
 
 clean:
 
-    if ( rBN )
-        BN_free( rBN );
-    if ( sBN )
-        BN_free( sBN );
+    if (oSig) {
+        ECDSA_SIG_free(oSig);
+    } else {
+        if ( rBN )
+            BN_free( rBN );
+        if ( sBN )
+            BN_free( sBN );
+    }
 
     return returnValue;
 }
