@@ -125,7 +125,7 @@ BlockProposal::BlockProposal(schain_id _sChainId, node_id _proposerNodeId, block
     calculateHash();
 
     if (_cryptoManager != nullptr) {
-        _cryptoManager->signProposalECDSA(this);
+        _cryptoManager->signProposal( this );
     } else {
         CHECK_ARGUMENT(_signature);
         signature = _signature;

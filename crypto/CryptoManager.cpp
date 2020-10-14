@@ -363,57 +363,6 @@ ptr< string > CryptoManager::sgxSignECDSA( ptr< SHAHash > _hash, string& _keyNam
 }
 
 
-
-
-
-
-bool CryptoManager::verifyECDSASigRS( string& pubKeyStr, const char* hashHex,
-    const char* signatureR, const char* signatureS, int  ) {
-    CHECK_ARGUMENT( hashHex );
-    CHECK_ARGUMENT( signatureR );
-    CHECK_ARGUMENT( signatureS );
-
-    bool result = false;
-
-    auto x = pubKeyStr.substr( 0, 64 );
-    auto y = pubKeyStr.substr( 64, 128 );
-
-    BIGNUM* xBN = BN_new();
-    BIGNUM* yBN = BN_new();
-    BIGNUM* rBN = BN_new();
-    BIGNUM* sBN = BN_new();
-
-
-    CHECK_STATE(BN_hex2bn(&xBN, x.c_str()) != 0);
-    CHECK_STATE(BN_hex2bn(&yBN, y.c_str()) != 0);
-    CHECK_STATE(BN_hex2bn(&rBN, signatureR) != 0);
-    CHECK_STATE(BN_hex2bn(&sBN, signatureS) != 0);
-
-    auto pubKey = EC_KEY_new_by_curve_name(NID_secp256k1);
-    CHECK_STATE(EC_KEY_set_public_key_affine_coordinates(pubKey, xBN, yBN) == 1);
-
-    auto oSig = ECDSA_SIG_new();
-
-    CHECK_STATE(ECDSA_SIG_set0(oSig, rBN, sBN) != 0);
-
-    vector< unsigned char > derHash( 32 );
-
-    string hex(hashHex);
-
-    Utils::cArrayFromHex( hex, derHash.data(), 32 );
-
-    CHECK_STATE(ECDSA_do_verify( ( const unsigned char* )
-                                      derHash.data(), 32, oSig, pubKey) == 1)
-
-
-    result = true;
-
-//clean:
-
-    return result;
-}
-
-
 bool CryptoManager::verifyECDSA(
     ptr< SHAHash > _hash, ptr< string > _sig, ptr< string > _publicKey ) {
     CHECK_ARGUMENT( _hash );
@@ -446,7 +395,6 @@ bool CryptoManager::verifyECDSA(
             goto clean;
         }
 
-
         CHECK_STATE( firstColumn != secondColumn );
 
         if ( _publicKey->size() != 128 ) {
@@ -454,17 +402,41 @@ bool CryptoManager::verifyECDSA(
             goto clean;
         }
 
-        returnValue =
-            verifyECDSASigRS( *_publicKey, _hash->toHex()->data(), r.data(), s.data(), 16 );
+
+        auto x = _publicKey->substr( 0, 64 );
+        auto y = _publicKey->substr( 64, 128 );
+
+        BIGNUM* xBN = BN_new();
+        BIGNUM* yBN = BN_new();
+        BIGNUM* rBN = BN_new();
+        BIGNUM* sBN = BN_new();
+
+        CHECK_STATE(BN_hex2bn(&xBN, x.c_str()) != 0);
+        CHECK_STATE(BN_hex2bn(&yBN, y.c_str()) != 0);
+        CHECK_STATE(BN_hex2bn(&rBN, r.c_str()) != 0);
+        CHECK_STATE(BN_hex2bn(&sBN, s.c_str()) != 0);
+
+        auto pubKey = EC_KEY_new_by_curve_name(NID_secp256k1);
+        CHECK_STATE(EC_KEY_set_public_key_affine_coordinates(pubKey, xBN, yBN) == 1);
+
+        auto oSig = ECDSA_SIG_new();
+
+        CHECK_STATE(oSig);
+
+        CHECK_STATE(ECDSA_SIG_set0(oSig, rBN, sBN) != 0);
+
+        CHECK_STATE(ECDSA_do_verify( ( const unsigned char* )
+                                         _hash->data(), 32, oSig, pubKey) == 1);
+
+        returnValue = true;
+
     } catch ( exception& e ) {
         LOG( err, "ECDSA sig did not verify: exception" + string( e.what() ) );
         returnValue = false;
-        goto clean;
+
     }
 
-
-clean:
-
+    clean:
 
     return returnValue;
 }
@@ -636,7 +608,7 @@ ptr< ThresholdSigShare > CryptoManager::createSigShare(
     }
 }
 
-void CryptoManager::signProposalECDSA( BlockProposal* _proposal ) {
+void CryptoManager::signProposal( BlockProposal* _proposal ) {
     MONITOR( __CLASS_NAME__, __FUNCTION__ )
 
     CHECK_ARGUMENT( _proposal );
@@ -891,8 +863,4 @@ ptr< StubClient > CryptoManager::getSgxClient() {
     }
 
     return sgxClients.at( tid );
-}
-ptr< BLSPublicKey > CryptoManager::getBlsPublicKeyObj() const {
-    CHECK_STATE( blsPublicKeyObj );
-    return blsPublicKeyObj;
 }

@@ -156,7 +156,7 @@ public:
     ptr< ThresholdSigShare > createSigShare( ptr< string > _sigShare, schain_id _schainID,
         block_id _blockID, schain_index _signerIndex );
 
-    void signProposalECDSA( BlockProposal* _proposal );
+    void signProposal( BlockProposal* _proposal );
 
     bool verifyProposalECDSA(
         ptr< BlockProposal > _proposal, ptr< string > _hashStr, ptr< string > _signature );
@@ -194,9 +194,6 @@ public:
 
     ptr< BLSPublicKey > getSgxBlsPublicKey();
     ptr< string > getSgxBlsKeyName();
-
-
-    ptr< BLSPublicKey > getBlsPublicKeyObj() const;
 
     static ptr< SHAHash > calculatePublicKeyHash(
         ptr< string > publicKey, block_id _blockID);
