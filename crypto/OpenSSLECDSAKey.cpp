@@ -107,56 +107,63 @@ ptr< string > OpenSSLECDSAKey::getPublicKey() {
 
 bool OpenSSLECDSAKey::verifySGXSig( ptr< string > _sig, const char* _hash ) {
     bool returnValue = false;
+    BIGNUM* rBN = BN_new();
+    BIGNUM* sBN = BN_new();
+    ECDSA_SIG* oSig = ECDSA_SIG_new();
+    CHECK_STATE( oSig );
+    CHECK_STATE( rBN );
+    CHECK_STATE( sBN );
+    string r, s;
+    uint64_t firstColumn = 0, secondColumn = 0;
 
-    try {
-        auto firstColumn = _sig->find( ":" );
+    firstColumn = _sig->find( ":" );
 
-        if ( firstColumn == string::npos || firstColumn == _sig->length() - 1 ) {
-            LOG( err, "Misfomatted signature" );
-            goto clean;
-        }
-
-        auto secondColumn = _sig->find( ":", firstColumn + 1 );
-
-        if ( secondColumn == string::npos || secondColumn == _sig->length() - 1 ) {
-            LOG( err, "Misformatted signature" );
-            goto clean;
-        }
-
-        auto r = _sig->substr( firstColumn + 1, secondColumn - firstColumn - 1 );
-        auto s = _sig->substr( secondColumn + 1, _sig->length() - secondColumn - 1 );
-
-        if ( r == s ) {
-            LOG( err, "r == s " );
-            goto clean;
-        }
-
-        CHECK_STATE( firstColumn != secondColumn );
-
-        BIGNUM* rBN = BN_new();
-        BIGNUM* sBN = BN_new();
-
-        CHECK_STATE( BN_hex2bn( &rBN, r.c_str() ) != 0 );
-        CHECK_STATE( BN_hex2bn( &sBN, s.c_str() ) != 0 );
-
-
-        auto oSig = ECDSA_SIG_new();
-
-        CHECK_STATE( oSig );
-
-        CHECK_STATE( ECDSA_SIG_set0( oSig, rBN, sBN ) != 0 );
-
-        CHECK_STATE(
-            ECDSA_do_verify( ( const unsigned char* ) _hash, 32, oSig, this->ecKey ) == 1 );
-
-        returnValue = true;
-
-    } catch ( exception& e ) {
-        LOG( err, "ECDSA sig did not verify: exception" + string( e.what() ) );
-        returnValue = false;
+    if ( firstColumn == string::npos || firstColumn == _sig->length() - 1 ) {
+        LOG( warn, "Misfomatted signature" );
+        goto clean;
     }
 
+    secondColumn = _sig->find( ":", firstColumn + 1 );
+
+    if ( secondColumn == string::npos || secondColumn == _sig->length() - 1 ) {
+        LOG( warn, "Misformatted signature 2" );
+        goto clean;
+    }
+
+    r = _sig->substr( firstColumn + 1, secondColumn - firstColumn - 1 );
+    s = _sig->substr( secondColumn + 1, _sig->length() - secondColumn - 1 );
+
+    if ( r == s ) {
+        LOG( warn, "r == s " );
+        goto clean;
+    }
+
+    CHECK_STATE( firstColumn != secondColumn );
+
+
+    if ( BN_hex2bn( &rBN, r.c_str() ) == 0 ) {
+        LOG( warn, "BN_hex2bn( &rBN, r.c_str() ) == 0" );
+        goto clean;
+    };
+
+    if ( BN_hex2bn( &sBN, s.c_str() ) == 0 ) {
+        LOG( warn, "BN_hex2bn( &sBN, s.c_str() ) == 0" );
+        goto clean;
+    };
+
+    if ( ECDSA_SIG_set0( oSig, rBN, sBN ) == 0 ) {
+        LOG( warn, "ECDSA_SIG_set0( oSig, rBN, sBN ) == 0" );
+        goto clean;
+    }
+
+    returnValue = ECDSA_do_verify( ( const unsigned char* ) _hash, 32, oSig, this->ecKey ) == 1;
+
 clean:
+
+    if ( rBN )
+        BN_free( rBN );
+    if ( sBN )
+        BN_free( sBN );
 
     return returnValue;
 }
@@ -165,7 +172,8 @@ bool OpenSSLECDSAKey::sessionVerifySig( ptr< string > _signature, const char* _h
     CHECK_ARGUMENT( _signature );
     CHECK_ARGUMENT( _hash );
 
-    CHECK_STATE( _signature->size() % 2 == 0 );
+    if ( _signature->size() % 2 != 0 )
+        return false;
 
     vector< unsigned char > derSig( _signature->size() / 2 );
 
@@ -175,11 +183,14 @@ bool OpenSSLECDSAKey::sessionVerifySig( ptr< string > _signature, const char* _h
 
     ECDSA_SIG* sig = d2i_ECDSA_SIG( nullptr, &p, ( long ) derSig.size() );
 
-    CHECK_STATE( sig );
+    if ( !sig ) {
+        return false;
+    }
 
     auto status = ECDSA_do_verify( ( const unsigned char* ) _hash, 32, sig, ecKey );
 
-    CHECK_STATE( status >= 0 );
+    if (sig)
+        ECDSA_SIG_free( sig );
 
     return status == 1;
 }
@@ -191,7 +202,7 @@ ptr< string > OpenSSLECDSAKey::sessionSign( const char* _hash ) {
     CHECK_STATE( isPrivate );
 
     ECDSA_SIG* signature = nullptr;
-    ptr<string> hexSig = nullptr;
+    ptr< string > hexSig = nullptr;
 
     try {
         signature = ECDSA_do_sign( ( const unsigned char* ) _hash, 32, ecKey );
@@ -204,10 +215,12 @@ ptr< string > OpenSSLECDSAKey::sessionSign( const char* _hash ) {
         hexSig = Utils::carray2Hex( sigDer.data(), sigLen );
         CHECK_STATE( hexSig );
     } catch ( ... ) {
-        if (signature) ECDSA_SIG_free(signature);
+        if ( signature )
+            ECDSA_SIG_free( signature );
         throw;
     }
-    if (signature) ECDSA_SIG_free(signature);
+    if ( signature )
+        ECDSA_SIG_free( signature );
     return hexSig;
 }
 
