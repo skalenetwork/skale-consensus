@@ -319,7 +319,7 @@ tuple< ptr< string >, ptr< string >, ptr< string > > CryptoManager::sessionSignE
         }
     }
 
-    auto ret = privateKey->signHash( ( const char* ) _hash->data() );
+    auto ret = privateKey->sessionSign( ( const char* ) _hash->data() );
 
     return { ret, publicKey, pkSig };
 }
@@ -366,9 +366,9 @@ ptr< string > CryptoManager::sgxSignECDSA( ptr< SHAHash > _hash, string& _keyNam
 bool CryptoManager::verifyECDSA(
     ptr< SHAHash > _hash, ptr< string > _sig, ptr< string > _publicKey ) {
 
-    auto key = make_shared<OpenSSLECDSAKey>(_publicKey, true);
+    auto key = OpenSSLECDSAKey::makeKey(_publicKey, true);
 
-    return key->verifyHash(_sig, (const char*)_hash->data());
+    return key->verifySGXSig( _sig, ( const char* ) _hash->data() );
 }
 
 ptr< string > CryptoManager::sign( ptr< SHAHash > _hash ) {
@@ -410,9 +410,8 @@ bool CryptoManager::sessionVerifySig(
     CHECK_ARGUMENT( _publicKey );
 
     if ( isSGXEnabled ) {
-        auto pkey = make_shared< OpenSSLECDSAKey >( _publicKey, false );
-
-        return pkey->sessionVerifyHash( _sig, ( const char* ) _hash->data() );
+        auto pkey = OpenSSLECDSAKey::makeKey( _publicKey, false );
+        return pkey->sessionVerifySig( _sig, ( const char* ) _hash->data() );
 
     } else {
         // mockup - used for testing
@@ -453,7 +452,6 @@ bool CryptoManager::verifySig( ptr< SHAHash > _hash, ptr< string > _sig, node_id
                 "but other node sent a real signature " );
             ASSERT( false );
         }
-
 
         return *_sig == *( _hash->toHex() );
     }
