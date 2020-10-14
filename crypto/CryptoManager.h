@@ -122,7 +122,6 @@ class CryptoManager {
 
     Schain* sChain = nullptr;
 
-    void signature_sign(signature sig, mpz_t message, mpz_t private_key, domain_parameters curve);
 
     ptr< string > signECDSA( ptr< SHAHash > _hash );
 

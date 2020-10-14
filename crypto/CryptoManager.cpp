@@ -45,6 +45,9 @@
 #include <openssl/ecdsa.h>    // for ECDSA_do_sign, ECDSA_do_verify
 #include <openssl/obj_mac.h>  // for NID_secp256k1
 
+#include <openssl/bn.h>
+
+
 #include <sys/types.h>
 
 #include "Log.h"
@@ -275,111 +278,6 @@ std::tuple< ptr< OpenSSLECDSAKey >, ptr< string > > CryptoManager::localGenerate
     return { key, pKey };
 }
 
-void CryptoManager::signature_sign(
-    signature sig, mpz_t message, mpz_t private_key, domain_parameters curve ) {
-    // message must not have a bit length longer than that of n
-    // see: Guide to Elliptic Curve Cryptography, section 4.4.1.
-
-    for ( int i = 0; i < 1; i++ ) {
-        assert( mpz_sizeinbase( message, 2 ) <= mpz_sizeinbase( curve->n, 2 ) );
-
-        point Q = point_init();
-
-        // Initializing variables
-        mpz_t k, x, r, t1, t2, t3, t4, t5, s, n_div_2, rem, neg, seed;
-        mpz_init( k );
-        mpz_init( x );
-        mpz_init( r );
-        mpz_init( t1 );
-        mpz_init( t2 );
-        mpz_init( t3 );
-        mpz_init( s );
-        mpz_init( t4 );
-        mpz_init( t5 );
-        mpz_init( n_div_2 );
-        mpz_init( rem );
-        mpz_init( neg );
-        mpz_init( seed );
-
-        unsigned char* rand_char = ( unsigned char* ) calloc( 32, 1 );
-
-        CHECK_STATE( urandom );
-        urandom.read( reinterpret_cast< char* >( rand_char ), 32 );  // Read from urandom
-        CHECK_STATE( urandom );
-
-    signature_sign_start:
-
-
-        CHECK_STATE( urandom );
-        urandom.read( reinterpret_cast< char* >( rand_char ), 32 );  // Read from urandom
-        CHECK_STATE( urandom );
-
-        mpz_import( seed, 32, 1, sizeof( rand_char[0] ), 0, 0, rand_char );
-
-        mpz_mod( k, seed, curve->p );
-
-        // Calculate x
-        point_multiplication( Q, k, curve->G, curve );
-        mpz_set( x, Q->x );
-
-        // Calculate r
-        mpz_mod( r, x, curve->n );
-        if ( !mpz_sgn( r ) )  // Start over if r=0, note haven't been tested memory might die :)
-            goto signature_sign_start;
-
-
-        // Calculate s
-        // s = k¯¹(e+d*r) mod n = (k¯¹ mod n) * ((e+d*r) mod n) mod n
-        // number_theory_inverse(t1, k, curve->n);//t1 = k¯¹ mod n
-        mpz_invert( t1, k, curve->n );
-        mpz_mul( t2, private_key, r );  // t2 = d*r
-        mpz_add( t3, message, t2 );     // t3 = e+t2
-        mpz_mod( t4, t3, curve->n );    // t2 = t3 mod n
-        mpz_mul( t5, t4, t1 );          // t3 = t2 * t1
-        mpz_mod( s, t5, curve->n );     // s = t3 mod n
-
-        // Calculate v
-
-        mpz_mod_ui( rem, Q->y, 2 );
-        mpz_t s_mul_2;
-        mpz_init( s_mul_2 );
-        mpz_mul_ui( s_mul_2, s, 2 );
-
-        unsigned b = 0;
-        if ( mpz_cmp( s_mul_2, curve->n ) > 0 ) {
-            b = 1;
-        }
-        sig->v = mpz_get_ui( rem ) ^ b;
-
-        mpz_cdiv_q_ui( n_div_2, curve->n, 2 );
-
-        if ( mpz_cmp( s, n_div_2 ) > 0 ) {
-            mpz_sub( neg, curve->n, s );
-            mpz_set( s, neg );
-        }
-
-        // Set signature
-        mpz_set( sig->r, r );
-        mpz_set( sig->s, s );
-
-        free( rand_char );
-        point_clear( Q );
-
-        mpz_clear( k );
-        mpz_clear( r );
-        mpz_clear( s );
-        mpz_clear( x );
-        mpz_clear( rem );
-        mpz_clear( neg );
-        mpz_clear( t1 );
-        mpz_clear( t2 );
-        mpz_clear( t3 );
-        mpz_clear( seed );
-        mpz_clear( n_div_2 );
-        mpz_clear( s_mul_2 );
-    }
-}
-
 
 tuple< ptr< string >, ptr< string >, ptr< string > > CryptoManager::sessionSignECDSAInternal(
     ptr< SHAHash > _hash, block_id _blockID ) {
@@ -546,9 +444,6 @@ bool CryptoManager::verifyECDSASigRSOpenSSL(
     return function_status == 1;
 }
 
-#include <openssl/bn.h>
-
-#include "utils/Time.h"
 
 bool CryptoManager::verifyECDSASigRS( string& pubKeyStr, const char* hashHex,
     const char* signatureR, const char* signatureS, int  ) {
@@ -557,7 +452,6 @@ bool CryptoManager::verifyECDSASigRS( string& pubKeyStr, const char* hashHex,
     CHECK_ARGUMENT( signatureS );
 
     bool result = false;
-
 
     auto x = pubKeyStr.substr( 0, 64 );
     auto y = pubKeyStr.substr( 64, 128 );
