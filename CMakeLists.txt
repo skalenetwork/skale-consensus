@@ -155,11 +155,6 @@ SET(SRC_FILES
         ${monitoring_src}
         ${utils_src}
         Agent.h Agent.cpp SkaleCommon.cpp Log.cpp microprofile.cpp miniz.c
-        sgxwallet/secure_enclave/Point.c
-        sgxwallet/secure_enclave/DomainParameters.c
-        sgxwallet/secure_enclave/NumberTheory.c
-        sgxwallet/secure_enclave/Signature.c
-        sgxwallet/secure_enclave/Curves.c
         )
 
 

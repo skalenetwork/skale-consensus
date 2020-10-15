@@ -247,7 +247,6 @@ Schain* CryptoManager::getSchain() const {
 }
 
 
-static domain_parameters ecdsaCurve = NULL;
 
 #define ECDSA_SKEY_LEN 65
 #define ECDSA_SKEY_BASE 16
@@ -284,10 +283,6 @@ tuple< ptr< string >, ptr< string >, ptr< string > > CryptoManager::sessionSignE
     CHECK_ARGUMENT( _hash );
 
 
-    if ( !ecdsaCurve ) {
-        ecdsaCurve = domain_parameters_init();
-        domain_parameters_load_curve( ecdsaCurve, secp256k1 );
-    }
 
 
     ptr< OpenSSLECDSAKey > privateKey = nullptr;

@@ -31,12 +31,6 @@
 
 #define USER_SPACE 1
 
-#include "sgxwallet/secure_enclave/DomainParameters.h"
-#include "sgxwallet/secure_enclave/Curves.h"
-#include "sgxwallet/secure_enclave/NumberTheory.h"
-#include "sgxwallet/secure_enclave/Point.h"
-#include "sgxwallet/secure_enclave/Signature.h"
-
 #include "thirdparty/lrucache.hpp"
 #include "thirdparty/lru_ordered_cache.hpp"
 
