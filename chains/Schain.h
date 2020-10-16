@@ -76,6 +76,7 @@ class BooleanProposalVector;
 class Schain : public Agent {
 
     bool bootStrapped = false;
+    bool startingFromCorruptState = false;
 
     atomic<uint64_t>  totalTransactions;
 
@@ -257,4 +258,7 @@ public:
     void finalizeDecidedAndSignedBlock(block_id _blockId, schain_index _proposerIndex, ptr<ThresholdSignature> _thresholdSig );
 
     void tryStartingConsensus( const ptr< BooleanProposalVector >& pv, const block_id& bid );
+
+    bool fixCorruptStateIfNeeded( block_id id );
+    bool blockInProcessLockExists( block_id id );
 };
