@@ -36,18 +36,22 @@ class BlockDB : public CacheLevelDB {
     recursive_mutex m;
     void saveBlock2LevelDB(ptr<CommittedBlock> &_block);
 
+    void removeBlockInProcessLock( block_id );
+
 public:
 
     BlockDB(Schain *_sChain, string &_dirname, string &_prefix, node_id _nodeId, uint64_t _maxDBSize);
     ptr<vector<uint8_t >> getSerializedBlockFromLevelDB(block_id _blockID);
     void saveBlock(ptr<CommittedBlock> &_block);
     ptr<CommittedBlock> getBlock(block_id _blockID, ptr<CryptoManager> _cryptoManager);
-
     block_id readLastCommittedBlockID();
 
     const string getFormatVersion();
 
     string createLastCommittedKey();
+    bool blockInProcessLockExists( block_id );
+    void createInBlockInProcessLock( block_id );
+
 };
 
 

@@ -79,7 +79,7 @@ void BlockDB::saveBlock2LevelDB(ptr<CommittedBlock> &_block) {
     } catch (...) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
-
+    removeBlockInProcessLock(_block->getBlockID());
 }
 
 
@@ -152,4 +152,14 @@ block_id BlockDB::readLastCommittedBlockID() {
     stringstream(*blockStr)  >> lastBlockId;
 
     return lastBlockId;
+}
+
+bool BlockDB::blockInProcessLockExists( block_id  ) {
+    return false;
+}
+
+void BlockDB::createInBlockInProcessLock( block_id  ) {
+}
+
+void BlockDB::removeBlockInProcessLock( block_id  ) {
 }

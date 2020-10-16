@@ -602,7 +602,6 @@ void ConsensusEngine::init() {
 
     logInit();
 
-
     sigset_t sigpipe_mask;
     sigemptyset( &sigpipe_mask );
     sigaddset( &sigpipe_mask, SIGPIPE );

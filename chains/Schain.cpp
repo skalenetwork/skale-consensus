@@ -608,8 +608,6 @@ void Schain::proposedBlockArrived( ptr< BlockProposal > _proposal ) {
 
 
 void Schain::bootstrap( block_id _lastCommittedBlockID, uint64_t _lastCommittedBlockTimeStamp ) {
-
-
     LOG(info, "Bootstrapping consensus ...");
     auto _lastCommittedBlockIDInConsensus = getNode()->getBlockDB()->readLastCommittedBlockID();
     LOG(info, "Check the consensus database for corruption ...");
@@ -881,13 +879,15 @@ void Schain::finalizeDecidedAndSignedBlock(
 Schain::Schain() : Agent() {}
 
 bool Schain::fixCorruptStateIfNeeded( block_id _lastCommittedBlockID ) {
-
     block_id nextBlock = _lastCommittedBlockID + 1;
-    if (blockInProcessLockExists(nextBlock)) {
+    if (getNode()->getBlockDB()->blockInProcessLockExists(nextBlock)) {
         return true;
+    } else {
+        return false;
     }
-    return false;
 }
-bool Schain::blockInProcessLockExists( block_id  ) {
-    return false;
+
+
+bool Schain::isStartingFromCorruptState() const {
+    return startingFromCorruptState;
 }

@@ -78,6 +78,9 @@ class Schain : public Agent {
     bool bootStrapped = false;
     bool startingFromCorruptState = false;
 
+public:
+    bool isStartingFromCorruptState() const;
+private:
     atomic<uint64_t>  totalTransactions;
 
     ConsensusExtFace* extFace = nullptr;
@@ -254,11 +257,9 @@ public:
 
     ptr<CryptoManager> getCryptoManager() const;
 
-
     void finalizeDecidedAndSignedBlock(block_id _blockId, schain_index _proposerIndex, ptr<ThresholdSignature> _thresholdSig );
 
     void tryStartingConsensus( const ptr< BooleanProposalVector >& pv, const block_id& bid );
 
     bool fixCorruptStateIfNeeded( block_id id );
-    bool blockInProcessLockExists( block_id id );
 };
