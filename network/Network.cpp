@@ -134,7 +134,6 @@ void Network::broadcastMessage(ptr<NetworkMessage> _msg ) {
     try {
         // sign message before sending
         _msg->sign(getSchain()->getCryptoManager());
-        getSchain()->getNode()->getOutgoingMsgDB()->saveMsg( _msg );
 
         unordered_set<uint64_t> sent;
 
@@ -188,9 +187,6 @@ void Network::networkReadLoop() {
                 }
 
                 CHECK_STATE(sChain);
-
-                getSchain()->getNode()->getIncomingMsgDB()->saveMsg(dynamic_pointer_cast<NetworkMessage>(m->getMessage()));
-
                 postDeferOrDrop(m);
             } catch (ExitRequestedException &) {
                 return;
