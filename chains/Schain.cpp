@@ -880,7 +880,7 @@ Schain::Schain() : Agent() {}
 
 bool Schain::fixCorruptStateIfNeeded( block_id _lastCommittedBlockID ) {
     block_id nextBlock = _lastCommittedBlockID + 1;
-    if (getNode()->getBlockDB()->blockInProcessLockExists(nextBlock)) {
+    if ( getNode()->getBlockDB()->unfinishedBlockExists( nextBlock )) {
         return true;
     } else {
         return false;
