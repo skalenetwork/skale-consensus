@@ -104,12 +104,6 @@ Node::Node(const nlohmann::json &_cfg, ConsensusEngine *_consensusEngine,
         blsPublicKeys = _blsPublicKeys;
         blsPublicKey = _blsPublicKey;
 
-
-
-
-
-
-
         static string empty("");
 
         sgxURL = _sgxURL;

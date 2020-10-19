@@ -681,18 +681,23 @@ void Schain::bootstrap( block_id _lastCommittedBlockID, uint64_t _lastCommittedB
             this->pricingAgent->calculatePrice( ConsensusExtFace::transactions_vector(), 0, 0, 0 );
 
         proposeNextBlock( lastCommittedBlockTimeStamp, lastCommittedBlockTimeStampMs );
-        auto proposalVector =
-            getNode()->getProposalVectorDB()->getVector( _lastCommittedBlockID + 1 );
-        if ( proposalVector ) {
-            auto messages = getNode()->getOutgoingMsgDB()->getMessages( _lastCommittedBlockID + 1 );
-            for ( auto&& m : *messages ) {
-                getNode()->getNetwork()->broadcastMessage( m );
-            }
-        }
+
+        rebroadcastAllMessagesForCurrentBlock();
 
     } catch ( exception& e ) {
         SkaleException::logNested( e );
         return;
+    }
+}
+void Schain::rebroadcastAllMessagesForCurrentBlock() const {
+    auto proposalVector = getNode()->getProposalVectorDB()->getVector( lastCommittedBlockID + 1 );
+    if ( proposalVector ) {
+        LOG(info, "Rebroadcasting messages for the current block");
+        auto messages =
+            getNode()->getOutgoingMsgDB()->getMessages( lastCommittedBlockID + 1 );
+        for ( auto&& m : *messages ) {
+            getNode()->getNetwork()->broadcastMessage( m );
+        }
     }
 }
 
@@ -880,7 +885,7 @@ Schain::Schain() : Agent() {}
 
 bool Schain::fixCorruptStateIfNeeded( block_id _lastCommittedBlockID ) {
     block_id nextBlock = _lastCommittedBlockID + 1;
-    if (getNode()->getBlockDB()->blockInProcessLockExists(nextBlock)) {
+    if ( getNode()->getBlockDB()->unfinishedBlockExists( nextBlock )) {
         return true;
     } else {
         return false;

@@ -27,6 +27,7 @@
 #include "chains/Schain.h"
 #include "datastructures/CommittedBlock.h"
 #include "exceptions/InvalidStateException.h"
+#include "utils/Time.h"
 
 #include "BlockDB.h"
 #include "CacheLevelDB.h"
@@ -79,7 +80,6 @@ void BlockDB::saveBlock2LevelDB(ptr<CommittedBlock> &_block) {
     } catch (...) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
-    removeBlockInProcessLock(_block->getBlockID());
 }
 
 
@@ -89,11 +89,13 @@ string BlockDB::createLastCommittedKey() {
     return getFormatVersion() + ":last";
 }
 
+string BlockDB::createBlockStartKey( block_id _blockID) {
+    return getFormatVersion() + ":start:" + to_string((uint64_t) _blockID);
+}
 
 const string BlockDB::getFormatVersion() {
     return "1.0";
 }
-
 
 void BlockDB::saveBlock(ptr<CommittedBlock> &_block) {
 
@@ -154,12 +156,19 @@ block_id BlockDB::readLastCommittedBlockID() {
     return lastBlockId;
 }
 
-bool BlockDB::blockInProcessLockExists( block_id  ) {
+bool BlockDB::unfinishedBlockExists( block_id  _blockID) {
+    auto key = createBlockStartKey(_blockID);
+    auto str = readString(key);
+
+    if (str != nullptr) {
+        return !this->keyExists(*createKey(_blockID));
+    }
     return false;
 }
 
-void BlockDB::createInBlockInProcessLock( block_id  ) {
-}
 
-void BlockDB::removeBlockInProcessLock( block_id  ) {
+void BlockDB::recordBlockProcessingStart( block_id  _blockID) {
+        auto time = Time::getCurrentTimeMs();
+        auto key = createBlockStartKey( _blockID );
+        this->writeString(key, to_string(time), true);
 }

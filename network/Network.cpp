@@ -189,8 +189,6 @@ void Network::networkReadLoop() {
 
                 CHECK_STATE(sChain);
 
-                getSchain()->getNode()->getIncomingMsgDB()->saveMsg(dynamic_pointer_cast<NetworkMessage>(m->getMessage()));
-
                 postDeferOrDrop(m);
             } catch (ExitRequestedException &) {
                 return;

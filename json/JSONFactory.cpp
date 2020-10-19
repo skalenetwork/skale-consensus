@@ -376,10 +376,6 @@ JSONFactory::parseTestKeyNamesFromJson( ptr<string> _sgxServerURL, const fs_path
     HttpClient client(*_sgxServerURL);
     StubClient c( client, JSONRPC_CLIENT_V2 );
 
-
-
-
-
     LOG(info, "Getting BLS Public Key Shares.");
 
     for ( uint64_t i = 0; i < _totalNodes; i++ ) {

@@ -262,4 +262,5 @@ public:
     void tryStartingConsensus( const ptr< BooleanProposalVector >& pv, const block_id& bid );
 
     bool fixCorruptStateIfNeeded( block_id id );
+    void rebroadcastAllMessagesForCurrentBlock() const;
 };

@@ -36,7 +36,6 @@ class BlockDB : public CacheLevelDB {
     recursive_mutex m;
     void saveBlock2LevelDB(ptr<CommittedBlock> &_block);
 
-    void removeBlockInProcessLock( block_id );
 
 public:
 
@@ -45,12 +44,13 @@ public:
     void saveBlock(ptr<CommittedBlock> &_block);
     ptr<CommittedBlock> getBlock(block_id _blockID, ptr<CryptoManager> _cryptoManager);
     block_id readLastCommittedBlockID();
-
     const string getFormatVersion();
 
     string createLastCommittedKey();
-    bool blockInProcessLockExists( block_id );
-    void createInBlockInProcessLock( block_id );
+    string createBlockStartKey(block_id _blockID );
+
+    bool unfinishedBlockExists( block_id _blockID );
+    void recordBlockProcessingStart( block_id _blockID );
 
 };
 
