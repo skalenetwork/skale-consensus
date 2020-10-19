@@ -506,6 +506,7 @@ JSONFactory::parseTestKeyNamesFromJson( ptr<string> _sgxServerURL, const fs_path
         ecdsaPublicKeys->push_back( publicKey );
     }
 
+
     CHECK_STATE( ecdsaKeyNames->size() == _totalNodes )
     CHECK_STATE( blsKeyNames->size() == _totalNodes )
     CHECK_STATE( ecdsaPublicKeys->size() == _totalNodes )
