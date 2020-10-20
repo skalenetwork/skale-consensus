@@ -195,7 +195,7 @@ public:
 
 #define RETRY_BEGIN while (true) { try {
 #define RETRY_END   ; break ;} catch ( exception& e ) { \
-  if ( e.what() && string( e.what() ).find( "Could not connect" ) != string::npos ) { \
+  if ( e.what() && ( string( e.what() ).find( "Could not connect" ) != string::npos || string( e.what() ).find( "timed out" ) != string::npos ) ) { \
   LOG( err, "Could not connext to sgx server, retrying ... \n" + string( e.what() ) ); \
   sleep( 60 ); \
   } else { throw; } } }
