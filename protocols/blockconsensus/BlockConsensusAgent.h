@@ -52,26 +52,26 @@ class BlockConsensusAgent : public ProtocolInstance {
     ptr<cache::lru_cache<uint64_t , schain_index>> decidedIndices;
 
 
-    void processChildMessageImpl(ptr<InternalMessageEnvelope> _me);
+    void processChildMessageImpl(const ptr<InternalMessageEnvelope>& _me);
 
-    void decideBlock(block_id _blockId, schain_index _sChainIndex, ptr<string> _stats);
+    void decideBlock(block_id _blockId, schain_index _sChainIndex, const ptr<string>& _stats);
 
     void propose(bin_consensus_value _proposal, schain_index index, block_id _id);
 
-    void reportConsensusAndDecideIfNeeded(ptr<ChildBVDecidedMessage> _msg);
+    void reportConsensusAndDecideIfNeeded(const ptr<ChildBVDecidedMessage>& _msg);
 
     void decideDefaultBlock(block_id _blockNumber);
 
-    void startConsensusProposal(block_id _blockID, ptr<BooleanProposalVector> _proposal);
+    void startConsensusProposal(block_id _blockID, const ptr<BooleanProposalVector>& _proposal);
 
 
-    void processBlockSignMessage(ptr<BlockSignBroadcastMessage> _message);
+    void processBlockSignMessage(const ptr<BlockSignBroadcastMessage>& _message);
 
 
-    bin_consensus_round getRound(ptr<ProtocolKey> _key);
+    bin_consensus_round getRound(const ptr<ProtocolKey>& _key);
 
 
-    bool decided(ptr<ProtocolKey> key);
+    bool decided(const ptr<ProtocolKey>& _key);
 
 
     ptr<string> buildStats(block_id _blockID);
@@ -80,7 +80,7 @@ public:
 
 
 
-    ptr<BinConsensusInstance> getChild(ptr<ProtocolKey> key);
+    ptr<BinConsensusInstance> getChild(const ptr<ProtocolKey>& _key);
 
 
 
@@ -88,10 +88,10 @@ public:
 
 
 
-    bool shouldPost(ptr<NetworkMessage> _msg);
+    bool shouldPost(const ptr<NetworkMessage>& _msg);
 
 
-    void routeAndProcessMessage(ptr<MessageEnvelope> _me );
+    void routeAndProcessMessage(const ptr<MessageEnvelope>& _me );
 
 };
 

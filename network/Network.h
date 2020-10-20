@@ -70,11 +70,11 @@ protected:
 
     map<block_id, ptr<vector<ptr<NetworkMessageEnvelope>>>> deferredMessageQueue;
 
-    virtual void addToDeferredMessageQueue(ptr<NetworkMessageEnvelope> _me);
+    virtual void addToDeferredMessageQueue(const ptr<NetworkMessageEnvelope>& _me);
 
     ptr<vector<ptr<NetworkMessageEnvelope> > > pullMessagesForCurrentBlockID();
 
-    virtual bool sendMessage(const ptr<NodeInfo> &remoteNodeInfo, ptr<NetworkMessage> _msg) = 0;
+    virtual bool sendMessage(const ptr<NodeInfo> &remoteNodeInfo, const ptr<NetworkMessage>& _msg) = 0;
 
 
     ptr<thread> networkReadThread;
@@ -97,13 +97,13 @@ public:
 
     static ptr<string> ipToString(uint32_t _ip);
 
-    void broadcastMessage(ptr<NetworkMessage> _msg );
+    void broadcastMessage(const ptr<NetworkMessage>& _msg );
 
     ptr<NetworkMessageEnvelope> receiveMessage();
 
-    virtual uint64_t readMessageFromNetwork(ptr<Buffer> buf) = 0;
+    virtual uint64_t readMessageFromNetwork(const ptr<Buffer> buf) = 0;
 
-    static bool validateIpAddress(ptr<string> &_ip);
+    static bool validateIpAddress(const ptr<string> &_ip);
 
     static void setTransport(TransportType transport);
 
@@ -117,7 +117,7 @@ public:
 
     ~Network();
 
-    void addToDelayedSends(ptr<NetworkMessage> _m, ptr<NodeInfo> _dstNodeInfo );
+    void addToDelayedSends(const ptr<NetworkMessage>& _m, const ptr<NodeInfo>& _dstNodeInfo );
 
     void trySendingDelayedSends();
 

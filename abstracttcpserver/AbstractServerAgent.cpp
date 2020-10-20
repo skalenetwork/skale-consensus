@@ -64,7 +64,7 @@
 #include <exception>
 #include <chrono>
 
-void AbstractServerAgent::pushToQueueAndNotifyWorkers(ptr<ServerConnection> _connectionEnvelope ) {
+void AbstractServerAgent::pushToQueueAndNotifyWorkers(const ptr<ServerConnection>& _connectionEnvelope ) {
     CHECK_ARGUMENT( _connectionEnvelope );
     lock_guard<mutex> lock(incomingTCPConnectionsMutex);
     incomingTCPConnections.push( _connectionEnvelope );
@@ -124,8 +124,8 @@ void AbstractServerAgent::workerThreadConnectionProcessingLoop(void *_params) {
 }
 
 
-void AbstractServerAgent::send(ptr<ServerConnection> _connectionEnvelope,
-                               ptr<Header> _header) {
+void AbstractServerAgent::send(const ptr<ServerConnection>& _connectionEnvelope,
+                               const ptr<Header>& _header) {
 
 
     CHECK_ARGUMENT(_connectionEnvelope);
@@ -137,7 +137,7 @@ void AbstractServerAgent::send(ptr<ServerConnection> _connectionEnvelope,
 }
 
 AbstractServerAgent::AbstractServerAgent(const string &_name, Schain &_schain,
-                                         ptr<TCPServerSocket> _socket)
+                                         const ptr<TCPServerSocket>& _socket)
         : Agent(_schain, true), name(_name), socket(_socket), networkReadThread(nullptr) {
 
     logThreadLocal_ = _schain.getNode()->getLog();

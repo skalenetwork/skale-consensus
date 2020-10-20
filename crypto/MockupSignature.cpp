@@ -34,7 +34,7 @@
 
 
 MockupSignature::MockupSignature(
-    ptr< string > _s, block_id _blockID, size_t _totalSigners, size_t _requiredSigners )
+    const ptr<string>& _s, block_id _blockID, size_t _totalSigners, size_t _requiredSigners )
     : ThresholdSignature(_blockID, _totalSigners, _requiredSigners) {
     s = _s;
 }

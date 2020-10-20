@@ -38,7 +38,7 @@ public:
 
     OpenSSLECDSAKey( EC_KEY* _eckey, bool _isPrivate );
 
-    static ptr<OpenSSLECDSAKey> makeKey( ptr<string> _publicKey, bool _isSGXKey );
+    static ptr<OpenSSLECDSAKey> makeKey(const ptr<string>& _publicKey, bool _isSGXKey );
 
     virtual ~OpenSSLECDSAKey();
 
@@ -48,9 +48,9 @@ public:
 
     ptr<string> sessionSign(const char* hash);
 
-    bool sessionVerifySig( ptr<string> _signature, const char* _hash );
+    bool sessionVerifySig(const ptr<string>& _signature, const char* _hash );
 
-    bool verifySGXSig(ptr<string> _sig, const char* _hash);
+    bool verifySGXSig(const ptr<string>& _sig, const char* _hash);
 
 };
 

@@ -70,7 +70,7 @@ public:
 
     virtual ~LivelinessMonitor();
 
-    LivelinessMonitor(ptr<MonitoringAgent> _agent, const string& _class, const string& _function, uint64_t _maxTime);
+    LivelinessMonitor(const ptr<MonitoringAgent>& _agent, const string& _class, const string& _function, uint64_t _maxTime);
 
 };
 

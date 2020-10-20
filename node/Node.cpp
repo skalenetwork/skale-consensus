@@ -77,9 +77,9 @@ Node::Node(const nlohmann::json &_cfg, ConsensusEngine *_consensusEngine,
            bool _useSGX, ptr<string> _sgxURL,
            ptr<string> _sgxSSLKeyFileFullPath,
            ptr<string> _sgxSSLCertFileFullPath,
-           ptr< string > _ecdsaKeyName,
-           ptr< vector< string > > _ecdsaPublicKeys, ptr< string > _blsKeyName,
-           ptr< vector< ptr< vector< string > > > > _blsPublicKeys,
+           ptr<string> _ecdsaKeyName,
+           ptr< vector<string> > _ecdsaPublicKeys, ptr<string> _blsKeyName,
+           ptr< vector< ptr< vector<string>>>> _blsPublicKeys,
            ptr< BLSPublicKey > _blsPublicKey) {
 
     if (_useSGX) {
@@ -103,12 +103,6 @@ Node::Node(const nlohmann::json &_cfg, ConsensusEngine *_consensusEngine,
         blsKeyName = _blsKeyName;
         blsPublicKeys = _blsPublicKeys;
         blsPublicKey = _blsPublicKey;
-
-
-
-
-
-
 
         static string empty("");
 
@@ -338,21 +332,21 @@ void Node::testNodeInfos() {
 }
 
 
-void Node::setNodeInfo(ptr<NodeInfo> _nodeInfo) {
+void Node::setNodeInfo(const ptr<NodeInfo>& _nodeInfo) {
 
     CHECK_ARGUMENT(_nodeInfo);
     (*nodeInfosByIndex)[(uint64_t)_nodeInfo->getSchainIndex()] =  _nodeInfo;
     (*nodeInfosById)[(uint64_t ) _nodeInfo->getNodeID()] = _nodeInfo;
 }
 
-void Node::setSchain(ptr<Schain> _schain) {
+void Node::setSchain(const ptr<Schain>& _schain) {
     CHECK_STATE(sChain == nullptr);
     this->sChain = _schain;
     initLevelDBs();
 
 }
 
-void Node::initSchain(ptr<Node> _node, ptr<NodeInfo> _localNodeInfo, const vector<ptr<NodeInfo> > &remoteNodeInfos,
+void Node::initSchain(const ptr<Node>& _node, const ptr<NodeInfo>& _localNodeInfo, const vector<ptr<NodeInfo> > &remoteNodeInfos,
                       ConsensusExtFace *_extFace) {
     try {
         logThreadLocal_ = _node->getLog();
@@ -487,19 +481,19 @@ void Node::exitOnFatalError(const string &_message) {
 bool Node::isSgxEnabled() {
     return sgxEnabled;
 }
-ptr< string > Node::getEcdsaKeyName() {
+ptr<string> Node::getEcdsaKeyName() {
     CHECK_STATE(ecdsaKeyName);
     return ecdsaKeyName;
 }
-ptr< vector< string > > Node::getEcdsaPublicKeys() {
+ptr< vector<string> > Node::getEcdsaPublicKeys() {
     CHECK_STATE(ecdsaPublicKeys);
     return ecdsaPublicKeys;
 }
-ptr< string > Node::getBlsKeyName() {
+ptr<string> Node::getBlsKeyName() {
     CHECK_STATE(blsKeyName);
     return blsKeyName;
 }
-ptr< vector< ptr< vector< string > > > > Node::getBlsPublicKeys() {
+ptr< vector< ptr< vector<string>>>> Node::getBlsPublicKeys() {
     CHECK_STATE(blsPublicKeys);
     return blsPublicKeys;
 }

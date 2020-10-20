@@ -76,9 +76,9 @@ protected:
 
 
     NetworkMessage(MsgType _messageType, node_id _srcNodeID, block_id _blockID, schain_index _blockProposerIndex,
-                   bin_consensus_round _r, bin_consensus_value _value, uint64_t _timeMs, schain_id _schainId, msg_id _msgID, ptr<string> _sigShareStr, ptr<string> _ecdsaSig,
-                   ptr<string> _publicKey, ptr<string> _pkSig,
-                   schain_index _srcSchainIndex, ptr<CryptoManager> _cryptoManager);
+                   bin_consensus_round _r, bin_consensus_value _value, uint64_t _timeMs, schain_id _schainId, msg_id _msgID, const ptr<string> _sigShareStr, const ptr<string> _ecdsaSig,
+ const ptr<string> _publicKey, const ptr<string> _pkSig,
+                   schain_index _srcSchainIndex, const ptr<CryptoManager> _cryptoManager);
 
     virtual ptr<SHAHash> calculateHash();
 
@@ -89,10 +89,10 @@ public:
 
 public:
 
-    void sign(ptr<CryptoManager> _mgr);
+    void sign(const ptr<CryptoManager> _mgr);
 
 
-    void verify(ptr<CryptoManager> _mgr);
+    void verify(const ptr<CryptoManager> _mgr);
 
 
 
@@ -108,7 +108,7 @@ public:
 
     ptr<ThresholdSigShare> getSigShare() const;
 
-    static ptr<NetworkMessage> parseMessage(ptr<string> _header, Schain* _sChain);
+    static ptr<NetworkMessage> parseMessage(const ptr<string> _header, Schain* _sChain);
 
     static const char* getTypeString(MsgType _type );
 
@@ -120,6 +120,6 @@ public:
 
 
     const ptr<string> &getECDSASig() const;
-    const ptr< string >& getPublicKey() const;
-    const ptr< string >& getPkSig() const;
+    const ptr<string>& getPublicKey() const;
+    const ptr<string>& getPkSig() const;
 };

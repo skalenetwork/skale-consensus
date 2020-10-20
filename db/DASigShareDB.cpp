@@ -65,8 +65,8 @@ const string DASigShareDB::getFormatVersion() {
 
 
 // return not-null if _sigShare completes sig, null otherwise (both if not enough and too much)
-ptr<DAProof> DASigShareDB::addAndMergeSigShareAndVerifySig(ptr<ThresholdSigShare> _sigShare,
-                                                           ptr<BlockProposal> _proposal) {
+ptr<DAProof> DASigShareDB::addAndMergeSigShareAndVerifySig(const ptr<ThresholdSigShare>& _sigShare,
+                                                           const ptr<BlockProposal>& _proposal) {
 
     CHECK_ARGUMENT(_sigShare);
     CHECK_ARGUMENT(_proposal);

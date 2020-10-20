@@ -51,7 +51,7 @@ class Transaction : public DataStructure {
 
 public:
 
-    Transaction(const ptr<vector<uint8_t>> _data, bool _includesPartialHash);
+    Transaction(const ptr<vector<uint8_t>>& _data, bool _includesPartialHash);
 
 
     uint64_t  getSerializedSize(bool _writePartialHash);
@@ -60,7 +60,7 @@ public:
     ptr<vector<uint8_t>> getData() const;
 
 
-    void serializeInto( ptr< vector< uint8_t > > _out, bool _writePartialHash );
+    void serializeInto(const ptr<vector<uint8_t>>& _out, bool _writePartialHash );
 
 
     ptr<SHAHash> getHash();
@@ -71,7 +71,7 @@ public:
 
 
     static ptr<Transaction > deserialize(
-            const ptr< vector< uint8_t > > _data, uint64_t _startIndex, uint64_t _len, bool _verifyPartialHashes );
+            const ptr<vector<uint8_t>>& _data, uint64_t _startIndex, uint64_t _len, bool _verifyPartialHashes );
 
 
 

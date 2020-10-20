@@ -34,20 +34,24 @@ class CryptoManager;
 class BlockDB : public CacheLevelDB {
 
     recursive_mutex m;
-    void saveBlock2LevelDB(ptr<CommittedBlock> &_block);
+    void saveBlock2LevelDB(const ptr<CommittedBlock> &_block);
+
 
 public:
 
     BlockDB(Schain *_sChain, string &_dirname, string &_prefix, node_id _nodeId, uint64_t _maxDBSize);
     ptr<vector<uint8_t >> getSerializedBlockFromLevelDB(block_id _blockID);
-    void saveBlock(ptr<CommittedBlock> &_block);
-    ptr<CommittedBlock> getBlock(block_id _blockID, ptr<CryptoManager> _cryptoManager);
-
+    void saveBlock(const ptr<CommittedBlock> &_block);
+    ptr<CommittedBlock> getBlock(block_id _blockID, const ptr<CryptoManager>& _cryptoManager);
     block_id readLastCommittedBlockID();
-
     const string getFormatVersion();
 
     string createLastCommittedKey();
+    string createBlockStartKey(block_id _blockID );
+
+    bool unfinishedBlockExists( block_id _blockID );
+    void recordBlockProcessingStart( block_id _blockID );
+
 };
 
 

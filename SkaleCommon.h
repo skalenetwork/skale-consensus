@@ -95,7 +95,7 @@ class SkaleLog;
     struct D : boost::totally_ordered1< D,                                               \
                    boost::totally_ordered2< D, T,                                        \
                        boost::multipliable2< D, T,                                       \
-                           boost::addable2< D, T, boost::subtractable2< D, T > > > > > { \
+                           boost::addable2< D, T, boost::subtractable2< D, T >>>> > { \
         T t;                                                                             \
         D( const T& t_ ) : t( t_ ){};                                                    \
         D( T&& t_ ) : t( std::move( t_ ) ){};                                            \
@@ -305,6 +305,7 @@ static const uint64_t SGX_SSL_PORT = 1026;
 
 static const uint64_t BLOCK_PROPOSAL_RECEIVE_TIMEOUT_MS = 120000;
 
+static const uint64_t REBROADCAST_TIMEOUT_MS = 120000;
 
 extern void setThreadName(std::string const &_n, ConsensusEngine* _engine);
 

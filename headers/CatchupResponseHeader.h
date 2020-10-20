@@ -54,9 +54,9 @@ public:
 
     CatchupResponseHeader();
 
-    CatchupResponseHeader(ptr<list<uint64_t>>_blockSizes);
+    CatchupResponseHeader(const ptr<list<uint64_t>>_blockSizes);
 
-    void setBlockSizes(ptr<list<uint64_t>> _blockSizes);
+    void setBlockSizes(const ptr<list<uint64_t>>& _blockSizes);
 
     void addFields(nlohmann::basic_json<> &j_) override;
 

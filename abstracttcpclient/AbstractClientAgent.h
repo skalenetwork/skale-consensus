@@ -25,10 +25,10 @@
 #define CONSENSUS_ABSTRACTCLIENTAGENT_H
 
 
-#include <exceptions/ConnectionRefusedException.h>
-#include <abstracttcpserver/ConnectionStatus.h>
-#include "abstracttcpclient/AbstractClientAgent.h"
 #include "Agent.h"
+#include "abstracttcpclient/AbstractClientAgent.h"
+#include <abstracttcpserver/ConnectionStatus.h>
+#include <exceptions/ConnectionRefusedException.h>
 
 class DataStructure;
 class BlockProposal;
@@ -44,25 +44,23 @@ protected:
     explicit AbstractClientAgent( Schain& _sChain, port_type _portType );
 
 protected:
+    void sendItem(const ptr< DataStructure >& _item, schain_index _dstIndex );
 
-    void sendItem(ptr<DataStructure> _item, schain_index _dstIndex);
+    virtual pair< ConnectionStatus, ConnectionSubStatus > sendItemImpl(const ptr< DataStructure >& _item,
+        const ptr< ClientSocket >& _socket, schain_index _destIndex ) = 0;
 
-    virtual pair<ConnectionStatus, ConnectionSubStatus> sendItemImpl(ptr<DataStructure> _item, shared_ptr<ClientSocket> _socket,
-                                                                     schain_index _destIndex) = 0;
-
-    std::map< schain_index, ptr< queue< ptr< DataStructure > > > > itemQueue;
+    std::map< schain_index, ptr< queue< ptr< DataStructure >>>> itemQueue;
 
     uint64_t incrementAndReturnThreadCounter();
 
-    void enqueueItemImpl(ptr<DataStructure> _item );
+    void enqueueItemImpl( const ptr< DataStructure >& _item );
 
 public:
-
     static void workerThreadItemSendLoop( AbstractClientAgent* agent );
 
-    void enqueueItem(ptr<BlockProposal> _item );
+    void enqueueItem( const ptr< BlockProposal >& _item );
 
-    void enqueueItem(ptr<DAProof> _item );
+    void enqueueItem( const ptr< DAProof >& _item );
 };
 
 

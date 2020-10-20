@@ -71,7 +71,7 @@ public:
                       schain_index _voterIndex, bin_consensus_value _v);
 
     void writeAUXVote(block_id _blockId, schain_index _proposerIndex, bin_consensus_round _r, schain_index _voterIndex,
-                      bin_consensus_value _v, ptr<string> _sigShare);
+                      bin_consensus_value _v, const ptr<string>& _sigShare);
 
     void writeBinValue(block_id _blockId, schain_index _proposerIndex, bin_consensus_round _r,
                        bin_consensus_value _v);
@@ -91,9 +91,9 @@ public:
             ptr<map<bin_consensus_round, set<schain_index>>>>
     readBVBVotes(block_id _blockId, schain_index _proposerIndex);
 
-    pair<ptr<map<bin_consensus_round, map<schain_index, ptr<ThresholdSigShare>>>>,
-            ptr<map<bin_consensus_round, map<schain_index, ptr<ThresholdSigShare>>>>>
-    readAUXVotes(block_id _blockId, schain_index _proposerIndex, ptr<CryptoManager> _cryptoManager);
+    pair<ptr<map<bin_consensus_round, map<schain_index,  ptr<ThresholdSigShare>>>>,
+            ptr<map<bin_consensus_round, map<schain_index,  ptr<ThresholdSigShare>>>>>
+    readAUXVotes(block_id _blockId, schain_index _proposerIndex, const ptr<CryptoManager>& _cryptoManager);
 
     ptr<map<bin_consensus_round, set<bin_consensus_value>>>
     readBinValues(block_id _blockId, schain_index _proposerIndex);

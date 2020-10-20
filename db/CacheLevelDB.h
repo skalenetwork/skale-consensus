@@ -80,7 +80,7 @@ protected:
 
     void writeByteArray(const char *_key, size_t _keyLen, const char * _value,
                         size_t _valueLen);
-    void writeByteArray(string &_key, ptr<vector<uint8_t>> _data);
+    void writeByteArray(string &_key, const ptr<vector<uint8_t>>& _data);
 
 
     ptr<string> createKey(block_id _blockId);
@@ -115,7 +115,7 @@ protected:
     CacheLevelDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize,
                  bool _isDuplicateAddOK = false);
 
-    ptr<map<string, ptr<string>>> readPrefixRangeFromDBUnsafe(string &_prefix, ptr<leveldb::DB> _db, bool lastOnly = false);
+    ptr<map<string, ptr<string>>> readPrefixRangeFromDBUnsafe(string &_prefix, const ptr<leveldb::DB>& _db, bool lastOnly = false);
 
 public:
 

@@ -51,13 +51,13 @@ protected:
 
 
 
-    void send(ptr<ServerConnection> _connectionEnvelope, ptr<Header> _header);
+    void send(const ptr<ServerConnection>& _connectionEnvelope, const ptr<Header>& _header);
 
 
 
 public:
 
-    AbstractServerAgent(const string &_name, Schain &_schain, ptr<TCPServerSocket> _socket);
+    AbstractServerAgent(const string &_name, Schain &_schain, const ptr<TCPServerSocket>& _socket);
 
     ~AbstractServerAgent() override;
 
@@ -67,7 +67,7 @@ public:
 
 
 
-    void pushToQueueAndNotifyWorkers(ptr<ServerConnection> _connectionEnvelope );
+    void pushToQueueAndNotifyWorkers(const ptr<ServerConnection>& _connectionEnvelope );
 
     ptr<ServerConnection> workerThreadWaitandPopConnection();
 
@@ -79,10 +79,10 @@ public:
 // to be implemented by subclasses
 
 
-    virtual void processNextAvailableConnection(ptr<ServerConnection> _connection) = 0;
+    virtual void processNextAvailableConnection(const ptr<ServerConnection>& _connection) = 0;
 
 
-    virtual ptr<PartialHashesList> readPartialHashes(ptr<ServerConnection> _connectionEnvelope, transaction_count _txCount);
+    virtual ptr<PartialHashesList> readPartialHashes(const ptr<ServerConnection>& _connectionEnvelope, transaction_count _txCount);
 
 
 

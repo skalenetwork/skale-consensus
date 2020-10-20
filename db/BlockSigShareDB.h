@@ -43,7 +43,7 @@ public:
 
     BlockSigShareDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize);
 
-    ptr<ThresholdSignature> checkAndSaveShare(ptr<ThresholdSigShare> _sigShare, ptr<CryptoManager> _cryptoManager);
+    ptr<ThresholdSignature> checkAndSaveShare(const ptr<ThresholdSigShare>& _sigShare, const ptr<CryptoManager>& _cryptoManager);
 
 };
 

@@ -79,7 +79,7 @@ CatchupWorkerThreadPool *CatchupServerAgent::getCatchupWorkerThreadPool() const 
 }
 
 
-CatchupServerAgent::CatchupServerAgent(Schain &_schain, ptr<TCPServerSocket> _s) : AbstractServerAgent(
+CatchupServerAgent::CatchupServerAgent(Schain &_schain, const ptr<TCPServerSocket>& _s) : AbstractServerAgent(
         "CatchupServer", _schain, _s) {
     CHECK_ARGUMENT(_s);
     catchupWorkerThreadPool = make_shared<CatchupWorkerThreadPool>(num_threads(1), this);
@@ -92,7 +92,7 @@ CatchupServerAgent::~CatchupServerAgent() {
 }
 
 
-void CatchupServerAgent::processNextAvailableConnection(ptr<ServerConnection> _connection) {
+void CatchupServerAgent::processNextAvailableConnection(const ptr<ServerConnection>& _connection) {
 
 
     MONITOR(__CLASS_NAME__, __FUNCTION__);
@@ -188,9 +188,9 @@ void CatchupServerAgent::processNextAvailableConnection(ptr<ServerConnection> _c
 }
 
 
-ptr<vector<uint8_t>> CatchupServerAgent::createResponseHeaderAndBinary(ptr<ServerConnection> ,
+ptr<vector<uint8_t>> CatchupServerAgent::createResponseHeaderAndBinary(const ptr<ServerConnection>& ,
                                                                        nlohmann::json _jsonRequest,
-                                                                       ptr<Header> &_responseHeader) {
+                                                                       const ptr<Header> &_responseHeader) {
 
     CHECK_ARGUMENT(_responseHeader);
 
@@ -247,7 +247,7 @@ ptr<vector<uint8_t>> CatchupServerAgent::createResponseHeaderAndBinary(ptr<Serve
 
 
 ptr<vector<uint8_t>> CatchupServerAgent::createBlockCatchupResponse(nlohmann::json /*_jsonRequest */,
-                                                                    ptr<CatchupResponseHeader> _responseHeader,
+                                                                    const ptr<CatchupResponseHeader>& _responseHeader,
                                                                     block_id _blockID) {
 
     CHECK_ARGUMENT(_responseHeader);
@@ -311,7 +311,7 @@ ptr<vector<uint8_t>> CatchupServerAgent::createBlockCatchupResponse(nlohmann::js
 
 
 ptr<vector<uint8_t>> CatchupServerAgent::createBlockFinalizeResponse(nlohmann::json _jsonRequest,
-                                                                     ptr<BlockFinalizeResponseHeader> _responseHeader,
+                                                                     const ptr<BlockFinalizeResponseHeader>& _responseHeader,
                                                                      block_id _blockID) {
 
     CHECK_ARGUMENT(_responseHeader);

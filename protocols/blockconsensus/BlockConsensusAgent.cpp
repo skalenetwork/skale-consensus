@@ -88,7 +88,7 @@ BlockConsensusAgent::BlockConsensusAgent(Schain &_schain) : ProtocolInstance(
 };
 
 
-void BlockConsensusAgent::startConsensusProposal(block_id _blockID, ptr<BooleanProposalVector> _proposal) {
+void BlockConsensusAgent::startConsensusProposal(block_id _blockID, const ptr<BooleanProposalVector>& _proposal) {
     try {
         if (getSchain()->getLastCommittedBlockID() >= _blockID) {
             LOG(debug, "Terminating consensus proposal since already committed.");
@@ -114,7 +114,7 @@ void BlockConsensusAgent::startConsensusProposal(block_id _blockID, ptr<BooleanP
 }
 
 
-void BlockConsensusAgent::processChildMessageImpl(ptr<InternalMessageEnvelope> _me) {
+void BlockConsensusAgent::processChildMessageImpl(const ptr<InternalMessageEnvelope>& _me) {
 
     CHECK_ARGUMENT(_me);
 
@@ -148,7 +148,7 @@ void BlockConsensusAgent::propose(bin_consensus_value _proposal, schain_index _i
 }
 
 
-void BlockConsensusAgent::decideBlock(block_id _blockId, schain_index _sChainIndex, ptr<string> _stats) {
+void BlockConsensusAgent::decideBlock(block_id _blockId, schain_index _sChainIndex, const ptr<string>& _stats) {
 
     CHECK_ARGUMENT(_stats);
 
@@ -191,7 +191,7 @@ void BlockConsensusAgent::decideDefaultBlock(block_id _blockNumber) {
 }
 
 
-void BlockConsensusAgent::reportConsensusAndDecideIfNeeded(ptr<ChildBVDecidedMessage> _msg) {
+void BlockConsensusAgent::reportConsensusAndDecideIfNeeded(const ptr<ChildBVDecidedMessage>& _msg) {
 
     CHECK_ARGUMENT(_msg);
 
@@ -280,7 +280,7 @@ void BlockConsensusAgent::reportConsensusAndDecideIfNeeded(ptr<ChildBVDecidedMes
 }
 
 
-void BlockConsensusAgent::processBlockSignMessage(ptr<BlockSignBroadcastMessage> _message) {
+void BlockConsensusAgent::processBlockSignMessage(const ptr<BlockSignBroadcastMessage>& _message) {
     try {
         auto signature =
                 getSchain()->getNode()->getBlockSigShareDB()->checkAndSaveShare(_message->getSigShare(),
@@ -306,7 +306,7 @@ void BlockConsensusAgent::processBlockSignMessage(ptr<BlockSignBroadcastMessage>
 };
 
 
-void BlockConsensusAgent::routeAndProcessMessage(ptr<MessageEnvelope> _me ) {
+void BlockConsensusAgent::routeAndProcessMessage(const ptr<MessageEnvelope>& _me ) {
 
     CHECK_ARGUMENT( _me );
 
@@ -380,15 +380,15 @@ void BlockConsensusAgent::routeAndProcessMessage(ptr<MessageEnvelope> _me ) {
 }
 
 
-bin_consensus_round BlockConsensusAgent::getRound(ptr<ProtocolKey> key) {
-    return getChild(key)->getCurrentRound();
+bin_consensus_round BlockConsensusAgent::getRound(const ptr<ProtocolKey>& _key) {
+    return getChild(_key)->getCurrentRound();
 }
 
-bool BlockConsensusAgent::decided(ptr<ProtocolKey> key) {
-    return getChild(key)->decided();
+bool BlockConsensusAgent::decided(const ptr<ProtocolKey>& _key) {
+    return getChild(_key)->decided();
 }
 
-ptr<BinConsensusInstance> BlockConsensusAgent::getChild(ptr<ProtocolKey> _key) {
+ptr<BinConsensusInstance> BlockConsensusAgent::getChild(const ptr<ProtocolKey>& _key) {
 
 
     CHECK_ARGUMENT(_key);
@@ -415,7 +415,7 @@ ptr<BinConsensusInstance> BlockConsensusAgent::getChild(ptr<ProtocolKey> _key) {
 }
 
 
-bool BlockConsensusAgent::shouldPost(ptr<NetworkMessage> _msg) {
+bool BlockConsensusAgent::shouldPost(const ptr<NetworkMessage>& _msg) {
 
     if (_msg->getMessageType() == MSG_BLOCK_SIGN_BROADCAST) {
         return true;

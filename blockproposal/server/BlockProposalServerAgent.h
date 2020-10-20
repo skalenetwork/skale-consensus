@@ -24,8 +24,8 @@
 #pragma once
 
 #include "abstracttcpserver/AbstractServerAgent.h"
-#include "pendingqueue/PendingTransactionsAgent.h"
 #include "abstracttcpserver/ConnectionStatus.h"
+#include "pendingqueue/PendingTransactionsAgent.h"
 
 class BlockProposalWorkerThreadPool;
 class BlockFinalizeResponseHeader;
@@ -41,12 +41,11 @@ class TransactionList;
 
 class Comparator {
 public:
-    bool operator()(const ptr<partial_sha_hash> &a,
-                    const ptr<partial_sha_hash> &b) const {
-        for (size_t i = 0; i < PARTIAL_SHA_HASH_LEN; i++) {
-            if ((*a)[i] < (*b)[i])
+    bool operator()( const ptr< partial_sha_hash >& a, const ptr< partial_sha_hash >& b ) const {
+        for ( size_t i = 0; i < PARTIAL_SHA_HASH_LEN; i++ ) {
+            if ( ( *a )[i] < ( *b )[i] )
                 return false;
-            if ((*b)[i] < (*a)[i])
+            if ( ( *b )[i] < ( *a )[i] )
                 return true;
         }
         return false;
@@ -55,52 +54,52 @@ public:
 
 
 class BlockProposalServerAgent : public AbstractServerAgent {
+    ptr< BlockProposalWorkerThreadPool > blockProposalWorkerThreadPool;
 
-    ptr<BlockProposalWorkerThreadPool> blockProposalWorkerThreadPool;
 
+    pair< ConnectionStatus, ConnectionSubStatus > processProposalRequest(
+        const ptr< ServerConnection >& _connection, nlohmann::json _proposalRequest );
 
-    pair<ConnectionStatus, ConnectionSubStatus> processProposalRequest(ptr<ServerConnection> _connection, nlohmann::json _proposalRequest);
-
-    void processDAProofRequest(ptr<ServerConnection> _connection, nlohmann::json _daProofRequest);
-
+    void processDAProofRequest(
+        const ptr< ServerConnection >& _connection, nlohmann::json _daProofRequest );
 
 
 public:
-    BlockProposalServerAgent(Schain &_schain, ptr<TCPServerSocket> _s);
+    BlockProposalServerAgent( Schain& _schain, const ptr< TCPServerSocket >& _s );
 
     ~BlockProposalServerAgent() override;
 
-    ptr<unordered_map<ptr<partial_sha_hash>, ptr<Transaction>, PendingTransactionsAgent::Hasher, PendingTransactionsAgent::Equal>>
-    readMissingTransactions(ptr<ServerConnection> _connectionEnvelope, nlohmann::json missingTransactionsResponseHeader);
+    ptr< unordered_map< ptr< partial_sha_hash >, ptr< Transaction >,
+        PendingTransactionsAgent::Hasher, PendingTransactionsAgent::Equal > >
+    readMissingTransactions( const ptr< ServerConnection >& _connectionEnvelope,
+        nlohmann::json missingTransactionsResponseHeader );
 
 
-    pair<ptr<map<uint64_t, ptr<Transaction>>>,
-            ptr<map<uint64_t, ptr<partial_sha_hash>>>> getPresentAndMissingTransactions(Schain &_sChain,
-                                                                                         ptr<Header>,
-                                                                                         ptr<PartialHashesList> _phList );
+    pair< ptr< map< uint64_t, ptr< Transaction > > >,
+        ptr< map< uint64_t, ptr< partial_sha_hash >>>>
+    getPresentAndMissingTransactions(
+        Schain& _sChain, const ptr< Header >, const ptr< PartialHashesList >& _phList );
 
 
-    BlockProposalWorkerThreadPool *getBlockProposalWorkerThreadPool() const;
+    BlockProposalWorkerThreadPool* getBlockProposalWorkerThreadPool() const;
 
-    void checkForOldBlock(const block_id &_blockID);
+    void checkForOldBlock( const block_id& _blockID );
 
-    ptr<Header>
-    createProposalResponseHeader(ptr<ServerConnection> _connectionEnvelope,
-                                 BlockProposalRequestHeader &_header);
+    ptr< Header > createProposalResponseHeader(
+        const ptr< ServerConnection >& _connectionEnvelope, BlockProposalRequestHeader& _header );
 
-    ptr<Header>
-    createFinalResponseHeader(ptr<ReceivedBlockProposal> _proposal);
+    ptr< Header > createFinalResponseHeader( const ptr< ReceivedBlockProposal >& _proposal );
 
-    ptr<Header> createDAProofResponseHeader(ptr<ServerConnection> _connectionEnvelope,
-                                            ptr<SubmitDAProofRequestHeader> _header);
+    ptr< Header > createDAProofResponseHeader( const ptr< ServerConnection >& _connectionEnvelope,
+        const ptr< SubmitDAProofRequestHeader >& _header );
 
 
+    nlohmann::json readMissingTransactionsResponseHeader(
+        const ptr< ServerConnection >& _connectionEnvelope );
 
-        nlohmann::json
-    readMissingTransactionsResponseHeader(ptr<ServerConnection> _connectionEnvelope);
 
+    void processNextAvailableConnection( const ptr< ServerConnection >& _connection ) override;
 
-    void processNextAvailableConnection(ptr<ServerConnection> _connection) override;
-
-    void signBlock(ptr<BlockFinalizeResponseHeader> &_responseHeader, ptr<CommittedBlock> &_block) const;
+    void signBlock( const ptr< BlockFinalizeResponseHeader >& _responseHeader,
+        const ptr< CommittedBlock >& _block ) const;
 };

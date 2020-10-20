@@ -47,14 +47,14 @@ class TransactionList : public ListOfHashes {
 
     ptr<vector<ptr<Transaction>>> transactions = nullptr;
 
-    TransactionList( ptr<vector<uint64_t>> _transactionSizes,
-                                      ptr<vector<uint8_t>> _serializedTransactions, uint32_t _offset, bool _checkPartialHash );
+    TransactionList(const ptr<vector<uint64_t>>& _transactionSizes,
+ const ptr<vector<uint8_t>>& _serializedTransactions, uint32_t _offset, bool _checkPartialHash );
 
 
 
 public:
 
-    TransactionList(ptr<vector<ptr<Transaction>>> _transactions);
+    TransactionList(const ptr<vector<ptr<Transaction>>>& _transactions);
 
 
     ptr<vector<ptr<Transaction>>> getItems() ;
@@ -75,10 +75,10 @@ public:
     ptr<ConsensusExtFace::transactions_vector> createTransactionVector();
 
 
-    ptr< vector< uint64_t > > createTransactionSizesVector(bool _writePartialHash);
+    ptr<vector<uint64_t>> createTransactionSizesVector(bool _writePartialHash);
 
-    static ptr< TransactionList > deserialize( ptr< vector< uint64_t > > _transactionSizes,
-        ptr< vector< uint8_t > > _serializedTransactions, uint32_t _offset,
+    static ptr< TransactionList > deserialize(const ptr<vector<uint64_t>>& _transactionSizes,
+ const ptr<vector<uint8_t>>& _serializedTransactions, uint32_t _offset,
         bool _writePartialHash );
 
     static ptr< TransactionList > createRandomSample( uint64_t _size, boost::random::mt19937& _gen,

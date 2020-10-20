@@ -39,7 +39,7 @@ public:
     CommittedTransactionDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId,
                            uint64_t _maxDBSize);
 
-    void writeCommittedTransaction(ptr<Transaction> _t, __uint64_t _committedTransactionCounter);
+    void writeCommittedTransaction(const ptr<Transaction>& _t, __uint64_t _committedTransactionCounter);
 
 };
 

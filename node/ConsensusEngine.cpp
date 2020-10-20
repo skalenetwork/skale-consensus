@@ -106,9 +106,9 @@ using namespace boost::filesystem;
 
 shared_ptr< spdlog::logger > ConsensusEngine::configLogger = nullptr;
 
-shared_ptr< string > ConsensusEngine::dataDir = nullptr;
+shared_ptr<string> ConsensusEngine::dataDir = nullptr;
 
-shared_ptr< string > ConsensusEngine::logDir = nullptr;
+shared_ptr<string> ConsensusEngine::logDir = nullptr;
 
 recursive_mutex ConsensusEngine::logMutex;
 
@@ -129,7 +129,7 @@ void ConsensusEngine::logInit() {
         char* d = std::getenv( "DATA_DIR" );
 
         if ( d != nullptr ) {
-            dataDir = make_shared< string >( d );
+            dataDir = make_shared<string>( d );
             cerr << "Found data dir:" << *dataDir << endl;
         }
     }
@@ -138,7 +138,7 @@ void ConsensusEngine::logInit() {
         char* d = std::getenv( "LOG_DIR" );
 
         if ( d != nullptr ) {
-            logDir = make_shared< string >( d );
+            logDir = make_shared<string>( d );
             cerr << "Found log dir:" << *logDir << endl;
         }
     }
@@ -152,7 +152,7 @@ void ConsensusEngine::logInit() {
     }
 
     if ( logDir != nullptr ) {
-        logFileNamePrefix = make_shared< string >( *logDir + "/" + logFileName );
+        logFileNamePrefix = make_shared<string>( *logDir + "/" + logFileName );
         logRotatingFileSync = make_shared< spdlog::sinks::rotating_file_sink_mt >(
             *logFileNamePrefix, 10 * 1024 * 1024, 5 );
     } else {
@@ -164,7 +164,7 @@ void ConsensusEngine::logInit() {
         healthCheckDir = dataDir;
         dbDir = dataDir;
     } else {
-        healthCheckDir = make_shared< string >( "/tmp" );
+        healthCheckDir = make_shared<string>( "/tmp" );
         dbDir = healthCheckDir;
     }
 
@@ -173,12 +173,12 @@ void ConsensusEngine::logInit() {
 }
 
 
-const shared_ptr< string > ConsensusEngine::getDataDir() {
+const shared_ptr<string> ConsensusEngine::getDataDir() {
     CHECK_STATE( dataDir );
     return dataDir;
 }
 
-const shared_ptr< string > ConsensusEngine::getLogDir() {
+const shared_ptr<string> ConsensusEngine::getLogDir() {
     CHECK_STATE( logDir );
     return logDir;
 }
@@ -258,11 +258,12 @@ void ConsensusEngine::parseFullConfigAndCreateNode( const string& configFileCont
     }
 }
 
-ptr< Node > ConsensusEngine::readNodeConfigFileAndCreateNode( const string path,
-    set< node_id >& _nodeIDs, bool _useSGX, ptr< string > _sgxSSLKeyFileFullPath,
-    ptr< string > _sgxSSLCertFileFullPath, ptr< string > _ecdsaKeyName,
-    ptr< vector< string > > _ecdsaPublicKeys, ptr< string > _blsKeyName,
-    ptr< vector< ptr< vector< string > > > > _blsPublicKeys, ptr< BLSPublicKey > _blsPublicKey ) {
+ptr< Node > ConsensusEngine::readNodeConfigFileAndCreateNode( const string path, set< node_id >& _nodeIDs,
+                                             bool _useSGX, ptr<string>_sgxSSLKeyFileFullPath,
+                                             ptr<string> _sgxSSLCertFileFullPath, ptr<string> _ecdsaKeyName ,
+                                             ptr< vector<string> > _ecdsaPublicKeys, ptr<string> _blsKeyName,
+                                             ptr< vector< ptr< vector<string>>>> _blsPublicKeys,
+                                             ptr< BLSPublicKey > _blsPublicKey) {
     try {
         if ( _useSGX ) {
             CHECK_ARGUMENT( _ecdsaKeyName && _ecdsaPublicKeys );
@@ -306,7 +307,7 @@ ptr< Node > ConsensusEngine::readNodeConfigFileAndCreateNode( const string path,
 }
 
 
-void ConsensusEngine::readSchainConfigFiles( ptr< Node > _node, const fs_path& _dirPath ) {
+void ConsensusEngine::readSchainConfigFiles(const ptr< Node >& _node, const fs_path& _dirPath ) {
     CHECK_ARGUMENT( _node );
 
     try {
@@ -388,7 +389,7 @@ void ConsensusEngine::parseTestConfigsAndCreateAllNodes( const fs_path& dirname 
                        to_string( nodeCount ) + "node.json";
             if ( is_regular_file( filePath ) ) {
                 CHECK_STATE( nodeCount % 3 == 1 );
-                sgxServerUrl = make_shared< string >( "http://localhost:1029" );
+                sgxServerUrl = make_shared<string>( "http://localhost:1029" );
                 this->setTestKeys( sgxServerUrl, filePath, nodeCount, nodeCount - 1 / 3 );
             }
         }
@@ -434,13 +435,13 @@ void ConsensusEngine::parseTestConfigsAndCreateAllNodes( const fs_path& dirname 
 
         for (uint64_t  j=0; j< dirNames.size(); j++) {
 
-            ptr< string > ecdsaKey = nullptr;
-            ptr< string > blsKey = nullptr;
+            ptr<string> ecdsaKey = nullptr;
+            ptr<string> blsKey = nullptr;
             if ( isSGXEnabled ) {
                 CHECK_STATE( j < ecdsaKeyNames->size() );
                 CHECK_STATE( j < blsKeyNames->size() );
-                ecdsaKey = make_shared< string >( ecdsaKeyNames->at( j ) );
-                blsKey = make_shared< string >( blsKeyNames->at( j ) );
+                ecdsaKey = make_shared<string>( ecdsaKeyNames->at( j ) );
+                blsKey = make_shared<string>( blsKeyNames->at( j ) );
             }
 
             // cert and key file name for tests come from the config
@@ -601,7 +602,6 @@ void ConsensusEngine::init() {
     threadRegistry = make_shared< GlobalThreadRegistry >();
 
     logInit();
-
 
     sigset_t sigpipe_mask;
     sigemptyset( &sigpipe_mask );
@@ -792,16 +792,16 @@ ptr< GlobalThreadRegistry > ConsensusEngine::getThreadRegistry() const {
     return threadRegistry;
 }
 
-shared_ptr< string > ConsensusEngine::getHealthCheckDir() const {
+shared_ptr<string> ConsensusEngine::getHealthCheckDir() const {
     CHECK_STATE( healthCheckDir );
     return healthCheckDir;
 }
 
-ptr< string > ConsensusEngine::getDbDir() const {
+ptr<string> ConsensusEngine::getDbDir() const {
     CHECK_STATE( dbDir );
     return dbDir;
 }
-void ConsensusEngine::setTestKeys( ptr< string > _sgxServerUrl, string _configFile,
+void ConsensusEngine::setTestKeys(const ptr<string>& _sgxServerUrl, string _configFile,
     uint64_t _totalNodes, uint64_t _requiredNodes ) {
     CHECK_ARGUMENT( _sgxServerUrl );
     sgxServerUrl = _sgxServerUrl;
@@ -825,10 +825,10 @@ void ConsensusEngine::setTestKeys( ptr< string > _sgxServerUrl, string _configFi
     isSGXEnabled = true;
     useTestSGXKeys = true;
 }
-void ConsensusEngine::setSGXKeyInfo( ptr< string > _sgxServerURL,
-    ptr< string > _sgxSSLKeyFileFullPath, ptr< string > _sgxSSLCertFileFullPath,
-    ptr< string > _ecdsaKeyName, ptr< vector< string > > _ecdsaPublicKeys,
-    ptr< string > _blsKeyName, ptr< vector< ptr< vector< string > > > > _blsPublicKeyShares,
+void ConsensusEngine::setSGXKeyInfo(const ptr<string>& _sgxServerURL,
+    ptr<string>& _sgxSSLKeyFileFullPath, ptr<string>& _sgxSSLCertFileFullPath,
+    ptr<string>& _ecdsaKeyName, ptr< vector<string> >& _ecdsaPublicKeys,
+    ptr<string>& _blsKeyName, ptr< vector< ptr< vector<string>>>>& _blsPublicKeyShares,
     uint64_t _requiredSigners, uint64_t _totalSigners ) {
     CHECK_STATE( _sgxServerURL );
     CHECK_STATE( _ecdsaKeyName );
@@ -868,20 +868,20 @@ void ConsensusEngine::setSGXKeyInfo( ptr< string > _sgxServerURL,
     sgxSSLCertFileFullPath = _sgxSSLCertFileFullPath;
     sgxSSLKeyFileFullPath = _sgxSSLKeyFileFullPath;
 }
-ptr< string > ConsensusEngine::getEcdsaKeyName() const {
+const ptr<string> ConsensusEngine::getEcdsaKeyName() const {
     CHECK_STATE( ecdsaKeyName );
     return ecdsaKeyName;
 }
-ptr< string > ConsensusEngine::getBlsKeyName() const {
+const ptr<string> ConsensusEngine::getBlsKeyName() const {
     CHECK_STATE( blsKeyName );
     return blsKeyName;
 }
-void ConsensusEngine::setEcdsaKeyName( ptr< string > _ecdsaKeyName ) {
+void ConsensusEngine::setEcdsaKeyName(const ptr<string>& _ecdsaKeyName ) {
     CHECK_ARGUMENT( _ecdsaKeyName );
     CHECK_STATE( JSONFactory::splitString( *_ecdsaKeyName )->size() == 2 );
     ecdsaKeyName = _ecdsaKeyName;
 }
-void ConsensusEngine::setBlsKeyName( ptr< string > _blsKeyName ) {
+void ConsensusEngine::setBlsKeyName(const ptr<string>& _blsKeyName ) {
     CHECK_ARGUMENT( _blsKeyName );
     CHECK_STATE( JSONFactory::splitString( *_blsKeyName )->size() == 7 );
     blsKeyName = _blsKeyName;

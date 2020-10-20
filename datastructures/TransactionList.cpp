@@ -30,7 +30,7 @@
 #include "exceptions/ParsingException.h"
 
 
-TransactionList::TransactionList(ptr<vector<ptr<Transaction>>> _transactions) {
+TransactionList::TransactionList(const ptr<vector<ptr<Transaction>>>& _transactions) {
 
     CHECK_ARGUMENT(_transactions);
 
@@ -47,8 +47,8 @@ TransactionList::TransactionList(ptr<vector<ptr<Transaction>>> _transactions) {
 }
 
 
-TransactionList::TransactionList( ptr<vector<uint64_t>> _transactionSizes,
-    ptr<vector<uint8_t>> _serializedTransactions, uint32_t _offset, bool _checkPartialHash ) {
+TransactionList::TransactionList(const ptr<vector<uint64_t>>& _transactionSizes,
+    const ptr<vector<uint8_t>>& _serializedTransactions, uint32_t _offset, bool _checkPartialHash ) {
 
     CHECK_ARGUMENT(_transactionSizes);
     CHECK_ARGUMENT(_serializedTransactions);
@@ -164,8 +164,8 @@ ptr<ConsensusExtFace::transactions_vector> TransactionList::createTransactionVec
     }
     return tv;
 }
-ptr< TransactionList > TransactionList::deserialize( ptr< vector< uint64_t > > _transactionSizes,
-    ptr< vector< uint8_t > > _serializedTransactions, uint32_t _offset, bool _writePartialHash ) {
+ptr< TransactionList > TransactionList::deserialize(const ptr<vector<uint64_t>>& _transactionSizes,
+    const ptr<vector<uint8_t>>& _serializedTransactions, uint32_t _offset, bool _writePartialHash ) {
 
     CHECK_ARGUMENT(_transactionSizes);
     CHECK_ARGUMENT(_serializedTransactions);
@@ -173,7 +173,7 @@ ptr< TransactionList > TransactionList::deserialize( ptr< vector< uint64_t > > _
     return ptr< TransactionList >(
         new TransactionList( _transactionSizes, _serializedTransactions, _offset, _writePartialHash ) );
 }
-ptr< vector< uint64_t > > TransactionList::createTransactionSizesVector(bool _writePartialHash) {
+ptr<vector<uint64_t>> TransactionList::createTransactionSizesVector(bool _writePartialHash) {
 
     LOCK(m)
 

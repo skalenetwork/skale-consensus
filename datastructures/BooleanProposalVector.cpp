@@ -28,7 +28,7 @@
 #include "BooleanProposalVector.h"
 
 
-BooleanProposalVector::BooleanProposalVector(node_count _nodeCount, ptr<map<schain_index, ptr<string>>>
+BooleanProposalVector::BooleanProposalVector(node_count _nodeCount, const ptr<map<schain_index, ptr<string>>>&
 _receivedDAProofs) : nodeCount(_nodeCount) {
 
     CHECK_ARGUMENT(_receivedDAProofs);
@@ -42,7 +42,7 @@ _receivedDAProofs) : nodeCount(_nodeCount) {
     trueCount = proposals.size();
 }
 
-BooleanProposalVector::BooleanProposalVector(node_count _nodeCount, ptr<string> _vectorStr)
+BooleanProposalVector::BooleanProposalVector(node_count _nodeCount, const ptr<string>& _vectorStr)
         : nodeCount(_nodeCount) {
     CHECK_ARGUMENT(_vectorStr != nullptr);
     CHECK_ARGUMENT(_vectorStr->size() == _nodeCount);

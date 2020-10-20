@@ -33,23 +33,23 @@ class PartialSHAHash {
 
 public:
 
-    explicit PartialSHAHash(ptr<array<uint8_t, PARTIAL_SHA_HASH_LEN>> _hash);
+    explicit PartialSHAHash(const ptr<array<uint8_t, PARTIAL_SHA_HASH_LEN>>& _hash);
 
-    static ptr< PartialSHAHash >  hex2sha( ptr< string > _hex );
+    static ptr< PartialSHAHash >  hex2sha(const ptr<string>& _hex );
 
     void print();
 
     uint8_t at(uint32_t _position);
 
-    int compare(ptr<PartialSHAHash> _hash2 );
+    int compare(const ptr<PartialSHAHash>& _hash2 );
 
     uint8_t * data() {
         return hash->data();
     };
 
-    ptr<PartialSHAHash> fromHex(ptr<string> _hex);
+    ptr<PartialSHAHash> fromHex(const ptr<string>& _hex);
 
-    ptr< string > toHex();
+    ptr<string> toHex();
 
 
 };

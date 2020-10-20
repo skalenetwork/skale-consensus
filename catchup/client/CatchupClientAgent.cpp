@@ -63,7 +63,7 @@ CatchupClientAgent::CatchupClientAgent( Schain& _sChain ) : Agent( _sChain, fals
 }
 
 
-nlohmann::json CatchupClientAgent::readCatchupResponseHeader( ptr< ClientSocket > _socket ) {
+nlohmann::json CatchupClientAgent::readCatchupResponseHeader(const ptr< ClientSocket >& _socket ) {
     CHECK_ARGUMENT( _socket );
     auto result =
         sChain->getIo()->readJsonHeader( _socket->getDescriptor(), "Read catchup response",
@@ -151,7 +151,7 @@ void CatchupClientAgent::sync( schain_index _dstIndex ) {
 }
 
 size_t CatchupClientAgent::parseBlockSizes(
-    nlohmann::json _responseHeader, ptr< vector< uint64_t > > _blockSizes ) {
+    nlohmann::json _responseHeader, const ptr<vector<uint64_t>>& _blockSizes ) {
     nlohmann::json jsonSizes = _responseHeader["sizes"];
 
     CHECK_ARGUMENT( _blockSizes );
@@ -189,7 +189,7 @@ size_t CatchupClientAgent::parseBlockSizes(
 
 
 ptr< CommittedBlockList > CatchupClientAgent::readMissingBlocks(
-    ptr< ClientSocket > _socket, nlohmann::json responseHeader ) {
+    ptr< ClientSocket >& _socket, nlohmann::json responseHeader ) {
     CHECK_ARGUMENT( responseHeader > 0 );
     CHECK_ARGUMENT( _socket );
 
@@ -197,7 +197,7 @@ ptr< CommittedBlockList > CatchupClientAgent::readMissingBlocks(
 
     auto totalSize = parseBlockSizes( responseHeader, blockSizes );
 
-    auto serializedBlocks = make_shared< vector< uint8_t > >( totalSize );
+    auto serializedBlocks = make_shared<vector<uint8_t>>( totalSize );
 
     try {
         getSchain()->getIo()->readBytes(

@@ -45,13 +45,13 @@
 
 using namespace std;
 
-void IO::readBytes(ptr<ServerConnection> _env, ptr<vector<uint8_t>> _buffer, msg_len len) {
+void IO::readBytes(const ptr<ServerConnection>& _env, const ptr<vector<uint8_t>>& _buffer, msg_len len) {
     CHECK_ARGUMENT( _env );
     CHECK_ARGUMENT(_buffer);
     return readBytes( _env->getDescriptor(), _buffer, len);
 }
 
-void IO::readBuf(file_descriptor descriptor, ptr<Buffer> _buf, msg_len len) {
+void IO::readBuf(file_descriptor descriptor, const ptr<Buffer>& _buf, msg_len len) {
     CHECK_ARGUMENT(_buf);
     CHECK_ARGUMENT(len > 0);
     CHECK_ARGUMENT( _buf->getSize() >= len);
@@ -59,7 +59,7 @@ void IO::readBuf(file_descriptor descriptor, ptr<Buffer> _buf, msg_len len) {
 }
 
 
-void IO::readBytes(file_descriptor _descriptor, ptr<vector<uint8_t>> _buffer, msg_len _len) {
+void IO::readBytes(file_descriptor _descriptor, const ptr<vector<uint8_t>>& _buffer, msg_len _len) {
     // fd_set read_set;
     // struct timeval timeout;
 
@@ -121,7 +121,7 @@ void IO::readBytes(file_descriptor _descriptor, ptr<vector<uint8_t>> _buffer, ms
 }
 
 
-void IO::writeBytes(file_descriptor descriptor, ptr<vector<uint8_t>> _buffer, msg_len len) {
+void IO::writeBytes(file_descriptor descriptor, const ptr<vector<uint8_t>>& _buffer, msg_len len) {
 
     CHECK_ARGUMENT(_buffer);
     CHECK_ARGUMENT(!_buffer->empty());
@@ -158,13 +158,13 @@ void IO::writeBytes(file_descriptor descriptor, ptr<vector<uint8_t>> _buffer, ms
 
 
 
-void IO::writeBuf(file_descriptor _descriptor, ptr<Buffer> _buf ) {
+void IO::writeBuf(file_descriptor _descriptor, const ptr<Buffer>& _buf ) {
     CHECK_ARGUMENT( _buf);
     CHECK_ARGUMENT( _buf->getBuf());
     writeBytes( _descriptor, _buf->getBuf(), msg_len( _buf->getCounter()));
 }
 
-void IO::writeMagic(ptr<ClientSocket> _socket, bool _isPing) {
+void IO::writeMagic(const ptr<ClientSocket>& _socket, bool _isPing) {
 
     CHECK_ARGUMENT(_socket);
 
@@ -190,19 +190,19 @@ void IO::writeMagic(ptr<ClientSocket> _socket, bool _isPing) {
 }
 
 
-void IO::writeHeader(ptr<ClientSocket> _socket, ptr<Header> _header) {
+void IO::writeHeader(const ptr<ClientSocket>& _socket, const ptr<Header>& _header) {
     CHECK_ARGUMENT(_socket);
     CHECK_ARGUMENT(_header);
     CHECK_ARGUMENT(_header->isComplete());
     writeBuf(_socket->getDescriptor(), _header->toBuffer());
 }
 
-void IO::writeBytesVector(file_descriptor _socket, ptr<vector<uint8_t> > _bytes ) {
+void IO::writeBytesVector(file_descriptor _socket, const ptr<vector<uint8_t> >& _bytes ) {
     writeBytes( _socket, _bytes, msg_len( _bytes->size()));
 }
 
 void IO::writePartialHashes(
-        file_descriptor _socket, ptr<map<uint64_t, ptr<partial_sha_hash>>> _hashes ) {
+        file_descriptor _socket, const ptr<map<uint64_t, ptr<partial_sha_hash>>>& _hashes ) {
     CHECK_ARGUMENT(_hashes);
     CHECK_ARGUMENT( _hashes->size() > 0);
 

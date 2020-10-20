@@ -34,7 +34,7 @@
 #include "ConsensusBLSSigShare.h"
 
 
-ConsensusBLSSigShare::ConsensusBLSSigShare(ptr<BLSSigShare> _sig, schain_id _schainId, block_id _blockID)
+ConsensusBLSSigShare::ConsensusBLSSigShare(const ptr<BLSSigShare>& _sig, schain_id _schainId, block_id _blockID)
     : ThresholdSigShare(_schainId, _blockID, 1) {
     CHECK_ARGUMENT( _sig );
     this->signerIndex = _sig->getSignerIndex();
@@ -46,7 +46,7 @@ ptr< BLSSigShare > ConsensusBLSSigShare::getBlsSigShare() const {
     CHECK_STATE(blsSigShare);
     return blsSigShare;
 }
-ConsensusBLSSigShare::ConsensusBLSSigShare(ptr<string> _sigShare, schain_id _schainID, block_id _blockID,
+ConsensusBLSSigShare::ConsensusBLSSigShare(const ptr<string>& _sigShare, schain_id _schainID, block_id _blockID,
                                            schain_index _signerIndex,
                                            uint64_t _totalSigners, uint64_t _requiredSigners)
     : ThresholdSigShare(_schainID, _blockID, _signerIndex) {

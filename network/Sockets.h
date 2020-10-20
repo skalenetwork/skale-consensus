@@ -58,9 +58,9 @@ public:
     ptr<TCPServerSocket> catchupSocket;
 
 
-    static ptr<sockaddr_in> createSocketAddress(ptr<string> & _ip, uint16_t port);
+    static ptr<sockaddr_in> createSocketAddress(const ptr<string> & _ip, uint16_t port);
 
-    void initSockets(ptr<string> & _bindIP, uint16_t _basePort );
+    void initSockets(const ptr<string> & _bindIP, uint16_t _basePort );
 
 };
 

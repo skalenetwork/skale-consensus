@@ -108,30 +108,30 @@ class BinConsensusInstance : public ProtocolInstance{
 
     // END OF ESSENTIAL PROTOCOL FIELDS
 
-    void processNetworkMessageImpl(ptr<NetworkMessageEnvelope> _me);
+    void processNetworkMessageImpl(const ptr<NetworkMessageEnvelope>& _me);
 
 
-    void networkBroadcastValueIfThird(ptr<BVBroadcastMessage>  _m);
+    void networkBroadcastValueIfThird(const ptr<BVBroadcastMessage>&  _m);
 
-    void networkBroadcastValue(ptr<BVBroadcastMessage> _m);
+    void networkBroadcastValue(const ptr<BVBroadcastMessage>& _m);
 
     void setProposal(bin_consensus_round _r, bin_consensus_value _v);
 
 
     void insertValue(bin_consensus_round _r, bin_consensus_value _v);
 
-    void commitValueIfTwoThirds(ptr<BVBroadcastMessage> _m);
+    void commitValueIfTwoThirds(const ptr<BVBroadcastMessage>& _m);
 
-    void bvbVote(ptr<MessageEnvelope> _me);
+    void bvbVote(const ptr<MessageEnvelope>& _me);
 
-    void auxVote(ptr<MessageEnvelope> _me);
+    void auxVote(const ptr<MessageEnvelope>& _me);
 
 
     node_count getBVBVoteCount(bin_consensus_value _v, bin_consensus_round _round);
 
     node_count getAUXVoteCount(bin_consensus_value _v, bin_consensus_round _round);
 
-    bool isThirdVote(ptr<BVBroadcastMessage> _m);
+    bool isThirdVote(const ptr<BVBroadcastMessage>& _m);
 
 
     void proceedWithCommonCoinIfAUXTwoThird(bin_consensus_round _r);
@@ -150,7 +150,7 @@ class BinConsensusInstance : public ProtocolInstance{
 
     void decide(bin_consensus_value _b);
 
-    bool isTwoThirdVote(ptr<BVBroadcastMessage> _m);
+    bool isTwoThirdVote(const ptr<BVBroadcastMessage>& _m);
 
     void ifAlreadyDecidedSendDelayedEstimateForNextRound(bin_consensus_round _round);
 
@@ -158,9 +158,9 @@ class BinConsensusInstance : public ProtocolInstance{
     uint64_t totalAUXVotes(bin_consensus_round _r);
 
 
-    void auxSelfVote(bin_consensus_round _r, bin_consensus_value _v, ptr<ThresholdSigShare> _sigShare);
+    void auxSelfVote(bin_consensus_round _r, bin_consensus_value _v, const ptr<ThresholdSigShare>& _sigShare);
 
-    void addToHistory(shared_ptr<NetworkMessage> _m);
+    void addToHistory(const ptr<NetworkMessage>& _m);
 
     void addBVSelfVoteToHistory(bin_consensus_round _r, bin_consensus_value _v);
 
@@ -199,9 +199,9 @@ public:
     }
 
 
-    void processMessage(ptr<MessageEnvelope> _me );
+    void processMessage(const ptr<MessageEnvelope>& _me );
 
-    void processParentProposal(ptr<InternalMessageEnvelope> _me);
+    void processParentProposal(const ptr<InternalMessageEnvelope>& _me);
 
     BinConsensusInstance(BlockConsensusAgent* _instance, block_id _blockId, schain_index _blockProposerIndex,
             bool _initFromDB = false);

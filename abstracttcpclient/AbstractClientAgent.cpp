@@ -2,15 +2,15 @@
     Copyright (C) 2019 SKALE Labs
 
     This file is part of skale-consensus.
-
-    skale-consensus is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Affero General Public License as published
+blic License as published
     by the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
     skale-consensus is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE
+    skale-consensus is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Pu.  See the
     GNU Affero General Public License for more details.
 
     You should have received a copy of the GNU Affero General Public License
@@ -77,7 +77,7 @@ uint64_t AbstractClientAgent::incrementAndReturnThreadCounter() {
 }
 
 
-void AbstractClientAgent::sendItem(ptr<DataStructure> _item, schain_index _dstIndex) {
+void AbstractClientAgent::sendItem(const ptr<DataStructure>& _item, schain_index _dstIndex) {
 
     CHECK_ARGUMENT(_item);
 
@@ -111,7 +111,7 @@ void AbstractClientAgent::sendItem(ptr<DataStructure> _item, schain_index _dstIn
 }
 
 
-void AbstractClientAgent::enqueueItemImpl(ptr<DataStructure> _item ) {
+void AbstractClientAgent::enqueueItemImpl(const ptr<DataStructure>& _item ) {
 
     CHECK_ARGUMENT( _item );
 
@@ -211,12 +211,12 @@ void AbstractClientAgent::workerThreadItemSendLoop( AbstractClientAgent* agent )
     }
 }
 
-void AbstractClientAgent::enqueueItem(ptr<BlockProposal> _item) {
+void AbstractClientAgent::enqueueItem(const ptr<BlockProposal>& _item) {
     CHECK_ARGUMENT(_item);
     enqueueItemImpl(_item);
 }
 
-void AbstractClientAgent::enqueueItem(ptr<DAProof> _item) {
+void AbstractClientAgent::enqueueItem(const ptr<DAProof>& _item) {
     CHECK_ARGUMENT(_item);
     enqueueItemImpl(_item);
 }

@@ -305,7 +305,7 @@ ConsensusStateDB::readPRs(block_id _blockId, schain_index _proposerIndex) {
 
 void ConsensusStateDB::writeAUXVote(block_id _blockId, schain_index _proposerIndex, bin_consensus_round _r,
                                     schain_index _voterIndex,
-                                    bin_consensus_value _v, ptr<string> _sigShare) {
+                                    bin_consensus_value _v, const ptr<string>& _sigShare) {
 #ifdef CONSENSUS_STATE_PERSISTENCE
     CHECK_ARGUMENT(_v <= 1);
     CHECK_ARGUMENT(_sigShare);
@@ -317,7 +317,7 @@ void ConsensusStateDB::writeAUXVote(block_id _blockId, schain_index _proposerInd
 
 pair<ptr<map<bin_consensus_round, map<schain_index, ptr<ThresholdSigShare>>>>,
         ptr<map<bin_consensus_round, map<schain_index, ptr<ThresholdSigShare>>>>>
-ConsensusStateDB::readAUXVotes(block_id _blockId, schain_index _proposerIndex, ptr<CryptoManager> _cryptoManager) {
+ConsensusStateDB::readAUXVotes(block_id _blockId, schain_index _proposerIndex, const ptr<CryptoManager>& _cryptoManager) {
 
     CHECK_ARGUMENT(_cryptoManager);
 

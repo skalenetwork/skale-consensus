@@ -48,28 +48,28 @@ public:
 
 public:
 
-    void readBytes(ptr<ServerConnection> _env, ptr<vector<uint8_t>> _buffer, msg_len _len);
+    void readBytes(const ptr<ServerConnection>& _env, const ptr<vector<uint8_t>>& _buffer, msg_len _len);
 
-    void readBytes(file_descriptor _descriptor, ptr<vector<uint8_t>> _buffer, msg_len _len);
+    void readBytes(file_descriptor _descriptor, const ptr<vector<uint8_t>>& _buffer, msg_len _len);
 
-    void readBuf(file_descriptor _descriptor, ptr<Buffer> _buf, msg_len _len);
+    void readBuf(file_descriptor _descriptor, const ptr<Buffer>& _buf, msg_len _len);
 
-    void writeBytes(file_descriptor descriptor, ptr<vector<uint8_t>> _buffer, msg_len len);
+    void writeBytes(file_descriptor descriptor, const ptr<vector<uint8_t>>& _buffer, msg_len len);
 
-    void writeBuf(file_descriptor _descriptor, ptr<Buffer> _buf);
-
-
-    void writeHeader(ptr<ClientSocket> _socket, ptr<Header> _header);
+    void writeBuf(file_descriptor _descriptor, const ptr<Buffer>& _buf);
 
 
+    void writeHeader(const ptr<ClientSocket>& _socket, const ptr<Header>& _header);
 
 
-    void writeMagic(ptr<ClientSocket> _socket, bool _isPing = false);
-
-    void writeBytesVector(file_descriptor _socket, ptr<vector<uint8_t>> _bytes );
 
 
-    void writePartialHashes(file_descriptor _socket, ptr<map<uint64_t, ptr<partial_sha_hash>>> _hashes );
+    void writeMagic(const ptr<ClientSocket>& _socket, bool _isPing = false);
+
+    void writeBytesVector(file_descriptor _socket, const ptr<vector<uint8_t>>& _bytes );
+
+
+    void writePartialHashes(file_descriptor _socket, const ptr<map<uint64_t, ptr<partial_sha_hash>>>& _hashes );
 
 
     void readMagic(file_descriptor descriptor);

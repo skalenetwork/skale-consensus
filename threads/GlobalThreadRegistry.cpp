@@ -49,7 +49,7 @@ void GlobalThreadRegistry::joinAll() {
     allThreads.clear();
 }
 
-void GlobalThreadRegistry::add(ptr<thread> _t) {
+void GlobalThreadRegistry::add(const ptr<thread>& _t) {
 
     CHECK_ARGUMENT(_t);
 

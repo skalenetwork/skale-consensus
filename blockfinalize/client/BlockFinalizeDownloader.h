@@ -85,11 +85,11 @@ public:
 
     static void workerThreadFragmentDownloadLoop(BlockFinalizeDownloader* _agent, schain_index _dstIndex );
 
-    nlohmann::json readBlockFinalizeResponseHeader( ptr< ClientSocket > _socket );
+    nlohmann::json readBlockFinalizeResponseHeader( const ptr< ClientSocket >& _socket );
 
 
     ptr<BlockProposalFragment>
-    readBlockFragment(ptr<ClientSocket> _socket, nlohmann::json responseHeader, fragment_index _fragmentIndex,
+    readBlockFragment(const ptr<ClientSocket>& _socket, nlohmann::json responseHeader, fragment_index _fragmentIndex,
                       node_count _nodeCount);
 
     uint64_t readFragmentSize(nlohmann::json _responseHeader);

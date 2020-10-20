@@ -62,7 +62,7 @@
 TransportType Network::transport = TransportType::ZMQ;
 
 
-void Network::addToDeferredMessageQueue(ptr<NetworkMessageEnvelope> _me) {
+void Network::addToDeferredMessageQueue(const ptr<NetworkMessageEnvelope>& _me) {
     CHECK_ARGUMENT(_me);
 
     auto msg = dynamic_pointer_cast<NetworkMessage>(_me->getMessage());
@@ -112,7 +112,7 @@ ptr<vector<ptr<NetworkMessageEnvelope> > > Network::pullMessagesForCurrentBlockI
     return returnList;
 }
 
-void Network::addToDelayedSends(ptr<NetworkMessage> _m, ptr<NodeInfo> _dstNodeInfo ) {
+void Network::addToDelayedSends(const ptr<NetworkMessage>& _m, const ptr<NodeInfo>& _dstNodeInfo ) {
     CHECK_ARGUMENT(_m);
     CHECK_ARGUMENT( _dstNodeInfo );
     auto dstIndex = (uint64_t) _dstNodeInfo->getSchainIndex();
@@ -123,7 +123,7 @@ void Network::addToDelayedSends(ptr<NetworkMessage> _m, ptr<NodeInfo> _dstNodeIn
     }
 }
 
-void Network::broadcastMessage(ptr<NetworkMessage> _msg ) {
+void Network::broadcastMessage(const ptr<NetworkMessage>& _msg ) {
 
     CHECK_ARGUMENT( _msg );
 
@@ -188,8 +188,6 @@ void Network::networkReadLoop() {
                 }
 
                 CHECK_STATE(sChain);
-
-                getSchain()->getNode()->getIncomingMsgDB()->saveMsg(dynamic_pointer_cast<NetworkMessage>(m->getMessage()));
 
                 postDeferOrDrop(m);
             } catch (ExitRequestedException &) {
@@ -339,7 +337,7 @@ void Network::startThreads() {
     reg->add(deferredMessageThread);
 }
 
-bool Network::validateIpAddress(ptr<string> & _ip ) {
+bool Network::validateIpAddress(const ptr<string> & _ip ) {
     CHECK_ARGUMENT( _ip );
     struct sockaddr_in sa;
     int result = inet_pton(AF_INET, _ip.get()->c_str(), &(sa.sin_addr));

@@ -44,43 +44,41 @@ class FinalProposalResponseHeader;
 
 
 class BlockProposalClientAgent : public AbstractClientAgent {
-
-    ptr<cache::lru_cache<uint64_t, ptr<list<pair<ConnectionStatus, ConnectionSubStatus>>>>> sentProposals;
+    ptr<
+        cache::lru_cache< uint64_t, ptr< list< pair< ConnectionStatus, ConnectionSubStatus >>>> >
+        sentProposals;
 
     friend class BlockProposalPusherThreadPool;
 
 
-    ptr<MissingTransactionsRequestHeader> readMissingTransactionsRequestHeader(ptr<ClientSocket> _socket);
+    ptr< MissingTransactionsRequestHeader > readMissingTransactionsRequestHeader(
+        const ptr< ClientSocket >& _socket );
 
 
-    ptr<FinalProposalResponseHeader> readAndProcessFinalProposalResponseHeader(ptr<ClientSocket> _socket);
+    ptr< FinalProposalResponseHeader > readAndProcessFinalProposalResponseHeader(
+        const ptr< ClientSocket >& _socket );
 
 
-    ptr<unordered_set<ptr<partial_sha_hash>, PendingTransactionsAgent::Hasher, PendingTransactionsAgent::Equal>>
-    readMissingHashes(ptr<ClientSocket> _socket, uint64_t _count);
+    ptr< unordered_set< ptr< partial_sha_hash >, PendingTransactionsAgent::Hasher,
+        PendingTransactionsAgent::Equal > >
+    readMissingHashes(const ptr< ClientSocket >& _socket, uint64_t _count );
 
 
-    pair<ConnectionStatus, ConnectionSubStatus>
-    sendItemImpl(ptr<DataStructure> _item, shared_ptr<ClientSocket> _socket, schain_index _index);
+    pair< ConnectionStatus, ConnectionSubStatus > sendItemImpl(
+        const ptr< DataStructure >& _item, const ptr< ClientSocket >& _socket, schain_index _index );
 
-    pair<ConnectionStatus, ConnectionSubStatus> sendBlockProposal(ptr<BlockProposal> _proposal, shared_ptr<ClientSocket> _socket,
-                                                                  schain_index _index);
+    pair< ConnectionStatus, ConnectionSubStatus > sendBlockProposal(
+        const ptr< BlockProposal >& _proposal, const ptr< ClientSocket >& _socket, schain_index _index );
 
-    ptr<BlockProposal> corruptProposal(ptr<BlockProposal> _proposal, schain_index _index);
+    ptr< BlockProposal > corruptProposal(const ptr< BlockProposal >& _proposal, schain_index _index );
 
-    pair<ConnectionStatus, ConnectionSubStatus> sendDAProof(
-            ptr<DAProof> _daProof, shared_ptr<ClientSocket> _socket);
+    pair< ConnectionStatus, ConnectionSubStatus > sendDAProof(
+        const ptr< DAProof >& _daProof, const ptr< ClientSocket >& _socket );
 
 
-
-    ptr<BlockProposalPusherThreadPool> blockProposalThreadPool = nullptr;
-
+    ptr< BlockProposalPusherThreadPool > blockProposalThreadPool = nullptr;
 
 
 public:
-
-    explicit BlockProposalClientAgent(Schain &_sChain);
-
-
+    explicit BlockProposalClientAgent( Schain& _sChain );
 };
-

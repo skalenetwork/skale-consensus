@@ -27,6 +27,7 @@
 #include "chains/Schain.h"
 #include "datastructures/CommittedBlock.h"
 #include "exceptions/InvalidStateException.h"
+#include "utils/Time.h"
 
 #include "BlockDB.h"
 #include "CacheLevelDB.h"
@@ -59,7 +60,7 @@ BlockDB::BlockDB(Schain *_sChain, string &_dirname, string &_prefix, node_id _no
 }
 
 
-void BlockDB::saveBlock2LevelDB(ptr<CommittedBlock> &_block) {
+void BlockDB::saveBlock2LevelDB(const ptr<CommittedBlock> &_block) {
 
     CHECK_ARGUMENT(_block);
     CHECK_ARGUMENT(_block->getSignature() != nullptr);
@@ -79,7 +80,6 @@ void BlockDB::saveBlock2LevelDB(ptr<CommittedBlock> &_block) {
     } catch (...) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
-
 }
 
 
@@ -89,13 +89,15 @@ string BlockDB::createLastCommittedKey() {
     return getFormatVersion() + ":last";
 }
 
+string BlockDB::createBlockStartKey( block_id _blockID) {
+    return getFormatVersion() + ":start:" + to_string((uint64_t) _blockID);
+}
 
 const string BlockDB::getFormatVersion() {
     return "1.0";
 }
 
-
-void BlockDB::saveBlock(ptr<CommittedBlock> &_block) {
+void BlockDB::saveBlock(const ptr<CommittedBlock> &_block) {
 
 
     CHECK_ARGUMENT(_block);
@@ -112,7 +114,7 @@ void BlockDB::saveBlock(ptr<CommittedBlock> &_block) {
 }
 
 
-ptr<CommittedBlock> BlockDB::getBlock(block_id _blockID, ptr<CryptoManager> _cryptoManager) {
+ptr<CommittedBlock> BlockDB::getBlock(block_id _blockID, const ptr<CryptoManager>& _cryptoManager) {
 
     CHECK_ARGUMENT(_cryptoManager);
 
@@ -152,4 +154,21 @@ block_id BlockDB::readLastCommittedBlockID() {
     stringstream(*blockStr)  >> lastBlockId;
 
     return lastBlockId;
+}
+
+bool BlockDB::unfinishedBlockExists( block_id  _blockID) {
+    auto key = createBlockStartKey(_blockID);
+    auto str = readString(key);
+
+    if (str != nullptr) {
+        return !this->keyExists(*createKey(_blockID));
+    }
+    return false;
+}
+
+
+void BlockDB::recordBlockProcessingStart( block_id  _blockID) {
+        auto time = Time::getCurrentTimeMs();
+        auto key = createBlockStartKey( _blockID );
+        this->writeString(key, to_string(time), true);
 }

@@ -62,7 +62,7 @@ int64_t BasicHeader::getTotalObjects() {
     return totalObjects;
 }
 
-ptr<Buffer> BasicHeader::toBuffer() {
+const ptr< Buffer > BasicHeader::toBuffer() {
 
     auto s = serializeToString();
 

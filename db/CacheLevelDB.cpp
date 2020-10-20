@@ -197,7 +197,7 @@ void CacheLevelDB::writeByteArray(const char *_key, size_t _keyLen, const char *
     }
 }
 
-void CacheLevelDB::writeByteArray(string &_key, ptr<vector<uint8_t>> _data) {
+void CacheLevelDB::writeByteArray(string &_key, const ptr<vector<uint8_t>>& _data) {
 
     CHECK_ARGUMENT(_data);
 
@@ -275,7 +275,7 @@ ptr<map<string, ptr<string>>> CacheLevelDB::readPrefixRange(string &_prefix) {
 
 }
 
-ptr<map<string, ptr<string>>> CacheLevelDB::readPrefixRangeFromDBUnsafe(string &_prefix, ptr<leveldb::DB> _db,
+ptr<map<string, ptr<string>>> CacheLevelDB::readPrefixRangeFromDBUnsafe(string &_prefix, const ptr<leveldb::DB>& _db,
                                                                         bool _lastOnly) {
 
     CHECK_ARGUMENT(_db);

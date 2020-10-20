@@ -54,7 +54,7 @@ BlockProposalDB::BlockProposalDB(Schain *_sChain, string &_dirName, string &_pre
     proposalCache = make_shared<cache::lru_cache<string, ptr<BlockProposal>>>((uint64_t)_sChain->getNodeCount() * PROPOSAL_CACHE_SIZE);
 };
 
-void BlockProposalDB::addBlockProposal(ptr<BlockProposal> _proposal) {
+void BlockProposalDB::addBlockProposal(const ptr<BlockProposal>& _proposal) {
 
     MONITOR(__CLASS_NAME__, __FUNCTION__);
 

@@ -41,8 +41,6 @@ MonitoringAgent::MonitoringAgent(Schain &_sChain) : Agent(_sChain, false, true) 
         logThreadLocal_ = _sChain.getNode()->getLog();
         this->sChain = &_sChain;
 
-
-
         this->monitoringThreadPool = make_shared<MonitoringThreadPool>(1, this);
         monitoringThreadPool->startService();
 
@@ -57,7 +55,6 @@ void MonitoringAgent::monitor() {
 
     if (ConsensusEngine::isOnTravis())
         return;
-
 
 
     map<uint64_t, weak_ptr<LivelinessMonitor>> monitorsCopy;
@@ -115,14 +112,24 @@ void MonitoringAgent::monitoringLoop(MonitoringAgent *_agent) {
 
                 auto blockId = _agent->getSchain()->getLastCommittedBlockID() + 1;
 
+
+                auto waitStartTime = max(_agent->getSchain()->getLastCommitTimeMs(),
+                                    _agent->getSchain()->getStartTimeMs());
+
+
                 if (_agent->getSchain()->getNodeCount() > 2) {
-                    if ( blockId > 2 &&
-                         Time::getCurrentTimeMs() - _agent->getSchain()->getLastCommitTimeMs() >
-                             BLOCK_PROPOSAL_RECEIVE_TIMEOUT_MS ) {
+
+                    auto currentTime = Time::getCurrentTimeMs();
+
+                    if ( blockId > 2 && currentTime - waitStartTime > BLOCK_PROPOSAL_RECEIVE_TIMEOUT_MS ) {
                         try {
                             _agent->getSchain()->blockProposalReceiptTimeoutArrived( blockId );
                         } catch ( ... ) {
                         }
+                    }
+
+                    if (currentTime - waitStartTime > REBROADCAST_TIMEOUT_MS) {
+                        _agent->getSchain()->rebroadcastAllMessagesForCurrentBlock();
                     }
                 }
 
@@ -138,7 +145,7 @@ void MonitoringAgent::monitoringLoop(MonitoringAgent *_agent) {
     }
 }
 
-void MonitoringAgent::registerMonitor(ptr<LivelinessMonitor> _m) {
+void MonitoringAgent::registerMonitor(const ptr<LivelinessMonitor>& _m) {
 
     CHECK_ARGUMENT(_m)
     LOCK(m)
