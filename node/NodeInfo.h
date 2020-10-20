@@ -50,7 +50,7 @@ public:
 
     schain_id getSchainID() const;
 
-    NodeInfo(node_id nodeID, ptr<string> &ip, network_port port, schain_id schainID, schain_index schainIndex);
+    NodeInfo(node_id nodeID, const ptr<string> &ip, network_port port, schain_id schainID, schain_index schainIndex);
 
 
     ptr<sockaddr_in> getSocketaddr();

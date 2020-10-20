@@ -50,11 +50,11 @@ public:
 
     bool interruptableSend(void *_socket, void *_buf, size_t _len, bool _isNonBlocking = false);
 
-    uint64_t readMessageFromNetwork(ptr<Buffer> buf);
+    uint64_t readMessageFromNetwork(const ptr<Buffer> buf);
 
     ZMQNetwork(Schain &_schain);
 
-    bool sendMessage(const ptr<NodeInfo> &_remoteNodeInfo, ptr<NetworkMessage> _msg);
+    bool sendMessage(const ptr<NodeInfo> &_remoteNodeInfo, const ptr<NetworkMessage>& _msg);
 
 };
 

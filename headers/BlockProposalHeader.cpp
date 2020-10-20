@@ -132,7 +132,7 @@ BlockProposalHeader::BlockProposalHeader(nlohmann::json& _json) : BasicHeader(He
     return transactionSizes;
 }
 
-ptr< string > BlockProposalHeader::getSignature()  {
+ptr<string> BlockProposalHeader::getSignature()  {
     CHECK_STATE(signature);
     return signature;
 }

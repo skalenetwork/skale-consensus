@@ -37,7 +37,7 @@ class ServerConnection {
 
 public:
 
-    ServerConnection(unsigned int _descriptor, ptr<string> _ip );
+    ServerConnection(unsigned int _descriptor, const ptr<string>& _ip );
 
     virtual ~ServerConnection();
 

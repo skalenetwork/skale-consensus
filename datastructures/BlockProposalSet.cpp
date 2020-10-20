@@ -40,7 +40,7 @@
 using namespace std;
 
 
-bool BlockProposalSet::add(ptr<BlockProposal> _proposal) {
+bool BlockProposalSet::add(const ptr<BlockProposal>& _proposal) {
     CHECK_ARGUMENT( _proposal);
 
     LOCK(m)

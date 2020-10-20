@@ -34,38 +34,38 @@ class ConsensusEngine;
 
 class JSONFactory {
 public:
-    static ptr< Node > createNodeFromJsonFile( ptr<string> _sgxUrl, const fs_path& jsonFile, set< node_id >& nodeIDs,
-        ConsensusEngine* _consensusEngine, bool _useSGX, ptr< string > _sgxSSLKeyFileFullPath,
-        ptr< string > _sgxSSLCertFileFullPath, ptr< string > _ecdsaKeyName,
-        ptr< vector< string > > _ecdsaPublicKeys, ptr< string > _blsKeyName,
-        ptr< vector< ptr< vector< string > > > > _blsPublicKeys,
-        ptr< BLSPublicKey > _blsPublicKey );
+    static ptr< Node > createNodeFromJsonFile(const ptr<string>& _sgxUrl, const fs_path& jsonFile, set< node_id >& nodeIDs,
+        ConsensusEngine* _consensusEngine, bool _useSGX, const ptr<string>& _sgxSSLKeyFileFullPath,
+        const ptr<string>& _sgxSSLCertFileFullPath, const ptr<string>& _ecdsaKeyName,
+                                              const ptr< vector<string> >& _ecdsaPublicKeys, const ptr<string>& _blsKeyName,
+                                              const ptr< vector< ptr< vector<string>>>>& _blsPublicKeys,
+                                              const ptr< BLSPublicKey >& _blsPublicKey );
 
     static ptr< Node > createNodeFromJsonObject(
         const nlohmann::json& j, set< node_id >& nodeIDs, ConsensusEngine* _engine, bool _useSGX,
-         ptr<string> _sgxURL,
-        ptr< string > _sgxSSLKeyFileFullPath, ptr< string > _sgxSSLCertFileFullPath,
-        ptr< string > _ecdsaKeyName, ptr< vector< string > > _ecdsaPublicKeys,
-        ptr< string > _blsKeyName, ptr< vector< ptr< vector< string > > > > _blsPublicKeys,
-        ptr< BLSPublicKey > _blsPublicKey
+        const ptr<string>& _sgxURL,
+        const ptr<string>& _sgxSSLKeyFileFullPath, const ptr<string>& _sgxSSLCertFileFullPath,
+        const ptr<string>& _ecdsaKeyName, const ptr< vector<string> >& _ecdsaPublicKeys,
+        const ptr<string>& _blsKeyName, const ptr< vector< ptr< vector<string>>>>& _blsPublicKeys,
+        const ptr< BLSPublicKey >& _blsPublicKey
 
     );
 
     static void createAndAddSChainFromJson(
-        ptr< Node > _node, const fs_path& _jsonFile, ConsensusEngine* _engine );
+        const ptr< Node >& _node, const fs_path& _jsonFile, ConsensusEngine* _engine );
 
     static void createAndAddSChainFromJsonObject(
-        ptr< Node >& _node, const nlohmann::json& j, ConsensusEngine* _engine );
+        const ptr< Node >& _node, const nlohmann::json& j, ConsensusEngine* _engine );
 
     static void parseJsonFile( nlohmann::json& j, const fs_path& configFile );
 
-    static tuple< ptr< vector< string > >, ptr< vector< string > >, ptr< vector< string > >,
-        ptr< vector< ptr< vector< string > > > >, ptr<BLSPublicKey>>
-    parseTestKeyNamesFromJson(ptr<string> _sgxServer4Url,  const fs_path& configFile, uint64_t _totalNodes,
+    static tuple< ptr< vector<string> >, ptr< vector<string> >, ptr< vector<string> >,
+        ptr< vector< ptr< vector<string>>>>, ptr<BLSPublicKey>>
+    parseTestKeyNamesFromJson(const ptr<string>& _sgxServer4Url,  const fs_path& configFile, uint64_t _totalNodes,
         uint64_t _requiredNodes);
 
-    static pair< ptr< vector< string > >, ptr< vector< string > > > parseAllTestKeyNames(
-        ptr<string> _sgxServerUrl,
+    static pair< ptr< vector<string> >, ptr< vector<string> > > parseAllTestKeyNames(
+        ptr<string>& _sgxServerUrl,
         const fs_path& _dir );
 
     static ptr<vector<string>> splitString(const string& str, const string& _delim = ":");

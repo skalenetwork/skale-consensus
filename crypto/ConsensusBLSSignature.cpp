@@ -34,7 +34,7 @@
 
 
 ConsensusBLSSignature::ConsensusBLSSignature(
-    ptr< string > _sig, block_id _blockID, size_t _totalSigners, size_t _requiredSigners )
+    const ptr<string>& _sig, block_id _blockID, size_t _totalSigners, size_t _requiredSigners )
     : ThresholdSignature( _blockID, _totalSigners, _requiredSigners ) {
 
     CHECK_ARGUMENT( _sig );
@@ -52,7 +52,7 @@ ConsensusBLSSignature::ConsensusBLSSignature(
 static string dummy_string( "" );
 
 ConsensusBLSSignature::ConsensusBLSSignature(
-    ptr< BLSSignature > _blsSig, block_id _blockID, size_t _totalSigners, size_t _requiredSigners )
+    const ptr< BLSSignature >& _blsSig, block_id _blockID, size_t _totalSigners, size_t _requiredSigners )
     : ThresholdSignature( _blockID, _totalSigners, _requiredSigners ) {
 
     CHECK_ARGUMENT(_blsSig);
@@ -66,7 +66,7 @@ ConsensusBLSSignature::ConsensusBLSSignature(
     }
 }
 
-std::shared_ptr< std::string > ConsensusBLSSignature::toString() {
+ptr< std::string > ConsensusBLSSignature::toString() {
     CHECK_STATE(blsSig);
     try {
         return blsSig->toString();

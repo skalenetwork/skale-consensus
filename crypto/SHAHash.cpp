@@ -45,7 +45,7 @@ uint8_t SHAHash::at(uint32_t _position) {
 }
 
 
-ptr<SHAHash> SHAHash::fromHex(ptr<string> _hex) {
+ptr<SHAHash> SHAHash::fromHex(const ptr<string>& _hex) {
     CHECK_ARGUMENT(_hex);
     auto result = make_shared<array<uint8_t, SHA_HASH_LEN>>();
     Utils::cArrayFromHex(*_hex, result->data(), SHA_HASH_LEN);
@@ -60,7 +60,7 @@ ptr<string> SHAHash::toHex() {
 }
 
 
-int SHAHash::compare(ptr<SHAHash> _hash2 ) {
+int SHAHash::compare(const ptr<SHAHash>& _hash2 ) {
     CHECK_ARGUMENT( _hash2 );
     CHECK_STATE(hash);
 
@@ -73,12 +73,12 @@ int SHAHash::compare(ptr<SHAHash> _hash2 ) {
     return 0;
 }
 
-SHAHash::SHAHash(ptr<array<uint8_t, SHA_HASH_LEN>> _hash) {
+SHAHash::SHAHash(const ptr<array<uint8_t, SHA_HASH_LEN>>& _hash) {
     CHECK_ARGUMENT(_hash);
     hash = _hash;
 }
 
-ptr<SHAHash> SHAHash::calculateHash(ptr<vector<uint8_t>> _data) {
+ptr<SHAHash> SHAHash::calculateHash(const ptr<vector<uint8_t>>& _data) {
     CHECK_ARGUMENT(_data);
     auto digest = make_shared<array<uint8_t, SHA_HASH_LEN> >();
 
@@ -91,7 +91,7 @@ ptr<SHAHash> SHAHash::calculateHash(ptr<vector<uint8_t>> _data) {
     return hash;
 }
 
-ptr<SHAHash> SHAHash::merkleTreeMerge(ptr<SHAHash> _left, ptr<SHAHash> _right) {
+ptr<SHAHash> SHAHash::merkleTreeMerge(const ptr<SHAHash>& _left, const ptr<SHAHash>& _right) {
     CHECK_ARGUMENT(_left);
     CHECK_ARGUMENT(_right);
 

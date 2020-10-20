@@ -47,7 +47,7 @@ class BlockProposalHeader : public BasicHeader {
 public:
     u256 getStateRoot();
 
-    ptr< string > getSignature();
+    ptr<string> getSignature();
 
     schain_id getSchainID();
 

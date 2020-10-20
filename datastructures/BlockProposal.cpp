@@ -106,9 +106,9 @@ BlockProposal::BlockProposal(uint64_t _timeStamp, uint32_t _timeStampMs) : timeS
 };
 
 BlockProposal::BlockProposal(schain_id _sChainId, node_id _proposerNodeId, block_id _blockID,
-                             schain_index _proposerIndex, ptr<TransactionList> _transactions, u256 _stateRoot,
-                             uint64_t _timeStamp, __uint32_t _timeStampMs, ptr<string> _signature,
-                             ptr<CryptoManager> _cryptoManager)
+                             schain_index _proposerIndex, const ptr<TransactionList>& _transactions, u256 _stateRoot,
+                             uint64_t _timeStamp, __uint32_t _timeStampMs, const ptr<string>& _signature,
+                             const ptr<CryptoManager>& _cryptoManager)
         : schainID(_sChainId), proposerNodeID(_proposerNodeId), blockID(_blockID),
           proposerIndex(_proposerIndex), timeStamp(_timeStamp), timeStampMs(_timeStampMs),
           stateRoot(_stateRoot), transactionList(_transactions),  signature(_signature) {
@@ -199,7 +199,7 @@ uint32_t BlockProposal::getTimeStampMs() const {
     return timeStampMs;
 }
 
-void BlockProposal::addSignature(ptr<string> _signature) {
+void BlockProposal::addSignature(const ptr<string>& _signature) {
     LOCK(m)
     CHECK_ARGUMENT(_signature)
     CHECK_STATE(signature == nullptr)
@@ -213,7 +213,7 @@ ptr<string> BlockProposal::getSignature() {
 }
 
 ptr<BlockProposalRequestHeader> BlockProposal::createBlockProposalHeader(Schain *_sChain,
-                                                                         ptr<BlockProposal> _proposal) {
+                                                                         const ptr<BlockProposal>& _proposal) {
 
     CHECK_ARGUMENT(_sChain);
     CHECK_ARGUMENT(_proposal);
@@ -281,8 +281,8 @@ ptr<vector<uint8_t> > BlockProposal::serialize() {
 }
 
 
-ptr<BlockProposal> BlockProposal::deserialize(ptr<vector<uint8_t> > _serializedProposal,
-                                              ptr<CryptoManager> _manager) {
+ptr<BlockProposal> BlockProposal::deserialize(const ptr<vector<uint8_t> >& _serializedProposal,
+                                              const ptr<CryptoManager>& _manager) {
 
     CHECK_ARGUMENT(_serializedProposal);
     CHECK_ARGUMENT(_manager);
@@ -323,7 +323,7 @@ ptr<BlockProposal> BlockProposal::deserialize(ptr<vector<uint8_t> > _serializedP
 }
 
 ptr<BlockProposal>
-BlockProposal::defragment(ptr<BlockProposalFragmentList> _fragmentList, ptr<CryptoManager> _cryptoManager) {
+BlockProposal::defragment(const ptr<BlockProposalFragmentList>& _fragmentList, const ptr<CryptoManager>& _cryptoManager) {
 
     CHECK_ARGUMENT(_fragmentList);
     CHECK_ARGUMENT(_cryptoManager);
@@ -379,9 +379,9 @@ ptr<BlockProposalFragment> BlockProposal::getFragment(uint64_t _totalFragments, 
     return make_shared<BlockProposalFragment>(getBlockID(), _totalFragments, _index, fragmentData, serializedBlock->size(), getHash()->toHex());
 }
 
-ptr<TransactionList> BlockProposal::deserializeTransactions(ptr<BlockProposalHeader> _header,
-                                                            ptr<string> _headerString,
-                                                            ptr<vector<uint8_t> > _serializedBlock) {
+ptr<TransactionList> BlockProposal::deserializeTransactions(const ptr<BlockProposalHeader>& _header,
+                                                            const ptr<string>& _headerString,
+                                                            const ptr<vector<uint8_t> >& _serializedBlock) {
 
     CHECK_ARGUMENT(_header);
     CHECK_ARGUMENT(_headerString);
@@ -408,7 +408,7 @@ ptr<TransactionList> BlockProposal::deserializeTransactions(ptr<BlockProposalHea
 }
 
 
-ptr<string> BlockProposal::extractHeader(ptr<vector<uint8_t> > _serializedBlock) {
+ptr<string> BlockProposal::extractHeader(const ptr<vector<uint8_t> >& _serializedBlock) {
 
     CHECK_ARGUMENT(_serializedBlock);
 

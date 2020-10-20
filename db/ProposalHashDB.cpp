@@ -55,7 +55,7 @@ ProposalHashDB::ProposalHashDB(Schain *_sChain, string &_dirName, string &_prefi
 
 
 bool
-ProposalHashDB::checkAndSaveHash(block_id _proposalBlockID, schain_index _proposerIndex, ptr<string> _proposalHash) {
+ProposalHashDB::checkAndSaveHash(block_id _proposalBlockID, schain_index _proposerIndex, const ptr<string>& _proposalHash) {
 
 
     CHECK_ARGUMENT(_proposalHash);

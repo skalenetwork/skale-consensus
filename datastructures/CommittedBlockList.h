@@ -37,30 +37,29 @@
 class CommittedBlock;
 
 class CommittedBlockList : public DataStructure {
-    ptr<vector<ptr<CommittedBlock> > > blocks = nullptr;
+    ptr< vector< ptr< CommittedBlock > > > blocks = nullptr;
 
-    CommittedBlockList(ptr<CryptoManager> _cryptoManager, ptr<vector<uint64_t> > _blockSizes,
-                       ptr<vector<uint8_t> > _serializedBlocks,
-                       uint64_t offset = 0);
+    CommittedBlockList( const ptr< CryptoManager >& _cryptoManager,
+        const ptr< vector< uint64_t > >& _blockSizes,
+        const ptr< vector< uint8_t > >& _serializedBlocks, uint64_t offset = 0 );
 
 
 public:
-    CommittedBlockList(ptr<vector<ptr<CommittedBlock> > > _blocks);
+    CommittedBlockList( const ptr< vector< ptr< CommittedBlock > > >& _blocks );
 
 
-    ptr<vector<ptr<CommittedBlock> > > getBlocks();
+    ptr< vector< ptr< CommittedBlock > > > getBlocks();
 
-    ptr<vector<uint64_t> > createSizes();
+    ptr< vector< uint64_t > > createSizes();
 
-    ptr<vector<uint8_t> > serialize();
+    ptr< vector< uint8_t > > serialize();
 
-    static ptr<CommittedBlockList> deserialize(ptr<CryptoManager>
-                                               _cryptoManager,
-                                               ptr<vector<uint64_t> > _blockSizes,
-                                               ptr<vector<uint8_t> > _serializedBlocks, uint64_t _offset);
+    static ptr< CommittedBlockList > deserialize( const ptr< CryptoManager >& _cryptoManager,
+        const ptr< vector< uint64_t > >& _blockSizes,
+        const ptr< vector< uint8_t > >& _serializedBlocks, uint64_t _offset );
 
 
-    static ptr<CommittedBlockList> createRandomSample(ptr<CryptoManager> _cryptoManager, uint64_t _size,
-                                                      boost::random::mt19937 &_gen,
-                                                      boost::random::uniform_int_distribution<> &_ubyte);
+    static ptr< CommittedBlockList > createRandomSample( const ptr< CryptoManager >& _cryptoManager,
+        uint64_t _size, boost::random::mt19937& _gen,
+        boost::random::uniform_int_distribution<>& _ubyte );
 };

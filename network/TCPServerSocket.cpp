@@ -59,7 +59,7 @@ int TCPServerSocket::createAndBindTCPSocket() {
 }
 
 
-TCPServerSocket::TCPServerSocket( ptr< string >& _bindIP, uint16_t _basePort, port_type _portType )
+TCPServerSocket::TCPServerSocket(const ptr<string>& _bindIP, uint16_t _basePort, port_type _portType )
     : ServerSocket( _bindIP, _basePort, _portType ) {
 
     socketaddr = Sockets::createSocketAddress( bindIP, bindPort );

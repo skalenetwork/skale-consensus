@@ -30,14 +30,14 @@ protected:
 
     recursive_mutex m;
 
-    ptr< string > bindIP;
+    ptr<string> bindIP;
 
     uint32_t bindPort;
 
 
 public:
 
-    ServerSocket(ptr<string> &_bindIP, uint16_t _basePort, port_type  _portType);
+    ServerSocket(const ptr<string> &_bindIP, uint16_t _basePort, port_type  _portType);
 
     virtual ~ServerSocket();
 

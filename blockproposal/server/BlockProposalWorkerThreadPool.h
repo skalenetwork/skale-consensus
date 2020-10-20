@@ -21,9 +21,7 @@
     @date 2018
 */
 
-#pragma  once
-
-
+#pragma once
 
 
 #include "threads/WorkerThreadPool.h"
@@ -33,12 +31,8 @@ class BlockProposalServerAgent;
 
 
 class BlockProposalWorkerThreadPool : public WorkerThreadPool {
-
 public:
+    BlockProposalWorkerThreadPool( num_threads _numThreads, Agent* _agent );
 
-    BlockProposalWorkerThreadPool(num_threads _numThreads, Agent* _agent);
-
-    virtual void createThread(uint64_t _threadNumber);
+    virtual void createThread( uint64_t _threadNumber );
 };
-
-

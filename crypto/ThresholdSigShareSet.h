@@ -46,7 +46,7 @@ public:
 
     virtual bool isEnough() = 0;
 
-    virtual bool addSigShare(shared_ptr<ThresholdSigShare> _sigShare) = 0;
+    virtual bool addSigShare(const ptr<ThresholdSigShare>& _sigShare) = 0;
 
 };
 

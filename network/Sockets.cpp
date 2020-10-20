@@ -34,7 +34,7 @@
 
 using namespace std;
 
-void Sockets::initSockets(ptr<string> & _bindIP, uint16_t _basePort ) {
+void Sockets::initSockets(const ptr<string> & _bindIP, uint16_t _basePort ) {
 
     CHECK_ARGUMENT( _bindIP );
 
@@ -49,7 +49,7 @@ void Sockets::initSockets(ptr<string> & _bindIP, uint16_t _basePort ) {
 
 
 
-ptr<sockaddr_in> Sockets::createSocketAddress(ptr<string>& _ip, uint16_t port) {
+ptr<sockaddr_in> Sockets::createSocketAddress(const ptr<string>& _ip, uint16_t port) {
 
     CHECK_ARGUMENT( _ip );
 

@@ -97,13 +97,13 @@ class CryptoManager {
     bool isSGXEnabled = false;
     bool isHTTPSEnabled = true;
 
-    ptr< string > sgxURL;
-    ptr< string > sgxSSLKeyFileFullPath;
-    ptr< string > sgxSSLCertFileFullPath;
-    ptr< string > sgxECDSAKeyName;
-    ptr< vector< string > > sgxECDSAPublicKeys;
-    ptr< string > sgxBlsKeyName;
-    ptr< vector< ptr< vector< string > > > > sgxBLSPublicKeys;
+    ptr<string> sgxURL;
+    ptr<string> sgxSSLKeyFileFullPath;
+    ptr<string> sgxSSLCertFileFullPath;
+    ptr<string> sgxECDSAKeyName;
+    ptr< vector<string> > sgxECDSAPublicKeys;
+    ptr<string> sgxBlsKeyName;
+    ptr< vector< ptr< vector<string>>>> sgxBLSPublicKeys;
     ptr< BLSPublicKey > sgxBLSPublicKey;
 
 
@@ -117,69 +117,69 @@ class CryptoManager {
     Schain* sChain = nullptr;
 
 
-    ptr< string > sign( ptr< SHAHash > _hash );
+    ptr<string> sign(const ptr< SHAHash >& _hash );
 
-    tuple<ptr< string >, ptr<string>, ptr<string>> sessionSign( ptr< SHAHash > _hash, block_id _blockId) ;
+    tuple<ptr<string>, ptr<string>, ptr<string>> sessionSign(const ptr< SHAHash >& _hash, block_id _blockId) ;
 
-    bool sessionVerifySig( ptr< SHAHash > _hash, ptr< string > _sig, ptr< string > _publicKey );
+    bool sessionVerifySig(const ptr< SHAHash >& _hash, const ptr<string>& _sig, const ptr<string>& _publicKey );
 
-    bool verifySig( ptr< SHAHash > _hash, ptr< string > _sig, node_id _nodeId );
+    bool verifySig(const ptr< SHAHash >& _hash, const ptr<string>& _sig, node_id _nodeId );
 
-    ptr< ThresholdSigShare > signSigShare( ptr< SHAHash > _hash, block_id _blockId );
+    ptr< ThresholdSigShare > signSigShare(const ptr< SHAHash >& _hash, block_id _blockId );
 
     void initSGXClient();
 
-    static uint64_t parseSGXPort( ptr< string > _url );
+    static uint64_t parseSGXPort(const ptr<string>& _url );
 
 public:
     // This constructor is used for testing
     CryptoManager( uint64_t _totalSigners, uint64_t _requiredSigners, bool _isSGXEnabled,
-        ptr< string > _sgxURL = nullptr, ptr< string > _sgxSslKeyFileFullPath = nullptr,
-        ptr< string > _sgxSslCertFileFullPath = nullptr, ptr< string > _sgxEcdsaKeyName = nullptr,
-        ptr< vector< string > > _sgxEcdsaPublicKeys = nullptr );
+        ptr<string> _sgxURL = nullptr, ptr<string> _sgxSslKeyFileFullPath = nullptr,
+        ptr<string> _sgxSslCertFileFullPath = nullptr, ptr<string> _sgxEcdsaKeyName = nullptr,
+        ptr< vector<string> > _sgxEcdsaPublicKeys = nullptr );
 
     CryptoManager( Schain& sChain );
 
     Schain* getSchain() const;
 
     ptr< ThresholdSignature > verifyThresholdSig(
-        ptr< SHAHash > _hash, ptr< string > _signature, block_id _blockId );
+        const ptr< SHAHash >& _hash, const ptr<string>& _signature, block_id _blockId );
 
     ptr< ThresholdSigShareSet > createSigShareSet( block_id _blockId );
 
-    ptr< ThresholdSigShare > createSigShare( ptr< string > _sigShare, schain_id _schainID,
+    ptr< ThresholdSigShare > createSigShare(const ptr<string>& _sigShare, schain_id _schainID,
         block_id _blockID, schain_index _signerIndex );
 
     void signProposal( BlockProposal* _proposal );
 
     bool verifyProposalECDSA(
-        ptr< BlockProposal > _proposal, ptr< string > _hashStr, ptr< string > _signature );
+        const ptr< BlockProposal >& _proposal, const ptr<string>& _hashStr, const ptr<string>& _signature );
 
-    ptr< ThresholdSigShare > signDAProofSigShare( ptr< BlockProposal > _p );
+    ptr< ThresholdSigShare > signDAProofSigShare(const ptr< BlockProposal >& _p );
 
-    ptr< ThresholdSigShare > signBinaryConsensusSigShare( ptr< SHAHash > _hash, block_id _blockId );
+    ptr< ThresholdSigShare > signBinaryConsensusSigShare(const ptr< SHAHash >& _hash, block_id _blockId );
 
-    ptr< ThresholdSigShare > signBlockSigShare( ptr< SHAHash > _hash, block_id _blockId );
+    ptr< ThresholdSigShare > signBlockSigShare(const ptr< SHAHash >& _hash, block_id _blockId );
 
-    tuple<ptr< string >, ptr<string>, ptr<string>> signNetworkMsg( NetworkMessage& _msg );
+    tuple<ptr<string>, ptr<string>, ptr<string>> signNetworkMsg( NetworkMessage& _msg );
 
     bool verifyNetworkMsg( NetworkMessage& _msg );
 
-    static ptr< void > decodeSGXPublicKey( ptr< string > _keyHex );
+    static ptr< void > decodeSGXPublicKey(const ptr<string>& _keyHex );
 
-    static pair< ptr< string >, ptr< string > > generateSGXECDSAKey( ptr< StubClient > _c );
+    static pair< ptr<string>, ptr<string> > generateSGXECDSAKey(const ptr< StubClient >& _c );
 
-    static ptr< string > getSGXEcdsaPublicKey( ptr< string > _keyName, ptr< StubClient > _c );
+    static ptr<string> getSGXEcdsaPublicKey(const ptr<string>& _keyName, const  ptr< StubClient >& _c );
 
     static void generateSSLClientCertAndKey( string& _fullPathToDir );
     static void setSGXKeyAndCert( string& _keyFullPath, string& _certFullPath, uint64_t _sgxPort );
 
 
-    ptr< string > sgxSignECDSA( ptr< SHAHash > _hash, string& _keyName );
+    ptr<string> sgxSignECDSA(const ptr< SHAHash >& _hash, string& _keyName );
 
-    tuple<ptr< string >, ptr<string>, ptr<string>> sessionSignECDSA( ptr< SHAHash > _hash, block_id _blockID );
+    tuple<ptr<string>, ptr<string>, ptr<string>> sessionSignECDSA(const ptr< SHAHash >& _hash, block_id _blockID );
 
-    bool verifyECDSA( ptr< SHAHash > _hash, ptr< string > _sig, ptr< string > _publicKey );
+    bool verifyECDSA(const ptr< SHAHash >& _hash, const ptr<string>& _sig, const ptr<string>& _publicKey );
 
 
     bool verifyECDSASigRS( string& pubKeyStr, const char* hashHex,
@@ -187,10 +187,10 @@ public:
 
 
     ptr< BLSPublicKey > getSgxBlsPublicKey();
-    ptr< string > getSgxBlsKeyName();
+    ptr<string> getSgxBlsKeyName();
 
     static ptr< SHAHash > calculatePublicKeyHash(
-        ptr< string > publicKey, block_id _blockID);
+        ptr<string> publicKey, block_id _blockID);
 };
 
 #define RETRY_BEGIN while (true) { try {

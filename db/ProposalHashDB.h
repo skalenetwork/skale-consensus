@@ -41,7 +41,7 @@ public:
 
     ProposalHashDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize);
 
-    bool checkAndSaveHash(block_id _proposalBlockID, schain_index _proposerIndex, ptr<string> _proposalHash);
+    bool checkAndSaveHash(block_id _proposalBlockID, schain_index _proposerIndex, const ptr<string>& _proposalHash);
 
     bool haveProposal(block_id _proposalBlockID, schain_index _proposerIndex);
 

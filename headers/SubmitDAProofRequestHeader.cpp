@@ -53,7 +53,7 @@ SubmitDAProofRequestHeader::SubmitDAProofRequestHeader(nlohmann::json _proposalR
     CHECK_STATE(blockHash);
 }
 
-SubmitDAProofRequestHeader::SubmitDAProofRequestHeader(Schain &_sChain, ptr<DAProof> _proof, block_id _blockId) :
+SubmitDAProofRequestHeader::SubmitDAProofRequestHeader(Schain &_sChain, const ptr<DAProof>& _proof, block_id _blockId) :
         AbstractBlockRequestHeader(_sChain.getNodeCount(), _sChain.getSchainID(), _blockId,
                                    Header::DA_PROOF_REQ,
                                    _sChain.getSchainIndex()) {

@@ -31,7 +31,7 @@
 
 using namespace std;
 
-FinalProposalResponseHeader::FinalProposalResponseHeader(ptr<string> _sigShare)
+FinalProposalResponseHeader::FinalProposalResponseHeader(const ptr<string>& _sigShare)
         : Header(SIG_SHARE_RSP) {
     CHECK_ARGUMENT(_sigShare)
     setStatusSubStatus(CONNECTION_SUCCESS, CONNECTION_OK);

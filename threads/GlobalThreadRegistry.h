@@ -35,7 +35,7 @@ public:
 
     void joinAll();
 
-    void add(ptr<thread> _t);
+    void add(const ptr<thread>& _t);
 
 };
 

@@ -49,7 +49,7 @@ public:
 
     BlockProposalSet(Schain* _sChain, block_id _blockId );
 
-    bool add(ptr<BlockProposal> _proposal);
+    bool add(const ptr<BlockProposal>& _proposal);
 
     ptr<BlockProposal> getProposalByIndex( schain_index _index );
 

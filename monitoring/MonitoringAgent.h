@@ -45,7 +45,7 @@ public:
     void join();
 
 
-    void registerMonitor(ptr<LivelinessMonitor> _m);
+    void registerMonitor(const ptr<LivelinessMonitor>& _m);
 
     void unregisterMonitor(uint64_t _id);
 

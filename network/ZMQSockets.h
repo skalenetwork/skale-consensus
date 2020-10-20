@@ -41,12 +41,12 @@ class ZMQSockets : public ServerSocket {
 
 public:
 
-    ZMQSockets(ptr<string> &_bindIP, uint16_t _basePort, port_type _portType);
+    ZMQSockets(const ptr<string> &_bindIP, uint16_t _basePort, port_type _portType);
 
 
     void *getReceiveSocket();
 
-    void* getDestinationSocket( ptr< NodeInfo > _remoteNodeInfo );
+    void* getDestinationSocket(const ptr< NodeInfo >& _remoteNodeInfo );
 
 
     void closeReceive();

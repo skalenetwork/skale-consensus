@@ -110,9 +110,9 @@ class Node {
     std::atomic_bool exitRequested;
 
     ptr< SkaleLog > log = nullptr;
-    ptr< string > name = nullptr;
+    ptr<string> name = nullptr;
 
-    ptr< string > bindIP = nullptr;
+    ptr<string> bindIP = nullptr;
 
 
     nlohmann::json cfg;
@@ -133,7 +133,7 @@ class Node {
 
     class Comparator {
     public:
-        bool operator()( const ptr< string >& a, const ptr< string >& b ) const { return *a < *b; }
+        bool operator()( const ptr<string>& a, const ptr<string>& b ) const { return *a < *b; }
     };
 
 
@@ -145,10 +145,10 @@ class Node {
 
 
 
-    ptr< string > ecdsaKeyName = nullptr;
-    ptr< vector< string > > ecdsaPublicKeys = nullptr;
-    ptr< string > blsKeyName = nullptr;
-    ptr< vector< ptr< vector< string > > > > blsPublicKeys = nullptr;
+    ptr<string> ecdsaKeyName = nullptr;
+    ptr< vector<string> > ecdsaPublicKeys = nullptr;
+    ptr<string> blsKeyName = nullptr;
+    ptr< vector< ptr< vector<string>>>> blsPublicKeys = nullptr;
     ptr< BLSPublicKey > blsPublicKey = nullptr;
 
     ptr<string> sgxURL = nullptr;
@@ -227,10 +227,10 @@ class Node {
 
 
 public:
-    ptr< string > getEcdsaKeyName();
-    ptr< vector< string > > getEcdsaPublicKeys();
-    ptr< string > getBlsKeyName();
-    ptr< vector< ptr< vector< string > > > > getBlsPublicKeys();
+    ptr<string> getEcdsaKeyName();
+    ptr< vector<string> > getEcdsaPublicKeys();
+    ptr<string> getBlsKeyName();
+    ptr< vector< ptr< vector<string>>>> getBlsPublicKeys();
     ptr< BLSPublicKey > getBlsPublicKey();
 
 
@@ -276,8 +276,8 @@ public:
         ptr<string> _sgxURL,
           ptr<string> _sgxSSLKeyFileFullPath,
     ptr<string> _sgxSSLCertFileFullPath,
-        ptr< string > _ecdsaKeyName, ptr< vector< string > > _ecdsaPublicKeys,
-        ptr< string > _blsKeyName, ptr< vector< ptr< vector< string > > > > _blsPublicKeys,
+        ptr<string> _ecdsaKeyName, ptr< vector<string> > _ecdsaPublicKeys,
+        ptr<string> _blsKeyName, ptr< vector< ptr< vector<string>>>> _blsPublicKeys,
         ptr< BLSPublicKey > _blsPublicKey );
 
     ~Node();
@@ -289,9 +289,9 @@ public:
 
     void exitOnFatalError( const string& message );
 
-    void setSchain( ptr< Schain > _schain );
+    void setSchain(const ptr< Schain >& _schain );
 
-    static void initSchain( ptr< Node > _node, ptr< NodeInfo > _localNodeInfo,
+    static void initSchain(const ptr< Node >& _node, const ptr< NodeInfo >& _localNodeInfo,
         const vector< ptr< NodeInfo > >& remoteNodeInfos, ConsensusExtFace* _extFace );
 
     void waitOnGlobalServerStartBarrier( Agent* _agent );
@@ -327,7 +327,7 @@ public:
 
     ptr< Network > getNetwork() const;
 
-    ptr< string > getBindIP() const;
+    ptr<string> getBindIP() const;
 
     network_port getBasePort() const;
 
@@ -357,7 +357,7 @@ public:
 
     int64_t getParamInt64( const string& _paramName, uint64_t _paramDefault );
 
-    ptr< string > getParamString( const string& _paramName, string& _paramDefault );
+    ptr<string> getParamString( const string& _paramName, string& _paramDefault );
 
     void initParamsFromConfig();
 
@@ -367,11 +367,11 @@ public:
 
     void testNodeInfos();
 
-    void setNodeInfo( ptr< NodeInfo > _nodeInfo );
+    void setNodeInfo(const ptr< NodeInfo >& _nodeInfo );
 
     ConsensusEngine* getConsensusEngine() const;
 
-    ptr< string > getSgxUrl();
-    ptr< string > getSgxSslKeyFileFullPath();
-    ptr< string > getSgxSslCertFileFullPath();
+    ptr<string> getSgxUrl();
+    ptr<string> getSgxSslKeyFileFullPath();
+    ptr<string> getSgxSslCertFileFullPath();
 };

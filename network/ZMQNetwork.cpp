@@ -54,7 +54,7 @@
 using namespace std;
 
 
-bool ZMQNetwork::sendMessage(const ptr<NodeInfo> &_remoteNodeInfo, ptr<NetworkMessage> _msg) {
+bool ZMQNetwork::sendMessage(const ptr<NodeInfo> &_remoteNodeInfo, const ptr<NetworkMessage>& _msg) {
 
     CHECK_ARGUMENT(_remoteNodeInfo);
     CHECK_ARGUMENT(_msg);
@@ -141,7 +141,7 @@ bool ZMQNetwork::interruptableSend(void *_socket, void *_buf, size_t _len, bool 
 }
 
 
-uint64_t ZMQNetwork::readMessageFromNetwork(ptr<Buffer> buf) {
+uint64_t ZMQNetwork::readMessageFromNetwork(const ptr<Buffer> buf) {
 
     auto s = sChain->getNode()->getSockets()->consensusZMQSockets->getReceiveSocket();
 

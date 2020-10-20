@@ -65,7 +65,7 @@ schain_id NodeInfo::getSchainID() const {
 }
 
 
-NodeInfo::NodeInfo(node_id nodeID, ptr<string> &ip, network_port port, schain_id schainID, schain_index schainIndex) :
+NodeInfo::NodeInfo(node_id nodeID, const ptr<string> &ip, network_port port, schain_id schainID, schain_index schainIndex) :
         nodeID(nodeID),
       ipAddress(ip),
         port(port),

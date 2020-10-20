@@ -44,7 +44,7 @@ public:
 
     ptr<ThresholdSignature> mergeSignature();
 
-    bool addSigShare(shared_ptr<ThresholdSigShare> _sigShare);
+    bool addSigShare(const ptr<ThresholdSigShare>& _sigShare);
 
     bool isEnough();
 

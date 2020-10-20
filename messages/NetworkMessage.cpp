@@ -78,9 +78,9 @@ NetworkMessage::NetworkMessage(MsgType _messageType, block_id _blockID, schain_i
 NetworkMessage::NetworkMessage(MsgType _messageType, node_id _srcNodeID, block_id _blockID,
                                schain_index _blockProposerIndex,
                                bin_consensus_round _r, bin_consensus_value _value, uint64_t _timeMs,
-                               schain_id _schainId, msg_id _msgID, ptr<string> _sigShareStr, ptr<string> _ecdsaSig,
-                               ptr<string> _publicKey, ptr<string> _pkSig,
-                               schain_index _srcSchainIndex, ptr<CryptoManager> _cryptoManager)
+                               schain_id _schainId, msg_id _msgID, const ptr<string> _sigShareStr, const ptr<string> _ecdsaSig,
+                               ptr<string> _publicKey, const ptr<string> _pkSig,
+                               schain_index _srcSchainIndex, const ptr<CryptoManager> _cryptoManager)
         : Message(_schainId, _messageType, _msgID, _srcNodeID, _blockID, _blockProposerIndex),
           BasicHeader(getTypeString(_messageType)) {
 
@@ -112,10 +112,10 @@ NetworkMessage::NetworkMessage(MsgType _messageType, node_id _srcNodeID, block_i
     setComplete();
 
 }
-const ptr< string >& NetworkMessage::getPublicKey() const {
+const ptr<string>& NetworkMessage::getPublicKey() const {
     return publicKey;
 }
-const ptr< string >& NetworkMessage::getPkSig() const {
+const ptr<string>& NetworkMessage::getPkSig() const {
     return pkSig;
 }
 
@@ -230,7 +230,7 @@ void NetworkMessage::addFields(nlohmann::basic_json<>& ) {
 }
 
 
-ptr<NetworkMessage> NetworkMessage::parseMessage(ptr<string> _header, Schain *_sChain) {
+ptr<NetworkMessage> NetworkMessage::parseMessage(const ptr<string> _header, Schain *_sChain) {
 
 
     uint64_t sChainID;
@@ -397,7 +397,7 @@ ptr<SHAHash> NetworkMessage::calculateHash() {
     return hash;
 }
 
-void NetworkMessage::sign(ptr<CryptoManager> _mgr) {
+void NetworkMessage::sign(const ptr<CryptoManager> _mgr) {
     CHECK_ARGUMENT(_mgr);
     tie(ecdsaSig, publicKey, pkSig) = _mgr->signNetworkMsg(*this);
     CHECK_STATE(ecdsaSig);
@@ -405,7 +405,7 @@ void NetworkMessage::sign(ptr<CryptoManager> _mgr) {
     CHECK_STATE(pkSig);
 }
 
-void NetworkMessage::verify(ptr<CryptoManager> _mgr) {
+void NetworkMessage::verify(const ptr<CryptoManager> _mgr) {
     CHECK_ARGUMENT(_mgr);
     CHECK_STATE2(_mgr->verifyNetworkMsg(*this), "ECDSA sig did not verify");
 }

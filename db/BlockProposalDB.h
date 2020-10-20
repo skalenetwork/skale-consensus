@@ -50,7 +50,7 @@ public:
 
     BlockProposalDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize);
 
-    void addBlockProposal(ptr<BlockProposal> _proposal);
+    void addBlockProposal(const ptr<BlockProposal>& _proposal);
 
     const string getFormatVersion();
 

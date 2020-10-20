@@ -95,7 +95,7 @@ class SkaleLog;
     struct D : boost::totally_ordered1< D,                                               \
                    boost::totally_ordered2< D, T,                                        \
                        boost::multipliable2< D, T,                                       \
-                           boost::addable2< D, T, boost::subtractable2< D, T > > > > > { \
+                           boost::addable2< D, T, boost::subtractable2< D, T >>>> > { \
         T t;                                                                             \
         D( const T& t_ ) : t( t_ ){};                                                    \
         D( T&& t_ ) : t( std::move( t_ ) ){};                                            \

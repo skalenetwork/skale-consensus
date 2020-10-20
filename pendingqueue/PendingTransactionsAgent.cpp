@@ -139,14 +139,14 @@ pair<ptr<vector<ptr<Transaction>>>, u256> PendingTransactionsAgent::createTransa
 }
 
 
-ptr<Transaction> PendingTransactionsAgent::getKnownTransactionByPartialHash(ptr<partial_sha_hash> hash) {
+ptr<Transaction> PendingTransactionsAgent::getKnownTransactionByPartialHash(const ptr<partial_sha_hash> hash) {
     lock_guard<recursive_mutex> lock(transactionsMutex);
     if (knownTransactions.count(hash))
         return knownTransactions.at(hash);
     return nullptr;
 }
 
-void PendingTransactionsAgent::pushKnownTransaction(ptr<Transaction> _transaction) {
+void PendingTransactionsAgent::pushKnownTransaction(const ptr<Transaction>& _transaction) {
 
     CHECK_ARGUMENT(_transaction);
 

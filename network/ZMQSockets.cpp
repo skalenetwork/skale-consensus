@@ -30,13 +30,13 @@
 #include "exceptions/FatalError.h"
 #include "zmq.h"
 
-ZMQSockets::ZMQSockets(ptr<string> &_bindIP, uint16_t _basePort, port_type _portType) :
+ZMQSockets::ZMQSockets(const ptr<string> &_bindIP, uint16_t _basePort, port_type _portType) :
       ServerSocket(_bindIP,_basePort, _portType) {
     CHECK_ARGUMENT(_bindIP);
     context = zmq_ctx_new();
 }
 
-void* ZMQSockets::getDestinationSocket( ptr< NodeInfo > _remoteNodeInfo ) {
+void* ZMQSockets::getDestinationSocket(const ptr< NodeInfo >& _remoteNodeInfo ) {
     CHECK_ARGUMENT(_remoteNodeInfo);
     LOCK(m)
 

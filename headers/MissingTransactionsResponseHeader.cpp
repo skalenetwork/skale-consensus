@@ -36,7 +36,7 @@ MissingTransactionsResponseHeader::MissingTransactionsResponseHeader() : Header(
 
 }
 
-MissingTransactionsResponseHeader::MissingTransactionsResponseHeader(ptr<vector<uint64_t>> _missingTransactionSizes)
+MissingTransactionsResponseHeader::MissingTransactionsResponseHeader(const ptr<vector<uint64_t>>& _missingTransactionSizes)
         : MissingTransactionsResponseHeader() {
     CHECK_ARGUMENT(_missingTransactionSizes);
     missingTransactionSizes = _missingTransactionSizes;

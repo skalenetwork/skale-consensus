@@ -41,7 +41,7 @@ public:
 
     MissingTransactionsRequestHeader();
 
-    MissingTransactionsRequestHeader(ptr<map<uint64_t, ptr<partial_sha_hash>>> _missingMessages);
+    MissingTransactionsRequestHeader(const ptr<map<uint64_t, ptr<partial_sha_hash>>>& _missingMessages);
 
     void addFields(nlohmann::basic_json<> &j_) override;
 

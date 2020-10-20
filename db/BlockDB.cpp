@@ -60,7 +60,7 @@ BlockDB::BlockDB(Schain *_sChain, string &_dirname, string &_prefix, node_id _no
 }
 
 
-void BlockDB::saveBlock2LevelDB(ptr<CommittedBlock> &_block) {
+void BlockDB::saveBlock2LevelDB(const ptr<CommittedBlock> &_block) {
 
     CHECK_ARGUMENT(_block);
     CHECK_ARGUMENT(_block->getSignature() != nullptr);
@@ -97,7 +97,7 @@ const string BlockDB::getFormatVersion() {
     return "1.0";
 }
 
-void BlockDB::saveBlock(ptr<CommittedBlock> &_block) {
+void BlockDB::saveBlock(const ptr<CommittedBlock> &_block) {
 
 
     CHECK_ARGUMENT(_block);
@@ -114,7 +114,7 @@ void BlockDB::saveBlock(ptr<CommittedBlock> &_block) {
 }
 
 
-ptr<CommittedBlock> BlockDB::getBlock(block_id _blockID, ptr<CryptoManager> _cryptoManager) {
+ptr<CommittedBlock> BlockDB::getBlock(block_id _blockID, const ptr<CryptoManager>& _cryptoManager) {
 
     CHECK_ARGUMENT(_cryptoManager);
 

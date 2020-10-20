@@ -46,7 +46,7 @@ class BlockProposal : public DataStructure {
 
     ptr<BlockProposalRequestHeader> header = nullptr;
 
-    ptr< vector< uint8_t > > serializedProposal = nullptr;
+    ptr<vector<uint8_t>> serializedProposal = nullptr;
 
 
 
@@ -69,11 +69,11 @@ protected:
 
     virtual ptr<BasicHeader> createHeader();
 
-    static ptr<TransactionList> deserializeTransactions(ptr<BlockProposalHeader> _header,
-                                                        ptr<string> _headerString,
-                                                        ptr<vector<uint8_t>> _serializedBlock);
+    static ptr<TransactionList> deserializeTransactions(const ptr<BlockProposalHeader>& _header,
+                                                        const ptr<string>& _headerString,
+                                                        const ptr<vector<uint8_t>>& _serializedBlock);
 
-    static ptr<string> extractHeader(ptr<vector<uint8_t>> _serializedBlock);
+    static ptr<string> extractHeader(const ptr<vector<uint8_t>>& _serializedBlock);
 
     static ptr<BlockProposalHeader> parseBlockHeader(const shared_ptr<string> & _header );
 public:
@@ -82,9 +82,9 @@ public:
     BlockProposal(uint64_t _timeStamp, uint32_t _timeStampMs);
 
     BlockProposal(schain_id _sChainId, node_id _proposerNodeId, block_id _blockID,
-                  schain_index _proposerIndex, ptr<TransactionList> _transactions, u256 _stateRoot,
-                  uint64_t _timeStamp, __uint32_t _timeStampMs, ptr<string> _signature,
-                  ptr<CryptoManager> _cryptoManager);
+                  schain_index _proposerIndex, const ptr<TransactionList>& _transactions, u256 _stateRoot,
+                  uint64_t _timeStamp, __uint32_t _timeStampMs, const ptr<string>& _signature,
+                  const ptr<CryptoManager>& _cryptoManager);
 
 
     uint64_t getTimeStamp() const;
@@ -110,20 +110,20 @@ public:
 
     transaction_count getTransactionCount() const;
 
-    void addSignature(ptr<string> _signature);
+    void addSignature(const ptr<string>& _signature);
 
     ptr<string>  getSignature();
 
-    static ptr<BlockProposalRequestHeader> createBlockProposalHeader(Schain* _sChain, ptr<BlockProposal> _proposal);
+    static ptr<BlockProposalRequestHeader> createBlockProposalHeader(Schain* _sChain, const ptr<BlockProposal>& _proposal);
 
 
     ptr<vector<uint8_t> > serialize();
 
 
-    static ptr<BlockProposal> deserialize(ptr<vector<uint8_t> > _serializedProposal,
-                                                  ptr<CryptoManager> _manager);
+    static ptr<BlockProposal> deserialize(const ptr<vector<uint8_t> >& _serializedProposal,
+                                                  const ptr<CryptoManager>& _manager);
 
-    static ptr<BlockProposal> defragment(ptr<BlockProposalFragmentList> _fragmentList, ptr<CryptoManager> _cryptoManager);
+    static ptr<BlockProposal> defragment(const ptr<BlockProposalFragmentList>& _fragmentList, const ptr<CryptoManager>& _cryptoManager);
 
     ptr<BlockProposalFragment> getFragment(uint64_t _totalFragments, fragment_index _index);
 

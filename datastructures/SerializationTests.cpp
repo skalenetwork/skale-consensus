@@ -59,7 +59,7 @@
 #include "Transaction.h"
 
 
-void corrupt_byte_vector(ptr<vector<uint8_t> > _in, boost::random::mt19937 &_gen,
+void corrupt_byte_vector(const ptr<vector<uint8_t> >& _in, boost::random::mt19937 &_gen,
                          boost::random::uniform_int_distribution<> &_ubyte) {
     int randomPosition = _ubyte(_gen) % _in->size();
     auto b = _in->at(randomPosition);

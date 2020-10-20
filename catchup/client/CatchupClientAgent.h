@@ -45,14 +45,14 @@ public:
 
     static void workerThreadItemSendLoop( CatchupClientAgent* _agent );
 
-    nlohmann::json readCatchupResponseHeader( ptr< ClientSocket > _socket );
+    nlohmann::json readCatchupResponseHeader(const ptr< ClientSocket >& _socket );
 
 
     ptr< CommittedBlockList > readMissingBlocks(
-        ptr< ClientSocket > _socket, nlohmann::json responseHeader );
+        ptr< ClientSocket >& _socket, nlohmann::json responseHeader );
 
 
-    size_t parseBlockSizes( nlohmann::json _responseHeader, ptr< vector< uint64_t > > _blockSizes );
+    size_t parseBlockSizes( nlohmann::json _responseHeader, const ptr<vector<uint64_t>>& _blockSizes );
 
     static schain_index nextSyncNodeIndex(
         const CatchupClientAgent* _agent, schain_index _destinationSchainIndex );

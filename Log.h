@@ -61,7 +61,7 @@ class SkaleLog {
 
     ConsensusEngine* engine;
 
-    shared_ptr< string > prefix = nullptr;
+    shared_ptr<string> prefix = nullptr;
 
     node_id nodeID;
 

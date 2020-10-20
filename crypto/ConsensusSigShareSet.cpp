@@ -74,7 +74,7 @@ bool ConsensusSigShareSet::isEnoughMinusOne() {
 }
 
 
-bool ConsensusSigShareSet::addSigShare( shared_ptr< ThresholdSigShare > _sigShare ) {
+bool ConsensusSigShareSet::addSigShare(const ptr< ThresholdSigShare >& _sigShare ) {
     CHECK_ARGUMENT( _sigShare);
     ptr< ConsensusBLSSigShare > s = dynamic_pointer_cast< ConsensusBLSSigShare >( _sigShare );
     CHECK_STATE(s);

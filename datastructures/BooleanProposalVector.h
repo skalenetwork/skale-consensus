@@ -39,9 +39,9 @@ private:
 
 public:
 
-    BooleanProposalVector(node_count _nodeCount, ptr<map<schain_index, ptr<string>>> _receivedDAProofs);
+    BooleanProposalVector(node_count _nodeCount, const ptr<map<schain_index, ptr<string>>>& _receivedDAProofs);
 
-    BooleanProposalVector(node_count _nodeCount, ptr<string> _vectorStr);
+    BooleanProposalVector(node_count _nodeCount, const ptr<string>& _vectorStr);
 
     bool getProposalValue(schain_index _index);
 

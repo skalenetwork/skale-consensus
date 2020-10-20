@@ -39,10 +39,10 @@ class ConsensusBLSSignature : public ThresholdSignature {
 public:
 
     ConsensusBLSSignature(
-        ptr< string > _sig, block_id _blockID, size_t _totalSigners, size_t _requiredSigners );
+        const ptr<string>& _sig, block_id _blockID, size_t _totalSigners, size_t _requiredSigners );
 
 
-    ConsensusBLSSignature( ptr< BLSSignature > _blsSig, block_id _blockID, size_t _totalSigners,
+    ConsensusBLSSignature(const ptr< BLSSignature >& _blsSig, block_id _blockID, size_t _totalSigners,
         size_t _requiredSigners );
 
     std::shared_ptr<std::string> toString();

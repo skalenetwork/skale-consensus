@@ -37,7 +37,7 @@ public:
 
     static void checkTime();
 
-    static bool isValidIpAddress(ptr<string>ipAddress);
+    static bool isValidIpAddress(const ptr<string>ipAddress);
 
     static ptr<string> carray2Hex(const uint8_t *d, size_t _len);
 

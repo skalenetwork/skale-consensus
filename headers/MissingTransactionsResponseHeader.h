@@ -41,7 +41,7 @@ public:
     MissingTransactionsResponseHeader();
 
     MissingTransactionsResponseHeader(
-            ptr<vector<uint64_t>> _missingTransactionSizes);
+            const ptr<vector<uint64_t>>& _missingTransactionSizes);
 
     void addFields(nlohmann::json &_j) override;
 

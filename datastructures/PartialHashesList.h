@@ -44,7 +44,7 @@ public:
 
     PartialHashesList(transaction_count _transactionCount);
 
-    PartialHashesList(transaction_count _transactionCount, ptr<vector<uint8_t>> partialHashes_);
+    PartialHashesList(transaction_count _transactionCount, const ptr<vector<uint8_t>>& _partialHashes);
 
     msg_len getLen() {
         return msg_len(partialHashes->size());

@@ -73,7 +73,7 @@ uint64_t BlockProposalFragmentList::nextIndexToRetrieve() {
     ASSERT2(false, "nextIndexToRetrieve assertion failure"); // SHOULD NEVER BE HERE
 }
 
-bool BlockProposalFragmentList::addFragment(ptr<BlockProposalFragment> _fragment, uint64_t &nextIndex) {
+bool BlockProposalFragmentList::addFragment(const ptr<BlockProposalFragment>& _fragment, uint64_t &nextIndex) {
 
     CHECK_ARGUMENT(_fragment);
     CHECK_ARGUMENT(_fragment->getBlockId() == blockID);
@@ -150,7 +150,7 @@ bool BlockProposalFragmentList::isComplete() {
     return false;
 }
 
-ptr<vector<uint8_t>> BlockProposalFragmentList::serialize() {
+const ptr<vector<uint8_t>> BlockProposalFragmentList::serialize() {
 
 
     auto result = make_shared<vector<uint8_t >>();

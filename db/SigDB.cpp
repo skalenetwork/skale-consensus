@@ -43,7 +43,7 @@ const string SigDB::getFormatVersion() {
 
 
 
-void SigDB::addSignature(block_id _blockId, ptr<ThresholdSignature> _sig) {
+void SigDB::addSignature(block_id _blockId, const ptr<ThresholdSignature>& _sig) {
     CHECK_ARGUMENT(_sig);
     auto key = createKey(_blockId);
     CHECK_STATE(key);

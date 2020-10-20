@@ -100,11 +100,11 @@ public:
 
     PendingTransactionsAgent(Schain& _sChain);
 
-    void pushKnownTransaction(ptr<Transaction> _transaction);
+    void pushKnownTransaction(const ptr<Transaction>& _transaction);
 
     uint64_t getKnownTransactionsSize();
 
-    ptr<Transaction> getKnownTransactionByPartialHash(ptr<partial_sha_hash> hash);
+    ptr<Transaction> getKnownTransactionByPartialHash(const ptr<partial_sha_hash> hash);
 
     ptr<BlockProposal> buildBlockProposal(block_id _blockID, uint64_t  _previousBlockTimeStamp,
                              uint32_t _previosBlockTimeStampMs);
