@@ -31,7 +31,7 @@
 #include "Utils.h"
 
 
-ServerSocket::ServerSocket(ptr<string> &_bindIP, uint16_t _basePort, port_type _portType)
+ServerSocket::ServerSocket(const ptr<string> &_bindIP, uint16_t _basePort, port_type _portType)
     : bindIP( _bindIP ) {
 
     CHECK_ARGUMENT(_bindIP);

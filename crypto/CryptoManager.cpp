@@ -101,15 +101,15 @@ ptr< BLSPublicKey > CryptoManager::getSgxBlsPublicKey() {
     return sgxBLSPublicKey;
 }
 
-ptr< string > CryptoManager::getSgxBlsKeyName() {
+ptr<string> CryptoManager::getSgxBlsKeyName() {
     CHECK_STATE( sgxBlsKeyName );
     return sgxBlsKeyName;
 }
 
 CryptoManager::CryptoManager( uint64_t _totalSigners, uint64_t _requiredSigners, bool _isSGXEnabled,
-    ptr< string > _sgxURL, ptr< string > _sgxSslKeyFileFullPath,
-    ptr< string > _sgxSslCertFileFullPath, ptr< string > _sgxEcdsaKeyName,
-    ptr< vector< string > > _sgxEcdsaPublicKeys )
+    ptr<string> _sgxURL, ptr<string> _sgxSslKeyFileFullPath,
+    ptr<string> _sgxSslCertFileFullPath, ptr<string> _sgxEcdsaKeyName,
+    ptr< vector<string> > _sgxEcdsaPublicKeys )
     : sessionKeys( SESSION_KEY_CACHE_SIZE ), sessionPublicKeys( SESSION_PUBLIC_KEY_CACHE_SIZE ) {
     CHECK_ARGUMENT( _totalSigners >= _requiredSigners );
     totalSigners = _totalSigners;
@@ -133,7 +133,7 @@ CryptoManager::CryptoManager( uint64_t _totalSigners, uint64_t _requiredSigners,
 }
 
 
-uint64_t CryptoManager::parseSGXPort( ptr< string > _url ) {
+uint64_t CryptoManager::parseSGXPort(const ptr<string>& _url ) {
     CHECK_ARGUMENT( _url );
     size_t found = _url->find_first_of( ":" );
 
@@ -209,7 +209,7 @@ CryptoManager::CryptoManager( Schain& _sChain )
         for ( uint64_t i = 0; i < ( uint64_t ) getSchain()->getNodeCount(); i++ ) {
             auto nodeId = getSchain()->getNode()->getNodeInfoByIndex( i + 1 )->getNodeID();
             ecdsaPublicKeyMap[( uint64_t ) nodeId] =
-                make_shared< string >( sgxECDSAPublicKeys->at( i ) );
+                make_shared<string>( sgxECDSAPublicKeys->at( i ) );
             blsPublicKeyMap[( uint64_t ) nodeId] = sgxBLSPublicKeys->at( i );
 
             if ( nodeId == getSchain()->getThisNodeInfo()->getNodeID() ) {
@@ -270,7 +270,7 @@ size_t size = sizeof( random_value );     // Declare size of data
 
 static ifstream urandom( "/dev/urandom", ios::in | ios::binary );  // Open stream
 
-std::tuple< ptr< OpenSSLECDSAKey >, ptr< string > > CryptoManager::localGenerateEcdsaKey() {
+std::tuple< ptr< OpenSSLECDSAKey >, ptr<string> > CryptoManager::localGenerateEcdsaKey() {
     auto key = OpenSSLECDSAKey::generateKey();
     auto pKey = key->getPublicKey();
 
@@ -278,16 +278,16 @@ std::tuple< ptr< OpenSSLECDSAKey >, ptr< string > > CryptoManager::localGenerate
 }
 
 
-tuple< ptr< string >, ptr< string >, ptr< string > > CryptoManager::sessionSignECDSA(
-    ptr< SHAHash > _hash, block_id _blockID ) {
+tuple< ptr<string>, ptr<string>, ptr<string> > CryptoManager::sessionSignECDSA(
+    const ptr< SHAHash >& _hash, block_id _blockID ) {
     CHECK_ARGUMENT( _hash );
 
 
 
 
     ptr< OpenSSLECDSAKey > privateKey = nullptr;
-    ptr< string > publicKey = nullptr;
-    ptr< string > pkSig = nullptr;
+    ptr<string> publicKey = nullptr;
+    ptr<string> pkSig = nullptr;
 
 
     {
@@ -319,8 +319,8 @@ tuple< ptr< string >, ptr< string >, ptr< string > > CryptoManager::sessionSignE
     return { ret, publicKey, pkSig };
 }
 
-ptr< SHAHash > CryptoManager::calculatePublicKeyHash( ptr< string > publicKey, block_id _blockID ) {
-    auto bytesToHash = make_shared< vector< uint8_t > >();
+ptr< SHAHash > CryptoManager::calculatePublicKeyHash(const ptr<string> publicKey, block_id _blockID ) {
+    auto bytesToHash = make_shared<vector<uint8_t>>();
 
     auto bId = ( uint64_t ) _blockID;
     auto bidP = ( uint8_t* ) &bId;
@@ -337,7 +337,7 @@ ptr< SHAHash > CryptoManager::calculatePublicKeyHash( ptr< string > publicKey, b
 }
 
 
-ptr< string > CryptoManager::sgxSignECDSA( ptr< SHAHash > _hash, string& _keyName ) {
+ptr<string> CryptoManager::sgxSignECDSA(const ptr< SHAHash >& _hash, string& _keyName ) {
     CHECK_ARGUMENT( _hash );
 
     Json::Value result;
@@ -353,20 +353,20 @@ ptr< string > CryptoManager::sgxSignECDSA( ptr< SHAHash > _hash, string& _keyNam
     string v = JSONFactory::getString(result, "signature_v");
     string s = JSONFactory::getString(result, "signature_s");
 
-    auto ret = make_shared< string >( v + ":" + r.substr( 2 ) + ":" + s.substr( 2 ) );
+    auto ret = make_shared<string>( v + ":" + r.substr( 2 ) + ":" + s.substr( 2 ) );
     return ret;
 }
 
 
 bool CryptoManager::verifyECDSA(
-    ptr< SHAHash > _hash, ptr< string > _sig, ptr< string > _publicKey ) {
+    const ptr< SHAHash >& _hash, const ptr<string>& _sig, const ptr<string>& _publicKey ) {
 
     auto key = OpenSSLECDSAKey::makeKey(_publicKey, true);
 
     return key->verifySGXSig( _sig, ( const char* ) _hash->data() );
 }
 
-ptr< string > CryptoManager::sign( ptr< SHAHash > _hash ) {
+ptr<string> CryptoManager::sign(const ptr< SHAHash >& _hash ) {
     CHECK_ARGUMENT( _hash );
 
     if ( isSGXEnabled ) {
@@ -379,13 +379,13 @@ ptr< string > CryptoManager::sign( ptr< SHAHash > _hash ) {
 }
 
 
-tuple< ptr< string >, ptr< string >, ptr< string > > CryptoManager::sessionSign(
-    ptr< SHAHash > _hash, block_id _blockId ) {
+tuple< ptr<string>, ptr<string>, ptr<string> > CryptoManager::sessionSign(
+    const ptr< SHAHash >& _hash, block_id _blockId ) {
     CHECK_ARGUMENT( _hash );
     if ( isSGXEnabled ) {
-        ptr< string > signature = nullptr;
-        ptr< string > pubKey = nullptr;
-        ptr< string > pkSig = nullptr;
+        ptr<string> signature = nullptr;
+        ptr<string> pubKey = nullptr;
+        ptr<string> pkSig = nullptr;
 
         tie( signature, pubKey, pkSig ) = sessionSignECDSA( _hash, _blockId );
         CHECK_STATE( signature );
@@ -393,13 +393,13 @@ tuple< ptr< string >, ptr< string >, ptr< string > > CryptoManager::sessionSign(
         CHECK_STATE( pkSig );
         return { signature, pubKey, pkSig };
     } else {
-        return { _hash->toHex(), make_shared< string >( "" ), make_shared< string >( "" ) };
+        return { _hash->toHex(), make_shared<string>( "" ), make_shared<string>( "" ) };
     }
 }
 
 
 bool CryptoManager::sessionVerifySig(
-    ptr< SHAHash > _hash, ptr< string > _sig, ptr< string > _publicKey ) {
+    const ptr< SHAHash >& _hash, const ptr<string>& _sig, const ptr<string>& _publicKey ) {
     CHECK_ARGUMENT( _hash )
     CHECK_ARGUMENT( _sig )
     CHECK_ARGUMENT( _publicKey );
@@ -422,7 +422,7 @@ bool CryptoManager::sessionVerifySig(
 }
 
 
-bool CryptoManager::verifySig( ptr< SHAHash > _hash, ptr< string > _sig, node_id _nodeId ) {
+bool CryptoManager::verifySig(const ptr< SHAHash >& _hash, const ptr<string>& _sig, node_id _nodeId ) {
     CHECK_ARGUMENT( _hash )
     CHECK_ARGUMENT( _sig )
 
@@ -453,7 +453,7 @@ bool CryptoManager::verifySig( ptr< SHAHash > _hash, ptr< string > _sig, node_id
 }
 
 
-ptr< ThresholdSigShare > CryptoManager::signDAProofSigShare( ptr< BlockProposal > _p ) {
+ptr< ThresholdSigShare > CryptoManager::signDAProofSigShare(const ptr< BlockProposal >& _p ) {
     CHECK_ARGUMENT( _p );
 
     auto result = signSigShare( _p->getHash(), _p->getBlockID() );
@@ -462,7 +462,7 @@ ptr< ThresholdSigShare > CryptoManager::signDAProofSigShare( ptr< BlockProposal 
 }
 
 ptr< ThresholdSigShare > CryptoManager::signBinaryConsensusSigShare(
-    ptr< SHAHash > _hash, block_id _blockId ) {
+    const ptr< SHAHash >& _hash, block_id _blockId ) {
     CHECK_ARGUMENT( _hash );
     auto result = signSigShare( _hash, _blockId );
     CHECK_STATE( result );
@@ -470,14 +470,14 @@ ptr< ThresholdSigShare > CryptoManager::signBinaryConsensusSigShare(
 }
 
 ptr< ThresholdSigShare > CryptoManager::signBlockSigShare(
-    ptr< SHAHash > _hash, block_id _blockId ) {
+    const ptr< SHAHash >& _hash, block_id _blockId ) {
     CHECK_ARGUMENT( _hash );
     auto result = signSigShare( _hash, _blockId );
     CHECK_STATE( result );
     return result;
 }
 
-ptr< ThresholdSigShare > CryptoManager::signSigShare( ptr< SHAHash > _hash, block_id _blockId ) {
+ptr< ThresholdSigShare > CryptoManager::signSigShare(const ptr< SHAHash >& _hash, block_id _blockId ) {
     CHECK_ARGUMENT( _hash );
     MONITOR( __CLASS_NAME__, __FUNCTION__ )
 
@@ -493,7 +493,7 @@ ptr< ThresholdSigShare > CryptoManager::signSigShare( ptr< SHAHash > _hash, bloc
         auto status = JSONFactory::getInt64( jsonShare, "status" );
         CHECK_STATE( status == 0 );
 
-        ptr< string > sigShare = make_shared< string >(
+        ptr<string> sigShare = make_shared<string>(
             JSONFactory::getString(jsonShare, "signatureShare"));
 
         auto sig = make_shared< BLSSigShare >(
@@ -517,7 +517,7 @@ ptr< ThresholdSigShareSet > CryptoManager::createSigShareSet( block_id _blockId 
 
 
 ptr< ThresholdSigShare > CryptoManager::createSigShare(
-    ptr< string > _sigShare, schain_id _schainID, block_id _blockID, schain_index _signerIndex ) {
+    const ptr<string>& _sigShare, schain_id _schainID, block_id _blockID, schain_index _signerIndex ) {
     CHECK_ARGUMENT( _sigShare );
     CHECK_STATE( totalSigners >= requiredSigners );
 
@@ -539,7 +539,7 @@ void CryptoManager::signProposal( BlockProposal* _proposal ) {
     _proposal->addSignature( signature );
 }
 
-tuple< ptr< string >, ptr< string >, ptr< string > > CryptoManager::signNetworkMsg(
+tuple< ptr<string>, ptr<string>, ptr<string> > CryptoManager::signNetworkMsg(
     NetworkMessage& _msg ) {
     MONITOR( __CLASS_NAME__, __FUNCTION__ );
     auto&& [signature, publicKey, pkSig] = sessionSign( _msg.getHash(), _msg.getBlockId() );
@@ -597,7 +597,7 @@ bool CryptoManager::verifyNetworkMsg( NetworkMessage& _msg ) {
 }
 
 bool CryptoManager::verifyProposalECDSA(
-    ptr< BlockProposal > _proposal, ptr< string > _hashStr, ptr< string > _signature ) {
+    const ptr< BlockProposal >& _proposal, const ptr<string>& _hashStr, const ptr<string>& _signature ) {
     CHECK_ARGUMENT( _proposal );
     CHECK_ARGUMENT( _hashStr )
     CHECK_ARGUMENT( _signature )
@@ -619,7 +619,7 @@ bool CryptoManager::verifyProposalECDSA(
 }
 
 ptr< ThresholdSignature > CryptoManager::verifyThresholdSig(
-    ptr< SHAHash > _hash, ptr< string > _signature, block_id _blockId ) {
+    const ptr< SHAHash >& _hash, const ptr<string>& _signature, block_id _blockId ) {
     MONITOR( __CLASS_NAME__, __FUNCTION__ )
 
     CHECK_ARGUMENT( _hash );
@@ -653,7 +653,7 @@ ptr< ThresholdSignature > CryptoManager::verifyThresholdSig(
 
 using namespace CryptoPP;
 
-ptr< void > CryptoManager::decodeSGXPublicKey( ptr< string > _keyHex ) {
+ptr< void > CryptoManager::decodeSGXPublicKey(const ptr<string>& _keyHex ) {
     CHECK_ARGUMENT( _keyHex );
 
     HexDecoder decoder;
@@ -671,7 +671,7 @@ ptr< void > CryptoManager::decodeSGXPublicKey( ptr< string > _keyHex ) {
 }
 
 
-ptr< string > CryptoManager::getSGXEcdsaPublicKey( ptr< string > _keyName, ptr< StubClient > _c ) {
+ptr<string> CryptoManager::getSGXEcdsaPublicKey(const ptr<string>& _keyName, const ptr< StubClient >& _c ) {
     CHECK_ARGUMENT( _keyName );
     CHECK_ARGUMENT( _c );
 
@@ -686,7 +686,7 @@ ptr< string > CryptoManager::getSGXEcdsaPublicKey( ptr< string > _keyName, ptr< 
     auto status = JSONFactory::getInt64(result, "status");
     CHECK_STATE( status == 0 );
 
-    auto publicKey = make_shared< string >(
+    auto publicKey = make_shared<string>(
         JSONFactory::getString(result,"publicKey"));
 
     LOG( info, "Got ECDSA public key: " + *publicKey );
@@ -694,7 +694,7 @@ ptr< string > CryptoManager::getSGXEcdsaPublicKey( ptr< string > _keyName, ptr< 
     return publicKey;
 }
 
-pair< ptr< string >, ptr< string > > CryptoManager::generateSGXECDSAKey( ptr< StubClient > _c ) {
+pair< ptr<string>, ptr<string> > CryptoManager::generateSGXECDSAKey(const ptr< StubClient >& _c ) {
     CHECK_ARGUMENT( _c );
 
     Json::Value result;
@@ -704,9 +704,9 @@ pair< ptr< string >, ptr< string > > CryptoManager::generateSGXECDSAKey( ptr< St
     auto status = JSONFactory::getInt64(result, "status");
     CHECK_STATE( status == 0 );
 
-    auto keyName = make_shared< string >(
+    auto keyName = make_shared<string>(
         JSONFactory::getString(result, "keyName"));
-    auto publicKey = make_shared< string >(
+    auto publicKey = make_shared<string>(
         JSONFactory::getString(result,"publicKey"));
 
     CHECK_STATE( keyName->size() > 10 );

@@ -57,7 +57,7 @@
 using namespace std;
 
 
-void BinConsensusInstance::processMessage(ptr<MessageEnvelope> _me ) {
+void BinConsensusInstance::processMessage(const ptr<MessageEnvelope>& _me ) {
 
     CHECK_ARGUMENT( _me );
     auto msg = _me->getMessage();
@@ -94,7 +94,7 @@ void BinConsensusInstance::ifAlreadyDecidedSendDelayedEstimateForNextRound(bin_c
 }
 
 
-void BinConsensusInstance::processNetworkMessageImpl(ptr<NetworkMessageEnvelope> _me) {
+void BinConsensusInstance::processNetworkMessageImpl(const ptr<NetworkMessageEnvelope>& _me) {
     CHECK_STATE(_me)
     updateStats(_me);
 
@@ -143,7 +143,7 @@ void BinConsensusInstance::updateStats(const ptr<NetworkMessageEnvelope> &_me) {
     }
 }
 
-void BinConsensusInstance::processParentProposal(ptr<InternalMessageEnvelope> _me) {
+void BinConsensusInstance::processParentProposal(const ptr<InternalMessageEnvelope>& _me) {
 
 
     auto m = dynamic_pointer_cast<BVBroadcastMessage>(_me->getMessage());
@@ -165,7 +165,7 @@ void BinConsensusInstance::processParentProposal(ptr<InternalMessageEnvelope> _m
 }
 
 
-void BinConsensusInstance::addToHistory(shared_ptr<NetworkMessage>
+void BinConsensusInstance::addToHistory(const ptr<NetworkMessage>&
 #ifdef CONSENSUS_DEBUG
                                         m
 #endif
@@ -224,7 +224,7 @@ void BinConsensusInstance::addCommonCoinToHistory(bin_consensus_round _r, bin_co
 }
 
 
-void BinConsensusInstance::bvbVote(ptr<MessageEnvelope> _me) {
+void BinConsensusInstance::bvbVote(const ptr<MessageEnvelope>& _me) {
 
     auto m = dynamic_pointer_cast<BVBroadcastMessage>(_me->getMessage());
     CHECK_STATE(m);
@@ -245,7 +245,7 @@ void BinConsensusInstance::bvbVote(ptr<MessageEnvelope> _me) {
 }
 
 
-void BinConsensusInstance::auxVote(ptr<MessageEnvelope> _me) {
+void BinConsensusInstance::auxVote(const ptr<MessageEnvelope>& _me) {
     auto m = dynamic_pointer_cast<AUXBroadcastMessage>(_me->getMessage());
     auto r = m->getRound();
     bin_consensus_value v = m->getValue();
@@ -271,7 +271,7 @@ uint64_t BinConsensusInstance::totalAUXVotes(bin_consensus_round r) {
 }
 
 void BinConsensusInstance::auxSelfVote(bin_consensus_round _r,
-        bin_consensus_value _v, ptr<ThresholdSigShare> _sigShare) {
+        bin_consensus_value _v, const ptr<ThresholdSigShare>& _sigShare) {
     CHECK_STATE(_sigShare);
 
     addAUXSelfVoteToHistory(_r, _v);
@@ -308,13 +308,13 @@ bool BinConsensusInstance::isTwoThird(node_count count) {
     return (uint64_t) count * 3 > 2 * getSchain()->getNodeCount();
 }
 
-bool BinConsensusInstance::isThirdVote(ptr<BVBroadcastMessage> _m) {
+bool BinConsensusInstance::isThirdVote(const ptr<BVBroadcastMessage>& _m) {
     auto voteCount = getBVBVoteCount(_m->getValue(), _m->getRound());
     return isThird(voteCount);
 }
 
 
-bool BinConsensusInstance::isTwoThirdVote(ptr<BVBroadcastMessage> _m) {
+bool BinConsensusInstance::isTwoThirdVote(const ptr<BVBroadcastMessage>& _m) {
     return isTwoThird(getBVBVoteCount(_m->getValue(), _m->getRound()));
 }
 
@@ -324,7 +324,7 @@ void BinConsensusInstance::insertValue(bin_consensus_round _r, bin_consensus_val
     binValues[_r].insert(_v);
 }
 
-void BinConsensusInstance::commitValueIfTwoThirds(ptr<BVBroadcastMessage> _m) {
+void BinConsensusInstance::commitValueIfTwoThirds(const ptr<BVBroadcastMessage>& _m) {
 
     auto r = _m->getRound();
     auto v = _m->getValue();
@@ -350,13 +350,13 @@ void BinConsensusInstance::commitValueIfTwoThirds(ptr<BVBroadcastMessage> _m) {
 }
 
 
-void BinConsensusInstance::networkBroadcastValueIfThird(ptr<BVBroadcastMessage> _m) {
+void BinConsensusInstance::networkBroadcastValueIfThird(const ptr<BVBroadcastMessage>& _m) {
     if (isThirdVote(_m)) {
         networkBroadcastValue(_m);
     }
 }
 
-void BinConsensusInstance::networkBroadcastValue(ptr<BVBroadcastMessage> _m) {
+void BinConsensusInstance::networkBroadcastValue(const ptr<BVBroadcastMessage>& _m) {
 
     auto v = _m->getValue();
     auto r = _m->getRound();

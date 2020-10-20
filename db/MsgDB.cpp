@@ -41,7 +41,7 @@ MsgDB::MsgDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId
 
 
 bool
-MsgDB::saveMsg(ptr<NetworkMessage> _msg) {
+MsgDB::saveMsg(const ptr<NetworkMessage>& _msg) {
 
     static atomic<uint64_t> msgCounter = 0;
 

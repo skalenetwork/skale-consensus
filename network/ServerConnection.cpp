@@ -31,7 +31,7 @@ using namespace std;
 
 atomic<int64_t> ServerConnection::totalObjects = 0;
 
-ServerConnection::ServerConnection(unsigned int _descriptor, ptr<std::string> _ip )  {
+ServerConnection::ServerConnection(unsigned int _descriptor, const ptr<std::string>& _ip )  {
 
     totalObjects++;
 

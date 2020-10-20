@@ -41,7 +41,7 @@ const string CommittedTransactionDB::getFormatVersion() {
 }
 
 
-void CommittedTransactionDB::writeCommittedTransaction(ptr<Transaction> _t, __uint64_t _committedTransactionCounter) {
+void CommittedTransactionDB::writeCommittedTransaction(const ptr<Transaction>& _t, __uint64_t _committedTransactionCounter) {
 
     CHECK_ARGUMENT(_t);
     auto hash = _t->getPartialHash();

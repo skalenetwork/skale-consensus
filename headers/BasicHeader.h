@@ -77,7 +77,7 @@ public:
     virtual ptr<string> serializeToString();
 
 
-    ptr< Buffer > toBuffer();
+    const ptr< Buffer > toBuffer();
 
 
     virtual void addFields(nlohmann::json & j ) = 0;
@@ -92,7 +92,7 @@ public:
 
     static int32_t getInt32( nlohmann::json& _js, const char* _name );
 
-    static ptr< string > getString( nlohmann::json& _js, const char* _name );
+    static ptr<string> getString( nlohmann::json& _js, const char* _name );
 
 };
 

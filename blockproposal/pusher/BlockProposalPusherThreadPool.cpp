@@ -21,28 +21,24 @@
     @date 2018
 */
 
-#include "SkaleCommon.h"
 #include "Log.h"
+#include "SkaleCommon.h"
 #include "exceptions/FatalError.h"
 
 #include "thirdparty/json.hpp"
 
-#include "abstracttcpserver/ConnectionStatus.h"
 #include "BlockProposalClientAgent.h"
 #include "BlockProposalPusherThreadPool.h"
+#include "abstracttcpserver/ConnectionStatus.h"
 
 BlockProposalPusherThreadPool::BlockProposalPusherThreadPool(
-        num_threads _numThreads, Agent *_agent) : WorkerThreadPool(_numThreads,
-                                                                  _agent, false) {
+    num_threads _numThreads, Agent* _agent )
+    : WorkerThreadPool( _numThreads, _agent, false ) {}
+
+
+void BlockProposalPusherThreadPool::createThread( uint64_t /*number*/ ) {
+    auto p = ( BlockProposalClientAgent* ) agent;
+
+    this->threadpool.push_back(
+        make_shared< thread >( AbstractClientAgent::workerThreadItemSendLoop, p ) );
 }
-
-
-void BlockProposalPusherThreadPool::createThread(uint64_t /*number*/) {
-
-    auto p = (BlockProposalClientAgent*)agent;
-
-    this->threadpool.push_back(make_shared<thread>(AbstractClientAgent::workerThreadItemSendLoop, p));
-
-}
-
-

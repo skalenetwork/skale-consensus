@@ -145,7 +145,7 @@ void MonitoringAgent::monitoringLoop(MonitoringAgent *_agent) {
     }
 }
 
-void MonitoringAgent::registerMonitor(ptr<LivelinessMonitor> _m) {
+void MonitoringAgent::registerMonitor(const ptr<LivelinessMonitor>& _m) {
 
     CHECK_ARGUMENT(_m)
     LOCK(m)

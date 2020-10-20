@@ -73,7 +73,7 @@ ptr< OpenSSLECDSAKey > OpenSSLECDSAKey::generateKey() {
 
 EC_GROUP* OpenSSLECDSAKey::ecgroup = nullptr;
 
-ptr< string > OpenSSLECDSAKey::getPublicKey() {
+ptr<string> OpenSSLECDSAKey::getPublicKey() {
     auto pubKeyComponent = EC_KEY_get0_public_key( ecKey );
 
     CHECK_STATE( pubKeyComponent );
@@ -84,14 +84,14 @@ ptr< string > OpenSSLECDSAKey::getPublicKey() {
     }
 
     char* hex = nullptr;
-    ptr< string > result = nullptr;
+    ptr<string> result = nullptr;
 
     try {
         hex = EC_POINT_point2hex( ecgroup, pubKeyComponent, POINT_CONVERSION_COMPRESSED, NULL );
 
         CHECK_STATE( hex );
 
-        result = make_shared< string >( hex );
+        result = make_shared<string>( hex );
 
     } catch ( ... ) {
         if ( hex )
@@ -105,7 +105,7 @@ ptr< string > OpenSSLECDSAKey::getPublicKey() {
     return result;
 }
 
-bool OpenSSLECDSAKey::verifySGXSig( ptr< string > _sig, const char* _hash ) {
+bool OpenSSLECDSAKey::verifySGXSig(const ptr<string>& _sig, const char* _hash ) {
     bool returnValue = false;
     BIGNUM* rBN = BN_new();
     BIGNUM* sBN = BN_new();
@@ -173,7 +173,7 @@ clean:
     return returnValue;
 }
 
-bool OpenSSLECDSAKey::sessionVerifySig( ptr< string > _signature, const char* _hash ) {
+bool OpenSSLECDSAKey::sessionVerifySig(const ptr<string>& _signature, const char* _hash ) {
     CHECK_ARGUMENT( _signature );
     CHECK_ARGUMENT( _hash );
 
@@ -201,13 +201,13 @@ bool OpenSSLECDSAKey::sessionVerifySig( ptr< string > _signature, const char* _h
 }
 
 
-ptr< string > OpenSSLECDSAKey::sessionSign( const char* _hash ) {
+ptr<string> OpenSSLECDSAKey::sessionSign( const char* _hash ) {
     CHECK_ARGUMENT( _hash );
     CHECK_STATE( ecKey );
     CHECK_STATE( isPrivate );
 
     ECDSA_SIG* signature = nullptr;
-    ptr< string > hexSig = nullptr;
+    ptr<string> hexSig = nullptr;
 
     try {
         signature = ECDSA_do_sign( ( const unsigned char* ) _hash, 32, ecKey );
@@ -229,7 +229,7 @@ ptr< string > OpenSSLECDSAKey::sessionSign( const char* _hash ) {
     return hexSig;
 }
 
-ptr< OpenSSLECDSAKey > OpenSSLECDSAKey::makeKey( ptr< string > _publicKey, bool _isSGX ) {
+ptr< OpenSSLECDSAKey > OpenSSLECDSAKey::makeKey(const ptr<string>& _publicKey, bool _isSGX ) {
     CHECK_ARGUMENT( _publicKey );
 
 

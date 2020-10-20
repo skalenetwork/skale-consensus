@@ -47,7 +47,7 @@ BlockSigShareDB::BlockSigShareDB(Schain *_sChain, string &_dirName, string &_pre
 
 
 ptr<ThresholdSignature>
-BlockSigShareDB::checkAndSaveShare(ptr<ThresholdSigShare> _sigShare, ptr<CryptoManager> _cryptoManager) {
+BlockSigShareDB::checkAndSaveShare(const ptr<ThresholdSigShare>& _sigShare, const ptr<CryptoManager>& _cryptoManager) {
     try {
         CHECK_ARGUMENT(_sigShare);
         CHECK_ARGUMENT(_cryptoManager);

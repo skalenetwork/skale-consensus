@@ -49,7 +49,7 @@ protected:
 
 public:
 
-    DAProof(ptr<BlockProposal> _proposal, ptr<ThresholdSignature> _thresholdSig);
+    DAProof(const ptr<BlockProposal>& _proposal, ptr<ThresholdSignature>& _thresholdSig);
 
     schain_id getSchainId() const;
 

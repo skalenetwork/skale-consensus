@@ -59,7 +59,7 @@ BlockProposalRequestHeader::BlockProposalRequestHeader(nlohmann::json _proposalR
     CHECK_STATE(stateRoot != 0);
 }
 
-BlockProposalRequestHeader::BlockProposalRequestHeader(Schain &_sChain, ptr<BlockProposal> proposal) :
+BlockProposalRequestHeader::BlockProposalRequestHeader(Schain &_sChain, const ptr<BlockProposal> proposal) :
         AbstractBlockRequestHeader(_sChain.getNodeCount(), _sChain.getSchainID(), proposal->getBlockID(),
                                    Header::BLOCK_PROPOSAL_REQ,
                                    _sChain.getSchainIndex()) {

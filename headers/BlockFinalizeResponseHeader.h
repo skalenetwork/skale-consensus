@@ -35,7 +35,7 @@ class BlockFinalizeResponseHeader : public Header {
 
 public:
 
-    void setFragmentParams(uint64_t _fragmentSize, uint64_t _blockSize, ptr<string> _hash);
+    void setFragmentParams(uint64_t _fragmentSize, uint64_t _blockSize, const ptr<string>& _hash);
 
 
 

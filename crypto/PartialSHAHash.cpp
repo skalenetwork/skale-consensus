@@ -42,7 +42,7 @@ uint8_t PartialSHAHash::at(uint32_t _position) {
     return hash->at(_position);
 }
 
-ptr< PartialSHAHash > PartialSHAHash::hex2sha( ptr< string > _hex ) {
+ptr< PartialSHAHash > PartialSHAHash::hex2sha(const ptr<string>& _hex ) {
 
     CHECK_STATE(_hex);
 
@@ -59,7 +59,7 @@ ptr< PartialSHAHash > PartialSHAHash::hex2sha( ptr< string > _hex ) {
 
 
 
-int PartialSHAHash::compare(ptr<PartialSHAHash> _hash2 ) {
+int PartialSHAHash::compare(const ptr<PartialSHAHash>& _hash2 ) {
     CHECK_ARGUMENT(_hash2);
     CHECK_STATE(hash);
     for (size_t i = 0; i < PARTIAL_SHA_HASH_LEN; i++) {
@@ -71,14 +71,14 @@ int PartialSHAHash::compare(ptr<PartialSHAHash> _hash2 ) {
     return 0;
 }
 
-PartialSHAHash::PartialSHAHash(ptr<array<uint8_t, PARTIAL_SHA_HASH_LEN>> _hash) {
+PartialSHAHash::PartialSHAHash(const ptr<array<uint8_t, PARTIAL_SHA_HASH_LEN>>& _hash) {
     CHECK_ARGUMENT(_hash);
     hash = _hash;
 }
 
 
 
-ptr< PartialSHAHash > PartialSHAHash::fromHex(ptr<string> _hex) {
+ptr< PartialSHAHash > PartialSHAHash::fromHex(const ptr<string>& _hex) {
     CHECK_ARGUMENT(_hex);
     auto result = make_shared<array<uint8_t, PARTIAL_SHA_HASH_LEN>>();
     for ( size_t i = 0; i < PARTIAL_SHA_HASH_LEN; i++ ) {
@@ -88,7 +88,7 @@ ptr< PartialSHAHash > PartialSHAHash::fromHex(ptr<string> _hex) {
 }
 
 
-ptr< string > PartialSHAHash::toHex() {
+ptr<string> PartialSHAHash::toHex() {
     CHECK_STATE(hash);
     return Utils::carray2Hex(hash->data(), PARTIAL_SHA_HASH_LEN);
 }

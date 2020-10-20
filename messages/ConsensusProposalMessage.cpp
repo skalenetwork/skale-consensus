@@ -27,7 +27,7 @@
 #include "datastructures/BooleanProposalVector.h"
 #include "ConsensusProposalMessage.h"
 
-ConsensusProposalMessage::ConsensusProposalMessage(Schain& _sChain, const block_id &_blockID, ptr<BooleanProposalVector> _proposals) : Message(
+ConsensusProposalMessage::ConsensusProposalMessage(Schain& _sChain, const block_id &_blockID, const ptr<BooleanProposalVector> _proposals) : Message(
         _sChain.getSchainID(), MSG_CONSENSUS_PROPOSAL,
         msg_id(0), node_id(0), _blockID,
         schain_index(1)) {

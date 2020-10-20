@@ -43,7 +43,7 @@ class BlockProposalRequestHeader : public AbstractBlockRequestHeader{
 
 public:
 
-    BlockProposalRequestHeader(Schain &_sChain, ptr<BlockProposal> proposal);
+    BlockProposalRequestHeader(Schain &_sChain, const ptr<BlockProposal> proposal);
 
     BlockProposalRequestHeader(nlohmann::json _proposalRequest, node_count _nodeCount);
 

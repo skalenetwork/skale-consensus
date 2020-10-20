@@ -50,13 +50,13 @@ public:
 
     explicit DAProofDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize);
 
-    ptr<BooleanProposalVector> addDAProof(ptr<DAProof> _daProof);
+    ptr<BooleanProposalVector> addDAProof(const ptr<DAProof>& _daProof);
 
     ptr<BooleanProposalVector> getCurrentProposalVector(block_id _blockID);
 
     const string getFormatVersion();
 
-    bool haveDAProof(ptr<BlockProposal> _proposal);
+    bool haveDAProof(const ptr<BlockProposal>& _proposal);
 
     bool isEnoughProofs(block_id _blockID);
 };

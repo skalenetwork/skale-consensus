@@ -74,7 +74,7 @@ ptr< partial_sha_hash > Transaction::getPartialHash() {
     return partialHash;
 }
 
-Transaction::Transaction( const ptr< vector< uint8_t > > _trx, bool _includesPartialHash ) {
+Transaction::Transaction( const ptr<vector<uint8_t>>& _trx, bool _includesPartialHash ) {
 
 
     CHECK_ARGUMENT(_trx != nullptr);
@@ -115,7 +115,7 @@ Transaction::Transaction( const ptr< vector< uint8_t > > _trx, bool _includesPar
 };
 
 
-ptr< vector< uint8_t > > Transaction::getData() const {
+ptr<vector<uint8_t>> Transaction::getData() const {
     CHECK_STATE(data != nullptr);
     CHECK_STATE(data->size() > 0);
     return data;
@@ -138,7 +138,7 @@ uint64_t Transaction::getSerializedSize(bool _writePartialHash) {
     return data->size();
 }
 
-void Transaction::serializeInto( ptr< vector< uint8_t > > _out, bool _writePartialHash ) {
+void Transaction::serializeInto(const ptr<vector<uint8_t>>& _out, bool _writePartialHash ) {
 
     LOCK(m)
     CHECK_ARGUMENT( _out)
@@ -155,7 +155,7 @@ void Transaction::serializeInto( ptr< vector< uint8_t > > _out, bool _writeParti
 
 
 ptr<Transaction > Transaction::deserialize(
-    const ptr< vector< uint8_t > > _data, uint64_t _startIndex, uint64_t _len, bool _verifyPartialHashes ) {
+    const ptr<vector<uint8_t>>& _data, uint64_t _startIndex, uint64_t _len, bool _verifyPartialHashes ) {
 
     CHECK_ARGUMENT( _data );
 

@@ -22,30 +22,30 @@
 */
 
 #include "Agent.h"
-#include "SkaleCommon.h"
 #include "Log.h"
+#include "SkaleCommon.h"
 
-#include "thirdparty/json.hpp"
 #include "abstracttcpserver/AbstractServerAgent.h"
 #include "exceptions/FatalError.h"
+#include "thirdparty/json.hpp"
 
-#include "threads/WorkerThreadPool.h"
 #include "BlockProposalServerAgent.h"
 #include "BlockProposalWorkerThreadPool.h"
+#include "threads/WorkerThreadPool.h"
 
 
-BlockProposalWorkerThreadPool::BlockProposalWorkerThreadPool(num_threads _numThreads, Agent *_agent) : WorkerThreadPool(
-        _numThreads, _agent, false) {
+BlockProposalWorkerThreadPool::BlockProposalWorkerThreadPool(
+    num_threads _numThreads, Agent* _agent )
+    : WorkerThreadPool( _numThreads, _agent, false ) {}
 
-}
 
-
-void BlockProposalWorkerThreadPool::createThread(uint64_t threadNumber) {
-
-    auto func = [threadNumber, this](){
-        setThreadName("BlkPropSrvAg" + to_string(threadNumber), this->agent->getNode()->getConsensusEngine());
-        AbstractServerAgent::workerThreadConnectionProcessingLoop((BlockProposalServerAgent *) agent);
+void BlockProposalWorkerThreadPool::createThread( uint64_t threadNumber ) {
+    auto func = [threadNumber, this]() {
+        setThreadName( "BlkPropSrvAg" + to_string( threadNumber ),
+            this->agent->getNode()->getConsensusEngine() );
+        AbstractServerAgent::workerThreadConnectionProcessingLoop(
+            ( BlockProposalServerAgent* ) agent );
     };
 
-    this->threadpool.push_back(make_shared<thread>(func));
+    this->threadpool.push_back( make_shared< thread >( func ) );
 }

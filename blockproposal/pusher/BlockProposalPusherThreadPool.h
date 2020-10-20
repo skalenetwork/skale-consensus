@@ -26,11 +26,8 @@
 #include "threads/WorkerThreadPool.h"
 
 class BlockProposalPusherThreadPool : public WorkerThreadPool {
-
 public:
+    BlockProposalPusherThreadPool( num_threads _numThreads, Agent* _agent );
 
-    BlockProposalPusherThreadPool(num_threads _numThreads, Agent *_agent);
-
-    void createThread(uint64_t _number);
-
+    void createThread( uint64_t _number );
 };

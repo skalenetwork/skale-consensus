@@ -44,7 +44,7 @@ ProposalVectorDB::ProposalVectorDB(Schain *_sChain, string &_dirName, string &_p
 // Then do not save
 // Return if it was saved.
 bool
-ProposalVectorDB::trySavingProposalVector(block_id _proposalBlockID, ptr<BooleanProposalVector> _proposalVector) {
+ProposalVectorDB::trySavingProposalVector(block_id _proposalBlockID, const ptr<BooleanProposalVector>& _proposalVector) {
 
     CHECK_ARGUMENT(_proposalVector);
 

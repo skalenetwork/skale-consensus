@@ -32,7 +32,7 @@
 using namespace std;
 
 ChildBVDecidedMessage::ChildBVDecidedMessage(bool _value, ProtocolInstance &_srcProtocolInstance,
-                                             ptr<ProtocolKey> _key, bin_consensus_round _round,
+                                             const ptr<ProtocolKey>& _key, bin_consensus_round _round,
                                              uint64_t _maxProcessingTimeMs, uint64_t _maxLatencyTimeMs) : ChildMessage(BIN_CONSENSUS_COMMIT,
                                                                                            _srcProtocolInstance, _key) {
     this->value = _value;

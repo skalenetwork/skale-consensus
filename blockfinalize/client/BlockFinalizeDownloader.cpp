@@ -109,7 +109,7 @@ BlockFinalizeDownloader::BlockFinalizeDownloader(Schain *_sChain, block_id _bloc
 }
 
 
-nlohmann::json BlockFinalizeDownloader::readBlockFinalizeResponseHeader(ptr<ClientSocket> _socket) {
+nlohmann::json BlockFinalizeDownloader::readBlockFinalizeResponseHeader(const ptr<ClientSocket>& _socket) {
     MONITOR(__CLASS_NAME__, __FUNCTION__);
     CHECK_ARGUMENT(_socket);
     return getSchain()->getIo()->readJsonHeader(_socket->getDescriptor(), "Read BlockFinalize response");
@@ -222,7 +222,7 @@ ptr<string> BlockFinalizeDownloader::readBlockHash(nlohmann::json _responseHeade
 };
 
 ptr<BlockProposalFragment>
-BlockFinalizeDownloader::readBlockFragment(ptr<ClientSocket> _socket, nlohmann::json responseHeader,
+BlockFinalizeDownloader::readBlockFragment(const ptr<ClientSocket>& _socket, nlohmann::json responseHeader,
                                            fragment_index _fragmentIndex, node_count _nodeCount) {
 
     CHECK_ARGUMENT(_socket);

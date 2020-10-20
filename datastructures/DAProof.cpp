@@ -33,7 +33,7 @@
 #include "thirdparty/json.hpp"
 
 
-DAProof::DAProof(ptr<BlockProposal> _proposal, ptr<ThresholdSignature> _thresholdSignature) {
+DAProof::DAProof(const ptr<BlockProposal>& _proposal, ptr<ThresholdSignature>& _thresholdSignature) {
     CHECK_ARGUMENT( _proposal );
     CHECK_ARGUMENT(_thresholdSignature);
 

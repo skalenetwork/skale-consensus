@@ -63,13 +63,13 @@ class BlockProposalFragmentList : public DataStructure {
 public:
     BlockProposalFragmentList(const block_id &_blockId, const uint64_t _totalFragments);
 
-    bool addFragment(ptr<BlockProposalFragment> _fragment, uint64_t& _nextIndexToRetrieve);
+    bool addFragment(const ptr<BlockProposalFragment>& _fragment, uint64_t& _nextIndexToRetrieve);
 
     uint64_t nextIndexToRetrieve();
 
     bool isComplete();
 
-    ptr<vector<uint8_t >> serialize();
+    const ptr<vector<uint8_t>> serialize();
 
 };
 

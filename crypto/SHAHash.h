@@ -33,14 +33,14 @@ class SHAHash {
 
 public:
 
-    explicit SHAHash(ptr<array<uint8_t, SHA_HASH_LEN>> _hash);
+    explicit SHAHash(const ptr<array<uint8_t, SHA_HASH_LEN>>& _hash);
 
 
     void print();
 
     uint8_t at(uint32_t _position);
 
-    int compare(ptr<SHAHash> _hash2 );
+    int compare(const ptr<SHAHash>& _hash2 );
 
     uint8_t * data() {
         return hash->data();
@@ -48,13 +48,13 @@ public:
 
     ptr<array<uint8_t ,SHA_HASH_LEN>> getHash() const;
 
-    static ptr<SHAHash> fromHex(ptr<string> _hex);
+    static ptr<SHAHash> fromHex(const ptr<string>& _hex);
 
-    ptr< string > toHex();
+    ptr<string> toHex();
 
-    static ptr<SHAHash> calculateHash(ptr<vector<uint8_t>> _data);
+    static ptr<SHAHash> calculateHash(const ptr<vector<uint8_t>>& _data);
 
-    static ptr<SHAHash> merkleTreeMerge(ptr<SHAHash> _left, ptr<SHAHash> _right);
+    static ptr<SHAHash> merkleTreeMerge(const ptr<SHAHash>& _left, const ptr<SHAHash>& _right);
 
 };
 

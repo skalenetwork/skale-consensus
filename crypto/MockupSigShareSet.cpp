@@ -84,7 +84,7 @@ bool MockupSigShareSet::isEnough() {
 
 
 
-bool MockupSigShareSet::addSigShare(shared_ptr<ThresholdSigShare> _sigShare) {
+bool MockupSigShareSet::addSigShare(const ptr<ThresholdSigShare>& _sigShare) {
 
     CHECK_ARGUMENT(_sigShare != nullptr);
 

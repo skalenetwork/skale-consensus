@@ -50,7 +50,7 @@
 
 
 ptr< CommittedBlock > CommittedBlock::makeObject(
-    ptr< BlockProposal > _proposal, ptr< ThresholdSignature > _thresholdSig ) {
+    const ptr< BlockProposal >& _proposal, const ptr< ThresholdSignature >& _thresholdSig ) {
     CHECK_ARGUMENT( _proposal );
     CHECK_ARGUMENT( _thresholdSig );
     return CommittedBlock::make( _proposal->getSchainID(), _proposal->getProposerNodeID(),
@@ -61,8 +61,8 @@ ptr< CommittedBlock > CommittedBlock::makeObject(
 
 ptr< CommittedBlock > CommittedBlock::make( const schain_id _sChainId,
     const node_id _proposerNodeId, const block_id _blockId, schain_index _proposerIndex,
-    ptr< TransactionList > _transactions, const u256& _stateRoot, uint64_t _timeStamp,
-    uint64_t _timeStampMs, ptr< string > _signature, ptr< string > _thresholdSig ) {
+    const ptr< TransactionList >& _transactions, const u256& _stateRoot, uint64_t _timeStamp,
+    uint64_t _timeStampMs, const ptr<string>& _signature, const ptr<string>& _thresholdSig ) {
     CHECK_ARGUMENT( _transactions );
     CHECK_ARGUMENT( _signature );
     CHECK_ARGUMENT( _thresholdSig );
@@ -72,14 +72,14 @@ ptr< CommittedBlock > CommittedBlock::make( const schain_id _sChainId,
 }
 
 
-void CommittedBlock::serializedSanityCheck( ptr< vector< uint8_t > > _serializedBlock ) {
+void CommittedBlock::serializedSanityCheck(const ptr<vector<uint8_t>>& _serializedBlock ) {
     CHECK_ARGUMENT( _serializedBlock );
     CHECK_ARGUMENT( _serializedBlock->at( sizeof( uint64_t ) ) == '{' );
     CHECK_ARGUMENT( _serializedBlock->back() == '>' );
 };
 
 
-ptr< CommittedBlock > CommittedBlock::createRandomSample( ptr< CryptoManager > _manager,
+ptr< CommittedBlock > CommittedBlock::createRandomSample(const ptr< CryptoManager >& _manager,
     uint64_t _size, boost::random::mt19937& _gen, boost::random::uniform_int_distribution<>& _ubyte,
     block_id _blockID ) {
     auto list = TransactionList::createRandomSample( _size, _gen, _ubyte );
@@ -96,7 +96,7 @@ ptr< CommittedBlock > CommittedBlock::createRandomSample( ptr< CryptoManager > _
 
     return CommittedBlock::make( p->getSchainID(), p->getProposerNodeID(), p->getBlockID(),
         p->getProposerIndex(), p->getTransactionList(), p->getStateRoot(), p->getTimeStamp(),
-        p->getTimeStampMs(), p->getSignature(), make_shared< string >( "EMPTY" ) );
+        p->getTimeStampMs(), p->getSignature(), make_shared<string>( "EMPTY" ) );
 }
 
 
@@ -104,7 +104,7 @@ ptr< BasicHeader > CommittedBlock::createHeader() {
     return make_shared< CommittedBlockHeader >( *this, this->getThresholdSig() );
 }
 
-ptr< string > CommittedBlock::getThresholdSig() const {
+ptr<string> CommittedBlock::getThresholdSig() const {
     CHECK_STATE( thresholdSig );
     return thresholdSig;
 }
@@ -112,11 +112,11 @@ ptr< string > CommittedBlock::getThresholdSig() const {
 
 
 ptr< CommittedBlock > CommittedBlock::deserialize(
-    ptr< vector< uint8_t > > _serializedBlock, ptr< CryptoManager > _manager ) {
+    const ptr<vector<uint8_t>>& _serializedBlock, const ptr< CryptoManager >& _manager ) {
     CHECK_ARGUMENT( _serializedBlock );
     CHECK_ARGUMENT( _manager );
 
-    ptr< string > headerStr = extractHeader( _serializedBlock );
+    ptr<string> headerStr = extractHeader( _serializedBlock );
 
     CHECK_STATE( headerStr );
 
@@ -175,7 +175,7 @@ ptr< CommittedBlock > CommittedBlock::deserialize(
 }
 
 ptr< CommittedBlockHeader > CommittedBlock::parseBlockHeader(
-    const shared_ptr< string >& _header ) {
+    const shared_ptr<string>& _header ) {
     CHECK_ARGUMENT( _header );
     CHECK_ARGUMENT( _header->size() > 2 );
     CHECK_ARGUMENT2( _header->at( 0 ) == '{', "Block header does not start with {" );
@@ -194,7 +194,7 @@ CommittedBlock::CommittedBlock( uint64_t timeStamp, uint32_t timeStampMs )
 CommittedBlock::CommittedBlock( const schain_id& _schainId, const node_id& _proposerNodeId,
     const block_id& _blockId, const schain_index& _proposerIndex,
     const ptr< TransactionList >& _transactions, const u256& stateRoot, uint64_t timeStamp,
-    __uint32_t timeStampMs, ptr< string > _signature, ptr< string > _thresholdSig )
+    __uint32_t timeStampMs, const ptr<string>& _signature, const ptr<string>& _thresholdSig )
     : BlockProposal( _schainId, _proposerNodeId, _blockId, _proposerIndex, _transactions, stateRoot,
           timeStamp, timeStampMs, _signature, nullptr ) {
     CHECK_ARGUMENT( _transactions );

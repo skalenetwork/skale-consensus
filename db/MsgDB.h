@@ -39,7 +39,7 @@ public:
 
     MsgDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize);
 
-    bool saveMsg(ptr<NetworkMessage> _msg);
+    bool saveMsg(const ptr<NetworkMessage>& _msg);
 
     ptr<vector<ptr<NetworkMessage>>> getMessages(block_id _blockID);
 

@@ -50,7 +50,7 @@ void BlockFinalizeResponseHeader::addFields(nlohmann::json &_j) {
     _j["blockSize"] = (uint64_t) blockSize;
 }
 
-void BlockFinalizeResponseHeader::setFragmentParams(uint64_t _fragmentSize, uint64_t _blockSize, ptr<string> _hash) {
+void BlockFinalizeResponseHeader::setFragmentParams(uint64_t _fragmentSize, uint64_t _blockSize, const ptr<string>& _hash) {
 
     CHECK_ARGUMENT(_fragmentSize > 2)
     CHECK_ARGUMENT(_blockSize > 16)

@@ -32,7 +32,7 @@ ReceivedBlockProposal::ReceivedBlockProposal(Schain &_sChain, const block_id &_b
                                              const schain_index &_proposerIndex,
                                              const ptr<TransactionList> &_transactions, u256 _stateRoot,
                                              const uint64_t &_timeStamp,
-                                             const uint32_t &_timeStampMs, ptr<string> _hash, ptr<string> _signature) : BlockProposal(
+                                             const uint32_t &_timeStampMs, const ptr<string>& _hash, const ptr<string>& _signature) : BlockProposal(
         _sChain.getSchainID(), _sChain.getNodeIDByIndex(_proposerIndex), _blockID,
         _proposerIndex, _transactions, _stateRoot,
         _timeStamp, _timeStampMs, _signature, nullptr) {

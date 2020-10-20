@@ -366,14 +366,14 @@ ConsensusEngine *Node::getConsensusEngine() const {
     CHECK_STATE(consensusEngine);
     return consensusEngine;
 }
-ptr< string > Node::getSgxUrl()  {
+ptr<string> Node::getSgxUrl()  {
     CHECK_STATE(sgxURL);
     return sgxURL;
 }
-ptr< string > Node::getSgxSslKeyFileFullPath()  {
+ptr<string> Node::getSgxSslKeyFileFullPath()  {
     return sgxSSLKeyFileFullPath;
 }
 
-ptr< string > Node::getSgxSslCertFileFullPath() {
+ptr<string> Node::getSgxSslCertFileFullPath() {
     return sgxSSLCertFileFullPath;
 }

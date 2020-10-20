@@ -72,9 +72,9 @@ BlockSignBroadcastMessage::BlockSignBroadcastMessage(block_id _blockID, schain_i
 
 BlockSignBroadcastMessage::BlockSignBroadcastMessage(node_id _srcNodeID, block_id _blockID,
                                                      schain_index _blockProposerIndex,uint64_t _time, schain_id _schainId,
-                                                     msg_id _msgID, ptr<string> _sigShare,
-                                                     schain_index _srcSchainIndex, ptr<string> _ecdsaSig,
-                                                     ptr<string> _pubKey, ptr<string> _pkSig,
+                                                     msg_id _msgID, const ptr<string>& _sigShare,
+                                                     schain_index _srcSchainIndex, const ptr<string>& _ecdsaSig,
+                                                     const ptr<string>& _pubKey, const ptr<string>& _pkSig,
                                                      Schain *_sChain)
     : NetworkMessage(
         MSG_BLOCK_SIGN_BROADCAST, _srcNodeID, _blockID, _blockProposerIndex, 0, 0, _time, _schainId, _msgID, _sigShare,

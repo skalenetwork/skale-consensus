@@ -38,7 +38,7 @@ CatchupResponseHeader::CatchupResponseHeader() : Header(Header::BLOCK_CATCHUP_RS
 
 }
 
-void CatchupResponseHeader::setBlockSizes(ptr<list<uint64_t>> _blockSizes) {
+void CatchupResponseHeader::setBlockSizes(const ptr<list<uint64_t>>& _blockSizes) {
 
     CHECK_ARGUMENT(_blockSizes);
 

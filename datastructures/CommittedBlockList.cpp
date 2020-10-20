@@ -31,7 +31,7 @@
 #include "CommittedBlock.h"
 #include "CommittedBlockList.h"
 
-CommittedBlockList::CommittedBlockList( ptr< vector< ptr< CommittedBlock > > > _blocks ) {
+CommittedBlockList::CommittedBlockList(const ptr< vector< ptr< CommittedBlock > > >& _blocks ) {
     CHECK_ARGUMENT( _blocks );
     CHECK_ARGUMENT( _blocks->size() > 0 );
 
@@ -39,8 +39,8 @@ CommittedBlockList::CommittedBlockList( ptr< vector< ptr< CommittedBlock > > > _
 }
 
 
-CommittedBlockList::CommittedBlockList( ptr< CryptoManager > _cryptoManager,
-    ptr< vector< uint64_t > > _blockSizes, ptr< vector< uint8_t > > _serializedBlocks,
+CommittedBlockList::CommittedBlockList(const ptr< CryptoManager >& _cryptoManager,
+    const ptr<vector<uint64_t>>& _blockSizes, const ptr<vector<uint8_t>>& _serializedBlocks,
     uint64_t _offset ) {
     CHECK_ARGUMENT( _cryptoManager );
     CHECK_ARGUMENT( _blockSizes );
@@ -64,7 +64,7 @@ CommittedBlockList::CommittedBlockList( ptr< CryptoManager > _cryptoManager,
 
             CHECK_STATE( endIndex <= _serializedBlocks->size() );
 
-            auto blockData = make_shared< vector< uint8_t > >(
+            auto blockData = make_shared<vector<uint8_t>>(
                 _serializedBlocks->begin() + index, _serializedBlocks->begin() + endIndex );
 
             CommittedBlock::serializedSanityCheck( blockData );
@@ -94,10 +94,10 @@ ptr< vector< ptr< CommittedBlock > > > CommittedBlockList::getBlocks() {
     return blocks;
 }
 
-shared_ptr< vector< uint8_t > > CommittedBlockList::serialize() {
+shared_ptr<vector<uint8_t>> CommittedBlockList::serialize() {
     LOCK( m )
 
-    auto serializedBlocks = make_shared< vector< uint8_t > >();
+    auto serializedBlocks = make_shared<vector<uint8_t>>();
 
     serializedBlocks->push_back( '[' );
 
@@ -113,7 +113,7 @@ shared_ptr< vector< uint8_t > > CommittedBlockList::serialize() {
 
 
 ptr< CommittedBlockList > CommittedBlockList::createRandomSample(
-    ptr< CryptoManager > _cryptoManager, uint64_t _size, boost::random::mt19937& _gen,
+    const ptr< CryptoManager >& _cryptoManager, uint64_t _size, boost::random::mt19937& _gen,
     boost::random::uniform_int_distribution<>& _ubyte ) {
     auto blcks = make_shared< vector< ptr< CommittedBlock > > >();
 
@@ -126,14 +126,14 @@ ptr< CommittedBlockList > CommittedBlockList::createRandomSample(
     return make_shared< CommittedBlockList >( blcks );
 }
 
-ptr< CommittedBlockList > CommittedBlockList::deserialize( ptr< CryptoManager > _cryptoManager,
-    ptr< vector< uint64_t > > _blockSizes, ptr< vector< uint8_t > > _serializedBlocks,
+ptr< CommittedBlockList > CommittedBlockList::deserialize(const ptr< CryptoManager >& _cryptoManager,
+    const ptr<vector<uint64_t>>& _blockSizes, const ptr<vector<uint8_t>>& _serializedBlocks,
     uint64_t _offset ) {
     return ptr< CommittedBlockList >(
         new CommittedBlockList( _cryptoManager, _blockSizes, _serializedBlocks, _offset ) );
 }
 
-ptr< vector< uint64_t > > CommittedBlockList::createSizes() {
+ptr<vector<uint64_t>> CommittedBlockList::createSizes() {
     LOCK( m )
 
     auto ret = make_shared< vector< uint64_t > >();

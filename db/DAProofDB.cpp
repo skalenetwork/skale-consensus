@@ -67,13 +67,13 @@ const string DAProofDB::getFormatVersion() {
 
 
 
-bool DAProofDB::haveDAProof(ptr<BlockProposal> _proposal) {
+bool DAProofDB::haveDAProof(const ptr<BlockProposal>& _proposal) {
     CHECK_ARGUMENT(_proposal);
     return keyExistsInSet(_proposal->getBlockID(), _proposal->getProposerIndex());
 };
 
 // return not-null if _daProof completes set, null otherwise (both if not enough and too much)
-ptr<BooleanProposalVector> DAProofDB::addDAProof(ptr<DAProof> _daProof) {
+ptr<BooleanProposalVector> DAProofDB::addDAProof(const ptr<DAProof>& _daProof) {
 
     CHECK_ARGUMENT(_daProof);
 

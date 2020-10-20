@@ -144,15 +144,15 @@ private:
 
     void proposeNextBlock(uint64_t _previousBlockTimeStamp, uint32_t _previousBlockTimeStampMs);
 
-    void processCommittedBlock(ptr<CommittedBlock> _block);
+    void processCommittedBlock(const ptr<CommittedBlock>& _block);
 
-    void startConsensus(const block_id _blockID, ptr<BooleanProposalVector> _propposalVector);
+    void startConsensus(const block_id _blockID, const ptr<BooleanProposalVector>& _propposalVector);
 
     void constructChildAgents();
 
-    void saveBlock(ptr<CommittedBlock> &_block);
+    void saveBlock(const ptr<CommittedBlock> &_block);
 
-    void pushBlockToExtFace(ptr<CommittedBlock> &_block);
+    void pushBlockToExtFace(const ptr<CommittedBlock> &_block);
 
     ptr<BlockProposal> createEmptyBlockProposal(block_id _blockId);
 
@@ -169,7 +169,7 @@ public:
 
     ptr<BlockProposal> getBlockProposal(block_id _blockID, schain_index _schainIndex);
 
-    void constructServers(ptr<Sockets> _sockets);
+    void constructServers(const ptr<Sockets>& _sockets);
 
     void healthCheck();
 
@@ -191,23 +191,23 @@ public:
 
     uint64_t getStartTimeMs() const;
 
-    void proposedBlockArrived(ptr<BlockProposal> _proposal);
+    void proposedBlockArrived(const ptr<BlockProposal>& _proposal);
 
-    void daProofArrived(ptr<DAProof> _daProof);
+    void daProofArrived(const ptr<DAProof>& _daProof);
 
     void blockProposalReceiptTimeoutArrived(block_id _blockID);
 
     void blockCommitArrived(block_id _committedBlockID, schain_index _proposerIndex, uint64_t _committedTimeStamp,
-                            uint64_t _committedTimeStampMs, ptr<ThresholdSignature> _thresholdSig);
+                            uint64_t _committedTimeStampMs, const ptr<ThresholdSignature>& _thresholdSig);
 
 
-    void blockCommitsArrivedThroughCatchup(ptr<CommittedBlockList> _blockList );
+    void blockCommitsArrivedThroughCatchup(const ptr<CommittedBlockList>& _blockList );
 
-    void daProofSigShareArrived(ptr<ThresholdSigShare> _sigShare, ptr<BlockProposal> _proposal);
+    void daProofSigShareArrived(const ptr<ThresholdSigShare>& _sigShare, const ptr<BlockProposal>& _proposal);
 
     const ptr<IO> getIo() const;
 
-    void postMessage(ptr<MessageEnvelope> _me );
+    void postMessage(const ptr<MessageEnvelope>& _me );
 
     ptr<PendingTransactionsAgent> getPendingTransactionsAgent() const;
 
@@ -257,7 +257,7 @@ public:
 
     ptr<CryptoManager> getCryptoManager() const;
 
-    void finalizeDecidedAndSignedBlock(block_id _blockId, schain_index _proposerIndex, ptr<ThresholdSignature> _thresholdSig );
+    void finalizeDecidedAndSignedBlock(block_id _blockId, schain_index _proposerIndex, const ptr<ThresholdSignature>& _thresholdSig );
 
     void tryStartingConsensus( const ptr< BooleanProposalVector >& pv, const block_id& bid );
 

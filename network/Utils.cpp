@@ -122,7 +122,7 @@ void Utils::checkTime() {
 }
 
 
-bool Utils::isValidIpAddress(ptr<string> ipAddress) {
+bool Utils::isValidIpAddress(const ptr<string> ipAddress) {
     struct sockaddr_in sa;
     int result = inet_pton(AF_INET, ipAddress->c_str(), &(sa.sin_addr));
     return result != 0;
