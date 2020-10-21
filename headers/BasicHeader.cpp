@@ -25,52 +25,44 @@
 #include "Log.h"
 #include "exceptions/FatalError.h"
 #include "exceptions/InvalidArgumentException.h"
-
-#include "abstracttcpserver/ConnectionStatus.h"
-#include "abstracttcpserver/AbstractServerAgent.h"
-#include "exceptions/ParsingException.h"
 #include "exceptions/NetworkProtocolException.h"
-
 #include "network/Buffer.h"
-#include "network/IO.h"
-
 #include "BasicHeader.h"
 
 bool BasicHeader::isComplete() const {
     return complete;
 }
 
-ptr<string> BasicHeader::serializeToString() {
-    ASSERT(complete);
+string BasicHeader::serializeToString() {
+    ASSERT(complete)
     nlohmann::json j;
 
-    CHECK_STATE(type != nullptr);
+    CHECK_STATE(type != nullptr)
 
     j["type"] = type;
 
     addFields(j);
 
-    auto s  = make_shared<string>(j.dump());
+    string s(j.dump());
 
-    CHECK_STATE(s->size() > 16);
+    CHECK_STATE(s.size() > 16)
 
     return s;
-
 }
 
 int64_t BasicHeader::getTotalObjects() {
     return totalObjects;
 }
 
-const ptr< Buffer > BasicHeader::toBuffer() {
+ptr< Buffer > BasicHeader::toBuffer() {
 
     auto s = serializeToString();
 
-    uint64_t len  = s->length();
+    uint64_t len  = s.size();
 
     auto buf = make_shared<Buffer>(len + sizeof(len));
     buf->write(&len, sizeof(len));
-    buf->write((void *) s->data(), len);
+    buf->write((void *) s.data(), len);
     CHECK_STATE(buf->getCounter() >= 10);
     return buf;
 }
@@ -99,11 +91,11 @@ uint64_t BasicHeader::getUint64Rapid(rapidjson::Document &_d, const char *_name)
     return a.GetUint64();
 };
 
-ptr<string> BasicHeader::getStringRapid(rapidjson::Document &_d, const char *_name) {
+string BasicHeader::getStringRapid(rapidjson::Document &_d, const char *_name) {
     CHECK_ARGUMENT(_name);
     CHECK_STATE(_d.HasMember(_name));
     CHECK_STATE(_d[_name].IsString());
-    return make_shared<string>(_d[_name].GetString());
+    return _d[_name].GetString();
 };
 
 
@@ -123,11 +115,11 @@ uint32_t BasicHeader::getUint32(nlohmann::json &_js, const char *_name) {
     return result;
 };
 
-ptr<string> BasicHeader::getString(nlohmann::json &_js, const char *_name) {
+string BasicHeader::getString(nlohmann::json &_js, const char *_name) {
     CHECK_ARGUMENT(_name);
     nullCheck(_js, _name);
     string result = _js[_name];
-    return make_shared<string>(result);
+    return result;
 }
 
 BasicHeader::BasicHeader(const char *_type) : type(_type)  {

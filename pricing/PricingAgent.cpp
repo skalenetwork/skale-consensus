@@ -25,7 +25,7 @@
 #include "Log.h"
 
 #include "DynamicPricingStrategy.h"
-#include "PricingStrategy.h"
+
 
 #include "ZeroPricingStrategy.h"
 #include "chains/Schain.h"
@@ -34,7 +34,6 @@
 #include "exceptions/FatalError.h"
 #include "exceptions/ParsingException.h"
 #include "node/ConsensusEngine.h"
-#include "node/Node.h"
 #include "thirdparty/json.hpp"
 #include <boost/multiprecision/cpp_int.hpp>
 
@@ -46,9 +45,9 @@ PricingAgent::PricingAgent(Schain &_sChain) : Agent(_sChain, false) {
     string def("DYNAMIC");
 
     auto strategy = _sChain.getNode()->getParamString("pricingStrategy", def);
-    CHECK_STATE(strategy);
+    CHECK_STATE(!strategy.empty())
 
-   if (*strategy == "DYNAMIC") {
+   if (strategy == "DYNAMIC") {
 
        u256 minPrice = sChain->getNode()->getParamUint64(string("DYNAMIC_PRICING_MIN_PRICE"), 1000);
        u256  maxPrice =- sChain->getNode()->getParamUint64("DYNAMIC_PRICING_MAX_PRICE", 1000000000);
@@ -56,10 +55,10 @@ PricingAgent::PricingAgent(Schain &_sChain) : Agent(_sChain, false) {
        uint64_t adjustmentSpeed = sChain->getNode()->getParamUint64("DYNAMIC_PRICING_ADJUSTMENT_SPEED", 1000);
        pricingStrategy = make_shared<DynamicPricingStrategy>(minPrice, maxPrice, optimalLoadPercentage, adjustmentSpeed);
 
-   } else if (*strategy == "ZERO") {
+   } else if (strategy == "ZERO") {
        pricingStrategy = make_shared<ZeroPricingStrategy>();
    } else {
-       BOOST_THROW_EXCEPTION(ParsingException("Unknown pricing strategy: " + *strategy , __CLASS_NAME__ ));
+       BOOST_THROW_EXCEPTION(ParsingException("Unknown pricing strategy: " + strategy , __CLASS_NAME__ ));
    }
 }
 

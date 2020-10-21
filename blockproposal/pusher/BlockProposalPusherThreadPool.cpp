@@ -22,14 +22,9 @@
 */
 
 #include "Log.h"
-#include "SkaleCommon.h"
-#include "exceptions/FatalError.h"
-
-#include "thirdparty/json.hpp"
 
 #include "BlockProposalClientAgent.h"
 #include "BlockProposalPusherThreadPool.h"
-#include "abstracttcpserver/ConnectionStatus.h"
 
 BlockProposalPusherThreadPool::BlockProposalPusherThreadPool(
     num_threads _numThreads, Agent* _agent )

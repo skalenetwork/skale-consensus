@@ -44,7 +44,7 @@ class CacheLevelDB {
 
 
     void verify();
-    ptr<map<schain_index, ptr<string>>> writeByteArrayToSetUnsafe(const char *_value, uint64_t _valueLen, block_id _blockId, schain_index _index);
+    ptr<map<schain_index, string>> writeByteArrayToSetUnsafe(const char *_value, uint64_t _valueLen, block_id _blockId, schain_index _index);
 
 protected:
 
@@ -61,20 +61,20 @@ protected:
     bool isDuplicateAddOK;
     Schain* sChain;
 
-    ptr<string> readString(string &_key);
-    ptr<string> readStringUnsafe(string &_key);
+    string readString(string &_key);
+    string readStringUnsafe(string &_key);
 
     void writeString(const string &key1, const string &value1, bool overWrite = false);
 
-    ptr<map<schain_index, ptr<string>>>
+    ptr<map<schain_index, string>>
     writeStringToSet(const string &_value, block_id _blockId, schain_index _index);
 
-        ptr<map<schain_index, ptr<string>>>
+        ptr<map<schain_index, string>>
     writeByteArrayToSet(const char *_value, uint64_t _valueLen, block_id _blockId, schain_index _index);
 
-    ptr<map<schain_index, ptr<string>>> readSet(block_id _blockId);
+    ptr<map<schain_index, string>> readSet(block_id _blockId);
 
-    ptr<map<schain_index, ptr<string>>> readSetUnsafe(block_id _blockId);
+    ptr<map<schain_index, string>> readSetUnsafe(block_id _blockId);
 
 
 
@@ -83,13 +83,13 @@ protected:
     void writeByteArray(string &_key, const ptr<vector<uint8_t>>& _data);
 
 
-    ptr<string> createKey(block_id _blockId);
+    string createKey(block_id _blockId);
 
-    ptr<string> createKey(block_id _blockId, schain_index _proposerIndex);
+    string createKey(block_id _blockId, schain_index _proposerIndex);
 
-    ptr<string> createKey(const block_id _blockId, uint64_t _counter);
+    string createKey(block_id _blockId, uint64_t _counter);
 
-    ptr<string>
+    string
     createKey(const block_id &_blockId, const schain_index &_proposerIndex, const bin_consensus_round &_round);
 
     string createCounterKey(block_id _block_id);
@@ -100,7 +100,7 @@ protected:
 
     bool keyExistsInSet(block_id _blockId, schain_index _index);
 
-    ptr<string> readStringFromBlockSet(block_id _blockId, schain_index _index);
+    string readStringFromBlockSet(block_id _blockId, schain_index _index);
 
     void rotateDBsIfNeeded();
 
@@ -115,21 +115,16 @@ protected:
     CacheLevelDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize,
                  bool _isDuplicateAddOK = false);
 
-    ptr<map<string, ptr<string>>> readPrefixRangeFromDBUnsafe(string &_prefix, const ptr<leveldb::DB>& _db, bool lastOnly = false);
+    static ptr<map<string, string>> readPrefixRangeFromDBUnsafe(string &_prefix, const ptr<leveldb::DB>& _db, bool lastOnly = false);
 
 public:
 
-    virtual const string getFormatVersion() = 0;
+    virtual const string& getFormatVersion() = 0;
 
-    void throwExceptionOnError(leveldb::Status result);
-
-
-
-
-
+    static void throwExceptionOnError(leveldb::Status& result);
     std::pair<uint64_t, uint64_t> findMaxMinDBIndex();
 
-    Schain *getSchain() const;
+    [[nodiscard]] Schain *getSchain() const;
 
 
     class KeyVisitor {
@@ -144,10 +139,10 @@ public:
 
     uint64_t getActiveDBSize();
 
-    ptr<map<string, ptr<string>>> readPrefixRange(string &_prefix);
+    ptr<map<string, string>> readPrefixRange(string &_prefix);
 
 
-    ptr<string> readLastKeyInPrefixRange(string &_prefix);
+    string readLastKeyInPrefixRange(string &_prefix);
 private:
     std::string path_to_index(uint64_t index);
 };

@@ -33,8 +33,8 @@ class SubmitDAProofRequestHeader : public AbstractBlockRequestHeader{
 
 
     node_id proposerNodeID;
-    ptr<string> thresholdSig;
-    ptr<string> blockHash;
+    string thresholdSig;
+    string blockHash;
 
 
 public:
@@ -45,11 +45,11 @@ public:
 
     void addFields(nlohmann::basic_json<> &jsonRequest) override;
 
-    const node_id getProposerNodeId() const;
+    node_id getProposerNodeId() const;
 
-    const ptr<string> getSignature() const;
+    string getSignature() const;
 
-    const ptr<string> getBlockHash() const;
+    string getBlockHash() const;
 
 };
 

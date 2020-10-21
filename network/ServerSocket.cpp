@@ -24,23 +24,21 @@
 #include "SkaleCommon.h"
 #include "Log.h"
 #include "exceptions/FatalError.h"
-#include "thirdparty/json.hpp"
-
 #include "ServerSocket.h"
 #include "Sockets.h"
 #include "Utils.h"
 
 
-ServerSocket::ServerSocket(const ptr<string> &_bindIP, uint16_t _basePort, port_type _portType)
+ServerSocket::ServerSocket(const string &_bindIP, uint16_t _basePort, port_type _portType)
     : bindIP( _bindIP ) {
 
-    CHECK_ARGUMENT(_bindIP);
+    CHECK_ARGUMENT(!_bindIP.empty())
 
     bindPort = _basePort + _portType;
 
     CHECK_STATE(Utils::isValidIpAddress( _bindIP ) );
 
-    LOG(debug, "Binding ip: " + *_bindIP + " " + to_string(bindPort) + " " +
+    LOG(debug, "Binding ip: " + _bindIP + " " + to_string(bindPort) + " " +
                to_string(_basePort));
 
 }

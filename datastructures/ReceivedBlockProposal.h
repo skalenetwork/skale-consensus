@@ -37,7 +37,7 @@ public:
 
     ReceivedBlockProposal(Schain &_sChain, const block_id &_blockID, const schain_index &_proposerIndex,
                           const ptr<TransactionList> &_transactions, u256 _stateRoot, const uint64_t &_timeStamp,
-                          const uint32_t &_timeStampMs, const ptr<string>& _hash, const ptr<string>& _signature);
+                          const uint32_t &_timeStampMs, const string& _hash, const string& _signature);
 
 
     static int64_t getTotalObjects() {

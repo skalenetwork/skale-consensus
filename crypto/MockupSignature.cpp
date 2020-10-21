@@ -24,24 +24,24 @@
 
 #include "SkaleCommon.h"
 #include "Log.h"
-#include "crypto/bls_include.h"
+
 #include "network/Utils.h"
 #include "thirdparty/json.hpp"
 
-#include "libBLS/bls/BLSSignature.h"
+
 #include "MockupSignature.h"
 #include "ThresholdSignature.h"
 
 
 MockupSignature::MockupSignature(
-    const ptr<string>& _s, block_id _blockID, size_t _totalSigners, size_t _requiredSigners )
+    const string& _s, block_id _blockID, size_t _totalSigners, size_t _requiredSigners )
     : ThresholdSignature(_blockID, _totalSigners, _requiredSigners) {
     s = _s;
 }
 
 
-std::shared_ptr<std::string> MockupSignature::toString() {
-    CHECK_STATE(s);
+string MockupSignature::toString() {
+    CHECK_STATE(s != "");
     return s;
 };
 

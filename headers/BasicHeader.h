@@ -46,12 +46,12 @@ public:
 
     static int64_t getTotalObjects();
 
-    bool isComplete() const;
+    [[nodiscard]] bool isComplete() const;
 
     static constexpr const char *BLOCK_PROPOSAL_REQ = "BlckPrpslReq";
     static constexpr const char *BLOCK_PROPOSAL_RSP = "BlckPrpslRsp";
     static constexpr const char *BLOCK_FINALIZE_REQ = "BlckFinalizeReq";
-    static constexpr const char *BLOCK_FINALIZE__RSP = "BlckFnlzRsp";
+    static constexpr const char * BLOCK_FINALIZE_RSP = "BlckFnlzRsp";
     static constexpr const char *DA_PROOF_REQ = "DAPrfReq";
     static constexpr const char *DA_PROOF_RSP = "DAPrfRsp";
     static constexpr const char *BLOCK_CATCHUP_REQ = "BlckCatchupReq";
@@ -65,7 +65,7 @@ public:
     static constexpr const char *AUX_BROADCAST = "A";
     static constexpr const char *BLOCK_SIG_BROADCAST = "S";
 
-    BasicHeader(const char *_type);
+    explicit BasicHeader(const char *_type);
 
     virtual ~BasicHeader();
 
@@ -74,17 +74,15 @@ public:
     static void nullCheck( nlohmann::json& js, const char* _name );
 
 
-    virtual ptr<string> serializeToString();
+    virtual string serializeToString();
 
-
-    const ptr< Buffer > toBuffer();
-
+    ptr< Buffer > toBuffer();
 
     virtual void addFields(nlohmann::json & j ) = 0;
 
     static uint64_t getUint64( nlohmann::json& _js, const char* _name );
 
-    static ptr<string> getStringRapid(rapidjson::Document &_d, const char *_name);
+    static string getStringRapid(rapidjson::Document &_d, const char *_name);
 
     static uint64_t getUint64Rapid(rapidjson::Document &_d, const char *_name);
 
@@ -92,7 +90,7 @@ public:
 
     static int32_t getInt32( nlohmann::json& _js, const char* _name );
 
-    static ptr<string> getString( nlohmann::json& _js, const char* _name );
+    static string getString( nlohmann::json& _js, const char* _name );
 
 };
 

@@ -29,7 +29,7 @@ class BlockProposalFragment {
 
     const block_id blockId;
     const uint64_t blockSize;
-    ptr<string> blockHash;
+    string blockHash;
 
     const uint64_t totalFragments;
     const fragment_index fragmentIndex;
@@ -40,7 +40,7 @@ class BlockProposalFragment {
 public:
 
     BlockProposalFragment(const block_id & _blockId, const uint64_t _totalFragments, const fragment_index &fragmentIndex,
-                          const ptr<vector<uint8_t>> & _data, uint64_t _blockSize, const ptr<string>& _blockHash);
+                          const ptr<vector<uint8_t>> & _data, uint64_t _blockSize, const string& _blockHash);
 
     block_id getBlockId() const;
 
@@ -52,7 +52,7 @@ public:
 
     uint64_t getBlockSize() const;
 
-    ptr<string> getBlockHash() const;
+    string getBlockHash() const;
 
 };
 

@@ -34,19 +34,19 @@ class ConsensusEngine;
 
 class JSONFactory {
 public:
-    static ptr< Node > createNodeFromJsonFile(const ptr<string>& _sgxUrl, const fs_path& jsonFile, set< node_id >& nodeIDs,
-        ConsensusEngine* _consensusEngine, bool _useSGX, const ptr<string>& _sgxSSLKeyFileFullPath,
-        const ptr<string>& _sgxSSLCertFileFullPath, const ptr<string>& _ecdsaKeyName,
-                                              const ptr< vector<string> >& _ecdsaPublicKeys, const ptr<string>& _blsKeyName,
+    static ptr< Node > createNodeFromJsonFile(const string& _sgxUrl, const fs_path& jsonFile, set< node_id >& nodeIDs,
+        ConsensusEngine* _consensusEngine, bool _useSGX, const string& _sgxSSLKeyFileFullPath,
+        const string& _sgxSSLCertFileFullPath, const string& _ecdsaKeyName,
+                                              const ptr< vector<string> >& _ecdsaPublicKeys, const string& _blsKeyName,
                                               const ptr< vector< ptr< vector<string>>>>& _blsPublicKeys,
                                               const ptr< BLSPublicKey >& _blsPublicKey );
 
     static ptr< Node > createNodeFromJsonObject(
         const nlohmann::json& j, set< node_id >& nodeIDs, ConsensusEngine* _engine, bool _useSGX,
-        const ptr<string>& _sgxURL,
-        const ptr<string>& _sgxSSLKeyFileFullPath, const ptr<string>& _sgxSSLCertFileFullPath,
-        const ptr<string>& _ecdsaKeyName, const ptr< vector<string> >& _ecdsaPublicKeys,
-        const ptr<string>& _blsKeyName, const ptr< vector< ptr< vector<string>>>>& _blsPublicKeys,
+        const string& _sgxURL,
+        const string& _sgxSSLKeyFileFullPath, const string& _sgxSSLCertFileFullPath,
+        const string& _ecdsaKeyName, const ptr< vector<string> >& _ecdsaPublicKeys,
+        const string& _blsKeyName, const ptr< vector< ptr< vector<string>>>>& _blsPublicKeys,
         const ptr< BLSPublicKey >& _blsPublicKey
 
     );
@@ -61,11 +61,11 @@ public:
 
     static tuple< ptr< vector<string> >, ptr< vector<string> >, ptr< vector<string> >,
         ptr< vector< ptr< vector<string>>>>, ptr<BLSPublicKey>>
-    parseTestKeyNamesFromJson(const ptr<string>& _sgxServer4Url,  const fs_path& configFile, uint64_t _totalNodes,
+    parseTestKeyNamesFromJson(const string& _sgxServer4Url,  const fs_path& configFile, uint64_t _totalNodes,
         uint64_t _requiredNodes);
 
     static pair< ptr< vector<string> >, ptr< vector<string> > > parseAllTestKeyNames(
-        ptr<string>& _sgxServerUrl,
+        string& _sgxServerUrl,
         const fs_path& _dir );
 
     static ptr<vector<string>> splitString(const string& str, const string& _delim = ":");

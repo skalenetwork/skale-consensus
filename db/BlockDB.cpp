@@ -37,13 +37,12 @@ ptr<vector<uint8_t> > BlockDB::getSerializedBlockFromLevelDB(block_id _blockID) 
     try {
 
         auto key = createKey(_blockID);
-        CHECK_STATE(key);
-        auto value = readString(*key);
-        CHECK_STATE(value);
+        CHECK_STATE(key != "");
+        auto value = readString(key);
 
-        if (value) {
+        if (value != "") {
             auto serializedBlock = make_shared<vector<uint8_t>>();
-            serializedBlock->insert(serializedBlock->begin(), value->data(), value->data() + value->size());
+            serializedBlock->insert(serializedBlock->begin(), value.data(), value.data() + value.size());
             CommittedBlock::serializedSanityCheck(serializedBlock);
             return serializedBlock;
         } else {
@@ -63,7 +62,7 @@ BlockDB::BlockDB(Schain *_sChain, string &_dirname, string &_prefix, node_id _no
 void BlockDB::saveBlock2LevelDB(const ptr<CommittedBlock> &_block) {
 
     CHECK_ARGUMENT(_block);
-    CHECK_ARGUMENT(_block->getSignature() != nullptr);
+    CHECK_ARGUMENT(_block->getSignature() != "");
 
     LOCK(m)
 
@@ -74,8 +73,8 @@ void BlockDB::saveBlock2LevelDB(const ptr<CommittedBlock> &_block) {
         CHECK_STATE(serializedBlock);
 
         auto key = createKey(_block->getBlockID());
-        CHECK_STATE(key);
-        writeByteArray(*key, serializedBlock);
+        CHECK_STATE(key != "");
+        writeByteArray(key, serializedBlock);
         writeString(createLastCommittedKey(), to_string(_block->getBlockID()), true);
     } catch (...) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
@@ -93,15 +92,16 @@ string BlockDB::createBlockStartKey( block_id _blockID) {
     return getFormatVersion() + ":start:" + to_string((uint64_t) _blockID);
 }
 
-const string BlockDB::getFormatVersion() {
-    return "1.0";
+const string& BlockDB::getFormatVersion() {
+    static const string version = "1.0";
+    return version;
 }
 
 void BlockDB::saveBlock(const ptr<CommittedBlock> &_block) {
 
 
     CHECK_ARGUMENT(_block);
-    CHECK_ARGUMENT(_block->getSignature());
+    CHECK_ARGUMENT(_block->getSignature() != "");
 
     try {
         LOCK(m)
@@ -148,10 +148,10 @@ block_id BlockDB::readLastCommittedBlockID() {
 
     auto blockStr = readString(key);
 
-    if (!blockStr)
+    if (blockStr == "")
         return 0;
 
-    stringstream(*blockStr)  >> lastBlockId;
+    stringstream(blockStr)  >> lastBlockId;
 
     return lastBlockId;
 }
@@ -160,8 +160,8 @@ bool BlockDB::unfinishedBlockExists( block_id  _blockID) {
     auto key = createBlockStartKey(_blockID);
     auto str = readString(key);
 
-    if (str != nullptr) {
-        return !this->keyExists(*createKey(_blockID));
+    if (str != "") {
+        return !this->keyExists(createKey(_blockID));
     }
     return false;
 }

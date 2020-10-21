@@ -40,9 +40,9 @@ class CommittedBlockHeader;
 class BlockProposalFragment;
 
 class CommittedBlock : public BlockProposal {
-    ptr<string> thresholdSig = nullptr;
+    string thresholdSig = "";
 
-    static ptr< CommittedBlockHeader > parseBlockHeader( const shared_ptr<string>& _header );
+    static ptr< CommittedBlockHeader > parseBlockHeader( const string& _header );
 
 protected:
     ptr< BasicHeader > createHeader() override;
@@ -54,16 +54,16 @@ public:
     CommittedBlock( const schain_id& _schainId, const node_id& _proposerNodeId,
         const block_id& _blockId, const schain_index& _proposerIndex,
         const ptr< TransactionList >& _transactions, const u256& stateRoot, uint64_t timeStamp,
-        __uint32_t timeStampMs, const ptr<string>& _signature, const ptr<string>& _thresholdSig );
+        __uint32_t timeStampMs, const string& _signature, const string& _thresholdSig );
 
-    ptr<string> getThresholdSig() const;
+    string getThresholdSig() const;
 
     static ptr< CommittedBlock > makeObject(
         const ptr< BlockProposal >& _proposal, const ptr< ThresholdSignature >& _thresholdSig );
     static ptr< CommittedBlock > make( schain_id _sChainId, node_id _proposerNodeId,
         block_id _blockId, schain_index _proposerIndex, const  ptr< TransactionList >& _transactions,
         const u256& _stateRoot, uint64_t _timeStamp, uint64_t _timeStampMs,
-        const ptr<string>& _signature, const ptr<string>& _thresholdSig );
+        const string& _signature, const string& _thresholdSig );
 
 
     static ptr< CommittedBlock > deserialize(

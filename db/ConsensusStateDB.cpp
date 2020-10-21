@@ -40,68 +40,68 @@ ConsensusStateDB::ConsensusStateDB(Schain *_sChain, string &_dirName, string &_p
                                                                        _maxDBSize, false) {}
 
 
-const string ConsensusStateDB::getFormatVersion() {
-    return "1.0";
+const string& ConsensusStateDB::getFormatVersion() {
+    static const string version = "1.0";
+    return version;
 }
 
 
-ptr<string> ConsensusStateDB::createCurrentRoundKey(block_id _blockId, schain_index _proposerIndex) {
+string ConsensusStateDB::createCurrentRoundKey(block_id _blockId, schain_index _proposerIndex) {
     auto key = createKey(_blockId, _proposerIndex);
-    CHECK_STATE(key);
-    key->append(":cr");
+    CHECK_STATE(!key.empty())
+    key.append(":cr");
     return key;
 }
 
-ptr<string> ConsensusStateDB::createDecidedRoundKey(block_id _blockId, schain_index _proposerIndex) {
+string ConsensusStateDB::createDecidedRoundKey(block_id _blockId, schain_index _proposerIndex) {
     auto key = createKey(_blockId, _proposerIndex);
-    CHECK_STATE(key);
-    key->append(":dr");
+    CHECK_STATE(!key.empty())
+    key.append(":dr");
     return key;
 
 }
 
-ptr<string> ConsensusStateDB::createDecidedValueKey(block_id _blockId, schain_index _proposerIndex) {
+string ConsensusStateDB::createDecidedValueKey(block_id _blockId, schain_index _proposerIndex) {
     auto key = createKey(_blockId, _proposerIndex);
-    CHECK_STATE(key);
-    key->append(":dv");
+    CHECK_STATE(!key.empty())
+    key.append(":dv");
     return key;
 }
 
 
-ptr<string>
+string
 ConsensusStateDB::createProposalKey(block_id _blockId, schain_index _proposerIndex, bin_consensus_round _r) {
     auto key = createKey(_blockId, _proposerIndex);
-    CHECK_STATE(key);
-    key->append(":prp:").append(to_string(_r));
+    CHECK_STATE(!key.empty())
+    key.append(":prp:").append(to_string(_r));
     return key;
 }
 
-ptr<string>
+string
 ConsensusStateDB::createBVBVoteKey(block_id _blockId, schain_index _proposerIndex, bin_consensus_round _r,
                                    schain_index _voterIndex, bin_consensus_value _v) {
     auto key = createKey(_blockId, _proposerIndex);
-    CHECK_STATE(key);
-    key->
-            append(":bvb:").append(to_string(_r)).append(":").append(to_string(_voterIndex)).append(":").append(
+    CHECK_STATE(!key.empty())
+    key.append(":bvb:").append(to_string(_r)).append(":").append(to_string(_voterIndex)).append(":").append(
             to_string(
                     (uint32_t) (uint8_t) _v));
     return key;
 }
 
 
-ptr<string> ConsensusStateDB::createBinValueKey(block_id _blockId, schain_index _proposerIndex, bin_consensus_round _r,
+string ConsensusStateDB::createBinValueKey(block_id _blockId, schain_index _proposerIndex, bin_consensus_round _r,
                                                 bin_consensus_value _v) {
     auto key = createKey(_blockId, _proposerIndex);
-    key->append(":bin:").append(to_string(_r)).append(":").append(to_string((uint32_t) (uint8_t) _v));
+    key.append(":bin:").append(to_string(_r)).append(":").append(to_string((uint32_t) (uint8_t) _v));
     return key;
 }
 
-ptr<string>
+string
 ConsensusStateDB::createAUXVoteKey(block_id _blockId, schain_index _proposerIndex, bin_consensus_round _r,
                                    schain_index _voterIndex, bin_consensus_value _v) {
 
     auto key = createKey(_blockId, _proposerIndex);
-    key->
+    key.
             append(":aux:").append(to_string(_r)).append(":").append(to_string(_voterIndex)).append(":").append(
             to_string(
                     (uint32_t) (uint8_t) _v));
@@ -118,13 +118,13 @@ void ConsensusStateDB::writeCR(block_id _blockId, schain_index _proposerIndex, b
 
 bin_consensus_round ConsensusStateDB::readCR(block_id _blockId, schain_index _proposerIndex) {
     auto key = createCurrentRoundKey(_blockId, _proposerIndex);
-    auto round = readString(*key);
-    if (round == nullptr) {
+    auto round = readString(key);
+    if (round.empty()) {
         return 0;
     }
 
     uint64_t result;
-    stringstream(*round) >> result;
+    stringstream(round) >> result;
     return result;
 }
 
@@ -137,12 +137,12 @@ void ConsensusStateDB::writeDR(block_id _blockId, schain_index _proposerIndex, b
 
 pair<bool, bin_consensus_round> ConsensusStateDB::readDR(block_id _blockId, schain_index _proposerIndex) {
     auto key = createDecidedRoundKey(_blockId, _proposerIndex);
-    auto value = readString(*key);
-    if (value == nullptr) {
+    auto value = readString(key);
+    if (value.empty()) {
         return {false, 0};
     }
     uint64_t result;
-    stringstream(*value) >> result;
+    stringstream(value) >> result;
     return {true, result};
 }
 
@@ -157,11 +157,11 @@ void ConsensusStateDB::writeDV(block_id _blockId, schain_index _proposerIndex, b
 
 bin_consensus_value ConsensusStateDB::readDV(block_id _blockId, schain_index _proposerIndex) {
     auto key = createDecidedValueKey(_blockId, _proposerIndex);
-    auto value = readString(*key);
-    if (value == nullptr)
+    auto value = readString(key);
+    if (value.empty())
         BOOST_THROW_EXCEPTION(InvalidStateException("Missing DV", __CLASS_NAME__));
     uint32_t result;
-    stringstream(*value) >> result;
+    stringstream(value) >> result;
 
     return (uint8_t) result;
 }
@@ -181,11 +181,11 @@ bin_consensus_value ConsensusStateDB::readPR(block_id _blockId, schain_index _pr
                                              bin_consensus_round _r) {
 
     auto key = createProposalKey(_blockId, _proposerIndex, _r);
-    auto value = readString(*key);
-    if (value == nullptr)
+    auto value = readString(key);
+    if (value.empty())
         BOOST_THROW_EXCEPTION(InvalidStateException("Missing DV", __CLASS_NAME__));
     uint32_t result;
-    stringstream(*value) >> result;
+    stringstream(value) >> result;
     return (uint8_t) result;
 }
 
@@ -204,7 +204,7 @@ pair<ptr<map<bin_consensus_round, set<schain_index>>>,
         ptr<map<bin_consensus_round, set<schain_index>>>>
 ConsensusStateDB::readBVBVotes(block_id _blockId, schain_index _proposerIndex) {
 
-    auto prefix = createKey(_blockId, _proposerIndex)->append(":bvb:");
+    auto prefix = createKey(_blockId, _proposerIndex).append(":bvb:");
     auto keysAndValues = readPrefixRange(prefix);
 
     auto trueMap = make_shared<map<bin_consensus_round, set<schain_index>>>();
@@ -250,7 +250,7 @@ ConsensusStateDB::readBinValues(block_id _blockId, schain_index _proposerIndex) 
 
     auto result = make_shared<map<bin_consensus_round, set<bin_consensus_value>>>();
 
-    auto prefix = createKey(_blockId, _proposerIndex)->append(":bin:");
+    auto prefix = createKey(_blockId, _proposerIndex).append(":bin:");
     auto keysAndValues = readPrefixRange(prefix);
 
     if (keysAndValues == nullptr) {
@@ -278,7 +278,7 @@ ConsensusStateDB::readPRs(block_id _blockId, schain_index _proposerIndex) {
 
     auto result = make_shared<map<bin_consensus_round, bin_consensus_value>>();
 
-    auto prefix = createKey(_blockId, _proposerIndex)->append(":pr:");
+    auto prefix = createKey(_blockId, _proposerIndex).append(":pr:");
     auto keysAndValues = readPrefixRange(prefix);
 
     if (keysAndValues == nullptr) {
@@ -305,7 +305,7 @@ ConsensusStateDB::readPRs(block_id _blockId, schain_index _proposerIndex) {
 
 void ConsensusStateDB::writeAUXVote(block_id _blockId, schain_index _proposerIndex, bin_consensus_round _r,
                                     schain_index _voterIndex,
-                                    bin_consensus_value _v, const ptr<string>& _sigShare) {
+                                    bin_consensus_value _v, const string& _sigShare) {
 #ifdef CONSENSUS_STATE_PERSISTENCE
     CHECK_ARGUMENT(_v <= 1);
     CHECK_ARGUMENT(_sigShare);
@@ -319,16 +319,16 @@ pair<ptr<map<bin_consensus_round, map<schain_index, ptr<ThresholdSigShare>>>>,
         ptr<map<bin_consensus_round, map<schain_index, ptr<ThresholdSigShare>>>>>
 ConsensusStateDB::readAUXVotes(block_id _blockId, schain_index _proposerIndex, const ptr<CryptoManager>& _cryptoManager) {
 
-    CHECK_ARGUMENT(_cryptoManager);
+    CHECK_ARGUMENT(_cryptoManager)
 
     auto trueMap = make_shared<map<bin_consensus_round, map<schain_index, ptr<ThresholdSigShare>>>>();
     auto falseMap = make_shared<map<bin_consensus_round, map<schain_index, ptr<ThresholdSigShare>>>>();
 
 
     auto key = createKey(_blockId, _proposerIndex);
-    CHECK_STATE(key);
+    CHECK_STATE(!key.empty())
 
-    auto prefix = key->append(":aux:");
+    auto prefix = key.append(":aux:");
 
     auto keysAndValues = readPrefixRange(prefix);
 
@@ -337,15 +337,15 @@ ConsensusStateDB::readAUXVotes(block_id _blockId, schain_index _proposerIndex, c
     }
 
     for (auto&& item : *keysAndValues) {
-        CHECK_STATE(item.first.rfind(prefix) == 0);
+        CHECK_STATE(item.first.rfind(prefix) == 0)
         auto info = stringstream(item.first.substr(prefix.size()));
         uint64_t round;
         uint64_t voterIndex;
         uint32_t value;
         info >> round;
-        CHECK_STATE(info.get() == ':');
+        CHECK_STATE(info.get() == ':')
         info >> voterIndex;
-        CHECK_STATE(info.get() == ':');
+        CHECK_STATE(info.get() == ':')
         info >> value;
 
         ptr<map<bin_consensus_round, map<schain_index, ptr<ThresholdSigShare>>>> outputMap;

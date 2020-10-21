@@ -43,7 +43,7 @@ public:
 
     ptr<vector<ptr<NetworkMessage>>> getMessages(block_id _blockID);
 
-    const string getFormatVersion() override ;
+    const string& getFormatVersion() override ;
 };
 
 

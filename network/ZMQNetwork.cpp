@@ -25,18 +25,15 @@
 #include "Log.h"
 #include "exceptions/FatalError.h"
 
-#include "thirdparty/json.hpp"
+
 
 #include "Network.h"
-#include "abstracttcpserver/ConnectionStatus.h"
+
 #include "zmq.h"
 
 #include "messages/NetworkMessage.h"
 #include "messages/NetworkMessageEnvelope.h"
-#include "node/Node.h"
 #include "node/NodeInfo.h"
-#include "exceptions/FatalError.h"
-#include "blockproposal/server/BlockProposalWorkerThreadPool.h"
 #include "blockproposal/pusher/BlockProposalClientAgent.h"
 #include "db/BlockProposalDB.h"
 #include "pendingqueue/PendingTransactionsAgent.h"
@@ -65,7 +62,7 @@ bool ZMQNetwork::sendMessage(const ptr<NodeInfo> &_remoteNodeInfo, const ptr<Net
                                                                       _remoteNodeInfo);
 
 #ifdef ZMQ_NONBLOCKING
-    return interruptableSend(s, buf->data(), buf->size(), true);
+    return interruptableSend(s, buf.data(), buf.size(), true);
 #else
     return interruptableSend(s, buf->data(), buf->size(), false);
 #endif
@@ -76,7 +73,7 @@ bool ZMQNetwork::sendMessage(const ptr<NodeInfo> &_remoteNodeInfo, const ptr<Net
 
 uint64_t ZMQNetwork::interruptableRecv(void *_socket, void *_buf, size_t _len, int _flags) {
 
-    int rc = -1;
+    int rc;
 
     do {
 
@@ -106,7 +103,7 @@ bool ZMQNetwork::interruptableSend(void *_socket, void *_buf, size_t _len, bool 
 
     usleep(1000 * sChain->getNode()->getSimulateNetworkWriteDelayMs());
 
-    int rc = -1;
+    int rc;
 
 
     int flags = 0;

@@ -30,19 +30,19 @@ class BlockFinalizeResponseHeader : public Header {
 
     uint64_t  fragmentSize = 0;
     uint64_t  blockSize = 0;
-    ptr<string> blockHash = nullptr;
+    string blockHash = "";
 
 
 public:
 
-    void setFragmentParams(uint64_t _fragmentSize, uint64_t _blockSize, const ptr<string>& _hash);
+    void setFragmentParams(uint64_t _fragmentSize, uint64_t _blockSize, const string& _hash);
 
 
 
     BlockFinalizeResponseHeader();
 
     void addFields(nlohmann::json &jsonRequest) override;
-    void setSigShare(const ptr<string> &_sigShare);
+    void setSigShare(const string &_sigShare);
 
 
 };

@@ -37,7 +37,7 @@ class BlockSigShareDB : public CacheLevelDB {
 
     recursive_mutex sigShareMutex;
 
-    const string getFormatVersion();
+    const string& getFormatVersion() override;
 
 public:
 

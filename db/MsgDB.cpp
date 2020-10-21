@@ -53,22 +53,22 @@ MsgDB::saveMsg(const ptr<NetworkMessage>& _msg) {
 
         auto serialized = _msg->serializeToString();
 
-        CHECK_STATE(serialized);
+        CHECK_STATE(!serialized.empty());
 
         auto currentCounter = msgCounter++;
 
         auto key = createKey(_msg->getBlockID(), currentCounter);
 
-        CHECK_STATE(key);
+        CHECK_STATE(!key.empty());
 
-        auto previous = readString(*key);
+        auto previous = readString(key);
 
-        if (previous == nullptr) {
-            writeString(*key, *serialized );
+        if (previous.empty()) {
+            writeString(key, serialized );
             return true;
         }
 
-        return (*previous == *serialized );
+        return (previous == serialized );
 
     } catch (...) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
@@ -104,8 +104,9 @@ ptr<vector<ptr<NetworkMessage>>> MsgDB::getMessages(block_id _blockID) {
 
 }
 
-const string MsgDB::getFormatVersion() {
-    return "1.0";
+const string& MsgDB::getFormatVersion() {
+    static const string version = "1.0";
+    return  version;
 }
 
 

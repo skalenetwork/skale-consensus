@@ -28,26 +28,26 @@ TEST_CASE_METHOD( StartFromScratch, "Test sgx server connection", "[sgx]" ) {
         auto keyName = res.first;
         auto publicKey = res.second;
 
-        setenv( ( "sgxECDSAKeyName." + to_string( i ) ).data(), keyName->data(), 1 );
-        setenv( ( "sgxECDSAPublicKey." + to_string( i ) ).data(), publicKey->data(), 1 );
+        setenv( ( "sgxECDSAKeyName." + to_string( i ) ).data(), keyName.data(), 1 );
+        setenv( ( "sgxECDSAPublicKey." + to_string( i ) ).data(), publicKey.data(), 1 );
 
-        keyNames->push_back( *keyName );
-        publicKeys->push_back( *publicKey );
+        keyNames->push_back( keyName );
+        publicKeys->push_back( publicKey );
     }
 
 
-    CryptoManager cm( 4, 3, true, make_shared< string >( "https://127.0.0.1:1026" ),
-        make_shared< string >( keyFilePath ), make_shared< string >(certFilePath),
-        make_shared<string>(keyNames->at( 0 )), publicKeys );
+    CryptoManager cm( 4, 3, true, string ( "https://127.0.0.1:1026" ),
+        string ( keyFilePath ), string(certFilePath),
+        string(keyNames->at( 0 )), publicKeys );
 
     auto msg = make_shared< vector< uint8_t > >();
     msg->push_back( '1' );
     auto hash = SHAHash::calculateHash( msg );
     auto sig = cm.sgxSignECDSA( hash, keyNames->at(0) );
 
-    REQUIRE( cm.verifyECDSA( hash, sig, make_shared< string >( publicKeys->at( 0 ) ) ) );
+    REQUIRE( cm.verifyECDSA( hash, sig, string( publicKeys->at( 0 ) ) ) );
 
-    auto key = CryptoManager::decodeSGXPublicKey( make_shared<string>(publicKeys->at(0)) );
+    auto key = CryptoManager::decodeSGXPublicKey( string(publicKeys->at(0)) );
 
     SUCCEED();
 }
@@ -56,7 +56,7 @@ TEST_CASE_METHOD( StartFromScratch, "Test sgx server connection", "[sgx]" ) {
 
 
 TEST_CASE( "Parse sgx keys", "[sgx-parse]" ) {
-    auto serverURL = make_shared<string>("http://localhost:1029");
+    auto serverURL = string("http://localhost:1029");
     auto eng = make_shared< ConsensusEngine >();
     eng->setTestKeys(serverURL, "run_sgx_test/sgx_data/4node.json", 4, 1 );
     eng = make_shared< ConsensusEngine >();

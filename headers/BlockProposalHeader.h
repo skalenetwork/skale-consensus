@@ -33,12 +33,12 @@ class CommittedBlock;
 class BlockProposalHeader : public BasicHeader {
 
 
-    schain_id schainID;
-    schain_index proposerIndex;
-    node_id proposerNodeID;
-    block_id blockID;
-    ptr<string> blockHash;
-    ptr<string> signature;
+    schain_id schainID{};
+    schain_index proposerIndex{};
+    node_id proposerNodeID{};
+    block_id blockID{};
+    string blockHash;
+    string signature;
     ptr<vector<uint64_t>> transactionSizes;
     uint64_t timeStamp = 0;
     uint32_t timeStampMs = 0;
@@ -47,7 +47,7 @@ class BlockProposalHeader : public BasicHeader {
 public:
     u256 getStateRoot();
 
-    ptr<string> getSignature();
+    string getSignature();
 
     schain_id getSchainID();
 
@@ -57,8 +57,8 @@ public:
 
     BlockProposalHeader(BlockProposal & _block);
 
-    ptr<string> getBlockHash() {
-        CHECK_STATE(blockHash);
+    string getBlockHash() {
+        CHECK_STATE(blockHash != "");
         return blockHash;
     }
 
@@ -70,9 +70,9 @@ public:
 
     node_id getProposerNodeId();
 
-    uint64_t getTimeStamp();
+    uint64_t getTimeStamp() const;
 
-    uint32_t getTimeStampMs() ;
+    uint32_t getTimeStampMs() const ;
 };
 
 

@@ -211,15 +211,15 @@ void BlockProposalServerAgent::processNextAvailableConnection(
 
     auto type = Header::getString( clientRequest, "type" );
 
-    CHECK_STATE( type );
+    CHECK_STATE(!type.empty() );
 
-    if ( strcmp( type->data(), Header::BLOCK_PROPOSAL_REQ ) == 0 ) {
+    if ( strcmp( type.data(), Header::BLOCK_PROPOSAL_REQ ) == 0 ) {
         processProposalRequest( _connection, clientRequest );
-    } else if ( strcmp( type->data(), Header::DA_PROOF_REQ ) == 0 ) {
+    } else if ( strcmp( type.data(), Header::DA_PROOF_REQ ) == 0 ) {
         processDAProofRequest( _connection, clientRequest );
     } else {
         BOOST_THROW_EXCEPTION(
-            NetworkProtocolException( "Uknown request type:" + *type, __CLASS_NAME__ ) );
+            NetworkProtocolException( "Uknown request type:" + type, __CLASS_NAME__ ) );
     }
 }
 
@@ -458,7 +458,7 @@ ptr< Header > BlockProposalServerAgent::createProposalResponseHeader(
     const ptr< ServerConnection >&, BlockProposalRequestHeader& _header ) {
     auto responseHeader = make_shared< BlockProposalResponseHeader >();
 
-    if ( sChain->getSchainID() != _header.getSchainId() ) {
+    if ( (uint64_t ) sChain->getSchainID() != (uint64_t ) _header.getSchainId() ) {
         responseHeader->setStatusSubStatus( CONNECTION_ERROR, CONNECTION_ERROR_UNKNOWN_SCHAIN_ID );
         responseHeader->setComplete();
         LOG( err, "Incorrect schain " + to_string( _header.getSchainId() ) );
@@ -478,7 +478,7 @@ ptr< Header > BlockProposalServerAgent::createProposalResponseHeader(
     }
 
 
-    if ( nmi->getSchainIndex() != schain_index( _header.getProposerIndex() ) ) {
+    if ( nmi->getSchainIndex() != (uint64_t) _header.getProposerIndex() )  {
         responseHeader->setStatusSubStatus( CONNECTION_ERROR, CONNECTION_ERROR_INVALID_NODE_INDEX );
         responseHeader->setComplete();
         LOG( err, "Node schain index does not match " + _header.getProposerIndex() );
@@ -544,7 +544,7 @@ ptr< Header > BlockProposalServerAgent::createDAProofResponseHeader(
 
     auto responseHeader = make_shared< SubmitDAProofResponseHeader >();
 
-    if ( sChain->getSchainID() != _header->getSchainId() ) {
+    if ( (uint64_t ) sChain->getSchainID() != _header->getSchainId() ) {
         responseHeader->setStatusSubStatus( CONNECTION_ERROR, CONNECTION_ERROR_UNKNOWN_SCHAIN_ID );
         BOOST_THROW_EXCEPTION( InvalidSchainException(
             "Incorrect schain " + to_string( _header->getSchainId() ), __CLASS_NAME__ ) );
@@ -562,7 +562,7 @@ ptr< Header > BlockProposalServerAgent::createDAProofResponseHeader(
             __CLASS_NAME__ ) );
     }
 
-    if ( nmi->getSchainIndex() != schain_index( _header->getProposerIndex() ) ) {
+    if ( (uint64_t ) nmi->getSchainIndex() != schain_index( _header->getProposerIndex() ) ) {
         responseHeader->setStatusSubStatus( CONNECTION_ERROR, CONNECTION_ERROR_INVALID_NODE_INDEX );
         BOOST_THROW_EXCEPTION( InvalidSchainIndexException(
             "Node schain index does not match " + _header->getProposerIndex(), __CLASS_NAME__ ) );
@@ -619,7 +619,7 @@ ptr< Header > BlockProposalServerAgent::createDAProofResponseHeader(
         return responseHeader;
     }
 
-    if ( *proposal->getHash()->toHex() != *_header->getBlockHash() ) {
+    if ( proposal->getHash()->toHex() != _header->getBlockHash() ) {
         responseHeader->setStatusSubStatus( CONNECTION_DISCONNECT, CONNECTION_INVALID_HASH );
         responseHeader->setComplete();
         return responseHeader;
@@ -673,7 +673,7 @@ ptr< PartialHashesList > AbstractServerAgent::readPartialHashes(
 
     auto partialHashesList = make_shared< PartialHashesList >( _txCount );
 
-    if ( _txCount != 0 ) {
+    if ( (uint64_t)_txCount != 0 ) {
         try {
             getSchain()->getIo()->readBytes( _connectionEnvelope,
                 partialHashesList->getPartialHashes(),

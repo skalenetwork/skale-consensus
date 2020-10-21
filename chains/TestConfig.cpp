@@ -23,7 +23,6 @@
 
 #include "SkaleCommon.h"
 #include "Log.h"
-#include "thirdparty/json.hpp"
 
 #include "TestConfig.h"
 

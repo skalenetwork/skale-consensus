@@ -28,11 +28,11 @@
 
 BlockProposalFragment::BlockProposalFragment(const block_id & _blockId, const uint64_t _totalFragments,
                                                const fragment_index &_fragmentIndex, const ptr<vector<uint8_t>> & _data,
-                                               uint64_t _blockSize, const ptr<string>& _blockHash) :
+                                               uint64_t _blockSize, const string& _blockHash) :
         blockId( _blockId ), blockSize(_blockSize),blockHash(_blockHash),  totalFragments( _totalFragments ), fragmentIndex(_fragmentIndex),  data( _data ) {
 
 
-    CHECK_ARGUMENT(_blockHash);
+    CHECK_ARGUMENT(_blockHash != "");
     CHECK_ARGUMENT( _data );
 
     CHECK_ARGUMENT( _totalFragments > 0);
@@ -58,8 +58,8 @@ uint64_t BlockProposalFragment::getBlockSize() const {
     return blockSize;
 }
 
-ptr<string> BlockProposalFragment::getBlockHash() const {
-    CHECK_STATE(blockHash);
+string BlockProposalFragment::getBlockHash() const {
+    CHECK_STATE(blockHash != "");
     return blockHash;
 }
 

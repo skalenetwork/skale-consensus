@@ -23,14 +23,12 @@
 
 #include "SkaleCommon.h"
 #include "Log.h"
-#include "abstracttcpserver/ConnectionStatus.h"
 #include "chains/Schain.h"
 #include "crypto/SHAHash.h"
 #include "crypto/ThresholdSignature.h"
 #include "datastructures/BlockProposal.h"
 #include "datastructures/DAProof.h"
 #include "exceptions/FatalError.h"
-#include "node/Node.h"
 #include "node/NodeInfo.h"
 #include "thirdparty/json.hpp"
 
@@ -48,9 +46,9 @@ SubmitDAProofRequestHeader::SubmitDAProofRequestHeader(nlohmann::json _proposalR
 
     proposerNodeID = (node_id) Header::getUint64(_proposalRequest, "proposerNodeID");
     thresholdSig = Header::getString(_proposalRequest, "thrSig");
-    CHECK_STATE(thresholdSig);
+    CHECK_STATE(!thresholdSig.empty())
     blockHash = Header::getString(_proposalRequest, "hash");
-    CHECK_STATE(blockHash);
+    CHECK_STATE(!blockHash.empty())
 }
 
 SubmitDAProofRequestHeader::SubmitDAProofRequestHeader(Schain &_sChain, const ptr<DAProof>& _proof, block_id _blockId) :
@@ -79,25 +77,24 @@ void SubmitDAProofRequestHeader::addFields(nlohmann::json &_jsonRequest) {
     _jsonRequest["proposerNodeID"] = (uint64_t) proposerNodeID;
     _jsonRequest["proposerIndex"] = (uint64_t) proposerIndex;
     _jsonRequest["blockID"] = (uint64_t) blockID;
-    CHECK_STATE(thresholdSig != nullptr);
-    _jsonRequest["thrSig"] = *thresholdSig;
-    _jsonRequest["hash"] = *blockHash;
+    CHECK_STATE(!thresholdSig.empty())
+    _jsonRequest["thrSig"] = thresholdSig;
+    _jsonRequest["hash"] = blockHash;
 }
 
 
- const node_id SubmitDAProofRequestHeader::getProposerNodeId() const  {
+ node_id SubmitDAProofRequestHeader::getProposerNodeId() const  {
     return proposerNodeID;
 }
 
 
-
-const ptr<string> SubmitDAProofRequestHeader::getSignature() const  {
-    CHECK_STATE(thresholdSig);
+string SubmitDAProofRequestHeader::getSignature() const  {
+    CHECK_STATE(!thresholdSig.empty())
     return thresholdSig;
 }
 
-const ptr<string> SubmitDAProofRequestHeader::getBlockHash() const  {
-    CHECK_STATE(blockHash);
+string SubmitDAProofRequestHeader::getBlockHash() const  {
+    CHECK_STATE(!blockHash.empty())
     return blockHash;
 }
 

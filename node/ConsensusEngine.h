@@ -52,14 +52,14 @@ class StorageLimits;
 class ConsensusEngine : public ConsensusInterface {
     bool useTestSGXKeys = false;
     bool isSGXEnabled = false;
-    ptr<string> sgxServerUrl = nullptr;
+    string sgxServerUrl = "";
 
-    ptr<string> sgxSSLKeyFileFullPath = nullptr;
-    ptr<string> sgxSSLCertFileFullPath = nullptr;
+    string sgxSSLKeyFileFullPath = "";
+    string sgxSSLCertFileFullPath = "";
 
-    ptr<string> ecdsaKeyName = nullptr;
+    string ecdsaKeyName = "";
 
-    ptr<string> blsKeyName = nullptr;
+    string blsKeyName = "";
 
     ptr< vector<string> > ecdsaKeyNames = nullptr;
     ptr< vector<string> > blsKeyNames = nullptr;
@@ -70,8 +70,6 @@ class ConsensusEngine : public ConsensusInterface {
 
     atomic< consensus_engine_status > status = CONSENSUS_ACTIVE;
 
-    static string engineVersion;
-
     ptr< GlobalThreadRegistry > threadRegistry;
 
     uint64_t engineID;
@@ -80,16 +78,16 @@ class ConsensusEngine : public ConsensusInterface {
 
     static shared_ptr< spdlog::logger > configLogger;
 
-    static shared_ptr<string> dataDir;
-    static shared_ptr<string> logDir;
+    static string dataDir;
+    static string logDir;
 
-    shared_ptr<string> healthCheckDir;
-    shared_ptr<string> dbDir;
+    string healthCheckDir;
+    string dbDir;
 
     static recursive_mutex logMutex;
 
 
-    shared_ptr<string> logFileNamePrefix;
+    string logFileNamePrefix;
 
     shared_ptr< spdlog::sinks::sink > logRotatingFileSync;
 
@@ -103,20 +101,20 @@ public:
 
     ptr< StorageLimits > getStorageLimits() const;
 
-    void setEcdsaKeyName(const ptr<string>& _ecdsaKeyName );
-    void setBlsKeyName(const ptr<string>& _blsKeyName );
+    void setEcdsaKeyName(const string& _ecdsaKeyName );
+    void setBlsKeyName(const string& _blsKeyName );
 
-    const ptr<string> getEcdsaKeyName() const;
-    const ptr<string> getBlsKeyName() const;
+    const string getEcdsaKeyName() const;
+    const string getBlsKeyName() const;
 
 
-    ptr<string> getDbDir() const;
+    string getDbDir() const;
 
     void logInit();
 
     static void setConfigLogLevel( string& _s );
 
-    ptr<string> getHealthCheckDir() const;
+    const string& getHealthCheckDir() const;
 
     static void log( level_enum _severity, const string& _message, const string& _className );
 
@@ -124,8 +122,8 @@ public:
 
     shared_ptr< spdlog::logger > createLogger( const string& loggerName );
 
-    static const shared_ptr<string> getDataDir();
-    static const shared_ptr<string> getLogDir();
+    static const string getDataDir();
+    static const string getLogDir();
 
     recursive_mutex mutex;
 
@@ -144,9 +142,9 @@ public:
     static void checkExistsAndFile( const fs_path& filename );
 
     ptr< Node > readNodeConfigFileAndCreateNode( const string path, set< node_id >& nodeIDs,
-        bool _useSGX = false, ptr<string>_sgxSSLKeyFileFullPath = nullptr,
-        ptr<string> _sgxSSLCertFileFullPath = nullptr, ptr<string> _ecdsaKeyName = nullptr,
-        ptr< vector<string> > _ecdsaPublicKeys = nullptr, ptr<string> _blsKeyName = nullptr,
+        bool _useSGX = false, string _sgxSSLKeyFileFullPath = "",
+        string _sgxSSLCertFileFullPath = "", string _ecdsaKeyName = "",
+        ptr< vector<string> > _ecdsaPublicKeys = nullptr, string _blsKeyName = "",
         ptr< vector< ptr< vector<string>>>> _blsPublicKeys = nullptr,
         ptr< BLSPublicKey > _blsPublicKey = nullptr );
 
@@ -190,7 +188,7 @@ public:
 
     static bool isOnTravis();
 
-    static bool isNoUlimitCheck();
+    [[maybe_unused]] static bool isNoUlimitCheck();
 
     node_count nodesCount();
 
@@ -252,16 +250,16 @@ public:
 
     ptr< GlobalThreadRegistry > getThreadRegistry() const;
 
-    void setTestKeys(const ptr<string>& _sgxServerURL, string _configFile, uint64_t _totalNodes,
+    void setTestKeys(const string& _sgxServerURL, string _configFile, uint64_t _totalNodes,
         uint64_t _requiredNodes );
 
-    void setSGXKeyInfo(const ptr<string>& _sgxServerURL,
-        ptr<string>& _sgxSSLKeyFileFullPath,
-        ptr<string>& _sgxSSLCertFileFullPath,
-        ptr<string>& _ecdsaKeyName,
+    void setSGXKeyInfo(const string& _sgxServerURL,
+        string& _sgxSSLKeyFileFullPath,
+        string& _sgxSSLCertFileFullPath,
+        string& _ecdsaKeyName,
         // array of ECDSA publicKeys of all nodes, including this node
                        ptr<vector<string>>& _ecdsaPublicKeys,
-                       ptr<string>& _blsKeyName,
+                       string& _blsKeyName,
         // array of BLS public key shares of all nodes, including this node
         // each BLS public key share is a vector of 4 strings.
                        ptr<vector<ptr<vector<string>>>>& _blsPublicKeyShares,

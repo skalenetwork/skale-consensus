@@ -45,15 +45,9 @@
 */
 
 #include <exceptions/ConnectionRefusedException.h>
-#include "SkaleCommon.h"
 
-#include "Log.h"
 #include "exceptions/ExitRequestedException.h"
-#include "exceptions/FatalError.h"
-#include "exceptions/InvalidStateException.h"
 
-
-#include "thirdparty/json.hpp"
 
 #include "abstracttcpserver/ConnectionStatus.h"
 
@@ -61,23 +55,16 @@
 #include "network/ClientSocket.h"
 #include "network/IO.h"
 #include "network/Network.h"
-#include "node/Node.h"
 
 #include "chains/Schain.h"
-#include "crypto/SHAHash.h"
-#include "datastructures/CommittedBlock.h"
-#include "datastructures/CommittedBlockList.h"
 #include "datastructures/BlockProposalFragment.h"
-#include "datastructures/BlockProposalFragmentList.h"
 #include "datastructures/BlockProposalSet.h"
-#include "datastructures/BlockProposal.h"
+#include "datastructures/CommittedBlock.h"
 #include "db/BlockProposalDB.h"
 #include "db/DAProofDB.h"
-#include "monitoring/LivelinessMonitor.h"
-#include "exceptions/NetworkProtocolException.h"
-#include "headers/BlockProposalRequestHeader.h"
 #include "headers/BlockFinalizeRequestHeader.h"
-#include "headers/BlockFinalizeResponseHeader.h"
+#include "headers/BlockProposalRequestHeader.h"
+#include "monitoring/LivelinessMonitor.h"
 #include "pendingqueue/PendingTransactionsAgent.h"
 
 #include "BlockFinalizeDownloader.h"
@@ -216,7 +203,7 @@ uint64_t BlockFinalizeDownloader::readBlockSize(nlohmann::json _responseHeader) 
     return result;
 };
 
-ptr<string> BlockFinalizeDownloader::readBlockHash(nlohmann::json _responseHeader) {
+string BlockFinalizeDownloader::readBlockHash(nlohmann::json _responseHeader) {
     auto result = Header::getString(_responseHeader, "blockHash");
     return result;
 };
@@ -319,10 +306,10 @@ void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(BlockFinalizeDown
                 return;
             } catch (ConnectionRefusedException &e) {
                 _agent->logConnectionRefused(e, _dstIndex);
-                usleep(node->getWaitAfterNetworkErrorMs() * 1000);
+                usleep( static_cast< __useconds_t >( node->getWaitAfterNetworkErrorMs() * 1000 ) );
             } catch (exception &e) {
                 SkaleException::logNested(e);
-                usleep(node->getWaitAfterNetworkErrorMs() * 1000);
+                usleep( static_cast< __useconds_t >( node->getWaitAfterNetworkErrorMs() * 1000 ) );
             };
         };
     } catch (FatalError& e) {

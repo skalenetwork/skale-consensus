@@ -32,13 +32,13 @@
 
 class MockupSignature : public ThresholdSignature {
 
-    ptr<string> s;
+    string s;
 
 public:
     MockupSignature(
-        const ptr<string>& _s, block_id _blockID, size_t _totalSigners, size_t _requiredSigners );
+        const string& _s, block_id _blockID, size_t _totalSigners, size_t _requiredSigners );
 
-    std::shared_ptr<std::string> toString();
+    string toString();
 
     uint64_t getRandom();
 };

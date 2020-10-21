@@ -25,10 +25,6 @@
 
 #include "bls_include.h"
 #include "exceptions/FatalError.h"
-#include "node/ConsensusEngine.h"
-
-#include "chains/Schain.h"
-#include "pendingqueue/PendingTransactionsAgent.h"
 #include "MockupSigShare.h"
 
 #include "MockupSignature.h"
@@ -58,18 +54,18 @@ ptr<ThresholdSignature> MockupSigShareSet::mergeSignature() {
 
     LOCK(m)
 
-    ptr<string> h = nullptr;
+    string h = "";
 
     for (auto&& item : sigShares) {
         CHECK_STATE(item.second);
 
-        if (h == nullptr) {
+        if (h == "") {
             h = item.second->toString();
         } else {
-            CHECK_STATE(*h == *item.second->toString());
+            CHECK_STATE(h == item.second->toString());
         }
     }
-    CHECK_STATE(h);
+    CHECK_STATE(h != "");
 
     return make_shared<MockupSignature>(h, blockId,
                                         totalSigners, requiredSigners);

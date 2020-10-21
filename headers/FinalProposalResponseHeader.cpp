@@ -31,9 +31,9 @@
 
 using namespace std;
 
-FinalProposalResponseHeader::FinalProposalResponseHeader(const ptr<string>& _sigShare)
+FinalProposalResponseHeader::FinalProposalResponseHeader(const string& _sigShare)
         : Header(SIG_SHARE_RSP) {
-    CHECK_ARGUMENT(_sigShare)
+    CHECK_ARGUMENT(!_sigShare.empty())
     setStatusSubStatus(CONNECTION_SUCCESS, CONNECTION_OK);
     sigShare = _sigShare;
     complete = true;
@@ -41,20 +41,20 @@ FinalProposalResponseHeader::FinalProposalResponseHeader(const ptr<string>& _sig
 
 void FinalProposalResponseHeader::addFields(nlohmann::basic_json<> &_j) {
     Header::addFields(_j);
-    if (sigShare != nullptr) {
-        _j["sigShare"] = *sigShare;
+    if (!sigShare.empty()) {
+        _j["sigShare"] = sigShare;
     }
 }
 
 FinalProposalResponseHeader::FinalProposalResponseHeader(ConnectionStatus _status, ConnectionSubStatus _substatus)
         : Header(SIG_SHARE_RSP) {
-    CHECK_ARGUMENT(_status != CONNECTION_SUCCESS);
+    CHECK_ARGUMENT(_status != CONNECTION_SUCCESS)
     this->setStatusSubStatus(_status, _substatus);
 }
 
 
-const ptr<string> FinalProposalResponseHeader::getSigShare() const {
-    CHECK_STATE(sigShare);
+const string& FinalProposalResponseHeader::getSigShare() const {
+    CHECK_STATE(!sigShare.empty())
     return sigShare;
 }
 

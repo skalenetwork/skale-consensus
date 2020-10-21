@@ -21,20 +21,16 @@
     @date 2019
 */
 
-#include "Agent.h"
 #include "SkaleCommon.h"
 #include "Log.h"
 #include "exceptions/FatalError.h"
 #include "thirdparty/json.hpp"
 
-#include "crypto/ConsensusBLSSigShare.h"
-#include "crypto/ConsensusBLSSignature.h"
 
-#include "abstracttcpserver/ConnectionStatus.h"
+#include "crypto/ConsensusBLSSignature.h"
 #include "chains/Schain.h"
 #include "node/Node.h"
 #include "pendingqueue/PendingTransactionsAgent.h"
-#include "crypto/ConsensusBLSSigShare.h"
 #include "crypto/ConsensusSigShareSet.h"
 #include "crypto/CryptoManager.h"
 #include "crypto/SHAHash.h"
@@ -45,9 +41,6 @@
 
 #include "SigDB.h"
 #include "DASigShareDB.h"
-#include "BLSSigShare.h"
-#include "BLSSignature.h"
-#include "BLSSigShareSet.h"
 #include "crypto/ThresholdSigShare.h"
 #include "datastructures/DAProof.h"
 
@@ -59,8 +52,9 @@ DASigShareDB::DASigShareDB(Schain *_sChain, string &_dirName, string &_prefix, n
         CacheLevelDB(_sChain, _dirName, _prefix, _nodeId, _maxDBSize) {
 };
 
-const string DASigShareDB::getFormatVersion() {
-    return "1.0";
+const string& DASigShareDB::getFormatVersion() {
+    static const string version = "1.0";
+    return version;
 }
 
 
@@ -75,7 +69,7 @@ ptr<DAProof> DASigShareDB::addAndMergeSigShareAndVerifySig(const ptr<ThresholdSi
 
     LOG(trace, "Adding sigshare");
 
-    auto result = this->writeStringToSet(*_sigShare->toString(),
+    auto result = this->writeStringToSet(_sigShare->toString(),
             _sigShare->getBlockId(), _sigShare->getSignerIndex());
 
     if (result != nullptr) {

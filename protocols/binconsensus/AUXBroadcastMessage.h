@@ -44,7 +44,7 @@ public:
     AUXBroadcastMessage(node_id _srcNodeID, block_id _blockID, schain_index _blockProposerIndex,
                         bin_consensus_round _r, bin_consensus_value _value, uint64_t _time, schain_id _schainId,
                         msg_id _msgID,
- const ptr<string>& _signature, schain_index _srcSchainIndex,
- const ptr<string>& _ecdsaSig, const ptr<string>& _pubKey, const ptr<string>& _pkSig,  Schain *_sChain);
+ const string& _signature, schain_index _srcSchainIndex,
+ const string& _ecdsaSig, const string& _pubKey, const string& _pkSig,  Schain *_sChain);
 
 };

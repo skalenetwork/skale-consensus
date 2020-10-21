@@ -39,9 +39,9 @@ class ClientSocket {
 
     file_descriptor descriptor = 0;
 
-    ptr<string> remoteIP;
+    string remoteIP;
 
-    ptr<string> bindIP;
+    string bindIP;
 
     network_port remotePort;
 
@@ -60,7 +60,7 @@ public:
 
     file_descriptor getDescriptor() ;
 
-    ptr<string> getConnectionIP() ;
+    string& getConnectionIP() ;
 
     network_port getConnectionPort();
 

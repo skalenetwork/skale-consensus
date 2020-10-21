@@ -30,7 +30,7 @@ blic License as published
 #include "exceptions/SkaleException.h"
 #include "exceptions/ExitRequestedException.h"
 #include <exceptions/ConnectionRefusedException.h>
-#include <utils/Time.h>
+
 #include "exceptions/FatalError.h"
 #include "exceptions/NetworkProtocolException.h"
 #include "network/ClientSocket.h"
@@ -39,17 +39,14 @@ blic License as published
 #include "SkaleCommon.h"
 #include "chains/Schain.h"
 #include "crypto/SHAHash.h"
-#include "node/Node.h"
+
 #include "node/NodeInfo.h"
-#include "thirdparty/json.hpp"
+
 
 
 #include "datastructures/BlockProposal.h"
 #include "datastructures/DAProof.h"
 
-#include "thirdparty/json.hpp"
-
-#include "AbstractClientAgent.h"
 
 
 AbstractClientAgent::AbstractClientAgent( Schain& _sChain, port_type _portType )
@@ -170,7 +167,7 @@ void AbstractClientAgent::workerThreadItemSendLoop( AbstractClientAgent* agent )
             agent->itemQueue[destinationSchainIndex]->pop();
 
 
-            if ( destinationSchainIndex != ( agent->getSchain()->getSchainIndex() ) ) {
+            if ( (uint64_t ) destinationSchainIndex != (uint64_t ) agent->getSchain()->getSchainIndex() ) {
 
                 bool sent = false;
 

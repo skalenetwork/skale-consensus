@@ -42,7 +42,7 @@ public:
 
     ptr<BooleanProposalVector> getVector(block_id _blockID);
 
-    const string getFormatVersion() override ;
+    const string& getFormatVersion() override ;
 };
 
 

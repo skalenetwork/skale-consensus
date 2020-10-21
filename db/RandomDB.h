@@ -41,7 +41,7 @@ public:
     void writeRandom(const block_id &_blockId, const schain_index &_proposerIndex, const bin_consensus_round &_round,
                      uint64_t _random);
 
-    const string getFormatVersion() override;
+    const string& getFormatVersion() override;
 };
 
 
