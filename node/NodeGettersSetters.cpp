@@ -27,8 +27,7 @@
 #include "Log.h"
 
 
-#include "exceptions/ExitRequestedException.h"
-#include "exceptions/FatalError.h"
+
 #include "exceptions/InvalidArgumentException.h"
 #include "exceptions/ParsingException.h"
 #include "thirdparty/json.hpp"
@@ -37,8 +36,7 @@
 
 #include "crypto/bls_include.h"
 
-#include "crypto/SHAHash.h"
-#include "libBLS/bls/BLSPrivateKeyShare.h"
+
 #include "libBLS/bls/BLSPublicKey.h"
 #include "libBLS/bls/BLSSignature.h"
 
@@ -59,7 +57,7 @@
 #include "messages/Message.h"
 
 #include "db/BlockDB.h"
-#include "db/CommittedTransactionDB.h"
+
 #include "db/ConsensusStateDB.h"
 #include "db/PriceDB.h"
 #include "db/RandomDB.h"
@@ -116,20 +114,20 @@ int64_t Node::getParamInt64(const string &_paramName, uint64_t _paramDefault) {
 }
 
 
-ptr<string> Node::getParamString(const string &_paramName, string &_paramDefault) {
+string Node::getParamString(const string &_paramName, string &_paramDefault) {
 
     auto result = std::getenv(_paramName.c_str());
 
     if (result != nullptr) {
-        return make_shared<string>(result);
+        return string(result);
     }
 
 
     try {
         if (cfg.find(_paramName) != cfg.end()) {
-            return make_shared<string>(cfg.at(_paramName).get<string>());
+            return string(cfg.at(_paramName).get<string>());
         } else {
-            return make_shared<string>(_paramDefault);
+            return string(_paramDefault);
         }
 
     } catch (...) {
@@ -202,8 +200,8 @@ ptr< SkaleLog > Node::getLog() const {
 }
 
 
-ptr<string> Node::getBindIP() const {
-    CHECK_STATE(bindIP);
+string Node::getBindIP() const {
+    CHECK_STATE(!bindIP.empty())
     return bindIP;
 }
 
@@ -366,14 +364,14 @@ ConsensusEngine *Node::getConsensusEngine() const {
     CHECK_STATE(consensusEngine);
     return consensusEngine;
 }
-ptr<string> Node::getSgxUrl()  {
-    CHECK_STATE(sgxURL);
+string Node::getSgxUrl()  {
+    CHECK_STATE(!sgxURL.empty());
     return sgxURL;
 }
-ptr<string> Node::getSgxSslKeyFileFullPath()  {
+string Node::getSgxSslKeyFileFullPath()  {
     return sgxSSLKeyFileFullPath;
 }
 
-ptr<string> Node::getSgxSslCertFileFullPath() {
+string Node::getSgxSslCertFileFullPath() {
     return sgxSSLCertFileFullPath;
 }

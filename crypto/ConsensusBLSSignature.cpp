@@ -24,7 +24,6 @@
 
 #include "Log.h"
 #include "SkaleCommon.h"
-#include "crypto/bls_include.h"
 #include "network/Utils.h"
 #include "thirdparty/json.hpp"
 
@@ -34,14 +33,14 @@
 
 
 ConsensusBLSSignature::ConsensusBLSSignature(
-    const ptr<string>& _sig, block_id _blockID, size_t _totalSigners, size_t _requiredSigners )
+    const string& _sig, block_id _blockID, size_t _totalSigners, size_t _requiredSigners )
     : ThresholdSignature( _blockID, _totalSigners, _requiredSigners ) {
 
-    CHECK_ARGUMENT( _sig );
+    CHECK_ARGUMENT( _sig != "");
 
 
     try {
-        blsSig = make_shared< BLSSignature >( _sig, _requiredSigners, _totalSigners );
+        blsSig = make_shared< BLSSignature >( make_shared<string>(_sig), _requiredSigners, _totalSigners );
     } catch ( ... ) {
         throw_with_nested(
             InvalidStateException( "Could not create BLSSignature from string", __CLASS_NAME__ ) );
@@ -66,10 +65,10 @@ ConsensusBLSSignature::ConsensusBLSSignature(
     }
 }
 
-ptr< std::string > ConsensusBLSSignature::toString() {
+string  ConsensusBLSSignature::toString() {
     CHECK_STATE(blsSig);
     try {
-        return blsSig->toString();
+        return *blsSig->toString();
     } catch ( ... ) {
         throw_with_nested( InvalidStateException( "Could not toString() sig", __CLASS_NAME__ ) );
     }

@@ -35,7 +35,7 @@ public:
 
     explicit PartialSHAHash(const ptr<array<uint8_t, PARTIAL_SHA_HASH_LEN>>& _hash);
 
-    static ptr< PartialSHAHash >  hex2sha(const ptr<string>& _hex );
+    static ptr< PartialSHAHash >  hex2sha(const string& _hex );
 
     void print();
 
@@ -47,9 +47,9 @@ public:
         return hash->data();
     };
 
-    ptr<PartialSHAHash> fromHex(const ptr<string>& _hex);
+    ptr<PartialSHAHash> fromHex(const string& _hex);
 
-    ptr<string> toHex();
+    string toHex();
 
 
 };

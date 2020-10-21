@@ -30,7 +30,6 @@
 #include "datastructures/Transaction.h"
 #include "exceptions/FatalError.h"
 #include "node/ConsensusEngine.h"
-#include "node/Node.h"
 #include "thirdparty/json.hpp"
 
 
@@ -49,9 +48,9 @@ ConsensusExtFace::transactions_vector TestMessageGeneratorAgent::pendingTransact
 
     auto test = sChain->getBlockProposerTest();
 
-    CHECK_STATE(test);
+    CHECK_STATE(!test.empty());
 
-    if (*test == SchainTest::NONE)
+    if (test == SchainTest::NONE)
         return result;
 
     for (uint64_t i = 0; i < _limit; i++) {

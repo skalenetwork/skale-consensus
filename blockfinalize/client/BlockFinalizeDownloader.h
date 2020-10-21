@@ -98,7 +98,7 @@ public:
 
     uint64_t readBlockSize(nlohmann::json _responseHeader);
 
-    ptr<string> readBlockHash(nlohmann::json _responseHeader);
+    string readBlockHash(nlohmann::json _responseHeader);
 
     block_id getBlockId();
 

@@ -25,16 +25,16 @@
 #include "SkaleCommon.h"
 #include "Log.h"
 
-#include "network/Utils.h"
+
 #include "thirdparty/json.hpp"
 
 #include "MockupSigShare.h"
 
-MockupSigShare::MockupSigShare(const ptr<string>& _sigShare, schain_id _schainID, block_id _blockID, schain_index _signerIndex,
+MockupSigShare::MockupSigShare(const string& _sigShare, schain_id _schainID, block_id _blockID, schain_index _signerIndex,
                                size_t _totalSigners, size_t _requiredSigners)
     : ThresholdSigShare(_schainID, _blockID, _signerIndex) {
 
-    CHECK_ARGUMENT(_sigShare);
+    CHECK_ARGUMENT(_sigShare != "");
     CHECK_ARGUMENT(_requiredSigners <= _totalSigners);
     this->totalSigners = _totalSigners;
     this->requiredSigners = _requiredSigners;
@@ -45,7 +45,7 @@ MockupSigShare::~MockupSigShare() {
 
 }
 
-ptr<std::string> MockupSigShare::toString() {
-    CHECK_STATE(sigShare);
+string MockupSigShare::toString() {
+    CHECK_STATE(sigShare != "");
     return sigShare;
 }

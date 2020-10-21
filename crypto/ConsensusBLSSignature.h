@@ -39,13 +39,13 @@ class ConsensusBLSSignature : public ThresholdSignature {
 public:
 
     ConsensusBLSSignature(
-        const ptr<string>& _sig, block_id _blockID, size_t _totalSigners, size_t _requiredSigners );
+        const string& _sig, block_id _blockID, size_t _totalSigners, size_t _requiredSigners );
 
 
     ConsensusBLSSignature(const ptr< BLSSignature >& _blsSig, block_id _blockID, size_t _totalSigners,
         size_t _requiredSigners );
 
-    std::shared_ptr<std::string> toString();
+    string toString();
 
 
     uint64_t getRandom();

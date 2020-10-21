@@ -27,7 +27,7 @@
 #include "BlockDB.h"
 #include "datastructures/CommittedBlock.h"
 #include "exceptions/InvalidStateException.h"
-#include "thirdparty/lrucache.hpp"
+
 
 #include "exceptions/ExitRequestedException.h"
 
@@ -45,7 +45,7 @@
 #include "datastructures/BlockProposal.h"
 #include "crypto/SHAHash.h"
 #include "exceptions/LevelDBException.h"
-#include "exceptions/FatalError.h"
+
 
 
 #include "monitoring/LivelinessMonitor.h"
@@ -59,34 +59,33 @@
 using namespace leveldb;
 
 
-static WriteOptions writeOptions;
-static ReadOptions readOptions;
+static WriteOptions writeOptions; // NOLINT(cert-err58-cpp)
+static ReadOptions readOptions; // NOLINT(cert-err58-cpp)
 
 std::string CacheLevelDB::path_to_index(uint64_t index){
     return dirname + "/db." + to_string(index);
 }
 
-ptr<string> CacheLevelDB::createKey(const block_id _blockId, uint64_t _counter) {
-    return make_shared<string>(
-            getFormatVersion() + ":" + to_string(_blockId) + ":" + to_string(_counter));
+string CacheLevelDB::createKey(const block_id _blockId, uint64_t _counter) {
+    return  getFormatVersion() + ":" + to_string(_blockId) + ":" + to_string(_counter);
 }
 
-ptr<string> CacheLevelDB::createKey(const block_id _blockId) {
-    return make_shared<string>(getFormatVersion() + ":" + to_string(_blockId));
-}
-
-
-ptr<string> CacheLevelDB::createKey(block_id _blockId, schain_index _proposerIndex) {
-    return make_shared<string>(
-            getFormatVersion() + ":" + to_string(_blockId) + ":" + to_string(_proposerIndex));
+string CacheLevelDB::createKey(const block_id _blockId) {
+    return getFormatVersion() + ":" + to_string(_blockId);
 }
 
 
-ptr<string>
+string CacheLevelDB::createKey(block_id _blockId, schain_index _proposerIndex) {
+    return
+            getFormatVersion() + ":" + to_string(_blockId) + ":" + to_string(_proposerIndex);
+}
+
+
+string
 CacheLevelDB::createKey(const block_id &_blockId, const schain_index &_proposerIndex,
                         const bin_consensus_round &_round) {
-    return make_shared<string>(getFormatVersion() + ":" + to_string(_blockId) + ":" + to_string(_proposerIndex) + ":" +
-                               to_string(_round));
+    return getFormatVersion() + ":" + to_string(_blockId) + ":" + to_string(_proposerIndex) + ":" +
+                               to_string(_round);
 }
 
 
@@ -95,48 +94,48 @@ string CacheLevelDB::createCounterKey(block_id _blockId) {
 }
 
 
-ptr<string> CacheLevelDB::readStringFromBlockSet(block_id _blockId, schain_index _index) {
+string CacheLevelDB::readStringFromBlockSet(block_id _blockId, schain_index _index) {
     auto key = createKey(_blockId, _index);
-    return readString(*key);
+    return readString(key);
 }
 
 
 bool CacheLevelDB::keyExistsInSet(block_id _blockId, schain_index _index) {
     auto key = createKey(_blockId, _index);
-    CHECK_STATE(key);
-    return keyExists(*key);
+    CHECK_STATE(!key.empty())
+    return keyExists(key);
 }
 
 Schain *CacheLevelDB::getSchain() const {
-    CHECK_STATE(sChain);
+    CHECK_STATE(sChain)
     return sChain;
 }
 
-ptr<string> CacheLevelDB::readString(string &_key) {
+string CacheLevelDB::readString(string &_key) {
     shared_lock<shared_mutex> lock(m);
     return readStringUnsafe(_key);
 }
 
 
-ptr<string> CacheLevelDB::readStringUnsafe(string &_key) {
+string CacheLevelDB::readStringUnsafe(string &_key) {
 
     for (int i = LEVELDB_SHARDS - 1; i >= 0; i--) {
-        auto result = make_shared<string>();
-        CHECK_STATE(db.at(i));
-        auto status = db.at(i)->Get(readOptions, _key, result.get());
+        string result;
+        CHECK_STATE(db.at(i))
+        auto status = db.at(i)->Get(readOptions, _key, &result);
         throwExceptionOnError(status);
         if (!status.IsNotFound())
             return result;
     }
 
-    return nullptr;
+    return "";
 }
 
 bool CacheLevelDB::keyExistsUnsafe(const string &_key) {
 
     for (int i = LEVELDB_SHARDS - 1; i >= 0; i--) {
         auto result = make_shared<string>();
-        CHECK_STATE(db[i]);
+        CHECK_STATE(db[i])
         auto status = db.at(i)->Get(readOptions, _key, result.get());
         throwExceptionOnError(status);
         if (!status.IsNotFound())
@@ -178,8 +177,8 @@ void CacheLevelDB::writeString(const string &_key, const string &_value,
 void CacheLevelDB::writeByteArray(const char *_key, size_t _keyLen, const char * _value,
                                   size_t _valueLen) {
 
-    CHECK_ARGUMENT(_key);
-    CHECK_ARGUMENT(_value);
+    CHECK_ARGUMENT(_key)
+    CHECK_ARGUMENT(_value)
 
     rotateDBsIfNeeded();
 
@@ -199,7 +198,7 @@ void CacheLevelDB::writeByteArray(const char *_key, size_t _keyLen, const char *
 
 void CacheLevelDB::writeByteArray(string &_key, const ptr<vector<uint8_t>>& _data) {
 
-    CHECK_ARGUMENT(_data);
+    CHECK_ARGUMENT(_data)
 
     rotateDBsIfNeeded();
 
@@ -213,7 +212,7 @@ void CacheLevelDB::writeByteArray(string &_key, const ptr<vector<uint8_t>>& _dat
     }
 }
 
-void CacheLevelDB::throwExceptionOnError(Status _status) {
+void CacheLevelDB::throwExceptionOnError(Status& _status) {
     if (_status.IsNotFound())
         return;
 
@@ -224,14 +223,14 @@ void CacheLevelDB::throwExceptionOnError(Status _status) {
 
 }
 
-ptr<string> CacheLevelDB::readLastKeyInPrefixRange(string &_prefix) {
+string CacheLevelDB::readLastKeyInPrefixRange(string &_prefix) {
 
-    ptr<map<string, ptr<string>>> result = nullptr;
+    ptr<map<string, string>> result = nullptr;
 
     shared_lock<shared_mutex> lock(m);
 
     for (int i = LEVELDB_SHARDS - 1; i >= 0; i--) {
-        CHECK_STATE(db.at(i));
+        CHECK_STATE(db.at(i))
         auto partialResult = readPrefixRangeFromDBUnsafe(_prefix, db.at(i), true);
         if (partialResult) {
             if (result) {
@@ -243,22 +242,22 @@ ptr<string> CacheLevelDB::readLastKeyInPrefixRange(string &_prefix) {
     }
 
     if (result->empty()) {
-        return nullptr;
+        return "";
     }
 
-    return make_shared<string>(result->rbegin()->first);
+    return result->rbegin()->first;
 
 }
 
 
-ptr<map<string, ptr<string>>> CacheLevelDB::readPrefixRange(string &_prefix) {
+ptr<map<string, string>> CacheLevelDB::readPrefixRange(string &_prefix) {
 
-    ptr<map<string, ptr<string>>> result = nullptr;
+    ptr<map<string, string>> result = nullptr;
 
     shared_lock<shared_mutex> lock(m);
 
     for (int i = LEVELDB_SHARDS - 1; i >= 0; i--) {
-        CHECK_STATE(db.at(i));
+        CHECK_STATE(db.at(i))
         auto partialResult = readPrefixRangeFromDBUnsafe(_prefix, db[i]);
         if (partialResult) {
             if (result) {
@@ -275,25 +274,25 @@ ptr<map<string, ptr<string>>> CacheLevelDB::readPrefixRange(string &_prefix) {
 
 }
 
-ptr<map<string, ptr<string>>> CacheLevelDB::readPrefixRangeFromDBUnsafe(string &_prefix, const ptr<leveldb::DB>& _db,
+ptr<map<string, string>> CacheLevelDB::readPrefixRangeFromDBUnsafe(string &_prefix, const ptr<leveldb::DB>& _db,
                                                                         bool _lastOnly) {
 
-    CHECK_ARGUMENT(_db);
+    CHECK_ARGUMENT(_db)
 
-    ptr<map<string, ptr<string>>> result = make_shared<map<string, ptr<string>>>();
+    ptr<map<string, string>> result = make_shared<map<string, string>>();
 
     auto idb = ptr<Iterator>(_db->NewIterator(readOptions));
 
     if (_lastOnly) {
         idb->SeekToLast();
         if (idb->Valid()) {
-            (*result)[idb->key().ToString()] = make_shared<string>(idb->value().ToString());
+            (*result)[idb->key().ToString()] = idb->value().ToString();
         }
         return result;
     }
 
     for (idb->Seek(_prefix); idb->Valid() && idb->key().starts_with(_prefix); idb->Next()) {
-        (*result)[idb->key().ToString()] = make_shared<string>(idb->value().ToString());
+        (*result)[idb->key().ToString()] = idb->value().ToString();
     }
 
 
@@ -303,7 +302,7 @@ ptr<map<string, ptr<string>>> CacheLevelDB::readPrefixRangeFromDBUnsafe(string &
 
 uint64_t CacheLevelDB::visitKeys(CacheLevelDB::KeyVisitor *_visitor, uint64_t _maxKeysToVisit) {
 
-    CHECK_ARGUMENT(_visitor);
+    CHECK_ARGUMENT(_visitor)
 
     shared_lock<shared_mutex> lock(m);
 
@@ -342,14 +341,14 @@ shared_ptr<leveldb::DB> CacheLevelDB::openDB(uint64_t _index) {
 
         if (blockCache != 0) {
             options.block_cache = leveldb::NewLRUCache(blockCache * 1048576);
-        };
+        }
 
         options.create_if_missing = true;
 
         CHECK_STATE2(leveldb::DB::Open(options, path_to_index(_index),
                                   &dbase).ok(),
-                "Unable to open database");
-        CHECK_STATE(dbase);
+                "Unable to open database")
+        CHECK_STATE(dbase)
 
         return ptr<DB>(dbase);
 
@@ -369,7 +368,7 @@ CacheLevelDB::CacheLevelDB(Schain *_sChain, string &_dirName, string &_prefix, n
     CHECK_ARGUMENT(_sChain);
 
     this->sChain = _sChain;
-    this-> nodeId = _nodeId;
+    this->nodeId = _nodeId;
     this->prefix = _prefix;
     this->totalSigners = _sChain->getTotalSigners();
     this->requiredSigners = _sChain->getRequiredSigners();
@@ -529,30 +528,30 @@ uint64_t CacheLevelDB::readCount(block_id _blockId) {
 
     auto countString = readString(counterKey);
 
-    if (countString == nullptr) {
+    if (countString != "") {
         return 0;
     }
 
     try {
-        auto result = stoull(*countString, NULL, 10);
+        auto result = stoull(countString, NULL, 10);
 
         CHECK_STATE(result <= totalSigners);
 
         return result;
 
     } catch (...) {
-        LOG(err, "Incorrect value in LevelDB:" + *countString);
+        LOG(err, "Incorrect value in LevelDB:" + countString);
         return 0;
     }
 }
 
-ptr<map<schain_index, ptr<string>>>
+ptr<map<schain_index, string>>
 CacheLevelDB::writeStringToSet(const string &_value, block_id _blockId, schain_index _index) {
     return writeByteArrayToSet(_value.data(), _value.size(), _blockId,
                                _index);
 }
 
-ptr<map<schain_index, ptr<string>>>
+ptr<map<schain_index, string>>
 CacheLevelDB::readSet(block_id _blockId) {
 
 
@@ -563,7 +562,7 @@ CacheLevelDB::readSet(block_id _blockId) {
 }
 
 
-ptr<map<schain_index, ptr<string>>>
+ptr<map<schain_index, string>>
 CacheLevelDB::writeByteArrayToSet(const char *_value, uint64_t _valueLen, block_id _blockId, schain_index _index) {
 
     rotateDBsIfNeeded();
@@ -578,16 +577,16 @@ CacheLevelDB::writeByteArrayToSet(const char *_value, uint64_t _valueLen, block_
 }
 
 
-ptr<map<schain_index, ptr<string>>>
+ptr<map<schain_index, string>>
 CacheLevelDB::readSetUnsafe(block_id _blockId) {
 
-    auto enoughSet = make_shared<map<schain_index, ptr<string>>>();
+    auto enoughSet = make_shared<map<schain_index, string>>();
 
     for (uint64_t i = 1; i <= totalSigners; i++) {
         auto key = createKey(_blockId, schain_index(i));
-        auto entry = readStringUnsafe(*key);
+        auto entry = readStringUnsafe(key);
 
-        if (entry != nullptr)
+        if (entry != "")
             (*enoughSet)[schain_index(i)] = entry;
         if (enoughSet->size() == requiredSigners) {
             break;
@@ -599,7 +598,7 @@ CacheLevelDB::readSetUnsafe(block_id _blockId) {
 }
 
 
-ptr<map<schain_index, ptr<string>>>
+ptr<map<schain_index, string>>
 CacheLevelDB::writeByteArrayToSetUnsafe(const char *_value, uint64_t _valueLen, block_id _blockId,
                                         schain_index _index) {
 
@@ -609,10 +608,10 @@ CacheLevelDB::writeByteArrayToSetUnsafe(const char *_value, uint64_t _valueLen, 
 
 
     auto entryKey = createKey(_blockId, _index);
-    CHECK_STATE(entryKey);
+    CHECK_STATE(entryKey != "");
 
 
-    if (keyExistsUnsafe(*entryKey)) {
+    if (keyExistsUnsafe(entryKey)) {
         if (!isDuplicateAddOK)
             LOG(trace, "Double db entry " + this->prefix + "\n" + to_string(_blockId) + ":" + to_string(_index));
         return nullptr;
@@ -651,7 +650,7 @@ CacheLevelDB::writeByteArrayToSetUnsafe(const char *_value, uint64_t _valueLen, 
         count++;
 
         batch.Put(counterKey, to_string(count));
-        batch.Put(*entryKey, Slice(_value, _valueLen));
+        batch.Put(entryKey, Slice(_value, _valueLen));
         CHECK_STATE2(containingDb->Write(writeOptions, &batch).ok(), "Could not write LevelDB");
     }
 
@@ -661,13 +660,13 @@ CacheLevelDB::writeByteArrayToSetUnsafe(const char *_value, uint64_t _valueLen, 
     }
 
 
-    auto enoughSet = make_shared<map<schain_index, ptr<string>>>();
+    auto enoughSet = make_shared<map<schain_index, string>>();
 
     for (uint64_t i = 1; i <= totalSigners; i++) {
         auto key = createKey(_blockId, schain_index(i));
-        auto entry = readStringUnsafe(*key);
+        auto entry = readStringUnsafe(key);
 
-        if (entry != nullptr)
+        if (entry != "")
             (*enoughSet)[schain_index(i)] = entry;
         if (enoughSet->size() == requiredSigners) {
             break;

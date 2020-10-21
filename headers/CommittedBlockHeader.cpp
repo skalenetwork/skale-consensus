@@ -29,25 +29,25 @@
 #include "CommittedBlockHeader.h"
 
 
-CommittedBlockHeader::CommittedBlockHeader(BlockProposal &block, const ptr<string> &thresholdSig) : BlockProposalHeader(
+CommittedBlockHeader::CommittedBlockHeader(BlockProposal &block, const string &thresholdSig) : BlockProposalHeader(
         block), thresholdSig(thresholdSig) {
-    CHECK_ARGUMENT(thresholdSig);
+    CHECK_ARGUMENT(!thresholdSig.empty())
 }
 
 CommittedBlockHeader::CommittedBlockHeader(nlohmann::json &json) : BlockProposalHeader(json) {
     thresholdSig = Header::getString(json, "thrSig");
-    CHECK_STATE(thresholdSig);
+    CHECK_STATE(!thresholdSig.empty())
 }
 
-const ptr<string> &CommittedBlockHeader::getThresholdSig() const {
-    CHECK_STATE(thresholdSig);
+const string &CommittedBlockHeader::getThresholdSig() const {
+    CHECK_STATE(!thresholdSig.empty())
     return thresholdSig;
 }
 
 void CommittedBlockHeader::addFields(nlohmann::basic_json<> &j) {
     BlockProposalHeader::addFields(j);
 
-    j["thrSig"] = *thresholdSig;
+    j["thrSig"] = thresholdSig;
 }
 
 

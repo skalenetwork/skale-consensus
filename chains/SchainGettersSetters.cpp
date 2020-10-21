@@ -23,79 +23,41 @@
 
 #include "SkaleCommon.h"
 #include "Log.h"
-#include "exceptions/FatalError.h"
-#include "exceptions/InvalidArgumentException.h"
-#include "exceptions/InvalidStateException.h"
-
-#include "thirdparty/json.hpp"
-
-#include "abstracttcpserver/ConnectionStatus.h"
-#include "node/ConsensusEngine.h"
-
-#include <unordered_set>
-
-#include "leveldb/db.h"
-
-#include "node/ConsensusEngine.h"
-#include "node/Node.h"
-
-#include "blockproposal/pusher/BlockProposalClientAgent.h"
-#include "headers/BlockProposalRequestHeader.h"
-#include "pendingqueue/PendingTransactionsAgent.h"
 
 #include "blockfinalize/client/BlockFinalizeDownloader.h"
+#include "blockproposal/pusher/BlockProposalClientAgent.h"
 #include "blockproposal/server/BlockProposalServerAgent.h"
 #include "catchup/client/CatchupClientAgent.h"
 #include "catchup/server/CatchupServerAgent.h"
+#include "headers/BlockProposalRequestHeader.h"
 #include "monitoring/MonitoringAgent.h"
 
 
 #include "SchainMessageThreadPool.h"
 #include "crypto/ConsensusBLSSigShare.h"
 #include "db/BlockProposalDB.h"
-#include "exceptions/EngineInitException.h"
-#include "exceptions/ParsingException.h"
 #include "messages/InternalMessageEnvelope.h"
-#include "messages/Message.h"
-#include "messages/MessageEnvelope.h"
-#include "messages/NetworkMessageEnvelope.h"
 #include "network/ClientSocket.h"
 #include "network/IO.h"
-#include "network/Sockets.h"
-#include "network/ZMQSockets.h"
 #include "node/NodeInfo.h"
-#include "protocols/ProtocolInstance.h"
+
 #include "protocols/blockconsensus/BlockConsensusAgent.h"
 
-#include "crypto/SHAHash.h"
 #include "datastructures/BlockProposal.h"
-#include "datastructures/BlockProposalSet.h"
+
 #include "datastructures/CommittedBlock.h"
 #include "datastructures/CommittedBlockList.h"
-#include "datastructures/MyBlockProposal.h"
-#include "datastructures/ReceivedBlockProposal.h"
-#include "datastructures/Transaction.h"
+
 #include "datastructures/TransactionList.h"
 #include "exceptions/ExitRequestedException.h"
-#include "messages/ConsensusProposalMessage.h"
-
-#include "exceptions/FatalError.h"
-
 
 #include "pricing/PricingAgent.h"
 
 
-#include "crypto/bls_include.h"
-#include "db/BlockDB.h"
-#include "db/CacheLevelDB.h"
-#include "pendingqueue/TestMessageGeneratorAgent.h"
-#include "SchainTest.h"
-
-
-#include "libBLS/bls/BLSPrivateKeyShare.h"
-#include "monitoring/LivelinessMonitor.h"
 #include "Schain.h"
-
+#include "db/BlockDB.h"
+#include "monitoring/LivelinessMonitor.h"
+#include "pendingqueue/TestMessageGeneratorAgent.h"
 
 const ptr<IO> Schain::getIo() const {
     CHECK_STATE(io);
@@ -208,7 +170,7 @@ ptr<TestMessageGeneratorAgent> Schain::getTestMessageGeneratorAgent() const {
 }
 
 void Schain::setBlockProposerTest(const string &_blockProposerTest) {
-    Schain::blockProposerTest = make_shared<string>(_blockProposerTest);
+    Schain::blockProposerTest = _blockProposerTest;
 }
 
 
@@ -229,7 +191,7 @@ block_id Schain::getBootstrapBlockID() const {
 void Schain::setHealthCheckFile(uint64_t status) {
     auto engine = getNode()->getConsensusEngine();
     CHECK_STATE(engine);
-    string fileName = engine->getHealthCheckDir()->append("/HEALTH_CHECK");
+    string fileName = engine->getHealthCheckDir() + "/HEALTH_CHECK";
     auto id = engine->getEngineID();
     if (id > 1) {
         fileName.append("." + to_string(id));
@@ -263,13 +225,13 @@ u256 Schain::getPriceForBlockId(uint64_t _blockId) {
 }
 
 
-ptr<string> Schain::getBlockProposerTest() const {
+string Schain::getBlockProposerTest() const {
     return blockProposerTest;
 }
 
 void Schain::setBlockProposerTest(const char *_blockProposerTest) {
     CHECK_ARGUMENT(_blockProposerTest);
-    blockProposerTest = make_shared<string>(_blockProposerTest);
+    blockProposerTest = _blockProposerTest;
 }
 
 ConsensusExtFace *Schain::getExtFace() const {

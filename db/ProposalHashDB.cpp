@@ -41,10 +41,10 @@ ProposalHashDB::ProposalHashDB(Schain *_sChain, string &_dirName, string &_prefi
 
     auto index = this->readString(SCHAIN_INDEX);
 
-    if (index == nullptr) {
+    if (index.empty()) {
         this->writeString(SCHAIN_INDEX, to_string((uint64_t)_sChain->getSchainIndex()));
     } else {
-        if (to_string((uint64_t ) getSchain()->getSchainIndex()) != *index) {
+        if (to_string((uint64_t ) getSchain()->getSchainIndex()) != index) {
             BOOST_THROW_EXCEPTION(FatalError(
                 "Schain index of this node changed in the config."
                 "This should never happen.  Fix the config and restart the node."));
@@ -55,26 +55,26 @@ ProposalHashDB::ProposalHashDB(Schain *_sChain, string &_dirName, string &_prefi
 
 
 bool
-ProposalHashDB::checkAndSaveHash(block_id _proposalBlockID, schain_index _proposerIndex, const ptr<string>& _proposalHash) {
+ProposalHashDB::checkAndSaveHash(block_id _proposalBlockID, schain_index _proposerIndex, const string& _proposalHash) {
 
 
-    CHECK_ARGUMENT(_proposalHash);
+    CHECK_ARGUMENT(!_proposalHash.empty());
 
     lock_guard<recursive_mutex> lock(m);
 
     try {
 
         auto key = createKey(_proposalBlockID, _proposerIndex);
-        CHECK_STATE(key);
+        CHECK_STATE(!key.empty());
 
-        auto previous = readString(*key);
+        auto previous = readString(key);
 
-        if (previous == nullptr) {
-            writeString(*key, *_proposalHash);
+        if (previous.empty()) {
+            writeString(key, _proposalHash);
             return true;
         }
 
-        return (*previous == *_proposalHash);
+        return (previous == _proposalHash);
 
     } catch (...) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
@@ -91,11 +91,11 @@ ProposalHashDB::haveProposal(block_id _proposalBlockID, schain_index _proposerIn
     try {
 
         auto key = createKey(_proposalBlockID, _proposerIndex);
-        CHECK_STATE(key);
+        CHECK_STATE(!key.empty());
 
-        auto previous = readString(*key);
+        auto previous = readString(key);
 
-        return (previous != nullptr);
+        return (!previous.empty());
 
     } catch (...) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
@@ -103,8 +103,9 @@ ProposalHashDB::haveProposal(block_id _proposalBlockID, schain_index _proposerIn
 
 }
 
-const string ProposalHashDB::getFormatVersion() {
-    return "1.0";
+const string& ProposalHashDB::getFormatVersion() {
+    static const string version = "1.0";
+    return version;
 }
 
 

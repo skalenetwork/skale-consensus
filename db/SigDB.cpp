@@ -36,8 +36,9 @@ SigDB::SigDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId
         CacheLevelDB(_sChain, _dirName, _prefix, _nodeId, _maxDBSize, false) {}
 
 
-const string SigDB::getFormatVersion() {
-    return "1.0";
+const string& SigDB::getFormatVersion() {
+    static const string version = "1.0";
+    return version;
 }
 
 
@@ -46,9 +47,9 @@ const string SigDB::getFormatVersion() {
 void SigDB::addSignature(block_id _blockId, const ptr<ThresholdSignature>& _sig) {
     CHECK_ARGUMENT(_sig);
     auto key = createKey(_blockId);
-    CHECK_STATE(key);
-    if (readString(*key) == nullptr)
-        writeString(*key, *_sig->toString());
+    CHECK_STATE(!key.empty())
+    if (readString(key).empty())
+        writeString(key, _sig->toString());
 }
 
 

@@ -48,7 +48,7 @@ public:
     ptr<DAProof> addAndMergeSigShareAndVerifySig(const ptr<ThresholdSigShare>& _sigShare,
  const ptr<BlockProposal>& _proposal);
 
-    const string getFormatVersion();
+    const string& getFormatVersion();
 };
 
 

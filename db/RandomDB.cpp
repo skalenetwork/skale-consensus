@@ -36,8 +36,9 @@ RandomDB::RandomDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _
         CacheLevelDB(_sChain, _dirName, _prefix, _nodeId, _maxDBSize, false) {}
 
 
-const string RandomDB::getFormatVersion() {
-    return "1.0";
+const string& RandomDB::getFormatVersion() {
+    static const string version = "1.0";
+    return version;
 }
 
 
@@ -45,10 +46,10 @@ uint64_t
 RandomDB::readRandom(const block_id &_blockId, const schain_index &_proposerIndex, const bin_consensus_round &_round) {
 
     auto key = createKey(_blockId, _proposerIndex, _round);
-    CHECK_STATE(key);
-    auto value = readString(*key);
-    CHECK_STATE(value);
-    return stoul(*value);
+    CHECK_STATE(!key.empty())
+    auto value = readString(key);
+    CHECK_STATE(!value.empty())
+    return stoul(value);
 
 }
 

@@ -28,7 +28,8 @@
 #include "network/Utils.h"
 #include "thirdparty/json.hpp"
 
-#include "bls_include.h"
+
+
 
 #include "BLSSigShare.h"
 #include "ConsensusBLSSigShare.h"
@@ -46,17 +47,17 @@ ptr< BLSSigShare > ConsensusBLSSigShare::getBlsSigShare() const {
     CHECK_STATE(blsSigShare);
     return blsSigShare;
 }
-ConsensusBLSSigShare::ConsensusBLSSigShare(const ptr<string>& _sigShare, schain_id _schainID, block_id _blockID,
+ConsensusBLSSigShare::ConsensusBLSSigShare(const string& _sigShare, schain_id _schainID, block_id _blockID,
                                            schain_index _signerIndex,
                                            uint64_t _totalSigners, uint64_t _requiredSigners)
     : ThresholdSigShare(_schainID, _blockID, _signerIndex) {
 
-    CHECK_ARGUMENT(_sigShare);
+    CHECK_ARGUMENT(_sigShare != "");
 
     try {
 
         this->blsSigShare = make_shared< BLSSigShare >(
-            _sigShare, ( uint64_t ) _signerIndex, _requiredSigners, _totalSigners );
+            make_shared<string>(_sigShare), ( uint64_t ) _signerIndex, _requiredSigners, _totalSigners );
     }  catch ( ... ) {
         throw_with_nested( InvalidStateException( "Could not create BLSSigShare", __CLASS_NAME__ ) );
     }
@@ -66,11 +67,11 @@ ConsensusBLSSigShare::~ConsensusBLSSigShare() {
 
 }
 
-ptr<std::string> ConsensusBLSSigShare::toString() {
+string ConsensusBLSSigShare::toString() {
     try {
         auto result = getBlsSigShare()->toString();
         CHECK_STATE(result);
-        return result;
+        return *result;
     }  catch ( ... ) {
         throw_with_nested( InvalidStateException( "Could not toString() sig share", __CLASS_NAME__ ) );
     }

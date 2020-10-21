@@ -48,9 +48,9 @@ public:
 
     ptr<array<uint8_t ,SHA_HASH_LEN>> getHash() const;
 
-    static ptr<SHAHash> fromHex(const ptr<string>& _hex);
+    static ptr<SHAHash> fromHex(const string& _hex);
 
-    ptr<string> toHex();
+    string toHex();
 
     static ptr<SHAHash> calculateHash(const ptr<vector<uint8_t>>& _data);
 

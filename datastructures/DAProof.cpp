@@ -21,8 +21,6 @@
     @date 2018
 */
 
-#include <boost/iostreams/device/array.hpp>
-#include <boost/iostreams/stream.hpp>
 
 
 #include "BlockProposal.h"
@@ -30,7 +28,7 @@
 #include "SkaleCommon.h"
 #include "Log.h"
 #include "exceptions/InvalidStateException.h"
-#include "thirdparty/json.hpp"
+
 
 
 DAProof::DAProof(const ptr<BlockProposal>& _proposal, ptr<ThresholdSignature>& _thresholdSignature) {

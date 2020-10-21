@@ -82,11 +82,11 @@ bool BlockProposalFragmentList::addFragment(const ptr<BlockProposalFragment>& _f
 
     LOCK(m)
 
-    if (blockHash == nullptr) {
+    if (blockHash == "") {
         blockHash = _fragment->getBlockHash();
         blockSize = _fragment->getBlockSize();
     } else {
-        CHECK_ARGUMENT(blockHash->compare(*_fragment->getBlockHash()) == 0);
+        CHECK_ARGUMENT(blockHash.compare(_fragment->getBlockHash()) == 0);
         CHECK_ARGUMENT(blockSize == (int64_t ) _fragment->getBlockSize());
     }
 

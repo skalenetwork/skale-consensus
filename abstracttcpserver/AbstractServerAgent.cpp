@@ -22,32 +22,15 @@
 */
 
 #include "Agent.h"
-#include "SkaleCommon.h"
 #include "Log.h"
 #include "crypto/bls_include.h"
 
-#include "exceptions/FatalError.h"
-#include "exceptions/ExitRequestedException.h"
-
-#include "thirdparty/json.hpp"
-
-#include "abstracttcpserver/ConnectionStatus.h"
-
-#include "node/Node.h"
 #include "chains/Schain.h"
 
 #include "exceptions/OldBlockIDException.h"
-#include "exceptions/CouldNotReadPartialDataHashesException.h"
-
-#include "libBLS/bls/BLSPrivateKeyShare.h"
-#include "libBLS/bls/BLSSignature.h"
-#include "libBLS/bls/BLSPublicKey.h"
 
 
 #include "blockproposal/pusher/BlockProposalClientAgent.h"
-#include "crypto/SHAHash.h"
-#include "datastructures/BlockProposalSet.h"
-#include "datastructures/PartialHashesList.h"
 #include "db/BlockProposalDB.h"
 #include "headers/MissingTransactionsRequestHeader.h"
 #include "network/Buffer.h"
@@ -56,13 +39,9 @@
 #include "network/ServerConnection.h"
 #include "network/Sockets.h"
 #include "network/TCPServerSocket.h"
-#include "pendingqueue/PendingTransactionsAgent.h"
 
 
 #include "AbstractServerAgent.h"
-
-#include <exception>
-#include <chrono>
 
 void AbstractServerAgent::pushToQueueAndNotifyWorkers(const ptr<ServerConnection>& _connectionEnvelope ) {
     CHECK_ARGUMENT( _connectionEnvelope );
@@ -177,7 +156,7 @@ void AbstractServerAgent::acceptTCPConnectionsLoop() {
                 BOOST_THROW_EXCEPTION(NetworkProtocolException("accept failed:" + string(strerror(errno)), __CLASS_NAME__));
             }
 
-            auto ip = make_shared<string>(inet_ntoa(clientAddress.sin_addr));
+            string ip(inet_ntoa(clientAddress.sin_addr));
 
             this->pushToQueueAndNotifyWorkers(make_shared<ServerConnection>(newConnection, ip));
 

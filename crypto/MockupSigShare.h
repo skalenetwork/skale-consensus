@@ -34,18 +34,14 @@ class MockupSigShare : public ThresholdSigShare {
     uint64_t totalSigners;
     uint64_t requiredSigners;
 
-    ptr<std::string> sigShare;
+    string sigShare;
 
 public:
 
-
-
-
-
-    MockupSigShare(const ptr<string>& _sigShare, schain_id _schainID, block_id _blockID, schain_index _signerIndex,
+    MockupSigShare(const string& _sigShare, schain_id _schainID, block_id _blockID, schain_index _signerIndex,
                    size_t _totalSigners, size_t _requiredSigners);
 
-    virtual ptr<std::string> toString();
+    virtual string toString();
 
     virtual ~MockupSigShare();
 };

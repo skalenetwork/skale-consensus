@@ -28,7 +28,7 @@
 #include "BooleanProposalVector.h"
 
 
-BooleanProposalVector::BooleanProposalVector(node_count _nodeCount, const ptr<map<schain_index, ptr<string>>>&
+BooleanProposalVector::BooleanProposalVector(node_count _nodeCount, const ptr<map<schain_index, string>>&
 _receivedDAProofs) : nodeCount(_nodeCount) {
 
     CHECK_ARGUMENT(_receivedDAProofs);
@@ -42,14 +42,14 @@ _receivedDAProofs) : nodeCount(_nodeCount) {
     trueCount = proposals.size();
 }
 
-BooleanProposalVector::BooleanProposalVector(node_count _nodeCount, const ptr<string>& _vectorStr)
+BooleanProposalVector::BooleanProposalVector(node_count _nodeCount, const string& _vectorStr)
         : nodeCount(_nodeCount) {
-    CHECK_ARGUMENT(_vectorStr != nullptr);
-    CHECK_ARGUMENT(_vectorStr->size() == _nodeCount);
+    CHECK_ARGUMENT(_vectorStr != "");
+    CHECK_ARGUMENT(_vectorStr.size() == _nodeCount);
     proposals.push_back(false);
 
     for (uint64_t i = 1; i <= _nodeCount; i++) {
-        auto value = _vectorStr->at(i - 1);
+        auto value = _vectorStr.at(i - 1);
         if (value == '1') {
             proposals.push_back(true);
             trueCount++;
@@ -75,11 +75,11 @@ uint64_t BooleanProposalVector::getTrueCount() const {
     return trueCount;
 }
 
-ptr<string> BooleanProposalVector::toString() {
-    auto vectorStr = make_shared<string>();
+string BooleanProposalVector::toString() {
+    string vectorStr;
     for (uint64_t i = 1; i <= nodeCount; i++) {
         auto value = (proposals.at(i) ? "1" : "0");
-        vectorStr->append(value);
+        vectorStr.append(value);
     }
 
     return vectorStr;

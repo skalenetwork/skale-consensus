@@ -45,13 +45,13 @@ public:
     ConsensusBLSSigShare(const ptr<BLSSigShare>& _sig, schain_id _schainId, block_id _blockID);
 
 
-    ConsensusBLSSigShare(const ptr<string>& _sigShare, schain_id _schainID, block_id _blockID, schain_index _signerIndex,
+    ConsensusBLSSigShare(const string& _sigShare, schain_id _schainID, block_id _blockID, schain_index _signerIndex,
                          uint64_t _totalSigners, uint64_t _requiredSigners);
 
 
     ptr< BLSSigShare > getBlsSigShare() const;
 
-    virtual ptr<std::string> toString();
+    virtual string toString();
 
     virtual ~ConsensusBLSSigShare();
 };

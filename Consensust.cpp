@@ -134,15 +134,17 @@ block_id basicRun(block_id _lastId = 0) {
         REQUIRE(lastId > 0);
 
 
-        auto [transactions, timestampS, timestampMs, price, stateRoot]  = engine->getBlock(1);
+        auto [transactions, timestampS, timeStampMs, price, stateRoot]  = engine->getBlock(1);
 
 
         REQUIRE(transactions);
         REQUIRE(timestampS > 0);
-        REQUIRE(timestampMs > 0);
-
+        REQUIRE(timeStampMs > 0);
+        
         cerr << price << ":" << stateRoot << endl;
-        cerr << "exiting ..." << endl;
+
+
+        cerr << "exiting" << endl;
         engine->exitGracefullyBlocking();
         delete engine;
         return lastId;

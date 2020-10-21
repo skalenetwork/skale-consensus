@@ -120,7 +120,7 @@ private:
 
     schain_index schainIndex;
 
-    ptr<string> blockProposerTest;
+    string blockProposerTest;
 
 
 
@@ -233,7 +233,7 @@ public:
 
     ptr<CommittedBlock> getBlock(block_id _blockID);
 
-    ptr<string> getBlockProposerTest() const;
+    string getBlockProposerTest() const;
 
     void setBlockProposerTest(const char *_blockProposerTest);
 

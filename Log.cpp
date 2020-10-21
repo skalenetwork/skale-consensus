@@ -96,28 +96,28 @@ SkaleLog::SkaleLog(node_id _nodeID, ConsensusEngine* _engine) {
 
     nodeID = _nodeID;
 
-    prefix = make_shared<string>(to_string(_nodeID) + ":");
+    prefix = to_string(_nodeID) + ":";
 
 
     if (_engine->getEngineID() > 1) {
-        prefix = make_shared<string>(to_string(_engine->getEngineID()) + ":" + to_string(_nodeID) + ":");
+        prefix = to_string(_engine->getEngineID()) + ":" + to_string(_nodeID) + ":";
     } else {
-        prefix = make_shared<string>(to_string(_nodeID) + ":");
+        prefix = to_string(_nodeID) + ":";
     }
 
-    mainLogger = _engine->createLogger(*prefix + "main");
+    mainLogger = _engine->createLogger(prefix + "main");
     loggers["Main"] = mainLogger;
-    proposalLogger = _engine->createLogger(*prefix + "proposal");
+    proposalLogger = _engine->createLogger(prefix + "proposal");
     loggers["Proposal"] = proposalLogger;
-    catchupLogger = _engine->createLogger(*prefix + "catchup");
+    catchupLogger = _engine->createLogger(prefix + "catchup");
     loggers["Catchup"] = catchupLogger;
-    consensusLogger = _engine->createLogger(*prefix + "consensus");
+    consensusLogger = _engine->createLogger(prefix + "consensus");
     loggers["Consensus"] = consensusLogger;
-    netLogger = _engine->createLogger(*prefix + "net");
+    netLogger = _engine->createLogger(prefix + "net");
     loggers["Net"] = netLogger;
-    dataStructuresLogger = _engine->createLogger(*prefix + "datastructures");
+    dataStructuresLogger = _engine->createLogger(prefix + "datastructures");
     loggers["Datastructures"] = dataStructuresLogger;
-    pendingQueueLogger = _engine->createLogger(*prefix + "pending");
+    pendingQueueLogger = _engine->createLogger(prefix + "pending");
     loggers["Pending"] = pendingQueueLogger;
 }
 

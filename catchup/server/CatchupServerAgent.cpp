@@ -23,18 +23,12 @@
 
 #include "SkaleCommon.h"
 #include "Log.h"
-#include <leveldb/options.h>
-
-#include "leveldb/db.h"
 
 #include "crypto/SHAHash.h"
 
-#include "exceptions/FatalError.h"
 #include "exceptions/ExitRequestedException.h"
-#include "exceptions/PingException.h"
 #include "exceptions/InvalidMessageFormatException.h"
-#include "node/ConsensusEngine.h"
-#include "thirdparty/json.hpp"
+#include "exceptions/PingException.h"
 
 #include "monitoring/LivelinessMonitor.h"
 
@@ -47,12 +41,10 @@
 
 #include "abstracttcpserver/ConnectionStatus.h"
 
-#include "exceptions/OldBlockIDException.h"
-#include "exceptions/InvalidSchainException.h"
-#include "exceptions/InvalidSourceIPException.h"
-#include "exceptions/InvalidNodeIDException.h"
-#include "exceptions/InvalidSchainIndexException.h"
 #include "exceptions/CouldNotSendMessageException.h"
+#include "exceptions/InvalidNodeIDException.h"
+#include "exceptions/InvalidSchainException.h"
+#include "exceptions/OldBlockIDException.h"
 
 
 #include "pendingqueue/PendingTransactionsAgent.h"
@@ -67,10 +59,9 @@
 #include "network/ServerConnection.h"
 #include "network/Sockets.h"
 
-#include "datastructures/CommittedBlock.h"
-#include "datastructures/CommittedBlockList.h"
-#include "datastructures/BlockProposalFragment.h"
 #include "CatchupServerAgent.h"
+#include "datastructures/BlockProposalFragment.h"
+#include "datastructures/CommittedBlock.h"
 
 
 CatchupWorkerThreadPool *CatchupServerAgent::getCatchupWorkerThreadPool() const {
@@ -125,13 +116,13 @@ void CatchupServerAgent::processNextAvailableConnection(const ptr<ServerConnecti
     auto type = Header::getString(jsonRequest, "type");
 
 
-    if (type->compare(Header::BLOCK_CATCHUP_REQ) == 0) {
+    if (type.compare(Header::BLOCK_CATCHUP_REQ) == 0) {
         responseHeader = make_shared<CatchupResponseHeader>();
-    } else if (type->compare(Header::BLOCK_FINALIZE_REQ) == 0) {
+    } else if (type.compare(Header::BLOCK_FINALIZE_REQ) == 0) {
         responseHeader = make_shared<BlockFinalizeResponseHeader>();
     } else {
         BOOST_THROW_EXCEPTION(
-                InvalidMessageFormatException("Unknown request type:" + *type, __CLASS_NAME__));
+                InvalidMessageFormatException("Unknown request type:" + type, __CLASS_NAME__));
     }
 
     ptr<vector<uint8_t>> serializedBinary = nullptr;
@@ -201,7 +192,7 @@ ptr<vector<uint8_t>> CatchupServerAgent::createResponseHeaderAndBinary(const ptr
         node_id nodeID = Header::getUint64(_jsonRequest, "nodeID");
 
 
-        if (sChain->getSchainID() != schainID) {
+        if ((uint64_t ) sChain->getSchainID() != schainID) {
             _responseHeader->setStatusSubStatus(CONNECTION_ERROR, CONNECTION_ERROR_UNKNOWN_SCHAIN_ID);
             BOOST_THROW_EXCEPTION(InvalidSchainException("Incorrect schain " + to_string(schainID), __CLASS_NAME__));
 
@@ -221,13 +212,13 @@ ptr<vector<uint8_t>> CatchupServerAgent::createResponseHeaderAndBinary(const ptr
 
         ptr<vector<uint8_t>> serializedBinary = nullptr;
 
-        if (type->compare(Header::BLOCK_CATCHUP_REQ) == 0) {
+        if (type.compare(Header::BLOCK_CATCHUP_REQ) == 0) {
 
             serializedBinary = createBlockCatchupResponse(_jsonRequest,
                                                           dynamic_pointer_cast<CatchupResponseHeader>(_responseHeader),
                                                           blockID);
 
-        } else if (type->compare(Header::BLOCK_FINALIZE_REQ) == 0) {
+        } else if (type.compare(Header::BLOCK_FINALIZE_REQ) == 0) {
 
             serializedBinary = createBlockFinalizeResponse(_jsonRequest,
                                                            dynamic_pointer_cast<BlockFinalizeResponseHeader>(

@@ -30,7 +30,7 @@
 #include "AbstractBlockRequestHeader.h"
 #include "BlockFinalizeResponseHeader.h"
 
-BlockFinalizeResponseHeader::BlockFinalizeResponseHeader() : Header(Header::BLOCK_FINALIZE__RSP) {
+BlockFinalizeResponseHeader::BlockFinalizeResponseHeader() : Header(Header::BLOCK_FINALIZE_RSP ) {
 
 }
 
@@ -38,23 +38,23 @@ BlockFinalizeResponseHeader::BlockFinalizeResponseHeader() : Header(Header::BLOC
 void BlockFinalizeResponseHeader::addFields(nlohmann::json &_j) {
 
 
-    CHECK_STATE(isComplete());
+    CHECK_STATE(isComplete())
     Header::addFields(_j);
 
     if (getStatusSubStatus().first != CONNECTION_PROCEED)
         return;
 
-    CHECK_STATE(blockHash);
-    _j["blockHash"] = *blockHash;
+    CHECK_STATE(!blockHash.empty())
+    _j["blockHash"] = blockHash;
     _j["fragmentSize"] = (uint64_t) fragmentSize;
     _j["blockSize"] = (uint64_t) blockSize;
 }
 
-void BlockFinalizeResponseHeader::setFragmentParams(uint64_t _fragmentSize, uint64_t _blockSize, const ptr<string>& _hash) {
+void BlockFinalizeResponseHeader::setFragmentParams(uint64_t _fragmentSize, uint64_t _blockSize, const string& _hash) {
 
     CHECK_ARGUMENT(_fragmentSize > 2)
     CHECK_ARGUMENT(_blockSize > 16)
-    CHECK_ARGUMENT(_hash)
+    CHECK_ARGUMENT(!_hash.empty())
 
 
     fragmentSize = _fragmentSize;

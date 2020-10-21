@@ -122,14 +122,14 @@ void Utils::checkTime() {
 }
 
 
-bool Utils::isValidIpAddress(const ptr<string> ipAddress) {
+bool Utils::isValidIpAddress(const string& ipAddress) {
     struct sockaddr_in sa;
-    int result = inet_pton(AF_INET, ipAddress->c_str(), &(sa.sin_addr));
+    int result = inet_pton(AF_INET, ipAddress.c_str(), &(sa.sin_addr));
     return result != 0;
 }
 
 
-ptr<string> Utils::carray2Hex(const uint8_t *d, size_t _len) {
+string Utils::carray2Hex(const uint8_t *d, size_t _len) {
     auto hex = make_shared<vector<char>>(2 * _len);
 
     static char hexval[16] = {
@@ -140,7 +140,7 @@ ptr<string> Utils::carray2Hex(const uint8_t *d, size_t _len) {
         hex->at((j * 2) + 1) = hexval[(d[j]) & 0x0F];
     }
 
-    auto result = make_shared<string>((char *) hex->data(), 2 * _len);
+    string result((char *) hex->data(), 2 * _len);
     return result;
 }
 
@@ -155,7 +155,7 @@ uint Utils::char2int(char _input) {
     BOOST_THROW_EXCEPTION(InvalidArgumentException("Invalid input string", __CLASS_NAME__));
 }
 
-void Utils::cArrayFromHex(string &_hex, uint8_t *_data, size_t len) {
+void Utils::cArrayFromHex(const string &_hex, uint8_t *_data, size_t len) {
 
     CHECK_ARGUMENT(_hex.size() % 2 == 0);
     CHECK_ARGUMENT(_hex.size() / 2 == len);

@@ -95,7 +95,7 @@ public:
 
 
 
-    static ptr<string> ipToString(uint32_t _ip);
+    static string ipToString(uint32_t _ip);
 
     void broadcastMessage(const ptr<NetworkMessage>& _msg );
 
@@ -103,7 +103,7 @@ public:
 
     virtual uint64_t readMessageFromNetwork(const ptr<Buffer> buf) = 0;
 
-    static bool validateIpAddress(const ptr<string> &_ip);
+    static bool validateIpAddress(const string &_ip);
 
     static void setTransport(TransportType transport);
 

@@ -54,7 +54,7 @@ class BlockConsensusAgent : public ProtocolInstance {
 
     void processChildMessageImpl(const ptr<InternalMessageEnvelope>& _me);
 
-    void decideBlock(block_id _blockId, schain_index _sChainIndex, const ptr<string>& _stats);
+    void decideBlock(block_id _blockId, schain_index _sChainIndex, const string& _stats);
 
     void propose(bin_consensus_value _proposal, schain_index index, block_id _id);
 
@@ -74,7 +74,7 @@ class BlockConsensusAgent : public ProtocolInstance {
     bool decided(const ptr<ProtocolKey>& _key);
 
 
-    ptr<string> buildStats(block_id _blockID);
+    string buildStats(block_id _blockID);
 
 public:
 

@@ -388,8 +388,8 @@ pair< ConnectionStatus, ConnectionSubStatus > BlockProposalClientAgent::sendDAPr
 
     LOG( trace, "DAProof step 2: read response" );
 
-    ConnectionStatus status = ConnectionStatus::CONNECTION_STATUS_UNKNOWN;
-    ConnectionSubStatus substatus = ConnectionSubStatus::CONNECTION_SUBSTATUS_UNKNOWN;
+    auto status = ConnectionStatus::CONNECTION_STATUS_UNKNOWN;
+    auto substatus = ConnectionSubStatus::CONNECTION_SUBSTATUS_UNKNOWN;
 
     status = ( ConnectionStatus ) Header::getUint64( response, "status" );
     substatus = ( ConnectionSubStatus ) Header::getUint64( response, "substatus" );
