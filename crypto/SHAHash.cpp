@@ -25,7 +25,7 @@
 #include "Log.h"
 #include "thirdparty/json.hpp"
 
-#include "headers/Header.h"
+
 #include "network/Utils.h"
 #include "exceptions/InvalidArgumentException.h"
 
@@ -45,17 +45,17 @@ uint8_t SHAHash::at(uint32_t _position) {
 }
 
 
-ptr<SHAHash> SHAHash::fromHex(const ptr<string>& _hex) {
-    CHECK_ARGUMENT(_hex);
+ptr<SHAHash> SHAHash::fromHex(const string& _hex) {
+    CHECK_ARGUMENT(_hex != "");
     auto result = make_shared<array<uint8_t, SHA_HASH_LEN>>();
-    Utils::cArrayFromHex(*_hex, result->data(), SHA_HASH_LEN);
+    Utils::cArrayFromHex(_hex, result->data(), SHA_HASH_LEN);
     return make_shared<SHAHash>(result);
 }
 
-ptr<string> SHAHash::toHex() {
+string SHAHash::toHex() {
     CHECK_STATE(hash);
     auto result = Utils::carray2Hex(hash->data(), SHA_HASH_LEN);
-    CHECK_STATE(result);
+    CHECK_STATE(result != "");
     return result;
 }
 

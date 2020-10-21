@@ -49,36 +49,36 @@ BlockSigShareDB::BlockSigShareDB(Schain *_sChain, string &_dirName, string &_pre
 ptr<ThresholdSignature>
 BlockSigShareDB::checkAndSaveShare(const ptr<ThresholdSigShare>& _sigShare, const ptr<CryptoManager>& _cryptoManager) {
     try {
-        CHECK_ARGUMENT(_sigShare);
-        CHECK_ARGUMENT(_cryptoManager);
+        CHECK_ARGUMENT(_sigShare)
+        CHECK_ARGUMENT(_cryptoManager)
 
         auto sigShareString = _sigShare->toString();
-        CHECK_STATE(sigShareString);
+        CHECK_STATE(!sigShareString.empty())
 
         LOCK(sigShareMutex)
 
-        auto enoughSet = writeStringToSet(*sigShareString, _sigShare->getBlockId(),
+        auto enoughSet = writeStringToSet(sigShareString, _sigShare->getBlockId(),
                                           _sigShare->getSignerIndex());
         if (enoughSet == nullptr)
             return nullptr;
 
         auto _sigShareSet = _cryptoManager->createSigShareSet(_sigShare->getBlockId());
-        CHECK_STATE(_sigShareSet);
+        CHECK_STATE(_sigShareSet)
 
         for (auto &&item : *enoughSet) {
 
             auto nodeInfo = sChain->getNode()->getNodeInfoByIndex(item.first);
-            CHECK_STATE(nodeInfo);
-            CHECK_STATE(item.second);
+            CHECK_STATE(nodeInfo)
+            CHECK_STATE(!item.second.empty())
             auto sigShare = _cryptoManager->createSigShare(item.second, sChain->getSchainID(),
                                                            _sigShare->getBlockId(), item.first);
-            CHECK_STATE(sigShare);
+            CHECK_STATE(sigShare)
             _sigShareSet->addSigShare(sigShare);
         }
 
-        CHECK_STATE(_sigShareSet->isEnough());
+        CHECK_STATE(_sigShareSet->isEnough())
         auto signature = _sigShareSet->mergeSignature();
-        CHECK_STATE(signature);
+        CHECK_STATE(signature)
         return signature;
     } catch (ExitRequestedException &) { throw; } catch (...) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
@@ -86,8 +86,9 @@ BlockSigShareDB::checkAndSaveShare(const ptr<ThresholdSigShare>& _sigShare, cons
 }
 
 
-const string BlockSigShareDB::getFormatVersion() {
-    return "1.0";
+const string& BlockSigShareDB::getFormatVersion() {
+    static const string version = "1.0";
+    return version;
 }
 
 

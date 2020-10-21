@@ -25,7 +25,6 @@
 #include "SkaleCommon.h"
 #include "Log.h"
 #include "chains/Schain.h"
-#include "crypto/SHAHash.h"
 #include "datastructures/BooleanProposalVector.h"
 #include "exceptions/InvalidStateException.h"
 
@@ -46,23 +45,23 @@ ProposalVectorDB::ProposalVectorDB(Schain *_sChain, string &_dirName, string &_p
 bool
 ProposalVectorDB::trySavingProposalVector(block_id _proposalBlockID, const ptr<BooleanProposalVector>& _proposalVector) {
 
-    CHECK_ARGUMENT(_proposalVector);
+    CHECK_ARGUMENT(_proposalVector)
 
     lock_guard<recursive_mutex> lock(m);
 
     auto proposalString = _proposalVector->toString();
 
-    CHECK_STATE(proposalString);
+    CHECK_STATE(!proposalString.empty())
 
     try {
 
         auto key = createKey(_proposalBlockID);
-        CHECK_STATE(key);
+        CHECK_STATE(!key.empty())
 
-        auto previous = readString(*key);
+        auto previous = readString(key);
 
-        if (previous == nullptr) {
-            writeString(*key, *proposalString);
+        if (previous.empty()) {
+            writeString(key, proposalString);
             return true;
         } else {
             return false;
@@ -82,11 +81,11 @@ ProposalVectorDB::getVector(block_id _blockID) {
     try {
 
         auto key = createKey(_blockID);
-        CHECK_STATE(key);
+        CHECK_STATE(!key.empty())
 
-        auto value = readString(*key);
+        auto value = readString(key);
 
-        if (value == nullptr) {
+        if (value.empty()) {
             return nullptr;
         }
         return make_shared<BooleanProposalVector>(getSchain()->getNodeCount(), value);
@@ -96,8 +95,9 @@ ProposalVectorDB::getVector(block_id _blockID) {
 
 }
 
-const string ProposalVectorDB::getFormatVersion() {
-    return "1.0";
+const string& ProposalVectorDB::getFormatVersion() {
+    static const string version = "1.0";
+    return version;
 }
 
 

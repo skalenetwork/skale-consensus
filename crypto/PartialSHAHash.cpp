@@ -25,7 +25,6 @@
 #include "SkaleCommon.h"
 #include "Log.h"
 #include "thirdparty/json.hpp"
-#include "headers/Header.h"
 #include "PartialSHAHash.h"
 #include "network/Utils.h"
 
@@ -42,14 +41,14 @@ uint8_t PartialSHAHash::at(uint32_t _position) {
     return hash->at(_position);
 }
 
-ptr< PartialSHAHash > PartialSHAHash::hex2sha(const ptr<string>& _hex ) {
+ptr< PartialSHAHash > PartialSHAHash::hex2sha(const string& _hex ) {
 
-    CHECK_STATE(_hex);
+    CHECK_STATE(_hex != "");
 
     auto result = make_shared<array<uint8_t, PARTIAL_SHA_HASH_LEN>>();
 
     for ( size_t i = 0; i < PARTIAL_SHA_HASH_LEN; i++ ) {
-        result->at(i) = Utils::char2int(_hex->at(i) ) * 16 + Utils::char2int(_hex->at(i + 1));
+        result->at(i) = Utils::char2int(_hex.at(i) ) * 16 + Utils::char2int(_hex.at(i + 1));
     }
 
     return make_shared<PartialSHAHash>( result );
@@ -78,17 +77,17 @@ PartialSHAHash::PartialSHAHash(const ptr<array<uint8_t, PARTIAL_SHA_HASH_LEN>>& 
 
 
 
-ptr< PartialSHAHash > PartialSHAHash::fromHex(const ptr<string>& _hex) {
-    CHECK_ARGUMENT(_hex);
+ptr< PartialSHAHash > PartialSHAHash::fromHex(const string& _hex) {
+    CHECK_ARGUMENT(_hex != "");
     auto result = make_shared<array<uint8_t, PARTIAL_SHA_HASH_LEN>>();
     for ( size_t i = 0; i < PARTIAL_SHA_HASH_LEN; i++ ) {
-        result->at(i) = Utils::char2int(_hex->at(2*i) ) * 16 + Utils::char2int(_hex->at(2* i + 1));
+        result->at(i) = Utils::char2int(_hex.at(2*i) ) * 16 + Utils::char2int(_hex.at(2* i + 1));
     }
     return make_shared<PartialSHAHash>(result);
 }
 
 
-ptr<string> PartialSHAHash::toHex() {
+string PartialSHAHash::toHex() {
     CHECK_STATE(hash);
     return Utils::carray2Hex(hash->data(), PARTIAL_SHA_HASH_LEN);
 }

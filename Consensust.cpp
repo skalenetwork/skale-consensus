@@ -123,11 +123,24 @@ block_id basicRun(block_id _lastId = 0) {
 
         engine = new ConsensusEngine(_lastId);
 
+
+
+
         engine->setTotalStorageLimitBytes(1000000000);
 
+        cerr << "Hehe" << endl;
+
         engine->parseTestConfigsAndCreateAllNodes( Consensust::getConfigDirPath() );
+
+        cerr << "Hoho" << endl;
+
         engine->slowStartBootStrapTest();
+
+        cerr << "Huhu" << endl;
+
         sleep(Consensust::getRunningTimeMS()/1000); /* Flawfinder: ignore */
+
+        cerr << "Hh" << endl;
 
         REQUIRE(engine->nodesCount() > 0);
         auto lastId = engine->getLargestCommittedBlockID();

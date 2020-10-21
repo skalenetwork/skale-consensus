@@ -25,7 +25,7 @@
 #include "Log.h"
 #include "crypto/ConsensusBLSSignature.h"
 #include "crypto/SHAHash.h"
-#include "crypto/bls_include.h"
+
 #include "exceptions/FatalError.h"
 #include "thirdparty/json.hpp"
 
@@ -38,7 +38,7 @@
 #include "crypto/CryptoManager.h"
 
 #include "protocols/ProtocolKey.h"
-#include "protocols/ProtocolInstance.h"
+
 
 #include "BinConsensusInstance.h"
 
@@ -71,12 +71,12 @@ AUXBroadcastMessage::AUXBroadcastMessage(bin_consensus_round _round, bin_consens
 
 AUXBroadcastMessage::AUXBroadcastMessage(node_id _srcNodeID, block_id _blockID, schain_index _blockProposerIndex,
                                          bin_consensus_round _r, bin_consensus_value _value, uint64_t _time, schain_id _schainId,
-                                         msg_id _msgID, const ptr<string>& _signature, schain_index _srcSchainIndex,
-                                         const ptr<string>& _ecdsaSig, const ptr<string>& _pubKey, const ptr<string>& _pkSig, Schain *_sChain)
+                                         msg_id _msgID, const string& _signature, schain_index _srcSchainIndex,
+                                         const string& _ecdsaSig, const string& _pubKey, const string& _pkSig, Schain *_sChain)
         : NetworkMessage(
         MSG_AUX_BROADCAST, _srcNodeID, _blockID, _blockProposerIndex, _r, _value, _time, _schainId, _msgID,
         _signature, _ecdsaSig, _pubKey, _pkSig, _srcSchainIndex, _sChain->getCryptoManager()) {
-    CHECK_ARGUMENT(_signature);
+    CHECK_ARGUMENT(!_signature.empty())
     printPrefix = "a";
 
 };

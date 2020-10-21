@@ -219,7 +219,7 @@ Schain::Schain( weak_ptr< Node > _node, schain_index _schainIndex, const schain_
         if ( thisNodeInfo == nullptr ) {
             BOOST_THROW_EXCEPTION( EngineInitException(
                 "Schain: " + to_string( ( uint64_t ) getSchainID() ) +
-                    " does not include current node with IP " + *getNode()->getBindIP() +
+                    " does not include current node with IP " + getNode()->getBindIP() +
                     "and node id " + to_string( getNode()->getNodeID() ),
                 __CLASS_NAME__ ) );
         }
@@ -230,7 +230,7 @@ Schain::Schain( weak_ptr< Node > _node, schain_index _schainIndex, const schain_
 
         string none = SchainTest::NONE;
 
-        blockProposerTest = make_shared<string>( none );
+        blockProposerTest = none;
 
         getNode()->registerAgent( this );
 
@@ -356,7 +356,11 @@ void Schain::checkForExit() {
 
 void Schain::proposeNextBlock(
     uint64_t _previousBlockTimeStamp, uint32_t _previousBlockTimeStampMs ) {
+
+
     MONITOR2( __CLASS_NAME__, __FUNCTION__, getMaxExternalBlockProcessingTime() )
+
+
 
     checkForExit();
     try {
@@ -372,10 +376,13 @@ void Schain::proposeNextBlock(
                 _proposedBlockID, _previousBlockTimeStamp, _previousBlockTimeStampMs );
         }
 
+
         CHECK_STATE( myProposal );
 
         CHECK_STATE( myProposal->getProposerIndex() == getSchainIndex() );
-        CHECK_STATE( myProposal->getSignature() != nullptr );
+        CHECK_STATE( myProposal->getSignature() != "");
+
+
 
 
         proposedBlockArrived( myProposal );
@@ -414,7 +421,7 @@ void Schain::processCommittedBlock(const ptr< CommittedBlock >& _block ) {
 
         totalTransactions += _block->getTransactionList()->size();
 
-        auto h = _block->getHash()->toHex()->substr( 0, 8 );
+        auto h = _block->getHash()->toHex().substr( 0, 8 );
         LOG( info,
             "BLOCK_COMMIT: PRPSR:" + to_string( _block->getProposerIndex() ) +
                 ":BID: " + to_string( _block->getBlockID() ) +
@@ -507,7 +514,7 @@ void Schain::startConsensus(
 
         checkForExit();
 
-        LOG( info, "BIN_CONSENSUS_START: PROPOSING: " + *_proposalVector->toString() );
+        LOG( info, "BIN_CONSENSUS_START: PROPOSING: " + _proposalVector->toString() );
 
         LOG( debug, "Got proposed block set for block:" + to_string( _blockID ) );
 
@@ -601,7 +608,7 @@ void Schain::proposedBlockArrived(const ptr< BlockProposal >& _proposal ) {
     if ( _proposal->getBlockID() <= getLastCommittedBlockID() )
         return;
 
-    CHECK_STATE( _proposal->getSignature() != nullptr );
+    CHECK_STATE( _proposal->getSignature() != "" );
 
     getNode()->getBlockProposalDB()->addBlockProposal( _proposal );
 }
@@ -857,10 +864,10 @@ void Schain::finalizeDecidedAndSignedBlock(
             auto agent = make_unique< BlockFinalizeDownloader >( this, _blockId, _proposerIndex );
 
             {
-                const string message = "Finalization download:" + to_string( _blockId ) + ":" +
+                const string msg = "Finalization download:" + to_string( _blockId ) + ":" +
                                        to_string( _proposerIndex );
 
-                MONITOR( __CLASS_NAME__, message.c_str() );
+                MONITOR( __CLASS_NAME__, msg.c_str() );
                 // This will complete successfully also if block arrives through catchup
                 proposal = agent->downloadProposal();
             }

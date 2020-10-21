@@ -24,9 +24,7 @@
 
 #include "SkaleCommon.h"
 #include "Log.h"
-#include "abstracttcpserver/ConnectionStatus.h"
 #include "blockproposal/pusher/BlockProposalClientAgent.h"
-#include "blockproposal/server/BlockProposalWorkerThreadPool.h"
 #include "chains/Schain.h"
 #include "crypto/ConsensusBLSSigShare.h"
 #include "crypto/SHAHash.h"
@@ -36,8 +34,6 @@
 #include "messages/NetworkMessage.h"
 #include "node/Node.h"
 #include "node/NodeInfo.h"
-#include "protocols/binconsensus/AUXBroadcastMessage.h"
-#include "protocols/binconsensus/BVBroadcastMessage.h"
 #include "protocols/blockconsensus/BlockSignBroadcastMessage.h"
 #include "thirdparty/json.hpp"
 #include <db/MsgDB.h>
@@ -47,9 +43,6 @@
 
 #include "exceptions/ExitRequestedException.h"
 #include "exceptions/InvalidMessageFormatException.h"
-#include "exceptions/InvalidSchainException.h"
-#include "exceptions/InvalidSourceIPException.h"
-#include "messages/Message.h"
 #include "protocols/blockconsensus/BlockConsensusAgent.h"
 
 #include "Buffer.h"
@@ -337,10 +330,10 @@ void Network::startThreads() {
     reg->add(deferredMessageThread);
 }
 
-bool Network::validateIpAddress(const ptr<string> & _ip ) {
-    CHECK_ARGUMENT( _ip );
+bool Network::validateIpAddress(const string & _ip ) {
+    CHECK_ARGUMENT(!_ip.empty() )
     struct sockaddr_in sa;
-    int result = inet_pton(AF_INET, _ip.get()->c_str(), &(sa.sin_addr));
+    int result = inet_pton(AF_INET, _ip.c_str(), &(sa.sin_addr));
     return result != 0;
 }
 
@@ -350,9 +343,9 @@ void Network::waitUntilExit() {
     deferredMessageThread->join();
 }
 
-ptr<string> Network::ipToString(uint32_t _ip) {
+string Network::ipToString(uint32_t _ip) {
     char *ip = (char *) &_ip;
-    return make_shared<string>(
+    return string(
             to_string((uint8_t) ip[0]) + "." + to_string((uint8_t) ip[1]) + "." +
             to_string((uint8_t) ip[2]) + "." + to_string((uint8_t) ip[3]));
 }
@@ -362,7 +355,7 @@ ptr<NetworkMessageEnvelope> Network::receiveMessage() {
 
     uint64_t readBytes = readMessageFromNetwork(buf);
 
-    auto msg = make_shared<string>((const char *) buf->getBuf()->data(), readBytes);
+    string  msg((const char *) buf->getBuf()->data(), readBytes);
 
     auto mptr = NetworkMessage::parseMessage(msg, getSchain());
 

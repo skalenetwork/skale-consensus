@@ -37,12 +37,12 @@ public:
 
     static void checkTime();
 
-    static bool isValidIpAddress(const ptr<string>ipAddress);
+    static bool isValidIpAddress(const string& ipAddress);
 
-    static ptr<string> carray2Hex(const uint8_t *d, size_t _len);
+    static string carray2Hex(const uint8_t *d, size_t _len);
 
     static uint char2int( char _input );
 
-    static void cArrayFromHex(string &_hex, uint8_t *_data, size_t len);
+    static void cArrayFromHex(const string &_hex, uint8_t *_data, size_t len);
 };
 

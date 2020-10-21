@@ -23,8 +23,9 @@
 
 #pragma once
 
-#include "datastructures/DataStructure.h"
+#include "BLSSigShare.h"
 #include "BLSSigShareSet.h"
+#include "datastructures/DataStructure.h"
 #include "ThresholdSigShareSet.h"
 
 
@@ -42,15 +43,15 @@ class ConsensusSigShareSet : public ThresholdSigShareSet {
 public:
     ConsensusSigShareSet(block_id _blockId, size_t _totalSigners, size_t _requiredSigners );
 
-    ptr<ThresholdSignature> mergeSignature();
+    ptr<ThresholdSignature> mergeSignature() override;
 
-    bool addSigShare(const ptr<ThresholdSigShare>& _sigShare);
+    bool addSigShare(const ptr<ThresholdSigShare>& _sigShare) override;
 
-    bool isEnough();
+    bool isEnough() override;
 
     bool isEnoughMinusOne();
 
-    virtual ~ConsensusSigShareSet();
+    ~ConsensusSigShareSet() override;
 
 
 };

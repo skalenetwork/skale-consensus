@@ -44,7 +44,7 @@ public:
     void saveBlock(const ptr<CommittedBlock> &_block);
     ptr<CommittedBlock> getBlock(block_id _blockID, const ptr<CryptoManager>& _cryptoManager);
     block_id readLastCommittedBlockID();
-    const string getFormatVersion();
+    const string& getFormatVersion();
 
     string createLastCommittedKey();
     string createBlockStartKey(block_id _blockID );

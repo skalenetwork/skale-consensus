@@ -22,13 +22,8 @@
 */
 
 #include "ThresholdSigShare.h"
-#include "BLSSigShare.h"
-#include "ConsensusBLSSigShare.h"
 #include "SkaleCommon.h"
-#include "Log.h"
-#include "bls_include.h"
-#include "network/Utils.h"
-#include "thirdparty/json.hpp"
+
 
 
 block_id ThresholdSigShare::getBlockId() const {

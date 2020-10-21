@@ -59,7 +59,7 @@ int TCPServerSocket::createAndBindTCPSocket() {
 }
 
 
-TCPServerSocket::TCPServerSocket(const ptr<string>& _bindIP, uint16_t _basePort, port_type _portType )
+TCPServerSocket::TCPServerSocket(const string& _bindIP, uint16_t _basePort, port_type _portType )
     : ServerSocket( _bindIP, _basePort, _portType ) {
 
     socketaddr = Sockets::createSocketAddress( bindIP, bindPort );
@@ -76,7 +76,7 @@ TCPServerSocket::~TCPServerSocket() {
 
 void TCPServerSocket::touch() {
     using namespace boost::asio;
-    ip::tcp::endpoint ep( ip::address::from_string( *bindIP ), bindPort );
+    ip::tcp::endpoint ep( ip::address::from_string( bindIP ), bindPort );
     io_service service;
     ip::tcp::socket sock( service );
     sock.connect( ep );

@@ -32,24 +32,24 @@ class CryptoManager;
 
 class ConsensusStateDB : public CacheLevelDB {
 
-    const string getFormatVersion();
+    const string& getFormatVersion() override;
 
-    ptr<string> createCurrentRoundKey(block_id _blockId, schain_index _proposerIndex);
+    string createCurrentRoundKey(block_id _blockId, schain_index _proposerIndex);
 
-    ptr<string> createDecidedRoundKey(block_id _blockId, schain_index _proposerIndex);
+    string createDecidedRoundKey(block_id _blockId, schain_index _proposerIndex);
 
-    ptr<string> createDecidedValueKey(block_id _blockId, schain_index _proposerIndex);
+    string createDecidedValueKey(block_id _blockId, schain_index _proposerIndex);
 
-    ptr<string> createProposalKey(block_id _blockId, schain_index _proposerIndex, bin_consensus_round _r);
+    string createProposalKey(block_id _blockId, schain_index _proposerIndex, bin_consensus_round _r);
 
-    ptr<string> createBVBVoteKey(block_id _blockId, schain_index _proposerIndex, bin_consensus_round _r,
+    string createBVBVoteKey(block_id _blockId, schain_index _proposerIndex, bin_consensus_round _r,
                                  schain_index _voterIndex, bin_consensus_value _v);
 
-    ptr<string> createBinValueKey(block_id _blockId, schain_index _proposerIndex, bin_consensus_round _r,
+    string createBinValueKey(block_id _blockId, schain_index _proposerIndex, bin_consensus_round _r,
                                   bin_consensus_value _v);
 
 
-    ptr<string> createAUXVoteKey(block_id _blockId, schain_index _proposerIndex, bin_consensus_round _r,
+    string createAUXVoteKey(block_id _blockId, schain_index _proposerIndex, bin_consensus_round _r,
                                  schain_index _voterIndex, bin_consensus_value _v);
 
 
@@ -71,7 +71,7 @@ public:
                       schain_index _voterIndex, bin_consensus_value _v);
 
     void writeAUXVote(block_id _blockId, schain_index _proposerIndex, bin_consensus_round _r, schain_index _voterIndex,
-                      bin_consensus_value _v, const ptr<string>& _sigShare);
+                      bin_consensus_value _v, const string& _sigShare);
 
     void writeBinValue(block_id _blockId, schain_index _proposerIndex, bin_consensus_round _r,
                        bin_consensus_value _v);

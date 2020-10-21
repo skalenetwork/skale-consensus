@@ -23,12 +23,7 @@
 
 #include "Agent.h"
 #include "CatchupServerAgent.h"
-#include "SkaleCommon.h"
 #include "Log.h"
-#include "abstracttcpserver/AbstractServerAgent.h"
-#include "exceptions/FatalError.h"
-#include "thirdparty/json.hpp"
-#include "threads/WorkerThreadPool.h"
 
 
 CatchupWorkerThreadPool::CatchupWorkerThreadPool(

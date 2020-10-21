@@ -36,7 +36,7 @@ class SigDB : public CacheLevelDB {
 
     node_id nodeId;
 
-    const string getFormatVersion();
+    const string& getFormatVersion();
 
 public:
 

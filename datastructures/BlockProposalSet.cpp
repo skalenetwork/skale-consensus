@@ -33,7 +33,7 @@
 #include "pendingqueue/PendingTransactionsAgent.h"
 #include "db/BlockProposalDB.h"
 #include "datastructures/DAProof.h"
-#include "BlockProposal.h"
+
 
 #include "BlockProposalSet.h"
 

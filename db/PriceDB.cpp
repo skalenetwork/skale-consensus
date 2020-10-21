@@ -27,9 +27,7 @@
 #include "Log.h"
 #include "chains/Schain.h"
 #include "exceptions/ExitRequestedException.h"
-#include "node/Node.h"
 
-#include "chains/Schain.h"
 
 PriceDB::PriceDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize)
         : CacheLevelDB(_sChain, _dirName, _prefix,
@@ -37,8 +35,9 @@ PriceDB::PriceDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _no
                        _maxDBSize, false) {}
 
 
-const string PriceDB::getFormatVersion() {
-    return "1.0";
+const string& PriceDB::getFormatVersion() {
+    static const string version = "1.0";
+    return version;
 }
 
 
@@ -55,16 +54,16 @@ u256 PriceDB::readPrice(block_id _blockID) {
 
 
         auto key = createKey(_blockID);
-        CHECK_STATE(key);
+        CHECK_STATE(!key.empty())
 
-        auto price = readString(*key);
+        auto price = readString(key);
 
-        if (price == nullptr) {
+        if (price.empty()) {
             BOOST_THROW_EXCEPTION(InvalidArgumentException("Price for block " +
                                                            to_string(_blockID) + " is unknown", __CLASS_NAME__));
         }
 
-        return u256(price->c_str());
+        return u256(price.c_str());
 
     } catch (ExitRequestedException &) { throw; } catch (...) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
@@ -72,18 +71,18 @@ u256 PriceDB::readPrice(block_id _blockID) {
 }
 
 
-void PriceDB::savePrice(u256 _price, block_id _blockID) {
+void PriceDB::savePrice(const u256& _price, block_id _blockID) {
 
     LOG(trace, "Save price for block" + to_string(_blockID));
 
     try {
 
         auto key = createKey(_blockID);
-        CHECK_STATE(key);
+        CHECK_STATE(key != "");
 
         auto value = _price.str();
 
-        writeString(*key, value);
+        writeString(key, value);
     } catch (ExitRequestedException &) { throw; } catch (...) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }

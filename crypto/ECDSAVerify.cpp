@@ -5,14 +5,4 @@
 
 
 
-#include <gmp.h>
-#include <stdbool.h>
-
-
-
-
 #include "SkaleCommon.h"
-#include "Log.h"
-
-
-#include "ECDSAVerify.h"

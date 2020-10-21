@@ -28,14 +28,14 @@
 #include "BlockProposalHeader.h"
 
 class CommittedBlockHeader : public BlockProposalHeader {
-    ptr<string> thresholdSig;
+    string thresholdSig;
 
 public:
-    CommittedBlockHeader(BlockProposal &block, const ptr<string> &thresholdSig);
+    CommittedBlockHeader(BlockProposal &block, const string &thresholdSig);
 
     CommittedBlockHeader(nlohmann::json &json);
 
-    const ptr<string> &getThresholdSig() const;
+    const string &getThresholdSig() const;
 
     void addFields(nlohmann::basic_json<> &j) override;
 };

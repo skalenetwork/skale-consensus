@@ -42,7 +42,7 @@ public:
 
     block_id getBlockId() const;
 
-    virtual std::shared_ptr<std::string> toString() = 0;
+    virtual string toString() = 0;
 
     virtual uint64_t getRandom() = 0;
 

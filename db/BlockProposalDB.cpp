@@ -59,20 +59,20 @@ void BlockProposalDB::addBlockProposal(const ptr<BlockProposal>& _proposal) {
     MONITOR(__CLASS_NAME__, __FUNCTION__);
 
     CHECK_ARGUMENT(_proposal);
-    CHECK_ARGUMENT(_proposal->getSignature());
+    CHECK_ARGUMENT(_proposal->getSignature() != "");
 
     LOG(trace, "addBlockProposal blockID_=" + to_string(_proposal->getBlockID()) + " proposerIndex=" +
                to_string(_proposal->getProposerIndex()));
 
     auto key = createKey(_proposal->getBlockID(), _proposal->getProposerIndex());
-    CHECK_STATE(key);
+    CHECK_STATE(key != "");
 
     {
 
         LOCK(proposalCacheMutex);
 
-        if (!proposalCache->exists(*key)) {
-            proposalCache->put(*key, _proposal);
+        if (!proposalCache->exists(key)) {
+            proposalCache->put(key, _proposal);
         }
     }
 
@@ -106,9 +106,9 @@ BlockProposalDB::getSerializedProposalFromLevelDB(block_id _blockID, schain_inde
 
         auto value = readStringFromBlockSet(_blockID, _proposerIndex);
 
-        if (value) {
+        if (value != "") {
             auto serializedBlock = make_shared<vector<uint8_t>>();
-            serializedBlock->insert(serializedBlock->begin(), value->data(), value->data() + value->size());
+            serializedBlock->insert(serializedBlock->begin(), value.data(), value.data() + value.size());
             CommittedBlock::serializedSanityCheck(serializedBlock);
             return serializedBlock;
         } else {
@@ -123,14 +123,14 @@ BlockProposalDB::getSerializedProposalFromLevelDB(block_id _blockID, schain_inde
 ptr<BlockProposal> BlockProposalDB::getBlockProposal(block_id _blockID, schain_index _proposerIndex) {
 
     auto key = createKey(_blockID, _proposerIndex);
-    CHECK_STATE(key);
+    CHECK_STATE(key != "");
 
     {
 
         LOCK(proposalCacheMutex);
 
-        if (proposalCache->exists(*key)) {
-            return proposalCache->get(*key);
+        if (proposalCache->exists(key)) {
+            return proposalCache->get(key);
         }
     }
 
@@ -148,19 +148,20 @@ ptr<BlockProposal> BlockProposalDB::getBlockProposal(block_id _blockID, schain_i
 
         CHECK_STATE(proposalCache);
         LOCK(proposalCacheMutex);
-        if (!proposalCache->exists(*key)) {
-            proposalCache->put(*key, proposal);
+        if (!proposalCache->exists(key)) {
+            proposalCache->put(key, proposal);
         }
     }
 
-    CHECK_STATE(proposal->getSignature());
+    CHECK_STATE(proposal->getSignature() != "");
 
     return proposal;
 }
 
 
-const string BlockProposalDB::getFormatVersion() {
-    return "1.0";
+const string& BlockProposalDB::getFormatVersion() {
+    static const string version = "1.0";
+    return version;
 }
 
 bool BlockProposalDB::proposalExists(block_id _blockId, schain_index _index) {

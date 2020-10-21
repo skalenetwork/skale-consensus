@@ -22,21 +22,15 @@
 */
 
 #include <boost/iostreams/device/array.hpp>
-#include <boost/iostreams/stream.hpp>
-
-
 #include "Log.h"
 #include "SkaleCommon.h"
 #include "crypto/CryptoManager.h"
 #include "crypto/ThresholdSignature.h"
 #include "thirdparty/json.hpp"
-
-#include "abstracttcpserver/ConnectionStatus.h"
 #include "chains/Schain.h"
 #include "crypto/SHAHash.h"
 #include "exceptions/ExitRequestedException.h"
 #include "exceptions/InvalidStateException.h"
-#include "exceptions/NetworkProtocolException.h"
 #include "exceptions/ParsingException.h"
 #include "headers/BlockProposalHeader.h"
 #include "headers/CommittedBlockHeader.h"
@@ -62,10 +56,10 @@ ptr< CommittedBlock > CommittedBlock::makeObject(
 ptr< CommittedBlock > CommittedBlock::make( const schain_id _sChainId,
     const node_id _proposerNodeId, const block_id _blockId, schain_index _proposerIndex,
     const ptr< TransactionList >& _transactions, const u256& _stateRoot, uint64_t _timeStamp,
-    uint64_t _timeStampMs, const ptr<string>& _signature, const ptr<string>& _thresholdSig ) {
+    uint64_t _timeStampMs, const string& _signature, const string& _thresholdSig ) {
     CHECK_ARGUMENT( _transactions );
-    CHECK_ARGUMENT( _signature );
-    CHECK_ARGUMENT( _thresholdSig );
+    CHECK_ARGUMENT(!_signature.empty() );
+    CHECK_ARGUMENT( !_thresholdSig.empty() );
 
     return make_shared< CommittedBlock >( _sChainId, _proposerNodeId, _blockId, _proposerIndex,
         _transactions, _stateRoot, _timeStamp, _timeStampMs, _signature, _thresholdSig );
@@ -96,7 +90,7 @@ ptr< CommittedBlock > CommittedBlock::createRandomSample(const ptr< CryptoManage
 
     return CommittedBlock::make( p->getSchainID(), p->getProposerNodeID(), p->getBlockID(),
         p->getProposerIndex(), p->getTransactionList(), p->getStateRoot(), p->getTimeStamp(),
-        p->getTimeStampMs(), p->getSignature(), make_shared<string>( "EMPTY" ) );
+        p->getTimeStampMs(), p->getSignature(), "EMPTY"  );
 }
 
 
@@ -104,8 +98,8 @@ ptr< BasicHeader > CommittedBlock::createHeader() {
     return make_shared< CommittedBlockHeader >( *this, this->getThresholdSig() );
 }
 
-ptr<string> CommittedBlock::getThresholdSig() const {
-    CHECK_STATE( thresholdSig );
+string CommittedBlock::getThresholdSig() const {
+    CHECK_STATE(!thresholdSig.empty() );
     return thresholdSig;
 }
 
@@ -116,9 +110,9 @@ ptr< CommittedBlock > CommittedBlock::deserialize(
     CHECK_ARGUMENT( _serializedBlock );
     CHECK_ARGUMENT( _manager );
 
-    ptr<string> headerStr = extractHeader( _serializedBlock );
+    string headerStr = extractHeader( _serializedBlock );
 
-    CHECK_STATE( headerStr );
+    CHECK_STATE(!headerStr.empty() );
 
     ptr< CommittedBlockHeader > blockHeader;
 
@@ -130,7 +124,7 @@ ptr< CommittedBlock > CommittedBlock::deserialize(
         throw;
     } catch ( ... ) {
         throw_with_nested( ParsingException(
-            "Could not parse committed block header: \n" + *headerStr, __CLASS_NAME__ ) );
+            "Could not parse committed block header: \n" + headerStr, __CLASS_NAME__ ) );
     }
 
 
@@ -175,14 +169,14 @@ ptr< CommittedBlock > CommittedBlock::deserialize(
 }
 
 ptr< CommittedBlockHeader > CommittedBlock::parseBlockHeader(
-    const shared_ptr<string>& _header ) {
-    CHECK_ARGUMENT( _header );
-    CHECK_ARGUMENT( _header->size() > 2 );
-    CHECK_ARGUMENT2( _header->at( 0 ) == '{', "Block header does not start with {" );
+    const string& _header ) {
+    CHECK_ARGUMENT(!_header.empty() );
+    CHECK_ARGUMENT( _header.size() > 2 );
+    CHECK_ARGUMENT2( _header.at( 0 ) == '{', "Block header does not start with {" );
     CHECK_ARGUMENT2(
-        _header->at( _header->size() - 1 ) == '}', "Block header does not end with }" );
+        _header.at( _header.size() - 1 ) == '}', "Block header does not end with }" );
 
-    auto js = nlohmann::json::parse( *_header );
+    auto js = nlohmann::json::parse(_header );
 
     return make_shared< CommittedBlockHeader >( js );
 }
@@ -194,11 +188,11 @@ CommittedBlock::CommittedBlock( uint64_t timeStamp, uint32_t timeStampMs )
 CommittedBlock::CommittedBlock( const schain_id& _schainId, const node_id& _proposerNodeId,
     const block_id& _blockId, const schain_index& _proposerIndex,
     const ptr< TransactionList >& _transactions, const u256& stateRoot, uint64_t timeStamp,
-    __uint32_t timeStampMs, const ptr<string>& _signature, const ptr<string>& _thresholdSig )
+    __uint32_t timeStampMs, const string& _signature, const string& _thresholdSig )
     : BlockProposal( _schainId, _proposerNodeId, _blockId, _proposerIndex, _transactions, stateRoot,
           timeStamp, timeStampMs, _signature, nullptr ) {
     CHECK_ARGUMENT( _transactions );
-    CHECK_ARGUMENT( _signature );
-    CHECK_ARGUMENT( _thresholdSig );
+    CHECK_ARGUMENT(!_signature.empty() );
+    CHECK_ARGUMENT(!_thresholdSig.empty() );
     this->thresholdSig = _thresholdSig;
 }

@@ -148,15 +148,15 @@ void BlockConsensusAgent::propose(bin_consensus_value _proposal, schain_index _i
 }
 
 
-void BlockConsensusAgent::decideBlock(block_id _blockId, schain_index _sChainIndex, const ptr<string>& _stats) {
+void BlockConsensusAgent::decideBlock(block_id _blockId, schain_index _sChainIndex, const string& _stats) {
 
-    CHECK_ARGUMENT(_stats);
+    CHECK_ARGUMENT(!_stats.empty());
 
     try {
 
         LOG(info, string("BLOCK_DECIDE: PRPSR:") + to_string(_sChainIndex) +
 
-                  ":BID:" + to_string(_blockId) + ":STATS:|" + *_stats + "| Now signing block ...");
+                  ":BID:" + to_string(_blockId) + ":STATS:|" + _stats + "| Now signing block ...");
 
         auto msg = make_shared<BlockSignBroadcastMessage>(_blockId, _sChainIndex,
                 Time::getCurrentTimeMs(), *this);
@@ -184,7 +184,7 @@ void BlockConsensusAgent::decideBlock(block_id _blockId, schain_index _sChainInd
 
 void BlockConsensusAgent::decideDefaultBlock(block_id _blockNumber) {
     try {
-        decideBlock(_blockNumber, schain_index(0), make_shared<string>("DEFAULT_BLOCK"));
+        decideBlock(_blockNumber, schain_index(0), string("DEFAULT_BLOCK"));
     } catch (ExitRequestedException &) { throw; } catch (SkaleException &e) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
@@ -260,9 +260,9 @@ void BlockConsensusAgent::reportConsensusAndDecideIfNeeded(const ptr<ChildBVDeci
             if (trueDecisions->exists((uint64_t) blockID) &&
                 trueDecisions->get((uint64_t) blockID)->count(index) > 0) {
 
-                ptr<string> statsString = buildStats(blockID);
+                string statsString = buildStats(blockID);
 
-                CHECK_STATE(statsString);
+                CHECK_STATE(!statsString.empty());
 
                 decideBlock(blockID, index, statsString);
 
@@ -437,7 +437,7 @@ bool BlockConsensusAgent::shouldPost(const ptr<NetworkMessage>& _msg) {
     return true;
 }
 
-ptr<string> BlockConsensusAgent::buildStats(block_id _blockID) {
+string BlockConsensusAgent::buildStats(block_id _blockID) {
 
     ptr<map<schain_index, ptr<ChildBVDecidedMessage>>> tDecisions = nullptr;
     ptr<map<schain_index, ptr<ChildBVDecidedMessage>>> fDecisions = nullptr;
@@ -450,7 +450,7 @@ ptr<string> BlockConsensusAgent::buildStats(block_id _blockID) {
         fDecisions = falseDecisions->get((uint64_t) _blockID);
     }
 
-    auto result = make_shared<string>("");
+    string result("");
 
     for (int i = 1; i <= getSchain()->getNodeCount(); i++) {
         string stats = to_string(i) + "|";
@@ -475,7 +475,7 @@ ptr<string> BlockConsensusAgent::buildStats(block_id _blockID) {
             stats += "*|";
         };
 
-        result->append(stats);
+        result.append(stats);
     }
 
     return result;

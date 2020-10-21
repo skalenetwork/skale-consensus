@@ -30,10 +30,7 @@
 #include "thirdparty/json.hpp"
 
 #include "ClientSocket.h"
-#include "ServerConnection.h"
 #include "exceptions/ConnectionRefusedException.h"
-#include "exceptions/FatalError.h"
-#include "exceptions/NetworkProtocolException.h"
 #include "node/NodeInfo.h"
 
 using namespace std;
@@ -52,8 +49,8 @@ file_descriptor ClientSocket::getDescriptor() {
     return descriptor;
 }
 
-ptr< std::string > ClientSocket::getConnectionIP() {
-    CHECK_STATE( remoteIP );
+string& ClientSocket::getConnectionIP() {
+    CHECK_STATE(!remoteIP.empty() )
     return remoteIP;
 }
 
@@ -62,7 +59,7 @@ network_port ClientSocket::getConnectionPort() {
 }
 
 ptr< sockaddr_in > ClientSocket::getSocketaddr() {
-    CHECK_STATE( remoteAddr );
+    CHECK_STATE( remoteAddr )
     return remoteAddr;
 }
 
@@ -76,7 +73,7 @@ int ClientSocket::createTCPSocket() {
             FatalError( "Could not create outgoing socket:" + string( strerror( errno ) ) ) );
     }
 
-    CHECK_STATE(bindAddr);
+    CHECK_STATE(bindAddr)
 
     if ( ::bind( s, ( struct sockaddr* ) bindAddr.get(), sizeof( sockaddr_in ) ) < 0 ) {
         close( s );
@@ -85,14 +82,14 @@ int ClientSocket::createTCPSocket() {
     }
 
     // Init the connection
-    CHECK_STATE(remoteAddr);
+    CHECK_STATE(remoteAddr)
 
     if ( connect( s, ( sockaddr* ) remoteAddr.get(), sizeof( remoteAddr ) ) < 0 ) {
         close( s );
         BOOST_THROW_EXCEPTION( ConnectionRefusedException(
-            "Couldnt connect to:" + *getConnectionIP() + ":" + to_string( getConnectionPort() ),
+            "Couldnt connect to:" + getConnectionIP() + ":" + to_string( getConnectionPort() ),
             errno, __CLASS_NAME__ ) );
-    };
+    }
 
     return s;
 }
@@ -106,24 +103,24 @@ ClientSocket::ClientSocket( Schain& _sChain, schain_index _destinationIndex, por
 
     ptr< NodeInfo > ni = _sChain.getNode()->getNodeInfoByIndex( _destinationIndex );
 
-    CHECK_STATE(ni);
+    CHECK_STATE(ni)
 
 
     remoteIP = ni->getBaseIP();
-    CHECK_STATE(remoteIP);
+    CHECK_STATE(!remoteIP.empty())
 
     remotePort = ni->getPort() + portType;
 
 
     this->remoteAddr = Sockets::createSocketAddress( remoteIP, ( uint16_t ) remotePort );
-    CHECK_STATE(remoteAddr);
+    CHECK_STATE(remoteAddr)
     this->bindAddr = Sockets::createSocketAddress( bindIP, 0 );
 
-    CHECK_STATE(bindAddr);
+    CHECK_STATE(bindAddr)
 
     descriptor = createTCPSocket();
 
-    CHECK_STATE( descriptor != 0 );
+    CHECK_STATE( descriptor != 0 )
 
     totalSockets++;
 }

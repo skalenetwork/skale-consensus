@@ -40,7 +40,7 @@ class BlockProposalFragment;
 class BlockProposalFragmentList : public DataStructure {
 
     int64_t blockSize = -1;
-    ptr<string> blockHash = nullptr;
+    string blockHash = "";
 
 
     bool isSerialized = false;

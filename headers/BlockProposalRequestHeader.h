@@ -31,9 +31,9 @@ class BlockProposalRequestHeader : public AbstractBlockRequestHeader{
 
 
 
-    node_id proposerNodeID;
-    ptr<string> hash;
-    ptr<string> signature;
+    node_id proposerNodeID{};
+    string hash;
+    string signature;
 
 
     uint64_t txCount;
@@ -43,7 +43,7 @@ class BlockProposalRequestHeader : public AbstractBlockRequestHeader{
 
 public:
 
-    BlockProposalRequestHeader(Schain &_sChain, const ptr<BlockProposal> proposal);
+    BlockProposalRequestHeader(Schain &_sChain, const ptr<BlockProposal>& proposal);
 
     BlockProposalRequestHeader(nlohmann::json _proposalRequest, node_count _nodeCount);
 
@@ -52,15 +52,15 @@ public:
 
     node_id getProposerNodeId();
 
-    ptr<string> getHash();
+    string getHash();
 
-    uint64_t getTxCount();
+    uint64_t getTxCount() const;
 
-    uint64_t getTimeStamp();
+    uint64_t getTimeStamp() const;
 
-    uint32_t getTimeStampMs();
+    uint32_t getTimeStampMs() const;
 
-    ptr<string> getSignature();
+    string getSignature();
 
     u256 getStateRoot();
 

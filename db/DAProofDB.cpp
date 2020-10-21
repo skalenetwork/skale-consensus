@@ -21,20 +21,15 @@
     @date 2019
 */
 
-#include "Agent.h"
+
 #include "SkaleCommon.h"
 #include "Log.h"
 #include "exceptions/FatalError.h"
 #include "thirdparty/json.hpp"
-
-#include "crypto/ConsensusBLSSigShare.h"
 #include "crypto/ConsensusBLSSignature.h"
-
-#include "abstracttcpserver/ConnectionStatus.h"
 #include "chains/Schain.h"
 #include "node/Node.h"
 #include "pendingqueue/PendingTransactionsAgent.h"
-#include "crypto/ConsensusBLSSigShare.h"
 #include "crypto/ConsensusSigShareSet.h"
 #include "crypto/CryptoManager.h"
 #include "crypto/SHAHash.h"
@@ -44,14 +39,9 @@
 
 
 #include "leveldb/db.h"
-
+#include "crypto/ThresholdSigShare.h"
 #include "SigDB.h"
 #include "DAProofDB.h"
-#include "BLSSigShare.h"
-#include "BLSSignature.h"
-#include "BLSSigShareSet.h"
-#include "crypto/ThresholdSigShare.h"
-#include "datastructures/DAProof.h"
 
 
 using namespace std;
@@ -59,36 +49,37 @@ using namespace std;
 
 DAProofDB::DAProofDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize) :
         CacheLevelDB(_sChain, _dirName, _prefix, _nodeId, _maxDBSize, false) {
-};
+}
 
-const string DAProofDB::getFormatVersion() {
-    return "1.0";
+const string& DAProofDB::getFormatVersion() {
+    static const string version = "1.0";
+    return version;
 }
 
 
 
 bool DAProofDB::haveDAProof(const ptr<BlockProposal>& _proposal) {
-    CHECK_ARGUMENT(_proposal);
+    CHECK_ARGUMENT(_proposal)
     return keyExistsInSet(_proposal->getBlockID(), _proposal->getProposerIndex());
-};
+}
 
 // return not-null if _daProof completes set, null otherwise (both if not enough and too much)
 ptr<BooleanProposalVector> DAProofDB::addDAProof(const ptr<DAProof>& _daProof) {
 
-    CHECK_ARGUMENT(_daProof);
+    CHECK_ARGUMENT(_daProof)
 
     LOCK(daProofMutex)
 
     LOG(trace, "Adding daProof");
 
-    auto daProofSet = this->writeStringToSet(*_daProof->getThresholdSig()->toString(),
+    auto daProofSet = this->writeStringToSet(_daProof->getThresholdSig()->toString(),
                                              _daProof->getBlockId(), _daProof->getProposerIndex());
 
     if (daProofSet == nullptr) {
         return nullptr;
     }
 
-    CHECK_STATE(daProofSet->size() == requiredSigners);
+    CHECK_STATE(daProofSet->size() == requiredSigners)
 
     auto proposalVector = make_shared<BooleanProposalVector>(node_count(totalSigners), daProofSet);
     LOG(trace, "Created proposal vector");
@@ -105,7 +96,7 @@ ptr<BooleanProposalVector> DAProofDB::getCurrentProposalVector(block_id _blockID
 
     auto daProofSet = this->readSet(_blockID);
 
-    CHECK_STATE(daProofSet);
+    CHECK_STATE(daProofSet)
 
     auto proposalVector = make_shared<BooleanProposalVector>(node_count(totalSigners), daProofSet);
     LOG(trace, "Created proposal vector");

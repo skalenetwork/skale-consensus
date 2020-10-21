@@ -24,8 +24,6 @@
 #include "SkaleCommon.h"
 #include "Log.h"
 #include "exceptions/FatalError.h"
-#include "thirdparty/json.hpp"
-
 #include "network/Sockets.h"
 #include "NodeInfo.h"
 
@@ -54,8 +52,8 @@ ptr<sockaddr_in> NodeInfo::getSocketaddr() {
     return socketaddr;
 }
 
-ptr<string> NodeInfo::getBaseIP() {
-    CHECK_STATE( ipAddress );
+string NodeInfo::getBaseIP() {
+    CHECK_STATE(!ipAddress.empty() )
     return ipAddress;
 }
 
@@ -65,7 +63,7 @@ schain_id NodeInfo::getSchainID() const {
 }
 
 
-NodeInfo::NodeInfo(node_id nodeID, const ptr<string> &ip, network_port port, schain_id schainID, schain_index schainIndex) :
+NodeInfo::NodeInfo(node_id nodeID, const string &ip, network_port port, schain_id schainID, schain_index schainIndex) :
         nodeID(nodeID),
       ipAddress(ip),
         port(port),

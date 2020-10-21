@@ -74,28 +74,28 @@
 using namespace std;
 
 Node::Node(const nlohmann::json &_cfg, ConsensusEngine *_consensusEngine,
-           bool _useSGX, ptr<string> _sgxURL,
-           ptr<string> _sgxSSLKeyFileFullPath,
-           ptr<string> _sgxSSLCertFileFullPath,
-           ptr<string> _ecdsaKeyName,
-           ptr< vector<string> > _ecdsaPublicKeys, ptr<string> _blsKeyName,
+           bool _useSGX, string _sgxURL,
+           string _sgxSSLKeyFileFullPath,
+           string _sgxSSLCertFileFullPath,
+           string _ecdsaKeyName,
+           ptr< vector<string> > _ecdsaPublicKeys, string _blsKeyName,
            ptr< vector< ptr< vector<string>>>> _blsPublicKeys,
            ptr< BLSPublicKey > _blsPublicKey) {
 
     if (_useSGX) {
-        CHECK_ARGUMENT(_sgxURL);
-        if (_sgxURL->find("https:/") != string::npos) {
-            CHECK_ARGUMENT( _sgxSSLKeyFileFullPath );
-            CHECK_ARGUMENT( _sgxSSLCertFileFullPath );
+        CHECK_ARGUMENT(!_sgxURL.empty())
+        if (_sgxURL.find("https:/") != string::npos) {
+            CHECK_ARGUMENT(!_sgxSSLKeyFileFullPath.empty() )
+            CHECK_ARGUMENT(!_sgxSSLCertFileFullPath.empty() )
         }
-        CHECK_ARGUMENT(_ecdsaKeyName && _ecdsaPublicKeys);
-        CHECK_ARGUMENT(_blsKeyName && _blsPublicKeys);
+        CHECK_ARGUMENT(!_ecdsaKeyName.empty() && _ecdsaPublicKeys);
+        CHECK_ARGUMENT(!_blsKeyName.empty() && _blsPublicKeys);
         CHECK_ARGUMENT(_blsPublicKey);
 
         sgxEnabled = true;
 
-        CHECK_STATE(JSONFactory::splitString(*_ecdsaKeyName)->size() == 2);
-        CHECK_STATE(JSONFactory::splitString(*_blsKeyName)->size() == 7);
+        CHECK_STATE(JSONFactory::splitString(_ecdsaKeyName)->size() == 2);
+        CHECK_STATE(JSONFactory::splitString(_blsKeyName)->size() == 7);
 
         ecdsaKeyName = _ecdsaKeyName;
         ecdsaPublicKeys = _ecdsaPublicKeys;
@@ -131,7 +131,7 @@ Node::Node(const nlohmann::json &_cfg, ConsensusEngine *_consensusEngine,
 }
 
 void Node::initLevelDBs() {
-    auto dbDir = *consensusEngine->getDbDir();
+    auto dbDir = consensusEngine->getDbDir();
     string blockDBPrefix = "blocks_" + to_string(nodeID) + ".db";
     string randomDBPrefix = "randoms_" + to_string(nodeID) + ".db";
     string priceDBPrefix = "prices_" + to_string(nodeID) + ".db";
@@ -178,16 +178,16 @@ void Node::initLogging() {
     log = make_shared< SkaleLog >(nodeID, getConsensusEngine());
 
     if (cfg.find("logLevel") != cfg.end()) {
-        ptr<string> logLevel = make_shared<string>(cfg.at("logLevel").get<string>());
-        log->setGlobalLogLevel(*logLevel);
+        string logLevel = cfg.at("logLevel").get<string>();
+        log->setGlobalLogLevel(logLevel);
     }
 
     for (auto &&item : log->loggers) {
         string category = "logLevel" + item.first;
         if (cfg.find(category) != cfg.end()) {
-            ptr<string> logLevel = make_shared<string>(cfg.at(category).get<string>());
-            LOG(info, "Setting log level:" + category + ":" + *logLevel);
-            log->loggers[item.first]->set_level( SkaleLog::logLevelFromString(*logLevel));
+            string logLevel = cfg.at(category).get<string>();
+            LOG(info, "Setting log level:" + category + ":" + logLevel);
+            log->loggers[item.first]->set_level( SkaleLog::logLevelFromString(logLevel));
         }
     }
 }
@@ -201,8 +201,8 @@ void Node::initParamsFromConfig() {
     CHECK_STATE(storageLimits);
 
     nodeID = cfg.at("nodeID").get<uint64_t>();
-    name = make_shared<string>(cfg.at("nodeName").get<string>());
-    bindIP = make_shared<string>(cfg.at("bindIP").get<string>());
+    name = cfg.at("nodeName").get<string>();
+    bindIP = cfg.at("bindIP").get<string>();
     basePort = network_port(cfg.at("basePort").get<int>());
 
     catchupIntervalMS = getParamUint64("catchupIntervalMs", CATCHUP_INTERVAL_MS);
@@ -354,7 +354,7 @@ void Node::initSchain(const ptr<Node>& _node, const ptr<NodeInfo>& _localNodeInf
         for (auto &rni : remoteNodeInfos) {
             LOG(debug, "Adding Node Info:" + to_string(rni->getSchainIndex()));
             _node->setNodeInfo(rni);
-            LOG(debug, "Got IP" + *rni->getBaseIP());
+            LOG(debug, "Got IP" + rni->getBaseIP());
         }
 
 
@@ -481,16 +481,16 @@ void Node::exitOnFatalError(const string &_message) {
 bool Node::isSgxEnabled() {
     return sgxEnabled;
 }
-ptr<string> Node::getEcdsaKeyName() {
-    CHECK_STATE(ecdsaKeyName);
+string Node::getEcdsaKeyName() {
+    CHECK_STATE(!ecdsaKeyName.empty());
     return ecdsaKeyName;
 }
 ptr< vector<string> > Node::getEcdsaPublicKeys() {
     CHECK_STATE(ecdsaPublicKeys);
     return ecdsaPublicKeys;
 }
-ptr<string> Node::getBlsKeyName() {
-    CHECK_STATE(blsKeyName);
+string Node::getBlsKeyName() {
+    CHECK_STATE(!blsKeyName.empty());
     return blsKeyName;
 }
 ptr< vector< ptr< vector<string>>>> Node::getBlsPublicKeys() {

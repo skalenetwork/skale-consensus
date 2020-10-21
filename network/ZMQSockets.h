@@ -41,7 +41,7 @@ class ZMQSockets : public ServerSocket {
 
 public:
 
-    ZMQSockets(const ptr<string> &_bindIP, uint16_t _basePort, port_type _portType);
+    ZMQSockets(const string &_bindIP, uint16_t _basePort, port_type _portType);
 
 
     void *getReceiveSocket();

@@ -57,7 +57,7 @@ BlockProposalHeader::BlockProposalHeader(BlockProposal& _block) : BasicHeader(He
     this->transactionSizes = make_shared<vector<uint64_t>>();
 
     auto items = _block.getTransactionList()->getItems();
-    CHECK_STATE(items);
+    CHECK_STATE(items)
 
     for (auto && t : *items) {
         transactionSizes->push_back(t->getSerializedSize(true));
@@ -85,9 +85,9 @@ void BlockProposalHeader::addFields(nlohmann::json &j) {
 
     j["blockID"] = (uint64_t ) blockID;
 
-    j["hash"] = *blockHash;
+    j["hash"] = blockHash;
 
-    j["sig"] = *signature;
+    j["sig"] = signature;
 
     j["sizes"] = *transactionSizes;
 
@@ -97,9 +97,9 @@ void BlockProposalHeader::addFields(nlohmann::json &j) {
 
     j["sr"] = stateRoot.str();
 
-    CHECK_STATE(stateRoot != 0);
+    CHECK_STATE(stateRoot != 0)
 
-    ASSERT(timeStamp > 0);
+    ASSERT(timeStamp > 0)
 }
 
 BlockProposalHeader::BlockProposalHeader(nlohmann::json& _json) : BasicHeader(Header::BLOCK){
@@ -113,8 +113,8 @@ BlockProposalHeader::BlockProposalHeader(nlohmann::json& _json) : BasicHeader(He
     blockHash = Header::getString(_json, "hash" ) ;
     signature = Header::getString(_json, "sig");
     auto srStr = Header::getString(_json, "sr");
-    stateRoot = u256(*srStr);
-    CHECK_STATE(stateRoot != 0);
+    stateRoot = u256(srStr);
+    CHECK_STATE(stateRoot != 0)
 
     Header::nullCheck(_json, "sizes" );
     nlohmann::json jsonTransactionSizes = _json["sizes"];
@@ -132,8 +132,8 @@ BlockProposalHeader::BlockProposalHeader(nlohmann::json& _json) : BasicHeader(He
     return transactionSizes;
 }
 
-ptr<string> BlockProposalHeader::getSignature()  {
-    CHECK_STATE(signature);
+string BlockProposalHeader::getSignature()  {
+    CHECK_STATE(!signature.empty())
     return signature;
 }
 
@@ -146,11 +146,11 @@ ptr<string> BlockProposalHeader::getSignature()  {
 }
 
 
-uint64_t BlockProposalHeader::getTimeStamp() {
+uint64_t BlockProposalHeader::getTimeStamp() const {
     return timeStamp;
 }
 
-uint32_t BlockProposalHeader::getTimeStampMs()  {
+uint32_t BlockProposalHeader::getTimeStampMs() const  {
     return timeStampMs;
 }
 

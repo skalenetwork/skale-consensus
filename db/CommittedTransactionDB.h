@@ -31,7 +31,7 @@ class Transaction;
 
 class CommittedTransactionDB : public CacheLevelDB {
 
-    const string getFormatVersion();
+    const string& getFormatVersion() override;
 
 
 public:

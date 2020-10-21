@@ -23,16 +23,12 @@
 
 #include "SkaleCommon.h"
 #include "Log.h"
-#include "exceptions/FatalError.h"
 
-#include "thirdparty/json.hpp"
-#include "abstracttcpserver/ConnectionStatus.h"
-#include "pendingqueue/PendingTransactionsAgent.h"
-#include "blockproposal/pusher/BlockProposalClientAgent.h"
-#include "db/BlockProposalDB.h"
-#include "threads/WorkerThreadPool.h"
 #include "Schain.h"
 #include "SchainMessageThreadPool.h"
+#include "blockproposal/pusher/BlockProposalClientAgent.h"
+#include "db/BlockProposalDB.h"
+#include "pendingqueue/PendingTransactionsAgent.h"
 
 
 SchainMessageThreadPool::SchainMessageThreadPool(Agent *_agent) : WorkerThreadPool(NUM_SCHAIN_THREADS, _agent, false) {

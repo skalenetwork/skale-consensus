@@ -31,19 +31,19 @@ class ServerConnection {
 
     file_descriptor descriptor;
 
-    ptr<string> ip;
+    string ip;
 
     void closeConnection();
 
 public:
 
-    ServerConnection(unsigned int _descriptor, const ptr<string>& _ip );
+    ServerConnection(unsigned int _descriptor, const string& _ip );
 
     virtual ~ServerConnection();
 
     file_descriptor getDescriptor();
 
-    ptr<string> getIP();
+    string getIP();
 
     static uint64_t getTotalObjects();
 

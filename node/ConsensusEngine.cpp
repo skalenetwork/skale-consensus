@@ -106,9 +106,9 @@ using namespace boost::filesystem;
 
 shared_ptr< spdlog::logger > ConsensusEngine::configLogger = nullptr;
 
-shared_ptr<string> ConsensusEngine::dataDir = nullptr;
+string ConsensusEngine::dataDir = "";
 
-shared_ptr<string> ConsensusEngine::logDir = nullptr;
+string ConsensusEngine::logDir = "";
 
 recursive_mutex ConsensusEngine::logMutex;
 
@@ -125,21 +125,22 @@ void ConsensusEngine::logInit() {
     logThreadLocal_ = nullptr;
 
 
-    if ( dataDir == nullptr ) {
+    if ( dataDir.empty()) {
         char* d = std::getenv( "DATA_DIR" );
 
         if ( d != nullptr ) {
-            dataDir = make_shared<string>( d );
-            cerr << "Found data dir:" << *dataDir << endl;
+            dataDir = string( d );
+            cerr << "Found data dir:" <<
+                dataDir << endl;
         }
     }
 
-    if ( logDir == nullptr ) {
+    if ( logDir.empty()) {
         char* d = std::getenv( "LOG_DIR" );
 
         if ( d != nullptr ) {
-            logDir = make_shared<string>( d );
-            cerr << "Found log dir:" << *logDir << endl;
+            logDir = string( d );
+            cerr << "Found log dir:" << logDir << endl;
         }
     }
 
@@ -151,20 +152,20 @@ void ConsensusEngine::logInit() {
         logFileName = "skaled.log";
     }
 
-    if ( logDir != nullptr ) {
-        logFileNamePrefix = make_shared<string>( *logDir + "/" + logFileName );
+    if ( !logDir.empty()) {
+        logFileNamePrefix = string( logDir + "/" + logFileName );
         logRotatingFileSync = make_shared< spdlog::sinks::rotating_file_sink_mt >(
-            *logFileNamePrefix, 10 * 1024 * 1024, 5 );
+            logFileNamePrefix, 10 * 1024 * 1024, 5 );
     } else {
-        logFileNamePrefix = nullptr;
+        logFileNamePrefix = "";
         logRotatingFileSync = nullptr;
     }
 
-    if ( dataDir != nullptr ) {
+    if (!dataDir.empty()) {
         healthCheckDir = dataDir;
         dbDir = dataDir;
     } else {
-        healthCheckDir = make_shared<string>( "/tmp" );
+        healthCheckDir = string( "/tmp" );
         dbDir = healthCheckDir;
     }
 
@@ -173,13 +174,13 @@ void ConsensusEngine::logInit() {
 }
 
 
-const shared_ptr<string> ConsensusEngine::getDataDir() {
-    CHECK_STATE( dataDir );
+const string ConsensusEngine::getDataDir() {
+    CHECK_STATE(!dataDir.empty() )
     return dataDir;
 }
 
-const shared_ptr<string> ConsensusEngine::getLogDir() {
-    CHECK_STATE( logDir );
+const string ConsensusEngine::getLogDir() {
+    CHECK_STATE(!logDir.empty() );
     return logDir;
 }
 
@@ -187,7 +188,7 @@ shared_ptr< spdlog::logger > ConsensusEngine::createLogger( const string& logger
     shared_ptr< spdlog::logger > logger = spdlog::get( loggerName );
 
     if ( !logger ) {
-        if ( logFileNamePrefix != nullptr ) {
+        if (!logFileNamePrefix.empty()) {
             logger = make_shared< spdlog::logger >( loggerName, logRotatingFileSync );
             logger->flush_on( debug );
         } else {
@@ -245,7 +246,7 @@ void ConsensusEngine::parseFullConfigAndCreateNode( const string& configFileCont
                 getEcdsaKeyName(), ecdsaPublicKeys, getBlsKeyName(), blsPublicKeys, blsPublicKey );
         } else {
             node = JSONFactory::createNodeFromJsonObject( j["skaleConfig"]["nodeInfo"], dummy, this,
-                false, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr );
+                false, "", "", "", "", nullptr, "", nullptr, nullptr);
         }
 
         JSONFactory::createAndAddSChainFromJsonObject( node, j["skaleConfig"]["sChain"], this );
@@ -259,15 +260,15 @@ void ConsensusEngine::parseFullConfigAndCreateNode( const string& configFileCont
 }
 
 ptr< Node > ConsensusEngine::readNodeConfigFileAndCreateNode( const string path, set< node_id >& _nodeIDs,
-                                             bool _useSGX, ptr<string>_sgxSSLKeyFileFullPath,
-                                             ptr<string> _sgxSSLCertFileFullPath, ptr<string> _ecdsaKeyName ,
-                                             ptr< vector<string> > _ecdsaPublicKeys, ptr<string> _blsKeyName,
+                                             bool _useSGX, string _sgxSSLKeyFileFullPath,
+                                             string _sgxSSLCertFileFullPath, string _ecdsaKeyName ,
+                                             ptr< vector<string> > _ecdsaPublicKeys, string _blsKeyName,
                                              ptr< vector< ptr< vector<string>>>> _blsPublicKeys,
                                              ptr< BLSPublicKey > _blsPublicKey) {
     try {
         if ( _useSGX ) {
-            CHECK_ARGUMENT( _ecdsaKeyName && _ecdsaPublicKeys );
-            CHECK_ARGUMENT( _blsKeyName && _blsPublicKeys );
+            CHECK_ARGUMENT( !_ecdsaKeyName.empty() && _ecdsaPublicKeys );
+            CHECK_ARGUMENT( !_blsKeyName.empty() && _blsPublicKeys );
             CHECK_ARGUMENT( _blsPublicKey );
         }
 
@@ -389,7 +390,7 @@ void ConsensusEngine::parseTestConfigsAndCreateAllNodes( const fs_path& dirname 
                        to_string( nodeCount ) + "node.json";
             if ( is_regular_file( filePath ) ) {
                 CHECK_STATE( nodeCount % 3 == 1 );
-                sgxServerUrl = make_shared<string>( "http://localhost:1029" );
+                sgxServerUrl = string( "http://localhost:1029" );
                 this->setTestKeys( sgxServerUrl, filePath, nodeCount, nodeCount - 1 / 3 );
             }
         }
@@ -435,17 +436,17 @@ void ConsensusEngine::parseTestConfigsAndCreateAllNodes( const fs_path& dirname 
 
         for (uint64_t  j=0; j< dirNames.size(); j++) {
 
-            ptr<string> ecdsaKey = nullptr;
-            ptr<string> blsKey = nullptr;
+            string ecdsaKey = "";
+            string blsKey = "";
             if ( isSGXEnabled ) {
                 CHECK_STATE( j < ecdsaKeyNames->size() );
                 CHECK_STATE( j < blsKeyNames->size() );
-                ecdsaKey = make_shared<string>( ecdsaKeyNames->at( j ) );
-                blsKey = make_shared<string>( blsKeyNames->at( j ) );
+                ecdsaKey = string( ecdsaKeyNames->at( j ) );
+                blsKey = string( blsKeyNames->at( j ) );
             }
 
             // cert and key file name for tests come from the config
-            readNodeConfigFileAndCreateNode( dirNames.at(j), nodeIDs, isSGXEnabled, nullptr, nullptr,
+            readNodeConfigFileAndCreateNode( dirNames.at(j), nodeIDs, isSGXEnabled, "", "",
                 ecdsaKey, ecdsaPublicKeys, blsKey, blsPublicKeys, blsPublicKey );
 
         };
@@ -616,8 +617,12 @@ void ConsensusEngine::init() {
 
 
 ConsensusEngine::ConsensusEngine( block_id _lastId ) : exitRequested( false ) {
+
+
+
     try {
         init();
+
         lastCommittedBlockID = _lastId;
     } catch ( exception& e ) {
         SkaleException::logNested( e );
@@ -698,7 +703,7 @@ void ConsensusEngine::exitGracefullyAsync() {
 
             // run and forget
 
-            thread( [this, node]() {
+            thread( [node]() {
                 try {
                     std::cerr << "thread before exit" << std::endl;
                     node->exit();
@@ -767,7 +772,7 @@ bool ConsensusEngine::isOnTravis() {
     return onTravis;
 }
 
-bool ConsensusEngine::isNoUlimitCheck() {
+[[maybe_unused]] bool ConsensusEngine::isNoUlimitCheck() {
     return noUlimitCheck;
 }
 
@@ -777,10 +782,11 @@ set< node_id >& ConsensusEngine::getNodeIDs() {
 }
 
 
-string ConsensusEngine::engineVersion = ENGINE_VERSION;
+
 
 string ConsensusEngine::getEngineVersion() {
-    return engineVersion;
+    static string engineVersion(ENGINE_VERSION);
+    return "1.21";
 }
 
 uint64_t ConsensusEngine::getEngineID() const {
@@ -792,18 +798,18 @@ ptr< GlobalThreadRegistry > ConsensusEngine::getThreadRegistry() const {
     return threadRegistry;
 }
 
-shared_ptr<string> ConsensusEngine::getHealthCheckDir() const {
-    CHECK_STATE( healthCheckDir );
+const string& ConsensusEngine::getHealthCheckDir() const {
+    CHECK_STATE( healthCheckDir != "");
     return healthCheckDir;
 }
 
-ptr<string> ConsensusEngine::getDbDir() const {
-    CHECK_STATE( dbDir );
+string ConsensusEngine::getDbDir() const {
+    CHECK_STATE( dbDir != "");
     return dbDir;
 }
-void ConsensusEngine::setTestKeys(const ptr<string>& _sgxServerUrl, string _configFile,
+void ConsensusEngine::setTestKeys(const string& _sgxServerUrl, string _configFile,
     uint64_t _totalNodes, uint64_t _requiredNodes ) {
-    CHECK_ARGUMENT( _sgxServerUrl );
+    CHECK_ARGUMENT(!_sgxServerUrl.empty() )
     sgxServerUrl = _sgxServerUrl;
 
     // static atomic<bool> called = false;
@@ -825,14 +831,14 @@ void ConsensusEngine::setTestKeys(const ptr<string>& _sgxServerUrl, string _conf
     isSGXEnabled = true;
     useTestSGXKeys = true;
 }
-void ConsensusEngine::setSGXKeyInfo(const ptr<string>& _sgxServerURL,
-    ptr<string>& _sgxSSLKeyFileFullPath, ptr<string>& _sgxSSLCertFileFullPath,
-    ptr<string>& _ecdsaKeyName, ptr< vector<string> >& _ecdsaPublicKeys,
-    ptr<string>& _blsKeyName, ptr< vector< ptr< vector<string>>>>& _blsPublicKeyShares,
+void ConsensusEngine::setSGXKeyInfo(const string& _sgxServerURL,
+    string& _sgxSSLKeyFileFullPath, string& _sgxSSLCertFileFullPath,
+    string& _ecdsaKeyName, ptr< vector<string> >& _ecdsaPublicKeys,
+    string& _blsKeyName, ptr< vector< ptr< vector<string>>>>& _blsPublicKeyShares,
     uint64_t _requiredSigners, uint64_t _totalSigners ) {
-    CHECK_STATE( _sgxServerURL );
-    CHECK_STATE( _ecdsaKeyName );
-    CHECK_STATE( _blsKeyName );
+    CHECK_STATE( !_sgxServerURL.empty() )
+    CHECK_STATE( !_ecdsaKeyName.empty() )
+    CHECK_STATE( !_blsKeyName.empty() )
     CHECK_STATE( _blsPublicKeyShares );
     CHECK_STATE( _ecdsaPublicKeys );
     CHECK_STATE( _ecdsaPublicKeys );
@@ -868,22 +874,22 @@ void ConsensusEngine::setSGXKeyInfo(const ptr<string>& _sgxServerURL,
     sgxSSLCertFileFullPath = _sgxSSLCertFileFullPath;
     sgxSSLKeyFileFullPath = _sgxSSLKeyFileFullPath;
 }
-const ptr<string> ConsensusEngine::getEcdsaKeyName() const {
-    CHECK_STATE( ecdsaKeyName );
+const string ConsensusEngine::getEcdsaKeyName() const {
+    CHECK_STATE(!ecdsaKeyName.empty() );
     return ecdsaKeyName;
 }
-const ptr<string> ConsensusEngine::getBlsKeyName() const {
-    CHECK_STATE( blsKeyName );
+const string ConsensusEngine::getBlsKeyName() const {
+    CHECK_STATE(!blsKeyName.empty() );
     return blsKeyName;
 }
-void ConsensusEngine::setEcdsaKeyName(const ptr<string>& _ecdsaKeyName ) {
-    CHECK_ARGUMENT( _ecdsaKeyName );
-    CHECK_STATE( JSONFactory::splitString( *_ecdsaKeyName )->size() == 2 );
+void ConsensusEngine::setEcdsaKeyName(const string& _ecdsaKeyName ) {
+    CHECK_ARGUMENT(!_ecdsaKeyName.empty() )
+    CHECK_STATE( JSONFactory::splitString( _ecdsaKeyName )->size() == 2 );
     ecdsaKeyName = _ecdsaKeyName;
 }
-void ConsensusEngine::setBlsKeyName(const ptr<string>& _blsKeyName ) {
-    CHECK_ARGUMENT( _blsKeyName );
-    CHECK_STATE( JSONFactory::splitString( *_blsKeyName )->size() == 7 );
+void ConsensusEngine::setBlsKeyName(const string& _blsKeyName ) {
+    CHECK_ARGUMENT(!_blsKeyName.empty() );
+    CHECK_STATE( JSONFactory::splitString( _blsKeyName )->size() == 7 );
     blsKeyName = _blsKeyName;
 }
 

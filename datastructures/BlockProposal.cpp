@@ -88,7 +88,7 @@ void BlockProposal::calculateHash() {
     // export into 8-bit unsigned values, most significant bit first:
     auto sr = Utils::u256ToBigEndianArray(getStateRoot());
     auto v = Utils::carray2Hex(sr->data(),  sr->size());
-    sha3.Update((unsigned char *) v->data(), v->size());
+    sha3.Update((unsigned char *) v.data(), v.size());
 
     if (transactionList->size() > 0) {
         auto merkleRoot = transactionList->calculateTopMerkleRoot();
@@ -107,7 +107,7 @@ BlockProposal::BlockProposal(uint64_t _timeStamp, uint32_t _timeStampMs) : timeS
 
 BlockProposal::BlockProposal(schain_id _sChainId, node_id _proposerNodeId, block_id _blockID,
                              schain_index _proposerIndex, const ptr<TransactionList>& _transactions, u256 _stateRoot,
-                             uint64_t _timeStamp, __uint32_t _timeStampMs, const ptr<string>& _signature,
+                             uint64_t _timeStamp, __uint32_t _timeStampMs, const string& _signature,
                              const ptr<CryptoManager>& _cryptoManager)
         : schainID(_sChainId), proposerNodeID(_proposerNodeId), blockID(_blockID),
           proposerIndex(_proposerIndex), timeStamp(_timeStamp), timeStampMs(_timeStampMs),
@@ -116,8 +116,8 @@ BlockProposal::BlockProposal(schain_id _sChainId, node_id _proposerNodeId, block
     CHECK_ARGUMENT(_transactions);
 
 
-    CHECK_ARGUMENT(_cryptoManager != nullptr || _signature != nullptr);
-    CHECK_ARGUMENT(_cryptoManager == nullptr || _signature == nullptr);
+    CHECK_ARGUMENT(_cryptoManager != nullptr || _signature != "");
+    CHECK_ARGUMENT(_cryptoManager == nullptr || _signature != "");
 
     CHECK_STATE(timeStamp > MODERN_TIME);
 
@@ -127,7 +127,7 @@ BlockProposal::BlockProposal(schain_id _sChainId, node_id _proposerNodeId, block
     if (_cryptoManager != nullptr) {
         _cryptoManager->signProposal( this );
     } else {
-        CHECK_ARGUMENT(_signature);
+        CHECK_ARGUMENT(_signature != "");
         signature = _signature;
     }
 }
@@ -199,16 +199,15 @@ uint32_t BlockProposal::getTimeStampMs() const {
     return timeStampMs;
 }
 
-void BlockProposal::addSignature(const ptr<string>& _signature) {
+void BlockProposal::addSignature(const string& _signature) {
     LOCK(m)
-    CHECK_ARGUMENT(_signature)
-    CHECK_STATE(signature == nullptr)
+    CHECK_ARGUMENT(_signature != "")
     signature = _signature;
 }
 
-ptr<string> BlockProposal::getSignature() {
+string BlockProposal::getSignature() {
     LOCK(m)
-    CHECK_STATE(signature);
+    CHECK_STATE(signature != "");
     return signature;
 }
 
@@ -287,9 +286,9 @@ ptr<BlockProposal> BlockProposal::deserialize(const ptr<vector<uint8_t> >& _seri
     CHECK_ARGUMENT(_serializedProposal);
     CHECK_ARGUMENT(_manager);
 
-    ptr<string> headerStr = BlockProposal::extractHeader(_serializedProposal);
+    string headerStr = BlockProposal::extractHeader(_serializedProposal);
 
-    CHECK_STATE(headerStr);
+    CHECK_STATE(headerStr != "");
 
     ptr<BlockProposalHeader> blockHeader;
 
@@ -298,7 +297,7 @@ ptr<BlockProposal> BlockProposal::deserialize(const ptr<vector<uint8_t> >& _seri
         CHECK_STATE(blockHeader);
     } catch (ExitRequestedException &) { throw; } catch (...) {
         throw_with_nested(ParsingException(
-                "Could not parse block header: \n" + *headerStr, __CLASS_NAME__));
+                "Could not parse block header: \n" + headerStr, __CLASS_NAME__));
     }
 
     auto list = deserializeTransactions(blockHeader, headerStr, _serializedProposal);
@@ -307,7 +306,7 @@ ptr<BlockProposal> BlockProposal::deserialize(const ptr<vector<uint8_t> >& _seri
 
     auto sig = blockHeader->getSignature();
 
-    CHECK_STATE(sig);
+    CHECK_STATE(sig != "");
 
     auto proposal = make_shared<BlockProposal>(blockHeader->getSchainID(), blockHeader->getProposerNodeId(),
                                                blockHeader->getBlockID(), blockHeader->getProposerIndex(),
@@ -380,14 +379,14 @@ ptr<BlockProposalFragment> BlockProposal::getFragment(uint64_t _totalFragments, 
 }
 
 ptr<TransactionList> BlockProposal::deserializeTransactions(const ptr<BlockProposalHeader>& _header,
-                                                            const ptr<string>& _headerString,
+                                                            const string& _headerString,
                                                             const ptr<vector<uint8_t> >& _serializedBlock) {
 
     CHECK_ARGUMENT(_header);
-    CHECK_ARGUMENT(_headerString);
+    CHECK_ARGUMENT(_headerString != "");
     CHECK_ARGUMENT(_serializedBlock);
 
-    auto headerSize = _headerString->size();
+    auto headerSize = _headerString.size();
 
     ptr<TransactionList> list;
     try {
@@ -397,7 +396,7 @@ ptr<TransactionList> BlockProposal::deserializeTransactions(const ptr<BlockPropo
 
     } catch (...) {
         throw_with_nested(
-                ParsingException("Could not parse transactions after header. Header: \n" + *_headerString +
+                ParsingException("Could not parse transactions after header. Header: \n" + _headerString +
                                  " Transactions size:" + to_string(_serializedBlock->size()),
                                  __CLASS_NAME__)
         );
@@ -408,7 +407,7 @@ ptr<TransactionList> BlockProposal::deserializeTransactions(const ptr<BlockPropo
 }
 
 
-ptr<string> BlockProposal::extractHeader(const ptr<vector<uint8_t> >& _serializedBlock) {
+string BlockProposal::extractHeader(const ptr<vector<uint8_t> >& _serializedBlock) {
 
     CHECK_ARGUMENT(_serializedBlock);
 
@@ -438,22 +437,22 @@ ptr<string> BlockProposal::extractHeader(const ptr<vector<uint8_t> >& _serialize
     CHECK_STATE(_serializedBlock->at(sizeof(headerSize)) == '{');
     CHECK_STATE(_serializedBlock->back() == '>');
 
-    auto header = make_shared<string>(headerSize, ' ');
+    string header(headerSize, ' ');
 
-    in.read((char *) header->c_str(), headerSize); /* Flawfinder: ignore */
+    in.read((char *) header.c_str(), headerSize); /* Flawfinder: ignore */
 
     return header;
 }
 
 
-ptr<BlockProposalHeader> BlockProposal::parseBlockHeader(const shared_ptr<string> & _header ) {
-    CHECK_ARGUMENT( _header );
-    CHECK_ARGUMENT( _header->size() > 2);
-    CHECK_ARGUMENT2( _header->at(0) == '{', "Block header does not start with {");
+ptr<BlockProposalHeader> BlockProposal::parseBlockHeader(const string & _header ) {
+    CHECK_ARGUMENT( _header != "");
+    CHECK_ARGUMENT( _header.size() > 2);
+    CHECK_ARGUMENT2( _header.at(0) == '{', "Block header does not start with {");
     CHECK_ARGUMENT2(
-        _header->at( _header->size() - 1) == '}', "Block header does not end with }");
+        _header.at( _header.size() - 1) == '}', "Block header does not end with }");
 
-    auto js = nlohmann::json::parse(*_header );
+    auto js = nlohmann::json::parse(_header );
 
     return make_shared<BlockProposalHeader>(js);
 

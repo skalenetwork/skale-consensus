@@ -110,9 +110,9 @@ class Node {
     std::atomic_bool exitRequested;
 
     ptr< SkaleLog > log = nullptr;
-    ptr<string> name = nullptr;
+    string name = "";
 
-    ptr<string> bindIP = nullptr;
+    string bindIP = "";
 
 
     nlohmann::json cfg;
@@ -133,7 +133,7 @@ class Node {
 
     class Comparator {
     public:
-        bool operator()( const ptr<string>& a, const ptr<string>& b ) const { return *a < *b; }
+        bool operator()( const string& a, const string& b ) const { return a < b; }
     };
 
 
@@ -145,18 +145,18 @@ class Node {
 
 
 
-    ptr<string> ecdsaKeyName = nullptr;
+    string ecdsaKeyName = "";
     ptr< vector<string> > ecdsaPublicKeys = nullptr;
-    ptr<string> blsKeyName = nullptr;
+    string blsKeyName = "";
     ptr< vector< ptr< vector<string>>>> blsPublicKeys = nullptr;
     ptr< BLSPublicKey > blsPublicKey = nullptr;
 
-    ptr<string> sgxURL = nullptr;
+    string sgxURL = "";
 
 
 
-    ptr<string> sgxSSLKeyFileFullPath = nullptr;
-    ptr<string> sgxSSLCertFileFullPath = nullptr;
+    string sgxSSLKeyFileFullPath = "";
+    string sgxSSLCertFileFullPath = "";
 
 
 
@@ -227,9 +227,9 @@ class Node {
 
 
 public:
-    ptr<string> getEcdsaKeyName();
+    string getEcdsaKeyName();
     ptr< vector<string> > getEcdsaPublicKeys();
-    ptr<string> getBlsKeyName();
+    string getBlsKeyName();
     ptr< vector< ptr< vector<string>>>> getBlsPublicKeys();
     ptr< BLSPublicKey > getBlsPublicKey();
 
@@ -273,11 +273,11 @@ public:
 
 
     Node( const nlohmann::json& _cfg, ConsensusEngine* _consensusEngine, bool _useSGX,
-        ptr<string> _sgxURL,
-          ptr<string> _sgxSSLKeyFileFullPath,
-    ptr<string> _sgxSSLCertFileFullPath,
-        ptr<string> _ecdsaKeyName, ptr< vector<string> > _ecdsaPublicKeys,
-        ptr<string> _blsKeyName, ptr< vector< ptr< vector<string>>>> _blsPublicKeys,
+        string _sgxURL,
+          string _sgxSSLKeyFileFullPath,
+    string _sgxSSLCertFileFullPath,
+        string _ecdsaKeyName, ptr< vector<string> > _ecdsaPublicKeys,
+        string _blsKeyName, ptr< vector< ptr< vector<string>>>> _blsPublicKeys,
         ptr< BLSPublicKey > _blsPublicKey );
 
     ~Node();
@@ -327,7 +327,7 @@ public:
 
     ptr< Network > getNetwork() const;
 
-    ptr<string> getBindIP() const;
+    string getBindIP() const;
 
     network_port getBasePort() const;
 
@@ -357,7 +357,7 @@ public:
 
     int64_t getParamInt64( const string& _paramName, uint64_t _paramDefault );
 
-    ptr<string> getParamString( const string& _paramName, string& _paramDefault );
+    string getParamString( const string& _paramName, string& _paramDefault );
 
     void initParamsFromConfig();
 
@@ -371,7 +371,7 @@ public:
 
     ConsensusEngine* getConsensusEngine() const;
 
-    ptr<string> getSgxUrl();
-    ptr<string> getSgxSslKeyFileFullPath();
-    ptr<string> getSgxSslCertFileFullPath();
+    string getSgxUrl();
+    string getSgxSslKeyFileFullPath();
+    string getSgxSslCertFileFullPath();
 };

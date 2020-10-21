@@ -36,24 +36,24 @@ CommittedTransactionDB::CommittedTransactionDB(Schain *_sChain, string &_dirName
                                                                                    _maxDBSize, false) {}
 
 
-const string CommittedTransactionDB::getFormatVersion() {
-    return "1.0";
+const string& CommittedTransactionDB::getFormatVersion() {
+    static const string version = "1.0";
+    return version;
 }
 
 
 void CommittedTransactionDB::writeCommittedTransaction(const ptr<Transaction>& _t, __uint64_t _committedTransactionCounter) {
 
-    CHECK_ARGUMENT(_t);
+    CHECK_ARGUMENT(_t)
     auto hash = _t->getPartialHash();
-    CHECK_STATE(hash);
+    CHECK_STATE(hash)
     auto key = (const char *) hash->data();
     auto keyLen = PARTIAL_SHA_HASH_LEN;
     auto value = (const char *) &_committedTransactionCounter;
     auto valueLen = sizeof(_committedTransactionCounter);
     writeByteArray(key, keyLen, value, valueLen);
 
-    static auto key1 = getFormatVersion() + string(":transactions");
+    static auto key1 = getFormatVersion() + ":transactions";
     auto value1 = to_string(_committedTransactionCounter);
     writeString(key1, value1);
-
 }
