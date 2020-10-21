@@ -51,7 +51,7 @@ BVBroadcastMessage::BVBroadcastMessage(node_id _srcNodeID, block_id _blockID, sc
                                        const string& _pkSig, Schain *_sChain)
     : NetworkMessage(
         MSG_BVB_BROADCAST, _srcNodeID, _blockID, _blockProposerIndex, _r, _value, _timeMs, _schainId, _msgID,
-        nullptr, _ecdsaSig, _publicKey, _pkSig,
+        "", _ecdsaSig, _publicKey, _pkSig,
         _srcSchainIndex, _sChain->getCryptoManager()) {
     printPrefix = "b";
 };
