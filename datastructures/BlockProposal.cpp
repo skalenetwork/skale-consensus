@@ -116,9 +116,6 @@ BlockProposal::BlockProposal(schain_id _sChainId, node_id _proposerNodeId, block
     CHECK_ARGUMENT(_transactions);
 
 
-    CHECK_ARGUMENT(_cryptoManager != nullptr || _signature != "");
-    CHECK_ARGUMENT(_cryptoManager == nullptr || _signature != "");
-
     CHECK_STATE(timeStamp > MODERN_TIME);
 
     transactionCount = transactionList->getItems()->size();

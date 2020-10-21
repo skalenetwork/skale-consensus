@@ -531,9 +531,6 @@ tuple< string, string, string > CryptoManager::signNetworkMsg(
     MONITOR( __CLASS_NAME__, __FUNCTION__ );
     auto&& [signature, publicKey, pkSig] = sessionSign( _msg.getHash(), _msg.getBlockId() );
     CHECK_STATE( signature != "");
-    CHECK_STATE( publicKey != "");
-    CHECK_STATE( pkSig != "");
-
     return { signature, publicKey, pkSig };
 }
 

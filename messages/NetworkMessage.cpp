@@ -399,8 +399,6 @@ void NetworkMessage::sign(const ptr<CryptoManager>& _mgr) {
     CHECK_ARGUMENT(_mgr)
     tie(ecdsaSig, publicKey, pkSig) = _mgr->signNetworkMsg(*this);
     CHECK_STATE(!ecdsaSig.empty())
-    CHECK_STATE(!publicKey.empty())
-    CHECK_STATE(!pkSig.empty())
 }
 
 void NetworkMessage::verify(const ptr<CryptoManager>& _mgr) {

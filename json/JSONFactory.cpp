@@ -230,11 +230,11 @@ void JSONFactory::createAndAddSChainFromJsonObject(
         uint64_t emptyBlockIntervalMs;
         int64_t emptyBlockIntervalMsTmp;
 
-        try {
-            emptyBlockIntervalMsTmp = element.at( "emptyBlockIntervalMs" ).get< int64_t >();
-        } catch ( ... ) {
+        //try {
+         //   emptyBlockIntervalMsTmp = element.at( "emptyBlockIntervalMs" ).get< int64_t >();
+        //} catch ( ... ) {
             emptyBlockIntervalMsTmp = EMPTY_BLOCK_INTERVAL_MS;
-        }
+        //}
 
         if ( emptyBlockIntervalMsTmp < 0 ) {
             emptyBlockIntervalMs = 100000000000000;
