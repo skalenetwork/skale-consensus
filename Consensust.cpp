@@ -123,39 +123,28 @@ block_id basicRun(block_id _lastId = 0) {
 
         engine = new ConsensusEngine(_lastId);
 
-
-
-
         engine->setTotalStorageLimitBytes(1000000000);
 
-        cerr << "Hehe" << endl;
-
         engine->parseTestConfigsAndCreateAllNodes( Consensust::getConfigDirPath() );
-
-        cerr << "Hoho" << endl;
-
         engine->slowStartBootStrapTest();
-
-        cerr << "Huhu" << endl;
-
         sleep(Consensust::getRunningTimeMS()/1000); /* Flawfinder: ignore */
-
-        cerr << "Hh" << endl;
 
         REQUIRE(engine->nodesCount() > 0);
         auto lastId = engine->getLargestCommittedBlockID();
         REQUIRE(lastId > 0);
 
 
-        auto [transactions, timestampS, timestampMs, price, stateRoot]  = engine->getBlock(1);
+        auto [transactions, timestampS, timeStampMs, price, stateRoot]  = engine->getBlock(1);
 
 
         REQUIRE(transactions);
-        REQUIRE(timestampS > 0);
-        REQUIRE(timestampMs > 0);
-
+        REQUIRE(timestampS > 0)
+        REQUIRE(timestampMs > 0)
+        
         cerr << price << ":" << stateRoot << endl;
-        cerr << "exiting ..." << endl;
+
+
+        cerr << "exiting" << endl;
         engine->exitGracefullyBlocking();
         delete engine;
         return lastId;

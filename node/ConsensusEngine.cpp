@@ -786,7 +786,7 @@ set< node_id >& ConsensusEngine::getNodeIDs() {
 
 string ConsensusEngine::getEngineVersion() {
     static string engineVersion(ENGINE_VERSION);
-    return "1.21";
+    return engineVersion;
 }
 
 uint64_t ConsensusEngine::getEngineID() const {
