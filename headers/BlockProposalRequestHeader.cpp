@@ -99,7 +99,7 @@ void BlockProposalRequestHeader::addFields(nlohmann::basic_json<> &jsonRequest) 
     CHECK_STATE(!signature.empty())
     jsonRequest["hash"] = hash;
     jsonRequest["sig"] = signature;
-
+    jsonRequest["sr"] = stateRoot.str();
 }
  node_id BlockProposalRequestHeader::getProposerNodeId()  {
     return proposerNodeID;

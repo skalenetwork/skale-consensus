@@ -86,10 +86,6 @@ NetworkMessage::NetworkMessage(MsgType _messageType, node_id _srcNodeID, block_i
 
     CHECK_ARGUMENT(_srcSchainIndex > 0)
     CHECK_ARGUMENT(!_ecdsaSig.empty())
-    CHECK_ARGUMENT(!_publicKey.empty())
-    CHECK_ARGUMENT(!_pkSig.empty())
-    // STRANGE
-    //CHECK_ARGUMENT(_sigShareStr);
     CHECK_ARGUMENT(_cryptoManager)
     CHECK_ARGUMENT(_timeMs > 0)
 
@@ -275,8 +271,6 @@ ptr<NetworkMessage> NetworkMessage::parseMessage(const string& _header, Schain *
         publicKey = getStringRapid(d, "pk");
         pkSig = getStringRapid(d, "pks");
         CHECK_STATE(!ecdsaSig.empty())
-        CHECK_STATE(!publicKey.empty())
-        CHECK_STATE(!pkSig.empty())
 
     } catch (ExitRequestedException &) { throw; } catch (...) {
         throw_with_nested(InvalidStateException("Could not parse message", __CLASS_NAME__));

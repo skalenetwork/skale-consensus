@@ -390,7 +390,6 @@ bool CryptoManager::sessionVerifySig(
     const ptr< SHAHash >& _hash, const string& _sig, const string& _publicKey ) {
     CHECK_ARGUMENT( _hash )
     CHECK_ARGUMENT( _sig != "" )
-    CHECK_ARGUMENT( _publicKey != "" );
 
     if ( isSGXEnabled ) {
         auto pkey = OpenSSLECDSAKey::makeKey( _publicKey, false );
@@ -542,8 +541,6 @@ bool CryptoManager::verifyNetworkMsg( NetworkMessage& _msg ) {
     auto pkSig = _msg.getPkSig();
 
     CHECK_STATE(!sig.empty() );
-    CHECK_STATE( !publicKey.empty());
-    CHECK_STATE( !pkSig.empty());
     CHECK_STATE( hash );
 
 
