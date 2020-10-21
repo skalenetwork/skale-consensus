@@ -133,7 +133,6 @@ block_id basicRun(block_id _lastId = 0) {
         auto lastId = engine->getLargestCommittedBlockID();
         REQUIRE(lastId > 0);
 
-
         auto [transactions, timestampS, timeStampMs, price, stateRoot]  = engine->getBlock(1);
 
 
