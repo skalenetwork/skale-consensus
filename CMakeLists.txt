@@ -200,6 +200,7 @@ SET( LINK_LIBRARIES
     dl
     z
     pthread
+        idn2
     )
 
 
