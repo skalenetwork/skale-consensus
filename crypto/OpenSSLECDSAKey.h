@@ -30,6 +30,7 @@ class OpenSSLECDSAKey {
     bool isPrivate = false;
 
     EC_KEY *ecKey = nullptr;
+    EVP_PKEY*  edKey = nullptr;
 
     static EC_GROUP *ecgroup;
     static EC_GROUP *ecgroupFast;
@@ -43,7 +44,8 @@ class OpenSSLECDSAKey {
 
 public:
 
-    OpenSSLECDSAKey( EC_KEY* _eckey, bool _isPrivate, bool _isFast);
+    OpenSSLECDSAKey( EC_KEY* _eckey,
+                     EVP_PKEY*  _edKey, bool _isPrivate, bool _isFast);
 
     static ptr<OpenSSLECDSAKey> makeKey(const string& _publicKey, bool _isSGXKey, bool isFast );
 

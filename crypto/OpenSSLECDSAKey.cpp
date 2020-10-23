@@ -42,22 +42,39 @@
 #define NID_FAST NID_X9_62_prime256v1
 #define NID_ETH NID_secp256k1
 
-OpenSSLECDSAKey::OpenSSLECDSAKey( EC_KEY* _ecKey, bool _isPrivate, bool _isFast ) : isPrivate( _isPrivate ), isFast(_isFast)  {
+OpenSSLECDSAKey::OpenSSLECDSAKey( EC_KEY* _ecKey, EVP_PKEY* _edKey,
+                                  bool _isPrivate, bool _isFast ) : isPrivate( _isPrivate ), isFast(_isFast)  {
     CHECK_STATE( _ecKey );
+    CHECK_STATE( _ecKey || _edKey );
     this->ecKey = _ecKey;
+    this->edKey = _edKey;
 }
 OpenSSLECDSAKey::~OpenSSLECDSAKey() {
     if ( ecKey )
         EC_KEY_free( ecKey );
 }
+
+#include <openssl/evp.h>
+
 ptr< OpenSSLECDSAKey > OpenSSLECDSAKey::generateKey(bool _isFast) {
     initGroupsIfNeeded();
 
     EC_KEY* eckey = nullptr;
+    EVP_PKEY * edkey = nullptr;
 
     int nid = (_isFast)?  NID_FAST : NID_ETH;
 
     try {
+
+        if (_isFast) {
+            auto ctx = EVP_PKEY_CTX_new_id(NID_ED25519, NULL);
+            CHECK_STATE(ctx);
+            EVP_PKEY_keygen_init(ctx);
+            edkey = EVP_PKEY_new();
+            CHECK_STATE(edkey);
+
+            CHECK_STATE(EVP_PKEY_keygen(ctx, &edkey) > 0);
+        }
 
         eckey = EC_KEY_new_by_curve_name( nid);
         CHECK_STATE( eckey );
@@ -71,7 +88,7 @@ ptr< OpenSSLECDSAKey > OpenSSLECDSAKey::generateKey(bool _isFast) {
         throw;
     }
 
-    return make_shared< OpenSSLECDSAKey >( eckey, true, _isFast );
+    return make_shared< OpenSSLECDSAKey >( eckey, edkey, true, _isFast );
 }
 void OpenSSLECDSAKey::initGroupsIfNeeded() {
     if ( ecgroup == nullptr ) {
@@ -289,5 +306,5 @@ ptr< OpenSSLECDSAKey > OpenSSLECDSAKey::makeKey(const string& _publicKey, bool _
     if ( point )
         EC_POINT_clear_free( point );
 
-    return make_shared< OpenSSLECDSAKey >( pubKey, false, _isFast );
+    return make_shared< OpenSSLECDSAKey >( pubKey, nullptr, false, _isFast );
 }
