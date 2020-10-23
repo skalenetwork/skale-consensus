@@ -268,7 +268,6 @@ string OpenSSLECDSAKey::sessionSign( const char* _hash ) {
 
     fastSign( _hash );
 
-
     try {
         signature = ECDSA_do_sign( ( const unsigned char* ) _hash, 32, ecKey );
         CHECK_STATE( signature );
@@ -310,6 +309,24 @@ void OpenSSLECDSAKey::fastSign( const char* _hash ) const {
 
         CHECK_STATE(EVP_DigestSign(ctx, sig.data(), &len, (const unsigned char *)_hash, 32) > 0)
 
+        vector<unsigned char> encodedSig(2*len + 1, 0);
+
+        auto encodedLen = EVP_EncodeBlock(encodedSig.data(), sig.data(), len);
+        CHECK_STATE(encodedLen > 10);
+        string encodedSignature((const char*)encodedSig.data());
+
+        vector<unsigned char> decodedSig(encodedSig.size(), 0);
+
+
+
+
+        // now decode and verify
+
+
+
+
+
+
     } catch (...) {
         if (ctx) {
             EVP_MD_CTX_free(ctx);
@@ -324,8 +341,8 @@ void OpenSSLECDSAKey::fastSign( const char* _hash ) const {
 
 }
 
-ptr< OpenSSLECDSAKey > OpenSSLECDSAKey::makeKey(
-    const string& _publicKey, bool _isSGX, bool _isFast ) {
+ptr< OpenSSLECDSAKey > OpenSSLECDSAKey::importPubKey(
+    const string& _publicKey, bool _isSGXKey, bool isFast ) {
     CHECK_ARGUMENT( _publicKey != "" );
     initGroupsIfNeeded();
 
@@ -335,7 +352,7 @@ ptr< OpenSSLECDSAKey > OpenSSLECDSAKey::makeKey(
     EC_POINT* point = nullptr;
 
     try {
-        if ( _isSGX ) {
+        if ( _isSGXKey ) {
             pubKey = EC_KEY_new_by_curve_name( NID_ETH );
             CHECK_STATE( pubKey );
             auto x = _publicKey.substr( 0, 64 );
@@ -371,5 +388,5 @@ ptr< OpenSSLECDSAKey > OpenSSLECDSAKey::makeKey(
     if ( point )
         EC_POINT_clear_free( point );
 
-    return make_shared< OpenSSLECDSAKey >( pubKey, nullptr, false, _isFast );
+    return make_shared< OpenSSLECDSAKey >( pubKey, nullptr, false, isFast );
 }

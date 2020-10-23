@@ -374,4 +374,6 @@ public:
     string getSgxUrl();
     string getSgxSslKeyFileFullPath();
     string getSgxSslCertFileFullPath();
+    bool inited;
+    bool isInited() const;
 };

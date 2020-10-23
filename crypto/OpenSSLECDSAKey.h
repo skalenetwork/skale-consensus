@@ -47,7 +47,7 @@ public:
     OpenSSLECDSAKey( EC_KEY* _eckey,
                      EVP_PKEY*  _edKey, bool _isPrivate, bool _isFast);
 
-    static ptr<OpenSSLECDSAKey> makeKey(const string& _publicKey, bool _isSGXKey, bool isFast );
+    static ptr<OpenSSLECDSAKey> importPubKey(const string& _publicKey, bool _isSGXKey, bool isFast );
 
     virtual ~OpenSSLECDSAKey();
 

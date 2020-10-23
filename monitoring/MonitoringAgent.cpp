@@ -56,6 +56,10 @@ void MonitoringAgent::monitor() {
     if (ConsensusEngine::isOnTravis())
         return;
 
+    while (getNode()->isInited()) {
+        sleep(1);
+    }
+
 
     map<uint64_t, weak_ptr<LivelinessMonitor>> monitorsCopy;
 
