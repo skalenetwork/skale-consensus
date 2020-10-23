@@ -42,29 +42,17 @@
 #define NID_FAST NID_X9_62_prime256v1
 #define NID_ETH NID_secp256k1
 
-OpenSSLECDSAKey::OpenSSLECDSAKey( EC_KEY* _ecKey, EVP_PKEY* _edKey, bool _isPrivate, bool _isFast )
+OpenSSLECDSAKey::OpenSSLECDSAKey( EC_KEY* _ecKey, bool _isPrivate, bool _isFast )
     : isPrivate( _isPrivate ), isFast( _isFast ) {
-    CHECK_STATE( _ecKey || _edKey );
+    CHECK_STATE( _ecKey);
     this->ecKey = _ecKey;
-    this->edKey = _edKey;
 }
 OpenSSLECDSAKey::~OpenSSLECDSAKey() {
     if ( ecKey )
         EC_KEY_free( ecKey );
-    if ( edKey ) {
-        EVP_PKEY_free( edKey );
-    }
 }
 
 
-ptr< OpenSSLECDSAKey > OpenSSLECDSAKey::generateFastKey1() {
-
-    EVP_PKEY* edkey = nullptr;
-
-    edkey = genFastKeyImpl();
-
-    return make_shared< OpenSSLECDSAKey >( nullptr, edkey, true, true);
-}
 
 ptr< OpenSSLECDSAKey > OpenSSLECDSAKey::generateECDSAKey() {
     initGroupsIfNeeded();
@@ -75,7 +63,7 @@ ptr< OpenSSLECDSAKey > OpenSSLECDSAKey::generateECDSAKey() {
 
     eckey = generateECDSAKeyImpl( nid );
 
-    return make_shared< OpenSSLECDSAKey >( eckey, nullptr, true, true);
+    return make_shared< OpenSSLECDSAKey >( eckey,true, true);
 }
 
 
@@ -92,33 +80,6 @@ EC_KEY* OpenSSLECDSAKey::generateECDSAKeyImpl( int nid ) {
         throw;
     }
     return eckey;
-}
-EVP_PKEY* OpenSSLECDSAKey::genFastKeyImpl() {
-    EVP_PKEY* edkey = nullptr;
-    EVP_PKEY_CTX* ctx = nullptr;
-    try {
-        ctx = EVP_PKEY_CTX_new_id( NID_ED25519, NULL );
-        CHECK_STATE( ctx );
-        EVP_PKEY_keygen_init( ctx );
-        edkey = EVP_PKEY_new();
-        CHECK_STATE( edkey );
-        CHECK_STATE( EVP_PKEY_keygen( ctx, &edkey ) > 0 );
-
-    } catch ( ... ) {
-        if ( ctx ) {
-            EVP_PKEY_CTX_free( ctx );
-        }
-        if ( edkey ) {
-            EVP_PKEY_free( edkey );
-        }
-        throw;
-    }
-
-    if ( ctx ) {
-        EVP_PKEY_CTX_free( ctx );
-    }
-
-    return edkey;
 }
 void OpenSSLECDSAKey::initGroupsIfNeeded() {
     if ( ecgroup == nullptr ) {
@@ -270,17 +231,6 @@ string OpenSSLECDSAKey::signECDSA1( const char* _hash ) {
     return hexSig;
 }
 
-string OpenSSLECDSAKey::signFast1( const char* _hash ) {
-    CHECK_ARGUMENT( _hash );
-    CHECK_STATE( this->edKey );
-    CHECK_STATE( isPrivate );
-    string fastSig = fastSignImpl( _hash );
-    return fastSig;
-}
-
-
-
-
 
 string OpenSSLECDSAKey::ecdsaSignImpl( const char* _hash) const {
     ECDSA_SIG* signature = nullptr;
@@ -309,154 +259,11 @@ string OpenSSLECDSAKey::ecdsaSignImpl( const char* _hash) const {
 }
 
 
-string OpenSSLECDSAKey::fastSignImpl( const char* _hash ) {
-    EVP_MD_CTX* ctx = nullptr;
-
-    string encodedSignature;
-
-    try {
-        ctx = EVP_MD_CTX_new();
-
-        CHECK_STATE( ctx )
-
-        CHECK_STATE( edKey )
-
-        CHECK_STATE( EVP_DigestSignInit( ctx, NULL, NULL, NULL, edKey ) > 0 )
-
-
-        size_t len = 0;
-
-        CHECK_STATE( EVP_DigestSign( ctx, nullptr, &len, ( const unsigned char* ) _hash, 32 ) > 0 );
-
-        vector< unsigned char > sig( len, 0 );
-
-        CHECK_STATE(
-            EVP_DigestSign( ctx, sig.data(), &len, ( const unsigned char* ) _hash, 32 ) > 0 )
-
-        vector< unsigned char > encodedSig( 2 * len + 1, 0 );
-
-        auto encodedLen = EVP_EncodeBlock( encodedSig.data(), sig.data(), len );
-        CHECK_STATE( encodedLen > 10 );
-        encodedSignature = string( ( const char* ) encodedSig.data() );
-
-    } catch ( ... ) {
-        if ( ctx ) {
-            EVP_MD_CTX_free( ctx );
-        }
-
-        throw;
-    }
-
-    if ( ctx ) {
-        EVP_MD_CTX_free( ctx );
-    }
-    return encodedSignature;
-}
-
-EVP_PKEY* OpenSSLECDSAKey::deserializeFastPubKey(const string& encodedPubKeyStr ) {
-
-    EVP_PKEY* pubKey = nullptr;
-    BIO * encodedPubKeyBio = nullptr;
-
-    try {
-        CHECK_STATE( !encodedPubKeyStr.empty() );
-
-        encodedPubKeyBio = BIO_new_mem_buf( encodedPubKeyStr.data(), encodedPubKeyStr.size() );
-
-        CHECK_STATE( encodedPubKeyBio );
-
-        pubKey = PEM_read_bio_PUBKEY( encodedPubKeyBio, nullptr, nullptr, nullptr );
-
-        CHECK_STATE( pubKey );
-
-    } catch (...) {
-        if (encodedPubKeyBio) {
-            BIO_free(encodedPubKeyBio);
-        }
-        throw;
-    }
-
-    if (encodedPubKeyBio) {
-        BIO_free(encodedPubKeyBio);
-    }
-
-    return pubKey;
-}
-
-string OpenSSLECDSAKey::serializeFastPubKey1() const {
-    BIO * bio = nullptr;
-    string result;
-    try {
-        bio = BIO_new( BIO_s_mem() );
-        CHECK_STATE( bio );
-        CHECK_STATE(edKey);
-        CHECK_STATE( PEM_write_bio_PUBKEY( bio, edKey ) );
-
-        char* encodedPubKey = nullptr;
-        auto pubKeyEncodedLen = BIO_get_mem_data( bio, &encodedPubKey );
-        CHECK_STATE( pubKeyEncodedLen > 10 );
-        result = string( encodedPubKey, 0, pubKeyEncodedLen );
-
-    } catch (...) {
-        if (bio) {
-            BIO_free(bio);
-        }
-        throw;
-    }
-
-    if (bio) {
-        BIO_free(bio);
-    }
-    return result;
-}
-bool OpenSSLECDSAKey::verifyFastSig1( const string& _encodedSignature, const char* _hash ) const {
-    CHECK_STATE( _hash );
-
-    bool result = false;
-
-    EVP_MD_CTX *  verifyCtx = nullptr;
-
-    try {
-
-        verifyCtx = EVP_MD_CTX_new();
-
-        vector< unsigned char > decodedSig( _encodedSignature.size(), 0 );
-
-        int decodedLen = 0;
-
-        CHECK_STATE( ( decodedLen = EVP_DecodeBlock( decodedSig.data(),
-                           ( const unsigned char* ) _encodedSignature.c_str(),
-                           _encodedSignature.size() ) ) > 0 )
-
-        CHECK_STATE( decodedLen >= 64 )
-
-
-
-        CHECK_STATE( verifyCtx );
-
-        CHECK_STATE( EVP_DigestVerifyInit( verifyCtx, NULL, NULL, NULL, edKey ) > 0 )
-
-        CHECK_STATE( EVP_DigestVerify( verifyCtx, decodedSig.data(), 64,
-                         ( const unsigned char* ) _hash, 32 ) == 1 );
-        result = true;
-    } catch (...) {
-        if (!verifyCtx) { // out of memory
-            throw;
-        }
-    }
-
-    if (verifyCtx) {
-        EVP_MD_CTX_free(verifyCtx);
-    }
-
-    return result;
-
-}
 
 ptr< OpenSSLECDSAKey > OpenSSLECDSAKey::importSGXPubKey( const string& _publicKey) {
     EC_KEY* pubKey = deserializeSGXPubKey( _publicKey );
 
-    return make_shared< OpenSSLECDSAKey >( pubKey, nullptr, false, false );
+    return make_shared< OpenSSLECDSAKey >( pubKey, false, false );
 }
 EC_KEY* OpenSSLECDSAKey::deserializeSGXPubKey( const string& _publicKey ) {
     CHECK_ARGUMENT( _publicKey != "" );
@@ -503,20 +310,15 @@ EC_KEY* OpenSSLECDSAKey::deserializeSGXPubKey( const string& _publicKey ) {
 
 ptr< OpenSSLECDSAKey > OpenSSLECDSAKey::importECDSAPubKey1( const string& _publicKey) {
     EC_KEY* pubKey = deserializeECDSAPubKey( _publicKey );
-    return make_shared< OpenSSLECDSAKey >( pubKey, nullptr, false, true );
+    return make_shared< OpenSSLECDSAKey >( pubKey,  false, true );
 }
 
-ptr< OpenSSLECDSAKey > OpenSSLECDSAKey::importFastPubKey1( const string& _publicKey) {
-    auto  pubKey = deserializeFastPubKey( _publicKey );
-    return make_shared< OpenSSLECDSAKey >( nullptr, pubKey, false, true );
-}
+
 EC_KEY* OpenSSLECDSAKey::deserializeECDSAPubKey( const string& _publicKey ) {
-    CHECK_ARGUMENT( _publicKey != "" );
+    CHECK_ARGUMENT( !_publicKey.empty());
     initGroupsIfNeeded();
 
     EC_KEY* pubKey = nullptr;
-    BIGNUM* xBN = nullptr;
-    BIGNUM* yBN = nullptr;
     EC_POINT* point = nullptr;
 
     try {
@@ -528,19 +330,13 @@ EC_KEY* OpenSSLECDSAKey::deserializeECDSAPubKey( const string& _publicKey ) {
     } catch ( ... ) {
         if ( pubKey )
             EC_KEY_free( pubKey );
-        if ( xBN )
-            BN_free( xBN );
-        if ( yBN )
-            BN_free( yBN );
+
         if ( point )
             EC_POINT_clear_free( point );
         throw;
     }
 
-    if ( xBN )
-        BN_free( xBN );
-    if ( yBN )
-        BN_free( yBN );
+
     if ( point )
         EC_POINT_clear_free( point );
     return pubKey;
