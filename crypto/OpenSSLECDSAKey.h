@@ -65,6 +65,7 @@ public:
     static EVP_PKEY* genFastKey();
     static EC_KEY* generateKey( int nid );
     void fastSign( const char* _hash ) const;
+    bool verifyFastSig( const char* _hash, const string& _encodedSignature ) const;
 };
 
 #endif  // OPENSSLECDSAPRIVATEKEY_H

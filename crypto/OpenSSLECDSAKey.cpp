@@ -298,7 +298,6 @@ void OpenSSLECDSAKey::fastSign( const char* _hash ) const {
         CHECK_STATE( EVP_DigestSignInit( ctx, NULL, NULL, NULL, edKey ) > 0 )
 
 
-
         size_t len = 0;
 
         CHECK_STATE( EVP_DigestSign( ctx, nullptr, &len, ( const unsigned char* ) _hash, 32 ) > 0 );
@@ -317,23 +316,7 @@ void OpenSSLECDSAKey::fastSign( const char* _hash ) const {
 
         // now decode and verify
 
-        vector< unsigned char > decodedSig( encodedSig.size(), 0 );
-
-        int decodedLen = 0;
-
-        CHECK_STATE((decodedLen = EVP_DecodeBlock(decodedSig.data(),
-                           (const unsigned char*) encodedSignature.c_str(),
-                           encodedSignature.size())) > 0 )
-
-        CHECK_STATE(decodedLen >= 64)
-
-        auto verifyCtx = EVP_MD_CTX_new();
-
-        CHECK_STATE( verifyCtx );
-
-        CHECK_STATE( EVP_DigestVerifyInit( verifyCtx, NULL, NULL, NULL, edKey ) > 0 )
-
-        CHECK_STATE(EVP_DigestVerify(verifyCtx, decodedSig.data(), 64, ( const unsigned char* ) _hash, 32 ) == 1) ;
+        CHECK_STATE(verifyFastSig( _hash, encodedSignature ));
 
     } catch ( ... ) {
         if ( ctx ) {
@@ -346,6 +329,49 @@ void OpenSSLECDSAKey::fastSign( const char* _hash ) const {
     if ( ctx ) {
         EVP_MD_CTX_free( ctx );
     }
+}
+bool OpenSSLECDSAKey::verifyFastSig( const char* _hash, const string& _encodedSignature ) const {
+    CHECK_STATE( _hash );
+
+    bool result = false;
+
+    EVP_MD_CTX *  verifyCtx = nullptr;
+
+    try {
+
+        verifyCtx = EVP_MD_CTX_new();
+
+        vector< unsigned char > decodedSig( _encodedSignature.size(), 0 );
+
+        int decodedLen = 0;
+
+        CHECK_STATE( ( decodedLen = EVP_DecodeBlock( decodedSig.data(),
+                           ( const unsigned char* ) _encodedSignature.c_str(),
+                           _encodedSignature.size() ) ) > 0 )
+
+        CHECK_STATE( decodedLen >= 64 )
+
+
+
+        CHECK_STATE( verifyCtx );
+
+        CHECK_STATE( EVP_DigestVerifyInit( verifyCtx, NULL, NULL, NULL, edKey ) > 0 )
+
+        CHECK_STATE( EVP_DigestVerify( verifyCtx, decodedSig.data(), 64,
+                         ( const unsigned char* ) _hash, 32 ) == 1 );
+        result = true;
+    } catch (...) {
+        if (!verifyCtx) { // out of memory
+            throw;
+        }
+    }
+
+    if (verifyCtx) {
+        EVP_MD_CTX_free(verifyCtx);
+    }
+
+    return result;
+
 }
 
 ptr< OpenSSLECDSAKey > OpenSSLECDSAKey::importPubKey(
