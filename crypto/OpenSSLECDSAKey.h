@@ -32,17 +32,24 @@ class OpenSSLECDSAKey {
     EC_KEY *ecKey = nullptr;
 
     static EC_GROUP *ecgroup;
+    static EC_GROUP *ecgroupFast;
+
+    bool isFast;
+
+
+
+
 
 
 public:
 
-    OpenSSLECDSAKey( EC_KEY* _eckey, bool _isPrivate );
+    OpenSSLECDSAKey( EC_KEY* _eckey, bool _isPrivate, bool _isFast);
 
-    static ptr<OpenSSLECDSAKey> makeKey(const string& _publicKey, bool _isSGXKey );
+    static ptr<OpenSSLECDSAKey> makeKey(const string& _publicKey, bool _isSGXKey, bool isFast );
 
     virtual ~OpenSSLECDSAKey();
 
-    static ptr< OpenSSLECDSAKey > generateKey();
+    static ptr< OpenSSLECDSAKey > generateKey(bool _isFast);
 
     string getPublicKey();
 

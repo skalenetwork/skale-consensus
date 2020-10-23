@@ -259,9 +259,8 @@ size_t size = sizeof( random_value );     // Declare size of data
 static ifstream urandom( "/dev/urandom", ios::in | ios::binary );  // Open stream
 
 std::tuple< ptr< OpenSSLECDSAKey >, string > CryptoManager::localGenerateEcdsaKey() {
-    auto key = OpenSSLECDSAKey::generateKey();
+    auto key = OpenSSLECDSAKey::generateKey(true);
     auto pKey = key->getPublicKey();
-
     return { key, pKey };
 }
 
@@ -269,7 +268,6 @@ std::tuple< ptr< OpenSSLECDSAKey >, string > CryptoManager::localGenerateEcdsaKe
 tuple< string, string, string > CryptoManager::sessionSignECDSA(
     const ptr< SHAHash >& _hash, block_id _blockID ) {
     CHECK_ARGUMENT( _hash );
-
 
 
 
@@ -349,7 +347,7 @@ string CryptoManager::sgxSignECDSA(const ptr< SHAHash >& _hash, string& _keyName
 bool CryptoManager::verifyECDSA(
     const ptr< SHAHash >& _hash, const string& _sig, const string& _publicKey ) {
 
-    auto key = OpenSSLECDSAKey::makeKey(_publicKey, true);
+    auto key = OpenSSLECDSAKey::makeKey(_publicKey, true, false);
 
     return key->verifySGXSig( _sig, ( const char* ) _hash->data() );
 }
@@ -392,7 +390,7 @@ bool CryptoManager::sessionVerifySig(
     CHECK_ARGUMENT( _sig != "" )
 
     if ( isSGXEnabled ) {
-        auto pkey = OpenSSLECDSAKey::makeKey( _publicKey, false );
+        auto pkey = OpenSSLECDSAKey::makeKey( _publicKey, false, true );
         return pkey->sessionVerifySig( _sig, ( const char* ) _hash->data() );
 
     } else {
