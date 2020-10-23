@@ -20,7 +20,7 @@
     @author Stan Kladko
     @date 2020
 */
-
+#include <openssl/x509.h>
 #include <openssl/ec.h>  // for EC_GROUP_new_by_curve_name, EC_GROUP_free, EC_KEY_new, EC_KEY_set_group, EC_KEY_generate_key, EC_KEY_free
 #include <openssl/ecdsa.h>    // for ECDSA_do_sign, ECDSA_do_verify
 #include <openssl/obj_mac.h>  // for NID_secp256k1
@@ -30,6 +30,7 @@
 #include "openssl/ecdsa.h"
 #include "openssl/sha.h"
 #include <openssl/evp.h>
+#include <openssl/pem.h>
 
 #include "Log.h"
 
@@ -285,6 +286,9 @@ string OpenSSLECDSAKey::sessionSign( const char* _hash ) {
         ECDSA_SIG_free( signature );
     return hexSig;
 }
+
+
+
 void OpenSSLECDSAKey::fastSign( const char* _hash ) const {
     EVP_MD_CTX* ctx = nullptr;
 
@@ -313,6 +317,18 @@ void OpenSSLECDSAKey::fastSign( const char* _hash ) const {
         CHECK_STATE( encodedLen > 10 );
         string encodedSignature( ( const char* ) encodedSig.data() );
 
+
+        // now encode key
+
+        PEM_write_PUBKEY(stdout, edKey);
+
+        unsigned char* encodedKey = nullptr;
+
+        auto encodedPubKeyLen = i2d_PUBKEY(this->edKey, &encodedKey);
+        CHECK_STATE(encodedKey);
+        CHECK_STATE(encodedPubKeyLen > 10)
+
+        LOG(info, string((const char*)encodedKey));
 
         // now decode and verify
 
