@@ -39,6 +39,9 @@
 
 #include "SkaleCommon.h"
 
+#define NID_FAST NID_X9_62_prime256v1
+#define NID NID_secp256k1
+
 OpenSSLECDSAKey::OpenSSLECDSAKey( EC_KEY* _ecKey, bool _isPrivate, bool _isFast ) : isPrivate( _isPrivate ), isFast(_isFast)  {
     CHECK_STATE( _ecKey );
     this->ecKey = _ecKey;
@@ -63,8 +66,8 @@ ptr< OpenSSLECDSAKey > OpenSSLECDSAKey::generateKey(bool _isFast) {
         eckey = EC_KEY_new_by_curve_name( nid);
         CHECK_STATE( eckey );
         if ( ecgroup == nullptr ) {
-            ecgroup = EC_GROUP_new_by_curve_name( NID_X9_62_prime256v1 );
-            ecgroupFast = EC_GROUP_new_by_curve_name( NID_X9_62_prime256v1 );
+            ecgroup = EC_GROUP_new_by_curve_name( NID );
+            ecgroupFast = EC_GROUP_new_by_curve_name( NID_FAST );
             CHECK_STATE( ecgroup );
             CHECK_STATE( ecgroupFast );
         }
@@ -96,7 +99,7 @@ string OpenSSLECDSAKey::getPublicKey() {
     CHECK_STATE( pubKeyComponent );
 
     if ( ecgroup == nullptr ) {
-        ecgroup = EC_GROUP_new_by_curve_name( NID_secp256k1 );
+        ecgroup = EC_GROUP_new_by_curve_name( NID );
         ecgroupFast = EC_GROUP_new_by_curve_name( NID_X9_62_prime256v1 );
         CHECK_STATE( ecgroup );
         CHECK_STATE(ecgroupFast);
@@ -257,8 +260,8 @@ ptr< OpenSSLECDSAKey > OpenSSLECDSAKey::makeKey(const string& _publicKey, bool _
 
 
     if ( ecgroup == nullptr ) {
-        ecgroup = EC_GROUP_new_by_curve_name( NID_secp256k1 );
-        ecgroupFast = EC_GROUP_new_by_curve_name( NID_X9_62_prime256v1 );
+        ecgroup = EC_GROUP_new_by_curve_name( NID );
+        ecgroupFast = EC_GROUP_new_by_curve_name( NID_FAST );
         CHECK_STATE( ecgroup );
         CHECK_STATE(ecgroupFast);
     }
@@ -270,7 +273,7 @@ ptr< OpenSSLECDSAKey > OpenSSLECDSAKey::makeKey(const string& _publicKey, bool _
 
     try {
         if ( _isSGX ) {
-            pubKey = EC_KEY_new_by_curve_name( NID_secp256k1 );
+            pubKey = EC_KEY_new_by_curve_name( NID );
             CHECK_STATE( pubKey );
             auto x = _publicKey.substr( 0, 64 );
             auto y = _publicKey.substr( 64, 128 );
@@ -280,7 +283,7 @@ ptr< OpenSSLECDSAKey > OpenSSLECDSAKey::makeKey(const string& _publicKey, bool _
             CHECK_STATE( BN_hex2bn( &yBN, y.c_str() ) != 0 );
             CHECK_STATE( EC_KEY_set_public_key_affine_coordinates( pubKey, xBN, yBN ) == 1 );
         } else {
-            pubKey = EC_KEY_new_by_curve_name( NID_X9_62_prime256v1 );
+            pubKey = EC_KEY_new_by_curve_name( NID_FAST );
             CHECK_STATE( pubKey );
             point = EC_POINT_hex2point( ecgroupFast, _publicKey.c_str(), nullptr, nullptr );
             CHECK_STATE( point );
