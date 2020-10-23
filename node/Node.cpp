@@ -343,7 +343,7 @@ void Node::setSchain(const ptr<Schain>& _schain) {
     CHECK_STATE(sChain == nullptr);
     this->sChain = _schain;
     initLevelDBs();
-
+    this->inited = true;
 }
 
 void Node::initSchain(const ptr<Node>& _node, const ptr<NodeInfo>& _localNodeInfo, const vector<ptr<NodeInfo> > &remoteNodeInfos,
@@ -359,9 +359,6 @@ void Node::initSchain(const ptr<Node>& _node, const ptr<NodeInfo>& _localNodeInf
 
 
         _node->testNodeInfos();
-
-
-
 
         auto sChain = make_shared<Schain>(
                 _node, _localNodeInfo->getSchainIndex(), _localNodeInfo->getSchainID(), _extFace);
@@ -500,4 +497,7 @@ ptr< vector< ptr< vector<string>>>> Node::getBlsPublicKeys() {
 ptr< BLSPublicKey > Node::getBlsPublicKey() {
     CHECK_STATE(blsPublicKey);
     return blsPublicKey;
+}
+bool Node::isInited() const {
+    return inited;
 }

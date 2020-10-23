@@ -21,51 +21,44 @@
     @date 2020
 */
 
-#ifndef OPENSSLECDSAPRIVATEKEY_H
-#define OPENSSLECDSAPRIVATEKEY_H
+#ifndef OPENSSLEDDSAPRIVATEKEY_H
+#define OPENSSLEDDSAPRIVATEKEY_H
 
 #include "openssl/ec.h"
 
-class OpenSSLECDSAKey {
+class OpenSSLEdDSAKey {
 
     bool isPrivate = false;
 
-    EC_KEY *ecKey = nullptr;
-
-    static EC_GROUP *ecgroup;
-    static EC_GROUP *ecgroupFast;
-
-    bool isFast;
+    EVP_PKEY*  edKey = nullptr;
 
 
-    static EC_KEY* generateECDSAKeyImpl( int nid );
+    static EVP_PKEY* genFastKeyImpl();
 
 
-    static void initGroupsIfNeeded();
+    string fastSignImpl( const char* _hash );
 
-    static EC_KEY* deserializeECDSAPubKey( const string& _publicKey );
-    static EC_KEY* deserializeSGXPubKey( const string& _publicKey );
+    static EVP_PKEY* deserializeFastPubKey( const string& encodedPubKeyStr );
 
-    string ecdsaSignImpl( const char* _hash) const;
+
 
 public:
 
 
+    OpenSSLEdDSAKey( EVP_PKEY* _edKey, bool _isPrivate);
 
-    OpenSSLECDSAKey( EC_KEY* _eckey, bool _isPrivate, bool _isFast);
+    static ptr< OpenSSLEdDSAKey > importPubKey( const string& _publicKey);
 
-    static ptr< OpenSSLECDSAKey > importSGXPubKey( const string& _publicKey);
-    static ptr< OpenSSLECDSAKey > importPubKey( const string& _publicKey);
-    virtual ~OpenSSLECDSAKey();
+    virtual ~OpenSSLEdDSAKey();
 
-    static ptr< OpenSSLECDSAKey > generateKey();
+    static ptr< OpenSSLEdDSAKey > generateKey();
 
-    string serializePubKey();
+
+    string serializePubKey() const;
 
     string sign(const char* hash);
 
-    bool verifySig(const string& _signature, const char* _hash );
-    bool verifySGXSig(const string& _sig, const char* _hash);
+    bool verifySig( const string& _encodedSignature, const char* _hash ) const;
 
 };
 

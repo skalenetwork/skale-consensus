@@ -65,8 +65,13 @@
 
 #include "network/Utils.h"
 
-#include "CryptoManager.h"
+
 #include "OpenSSLECDSAKey.h"
+#include "OpenSSLEdDSAKey.h"
+
+
+
+#include "CryptoManager.h"
 
 
 void CryptoManager::initSGXClient() {
@@ -258,9 +263,9 @@ size_t size = sizeof( random_value );     // Declare size of data
 
 static ifstream urandom( "/dev/urandom", ios::in | ios::binary );  // Open stream
 
-std::tuple< ptr< OpenSSLECDSAKey >, string > CryptoManager::localGenerateEcdsaKey() {
-    auto key = OpenSSLECDSAKey::generateKey(true);
-    auto pKey = key->getPublicKey();
+std::tuple< ptr< OpenSSLEdDSAKey >, string > CryptoManager::localGenerateFastKey() {
+    auto key = OpenSSLEdDSAKey::generateKey();
+    auto pKey = key->serializePubKey();
     return { key, pKey };
 }
 
@@ -271,7 +276,7 @@ tuple< string, string, string > CryptoManager::sessionSignECDSA(
 
 
 
-    ptr< OpenSSLECDSAKey > privateKey = nullptr;
+    ptr< OpenSSLEdDSAKey > privateKey = nullptr;
     string publicKey = "";
     string pkSig = "";
 
@@ -286,7 +291,7 @@ tuple< string, string, string > CryptoManager::sessionSignECDSA(
             CHECK_STATE( pkSig != "");
 
         } else {
-            tie( privateKey, publicKey ) = localGenerateEcdsaKey();
+            tie( privateKey, publicKey ) = localGenerateFastKey();
 
             ptr< SHAHash > pKeyHash = nullptr;
 
@@ -300,7 +305,7 @@ tuple< string, string, string > CryptoManager::sessionSignECDSA(
         }
     }
 
-    auto ret = privateKey->sessionSign( ( const char* ) _hash->data() );
+    auto ret = privateKey->sign( ( const char* ) _hash->data() );
 
     return { ret, publicKey, pkSig };
 }
@@ -347,7 +352,7 @@ string CryptoManager::sgxSignECDSA(const ptr< SHAHash >& _hash, string& _keyName
 bool CryptoManager::verifyECDSA(
     const ptr< SHAHash >& _hash, const string& _sig, const string& _publicKey ) {
 
-    auto key = OpenSSLECDSAKey::makeKey(_publicKey, true, false);
+    auto key = OpenSSLECDSAKey::importSGXPubKey( _publicKey );
 
     return key->verifySGXSig( _sig, ( const char* ) _hash->data() );
 }
@@ -390,9 +395,8 @@ bool CryptoManager::sessionVerifySig(
     CHECK_ARGUMENT( _sig != "" )
 
     if ( isSGXEnabled ) {
-        auto pkey = OpenSSLECDSAKey::makeKey( _publicKey, false, true );
-        return pkey->sessionVerifySig( _sig, ( const char* ) _hash->data() );
-
+        auto pkey = OpenSSLEdDSAKey::importPubKey( _publicKey );
+        return pkey->verifySig( _sig, ( const char* ) _hash->data() );
     } else {
         // mockup - used for testing
         if ( _sig.find( ":" ) != string::npos ) {
