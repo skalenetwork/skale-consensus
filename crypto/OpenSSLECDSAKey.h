@@ -59,6 +59,7 @@ public:
 
     bool verifySGXSig(const string& _sig, const char* _hash);
 
+    static void initGroupsIfNeeded();
 };
 
 #endif  // OPENSSLECDSAPRIVATEKEY_H
