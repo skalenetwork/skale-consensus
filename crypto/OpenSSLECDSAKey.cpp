@@ -324,15 +324,9 @@ void OpenSSLECDSAKey::fastSign( const char* _hash ) {
 
         // now decode key
 
-        auto encodedPubKeyBio = BIO_new_mem_buf(encodedPubKeyStr.data(), encodedPubKeyStr.size());
 
-        CHECK_STATE(encodedPubKeyBio);
+        EVP_PKEY* pubKey = decodePubKey( encodedPubKeyStr );
 
-        EVP_PKEY *pubKey = nullptr;
-
-        pubKey = PEM_read_bio_PUBKEY(encodedPubKeyBio, nullptr, nullptr, nullptr);
-
-        CHECK_STATE(pubKey);
 
         auto t = edKey;
         edKey = pubKey;
@@ -355,6 +349,35 @@ void OpenSSLECDSAKey::fastSign( const char* _hash ) {
         EVP_MD_CTX_free( ctx );
     }
 }
+EVP_PKEY* OpenSSLECDSAKey::decodePubKey( string& encodedPubKeyStr ) const {
+
+    EVP_PKEY* pubKey = nullptr;
+    BIO * encodedPubKeyBio = nullptr;
+
+    try {
+        CHECK_STATE( !encodedPubKeyStr.empty() );
+
+        encodedPubKeyBio = BIO_new_mem_buf( encodedPubKeyStr.data(), encodedPubKeyStr.size() );
+
+        CHECK_STATE( encodedPubKeyBio );
+
+        pubKey = PEM_read_bio_PUBKEY( encodedPubKeyBio, nullptr, nullptr, nullptr );
+
+        CHECK_STATE( pubKey );
+
+    } catch (...) {
+        if (encodedPubKeyBio) {
+            BIO_free(encodedPubKeyBio);
+        }
+        throw;
+    }
+
+    if (encodedPubKeyBio) {
+        BIO_free(encodedPubKeyBio);
+    }
+
+    return pubKey;
+}
 
 string OpenSSLECDSAKey::getFastPubKey() const {
     BIO * bio = nullptr;
@@ -362,6 +385,7 @@ string OpenSSLECDSAKey::getFastPubKey() const {
     try {
         bio = BIO_new( BIO_s_mem() );
         CHECK_STATE( bio );
+        CHECK_STATE(edKey);
         CHECK_STATE( PEM_write_bio_PUBKEY( bio, edKey ) );
 
         char* encodedPubKey = nullptr;

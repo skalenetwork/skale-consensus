@@ -68,6 +68,7 @@ public:
     void fastSign( const char* _hash );
     bool verifyFastSig( const char* _hash, const string& _encodedSignature ) const;
 
+    EVP_PKEY* decodePubKey( string& encodedPubKeyStr ) const;
 };
 
 #endif  // OPENSSLECDSAPRIVATEKEY_H
