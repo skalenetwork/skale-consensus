@@ -289,7 +289,7 @@ string OpenSSLECDSAKey::sessionSign( const char* _hash ) {
 
 
 
-void OpenSSLECDSAKey::fastSign( const char* _hash ) const {
+void OpenSSLECDSAKey::fastSign( const char* _hash ) {
     EVP_MD_CTX* ctx = nullptr;
 
     try {
@@ -320,19 +320,37 @@ void OpenSSLECDSAKey::fastSign( const char* _hash ) const {
 
         // now encode key
 
-        PEM_write_PUBKEY(stdout, edKey);
+        auto bio = BIO_new(BIO_s_mem());
+        CHECK_STATE(bio);
+        CHECK_STATE(PEM_write_bio_PUBKEY(bio, edKey));
 
-        unsigned char* encodedKey = nullptr;
+        char *encodedPubKey = nullptr;
+        auto pubKeyEncodedLen = BIO_get_mem_data(bio, &encodedPubKey);
+        CHECK_STATE(pubKeyEncodedLen > 10);
+        string encodedPubKeyStr(encodedPubKey, 0, pubKeyEncodedLen);
 
-        auto encodedPubKeyLen = i2d_PUBKEY(this->edKey, &encodedKey);
-        CHECK_STATE(encodedKey);
-        CHECK_STATE(encodedPubKeyLen > 10)
+        LOG(info, encodedPubKeyStr);
 
-        LOG(info, string((const char*)encodedKey));
+        // now decode key
 
-        // now decode and verify
+        auto encodedPubKeyBio = BIO_new_mem_buf(encodedPubKeyStr.data(), encodedPubKeyStr.size());
+
+        CHECK_STATE(encodedPubKeyBio);
+
+        EVP_PKEY *pubKey = nullptr;
+
+        pubKey = PEM_read_bio_PUBKEY(encodedPubKeyBio, nullptr, nullptr, nullptr);
+
+        CHECK_STATE(pubKey);
+
+        auto t = edKey;
+        edKey = pubKey;
+
+        // verify
 
         CHECK_STATE(verifyFastSig( _hash, encodedSignature ));
+
+        edKey = t;
 
     } catch ( ... ) {
         if ( ctx ) {

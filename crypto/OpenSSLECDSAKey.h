@@ -64,7 +64,7 @@ public:
     static void initGroupsIfNeeded();
     static EVP_PKEY* genFastKey();
     static EC_KEY* generateKey( int nid );
-    void fastSign( const char* _hash ) const;
+    void fastSign( const char* _hash );
     bool verifyFastSig( const char* _hash, const string& _encodedSignature ) const;
 };
 
