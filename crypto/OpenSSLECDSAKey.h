@@ -60,21 +60,22 @@ public:
                      EVP_PKEY*  _edKey, bool _isPrivate, bool _isFast);
 
     static ptr< OpenSSLECDSAKey > importSGXPubKey( const string& _publicKey);
-    static ptr< OpenSSLECDSAKey > importECDSAPubKey( const string& _publicKey);
+    static ptr< OpenSSLECDSAKey > importECDSAPubKey1( const string& _publicKey);
     static ptr< OpenSSLECDSAKey > importFastPubKey( const string& _publicKey);
 
 
     virtual ~OpenSSLECDSAKey();
 
     static ptr< OpenSSLECDSAKey > generateFastKey();
+    static ptr< OpenSSLECDSAKey > generateECDSAKey();
 
-    string serializeECDSAPublicKey();
+    string serializeECDSAPublicKey1();
     string serializeFastPubKey() const;
 
-    string signECDSA(const char* hash);
+    string signECDSA1(const char* hash);
     string signFast(const char* hash);
 
-    bool verifyECDSASig(const string& _signature, const char* _hash );
+    bool verifyECDSASig1(const string& _signature, const char* _hash );
     bool verifySGXSig(const string& _sig, const char* _hash);
     bool verifyFastSig( const string& _encodedSignature, const char* _hash ) const;
 

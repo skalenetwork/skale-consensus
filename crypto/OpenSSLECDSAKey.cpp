@@ -44,7 +44,6 @@
 
 OpenSSLECDSAKey::OpenSSLECDSAKey( EC_KEY* _ecKey, EVP_PKEY* _edKey, bool _isPrivate, bool _isFast )
     : isPrivate( _isPrivate ), isFast( _isFast ) {
-    CHECK_STATE( _ecKey );
     CHECK_STATE( _ecKey || _edKey );
     this->ecKey = _ecKey;
     this->edKey = _edKey;
@@ -59,18 +58,26 @@ OpenSSLECDSAKey::~OpenSSLECDSAKey() {
 
 
 ptr< OpenSSLECDSAKey > OpenSSLECDSAKey::generateFastKey() {
+
+    EVP_PKEY* edkey = nullptr;
+
+    edkey = genFastKeyImpl();
+
+    return make_shared< OpenSSLECDSAKey >( nullptr, edkey, true, true);
+}
+
+ptr< OpenSSLECDSAKey > OpenSSLECDSAKey::generateECDSAKey() {
     initGroupsIfNeeded();
 
     EC_KEY* eckey = nullptr;
-    EVP_PKEY* edkey = nullptr;
 
     int nid = NID_FAST;
 
-    edkey = genFastKeyImpl();
     eckey = generateECDSAKeyImpl( nid );
 
-    return make_shared< OpenSSLECDSAKey >( eckey, edkey, true, true);
+    return make_shared< OpenSSLECDSAKey >( eckey, nullptr, true, true);
 }
+
 
 EC_KEY* OpenSSLECDSAKey::generateECDSAKeyImpl( int nid ) {
     EC_KEY* eckey = nullptr;
@@ -125,7 +132,7 @@ void OpenSSLECDSAKey::initGroupsIfNeeded() {
 EC_GROUP* OpenSSLECDSAKey::ecgroup = nullptr;
 EC_GROUP* OpenSSLECDSAKey::ecgroupFast = nullptr;
 
-string OpenSSLECDSAKey::serializeECDSAPublicKey() {
+string OpenSSLECDSAKey::serializeECDSAPublicKey1() {
     initGroupsIfNeeded();
 
     auto pubKeyComponent = EC_KEY_get0_public_key( ecKey );
@@ -227,7 +234,7 @@ clean:
     return returnValue;
 }
 
-bool OpenSSLECDSAKey::verifyECDSASig( const string& _signature, const char* _hash ) {
+bool OpenSSLECDSAKey::verifyECDSASig1( const string& _signature, const char* _hash ) {
     CHECK_ARGUMENT( _signature != "" );
     CHECK_ARGUMENT( _hash );
 
@@ -255,7 +262,7 @@ bool OpenSSLECDSAKey::verifyECDSASig( const string& _signature, const char* _has
 }
 
 
-string OpenSSLECDSAKey::signECDSA( const char* _hash ) {
+string OpenSSLECDSAKey::signECDSA1( const char* _hash ) {
     CHECK_ARGUMENT( _hash );
     CHECK_STATE( ecKey );
     CHECK_STATE( isPrivate );
@@ -331,26 +338,6 @@ string OpenSSLECDSAKey::fastSignImpl( const char* _hash ) {
         auto encodedLen = EVP_EncodeBlock( encodedSig.data(), sig.data(), len );
         CHECK_STATE( encodedLen > 10 );
         encodedSignature = string( ( const char* ) encodedSig.data() );
-
-
-        // now encode key
-
-        auto encodedPubKeyStr = serializeFastPubKey();
-
-        // now decode key
-
-
-        EVP_PKEY* pubKey = deserializeFastPubKey( encodedPubKeyStr );
-
-
-        auto t = edKey;
-        edKey = pubKey;
-
-        // verify
-
-        CHECK_STATE( verifyFastSig( encodedSignature, _hash ) );
-
-        edKey = t;
 
     } catch ( ... ) {
         if ( ctx ) {
@@ -514,9 +501,8 @@ EC_KEY* OpenSSLECDSAKey::deserializeSGXPubKey( const string& _publicKey ) {
 }
 
 
-ptr< OpenSSLECDSAKey > OpenSSLECDSAKey::importECDSAPubKey( const string& _publicKey) {
+ptr< OpenSSLECDSAKey > OpenSSLECDSAKey::importECDSAPubKey1( const string& _publicKey) {
     EC_KEY* pubKey = deserializeECDSAPubKey( _publicKey );
-
     return make_shared< OpenSSLECDSAKey >( pubKey, nullptr, false, true );
 }
 

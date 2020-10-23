@@ -260,7 +260,7 @@ static ifstream urandom( "/dev/urandom", ios::in | ios::binary );  // Open strea
 
 std::tuple< ptr< OpenSSLECDSAKey >, string > CryptoManager::localGenerateEcdsaKey() {
     auto key = OpenSSLECDSAKey::generateFastKey();
-    auto pKey = key->serializeECDSAPublicKey();
+    auto pKey = key->serializeFastPubKey();
     return { key, pKey };
 }
 
@@ -300,7 +300,7 @@ tuple< string, string, string > CryptoManager::sessionSignECDSA(
         }
     }
 
-    auto ret = privateKey->signECDSA( ( const char* ) _hash->data() );
+    auto ret = privateKey->signFast( ( const char* ) _hash->data() );
 
     return { ret, publicKey, pkSig };
 }
@@ -390,8 +390,8 @@ bool CryptoManager::sessionVerifySig(
     CHECK_ARGUMENT( _sig != "" )
 
     if ( isSGXEnabled ) {
-        auto pkey = OpenSSLECDSAKey::importECDSAPubKey( _publicKey );
-        return pkey->verifyECDSASig( _sig, ( const char* ) _hash->data() );
+        auto pkey = OpenSSLECDSAKey::importFastPubKey( _publicKey );
+        return pkey->verifyFastSig( _sig, ( const char* ) _hash->data() );
     } else {
         // mockup - used for testing
         if ( _sig.find( ":" ) != string::npos ) {
