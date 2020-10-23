@@ -317,6 +317,11 @@ void OpenSSLECDSAKey::fastSign( const char* _hash ) const {
 
         throw;
     }
+
+    if (ctx) {
+        EVP_MD_CTX_free(ctx);
+    }
+
 }
 
 ptr< OpenSSLECDSAKey > OpenSSLECDSAKey::makeKey(
