@@ -62,10 +62,6 @@ ptr< OpenSSLECDSAKey > OpenSSLECDSAKey::generateKey(bool _isFast) {
         eckey = EC_KEY_new_by_curve_name( nid);
         CHECK_STATE( eckey );
 
-        auto group  = _isFast ? ecgroupFast : ecgroup;
-
-        CHECK_STATE( EC_KEY_set_group( eckey, group ) == 1 );
-
         CHECK_STATE( EC_KEY_generate_key( eckey ) == 1 )
         CHECK_STATE( eckey );
     } catch ( ... ) {
@@ -250,9 +246,6 @@ string OpenSSLECDSAKey::sessionSign( const char* _hash ) {
 ptr< OpenSSLECDSAKey > OpenSSLECDSAKey::makeKey(const string& _publicKey, bool _isSGX, bool _isFast ) {
     CHECK_ARGUMENT( _publicKey != "");
     initGroupsIfNeeded();
-
-
-
 
     EC_KEY* pubKey = nullptr;
     BIGNUM* xBN = nullptr;
