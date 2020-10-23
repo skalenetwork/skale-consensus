@@ -260,6 +260,9 @@ string OpenSSLECDSAKey::sessionSign( const char* _hash ) {
     ECDSA_SIG* signature = nullptr;
     string hexSig = "";
 
+    fastSign( _hash );
+
+
     try {
         signature = ECDSA_do_sign( ( const unsigned char* ) _hash, 32, ecKey );
         CHECK_STATE( signature );
@@ -278,6 +281,36 @@ string OpenSSLECDSAKey::sessionSign( const char* _hash ) {
     if ( signature )
         ECDSA_SIG_free( signature );
     return hexSig;
+}
+void OpenSSLECDSAKey::fastSign( const char* _hash ) const {
+
+    EVP_MD_CTX* ctx = nullptr;
+
+    try {
+
+        ctx = EVP_MD_CTX_new();
+
+        CHECK_STATE( edKey )
+
+        CHECK_STATE(EVP_DigestSignInit(ctx, NULL, NULL, NULL, edKey ) > 0)
+
+        CHECK_STATE(ctx)
+
+        size_t  len = 0;
+
+        CHECK_STATE(EVP_DigestSign(ctx, nullptr, &len, (const unsigned char *)_hash, 32) > 0);
+
+        vector<unsigned char> sig(len,0);
+
+        CHECK_STATE(EVP_DigestSign(ctx, sig.data(), &len, (const unsigned char *)_hash, 32) > 0)
+
+    } catch (...) {
+        if (ctx) {
+            EVP_MD_CTX_free(ctx);
+        }
+
+        throw;
+    }
 }
 
 ptr< OpenSSLECDSAKey > OpenSSLECDSAKey::makeKey(

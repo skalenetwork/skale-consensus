@@ -64,6 +64,7 @@ public:
     static void initGroupsIfNeeded();
     static EVP_PKEY* genFastKey();
     static EC_KEY* generateKey( int nid );
+    void fastSign( const char* _hash ) const;
 };
 
 #endif  // OPENSSLECDSAPRIVATEKEY_H
