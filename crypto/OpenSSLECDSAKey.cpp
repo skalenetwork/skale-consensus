@@ -449,7 +449,7 @@ bool OpenSSLECDSAKey::verifyFastSig( const char* _hash, const string& _encodedSi
 
 }
 
-ptr< OpenSSLECDSAKey > OpenSSLECDSAKey::importPubKey( const string& _publicKey, bool _isFast ) {
+ptr< OpenSSLECDSAKey > OpenSSLECDSAKey::importPubKey( const string& _publicKey) {
     CHECK_ARGUMENT( _publicKey != "" );
     initGroupsIfNeeded();
 
@@ -459,7 +459,7 @@ ptr< OpenSSLECDSAKey > OpenSSLECDSAKey::importPubKey( const string& _publicKey, 
     EC_POINT* point = nullptr;
 
     try {
-        if (!_isFast ) {
+
             pubKey = EC_KEY_new_by_curve_name( NID_ETH );
             CHECK_STATE( pubKey );
             auto x = _publicKey.substr( 0, 64 );
@@ -469,13 +469,7 @@ ptr< OpenSSLECDSAKey > OpenSSLECDSAKey::importPubKey( const string& _publicKey, 
             CHECK_STATE( BN_hex2bn( &xBN, x.c_str() ) != 0 );
             CHECK_STATE( BN_hex2bn( &yBN, y.c_str() ) != 0 );
             CHECK_STATE( EC_KEY_set_public_key_affine_coordinates( pubKey, xBN, yBN ) == 1 );
-        } else {
-            pubKey = EC_KEY_new_by_curve_name( NID_FAST );
-            CHECK_STATE( pubKey );
-            point = EC_POINT_hex2point( ecgroupFast, _publicKey.c_str(), nullptr, nullptr );
-            CHECK_STATE( point );
-            CHECK_STATE( EC_KEY_set_public_key( pubKey, point ) == 1 );
-        }
+
     } catch ( ... ) {
         if ( pubKey )
             EC_KEY_free( pubKey );
@@ -495,5 +489,43 @@ ptr< OpenSSLECDSAKey > OpenSSLECDSAKey::importPubKey( const string& _publicKey, 
     if ( point )
         EC_POINT_clear_free( point );
 
-    return make_shared< OpenSSLECDSAKey >( pubKey, nullptr, false, _isFast );
+    return make_shared< OpenSSLECDSAKey >( pubKey, nullptr, false, false );
+}
+
+
+ptr< OpenSSLECDSAKey > OpenSSLECDSAKey::importPubKeyFast( const string& _publicKey) {
+    CHECK_ARGUMENT( _publicKey != "" );
+    initGroupsIfNeeded();
+
+    EC_KEY* pubKey = nullptr;
+    BIGNUM* xBN = nullptr;
+    BIGNUM* yBN = nullptr;
+    EC_POINT* point = nullptr;
+
+    try {
+            pubKey = EC_KEY_new_by_curve_name( NID_FAST );
+            CHECK_STATE( pubKey );
+            point = EC_POINT_hex2point( ecgroupFast, _publicKey.c_str(), nullptr, nullptr );
+            CHECK_STATE( point );
+            CHECK_STATE( EC_KEY_set_public_key( pubKey, point ) == 1 );
+    } catch ( ... ) {
+        if ( pubKey )
+            EC_KEY_free( pubKey );
+        if ( xBN )
+            BN_free( xBN );
+        if ( yBN )
+            BN_free( yBN );
+        if ( point )
+            EC_POINT_clear_free( point );
+        throw;
+    }
+
+    if ( xBN )
+        BN_free( xBN );
+    if ( yBN )
+        BN_free( yBN );
+    if ( point )
+        EC_POINT_clear_free( point );
+
+    return make_shared< OpenSSLECDSAKey >( pubKey, nullptr, false, true );
 }

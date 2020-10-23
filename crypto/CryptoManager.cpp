@@ -347,7 +347,7 @@ string CryptoManager::sgxSignECDSA(const ptr< SHAHash >& _hash, string& _keyName
 bool CryptoManager::verifyECDSA(
     const ptr< SHAHash >& _hash, const string& _sig, const string& _publicKey ) {
 
-    auto key = OpenSSLECDSAKey::importPubKey( _publicKey, false );
+    auto key = OpenSSLECDSAKey::importPubKey( _publicKey);
 
     return key->verifySGXSig( _sig, ( const char* ) _hash->data() );
 }
@@ -390,7 +390,7 @@ bool CryptoManager::sessionVerifySig(
     CHECK_ARGUMENT( _sig != "" )
 
     if ( isSGXEnabled ) {
-        auto pkey = OpenSSLECDSAKey::importPubKey( _publicKey, true );
+        auto pkey = OpenSSLECDSAKey::importPubKeyFast( _publicKey);
         return pkey->sessionVerifySig( _sig, ( const char* ) _hash->data() );
     } else {
         // mockup - used for testing
