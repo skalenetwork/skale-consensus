@@ -98,17 +98,23 @@ EVP_PKEY* OpenSSLECDSAKey::genFastKey() {
         edkey = EVP_PKEY_new();
         CHECK_STATE( edkey );
         CHECK_STATE( EVP_PKEY_keygen( ctx, &edkey ) > 0 );
-        return edkey;
+
     } catch (...) {
         if (ctx) {
             EVP_PKEY_CTX_free(ctx);
         }
-
         if (edkey) {
             EVP_PKEY_free(edkey);
         }
         throw;
     }
+
+    if (ctx) {
+        EVP_PKEY_CTX_free(ctx);
+    }
+
+    return edkey;
+
 }
 void OpenSSLECDSAKey::initGroupsIfNeeded() {
     if ( ecgroup == nullptr ) {
