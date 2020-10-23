@@ -320,16 +320,7 @@ void OpenSSLECDSAKey::fastSign( const char* _hash ) {
 
         // now encode key
 
-        auto bio = BIO_new(BIO_s_mem());
-        CHECK_STATE(bio);
-        CHECK_STATE(PEM_write_bio_PUBKEY(bio, edKey));
-
-        char *encodedPubKey = nullptr;
-        auto pubKeyEncodedLen = BIO_get_mem_data(bio, &encodedPubKey);
-        CHECK_STATE(pubKeyEncodedLen > 10);
-        string encodedPubKeyStr(encodedPubKey, 0, pubKeyEncodedLen);
-
-        LOG(info, encodedPubKeyStr);
+        auto encodedPubKeyStr =  getFastPubKey();
 
         // now decode key
 
@@ -363,6 +354,32 @@ void OpenSSLECDSAKey::fastSign( const char* _hash ) {
     if ( ctx ) {
         EVP_MD_CTX_free( ctx );
     }
+}
+
+string OpenSSLECDSAKey::getFastPubKey() const {
+    BIO * bio = nullptr;
+    string result;
+    try {
+        bio = BIO_new( BIO_s_mem() );
+        CHECK_STATE( bio );
+        CHECK_STATE( PEM_write_bio_PUBKEY( bio, edKey ) );
+
+        char* encodedPubKey = nullptr;
+        auto pubKeyEncodedLen = BIO_get_mem_data( bio, &encodedPubKey );
+        CHECK_STATE( pubKeyEncodedLen > 10 );
+        result = string( encodedPubKey, 0, pubKeyEncodedLen );
+
+    } catch (...) {
+        if (bio) {
+            BIO_free(bio);
+        }
+        throw;
+    }
+
+    if (bio) {
+        BIO_free(bio);
+    }
+    return result;
 }
 bool OpenSSLECDSAKey::verifyFastSig( const char* _hash, const string& _encodedSignature ) const {
     CHECK_STATE( _hash );

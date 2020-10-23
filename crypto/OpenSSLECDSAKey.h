@@ -54,6 +54,7 @@ public:
     static ptr< OpenSSLECDSAKey > generateKey(bool _isFast);
 
     string getPublicKey();
+    string getFastPubKey() const;
 
     string sessionSign(const char* hash);
 
@@ -66,6 +67,7 @@ public:
     static EC_KEY* generateKey( int nid );
     void fastSign( const char* _hash );
     bool verifyFastSig( const char* _hash, const string& _encodedSignature ) const;
+
 };
 
 #endif  // OPENSSLECDSAPRIVATEKEY_H
