@@ -47,7 +47,7 @@ public:
     OpenSSLECDSAKey( EC_KEY* _eckey,
                      EVP_PKEY*  _edKey, bool _isPrivate, bool _isFast);
 
-    static ptr<OpenSSLECDSAKey> importPubKey(const string& _publicKey, bool _isSGXKey, bool isFast );
+    static ptr< OpenSSLECDSAKey > importPubKey( const string& _publicKey, bool isFast );
 
     virtual ~OpenSSLECDSAKey();
 
@@ -63,8 +63,10 @@ public:
     bool verifySGXSig(const string& _sig, const char* _hash);
 
     static void initGroupsIfNeeded();
+
     static EVP_PKEY* genFastKey();
-    static EC_KEY* generateKey( int nid );
+    static EC_KEY* generateETHKey( int nid );
+
     void fastSign( const char* _hash );
     bool verifyFastSig( const char* _hash, const string& _encodedSignature ) const;
 

@@ -70,11 +70,11 @@ ptr< OpenSSLECDSAKey > OpenSSLECDSAKey::generateKey( bool _isFast ) {
         edkey = genFastKey();
     }
 
-    eckey = generateKey( nid );
+    eckey = generateETHKey( nid );
 
     return make_shared< OpenSSLECDSAKey >( eckey, edkey, true, _isFast );
 }
-EC_KEY* OpenSSLECDSAKey::generateKey( int nid ) {
+EC_KEY* OpenSSLECDSAKey::generateETHKey( int nid ) {
     EC_KEY* eckey = nullptr;
     try {
         eckey = EC_KEY_new_by_curve_name( nid );
@@ -449,8 +449,7 @@ bool OpenSSLECDSAKey::verifyFastSig( const char* _hash, const string& _encodedSi
 
 }
 
-ptr< OpenSSLECDSAKey > OpenSSLECDSAKey::importPubKey(
-    const string& _publicKey, bool _isSGXKey, bool isFast ) {
+ptr< OpenSSLECDSAKey > OpenSSLECDSAKey::importPubKey( const string& _publicKey, bool _isFast ) {
     CHECK_ARGUMENT( _publicKey != "" );
     initGroupsIfNeeded();
 
@@ -460,7 +459,7 @@ ptr< OpenSSLECDSAKey > OpenSSLECDSAKey::importPubKey(
     EC_POINT* point = nullptr;
 
     try {
-        if ( _isSGXKey ) {
+        if (!_isFast ) {
             pubKey = EC_KEY_new_by_curve_name( NID_ETH );
             CHECK_STATE( pubKey );
             auto x = _publicKey.substr( 0, 64 );
@@ -496,5 +495,5 @@ ptr< OpenSSLECDSAKey > OpenSSLECDSAKey::importPubKey(
     if ( point )
         EC_POINT_clear_free( point );
 
-    return make_shared< OpenSSLECDSAKey >( pubKey, nullptr, false, isFast );
+    return make_shared< OpenSSLECDSAKey >( pubKey, nullptr, false, _isFast );
 }
