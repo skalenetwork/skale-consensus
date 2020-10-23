@@ -24,6 +24,7 @@
 #ifndef OPENSSLECDSAPRIVATEKEY_H
 #define OPENSSLECDSAPRIVATEKEY_H
 
+#include "openssl/ec.h"
 
 class OpenSSLECDSAKey {
 
@@ -61,23 +62,23 @@ public:
 
     static ptr< OpenSSLECDSAKey > importSGXPubKey( const string& _publicKey);
     static ptr< OpenSSLECDSAKey > importECDSAPubKey1( const string& _publicKey);
-    static ptr< OpenSSLECDSAKey > importFastPubKey( const string& _publicKey);
+    static ptr< OpenSSLECDSAKey > importFastPubKey1( const string& _publicKey);
 
 
     virtual ~OpenSSLECDSAKey();
 
-    static ptr< OpenSSLECDSAKey > generateFastKey();
+    static ptr< OpenSSLECDSAKey > generateFastKey1();
     static ptr< OpenSSLECDSAKey > generateECDSAKey();
 
     string serializeECDSAPublicKey1();
-    string serializeFastPubKey() const;
+    string serializeFastPubKey1() const;
 
     string signECDSA1(const char* hash);
-    string signFast(const char* hash);
+    string signFast1(const char* hash);
 
     bool verifyECDSASig1(const string& _signature, const char* _hash );
     bool verifySGXSig(const string& _sig, const char* _hash);
-    bool verifyFastSig( const string& _encodedSignature, const char* _hash ) const;
+    bool verifyFastSig1( const string& _encodedSignature, const char* _hash ) const;
 
 
 };

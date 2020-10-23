@@ -65,8 +65,13 @@
 
 #include "network/Utils.h"
 
-#include "CryptoManager.h"
+
 #include "OpenSSLECDSAKey.h"
+#include "OpenSSLEdDSAKey.h"
+
+
+
+#include "CryptoManager.h"
 
 
 void CryptoManager::initSGXClient() {
@@ -258,8 +263,8 @@ size_t size = sizeof( random_value );     // Declare size of data
 
 static ifstream urandom( "/dev/urandom", ios::in | ios::binary );  // Open stream
 
-std::tuple< ptr< OpenSSLECDSAKey >, string > CryptoManager::localGenerateEcdsaKey() {
-    auto key = OpenSSLECDSAKey::generateFastKey();
+std::tuple< ptr< OpenSSLEdDSAKey >, string > CryptoManager::localGenerateFastKey() {
+    auto key = OpenSSLEdDSAKey::generateFastKey();
     auto pKey = key->serializeFastPubKey();
     return { key, pKey };
 }
@@ -271,7 +276,7 @@ tuple< string, string, string > CryptoManager::sessionSignECDSA(
 
 
 
-    ptr< OpenSSLECDSAKey > privateKey = nullptr;
+    ptr< OpenSSLEdDSAKey > privateKey = nullptr;
     string publicKey = "";
     string pkSig = "";
 
@@ -286,7 +291,7 @@ tuple< string, string, string > CryptoManager::sessionSignECDSA(
             CHECK_STATE( pkSig != "");
 
         } else {
-            tie( privateKey, publicKey ) = localGenerateEcdsaKey();
+            tie( privateKey, publicKey ) = localGenerateFastKey();
 
             ptr< SHAHash > pKeyHash = nullptr;
 
@@ -390,7 +395,7 @@ bool CryptoManager::sessionVerifySig(
     CHECK_ARGUMENT( _sig != "" )
 
     if ( isSGXEnabled ) {
-        auto pkey = OpenSSLECDSAKey::importFastPubKey( _publicKey );
+        auto pkey = OpenSSLEdDSAKey::importFastPubKey( _publicKey );
         return pkey->verifyFastSig( _sig, ( const char* ) _hash->data() );
     } else {
         // mockup - used for testing

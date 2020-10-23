@@ -21,9 +21,10 @@
     @date 2020
 */
 
-#ifndef OPENSSLECDSAPRIVATEKEY_H
-#define OPENSSLECDSAPRIVATEKEY_H
+#ifndef OPENSSLEDDSAPRIVATEKEY_H
+#define OPENSSLEDDSAPRIVATEKEY_H
 
+#include "openssl/ec.h"
 
 class OpenSSLEdDSAKey {
 

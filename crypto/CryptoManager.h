@@ -68,6 +68,7 @@ public:
 
 
 class  OpenSSLECDSAKey;
+class  OpenSSLEdDSAKey;
 
 class CryptoManager {
 
@@ -75,7 +76,7 @@ class CryptoManager {
 
 //    cache::lru_cache<uint64_t, tuple<ptr<MPZNumber>, string, string>> sessionKeys;
 
-    cache::lru_cache<uint64_t, tuple<ptr<OpenSSLECDSAKey>, string, string>> sessionKeys;
+    cache::lru_cache<uint64_t, tuple<ptr<OpenSSLEdDSAKey>, string, string>> sessionKeys;
     cache::lru_ordered_cache<string, string> sessionPublicKeys;
 
 
@@ -87,8 +88,6 @@ class CryptoManager {
 
 
     ptr< StubClient > getSgxClient();
-
-
 
 
     uint64_t totalSigners;
@@ -110,7 +109,7 @@ class CryptoManager {
     map<uint64_t , string> ecdsaPublicKeyMap;
     map<uint64_t , ptr<vector<string>>> blsPublicKeyMap;
 
-    std::tuple<ptr<OpenSSLECDSAKey> , string> localGenerateEcdsaKey();
+    tuple< ptr< OpenSSLEdDSAKey >, string > localGenerateFastKey();
 
     ptr< BLSPublicKey > blsPublicKeyObj = nullptr;
 
@@ -201,3 +200,4 @@ public:
   } else { throw; } } }
 
 #endif  // SKALED_CRYPTOMANAGER_H
+
