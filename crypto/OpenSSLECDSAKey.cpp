@@ -51,11 +51,10 @@ OpenSSLECDSAKey::OpenSSLECDSAKey( EC_KEY* _ecKey, EVP_PKEY* _edKey, bool _isPriv
 OpenSSLECDSAKey::~OpenSSLECDSAKey() {
     if ( ecKey )
         EC_KEY_free( ecKey );
-    if (edKey) {
-        EVP_PKEY_free(edKey);
+    if ( edKey ) {
+        EVP_PKEY_free( edKey );
     }
 }
-
 
 
 ptr< OpenSSLECDSAKey > OpenSSLECDSAKey::generateKey( bool _isFast ) {
@@ -89,8 +88,8 @@ EC_KEY* OpenSSLECDSAKey::generateKey( int nid ) {
     return eckey;
 }
 EVP_PKEY* OpenSSLECDSAKey::genFastKey() {
-        EVP_PKEY* edkey = nullptr;
-        EVP_PKEY_CTX* ctx = nullptr;
+    EVP_PKEY* edkey = nullptr;
+    EVP_PKEY_CTX* ctx = nullptr;
     try {
         ctx = EVP_PKEY_CTX_new_id( NID_ED25519, NULL );
         CHECK_STATE( ctx );
@@ -99,22 +98,21 @@ EVP_PKEY* OpenSSLECDSAKey::genFastKey() {
         CHECK_STATE( edkey );
         CHECK_STATE( EVP_PKEY_keygen( ctx, &edkey ) > 0 );
 
-    } catch (...) {
-        if (ctx) {
-            EVP_PKEY_CTX_free(ctx);
+    } catch ( ... ) {
+        if ( ctx ) {
+            EVP_PKEY_CTX_free( ctx );
         }
-        if (edkey) {
-            EVP_PKEY_free(edkey);
+        if ( edkey ) {
+            EVP_PKEY_free( edkey );
         }
         throw;
     }
 
-    if (ctx) {
-        EVP_PKEY_CTX_free(ctx);
+    if ( ctx ) {
+        EVP_PKEY_CTX_free( ctx );
     }
 
     return edkey;
-
 }
 void OpenSSLECDSAKey::initGroupsIfNeeded() {
     if ( ecgroup == nullptr ) {
@@ -288,57 +286,66 @@ string OpenSSLECDSAKey::sessionSign( const char* _hash ) {
     return hexSig;
 }
 void OpenSSLECDSAKey::fastSign( const char* _hash ) const {
-
     EVP_MD_CTX* ctx = nullptr;
 
     try {
-
         ctx = EVP_MD_CTX_new();
+
+        CHECK_STATE( ctx )
 
         CHECK_STATE( edKey )
 
-        CHECK_STATE(EVP_DigestSignInit(ctx, NULL, NULL, NULL, edKey ) > 0)
-
-        CHECK_STATE(ctx)
-
-        size_t  len = 0;
-
-        CHECK_STATE(EVP_DigestSign(ctx, nullptr, &len, (const unsigned char *)_hash, 32) > 0);
-
-        vector<unsigned char> sig(len,0);
-
-        CHECK_STATE(EVP_DigestSign(ctx, sig.data(), &len, (const unsigned char *)_hash, 32) > 0)
-
-        vector<unsigned char> encodedSig(2*len + 1, 0);
-
-        auto encodedLen = EVP_EncodeBlock(encodedSig.data(), sig.data(), len);
-        CHECK_STATE(encodedLen > 10);
-        string encodedSignature((const char*)encodedSig.data());
-
-        vector<unsigned char> decodedSig(encodedSig.size(), 0);
+        CHECK_STATE( EVP_DigestSignInit( ctx, NULL, NULL, NULL, edKey ) > 0 )
 
 
+
+        size_t len = 0;
+
+        CHECK_STATE( EVP_DigestSign( ctx, nullptr, &len, ( const unsigned char* ) _hash, 32 ) > 0 );
+
+        vector< unsigned char > sig( len, 0 );
+
+        CHECK_STATE(
+            EVP_DigestSign( ctx, sig.data(), &len, ( const unsigned char* ) _hash, 32 ) > 0 )
+
+        vector< unsigned char > encodedSig( 2 * len + 1, 0 );
+
+        auto encodedLen = EVP_EncodeBlock( encodedSig.data(), sig.data(), len );
+        CHECK_STATE( encodedLen > 10 );
+        string encodedSignature( ( const char* ) encodedSig.data() );
 
 
         // now decode and verify
 
+        vector< unsigned char > decodedSig( encodedSig.size(), 0 );
 
+        int decodedLen = 0;
 
+        CHECK_STATE((decodedLen = EVP_DecodeBlock(decodedSig.data(),
+                           (const unsigned char*) encodedSignature.c_str(),
+                           encodedSignature.size())) > 0 )
 
+        CHECK_STATE(decodedLen >= 64)
 
+        auto verifyCtx = EVP_MD_CTX_new();
 
-    } catch (...) {
-        if (ctx) {
-            EVP_MD_CTX_free(ctx);
+        CHECK_STATE( verifyCtx );
+
+        CHECK_STATE( EVP_DigestVerifyInit( verifyCtx, NULL, NULL, NULL, edKey ) > 0 )
+
+        CHECK_STATE(EVP_DigestVerify(verifyCtx, decodedSig.data(), 64, ( const unsigned char* ) _hash, 32 ) == 1) ;
+
+    } catch ( ... ) {
+        if ( ctx ) {
+            EVP_MD_CTX_free( ctx );
         }
 
         throw;
     }
 
-    if (ctx) {
-        EVP_MD_CTX_free(ctx);
+    if ( ctx ) {
+        EVP_MD_CTX_free( ctx );
     }
-
 }
 
 ptr< OpenSSLECDSAKey > OpenSSLECDSAKey::importPubKey(

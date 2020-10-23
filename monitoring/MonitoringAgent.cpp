@@ -56,8 +56,8 @@ void MonitoringAgent::monitor() {
     if (ConsensusEngine::isOnTravis())
         return;
 
-    while (getNode()->isInited()) {
-        sleep(1);
+    while (!getNode()->isInited()) {
+        usleep(100000);
     }
 
 
