@@ -46,15 +46,23 @@ class OpenSSLECDSAKey {
 
     string fastSignImpl( const char* _hash );
 
-    bool verifySGXSig(const string& _sig, const char* _hash);
+    static EVP_PKEY* deserializeFastPubKey( const string& encodedPubKeyStr );
+    static EC_KEY* deserializeECDSAPubKey( const string& _publicKey );
+    static EC_KEY* deserializeSGXPubKey( const string& _publicKey );
+
+    string ecdsaSignImpl( const char* _hash) const;
 
 public:
+
+
 
     OpenSSLECDSAKey( EC_KEY* _eckey,
                      EVP_PKEY*  _edKey, bool _isPrivate, bool _isFast);
 
     static ptr< OpenSSLECDSAKey > importSGXPubKey( const string& _publicKey);
+    static ptr< OpenSSLECDSAKey > importECDSAPubKey( const string& _publicKey);
     static ptr< OpenSSLECDSAKey > importFastPubKey( const string& _publicKey);
+
 
     virtual ~OpenSSLECDSAKey();
 
@@ -63,16 +71,14 @@ public:
     string serializeECDSAPublicKey();
     string serializeFastPubKey() const;
 
-    string sessionSign(const char* hash);
-    bool sessionVerifySig(const string& _signature, const char* _hash );
+    string signECDSA(const char* hash);
+    string signFast(const char* hash);
+
+    bool verifyECDSASig(const string& _signature, const char* _hash );
+    bool verifySGXSig(const string& _sig, const char* _hash);
+    bool verifyFastSig( const string& _encodedSignature, const char* _hash ) const;
 
 
-
-
-    bool verifyFastSig( const char* _hash, const string& _encodedSignature ) const;
-
-    EVP_PKEY* decodePubKey( string& encodedPubKeyStr ) const;
-    string ecdsaSignImpl( const char* _hash) const;
 };
 
 #endif  // OPENSSLECDSAPRIVATEKEY_H

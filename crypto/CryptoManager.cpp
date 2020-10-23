@@ -300,7 +300,7 @@ tuple< string, string, string > CryptoManager::sessionSignECDSA(
         }
     }
 
-    auto ret = privateKey->sessionSign( ( const char* ) _hash->data() );
+    auto ret = privateKey->signECDSA( ( const char* ) _hash->data() );
 
     return { ret, publicKey, pkSig };
 }
@@ -390,8 +390,8 @@ bool CryptoManager::sessionVerifySig(
     CHECK_ARGUMENT( _sig != "" )
 
     if ( isSGXEnabled ) {
-        auto pkey = OpenSSLECDSAKey::importFastPubKey( _publicKey );
-        return pkey->sessionVerifySig( _sig, ( const char* ) _hash->data() );
+        auto pkey = OpenSSLECDSAKey::importECDSAPubKey( _publicKey );
+        return pkey->verifyECDSASig( _sig, ( const char* ) _hash->data() );
     } else {
         // mockup - used for testing
         if ( _sig.find( ":" ) != string::npos ) {

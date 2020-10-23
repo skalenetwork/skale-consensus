@@ -227,7 +227,7 @@ clean:
     return returnValue;
 }
 
-bool OpenSSLECDSAKey::sessionVerifySig( const string& _signature, const char* _hash ) {
+bool OpenSSLECDSAKey::verifyECDSASig( const string& _signature, const char* _hash ) {
     CHECK_ARGUMENT( _signature != "" );
     CHECK_ARGUMENT( _hash );
 
@@ -255,17 +255,26 @@ bool OpenSSLECDSAKey::sessionVerifySig( const string& _signature, const char* _h
 }
 
 
-string OpenSSLECDSAKey::sessionSign( const char* _hash ) {
+string OpenSSLECDSAKey::signECDSA( const char* _hash ) {
     CHECK_ARGUMENT( _hash );
     CHECK_STATE( ecKey );
     CHECK_STATE( isPrivate );
-
-    string fastSig = fastSignImpl( _hash );
-
     string hexSig = ecdsaSignImpl( _hash);
-
     return hexSig;
 }
+
+string OpenSSLECDSAKey::signFast( const char* _hash ) {
+    CHECK_ARGUMENT( _hash );
+    CHECK_STATE( this->edKey );
+    CHECK_STATE( isPrivate );
+    string fastSig = fastSignImpl( _hash );
+    return fastSig;
+}
+
+
+
+
+
 string OpenSSLECDSAKey::ecdsaSignImpl( const char* _hash) const {
     ECDSA_SIG* signature = nullptr;
 
@@ -331,7 +340,7 @@ string OpenSSLECDSAKey::fastSignImpl( const char* _hash ) {
         // now decode key
 
 
-        EVP_PKEY* pubKey = decodePubKey( encodedPubKeyStr );
+        EVP_PKEY* pubKey = deserializeFastPubKey( encodedPubKeyStr );
 
 
         auto t = edKey;
@@ -339,7 +348,7 @@ string OpenSSLECDSAKey::fastSignImpl( const char* _hash ) {
 
         // verify
 
-        CHECK_STATE(verifyFastSig( _hash, encodedSignature ));
+        CHECK_STATE( verifyFastSig( encodedSignature, _hash ) );
 
         edKey = t;
 
@@ -356,7 +365,8 @@ string OpenSSLECDSAKey::fastSignImpl( const char* _hash ) {
     }
     return encodedSignature;
 }
-EVP_PKEY* OpenSSLECDSAKey::decodePubKey( string& encodedPubKeyStr ) const {
+
+EVP_PKEY* OpenSSLECDSAKey::deserializeFastPubKey(const string& encodedPubKeyStr ) {
 
     EVP_PKEY* pubKey = nullptr;
     BIO * encodedPubKeyBio = nullptr;
@@ -412,7 +422,7 @@ string OpenSSLECDSAKey::serializeFastPubKey() const {
     }
     return result;
 }
-bool OpenSSLECDSAKey::verifyFastSig( const char* _hash, const string& _encodedSignature ) const {
+bool OpenSSLECDSAKey::verifyFastSig( const string& _encodedSignature, const char* _hash ) const {
     CHECK_STATE( _hash );
 
     bool result = false;
@@ -457,6 +467,11 @@ bool OpenSSLECDSAKey::verifyFastSig( const char* _hash, const string& _encodedSi
 }
 
 ptr< OpenSSLECDSAKey > OpenSSLECDSAKey::importSGXPubKey( const string& _publicKey) {
+    EC_KEY* pubKey = deserializeSGXPubKey( _publicKey );
+
+    return make_shared< OpenSSLECDSAKey >( pubKey, nullptr, false, false );
+}
+EC_KEY* OpenSSLECDSAKey::deserializeSGXPubKey( const string& _publicKey ) {
     CHECK_ARGUMENT( _publicKey != "" );
     initGroupsIfNeeded();
 
@@ -495,12 +510,21 @@ ptr< OpenSSLECDSAKey > OpenSSLECDSAKey::importSGXPubKey( const string& _publicKe
         BN_free( yBN );
     if ( point )
         EC_POINT_clear_free( point );
-
-    return make_shared< OpenSSLECDSAKey >( pubKey, nullptr, false, false );
+    return pubKey;
 }
 
 
+ptr< OpenSSLECDSAKey > OpenSSLECDSAKey::importECDSAPubKey( const string& _publicKey) {
+    EC_KEY* pubKey = deserializeECDSAPubKey( _publicKey );
+
+    return make_shared< OpenSSLECDSAKey >( pubKey, nullptr, false, true );
+}
+
 ptr< OpenSSLECDSAKey > OpenSSLECDSAKey::importFastPubKey( const string& _publicKey) {
+    auto  pubKey = deserializeFastPubKey( _publicKey );
+    return make_shared< OpenSSLECDSAKey >( nullptr, pubKey, false, true );
+}
+EC_KEY* OpenSSLECDSAKey::deserializeECDSAPubKey( const string& _publicKey ) {
     CHECK_ARGUMENT( _publicKey != "" );
     initGroupsIfNeeded();
 
@@ -533,6 +557,5 @@ ptr< OpenSSLECDSAKey > OpenSSLECDSAKey::importFastPubKey( const string& _publicK
         BN_free( yBN );
     if ( point )
         EC_POINT_clear_free( point );
-
-    return make_shared< OpenSSLECDSAKey >( pubKey, nullptr, false, true );
+    return pubKey;
 }
