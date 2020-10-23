@@ -42,6 +42,11 @@ class OpenSSLECDSAKey {
     static EC_KEY* generateECDSAKeyImpl( int nid );
 
 
+    static void initGroupsIfNeeded();
+
+    string fastSignImpl( const char* _hash );
+
+    bool verifySGXSig(const string& _sig, const char* _hash);
 
 public:
 
@@ -60,15 +65,14 @@ public:
 
     string sessionSign(const char* hash);
     bool sessionVerifySig(const string& _signature, const char* _hash );
-    bool verifySGXSig(const string& _sig, const char* _hash);
-
-    static void initGroupsIfNeeded();
 
 
-    string fastSignImpl( const char* _hash );
+
+
     bool verifyFastSig( const char* _hash, const string& _encodedSignature ) const;
 
     EVP_PKEY* decodePubKey( string& encodedPubKeyStr ) const;
+    string ecdsaSignImpl( const char* _hash) const;
 };
 
 #endif  // OPENSSLECDSAPRIVATEKEY_H

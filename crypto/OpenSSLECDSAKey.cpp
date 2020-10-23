@@ -260,13 +260,16 @@ string OpenSSLECDSAKey::sessionSign( const char* _hash ) {
     CHECK_STATE( ecKey );
     CHECK_STATE( isPrivate );
 
-
     string fastSig = fastSignImpl( _hash );
 
+    string hexSig = ecdsaSignImpl( _hash);
 
+    return hexSig;
+}
+string OpenSSLECDSAKey::ecdsaSignImpl( const char* _hash) const {
     ECDSA_SIG* signature = nullptr;
-    string hexSig = "";
 
+    string hexSig;
 
 
     try {
