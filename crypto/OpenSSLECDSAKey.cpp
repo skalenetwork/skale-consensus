@@ -31,7 +31,6 @@
 #include "openssl/sha.h"
 
 
-
 #include "Log.h"
 
 #include "OpenSSLECDSAKey.h"
@@ -42,8 +41,8 @@
 #define NID_FAST NID_X9_62_prime256v1
 #define NID_ETH NID_secp256k1
 
-OpenSSLECDSAKey::OpenSSLECDSAKey( EC_KEY* _ecKey, EVP_PKEY* _edKey,
-                                  bool _isPrivate, bool _isFast ) : isPrivate( _isPrivate ), isFast(_isFast)  {
+OpenSSLECDSAKey::OpenSSLECDSAKey( EC_KEY* _ecKey, EVP_PKEY* _edKey, bool _isPrivate, bool _isFast )
+    : isPrivate( _isPrivate ), isFast( _isFast ) {
     CHECK_STATE( _ecKey );
     CHECK_STATE( _ecKey || _edKey );
     this->ecKey = _ecKey;
@@ -56,39 +55,57 @@ OpenSSLECDSAKey::~OpenSSLECDSAKey() {
 
 #include <openssl/evp.h>
 
-ptr< OpenSSLECDSAKey > OpenSSLECDSAKey::generateKey(bool _isFast) {
+ptr< OpenSSLECDSAKey > OpenSSLECDSAKey::generateKey( bool _isFast ) {
     initGroupsIfNeeded();
 
     EC_KEY* eckey = nullptr;
-    EVP_PKEY * edkey = nullptr;
+    EVP_PKEY* edkey = nullptr;
 
-    int nid = (_isFast)?  NID_FAST : NID_ETH;
+    int nid = ( _isFast ) ? NID_FAST : NID_ETH;
 
+    if ( _isFast ) {
+        edkey = genFastKey();
+    }
+
+    eckey = generateKey( nid );
+
+    return make_shared< OpenSSLECDSAKey >( eckey, edkey, true, _isFast );
+}
+EC_KEY* OpenSSLECDSAKey::generateKey( int nid ) {
+    EC_KEY* eckey = nullptr;
     try {
-
-        if (_isFast) {
-            auto ctx = EVP_PKEY_CTX_new_id(NID_ED25519, NULL);
-            CHECK_STATE(ctx);
-            EVP_PKEY_keygen_init(ctx);
-            edkey = EVP_PKEY_new();
-            CHECK_STATE(edkey);
-
-            CHECK_STATE(EVP_PKEY_keygen(ctx, &edkey) > 0);
-        }
-
-        eckey = EC_KEY_new_by_curve_name( nid);
+        eckey = EC_KEY_new_by_curve_name( nid );
         CHECK_STATE( eckey );
-
         CHECK_STATE( EC_KEY_generate_key( eckey ) == 1 )
-        CHECK_STATE( eckey );
     } catch ( ... ) {
         if ( eckey ) {
             EC_KEY_free( eckey );
         }
         throw;
     }
+    return eckey;
+}
+EVP_PKEY* OpenSSLECDSAKey::genFastKey() {
+        EVP_PKEY* edkey = nullptr;
+        EVP_PKEY_CTX* ctx = nullptr;
+    try {
+        ctx = EVP_PKEY_CTX_new_id( NID_ED25519, NULL );
+        CHECK_STATE( ctx );
+        EVP_PKEY_keygen_init( ctx );
+        edkey = EVP_PKEY_new();
+        CHECK_STATE( edkey );
+        CHECK_STATE( EVP_PKEY_keygen( ctx, &edkey ) > 0 );
+        return edkey;
+    } catch (...) {
+        if (ctx) {
+            EVP_PKEY_CTX_free(ctx);
+        }
 
-    return make_shared< OpenSSLECDSAKey >( eckey, edkey, true, _isFast );
+        if (edkey) {
+            EVP_PKEY_free(edkey);
+        }
+        throw;
+    }
 }
 void OpenSSLECDSAKey::initGroupsIfNeeded() {
     if ( ecgroup == nullptr ) {
@@ -103,7 +120,6 @@ EC_GROUP* OpenSSLECDSAKey::ecgroup = nullptr;
 EC_GROUP* OpenSSLECDSAKey::ecgroupFast = nullptr;
 
 string OpenSSLECDSAKey::getPublicKey() {
-
     initGroupsIfNeeded();
 
     auto pubKeyComponent = EC_KEY_get0_public_key( ecKey );
@@ -114,15 +130,16 @@ string OpenSSLECDSAKey::getPublicKey() {
     string result = "";
 
     try {
-        if (this->isFast) {
-            hex = EC_POINT_point2hex( ecgroupFast, pubKeyComponent, POINT_CONVERSION_COMPRESSED, NULL );
+        if ( this->isFast ) {
+            hex = EC_POINT_point2hex(
+                ecgroupFast, pubKeyComponent, POINT_CONVERSION_COMPRESSED, NULL );
         } else {
             hex = EC_POINT_point2hex( ecgroup, pubKeyComponent, POINT_CONVERSION_COMPRESSED, NULL );
         }
 
         CHECK_STATE( hex );
 
-        result = hex ;
+        result = hex;
 
     } catch ( ... ) {
         if ( hex )
@@ -136,7 +153,7 @@ string OpenSSLECDSAKey::getPublicKey() {
     return result;
 }
 
-bool OpenSSLECDSAKey::verifySGXSig(const string& _sig, const char* _hash ) {
+bool OpenSSLECDSAKey::verifySGXSig( const string& _sig, const char* _hash ) {
     bool returnValue = false;
     BIGNUM* rBN = BN_new();
     BIGNUM* sBN = BN_new();
@@ -192,8 +209,8 @@ bool OpenSSLECDSAKey::verifySGXSig(const string& _sig, const char* _hash ) {
 
 clean:
 
-    if (oSig) {
-        ECDSA_SIG_free(oSig);
+    if ( oSig ) {
+        ECDSA_SIG_free( oSig );
     } else {
         if ( rBN )
             BN_free( rBN );
@@ -204,8 +221,8 @@ clean:
     return returnValue;
 }
 
-bool OpenSSLECDSAKey::sessionVerifySig(const string& _signature, const char* _hash ) {
-    CHECK_ARGUMENT( _signature  != "");
+bool OpenSSLECDSAKey::sessionVerifySig( const string& _signature, const char* _hash ) {
+    CHECK_ARGUMENT( _signature != "" );
     CHECK_ARGUMENT( _hash );
 
     if ( _signature.size() % 2 != 0 )
@@ -225,7 +242,7 @@ bool OpenSSLECDSAKey::sessionVerifySig(const string& _signature, const char* _ha
 
     auto status = ECDSA_do_verify( ( const unsigned char* ) _hash, 32, sig, ecKey );
 
-    if (sig)
+    if ( sig )
         ECDSA_SIG_free( sig );
 
     return status == 1;
@@ -249,7 +266,7 @@ string OpenSSLECDSAKey::sessionSign( const char* _hash ) {
 
         CHECK_STATE( i2d_ECDSA_SIG( signature, &( pointer ) ) > 0 );
         hexSig = Utils::carray2Hex( sigDer.data(), sigLen );
-        CHECK_STATE( hexSig  != "");
+        CHECK_STATE( hexSig != "" );
     } catch ( ... ) {
         if ( signature )
             ECDSA_SIG_free( signature );
@@ -260,8 +277,9 @@ string OpenSSLECDSAKey::sessionSign( const char* _hash ) {
     return hexSig;
 }
 
-ptr< OpenSSLECDSAKey > OpenSSLECDSAKey::makeKey(const string& _publicKey, bool _isSGX, bool _isFast ) {
-    CHECK_ARGUMENT( _publicKey != "");
+ptr< OpenSSLECDSAKey > OpenSSLECDSAKey::makeKey(
+    const string& _publicKey, bool _isSGX, bool _isFast ) {
+    CHECK_ARGUMENT( _publicKey != "" );
     initGroupsIfNeeded();
 
     EC_KEY* pubKey = nullptr;

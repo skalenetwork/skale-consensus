@@ -62,6 +62,8 @@ public:
     bool verifySGXSig(const string& _sig, const char* _hash);
 
     static void initGroupsIfNeeded();
+    static EVP_PKEY* genFastKey();
+    static EC_KEY* generateKey( int nid );
 };
 
 #endif  // OPENSSLECDSAPRIVATEKEY_H
