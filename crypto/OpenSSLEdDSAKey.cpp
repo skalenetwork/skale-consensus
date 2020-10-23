@@ -51,7 +51,7 @@ OpenSSLEdDSAKey::~OpenSSLEdDSAKey() {
 }
 
 
-ptr< OpenSSLEdDSAKey > OpenSSLEdDSAKey::generateFastKey() {
+ptr< OpenSSLEdDSAKey > OpenSSLEdDSAKey::generateKey() {
 
     EVP_PKEY* edkey = nullptr;
 
@@ -92,7 +92,7 @@ EVP_PKEY* OpenSSLEdDSAKey::genFastKeyImpl() {
 }
 
 
-string OpenSSLEdDSAKey::signFast( const char* _hash ) {
+string OpenSSLEdDSAKey::sign( const char* _hash ) {
     CHECK_ARGUMENT( _hash );
     CHECK_STATE( this->edKey );
     CHECK_STATE( isPrivate );
@@ -175,7 +175,7 @@ EVP_PKEY* OpenSSLEdDSAKey::deserializeFastPubKey(const string& encodedPubKeyStr 
     return pubKey;
 }
 
-string OpenSSLEdDSAKey::serializeFastPubKey() const {
+string OpenSSLEdDSAKey::serializePubKey() const {
     BIO * bio = nullptr;
     string result;
     try {
@@ -202,7 +202,7 @@ string OpenSSLEdDSAKey::serializeFastPubKey() const {
     return result;
 }
 
-bool OpenSSLEdDSAKey::verifyFastSig( const string& _encodedSignature, const char* _hash ) const {
+bool OpenSSLEdDSAKey::verifySig( const string& _encodedSignature, const char* _hash ) const {
     CHECK_STATE( _hash );
 
     bool result = false;
@@ -247,7 +247,7 @@ bool OpenSSLEdDSAKey::verifyFastSig( const string& _encodedSignature, const char
 }
 
 
-ptr< OpenSSLEdDSAKey > OpenSSLEdDSAKey::importFastPubKey( const string& _publicKey) {
+ptr< OpenSSLEdDSAKey > OpenSSLEdDSAKey::importPubKey( const string& _publicKey) {
     auto  pubKey = deserializeFastPubKey( _publicKey );
     return make_shared< OpenSSLEdDSAKey >( pubKey, false );
 }

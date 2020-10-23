@@ -55,16 +55,16 @@ public:
     OpenSSLECDSAKey( EC_KEY* _eckey, bool _isPrivate, bool _isFast);
 
     static ptr< OpenSSLECDSAKey > importSGXPubKey( const string& _publicKey);
-    static ptr< OpenSSLECDSAKey > importECDSAPubKey1( const string& _publicKey);
+    static ptr< OpenSSLECDSAKey > importPubKey( const string& _publicKey);
     virtual ~OpenSSLECDSAKey();
 
-    static ptr< OpenSSLECDSAKey > generateECDSAKey();
+    static ptr< OpenSSLECDSAKey > generateKey();
 
-    string serializeECDSAPublicKey1();
+    string serializePubKey();
 
-    string signECDSA1(const char* hash);
+    string sign(const char* hash);
 
-    bool verifyECDSASig1(const string& _signature, const char* _hash );
+    bool verifySig(const string& _signature, const char* _hash );
     bool verifySGXSig(const string& _sig, const char* _hash);
 
 };

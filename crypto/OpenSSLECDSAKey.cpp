@@ -54,7 +54,7 @@ OpenSSLECDSAKey::~OpenSSLECDSAKey() {
 
 
 
-ptr< OpenSSLECDSAKey > OpenSSLECDSAKey::generateECDSAKey() {
+ptr< OpenSSLECDSAKey > OpenSSLECDSAKey::generateKey() {
     initGroupsIfNeeded();
 
     EC_KEY* eckey = nullptr;
@@ -93,7 +93,7 @@ void OpenSSLECDSAKey::initGroupsIfNeeded() {
 EC_GROUP* OpenSSLECDSAKey::ecgroup = nullptr;
 EC_GROUP* OpenSSLECDSAKey::ecgroupFast = nullptr;
 
-string OpenSSLECDSAKey::serializeECDSAPublicKey1() {
+string OpenSSLECDSAKey::serializePubKey() {
     initGroupsIfNeeded();
 
     auto pubKeyComponent = EC_KEY_get0_public_key( ecKey );
@@ -195,7 +195,7 @@ clean:
     return returnValue;
 }
 
-bool OpenSSLECDSAKey::verifyECDSASig1( const string& _signature, const char* _hash ) {
+bool OpenSSLECDSAKey::verifySig( const string& _signature, const char* _hash ) {
     CHECK_ARGUMENT( _signature != "" );
     CHECK_ARGUMENT( _hash );
 
@@ -223,11 +223,11 @@ bool OpenSSLECDSAKey::verifyECDSASig1( const string& _signature, const char* _ha
 }
 
 
-string OpenSSLECDSAKey::signECDSA1( const char* _hash ) {
+string OpenSSLECDSAKey::sign( const char* _hash ) {
     CHECK_ARGUMENT( _hash );
     CHECK_STATE( ecKey );
     CHECK_STATE( isPrivate );
-    string hexSig = ecdsaSignImpl( _hash);
+    string hexSig = ecdsaSignImpl( _hash );
     return hexSig;
 }
 
@@ -308,7 +308,7 @@ EC_KEY* OpenSSLECDSAKey::deserializeSGXPubKey( const string& _publicKey ) {
 }
 
 
-ptr< OpenSSLECDSAKey > OpenSSLECDSAKey::importECDSAPubKey1( const string& _publicKey) {
+ptr< OpenSSLECDSAKey > OpenSSLECDSAKey::importPubKey( const string& _publicKey) {
     EC_KEY* pubKey = deserializeECDSAPubKey( _publicKey );
     return make_shared< OpenSSLECDSAKey >( pubKey,  false, true );
 }

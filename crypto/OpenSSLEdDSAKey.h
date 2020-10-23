@@ -47,18 +47,18 @@ public:
 
     OpenSSLEdDSAKey( EVP_PKEY* _edKey, bool _isPrivate);
 
-    static ptr< OpenSSLEdDSAKey > importFastPubKey( const string& _publicKey);
+    static ptr< OpenSSLEdDSAKey > importPubKey( const string& _publicKey);
 
     virtual ~OpenSSLEdDSAKey();
 
-    static ptr< OpenSSLEdDSAKey > generateFastKey();
+    static ptr< OpenSSLEdDSAKey > generateKey();
 
 
-    string serializeFastPubKey() const;
+    string serializePubKey() const;
 
-    string signFast(const char* hash);
+    string sign(const char* hash);
 
-    bool verifyFastSig( const string& _encodedSignature, const char* _hash ) const;
+    bool verifySig( const string& _encodedSignature, const char* _hash ) const;
 
 };
 

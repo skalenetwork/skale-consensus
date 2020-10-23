@@ -264,8 +264,8 @@ size_t size = sizeof( random_value );     // Declare size of data
 static ifstream urandom( "/dev/urandom", ios::in | ios::binary );  // Open stream
 
 std::tuple< ptr< OpenSSLEdDSAKey >, string > CryptoManager::localGenerateFastKey() {
-    auto key = OpenSSLEdDSAKey::generateFastKey();
-    auto pKey = key->serializeFastPubKey();
+    auto key = OpenSSLEdDSAKey::generateKey();
+    auto pKey = key->serializePubKey();
     return { key, pKey };
 }
 
@@ -305,7 +305,7 @@ tuple< string, string, string > CryptoManager::sessionSignECDSA(
         }
     }
 
-    auto ret = privateKey->signFast( ( const char* ) _hash->data() );
+    auto ret = privateKey->sign( ( const char* ) _hash->data() );
 
     return { ret, publicKey, pkSig };
 }
@@ -395,8 +395,8 @@ bool CryptoManager::sessionVerifySig(
     CHECK_ARGUMENT( _sig != "" )
 
     if ( isSGXEnabled ) {
-        auto pkey = OpenSSLEdDSAKey::importFastPubKey( _publicKey );
-        return pkey->verifyFastSig( _sig, ( const char* ) _hash->data() );
+        auto pkey = OpenSSLEdDSAKey::importPubKey( _publicKey );
+        return pkey->verifySig( _sig, ( const char* ) _hash->data() );
     } else {
         // mockup - used for testing
         if ( _sig.find( ":" ) != string::npos ) {
