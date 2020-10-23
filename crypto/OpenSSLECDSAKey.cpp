@@ -29,7 +29,7 @@
 #include "openssl/bn.h"
 #include "openssl/ecdsa.h"
 #include "openssl/sha.h"
-
+#include <openssl/evp.h>
 
 #include "Log.h"
 
@@ -51,9 +51,12 @@ OpenSSLECDSAKey::OpenSSLECDSAKey( EC_KEY* _ecKey, EVP_PKEY* _edKey, bool _isPriv
 OpenSSLECDSAKey::~OpenSSLECDSAKey() {
     if ( ecKey )
         EC_KEY_free( ecKey );
+    if (edKey) {
+        EVP_PKEY_free(edKey);
+    }
 }
 
-#include <openssl/evp.h>
+
 
 ptr< OpenSSLECDSAKey > OpenSSLECDSAKey::generateKey( bool _isFast ) {
     initGroupsIfNeeded();
