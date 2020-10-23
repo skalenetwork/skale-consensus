@@ -38,7 +38,8 @@ class OpenSSLECDSAKey {
     bool isFast;
 
 
-
+    static EVP_PKEY* genFastKeyImpl();
+    static EC_KEY* generateECDSAKeyImpl( int nid );
 
 
 
@@ -47,28 +48,24 @@ public:
     OpenSSLECDSAKey( EC_KEY* _eckey,
                      EVP_PKEY*  _edKey, bool _isPrivate, bool _isFast);
 
-    static ptr< OpenSSLECDSAKey > importPubKey( const string& _publicKey);
-    static ptr< OpenSSLECDSAKey > importPubKeyFast( const string& _publicKey);
+    static ptr< OpenSSLECDSAKey > importSGXPubKey( const string& _publicKey);
+    static ptr< OpenSSLECDSAKey > importFastPubKey( const string& _publicKey);
 
     virtual ~OpenSSLECDSAKey();
 
-    static ptr< OpenSSLECDSAKey > generateKey(bool _isFast);
+    static ptr< OpenSSLECDSAKey > generateFastKey();
 
-    string getPublicKey();
-    string getFastPubKey() const;
+    string serializeECDSAPublicKey();
+    string serializeFastPubKey() const;
 
     string sessionSign(const char* hash);
-
     bool sessionVerifySig(const string& _signature, const char* _hash );
-
     bool verifySGXSig(const string& _sig, const char* _hash);
 
     static void initGroupsIfNeeded();
 
-    static EVP_PKEY* genFastKey();
-    static EC_KEY* generateETHKey( int nid );
 
-    void fastSign( const char* _hash );
+    string fastSignImpl( const char* _hash );
     bool verifyFastSig( const char* _hash, const string& _encodedSignature ) const;
 
     EVP_PKEY* decodePubKey( string& encodedPubKeyStr ) const;

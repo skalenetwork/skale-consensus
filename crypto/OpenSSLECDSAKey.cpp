@@ -58,23 +58,21 @@ OpenSSLECDSAKey::~OpenSSLECDSAKey() {
 }
 
 
-ptr< OpenSSLECDSAKey > OpenSSLECDSAKey::generateKey( bool _isFast ) {
+ptr< OpenSSLECDSAKey > OpenSSLECDSAKey::generateFastKey() {
     initGroupsIfNeeded();
 
     EC_KEY* eckey = nullptr;
     EVP_PKEY* edkey = nullptr;
 
-    int nid = ( _isFast ) ? NID_FAST : NID_ETH;
+    int nid = NID_FAST;
 
-    if ( _isFast ) {
-        edkey = genFastKey();
-    }
+    edkey = genFastKeyImpl();
+    eckey = generateECDSAKeyImpl( nid );
 
-    eckey = generateETHKey( nid );
-
-    return make_shared< OpenSSLECDSAKey >( eckey, edkey, true, _isFast );
+    return make_shared< OpenSSLECDSAKey >( eckey, edkey, true, true);
 }
-EC_KEY* OpenSSLECDSAKey::generateETHKey( int nid ) {
+
+EC_KEY* OpenSSLECDSAKey::generateECDSAKeyImpl( int nid ) {
     EC_KEY* eckey = nullptr;
     try {
         eckey = EC_KEY_new_by_curve_name( nid );
@@ -88,7 +86,7 @@ EC_KEY* OpenSSLECDSAKey::generateETHKey( int nid ) {
     }
     return eckey;
 }
-EVP_PKEY* OpenSSLECDSAKey::genFastKey() {
+EVP_PKEY* OpenSSLECDSAKey::genFastKeyImpl() {
     EVP_PKEY* edkey = nullptr;
     EVP_PKEY_CTX* ctx = nullptr;
     try {
@@ -127,7 +125,7 @@ void OpenSSLECDSAKey::initGroupsIfNeeded() {
 EC_GROUP* OpenSSLECDSAKey::ecgroup = nullptr;
 EC_GROUP* OpenSSLECDSAKey::ecgroupFast = nullptr;
 
-string OpenSSLECDSAKey::getPublicKey() {
+string OpenSSLECDSAKey::serializeECDSAPublicKey() {
     initGroupsIfNeeded();
 
     auto pubKeyComponent = EC_KEY_get0_public_key( ecKey );
@@ -262,10 +260,14 @@ string OpenSSLECDSAKey::sessionSign( const char* _hash ) {
     CHECK_STATE( ecKey );
     CHECK_STATE( isPrivate );
 
+
+    string fastSig = fastSignImpl( _hash );
+
+
     ECDSA_SIG* signature = nullptr;
     string hexSig = "";
 
-    fastSign( _hash );
+
 
     try {
         signature = ECDSA_do_sign( ( const unsigned char* ) _hash, 32, ecKey );
@@ -288,9 +290,10 @@ string OpenSSLECDSAKey::sessionSign( const char* _hash ) {
 }
 
 
-
-void OpenSSLECDSAKey::fastSign( const char* _hash ) {
+string OpenSSLECDSAKey::fastSignImpl( const char* _hash ) {
     EVP_MD_CTX* ctx = nullptr;
+
+    string encodedSignature;
 
     try {
         ctx = EVP_MD_CTX_new();
@@ -315,12 +318,12 @@ void OpenSSLECDSAKey::fastSign( const char* _hash ) {
 
         auto encodedLen = EVP_EncodeBlock( encodedSig.data(), sig.data(), len );
         CHECK_STATE( encodedLen > 10 );
-        string encodedSignature( ( const char* ) encodedSig.data() );
+        encodedSignature = string( ( const char* ) encodedSig.data() );
 
 
         // now encode key
 
-        auto encodedPubKeyStr =  getFastPubKey();
+        auto encodedPubKeyStr = serializeFastPubKey();
 
         // now decode key
 
@@ -348,6 +351,7 @@ void OpenSSLECDSAKey::fastSign( const char* _hash ) {
     if ( ctx ) {
         EVP_MD_CTX_free( ctx );
     }
+    return encodedSignature;
 }
 EVP_PKEY* OpenSSLECDSAKey::decodePubKey( string& encodedPubKeyStr ) const {
 
@@ -379,7 +383,7 @@ EVP_PKEY* OpenSSLECDSAKey::decodePubKey( string& encodedPubKeyStr ) const {
     return pubKey;
 }
 
-string OpenSSLECDSAKey::getFastPubKey() const {
+string OpenSSLECDSAKey::serializeFastPubKey() const {
     BIO * bio = nullptr;
     string result;
     try {
@@ -449,7 +453,7 @@ bool OpenSSLECDSAKey::verifyFastSig( const char* _hash, const string& _encodedSi
 
 }
 
-ptr< OpenSSLECDSAKey > OpenSSLECDSAKey::importPubKey( const string& _publicKey) {
+ptr< OpenSSLECDSAKey > OpenSSLECDSAKey::importSGXPubKey( const string& _publicKey) {
     CHECK_ARGUMENT( _publicKey != "" );
     initGroupsIfNeeded();
 
@@ -493,7 +497,7 @@ ptr< OpenSSLECDSAKey > OpenSSLECDSAKey::importPubKey( const string& _publicKey) 
 }
 
 
-ptr< OpenSSLECDSAKey > OpenSSLECDSAKey::importPubKeyFast( const string& _publicKey) {
+ptr< OpenSSLECDSAKey > OpenSSLECDSAKey::importFastPubKey( const string& _publicKey) {
     CHECK_ARGUMENT( _publicKey != "" );
     initGroupsIfNeeded();
 
