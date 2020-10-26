@@ -561,6 +561,7 @@ bool CryptoManager::verifyNetworkMsg( NetworkMessage& _msg ) {
                     LOG( warn, "PubKey ECDSA sig did not verify" );
                     return false;
                 }
+
             }
         }
     }
