@@ -682,6 +682,7 @@ ptr< PartialHashesList > AbstractServerAgent::readPartialHashes(
                 msg_len( ( uint64_t ) partialHashesList->getTransactionCount() *
                          PARTIAL_SHA_HASH_LEN ) );
         } catch ( ExitRequestedException& ) {
+
             throw;
         } catch ( ... ) {
             throw_with_nested( CouldNotReadPartialDataHashesException(
