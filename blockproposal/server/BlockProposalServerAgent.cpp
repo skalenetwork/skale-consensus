@@ -647,8 +647,6 @@ ptr< Header > BlockProposalServerAgent::createFinalResponseHeader(
     CHECK_ARGUMENT( _proposal );
 
     auto [sigShare,signature,  pubKey, pubKeySig] = getSchain()->getCryptoManager()->signDAProof( _proposal );
-    CHECK_STATE(!pubKey.empty());
-    CHECK_STATE(!pubKeySig.empty());
 
     auto responseHeader = make_shared< FinalProposalResponseHeader >( sigShare->toString(),
         signature, pubKey, pubKeySig);
