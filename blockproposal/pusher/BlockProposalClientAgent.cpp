@@ -51,6 +51,7 @@
 #include "network/Network.h"
 #include "network/ServerConnection.h"
 #include "node/Node.h"
+#include "node/NodeInfo.h"
 #include "pendingqueue/PendingTransactionsAgent.h"
 
 #include "BlockProposalClientAgent.h"
@@ -58,7 +59,6 @@
 #include "abstracttcpclient/AbstractClientAgent.h"
 #include "exceptions/ExitRequestedException.h"
 #include "exceptions/PingException.h"
-
 
 BlockProposalClientAgent::BlockProposalClientAgent( Schain& _sChain )
     : AbstractClientAgent( _sChain, PROPOSAL ) {
@@ -362,8 +362,14 @@ pair< ConnectionStatus, ConnectionSubStatus > BlockProposalClientAgent::sendBloc
     auto hash = SHAHash::merkleTreeMerge(
         _proposal->getHash(), sigShare->computeHash());
 
-    CHECK_STATE(getSchain()->getCryptoManager()->sessionVerifySig(
-        hash, finalHeader->getSignature(), finalHeader->getPublicKey()));
+    auto nodeInfo = getSchain()->getNode()->getNodeInfoByIndex(_index);
+
+    CHECK_STATE(nodeInfo);
+
+    CHECK_STATE(getSchain()->getCryptoManager()->sessionVerifySigAndKey(
+        hash, finalHeader->getSignature(), finalHeader->getPublicKey(),
+        finalHeader->getPublicKeySig(), _proposal->getBlockID(),
+        nodeInfo->getNodeID()));
 
     getSchain()->daProofSigShareArrived( sigShare, _proposal );
 
