@@ -395,9 +395,10 @@ void Schain::proposeNextBlock(
 
         blockProposalClient->enqueueItem( myProposal );
 
-        auto mySig = getSchain()->getCryptoManager()->signDAProofSigShare( myProposal );
-
-        CHECK_STATE( mySig );
+        auto [mySig, ecdsaSig, pubKey, pubKeySig] = getSchain()->getCryptoManager()->signDAProof( myProposal );
+        CHECK_STATE(!ecdsaSig.empty());
+        CHECK_STATE(!pubKey.empty());
+        CHECK_STATE(!pubKeySig.empty());
 
         getSchain()->daProofSigShareArrived( mySig, myProposal );
 

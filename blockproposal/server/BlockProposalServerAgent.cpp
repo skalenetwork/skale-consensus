@@ -645,9 +645,13 @@ ptr< Header > BlockProposalServerAgent::createDAProofResponseHeader(
 ptr< Header > BlockProposalServerAgent::createFinalResponseHeader(
     const ptr< ReceivedBlockProposal >& _proposal ) {
     CHECK_ARGUMENT( _proposal );
-    auto sigShare = getSchain()->getCryptoManager()->signDAProofSigShare( _proposal );
-    CHECK_STATE( sigShare );
-    auto responseHeader = make_shared< FinalProposalResponseHeader >( sigShare->toString() );
+
+    auto [sigShare,signature,  pubKey, pubKeySig] = getSchain()->getCryptoManager()->signDAProof( _proposal );
+    CHECK_STATE(!pubKey.empty());
+    CHECK_STATE(!pubKeySig.empty());
+
+    auto responseHeader = make_shared< FinalProposalResponseHeader >( sigShare->toString(),
+        signature);
     responseHeader->setStatusSubStatus( CONNECTION_SUCCESS, CONNECTION_OK );
     responseHeader->setComplete();
     return responseHeader;

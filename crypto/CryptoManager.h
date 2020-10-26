@@ -154,7 +154,7 @@ public:
     bool verifyProposalECDSA(
         const ptr< BlockProposal >& _proposal, const string& _hashStr, const string& _signature );
 
-    ptr< ThresholdSigShare > signDAProofSigShare(const ptr< BlockProposal >& _p );
+    tuple<ptr<ThresholdSigShare>, string, string, string>  signDAProof(const ptr< BlockProposal >& _p );
 
     ptr< ThresholdSigShare > signBinaryConsensusSigShare(const ptr< SHAHash >& _hash, block_id _blockId );
 

@@ -31,18 +31,23 @@
 
 using namespace std;
 
-FinalProposalResponseHeader::FinalProposalResponseHeader(const string& _sigShare)
-        : Header(SIG_SHARE_RSP) {
+FinalProposalResponseHeader::FinalProposalResponseHeader(const string& _sigShare,
+    const string & _signature)
+        : Header(SIG_SHARE_RSP) , sigShare(_sigShare), signature(_signature) {
     CHECK_ARGUMENT(!_sigShare.empty())
+    CHECK_ARGUMENT(!signature.empty())
     setStatusSubStatus(CONNECTION_SUCCESS, CONNECTION_OK);
-    sigShare = _sigShare;
     complete = true;
 }
 
 void FinalProposalResponseHeader::addFields(nlohmann::basic_json<> &_j) {
     Header::addFields(_j);
     if (!sigShare.empty()) {
-        _j["sigShare"] = sigShare;
+        _j["ss"] = sigShare;
+    }
+
+    if (!sigShare.empty()) {
+        _j["sig"] = signature;
     }
 }
 
@@ -50,6 +55,9 @@ FinalProposalResponseHeader::FinalProposalResponseHeader(ConnectionStatus _statu
         : Header(SIG_SHARE_RSP) {
     CHECK_ARGUMENT(_status != CONNECTION_SUCCESS)
     this->setStatusSubStatus(_status, _substatus);
+}
+const string& FinalProposalResponseHeader::getSignature() const {
+    return signature;
 }
 
 

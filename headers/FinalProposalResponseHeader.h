@@ -38,20 +38,20 @@ class Transaction;
 class FinalProposalResponseHeader : public Header {
 
     string sigShare;
-
+    string signature;
 
 public:
 
 
 
-    FinalProposalResponseHeader(const string& sigShare);
+    FinalProposalResponseHeader(const string& _sigShare, const string& _signature);
 
     FinalProposalResponseHeader(ConnectionStatus _status, ConnectionSubStatus _substatus);
 
     void addFields(nlohmann::json &_j) override;
 
     const string& getSigShare() const;
-
+    const string& getSignature() const;
 };
 
 

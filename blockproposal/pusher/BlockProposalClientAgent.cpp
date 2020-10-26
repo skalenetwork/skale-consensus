@@ -105,7 +105,8 @@ BlockProposalClientAgent::readAndProcessFinalProposalResponseHeader(const ptr< C
     auto subStatus = ( ConnectionSubStatus ) Header::getUint64( js, "substatus" );
 
     if ( status == CONNECTION_SUCCESS ) {
-        return make_shared< FinalProposalResponseHeader >( Header::getString( js, "sigShare" ) );
+        return make_shared< FinalProposalResponseHeader >( Header::getString( js, "ss" ),
+            Header::getString(js, "sig"));
     } else {
         LOG( err, "Proposal push failed:" + to_string( status ) + ":" + to_string( subStatus ) );
         return make_shared< FinalProposalResponseHeader >( status, subStatus );
