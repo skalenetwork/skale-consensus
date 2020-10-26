@@ -1,7 +1,7 @@
 [submodule "libBLS"]
 	path = libBLS
 	url = https://github.com/skalenetwork/libBLS.git
-	branch = master
+	branch = develop
 [submodule "sgxwallet"]
 	path = sgxwallet
 	url = https://github.com/skalenetwork/sgxwallet.git
