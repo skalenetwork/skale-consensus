@@ -651,7 +651,7 @@ ptr< Header > BlockProposalServerAgent::createFinalResponseHeader(
     CHECK_STATE(!pubKeySig.empty());
 
     auto responseHeader = make_shared< FinalProposalResponseHeader >( sigShare->toString(),
-        signature);
+        signature, pubKey, pubKeySig);
     responseHeader->setStatusSubStatus( CONNECTION_SUCCESS, CONNECTION_OK );
     responseHeader->setComplete();
     return responseHeader;

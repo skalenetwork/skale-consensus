@@ -62,7 +62,7 @@
 BlockProposalClientAgent::BlockProposalClientAgent( Schain& _sChain )
     : AbstractClientAgent( _sChain, PROPOSAL ) {
     sentProposals = make_shared< cache::lru_cache< uint64_t,
-        ptr< list< pair< ConnectionStatus, ConnectionSubStatus >>>> >( 32 );
+        ptr< list< pair< ConnectionStatus, ConnectionSubStatus > > > > >( 32 );
 
     try {
         LOG( debug, "Constructing blockProposalPushAgent" );
@@ -79,7 +79,8 @@ BlockProposalClientAgent::BlockProposalClientAgent( Schain& _sChain )
 
 
 ptr< MissingTransactionsRequestHeader >
-BlockProposalClientAgent::readMissingTransactionsRequestHeader(const ptr< ClientSocket >& _socket ) {
+BlockProposalClientAgent::readMissingTransactionsRequestHeader(
+    const ptr< ClientSocket >& _socket ) {
     auto js =
         sChain->getIo()->readJsonHeader( _socket->getDescriptor(), "Read missing trans request" );
     auto mtrh = make_shared< MissingTransactionsRequestHeader >();
@@ -97,7 +98,8 @@ BlockProposalClientAgent::readMissingTransactionsRequestHeader(const ptr< Client
 }
 
 ptr< FinalProposalResponseHeader >
-BlockProposalClientAgent::readAndProcessFinalProposalResponseHeader(const ptr< ClientSocket >& _socket ) {
+BlockProposalClientAgent::readAndProcessFinalProposalResponseHeader(
+    const ptr< ClientSocket >& _socket ) {
     auto js =
         sChain->getIo()->readJsonHeader( _socket->getDescriptor(), "Read final response header" );
 
@@ -105,8 +107,9 @@ BlockProposalClientAgent::readAndProcessFinalProposalResponseHeader(const ptr< C
     auto subStatus = ( ConnectionSubStatus ) Header::getUint64( js, "substatus" );
 
     if ( status == CONNECTION_SUCCESS ) {
-        return make_shared< FinalProposalResponseHeader >( Header::getString( js, "ss" ),
-            Header::getString(js, "sig"));
+        return make_shared< FinalProposalResponseHeader >( Header::getString( js, "sss" ),
+            Header::getString( js, "sig" ), Header::getString( js, "pk" ),
+            Header::getString( js, "pks" ) );
     } else {
         LOG( err, "Proposal push failed:" + to_string( status ) + ":" + to_string( subStatus ) );
         return make_shared< FinalProposalResponseHeader >( status, subStatus );
@@ -182,7 +185,8 @@ ptr< BlockProposal > BlockProposalClientAgent::corruptProposal(
 
 
 pair< ConnectionStatus, ConnectionSubStatus > BlockProposalClientAgent::sendBlockProposal(
-    const ptr< BlockProposal >& _proposal, const ptr< ClientSocket >& _socket, schain_index _index ) {
+    const ptr< BlockProposal >& _proposal, const ptr< ClientSocket >& _socket,
+    schain_index _index ) {
     CHECK_ARGUMENT( _proposal );
     CHECK_ARGUMENT( _socket );
 
@@ -422,12 +426,12 @@ pair< ConnectionStatus, ConnectionSubStatus > BlockProposalClientAgent::sendDAPr
 ptr< unordered_set< ptr< partial_sha_hash >, PendingTransactionsAgent::Hasher,
     PendingTransactionsAgent::Equal > >
 
-BlockProposalClientAgent::readMissingHashes(const ptr< ClientSocket >& _socket, uint64_t _count ) {
+BlockProposalClientAgent::readMissingHashes( const ptr< ClientSocket >& _socket, uint64_t _count ) {
     CHECK_ARGUMENT( _socket );
     CHECK_ARGUMENT( _count > 0 );
 
     auto bytesToRead = _count * PARTIAL_SHA_HASH_LEN;
-    auto buffer = make_shared<vector<uint8_t>>( bytesToRead );
+    auto buffer = make_shared< vector< uint8_t > >( bytesToRead );
 
     CHECK_STATE( bytesToRead > 0 );
 

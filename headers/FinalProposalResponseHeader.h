@@ -39,12 +39,15 @@ class FinalProposalResponseHeader : public Header {
 
     string sigShare;
     string signature;
+    string publicKey;
+    string publicKeySig;
 
 public:
 
 
 
-    FinalProposalResponseHeader(const string& _sigShare, const string& _signature);
+    FinalProposalResponseHeader(const string& _sigShare, const string& _signature,
+        const string &_publicKey, const string& _publicKeySig);
 
     FinalProposalResponseHeader(ConnectionStatus _status, ConnectionSubStatus _substatus);
 
