@@ -63,5 +63,9 @@ const string& FinalProposalResponseHeader::getSigShare() const {
     CHECK_STATE(!sigShare.empty())
     return sigShare;
 }
-
-
+const string& FinalProposalResponseHeader::getPublicKey() const {
+    return publicKey;
+}
+const string& FinalProposalResponseHeader::getPublicKeySig() const {
+    return publicKeySig;
+}

@@ -120,7 +120,7 @@ class CryptoManager {
 
     tuple<string, string, string> sessionSign(const ptr< SHAHash >& _hash, block_id _blockId) ;
 
-    bool sessionVerifySig(const ptr< SHAHash >& _hash, const string& _sig, const string& _publicKey );
+
 
     bool verifySig(const ptr< SHAHash >& _hash, const string& _sig, node_id _nodeId );
 
@@ -131,6 +131,9 @@ class CryptoManager {
     static uint64_t parseSGXPort(const string& _url );
 
 public:
+
+
+    bool sessionVerifySig(const ptr< SHAHash >& _hash, const string& _sig, const string& _publicKey );
     // This constructor is used for testing
     CryptoManager( uint64_t _totalSigners, uint64_t _requiredSigners, bool _isSGXEnabled,
         string _sgxURL = "", string _sgxSslKeyFileFullPath = "",

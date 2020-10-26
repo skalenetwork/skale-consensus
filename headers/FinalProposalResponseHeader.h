@@ -55,6 +55,8 @@ public:
 
     const string& getSigShare() const;
     const string& getSignature() const;
+    const string& getPublicKey() const;
+    const string& getPublicKeySig() const;
 };
 
 

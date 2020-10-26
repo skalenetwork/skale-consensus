@@ -36,6 +36,7 @@
 
 #include "chains/Schain.h"
 #include "crypto/CryptoManager.h"
+#include "crypto/ThresholdSigShare.h"
 #include "datastructures/BlockProposal.h"
 #include "datastructures/CommittedBlock.h"
 #include "datastructures/DAProof.h"
@@ -353,9 +354,16 @@ pair< ConnectionStatus, ConnectionSubStatus > BlockProposalClientAgent::sendBloc
     if ( finalResult.first != ConnectionStatus::CONNECTION_SUCCESS )
         return finalResult;
 
+
     auto sigShare = getSchain()->getCryptoManager()->createSigShare(
         finalHeader->getSigShare(), _proposal->getSchainID(), _proposal->getBlockID(), _index );
     CHECK_STATE( sigShare );
+
+    auto hash = SHAHash::merkleTreeMerge(
+        _proposal->getHash(), sigShare->computeHash());
+
+    CHECK_STATE(getSchain()->getCryptoManager()->sessionVerifySig(
+        hash, finalHeader->getSignature(), finalHeader->getPublicKey()));
 
     getSchain()->daProofSigShareArrived( sigShare, _proposal );
 
