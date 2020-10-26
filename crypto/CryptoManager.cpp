@@ -444,7 +444,7 @@ tuple< ptr< ThresholdSigShare >, string, string, string > CryptoManager::signDAP
     auto blsSig = signSigShare( _p->getHash(), _p->getBlockID() );
     CHECK_STATE( blsSig );
 
-    auto combinedHash = SHAHash::merkleTreeMerge(_p->getHash(), blsSig->computeHash());
+    auto combinedHash = SHAHash::merkleTreeMerge( _p->getHash(), blsSig->computeHash() );
     auto [ecdsaSig, pubKey, pubKeySig] = sessionSign( combinedHash, _p->getBlockID() );
     return { blsSig, ecdsaSig, pubKey, pubKeySig };
 }
@@ -552,16 +552,16 @@ bool CryptoManager::verifyNetworkMsg( NetworkMessage& _msg ) {
 
         if ( sessionPublicKeys.exists( pkSig ) ) {
             auto publicKey2 = sessionPublicKeys.get( pkSig );
-            return ( publicKey2 == publicKey );
-        }
-    }
-
-    auto pkeyHash = calculatePublicKeyHash( publicKey, _msg.getBlockID() );
-
-    if ( isSGXEnabled ) {
-        if ( !verifySig( pkeyHash, pkSig, _msg.getSrcNodeID() ) ) {
-            LOG( warn, "PubKey ECDSA sig did not verify" );
-            return false;
+            if ( publicKey2 != publicKey )
+                return false;
+        } else {
+            if ( isSGXEnabled ) {
+                auto pkeyHash = calculatePublicKeyHash( publicKey, _msg.getBlockID() );
+                if ( !verifySig( pkeyHash, pkSig, _msg.getSrcNodeID() ) ) {
+                    LOG( warn, "PubKey ECDSA sig did not verify" );
+                    return false;
+                }
+            }
         }
     }
 
