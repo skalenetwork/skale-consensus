@@ -31,8 +31,8 @@
 
 #define USER_SPACE 1
 
-#include "thirdparty/lrucache.hpp"
 #include "thirdparty/lru_ordered_cache.hpp"
+#include "thirdparty/lrucache.hpp"
 
 class Schain;
 class SHAHash;
@@ -58,33 +58,28 @@ class HttpClient;
 }
 
 class MPZNumber {
-
 public:
-
     MPZNumber();
     ~MPZNumber();
     mpz_t number;
 };
 
 
-class  OpenSSLECDSAKey;
-class  OpenSSLEdDSAKey;
+class OpenSSLECDSAKey;
+class OpenSSLEdDSAKey;
 
 class CryptoManager {
+    //    cache::lru_cache<uint64_t, tuple<ptr<MPZNumber>, string, string>> sessionKeys;
 
-
-
-//    cache::lru_cache<uint64_t, tuple<ptr<MPZNumber>, string, string>> sessionKeys;
-
-    cache::lru_cache<uint64_t, tuple<ptr<OpenSSLEdDSAKey>, string, string>> sessionKeys;
-    cache::lru_ordered_cache<string, string> sessionPublicKeys;
+    cache::lru_cache< uint64_t, tuple< ptr< OpenSSLEdDSAKey >, string, string > > sessionKeys;
+    cache::lru_ordered_cache< string, string > sessionPublicKeys;
 
 
     recursive_mutex sessionKeysLock;
     recursive_mutex publicSessionKeysLock;
 
-    map<uint64_t , ptr< jsonrpc::HttpClient >> httpClients;
-    map<uint64_t , ptr< StubClient >> sgxClients;
+    map< uint64_t, ptr< jsonrpc::HttpClient > > httpClients;
+    map< uint64_t, ptr< StubClient > > sgxClients;
 
 
     ptr< StubClient > getSgxClient();
@@ -100,14 +95,14 @@ class CryptoManager {
     string sgxSSLKeyFileFullPath;
     string sgxSSLCertFileFullPath;
     string sgxECDSAKeyName;
-    ptr< vector<string> > sgxECDSAPublicKeys;
+    ptr< vector< string > > sgxECDSAPublicKeys;
     string sgxBlsKeyName;
-    ptr< vector< ptr< vector<string>>>> sgxBLSPublicKeys;
+    ptr< vector< ptr< vector< string > > > > sgxBLSPublicKeys;
     ptr< BLSPublicKey > sgxBLSPublicKey;
 
 
-    map<uint64_t , string> ecdsaPublicKeyMap;
-    map<uint64_t , ptr<vector<string>>> blsPublicKeyMap;
+    map< uint64_t, string > ecdsaPublicKeyMap;
+    map< uint64_t, ptr< vector< string > > > blsPublicKeyMap;
 
     tuple< ptr< OpenSSLEdDSAKey >, string > localGenerateFastKey();
 
@@ -116,29 +111,27 @@ class CryptoManager {
     Schain* sChain = nullptr;
 
 
-    string sign(const ptr< SHAHash >& _hash );
+    string sign( const ptr< SHAHash >& _hash );
 
-    tuple<string, string, string> sessionSign(const ptr< SHAHash >& _hash, block_id _blockId) ;
+    tuple< string, string, string > sessionSign( const ptr< SHAHash >& _hash, block_id _blockId );
 
 
+    bool verifySig( const ptr< SHAHash >& _hash, const string& _sig, node_id _nodeId );
 
-    bool verifySig(const ptr< SHAHash >& _hash, const string& _sig, node_id _nodeId );
-
-    ptr< ThresholdSigShare > signSigShare(const ptr< SHAHash >& _hash, block_id _blockId );
+    ptr< ThresholdSigShare > signSigShare( const ptr< SHAHash >& _hash, block_id _blockId );
 
     void initSGXClient();
 
-    static uint64_t parseSGXPort(const string& _url );
+    static uint64_t parseSGXPort( const string& _url );
 
 public:
-
-
-    bool sessionVerifySig(const ptr< SHAHash >& _hash, const string& _sig, const string& _publicKey );
+    bool sessionVerifySig(
+        const ptr< SHAHash >& _hash, const string& _sig, const string& _publicKey );
     // This constructor is used for testing
     CryptoManager( uint64_t _totalSigners, uint64_t _requiredSigners, bool _isSGXEnabled,
         string _sgxURL = "", string _sgxSslKeyFileFullPath = "",
         string _sgxSslCertFileFullPath = "", string _sgxEcdsaKeyName = "",
-        ptr< vector<string> > _sgxEcdsaPublicKeys = nullptr );
+        ptr< vector< string > > _sgxEcdsaPublicKeys = nullptr );
 
     explicit CryptoManager( Schain& sChain );
 
@@ -149,7 +142,7 @@ public:
 
     ptr< ThresholdSigShareSet > createSigShareSet( block_id _blockId );
 
-    ptr< ThresholdSigShare > createSigShare(const string& _sigShare, schain_id _schainID,
+    ptr< ThresholdSigShare > createSigShare( const string& _sigShare, schain_id _schainID,
         block_id _blockID, schain_index _signerIndex );
 
     void signProposal( BlockProposal* _proposal );
@@ -157,48 +150,64 @@ public:
     bool verifyProposalECDSA(
         const ptr< BlockProposal >& _proposal, const string& _hashStr, const string& _signature );
 
-    tuple<ptr<ThresholdSigShare>, string, string, string>  signDAProof(const ptr< BlockProposal >& _p );
+    tuple< ptr< ThresholdSigShare >, string, string, string > signDAProof(
+        const ptr< BlockProposal >& _p );
 
-    ptr< ThresholdSigShare > signBinaryConsensusSigShare(const ptr< SHAHash >& _hash, block_id _blockId );
+    ptr< ThresholdSigShare > signBinaryConsensusSigShare(
+        const ptr< SHAHash >& _hash, block_id _blockId );
 
-    ptr< ThresholdSigShare > signBlockSigShare(const ptr< SHAHash >& _hash, block_id _blockId );
+    ptr< ThresholdSigShare > signBlockSigShare( const ptr< SHAHash >& _hash, block_id _blockId );
 
-    tuple<string, string, string> signNetworkMsg( NetworkMessage& _msg );
+    tuple< string, string, string > signNetworkMsg( NetworkMessage& _msg );
 
     bool verifyNetworkMsg( NetworkMessage& _msg );
 
-    static ptr< void > decodeSGXPublicKey(const string& _keyHex );
+    bool sessionVerifySigAndKey(
+        ptr< SHAHash >& _hash, const string& _sig, const string& _publicKey, const string& _pkSig );
 
-    static pair< string, string > generateSGXECDSAKey(const ptr< StubClient >& _c );
+    static ptr< void > decodeSGXPublicKey( const string& _keyHex );
 
-    static string getSGXEcdsaPublicKey(const string& _keyName, const  ptr< StubClient >& _c );
+    static pair< string, string > generateSGXECDSAKey( const ptr< StubClient >& _c );
+
+    static string getSGXEcdsaPublicKey( const string& _keyName, const ptr< StubClient >& _c );
 
     static void generateSSLClientCertAndKey( string& _fullPathToDir );
     static void setSGXKeyAndCert( string& _keyFullPath, string& _certFullPath, uint64_t _sgxPort );
 
 
-    string sgxSignECDSA(const ptr< SHAHash >& _hash, string& _keyName );
+    string sgxSignECDSA( const ptr< SHAHash >& _hash, string& _keyName );
 
-    tuple<string, string, string> sessionSignECDSA(const ptr< SHAHash >& _hash, block_id _blockID );
+    tuple< string, string, string > sessionSignECDSA(
+        const ptr< SHAHash >& _hash, block_id _blockID );
 
-    bool verifyECDSA(const ptr< SHAHash >& _hash, const string& _sig, const string& _publicKey );
-
-
+    bool verifyECDSA( const ptr< SHAHash >& _hash, const string& _sig, const string& _publicKey );
 
 
     ptr< BLSPublicKey > getSgxBlsPublicKey();
     string getSgxBlsKeyName();
 
-    static ptr< SHAHash > calculatePublicKeyHash(
-        string publicKey, block_id _blockID);
+    static ptr< SHAHash > calculatePublicKeyHash( string publicKey, block_id _blockID );
+
+    bool sessionVerifySigAndKey( ptr< SHAHash >& _hash, const string& _sig,
+        const string& _publicKey, const string& pkSig, block_id _blockID, node_id _nodeId );
 };
 
-#define RETRY_BEGIN while (true) { try {
-#define RETRY_END   ; break ;} catch ( exception& e ) { \
-  if ( e.what() && ( string( e.what() ).find( "Could not connect" ) != string::npos || string( e.what() ).find( "timed out" ) != string::npos ) ) { \
-  LOG( err, "Could not connext to sgx server, retrying ... \n" + string( e.what() ) ); \
-  sleep( 60 ); \
-  } else { throw; } } }
+#define RETRY_BEGIN  \
+    while ( true ) { \
+        try {
+#define RETRY_END                                                                                \
+    ;                                                                                            \
+    break;                                                                                       \
+    }                                                                                            \
+    catch ( exception & e ) {                                                                    \
+        if ( e.what() && ( string( e.what() ).find( "Could not connect" ) != string::npos ||     \
+                             string( e.what() ).find( "timed out" ) != string::npos ) ) {        \
+            LOG( err, "Could not connext to sgx server, retrying ... \n" + string( e.what() ) ); \
+            sleep( 60 );                                                                         \
+        } else {                                                                                 \
+            throw;                                                                               \
+        }                                                                                        \
+    }                                                                                            \
+    }
 
 #endif  // SKALED_CRYPTOMANAGER_H
-

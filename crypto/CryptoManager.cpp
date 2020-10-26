@@ -536,15 +536,26 @@ tuple< string, string, string > CryptoManager::signNetworkMsg( NetworkMessage& _
     return { signature, publicKey, pkSig };
 }
 
+
 bool CryptoManager::verifyNetworkMsg( NetworkMessage& _msg ) {
-    MONITOR( __CLASS_NAME__, __FUNCTION__ );
     auto sig = _msg.getECDSASig();
     auto hash = _msg.getHash();
     auto publicKey = _msg.getPublicKey();
     auto pkSig = _msg.getPkSig();
+    auto blockId = _msg.getBlockID();
+    auto nodeId = _msg.getSrcNodeID();
+    return sessionVerifySigAndKey(hash, sig,publicKey, pkSig, blockId, nodeId);
+}
 
-    CHECK_STATE( !sig.empty() );
-    CHECK_STATE( hash );
+
+bool CryptoManager::sessionVerifySigAndKey(
+    ptr< SHAHash >& _hash, const string& _sig, const string& _publicKey, const string& pkSig,
+    block_id _blockID, node_id _nodeId) {
+    MONITOR( __CLASS_NAME__, __FUNCTION__ );
+
+
+    CHECK_STATE( !_sig.empty() );
+    CHECK_STATE(_hash );
 
 
     {
@@ -552,31 +563,25 @@ bool CryptoManager::verifyNetworkMsg( NetworkMessage& _msg ) {
 
         if ( sessionPublicKeys.exists( pkSig ) ) {
             auto publicKey2 = sessionPublicKeys.get( pkSig );
-            if ( publicKey2 != publicKey )
+            if ( publicKey2 != _publicKey )
                 return false;
         } else {
             if ( isSGXEnabled ) {
-                auto pkeyHash = calculatePublicKeyHash( publicKey, _msg.getBlockID() );
-                if ( !verifySig( pkeyHash, pkSig, _msg.getSrcNodeID() ) ) {
+                auto pkeyHash = calculatePublicKeyHash( _publicKey, _blockID );
+                if ( !verifySig( pkeyHash, pkSig, _nodeId ) ) {
                     LOG( warn, "PubKey ECDSA sig did not verify" );
                     return false;
                 }
-
+                sessionPublicKeys.put( pkSig, _publicKey );
             }
         }
     }
 
-    if ( !sessionVerifySig( hash, sig, publicKey ) ) {
+    if ( !sessionVerifySig(_hash,_sig,_publicKey ) ) {
         LOG( warn, "ECDSA sig did not verify" );
         return false;
     }
 
-
-    {
-        LOCK( publicSessionKeysLock )
-        if ( !sessionPublicKeys.exists( pkSig ) )
-            sessionPublicKeys.put( pkSig, publicKey );
-    }
 
     return true;
 }
