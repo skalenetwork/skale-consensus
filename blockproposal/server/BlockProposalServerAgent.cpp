@@ -645,9 +645,11 @@ ptr< Header > BlockProposalServerAgent::createDAProofResponseHeader(
 ptr< Header > BlockProposalServerAgent::createFinalResponseHeader(
     const ptr< ReceivedBlockProposal >& _proposal ) {
     CHECK_ARGUMENT( _proposal );
-    auto sigShare = getSchain()->getCryptoManager()->signDAProofSigShare( _proposal );
-    CHECK_STATE( sigShare );
-    auto responseHeader = make_shared< FinalProposalResponseHeader >( sigShare->toString() );
+
+    auto [sigShare,signature,  pubKey, pubKeySig] = getSchain()->getCryptoManager()->signDAProof( _proposal );
+
+    auto responseHeader = make_shared< FinalProposalResponseHeader >( sigShare->toString(),
+        signature, pubKey, pubKeySig);
     responseHeader->setStatusSubStatus( CONNECTION_SUCCESS, CONNECTION_OK );
     responseHeader->setComplete();
     return responseHeader;
@@ -680,6 +682,7 @@ ptr< PartialHashesList > AbstractServerAgent::readPartialHashes(
                 msg_len( ( uint64_t ) partialHashesList->getTransactionCount() *
                          PARTIAL_SHA_HASH_LEN ) );
         } catch ( ExitRequestedException& ) {
+
             throw;
         } catch ( ... ) {
             throw_with_nested( CouldNotReadPartialDataHashesException(

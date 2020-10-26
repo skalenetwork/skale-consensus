@@ -22,6 +22,7 @@
 */
 
 #include "ThresholdSigShare.h"
+#include "SHAHash.h"
 #include "SkaleCommon.h"
 
 
@@ -41,4 +42,12 @@ ThresholdSigShare::~ThresholdSigShare() {
 
 schain_index ThresholdSigShare::getSignerIndex() const {
     return signerIndex;
+}
+
+
+ptr<SHAHash> ThresholdSigShare::computeHash() {
+    auto str = this->toString();
+    auto v = make_shared<vector<uint8_t>>(str.size());
+    copy(str.begin(), str.end(), v->begin());
+    return SHAHash::calculateHash(v);
 }
