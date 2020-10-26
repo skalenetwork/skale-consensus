@@ -443,7 +443,9 @@ tuple< ptr< ThresholdSigShare >, string, string, string > CryptoManager::signDAP
 
     auto blsSig = signSigShare( _p->getHash(), _p->getBlockID() );
     CHECK_STATE( blsSig );
-    auto [ecdsaSig, pubKey, pubKeySig] = sessionSign( _p->getHash(), _p->getBlockID() );
+
+    auto combinedHash = SHAHash::merkleTreeMerge(_p->getHash(), blsSig->computeHash());
+    auto [ecdsaSig, pubKey, pubKeySig] = sessionSign( combinedHash, _p->getBlockID() );
     return { blsSig, ecdsaSig, pubKey, pubKeySig };
 }
 

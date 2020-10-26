@@ -181,8 +181,6 @@ public:
     bool verifyECDSA(const ptr< SHAHash >& _hash, const string& _sig, const string& _publicKey );
 
 
-    bool verifyECDSASigRS( string& pubKeyStr, const char* hashHex,
-                           const char* signatureR, const char* signatureS, int base);
 
 
     ptr< BLSPublicKey > getSgxBlsPublicKey();
