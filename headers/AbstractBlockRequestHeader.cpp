@@ -47,15 +47,18 @@ AbstractBlockRequestHeader::AbstractBlockRequestHeader(node_count _nodeCount,
 
 
 
-void AbstractBlockRequestHeader::addFields(nlohmann::basic_json<> &jsonRequest) {
+void AbstractBlockRequestHeader::addFields(rapidjson::Writer<rapidjson::StringBuffer> & _j ) {
 
-    Header::addFields(jsonRequest);
+    Header::addFields( _j );
 
-    jsonRequest["schainID"] = (uint64_t ) schainID;
+    _j.String("schainID");
+    _j.Uint64((uint64_t) schainID);
 
-    jsonRequest["proposerIndex"] = (uint64_t ) proposerIndex;
+    _j.String("proposerIndex");
+    _j.Uint64((uint64_t )proposerIndex);
 
-    jsonRequest["blockID"] = (uint64_t ) blockID;
+    _j.String("blockID");
+    _j.Uint64((uint64_t) blockID);
 
 }
 

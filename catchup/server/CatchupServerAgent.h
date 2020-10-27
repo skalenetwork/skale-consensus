@@ -51,11 +51,11 @@ class CatchupServerAgent : public AbstractServerAgent {
    ptr<CatchupWorkerThreadPool> catchupWorkerThreadPool;
 
 
-    ptr<vector<uint8_t>>createBlockCatchupResponse( nlohmann::json _jsonRequest,
+    ptr<vector<uint8_t>>createBlockCatchupResponse( rapidjson::Document& _jsonRequest,
                                                          const ptr<CatchupResponseHeader>& _responseHeader, block_id _blockID);
 
 
-    ptr<vector<uint8_t>>createBlockFinalizeResponse( nlohmann::json _jsonRequest,
+    ptr<vector<uint8_t>>createBlockFinalizeResponse( rapidjson::Document& _jsonRequest,
                                                     const ptr<BlockFinalizeResponseHeader>& _responseHeader, block_id _blockID);
 
 
@@ -65,8 +65,8 @@ public:
 
     CatchupWorkerThreadPool *getCatchupWorkerThreadPool() const;
 
-    ptr<vector<uint8_t>> createResponseHeaderAndBinary(const ptr<ServerConnection>& _connectionEnvelope,
-                                                       nlohmann::json _jsonRequest, const ptr<Header>& _responseHeader);
+    ptr<vector<uint8_t>> createResponseHeaderAndBinary(const ptr<ServerConnection>&,
+        rapidjson::Document& _jsonRequest, const ptr<Header>& _responseHeader);
 
     void processNextAvailableConnection(const ptr<ServerConnection>& _connection) override;
 

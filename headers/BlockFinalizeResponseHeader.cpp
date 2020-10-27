@@ -35,7 +35,7 @@ BlockFinalizeResponseHeader::BlockFinalizeResponseHeader() : Header(Header::BLOC
 }
 
 
-void BlockFinalizeResponseHeader::addFields(nlohmann::json &_j) {
+void BlockFinalizeResponseHeader::addFields(rapidjson::Writer<rapidjson::StringBuffer> &_j) {
 
 
     CHECK_STATE(isComplete())
@@ -45,9 +45,15 @@ void BlockFinalizeResponseHeader::addFields(nlohmann::json &_j) {
         return;
 
     CHECK_STATE(!blockHash.empty())
-    _j["blockHash"] = blockHash;
-    _j["fragmentSize"] = (uint64_t) fragmentSize;
-    _j["blockSize"] = (uint64_t) blockSize;
+
+    _j.String("blockHash");
+    _j.String(blockHash.c_str());
+
+    _j.String("fragmentSize");
+    _j.Uint64(fragmentSize);
+
+    _j.String("blockSize");
+    _j.Uint64(blockSize);
 }
 
 void BlockFinalizeResponseHeader::setFragmentParams(uint64_t _fragmentSize, uint64_t _blockSize, const string& _hash) {

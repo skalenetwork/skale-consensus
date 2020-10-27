@@ -34,8 +34,8 @@ CommittedBlockHeader::CommittedBlockHeader(BlockProposal &block, const string &t
     CHECK_ARGUMENT(!thresholdSig.empty())
 }
 
-CommittedBlockHeader::CommittedBlockHeader(nlohmann::json &json) : BlockProposalHeader(json) {
-    thresholdSig = Header::getString(json, "thrSig");
+CommittedBlockHeader::CommittedBlockHeader(rapidjson::Document &json) : BlockProposalHeader(json) {
+    thresholdSig = Header::getStringRapid(json, "thrSig");
     CHECK_STATE(!thresholdSig.empty())
 }
 
@@ -44,10 +44,11 @@ const string &CommittedBlockHeader::getThresholdSig() const {
     return thresholdSig;
 }
 
-void CommittedBlockHeader::addFields(nlohmann::basic_json<> &j) {
+void CommittedBlockHeader::addFields(rapidjson::Writer<rapidjson::StringBuffer> &j) {
     BlockProposalHeader::addFields(j);
 
-    j["thrSig"] = thresholdSig;
+    j.String("thrSig");
+    j.String(thresholdSig.c_str());
 }
 
 

@@ -32,7 +32,8 @@ class NodeInfo;
 class BlockProposal;
 class Schain;
 
-
+#include "thirdparty/rapidjson/document.h"
+#include "thirdparty/rapidjson/prettywriter.h"
 
 
 
@@ -44,7 +45,7 @@ protected:
     schain_index proposerIndex;
     block_id blockID;
 
-    void addFields(nlohmann::basic_json<> &jsonRequest) override;
+    void addFields(rapidjson::Writer<rapidjson::StringBuffer> & _j );
 
     AbstractBlockRequestHeader(node_count _nodeCount,
                                schain_id _schainId, block_id _blockId,

@@ -87,19 +87,14 @@
 ptr< unordered_map< ptr< partial_sha_hash >, ptr< Transaction >, PendingTransactionsAgent::Hasher,
     PendingTransactionsAgent::Equal > >
 BlockProposalServerAgent::readMissingTransactions( const ptr< ServerConnection >& _connectionEnvelope,
-    nlohmann::json missingTransactionsResponseHeader ) {
+    rapidjson::Document& missingTransactionsResponseHeader ) {
     CHECK_ARGUMENT( _connectionEnvelope );
-    CHECK_STATE( missingTransactionsResponseHeader > 0 );
+
 
     auto transactionSizes = make_shared< vector< uint64_t > >();
 
-    nlohmann::json jsonSizes = missingTransactionsResponseHeader["sizes"];
-
-    if ( !jsonSizes.is_array() ) {
-        BOOST_THROW_EXCEPTION(
-            NetworkProtocolException( "jsonSizes is not an array", __CLASS_NAME__ ) );
-    };
-
+    auto  jsonSizes =
+        BasicHeader::getUint64ArrayRapid(missingTransactionsResponseHeader,"sizes");
 
     size_t totalSize = 2;  // account for starting and ending < >
 
@@ -109,7 +104,6 @@ BlockProposalServerAgent::readMissingTransactions( const ptr< ServerConnection >
     }
 
     auto serializedTransactions = make_shared<vector<uint8_t>>( totalSize );
-
 
     try {
         getSchain()->getIo()->readBytes(
@@ -196,7 +190,7 @@ void BlockProposalServerAgent::processNextAvailableConnection(
     }
 
 
-    nlohmann::json clientRequest = nullptr;
+    rapidjson::Document clientRequest;
 
     try {
         clientRequest = getSchain()->getIo()->readJsonHeader(
@@ -209,7 +203,7 @@ void BlockProposalServerAgent::processNextAvailableConnection(
     }
 
 
-    auto type = Header::getString( clientRequest, "type" );
+    auto type = Header::getStringRapid( clientRequest, "type" );
 
     CHECK_STATE(!type.empty() );
 
@@ -225,7 +219,7 @@ void BlockProposalServerAgent::processNextAvailableConnection(
 
 
 void BlockProposalServerAgent::processDAProofRequest(
-    const ptr< ServerConnection >& _connection, nlohmann::json _daProofRequest ) {
+    const ptr< ServerConnection >& _connection, rapidjson::Document& _daProofRequest ) {
     CHECK_ARGUMENT( _connection );
 
     ptr< SubmitDAProofRequestHeader > requestHeader = nullptr;
@@ -258,7 +252,7 @@ void BlockProposalServerAgent::processDAProofRequest(
 }
 
 pair< ConnectionStatus, ConnectionSubStatus > BlockProposalServerAgent::processProposalRequest(
-    const ptr< ServerConnection >& _connection, nlohmann::json _proposalRequest ) {
+    const ptr< ServerConnection >& _connection, rapidjson::Document& _proposalRequest ) {
     CHECK_ARGUMENT( _connection );
 
     ptr< BlockProposalRequestHeader > requestHeader = nullptr;
@@ -656,7 +650,7 @@ ptr< Header > BlockProposalServerAgent::createFinalResponseHeader(
 }
 
 
-nlohmann::json BlockProposalServerAgent::readMissingTransactionsResponseHeader(
+rapidjson::Document BlockProposalServerAgent::readMissingTransactionsResponseHeader(
     const ptr< ServerConnection >& _connectionEnvelope ) {
     auto js = sChain->getIo()->readJsonHeader(
         _connectionEnvelope->getDescriptor(), "Read missing trans response" );

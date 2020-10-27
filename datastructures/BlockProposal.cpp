@@ -449,9 +449,14 @@ ptr<BlockProposalHeader> BlockProposal::parseBlockHeader(const string & _header 
     CHECK_ARGUMENT2(
         _header.at( _header.size() - 1) == '}', "Block header does not end with }");
 
-    auto js = nlohmann::json::parse(_header );
 
-    return make_shared<BlockProposalHeader>(js);
+    rapidjson::Document d;
+    d.Parse(_header.data());
+
+    CHECK_STATE(!d.HasParseError());
+    CHECK_STATE(d.IsObject())
+
+    return make_shared<BlockProposalHeader>(d);
 
 }
 

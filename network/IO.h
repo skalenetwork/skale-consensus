@@ -23,6 +23,9 @@
 
 #pragma once
 
+#include "thirdparty/rapidjson/document.h"
+#include "thirdparty/rapidjson/prettywriter.h"
+
 
 class Buffer;
 
@@ -74,12 +77,9 @@ public:
 
     void readMagic(file_descriptor descriptor);
 
-    nlohmann::json readJsonHeader(file_descriptor descriptor, const char* _errorString,
+    rapidjson::Document readJsonHeader(file_descriptor descriptor, const char* _errorString,
         uint64_t _maxHeaderLen = MAX_HEADER_SIZE);
 
 };
-
-
-
 
 

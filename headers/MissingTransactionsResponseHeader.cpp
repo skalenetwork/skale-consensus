@@ -21,37 +21,35 @@
     @date 2018
 */
 
-#include "SkaleCommon.h"
 #include "Log.h"
+#include "SkaleCommon.h"
 #include "exceptions/FatalError.h"
 
 #include "thirdparty/json.hpp"
 
-#include "abstracttcpserver/ConnectionStatus.h"
 #include "MissingTransactionsResponseHeader.h"
+#include "abstracttcpserver/ConnectionStatus.h"
 
 using namespace std;
 
-MissingTransactionsResponseHeader::MissingTransactionsResponseHeader() : Header(MISSING_TRANSACTIONS_RSP) {
+MissingTransactionsResponseHeader::MissingTransactionsResponseHeader()
+    : Header( MISSING_TRANSACTIONS_RSP ) {}
 
-}
-
-MissingTransactionsResponseHeader::MissingTransactionsResponseHeader(const ptr<vector<uint64_t>>& _missingTransactionSizes)
-        : MissingTransactionsResponseHeader() {
-    CHECK_ARGUMENT(_missingTransactionSizes);
+MissingTransactionsResponseHeader::MissingTransactionsResponseHeader(
+    const ptr< vector< uint64_t > >& _missingTransactionSizes )
+    : MissingTransactionsResponseHeader() {
+    CHECK_ARGUMENT( _missingTransactionSizes );
     missingTransactionSizes = _missingTransactionSizes;
     complete = true;
 }
 
-void MissingTransactionsResponseHeader::addFields(nlohmann::basic_json<> &_j) {
+void MissingTransactionsResponseHeader::addFields(
+    rapidjson::Writer< rapidjson::StringBuffer >& _j ) {
+    Header::addFields( _j );
 
-    Header::addFields(_j);
-
-    list<uint64_t> l(missingTransactionSizes->begin(), missingTransactionSizes->end());
-
-    _j["sizes"] = l;
-
+    _j.String( "sizes" );
+    _j.StartArray();
+    for ( auto& e : *missingTransactionSizes )
+        _j.Uint64( e );
+    _j.EndArray();
 }
-
-
-

@@ -65,8 +65,6 @@ public:
     queue<ptr<ServerConnection>> incomingTCPConnections;
 
 
-
-
     void pushToQueueAndNotifyWorkers(const ptr<ServerConnection>& _connectionEnvelope );
 
     ptr<ServerConnection> workerThreadWaitandPopConnection();
