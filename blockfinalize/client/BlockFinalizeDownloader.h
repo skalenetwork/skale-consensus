@@ -58,6 +58,8 @@ class BlockProposal;
 class BlockFinalizeDownloaderThreadPool;
 class BlockProposalSet;
 
+#include "thirdparty/rapidjson/document.h"
+#include "thirdparty/rapidjson/prettywriter.h"
 #include "datastructures/BlockProposalFragmentList.h"
 
 class BlockFinalizeDownloader : public Agent {
@@ -67,7 +69,6 @@ class BlockFinalizeDownloader : public Agent {
     schain_index proposerIndex;
 
     BlockProposalFragmentList fragmentList;
-
 
 public:
 
@@ -85,20 +86,20 @@ public:
 
     static void workerThreadFragmentDownloadLoop(BlockFinalizeDownloader* _agent, schain_index _dstIndex );
 
-    nlohmann::json readBlockFinalizeResponseHeader( const ptr< ClientSocket >& _socket );
+    rapidjson::Document readBlockFinalizeResponseHeader( const ptr< ClientSocket >& _socket );
 
 
     ptr<BlockProposalFragment>
-    readBlockFragment(const ptr<ClientSocket>& _socket, nlohmann::json responseHeader, fragment_index _fragmentIndex,
+    readBlockFragment(const ptr<ClientSocket>& _socket, rapidjson::Document& responseHeader, fragment_index _fragmentIndex,
                       node_count _nodeCount);
 
-    uint64_t readFragmentSize(nlohmann::json _responseHeader);
+    uint64_t readFragmentSize(rapidjson::Document& _responseHeader);
 
     ptr<BlockProposal> downloadProposal();
 
-    uint64_t readBlockSize(nlohmann::json _responseHeader);
+    uint64_t readBlockSize(rapidjson::Document& _responseHeader);
 
-    string readBlockHash(nlohmann::json _responseHeader);
+    string readBlockHash(rapidjson::Document& _responseHeader);
 
     block_id getBlockId();
 

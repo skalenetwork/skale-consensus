@@ -21,6 +21,8 @@
     @date 2018
 */
 
+
+
 #include "SkaleCommon.h"
 #include "Log.h"
 #include "exceptions/FatalError.h"
@@ -34,18 +36,27 @@ bool BasicHeader::isComplete() const {
 }
 
 string BasicHeader::serializeToString() {
-    ASSERT(complete)
-    nlohmann::json j;
+    CHECK_STATE(complete)
 
-    CHECK_STATE(type != nullptr)
+    rapidjson::StringBuffer sb;
+    rapidjson::Writer<rapidjson::StringBuffer> writer(sb);
 
-    j["type"] = type;
+    writer.StartObject();
 
-    addFields(j);
+    CHECK_STATE(type);
 
-    string s(j.dump());
+    writer.String("type");
+    writer.String(type);
 
-    CHECK_STATE(s.size() > 16)
+
+    addFields(writer);
+
+
+    writer.EndObject();
+    writer.Flush();
+    string s(sb.GetString());
+
+    CHECK_STATE(s.size() > 16);
 
     return s;
 }
@@ -68,22 +79,7 @@ ptr< Buffer > BasicHeader::toBuffer() {
 }
 
 
-
-void BasicHeader::nullCheck(nlohmann::json &js, const char * _name ) {
-    CHECK_ARGUMENT( _name );
-    if (js.find( _name ) == js.end()) {
-        BOOST_THROW_EXCEPTION(NetworkProtocolException("Null " + string( _name ) + " in json", __CLASS_NAME__));
-    }
-};
-
-uint64_t BasicHeader::getUint64(nlohmann::json &_js, const char *_name) {
-    CHECK_ARGUMENT(_name);
-    nullCheck(_js, _name);
-    uint64_t result = _js[_name];
-    return result;
-};
-
-uint64_t BasicHeader::getUint64Rapid(rapidjson::Document &_d, const char *_name) {
+uint64_t BasicHeader::getUint64Rapid(const rapidjson::Value &_d, const char *_name) {
     CHECK_ARGUMENT(_name);
     CHECK_STATE(_d.HasMember(_name));
     const rapidjson::Value& a = _d[_name];
@@ -91,7 +87,39 @@ uint64_t BasicHeader::getUint64Rapid(rapidjson::Document &_d, const char *_name)
     return a.GetUint64();
 };
 
-string BasicHeader::getStringRapid(rapidjson::Document &_d, const char *_name) {
+uint32_t BasicHeader::getUint32Rapid(const rapidjson::Value &_d, const char *_name) {
+    CHECK_ARGUMENT(_name);
+    CHECK_STATE(_d.HasMember(_name));
+    const rapidjson::Value& a = _d[_name];
+    CHECK_STATE(a.IsUint());
+    return a.GetUint();
+};
+
+int32_t BasicHeader::getInt32Rapid(const rapidjson::Value &_d, const char *_name) {
+    CHECK_ARGUMENT(_name);
+    CHECK_STATE(_d.HasMember(_name));
+    const rapidjson::Value& a = _d[_name];
+    CHECK_STATE(a.IsInt());
+    return a.GetInt();
+};
+
+vector<uint64_t> BasicHeader::getUint64ArrayRapid( const rapidjson::Value& _d, const char* _name ) {
+    vector<uint64_t> result;
+    CHECK_ARGUMENT(_name);
+    CHECK_STATE(_d.HasMember(_name))
+    const rapidjson::Value& a = _d[_name];;
+    CHECK_STATE(a.IsArray());
+
+    for (const auto& element : a.GetArray()) {
+        CHECK_STATE( element.IsUint64() );
+        result.push_back( element.GetUint64() );
+    }
+
+    return result;
+}
+
+
+string BasicHeader::getStringRapid(const rapidjson::Value &_d, const char *_name) {
     CHECK_ARGUMENT(_name);
     CHECK_STATE(_d.HasMember(_name));
     CHECK_STATE(_d[_name].IsString());
@@ -99,28 +127,6 @@ string BasicHeader::getStringRapid(rapidjson::Document &_d, const char *_name) {
 };
 
 
-int32_t BasicHeader::getInt32(nlohmann::json &_js, const char *_name) {
-    CHECK_ARGUMENT(_name);
-    nullCheck(_js, _name);
-    int32_t result = _js[_name];
-    return result;
-};
-
-
-
-uint32_t BasicHeader::getUint32(nlohmann::json &_js, const char *_name) {
-    CHECK_ARGUMENT(_name);
-    nullCheck(_js, _name);
-    uint32_t result = _js[_name];
-    return result;
-};
-
-string BasicHeader::getString(nlohmann::json &_js, const char *_name) {
-    CHECK_ARGUMENT(_name);
-    nullCheck(_js, _name);
-    string result = _js[_name];
-    return result;
-}
 
 BasicHeader::BasicHeader(const char *_type) : type(_type)  {
     CHECK_ARGUMENT(_type);

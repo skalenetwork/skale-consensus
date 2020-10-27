@@ -45,10 +45,10 @@ public:
 
     BlockProposalRequestHeader(Schain &_sChain, const ptr<BlockProposal>& proposal);
 
-    BlockProposalRequestHeader(nlohmann::json _proposalRequest, node_count _nodeCount);
+    BlockProposalRequestHeader(rapidjson::Document& _proposalRequest, node_count _nodeCount);
 
 
-    void addFields(nlohmann::basic_json<> &jsonRequest) override;
+    void addFields(rapidjson::Writer<rapidjson::StringBuffer> &jsonRequest) override;
 
     node_id getProposerNodeId();
 

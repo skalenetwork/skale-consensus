@@ -176,9 +176,13 @@ ptr< CommittedBlockHeader > CommittedBlock::parseBlockHeader(
     CHECK_ARGUMENT2(
         _header.at( _header.size() - 1 ) == '}', "Block header does not end with }" );
 
-    auto js = nlohmann::json::parse(_header );
+    rapidjson::Document d;
+    d.Parse(_header.data());
 
-    return make_shared< CommittedBlockHeader >( js );
+    CHECK_STATE(!d.HasParseError());
+    CHECK_STATE(d.IsObject())
+
+    return make_shared< CommittedBlockHeader >( d );
 }
 
 CommittedBlock::CommittedBlock( uint64_t timeStamp, uint32_t timeStampMs )

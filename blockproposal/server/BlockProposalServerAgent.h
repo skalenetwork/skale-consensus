@@ -23,6 +23,10 @@
 
 #pragma once
 
+
+
+#include "thirdparty/rapidjson/document.h"
+#include "thirdparty/rapidjson/prettywriter.h"
 #include "abstracttcpserver/AbstractServerAgent.h"
 #include "abstracttcpserver/ConnectionStatus.h"
 #include "pendingqueue/PendingTransactionsAgent.h"
@@ -53,15 +57,15 @@ public:
 };
 
 
+
 class BlockProposalServerAgent : public AbstractServerAgent {
     ptr< BlockProposalWorkerThreadPool > blockProposalWorkerThreadPool;
 
-
     pair< ConnectionStatus, ConnectionSubStatus > processProposalRequest(
-        const ptr< ServerConnection >& _connection, nlohmann::json _proposalRequest );
+        const ptr< ServerConnection >& _connection, rapidjson::Document& _proposalRequest );
 
     void processDAProofRequest(
-        const ptr< ServerConnection >& _connection, nlohmann::json _daProofRequest );
+        const ptr< ServerConnection >& _connection, rapidjson::Document& _daProofRequest );
 
 
 public:
@@ -72,7 +76,7 @@ public:
     ptr< unordered_map< ptr< partial_sha_hash >, ptr< Transaction >,
         PendingTransactionsAgent::Hasher, PendingTransactionsAgent::Equal > >
     readMissingTransactions( const ptr< ServerConnection >& _connectionEnvelope,
-        nlohmann::json missingTransactionsResponseHeader );
+        rapidjson::Document& missingTransactionsResponseHeader );
 
 
     pair< ptr< map< uint64_t, ptr< Transaction > > >,
@@ -94,7 +98,7 @@ public:
         const ptr< SubmitDAProofRequestHeader >& _header );
 
 
-    nlohmann::json readMissingTransactionsResponseHeader(
+    rapidjson::Document readMissingTransactionsResponseHeader(
         const ptr< ServerConnection >& _connectionEnvelope );
 
 

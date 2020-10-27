@@ -49,16 +49,20 @@ void CatchupResponseHeader::setBlockSizes(const ptr<list<uint64_t>>& _blockSizes
     complete = true;
 }
 
-void CatchupResponseHeader::addFields(nlohmann::json &_j) {
+void CatchupResponseHeader::addFields(rapidjson::Writer<rapidjson::StringBuffer> &_j) {
 
     Header::addFields(_j);
 
-    _j["count"] = blockCount;
+    _j.String("count");
+    _j.Uint64((uint64_t )blockCount);
 
-    if (blockSizes != nullptr)
-        _j["sizes"] = *blockSizes;
-
-
+    if (blockSizes) {
+        _j.String( "sizes" );
+        _j.StartArray();
+        for ( auto& e : *blockSizes )
+            _j.Uint64( e );
+        _j.EndArray();
+    }
 }
 
 uint64_t CatchupResponseHeader::getBlockCount() const {

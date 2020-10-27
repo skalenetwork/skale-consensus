@@ -21,8 +21,8 @@
     @date 2018
 */
 
+
 #include "thirdparty/rapidjson/document.h"
-#include "thirdparty/json.hpp"
 #include "thirdparty/rapidjson/prettywriter.h" // for stringify JSON
 
 
@@ -39,7 +39,6 @@
 #include "crypto/CryptoManager.h"
 #include "crypto/bls_include.h"
 #include "exceptions/ExitRequestedException.h"
-#include "exceptions/FatalError.h"
 #include "exceptions/InvalidArgumentException.h"
 #include "exceptions/InvalidSchainException.h"
 #include "network/Buffer.h"
@@ -197,7 +196,7 @@ string NetworkMessage::serializeToString() {
 
 }
 
-void NetworkMessage::addFields(nlohmann::basic_json<>& ) {
+void NetworkMessage::addFields(rapidjson::Writer<rapidjson::StringBuffer>& ) {
 
     /*
     j["si"] = (uint64_t ) schainID;

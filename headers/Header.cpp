@@ -44,7 +44,11 @@ Header::~Header() {
 
 
 
-void Header::addFields(nlohmann::json &j) {
-    j["status"] = status;
-    j["substatus"] = substatus;
+void Header::addFields(rapidjson::Writer<rapidjson::StringBuffer> & _j ) {
+
+    _j.String("status");
+    _j.Uint64(status);
+
+    _j.String("substatus");
+    _j.Uint64(substatus);
 }

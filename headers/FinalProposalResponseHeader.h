@@ -51,7 +51,7 @@ public:
 
     FinalProposalResponseHeader(ConnectionStatus _status, ConnectionSubStatus _substatus);
 
-    void addFields(nlohmann::json &_j) override;
+    void addFields(rapidjson::Writer<rapidjson::StringBuffer> &_j) override;
 
     const string& getSigShare() const;
     const string& getSignature() const;

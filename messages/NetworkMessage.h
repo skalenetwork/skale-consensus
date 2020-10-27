@@ -81,18 +81,15 @@ protected:
 
     virtual ptr< SHAHash > calculateHash();
 
-    void addFields( nlohmann::json& j ) override;
+    void addFields(rapidjson::Writer<rapidjson::StringBuffer>& _j ) override;
 
 public:
+
     uint64_t getTimeMs() const;
 
-
-public:
     void sign( const ptr< CryptoManager >& _mgr );
 
-
     void verify( const ptr< CryptoManager >& _mgr );
-
 
     virtual bin_consensus_round getRound() const;
 

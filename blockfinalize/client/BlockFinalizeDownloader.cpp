@@ -96,7 +96,7 @@ BlockFinalizeDownloader::BlockFinalizeDownloader(Schain *_sChain, block_id _bloc
 }
 
 
-nlohmann::json BlockFinalizeDownloader::readBlockFinalizeResponseHeader(const ptr<ClientSocket>& _socket) {
+rapidjson::Document BlockFinalizeDownloader::readBlockFinalizeResponseHeader(const ptr<ClientSocket>& _socket) {
     MONITOR(__CLASS_NAME__, __FUNCTION__);
     CHECK_ARGUMENT(_socket);
     return getSchain()->getIo()->readJsonHeader(_socket->getDescriptor(), "Read BlockFinalize response");
@@ -129,7 +129,7 @@ uint64_t BlockFinalizeDownloader::downloadFragment(schain_index _dstIndex, fragm
         }
         LOG(debug, "BlockFinalizec step 1: wrote BlockFinalize request");
 
-        nlohmann::json response;
+        rapidjson::Document response;
 
         try {
             response = readBlockFinalizeResponseHeader(socket);
@@ -142,7 +142,7 @@ uint64_t BlockFinalizeDownloader::downloadFragment(schain_index _dstIndex, fragm
 
         LOG(debug, "BlockFinalizec step 2: read BlockFinalize response header");
 
-        auto status = (ConnectionStatus) Header::getUint64(response, "status");
+        auto status = (ConnectionStatus) Header::getUint64Rapid(response, "status");
 
         if (status == CONNECTION_DISCONNECT) {
             LOG(debug, "BlockFinalizec got response::no fragment");
@@ -182,9 +182,9 @@ uint64_t BlockFinalizeDownloader::downloadFragment(schain_index _dstIndex, fragm
 
 }
 
-uint64_t BlockFinalizeDownloader::readFragmentSize(nlohmann::json _responseHeader) {
+uint64_t BlockFinalizeDownloader::readFragmentSize(rapidjson::Document& _responseHeader) {
 
-    uint64_t result = Header::getUint64(_responseHeader, "fragmentSize");
+    uint64_t result = Header::getUint64Rapid(_responseHeader, "fragmentSize");
 
     if (result == 0) {
         BOOST_THROW_EXCEPTION(NetworkProtocolException("fragmentSize == 0", __CLASS_NAME__));
@@ -193,8 +193,8 @@ uint64_t BlockFinalizeDownloader::readFragmentSize(nlohmann::json _responseHeade
     return result;
 };
 
-uint64_t BlockFinalizeDownloader::readBlockSize(nlohmann::json _responseHeader) {
-    uint64_t result = Header::getUint64(_responseHeader, "blockSize");
+uint64_t BlockFinalizeDownloader::readBlockSize(rapidjson::Document& _responseHeader) {
+    uint64_t result = Header::getUint64Rapid(_responseHeader, "blockSize");
 
     if (result == 0) {
         BOOST_THROW_EXCEPTION(NetworkProtocolException("blockSize == 0", __CLASS_NAME__));
@@ -203,18 +203,17 @@ uint64_t BlockFinalizeDownloader::readBlockSize(nlohmann::json _responseHeader) 
     return result;
 };
 
-string BlockFinalizeDownloader::readBlockHash(nlohmann::json _responseHeader) {
-    auto result = Header::getString(_responseHeader, "blockHash");
+string BlockFinalizeDownloader::readBlockHash(rapidjson::Document& _responseHeader) {
+    auto result = Header::getStringRapid(_responseHeader, "blockHash");
     return result;
 };
 
 ptr<BlockProposalFragment>
-BlockFinalizeDownloader::readBlockFragment(const ptr<ClientSocket>& _socket, nlohmann::json responseHeader,
+BlockFinalizeDownloader::readBlockFragment(const ptr<ClientSocket>& _socket, rapidjson::Document& responseHeader,
                                            fragment_index _fragmentIndex, node_count _nodeCount) {
 
     CHECK_ARGUMENT(_socket);
 
-    CHECK_ARGUMENT(responseHeader > 0);
 
     MONITOR(__CLASS_NAME__, __FUNCTION__);
 
