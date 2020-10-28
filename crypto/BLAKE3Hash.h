@@ -24,8 +24,12 @@
 #ifndef CONSENSUS_BLAKE3HASH_H
 #define CONSENSUS_BLAKE3HASH_H
 
+#include "deps/BLAKE3/c/blake3.h"
 
 #define SHA3_UPDATE(__HASH__, __OBJECT__) __HASH__.Update(reinterpret_cast < uint8_t * > ( &__OBJECT__), sizeof(__OBJECT__))
+
+
+
 
 class BLAKE3Hash {
 
@@ -34,6 +38,7 @@ class BLAKE3Hash {
 public:
 
     explicit BLAKE3Hash(const ptr<array<uint8_t, SHA_HASH_LEN>>& _hash);
+
 
 
     void print();

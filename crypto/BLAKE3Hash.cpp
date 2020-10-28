@@ -3,6 +3,7 @@
 
     This file is part of skale-consensus.
 
+
     skale-consensus is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published
     by the Free Software Foundation, either version 3 of the License, or
@@ -80,12 +81,12 @@ BLAKE3Hash::BLAKE3Hash(const ptr<array<uint8_t, SHA_HASH_LEN>>& _hash) {
 
 ptr<BLAKE3Hash> BLAKE3Hash::calculateHash(const ptr<vector<uint8_t>>& _data) {
     CHECK_ARGUMENT(_data);
-    auto digest = make_shared<array<uint8_t, SHA_HASH_LEN> >();
-
-    CryptoPP::SHA256 hashObject;
-
-    hashObject.Update(_data->data(), _data->size());
-    hashObject.Final(digest->data());
+    auto digest = make_shared<array<uint8_t, BLAKE3_OUT_LEN> >();
+    // Initialize the hasher.
+    blake3_hasher hasher;
+    blake3_hasher_init(&hasher);
+    blake3_hasher_update(&hasher, _data->data(), _data->size());
+    blake3_hasher_finalize(&hasher, digest->data(), BLAKE3_OUT_LEN);
 
     auto hash = make_shared<BLAKE3Hash>(digest);
     return hash;
