@@ -118,6 +118,7 @@ rm -f ./*.zip
 echo "Cleaning upacked library folders..."
 rm -rf ./libiconv-1.15
 rm -rf ./zlib
+rm -rf ./BLAKE3
 rm -rf ./openssl
 rm -rf ./curl
 rm -rf ./libuv

@@ -254,6 +254,7 @@ setup_variable() {
 #echo "WITH_SOMETHING outside is " $WITH_SOMETHING
 
 setup_variable WITH_ZLIB "yes"
+setup_variable WITH_BLAKE3 "yes"
 setup_variable WITH_OPENSSL "no"
 setup_variable WITH_CURL "yes"
 setup_variable WITH_LZMA "no"
@@ -567,6 +568,7 @@ echo -e "${COLOR_VAR_NAME}NM${COLOR_DOTS}.......................................
 echo -e "${COLOR_VAR_NAME}OBJCOPY${COLOR_DOTS}.......................................................${COLOR_VAR_VAL}$OBJCOPY${COLOR_RESET}"
 echo -e "${COLOR_VAR_NAME}OBJDUMP${COLOR_DOTS}.......................................................${COLOR_VAR_VAL}$OBJDUMP${COLOR_RESET}"
 echo -e "${COLOR_VAR_NAME}WITH_ZLIB${COLOR_DOTS}..............${COLOR_VAR_DESC}Zlib${COLOR_DOTS}...................................${COLOR_VAR_VAL}$WITH_ZLIB${COLOR_RESET}"
+echo -e "${COLOR_VAR_NAME}WITH_BLAKE3${COLOR_DOTS}..............${COLOR_VAR_DESC}BLAKE3${COLOR_DOTS}...................................${COLOR_VAR_VAL}$WITH_BLAKE3${COLOR_RESET}"
 echo -e "${COLOR_VAR_NAME}WITH_OPENSSL${COLOR_DOTS}...........${COLOR_VAR_DESC}OpenSSL${COLOR_DOTS}................................${COLOR_VAR_VAL}$WITH_OPENSSL${COLOR_RESET}"
 echo -e "${COLOR_VAR_NAME}WITH_CURL${COLOR_DOTS}..............${COLOR_VAR_DESC}CURL${COLOR_DOTS}...................................${COLOR_VAR_VAL}$WITH_CURL${COLOR_RESET}"
 #echo -e "${COLOR_VAR_NAME}WITH_LZMA${COLOR_DOTS}..............${COLOR_VAR_DESC}LZMA${COLOR_DOTS}...................................${COLOR_VAR_VAL}$WITH_LZMA${COLOR_RESET}"
