@@ -118,7 +118,7 @@ class CryptoManager {
 
     bool verifySig( const ptr< BLAKE3Hash >& _hash, const string& _sig, node_id _nodeId );
 
-    ptr< ThresholdSigShare > signSigShare( const ptr< BLAKE3Hash >& _hash, block_id _blockId );
+    ptr< ThresholdSigShare > signSigShare( const ptr< BLAKE3Hash >& _hash, block_id _blockId, bool _forceMockup );
 
     void initSGXClient();
 
@@ -143,7 +143,7 @@ public:
     ptr< ThresholdSigShareSet > createSigShareSet( block_id _blockId );
 
     ptr< ThresholdSigShare > createSigShare( const string& _sigShare, schain_id _schainID,
-        block_id _blockID, schain_index _signerIndex );
+        block_id _blockID, schain_index _signerIndex, bool _forceMockup );
 
     void signProposal( BlockProposal* _proposal );
 
@@ -154,7 +154,7 @@ public:
         const ptr< BlockProposal >& _p );
 
     ptr< ThresholdSigShare > signBinaryConsensusSigShare(
-        const ptr< BLAKE3Hash >& _hash, block_id _blockId );
+        const ptr< BLAKE3Hash >& _hash, block_id _blockId, uint64_t _round );
 
     ptr< ThresholdSigShare > signBlockSigShare( const ptr< BLAKE3Hash >& _hash, block_id _blockId );
 

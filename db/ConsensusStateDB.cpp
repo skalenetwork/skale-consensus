@@ -353,7 +353,7 @@ ConsensusStateDB::readAUXVotes(block_id _blockId, schain_index _proposerIndex, c
 
         (*outputMap)[bin_consensus_round(round)][schain_index(voterIndex)] =
                 _cryptoManager->createSigShare(item.second,
-                        getSchain()->getSchainID(), _blockId, voterIndex);
+                        getSchain()->getSchainID(), _blockId, voterIndex,( (uint64_t) round) <= 3);
     }
 
     return {trueMap, falseMap};

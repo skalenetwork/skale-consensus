@@ -50,7 +50,7 @@ bin_consensus_value BlockSignBroadcastMessage::getValue() const {
 BlockSignBroadcastMessage::BlockSignBroadcastMessage(block_id _blockID, schain_index _blockProposerIndex,
                                                      uint64_t _time,
                                                      ProtocolInstance &_sourceProtocolInstance)
-        : NetworkMessage(MSG_BLOCK_SIGN_BROADCAST, _blockID, _blockProposerIndex, 0, 0, _time,
+        : NetworkMessage(MSG_BLOCK_SIGN_BROADCAST, _blockID, _blockProposerIndex, 4, 0, _time,
                          _sourceProtocolInstance) {
     printPrefix = "f";
 
@@ -77,7 +77,7 @@ BlockSignBroadcastMessage::BlockSignBroadcastMessage(node_id _srcNodeID, block_i
                                                      const string& _pubKey, const string& _pkSig,
                                                      Schain *_sChain)
     : NetworkMessage(
-        MSG_BLOCK_SIGN_BROADCAST, _srcNodeID, _blockID, _blockProposerIndex, 0, 0, _time, _schainId, _msgID, _sigShare,
+        MSG_BLOCK_SIGN_BROADCAST, _srcNodeID, _blockID, _blockProposerIndex, 4, 0, _time, _schainId, _msgID, _sigShare,
         _ecdsaSig, _pubKey, _pkSig,
         _srcSchainIndex, _sChain->getCryptoManager()) {
     CHECK_ARGUMENT(!_sigShare.empty());

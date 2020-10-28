@@ -356,7 +356,7 @@ pair< ConnectionStatus, ConnectionSubStatus > BlockProposalClientAgent::sendBloc
 
 
     auto sigShare = getSchain()->getCryptoManager()->createSigShare(
-        finalHeader->getSigShare(), _proposal->getSchainID(), _proposal->getBlockID(), _index );
+        finalHeader->getSigShare(), _proposal->getSchainID(), _proposal->getBlockID(), _index, false );
     CHECK_STATE( sigShare );
 
     auto hash = BLAKE3Hash::merkleTreeMerge(
