@@ -2280,6 +2280,52 @@ then
 	fi
 fi
 
+
+if [ "$WITH_BLAKE3" = "yes" ]; then
+  echo -e "${COLOR_SEPARATOR}==================== ${COLOR_PROJECT_NAME}BLAKE3 ${COLOR_SEPARATOR} =====================================${COLOR_RESET}"
+  if [ ! -f "$INSTALL_ROOT/lib/libblake3.a" ]; then
+    env_restore
+    cd "$SOURCES_ROOT"
+    if [ ! -d "BLAKE3" ]; then
+      if [ ! -f "blake3-from-git.tar.gz" ]; then
+        echo -e "${COLOR_INFO}getting it from git${COLOR_DOTS}...${COLOR_RESET}"
+        git clone https://github.com/BLAKE3-team/BLAKE3.git
+        echo -e "${COLOR_INFO}archiving it${COLOR_DOTS}...${COLOR_RESET}"
+        tar -czf blake3-from-git.tar.gz ./BLAKE3
+      else
+        echo -e "${COLOR_INFO}unpacking it${COLOR_DOTS}...${COLOR_RESET}"
+        tar -xzf blake3-from-git.tar.gz
+      fi
+      echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
+      cd BLAKE3/c
+      git fetch
+      git checkout master
+      if [ "$ARCH" = "x86_or_x64" ]; then
+        if [ "$UNIX_SYSTEM_NAME" = "Darwin" ]; then
+          gcc -c -O3 -g blake3.c blake3_dispatch.c blake3_portable.c \
+            blake3_sse2_x86-64_unix.S blake3_sse41_x86-64_unix.S blake3_avx2_x86-64_unix.S \
+            blake3_avx512_x86-64_unix.S
+          ar rcs libblake3.a *.o
+        else
+          gcc -c -O3 -g blake3.c blake3_dispatch.c blake3_portable.c \
+            blake3_sse2_x86-64_unix.S blake3_sse41_x86-64_unix.S blake3_avx2_x86-64_unix.S \
+            blake3_avx512_x86-64_unix.S
+            ar rcs libblake3.a *.o
+        fi
+      fi
+      #$MAKE ${PARALLEL_MAKE_OPTIONS} depend
+      #$MAKE depend
+      cd ../..
+    fi
+    echo -e "${COLOR_INFO}built libblake3.a ${COLOR_DOTS}...${COLOR_RESET}"
+    ls
+    pwd
+    cp BLAKE3/c/libblake3.a ${INSTALL_ROOT}/lib
+  else
+    echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
+  fi
+fi
+
 echo -e "${COLOR_SEPARATOR}===================================================================${COLOR_RESET}"
 echo -e "${COLOR_YELLOW}CONSENSUS dependencies build actions...${COLOR_RESET}"
 echo -e "${COLOR_SEPARATOR}==================== ${COLOR_PROJECT_NAME}FINISH${COLOR_SEPARATOR} =======================================${COLOR_RESET}"
