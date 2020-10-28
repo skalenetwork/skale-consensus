@@ -38,7 +38,7 @@ blic License as published
 
 #include "SkaleCommon.h"
 #include "chains/Schain.h"
-#include "crypto/SHAHash.h"
+#include "crypto/BLAKE3Hash.h"
 
 #include "node/NodeInfo.h"
 

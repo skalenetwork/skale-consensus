@@ -28,7 +28,7 @@
 #include "thirdparty/json.hpp"
 
 #include "abstracttcpserver/ConnectionStatus.h"
-#include "crypto/SHAHash.h"
+#include "crypto/BLAKE3Hash.h"
 #include "datastructures/PartialHashesList.h"
 #include "datastructures/Transaction.h"
 #include "datastructures/TransactionList.h"
@@ -359,7 +359,7 @@ pair< ConnectionStatus, ConnectionSubStatus > BlockProposalClientAgent::sendBloc
         finalHeader->getSigShare(), _proposal->getSchainID(), _proposal->getBlockID(), _index );
     CHECK_STATE( sigShare );
 
-    auto hash = SHAHash::merkleTreeMerge(
+    auto hash = BLAKE3Hash::merkleTreeMerge(
         _proposal->getHash(), sigShare->computeHash());
 
     auto nodeInfo = getSchain()->getNode()->getNodeInfoByIndex(_index);

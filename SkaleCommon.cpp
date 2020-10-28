@@ -29,7 +29,7 @@
 
 
 #include "thirdparty/json.hpp"
-#include "crypto/SHAHash.h"
+#include "crypto/BLAKE3Hash.h"
 #include "node/ConsensusEngine.h"
 #include "node/Node.h"
 

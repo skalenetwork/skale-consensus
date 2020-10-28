@@ -24,7 +24,7 @@
 #include "SkaleCommon.h"
 #include "Log.h"
 #include "datastructures/TransactionList.h"
-#include "crypto/SHAHash.h"
+#include "crypto/BLAKE3Hash.h"
 #include "chains/Schain.h"
 #include "ReceivedBlockProposal.h"
 
@@ -41,7 +41,7 @@ ReceivedBlockProposal::ReceivedBlockProposal(Schain &_sChain, const block_id &_b
     CHECK_ARGUMENT(_hash != "");
     CHECK_ARGUMENT(_signature != "");
 
-    this->hash = SHAHash::fromHex(_hash);
+    this->hash = BLAKE3Hash::fromHex(_hash);
 
 
     this->signature = _signature;

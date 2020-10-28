@@ -218,6 +218,6 @@ uint64_t TransactionList::hashCount() {
     return transactions->size();
 }
 
-ptr<SHAHash> TransactionList::getHash(uint64_t _index) {
+ptr<BLAKE3Hash>TransactionList::getHash(uint64_t _index) {
     return transactions->at(_index)->getHash();
 };

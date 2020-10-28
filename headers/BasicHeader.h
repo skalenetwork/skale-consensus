@@ -26,7 +26,7 @@
 
 class Buffer;
 class ServerConnection;
-class SHAHash;
+class  BLAKE3Hash;
 
 
 #include "thirdparty/rapidjson/document.h"

@@ -25,7 +25,7 @@
 #include "SkaleCommon.h"
 #include "Log.h"
 #include "chains/Schain.h"
-#include "crypto/SHAHash.h"
+#include "crypto/BLAKE3Hash.h"
 #include "datastructures/BlockProposal.h"
 #include "exceptions/InvalidArgumentException.h"
 #include "thirdparty/json.hpp"

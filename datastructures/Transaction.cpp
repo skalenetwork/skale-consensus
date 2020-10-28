@@ -35,21 +35,21 @@
 #include "SkaleCommon.h"
 #include "Log.h"
 #include "chains/Schain.h"
-#include "crypto/SHAHash.h"
+#include "crypto/BLAKE3Hash.h"
 
 
 #include "Transaction.h"
 
 
 
-ptr< SHAHash > Transaction::getHash() {
+ptr< BLAKE3Hash > Transaction::getHash() {
 
     LOCK(m)
 
     if ( hash )
         return hash;
 
-    hash = SHAHash::calculateHash(data);
+    hash = BLAKE3Hash::calculateHash(data);
     CHECK_STATE(hash);
     return hash;
 }

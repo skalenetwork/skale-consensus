@@ -24,7 +24,7 @@
 #include "SkaleCommon.h"
 #include "Log.h"
 #include "crypto/ConsensusBLSSignature.h"
-#include "crypto/SHAHash.h"
+#include "crypto/BLAKE3Hash.h"
 
 #include "exceptions/FatalError.h"
 #include "thirdparty/json.hpp"
@@ -63,7 +63,7 @@ AUXBroadcastMessage::AUXBroadcastMessage(bin_consensus_round _round, bin_consens
 
     auto buf = make_shared<array<uint8_t, SHA_HASH_LEN>>();
     sha256.Final(buf->data());
-    auto hash = make_shared<SHAHash>(buf);
+    auto hash = make_shared<BLAKE3Hash>(buf);
     this->sigShare = schain->getCryptoManager()->signBinaryConsensusSigShare(hash, _blockID);
     CHECK_STATE(sigShare);
     this->sigShareString = sigShare->toString();

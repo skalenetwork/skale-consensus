@@ -26,7 +26,7 @@
 #include "Log.h"
 #include "chains/Schain.h"
 #include "crypto/CryptoManager.h"
-#include "crypto/SHAHash.h"
+#include "crypto/BLAKE3Hash.h"
 #include "crypto/ThresholdSigShare.h"
 #include "crypto/ThresholdSigShareSet.h"
 #include "crypto/ThresholdSignature.h"

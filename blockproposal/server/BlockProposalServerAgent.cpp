@@ -52,7 +52,7 @@
 
 #include "abstracttcpserver/AbstractServerAgent.h"
 #include "chains/Schain.h"
-#include "crypto/SHAHash.h"
+#include "crypto/BLAKE3Hash.h"
 #include "headers/BlockProposalResponseHeader.h"
 #include "headers/FinalProposalResponseHeader.h"
 #include "headers/Header.h"
@@ -578,9 +578,9 @@ ptr< Header > BlockProposalServerAgent::createDAProofResponseHeader(
     }
 
 
-    ptr< SHAHash > blockHash = nullptr;
+    ptr< BLAKE3Hash > blockHash = nullptr;
     try {
-        blockHash = SHAHash::fromHex( _header->getBlockHash() );
+        blockHash = BLAKE3Hash::fromHex( _header->getBlockHash() );
         CHECK_STATE( blockHash );
     } catch ( ... ) {
         responseHeader->setStatusSubStatus( CONNECTION_DISCONNECT, CONNECTION_INVALID_HASH );
@@ -601,7 +601,6 @@ ptr< Header > BlockProposalServerAgent::createDAProofResponseHeader(
         responseHeader->setComplete();
         return responseHeader;
     }
-
 
     auto proposal =
         getSchain()->getBlockProposal( _header->getBlockId(), _header->getProposerIndex() );

@@ -53,7 +53,7 @@ class ConsensusEngine;
 
 class ConsensusBLSSigShare;
 
-class SHAHash;
+class  BLAKE3Hash;
 
 class BLSPublicKey;
 

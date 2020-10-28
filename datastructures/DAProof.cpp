@@ -64,7 +64,7 @@ ptr<ThresholdSignature> DAProof::getThresholdSig() const {
     return thresholdSig;
 }
 
-ptr<SHAHash> DAProof::getHash() const {
+ptr<BLAKE3Hash>DAProof::getHash() const {
     CHECK_STATE(hash);
     return hash;
 }

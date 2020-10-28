@@ -16,7 +16,7 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file PartialSHAHash.h
+    @file PartialHash.h
     @author Stan Kladko
     @date 2019
 */
@@ -27,27 +27,27 @@
 
 #include "SkaleCommon.h"
 
-class PartialSHAHash {
+class PartialHash {
 
     ptr<array<uint8_t ,PARTIAL_SHA_HASH_LEN>> hash;
 
 public:
 
-    explicit PartialSHAHash(const ptr<array<uint8_t, PARTIAL_SHA_HASH_LEN>>& _hash);
+    explicit PartialHash(const ptr<array<uint8_t, PARTIAL_SHA_HASH_LEN>>& _hash);
 
-    static ptr< PartialSHAHash >  hex2sha(const string& _hex );
+    static ptr< PartialHash >  hex2sha(const string& _hex );
 
     void print();
 
     uint8_t at(uint32_t _position);
 
-    int compare(const ptr<PartialSHAHash>& _hash2 );
+    int compare(const ptr<PartialHash>& _hash2 );
 
     uint8_t * data() {
         return hash->data();
     };
 
-    ptr<PartialSHAHash> fromHex(const string& _hex);
+    ptr<PartialHash> fromHex(const string& _hex);
 
     string toHex();
 

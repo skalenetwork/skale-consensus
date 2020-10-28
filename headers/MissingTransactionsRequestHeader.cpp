@@ -27,7 +27,7 @@
 
 #include "abstracttcpserver/ConnectionStatus.h"
 #include "chains/Schain.h"
-#include "crypto/SHAHash.h"
+#include "crypto/BLAKE3Hash.h"
 #include "datastructures/BlockProposal.h"
 #include "thirdparty/json.hpp"
 

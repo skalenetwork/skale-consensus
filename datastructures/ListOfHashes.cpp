@@ -25,20 +25,20 @@
 #include "SkaleCommon.h"
 #include "Log.h"
 
-#include "crypto/SHAHash.h"
+#include "crypto/BLAKE3Hash.h"
 
 #include "ListOfHashes.h"
 
 
 
 
-ptr<SHAHash> ListOfHashes::calculateTopMerkleRoot() {
+ptr<BLAKE3Hash>ListOfHashes::calculateTopMerkleRoot() {
 
     LOCK(m)
 
     CHECK_STATE(hashCount() > 0);
 
-    vector<ptr<SHAHash>> hashes;
+    vector<ptr<BLAKE3Hash>> hashes;
     hashes.reserve(hashCount() + 1);
 
     for (uint64_t i = 0; i < hashCount(); i++) {
@@ -51,7 +51,7 @@ ptr<SHAHash> ListOfHashes::calculateTopMerkleRoot() {
             hashes.push_back(hashes.back());
 
         for (uint64_t j = 0; j < hashes.size() / 2; j++) {
-            hashes[j] = SHAHash::merkleTreeMerge(hashes[2 * j], hashes[2 * j + 1]);
+            hashes[j] = BLAKE3Hash::merkleTreeMerge(hashes[2 * j], hashes[2 * j + 1]);
         }
 
         hashes.resize(hashes.size() / 2);

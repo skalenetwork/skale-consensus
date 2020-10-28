@@ -25,7 +25,7 @@
 #include "SkaleCommon.h"
 
 #include "crypto/CryptoManager.h"
-#include "crypto/SHAHash.h"
+#include "crypto/BLAKE3Hash.h"
 #include "exceptions/InvalidStateException.h"
 
 #include "CommittedBlock.h"

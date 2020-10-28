@@ -43,7 +43,7 @@
 #include "datastructures/PartialHashesList.h"
 #include "node/Node.h"
 #include "datastructures/BlockProposal.h"
-#include "crypto/SHAHash.h"
+#include "crypto/BLAKE3Hash.h"
 #include "exceptions/LevelDBException.h"
 
 

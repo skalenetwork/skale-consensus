@@ -50,7 +50,7 @@
 #include "MockupSigShare.h"
 #include "MockupSigShareSet.h"
 #include "MockupSignature.h"
-#include "SHAHash.h"
+#include "BLAKE3Hash.h"
 
 #include "chains/Schain.h"
 #include "messages/NetworkMessage.h"
@@ -268,7 +268,7 @@ std::tuple< ptr< OpenSSLEdDSAKey >, string > CryptoManager::localGenerateFastKey
 
 
 tuple< string, string, string > CryptoManager::sessionSignECDSA(
-    const ptr< SHAHash >& _hash, block_id _blockID ) {
+    const ptr< BLAKE3Hash >& _hash, block_id _blockID ) {
     CHECK_ARGUMENT( _hash );
 
 
@@ -289,7 +289,7 @@ tuple< string, string, string > CryptoManager::sessionSignECDSA(
         } else {
             tie( privateKey, publicKey ) = localGenerateFastKey();
 
-            ptr< SHAHash > pKeyHash = nullptr;
+            ptr< BLAKE3Hash > pKeyHash = nullptr;
 
             pKeyHash = calculatePublicKeyHash( publicKey, _blockID );
 
@@ -306,7 +306,7 @@ tuple< string, string, string > CryptoManager::sessionSignECDSA(
     return { ret, publicKey, pkSig };
 }
 
-ptr< SHAHash > CryptoManager::calculatePublicKeyHash( const string publicKey, block_id _blockID ) {
+ptr< BLAKE3Hash > CryptoManager::calculatePublicKeyHash( const string publicKey, block_id _blockID ) {
     auto bytesToHash = make_shared< vector< uint8_t > >();
 
     auto bId = ( uint64_t ) _blockID;
@@ -320,11 +320,11 @@ ptr< SHAHash > CryptoManager::calculatePublicKeyHash( const string publicKey, bl
         bytesToHash->push_back( publicKey.at( i ) );
     }
 
-    return SHAHash::calculateHash( bytesToHash );
+    return BLAKE3Hash::calculateHash( bytesToHash );
 }
 
 
-string CryptoManager::sgxSignECDSA( const ptr< SHAHash >& _hash, string& _keyName ) {
+string CryptoManager::sgxSignECDSA( const ptr< BLAKE3Hash >& _hash, string& _keyName ) {
     CHECK_ARGUMENT( _hash );
 
     Json::Value result;
@@ -346,13 +346,13 @@ string CryptoManager::sgxSignECDSA( const ptr< SHAHash >& _hash, string& _keyNam
 
 
 bool CryptoManager::verifyECDSA(
-    const ptr< SHAHash >& _hash, const string& _sig, const string& _publicKey ) {
+    const ptr< BLAKE3Hash >& _hash, const string& _sig, const string& _publicKey ) {
     auto key = OpenSSLECDSAKey::importSGXPubKey( _publicKey );
 
     return key->verifySGXSig( _sig, ( const char* ) _hash->data() );
 }
 
-string CryptoManager::sign( const ptr< SHAHash >& _hash ) {
+string CryptoManager::sign( const ptr< BLAKE3Hash >& _hash ) {
     CHECK_ARGUMENT( _hash );
 
     if ( isSGXEnabled ) {
@@ -366,7 +366,7 @@ string CryptoManager::sign( const ptr< SHAHash >& _hash ) {
 
 
 tuple< string, string, string > CryptoManager::sessionSign(
-    const ptr< SHAHash >& _hash, block_id _blockId ) {
+    const ptr< BLAKE3Hash >& _hash, block_id _blockId ) {
     CHECK_ARGUMENT( _hash );
     if ( isSGXEnabled ) {
         string signature = "";
@@ -385,7 +385,7 @@ tuple< string, string, string > CryptoManager::sessionSign(
 
 
 bool CryptoManager::sessionVerifySig(
-    const ptr< SHAHash >& _hash, const string& _sig, const string& _publicKey ) {
+    const ptr< BLAKE3Hash >& _hash, const string& _sig, const string& _publicKey ) {
     CHECK_ARGUMENT( _hash )
     CHECK_ARGUMENT( _sig != "" )
 
@@ -406,7 +406,7 @@ bool CryptoManager::sessionVerifySig(
 }
 
 
-bool CryptoManager::verifySig( const ptr< SHAHash >& _hash, const string& _sig, node_id _nodeId ) {
+bool CryptoManager::verifySig( const ptr< BLAKE3Hash >& _hash, const string& _sig, node_id _nodeId ) {
     CHECK_ARGUMENT( _hash )
     CHECK_ARGUMENT( _sig != "" )
 
@@ -444,14 +444,14 @@ tuple< ptr< ThresholdSigShare >, string, string, string > CryptoManager::signDAP
     auto blsSig = signSigShare( _p->getHash(), _p->getBlockID() );
     CHECK_STATE( blsSig );
 
-    auto combinedHash = SHAHash::merkleTreeMerge( _p->getHash(), blsSig->computeHash() );
+    auto combinedHash = BLAKE3Hash::merkleTreeMerge( _p->getHash(), blsSig->computeHash() );
     auto [ecdsaSig, pubKey, pubKeySig] = sessionSign( combinedHash, _p->getBlockID() );
     return { blsSig, ecdsaSig, pubKey, pubKeySig };
 }
 
 
 ptr< ThresholdSigShare > CryptoManager::signBinaryConsensusSigShare(
-    const ptr< SHAHash >& _hash, block_id _blockId ) {
+    const ptr< BLAKE3Hash >& _hash, block_id _blockId ) {
     CHECK_ARGUMENT( _hash );
     auto result = signSigShare( _hash, _blockId );
     CHECK_STATE( result );
@@ -459,7 +459,7 @@ ptr< ThresholdSigShare > CryptoManager::signBinaryConsensusSigShare(
 }
 
 ptr< ThresholdSigShare > CryptoManager::signBlockSigShare(
-    const ptr< SHAHash >& _hash, block_id _blockId ) {
+    const ptr< BLAKE3Hash >& _hash, block_id _blockId ) {
     CHECK_ARGUMENT( _hash );
     auto result = signSigShare( _hash, _blockId );
     CHECK_STATE( result );
@@ -467,7 +467,7 @@ ptr< ThresholdSigShare > CryptoManager::signBlockSigShare(
 }
 
 ptr< ThresholdSigShare > CryptoManager::signSigShare(
-    const ptr< SHAHash >& _hash, block_id _blockId ) {
+    const ptr< BLAKE3Hash >& _hash, block_id _blockId ) {
     CHECK_ARGUMENT( _hash );
     MONITOR( __CLASS_NAME__, __FUNCTION__ )
 
@@ -549,7 +549,7 @@ bool CryptoManager::verifyNetworkMsg( NetworkMessage& _msg ) {
 
 
 bool CryptoManager::sessionVerifySigAndKey(
-    ptr< SHAHash >& _hash, const string& _sig, const string& _publicKey, const string& pkSig,
+    ptr< BLAKE3Hash >& _hash, const string& _sig, const string& _publicKey, const string& pkSig,
     block_id _blockID, node_id _nodeId) {
     MONITOR( __CLASS_NAME__, __FUNCTION__ );
 
@@ -609,7 +609,7 @@ bool CryptoManager::verifyProposalECDSA(
 }
 
 ptr< ThresholdSignature > CryptoManager::verifyThresholdSig(
-    const ptr< SHAHash >& _hash, const string& _signature, block_id _blockId ) {
+    const ptr< BLAKE3Hash >& _hash, const string& _signature, block_id _blockId ) {
     MONITOR( __CLASS_NAME__, __FUNCTION__ )
 
     CHECK_ARGUMENT( _hash );

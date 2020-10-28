@@ -51,7 +51,7 @@
 #include "protocols/blockconsensus/BlockSignBroadcastMessage.h"
 
 
-#include <crypto/SHAHash.h>
+#include <crypto/BLAKE3Hash.h>
 
 
 #include "NetworkMessage.h"
@@ -346,14 +346,14 @@ uint64_t NetworkMessage::getTimeMs() const {
     return timeMs;
 }
 
-ptr<SHAHash> NetworkMessage::getHash() {
+ptr<BLAKE3Hash>NetworkMessage::getHash() {
     if (hash == nullptr)
         hash = calculateHash();
     CHECK_STATE(hash)
     return hash;
 }
 
-ptr<SHAHash> NetworkMessage::calculateHash() {
+ptr<BLAKE3Hash>NetworkMessage::calculateHash() {
     CryptoPP::SHA256 sha3;
 
     SHA3_UPDATE(sha3, schainID);
@@ -384,7 +384,7 @@ ptr<SHAHash> NetworkMessage::calculateHash() {
 
     auto buf = make_shared<array<uint8_t, SHA_HASH_LEN>>();
     sha3.Final(buf->data());
-    hash = make_shared<SHAHash>(buf);
+    hash = make_shared<BLAKE3Hash>(buf);
     return hash;
 }
 

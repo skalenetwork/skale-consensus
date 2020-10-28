@@ -32,7 +32,7 @@
 #include "pendingqueue/PendingTransactionsAgent.h"
 #include "crypto/ConsensusSigShareSet.h"
 #include "crypto/CryptoManager.h"
-#include "crypto/SHAHash.h"
+#include "crypto/BLAKE3Hash.h"
 #include "datastructures/BlockProposal.h"
 #include "datastructures/DAProof.h"
 #include "datastructures/BooleanProposalVector.h"

@@ -60,7 +60,7 @@ protected:
     bin_consensus_value value{};
     ptr< ThresholdSigShare > sigShare;
 
-    ptr< SHAHash > hash;
+    ptr< BLAKE3Hash > hash;
 
     string sigShareString;
     string ecdsaSig;
@@ -79,7 +79,7 @@ protected:
         const string& _ecdsaSig, const string& _publicKey, const string& _pkSig,
         schain_index _srcSchainIndex, const ptr< CryptoManager >& _cryptoManager );
 
-    virtual ptr< SHAHash > calculateHash();
+    virtual ptr< BLAKE3Hash > calculateHash();
 
     void addFields(rapidjson::Writer<rapidjson::StringBuffer>& _j ) override;
 
@@ -109,7 +109,7 @@ public:
 
     schain_index getSrcSchainIndex() const;
 
-    ptr< SHAHash > getHash();
+    ptr< BLAKE3Hash > getHash();
 
     virtual string serializeToString() override;
 
