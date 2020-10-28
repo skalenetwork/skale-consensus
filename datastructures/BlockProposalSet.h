@@ -28,7 +28,7 @@
 class PartialHashesList;
 class Schain;
 class BlockProposal;
-class SHAHash;
+class  BLAKE3Hash;
 class BooleanProposalVector;
 class DAProof;
 

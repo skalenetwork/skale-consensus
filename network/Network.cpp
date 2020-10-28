@@ -27,7 +27,7 @@
 #include "blockproposal/pusher/BlockProposalClientAgent.h"
 #include "chains/Schain.h"
 #include "crypto/ConsensusBLSSigShare.h"
-#include "crypto/SHAHash.h"
+#include "crypto/BLAKE3Hash.h"
 #include "datastructures/BlockProposal.h"
 #include "db/BlockProposalDB.h"
 #include "exceptions/FatalError.h"

@@ -28,7 +28,7 @@
 #include "DataStructure.h"
 
 class Schain;
-class SHAHash;
+class  BLAKE3Hash;
 class DAProofHeader;
 
 class CryptoManager;
@@ -44,7 +44,7 @@ protected:
     node_id proposerNodeID;
     block_id blockID;
     schain_index proposerIndex;
-    ptr<SHAHash> hash = nullptr;
+    ptr<BLAKE3Hash>hash = nullptr;
     ptr<ThresholdSignature> thresholdSig = nullptr;
 
 public:
@@ -61,6 +61,6 @@ public:
 
     ptr<ThresholdSignature> getThresholdSig() const;
 
-    ptr<SHAHash> getHash() const;
+    ptr<BLAKE3Hash>getHash() const;
 };
 

@@ -34,7 +34,7 @@
 #include "PendingTransactionsAgent.h"
 #include "chains/Schain.h"
 #include "crypto/CryptoManager.h"
-#include "crypto/SHAHash.h"
+#include "crypto/BLAKE3Hash.h"
 #include "datastructures/BlockProposal.h"
 #include "datastructures/MyBlockProposal.h"
 #include "datastructures/PartialHashesList.h"

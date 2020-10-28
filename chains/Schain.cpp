@@ -47,7 +47,7 @@
 #include "catchup/client/CatchupClientAgent.h"
 #include "catchup/server/CatchupServerAgent.h"
 #include "crypto/ConsensusBLSSigShare.h"
-#include "crypto/SHAHash.h"
+#include "crypto/BLAKE3Hash.h"
 #include "crypto/ThresholdSignature.h"
 #include "datastructures/BlockProposal.h"
 #include "datastructures/BlockProposalSet.h"

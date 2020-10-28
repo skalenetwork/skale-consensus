@@ -33,7 +33,7 @@ class Schain;
 class Transaction;
 class PartialHashesList;
 class TransactionList;
-class SHAHash;
+class  BLAKE3Hash;
 class BlockProposalRequestHeader;
 class CryptoManager;
 class DAProof;
@@ -62,7 +62,7 @@ protected:
     u256 stateRoot = 0;
 
     ptr<TransactionList> transactionList = nullptr;
-    ptr< SHAHash > hash = nullptr;
+    ptr< BLAKE3Hash > hash = nullptr;
     string signature = "";
 
     void calculateHash();
@@ -96,7 +96,7 @@ public:
 
     node_id getProposerNodeID() const;
 
-    ptr<SHAHash> getHash();
+    ptr<BLAKE3Hash>getHash();
 
     ptr<PartialHashesList> createPartialHashesList();
 

@@ -30,7 +30,7 @@
 #include "blockfinalize/client/BlockFinalizeDownloaderThreadPool.h"
 #include "blockproposal/pusher/BlockProposalClientAgent.h"
 #include "chains/Schain.h"
-#include "crypto/SHAHash.h"
+#include "crypto/BLAKE3Hash.h"
 #include "crypto/ThresholdSigShare.h"
 #include "datastructures/BlockProposal.h"
 #include "datastructures/BooleanProposalVector.h"
