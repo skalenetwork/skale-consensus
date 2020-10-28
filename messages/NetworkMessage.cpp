@@ -98,7 +98,8 @@ NetworkMessage::NetworkMessage(MsgType _messageType, node_id _srcNodeID, block_i
     this->pkSig = _pkSig;
 
     if (!_sigShareStr.empty()) {
-        sigShare = _cryptoManager->createSigShare(_sigShareStr, _schainId, _blockID, _srcSchainIndex);
+        sigShare = _cryptoManager->createSigShare(_sigShareStr, _schainId, _blockID, _srcSchainIndex,
+                                                  (uint64_t) _r <= 3);
         CHECK_STATE(sigShare)
     }
 
@@ -316,7 +317,8 @@ ptr<NetworkMessage> NetworkMessage::parseMessage(const string& _header, Schain *
         return nwkMsg;
 
     } catch (ExitRequestedException &) { throw; } catch (...) {
-        throw_with_nested(InvalidStateException("Could not create message", __CLASS_NAME__));
+        throw_with_nested(InvalidStateException("Could not create message of type:"
+                                                + type , __CLASS_NAME__));
     }
 }
 

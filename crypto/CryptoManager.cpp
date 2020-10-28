@@ -441,7 +441,7 @@ tuple< ptr< ThresholdSigShare >, string, string, string > CryptoManager::signDAP
     const ptr< BlockProposal >& _p ) {
     CHECK_ARGUMENT( _p );
 
-    auto blsSig = signSigShare( _p->getHash(), _p->getBlockID() );
+    auto blsSig = signSigShare( _p->getHash(), _p->getBlockID() , false);
     CHECK_STATE( blsSig );
 
     auto combinedHash = BLAKE3Hash::merkleTreeMerge( _p->getHash(), blsSig->computeHash() );
@@ -451,9 +451,9 @@ tuple< ptr< ThresholdSigShare >, string, string, string > CryptoManager::signDAP
 
 
 ptr< ThresholdSigShare > CryptoManager::signBinaryConsensusSigShare(
-    const ptr< BLAKE3Hash >& _hash, block_id _blockId ) {
+    const ptr< BLAKE3Hash >& _hash, block_id _blockId, uint64_t _round ) {
     CHECK_ARGUMENT( _hash );
-    auto result = signSigShare( _hash, _blockId );
+    auto result = signSigShare( _hash, _blockId, ((uint64_t ) _round) <= 3);
     CHECK_STATE( result );
     return result;
 }
@@ -461,17 +461,17 @@ ptr< ThresholdSigShare > CryptoManager::signBinaryConsensusSigShare(
 ptr< ThresholdSigShare > CryptoManager::signBlockSigShare(
     const ptr< BLAKE3Hash >& _hash, block_id _blockId ) {
     CHECK_ARGUMENT( _hash );
-    auto result = signSigShare( _hash, _blockId );
+    auto result = signSigShare( _hash, _blockId, false );
     CHECK_STATE( result );
     return result;
 }
 
 ptr< ThresholdSigShare > CryptoManager::signSigShare(
-    const ptr< BLAKE3Hash >& _hash, block_id _blockId ) {
+    const ptr< BLAKE3Hash >& _hash, block_id _blockId, bool _forceMockup ) {
     CHECK_ARGUMENT( _hash );
     MONITOR( __CLASS_NAME__, __FUNCTION__ )
 
-    if ( getSchain()->getNode()->isSgxEnabled() ) {
+    if ( getSchain()->getNode()->isSgxEnabled() && !_forceMockup) {
         Json::Value jsonShare;
 
 
@@ -507,11 +507,13 @@ ptr< ThresholdSigShareSet > CryptoManager::createSigShareSet( block_id _blockId 
 
 
 ptr< ThresholdSigShare > CryptoManager::createSigShare(
-    const string& _sigShare, schain_id _schainID, block_id _blockID, schain_index _signerIndex ) {
+    const string& _sigShare, schain_id _schainID, block_id _blockID, schain_index _signerIndex,
+    bool _forceMockup) {
     CHECK_ARGUMENT( _sigShare != "" );
     CHECK_STATE( totalSigners >= requiredSigners );
 
-    if ( getSchain()->getNode()->isSgxEnabled() ) {
+
+    if ( getSchain()->getNode()->isSgxEnabled() && !_forceMockup) {
         return make_shared< ConsensusBLSSigShare >(
             _sigShare, _schainID, _blockID, _signerIndex, totalSigners, requiredSigners );
     } else {
