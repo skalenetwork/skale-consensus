@@ -126,6 +126,8 @@ pair<ptr<vector<ptr<Transaction>>>, u256> PendingTransactionsAgent::createTransa
         if( this->sChain->getLastCommittedBlockID() == 0 || (uint64_t ) diff.total_milliseconds() >= getSchain()->getNode()->getEmptyBlockIntervalMs())
             break;
 
+        usleep(100 * 1000);
+
     }// while
 
     for(const auto& e: txVector ){
