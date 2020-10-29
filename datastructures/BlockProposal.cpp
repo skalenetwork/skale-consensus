@@ -63,33 +63,37 @@ ptr<BLAKE3Hash> BlockProposal::getHash() {
 void BlockProposal::calculateHash() {
 
 
-    CryptoPP::SHA256 sha3;
+    HASH_INIT(hasher);
 
 
-    SHA3_UPDATE(sha3, proposerIndex);
-    SHA3_UPDATE(sha3, proposerNodeID);
-    SHA3_UPDATE(sha3, schainID);
-    SHA3_UPDATE(sha3, blockID);
-    SHA3_UPDATE(sha3, transactionCount);
-    SHA3_UPDATE(sha3, timeStamp);
-    SHA3_UPDATE(sha3, timeStampMs);
+
+    HASH_UPDATE(hasher, proposerIndex);
+    HASH_UPDATE(hasher, proposerNodeID);
+    HASH_UPDATE(hasher, schainID);
+    HASH_UPDATE(hasher, blockID);
+    HASH_UPDATE(hasher, transactionCount);
+    HASH_UPDATE(hasher, timeStamp);
+    HASH_UPDATE(hasher, timeStampMs);
 
     uint32_t sz = transactionList->size();
 
-    SHA3_UPDATE(sha3, sz);
+    HASH_UPDATE(hasher, sz);
 
     // export into 8-bit unsigned values, most significant bit first:
     auto sr = Utils::u256ToBigEndianArray(getStateRoot());
     auto v = Utils::carray2Hex(sr->data(), sr->size());
-    sha3.Update((unsigned char *) v.data(), v.size());
+    blake3_hasher_update(&hasher,(unsigned char *) v.data(), v.size());
 
     if (transactionList->size() > 0) {
         auto merkleRoot = transactionList->calculateTopMerkleRoot();
-        sha3.Update(merkleRoot->getHash()->data(), SHA_HASH_LEN);
+        blake3_hasher_update(&hasher, merkleRoot->getHash().data(), HASH_LEN);
     }
-    auto buf = make_shared<array<uint8_t, SHA_HASH_LEN>>();
-    sha3.Final(buf->data());
-    hash = make_shared<BLAKE3Hash>(buf);
+    auto buf = make_shared<array<uint8_t, HASH_LEN>>();
+
+    hash = make_shared<BLAKE3Hash>();
+
+    blake3_hasher_finalize(&hasher, hash->data(), BLAKE3_OUT_LEN);
+
 };
 
 
@@ -125,7 +129,7 @@ BlockProposal::BlockProposal(schain_id _sChainId, node_id _proposerNodeId, block
 
 ptr<PartialHashesList> BlockProposal::createPartialHashesList() {
 
-    auto s = (uint64_t) this->transactionCount * PARTIAL_SHA_HASH_LEN;
+    auto s = (uint64_t) this->transactionCount * PARTIAL_HASH_LEN;
 
     CHECK_STATE(transactionList);
 
@@ -139,8 +143,8 @@ ptr<PartialHashesList> BlockProposal::createPartialHashesList() {
 
     for (uint64_t i = 0; i < transactionCount; i++) {
 
-        for (size_t j = 0; j < PARTIAL_SHA_HASH_LEN; j++) {
-            partialHashes->at(i * PARTIAL_SHA_HASH_LEN + j) = t->at(i)->getHash()->at(j);
+        for (size_t j = 0; j < PARTIAL_HASH_LEN; j++) {
+            partialHashes->at(i * PARTIAL_HASH_LEN + j) = t->at(i)->getHash()->at(j);
         }
     }
 

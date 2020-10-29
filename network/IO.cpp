@@ -206,12 +206,12 @@ void IO::writePartialHashes(
     CHECK_ARGUMENT(_hashes);
     CHECK_ARGUMENT( _hashes->size() > 0);
 
-    auto buffer = make_shared<vector<uint8_t> >( _hashes->size() * PARTIAL_SHA_HASH_LEN);
+    auto buffer = make_shared<vector<uint8_t> >(_hashes->size() * PARTIAL_HASH_LEN);
 
     uint64_t counter = 0;
     for (auto &&item: *_hashes ) {
-        memcpy(buffer->data() + counter * PARTIAL_SHA_HASH_LEN, item.second->data(),
-               PARTIAL_SHA_HASH_LEN);
+        memcpy(buffer->data() + counter * PARTIAL_HASH_LEN, item.second->data(),
+               PARTIAL_HASH_LEN);
         counter++;
     }
 

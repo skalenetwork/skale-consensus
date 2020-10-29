@@ -73,7 +73,7 @@ TransactionList::TransactionList(const ptr<vector<uint64_t>>& _transactionSizes,
     }
 
     if (_checkPartialHash) {
-        CHECK_ARGUMENT( _serializedTransactions->size() - _offset > PARTIAL_SHA_HASH_LEN + 2 );
+        CHECK_ARGUMENT( _serializedTransactions->size() - _offset > PARTIAL_HASH_LEN + 2 );
     } else {
         CHECK_ARGUMENT( _serializedTransactions->size() - _offset > 2 );
     }

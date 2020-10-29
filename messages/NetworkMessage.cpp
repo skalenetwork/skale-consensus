@@ -356,37 +356,36 @@ ptr<BLAKE3Hash>NetworkMessage::getHash() {
 }
 
 ptr<BLAKE3Hash>NetworkMessage::calculateHash() {
-    CryptoPP::SHA256 sha3;
 
-    SHA3_UPDATE(sha3, schainID);
-    SHA3_UPDATE(sha3, blockID);
-    SHA3_UPDATE(sha3, blockProposerIndex);
-    SHA3_UPDATE(sha3, msgID);
-    SHA3_UPDATE(sha3, srcNodeID);
-    SHA3_UPDATE(sha3, srcSchainIndex);
-    SHA3_UPDATE(sha3, r);
-    SHA3_UPDATE(sha3, value);
+    HASH_INIT(hasher);
+    HASH_UPDATE(hasher, schainID);
+    HASH_UPDATE(hasher, blockID);
+    HASH_UPDATE(hasher, blockProposerIndex);
+    HASH_UPDATE(hasher, msgID);
+    HASH_UPDATE(hasher, srcNodeID);
+    HASH_UPDATE(hasher, srcSchainIndex);
+    HASH_UPDATE(hasher, r);
+    HASH_UPDATE(hasher, value);
 
     CHECK_STATE(type)
 
     uint32_t typeLen = strlen(type);
-    SHA3_UPDATE(sha3, typeLen);
-    sha3.Update((unsigned char*)type, strlen(type));
+    HASH_UPDATE(hasher, typeLen);
+    blake3_hasher_update(&hasher, (unsigned char*)type, strlen(type));
 
     uint32_t  sigShareLen = 0;
 
     if (!sigShareString.empty()) {
         sigShareLen = sigShareString.size();
-        SHA3_UPDATE(sha3, sigShareLen);
-        sha3.Update((unsigned char *) sigShareString.data(), sigShareLen);
+        HASH_UPDATE(hasher, sigShareLen);
+        blake3_hasher_update(&hasher, (unsigned char *) sigShareString.data(), sigShareLen);
     } else {
-        SHA3_UPDATE(sha3, sigShareLen);
+        HASH_UPDATE(hasher, sigShareLen);
     }
 
 
-    auto buf = make_shared<array<uint8_t, SHA_HASH_LEN>>();
-    sha3.Final(buf->data());
-    hash = make_shared<BLAKE3Hash>(buf);
+    hash  = make_shared<BLAKE3Hash>();
+    HASH_FINAL(hasher, hash->data());
     return hash;
 }
 

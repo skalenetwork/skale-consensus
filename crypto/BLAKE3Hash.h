@@ -26,19 +26,23 @@
 
 #include "deps/BLAKE3/c/blake3.h"
 
-#define SHA3_UPDATE(__HASH__, __OBJECT__) __HASH__.Update(reinterpret_cast < uint8_t * > ( &__OBJECT__), sizeof(__OBJECT__))
+#define HASH_INIT(__HASH__)     blake3_hasher __HASH__; blake3_hasher_init(& __HASH__);
 
+#define HASH_UPDATE(__HASH__, __OBJECT__) \
+blake3_hasher_update(&__HASH__, reinterpret_cast<uint8_t*>(&__OBJECT__),sizeof(__OBJECT__));
+
+#define HASH_FINAL(__HASH__, __OBJECT__) blake3_hasher_finalize(& __HASH__, __OBJECT__, BLAKE3_OUT_LEN);
 
 
 
 class BLAKE3Hash {
 
-    ptr<array<uint8_t ,SHA_HASH_LEN>> hash;
+    array<uint8_t ,HASH_LEN> hash;
 
 public:
 
-    explicit BLAKE3Hash(const ptr<array<uint8_t, SHA_HASH_LEN>>& _hash);
 
+    explicit BLAKE3Hash() {};
 
 
     void print();
@@ -48,10 +52,10 @@ public:
     int compare(const ptr<BLAKE3Hash>& _hash2 );
 
     uint8_t * data() {
-        return hash->data();
+        return hash.data();
     };
 
-    ptr<array<uint8_t ,SHA_HASH_LEN>> getHash() const;
+    const array<uint8_t ,HASH_LEN>& getHash() const;
 
     static ptr<BLAKE3Hash> fromHex(const string& _hex);
 
