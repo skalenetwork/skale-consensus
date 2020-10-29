@@ -153,15 +153,13 @@ static const uint64_t MAX_CONSENSUS_HISTORY  = 2 * MAX_ACTIVE_CONSENSUSES;
 static const uint64_t SESSION_KEY_CACHE_SIZE  = 2;
 static const uint64_t SESSION_PUBLIC_KEY_CACHE_SIZE  = 16;
 
-
-
 static constexpr uint64_t MAX_CATCHUP_DOWNLOAD_BYTES = 1000000000;
 
 static constexpr uint64_t PROPOSAL_HASHES_PER_DB = 100000;
 
 static constexpr uint64_t MAX_TRANSACTIONS_PER_BLOCK = 10000;
 
-static constexpr int64_t EMPTY_BLOCK_INTERVAL_MS = 3000;
+static constexpr int64_t EMPTY_BLOCK_INTERVAL_MS = 1;
 
 static constexpr uint64_t MIN_BLOCK_INTERVAL_MS = 1;
 
@@ -174,7 +172,6 @@ static constexpr uint64_t MONITORING_INTERVAL_MS = 1000;
 static constexpr uint64_t WAIT_AFTER_NETWORK_ERROR_MS = 3000;
 
 static constexpr uint64_t CONNECTION_REFUSED_LOG_INTERVAL_MS = 10 * 60 * 1000;
-
 
 // Non-tunable params
 
@@ -303,7 +300,7 @@ static const uint64_t  MAX_PROPOSAL_QUEUE_SIZE = 8;
 
 static const uint64_t SGX_SSL_PORT = 1026;
 
-static const uint64_t BLOCK_PROPOSAL_RECEIVE_TIMEOUT_MS = 120000;
+static const uint64_t BLOCK_PROPOSAL_RECEIVE_TIMEOUT_MS = 30000;
 
 static const uint64_t REBROADCAST_TIMEOUT_MS = 120000;
 
