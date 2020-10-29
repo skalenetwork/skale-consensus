@@ -672,8 +672,8 @@ ptr< PartialHashesList > AbstractServerAgent::readPartialHashes(
         try {
             getSchain()->getIo()->readBytes( _connectionEnvelope,
                 partialHashesList->getPartialHashes(),
-                msg_len( ( uint64_t ) partialHashesList->getTransactionCount() *
-                         PARTIAL_SHA_HASH_LEN ) );
+                msg_len(( uint64_t ) partialHashesList->getTransactionCount() *
+                        PARTIAL_HASH_LEN ) );
         } catch ( ExitRequestedException& ) {
 
             throw;

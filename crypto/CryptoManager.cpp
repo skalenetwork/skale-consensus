@@ -623,8 +623,10 @@ ptr< ThresholdSignature > CryptoManager::verifyThresholdSig(
 
         CHECK_STATE( blsPublicKeyObj );
 
+        auto sharedHash = make_shared< std::array< uint8_t, 32 > >(_hash->getHash());
+
         if ( !blsPublicKeyObj->VerifySig(
-                 _hash->getHash(), sig->getBlsSig(), requiredSigners, totalSigners ) ) {
+                 sharedHash, sig->getBlsSig(), requiredSigners, totalSigners ) ) {
             BOOST_THROW_EXCEPTION(
                 InvalidStateException( "BLS Signature did not verify", __CLASS_NAME__ ) );
         }

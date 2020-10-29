@@ -444,7 +444,7 @@ BlockProposalClientAgent::readMissingHashes( const ptr< ClientSocket >& _socket,
     CHECK_ARGUMENT( _socket );
     CHECK_ARGUMENT( _count > 0 );
 
-    auto bytesToRead = _count * PARTIAL_SHA_HASH_LEN;
+    auto bytesToRead = _count * PARTIAL_HASH_LEN;
     auto buffer = make_shared< vector< uint8_t > >( bytesToRead );
 
     CHECK_STATE( bytesToRead > 0 );
@@ -468,8 +468,8 @@ BlockProposalClientAgent::readMissingHashes( const ptr< ClientSocket >& _socket,
     try {
         for ( uint64_t i = 0; i < _count; i++ ) {
             auto hash = make_shared< partial_sha_hash >();
-            for ( size_t j = 0; j < PARTIAL_SHA_HASH_LEN; j++ ) {
-                hash->at( j ) = buffer->at( PARTIAL_SHA_HASH_LEN * i + j );
+            for (size_t j = 0; j < PARTIAL_HASH_LEN; j++ ) {
+                hash->at( j ) = buffer->at(PARTIAL_HASH_LEN * i + j );
             }
 
             result->insert( hash );

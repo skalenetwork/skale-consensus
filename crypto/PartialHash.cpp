@@ -31,7 +31,7 @@
 
 void PartialHash::print() {
     CHECK_STATE(hash);
-    for (size_t i = 0; i < PARTIAL_SHA_HASH_LEN; i++) {
+    for (size_t i = 0; i < PARTIAL_HASH_LEN; i++) {
         cerr << to_string(hash->at(i));
     }
 }
@@ -45,9 +45,9 @@ ptr< PartialHash > PartialHash::hex2sha(const string& _hex ) {
 
     CHECK_STATE(_hex != "");
 
-    auto result = make_shared<array<uint8_t, PARTIAL_SHA_HASH_LEN>>();
+    auto result = make_shared<array<uint8_t, PARTIAL_HASH_LEN>>();
 
-    for ( size_t i = 0; i < PARTIAL_SHA_HASH_LEN; i++ ) {
+    for (size_t i = 0; i < PARTIAL_HASH_LEN; i++ ) {
         result->at(i) = Utils::char2int(_hex.at(i) ) * 16 + Utils::char2int(_hex.at(i + 1));
     }
 
@@ -61,7 +61,7 @@ ptr< PartialHash > PartialHash::hex2sha(const string& _hex ) {
 int PartialHash::compare(const ptr<PartialHash>& _hash2 ) {
     CHECK_ARGUMENT(_hash2);
     CHECK_STATE(hash);
-    for (size_t i = 0; i < PARTIAL_SHA_HASH_LEN; i++) {
+    for (size_t i = 0; i < PARTIAL_HASH_LEN; i++) {
         if (hash->at(i) < _hash2->at(i))
             return -1;
         if (hash->at(i) > _hash2->at(i))
@@ -70,7 +70,7 @@ int PartialHash::compare(const ptr<PartialHash>& _hash2 ) {
     return 0;
 }
 
-PartialHash::PartialHash(const ptr<array<uint8_t, PARTIAL_SHA_HASH_LEN>>& _hash) {
+PartialHash::PartialHash(const ptr<array<uint8_t, PARTIAL_HASH_LEN>>& _hash) {
     CHECK_ARGUMENT(_hash);
     hash = _hash;
 }
@@ -79,8 +79,8 @@ PartialHash::PartialHash(const ptr<array<uint8_t, PARTIAL_SHA_HASH_LEN>>& _hash)
 
 ptr< PartialHash > PartialHash::fromHex(const string& _hex) {
     CHECK_ARGUMENT(_hex != "");
-    auto result = make_shared<array<uint8_t, PARTIAL_SHA_HASH_LEN>>();
-    for ( size_t i = 0; i < PARTIAL_SHA_HASH_LEN; i++ ) {
+    auto result = make_shared<array<uint8_t, PARTIAL_HASH_LEN>>();
+    for (size_t i = 0; i < PARTIAL_HASH_LEN; i++ ) {
         result->at(i) = Utils::char2int(_hex.at(2*i) ) * 16 + Utils::char2int(_hex.at(2* i + 1));
     }
     return make_shared<PartialHash>(result);
@@ -89,6 +89,6 @@ ptr< PartialHash > PartialHash::fromHex(const string& _hex) {
 
 string PartialHash::toHex() {
     CHECK_STATE(hash);
-    return Utils::carray2Hex(hash->data(), PARTIAL_SHA_HASH_LEN);
+    return Utils::carray2Hex(hash->data(), PARTIAL_HASH_LEN);
 }
 

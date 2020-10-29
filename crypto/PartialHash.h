@@ -29,11 +29,11 @@
 
 class PartialHash {
 
-    ptr<array<uint8_t ,PARTIAL_SHA_HASH_LEN>> hash;
+    ptr<array<uint8_t ,PARTIAL_HASH_LEN>> hash;
 
 public:
 
-    explicit PartialHash(const ptr<array<uint8_t, PARTIAL_SHA_HASH_LEN>>& _hash);
+    explicit PartialHash(const ptr<array<uint8_t, PARTIAL_HASH_LEN>>& _hash);
 
     static ptr< PartialHash >  hex2sha(const string& _hex );
 

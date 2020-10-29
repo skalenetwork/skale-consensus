@@ -33,29 +33,26 @@
 #include "BLAKE3Hash.h"
 
 void BLAKE3Hash::print() {
-    CHECK_STATE(hash);
-    for (size_t i = 0; i < SHA_HASH_LEN; i++) {
-        cerr << to_string(hash->at(i));
+    for (size_t i = 0; i < HASH_LEN; i++) {
+        cerr << to_string(hash.at(i));
     }
 }
 
 
 uint8_t BLAKE3Hash::at(uint32_t _position) {
-    CHECK_STATE(hash);
-    return hash->at(_position);
+    return hash.at(_position);
 }
 
 
 ptr<BLAKE3Hash> BLAKE3Hash::fromHex(const string& _hex) {
     CHECK_ARGUMENT(_hex != "");
-    auto result = make_shared<array<uint8_t, SHA_HASH_LEN>>();
-    Utils::cArrayFromHex(_hex, result->data(), SHA_HASH_LEN);
-    return make_shared<BLAKE3Hash>(result);
+    auto result = make_shared<BLAKE3Hash>();
+    Utils::cArrayFromHex(_hex, result->data(), HASH_LEN);
+    return result;
 }
 
 string BLAKE3Hash::toHex() {
-    CHECK_STATE(hash);
-    auto result = Utils::carray2Hex(hash->data(), SHA_HASH_LEN);
+    auto result = Utils::carray2Hex(hash.data(), HASH_LEN);
     CHECK_STATE(result != "");
     return result;
 }
@@ -63,32 +60,26 @@ string BLAKE3Hash::toHex() {
 
 int BLAKE3Hash::compare(const ptr<BLAKE3Hash>& _hash2 ) {
     CHECK_ARGUMENT( _hash2 );
-    CHECK_STATE(hash);
 
-    for (size_t i = 0; i < SHA_HASH_LEN; i++) {
-        if (hash->at(i) < _hash2->at(i))
+    for (size_t i = 0; i < HASH_LEN; i++) {
+        if (hash.at(i) < _hash2->at(i))
             return -1;
-        if (hash->at(i) > _hash2->at(i))
+        if (hash.at(i) > _hash2->at(i))
             return 1;
     }
     return 0;
 }
 
-BLAKE3Hash::BLAKE3Hash(const ptr<array<uint8_t, SHA_HASH_LEN>>& _hash) {
-    CHECK_ARGUMENT(_hash);
-    hash = _hash;
-}
 
 ptr<BLAKE3Hash> BLAKE3Hash::calculateHash(const ptr<vector<uint8_t>>& _data) {
     CHECK_ARGUMENT(_data);
-    auto digest = make_shared<array<uint8_t, BLAKE3_OUT_LEN> >();
     // Initialize the hasher.
+
     blake3_hasher hasher;
     blake3_hasher_init(&hasher);
     blake3_hasher_update(&hasher, _data->data(), _data->size());
-    blake3_hasher_finalize(&hasher, digest->data(), BLAKE3_OUT_LEN);
-
-    auto hash = make_shared<BLAKE3Hash>(digest);
+    auto hash = make_shared<BLAKE3Hash>();
+    blake3_hasher_finalize(&hasher, hash->data(), BLAKE3_OUT_LEN);
     return hash;
 }
 
@@ -97,23 +88,21 @@ ptr<BLAKE3Hash> BLAKE3Hash::merkleTreeMerge(const ptr<BLAKE3Hash>& _left, const 
     CHECK_ARGUMENT(_right);
 
     auto concatenation = make_shared<vector<uint8_t>>();
-    concatenation->reserve(2 * SHA_HASH_LEN);
+    concatenation->reserve(2 * HASH_LEN);
 
     auto leftHash = _left->getHash();
-    CHECK_STATE(leftHash);
 
-    concatenation->insert(concatenation->end(), leftHash->begin(), leftHash->end());
+
+    concatenation->insert(concatenation->end(), leftHash.begin(), leftHash.end());
 
     auto rightHash = _right->getHash();
-    CHECK_STATE(rightHash);
 
-    concatenation->insert(concatenation->end(), rightHash->begin(), rightHash->end());
+    concatenation->insert(concatenation->end(), rightHash.begin(), rightHash.end());
 
     return calculateHash(concatenation);
 }
 
-ptr<array<uint8_t, SHA_HASH_LEN>> BLAKE3Hash::getHash() const {
-    CHECK_STATE(hash);
+const array<uint8_t, HASH_LEN>& BLAKE3Hash::getHash() const {
     return hash;
 }
 

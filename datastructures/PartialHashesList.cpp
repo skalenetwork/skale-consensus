@@ -39,7 +39,7 @@ PartialHashesList::PartialHashesList(
 
 PartialHashesList::PartialHashesList(transaction_count _transactionCount)
         : transactionCount(_transactionCount) {
-    auto s = size_t(uint64_t(_transactionCount)) * PARTIAL_SHA_HASH_LEN;
+    auto s = size_t(uint64_t(_transactionCount)) * PARTIAL_HASH_LEN;
 
     if (s > MAX_BUFFER_SIZE) {
         BOOST_THROW_EXCEPTION(InvalidArgumentException("Buffer size too large", __CLASS_NAME__));
@@ -63,13 +63,13 @@ ptr<partial_sha_hash> PartialHashesList::getPartialHash(uint64_t i) {
         BOOST_THROW_EXCEPTION(
                 NetworkProtocolException("Index i is more than messageCount:" + to_string(i), __CLASS_NAME__));
     }
-    auto hash = make_shared<array<uint8_t, PARTIAL_SHA_HASH_LEN> >();
+    auto hash = make_shared<array<uint8_t, PARTIAL_HASH_LEN> >();
 
 
     CHECK_STATE(partialHashes);
 
-    for (size_t j = 0; j < PARTIAL_SHA_HASH_LEN; j++) {
-        hash->at(j) = partialHashes->at(PARTIAL_SHA_HASH_LEN * i + j);
+    for (size_t j = 0; j < PARTIAL_HASH_LEN; j++) {
+        hash->at(j) = partialHashes->at(PARTIAL_HASH_LEN * i + j);
     }
 
     return hash;
