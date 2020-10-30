@@ -70,7 +70,7 @@ jobs:
         sudo rm -rf /usr/local/lib/android >/dev/null 2>&1
         sudo docker rmi $(docker image ls -aq) >/dev/null 2>&1
 
-    - name: try docker compose;
+    - name: try docker compose
       run: |
         # cd sgxwallet/run_sgx_sim && docker-compose pull && docker-compose up -d
         cd sgxwallet/run_sgx_sim
@@ -114,8 +114,6 @@ jobs:
         bison yasm texinfo \
         autotools-dev autogen automake autoconf m4 shtool pkg-config sed gawk yasm nasm \
         python python-pip libtool build-essential idn2
-        # wget git libargtable2-dev \
-        # libmicrohttpd-dev libhiredis-dev redis-server openssl  libssl-dev >/dev/null 2>&1;
 
     - name: Prepare ccache timestamp
       id: ccache_cache_timestamp
