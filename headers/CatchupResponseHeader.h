@@ -58,7 +58,7 @@ public:
 
     void setBlockSizes(const ptr<list<uint64_t>>& _blockSizes);
 
-    void addFields(rapidjson::Writer<rapidjson::StringBuffer> &j_) override;
+    void addFields(nlohmann::basic_json<> &j_) override;
 
 };
 

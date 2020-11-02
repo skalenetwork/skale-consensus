@@ -63,11 +63,11 @@ CatchupClientAgent::CatchupClientAgent( Schain& _sChain ) : Agent( _sChain, fals
 }
 
 
-rapidjson::Document CatchupClientAgent::readCatchupResponseHeader(
-    const ptr< ClientSocket >& _socket ) {
+nlohmann::json CatchupClientAgent::readCatchupResponseHeader(const ptr< ClientSocket >& _socket ) {
     CHECK_ARGUMENT( _socket );
-    auto result = sChain->getIo()->readJsonHeader(
-        _socket->getDescriptor(), "Read catchup response", MAX_CATCHUP_DOWNLOAD_BYTES );
+    auto result =
+        sChain->getIo()->readJsonHeader( _socket->getDescriptor(), "Read catchup response",
+            MAX_CATCHUP_DOWNLOAD_BYTES);
     return result;
 }
 
@@ -101,7 +101,7 @@ void CatchupClientAgent::sync( schain_index _dstIndex ) {
     }
     LOG( debug, "Catchupc step 1: wrote catchup request" );
 
-    rapidjson::Document response;
+    nlohmann::json response;
 
     try {
         response = readCatchupResponseHeader( socket );
@@ -116,7 +116,7 @@ void CatchupClientAgent::sync( schain_index _dstIndex ) {
 
     LOG( debug, "Catchupc step 2: read catchup response header" );
 
-    auto status = ( ConnectionStatus ) Header::getUint64Rapid( response, "status" );
+    auto status = ( ConnectionStatus ) Header::getUint64( response, "status" );
 
     if ( status == CONNECTION_DISCONNECT ) {
         LOG( debug, "Catchupc got response::no missing blocks" );
@@ -151,8 +151,21 @@ void CatchupClientAgent::sync( schain_index _dstIndex ) {
 }
 
 size_t CatchupClientAgent::parseBlockSizes(
-    rapidjson::Document& _responseHeader, const ptr< vector< uint64_t > >& _blockSizes ) {
-    auto jsonSizes = BasicHeader::getUint64ArrayRapid( _responseHeader, "sizes" );
+    nlohmann::json _responseHeader, const ptr<vector<uint64_t>>& _blockSizes ) {
+    nlohmann::json jsonSizes = _responseHeader["sizes"];
+
+    CHECK_ARGUMENT( _blockSizes );
+
+
+    if ( !jsonSizes.is_array() ) {
+        BOOST_THROW_EXCEPTION(
+            NetworkProtocolException( "JSON Sizes is not an array ", __CLASS_NAME__ ) );
+    }
+
+
+    if ( jsonSizes.size() == 0 ) {
+        BOOST_THROW_EXCEPTION( NetworkProtocolException( "JSON sizes is empty", __CLASS_NAME__ ) );
+    }
 
     size_t totalSize = 0;
 
@@ -176,14 +189,15 @@ size_t CatchupClientAgent::parseBlockSizes(
 
 
 ptr< CommittedBlockList > CatchupClientAgent::readMissingBlocks(
-    ptr< ClientSocket >& _socket, rapidjson::Document& responseHeader ) {
+    ptr< ClientSocket >& _socket, nlohmann::json responseHeader ) {
+    CHECK_ARGUMENT( responseHeader > 0 );
     CHECK_ARGUMENT( _socket );
 
     auto blockSizes = make_shared< vector< uint64_t > >();
 
     auto totalSize = parseBlockSizes( responseHeader, blockSizes );
 
-    auto serializedBlocks = make_shared< vector< uint8_t > >( totalSize );
+    auto serializedBlocks = make_shared<vector<uint8_t>>( totalSize );
 
     try {
         getSchain()->getIo()->readBytes(
@@ -206,9 +220,7 @@ ptr< CommittedBlockList > CatchupClientAgent::readMissingBlocks(
         blockList = CommittedBlockList::deserialize(
             getSchain()->getCryptoManager(), blockSizes, serializedBlocks, 0 );
         CHECK_STATE( blockList );
-    } catch ( ExitRequestedException& ) {
-        throw;
-    } catch ( ... ) {
+    } catch ( ExitRequestedException& ) { throw; } catch ( ... ) {
         throw_with_nested(
             NetworkProtocolException( "Could not parse block list", __CLASS_NAME__ ) );
     }
@@ -249,6 +261,7 @@ void CatchupClientAgent::workerThreadItemSendLoop( CatchupClientAgent* _agent ) 
 
 schain_index CatchupClientAgent::nextSyncNodeIndex(
     const CatchupClientAgent* _agent, schain_index _destinationSchainIndex ) {
+
     CHECK_ARGUMENT( _agent );
 
     auto nodeCount = ( uint64_t ) _agent->getSchain()->getNodeCount();

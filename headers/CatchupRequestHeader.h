@@ -47,7 +47,8 @@ public:
 
     CatchupRequestHeader(Schain &_sChain, schain_index _dstIndex);
 
-    void addFields(rapidjson::Writer<rapidjson::StringBuffer> &_j) override;
+
+    void addFields(nlohmann::basic_json<> &j) override;
 
     const node_id &getNodeId() const;
 

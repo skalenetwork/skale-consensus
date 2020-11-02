@@ -33,11 +33,11 @@ class CommittedBlockHeader : public BlockProposalHeader {
 public:
     CommittedBlockHeader(BlockProposal &block, const string &thresholdSig);
 
-    CommittedBlockHeader(rapidjson::Document &json);
+    CommittedBlockHeader(nlohmann::json &json);
 
     const string &getThresholdSig() const;
 
-    void addFields(rapidjson::Writer<rapidjson::StringBuffer> &_j) override;
+    void addFields(nlohmann::basic_json<> &j) override;
 };
 
 

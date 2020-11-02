@@ -43,7 +43,7 @@ public:
     MissingTransactionsResponseHeader(
             const ptr<vector<uint64_t>>& _missingTransactionSizes);
 
-    void addFields(rapidjson::Writer<rapidjson::StringBuffer> &_j) override;
+    void addFields(nlohmann::json &_j) override;
 
 };
 

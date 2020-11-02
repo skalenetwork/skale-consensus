@@ -43,7 +43,7 @@ public:
 
     MissingTransactionsRequestHeader(const ptr<map<uint64_t, ptr<partial_sha_hash>>>& _missingMessages);
 
-    void addFields(rapidjson::Writer<rapidjson::StringBuffer>& j_) override;
+    void addFields(nlohmann::basic_json<> &j_) override;
 
     uint64_t getMissingTransactionsCount() const;
 

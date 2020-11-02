@@ -21,15 +21,15 @@
     @date 2018
 */
 
-#include "Log.h"
 #include "SkaleCommon.h"
+#include "Log.h"
 #include "crypto/SHAHash.h"
 #include "exceptions/FatalError.h"
 #include "thirdparty/json.hpp"
 
-#include "chains/Schain.h"
 #include "datastructures/BlockProposal.h"
 #include "node/NodeInfo.h"
+#include "chains/Schain.h"
 
 #include "AbstractBlockRequestHeader.h"
 
@@ -37,113 +37,98 @@
 
 using namespace std;
 
-BlockProposalRequestHeader::BlockProposalRequestHeader(
-    rapidjson::Document& _proposalRequest, node_count _nodeCount )
-    : AbstractBlockRequestHeader( _nodeCount,
-          ( schain_id ) Header::getUint64Rapid( _proposalRequest, "schainID" ),
-          ( block_id ) Header::getUint64Rapid( _proposalRequest, "blockID" ), Header::BLOCK_PROPOSAL_REQ,
-          ( schain_index ) Header::getUint64Rapid( _proposalRequest, "proposerIndex" ) ) {
-    proposerNodeID = ( node_id ) Header::getUint64Rapid( _proposalRequest, "proposerNodeID" );
-    timeStamp = Header::getUint64Rapid( _proposalRequest, "timeStamp" );
-    timeStampMs = Header::getUint32Rapid( _proposalRequest, "timeStampMs" );
-    hash = Header::getStringRapid( _proposalRequest, "hash" );
-    CHECK_STATE( !hash.empty() )
-    signature = Header::getStringRapid( _proposalRequest, "sig" );
-    CHECK_STATE( !signature.empty() )
-    txCount = Header::getUint64Rapid( _proposalRequest, "txCount" );
-    auto stateRootStr = Header::getStringRapid( _proposalRequest, "sr" );
-    CHECK_STATE( !stateRootStr.empty() )
-    stateRoot = u256( stateRootStr );
-    CHECK_STATE( stateRoot != 0 )
+BlockProposalRequestHeader::BlockProposalRequestHeader(nlohmann::json _proposalRequest, node_count _nodeCount)
+        : AbstractBlockRequestHeader(_nodeCount, (schain_id) Header::getUint64(_proposalRequest, "schainID"),
+                                     (block_id) Header::getUint64(_proposalRequest, "blockID"),
+                                     Header::BLOCK_PROPOSAL_REQ,
+                                     (schain_index) Header::getUint64(_proposalRequest, "proposerIndex")) {
+
+    proposerNodeID = (node_id) Header::getUint64(_proposalRequest, "proposerNodeID");
+    timeStamp = Header::getUint64(_proposalRequest, "timeStamp");
+    timeStampMs = Header::getUint32(_proposalRequest, "timeStampMs");
+    hash = Header::getString(_proposalRequest, "hash");
+    CHECK_STATE(!hash.empty())
+    signature = Header::getString(_proposalRequest, "sig");
+    CHECK_STATE(!signature.empty())
+    txCount = Header::getUint64(_proposalRequest, "txCount");
+    auto stateRootStr = Header::getString(_proposalRequest, "sr");
+    CHECK_STATE(!stateRootStr.empty())
+    stateRoot = u256(stateRootStr);
+    CHECK_STATE(stateRoot != 0)
 }
 
-BlockProposalRequestHeader::BlockProposalRequestHeader(
-    Schain& _sChain, const ptr< BlockProposal >& proposal )
-    : AbstractBlockRequestHeader( _sChain.getNodeCount(), _sChain.getSchainID(),
-          proposal->getBlockID(), Header::BLOCK_PROPOSAL_REQ, _sChain.getSchainIndex() ) {
+BlockProposalRequestHeader::BlockProposalRequestHeader(Schain &_sChain, const ptr<BlockProposal>& proposal) :
+        AbstractBlockRequestHeader(_sChain.getNodeCount(), _sChain.getSchainID(), proposal->getBlockID(),
+                                   Header::BLOCK_PROPOSAL_REQ,
+                                   _sChain.getSchainIndex()) {
+
+
     proposerNodeID = _sChain.getNode()->getNodeID();
-    txCount = ( uint64_t ) proposal->getTransactionCount();
+    txCount = (uint64_t) proposal->getTransactionCount();
     timeStamp = proposal->getTimeStamp();
     timeStampMs = proposal->getTimeStampMs();
 
     hash = proposal->getHash()->toHex();
-    CHECK_STATE( !hash.empty() )
+    CHECK_STATE(!hash.empty())
 
     signature = proposal->getSignature();
 
     stateRoot = proposal->getStateRoot();
 
-    CHECK_STATE( stateRoot != 0 )
-    CHECK_STATE( timeStamp > MODERN_TIME )
+    CHECK_STATE(stateRoot != 0)
+    CHECK_STATE(timeStamp > MODERN_TIME)
 
     complete = true;
+
 }
 
 
-void BlockProposalRequestHeader::addFields(
-    rapidjson::Writer< rapidjson::StringBuffer >& jsonRequest ) {
-    AbstractBlockRequestHeader::addFields( jsonRequest );
+void BlockProposalRequestHeader::addFields(nlohmann::basic_json<> &jsonRequest) {
 
-    jsonRequest.String( "schainID" );
-    jsonRequest.Uint64( ( uint64_t ) schainID );
+    AbstractBlockRequestHeader::addFields(jsonRequest);
 
-    jsonRequest.String( "proposerNodeID" );
-    jsonRequest.Uint64( ( uint64_t ) proposerNodeID );
-
-    jsonRequest.String( "proposerIndex" );
-    jsonRequest.Uint64( ( uint64_t ) proposerIndex );
-
-    jsonRequest.String( "blockID" );
-    jsonRequest.Uint64( ( uint64_t ) blockID );
-
-    jsonRequest.String( "txCount" );
-    jsonRequest.Uint64( txCount );
-
-    CHECK_STATE( timeStamp > MODERN_TIME )
-    jsonRequest.String( "timeStamp" );
-    jsonRequest.Uint64( timeStamp );
-
-    jsonRequest.String( "timeStampMs" );
-    jsonRequest.Uint( timeStampMs );
-
-    CHECK_STATE( !hash.empty() )
-    CHECK_STATE( !signature.empty() )
-
-    jsonRequest.String( "hash" );
-    jsonRequest.String( hash.c_str() );
-
-    jsonRequest.String( "sig" );
-    jsonRequest.String( signature.c_str() );
-
-    jsonRequest.String( "sr" );
-    jsonRequest.String( stateRoot.str().c_str() );
+    jsonRequest["schainID"] = (uint64_t) schainID;
+    jsonRequest["proposerNodeID"] = (uint64_t) proposerNodeID;
+    jsonRequest["proposerIndex"] = (uint64_t) proposerIndex;
+    jsonRequest["blockID"] = (uint64_t) blockID;
+    jsonRequest["txCount"] = txCount;
+    CHECK_STATE(timeStamp > MODERN_TIME)
+    jsonRequest["timeStamp"] = timeStamp;
+    jsonRequest["timeStampMs"] = timeStampMs;
+    CHECK_STATE(!hash.empty())
+    CHECK_STATE(!signature.empty())
+    jsonRequest["hash"] = hash;
+    jsonRequest["sig"] = signature;
+    jsonRequest["sr"] = stateRoot.str();
 }
-node_id BlockProposalRequestHeader::getProposerNodeId() {
+ node_id BlockProposalRequestHeader::getProposerNodeId()  {
     return proposerNodeID;
 }
 
-string BlockProposalRequestHeader::getHash() {
-    CHECK_STATE( !hash.empty() )
+ string BlockProposalRequestHeader::getHash()  {
+    CHECK_STATE(!hash.empty())
     return hash;
 }
 
-uint64_t BlockProposalRequestHeader::getTxCount() const {
+uint64_t BlockProposalRequestHeader::getTxCount() const  {
     return txCount;
 }
 
-uint64_t BlockProposalRequestHeader::getTimeStamp() const {
+uint64_t BlockProposalRequestHeader::getTimeStamp() const  {
     return timeStamp;
 }
 
-uint32_t BlockProposalRequestHeader::getTimeStampMs() const {
+uint32_t BlockProposalRequestHeader::getTimeStampMs() const  {
     return timeStampMs;
 }
 
-string BlockProposalRequestHeader::getSignature() {
-    CHECK_STATE( !signature.empty() )
+string BlockProposalRequestHeader::getSignature()  {
+    CHECK_STATE(!signature.empty())
     return signature;
 }
 
-u256 BlockProposalRequestHeader::getStateRoot() {
+ u256 BlockProposalRequestHeader::getStateRoot()  {
     return stateRoot;
 }
+
+

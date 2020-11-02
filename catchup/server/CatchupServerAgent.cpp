@@ -100,7 +100,7 @@ void CatchupServerAgent::processNextAvailableConnection(const ptr<ServerConnecti
     }
 
 
-    rapidjson::Document jsonRequest;
+    nlohmann::json jsonRequest = nullptr;
 
     try {
         jsonRequest = sChain->getIo()->readJsonHeader(_connection->getDescriptor(), "Read catchup request");
@@ -113,7 +113,7 @@ void CatchupServerAgent::processNextAvailableConnection(const ptr<ServerConnecti
 
     ptr<Header> responseHeader = nullptr;
 
-    auto type = Header::getStringRapid(jsonRequest, "type");
+    auto type = Header::getString(jsonRequest, "type");
 
 
     if (type.compare(Header::BLOCK_CATCHUP_REQ) == 0) {
@@ -179,16 +179,17 @@ void CatchupServerAgent::processNextAvailableConnection(const ptr<ServerConnecti
 }
 
 
-ptr<vector<uint8_t>> CatchupServerAgent::createResponseHeaderAndBinary(const ptr<ServerConnection>& , rapidjson::Document& _jsonRequest,
+ptr<vector<uint8_t>> CatchupServerAgent::createResponseHeaderAndBinary(const ptr<ServerConnection>& ,
+                                                                       nlohmann::json _jsonRequest,
                                                                        const ptr<Header> &_responseHeader) {
 
     CHECK_ARGUMENT(_responseHeader);
 
     try {
 
-        schain_id schainID = Header::getUint64Rapid(_jsonRequest, "schainID");
-        block_id blockID = Header::getUint64Rapid(_jsonRequest, "blockID");
-        node_id nodeID = Header::getUint64Rapid(_jsonRequest, "nodeID");
+        schain_id schainID = Header::getUint64(_jsonRequest, "schainID");
+        block_id blockID = Header::getUint64(_jsonRequest, "blockID");
+        node_id nodeID = Header::getUint64(_jsonRequest, "nodeID");
 
 
         if ((uint64_t ) sChain->getSchainID() != schainID) {
@@ -207,7 +208,7 @@ ptr<vector<uint8_t>> CatchupServerAgent::createResponseHeaderAndBinary(const ptr
                             __CLASS_NAME__));
         }
 
-        auto type = Header::getStringRapid(_jsonRequest, "type");
+        auto type = Header::getString(_jsonRequest, "type");
 
         ptr<vector<uint8_t>> serializedBinary = nullptr;
 
@@ -236,7 +237,7 @@ ptr<vector<uint8_t>> CatchupServerAgent::createResponseHeaderAndBinary(const ptr
 }
 
 
-ptr<vector<uint8_t>> CatchupServerAgent::createBlockCatchupResponse(rapidjson::Document& /*_jsonRequest */,
+ptr<vector<uint8_t>> CatchupServerAgent::createBlockCatchupResponse(nlohmann::json /*_jsonRequest */,
                                                                     const ptr<CatchupResponseHeader>& _responseHeader,
                                                                     block_id _blockID) {
 
@@ -300,7 +301,7 @@ ptr<vector<uint8_t>> CatchupServerAgent::createBlockCatchupResponse(rapidjson::D
 }
 
 
-ptr<vector<uint8_t>> CatchupServerAgent::createBlockFinalizeResponse(rapidjson::Document& _jsonRequest,
+ptr<vector<uint8_t>> CatchupServerAgent::createBlockFinalizeResponse(nlohmann::json _jsonRequest,
                                                                      const ptr<BlockFinalizeResponseHeader>& _responseHeader,
                                                                      block_id _blockID) {
 
@@ -309,7 +310,7 @@ ptr<vector<uint8_t>> CatchupServerAgent::createBlockFinalizeResponse(rapidjson::
     MONITOR(__CLASS_NAME__, __FUNCTION__);
 
     try {
-        fragment_index fragmentIndex = Header::getUint64Rapid(_jsonRequest, "fragmentIndex");
+        fragment_index fragmentIndex = Header::getUint64(_jsonRequest, "fragmentIndex");
 
         if (fragmentIndex < 1 || (uint64_t) fragmentIndex > getSchain()->getNodeCount() - 1) {
             LOG(debug, "Incorrect fragment index:" + to_string(fragmentIndex));
@@ -319,7 +320,7 @@ ptr<vector<uint8_t>> CatchupServerAgent::createBlockFinalizeResponse(rapidjson::
         }
 
 
-        schain_index proposerIndex = Header::getUint64Rapid(_jsonRequest, "proposerIndex");
+        schain_index proposerIndex = Header::getUint64(_jsonRequest, "proposerIndex");
 
 
         if (proposerIndex < 1 || (uint64_t) fragmentIndex > getSchain()->getNodeCount()) {

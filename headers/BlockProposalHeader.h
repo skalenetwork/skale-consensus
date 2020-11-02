@@ -53,7 +53,7 @@ public:
 
     block_id getBlockID();
 
-    BlockProposalHeader(rapidjson::Document& _json);
+    BlockProposalHeader(nlohmann::json& _json);
 
     BlockProposalHeader(BlockProposal & _block);
 
@@ -62,7 +62,7 @@ public:
         return blockHash;
     }
 
-    void addFields(rapidjson::Writer<rapidjson::StringBuffer> &_j) override;
+    void addFields(nlohmann::json &j) override;
 
     ptr<vector<uint64_t>> getTransactionSizes();
 

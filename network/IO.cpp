@@ -248,7 +248,7 @@ void IO::readMagic(file_descriptor descriptor) {
 
 }
 
-rapidjson::Document IO::readJsonHeader(file_descriptor descriptor, const char *_errorString,
+nlohmann::json IO::readJsonHeader(file_descriptor descriptor, const char *_errorString,
     uint64_t _maxHeaderLen) {
 
     CHECK_ARGUMENT(_errorString);
@@ -291,13 +291,12 @@ rapidjson::Document IO::readJsonHeader(file_descriptor descriptor, const char *_
 
     LOG(trace, "Read JSON header" + *s);
 
-    rapidjson::Document js;
+    nlohmann::json js;
 
     try {
-        js.Parse( s->c_str() );
-        CHECK_STATE(!js.HasParseError());
-        CHECK_STATE(js.IsObject())
-    } catch (...) {
+        js = nlohmann::json::parse(*s);
+    } catch (ExitRequestedException &) { throw; }
+    catch (...) {
         BOOST_THROW_EXCEPTION(ParsingException(string(_errorString) + ":Could not parse request" + *s, __CLASS_NAME__));
     }
 
