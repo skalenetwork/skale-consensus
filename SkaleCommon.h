@@ -153,8 +153,6 @@ static const uint64_t MAX_CONSENSUS_HISTORY  = 2 * MAX_ACTIVE_CONSENSUSES;
 static const uint64_t SESSION_KEY_CACHE_SIZE  = 2;
 static const uint64_t SESSION_PUBLIC_KEY_CACHE_SIZE  = 16;
 
-
-
 static constexpr uint64_t MAX_CATCHUP_DOWNLOAD_BYTES = 1000000000;
 
 static constexpr uint64_t PROPOSAL_HASHES_PER_DB = 100000;
@@ -175,14 +173,13 @@ static constexpr uint64_t WAIT_AFTER_NETWORK_ERROR_MS = 3000;
 
 static constexpr uint64_t CONNECTION_REFUSED_LOG_INTERVAL_MS = 10 * 60 * 1000;
 
-
 // Non-tunable params
 
 static constexpr uint32_t SOCKET_BACKLOG = 64;
 
-static constexpr size_t SHA_HASH_LEN = 32;
+static constexpr size_t HASH_LEN = 32;
 
-static constexpr size_t PARTIAL_SHA_HASH_LEN = 8;
+static constexpr size_t PARTIAL_HASH_LEN = 8;
 
 static constexpr uint32_t SLOW_TEST_INITIAL_GENERATE = 0;
 // static constexpr uint32_t SLOW_TEST_INITIAL_GENERATE  = 10000;
@@ -221,7 +218,7 @@ static inline std::string tstr(T x) {
 using fs_path = boost::filesystem::path;  // #define fs_path boost::filesystem::path
 
 
-typedef array<uint8_t, PARTIAL_SHA_HASH_LEN> partial_sha_hash;
+typedef array<uint8_t, PARTIAL_HASH_LEN> partial_sha_hash;
 
 class SkaleCommon {
 public:
@@ -303,7 +300,7 @@ static const uint64_t  MAX_PROPOSAL_QUEUE_SIZE = 8;
 
 static const uint64_t SGX_SSL_PORT = 1026;
 
-static const uint64_t BLOCK_PROPOSAL_RECEIVE_TIMEOUT_MS = 120000;
+static const uint64_t BLOCK_PROPOSAL_RECEIVE_TIMEOUT_MS = 30000;
 
 static const uint64_t REBROADCAST_TIMEOUT_MS = 120000;
 

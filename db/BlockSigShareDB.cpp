@@ -26,7 +26,7 @@
 #include "Log.h"
 #include "chains/Schain.h"
 #include "crypto/CryptoManager.h"
-#include "crypto/SHAHash.h"
+#include "crypto/BLAKE3Hash.h"
 #include "crypto/ThresholdSigShare.h"
 #include "crypto/ThresholdSigShareSet.h"
 #include "crypto/ThresholdSignature.h"
@@ -71,7 +71,7 @@ BlockSigShareDB::checkAndSaveShare(const ptr<ThresholdSigShare>& _sigShare, cons
             CHECK_STATE(nodeInfo)
             CHECK_STATE(!item.second.empty())
             auto sigShare = _cryptoManager->createSigShare(item.second, sChain->getSchainID(),
-                                                           _sigShare->getBlockId(), item.first);
+                                                           _sigShare->getBlockId(), item.first, false);
             CHECK_STATE(sigShare)
             _sigShareSet->addSigShare(sigShare);
         }

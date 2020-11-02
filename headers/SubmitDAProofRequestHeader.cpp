@@ -24,7 +24,7 @@
 #include "SkaleCommon.h"
 #include "Log.h"
 #include "chains/Schain.h"
-#include "crypto/SHAHash.h"
+#include "crypto/BLAKE3Hash.h"
 #include "crypto/ThresholdSignature.h"
 #include "datastructures/BlockProposal.h"
 #include "datastructures/DAProof.h"

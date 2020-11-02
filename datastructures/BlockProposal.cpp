@@ -33,7 +33,7 @@
 #include "exceptions/FatalError.h"
 #include "exceptions/InvalidArgumentException.h"
 #include "exceptions/ParsingException.h"
-#include "crypto/SHAHash.h"
+#include "crypto/BLAKE3Hash.h"
 #include "crypto/CryptoManager.h"
 #include "network/Buffer.h"
 #include "node/ConsensusEngine.h"
@@ -54,49 +54,46 @@
 
 using namespace std;
 
-ptr<SHAHash> BlockProposal::getHash() {
+ptr<BLAKE3Hash> BlockProposal::getHash() {
     CHECK_STATE(hash);
     return hash;
 }
 
 
-
 void BlockProposal::calculateHash() {
 
 
+    HASH_INIT(hasher);
 
 
 
-
-
-
-    CryptoPP::SHA256 sha3;
-
-
-    SHA3_UPDATE(sha3, proposerIndex);
-    SHA3_UPDATE(sha3, proposerNodeID);
-    SHA3_UPDATE(sha3, schainID);
-    SHA3_UPDATE(sha3, blockID);
-    SHA3_UPDATE(sha3, transactionCount);
-    SHA3_UPDATE(sha3, timeStamp);
-    SHA3_UPDATE(sha3, timeStampMs );
+    HASH_UPDATE(hasher, proposerIndex);
+    HASH_UPDATE(hasher, proposerNodeID);
+    HASH_UPDATE(hasher, schainID);
+    HASH_UPDATE(hasher, blockID);
+    HASH_UPDATE(hasher, transactionCount);
+    HASH_UPDATE(hasher, timeStamp);
+    HASH_UPDATE(hasher, timeStampMs);
 
     uint32_t sz = transactionList->size();
 
-    SHA3_UPDATE(sha3, sz);
+    HASH_UPDATE(hasher, sz);
 
     // export into 8-bit unsigned values, most significant bit first:
     auto sr = Utils::u256ToBigEndianArray(getStateRoot());
-    auto v = Utils::carray2Hex(sr->data(),  sr->size());
-    sha3.Update((unsigned char *) v.data(), v.size());
+    auto v = Utils::carray2Hex(sr->data(), sr->size());
+    blake3_hasher_update(&hasher,(unsigned char *) v.data(), v.size());
 
     if (transactionList->size() > 0) {
         auto merkleRoot = transactionList->calculateTopMerkleRoot();
-        sha3.Update(merkleRoot->getHash()->data(), SHA_HASH_LEN);
+        blake3_hasher_update(&hasher, merkleRoot->getHash().data(), HASH_LEN);
     }
-    auto buf = make_shared<array<uint8_t, SHA_HASH_LEN>>();
-    sha3.Final(buf->data());
-    hash = make_shared<SHAHash>(buf);
+    auto buf = make_shared<array<uint8_t, HASH_LEN>>();
+
+    hash = make_shared<BLAKE3Hash>();
+
+    blake3_hasher_finalize(&hasher, hash->data(), BLAKE3_OUT_LEN);
+
 };
 
 
@@ -106,12 +103,12 @@ BlockProposal::BlockProposal(uint64_t _timeStamp, uint32_t _timeStampMs) : timeS
 };
 
 BlockProposal::BlockProposal(schain_id _sChainId, node_id _proposerNodeId, block_id _blockID,
-                             schain_index _proposerIndex, const ptr<TransactionList>& _transactions, u256 _stateRoot,
-                             uint64_t _timeStamp, __uint32_t _timeStampMs, const string& _signature,
-                             const ptr<CryptoManager>& _cryptoManager)
+                             schain_index _proposerIndex, const ptr<TransactionList> &_transactions, u256 _stateRoot,
+                             uint64_t _timeStamp, __uint32_t _timeStampMs, const string &_signature,
+                             const ptr<CryptoManager> &_cryptoManager)
         : schainID(_sChainId), proposerNodeID(_proposerNodeId), blockID(_blockID),
           proposerIndex(_proposerIndex), timeStamp(_timeStamp), timeStampMs(_timeStampMs),
-          stateRoot(_stateRoot), transactionList(_transactions),  signature(_signature) {
+          stateRoot(_stateRoot), transactionList(_transactions), signature(_signature) {
 
     CHECK_ARGUMENT(_transactions);
 
@@ -122,7 +119,7 @@ BlockProposal::BlockProposal(schain_id _sChainId, node_id _proposerNodeId, block
     calculateHash();
 
     if (_cryptoManager != nullptr) {
-        _cryptoManager->signProposal( this );
+        _cryptoManager->signProposal(this);
     } else {
         CHECK_ARGUMENT(_signature != "");
         signature = _signature;
@@ -132,7 +129,7 @@ BlockProposal::BlockProposal(schain_id _sChainId, node_id _proposerNodeId, block
 
 ptr<PartialHashesList> BlockProposal::createPartialHashesList() {
 
-    auto s = (uint64_t) this->transactionCount * PARTIAL_SHA_HASH_LEN;
+    auto s = (uint64_t) this->transactionCount * PARTIAL_HASH_LEN;
 
     CHECK_STATE(transactionList);
 
@@ -146,8 +143,8 @@ ptr<PartialHashesList> BlockProposal::createPartialHashesList() {
 
     for (uint64_t i = 0; i < transactionCount; i++) {
 
-        for (size_t j = 0; j < PARTIAL_SHA_HASH_LEN; j++) {
-            partialHashes->at(i * PARTIAL_SHA_HASH_LEN + j) = t->at(i)->getHash()->at(j);
+        for (size_t j = 0; j < PARTIAL_HASH_LEN; j++) {
+            partialHashes->at(i * PARTIAL_HASH_LEN + j) = t->at(i)->getHash()->at(j);
         }
     }
 
@@ -196,7 +193,7 @@ uint32_t BlockProposal::getTimeStampMs() const {
     return timeStampMs;
 }
 
-void BlockProposal::addSignature(const string& _signature) {
+void BlockProposal::addSignature(const string &_signature) {
     LOCK(m)
     CHECK_ARGUMENT(_signature != "")
     signature = _signature;
@@ -209,7 +206,7 @@ string BlockProposal::getSignature() {
 }
 
 ptr<BlockProposalRequestHeader> BlockProposal::createBlockProposalHeader(Schain *_sChain,
-                                                                         const ptr<BlockProposal>& _proposal) {
+                                                                         const ptr<BlockProposal> &_proposal) {
 
     CHECK_ARGUMENT(_sChain);
     CHECK_ARGUMENT(_proposal);
@@ -277,8 +274,8 @@ ptr<vector<uint8_t> > BlockProposal::serialize() {
 }
 
 
-ptr<BlockProposal> BlockProposal::deserialize(const ptr<vector<uint8_t> >& _serializedProposal,
-                                              const ptr<CryptoManager>& _manager) {
+ptr<BlockProposal> BlockProposal::deserialize(const ptr<vector<uint8_t> > &_serializedProposal,
+                                              const ptr<CryptoManager> &_manager) {
 
     CHECK_ARGUMENT(_serializedProposal);
     CHECK_ARGUMENT(_manager);
@@ -319,7 +316,8 @@ ptr<BlockProposal> BlockProposal::deserialize(const ptr<vector<uint8_t> >& _seri
 }
 
 ptr<BlockProposal>
-BlockProposal::defragment(const ptr<BlockProposalFragmentList>& _fragmentList, const ptr<CryptoManager>& _cryptoManager) {
+BlockProposal::defragment(const ptr<BlockProposalFragmentList> &_fragmentList,
+                          const ptr<CryptoManager> &_cryptoManager) {
 
     CHECK_ARGUMENT(_fragmentList);
     CHECK_ARGUMENT(_cryptoManager);
@@ -342,7 +340,7 @@ ptr<BlockProposalFragment> BlockProposal::getFragment(uint64_t _totalFragments, 
 
     auto serializedBlock = serialize();
 
-    CHECK_STATE( serializedBlock );
+    CHECK_STATE(serializedBlock);
 
     auto blockSize = serializedBlock->size();
 
@@ -364,20 +362,21 @@ ptr<BlockProposalFragment> BlockProposal::getFragment(uint64_t _totalFragments, 
 
     if (_index == _totalFragments) {
         fragmentData->insert(fragmentData->begin() + 1, serializedBlock->begin() + startIndex,
-            serializedBlock->end());
+                             serializedBlock->end());
     } else {
         fragmentData->insert(fragmentData->begin() + 1, serializedBlock->begin() + startIndex,
-            serializedBlock->begin() + startIndex + fragmentStandardSize);
+                             serializedBlock->begin() + startIndex + fragmentStandardSize);
     }
 
     fragmentData->push_back('>');
 
-    return make_shared<BlockProposalFragment>(getBlockID(), _totalFragments, _index, fragmentData, serializedBlock->size(), getHash()->toHex());
+    return make_shared<BlockProposalFragment>(getBlockID(), _totalFragments, _index, fragmentData,
+                                              serializedBlock->size(), getHash()->toHex());
 }
 
-ptr<TransactionList> BlockProposal::deserializeTransactions(const ptr<BlockProposalHeader>& _header,
-                                                            const string& _headerString,
-                                                            const ptr<vector<uint8_t> >& _serializedBlock) {
+ptr<TransactionList> BlockProposal::deserializeTransactions(const ptr<BlockProposalHeader> &_header,
+                                                            const string &_headerString,
+                                                            const ptr<vector<uint8_t> > &_serializedBlock) {
 
     CHECK_ARGUMENT(_header);
     CHECK_ARGUMENT(_headerString != "");
@@ -404,7 +403,7 @@ ptr<TransactionList> BlockProposal::deserializeTransactions(const ptr<BlockPropo
 }
 
 
-string BlockProposal::extractHeader(const ptr<vector<uint8_t> >& _serializedBlock) {
+string BlockProposal::extractHeader(const ptr<vector<uint8_t> > &_serializedBlock) {
 
     CHECK_ARGUMENT(_serializedBlock);
 
@@ -442,12 +441,12 @@ string BlockProposal::extractHeader(const ptr<vector<uint8_t> >& _serializedBloc
 }
 
 
-ptr<BlockProposalHeader> BlockProposal::parseBlockHeader(const string & _header ) {
-    CHECK_ARGUMENT( _header != "");
-    CHECK_ARGUMENT( _header.size() > 2);
-    CHECK_ARGUMENT2( _header.at(0) == '{', "Block header does not start with {");
+ptr<BlockProposalHeader> BlockProposal::parseBlockHeader(const string &_header) {
+    CHECK_ARGUMENT(_header != "");
+    CHECK_ARGUMENT(_header.size() > 2);
+    CHECK_ARGUMENT2(_header.at(0) == '{', "Block header does not start with {");
     CHECK_ARGUMENT2(
-        _header.at( _header.size() - 1) == '}', "Block header does not end with }");
+            _header.at(_header.size() - 1) == '}', "Block header does not end with }");
 
     auto js = nlohmann::json::parse(_header );
 

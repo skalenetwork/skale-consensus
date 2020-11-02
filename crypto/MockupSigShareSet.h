@@ -32,7 +32,7 @@ class PartialHashesList;
 class Schain;
 class MockupSigShare;
 class MockupSignature;
-class SHAHash;
+class  BLAKE3Hash;
 
 class MockupSigShareSet : public ThresholdSigShareSet {
 

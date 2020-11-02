@@ -26,7 +26,7 @@
 #include "exceptions/FatalError.h"
 
 #include "messages/NetworkMessage.h"
-#include "crypto/SHAHash.h"
+#include "crypto/BLAKE3Hash.h"
 
 #include "protocols/ProtocolKey.h"
 #include "protocols/ProtocolInstance.h"
@@ -50,20 +50,24 @@ bin_consensus_value BlockSignBroadcastMessage::getValue() const {
 BlockSignBroadcastMessage::BlockSignBroadcastMessage(block_id _blockID, schain_index _blockProposerIndex,
                                                      uint64_t _time,
                                                      ProtocolInstance &_sourceProtocolInstance)
-        : NetworkMessage(MSG_BLOCK_SIGN_BROADCAST, _blockID, _blockProposerIndex, 0, 0, _time,
+        : NetworkMessage(MSG_BLOCK_SIGN_BROADCAST, _blockID, _blockProposerIndex, 4, 0, _time,
                          _sourceProtocolInstance) {
     printPrefix = "f";
 
     auto schain = _sourceProtocolInstance.getSchain();
-    CryptoPP::SHA256 sha256;
+
+    HASH_INIT(hashObj)
+
     auto bpi = getBlockProposerIndex();
-    sha256.Update(reinterpret_cast < uint8_t * > ( &bpi), sizeof(bpi));
-    sha256.Update(reinterpret_cast < uint8_t * > ( &this->blockID), sizeof(blockID));
-    sha256.Update(reinterpret_cast < uint8_t * > ( &this->schainID), sizeof(schainID));
-    sha256.Update(reinterpret_cast < uint8_t * > ( &this->msgType), sizeof(msgType));
-    auto buf = make_shared<array<uint8_t, SHA_HASH_LEN>>();
-    sha256.Final(buf->data());
-    auto hash = make_shared<SHAHash>(buf);
+    HASH_UPDATE(hashObj, bpi)
+
+    HASH_UPDATE(hashObj,this->blockID)
+    HASH_UPDATE(hashObj, this->schainID)
+    HASH_UPDATE(hashObj, this->msgType)
+
+    auto hash = make_shared<BLAKE3Hash>();
+
+    HASH_FINAL(hashObj, hash->data());
 
     this->sigShare = schain->getCryptoManager()->signBlockSigShare(hash, _blockID);
     this->sigShareString = sigShare->toString();
@@ -77,7 +81,7 @@ BlockSignBroadcastMessage::BlockSignBroadcastMessage(node_id _srcNodeID, block_i
                                                      const string& _pubKey, const string& _pkSig,
                                                      Schain *_sChain)
     : NetworkMessage(
-        MSG_BLOCK_SIGN_BROADCAST, _srcNodeID, _blockID, _blockProposerIndex, 0, 0, _time, _schainId, _msgID, _sigShare,
+        MSG_BLOCK_SIGN_BROADCAST, _srcNodeID, _blockID, _blockProposerIndex, 4, 0, _time, _schainId, _msgID, _sigShare,
         _ecdsaSig, _pubKey, _pkSig,
         _srcSchainIndex, _sChain->getCryptoManager()) {
     CHECK_ARGUMENT(!_sigShare.empty());

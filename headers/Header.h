@@ -30,7 +30,7 @@
 
 class Buffer;
 class ServerConnection;
-class SHAHash;
+class  BLAKE3Hash;
 
 #include "abstracttcpserver/ConnectionStatus.h"
 #include "BasicHeader.h"

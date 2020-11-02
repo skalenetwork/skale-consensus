@@ -39,7 +39,7 @@
 
 #include "iostream"
 #include "time.h"
-#include "crypto/SHAHash.h"
+#include "crypto/BLAKE3Hash.h"
 
 #include "json/JSONFactory.h"
 

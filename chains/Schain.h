@@ -68,7 +68,7 @@ class IO;
 class Sockets;
 
 
-class SHAHash;
+class  BLAKE3Hash;
 class ConsensusBLSSigShare;
 class ThresholdSigShare;
 class BooleanProposalVector;

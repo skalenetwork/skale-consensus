@@ -23,7 +23,7 @@
 #ifndef SKALED_THRESHOLDSIGSHARE_H
 #define SKALED_THRESHOLDSIGSHARE_H
 
-class SHAHash;
+class  BLAKE3Hash;
 
 #include "BLSSigShare.h"
 #include "SkaleCommon.h"
@@ -46,9 +46,7 @@ public:
     virtual ~ThresholdSigShare();
 
     schain_index getSignerIndex() const;
-    ptr<SHAHash> computeHash();
-
-
+    ptr<BLAKE3Hash> computeHash();
 
 };
 

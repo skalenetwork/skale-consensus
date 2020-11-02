@@ -46,7 +46,7 @@ public:
     public:
         std::size_t operator()(const ptr<partial_sha_hash>& a) const {
             size_t hash = 0;
-            for (size_t i = 0; i < PARTIAL_SHA_HASH_LEN; i++) {
+            for (size_t i = 0; i < PARTIAL_HASH_LEN; i++) {
                 hash = hash * 31 + (*a)[i];
             }
             return hash;
@@ -58,7 +58,7 @@ public:
     class Equal {
     public:
         std::size_t operator() (const ptr<partial_sha_hash>& a, const ptr<partial_sha_hash>& b)  const {
-            for (size_t i = 0; i < PARTIAL_SHA_HASH_LEN; i++) {
+            for (size_t i = 0; i < PARTIAL_HASH_LEN; i++) {
                 if ((*a)[i] != (*b)[i]) {
                     return false;
                 }
@@ -74,7 +74,7 @@ private:
     public:
         bool operator()(const ptr<partial_sha_hash> &a,
                         const ptr<partial_sha_hash>& b ) const {
-            for (size_t i = 0; i < PARTIAL_SHA_HASH_LEN; i++) {
+            for (size_t i = 0; i < PARTIAL_HASH_LEN; i++) {
                 if ((*a)[i] < (*b)[i])
                     return false;
                 if ((*b)[i] < (*a)[i])

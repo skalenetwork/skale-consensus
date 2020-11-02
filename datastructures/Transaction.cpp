@@ -35,21 +35,21 @@
 #include "SkaleCommon.h"
 #include "Log.h"
 #include "chains/Schain.h"
-#include "crypto/SHAHash.h"
+#include "crypto/BLAKE3Hash.h"
 
 
 #include "Transaction.h"
 
 
 
-ptr< SHAHash > Transaction::getHash() {
+ptr< BLAKE3Hash > Transaction::getHash() {
 
     LOCK(m)
 
     if ( hash )
         return hash;
 
-    hash = SHAHash::calculateHash(data);
+    hash = BLAKE3Hash::calculateHash(data);
     CHECK_STATE(hash);
     return hash;
 }
@@ -67,7 +67,7 @@ ptr< partial_sha_hash > Transaction::getPartialHash() {
 
     getHash();
 
-    for ( size_t i = 0; i < PARTIAL_SHA_HASH_LEN; i++ ) {
+    for (size_t i = 0; i < PARTIAL_HASH_LEN; i++ ) {
         partialHash->at( i ) = hash->at( i );
     }
 
@@ -80,16 +80,16 @@ Transaction::Transaction( const ptr<vector<uint8_t>>& _trx, bool _includesPartia
     CHECK_ARGUMENT(_trx != nullptr);
 
 
-    array< uint8_t, PARTIAL_SHA_HASH_LEN > incomingHash;
+    array< uint8_t, PARTIAL_HASH_LEN > incomingHash;
 
     if (_includesPartialHash) {
-        CHECK_ARGUMENT(_trx->size() > PARTIAL_SHA_HASH_LEN);
+        CHECK_ARGUMENT(_trx->size() > PARTIAL_HASH_LEN);
 
-        std::copy( _trx->begin() + +_trx->size() - PARTIAL_SHA_HASH_LEN, _trx->end(),
-                   incomingHash.begin() );
+        std::copy(_trx->begin() + +_trx->size() - PARTIAL_HASH_LEN, _trx->end(),
+                  incomingHash.begin() );
 
 
-        _trx->resize( _trx->size() - PARTIAL_SHA_HASH_LEN );
+        _trx->resize(_trx->size() - PARTIAL_HASH_LEN );
     } else {
         CHECK_ARGUMENT(_trx->size() > 0);
     };
@@ -134,7 +134,7 @@ uint64_t Transaction::getSerializedSize(bool _writePartialHash) {
     CHECK_STATE(data->size() > 0);
 
     if (_writePartialHash)
-        return data->size() + PARTIAL_SHA_HASH_LEN;
+        return data->size() + PARTIAL_HASH_LEN;
     return data->size();
 }
 

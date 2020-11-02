@@ -61,7 +61,6 @@ Buffer::Buffer(size_t _size) {
     }
     this->size = _size;
     buf = make_shared<vector<uint8_t>>(size);
-    std::fill(buf->begin(), buf->end(), 0);
 }
 
 size_t Buffer::getSize() const {

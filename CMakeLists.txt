@@ -15,10 +15,10 @@ if (COVERAGE)
     set(CMAKE_EXE_LINKER_FLAGS "--coverage ${CMAKE_EXE_LINKER_FLAGS}")
 endif ()
 
-if( NOT DEFINED DEPS_INSTALL_ROOT )
-    set( DEPS_SOURCES_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/libBLS/deps")
-    set( DEPS_INSTALL_ROOT "${DEPS_SOURCES_ROOT}/deps_inst/x86_or_x64")
-endif()
+if (NOT DEFINED DEPS_INSTALL_ROOT)
+    set(DEPS_SOURCES_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/libBLS/deps")
+    set(DEPS_INSTALL_ROOT "${DEPS_SOURCES_ROOT}/deps_inst/x86_or_x64")
+endif ()
 message(INFO "---- DEPS_INSTALL_ROOT in consensus is: ${DEPS_INSTALL_ROOT}")
 
 include("cmake/HunterGate.cmake")
@@ -27,15 +27,15 @@ include("cmake/precompiledheader.cmake")
 
 HunterGate(URL "https://github.com/ruslo/hunter/archive/v0.23.76.tar.gz" SHA1 "c7b60993e841850e2c449afd454f5d5aa4ec04e4")
 
-add_subdirectory( libBLS )
+add_subdirectory(libBLS)
 
 project(consensus)
 
-include_directories( "${DEPS_INSTALL_ROOT}/include" "${DEPS_INSTALL_ROOT}/include/cryptopp")
-link_directories( "${DEPS_INSTALL_ROOT}/lib")
-set( CMAKE_PREFIX_PATH "${DEPS_INSTALL_ROOT}" )
+include_directories("${DEPS_INSTALL_ROOT}/include" "${DEPS_INSTALL_ROOT}/include/cryptopp")
+link_directories("${DEPS_INSTALL_ROOT}/lib")
+set(CMAKE_PREFIX_PATH "${DEPS_INSTALL_ROOT}")
 
-find_library( FF_LIBRARY NAMES "ff" PATHS "${DEPS_INSTALL_ROOT}/lib" )
+find_library(FF_LIBRARY NAMES "ff" PATHS "${DEPS_INSTALL_ROOT}/lib")
 
 # zeromq
 
@@ -162,53 +162,54 @@ include_directories(. spdlog/include ${BLS_INCLUDE_DIRS} ${DEPS_INSTALL_ROOT}/in
         "${DEPS_INSTALL_ROOT}/include" ${CMAKE_BINARY_DIR}/deps/include)
 
 
-if( SKALE_HAVE_BOOST_FROM_HUNTER )
-    set( BOOST_LIBS_4_CONSENSUS
+if (SKALE_HAVE_BOOST_FROM_HUNTER)
+    set(BOOST_LIBS_4_CONSENSUS
             Boost::log Boost::thread Boost::system Boost::filesystem Boost::program_options
             )
-else()
-    set( BOOST_LIBS_4_CONSENSUS
+else ()
+    set(BOOST_LIBS_4_CONSENSUS
             #boost_log
             boost_thread boost_system boost_filesystem boost_program_options
             )
-endif()
+endif ()
 
-set( DASH_D_SUFFIX "" )
-if( ${CMAKE_BUILD_TYPE} MATCHES "Debug" )
-    set( DASH_SUFFIX "-d" )
-endif()
+set(DASH_D_SUFFIX "")
+if (${CMAKE_BUILD_TYPE} MATCHES "Debug")
+    set(DASH_SUFFIX "-d")
+endif ()
 
 
-SET( LINK_LIBRARIES
-    Threads::Threads
-    ${BOOST_LIBS_4_CONSENSUS}
-    ${LIB_NAME_cryptopp}
-    leveldb::leveldb
-    "${DEPS_INSTALL_ROOT}/lib/libjsonrpccpp-client.a"
-    "${DEPS_INSTALL_ROOT}/lib/libjsonrpccpp-stub.a"
-    "${DEPS_INSTALL_ROOT}/lib/libjsonrpccpp-common.a"
-    bls # "${CMAKE_CURRENT_SOURCE_DIR}/libBLS/build/libbls.a"
-    "${DEPS_INSTALL_ROOT}/lib/libzmq.a"
-    ${FF_LIBRARY}
-    "${DEPS_INSTALL_ROOT}/lib/libcryptopp.a"
-    gmp
-    gcov
-    "${DEPS_INSTALL_ROOT}/lib/libcurl${DASH_D_SUFFIX}.a"
-    "${DEPS_INSTALL_ROOT}/lib/libjsoncpp.a"
-    "${DEPS_INSTALL_ROOT}/lib/libssl.a"
-    "${DEPS_INSTALL_ROOT}/lib/libcrypto.a"
-    dl
-    z
-    pthread
+SET(LINK_LIBRARIES
+        Threads::Threads
+        ${BOOST_LIBS_4_CONSENSUS}
+        ${LIB_NAME_cryptopp}
+        leveldb::leveldb
+        "${DEPS_INSTALL_ROOT}/lib/libjsonrpccpp-client.a"
+        "${DEPS_INSTALL_ROOT}/lib/libjsonrpccpp-stub.a"
+        "${DEPS_INSTALL_ROOT}/lib/libjsonrpccpp-common.a"
+        bls # "${CMAKE_CURRENT_SOURCE_DIR}/libBLS/build/libbls.a"
+        "${DEPS_INSTALL_ROOT}/lib/libzmq.a"
+        ${FF_LIBRARY}
+        "${DEPS_INSTALL_ROOT}/lib/libcryptopp.a"
+        gmp
+        gcov
+        "${DEPS_INSTALL_ROOT}/lib/libcurl${DASH_D_SUFFIX}.a"
+        "${DEPS_INSTALL_ROOT}/lib/libjsoncpp.a"
+        "${DEPS_INSTALL_ROOT}/lib/libssl.a"
+        "${DEPS_INSTALL_ROOT}/lib/libcrypto.a"
+        dl
+        z
+        pthread
         idn2
-    )
+        blake3
+        )
 
 
 # consensus library
 
 add_library(consensus STATIC ${SRC_FILES})
 
-target_link_libraries(consensus  ${LINK_LIBRARIES})
+target_link_libraries(consensus ${LINK_LIBRARIES})
 
 # consensus test agent
 
@@ -220,7 +221,7 @@ add_executable(consensusd Consensusd.h Consensusd.cpp)
 #     #  sudo apt-get install -qq -yy libgoogle-perftools-dev
 #     target_link_libraries(consensusd  consensus tcmalloc)
 # else ()
-    target_link_libraries(consensusd  consensus)
+target_link_libraries(consensusd consensus)
 # endif ()
 
 add_executable(consensust Consensust.h Consensust.cpp datastructures/SerializationTests.cpp db/DBTests.cpp)
@@ -230,5 +231,5 @@ add_executable(consensust Consensust.h Consensust.cpp datastructures/Serializati
 #     #  sudo apt-get install -qq -yy libgoogle-perftools-dev
 #     target_link_libraries(consensust consensus tcmalloc)
 # else ()
-    target_link_libraries(consensust consensus)
+target_link_libraries(consensust consensus)
 # endif ()

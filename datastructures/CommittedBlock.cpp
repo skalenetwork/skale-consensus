@@ -28,7 +28,7 @@
 #include "crypto/ThresholdSignature.h"
 #include "thirdparty/json.hpp"
 #include "chains/Schain.h"
-#include "crypto/SHAHash.h"
+#include "crypto/BLAKE3Hash.h"
 #include "exceptions/ExitRequestedException.h"
 #include "exceptions/InvalidStateException.h"
 #include "exceptions/ParsingException.h"

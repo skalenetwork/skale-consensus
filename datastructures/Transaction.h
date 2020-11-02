@@ -32,7 +32,7 @@
 
 #include "datastructures/DataStructure.h"
 
-class SHAHash;
+class  BLAKE3Hash;
 
 
 
@@ -44,7 +44,7 @@ class Transaction : public DataStructure {
 
     ptr<vector<uint8_t >> data = nullptr;
 
-    ptr<SHAHash> hash = nullptr;
+    ptr<BLAKE3Hash>hash = nullptr;
 
     ptr<partial_sha_hash> partialHash = nullptr;
 
@@ -63,7 +63,7 @@ public:
     void serializeInto(const ptr<vector<uint8_t>>& _out, bool _writePartialHash );
 
 
-    ptr<SHAHash> getHash();
+    ptr<BLAKE3Hash>getHash();
 
     ptr<partial_sha_hash> getPartialHash();
 

@@ -48,7 +48,7 @@ void CommittedTransactionDB::writeCommittedTransaction(const ptr<Transaction>& _
     auto hash = _t->getPartialHash();
     CHECK_STATE(hash)
     auto key = (const char *) hash->data();
-    auto keyLen = PARTIAL_SHA_HASH_LEN;
+    auto keyLen = PARTIAL_HASH_LEN;
     auto value = (const char *) &_committedTransactionCounter;
     auto valueLen = sizeof(_committedTransactionCounter);
     writeByteArray(key, keyLen, value, valueLen);

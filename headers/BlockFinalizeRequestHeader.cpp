@@ -24,7 +24,7 @@
 
 #include "SkaleCommon.h"
 #include "Log.h"
-#include "crypto/SHAHash.h"
+#include "crypto/BLAKE3Hash.h"
 #include "exceptions/FatalError.h"
 #include "exceptions/InvalidArgumentException.h"
 

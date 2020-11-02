@@ -25,7 +25,7 @@
 #include "exceptions/FatalError.h"
 
 #include "node/ConsensusEngine.h"
-#include "crypto/SHAHash.h"
+#include "crypto/BLAKE3Hash.h"
 #include "datastructures/BlockProposal.h"
 #include "datastructures/BooleanProposalVector.h"
 

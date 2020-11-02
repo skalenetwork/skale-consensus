@@ -16,45 +16,54 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file SHAHash.h
+    @file BLAKE3Hash.h
     @author Stan Kladko
     @date 2019
 */
 
-#ifndef CONSENSUS_SHAHASH_H
-#define CONSENSUS_SHAHASH_H
+#ifndef CONSENSUS_BLAKE3HASH_H
+#define CONSENSUS_BLAKE3HASH_H
+
+#include "deps/BLAKE3/c/blake3.h"
+
+#define HASH_INIT(__HASH__)     blake3_hasher __HASH__; blake3_hasher_init(& __HASH__);
+
+#define HASH_UPDATE(__HASH__, __OBJECT__) \
+blake3_hasher_update(&__HASH__, reinterpret_cast<uint8_t*>(&__OBJECT__),sizeof(__OBJECT__));
+
+#define HASH_FINAL(__HASH__, __OBJECT__) blake3_hasher_finalize(& __HASH__, __OBJECT__, BLAKE3_OUT_LEN);
 
 
-#define SHA3_UPDATE(__HASH__, __OBJECT__) __HASH__.Update(reinterpret_cast < uint8_t * > ( &__OBJECT__), sizeof(__OBJECT__))
 
-class SHAHash {
+class BLAKE3Hash {
 
-    ptr<array<uint8_t ,SHA_HASH_LEN>> hash;
+    array<uint8_t ,HASH_LEN> hash;
 
 public:
 
-    explicit SHAHash(const ptr<array<uint8_t, SHA_HASH_LEN>>& _hash);
+
+    explicit BLAKE3Hash() {};
 
 
     void print();
 
     uint8_t at(uint32_t _position);
 
-    int compare(const ptr<SHAHash>& _hash2 );
+    int compare(const ptr<BLAKE3Hash>& _hash2 );
 
     uint8_t * data() {
-        return hash->data();
+        return hash.data();
     };
 
-    ptr<array<uint8_t ,SHA_HASH_LEN>> getHash() const;
+    const array<uint8_t ,HASH_LEN>& getHash() const;
 
-    static ptr<SHAHash> fromHex(const string& _hex);
+    static ptr<BLAKE3Hash> fromHex(const string& _hex);
 
     string toHex();
 
-    static ptr<SHAHash> calculateHash(const ptr<vector<uint8_t>>& _data);
+    static ptr<BLAKE3Hash> calculateHash(const ptr<vector<uint8_t>>& _data);
 
-    static ptr<SHAHash> merkleTreeMerge(const ptr<SHAHash>& _left, const ptr<SHAHash>& _right);
+    static ptr<BLAKE3Hash> merkleTreeMerge(const ptr<BLAKE3Hash>& _left, const ptr<BLAKE3Hash>& _right);
 
 };
 

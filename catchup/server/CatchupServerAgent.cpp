@@ -24,7 +24,7 @@
 #include "SkaleCommon.h"
 #include "Log.h"
 
-#include "crypto/SHAHash.h"
+#include "crypto/BLAKE3Hash.h"
 
 #include "exceptions/ExitRequestedException.h"
 #include "exceptions/InvalidMessageFormatException.h"

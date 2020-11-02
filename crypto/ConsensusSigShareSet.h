@@ -33,7 +33,7 @@ class PartialHashesList;
 class Schain;
 class ConsensusBLSSigShare;
 class ConsensusBLSSignature;
-class SHAHash;
+class  BLAKE3Hash;
 
 class ConsensusSigShareSet : public ThresholdSigShareSet {
 

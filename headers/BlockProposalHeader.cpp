@@ -23,7 +23,11 @@
 #include "SkaleCommon.h"
 #include "Log.h"
 
-#include "crypto/SHAHash.h"
+
+#include "BlockProposalHeader.h"
+#include "BlockProposalRequestHeader.h"
+#include "chains/Schain.h"
+#include "crypto/BLAKE3Hash.h"
 #include "datastructures/BlockProposal.h"
 #include "datastructures/CommittedBlock.h"
 #include "datastructures/Transaction.h"

@@ -48,7 +48,7 @@
 #include "chains/Schain.h"
 
 
-#include "crypto/SHAHash.h"
+#include "crypto/BLAKE3Hash.h"
 
 #include "exceptions/ParsingException.h"
 #include "network/Sockets.h"
@@ -453,7 +453,7 @@ JSONFactory::parseTestKeyNamesFromJson(const string& _sgxServerURL, const fs_pat
 
     string SAMPLE_HASH( "09c6137b97cdf159b9950f1492ee059d1e2b10eaf7d51f3a97d61f2eee2e81db" );
 
-    auto hash = SHAHash::fromHex( SAMPLE_HASH );
+    auto hash = BLAKE3Hash::fromHex( SAMPLE_HASH );
 
     for ( uint64_t i = 0; i < _requiredNodes; i++ ) {
         {
@@ -474,15 +474,18 @@ JSONFactory::parseTestKeyNamesFromJson(const string& _sgxServerURL, const fs_pat
 
         auto pubKey = blsPublicKeysMap->at( i + 1 );
 
+        auto sharedHash = make_shared<array<uint8_t, HASH_LEN>>(hash->getHash());
+
         CHECK_STATE( pubKey->VerifySigWithHelper(
-            hash->getHash(), make_shared< BLSSigShare >( sig ), _requiredNodes, _totalNodes ) );
+            sharedHash, make_shared< BLSSigShare >( sig ), _requiredNodes, _totalNodes ) );
     }
 
     ptr< BLSSignature > commonSig = sigShareSet.merge();
 
-    CHECK_STATE( blsPublicKey->VerifySigWithHelper(
-        hash->getHash(), commonSig, _requiredNodes, _totalNodes ) );
+    auto sharedHash = make_shared<array<uint8_t, HASH_LEN>>(hash->getHash());
 
+    CHECK_STATE( blsPublicKey->VerifySigWithHelper(
+            sharedHash, commonSig, _requiredNodes, _totalNodes ) );
 
     LOG(info, "Verified a sample sig");
 

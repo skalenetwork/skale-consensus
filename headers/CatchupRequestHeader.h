@@ -27,7 +27,7 @@
 
 #include "Header.h"
 
-class SHAHash;
+class  BLAKE3Hash;
 class NodeInfo;
 class Schain;
 

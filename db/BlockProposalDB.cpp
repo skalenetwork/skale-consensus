@@ -27,7 +27,7 @@
 #include "abstracttcpserver/ConnectionStatus.h"
 #include "blockproposal/pusher/BlockProposalClientAgent.h"
 #include "chains/Schain.h"
-#include "crypto/SHAHash.h"
+#include "crypto/BLAKE3Hash.h"
 #include "datastructures/BlockProposal.h"
 #include "datastructures/BlockProposalSet.h"
 #include "datastructures/CommittedBlock.h"

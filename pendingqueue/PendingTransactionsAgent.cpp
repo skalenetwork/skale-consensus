@@ -34,7 +34,7 @@
 #include "PendingTransactionsAgent.h"
 #include "chains/Schain.h"
 #include "crypto/CryptoManager.h"
-#include "crypto/SHAHash.h"
+#include "crypto/BLAKE3Hash.h"
 #include "datastructures/BlockProposal.h"
 #include "datastructures/MyBlockProposal.h"
 #include "datastructures/PartialHashesList.h"
@@ -125,6 +125,8 @@ pair<ptr<vector<ptr<Transaction>>>, u256> PendingTransactionsAgent::createTransa
 
         if( this->sChain->getLastCommittedBlockID() == 0 || (uint64_t ) diff.total_milliseconds() >= getSchain()->getNode()->getEmptyBlockIntervalMs())
             break;
+
+        usleep(100 * 1000);
 
     }// while
 

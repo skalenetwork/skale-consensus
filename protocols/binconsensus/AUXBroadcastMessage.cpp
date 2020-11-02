@@ -24,7 +24,7 @@
 #include "SkaleCommon.h"
 #include "Log.h"
 #include "crypto/ConsensusBLSSignature.h"
-#include "crypto/SHAHash.h"
+#include "crypto/BLAKE3Hash.h"
 
 #include "exceptions/FatalError.h"
 #include "thirdparty/json.hpp"
@@ -52,19 +52,19 @@ AUXBroadcastMessage::AUXBroadcastMessage(bin_consensus_round _round, bin_consens
                          _sourceProtocolInstance) {
     printPrefix = "a";
     auto schain = _sourceProtocolInstance.getSchain();
-    CryptoPP::SHA256 sha256;
+    HASH_INIT(hashObj);
     auto bpi = getBlockProposerIndex();
 
-    sha256.Update(reinterpret_cast < uint8_t * > ( &bpi), sizeof(bpi));
-    sha256.Update(reinterpret_cast < uint8_t * > ( &this->r), sizeof(r));
-    sha256.Update(reinterpret_cast < uint8_t * > ( &this->blockID), sizeof(blockID));
-    sha256.Update(reinterpret_cast < uint8_t * > ( &this->schainID), sizeof(schainID));
-    sha256.Update(reinterpret_cast < uint8_t * > ( &this->msgType), sizeof(msgType));
+    HASH_UPDATE(hashObj, bpi);
+    HASH_UPDATE(hashObj, this->r);
+    HASH_UPDATE(hashObj, this->blockID);
+    HASH_UPDATE(hashObj, this->schainID);
+    HASH_UPDATE(hashObj, this->msgType);
 
-    auto buf = make_shared<array<uint8_t, SHA_HASH_LEN>>();
-    sha256.Final(buf->data());
-    auto hash = make_shared<SHAHash>(buf);
-    this->sigShare = schain->getCryptoManager()->signBinaryConsensusSigShare(hash, _blockID);
+    auto hash = make_shared<BLAKE3Hash>();
+    HASH_FINAL(hashObj, hash->data());
+    this->sigShare = schain->getCryptoManager()->signBinaryConsensusSigShare(hash, _blockID,
+                                                                             (uint64_t ) _round);
     CHECK_STATE(sigShare);
     this->sigShareString = sigShare->toString();
 }

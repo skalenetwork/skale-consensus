@@ -28,7 +28,7 @@
 #include "thirdparty/json.hpp"
 
 #include "abstracttcpserver/ConnectionStatus.h"
-#include "crypto/SHAHash.h"
+#include "crypto/BLAKE3Hash.h"
 #include "datastructures/PartialHashesList.h"
 #include "datastructures/Transaction.h"
 #include "datastructures/TransactionList.h"
@@ -356,10 +356,10 @@ pair< ConnectionStatus, ConnectionSubStatus > BlockProposalClientAgent::sendBloc
 
 
     auto sigShare = getSchain()->getCryptoManager()->createSigShare(
-        finalHeader->getSigShare(), _proposal->getSchainID(), _proposal->getBlockID(), _index );
+        finalHeader->getSigShare(), _proposal->getSchainID(), _proposal->getBlockID(), _index, false );
     CHECK_STATE( sigShare );
 
-    auto hash = SHAHash::merkleTreeMerge(
+    auto hash = BLAKE3Hash::merkleTreeMerge(
         _proposal->getHash(), sigShare->computeHash());
 
     auto nodeInfo = getSchain()->getNode()->getNodeInfoByIndex(_index);
@@ -444,7 +444,7 @@ BlockProposalClientAgent::readMissingHashes( const ptr< ClientSocket >& _socket,
     CHECK_ARGUMENT( _socket );
     CHECK_ARGUMENT( _count > 0 );
 
-    auto bytesToRead = _count * PARTIAL_SHA_HASH_LEN;
+    auto bytesToRead = _count * PARTIAL_HASH_LEN;
     auto buffer = make_shared< vector< uint8_t > >( bytesToRead );
 
     CHECK_STATE( bytesToRead > 0 );
@@ -468,8 +468,8 @@ BlockProposalClientAgent::readMissingHashes( const ptr< ClientSocket >& _socket,
     try {
         for ( uint64_t i = 0; i < _count; i++ ) {
             auto hash = make_shared< partial_sha_hash >();
-            for ( size_t j = 0; j < PARTIAL_SHA_HASH_LEN; j++ ) {
-                hash->at( j ) = buffer->at( PARTIAL_SHA_HASH_LEN * i + j );
+            for (size_t j = 0; j < PARTIAL_HASH_LEN; j++ ) {
+                hash->at( j ) = buffer->at(PARTIAL_HASH_LEN * i + j );
             }
 
             result->insert( hash );

@@ -35,7 +35,7 @@
 #include "thirdparty/lrucache.hpp"
 
 class Schain;
-class SHAHash;
+class  BLAKE3Hash;
 class ConsensusBLSSigShare;
 class ThresholdSigShareSet;
 class ThresholdSigShare;
@@ -111,14 +111,14 @@ class CryptoManager {
     Schain* sChain = nullptr;
 
 
-    string sign( const ptr< SHAHash >& _hash );
+    string sign( const ptr< BLAKE3Hash >& _hash );
 
-    tuple< string, string, string > sessionSign( const ptr< SHAHash >& _hash, block_id _blockId );
+    tuple< string, string, string > sessionSign( const ptr< BLAKE3Hash >& _hash, block_id _blockId );
 
 
-    bool verifySig( const ptr< SHAHash >& _hash, const string& _sig, node_id _nodeId );
+    bool verifySig( const ptr< BLAKE3Hash >& _hash, const string& _sig, node_id _nodeId );
 
-    ptr< ThresholdSigShare > signSigShare( const ptr< SHAHash >& _hash, block_id _blockId );
+    ptr< ThresholdSigShare > signSigShare( const ptr< BLAKE3Hash >& _hash, block_id _blockId, bool _forceMockup );
 
     void initSGXClient();
 
@@ -126,7 +126,7 @@ class CryptoManager {
 
 public:
     bool sessionVerifySig(
-        const ptr< SHAHash >& _hash, const string& _sig, const string& _publicKey );
+        const ptr< BLAKE3Hash >& _hash, const string& _sig, const string& _publicKey );
     // This constructor is used for testing
     CryptoManager( uint64_t _totalSigners, uint64_t _requiredSigners, bool _isSGXEnabled,
         string _sgxURL = "", string _sgxSslKeyFileFullPath = "",
@@ -138,12 +138,12 @@ public:
     Schain* getSchain() const;
 
     ptr< ThresholdSignature > verifyThresholdSig(
-        const ptr< SHAHash >& _hash, const string& _signature, block_id _blockId );
+        const ptr< BLAKE3Hash >& _hash, const string& _signature, block_id _blockId );
 
     ptr< ThresholdSigShareSet > createSigShareSet( block_id _blockId );
 
     ptr< ThresholdSigShare > createSigShare( const string& _sigShare, schain_id _schainID,
-        block_id _blockID, schain_index _signerIndex );
+        block_id _blockID, schain_index _signerIndex, bool _forceMockup );
 
     void signProposal( BlockProposal* _proposal );
 
@@ -154,16 +154,16 @@ public:
         const ptr< BlockProposal >& _p );
 
     ptr< ThresholdSigShare > signBinaryConsensusSigShare(
-        const ptr< SHAHash >& _hash, block_id _blockId );
+        const ptr< BLAKE3Hash >& _hash, block_id _blockId, uint64_t _round );
 
-    ptr< ThresholdSigShare > signBlockSigShare( const ptr< SHAHash >& _hash, block_id _blockId );
+    ptr< ThresholdSigShare > signBlockSigShare( const ptr< BLAKE3Hash >& _hash, block_id _blockId );
 
     tuple< string, string, string > signNetworkMsg( NetworkMessage& _msg );
 
     bool verifyNetworkMsg( NetworkMessage& _msg );
 
     bool sessionVerifySigAndKey(
-        ptr< SHAHash >& _hash, const string& _sig, const string& _publicKey, const string& _pkSig );
+        ptr< BLAKE3Hash >& _hash, const string& _sig, const string& _publicKey, const string& _pkSig );
 
     static ptr< void > decodeSGXPublicKey( const string& _keyHex );
 
@@ -175,20 +175,20 @@ public:
     static void setSGXKeyAndCert( string& _keyFullPath, string& _certFullPath, uint64_t _sgxPort );
 
 
-    string sgxSignECDSA( const ptr< SHAHash >& _hash, string& _keyName );
+    string sgxSignECDSA( const ptr< BLAKE3Hash >& _hash, string& _keyName );
 
     tuple< string, string, string > sessionSignECDSA(
-        const ptr< SHAHash >& _hash, block_id _blockID );
+        const ptr< BLAKE3Hash >& _hash, block_id _blockID );
 
-    bool verifyECDSA( const ptr< SHAHash >& _hash, const string& _sig, const string& _publicKey );
+    bool verifyECDSA( const ptr< BLAKE3Hash >& _hash, const string& _sig, const string& _publicKey );
 
 
     ptr< BLSPublicKey > getSgxBlsPublicKey();
     string getSgxBlsKeyName();
 
-    static ptr< SHAHash > calculatePublicKeyHash( string publicKey, block_id _blockID );
+    static ptr< BLAKE3Hash > calculatePublicKeyHash( string publicKey, block_id _blockID );
 
-    bool sessionVerifySigAndKey( ptr< SHAHash >& _hash, const string& _sig,
+    bool sessionVerifySigAndKey( ptr< BLAKE3Hash >& _hash, const string& _sig,
         const string& _publicKey, const string& pkSig, block_id _blockID, node_id _nodeId );
 };
 

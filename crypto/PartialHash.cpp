@@ -16,7 +16,7 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file PartialSHAHash.cpp
+    @file PartialHash.cpp
     @author Stan Kladko
     @date 2019
 */
@@ -25,43 +25,43 @@
 #include "SkaleCommon.h"
 #include "Log.h"
 #include "thirdparty/json.hpp"
-#include "PartialSHAHash.h"
+#include "PartialHash.h"
 #include "network/Utils.h"
 
 
-void PartialSHAHash::print() {
+void PartialHash::print() {
     CHECK_STATE(hash);
-    for (size_t i = 0; i < PARTIAL_SHA_HASH_LEN; i++) {
+    for (size_t i = 0; i < PARTIAL_HASH_LEN; i++) {
         cerr << to_string(hash->at(i));
     }
 }
 
-uint8_t PartialSHAHash::at(uint32_t _position) {
+uint8_t PartialHash::at(uint32_t _position) {
     CHECK_STATE(hash);
     return hash->at(_position);
 }
 
-ptr< PartialSHAHash > PartialSHAHash::hex2sha(const string& _hex ) {
+ptr< PartialHash > PartialHash::hex2sha(const string& _hex ) {
 
     CHECK_STATE(_hex != "");
 
-    auto result = make_shared<array<uint8_t, PARTIAL_SHA_HASH_LEN>>();
+    auto result = make_shared<array<uint8_t, PARTIAL_HASH_LEN>>();
 
-    for ( size_t i = 0; i < PARTIAL_SHA_HASH_LEN; i++ ) {
+    for (size_t i = 0; i < PARTIAL_HASH_LEN; i++ ) {
         result->at(i) = Utils::char2int(_hex.at(i) ) * 16 + Utils::char2int(_hex.at(i + 1));
     }
 
-    return make_shared<PartialSHAHash>( result );
+    return make_shared<PartialHash>(result );
 }
 
 
 
 
 
-int PartialSHAHash::compare(const ptr<PartialSHAHash>& _hash2 ) {
+int PartialHash::compare(const ptr<PartialHash>& _hash2 ) {
     CHECK_ARGUMENT(_hash2);
     CHECK_STATE(hash);
-    for (size_t i = 0; i < PARTIAL_SHA_HASH_LEN; i++) {
+    for (size_t i = 0; i < PARTIAL_HASH_LEN; i++) {
         if (hash->at(i) < _hash2->at(i))
             return -1;
         if (hash->at(i) > _hash2->at(i))
@@ -70,25 +70,25 @@ int PartialSHAHash::compare(const ptr<PartialSHAHash>& _hash2 ) {
     return 0;
 }
 
-PartialSHAHash::PartialSHAHash(const ptr<array<uint8_t, PARTIAL_SHA_HASH_LEN>>& _hash) {
+PartialHash::PartialHash(const ptr<array<uint8_t, PARTIAL_HASH_LEN>>& _hash) {
     CHECK_ARGUMENT(_hash);
     hash = _hash;
 }
 
 
 
-ptr< PartialSHAHash > PartialSHAHash::fromHex(const string& _hex) {
+ptr< PartialHash > PartialHash::fromHex(const string& _hex) {
     CHECK_ARGUMENT(_hex != "");
-    auto result = make_shared<array<uint8_t, PARTIAL_SHA_HASH_LEN>>();
-    for ( size_t i = 0; i < PARTIAL_SHA_HASH_LEN; i++ ) {
+    auto result = make_shared<array<uint8_t, PARTIAL_HASH_LEN>>();
+    for (size_t i = 0; i < PARTIAL_HASH_LEN; i++ ) {
         result->at(i) = Utils::char2int(_hex.at(2*i) ) * 16 + Utils::char2int(_hex.at(2* i + 1));
     }
-    return make_shared<PartialSHAHash>(result);
+    return make_shared<PartialHash>(result);
 }
 
 
-string PartialSHAHash::toHex() {
+string PartialHash::toHex() {
     CHECK_STATE(hash);
-    return Utils::carray2Hex(hash->data(), PARTIAL_SHA_HASH_LEN);
+    return Utils::carray2Hex(hash->data(), PARTIAL_HASH_LEN);
 }
 
