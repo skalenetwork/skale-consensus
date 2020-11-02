@@ -50,7 +50,7 @@ public:
 
     virtual ~Header();
 
-    virtual void addFields(rapidjson::Writer<rapidjson::StringBuffer> & _j );
+    virtual void addFields(nlohmann::json & j);
 
 
     pair<ConnectionStatus, ConnectionSubStatus> getStatusSubStatus() { return {status,

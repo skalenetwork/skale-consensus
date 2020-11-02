@@ -86,11 +86,11 @@ BlockProposalClientAgent::readMissingTransactionsRequestHeader(
         sChain->getIo()->readJsonHeader( _socket->getDescriptor(), "Read missing trans request" );
     auto mtrh = make_shared< MissingTransactionsRequestHeader >();
 
-    auto status = ( ConnectionStatus ) Header::getUint64Rapid( js, "status" );
-    auto substatus = ( ConnectionSubStatus ) Header::getUint64Rapid( js, "substatus" );
+    auto status = ( ConnectionStatus ) Header::getUint64( js, "status" );
+    auto substatus = ( ConnectionSubStatus ) Header::getUint64( js, "substatus" );
     mtrh->setStatusSubStatus( status, substatus );
 
-    auto count = ( uint64_t ) Header::getUint64Rapid( js, "count" );
+    auto count = ( uint64_t ) Header::getUint64( js, "count" );
     mtrh->setMissingTransactionsCount( count );
 
     mtrh->setComplete();
@@ -104,13 +104,13 @@ BlockProposalClientAgent::readAndProcessFinalProposalResponseHeader(
     auto js =
         sChain->getIo()->readJsonHeader( _socket->getDescriptor(), "Read final response header" );
 
-    auto status = ( ConnectionStatus ) Header::getUint64Rapid( js, "status" );
-    auto subStatus = ( ConnectionSubStatus ) Header::getUint64Rapid( js, "substatus" );
+    auto status = ( ConnectionStatus ) Header::getUint64( js, "status" );
+    auto subStatus = ( ConnectionSubStatus ) Header::getUint64( js, "substatus" );
 
     if ( status == CONNECTION_SUCCESS ) {
-        return make_shared< FinalProposalResponseHeader >( Header::getStringRapid( js, "sss" ),
-            Header::getStringRapid( js, "sig" ), Header::getStringRapid( js, "pk" ),
-            Header::getStringRapid( js, "pks" ) );
+        return make_shared< FinalProposalResponseHeader >( Header::getString( js, "sss" ),
+            Header::getString( js, "sig" ), Header::getString( js, "pk" ),
+            Header::getString( js, "pks" ) );
     } else {
         LOG( err, "Proposal push failed:" + to_string( status ) + ":" + to_string( subStatus ) );
         return make_shared< FinalProposalResponseHeader >( status, subStatus );
@@ -226,8 +226,8 @@ pair< ConnectionStatus, ConnectionSubStatus > BlockProposalClientAgent::sendBloc
 
 
     try {
-        result.first = ( ConnectionStatus ) Header::getUint64Rapid( response, "status" );
-        result.second = ( ConnectionSubStatus ) Header::getUint64Rapid( response, "substatus" );
+        result.first = ( ConnectionStatus ) Header::getUint64( response, "status" );
+        result.second = ( ConnectionSubStatus ) Header::getUint64( response, "substatus" );
     } catch ( ... ) {
     }
 
@@ -410,8 +410,8 @@ pair< ConnectionStatus, ConnectionSubStatus > BlockProposalClientAgent::sendDAPr
     auto status = ConnectionStatus::CONNECTION_STATUS_UNKNOWN;
     auto substatus = ConnectionSubStatus::CONNECTION_SUBSTATUS_UNKNOWN;
 
-    status = ( ConnectionStatus ) Header::getUint64Rapid( response, "status" );
-    substatus = ( ConnectionSubStatus ) Header::getUint64Rapid( response, "substatus" );
+    status = ( ConnectionStatus ) Header::getUint64( response, "status" );
+    substatus = ( ConnectionSubStatus ) Header::getUint64( response, "substatus" );
 
 
     if ( status != CONNECTION_SUCCESS ) {
@@ -419,7 +419,7 @@ pair< ConnectionStatus, ConnectionSubStatus > BlockProposalClientAgent::sendDAPr
             return { status, substatus };
 
         try {
-            substatus = ( ConnectionSubStatus ) Header::getUint64Rapid( response, "substatus" );
+            substatus = ( ConnectionSubStatus ) Header::getUint64( response, "substatus" );
         } catch ( ... ) {
         }
         if ( substatus == CONNECTION_BLOCK_PROPOSAL_TOO_LATE ) {

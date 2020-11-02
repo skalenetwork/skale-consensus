@@ -41,7 +41,7 @@ public:
 
     BlockFinalizeResponseHeader();
 
-    void addFields(rapidjson::Writer<rapidjson::StringBuffer> &jsonRequest) override;
+    void addFields(nlohmann::json &jsonRequest) override;
     void setSigShare(const string &_sigShare);
 
 

@@ -20,8 +20,9 @@
     @author Stan Kladko
     @date 2018
 */
-#include "Log.h"
 #include "SkaleCommon.h"
+#include "Log.h"
+
 
 #include "BlockProposalHeader.h"
 #include "BlockProposalRequestHeader.h"
@@ -34,12 +35,20 @@
 #include "exceptions/FatalError.h"
 #include "thirdparty/json.hpp"
 #include <network/Utils.h>
+#include "chains/Schain.h"
+#include "BlockProposalRequestHeader.h"
+#include "BlockProposalHeader.h"
+
 
 
 using namespace std;
 
 
-BlockProposalHeader::BlockProposalHeader( BlockProposal& _block ) : BasicHeader( Header::BLOCK ) {
+
+
+
+BlockProposalHeader::BlockProposalHeader(BlockProposal& _block) : BasicHeader(Header::BLOCK) {
+
     this->proposerIndex = _block.getProposerIndex();
     this->proposerNodeID = _block.getProposerNodeID();
     this->schainID = _block.getSchainID();
@@ -49,13 +58,13 @@ BlockProposalHeader::BlockProposalHeader( BlockProposal& _block ) : BasicHeader(
     this->signature = _block.getSignature();
     this->timeStamp = _block.getTimeStamp();
     this->timeStampMs = _block.getTimeStampMs();
-    this->transactionSizes = make_shared< vector< uint64_t > >();
+    this->transactionSizes = make_shared<vector<uint64_t>>();
 
     auto items = _block.getTransactionList()->getItems();
-    CHECK_STATE( items )
+    CHECK_STATE(items)
 
-    for ( auto&& t : *items ) {
-        transactionSizes->push_back( t->getSerializedSize( true ) );
+    for (auto && t : *items) {
+        transactionSizes->push_back(t->getSerializedSize(true));
     }
     setComplete();
 }
@@ -70,63 +79,51 @@ block_id BlockProposalHeader::getBlockID() {
     return blockID;
 }
 
-void BlockProposalHeader::addFields( rapidjson::Writer< rapidjson::StringBuffer >& j ) {
-    j.String( "schainID" );
-    j.Uint64( ( uint64_t ) schainID );
+void BlockProposalHeader::addFields(nlohmann::json &j) {
 
-    j.String( "proposerIndex" );
-    j.Uint64( ( uint64_t ) proposerIndex );
+    j["schainID"] = (uint64_t ) schainID;
 
-    j.String( "proposerNodeID" );
-    j.Uint64( ( uint64_t ) proposerNodeID );
+    j["proposerIndex"] = (uint64_t ) proposerIndex;
 
-    j.String( "blockID" );
-    j.Uint64( ( uint64_t ) blockID );
+    j["proposerNodeID"] = (uint64_t ) proposerNodeID;
 
-    j.String( "hash" );
-    j.String( blockHash.c_str() );
+    j["blockID"] = (uint64_t ) blockID;
 
-    j.String( "sig" );
-    j.String( signature.c_str() );
+    j["hash"] = blockHash;
 
-    j.String( "sizes" );
-    j.StartArray();
-    for ( auto& e : *transactionSizes )
-        j.Uint64( e );
-    j.EndArray();
+    j["sig"] = signature;
 
-    j.String( "timeStamp" );
-    j.Uint64( timeStamp );
+    j["sizes"] = *transactionSizes;
 
-    j.String( "timeStampMs" );
-    j.Uint( timeStampMs );
+    j["timeStamp"] = timeStamp;
 
-    CHECK_STATE( stateRoot != 0 )
+    j["timeStampMs"] = timeStampMs;
 
-    j.String( "sr" );
-    j.String( stateRoot.str().c_str() );
+    j["sr"] = stateRoot.str();
 
-    ASSERT( timeStamp > 0 )
+    CHECK_STATE(stateRoot != 0)
+
+    ASSERT(timeStamp > 0)
 }
 
-BlockProposalHeader::BlockProposalHeader( rapidjson::Document& _json )
-    : BasicHeader( Header::BLOCK ) {
-    proposerIndex = schain_index( Header::getUint64Rapid( _json, "proposerIndex" ) );
-    proposerNodeID = node_id( Header::getUint64Rapid( _json, "proposerNodeID" ) );
-    blockID = block_id( Header::getUint64Rapid( _json, "blockID" ) );
-    schainID = schain_id( Header::getUint64Rapid( _json, "schainID" ) );
-    timeStamp = Header::getUint64Rapid( _json, "timeStamp" );
-    timeStampMs = Header::getUint32Rapid( _json, "timeStampMs" );
-    blockHash = Header::getStringRapid( _json, "hash" );
-    signature = Header::getStringRapid( _json, "sig" );
-    auto srStr = Header::getStringRapid( _json, "sr" );
-    stateRoot = u256( srStr );
-    CHECK_STATE( stateRoot != 0 )
+BlockProposalHeader::BlockProposalHeader(nlohmann::json& _json) : BasicHeader(Header::BLOCK){
 
+    proposerIndex = schain_index( Header::getUint64(_json, "proposerIndex" ) );
+    proposerNodeID = node_id( Header::getUint64(_json, "proposerNodeID" ) );
+    blockID = block_id( Header::getUint64(_json, "blockID" ) );
+    schainID = schain_id( Header::getUint64(_json, "schainID" ) );
+    timeStamp = Header::getUint64(_json, "timeStamp" );
+    timeStampMs = Header::getUint32(_json, "timeStampMs" );
+    blockHash = Header::getString(_json, "hash" ) ;
+    signature = Header::getString(_json, "sig");
+    auto srStr = Header::getString(_json, "sr");
+    stateRoot = u256(srStr);
+    CHECK_STATE(stateRoot != 0)
 
-    auto jsonTransactionSizes = Header::getUint64ArrayRapid( _json, "sizes" );
+    Header::nullCheck(_json, "sizes" );
+    nlohmann::json jsonTransactionSizes = _json["sizes"];
 
-    transactionSizes = make_shared< vector< uint64_t > >();
+    transactionSizes = make_shared<vector< uint64_t > >();
 
     for ( auto&& jsize : jsonTransactionSizes ) {
         transactionSizes->push_back( jsize );
@@ -135,20 +132,20 @@ BlockProposalHeader::BlockProposalHeader( rapidjson::Document& _json )
     setComplete();
 }
 
-ptr< vector< uint64_t > > BlockProposalHeader::getTransactionSizes() {
+ ptr<vector<uint64_t>> BlockProposalHeader::getTransactionSizes()  {
     return transactionSizes;
 }
 
-string BlockProposalHeader::getSignature() {
-    CHECK_STATE( !signature.empty() )
+string BlockProposalHeader::getSignature()  {
+    CHECK_STATE(!signature.empty())
     return signature;
 }
 
-schain_index BlockProposalHeader::getProposerIndex() {
+ schain_index BlockProposalHeader::getProposerIndex() {
     return proposerIndex;
 }
 
-node_id BlockProposalHeader::getProposerNodeId() {
+ node_id BlockProposalHeader::getProposerNodeId() {
     return proposerNodeID;
 }
 
@@ -157,10 +154,12 @@ uint64_t BlockProposalHeader::getTimeStamp() const {
     return timeStamp;
 }
 
-uint32_t BlockProposalHeader::getTimeStampMs() const {
+uint32_t BlockProposalHeader::getTimeStampMs() const  {
     return timeStampMs;
 }
 
-u256 BlockProposalHeader::getStateRoot() {
+u256 BlockProposalHeader::getStateRoot()  {
     return stateRoot;
 }
+
+

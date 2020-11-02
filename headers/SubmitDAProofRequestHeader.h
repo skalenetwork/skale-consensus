@@ -41,9 +41,9 @@ public:
 
     SubmitDAProofRequestHeader(Schain &_sChain, const ptr<DAProof>& _proof, block_id _blockId);
 
-    SubmitDAProofRequestHeader(rapidjson::Document& _proposalRequest, node_count _nodeCount);
+    SubmitDAProofRequestHeader(nlohmann::json _proposalRequest, node_count _nodeCount);
 
-    void addFields(rapidjson::Writer<rapidjson::StringBuffer> & _j ) override;
+    void addFields(nlohmann::basic_json<> &jsonRequest) override;
 
     node_id getProposerNodeId() const;
 

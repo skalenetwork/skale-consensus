@@ -30,11 +30,10 @@ class Schain;
 class CatchupClientThreadPool;
 class CatchupResponseHeader;
 
-#include "thirdparty/rapidjson/document.h"
-#include "thirdparty/rapidjson/prettywriter.h"
-
 class CatchupClientAgent : public Agent {
+
 public:
+
     ptr< CatchupClientThreadPool > catchupClientThreadPool = nullptr;
 
 
@@ -46,14 +45,14 @@ public:
 
     static void workerThreadItemSendLoop( CatchupClientAgent* _agent );
 
-    rapidjson::Document readCatchupResponseHeader( const ptr< ClientSocket >& _socket );
+    nlohmann::json readCatchupResponseHeader(const ptr< ClientSocket >& _socket );
+
 
     ptr< CommittedBlockList > readMissingBlocks(
-        ptr< ClientSocket >& _socket, rapidjson::Document& responseHeader );
+        ptr< ClientSocket >& _socket, nlohmann::json responseHeader );
 
 
-    size_t parseBlockSizes(
-        rapidjson::Document& _responseHeader, const ptr< vector< uint64_t > >& _blockSizes );
+    size_t parseBlockSizes( nlohmann::json _responseHeader, const ptr<vector<uint64_t>>& _blockSizes );
 
     static schain_index nextSyncNodeIndex(
         const CatchupClientAgent* _agent, schain_index _destinationSchainIndex );

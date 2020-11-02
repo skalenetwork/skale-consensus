@@ -38,16 +38,16 @@
 
 using namespace std;
 
-SubmitDAProofRequestHeader::SubmitDAProofRequestHeader(rapidjson::Document& _proposalRequest, node_count _nodeCount)
-        : AbstractBlockRequestHeader(_nodeCount, (schain_id) Header::getUint64Rapid(_proposalRequest, "schainID"),
-                                     (block_id) Header::getUint64Rapid(_proposalRequest, "blockID"),
+SubmitDAProofRequestHeader::SubmitDAProofRequestHeader(nlohmann::json _proposalRequest, node_count _nodeCount)
+        : AbstractBlockRequestHeader(_nodeCount, (schain_id) Header::getUint64(_proposalRequest, "schainID"),
+                                     (block_id) Header::getUint64(_proposalRequest, "blockID"),
                                      Header::DA_PROOF_REQ,
-                                     (schain_index) Header::getUint64Rapid(_proposalRequest, "proposerIndex")) {
+                                     (schain_index) Header::getUint64(_proposalRequest, "proposerIndex")) {
 
-    proposerNodeID = (node_id) Header::getUint64Rapid(_proposalRequest, "proposerNodeID");
-    thresholdSig = Header::getStringRapid(_proposalRequest, "thrSig");
+    proposerNodeID = (node_id) Header::getUint64(_proposalRequest, "proposerNodeID");
+    thresholdSig = Header::getString(_proposalRequest, "thrSig");
     CHECK_STATE(!thresholdSig.empty())
-    blockHash = Header::getStringRapid(_proposalRequest, "hash");
+    blockHash = Header::getString(_proposalRequest, "hash");
     CHECK_STATE(!blockHash.empty())
 }
 
@@ -69,29 +69,17 @@ SubmitDAProofRequestHeader::SubmitDAProofRequestHeader(Schain &_sChain, const pt
 
 }
 
-void SubmitDAProofRequestHeader::addFields(rapidjson::Writer<rapidjson::StringBuffer> & _j ) {
+void SubmitDAProofRequestHeader::addFields(nlohmann::json &_jsonRequest) {
 
-    AbstractBlockRequestHeader::addFields( _j );
+    AbstractBlockRequestHeader::addFields(_jsonRequest);
 
-    _j.String("schainID");
-    _j.Uint64((uint64_t) schainID);
-
-    _j.String("proposerNodeID");
-    _j.Uint64((uint64_t) proposerNodeID);
-
-    _j.String("proposerIndex");
-    _j.Uint64((uint64_t) proposerIndex);
-
-    _j.String("blockID");
-    _j.Uint64((uint64_t) blockID);
-
+    _jsonRequest["schainID"] = (uint64_t) schainID;
+    _jsonRequest["proposerNodeID"] = (uint64_t) proposerNodeID;
+    _jsonRequest["proposerIndex"] = (uint64_t) proposerIndex;
+    _jsonRequest["blockID"] = (uint64_t) blockID;
     CHECK_STATE(!thresholdSig.empty())
-
-    _j.String("thrSig");
-    _j.String(thresholdSig.c_str());
-
-    _j.String("hash");
-    _j.String(blockHash.c_str());
+    _jsonRequest["thrSig"] = thresholdSig;
+    _jsonRequest["hash"] = blockHash;
 }
 
 

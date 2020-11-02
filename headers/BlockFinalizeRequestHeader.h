@@ -42,7 +42,7 @@ public:
 
 
 
-    void addFields(rapidjson::Writer<rapidjson::StringBuffer> &jsonRequest) override;
+    void addFields(nlohmann::basic_json<> &jsonRequest) override;
 
     const node_id &getNodeId() const;
 

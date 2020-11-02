@@ -81,15 +81,18 @@ protected:
 
     virtual ptr< BLAKE3Hash > calculateHash();
 
-    void addFields(rapidjson::Writer<rapidjson::StringBuffer>& _j ) override;
+    void addFields( nlohmann::json& j ) override;
 
 public:
-
     uint64_t getTimeMs() const;
 
+
+public:
     void sign( const ptr< CryptoManager >& _mgr );
 
+
     void verify( const ptr< CryptoManager >& _mgr );
+
 
     virtual bin_consensus_round getRound() const;
 

@@ -63,15 +63,12 @@ BlockFinalizeRequestHeader::BlockFinalizeRequestHeader(Schain &_sChain, block_id
     complete = true;
 }
 
-void BlockFinalizeRequestHeader::addFields(rapidjson::Writer<rapidjson::StringBuffer> &jsonRequest) {
+void BlockFinalizeRequestHeader::addFields(nlohmann::basic_json<> &jsonRequest) {
 
     AbstractBlockRequestHeader::addFields(jsonRequest);
 
-    jsonRequest.String("fragmentIndex");
-    jsonRequest.Uint64((uint64_t ) fragmentIndex);
-
-    jsonRequest.String("nodeID");
-    jsonRequest.Uint64((uint64_t ) nodeID);
+    jsonRequest["fragmentIndex"] = (uint64_t ) fragmentIndex;
+    jsonRequest["nodeID"] = (uint64_t ) nodeID;
 
 }
 
