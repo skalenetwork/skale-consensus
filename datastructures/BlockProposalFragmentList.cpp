@@ -70,7 +70,7 @@ uint64_t BlockProposalFragmentList::nextIndexToRetrieve() {
     }
 
 
-    ASSERT2(false, "nextIndexToRetrieve assertion failure"); // SHOULD NEVER BE HERE
+    CHECK_STATE2(false, "nextIndexToRetrieve assertion failure"); // SHOULD NEVER BE HERE
 }
 
 bool BlockProposalFragmentList::addFragment(const ptr<BlockProposalFragment>& _fragment, uint64_t &nextIndex) {
