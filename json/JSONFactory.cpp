@@ -300,7 +300,7 @@ void JSONFactory::createAndAddSChainFromJsonObject(
             remoteNodeInfos.push_back( rni );
         }
 
-        ASSERT( localNodeInfo );
+        CHECK_STATE(localNodeInfo );
         Node::initSchain( _node, localNodeInfo, remoteNodeInfos, _engine->getExtFace() );
     } catch ( ... ) {
         throw_with_nested( FatalError( __FUNCTION__, __CLASS_NAME__ ) );

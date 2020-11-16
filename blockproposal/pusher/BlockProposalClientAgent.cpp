@@ -165,7 +165,7 @@ pair< ConnectionStatus, ConnectionSubStatus > BlockProposalClientAgent::sendItem
         return status;
     }
 
-    ASSERT( false );
+    CHECK_STATE( false );
 }
 
 ptr< BlockProposal > BlockProposalClientAgent::corruptProposal(
@@ -302,7 +302,7 @@ pair< ConnectionStatus, ConnectionSubStatus > BlockProposalClientAgent::sendBloc
             }
         }
 
-        ASSERT2( missingTransactions->size() == count,
+        CHECK_STATE2( missingTransactions->size() == count,
             "Transactions:" + to_string( missingTransactions->size() ) + ":" + to_string( count ) );
 
 

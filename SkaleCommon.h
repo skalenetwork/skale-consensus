@@ -21,11 +21,9 @@
     @date 2018
 */
 
-#ifndef _CONFIG_H
-#define _CONFIG_H
+#ifndef _SKALE_COMMON_H
+#define _SKALE_COMMON_H
 
-#include <assert.h>
-#include <sys/time.h>
 #include <array>
 #include <cstdint>
 #include <iostream>
@@ -311,10 +309,6 @@ extern std::string getThreadName();
 
 
 
-#define ASSERT(_EXPRESSION_) \
-    if (!(_EXPRESSION_)) { \
-        auto __msg__ = string("Assert failed::") + #_EXPRESSION_ +  " " + string(__FILE__) + ":" + to_string(__LINE__); \
-        throw FatalError(__msg__, __CLASS_NAME__);}
 
 #define CHECK_ARGUMENT(_EXPRESSION_) \
     if (!(_EXPRESSION_)) { \
@@ -339,14 +333,6 @@ extern std::string getThreadName();
         auto __msg__ = string("Check failed::") + #_EXPRESSION_ +  " " + string(__FILE__) + ":" + to_string(__LINE__); \
         throw InvalidStateException(__msg__ + ":" + _MSG_, __CLASS_NAME__);}
 
-
-#define ASSERT2(_EXPRESSION_, _MSG_) \
-    if (!((_EXPRESSION_))) { \
-        auto __msg__ = string("Assert failed::") + #_EXPRESSION_ + " " + string(_MSG_) + ":" + string(__FILE__) + ":" + to_string(__LINE__); \
-        throw FatalError(__msg__, __CLASS_NAME__);}
-#endif
-
-
 #define INJECT_TEST(__TEST_NAME__, __TEST_CODE__) \
  { static bool __TEST_NAME__ = (getenv(#__TEST_NAME__) != nullptr); \
  if (__TEST_NAME__) {__TEST_CODE__ ;} };
@@ -357,3 +343,4 @@ extern std::string getThreadName();
     auto __previouslyCalled = __BOOL__.exchange(true); \
     if (__previouslyCalled) { return;}
 
+#endif // SKALE_COMMON_H

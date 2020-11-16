@@ -34,7 +34,7 @@ bool BasicHeader::isComplete() const {
 }
 
 string BasicHeader::serializeToString() {
-    ASSERT(complete)
+    CHECK_STATE(complete)
     nlohmann::json j;
 
     CHECK_STATE(type != nullptr)

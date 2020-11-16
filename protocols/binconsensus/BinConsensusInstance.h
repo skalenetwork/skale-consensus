@@ -194,7 +194,7 @@ public:
     const schain_index getBlockProposerIndex() const;
 
     ptr<ProtocolKey> getProtocolKey() {
-        ASSERT(protocolKey);
+        CHECK_STATE(protocolKey);
         return protocolKey;
     }
 

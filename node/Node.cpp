@@ -256,7 +256,7 @@ Node::~Node() {}
 
 void Node::startServers() {
 
-    ASSERT(!startedServers);
+    CHECK_STATE(!startedServers);
 
     LOG(info, "Starting node");
 

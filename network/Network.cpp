@@ -432,7 +432,7 @@ Network::Network(Schain &_sChain)
 
     if (cfg.find("packetLoss") != cfg.end()) {
         uint32_t pl = cfg.at("packetLoss").get<uint64_t>();
-        ASSERT(pl <= 100);
+        CHECK_STATE(pl <= 100);
         setPacketLoss(pl);
     }
 }

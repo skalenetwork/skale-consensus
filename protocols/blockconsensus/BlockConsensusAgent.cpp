@@ -166,10 +166,7 @@ void BlockConsensusAgent::decideBlock(block_id _blockId, schain_index _sChainInd
 
         getSchain()->getNode()->getNetwork()->broadcastMessage(msg);
 
-        ASSERT(!decidedIndices->exists((uint64_t) _blockId));
-
         decidedIndices->put((uint64_t) _blockId, _sChainIndex);
-
 
         if (signature != nullptr) {
             getSchain()->finalizeDecidedAndSignedBlock( _blockId, _sChainIndex, signature );

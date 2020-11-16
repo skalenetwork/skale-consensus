@@ -60,10 +60,6 @@ AbstractClientAgent::AbstractClientAgent( Schain& _sChain, port_type _portType )
         ( itemQueue ).emplace( schain_index( i ), make_shared<queue< ptr< DataStructure > > >() );
         ( queueCond ).emplace( schain_index( i ), make_shared<condition_variable >() );
         ( queueMutex ).emplace( schain_index( i ), make_shared<std::mutex >() );
-
-        ASSERT( itemQueue.count( schain_index( i ) ) );
-        ASSERT( queueCond.count( schain_index( i ) ) );
-        ASSERT( queueMutex.count( schain_index( i ) ) );
     }
 
     threadCounter = 0;

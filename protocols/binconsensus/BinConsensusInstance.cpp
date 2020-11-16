@@ -281,10 +281,8 @@ void BinConsensusInstance::auxSelfVote(bin_consensus_round _r,
                                                                 getSchain()->getSchainIndex(), _v,
                                                                 _sigShare->toString());
     if (_v) {
-        ASSERT(auxTrueVotes[_r].count(getSchain()->getSchainIndex()) == 0);
         auxTrueVotes[_r][getSchain()->getSchainIndex()] = _sigShare;
     } else {
-        ASSERT(auxFalseVotes[_r].count(getSchain()->getSchainIndex()) == 0);
         auxFalseVotes[_r][getSchain()->getSchainIndex()] = _sigShare;
     }
 
@@ -391,7 +389,7 @@ void BinConsensusInstance::proceedWithCommonCoinIfAUXTwoThird(bin_consensus_roun
     if (decided())
         return;
 
-    ASSERT(_r == getCurrentRound());
+    CHECK_STATE(_r == getCurrentRound());
 
     uint64_t verifiedValuesSize = 0;
 
@@ -434,7 +432,7 @@ void BinConsensusInstance::proceedWithCommonCoinIfAUXTwoThird(bin_consensus_roun
 void BinConsensusInstance::proceedWithCommonCoin(bool _hasTrue, bool _hasFalse, uint64_t _random) {
 
 
-    ASSERT(!isDecided);
+    CHECK_STATE(!isDecided);
 
     LOG(debug, "ROUND_COMPLETE:BLOCK:" + to_string(blockID) + ":ROUND:" + to_string(getCurrentRound()));
 
@@ -466,8 +464,8 @@ void BinConsensusInstance::proceedWithCommonCoin(bool _hasTrue, bool _hasFalse, 
 void BinConsensusInstance::proceedWithNewRound(bin_consensus_value _value) {
 
 
-    ASSERT(getCurrentRound() < 100);
-    ASSERT(isTwoThird(totalAUXVotes(getCurrentRound())));
+    CHECK_STATE(getCurrentRound() < 100);
+    CHECK_STATE(isTwoThird(totalAUXVotes(getCurrentRound())));
 
     setCurrentRound(getCurrentRound() + 1);
 
@@ -522,14 +520,14 @@ void BinConsensusInstance::addDecideToGlobalHistory(bin_consensus_value _decided
             if (falseCache->exists((uint64_t ) getBlockID())) {
                 printHistory();
                 falseCache->get((uint64_t) getBlockID())->printHistory();
-                ASSERT(false);
+                LOG(err, "Double decide 1");
             }
             trueCache->put((uint64_t) getBlockID(), child);
         } else {
             if (trueCache->exists((uint64_t ) getBlockID())) {
                 printHistory();
                 trueCache->get((uint64_t) getBlockID())->printHistory();
-                ASSERT(false);
+                LOG(err, "Double decide 2");
             }
             falseCache->put((uint64_t) getBlockID(), child);
         }
@@ -537,7 +535,7 @@ void BinConsensusInstance::addDecideToGlobalHistory(bin_consensus_value _decided
 
 void BinConsensusInstance::decide(bin_consensus_value _b) {
 
-    ASSERT(!isDecided);
+    CHECK_STATE(!isDecided);
 
     setDecidedRoundAndValue(getCurrentRound(), bin_consensus_value(_b));
 
@@ -686,7 +684,7 @@ uint64_t BinConsensusInstance::calculateBLSRandom(bin_consensus_round _r) {
 
     if (binValues[_r].count(bin_consensus_value(true)) > 0 && auxTrueVotes[_r].size() > 0) {
         for (auto &&item: auxTrueVotes[_r]) {
-            ASSERT(item.second);
+            CHECK_STATE(item.second);
             shares->addSigShare(item.second);
             if (shares->isEnough())
                 break;
@@ -695,7 +693,7 @@ uint64_t BinConsensusInstance::calculateBLSRandom(bin_consensus_round _r) {
 
     if (binValues[_r].count(bin_consensus_value(false)) > 0 && auxFalseVotes[_r].size() > 0) {
         for (auto &&item: auxFalseVotes[_r]) {
-            ASSERT(item.second);
+            CHECK_STATE(item.second);
             shares->addSigShare(item.second);
             if (shares->isEnough())
                 break;

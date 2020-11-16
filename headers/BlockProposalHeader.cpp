@@ -103,7 +103,7 @@ void BlockProposalHeader::addFields(nlohmann::json &j) {
 
     CHECK_STATE(stateRoot != 0)
 
-    ASSERT(timeStamp > 0)
+    CHECK_STATE(timeStamp > 0)
 }
 
 BlockProposalHeader::BlockProposalHeader(nlohmann::json& _json) : BasicHeader(Header::BLOCK){

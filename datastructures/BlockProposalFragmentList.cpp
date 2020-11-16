@@ -70,7 +70,7 @@ uint64_t BlockProposalFragmentList::nextIndexToRetrieve() {
     }
 
 
-    ASSERT2(false, "nextIndexToRetrieve assertion failure"); // SHOULD NEVER BE HERE
+    CHECK_STATE2(false, "nextIndexToRetrieve assertion failure"); // SHOULD NEVER BE HERE
 }
 
 bool BlockProposalFragmentList::addFragment(const ptr<BlockProposalFragment>& _fragment, uint64_t &nextIndex) {
@@ -106,7 +106,7 @@ bool BlockProposalFragmentList::addFragment(const ptr<BlockProposalFragment>& _f
     std::list<uint64_t>::iterator findIter = std::find(missingFragments.begin(), missingFragments.end(),
                                                        _fragment->getIndex());
 
-    ASSERT(findIter != missingFragments.end());
+    CHECK_STATE(findIter != missingFragments.end());
 
     missingFragments.erase(findIter);
 

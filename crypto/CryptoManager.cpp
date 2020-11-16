@@ -398,7 +398,7 @@ bool CryptoManager::sessionVerifySig(
             LOG( critical,
                 "Misconfiguration: this node is in mockup signature mode,"
                 "but other node sent a real signature " );
-            ASSERT( false );
+            exit(-1);
         }
 
         return _sig == _hash->toHex();
@@ -429,7 +429,7 @@ bool CryptoManager::verifySig( const ptr< BLAKE3Hash >& _hash, const string& _si
             LOG( critical,
                 "Misconfiguration: this node is in mockup signature mode,"
                 "but other node sent a real signature " );
-            ASSERT( false );
+            exit(-1);
         }
 
         return _sig == ( _hash->toHex() );
