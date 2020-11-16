@@ -32,7 +32,7 @@
 
 void WorkerThreadPool::startService() {
 
-    ASSERT(!started)
+    CHECK_STATE(!started)
 
     LOCK(m)
 

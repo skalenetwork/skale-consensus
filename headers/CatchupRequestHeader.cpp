@@ -52,7 +52,7 @@ CatchupRequestHeader::CatchupRequestHeader(Schain &_sChain, schain_index _dstInd
     this->blockID = _sChain.getLastCommittedBlockID();
     this->nodeID = _sChain.getNode()->getNodeID();
 
-    ASSERT(_sChain.getNode()->getNodeInfoByIndex(_dstIndex) != nullptr);
+    CHECK_STATE(_sChain.getNode()->getNodeInfoByIndex(_dstIndex));
 
     complete = true;
 

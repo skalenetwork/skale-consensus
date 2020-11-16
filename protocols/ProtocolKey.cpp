@@ -29,11 +29,11 @@
 ProtocolKey::ProtocolKey(const ProtocolKey &key) :
         blockID(key.blockID),
         blockProposerIndex(key.blockProposerIndex) {
-    ASSERT((uint64_t) blockID > 0);
+    CHECK_STATE((uint64_t) blockID > 0);
 }
 
 block_id ProtocolKey::getBlockID() const {
-    ASSERT((uint64_t) blockID > 0);
+    CHECK_STATE((uint64_t) blockID > 0);
     return blockID;
 }
 
@@ -44,8 +44,7 @@ schain_index ProtocolKey::getBlockProposerIndex() const {
 
 ProtocolKey::ProtocolKey(block_id _blockId, schain_index _blockProposerIndex) :
         blockID(_blockId),  blockProposerIndex(_blockProposerIndex){
-    ASSERT((uint64_t) blockID > 0);
-
+    CHECK_STATE((uint64_t) blockID > 0);
 }
 
 bool operator<(const ProtocolKey &l, const ProtocolKey &r) {

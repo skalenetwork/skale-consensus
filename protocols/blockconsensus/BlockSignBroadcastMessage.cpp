@@ -43,7 +43,7 @@ bin_consensus_round BlockSignBroadcastMessage::getRound() const {
 }
 
 bin_consensus_value BlockSignBroadcastMessage::getValue() const {
-    ASSERT(false);
+    CHECK_STATE(false);
 }
 
 

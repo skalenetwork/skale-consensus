@@ -79,7 +79,7 @@ BlockFinalizeDownloader::BlockFinalizeDownloader(Schain *_sChain, block_id _bloc
 
     CHECK_ARGUMENT(_sChain);
 
-    ASSERT(_sChain->getNodeCount() > 1);
+    CHECK_STATE(_sChain->getNodeCount() > 1);
 
     try {
         logThreadLocal_ = _sChain->getNode()->getLog();

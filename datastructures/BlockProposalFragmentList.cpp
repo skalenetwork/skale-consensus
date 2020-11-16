@@ -106,7 +106,7 @@ bool BlockProposalFragmentList::addFragment(const ptr<BlockProposalFragment>& _f
     std::list<uint64_t>::iterator findIter = std::find(missingFragments.begin(), missingFragments.end(),
                                                        _fragment->getIndex());
 
-    ASSERT(findIter != missingFragments.end());
+    CHECK_STATE(findIter != missingFragments.end());
 
     missingFragments.erase(findIter);
 

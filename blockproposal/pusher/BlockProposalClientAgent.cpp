@@ -165,7 +165,7 @@ pair< ConnectionStatus, ConnectionSubStatus > BlockProposalClientAgent::sendItem
         return status;
     }
 
-    ASSERT( false );
+    CHECK_STATE( false );
 }
 
 ptr< BlockProposal > BlockProposalClientAgent::corruptProposal(

@@ -499,11 +499,11 @@ ptr< Header > BlockProposalServerAgent::createProposalResponseHeader(
         return responseHeader;
     }
 
-    ASSERT( _header.getTimeStamp() > MODERN_TIME );
+    CHECK_STATE( _header.getTimeStamp() > MODERN_TIME );
 
     auto t = Time::getCurrentTimeSec();
 
-    ASSERT( t < ( uint64_t ) MODERN_TIME * 2 );
+    CHECK_STATE( t < ( uint64_t ) MODERN_TIME * 2 );
 
     if ( Time::getCurrentTimeSec() + 1 < _header.getTimeStamp() ) {
         LOG( info, "Incorrect timestamp:" + to_string( _header.getTimeStamp() ) +

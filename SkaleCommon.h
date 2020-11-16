@@ -311,10 +311,6 @@ extern std::string getThreadName();
 
 
 
-#define ASSERT(_EXPRESSION_) \
-    if (!(_EXPRESSION_)) { \
-        auto __msg__ = string("Assert failed::") + #_EXPRESSION_ +  " " + string(__FILE__) + ":" + to_string(__LINE__); \
-        throw FatalError(__msg__, __CLASS_NAME__);}
 
 #define CHECK_ARGUMENT(_EXPRESSION_) \
     if (!(_EXPRESSION_)) { \
