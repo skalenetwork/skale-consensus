@@ -154,7 +154,7 @@ pair< ConnectionStatus, ConnectionSubStatus > BlockProposalClientAgent::sendItem
         auto key = ( uint64_t ) _index + 1024 * 1024 * ( uint64_t ) _daProof->getBlockId();
 
         if ( !sentProposals->exists( key ) ) {
-            LOG( err, "Sending proof before proposal is sent" );
+            LOG( trace, "Sending proof before proposal is sent" );
         } else if ( sentProposals->get( key )->back().first != CONNECTION_SUCCESS ) {
             LOG( err, "Sending proof after failed proposal send: " +
                           to_string( sentProposals->get( key )->back().first ) + ":" +
