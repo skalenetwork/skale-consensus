@@ -302,7 +302,7 @@ static const uint64_t BLOCK_PROPOSAL_RECEIVE_TIMEOUT_MS = 30000;
 
 static const uint64_t REBROADCAST_TIMEOUT_MS = 120000;
 
-static const uint64_t ZMQ_RECEIVE_RETRY_MS = 5;
+static const uint64_t ZMQ_RECEIVE_RETRY_MS = 10;
 
 extern void setThreadName(std::string const &_n, ConsensusEngine* _engine);
 
