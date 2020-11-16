@@ -87,6 +87,9 @@ uint64_t ZMQNetwork::interruptableRecv(void *_socket, void *_buf, size_t _len, i
             BOOST_THROW_EXCEPTION(ExitRequestedException(__CLASS_NAME__));
         }
 
+        if (errno == EAGAIN)
+          usleep(ZMQ_RECEIVE_RETRY_MS * 1000); // adding sleep to make sure we dot no do busy wait
+
     } while (rc < 0 && errno == EAGAIN);
 
     if (rc < 0) {
@@ -145,7 +148,7 @@ uint64_t ZMQNetwork::readMessageFromNetwork(const ptr<Buffer> buf) {
     auto rc = interruptableRecv(s, buf->getBuf()->data(), MAX_CONSENSUS_MESSAGE_LEN, 0);
 
     if ((uint64_t) rc >= MAX_CONSENSUS_MESSAGE_LEN) {
-        BOOST_THROW_EXCEPTION(NetworkProtocolException("Consensus essage length too large:" +
+        BOOST_THROW_EXCEPTION(NetworkProtocolException("Consensus Message length too large:" +
                                        to_string(rc), __CLASS_NAME__));
     }
 
