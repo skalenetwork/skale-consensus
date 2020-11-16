@@ -87,7 +87,8 @@ uint64_t ZMQNetwork::interruptableRecv(void *_socket, void *_buf, size_t _len, i
             BOOST_THROW_EXCEPTION(ExitRequestedException(__CLASS_NAME__));
         }
 
-        usleep(ZMQ_RECEIVE_RETRY_MS * 1000); // adding sleep to make sure we dot no do busy wait
+        if (errno == EAGAIN)
+          usleep(ZMQ_RECEIVE_RETRY_MS * 1000); // adding sleep to make sure we dot no do busy wait
 
     } while (rc < 0 && errno == EAGAIN);
 
