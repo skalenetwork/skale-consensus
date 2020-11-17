@@ -35,6 +35,7 @@
 #include "MonitoringAgent.h"
 #include "MonitoringThreadPool.h"
 
+#include "utils/Time.h"
 
 MonitoringAgent::MonitoringAgent(Schain &_sChain) : Agent(_sChain, false, true) {
     try {
@@ -96,6 +97,9 @@ void MonitoringAgent::monitor() {
 
 }
 
+
+
+
 void MonitoringAgent::monitoringLoop(MonitoringAgent *_agent) {
 
 
@@ -120,20 +124,23 @@ void MonitoringAgent::monitoringLoop(MonitoringAgent *_agent) {
                 auto waitStartTime = max(_agent->getSchain()->getLastCommitTimeMs(),
                                     _agent->getSchain()->getStartTimeMs());
 
+                auto lastRebroadCastTime = waitStartTime;
 
                 if (_agent->getSchain()->getNodeCount() > 2) {
 
                     auto currentTime = Time::getCurrentTimeMs();
 
-                    if ( blockId > 2 && currentTime - waitStartTime > BLOCK_PROPOSAL_RECEIVE_TIMEOUT_MS ) {
+                    if ( waitStartTime > 0 && blockId > 2 && currentTime - waitStartTime > BLOCK_PROPOSAL_RECEIVE_TIMEOUT_MS ) {
                         try {
                             _agent->getSchain()->blockProposalReceiptTimeoutArrived( blockId );
+                            waitStartTime = 0; // do not need to timeout anymore
                         } catch ( ... ) {
                         }
                     }
 
-                    if (currentTime - waitStartTime > REBROADCAST_TIMEOUT_MS) {
+                    if (blockId > 2 && currentTime - lastRebroadCastTime > REBROADCAST_TIMEOUT_MS) {
                         _agent->getSchain()->rebroadcastAllMessagesForCurrentBlock();
+                        lastRebroadCastTime = currentTime;
                     }
                 }
 
