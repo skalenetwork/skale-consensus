@@ -111,6 +111,16 @@ void MonitoringAgent::monitoringLoop(MonitoringAgent *_agent) {
     LOG(info, "Monitoring agent started monitoring");
 
 
+
+
+
+    uint64_t processingStartTime = max(_agent->getSchain()->getLastCommitTimeMs(),
+                                                           _agent->getSchain()->getStartTimeMs());
+    uint64_t lastRebroadCastTime = processingStartTime;
+
+    bool timedOut = false;
+
+
     try {
         while (!_agent->getSchain()->getNode()->isExitRequested()) {
             usleep(_agent->getSchain()->getNode()->getMonitoringIntervalMs() * 1000);
@@ -120,20 +130,27 @@ void MonitoringAgent::monitoringLoop(MonitoringAgent *_agent) {
 
                 auto blockId = _agent->getSchain()->getLastCommittedBlockID() + 1;
 
-
-                auto waitStartTime = max(_agent->getSchain()->getLastCommitTimeMs(),
+                auto timeZero = max(_agent->getSchain()->getLastCommitTimeMs(),
                                     _agent->getSchain()->getStartTimeMs());
 
-                auto lastRebroadCastTime = waitStartTime;
+                lastRebroadCastTime = max(lastRebroadCastTime, timeZero);
 
                 if (_agent->getSchain()->getNodeCount() > 2) {
 
+                    if (_agent->getSchain()->getLastCommitTimeMs() > timeZero) {
+                        // new block
+                        processingStartTime = _agent->getSchain()->getLastCommitTimeMs();
+                        lastRebroadCastTime = processingStartTime;
+                        timedOut = false;
+                    }
+
+
                     auto currentTime = Time::getCurrentTimeMs();
 
-                    if ( waitStartTime > 0 && blockId > 2 && currentTime - waitStartTime > BLOCK_PROPOSAL_RECEIVE_TIMEOUT_MS ) {
+                    if ( !timedOut && blockId > 2 && currentTime - processingStartTime > BLOCK_PROPOSAL_RECEIVE_TIMEOUT_MS ) {
                         try {
                             _agent->getSchain()->blockProposalReceiptTimeoutArrived( blockId );
-                            waitStartTime = 0; // do not need to timeout anymore
+                            timedOut  = true;
                         } catch ( ... ) {
                         }
                     }
