@@ -594,6 +594,11 @@ bool CryptoManager::verifyProposalECDSA(
     CHECK_ARGUMENT( _hashStr != "" )
     CHECK_ARGUMENT( _signature != "" )
 
+    // default proposal is not signed using ECDSA
+    if (_proposal->getProposerIndex() == 0) {
+        return true;
+    }
+
     auto hash = _proposal->getHash();
 
     CHECK_STATE( hash );
