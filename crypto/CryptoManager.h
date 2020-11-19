@@ -201,9 +201,10 @@ public:
     }                                                                                            \
     catch ( exception & e ) {                                                                    \
         if ( e.what() && ( string( e.what() ).find( "Could not connect" ) != string::npos ||     \
+                           string( e.what() ).find("libcurl error: 56") != string::npos ||      \
                              string( e.what() ).find( "timed out" ) != string::npos ) ) {        \
-            LOG( err, "Could not connext to sgx server, retrying ... \n" + string( e.what() ) ); \
-            sleep( 60 );                                                                         \
+            LOG( err, "Could not connect to sgx server, retrying each five seconds ... \n" + string( e.what() ) ); \
+            sleep(5);                                                                         \
         } else {                                                                                 \
             throw;                                                                               \
         }                                                                                        \
