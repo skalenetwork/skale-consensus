@@ -72,7 +72,6 @@
 
 #include "CryptoManager.h"
 
-
 void CryptoManager::initSGXClient() {
     if ( isSGXEnabled ) {
         if ( isHTTPSEnabled ) {
