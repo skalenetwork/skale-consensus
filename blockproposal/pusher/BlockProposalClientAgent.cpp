@@ -62,8 +62,6 @@
 
 BlockProposalClientAgent::BlockProposalClientAgent( Schain& _sChain )
     : AbstractClientAgent( _sChain, PROPOSAL ) {
-    sentProposals = make_shared< cache::lru_cache< uint64_t,
-        ptr< list< pair< ConnectionStatus, ConnectionSubStatus > > > > >( 32 );
 
     try {
         LOG( debug, "Constructing blockProposalPushAgent" );
@@ -123,49 +121,16 @@ pair< ConnectionStatus, ConnectionSubStatus > BlockProposalClientAgent::sendItem
     CHECK_ARGUMENT( _item );
     CHECK_ARGUMENT( _socket );
 
-    ptr< BlockProposal > _proposal = dynamic_pointer_cast< BlockProposal >( _item );
+    auto _proposal = dynamic_pointer_cast< BlockProposal >( _item );
 
-    if ( _proposal != nullptr ) {
-        pair< ConnectionStatus, ConnectionSubStatus > result = {
-            ConnectionStatus::CONNECTION_STATUS_UNKNOWN,
-            ConnectionSubStatus::CONNECTION_SUBSTATUS_UNKNOWN };
-
-        auto key = ( uint64_t ) _index + 1024 * 1024 * ( uint64_t ) _proposal->getBlockID();
-
-        if ( !sentProposals->exists( key ) ) {
-            sentProposals->put(
-                key, make_shared< list< pair< ConnectionStatus, ConnectionSubStatus > > >() );
-        }
-
-        try {
-            result = sendBlockProposal( _proposal, _socket, _index );
-        } catch ( ... ) {
-            auto list = sentProposals->get( key );
-            list->push_back( result );
-            throw;
-        }
-
-        return result;
+    if ( _proposal) {
+        return sendBlockProposal( _proposal, _socket, _index );
+    } else {
+        auto _daProof = dynamic_pointer_cast< DAProof >( _item );
+        CHECK_STATE( _daProof );
+        return sendDAProof( _daProof, _socket );
     }
 
-    ptr< DAProof > _daProof = dynamic_pointer_cast< DAProof >( _item );
-
-    if ( _daProof != nullptr ) {
-        auto key = ( uint64_t ) _index + 1024 * 1024 * ( uint64_t ) _daProof->getBlockId();
-
-        if ( !sentProposals->exists( key ) ) {
-            LOG( trace, "Sending proof before proposal is sent" );
-        } else if ( sentProposals->get( key )->back().first != CONNECTION_SUCCESS ) {
-            LOG( err, "Sending proof after failed proposal send: " +
-                          to_string( sentProposals->get( key )->back().first ) + ":" +
-                          to_string( sentProposals->get( key )->back().second ) );
-        }
-
-        auto status = sendDAProof( _daProof, _socket );
-        return status;
-    }
-
-    CHECK_STATE( false );
 }
 
 ptr< BlockProposal > BlockProposalClientAgent::corruptProposal(
