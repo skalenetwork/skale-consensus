@@ -166,6 +166,8 @@ void Network::broadcastMessage(const ptr<NetworkMessage>& _msg ) {
 
 void Network::networkReadLoop() {
     setThreadName("NtwkRdLoop", getSchain()->getNode()->getConsensusEngine());
+
+
     waitOnGlobalStartBarrier();
 
     try {
