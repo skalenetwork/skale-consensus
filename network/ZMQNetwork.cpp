@@ -88,7 +88,7 @@ uint64_t ZMQNetwork::interruptableRecv(void *_socket, void *_buf, size_t _len, i
         }
 
         if (errno == EAGAIN)
-          usleep(ZMQ_RECEIVE_RETRY_MS * 1000); // adding sleep to make sure we dot no do busy wait
+            usleep(0); // adding sleep to make sure we dot no do busy wait
 
     } while (rc < 0 && errno == EAGAIN);
 
@@ -103,8 +103,10 @@ uint64_t ZMQNetwork::interruptableRecv(void *_socket, void *_buf, size_t _len, i
 
 bool ZMQNetwork::interruptableSend(void *_socket, void *_buf, size_t _len, bool _isNonBlocking) {
 
+     auto simulatedDelay = sChain->getNode()->getSimulateNetworkWriteDelayMs();
 
-    usleep(1000 * sChain->getNode()->getSimulateNetworkWriteDelayMs());
+     if (simulatedDelay > 0)
+         usleep(1000 * sChain->getNode()->getSimulateNetworkWriteDelayMs());
 
     int rc;
 
@@ -127,7 +129,6 @@ bool ZMQNetwork::interruptableSend(void *_socket, void *_buf, size_t _len, bool 
         if (_isNonBlocking && rc < 0 && errno == EAGAIN) {
             return false;
         }
-
 
     } while (rc < 0 && errno == EAGAIN);
 
