@@ -192,23 +192,30 @@ public:
         const string& _publicKey, const string& pkSig, block_id _blockID, node_id _nodeId );
 };
 
-#define RETRY_BEGIN  \
-    while ( true ) { \
+#define RETRY_BEGIN                                                                                  \
+    while ( true ) {                                                                                 \
         try {
-#define RETRY_END                                                                                \
-    ;                                                                                            \
-    break;                                                                                       \
-    }                                                                                            \
-    catch ( exception & e ) {                                                                    \
-        if ( e.what() && ( string( e.what() ).find( "Could not connect" ) != string::npos ||     \
-                           string( e.what() ).find("libcurl error: 56") != string::npos ||      \
-                             string( e.what() ).find( "timed out" ) != string::npos ) ) {        \
-            LOG( err, "Could not connect to sgx server, retrying each five seconds ... \n" + string( e.what() ) ); \
-            sleep(5);                                                                         \
-        } else {                                                                                 \
-            throw;                                                                               \
-        }                                                                                        \
-    }                                                                                            \
+
+#define RETRY_END                                                                                    \
+            ;                                                                                        \
+            break;                                                                                   \
+        }                                                                                            \
+        catch ( const std::exception & e ) {                                                         \
+            if ( e.what() && ( string( e.what() ).find( "Could not connect" ) != string::npos ||     \
+                               string( e.what() ).find( "libcurl error: 56" ) != string::npos ||     \
+                               string( e.what() ).find( "libcurl error: 35" ) != string::npos ||     \
+                               string( e.what() ).find( "timed out" ) != string::npos ) ) {          \
+                LOG( err, "Could not connect to sgx server, retrying each five seconds ... \n" + string( e.what() ) ); \
+                sleep(5);                                                                            \
+            } else {                                                                                 \
+                LOG( err, e.what() );                                                                \
+                throw;                                                                               \
+            }                                                                                        \
+        }                                                                                            \
+        catch(...){                                                                                  \
+                LOG(err, "FATAL Unknown error while connecting to sgx server!");                     \
+                throw;                                                                               \
+        }                                                                                            \
     }
 
 #endif  // SKALED_CRYPTOMANAGER_H
