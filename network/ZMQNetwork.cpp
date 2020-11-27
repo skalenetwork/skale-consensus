@@ -75,10 +75,8 @@ uint64_t ZMQNetwork::interruptableRecv(void *_socket, void *_buf, size_t _len, i
 
     int rc;
 
-    do {
+    for(;;) {
 
-        rc = zmq_recv(_socket, _buf,
-                      _len, _flags);
         if (this->getNode()->isExitRequested()) {
             LOG(debug, getThreadName() + " zmq debug: closing = " + to_string((uint64_t)_socket));
             int linger = 1;
@@ -87,10 +85,16 @@ uint64_t ZMQNetwork::interruptableRecv(void *_socket, void *_buf, size_t _len, i
             BOOST_THROW_EXCEPTION(ExitRequestedException(__CLASS_NAME__));
         }
 
-        if (errno == EAGAIN)
-            usleep(0); // adding sleep to make sure we dot no do busy wait
+        rc = zmq_recv(_socket, _buf,
+                      _len, _flags);
 
-    } while (rc < 0 && errno == EAGAIN);
+        if (rc < 0 && errno == EAGAIN){
+            usleep(0); // adding sleep to make sure we dot no do busy wait
+            continue;
+        }
+
+        break;
+    }
 
     if (rc < 0) {
         BOOST_THROW_EXCEPTION(NetworkProtocolException("Zmq recv failed " + string(zmq_strerror(errno)), __CLASS_NAME__));

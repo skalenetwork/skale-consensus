@@ -143,6 +143,8 @@ void Network::broadcastMessage(const ptr<NetworkMessage>& _msg ) {
                     }
                 }
             }
+
+            sleep(1);
         }
 
         // messages that could not be sent because the receiving nodes were not online are
