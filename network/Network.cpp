@@ -329,7 +329,7 @@ void Network::deferredMessagesLoop() {
             // print the error and continue the loop
             SkaleException::logNested(e);
         }
-        usleep(100000);
+        usleep(1000000);
     }
 }
 
