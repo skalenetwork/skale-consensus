@@ -706,7 +706,7 @@ void Schain::rebroadcastAllMessagesForCurrentBlock() const {
         auto messages =
             getNode()->getOutgoingMsgDB()->getMessages( lastCommittedBlockID + 1 );
         for ( auto&& m : *messages ) {
-            getNode()->getNetwork()->broadcastMessage( m );
+            getNode()->getNetwork()->rebroadcastMessage(m);
         }
     }
 }

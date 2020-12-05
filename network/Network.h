@@ -97,7 +97,11 @@ public:
 
     static string ipToString(uint32_t _ip);
 
-    void broadcastMessage(const ptr<NetworkMessage>& _msg );
+    void broadcastMessage(const ptr<NetworkMessage>& _msg);
+
+    void rebroadcastMessage(const ptr<NetworkMessage>& _msg);
+
+    void broadcastMessageImpl(const ptr<NetworkMessage>& _msg , bool _isFirstBroadcast );
 
     ptr<NetworkMessageEnvelope> receiveMessage();
 
