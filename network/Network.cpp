@@ -156,8 +156,7 @@ void Network::broadcastMessageImpl(const ptr<NetworkMessage>& _msg, bool _isFirs
                     }
                 }
             }
-
-            usleep(100000);
+            sleep(0);
         }
 
         // messages that could not be sent because the receiving nodes were not online are
