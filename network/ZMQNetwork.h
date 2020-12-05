@@ -46,9 +46,9 @@ class ZMQNetwork : public Network {
 public:
 
 
-    uint64_t interruptableRecv(void *_socket, void *_buf, size_t _len, int _flags);
+    uint64_t interruptableRecv(void *_socket, void *_buf, size_t _len);
 
-    bool interruptableSend(void *_socket, void *_buf, size_t _len, bool _isNonBlocking = false);
+    bool interruptableSend(void *_socket, void *_buf, size_t _len);
 
     uint64_t readMessageFromNetwork(const ptr<Buffer> buf);
 

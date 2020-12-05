@@ -116,18 +116,31 @@ void Network::addToDelayedSends(const ptr<NetworkMessage>& _m, const ptr<NodeInf
     }
 }
 
-void Network::broadcastMessage(const ptr<NetworkMessage>& _msg ) {
+void Network::broadcastMessage(const ptr<NetworkMessage>& _msg) {
+    broadcastMessageImpl(_msg, true);
+}
+
+void Network::rebroadcastMessage(const ptr<NetworkMessage>& _msg) {
+    broadcastMessageImpl(_msg, false);
+}
+
+void Network::broadcastMessageImpl(const ptr<NetworkMessage>& _msg, bool _isFirstBroadcast ) {
 
     CHECK_ARGUMENT( _msg );
 
+    // used for testing
     if ( _msg->getBlockID() <= this->catchupBlocks) {
         return;
     }
 
     try {
-        // sign message before sending
-        _msg->sign(getSchain()->getCryptoManager());
-        getSchain()->getNode()->getOutgoingMsgDB()->saveMsg( _msg );
+
+        if (_isFirstBroadcast) {
+            // sign message before sending
+            _msg->sign( getSchain()->getCryptoManager() );
+            getSchain()->getNode()->getOutgoingMsgDB()->saveMsg( _msg );
+        }
+
 
         unordered_set<uint64_t> sent;
 
@@ -143,11 +156,12 @@ void Network::broadcastMessage(const ptr<NetworkMessage>& _msg ) {
                     }
                 }
             }
+            sleep(0);
         }
 
         // messages that could not be sent because the receiving nodes were not online are
         // queued to delayed sends to be tried later. The delayed sends queue for
-        // each destination can have MAX_DELAYED_MESSAGE_SENDS
+        // each destination can have MAX_DELAYED_MESSAGE_SENDS.
 
         for (auto const &it : *getSchain()->getNode()->getNodeInfosByIndex()) {
             auto dstNodeInfo = it.second;
