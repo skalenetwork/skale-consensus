@@ -16,35 +16,42 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file EdDSASigShare.h
+    @file SigShareSet.h
     @author Stan Kladko
     @date 2019
 */
 
-#ifndef SKALED_EDDSASIGSHARE_H
-#define SKALED_EDDSASIGSHARE_H
+#pragma once
+
+#include "EdDSASigShare.h"
+#include "EdDSASigShareSet.h"
+#include "datastructures/DataStructure.h"
+#include "ThresholdSigShareSet.h"
 
 
-#include "BLSSigShare.h"
-#include "ThresholdSigShare.h"
+class PartialHashesList;
+class Schain;
+class ConsensusEdDSASigShare;
+class ConsensusEdDSASignature;
+class  BLAKE3Hash;
 
+class ConsensusSigShareSet : public ThresholdSigShareSet {
 
-class EdDSASigShare : public ThresholdSigShare {
+    EdDSASigShareSet blsSet;
 
-    uint64_t totalSigners;
-    uint64_t requiredSigners;
-
-    string sigShare;
 
 public:
+    ConsensusSigShareSet(block_id _blockId, size_t _totalSigners, size_t _requiredSigners );
 
-    EdDSASigShare(const string& _sigShare, schain_id _schainID, block_id _blockID, schain_index _signerIndex,
-                   size_t _totalSigners, size_t _requiredSigners);
+    ptr<ThresholdSignature> mergeSignature() override;
 
-    virtual string toString();
+    bool addSigShare(const ptr<ThresholdSigShare>& _sigShare) override;
 
-    virtual ~EdDSASigShare();
+    bool isEnough() override;
+
+    bool isEnoughMinusOne();
+
+    ~ConsensusSigShareSet() override;
+
+
 };
-
-
-#endif  // SKALED_EdDSASIGSHARE_H

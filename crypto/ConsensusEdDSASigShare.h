@@ -16,36 +16,30 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file EdDSASigShare.cpp
+    @file ConsensusEdDSASigShare.h
     @author Stan Kladko
     @date 2019
 */
 
+#ifndef SKALED_CONSENSUSEDDSASIGSHARE_H
+#define SKALED_CONSENSUSEDDSASIGSHARE_H
 
-#include "SkaleCommon.h"
-#include "Log.h"
+
+#include "ThresholdSigShare.h"
 
 
-#include "thirdparty/json.hpp"
+class ConsensusEdDSASigShare : public ThresholdSigShare {
 
-#include "EdDSASigShare.h"
+    string edDSASigShare;
 
-EdDSASigShare::EdDSASigShare(const string& _sigShare, schain_id _schainID, block_id _blockID, schain_index _signerIndex,
-                               size_t _totalSigners, size_t _requiredSigners)
-    : ThresholdSigShare(_schainID, _blockID, _signerIndex) {
+public:
 
-    CHECK_ARGUMENT(_sigShare != "");
-    CHECK_ARGUMENT(_requiredSigners <= _totalSigners);
-    this->totalSigners = _totalSigners;
-    this->requiredSigners = _requiredSigners;
-    this->sigShare = _sigShare;
-}
+    ConsensusEdDSASigShare(const string& _sigShare, schain_id _schainID, block_id _blockID, schain_index _signerIndex,
+                         uint64_t _totalSigners, uint64_t _requiredSigners);
 
-EdDSASigShare::~EdDSASigShare() {
+    virtual string toString();
 
-}
+};
 
-string EdDSASigShare::toString() {
-    CHECK_STATE(sigShare != "");
-    return sigShare;
-}
+
+#endif  // SKALED_CONSENSUSEDDSASIGSHARE_H
