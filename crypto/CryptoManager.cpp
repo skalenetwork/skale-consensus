@@ -46,6 +46,7 @@
 
 #include "ConsensusBLSSigShare.h"
 #include "ConsensusBLSSignature.h"
+#include "ConsensusEdDSASignature.h"
 #include "ConsensusSigShareSet.h"
 #include "ConsensusEdDSASigShareSet.h"
 #include "MockupSigShare.h"
@@ -479,9 +480,9 @@ ptr< ThresholdSigShare > CryptoManager::signDAProofSigShare(
 
         auto&&[sig, publicKey, pkSig] = this->sessionSignECDSA(_hash, _blockId);
 
-        auto share = sig + ";" + publicKey + ";" + pkSig;
+        auto share = to_string((uint64_t )getSchain()->getSchainIndex()) + ";" + sig + ";" + publicKey + ";" + pkSig;
 
-        return make_shared< ConsensusEdDSASigShare >( sig, sChain->getSchainID(), _blockId,
+        return make_shared< ConsensusEdDSASigShare >( share, sChain->getSchainID(), _blockId,
                                                       sChain->getSchainIndex(), totalSigners, requiredSigners);
 
     } else {
@@ -701,6 +702,33 @@ ptr< ThresholdSignature > CryptoManager::verifyThresholdSig(
         return sig;
     }
 }
+
+
+ptr< ThresholdSignature > CryptoManager::verifyDAProofThresholdSig(
+    const ptr< BLAKE3Hash >& _hash, const string& _signature, block_id _blockId ) {
+    MONITOR( __CLASS_NAME__, __FUNCTION__ )
+
+    CHECK_ARGUMENT( _hash );
+    CHECK_ARGUMENT(!_signature.empty());
+
+    if ( getSchain()->getNode()->isSgxEnabled() ) {
+        auto sig = make_shared< ConsensusEdDSASignature >(
+            _signature, _blockId, totalSigners, requiredSigners );
+
+        return sig;
+
+    } else {
+        auto sig =
+            make_shared< MockupSignature >( _signature, _blockId, requiredSigners, totalSigners );
+
+        if ( sig->toString() != _hash->toHex() ) {
+            BOOST_THROW_EXCEPTION( InvalidArgumentException(
+                                       "Mockup threshold signature did not verify", __CLASS_NAME__ ) );
+        }
+        return sig;
+    }
+}
+
 
 using namespace CryptoPP;
 

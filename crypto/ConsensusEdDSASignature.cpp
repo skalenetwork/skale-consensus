@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2019 SKALE Labs
+    Copyright (C) 2020 SKALE Labs
 
     This file is part of skale-consensus.
 
@@ -18,7 +18,7 @@
 
     @file ConsensusEdDSASignature.cpp
     @author Stan Kladko
-    @date 2019
+    @date 2020
 */
 
 
@@ -31,30 +31,12 @@
 #include "ThresholdSignature.h"
 
 
-
 ConsensusEdDSASignature::ConsensusEdDSASignature(
-    const string& _sig, block_id _blockID, size_t _totalSigners, size_t _requiredSigners )
-    : ThresholdSignature( _blockID, _totalSigners, _requiredSigners ) {
-
-    CHECK_ARGUMENT( _sig != "");
-
-
-    try {
-        blsSig = make_shared< EdDSASignature >( make_shared<string>(_sig), _requiredSigners, _totalSigners );
-    } catch ( ... ) {
-        throw_with_nested(
-            InvalidStateException( "Could not create EdDSASignature from string", __CLASS_NAME__ ) );
-    }
-}
-
-
-static string dummy_string( "" );
-
-ConsensusEdDSASignature::ConsensusEdDSASignature(
-    string& _mergedSig, block_id _blockID, size_t _totalSigners, size_t _requiredSigners )
+    const string& _mergedSig, block_id _blockID, size_t _totalSigners, size_t _requiredSigners )
     : ThresholdSignature( _blockID, _totalSigners, _requiredSigners ), mergedSig(_mergedSig) {
 
     CHECK_ARGUMENT(!_mergedSig.empty());
+    CHECK_ARGUMENT(_mergedSig.find('*') != string::npos)
 }
 
 string  ConsensusEdDSASignature::toString() {

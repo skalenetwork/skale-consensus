@@ -38,6 +38,7 @@ ConsensusEdDSASigShare::ConsensusEdDSASigShare(const string& _sigShare, schain_i
 
     CHECK_ARGUMENT(!_sigShare.empty());
 
+    CHECK_STATE(_sigShare.find(";") != string::npos)
     this->edDSASigShare = _sigShare;
 
 }

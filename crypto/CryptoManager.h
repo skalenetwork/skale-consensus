@@ -119,7 +119,6 @@ class CryptoManager {
     bool verifySig( const ptr< BLAKE3Hash >& _hash, const string& _sig, node_id _nodeId );
 
     ptr< ThresholdSigShare > signSigShare( const ptr< BLAKE3Hash >& _hash, block_id _blockId, bool _forceMockup );
-
     ptr< ThresholdSigShare > signDAProofSigShare( const ptr< BLAKE3Hash >& _hash, block_id _blockId, bool _forceMockup );
 
     void initSGXClient();
@@ -142,24 +141,24 @@ public:
     ptr< ThresholdSignature > verifyThresholdSig(
         const ptr< BLAKE3Hash >& _hash, const string& _signature, block_id _blockId );
 
-    ptr< ThresholdSigShareSet > createSigShareSet( block_id _blockId );
+    ptr< ThresholdSignature > verifyDAProofThresholdSig(
+        const ptr< BLAKE3Hash >& _hash, const string& _signature, block_id _blockId );
 
+
+    ptr< ThresholdSigShareSet > createSigShareSet( block_id _blockId );
     ptr< ThresholdSigShareSet > createDAProofSigShareSet( block_id _blockId );
 
     ptr< ThresholdSigShare > createSigShare( const string& _sigShare, schain_id _schainID,
         block_id _blockID, schain_index _signerIndex, bool _forceMockup );
-
     ptr< ThresholdSigShare > createDAProofSigShare( const string& _sigShare, schain_id _schainID,
                                              block_id _blockID, schain_index _signerIndex, bool _forceMockup );
-
 
     void signProposal( BlockProposal* _proposal );
 
     bool verifyProposalECDSA(
         const ptr< BlockProposal >& _proposal, const string& _hashStr, const string& _signature );
 
-    tuple< ptr< ThresholdSigShare >, string, string, string > signDAProof(
-        const ptr< BlockProposal >& _p );
+    tuple< ptr< ThresholdSigShare >, string, string, string > signDAProof(const ptr< BlockProposal >& _p );
 
     ptr< ThresholdSigShare > signBinaryConsensusSigShare(
         const ptr< BLAKE3Hash >& _hash, block_id _blockId, uint64_t _round );
