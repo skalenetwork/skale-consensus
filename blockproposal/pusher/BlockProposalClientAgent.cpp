@@ -355,7 +355,7 @@ pair< ConnectionStatus, ConnectionSubStatus > BlockProposalClientAgent::sendBloc
         return finalResult;
 
 
-    auto sigShare = getSchain()->getCryptoManager()->createSigShare(
+    auto sigShare = getSchain()->getCryptoManager()->createDAProofSigShare(
         finalHeader->getSigShare(), _proposal->getSchainID(), _proposal->getBlockID(), _index, false );
     CHECK_STATE( sigShare );
 

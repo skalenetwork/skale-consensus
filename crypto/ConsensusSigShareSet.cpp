@@ -51,8 +51,14 @@ ConsensusSigShareSet::~ConsensusSigShareSet() {
 
 
 ptr< ThresholdSignature > ConsensusSigShareSet::mergeSignature() {
-    CHECK_STATE( blsSet.isEnough() );
-    auto blsSig = blsSet.merge();
+
+    ptr< BLSSignature > blsSig = nullptr;
+
+    {
+        LOCK( m );
+        CHECK_STATE( blsSet.isEnough() );
+        blsSig = blsSet.merge();
+    }
     CHECK_STATE( blsSig );
 
     auto sig = make_shared< ConsensusBLSSignature >(
@@ -61,20 +67,29 @@ ptr< ThresholdSignature > ConsensusSigShareSet::mergeSignature() {
 }
 
 bool ConsensusSigShareSet::isEnough() {
-    return blsSet.isEnough();
+    {
+        LOCK( m );
+        return blsSet.isEnough();
+    }
 }
 
 
 bool ConsensusSigShareSet::isEnoughMinusOne() {
-    auto sigsCount = blsSet.getTotalSigSharesCount();
-    return sigsCount >= requiredSigners - 1;
+    {
+        LOCK( m );
+        auto sigsCount = blsSet.getTotalSigSharesCount();
+        return sigsCount >= requiredSigners - 1;
+    }
 }
 
 
-bool ConsensusSigShareSet::addSigShare(const ptr< ThresholdSigShare >& _sigShare ) {
-    CHECK_ARGUMENT( _sigShare);
+bool ConsensusSigShareSet::addSigShare( const ptr< ThresholdSigShare >& _sigShare ) {
+    CHECK_ARGUMENT( _sigShare );
     ptr< ConsensusBLSSigShare > s = dynamic_pointer_cast< ConsensusBLSSigShare >( _sigShare );
-    CHECK_STATE(s);
+    CHECK_STATE( s );
 
-    return blsSet.addSigShare( s->getBlsSigShare() );
+    {
+        LOCK( m );
+        return blsSet.addSigShare( s->getBlsSigShare() );
+    }
 }

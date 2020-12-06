@@ -120,6 +120,8 @@ class CryptoManager {
 
     ptr< ThresholdSigShare > signSigShare( const ptr< BLAKE3Hash >& _hash, block_id _blockId, bool _forceMockup );
 
+    ptr< ThresholdSigShare > signDAProofSigShare( const ptr< BLAKE3Hash >& _hash, block_id _blockId, bool _forceMockup );
+
     void initSGXClient();
 
     static uint64_t parseSGXPort( const string& _url );
@@ -142,8 +144,14 @@ public:
 
     ptr< ThresholdSigShareSet > createSigShareSet( block_id _blockId );
 
+    ptr< ThresholdSigShareSet > createDAProofSigShareSet( block_id _blockId );
+
     ptr< ThresholdSigShare > createSigShare( const string& _sigShare, schain_id _schainID,
         block_id _blockID, schain_index _signerIndex, bool _forceMockup );
+
+    ptr< ThresholdSigShare > createDAProofSigShare( const string& _sigShare, schain_id _schainID,
+                                             block_id _blockID, schain_index _signerIndex, bool _forceMockup );
+
 
     void signProposal( BlockProposal* _proposal );
 

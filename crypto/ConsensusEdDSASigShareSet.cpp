@@ -24,57 +24,74 @@
 #include "Log.h"
 #include "SkaleCommon.h"
 
-#include "ConsensusBLSSignature.h"
-
-#include "bls_include.h"
+#include "ConsensusEdDSASigShare.h"
+#include "ConsensusEdDSASigShareSet.h"
+#include "ConsensusEdDSASignature.h"
 #include "exceptions/FatalError.h"
-
-
-#include "ConsensusBLSSigShare.h"
-
-#include "ConsensusSigShareSet.h"
 
 
 using namespace std;
 
 
-ConsensusSigShareSet::ConsensusSigShareSet(
+ConsensusEdDSASigShareSet::ConsensusEdDSASigShareSet(
     block_id _blockId, size_t _totalSigners, size_t _requiredSigners )
-    : ThresholdSigShareSet( _blockId, _totalSigners, _requiredSigners ),
-      blsSet( _requiredSigners, _totalSigners ) {
+    : ThresholdSigShareSet( _blockId, _totalSigners, _requiredSigners ) {
     totalObjects++;
 }
 
-ConsensusSigShareSet::~ConsensusSigShareSet() {
+ConsensusEdDSASigShareSet::~ConsensusEdDSASigShareSet() {
     totalObjects--;
 }
 
 
-ptr< ThresholdSignature > ConsensusSigShareSet::mergeSignature() {
-    CHECK_STATE( blsSet.isEnough() );
-    auto blsSig = blsSet.merge();
-    CHECK_STATE( blsSig );
+ptr< ThresholdSignature > ConsensusEdDSASigShareSet::mergeSignature() {
+    CHECK_STATE( isEnough() );
 
-    auto sig = make_shared< ConsensusBLSSignature >(
-        blsSig, blockId, blsSig->getTotalSigners(), blsSig->getRequiredSigners() );
+
+    string mergedSig;
+
+    {
+        LOCK( m );
+
+        for ( auto&& entry : edDSASet ) {
+            mergedSig.append( entry.second );
+            mergedSig.append( "*" );
+        }
+    }
+    mergedSig.pop_back();
+
+    CHECK_STATE( !mergedSig.empty() );
+
+
+    auto sig =
+        make_shared< ConsensusEdDSASignature >( mergedSig, blockId, totalSigners, requiredSigners );
     return sig;
 }
 
-bool ConsensusSigShareSet::isEnough() {
-    return blsSet.isEnough();
+bool ConsensusEdDSASigShareSet::isEnough() {
+        LOCK( m );
+        return edDSASet.size() >= requiredSigners;
 }
 
 
-bool ConsensusSigShareSet::isEnoughMinusOne() {
-    auto sigsCount = blsSet.getTotalSigSharesCount();
-    return sigsCount >= requiredSigners - 1;
+bool ConsensusEdDSASigShareSet::isEnoughMinusOne() {
+    LOCK(m);
+    return edDSASet.size() >= requiredSigners - 1;
 }
 
 
-bool ConsensusSigShareSet::addSigShare(const ptr< ThresholdSigShare >& _sigShare ) {
-    CHECK_ARGUMENT( _sigShare);
-    ptr< ConsensusBLSSigShare > s = dynamic_pointer_cast< ConsensusBLSSigShare >( _sigShare );
-    CHECK_STATE(s);
+bool ConsensusEdDSASigShareSet::addSigShare( const ptr< ThresholdSigShare >& _sigShare ) {
+    CHECK_ARGUMENT( _sigShare );
+    ptr< ConsensusEdDSASigShare > s = dynamic_pointer_cast< ConsensusEdDSASigShare >( _sigShare );
+    CHECK_STATE( s );
+    uint64_t index = ( uint64_t ) s->getSignerIndex();
 
-    return blsSet.addSigShare( s->getBlsSigShare() );
+    LOCK(m) {
+        if ( edDSASet.count( index ) > 0 )
+            return false;
+
+        edDSASet[index] = s->toString();
+    }
+
+    return true;
 }

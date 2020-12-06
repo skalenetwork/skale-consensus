@@ -47,6 +47,7 @@
 #include "ConsensusBLSSigShare.h"
 #include "ConsensusBLSSignature.h"
 #include "ConsensusSigShareSet.h"
+#include "ConsensusEdDSASigShareSet.h"
 #include "MockupSigShare.h"
 #include "MockupSigShareSet.h"
 #include "MockupSignature.h"
@@ -55,6 +56,7 @@
 #include "chains/Schain.h"
 #include "messages/NetworkMessage.h"
 
+#include "ConsensusEdDSASigShare.h"
 #include "bls/BLSPrivateKeyShare.h"
 #include "datastructures/BlockProposal.h"
 #include "monitoring/LivelinessMonitor.h"
@@ -440,12 +442,12 @@ tuple< ptr< ThresholdSigShare >, string, string, string > CryptoManager::signDAP
     const ptr< BlockProposal >& _p ) {
     CHECK_ARGUMENT( _p );
 
-    auto blsSig = signSigShare( _p->getHash(), _p->getBlockID() , false);
-    CHECK_STATE( blsSig );
+    auto sigShare = signDAProofSigShare( _p->getHash(), _p->getBlockID() , false);
+    CHECK_STATE(sigShare );
 
-    auto combinedHash = BLAKE3Hash::merkleTreeMerge( _p->getHash(), blsSig->computeHash() );
+    auto combinedHash = BLAKE3Hash::merkleTreeMerge( _p->getHash(), sigShare->computeHash() );
     auto [ecdsaSig, pubKey, pubKeySig] = sessionSign( combinedHash, _p->getBlockID() );
-    return { blsSig, ecdsaSig, pubKey, pubKeySig };
+    return { sigShare, ecdsaSig, pubKey, pubKeySig };
 }
 
 
@@ -464,6 +466,31 @@ ptr< ThresholdSigShare > CryptoManager::signBlockSigShare(
     CHECK_STATE( result );
     return result;
 }
+
+
+ptr< ThresholdSigShare > CryptoManager::signDAProofSigShare(
+    const ptr< BLAKE3Hash >& _hash, block_id _blockId, bool _forceMockup ) {
+    CHECK_ARGUMENT( _hash );
+    MONITOR( __CLASS_NAME__, __FUNCTION__ )
+
+    if ( getSchain()->getNode()->isSgxEnabled() && !_forceMockup) {
+
+
+
+        auto&&[sig, publicKey, pkSig] = this->sessionSignECDSA(_hash, _blockId);
+
+        auto share = sig + ";" + publicKey + ";" + pkSig;
+
+        return make_shared< ConsensusEdDSASigShare >( sig, sChain->getSchainID(), _blockId,
+                                                      sChain->getSchainIndex(), totalSigners, requiredSigners);
+
+    } else {
+        auto sigShare = _hash->toHex();
+        return make_shared< MockupSigShare >( sigShare, sChain->getSchainID(), _blockId,
+                                              sChain->getSchainIndex(), sChain->getTotalSigners(), sChain->getRequiredSigners() );
+    }
+}
+
 
 ptr< ThresholdSigShare > CryptoManager::signSigShare(
     const ptr< BLAKE3Hash >& _hash, block_id _blockId, bool _forceMockup ) {
@@ -504,6 +531,14 @@ ptr< ThresholdSigShareSet > CryptoManager::createSigShareSet( block_id _blockId 
     }
 }
 
+ptr< ThresholdSigShareSet > CryptoManager::createDAProofSigShareSet( block_id _blockId ) {
+    if ( getSchain()->getNode()->isSgxEnabled() ) {
+        return make_shared< ConsensusEdDSASigShareSet >( _blockId, totalSigners, requiredSigners );
+    } else {
+        return make_shared< MockupSigShareSet >( _blockId, totalSigners, requiredSigners );
+    }
+}
+
 
 ptr< ThresholdSigShare > CryptoManager::createSigShare(
     const string& _sigShare, schain_id _schainID, block_id _blockID, schain_index _signerIndex,
@@ -520,6 +555,24 @@ ptr< ThresholdSigShare > CryptoManager::createSigShare(
             _sigShare, _schainID, _blockID, _signerIndex, totalSigners, requiredSigners );
     }
 }
+
+ptr< ThresholdSigShare > CryptoManager::createDAProofSigShare(
+    const string& _sigShare, schain_id _schainID, block_id _blockID, schain_index _signerIndex,
+    bool _forceMockup) {
+    CHECK_ARGUMENT(!_sigShare.empty());
+    CHECK_STATE( totalSigners >= requiredSigners );
+
+
+    if ( getSchain()->getNode()->isSgxEnabled() && !_forceMockup) {
+        return make_shared< ConsensusEdDSASigShare >(
+            _sigShare, _schainID, _blockID, _signerIndex, totalSigners, requiredSigners );
+    } else {
+        return make_shared< MockupSigShare >(
+            _sigShare, _schainID, _blockID, _signerIndex, totalSigners, requiredSigners );
+    }
+}
+
+
 
 void CryptoManager::signProposal( BlockProposal* _proposal ) {
     MONITOR( __CLASS_NAME__, __FUNCTION__ )

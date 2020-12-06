@@ -34,7 +34,7 @@ protected:
     block_id blockId;
     uint64_t totalSigners;
     uint64_t requiredSigners;
-
+    recursive_mutex m;
     static atomic<int64_t>  totalObjects;
 
 public:

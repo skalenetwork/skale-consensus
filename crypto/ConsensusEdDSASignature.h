@@ -16,33 +16,36 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file ConsensusEdDSASigShare.cpp
+    @file ConsensusEdDSASignature.h
     @author Stan Kladko
     @date 2019
 */
 
+#ifndef SKALED_CONSENSUSEDDSASIGNATURE_H
+#define SKALED_CONSENSUSEDDSASIGNATURE_H
 
-#include "SkaleCommon.h"
-#include "Log.h"
-
-#include "network/Utils.h"
-#include "thirdparty/json.hpp"
+// constexpr uint64_t  MAX_EdDSA_SIGNATURE_SIZE = 64;
 
 
-#include "ConsensusEdDSASigShare.h"
+#include "ThresholdSignature.h"
 
-ConsensusEdDSASigShare::ConsensusEdDSASigShare(const string& _sigShare, schain_id _schainID, block_id _blockID,
-                                           schain_index _signerIndex,
-                                           uint64_t, uint64_t)
-    : ThresholdSigShare(_schainID, _blockID, _signerIndex), edDSASigShare(_sigShare) {
+class ConsensusEdDSASigShareSet;
 
-    CHECK_ARGUMENT(!_sigShare.empty());
+class ConsensusEdDSASignature : public ThresholdSignature {
 
-    this->edDSASigShare = _sigShare;
+    string mergedSig;
 
-}
+public:
 
+    ConsensusEdDSASignature(
+        const string& _sig, block_id _blockID, size_t _totalSigners, size_t _requiredSigners );
 
-string ConsensusEdDSASigShare::toString() {
-    return edDSASigShare;
-}
+    string toString();
+
+    uint64_t getRandom() {
+        assert(false); // not implemented
+    }
+
+};
+
+#endif  // SKALED_CONSENSUSEDDSASIGNATURE_H

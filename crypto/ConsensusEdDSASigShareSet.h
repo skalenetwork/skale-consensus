@@ -16,15 +16,13 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file SigShareSet.h
+    @file ConsensusEdDSASigShareSet.h
     @author Stan Kladko
-    @date 2019
+    @date 2020
 */
 
 #pragma once
 
-#include "EdDSASigShare.h"
-#include "EdDSASigShareSet.h"
 #include "datastructures/DataStructure.h"
 #include "ThresholdSigShareSet.h"
 
@@ -35,13 +33,13 @@ class ConsensusEdDSASigShare;
 class ConsensusEdDSASignature;
 class  BLAKE3Hash;
 
-class ConsensusSigShareSet : public ThresholdSigShareSet {
+class ConsensusEdDSASigShareSet : public ThresholdSigShareSet {
 
-    EdDSASigShareSet blsSet;
+    map<uint64_t, string> edDSASet;
 
 
 public:
-    ConsensusSigShareSet(block_id _blockId, size_t _totalSigners, size_t _requiredSigners );
+    ConsensusEdDSASigShareSet(block_id _blockId, size_t _totalSigners, size_t _requiredSigners );
 
     ptr<ThresholdSignature> mergeSignature() override;
 
@@ -51,7 +49,7 @@ public:
 
     bool isEnoughMinusOne();
 
-    ~ConsensusSigShareSet() override;
+    ~ConsensusEdDSASigShareSet() override;
 
 
 };
