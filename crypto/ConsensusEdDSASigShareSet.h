@@ -16,39 +16,40 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file ThresholdSigShareSet.h
+    @file ConsensusEdDSASigShareSet.h
     @author Stan Kladko
-    @date 2019
+    @date 2020
 */
-#ifndef SKALED_THRESHOLDSIGSHARESET_H
-#define SKALED_THRESHOLDSIGSHARESET_H
 
-class ThresholdSignature;
-class ThresholdSigShare;
+#pragma once
 
-class ThresholdSigShareSet {
+#include "datastructures/DataStructure.h"
+#include "ThresholdSigShareSet.h"
+
+
+class PartialHashesList;
+class Schain;
+class ConsensusEdDSASigShare;
+class ConsensusEdDSASignature;
+class  BLAKE3Hash;
+
+class ConsensusEdDSASigShareSet : public ThresholdSigShareSet {
+
+    map<uint64_t, string> edDSASet;
+
+
 public:
-    ThresholdSigShareSet(const block_id _blockId, uint64_t _totalSigners, uint64_t _requiredSigners);
+    ConsensusEdDSASigShareSet(block_id _blockId, size_t _totalSigners, size_t _requiredSigners );
 
-protected:
-    block_id blockId;
-    uint64_t totalSigners;
-    uint64_t requiredSigners;
-    recursive_mutex m;
-    static atomic<int64_t>  totalObjects;
+    ptr<ThresholdSignature> mergeSignature() override;
 
-public:
-    virtual ~ThresholdSigShareSet();
+    bool addSigShare(const ptr<ThresholdSigShare>& _sigShare) override;
 
-    static int64_t getTotalObjects();
+    bool isEnough() override;
 
-    virtual ptr<ThresholdSignature> mergeSignature() = 0;
+    bool isEnoughMinusOne();
 
-    virtual bool isEnough() = 0;
+    ~ConsensusEdDSASigShareSet() override;
 
-    virtual bool addSigShare(const ptr<ThresholdSigShare>& _sigShare) = 0;
 
 };
-
-
-#endif //SKALED_THRESHOLDSIGSHARESET_H

@@ -16,39 +16,30 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file ThresholdSigShareSet.h
+    @file ConsensusEdDSASigShare.h
     @author Stan Kladko
     @date 2019
 */
-#ifndef SKALED_THRESHOLDSIGSHARESET_H
-#define SKALED_THRESHOLDSIGSHARESET_H
 
-class ThresholdSignature;
-class ThresholdSigShare;
+#ifndef SKALED_CONSENSUSEDDSASIGSHARE_H
+#define SKALED_CONSENSUSEDDSASIGSHARE_H
 
-class ThresholdSigShareSet {
-public:
-    ThresholdSigShareSet(const block_id _blockId, uint64_t _totalSigners, uint64_t _requiredSigners);
 
-protected:
-    block_id blockId;
-    uint64_t totalSigners;
-    uint64_t requiredSigners;
-    recursive_mutex m;
-    static atomic<int64_t>  totalObjects;
+#include "ThresholdSigShare.h"
+
+
+class ConsensusEdDSASigShare : public ThresholdSigShare {
+
+    string edDSASigShare;
 
 public:
-    virtual ~ThresholdSigShareSet();
 
-    static int64_t getTotalObjects();
+    ConsensusEdDSASigShare(const string& _sigShare, schain_id _schainID, block_id _blockID, schain_index _signerIndex,
+                         uint64_t _totalSigners, uint64_t _requiredSigners);
 
-    virtual ptr<ThresholdSignature> mergeSignature() = 0;
-
-    virtual bool isEnough() = 0;
-
-    virtual bool addSigShare(const ptr<ThresholdSigShare>& _sigShare) = 0;
+    virtual string toString();
 
 };
 
 
-#endif //SKALED_THRESHOLDSIGSHARESET_H
+#endif  // SKALED_CONSENSUSEDDSASIGSHARE_H

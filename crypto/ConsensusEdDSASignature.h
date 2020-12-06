@@ -16,39 +16,36 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file ThresholdSigShareSet.h
+    @file ConsensusEdDSASignature.h
     @author Stan Kladko
     @date 2019
 */
-#ifndef SKALED_THRESHOLDSIGSHARESET_H
-#define SKALED_THRESHOLDSIGSHARESET_H
 
-class ThresholdSignature;
-class ThresholdSigShare;
+#ifndef SKALED_CONSENSUSEDDSASIGNATURE_H
+#define SKALED_CONSENSUSEDDSASIGNATURE_H
 
-class ThresholdSigShareSet {
-public:
-    ThresholdSigShareSet(const block_id _blockId, uint64_t _totalSigners, uint64_t _requiredSigners);
+// constexpr uint64_t  MAX_EdDSA_SIGNATURE_SIZE = 64;
 
-protected:
-    block_id blockId;
-    uint64_t totalSigners;
-    uint64_t requiredSigners;
-    recursive_mutex m;
-    static atomic<int64_t>  totalObjects;
+
+#include "ThresholdSignature.h"
+
+class ConsensusEdDSASigShareSet;
+
+class ConsensusEdDSASignature : public ThresholdSignature {
+
+    string mergedSig;
 
 public:
-    virtual ~ThresholdSigShareSet();
 
-    static int64_t getTotalObjects();
+    ConsensusEdDSASignature(
+        const string& _sig, block_id _blockID, size_t _totalSigners, size_t _requiredSigners );
 
-    virtual ptr<ThresholdSignature> mergeSignature() = 0;
+    string toString();
 
-    virtual bool isEnough() = 0;
-
-    virtual bool addSigShare(const ptr<ThresholdSigShare>& _sigShare) = 0;
+    uint64_t getRandom() {
+        assert(false); // not implemented
+    }
 
 };
 
-
-#endif //SKALED_THRESHOLDSIGSHARESET_H
+#endif  // SKALED_CONSENSUSEDDSASIGNATURE_H
