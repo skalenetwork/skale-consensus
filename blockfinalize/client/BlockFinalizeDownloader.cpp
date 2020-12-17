@@ -146,7 +146,7 @@ uint64_t BlockFinalizeDownloader::downloadFragment(schain_index _dstIndex, fragm
 
         if (status == CONNECTION_DISCONNECT) {
             LOG(debug, "BlockFinalizec got response::no fragment");
-            return fragmentList.nextIndexToRetrieve();
+            return 0;
         }
 
         if (status != CONNECTION_PROCEED) {
