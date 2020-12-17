@@ -302,6 +302,7 @@ void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(BlockFinalizeDown
                 if (next == 0) {
                     return;
                 }
+                usleep( static_cast< __useconds_t >( node->getWaitAfterNetworkErrorMs() * 1000 ) );
             } catch (ExitRequestedException &) {
                 return;
             } catch (ConnectionRefusedException &e) {
