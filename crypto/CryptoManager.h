@@ -211,10 +211,12 @@ public:
             if ( e.what() && ( string( e.what() ).find( "Could not connect" ) != string::npos ||     \
                                string( e.what() ).find( "libcurl error: 56" ) != string::npos ||     \
                                string( e.what() ).find( "libcurl error: 35" ) != string::npos ||     \
+                               string( e.what() ).find( "libcurl error: 52" ) != string::npos ||     \
                                string( e.what() ).find( "timed out" ) != string::npos ) ) {          \
                 LOG( err, "Could not connect to sgx server, retrying each five seconds ... \n" + string( e.what() ) ); \
                 sleep(5);                                                                            \
             } else {                                                                                 \
+                LOG( err, "SGX retry failed:" );                                                    \
                 LOG( err, e.what() );                                                                \
                 throw;                                                                               \
             }                                                                                        \
