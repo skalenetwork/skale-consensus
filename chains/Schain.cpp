@@ -133,40 +133,36 @@ void Schain::messageThreadProcessingLoop( Schain* _sChain ) {
                 unique_lock< mutex > mlock( _sChain->messageMutex );
                 while ( _sChain->messageQueue.empty() ) {
                     _sChain->messageCond.wait( mlock );
-                    if ( _sChain->getNode()->isExitRequested() ) {
-                        _sChain->getNode()->getSockets()->consensusZMQSockets->closeSend();
+                    if ( _sChain->getNode()->isExitRequested() )
                         return;
-                    }
                 }
 
                 newQueue = _sChain->messageQueue;
 
                 while ( !_sChain->messageQueue.empty() ) {
-                    if ( _sChain->getNode()->isExitRequested() ) {
-                        _sChain->getNode()->getSockets()->consensusZMQSockets->closeSend();
+                    if ( _sChain->getNode()->isExitRequested() )
                         return;
-                    }
+
                     _sChain->messageQueue.pop();
                 }
             }
 
             while ( !newQueue.empty() ) {
-                if ( _sChain->getNode()->isExitRequested() ) {
-                    _sChain->getNode()->getSockets()->consensusZMQSockets->closeSend();
+                if ( _sChain->getNode()->isExitRequested() )
                     return;
-                }
+
                 ptr< MessageEnvelope > m = newQueue.front();
                 CHECK_STATE( ( uint64_t ) m->getMessage()->getBlockId() != 0 );
 
                 try {
                     _sChain->getBlockConsensusInstance()->routeAndProcessMessage( m );
                 } catch ( exception& e ) {
-                    if ( _sChain->getNode()->isExitRequested() ) {
-                        _sChain->getNode()->getSockets()->consensusZMQSockets->closeSend();
-                        return;
-                    }
+
                     SkaleException::logNested( e );
-                }
+
+                    if ( _sChain->getNode()->isExitRequested() )
+                        return;
+                }// catch
 
                 newQueue.pop();
             }
