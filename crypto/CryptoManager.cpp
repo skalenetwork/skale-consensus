@@ -754,7 +754,7 @@ string CryptoManager::getSGXEcdsaPublicKey( const string& _keyName, const ptr< S
     CHECK_ARGUMENT( _keyName != "" );
     CHECK_ARGUMENT( _c );
 
-    LOG( info, "Getting ECDSA public key for " + _keyName );
+    LOG( info, "Getting ECDSA public key for " + _keyName.substr(0,8) + "..." );
 
     Json::Value result;
 
