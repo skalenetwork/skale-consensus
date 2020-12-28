@@ -861,3 +861,5 @@ ptr< StubClient > CryptoManager::getSgxClient() {
 
     return sgxClients.at( tid );
 }
+
+bool CryptoManager::retryHappened = false;
