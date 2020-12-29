@@ -125,13 +125,11 @@ ptr<BlockProposal> BlockProposalDB::getBlockProposal(block_id _blockID, schain_i
     auto key = createKey(_blockID, _proposerIndex);
     CHECK_STATE(key != "");
 
-    {
 
-        LOCK(proposalCacheMutex);
+    auto result = proposalCache->getIfExists(key);
 
-        if (proposalCache->exists(key)) {
-            return proposalCache->get(key);
-        }
+    if (result.has_value()) {
+            return any_cast<ptr<BlockProposal>>(result);
     }
 
     auto serializedProposal = getSerializedProposalFromLevelDB(_blockID, _proposerIndex);

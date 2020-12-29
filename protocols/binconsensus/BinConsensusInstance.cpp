@@ -517,16 +517,18 @@ void BinConsensusInstance::addDecideToGlobalHistory(bin_consensus_value _decided
         CHECK_STATE(falseCache);
 
         if (_decidedValue) {
-            if (falseCache->exists((uint64_t ) getBlockID())) {
+            auto result = falseCache->getIfExists(((uint64_t ) getBlockID()));
+            if (result.has_value()) {
                 printHistory();
-                falseCache->get((uint64_t) getBlockID())->printHistory();
+                any_cast<ptr<BinConsensusInstance>>(result)->printHistory();
                 LOG(err, "Double decide 1");
             }
             trueCache->put((uint64_t) getBlockID(), child);
         } else {
-            if (trueCache->exists((uint64_t ) getBlockID())) {
+            auto result = trueCache->getIfExists(((uint64_t ) getBlockID()));
+            if (result.has_value()) {
                 printHistory();
-                trueCache->get((uint64_t) getBlockID())->printHistory();
+                any_cast<ptr<BinConsensusInstance>>(result)->printHistory();
                 LOG(err, "Double decide 2");
             }
             falseCache->put((uint64_t) getBlockID(), child);
