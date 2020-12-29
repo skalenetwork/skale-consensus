@@ -226,14 +226,14 @@ void BlockConsensusAgent::reportConsensusAndDecideIfNeeded(const ptr<ChildBVDeci
 
 
 
-        auto result = trueDecisions->getIfExists((uint64_t) blockID);
 
-        if (!result.has_value() ||
-        any_cast<ptr<map<schain_index, ptr<ChildBVDecidedMessage>>>>(result)->empty()) {
 
-            auto result2 = falseDecisions->getIfExists((uint64_t) blockID);
+        if (auto result = trueDecisions->getIfExists((uint64_t) blockID);
+            !result.has_value() ||
+            any_cast<ptr<map<schain_index, ptr<ChildBVDecidedMessage>>>>(result)->empty()) {
 
-            if (result2.has_value() &&
+            if (auto result2 = falseDecisions->getIfExists((uint64_t) blockID);
+                 result2.has_value() &&
                 any_cast<ptr<map<schain_index, ptr<ChildBVDecidedMessage>>>>(result2)->size() == nodeCount) {
                 decideDefaultBlock(blockID);
             }
@@ -261,10 +261,9 @@ void BlockConsensusAgent::reportConsensusAndDecideIfNeeded(const ptr<ChildBVDeci
         for (uint64_t i = random; i < random + nodeCount; i++) {
             auto index = schain_index(i % nodeCount) + 1;
 
-            auto result3 = trueDecisions->getIfExists(((uint64_t) blockID));
-
-            if (result3.has_value() &&
-                any_cast<ptr<map<schain_index, ptr<ChildBVDecidedMessage>>>>(result3)->count(index) > 0) {
+            if (auto result = trueDecisions->getIfExists(((uint64_t) blockID));
+                 result.has_value() &&
+                any_cast<ptr<map<schain_index, ptr<ChildBVDecidedMessage>>>>(result)->count(index) > 0) {
 
                 string statsString = buildStats(blockID);
 
@@ -275,11 +274,10 @@ void BlockConsensusAgent::reportConsensusAndDecideIfNeeded(const ptr<ChildBVDeci
                 return;
             }
 
-            auto result4 = falseDecisions->getIfExists((uint64_t) blockID );
 
-            if (!result4.has_value() ||
+            if (auto result = falseDecisions->getIfExists((uint64_t) blockID );!result.has_value() ||
                 any_cast< ptr<map<schain_index, ptr<ChildBVDecidedMessage>>>>(
-                     result4)->count(index) == 0) {
+                     result)->count(index) == 0) {
                 return;
             }
         }
@@ -453,16 +451,15 @@ string BlockConsensusAgent::buildStats(block_id _blockID) {
     ptr<map<schain_index, ptr<ChildBVDecidedMessage>>> fDecisions = nullptr;
 
 
-    auto result = trueDecisions->getIfExists((uint64_t) _blockID);
 
-    if (result.has_value()) {
+
+    if (auto result = trueDecisions->getIfExists((uint64_t) _blockID); result.has_value()) {
         tDecisions = any_cast<ptr<map<schain_index, ptr<ChildBVDecidedMessage>>>>(result);
     }
 
-    auto result2 = trueDecisions->getIfExists((uint64_t) _blockID);
 
-    if (result2.has_value()) {
-        fDecisions = any_cast<ptr<map<schain_index, ptr<ChildBVDecidedMessage>>>>(result2);
+    if (auto result = falseDecisions->getIfExists((uint64_t) _blockID); result.has_value()) {
+        fDecisions = any_cast<ptr<map<schain_index, ptr<ChildBVDecidedMessage>>>>(result);
     }
 
     string resultStr("");

@@ -126,9 +126,9 @@ ptr<BlockProposal> BlockProposalDB::getBlockProposal(block_id _blockID, schain_i
     CHECK_STATE(key != "");
 
 
-    auto result = proposalCache->getIfExists(key);
 
-    if (result.has_value()) {
+
+    if (auto result = proposalCache->getIfExists(key); result.has_value()) {
             return any_cast<ptr<BlockProposal>>(result);
     }
 
