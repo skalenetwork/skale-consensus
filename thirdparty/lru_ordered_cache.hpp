@@ -69,7 +69,7 @@ namespace cache {
             }
         }
 
-        const std::any getIfExist(const key_t& key) {
+        const std::any getIfExists(const key_t& key) {
 
             LOCK(m);
 
