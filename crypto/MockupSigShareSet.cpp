@@ -62,7 +62,7 @@ ptr<ThresholdSignature> MockupSigShareSet::mergeSignature() {
         if (h == "") {
             h = item.second->toString();
         } else {
-            CHECK_STATE(h == item.second->toString());
+//            CHECK_STATE(h == item.second->toString());
         }
     }
     CHECK_STATE(h != "");

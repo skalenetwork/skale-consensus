@@ -477,7 +477,8 @@ void CacheLevelDB::rotateDBsIfNeeded() {
             if (getActiveDBSize() <= maxDBSize)
                 return;
 
-            LOG(info, "Rotating db");
+            LOG(info, "Rotating " + prefix + " database. Max DB size in bytes: "
+                           + to_string(maxDBSize));
 
             auto newDB = openDB(highestDBIndex + 1);
 

@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2018-2019 SKALE Labs
+    Copyright (C) 2019 SKALE Labs
 
     This file is part of skale-consensus.
 
@@ -16,45 +16,36 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file ZMQNetwork.h
+    @file ConsensusEdDSASignature.h
     @author Stan Kladko
-    @date 2018
+    @date 2019
 */
 
-#pragma  once
+#ifndef SKALED_CONSENSUSEDDSASIGNATURE_H
+#define SKALED_CONSENSUSEDDSASIGNATURE_H
 
-#include "Buffer.h"
-#include "Network.h"
-
-class Node;
-class NetworkMessage;
-class NodeInfo;
-
-class ClientSocket;
-class NetworkMessageEnvelope;
-class ServerConnection;
-
-class Schain;
+// constexpr uint64_t  MAX_EdDSA_SIGNATURE_SIZE = 64;
 
 
-class TransactionList;
+#include "ThresholdSignature.h"
 
+class ConsensusEdDSASigShareSet;
 
-class ZMQNetwork : public Network {
+class ConsensusEdDSASignature : public ThresholdSignature {
 
+    string mergedSig;
 
 public:
 
+    ConsensusEdDSASignature(
+        const string& _sig, block_id _blockID, size_t _totalSigners, size_t _requiredSigners );
 
-    uint64_t interruptableRecv(void *_socket, void *_buf, size_t _len);
+    string toString();
 
-    bool interruptableSend(void *_socket, void *_buf, size_t _len);
-
-    uint64_t readMessageFromNetwork(const ptr<Buffer> buf);
-
-    ZMQNetwork(Schain &_schain);
-
-    bool sendMessage(const ptr<NodeInfo> &_remoteNodeInfo, const ptr<NetworkMessage>& _msg);
+    uint64_t getRandom() {
+        assert(false); // not implemented
+    }
 
 };
 
+#endif  // SKALED_CONSENSUSEDDSASIGNATURE_H

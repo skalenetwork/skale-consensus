@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2018-2019 SKALE Labs
+    Copyright (C) 2019 SKALE Labs
 
     This file is part of skale-consensus.
 
@@ -16,45 +16,40 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file ZMQNetwork.h
+    @file ConsensusEdDSASigShareSet.h
     @author Stan Kladko
-    @date 2018
+    @date 2020
 */
 
-#pragma  once
+#pragma once
 
-#include "Buffer.h"
-#include "Network.h"
+#include "datastructures/DataStructure.h"
+#include "ThresholdSigShareSet.h"
 
-class Node;
-class NetworkMessage;
-class NodeInfo;
 
-class ClientSocket;
-class NetworkMessageEnvelope;
-class ServerConnection;
-
+class PartialHashesList;
 class Schain;
+class ConsensusEdDSASigShare;
+class ConsensusEdDSASignature;
+class  BLAKE3Hash;
 
+class ConsensusEdDSASigShareSet : public ThresholdSigShareSet {
 
-class TransactionList;
-
-
-class ZMQNetwork : public Network {
+    map<uint64_t, string> edDSASet;
 
 
 public:
+    ConsensusEdDSASigShareSet(block_id _blockId, size_t _totalSigners, size_t _requiredSigners );
 
+    ptr<ThresholdSignature> mergeSignature() override;
 
-    uint64_t interruptableRecv(void *_socket, void *_buf, size_t _len);
+    bool addSigShare(const ptr<ThresholdSigShare>& _sigShare) override;
 
-    bool interruptableSend(void *_socket, void *_buf, size_t _len);
+    bool isEnough() override;
 
-    uint64_t readMessageFromNetwork(const ptr<Buffer> buf);
+    bool isEnoughMinusOne();
 
-    ZMQNetwork(Schain &_schain);
+    ~ConsensusEdDSASigShareSet() override;
 
-    bool sendMessage(const ptr<NodeInfo> &_remoteNodeInfo, const ptr<NetworkMessage>& _msg);
 
 };
-

@@ -597,7 +597,7 @@ ptr< Header > BlockProposalServerAgent::createDAProofResponseHeader(
     ptr< ThresholdSignature > sig;
 
     try {
-        sig = getSchain()->getCryptoManager()->verifyThresholdSig(
+        sig = getSchain()->getCryptoManager()->verifyDAProofThresholdSig(
             blockHash, _header->getSignature(), _header->getBlockId() );
         CHECK_STATE( sig );
 

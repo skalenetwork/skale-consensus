@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2018-2019 SKALE Labs
+    Copyright (C) 2019 SKALE Labs
 
     This file is part of skale-consensus.
 
@@ -16,45 +16,34 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file ZMQNetwork.h
+    @file ConsensusEdDSASigShare.cpp
     @author Stan Kladko
-    @date 2018
+    @date 2019
 */
 
-#pragma  once
 
-#include "Buffer.h"
-#include "Network.h"
+#include "SkaleCommon.h"
+#include "Log.h"
 
-class Node;
-class NetworkMessage;
-class NodeInfo;
-
-class ClientSocket;
-class NetworkMessageEnvelope;
-class ServerConnection;
-
-class Schain;
+#include "network/Utils.h"
+#include "thirdparty/json.hpp"
 
 
-class TransactionList;
+#include "ConsensusEdDSASigShare.h"
+
+ConsensusEdDSASigShare::ConsensusEdDSASigShare(const string& _sigShare, schain_id _schainID, block_id _blockID,
+                                           schain_index _signerIndex,
+                                           uint64_t, uint64_t)
+    : ThresholdSigShare(_schainID, _blockID, _signerIndex), edDSASigShare(_sigShare) {
+
+    CHECK_ARGUMENT(!_sigShare.empty());
+
+    CHECK_STATE(_sigShare.find(";") != string::npos)
+    this->edDSASigShare = _sigShare;
+
+}
 
 
-class ZMQNetwork : public Network {
-
-
-public:
-
-
-    uint64_t interruptableRecv(void *_socket, void *_buf, size_t _len);
-
-    bool interruptableSend(void *_socket, void *_buf, size_t _len);
-
-    uint64_t readMessageFromNetwork(const ptr<Buffer> buf);
-
-    ZMQNetwork(Schain &_schain);
-
-    bool sendMessage(const ptr<NodeInfo> &_remoteNodeInfo, const ptr<NetworkMessage>& _msg);
-
-};
-
+string ConsensusEdDSASigShare::toString() {
+    return edDSASigShare;
+}

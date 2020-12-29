@@ -35,7 +35,7 @@
 #include "thirdparty/lrucache.hpp"
 
 class Schain;
-class  BLAKE3Hash;
+class BLAKE3Hash;
 class ConsensusBLSSigShare;
 class ThresholdSigShareSet;
 class ThresholdSigShare;
@@ -113,12 +113,16 @@ class CryptoManager {
 
     string sign( const ptr< BLAKE3Hash >& _hash );
 
-    tuple< string, string, string > sessionSign( const ptr< BLAKE3Hash >& _hash, block_id _blockId );
+    tuple< string, string, string > sessionSign(
+        const ptr< BLAKE3Hash >& _hash, block_id _blockId );
 
 
     bool verifySig( const ptr< BLAKE3Hash >& _hash, const string& _sig, node_id _nodeId );
 
-    ptr< ThresholdSigShare > signSigShare( const ptr< BLAKE3Hash >& _hash, block_id _blockId, bool _forceMockup );
+    ptr< ThresholdSigShare > signSigShare(
+        const ptr< BLAKE3Hash >& _hash, block_id _blockId, bool _forceMockup );
+    ptr< ThresholdSigShare > signDAProofSigShare(
+        const ptr< BLAKE3Hash >& _hash, block_id _blockId, bool _forceMockup );
 
     void initSGXClient();
 
@@ -140,9 +144,16 @@ public:
     ptr< ThresholdSignature > verifyThresholdSig(
         const ptr< BLAKE3Hash >& _hash, const string& _signature, block_id _blockId );
 
+    ptr< ThresholdSignature > verifyDAProofThresholdSig(
+        const ptr< BLAKE3Hash >& _hash, const string& _signature, block_id _blockId );
+
+
     ptr< ThresholdSigShareSet > createSigShareSet( block_id _blockId );
+    ptr< ThresholdSigShareSet > createDAProofSigShareSet( block_id _blockId );
 
     ptr< ThresholdSigShare > createSigShare( const string& _sigShare, schain_id _schainID,
+        block_id _blockID, schain_index _signerIndex, bool _forceMockup );
+    ptr< ThresholdSigShare > createDAProofSigShare( const string& _sigShare, schain_id _schainID,
         block_id _blockID, schain_index _signerIndex, bool _forceMockup );
 
     void signProposal( BlockProposal* _proposal );
@@ -162,8 +173,8 @@ public:
 
     bool verifyNetworkMsg( NetworkMessage& _msg );
 
-    bool sessionVerifySigAndKey(
-        ptr< BLAKE3Hash >& _hash, const string& _sig, const string& _publicKey, const string& _pkSig );
+    bool sessionVerifySigAndKey( ptr< BLAKE3Hash >& _hash, const string& _sig,
+        const string& _publicKey, const string& _pkSig );
 
     static ptr< void > decodeSGXPublicKey( const string& _keyHex );
 
@@ -180,7 +191,8 @@ public:
     tuple< string, string, string > sessionSignECDSA(
         const ptr< BLAKE3Hash >& _hash, block_id _blockID );
 
-    bool verifyECDSA( const ptr< BLAKE3Hash >& _hash, const string& _sig, const string& _publicKey );
+    bool verifyECDSA(
+        const ptr< BLAKE3Hash >& _hash, const string& _sig, const string& _publicKey );
 
 
     ptr< BLSPublicKey > getSgxBlsPublicKey();
@@ -190,24 +202,46 @@ public:
 
     bool sessionVerifySigAndKey( ptr< BLAKE3Hash >& _hash, const string& _sig,
         const string& _publicKey, const string& pkSig, block_id _blockID, node_id _nodeId );
+
+    static bool retryHappened;
 };
 
-#define RETRY_BEGIN  \
-    while ( true ) { \
+#define RETRY_BEGIN                       \
+    CryptoManager::retryHappened = false; \
+    while ( true ) {                      \
         try {
-#define RETRY_END                                                                                \
-    ;                                                                                            \
-    break;                                                                                       \
-    }                                                                                            \
-    catch ( exception & e ) {                                                                    \
-        if ( e.what() && ( string( e.what() ).find( "Could not connect" ) != string::npos ||     \
-                             string( e.what() ).find( "timed out" ) != string::npos ) ) {        \
-            LOG( err, "Could not connext to sgx server, retrying ... \n" + string( e.what() ) ); \
-            sleep( 60 );                                                                         \
-        } else {                                                                                 \
-            throw;                                                                               \
-        }                                                                                        \
-    }                                                                                            \
+#define RETRY_END                                                                              \
+    ;                                                                                          \
+    if ( CryptoManager::retryHappened ) {                                                                     \
+        LOG( info, "Successfully reconnected to SGX server" );                                 \
+        CryptoManager::retryHappened = false;                                                  \
+    }                                                                                          \
+    break;                                                                                     \
+    }                                                                                          \
+    catch ( const std::exception& e ) {                                                        \
+        if ( e.what() && ( string( e.what() ).find( "Could not connect" ) != string::npos ||   \
+                             string( e.what() ).find( "libcurl error: 56" ) != string::npos || \
+                             string( e.what() ).find( "libcurl error: 35" ) != string::npos || \
+                             string( e.what() ).find( "libcurl error: 52" ) != string::npos || \
+                             string( e.what() ).find( "timed out" ) != string::npos ) ) {      \
+            if ( string( e.what() ).find( "libcurl error: 52" ) != string::npos ) {            \
+                LOG( err,                                                                      \
+                    "Got libcurl error 52. You may be trying to connect with http to https "   \
+                    "server" );                                                                \
+            };                                                                                 \
+            LOG( err, "Could not connect to sgx server, retrying each five seconds ... \n" +   \
+                          string( e.what() ) );                                                \
+            CryptoManager::retryHappened = true;                                               \
+            sleep( 5 );                                                                      \
+        } else {                                                                               \
+            LOG( err, e.what() );                                                              \
+            throw;                                                                             \
+        }                                                                                      \
+    }                                                                                          \
+    catch ( ... ) {                                                                            \
+        LOG( err, "FATAL Unknown error while connecting to sgx server!" );                     \
+        throw;                                                                                 \
+    }                                                                                          \
     }
 
 #endif  // SKALED_CRYPTOMANAGER_H

@@ -423,7 +423,7 @@ JSONFactory::parseTestKeyNamesFromJson(const string& _sgxServerURL, const fs_pat
 
     for ( uint64_t i = 0; i < _requiredNodes; i++ ) {
 
-        LOG(info, "Processing bls key share:" + blsPublicKeys->at(i)->at(0) + ":" +
+        LOG(info, "Configured BLS public key share for node index " + to_string(i) + ":" + blsPublicKeys->at(i)->at(0) + ":" +
             blsPublicKeys->at(i)->at(1) + ":" + blsPublicKeys->at(i)->at(2) + ":" +
             blsPublicKeys->at(i)->at(3));
 
@@ -436,7 +436,7 @@ JSONFactory::parseTestKeyNamesFromJson(const string& _sgxServerURL, const fs_pat
     }
 
 
-    LOG(info, "Computing BLS Public Key");
+    LOG(info, "Computing BLS public key");
 
     auto blsPublicKey =
         make_shared<BLSPublicKey>( blsPublicKeysMap, _requiredNodes, _totalNodes );
@@ -493,7 +493,8 @@ JSONFactory::parseTestKeyNamesFromJson(const string& _sgxServerURL, const fs_pat
 
     for ( uint64_t i = 0; i < _totalNodes; i++ ) {
 
-        LOG(info, "Getting ECDSA public key for " + ecdsaKeyNames->at(i));
+        LOG(info, "Getting ECDSA public key for " +
+                       ecdsaKeyNames->at(i).substr(0,8) + "...");
 
         auto response = c.getPublicECDSAKey( ecdsaKeyNames->at( i ) );
 
