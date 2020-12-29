@@ -30,7 +30,7 @@
 #include <abstracttcpserver/ConnectionStatus.h>
 #include <exceptions/ConnectionRefusedException.h>
 
-#include "datastructures/SendItem.h"
+#include "datastructures/SendableItem.h"
 
 class DataStructure;
 class BlockProposal;
@@ -46,16 +46,16 @@ protected:
     explicit AbstractClientAgent( Schain& _sChain, port_type _portType );
 
 protected:
-    void sendItem(const ptr< SendItem >& _item, schain_index _dstIndex );
+    void sendItem(const ptr< SendableItem >& _item, schain_index _dstIndex );
 
-    virtual pair< ConnectionStatus, ConnectionSubStatus > sendItemImpl(const ptr< SendItem >& _item,
+    virtual pair< ConnectionStatus, ConnectionSubStatus > sendItemImpl(const ptr< SendableItem >& _item,
         const ptr< ClientSocket >& _socket, schain_index _destIndex ) = 0;
 
-    std::map< schain_index, ptr< queue< ptr< SendItem >>>> itemQueue;
+    std::map< schain_index, ptr< queue< ptr< SendableItem >>>> itemQueue;
 
     uint64_t incrementAndReturnThreadCounter();
 
-    void enqueueItemImpl( const ptr< SendItem >& _item );
+    void enqueueItemImpl( const ptr< SendableItem >& _item );
 
 public:
     static void workerThreadItemSendLoop( AbstractClientAgent* agent );

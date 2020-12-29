@@ -27,7 +27,7 @@
 
 #include "DataStructure.h"
 
-#include "SendItem.h"
+#include "SendableItem.h"
 
 class Schain;
 class  BLAKE3Hash;
@@ -37,7 +37,7 @@ class CryptoManager;
 class ThresholdSignature;
 class SubmitDAProofRequestHeader;
 
-class DAProof : public SendItem {
+class DAProof : public SendableItem {
 
 
 protected:

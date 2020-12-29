@@ -27,7 +27,7 @@
 #include "pendingqueue/PendingTransactionsAgent.h"
 #include "thirdparty/lrucache.hpp"
 
-#include "datastructures/SendItem.h"
+#include "datastructures/SendableItem.h"
 
 class ClientSocket;
 
@@ -64,7 +64,7 @@ class BlockProposalClientAgent : public AbstractClientAgent {
 
 
     pair< ConnectionStatus, ConnectionSubStatus > sendItemImpl(
-        const ptr< SendItem >& _item, const ptr< ClientSocket >& _socket, schain_index _index );
+        const ptr< SendableItem >& _item, const ptr< ClientSocket >& _socket, schain_index _index );
 
     pair< ConnectionStatus, ConnectionSubStatus > sendBlockProposal(
         const ptr< BlockProposal >& _proposal, const ptr< ClientSocket >& _socket, schain_index _index );

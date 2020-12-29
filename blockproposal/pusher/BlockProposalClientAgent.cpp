@@ -117,7 +117,7 @@ BlockProposalClientAgent::readAndProcessFinalProposalResponseHeader(
 
 
 pair< ConnectionStatus, ConnectionSubStatus > BlockProposalClientAgent::sendItemImpl(
-    const ptr< SendItem >& _item, const ptr< ClientSocket >& _socket, schain_index _index ) {
+    const ptr< SendableItem >& _item, const ptr< ClientSocket >& _socket, schain_index _index ) {
     CHECK_ARGUMENT( _item );
     CHECK_ARGUMENT( _socket );
 

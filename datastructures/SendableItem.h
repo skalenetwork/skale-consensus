@@ -16,9 +16,16 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file SendableItem.cpp
+    @file SendableItem.h
     @author Stan Kladko
     @date 2020
 */
+#ifndef SKALED_SENDABLEITEM_H
+#define SKALED_SENDABLEITEM_H
 
-#include "SendableItem.h"
+#include "DataStructure.h"
+
+class SendableItem : public DataStructure {};
+
+
+#endif  // SKALED_SENDABLEITEM_H

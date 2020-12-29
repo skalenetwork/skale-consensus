@@ -57,7 +57,7 @@ AbstractClientAgent::AbstractClientAgent( Schain& _sChain, port_type _portType )
     logThreadLocal_ = _sChain.getNode()->getLog();
 
     for ( uint64_t i = 1; i <= _sChain.getNodeCount(); i++ ) {
-        ( itemQueue ).emplace( schain_index( i ), make_shared<queue< ptr< SendItem > > >() );
+        ( itemQueue ).emplace( schain_index( i ), make_shared<queue< ptr< SendableItem > > >() );
         ( queueCond ).emplace( schain_index( i ), make_shared<condition_variable >() );
         ( queueMutex ).emplace( schain_index( i ), make_shared<std::mutex >() );
     }
@@ -70,7 +70,7 @@ uint64_t AbstractClientAgent::incrementAndReturnThreadCounter() {
 }
 
 
-void AbstractClientAgent::sendItem(const ptr<SendItem>& _item, schain_index _dstIndex) {
+void AbstractClientAgent::sendItem(const ptr< SendableItem >& _item, schain_index _dstIndex) {
 
     CHECK_ARGUMENT(_item);
 
@@ -104,7 +104,7 @@ void AbstractClientAgent::sendItem(const ptr<SendItem>& _item, schain_index _dst
 }
 
 
-void AbstractClientAgent::enqueueItemImpl( const ptr< SendItem >& _item ) {
+void AbstractClientAgent::enqueueItemImpl( const ptr< SendableItem >& _item ) {
 
     CHECK_ARGUMENT( _item );
 
