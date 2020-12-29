@@ -459,7 +459,7 @@ string BlockConsensusAgent::buildStats(block_id _blockID) {
         tDecisions = any_cast<ptr<map<schain_index, ptr<ChildBVDecidedMessage>>>>(result);
     }
 
-    auto result2 = trueDecisions->getIfExists((uint64_t) _blockID);
+    auto result2 = falseDecisions->getIfExists((uint64_t) _blockID);
 
     if (result2.has_value()) {
         fDecisions = any_cast<ptr<map<schain_index, ptr<ChildBVDecidedMessage>>>>(result2);
