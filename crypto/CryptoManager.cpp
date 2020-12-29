@@ -282,8 +282,14 @@ tuple< string, string, string > CryptoManager::sessionSignECDSA(
     {
         LOCK( sessionKeysLock );
 
-        if ( sessionKeys.exists( ( uint64_t ) _blockID ) ) {
-            tie( privateKey, publicKey, pkSig ) = sessionKeys.get( ( uint64_t ) _blockID );
+
+
+        auto result = sessionKeys.getIfExists(( uint64_t ) _blockID );
+
+
+        if ( result.has_value() ) {
+            tie( privateKey, publicKey, pkSig ) =
+                any_cast<tuple< ptr< OpenSSLEdDSAKey >, string, string >>(result);
             CHECK_STATE( privateKey );
             CHECK_STATE( publicKey != "" );
             CHECK_STATE( pkSig != "" );
@@ -616,8 +622,11 @@ bool CryptoManager::sessionVerifySigAndKey(
     {
         LOCK( publicSessionKeysLock )
 
-        if ( sessionPublicKeys.exists( pkSig ) ) {
-            auto publicKey2 = sessionPublicKeys.get( pkSig );
+        auto result = sessionPublicKeys.getIfExist( pkSig );
+
+        if (result.has_value()) {
+            auto publicKey2 =
+                any_cast<string>(result);
             if ( publicKey2 != _publicKey )
                 return false;
         } else {

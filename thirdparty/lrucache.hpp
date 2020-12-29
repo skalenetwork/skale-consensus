@@ -5,8 +5,11 @@
  * Created on June 20, 2013, 5:09 PM
  */
 
+
 #ifndef _LRUCACHE_HPP_INCLUDED_
 #define	_LRUCACHE_HPP_INCLUDED_
+
+#include <any>
 
 #include <unordered_map>
 #include <list>
@@ -35,6 +38,13 @@ namespace cache {
                 _max_size(max_size) {
         }
 
+
+        void putIfDoesNotExist(const key_t& key, const value_t& value) {
+            LOCK(m);
+            if (!exists(key))
+                put(key, value);
+        }
+
         void put(const key_t& key, const value_t& value) {
 
             LOCK(m);
@@ -55,6 +65,9 @@ namespace cache {
             }
         }
 
+
+
+
         const value_t& get(const key_t& key) {
 
             LOCK(m);
@@ -67,6 +80,23 @@ namespace cache {
                 return it->second->second;
             }
         }
+
+
+
+
+        const std::any getIfExists(const key_t& key) {
+
+            LOCK(m);
+
+            auto it = _cache_items_map.find(key);
+            if (it == _cache_items_map.end()) {
+                return std::any();
+            } else {
+                _cache_items_list.splice(_cache_items_list.begin(), _cache_items_list, it->second);
+                return it->second->second;
+            }
+        }
+
 
         bool exists(const key_t& key)  {
 

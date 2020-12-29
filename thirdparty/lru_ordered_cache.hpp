@@ -14,6 +14,7 @@
 #include <cstddef>
 #include <stdexcept>
 #include "SkaleCommon.h"
+#include "any"
 
 /*
  * Synchronized LRU cache
@@ -67,6 +68,20 @@ namespace cache {
                 return it->second->second;
             }
         }
+
+        const std::any getIfExist(const key_t& key) {
+
+            LOCK(m);
+
+            auto it = _cache_items_map.find(key);
+            if (it == _cache_items_map.end()) {
+                return std::any();
+            } else {
+                _cache_items_list.splice(_cache_items_list.begin(), _cache_items_list, it->second);
+                return it->second->second;
+            }
+        }
+
 
         bool exists(const key_t& key)  {
 
