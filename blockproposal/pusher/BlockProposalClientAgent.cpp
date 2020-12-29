@@ -62,7 +62,6 @@
 
 BlockProposalClientAgent::BlockProposalClientAgent( Schain& _sChain )
     : AbstractClientAgent( _sChain, PROPOSAL ) {
-
     try {
         LOG( debug, "Constructing blockProposalPushAgent" );
 
@@ -115,36 +114,19 @@ BlockProposalClientAgent::readAndProcessFinalProposalResponseHeader(
     }
 }
 
-
 pair< ConnectionStatus, ConnectionSubStatus > BlockProposalClientAgent::sendItemImpl(
     const ptr< SendableItem >& _item, const ptr< ClientSocket >& _socket, schain_index _index ) {
     CHECK_ARGUMENT( _item );
     CHECK_ARGUMENT( _socket );
 
-    ptr< BlockProposal > _proposal = dynamic_pointer_cast< BlockProposal >( _item );
-
+    auto _proposal = dynamic_pointer_cast< BlockProposal >( _item );
     if ( _proposal != nullptr ) {
-        pair< ConnectionStatus, ConnectionSubStatus > result = {
-            ConnectionStatus::CONNECTION_STATUS_UNKNOWN,
-            ConnectionSubStatus::CONNECTION_SUBSTATUS_UNKNOWN };
-
-        try {
-            result = sendBlockProposal( _proposal, _socket, _index );
-        } catch ( ... ) {
-            throw;
-        }
-
-        return result;
+        return sendBlockProposal( _proposal, _socket, _index );
+    } else {
+        auto _daProof = dynamic_pointer_cast< DAProof >( _item );
+        CHECK_STATE( _daProof );  // a sendable item is either DAProof or Proposal
+        return sendDAProof( _daProof, _socket );
     }
-
-    ptr< DAProof > _daProof = dynamic_pointer_cast< DAProof >( _item );
-
-    if ( _daProof != nullptr ) {
-        auto status = sendDAProof( _daProof, _socket );
-        return status;
-    }
-
-    CHECK_STATE( false );
 }
 
 ptr< BlockProposal > BlockProposalClientAgent::corruptProposal(
@@ -334,21 +316,20 @@ pair< ConnectionStatus, ConnectionSubStatus > BlockProposalClientAgent::sendBloc
         return finalResult;
 
 
-    auto sigShare = getSchain()->getCryptoManager()->createDAProofSigShare(
-        finalHeader->getSigShare(), _proposal->getSchainID(), _proposal->getBlockID(), _index, false );
+    auto sigShare =
+        getSchain()->getCryptoManager()->createDAProofSigShare( finalHeader->getSigShare(),
+            _proposal->getSchainID(), _proposal->getBlockID(), _index, false );
     CHECK_STATE( sigShare );
 
-    auto hash = BLAKE3Hash::merkleTreeMerge(
-        _proposal->getHash(), sigShare->computeHash());
+    auto hash = BLAKE3Hash::merkleTreeMerge( _proposal->getHash(), sigShare->computeHash() );
 
-    auto nodeInfo = getSchain()->getNode()->getNodeInfoByIndex(_index);
+    auto nodeInfo = getSchain()->getNode()->getNodeInfoByIndex( _index );
 
-    CHECK_STATE(nodeInfo);
+    CHECK_STATE( nodeInfo );
 
-    CHECK_STATE(getSchain()->getCryptoManager()->sessionVerifySigAndKey(
-        hash, finalHeader->getSignature(), finalHeader->getPublicKey(),
-        finalHeader->getPublicKeySig(), _proposal->getBlockID(),
-        nodeInfo->getNodeID()));
+    CHECK_STATE( getSchain()->getCryptoManager()->sessionVerifySigAndKey( hash,
+        finalHeader->getSignature(), finalHeader->getPublicKey(), finalHeader->getPublicKeySig(),
+        _proposal->getBlockID(), nodeInfo->getNodeID() ) );
 
     getSchain()->daProofSigShareArrived( sigShare, _proposal );
 
@@ -447,8 +428,8 @@ BlockProposalClientAgent::readMissingHashes( const ptr< ClientSocket >& _socket,
     try {
         for ( uint64_t i = 0; i < _count; i++ ) {
             auto hash = make_shared< partial_sha_hash >();
-            for (size_t j = 0; j < PARTIAL_HASH_LEN; j++ ) {
-                hash->at( j ) = buffer->at(PARTIAL_HASH_LEN * i + j );
+            for ( size_t j = 0; j < PARTIAL_HASH_LEN; j++ ) {
+                hash->at( j ) = buffer->at( PARTIAL_HASH_LEN * i + j );
             }
 
             result->insert( hash );
