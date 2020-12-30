@@ -282,8 +282,14 @@ tuple< string, string, string > CryptoManager::sessionSignECDSA(
     {
         LOCK( sessionKeysLock );
 
-        if ( sessionKeys.exists( ( uint64_t ) _blockID ) ) {
-            tie( privateKey, publicKey, pkSig ) = sessionKeys.get( ( uint64_t ) _blockID );
+
+
+
+
+
+        if ( auto result = sessionKeys.getIfExists(( uint64_t ) _blockID ); result.has_value() ) {
+            tie( privateKey, publicKey, pkSig ) =
+                any_cast<tuple< ptr< OpenSSLEdDSAKey >, string, string >>(result);
             CHECK_STATE( privateKey );
             CHECK_STATE( publicKey != "" );
             CHECK_STATE( pkSig != "" );
@@ -616,8 +622,10 @@ bool CryptoManager::sessionVerifySigAndKey(
     {
         LOCK( publicSessionKeysLock )
 
-        if ( sessionPublicKeys.exists( pkSig ) ) {
-            auto publicKey2 = sessionPublicKeys.get( pkSig );
+        if (auto result = sessionPublicKeys.getIfExists( pkSig );
+             result.has_value()) {
+            auto publicKey2 =
+                any_cast<string>(result);
             if ( publicKey2 != _publicKey )
                 return false;
         } else {
@@ -754,7 +762,7 @@ string CryptoManager::getSGXEcdsaPublicKey( const string& _keyName, const ptr< S
     CHECK_ARGUMENT( _keyName != "" );
     CHECK_ARGUMENT( _c );
 
-    LOG( info, "Getting ECDSA public key for " + _keyName );
+    LOG( info, "Getting ECDSA public key for " + _keyName.substr(0,8) + "..." );
 
     Json::Value result;
 
@@ -861,3 +869,5 @@ ptr< StubClient > CryptoManager::getSgxClient() {
 
     return sgxClients.at( tid );
 }
+
+bool CryptoManager::retryHappened = false;

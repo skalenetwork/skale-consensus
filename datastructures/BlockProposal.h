@@ -28,6 +28,7 @@
 #include "SkaleCommon.h"
 
 #include "DataStructure.h"
+#include "SendableItem.h"
 
 class Schain;
 class Transaction;
@@ -42,7 +43,7 @@ class BlockProposalHeader;
 class BlockProposalFragment;
 class BlockProposalFragmentList;
 
-class BlockProposal : public DataStructure {
+class BlockProposal : public SendableItem {
 
     ptr<BlockProposalRequestHeader> header = nullptr;
 
