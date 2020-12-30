@@ -31,7 +31,7 @@
 #include "catchup/server/CatchupServerAgent.h"
 #include "headers/BlockProposalRequestHeader.h"
 #include "monitoring/MonitoringAgent.h"
-
+#include "monitoring/TimeoutAgent.h"
 
 #include "SchainMessageThreadPool.h"
 #include "crypto/ConsensusBLSSigShare.h"
@@ -243,9 +243,11 @@ uint64_t Schain::getMaxExternalBlockProcessingTime() const {
     return maxExternalBlockProcessingTime;;
 }
 
-void Schain::joinMonitorThread() {
+void Schain::joinMonitorAndTimeoutThreads() {
     CHECK_STATE(monitoringAgent);
+    CHECK_STATE(timeoutAgent);
     monitoringAgent->join();
+    timeoutAgent->join();
 }
 
  ptr<CryptoManager> Schain::getCryptoManager() const {

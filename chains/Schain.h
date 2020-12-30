@@ -53,6 +53,7 @@ class ConsensusExtFace;
 class CatchupClientAgent;
 class CatchupServerAgent;
 class MonitoringAgent;
+class TimeoutAgent;
 class CryptoManager;
 
 class BlockProposalServerAgent;
@@ -99,6 +100,8 @@ private:
     ptr<CatchupServerAgent> catchupServerAgent = nullptr;
 
     ptr<MonitoringAgent> monitoringAgent = nullptr;
+
+    ptr<TimeoutAgent> timeoutAgent = nullptr;
 
     ptr<PendingTransactionsAgent> pendingTransactionsAgent = nullptr;
 
@@ -165,7 +168,7 @@ public:
 
     void createBlockConsensusInstance();
 
-    void joinMonitorThread();
+    void joinMonitorAndTimeoutThreads();
 
     ptr<BlockProposal> getBlockProposal(block_id _blockID, schain_index _schainIndex);
 
