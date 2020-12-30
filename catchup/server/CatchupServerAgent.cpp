@@ -334,10 +334,19 @@ ptr<vector<uint8_t>> CatchupServerAgent::createBlockFinalizeResponse(nlohmann::j
         auto proposal = getSchain()->getBlockProposal(_blockID, proposerIndex);
 
         if (proposal == nullptr) {
-            LOG(trace, "Dont have proposal:" + to_string(proposerIndex));
-            _responseHeader->setStatusSubStatus(CONNECTION_DISCONNECT, CONNECTION_FINALIZE_DONT_HAVE_PROPOSAL);
-            _responseHeader->setComplete();
-            return nullptr;
+            LOG(info, "No proposal in finalization:" + to_string(proposerIndex));
+
+
+            auto committedBlock = getSchain()->getBlock(_blockID);
+
+            if (committedBlock && committedBlock->getProposerIndex() == (uint64_t ) proposerIndex) {
+                proposal = committedBlock;
+            } else {
+                _responseHeader->setStatusSubStatus(
+                    CONNECTION_DISCONNECT, CONNECTION_FINALIZE_DONT_HAVE_PROPOSAL );
+                _responseHeader->setComplete();
+                return nullptr;
+            }
         }
 
         if (!getNode()->getDaProofDB()->haveDAProof(proposal)) {
