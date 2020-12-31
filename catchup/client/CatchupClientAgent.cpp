@@ -240,7 +240,9 @@ void CatchupClientAgent::workerThreadItemSendLoop( CatchupClientAgent* _agent ) 
 
     try {
         while ( !_agent->getSchain()->getNode()->isExitRequested() ) {
-            usleep( _agent->getNode()->getCatchupIntervalMs() * 1000 );
+            std::this_thread::sleep_for(std::chrono::milliseconds(
+                                        _agent->getNode()->getCatchupIntervalMs()
+                                        ));
 
             try {
                 _agent->sync( destinationSchainIndex );
