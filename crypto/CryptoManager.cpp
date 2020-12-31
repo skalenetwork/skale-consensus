@@ -871,3 +871,5 @@ ptr< StubClient > CryptoManager::getSgxClient() {
 }
 
 bool CryptoManager::retryHappened = false;
+
+string CryptoManager::sgxURL = "";
