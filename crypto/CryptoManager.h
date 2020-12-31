@@ -232,8 +232,9 @@ public:
             LOG( err, "Could not connect to sgx server, retrying each five seconds ... \n" +   \
                           string( e.what() ) );                                                \
             CryptoManager::retryHappened = true;                                               \
-            sleep( 5 );                                                                      \
+            sleep( 5 );                                                                        \
         } else {                                                                               \
+            LOG( err, "SGX retry failed:" );                                                   \
             LOG( err, e.what() );                                                              \
             throw;                                                                             \
         }                                                                                      \
