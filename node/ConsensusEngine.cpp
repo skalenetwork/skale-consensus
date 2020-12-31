@@ -721,7 +721,7 @@ void ConsensusEngine::exitGracefullyAsync() {
         threadRegistry->joinAll();
 
         for ( auto&& it : nodes ) {
-            it.second->getSchain()->joinMonitorThread();
+            it.second->getSchain()->joinMonitorAndTimeoutThreads();
         }
     } catch ( exception& e ) {
         SkaleException::logNested( e );
