@@ -146,7 +146,7 @@ uint64_t BlockFinalizeDownloader::downloadFragment(schain_index _dstIndex, fragm
 
         if (status == CONNECTION_DISCONNECT) {
             LOG(debug, "BlockFinalizec got response::no fragment");
-            return fragmentList.nextIndexToRetrieve();
+            return 0;
         }
 
         if (status != CONNECTION_PROCEED) {
@@ -302,6 +302,7 @@ void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(BlockFinalizeDown
                 if (next == 0) {
                     return;
                 }
+                usleep( static_cast< __useconds_t >( node->getWaitAfterNetworkErrorMs() * 1000 ) );
             } catch (ExitRequestedException &) {
                 return;
             } catch (ConnectionRefusedException &e) {
