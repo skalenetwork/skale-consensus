@@ -91,7 +91,7 @@ class CryptoManager {
     bool isSGXEnabled = false;
     bool isHTTPSEnabled = true;
 
-    string sgxURL;
+
     string sgxSSLKeyFileFullPath;
     string sgxSSLCertFileFullPath;
     string sgxECDSAKeyName;
@@ -204,6 +204,7 @@ public:
         const string& _publicKey, const string& pkSig, block_id _blockID, node_id _nodeId );
 
     static bool retryHappened;
+    static string sgxURL;
 };
 
 #define RETRY_BEGIN                       \
@@ -213,7 +214,7 @@ public:
 #define RETRY_END                                                                              \
     ;                                                                                          \
     if ( CryptoManager::retryHappened ) {                                                                     \
-        LOG( info, "Successfully reconnected to SGX server" );                                 \
+        LOG( info, "Successfully reconnected to SGX server:" + CryptoManager::sgxURL );                       \
         CryptoManager::retryHappened = false;                                                  \
     }                                                                                          \
     break;                                                                                     \
@@ -229,18 +230,18 @@ public:
                     "Got libcurl error 52. You may be trying to connect with http to https "   \
                     "server" );                                                                \
             };                                                                                 \
-            LOG( err, "Could not connect to sgx server, retrying each five seconds ... \n" +   \
+            LOG( err, "Could not connect to sgx server: " + CryptoManager::sgxURL + ", retrying each five seconds ... \n" +   \
                           string( e.what() ) );                                                \
             CryptoManager::retryHappened = true;                                               \
             sleep( 5 );                                                                        \
         } else {                                                                               \
-            LOG( err, "SGX retry failed:" );                                                   \
+            LOG( err, "Could not connect to sgx server: " + CryptoManager::sgxURL);            \
             LOG( err, e.what() );                                                              \
             throw;                                                                             \
         }                                                                                      \
     }                                                                                          \
     catch ( ... ) {                                                                            \
-        LOG( err, "FATAL Unknown error while connecting to sgx server!" );                     \
+        LOG( err, "FATAL Unknown error while connecting to sgx server:" + CryptoManager::sgxURL );                     \
         throw;                                                                                 \
     }                                                                                          \
     }
