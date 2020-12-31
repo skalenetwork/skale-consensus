@@ -110,56 +110,12 @@ void MonitoringAgent::monitoringLoop(MonitoringAgent *_agent) {
 
     LOG(info, "Monitoring agent started monitoring");
 
-
-
-
-
-    uint64_t processingStartTime = max(_agent->getSchain()->getLastCommitTimeMs(),
-                                                           _agent->getSchain()->getStartTimeMs());
-    uint64_t lastRebroadCastTime = processingStartTime;
-
-    bool timedOut = false;
-
-
     try {
         while (!_agent->getSchain()->getNode()->isExitRequested()) {
             usleep(_agent->getSchain()->getNode()->getMonitoringIntervalMs() * 1000);
 
             try {
                 _agent->monitor();
-
-                auto blockId = _agent->getSchain()->getLastCommittedBlockID() + 1;
-
-                auto timeZero = max(_agent->getSchain()->getLastCommitTimeMs(),
-                                    _agent->getSchain()->getStartTimeMs());
-
-                lastRebroadCastTime = max(lastRebroadCastTime, timeZero);
-
-                if (_agent->getSchain()->getNodeCount() > 2) {
-
-                    if (_agent->getSchain()->getLastCommitTimeMs() > timeZero) {
-                        // new block
-                        processingStartTime = _agent->getSchain()->getLastCommitTimeMs();
-                        lastRebroadCastTime = processingStartTime;
-                        timedOut = false;
-                    }
-
-
-                    auto currentTime = Time::getCurrentTimeMs();
-
-                    if ( !timedOut && blockId > 2 && currentTime - processingStartTime > BLOCK_PROPOSAL_RECEIVE_TIMEOUT_MS ) {
-                        try {
-                            _agent->getSchain()->blockProposalReceiptTimeoutArrived( blockId );
-                            timedOut  = true;
-                        } catch ( ... ) {
-                        }
-                    }
-
-                    if (blockId > 2 && currentTime - lastRebroadCastTime > REBROADCAST_TIMEOUT_MS) {
-                        _agent->getSchain()->rebroadcastAllMessagesForCurrentBlock();
-                        lastRebroadCastTime = currentTime;
-                    }
-                }
 
             } catch (ExitRequestedException &) {
                 return;

@@ -95,8 +95,8 @@
 #include "db/ProposalHashDB.h"
 #include "libBLS/bls/BLSPrivateKeyShare.h"
 #include "monitoring/LivelinessMonitor.h"
+#include "monitoring/TimeoutAgent.h"
 #include "pendingqueue/TestMessageGeneratorAgent.h"
-
 
 void Schain::postMessage(const ptr< MessageEnvelope >& _me ) {
     CHECK_ARGUMENT( _me );
@@ -191,8 +191,11 @@ Schain::Schain( weak_ptr< Node > _node, schain_index _schainIndex, const schain_
       consensusMessageThreadPool( new SchainMessageThreadPool( this ) ),
       node( _node ),
       schainIndex( _schainIndex ) {
-    // construct monitoring agent early
+    // construct monitoring and timeout agents early
     monitoringAgent = make_shared< MonitoringAgent >( *this );
+    timeoutAgent = make_shared< TimeoutAgent >( *this );
+
+
     maxExternalBlockProcessingTime =
         std::max( 2 * getNode()->getEmptyBlockIntervalMs(), ( uint64_t ) 3000 );
 
