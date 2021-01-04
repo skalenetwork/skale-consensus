@@ -423,7 +423,8 @@ JSONFactory::parseTestKeyNamesFromJson(const string& _sgxServerURL, const fs_pat
 
     for ( uint64_t i = 0; i < _requiredNodes; i++ ) {
 
-        LOG(info, "Configured BLS public key share for node index " + to_string(i) + ":" + blsPublicKeys->at(i)->at(0) + ":" +
+        LOG(info, "Configured BLS public key share for node index " +
+                       to_string(i + 1) + ":" + blsPublicKeys->at(i)->at(0) + ":" +
             blsPublicKeys->at(i)->at(1) + ":" + blsPublicKeys->at(i)->at(2) + ":" +
             blsPublicKeys->at(i)->at(3));
 

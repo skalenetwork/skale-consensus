@@ -22,6 +22,9 @@
 */
 
 
+#include <boost/tokenizer.hpp>
+
+
 #include "SkaleCommon.h"
 #include "Log.h"
 
@@ -40,10 +43,41 @@ ConsensusEdDSASigShare::ConsensusEdDSASigShare(const string& _sigShare, schain_i
 
     CHECK_STATE(_sigShare.find(";") != string::npos)
     this->edDSASigShare = _sigShare;
-
 }
 
 
 string ConsensusEdDSASigShare::toString() {
     return edDSASigShare;
+}
+
+void ConsensusEdDSASigShare::verify(
+    CryptoManager& _cryptoManager, schain_index _signerIndex,
+    ptr< BLAKE3Hash >& _hash, node_id _nodeId) {
+
+    boost::char_separator< char > sep( ";" );
+    boost::tokenizer tok {edDSASigShare, sep};
+
+    vector<string> tokens;
+
+    for ( const auto& it : tok) {
+        tokens.push_back((it));
+    }
+
+    if (tokens.size() != 4) {
+        BOOST_THROW_EXCEPTION(InvalidStateException(string("Incorrect ConsensusEdDSASigShare:") +
+                                                    "tokens.size() ! = 4" + edDSASigShare,
+                                                    __CLASS_NAME__));
+    }
+
+    if (to_string((uint64_t)_signerIndex) != tokens.at(0)) {
+        BOOST_THROW_EXCEPTION(InvalidStateException(string("Incorrect ConsensusEdDSASigShare:") +
+                                                    "SignerIndex must be " +
+                                                          to_string(_signerIndex) +
+                                                          ":" + edDSASigShare,
+                                                    __CLASS_NAME__));
+    }
+
+    CHECK_STATE(_cryptoManager.sessionVerifySigAndKey(_hash, tokens.at(1), tokens.at(2),
+        tokens.at(3), blockId, _nodeId));
+
 }
