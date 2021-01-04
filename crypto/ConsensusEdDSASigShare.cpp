@@ -22,6 +22,9 @@
 */
 
 
+#include <boost/tokenizer.hpp>
+
+
 #include "SkaleCommon.h"
 #include "Log.h"
 
@@ -40,10 +43,29 @@ ConsensusEdDSASigShare::ConsensusEdDSASigShare(const string& _sigShare, schain_i
 
     CHECK_STATE(_sigShare.find(";") != string::npos)
     this->edDSASigShare = _sigShare;
+    verify();
 
 }
 
 
 string ConsensusEdDSASigShare::toString() {
     return edDSASigShare;
+}
+
+void ConsensusEdDSASigShare::verify() {
+    boost::char_separator< char > sep( ";" );
+    boost::tokenizer tok {edDSASigShare, sep};
+
+    vector<string> tokens;
+
+    for ( const auto& it : tok) {
+        tokens.push_back((it));
+    }
+
+    if (tokens.size() != 4) {
+        BOOST_THROW_EXCEPTION(InvalidStateException(string("Incorrect ConsensusEdDSASigShare:") +
+                                                    "tokens.size() ! = 4" + edDSASigShare,
+                                                    __CLASS_NAME__));
+    }
+
 }

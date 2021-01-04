@@ -39,6 +39,8 @@ public:
 
     virtual string toString();
 
+    void verify();
+
 };
 
 
