@@ -117,7 +117,7 @@ class CryptoManager {
         const ptr< BLAKE3Hash >& _hash, block_id _blockId );
 
 
-    bool verifySig( const ptr< BLAKE3Hash >& _hash, const string& _sig, node_id _nodeId );
+    bool verifyECDSASig( const ptr< BLAKE3Hash >& _hash, const string& _sig, node_id _nodeId );
 
     ptr< ThresholdSigShare > signSigShare(
         const ptr< BLAKE3Hash >& _hash, block_id _blockId, bool _forceMockup );
@@ -129,7 +129,7 @@ class CryptoManager {
     static uint64_t parseSGXPort( const string& _url );
 
 public:
-    bool sessionVerifySig(
+    bool sessionVerifyEdDSASig(
         const ptr< BLAKE3Hash >& _hash, const string& _sig, const string& _publicKey );
     // This constructor is used for testing
     CryptoManager( uint64_t _totalSigners, uint64_t _requiredSigners, bool _isSGXEnabled,
@@ -141,6 +141,10 @@ public:
 
     Schain* getSchain() const;
 
+
+    void verifyDAProofSigShare( ptr< ThresholdSigShare > _sigShare, schain_index _schainIndex,
+        ptr< BLAKE3Hash > _hash, node_id _nodeId, bool _forceMockup );
+
     ptr< ThresholdSignature > verifyThresholdSig(
         const ptr< BLAKE3Hash >& _hash, const string& _signature, block_id _blockId );
 
@@ -148,15 +152,22 @@ public:
         const ptr< BLAKE3Hash >& _hash, const string& _signature, block_id _blockId );
 
 
+
+
     ptr< ThresholdSigShareSet > createSigShareSet( block_id _blockId );
     ptr< ThresholdSigShareSet > createDAProofSigShareSet( block_id _blockId );
 
     ptr< ThresholdSigShare > createSigShare( const string& _sigShare, schain_id _schainID,
         block_id _blockID, schain_index _signerIndex, bool _forceMockup );
-    ptr< ThresholdSigShare > createDAProofSigShare( const string& _sigShare, schain_id _schainID,
-        block_id _blockID, schain_index _signerIndex, bool _forceMockup );
 
-    void signProposal( BlockProposal* _proposal );
+    ptr< ThresholdSigShare > createDAProofSigShare( const string& _sigShare, schain_id _schainID,
+        block_id _blockID, schain_index _signerIndex,
+        bool _forceMockup );
+
+
+
+
+        void signProposal( BlockProposal* _proposal );
 
     bool verifyProposalECDSA(
         const ptr< BlockProposal >& _proposal, const string& _hashStr, const string& _signature );
@@ -173,8 +184,6 @@ public:
 
     bool verifyNetworkMsg( NetworkMessage& _msg );
 
-    bool sessionVerifySigAndKey( ptr< BLAKE3Hash >& _hash, const string& _sig,
-        const string& _publicKey, const string& _pkSig );
 
     static ptr< void > decodeSGXPublicKey( const string& _keyHex );
 
