@@ -26,7 +26,7 @@
 
 
 #include "ThresholdSigShare.h"
-
+#include "CryptoManager.h"
 
 class ConsensusEdDSASigShare : public ThresholdSigShare {
 
@@ -39,7 +39,8 @@ public:
 
     virtual string toString();
 
-    void verify(schain_index _signerIndex);
+    void verify(CryptoManager& _cryptoManager, schain_index _signerIndex,
+                ptr< BLAKE3Hash >& _hash, node_id _nodeId);
 
 };
 

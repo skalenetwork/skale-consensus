@@ -273,7 +273,6 @@ tuple< string, string, string > CryptoManager::sessionSignECDSA(
     const ptr< BLAKE3Hash >& _hash, block_id _blockID ) {
     CHECK_ARGUMENT( _hash );
 
-
     ptr< OpenSSLEdDSAKey > privateKey = nullptr;
     string publicKey = "";
     string pkSig = "";
@@ -281,10 +280,6 @@ tuple< string, string, string > CryptoManager::sessionSignECDSA(
 
     {
         LOCK( sessionKeysLock );
-
-
-
-
 
 
         if ( auto result = sessionKeys.getIfExists(( uint64_t ) _blockID ); result.has_value() ) {
@@ -392,7 +387,7 @@ tuple< string, string, string > CryptoManager::sessionSign(
 }
 
 
-bool CryptoManager::sessionVerifySig(
+bool CryptoManager::sessionVerifyEdDSASig(
     const ptr< BLAKE3Hash >& _hash, const string& _sig, const string& _publicKey ) {
     CHECK_ARGUMENT( _hash )
     CHECK_ARGUMENT( _sig != "" )
@@ -414,7 +409,7 @@ bool CryptoManager::sessionVerifySig(
 }
 
 
-bool CryptoManager::verifySig( const ptr< BLAKE3Hash >& _hash, const string& _sig, node_id _nodeId ) {
+bool CryptoManager::verifyECDSASig( const ptr< BLAKE3Hash >& _hash, const string& _sig, node_id _nodeId ) {
     CHECK_ARGUMENT( _hash )
     CHECK_ARGUMENT( _sig != "" )
 
@@ -497,6 +492,34 @@ ptr< ThresholdSigShare > CryptoManager::signDAProofSigShare(
                                               sChain->getSchainIndex(), sChain->getTotalSigners(), sChain->getRequiredSigners() );
     }
 }
+
+void CryptoManager::verifyDAProofSigShare(
+    ptr<ThresholdSigShare> _sigShare, schain_index _schainIndex,
+    ptr< BLAKE3Hash >& _hash, node_id _nodeId,
+    block_id _blockId, bool _forceMockup ) {
+    CHECK_ARGUMENT( _hash );
+    MONITOR( __CLASS_NAME__, __FUNCTION__ )
+
+    if ( getSchain()->getNode()->isSgxEnabled() && !_forceMockup) {
+
+        auto sShare = dynamic_pointer_cast<ConsensusEdDSASigShare>(_sigShare);
+
+        CHECK_STATE(sShare);
+
+        sShare->verify(*this, _schainIndex, _hash, _nodeId);
+
+        auto&&[sig, publicKey, pkSig] = this->sessionSignECDSA(_hash, _blockId);
+
+        auto share = to_string((uint64_t )getSchain()->getSchainIndex()) + ";" + sig + ";" + publicKey + ";" + pkSig;
+
+        return;
+
+    } else {
+        return;
+    }
+}
+
+
 
 
 ptr< ThresholdSigShare > CryptoManager::signSigShare(
@@ -631,7 +654,7 @@ bool CryptoManager::sessionVerifySigAndKey(
         } else {
             if ( isSGXEnabled ) {
                 auto pkeyHash = calculatePublicKeyHash( _publicKey, _blockID );
-                if ( !verifySig( pkeyHash, pkSig, _nodeId ) ) {
+                if ( !verifyECDSASig( pkeyHash, pkSig, _nodeId ) ) {
                     LOG( warn, "PubKey ECDSA sig did not verify" );
                     return false;
                 }
@@ -640,7 +663,7 @@ bool CryptoManager::sessionVerifySigAndKey(
         }
     }
 
-    if ( !sessionVerifySig(_hash,_sig,_publicKey ) ) {
+    if ( !sessionVerifyEdDSASig( _hash, _sig, _publicKey ) ) {
         LOG( warn, "ECDSA sig did not verify" );
         return false;
     }
@@ -669,7 +692,7 @@ bool CryptoManager::verifyProposalECDSA(
         return false;
     }
 
-    if ( !verifySig( hash, _signature, _proposal->getProposerNodeID() ) ) {
+    if ( !verifyECDSASig( hash, _signature, _proposal->getProposerNodeID() ) ) {
         LOG( warn, "ECDSA sig did not verify" );
         return false;
     }

@@ -43,7 +43,6 @@ ConsensusEdDSASigShare::ConsensusEdDSASigShare(const string& _sigShare, schain_i
 
     CHECK_STATE(_sigShare.find(";") != string::npos)
     this->edDSASigShare = _sigShare;
-    verify(_signerIndex);
 }
 
 
@@ -51,7 +50,10 @@ string ConsensusEdDSASigShare::toString() {
     return edDSASigShare;
 }
 
-void ConsensusEdDSASigShare::verify(schain_index _signerIndex) {
+void ConsensusEdDSASigShare::verify(
+    CryptoManager& _cryptoManager, schain_index _signerIndex,
+    ptr< BLAKE3Hash >& _hash, node_id _nodeId) {
+
     boost::char_separator< char > sep( ";" );
     boost::tokenizer tok {edDSASigShare, sep};
 
@@ -74,5 +76,8 @@ void ConsensusEdDSASigShare::verify(schain_index _signerIndex) {
                                                           ":" + edDSASigShare,
                                                     __CLASS_NAME__));
     }
+
+    _cryptoManager.sessionVerifySigAndKey(_hash, tokens.at(1), tokens.at(2),
+        tokens.at(3), blockId, _nodeId);
 
 }
