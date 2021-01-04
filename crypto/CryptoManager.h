@@ -142,11 +142,8 @@ public:
     Schain* getSchain() const;
 
 
-    void verifyDAProofSigShare(
-        ptr<ThresholdSigShare> _sigShare, schain_index _schainIndex,
-        ptr< BLAKE3Hash >& _hash,
-        node_id _nodeId,
-        block_id _blockId, bool _forceMockup );
+    void verifyDAProofSigShare( ptr< ThresholdSigShare > _sigShare, schain_index _schainIndex,
+        ptr< BLAKE3Hash > _hash, node_id _nodeId, bool _forceMockup );
 
     ptr< ThresholdSignature > verifyThresholdSig(
         const ptr< BLAKE3Hash >& _hash, const string& _signature, block_id _blockId );
@@ -162,10 +159,15 @@ public:
 
     ptr< ThresholdSigShare > createSigShare( const string& _sigShare, schain_id _schainID,
         block_id _blockID, schain_index _signerIndex, bool _forceMockup );
-    ptr< ThresholdSigShare > createDAProofSigShare( const string& _sigShare, schain_id _schainID,
-        block_id _blockID, schain_index _signerIndex, bool _forceMockup );
 
-    void signProposal( BlockProposal* _proposal );
+    ptr< ThresholdSigShare > createDAProofSigShare( const string& _sigShare, schain_id _schainID,
+        block_id _blockID, schain_index _signerIndex,
+        bool _forceMockup );
+
+
+
+
+        void signProposal( BlockProposal* _proposal );
 
     bool verifyProposalECDSA(
         const ptr< BlockProposal >& _proposal, const string& _hashStr, const string& _signature );

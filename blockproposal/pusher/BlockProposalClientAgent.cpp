@@ -319,6 +319,10 @@ pair< ConnectionStatus, ConnectionSubStatus > BlockProposalClientAgent::sendBloc
     auto sigShare =
         getSchain()->getCryptoManager()->createDAProofSigShare( finalHeader->getSigShare(),
             _proposal->getSchainID(), _proposal->getBlockID(), _index, false );
+
+    getSchain()->getCryptoManager()->verifyDAProofSigShare(
+        sigShare, _index, _proposal->getHash(), getSchain()->getNodeIDByIndex( _index ), false );
+
     CHECK_STATE( sigShare );
 
     auto hash = BLAKE3Hash::merkleTreeMerge( _proposal->getHash(), sigShare->computeHash() );

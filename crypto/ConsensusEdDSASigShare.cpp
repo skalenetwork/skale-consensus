@@ -77,7 +77,7 @@ void ConsensusEdDSASigShare::verify(
                                                     __CLASS_NAME__));
     }
 
-    _cryptoManager.sessionVerifySigAndKey(_hash, tokens.at(1), tokens.at(2),
-        tokens.at(3), blockId, _nodeId);
+    CHECK_STATE(_cryptoManager.sessionVerifySigAndKey(_hash, tokens.at(1), tokens.at(2),
+        tokens.at(3), blockId, _nodeId));
 
 }

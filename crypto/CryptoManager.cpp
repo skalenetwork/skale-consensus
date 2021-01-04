@@ -493,10 +493,8 @@ ptr< ThresholdSigShare > CryptoManager::signDAProofSigShare(
     }
 }
 
-void CryptoManager::verifyDAProofSigShare(
-    ptr<ThresholdSigShare> _sigShare, schain_index _schainIndex,
-    ptr< BLAKE3Hash >& _hash, node_id _nodeId,
-    block_id _blockId, bool _forceMockup ) {
+void CryptoManager::verifyDAProofSigShare( ptr< ThresholdSigShare > _sigShare,
+    schain_index _schainIndex, ptr< BLAKE3Hash > _hash, node_id _nodeId, bool _forceMockup ) {
     CHECK_ARGUMENT( _hash );
     MONITOR( __CLASS_NAME__, __FUNCTION__ )
 
@@ -507,10 +505,6 @@ void CryptoManager::verifyDAProofSigShare(
         CHECK_STATE(sShare);
 
         sShare->verify(*this, _schainIndex, _hash, _nodeId);
-
-        auto&&[sig, publicKey, pkSig] = this->sessionSignECDSA(_hash, _blockId);
-
-        auto share = to_string((uint64_t )getSchain()->getSchainIndex()) + ";" + sig + ";" + publicKey + ";" + pkSig;
 
         return;
 
@@ -594,13 +588,18 @@ ptr< ThresholdSigShare > CryptoManager::createDAProofSigShare(
 
 
     if ( getSchain()->getNode()->isSgxEnabled() && !_forceMockup) {
-        return make_shared< ConsensusEdDSASigShare >(
+        auto result = make_shared< ConsensusEdDSASigShare >(
             _sigShare, _schainID, _blockID, _signerIndex, totalSigners, requiredSigners );
+
+        return result;
+
     } else {
         return make_shared< MockupSigShare >(
             _sigShare, _schainID, _blockID, _signerIndex, totalSigners, requiredSigners );
     }
 }
+
+
 
 
 
