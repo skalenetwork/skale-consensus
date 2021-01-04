@@ -39,7 +39,7 @@ public:
 
     virtual string toString();
 
-    void verify();
+    void verify(schain_index _signerIndex);
 
 };
 

@@ -43,8 +43,7 @@ ConsensusEdDSASigShare::ConsensusEdDSASigShare(const string& _sigShare, schain_i
 
     CHECK_STATE(_sigShare.find(";") != string::npos)
     this->edDSASigShare = _sigShare;
-    verify();
-
+    verify(_signerIndex);
 }
 
 
@@ -52,7 +51,7 @@ string ConsensusEdDSASigShare::toString() {
     return edDSASigShare;
 }
 
-void ConsensusEdDSASigShare::verify() {
+void ConsensusEdDSASigShare::verify(schain_index _signerIndex) {
     boost::char_separator< char > sep( ";" );
     boost::tokenizer tok {edDSASigShare, sep};
 
@@ -65,6 +64,14 @@ void ConsensusEdDSASigShare::verify() {
     if (tokens.size() != 4) {
         BOOST_THROW_EXCEPTION(InvalidStateException(string("Incorrect ConsensusEdDSASigShare:") +
                                                     "tokens.size() ! = 4" + edDSASigShare,
+                                                    __CLASS_NAME__));
+    }
+
+    if (to_string((uint64_t)_signerIndex) != tokens.at(0)) {
+        BOOST_THROW_EXCEPTION(InvalidStateException(string("Incorrect ConsensusEdDSASigShare:") +
+                                                    "SignerIndex must be " +
+                                                          to_string(_signerIndex) +
+                                                          ":" + edDSASigShare,
                                                     __CLASS_NAME__));
     }
 
