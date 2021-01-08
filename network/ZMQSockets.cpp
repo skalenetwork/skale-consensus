@@ -136,7 +136,7 @@ void ZMQSockets::closeAndCleanupAll() {
 
     LOG(info, "Cleaning up ZMQ sockets");
 
-    closeSend();
+    //closeSend();
     //closeReceive();
     zmq_ctx_shutdown(context);
 
