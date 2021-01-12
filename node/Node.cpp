@@ -348,6 +348,10 @@ void Node::setSchain(const ptr<Schain>& _schain) {
 
 void Node::initSchain(const ptr<Node>& _node, const ptr<NodeInfo>& _localNodeInfo, const vector<ptr<NodeInfo> > &remoteNodeInfos,
                       ConsensusExtFace *_extFace) {
+
+
+    set<string> ipPortSet;
+
     try {
         logThreadLocal_ = _node->getLog();
 
@@ -355,9 +359,16 @@ void Node::initSchain(const ptr<Node>& _node, const ptr<NodeInfo>& _localNodeInf
             LOG(debug, "Adding Node Info:" + to_string(rni->getSchainIndex()));
             _node->setNodeInfo(rni);
             LOG(debug, "Got IP" + rni->getBaseIP());
+
+            auto ipPortString = rni->getBaseIP() + ":" + to_string((uint16_t ) rni->getPort());
+
+            if (ipPortSet.count(ipPortString) > 0 ) {
+                BOOST_THROW_EXCEPTION(InvalidStateException("Double entry is found in schain config ",
+                        __CLASS_NAME__));
+            } else {
+                ipPortSet.insert(ipPortString);
+            }
         }
-
-
         _node->testNodeInfos();
 
         auto sChain = make_shared<Schain>(
