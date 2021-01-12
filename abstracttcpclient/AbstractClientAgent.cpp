@@ -78,6 +78,7 @@ void AbstractClientAgent::sendItem(const ptr< SendableItem >& _item, schain_inde
 
     while (true) {
 
+        CHECK_STATE(_dstIndex != (uint64_t) getSchain()->getSchainIndex());
         auto socket = make_shared<ClientSocket>(*sChain, _dstIndex, portType);
 
 

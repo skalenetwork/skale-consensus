@@ -109,6 +109,7 @@ uint64_t BlockFinalizeDownloader::downloadFragment(schain_index _dstIndex, fragm
 
         auto header = make_shared<BlockFinalizeRequestHeader>(*sChain, blockId, proposerIndex,
                 this->getNode()->getNodeID(), _fragmentIndex);
+        CHECK_STATE(_dstIndex != (uint64_t) getSchain()->getSchainIndex());
         auto socket = make_shared<ClientSocket>(*sChain, _dstIndex, CATCHUP);
         auto io = getSchain()->getIo();
 
@@ -266,12 +267,24 @@ void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(BlockFinalizeDown
 
     setThreadName("BlckFinLoop", node->getConsensusEngine());
 
-    uint64_t next = (uint64_t) _dstIndex;
+
 
     node->waitOnGlobalClientStartBarrier();
 
-    if (next > (uint64_t) sChainIndex)
-        next--;
+
+
+    // since the node does not download from itself
+    // and since the number of fragment is one less the number of
+    // nodes, nodes that have sChainIndex more than current node, download _dstNodeIndex - 1
+    // fragment
+
+    uint64_t nextFragment;
+
+    if (_dstIndex > (uint64_t) sChainIndex) {
+        nextFragment = ( uint64_t ) _dstIndex - 1;
+    } else {
+        nextFragment = (uint64_t ) _dstIndex;
+    }
 
     try {
 
@@ -298,8 +311,9 @@ void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(BlockFinalizeDown
             }
 
             try {
-                next = _agent->downloadFragment(_dstIndex, next);
-                if (next == 0) {
+                nextFragment = _agent->downloadFragment(_dstIndex, nextFragment);
+                if (nextFragment == 0) {
+                    // all fragments have been downloaded
                     return;
                 }
                 usleep( static_cast< __useconds_t >( node->getWaitAfterNetworkErrorMs() * 1000 ) );

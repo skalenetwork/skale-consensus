@@ -41,7 +41,7 @@
 #include "network/IO.h"
 #include "network/Network.h"
 #include "pendingqueue/PendingTransactionsAgent.h"
-
+#include "sys/random.h"
 #include "CatchupClientAgent.h"
 #include "CatchupClientThreadPool.h"
 
@@ -77,6 +77,7 @@ void CatchupClientAgent::sync( schain_index _dstIndex ) {
                     to_string( getSchain()->getLastCommittedBlockID() ) );
 
     auto header = make_shared< CatchupRequestHeader >( *sChain, _dstIndex );
+    CHECK_STATE(_dstIndex != (uint64_t ) getSchain()->getSchainIndex());
     auto socket = make_shared< ClientSocket >( *sChain, _dstIndex, CATCHUP );
     auto io = getSchain()->getIo();
     CHECK_STATE( io );
@@ -229,6 +230,7 @@ ptr< CommittedBlockList > CatchupClientAgent::readMissingBlocks(
 }
 
 
+
 void CatchupClientAgent::workerThreadItemSendLoop( CatchupClientAgent* _agent ) {
     setThreadName( "CatchupClient", _agent->getNode()->getConsensusEngine() );
 
@@ -236,7 +238,23 @@ void CatchupClientAgent::workerThreadItemSendLoop( CatchupClientAgent* _agent ) 
 
     _agent->waitOnGlobalStartBarrier();
 
-    auto destinationSchainIndex = schain_index( 1 );
+
+    // start with a random index and then to round-robin
+
+
+    auto nodeCount = ( uint64_t ) _agent->getSchain()->getNodeCount();
+    auto selfIndex = _agent->getSchain()->getSchainIndex();
+
+    uint64_t  startIndex;
+
+
+    do {
+        uint64_t random;
+        getrandom( &random, sizeof( random ), 0 );
+        startIndex = random % nodeCount + 1;
+    } while (startIndex == (uint64_t ) selfIndex);
+
+    auto destinationSchainIndex = schain_index(startIndex);
 
     try {
         while ( !_agent->getSchain()->getNode()->isExitRequested() ) {
