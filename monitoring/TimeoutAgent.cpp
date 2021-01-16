@@ -58,10 +58,16 @@ void TimeoutAgent::timeoutLoop(TimeoutAgent *_agent) {
 
     setThreadName("TimeoutLoop", _agent->getSchain()->getNode()->getConsensusEngine());
 
+    _agent->getSchain()->getSchain()->waitOnGlobalStartBarrier();
+
     LOG(info, "Timeout agent started monitoring");
 
     uint64_t blockProcessingStart = max(_agent->getSchain()->getLastCommitTimeMs(),
                                                            _agent->getSchain()->getStartTimeMs());
+
+    if( blockProcessingStart == 0)
+        blockProcessingStart = Time::getCurrentTimeMs();
+
     uint64_t lastRebroadCastTime = blockProcessingStart;
 
     bool proposalReceiptTimedOut = false;
@@ -69,7 +75,7 @@ void TimeoutAgent::timeoutLoop(TimeoutAgent *_agent) {
     try {
         while (!_agent->getSchain()->getNode()->isExitRequested()) {
 
-            usleep(_agent->getSchain()->getNode()->getMonitoringIntervalMs());
+            usleep(_agent->getSchain()->getNode()->getMonitoringIntervalMs() * 1000);
 
             try {
 
@@ -83,7 +89,7 @@ void TimeoutAgent::timeoutLoop(TimeoutAgent *_agent) {
 
                 if (_agent->getSchain()->getNodeCount() > 2) {
 
-                    if (_agent->getSchain()->getLastCommitTimeMs() > timeZero) {
+                    if (_agent->getSchain()->getLastCommitTimeMs() >= timeZero) {
                         // new block
                         blockProcessingStart = _agent->getSchain()->getLastCommitTimeMs();
                         lastRebroadCastTime = blockProcessingStart;

@@ -188,6 +188,7 @@ Schain::Schain( weak_ptr< Node > _node, schain_index _schainIndex, const schain_
       totalTransactions( 0 ),
       extFace( _extFace ),
       schainID( _schainID ),
+      startTimeMs( 0 ),
       consensusMessageThreadPool( new SchainMessageThreadPool( this ) ),
       node( _node ),
       schainIndex( _schainIndex ) {
