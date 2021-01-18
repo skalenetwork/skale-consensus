@@ -85,17 +85,14 @@ void TimeoutAgent::timeoutLoop(TimeoutAgent *_agent) {
                 auto timeZero = max(_agent->getSchain()->getLastCommitTimeMs(),
                                     _agent->getSchain()->getStartTimeMs());
 
+                blockProcessingStart = timeZero;
+
                 lastRebroadCastTime = max(lastRebroadCastTime, timeZero);
 
                 if (_agent->getSchain()->getNodeCount() > 2) {
 
-                    if (_agent->getSchain()->getLastCommitTimeMs() >= timeZero) {
-                        // new block
-                        blockProcessingStart = _agent->getSchain()->getLastCommitTimeMs();
-                        lastRebroadCastTime = blockProcessingStart;
+                    if ( currentTime - blockProcessingStart <= BLOCK_PROPOSAL_RECEIVE_TIMEOUT_MS )
                         proposalReceiptTimedOut = false;
-                    }
-
 
                     if ( !proposalReceiptTimedOut && currentBlockId > 2 && currentTime - blockProcessingStart > BLOCK_PROPOSAL_RECEIVE_TIMEOUT_MS ) {
                         try {
