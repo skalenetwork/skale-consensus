@@ -401,9 +401,7 @@ void Schain::proposeNextBlock(
         //make compiler happy
         ecdsaSig = ""; pubKey = ""; pubKeySig = "";
 
-        if ((uint64_t ) getNodeCount() > 1) {
-            getSchain()->daProofSigShareArrived( mySig, myProposal );
-        }
+        getSchain()->daProofSigShareArrived( mySig, myProposal );
 
     } catch ( ExitRequestedException& e ) {
         throw;
