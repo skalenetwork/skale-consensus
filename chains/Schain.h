@@ -157,7 +157,7 @@ private:
 
     void pushBlockToExtFace(const ptr<CommittedBlock> &_block);
 
-    ptr<BlockProposal> createEmptyBlockProposal(block_id _blockId);
+    ptr<BlockProposal> createDefaultEmptyBlockProposal(block_id _blockId);
 
 
 public:

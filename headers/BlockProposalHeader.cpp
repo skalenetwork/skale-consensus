@@ -55,6 +55,9 @@ BlockProposalHeader::BlockProposalHeader(BlockProposal& _block) : BasicHeader(He
     this->blockID = _block.getBlockID();
     this->blockHash = _block.getHash()->toHex();
     this->stateRoot = _block.getStateRoot();
+    if (_block.getTransactionList()->size() == 0) {
+        this->stateRoot = 0;
+    }
     this->signature = _block.getSignature();
     this->timeStamp = _block.getTimeStamp();
     this->timeStampMs = _block.getTimeStampMs();
@@ -101,7 +104,6 @@ void BlockProposalHeader::addFields(nlohmann::json &j) {
 
     j["sr"] = stateRoot.str();
 
-    CHECK_STATE(stateRoot != 0)
 
     CHECK_STATE(timeStamp > 0)
 }
@@ -118,7 +120,6 @@ BlockProposalHeader::BlockProposalHeader(nlohmann::json& _json) : BasicHeader(He
     signature = Header::getString(_json, "sig");
     auto srStr = Header::getString(_json, "sr");
     stateRoot = u256(srStr);
-    CHECK_STATE(stateRoot != 0)
 
     Header::nullCheck(_json, "sizes" );
     nlohmann::json jsonTransactionSizes = _json["sizes"];

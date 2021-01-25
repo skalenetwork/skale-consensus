@@ -329,7 +329,7 @@ void Schain::blockCommitArrived( block_id _committedBlockID, schain_index _propo
             committedProposal = getNode()->getBlockProposalDB()->getBlockProposal(
                 _committedBlockID, _proposerIndex );
         } else {
-            committedProposal = createEmptyBlockProposal(_committedBlockID);
+            committedProposal = createDefaultEmptyBlockProposal( _committedBlockID );
         }
         CHECK_STATE( committedProposal );
 
@@ -801,7 +801,7 @@ void Schain::constructServers(const ptr< Sockets >& _sockets ) {
     catchupServerAgent = make_shared< CatchupServerAgent >( *this, _sockets->catchupSocket );
 }
 
-ptr< BlockProposal > Schain::createEmptyBlockProposal( block_id _blockId ) {
+ptr< BlockProposal > Schain::createDefaultEmptyBlockProposal( block_id _blockId ) {
     uint64_t sec = lastCommittedBlockTimeStamp;
     uint64_t ms = lastCommittedBlockTimeStampMs;
 
@@ -813,12 +813,7 @@ ptr< BlockProposal > Schain::createEmptyBlockProposal( block_id _blockId ) {
         ms++;
     }
 
-    auto myProposal = getNode()->getBlockProposalDB()->getBlockProposal(_blockId,
-        getSchainIndex());
-
-    CHECK_STATE(myProposal);
-
-    return make_shared< ReceivedBlockProposal >( *this, _blockId, sec, ms, myProposal->getStateRoot() );
+    return make_shared< ReceivedBlockProposal >( *this, _blockId, sec, ms, 0 );
 }
 
 
@@ -845,7 +840,7 @@ void Schain::finalizeDecidedAndSignedBlock(
 
     try {
         if ( _proposerIndex == 0 ) {
-            proposal = createEmptyBlockProposal( _blockId );
+            proposal = createDefaultEmptyBlockProposal( _blockId );
             haveProof = true;  // empty proposals donot need DAP proofs
         } else {
             proposal =
