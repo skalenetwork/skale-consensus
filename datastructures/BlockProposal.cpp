@@ -110,7 +110,14 @@ BlockProposal::BlockProposal(schain_id _sChainId, node_id _proposerNodeId, block
           proposerIndex(_proposerIndex), timeStamp(_timeStamp), timeStampMs(_timeStampMs),
           stateRoot(_stateRoot), transactionList(_transactions), signature(_signature) {
 
+
+
     CHECK_ARGUMENT(_transactions);
+
+    if (_transactions->size() == 0) {
+        stateRoot = 0;
+    }
+
 
 
     CHECK_STATE(timeStamp > MODERN_TIME);

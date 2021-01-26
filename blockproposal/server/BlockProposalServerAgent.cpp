@@ -405,11 +405,6 @@ pair< ConnectionStatus, ConnectionSubStatus > BlockProposalServerAgent::processP
     ptr< Header > finalResponseHeader = nullptr;
 
     try {
-        if ( requestHeader->getStateRoot() == 0 ) {
-            finalResponseHeader = make_shared< FinalProposalResponseHeader >(
-                CONNECTION_ERROR, CONNECTION_ZERO_STATE_ROOT );
-            goto err;
-        }
 
 
         if ( !getSchain()->getCryptoManager()->verifyProposalECDSA(
