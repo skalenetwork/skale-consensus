@@ -41,13 +41,10 @@ class ClientSocket {
 
     string remoteIP;
 
-    string bindIP;
-
     network_port remotePort;
 
-    ptr<sockaddr_in> remoteAddr;
+    ptr<sockaddr_in> remoteAddr = nullptr;
 
-    ptr<sockaddr_in> bindAddr;
 
     void closeSocket();
 
@@ -64,7 +61,6 @@ public:
 
     network_port getConnectionPort();
 
-    ptr<sockaddr_in> getSocketaddr();
 
     static uint64_t getTotalSockets();
 

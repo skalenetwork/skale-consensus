@@ -38,7 +38,6 @@ using namespace std;
 
 void ClientSocket::closeSocket() {
     LOCK( m )
-
     if ( descriptor != 0 )
         close( ( int ) descriptor );
     descriptor = 0;
@@ -58,28 +57,14 @@ network_port ClientSocket::getConnectionPort() {
     return remotePort;
 }
 
-ptr< sockaddr_in > ClientSocket::getSocketaddr() {
-    CHECK_STATE( remoteAddr )
-    return remoteAddr;
-}
-
-
 int ClientSocket::createTCPSocket() {
     int s;
-
 
     if ( ( s = socket( AF_INET, SOCK_STREAM, IPPROTO_TCP ) ) < 0 ) {
         BOOST_THROW_EXCEPTION(
             FatalError( "Could not create outgoing socket:" + string( strerror( errno ) ) ) );
     }
 
-    CHECK_STATE(bindAddr)
-
-    if ( ::bind( s, ( struct sockaddr* ) bindAddr.get(), sizeof( sockaddr_in ) ) < 0 ) {
-        close( s );
-        BOOST_THROW_EXCEPTION(
-            FatalError( "Could not bind socket address" + string( strerror( errno ) ) ) );
-    }
 
     // Init the connection
     CHECK_STATE(remoteAddr)
@@ -95,8 +80,8 @@ int ClientSocket::createTCPSocket() {
 }
 
 
-ClientSocket::ClientSocket( Schain& _sChain, schain_index _destinationIndex, port_type portType )
-    : bindIP( _sChain.getNode()->getBindIP() ) {
+ClientSocket::ClientSocket( Schain& _sChain, schain_index _destinationIndex, port_type portType ) {
+
     if ( _sChain.getNode()->getNodeInfoByIndex( _destinationIndex ) == nullptr ) {
         BOOST_THROW_EXCEPTION( FatalError( "Could not find node with destination index " ) );
     }
@@ -105,18 +90,14 @@ ClientSocket::ClientSocket( Schain& _sChain, schain_index _destinationIndex, por
 
     CHECK_STATE(ni)
 
-
     remoteIP = ni->getBaseIP();
+
     CHECK_STATE(!remoteIP.empty())
 
     remotePort = ni->getPort() + portType;
 
-
     this->remoteAddr = Sockets::createSocketAddress( remoteIP, ( uint16_t ) remotePort );
     CHECK_STATE(remoteAddr)
-    this->bindAddr = Sockets::createSocketAddress( bindIP, 0 );
-
-    CHECK_STATE(bindAddr)
 
     descriptor = createTCPSocket();
 

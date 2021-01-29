@@ -55,9 +55,8 @@ ptr<sockaddr_in> Sockets::createSocketAddress(const string& _ip, uint16_t port) 
 
     CHECK_STATE(Network::validateIpAddress( _ip ) > 0);
 
-    sockaddr_in *a = new sockaddr_in();//(sockaddr_in *) malloc(sizeof(sockaddr_in));
-
-    memset(a, 0, sizeof(struct sockaddr_in));
+    auto a = make_shared<struct sockaddr_in>();
+    memset(a.get(), 0, sizeof(struct sockaddr_in));
 
     uint32_t ipbin = inet_addr( _ip.c_str());
 
@@ -65,7 +64,7 @@ ptr<sockaddr_in> Sockets::createSocketAddress(const string& _ip, uint16_t port) 
     a->sin_port = htons(port);
     a->sin_addr.s_addr = ipbin;
 
-    return ptr<sockaddr_in>(a);
+    return a;
 }
 
 Sockets::Sockets(Node &node) : node(node) {}
