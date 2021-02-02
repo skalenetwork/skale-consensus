@@ -472,6 +472,7 @@ ptr< Header > BlockProposalServerAgent::createProposalResponseHeader(
         return responseHeader;
     }
 
+    auto blockIDInHeader = _header.getBlockId();
 
     if ( nmi->getSchainIndex() != (uint64_t) _header.getProposerIndex() )  {
         responseHeader->setStatusSubStatus( CONNECTION_ERROR, CONNECTION_ERROR_INVALID_NODE_INDEX );
@@ -480,25 +481,65 @@ ptr< Header > BlockProposalServerAgent::createProposalResponseHeader(
         return responseHeader;
     }
 
-    if ( sChain->getLastCommittedBlockID() >= _header.getBlockId() ) {
+    if ( sChain->getLastCommittedBlockID() >= blockIDInHeader ) {
         responseHeader->setStatusSubStatus(
             CONNECTION_DISCONNECT, CONNECTION_BLOCK_PROPOSAL_TOO_LATE );
         responseHeader->setComplete();
         return responseHeader;
     }
 
-    if ( ( uint64_t ) sChain->getLastCommittedBlockID() + 1 < ( uint64_t ) _header.getBlockId() ) {
+    if ( ( uint64_t ) sChain->getLastCommittedBlockID() + 1 < ( uint64_t ) blockIDInHeader
+        || sChain->getBlockProposal(blockIDInHeader, sChain->getSchainIndex()) == nullptr) {
         responseHeader->setStatusSubStatus(
             CONNECTION_RETRY_LATER, CONNECTION_BLOCK_PROPOSAL_IN_THE_FUTURE );
         responseHeader->setComplete();
         return responseHeader;
     }
 
-    CHECK_STATE( _header.getTimeStamp() > MODERN_TIME );
+    auto myBlockProposalForTheSameBlockID = sChain->getBlockProposal(blockIDInHeader,
+        sChain->getSchainIndex());
+
+
+
+
+
+
+    if (blockIDInHeader > 2 && _header.getTxCount() > 0 && _header.getStateRoot() != myBlockProposalForTheSameBlockID->getStateRoot()) {
+        responseHeader->setStatusSubStatus( CONNECTION_ERROR, CONNECTION_ERROR_INVALID_NODE_INDEX );
+        responseHeader->setComplete();
+        LOG( err, "Proposal state root does not match: " );
+        LOG( err,_header.getStateRoot().str());
+        LOG(err, myBlockProposalForTheSameBlockID->getStateRoot().str());
+        return responseHeader;
+    }
+
+    if (myBlockProposalForTheSameBlockID == nullptr) {
+        // did not create proposal yet, ask the client to retry later
+        responseHeader->setStatusSubStatus(
+            CONNECTION_RETRY_LATER, CONNECTION_BLOCK_PROPOSAL_IN_THE_FUTURE );
+        responseHeader->setComplete();
+        return responseHeader;
+    }
+
+
+
+    if( _header.getTimeStamp() <= MODERN_TIME ) {
+        LOG( info, "Time less than modern time");
+        responseHeader->setStatusSubStatus(
+            CONNECTION_ERROR, CONNECTION_ERROR_TIME_LESS_THAN_MODERN_DAY );
+        responseHeader->setComplete();
+        return responseHeader;
+    }
 
     auto t = Time::getCurrentTimeSec();
 
-    CHECK_STATE( t < ( uint64_t ) MODERN_TIME * 2 );
+    if (t > ( uint64_t ) MODERN_TIME * 2 ) {
+        LOG( info, "Time too far in the future");
+        responseHeader->setStatusSubStatus(
+            CONNECTION_ERROR, CONNECTION_ERROR_TIME_TOO_FAR_IN_THE_FUTURE );
+        responseHeader->setComplete();
+        return responseHeader;
+    }
 
     if ( Time::getCurrentTimeSec() + 1 < _header.getTimeStamp() ) {
         LOG( info, "Incorrect timestamp:" + to_string( _header.getTimeStamp() ) +
@@ -508,7 +549,6 @@ ptr< Header > BlockProposalServerAgent::createProposalResponseHeader(
         responseHeader->setComplete();
         return responseHeader;
     }
-
 
     if ( sChain->getLastCommittedBlockTimeStamp() > _header.getTimeStamp() ) {
         LOG( info, "Incorrect timestamp:" + to_string( _header.getTimeStamp() ) +
