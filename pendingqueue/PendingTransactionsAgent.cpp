@@ -119,7 +119,7 @@ pair<ptr<vector<ptr<Transaction>>>, u256> PendingTransactionsAgent::createTransa
             getSchain()->getNode()->exitCheck();
         } else {
             stateRootSample++;
-            stateRoot = stateRootSample;
+            stateRoot = 7;
             txVector = sChain->getTestMessageGeneratorAgent()->pendingTransactions(need_max);
         }
 
