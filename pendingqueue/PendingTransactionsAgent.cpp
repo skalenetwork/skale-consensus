@@ -120,6 +120,9 @@ pair<ptr<vector<ptr<Transaction>>>, u256> PendingTransactionsAgent::createTransa
         } else {
             stateRootSample++;
             stateRoot = 7;
+            if (stateRootSample > 10 && getSchain()->getSchainIndex() == 1) {
+                stateRoot = 8;
+            }
             txVector = sChain->getTestMessageGeneratorAgent()->pendingTransactions(need_max);
         }
 
