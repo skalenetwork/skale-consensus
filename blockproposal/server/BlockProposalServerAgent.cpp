@@ -500,8 +500,13 @@ ptr< Header > BlockProposalServerAgent::createProposalResponseHeader(
         sChain->getSchainIndex());
 
 
-
-
+    if (myBlockProposalForTheSameBlockID == nullptr) {
+        // did not create proposal yet, ask the client to retry later
+        responseHeader->setStatusSubStatus(
+            CONNECTION_RETRY_LATER, CONNECTION_BLOCK_PROPOSAL_IN_THE_FUTURE );
+        responseHeader->setComplete();
+        return responseHeader;
+    }
 
 
     if (blockIDInHeader > 2 && _header.getTxCount() > 0 && _header.getStateRoot() != myBlockProposalForTheSameBlockID->getStateRoot()) {
@@ -512,15 +517,6 @@ ptr< Header > BlockProposalServerAgent::createProposalResponseHeader(
         LOG(err, myBlockProposalForTheSameBlockID->getStateRoot().str());
         return responseHeader;
     }
-
-    if (myBlockProposalForTheSameBlockID == nullptr) {
-        // did not create proposal yet, ask the client to retry later
-        responseHeader->setStatusSubStatus(
-            CONNECTION_RETRY_LATER, CONNECTION_BLOCK_PROPOSAL_IN_THE_FUTURE );
-        responseHeader->setComplete();
-        return responseHeader;
-    }
-
 
 
     if( _header.getTimeStamp() <= MODERN_TIME ) {
