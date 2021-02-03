@@ -92,7 +92,7 @@ ptr<BooleanProposalVector> DAProofDB::getCurrentProposalVector(block_id _blockID
 
     LOCK(daProofMutex)
 
-    LOG(trace, "Adding daProof");
+    LOG(trace, "Getting current proposal vector");
 
     auto daProofSet = this->readSet(_blockID);
 
