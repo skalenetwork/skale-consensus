@@ -194,7 +194,8 @@ pair< ConnectionStatus, ConnectionSubStatus > BlockProposalClientAgent::sendBloc
 
 
     if ( result.first != CONNECTION_PROCEED ) {
-        LOG( trace, "Proposal Server terminated proposal push" );
+        LOG( trace, "Proposal Server terminated proposal push:" +
+            to_string(result.first) + ":" + to_string(result.second));
         return result;
     }
 
