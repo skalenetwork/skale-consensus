@@ -509,8 +509,7 @@ ptr< Header > BlockProposalServerAgent::createProposalResponseHeader(
     }
 
 
-    if (blockIDInHeader > 2 && _header.getTxCount() > 0 &&
-         myBlockProposalForTheSameBlockID->getTransactionCount() > 0 &&
+    if (blockIDInHeader > 2 &&
          _header.getStateRoot() != myBlockProposalForTheSameBlockID->getStateRoot()) {
         responseHeader->setStatusSubStatus( CONNECTION_ERROR, CONNECTION_PROPOSAL_STATE_ROOT_DOES_NOT_MATCH );
         responseHeader->setComplete();

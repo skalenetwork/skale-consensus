@@ -114,7 +114,7 @@ BlockProposal::BlockProposal(schain_id _sChainId, node_id _proposerNodeId, block
 
     CHECK_ARGUMENT(_transactions);
 
-    if (_transactions->size() == 0) {
+    if (_proposerIndex == 0) {
         stateRoot = 0;
     }
 

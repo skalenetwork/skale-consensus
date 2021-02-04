@@ -125,8 +125,6 @@ private:
 
     string blockProposerTest;
 
-
-
     atomic<uint64_t> lastCommittedBlockID = 0;
     atomic<uint64_t> lastCommitTimeMs = 0;
     atomic<uint64_t> bootstrapBlockID = 0;
