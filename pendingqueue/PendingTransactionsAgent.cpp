@@ -76,9 +76,6 @@ ptr<BlockProposal> PendingTransactionsAgent::buildBlockProposal(block_id _blockI
     auto sec = currentTime / 1000;
     auto m = (uint32_t) (currentTime % 1000);
 
-    if (transactionList->size() == 0) {
-        stateRoot = 0;
-    }
 
     auto myBlockProposal = make_shared<MyBlockProposal>(*sChain, _blockID, sChain->getSchainIndex(),
             transactionList, stateRoot, sec, m, getSchain()->getCryptoManager());
@@ -120,9 +117,7 @@ pair<ptr<vector<ptr<Transaction>>>, u256> PendingTransactionsAgent::createTransa
         } else {
             stateRootSample++;
             stateRoot = 7;
-            if (stateRootSample > 10 && getSchain()->getSchainIndex() == 1) {
-                stateRoot = 8;
-            }
+
             txVector = sChain->getTestMessageGeneratorAgent()->pendingTransactions(need_max);
         }
 

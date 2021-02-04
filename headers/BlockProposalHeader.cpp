@@ -55,9 +55,6 @@ BlockProposalHeader::BlockProposalHeader(BlockProposal& _block) : BasicHeader(He
     this->blockID = _block.getBlockID();
     this->blockHash = _block.getHash()->toHex();
     this->stateRoot = _block.getStateRoot();
-    if (_block.getTransactionList()->size() == 0) {
-        this->stateRoot = 0;
-    }
     this->signature = _block.getSignature();
     this->timeStamp = _block.getTimeStamp();
     this->timeStampMs = _block.getTimeStampMs();

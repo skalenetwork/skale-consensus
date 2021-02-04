@@ -90,7 +90,7 @@ public:
     // Creates new block with specified transactions AND removes them from the queue
     virtual void createBlock(const transactions_vector &_approvedTransactions, uint64_t _timeStamp,
                              uint32_t _timeStampMillis, uint64_t _blockID, u256 _gasPrice,
-                             u256 _stateRoot) = 0;
+                             u256 _stateRoot, uint64_t _winningNodeIndex) = 0;
 
     virtual ~ConsensusExtFace() = default;
 
