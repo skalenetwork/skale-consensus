@@ -319,20 +319,20 @@ void Schain::blockCommitArrived( block_id _committedBlockID, schain_index _propo
     try {
         ptr< BlockProposal > committedProposal = nullptr;
 
-
         if ( _proposerIndex > 0 ) {
             committedProposal = getNode()->getBlockProposalDB()->getBlockProposal(
                 _committedBlockID, _proposerIndex );
         } else {
             committedProposal = createDefaultEmptyBlockProposal( _committedBlockID );
         }
+
         CHECK_STATE( committedProposal );
 
         auto newCommittedBlock = CommittedBlock::makeObject( committedProposal, _thresholdSig );
 
         processCommittedBlock( newCommittedBlock );
 
-        proposeNextBlock( );
+        proposeNextBlock();
 
     } catch ( ExitRequestedException& e ) {
         throw;
@@ -354,7 +354,6 @@ void Schain::proposeNextBlock() {
 
     checkForExit();
     try {
-
         block_id _proposedBlockID( ( uint64_t ) lastCommittedBlockID + 1 );
 
         ptr< BlockProposal > myProposal;
@@ -364,7 +363,7 @@ void Schain::proposeNextBlock() {
                 _proposedBlockID, getSchainIndex() );
         } else {
             myProposal = pendingTransactionsAgent->buildBlockProposal(
-                _proposedBlockID,lastCommittedBlockTimeStamp );
+                _proposedBlockID, lastCommittedBlockTimeStamp );
         }
 
 
@@ -688,7 +687,7 @@ void Schain::bootstrap( block_id _lastCommittedBlockID, uint64_t _lastCommittedB
         if ( getLastCommittedBlockID() == 0 )
             this->pricingAgent->calculatePrice( ConsensusExtFace::transactions_vector(), 0, 0, 0 );
 
-        proposeNextBlock( );
+        proposeNextBlock();
 
         rebroadcastAllMessagesForCurrentBlock();
 
@@ -819,31 +818,39 @@ void Schain::finalizeDecidedAndSignedBlock( block_id _blockId, schain_index _pro
 
     if ( _blockId <= getLastCommittedBlockID() ) {
         LOG( debug, "Ignoring old block decide, already got this through catchup: BID:" +
-                       to_string( _blockId ) + ":PRP:" + to_string( _proposerIndex ) );
+                        to_string( _blockId ) + ":PRP:" + to_string( _proposerIndex ) );
         return;
     }
 
 
     LOG( info, "BLOCK_SIGNED: Now finalizing block ... BID:" + to_string( _blockId ) );
 
-    ptr< BlockProposal > proposal = nullptr;
 
-    bool haveProof = false;
 
     try {
         if ( _proposerIndex == 0 ) {
-            proposal = createDefaultEmptyBlockProposal( _blockId );
-            haveProof = true;  // empty proposals donot need DAP proofs
-        } else {
-            proposal =
-                getNode()->getBlockProposalDB()->getBlockProposal( _blockId, _proposerIndex );
-            if ( proposal != nullptr ) {
-                haveProof = getNode()->getDaProofDB()->haveDAProof( proposal );
-            }
+            // default empty block
+            blockCommitArrived( _blockId, _proposerIndex, _thresholdSig );
+            return;
         }
 
+        ptr< BlockProposal > proposal = nullptr;
 
-        if ( !haveProof ||  // a proposal without a  DA proof is not trusted and has to be
+        proposal = getNode()->getBlockProposalDB()->getBlockProposal( _blockId, _proposerIndex );
+
+
+        // Figure out if we need to download proposal
+
+        bool downloadProposal;
+
+        if (proposal) {
+            // a proposal without a  DA proof is not trusted and has to be
+            downloadProposal = !getNode()->getDaProofDB()->haveDAProof( proposal );
+        } else {
+            downloadProposal = true;
+        }
+
+        if ( downloadProposal ||
                             // downloaded from others this switch is for testing only
              getNode()->getTestConfig()->isFinalizationDownloadOnly() ) {
             // did not receive proposal from the proposer, pull it in parallel from other hosts
@@ -861,11 +868,11 @@ void Schain::finalizeDecidedAndSignedBlock( block_id _blockId, schain_index _pro
                 proposal = agent->downloadProposal();
             }
 
-            if ( proposal != nullptr )  // Nullptr means catchup happened first
+            if (proposal)  // Nullptr means catchup happened first
                 getNode()->getBlockProposalDB()->addBlockProposal( proposal );
         }
 
-        if ( proposal != nullptr ) {
+        if ( proposal) {
             blockCommitArrived( _blockId, _proposerIndex, _thresholdSig );
         }
 
