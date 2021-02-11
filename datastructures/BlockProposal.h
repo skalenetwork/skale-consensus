@@ -88,7 +88,7 @@ public:
                   const ptr<CryptoManager>& _cryptoManager);
 
 
-    uint64_t getTimeStamp() const;
+    uint64_t getTimeStampS() const;
 
     uint32_t getTimeStampMs() const;
 

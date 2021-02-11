@@ -515,7 +515,9 @@ void ConsensusEngine::slowStartBootStrapTest() {
     for ( auto&& it : nodes ) {
         CHECK_STATE( it.second );
         it.second->startClients();
-        it.second->getSchain()->bootstrap( lastCommittedBlockID, lastCommittedBlockTimeStamp );
+        it.second->getSchain()->bootstrap( lastCommittedBlockID,
+            lastCommittedBlockTimeStamp->getS(),
+            lastCommittedBlockTimeStamp->getMs());
     }
 
     LOG( info, "Started all nodes" );
@@ -526,7 +528,8 @@ void ConsensusEngine::bootStrapAll() {
         for ( auto&& it : nodes ) {
             LOG( trace, "Bootstrapping node" );
             CHECK_STATE( it.second );
-            it.second->getSchain()->bootstrap( lastCommittedBlockID, lastCommittedBlockTimeStamp );
+            it.second->getSchain()->bootstrap( lastCommittedBlockID, lastCommittedBlockTimeStamp->getS(),
+                lastCommittedBlockTimeStamp->getMs());
             LOG( trace, "Bootstrapped node" );
         }
     } catch ( exception& e ) {
@@ -619,6 +622,8 @@ void ConsensusEngine::init() {
 
 ConsensusEngine::ConsensusEngine( block_id _lastId ) : exitRequested( false ) {
 
+    lastCommittedBlockTimeStamp = make_shared<TimeStamp>(0,0);
+
 
 
     try {
@@ -632,7 +637,7 @@ ConsensusEngine::ConsensusEngine( block_id _lastId ) : exitRequested( false ) {
 }
 
 ConsensusEngine::ConsensusEngine( ConsensusExtFace& _extFace, uint64_t _lastCommittedBlockID,
-    uint64_t _lastCommittedBlockTimeStamp )
+    uint64_t _lastCommittedBlockTimeStamp, uint64_t _lastCommittedBlockTimeStampMs )
     : exitRequested( false ) {
     try {
         init();
@@ -647,7 +652,8 @@ ConsensusEngine::ConsensusEngine( ConsensusExtFace& _extFace, uint64_t _lastComm
             "Invalid last committed block time stamp " );
 
 
-        lastCommittedBlockTimeStamp = _lastCommittedBlockTimeStamp;
+        lastCommittedBlockTimeStamp = make_shared<TimeStamp>(_lastCommittedBlockTimeStamp,
+            _lastCommittedBlockTimeStampMs);
 
     } catch ( exception& e ) {
         SkaleException::logNested( e );
@@ -923,7 +929,7 @@ ConsensusEngine::getBlock(block_id _blockId) {
         return {nullptr, 0, 0, 0, 0};
     }
 
-    auto timeStampS = committedBlock->getTimeStamp();
+    auto timeStampS = committedBlock->getTimeStampS();
     auto timeStampMs = committedBlock->getTimeStampMs();
     auto stateRoot = committedBlock->getStateRoot();
     auto currentPrice = schain->getPriceForBlockId((uint64_t) committedBlock->getBlockID() - 1);

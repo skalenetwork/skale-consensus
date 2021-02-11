@@ -191,7 +191,7 @@ transaction_count BlockProposal::getTransactionCount() const {
     return transactionCount;
 }
 
-uint64_t BlockProposal::getTimeStamp() const {
+uint64_t BlockProposal::getTimeStampS() const {
     return timeStamp;
 }
 

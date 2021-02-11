@@ -49,7 +49,7 @@ ptr< CommittedBlock > CommittedBlock::makeObject(
     CHECK_ARGUMENT( _thresholdSig );
     return CommittedBlock::make( _proposal->getSchainID(), _proposal->getProposerNodeID(),
         _proposal->getBlockID(), _proposal->getProposerIndex(), _proposal->getTransactionList(),
-        _proposal->getStateRoot(), _proposal->getTimeStamp(), _proposal->getTimeStampMs(),
+        _proposal->getStateRoot(), _proposal->getTimeStampS(), _proposal->getTimeStampMs(),
         _proposal->getSignature(), _thresholdSig->toString() );
 }
 
@@ -89,7 +89,7 @@ ptr< CommittedBlock > CommittedBlock::createRandomSample(const ptr< CryptoManage
 
 
     return CommittedBlock::make( p->getSchainID(), p->getProposerNodeID(), p->getBlockID(),
-        p->getProposerIndex(), p->getTransactionList(), p->getStateRoot(), p->getTimeStamp(),
+        p->getProposerIndex(), p->getTransactionList(), p->getStateRoot(), p->getTimeStampS(),
         p->getTimeStampMs(), p->getSignature(), "EMPTY"  );
 }
 

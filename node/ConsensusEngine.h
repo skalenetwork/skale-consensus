@@ -32,11 +32,9 @@
 #include "ConsensusInterface.h"
 #include "Node.h"
 
-
+#include "datastructures/TimeStamp.h"
 
 #include "spdlog/spdlog.h"
-
-
 
 #include <boost/multiprecision/cpp_int.hpp>
 
@@ -155,7 +153,7 @@ public:
 
     block_id lastCommittedBlockID = 0;
 
-    uint64_t lastCommittedBlockTimeStamp = 0;
+    ptr<TimeStamp> lastCommittedBlockTimeStamp;
 
     set< node_id > nodeIDs;
 
@@ -199,7 +197,7 @@ public:
     ~ConsensusEngine() override;
 
     ConsensusEngine( ConsensusExtFace& _extFace, uint64_t _lastCommittedBlockID,
-        uint64_t _lastCommittedBlockTimeStamp);
+        uint64_t _lastCommittedBlockTimeStamp,uint64_t _lastCommittedBlockTimeStampMs );
 
     ConsensusExtFace* getExtFace() const;
 
