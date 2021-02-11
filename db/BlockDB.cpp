@@ -125,7 +125,7 @@ ptr<CommittedBlock> BlockDB::getBlock(block_id _blockID, const ptr<CryptoManager
         auto serializedBlock = getSerializedBlockFromLevelDB(_blockID);
 
         if (serializedBlock == nullptr) {
-            LOG(err, "Got null block in BlockDB::getBlock");
+            LOG(debug, "Got null block in BlockDB::getBlock");
             return nullptr;
         }
 
