@@ -334,7 +334,7 @@ ptr<vector<uint8_t>> CatchupServerAgent::createBlockFinalizeResponse(nlohmann::j
         auto proposal = getSchain()->getBlockProposal(_blockID, proposerIndex);
 
         if (proposal == nullptr) {
-            LOG(info, "No proposal in finalization:" + to_string(proposerIndex));
+            LOG(debug, "No proposal in finalization:" + to_string(proposerIndex));
 
 
             auto committedBlock = getSchain()->getBlock(_blockID);

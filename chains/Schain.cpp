@@ -818,7 +818,7 @@ void Schain::finalizeDecidedAndSignedBlock( block_id _blockId, schain_index _pro
 
 
     if ( _blockId <= getLastCommittedBlockID() ) {
-        LOG( info, "Ignoring old block decide, already got this through catchup: BID:" +
+        LOG( debug, "Ignoring old block decide, already got this through catchup: BID:" +
                        to_string( _blockId ) + ":PRP:" + to_string( _proposerIndex ) );
         return;
     }
