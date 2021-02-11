@@ -186,8 +186,9 @@ string OpenSSLEdDSAKey::serializePubKey() const {
 
         char* encodedPubKey = nullptr;
         auto pubKeyEncodedLen = BIO_get_mem_data( bio, &encodedPubKey );
+
         CHECK_STATE( pubKeyEncodedLen > 10 );
-        result = string( encodedPubKey, 0, pubKeyEncodedLen );
+        result = string( encodedPubKey, pubKeyEncodedLen );
 
     } catch (...) {
         if (bio) {
