@@ -27,8 +27,6 @@
 #include <condition_variable>
 #include <mutex>
 
-
-
 class Node;
 class Schain;
 class CommittedBlock;
@@ -63,7 +61,6 @@ protected:
 
 
     std::map< schain_index, ptr< std::condition_variable > > queueCond;
-
     std::map< schain_index, ptr< std::mutex > > queueMutex;
 
 
@@ -72,6 +69,7 @@ protected:
     std::recursive_mutex m;
 
     map<schain_index, uint64_t> lastConnectionRefusedLogTime;
+    std::recursive_mutex lastConnectionRefusedLogTimeLock;
 
 public:
     Agent( Schain& _sChain, bool isServer, bool _dontRegister = false );

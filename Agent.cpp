@@ -84,6 +84,9 @@ ptr<GlobalThreadRegistry> Agent::getThreadRegistry() {
 void Agent::logConnectionRefused(ConnectionRefusedException &_e, schain_index _index) {
     auto logException = true;
     auto currentTime = Time::getCurrentTimeMs();
+
+    LOCK(lastConnectionRefusedLogTimeLock);
+
     if (lastConnectionRefusedLogTime.find(_index) != lastConnectionRefusedLogTime.end()) {
         auto time = lastConnectionRefusedLogTime[_index];
 

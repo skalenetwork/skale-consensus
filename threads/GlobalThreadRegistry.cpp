@@ -31,14 +31,11 @@
 
 void GlobalThreadRegistry::joinAll() {
 
-    if (joined)
-        return;
 
-    LOCK(m)
+    LOCK(allThreadsLock);
 
     if (joined)
         return;
-
 
     for (auto &&thread : GlobalThreadRegistry::allThreads) {
         thread->join();
@@ -53,7 +50,6 @@ void GlobalThreadRegistry::add(const ptr<thread>& _t) {
 
     CHECK_ARGUMENT(_t);
 
-    LOCK(m)
-
+    LOCK(allThreadsLock)
     allThreads.push_back(_t);
 }

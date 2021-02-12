@@ -20,32 +20,19 @@
     @author Stan Kladko
     @date 2020
 */
-
+#include "TimeoutThreadPool.h"
 #include "Agent.h"
-#include "SkaleCommon.h"
 #include "Log.h"
-#include "exceptions/FatalError.h"
-
-
-#include "abstracttcpserver/ConnectionStatus.h"
-#include "network/ServerConnection.h"
-
+#include "SkaleCommon.h"
+#include "TimeoutAgent.h"
 #include "thirdparty/json.hpp"
 
-#include "TimeoutAgent.h"
-#include "TimeoutThreadPool.h"
+TimeoutThreadPool::TimeoutThreadPool( num_threads _numThreads, Agent* _agent )
+    : WorkerThreadPool( _numThreads, _agent, false ) {}
 
-TimeoutThreadPool::TimeoutThreadPool(num_threads _numThreads, Agent* _agent) : WorkerThreadPool(_numThreads,
-                                                                                                     _agent, false) {
+
+void TimeoutThreadPool::createThread( uint64_t /*number*/ ) {
+    auto a = ( TimeoutAgent* ) agent;
+    LOCK( threadPoolLock );
+    this->threadpool.push_back( make_shared< thread >( TimeoutAgent::timeoutLoop, a ) );
 }
-
-
-void TimeoutThreadPool::createThread(uint64_t /*number*/) {
-
-    auto a = (TimeoutAgent*)agent;
-
-    this->threadpool.push_back(make_shared<thread>(TimeoutAgent::timeoutLoop, a));
-
-}
-
-

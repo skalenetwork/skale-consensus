@@ -225,9 +225,6 @@ void BlockConsensusAgent::reportConsensusAndDecideIfNeeded(const ptr<ChildBVDeci
         }
 
 
-
-
-
         if (auto result = trueDecisions->getIfExists((uint64_t) blockID);
             !result.has_value() ||
             any_cast<ptr<map<schain_index, ptr<ChildBVDecidedMessage>>>>(result)->empty()) {
@@ -451,12 +448,9 @@ string BlockConsensusAgent::buildStats(block_id _blockID) {
     ptr<map<schain_index, ptr<ChildBVDecidedMessage>>> fDecisions = nullptr;
 
 
-
-
     if (auto result = trueDecisions->getIfExists((uint64_t) _blockID); result.has_value()) {
         tDecisions = any_cast<ptr<map<schain_index, ptr<ChildBVDecidedMessage>>>>(result);
     }
-
 
     if (auto result = falseDecisions->getIfExists((uint64_t) _blockID); result.has_value()) {
         fDecisions = any_cast<ptr<map<schain_index, ptr<ChildBVDecidedMessage>>>>(result);

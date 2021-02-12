@@ -80,7 +80,6 @@ private:
         }
     };
 
-
     unordered_map<ptr<partial_sha_hash>, ptr<Transaction> , Hasher, Equal> knownTransactions;
 
     recursive_mutex transactionsMutex;

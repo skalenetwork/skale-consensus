@@ -32,9 +32,9 @@
 
 void WorkerThreadPool::startService() {
 
-    CHECK_STATE(!started)
+    LOCK(threadPoolLock);
 
-    LOCK(m)
+    CHECK_STATE(!started)
 
     started = true;
 
@@ -58,7 +58,7 @@ WorkerThreadPool::WorkerThreadPool(num_threads _numThreads, Agent *_agent, bool 
 
 
 void WorkerThreadPool::joinAll() {
-    LOCK(m)
+    LOCK(threadPoolLock);
 
     if (joined)
         return;

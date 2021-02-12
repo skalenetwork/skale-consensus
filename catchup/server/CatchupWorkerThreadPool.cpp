@@ -21,9 +21,12 @@
     @date 2018
 */
 
+
+#include "SkaleCommon.h"
+#include "Log.h"
 #include "Agent.h"
 #include "CatchupServerAgent.h"
-#include "Log.h"
+
 
 
 CatchupWorkerThreadPool::CatchupWorkerThreadPool(
@@ -39,5 +42,6 @@ void CatchupWorkerThreadPool::createThread(uint64_t threadNumber) {
         AbstractServerAgent::workerThreadConnectionProcessingLoop((CatchupServerAgent *) agent);
     };
 
+    LOCK(threadPoolLock);
     this->threadpool.push_back(make_shared<thread>(func));
 }
