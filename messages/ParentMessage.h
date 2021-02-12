@@ -28,7 +28,6 @@
 
 class ProtocolInstance;
 
-
 class ParentMessage : public InternalMessage {
 public:
     ParentMessage(MsgType msgType, ProtocolInstance &srcProtocolInstance,

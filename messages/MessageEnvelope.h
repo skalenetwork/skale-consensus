@@ -33,12 +33,9 @@ class MessageEnvelope {
 protected:
 
     MessageOrigin origin;
-
     ptr<Message> message;
 
-
 protected:
-
 
     ptr<NodeInfo> srcNodeInfo;
 
@@ -48,17 +45,17 @@ public:
     MessageEnvelope(MessageOrigin origin, const ptr<Message> &_message,
                     const ptr<NodeInfo> &_realSender);
 
-    ptr<Message> getMessage() const;
+    [[nodiscard]] ptr<Message> getMessage() const;
 
-    MessageOrigin getOrigin() const;
+    [[nodiscard]] MessageOrigin getOrigin() const;
 
 
-    ptr<NodeInfo> getSrcNodeInfo() const {
+    [[nodiscard]] ptr<NodeInfo> getSrcNodeInfo() const {
         CHECK_STATE(srcNodeInfo);
         return srcNodeInfo;
     }
 
-    virtual ~MessageEnvelope() {};
+    virtual ~MessageEnvelope();;
 
 
 };
