@@ -31,10 +31,7 @@
 
 #include "MockupSigShareSet.h"
 
-
-
 using namespace std;
-
 
 MockupSigShareSet::MockupSigShareSet(block_id _blockId, size_t _totalSigners, size_t _requiredSigners)
         : ThresholdSigShareSet(_blockId, _totalSigners, _requiredSigners){
@@ -49,44 +46,35 @@ MockupSigShareSet::~MockupSigShareSet() {
     totalObjects--;
 }
 
-
 ptr<ThresholdSignature> MockupSigShareSet::mergeSignature() {
 
-    LOCK(m)
+    string h("");
 
-    string h = "";
+    LOCK( sigSharesLock )
 
     for (auto&& item : sigShares) {
         CHECK_STATE(item.second);
-
-        if (h == "") {
+        if (h.empty()) {
             h = item.second->toString();
-        } else {
-//            CHECK_STATE(h == item.second->toString());
         }
     }
-    CHECK_STATE(h != "");
+    CHECK_STATE(!h.empty());
 
     return make_shared<MockupSignature>(h, blockId,
                                         totalSigners, requiredSigners);
 }
 
 bool MockupSigShareSet::isEnough() {
-    LOCK(m)
+    LOCK( sigSharesLock )
     return (sigShares.size() >= requiredSigners);
 }
 
 
-
-
-
 bool MockupSigShareSet::addSigShare(const ptr<ThresholdSigShare>& _sigShare) {
 
-    CHECK_ARGUMENT(_sigShare != nullptr);
+    CHECK_ARGUMENT(_sigShare);
 
-
-    LOCK(m)
-
+    LOCK( sigSharesLock )
 
     if (isEnough())
        return false;
@@ -97,7 +85,7 @@ bool MockupSigShareSet::addSigShare(const ptr<ThresholdSigShare>& _sigShare) {
 
     ptr<MockupSigShare> mss = dynamic_pointer_cast<MockupSigShare>(_sigShare);
 
-    CHECK_STATE(mss != nullptr);
+    CHECK_STATE(mss);
 
     sigShares[(uint64_t )_sigShare->getSignerIndex()] = mss;
 

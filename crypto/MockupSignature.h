@@ -24,9 +24,6 @@
 #ifndef SKALED_MOCKUPSIGNATURE_H
 #define SKALED_MOCKUPSIGNATURE_H
 
-// constexpr uint64_t  MAX_BLS_SIGNATURE_SIZE = 64;
-
-
 #include "BLSSignature.h"
 #include "ThresholdSignature.h"
 
@@ -35,12 +32,13 @@ class MockupSignature : public ThresholdSignature {
     string s;
 
 public:
+
     MockupSignature(
         const string& _s, block_id _blockID, size_t _totalSigners, size_t _requiredSigners );
 
-    string toString();
+    string toString() override;
 
-    uint64_t getRandom();
+    uint64_t getRandom() override;
 };
 
 

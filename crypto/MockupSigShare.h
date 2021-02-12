@@ -41,9 +41,9 @@ public:
     MockupSigShare(const string& _sigShare, schain_id _schainID, block_id _blockID, schain_index _signerIndex,
                    size_t _totalSigners, size_t _requiredSigners);
 
-    virtual string toString();
+    string toString() override;
 
-    virtual ~MockupSigShare();
+    ~MockupSigShare() override;
 };
 
 

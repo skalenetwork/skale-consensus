@@ -45,12 +45,12 @@ public:
     ConsensusBLSSignature(const ptr< BLSSignature >& _blsSig, block_id _blockID, size_t _totalSigners,
         size_t _requiredSigners );
 
-    string toString();
+    string toString() override;
 
 
-    uint64_t getRandom();
+    uint64_t getRandom() override;
 
-    ptr<BLSSignature> getBlsSig() const;
+    [[nodiscard]] ptr<BLSSignature> getBlsSig() const;
 };
 
 

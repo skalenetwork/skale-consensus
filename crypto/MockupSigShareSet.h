@@ -36,11 +36,9 @@ class  BLAKE3Hash;
 
 class MockupSigShareSet : public ThresholdSigShareSet {
 
-    recursive_mutex m;
 
-    bool wasMerged = false;
-
-    std::map<size_t, ptr<MockupSigShare> > sigShares;
+    std::map<size_t, ptr<MockupSigShare> > sigShares; //tsafe
+    recursive_mutex sigSharesLock;
 
 public:
     MockupSigShareSet(block_id _blockId, size_t _totalSigners, size_t _requiredSigners );

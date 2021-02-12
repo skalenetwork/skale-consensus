@@ -21,13 +21,16 @@
     @date 2018
 */
 
-#include "TransactionList.h"
-#include "Agent.h"
 #include "SkaleCommon.h"
 #include "Log.h"
-#include "Transaction.h"
+#include "Agent.h"
+
 #include "exceptions/InvalidArgumentException.h"
 #include "exceptions/ParsingException.h"
+
+#include "Transaction.h"
+#include "TransactionList.h"
+
 
 
 TransactionList::TransactionList(const ptr<vector<ptr<Transaction>>>& _transactions) {
@@ -35,13 +38,6 @@ TransactionList::TransactionList(const ptr<vector<ptr<Transaction>>>& _transacti
     CHECK_ARGUMENT(_transactions);
 
     totalObjects++;
-
-    if (_transactions->size() == 0) {
-        transactions = make_shared<vector<ptr<Transaction>>>();
-        return;
-    }
-
-    CHECK_ARGUMENT(_transactions != nullptr);
 
     transactions = _transactions;
 }
@@ -111,7 +107,7 @@ ptr<vector<ptr<Transaction>>> TransactionList::getItems() {
 
 ptr<vector<uint8_t> > TransactionList::serialize( bool _writeTxPartialHash ) {
 
-    LOCK(m)
+    LOCK(serializedTransactionsLock);
 
     if (serializedTransactions)
         return serializedTransactions;
@@ -122,13 +118,11 @@ ptr<vector<uint8_t> > TransactionList::serialize( bool _writeTxPartialHash ) {
         totalSize += transaction->getSerializedSize(true);
     }
 
-
     serializedTransactions = make_shared<vector<uint8_t>>();
 
     serializedTransactions->reserve(totalSize + 2);
 
     serializedTransactions->push_back('<');
-
 
     for (auto &&transaction : *transactions) {
         transaction->serializeInto( serializedTransactions, _writeTxPartialHash);
@@ -159,7 +153,9 @@ ptr<ConsensusExtFace::transactions_vector> TransactionList::createTransactionVec
 
     auto tv = make_shared<ConsensusExtFace::transactions_vector >();
 
-    for ( auto&& t : *getItems() ) {
+    CHECK_STATE(transactions);
+
+    for ( auto&& t : *transactions ) {
         tv->push_back( *( t->getData() ) );
     }
     return tv;
@@ -197,6 +193,7 @@ ptr<vector<uint64_t>> TransactionList::createTransactionSizesVector(bool _writeP
 
 ptr< TransactionList > TransactionList::createRandomSample( uint64_t _size, boost::random::mt19937& _gen,
                                                        boost::random::uniform_int_distribution<>& _ubyte ) {
+
     auto sample = make_shared<vector< ptr< Transaction > > >();
 
     for ( uint32_t j = 0; j < _size; j++ ) {

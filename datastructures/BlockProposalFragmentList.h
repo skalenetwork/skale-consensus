@@ -40,8 +40,8 @@ class BlockProposalFragment;
 class BlockProposalFragmentList : public DataStructure {
 
     int64_t blockSize = -1;
-    string blockHash = "";
 
+    string blockHash = "";
 
     bool isSerialized = false;
 
@@ -54,7 +54,6 @@ class BlockProposalFragmentList : public DataStructure {
     list<uint64_t> missingFragments;
 
     void checkSanity();
-
 
     static boost::random::mt19937 gen;
 

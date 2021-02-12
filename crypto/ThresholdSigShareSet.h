@@ -28,13 +28,14 @@ class ThresholdSigShare;
 
 class ThresholdSigShareSet {
 public:
-    ThresholdSigShareSet(const block_id _blockId, uint64_t _totalSigners, uint64_t _requiredSigners);
+
+    ThresholdSigShareSet(block_id _blockId, uint64_t _totalSigners, uint64_t _requiredSigners);
 
 protected:
     block_id blockId;
     uint64_t totalSigners;
     uint64_t requiredSigners;
-    recursive_mutex m;
+
     static atomic<int64_t>  totalObjects;
 
 public:

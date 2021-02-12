@@ -201,14 +201,12 @@ uint32_t BlockProposal::getTimeStampMs() const {
 }
 
 void BlockProposal::addSignature(const string &_signature) {
-    LOCK(m)
-    CHECK_ARGUMENT(_signature != "")
+    CHECK_ARGUMENT(!_signature.empty())
     signature = _signature;
 }
 
 string BlockProposal::getSignature() {
-    LOCK(m)
-    CHECK_STATE(signature != "");
+    CHECK_STATE(!signature.empty())
     return signature;
 }
 
@@ -220,7 +218,7 @@ ptr<BlockProposalRequestHeader> BlockProposal::createBlockProposalHeader(Schain 
 
     LOCK(_proposal->m);
 
-    if (_proposal->header != nullptr)
+    if (_proposal->header)
         return _proposal->header;
 
     _proposal->header = make_shared<BlockProposalRequestHeader>(*_sChain, _proposal);

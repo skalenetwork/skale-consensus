@@ -32,9 +32,8 @@
 #include "DataStructure.h"
 
 
-
-#include "node/ConsensusEngine.h"
 #include "ListOfHashes.h"
+#include "node/ConsensusEngine.h"
 
 
 class Transaction;
@@ -42,52 +41,45 @@ class ConsensusExtFace;
 
 class TransactionList : public ListOfHashes {
 
-
-    ptr<vector<uint8_t>> serializedTransactions = nullptr;
-
-    ptr<vector<ptr<Transaction>>> transactions = nullptr;
-
-    TransactionList(const ptr<vector<uint64_t>>& _transactionSizes,
- const ptr<vector<uint8_t>>& _serializedTransactions, uint32_t _offset, bool _checkPartialHash );
+    ptr< vector< ptr< Transaction > > > transactions = nullptr; // tsafe
 
 
+    ptr< vector< uint8_t > > serializedTransactions = nullptr; // tsafe
+    recursive_mutex serializedTransactionsLock;
+
+    TransactionList( const ptr< vector< uint64_t > >& _transactionSizes,
+        const ptr< vector< uint8_t > >& _serializedTransactions, uint32_t _offset,
+        bool _checkPartialHash );
 
 public:
+    static atomic< int64_t > totalObjects;
 
-    TransactionList(const ptr<vector<ptr<Transaction>>>& _transactions);
+    explicit TransactionList( const ptr< vector< ptr< Transaction > > >& _transactions ) ;
 
+    ptr< vector< ptr< Transaction > > > getItems();
 
-    ptr<vector<ptr<Transaction>>> getItems() ;
-
-    ptr<vector<uint8_t>> serialize( bool _writeTxPartialHash );
+    ptr< vector< uint8_t > > serialize( bool _writeTxPartialHash );
 
     size_t size();
 
+    ~TransactionList() override;
 
-    static atomic<int64_t>  totalObjects;
+    ptr< ConsensusExtFace::transactions_vector > createTransactionVector();
 
-    static int64_t getTotalObjects() {
-        return totalObjects;
-    }
+    ptr< vector< uint64_t > > createTransactionSizesVector( bool _writePartialHash );
 
-    virtual ~TransactionList();
+    ptr< BLAKE3Hash > getHash( uint64_t _index ) override;
 
-    ptr<ConsensusExtFace::transactions_vector> createTransactionVector();
+    uint64_t hashCount() override;
 
+    static int64_t getTotalObjects() { return totalObjects; }
 
-    ptr<vector<uint64_t>> createTransactionSizesVector(bool _writePartialHash);
-
-    static ptr< TransactionList > deserialize(const ptr<vector<uint64_t>>& _transactionSizes,
- const ptr<vector<uint8_t>>& _serializedTransactions, uint32_t _offset,
+    static ptr< TransactionList > deserialize( const ptr< vector< uint64_t > >& _transactionSizes,
+        const ptr< vector< uint8_t > >& _serializedTransactions, uint32_t _offset,
         bool _writePartialHash );
 
     static ptr< TransactionList > createRandomSample( uint64_t _size, boost::random::mt19937& _gen,
-                                                           boost::random::uniform_int_distribution<>& _ubyte );
+        boost::random::uniform_int_distribution<>& _ubyte );
 
-    ptr<BLAKE3Hash>getHash(uint64_t _index);
 
-    uint64_t hashCount() override;
 };
-
-
-

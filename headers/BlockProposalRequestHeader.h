@@ -29,7 +29,7 @@
 
 class BlockProposalRequestHeader : public AbstractBlockRequestHeader{
 
-
+    recursive_mutex m;
 
     node_id proposerNodeID{};
     string hash;
