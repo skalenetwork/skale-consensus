@@ -414,12 +414,20 @@ bool CryptoManager::verifyECDSASig( const ptr< BLAKE3Hash >& _hash, const string
     CHECK_ARGUMENT( _sig != "" )
 
     if ( isSGXEnabled ) {
-        if ( ecdsaPublicKeyMap.count( ( uint64_t ) _nodeId ) == 0 ) {
-            // if there is no key report the signature as failed
-            return false;
+
+        string pubKey;
+
+        {
+            LOCK( ecdsaPublicKeyMapLock )
+
+            if ( ecdsaPublicKeyMap.count( ( uint64_t ) _nodeId ) == 0 ) {
+                // if there is no key report the signature as failed
+                return false;
+            }
+
+            pubKey = ecdsaPublicKeyMap.at( ( uint64_t ) _nodeId );
         }
 
-        auto pubKey = ecdsaPublicKeyMap.at( ( uint64_t ) _nodeId );
         CHECK_STATE( pubKey != "" );
         auto result = verifyECDSA( _hash, _sig, pubKey );
 
@@ -698,41 +706,6 @@ bool CryptoManager::verifyProposalECDSA(
     return true;
 }
 
-ptr< ThresholdSignature > CryptoManager::verifyThresholdSig(
-    const ptr< BLAKE3Hash >& _hash, const string& _signature, block_id _blockId ) {
-    MONITOR( __CLASS_NAME__, __FUNCTION__ )
-
-    CHECK_ARGUMENT( _hash );
-    CHECK_ARGUMENT( _signature != "" );
-
-    if ( getSchain()->getNode()->isSgxEnabled() ) {
-        auto sig = make_shared< ConsensusBLSSignature >(
-            _signature, _blockId, totalSigners, requiredSigners );
-
-        CHECK_STATE( blsPublicKeyObj );
-
-        auto sharedHash = make_shared< std::array< uint8_t, 32 > >(_hash->getHash());
-
-        if ( !blsPublicKeyObj->VerifySig(
-                 sharedHash, sig->getBlsSig(), requiredSigners, totalSigners ) ) {
-            BOOST_THROW_EXCEPTION(
-                InvalidStateException( "BLS Signature did not verify", __CLASS_NAME__ ) );
-        }
-
-        return sig;
-
-    } else {
-        auto sig =
-            make_shared< MockupSignature >( _signature, _blockId, requiredSigners, totalSigners );
-
-        if ( sig->toString() != _hash->toHex() ) {
-            BOOST_THROW_EXCEPTION( InvalidArgumentException(
-                "Mockup threshold signature did not verify", __CLASS_NAME__ ) );
-        }
-        return sig;
-    }
-}
-
 
 ptr< ThresholdSignature > CryptoManager::verifyDAProofThresholdSig(
     const ptr< BLAKE3Hash >& _hash, const string& _signature, block_id _blockId ) {
@@ -879,6 +852,8 @@ void CryptoManager::generateSSLClientCertAndKey( string& _fullPathToDir ) {
 ptr< StubClient > CryptoManager::getSgxClient() {
     auto tid = ( uint64_t ) pthread_self();
 
+    LOCK(clientsLock);
+
     if ( httpClients.count( tid ) == 0 ) {
         CHECK_STATE( sgxClients.count( tid ) == 0 );
 
@@ -895,3 +870,15 @@ ptr< StubClient > CryptoManager::getSgxClient() {
 bool CryptoManager::retryHappened = false;
 
 string CryptoManager::sgxURL = "";
+bool CryptoManager::isRetryHappened() {
+    return retryHappened;
+}
+void CryptoManager::setRetryHappened( bool retryHappened ) {
+    CryptoManager::retryHappened = retryHappened;
+}
+const string& CryptoManager::getSgxUrl() {
+    return sgxURL;
+}
+void CryptoManager::setSgxUrl( const string& sgxUrl ) {
+    sgxURL = sgxUrl;
+}
