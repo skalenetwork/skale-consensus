@@ -23,7 +23,6 @@
 
 #pragma  once
 
-
 #include "InternalMessage.h"
 
 class ProtocolInstance;

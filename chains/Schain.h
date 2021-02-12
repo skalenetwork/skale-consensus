@@ -134,11 +134,7 @@ private:
 
     uint64_t maxExternalBlockProcessingTime = 0;
 
-    /*** Queue of unprocessed messages for this schain instance
-     */
     queue< ptr< MessageEnvelope > > messageQueue;
-
-    queue< uint64_t > dispatchQueue;
 
     ptr< NodeInfo > thisNodeInfo = nullptr;
 

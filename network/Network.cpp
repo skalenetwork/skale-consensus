@@ -353,12 +353,6 @@ bool Network::validateIpAddress(const string & _ip ) {
     return result != 0;
 }
 
-
-void Network::waitUntilExit() {
-    networkReadThread->join();
-    deferredMessageThread->join();
-}
-
 string Network::ipToString(uint32_t _ip) {
     char *ip = (char *) &_ip;
     return string(

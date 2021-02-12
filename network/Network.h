@@ -23,13 +23,9 @@
 
 #pragma once
 
-
-
-
 #include "Agent.h"
 
 class Schain;
-
 class NetworkMessageEnvelope;
 class NodeInfo;
 class NetworkMessage;
@@ -40,6 +36,8 @@ class Schain;
 enum TransportType {ZMQ};
 
 class Network : public Agent  {
+
+protected:
 
     vector<recursive_mutex> delayedSendsLocks;
 
@@ -53,22 +51,17 @@ class Network : public Agent  {
 
     uint64_t   catchupBlocks = 0;
 
+    ptr<thread> networkReadThread;
 
+    ptr<thread> deferredMessageThread;
 
-
-
-protected:
 
     static TransportType transport;
 
-
     explicit Network(Schain& _sChain);
-    /**
-     * Mutex that controls access to inbox
-     */
-    recursive_mutex deferredMessageMutex;
 
     map<block_id, ptr<vector<ptr<NetworkMessageEnvelope>>>> deferredMessageQueue;
+    recursive_mutex deferredMessageMutex;
 
     virtual void addToDeferredMessageQueue(const ptr<NetworkMessageEnvelope>& _me);
 
@@ -77,23 +70,13 @@ protected:
     virtual bool sendMessage(const ptr<NodeInfo> &remoteNodeInfo, const ptr<NetworkMessage>& _msg) = 0;
 
 
-    ptr<thread> networkReadThread;
-
-    ptr<thread> deferredMessageThread;
-
-
 public:
-
 
     void startThreads();
 
     void deferredMessagesLoop();
 
     void networkReadLoop();
-
-    void waitUntilExit();
-
-
 
     static string ipToString(uint32_t _ip);
 

@@ -40,7 +40,7 @@ public:
     NetworkMessageEnvelope(const ptr <NetworkMessage> &message,
                            const ptr <NodeInfo> &realSender);
 
-    uint64_t getArrivalTime() const;
+    [[nodiscard]] uint64_t getArrivalTime() const;
 
 };
 

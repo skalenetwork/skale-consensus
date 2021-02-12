@@ -89,7 +89,7 @@ public:
 
     [[nodiscard]] virtual bin_consensus_round getRound() const;
 
-    [[nodiscard]]virtual bin_consensus_value getValue() const;
+    [[nodiscard]] virtual bin_consensus_value getValue() const;
 
     void printMessage();
 
