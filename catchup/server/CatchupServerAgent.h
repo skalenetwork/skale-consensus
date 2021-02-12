@@ -23,23 +23,18 @@
 
 #pragma once
 
-
-
-
-
+#include "abstracttcpserver/AbstractServerAgent.h"
+#include "abstracttcpserver/ConnectionStatus.h"
+#include <condition_variable>
 #include <mutex>
 #include <queue>
-#include <condition_variable>
-#include "abstracttcpserver/ConnectionStatus.h"
-#include "abstracttcpserver/AbstractServerAgent.h"
 
-#include "headers/Header.h"
-#include "network/ServerConnection.h"
 #include "datastructures/PartialHashesList.h"
 #include "headers/Header.h"
+#include "network/ServerConnection.h"
 
-#include "CatchupWorkerThreadPool.h"
 #include "Agent.h"
+#include "CatchupWorkerThreadPool.h"
 
 class CommittedBlock;
 class CommittedBlockList;
@@ -48,27 +43,26 @@ class BlockFinalizeResponseHeader;
 
 class CatchupServerAgent : public AbstractServerAgent {
 
-   ptr<CatchupWorkerThreadPool> catchupWorkerThreadPool;
+    ptr< CatchupWorkerThreadPool > catchupWorkerThreadPool;
+
+    ptr< vector< uint8_t > > createBlockCatchupResponse( nlohmann::json _jsonRequest,
+        const ptr< CatchupResponseHeader >& _responseHeader, block_id _blockID );
 
 
-    ptr<vector<uint8_t>>createBlockCatchupResponse( nlohmann::json _jsonRequest,
-                                                         const ptr<CatchupResponseHeader>& _responseHeader, block_id _blockID);
-
-
-    ptr<vector<uint8_t>>createBlockFinalizeResponse( nlohmann::json _jsonRequest,
-                                                    const ptr<BlockFinalizeResponseHeader>& _responseHeader, block_id _blockID);
+    ptr< vector< uint8_t > > createBlockFinalizeResponse( nlohmann::json _jsonRequest,
+        const ptr< BlockFinalizeResponseHeader >& _responseHeader, block_id _blockID );
 
 
 public:
-    CatchupServerAgent(Schain &_schain, const ptr<TCPServerSocket>& _s);
+
+    CatchupServerAgent( Schain& _schain, const ptr< TCPServerSocket >& _s );
+
     ~CatchupServerAgent() override;
 
-    CatchupWorkerThreadPool *getCatchupWorkerThreadPool() const;
+    ptr< vector< uint8_t > > createResponseHeaderAndBinary(
+        const ptr< ServerConnection >& _connectionEnvelope, nlohmann::json _jsonRequest,
+        const ptr< Header >& _responseHeader );
 
-    ptr<vector<uint8_t>> createResponseHeaderAndBinary(const ptr<ServerConnection>& _connectionEnvelope,
-                                                       nlohmann::json _jsonRequest, const ptr<Header>& _responseHeader);
+    void processNextAvailableConnection( const ptr< ServerConnection >& _connection ) override;
 
-    void processNextAvailableConnection(const ptr<ServerConnection>& _connection) override;
-
-    ptr<vector<uint8_t>> getSerializedBlock(uint64_t i) const;
 };

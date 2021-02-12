@@ -74,15 +74,6 @@ bool ConsensusSigShareSet::isEnough() {
 }
 
 
-bool ConsensusSigShareSet::isEnoughMinusOne() {
-    {
-        LOCK( m );
-        auto sigsCount = blsSet.getTotalSigSharesCount();
-        return sigsCount >= requiredSigners - 1;
-    }
-}
-
-
 bool ConsensusSigShareSet::addSigShare( const ptr< ThresholdSigShare >& _sigShare ) {
     CHECK_ARGUMENT( _sigShare );
     ptr< ConsensusBLSSigShare > s = dynamic_pointer_cast< ConsensusBLSSigShare >( _sigShare );

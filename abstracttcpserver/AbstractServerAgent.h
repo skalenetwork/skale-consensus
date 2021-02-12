@@ -49,10 +49,9 @@ protected:
 
     condition_variable incomingTCPConnectionsCond;
 
-
+    queue<ptr<ServerConnection>> incomingTCPConnections; // thread safe
 
     void send(const ptr<ServerConnection>& _connectionEnvelope, const ptr<Header>& _header);
-
 
 
 public:
@@ -60,11 +59,6 @@ public:
     AbstractServerAgent(const string &_name, Schain &_schain, const ptr<TCPServerSocket>& _socket);
 
     ~AbstractServerAgent() override;
-
-
-    queue<ptr<ServerConnection>> incomingTCPConnections;
-
-
 
 
     void pushToQueueAndNotifyWorkers(const ptr<ServerConnection>& _connectionEnvelope );

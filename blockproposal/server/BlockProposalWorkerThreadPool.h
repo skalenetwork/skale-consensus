@@ -23,7 +23,6 @@
 
 #pragma once
 
-
 #include "threads/WorkerThreadPool.h"
 
 
@@ -34,5 +33,5 @@ class BlockProposalWorkerThreadPool : public WorkerThreadPool {
 public:
     BlockProposalWorkerThreadPool( num_threads _numThreads, Agent* _agent );
 
-    virtual void createThread( uint64_t _threadNumber );
+    void createThread( uint64_t _threadNumber ) override;
 };

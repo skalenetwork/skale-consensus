@@ -24,7 +24,6 @@
 #ifndef SKALED_CONSENSUSEDDSASIGSHARE_H
 #define SKALED_CONSENSUSEDDSASIGSHARE_H
 
-
 #include "ThresholdSigShare.h"
 #include "CryptoManager.h"
 
@@ -37,7 +36,7 @@ public:
     ConsensusEdDSASigShare(const string& _sigShare, schain_id _schainID, block_id _blockID, schain_index _signerIndex,
                          uint64_t _totalSigners, uint64_t _requiredSigners);
 
-    virtual string toString();
+    string toString() override;
 
     void verify(CryptoManager& _cryptoManager, schain_index _signerIndex,
                 ptr< BLAKE3Hash >& _hash, node_id _nodeId);

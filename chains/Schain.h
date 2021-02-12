@@ -54,7 +54,6 @@ class CatchupClientAgent;
 class CatchupServerAgent;
 class MonitoringAgent;
 class TimeoutAgent;
-class CryptoManager;
 
 class BlockProposalServerAgent;
 
@@ -74,6 +73,7 @@ class ConsensusBLSSigShare;
 class ThresholdSigShare;
 class BooleanProposalVector;
 class TimeStamp;
+class CryptoManager;
 
 class Schain : public Agent {
     bool bootStrapped = false;

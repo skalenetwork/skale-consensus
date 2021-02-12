@@ -32,12 +32,11 @@ class CatchupResponseHeader;
 
 class CatchupClientAgent : public Agent {
 
-public:
-
     ptr< CatchupClientThreadPool > catchupClientThreadPool = nullptr;
 
+public:
 
-    CatchupClientAgent( Schain& _sChain );
+    explicit CatchupClientAgent( Schain& _sChain );
 
 
     void sync( schain_index _dstIndex );

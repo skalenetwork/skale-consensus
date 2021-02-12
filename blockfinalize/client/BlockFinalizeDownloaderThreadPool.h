@@ -37,7 +37,7 @@ public:
 
     void startService() override;
 
-    virtual ~BlockFinalizeDownloaderThreadPool();
+    ~BlockFinalizeDownloaderThreadPool() override;
 
 };
 

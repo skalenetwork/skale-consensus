@@ -51,7 +51,7 @@ protected:
     virtual pair< ConnectionStatus, ConnectionSubStatus > sendItemImpl(const ptr< SendableItem >& _item,
         const ptr< ClientSocket >& _socket, schain_index _destIndex ) = 0;
 
-    std::map< schain_index, ptr< queue< ptr< SendableItem >>>> itemQueue;
+    std::map< schain_index, ptr< queue< ptr< SendableItem >>>> itemQueue; // thread safe
 
     uint64_t incrementAndReturnThreadCounter();
 

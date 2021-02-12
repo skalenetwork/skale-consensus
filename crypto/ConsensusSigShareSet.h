@@ -49,8 +49,6 @@ public:
 
     bool isEnough() override;
 
-    bool isEnoughMinusOne();
-
     ~ConsensusSigShareSet() override;
 
 

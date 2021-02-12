@@ -52,7 +52,6 @@ ptr< ThresholdSignature > ConsensusEdDSASigShareSet::mergeSignature() {
 
     {
         LOCK( m );
-
         for ( auto&& entry : edDSASet ) {
             mergedSig.append( entry.second );
             mergedSig.append( "*" );
@@ -74,12 +73,6 @@ bool ConsensusEdDSASigShareSet::isEnough() {
 }
 
 
-bool ConsensusEdDSASigShareSet::isEnoughMinusOne() {
-    LOCK(m);
-    return edDSASet.size() >= requiredSigners - 1;
-}
-
-
 bool ConsensusEdDSASigShareSet::addSigShare( const ptr< ThresholdSigShare >& _sigShare ) {
     CHECK_ARGUMENT( _sigShare );
     ptr< ConsensusEdDSASigShare > s = dynamic_pointer_cast< ConsensusEdDSASigShare >( _sigShare );
@@ -89,8 +82,7 @@ bool ConsensusEdDSASigShareSet::addSigShare( const ptr< ThresholdSigShare >& _si
     LOCK(m) {
         if ( edDSASet.count( index ) > 0 )
             return false;
-
-        edDSASet[index] = s->toString();
+        edDSASet.emplace(index, s->toString());
     }
 
     return true;

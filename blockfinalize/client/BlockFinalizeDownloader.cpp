@@ -58,7 +58,7 @@
 
 #include "chains/Schain.h"
 #include "datastructures/BlockProposalFragment.h"
-#include "datastructures/BlockProposalSet.h"
+
 #include "datastructures/CommittedBlock.h"
 #include "db/BlockProposalDB.h"
 #include "db/DAProofDB.h"
@@ -77,16 +77,14 @@ BlockFinalizeDownloader::BlockFinalizeDownloader(Schain *_sChain, block_id _bloc
           proposerIndex(_proposerIndex),
           fragmentList(_blockId, (uint64_t) _sChain->getNodeCount() - 1) {
 
-    CHECK_ARGUMENT(_sChain);
+    CHECK_ARGUMENT(_sChain)
 
-    CHECK_STATE(_sChain->getNodeCount() > 1);
+    CHECK_STATE(_sChain->getNodeCount() > 1)
 
     try {
         logThreadLocal_ = _sChain->getNode()->getLog();
 
-        CHECK_STATE(sChain);
-
-        threadCounter = 0;
+        CHECK_STATE(sChain)
 
     }
     catch (ExitRequestedException &) { throw; }
@@ -97,8 +95,8 @@ BlockFinalizeDownloader::BlockFinalizeDownloader(Schain *_sChain, block_id _bloc
 
 
 nlohmann::json BlockFinalizeDownloader::readBlockFinalizeResponseHeader(const ptr<ClientSocket>& _socket) {
-    MONITOR(__CLASS_NAME__, __FUNCTION__);
-    CHECK_ARGUMENT(_socket);
+    MONITOR(__CLASS_NAME__, __FUNCTION__)
+    CHECK_ARGUMENT(_socket)
     return getSchain()->getIo()->readJsonHeader(_socket->getDescriptor(), "Read BlockFinalize response");
 }
 
@@ -109,7 +107,7 @@ uint64_t BlockFinalizeDownloader::downloadFragment(schain_index _dstIndex, fragm
 
         auto header = make_shared<BlockFinalizeRequestHeader>(*sChain, blockId, proposerIndex,
                 this->getNode()->getNodeID(), _fragmentIndex);
-        CHECK_STATE(_dstIndex != (uint64_t) getSchain()->getSchainIndex());
+        CHECK_STATE(_dstIndex != (uint64_t) getSchain()->getSchainIndex())
         auto socket = make_shared<ClientSocket>(*sChain, _dstIndex, CATCHUP);
         auto io = getSchain()->getIo();
 
@@ -157,11 +155,11 @@ uint64_t BlockFinalizeDownloader::downloadFragment(schain_index _dstIndex, fragm
         }
 
 
-        ptr<BlockProposalFragment> blockFragment = nullptr;
+        ptr<BlockProposalFragment> blockFragment;
 
         try {
             blockFragment = readBlockFragment(socket, response, _fragmentIndex, getSchain()->getNodeCount());
-            CHECK_ARGUMENT(blockFragment);
+            CHECK_ARGUMENT(blockFragment)
         } catch (ExitRequestedException &) { throw; } catch (...) {
             auto errString = "BlockFinalizec step 3: can not read fragment";
             LOG(err, errString);
