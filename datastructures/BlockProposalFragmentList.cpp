@@ -91,16 +91,13 @@ bool BlockProposalFragmentList::addFragment(const ptr<BlockProposalFragment>& _f
 
     checkSanity();
 
-
     nextIndex = 0;
 
     if (fragments.find(_fragment->getIndex()) != fragments.end()) {
         return false;
     }
 
-
-    fragments[_fragment->getIndex()] = _fragment->serialize();
-
+    fragments.emplace(_fragment->getIndex(),_fragment->serialize());
 
     std::list<uint64_t>::iterator findIter = std::find(missingFragments.begin(), missingFragments.end(),
                                                        _fragment->getIndex());
@@ -116,12 +113,9 @@ bool BlockProposalFragmentList::addFragment(const ptr<BlockProposalFragment>& _f
 
     CHECK_STATE(missingFragments.size() > 0);
 
-
     nextIndex = nextIndexToRetrieve();
 
     CHECK_STATE(nextIndex > 0);
-
-
 
     return true;
 }

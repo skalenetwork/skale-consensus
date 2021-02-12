@@ -62,10 +62,7 @@ ptr<BLAKE3Hash> BlockProposal::getHash() {
 
 void BlockProposal::calculateHash() {
 
-
     HASH_INIT(hasher);
-
-
 
     HASH_UPDATE(hasher, proposerIndex);
     HASH_UPDATE(hasher, proposerNodeID);
@@ -287,7 +284,7 @@ ptr<BlockProposal> BlockProposal::deserialize(const ptr<vector<uint8_t> > &_seri
 
     string headerStr = BlockProposal::extractHeader(_serializedProposal);
 
-    CHECK_STATE(headerStr != "");
+    CHECK_STATE(!headerStr.empty());
 
     ptr<BlockProposalHeader> blockHeader;
 
@@ -305,7 +302,7 @@ ptr<BlockProposal> BlockProposal::deserialize(const ptr<vector<uint8_t> > &_seri
 
     auto sig = blockHeader->getSignature();
 
-    CHECK_STATE(sig != "");
+    CHECK_STATE(!sig.empty());
 
     auto proposal = make_shared<BlockProposal>(blockHeader->getSchainID(), blockHeader->getProposerNodeId(),
                                                blockHeader->getBlockID(), blockHeader->getProposerIndex(),

@@ -44,7 +44,7 @@ class BlockProposalFragment;
 class BlockProposalFragmentList;
 
 class BlockProposal : public SendableItem {
-    ptr< BlockProposalRequestHeader > header = nullptr;
+    ptr< BlockProposalRequestHeader > header = nullptr; // tsafe
 
     ptr< vector< uint8_t > > serializedProposal = nullptr;  // tsafe
 
@@ -60,7 +60,7 @@ protected:
 
     ptr< TransactionList > transactionList = nullptr;  // tsafe
 
-    ptr< BLAKE3Hash > hash = nullptr;
+    ptr< BLAKE3Hash > hash = nullptr; // tsafe
 
     string signature;
 
@@ -84,13 +84,13 @@ public:
         uint64_t _timeStamp, __uint32_t _timeStampMs, const string& _signature,
         const ptr< CryptoManager >& _cryptoManager );
 
-    uint64_t getTimeStampS() const;
+    [[nodiscard]]  uint64_t getTimeStampS() const;
 
-    uint32_t getTimeStampMs() const;
+    [[nodiscard]]  uint32_t getTimeStampMs() const;
 
-    schain_index getProposerIndex() const;
+    [[nodiscard]]  schain_index getProposerIndex() const;
 
-    node_id getProposerNodeID() const;
+    [[nodiscard]]   node_id getProposerNodeID() const;
 
     ptr< BLAKE3Hash > getHash();
 
@@ -98,13 +98,13 @@ public:
 
     ptr< TransactionList > getTransactionList();
 
-    block_id getBlockID() const;
+    [[nodiscard]]  block_id getBlockID() const;
 
-    virtual ~BlockProposal();
+    ~BlockProposal() override;
 
-    schain_id getSchainID() const;
+    [[nodiscard]]  schain_id getSchainID() const;
 
-    transaction_count getTransactionCount() const;
+    [[nodiscard]]  transaction_count getTransactionCount() const;
 
     void addSignature( const string& _signature );
 
@@ -114,9 +114,9 @@ public:
 
     ptr< BlockProposalFragment > getFragment( uint64_t _totalFragments, fragment_index _index );
 
-    u256 getStateRoot() const;
+    [[nodiscard]]  u256 getStateRoot() const;
 
-    ptr< BlockProposalRequestHeader > createRequestHeader();
+    [[nodiscard]]  ptr< BlockProposalRequestHeader > createRequestHeader();
 
     static ptr< BlockProposalRequestHeader > createBlockProposalHeader(
         Schain* _sChain, const ptr< BlockProposal >& _proposal );

@@ -25,17 +25,12 @@
 
 #include "DataStructure.h"
 
-
-
 class BooleanProposalVector : public DataStructure {
 
-
-
-private:
+    vector<bool> proposals; // thread safe
 
     uint64_t nodeCount = 0;
     uint64_t  trueCount = 0;
-    vector<bool> proposals;
 
 public:
 
@@ -45,7 +40,7 @@ public:
 
     bool getProposalValue(schain_index _index);
 
-    uint64_t getTrueCount() const;
+    [[nodiscard]] uint64_t getTrueCount() const;
 
     string toString();
 };
