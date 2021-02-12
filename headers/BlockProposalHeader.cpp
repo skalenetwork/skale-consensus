@@ -56,7 +56,7 @@ BlockProposalHeader::BlockProposalHeader(BlockProposal& _block) : BasicHeader(He
     this->blockHash = _block.getHash()->toHex();
     this->stateRoot = _block.getStateRoot();
     this->signature = _block.getSignature();
-    this->timeStamp = _block.getTimeStamp();
+    this->timeStamp = _block.getTimeStampS();
     this->timeStampMs = _block.getTimeStampMs();
     this->transactionSizes = make_shared<vector<uint64_t>>();
 

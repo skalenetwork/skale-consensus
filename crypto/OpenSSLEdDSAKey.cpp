@@ -94,7 +94,7 @@ EVP_PKEY* OpenSSLEdDSAKey::genFastKeyImpl() {
 
 string OpenSSLEdDSAKey::sign( const char* _hash ) {
     CHECK_ARGUMENT( _hash );
-    CHECK_STATE( this->edKey );
+    CHECK_STATE( this->edKey )
     CHECK_STATE( isPrivate );
     string fastSig = fastSignImpl( _hash );
     return fastSig;

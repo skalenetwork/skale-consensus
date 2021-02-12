@@ -54,8 +54,8 @@ using namespace std;
 PendingTransactionsAgent::PendingTransactionsAgent( Schain& ref_sChain )
     : Agent(ref_sChain, false)  {}
 
-ptr<BlockProposal> PendingTransactionsAgent::buildBlockProposal(block_id _blockID, uint64_t _previousBlockTimeStamp,
-    uint32_t _previousBlockTimeStampMs) {
+ptr<BlockProposal> PendingTransactionsAgent::buildBlockProposal(block_id _blockID,
+    ptr<TimeStamp> _previousBlockTimeStamp) {
 
     MICROPROFILE_ENTERI( "PendingTransactionsAgent", "sleep", MP_DIMGRAY );
     usleep(getNode()->getMinBlockIntervalMs() * 1000);
@@ -66,7 +66,8 @@ ptr<BlockProposal> PendingTransactionsAgent::buildBlockProposal(block_id _blockI
     CHECK_STATE(transactions);
     auto stateRoot = result.second;
 
-    while (Time::getCurrentTimeMs() <= _previousBlockTimeStamp * 1000 + _previousBlockTimeStampMs) {
+    while (Time::getCurrentTimeMs() <= _previousBlockTimeStamp->getS() * 1000 +
+                                            _previousBlockTimeStamp->getMs()) {
         usleep(10);
     }
 

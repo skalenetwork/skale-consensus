@@ -106,8 +106,7 @@ public:
 
     ptr<Transaction> getKnownTransactionByPartialHash(const ptr<partial_sha_hash> hash);
 
-    ptr<BlockProposal> buildBlockProposal(block_id _blockID, uint64_t  _previousBlockTimeStamp,
-                             uint32_t _previosBlockTimeStampMs);
+    ptr<BlockProposal> buildBlockProposal(block_id _blockID, ptr<TimeStamp> _timeStamp);
 
 
     virtual ~PendingTransactionsAgent() = default;

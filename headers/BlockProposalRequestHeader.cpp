@@ -67,7 +67,7 @@ BlockProposalRequestHeader::BlockProposalRequestHeader(Schain &_sChain, const pt
 
     proposerNodeID = _sChain.getNode()->getNodeID();
     txCount = (uint64_t) proposal->getTransactionCount();
-    timeStamp = proposal->getTimeStamp();
+    timeStamp = proposal->getTimeStampS();
     timeStampMs = proposal->getTimeStampMs();
 
     hash = proposal->getHash()->toHex();

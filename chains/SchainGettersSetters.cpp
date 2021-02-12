@@ -32,6 +32,7 @@
 #include "headers/BlockProposalRequestHeader.h"
 #include "monitoring/MonitoringAgent.h"
 #include "monitoring/TimeoutAgent.h"
+#include "utils/Time.h"
 
 #include "SchainMessageThreadPool.h"
 #include "crypto/ConsensusBLSSigShare.h"
@@ -178,7 +179,8 @@ uint64_t Schain::getTotalTransactions() const {
     return totalTransactions;
 }
 
-uint64_t Schain::getLastCommittedBlockTimeStamp() {
+ptr<TimeStamp>  Schain::getLastCommittedBlockTimeStamp() {
+    CHECK_STATE(lastCommittedBlockTimeStamp);
     return lastCommittedBlockTimeStamp;
 }
 
@@ -261,4 +263,19 @@ void Schain::createBlockConsensusInstance() {
 
 uint64_t Schain::getLastCommitTimeMs() {
     return lastCommitTimeMs;
+}
+
+void Schain::updateLastCommittedBlockInfo( uint64_t _lastCommittedBlockID,
+                                   ptr< TimeStamp > _lastCommittedBlockTimeStamp ){
+    CHECK_STATE(_lastCommittedBlockTimeStamp);
+    CHECK_STATE(_lastCommittedBlockID >= lastCommittedBlockID)
+    CHECK_STATE(*lastCommittedBlockTimeStamp < *_lastCommittedBlockTimeStamp
+        ||  lastCommittedBlockID == 0);
+
+    lastCommittedBlockID = _lastCommittedBlockID;
+    lastCommittedBlockTimeStamp = _lastCommittedBlockTimeStamp;
+    auto currentTime = Time::getCurrentTimeMs();
+    CHECK_STATE(currentTime > lastCommitTimeMs);
+    lastCommitTimeMs = currentTime;
+
 }
