@@ -23,7 +23,7 @@
 
 #pragma  once
 
-#include <stdint.h>
+#include <cstdint>
 #include "abstracttcpserver/ConnectionStatus.h"
 
 class Utils {

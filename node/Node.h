@@ -28,52 +28,32 @@
 using namespace std;
 
 class Sockets;
-
 class Network;
-
 class ZMQNetwork;
-
 class BlockProposalServerAgent;
-
 class CatchupServerAgent;
-
 class NetworkMessageEnvelope;
-
 class NodeInfo;
-
 class Schain;
-
 class NodeInfo;
-
 class Agent;
-
 class ConsensusExtFace;
-
 class ConsensusEngine;
-
 class ConsensusBLSSigShare;
-
 class  BLAKE3Hash;
-
 class BLSPublicKey;
-
 class BLSPrivateKeyShare;
-
 class CacheLevelDB;
 class BlockDB;
 class BlockProposalDB;
 class RandomDB;
 class PriceDB;
-
 class ProposalHashDB;
 class ProposalVectorDB;
 class MsgDB;
 class ConsensusStateDB;
-
 class TestConfig;
-
 class BlockSigShareDB;
-
 class DASigShareDB;
 class DAProofDB;
 
@@ -86,28 +66,27 @@ enum PricingStrategyEnum { ZERO, DOS_PROTECT };
 
 
 class Node {
+    
     ConsensusEngine* consensusEngine;
 
     vector< Agent* > agents;
+    recursive_mutex agentsLock;
 
     node_id nodeID;
 
-    std::mutex threadServerCondMutex;
+    mutex threadServerCondMutex;
 
+    condition_variable threadServerConditionVariable;
 
-    std::condition_variable threadServerConditionVariable;
+    mutex threadClientCondMutex;
 
+    condition_variable threadClientConditionVariable;
 
-    std::mutex threadClientCondMutex;
+    atomic_bool startedServers;
 
-    std::condition_variable threadClientConditionVariable;
+    atomic_bool startedClients;
 
-
-    std::atomic_bool startedServers;
-
-    std::atomic_bool startedClients;
-
-    std::atomic_bool exitRequested;
+    atomic_bool exitRequested;
 
     ptr< SkaleLog > log = nullptr;
     string name = "";
@@ -137,38 +116,27 @@ class Node {
     };
 
 
-    ptr< map< uint64_t, ptr< NodeInfo > > > nodeInfosByIndex;
-    ptr< map< uint64_t, ptr< NodeInfo > > > nodeInfosById;
-
+    ptr< map< uint64_t, ptr< NodeInfo > > > nodeInfosByIndex; //tsafe
+    ptr< map< uint64_t, ptr< NodeInfo > > > nodeInfosById; //tsafe
 
     bool sgxEnabled = false;
 
+    string ecdsaKeyName;
 
+    ptr< vector<string> > ecdsaPublicKeys; // tsafe
 
-    string ecdsaKeyName = "";
-    ptr< vector<string> > ecdsaPublicKeys = nullptr;
-    string blsKeyName = "";
-    ptr< vector< ptr< vector<string>>>> blsPublicKeys = nullptr;
-    ptr< BLSPublicKey > blsPublicKey = nullptr;
+    string blsKeyName;
 
-    string sgxURL = "";
+    ptr< vector< ptr< vector<string>>>> blsPublicKeys; // tsafe
 
+    ptr< BLSPublicKey > blsPublicKey;
 
+    string sgxURL;
 
-    string sgxSSLKeyFileFullPath = "";
-    string sgxSSLCertFileFullPath = "";
+    string sgxSSLKeyFileFullPath;
+    string sgxSSLCertFileFullPath;
 
-
-
-    void releaseGlobalServerBarrier();
-
-    void releaseGlobalClientBarrier();
-
-
-    void closeAllSocketsAndNotifyAllAgentsAndThreads();
-
-
-    ptr< BlockDB > blockDB = nullptr;
+    ptr< BlockDB > blockDB;
 
     ptr< RandomDB > randomDB = nullptr;
 
@@ -176,22 +144,21 @@ class Node {
 
     ptr< ProposalHashDB > proposalHashDB = nullptr;
 
-    ptr< ProposalVectorDB > proposalVectorDB = nullptr;
+    ptr< ProposalVectorDB > proposalVectorDB ;
 
-    ptr< MsgDB > outgoingMsgDB = nullptr;
+    ptr< MsgDB > outgoingMsgDB;
 
-    ptr< MsgDB > incomingMsgDB = nullptr;
+    ptr< MsgDB > incomingMsgDB;
 
-    ptr< ConsensusStateDB > consensusStateDB = nullptr;
+    ptr< ConsensusStateDB > consensusStateDB;
 
+    ptr< BlockSigShareDB > blockSigShareDB;
 
-    ptr< BlockSigShareDB > blockSigShareDB = nullptr;
+    ptr< DASigShareDB > daSigShareDB;
 
-    ptr< DASigShareDB > daSigShareDB = nullptr;
+    ptr< DAProofDB > daProofDB;
 
-    ptr< DAProofDB > daProofDB = nullptr;
-
-    ptr< BlockProposalDB > blockProposalDB = nullptr;
+    ptr< BlockProposalDB > blockProposalDB;
 
     uint64_t catchupIntervalMS;
 
@@ -206,7 +173,6 @@ class Node {
     uint64_t committedTransactionsHistory;
 
     uint64_t maxCatchupDownloadBytes;
-
 
     uint64_t maxTransactionsPerBlock;
 
@@ -225,30 +191,52 @@ class Node {
     uint64_t priceDBSize;
     uint64_t blockProposalDBSize;
 
+    bool inited = false;
+
+    void releaseGlobalServerBarrier();
+
+    void releaseGlobalClientBarrier();
+
+    void closeAllSocketsAndNotifyAllAgentsAndThreads();
 
 public:
+
     string getEcdsaKeyName();
+
     ptr< vector<string> > getEcdsaPublicKeys();
+
     string getBlsKeyName();
+
     ptr< vector< ptr< vector<string>>>> getBlsPublicKeys();
+
     ptr< BLSPublicKey > getBlsPublicKey();
 
+    bool isSgxEnabled();
 
-    bool isSgxEnabled() ;
-
-    const ptr< TestConfig >& getTestConfig() const;
+    [[nodiscard]] const ptr< TestConfig >& getTestConfig() const;
 
     ptr< BlockDB > getBlockDB();
+
     ptr< RandomDB > getRandomDB();
+
     ptr< PriceDB > getPriceDB() const;
+
     ptr< ProposalHashDB > getProposalHashDB();
+
     ptr< ProposalVectorDB > getProposalVectorDB();
+
     ptr< MsgDB > getOutgoingMsgDB();
+
     ptr< MsgDB > getIncomingMsgDB();
+
     ptr< ConsensusStateDB > getConsensusStateDB();
+
     ptr< BlockSigShareDB > getBlockSigShareDB() const;
+
     ptr< DASigShareDB > getDaSigShareDB() const;
+
     ptr< DAProofDB > getDaProofDB() const;
+
     ptr< BlockProposalDB > getBlockProposalDB() const;
 
 
@@ -265,12 +253,12 @@ public:
     uint64_t getDaProofDBSize() const;
     uint64_t getBlockProposalDBSize() const;
     uint64_t getSimulateNetworkWriteDelayMs() const;
+
     ptr< BLSPublicKey > getBlsPublicKey() const;
 
-
     void initLevelDBs();
-    bool isStarted() const;
 
+    bool isStarted() const;
 
     Node( const nlohmann::json& _cfg, ConsensusEngine* _consensusEngine, bool _useSGX,
         string _sgxURL,
@@ -281,7 +269,6 @@ public:
         ptr< BLSPublicKey > _blsPublicKey );
 
     ~Node();
-
 
     void startServers();
 
@@ -307,7 +294,6 @@ public:
 
     node_id getNodeID() const;
 
-
     Sockets* getSockets() const;
 
 
@@ -319,9 +305,7 @@ public:
 
     void exitCheck();
 
-
     ptr< NodeInfo > getNodeInfoByIndex( schain_index _index );
-
 
     ptr< NodeInfo > getNodeInfoById( node_id _id );
 
@@ -335,13 +319,11 @@ public:
 
     uint64_t getCommittedTransactionHistoryLimit() const;
 
-
     void startClients();
 
     uint64_t getCatchupIntervalMs();
 
     uint64_t getMonitoringIntervalMs();
-
 
     uint64_t getEmptyBlockIntervalMs() const;
 
@@ -374,6 +356,6 @@ public:
     string getSgxUrl();
     string getSgxSslKeyFileFullPath();
     string getSgxSslCertFileFullPath();
-    bool inited;
+
     bool isInited() const;
 };

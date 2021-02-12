@@ -442,10 +442,14 @@ void Node::exit() {
 void Node::closeAllSocketsAndNotifyAllAgentsAndThreads() {
     getSchain()->getNode()->threadServerConditionVariable.notify_all();
 
-    CHECK_STATE(agents.size() > 0);
+    {
+        LOCK( agentsLock );
 
-    for (auto &&agent : agents) {
-        agent->notifyAllConditionVariables();
+        CHECK_STATE( agents.size() > 0 );
+
+        for ( auto&& agent : agents ) {
+            agent->notifyAllConditionVariables();
+        }
     }
 
     if (sockets && sockets->blockProposalSocket)
@@ -462,6 +466,9 @@ void Node::closeAllSocketsAndNotifyAllAgentsAndThreads() {
 
 void Node::registerAgent(Agent *_agent) {
     CHECK_ARGUMENT(_agent);
+
+    LOCK(agentsLock);
+
     agents.push_back(_agent);
 }
 
