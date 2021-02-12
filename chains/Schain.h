@@ -76,13 +76,12 @@ class TimeStamp;
 class CryptoManager;
 
 class Schain : public Agent {
+
+    queue< ptr< MessageEnvelope > > messageQueue;
+
     bool bootStrapped = false;
     bool startingFromCorruptState = false;
 
-public:
-    bool isStartingFromCorruptState() const;
-
-private:
     atomic< uint64_t > totalTransactions;
 
     ConsensusExtFace* extFace = nullptr;
@@ -93,27 +92,23 @@ private:
 
     uint64_t startTimeMs;
 
-    set< block_id > startedConsensuses;
+    ptr< BlockProposalServerAgent > blockProposalServerAgent;
 
+    ptr< CatchupServerAgent > catchupServerAgent;
 
-    ptr< BlockProposalServerAgent > blockProposalServerAgent = nullptr;
+    ptr< MonitoringAgent > monitoringAgent;
 
-    ptr< CatchupServerAgent > catchupServerAgent = nullptr;
+    ptr< TimeoutAgent > timeoutAgent;
 
-    ptr< MonitoringAgent > monitoringAgent = nullptr;
+    ptr< PendingTransactionsAgent > pendingTransactionsAgent;
 
-    ptr< TimeoutAgent > timeoutAgent = nullptr;
+    ptr< BlockProposalClientAgent > blockProposalClient;
 
-    ptr< PendingTransactionsAgent > pendingTransactionsAgent = nullptr;
+    ptr< CatchupClientAgent > catchupClientAgent;
 
-    ptr< BlockProposalClientAgent > blockProposalClient = nullptr;
+    ptr< PricingAgent > pricingAgent;
 
-    ptr< CatchupClientAgent > catchupClientAgent = nullptr;
-
-    ptr< PricingAgent > pricingAgent = nullptr;
-
-    ptr< SchainMessageThreadPool > consensusMessageThreadPool = nullptr;
-
+    ptr< SchainMessageThreadPool > consensusMessageThreadPool;
 
     ptr< IO > io;
 
@@ -128,13 +123,8 @@ private:
     atomic< uint64_t > lastCommittedBlockID = 0;
     atomic< uint64_t > lastCommitTimeMs = 0;
     ptr< TimeStamp > lastCommittedBlockTimeStamp;
-
     atomic< uint64_t > bootstrapBlockID = 0;
-
-
     uint64_t maxExternalBlockProcessingTime = 0;
-
-    queue< ptr< MessageEnvelope > > messageQueue;
 
     ptr< NodeInfo > thisNodeInfo = nullptr;
 
@@ -155,8 +145,10 @@ private:
 
     ptr< BlockProposal > createDefaultEmptyBlockProposal( block_id _blockId );
 
-
 public:
+
+    bool isStartingFromCorruptState() const;
+
     void updateLastCommittedBlockInfo( uint64_t _lastCommittedBlockID,
         ptr< TimeStamp > _lastCommittedBlockTimeStamp );
 
@@ -251,13 +243,11 @@ public:
 
     void setHealthCheckFile( uint64_t status );
 
-
     uint64_t getTotalSigners();
 
     uint64_t getRequiredSigners();
 
     u256 getPriceForBlockId( uint64_t _blockId );
-
 
     ptr< CryptoManager > getCryptoManager() const;
 
@@ -268,4 +258,5 @@ public:
 
     bool fixCorruptStateIfNeeded( block_id id );
     void rebroadcastAllMessagesForCurrentBlock() const;
+
 };

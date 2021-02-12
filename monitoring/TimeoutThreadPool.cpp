@@ -20,12 +20,13 @@
     @author Stan Kladko
     @date 2020
 */
-#include "TimeoutThreadPool.h"
-#include "Agent.h"
-#include "Log.h"
-#include "SkaleCommon.h"
-#include "TimeoutAgent.h"
+
 #include "thirdparty/json.hpp"
+#include "SkaleCommon.h"
+#include "Log.h"
+#include "Agent.h"
+#include "TimeoutAgent.h"
+#include "TimeoutThreadPool.h"
 
 TimeoutThreadPool::TimeoutThreadPool( num_threads _numThreads, Agent* _agent )
     : WorkerThreadPool( _numThreads, _agent, false ) {}

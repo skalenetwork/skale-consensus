@@ -33,43 +33,24 @@ class CommittedBlock;
 class GlobalThreadRegistry;
 class ConnectionRefusedException;
 
-
 class Agent {
-
 
 protected:
 
     bool isServer;
 
-
-    /**
-     *  Conditional variable that controls access to the inbox
-     */
-    condition_variable dispatchCond;
-
-
-    /**
-     * Mutex that controls access to inbox
-     */
     mutex messageMutex;
-
-
-    /**
-     *  Conditional variable that controls access to the inbox
-     */
     condition_variable messageCond;
 
-
-    std::map< schain_index, ptr< std::condition_variable > > queueCond;
-    std::map< schain_index, ptr< std::mutex > > queueMutex;
-
+    map< schain_index, ptr< condition_variable > > queueCond;
+    map< schain_index, ptr< mutex > > queueMutex;
 
     Schain* sChain;
 
-    std::recursive_mutex m;
+    recursive_mutex m;
 
-    map<schain_index, uint64_t> lastConnectionRefusedLogTime;
-    std::recursive_mutex lastConnectionRefusedLogTimeLock;
+    map<schain_index, uint64_t> lastConnectionRefusedLogTime; // tsafe
+    recursive_mutex lastConnectionRefusedLogTimeLock;
 
 public:
     Agent( Schain& _sChain, bool isServer, bool _dontRegister = false );
@@ -78,24 +59,17 @@ public:
 
     virtual void notifyAllConditionVariables();
 
-
     virtual ~Agent();
-
-
-
+    
     ptr<GlobalThreadRegistry> getThreadRegistry();
-
-
+    
     ptr<Node> getNode();
-
-
+    
     Schain* getSchain() const;
 
     void waitOnGlobalStartBarrier();
-
-
-    std::recursive_mutex& getMainMutex() { return m; }
-
+    
+    recursive_mutex& getMainMutex() { return m; }
 
     void logConnectionRefused(ConnectionRefusedException &_e, schain_index _index);
 

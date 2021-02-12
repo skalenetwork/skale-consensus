@@ -468,7 +468,6 @@ void Node::registerAgent(Agent *_agent) {
     CHECK_ARGUMENT(_agent);
 
     LOCK(agentsLock);
-
     agents.push_back(_agent);
 }
 

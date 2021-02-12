@@ -23,7 +23,7 @@
 
 #pragma once
 
-
+#include <vector>
 
 class Schain;
 class GlobalThreadRegistry;

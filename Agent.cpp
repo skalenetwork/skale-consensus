@@ -34,7 +34,6 @@
 #include <utils/Time.h>
 
 void Agent::notifyAllConditionVariables() {
-    dispatchCond.notify_all();
     messageCond.notify_all();
 
     for (auto &&item : queueCond) {
