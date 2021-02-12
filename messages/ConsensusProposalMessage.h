@@ -40,6 +40,6 @@ public:
 
     ConsensusProposalMessage(Schain& _sChain, const block_id &_blockID, const ptr<BooleanProposalVector> _proposals);
 
-    const ptr<BooleanProposalVector> getProposals() const;
+    [[nodiscard]] const ptr<BooleanProposalVector> getProposals() const;
 
 };

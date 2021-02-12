@@ -44,7 +44,7 @@ public:
         return totalObjects;
     }
 
-    virtual ~ReceivedBlockProposal();
+    ~ReceivedBlockProposal() override;
 
 
 

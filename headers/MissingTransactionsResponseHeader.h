@@ -23,7 +23,6 @@
 
 #pragma  once
 
-
 #include "Header.h"
 
 class NodeInfo;
@@ -33,14 +32,14 @@ class Transaction;
 
 class MissingTransactionsResponseHeader : public Header{
 
-    ptr<vector<uint64_t>> missingTransactionSizes;
+    ptr<vector<uint64_t>> missingTransactionSizes; // tsafe
 
 public:
 
 
     MissingTransactionsResponseHeader();
 
-    MissingTransactionsResponseHeader(
+    explicit MissingTransactionsResponseHeader(
             const ptr<vector<uint64_t>>& _missingTransactionSizes);
 
     void addFields(nlohmann::json &_j) override;

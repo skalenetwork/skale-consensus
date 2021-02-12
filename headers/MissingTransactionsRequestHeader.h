@@ -23,8 +23,6 @@
 
 #pragma  once
 
-
-
 #include "Header.h"
 
 class NodeInfo;
@@ -33,19 +31,17 @@ class Schain;
 
 class MissingTransactionsRequestHeader : public Header{
 
-
     uint64_t missingTransactionsCount;
 
 public:
 
-
     MissingTransactionsRequestHeader();
 
-    MissingTransactionsRequestHeader(const ptr<map<uint64_t, ptr<partial_sha_hash>>>& _missingMessages);
+    explicit MissingTransactionsRequestHeader(const ptr<map<uint64_t, ptr<partial_sha_hash>>>& _missingMessages);
 
     void addFields(nlohmann::basic_json<> &j_) override;
 
-    uint64_t getMissingTransactionsCount() const;
+    [[nodiscard]] uint64_t getMissingTransactionsCount() const;
 
     void setMissingTransactionsCount(uint64_t _missingTransactionsCount);
 

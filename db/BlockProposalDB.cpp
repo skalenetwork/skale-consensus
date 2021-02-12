@@ -67,19 +67,12 @@ void BlockProposalDB::addBlockProposal(const ptr<BlockProposal>& _proposal) {
     auto key = createKey(_proposal->getBlockID(), _proposal->getProposerIndex());
     CHECK_STATE(key != "");
 
-    {
 
-        LOCK(proposalCacheMutex);
-
-        if (!proposalCache->exists(key)) {
-            proposalCache->put(key, _proposal);
-        }
-    }
+    proposalCache->putIfDoesNotExist(key, _proposal);
 
     // dont save non-own proposals
     if (_proposal->getProposerIndex() !=  getSchain()->getSchainIndex())
         return;
-
 
     try {
 
@@ -123,10 +116,7 @@ BlockProposalDB::getSerializedProposalFromLevelDB(block_id _blockID, schain_inde
 ptr<BlockProposal> BlockProposalDB::getBlockProposal(block_id _blockID, schain_index _proposerIndex) {
 
     auto key = createKey(_blockID, _proposerIndex);
-    CHECK_STATE(key != "");
-
-
-
+    CHECK_STATE(!key.empty());
 
     if (auto result = proposalCache->getIfExists(key); result.has_value()) {
             return any_cast<ptr<BlockProposal>>(result);
@@ -142,16 +132,12 @@ ptr<BlockProposal> BlockProposalDB::getBlockProposal(block_id _blockID, schain_i
     if (proposal == nullptr)
         return nullptr;
 
-    {
 
-        CHECK_STATE(proposalCache);
-        LOCK(proposalCacheMutex);
-        if (!proposalCache->exists(key)) {
-            proposalCache->put(key, proposal);
-        }
-    }
+    CHECK_STATE(proposalCache)
 
-    CHECK_STATE(proposal->getSignature() != "");
+    proposalCache->putIfDoesNotExist(key, proposal);
+
+    CHECK_STATE(!proposal->getSignature().empty());
 
     return proposal;
 }

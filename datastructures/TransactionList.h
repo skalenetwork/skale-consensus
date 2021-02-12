@@ -52,6 +52,7 @@ class TransactionList : public ListOfHashes {
         bool _checkPartialHash );
 
 public:
+
     static atomic< int64_t > totalObjects;
 
     explicit TransactionList( const ptr< vector< ptr< Transaction > > >& _transactions ) ;

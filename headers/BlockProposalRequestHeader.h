@@ -29,12 +29,9 @@
 
 class BlockProposalRequestHeader : public AbstractBlockRequestHeader{
 
-    recursive_mutex m;
-
     node_id proposerNodeID{};
     string hash;
     string signature;
-
 
     uint64_t txCount;
     uint64_t  timeStamp = 0;
@@ -47,18 +44,17 @@ public:
 
     BlockProposalRequestHeader(nlohmann::json _proposalRequest, node_count _nodeCount);
 
-
     void addFields(nlohmann::basic_json<> &jsonRequest) override;
 
     node_id getProposerNodeId();
 
     string getHash();
 
-    uint64_t getTxCount() const;
+    [[nodiscard]] uint64_t getTxCount() const;
 
-    uint64_t getTimeStamp() const;
+    [[nodiscard]] uint64_t getTimeStamp() const;
 
-    uint32_t getTimeStampMs() const;
+    [[nodiscard]] uint32_t getTimeStampMs() const;
 
     string getSignature();
 

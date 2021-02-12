@@ -30,26 +30,22 @@ class DAProof;
 
 class SubmitDAProofRequestHeader : public AbstractBlockRequestHeader{
 
-
-
     node_id proposerNodeID;
     string thresholdSig;
     string blockHash;
 
-
 public:
-
     SubmitDAProofRequestHeader(Schain &_sChain, const ptr<DAProof>& _proof, block_id _blockId);
 
     SubmitDAProofRequestHeader(nlohmann::json _proposalRequest, node_count _nodeCount);
 
     void addFields(nlohmann::basic_json<> &jsonRequest) override;
 
-    node_id getProposerNodeId() const;
+    [[nodiscard]] node_id getProposerNodeId() const;
 
-    string getSignature() const;
+    [[nodiscard]] string getSignature() const;
 
-    string getBlockHash() const;
+    [[nodiscard]] string getBlockHash() const;
 
 };
 
