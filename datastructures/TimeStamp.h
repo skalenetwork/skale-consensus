@@ -34,8 +34,9 @@ class TimeStamp {
 
 public:
     TimeStamp( uint64_t _s, uint64_t _ms );
-    uint64_t getS() const;
-    uint64_t getMs() const;
+
+    [[nodiscard ]] uint64_t getS() const;
+    [[nodiscard ]] uint64_t getMs() const;
 
     bool operator<(const TimeStamp& r) const;
 

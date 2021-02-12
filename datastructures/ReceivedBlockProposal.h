@@ -23,12 +23,12 @@
 
 #pragma once
 
-
 #include "BlockProposal.h"
 
-
-
 class ReceivedBlockProposal : public BlockProposal{
+
+    static atomic<int64_t>  totalObjects;
+
 public:
 
     ReceivedBlockProposal(Schain &_sChain, const block_id &_blockID, const uint64_t &_timeStamp,
@@ -46,8 +46,6 @@ public:
 
     virtual ~ReceivedBlockProposal();
 
-private:
 
-    static atomic<int64_t>  totalObjects;
 
 };

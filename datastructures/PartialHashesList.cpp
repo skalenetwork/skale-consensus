@@ -33,7 +33,7 @@ PartialHashesList::~PartialHashesList() {}
 
 PartialHashesList::PartialHashesList(
         transaction_count _transactionCount, const ptr<vector<uint8_t> >& _partialHashes)
-        : transactionCount(_transactionCount), partialHashes(_partialHashes) {
+        : partialHashes(_partialHashes), transactionCount(_transactionCount)  {
     CHECK_ARGUMENT(_partialHashes);
 }
 

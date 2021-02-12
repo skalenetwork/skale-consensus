@@ -25,9 +25,7 @@
 
 #include "utils/Time.h"
 
-
 #include "DataStructure.h"
-
 
 DataStructure::DataStructure() {
     objectCreationTime = Time::getCurrentTimeMs();

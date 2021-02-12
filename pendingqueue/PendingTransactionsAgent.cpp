@@ -73,13 +73,12 @@ ptr<BlockProposal> PendingTransactionsAgent::buildBlockProposal(block_id _blockI
 
     auto transactionList = make_shared<TransactionList>(transactions);
 
-    auto currentTime = Time::getCurrentTimeMs();
-    auto sec = currentTime / 1000;
-    auto m = (uint32_t) (currentTime % 1000);
+    auto stamp = TimeStamp::getCurrentTimeStamp();
+
 
 
     auto myBlockProposal = make_shared<MyBlockProposal>(*sChain, _blockID, sChain->getSchainIndex(),
-            transactionList, stateRoot, sec, m, getSchain()->getCryptoManager());
+            transactionList, stateRoot, stamp->getS(), stamp->getMs(), getSchain()->getCryptoManager());
 
     LOG(trace, "Created proposal, transactions:" + to_string(transactions->size()));
 
