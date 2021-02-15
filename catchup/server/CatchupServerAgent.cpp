@@ -278,14 +278,16 @@ ptr<vector<uint8_t>> CatchupServerAgent::createBlockCatchupResponse(nlohmann::js
                 return nullptr;
             }
 
+            totalSize += serializedBlock->size();
+
+            if (totalSize > maxSize)
+                break;
+
             serializedBlocks->insert(serializedBlocks->end(), serializedBlock->begin(), serializedBlock->end());
 
             blockSizes->push_back(serializedBlock->size());
 
-            totalSize += serializedBlock->size();
 
-            if (totalSize >= maxSize)
-                break;
         }
 
         serializedBlocks->push_back(']');

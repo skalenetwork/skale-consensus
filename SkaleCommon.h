@@ -142,7 +142,7 @@ static const uint64_t LEVELDB_SHARDS = 4;
 
 static const uint64_t BLOCK_PROPOSAL_HISTORY_SIZE = 1;
 
-static const uint64_t COMMITTED_TRANSACTIONS_HISTORY = 1000000;
+static const uint64_t COMMITTED_TRANSACTIONS_HISTORY = 1024 * 1024;
 
 static const uint64_t MAX_ACTIVE_CONSENSUSES = 5;
 
@@ -151,11 +151,9 @@ static const uint64_t MAX_CONSENSUS_HISTORY  = 2 * MAX_ACTIVE_CONSENSUSES;
 static const uint64_t SESSION_KEY_CACHE_SIZE  = 2;
 static const uint64_t SESSION_PUBLIC_KEY_CACHE_SIZE  = 16;
 
-static constexpr uint64_t MAX_CATCHUP_DOWNLOAD_BYTES = 16000000;
+static constexpr uint64_t MAX_CATCHUP_DOWNLOAD_BYTES = 16 * 1024 * 1024;
 
-static constexpr uint64_t PROPOSAL_HASHES_PER_DB = 100000;
-
-static constexpr uint64_t MAX_TRANSACTIONS_PER_BLOCK = 10000;
+static constexpr uint64_t MAX_TRANSACTIONS_PER_BLOCK = 8 * 1024;
 
 static constexpr int64_t EMPTY_BLOCK_INTERVAL_MS = 3000;
 
@@ -187,14 +185,11 @@ static constexpr size_t MAX_HEADER_SIZE = 8 * MAX_TRANSACTIONS_PER_BLOCK;
 
 static const int MODERN_TIME = 1547640182;
 
-static const int MAX_BUFFER_SIZE = 10000000;
+static const int MAX_BUFFER_SIZE = 8 * 1024 * 1024;
 
 static constexpr uint64_t MAGIC_NUMBER = 0x1396A22050B30;
 
 static constexpr uint64_t TEST_MAGIC_NUMBER = 0x2456032650150;
-
-
-
 
 
 static const uint64_t KNOWN_TRANSACTIONS_HISTORY = 2 * MAX_TRANSACTIONS_PER_BLOCK;
