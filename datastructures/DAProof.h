@@ -39,30 +39,29 @@ class SubmitDAProofRequestHeader;
 
 class DAProof : public SendableItem {
 
-
 protected:
 
     schain_id schainID;
     node_id proposerNodeID;
     block_id blockID;
     schain_index proposerIndex;
-    ptr<BLAKE3Hash>hash = nullptr;
-    ptr<ThresholdSignature> thresholdSig = nullptr;
+    ptr<BLAKE3Hash> hash;
+    ptr<ThresholdSignature> thresholdSig;
 
 public:
 
     DAProof(const ptr<BlockProposal>& _proposal, ptr<ThresholdSignature>& _thresholdSig);
 
-    schain_id getSchainId() const;
+    [[nodiscard]] schain_id getSchainId() const;
 
-    node_id getProposerNodeId() const;
+    [[nodiscard]] node_id getProposerNodeId() const;
 
-    block_id getBlockId() const;
+    [[nodiscard]] block_id getBlockId() const;
 
-    schain_index getProposerIndex() const;
+    [[nodiscard]] schain_index getProposerIndex() const;
 
-    ptr<ThresholdSignature> getThresholdSig() const;
+    [[nodiscard]] ptr<ThresholdSignature> getThresholdSig() const;
 
-    ptr<BLAKE3Hash>getHash() const;
+    [[nodiscard]] ptr<BLAKE3Hash> getHash() const;
 };
 

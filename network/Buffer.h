@@ -35,17 +35,15 @@ public:
 
     void write(void *data, size_t dataLen);
 
-    Buffer(size_t size);
+    explicit Buffer(size_t size);
 
-    ptr<vector<uint8_t>> getBuf() const;
+    [[nodiscard]] ptr<vector<uint8_t>> getBuf() const;
 
     void read(void *data, size_t dataLen);
 
     void consume(char c);
 
+    [[nodiscard]] uint64_t getCounter() const;
 
-
-    uint64_t getCounter() const;
-
-    size_t getSize() const;
+    [[nodiscard]] size_t getSize() const;
 };

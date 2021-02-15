@@ -39,9 +39,6 @@ class ConsensusBLSSigShare : public ThresholdSigShare {
 
 public:
 
-
-
-
     ConsensusBLSSigShare(const ptr<BLSSigShare>& _sig, schain_id _schainId, block_id _blockID);
 
 
@@ -49,11 +46,11 @@ public:
                          uint64_t _totalSigners, uint64_t _requiredSigners);
 
 
-    ptr< BLSSigShare > getBlsSigShare() const;
+    [[nodiscard]] ptr< BLSSigShare > getBlsSigShare() const;
 
-    virtual string toString();
+    string toString() override;
 
-    virtual ~ConsensusBLSSigShare();
+    ~ConsensusBLSSigShare() override;
 };
 
 

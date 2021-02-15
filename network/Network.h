@@ -23,13 +23,9 @@
 
 #pragma once
 
-
-
-
 #include "Agent.h"
 
 class Schain;
-
 class NetworkMessageEnvelope;
 class NodeInfo;
 class NetworkMessage;
@@ -41,11 +37,11 @@ enum TransportType {ZMQ};
 
 class Network : public Agent  {
 
+protected:
+
+
+    vector<list<pair<ptr<NetworkMessage>,ptr<NodeInfo>>>> delayedSends; // tsafe
     vector<recursive_mutex> delayedSendsLocks;
-
-    vector<list<pair<ptr<NetworkMessage>,ptr<NodeInfo>>>> delayedSends;
-
-    recursive_mutex deferredMutex;
 
     // used in testing
 
@@ -53,22 +49,16 @@ class Network : public Agent  {
 
     uint64_t   catchupBlocks = 0;
 
+    ptr<thread> networkReadThread;
 
-
-
-
-protected:
+    ptr<thread> deferredMessageThread;
 
     static TransportType transport;
 
-
     explicit Network(Schain& _sChain);
-    /**
-     * Mutex that controls access to inbox
-     */
-    recursive_mutex deferredMessageMutex;
 
-    map<block_id, ptr<vector<ptr<NetworkMessageEnvelope>>>> deferredMessageQueue;
+    map<block_id, ptr<vector<ptr<NetworkMessageEnvelope>>>> deferredMessageQueue; //tsafe
+    recursive_mutex deferredMessageMutex;
 
     virtual void addToDeferredMessageQueue(const ptr<NetworkMessageEnvelope>& _me);
 
@@ -76,24 +66,13 @@ protected:
 
     virtual bool sendMessage(const ptr<NodeInfo> &remoteNodeInfo, const ptr<NetworkMessage>& _msg) = 0;
 
-
-    ptr<thread> networkReadThread;
-
-    ptr<thread> deferredMessageThread;
-
-
 public:
-
 
     void startThreads();
 
     void deferredMessagesLoop();
 
     void networkReadLoop();
-
-    void waitUntilExit();
-
-
 
     static string ipToString(uint32_t _ip);
 
@@ -105,7 +84,7 @@ public:
 
     ptr<NetworkMessageEnvelope> receiveMessage();
 
-    virtual uint64_t readMessageFromNetwork(const ptr<Buffer> buf) = 0;
+    virtual uint64_t readMessageFromNetwork(ptr<Buffer> buf) = 0;
 
     static bool validateIpAddress(const string &_ip);
 
@@ -119,15 +98,11 @@ public:
 
     void postDeferOrDrop(const ptr<NetworkMessageEnvelope> & _me );
 
-    ~Network();
+    ~Network() override;
 
     void addToDelayedSends(const ptr<NetworkMessage>& _m, const ptr<NodeInfo>& _dstNodeInfo );
 
     void trySendingDelayedSends();
-
-    uint32_t getPacketLoss() const;
-
-    uint64_t getCatchupBlock() const;
 
     uint64_t computeTotalDelayedSends();
 

@@ -23,9 +23,9 @@
 #ifndef SKALED_BLOCKPROPOSALFRAGMENT_H
 #define SKALED_BLOCKPROPOSALFRAGMENT_H
 
-
-
 class BlockProposalFragment {
+
+    const ptr<vector<uint8_t>> data; // tsafe
 
     const block_id blockId;
     const uint64_t blockSize;
@@ -34,25 +34,22 @@ class BlockProposalFragment {
     const uint64_t totalFragments;
     const fragment_index fragmentIndex;
 
-    const ptr<vector<uint8_t>> data;
-
-
 public:
 
-    BlockProposalFragment(const block_id & _blockId, const uint64_t _totalFragments, const fragment_index &fragmentIndex,
+    BlockProposalFragment(const block_id & _blockId, uint64_t _totalFragments, const fragment_index &fragmentIndex,
                           const ptr<vector<uint8_t>> & _data, uint64_t _blockSize, const string& _blockHash);
 
-    block_id getBlockId() const;
+    [[nodiscard]] block_id getBlockId() const;
 
-    uint64_t getTotalFragments() const;
+    [[nodiscard]] uint64_t getTotalFragments() const;
 
-    fragment_index getIndex() const;
+    [[nodiscard]] fragment_index getIndex() const;
 
-    ptr<vector<uint8_t>> serialize() const;
+    [[nodiscard]] ptr<vector<uint8_t>> serialize() const;
 
-    uint64_t getBlockSize() const;
+    [[nodiscard]] uint64_t getBlockSize() const;
 
-    string getBlockHash() const;
+    [[nodiscard]] string getBlockHash() const;
 
 };
 

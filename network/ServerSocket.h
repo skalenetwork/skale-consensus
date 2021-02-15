@@ -34,7 +34,6 @@ protected:
 
     uint32_t bindPort;
 
-
 public:
 
     ServerSocket(const string &_bindIP, uint16_t _basePort, port_type  _portType);

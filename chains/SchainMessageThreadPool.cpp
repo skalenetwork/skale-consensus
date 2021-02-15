@@ -36,6 +36,7 @@ SchainMessageThreadPool::SchainMessageThreadPool(Agent *_agent) : WorkerThreadPo
 }
 
 void SchainMessageThreadPool::createThread(uint64_t /*_threadNumber*/) {
+    LOCK(threadPoolLock)
     threadpool.push_back(make_shared<thread>(Schain::messageThreadProcessingLoop,
                                     reinterpret_cast < Schain * > ( agent )));
 }

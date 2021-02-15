@@ -73,13 +73,12 @@ ptr<BlockProposal> PendingTransactionsAgent::buildBlockProposal(block_id _blockI
 
     auto transactionList = make_shared<TransactionList>(transactions);
 
-    auto currentTime = Time::getCurrentTimeMs();
-    auto sec = currentTime / 1000;
-    auto m = (uint32_t) (currentTime % 1000);
+    auto stamp = TimeStamp::getCurrentTimeStamp();
+
 
 
     auto myBlockProposal = make_shared<MyBlockProposal>(*sChain, _blockID, sChain->getSchainIndex(),
-            transactionList, stateRoot, sec, m, getSchain()->getCryptoManager());
+            transactionList, stateRoot, stamp->getS(), stamp->getMs(), getSchain()->getCryptoManager());
 
     LOG(trace, "Created proposal, transactions:" + to_string(transactions->size()));
 
@@ -144,7 +143,7 @@ pair<ptr<vector<ptr<Transaction>>>, u256> PendingTransactionsAgent::createTransa
 
 
 ptr<Transaction> PendingTransactionsAgent::getKnownTransactionByPartialHash(const ptr<partial_sha_hash> hash) {
-    lock_guard<recursive_mutex> lock(transactionsMutex);
+    LOCK(transactionsMutex);
     if (knownTransactions.count(hash))
         return knownTransactions.at(hash);
     return nullptr;
@@ -155,7 +154,6 @@ void PendingTransactionsAgent::pushKnownTransaction(const ptr<Transaction>& _tra
     CHECK_ARGUMENT(_transaction);
 
     LOCK(transactionsMutex);
-
 
     if (knownTransactions.count(_transaction->getPartialHash())) {
         LOG(trace, "Duplicate transaction pushed to known transactions");
@@ -168,7 +166,6 @@ void PendingTransactionsAgent::pushKnownTransaction(const ptr<Transaction>& _tra
 
     knownTransactions[partialHash] = _transaction;
 
-
     while (knownTransactions.size() > KNOWN_TRANSACTIONS_HISTORY) {
         auto tx = knownTransactions.begin()->first;
         CHECK_STATE(tx);
@@ -178,7 +175,7 @@ void PendingTransactionsAgent::pushKnownTransaction(const ptr<Transaction>& _tra
 
 
 uint64_t PendingTransactionsAgent::getKnownTransactionsSize() {
-    lock_guard<recursive_mutex> lock(transactionsMutex);
+    LOCK(transactionsMutex);
     return knownTransactions.size();
 }
 

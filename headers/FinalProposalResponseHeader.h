@@ -23,15 +23,11 @@
 
 #pragma  once
 
-
 #include "Header.h"
 
 class NodeInfo;
-
 class BlockProposal;
-
 class Schain;
-
 class Transaction;
 
 
@@ -44,8 +40,6 @@ class FinalProposalResponseHeader : public Header {
 
 public:
 
-
-
     FinalProposalResponseHeader(const string& _sigShare, const string& _signature,
         const string &_publicKey, const string& _publicKeySig);
 
@@ -53,10 +47,10 @@ public:
 
     void addFields(nlohmann::json &_j) override;
 
-    const string& getSigShare() const;
-    const string& getSignature() const;
-    const string& getPublicKey() const;
-    const string& getPublicKeySig() const;
+    [[nodiscard]] const string& getSigShare() const;
+    [[nodiscard]] const string& getSignature() const;
+    [[nodiscard]] const string& getPublicKey() const;
+    [[nodiscard]] const string& getPublicKeySig() const;
 };
 
 

@@ -24,7 +24,6 @@
 #ifndef SKALED_SUBMITDAPROOFRESPONSEHEADER_H
 #define SKALED_SUBMITDAPROOFRESPONSEHEADER_H
 
-
 #include "Header.h"
 
 class SubmitDAProofResponseHeader : public Header {

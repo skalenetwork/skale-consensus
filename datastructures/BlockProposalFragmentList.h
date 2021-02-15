@@ -39,9 +39,13 @@ class BlockProposalFragment;
 
 class BlockProposalFragmentList : public DataStructure {
 
-    int64_t blockSize = -1;
-    string blockHash = "";
+    map<fragment_index, ptr<vector<uint8_t>>> fragments; // tsafe
 
+    list<uint64_t> missingFragments;
+
+    int64_t blockSize = -1;
+
+    string blockHash;
 
     bool isSerialized = false;
 
@@ -49,19 +53,15 @@ class BlockProposalFragmentList : public DataStructure {
 
     const uint64_t  totalFragments;
 
-    map<fragment_index, ptr<vector<uint8_t>>> fragments;
-
-    list<uint64_t> missingFragments;
-
     void checkSanity();
-
 
     static boost::random::mt19937 gen;
 
     static boost::random::uniform_int_distribution<> ubyte;
 
 public:
-    BlockProposalFragmentList(const block_id &_blockId, const uint64_t _totalFragments);
+
+    BlockProposalFragmentList(const block_id &_blockId, uint64_t _totalFragments);
 
     bool addFragment(const ptr<BlockProposalFragment>& _fragment, uint64_t& _nextIndexToRetrieve);
 

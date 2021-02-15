@@ -31,12 +31,9 @@
 
 class TCPServerSocket : public ServerSocket{
 
-
     ptr< sockaddr_in > socketaddr;
 
-    int descriptor = 0;
-
-    int createAndBindTCPSocket();
+    atomic<int> descriptor;
 
 public:
 
@@ -44,11 +41,10 @@ public:
 
     void touch();
 
-
     int getDescriptor();
 
-    virtual ~TCPServerSocket();
+    ~TCPServerSocket() override;
 
-    void closeAndCleanupAll();
+    void closeAndCleanupAll() override;
 
 };

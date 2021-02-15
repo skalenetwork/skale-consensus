@@ -29,17 +29,15 @@
 BlockProposalFragment::BlockProposalFragment(const block_id & _blockId, const uint64_t _totalFragments,
                                                const fragment_index &_fragmentIndex, const ptr<vector<uint8_t>> & _data,
                                                uint64_t _blockSize, const string& _blockHash) :
-        blockId( _blockId ), blockSize(_blockSize),blockHash(_blockHash),  totalFragments( _totalFragments ), fragmentIndex(_fragmentIndex),  data( _data ) {
+    data( _data ), blockId( _blockId ), blockSize(_blockSize),blockHash(_blockHash),  totalFragments( _totalFragments ), fragmentIndex(_fragmentIndex) {
 
-
-    CHECK_ARGUMENT(_blockHash != "");
+    CHECK_ARGUMENT(!_blockHash.empty());
     CHECK_ARGUMENT( _data );
-
     CHECK_ARGUMENT( _totalFragments > 0);
     CHECK_ARGUMENT(_fragmentIndex <= _totalFragments );
-
     CHECK_ARGUMENT( _blockId > 0);
     CHECK_ARGUMENT( _data->size() > 0);
+
     if ( _data->size() < 3) {
         BOOST_THROW_EXCEPTION(ParsingException("Data fragment too short:" +
          to_string( _data->size()), __CLASS_NAME__));
@@ -59,7 +57,7 @@ uint64_t BlockProposalFragment::getBlockSize() const {
 }
 
 string BlockProposalFragment::getBlockHash() const {
-    CHECK_STATE(blockHash != "");
+    CHECK_STATE(!blockHash.empty());
     return blockHash;
 }
 

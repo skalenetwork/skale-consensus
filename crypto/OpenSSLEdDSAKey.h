@@ -29,21 +29,15 @@
 class OpenSSLEdDSAKey {
 
     bool isPrivate = false;
-
     EVP_PKEY*  edKey = nullptr;
 
-
     static EVP_PKEY* genFastKeyImpl();
-
 
     string fastSignImpl( const char* _hash );
 
     static EVP_PKEY* deserializeFastPubKey( const string& encodedPubKeyStr );
 
-
-
 public:
-
 
     OpenSSLEdDSAKey( EVP_PKEY* _edKey, bool _isPrivate);
 
@@ -51,15 +45,13 @@ public:
 
     virtual ~OpenSSLEdDSAKey();
 
-    static ptr< OpenSSLEdDSAKey > generateKey();
-
-
-    string serializePubKey() const;
+    [[nodiscard]] string serializePubKey() const;
 
     string sign(const char* hash);
 
     bool verifySig( const string& _encodedSignature, const char* _hash ) const;
 
+    static ptr< OpenSSLEdDSAKey > generateKey();
 };
 
 #endif  // OPENSSLECDSAPRIVATEKEY_H

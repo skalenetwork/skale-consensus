@@ -21,6 +21,7 @@
     @date 2018
 */
 
+#include "SkaleCommon.h"
 #include "Log.h"
 
 #include "BlockProposalClientAgent.h"
@@ -34,6 +35,7 @@ BlockProposalPusherThreadPool::BlockProposalPusherThreadPool(
 void BlockProposalPusherThreadPool::createThread( uint64_t /*number*/ ) {
     auto p = ( BlockProposalClientAgent* ) agent;
 
+    LOCK(threadPoolLock);
     this->threadpool.push_back(
         make_shared< thread >( AbstractClientAgent::workerThreadItemSendLoop, p ) );
 }

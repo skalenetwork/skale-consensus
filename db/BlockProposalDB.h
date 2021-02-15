@@ -25,11 +25,8 @@
 
 
 class BlockProposalSet;
-
 class PartialHashesList;
-
 class Schain;
-
 class BooleanProposalVector;
 
 #include "CacheLevelDB.h"
@@ -37,12 +34,9 @@ class BooleanProposalVector;
 
 class BlockProposalDB : public CacheLevelDB {
 
-    recursive_mutex proposalCacheMutex;
-
-    ptr<cache::lru_cache<string, ptr<BlockProposal>>> proposalCache;
+    ptr<cache::lru_cache<string, ptr<BlockProposal>>> proposalCache; // tsafe
 
 public:
-
 
     bool proposalExists(block_id _blockId, schain_index _index);
 
@@ -52,7 +46,7 @@ public:
 
     void addBlockProposal(const ptr<BlockProposal>& _proposal);
 
-    const string& getFormatVersion();
+    const string& getFormatVersion() override;
 
     ptr<vector<uint8_t> > getSerializedProposalFromLevelDB(block_id _blockID, schain_index _proposerIndex);
 };

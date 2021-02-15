@@ -48,92 +48,100 @@ class StorageLimits;
 
 
 class ConsensusEngine : public ConsensusInterface {
+
+    map< node_id, ptr< Node > > nodes; //tsafe
+
+    ConsensusExtFace* extFace = nullptr;
+
+    block_id lastCommittedBlockID = 0;
+
+    ptr<TimeStamp> lastCommittedBlockTimeStamp;
+
+    set< node_id > nodeIDs;
+    
     bool useTestSGXKeys = false;
     bool isSGXEnabled = false;
-    string sgxServerUrl = "";
+    
+    string sgxServerUrl;
+    string sgxSSLKeyFileFullPath;
+    string sgxSSLCertFileFullPath;
+    string ecdsaKeyName;
+    string blsKeyName;
 
-    string sgxSSLKeyFileFullPath = "";
-    string sgxSSLCertFileFullPath = "";
-
-    string ecdsaKeyName = "";
-
-    string blsKeyName = "";
-
-    ptr< vector<string> > ecdsaKeyNames = nullptr;
-    ptr< vector<string> > blsKeyNames = nullptr;
-    ptr< vector<string> > ecdsaPublicKeys = nullptr;
-    ptr< vector< ptr< vector<string>>>> blsPublicKeys = nullptr;
-    ptr< BLSPublicKey > blsPublicKey = nullptr;
-
-
+    ptr< vector<string> > ecdsaKeyNames; //tsafe
+    ptr< vector<string> > blsKeyNames; //tsafe
+    ptr< vector<string> > ecdsaPublicKeys; //tsafe
+    ptr< vector< ptr< vector<string>>>> blsPublicKeys; //tsafe
+    ptr< BLSPublicKey > blsPublicKey;
+    
     atomic< consensus_engine_status > status = CONSENSUS_ACTIVE;
 
     ptr< GlobalThreadRegistry > threadRegistry;
 
     uint64_t engineID;
 
-    static atomic< uint64_t > engineCounter;
+    recursive_mutex mutex;
 
-    static shared_ptr< spdlog::logger > configLogger;
-
-    static string dataDir;
-    static string logDir;
+    atomic< bool > exitRequested;
 
     string healthCheckDir;
     string dbDir;
+    
+    static bool onTravis;
+
+    static bool noUlimitCheck;
+    
+    static atomic< uint64_t > engineCounter;
+
+    static ptr< spdlog::logger > configLogger;
+    
+    static string dataDir;
+    static string logDir;
 
     static recursive_mutex logMutex;
-
-
+    
     string logFileNamePrefix;
 
-    shared_ptr< spdlog::sinks::sink > logRotatingFileSync;
+    ptr< spdlog::sinks::sink > logRotatingFileSync;
 
     ptr<StorageLimits> storageLimits = nullptr;
 
 public:
 
     // used for testing only
-    ptr< map< uint64_t, ptr< NodeInfo > > > testNodeInfosByIndex = nullptr;
-    ptr< map< uint64_t, ptr< NodeInfo > > > testNodeInfosById = nullptr;
+    ptr< map< uint64_t, ptr< NodeInfo > > > testNodeInfosByIndex;
+    ptr< map< uint64_t, ptr< NodeInfo > > > testNodeInfosById;
 
-    ptr< StorageLimits > getStorageLimits() const;
+
+    [[nodiscard]] ptr< StorageLimits > getStorageLimits() const;
 
     void setEcdsaKeyName(const string& _ecdsaKeyName );
+
     void setBlsKeyName(const string& _blsKeyName );
 
-    const string getEcdsaKeyName() const;
-    const string getBlsKeyName() const;
+    [[nodiscard]] const string getEcdsaKeyName() const;
 
+    [[nodiscard]] const string getBlsKeyName() const;
 
-    string getDbDir() const;
+    [[nodiscard]] string getDbDir() const;
 
     void logInit();
 
     static void setConfigLogLevel( string& _s );
 
-    const string& getHealthCheckDir() const;
+    [[nodiscard]] const string& getHealthCheckDir() const;
 
     static void log( level_enum _severity, const string& _message, const string& _className );
 
     static void logConfig( level_enum _severity, const string& _message, const string& _className );
 
-    shared_ptr< spdlog::logger > createLogger( const string& loggerName );
+    ptr< spdlog::logger > createLogger( const string& loggerName );
 
     static const string getDataDir();
+    
     static const string getLogDir();
-
-    recursive_mutex mutex;
-
-    std::atomic< bool > exitRequested;
-
-    map< node_id, ptr< Node > > nodes;
-
-    static bool onTravis;
-
-    static bool noUlimitCheck;
-
-    std::string exec( const char* cmd );
+    
+    string exec( const char* cmd );
 
     static void checkExistsAndDirectory( const fs_path& dirname );
 
@@ -145,18 +153,9 @@ public:
         ptr< vector<string> > _ecdsaPublicKeys = nullptr, string _blsKeyName = "",
         ptr< vector< ptr< vector<string>>>> _blsPublicKeys = nullptr,
         ptr< BLSPublicKey > _blsPublicKey = nullptr );
-
-
+    
     void readSchainConfigFiles(const ptr< Node >& _node, const fs_path& _dirPath );
-
-    ConsensusExtFace* extFace = nullptr;
-
-    block_id lastCommittedBlockID = 0;
-
-    ptr<TimeStamp> lastCommittedBlockTimeStamp;
-
-    set< node_id > nodeIDs;
-
+    
     /* Returns an old block from the consensus storage.
      * The block is an EXACT COPY of the info that was earlier provided by
      * ConsensusExtface::createBlock(...)
@@ -192,17 +191,17 @@ public:
 
     block_id getLargestCommittedBlockID();
 
-    ConsensusEngine( block_id _lastId = 0 );
+    explicit ConsensusEngine( block_id _lastId = 0 );
 
     ~ConsensusEngine() override;
 
     ConsensusEngine( ConsensusExtFace& _extFace, uint64_t _lastCommittedBlockID,
         uint64_t _lastCommittedBlockTimeStamp,uint64_t _lastCommittedBlockTimeStampMs );
 
-    ConsensusExtFace* getExtFace() const;
+    [[nodiscard]] ConsensusExtFace* getExtFace() const;
 
 
-    uint64_t getEngineID() const;
+    [[nodiscard]] uint64_t getEngineID() const;
 
 
     void startAll() override;
@@ -224,7 +223,7 @@ public:
 
     void bootStrapAll() override;
 
-    uint64_t getEmptyBlockIntervalMs() const override {
+    [[nodiscard]] uint64_t getEmptyBlockIntervalMs() const override {
         return ( *( this->nodes.begin() ) ).second->getEmptyBlockIntervalMs();
     }
 
@@ -243,10 +242,9 @@ public:
 
     void systemHealthCheck();
 
-
     static string getEngineVersion();
 
-    ptr< GlobalThreadRegistry > getThreadRegistry() const;
+    [[nodiscard]] ptr< GlobalThreadRegistry > getThreadRegistry() const;
 
     void setTestKeys(const string& _sgxServerURL, string _configFile, uint64_t _totalNodes,
         uint64_t _requiredNodes );
@@ -266,5 +264,5 @@ public:
 
     void setTotalStorageLimitBytes(uint64_t _storageLimitBytes);
 
-    uint64_t getTotalStorageLimitBytes() const;
+    [[nodiscard]] uint64_t getTotalStorageLimitBytes() const;
 };

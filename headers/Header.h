@@ -46,22 +46,19 @@ private:
 
 public:
 
-    Header(const char *_type);
+    explicit Header(const char *_type);
 
-    virtual ~Header();
+    ~Header() override;
 
-    virtual void addFields(nlohmann::json & j);
-
+    void addFields(nlohmann::json & j) override;
 
     pair<ConnectionStatus, ConnectionSubStatus> getStatusSubStatus() { return {status,
                                                                           substatus};};
-
 
     void setStatusSubStatus( ConnectionStatus _status, ConnectionSubStatus _substatus ) {
         this->status = _status;
         this->substatus = _substatus;
     }
-
 };
 
 

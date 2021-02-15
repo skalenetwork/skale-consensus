@@ -24,9 +24,6 @@
 #ifndef SKALED_CONSENSUSEDDSASIGNATURE_H
 #define SKALED_CONSENSUSEDDSASIGNATURE_H
 
-// constexpr uint64_t  MAX_EdDSA_SIGNATURE_SIZE = 64;
-
-
 #include "ThresholdSignature.h"
 
 class ConsensusEdDSASigShareSet;
@@ -40,9 +37,9 @@ public:
     ConsensusEdDSASignature(
         const string& _sig, block_id _blockID, size_t _totalSigners, size_t _requiredSigners );
 
-    string toString();
+    string toString() override;
 
-    uint64_t getRandom() {
+    uint64_t getRandom() override {
         assert(false); // not implemented
     }
 

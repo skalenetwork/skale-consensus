@@ -37,8 +37,6 @@ public:
     DynamicPricingStrategy( const u256& minPrice, const u256& maxPrice,
         uint32_t optimalLoadPercentage, uint32_t adjustmentSpeed );
 
-public:
-
     u256 calculatePrice(u256 previousPrice, const ConsensusExtFace::transactions_vector &_approvedTransactions,
                         uint64_t _timeStamp, uint32_t  _timeStampMs, block_id _blockID) override;
 

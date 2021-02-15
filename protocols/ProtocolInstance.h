@@ -45,8 +45,6 @@ enum ProtocolStatus { STATUS_ACTIVE, STATUS_COMPLETED};
 enum ProtocolOutcome { OUTCOME_UNKNOWN, OUTCOME_SUCCESS, OUTCOME_FAILURE, OUTCOME_KILLED};
 
 
-
-
 class ProtocolInstance {
 
 

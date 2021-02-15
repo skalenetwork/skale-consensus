@@ -128,7 +128,7 @@ BlockProposalServerAgent::readMissingTransactions( const ptr< ServerConnection >
 
     auto trs = list->getItems();
 
-    CHECK_STATE( trs );
+    CHECK_STATE( trs);
 
     auto missed = make_shared< unordered_map< ptr< partial_sha_hash >, ptr< Transaction >,
         PendingTransactionsAgent::Hasher, PendingTransactionsAgent::Equal > >();
@@ -589,6 +589,7 @@ ptr< Header > BlockProposalServerAgent::createDAProofResponseHeader(
     auto nodeId = _header->getProposerNodeId();
 
     ptr< NodeInfo > nmi = sChain->getNode()->getNodeInfoById( nodeId );
+
 
     if ( nmi == nullptr ) {
         responseHeader->setStatusSubStatus(

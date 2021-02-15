@@ -23,11 +23,9 @@
 
 #pragma  once
 
-
 #include "InternalMessage.h"
 
 class ProtocolInstance;
-
 
 class ParentMessage : public InternalMessage {
 public:

@@ -24,18 +24,18 @@
 #ifndef SKALED_COMMITTEDBLOCKHEADER_H
 #define SKALED_COMMITTEDBLOCKHEADER_H
 
-
 #include "BlockProposalHeader.h"
 
 class CommittedBlockHeader : public BlockProposalHeader {
+
     string thresholdSig;
 
 public:
     CommittedBlockHeader(BlockProposal &block, const string &thresholdSig);
 
-    CommittedBlockHeader(nlohmann::json &json);
+    explicit CommittedBlockHeader(nlohmann::json &json);
 
-    const string &getThresholdSig() const;
+    [[nodiscard]] const string &getThresholdSig() const;
 
     void addFields(nlohmann::basic_json<> &j) override;
 };

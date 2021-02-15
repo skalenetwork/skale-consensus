@@ -29,16 +29,10 @@
 class ProtocolInstance;
 class ProtocolKey;
 
-
-
-
 class InternalMessage : public Message {
 
 public:
 
     InternalMessage(MsgType _msgType, ProtocolInstance & _srcProtocolInstance, const ptr<ProtocolKey> & _protocolKey );
-
-
-
 
 };

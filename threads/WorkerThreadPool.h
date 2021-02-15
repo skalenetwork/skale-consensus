@@ -23,7 +23,7 @@
 
 #pragma once
 
-
+#include <vector>
 
 class Schain;
 class GlobalThreadRegistry;
@@ -31,11 +31,7 @@ class GlobalThreadRegistry;
 
 class WorkerThreadPool {
 
-    recursive_mutex m;
-
     bool dontJoinGlobalRegistry = false;
-
-
 
     bool started = false;
 
@@ -46,9 +42,8 @@ protected:
     bool joined = false;
 
     vector<ptr<thread>> threadpool;
-
+    recursive_mutex threadPoolLock;
     num_threads numThreads;
-
     Agent* agent;
 
 protected:
@@ -60,7 +55,6 @@ public:
     virtual ~WorkerThreadPool();
 
     virtual void startService();
-
 
     void joinAll();
 

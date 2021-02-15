@@ -35,8 +35,8 @@ class  BLAKE3Hash;
 
 class ConsensusEdDSASigShareSet : public ThresholdSigShareSet {
 
-    map<uint64_t, string> edDSASet;
-
+    map<uint64_t, string> edDSASet; // thread-safe
+    recursive_mutex edDSASetLock;
 
 public:
     ConsensusEdDSASigShareSet(block_id _blockId, size_t _totalSigners, size_t _requiredSigners );
@@ -46,8 +46,6 @@ public:
     bool addSigShare(const ptr<ThresholdSigShare>& _sigShare) override;
 
     bool isEnough() override;
-
-    bool isEnoughMinusOne();
 
     ~ConsensusEdDSASigShareSet() override;
 

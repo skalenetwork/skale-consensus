@@ -64,12 +64,6 @@
 #include "datastructures/CommittedBlock.h"
 
 
-CatchupWorkerThreadPool *CatchupServerAgent::getCatchupWorkerThreadPool() const {
-    CHECK_STATE(catchupWorkerThreadPool);
-    return catchupWorkerThreadPool.get();
-}
-
-
 CatchupServerAgent::CatchupServerAgent(Schain &_schain, const ptr<TCPServerSocket>& _s) : AbstractServerAgent(
         "CatchupServer", _schain, _s) {
     CHECK_ARGUMENT(_s);

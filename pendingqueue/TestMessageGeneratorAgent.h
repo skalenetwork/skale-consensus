@@ -30,15 +30,10 @@
 class Schain;
 
 class TestMessageGeneratorAgent : Agent {
-
-
     uint64_t counter = 0;
-
-
 public:
 
-
-    TestMessageGeneratorAgent(Schain& _sChain);
+    explicit TestMessageGeneratorAgent(Schain& _sChain);
 
     ConsensusExtFace::transactions_vector pendingTransactions( size_t _limit);
 

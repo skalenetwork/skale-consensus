@@ -55,7 +55,7 @@ ptr< ThresholdSignature > ConsensusSigShareSet::mergeSignature() {
     ptr< BLSSignature > blsSig = nullptr;
 
     {
-        LOCK( m );
+        LOCK( blsSetLock );
         CHECK_STATE( blsSet.isEnough() );
         blsSig = blsSet.merge();
     }
@@ -68,17 +68,8 @@ ptr< ThresholdSignature > ConsensusSigShareSet::mergeSignature() {
 
 bool ConsensusSigShareSet::isEnough() {
     {
-        LOCK( m );
+        LOCK(blsSetLock);
         return blsSet.isEnough();
-    }
-}
-
-
-bool ConsensusSigShareSet::isEnoughMinusOne() {
-    {
-        LOCK( m );
-        auto sigsCount = blsSet.getTotalSigSharesCount();
-        return sigsCount >= requiredSigners - 1;
     }
 }
 
@@ -89,7 +80,7 @@ bool ConsensusSigShareSet::addSigShare( const ptr< ThresholdSigShare >& _sigShar
     CHECK_STATE( s );
 
     {
-        LOCK( m );
+        LOCK( blsSetLock);
         return blsSet.addSigShare( s->getBlsSigShare() );
     }
 }

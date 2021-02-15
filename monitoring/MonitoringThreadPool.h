@@ -23,9 +23,6 @@
 
 #pragma once
 
-
-
-
 #include <cstdint>
 
 #include "threads/WorkerThreadPool.h"

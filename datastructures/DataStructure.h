@@ -31,7 +31,6 @@
 class DataStructure {
     uint64_t objectCreationTime;
 
-
 protected:
     std::recursive_mutex m;
 

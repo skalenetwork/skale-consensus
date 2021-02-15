@@ -69,7 +69,6 @@ uint64_t BlockProposalFragmentList::nextIndexToRetrieve() {
         j++;
     }
 
-
     CHECK_STATE2(false, "nextIndexToRetrieve assertion failure"); // SHOULD NEVER BE HERE
 }
 
@@ -92,16 +91,13 @@ bool BlockProposalFragmentList::addFragment(const ptr<BlockProposalFragment>& _f
 
     checkSanity();
 
-
     nextIndex = 0;
 
     if (fragments.find(_fragment->getIndex()) != fragments.end()) {
         return false;
     }
 
-
-    fragments[_fragment->getIndex()] = _fragment->serialize();
-
+    fragments.emplace(_fragment->getIndex(),_fragment->serialize());
 
     std::list<uint64_t>::iterator findIter = std::find(missingFragments.begin(), missingFragments.end(),
                                                        _fragment->getIndex());
@@ -117,17 +113,15 @@ bool BlockProposalFragmentList::addFragment(const ptr<BlockProposalFragment>& _f
 
     CHECK_STATE(missingFragments.size() > 0);
 
-
     nextIndex = nextIndexToRetrieve();
 
     CHECK_STATE(nextIndex > 0);
-
-
 
     return true;
 }
 
 void BlockProposalFragmentList::checkSanity() {
+    LOCK(m)
     CHECK_STATE(fragments.size() <= totalFragments);
 }
 
@@ -141,7 +135,6 @@ bool BlockProposalFragmentList::isComplete() {
             CHECK_STATE(fragments.find(i) != fragments.end())
         }
 
-
         CHECK_STATE(missingFragments.size() == 0);
 
         return true;
@@ -151,7 +144,6 @@ bool BlockProposalFragmentList::isComplete() {
 }
 
 const ptr<vector<uint8_t>> BlockProposalFragmentList::serialize() {
-
 
     auto result = make_shared<vector<uint8_t >>();
 

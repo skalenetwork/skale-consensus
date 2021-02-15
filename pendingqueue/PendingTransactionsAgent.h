@@ -37,10 +37,6 @@ class Transaction;
 class PendingTransactionsAgent : Agent {
 
 public:
-private:
-
-public:
-
 
     class Hasher {
     public:
@@ -84,32 +80,27 @@ private:
         }
     };
 
-    unordered_set<ptr<partial_sha_hash>, Hasher, Equal> committedTransactions;
     unordered_map<ptr<partial_sha_hash>, ptr<Transaction> , Hasher, Equal> knownTransactions;
-
-
-    transaction_count transactionCounter = 0;
-
 
     recursive_mutex transactionsMutex;
 
+    transaction_count transactionCounter = 0;
 
     pair<ptr<vector<ptr<Transaction>>>, u256> createTransactionsListForProposal();
 
 public:
 
-    PendingTransactionsAgent(Schain& _sChain);
+    explicit PendingTransactionsAgent(Schain& _sChain);
 
     void pushKnownTransaction(const ptr<Transaction>& _transaction);
 
     uint64_t getKnownTransactionsSize();
 
-    ptr<Transaction> getKnownTransactionByPartialHash(const ptr<partial_sha_hash> hash);
+    ptr<Transaction> getKnownTransactionByPartialHash(ptr<partial_sha_hash> hash);
 
     ptr<BlockProposal> buildBlockProposal(block_id _blockID, ptr<TimeStamp> _timeStamp);
 
-
-    virtual ~PendingTransactionsAgent() = default;
+    ~PendingTransactionsAgent() override = default;
 
 
 };

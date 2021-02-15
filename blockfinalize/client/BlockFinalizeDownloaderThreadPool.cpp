@@ -61,6 +61,7 @@ void BlockFinalizeDownloaderThreadPool::createThread(uint64_t threadIndex ) {
     if ( destinationIndex == downloader->getSchain()->getSchainIndex())
         return;
 
+    LOCK(threadPoolLock);
     this->threadpool.push_back(make_shared<thread>(
             BlockFinalizeDownloader::workerThreadFragmentDownloadLoop, downloader, destinationIndex ));
 

@@ -24,12 +24,10 @@
 #pragma once
 
 #include <json/value.h>
+
 class Node;
-
 class NodeInfo;
-
 class ConsensusExtFace;
-
 class ConsensusEngine;
 
 class JSONFactory {

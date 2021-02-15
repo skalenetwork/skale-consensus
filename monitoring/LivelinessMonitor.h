@@ -37,36 +37,24 @@
 
 class LivelinessMonitor {
 
-
-
-
     string cl;
     string function;
     pthread_t  threadId;
     uint64_t id;
-public:
-    uint64_t getId() const;
-
-private:
-
-    static atomic<uint64_t> counter;
-
-
-    weak_ptr<MonitoringAgent> agent;
     uint64_t startTime;
-public:
-    uint64_t getStartTime() const;
-
-private:
     uint64_t expiryTime;
-public:
-    uint64_t getExpiryTime() const;
+    static atomic<uint64_t> counter;
+    weak_ptr<MonitoringAgent> agent;
 
 public:
+
+    [[nodiscard]] uint64_t getId() const;
+
+    [[nodiscard]] uint64_t getStartTime() const;
+
+    [[nodiscard]] uint64_t getExpiryTime() const;
 
     string toString();
-
-    void monitor();
 
     virtual ~LivelinessMonitor();
 

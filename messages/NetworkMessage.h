@@ -49,19 +49,15 @@ static constexpr uint64_t MAX_CONSENSUS_MESSAGE_LEN = 1024;
 #include "headers/BasicHeader.h"
 
 class NetworkMessage : public Message, public BasicHeader {
+
 protected:
     uint64_t timeMs;
-
-
     string printPrefix = "n";
-
     schain_index srcSchainIndex{};
     bin_consensus_round r{};
     bin_consensus_value value{};
     ptr< ThresholdSigShare > sigShare;
-
     ptr< BLAKE3Hash > hash;
-
     string sigShareString;
     string ecdsaSig;
     string publicKey;
@@ -84,40 +80,32 @@ protected:
     void addFields( nlohmann::json& j ) override;
 
 public:
-    uint64_t getTimeMs() const;
 
+    [[nodiscard]] uint64_t getTimeMs() const;
 
-public:
     void sign( const ptr< CryptoManager >& _mgr );
-
 
     void verify( const ptr< CryptoManager >& _mgr );
 
+    [[nodiscard]] virtual bin_consensus_round getRound() const;
 
-    virtual bin_consensus_round getRound() const;
-
-    virtual bin_consensus_value getValue() const;
-
-    virtual ~NetworkMessage(){};
+    [[nodiscard]] virtual bin_consensus_value getValue() const;
 
     void printMessage();
 
-    void setIp( int32_t _ip );
-
-    ptr< ThresholdSigShare > getSigShare() const;
+    [[nodiscard]] ptr< ThresholdSigShare > getSigShare() const;
 
     static ptr< NetworkMessage > parseMessage( const string& _header, Schain* _sChain );
 
     static const char* getTypeString( MsgType _type );
 
-    schain_index getSrcSchainIndex() const;
+    [[nodiscard]] schain_index getSrcSchainIndex() const;
 
     ptr< BLAKE3Hash > getHash();
 
-    virtual string serializeToString() override;
+    string serializeToString() override;
 
-
-    const string & getECDSASig() const;
-    const string & getPublicKey() const;
-    const string & getPkSig() const;
+    [[nodiscard]] const string & getECDSASig() const;
+    [[nodiscard]] const string & getPublicKey() const;
+    [[nodiscard]] const string & getPkSig() const;
 };

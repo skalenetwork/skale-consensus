@@ -71,7 +71,7 @@ CommittedBlockList::CommittedBlockList(const ptr< CryptoManager >& _cryptoManage
 
             auto block = CommittedBlock::deserialize( blockData, _cryptoManager );
 
-            blocks->push_back( block );
+            blocks->push_back(block);
 
             index = endIndex;
 
@@ -95,15 +95,18 @@ ptr< vector< ptr< CommittedBlock > > > CommittedBlockList::getBlocks() {
 }
 
 shared_ptr<vector<uint8_t>> CommittedBlockList::serialize() {
-    LOCK( m )
 
     auto serializedBlocks = make_shared<vector<uint8_t>>();
 
     serializedBlocks->push_back( '[' );
 
-    for ( auto&& block : *blocks ) {
-        auto data = block->serialize();
-        serializedBlocks->insert( serializedBlocks->end(), data->begin(), data->end() );
+    {
+        LOCK( m )
+
+        for ( auto&& block : *blocks ) {
+            auto data = block->serialize();
+            serializedBlocks->insert( serializedBlocks->end(), data->begin(), data->end() );
+        }
     }
 
     serializedBlocks->push_back( ']' );
@@ -134,9 +137,10 @@ ptr< CommittedBlockList > CommittedBlockList::deserialize(const ptr< CryptoManag
 }
 
 ptr<vector<uint64_t>> CommittedBlockList::createSizes() {
-    LOCK( m )
 
     auto ret = make_shared< vector< uint64_t > >();
+
+    LOCK(m)
 
     for ( auto&& block : *blocks ) {
         ret->push_back( block->serialize()->size() );

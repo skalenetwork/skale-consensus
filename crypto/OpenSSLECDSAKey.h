@@ -37,28 +37,20 @@ class OpenSSLECDSAKey {
 
     bool isFast;
 
-
-    static EC_KEY* generateECDSAKeyImpl( int nid );
-
-
-    static void initGroupsIfNeeded();
+    string ecdsaSignImpl( const char* _hash) const;
 
     static EC_KEY* deserializeECDSAPubKey( const string& _publicKey );
     static EC_KEY* deserializeSGXPubKey( const string& _publicKey );
 
-    string ecdsaSignImpl( const char* _hash) const;
+    static EC_KEY* generateECDSAKeyImpl( int nid );
+
+    static void initGroupsIfNeeded();
 
 public:
 
-
-
     OpenSSLECDSAKey( EC_KEY* _eckey, bool _isPrivate, bool _isFast);
 
-    static ptr< OpenSSLECDSAKey > importSGXPubKey( const string& _publicKey);
-    static ptr< OpenSSLECDSAKey > importPubKey( const string& _publicKey);
     virtual ~OpenSSLECDSAKey();
-
-    static ptr< OpenSSLECDSAKey > generateKey();
 
     string serializePubKey();
 
@@ -67,6 +59,10 @@ public:
     bool verifySig(const string& _signature, const char* _hash );
     bool verifySGXSig(const string& _sig, const char* _hash);
 
+    static ptr< OpenSSLECDSAKey > importSGXPubKey( const string& _publicKey);
+    static ptr< OpenSSLECDSAKey > importPubKey( const string& _publicKey);
+
+    static ptr< OpenSSLECDSAKey > generateKey();
 };
 
 #endif  // OPENSSLECDSAPRIVATEKEY_H

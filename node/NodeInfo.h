@@ -37,7 +37,6 @@ class NodeInfo {
 
     ptr<sockaddr_in> socketaddr;
 
-
 public:
 
 
@@ -47,11 +46,9 @@ public:
 
     network_port getPort() const;
 
-
     schain_id getSchainID() const;
 
     NodeInfo(node_id nodeID, const string &ip, network_port port, schain_id schainID, schain_index schainIndex);
-
 
     ptr<sockaddr_in> getSocketaddr();
 

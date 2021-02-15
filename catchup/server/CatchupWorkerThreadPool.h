@@ -21,18 +21,13 @@
     @date 2018
 */
 
-#pragma  once
 
-
-
-
-
+#ifndef SKALED_CATCHUPWORKERTHREADPOOL_H
+#define SKALED_CATCHUPWORKERTHREADPOOL_H
 
 #include "threads/WorkerThreadPool.h"
 
-
 class CatchupServerAgent;
-
 
 class CatchupWorkerThreadPool : public WorkerThreadPool {
 
@@ -40,7 +35,8 @@ public:
 
     CatchupWorkerThreadPool(num_threads _numThreads, Agent* _agent);
 
-    virtual void createThread(uint64_t threadNumber);
+    void createThread(uint64_t threadNumber) override;
 };
+#endif
 
 

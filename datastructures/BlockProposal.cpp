@@ -62,10 +62,7 @@ ptr<BLAKE3Hash> BlockProposal::getHash() {
 
 void BlockProposal::calculateHash() {
 
-
     HASH_INIT(hasher);
-
-
 
     HASH_UPDATE(hasher, proposerIndex);
     HASH_UPDATE(hasher, proposerNodeID);
@@ -201,14 +198,12 @@ uint32_t BlockProposal::getTimeStampMs() const {
 }
 
 void BlockProposal::addSignature(const string &_signature) {
-    LOCK(m)
-    CHECK_ARGUMENT(_signature != "")
+    CHECK_ARGUMENT(!_signature.empty())
     signature = _signature;
 }
 
 string BlockProposal::getSignature() {
-    LOCK(m)
-    CHECK_STATE(signature != "");
+    CHECK_STATE(!signature.empty())
     return signature;
 }
 
@@ -220,7 +215,7 @@ ptr<BlockProposalRequestHeader> BlockProposal::createBlockProposalHeader(Schain 
 
     LOCK(_proposal->m);
 
-    if (_proposal->header != nullptr)
+    if (_proposal->header)
         return _proposal->header;
 
     _proposal->header = make_shared<BlockProposalRequestHeader>(*_sChain, _proposal);
@@ -289,7 +284,7 @@ ptr<BlockProposal> BlockProposal::deserialize(const ptr<vector<uint8_t> > &_seri
 
     string headerStr = BlockProposal::extractHeader(_serializedProposal);
 
-    CHECK_STATE(headerStr != "");
+    CHECK_STATE(!headerStr.empty());
 
     ptr<BlockProposalHeader> blockHeader;
 
@@ -307,7 +302,7 @@ ptr<BlockProposal> BlockProposal::deserialize(const ptr<vector<uint8_t> > &_seri
 
     auto sig = blockHeader->getSignature();
 
-    CHECK_STATE(sig != "");
+    CHECK_STATE(!sig.empty());
 
     auto proposal = make_shared<BlockProposal>(blockHeader->getSchainID(), blockHeader->getProposerNodeId(),
                                                blockHeader->getBlockID(), blockHeader->getProposerIndex(),

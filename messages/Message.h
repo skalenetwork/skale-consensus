@@ -54,16 +54,16 @@ public:
     Message(const schain_id &schainID, MsgType msgType, const msg_id &msgID, const node_id &srcNodeID,
             const block_id &blockID, const schain_index &blockProposerIndex);
 
-    node_id getSrcNodeID() const;
+    [[nodiscard]] node_id getSrcNodeID() const;
 
 
-    MsgType getMessageType() const;
+    [[nodiscard]] MsgType getMessageType() const;
 
-    const block_id getBlockId() const;
+    [[nodiscard]] const block_id getBlockId() const;
 
-    schain_index getBlockProposerIndex() const ;
+    [[nodiscard]] schain_index getBlockProposerIndex() const ;
 
-    schain_id getSchainID() const;
+    [[nodiscard]] schain_id getSchainID() const;
 
     ptr<ProtocolKey> createDestinationProtocolKey();
 
