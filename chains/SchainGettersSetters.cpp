@@ -275,7 +275,7 @@ void Schain::updateLastCommittedBlockInfo( uint64_t _lastCommittedBlockID,
     lastCommittedBlockID = _lastCommittedBlockID;
     lastCommittedBlockTimeStamp = _lastCommittedBlockTimeStamp;
     auto currentTime = Time::getCurrentTimeMs();
-    CHECK_STATE(currentTime > lastCommitTimeMs);
+    CHECK_STATE(currentTime >= lastCommitTimeMs);
     lastCommitTimeMs = currentTime;
 
 }
