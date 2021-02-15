@@ -151,7 +151,7 @@ static const uint64_t MAX_CONSENSUS_HISTORY  = 2 * MAX_ACTIVE_CONSENSUSES;
 static const uint64_t SESSION_KEY_CACHE_SIZE  = 2;
 static const uint64_t SESSION_PUBLIC_KEY_CACHE_SIZE  = 16;
 
-static constexpr uint64_t MAX_CATCHUP_DOWNLOAD_BYTES = 4000000;
+static constexpr uint64_t MAX_CATCHUP_DOWNLOAD_BYTES = 16000000;
 
 static constexpr uint64_t PROPOSAL_HASHES_PER_DB = 100000;
 
