@@ -151,7 +151,7 @@ static const uint64_t MAX_CONSENSUS_HISTORY  = 2 * MAX_ACTIVE_CONSENSUSES;
 static const uint64_t SESSION_KEY_CACHE_SIZE  = 2;
 static const uint64_t SESSION_PUBLIC_KEY_CACHE_SIZE  = 16;
 
-static constexpr uint64_t MAX_CATCHUP_DOWNLOAD_BYTES = 1000000000;
+static constexpr uint64_t MAX_CATCHUP_DOWNLOAD_BYTES = 4000000;
 
 static constexpr uint64_t PROPOSAL_HASHES_PER_DB = 100000;
 
@@ -163,7 +163,7 @@ static constexpr uint64_t MIN_BLOCK_INTERVAL_MS = 1;
 
 static  constexpr uint64_t PROPOSAL_RETRY_INTERVAL_MS = 500;
 
-static constexpr uint64_t CATCHUP_INTERVAL_MS = 10000;
+static constexpr uint64_t CATCHUP_INTERVAL_MS = 5000;
 
 static constexpr uint64_t MONITORING_INTERVAL_MS = 1000;
 
