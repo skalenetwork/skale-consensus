@@ -264,6 +264,9 @@ ptr<vector<uint8_t>> CatchupServerAgent::createBlockCatchupResponse(nlohmann::js
 
         serializedBlocks->push_back('[');
 
+        uint64_t totalSize = 0;
+
+        auto maxSize = getSchain()->getNode()->getMaxCatchupDownloadBytes();
 
         for (uint64_t i = (uint64_t) _blockID + 1; i <= committedBlockID; i++) {
 
@@ -275,9 +278,15 @@ ptr<vector<uint8_t>> CatchupServerAgent::createBlockCatchupResponse(nlohmann::js
                 return nullptr;
             }
 
+            totalSize += serializedBlock->size();
+
+            if (totalSize > maxSize)
+                break;
+
             serializedBlocks->insert(serializedBlocks->end(), serializedBlock->begin(), serializedBlock->end());
 
             blockSizes->push_back(serializedBlock->size());
+
 
         }
 
