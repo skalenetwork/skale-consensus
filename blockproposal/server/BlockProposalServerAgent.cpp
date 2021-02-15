@@ -590,6 +590,7 @@ ptr< Header > BlockProposalServerAgent::createDAProofResponseHeader(
 
     ptr< NodeInfo > nmi = sChain->getNode()->getNodeInfoById( nodeId );
 
+
     if ( nmi == nullptr ) {
         responseHeader->setStatusSubStatus(
             CONNECTION_ERROR, CONNECTION_ERROR_DONT_KNOW_THIS_NODE );
