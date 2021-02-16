@@ -43,6 +43,8 @@ class BlockProposalHeader;
 class BlockProposalFragment;
 class BlockProposalFragmentList;
 
+#define SERIALIZE_AS_PROPOSAL 1
+
 class BlockProposal : public SendableItem {
     ptr< BlockProposalRequestHeader > header = nullptr; // tsafe
 
@@ -66,7 +68,7 @@ protected:
 
     void calculateHash();
 
-    virtual ptr< BasicHeader > createHeader();
+    virtual ptr< BasicHeader > createHeader(uint64_t _flags = 0);
 
     static ptr< TransactionList > deserializeTransactions(
         const ptr< BlockProposalHeader >& _header, const string& _headerString,
@@ -110,7 +112,7 @@ public:
 
     string getSignature();
 
-    ptr< vector< uint8_t > > serialize();
+    ptr< vector< uint8_t > > serialize(uint64_t _flags = 0);
 
     ptr< BlockProposalFragment > getFragment( uint64_t _totalFragments, fragment_index _index );
 

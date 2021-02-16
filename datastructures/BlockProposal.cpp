@@ -225,18 +225,18 @@ ptr<BlockProposalRequestHeader> BlockProposal::createBlockProposalHeader(Schain 
 }
 
 
-ptr<BasicHeader> BlockProposal::createHeader() {
+ptr<BasicHeader> BlockProposal::createHeader(uint64_t ) {
     return make_shared<BlockProposalHeader>(*this);
 }
 
-ptr<vector<uint8_t> > BlockProposal::serialize() {
+ptr<vector<uint8_t> > BlockProposal::serialize(uint64_t _flags) {
 
     LOCK(m)
 
     if (serializedProposal != nullptr)
         return serializedProposal;
 
-    auto blockHeader = createHeader();
+    auto blockHeader = createHeader(_flags);
 
     auto buf = blockHeader->toBuffer();
 
@@ -340,7 +340,7 @@ ptr<BlockProposalFragment> BlockProposal::getFragment(uint64_t _totalFragments, 
     CHECK_ARGUMENT(_index <= _totalFragments);
     LOCK(m)
 
-    auto serializedBlock = serialize();
+    auto serializedBlock = serialize(SERIALIZE_AS_PROPOSAL);
 
     CHECK_STATE(serializedBlock);
 

@@ -39,6 +39,8 @@ class CommittedBlockHeader;
 
 class BlockProposalFragment;
 
+
+
 class CommittedBlock : public BlockProposal {
 
     string thresholdSig;
@@ -46,7 +48,7 @@ class CommittedBlock : public BlockProposal {
     static ptr< CommittedBlockHeader > parseBlockHeader( const string& _header );
 
 protected:
-    ptr< BasicHeader > createHeader() override;
+    ptr< BasicHeader > createHeader(uint64_t _flags = 0) override;
 
 public:
     CommittedBlock( uint64_t timeStamp, uint32_t timeStampMs );

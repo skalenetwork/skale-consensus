@@ -94,7 +94,10 @@ ptr< CommittedBlock > CommittedBlock::createRandomSample(const ptr< CryptoManage
 }
 
 
-ptr< BasicHeader > CommittedBlock::createHeader() {
+
+ptr< BasicHeader > CommittedBlock::createHeader(uint64_t _flags) {
+    if (_flags == SERIALIZE_AS_PROPOSAL )
+        return make_shared< BlockProposalHeader >( *this );
     return make_shared< CommittedBlockHeader >( *this, this->getThresholdSig() );
 }
 
