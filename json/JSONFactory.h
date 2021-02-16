@@ -71,4 +71,6 @@ public:
     static int64_t getInt64( Json::Value& _json, const char* key );
 
     static string getString( Json::Value& _json, const char* key );
+
+    static void checkSGXStatus(Json::Value& _result);
 };

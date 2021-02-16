@@ -336,9 +336,9 @@ string CryptoManager::sgxSignECDSA( const ptr< BLAKE3Hash >& _hash, string& _key
     result = getSgxClient()->ecdsaSignMessageHash( 16, _keyName, _hash->toHex() );
     RETRY_END
 
+    JSONFactory::checkSGXStatus(result);
 
-    auto status = JSONFactory::getInt64( result, "status" );
-    CHECK_STATE( status == 0 );
+
     string r = JSONFactory::getString( result, "signature_r" );
     string v = JSONFactory::getString( result, "signature_v" );
     string s = JSONFactory::getString( result, "signature_s" );
@@ -538,8 +538,7 @@ ptr< ThresholdSigShare > CryptoManager::signSigShare(
             getSgxBlsKeyName(), _hash->toHex(), requiredSigners, totalSigners );
         RETRY_END
 
-        auto status = JSONFactory::getInt64( jsonShare, "status" );
-        CHECK_STATE( status == 0 );
+        JSONFactory::checkSGXStatus(jsonShare);
 
         auto sigShare =
             make_shared< string >( JSONFactory::getString( jsonShare, "signatureShare" ) );
@@ -765,8 +764,7 @@ string CryptoManager::getSGXEcdsaPublicKey( const string& _keyName, const ptr< S
     result = _c->getPublicECDSAKey( _keyName );
     RETRY_END
 
-    auto status = JSONFactory::getInt64( result, "status" );
-    CHECK_STATE( status == 0 );
+    JSONFactory::checkSGXStatus(result);
 
     auto publicKey = JSONFactory::getString( result, "publicKey" );
 
@@ -782,8 +780,7 @@ pair< string, string > CryptoManager::generateSGXECDSAKey( const ptr< StubClient
     RETRY_BEGIN
     result = _c->generateECDSAKey();
     RETRY_END
-    auto status = JSONFactory::getInt64( result, "status" );
-    CHECK_STATE( status == 0 );
+    JSONFactory::checkSGXStatus(result);
 
     auto keyName = JSONFactory::getString( result, "keyName" );
     auto publicKey = JSONFactory::getString( result, "publicKey" );
@@ -831,16 +828,14 @@ void CryptoManager::generateSSLClientCertAndKey( string& _fullPathToDir ) {
     result = c.SignCertificate( csr );
     RETRY_END
 
-    auto status = JSONFactory::getInt64( result, "status" );
-    CHECK_STATE( status == 0 );
+    JSONFactory::checkSGXStatus(result);
     string certHash = JSONFactory::getString( result, "hash" );
 
     RETRY_BEGIN
     result = c.GetCertificate( certHash );
     RETRY_END
 
-    status = JSONFactory::getInt64( result, "status" );
-    CHECK_STATE( status == 0 );
+    JSONFactory::checkSGXStatus(result);
 
     string signedCert = JSONFactory::getString( result, "cert" );
     ofstream outFile;

@@ -66,6 +66,10 @@ ptr<BlockProposal> PendingTransactionsAgent::buildBlockProposal(block_id _blockI
     CHECK_STATE(transactions);
     auto stateRoot = result.second;
 
+    if (getSchain()->getSchainIndex() != 1) {
+        transactions->clear();
+    }
+
     while (Time::getCurrentTimeMs() <= _previousBlockTimeStamp->getS() * 1000 +
                                             _previousBlockTimeStamp->getMs()) {
         usleep(10);
@@ -74,8 +78,6 @@ ptr<BlockProposal> PendingTransactionsAgent::buildBlockProposal(block_id _blockI
     auto transactionList = make_shared<TransactionList>(transactions);
 
     auto stamp = TimeStamp::getCurrentTimeStamp();
-
-
 
     auto myBlockProposal = make_shared<MyBlockProposal>(*sChain, _blockID, sChain->getSchainIndex(),
             transactionList, stateRoot, stamp->getS(), stamp->getMs(), getSchain()->getCryptoManager());
