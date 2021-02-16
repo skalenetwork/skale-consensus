@@ -39,6 +39,8 @@
 
 #include <sys/types.h>
 
+#include "sgxwallet/stubclient.h"
+
 #include "Log.h"
 #include "SkaleCommon.h"
 

@@ -146,7 +146,6 @@ uint64_t ZMQNetwork::readMessageFromNetwork( const ptr< Buffer > buf ) {
 
     if ( ( uint64_t ) rc >= MAX_CONSENSUS_MESSAGE_LEN ) {
         BOOST_THROW_EXCEPTION( NetworkProtocolException(
-
             "Consensus Message length too large:" + to_string( rc ), __CLASS_NAME__ ) );
     }
 
