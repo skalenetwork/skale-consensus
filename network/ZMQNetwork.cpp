@@ -154,4 +154,5 @@ uint64_t ZMQNetwork::readMessageFromNetwork( const ptr< Buffer > buf ) {
 }
 
 
+
 ZMQNetwork::ZMQNetwork( Schain& _schain ) : Network( _schain ) {}
