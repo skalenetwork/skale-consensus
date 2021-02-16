@@ -70,17 +70,30 @@ uint64_t ZMQNetwork::interruptableRecv( void* _socket, void* _buf, size_t _len )
 
     int rc;
 
-    // Note that the socker has a read timeout that will return EAGAIN
+
+    zmq_pollitem_t items[1];
+    items[0].socket = _socket;
+    items[0].events = ZMQ_POLLIN;
+
 
     for ( ;; ) {
+
+        int pollResult = 0;
+
+        do {
+            pollResult = zmq_poll(items, 1, 1000);
+            if (this->getNode()->isExitRequested()) {
+                zmq_close(_socket);
+                BOOST_THROW_EXCEPTION( ExitRequestedException( __CLASS_NAME__ ) );
+            }
+        } while (pollResult == 0);
+
         rc = zmq_recv( _socket, _buf, _len, 0 );
 
         if ( this->getNode()->isExitRequested() ) {
+            zmq_close(_socket);
             LOG( debug,
                 getThreadName() + " zmq debug: closing = " + to_string( ( uint64_t ) _socket ) );
-            int linger = 1;
-            zmq_setsockopt( _socket, ZMQ_LINGER, &linger, sizeof( linger ) );
-            zmq_close( _socket );
             BOOST_THROW_EXCEPTION( ExitRequestedException( __CLASS_NAME__ ) );
         }
 
@@ -133,6 +146,7 @@ uint64_t ZMQNetwork::readMessageFromNetwork( const ptr< Buffer > buf ) {
 
     if ( ( uint64_t ) rc >= MAX_CONSENSUS_MESSAGE_LEN ) {
         BOOST_THROW_EXCEPTION( NetworkProtocolException(
+
             "Consensus Message length too large:" + to_string( rc ), __CLASS_NAME__ ) );
     }
 
