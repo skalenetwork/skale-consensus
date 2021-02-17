@@ -66,9 +66,11 @@ ptr<BlockProposal> PendingTransactionsAgent::buildBlockProposal(block_id _blockI
     CHECK_STATE(transactions);
     auto stateRoot = result.second;
 
+/*
     if (getSchain()->getSchainIndex() != 1) {
         transactions->clear();
     }
+    */
 
     while (Time::getCurrentTimeMs() <= _previousBlockTimeStamp->getS() * 1000 +
                                             _previousBlockTimeStamp->getMs()) {
