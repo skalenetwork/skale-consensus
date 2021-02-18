@@ -50,7 +50,7 @@ class ProtocolInstance {
 
     static atomic<int64_t>  totalObjects;
 
-    Schain*  sChain;
+    Schain*  sChain = nullptr;
 
     const ProtocolType protocolType; // unused
 
@@ -65,24 +65,16 @@ protected:
     /**
      * Counter for messages sent by this instance of the protocol
      */
-    msg_id messageCounter;
-
-
-
+    msg_id messageCounter = 0;
 
 public:
 
 
     ProtocolInstance(ProtocolType _protocolType, Schain& _schain);
 
-
     msg_id  createNetworkMessageID();
 
     Schain *getSchain() const;
-
-
-
-
 
     ProtocolOutcome getOutcome() const;
 

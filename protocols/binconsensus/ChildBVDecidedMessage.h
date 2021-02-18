@@ -29,10 +29,10 @@
 class ChildBVDecidedMessage : public ChildMessage {
     bool value;
 
-    bin_consensus_round round;
+    bin_consensus_round round = 0;
 
-    uint64_t maxProcessingTimeMs;
-    uint64_t maxLatencyTimeMs;
+    uint64_t maxProcessingTimeMs = 0;
+    uint64_t maxLatencyTimeMs = 0;
 
 public:
     uint64_t getMaxLatencyTimeMs() const;

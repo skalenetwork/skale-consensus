@@ -49,9 +49,9 @@ class BlockProposalFragmentList : public DataStructure {
 
     bool isSerialized = false;
 
-    const block_id blockID;
+    const block_id blockID  = 0;
 
-    const uint64_t  totalFragments;
+    const uint64_t  totalFragments  = 0;
 
     void checkSanity();
 

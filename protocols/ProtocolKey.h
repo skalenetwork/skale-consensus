@@ -28,28 +28,21 @@ class NetworkMessage;
 
 class ProtocolKey {
 
+    const block_id blockID = 0;
+
+    const schain_index  blockProposerIndex = 0;
 
 public:
 
-    block_id getBlockID() const;
+    [[nodiscard ]] block_id getBlockID() const;
 
-    schain_index getBlockProposerIndex() const;
-
-private:
-
-    const block_id blockID;
-
-    const schain_index  blockProposerIndex;
-
-public:
+    [[nodiscard ]]  schain_index getBlockProposerIndex() const;
 
     ProtocolKey(block_id _blockId, schain_index _blockProposerIndex);
 
-
     ProtocolKey(const ProtocolKey& key);
 
-    virtual ~ProtocolKey() {
-    }
+    virtual ~ProtocolKey()  = default;
 
 };
 

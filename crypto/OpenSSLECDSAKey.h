@@ -35,7 +35,7 @@ class OpenSSLECDSAKey {
     static EC_GROUP *ecgroup;
     static EC_GROUP *ecgroupFast;
 
-    bool isFast;
+    bool isFast = false;
 
     string ecdsaSignImpl( const char* _hash) const;
 

@@ -29,6 +29,7 @@
 class OpenSSLEdDSAKey {
 
     bool isPrivate = false;
+
     EVP_PKEY*  edKey = nullptr;
 
     static EVP_PKEY* genFastKeyImpl();

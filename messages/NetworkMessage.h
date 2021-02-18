@@ -51,18 +51,17 @@ static constexpr uint64_t MAX_CONSENSUS_MESSAGE_LEN = 1024;
 class NetworkMessage : public Message, public BasicHeader {
 
 protected:
-    uint64_t timeMs;
+    uint64_t timeMs = 0;
     string printPrefix = "n";
-    schain_index srcSchainIndex{};
-    bin_consensus_round r{};
-    bin_consensus_value value{};
+    schain_index srcSchainIndex = 0;
+    bin_consensus_round r = 0;
+    bin_consensus_value value = 0;
     ptr< ThresholdSigShare > sigShare;
     ptr< BLAKE3Hash > hash;
     string sigShareString;
     string ecdsaSig;
     string publicKey;
     string pkSig;
-
 
     NetworkMessage( MsgType _messageType, block_id _blockID, schain_index _blockProposerIndex,
         bin_consensus_round _r, bin_consensus_value _value, uint64_t _timeMs,

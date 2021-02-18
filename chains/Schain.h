@@ -86,11 +86,11 @@ class Schain : public Agent {
 
     ConsensusExtFace* extFace = nullptr;
 
-    schain_id schainID;
+    schain_id schainID = 0;
 
     ptr< TestMessageGeneratorAgent > testMessageGeneratorAgent;
 
-    uint64_t startTimeMs;
+    uint64_t startTimeMs = 0;
 
     ptr< BlockProposalServerAgent > blockProposalServerAgent;
 
@@ -122,7 +122,7 @@ class Schain : public Agent {
 
     atomic< uint64_t > lastCommittedBlockID = 0;
     atomic< uint64_t > lastCommitTimeMs = 0;
-    ptr< TimeStamp > lastCommittedBlockTimeStamp;
+    ptr< TimeStamp > lastCommittedBlockTimeStamp = 0;
     atomic< uint64_t > bootstrapBlockID = 0;
     uint64_t maxExternalBlockProcessingTime = 0;
 

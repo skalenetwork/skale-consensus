@@ -47,16 +47,14 @@ protected:
     uint64_t highestDBIndex = 0;
     shared_mutex m;
 
-    node_id nodeId;
+    node_id nodeId = 0;
     string prefix;
     string dirname;
-    uint64_t maxDBSize;
-    uint64_t totalSigners;
-    uint64_t requiredSigners;
-    bool isDuplicateAddOK;
-    Schain* sChain;
-
-
+    uint64_t maxDBSize = 0;
+    uint64_t totalSigners = 0;
+    uint64_t requiredSigners = 0;
+    bool isDuplicateAddOK = false;
+    Schain* sChain = nullptr;
 
     void verify();
     ptr< map< schain_index, string > > writeByteArrayToSetUnsafe(

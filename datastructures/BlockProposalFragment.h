@@ -27,12 +27,12 @@ class BlockProposalFragment {
 
     const ptr<vector<uint8_t>> data; // tsafe
 
-    const block_id blockId;
-    const uint64_t blockSize;
+    const block_id blockId  = 0;
+    const uint64_t blockSize  = 0;
     string blockHash;
 
-    const uint64_t totalFragments;
-    const fragment_index fragmentIndex;
+    const uint64_t totalFragments  = 0;
+    const fragment_index fragmentIndex  = 0;
 
 public:
 

@@ -41,10 +41,9 @@ class ClientSocket {
 
     string remoteIP;
 
-    network_port remotePort;
+    network_port remotePort = 0;
 
     ptr<sockaddr_in> remoteAddr = nullptr;
-
 
     void closeSocket();
 
@@ -54,22 +53,18 @@ class ClientSocket {
 
 public:
 
-
     file_descriptor getDescriptor() ;
 
     string& getConnectionIP() ;
 
     network_port getConnectionPort();
 
-
     static uint64_t getTotalSockets();
-
 
     virtual ~ClientSocket() {
         closeSocket();
         totalSockets--;
     }
-
 
     ClientSocket(Schain &_sChain, schain_index _destinationIndex, port_type portType);
 

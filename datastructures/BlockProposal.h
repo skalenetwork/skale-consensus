@@ -51,11 +51,11 @@ class BlockProposal : public SendableItem {
     ptr< vector< uint8_t > > serializedProposal = nullptr;  // tsafe
 
 protected:
-    schain_id schainID;
-    node_id proposerNodeID;
-    block_id blockID;
-    schain_index proposerIndex;
-    transaction_count transactionCount;
+    schain_id schainID = 0;
+    node_id proposerNodeID = 0;
+    block_id blockID = 0;
+    schain_index proposerIndex = 0;
+    transaction_count transactionCount = 0;
     uint64_t timeStamp = 0;
     uint32_t timeStampMs = 0;
     u256 stateRoot = 0;

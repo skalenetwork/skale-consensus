@@ -36,8 +36,9 @@ class BlockProposalSet : public DataStructure {
 
     map< uint64_t, ptr< BlockProposal > > proposals; // tsafe
 
-    node_count nodeCount;
-    block_id blockId;
+    node_count nodeCount  = 0;
+
+    block_id blockId  = 0;
 
     static atomic< int64_t > totalObjects;
 

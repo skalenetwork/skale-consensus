@@ -29,7 +29,7 @@ class ServerConnection {
 
     static atomic<int64_t> totalObjects;
 
-    file_descriptor descriptor;
+    file_descriptor descriptor = 0;
 
     string ip;
 

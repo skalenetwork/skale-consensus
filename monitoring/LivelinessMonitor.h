@@ -39,10 +39,10 @@ class LivelinessMonitor {
 
     string cl;
     string function;
-    pthread_t  threadId;
-    uint64_t id;
-    uint64_t startTime;
-    uint64_t expiryTime;
+    pthread_t  threadId = 0;
+    uint64_t id = 0;
+    uint64_t startTime = 0;
+    uint64_t expiryTime = 0;
     static atomic<uint64_t> counter;
     weak_ptr<MonitoringAgent> agent;
 

@@ -42,10 +42,10 @@ class ProtocolKey;
 
 class BinConsensusInstance : public ProtocolInstance{
 
-    BlockConsensusAgent* const blockConsensusInstance;
-    const block_id blockID;
-    const schain_index blockProposerIndex;
-    const node_count nodeCount;
+    BlockConsensusAgent* const blockConsensusInstance = nullptr;
+    const block_id blockID = 0;;
+    const schain_index blockProposerIndex = 0;
+    const node_count nodeCount = 0;
     const ptr<ProtocolKey> protocolKey;
 
     uint64_t maxProcessingTimeMs = 0;

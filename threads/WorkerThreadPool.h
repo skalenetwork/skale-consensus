@@ -43,8 +43,8 @@ protected:
 
     vector<ptr<thread>> threadpool;
     recursive_mutex threadPoolLock;
-    num_threads numThreads;
-    Agent* agent;
+    num_threads numThreads = 0;
+    Agent* agent = nullptr;
 
 protected:
 
