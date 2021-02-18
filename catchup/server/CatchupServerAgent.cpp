@@ -145,7 +145,6 @@ void CatchupServerAgent::processNextAvailableConnection(const ptr<ServerConnecti
     }
     catch (...) {
         throw_with_nested(CouldNotSendMessageException("Could not send response", __CLASS_NAME__));
-        throw_with_nested(CouldNotSendMessageException("Could not send response", __CLASS_NAME__));
     }
 
 
