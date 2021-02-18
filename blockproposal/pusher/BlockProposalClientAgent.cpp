@@ -192,8 +192,8 @@ pair< ConnectionStatus, ConnectionSubStatus > BlockProposalClientAgent::sendBloc
 
 
     if ( result.first != CONNECTION_PROCEED ) {
-        LOG( trace, "Proposal Server terminated proposal push:" +
-            to_string(result.first) + ":" + to_string(result.second));
+        LOG( trace, "Proposal Server terminated proposal push:" + to_string( result.first ) + ":" +
+                        to_string( result.second ) );
         return result;
     }
 
@@ -373,28 +373,18 @@ pair< ConnectionStatus, ConnectionSubStatus > BlockProposalClientAgent::sendDAPr
     auto status = ConnectionStatus::CONNECTION_STATUS_UNKNOWN;
     auto substatus = ConnectionSubStatus::CONNECTION_SUBSTATUS_UNKNOWN;
 
-    status = ( ConnectionStatus ) Header::getUint64( response, "status" );
-    substatus = ( ConnectionSubStatus ) Header::getUint64( response, "substatus" );
 
-
-    if ( status != CONNECTION_SUCCESS ) {
-        if ( status == CONNECTION_RETRY_LATER || status == CONNECTION_DISCONNECT)
-            return { status, substatus };
-
-        try {
-            substatus = ( ConnectionSubStatus ) Header::getUint64( response, "substatus" );
-        } catch ( ... ) {
-        }
-        if ( substatus == CONNECTION_BLOCK_PROPOSAL_TOO_LATE ) {
-            LOG( trace, "Block proposal too late" );
-        } else {
-            LOG( err, "Failure submitting DA proof:" + to_string( status ) + ":" +
-                          to_string( substatus ) );
-        }
-
-        return { status, substatus };
+    try {
+        status = ( ConnectionStatus ) Header::getUint64( response, "status" );
+        substatus = ( ConnectionSubStatus ) Header::getUint64( response, "substatus" );
+    } catch (...) {
+        LOG( err, "Unknown failure submitting DA proof");
+        return {status, substatus};
     }
 
+    if ( status == CONNECTION_ERROR ) {
+        LOG( err, "Failure submitting DA proof:" + to_string( status ) + ":" + to_string( substatus ) );
+    }
 
     return { status, substatus };
 }
