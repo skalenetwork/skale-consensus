@@ -95,8 +95,8 @@ class ConsensusEngine : public ConsensusInterface {
 
     static ptr< spdlog::logger > configLogger;
     
-    static string dataDir;
-    static string logDir;
+    string dataDir;
+    string logDir;
 
     static recursive_mutex logMutex;
     
@@ -137,9 +137,9 @@ public:
 
     ptr< spdlog::logger > createLogger( const string& loggerName );
 
-    static const string getDataDir();
+    const string getDataDir();
     
-    static const string getLogDir();
+    const string getLogDir();
     
     string exec( const char* cmd );
 
