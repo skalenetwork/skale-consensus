@@ -67,7 +67,7 @@
 CatchupServerAgent::CatchupServerAgent(Schain &_schain, const ptr<TCPServerSocket>& _s) : AbstractServerAgent(
         "CatchupServer", _schain, _s) {
     CHECK_ARGUMENT(_s);
-    catchupWorkerThreadPool = make_shared<CatchupWorkerThreadPool>(num_threads(4), this);
+    catchupWorkerThreadPool = make_shared<CatchupWorkerThreadPool>(num_threads(16), this);
     catchupWorkerThreadPool->startService();
     createNetworkReadThread();
 }
@@ -144,6 +144,7 @@ void CatchupServerAgent::processNextAvailableConnection(const ptr<ServerConnecti
         throw;
     }
     catch (...) {
+        throw_with_nested(CouldNotSendMessageException("Could not send response", __CLASS_NAME__));
         throw_with_nested(CouldNotSendMessageException("Could not send response", __CLASS_NAME__));
     }
 

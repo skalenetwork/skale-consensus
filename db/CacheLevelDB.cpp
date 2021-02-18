@@ -503,11 +503,12 @@ uint64_t CacheLevelDB::readCount(block_id _blockId) {
 
     auto countString = readString(counterKey);
 
-    if (countString != "") {
+    if (countString == "") {
         return 0;
     }
 
     try {
+
         auto result = stoull(countString, NULL, 10);
 
         CHECK_STATE(result <= totalSigners);
