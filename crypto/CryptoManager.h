@@ -242,7 +242,8 @@ public:
                     "Got libcurl error 52. You may be trying to connect with http to https "       \
                     "server" );                                                                    \
             };                                                                                     \
-            LOG( err, "Could not connect to sgx server: " + CryptoManager::getSgxUrl() +                \
+            if (!CryptoManager::isRetryHappened())                                                                                       \
+                LOG( err, "Could not connect to sgx server: " + CryptoManager::getSgxUrl() +                \
                           ", retrying each five seconds ... \n" + string( e.what() ) );            \
             CryptoManager::setRetryHappened(true);                                                   \
             sleep( 5 );                                                                            \
