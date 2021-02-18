@@ -41,12 +41,12 @@ private:
 
 protected:
 
-    schain_id schainID;
-    block_id  blockID;
-    schain_index blockProposerIndex;
+    schain_id schainID = 0;
+    block_id  blockID = 0;
+    schain_index blockProposerIndex = 0;
     MsgType msgType;
-    msg_id msgID;
-    node_id srcNodeID;
+    msg_id msgID = 0;
+    node_id srcNodeID = 0;
 
     ptr<ProtocolKey> protocolKey;
 

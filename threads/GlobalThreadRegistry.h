@@ -28,6 +28,7 @@
 class GlobalThreadRegistry {
 
     vector< ptr<thread>> allThreads;
+
     recursive_mutex allThreadsLock;
 
     bool joined = false;

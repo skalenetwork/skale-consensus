@@ -37,7 +37,6 @@ class BlockDB : public CacheLevelDB {
 
     void saveBlock2LevelDB(const ptr<CommittedBlock> &_block);
 
-
 public:
 
     BlockDB(Schain *_sChain, string &_dirname, string &_prefix, node_id _nodeId, uint64_t _maxDBSize);

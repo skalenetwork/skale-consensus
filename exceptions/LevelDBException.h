@@ -28,9 +28,4 @@ class LevelDBException : public SkaleException {
 public:
     LevelDBException(const std::string &_message, const string& _className);
 
-
-
-
-
-
 };

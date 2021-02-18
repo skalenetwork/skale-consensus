@@ -45,7 +45,7 @@ protected:
     map< schain_index, ptr< condition_variable > > queueCond;
     map< schain_index, ptr< mutex > > queueMutex;
 
-    Schain* sChain;
+    Schain* sChain = nullptr;
 
     recursive_mutex m;
 

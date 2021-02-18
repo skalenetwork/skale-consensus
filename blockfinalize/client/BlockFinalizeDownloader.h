@@ -62,9 +62,9 @@ class BlockProposalSet;
 
 class BlockFinalizeDownloader : public Agent {
 
-    block_id blockId;
+    block_id blockId = 0;
 
-    schain_index proposerIndex;
+    schain_index proposerIndex = 0;
 
     BlockProposalFragmentList fragmentList;
 

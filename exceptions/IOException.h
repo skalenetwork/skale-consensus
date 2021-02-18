@@ -27,7 +27,7 @@
 
 class IOException : public  NetworkProtocolException {
 
-    int errNo;
+    int errNo = 0;
 
 public:
 

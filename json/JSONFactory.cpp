@@ -101,7 +101,7 @@ ptr< Node > JSONFactory::createNodeFromJsonFile(
     }
 }
 
-ptr< Node > JSONFactory::createNodeFromJsonObject( const nlohmann::json& j, set< node_id >& nodeIDs,
+ptr< Node > JSONFactory::createNodeFromJsonObject( const nlohmann::json& _j, set< node_id >& nodeIDs,
     ConsensusEngine* _engine,
     bool _useSGX,
     const string& _sgxURL,
@@ -119,12 +119,12 @@ ptr< Node > JSONFactory::createNodeFromJsonObject( const nlohmann::json& j, set<
 
 
     if (_useSGX) {
-        if (_sgxSSLKeyFileFullPath.empty() && (j.count("sgxKeyFileFullPath") > 0)) {
-            sgxSSLKeyFileFullPathCopy = string(j.at("sgxKeyFileFullPath").get<string>());
+        if (_sgxSSLKeyFileFullPath.empty() && ( _j.count("sgxKeyFileFullPath") > 0)) {
+            sgxSSLKeyFileFullPathCopy = string( _j.at("sgxKeyFileFullPath").get<string>());
         }
-        if (_sgxSSLCertFileFullPath.empty() && (j.count("sgxCertFileFullPath") > 0 )) {
+        if (_sgxSSLCertFileFullPath.empty() && ( _j.count("sgxCertFileFullPath") > 0 )) {
             sgxSSLCertFileFullPathCopy =
-                string(j.at("sgxCertFileFullPath").get<string>());
+                string( _j.at("sgxCertFileFullPath").get<string>());
         }
 
         CHECK_ARGUMENT( !_ecdsaKeyName.empty() && _ecdsaPublicKeys );
@@ -136,12 +136,12 @@ ptr< Node > JSONFactory::createNodeFromJsonObject( const nlohmann::json& j, set<
 
     Network::setTransport( TransportType::ZMQ );
 
-    if ( j.find( "logLevelConfig" ) != j.end() ) {
-        string logLevel( j.at( "logLevelConfig" ).get<string>() );
+    if ( _j.find( "logLevelConfig" ) != _j.end() ) {
+        string logLevel( _j.at( "logLevelConfig" ).get<string>() );
         _engine->setConfigLogLevel( logLevel );
     }
 
-    uint64_t nodeID = j.at( "nodeID" ).get< uint64_t >();
+    uint64_t nodeID = _j.at( "nodeID" ).get< uint64_t >();
 
     ptr< Node > node = nullptr;
 
@@ -149,7 +149,7 @@ ptr< Node > JSONFactory::createNodeFromJsonObject( const nlohmann::json& j, set<
         try {
 
 
-            node = make_shared<Node> ( j, _engine, _useSGX,
+            node = make_shared<Node> ( _j, _engine, _useSGX,
                 _sgxURL,
                 sgxSSLKeyFileFullPathCopy,
                 sgxSSLCertFileFullPathCopy,

@@ -36,9 +36,7 @@ class ServerConnection;
 
 class Schain;
 
-
 class TransactionList;
-
 
 class ZMQNetwork : public Network {
 

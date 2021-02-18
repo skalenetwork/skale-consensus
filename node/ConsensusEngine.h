@@ -55,7 +55,7 @@ class ConsensusEngine : public ConsensusInterface {
 
     block_id lastCommittedBlockID = 0;
 
-    ptr<TimeStamp> lastCommittedBlockTimeStamp;
+    ptr<TimeStamp> lastCommittedBlockTimeStamp = 0;
 
     set< node_id > nodeIDs;
     
@@ -78,11 +78,11 @@ class ConsensusEngine : public ConsensusInterface {
 
     ptr< GlobalThreadRegistry > threadRegistry;
 
-    uint64_t engineID;
+    uint64_t engineID = 0;
 
     recursive_mutex mutex;
 
-    atomic< bool > exitRequested;
+    atomic<bool> exitRequested = false;
 
     string healthCheckDir;
     string dbDir;
