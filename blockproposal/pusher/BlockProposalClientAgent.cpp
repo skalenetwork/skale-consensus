@@ -137,8 +137,6 @@ ptr< BlockProposal > BlockProposalClientAgent::corruptProposal(
             make_shared< TransactionList >( make_shared< vector< ptr< Transaction > > >() ),
             _proposal->getStateRoot(), MODERN_TIME + 1, 1, nullptr,
             getSchain()->getCryptoManager() );
-
-
         return proposal2;
     } else {
         return _proposal;
@@ -380,7 +378,7 @@ pair< ConnectionStatus, ConnectionSubStatus > BlockProposalClientAgent::sendDAPr
 
 
     if ( status != CONNECTION_SUCCESS ) {
-        if ( status == CONNECTION_RETRY_LATER )
+        if ( status == CONNECTION_RETRY_LATER || status == CONNECTION_DISCONNECT)
             return { status, substatus };
 
         try {

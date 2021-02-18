@@ -629,6 +629,15 @@ ptr< Header > BlockProposalServerAgent::createDAProofResponseHeader(
     }
 
 
+    if ( sChain->getNode()->getDaProofDB()->isEnoughProofs( _header->getBlockId() ) ) {
+        responseHeader->setStatusSubStatus(
+            CONNECTION_DISCONNECT, CONNECTION_ALREADY_HAVE_ENOUGH_PROPOSALS_FOR_THIS_BLOCK_ID );
+        responseHeader->setComplete();;
+        return responseHeader;
+    }
+
+
+
     ptr< BLAKE3Hash > blockHash = nullptr;
     try {
         blockHash = BLAKE3Hash::fromHex( _header->getBlockHash() );
