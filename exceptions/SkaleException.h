@@ -29,6 +29,11 @@
 
 class SkaleException : public std::exception, public boost::exception {
 public:
+
+    std::string message;
+
+    bool fatal = false;
+
     SkaleException( const std::string& _message, const std::string& _className ) {
         message = _className + ":" + _message;
     }
@@ -40,12 +45,5 @@ public:
 
     bool isFatal() const { return fatal; }
 
-private:
-    std::string message;
-
-protected:
-    bool fatal = false;
-
-public:
     static void logNested( const std::exception& e, int level = 0 );
 };

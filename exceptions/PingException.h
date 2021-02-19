@@ -30,7 +30,6 @@
 class PingException : public NetworkProtocolException {
 public:
     PingException(const string &_message, const string &_className);
-
 };
 
 

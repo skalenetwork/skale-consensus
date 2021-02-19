@@ -32,7 +32,7 @@ protected:
 
     string bindIP;
 
-    uint32_t bindPort;
+    uint32_t bindPort = 0;
 
 public:
 

@@ -32,7 +32,8 @@ class ClientSocket;
 class Schain;
 
 class IO {
-    Schain *sChain;
+
+    Schain *sChain = nullptr;
 
 public:
 

@@ -30,7 +30,7 @@ class PricingStrategy;
 
 class PricingAgent : public Agent{
 
-    ptr<PricingStrategy> pricingStrategy;
+    ptr<PricingStrategy> pricingStrategy ;
 
 public:
 

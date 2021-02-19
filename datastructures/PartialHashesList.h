@@ -30,7 +30,7 @@ class PartialHashesList : public DataStructure  {
 
     ptr<vector<uint8_t>> partialHashes; // tsafe
 
-    transaction_count transactionCount;
+    transaction_count transactionCount = 0;
 
 public:
 

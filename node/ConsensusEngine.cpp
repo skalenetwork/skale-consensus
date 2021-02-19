@@ -106,10 +106,6 @@ using namespace boost::filesystem;
 
 shared_ptr< spdlog::logger > ConsensusEngine::configLogger = nullptr;
 
-string ConsensusEngine::dataDir = "";
-
-string ConsensusEngine::logDir = "";
-
 recursive_mutex ConsensusEngine::logMutex;
 
 atomic< uint64_t > ConsensusEngine::engineCounter;

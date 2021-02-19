@@ -31,9 +31,10 @@ class  BLAKE3Hash;
 class ThresholdSigShare {
 
 protected:
-    schain_id schainId;
-    block_id blockId;
-    schain_index signerIndex;
+
+    schain_id schainId = 0;
+    block_id blockId = 0;
+    schain_index signerIndex = 0;
 
 public:
 

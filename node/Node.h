@@ -72,7 +72,7 @@ class Node {
     vector< Agent* > agents;
     recursive_mutex agentsLock;
 
-    node_id nodeID;
+    node_id nodeID = 0;
 
     mutex threadServerCondMutex;
 
@@ -93,8 +93,7 @@ class Node {
 
     string bindIP = "";
 
-
-    nlohmann::json cfg;
+    nlohmann::json cfg = 0;
 
     network_port basePort = 0;
 
@@ -160,36 +159,36 @@ class Node {
 
     ptr< BlockProposalDB > blockProposalDB;
 
-    uint64_t catchupIntervalMS;
+    uint64_t catchupIntervalMS = 0;
 
-    uint64_t monitoringIntervalMS;
+    uint64_t monitoringIntervalMS = 0;
 
-    uint64_t waitAfterNetworkErrorMs;
+    uint64_t waitAfterNetworkErrorMs = 0;
 
-    uint64_t emptyBlockIntervalMs;
+    uint64_t emptyBlockIntervalMs = 0;
 
     uint64_t blockProposalHistorySize;
 
-    uint64_t committedTransactionsHistory;
+    uint64_t committedTransactionsHistory = 0;
 
-    uint64_t maxCatchupDownloadBytes;
+    uint64_t maxCatchupDownloadBytes = 0;
 
-    uint64_t maxTransactionsPerBlock;
+    uint64_t maxTransactionsPerBlock = 0;
 
-    uint64_t minBlockIntervalMs;
+    uint64_t minBlockIntervalMs = 0;
 
-    uint64_t blockDBSize;
-    uint64_t proposalHashDBSize;
-    uint64_t proposalVectorDBSize;
-    uint64_t outgoingMsgDBSize;
-    uint64_t incomingMsgDBSize;
-    uint64_t consensusStateDBSize;
-    uint64_t daSigShareDBSize;
-    uint64_t daProofDBSize;
-    uint64_t blockSigShareDBSize;
-    uint64_t randomDBSize;
-    uint64_t priceDBSize;
-    uint64_t blockProposalDBSize;
+    uint64_t blockDBSize = 0;;
+    uint64_t proposalHashDBSize = 0;
+    uint64_t proposalVectorDBSize = 0;
+    uint64_t outgoingMsgDBSize = 0;
+    uint64_t incomingMsgDBSize = 0;
+    uint64_t consensusStateDBSize = 0;
+    uint64_t daSigShareDBSize = 0;
+    uint64_t daProofDBSize = 0;
+    uint64_t blockSigShareDBSize = 0;
+    uint64_t randomDBSize = 0;
+    uint64_t priceDBSize = 0;
+    uint64_t blockProposalDBSize = 0;
 
     bool inited = false;
 

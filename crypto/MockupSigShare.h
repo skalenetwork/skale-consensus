@@ -31,8 +31,8 @@
 
 class MockupSigShare : public ThresholdSigShare {
 
-    uint64_t totalSigners;
-    uint64_t requiredSigners;
+    uint64_t totalSigners = 0;
+    uint64_t requiredSigners = 0;
 
     string sigShare;
 

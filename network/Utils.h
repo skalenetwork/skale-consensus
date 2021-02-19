@@ -32,7 +32,6 @@ class Utils {
 
 public:
 
-
     static ptr<vector<uint8_t>> u256ToBigEndianArray(const u256 &_value);
 
     static void checkTime();

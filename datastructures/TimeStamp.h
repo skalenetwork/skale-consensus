@@ -29,8 +29,8 @@
 
 
 class TimeStamp {
-    uint64_t s;
-    uint64_t ms;
+    uint64_t s = 0;
+    uint64_t ms = 0;
 
 public:
     TimeStamp( uint64_t _s, uint64_t _ms );

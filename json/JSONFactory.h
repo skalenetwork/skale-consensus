@@ -40,7 +40,7 @@ public:
                                               const ptr< BLSPublicKey >& _blsPublicKey );
 
     static ptr< Node > createNodeFromJsonObject(
-        const nlohmann::json& j, set< node_id >& nodeIDs, ConsensusEngine* _engine, bool _useSGX,
+        const nlohmann::json& _j, set< node_id >& nodeIDs, ConsensusEngine* _engine, bool _useSGX,
         const string& _sgxURL,
         const string& _sgxSSLKeyFileFullPath, const string& _sgxSSLCertFileFullPath,
         const string& _ecdsaKeyName, const ptr< vector<string> >& _ecdsaPublicKeys,

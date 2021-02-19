@@ -28,9 +28,4 @@ class EngineInitException : public SkaleException {
 public:
     EngineInitException(const std::string &_message, const string& _className);
 
-
-
-
-
-
 };

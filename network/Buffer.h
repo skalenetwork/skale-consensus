@@ -25,7 +25,7 @@
 
 class Buffer {
 
-    size_t size;
+    size_t size = 0;
 
     uint64_t counter = 0;
 

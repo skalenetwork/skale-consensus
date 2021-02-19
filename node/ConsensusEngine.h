@@ -55,7 +55,7 @@ class ConsensusEngine : public ConsensusInterface {
 
     block_id lastCommittedBlockID = 0;
 
-    ptr<TimeStamp> lastCommittedBlockTimeStamp;
+    ptr<TimeStamp> lastCommittedBlockTimeStamp = 0;
 
     set< node_id > nodeIDs;
     
@@ -78,11 +78,11 @@ class ConsensusEngine : public ConsensusInterface {
 
     ptr< GlobalThreadRegistry > threadRegistry;
 
-    uint64_t engineID;
+    uint64_t engineID = 0;
 
     recursive_mutex mutex;
 
-    atomic< bool > exitRequested;
+    atomic<bool> exitRequested = false;
 
     string healthCheckDir;
     string dbDir;
@@ -95,8 +95,8 @@ class ConsensusEngine : public ConsensusInterface {
 
     static ptr< spdlog::logger > configLogger;
     
-    static string dataDir;
-    static string logDir;
+    string dataDir;
+    string logDir;
 
     static recursive_mutex logMutex;
     
@@ -137,9 +137,9 @@ public:
 
     ptr< spdlog::logger > createLogger( const string& loggerName );
 
-    static const string getDataDir();
+    const string getDataDir();
     
-    static const string getLogDir();
+    const string getLogDir();
     
     string exec( const char* cmd );
 

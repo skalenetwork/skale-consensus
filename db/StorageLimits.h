@@ -29,13 +29,22 @@ class StorageLimits {
 
 public:
 
-    uint64_t storageUnitBytes;
+    uint64_t storageUnitBytes = 0;
 
-    uint64_t  BLOCK_DB_SIZE;
-    uint64_t  RANDOM_DB_SIZE;
-    uint64_t  PRICE_DB_SIZE;
-    uint64_t  PROPOSAL_HASH_DB_SIZE;
-    uint64_t  PROPOSAL_VECTOR_DB_SIZE;
+    uint64_t  BLOCK_DB_SIZE = 0;
+    uint64_t  RANDOM_DB_SIZE = 0;
+    uint64_t  PRICE_DB_SIZE = 0;
+    uint64_t  PROPOSAL_HASH_DB_SIZE = 0;
+    uint64_t  PROPOSAL_VECTOR_DB_SIZE = 0;
+
+    uint64_t  OUTGOING_MSG_DB_SIZE = 0;
+    uint64_t  INCOMING_MSG_DB_SIZE = 0;
+    uint64_t  CONSENSUS_STATE_DB_SIZE = 0;
+    uint64_t  BLOCK_SIG_SHARE_DB_SIZE = 0;
+    uint64_t  DA_SIG_SHARE_DB_SIZE = 0;
+    uint64_t  DA_PROOF_DB_SIZE = 0;
+    uint64_t  BLOCK_PROPOSAL_DB_SIZE = 0;
+
     uint64_t getStorageUnitBytes() const;
     uint64_t getBlockDbSize() const;
     uint64_t getRandomDbSize() const;
@@ -49,13 +58,7 @@ public:
     uint64_t getDaSigShareDbSize() const;
     uint64_t getDaProofDbSize() const;
     uint64_t getBlockProposalDbSize() const;
-    uint64_t  OUTGOING_MSG_DB_SIZE;
-    uint64_t  INCOMING_MSG_DB_SIZE;
-    uint64_t  CONSENSUS_STATE_DB_SIZE;
-    uint64_t  BLOCK_SIG_SHARE_DB_SIZE;
-    uint64_t  DA_SIG_SHARE_DB_SIZE;
-    uint64_t  DA_PROOF_DB_SIZE;
-    uint64_t  BLOCK_PROPOSAL_DB_SIZE;
+
 
 public:
     StorageLimits( uint64_t _totalStorageLimitBytes );

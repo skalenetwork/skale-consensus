@@ -123,7 +123,7 @@ uint64_t BlockFinalizeDownloader::downloadFragment(schain_index _dstIndex, fragm
             io->writeHeader(socket, header);
         } catch (ExitRequestedException &) { throw; } catch (...) {
             auto errString = "BlockFinalizec step 1: can not write BlockFinalize request";
-            LOG(debug, errString);
+            LOG(err, errString);
             throw_with_nested(NetworkProtocolException(errString, __CLASS_NAME__));
         }
         LOG(debug, "BlockFinalizec step 1: wrote BlockFinalize request");
@@ -134,7 +134,7 @@ uint64_t BlockFinalizeDownloader::downloadFragment(schain_index _dstIndex, fragm
             response = readBlockFinalizeResponseHeader(socket);
         } catch (ExitRequestedException &) { throw; } catch (...) {
             auto errString = "BlockFinalizec step 2: can not read BlockFinalize response";
-            LOG(debug, errString);
+            LOG(err, errString);
             throw_with_nested(NetworkProtocolException(errString, __CLASS_NAME__));
         }
 
@@ -314,7 +314,6 @@ void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(BlockFinalizeDown
                     // all fragments have been downloaded
                     return;
                 }
-                usleep( static_cast< __useconds_t >( node->getWaitAfterNetworkErrorMs() * 1000 ) );
             } catch (ExitRequestedException &) {
                 return;
             } catch (ConnectionRefusedException &e) {
