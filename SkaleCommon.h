@@ -155,7 +155,7 @@ static constexpr uint64_t MAX_CATCHUP_DOWNLOAD_BYTES = 16 * 1024 * 1024;
 
 static constexpr uint64_t MAX_TRANSACTIONS_PER_BLOCK = 8 * 1024;
 
-static constexpr int64_t EMPTY_BLOCK_INTERVAL_MS = 3000;
+static constexpr int64_t EMPTY_BLOCK_INTERVAL_MS = 1;
 
 static constexpr uint64_t MIN_BLOCK_INTERVAL_MS = 1;
 
@@ -191,9 +191,7 @@ static constexpr uint64_t MAGIC_NUMBER = 0x1396A22050B30;
 
 static constexpr uint64_t TEST_MAGIC_NUMBER = 0x2456032650150;
 
-
 static const uint64_t KNOWN_TRANSACTIONS_HISTORY = 2 * MAX_TRANSACTIONS_PER_BLOCK;
-
 
 enum port_type {
     PROPOSAL = 0, CATCHUP = 1, RETRIEVE = 2, HTTP_JSON = 3, BINARY_CONSENSUS = 4, ZMQ_BROADCAST = 5,
@@ -303,8 +301,6 @@ extern void setThreadName(std::string const &_n, ConsensusEngine* _engine);
 
 extern std::string getThreadName();
 
-
-
 #define CHECK_ARGUMENT(_EXPRESSION_) \
     if (!(_EXPRESSION_)) { \
         auto __msg__ = string("Argument Check failed:") + #_EXPRESSION_ + "\n" + __CLASS_NAME__ + ":" + __FUNCTION__ +  \
@@ -315,8 +311,6 @@ extern std::string getThreadName();
     if (!(_EXPRESSION_)) { \
         auto __msg__ = string("State check failed::") + #_EXPRESSION_ +  " " + string(__FILE__) + ":" + to_string(__LINE__); \
         throw InvalidStateException(__msg__, __CLASS_NAME__);}
-
-
 
 #define CHECK_ARGUMENT2(_EXPRESSION_, _MSG_) \
     if (!(_EXPRESSION_)) { \
