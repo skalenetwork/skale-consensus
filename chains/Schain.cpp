@@ -436,10 +436,11 @@ void Schain::processCommittedBlock( const ptr< CommittedBlock >& _block ) {
                 to_string( getSchain()->getNode()->getNetwork()->computeTotalDelayedSends() ) +
                 ":STAMP:" + stamp->toString() );
 
-
-        saveBlock( _block );
+        CHECK_STATE(_block->getBlockID() = getLastCommittedBlockID() + 1);
 
         pushBlockToExtFace( _block );
+
+        saveBlock( _block );
 
         updateLastCommittedBlockInfo( ( uint64_t ) _block->getBlockID(), stamp );
 

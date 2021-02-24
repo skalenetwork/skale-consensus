@@ -281,11 +281,16 @@ void Schain::updateLastCommittedBlockInfo( uint64_t _lastCommittedBlockID,
                                    ptr< TimeStamp > _lastCommittedBlockTimeStamp ){
     LOCK(lastCommittedBlockInfoMutex);
     CHECK_STATE(_lastCommittedBlockTimeStamp);
-    CHECK_STATE(_lastCommittedBlockID > lastCommittedBlockID)
+    CHECK_STATE(_lastCommittedBlockID == lastCommittedBlockID + 1)
+    if (*_lastCommittedBlockTimeStamp < *_lastCommittedBlockTimeStamp) {
+        LOG(err, "TimeStamp in the past:"+ lastCommittedBlockTimeStamp->toString() +
+            ":"+ _lastCommittedBlockTimeStamp->toString());
+    }
     CHECK_STATE(*lastCommittedBlockTimeStamp < *_lastCommittedBlockTimeStamp);
-    lastCommittedBlockID = _lastCommittedBlockID;
-    lastCommittedBlockTimeStamp = _lastCommittedBlockTimeStamp;
     auto currentTime = Time::getCurrentTimeMs();
     CHECK_STATE(currentTime >= lastCommitTimeMs);
+
+    lastCommittedBlockID = _lastCommittedBlockID;
+    lastCommittedBlockTimeStamp = _lastCommittedBlockTimeStamp;
     lastCommitTimeMs = currentTime;
 }
