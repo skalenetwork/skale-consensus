@@ -286,7 +286,7 @@ void Schain::blockCommitsArrivedThroughCatchup( const ptr< CommittedBlockList >&
 
         CHECK_STATE( block );
 
-        if ( ( uint64_t ) block->getBlockID() > getLastCommittedBlockID() ) {
+        if ( ( uint64_t ) block->getBlockID() == (getLastCommittedBlockID()  + 1)) {
             processCommittedBlock( block );
         }
     }
@@ -831,7 +831,6 @@ void Schain::finalizeDecidedAndSignedBlock( block_id _blockId, schain_index _pro
 
 
     LOG( info, "BLOCK_SIGNED: Now finalizing block ... BID:" + to_string( _blockId ) );
-
 
 
     try {
