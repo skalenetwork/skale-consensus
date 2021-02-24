@@ -459,3 +459,6 @@ ptr<BlockProposalHeader> BlockProposal::parseBlockHeader(const string &_header) 
 u256 BlockProposal::getStateRoot() const {
     return stateRoot;
 }
+ptr< TimeStamp > BlockProposal::getTimeStamp() const {
+    return make_shared<TimeStamp>(getTimeStampS(), getTimeStampMs());
+}

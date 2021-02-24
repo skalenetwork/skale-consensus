@@ -287,6 +287,7 @@ void Schain::blockCommitsArrivedThroughCatchup( const ptr< CommittedBlockList >&
         CHECK_STATE( block );
 
         if ( ( uint64_t ) block->getBlockID() == (getLastCommittedBlockID()  + 1)) {
+            CHECK_STATE(*getLastCommittedBlockTimeStamp() < *block->getTimeStamp());
             processCommittedBlock( block );
         }
     }
@@ -327,6 +328,7 @@ void Schain::blockCommitArrived( block_id _committedBlockID, schain_index _propo
 
         auto newCommittedBlock = CommittedBlock::makeObject( committedProposal, _thresholdSig );
 
+        CHECK_STATE(*getLastCommittedBlockTimeStamp() < *newCommittedBlock->getTimeStamp());
         processCommittedBlock( newCommittedBlock );
 
         proposeNextBlock();
