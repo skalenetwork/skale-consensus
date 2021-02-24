@@ -279,8 +279,6 @@ void Schain::blockCommitsArrivedThroughCatchup( const ptr< CommittedBlockList >&
 
     atomic< uint64_t > committedIDOld = ( uint64_t ) getLastCommittedBlockID();
 
-    auto previosBlockTimeStamp = make_shared< TimeStamp >( 0, 0 );
-
     CHECK_STATE( blocks->at( 0 )->getBlockID() <= ( uint64_t ) getLastCommittedBlockID() + 1 );
 
     for ( size_t i = 0; i < blocks->size(); i++ ) {
@@ -288,7 +286,8 @@ void Schain::blockCommitsArrivedThroughCatchup( const ptr< CommittedBlockList >&
 
         CHECK_STATE( block );
 
-        if ( ( uint64_t ) block->getBlockID() > getLastCommittedBlockID() ) {
+        if ( ( uint64_t ) block->getBlockID() == (getLastCommittedBlockID()  + 1)) {
+            CHECK_STATE(*getLastCommittedBlockTimeStamp() < *block->getTimeStamp());
             processCommittedBlock( block );
         }
     }
@@ -308,8 +307,7 @@ void Schain::blockCommitArrived( block_id _committedBlockID, schain_index _propo
     checkForExit();
 
     LOCK( m )
-
-
+    
     if ( _committedBlockID <= getLastCommittedBlockID() )
         return;
 
@@ -330,6 +328,7 @@ void Schain::blockCommitArrived( block_id _committedBlockID, schain_index _propo
 
         auto newCommittedBlock = CommittedBlock::makeObject( committedProposal, _thresholdSig );
 
+        CHECK_STATE(*getLastCommittedBlockTimeStamp() < *newCommittedBlock->getTimeStamp());
         processCommittedBlock( newCommittedBlock );
 
         proposeNextBlock();
@@ -439,10 +438,11 @@ void Schain::processCommittedBlock( const ptr< CommittedBlock >& _block ) {
                 to_string( getSchain()->getNode()->getNetwork()->computeTotalDelayedSends() ) +
                 ":STAMP:" + stamp->toString() );
 
-
-        saveBlock( _block );
+        CHECK_STATE(_block->getBlockID() = getLastCommittedBlockID() + 1);
 
         pushBlockToExtFace( _block );
+
+        saveBlock( _block );
 
         updateLastCommittedBlockInfo( ( uint64_t ) _block->getBlockID(), stamp );
 
@@ -688,7 +688,7 @@ void Schain::bootstrap( block_id _lastCommittedBlockID, uint64_t _lastCommittedB
         ptr< BlockProposal > committedProposal = nullptr;
 
 
-        updateLastCommittedBlockInfo( ( uint64_t ) _lastCommittedBlockID,
+         initLastCommittedBlockInfo( ( uint64_t ) _lastCommittedBlockID,
             make_shared< TimeStamp >(
                 _lastCommittedBlockTimeStamp, _lastCommittedBlockTimeStampMs ) );
 
@@ -834,7 +834,6 @@ void Schain::finalizeDecidedAndSignedBlock( block_id _blockId, schain_index _pro
 
 
     LOG( info, "BLOCK_SIGNED: Now finalizing block ... BID:" + to_string( _blockId ) );
-
 
 
     try {

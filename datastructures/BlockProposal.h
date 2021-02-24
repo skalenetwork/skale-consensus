@@ -28,6 +28,7 @@
 #include "SkaleCommon.h"
 
 #include "DataStructure.h"
+#include "TimeStamp.h"
 #include "SendableItem.h"
 
 class Schain;
@@ -89,6 +90,8 @@ public:
     [[nodiscard]]  uint64_t getTimeStampS() const;
 
     [[nodiscard]]  uint32_t getTimeStampMs() const;
+
+    [[nodiscard]] ptr<TimeStamp> getTimeStamp() const;
 
     [[nodiscard]]  schain_index getProposerIndex() const;
 
