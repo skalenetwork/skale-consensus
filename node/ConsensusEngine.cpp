@@ -620,8 +620,6 @@ ConsensusEngine::ConsensusEngine( block_id _lastId ) : exitRequested( false ) {
 
     lastCommittedBlockTimeStamp = make_shared<TimeStamp>(0,0);
 
-
-
     try {
         init();
 
@@ -635,6 +633,14 @@ ConsensusEngine::ConsensusEngine( block_id _lastId ) : exitRequested( false ) {
 ConsensusEngine::ConsensusEngine( ConsensusExtFace& _extFace, uint64_t _lastCommittedBlockID,
     uint64_t _lastCommittedBlockTimeStamp, uint64_t _lastCommittedBlockTimeStampMs )
     : exitRequested( false ) {
+
+
+    // for the first block time stamp shall allways be zero
+
+    CHECK_STATE((uint64_t) _lastCommittedBlockID != 0 ||
+                ((_lastCommittedBlockTimeStamp == 0 ) &&
+                (_lastCommittedBlockTimeStampMs == 0)))
+
     try {
         init();
 

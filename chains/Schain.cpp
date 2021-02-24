@@ -629,7 +629,17 @@ void Schain::bootstrap( block_id _lastCommittedBlockID, uint64_t _lastCommittedB
 
     checkForExit();
 
-    // Step 1: solve block id  mismatch problems
+    // Step 0 Workaround for the fact that skaled does not yet save timestampMs
+
+    if (_lastCommittedBlockTimeStampMs == 0 && _lastCommittedBlockID > 0) {
+        auto block = getNode()->getBlockDB()->getBlock(
+            _lastCommittedBlockID, getCryptoManager() );
+        if (block) {
+            _lastCommittedBlockTimeStampMs = block->getTimeStampMs();
+        };
+    }
+
+    // Step 1: solve block id  mismatch
 
 
     if ( _lastCommittedBlockIDInConsensus == _lastCommittedBlockID + 1 ) {
