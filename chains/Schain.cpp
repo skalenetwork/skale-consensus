@@ -279,8 +279,6 @@ void Schain::blockCommitsArrivedThroughCatchup( const ptr< CommittedBlockList >&
 
     atomic< uint64_t > committedIDOld = ( uint64_t ) getLastCommittedBlockID();
 
-    auto previosBlockTimeStamp = make_shared< TimeStamp >( 0, 0 );
-
     CHECK_STATE( blocks->at( 0 )->getBlockID() <= ( uint64_t ) getLastCommittedBlockID() + 1 );
 
     for ( size_t i = 0; i < blocks->size(); i++ ) {
@@ -308,8 +306,7 @@ void Schain::blockCommitArrived( block_id _committedBlockID, schain_index _propo
     checkForExit();
 
     LOCK( m )
-
-
+    
     if ( _committedBlockID <= getLastCommittedBlockID() )
         return;
 
@@ -688,7 +685,7 @@ void Schain::bootstrap( block_id _lastCommittedBlockID, uint64_t _lastCommittedB
         ptr< BlockProposal > committedProposal = nullptr;
 
 
-        updateLastCommittedBlockInfo( ( uint64_t ) _lastCommittedBlockID,
+         initLastCommittedBlockInfo( ( uint64_t ) _lastCommittedBlockID,
             make_shared< TimeStamp >(
                 _lastCommittedBlockTimeStamp, _lastCommittedBlockTimeStampMs ) );
 

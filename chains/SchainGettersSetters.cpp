@@ -265,17 +265,27 @@ uint64_t Schain::getLastCommitTimeMs() {
     return lastCommitTimeMs;
 }
 
+
+void Schain::initLastCommittedBlockInfo( uint64_t _lastCommittedBlockID,
+                                           ptr< TimeStamp > _lastCommittedBlockTimeStamp ){
+
+    LOCK(lastCommittedBlockInfoMutex);
+    lastCommittedBlockID = _lastCommittedBlockID;
+    lastCommittedBlockTimeStamp = _lastCommittedBlockTimeStamp;
+    lastCommitTimeMs = Time::getCurrentTimeMs();
+}
+
+
+
 void Schain::updateLastCommittedBlockInfo( uint64_t _lastCommittedBlockID,
                                    ptr< TimeStamp > _lastCommittedBlockTimeStamp ){
+    LOCK(lastCommittedBlockInfoMutex);
     CHECK_STATE(_lastCommittedBlockTimeStamp);
-    CHECK_STATE(_lastCommittedBlockID >= lastCommittedBlockID)
-    CHECK_STATE(*lastCommittedBlockTimeStamp < *_lastCommittedBlockTimeStamp
-        ||  lastCommittedBlockID == 0);
-
+    CHECK_STATE(_lastCommittedBlockID > lastCommittedBlockID)
+    CHECK_STATE(*lastCommittedBlockTimeStamp < *_lastCommittedBlockTimeStamp);
     lastCommittedBlockID = _lastCommittedBlockID;
     lastCommittedBlockTimeStamp = _lastCommittedBlockTimeStamp;
     auto currentTime = Time::getCurrentTimeMs();
     CHECK_STATE(currentTime >= lastCommitTimeMs);
     lastCommitTimeMs = currentTime;
-
 }

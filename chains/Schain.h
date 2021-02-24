@@ -123,6 +123,9 @@ class Schain : public Agent {
     atomic< uint64_t > lastCommittedBlockID = 0;
     atomic< uint64_t > lastCommitTimeMs = 0;
     ptr< TimeStamp > lastCommittedBlockTimeStamp = 0;
+    recursive_mutex lastCommittedBlockInfoMutex;
+
+
     atomic< uint64_t > bootstrapBlockID = 0;
     uint64_t maxExternalBlockProcessingTime = 0;
 
@@ -151,6 +154,10 @@ public:
 
     void updateLastCommittedBlockInfo( uint64_t _lastCommittedBlockID,
         ptr< TimeStamp > _lastCommittedBlockTimeStamp );
+
+    void initLastCommittedBlockInfo( uint64_t _lastCommittedBlockID,
+                                       ptr< TimeStamp > _lastCommittedBlockTimeStamp );
+
 
     uint64_t getLastCommitTimeMs();
 
