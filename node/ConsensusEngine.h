@@ -265,4 +265,9 @@ public:
     void setTotalStorageLimitBytes(uint64_t _storageLimitBytes);
 
     [[nodiscard]] uint64_t getTotalStorageLimitBytes() const;
+
+    static int getOpenDescriptors();
+
+
+
 };

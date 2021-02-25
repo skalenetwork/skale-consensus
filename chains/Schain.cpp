@@ -436,6 +436,7 @@ void Schain::processCommittedBlock( const ptr< CommittedBlock >& _block ) {
                 ":SOCK:" + to_string( ClientSocket::getTotalSockets() ) +
                 ":CONS:" + to_string( ServerConnection::getTotalObjects() ) + ":DSDS:" +
                 to_string( getSchain()->getNode()->getNetwork()->computeTotalDelayedSends() ) +
+                ":FDS:" + to_string(ConsensusEngine::getOpenDescriptors()) +
                 ":STAMP:" + stamp->toString() );
 
         CHECK_STATE(_block->getBlockID() = getLastCommittedBlockID() + 1);
