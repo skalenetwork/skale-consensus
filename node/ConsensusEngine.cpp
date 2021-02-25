@@ -562,14 +562,15 @@ std::string ConsensusEngine::exec( const char* cmd ) {
 
 
 int ConsensusEngine::getOpenDescriptors() {
-    int fd_count;
+    int fd_count = 0;
     char buf[64];
-    struct dirent* dp;
+    memset(buf, 0, 64);
+    struct dirent* dp = 0;
 
     snprintf( buf, 64, "/proc/%i/fd/", getpid() );
 
-    fd_count = 0;
     DIR* dir = opendir( buf );
+    CHECK_STATE(dir);
     while ( ( dp = readdir( dir ) ) != NULL ) {
         fd_count++;
     }
