@@ -491,7 +491,7 @@ void ConsensusEngine::startAll() {
         for ( auto&& it : nodes ) {
             CHECK_STATE( it.second );
             if ( !it.second->isExitRequested() ) {
-                it.second->exitOnFatalError( e.getMessage() );
+                it.second->exitOnFatalError( e.what() );
             }
         }
 

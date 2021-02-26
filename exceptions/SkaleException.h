@@ -41,8 +41,6 @@ public:
         return message.empty() ? std::exception::what() : message.c_str();
     }
 
-    const std::string& getMessage() const { return message; }
-
     bool isFatal() const { return fatal; }
 
     static void logNested( const std::exception& e, int level = 0 );

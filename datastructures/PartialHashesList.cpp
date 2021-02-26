@@ -41,9 +41,6 @@ PartialHashesList::PartialHashesList(transaction_count _transactionCount)
         : transactionCount(_transactionCount) {
     auto s = size_t(uint64_t(_transactionCount)) * PARTIAL_HASH_LEN;
 
-    if (s > MAX_BUFFER_SIZE) {
-        BOOST_THROW_EXCEPTION(InvalidArgumentException("Buffer size too large", __CLASS_NAME__));
-    }
     partialHashes = make_shared<vector<uint8_t> >(s);
 }
 
