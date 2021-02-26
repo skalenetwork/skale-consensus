@@ -108,16 +108,15 @@ void TimeoutAgent::timeoutLoop(TimeoutAgent *_agent) {
                         lastRebroadCastTime = currentTime;
                     }
                 }
-
             } catch (ExitRequestedException &) {
                 return;
             } catch (exception &e) {
                 SkaleException::logNested(e);
             }
-
         };
     } catch (FatalError& e) {
-        _agent->getSchain()->getNode()->exitOnFatalError(e.getMessage());
+        SkaleException::logNested(e);
+        _agent->getSchain()->getNode()->exitOnFatalError(e.what());
     }
 }
 

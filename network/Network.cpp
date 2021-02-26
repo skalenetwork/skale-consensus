@@ -209,7 +209,8 @@ void Network::networkReadLoop() {
 
         }  // while
     } catch ( FatalError& e ) {
-        sChain->getNode()->exitOnFatalError( e.getMessage() );
+        SkaleException::logNested( e );
+        sChain->getNode()->exitOnFatalError( e.what() );
     }
 
     sChain->getNode()->getSockets()->consensusZMQSockets->closeReceive();

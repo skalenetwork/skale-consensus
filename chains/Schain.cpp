@@ -171,7 +171,8 @@ void Schain::messageThreadProcessingLoop( Schain* _sChain ) {
 
         _sChain->getNode()->getSockets()->consensusZMQSockets->closeSend();
     } catch ( FatalError& e ) {
-        _sChain->getNode()->exitOnFatalError( e.getMessage() );
+        SkaleException::logNested( e );
+        _sChain->getNode()->exitOnFatalError( e.what() );
     }
 }
 

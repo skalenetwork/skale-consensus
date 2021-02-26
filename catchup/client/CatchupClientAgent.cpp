@@ -275,7 +275,8 @@ void CatchupClientAgent::workerThreadItemSendLoop( CatchupClientAgent* _agent ) 
             destinationSchainIndex = nextSyncNodeIndex( _agent, destinationSchainIndex );
         };
     } catch ( FatalError& e ) {
-        _agent->getNode()->exitOnFatalError( e.getMessage() );
+        SkaleException::logNested( e );
+        _agent->getNode()->exitOnFatalError( e.what() );
     }
 }
 

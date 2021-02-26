@@ -21,131 +21,116 @@
     @date 2018
 */
 
-#include "SkaleCommon.h"
 #include "Log.h"
+#include "SkaleCommon.h"
 #include "exceptions/ExitRequestedException.h"
 #include "exceptions/FatalError.h"
 #include "thirdparty/json.hpp"
 #include <node/ConsensusEngine.h>
 
-#include "utils/Time.h"
-#include "node/Node.h"
-#include "chains/Schain.h"
 #include "LivelinessMonitor.h"
 #include "MonitoringAgent.h"
 #include "MonitoringThreadPool.h"
+#include "chains/Schain.h"
+#include "node/Node.h"
+#include "utils/Time.h"
 
 #include "utils/Time.h"
 
-MonitoringAgent::MonitoringAgent(Schain &_sChain) : Agent(_sChain, false, true) {
+MonitoringAgent::MonitoringAgent( Schain& _sChain ) : Agent( _sChain, false, true ) {
     try {
         logThreadLocal_ = _sChain.getNode()->getLog();
         this->sChain = &_sChain;
 
-        this->monitoringThreadPool = make_shared<MonitoringThreadPool>(1, this);
+        this->monitoringThreadPool = make_shared< MonitoringThreadPool >( 1, this );
         monitoringThreadPool->startService();
 
-    } catch (...) {
-        throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
+    } catch ( ... ) {
+        throw_with_nested( FatalError( __FUNCTION__, __CLASS_NAME__ ) );
     }
-
 }
 
 
 void MonitoringAgent::monitor() {
-
-    if (ConsensusEngine::isOnTravis())
+    if ( ConsensusEngine::isOnTravis() )
         return;
 
-    while (!getNode()->isInited()) {
-        usleep(100000);
+    while ( !getNode()->isInited() ) {
+        usleep( 100000 );
     }
 
 
-    map<uint64_t, weak_ptr<LivelinessMonitor>> monitorsCopy;
+    map< uint64_t, weak_ptr< LivelinessMonitor > > monitorsCopy;
 
     {
-        LOCK(m)
+        LOCK( m )
 
-        lock_guard<recursive_mutex> lock(m);
+        lock_guard< recursive_mutex > lock( m );
 
         monitorsCopy = activeMonitors;
-
     }
 
-    for (auto &&item: monitorsCopy ) {
-
-        if( sChain->getNode()->isExitRequested() )
+    for ( auto&& item : monitorsCopy ) {
+        if ( sChain->getNode()->isExitRequested() )
             return;
 
-        ptr<LivelinessMonitor> monitor = item.second.lock();
+        ptr< LivelinessMonitor > monitor = item.second.lock();
 
-        if (monitor) {
-
-            CHECK_STATE(monitor != nullptr);
+        if ( monitor ) {
+            CHECK_STATE( monitor != nullptr );
 
             auto currentTime = Time::getCurrentTimeMs();
 
-            if (currentTime > monitor->getExpiryTime()) {
-                LOG(warn,
-                    monitor->toString() + " has been stuck for " + to_string(currentTime - monitor->getStartTime()) +
-                    " ms");
+            if ( currentTime > monitor->getExpiryTime() ) {
+                LOG( warn, monitor->toString() + " has been stuck for " +
+                               to_string( currentTime - monitor->getStartTime() ) + " ms" );
             }
         }
     }
-
-
 }
 
 
+void MonitoringAgent::monitoringLoop( MonitoringAgent* _agent ) {
+    CHECK_ARGUMENT( _agent );
+
+    setThreadName( "MonitoringLoop", _agent->getSchain()->getNode()->getConsensusEngine() );
 
 
-void MonitoringAgent::monitoringLoop(MonitoringAgent *_agent) {
-
-
-    CHECK_ARGUMENT(_agent);
-
-    setThreadName("MonitoringLoop", _agent->getSchain()->getNode()->getConsensusEngine());
-
-
-    LOG(info, "Monitoring agent started monitoring");
+    LOG( info, "Monitoring agent started monitoring" );
 
     try {
-        while (!_agent->getSchain()->getNode()->isExitRequested()) {
-            usleep(_agent->getSchain()->getNode()->getMonitoringIntervalMs() * 1000);
+        while ( !_agent->getSchain()->getNode()->isExitRequested() ) {
+            usleep( _agent->getSchain()->getNode()->getMonitoringIntervalMs() * 1000 );
 
             try {
                 _agent->monitor();
 
-            } catch (ExitRequestedException &) {
+            } catch ( ExitRequestedException& ) {
                 return;
-            } catch (exception &e) {
-                SkaleException::logNested(e);
+            } catch ( exception& e ) {
+                SkaleException::logNested( e );
             }
-
         };
-    } catch (FatalError& e) {
-        _agent->getSchain()->getNode()->exitOnFatalError(e.getMessage());
+    } catch ( FatalError& e ) {
+        SkaleException::logNested( e );
+        _agent->getSchain()->getNode()->exitOnFatalError( e.what() );
     }
 }
 
-void MonitoringAgent::registerMonitor(const ptr<LivelinessMonitor>& _m) {
-
-    CHECK_ARGUMENT(_m)
-    LOCK(m)
+void MonitoringAgent::registerMonitor( const ptr< LivelinessMonitor >& _m ) {
+    CHECK_ARGUMENT( _m )
+    LOCK( m )
     activeMonitors[_m->getId()] = _m;
 }
 
-void MonitoringAgent::unregisterMonitor(uint64_t _id) {
+void MonitoringAgent::unregisterMonitor( uint64_t _id ) {
+    LOCK( m )
 
-    LOCK(m)
-
-    activeMonitors.erase(_id);
-
+    activeMonitors.erase( _id );
 }
 
 
 void MonitoringAgent::join() {
-    CHECK_STATE(monitoringThreadPool);
+    CHECK_STATE( monitoringThreadPool );
     monitoringThreadPool->joinAll();
 }

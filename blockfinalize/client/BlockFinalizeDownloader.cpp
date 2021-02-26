@@ -325,7 +325,8 @@ void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(BlockFinalizeDown
             };
         };
     } catch (FatalError& e) {
-        node->exitOnFatalError(e.getMessage());
+        SkaleException::logNested( e );
+        node->exitOnFatalError(e.what());
     }
 }
 
