@@ -518,14 +518,35 @@ ptr< Header > BlockProposalServerAgent::createProposalResponseHeader(
     }
 
 
-    if ( blockIDInHeader > 2 &&
-         _header.getStateRoot() != myBlockProposalForTheSameBlockID->getStateRoot() ) {
+    if ( blockIDInHeader > 1 &&
+        _header.getStateRoot() != myBlockProposalForTheSameBlockID->getStateRoot()){
         responseHeader->setStatusSubStatus(
             CONNECTION_ERROR, CONNECTION_PROPOSAL_STATE_ROOT_DOES_NOT_MATCH );
         responseHeader->setComplete();
         LOG( err, "Proposal state root does not match: " );
-        LOG( err, _header.getStateRoot().str() );
-        LOG( err, myBlockProposalForTheSameBlockID->getStateRoot().str() );
+        LOG( err, " My schain index:"
+                      + to_string(getSchain()->getSchainIndex()) + " My root:" +
+            myBlockProposalForTheSameBlockID->getStateRoot().str());
+
+        LOG( err, "Sender schain index:"
+                  + to_string(_header.getProposerIndex()) +  " Sender root:" +  _header.getStateRoot().str() );
+
+
+        LOG(err, "State roots of other proposals:");
+
+        auto proposalDB = getNode()->getBlockProposalDB();
+
+        for (uint64_t i = 1; i <= getSchain()->getNodeCount(); i++) {
+            auto proposal = proposalDB->getBlockProposal(blockIDInHeader, i);
+            if (proposal) {
+                LOG( err, "schain_index:"
+                          + to_string(proposal->getProposerIndex()) +
+                              " root:" +  proposal->getStateRoot().str() );
+
+            }
+        }
+
+
         return responseHeader;
     }
 

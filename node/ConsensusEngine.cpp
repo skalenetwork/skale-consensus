@@ -631,7 +631,7 @@ void ConsensusEngine::init() {
 }
 
 
-ConsensusEngine::ConsensusEngine( block_id _lastId ) : exitRequested( false ) {
+ConsensusEngine::ConsensusEngine( block_id _lastId ) : prices(256), exitRequested( false ) {
     lastCommittedBlockTimeStamp = make_shared< TimeStamp >( 0, 0 );
 
     try {
@@ -646,7 +646,7 @@ ConsensusEngine::ConsensusEngine( block_id _lastId ) : exitRequested( false ) {
 
 ConsensusEngine::ConsensusEngine( ConsensusExtFace& _extFace, uint64_t _lastCommittedBlockID,
     uint64_t _lastCommittedBlockTimeStamp, uint64_t _lastCommittedBlockTimeStampMs )
-    : exitRequested( false ) {
+    : prices(256), exitRequested( false ) {
     // for the first block time stamp shall allways be zero
 
     CHECK_STATE(
@@ -772,12 +772,20 @@ block_id ConsensusEngine::getLargestCommittedBlockID() {
     return id;
 }
 
-u256 ConsensusEngine::getPriceForBlockId( uint64_t _blockId ) const {
+u256 ConsensusEngine::getPriceForBlockId( uint64_t _blockId )  {
     CHECK_STATE( nodes.size() == 1 );
+
+    auto priceFromCache = prices.getIfExists(_blockId);
+
+    if (priceFromCache.has_value()) {
+        return any_cast<u256>(priceFromCache);
+    }
 
     for ( auto&& item : nodes ) {
         CHECK_STATE( item.second );
-        return item.second->getSchain()->getPriceForBlockId( _blockId );
+        auto result =  item.second->getSchain()->getPriceForBlockId( _blockId );
+        prices.putIfDoesNotExist(_blockId, result);
+        return result;
     }
 
     return 0;  // never happens

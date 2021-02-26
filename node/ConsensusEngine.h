@@ -47,9 +47,13 @@ class GlobalThreadRegistry;
 class StorageLimits;
 
 
+#include "thirdparty/lrucache.hpp"
+
 class ConsensusEngine : public ConsensusInterface {
 
     map< node_id, ptr< Node > > nodes; //tsafe
+
+    cache::lru_cache<uint64_t, u256> prices; // tsafe
 
     ConsensusExtFace* extFace = nullptr;
 
@@ -111,7 +115,6 @@ public:
     // used for testing only
     ptr< map< uint64_t, ptr< NodeInfo > > > testNodeInfosByIndex;
     ptr< map< uint64_t, ptr< NodeInfo > > > testNodeInfosById;
-
 
     [[nodiscard]] ptr< StorageLimits > getStorageLimits() const;
 
@@ -238,7 +241,7 @@ public:
     void init();
 
 
-    u256 getPriceForBlockId( uint64_t _blockId ) const override;
+    u256 getPriceForBlockId( uint64_t _blockId ) override;
 
     void systemHealthCheck();
 
