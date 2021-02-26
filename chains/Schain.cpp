@@ -21,6 +21,8 @@
     @date 2018
 */
 
+
+#include <sched.h>
 #include "leveldb/db.h"
 #include <unordered_set>
 
@@ -278,6 +280,8 @@ void Schain::blockCommitsArrivedThroughCatchup( const ptr< CommittedBlockList >&
 
     LOCK( m )
 
+    bumpPriority();
+
     atomic< uint64_t > committedIDOld = ( uint64_t ) getLastCommittedBlockID();
 
     CHECK_STATE( blocks->at( 0 )->getBlockID() <= ( uint64_t ) getLastCommittedBlockID() + 1 );
@@ -298,6 +302,8 @@ void Schain::blockCommitsArrivedThroughCatchup( const ptr< CommittedBlockList >&
                        " BLOCKS" );
         proposeNextBlock();
     }
+
+    unbumpPriority();
 }
 
 
@@ -312,8 +318,12 @@ void Schain::blockCommitArrived( block_id _committedBlockID, schain_index _propo
     if ( _committedBlockID <= getLastCommittedBlockID() )
         return;
 
+
+
     CHECK_STATE(
         _committedBlockID == ( getLastCommittedBlockID() + 1 ) || getLastCommittedBlockID() == 0 );
+
+    bumpPriority();
 
     try {
         ptr< BlockProposal > committedProposal = nullptr;
@@ -330,9 +340,12 @@ void Schain::blockCommitArrived( block_id _committedBlockID, schain_index _propo
         auto newCommittedBlock = CommittedBlock::makeObject( committedProposal, _thresholdSig );
 
         CHECK_STATE(*getLastCommittedBlockTimeStamp() < *newCommittedBlock->getTimeStamp());
-        processCommittedBlock( newCommittedBlock );
 
+
+        processCommittedBlock( newCommittedBlock );
         proposeNextBlock();
+
+        unbumpPriority();
 
     } catch ( ExitRequestedException& e ) {
         throw;
@@ -402,6 +415,24 @@ void Schain::proposeNextBlock() {
     }
 }
 
+void Schain::bumpPriority() {
+    // temporary bump thread priority
+    // We'll operate on the currently running thread.
+    pthread_t this_thread = pthread_self();
+    struct sched_param params;
+    // We'll set the priority to the maximum.
+    params.sched_priority = sched_get_priority_max(SCHED_FIFO);
+    pthread_setschedparam(this_thread, SCHED_FIFO, &params);
+}
+
+void Schain::unbumpPriority() {
+    struct sched_param params;
+    // Set the priority to norm
+    pthread_t this_thread = pthread_self();
+    params.sched_priority = 0;
+    CHECK_STATE(pthread_setschedparam(this_thread, 0, &params) == 0)
+}
+
 void Schain::processCommittedBlock( const ptr< CommittedBlock >& _block ) {
     CHECK_ARGUMENT( _block );
     MONITOR2( __CLASS_NAME__, __FUNCTION__, getMaxExternalBlockProcessingTime() )
@@ -411,7 +442,7 @@ void Schain::processCommittedBlock( const ptr< CommittedBlock >& _block ) {
     LOCK( m )
 
     try {
-        CHECK_STATE( getLastCommittedBlockID() + 1 == _block->getBlockID() );
+        CHECK_STATE( getLastCommittedBlockID() + 1 == _block->getBlockID() )
 
         totalTransactions += _block->getTransactionList()->size();
 
@@ -440,7 +471,7 @@ void Schain::processCommittedBlock( const ptr< CommittedBlock >& _block ) {
                 ":FDS:" + to_string(ConsensusEngine::getOpenDescriptors()) +
                 ":STAMP:" + stamp->toString() );
 
-        CHECK_STATE(_block->getBlockID() = getLastCommittedBlockID() + 1);
+        CHECK_STATE(_block->getBlockID() = getLastCommittedBlockID() + 1)
 
         pushBlockToExtFace( _block );
 
@@ -490,6 +521,7 @@ void Schain::pushBlockToExtFace( const ptr< CommittedBlock >& _block ) {
 
 
         if ( extFace ) {
+
             extFace->createBlock( *tv, _block->getTimeStampS(), _block->getTimeStampMs(),
                 ( __uint64_t ) _block->getBlockID(), currentPrice, _block->getStateRoot(),
                 ( uint64_t ) _block->getProposerIndex() );

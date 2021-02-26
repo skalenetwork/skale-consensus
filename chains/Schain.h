@@ -266,4 +266,6 @@ public:
     bool fixCorruptStateIfNeeded( block_id id );
     void rebroadcastAllMessagesForCurrentBlock() const;
 
+    static void bumpPriority();
+    static void unbumpPriority();
 };
