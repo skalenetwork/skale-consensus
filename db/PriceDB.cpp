@@ -43,8 +43,6 @@ const string& PriceDB::getFormatVersion() {
 
 u256 PriceDB::readPrice(block_id _blockID) {
 
-    LOG(trace, "Read price for block" + to_string(_blockID));
-
     if (_blockID <= 1) {
         return getSchain()->getNode()->getParamUint64(string("DYNAMIC_PRICING_START_PRICE"), 1000);
     }
@@ -69,7 +67,6 @@ u256 PriceDB::readPrice(block_id _blockID) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
 }
-
 
 void PriceDB::savePrice(const u256& _price, block_id _blockID) {
 

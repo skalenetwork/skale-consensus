@@ -68,7 +68,7 @@ public:
 
     virtual void exitGracefully() = 0;
 
-    virtual u256 getPriceForBlockId(uint64_t _blockId) const = 0;
+    virtual u256 getPriceForBlockId(uint64_t _blockId)  = 0;
 
     virtual uint64_t getEmptyBlockIntervalMs() const { return -1; }
 
