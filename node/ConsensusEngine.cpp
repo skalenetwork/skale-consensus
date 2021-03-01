@@ -772,7 +772,7 @@ block_id ConsensusEngine::getLargestCommittedBlockID() {
     return id;
 }
 
-u256 ConsensusEngine::getPriceForBlockId( uint64_t _blockId )  {
+u256 ConsensusEngine::getPriceForBlockId( uint64_t _blockId )  const {
     CHECK_STATE( nodes.size() == 1 );
 
     auto priceFromCache = prices.getIfExists(_blockId);
