@@ -53,17 +53,18 @@ class ConsensusEngine : public ConsensusInterface {
 
     map< node_id, ptr< Node > > nodes; //tsafe
 
-    cache::lru_cache<uint64_t, u256> prices; // tsafe
+    mutable cache::lru_cache<uint64_t, u256> prices; // tsafe
 
     ConsensusExtFace* extFace = nullptr;
 
     block_id lastCommittedBlockID = 0;
 
-    ptr<TimeStamp> lastCommittedBlockTimeStamp = 0;
+    ptr<TimeStamp> lastCommittedBlockTimeStamp = nullptr;
 
     set< node_id > nodeIDs;
     
     bool useTestSGXKeys = false;
+
     bool isSGXEnabled = false;
     
     string sgxServerUrl;
@@ -241,7 +242,7 @@ public:
     void init();
 
 
-    u256 getPriceForBlockId( uint64_t _blockId ) override;
+    u256 getPriceForBlockId( uint64_t _blockId ) const override;
 
     void systemHealthCheck();
 
