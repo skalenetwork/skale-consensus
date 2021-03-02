@@ -124,6 +124,7 @@ class Schain : public Agent {
     atomic< uint64_t > lastCommitTimeMs = 0;
     ptr< TimeStamp > lastCommittedBlockTimeStamp = 0;
     recursive_mutex lastCommittedBlockInfoMutex;
+    atomic<uint64_t> proposalReceiptTime = 0;
 
 
     atomic< uint64_t > bootstrapBlockID = 0;

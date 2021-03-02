@@ -469,7 +469,10 @@ void Schain::processCommittedBlock( const ptr< CommittedBlock >& _block ) {
                 ":CONS:" + to_string( ServerConnection::getTotalObjects() ) + ":DSDS:" +
                 to_string( getSchain()->getNode()->getNetwork()->computeTotalDelayedSends() ) +
                 ":FDS:" + to_string(ConsensusEngine::getOpenDescriptors()) +
+                ":PRT:" + to_string(proposalReceiptTime) +
                 ":STAMP:" + stamp->toString() );
+
+        proposalReceiptTime = 0;
 
         CHECK_STATE(_block->getBlockID() = getLastCommittedBlockID() + 1)
 
@@ -540,6 +543,7 @@ void Schain::pushBlockToExtFace( const ptr< CommittedBlock >& _block ) {
 void Schain::startConsensus(
     const block_id _blockID, const ptr< BooleanProposalVector >& _proposalVector ) {
     {
+        proposalReceiptTime = Time::getCurrentTimeMs() - this->lastCommitTimeMs;
         CHECK_ARGUMENT( _proposalVector );
 
         MONITOR( __CLASS_NAME__, __FUNCTION__ )
