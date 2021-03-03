@@ -476,9 +476,9 @@ void Schain::processCommittedBlock( const ptr< CommittedBlock >& _block ) {
 
         CHECK_STATE(_block->getBlockID() = getLastCommittedBlockID() + 1)
 
-        pushBlockToExtFace( _block );
-
         saveBlock( _block );
+
+        pushBlockToExtFace( _block );
 
         updateLastCommittedBlockInfo( ( uint64_t ) _block->getBlockID(), stamp );
 
