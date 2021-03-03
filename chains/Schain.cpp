@@ -416,6 +416,7 @@ void Schain::proposeNextBlock() {
 }
 
 void Schain::bumpPriority() {
+
     // temporary bump thread priority
     // We'll operate on the currently running thread.
     pthread_t this_thread = pthread_self();
