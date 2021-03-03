@@ -126,6 +126,10 @@ class Schain : public Agent {
     recursive_mutex lastCommittedBlockInfoMutex;
     atomic<uint64_t> proposalReceiptTime = 0;
 
+    uint64_t transactionsPerBlockAverage = 0;
+    uint64_t blockSizeAverage = 0;
+    uint64_t blockTimeAverageMs = 0 ;
+    uint64_t tpsAverage = 0 ;
 
     atomic< uint64_t > bootstrapBlockID = 0;
     uint64_t maxExternalBlockProcessingTime = 0;
@@ -154,7 +158,7 @@ public:
     bool isStartingFromCorruptState() const;
 
     void updateLastCommittedBlockInfo( uint64_t _lastCommittedBlockID,
-        ptr< TimeStamp > _lastCommittedBlockTimeStamp );
+        ptr< TimeStamp > _lastCommittedBlockTimeStamp, uint64_t _blockSize );
 
     void initLastCommittedBlockInfo( uint64_t _lastCommittedBlockID,
                                        ptr< TimeStamp > _lastCommittedBlockTimeStamp );

@@ -480,7 +480,8 @@ void Schain::processCommittedBlock( const ptr< CommittedBlock >& _block ) {
 
         saveBlock( _block );
 
-        updateLastCommittedBlockInfo( ( uint64_t ) _block->getBlockID(), stamp );
+        updateLastCommittedBlockInfo(
+            ( uint64_t ) _block->getBlockID(), stamp, _block->getTransactionList()->size() );
 
     } catch ( ExitRequestedException& e ) {
         throw;
