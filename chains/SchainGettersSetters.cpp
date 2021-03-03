@@ -289,18 +289,15 @@ void Schain::updateLastCommittedBlockInfo( uint64_t _lastCommittedBlockID,
     auto currentTime = Time::getCurrentTimeMs();
     CHECK_STATE(currentTime >= lastCommitTimeMs);
 
-
     blockSizeAverage = (blockSizeAverage * (_lastCommittedBlockID - 1) + _blockSize) / _lastCommittedBlockID;
     blockTimeAverageMs = (currentTime - this->startTimeMs) / (_lastCommittedBlockID - this->bootstrapBlockID);
-    tpsAverage = (blockSizeAverage * 1000 ) / blockTimeAverageMs;
+    if (blockTimeAverageMs == 0)
+        blockTimeAverageMs = 1;
 
-    LOG(info, "BSA" + to_string(blockSizeAverage));
-    LOG(info, "BTA" + to_string(blockTimeAverageMs));
+    tpsAverage = (blockSizeAverage * 1000 ) / blockTimeAverageMs;
 
     lastCommittedBlockID = _lastCommittedBlockID;
     lastCommittedBlockTimeStamp = _lastCommittedBlockTimeStamp;
     lastCommitTimeMs = currentTime;
-
-
 
 }

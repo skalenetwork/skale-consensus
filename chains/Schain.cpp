@@ -470,7 +470,11 @@ void Schain::processCommittedBlock( const ptr< CommittedBlock >& _block ) {
                 to_string( getSchain()->getNode()->getNetwork()->computeTotalDelayedSends() ) +
                 ":FDS:" + to_string(ConsensusEngine::getOpenDescriptors()) +
                 ":PRT:" + to_string(proposalReceiptTime) +
-                ":STAMP:" + stamp->toString() );
+                ":STAMP:" + stamp->toString()  +
+                ":BTA:" + to_string(blockTimeAverageMs)  +
+                ":BSA:" + to_string(blockSizeAverage) +
+                ":TPS:" + to_string(tpsAverage)
+            );
 
         proposalReceiptTime = 0;
 
