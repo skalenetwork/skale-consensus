@@ -416,6 +416,7 @@ void Schain::proposeNextBlock() {
 }
 
 void Schain::bumpPriority() {
+
     // temporary bump thread priority
     // We'll operate on the currently running thread.
     pthread_t this_thread = pthread_self();
@@ -480,12 +481,12 @@ void Schain::processCommittedBlock( const ptr< CommittedBlock >& _block ) {
 
         CHECK_STATE(_block->getBlockID() = getLastCommittedBlockID() + 1)
 
-        pushBlockToExtFace( _block );
-
         saveBlock( _block );
 
-        updateLastCommittedBlockInfo(
-            ( uint64_t ) _block->getBlockID(), stamp, _block->getTransactionList()->size() );
+        pushBlockToExtFace( _block );
+
+        updateLastCommittedBlockInfo( ( uint64_t ) _block->getBlockID(), stamp );
+
 
     } catch ( ExitRequestedException& e ) {
         throw;
