@@ -240,8 +240,6 @@ Schain::Schain( weak_ptr< Node > _node, schain_index _schainIndex, const schain_
         blockProposerTest = none;
 
         getNode()->registerAgent( this );
-        httpserver = make_shared<jsonrpc::HttpServer>((int)((uint16_t) getNode()->getBasePort() + STATUS));
-        s = make_shared<StatusServer> (this, *httpserver, jsonrpc::JSONRPC_SERVER_V1V2 );
     } catch ( ExitRequestedException& ) {
         throw;
     } catch ( ... ) {
@@ -950,14 +948,22 @@ bool Schain::isStartingFromCorruptState() const {
     return startingFromCorruptState;
 }
 void Schain::startStatusServer() {
-    if (s)
-        s->StartListening();
+
+    if (!s) {
+        httpserver = make_shared<jsonrpc::HttpServer>((int)((uint16_t) getNode()->getBasePort() + STATUS),
+            "", "","", 1);
+        s = make_shared<StatusServer> (this, *httpserver, jsonrpc::JSONRPC_SERVER_V1V2 );
+    }
+
+    CHECK_STATE(s);
+    LOG(info, "Starting status server ...");
+    CHECK_STATE(s->StartListening());
+    LOG(info, "Successfully started status server ...");
 }
 
 void Schain::stopStatusServer() {
     if (s)
         s->StopListening();
-    s = nullptr;
 }
 uint64_t Schain::getBlockSizeAverage() const {
     return blockSizeAverage;
