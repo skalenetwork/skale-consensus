@@ -1,6 +1,6 @@
 {
   "nodeName": "Node11",
   "nodeID": 1121,
-  "bindIP": "192.168.2.78",
+  "bindIP": "127.0.0.1",
   "basePort":1411
 }

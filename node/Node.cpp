@@ -258,7 +258,7 @@ void Node::startServers() {
 
     CHECK_STATE(!startedServers);
 
-    LOG(info, "Starting node");
+    LOG(info, "Starting node on");
 
     LOG(trace, "Initing sockets");
 
@@ -362,8 +362,11 @@ void Node::initSchain(const ptr<Node>& _node, const ptr<NodeInfo>& _localNodeInf
 
             auto ipPortString = rni->getBaseIP() + ":" + to_string((uint16_t ) rni->getPort());
 
+            LOG(info, "Adding:" + ipPortString);
+
             if (ipPortSet.count(ipPortString) > 0 ) {
-                BOOST_THROW_EXCEPTION(InvalidStateException("Double entry is found in schain config ",
+                BOOST_THROW_EXCEPTION(InvalidStateException("Double entry is found in schain config:  "
+                    + ipPortString,
                         __CLASS_NAME__));
             } else {
                 ipPortSet.insert(ipPortString);
