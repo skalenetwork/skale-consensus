@@ -233,6 +233,8 @@ Schain::Schain( weak_ptr< Node > _node, schain_index _schainIndex, const schain_
 
         constructChildAgents();
 
+        startInfoServer();
+
         string none = SchainTest::NONE;
 
         blockProposerTest = none;
@@ -471,6 +473,9 @@ void Schain::processCommittedBlock( const ptr< CommittedBlock >& _block ) {
                 to_string( getSchain()->getNode()->getNetwork()->computeTotalDelayedSends() ) +
                 ":FDS:" + to_string(ConsensusEngine::getOpenDescriptors()) +
                 ":PRT:" + to_string(proposalReceiptTime) +
+                ":BTA:" + to_string(blockTimeAverageMs)  +
+                ":BSA:" + to_string(blockSizeAverage) +
+                ":TPS:" + to_string(tpsAverage) +
                 ":STAMP:" + stamp->toString() );
 
         proposalReceiptTime = 0;
@@ -481,7 +486,8 @@ void Schain::processCommittedBlock( const ptr< CommittedBlock >& _block ) {
 
         pushBlockToExtFace( _block );
 
-        updateLastCommittedBlockInfo( ( uint64_t ) _block->getBlockID(), stamp );
+        updateLastCommittedBlockInfo( ( uint64_t ) _block->getBlockID(), stamp,
+            _block->getTransactionList()->size());
 
     } catch ( ExitRequestedException& e ) {
         throw;
@@ -740,6 +746,7 @@ void Schain::bootstrap( block_id _lastCommittedBlockID, uint64_t _lastCommittedB
 
         rebroadcastAllMessagesForCurrentBlock();
 
+
     } catch ( exception& e ) {
         SkaleException::logNested( e );
         return;
@@ -946,4 +953,7 @@ bool Schain::fixCorruptStateIfNeeded( block_id _lastCommittedBlockID ) {
 
 bool Schain::isStartingFromCorruptState() const {
     return startingFromCorruptState;
+}
+void Schain::startInfoServer() {
+
 }

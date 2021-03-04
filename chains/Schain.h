@@ -130,6 +130,10 @@ class Schain : public Agent {
     atomic< uint64_t > bootstrapBlockID = 0;
     uint64_t maxExternalBlockProcessingTime = 0;
 
+    uint64_t blockSizeAverage = 0;
+    uint64_t blockTimeAverageMs = 0 ;
+    uint64_t tpsAverage = 0 ;
+
     ptr< NodeInfo > thisNodeInfo = nullptr;
 
     void checkForExit();
@@ -154,7 +158,7 @@ public:
     bool isStartingFromCorruptState() const;
 
     void updateLastCommittedBlockInfo( uint64_t _lastCommittedBlockID,
-        ptr< TimeStamp > _lastCommittedBlockTimeStamp );
+        ptr< TimeStamp > _lastCommittedBlockTimeStamp, uint64_t _blockSize );
 
     void initLastCommittedBlockInfo( uint64_t _lastCommittedBlockID,
                                        ptr< TimeStamp > _lastCommittedBlockTimeStamp );
@@ -269,4 +273,5 @@ public:
 
     static void bumpPriority();
     static void unbumpPriority();
+    void startInfoServer();
 };

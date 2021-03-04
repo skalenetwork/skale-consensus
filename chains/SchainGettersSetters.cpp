@@ -278,7 +278,8 @@ void Schain::initLastCommittedBlockInfo( uint64_t _lastCommittedBlockID,
 
 
 void Schain::updateLastCommittedBlockInfo( uint64_t _lastCommittedBlockID,
-                                   ptr< TimeStamp > _lastCommittedBlockTimeStamp ){
+                                   ptr< TimeStamp > _lastCommittedBlockTimeStamp,
+                                   uint64_t _blockSize){
     LOCK(lastCommittedBlockInfoMutex);
     CHECK_STATE(_lastCommittedBlockTimeStamp);
     CHECK_STATE(_lastCommittedBlockID == lastCommittedBlockID + 1)
@@ -293,4 +294,12 @@ void Schain::updateLastCommittedBlockInfo( uint64_t _lastCommittedBlockID,
     lastCommittedBlockID = _lastCommittedBlockID;
     lastCommittedBlockTimeStamp = _lastCommittedBlockTimeStamp;
     lastCommitTimeMs = currentTime;
+
+    blockSizeAverage = (blockSizeAverage * (_lastCommittedBlockID - 1) + _blockSize) / _lastCommittedBlockID;
+    blockTimeAverageMs = (currentTime - this->startTimeMs) / (_lastCommittedBlockID - this->bootstrapBlockID);
+    if (blockTimeAverageMs == 0)
+        blockTimeAverageMs = 1;
+
+    tpsAverage = (blockSizeAverage * 1000 ) / blockTimeAverageMs;
+
 }
