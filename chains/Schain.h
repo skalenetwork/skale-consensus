@@ -26,6 +26,8 @@
 #pragma once
 
 #include "Agent.h"
+#include <jsonrpccpp/server/connectors/httpserver.h>
+#include "statusserver/StatusServer.h"
 
 class ThresholdSignature;
 class CommittedBlockList;
@@ -74,6 +76,7 @@ class ThresholdSigShare;
 class BooleanProposalVector;
 class TimeStamp;
 class CryptoManager;
+class StatusServer;
 
 class Schain : public Agent {
 
@@ -87,6 +90,10 @@ class Schain : public Agent {
     ConsensusExtFace* extFace = nullptr;
 
     schain_id schainID = 0;
+
+    ptr<jsonrpc::HttpServer> httpserver;
+    ptr<StatusServer> s;
+
 
     ptr< TestMessageGeneratorAgent > testMessageGeneratorAgent;
 
@@ -131,6 +138,12 @@ class Schain : public Agent {
     uint64_t maxExternalBlockProcessingTime = 0;
 
     uint64_t blockSizeAverage = 0;
+
+public:
+    uint64_t getBlockSizeAverage() const;
+    uint64_t getBlockTimeAverageMs() const;
+    uint64_t getTpsAverage() const;
+private:
     uint64_t blockTimeAverageMs = 0 ;
     uint64_t tpsAverage = 0 ;
 
@@ -273,5 +286,6 @@ public:
 
     static void bumpPriority();
     static void unbumpPriority();
-    void startInfoServer();
+    void startStatusServer();
+    void stopStatusServer();
 };

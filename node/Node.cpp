@@ -428,6 +428,8 @@ void Node::releaseGlobalClientBarrier() {
 
 void Node::exit() {
 
+    getSchain()->stopStatusServer();
+
     RETURN_IF_PREVIOUSLY_CALLED(exitRequested);
 
     releaseGlobalClientBarrier();

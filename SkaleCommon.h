@@ -197,7 +197,8 @@ static const uint64_t KNOWN_TRANSACTIONS_HISTORY = 2 * MAX_TRANSACTIONS_PER_BLOC
 
 enum port_type {
     PROPOSAL = 0, CATCHUP = 1, RETRIEVE = 2, HTTP_JSON = 3, BINARY_CONSENSUS = 4, ZMQ_BROADCAST = 5,
-    MTA = 6, INFO = 10
+    MTA = 6,
+    STATUS = 10
 };
 
 
