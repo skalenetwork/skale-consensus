@@ -1,0 +1,15 @@
+[
+	{
+		"name": "consensus_getTPSAverage",
+		"returns" : "tpsAverage"
+	},
+	{
+		"name" : "consensus_getBlockSizeAverage",
+		"returns" : "blockSizeAverage"
+	},
+
+	{
+		"name" : "consensus_getBlockTimeAverageMs",
+		"returns" : "blockTimeAverageMs"
+	}
+]

@@ -119,6 +119,7 @@ AUX_SOURCE_DIRECTORY(exceptions exceptions_src)
 AUX_SOURCE_DIRECTORY(headers headers_src)
 AUX_SOURCE_DIRECTORY(monitoring monitoring_src)
 AUX_SOURCE_DIRECTORY(utils utils_src)
+AUX_SOURCE_DIRECTORY(statusserver statusserver_src)
 
 
 SET(SRC_FILES
@@ -154,6 +155,7 @@ SET(SRC_FILES
         ${exceptions_src}
         ${monitoring_src}
         ${utils_src}
+        ${statusserver_src}
         Agent.h Agent.cpp SkaleCommon.cpp Log.cpp microprofile.cpp miniz.c
         )
 
@@ -185,6 +187,8 @@ SET(LINK_LIBRARIES
         ${LIB_NAME_cryptopp}
         leveldb::leveldb
         "${DEPS_INSTALL_ROOT}/lib/libjsonrpccpp-client.a"
+        "${DEPS_INSTALL_ROOT}/lib/libjsonrpccpp-server.a"
+        "${DEPS_INSTALL_ROOT}/lib/libmicrohttpd.a"
         "${DEPS_INSTALL_ROOT}/lib/libjsonrpccpp-stub.a"
         "${DEPS_INSTALL_ROOT}/lib/libjsonrpccpp-common.a"
         bls # "${CMAKE_CURRENT_SOURCE_DIR}/libBLS/build/libbls.a"
@@ -193,6 +197,8 @@ SET(LINK_LIBRARIES
         "${DEPS_INSTALL_ROOT}/lib/libcryptopp.a"
         gmp
         gcov
+        gnutls
+        gcrypt
         "${DEPS_INSTALL_ROOT}/lib/libcurl${DASH_D_SUFFIX}.a"
         "${DEPS_INSTALL_ROOT}/lib/libjsoncpp.a"
         "${DEPS_INSTALL_ROOT}/lib/libssl.a"

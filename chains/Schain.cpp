@@ -22,8 +22,8 @@
 */
 
 
-#include <sched.h>
 #include "leveldb/db.h"
+#include <sched.h>
 #include <unordered_set>
 
 #include "Log.h"
@@ -233,12 +233,13 @@ Schain::Schain( weak_ptr< Node > _node, schain_index _schainIndex, const schain_
 
         constructChildAgents();
 
+        startStatusServer();
+
         string none = SchainTest::NONE;
 
         blockProposerTest = none;
 
         getNode()->registerAgent( this );
-
     } catch ( ExitRequestedException& ) {
         throw;
     } catch ( ... ) {
@@ -291,8 +292,8 @@ void Schain::blockCommitsArrivedThroughCatchup( const ptr< CommittedBlockList >&
 
         CHECK_STATE( block );
 
-        if ( ( uint64_t ) block->getBlockID() == (getLastCommittedBlockID()  + 1)) {
-            CHECK_STATE(*getLastCommittedBlockTimeStamp() < *block->getTimeStamp());
+        if ( ( uint64_t ) block->getBlockID() == ( getLastCommittedBlockID() + 1 ) ) {
+            CHECK_STATE( *getLastCommittedBlockTimeStamp() < *block->getTimeStamp() );
             processCommittedBlock( block );
         }
     }
@@ -314,10 +315,9 @@ void Schain::blockCommitArrived( block_id _committedBlockID, schain_index _propo
     checkForExit();
 
     LOCK( m )
-    
+
     if ( _committedBlockID <= getLastCommittedBlockID() )
         return;
-
 
 
     CHECK_STATE(
@@ -339,7 +339,7 @@ void Schain::blockCommitArrived( block_id _committedBlockID, schain_index _propo
 
         auto newCommittedBlock = CommittedBlock::makeObject( committedProposal, _thresholdSig );
 
-        CHECK_STATE(*getLastCommittedBlockTimeStamp() < *newCommittedBlock->getTimeStamp());
+        CHECK_STATE( *getLastCommittedBlockTimeStamp() < *newCommittedBlock->getTimeStamp() );
 
 
         processCommittedBlock( newCommittedBlock );
@@ -416,14 +416,13 @@ void Schain::proposeNextBlock() {
 }
 
 void Schain::bumpPriority() {
-
     // temporary bump thread priority
     // We'll operate on the currently running thread.
     pthread_t this_thread = pthread_self();
     struct sched_param params;
     // We'll set the priority to the maximum.
-    params.sched_priority = sched_get_priority_max(SCHED_FIFO);
-    pthread_setschedparam(this_thread, SCHED_FIFO, &params);
+    params.sched_priority = sched_get_priority_max( SCHED_FIFO );
+    pthread_setschedparam( this_thread, SCHED_FIFO, &params );
 }
 
 void Schain::unbumpPriority() {
@@ -431,7 +430,7 @@ void Schain::unbumpPriority() {
     // Set the priority to norm
     pthread_t this_thread = pthread_self();
     params.sched_priority = 0;
-    CHECK_STATE(pthread_setschedparam(this_thread, 0, &params) == 0)
+    CHECK_STATE( pthread_setschedparam( this_thread, 0, &params ) == 0 )
 }
 
 void Schain::processCommittedBlock( const ptr< CommittedBlock >& _block ) {
@@ -469,19 +468,21 @@ void Schain::processCommittedBlock( const ptr< CommittedBlock >& _block ) {
                 ":SOCK:" + to_string( ClientSocket::getTotalSockets() ) +
                 ":CONS:" + to_string( ServerConnection::getTotalObjects() ) + ":DSDS:" +
                 to_string( getSchain()->getNode()->getNetwork()->computeTotalDelayedSends() ) +
-                ":FDS:" + to_string(ConsensusEngine::getOpenDescriptors()) +
-                ":PRT:" + to_string(proposalReceiptTime) +
+                ":FDS:" + to_string( ConsensusEngine::getOpenDescriptors() ) + ":PRT:" +
+                to_string( proposalReceiptTime ) + ":BTA:" + to_string( blockTimeAverageMs ) +
+                ":BSA:" + to_string( blockSizeAverage ) + ":TPS:" + to_string( tpsAverage ) +
                 ":STAMP:" + stamp->toString() );
 
         proposalReceiptTime = 0;
 
-        CHECK_STATE(_block->getBlockID() = getLastCommittedBlockID() + 1)
+        CHECK_STATE( _block->getBlockID() = getLastCommittedBlockID() + 1 )
 
         saveBlock( _block );
 
         pushBlockToExtFace( _block );
 
-        updateLastCommittedBlockInfo( ( uint64_t ) _block->getBlockID(), stamp );
+        updateLastCommittedBlockInfo(
+            ( uint64_t ) _block->getBlockID(), stamp, _block->getTransactionList()->size() );
 
     } catch ( ExitRequestedException& e ) {
         throw;
@@ -525,7 +526,6 @@ void Schain::pushBlockToExtFace( const ptr< CommittedBlock >& _block ) {
 
 
         if ( extFace ) {
-
             extFace->createBlock( *tv, _block->getTimeStampS(), _block->getTimeStampMs(),
                 ( __uint64_t ) _block->getBlockID(), currentPrice, _block->getStateRoot(),
                 ( uint64_t ) _block->getProposerIndex() );
@@ -670,10 +670,9 @@ void Schain::bootstrap( block_id _lastCommittedBlockID, uint64_t _lastCommittedB
 
     // Step 0 Workaround for the fact that skaled does not yet save timestampMs
 
-    if (_lastCommittedBlockTimeStampMs == 0 && _lastCommittedBlockID > 0) {
-        auto block = getNode()->getBlockDB()->getBlock(
-            _lastCommittedBlockID, getCryptoManager() );
-        if (block) {
+    if ( _lastCommittedBlockTimeStampMs == 0 && _lastCommittedBlockID > 0 ) {
+        auto block = getNode()->getBlockDB()->getBlock( _lastCommittedBlockID, getCryptoManager() );
+        if ( block ) {
             _lastCommittedBlockTimeStampMs = block->getTimeStampMs();
         };
     }
@@ -727,7 +726,7 @@ void Schain::bootstrap( block_id _lastCommittedBlockID, uint64_t _lastCommittedB
         ptr< BlockProposal > committedProposal = nullptr;
 
 
-         initLastCommittedBlockInfo( ( uint64_t ) _lastCommittedBlockID,
+        initLastCommittedBlockInfo( ( uint64_t ) _lastCommittedBlockID,
             make_shared< TimeStamp >(
                 _lastCommittedBlockTimeStamp, _lastCommittedBlockTimeStampMs ) );
 
@@ -739,6 +738,7 @@ void Schain::bootstrap( block_id _lastCommittedBlockID, uint64_t _lastCommittedB
         proposeNextBlock();
 
         rebroadcastAllMessagesForCurrentBlock();
+
 
     } catch ( exception& e ) {
         SkaleException::logNested( e );
@@ -891,7 +891,7 @@ void Schain::finalizeDecidedAndSignedBlock( block_id _blockId, schain_index _pro
 
         bool downloadProposal;
 
-        if (proposal) {
+        if ( proposal ) {
             // a proposal without a  DA proof is not trusted and has to be
             downloadProposal = !getNode()->getDaProofDB()->haveDAProof( proposal );
         } else {
@@ -899,7 +899,7 @@ void Schain::finalizeDecidedAndSignedBlock( block_id _blockId, schain_index _pro
         }
 
         if ( downloadProposal ||
-                            // downloaded from others this switch is for testing only
+             // downloaded from others this switch is for testing only
              getNode()->getTestConfig()->isFinalizationDownloadOnly() ) {
             // did not receive proposal from the proposer, pull it in parallel from other hosts
             // Note that due to the BLS signature proof, 2t hosts out of 3t + 1 total are guaranteed
@@ -916,11 +916,11 @@ void Schain::finalizeDecidedAndSignedBlock( block_id _blockId, schain_index _pro
                 proposal = agent->downloadProposal();
             }
 
-            if (proposal)  // Nullptr means catchup happened first
+            if ( proposal )  // Nullptr means catchup happened first
                 getNode()->getBlockProposalDB()->addBlockProposal( proposal );
         }
 
-        if ( proposal) {
+        if ( proposal ) {
             blockCommitArrived( _blockId, _proposerIndex, _thresholdSig );
         }
 
@@ -946,4 +946,31 @@ bool Schain::fixCorruptStateIfNeeded( block_id _lastCommittedBlockID ) {
 
 bool Schain::isStartingFromCorruptState() const {
     return startingFromCorruptState;
+}
+void Schain::startStatusServer() {
+
+    if (!s) {
+        httpserver = make_shared<jsonrpc::HttpServer>((int)((uint16_t) getNode()->getBasePort() + STATUS),
+            "", "","", 1);
+        s = make_shared<StatusServer> (this, *httpserver, jsonrpc::JSONRPC_SERVER_V1V2 );
+    }
+
+    CHECK_STATE(s);
+    LOG(info, "Starting status server ...");
+    CHECK_STATE(s->StartListening());
+    LOG(info, "Successfully started status server ...");
+}
+
+void Schain::stopStatusServer() {
+    if (s)
+        s->StopListening();
+}
+uint64_t Schain::getBlockSizeAverage() const {
+    return blockSizeAverage;
+}
+uint64_t Schain::getBlockTimeAverageMs() const {
+    return blockTimeAverageMs;
+}
+uint64_t Schain::getTpsAverage() const {
+    return tpsAverage;
 }

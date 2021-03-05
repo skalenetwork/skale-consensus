@@ -53,7 +53,8 @@ TCPServerSocket::TCPServerSocket(const string& _bindIP, uint16_t _basePort, port
 
     if ( ::bind( s, ( struct sockaddr* ) socketaddr.get(), sizeof( sockaddr_in ) ) < 0 ) {
         BOOST_THROW_EXCEPTION(
-            FatalError( "Could not bind the TCP socket: error " + to_string( errno ) ) );
+            FatalError( "Could not bind the TCP socket on address:" + _bindIP +
+           ":" + to_string(bindPort) + " error: " + to_string( errno ) ) );
     }
 
     // Init the connection
