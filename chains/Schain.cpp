@@ -955,10 +955,12 @@ void Schain::startStatusServer() {
         s = make_shared<StatusServer> (this, *httpserver, jsonrpc::JSONRPC_SERVER_V1V2 );
     }
 
+#ifdef CONSENSUS_DEMO
     CHECK_STATE(s);
     LOG(info, "Starting status server ...");
     CHECK_STATE(s->StartListening());
     LOG(info, "Successfully started status server ...");
+#endif
 }
 
 void Schain::stopStatusServer() {
