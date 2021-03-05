@@ -103,6 +103,9 @@ nlohmann::json BlockFinalizeDownloader::readBlockFinalizeResponseHeader(const pt
 
 uint64_t BlockFinalizeDownloader::downloadFragment(schain_index _dstIndex, fragment_index _fragmentIndex) {
 
+    LOG(info, "BLCK_FRG_DWNLD:" + to_string(_fragmentIndex) + ":" +
+        to_string(_dstIndex));
+
     try {
 
         auto header = make_shared<BlockFinalizeRequestHeader>(*sChain, blockId, proposerIndex,
@@ -126,7 +129,6 @@ uint64_t BlockFinalizeDownloader::downloadFragment(schain_index _dstIndex, fragm
             LOG(err, errString);
             throw_with_nested(NetworkProtocolException(errString, __CLASS_NAME__));
         }
-        LOG(debug, "BlockFinalizec step 1: wrote BlockFinalize request");
 
         nlohmann::json response;
 
@@ -139,12 +141,11 @@ uint64_t BlockFinalizeDownloader::downloadFragment(schain_index _dstIndex, fragm
         }
 
 
-        LOG(debug, "BlockFinalizec step 2: read BlockFinalize response header");
-
         auto status = (ConnectionStatus) Header::getUint64(response, "status");
 
         if (status == CONNECTION_DISCONNECT) {
-            LOG(debug, "BlockFinalizec got response::no fragment");
+            LOG(info, "BLCK_FRG_DWNLD:NO_FRG:" + to_string(_fragmentIndex) + ":" +
+                      to_string(_dstIndex));
             return 0;
         }
 
@@ -170,8 +171,6 @@ uint64_t BlockFinalizeDownloader::downloadFragment(schain_index _dstIndex, fragm
         uint64_t next = 0;
 
         fragmentList.addFragment(blockFragment, next);
-
-        LOG(debug, "BlockFinalizec success");
 
         return next;
 
@@ -244,7 +243,6 @@ BlockFinalizeDownloader::readBlockFragment(const ptr<ClientSocket>& _socket, nlo
 
     return fragment;
 
-
 }
 
 
@@ -265,11 +263,7 @@ void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(BlockFinalizeDown
 
     setThreadName("BlckFinLoop", node->getConsensusEngine());
 
-
-
     node->waitOnGlobalClientStartBarrier();
-
-
 
     // since the node does not download from itself
     // and since the number of fragment is one less the number of
