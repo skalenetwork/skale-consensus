@@ -45,16 +45,17 @@
 #include "SkaleCommon.h"
 
 #include <gmp.h>
+#include <network/ClientSocket.h>
 
+#include "BLAKE3Hash.h"
 #include "ConsensusBLSSigShare.h"
 #include "ConsensusBLSSignature.h"
+#include "ConsensusEdDSASigShareSet.h"
 #include "ConsensusEdDSASignature.h"
 #include "ConsensusSigShareSet.h"
-#include "ConsensusEdDSASigShareSet.h"
 #include "MockupSigShare.h"
 #include "MockupSigShareSet.h"
 #include "MockupSignature.h"
-#include "BLAKE3Hash.h"
 
 #include "chains/Schain.h"
 #include "messages/NetworkMessage.h"
@@ -177,6 +178,17 @@ CryptoManager::CryptoManager( Schain& _sChain )
     if ( isSGXEnabled ) {
         auto node = _sChain.getNode();
         sgxURL = node->getSgxUrl();
+        if (sgxURL.back() == '/') {
+            sgxURL = sgxURL.substr(0, sgxURL.size() - 1);
+        }
+
+        auto semicolumnPosition = sgxURL.find(":");
+        CHECK_STATE(semicolumnPosition != string::npos);
+        auto portString = sgxURL.substr(semicolumnPosition + 1,
+            sgxURL.length() - semicolumnPosition - 1 );
+
+        sgxPort = stoi(portString);
+
         sgxSSLCertFileFullPath = node->getSgxSslCertFileFullPath();
         sgxSSLKeyFileFullPath = node->getSgxSslKeyFileFullPath();
         sgxECDSAKeyName = node->getEcdsaKeyName();
@@ -879,3 +891,13 @@ const string& CryptoManager::getSgxUrl() {
 void CryptoManager::setSgxUrl( const string& sgxUrl ) {
     sgxURL = sgxUrl;
 }
+
+
+void CryptoManager::sgxCheck() {
+
+    LOG( info, "Testing SGX server" );
+
+    LOG( info, "Successfully connected to sgx server" );
+
+}
+

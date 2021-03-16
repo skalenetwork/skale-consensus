@@ -92,6 +92,7 @@ class CryptoManager {
     uint64_t requiredSigners;
 
     bool isSGXEnabled = false;
+    bool isZMQEnabled = false;
     bool isHTTPSEnabled = true;
 
     string sgxSSLKeyFileFullPath;
@@ -108,10 +109,10 @@ class CryptoManager {
     static bool retryHappened;
 
     static string sgxURL;
+    uint16_t sgxPort = 0;
 
 
 private:
-
 
     ptr< StubClient > getSgxClient();
 
@@ -122,7 +123,6 @@ private:
     tuple< string, string, string > sessionSign(
         const ptr< BLAKE3Hash >& _hash, block_id _blockId );
 
-
     bool verifyECDSASig( const ptr< BLAKE3Hash >& _hash, const string& _sig, node_id _nodeId );
 
     ptr< ThresholdSigShare > signSigShare(
@@ -132,7 +132,11 @@ private:
 
     void initSGXClient();
 
+    void sgxCheck();
+
     static uint64_t parseSGXPort( const string& _url );
+
+
 
 public:
 
