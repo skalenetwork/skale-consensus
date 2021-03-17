@@ -1,4 +1,4 @@
-# SKALE Consensus: a BFT Consensus engine in C++
+ # SKALE Consensus: a BFT Consensus engine in C++
 
 [![Discord](https://img.shields.io/discord/534485763354787851.svg)](https://discord.gg/vvUtWJB)
 ![Build and test skale-consensus](https://github.com/skalenetwork/skale-consensus/workflows/Build%20and%20test%20skale-consensus/badge.svg)
