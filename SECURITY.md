@@ -1,4 +1,4 @@
-# Security
+#  Security
 
 Please refer to the [security policy](https://skale.network/security).
 
