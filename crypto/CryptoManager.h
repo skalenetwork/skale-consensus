@@ -109,7 +109,10 @@ class CryptoManager {
     static bool retryHappened;
 
     static string sgxURL;
+
+    string sgxDomainName;
     uint16_t sgxPort = 0;
+
 
 
 private:
@@ -134,7 +137,7 @@ private:
 
     void sgxCheck();
 
-    static uint64_t parseSGXPort( const string& _url );
+    static pair<string, uint64_t> parseSGXPort( const string& _url );
 
 
 
