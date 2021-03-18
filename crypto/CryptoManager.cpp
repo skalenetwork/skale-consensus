@@ -130,7 +130,7 @@ CryptoManager::CryptoManager( uint64_t _totalSigners, uint64_t _requiredSigners,
 }
 
 
- pair<string,uint64_t> CryptoManager::parseSGXPort( const string& _url ) {
+ pair<string,uint64_t> CryptoManager::parseSGXDomainAndPort( const string& _url ) {
     CHECK_ARGUMENT( _url != "" );
     size_t found = _url.find_first_of( ":" );
 
@@ -140,7 +140,7 @@ CryptoManager::CryptoManager( uint64_t _totalSigners, uint64_t _requiredSigners,
     }
 
 
-    string end = _url.substr( found + 1 );
+    string end = _url.substr( found + 3 );
 
     size_t found1 = end.find_first_of( ":" );
 
@@ -149,7 +149,10 @@ CryptoManager::CryptoManager( uint64_t _totalSigners, uint64_t _requiredSigners,
     }
 
 
+    string domain = end.substr(0, found1);
+
     string port = end.substr( found1 + 1, end.size() - found1 );
+
 
 
     uint64_t result;
@@ -160,7 +163,7 @@ CryptoManager::CryptoManager( uint64_t _totalSigners, uint64_t _requiredSigners,
         throw_with_nested(
             InvalidStateException( "Could not find port in URL " + _url, __CLASS_NAME__ ) );
     }
-    return {"", result};
+    return {domain, result};
 }
 
 
@@ -189,7 +192,7 @@ CryptoManager::CryptoManager( Schain& _sChain )
         sgxBlsKeyName = node->getBlsKeyName();
         sgxBLSPublicKeys = node->getBlsPublicKeys();
         sgxBLSPublicKey = node->getBlsPublicKey();
-        tie(sgxDomainName, sgxPort) = parseSGXPort(sgxURL);
+        tie(sgxDomainName, sgxPort) = parseSGXDomainAndPort( sgxURL );
 
         CHECK_STATE( sgxURL != "" );
         CHECK_STATE( sgxECDSAKeyName != "" );

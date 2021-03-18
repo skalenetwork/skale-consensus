@@ -137,7 +137,7 @@ private:
 
     void sgxCheck();
 
-    static pair<string, uint64_t> parseSGXPort( const string& _url );
+    static pair<string, uint64_t> parseSGXDomainAndPort( const string& _url );
 
 
 
