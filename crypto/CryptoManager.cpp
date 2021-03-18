@@ -86,7 +86,7 @@ void CryptoManager::initSGXClient() {
                 LOG(
                     info, string( "Setting sgxCertKeyFileFullPath to " ) + sgxSSLCertFileFullPath );
                 setSGXKeyAndCert(
-                    sgxSSLKeyFileFullPath, sgxSSLCertFileFullPath, parseSGXPort( sgxURL ) );
+                    sgxSSLKeyFileFullPath, sgxSSLCertFileFullPath, sgxPort );
             } else {
                 LOG( info, string( "Setting sgxSSLKeyCertFileFullPath  is not set."
                                    "Assuming SGX server does not require client certs" ) );
@@ -182,13 +182,6 @@ CryptoManager::CryptoManager( Schain& _sChain )
             sgxURL = sgxURL.substr(0, sgxURL.size() - 1);
         }
 
-        auto semicolumnPosition = sgxURL.find(":");
-        CHECK_STATE(semicolumnPosition != string::npos);
-        auto portString = sgxURL.substr(semicolumnPosition + 1,
-            sgxURL.length() - semicolumnPosition - 1 );
-
-        sgxPort = stoi(portString);
-
         sgxSSLCertFileFullPath = node->getSgxSslCertFileFullPath();
         sgxSSLKeyFileFullPath = node->getSgxSslKeyFileFullPath();
         sgxECDSAKeyName = node->getEcdsaKeyName();
@@ -196,6 +189,9 @@ CryptoManager::CryptoManager( Schain& _sChain )
         sgxBlsKeyName = node->getBlsKeyName();
         sgxBLSPublicKeys = node->getBlsPublicKeys();
         sgxBLSPublicKey = node->getBlsPublicKey();
+        sgxPort = parseSGXPort(sgxURL);
+
+
 
 
         CHECK_STATE( sgxURL != "" );
