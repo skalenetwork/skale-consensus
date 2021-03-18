@@ -79,6 +79,8 @@ private:
 
     map<uint64_t , shared_ptr <zmq::socket_t>> clientSockets;
 
+    Schain* schain = nullptr;
+
     shared_ptr <ZMQMessage> doRequestReply(Json::Value &_req);
 
     string doZmqRequestReply(string &_req);
@@ -90,7 +92,7 @@ private:
 public:
 
 
-    ZMQClient(const string &ip, uint16_t port, bool _sign, const string&  _certPathName,
+    ZMQClient(Schain* schain, const string &ip, uint16_t port, bool _sign, const string&  _certPathName,
               const string& _certKeyName);
 
     void reconnect() ;

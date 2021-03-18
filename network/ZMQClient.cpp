@@ -33,6 +33,7 @@
 
 #include "SkaleCommon.h"
 #include "Log.h"
+#include "chains/Schain.h"
 #include "network/Utils.h"
 #include "BLSSignReqMessage.h"
 #include "BLSSignRspMessage.h"
@@ -109,6 +110,9 @@ string ZMQClient::doZmqRequestReply(string &_req) {
         zmq::pollitem_t items[] = {
                 {static_cast<void *>(*clientSocket), 0, ZMQ_POLLIN, 0}};
         zmq::poll(&items[0], 1, REQUEST_TIMEOUT);
+
+        schain->getNode()->exitCheck();
+
         //  If we got a reply, process it
         if (items[0].revents & ZMQ_POLLIN) {
             string reply = s_recv(*clientSocket);
@@ -121,7 +125,7 @@ string ZMQClient::doZmqRequestReply(string &_req) {
 
             return reply;
         } else {
-            spdlog::error("W: no response from server, retrying...");
+            LOG(err,"W: no response from server, retrying...");
             reconnect();
             //  Send request again, on new socket
             s_send(*clientSocket, _req);
@@ -198,11 +202,16 @@ pair<EVP_PKEY*, X509*> ZMQClient::readPublicKeyFromCertStr(const string& _certSt
     return {key, cert};
 };
 
-ZMQClient::ZMQClient(const string &ip, uint16_t port, bool _sign, const string &_certFileName,
+ZMQClient::ZMQClient(
+    Schain* _sChain,
+    const string &ip, uint16_t port, bool _sign, const string &_certFileName,
                      const string &_certKeyName) : ctx(1), sign(_sign),
                                                    certKeyName(_certKeyName), certFileName(_certFileName) {
 
-    spdlog::info("Initing ZMQClient. Sign:{} ", _sign);
+    CHECK_STATE(_sChain);
+    this->schain = _sChain;
+
+    LOG(info, "Initing ZMQClient. Sign:" + to_string(_sign));
 
     if (sign) {
         CHECK_STATE(!_certFileName.empty());
