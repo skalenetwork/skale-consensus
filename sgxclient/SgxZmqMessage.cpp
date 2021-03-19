@@ -29,15 +29,15 @@
 #include "SkaleCommon.h"
 #include "Log.h"
 
-#include "ZMQClient.h"
 #include "BLSSignReqMessage.h"
 #include "BLSSignRspMessage.h"
 #include "ECDSASignReqMessage.h"
 #include "ECDSASignRspMessage.h"
-#include "ZMQMessage.h"
+#include "SgxZmqClient.h"
+#include "sgxclient/SgxZmqMessage.h"
 
 
-uint64_t ZMQMessage::getUint64Rapid(const char *_name) {
+uint64_t SgxZmqMessage::getUint64Rapid(const char *_name) {
     CHECK_STATE(_name);
     CHECK_STATE(d->HasMember(_name));
     const rapidjson::Value &a = (*d)[_name];
@@ -45,7 +45,7 @@ uint64_t ZMQMessage::getUint64Rapid(const char *_name) {
     return a.GetUint64();
 };
 
-string ZMQMessage::getStringRapid(const char *_name) {
+string SgxZmqMessage::getStringRapid(const char *_name) {
     CHECK_STATE(_name);
     CHECK_STATE(d->HasMember(_name));
     CHECK_STATE((*d)[_name].IsString());
@@ -55,7 +55,7 @@ string ZMQMessage::getStringRapid(const char *_name) {
 
 
 
-shared_ptr <ZMQMessage> ZMQMessage::parse(const char *_msg,
+shared_ptr < SgxZmqMessage > SgxZmqMessage::parse(const char *_msg,
                                           size_t _size, bool _isRequest) {
 
     CHECK_STATE(_msg);
@@ -78,7 +78,7 @@ shared_ptr <ZMQMessage> ZMQMessage::parse(const char *_msg,
     string type = (*d)["type"].GetString();
 
 
-    shared_ptr <ZMQMessage> result;
+    shared_ptr < SgxZmqMessage > result;
 
     if (_isRequest) {
         return buildRequest(type, d);
@@ -87,10 +87,10 @@ shared_ptr <ZMQMessage> ZMQMessage::parse(const char *_msg,
     }
 }
 
-shared_ptr <ZMQMessage> ZMQMessage::buildRequest(string &_type, shared_ptr <rapidjson::Document> _d) {
-    if (_type == ZMQMessage::BLS_SIGN_REQ) {
+shared_ptr < SgxZmqMessage > SgxZmqMessage::buildRequest(string &_type, shared_ptr <rapidjson::Document> _d) {
+    if (_type == SgxZmqMessage::BLS_SIGN_REQ) {
         return make_shared<BLSSignReqMessage>(_d);
-    } else if (_type == ZMQMessage::ECDSA_SIGN_REQ) {
+    } else if (_type == SgxZmqMessage::ECDSA_SIGN_REQ) {
         return
                 make_shared<ECDSASignReqMessage>(_d);
     } else {
@@ -99,11 +99,11 @@ shared_ptr <ZMQMessage> ZMQMessage::buildRequest(string &_type, shared_ptr <rapi
     }
 }
 
-shared_ptr <ZMQMessage> ZMQMessage::buildResponse(string &_type, shared_ptr <rapidjson::Document> _d) {
-    if (_type == ZMQMessage::BLS_SIGN_RSP) {
+shared_ptr < SgxZmqMessage > SgxZmqMessage::buildResponse(string &_type, shared_ptr <rapidjson::Document> _d) {
+    if (_type == SgxZmqMessage::BLS_SIGN_RSP) {
         return
                 make_shared<BLSSignRspMessage>(_d);
-    } else if (_type == ZMQMessage::ECDSA_SIGN_RSP) {
+    } else if (_type == SgxZmqMessage::ECDSA_SIGN_RSP) {
         return
                 make_shared<ECDSASignRspMessage>(_d);
     } else {
@@ -113,4 +113,4 @@ shared_ptr <ZMQMessage> ZMQMessage::buildResponse(string &_type, shared_ptr <rap
     }
 }
 
-ZMQMessage::~ZMQMessage() {}
+SgxZmqMessage::~SgxZmqMessage() {}

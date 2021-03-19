@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2018-2019 SKALE Labs
+  Copyright (C) 2018- SKALE Labs
 
   This file is part of libBLS.
 
@@ -16,26 +16,24 @@
   You should have received a copy of the GNU Affero General Public License
   along with libBLS.  If not, see <https://www.gnu.org/licenses/>.
 
-  @file BLSRspSignMessage.h
+  @file ECDSAReqSignMessage.h
   @author Stan Kladko
   @date 2020
 */
 
-#ifndef SGXWALLET_BLSSIGNRSPMSG_H
-#define SGXWALLET_BLSSIGNRSPMSG_H
+#ifndef SGXWALLET_ECDSASIGNREQMESSAGE_H
+#define SGXWALLET_ECDSASIGNREQMESSAGE_H
 
-#include "ZMQMessage.h"
+#include "sgxclient/SgxZmqMessage.h"
 
-class BLSSignRspMessage : public ZMQMessage {
+class ECDSASignReqMessage : public SgxZmqMessage {
 public:
 
-    BLSSignRspMessage(shared_ptr<rapidjson::Document>& _d) : ZMQMessage(_d) {};
+    ECDSASignReqMessage(shared_ptr <rapidjson::Document> &_d) : SgxZmqMessage(_d) {};
 
-    string getSigShare() {
-        return getStringRapid("signatureShare");
-    }
+
 
 };
 
 
-#endif //SGXWALLET_BLSSIGNRSPMSG_H
+#endif //SGXWALLET_ECDSASIGNREQMESSAGE_H

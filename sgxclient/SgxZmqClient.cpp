@@ -31,18 +31,18 @@
 #include <regex>
 
 
-#include "SkaleCommon.h"
-#include "Log.h"
-#include "chains/Schain.h"
-#include "network/Utils.h"
 #include "BLSSignReqMessage.h"
 #include "BLSSignRspMessage.h"
 #include "ECDSASignReqMessage.h"
 #include "ECDSASignRspMessage.h"
-#include "ZMQClient.h"
+#include "Log.h"
+#include "SgxZmqClient.h"
+#include "SkaleCommon.h"
+#include "chains/Schain.h"
+#include "network/Utils.h"
 
 
-shared_ptr <ZMQMessage> ZMQClient::doRequestReply(Json::Value &_req) {
+shared_ptr < SgxZmqMessage > SgxZmqClient::doRequestReply(Json::Value &_req) {
 
     Json::FastWriter fastWriter;
 
@@ -74,7 +74,7 @@ shared_ptr <ZMQMessage> ZMQClient::doRequestReply(Json::Value &_req) {
         CHECK_STATE(resultStr.back() == '}')
 
 
-        return ZMQMessage::parse(resultStr.c_str(), resultStr.size(), false);
+        return SgxZmqMessage::parse(resultStr.c_str(), resultStr.size(), false);
     } catch (std::exception &e) {
         spdlog::error(string("Error in doRequestReply:") + e.what());
         throw;
@@ -86,7 +86,7 @@ shared_ptr <ZMQMessage> ZMQClient::doRequestReply(Json::Value &_req) {
 }
 
 
-string ZMQClient::doZmqRequestReply(string &_req) {
+string SgxZmqClient::doZmqRequestReply(string &_req) {
 
     stringstream request;
 
@@ -133,7 +133,7 @@ string ZMQClient::doZmqRequestReply(string &_req) {
     }
 }
 
-string ZMQClient::readFileIntoString(const string &_fileName) {
+string SgxZmqClient::readFileIntoString(const string &_fileName) {
     ifstream t(_fileName);
     string str((istreambuf_iterator<char>(t)), istreambuf_iterator<char>());
     return str;
@@ -141,10 +141,7 @@ string ZMQClient::readFileIntoString(const string &_fileName) {
 
 
 
-
-
-
-string ZMQClient::signString(EVP_PKEY* _pkey, const string& _str) {
+string SgxZmqClient::signString(EVP_PKEY* _pkey, const string& _str) {
 
     CHECK_STATE(_pkey);
     CHECK_STATE(!_str.empty());
@@ -184,7 +181,7 @@ string ZMQClient::signString(EVP_PKEY* _pkey, const string& _str) {
     return hexStringSig;
 }
 
-pair<EVP_PKEY*, X509*> ZMQClient::readPublicKeyFromCertStr(const string& _certStr) {
+pair<EVP_PKEY*, X509*> SgxZmqClient::readPublicKeyFromCertStr(const string& _certStr) {
 
     CHECK_STATE(!_certStr.empty())
 
@@ -201,7 +198,7 @@ pair<EVP_PKEY*, X509*> ZMQClient::readPublicKeyFromCertStr(const string& _certSt
     return {key, cert};
 };
 
-ZMQClient::ZMQClient(
+SgxZmqClient::SgxZmqClient(
     Schain* _sChain,
     const string &ip, uint16_t port, bool _sign, const string &_certFileName,
                      const string &_certKeyName) : ctx(1), sign(_sign),
@@ -248,7 +245,7 @@ ZMQClient::ZMQClient(
     url = "tcp://" + ip + ":" + to_string(port);
 }
 
-void ZMQClient::reconnect() {
+void SgxZmqClient::reconnect() {
 
     lock_guard <recursive_mutex> lock(mutex);
 
@@ -271,9 +268,9 @@ void ZMQClient::reconnect() {
 }
 
 
-string ZMQClient::blsSignMessageHash(const std::string &keyShareName, const std::string &messageHash, int t, int n) {
+string SgxZmqClient::blsSignMessageHash(const std::string &keyShareName, const std::string &messageHash, int t, int n) {
     Json::Value p;
-    p["type"] = ZMQMessage::BLS_SIGN_REQ;
+    p["type"] = SgxZmqMessage::BLS_SIGN_REQ;
     p["keyShareName"] = keyShareName;
     p["messageHash"] = messageHash;
     p["n"] = n;
@@ -285,9 +282,9 @@ string ZMQClient::blsSignMessageHash(const std::string &keyShareName, const std:
     return result->getSigShare();
 }
 
-string ZMQClient::ecdsaSignMessageHash(int base, const std::string &keyName, const std::string &messageHash) {
+string SgxZmqClient::ecdsaSignMessageHash(int base, const std::string &keyName, const std::string &messageHash) {
     Json::Value p;
-    p["type"] = ZMQMessage::ECDSA_SIGN_REQ;
+    p["type"] = SgxZmqMessage::ECDSA_SIGN_REQ;
     p["base"] = base;
     p["keyName"] = keyName;
     p["messageHash"] = messageHash;
@@ -298,6 +295,6 @@ string ZMQClient::ecdsaSignMessageHash(int base, const std::string &keyName, con
 }
 
 
-uint64_t ZMQClient::getProcessID() {
+uint64_t SgxZmqClient::getProcessID() {
     return syscall(__NR_gettid);
 }

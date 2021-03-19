@@ -121,6 +121,7 @@ AUX_SOURCE_DIRECTORY(headers headers_src)
 AUX_SOURCE_DIRECTORY(monitoring monitoring_src)
 AUX_SOURCE_DIRECTORY(utils utils_src)
 AUX_SOURCE_DIRECTORY(statusserver statusserver_src)
+AUX_SOURCE_DIRECTORY(sgxclient sgxclient_src)
 
 
 SET(SRC_FILES
@@ -157,6 +158,7 @@ SET(SRC_FILES
         ${monitoring_src}
         ${utils_src}
         ${statusserver_src}
+        ${sgxclient_src}
         Agent.h Agent.cpp SkaleCommon.cpp Log.cpp microprofile.cpp miniz.c
         )
 

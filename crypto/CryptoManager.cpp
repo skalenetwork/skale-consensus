@@ -81,10 +81,11 @@
 void CryptoManager::initSGXClient() {
     if ( isSGXEnabled ) {
         if ( isHTTPSEnabled ) {
-            if ( !sgxSSLKeyFileFullPath.empty() && !sgxSSLCertFileFullPath.empty() ) {
-                LOG( info, string( "Setting sgxSSLKeyFileFullPath to " ) + sgxSSLKeyFileFullPath );
-                LOG(
-                    info, string( "Setting sgxCertKeyFileFullPath to " ) + sgxSSLCertFileFullPath );
+            if (isSSLCertEnabled) {
+                LOG( info, string( "Setting sgxSSLKeyFileFullPath to " ) +
+                               sgxSSLKeyFileFullPath );
+                LOG(info, string( "Setting sgxCertKeyFileFullPath to " ) +
+                               sgxSSLCertFileFullPath );
                 setSGXKeyAndCert(
                     sgxSSLKeyFileFullPath, sgxSSLCertFileFullPath, sgxPort );
             } else {
@@ -206,9 +207,10 @@ CryptoManager::CryptoManager( Schain& _sChain )
 
         isHTTPSEnabled = sgxURL.find( "https:/" ) != string::npos;
 
+        isSSLCertEnabled =
+            (!sgxSSLKeyFileFullPath.empty()) && (!sgxSSLCertFileFullPath.empty());
 
         initSGXClient();
-
 
         for ( uint64_t i = 0; i < ( uint64_t ) getSchain()->getNodeCount(); i++ ) {
             auto nodeId = getSchain()->getNode()->getNodeInfoByIndex( i + 1 )->getNodeID();

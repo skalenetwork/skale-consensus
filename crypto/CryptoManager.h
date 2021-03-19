@@ -28,6 +28,7 @@
 #include "messages/NetworkMessage.h"
 #include "openssl/ec.h"
 
+#include "sgxclient/SgxZmqClient.h"
 
 #define USER_SPACE 1
 
@@ -77,6 +78,10 @@ class CryptoManager {
 
     map< uint64_t, ptr< jsonrpc::HttpClient > > httpClients;  // tsafe
     map< uint64_t, ptr< StubClient > > sgxClients;            // tsafe
+
+
+    ptr< SgxZmqClient > zmqClient = nullptr;
+
     recursive_mutex clientsLock;
 
     map< uint64_t, string > ecdsaPublicKeyMap;  // tsafe
@@ -94,6 +99,7 @@ class CryptoManager {
     bool isSGXEnabled = false;
     bool isZMQEnabled = false;
     bool isHTTPSEnabled = true;
+    bool isSSLCertEnabled = false;
 
     string sgxSSLKeyFileFullPath;
     string sgxSSLCertFileFullPath;

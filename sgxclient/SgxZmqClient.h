@@ -24,8 +24,8 @@
 
 
 
-#ifndef SKALED_ZMQCLIENT_H
-#define SKALED_ZMQCLIENT_H
+#ifndef SKALED_SGXZMQCLIENT_H
+#define SKALED_SGXZMQCLIENT_H
 
 
 #define ZMQ_SERVER_ERROR -89
@@ -49,12 +49,12 @@
 
 #include <jsonrpccpp/client.h>
 
+#include "sgxclient/SgxZmqMessage.h"
 #include "thirdparty/zguide/zhelpers.hpp"
-#include "ZMQMessage.h"
 
 #define REQUEST_TIMEOUT     10000    //  msecs, (> 1000!)
 
-class ZMQClient {
+class SgxZmqClient {
 
 
 private:
@@ -81,7 +81,7 @@ private:
 
     Schain* schain = nullptr;
 
-    shared_ptr <ZMQMessage> doRequestReply(Json::Value &_req);
+    shared_ptr < SgxZmqMessage > doRequestReply(Json::Value &_req);
 
     string doZmqRequestReply(string &_req);
 
@@ -90,9 +90,7 @@ private:
     static string readFileIntoString(const string& _fileName);
 
 public:
-
-
-    ZMQClient(Schain* schain, const string &ip, uint16_t port, bool _sign, const string&  _certPathName,
+    SgxZmqClient(Schain* _schain, const string &_ip, uint16_t _port, bool _sign, const string&  _certPathName,
               const string& _certKeyName);
 
     void reconnect() ;
@@ -101,9 +99,10 @@ public:
 
     static string signString(EVP_PKEY* _pkey, const string& _str);
 
-    string blsSignMessageHash(const std::string &keyShareName, const std::string &messageHash, int t, int n);
+    string blsSignMessageHash(const string &_keyShareName, const string &_messageHash, 
+        int _t, int _n);
 
-    string ecdsaSignMessageHash(int base, const std::string &keyName, const std::string &messageHash);
+    string ecdsaSignMessageHash(int _base, const string &_keyName, const string &_messageHash);
 
 };
 

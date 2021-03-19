@@ -41,7 +41,7 @@
 
 using namespace std;
 
-class ZMQMessage {
+class SgxZmqMessage {
 
     shared_ptr<rapidjson::Document> d;
 
@@ -56,7 +56,7 @@ public:
     static constexpr const char *ECDSA_SIGN_REQ = "ECDSASignReq";
     static constexpr const char *ECDSA_SIGN_RSP = "ECDSASignRsp";
 
-    explicit ZMQMessage(shared_ptr<rapidjson::Document> &_d) : d(_d) {
+    explicit SgxZmqMessage(shared_ptr<rapidjson::Document> &_d) : d(_d) {
     };
 
     string getStringRapid(const char *_name);
@@ -67,10 +67,10 @@ public:
         return getUint64Rapid("status");
     }
 
-    static shared_ptr <ZMQMessage> parse(const char* _msg, size_t _size, bool _isRequest);
-    virtual ~ZMQMessage();
-    static shared_ptr<ZMQMessage> buildRequest(string& type, shared_ptr<rapidjson::Document> _d);
-    static shared_ptr<ZMQMessage> buildResponse(string& type, shared_ptr<rapidjson::Document> _d);
+    static shared_ptr < SgxZmqMessage > parse(const char* _msg, size_t _size, bool _isRequest);
+    virtual ~SgxZmqMessage();
+    static shared_ptr< SgxZmqMessage > buildRequest(string& type, shared_ptr<rapidjson::Document> _d);
+    static shared_ptr< SgxZmqMessage > buildResponse(string& type, shared_ptr<rapidjson::Document> _d);
 
 
 };
