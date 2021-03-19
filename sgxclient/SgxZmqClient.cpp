@@ -298,3 +298,7 @@ string SgxZmqClient::ecdsaSignMessageHash(int base, const std::string &keyName, 
 uint64_t SgxZmqClient::getProcessID() {
     return syscall(__NR_gettid);
 }
+void SgxZmqClient::exit() {
+    this->ctx.shutdown();
+    this->clientSockets.clear();
+}

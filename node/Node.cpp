@@ -37,7 +37,7 @@
 
 #include "chains/TestConfig.h"
 #include "crypto/bls_include.h"
-#include "libBLS/bls/BLSPrivateKeyShare.h"
+#include "crypto/CryptoManager.h"
 #include "libBLS/bls/BLSPublicKey.h"
 
 #include "ConsensusEngine.h"
@@ -431,13 +431,15 @@ void Node::releaseGlobalClientBarrier() {
 
 void Node::exit() {
 
+    LOG(info, "Node::exit() requested");
+
     getSchain()->stopStatusServer();
 
     RETURN_IF_PREVIOUSLY_CALLED(exitRequested);
 
     releaseGlobalClientBarrier();
     releaseGlobalServerBarrier();
-    LOG(info, "Exit requested");
+
 
     closeAllSocketsAndNotifyAllAgentsAndThreads();
 
@@ -462,6 +464,8 @@ void Node::closeAllSocketsAndNotifyAllAgentsAndThreads() {
 
     if (sockets && sockets->catchupSocket)
         sockets->catchupSocket->touch();
+
+    getSchain()->getCryptoManager()->exitZMQClient();
 
     if (sockets)
         sockets->getConsensusZMQSockets()->closeAndCleanupAll();

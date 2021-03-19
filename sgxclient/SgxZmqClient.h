@@ -104,6 +104,8 @@ public:
 
     string ecdsaSignMessageHash(int _base, const string &_keyName, const string &_messageHash);
 
+    void exit();
+
 };
 
 

@@ -902,4 +902,8 @@ void CryptoManager::sgxCheck() {
     LOG( info, "Successfully connected to sgx server" );
 
 }
-
+void CryptoManager::exitZMQClient() {
+    if (zmqClient != nullptr)
+        zmqClient->exit();
+    zmqClient = nullptr;
+}

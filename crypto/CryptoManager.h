@@ -230,6 +230,8 @@ public:
     bool sessionVerifySigAndKey( ptr< BLAKE3Hash >& _hash, const string& _sig,
         const string& _publicKey, const string& pkSig, block_id _blockID, node_id _nodeId );
 
+    void exitZMQClient();
+
 };
 
 #define RETRY_BEGIN                       \

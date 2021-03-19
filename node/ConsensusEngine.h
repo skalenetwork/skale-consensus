@@ -51,6 +51,8 @@ class StorageLimits;
 
 class ConsensusEngine : public ConsensusInterface {
 
+    atomic_bool exitGraceFullyInitiated = false;
+
     map< node_id, ptr< Node > > nodes; //tsafe
 
     mutable cache::lru_cache<uint64_t, u256> prices; // tsafe
