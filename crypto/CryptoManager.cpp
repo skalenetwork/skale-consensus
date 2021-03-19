@@ -95,7 +95,7 @@ void CryptoManager::initSGXClient() {
         }
 
 
-        zmqClient = make_shared<SgxZmqClient>(sChain, sgxDomainName, sgxPort, this->isSSLCertEnabled,
+        zmqClient = make_shared<SgxZmqClient>(sChain, sgxDomainName, 1031, this->isSSLCertEnabled,
             sgxSSLCertFileFullPath, sgxSSLKeyFileFullPath);
     }
 }
@@ -348,12 +348,19 @@ string CryptoManager::sgxSignECDSA( const ptr< BLAKE3Hash >& _hash, string& _key
 
     Json::Value result;
 
-    RETRY_BEGIN
-    result = getSgxClient()->ecdsaSignMessageHash( 16, _keyName, _hash->toHex() );
-    RETRY_END
+    // temporary solution to support old servers
+    if (doesServerSupportZMQ == 0) {
+        result = zmqClient->ecdsaSignMessageHash(6, _keyName, _hash->toHex());
+        doesServerSupportZMQ = 1;
+    } else if (doesServerSupportZMQ == 1) {
+        result = zmqClient->ecdsaSignMessageHash(6, _keyName, _hash->toHex());
+    } else {
+        RETRY_BEGIN
+        result = getSgxClient()->ecdsaSignMessageHash( 16, _keyName, _hash->toHex() );
+        RETRY_END
+    }
 
     JSONFactory::checkSGXStatus(result);
-
 
     string r = JSONFactory::getString( result, "signature_r" );
     string v = JSONFactory::getString( result, "signature_v" );
@@ -895,13 +902,6 @@ void CryptoManager::setSgxUrl( const string& sgxUrl ) {
 }
 
 
-void CryptoManager::sgxCheck() {
-
-    LOG( info, "Testing SGX server" );
-
-    LOG( info, "Successfully connected to sgx server" );
-
-}
 void CryptoManager::exitZMQClient() {
     if (zmqClient != nullptr)
         zmqClient->exit();

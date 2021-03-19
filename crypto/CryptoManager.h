@@ -119,6 +119,8 @@ class CryptoManager {
     string sgxDomainName;
     uint16_t sgxPort = 0;
 
+    uint64_t doesServerSupportZMQ = 0;
+
 
 
 private:
@@ -140,8 +142,6 @@ private:
         const ptr< BLAKE3Hash >& _hash, block_id _blockId, bool _forceMockup );
 
     void initSGXClient();
-
-    void sgxCheck();
 
     static pair<string, uint64_t> parseSGXDomainAndPort( const string& _url );
 
