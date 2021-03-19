@@ -90,7 +90,7 @@ private:
     static string readFileIntoString(const string& _fileName);
 
 public:
-    SgxZmqClient(Schain* _schain, const string &_ip, uint16_t _port, bool _sign, const string&  _certPathName,
+    SgxZmqClient(Schain* _schain, const string &_domain, uint16_t _port, bool _sign, const string&  _certPathName,
               const string& _certKeyName);
 
     void reconnect() ;

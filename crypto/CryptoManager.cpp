@@ -93,6 +93,10 @@ void CryptoManager::initSGXClient() {
                                    "Assuming SGX server does not require client certs" ) );
             }
         }
+
+
+        zmqClient = make_shared<SgxZmqClient>(sChain, sgxDomainName, sgxPort, this->isSSLCertEnabled,
+            sgxSSLCertFileFullPath, sgxSSLKeyFileFullPath);
     }
 }
 ptr< BLSPublicKey > CryptoManager::getSgxBlsPublicKey() {
