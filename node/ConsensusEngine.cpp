@@ -695,10 +695,6 @@ void ConsensusEngine::exitGracefullyBlocking() {
 
 void ConsensusEngine::exitGracefully() {
 
-    auto alreadyInitiated = exitGraceFullyInitiated.exchange(true);
-
-    if (alreadyInitiated)
-        return;
     // run and forget
     thread( [this]() { exitGracefullyAsync(); } ).detach();
 }

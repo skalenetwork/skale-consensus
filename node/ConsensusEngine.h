@@ -51,7 +51,6 @@ class StorageLimits;
 
 class ConsensusEngine : public ConsensusInterface {
 
-    atomic_bool exitGraceFullyInitiated = false;
 
     map< node_id, ptr< Node > > nodes; //tsafe
 
