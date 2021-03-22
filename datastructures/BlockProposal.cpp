@@ -62,10 +62,7 @@ ptr<BLAKE3Hash> BlockProposal::getHash() {
 
 void BlockProposal::calculateHash() {
 
-
     HASH_INIT(hasher);
-
-
 
     HASH_UPDATE(hasher, proposerIndex);
     HASH_UPDATE(hasher, proposerNodeID);
@@ -110,7 +107,14 @@ BlockProposal::BlockProposal(schain_id _sChainId, node_id _proposerNodeId, block
           proposerIndex(_proposerIndex), timeStamp(_timeStamp), timeStampMs(_timeStampMs),
           stateRoot(_stateRoot), transactionList(_transactions), signature(_signature) {
 
+
+
     CHECK_ARGUMENT(_transactions);
+
+    if (_proposerIndex == 0) {
+        stateRoot = 0;
+    }
+
 
 
     CHECK_STATE(timeStamp > MODERN_TIME);
@@ -184,7 +188,7 @@ transaction_count BlockProposal::getTransactionCount() const {
     return transactionCount;
 }
 
-uint64_t BlockProposal::getTimeStamp() const {
+uint64_t BlockProposal::getTimeStampS() const {
     return timeStamp;
 }
 
@@ -194,14 +198,12 @@ uint32_t BlockProposal::getTimeStampMs() const {
 }
 
 void BlockProposal::addSignature(const string &_signature) {
-    LOCK(m)
-    CHECK_ARGUMENT(_signature != "")
+    CHECK_ARGUMENT(!_signature.empty())
     signature = _signature;
 }
 
 string BlockProposal::getSignature() {
-    LOCK(m)
-    CHECK_STATE(signature != "");
+    CHECK_STATE(!signature.empty())
     return signature;
 }
 
@@ -213,7 +215,7 @@ ptr<BlockProposalRequestHeader> BlockProposal::createBlockProposalHeader(Schain 
 
     LOCK(_proposal->m);
 
-    if (_proposal->header != nullptr)
+    if (_proposal->header)
         return _proposal->header;
 
     _proposal->header = make_shared<BlockProposalRequestHeader>(*_sChain, _proposal);
@@ -223,18 +225,18 @@ ptr<BlockProposalRequestHeader> BlockProposal::createBlockProposalHeader(Schain 
 }
 
 
-ptr<BasicHeader> BlockProposal::createHeader() {
+ptr<BasicHeader> BlockProposal::createHeader(uint64_t ) {
     return make_shared<BlockProposalHeader>(*this);
 }
 
-ptr<vector<uint8_t> > BlockProposal::serialize() {
+ptr<vector<uint8_t> > BlockProposal::serialize(uint64_t _flags) {
 
     LOCK(m)
 
     if (serializedProposal != nullptr)
         return serializedProposal;
 
-    auto blockHeader = createHeader();
+    auto blockHeader = createHeader(_flags);
 
     auto buf = blockHeader->toBuffer();
 
@@ -282,7 +284,7 @@ ptr<BlockProposal> BlockProposal::deserialize(const ptr<vector<uint8_t> > &_seri
 
     string headerStr = BlockProposal::extractHeader(_serializedProposal);
 
-    CHECK_STATE(headerStr != "");
+    CHECK_STATE(!headerStr.empty());
 
     ptr<BlockProposalHeader> blockHeader;
 
@@ -300,7 +302,7 @@ ptr<BlockProposal> BlockProposal::deserialize(const ptr<vector<uint8_t> > &_seri
 
     auto sig = blockHeader->getSignature();
 
-    CHECK_STATE(sig != "");
+    CHECK_STATE(!sig.empty());
 
     auto proposal = make_shared<BlockProposal>(blockHeader->getSchainID(), blockHeader->getProposerNodeId(),
                                                blockHeader->getBlockID(), blockHeader->getProposerIndex(),
@@ -338,7 +340,7 @@ ptr<BlockProposalFragment> BlockProposal::getFragment(uint64_t _totalFragments, 
     CHECK_ARGUMENT(_index <= _totalFragments);
     LOCK(m)
 
-    auto serializedBlock = serialize();
+    auto serializedBlock = serialize(SERIALIZE_AS_PROPOSAL);
 
     CHECK_STATE(serializedBlock);
 
@@ -456,4 +458,7 @@ ptr<BlockProposalHeader> BlockProposal::parseBlockHeader(const string &_header) 
 
 u256 BlockProposal::getStateRoot() const {
     return stateRoot;
+}
+ptr< TimeStamp > BlockProposal::getTimeStamp() const {
+    return make_shared<TimeStamp>(getTimeStampS(), getTimeStampMs());
 }

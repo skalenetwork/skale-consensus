@@ -23,7 +23,7 @@
 
 #pragma  once
 
-#include <stdint.h>
+#include <cstdint>
 #include "abstracttcpserver/ConnectionStatus.h"
 
 class Utils {
@@ -31,7 +31,6 @@ class Utils {
     static const uint64_t TIME_START = 2208988800;
 
 public:
-
 
     static ptr<vector<uint8_t>> u256ToBigEndianArray(const u256 &_value);
 

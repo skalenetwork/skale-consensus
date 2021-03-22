@@ -39,6 +39,8 @@
 
 #include <sys/types.h>
 
+#include "sgxwallet/stubclient.h"
+
 #include "Log.h"
 #include "SkaleCommon.h"
 
@@ -336,9 +338,9 @@ string CryptoManager::sgxSignECDSA( const ptr< BLAKE3Hash >& _hash, string& _key
     result = getSgxClient()->ecdsaSignMessageHash( 16, _keyName, _hash->toHex() );
     RETRY_END
 
+    JSONFactory::checkSGXStatus(result);
 
-    auto status = JSONFactory::getInt64( result, "status" );
-    CHECK_STATE( status == 0 );
+
     string r = JSONFactory::getString( result, "signature_r" );
     string v = JSONFactory::getString( result, "signature_v" );
     string s = JSONFactory::getString( result, "signature_s" );
@@ -414,12 +416,20 @@ bool CryptoManager::verifyECDSASig( const ptr< BLAKE3Hash >& _hash, const string
     CHECK_ARGUMENT( _sig != "" )
 
     if ( isSGXEnabled ) {
-        if ( ecdsaPublicKeyMap.count( ( uint64_t ) _nodeId ) == 0 ) {
-            // if there is no key report the signature as failed
-            return false;
+
+        string pubKey;
+
+        {
+            LOCK( ecdsaPublicKeyMapLock )
+
+            if ( ecdsaPublicKeyMap.count( ( uint64_t ) _nodeId ) == 0 ) {
+                // if there is no key report the signature as failed
+                return false;
+            }
+
+            pubKey = ecdsaPublicKeyMap.at( ( uint64_t ) _nodeId );
         }
 
-        auto pubKey = ecdsaPublicKeyMap.at( ( uint64_t ) _nodeId );
         CHECK_STATE( pubKey != "" );
         auto result = verifyECDSA( _hash, _sig, pubKey );
 
@@ -530,8 +540,7 @@ ptr< ThresholdSigShare > CryptoManager::signSigShare(
             getSgxBlsKeyName(), _hash->toHex(), requiredSigners, totalSigners );
         RETRY_END
 
-        auto status = JSONFactory::getInt64( jsonShare, "status" );
-        CHECK_STATE( status == 0 );
+        JSONFactory::checkSGXStatus(jsonShare);
 
         auto sigShare =
             make_shared< string >( JSONFactory::getString( jsonShare, "signatureShare" ) );
@@ -698,41 +707,6 @@ bool CryptoManager::verifyProposalECDSA(
     return true;
 }
 
-ptr< ThresholdSignature > CryptoManager::verifyThresholdSig(
-    const ptr< BLAKE3Hash >& _hash, const string& _signature, block_id _blockId ) {
-    MONITOR( __CLASS_NAME__, __FUNCTION__ )
-
-    CHECK_ARGUMENT( _hash );
-    CHECK_ARGUMENT( _signature != "" );
-
-    if ( getSchain()->getNode()->isSgxEnabled() ) {
-        auto sig = make_shared< ConsensusBLSSignature >(
-            _signature, _blockId, totalSigners, requiredSigners );
-
-        CHECK_STATE( blsPublicKeyObj );
-
-        auto sharedHash = make_shared< std::array< uint8_t, 32 > >(_hash->getHash());
-
-        if ( !blsPublicKeyObj->VerifySig(
-                 sharedHash, sig->getBlsSig(), requiredSigners, totalSigners ) ) {
-            BOOST_THROW_EXCEPTION(
-                InvalidStateException( "BLS Signature did not verify", __CLASS_NAME__ ) );
-        }
-
-        return sig;
-
-    } else {
-        auto sig =
-            make_shared< MockupSignature >( _signature, _blockId, requiredSigners, totalSigners );
-
-        if ( sig->toString() != _hash->toHex() ) {
-            BOOST_THROW_EXCEPTION( InvalidArgumentException(
-                "Mockup threshold signature did not verify", __CLASS_NAME__ ) );
-        }
-        return sig;
-    }
-}
-
 
 ptr< ThresholdSignature > CryptoManager::verifyDAProofThresholdSig(
     const ptr< BLAKE3Hash >& _hash, const string& _signature, block_id _blockId ) {
@@ -792,8 +766,7 @@ string CryptoManager::getSGXEcdsaPublicKey( const string& _keyName, const ptr< S
     result = _c->getPublicECDSAKey( _keyName );
     RETRY_END
 
-    auto status = JSONFactory::getInt64( result, "status" );
-    CHECK_STATE( status == 0 );
+    JSONFactory::checkSGXStatus(result);
 
     auto publicKey = JSONFactory::getString( result, "publicKey" );
 
@@ -809,8 +782,7 @@ pair< string, string > CryptoManager::generateSGXECDSAKey( const ptr< StubClient
     RETRY_BEGIN
     result = _c->generateECDSAKey();
     RETRY_END
-    auto status = JSONFactory::getInt64( result, "status" );
-    CHECK_STATE( status == 0 );
+    JSONFactory::checkSGXStatus(result);
 
     auto keyName = JSONFactory::getString( result, "keyName" );
     auto publicKey = JSONFactory::getString( result, "publicKey" );
@@ -858,16 +830,14 @@ void CryptoManager::generateSSLClientCertAndKey( string& _fullPathToDir ) {
     result = c.SignCertificate( csr );
     RETRY_END
 
-    auto status = JSONFactory::getInt64( result, "status" );
-    CHECK_STATE( status == 0 );
+    JSONFactory::checkSGXStatus(result);
     string certHash = JSONFactory::getString( result, "hash" );
 
     RETRY_BEGIN
     result = c.GetCertificate( certHash );
     RETRY_END
 
-    status = JSONFactory::getInt64( result, "status" );
-    CHECK_STATE( status == 0 );
+    JSONFactory::checkSGXStatus(result);
 
     string signedCert = JSONFactory::getString( result, "cert" );
     ofstream outFile;
@@ -878,6 +848,8 @@ void CryptoManager::generateSSLClientCertAndKey( string& _fullPathToDir ) {
 
 ptr< StubClient > CryptoManager::getSgxClient() {
     auto tid = ( uint64_t ) pthread_self();
+
+    LOCK(clientsLock);
 
     if ( httpClients.count( tid ) == 0 ) {
         CHECK_STATE( sgxClients.count( tid ) == 0 );
@@ -895,3 +867,15 @@ ptr< StubClient > CryptoManager::getSgxClient() {
 bool CryptoManager::retryHappened = false;
 
 string CryptoManager::sgxURL = "";
+bool CryptoManager::isRetryHappened() {
+    return retryHappened;
+}
+void CryptoManager::setRetryHappened( bool retryHappened ) {
+    CryptoManager::retryHappened = retryHappened;
+}
+const string& CryptoManager::getSgxUrl() {
+    return sgxURL;
+}
+void CryptoManager::setSgxUrl( const string& sgxUrl ) {
+    sgxURL = sgxUrl;
+}

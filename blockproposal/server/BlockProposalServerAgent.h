@@ -42,7 +42,7 @@ class TransactionList;
 class Comparator {
 public:
     bool operator()( const ptr< partial_sha_hash >& a, const ptr< partial_sha_hash >& b ) const {
-        for (size_t i = 0; i < PARTIAL_HASH_LEN; i++ ) {
+        for ( size_t i = 0; i < PARTIAL_HASH_LEN; i++ ) {
             if ( ( *a )[i] < ( *b )[i] )
                 return false;
             if ( ( *b )[i] < ( *a )[i] )
@@ -76,7 +76,7 @@ public:
 
 
     pair< ptr< map< uint64_t, ptr< Transaction > > >,
-        ptr< map< uint64_t, ptr< partial_sha_hash >>>>
+        ptr< map< uint64_t, ptr< partial_sha_hash > > > >
     getPresentAndMissingTransactions(
         Schain& _sChain, const ptr< Header >, const ptr< PartialHashesList >& _phList );
 

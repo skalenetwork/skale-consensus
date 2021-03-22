@@ -41,12 +41,12 @@ private:
 
 protected:
 
-    schain_id schainID;
-    block_id  blockID;
-    schain_index blockProposerIndex;
+    schain_id schainID = 0;
+    block_id  blockID = 0;
+    schain_index blockProposerIndex = 0;
     MsgType msgType;
-    msg_id msgID;
-    node_id srcNodeID;
+    msg_id msgID = 0;
+    node_id srcNodeID = 0;
 
     ptr<ProtocolKey> protocolKey;
 
@@ -54,16 +54,16 @@ public:
     Message(const schain_id &schainID, MsgType msgType, const msg_id &msgID, const node_id &srcNodeID,
             const block_id &blockID, const schain_index &blockProposerIndex);
 
-    node_id getSrcNodeID() const;
+    [[nodiscard]] node_id getSrcNodeID() const;
 
 
-    MsgType getMessageType() const;
+    [[nodiscard]] MsgType getMessageType() const;
 
-    const block_id getBlockId() const;
+    [[nodiscard]] const block_id getBlockId() const;
 
-    schain_index getBlockProposerIndex() const ;
+    [[nodiscard]] schain_index getBlockProposerIndex() const ;
 
-    schain_id getSchainID() const;
+    [[nodiscard]] schain_id getSchainID() const;
 
     ptr<ProtocolKey> createDestinationProtocolKey();
 

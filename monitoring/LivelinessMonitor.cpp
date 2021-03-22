@@ -75,4 +75,3 @@ uint64_t LivelinessMonitor::getId() const {
     return id;
 }
 
-

@@ -53,6 +53,5 @@ atomic<int64_t>  MyBlockProposal::totalObjects(0);
 
 MyBlockProposal::~MyBlockProposal() {
     totalObjects--;
-
 }
 

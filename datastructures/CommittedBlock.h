@@ -39,13 +39,16 @@ class CommittedBlockHeader;
 
 class BlockProposalFragment;
 
+
+
 class CommittedBlock : public BlockProposal {
-    string thresholdSig = "";
+
+    string thresholdSig;
 
     static ptr< CommittedBlockHeader > parseBlockHeader( const string& _header );
 
 protected:
-    ptr< BasicHeader > createHeader() override;
+    ptr< BasicHeader > createHeader(uint64_t _flags = 0) override;
 
 public:
     CommittedBlock( uint64_t timeStamp, uint32_t timeStampMs );
@@ -56,7 +59,7 @@ public:
         const ptr< TransactionList >& _transactions, const u256& stateRoot, uint64_t timeStamp,
         __uint32_t timeStampMs, const string& _signature, const string& _thresholdSig );
 
-    string getThresholdSig() const;
+    [[nodiscard]] string getThresholdSig() const;
 
     static ptr< CommittedBlock > makeObject(
         const ptr< BlockProposal >& _proposal, const ptr< ThresholdSignature >& _thresholdSig );

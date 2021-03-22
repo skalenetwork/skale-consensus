@@ -36,25 +36,21 @@ class ServerConnection;
 
 class Schain;
 
-
 class TransactionList;
-
 
 class ZMQNetwork : public Network {
 
-
 public:
-
 
     uint64_t interruptableRecv(void *_socket, void *_buf, size_t _len);
 
     bool interruptableSend(void *_socket, void *_buf, size_t _len);
 
-    uint64_t readMessageFromNetwork(const ptr<Buffer> buf);
+    uint64_t readMessageFromNetwork(const ptr<Buffer> buf) override;
 
-    ZMQNetwork(Schain &_schain);
+    explicit ZMQNetwork(Schain &_schain);
 
-    bool sendMessage(const ptr<NodeInfo> &_remoteNodeInfo, const ptr<NetworkMessage>& _msg);
+    bool sendMessage(const ptr<NodeInfo> &_remoteNodeInfo, const ptr<NetworkMessage>& _msg) override;
 
 };
 

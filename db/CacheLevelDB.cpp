@@ -62,7 +62,7 @@ using namespace leveldb;
 static WriteOptions writeOptions; // NOLINT(cert-err58-cpp)
 static ReadOptions readOptions; // NOLINT(cert-err58-cpp)
 
-std::string CacheLevelDB::path_to_index(uint64_t index){
+string CacheLevelDB::path2Index(uint64_t index){
     return dirname + "/db." + to_string(index);
 }
 
@@ -223,32 +223,6 @@ void CacheLevelDB::throwExceptionOnError(Status& _status) {
 
 }
 
-string CacheLevelDB::readLastKeyInPrefixRange(string &_prefix) {
-
-    ptr<map<string, string>> result = nullptr;
-
-    shared_lock<shared_mutex> lock(m);
-
-    for (int i = LEVELDB_SHARDS - 1; i >= 0; i--) {
-        CHECK_STATE(db.at(i))
-        auto partialResult = readPrefixRangeFromDBUnsafe(_prefix, db.at(i), true);
-        if (partialResult) {
-            if (result) {
-                result->insert(partialResult->begin(), partialResult->end());
-            } else {
-                result = partialResult;
-            }
-        }
-    }
-
-    if (result->empty()) {
-        return "";
-    }
-
-    return result->rbegin()->first;
-
-}
-
 
 ptr<map<string, string>> CacheLevelDB::readPrefixRange(string &_prefix) {
 
@@ -345,7 +319,7 @@ shared_ptr<leveldb::DB> CacheLevelDB::openDB(uint64_t _index) {
 
         options.create_if_missing = true;
 
-        CHECK_STATE2(leveldb::DB::Open(options, path_to_index(_index),
+        CHECK_STATE2(leveldb::DB::Open(options, path2Index( _index ),
                                   &dbase).ok(),
                 "Unable to open database")
         CHECK_STATE(dbase)
@@ -407,7 +381,7 @@ uint64_t CacheLevelDB::getActiveDBSize() {
     try {
         vector<path> files;
 
-        path levelDBPath(path_to_index(highestDBIndex));
+        path levelDBPath( path2Index( highestDBIndex ));
 
         if (!is_directory(levelDBPath)) {
             return 0;
@@ -433,7 +407,7 @@ uint64_t CacheLevelDB::getActiveDBSize() {
 }
 
 
-std::pair<uint64_t, uint64_t> CacheLevelDB::findMaxMinDBIndex() {
+pair<uint64_t, uint64_t> CacheLevelDB::findMaxMinDBIndex() {
 
     vector<path> dirs;
     vector<uint64_t> indices;
@@ -499,7 +473,7 @@ void CacheLevelDB::rotateDBsIfNeeded() {
                     return;
                 }
 
-                auto dbName = path_to_index(minIndex);
+                auto dbName = path2Index( minIndex );
                 try {
 
                     boost::filesystem::remove_all(path(dbName));
@@ -529,11 +503,12 @@ uint64_t CacheLevelDB::readCount(block_id _blockId) {
 
     auto countString = readString(counterKey);
 
-    if (countString != "") {
+    if (countString == "") {
         return 0;
     }
 
     try {
+
         auto result = stoull(countString, NULL, 10);
 
         CHECK_STATE(result <= totalSigners);

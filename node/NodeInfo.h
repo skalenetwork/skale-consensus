@@ -25,18 +25,17 @@
 
 class NodeInfo {
 
-    node_id nodeID;
+    node_id nodeID = 0;
 
     string ipAddress;
 
-    network_port port;
+    network_port port = 0;
 
-    schain_id schainID;
+    schain_id schainID = 0;
 
-    schain_index schainIndex;
+    schain_index schainIndex = 0;
 
     ptr<sockaddr_in> socketaddr;
-
 
 public:
 
@@ -47,11 +46,9 @@ public:
 
     network_port getPort() const;
 
-
     schain_id getSchainID() const;
 
     NodeInfo(node_id nodeID, const string &ip, network_port port, schain_id schainID, schain_index schainIndex);
-
 
     ptr<sockaddr_in> getSocketaddr();
 

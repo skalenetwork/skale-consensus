@@ -26,15 +26,21 @@
 #include "Log.h"
 #include "SkaleCommon.h"
 
-
 #include "exceptions/FatalError.h"
 
 #include "Network.h"
 #include "Sockets.h"
 #include "TCPServerSocket.h"
 
-int TCPServerSocket::createAndBindTCPSocket() {
+TCPServerSocket::TCPServerSocket(const string& _bindIP, uint16_t _basePort, port_type _portType )
+    : ServerSocket( _bindIP, _basePort, _portType ) {
+
+    socketaddr = Sockets::createSocketAddress( bindIP, bindPort );
+
+    CHECK_STATE(socketaddr);
+
     LOG( debug, "Creating TCP listen socket" );
+
     int s;
 
     if ( ( s = socket( AF_INET, SOCK_STREAM, 0 ) ) < 0 ) {
@@ -47,7 +53,8 @@ int TCPServerSocket::createAndBindTCPSocket() {
 
     if ( ::bind( s, ( struct sockaddr* ) socketaddr.get(), sizeof( sockaddr_in ) ) < 0 ) {
         BOOST_THROW_EXCEPTION(
-            FatalError( "Could not bind the TCP socket: error " + to_string( errno ) ) );
+            FatalError( "Could not bind the TCP socket on address:" + _bindIP +
+           ":" + to_string(bindPort) + " error: " + to_string( errno ) ) );
     }
 
     // Init the connection
@@ -55,16 +62,8 @@ int TCPServerSocket::createAndBindTCPSocket() {
 
     LOG( debug, "Successfully created TCP listen socket" );
 
-    return s;
-}
+    descriptor = s;
 
-
-TCPServerSocket::TCPServerSocket(const string& _bindIP, uint16_t _basePort, port_type _portType )
-    : ServerSocket( _bindIP, _basePort, _portType ) {
-
-    socketaddr = Sockets::createSocketAddress( bindIP, bindPort );
-    CHECK_STATE(socketaddr);
-    descriptor = createAndBindTCPSocket();
     CHECK_STATE( descriptor > 0 );
 }
 
@@ -85,14 +84,14 @@ void TCPServerSocket::touch() {
 }
 
 int TCPServerSocket::getDescriptor() {
+    CHECK_STATE(descriptor);
     return descriptor;
 }
 
 
 void TCPServerSocket::closeAndCleanupAll() {
-    LOCK( m )
-    if ( descriptor != 0 ) {
+    auto previous = descriptor.exchange(0);
+    if ( previous != 0 ) {
         close( descriptor );
-        descriptor = 0;
     }
 }

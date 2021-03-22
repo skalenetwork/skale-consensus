@@ -25,28 +25,19 @@
 
 
 class Buffer;
-
-class BlockRetrievalRequestHeader;
-
 class ServerConnection;
-
 class Header;
-
 class Buffer;
-
 class ClientSocket;
-
 class Schain;
 
 class IO {
 
-private:
+    Schain *sChain = nullptr;
 
-    Schain *sChain;
 public:
+
     IO(Schain *_sChain);
-
-public:
 
     void readBytes(const ptr<ServerConnection>& _env, const ptr<vector<uint8_t>>& _buffer, msg_len _len);
 
@@ -58,19 +49,13 @@ public:
 
     void writeBuf(file_descriptor _descriptor, const ptr<Buffer>& _buf);
 
-
     void writeHeader(const ptr<ClientSocket>& _socket, const ptr<Header>& _header);
-
-
-
 
     void writeMagic(const ptr<ClientSocket>& _socket, bool _isPing = false);
 
     void writeBytesVector(file_descriptor _socket, const ptr<vector<uint8_t>>& _bytes );
 
-
     void writePartialHashes(file_descriptor _socket, const ptr<map<uint64_t, ptr<partial_sha_hash>>>& _hashes );
-
 
     void readMagic(file_descriptor descriptor);
 

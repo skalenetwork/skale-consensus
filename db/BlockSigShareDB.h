@@ -34,7 +34,6 @@ class CryptoManager;
 
 class BlockSigShareDB : public CacheLevelDB {
 
-
     recursive_mutex sigShareMutex;
 
     const string& getFormatVersion() override;

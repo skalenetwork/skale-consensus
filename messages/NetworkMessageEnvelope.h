@@ -34,13 +34,13 @@ class ProtocolKey;
 
 class NetworkMessageEnvelope : public MessageEnvelope {
 
-    uint64_t arrivalTime;
+    uint64_t arrivalTime = 0;
 
 public:
     NetworkMessageEnvelope(const ptr <NetworkMessage> &message,
                            const ptr <NodeInfo> &realSender);
 
-    uint64_t getArrivalTime() const;
+    [[nodiscard]] uint64_t getArrivalTime() const;
 
 };
 

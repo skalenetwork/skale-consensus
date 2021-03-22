@@ -34,7 +34,7 @@ class ThresholdSignature;
 
 class SigDB : public CacheLevelDB {
 
-    node_id nodeId;
+    node_id nodeId = 0;
 
     const string& getFormatVersion();
 

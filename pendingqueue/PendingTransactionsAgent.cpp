@@ -54,8 +54,8 @@ using namespace std;
 PendingTransactionsAgent::PendingTransactionsAgent( Schain& ref_sChain )
     : Agent(ref_sChain, false)  {}
 
-ptr<BlockProposal> PendingTransactionsAgent::buildBlockProposal(block_id _blockID, uint64_t _previousBlockTimeStamp,
-    uint32_t _previousBlockTimeStampMs) {
+ptr<BlockProposal> PendingTransactionsAgent::buildBlockProposal(block_id _blockID,
+    ptr<TimeStamp> _previousBlockTimeStamp) {
 
     MICROPROFILE_ENTERI( "PendingTransactionsAgent", "sleep", MP_DIMGRAY );
     usleep(getNode()->getMinBlockIntervalMs() * 1000);
@@ -65,20 +65,24 @@ ptr<BlockProposal> PendingTransactionsAgent::buildBlockProposal(block_id _blockI
     auto transactions = result.first;
     CHECK_STATE(transactions);
     auto stateRoot = result.second;
-    CHECK_STATE(stateRoot != 0)
 
-    while (Time::getCurrentTimeMs() <= _previousBlockTimeStamp * 1000 + _previousBlockTimeStampMs) {
+/*
+    if (getSchain()->getSchainIndex() != 1) {
+        transactions->clear();
+    }
+    */
+
+    while (Time::getCurrentTimeMs() <= _previousBlockTimeStamp->getS() * 1000 +
+                                            _previousBlockTimeStamp->getMs()) {
         usleep(10);
     }
 
     auto transactionList = make_shared<TransactionList>(transactions);
 
-    auto currentTime = Time::getCurrentTimeMs();
-    auto sec = currentTime / 1000;
-    auto m = (uint32_t) (currentTime % 1000);
+    auto stamp = TimeStamp::getCurrentTimeStamp();
 
     auto myBlockProposal = make_shared<MyBlockProposal>(*sChain, _blockID, sChain->getSchainIndex(),
-            transactionList, stateRoot, sec, m, getSchain()->getCryptoManager());
+            transactionList, stateRoot, stamp->getS(), stamp->getMs(), getSchain()->getCryptoManager());
 
     LOG(trace, "Created proposal, transactions:" + to_string(transactions->size()));
 
@@ -116,7 +120,8 @@ pair<ptr<vector<ptr<Transaction>>>, u256> PendingTransactionsAgent::createTransa
             getSchain()->getNode()->exitCheck();
         } else {
             stateRootSample++;
-            stateRoot = stateRootSample;
+            stateRoot = 7;
+
             txVector = sChain->getTestMessageGeneratorAgent()->pendingTransactions(need_max);
         }
 
@@ -142,7 +147,7 @@ pair<ptr<vector<ptr<Transaction>>>, u256> PendingTransactionsAgent::createTransa
 
 
 ptr<Transaction> PendingTransactionsAgent::getKnownTransactionByPartialHash(const ptr<partial_sha_hash> hash) {
-    lock_guard<recursive_mutex> lock(transactionsMutex);
+    LOCK(transactionsMutex);
     if (knownTransactions.count(hash))
         return knownTransactions.at(hash);
     return nullptr;
@@ -153,7 +158,6 @@ void PendingTransactionsAgent::pushKnownTransaction(const ptr<Transaction>& _tra
     CHECK_ARGUMENT(_transaction);
 
     LOCK(transactionsMutex);
-
 
     if (knownTransactions.count(_transaction->getPartialHash())) {
         LOG(trace, "Duplicate transaction pushed to known transactions");
@@ -166,7 +170,6 @@ void PendingTransactionsAgent::pushKnownTransaction(const ptr<Transaction>& _tra
 
     knownTransactions[partialHash] = _transaction;
 
-
     while (knownTransactions.size() > KNOWN_TRANSACTIONS_HISTORY) {
         auto tx = knownTransactions.begin()->first;
         CHECK_STATE(tx);
@@ -176,7 +179,7 @@ void PendingTransactionsAgent::pushKnownTransaction(const ptr<Transaction>& _tra
 
 
 uint64_t PendingTransactionsAgent::getKnownTransactionsSize() {
-    lock_guard<recursive_mutex> lock(transactionsMutex);
+    LOCK(transactionsMutex);
     return knownTransactions.size();
 }
 

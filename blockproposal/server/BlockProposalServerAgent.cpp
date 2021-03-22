@@ -46,6 +46,7 @@
 #include "datastructures/DAProof.h"
 
 #include "blockproposal/pusher/BlockProposalClientAgent.h"
+#include "datastructures/TimeStamp.h"
 #include "db/BlockProposalDB.h"
 #include "db/DAProofDB.h"
 #include "pendingqueue/PendingTransactionsAgent.h"
@@ -86,7 +87,8 @@
 
 ptr< unordered_map< ptr< partial_sha_hash >, ptr< Transaction >, PendingTransactionsAgent::Hasher,
     PendingTransactionsAgent::Equal > >
-BlockProposalServerAgent::readMissingTransactions( const ptr< ServerConnection >& _connectionEnvelope,
+BlockProposalServerAgent::readMissingTransactions(
+    const ptr< ServerConnection >& _connectionEnvelope,
     nlohmann::json missingTransactionsResponseHeader ) {
     CHECK_ARGUMENT( _connectionEnvelope );
     CHECK_STATE( missingTransactionsResponseHeader > 0 );
@@ -108,7 +110,7 @@ BlockProposalServerAgent::readMissingTransactions( const ptr< ServerConnection >
         totalSize += ( size_t ) size;
     }
 
-    auto serializedTransactions = make_shared<vector<uint8_t>>( totalSize );
+    auto serializedTransactions = make_shared< vector< uint8_t > >( totalSize );
 
 
     try {
@@ -139,7 +141,7 @@ BlockProposalServerAgent::readMissingTransactions( const ptr< ServerConnection >
     return missed;
 }
 
-pair< ptr< map< uint64_t, ptr< Transaction > > >, ptr< map< uint64_t, ptr< partial_sha_hash >>>>
+pair< ptr< map< uint64_t, ptr< Transaction > > >, ptr< map< uint64_t, ptr< partial_sha_hash > > > >
 BlockProposalServerAgent::getPresentAndMissingTransactions(
     Schain& _sChain, const ptr< Header > /*tcpHeader*/, const ptr< PartialHashesList >& _phList ) {
     CHECK_ARGUMENT( _phList );
@@ -167,7 +169,8 @@ BlockProposalServerAgent::getPresentAndMissingTransactions(
 }
 
 
-BlockProposalServerAgent::BlockProposalServerAgent( Schain& _schain, const ptr< TCPServerSocket >& _s )
+BlockProposalServerAgent::BlockProposalServerAgent(
+    Schain& _schain, const ptr< TCPServerSocket >& _s )
     : AbstractServerAgent( "BlockPropSrv", _schain, _s ) {
     blockProposalWorkerThreadPool =
         make_shared< BlockProposalWorkerThreadPool >( num_threads( 1 ), this );
@@ -211,7 +214,7 @@ void BlockProposalServerAgent::processNextAvailableConnection(
 
     auto type = Header::getString( clientRequest, "type" );
 
-    CHECK_STATE(!type.empty() );
+    CHECK_STATE( !type.empty() );
 
     if ( strcmp( type.data(), Header::BLOCK_PROPOSAL_REQ ) == 0 ) {
         processProposalRequest( _connection, clientRequest );
@@ -405,13 +408,6 @@ pair< ConnectionStatus, ConnectionSubStatus > BlockProposalServerAgent::processP
     ptr< Header > finalResponseHeader = nullptr;
 
     try {
-        if ( requestHeader->getStateRoot() == 0 ) {
-            finalResponseHeader = make_shared< FinalProposalResponseHeader >(
-                CONNECTION_ERROR, CONNECTION_ZERO_STATE_ROOT );
-            goto err;
-        }
-
-
         if ( !getSchain()->getCryptoManager()->verifyProposalECDSA(
                  proposal, requestHeader->getHash(), requestHeader->getSignature() ) ) {
             finalResponseHeader = make_shared< FinalProposalResponseHeader >(
@@ -458,7 +454,7 @@ ptr< Header > BlockProposalServerAgent::createProposalResponseHeader(
     const ptr< ServerConnection >&, BlockProposalRequestHeader& _header ) {
     auto responseHeader = make_shared< BlockProposalResponseHeader >();
 
-    if ( (uint64_t ) sChain->getSchainID() != (uint64_t ) _header.getSchainId() ) {
+    if ( ( uint64_t ) sChain->getSchainID() != ( uint64_t ) _header.getSchainId() ) {
         responseHeader->setStatusSubStatus( CONNECTION_ERROR, CONNECTION_ERROR_UNKNOWN_SCHAIN_ID );
         responseHeader->setComplete();
         LOG( err, "Incorrect schain " + to_string( _header.getSchainId() ) );
@@ -477,33 +473,101 @@ ptr< Header > BlockProposalServerAgent::createProposalResponseHeader(
         return responseHeader;
     }
 
+    auto blockIDInHeader = _header.getBlockId();
 
-    if ( nmi->getSchainIndex() != (uint64_t) _header.getProposerIndex() )  {
+    if ( nmi->getSchainIndex() != ( uint64_t ) _header.getProposerIndex() ) {
         responseHeader->setStatusSubStatus( CONNECTION_ERROR, CONNECTION_ERROR_INVALID_NODE_INDEX );
         responseHeader->setComplete();
         LOG( err, "Node schain index does not match " + _header.getProposerIndex() );
         return responseHeader;
     }
 
-    if ( sChain->getLastCommittedBlockID() >= _header.getBlockId() ) {
+    if ( sChain->getLastCommittedBlockID() >= blockIDInHeader ) {
         responseHeader->setStatusSubStatus(
             CONNECTION_DISCONNECT, CONNECTION_BLOCK_PROPOSAL_TOO_LATE );
         responseHeader->setComplete();
         return responseHeader;
     }
 
-    if ( ( uint64_t ) sChain->getLastCommittedBlockID() + 1 < ( uint64_t ) _header.getBlockId() ) {
+    if ( ( uint64_t ) sChain->getLastCommittedBlockID() + 1 < ( uint64_t ) blockIDInHeader ||
+         sChain->getBlockProposal( blockIDInHeader, sChain->getSchainIndex() ) == nullptr ) {
         responseHeader->setStatusSubStatus(
             CONNECTION_RETRY_LATER, CONNECTION_BLOCK_PROPOSAL_IN_THE_FUTURE );
         responseHeader->setComplete();
         return responseHeader;
     }
 
-    CHECK_STATE( _header.getTimeStamp() > MODERN_TIME );
+    if ( sChain->getNode()->getDaProofDB()->isEnoughProofs( blockIDInHeader ) ) {
+        responseHeader->setStatusSubStatus(
+            CONNECTION_DISCONNECT, CONNECTION_ALREADY_HAVE_ENOUGH_PROPOSALS_FOR_THIS_BLOCK_ID );
+        responseHeader->setComplete();;
+        return responseHeader;
+    }
+
+
+    auto myBlockProposalForTheSameBlockID =
+        sChain->getBlockProposal( blockIDInHeader, sChain->getSchainIndex() );
+
+
+    if ( myBlockProposalForTheSameBlockID == nullptr ) {
+        // did not create proposal yet, ask the client to retry later
+        responseHeader->setStatusSubStatus(
+            CONNECTION_RETRY_LATER, CONNECTION_BLOCK_PROPOSAL_IN_THE_FUTURE );
+        responseHeader->setComplete();
+        return responseHeader;
+    }
+
+
+    if ( blockIDInHeader > 1 &&
+        _header.getStateRoot() != myBlockProposalForTheSameBlockID->getStateRoot()){
+        responseHeader->setStatusSubStatus(
+            CONNECTION_ERROR, CONNECTION_PROPOSAL_STATE_ROOT_DOES_NOT_MATCH );
+        responseHeader->setComplete();
+        LOG( err, "Proposal state root does not match: " );
+        LOG( err, " My schain index:"
+                      + to_string(getSchain()->getSchainIndex()) + " My root:" +
+            myBlockProposalForTheSameBlockID->getStateRoot().str());
+
+        LOG( err, "Sender schain index:"
+                  + to_string(_header.getProposerIndex()) +  " Sender root:" +  _header.getStateRoot().str() );
+
+
+        LOG(err, "State roots of other proposals:");
+
+        auto proposalDB = getNode()->getBlockProposalDB();
+
+        for (uint64_t i = 1; i <= getSchain()->getNodeCount(); i++) {
+            auto proposal = proposalDB->getBlockProposal(blockIDInHeader, i);
+            if (proposal) {
+                LOG( err, "schain_index:"
+                          + to_string(proposal->getProposerIndex()) +
+                              " root:" +  proposal->getStateRoot().str() );
+
+            }
+        }
+
+
+        return responseHeader;
+    }
+
+
+    if ( _header.getTimeStamp() <= MODERN_TIME ) {
+        LOG( info, "Time less than modern time" );
+        responseHeader->setStatusSubStatus(
+            CONNECTION_ERROR, CONNECTION_ERROR_TIME_LESS_THAN_MODERN_DAY );
+        responseHeader->setComplete();
+        return responseHeader;
+    }
 
     auto t = Time::getCurrentTimeSec();
 
-    CHECK_STATE( t < ( uint64_t ) MODERN_TIME * 2 );
+    if ( t > ( uint64_t ) MODERN_TIME * 2 ) {
+        LOG( info, "Time too far in the future" );
+        responseHeader->setStatusSubStatus(
+            CONNECTION_ERROR, CONNECTION_ERROR_TIME_TOO_FAR_IN_THE_FUTURE );
+        responseHeader->setComplete();
+        return responseHeader;
+    }
 
     if ( Time::getCurrentTimeSec() + 1 < _header.getTimeStamp() ) {
         LOG( info, "Incorrect timestamp:" + to_string( _header.getTimeStamp() ) +
@@ -514,10 +578,11 @@ ptr< Header > BlockProposalServerAgent::createProposalResponseHeader(
         return responseHeader;
     }
 
+    auto timeStamp = make_shared< TimeStamp >( _header.getTimeStamp(), _header.getTimeStampMs() );
 
-    if ( sChain->getLastCommittedBlockTimeStamp() > _header.getTimeStamp() ) {
-        LOG( info, "Incorrect timestamp:" + to_string( _header.getTimeStamp() ) +
-                       ":vs:" + to_string( sChain->getLastCommittedBlockTimeStamp() ) );
+    if ( !( *sChain->getLastCommittedBlockTimeStamp() < *timeStamp ) ) {
+        LOG( info, "Timestamp is less or equal prev block:" + to_string( _header.getTimeStamp() ) +
+                       ":vs:" + sChain->getLastCommittedBlockTimeStamp()->toString() );
 
         responseHeader->setStatusSubStatus(
             CONNECTION_DISCONNECT, CONNECTION_ERROR_TIME_STAMP_EARLIER_THAN_COMMITTED );
@@ -544,7 +609,7 @@ ptr< Header > BlockProposalServerAgent::createDAProofResponseHeader(
 
     auto responseHeader = make_shared< SubmitDAProofResponseHeader >();
 
-    if ( (uint64_t ) sChain->getSchainID() != _header->getSchainId() ) {
+    if ( ( uint64_t ) sChain->getSchainID() != _header->getSchainId() ) {
         responseHeader->setStatusSubStatus( CONNECTION_ERROR, CONNECTION_ERROR_UNKNOWN_SCHAIN_ID );
         BOOST_THROW_EXCEPTION( InvalidSchainException(
             "Incorrect schain " + to_string( _header->getSchainId() ), __CLASS_NAME__ ) );
@@ -554,6 +619,7 @@ ptr< Header > BlockProposalServerAgent::createDAProofResponseHeader(
 
     ptr< NodeInfo > nmi = sChain->getNode()->getNodeInfoById( nodeId );
 
+
     if ( nmi == nullptr ) {
         responseHeader->setStatusSubStatus(
             CONNECTION_ERROR, CONNECTION_ERROR_DONT_KNOW_THIS_NODE );
@@ -562,7 +628,7 @@ ptr< Header > BlockProposalServerAgent::createDAProofResponseHeader(
             __CLASS_NAME__ ) );
     }
 
-    if ( (uint64_t ) nmi->getSchainIndex() != schain_index( _header->getProposerIndex() ) ) {
+    if ( ( uint64_t ) nmi->getSchainIndex() != schain_index( _header->getProposerIndex() ) ) {
         responseHeader->setStatusSubStatus( CONNECTION_ERROR, CONNECTION_ERROR_INVALID_NODE_INDEX );
         BOOST_THROW_EXCEPTION( InvalidSchainIndexException(
             "Node schain index does not match " + _header->getProposerIndex(), __CLASS_NAME__ ) );
@@ -582,6 +648,15 @@ ptr< Header > BlockProposalServerAgent::createDAProofResponseHeader(
         responseHeader->setComplete();
         return responseHeader;
     }
+
+
+    if ( sChain->getNode()->getDaProofDB()->isEnoughProofs( _header->getBlockId() ) ) {
+        responseHeader->setStatusSubStatus(
+            CONNECTION_DISCONNECT, CONNECTION_ALREADY_HAVE_ENOUGH_PROPOSALS_FOR_THIS_BLOCK_ID );
+        responseHeader->setComplete();;
+        return responseHeader;
+    }
+
 
 
     ptr< BLAKE3Hash > blockHash = nullptr;
@@ -645,10 +720,11 @@ ptr< Header > BlockProposalServerAgent::createFinalResponseHeader(
     const ptr< ReceivedBlockProposal >& _proposal ) {
     CHECK_ARGUMENT( _proposal );
 
-    auto [sigShare,signature,  pubKey, pubKeySig] = getSchain()->getCryptoManager()->signDAProof( _proposal );
+    auto [sigShare, signature, pubKey, pubKeySig] =
+        getSchain()->getCryptoManager()->signDAProof( _proposal );
 
-    auto responseHeader = make_shared< FinalProposalResponseHeader >( sigShare->toString(),
-        signature, pubKey, pubKeySig);
+    auto responseHeader = make_shared< FinalProposalResponseHeader >(
+        sigShare->toString(), signature, pubKey, pubKeySig );
     responseHeader->setStatusSubStatus( CONNECTION_SUCCESS, CONNECTION_OK );
     responseHeader->setComplete();
     return responseHeader;
@@ -674,14 +750,13 @@ ptr< PartialHashesList > AbstractServerAgent::readPartialHashes(
 
     auto partialHashesList = make_shared< PartialHashesList >( _txCount );
 
-    if ( (uint64_t)_txCount != 0 ) {
+    if ( ( uint64_t ) _txCount != 0 ) {
         try {
             getSchain()->getIo()->readBytes( _connectionEnvelope,
                 partialHashesList->getPartialHashes(),
-                msg_len(( uint64_t ) partialHashesList->getTransactionCount() *
-                        PARTIAL_HASH_LEN ) );
+                msg_len(
+                    ( uint64_t ) partialHashesList->getTransactionCount() * PARTIAL_HASH_LEN ) );
         } catch ( ExitRequestedException& ) {
-
             throw;
         } catch ( ... ) {
             throw_with_nested( CouldNotReadPartialDataHashesException(

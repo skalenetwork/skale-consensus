@@ -31,13 +31,14 @@ class  BLAKE3Hash;
 class ThresholdSigShare {
 
 protected:
-    schain_id schainId;
-    block_id blockId;
-    schain_index signerIndex;
+
+    schain_id schainId = 0;
+    block_id blockId = 0;
+    schain_index signerIndex = 0;
 
 public:
 
-    block_id getBlockId() const;
+    [[nodiscard]] block_id getBlockId() const;
 
     ThresholdSigShare(const schain_id &schainId, const block_id &blockId, const schain_index &_signerIndex);
 
@@ -45,7 +46,7 @@ public:
 
     virtual ~ThresholdSigShare();
 
-    schain_index getSignerIndex() const;
+    [[nodiscard]] schain_index getSignerIndex() const;
     ptr<BLAKE3Hash> computeHash();
 
 };

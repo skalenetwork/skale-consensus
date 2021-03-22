@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2018-2019 SKALE Labs
+    Copyright (C) 2021 SKALE Labs
 
     This file is part of skale-consensus.
 
@@ -16,23 +16,37 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file ParentCompletedMessage.h
+    @file TimeStamp.h
     @author Stan Kladko
     @date 2018
 */
 
-#pragma once
 
-#include "ParentMessage.h"
 
-class ParentCompletedMessage : public ParentMessage {
+
+#ifndef SKALED_TIMESTAMP_H
+#define SKALED_TIMESTAMP_H
+
+
+class TimeStamp {
+    uint64_t s = 0;
+    uint64_t ms = 0;
 
 public:
-    ParentCompletedMessage(ProtocolInstance &srcProtocolInstance,
-                           const ptr<ProtocolKey> &dstProtocolKey
-                         );
+    TimeStamp( uint64_t _s, uint64_t _ms );
+
+    [[nodiscard ]] uint64_t getS() const;
+    [[nodiscard ]] uint64_t getMs() const;
+
+    bool operator<(const TimeStamp& r) const;
+
+    string toString();
+
+    static shared_ptr<TimeStamp> getCurrentTimeStamp();
+
+    ptr<TimeStamp> incrementByMs();
+
 };
 
 
-
-
+#endif  // SKALED_TIMESTAMP_H

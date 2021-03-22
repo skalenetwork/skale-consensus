@@ -20,15 +20,15 @@ blic License as published
     @author Stan Kladko
     @date 2019
 */
-#include "SkaleCommon.h"
 #include "Log.h"
+#include "SkaleCommon.h"
 #include "thirdparty/json.hpp"
 
 #include "Agent.h"
 #include "abstracttcpclient/AbstractClientAgent.h"
-#include "node/Node.h"
-#include "exceptions/SkaleException.h"
 #include "exceptions/ExitRequestedException.h"
+#include "exceptions/SkaleException.h"
+#include "node/Node.h"
 #include <exceptions/ConnectionRefusedException.h>
 
 #include "exceptions/FatalError.h"
@@ -43,10 +43,8 @@ blic License as published
 #include "node/NodeInfo.h"
 
 
-
 #include "datastructures/BlockProposal.h"
 #include "datastructures/DAProof.h"
-
 
 
 AbstractClientAgent::AbstractClientAgent( Schain& _sChain, port_type _portType )
@@ -57,9 +55,9 @@ AbstractClientAgent::AbstractClientAgent( Schain& _sChain, port_type _portType )
     logThreadLocal_ = _sChain.getNode()->getLog();
 
     for ( uint64_t i = 1; i <= _sChain.getNodeCount(); i++ ) {
-        ( itemQueue ).emplace( schain_index( i ), make_shared<queue< ptr< SendableItem > > >() );
-        ( queueCond ).emplace( schain_index( i ), make_shared<condition_variable >() );
-        ( queueMutex ).emplace( schain_index( i ), make_shared<std::mutex >() );
+        ( itemQueue ).emplace( schain_index( i ), make_shared< queue< ptr< SendableItem > > >() );
+        ( queueCond ).emplace( schain_index( i ), make_shared< condition_variable >() );
+        ( queueMutex ).emplace( schain_index( i ), make_shared< std::mutex >() );
     }
 
     threadCounter = 0;
@@ -70,54 +68,65 @@ uint64_t AbstractClientAgent::incrementAndReturnThreadCounter() {
 }
 
 
-void AbstractClientAgent::sendItem(const ptr< SendableItem >& _item, schain_index _dstIndex) {
+void AbstractClientAgent::sendItem( const ptr< SendableItem >& _item, schain_index _dstIndex ) {
+    CHECK_ARGUMENT( _item );
 
-    CHECK_ARGUMENT(_item);
+    CHECK_STATE(dynamic_pointer_cast<DAProof>(_item) ||
+                dynamic_pointer_cast<BlockProposal>(_item));
 
     CHECK_STATE( getNode()->isStarted() );
 
-    while (true) {
-
-        auto socket = make_shared<ClientSocket>(*sChain, _dstIndex, portType);
+    while ( true ) {
+        CHECK_STATE( _dstIndex != ( uint64_t ) getSchain()->getSchainIndex() );
+        auto socket = make_shared< ClientSocket >( *sChain, _dstIndex, portType );
 
 
         try {
-            getSchain()->getIo()->writeMagic(socket);
+            getSchain()->getIo()->writeMagic( socket );
         }
 
-        catch (ExitRequestedException &) {
+
+        catch ( ExitRequestedException& ) {
             throw;
-        } catch (...) {
-            throw_with_nested(NetworkProtocolException("Could not write magic", __CLASS_NAME__));
+        } catch ( ... ) {
+            throw_with_nested(
+                NetworkProtocolException( "Could not write magic", __CLASS_NAME__ ) );
         }
 
 
-        if (sendItemImpl(_item, socket, _dstIndex).first != CONNECTION_RETRY_LATER) {
+        CHECK_STATE(dynamic_pointer_cast<DAProof>(_item) ||
+                    dynamic_pointer_cast<BlockProposal>(_item));
+
+
+        if ( sendItemImpl( _item, socket, _dstIndex ).first != CONNECTION_RETRY_LATER ) {
             return;
         } else {
-
             boost::this_thread::sleep(
-                    boost::posix_time::milliseconds(PROPOSAL_RETRY_INTERVAL_MS));
+                boost::posix_time::milliseconds( PROPOSAL_RETRY_INTERVAL_MS ) );
         }
-
     }
 }
 
 
 void AbstractClientAgent::enqueueItemImpl( const ptr< SendableItem >& _item ) {
-
     CHECK_ARGUMENT( _item );
 
-    LOCK(m)
+    CHECK_STATE(dynamic_pointer_cast<DAProof>(_item) ||
+                dynamic_pointer_cast<BlockProposal>(_item));
+
+
+    LOCK( m )
 
     for ( uint64_t i = 1; i <= ( uint64_t ) getSchain()->getNodeCount(); i++ ) {
         {
             lock_guard< std::mutex > lock( *queueMutex[schain_index( i )] );
             auto q = itemQueue[schain_index( i )];
-            CHECK_STATE(q);
+            CHECK_STATE( q );
+            CHECK_STATE(dynamic_pointer_cast<DAProof>(_item) ||
+                        dynamic_pointer_cast<BlockProposal>(_item));
             q->push( _item );
 
-            if (q->size() > MAX_PROPOSAL_QUEUE_SIZE) {
+            if ( q->size() > MAX_PROPOSAL_QUEUE_SIZE ) {
                 // the destination is not accepting proposals, remove older
                 q->pop();
             }
@@ -127,55 +136,57 @@ void AbstractClientAgent::enqueueItemImpl( const ptr< SendableItem >& _item ) {
 }
 
 
-
-
 void AbstractClientAgent::workerThreadItemSendLoop( AbstractClientAgent* agent ) {
+    CHECK_STATE( agent );
 
-    CHECK_STATE(agent);
-
-    setThreadName("BlockPopClnt", agent->getSchain()->getNode()->getConsensusEngine());
+    setThreadName( "BlockPopClnt", agent->getSchain()->getNode()->getConsensusEngine() );
 
     agent->waitOnGlobalStartBarrier();
 
-    auto destinationSchainIndex = schain_index(
-            agent->incrementAndReturnThreadCounter() + 1 );
+    auto destinationSchainIndex = schain_index( agent->incrementAndReturnThreadCounter() + 1 );
+
+    ptr< SendableItem > proposal = nullptr;
 
     try {
         while ( !agent->getSchain()->getNode()->isExitRequested() ) {
             {
                 std::unique_lock< std::mutex > mlock( *agent->queueMutex[destinationSchainIndex] );
 
-
                 while ( agent->itemQueue[destinationSchainIndex]->empty() ) {
-                    if( agent->getSchain()->getNode()->isExitRequested() )
+                    if ( agent->getSchain()->getNode()->isExitRequested() )
                         return;
                     agent->getSchain()->getNode()->exitCheck();
                     agent->queueCond[destinationSchainIndex]->wait( mlock );
                 }
+
+
+                CHECK_STATE( agent->itemQueue[destinationSchainIndex] );
+
+                proposal = agent->itemQueue[destinationSchainIndex]->front();
+
+                CHECK_STATE( proposal );
+
+                CHECK_STATE(dynamic_pointer_cast<DAProof>(proposal) ||
+                            dynamic_pointer_cast<BlockProposal>(proposal));
+
+                agent->itemQueue[destinationSchainIndex]->pop();
             }
 
-            CHECK_STATE( agent->itemQueue[destinationSchainIndex] );
-
-            auto proposal = agent->itemQueue[destinationSchainIndex]->front();
-
-            CHECK_STATE( proposal );
-
-            agent->itemQueue[destinationSchainIndex]->pop();
 
 
-            if ( (uint64_t ) destinationSchainIndex != (uint64_t ) agent->getSchain()->getSchainIndex() ) {
 
+            if ( ( uint64_t ) destinationSchainIndex !=
+                 ( uint64_t ) agent->getSchain()->getSchainIndex() ) {
                 bool sent = false;
 
                 while ( !sent ) {
-                    if( agent->getSchain()->getNode()->isExitRequested() )
+                    if ( agent->getSchain()->getNode()->isExitRequested() )
                         return;
                     try {
-                        agent->sendItem(proposal, destinationSchainIndex);
+                        agent->sendItem( proposal, destinationSchainIndex );
                         sent = true;
-                    }
-                    catch (ConnectionRefusedException& e) {
-                        agent->logConnectionRefused(e, destinationSchainIndex);
+                    } catch ( ConnectionRefusedException& e ) {
+                        agent->logConnectionRefused( e, destinationSchainIndex );
 
                         if ( agent->getNode()->isExitRequested() )
                             return;
@@ -194,23 +205,22 @@ void AbstractClientAgent::workerThreadItemSendLoop( AbstractClientAgent* agent )
         };
     }
 
-    catch (FatalError& e ) {
-        SkaleException::logNested(e);
-        agent->getNode()->exitOnFatalError( e.getMessage() );
-    } catch (ExitRequestedException& e ) {
+    catch ( FatalError& e ) {
+        SkaleException::logNested( e );
+        agent->getNode()->exitOnFatalError( e.what() );
+    } catch ( ExitRequestedException& e ) {
         return;
-    } catch (SkaleException& e) {
-        SkaleException::logNested(e);
+    } catch ( SkaleException& e ) {
+        SkaleException::logNested( e );
     }
 }
 
-void AbstractClientAgent::enqueueItem(const ptr<BlockProposal>& _item) {
-    CHECK_ARGUMENT(_item);
-    enqueueItemImpl(_item);
+void AbstractClientAgent::enqueueItem( const ptr< BlockProposal >& _item ) {
+    CHECK_ARGUMENT( _item );
+    enqueueItemImpl( _item );
 }
 
-void AbstractClientAgent::enqueueItem(const ptr<DAProof>& _item) {
-    CHECK_ARGUMENT(_item);
-    enqueueItemImpl(_item);
+void AbstractClientAgent::enqueueItem( const ptr< DAProof >& _item ) {
+    CHECK_ARGUMENT( _item );
+    enqueueItemImpl( _item );
 }
-

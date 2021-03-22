@@ -23,8 +23,6 @@
 
 #pragma  once
 
-
-
 #include "Header.h"
 
 class  BLAKE3Hash;
@@ -33,23 +31,18 @@ class Schain;
 
 class CatchupRequestHeader : public Header{
 
-
-
-
     schain_id schainID;
     block_id blockID;
     node_id nodeID;
 
 public:
 
-
     CatchupRequestHeader();
 
     CatchupRequestHeader(Schain &_sChain, schain_index _dstIndex);
 
-
     void addFields(nlohmann::basic_json<> &j) override;
 
-    const node_id &getNodeId() const;
+    [[nodiscard]] const node_id &getNodeId() const;
 
 };

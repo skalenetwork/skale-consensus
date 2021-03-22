@@ -33,7 +33,7 @@ class ZMQSockets : public ServerSocket {
 
     atomic<bool> terminated = false;
 
-    void *context;
+    void *context = nullptr;
 
     map<schain_index, void *> sendSockets;
 

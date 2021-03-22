@@ -49,4 +49,4 @@ MessageEnvelope::MessageEnvelope(MessageOrigin origin, const ptr<Message> &_mess
     CHECK_ARGUMENT(_realSender);
 }
 
-
+MessageEnvelope::~MessageEnvelope() {}

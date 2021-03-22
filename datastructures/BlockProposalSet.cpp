@@ -39,15 +39,15 @@
 
 using namespace std;
 
-
 bool BlockProposalSet::add(const ptr<BlockProposal>& _proposal) {
-    CHECK_ARGUMENT( _proposal);
 
-    LOCK(m)
+    CHECK_ARGUMENT( _proposal);
 
     auto index = (uint64_t ) _proposal->getProposerIndex();
 
     CHECK_STATE(index > 0 && index <= nodeCount)
+
+    LOCK(m)
 
     if ( proposals.count(index) > 0 ) {
         LOG(trace,
@@ -55,10 +55,9 @@ bool BlockProposalSet::add(const ptr<BlockProposal>& _proposal) {
         return false;
     }
 
-    proposals[index] = _proposal;
+    proposals.emplace(index,_proposal);
 
     return true;
-
 }
 
 
@@ -81,16 +80,5 @@ node_count BlockProposalSet::getCount() {
     return ( node_count ) proposals.size();
 }
 
-ptr< BlockProposal > BlockProposalSet::getProposalByIndex( schain_index _index ) {
-
-    CHECK_ARGUMENT(_index > 0 && (uint64_t ) _index <= nodeCount)
-    LOCK(m)
-
-    if ( proposals.count((uint64_t) _index) == 0 ) {
-        return nullptr;
-    }
-
-    return proposals.at((uint64_t)_index);
-}
 
 atomic<int64_t>  BlockProposalSet::totalObjects(0);

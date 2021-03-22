@@ -24,12 +24,10 @@
 #pragma once
 
 #include <json/value.h>
+
 class Node;
-
 class NodeInfo;
-
 class ConsensusExtFace;
-
 class ConsensusEngine;
 
 class JSONFactory {
@@ -42,7 +40,7 @@ public:
                                               const ptr< BLSPublicKey >& _blsPublicKey );
 
     static ptr< Node > createNodeFromJsonObject(
-        const nlohmann::json& j, set< node_id >& nodeIDs, ConsensusEngine* _engine, bool _useSGX,
+        const nlohmann::json& _j, set< node_id >& nodeIDs, ConsensusEngine* _engine, bool _useSGX,
         const string& _sgxURL,
         const string& _sgxSSLKeyFileFullPath, const string& _sgxSSLCertFileFullPath,
         const string& _ecdsaKeyName, const ptr< vector<string> >& _ecdsaPublicKeys,
@@ -73,4 +71,6 @@ public:
     static int64_t getInt64( Json::Value& _json, const char* key );
 
     static string getString( Json::Value& _json, const char* key );
+
+    static void checkSGXStatus(Json::Value& _result);
 };

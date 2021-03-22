@@ -57,7 +57,6 @@ BlockProposalRequestHeader::BlockProposalRequestHeader(nlohmann::json _proposalR
     auto stateRootStr = Header::getString(_proposalRequest, "sr");
     CHECK_STATE(!stateRootStr.empty())
     stateRoot = u256(stateRootStr);
-    CHECK_STATE(stateRoot != 0)
 }
 
 BlockProposalRequestHeader::BlockProposalRequestHeader(Schain &_sChain, const ptr<BlockProposal>& proposal) :
@@ -68,7 +67,7 @@ BlockProposalRequestHeader::BlockProposalRequestHeader(Schain &_sChain, const pt
 
     proposerNodeID = _sChain.getNode()->getNodeID();
     txCount = (uint64_t) proposal->getTransactionCount();
-    timeStamp = proposal->getTimeStamp();
+    timeStamp = proposal->getTimeStampS();
     timeStampMs = proposal->getTimeStampMs();
 
     hash = proposal->getHash()->toHex();
@@ -78,7 +77,6 @@ BlockProposalRequestHeader::BlockProposalRequestHeader(Schain &_sChain, const pt
 
     stateRoot = proposal->getStateRoot();
 
-    CHECK_STATE(stateRoot != 0)
     CHECK_STATE(timeStamp > MODERN_TIME)
 
     complete = true;

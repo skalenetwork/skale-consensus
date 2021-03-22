@@ -27,8 +27,8 @@
 #include <boost/random/uniform_int_distribution.hpp>
 
 
-#include "SkaleCommon.h"
 #include "Log.h"
+#include "SkaleCommon.h"
 #include "exceptions/SerializeException.h"
 
 #include "BlockProposalFragment.h"
@@ -36,113 +36,104 @@
 
 #include "BlockProposalFragmentList.h"
 
-BlockProposalFragmentList::BlockProposalFragmentList(const block_id &_blockId,
-                                                       const uint64_t _totalFragments) :
-        blockID(_blockId),
-        totalFragments(
-                _totalFragments) {
-    CHECK_ARGUMENT(totalFragments > 0);
+BlockProposalFragmentList::BlockProposalFragmentList(
+    const block_id& _blockId, const uint64_t _totalFragments )
+    : blockID( _blockId ), totalFragments( _totalFragments ) {
+    CHECK_ARGUMENT( totalFragments > 0 );
 
-    for (uint64_t i = 1; i <= totalFragments; i++) {
-        missingFragments.push_back(i);
+    for ( uint64_t i = 1; i <= totalFragments; i++ ) {
+        missingFragments.push_back( i );
     }
-
 }
 
 
 uint64_t BlockProposalFragmentList::nextIndexToRetrieve() {
+    LOCK( m );
 
-    LOCK(m);
-
-    if (missingFragments.size() == 0) {
+    if ( missingFragments.size() == 0 ) {
         return 0;
     }
 
-    uint64_t randomPosition = ubyte(gen) % missingFragments.size();
+    uint64_t randomPosition = ubyte( gen ) % missingFragments.size();
 
     uint64_t j = 0;
 
-    for (auto &&element: missingFragments) {
-        if (j == randomPosition) {
+
+    for ( auto&& element : missingFragments ) {
+        if ( j == randomPosition ) {
             return element;
         }
         j++;
     }
 
-
-    CHECK_STATE2(false, "nextIndexToRetrieve assertion failure"); // SHOULD NEVER BE HERE
+    CHECK_STATE2( false, "nextIndexToRetrieve assertion failure" );  // SHOULD NEVER BE HERE
 }
 
-bool BlockProposalFragmentList::addFragment(const ptr<BlockProposalFragment>& _fragment, uint64_t &nextIndex) {
+bool BlockProposalFragmentList::addFragment(
+    const ptr< BlockProposalFragment >& _fragment, uint64_t& nextIndex ) {
+    CHECK_ARGUMENT( _fragment );
+    CHECK_ARGUMENT( _fragment->getBlockId() == blockID );
+    CHECK_ARGUMENT( _fragment->getIndex() > 0 )
+    CHECK_ARGUMENT( _fragment->getIndex() <= totalFragments );
 
-    CHECK_ARGUMENT(_fragment);
-    CHECK_ARGUMENT(_fragment->getBlockId() == blockID);
-    CHECK_ARGUMENT(_fragment->getIndex() > 0)
-    CHECK_ARGUMENT(_fragment->getIndex() <= totalFragments);
+    LOCK( m )
 
-    LOCK(m)
-
-    if (blockHash == "") {
+    if ( blockHash == "" ) {
         blockHash = _fragment->getBlockHash();
         blockSize = _fragment->getBlockSize();
     } else {
-        CHECK_ARGUMENT(blockHash.compare(_fragment->getBlockHash()) == 0);
-        CHECK_ARGUMENT(blockSize == (int64_t ) _fragment->getBlockSize());
+        CHECK_ARGUMENT( blockHash.compare( _fragment->getBlockHash() ) == 0 );
+        CHECK_ARGUMENT( blockSize == ( int64_t ) _fragment->getBlockSize() );
+
     }
 
     checkSanity();
 
-
     nextIndex = 0;
 
-    if (fragments.find(_fragment->getIndex()) != fragments.end()) {
+    if ( fragments.find( _fragment->getIndex() ) != fragments.end() ) {
         return false;
     }
 
+    fragments.emplace( _fragment->getIndex(), _fragment->serialize() );
 
-    fragments[_fragment->getIndex()] = _fragment->serialize();
+    std::list< uint64_t >::iterator findIter =
+        std::find( missingFragments.begin(), missingFragments.end(), _fragment->getIndex() );
 
+    CHECK_STATE( findIter != missingFragments.end() );
 
-    std::list<uint64_t>::iterator findIter = std::find(missingFragments.begin(), missingFragments.end(),
-                                                       _fragment->getIndex());
+    missingFragments.erase( findIter );
 
-    CHECK_STATE(findIter != missingFragments.end());
-
-    missingFragments.erase(findIter);
-
-    if (isComplete()) {
+    if ( isComplete() ) {
         return true;
     }
 
 
-    CHECK_STATE(missingFragments.size() > 0);
-
+    CHECK_STATE( missingFragments.size() > 0 );
 
     nextIndex = nextIndexToRetrieve();
 
-    CHECK_STATE(nextIndex > 0);
-
-
+    CHECK_STATE( nextIndex > 0 );
 
     return true;
 }
 
 void BlockProposalFragmentList::checkSanity() {
-    CHECK_STATE(fragments.size() <= totalFragments);
+    LOCK( m )
+    CHECK_STATE( fragments.size() <= totalFragments );
 }
 
 bool BlockProposalFragmentList::isComplete() {
-    LOCK(m)
+    LOCK( m )
 
     checkSanity();
 
-    if (fragments.size() == totalFragments) {
-        for (uint64_t i = 1; i <= totalFragments; i++) {
-            CHECK_STATE(fragments.find(i) != fragments.end())
+    if ( fragments.size() == totalFragments ) {
+        for ( uint64_t i = 1; i <= totalFragments; i++ ) {
+            CHECK_STATE( fragments.find( i ) != fragments.end() )
         }
 
-
-        CHECK_STATE(missingFragments.size() == 0);
+        CHECK_STATE( missingFragments.size() == 0 );
 
         return true;
     }
@@ -150,48 +141,45 @@ bool BlockProposalFragmentList::isComplete() {
     return false;
 }
 
-const ptr<vector<uint8_t>> BlockProposalFragmentList::serialize() {
+const ptr< vector< uint8_t > > BlockProposalFragmentList::serialize() {
+    auto result = make_shared< vector< uint8_t > >();
 
+    CHECK_STATE( isComplete() );
+    CHECK_STATE( !isSerialized )
 
-    auto result = make_shared<vector<uint8_t >>();
-
-    CHECK_STATE(isComplete());
-    CHECK_STATE(!isSerialized)
-
-    LOCK(m)
+    LOCK( m )
 
     isSerialized = true;
 
     uint64_t totalLen = 0;
 
     try {
-
-        for (auto &&item : fragments) {
-            CHECK_STATE(item.second);
+        for ( auto&& item : fragments ) {
+            CHECK_STATE( item.second );
             totalLen += item.second->size() - 2;
         }
 
-        result->reserve(totalLen);
+        result->reserve( totalLen );
 
-        for (auto &&item : fragments) {
+        for ( auto&& item : fragments ) {
             auto fragment = item.second;
-            CHECK_STATE(fragment);
-            result->insert(result->end(), fragment->begin() + 1, fragment->end() - 1);
+            CHECK_STATE( fragment );
+            result->insert( result->end(), fragment->begin() + 1, fragment->end() - 1 );
         }
 
-    } catch (...) {
-        throw_with_nested(SerializeException("Could not serialize fragments", __CLASS_NAME__));
+    } catch ( ... ) {
+        throw_with_nested( SerializeException( "Could not serialize fragments", __CLASS_NAME__ ) );
     }
 
 
-    CHECK_STATE(result->size() == totalLen);
+    CHECK_STATE( result->size() == totalLen );
 
-    CHECK_STATE(result->at(sizeof(uint64_t)) == '{');
-    CHECK_STATE(result->back() == '>');
+    CHECK_STATE( result->at( sizeof( uint64_t ) ) == '{' );
+    CHECK_STATE( result->back() == '>' );
     return result;
 }
 
 
 boost::random::mt19937 BlockProposalFragmentList::gen;
 
-boost::random::uniform_int_distribution<> BlockProposalFragmentList::ubyte(0, 1024);
+boost::random::uniform_int_distribution<> BlockProposalFragmentList::ubyte( 0, 1024 );

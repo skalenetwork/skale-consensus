@@ -32,6 +32,7 @@
 #include "headers/BlockProposalRequestHeader.h"
 #include "monitoring/MonitoringAgent.h"
 #include "monitoring/TimeoutAgent.h"
+#include "utils/Time.h"
 
 #include "SchainMessageThreadPool.h"
 #include "crypto/ConsensusBLSSigShare.h"
@@ -178,7 +179,8 @@ uint64_t Schain::getTotalTransactions() const {
     return totalTransactions;
 }
 
-uint64_t Schain::getLastCommittedBlockTimeStamp() {
+ptr<TimeStamp>  Schain::getLastCommittedBlockTimeStamp() {
+    CHECK_STATE(lastCommittedBlockTimeStamp);
     return lastCommittedBlockTimeStamp;
 }
 
@@ -261,4 +263,43 @@ void Schain::createBlockConsensusInstance() {
 
 uint64_t Schain::getLastCommitTimeMs() {
     return lastCommitTimeMs;
+}
+
+
+void Schain::initLastCommittedBlockInfo( uint64_t _lastCommittedBlockID,
+                                           ptr< TimeStamp > _lastCommittedBlockTimeStamp ){
+
+    LOCK(lastCommittedBlockInfoMutex);
+    lastCommittedBlockID = _lastCommittedBlockID;
+    lastCommittedBlockTimeStamp = _lastCommittedBlockTimeStamp;
+    lastCommitTimeMs = Time::getCurrentTimeMs();
+}
+
+
+
+void Schain::updateLastCommittedBlockInfo( uint64_t _lastCommittedBlockID,
+                                   ptr< TimeStamp > _lastCommittedBlockTimeStamp,
+                                   uint64_t _blockSize){
+    LOCK(lastCommittedBlockInfoMutex);
+    CHECK_STATE(_lastCommittedBlockTimeStamp);
+    CHECK_STATE(_lastCommittedBlockID == lastCommittedBlockID + 1)
+    if (*_lastCommittedBlockTimeStamp < *_lastCommittedBlockTimeStamp) {
+        LOG(err, "TimeStamp in the past:"+ lastCommittedBlockTimeStamp->toString() +
+            ":"+ _lastCommittedBlockTimeStamp->toString());
+    }
+    CHECK_STATE(*lastCommittedBlockTimeStamp < *_lastCommittedBlockTimeStamp);
+    auto currentTime = Time::getCurrentTimeMs();
+    CHECK_STATE(currentTime >= lastCommitTimeMs);
+
+    lastCommittedBlockID = _lastCommittedBlockID;
+    lastCommittedBlockTimeStamp = _lastCommittedBlockTimeStamp;
+    lastCommitTimeMs = currentTime;
+
+    blockSizeAverage = (blockSizeAverage * (_lastCommittedBlockID - 1) + _blockSize) / _lastCommittedBlockID;
+    blockTimeAverageMs = (currentTime - this->startTimeMs) / (_lastCommittedBlockID - this->bootstrapBlockID);
+    if (blockTimeAverageMs == 0)
+        blockTimeAverageMs = 1;
+
+    tpsAverage = (blockSizeAverage * 1000 ) / blockTimeAverageMs;
+
 }

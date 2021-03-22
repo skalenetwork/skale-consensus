@@ -53,12 +53,12 @@ public:
 
     block_id getBlockID();
 
-    BlockProposalHeader(nlohmann::json& _json);
+    explicit BlockProposalHeader(nlohmann::json& _json);
 
-    BlockProposalHeader(BlockProposal & _block);
+    explicit BlockProposalHeader(BlockProposal & _block);
 
     string getBlockHash() {
-        CHECK_STATE(blockHash != "");
+        CHECK_STATE(!blockHash.empty());
         return blockHash;
     }
 
@@ -70,9 +70,9 @@ public:
 
     node_id getProposerNodeId();
 
-    uint64_t getTimeStamp() const;
+    [[nodiscard]] uint64_t getTimeStamp() const;
 
-    uint32_t getTimeStampMs() const ;
+    [[nodiscard]] uint32_t getTimeStampMs() const ;
 };
 
 

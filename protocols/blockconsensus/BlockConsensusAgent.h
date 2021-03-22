@@ -38,16 +38,14 @@ class CryptoManager;
 
 class BlockConsensusAgent : public ProtocolInstance {
 
-
-
     recursive_mutex m;
-
 
     // protocol cache for each block proposer
 
-    vector<ptr<cache::lru_cache<uint64_t, ptr<BinConsensusInstance>>>> children;
+    vector<ptr<cache::lru_cache<uint64_t, ptr<BinConsensusInstance>>>> children; // tsafe
 
-    ptr<cache::lru_cache<uint64_t , ptr<map<schain_index, ptr<ChildBVDecidedMessage>>>>> trueDecisions;
+    ptr<cache::lru_cache<uint64_t , ptr<map<schain_index, ptr<ChildBVDecidedMessage>>>>>
+        trueDecisions;
     ptr<cache::lru_cache<uint64_t , ptr<map<schain_index, ptr<ChildBVDecidedMessage>>>>> falseDecisions;
     ptr<cache::lru_cache<uint64_t , schain_index>> decidedIndices;
 

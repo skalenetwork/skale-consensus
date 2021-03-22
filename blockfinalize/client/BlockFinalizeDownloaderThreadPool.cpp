@@ -48,19 +48,22 @@ BlockFinalizeDownloaderThreadPool::BlockFinalizeDownloaderThreadPool(
 }
 
 
-void BlockFinalizeDownloaderThreadPool::createThread(uint64_t number) {
+void BlockFinalizeDownloaderThreadPool::createThread(uint64_t threadIndex ) {
 
     auto downloader = (BlockFinalizeDownloader*)agent;
 
     CHECK_STATE( downloader );
 
-    uint64_t index = number + 1;
+    // thread numbering starts with 0 and schain indexes start with 1
+    uint64_t destinationIndex = threadIndex + 1;
 
-    if (index == downloader->getSchain()->getSchainIndex())
+    // the node does not download from itself
+    if ( destinationIndex == downloader->getSchain()->getSchainIndex())
         return;
 
+    LOCK(threadPoolLock);
     this->threadpool.push_back(make_shared<thread>(
-            BlockFinalizeDownloader::workerThreadFragmentDownloadLoop, downloader, index));
+            BlockFinalizeDownloader::workerThreadFragmentDownloadLoop, downloader, destinationIndex ));
 
 }
 

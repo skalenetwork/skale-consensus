@@ -23,20 +23,19 @@
 
 #pragma once
 
-
 class Schain;
-
 class MonitoringThreadPool;
 class LivelinessMonitor;
 
 class MonitoringAgent : public Agent  {
 
-    map<uint64_t, weak_ptr<LivelinessMonitor>> activeMonitors;
+    map<uint64_t, weak_ptr<LivelinessMonitor>> activeMonitors; // tsafe
+
     ptr< MonitoringThreadPool > monitoringThreadPool = nullptr;
 
 public:
 
-    MonitoringAgent( Schain& _sChain );
+    explicit MonitoringAgent( Schain& _sChain );
 
     static void monitoringLoop( MonitoringAgent* agent );
 

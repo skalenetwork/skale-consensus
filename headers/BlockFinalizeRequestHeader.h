@@ -25,8 +25,6 @@
 
 #include "AbstractBlockRequestHeader.h"
 
-
-
 class BlockFinalizeRequestHeader : public AbstractBlockRequestHeader{
 
 

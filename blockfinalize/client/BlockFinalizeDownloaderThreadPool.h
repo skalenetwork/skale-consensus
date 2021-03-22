@@ -33,11 +33,11 @@ public:
 
     BlockFinalizeDownloaderThreadPool(num_threads numThreads, Agent *_params);
 
-    void createThread(uint64_t number) override;
+    void createThread(uint64_t threadIndex ) override;
 
     void startService() override;
 
-    virtual ~BlockFinalizeDownloaderThreadPool();
+    ~BlockFinalizeDownloaderThreadPool() override;
 
 };
 

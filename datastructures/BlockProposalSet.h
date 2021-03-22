@@ -28,39 +28,29 @@
 class PartialHashesList;
 class Schain;
 class BlockProposal;
-class  BLAKE3Hash;
+class BLAKE3Hash;
 class BooleanProposalVector;
 class DAProof;
 
-class BlockProposalSet : public DataStructure  {
+class BlockProposalSet : public DataStructure {
 
+    map< uint64_t, ptr< BlockProposal > > proposals; // tsafe
 
-    node_count nodeCount;
+    node_count nodeCount  = 0;
 
-    block_id blockId;
+    block_id blockId  = 0;
 
-    map< uint64_t , ptr< BlockProposal > > proposals;
-
-    static atomic<int64_t>  totalObjects;
+    static atomic< int64_t > totalObjects;
 
 public:
-
     node_count getCount();
 
-    BlockProposalSet(Schain* _sChain, block_id _blockId );
+    BlockProposalSet( Schain* _sChain, block_id _blockId );
 
-    bool add(const ptr<BlockProposal>& _proposal);
+    bool add( const ptr< BlockProposal >& _proposal );
 
-    ptr<BlockProposal> getProposalByIndex( schain_index _index );
+    static int64_t getTotalObjects() { return totalObjects; }
 
-
-    static int64_t getTotalObjects() {
-        return totalObjects;
-    }
-
-    virtual ~BlockProposalSet();
-
-private:
-
+    ~BlockProposalSet() override;
 
 };

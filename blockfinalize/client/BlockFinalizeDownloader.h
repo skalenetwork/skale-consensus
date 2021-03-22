@@ -62,23 +62,20 @@ class BlockProposalSet;
 
 class BlockFinalizeDownloader : public Agent {
 
-    block_id blockId;
+    block_id blockId = 0;
 
-    schain_index proposerIndex;
+    schain_index proposerIndex = 0;
 
     BlockProposalFragmentList fragmentList;
 
-
 public:
-
-    atomic< uint64_t > threadCounter;
 
     ptr<BlockFinalizeDownloaderThreadPool> threadPool = nullptr;
 
     BlockFinalizeDownloader(Schain *_sChain, block_id _blockId, schain_index _proposerIndex);
 
 
-    virtual ~BlockFinalizeDownloader();
+    ~BlockFinalizeDownloader() override;
 
     uint64_t downloadFragment(schain_index _dstIndex, fragment_index _fragmentIndex);
 
@@ -92,7 +89,7 @@ public:
     readBlockFragment(const ptr<ClientSocket>& _socket, nlohmann::json responseHeader, fragment_index _fragmentIndex,
                       node_count _nodeCount);
 
-    uint64_t readFragmentSize(nlohmann::json _responseHeader);
+    static uint64_t readFragmentSize(nlohmann::json _responseHeader);
 
     ptr<BlockProposal> downloadProposal();
 

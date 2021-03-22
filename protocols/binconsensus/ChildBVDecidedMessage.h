@@ -24,18 +24,15 @@
 #pragma once
 
 
-
-
 #include "messages/ChildMessage.h"
 
 class ChildBVDecidedMessage : public ChildMessage {
-
     bool value;
 
-    bin_consensus_round round;
+    bin_consensus_round round = 0;
 
-    uint64_t maxProcessingTimeMs;
-    uint64_t maxLatencyTimeMs;
+    uint64_t maxProcessingTimeMs = 0;
+    uint64_t maxLatencyTimeMs = 0;
 
 public:
     uint64_t getMaxLatencyTimeMs() const;
@@ -47,8 +44,7 @@ public:
 
     uint64_t getMaxProcessingTimeMs();
 
-    ChildBVDecidedMessage(bool _value, ProtocolInstance &_srcProtocolInstance,
- const ptr<ProtocolKey>& _key, bin_consensus_round _round,
-                          uint64_t _maxProcessingTimeMs, uint64_t _maxLatencyTimeMs);
-
+    ChildBVDecidedMessage( bool _value, ProtocolInstance& _srcProtocolInstance,
+        const ptr< ProtocolKey >& _key, bin_consensus_round _round, uint64_t _maxProcessingTimeMs,
+        uint64_t _maxLatencyTimeMs );
 };

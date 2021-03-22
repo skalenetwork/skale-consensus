@@ -35,7 +35,7 @@ class TimeoutAgent : public Agent  {
 
 public:
 
-    TimeoutAgent( Schain& _sChain );
+    explicit TimeoutAgent( Schain& _sChain );
 
     static void timeoutLoop( TimeoutAgent* agent );
 

@@ -101,7 +101,7 @@ ptr< Node > JSONFactory::createNodeFromJsonFile(
     }
 }
 
-ptr< Node > JSONFactory::createNodeFromJsonObject( const nlohmann::json& j, set< node_id >& nodeIDs,
+ptr< Node > JSONFactory::createNodeFromJsonObject( const nlohmann::json& _j, set< node_id >& nodeIDs,
     ConsensusEngine* _engine,
     bool _useSGX,
     const string& _sgxURL,
@@ -119,12 +119,12 @@ ptr< Node > JSONFactory::createNodeFromJsonObject( const nlohmann::json& j, set<
 
 
     if (_useSGX) {
-        if (_sgxSSLKeyFileFullPath.empty() && (j.count("sgxKeyFileFullPath") > 0)) {
-            sgxSSLKeyFileFullPathCopy = string(j.at("sgxKeyFileFullPath").get<string>());
+        if (_sgxSSLKeyFileFullPath.empty() && ( _j.count("sgxKeyFileFullPath") > 0)) {
+            sgxSSLKeyFileFullPathCopy = string( _j.at("sgxKeyFileFullPath").get<string>());
         }
-        if (_sgxSSLCertFileFullPath.empty() && (j.count("sgxCertFileFullPath") > 0 )) {
+        if (_sgxSSLCertFileFullPath.empty() && ( _j.count("sgxCertFileFullPath") > 0 )) {
             sgxSSLCertFileFullPathCopy =
-                string(j.at("sgxCertFileFullPath").get<string>());
+                string( _j.at("sgxCertFileFullPath").get<string>());
         }
 
         CHECK_ARGUMENT( !_ecdsaKeyName.empty() && _ecdsaPublicKeys );
@@ -136,12 +136,12 @@ ptr< Node > JSONFactory::createNodeFromJsonObject( const nlohmann::json& j, set<
 
     Network::setTransport( TransportType::ZMQ );
 
-    if ( j.find( "logLevelConfig" ) != j.end() ) {
-        string logLevel( j.at( "logLevelConfig" ).get<string>() );
+    if ( _j.find( "logLevelConfig" ) != _j.end() ) {
+        string logLevel( _j.at( "logLevelConfig" ).get<string>() );
         _engine->setConfigLogLevel( logLevel );
     }
 
-    uint64_t nodeID = j.at( "nodeID" ).get< uint64_t >();
+    uint64_t nodeID = _j.at( "nodeID" ).get< uint64_t >();
 
     ptr< Node > node = nullptr;
 
@@ -149,7 +149,7 @@ ptr< Node > JSONFactory::createNodeFromJsonObject( const nlohmann::json& j, set<
         try {
 
 
-            node = make_shared<Node> ( j, _engine, _useSGX,
+            node = make_shared<Node> ( _j, _engine, _useSGX,
                 _sgxURL,
                 sgxSSLKeyFileFullPathCopy,
                 sgxSSLCertFileFullPathCopy,
@@ -324,6 +324,9 @@ using namespace jsonrpc;
 
 
 
+
+
+
 tuple< ptr< vector<string> >, ptr< vector<string> >, ptr< vector<string> >,
     ptr< vector< ptr< vector<string>>>>, ptr< BLSPublicKey>>
 JSONFactory::parseTestKeyNamesFromJson(const string& _sgxServerURL, const fs_path& configFile, uint64_t _totalNodes,
@@ -389,8 +392,7 @@ JSONFactory::parseTestKeyNamesFromJson(const string& _sgxServerURL, const fs_pat
         response = c.getBLSPublicKeyShare( blsKeyNames->at( i ) );
         RETRY_END
 
-        auto status = getInt64(response, "status");
-        CHECK_STATE( status == 0 );
+        JSONFactory::checkSGXStatus(response);
 
         auto fourPieces = response["blsPublicKeyShare"];
         CHECK_STATE(fourPieces);
@@ -464,7 +466,8 @@ JSONFactory::parseTestKeyNamesFromJson(const string& _sgxServerURL, const fs_pat
             RETRY_END
         }
 
-        CHECK_STATE( getInt64(blsSigShares[i], "status") == 0 );
+        JSONFactory::checkSGXStatus(blsSigShares[i]);
+
 
         string sigShareStr;
         sigShareStr += getString(blsSigShares[i],"signatureShare");
@@ -499,7 +502,7 @@ JSONFactory::parseTestKeyNamesFromJson(const string& _sgxServerURL, const fs_pat
 
         auto response = c.getPublicECDSAKey( ecdsaKeyNames->at( i ) );
 
-        CHECK_STATE( getInt64(response,"status") == 0 );
+        JSONFactory::checkSGXStatus(response);
 
         auto publicKey = getString(response, "publicKey");
 
@@ -535,6 +538,17 @@ ptr<vector<string>> JSONFactory::splitString(const string& _str, const string& _
     return tokens;
 }
 
+
+void JSONFactory::checkSGXStatus(Json::Value& _result) {
+    auto status = JSONFactory::getInt64( _result, "status" );
+
+    if (status != 0) {
+        LOG(err, "SGX server returned error status:" + to_string(status));
+        LOG(err, _result.asString());
+    }
+
+    CHECK_STATE(status == 0);
+}
 
 int64_t JSONFactory::getInt64(Json::Value& _json, const char* key) {
     CHECK_STATE(_json);

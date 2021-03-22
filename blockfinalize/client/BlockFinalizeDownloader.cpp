@@ -58,7 +58,7 @@
 
 #include "chains/Schain.h"
 #include "datastructures/BlockProposalFragment.h"
-#include "datastructures/BlockProposalSet.h"
+
 #include "datastructures/CommittedBlock.h"
 #include "db/BlockProposalDB.h"
 #include "db/DAProofDB.h"
@@ -77,16 +77,14 @@ BlockFinalizeDownloader::BlockFinalizeDownloader(Schain *_sChain, block_id _bloc
           proposerIndex(_proposerIndex),
           fragmentList(_blockId, (uint64_t) _sChain->getNodeCount() - 1) {
 
-    CHECK_ARGUMENT(_sChain);
+    CHECK_ARGUMENT(_sChain)
 
-    CHECK_STATE(_sChain->getNodeCount() > 1);
+    CHECK_STATE(_sChain->getNodeCount() > 1)
 
     try {
         logThreadLocal_ = _sChain->getNode()->getLog();
 
-        CHECK_STATE(sChain);
-
-        threadCounter = 0;
+        CHECK_STATE(sChain)
 
     }
     catch (ExitRequestedException &) { throw; }
@@ -97,18 +95,22 @@ BlockFinalizeDownloader::BlockFinalizeDownloader(Schain *_sChain, block_id _bloc
 
 
 nlohmann::json BlockFinalizeDownloader::readBlockFinalizeResponseHeader(const ptr<ClientSocket>& _socket) {
-    MONITOR(__CLASS_NAME__, __FUNCTION__);
-    CHECK_ARGUMENT(_socket);
+    MONITOR(__CLASS_NAME__, __FUNCTION__)
+    CHECK_ARGUMENT(_socket)
     return getSchain()->getIo()->readJsonHeader(_socket->getDescriptor(), "Read BlockFinalize response");
 }
 
 
 uint64_t BlockFinalizeDownloader::downloadFragment(schain_index _dstIndex, fragment_index _fragmentIndex) {
 
+    LOG(info, "BLCK_FRG_DWNLD:" + to_string(_fragmentIndex) + ":" +
+        to_string(_dstIndex));
+
     try {
 
         auto header = make_shared<BlockFinalizeRequestHeader>(*sChain, blockId, proposerIndex,
                 this->getNode()->getNodeID(), _fragmentIndex);
+        CHECK_STATE(_dstIndex != (uint64_t) getSchain()->getSchainIndex())
         auto socket = make_shared<ClientSocket>(*sChain, _dstIndex, CATCHUP);
         auto io = getSchain()->getIo();
 
@@ -124,10 +126,9 @@ uint64_t BlockFinalizeDownloader::downloadFragment(schain_index _dstIndex, fragm
             io->writeHeader(socket, header);
         } catch (ExitRequestedException &) { throw; } catch (...) {
             auto errString = "BlockFinalizec step 1: can not write BlockFinalize request";
-            LOG(debug, errString);
+            LOG(err, errString);
             throw_with_nested(NetworkProtocolException(errString, __CLASS_NAME__));
         }
-        LOG(debug, "BlockFinalizec step 1: wrote BlockFinalize request");
 
         nlohmann::json response;
 
@@ -135,17 +136,16 @@ uint64_t BlockFinalizeDownloader::downloadFragment(schain_index _dstIndex, fragm
             response = readBlockFinalizeResponseHeader(socket);
         } catch (ExitRequestedException &) { throw; } catch (...) {
             auto errString = "BlockFinalizec step 2: can not read BlockFinalize response";
-            LOG(debug, errString);
+            LOG(err, errString);
             throw_with_nested(NetworkProtocolException(errString, __CLASS_NAME__));
         }
 
 
-        LOG(debug, "BlockFinalizec step 2: read BlockFinalize response header");
-
         auto status = (ConnectionStatus) Header::getUint64(response, "status");
 
         if (status == CONNECTION_DISCONNECT) {
-            LOG(debug, "BlockFinalizec got response::no fragment");
+            LOG(info, "BLCK_FRG_DWNLD:NO_FRG:" + to_string(_fragmentIndex) + ":" +
+                      to_string(_dstIndex));
             return 0;
         }
 
@@ -156,11 +156,11 @@ uint64_t BlockFinalizeDownloader::downloadFragment(schain_index _dstIndex, fragm
         }
 
 
-        ptr<BlockProposalFragment> blockFragment = nullptr;
+        ptr<BlockProposalFragment> blockFragment;
 
         try {
             blockFragment = readBlockFragment(socket, response, _fragmentIndex, getSchain()->getNodeCount());
-            CHECK_ARGUMENT(blockFragment);
+            CHECK_ARGUMENT(blockFragment)
         } catch (ExitRequestedException &) { throw; } catch (...) {
             auto errString = "BlockFinalizec step 3: can not read fragment";
             LOG(err, errString);
@@ -171,8 +171,6 @@ uint64_t BlockFinalizeDownloader::downloadFragment(schain_index _dstIndex, fragm
         uint64_t next = 0;
 
         fragmentList.addFragment(blockFragment, next);
-
-        LOG(debug, "BlockFinalizec success");
 
         return next;
 
@@ -245,7 +243,6 @@ BlockFinalizeDownloader::readBlockFragment(const ptr<ClientSocket>& _socket, nlo
 
     return fragment;
 
-
 }
 
 
@@ -266,12 +263,20 @@ void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(BlockFinalizeDown
 
     setThreadName("BlckFinLoop", node->getConsensusEngine());
 
-    uint64_t next = (uint64_t) _dstIndex;
-
     node->waitOnGlobalClientStartBarrier();
 
-    if (next > (uint64_t) sChainIndex)
-        next--;
+    // since the node does not download from itself
+    // and since the number of fragment is one less the number of
+    // nodes, nodes that have sChainIndex more than current node, download _dstNodeIndex - 1
+    // fragment
+
+    uint64_t nextFragment;
+
+    if (_dstIndex > (uint64_t) sChainIndex) {
+        nextFragment = ( uint64_t ) _dstIndex - 1;
+    } else {
+        nextFragment = (uint64_t ) _dstIndex;
+    }
 
     try {
 
@@ -298,11 +303,11 @@ void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(BlockFinalizeDown
             }
 
             try {
-                next = _agent->downloadFragment(_dstIndex, next);
-                if (next == 0) {
+                nextFragment = _agent->downloadFragment(_dstIndex, nextFragment);
+                if (nextFragment == 0) {
+                    // all fragments have been downloaded
                     return;
                 }
-                usleep( static_cast< __useconds_t >( node->getWaitAfterNetworkErrorMs() * 1000 ) );
             } catch (ExitRequestedException &) {
                 return;
             } catch (ConnectionRefusedException &e) {
@@ -314,7 +319,8 @@ void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(BlockFinalizeDown
             };
         };
     } catch (FatalError& e) {
-        node->exitOnFatalError(e.getMessage());
+        SkaleException::logNested( e );
+        node->exitOnFatalError(e.what());
     }
 }
 

@@ -258,7 +258,7 @@ void Node::startServers() {
 
     CHECK_STATE(!startedServers);
 
-    LOG(info, "Starting node");
+    LOG(info, "Starting node on");
 
     LOG(trace, "Initing sockets");
 
@@ -348,6 +348,10 @@ void Node::setSchain(const ptr<Schain>& _schain) {
 
 void Node::initSchain(const ptr<Node>& _node, const ptr<NodeInfo>& _localNodeInfo, const vector<ptr<NodeInfo> > &remoteNodeInfos,
                       ConsensusExtFace *_extFace) {
+
+
+    set<string> ipPortSet;
+
     try {
         logThreadLocal_ = _node->getLog();
 
@@ -355,9 +359,19 @@ void Node::initSchain(const ptr<Node>& _node, const ptr<NodeInfo>& _localNodeInf
             LOG(debug, "Adding Node Info:" + to_string(rni->getSchainIndex()));
             _node->setNodeInfo(rni);
             LOG(debug, "Got IP" + rni->getBaseIP());
+
+            auto ipPortString = rni->getBaseIP() + ":" + to_string((uint16_t ) rni->getPort());
+
+            LOG(info, "Adding:" + ipPortString);
+
+            if (ipPortSet.count(ipPortString) > 0 ) {
+                BOOST_THROW_EXCEPTION(InvalidStateException("Double entry is found in schain config:  "
+                    + ipPortString,
+                        __CLASS_NAME__));
+            } else {
+                ipPortSet.insert(ipPortString);
+            }
         }
-
-
         _node->testNodeInfos();
 
         auto sChain = make_shared<Schain>(
@@ -417,6 +431,8 @@ void Node::releaseGlobalClientBarrier() {
 
 void Node::exit() {
 
+    getSchain()->stopStatusServer();
+
     RETURN_IF_PREVIOUSLY_CALLED(exitRequested);
 
     releaseGlobalClientBarrier();
@@ -431,10 +447,14 @@ void Node::exit() {
 void Node::closeAllSocketsAndNotifyAllAgentsAndThreads() {
     getSchain()->getNode()->threadServerConditionVariable.notify_all();
 
-    CHECK_STATE(agents.size() > 0);
+    {
+        LOCK( agentsLock );
 
-    for (auto &&agent : agents) {
-        agent->notifyAllConditionVariables();
+        CHECK_STATE( agents.size() > 0 );
+
+        for ( auto&& agent : agents ) {
+            agent->notifyAllConditionVariables();
+        }
     }
 
     if (sockets && sockets->blockProposalSocket)
@@ -451,6 +471,8 @@ void Node::closeAllSocketsAndNotifyAllAgentsAndThreads() {
 
 void Node::registerAgent(Agent *_agent) {
     CHECK_ARGUMENT(_agent);
+
+    LOCK(agentsLock);
     agents.push_back(_agent);
 }
 

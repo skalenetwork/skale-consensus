@@ -30,7 +30,11 @@
 
 
 class MyBlockProposal : public BlockProposal {
+
+    static atomic<int64_t>  totalObjects;
+
 public:
+
     MyBlockProposal(Schain &_sChain, const block_id &_blockID, const schain_index &_proposerIndex,
                     const ptr<TransactionList>& _transactions, u256 _stateRoot, uint64_t _timeStamp,
                     uint32_t _timeStampMs, const ptr<CryptoManager>& _cryptoManager);
@@ -40,11 +44,7 @@ public:
         return totalObjects;
     }
 
-private:
-
-    static atomic<int64_t>  totalObjects;
-public:
-    virtual ~MyBlockProposal();
+    ~MyBlockProposal() override;
 
 };
 

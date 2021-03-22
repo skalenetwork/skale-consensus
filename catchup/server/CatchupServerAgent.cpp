@@ -64,16 +64,10 @@
 #include "datastructures/CommittedBlock.h"
 
 
-CatchupWorkerThreadPool *CatchupServerAgent::getCatchupWorkerThreadPool() const {
-    CHECK_STATE(catchupWorkerThreadPool);
-    return catchupWorkerThreadPool.get();
-}
-
-
 CatchupServerAgent::CatchupServerAgent(Schain &_schain, const ptr<TCPServerSocket>& _s) : AbstractServerAgent(
         "CatchupServer", _schain, _s) {
     CHECK_ARGUMENT(_s);
-    catchupWorkerThreadPool = make_shared<CatchupWorkerThreadPool>(num_threads(1), this);
+    catchupWorkerThreadPool = make_shared<CatchupWorkerThreadPool>(num_threads(16), this);
     catchupWorkerThreadPool->startService();
     createNetworkReadThread();
 }
@@ -270,6 +264,9 @@ ptr<vector<uint8_t>> CatchupServerAgent::createBlockCatchupResponse(nlohmann::js
 
         serializedBlocks->push_back('[');
 
+        uint64_t totalSize = 0;
+
+        auto maxSize = getSchain()->getNode()->getMaxCatchupDownloadBytes();
 
         for (uint64_t i = (uint64_t) _blockID + 1; i <= committedBlockID; i++) {
 
@@ -281,9 +278,15 @@ ptr<vector<uint8_t>> CatchupServerAgent::createBlockCatchupResponse(nlohmann::js
                 return nullptr;
             }
 
+            totalSize += serializedBlock->size();
+
+            if (totalSize > maxSize)
+                break;
+
             serializedBlocks->insert(serializedBlocks->end(), serializedBlock->begin(), serializedBlock->end());
 
             blockSizes->push_back(serializedBlock->size());
+
 
         }
 
@@ -334,7 +337,7 @@ ptr<vector<uint8_t>> CatchupServerAgent::createBlockFinalizeResponse(nlohmann::j
         auto proposal = getSchain()->getBlockProposal(_blockID, proposerIndex);
 
         if (proposal == nullptr) {
-            LOG(info, "No proposal in finalization:" + to_string(proposerIndex));
+            LOG(debug, "No proposal in finalization:" + to_string(proposerIndex));
 
 
             auto committedBlock = getSchain()->getBlock(_blockID);

@@ -21,9 +21,11 @@
     @date 2018
 */
 
-#include "Agent.h"
-#include "Log.h"
 #include "SkaleCommon.h"
+#include "Log.h"
+#include "Agent.h"
+
+
 
 #include "abstracttcpserver/AbstractServerAgent.h"
 #include "exceptions/FatalError.h"
@@ -47,5 +49,6 @@ void BlockProposalWorkerThreadPool::createThread( uint64_t threadNumber ) {
             ( BlockProposalServerAgent* ) agent );
     };
 
+    LOCK(threadPoolLock);
     this->threadpool.push_back( make_shared< thread >( func ) );
 }

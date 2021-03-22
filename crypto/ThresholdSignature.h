@@ -30,17 +30,18 @@
 class ThresholdSignature {
 
 protected:
-    block_id blockId;
 
-    uint64_t  totalSigners;
-    uint64_t  requiredSigners;
+
+    block_id blockId = 0;
+
+    uint64_t  totalSigners = 0;
+    uint64_t  requiredSigners = 0;
 
 public:
-    ThresholdSignature(const block_id &blockId);
 
     ThresholdSignature(const block_id &blockId, uint64_t totalSigners, uint64_t requiredSigners);
 
-    block_id getBlockId() const;
+    [[nodiscard]] block_id getBlockId() const;
 
     virtual string toString() = 0;
 

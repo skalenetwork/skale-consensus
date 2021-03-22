@@ -39,6 +39,7 @@ void CatchupClientThreadPool::createThread(uint64_t /*number*/) {
 
     CHECK_STATE(agent);
 
+    LOCK(threadPoolLock);
     this->threadpool.push_back(make_shared<thread>(CatchupClientAgent::workerThreadItemSendLoop, (CatchupClientAgent*) agent));
 
 }

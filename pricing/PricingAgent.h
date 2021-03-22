@@ -30,7 +30,7 @@ class PricingStrategy;
 
 class PricingAgent : public Agent{
 
-    ptr<PricingStrategy> pricingStrategy;
+    ptr<PricingStrategy> pricingStrategy ;
 
 public:
 
@@ -42,9 +42,6 @@ public:
     u256 readPrice(block_id _blockId);
 
     void savePrice(u256 price, block_id _blockID);
-
-
-
 
 };
 

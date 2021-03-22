@@ -28,27 +28,24 @@
 
 class PartialHashesList : public DataStructure  {
 
-    transaction_count transactionCount;
+    ptr<vector<uint8_t>> partialHashes; // tsafe
 
-    ptr<vector<uint8_t>> partialHashes;
+    transaction_count transactionCount = 0;
 
 public:
 
+    [[nodiscard ]] transaction_count getTransactionCount() const;
 
+    [[nodiscard ]] ptr<vector<uint8_t>> getPartialHashes() const;
 
-    transaction_count getTransactionCount() const;
+    ~PartialHashesList() override;
 
-    ptr<vector<uint8_t>> getPartialHashes() const;
-
-    virtual ~PartialHashesList();
-
-    PartialHashesList(transaction_count _transactionCount);
+    explicit PartialHashesList(transaction_count _transactionCount);
 
     PartialHashesList(transaction_count _transactionCount, const ptr<vector<uint8_t>>& _partialHashes);
 
     msg_len getLen() {
         return msg_len(partialHashes->size());
-
     }
 
     ptr<partial_sha_hash> getPartialHash(uint64_t i) ;

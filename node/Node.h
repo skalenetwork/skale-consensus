@@ -28,52 +28,32 @@
 using namespace std;
 
 class Sockets;
-
 class Network;
-
 class ZMQNetwork;
-
 class BlockProposalServerAgent;
-
 class CatchupServerAgent;
-
 class NetworkMessageEnvelope;
-
 class NodeInfo;
-
 class Schain;
-
 class NodeInfo;
-
 class Agent;
-
 class ConsensusExtFace;
-
 class ConsensusEngine;
-
 class ConsensusBLSSigShare;
-
 class  BLAKE3Hash;
-
 class BLSPublicKey;
-
 class BLSPrivateKeyShare;
-
 class CacheLevelDB;
 class BlockDB;
 class BlockProposalDB;
 class RandomDB;
 class PriceDB;
-
 class ProposalHashDB;
 class ProposalVectorDB;
 class MsgDB;
 class ConsensusStateDB;
-
 class TestConfig;
-
 class BlockSigShareDB;
-
 class DASigShareDB;
 class DAProofDB;
 
@@ -86,36 +66,34 @@ enum PricingStrategyEnum { ZERO, DOS_PROTECT };
 
 
 class Node {
+    
     ConsensusEngine* consensusEngine;
 
     vector< Agent* > agents;
+    recursive_mutex agentsLock;
 
-    node_id nodeID;
+    node_id nodeID = 0;
 
-    std::mutex threadServerCondMutex;
+    mutex threadServerCondMutex;
 
+    condition_variable threadServerConditionVariable;
 
-    std::condition_variable threadServerConditionVariable;
+    mutex threadClientCondMutex;
 
+    condition_variable threadClientConditionVariable;
 
-    std::mutex threadClientCondMutex;
+    atomic_bool startedServers;
 
-    std::condition_variable threadClientConditionVariable;
+    atomic_bool startedClients;
 
-
-    std::atomic_bool startedServers;
-
-    std::atomic_bool startedClients;
-
-    std::atomic_bool exitRequested;
+    atomic_bool exitRequested;
 
     ptr< SkaleLog > log = nullptr;
     string name = "";
 
     string bindIP = "";
 
-
-    nlohmann::json cfg;
+    nlohmann::json cfg = 0;
 
     network_port basePort = 0;
 
@@ -137,38 +115,27 @@ class Node {
     };
 
 
-    ptr< map< uint64_t, ptr< NodeInfo > > > nodeInfosByIndex;
-    ptr< map< uint64_t, ptr< NodeInfo > > > nodeInfosById;
-
+    ptr< map< uint64_t, ptr< NodeInfo > > > nodeInfosByIndex; //tsafe
+    ptr< map< uint64_t, ptr< NodeInfo > > > nodeInfosById; //tsafe
 
     bool sgxEnabled = false;
 
+    string ecdsaKeyName;
 
+    ptr< vector<string> > ecdsaPublicKeys; // tsafe
 
-    string ecdsaKeyName = "";
-    ptr< vector<string> > ecdsaPublicKeys = nullptr;
-    string blsKeyName = "";
-    ptr< vector< ptr< vector<string>>>> blsPublicKeys = nullptr;
-    ptr< BLSPublicKey > blsPublicKey = nullptr;
+    string blsKeyName;
 
-    string sgxURL = "";
+    ptr< vector< ptr< vector<string>>>> blsPublicKeys; // tsafe
 
+    ptr< BLSPublicKey > blsPublicKey;
 
+    string sgxURL;
 
-    string sgxSSLKeyFileFullPath = "";
-    string sgxSSLCertFileFullPath = "";
+    string sgxSSLKeyFileFullPath;
+    string sgxSSLCertFileFullPath;
 
-
-
-    void releaseGlobalServerBarrier();
-
-    void releaseGlobalClientBarrier();
-
-
-    void closeAllSocketsAndNotifyAllAgentsAndThreads();
-
-
-    ptr< BlockDB > blockDB = nullptr;
+    ptr< BlockDB > blockDB;
 
     ptr< RandomDB > randomDB = nullptr;
 
@@ -176,79 +143,99 @@ class Node {
 
     ptr< ProposalHashDB > proposalHashDB = nullptr;
 
-    ptr< ProposalVectorDB > proposalVectorDB = nullptr;
+    ptr< ProposalVectorDB > proposalVectorDB ;
 
-    ptr< MsgDB > outgoingMsgDB = nullptr;
+    ptr< MsgDB > outgoingMsgDB;
 
-    ptr< MsgDB > incomingMsgDB = nullptr;
+    ptr< MsgDB > incomingMsgDB;
 
-    ptr< ConsensusStateDB > consensusStateDB = nullptr;
+    ptr< ConsensusStateDB > consensusStateDB;
 
+    ptr< BlockSigShareDB > blockSigShareDB;
 
-    ptr< BlockSigShareDB > blockSigShareDB = nullptr;
+    ptr< DASigShareDB > daSigShareDB;
 
-    ptr< DASigShareDB > daSigShareDB = nullptr;
+    ptr< DAProofDB > daProofDB;
 
-    ptr< DAProofDB > daProofDB = nullptr;
+    ptr< BlockProposalDB > blockProposalDB;
 
-    ptr< BlockProposalDB > blockProposalDB = nullptr;
+    uint64_t catchupIntervalMS = 0;
 
-    uint64_t catchupIntervalMS;
+    uint64_t monitoringIntervalMS = 0;
 
-    uint64_t monitoringIntervalMS;
+    uint64_t waitAfterNetworkErrorMs = 0;
 
-    uint64_t waitAfterNetworkErrorMs;
-
-    uint64_t emptyBlockIntervalMs;
+    uint64_t emptyBlockIntervalMs = 0;
 
     uint64_t blockProposalHistorySize;
 
-    uint64_t committedTransactionsHistory;
+    uint64_t committedTransactionsHistory = 0;
 
-    uint64_t maxCatchupDownloadBytes;
+    uint64_t maxCatchupDownloadBytes = 0;
 
+    uint64_t maxTransactionsPerBlock = 0;
 
-    uint64_t maxTransactionsPerBlock;
+    uint64_t minBlockIntervalMs = 0;
 
-    uint64_t minBlockIntervalMs;
+    uint64_t blockDBSize = 0;;
+    uint64_t proposalHashDBSize = 0;
+    uint64_t proposalVectorDBSize = 0;
+    uint64_t outgoingMsgDBSize = 0;
+    uint64_t incomingMsgDBSize = 0;
+    uint64_t consensusStateDBSize = 0;
+    uint64_t daSigShareDBSize = 0;
+    uint64_t daProofDBSize = 0;
+    uint64_t blockSigShareDBSize = 0;
+    uint64_t randomDBSize = 0;
+    uint64_t priceDBSize = 0;
+    uint64_t blockProposalDBSize = 0;
 
-    uint64_t blockDBSize;
-    uint64_t proposalHashDBSize;
-    uint64_t proposalVectorDBSize;
-    uint64_t outgoingMsgDBSize;
-    uint64_t incomingMsgDBSize;
-    uint64_t consensusStateDBSize;
-    uint64_t daSigShareDBSize;
-    uint64_t daProofDBSize;
-    uint64_t blockSigShareDBSize;
-    uint64_t randomDBSize;
-    uint64_t priceDBSize;
-    uint64_t blockProposalDBSize;
+    bool inited = false;
 
+    void releaseGlobalServerBarrier();
+
+    void releaseGlobalClientBarrier();
+
+    void closeAllSocketsAndNotifyAllAgentsAndThreads();
 
 public:
+
     string getEcdsaKeyName();
+
     ptr< vector<string> > getEcdsaPublicKeys();
+
     string getBlsKeyName();
+
     ptr< vector< ptr< vector<string>>>> getBlsPublicKeys();
+
     ptr< BLSPublicKey > getBlsPublicKey();
 
+    bool isSgxEnabled();
 
-    bool isSgxEnabled() ;
-
-    const ptr< TestConfig >& getTestConfig() const;
+    [[nodiscard]] const ptr< TestConfig >& getTestConfig() const;
 
     ptr< BlockDB > getBlockDB();
+
     ptr< RandomDB > getRandomDB();
+
     ptr< PriceDB > getPriceDB() const;
+
     ptr< ProposalHashDB > getProposalHashDB();
+
     ptr< ProposalVectorDB > getProposalVectorDB();
+
     ptr< MsgDB > getOutgoingMsgDB();
+
     ptr< MsgDB > getIncomingMsgDB();
+
     ptr< ConsensusStateDB > getConsensusStateDB();
+
     ptr< BlockSigShareDB > getBlockSigShareDB() const;
+
     ptr< DASigShareDB > getDaSigShareDB() const;
+
     ptr< DAProofDB > getDaProofDB() const;
+
     ptr< BlockProposalDB > getBlockProposalDB() const;
 
 
@@ -265,12 +252,12 @@ public:
     uint64_t getDaProofDBSize() const;
     uint64_t getBlockProposalDBSize() const;
     uint64_t getSimulateNetworkWriteDelayMs() const;
+
     ptr< BLSPublicKey > getBlsPublicKey() const;
 
-
     void initLevelDBs();
-    bool isStarted() const;
 
+    bool isStarted() const;
 
     Node( const nlohmann::json& _cfg, ConsensusEngine* _consensusEngine, bool _useSGX,
         string _sgxURL,
@@ -281,7 +268,6 @@ public:
         ptr< BLSPublicKey > _blsPublicKey );
 
     ~Node();
-
 
     void startServers();
 
@@ -307,7 +293,6 @@ public:
 
     node_id getNodeID() const;
 
-
     Sockets* getSockets() const;
 
 
@@ -319,9 +304,7 @@ public:
 
     void exitCheck();
 
-
     ptr< NodeInfo > getNodeInfoByIndex( schain_index _index );
-
 
     ptr< NodeInfo > getNodeInfoById( node_id _id );
 
@@ -335,13 +318,11 @@ public:
 
     uint64_t getCommittedTransactionHistoryLimit() const;
 
-
     void startClients();
 
     uint64_t getCatchupIntervalMs();
 
     uint64_t getMonitoringIntervalMs();
-
 
     uint64_t getEmptyBlockIntervalMs() const;
 
@@ -374,6 +355,6 @@ public:
     string getSgxUrl();
     string getSgxSslKeyFileFullPath();
     string getSgxSslCertFileFullPath();
-    bool inited;
+
     bool isInited() const;
 };

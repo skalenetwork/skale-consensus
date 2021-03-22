@@ -37,8 +37,8 @@ class  BLAKE3Hash;
 
 class ConsensusSigShareSet : public ThresholdSigShareSet {
 
-    BLSSigShareSet blsSet;
-
+    BLSSigShareSet blsSet; //tsafe
+    recursive_mutex blsSetLock;
 
 public:
     ConsensusSigShareSet(block_id _blockId, size_t _totalSigners, size_t _requiredSigners );
@@ -48,8 +48,6 @@ public:
     bool addSigShare(const ptr<ThresholdSigShare>& _sigShare) override;
 
     bool isEnough() override;
-
-    bool isEnoughMinusOne();
 
     ~ConsensusSigShareSet() override;
 
