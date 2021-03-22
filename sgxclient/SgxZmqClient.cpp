@@ -67,6 +67,8 @@ shared_ptr < SgxZmqMessage > SgxZmqClient::doRequestReply(Json::Value &_req) {
 
     auto resultStr = doZmqRequestReply(reqStr);
 
+    LOG(info, resultStr);
+
     try {
 
         CHECK_STATE(resultStr.size() > 5)

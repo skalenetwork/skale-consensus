@@ -73,6 +73,12 @@ shared_ptr < SgxZmqMessage > SgxZmqMessage::parse(const char *_msg,
     CHECK_STATE(!d->HasParseError());
     CHECK_STATE(d->IsObject());
 
+    CHECK_STATE(d->HasMember("status"))
+
+    CHECK_STATE((*d)["status"].IsNumber())
+    uint64_t status = (*d)["status"].GetInt64();
+    CHECK_STATE(status == 0);
+
     CHECK_STATE(d->HasMember("type"));
     CHECK_STATE((*d)["type"].IsString());
     string type = (*d)["type"].GetString();
