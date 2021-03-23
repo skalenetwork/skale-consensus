@@ -28,6 +28,8 @@
 
 string ECDSASignRspMessage::getSignature() {
 
+
+
     string r = getStringRapid( "signature_r" );
     string v = getStringRapid( "signature_v" );
     string s = getStringRapid("signature_s" );

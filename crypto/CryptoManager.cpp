@@ -81,13 +81,11 @@
 void CryptoManager::initSGXClient() {
     if ( isSGXEnabled ) {
         if ( isHTTPSEnabled ) {
-            if (isSSLCertEnabled) {
-                LOG( info, string( "Setting sgxSSLKeyFileFullPath to " ) +
-                               sgxSSLKeyFileFullPath );
-                LOG(info, string( "Setting sgxCertKeyFileFullPath to " ) +
-                               sgxSSLCertFileFullPath );
-                setSGXKeyAndCert(
-                    sgxSSLKeyFileFullPath, sgxSSLCertFileFullPath, sgxPort );
+            if ( isSSLCertEnabled ) {
+                LOG( info, string( "Setting sgxSSLKeyFileFullPath to " ) + sgxSSLKeyFileFullPath );
+                LOG(
+                    info, string( "Setting sgxCertKeyFileFullPath to " ) + sgxSSLCertFileFullPath );
+                setSGXKeyAndCert( sgxSSLKeyFileFullPath, sgxSSLCertFileFullPath, sgxPort );
             } else {
                 LOG( info, string( "Setting sgxSSLKeyCertFileFullPath  is not set."
                                    "Assuming SGX server does not require client certs" ) );
@@ -95,8 +93,8 @@ void CryptoManager::initSGXClient() {
         }
 
 
-        zmqClient = make_shared<SgxZmqClient>(sChain, sgxDomainName, 1031, this->isSSLCertEnabled,
-            sgxSSLCertFileFullPath, sgxSSLKeyFileFullPath);
+        zmqClient = make_shared< SgxZmqClient >( sChain, sgxDomainName, 1031,
+            this->isSSLCertEnabled, sgxSSLCertFileFullPath, sgxSSLKeyFileFullPath );
     }
 }
 ptr< BLSPublicKey > CryptoManager::getSgxBlsPublicKey() {
@@ -135,7 +133,7 @@ CryptoManager::CryptoManager( uint64_t _totalSigners, uint64_t _requiredSigners,
 }
 
 
- pair<string,uint64_t> CryptoManager::parseSGXDomainAndPort( const string& _url ) {
+pair< string, uint64_t > CryptoManager::parseSGXDomainAndPort( const string& _url ) {
     CHECK_ARGUMENT( _url != "" );
     size_t found = _url.find_first_of( ":" );
 
@@ -154,10 +152,9 @@ CryptoManager::CryptoManager( uint64_t _totalSigners, uint64_t _requiredSigners,
     }
 
 
-    string domain = end.substr(0, found1);
+    string domain = end.substr( 0, found1 );
 
     string port = end.substr( found1 + 1, end.size() - found1 );
-
 
 
     uint64_t result;
@@ -168,7 +165,7 @@ CryptoManager::CryptoManager( uint64_t _totalSigners, uint64_t _requiredSigners,
         throw_with_nested(
             InvalidStateException( "Could not find port in URL " + _url, __CLASS_NAME__ ) );
     }
-    return {domain, result};
+    return { domain, result };
 }
 
 
@@ -186,8 +183,8 @@ CryptoManager::CryptoManager( Schain& _sChain )
     if ( isSGXEnabled ) {
         auto node = _sChain.getNode();
         sgxURL = node->getSgxUrl();
-        if (sgxURL.back() == '/') {
-            sgxURL = sgxURL.substr(0, sgxURL.size() - 1);
+        if ( sgxURL.back() == '/' ) {
+            sgxURL = sgxURL.substr( 0, sgxURL.size() - 1 );
         }
 
         sgxSSLCertFileFullPath = node->getSgxSslCertFileFullPath();
@@ -197,7 +194,7 @@ CryptoManager::CryptoManager( Schain& _sChain )
         sgxBlsKeyName = node->getBlsKeyName();
         sgxBLSPublicKeys = node->getBlsPublicKeys();
         sgxBLSPublicKey = node->getBlsPublicKey();
-        tie(sgxDomainName, sgxPort) = parseSGXDomainAndPort( sgxURL );
+        tie( sgxDomainName, sgxPort ) = parseSGXDomainAndPort( sgxURL );
 
         CHECK_STATE( sgxURL != "" );
         CHECK_STATE( sgxECDSAKeyName != "" );
@@ -212,7 +209,7 @@ CryptoManager::CryptoManager( Schain& _sChain )
         isHTTPSEnabled = sgxURL.find( "https:/" ) != string::npos;
 
         isSSLCertEnabled =
-            (!sgxSSLKeyFileFullPath.empty()) && (!sgxSSLCertFileFullPath.empty());
+            ( !sgxSSLKeyFileFullPath.empty() ) && ( !sgxSSLCertFileFullPath.empty() );
 
         initSGXClient();
 
@@ -298,9 +295,9 @@ tuple< string, string, string > CryptoManager::sessionSignECDSA(
         LOCK( sessionKeysLock );
 
 
-        if ( auto result = sessionKeys.getIfExists(( uint64_t ) _blockID ); result.has_value() ) {
+        if ( auto result = sessionKeys.getIfExists( ( uint64_t ) _blockID ); result.has_value() ) {
             tie( privateKey, publicKey, pkSig ) =
-                any_cast<tuple< ptr< OpenSSLEdDSAKey >, string, string >>(result);
+                any_cast< tuple< ptr< OpenSSLEdDSAKey >, string, string > >( result );
             CHECK_STATE( privateKey );
             CHECK_STATE( publicKey != "" );
             CHECK_STATE( pkSig != "" );
@@ -325,7 +322,8 @@ tuple< string, string, string > CryptoManager::sessionSignECDSA(
     return { ret, publicKey, pkSig };
 }
 
-ptr< BLAKE3Hash > CryptoManager::calculatePublicKeyHash( const string publicKey, block_id _blockID ) {
+ptr< BLAKE3Hash > CryptoManager::calculatePublicKeyHash(
+    const string publicKey, block_id _blockID ) {
     auto bytesToHash = make_shared< vector< uint8_t > >();
 
     auto bId = ( uint64_t ) _blockID;
@@ -346,27 +344,26 @@ ptr< BLAKE3Hash > CryptoManager::calculatePublicKeyHash( const string publicKey,
 string CryptoManager::sgxSignECDSA( const ptr< BLAKE3Hash >& _hash, string& _keyName ) {
     CHECK_ARGUMENT( _hash );
 
-    Json::Value result;
+    string ret;
 
     // temporary solution to support old servers
-    if (doesServerSupportZMQ == 0) {
-        result = zmqClient->ecdsaSignMessageHash(6, _keyName, _hash->toHex());
+    if ( doesServerSupportZMQ == 0 ) {
+        ret = zmqClient->ecdsaSignMessageHash( 6, _keyName, _hash->toHex() );
         doesServerSupportZMQ = 1;
-    } else if (doesServerSupportZMQ == 1) {
-        result = zmqClient->ecdsaSignMessageHash(6, _keyName, _hash->toHex());
+    } else if ( doesServerSupportZMQ == 1 ) {
+        ret = zmqClient->ecdsaSignMessageHash( 6, _keyName, _hash->toHex() );
     } else {
+        Json::Value result;
         RETRY_BEGIN
         result = getSgxClient()->ecdsaSignMessageHash( 16, _keyName, _hash->toHex() );
         RETRY_END
+        JSONFactory::checkSGXStatus( result );
+
+        string r = JSONFactory::getString( result, "signature_r" );
+        string v = JSONFactory::getString( result, "signature_v" );
+        string s = JSONFactory::getString( result, "signature_s" );
+        ret = v + ":" + r.substr( 2 ) + ":" + s.substr( 2 );
     }
-
-    JSONFactory::checkSGXStatus(result);
-
-    string r = JSONFactory::getString( result, "signature_r" );
-    string v = JSONFactory::getString( result, "signature_v" );
-    string s = JSONFactory::getString( result, "signature_s" );
-
-    auto ret = v + ":" + r.substr( 2 ) + ":" + s.substr( 2 );
     return ret;
 }
 
@@ -424,7 +421,7 @@ bool CryptoManager::sessionVerifyEdDSASig(
             LOG( critical,
                 "Misconfiguration: this node is in mockup signature mode,"
                 "but other node sent a real signature " );
-            exit(-1);
+            exit( -1 );
         }
 
         return _sig == _hash->toHex();
@@ -432,12 +429,12 @@ bool CryptoManager::sessionVerifyEdDSASig(
 }
 
 
-bool CryptoManager::verifyECDSASig( const ptr< BLAKE3Hash >& _hash, const string& _sig, node_id _nodeId ) {
+bool CryptoManager::verifyECDSASig(
+    const ptr< BLAKE3Hash >& _hash, const string& _sig, node_id _nodeId ) {
     CHECK_ARGUMENT( _hash )
     CHECK_ARGUMENT( _sig != "" )
 
     if ( isSGXEnabled ) {
-
         string pubKey;
 
         {
@@ -463,7 +460,7 @@ bool CryptoManager::verifyECDSASig( const ptr< BLAKE3Hash >& _hash, const string
             LOG( critical,
                 "Misconfiguration: this node is in mockup signature mode,"
                 "but other node sent a real signature " );
-            exit(-1);
+            exit( -1 );
         }
 
         return _sig == ( _hash->toHex() );
@@ -475,8 +472,8 @@ tuple< ptr< ThresholdSigShare >, string, string, string > CryptoManager::signDAP
     const ptr< BlockProposal >& _p ) {
     CHECK_ARGUMENT( _p );
 
-    auto sigShare = signDAProofSigShare( _p->getHash(), _p->getBlockID() , false);
-    CHECK_STATE(sigShare );
+    auto sigShare = signDAProofSigShare( _p->getHash(), _p->getBlockID(), false );
+    CHECK_STATE( sigShare );
 
     auto combinedHash = BLAKE3Hash::merkleTreeMerge( _p->getHash(), sigShare->computeHash() );
     auto [ecdsaSig, pubKey, pubKeySig] = sessionSign( combinedHash, _p->getBlockID() );
@@ -487,7 +484,7 @@ tuple< ptr< ThresholdSigShare >, string, string, string > CryptoManager::signDAP
 ptr< ThresholdSigShare > CryptoManager::signBinaryConsensusSigShare(
     const ptr< BLAKE3Hash >& _hash, block_id _blockId, uint64_t _round ) {
     CHECK_ARGUMENT( _hash );
-    auto result = signSigShare( _hash, _blockId, ((uint64_t ) _round) <= 3);
+    auto result = signSigShare( _hash, _blockId, ( ( uint64_t ) _round ) <= 3 );
     CHECK_STATE( result );
     return result;
 }
@@ -506,21 +503,19 @@ ptr< ThresholdSigShare > CryptoManager::signDAProofSigShare(
     CHECK_ARGUMENT( _hash );
     MONITOR( __CLASS_NAME__, __FUNCTION__ )
 
-    if ( getSchain()->getNode()->isSgxEnabled() && !_forceMockup) {
+    if ( getSchain()->getNode()->isSgxEnabled() && !_forceMockup ) {
+        auto&& [sig, publicKey, pkSig] = this->sessionSignECDSA( _hash, _blockId );
 
-
-
-        auto&&[sig, publicKey, pkSig] = this->sessionSignECDSA(_hash, _blockId);
-
-        auto share = to_string((uint64_t )getSchain()->getSchainIndex()) + ";" + sig + ";" + publicKey + ";" + pkSig;
+        auto share = to_string( ( uint64_t ) getSchain()->getSchainIndex() ) + ";" + sig + ";" +
+                     publicKey + ";" + pkSig;
 
         return make_shared< ConsensusEdDSASigShare >( share, sChain->getSchainID(), _blockId,
-                                                      sChain->getSchainIndex(), totalSigners, requiredSigners);
+            sChain->getSchainIndex(), totalSigners, requiredSigners );
 
     } else {
         auto sigShare = _hash->toHex();
         return make_shared< MockupSigShare >( sigShare, sChain->getSchainID(), _blockId,
-                                              sChain->getSchainIndex(), sChain->getTotalSigners(), sChain->getRequiredSigners() );
+            sChain->getSchainIndex(), sChain->getTotalSigners(), sChain->getRequiredSigners() );
     }
 }
 
@@ -529,13 +524,12 @@ void CryptoManager::verifyDAProofSigShare( ptr< ThresholdSigShare > _sigShare,
     CHECK_ARGUMENT( _hash );
     MONITOR( __CLASS_NAME__, __FUNCTION__ )
 
-    if ( getSchain()->getNode()->isSgxEnabled() && !_forceMockup) {
+    if ( getSchain()->getNode()->isSgxEnabled() && !_forceMockup ) {
+        auto sShare = dynamic_pointer_cast< ConsensusEdDSASigShare >( _sigShare );
 
-        auto sShare = dynamic_pointer_cast<ConsensusEdDSASigShare>(_sigShare);
+        CHECK_STATE( sShare );
 
-        CHECK_STATE(sShare);
-
-        sShare->verify(*this, _schainIndex, _hash, _nodeId);
+        sShare->verify( *this, _schainIndex, _hash, _nodeId );
 
         return;
 
@@ -545,14 +539,12 @@ void CryptoManager::verifyDAProofSigShare( ptr< ThresholdSigShare > _sigShare,
 }
 
 
-
-
 ptr< ThresholdSigShare > CryptoManager::signSigShare(
     const ptr< BLAKE3Hash >& _hash, block_id _blockId, bool _forceMockup ) {
     CHECK_ARGUMENT( _hash );
     MONITOR( __CLASS_NAME__, __FUNCTION__ )
 
-    if ( getSchain()->getNode()->isSgxEnabled() && !_forceMockup) {
+    if ( getSchain()->getNode()->isSgxEnabled() && !_forceMockup ) {
         Json::Value jsonShare;
 
 
@@ -561,7 +553,7 @@ ptr< ThresholdSigShare > CryptoManager::signSigShare(
             getSgxBlsKeyName(), _hash->toHex(), requiredSigners, totalSigners );
         RETRY_END
 
-        JSONFactory::checkSGXStatus(jsonShare);
+        JSONFactory::checkSGXStatus( jsonShare );
 
         auto sigShare =
             make_shared< string >( JSONFactory::getString( jsonShare, "signatureShare" ) );
@@ -594,14 +586,13 @@ ptr< ThresholdSigShareSet > CryptoManager::createDAProofSigShareSet( block_id _b
 }
 
 
-ptr< ThresholdSigShare > CryptoManager::createSigShare(
-    const string& _sigShare, schain_id _schainID, block_id _blockID, schain_index _signerIndex,
-    bool _forceMockup) {
+ptr< ThresholdSigShare > CryptoManager::createSigShare( const string& _sigShare,
+    schain_id _schainID, block_id _blockID, schain_index _signerIndex, bool _forceMockup ) {
     CHECK_ARGUMENT( _sigShare != "" );
     CHECK_STATE( totalSigners >= requiredSigners );
 
 
-    if ( getSchain()->getNode()->isSgxEnabled() && !_forceMockup) {
+    if ( getSchain()->getNode()->isSgxEnabled() && !_forceMockup ) {
         return make_shared< ConsensusBLSSigShare >(
             _sigShare, _schainID, _blockID, _signerIndex, totalSigners, requiredSigners );
     } else {
@@ -610,14 +601,13 @@ ptr< ThresholdSigShare > CryptoManager::createSigShare(
     }
 }
 
-ptr< ThresholdSigShare > CryptoManager::createDAProofSigShare(
-    const string& _sigShare, schain_id _schainID, block_id _blockID, schain_index _signerIndex,
-    bool _forceMockup) {
-    CHECK_ARGUMENT(!_sigShare.empty());
+ptr< ThresholdSigShare > CryptoManager::createDAProofSigShare( const string& _sigShare,
+    schain_id _schainID, block_id _blockID, schain_index _signerIndex, bool _forceMockup ) {
+    CHECK_ARGUMENT( !_sigShare.empty() );
     CHECK_STATE( totalSigners >= requiredSigners );
 
 
-    if ( getSchain()->getNode()->isSgxEnabled() && !_forceMockup) {
+    if ( getSchain()->getNode()->isSgxEnabled() && !_forceMockup ) {
         auto result = make_shared< ConsensusEdDSASigShare >(
             _sigShare, _schainID, _blockID, _signerIndex, totalSigners, requiredSigners );
 
@@ -628,9 +618,6 @@ ptr< ThresholdSigShare > CryptoManager::createDAProofSigShare(
             _sigShare, _schainID, _blockID, _signerIndex, totalSigners, requiredSigners );
     }
 }
-
-
-
 
 
 void CryptoManager::signProposal( BlockProposal* _proposal ) {
@@ -657,27 +644,24 @@ bool CryptoManager::verifyNetworkMsg( NetworkMessage& _msg ) {
     auto pkSig = _msg.getPkSig();
     auto blockId = _msg.getBlockID();
     auto nodeId = _msg.getSrcNodeID();
-    return sessionVerifySigAndKey(hash, sig,publicKey, pkSig, blockId, nodeId);
+    return sessionVerifySigAndKey( hash, sig, publicKey, pkSig, blockId, nodeId );
 }
 
 
-bool CryptoManager::sessionVerifySigAndKey(
-    ptr< BLAKE3Hash >& _hash, const string& _sig, const string& _publicKey, const string& pkSig,
-    block_id _blockID, node_id _nodeId) {
+bool CryptoManager::sessionVerifySigAndKey( ptr< BLAKE3Hash >& _hash, const string& _sig,
+    const string& _publicKey, const string& pkSig, block_id _blockID, node_id _nodeId ) {
     MONITOR( __CLASS_NAME__, __FUNCTION__ );
 
 
     CHECK_STATE( !_sig.empty() );
-    CHECK_STATE(_hash );
+    CHECK_STATE( _hash );
 
 
     {
         LOCK( publicSessionKeysLock )
 
-        if (auto result = sessionPublicKeys.getIfExists( pkSig );
-             result.has_value()) {
-            auto publicKey2 =
-                any_cast<string>(result);
+        if ( auto result = sessionPublicKeys.getIfExists( pkSig ); result.has_value() ) {
+            auto publicKey2 = any_cast< string >( result );
             if ( publicKey2 != _publicKey )
                 return false;
         } else {
@@ -708,7 +692,7 @@ bool CryptoManager::verifyProposalECDSA(
     CHECK_ARGUMENT( _signature != "" )
 
     // default proposal is not signed using ECDSA
-    if (_proposal->getProposerIndex() == 0) {
+    if ( _proposal->getProposerIndex() == 0 ) {
         return true;
     }
 
@@ -734,7 +718,7 @@ ptr< ThresholdSignature > CryptoManager::verifyDAProofThresholdSig(
     MONITOR( __CLASS_NAME__, __FUNCTION__ )
 
     CHECK_ARGUMENT( _hash );
-    CHECK_ARGUMENT(!_signature.empty());
+    CHECK_ARGUMENT( !_signature.empty() );
 
     if ( getSchain()->getNode()->isSgxEnabled() ) {
         auto sig = make_shared< ConsensusEdDSASignature >(
@@ -748,7 +732,7 @@ ptr< ThresholdSignature > CryptoManager::verifyDAProofThresholdSig(
 
         if ( sig->toString() != _hash->toHex() ) {
             BOOST_THROW_EXCEPTION( InvalidArgumentException(
-                                       "Mockup threshold signature did not verify", __CLASS_NAME__ ) );
+                "Mockup threshold signature did not verify", __CLASS_NAME__ ) );
         }
         return sig;
     }
@@ -779,7 +763,7 @@ string CryptoManager::getSGXEcdsaPublicKey( const string& _keyName, const ptr< S
     CHECK_ARGUMENT( _keyName != "" );
     CHECK_ARGUMENT( _c );
 
-    LOG( info, "Getting ECDSA public key for " + _keyName.substr(0,8) + "..." );
+    LOG( info, "Getting ECDSA public key for " + _keyName.substr( 0, 8 ) + "..." );
 
     Json::Value result;
 
@@ -787,7 +771,7 @@ string CryptoManager::getSGXEcdsaPublicKey( const string& _keyName, const ptr< S
     result = _c->getPublicECDSAKey( _keyName );
     RETRY_END
 
-    JSONFactory::checkSGXStatus(result);
+    JSONFactory::checkSGXStatus( result );
 
     auto publicKey = JSONFactory::getString( result, "publicKey" );
 
@@ -803,7 +787,7 @@ pair< string, string > CryptoManager::generateSGXECDSAKey( const ptr< StubClient
     RETRY_BEGIN
     result = _c->generateECDSAKey();
     RETRY_END
-    JSONFactory::checkSGXStatus(result);
+    JSONFactory::checkSGXStatus( result );
 
     auto keyName = JSONFactory::getString( result, "keyName" );
     auto publicKey = JSONFactory::getString( result, "publicKey" );
@@ -851,14 +835,14 @@ void CryptoManager::generateSSLClientCertAndKey( string& _fullPathToDir ) {
     result = c.SignCertificate( csr );
     RETRY_END
 
-    JSONFactory::checkSGXStatus(result);
+    JSONFactory::checkSGXStatus( result );
     string certHash = JSONFactory::getString( result, "hash" );
 
     RETRY_BEGIN
     result = c.GetCertificate( certHash );
     RETRY_END
 
-    JSONFactory::checkSGXStatus(result);
+    JSONFactory::checkSGXStatus( result );
 
     string signedCert = JSONFactory::getString( result, "cert" );
     ofstream outFile;
@@ -870,7 +854,7 @@ void CryptoManager::generateSSLClientCertAndKey( string& _fullPathToDir ) {
 ptr< StubClient > CryptoManager::getSgxClient() {
     auto tid = ( uint64_t ) pthread_self();
 
-    LOCK(clientsLock);
+    LOCK( clientsLock );
 
     if ( httpClients.count( tid ) == 0 ) {
         CHECK_STATE( sgxClients.count( tid ) == 0 );
@@ -903,7 +887,7 @@ void CryptoManager::setSgxUrl( const string& sgxUrl ) {
 
 
 void CryptoManager::exitZMQClient() {
-    if (zmqClient != nullptr)
+    if ( zmqClient != nullptr )
         zmqClient->exit();
     zmqClient = nullptr;
 }

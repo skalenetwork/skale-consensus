@@ -28,14 +28,13 @@
 
 class ECDSASignRspMessage : public SgxZmqMessage {
 public:
+    ECDSASignRspMessage( shared_ptr< rapidjson::Document >& _d ) : SgxZmqMessage( _d ) {
 
-    ECDSASignRspMessage(shared_ptr <rapidjson::Document> &_d) : SgxZmqMessage(_d) {};
+    };
 
 
     string getSignature();
-
-
 };
 
 
-#endif //SGXWALLET_ECDSASIGNRSPMESSAGE_H
+#endif  // SGXWALLET_ECDSASIGNRSPMESSAGE_H
