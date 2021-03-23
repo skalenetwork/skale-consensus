@@ -116,7 +116,8 @@ jobs:
         g++-7 valgrind gawk sed libffi-dev ccache libgoogle-perftools-dev flex \
         bison yasm texinfo \
         autotools-dev autogen automake autoconf m4 shtool pkg-config sed gawk yasm nasm \
-        python python-pip libtool build-essential idn2
+        python python-pip libtool build-essential \
+        libgcrypt20-dev
 
     - name: Prepare ccache timestamp
       id: ccache_cache_timestamp
