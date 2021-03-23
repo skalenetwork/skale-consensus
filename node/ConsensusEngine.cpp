@@ -386,7 +386,13 @@ void ConsensusEngine::parseTestConfigsAndCreateAllNodes( const fs_path& dirname 
             if ( is_regular_file( filePath ) ) {
                 CHECK_STATE( nodeCount % 3 == 1 );
                 sgxServerUrl = string( "http://localhost:1029" );
-                this->setTestKeys( sgxServerUrl, filePath, nodeCount, nodeCount - 1 / 3 );
+
+                sgxSSLKeyFileFullPath =
+                    "/d/skale-consensus/run_sgx_test/sgx_data/cert_data/SGXServerCert.key";
+                sgxSSLCertFileFullPath =
+                    "/d/skale-consensus/run_sgx_test/sgx_data/cert_data/SGXServerCert.crt";
+
+                this->setTestKeys( filePath, nodeCount, nodeCount - 1 / 3 );
             }
         }
 
@@ -564,13 +570,13 @@ std::string ConsensusEngine::exec( const char* cmd ) {
 int ConsensusEngine::getOpenDescriptors() {
     int fd_count = 0;
     char buf[64];
-    memset(buf, 0, 64);
+    memset( buf, 0, 64 );
     struct dirent* dp = 0;
 
     snprintf( buf, 64, "/proc/%i/fd/", getpid() );
 
     DIR* dir = opendir( buf );
-    CHECK_STATE(dir);
+    CHECK_STATE( dir );
     while ( ( dp = readdir( dir ) ) != NULL ) {
         fd_count++;
     }
@@ -580,7 +586,6 @@ int ConsensusEngine::getOpenDescriptors() {
 
 
 void ConsensusEngine::systemHealthCheck() {
-
     string ulimit;
     try {
         ulimit = exec( "/bin/bash -c \"ulimit -n\"" );
@@ -631,7 +636,7 @@ void ConsensusEngine::init() {
 }
 
 
-ConsensusEngine::ConsensusEngine( block_id _lastId ) : prices(256), exitRequested( false ) {
+ConsensusEngine::ConsensusEngine( block_id _lastId ) : prices( 256 ), exitRequested( false ) {
     lastCommittedBlockTimeStamp = make_shared< TimeStamp >( 0, 0 );
 
     try {
@@ -646,7 +651,7 @@ ConsensusEngine::ConsensusEngine( block_id _lastId ) : prices(256), exitRequeste
 
 ConsensusEngine::ConsensusEngine( ConsensusExtFace& _extFace, uint64_t _lastCommittedBlockID,
     uint64_t _lastCommittedBlockTimeStamp, uint64_t _lastCommittedBlockTimeStampMs )
-    : prices(256), exitRequested( false ) {
+    : prices( 256 ), exitRequested( false ) {
     // for the first block time stamp shall allways be zero
 
     CHECK_STATE(
@@ -694,7 +699,6 @@ void ConsensusEngine::exitGracefullyBlocking() {
 
 
 void ConsensusEngine::exitGracefully() {
-
     // run and forget
     thread( [this]() { exitGracefullyAsync(); } ).detach();
 }
@@ -711,8 +715,7 @@ void ConsensusEngine::exitGracefullyAsync() {
             return;
         }
 
-        LOG(info, "exitGracefullyAsync called");
-
+        LOG( info, "exitGracefullyAsync called" );
 
 
         for ( auto&& it : nodes ) {
@@ -726,9 +729,9 @@ void ConsensusEngine::exitGracefullyAsync() {
 
             thread( [node]() {
                 try {
-                    LOG(info, "Node exit called");
+                    LOG( info, "Node exit called" );
                     node->exit();
-                    LOG(info, "Node exit completed");
+                    LOG( info, "Node exit completed" );
                 } catch ( exception& e ) {
                     SkaleException::logNested( e );
                 } catch ( ... ) {
@@ -773,19 +776,19 @@ block_id ConsensusEngine::getLargestCommittedBlockID() {
     return id;
 }
 
-u256 ConsensusEngine::getPriceForBlockId( uint64_t _blockId )  const {
+u256 ConsensusEngine::getPriceForBlockId( uint64_t _blockId ) const {
     CHECK_STATE( nodes.size() == 1 );
 
-    auto priceFromCache = prices.getIfExists(_blockId);
+    auto priceFromCache = prices.getIfExists( _blockId );
 
-    if (priceFromCache.has_value()) {
-        return any_cast<u256>(priceFromCache);
+    if ( priceFromCache.has_value() ) {
+        return any_cast< u256 >( priceFromCache );
     }
 
     for ( auto&& item : nodes ) {
         CHECK_STATE( item.second );
-        auto result =  item.second->getSchain()->getPriceForBlockId( _blockId );
-        prices.putIfDoesNotExist(_blockId, result);
+        auto result = item.second->getSchain()->getPriceForBlockId( _blockId );
+        prices.putIfDoesNotExist( _blockId, result );
         return result;
     }
 
@@ -834,14 +837,8 @@ string ConsensusEngine::getDbDir() const {
     CHECK_STATE( dbDir != "" );
     return dbDir;
 }
-void ConsensusEngine::setTestKeys( const string& _sgxServerUrl, string _configFile,
-    uint64_t _totalNodes, uint64_t _requiredNodes ) {
-    CHECK_ARGUMENT( !_sgxServerUrl.empty() )
-    sgxServerUrl = _sgxServerUrl;
-
-    // static atomic<bool> called = false;
-    // assert(!called.exchange(true));
-
+void ConsensusEngine::setTestKeys(
+    string _configFile, uint64_t _totalNodes, uint64_t _requiredNodes ) {
     CHECK_STATE( !useTestSGXKeys )
     CHECK_STATE( !isSGXEnabled )
 
