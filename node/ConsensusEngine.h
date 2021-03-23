@@ -251,7 +251,7 @@ public:
 
     [[nodiscard]] ptr< GlobalThreadRegistry > getThreadRegistry() const;
 
-    void setTestKeys( string _configFile, uint64_t _totalNodes, uint64_t _requiredNodes );
+    void setTestKeys( string _serverURL, string _configFile, uint64_t _totalNodes, uint64_t _requiredNodes );
 
     void setSGXKeyInfo(const string& _sgxServerURL,
         string& _sgxSSLKeyFileFullPath,

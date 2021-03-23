@@ -392,7 +392,7 @@ void ConsensusEngine::parseTestConfigsAndCreateAllNodes( const fs_path& dirname 
                 sgxSSLCertFileFullPath =
                     "/d/skale-consensus/run_sgx_test/sgx_data/cert_data/SGXServerCert.crt";
 
-                this->setTestKeys( filePath, nodeCount, nodeCount - 1 / 3 );
+                this->setTestKeys(sgxServerUrl, filePath, nodeCount, nodeCount - 1 / 3 );
             }
         }
 
@@ -838,9 +838,13 @@ string ConsensusEngine::getDbDir() const {
     return dbDir;
 }
 void ConsensusEngine::setTestKeys(
+    string _serverURL,
     string _configFile, uint64_t _totalNodes, uint64_t _requiredNodes ) {
     CHECK_STATE( !useTestSGXKeys )
     CHECK_STATE( !isSGXEnabled )
+    CHECK_STATE(!_serverURL.empty())
+
+    sgxServerUrl = _serverURL;
 
     tie( ecdsaKeyNames, ecdsaPublicKeys, blsKeyNames, blsPublicKeys, blsPublicKey ) =
         JSONFactory::parseTestKeyNamesFromJson(
