@@ -446,7 +446,7 @@ void ConsensusEngine::parseTestConfigsAndCreateAllNodes( const fs_path& dirname 
             }
 
             // cert and key file name for tests come from the config
-            readNodeConfigFileAndCreateNode( dirNames.at( j ), nodeIDs, isSGXEnabled, "", "",
+            readNodeConfigFileAndCreateNode( dirNames.at( j ), nodeIDs, isSGXEnabled, sgxSSLKeyFileFullPath, sgxSSLCertFileFullPath,
                 ecdsaKey, ecdsaPublicKeys, blsKey, blsPublicKeys, blsPublicKey );
         };
 

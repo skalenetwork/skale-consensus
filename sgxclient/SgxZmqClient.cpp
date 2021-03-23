@@ -137,7 +137,17 @@ string SgxZmqClient::doZmqRequestReply(string &_req) {
 
 string SgxZmqClient::readFileIntoString(const string &_fileName) {
     ifstream t(_fileName);
-    string str((istreambuf_iterator<char>(t)), istreambuf_iterator<char>());
+    t.exceptions(t.failbit | t.badbit | t.eofbit);
+
+    string str;
+
+    try {
+        str = string( ( istreambuf_iterator< char >( t ) ), istreambuf_iterator< char >() );
+    } catch (...) {
+        LOG(err, "Could not read file:" + _fileName);
+        throw;
+    }
+
     return str;
 }
 
