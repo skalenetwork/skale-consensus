@@ -73,8 +73,10 @@ jobs:
         g++-7 valgrind gawk sed libffi-dev ccache libgoogle-perftools-dev flex \
         bison yasm texinfo \
         autotools-dev autogen automake autoconf m4 shtool pkg-config sed gawk yasm nasm \
-        python python-pip libtool build-essential \
+        python3 python3-pip python-is-python3 \
+        libtool build-essential \
         libgcrypt20-dev
+        # python python-pip
         # wget git libargtable2-dev \
         # libmicrohttpd-dev libhiredis-dev redis-server openssl  libssl-dev >/dev/null 2>&1;
 
