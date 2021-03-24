@@ -45,6 +45,7 @@
 shared_ptr < SgxZmqMessage > SgxZmqClient::doRequestReply(Json::Value &_req) {
 
     Json::FastWriter fastWriter;
+    fastWriter.omitEndingLineFeed();
 
     if (sign) {
         CHECK_STATE(!certificate.empty());
@@ -59,11 +60,10 @@ shared_ptr < SgxZmqMessage > SgxZmqClient::doRequestReply(Json::Value &_req) {
 
     string reqStr = fastWriter.write(_req);
 
+    LOG(info, reqStr);
 
-    reqStr = reqStr.substr(0, reqStr.size() - 1);
     CHECK_STATE(reqStr.front() == '{');
     CHECK_STATE(reqStr.at(reqStr.size() - 1) == '}');
-
 
     auto resultStr = doZmqRequestReply(reqStr);
 
