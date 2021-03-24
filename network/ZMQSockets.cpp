@@ -106,8 +106,8 @@ void ZMQSockets::closeReceive() {
     LOCK(m);
 
     if(receiveSocket){
-        receiveSocket = nullptr;
         zmq_close(receiveSocket);
+        receiveSocket = nullptr;
     }
 }
 
@@ -136,9 +136,9 @@ void ZMQSockets::closeAndCleanupAll() {
 
     LOG(info, "Cleaning up ZMQ sockets");
 
-    //closeSend();
-    //closeReceive();
     zmq_ctx_shutdown(context);
+    closeSend();
+    closeReceive();
 
     LOG(info, "Closing ZMQ context");
 
