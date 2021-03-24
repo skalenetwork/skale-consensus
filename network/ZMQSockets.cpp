@@ -136,12 +136,14 @@ void ZMQSockets::closeAndCleanupAll() {
 
     LOG(info, "Cleaning up ZMQ sockets");
 
+
+    zmq_ctx_shutdown(context);
     closeSend();
     closeReceive();
-    zmq_ctx_shutdown(context);
 
     LOG(info, "Closing ZMQ context");
 
+    /*
     try {
         zmq_ctx_term(context);
     } catch(const exception& ex){
@@ -151,7 +153,7 @@ void ZMQSockets::closeAndCleanupAll() {
     } catch(...) {
         LOG(err, "Unknown exception from zmq_ctx_term");
         throw;
-    }
+    } */
 
     LOG(info, "Closed ZMQ");
 
