@@ -144,7 +144,7 @@ void ZMQSockets::closeAndCleanupAll() {
     LOG(info, "Closing ZMQ context");
 
     try {
-        zmq_ctx_term(context);
+    //    zmq_ctx_term(context);
     } catch(const exception& ex){
         LOG(err, "Exception from zmq_ctx_term");
         LOG(err, ex.what());

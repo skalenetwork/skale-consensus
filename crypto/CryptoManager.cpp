@@ -348,10 +348,10 @@ string CryptoManager::sgxSignECDSA( const ptr< BLAKE3Hash >& _hash, string& _key
 
     // temporary solution to support old servers
     if ( doesServerSupportZMQ == 0 ) {
-        ret = zmqClient->ecdsaSignMessageHash( 6, _keyName, _hash->toHex() );
+        ret = zmqClient->ecdsaSignMessageHash( 16, _keyName, _hash->toHex() );
         doesServerSupportZMQ = 1;
     } else if ( doesServerSupportZMQ == 1 ) {
-        ret = zmqClient->ecdsaSignMessageHash( 6, _keyName, _hash->toHex() );
+        ret = zmqClient->ecdsaSignMessageHash( 16, _keyName, _hash->toHex() );
     } else {
         Json::Value result;
         RETRY_BEGIN
@@ -546,17 +546,28 @@ ptr< ThresholdSigShare > CryptoManager::signSigShare(
 
     if ( getSchain()->getNode()->isSgxEnabled() && !_forceMockup ) {
         Json::Value jsonShare;
+        string ret;
 
+        // temporary solution to support old servers
+        if ( doesServerSupportZMQ == 0 ) {
+            ret = zmqClient->blsSignMessageHash(
+                getSgxBlsKeyName(), _hash->toHex(), requiredSigners, totalSigners );
+            doesServerSupportZMQ = 1;
+        } else if ( doesServerSupportZMQ == 1 ) {
+            ret = zmqClient->blsSignMessageHash(
+                getSgxBlsKeyName(), _hash->toHex(), requiredSigners, totalSigners );
+        } else {
+            RETRY_BEGIN
+            jsonShare = getSgxClient()->blsSignMessageHash(
+                getSgxBlsKeyName(), _hash->toHex(), requiredSigners, totalSigners );
+            RETRY_END
 
-        RETRY_BEGIN
-        jsonShare = getSgxClient()->blsSignMessageHash(
-            getSgxBlsKeyName(), _hash->toHex(), requiredSigners, totalSigners );
-        RETRY_END
-
-        JSONFactory::checkSGXStatus( jsonShare );
+            JSONFactory::checkSGXStatus( jsonShare );
+            ret = JSONFactory::getString( jsonShare, "signatureShare" );
+        }
 
         auto sigShare =
-            make_shared< string >( JSONFactory::getString( jsonShare, "signatureShare" ) );
+            make_shared< string >( ret );
 
         auto sig = make_shared< BLSSigShare >(
             sigShare, ( uint64_t ) getSchain()->getSchainIndex(), requiredSigners, totalSigners );
