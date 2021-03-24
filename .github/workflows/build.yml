@@ -25,7 +25,8 @@ jobs:
         sudo apt-get remove -yq cmake libjsoncpp-dev aria2 ansible azure-cli shellcheck rpm xorriso zsync \
           clang-6.0 lldb-6.0 lld-6.0 clang-format-6.0 clang-8 lldb-8 lld-8 clang-format-8 \
           clang-9 lldb-9 lld-9 clangd-9 clang-format-9 dotnet-sdk-3.0 dotnet-sdk-3.1=3.1.101-1 \
-          esl-erlang firefox g++-8 g++-9 gfortran-8 gfortran-9 google-chrome-stable >/dev/null 2>&1;
+          esl-erlang firefox g++-8 g++-9 gfortran-8 gfortran-9 google-chrome-stable \
+          || true >/dev/null 2>&1;
 
     - name: Free more disk space
       run: |
@@ -61,7 +62,8 @@ jobs:
           php7.4-tidy php7.4-xml php7.4-xmlrpc php7.4-xsl php7.4-zip php-amqp php-apcu \
           php-igbinary php-memcache php-memcached php-mongodb php-redis php-xdebug \
           php-zmq snmp pollinate libpq-dev postgresql-client powershell ruby-full \
-          sphinxsearch subversion mongodb-org || true > /dev/null 2>&1;
+          sphinxsearch subversion mongodb-org \
+          || true > /dev/null 2>&1;
 
     - name: Cleanup
       run: |
@@ -109,11 +111,16 @@ jobs:
 
     - name: install packages
       run: |
+        sudo apt-get install software-properties-common; sudo apt-add-repository universe; \
         sudo apt-get update; sudo apt-get install -y software-properties-common apt-utils libprocps-dev \
         g++-7 valgrind gawk sed libffi-dev ccache libgoogle-perftools-dev flex \
         bison yasm texinfo \
         autotools-dev autogen automake autoconf m4 shtool pkg-config sed gawk yasm nasm \
-        python python-pip libtool build-essential idn2
+        python3 python3-pip \
+        libtool build-essential \
+        libgcrypt20-dev
+        # python python-pip
+        # python-is-python3
 
     - name: Prepare ccache timestamp
       id: ccache_cache_timestamp

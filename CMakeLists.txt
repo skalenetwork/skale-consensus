@@ -35,8 +35,6 @@ include_directories("${DEPS_INSTALL_ROOT}/include" "${DEPS_INSTALL_ROOT}/include
 link_directories("${DEPS_INSTALL_ROOT}/lib")
 set(CMAKE_PREFIX_PATH "${DEPS_INSTALL_ROOT}")
 
-find_library(FF_LIBRARY NAMES "ff" PATHS "${DEPS_INSTALL_ROOT}/lib")
-
 # zeromq
 
 
@@ -193,7 +191,7 @@ SET(LINK_LIBRARIES
         "${DEPS_INSTALL_ROOT}/lib/libjsonrpccpp-common.a"
         bls # "${CMAKE_CURRENT_SOURCE_DIR}/libBLS/build/libbls.a"
         "${DEPS_INSTALL_ROOT}/lib/libzmq.a"
-        ${FF_LIBRARY}
+        ff
         "${DEPS_INSTALL_ROOT}/lib/libcryptopp.a"
         gmp
         gcov
