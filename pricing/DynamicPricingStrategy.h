@@ -28,7 +28,7 @@
 
 class DynamicPricingStrategy : public PricingStrategy {
 
-    u256 minPrice = 1000;
+    u256 minPrice = 100000;
     u256 maxPrice = pow(u256(2), 200);
     uint32_t  optimalLoadPercentage = 70;
     uint32_t  adjustmentSpeed = 1000;
