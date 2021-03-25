@@ -288,4 +288,6 @@ public:
     static void unbumpPriority();
     void startStatusServer();
     void stopStatusServer();
+    void setLastCommittedBlockId( uint64_t lastCommittedBlockId );
 };
+

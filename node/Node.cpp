@@ -258,6 +258,12 @@ void Node::startServers() {
 
     CHECK_STATE(!startedServers);
 
+    // temporarily set last committed block id to last block saved in consensus
+    // this is done to filter out old messages until last committed block id is set in
+    // bootstrap all
+    auto lastCommittedBlockIDInConsensus = getBlockDB()->readLastCommittedBlockID();
+    sChain->setLastCommittedBlockId((uint64_t ) lastCommittedBlockIDInConsensus);
+
     LOG(info, "Starting node on");
 
     LOG(trace, "Initing sockets");
@@ -343,6 +349,7 @@ void Node::setSchain(const ptr<Schain>& _schain) {
     CHECK_STATE(sChain == nullptr);
     this->sChain = _schain;
     initLevelDBs();
+
     this->inited = true;
 }
 
