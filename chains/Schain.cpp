@@ -653,6 +653,9 @@ void Schain::proposedBlockArrived( const ptr< BlockProposal >& _proposal ) {
 
 void Schain::bootstrap( block_id _lastCommittedBlockID, uint64_t _lastCommittedBlockTimeStamp,
     uint64_t _lastCommittedBlockTimeStampMs ) {
+
+    LOCK(m)
+
     LOG( info, "Bootstrapping consensus ..." );
     auto _lastCommittedBlockIDInConsensus = getNode()->getBlockDB()->readLastCommittedBlockID();
     LOG( info, "Check the consensus database for corruption ..." );
