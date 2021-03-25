@@ -119,7 +119,7 @@ void ZMQSockets::closeSend() {
             LOG(debug, getThreadName() + " zmq debug in closeSend(): closing " + to_string((uint64_t) item.second));
             zmq_close(item.second);
             item.second = nullptr;
-        }// if
+        }
     }
 }
 
