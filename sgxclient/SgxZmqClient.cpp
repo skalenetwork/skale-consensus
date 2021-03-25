@@ -46,24 +46,26 @@ shared_ptr< SgxZmqMessage > SgxZmqClient::doRequestReply( Json::Value& _req ) {
     Json::FastWriter fastWriter;
     fastWriter.omitEndingLineFeed();
 
+    string reqStr;
+
     if ( sign ) {
         CHECK_STATE( !certificate.empty() );
         CHECK_STATE( !key.empty() );
 
         _req["cert"] = certificate;
-
         string msgToSign = fastWriter.write( _req );
-
-        _req["msgSig"] = signString( pkey, msgToSign );
-
+        auto sig = signString( pkey, msgToSign );
+        CHECK_STATE(msgToSign.back() == '}');
+        msgToSign.back() = ',';
+        msgToSign.append("\"msgSig\":\"");
+        msgToSign.append(sig);
+        msgToSign.append("\"}");
+        reqStr = msgToSign;
+    } else {
+        reqStr = fastWriter.write( _req );
     }
 
-    string reqStr = fastWriter.write( _req );
-
-
     verifyMsgSig(reqStr.c_str(), reqStr.length());
-
-
 
     LOG( info, reqStr );
 
@@ -367,7 +369,7 @@ void SgxZmqClient::verifyMsgSig( const char* _msg, size_t  ) {
 
         d->Accept( w );
 
-        auto msgToVerify = buffer.GetString();
+        string msgToVerify = buffer.GetString();
 
         SgxZmqClient::verifySig( publicKey, msgToVerify, *msgSig );
     }
