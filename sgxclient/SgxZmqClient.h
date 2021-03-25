@@ -64,6 +64,8 @@ private:
     X509* x509Cert = 0;
 
 
+
+
     zmq::context_t ctx;
     bool sign = true;
     string certKeyName = "";
@@ -81,6 +83,8 @@ private:
 
     Schain* schain = nullptr;
 
+    static cache::lru_cache<string, pair < EVP_PKEY * , X509 *>> verifiedCerts;
+
     shared_ptr < SgxZmqMessage > doRequestReply(Json::Value &_req);
 
     string doZmqRequestReply(string &_req);
@@ -88,6 +92,8 @@ private:
     uint64_t getProcessID();
 
     static string readFileIntoString(const string& _fileName);
+
+
 
 public:
     SgxZmqClient(Schain* _schain, const string &_domain, uint16_t _port, bool _sign, const string&  _certPathName,
@@ -107,6 +113,9 @@ public:
     void exit();
 
     static void verifySig(EVP_PKEY* _pubkey, const string& _str, const string& _sig);
+
+    void verifyMsgSig( const char* _msg, size_t _size );
+
 
 };
 
