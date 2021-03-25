@@ -303,3 +303,8 @@ void Schain::updateLastCommittedBlockInfo( uint64_t _lastCommittedBlockID,
     tpsAverage = (blockSizeAverage * 1000 ) / blockTimeAverageMs;
 
 }
+
+
+void Schain::setLastCommittedBlockId( uint64_t _lastCommittedBlockId ) {
+    lastCommittedBlockID = _lastCommittedBlockId;
+}
