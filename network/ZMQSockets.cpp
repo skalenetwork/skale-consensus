@@ -106,8 +106,8 @@ void ZMQSockets::closeReceive() {
     LOCK(m);
 
     if(receiveSocket){
-        receiveSocket = nullptr;
         zmq_close(receiveSocket);
+        receiveSocket = nullptr;
     }
 }
 
@@ -116,8 +116,7 @@ void ZMQSockets::closeSend() {
     LOCK(m);
     for (auto &&item : sendSockets) {
         if(item.second){
-            LOG(info, getThreadName() +
-                            " Closing ZMQ socket " + to_string((uint64_t) item.second));
+            LOG(debug, getThreadName() + " zmq debug in closeSend(): closing " + to_string((uint64_t) item.second));
             zmq_close(item.second);
             item.second = nullptr;
         }// if
@@ -127,6 +126,8 @@ void ZMQSockets::closeSend() {
 
 void ZMQSockets::closeAndCleanupAll() {
 
+
+
     LOCK(m);
 
     if (terminated.exchange(true)) {
@@ -135,16 +136,12 @@ void ZMQSockets::closeAndCleanupAll() {
 
     LOG(info, "Cleaning up ZMQ sockets");
 
-
     zmq_ctx_shutdown(context);
-
     closeSend();
     closeReceive();
 
     LOG(info, "Closing ZMQ context");
 
-
-    /*
     try {
         zmq_ctx_term(context);
     } catch(const exception& ex){
@@ -155,7 +152,6 @@ void ZMQSockets::closeAndCleanupAll() {
         LOG(err, "Unknown exception from zmq_ctx_term");
         throw;
     }
-     */
 
     LOG(info, "Closed ZMQ");
 
