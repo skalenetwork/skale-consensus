@@ -106,6 +106,8 @@ public:
 
     void exit();
 
+    static void verifySig(EVP_PKEY* _pubkey, const string& _str, const string& _sig);
+
 };
 
 

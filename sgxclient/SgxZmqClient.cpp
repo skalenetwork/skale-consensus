@@ -314,3 +314,38 @@ void SgxZmqClient::exit() {
     this->ctx.shutdown();
     this->clientSockets.clear();
 }
+
+
+void SgxZmqClient::verifySig(EVP_PKEY* _pubkey, const string& _str, const string& _sig) {
+
+    CHECK_STATE(_pubkey);
+    CHECK_STATE(!_str.empty());
+
+    static std::regex r("\\s+");
+    auto msgToSign = std::regex_replace(_str, r, "");
+
+    vector<uint8_t> binSig(256,0);
+
+
+    uint64_t binLen = _sig.length() / 2;
+
+    Utils::cArrayFromHex(_sig, binSig.data(), binLen);
+
+    EVP_MD_CTX *mdctx = NULL;
+
+    CHECK_STATE(mdctx = EVP_MD_CTX_create());
+
+    CHECK_STATE((EVP_DigestVerifyInit(mdctx, NULL, EVP_sha256(), NULL, _pubkey) == 1));
+
+    CHECK_STATE(EVP_DigestVerifyUpdate(mdctx, msgToSign.c_str(), msgToSign.size()) == 1);
+
+/* First call EVP_DigestSignFinal with a NULL sig parameter to obtain the length of the
+ * signature. Length is returned in slen */
+
+
+
+    CHECK_STATE2(EVP_DigestVerifyFinal(mdctx, binSig.data(), binLen) == 1,
+                 "ZMQ_COULD_NOT_VERIFY_MSF_SIG");
+
+    if (mdctx) EVP_MD_CTX_destroy(mdctx);
+}

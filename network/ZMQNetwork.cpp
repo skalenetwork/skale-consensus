@@ -60,7 +60,6 @@ bool ZMQNetwork::sendMessage(
     void* s = sChain->getNode()->getSockets()->consensusZMQSockets->getDestinationSocket(
         _remoteNodeInfo );
 
-
     return interruptableSend( s, buf.data(), buf.size() );
 }
 
