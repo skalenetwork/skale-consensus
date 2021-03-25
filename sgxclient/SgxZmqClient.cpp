@@ -63,6 +63,8 @@ shared_ptr< SgxZmqMessage > SgxZmqClient::doRequestReply( Json::Value& _req ) {
 
     verifyMsgSig(reqStr.c_str(), reqStr.length());
 
+
+
     LOG( info, reqStr );
 
 
