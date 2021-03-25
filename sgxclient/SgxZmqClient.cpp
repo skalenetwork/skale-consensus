@@ -55,11 +55,17 @@ shared_ptr< SgxZmqMessage > SgxZmqClient::doRequestReply( Json::Value& _req ) {
         string msgToSign = fastWriter.write( _req );
 
         _req["msgSig"] = signString( pkey, msgToSign );
+
     }
 
     string reqStr = fastWriter.write( _req );
 
+
+    verifyMsgSig(reqStr.c_str(), reqStr.length());
+
     LOG( info, reqStr );
+
+
 
     CHECK_STATE( reqStr.front() == '{' );
     CHECK_STATE( reqStr.at( reqStr.size() - 1 ) == '}' );
@@ -392,7 +398,7 @@ void SgxZmqClient::verifySig( EVP_PKEY* _pubkey, const string& _str, const strin
 
 
     CHECK_STATE2( EVP_DigestVerifyFinal( mdctx, binSig.data(), binLen ) == 1,
-        "ZMQ_COULD_NOT_VERIFY_MSF_SIG" );
+        "Could not verify msg signature" );
 
     if ( mdctx )
         EVP_MD_CTX_destroy( mdctx );
