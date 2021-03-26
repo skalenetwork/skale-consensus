@@ -51,15 +51,16 @@ string TimeStamp::toString() {
     return to_string( s ) + "." + to_string( ms );
 }
 
-shared_ptr< TimeStamp > TimeStamp::getCurrentTimeStamp() {
+TimeStamp TimeStamp::getCurrentTimeStamp() {
     auto time = Time::getCurrentTimeMs();
 
     auto timeS = time / 1000;
     auto timeMS = time % 1000;
 
-    return make_shared< TimeStamp >( timeS, timeMS );
+    return TimeStamp( timeS, timeMS );
 }
-ptr< TimeStamp > TimeStamp::incrementByMs() {
+
+TimeStamp  TimeStamp::incrementByMs() {
     uint64_t sec = this->s;
     uint64_t msec = this->ms;
 
@@ -71,5 +72,5 @@ ptr< TimeStamp > TimeStamp::incrementByMs() {
         msec++;
     }
 
-    return make_shared< TimeStamp >( sec, msec );
+    return TimeStamp ( sec, msec );
 }

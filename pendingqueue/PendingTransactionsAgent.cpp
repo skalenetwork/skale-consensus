@@ -55,7 +55,7 @@ PendingTransactionsAgent::PendingTransactionsAgent( Schain& ref_sChain )
     : Agent(ref_sChain, false)  {}
 
 ptr<BlockProposal> PendingTransactionsAgent::buildBlockProposal(block_id _blockID,
-    ptr<TimeStamp> _previousBlockTimeStamp) {
+    TimeStamp& _previousBlockTimeStamp) {
 
     MICROPROFILE_ENTERI( "PendingTransactionsAgent", "sleep", MP_DIMGRAY );
     usleep(getNode()->getMinBlockIntervalMs() * 1000);
@@ -72,8 +72,8 @@ ptr<BlockProposal> PendingTransactionsAgent::buildBlockProposal(block_id _blockI
     }
     */
 
-    while (Time::getCurrentTimeMs() <= _previousBlockTimeStamp->getS() * 1000 +
-                                            _previousBlockTimeStamp->getMs()) {
+    while (Time::getCurrentTimeMs() <= _previousBlockTimeStamp.getS() * 1000 +
+                                            _previousBlockTimeStamp.getMs()) {
         usleep(10);
     }
 
@@ -82,7 +82,7 @@ ptr<BlockProposal> PendingTransactionsAgent::buildBlockProposal(block_id _blockI
     auto stamp = TimeStamp::getCurrentTimeStamp();
 
     auto myBlockProposal = make_shared<MyBlockProposal>(*sChain, _blockID, sChain->getSchainIndex(),
-            transactionList, stateRoot, stamp->getS(), stamp->getMs(), getSchain()->getCryptoManager());
+            transactionList, stateRoot, stamp.getS(), stamp.getMs(), getSchain()->getCryptoManager());
 
     LOG(trace, "Created proposal, transactions:" + to_string(transactions->size()));
 

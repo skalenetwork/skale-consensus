@@ -33,6 +33,8 @@ class TimeStamp {
     uint64_t ms = 0;
 
 public:
+
+    TimeStamp() {};
     TimeStamp( uint64_t _s, uint64_t _ms );
 
     [[nodiscard ]] uint64_t getS() const;
@@ -42,9 +44,9 @@ public:
 
     string toString();
 
-    static shared_ptr<TimeStamp> getCurrentTimeStamp();
+    static TimeStamp getCurrentTimeStamp();
 
-    ptr<TimeStamp> incrementByMs();
+    TimeStamp incrementByMs();
 
 };
 

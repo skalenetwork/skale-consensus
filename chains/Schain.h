@@ -129,7 +129,7 @@ class Schain : public Agent {
 
     atomic< uint64_t > lastCommittedBlockID = 0;
     atomic< uint64_t > lastCommitTimeMs = 0;
-    ptr< TimeStamp > lastCommittedBlockTimeStamp = 0;
+    TimeStamp  lastCommittedBlockTimeStamp;
     recursive_mutex lastCommittedBlockInfoMutex;
     atomic<uint64_t> proposalReceiptTime = 0;
 
@@ -171,10 +171,10 @@ public:
     bool isStartingFromCorruptState() const;
 
     void updateLastCommittedBlockInfo( uint64_t _lastCommittedBlockID,
-        ptr< TimeStamp > _lastCommittedBlockTimeStamp, uint64_t _blockSize );
+        TimeStamp& _lastCommittedBlockTimeStamp, uint64_t _blockSize );
 
     void initLastCommittedBlockInfo( uint64_t _lastCommittedBlockID,
-                                       ptr< TimeStamp > _lastCommittedBlockTimeStamp );
+                                       TimeStamp&  _lastCommittedBlockTimeStamp );
 
 
     uint64_t getLastCommitTimeMs();
@@ -204,7 +204,7 @@ public:
 
     static void messageThreadProcessingLoop( Schain* _sChain );
 
-    ptr< TimeStamp > getLastCommittedBlockTimeStamp();
+    TimeStamp  getLastCommittedBlockTimeStamp();
 
     void setBlockProposerTest( const string& _blockProposerTest );
 
@@ -288,4 +288,6 @@ public:
     static void unbumpPriority();
     void startStatusServer();
     void stopStatusServer();
+    void setLastCommittedBlockId( uint64_t lastCommittedBlockId );
 };
+

@@ -91,7 +91,7 @@ public:
 
     [[nodiscard]]  uint32_t getTimeStampMs() const;
 
-    [[nodiscard]] ptr<TimeStamp> getTimeStamp() const;
+    [[nodiscard]] TimeStamp getTimeStamp() const;
 
     [[nodiscard]]  schain_index getProposerIndex() const;
 
