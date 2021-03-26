@@ -72,7 +72,8 @@ PricingAgent::calculatePrice(const ConsensusExtFace::transactions_vector &_appro
     CHECK_STATE(pricingStrategy);
     try {
         if (_blockID <= 1) {
-            price = sChain->getNode()->getParamUint64(string("DYNAMIC_PRICING_START_PRICE"), 1000);
+            price = sChain->getNode()->getParamUint64(string("DYNAMIC_PRICING_START_PRICE"),
+                100000);
         } else {
             auto oldPrice = readPrice(_blockID - 1);
             price = pricingStrategy->calculatePrice(oldPrice, _approvedTransactions, _timeStamp,
