@@ -49,7 +49,7 @@ PricingAgent::PricingAgent(Schain &_sChain) : Agent(_sChain, false) {
 
    if (strategy == "DYNAMIC") {
 
-       u256 minPrice = sChain->getNode()->getParamUint64(string("DYNAMIC_PRICING_MIN_PRICE"), 1000);
+       u256 minPrice = sChain->getNode()->getParamUint64(string("DYNAMIC_PRICING_MIN_PRICE"), 100000);
        u256  maxPrice =- sChain->getNode()->getParamUint64("DYNAMIC_PRICING_MAX_PRICE", 1000000000);
        uint64_t  optimalLoadPercentage = sChain->getNode()->getParamUint64("DYNAMIC_PRICING_OPTIMAL_LOAD_PERCENTAGE", 70);
        uint64_t adjustmentSpeed = sChain->getNode()->getParamUint64("DYNAMIC_PRICING_ADJUSTMENT_SPEED", 1000);
