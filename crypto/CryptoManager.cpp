@@ -23,6 +23,8 @@
 */
 
 
+#include <boost/asio.hpp>
+
 #include "openssl/bio.h"
 
 
@@ -91,6 +93,21 @@ void CryptoManager::initSGXClient() {
                                    "Assuming SGX server does not require client certs" ) );
             }
         }
+
+        //try
+        {
+            using namespace boost::asio;
+
+            io_service io_service;
+            ip::tcp::resolver resolver( io_service );
+            ip::tcp::resolver::query query( sgxDomainName, "1031" );
+            ip::tcp::resolver::iterator iter = resolver.resolve( query );
+            ip::tcp::endpoint endpoint = iter->endpoint();
+            boost::asio::io_service s;
+            ip::tcp::socket sock( s );
+            sock.connect( endpoint );
+        }
+        //} catch (...) {};
 
 
         zmqClient = make_shared< SgxZmqClient >( sChain, sgxDomainName, 1031,
