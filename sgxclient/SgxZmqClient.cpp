@@ -67,16 +67,11 @@ shared_ptr< SgxZmqMessage > SgxZmqClient::doRequestReply( Json::Value& _req ) {
 
     verifyMsgSig(reqStr.c_str(), reqStr.length());
 
-    LOG( info, reqStr );
-
-
-
     CHECK_STATE( reqStr.front() == '{' );
     CHECK_STATE( reqStr.at( reqStr.size() - 1 ) == '}' );
 
     auto resultStr = doZmqRequestReply( reqStr );
 
-    LOG( info, resultStr );
 
     try {
         CHECK_STATE( resultStr.size() > 5 )
