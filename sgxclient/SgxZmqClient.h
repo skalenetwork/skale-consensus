@@ -83,6 +83,8 @@ private:
 
     Schain* schain = nullptr;
 
+    bool isZMQEnabled = false;
+
     static cache::lru_cache<string, pair < EVP_PKEY * , X509 *>> verifiedCerts;
 
     shared_ptr < SgxZmqMessage > doRequestReply(Json::Value &_req);

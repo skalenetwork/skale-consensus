@@ -214,7 +214,7 @@ pair< EVP_PKEY*, X509* > SgxZmqClient::readPublicKeyFromCertStr( const string& _
 };
 
 SgxZmqClient::SgxZmqClient( Schain* _sChain, const string& ip, uint16_t port, bool _sign,
-    const string& _certFileName, const string& _certKeyName )
+    const string& _certFileName, const string& _certKeyName)
     : ctx( 1 ), sign( _sign ), certKeyName( _certKeyName ), certFileName( _certFileName ) {
     CHECK_STATE( _sChain );
     this->schain = _sChain;

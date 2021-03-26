@@ -94,8 +94,10 @@ void CryptoManager::initSGXClient() {
             }
         }
 
-        //try
-        {
+
+        bool zmqEnabled = false;
+
+        try {
             using namespace boost::asio;
 
             io_service io_service;
@@ -106,12 +108,16 @@ void CryptoManager::initSGXClient() {
             boost::asio::io_service s;
             ip::tcp::socket sock( s );
             sock.connect( endpoint );
+            zmqEnabled = true;
+            LOG( info, "Found ZMQ API on SGX server.");
+        } catch ( ... ) {
+            LOG( info, "Could not connect to ZMQ API. Assuming legacy SGX server" );
+        };
+
+        if (zmqEnabled) {
+            zmqClient = make_shared< SgxZmqClient >( sChain, sgxDomainName, 1031,
+                this->isSSLCertEnabled, sgxSSLCertFileFullPath, sgxSSLKeyFileFullPath );
         }
-        //} catch (...) {};
-
-
-        zmqClient = make_shared< SgxZmqClient >( sChain, sgxDomainName, 1031,
-            this->isSSLCertEnabled, sgxSSLCertFileFullPath, sgxSSLKeyFileFullPath );
     }
 }
 ptr< BLSPublicKey > CryptoManager::getSgxBlsPublicKey() {
@@ -364,10 +370,7 @@ string CryptoManager::sgxSignECDSA( const ptr< BLAKE3Hash >& _hash, string& _key
     string ret;
 
     // temporary solution to support old servers
-    if ( doesServerSupportZMQ == 0 ) {
-        ret = zmqClient->ecdsaSignMessageHash( 16, _keyName, _hash->toHex() );
-        doesServerSupportZMQ = 1;
-    } else if ( doesServerSupportZMQ == 1 ) {
+    if (zmqClient) {
         ret = zmqClient->ecdsaSignMessageHash( 16, _keyName, _hash->toHex() );
     } else {
         Json::Value result;
@@ -566,11 +569,7 @@ ptr< ThresholdSigShare > CryptoManager::signSigShare(
         string ret;
 
         // temporary solution to support old servers
-        if ( doesServerSupportZMQ == 0 ) {
-            ret = zmqClient->blsSignMessageHash(
-                getSgxBlsKeyName(), _hash->toHex(), requiredSigners, totalSigners );
-            doesServerSupportZMQ = 1;
-        } else if ( doesServerSupportZMQ == 1 ) {
+        if (zmqClient) {
             ret = zmqClient->blsSignMessageHash(
                 getSgxBlsKeyName(), _hash->toHex(), requiredSigners, totalSigners );
         } else {
@@ -583,8 +582,7 @@ ptr< ThresholdSigShare > CryptoManager::signSigShare(
             ret = JSONFactory::getString( jsonShare, "signatureShare" );
         }
 
-        auto sigShare =
-            make_shared< string >( ret );
+        auto sigShare = make_shared< string >( ret );
 
         auto sig = make_shared< BLSSigShare >(
             sigShare, ( uint64_t ) getSchain()->getSchainIndex(), requiredSigners, totalSigners );
