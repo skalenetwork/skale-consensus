@@ -195,7 +195,8 @@ Schain::Schain( weak_ptr< Node > _node, schain_index _schainIndex, const schain_
       consensusMessageThreadPool( new SchainMessageThreadPool( this ) ),
       node( _node ),
       schainIndex( _schainIndex ) {
-    lastCommittedBlockTimeStamp = make_shared< TimeStamp >( 0, 0 );
+
+    lastCommittedBlockTimeStamp = TimeStamp( 0, 0 );
 
     // construct monitoring and timeout agents early
     monitoringAgent = make_shared< MonitoringAgent >( *this );
@@ -293,7 +294,7 @@ void Schain::blockCommitsArrivedThroughCatchup( const ptr< CommittedBlockList >&
         CHECK_STATE( block );
 
         if ( ( uint64_t ) block->getBlockID() == ( getLastCommittedBlockID() + 1 ) ) {
-            CHECK_STATE( *getLastCommittedBlockTimeStamp() < *block->getTimeStamp() );
+            CHECK_STATE( getLastCommittedBlockTimeStamp() < block->getTimeStamp() );
             processCommittedBlock( block );
         }
     }
@@ -339,7 +340,7 @@ void Schain::blockCommitArrived( block_id _committedBlockID, schain_index _propo
 
         auto newCommittedBlock = CommittedBlock::makeObject( committedProposal, _thresholdSig );
 
-        CHECK_STATE( *getLastCommittedBlockTimeStamp() < *newCommittedBlock->getTimeStamp() );
+        CHECK_STATE( getLastCommittedBlockTimeStamp() < newCommittedBlock->getTimeStamp() );
 
 
         processCommittedBlock( newCommittedBlock );
@@ -375,10 +376,10 @@ void Schain::proposeNextBlock() {
             myProposal = getNode()->getBlockProposalDB()->getBlockProposal(
                 _proposedBlockID, getSchainIndex() );
         } else {
+            auto stamp = getLastCommittedBlockTimeStamp();
             myProposal = pendingTransactionsAgent->buildBlockProposal(
-                _proposedBlockID, lastCommittedBlockTimeStamp );
+                _proposedBlockID, stamp);
         }
-
 
         CHECK_STATE( myProposal );
 
@@ -448,7 +449,7 @@ void Schain::processCommittedBlock( const ptr< CommittedBlock >& _block ) {
 
         auto h = _block->getHash()->toHex().substr( 0, 8 );
 
-        auto stamp = make_shared< TimeStamp >( _block->getTimeStampS(), _block->getTimeStampMs() );
+        auto stamp = TimeStamp( _block->getTimeStampS(), _block->getTimeStampMs() );
 
         LOG( info,
             "BLOCK_COMMIT: PRPSR:" + to_string( _block->getProposerIndex() ) +
@@ -471,7 +472,7 @@ void Schain::processCommittedBlock( const ptr< CommittedBlock >& _block ) {
                 ":FDS:" + to_string( ConsensusEngine::getOpenDescriptors() ) + ":PRT:" +
                 to_string( proposalReceiptTime ) + ":BTA:" + to_string( blockTimeAverageMs ) +
                 ":BSA:" + to_string( blockSizeAverage ) + ":TPS:" + to_string( tpsAverage ) +
-                ":STAMP:" + stamp->toString() );
+                ":STAMP:" + stamp.toString() );
 
         proposalReceiptTime = 0;
 
@@ -725,10 +726,10 @@ void Schain::bootstrap( block_id _lastCommittedBlockID, uint64_t _lastCommittedB
 
         ptr< BlockProposal > committedProposal = nullptr;
 
+        TimeStamp stamp(
+            _lastCommittedBlockTimeStamp, _lastCommittedBlockTimeStampMs );
 
-        initLastCommittedBlockInfo( ( uint64_t ) _lastCommittedBlockID,
-            make_shared< TimeStamp >(
-                _lastCommittedBlockTimeStamp, _lastCommittedBlockTimeStampMs ) );
+        initLastCommittedBlockInfo( ( uint64_t ) _lastCommittedBlockID, stamp);
 
 
         LOG( info, "Jump starting the system with block:" + to_string( _lastCommittedBlockID ) );
@@ -848,12 +849,13 @@ void Schain::constructServers( const ptr< Sockets >& _sockets ) {
 }
 
 ptr< BlockProposal > Schain::createDefaultEmptyBlockProposal( block_id _blockId ) {
-    CHECK_STATE( lastCommittedBlockTimeStamp );
 
-    auto newStamp = lastCommittedBlockTimeStamp->incrementByMs();
+        LOCK( lastCommittedBlockInfoMutex );
+
+        auto newStamp = getLastCommittedBlockTimeStamp().incrementByMs();
 
     return make_shared< ReceivedBlockProposal >(
-        *this, _blockId, newStamp->getS(), newStamp->getMs(), 0 );
+        *this, _blockId, newStamp.getS(), newStamp.getMs(), 0 );
 }
 
 

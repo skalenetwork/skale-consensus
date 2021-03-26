@@ -578,11 +578,11 @@ ptr< Header > BlockProposalServerAgent::createProposalResponseHeader(
         return responseHeader;
     }
 
-    auto timeStamp = make_shared< TimeStamp >( _header.getTimeStamp(), _header.getTimeStampMs() );
+    auto timeStamp = TimeStamp( _header.getTimeStamp(), _header.getTimeStampMs() );
 
-    if ( !( *sChain->getLastCommittedBlockTimeStamp() < *timeStamp ) ) {
+    if ( !( sChain->getLastCommittedBlockTimeStamp() < timeStamp ) ) {
         LOG( info, "Timestamp is less or equal prev block:" + to_string( _header.getTimeStamp() ) +
-                       ":vs:" + sChain->getLastCommittedBlockTimeStamp()->toString() );
+                       ":vs:" + sChain->getLastCommittedBlockTimeStamp().toString() );
 
         responseHeader->setStatusSubStatus(
             CONNECTION_DISCONNECT, CONNECTION_ERROR_TIME_STAMP_EARLIER_THAN_COMMITTED );

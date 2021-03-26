@@ -179,8 +179,8 @@ uint64_t Schain::getTotalTransactions() const {
     return totalTransactions;
 }
 
-ptr<TimeStamp>  Schain::getLastCommittedBlockTimeStamp() {
-    CHECK_STATE(lastCommittedBlockTimeStamp);
+TimeStamp  Schain::getLastCommittedBlockTimeStamp() {
+    LOCK(lastCommittedBlockInfoMutex);
     return lastCommittedBlockTimeStamp;
 }
 
@@ -267,7 +267,7 @@ uint64_t Schain::getLastCommitTimeMs() {
 
 
 void Schain::initLastCommittedBlockInfo( uint64_t _lastCommittedBlockID,
-                                           ptr< TimeStamp > _lastCommittedBlockTimeStamp ){
+                                           TimeStamp& _lastCommittedBlockTimeStamp ){
 
     LOCK(lastCommittedBlockInfoMutex);
     lastCommittedBlockID = _lastCommittedBlockID;
@@ -278,16 +278,16 @@ void Schain::initLastCommittedBlockInfo( uint64_t _lastCommittedBlockID,
 
 
 void Schain::updateLastCommittedBlockInfo( uint64_t _lastCommittedBlockID,
-                                   ptr< TimeStamp > _lastCommittedBlockTimeStamp,
+                                   TimeStamp& _lastCommittedBlockTimeStamp,
                                    uint64_t _blockSize){
     LOCK(lastCommittedBlockInfoMutex);
-    CHECK_STATE(_lastCommittedBlockTimeStamp);
-    CHECK_STATE(_lastCommittedBlockID == lastCommittedBlockID + 1)
-    if (*_lastCommittedBlockTimeStamp < *_lastCommittedBlockTimeStamp) {
-        LOG(err, "TimeStamp in the past:"+ lastCommittedBlockTimeStamp->toString() +
-            ":"+ _lastCommittedBlockTimeStamp->toString());
+    CHECK_STATE(
+                _lastCommittedBlockID == lastCommittedBlockID + 1)
+    if (_lastCommittedBlockTimeStamp < _lastCommittedBlockTimeStamp) {
+        LOG(err, "TimeStamp in the past:"+ lastCommittedBlockTimeStamp.toString() +
+            ":"+ _lastCommittedBlockTimeStamp.toString());
     }
-    CHECK_STATE(*lastCommittedBlockTimeStamp < *_lastCommittedBlockTimeStamp);
+    CHECK_STATE(getLastCommittedBlockTimeStamp() < _lastCommittedBlockTimeStamp);
     auto currentTime = Time::getCurrentTimeMs();
     CHECK_STATE(currentTime >= lastCommitTimeMs);
 
