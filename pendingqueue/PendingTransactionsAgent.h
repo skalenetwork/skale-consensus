@@ -98,7 +98,7 @@ public:
 
     ptr<Transaction> getKnownTransactionByPartialHash(ptr<partial_sha_hash> hash);
 
-    ptr<BlockProposal> buildBlockProposal(block_id _blockID, ptr<TimeStamp> _timeStamp);
+    ptr<BlockProposal> buildBlockProposal(block_id _blockID, TimeStamp& _timeStamp);
 
     ~PendingTransactionsAgent() override = default;
 
