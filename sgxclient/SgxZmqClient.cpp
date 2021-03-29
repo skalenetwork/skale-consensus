@@ -46,6 +46,9 @@ shared_ptr< SgxZmqMessage > SgxZmqClient::doRequestReply( Json::Value& _req ) {
     Json::FastWriter fastWriter;
     fastWriter.omitEndingLineFeed();
 
+    static uint64_t  i = 0;
+
+
     string reqStr;
 
     if ( sign ) {
@@ -65,7 +68,11 @@ shared_ptr< SgxZmqMessage > SgxZmqClient::doRequestReply( Json::Value& _req ) {
         reqStr = fastWriter.write( _req );
     }
 
-    verifyMsgSig(reqStr.c_str(), reqStr.length());
+    if (i % 10 == 0) { // verify each 10th sig
+        verifyMsgSig( reqStr.c_str(), reqStr.length() );
+    }
+
+    i++;
 
     CHECK_STATE( reqStr.front() == '{' );
     CHECK_STATE( reqStr.at( reqStr.size() - 1 ) == '}' );
@@ -197,10 +204,10 @@ pair< EVP_PKEY*, X509* > SgxZmqClient::readPublicKeyFromCertStr( const string& _
 
     BIO* bo = BIO_new( BIO_s_mem() );
     CHECK_STATE( bo );
-    BIO_write( bo, _certStr.c_str(), _certStr.size() );
+    CHECK_STATE(BIO_write( bo, _certStr.c_str(), _certStr.size() > 0));
 
     X509* cert = nullptr;
-    PEM_read_bio_X509( bo, &cert, 0, 0 );
+    CHECK_STATE(PEM_read_bio_X509( bo, &cert, 0, 0 ));
     CHECK_STATE( cert );
     auto key = X509_get_pubkey( cert );
     BIO_free( bo );
@@ -231,8 +238,8 @@ SgxZmqClient::SgxZmqClient( Schain* _sChain, const string& ip, uint16_t port, bo
         BIO_write( bo, key.c_str(), key.size() );
 
         PEM_read_bio_PrivateKey( bo, &pkey, 0, 0 );
-        CHECK_STATE( pkey );
         BIO_free( bo );
+        CHECK_STATE( pkey );
 
         auto pubKeyStr = readFileIntoString( _certFileName );
         CHECK_STATE( !pubKeyStr.empty() );
@@ -260,7 +267,6 @@ void SgxZmqClient::reconnect() {
     if ( clientSockets.count( pid ) > 0 ) {
         clientSockets.erase( pid );
     }
-
 
     char identity[10];
     getrandom( identity, 10, 0 );
