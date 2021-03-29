@@ -57,6 +57,7 @@ bool ZMQNetwork::sendMessage(
 
     auto buf = _msg->serializeToString();
 
+    getSchain()->getNode()->exitCheck();
     void* s = sChain->getNode()->getSockets()->consensusZMQSockets->getDestinationSocket(
         _remoteNodeInfo );
 
@@ -83,7 +84,7 @@ uint64_t ZMQNetwork::interruptableRecv( void* _socket, void* _buf, size_t _len )
         do {
             pollResult = zmq_poll(items, 1, 1000);
             if (this->getNode()->isExitRequested()) {
-                zmq_close(_socket);
+                //zmq_close(_socket);
                 BOOST_THROW_EXCEPTION( ExitRequestedException( __CLASS_NAME__ ) );
             }
         } while (pollResult == 0);
@@ -91,7 +92,7 @@ uint64_t ZMQNetwork::interruptableRecv( void* _socket, void* _buf, size_t _len )
         rc = zmq_recv( _socket, _buf, _len, 0 );
 
         if ( this->getNode()->isExitRequested() ) {
-            zmq_close(_socket);
+            //zmq_close(_socket);
             LOG( debug,
                 getThreadName() + " zmq debug: closing = " + to_string( ( uint64_t ) _socket ) );
             BOOST_THROW_EXCEPTION( ExitRequestedException( __CLASS_NAME__ ) );
@@ -123,7 +124,7 @@ bool ZMQNetwork::interruptableSend( void* _socket, void* _buf, size_t _len ) {
 
     if ( this->getNode()->isExitRequested() ) {
         LOG( debug, getThreadName() + "zmq debug: closing = " + to_string( ( uint64_t ) _socket ) );
-        zmq_close( _socket );
+        //zmq_close( _socket );
         BOOST_THROW_EXCEPTION( ExitRequestedException( __CLASS_NAME__ ) );
     }
 
@@ -140,6 +141,7 @@ bool ZMQNetwork::interruptableSend( void* _socket, void* _buf, size_t _len ) {
 }
 
 uint64_t ZMQNetwork::readMessageFromNetwork( const ptr< Buffer > buf ) {
+    getSchain()->getNode()->exitCheck();
     auto s = sChain->getNode()->getSockets()->consensusZMQSockets->getReceiveSocket();
 
     auto rc = interruptableRecv( s, buf->getBuf()->data(), MAX_CONSENSUS_MESSAGE_LEN );

@@ -107,7 +107,6 @@ void ZMQSockets::closeReceive() {
 
     if(receiveSocket){
         zmq_close(receiveSocket);
-        receiveSocket = nullptr;
     }
 }
 
@@ -118,7 +117,6 @@ void ZMQSockets::closeSend() {
         if(item.second){
             LOG(debug, getThreadName() + " zmq debug in closeSend(): closing " + to_string((uint64_t) item.second));
             zmq_close(item.second);
-            item.second = nullptr;
         }// if
     }
 }
