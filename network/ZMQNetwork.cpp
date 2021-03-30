@@ -72,12 +72,18 @@ uint64_t ZMQNetwork::interruptableRecv( void* _socket, void* _buf, size_t _len )
     int rc;
 
 
+/*
+
     zmq_pollitem_t items[1];
     items[0].socket = _socket;
     items[0].events = ZMQ_POLLIN;
 
+    */
+
 
     for ( ;; ) {
+
+        /*
 
         int pollResult = 0;
 
@@ -88,6 +94,8 @@ uint64_t ZMQNetwork::interruptableRecv( void* _socket, void* _buf, size_t _len )
                 BOOST_THROW_EXCEPTION( ExitRequestedException( __CLASS_NAME__ ) );
             }
         } while (pollResult == 0);
+
+         */
 
         rc = zmq_recv( _socket, _buf, _len, 0 );
 
