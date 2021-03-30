@@ -335,6 +335,7 @@ string CryptoManager::sgxSignECDSA( const ptr< BLAKE3Hash >& _hash, string& _key
     Json::Value result;
 
     RETRY_BEGIN
+    getSchain()->getNode()->exitCheck();
     result = getSgxClient()->ecdsaSignMessageHash( 16, _keyName, _hash->toHex() );
     RETRY_END
 
@@ -536,6 +537,7 @@ ptr< ThresholdSigShare > CryptoManager::signSigShare(
 
 
         RETRY_BEGIN
+        getSchain()->getNode()->exitCheck();
         jsonShare = getSgxClient()->blsSignMessageHash(
             getSgxBlsKeyName(), _hash->toHex(), requiredSigners, totalSigners );
         RETRY_END

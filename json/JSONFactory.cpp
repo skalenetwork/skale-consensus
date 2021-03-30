@@ -461,6 +461,7 @@ JSONFactory::parseTestKeyNamesFromJson(const string& _sgxServerURL, const fs_pat
     for ( uint64_t i = 0; i < _requiredNodes; i++ ) {
         {
             RETRY_BEGIN
+
             blsSigShares.at( i ) = c.blsSignMessageHash(
                 blsKeyNames->at( i ), SAMPLE_HASH, _requiredNodes, _totalNodes);
             RETRY_END
