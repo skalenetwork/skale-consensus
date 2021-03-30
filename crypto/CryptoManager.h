@@ -219,7 +219,7 @@ public:
 
 };
 
-#define RETRY_BEGIN                       \
+#define RETRY_BEGIN \
     CryptoManager::setRetryHappened(false); \
     while ( true ) {                      \
         try {
