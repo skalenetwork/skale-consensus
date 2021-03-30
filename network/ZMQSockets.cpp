@@ -134,9 +134,14 @@ void ZMQSockets::closeAndCleanupAll() {
 
     LOG(info, "Cleaning up ZMQ sockets");
 
-    zmq_ctx_shutdown(context);
-    closeSend();
-    closeReceive();
+    try {
+        closeSend();
+        closeReceive();
+    } catch (const exception& e) {
+        LOG(err, "Exception in zmq socket close:" + string(e.what()));
+        throw;
+    }
+
 
     LOG(info, "Closing ZMQ context");
 
