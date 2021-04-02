@@ -33,7 +33,7 @@ class CryptoManager;
 
 class BlockDB : public CacheLevelDB {
 
-    recursive_mutex m;
+    shared_mutex m;
 
     void saveBlock2LevelDB(const ptr<CommittedBlock> &_block);
 

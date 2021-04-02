@@ -86,8 +86,6 @@ bool
 ProposalHashDB::haveProposal(block_id _proposalBlockID, schain_index _proposerIndex) {
 
 
-    lock_guard<recursive_mutex> lock(m);
-
     try {
 
         auto key = createKey(_proposalBlockID, _proposerIndex);

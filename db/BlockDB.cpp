@@ -64,7 +64,7 @@ void BlockDB::saveBlock2LevelDB(const ptr<CommittedBlock> &_block) {
     CHECK_ARGUMENT(_block);
     CHECK_ARGUMENT(_block->getSignature() != "");
 
-    LOCK(m)
+    lock_guard<shared_mutex> lock(m);
 
     try {
 
@@ -104,9 +104,7 @@ void BlockDB::saveBlock(const ptr<CommittedBlock> &_block) {
     CHECK_ARGUMENT(_block->getSignature() != "");
 
     try {
-        LOCK(m)
         saveBlock2LevelDB(_block);
-
     } catch (...) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
@@ -118,7 +116,7 @@ ptr<CommittedBlock> BlockDB::getBlock(block_id _blockID, const ptr<CryptoManager
 
     CHECK_ARGUMENT(_cryptoManager);
 
-    std::lock_guard<std::recursive_mutex> lock(m);
+    shared_lock<shared_mutex> lock(m);
 
     try {
 
