@@ -34,6 +34,8 @@
 
 ptr<vector<uint8_t> > BlockDB::getSerializedBlockFromLevelDB(block_id _blockID) {
 
+    shared_lock<shared_mutex> lock(m);
+
     try {
 
         auto key = createKey(_blockID);
@@ -99,7 +101,6 @@ const string& BlockDB::getFormatVersion() {
 
 void BlockDB::saveBlock(const ptr<CommittedBlock> &_block) {
 
-
     CHECK_ARGUMENT(_block);
     CHECK_ARGUMENT(_block->getSignature() != "");
 
@@ -140,6 +141,8 @@ ptr<CommittedBlock> BlockDB::getBlock(block_id _blockID, const ptr<CryptoManager
 
 block_id BlockDB::readLastCommittedBlockID() {
 
+    shared_lock<shared_mutex> lock(m);
+
     uint64_t  lastBlockId;
 
     auto key = createLastCommittedKey();
@@ -155,6 +158,9 @@ block_id BlockDB::readLastCommittedBlockID() {
 }
 
 bool BlockDB::unfinishedBlockExists( block_id  _blockID) {
+
+    shared_lock<shared_mutex> lock(m);
+
     auto key = createBlockStartKey(_blockID);
     auto str = readString(key);
 
@@ -165,8 +171,3 @@ bool BlockDB::unfinishedBlockExists( block_id  _blockID) {
 }
 
 
-void BlockDB::recordBlockProcessingStart( block_id  _blockID) {
-        auto time = Time::getCurrentTimeMs();
-        auto key = createBlockStartKey( _blockID );
-        this->writeString(key, to_string(time), true);
-}
