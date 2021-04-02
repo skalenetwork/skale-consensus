@@ -47,8 +47,6 @@ MsgDB::saveMsg(const ptr<NetworkMessage>& _msg) {
 
     CHECK_ARGUMENT(_msg);
 
-    lock_guard<recursive_mutex> lock(m);
-
     try {
 
         auto serialized = _msg->serializeToString();
@@ -80,7 +78,6 @@ ptr<vector<ptr<NetworkMessage>>> MsgDB::getMessages(block_id _blockID) {
 
     auto result = make_shared<vector<ptr<NetworkMessage>>>();
 
-    lock_guard<recursive_mutex> lock(m);
 
     try {
 

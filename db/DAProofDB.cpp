@@ -68,8 +68,6 @@ ptr<BooleanProposalVector> DAProofDB::addDAProof(const ptr<DAProof>& _daProof) {
 
     CHECK_ARGUMENT(_daProof)
 
-    LOCK(daProofMutex)
-
     LOG(trace, "Adding daProof");
 
     auto daProofSet = this->writeStringToSet(_daProof->getThresholdSig()->toString(),
@@ -89,8 +87,6 @@ ptr<BooleanProposalVector> DAProofDB::addDAProof(const ptr<DAProof>& _daProof) {
 
 
 ptr<BooleanProposalVector> DAProofDB::getCurrentProposalVector(block_id _blockID) {
-
-    LOCK(daProofMutex)
 
     LOG(trace, "Getting current proposal vector");
 
