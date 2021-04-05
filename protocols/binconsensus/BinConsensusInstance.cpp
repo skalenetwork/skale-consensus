@@ -22,8 +22,12 @@
 */
 
 
+
+
 #include "SkaleCommon.h"
 #include "Log.h"
+
+#include "crypto/BLAKE3Hash.h"
 #include "blockproposal/pusher/BlockProposalClientAgent.h"
 #include "chains/Schain.h"
 #include "crypto/ConsensusBLSSigShare.h"
@@ -89,6 +93,8 @@ void BinConsensusInstance::processMessage(const ptr<MessageEnvelope>& _me ) {
 
 void BinConsensusInstance::ifAlreadyDecidedSendDelayedEstimateForNextRound(bin_consensus_round _round) {
     if (isDecided && _round == getCurrentRound() + 1 && isTwoThird(totalAUXVotes(getCurrentRound()))) {
+        LOG(debug,
+            to_string(getBlockProposerIndex()) + ":NEW_ROUND_REQUESTED:BLOCK:" + to_string(blockID) + ":ROUND:" + to_string(getCurrentRound() + 1));
         proceedWithNewRound(decidedValue);
     }
 }
@@ -413,8 +419,18 @@ void BinConsensusInstance::proceedWithCommonCoinIfAUXTwoThird(bin_consensus_roun
         if (getSchain()->getNode()->isSgxEnabled() && ((uint64_t) _r) > 3) {
             random = this->calculateBLSRandom(_r);
         } else {
-            srand((uint64_t) _r + (uint64_t) getBlockID() * 123456);
-            random = rand();
+
+            string key = to_string((uint64_t )getBlockID()) + ":" +
+                         to_string((uint64_t)_r) + ":" +
+                         to_string((uint64_t) getBlockProposerIndex());
+
+            auto  d = make_shared<vector<uint8_t>>();
+
+            for (uint64_t z = 0; z < key.length(); z++ ) {
+                d->push_back(key.at(z));
+            }
+            auto hash = BLAKE3Hash::calculateHash(d);
+            random = *((uint64_t*) hash->data());
         }
 
         auto randomDB = getSchain()->getNode()->getRandomDB();
@@ -434,7 +450,8 @@ void BinConsensusInstance::proceedWithCommonCoin(bool _hasTrue, bool _hasFalse, 
 
     CHECK_STATE(!isDecided);
 
-    LOG(debug, "ROUND_COMPLETE:BLOCK:" + to_string(blockID) + ":ROUND:" + to_string(getCurrentRound()));
+    LOG(debug,
+        to_string(getBlockProposerIndex()) + "ROUND_COMPLETE:BLOCK:" + to_string(blockID) + ":ROUND:" + to_string(getCurrentRound()));
 
     bin_consensus_value random(_random % 2 == 0);
 
@@ -442,7 +459,8 @@ void BinConsensusInstance::proceedWithCommonCoin(bool _hasTrue, bool _hasFalse, 
 
 
     if (_hasTrue && _hasFalse) {
-        LOG(debug, "NEW ROUND:BLOCK:" + to_string(blockID) + ":ROUND:" + to_string(getCurrentRound()));
+        LOG(debug,
+            to_string(getBlockProposerIndex()) + ":NEW ROUND:BLOCK:" + to_string(blockID) + ":ROUND:" + to_string(getCurrentRound() + 1));
         proceedWithNewRound(random);
         return;
     } else {
@@ -450,10 +468,12 @@ void BinConsensusInstance::proceedWithCommonCoin(bool _hasTrue, bool _hasFalse, 
         bin_consensus_value v(_hasTrue);
 
         if (v == random) {
-            LOG(debug, "DECIDED VALUE" + to_string(blockID) + ":ROUND:" + to_string(getCurrentRound()));
+            LOG(debug,
+                to_string(getBlockProposerIndex()) + ":DECIDED VALUE" + to_string(blockID) + ":ROUND:" + to_string(getCurrentRound()));
             decide(v);
         } else {
-            LOG(debug, "NEW ROUND:BLOCK:" + to_string(blockID) + ":ROUND:" + to_string(getCurrentRound()));
+            LOG(debug,
+                to_string(getBlockProposerIndex()) +":NEW ROUND:BLOCK:" + to_string(blockID) + ":ROUND:" + to_string(getCurrentRound()));
             proceedWithNewRound(v);
         }
     }
@@ -503,9 +523,27 @@ void BinConsensusInstance::printHistory() {
 #endif
 }
 
-void BinConsensusInstance::addDecideToGlobalHistory(bin_consensus_value _decidedValue) {
+
+void BinConsensusInstance::logGlobalStats() {
+    string stats = "Decided round stats:";
+    for (uint64_t i = 0; i < globalDecidedRoundStats.size(); i++) {
+        stats.append(":");
+        stats.append(to_string(globalDecidedRoundStats.at(i)));
+    }
+
+    LOG(info, stats);
+}
+
+void BinConsensusInstance::addDecideToGlobalHistory(bin_consensus_round _r, bin_consensus_value _decidedValue) {
 
         lock_guard<recursive_mutex> lock(historyMutex);
+
+
+        if (_r < globalDecidedRoundStats.size()) {
+            globalDecidedRoundStats.at( ( uint64_t ) _r ) =
+                globalDecidedRoundStats.at( ( uint64_t ) _r ) + 1;
+        }
+
 
         auto trueCache = globalTrueDecisions->at((uint64_t)getBlockProposerIndex() - 1);
         auto falseCache = globalFalseDecisions->at((uint64_t)getBlockProposerIndex() - 1);
@@ -543,14 +581,15 @@ void BinConsensusInstance::decide(bin_consensus_value _b) {
 
     setDecidedRoundAndValue(getCurrentRound(), bin_consensus_value(_b));
 
-    addDecideToGlobalHistory(decidedValue);
+    addDecideToGlobalHistory(getCurrentRound(), decidedValue);
 
     auto msg = make_shared<ChildBVDecidedMessage>((bool) _b, *this, this->getProtocolKey(),
                                                   this->getCurrentRound(), maxProcessingTimeMs,
                                                   maxLatencyTimeMs);
 
 
-    LOG(debug, "Decided value: " + to_string(decidedValue) + " for blockid:" +
+    LOG(debug,
+        "Decided value: " + to_string(decidedValue) + " for blockid:" +
                to_string(getBlockID()) + " proposer:" +
                to_string(getBlockProposerIndex()));
 
@@ -672,6 +711,11 @@ ptr<vector<ptr<cache::lru_cache<uint64_t, ptr<BinConsensusInstance>>>>> BinConse
 
 ptr<vector<ptr<cache::lru_cache<uint64_t, ptr<BinConsensusInstance>>>>>  BinConsensusInstance::globalFalseDecisions = nullptr;
 
+vector<uint64_t> BinConsensusInstance::globalDecidedRoundStats(16,0);
+
+
+
+
 #ifdef CONSENSUS_DEBUG
 ptr<list<ptr<NetworkMessage>>> BinConsensusInstance::msgHistory = nullptr;
 #endif
@@ -708,7 +752,9 @@ uint64_t BinConsensusInstance::calculateBLSRandom(bin_consensus_round _r) {
 
     auto random = shares->mergeSignature()->getRandom();
 
-    LOG(debug, "Random for round: " + to_string(_r) + ":" + to_string(random));
+    LOG(debug,
+        to_string(getBlockProposerIndex()) +
+        ":Random for round: " + to_string(_r) + ":" + to_string(random));
 
     return random;
 }

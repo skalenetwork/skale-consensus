@@ -73,6 +73,10 @@ class BinConsensusInstance : public ProtocolInstance{
     static ptr<vector<ptr<cache::lru_cache<uint64_t, ptr<BinConsensusInstance>>>>> globalFalseDecisions;
 
 
+    // non-essential globalRoundStats
+    static vector<uint64_t> globalDecidedRoundStats;
+
+
     // non-essential tracing data tracing proposals for each round
     map  <bin_consensus_round, bin_consensus_value> proposals;
 
@@ -174,7 +178,7 @@ class BinConsensusInstance : public ProtocolInstance{
 
     uint64_t calculateBLSRandom(bin_consensus_round _r);
 
-    void addDecideToGlobalHistory(bin_consensus_value _decidedValue);
+    void addDecideToGlobalHistory(bin_consensus_round _r, bin_consensus_value _decidedValue);
 
     void setCurrentRound(bin_consensus_round _currentRound);
 
@@ -211,6 +215,8 @@ public:
     static void initHistory(node_count _nodeCount);
 
     void initFromDB(const BlockConsensusAgent *_instance);
+
+    static void logGlobalStats();
 
 };
 

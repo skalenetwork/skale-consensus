@@ -33,7 +33,7 @@ blake3_hasher_update(&__HASH__, reinterpret_cast<uint8_t*>(&__OBJECT__),sizeof(_
 
 #define HASH_FINAL(__HASH__, __OBJECT__) blake3_hasher_finalize(& __HASH__, __OBJECT__, BLAKE3_OUT_LEN);
 
-
+using namespace std;
 
 class BLAKE3Hash {
 
