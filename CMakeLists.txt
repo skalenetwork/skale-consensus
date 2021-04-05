@@ -31,7 +31,8 @@ add_subdirectory(libBLS)
 
 project(consensus)
 
-include_directories("${DEPS_INSTALL_ROOT}/include" "${DEPS_INSTALL_ROOT}/include/cryptopp")
+include_directories("${DEPS_INSTALL_ROOT}/include" "${DEPS_INSTALL_ROOT}/include/cryptopp"
+        "cppzmq")
 link_directories("${DEPS_INSTALL_ROOT}/lib")
 set(CMAKE_PREFIX_PATH "${DEPS_INSTALL_ROOT}")
 
@@ -51,7 +52,7 @@ find_package(leveldb CONFIG REQUIRED)
 
 
 set(CMAKE_CXX_STANDARD 17)
-add_compile_options(-Wall -Wextra -Werror)
+add_compile_options(-Wall -Wextra -Werror -Wno-error=deprecated-declarations)
 add_definitions("-DZMQ_BUILD_DRAFT_API")
 add_definitions("-DUSER_SPACE")
 add_definitions("-DZMQ_EXPERIMENTAL")
@@ -118,6 +119,7 @@ AUX_SOURCE_DIRECTORY(headers headers_src)
 AUX_SOURCE_DIRECTORY(monitoring monitoring_src)
 AUX_SOURCE_DIRECTORY(utils utils_src)
 AUX_SOURCE_DIRECTORY(statusserver statusserver_src)
+AUX_SOURCE_DIRECTORY(sgxclient sgxclient_src)
 
 
 SET(SRC_FILES
@@ -154,6 +156,7 @@ SET(SRC_FILES
         ${monitoring_src}
         ${utils_src}
         ${statusserver_src}
+        ${sgxclient_src}
         Agent.h Agent.cpp SkaleCommon.cpp Log.cpp microprofile.cpp miniz.c
         )
 

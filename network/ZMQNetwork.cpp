@@ -61,7 +61,6 @@ bool ZMQNetwork::sendMessage(
     void* s = sChain->getNode()->getSockets()->consensusZMQSockets->getDestinationSocket(
         _remoteNodeInfo );
 
-
     return interruptableSend( s, buf.data(), buf.size() );
 }
 
@@ -83,19 +82,13 @@ uint64_t ZMQNetwork::interruptableRecv( void* _socket, void* _buf, size_t _len )
 
     for ( ;; ) {
 
-        /*
 
-        int pollResult = 0;
+        if ( this->getNode()->isExitRequested() ) {
+            zmq_close(_socket);
+            LOG( debug, getThreadName() + "zmq debug: closing = " + to_string( ( uint64_t ) _socket ) );
+            BOOST_THROW_EXCEPTION( ExitRequestedException( __CLASS_NAME__ ) );
+        }
 
-        do {
-            pollResult = zmq_poll(items, 1, 1000);
-            if (this->getNode()->isExitRequested()) {
-                //zmq_close(_socket);
-                BOOST_THROW_EXCEPTION( ExitRequestedException( __CLASS_NAME__ ) );
-            }
-        } while (pollResult == 0);
-
-         */
 
         rc = zmq_recv( _socket, _buf, _len, 0 );
 
@@ -118,6 +111,9 @@ uint64_t ZMQNetwork::interruptableRecv( void* _socket, void* _buf, size_t _len )
 
 
 bool ZMQNetwork::interruptableSend( void* _socket, void* _buf, size_t _len ) {
+
+
+
     auto simulatedDelay = sChain->getNode()->getSimulateNetworkWriteDelayMs();
 
     if ( simulatedDelay > 0 )
@@ -128,11 +124,18 @@ bool ZMQNetwork::interruptableSend( void* _socket, void* _buf, size_t _len ) {
 
     int flags = ZMQ_DONTWAIT;
 
+    if ( this->getNode()->isExitRequested() ) {
+        zmq_close(_socket);
+        LOG( debug, getThreadName() + "zmq debug: closing = " + to_string( ( uint64_t ) _socket ) );
+        BOOST_THROW_EXCEPTION( ExitRequestedException( __CLASS_NAME__ ) );
+    }
+
+
     rc = zmq_send( _socket, _buf, _len, flags );
 
     if ( this->getNode()->isExitRequested() ) {
+        zmq_close(_socket);
         LOG( debug, getThreadName() + "zmq debug: closing = " + to_string( ( uint64_t ) _socket ) );
-        //zmq_close( _socket );
         BOOST_THROW_EXCEPTION( ExitRequestedException( __CLASS_NAME__ ) );
     }
 

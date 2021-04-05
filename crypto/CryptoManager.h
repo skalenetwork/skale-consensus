@@ -28,6 +28,7 @@
 #include "messages/NetworkMessage.h"
 #include "openssl/ec.h"
 
+#include "sgxclient/SgxZmqClient.h"
 
 #define USER_SPACE 1
 
@@ -77,6 +78,10 @@ class CryptoManager {
 
     map< uint64_t, ptr< jsonrpc::HttpClient > > httpClients;  // tsafe
     map< uint64_t, ptr< StubClient > > sgxClients;            // tsafe
+
+
+    ptr< SgxZmqClient > zmqClient = nullptr;
+
     recursive_mutex clientsLock;
 
     map< uint64_t, string > ecdsaPublicKeyMap;  // tsafe
@@ -93,6 +98,7 @@ class CryptoManager {
 
     bool isSGXEnabled = false;
     bool isHTTPSEnabled = true;
+    bool isSSLCertEnabled = false;
 
     string sgxSSLKeyFileFullPath;
     string sgxSSLCertFileFullPath;
@@ -109,9 +115,14 @@ class CryptoManager {
 
     static string sgxURL;
 
+    string sgxDomainName;
+    uint16_t sgxPort = 0;
+
+    uint64_t doesServerSupportZMQ = 0;
+
+
 
 private:
-
 
     ptr< StubClient > getSgxClient();
 
@@ -122,7 +133,6 @@ private:
     tuple< string, string, string > sessionSign(
         const ptr< BLAKE3Hash >& _hash, block_id _blockId );
 
-
     bool verifyECDSASig( const ptr< BLAKE3Hash >& _hash, const string& _sig, node_id _nodeId );
 
     ptr< ThresholdSigShare > signSigShare(
@@ -132,7 +142,9 @@ private:
 
     void initSGXClient();
 
-    static uint64_t parseSGXPort( const string& _url );
+    static pair<string, uint64_t> parseSGXDomainAndPort( const string& _url );
+
+
 
 public:
 
@@ -216,6 +228,8 @@ public:
 
     bool sessionVerifySigAndKey( ptr< BLAKE3Hash >& _hash, const string& _sig,
         const string& _publicKey, const string& pkSig, block_id _blockID, node_id _nodeId );
+
+    void exitZMQClient();
 
 };
 

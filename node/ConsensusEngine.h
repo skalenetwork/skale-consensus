@@ -51,6 +51,7 @@ class StorageLimits;
 
 class ConsensusEngine : public ConsensusInterface {
 
+
     map< node_id, ptr< Node > > nodes; //tsafe
 
     mutable cache::lru_cache<uint64_t, u256> prices; // tsafe
@@ -250,8 +251,7 @@ public:
 
     [[nodiscard]] ptr< GlobalThreadRegistry > getThreadRegistry() const;
 
-    void setTestKeys(const string& _sgxServerURL, string _configFile, uint64_t _totalNodes,
-        uint64_t _requiredNodes );
+    void setTestKeys( string _serverURL, string _configFile, uint64_t _totalNodes, uint64_t _requiredNodes );
 
     void setSGXKeyInfo(const string& _sgxServerURL,
         string& _sgxSSLKeyFileFullPath,

@@ -139,11 +139,8 @@ block_id basicRun(block_id _lastId = 0) {
         REQUIRE(transactions);
         REQUIRE(timestampS > 0);
         REQUIRE(timeStampMs > 0);
-        
+
         cerr << price << ":" << stateRoot << endl;
-
-
-        cerr << "exiting" << endl;
         engine->exitGracefullyBlocking();
         delete engine;
         return lastId;
