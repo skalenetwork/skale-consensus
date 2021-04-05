@@ -107,7 +107,6 @@ void ZMQSockets::closeReceive() {
 
     if(receiveSocket){
         zmq_close(receiveSocket);
-        receiveSocket = nullptr;
     }
 }
 
@@ -118,7 +117,6 @@ void ZMQSockets::closeSend() {
         if(item.second){
             LOG(debug, getThreadName() + " zmq debug in closeSend(): closing " + to_string((uint64_t) item.second));
             zmq_close(item.second);
-            item.second = nullptr;
         }
     }
 }
@@ -136,9 +134,14 @@ void ZMQSockets::closeAndCleanupAll() {
 
     LOG(info, "Cleaning up ZMQ sockets");
 
-    zmq_ctx_shutdown(context);
-    closeSend();
-    closeReceive();
+    try {
+        closeSend();
+        closeReceive();
+    } catch (const exception& e) {
+        LOG(err, "Exception in zmq socket close:" + string(e.what()));
+        throw;
+    }
+
 
     LOG(info, "Closing ZMQ context");
 

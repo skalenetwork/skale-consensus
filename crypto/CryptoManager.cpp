@@ -582,6 +582,7 @@ ptr< ThresholdSigShare > CryptoManager::signSigShare(
             ret = JSONFactory::getString( jsonShare, "signatureShare" );
         }
 
+
         auto sigShare = make_shared< string >( ret );
 
         auto sig = make_shared< BLSSigShare >(
