@@ -74,11 +74,11 @@ void IO::readBytes(
     int64_t result;
 
     struct timeval tv;
-    tv.tv_sec = 3;
+    tv.tv_sec = 60;
     tv.tv_usec = 0;
     setsockopt( int( _descriptor ), SOL_SOCKET, SO_RCVTIMEO, ( const char* ) &tv, sizeof tv );
 
-    uint64_t counter = 1;
+    uint64_t timeoutCounter = 0;
 
     while ( msg_len( bytesRead ) < _len ) {
         if ( sChain->getNode()->isExitRequested() )
@@ -110,9 +110,11 @@ void IO::readBytes(
 
         bytesRead += result;
 
-        counter++;
+        if (result <= 0) {
+            timeoutCounter++;
+        }
 
-        if ( counter > 100 ) {
+        if ( timeoutCounter > 100 ) {
             BOOST_THROW_EXCEPTION(
                 NetworkProtocolException( "Peer read timeout", __CLASS_NAME__ ) );
         }
