@@ -159,7 +159,7 @@ void CacheLevelDB::writeString(const string &_key, const string &_value,
     rotateDBsIfNeeded();
 
     {
-        shared_lock<shared_mutex> lock(m);
+        lock_guard<shared_mutex> lock(m);
 
         if ((!_overWrite) && keyExistsUnsafe(_key))
         {
@@ -183,7 +183,7 @@ void CacheLevelDB::writeByteArray(const char *_key, size_t _keyLen, const char *
     rotateDBsIfNeeded();
 
     {
-        shared_lock<shared_mutex> lock(m);
+        lock_guard<shared_mutex> lock(m);
 
         if (keyExistsUnsafe(string(_key))) {
             LOG(trace, "Double entry written to db");
@@ -206,7 +206,7 @@ void CacheLevelDB::writeByteArray(string &_key, const ptr<vector<uint8_t>>& _dat
     auto valueLen = _data->size();
 
     {
-        shared_lock<shared_mutex> lock(m);
+        lock_guard<shared_mutex> lock(m);
         auto status = db.back()->Put(writeOptions, Slice(_key), Slice(value, valueLen));
         throwExceptionOnError(status);
     }
@@ -544,7 +544,7 @@ CacheLevelDB::writeByteArrayToSet(const char *_value, uint64_t _valueLen, block_
     rotateDBsIfNeeded();
     {
 
-        shared_lock<shared_mutex> lock(m);
+        lock_guard<shared_mutex> lock(m);
 
         return writeByteArrayToSetUnsafe(_value, _valueLen, _blockId, _index);
 
