@@ -97,7 +97,8 @@ BlockFinalizeDownloader::BlockFinalizeDownloader(Schain *_sChain, block_id _bloc
 nlohmann::json BlockFinalizeDownloader::readBlockFinalizeResponseHeader(const ptr<ClientSocket>& _socket) {
     MONITOR(__CLASS_NAME__, __FUNCTION__)
     CHECK_ARGUMENT(_socket)
-    return getSchain()->getIo()->readJsonHeader(_socket->getDescriptor(), "Read BlockFinalize response");
+    return getSchain()->getIo()->readJsonHeader(_socket->getDescriptor(),
+        "Read BlockFinalize response", _socket->getIP());
 }
 
 

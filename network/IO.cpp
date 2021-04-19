@@ -251,7 +251,8 @@ void IO::readMagic( file_descriptor descriptor ) {
 }
 
 nlohmann::json IO::readJsonHeader(
-    file_descriptor descriptor, const char* _errorString, uint64_t _maxHeaderLen ) {
+    file_descriptor descriptor, const char* _errorString,
+    string _ip, uint64_t _maxHeaderLen ) {
     CHECK_ARGUMENT( _errorString );
 
     auto buf2 = make_shared< vector< uint8_t > >( sizeof( uint64_t ) );
@@ -262,7 +263,8 @@ nlohmann::json IO::readJsonHeader(
         throw;
     } catch ( ... ) {
         throw_with_nested( NetworkProtocolException(
-            _errorString + string( ":Could not read header len" ), __CLASS_NAME__ ) );
+            _errorString + string( ":Could not read header len from:" +
+                               _ip), __CLASS_NAME__ ) );
     }
 
 
@@ -271,7 +273,8 @@ nlohmann::json IO::readJsonHeader(
     if ( headerLen < 2 || headerLen > _maxHeaderLen ) {
         LOG( err, "Total Len:" + to_string( headerLen ) );
         BOOST_THROW_EXCEPTION( ParsingException(
-            _errorString + string( ":Invalid Header len" ) + to_string( headerLen ),
+            _errorString + string( ":Invalid Header len from:" )
+                + _ip + ":" + to_string( headerLen ),
             __CLASS_NAME__ ) );
     }
 
@@ -283,7 +286,8 @@ nlohmann::json IO::readJsonHeader(
         throw;
     } catch ( ... ) {
         throw_with_nested( NetworkProtocolException(
-            _errorString + string( ":Could not read msg_len bytes from buffer:" ) +
+            _errorString + string( ":Could not read headerLen bytes from :" )
+                + _ip + ":" +
                 to_string( headerLen ),
             __CLASS_NAME__ ) );
     }
@@ -301,7 +305,8 @@ nlohmann::json IO::readJsonHeader(
         throw;
     } catch ( ... ) {
         BOOST_THROW_EXCEPTION( ParsingException(
-            string( _errorString ) + ":Could not parse request" + *s, __CLASS_NAME__ ) );
+            string( _errorString ) + ":Could not parse request from"
+                + _ip + ":" + *s, __CLASS_NAME__ ) );
     }
 
     return js;

@@ -24,6 +24,7 @@
 #include "Agent.h"
 #include "Log.h"
 #include "crypto/bls_include.h"
+#include <exceptions/PingException.h>
 
 #include "chains/Schain.h"
 
@@ -96,7 +97,10 @@ void AbstractServerAgent::workerThreadConnectionProcessingLoop(void *_params) {
                 return; // notice - connection is nullptr in this case
             CHECK_STATE(connection);
             server->processNextAvailableConnection(connection);
-        } catch (exception &e) {
+        } catch (PingException &e) {
+            LOG(info, e.what());
+        }
+        catch (exception &e) {
             SkaleException::logNested(e);
         }
     }

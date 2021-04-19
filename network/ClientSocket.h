@@ -55,9 +55,9 @@ public:
 
     file_descriptor getDescriptor() ;
 
-    string& getConnectionIP() ;
+    string& getIP() ;
 
-    network_port getConnectionPort();
+    network_port getPort();
 
     static uint64_t getTotalSockets();
 

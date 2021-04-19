@@ -192,10 +192,11 @@ void BlockProposalServerAgent::processNextAvailableConnection(
     } catch ( ExitRequestedException& ) {
         throw;
     } catch ( PingException& ) {
-        return;
+        throw;
     } catch ( ... ) {
         throw_with_nested(
-            NetworkProtocolException( "Could not read magic number", __CLASS_NAME__ ) );
+            NetworkProtocolException( "Could not read magic number from:"
+                + _connection->getIP(), __CLASS_NAME__ ) );
     }
 
 
@@ -203,7 +204,7 @@ void BlockProposalServerAgent::processNextAvailableConnection(
 
     try {
         clientRequest = getSchain()->getIo()->readJsonHeader(
-            _connection->getDescriptor(), "Read proposal req" );
+            _connection->getDescriptor(), "Read proposal req", _connection->getIP());
     } catch ( ExitRequestedException& ) {
         throw;
     } catch ( ... ) {
@@ -734,7 +735,8 @@ ptr< Header > BlockProposalServerAgent::createFinalResponseHeader(
 nlohmann::json BlockProposalServerAgent::readMissingTransactionsResponseHeader(
     const ptr< ServerConnection >& _connectionEnvelope ) {
     auto js = sChain->getIo()->readJsonHeader(
-        _connectionEnvelope->getDescriptor(), "Read missing trans response" );
+        _connectionEnvelope->getDescriptor(), "Read missing trans response",
+        _connectionEnvelope->getIP());
 
     return js;
 }

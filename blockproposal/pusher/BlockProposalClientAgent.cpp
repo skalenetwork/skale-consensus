@@ -80,7 +80,7 @@ ptr< MissingTransactionsRequestHeader >
 BlockProposalClientAgent::readMissingTransactionsRequestHeader(
     const ptr< ClientSocket >& _socket ) {
     auto js =
-        sChain->getIo()->readJsonHeader( _socket->getDescriptor(), "Read missing trans request" );
+        sChain->getIo()->readJsonHeader( _socket->getDescriptor(), "Read missing trans request", _socket->getIP());
     auto mtrh = make_shared< MissingTransactionsRequestHeader >();
 
     auto status = ( ConnectionStatus ) Header::getUint64( js, "status" );
@@ -99,7 +99,8 @@ ptr< FinalProposalResponseHeader >
 BlockProposalClientAgent::readAndProcessFinalProposalResponseHeader(
     const ptr< ClientSocket >& _socket ) {
     auto js =
-        sChain->getIo()->readJsonHeader( _socket->getDescriptor(), "Read final response header" );
+        sChain->getIo()->readJsonHeader( _socket->getDescriptor(), "Read final response header",
+            _socket->getIP());
 
     auto status = ( ConnectionStatus ) Header::getUint64( js, "status" );
     auto subStatus = ( ConnectionSubStatus ) Header::getUint64( js, "substatus" );
@@ -174,7 +175,8 @@ pair< ConnectionStatus, ConnectionSubStatus > BlockProposalClientAgent::sendBloc
     LOG( trace, "Proposal step 1: wrote proposal header" );
 
     auto response =
-        sChain->getIo()->readJsonHeader( _socket->getDescriptor(), "Read proposal resp" );
+        sChain->getIo()->readJsonHeader( _socket->getDescriptor(), "Read proposal resp" ,
+            _socket->getIP());
 
 
     LOG( trace, "Proposal step 2: read proposal response" );
@@ -365,7 +367,8 @@ pair< ConnectionStatus, ConnectionSubStatus > BlockProposalClientAgent::sendDAPr
     LOG( trace, "DA proof step 1: wrote request header" );
 
     auto response =
-        sChain->getIo()->readJsonHeader( _socket->getDescriptor(), "Read proposal resp" );
+        sChain->getIo()->readJsonHeader( _socket->getDescriptor(), "Read proposal resp",
+            _socket->getIP());
 
 
     LOG( trace, "DAProof step 2: read response" );
