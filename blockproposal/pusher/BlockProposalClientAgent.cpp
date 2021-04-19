@@ -80,7 +80,8 @@ ptr< MissingTransactionsRequestHeader >
 BlockProposalClientAgent::readMissingTransactionsRequestHeader(
     const ptr< ClientSocket >& _socket ) {
     auto js =
-        sChain->getIo()->readJsonHeader( _socket->getDescriptor(), "Read missing trans request", _socket->getIP());
+        sChain->getIo()->readJsonHeader( _socket->getDescriptor(), "Read missing trans request",
+            10, _socket->getIP());
     auto mtrh = make_shared< MissingTransactionsRequestHeader >();
 
     auto status = ( ConnectionStatus ) Header::getUint64( js, "status" );
@@ -100,6 +101,7 @@ BlockProposalClientAgent::readAndProcessFinalProposalResponseHeader(
     const ptr< ClientSocket >& _socket ) {
     auto js =
         sChain->getIo()->readJsonHeader( _socket->getDescriptor(), "Read final response header",
+            10,
             _socket->getIP());
 
     auto status = ( ConnectionStatus ) Header::getUint64( js, "status" );
@@ -176,6 +178,7 @@ pair< ConnectionStatus, ConnectionSubStatus > BlockProposalClientAgent::sendBloc
 
     auto response =
         sChain->getIo()->readJsonHeader( _socket->getDescriptor(), "Read proposal resp" ,
+            10,
             _socket->getIP());
 
 
@@ -367,7 +370,8 @@ pair< ConnectionStatus, ConnectionSubStatus > BlockProposalClientAgent::sendDAPr
     LOG( trace, "DA proof step 1: wrote request header" );
 
     auto response =
-        sChain->getIo()->readJsonHeader( _socket->getDescriptor(), "Read proposal resp",
+        sChain->getIo()->readJsonHeader( _socket->getDescriptor(), "Read dap proof resp",
+            10,
             _socket->getIP());
 
 
@@ -407,7 +411,8 @@ BlockProposalClientAgent::readMissingHashes( const ptr< ClientSocket >& _socket,
 
 
     try {
-        getSchain()->getIo()->readBytes( _socket->getDescriptor(), buffer, msg_len( bytesToRead ) );
+        getSchain()->getIo()->readBytes( _socket->getDescriptor(), buffer, msg_len( bytesToRead ),
+            30);
     } catch ( ExitRequestedException& ) {
         throw;
     } catch ( ... ) {

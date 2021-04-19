@@ -115,7 +115,7 @@ BlockProposalServerAgent::readMissingTransactions(
 
     try {
         getSchain()->getIo()->readBytes(
-            _connectionEnvelope, serializedTransactions, msg_len( totalSize ) );
+            _connectionEnvelope, serializedTransactions, msg_len( totalSize ), 30 );
     } catch ( ExitRequestedException& ) {
         throw;
     } catch ( ... ) {
@@ -204,7 +204,8 @@ void BlockProposalServerAgent::processNextAvailableConnection(
 
     try {
         clientRequest = getSchain()->getIo()->readJsonHeader(
-            _connection->getDescriptor(), "Read proposal req", _connection->getIP());
+            _connection->getDescriptor(), "Read proposal req",
+            30, _connection->getIP());
     } catch ( ExitRequestedException& ) {
         throw;
     } catch ( ... ) {
@@ -736,6 +737,7 @@ nlohmann::json BlockProposalServerAgent::readMissingTransactionsResponseHeader(
     const ptr< ServerConnection >& _connectionEnvelope ) {
     auto js = sChain->getIo()->readJsonHeader(
         _connectionEnvelope->getDescriptor(), "Read missing trans response",
+         30,
         _connectionEnvelope->getIP());
 
     return js;
@@ -757,7 +759,8 @@ ptr< PartialHashesList > AbstractServerAgent::readPartialHashes(
             getSchain()->getIo()->readBytes( _connectionEnvelope,
                 partialHashesList->getPartialHashes(),
                 msg_len(
-                    ( uint64_t ) partialHashesList->getTransactionCount() * PARTIAL_HASH_LEN ) );
+                    ( uint64_t ) partialHashesList->getTransactionCount() * PARTIAL_HASH_LEN )
+                    , 30);
         } catch ( ExitRequestedException& ) {
             throw;
         } catch ( ... ) {

@@ -66,7 +66,9 @@ CatchupClientAgent::CatchupClientAgent( Schain& _sChain ) : Agent( _sChain, fals
 nlohmann::json CatchupClientAgent::readCatchupResponseHeader(const ptr< ClientSocket >& _socket ) {
     CHECK_ARGUMENT( _socket );
     auto result =
-        sChain->getIo()->readJsonHeader( _socket->getDescriptor(), "Read catchup response", _socket->getIP().c_str(),
+        sChain->getIo()->readJsonHeader( _socket->getDescriptor(), "Read catchup response",
+            30,
+            _socket->getIP(),
             MAX_CATCHUP_DOWNLOAD_BYTES);
     return result;
 }
@@ -202,7 +204,7 @@ ptr< CommittedBlockList > CatchupClientAgent::readMissingBlocks(
 
     try {
         getSchain()->getIo()->readBytes(
-            _socket->getDescriptor(), serializedBlocks, msg_len( totalSize ) );
+            _socket->getDescriptor(), serializedBlocks, msg_len( totalSize ), 30 );
     } catch ( ExitRequestedException& ) {
         throw;
     } catch ( ... ) {

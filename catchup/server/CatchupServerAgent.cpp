@@ -98,6 +98,7 @@ void CatchupServerAgent::processNextAvailableConnection(const ptr<ServerConnecti
 
     try {
         jsonRequest = sChain->getIo()->readJsonHeader(_connection->getDescriptor(), "Read catchup request",
+            10,
             _connection->getIP());
     }
     catch (ExitRequestedException &) { throw; }
