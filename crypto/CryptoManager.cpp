@@ -109,12 +109,12 @@ void CryptoManager::initSGXClient() {
             ip::tcp::socket sock( s );
             sock.connect( endpoint );
             zmqEnabled = true;
-            LOG( info, "Found ZMQ API on SGX server.");
+            LOG( info, "Found ZMQ API on SGX server." );
         } catch ( ... ) {
             LOG( info, "Could not connect to ZMQ API. Assuming legacy SGX server" );
         };
 
-        if (zmqEnabled) {
+        if ( zmqEnabled ) {
             zmqClient = make_shared< SgxZmqClient >( sChain, sgxDomainName, 1031,
                 this->isSSLCertEnabled, sgxSSLCertFileFullPath, sgxSSLKeyFileFullPath );
         }
@@ -370,11 +370,12 @@ string CryptoManager::sgxSignECDSA( const ptr< BLAKE3Hash >& _hash, string& _key
     string ret;
 
     // temporary solution to support old servers
-    if (zmqClient) {
+    if ( zmqClient ) {
         ret = zmqClient->ecdsaSignMessageHash( 16, _keyName, _hash->toHex() );
     } else {
         Json::Value result;
         RETRY_BEGIN
+        getSchain()->getNode()->exitCheck();
         result = getSgxClient()->ecdsaSignMessageHash( 16, _keyName, _hash->toHex() );
         RETRY_END
         JSONFactory::checkSGXStatus( result );
@@ -569,11 +570,12 @@ ptr< ThresholdSigShare > CryptoManager::signSigShare(
         string ret;
 
         // temporary solution to support old servers
-        if (zmqClient) {
+        if ( zmqClient ) {
             ret = zmqClient->blsSignMessageHash(
                 getSgxBlsKeyName(), _hash->toHex(), requiredSigners, totalSigners );
         } else {
             RETRY_BEGIN
+            getSchain()->getNode()->exitCheck();
             jsonShare = getSgxClient()->blsSignMessageHash(
                 getSgxBlsKeyName(), _hash->toHex(), requiredSigners, totalSigners );
             RETRY_END
