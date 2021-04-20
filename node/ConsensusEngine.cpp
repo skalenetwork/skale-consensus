@@ -792,7 +792,7 @@ u256 ConsensusEngine::getPriceForBlockId( uint64_t _blockId ) const {
         return result;
     }
 
-    return 0;  // never happens
+    throw std::invalid_argument("Price not found");
 }
 
 

@@ -70,7 +70,7 @@ private:
     bool sign = true;
     string certKeyName = "";
     string certFileName = "";
-    string certificate = "";
+    string cert = "";
     string key = "";
 
     recursive_mutex mutex;
