@@ -67,7 +67,7 @@
 CatchupServerAgent::CatchupServerAgent(Schain &_schain, const ptr<TCPServerSocket>& _s) : AbstractServerAgent(
         "CatchupServer", _schain, _s) {
     CHECK_ARGUMENT(_s);
-    catchupWorkerThreadPool = make_shared<CatchupWorkerThreadPool>(num_threads(1), this);
+    catchupWorkerThreadPool = make_shared<CatchupWorkerThreadPool>(num_threads(2), this);
     catchupWorkerThreadPool->startService();
     createNetworkReadThread();
 }
@@ -87,7 +87,7 @@ void CatchupServerAgent::processNextAvailableConnection(const ptr<ServerConnecti
     try {
         sChain->getIo()->readMagic(_connection->getDescriptor());
     }
-    catch (PingException &) { return; }
+    catch (PingException &) { throw; }
     catch (ExitRequestedException &) { throw; }
     catch (...) {
         throw_with_nested(NetworkProtocolException("Incorrect magic number", __CLASS_NAME__));
@@ -97,7 +97,9 @@ void CatchupServerAgent::processNextAvailableConnection(const ptr<ServerConnecti
     nlohmann::json jsonRequest = nullptr;
 
     try {
-        jsonRequest = sChain->getIo()->readJsonHeader(_connection->getDescriptor(), "Read catchup request");
+        jsonRequest = sChain->getIo()->readJsonHeader(_connection->getDescriptor(), "Read catchup request",
+            10,
+            _connection->getIP());
     }
     catch (ExitRequestedException &) { throw; }
     catch (...) {

@@ -97,7 +97,9 @@ BlockFinalizeDownloader::BlockFinalizeDownloader(Schain *_sChain, block_id _bloc
 nlohmann::json BlockFinalizeDownloader::readBlockFinalizeResponseHeader(const ptr<ClientSocket>& _socket) {
     MONITOR(__CLASS_NAME__, __FUNCTION__)
     CHECK_ARGUMENT(_socket)
-    return getSchain()->getIo()->readJsonHeader(_socket->getDescriptor(), "Read BlockFinalize response");
+    return getSchain()->getIo()->readJsonHeader(_socket->getDescriptor(),
+        "Read BlockFinalize response",
+        10, _socket->getIP());
 }
 
 
@@ -224,7 +226,7 @@ BlockFinalizeDownloader::readBlockFragment(const ptr<ClientSocket>& _socket, nlo
 
     try {
         getSchain()->getIo()->readBytes(_socket->getDescriptor(), serializedFragment,
-                                        msg_len(fragmentSize));
+                                        msg_len(fragmentSize), 30);
     } catch (ExitRequestedException &) {
         throw;
     } catch (...) {

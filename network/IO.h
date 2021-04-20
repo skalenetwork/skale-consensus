@@ -39,11 +39,14 @@ public:
 
     IO(Schain *_sChain);
 
-    void readBytes(const ptr<ServerConnection>& _env, const ptr<vector<uint8_t>>& _buffer, msg_len _len);
+    void readBytes(const ptr<ServerConnection>& _env, const ptr<vector<uint8_t>>& _buffer,
+        msg_len _len, uint32_t  _timeoutSec);
 
-    void readBytes(file_descriptor _descriptor, const ptr<vector<uint8_t>>& _buffer, msg_len _len);
+    void readBytes(file_descriptor _descriptor, const ptr<vector<uint8_t>>& _buffer, msg_len _len,
+        uint32_t _timeoutSec);
 
-    void readBuf(file_descriptor _descriptor, const ptr<Buffer>& _buf, msg_len _len);
+    void readBuf(file_descriptor _descriptor, const ptr<Buffer>& _buf, msg_len _len,
+                 uint32_t  _timeoutSec);
 
     void writeBytes(file_descriptor descriptor, const ptr<vector<uint8_t>>& _buffer, msg_len len);
 
@@ -60,6 +63,8 @@ public:
     void readMagic(file_descriptor descriptor);
 
     nlohmann::json readJsonHeader(file_descriptor descriptor, const char* _errorString,
+        uint32_t _timeout,
+        string _ip,
         uint64_t _maxHeaderLen = MAX_HEADER_SIZE);
 
 };

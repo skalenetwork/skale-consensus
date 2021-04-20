@@ -48,12 +48,12 @@ file_descriptor ClientSocket::getDescriptor() {
     return descriptor;
 }
 
-string& ClientSocket::getConnectionIP() {
+string& ClientSocket::getIP() {
     CHECK_STATE(!remoteIP.empty() )
     return remoteIP;
 }
 
-network_port ClientSocket::getConnectionPort() {
+network_port ClientSocket::getPort() {
     return remotePort;
 }
 
@@ -72,7 +72,7 @@ int ClientSocket::createTCPSocket() {
     if ( connect( s, ( sockaddr* ) remoteAddr.get(), sizeof( remoteAddr ) ) < 0 ) {
         close( s );
         BOOST_THROW_EXCEPTION( ConnectionRefusedException(
-            "Couldnt connect to:" + getConnectionIP() + ":" + to_string( getConnectionPort() ),
+            "Couldnt connect to:" + getIP() + ":" + to_string( getPort() ),
             errno, __CLASS_NAME__ ) );
     }
 
