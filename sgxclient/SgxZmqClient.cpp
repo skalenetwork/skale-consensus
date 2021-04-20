@@ -46,29 +46,29 @@ shared_ptr< SgxZmqMessage > SgxZmqClient::doRequestReply( Json::Value& _req ) {
     Json::FastWriter fastWriter;
     fastWriter.omitEndingLineFeed();
 
-    static uint64_t  i = 0;
+    static uint64_t i = 0;
 
 
     string reqStr;
 
     if ( sign ) {
-        CHECK_STATE( !certificate.empty() );
+        CHECK_STATE( !cert.empty() );
         CHECK_STATE( !key.empty() );
 
-        _req["cert"] = certificate;
+        _req["cert"] = cert;
         string msgToSign = fastWriter.write( _req );
         auto sig = signString( pkey, msgToSign );
-        CHECK_STATE(msgToSign.back() == '}');
+        CHECK_STATE( msgToSign.back() == '}' );
         msgToSign.back() = ',';
-        msgToSign.append("\"msgSig\":\"");
-        msgToSign.append(sig);
-        msgToSign.append("\"}");
+        msgToSign.append( "\"msgSig\":\"" );
+        msgToSign.append( sig );
+        msgToSign.append( "\"}" );
         reqStr = msgToSign;
     } else {
         reqStr = fastWriter.write( _req );
     }
 
-    if (i % 10 == 0) { // verify each 10th sig
+    if ( i % 10 == 0 ) {  // verify each 10th sig
         verifyMsgSig( reqStr.c_str(), reqStr.length() );
     }
 
@@ -204,10 +204,10 @@ pair< EVP_PKEY*, X509* > SgxZmqClient::readPublicKeyFromCertStr( const string& _
 
     BIO* bo = BIO_new( BIO_s_mem() );
     CHECK_STATE( bo );
-    CHECK_STATE(BIO_write( bo, _certStr.c_str(), _certStr.size() > 0));
+    CHECK_STATE( BIO_write( bo, _certStr.c_str(), _certStr.size() > 0 ) );
 
     X509* cert = nullptr;
-    CHECK_STATE(PEM_read_bio_X509( bo, &cert, 0, 0 ));
+    CHECK_STATE( PEM_read_bio_X509( bo, &cert, 0, 0 ) );
     CHECK_STATE( cert );
     auto key = X509_get_pubkey( cert );
     BIO_free( bo );
@@ -216,7 +216,7 @@ pair< EVP_PKEY*, X509* > SgxZmqClient::readPublicKeyFromCertStr( const string& _
 };
 
 SgxZmqClient::SgxZmqClient( Schain* _sChain, const string& ip, uint16_t port, bool _sign,
-    const string& _certFileName, const string& _certKeyName)
+    const string& _certFileName, const string& _certKeyName )
     : ctx( 1 ), sign( _sign ), certKeyName( _certKeyName ), certFileName( _certFileName ) {
     CHECK_STATE( _sChain );
     this->schain = _sChain;
@@ -225,12 +225,23 @@ SgxZmqClient::SgxZmqClient( Schain* _sChain, const string& ip, uint16_t port, bo
 
     if ( sign ) {
         CHECK_STATE( !_certFileName.empty() );
-        CHECK_STATE( !_certKeyName.empty() );
+        try {
+            cert = readFileIntoString( _certFileName );
+        } catch ( exception& e ) {
+            LOG( err, "Could not read file:" + _certFileName
+                + ":" + e.what());
+            throw;
+        }
+        CHECK_STATE( !cert.empty() );
 
-        certificate = readFileIntoString( _certFileName );
-        CHECK_STATE( !certificate.empty() );
+        try {
+            key = readFileIntoString( _certKeyName );
+        } catch ( exception& e ) {
+            LOG( err, "Could not read file:" + _certKeyName
+                + ":" + e.what());
+            throw;
+        }
 
-        key = readFileIntoString( _certKeyName );
         CHECK_STATE( !key.empty() );
 
         BIO* bo = BIO_new( BIO_s_mem() );
@@ -241,10 +252,7 @@ SgxZmqClient::SgxZmqClient( Schain* _sChain, const string& ip, uint16_t port, bo
         BIO_free( bo );
         CHECK_STATE( pkey );
 
-        auto pubKeyStr = readFileIntoString( _certFileName );
-        CHECK_STATE( !pubKeyStr.empty() );
-
-        tie( pubkey, x509Cert ) = readPublicKeyFromCertStr( pubKeyStr );
+        tie( pubkey, x509Cert ) = readPublicKeyFromCertStr( cert );
 
         auto sig = signString( pkey, "sample" );
 
@@ -318,8 +326,7 @@ void SgxZmqClient::exit() {
 }
 
 
-
-void SgxZmqClient::verifyMsgSig( const char* _msg, size_t  ) {
+void SgxZmqClient::verifyMsgSig( const char* _msg, size_t ) {
     CHECK_STATE( _msg );
 
     auto d = make_shared< rapidjson::Document >();
@@ -335,8 +342,8 @@ void SgxZmqClient::verifyMsgSig( const char* _msg, size_t  ) {
 
     CHECK_STATE( d->HasMember( "cert" ) );
     CHECK_STATE( d->HasMember( "msgSig" ) );
-    CHECK_STATE( ( *d )["cert"].IsString());
-    CHECK_STATE( ( *d )["msgSig"].IsString());
+    CHECK_STATE( ( *d )["cert"].IsString() );
+    CHECK_STATE( ( *d )["msgSig"].IsString() );
 
     auto cert = make_shared< string >( ( *d )["cert"].GetString() );
 
@@ -347,15 +354,15 @@ void SgxZmqClient::verifyMsgSig( const char* _msg, size_t  ) {
     {
         lock_guard< recursive_mutex > lock( m );
 
-        if (!verifiedCerts.exists(*cert)) {
-            auto handles = SgxZmqClient::readPublicKeyFromCertStr(*cert);
-            CHECK_STATE(handles.first);
-            CHECK_STATE(handles.second);
-            verifiedCerts.put(*cert, handles);
-            remove(cert->c_str());
+        if ( !verifiedCerts.exists( *cert ) ) {
+            auto handles = SgxZmqClient::readPublicKeyFromCertStr( *cert );
+            CHECK_STATE( handles.first );
+            CHECK_STATE( handles.second );
+            verifiedCerts.put( *cert, handles );
+            remove( cert->c_str() );
         }
 
-        publicKey = verifiedCerts.get(*cert).first;
+        publicKey = verifiedCerts.get( *cert ).first;
 
 
         CHECK_STATE( publicKey );
@@ -409,5 +416,4 @@ void SgxZmqClient::verifySig( EVP_PKEY* _pubkey, const string& _str, const strin
         EVP_MD_CTX_destroy( mdctx );
 }
 
-cache::lru_cache<string, pair < EVP_PKEY * , X509 *>>
-    SgxZmqClient::verifiedCerts(256);
+cache::lru_cache< string, pair< EVP_PKEY*, X509* > > SgxZmqClient::verifiedCerts( 256 );
