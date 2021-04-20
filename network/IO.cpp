@@ -136,13 +136,28 @@ void IO::writeBytes(
 
     uint64_t bytesWritten = 0;
 
+    struct timeval tv;
+    tv.tv_sec =  30;
+    tv.tv_usec = 0;
+    setsockopt( int( descriptor ), SOL_SOCKET, SO_SNDTIMEO, ( const char* ) &tv, sizeof tv );
+
     while ( msg_len( bytesWritten ) < len ) {
-        int64_t result = write(
-            ( int ) descriptor, _buffer->data() + bytesWritten, ( uint64_t ) len - bytesWritten );
+        int64_t result = send(
+            ( int ) descriptor, _buffer->data() + bytesWritten, ( uint64_t ) len - bytesWritten,
+            MSG_NOSIGNAL);
+
         if ( sChain->getNode()->isExitRequested() )
             BOOST_THROW_EXCEPTION( ExitRequestedException( __CLASS_NAME__ ) );
 
-        CHECK_STATE( result != 0 );
+        if ( result < 1 && (errno == EAGAIN || errno == EWOULDBLOCK)) {
+            BOOST_THROW_EXCEPTION(
+                NetworkProtocolException( "Peer write timeout", __CLASS_NAME__ ) );
+        }
+
+        if (result < 1 && (errno == EPIPE || errno == ECONNRESET)) {
+            BOOST_THROW_EXCEPTION(
+                NetworkProtocolException( "Destination unexpectedly closed connection", __CLASS_NAME__ ) );
+        }
 
         if ( result < 1 ) {
             BOOST_THROW_EXCEPTION( IOException( "Could not write bytes", errno, __CLASS_NAME__ ) );
@@ -151,7 +166,7 @@ void IO::writeBytes(
         bytesWritten += result;
     }
 
-    CHECK_STATE( bytesWritten == len );
+    CHECK_STATE( bytesWritten == len )
 }
 
 
