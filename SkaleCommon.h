@@ -301,10 +301,11 @@ static const uint64_t REBROADCAST_TIMEOUT_MS = 120000;
 
 static const uint64_t ZMQ_RECEIVE_RETRY_MS = 10;
 
+static const uint64_t DEFAULT_MIN_PRICE = 100000;
+
 extern void setThreadName(std::string const &_n, ConsensusEngine* _engine);
 
 extern std::string getThreadName();
-
 
 #define CHECK_ARGUMENT(_EXPRESSION_) \
     if (!(_EXPRESSION_)) { \
