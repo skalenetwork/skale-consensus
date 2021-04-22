@@ -48,34 +48,32 @@ shared_ptr< SgxZmqMessage > SgxZmqClient::doRequestReply( Json::Value& _req ) {
 
     static uint64_t i = 0;
 
-
-    string reqStr;
-
     if ( sign ) {
         CHECK_STATE( !cert.empty() );
         CHECK_STATE( !key.empty() );
-
         _req["cert"] = cert;
-        string msgToSign = fastWriter.write( _req );
-        auto sig = signString( pkey, msgToSign );
-        CHECK_STATE( msgToSign.back() == '}' );
-        msgToSign.back() = ',';
-        msgToSign.append( "\"msgSig\":\"" );
-        msgToSign.append( sig );
-        msgToSign.append( "\"}" );
-        reqStr = msgToSign;
-    } else {
-        reqStr = fastWriter.write( _req );
     }
+
+    string reqStr = fastWriter.write( _req );
+
+
+    CHECK_STATE( reqStr.back() == '}' );
+    if ( sign ) {
+        auto sig = signString( pkey, reqStr );
+        reqStr.back() = ',';
+        reqStr.append( "\"msgSig\":\"" );
+        reqStr.append( sig );
+        reqStr.append( "\"}" );
+    }
+
+    CHECK_STATE( reqStr.front() == '{' );
+    CHECK_STATE( reqStr.back() == '}' );
 
     if ( i % 10 == 0 ) {  // verify each 10th sig
         verifyMsgSig( reqStr.c_str(), reqStr.length() );
     }
 
     i++;
-
-    CHECK_STATE( reqStr.front() == '{' );
-    CHECK_STATE( reqStr.at( reqStr.size() - 1 ) == '}' );
 
     auto resultStr = doZmqRequestReply( reqStr );
 
@@ -245,6 +243,7 @@ SgxZmqClient::SgxZmqClient( Schain* _sChain, const string& ip, uint16_t port, bo
         CHECK_STATE( !key.empty() );
 
         BIO* bo = BIO_new( BIO_s_mem() );
+        CHECK_STATE( bo );
         CHECK_STATE( bo );
         BIO_write( bo, key.c_str(), key.size() );
 
