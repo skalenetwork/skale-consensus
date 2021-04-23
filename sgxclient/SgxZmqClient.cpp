@@ -136,6 +136,7 @@ string SgxZmqClient::doZmqRequestReply( string& _req ) {
         } else {
             LOG( err, "W: no response from server, retrying..." );
             reconnect();
+
             //  Send request again, on new socket
             s_send( *clientSocket, _req );
         }
