@@ -56,8 +56,8 @@ shared_ptr< SgxZmqMessage > SgxZmqClient::doRequestReply( Json::Value& _req ) {
 
     string reqStr = fastWriter.write( _req );
 
-
     CHECK_STATE( reqStr.back() == '}' );
+
     if ( sign ) {
         auto sig = signString( pkey, reqStr );
         reqStr.back() = ',';
@@ -66,14 +66,16 @@ shared_ptr< SgxZmqMessage > SgxZmqClient::doRequestReply( Json::Value& _req ) {
         reqStr.append( "\"}" );
     }
 
-    CHECK_STATE( reqStr.front() == '{' );
-    CHECK_STATE( reqStr.back() == '}' );
+
 
     if ( i % 10 == 0 ) {  // verify each 10th sig
         verifyMsgSig( reqStr.c_str(), reqStr.length() );
     }
 
     i++;
+
+    CHECK_STATE( reqStr.front() == '{' );
+    CHECK_STATE( reqStr.back() == '}' );
 
     auto resultStr = doZmqRequestReply( reqStr );
 
@@ -275,10 +277,14 @@ void SgxZmqClient::reconnect() {
         clientSockets.erase( pid );
     }
 
-    char identity[10];
-    getrandom( identity, 10, 0 );
+    uint64_t  randNumber;
+    CHECK_STATE(getrandom( &randNumber, sizeof(uint64_t), 0 ) == sizeof(uint64_t));
+
+    string identity = to_string((uint64_t) getSchain()->getSchainIndex()) +
+        ":" + to_string(randNumber);
+
     auto clientSocket = make_shared< zmq::socket_t >( ctx, ZMQ_DEALER );
-    clientSocket->setsockopt( ZMQ_IDENTITY, identity, 10 );
+    clientSocket->setsockopt( ZMQ_IDENTITY, identity.c_str(),  identity.size() + 1);
     //  Configure socket to not wait at close time
     int linger = 0;
     clientSocket->setsockopt( ZMQ_LINGER, &linger, sizeof( linger ) );
@@ -416,3 +422,7 @@ void SgxZmqClient::verifySig( EVP_PKEY* _pubkey, const string& _str, const strin
 }
 
 cache::lru_cache< string, pair< EVP_PKEY*, X509* > > SgxZmqClient::verifiedCerts( 256 );
+Schain* SgxZmqClient::getSchain() const {
+    CHECK_STATE(schain);
+    return schain;
+}
