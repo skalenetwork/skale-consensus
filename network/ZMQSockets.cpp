@@ -150,10 +150,8 @@ void ZMQSockets::closeAndCleanupAll() {
     } catch(const exception& ex){
         LOG(err, "Exception from zmq_ctx_term");
         LOG(err, ex.what());
-        throw;
     } catch(...) {
         LOG(err, "Unknown exception from zmq_ctx_term");
-        throw;
     }
 
     LOG(info, "Closed ZMQ");

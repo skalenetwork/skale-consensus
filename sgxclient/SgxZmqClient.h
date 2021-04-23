@@ -83,6 +83,10 @@ private:
 
     Schain* schain = nullptr;
 
+public:
+    Schain* getSchain() const;
+
+private:
     bool isZMQEnabled = false;
 
     static cache::lru_cache<string, pair < EVP_PKEY * , X509 *>> verifiedCerts;

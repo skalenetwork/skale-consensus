@@ -290,6 +290,7 @@ static const num_threads NUM_DISPATCH_THREADS = num_threads(1);
 static const uint64_t DEFAULT_DB_STORAGE_LIMIT = 5000000000; // 5Gbyte
 
 static const uint64_t  MAX_DELAYED_MESSAGE_SENDS = 256;
+
 static const uint64_t  MAX_PROPOSAL_QUEUE_SIZE = 8;
 
 static const uint64_t SGX_SSL_PORT = 1026;
