@@ -269,7 +269,7 @@ nlohmann::json IO::readJsonHeader(
     auto buf2 = make_shared< vector< uint8_t > >( sizeof( uint64_t ) );
 
     try {
-        readBytes( descriptor, buf2, msg_len( sizeof( uint64_t ) ) , 3);
+        readBytes( descriptor, buf2, msg_len( sizeof( uint64_t ) ) , 6);
     } catch ( ExitRequestedException& ) {
         throw;
     } catch ( ... ) {

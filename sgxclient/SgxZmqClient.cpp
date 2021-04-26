@@ -48,25 +48,25 @@ shared_ptr< SgxZmqMessage > SgxZmqClient::doRequestReply( Json::Value& _req ) {
 
     static uint64_t i = 0;
 
-
-    string reqStr;
-
     if ( sign ) {
         CHECK_STATE( !cert.empty() );
         CHECK_STATE( !key.empty() );
-
         _req["cert"] = cert;
-        string msgToSign = fastWriter.write( _req );
-        auto sig = signString( pkey, msgToSign );
-        CHECK_STATE( msgToSign.back() == '}' );
-        msgToSign.back() = ',';
-        msgToSign.append( "\"msgSig\":\"" );
-        msgToSign.append( sig );
-        msgToSign.append( "\"}" );
-        reqStr = msgToSign;
-    } else {
-        reqStr = fastWriter.write( _req );
     }
+
+    string reqStr = fastWriter.write( _req );
+
+    CHECK_STATE( reqStr.back() == '}' );
+
+    if ( sign ) {
+        auto sig = signString( pkey, reqStr );
+        reqStr.back() = ',';
+        reqStr.append( "\"msgSig\":\"" );
+        reqStr.append( sig );
+        reqStr.append( "\"}" );
+    }
+
+
 
     if ( i % 10 == 0 ) {  // verify each 10th sig
         verifyMsgSig( reqStr.c_str(), reqStr.length() );
@@ -75,7 +75,7 @@ shared_ptr< SgxZmqMessage > SgxZmqClient::doRequestReply( Json::Value& _req ) {
     i++;
 
     CHECK_STATE( reqStr.front() == '{' );
-    CHECK_STATE( reqStr.at( reqStr.size() - 1 ) == '}' );
+    CHECK_STATE( reqStr.back() == '}' );
 
     auto resultStr = doZmqRequestReply( reqStr );
 
@@ -136,6 +136,7 @@ string SgxZmqClient::doZmqRequestReply( string& _req ) {
         } else {
             LOG( err, "W: no response from server, retrying..." );
             reconnect();
+
             //  Send request again, on new socket
             s_send( *clientSocket, _req );
         }
@@ -246,6 +247,7 @@ SgxZmqClient::SgxZmqClient( Schain* _sChain, const string& ip, uint16_t port, bo
 
         BIO* bo = BIO_new( BIO_s_mem() );
         CHECK_STATE( bo );
+        CHECK_STATE( bo );
         BIO_write( bo, key.c_str(), key.size() );
 
         PEM_read_bio_PrivateKey( bo, &pkey, 0, 0 );
@@ -276,10 +278,14 @@ void SgxZmqClient::reconnect() {
         clientSockets.erase( pid );
     }
 
-    char identity[10];
-    getrandom( identity, 10, 0 );
+    uint64_t  randNumber;
+    CHECK_STATE(getrandom( &randNumber, sizeof(uint64_t), 0 ) == sizeof(uint64_t));
+
+    string identity = to_string((uint64_t) getSchain()->getSchainIndex()) +
+        ":" + to_string(randNumber);
+
     auto clientSocket = make_shared< zmq::socket_t >( ctx, ZMQ_DEALER );
-    clientSocket->setsockopt( ZMQ_IDENTITY, identity, 10 );
+    clientSocket->setsockopt( ZMQ_IDENTITY, identity.c_str(),  identity.size() + 1);
     //  Configure socket to not wait at close time
     int linger = 0;
     clientSocket->setsockopt( ZMQ_LINGER, &linger, sizeof( linger ) );
@@ -417,3 +423,7 @@ void SgxZmqClient::verifySig( EVP_PKEY* _pubkey, const string& _str, const strin
 }
 
 cache::lru_cache< string, pair< EVP_PKEY*, X509* > > SgxZmqClient::verifiedCerts( 256 );
+Schain* SgxZmqClient::getSchain() const {
+    CHECK_STATE(schain);
+    return schain;
+}
