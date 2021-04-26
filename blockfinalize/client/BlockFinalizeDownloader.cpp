@@ -114,8 +114,8 @@ uint64_t BlockFinalizeDownloader::downloadFragment(schain_index _dstIndex, fragm
                 this->getNode()->getNodeID(), _fragmentIndex);
         CHECK_STATE(_dstIndex != (uint64_t) getSchain()->getSchainIndex())
         auto socket = make_shared<ClientSocket>(*sChain, _dstIndex, CATCHUP);
-        auto io = getSchain()->getIo();
 
+        auto io = getSchain()->getIo();
 
         try {
             io->writeMagic(socket);
@@ -282,7 +282,7 @@ void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(BlockFinalizeDown
 
     try {
 
-        while (!node->isExitRequested()) {
+        while (!node->isExitRequested() && !_agent->fragmentList.isComplete()) {
 
             if (!testFinalizationDownloadOnly) {
                 // take into account that the block can
@@ -314,9 +314,13 @@ void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(BlockFinalizeDown
                 return;
             } catch (ConnectionRefusedException &e) {
                 _agent->logConnectionRefused(e, _dstIndex);
+                if( _agent->fragmentList.isComplete() )
+                    return;
                 usleep( static_cast< __useconds_t >( node->getWaitAfterNetworkErrorMs() * 1000 ) );
             } catch (exception &e) {
                 SkaleException::logNested(e);
+                if( _agent->fragmentList.isComplete() )
+                    return;
                 usleep( static_cast< __useconds_t >( node->getWaitAfterNetworkErrorMs() * 1000 ) );
             };
         };
