@@ -67,7 +67,6 @@ shared_ptr< SgxZmqMessage > SgxZmqClient::doRequestReply( Json::Value& _req ) {
     }
 
 
-
     if ( i % 10 == 0 ) {  // verify each 10th sig
         verifyMsgSig( reqStr.c_str(), reqStr.length() );
     }
@@ -203,12 +202,13 @@ string SgxZmqClient::signString( EVP_PKEY* _pkey, const string& _str ) {
 pair< EVP_PKEY*, X509* > SgxZmqClient::readPublicKeyFromCertStr( const string& _certStr ) {
     CHECK_STATE( !_certStr.empty() )
 
-    BIO* bo = BIO_new( BIO_s_mem() );
-    CHECK_STATE( bo );
-    CHECK_STATE( BIO_write( bo, _certStr.c_str(), _certStr.size() > 0 ) );
+    LOG( info, "Reading server public key:\n" + _certStr );
 
-    X509* cert = nullptr;
-    CHECK_STATE( PEM_read_bio_X509( bo, &cert, 0, 0 ) );
+    BIO* bo = BIO_new( BIO_s_mem() );
+    CHECK_STATE( bo )
+    CHECK_STATE( BIO_write( bo, _certStr.c_str(), _certStr.size() ) > 0 )
+
+    X509* cert = PEM_read_bio_X509( bo, nullptr, 0, 0 );
     CHECK_STATE( cert );
     auto key = X509_get_pubkey( cert );
     BIO_free( bo );
@@ -222,15 +222,14 @@ SgxZmqClient::SgxZmqClient( Schain* _sChain, const string& ip, uint16_t port, bo
     CHECK_STATE( _sChain );
     this->schain = _sChain;
 
-    LOG( info, "Initing ZMQClient. Sign:" + to_string( _sign ) );
+    LOG( info, "Initing ZMQClient. Sign:" + to_string(sign) );
 
     if ( sign ) {
         CHECK_STATE( !_certFileName.empty() );
         try {
             cert = readFileIntoString( _certFileName );
         } catch ( exception& e ) {
-            LOG( err, "Could not read file:" + _certFileName
-                + ":" + e.what());
+            LOG( err, "Could not read file:" + _certFileName + ":" + e.what() );
             throw;
         }
         CHECK_STATE( !cert.empty() );
@@ -238,8 +237,7 @@ SgxZmqClient::SgxZmqClient( Schain* _sChain, const string& ip, uint16_t port, bo
         try {
             key = readFileIntoString( _certKeyName );
         } catch ( exception& e ) {
-            LOG( err, "Could not read file:" + _certKeyName
-                + ":" + e.what());
+            LOG( err, "Could not read file:" + _certKeyName + ":" + e.what() );
             throw;
         }
 
@@ -278,14 +276,14 @@ void SgxZmqClient::reconnect() {
         clientSockets.erase( pid );
     }
 
-    uint64_t  randNumber;
-    CHECK_STATE(getrandom( &randNumber, sizeof(uint64_t), 0 ) == sizeof(uint64_t));
+    uint64_t randNumber;
+    CHECK_STATE( getrandom( &randNumber, sizeof( uint64_t ), 0 ) == sizeof( uint64_t ) );
 
-    string identity = to_string((uint64_t) getSchain()->getSchainIndex()) +
-        ":" + to_string(randNumber);
+    string identity =
+        to_string( ( uint64_t ) getSchain()->getSchainIndex() ) + ":" + to_string( randNumber );
 
     auto clientSocket = make_shared< zmq::socket_t >( ctx, ZMQ_DEALER );
-    clientSocket->setsockopt( ZMQ_IDENTITY, identity.c_str(),  identity.size() + 1);
+    clientSocket->setsockopt( ZMQ_IDENTITY, identity.c_str(), identity.size() + 1 );
     //  Configure socket to not wait at close time
     int linger = 0;
     clientSocket->setsockopt( ZMQ_LINGER, &linger, sizeof( linger ) );
@@ -424,6 +422,6 @@ void SgxZmqClient::verifySig( EVP_PKEY* _pubkey, const string& _str, const strin
 
 cache::lru_cache< string, pair< EVP_PKEY*, X509* > > SgxZmqClient::verifiedCerts( 256 );
 Schain* SgxZmqClient::getSchain() const {
-    CHECK_STATE(schain);
+    CHECK_STATE( schain );
     return schain;
 }
