@@ -96,7 +96,7 @@ void CryptoManager::initSGXClient() {
 
 
         bool zmqEnabled = false;
-
+/*
         try {
             using namespace boost::asio;
 
@@ -113,11 +113,15 @@ void CryptoManager::initSGXClient() {
         } catch ( ... ) {
             LOG( info, "Could not connect to ZMQ API. Assuming legacy SGX server" );
         };
+        */
 
         if ( zmqEnabled ) {
             zmqClient = make_shared< SgxZmqClient >( sChain, sgxDomainName, 1031,
                 this->isSSLCertEnabled, sgxSSLCertFileFullPath, sgxSSLKeyFileFullPath );
         }
+
+
+        //disable ZMQ for now
     }
 }
 ptr< BLSPublicKey > CryptoManager::getSgxBlsPublicKey() {
