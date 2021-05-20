@@ -21,12 +21,14 @@
     @date 2018
 */
 
-#include "Agent.h"
-#include "Log.h"
-#include "crypto/bls_include.h"
-#include <exceptions/PingException.h>
 
+#include "crypto/bls_include.h"
+
+#include "SkaleCommon.h"
+#include "Log.h"
+#include <exceptions/PingException.h>
 #include "chains/Schain.h"
+#include "Agent.h"
 
 #include "exceptions/OldBlockIDException.h"
 

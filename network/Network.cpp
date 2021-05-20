@@ -36,6 +36,7 @@
 #include "node/NodeInfo.h"
 #include "protocols/blockconsensus/BlockSignBroadcastMessage.h"
 #include "thirdparty/json.hpp"
+#include "thirdparty/lrucache.hpp"
 #include <db/MsgDB.h>
 
 #include "unordered_set"
@@ -63,19 +64,22 @@ void Network::addToDeferredMessageQueue( const ptr< NetworkMessageEnvelope >& _m
 
     auto _blockID = _me->getMessage()->getBlockID();
 
-    ptr< vector< ptr< NetworkMessageEnvelope > > > messageList;
+    ptr< list< ptr< NetworkMessageEnvelope > > > messageList;
 
     {
         LOCK( deferredMessageMutex );
 
         if ( deferredMessageQueue.count( _blockID ) == 0 ) {
-            messageList = make_shared< vector< ptr< NetworkMessageEnvelope > > >();
+            messageList = make_shared< list< ptr< NetworkMessageEnvelope > > >();
             deferredMessageQueue[_blockID] = messageList;
         } else {
             messageList = deferredMessageQueue[_blockID];
         };
 
         messageList->push_back( _me );
+
+        if ( messageList->size() > MAX_DEFERRED_QUEUE_SIZE_FOR_BLOCK )
+            messageList->pop_front();
     }
 }
 
@@ -188,7 +192,16 @@ void Network::networkReadLoop() {
                 if ( !m )
                     continue;  // check exit again
 
-                if ( m->getMessage()->getBlockID() <= catchupBlocks ) {
+                auto msg = dynamic_pointer_cast< NetworkMessage >( m->getMessage() );
+
+
+                if ( msg->getBlockID() <= catchupBlocks ) {
+                    continue;
+                }
+
+
+                if ( !knownMsgHashes.putIfDoesNotExist( msg->getHash()->toHex(), true ) ) {
+                    // already seen this message, dropping
                     continue;
                 }
 
@@ -223,12 +236,19 @@ void Network::networkReadLoop() {
  * These messages are placed in deferredMessage queue to be processed later.
  * Messages with very old block ids are discarded.
  */
+
+
 void Network::postDeferOrDrop( const ptr< NetworkMessageEnvelope >& _me ) {
     CHECK_ARGUMENT( _me );
 
     block_id currentBlockID = sChain->getLastCommittedBlockID() + 1;
 
     auto bid = _me->getMessage()->getBlockID();
+
+    auto msg = dynamic_pointer_cast< NetworkMessage >( _me->getMessage() );
+
+    CHECK_STATE( msg );
+
 
     if ( bid > currentBlockID ) {
         // block id is in the future, defer
@@ -240,10 +260,6 @@ void Network::postDeferOrDrop( const ptr< NetworkMessageEnvelope >& _me ) {
         // too old, drop
         return;
     }
-
-    auto msg = dynamic_pointer_cast< NetworkMessage >( _me->getMessage() );
-
-    CHECK_STATE( msg );
 
     // ask consensus whether to defer
 
@@ -412,9 +428,9 @@ uint64_t Network::computeTotalDelayedSends() {
 
 Network::Network( Schain& _sChain )
     : Agent( _sChain, false ),
+      knownMsgHashes( KNOWN_MSG_HASHES_SIZE ),
       delayedSends( ( uint64_t ) _sChain.getNodeCount() ),
       delayedSendsLocks( ( uint64_t ) _sChain.getNodeCount() ) {
-
     auto cfg = _sChain.getNode()->getCfg();
 
     if ( cfg.find( "catchupBlocks" ) != cfg.end() ) {
