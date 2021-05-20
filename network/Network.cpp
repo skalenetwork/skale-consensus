@@ -245,10 +245,6 @@ void Network::postDeferOrDrop( const ptr< NetworkMessageEnvelope >& _me ) {
 
     auto bid = _me->getMessage()->getBlockID();
 
-    auto msg = dynamic_pointer_cast< NetworkMessage >( _me->getMessage() );
-
-    CHECK_STATE( msg );
-
 
     if ( bid > currentBlockID ) {
         // block id is in the future, defer
@@ -262,6 +258,10 @@ void Network::postDeferOrDrop( const ptr< NetworkMessageEnvelope >& _me ) {
     }
 
     // ask consensus whether to defer
+
+    auto msg = dynamic_pointer_cast< NetworkMessage >( _me->getMessage() );
+
+    CHECK_STATE( msg );
 
     if ( sChain->getBlockConsensusInstance()->shouldPost( msg ) ) {
         sChain->postMessage( _me );
