@@ -191,9 +191,11 @@ static constexpr uint64_t MAGIC_NUMBER = 0x1396A22050B30;
 
 static constexpr uint64_t TEST_MAGIC_NUMBER = 0x2456032650150;
 
+static constexpr uint64_t  MAX_DEFERRED_QUEUE_SIZE_FOR_BLOCK = 1024;
 
 static const uint64_t KNOWN_TRANSACTIONS_HISTORY = 2 * MAX_TRANSACTIONS_PER_BLOCK;
 
+static const uint64_t  KNOWN_MSG_HASHES_SIZE = 1024;
 
 enum port_type {
     PROPOSAL = 0, CATCHUP = 1, RETRIEVE = 2, HTTP_JSON = 3, BINARY_CONSENSUS = 4, ZMQ_BROADCAST = 5,
