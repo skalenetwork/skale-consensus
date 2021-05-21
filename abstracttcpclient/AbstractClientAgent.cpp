@@ -30,6 +30,7 @@ blic License as published
 #include "exceptions/SkaleException.h"
 #include "node/Node.h"
 #include <exceptions/ConnectionRefusedException.h>
+#include "utils/Time.h"
 
 #include "exceptions/FatalError.h"
 #include "exceptions/NetworkProtocolException.h"
@@ -78,6 +79,12 @@ void AbstractClientAgent::sendItem( const ptr< SendableItem >& _item, schain_ind
 
     while ( true ) {
         CHECK_STATE( _dstIndex != ( uint64_t ) getSchain()->getSchainIndex() );
+
+        if (getSchain()->getDeathTime((uint64_t) _dstIndex) + 30000 >
+                                        Time::getCurrentTimeMs()) {
+            BOOST_THROW_EXCEPTION(ConnectionRefusedException("Dead node:" + to_string(_dstIndex),
+                                                             5, __CLASS_NAME__));
+        }
         auto socket = make_shared< ClientSocket >( *sChain, _dstIndex, portType );
 
 

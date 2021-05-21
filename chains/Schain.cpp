@@ -195,7 +195,6 @@ Schain::Schain( weak_ptr< Node > _node, schain_index _schainIndex, const schain_
       consensusMessageThreadPool( new SchainMessageThreadPool( this ) ),
       node( _node ),
       schainIndex( _schainIndex ) {
-
     lastCommittedBlockTimeStamp = TimeStamp( 0, 0 );
 
     // construct monitoring and timeout agents early
@@ -377,8 +376,7 @@ void Schain::proposeNextBlock() {
                 _proposedBlockID, getSchainIndex() );
         } else {
             auto stamp = getLastCommittedBlockTimeStamp();
-            myProposal = pendingTransactionsAgent->buildBlockProposal(
-                _proposedBlockID, stamp);
+            myProposal = pendingTransactionsAgent->buildBlockProposal( _proposedBlockID, stamp );
         }
 
         CHECK_STATE( myProposal );
@@ -654,8 +652,7 @@ void Schain::proposedBlockArrived( const ptr< BlockProposal >& _proposal ) {
 
 void Schain::bootstrap( block_id _lastCommittedBlockID, uint64_t _lastCommittedBlockTimeStamp,
     uint64_t _lastCommittedBlockTimeStampMs ) {
-
-    LOCK(m)
+    LOCK( m )
 
     LOG( info, "Bootstrapping consensus ..." );
     auto _lastCommittedBlockIDInConsensus = getNode()->getBlockDB()->readLastCommittedBlockID();
@@ -729,10 +726,9 @@ void Schain::bootstrap( block_id _lastCommittedBlockID, uint64_t _lastCommittedB
 
         ptr< BlockProposal > committedProposal = nullptr;
 
-        TimeStamp stamp(
-            _lastCommittedBlockTimeStamp, _lastCommittedBlockTimeStampMs );
+        TimeStamp stamp( _lastCommittedBlockTimeStamp, _lastCommittedBlockTimeStampMs );
 
-        initLastCommittedBlockInfo( ( uint64_t ) _lastCommittedBlockID, stamp);
+        initLastCommittedBlockInfo( ( uint64_t ) _lastCommittedBlockID, stamp );
 
 
         LOG( info, "Jump starting the system with block:" + to_string( _lastCommittedBlockID ) );
@@ -767,7 +763,7 @@ void Schain::healthCheck() {
 
     auto beginTime = Time::getCurrentTimeSec();
 
-    LOG( info, "Waiting to connect to peers" );
+    LOG( info, "Waiting to connect to peers (could be up to two minutes)" );
 
 
     while ( connections.size() + 1 < getNodeCount() ) {
@@ -777,7 +773,7 @@ void Schain::healthCheck() {
             }
         }
 
-        if ( Time::getCurrentTimeSec() - beginTime > 15000 ) {
+        if ( Time::getCurrentTimeSec() - beginTime > 15 ) {
             setHealthCheckFile( 0 );
             LOG( err, "Coult not connect to 2/3 of peers" );
             exit( 110 );
@@ -852,10 +848,9 @@ void Schain::constructServers( const ptr< Sockets >& _sockets ) {
 }
 
 ptr< BlockProposal > Schain::createDefaultEmptyBlockProposal( block_id _blockId ) {
+    LOCK( lastCommittedBlockInfoMutex );
 
-        LOCK( lastCommittedBlockInfoMutex );
-
-        auto newStamp = getLastCommittedBlockTimeStamp().incrementByMs();
+    auto newStamp = getLastCommittedBlockTimeStamp().incrementByMs();
 
     return make_shared< ReceivedBlockProposal >(
         *this, _blockId, newStamp.getS(), newStamp.getMs(), 0 );
@@ -953,23 +948,22 @@ bool Schain::isStartingFromCorruptState() const {
     return startingFromCorruptState;
 }
 void Schain::startStatusServer() {
-
-    if (!s) {
-        httpserver = make_shared<jsonrpc::HttpServer>((int)((uint16_t) getNode()->getBasePort() + STATUS),
-            "", "","", 1);
-        s = make_shared<StatusServer> (this, *httpserver, jsonrpc::JSONRPC_SERVER_V1V2 );
+    if ( !s ) {
+        httpserver = make_shared< jsonrpc::HttpServer >(
+            ( int ) ( ( uint16_t ) getNode()->getBasePort() + STATUS ), "", "", "", 1 );
+        s = make_shared< StatusServer >( this, *httpserver, jsonrpc::JSONRPC_SERVER_V1V2 );
     }
 
 #ifdef CONSENSUS_DEMO
-    CHECK_STATE(s);
-    LOG(info, "Starting status server ...");
-    CHECK_STATE(s->StartListening());
-    LOG(info, "Successfully started status server ...");
+    CHECK_STATE( s );
+    LOG( info, "Starting status server ..." );
+    CHECK_STATE( s->StartListening() );
+    LOG( info, "Successfully started status server ..." );
 #endif
 }
 
 void Schain::stopStatusServer() {
-    if (s)
+    if ( s )
         s->StopListening();
 }
 uint64_t Schain::getBlockSizeAverage() const {
@@ -980,4 +974,38 @@ uint64_t Schain::getBlockTimeAverageMs() const {
 }
 uint64_t Schain::getTpsAverage() const {
     return tpsAverage;
+}
+void Schain::addDeadNode( uint64_t _schainIndex, uint64_t _checkTime ) {
+    CHECK_STATE( _schainIndex > 0 );
+    CHECK_STATE( _schainIndex <= getNodeCount() );
+    {
+        LOCK( deadNodesLock )
+        if ( deadNodes.count( _schainIndex ) == 0 ) {
+            deadNodes.insert( { _schainIndex, _checkTime } );
+        }
+    }
+}
+
+void Schain::markAliveNode( uint64_t _schainIndex) {
+    CHECK_STATE( _schainIndex > 0 );
+    CHECK_STATE( _schainIndex <= getNodeCount() );
+    {
+        LOCK( deadNodesLock )
+        if ( deadNodes.count( _schainIndex ) > 0 ) {
+            deadNodes.erase(_schainIndex);
+        }
+    }
+}
+
+uint64_t  Schain::getDeathTime( uint64_t _schainIndex ) {
+    CHECK_STATE( _schainIndex > 0 );
+    CHECK_STATE( _schainIndex <= getNodeCount() );
+    {
+        LOCK( deadNodesLock )
+        if ( deadNodes.count( _schainIndex ) == 0 ) {
+            return 0;
+        } else {
+            return deadNodes.at( _schainIndex );
+        }
+    }
 }
