@@ -39,6 +39,7 @@ class Network : public Agent  {
 
 protected:
 
+    cache::lru_cache<string, bool> knownMsgHashes;
 
     vector<list<pair<ptr<NetworkMessage>,ptr<NodeInfo>>>> delayedSends; // tsafe
     vector<recursive_mutex> delayedSendsLocks;
@@ -57,7 +58,7 @@ protected:
 
     explicit Network(Schain& _sChain);
 
-    map<block_id, ptr<vector<ptr<NetworkMessageEnvelope>>>> deferredMessageQueue; //tsafe
+    map<block_id, ptr<list<ptr<NetworkMessageEnvelope>>>> deferredMessageQueue; //tsafe
     recursive_mutex deferredMessageMutex;
 
     virtual void addToDeferredMessageQueue(const ptr<NetworkMessageEnvelope>& _me);
