@@ -767,7 +767,7 @@ void Schain::healthCheck() {
 
     auto beginTime = Time::getCurrentTimeSec();
 
-    LOG( info, "Waiting to connect to peers" );
+    LOG( info, "Waiting to connect to peers (could be up to two minutes)" );
 
 
     while ( connections.size() + 1 < getNodeCount() ) {
@@ -777,7 +777,7 @@ void Schain::healthCheck() {
             }
         }
 
-        if ( Time::getCurrentTimeSec() - beginTime > 15000 ) {
+        if ( Time::getCurrentTimeSec() - beginTime > 15 ) {
             setHealthCheckFile( 0 );
             LOG( err, "Coult not connect to 2/3 of peers" );
             exit( 110 );
