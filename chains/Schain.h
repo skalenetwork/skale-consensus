@@ -139,6 +139,12 @@ class Schain : public Agent {
 
     uint64_t blockSizeAverage = 0;
 
+    unordered_map <uint64_t, uint64_t> deadNodes;
+    recursive_mutex deadNodesLock;
+
+    void addDeadNode(uint64_t _schainIndex, uint64_t timeMs);
+    uint64_t getDeathTime(uint64_t  _schainIndex);
+
 public:
     uint64_t getBlockSizeAverage() const;
     uint64_t getBlockTimeAverageMs() const;
