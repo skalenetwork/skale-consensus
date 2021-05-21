@@ -986,6 +986,17 @@ void Schain::addDeadNode( uint64_t _schainIndex, uint64_t _checkTime ) {
     }
 }
 
+void Schain::markAliveNode( uint64_t _schainIndex) {
+    CHECK_STATE( _schainIndex > 0 );
+    CHECK_STATE( _schainIndex <= getNodeCount() );
+    {
+        LOCK( deadNodesLock )
+        if ( deadNodes.count( _schainIndex ) > 0 ) {
+            deadNodes.erase(_schainIndex);
+        }
+    }
+}
+
 uint64_t  Schain::getDeathTime( uint64_t _schainIndex ) {
     CHECK_STATE( _schainIndex > 0 );
     CHECK_STATE( _schainIndex <= getNodeCount() );

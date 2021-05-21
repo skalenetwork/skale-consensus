@@ -80,6 +80,12 @@ void CatchupClientAgent::sync( schain_index _dstIndex ) {
 
     auto header = make_shared< CatchupRequestHeader >( *sChain, _dstIndex );
     CHECK_STATE(_dstIndex != (uint64_t ) getSchain()->getSchainIndex());
+
+    if (sChain->getDeathTime((uint64_t) _dstIndex) > 0) {
+        usleep(100000);
+        throw ConnectionRefusedException("Connecting to dead node " +
+                     to_string(_dstIndex), 5, __CLASS_NAME__);
+    }
     auto socket = make_shared< ClientSocket >( *sChain, _dstIndex, CATCHUP );
     auto io = getSchain()->getIo();
     CHECK_STATE( io );

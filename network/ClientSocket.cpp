@@ -24,6 +24,7 @@
 #include "Log.h"
 #include "SkaleCommon.h"
 #include "exceptions/FatalError.h"
+#include "utils/Time.h"
 
 #include "Sockets.h"
 #include "chains/Schain.h"
@@ -65,6 +66,9 @@ int ClientSocket::createTCPSocket() {
             FatalError( "Could not create outgoing socket:" + string( strerror( errno ) ) ) );
     }
 
+    int synRetries = 1;
+    setsockopt(s, IPPROTO_TCP, TCP_SYNCNT, &synRetries, sizeof(synRetries));
+
 
     // Init the connection
     CHECK_STATE(remoteAddr)
@@ -99,7 +103,14 @@ ClientSocket::ClientSocket( Schain& _sChain, schain_index _destinationIndex, por
     this->remoteAddr = Sockets::createSocketAddress( remoteIP, ( uint16_t ) remotePort );
     CHECK_STATE(remoteAddr)
 
-    descriptor = createTCPSocket();
+    try {
+        descriptor = createTCPSocket();
+    } catch (ConnectionRefusedException& e) {
+        _sChain.addDeadNode((uint64_t ) _destinationIndex, Time::getCurrentTimeMs());
+        throw;
+    }
+
+    _sChain.markAliveNode((uint64_t) _destinationIndex);
 
     CHECK_STATE( descriptor != 0 )
 

@@ -113,6 +113,11 @@ uint64_t BlockFinalizeDownloader::downloadFragment(schain_index _dstIndex, fragm
         auto header = make_shared<BlockFinalizeRequestHeader>(*sChain, blockId, proposerIndex,
                 this->getNode()->getNodeID(), _fragmentIndex);
         CHECK_STATE(_dstIndex != (uint64_t) getSchain()->getSchainIndex())
+        if (sChain->getDeathTime((uint64_t ) _dstIndex) > 0) {
+            usleep(100000); // emulate timeout
+            BOOST_THROW_EXCEPTION(ConnectionRefusedException("Dead node:" + to_string(_dstIndex),
+                5, __CLASS_NAME__));
+        }
         auto socket = make_shared<ClientSocket>(*sChain, _dstIndex, CATCHUP);
 
         auto io = getSchain()->getIo();
