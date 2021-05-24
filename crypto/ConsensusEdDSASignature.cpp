@@ -36,7 +36,9 @@ ConsensusEdDSASignature::ConsensusEdDSASignature(
     : ThresholdSignature( _blockID, _totalSigners, _requiredSigners ), mergedSig(_mergedSig) {
 
     CHECK_ARGUMENT(!_mergedSig.empty());
-    CHECK_ARGUMENT(_mergedSig.find('*') != string::npos)
+
+    if (!(_requiredSigners == 1))
+        CHECK_ARGUMENT(_mergedSig.find('*') != string::npos)
 }
 
 string  ConsensusEdDSASignature::toString() {

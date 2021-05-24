@@ -126,7 +126,6 @@ string SgxZmqClient::doZmqRequestReply( string& _req ) {
             string reply = s_recv( *clientSocket );
 
             CHECK_STATE( reply.size() > 5 );
-            reply = reply.substr( 0, reply.size() - 1 );
             LOG( debug, "ZMQ client received reply:" + reply );
             CHECK_STATE( reply.front() == '{' );
             CHECK_STATE( reply.back() == '}' );
