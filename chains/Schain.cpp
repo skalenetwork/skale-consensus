@@ -470,7 +470,10 @@ void Schain::processCommittedBlock( const ptr< CommittedBlock >& _block ) {
                 ":FDS:" + to_string( ConsensusEngine::getOpenDescriptors() ) + ":PRT:" +
                 to_string( proposalReceiptTime ) + ":BTA:" + to_string( blockTimeAverageMs ) +
                 ":BSA:" + to_string( blockSizeAverage ) + ":TPS:" + to_string( tpsAverage ) +
-                ":STAMP:" + stamp.toString() );
+                ":LWT:" + to_string( CacheLevelDB::getWriteStats() ) +
+                ":LRT:" + to_string( CacheLevelDB::getReadStats() ) +
+                ":LWC:" + to_string( CacheLevelDB::getWrites() ) +
+                ":LRC:" + to_string( CacheLevelDB::getReads() ) + ":STAMP:" + stamp.toString() );
 
         proposalReceiptTime = 0;
 
@@ -986,18 +989,18 @@ void Schain::addDeadNode( uint64_t _schainIndex, uint64_t _checkTime ) {
     }
 }
 
-void Schain::markAliveNode( uint64_t _schainIndex) {
+void Schain::markAliveNode( uint64_t _schainIndex ) {
     CHECK_STATE( _schainIndex > 0 );
     CHECK_STATE( _schainIndex <= getNodeCount() );
     {
         LOCK( deadNodesLock )
         if ( deadNodes.count( _schainIndex ) > 0 ) {
-            deadNodes.erase(_schainIndex);
+            deadNodes.erase( _schainIndex );
         }
     }
 }
 
-uint64_t  Schain::getDeathTime( uint64_t _schainIndex ) {
+uint64_t Schain::getDeathTime( uint64_t _schainIndex ) {
     CHECK_STATE( _schainIndex > 0 );
     CHECK_STATE( _schainIndex <= getNodeCount() );
     {
