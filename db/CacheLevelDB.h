@@ -48,7 +48,6 @@ class CacheLevelDB {
     static list<uint64_t> readTimes;
     static recursive_mutex readTimeMutex;
     static atomic<uint64_t> readTimeTotal;
-
     static atomic<uint64_t> readCounter;
     static atomic<uint64_t> writeCounter;
 
