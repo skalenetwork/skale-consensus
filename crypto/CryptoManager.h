@@ -70,6 +70,19 @@ class OpenSSLECDSAKey;
 class OpenSSLEdDSAKey;
 
 class CryptoManager {
+
+    static list<uint64_t> ecdsaSignTimes;
+    static recursive_mutex ecdsaSignMutex;
+    static atomic<uint64_t> ecdsaSignTotal;
+
+    static list<uint64_t> blsSignTimes;
+    static recursive_mutex blsSignMutex;
+    static atomic<uint64_t> blsSignTotal;
+
+    static atomic<uint64_t> blsCounter;
+    static atomic<uint64_t> ecdsaCounter;
+
+
     cache::lru_cache< uint64_t, tuple< ptr< OpenSSLEdDSAKey >, string, string > >
         sessionKeys;                                               // tsafe
     cache::lru_ordered_cache< string, string > sessionPublicKeys;  // tsafe
@@ -230,6 +243,22 @@ public:
         const string& _publicKey, const string& pkSig, block_id _blockID, node_id _nodeId );
 
     void exitZMQClient();
+
+
+    static void addEcdsaSignStats(uint64_t _time);
+    static void addBLSSignStats(uint64_t _time);
+
+    static  uint64_t getEcdsaStats();
+    static  uint64_t getBLSStats();
+
+    static uint64_t getECDSAs() {
+        return ecdsaCounter;
+    }
+
+    static uint64_t getBLSs() {
+        return blsCounter;
+    }
+
 
 };
 

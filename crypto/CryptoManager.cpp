@@ -920,3 +920,14 @@ void CryptoManager::exitZMQClient() {
         zmqClient->exit();
     zmqClient = nullptr;
 }
+
+list<uint64_t> CryptoManager::ecdsaSignTimes;
+recursive_mutex CryptoManager::ecdsaSignMutex;
+atomic<uint64_t> CryptoManager::ecdsaSignTotal = 0;
+
+list<uint64_t> CryptoManager::blsSignTimes;
+recursive_mutex CryptoManager::blsSignMutex;
+atomic<uint64_t> CryptoManager::blsSignTotal = 0;
+
+atomic<uint64_t> CryptoManager::blsCounter = 0;
+atomic<uint64_t> CryptoManager::ecdsaCounter = 0;
