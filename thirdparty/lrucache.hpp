@@ -39,10 +39,14 @@ namespace cache {
         }
 
 
-        void putIfDoesNotExist(const key_t& key, const value_t& value) {
+        bool putIfDoesNotExist(const key_t& key, const value_t& value) {
             LOCK(m);
-            if (!exists(key))
-                put(key, value);
+            if (!exists(key)) {
+                put( key, value );
+                return true;
+            } else {
+                return false;
+            }
         }
 
         void put(const key_t& key, const value_t& value) {
