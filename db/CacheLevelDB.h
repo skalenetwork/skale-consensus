@@ -38,8 +38,21 @@ class Status;
 class Slice;
 }  // namespace leveldb
 
+#define LEVELDB_STATS_HISTORY  64
 
 class CacheLevelDB {
+
+    static list<uint64_t> writeTimes;
+    static recursive_mutex writeTimeMutex;
+    static atomic<uint64_t> writeTimeTotal;
+    static list<uint64_t> readTimes;
+    static recursive_mutex readTimeMutex;
+    static atomic<uint64_t> readTimeTotal;
+
+    static atomic<uint64_t> readCounter;
+    static atomic<uint64_t> writeCounter;
+
+
 
 protected:
 
@@ -75,10 +88,10 @@ protected:
     ptr< map< schain_index, string > > readSet( block_id _blockId );
 
     ptr< map< schain_index, string > > readSetUnsafe( block_id _blockId );
-    
+
     void writeByteArray( const char* _key, size_t _keyLen, const char* _value, size_t _valueLen );
     void writeByteArray( string& _key, const ptr< vector< uint8_t > >& _data );
-    
+
     string createKey( block_id _blockId );
 
     string createKey( block_id _blockId, schain_index _proposerIndex );
@@ -86,7 +99,7 @@ protected:
     string createKey( block_id _blockId, uint64_t _counter );
 
     string createKey( const block_id& _blockId, const schain_index& _proposerIndex,
-        const bin_consensus_round& _round );
+                      const bin_consensus_round& _round );
 
     string createCounterKey( block_id _block_id );
 
@@ -108,7 +121,7 @@ protected:
 
 
     CacheLevelDB( Schain* _sChain, string& _dirName, string& _prefix, node_id _nodeId,
-        uint64_t _maxDBSize, bool _isDuplicateAddOK = false );
+                  uint64_t _maxDBSize, bool _isDuplicateAddOK = false );
 
     static ptr< map< string, string > > readPrefixRangeFromDBUnsafe(
         string& _prefix, const ptr< leveldb::DB >& _db, bool lastOnly = false );
@@ -135,6 +148,22 @@ public:
     uint64_t getActiveDBSize();
 
     ptr< map< string, string > > readPrefixRange( string& _prefix );
+
+    static void addWriteStats(uint64_t _time);
+    static void addReadStats(uint64_t _time);
+
+    static  uint64_t getReadStats();
+    static  uint64_t getWriteStats();
+
+    static uint64_t getReads() {
+        return readCounter;
+    }
+
+    static uint64_t getWrites() {
+        return writeCounter;
+    }
+
+
 };
 
 
