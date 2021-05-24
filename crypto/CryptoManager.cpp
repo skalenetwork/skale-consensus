@@ -931,3 +931,23 @@ atomic<uint64_t> CryptoManager::blsSignTotal = 0;
 
 atomic<uint64_t> CryptoManager::blsCounter = 0;
 atomic<uint64_t> CryptoManager::ecdsaCounter = 0;
+
+void CryptoManager::addECDSASignStats(uint64_t _time) {
+    ecdsaSignTotal.fetch_add(_time);
+    LOCK(ecdsaSignMutex);
+    ecdsaSignTimes.push_back(_time);
+    if (ecdsaSignTimes.size() > LEVELDB_STATS_HISTORY) {
+        ecdsaSignTotal.fetch_sub(ecdsaSignTimes.front());
+        ecdsaSignTimes.pop_front();
+    }
+}
+
+void CryptoManager::addBLSSignStats(uint64_t _time) {
+    blsSignTotal.fetch_add(_time);
+    LOCK(blsSignMutex);
+    blsSignTimes.push_back(_time);
+    if (blsSignTimes.size() > LEVELDB_STATS_HISTORY) {
+        blsSignTotal.fetch_sub(blsSignTimes.front());
+        blsSignTimes.pop_front();
+    }
+}
