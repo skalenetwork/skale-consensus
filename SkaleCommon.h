@@ -197,6 +197,8 @@ static const uint64_t KNOWN_TRANSACTIONS_HISTORY = 2 * MAX_TRANSACTIONS_PER_BLOC
 
 static const uint64_t  KNOWN_MSG_HASHES_SIZE = 1024;
 
+static const uint64_t LEVELDB_STATS_HISTORY = 8;
+
 enum port_type {
     PROPOSAL = 0, CATCHUP = 1, RETRIEVE = 2, HTTP_JSON = 3, BINARY_CONSENSUS = 4, ZMQ_BROADCAST = 5,
     MTA = 6,

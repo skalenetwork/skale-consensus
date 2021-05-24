@@ -473,7 +473,8 @@ void Schain::processCommittedBlock( const ptr< CommittedBlock >& _block ) {
                 ":LWT:" + to_string( CacheLevelDB::getWriteStats() ) +
                 ":LRT:" + to_string( CacheLevelDB::getReadStats() ) +
                 ":LWC:" + to_string( CacheLevelDB::getWrites() ) +
-                ":LRC:" + to_string( CacheLevelDB::getReads() ) + ":STAMP:" + stamp.toString() );
+                ":LRC:" + to_string( CacheLevelDB::getReads() ) +
+                ":STAMP:" + stamp.toString() );
 
         proposalReceiptTime = 0;
 
