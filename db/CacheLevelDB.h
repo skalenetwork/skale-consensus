@@ -38,7 +38,7 @@ class Status;
 class Slice;
 }  // namespace leveldb
 
-#define LEVELDB_STATS_HISTORY  64
+
 
 class CacheLevelDB {
 

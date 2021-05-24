@@ -119,14 +119,22 @@ string CacheLevelDB::readString(string &_key) {
 #include "utils/Time.h"
 
 string CacheLevelDB::readStringUnsafe(string &_key) {
-    auto time = Time::getCurrentTimeMs();
+
+    uint64_t time = 0;
+
+    readCounter.fetch_add(1);
+    auto measureTime = (readCounter % 100 == 0);
+    if (measureTime)
+        time = Time::getCurrentTimeMs();
+
     for (int i = LEVELDB_SHARDS - 1; i >= 0; i--) {
         string result;
         CHECK_STATE(db.at(i))
         auto status = db.at(i)->Get(readOptions, _key, &result);
         throwExceptionOnError(status);
         if (!status.IsNotFound()) {
-            CacheLevelDB::addReadStats(Time::getCurrentTimeMs() - time);
+            if (measureTime)
+                CacheLevelDB::addReadStats(Time::getCurrentTimeMs() - time);
             return result;
         }
     }
@@ -161,7 +169,12 @@ void CacheLevelDB::writeString(const string &_key, const string &_value,
 
     rotateDBsIfNeeded();
 
-    auto time = Time::getCurrentTimeMs();
+    uint64_t time = 0;
+    writeCounter.fetch_add(1);
+    auto measureTime = (writeCounter % 100 == 0);
+    if (measureTime)
+        time = Time::getCurrentTimeMs();
+
 
     {
         lock_guard<shared_mutex> lock(m);
@@ -176,7 +189,9 @@ void CacheLevelDB::writeString(const string &_key, const string &_value,
 
         throwExceptionOnError(status);
     }
-    CacheLevelDB::addWriteStats(Time::getCurrentTimeMs() - time);
+
+    if (measureTime)
+        CacheLevelDB::addWriteStats(Time::getCurrentTimeMs() - time);
 }
 
 
@@ -188,7 +203,12 @@ void CacheLevelDB::writeByteArray(const char *_key, size_t _keyLen, const char *
 
     rotateDBsIfNeeded();
 
-    auto time = Time::getCurrentTimeMs();
+    uint64_t time = 0;
+    writeCounter.fetch_add(1);
+    auto measureTime = (writeCounter % 100 == 0);
+    if (measureTime)
+        time = Time::getCurrentTimeMs();
+
 
     {
         lock_guard<shared_mutex> lock(m);
@@ -203,7 +223,8 @@ void CacheLevelDB::writeByteArray(const char *_key, size_t _keyLen, const char *
         throwExceptionOnError(status);
     }
 
-    CacheLevelDB::addWriteStats(Time::getCurrentTimeMs() - time);
+    if (measureTime)
+        CacheLevelDB::addWriteStats(Time::getCurrentTimeMs() - time);
 }
 
 void CacheLevelDB::writeByteArray(string &_key, const ptr<vector<uint8_t>>& _data) {
@@ -212,7 +233,11 @@ void CacheLevelDB::writeByteArray(string &_key, const ptr<vector<uint8_t>>& _dat
 
     rotateDBsIfNeeded();
 
-    auto time = Time::getCurrentTimeMs();
+    writeCounter.fetch_add(1);
+    uint64_t time = 0;
+    auto measureTime = (writeCounter % 100 == 0);
+    if (measureTime)
+        time = Time::getCurrentTimeMs();
 
     auto value = (const char *) _data->data();
     auto valueLen = _data->size();
@@ -223,7 +248,9 @@ void CacheLevelDB::writeByteArray(string &_key, const ptr<vector<uint8_t>>& _dat
         throwExceptionOnError(status);
     }
 
-    CacheLevelDB::addWriteStats(Time::getCurrentTimeMs() - time);
+
+    if (measureTime)
+        CacheLevelDB::addWriteStats(Time::getCurrentTimeMs() - time);
 }
 
 void CacheLevelDB::throwExceptionOnError(Status& _status) {
@@ -294,7 +321,7 @@ uint64_t CacheLevelDB::visitKeys(CacheLevelDB::KeyVisitor *_visitor, uint64_t _m
 
     shared_lock<shared_mutex> lock(m);
 
-    uint64_t readCounter = 0;
+    uint64_t readC = 0;
 
     auto it = unique_ptr<leveldb::Iterator>(db.back()->NewIterator(readOptions));
     for (it->SeekToFirst(); it->Valid(); it->Next()) {
@@ -305,7 +332,7 @@ uint64_t CacheLevelDB::visitKeys(CacheLevelDB::KeyVisitor *_visitor, uint64_t _m
         }
     }
 
-    return readCounter;
+    return readC;
 }
 
 
@@ -595,7 +622,11 @@ CacheLevelDB::writeByteArrayToSetUnsafe(const char *_value, uint64_t _valueLen, 
 
     CHECK_ARGUMENT(_index > 0 && _index <= totalSigners);
 
-    auto time = Time::getCurrentTimeMs();
+    uint64_t time = 0;
+    writeCounter.fetch_add(1);
+    auto measureTime = (writeCounter % 100 == 0);
+    if (measureTime)
+        time = Time::getCurrentTimeMs();
 
     auto entryKey = createKey(_blockId, _index);
     CHECK_STATE(entryKey != "");
@@ -649,7 +680,6 @@ CacheLevelDB::writeByteArrayToSetUnsafe(const char *_value, uint64_t _valueLen, 
         return nullptr;
     }
 
-
     auto enoughSet = make_shared<map<schain_index, string>>();
 
     for (uint64_t i = 1; i <= totalSigners; i++) {
@@ -665,7 +695,8 @@ CacheLevelDB::writeByteArrayToSetUnsafe(const char *_value, uint64_t _valueLen, 
 
     CHECK_STATE(enoughSet->size() == requiredSigners);
 
-    CacheLevelDB::addWriteStats(Time::getCurrentTimeMs() - time);
+    if (measureTime)
+        CacheLevelDB::addWriteStats(Time::getCurrentTimeMs() - time);
 
     return enoughSet;
 
@@ -680,10 +711,8 @@ void CacheLevelDB::verify() {
 }
 
 void CacheLevelDB::addWriteStats(uint64_t _time) {
+
     CacheLevelDB::writeTimeTotal.fetch_add(_time);
-    writeCounter.fetch_add(1);
-    if ((writeCounter % 100) != 0)
-        return;
     LOCK(writeTimeMutex);
     CacheLevelDB::writeTimes.push_back(_time);
     if (writeTimes.size() > LEVELDB_STATS_HISTORY) {
@@ -693,9 +722,7 @@ void CacheLevelDB::addWriteStats(uint64_t _time) {
 }
 
 void CacheLevelDB::addReadStats(uint64_t _time) {
-    readCounter.fetch_add(1);
-    if ((readCounter % 100) != 0)
-        return;
+
     CacheLevelDB::readTimeTotal.fetch_add(_time);
     LOCK(readTimeMutex);
     CacheLevelDB::readTimes.push_back(_time);
