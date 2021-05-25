@@ -777,7 +777,7 @@ void Schain::healthCheck() {
             }
         }
 
-        if ( Time::getCurrentTimeSec() - beginTime > 15 ) {
+        if ( Time::getCurrentTimeSec() - beginTime > 15000 ) {
             setHealthCheckFile( 0 );
             LOG( err, "Coult not connect to 2/3 of peers" );
             exit( 110 );
