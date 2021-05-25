@@ -63,8 +63,10 @@ AUXBroadcastMessage::AUXBroadcastMessage(bin_consensus_round _round, bin_consens
 
     auto hash = make_shared<BLAKE3Hash>();
     HASH_FINAL(hashObj, hash->data());
+
     this->sigShare = schain->getCryptoManager()->signBinaryConsensusSigShare(hash, _blockID,
                                                                              (uint64_t ) _round);
+
     CHECK_STATE(sigShare);
     this->sigShareString = sigShare->toString();
 }

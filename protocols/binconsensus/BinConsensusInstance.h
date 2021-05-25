@@ -140,7 +140,7 @@ class BinConsensusInstance : public ProtocolInstance{
 
     void proceedWithCommonCoinIfAUXTwoThird(bin_consensus_round _r);
 
-    void auxBroadcastValue(bin_consensus_round _r, bin_consensus_value _v);
+    void auxBroadcastSelfValue(bin_consensus_round _r, bin_consensus_value _v);
 
     bool isThird(node_count _count);
 
