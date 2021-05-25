@@ -64,11 +64,15 @@ AUXBroadcastMessage::AUXBroadcastMessage(bin_consensus_round _round, bin_consens
     auto hash = make_shared<BLAKE3Hash>();
     HASH_FINAL(hashObj, hash->data());
 
-    this->sigShare = schain->getCryptoManager()->signBinaryConsensusSigShare(hash, _blockID,
-                                                                             (uint64_t ) _round);
+    if ((uint64_t) _round >= COMMON_COIN_ROUND) {
+        this->sigShare = schain->getCryptoManager()->signBinaryConsensusSigShare(
+            hash, _blockID, ( uint64_t ) _round );
+        this->sigShareString = sigShare->toString();
+    } else {
+        this->sigShare = nullptr;
+        this->sigShareString = "";
+    }
 
-    CHECK_STATE(sigShare);
-    this->sigShareString = sigShare->toString();
 }
 
 AUXBroadcastMessage::AUXBroadcastMessage(node_id _srcNodeID, block_id _blockID, schain_index _blockProposerIndex,
@@ -78,7 +82,7 @@ AUXBroadcastMessage::AUXBroadcastMessage(node_id _srcNodeID, block_id _blockID, 
         : NetworkMessage(
         MSG_AUX_BROADCAST, _srcNodeID, _blockID, _blockProposerIndex, _r, _value, _time, _schainId, _msgID,
         _signature, _ecdsaSig, _pubKey, _pkSig, _srcSchainIndex, _sChain->getCryptoManager()) {
-    CHECK_ARGUMENT(!_signature.empty())
+
     printPrefix = "a";
 
 };
