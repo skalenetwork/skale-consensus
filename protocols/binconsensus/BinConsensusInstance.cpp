@@ -258,17 +258,24 @@ void BinConsensusInstance::auxVote(const ptr<MessageEnvelope>& _me) {
 
     auto index = _me->getSrcNodeInfo()->getSchainIndex();
 
-    auto sigShare = m->getSigShare();
 
-    getSchain()->getNode()->getConsensusStateDB()->writeAUXVote(getBlockID(),
-                                                                getBlockProposerIndex(), r, index, v,
-                                                                sigShare->toString());
+
+
     if (v) {
-        auxTrueVotes[r][index] = sigShare;
+        if (r > COMMON_COIN_ROUND) {
+            auto sigShare = m->getSigShare();
+            auxTrueVotes[r][index] = sigShare;
+        } else {
+            auxTrueVotes[r][index] = nullptr;
+        }
     } else {
-        auxFalseVotes[r][index] = sigShare;
+        if (r > COMMON_COIN_ROUND) {
+            auto sigShare = m->getSigShare();
+            auxFalseVotes[r][index] = sigShare;
+        } else {
+            auxFalseVotes[r][index] = nullptr;
+        }
     }
-
 }
 
 
@@ -278,14 +285,10 @@ uint64_t BinConsensusInstance::totalAUXVotes(bin_consensus_round r) {
 
 void BinConsensusInstance::auxSelfVote(bin_consensus_round _r,
         bin_consensus_value _v, const ptr<ThresholdSigShare>& _sigShare) {
-    CHECK_STATE(_sigShare);
+
 
     addAUXSelfVoteToHistory(_r, _v);
 
-    getSchain()->getNode()->getConsensusStateDB()->writeAUXVote(getBlockID(),
-                                                                getBlockProposerIndex(), _r,
-                                                                getSchain()->getSchainIndex(), _v,
-                                                                _sigShare->toString());
     if (_v) {
         auxTrueVotes[_r][getSchain()->getSchainIndex()] = _sigShare;
     } else {
@@ -343,7 +346,7 @@ void BinConsensusInstance::commitValueIfTwoThirds(const ptr<BVBroadcastMessage>&
         insertValue(r, v);
 
         if (!didAUXBroadcast) {
-            auxBroadcastValue(r, v);
+            auxBroadcastSelfValue( r, v );
         }
 
         if (r == getCurrentRound())
@@ -378,12 +381,16 @@ void BinConsensusInstance::networkBroadcastValue(const ptr<BVBroadcastMessage>& 
 }
 
 
-void BinConsensusInstance::auxBroadcastValue(bin_consensus_round _r, bin_consensus_value _v) {
+void BinConsensusInstance::auxBroadcastSelfValue(bin_consensus_round _r, bin_consensus_value _v) {
 
     auto m = make_shared<AUXBroadcastMessage>(_r, _v, blockID, blockProposerIndex,
             Time::getCurrentTimeMs(), *this);
 
-    auxSelfVote(_r, _v, m->getSigShare());
+    if (_r >= COMMON_COIN_ROUND) {
+        auxSelfVote( _r, _v, m->getSigShare() );
+    } else {
+        auxSelfVote(_r, _v, nullptr);
+    }
 
     getSchain()->getNode()->getNetwork()->broadcastMessage(m);
 
@@ -416,7 +423,7 @@ void BinConsensusInstance::proceedWithCommonCoinIfAUXTwoThird(bin_consensus_roun
 
         uint64_t random;
 
-        if (getSchain()->getNode()->isSgxEnabled() && ((uint64_t) _r) > 3) {
+        if (getSchain()->getNode()->isSgxEnabled() && ((uint64_t) _r) >= COMMON_COIN_ROUND) {
             random = this->calculateBLSRandom(_r);
         } else {
 
