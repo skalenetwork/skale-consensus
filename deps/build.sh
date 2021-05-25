@@ -1468,21 +1468,22 @@ fi
 
 if [ "$WITH_BOOST" = "yes" ];
 then
-	echo -e "${COLOR_SEPARATOR}==================== ${COLOR_PROJECT_NAME}BOOST${COLOR_SEPARATOR} ========================================${COLOR_RESET}"
-	if [ ! -f "$INSTALL_ROOT/lib/libboost_system.a" ];
-	then
-		#####https://dl.bintray.com/boostorg/release/1.68.0/source/boost_1_68_0.tar.gz
-		env_restore
-		cd "$SOURCES_ROOT"
-		if [ ! -d "boost_1_68_0" ];
-		then
-			if [ ! -f "boost_1_68_0.tar.gz" ];
-			then
-				echo -e "${COLOR_INFO}downloading it${COLOR_DOTS}...${COLOR_RESET}"
-				$WGET https://dl.bintray.com/boostorg/release/1.68.0/source/boost_1_68_0.tar.gz
-			fi
-			echo -e "${COLOR_INFO}unpacking it${COLOR_DOTS}...${COLOR_RESET}"
-			tar -xzf boost_1_68_0.tar.gz
+        echo -e "${COLOR_SEPARATOR}==================== ${COLOR_PROJECT_NAME}BOOST${COLOR_SEPARATOR} ========================================${COLOR_RESET}"
+        if [ ! -f "$INSTALL_ROOT/lib/libboost_system.a" ];
+        then
+                #####https://dl.bintray.com/boostorg/release/1.68.0/source/boost_1_68_0.tar.gz
+                env_restore
+                cd "$SOURCES_ROOT"
+                if [ ! -d "boost_1_68_0" ];
+                then
+                        if [ ! -f "boost_1_68_0.tar.bz2" ];
+                        then
+                                echo -e "${COLOR_INFO}downloading it${COLOR_DOTS}...${COLOR_RESET}"
+                                # $WGET https://dl.bintray.com/boostorg/release/1.68.0/source/boost_1_68_0.tar.gz
+                                $WGET https://boostorg.jfrog.io/artifactory/main/release/1.68.0/source/boost_1_68_0.tar.bz2
+                        fi
+                        echo -e "${COLOR_INFO}unpacking it${COLOR_DOTS}...${COLOR_RESET}"
+                        tar -xf boost_1_68_0.tar.bz2
 		fi
 		cd boost_1_68_0
 		echo -e "${COLOR_INFO}configuring and building it${COLOR_DOTS}...${COLOR_RESET}"
@@ -1503,6 +1504,7 @@ then
 		echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
 	fi
 fi
+
 
 if [ "$WITH_PUPNP" = "yes" ];
 then
