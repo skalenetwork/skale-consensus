@@ -305,6 +305,8 @@ static const uint64_t ZMQ_RECEIVE_RETRY_MS = 10;
 
 static const uint64_t DEFAULT_MIN_PRICE = 100000;
 
+static const uint64_t COMMON_COIN_ROUND = 4;
+
 extern void setThreadName(std::string const &_n, ConsensusEngine* _engine);
 
 extern std::string getThreadName();
