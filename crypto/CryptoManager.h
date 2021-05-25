@@ -245,11 +245,15 @@ public:
     void exitZMQClient();
 
 
-    static void addEcdsaSignStats(uint64_t _time);
+    static void addECDSASignStats(uint64_t _time);
     static void addBLSSignStats(uint64_t _time);
 
-    static  uint64_t getEcdsaStats();
-    static  uint64_t getBLSStats();
+    static  uint64_t getEcdsaStats() {
+        return ecdsaSignTotal / LEVELDB_STATS_HISTORY;
+    }
+    static  uint64_t getBLSStats() {
+        return blsSignTotal / LEVELDB_STATS_HISTORY;
+    }
 
     static uint64_t getECDSAs() {
         return ecdsaCounter;
