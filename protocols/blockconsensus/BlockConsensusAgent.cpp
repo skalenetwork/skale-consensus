@@ -165,7 +165,7 @@ void BlockConsensusAgent::decideBlock(block_id _blockId, schain_index _sChainInd
         auto msg = make_shared<BlockSignBroadcastMessage>(_blockId, _sChainIndex,
                 Time::getCurrentTimeMs(), *this);
 
-        auto signature = getSchain()->getNode()->getBlockSigShareDB()->checkAndSaveShare(msg->getSigShare(),
+        auto signature = getSchain()->getNode()->getBlockSigShareDB()->checkAndSaveShareInMemory(msg->getSigShare(),
                                                                                          getSchain()->getCryptoManager());
 
         getSchain()->getNode()->getNetwork()->broadcastMessage(msg);
@@ -292,7 +292,7 @@ void BlockConsensusAgent::reportConsensusAndDecideIfNeeded(const ptr<ChildBVDeci
 void BlockConsensusAgent::processBlockSignMessage(const ptr<BlockSignBroadcastMessage>& _message) {
     try {
         auto signature =
-                getSchain()->getNode()->getBlockSigShareDB()->checkAndSaveShare(_message->getSigShare(),
+                getSchain()->getNode()->getBlockSigShareDB()->checkAndSaveShareInMemory(_message->getSigShare(),
                                                                                 getSchain()->getCryptoManager());
         if (signature == nullptr) {
             return;

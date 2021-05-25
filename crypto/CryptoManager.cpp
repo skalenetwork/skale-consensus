@@ -73,6 +73,8 @@
 
 #include "network/Utils.h"
 
+#include "utils/Time.h"
+
 
 #include "OpenSSLECDSAKey.h"
 #include "OpenSSLEdDSAKey.h"
@@ -367,6 +369,8 @@ ptr< BLAKE3Hash > CryptoManager::calculatePublicKeyHash(
 string CryptoManager::sgxSignECDSA( const ptr< BLAKE3Hash >& _hash, string& _keyName ) {
     CHECK_ARGUMENT( _hash );
 
+
+
     string ret;
 
     // temporary solution to support old servers
@@ -385,6 +389,9 @@ string CryptoManager::sgxSignECDSA( const ptr< BLAKE3Hash >& _hash, string& _key
         string s = JSONFactory::getString( result, "signature_s" );
         ret = v + ":" + r.substr( 2 ) + ":" + s.substr( 2 );
     }
+
+
+
     return ret;
 }
 
@@ -399,13 +406,26 @@ bool CryptoManager::verifyECDSA(
 string CryptoManager::sign( const ptr< BLAKE3Hash >& _hash ) {
     CHECK_ARGUMENT( _hash );
 
+    string result;
+
+    uint64_t time = 0;
+    ecdsaCounter.fetch_add(1);
+    auto measureTime = (ecdsaCounter % 100 == 0);
+    if (measureTime)
+        time = Time::getCurrentTimeMs();
+
     if ( isSGXEnabled ) {
         CHECK_STATE( sgxECDSAKeyName != "" )
-        auto result = sgxSignECDSA( _hash, sgxECDSAKeyName );
-        return result;
+        result = sgxSignECDSA( _hash, sgxECDSAKeyName );
     } else {
-        return _hash->toHex();
+        result = _hash->toHex();
     }
+
+    if (measureTime)
+        addECDSASignStats(Time::getCurrentTimeMs() - time);
+
+    return result;
+
 }
 
 
@@ -565,6 +585,15 @@ ptr< ThresholdSigShare > CryptoManager::signSigShare(
     CHECK_ARGUMENT( _hash );
     MONITOR( __CLASS_NAME__, __FUNCTION__ )
 
+    ptr<ThresholdSigShare> result = nullptr;
+
+    uint64_t time = 0;
+    blsCounter.fetch_add(1);
+
+    auto measureTime = (ecdsaCounter % 100 == 0);
+    if (measureTime)
+        time = Time::getCurrentTimeMs();
+
     if ( getSchain()->getNode()->isSgxEnabled() && !_forceMockup ) {
         Json::Value jsonShare;
         string ret;
@@ -589,13 +618,18 @@ ptr< ThresholdSigShare > CryptoManager::signSigShare(
 
         auto sig = make_shared< BLSSigShare >(
             sigShare, ( uint64_t ) getSchain()->getSchainIndex(), requiredSigners, totalSigners );
-        return make_shared< ConsensusBLSSigShare >( sig, sChain->getSchainID(), _blockId );
+        result = make_shared< ConsensusBLSSigShare >( sig, sChain->getSchainID(), _blockId );
 
     } else {
         auto sigShare = _hash->toHex();
-        return make_shared< MockupSigShare >( sigShare, sChain->getSchainID(), _blockId,
+        result = make_shared< MockupSigShare >( sigShare, sChain->getSchainID(), _blockId,
             sChain->getSchainIndex(), sChain->getTotalSigners(), sChain->getRequiredSigners() );
     }
+
+    if (measureTime)
+        addBLSSignStats(Time::getCurrentTimeMs() - time);
+
+    return result;
 }
 
 ptr< ThresholdSigShareSet > CryptoManager::createSigShareSet( block_id _blockId ) {

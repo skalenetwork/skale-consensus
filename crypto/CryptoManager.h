@@ -244,16 +244,10 @@ public:
 
     void exitZMQClient();
 
+
+
     static void addECDSASignStats(uint64_t _time);
     static void addBLSSignStats(uint64_t _time);
-
-    static uint64_t getECDSATotals() {
-        return ecdsaCounter;
-    }
-
-    static uint64_t getBLSTotals() {
-        return blsCounter;
-    }
 
     static  uint64_t getEcdsaStats() {
         return ecdsaSignTotal / LEVELDB_STATS_HISTORY;
@@ -270,7 +264,13 @@ public:
         return blsCounter;
     }
 
+    static uint64_t getECDSATotals() {
+        return ecdsaCounter;
+    }
 
+    static uint64_t getBLSTotals() {
+        return blsCounter;
+    }
 };
 
 #define RETRY_BEGIN \
