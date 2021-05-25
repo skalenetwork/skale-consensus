@@ -51,8 +51,6 @@ class CacheLevelDB {
     static atomic<uint64_t> readCounter;
     static atomic<uint64_t> writeCounter;
 
-
-
 protected:
 
     vector< ptr< leveldb::DB > > db;
