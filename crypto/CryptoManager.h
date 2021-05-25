@@ -83,7 +83,6 @@ class CryptoManager {
     static atomic<uint64_t> blsCounter;
     static  atomic<uint64_t> ecdsaCounter;
 
-
     cache::lru_cache< uint64_t, tuple< ptr< OpenSSLEdDSAKey >, string, string > >
         sessionKeys;                                               // tsafe
     cache::lru_ordered_cache< string, string > sessionPublicKeys;  // tsafe
@@ -255,11 +254,11 @@ public:
         return blsSignTotal / LEVELDB_STATS_HISTORY;
     }
 
-    static uint64_t getECDSAs() {
+    static uint64_t getECDSATotals() {
         return ecdsaCounter;
     }
 
-    static uint64_t getBLSs() {
+    static uint64_t getBLSTotals() {
         return blsCounter;
     }
 };
