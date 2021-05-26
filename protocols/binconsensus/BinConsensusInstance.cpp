@@ -262,14 +262,14 @@ void BinConsensusInstance::auxVote(const ptr<MessageEnvelope>& _me) {
 
 
     if (v) {
-        if (r > COMMON_COIN_ROUND) {
+        if (r >= COMMON_COIN_ROUND) {
             auto sigShare = m->getSigShare();
             auxTrueVotes[r][index] = sigShare;
         } else {
             auxTrueVotes[r][index] = nullptr;
         }
     } else {
-        if (r > COMMON_COIN_ROUND) {
+        if (r >= COMMON_COIN_ROUND) {
             auto sigShare = m->getSigShare();
             auxFalseVotes[r][index] = sigShare;
         } else {
