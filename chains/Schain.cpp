@@ -24,6 +24,7 @@
 
 #include "leveldb/db.h"
 #include <sched.h>
+#include <malloc.h>
 #include <unordered_set>
 
 #include "Log.h"
@@ -479,6 +480,21 @@ void Schain::processCommittedBlock( const ptr< CommittedBlock >& _block ) {
                 ":SEC:" + to_string( CryptoManager::getECDSATotals() ) +
                 ":SBC:" + to_string( CryptoManager::getBLSTotals() ) +
                 ":STAMP:" + stamp.toString() );
+
+        //get malloc stats
+        static atomic<uint64_t> mallocCounter = 0;
+        if (mallocCounter % 100 == 0) {
+            char *bp = nullptr;
+            size_t size = 0;
+            FILE* stream = open_memstream (&bp, &size);
+            CHECK_STATE(stream);;
+            CHECK_STATE(malloc_info(0, stream) == 0);
+            fclose(stream);
+            CHECK_STATE(bp);
+            LOG(info, bp);
+            free(bp);
+        }
+        mallocCounter.fetch_add(1);
 
         proposalReceiptTime = 0;
 
