@@ -483,7 +483,7 @@ void Schain::processCommittedBlock( const ptr< CommittedBlock >& _block ) {
 
         //get malloc stats
         static atomic<uint64_t> mallocCounter = 0;
-        if (mallocCounter % 100 == 0) {
+        if (mallocCounter % 1000 == 0) {
             char *bp = nullptr;
             size_t size = 0;
             FILE* stream = open_memstream (&bp, &size);
