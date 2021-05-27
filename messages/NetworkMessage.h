@@ -28,6 +28,10 @@
 
 #include "Message.h"
 
+#include "headers/BasicHeader.h"
+#include "crypto/BLAKE3Hash.h"
+
+
 #define WRITE( _BUFFER_, _VAR_ ) _BUFFER_->write( &_VAR_, sizeof( _VAR_ ) )
 
 #define READ( _BUFFER_, _VAR_ ) _BUFFER_->read( &_VAR_, sizeof( _VAR_ ) )
@@ -46,7 +50,6 @@ class ThresholdSignature;
 
 static constexpr uint64_t MAX_CONSENSUS_MESSAGE_LEN = 1024;
 
-#include "headers/BasicHeader.h"
 
 class NetworkMessage : public Message, public BasicHeader {
 
@@ -57,7 +60,8 @@ protected:
     bin_consensus_round r = 0;
     bin_consensus_value value = 0;
     ptr< ThresholdSigShare > sigShare;
-    ptr< BLAKE3Hash > hash;
+    BLAKE3Hash hash;
+    bool haveHash = false;
     string sigShareString;
     string ecdsaSig;
     string publicKey;
@@ -74,7 +78,7 @@ protected:
         const string& _ecdsaSig, const string& _publicKey, const string& _pkSig,
         schain_index _srcSchainIndex, const ptr< CryptoManager >& _cryptoManager );
 
-    virtual ptr< BLAKE3Hash > calculateHash();
+    virtual BLAKE3Hash calculateHash();
 
     void addFields( nlohmann::json& j ) override;
 
@@ -100,7 +104,7 @@ public:
 
     [[nodiscard]] schain_index getSrcSchainIndex() const;
 
-    ptr< BLAKE3Hash > getHash();
+    BLAKE3Hash getHash();
 
     string serializeToString() override;
 

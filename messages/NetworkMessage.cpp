@@ -349,14 +349,16 @@ uint64_t NetworkMessage::getTimeMs() const {
     return timeMs;
 }
 
-ptr<BLAKE3Hash>NetworkMessage::getHash() {
-    if (hash == nullptr)
+BLAKE3Hash NetworkMessage::getHash() {
+    if (!haveHash) {
         hash = calculateHash();
-    CHECK_STATE(hash)
+        haveHash = true;
+    }
+
     return hash;
 }
 
-ptr<BLAKE3Hash>NetworkMessage::calculateHash() {
+BLAKE3Hash NetworkMessage::calculateHash() {
 
     HASH_INIT(hasher);
     HASH_UPDATE(hasher, schainID);
@@ -384,9 +386,7 @@ ptr<BLAKE3Hash>NetworkMessage::calculateHash() {
         HASH_UPDATE(hasher, sigShareLen);
     }
 
-
-    hash  = make_shared<BLAKE3Hash>();
-    HASH_FINAL(hasher, hash->data());
+    HASH_FINAL(hasher, hash.data());
     return hash;
 }
 

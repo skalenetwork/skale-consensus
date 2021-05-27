@@ -200,7 +200,7 @@ void Network::networkReadLoop() {
                 }
 
 
-                if ( !knownMsgHashes.putIfDoesNotExist( msg->getHash()->toHex(), true ) ) {
+                if ( !knownMsgHashes.putIfDoesNotExist( msg->getHash().toHex(), true ) ) {
                     // already seen this message, dropping
                     continue;
                 }

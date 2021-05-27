@@ -47,7 +47,7 @@ public:
     virtual ~ThresholdSigShare();
 
     [[nodiscard]] schain_index getSignerIndex() const;
-    ptr<BLAKE3Hash> computeHash();
+    BLAKE3Hash computeHash();
 
 };
 

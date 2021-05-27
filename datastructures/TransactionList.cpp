@@ -203,9 +203,6 @@ ptr< TransactionList > TransactionList::createRandomSample( uint64_t _size, boos
 
     auto result =  make_shared<TransactionList >( sample );
 
-    if (_size > 0) {
-        CHECK_STATE(result->calculateTopMerkleRoot() != nullptr);
-    }
 
     return result;
 
@@ -215,6 +212,6 @@ uint64_t TransactionList::hashCount() {
     return transactions->size();
 }
 
-ptr<BLAKE3Hash>TransactionList::getHash(uint64_t _index) {
+BLAKE3Hash TransactionList::getHash(uint64_t _index) {
     return transactions->at(_index)->getHash();
 };

@@ -324,8 +324,10 @@ pair< ConnectionStatus, ConnectionSubStatus > BlockProposalClientAgent::sendBloc
         getSchain()->getCryptoManager()->createDAProofSigShare( finalHeader->getSigShare(),
             _proposal->getSchainID(), _proposal->getBlockID(), _index, false );
 
+    auto h = _proposal->getHash();
+
     getSchain()->getCryptoManager()->verifyDAProofSigShare(
-        sigShare, _index, _proposal->getHash(), getSchain()->getNodeIDByIndex( _index ), false );
+        sigShare, _index, h, getSchain()->getNodeIDByIndex( _index ), false );
 
     CHECK_STATE( sigShare );
 

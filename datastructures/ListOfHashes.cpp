@@ -32,13 +32,13 @@
 
 
 
-ptr<BLAKE3Hash>ListOfHashes::calculateTopMerkleRoot() {
+BLAKE3Hash ListOfHashes::calculateTopMerkleRoot() {
 
     LOCK(m)
 
     CHECK_STATE(hashCount() > 0);
 
-    vector<ptr<BLAKE3Hash>> hashes;
+    vector<BLAKE3Hash> hashes;
     hashes.reserve(hashCount() + 1);
 
     for (uint64_t i = 0; i < hashCount(); i++) {

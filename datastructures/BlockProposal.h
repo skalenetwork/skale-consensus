@@ -30,6 +30,7 @@
 #include "DataStructure.h"
 #include "TimeStamp.h"
 #include "SendableItem.h"
+#include "crypto/BLAKE3Hash.h"
 
 class Schain;
 class Transaction;
@@ -63,7 +64,7 @@ protected:
 
     ptr< TransactionList > transactionList = nullptr;  // tsafe
 
-    ptr< BLAKE3Hash > hash = nullptr; // tsafe
+    BLAKE3Hash hash; // tsafe
 
     string signature;
 
@@ -97,7 +98,7 @@ public:
 
     [[nodiscard]]   node_id getProposerNodeID() const;
 
-    ptr< BLAKE3Hash > getHash();
+    BLAKE3Hash getHash();
 
     ptr< PartialHashesList > createPartialHashesList();
 

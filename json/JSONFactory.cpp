@@ -479,7 +479,7 @@ JSONFactory::parseTestKeyNamesFromJson(const string& _sgxServerURL, const fs_pat
 
         auto pubKey = blsPublicKeysMap->at( i + 1 );
 
-        auto sharedHash = make_shared<array<uint8_t, HASH_LEN>>(hash->getHash());
+        auto sharedHash = make_shared<array<uint8_t, HASH_LEN>>(hash.getHash());
 
         CHECK_STATE( pubKey->VerifySigWithHelper(
             sharedHash, make_shared< BLSSigShare >( sig ), _requiredNodes, _totalNodes ) );
@@ -487,7 +487,7 @@ JSONFactory::parseTestKeyNamesFromJson(const string& _sgxServerURL, const fs_pat
 
     ptr< BLSSignature > commonSig = sigShareSet.merge();
 
-    auto sharedHash = make_shared<array<uint8_t, HASH_LEN>>(hash->getHash());
+    auto sharedHash = make_shared<array<uint8_t, HASH_LEN>>(hash.getHash());
 
     CHECK_STATE( blsPublicKey->VerifySigWithHelper(
             sharedHash, commonSig, _requiredNodes, _totalNodes ) );

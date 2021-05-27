@@ -69,7 +69,7 @@ public:
 
     ptr< vector< uint64_t > > createTransactionSizesVector( bool _writePartialHash );
 
-    ptr< BLAKE3Hash > getHash( uint64_t _index ) override;
+    BLAKE3Hash getHash( uint64_t _index ) override;
 
     uint64_t hashCount() override;
 

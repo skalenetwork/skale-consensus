@@ -253,7 +253,7 @@ void BlockConsensusAgent::reportConsensusAndDecideIfNeeded(const ptr<ChildBVDeci
                 BOOST_THROW_EXCEPTION(InvalidStateException("Can not read block "
                                                             + to_string(blockID - 1) + " from LevelDB",
                                                             __CLASS_NAME__));
-            seed = *((uint64_t *) previousBlock->getHash()->data());
+            seed = *((uint64_t *) previousBlock->getHash().data());
         }
 
         auto random = ((uint64_t) seed) % nodeCount;

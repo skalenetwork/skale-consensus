@@ -42,15 +42,15 @@
 
 
 
-ptr< BLAKE3Hash > Transaction::getHash() {
+BLAKE3Hash Transaction::getHash() {
 
     LOCK(m)
 
-    if ( hash )
+    if ( haveHash )
         return hash;
 
     hash = BLAKE3Hash::calculateHash(data);
-    CHECK_STATE(hash);
+    haveHash = true;
     return hash;
 }
 
@@ -68,7 +68,7 @@ ptr< partial_sha_hash > Transaction::getPartialHash() {
     getHash();
 
     for (size_t i = 0; i < PARTIAL_HASH_LEN; i++ ) {
-        partialHash->at( i ) = hash->at( i );
+        partialHash->at( i ) = hash.at( i );
     }
 
     return partialHash;

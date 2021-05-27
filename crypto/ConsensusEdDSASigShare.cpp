@@ -52,7 +52,7 @@ string ConsensusEdDSASigShare::toString() {
 
 void ConsensusEdDSASigShare::verify(
     CryptoManager& _cryptoManager, schain_index _signerIndex,
-    ptr< BLAKE3Hash >& _hash, node_id _nodeId) {
+    BLAKE3Hash& _hash, node_id _nodeId) {
 
     boost::char_separator< char > sep( ";" );
     boost::tokenizer tok {edDSASigShare, sep};

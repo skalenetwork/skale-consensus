@@ -53,7 +53,7 @@ BlockProposalHeader::BlockProposalHeader(BlockProposal& _block) : BasicHeader(He
     this->proposerNodeID = _block.getProposerNodeID();
     this->schainID = _block.getSchainID();
     this->blockID = _block.getBlockID();
-    this->blockHash = _block.getHash()->toHex();
+    this->blockHash = _block.getHash().toHex();
     this->stateRoot = _block.getStateRoot();
     this->signature = _block.getSignature();
     this->timeStamp = _block.getTimeStampS();

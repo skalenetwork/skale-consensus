@@ -437,7 +437,7 @@ void BinConsensusInstance::proceedWithCommonCoinIfAUXTwoThird(bin_consensus_roun
                 d->push_back(key.at(z));
             }
             auto hash = BLAKE3Hash::calculateHash(d);
-            random = *((uint64_t*) hash->data());
+            random = *((uint64_t*) hash.data());
         }
 
         auto randomDB = getSchain()->getNode()->getRandomDB();

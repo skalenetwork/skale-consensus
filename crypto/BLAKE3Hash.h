@@ -49,7 +49,7 @@ public:
 
     uint8_t at(uint32_t _position);
 
-    int compare(const ptr<BLAKE3Hash>& _hash2 );
+    int compare(BLAKE3Hash& _hash2 );
 
     uint8_t * data() {
         return hash.data();
@@ -57,13 +57,13 @@ public:
 
     const array<uint8_t ,HASH_LEN>& getHash() const;
 
-    static ptr<BLAKE3Hash> fromHex(const string& _hex);
+    static BLAKE3Hash fromHex(const string& _hex);
 
     string toHex();
 
-    static ptr<BLAKE3Hash> calculateHash(const ptr<vector<uint8_t>>& _data);
+    static BLAKE3Hash calculateHash(const ptr<vector<uint8_t>>& _data);
 
-    static ptr<BLAKE3Hash> merkleTreeMerge(const ptr<BLAKE3Hash>& _left, const ptr<BLAKE3Hash>& _right);
+    static BLAKE3Hash merkleTreeMerge(const BLAKE3Hash& _left, const BLAKE3Hash& _right);
 
 };
 
