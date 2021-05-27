@@ -28,6 +28,7 @@
 #include <boost/integer/integer_log2.hpp>
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/uniform_int_distribution.hpp>
+#include "crypto/BLAKE3Hash.h"
 
 
 #include "datastructures/DataStructure.h"
@@ -35,16 +36,15 @@
 class  BLAKE3Hash;
 
 
-
-
 class Transaction : public DataStructure {
 
+    bool haveHash = false;
 
     static atomic<int64_t>  totalObjects;
 
     ptr<vector<uint8_t >> data = nullptr;
 
-    ptr<BLAKE3Hash>hash = nullptr;
+    BLAKE3Hash hash;
 
     ptr<partial_sha_hash> partialHash = nullptr;
 
@@ -63,7 +63,7 @@ public:
     void serializeInto(const ptr<vector<uint8_t>>& _out, bool _writePartialHash );
 
 
-    ptr<BLAKE3Hash>getHash();
+    BLAKE3Hash getHash();
 
     ptr<partial_sha_hash> getPartialHash();
 

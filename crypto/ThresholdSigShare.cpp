@@ -45,7 +45,7 @@ schain_index ThresholdSigShare::getSignerIndex() const {
 }
 
 
-ptr<BLAKE3Hash>ThresholdSigShare::computeHash() {
+BLAKE3Hash ThresholdSigShare::computeHash() {
     auto str = this->toString();
     auto v = make_shared<vector<uint8_t>>(str.size());
     copy(str.begin(), str.end(), v->begin());

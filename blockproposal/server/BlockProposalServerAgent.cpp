@@ -661,10 +661,10 @@ ptr< Header > BlockProposalServerAgent::createDAProofResponseHeader(
 
 
 
-    ptr< BLAKE3Hash > blockHash = nullptr;
+    BLAKE3Hash blockHash;
+
     try {
         blockHash = BLAKE3Hash::fromHex( _header->getBlockHash() );
-        CHECK_STATE( blockHash );
     } catch ( ... ) {
         responseHeader->setStatusSubStatus( CONNECTION_DISCONNECT, CONNECTION_INVALID_HASH );
         responseHeader->setComplete();
@@ -695,7 +695,7 @@ ptr< Header > BlockProposalServerAgent::createDAProofResponseHeader(
         return responseHeader;
     }
 
-    if ( proposal->getHash()->toHex() != _header->getBlockHash() ) {
+    if ( proposal->getHash().toHex() != _header->getBlockHash() ) {
         responseHeader->setStatusSubStatus( CONNECTION_DISCONNECT, CONNECTION_INVALID_HASH );
         responseHeader->setComplete();
         return responseHeader;

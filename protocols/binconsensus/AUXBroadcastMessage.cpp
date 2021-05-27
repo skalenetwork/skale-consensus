@@ -61,8 +61,8 @@ AUXBroadcastMessage::AUXBroadcastMessage(bin_consensus_round _round, bin_consens
     HASH_UPDATE(hashObj, this->schainID);
     HASH_UPDATE(hashObj, this->msgType);
 
-    auto hash = make_shared<BLAKE3Hash>();
-    HASH_FINAL(hashObj, hash->data());
+    BLAKE3Hash hash;
+    HASH_FINAL(hashObj, hash.data());
 
     if ((uint64_t) _round >= COMMON_COIN_ROUND) {
         this->sigShare = schain->getCryptoManager()->signBinaryConsensusSigShare(

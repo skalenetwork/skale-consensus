@@ -45,7 +45,7 @@ protected:
     node_id proposerNodeID;
     block_id blockID;
     schain_index proposerIndex;
-    ptr<BLAKE3Hash> hash;
+    BLAKE3Hash hash;
     ptr<ThresholdSignature> thresholdSig;
 
 public:
@@ -62,6 +62,6 @@ public:
 
     [[nodiscard]] ptr<ThresholdSignature> getThresholdSig() const;
 
-    [[nodiscard]] ptr<BLAKE3Hash> getHash() const;
+    [[nodiscard]] BLAKE3Hash getHash() const;
 };
 

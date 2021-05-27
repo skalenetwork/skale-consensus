@@ -90,8 +90,10 @@ ptr<DAProof> DASigShareDB::addAndMergeSigShareAndVerifySig(const ptr<ThresholdSi
 
 
 
+        auto h = _proposal->getHash();
+
         sChain->getCryptoManager()->verifyDAProofThresholdSig(
-                _proposal->getHash(), sig->toString(), _sigShare->getBlockId());
+                h, sig->toString(), _sigShare->getBlockId());
         auto proof = make_shared<DAProof>(_proposal, sig);
         return proof;
     }

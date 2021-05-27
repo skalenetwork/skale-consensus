@@ -70,7 +70,7 @@ BlockProposalRequestHeader::BlockProposalRequestHeader(Schain &_sChain, const pt
     timeStamp = proposal->getTimeStampS();
     timeStampMs = proposal->getTimeStampMs();
 
-    hash = proposal->getHash()->toHex();
+    hash = proposal->getHash().toHex();
     CHECK_STATE(!hash.empty())
 
     signature = proposal->getSignature();

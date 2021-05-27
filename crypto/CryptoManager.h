@@ -141,17 +141,17 @@ private:
 
     tuple< ptr< OpenSSLEdDSAKey >, string > localGenerateFastKey();
 
-    string sign( const ptr< BLAKE3Hash >& _hash );
+    string sign( BLAKE3Hash & _hash );
 
     tuple< string, string, string > sessionSign(
-        const ptr< BLAKE3Hash >& _hash, block_id _blockId );
+        BLAKE3Hash & _hash, block_id _blockId );
 
-    bool verifyECDSASig( const ptr< BLAKE3Hash >& _hash, const string& _sig, node_id _nodeId );
+    bool verifyECDSASig( BLAKE3Hash & _hash, const string& _sig, node_id _nodeId );
 
     ptr< ThresholdSigShare > signSigShare(
-        const ptr< BLAKE3Hash >& _hash, block_id _blockId, bool _forceMockup );
+        BLAKE3Hash & _hash, block_id _blockId, bool _forceMockup );
     ptr< ThresholdSigShare > signDAProofSigShare(
-        const ptr< BLAKE3Hash >& _hash, block_id _blockId, bool _forceMockup );
+        BLAKE3Hash & _hash, block_id _blockId, bool _forceMockup );
 
     void initSGXClient();
 
@@ -166,7 +166,7 @@ public:
     static void setRetryHappened( bool retryHappened );
 
     bool sessionVerifyEdDSASig(
-        const ptr< BLAKE3Hash >& _hash, const string& _sig, const string& _publicKey );
+        BLAKE3Hash & _hash, const string& _sig, const string& _publicKey );
     // This constructor is used for testing
     CryptoManager( uint64_t _totalSigners, uint64_t _requiredSigners, bool _isSGXEnabled,
         string _sgxURL = "", string _sgxSslKeyFileFullPath = "",
@@ -179,10 +179,10 @@ public:
 
 
     void verifyDAProofSigShare( ptr< ThresholdSigShare > _sigShare, schain_index _schainIndex,
-        ptr< BLAKE3Hash > _hash, node_id _nodeId, bool _forceMockup );
+        BLAKE3Hash & _hash, node_id _nodeId, bool _forceMockup );
 
     ptr< ThresholdSignature > verifyDAProofThresholdSig(
-        const ptr< BLAKE3Hash >& _hash, const string& _signature, block_id _blockId );
+        BLAKE3Hash & _hash, const string& _signature, block_id _blockId );
 
     ptr< ThresholdSigShareSet > createSigShareSet( block_id _blockId );
     ptr< ThresholdSigShareSet > createDAProofSigShareSet( block_id _blockId );
@@ -202,9 +202,9 @@ public:
         const ptr< BlockProposal >& _p );
 
     ptr< ThresholdSigShare > signBinaryConsensusSigShare(
-        const ptr< BLAKE3Hash >& _hash, block_id _blockId, uint64_t _round );
+        BLAKE3Hash & _hash, block_id _blockId, uint64_t _round );
 
-    ptr< ThresholdSigShare > signBlockSigShare( const ptr< BLAKE3Hash >& _hash, block_id _blockId );
+    ptr< ThresholdSigShare > signBlockSigShare( BLAKE3Hash & _hash, block_id _blockId );
 
     tuple< string, string, string > signNetworkMsg( NetworkMessage& _msg );
 
@@ -220,13 +220,13 @@ public:
     static void setSGXKeyAndCert( string& _keyFullPath, string& _certFullPath, uint64_t _sgxPort );
 
 
-    string sgxSignECDSA( const ptr< BLAKE3Hash >& _hash, string& _keyName );
+    string sgxSignECDSA( BLAKE3Hash & _hash, string& _keyName );
 
     tuple< string, string, string > sessionSignECDSA(
-        const ptr< BLAKE3Hash >& _hash, block_id _blockID );
+        BLAKE3Hash & _hash, block_id _blockID );
 
     bool verifyECDSA(
-        const ptr< BLAKE3Hash >& _hash, const string& _sig, const string& _publicKey );
+        BLAKE3Hash & _hash, const string& _sig, const string& _publicKey );
 
 
     ptr< BLSPublicKey > getSgxBlsPublicKey();
@@ -237,9 +237,9 @@ public:
     static void setSgxUrl( const string& sgxUrl );
 
 
-    static ptr< BLAKE3Hash > calculatePublicKeyHash( string publicKey, block_id _blockID );
+    static BLAKE3Hash calculatePublicKeyHash( string publicKey, block_id _blockID );
 
-    bool sessionVerifySigAndKey( ptr< BLAKE3Hash >& _hash, const string& _sig,
+    bool sessionVerifySigAndKey( BLAKE3Hash& _hash, const string& _sig,
         const string& _publicKey, const string& pkSig, block_id _blockID, node_id _nodeId );
 
     void exitZMQClient();

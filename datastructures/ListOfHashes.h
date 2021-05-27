@@ -34,9 +34,9 @@ public:
 
     virtual uint64_t hashCount() = 0;
 
-    virtual ptr<BLAKE3Hash> getHash(uint64_t _index) = 0;
+    virtual BLAKE3Hash getHash(uint64_t _index) = 0;
 
-    ptr<BLAKE3Hash>calculateTopMerkleRoot();
+    BLAKE3Hash calculateTopMerkleRoot();
 };
 
 

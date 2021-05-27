@@ -44,10 +44,10 @@ uint8_t BLAKE3Hash::at(uint32_t _position) {
 }
 
 
-ptr<BLAKE3Hash> BLAKE3Hash::fromHex(const string& _hex) {
+BLAKE3Hash BLAKE3Hash::fromHex(const string& _hex) {
     CHECK_ARGUMENT(_hex != "");
-    auto result = make_shared<BLAKE3Hash>();
-    Utils::cArrayFromHex(_hex, result->data(), HASH_LEN);
+    BLAKE3Hash result;
+    Utils::cArrayFromHex(_hex, result.data(), HASH_LEN);
     return result;
 }
 
@@ -58,44 +58,42 @@ string BLAKE3Hash::toHex() {
 }
 
 
-int BLAKE3Hash::compare(const ptr<BLAKE3Hash>& _hash2 ) {
-    CHECK_ARGUMENT( _hash2 );
+int BLAKE3Hash::compare(BLAKE3Hash& _hash2 ) {
+
 
     for (size_t i = 0; i < HASH_LEN; i++) {
-        if (hash.at(i) < _hash2->at(i))
+        if (hash.at(i) < _hash2.at(i))
             return -1;
-        if (hash.at(i) > _hash2->at(i))
+        if (hash.at(i) > _hash2.at(i))
             return 1;
     }
     return 0;
 }
 
 
-ptr<BLAKE3Hash> BLAKE3Hash::calculateHash(const ptr<vector<uint8_t>>& _data) {
+BLAKE3Hash BLAKE3Hash::calculateHash(const ptr<vector<uint8_t>>& _data) {
     CHECK_ARGUMENT(_data);
     // Initialize the hasher.
 
     blake3_hasher hasher;
     blake3_hasher_init(&hasher);
     blake3_hasher_update(&hasher, _data->data(), _data->size());
-    auto hash = make_shared<BLAKE3Hash>();
-    blake3_hasher_finalize(&hasher, hash->data(), BLAKE3_OUT_LEN);
+    BLAKE3Hash hash;
+    blake3_hasher_finalize(&hasher, hash.data(), BLAKE3_OUT_LEN);
     return hash;
 }
 
-ptr<BLAKE3Hash> BLAKE3Hash::merkleTreeMerge(const ptr<BLAKE3Hash>& _left, const ptr<BLAKE3Hash>& _right) {
-    CHECK_ARGUMENT(_left);
-    CHECK_ARGUMENT(_right);
+BLAKE3Hash BLAKE3Hash::merkleTreeMerge(const BLAKE3Hash & _left, const BLAKE3Hash& _right) {
+
 
     auto concatenation = make_shared<vector<uint8_t>>();
     concatenation->reserve(2 * HASH_LEN);
 
-    auto leftHash = _left->getHash();
-
+    auto leftHash = _left.getHash();
 
     concatenation->insert(concatenation->end(), leftHash.begin(), leftHash.end());
 
-    auto rightHash = _right->getHash();
+    auto rightHash = _right.getHash();
 
     concatenation->insert(concatenation->end(), rightHash.begin(), rightHash.end());
 

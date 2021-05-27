@@ -54,8 +54,7 @@
 
 using namespace std;
 
-ptr<BLAKE3Hash> BlockProposal::getHash() {
-    CHECK_STATE(hash);
+BLAKE3Hash BlockProposal::getHash() {
     return hash;
 }
 
@@ -83,13 +82,11 @@ void BlockProposal::calculateHash() {
 
     if (transactionList->size() > 0) {
         auto merkleRoot = transactionList->calculateTopMerkleRoot();
-        blake3_hasher_update(&hasher, merkleRoot->getHash().data(), HASH_LEN);
+        blake3_hasher_update(&hasher, merkleRoot.getHash().data(), HASH_LEN);
     }
     auto buf = make_shared<array<uint8_t, HASH_LEN>>();
 
-    hash = make_shared<BLAKE3Hash>();
-
-    blake3_hasher_finalize(&hasher, hash->data(), BLAKE3_OUT_LEN);
+    blake3_hasher_finalize(&hasher, hash.data(), BLAKE3_OUT_LEN);
 
 };
 
@@ -148,7 +145,7 @@ ptr<PartialHashesList> BlockProposal::createPartialHashesList() {
     for (uint64_t i = 0; i < transactionCount; i++) {
 
         for (size_t j = 0; j < PARTIAL_HASH_LEN; j++) {
-            partialHashes->at(i * PARTIAL_HASH_LEN + j) = t->at(i)->getHash()->at(j);
+            partialHashes->at(i * PARTIAL_HASH_LEN + j) = t->at(i)->getHash().at(j);
         }
     }
 
@@ -373,7 +370,7 @@ ptr<BlockProposalFragment> BlockProposal::getFragment(uint64_t _totalFragments, 
     fragmentData->push_back('>');
 
     return make_shared<BlockProposalFragment>(getBlockID(), _totalFragments, _index, fragmentData,
-                                              serializedBlock->size(), getHash()->toHex());
+                                              serializedBlock->size(), getHash().toHex());
 }
 
 ptr<TransactionList> BlockProposal::deserializeTransactions(const ptr<BlockProposalHeader> &_header,

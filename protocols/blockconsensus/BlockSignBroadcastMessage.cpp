@@ -65,9 +65,9 @@ BlockSignBroadcastMessage::BlockSignBroadcastMessage(block_id _blockID, schain_i
     HASH_UPDATE(hashObj, this->schainID)
     HASH_UPDATE(hashObj, this->msgType)
 
-    auto hash = make_shared<BLAKE3Hash>();
+    BLAKE3Hash hash;
 
-    HASH_FINAL(hashObj, hash->data());
+    HASH_FINAL(hashObj, hash.data());
 
     this->sigShare = schain->getCryptoManager()->signBlockSigShare(hash, _blockID);
     this->sigShareString = sigShare->toString();

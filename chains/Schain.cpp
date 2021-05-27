@@ -392,7 +392,7 @@ void Schain::proposeNextBlock() {
 
         auto db = getNode()->getProposalHashDB();
 
-        db->checkAndSaveHash( _proposedBlockID, getSchainIndex(), myProposal->getHash()->toHex() );
+        db->checkAndSaveHash( _proposedBlockID, getSchainIndex(), myProposal->getHash().toHex() );
 
         blockProposalClient->enqueueItem( myProposal );
 
@@ -446,7 +446,7 @@ void Schain::processCommittedBlock( const ptr< CommittedBlock >& _block ) {
 
         totalTransactions += _block->getTransactionList()->size();
 
-        auto h = _block->getHash()->toHex().substr( 0, 8 );
+        auto h = _block->getHash().toHex().substr( 0, 8 );
 
         auto stamp = TimeStamp( _block->getTimeStampS(), _block->getTimeStampMs() );
 

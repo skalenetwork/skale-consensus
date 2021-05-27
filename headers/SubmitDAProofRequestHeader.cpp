@@ -63,7 +63,7 @@ SubmitDAProofRequestHeader::SubmitDAProofRequestHeader(Schain &_sChain, const pt
 
     this->thresholdSig = _proof->getThresholdSig()->toString();
 
-    this->blockHash = _proof->getHash()->toHex();
+    this->blockHash = _proof->getHash().toHex();
 
     complete = true;
 

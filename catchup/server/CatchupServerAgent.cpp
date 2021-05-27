@@ -375,7 +375,7 @@ ptr<vector<uint8_t>> CatchupServerAgent::createBlockFinalizeResponse(nlohmann::j
         CHECK_STATE(serializedFragment);
 
         _responseHeader->setFragmentParams(serializedFragment->size(),
-                                           proposal->serialize()->size(), proposal->getHash()->toHex());
+                                           proposal->serialize()->size(), proposal->getHash().toHex());
 
         return serializedFragment;
     } catch (ExitRequestedException &e) { throw; } catch (...) {

@@ -288,8 +288,8 @@ std::tuple< ptr< OpenSSLEdDSAKey >, string > CryptoManager::localGenerateFastKey
 
 
 tuple< string, string, string > CryptoManager::sessionSignECDSA(
-    const ptr< BLAKE3Hash >& _hash, block_id _blockID ) {
-    CHECK_ARGUMENT( _hash );
+    BLAKE3Hash & _hash, block_id _blockID ) {
+
 
     ptr< OpenSSLEdDSAKey > privateKey = nullptr;
     string publicKey = "";
@@ -310,9 +310,7 @@ tuple< string, string, string > CryptoManager::sessionSignECDSA(
         } else {
             tie( privateKey, publicKey ) = localGenerateFastKey();
 
-            ptr< BLAKE3Hash > pKeyHash = nullptr;
-
-            pKeyHash = calculatePublicKeyHash( publicKey, _blockID );
+            BLAKE3Hash pKeyHash = calculatePublicKeyHash( publicKey, _blockID );
 
             CHECK_STATE( sgxECDSAKeyName != "" );
             pkSig = sgxSignECDSA( pKeyHash, sgxECDSAKeyName );
@@ -322,12 +320,12 @@ tuple< string, string, string > CryptoManager::sessionSignECDSA(
         }
     }
 
-    auto ret = privateKey->sign( ( const char* ) _hash->data() );
+    auto ret = privateKey->sign( ( const char* ) _hash.data() );
 
     return { ret, publicKey, pkSig };
 }
 
-ptr< BLAKE3Hash > CryptoManager::calculatePublicKeyHash(
+BLAKE3Hash CryptoManager::calculatePublicKeyHash(
     const string publicKey, block_id _blockID ) {
     auto bytesToHash = make_shared< vector< uint8_t > >();
 
@@ -346,8 +344,8 @@ ptr< BLAKE3Hash > CryptoManager::calculatePublicKeyHash(
 }
 
 
-string CryptoManager::sgxSignECDSA( const ptr< BLAKE3Hash >& _hash, string& _keyName ) {
-    CHECK_ARGUMENT( _hash );
+string CryptoManager::sgxSignECDSA( BLAKE3Hash & _hash, string& _keyName ) {
+
 
     string ret;
 
@@ -355,12 +353,12 @@ string CryptoManager::sgxSignECDSA( const ptr< BLAKE3Hash >& _hash, string& _key
 
     // temporary solution to support old servers
     if (zmqClient->getZMQStatus() == SgxZmqClient::TRUE ) {
-        ret = zmqClient->ecdsaSignMessageHash( 16, _keyName, _hash->toHex() );
+        ret = zmqClient->ecdsaSignMessageHash( 16, _keyName, _hash.toHex() );
     } else {
         Json::Value result;
         RETRY_BEGIN
         getSchain()->getNode()->exitCheck();
-        result = getSgxClient()->ecdsaSignMessageHash( 16, _keyName, _hash->toHex() );
+        result = getSgxClient()->ecdsaSignMessageHash( 16, _keyName, _hash.toHex() );
         RETRY_END
         JSONFactory::checkSGXStatus( result );
 
@@ -412,14 +410,14 @@ void CryptoManager::checkZMQStatusIfUnknownECDSA(const string &_keyName) {
 
 
 bool CryptoManager::verifyECDSA(
-    const ptr< BLAKE3Hash >& _hash, const string& _sig, const string& _publicKey ) {
+    BLAKE3Hash & _hash, const string& _sig, const string& _publicKey ) {
     auto key = OpenSSLECDSAKey::importSGXPubKey( _publicKey );
 
-    return key->verifySGXSig( _sig, ( const char* ) _hash->data() );
+    return key->verifySGXSig( _sig, ( const char* ) _hash.data() );
 }
 
-string CryptoManager::sign( const ptr< BLAKE3Hash >& _hash ) {
-    CHECK_ARGUMENT( _hash );
+string CryptoManager::sign( BLAKE3Hash & _hash ) {
+
 
     string result;
 
@@ -433,7 +431,7 @@ string CryptoManager::sign( const ptr< BLAKE3Hash >& _hash ) {
         CHECK_STATE( sgxECDSAKeyName != "" )
         result = sgxSignECDSA( _hash, sgxECDSAKeyName );
     } else {
-        result = _hash->toHex();
+        result = _hash.toHex();
     }
 
     if (measureTime)
@@ -445,8 +443,8 @@ string CryptoManager::sign( const ptr< BLAKE3Hash >& _hash ) {
 
 
 tuple< string, string, string > CryptoManager::sessionSign(
-    const ptr< BLAKE3Hash >& _hash, block_id _blockId ) {
-    CHECK_ARGUMENT( _hash );
+    BLAKE3Hash & _hash, block_id _blockId ) {
+
     if ( isSGXEnabled ) {
         string signature = "";
         string pubKey = "";
@@ -458,19 +456,19 @@ tuple< string, string, string > CryptoManager::sessionSign(
         CHECK_STATE( pkSig != "" );
         return { signature, pubKey, pkSig };
     } else {
-        return { _hash->toHex(), "", "" };
+        return { _hash.toHex(), "", "" };
     }
 }
 
 
 bool CryptoManager::sessionVerifyEdDSASig(
-    const ptr< BLAKE3Hash >& _hash, const string& _sig, const string& _publicKey ) {
-    CHECK_ARGUMENT( _hash )
+    BLAKE3Hash & _hash, const string& _sig, const string& _publicKey ) {
+
     CHECK_ARGUMENT( _sig != "" )
 
     if ( isSGXEnabled ) {
         auto pkey = OpenSSLEdDSAKey::importPubKey( _publicKey );
-        return pkey->verifySig( _sig, ( const char* ) _hash->data() );
+        return pkey->verifySig( _sig, ( const char* ) _hash.data() );
     } else {
         // mockup - used for testing
         if ( _sig.find( ":" ) != string::npos ) {
@@ -480,14 +478,13 @@ bool CryptoManager::sessionVerifyEdDSASig(
             exit( -1 );
         }
 
-        return _sig == _hash->toHex();
+        return _sig == _hash.toHex();
     }
 }
 
 
 bool CryptoManager::verifyECDSASig(
-    const ptr< BLAKE3Hash >& _hash, const string& _sig, node_id _nodeId ) {
-    CHECK_ARGUMENT( _hash )
+    BLAKE3Hash & _hash, const string& _sig, node_id _nodeId ) {
     CHECK_ARGUMENT( _sig != "" )
 
     if ( isSGXEnabled ) {
@@ -519,7 +516,7 @@ bool CryptoManager::verifyECDSASig(
             exit( -1 );
         }
 
-        return _sig == ( _hash->toHex() );
+        return _sig == ( _hash.toHex() );
     }
 }
 
@@ -528,7 +525,10 @@ tuple< ptr< ThresholdSigShare >, string, string, string > CryptoManager::signDAP
     const ptr< BlockProposal >& _p ) {
     CHECK_ARGUMENT( _p );
 
-    auto sigShare = signDAProofSigShare( _p->getHash(), _p->getBlockID(), false );
+
+    auto h = _p->getHash();
+
+    auto sigShare = signDAProofSigShare(h,  _p->getBlockID(), false );
     CHECK_STATE( sigShare );
 
     auto combinedHash = BLAKE3Hash::merkleTreeMerge( _p->getHash(), sigShare->computeHash() );
@@ -538,16 +538,14 @@ tuple< ptr< ThresholdSigShare >, string, string, string > CryptoManager::signDAP
 
 
 ptr< ThresholdSigShare > CryptoManager::signBinaryConsensusSigShare(
-    const ptr< BLAKE3Hash >& _hash, block_id _blockId, uint64_t _round ) {
-    CHECK_ARGUMENT( _hash );
+    BLAKE3Hash & _hash, block_id _blockId, uint64_t _round ) {
     auto result = signSigShare( _hash, _blockId, ( ( uint64_t ) _round ) <= 3 );
     CHECK_STATE( result );
     return result;
 }
 
 ptr< ThresholdSigShare > CryptoManager::signBlockSigShare(
-    const ptr< BLAKE3Hash >& _hash, block_id _blockId ) {
-    CHECK_ARGUMENT( _hash );
+    BLAKE3Hash & _hash, block_id _blockId ) {
     auto result = signSigShare( _hash, _blockId, false );
     CHECK_STATE( result );
     return result;
@@ -555,8 +553,7 @@ ptr< ThresholdSigShare > CryptoManager::signBlockSigShare(
 
 
 ptr< ThresholdSigShare > CryptoManager::signDAProofSigShare(
-    const ptr< BLAKE3Hash >& _hash, block_id _blockId, bool _forceMockup ) {
-    CHECK_ARGUMENT( _hash );
+    BLAKE3Hash & _hash, block_id _blockId, bool _forceMockup ) {
     MONITOR( __CLASS_NAME__, __FUNCTION__ )
 
     if ( getSchain()->getNode()->isSgxEnabled() && !_forceMockup ) {
@@ -569,15 +566,15 @@ ptr< ThresholdSigShare > CryptoManager::signDAProofSigShare(
             sChain->getSchainIndex(), totalSigners, requiredSigners );
 
     } else {
-        auto sigShare = _hash->toHex();
+        auto sigShare = _hash.toHex();
         return make_shared< MockupSigShare >( sigShare, sChain->getSchainID(), _blockId,
             sChain->getSchainIndex(), sChain->getTotalSigners(), sChain->getRequiredSigners() );
     }
 }
 
 void CryptoManager::verifyDAProofSigShare( ptr< ThresholdSigShare > _sigShare,
-    schain_index _schainIndex, ptr< BLAKE3Hash > _hash, node_id _nodeId, bool _forceMockup ) {
-    CHECK_ARGUMENT( _hash );
+    schain_index _schainIndex, BLAKE3Hash & _hash, node_id _nodeId, bool _forceMockup ) {
+
     MONITOR( __CLASS_NAME__, __FUNCTION__ )
 
     if ( getSchain()->getNode()->isSgxEnabled() && !_forceMockup ) {
@@ -596,8 +593,8 @@ void CryptoManager::verifyDAProofSigShare( ptr< ThresholdSigShare > _sigShare,
 
 
 ptr< ThresholdSigShare > CryptoManager::signSigShare(
-    const ptr< BLAKE3Hash >& _hash, block_id _blockId, bool _forceMockup ) {
-    CHECK_ARGUMENT( _hash );
+    BLAKE3Hash & _hash, block_id _blockId, bool _forceMockup ) {
+
     MONITOR( __CLASS_NAME__, __FUNCTION__ )
 
     ptr<ThresholdSigShare> result = nullptr;
@@ -619,12 +616,12 @@ ptr< ThresholdSigShare > CryptoManager::signSigShare(
         // temporary solution to support old servers
         if (zmqClient->getZMQStatus() == SgxZmqClient::TRUE ) {
             ret = zmqClient->blsSignMessageHash(
-                getSgxBlsKeyName(), _hash->toHex(), requiredSigners, totalSigners );
+                getSgxBlsKeyName(), _hash.toHex(), requiredSigners, totalSigners );
         } else {
             RETRY_BEGIN
             getSchain()->getNode()->exitCheck();
             jsonShare = getSgxClient()->blsSignMessageHash(
-                getSgxBlsKeyName(), _hash->toHex(), requiredSigners, totalSigners );
+                getSgxBlsKeyName(), _hash.toHex(), requiredSigners, totalSigners );
             RETRY_END
 
             JSONFactory::checkSGXStatus( jsonShare );
@@ -639,7 +636,7 @@ ptr< ThresholdSigShare > CryptoManager::signSigShare(
         result = make_shared< ConsensusBLSSigShare >( sig, sChain->getSchainID(), _blockId );
 
     } else {
-        auto sigShare = _hash->toHex();
+        auto sigShare = _hash.toHex();
         result = make_shared< MockupSigShare >( sigShare, sChain->getSchainID(), _blockId,
             sChain->getSchainIndex(), sChain->getTotalSigners(), sChain->getRequiredSigners() );
     }
@@ -705,14 +702,16 @@ void CryptoManager::signProposal( BlockProposal* _proposal ) {
     MONITOR( __CLASS_NAME__, __FUNCTION__ )
 
     CHECK_ARGUMENT( _proposal );
-    auto signature = sign( _proposal->getHash() );
+    auto h = _proposal->getHash();
+    auto signature = sign( h );
     CHECK_STATE( signature != "" );
     _proposal->addSignature( signature );
 }
 
 tuple< string, string, string > CryptoManager::signNetworkMsg( NetworkMessage& _msg ) {
     MONITOR( __CLASS_NAME__, __FUNCTION__ );
-    auto&& [signature, publicKey, pkSig] = sessionSign( _msg.getHash(), _msg.getBlockId() );
+    auto h = _msg.getHash();
+    auto&& [signature, publicKey, pkSig] = sessionSign( h, _msg.getBlockId() );
     CHECK_STATE( signature != "" );
     return { signature, publicKey, pkSig };
 }
@@ -729,13 +728,12 @@ bool CryptoManager::verifyNetworkMsg( NetworkMessage& _msg ) {
 }
 
 
-bool CryptoManager::sessionVerifySigAndKey( ptr< BLAKE3Hash >& _hash, const string& _sig,
+bool CryptoManager::sessionVerifySigAndKey( BLAKE3Hash& _hash, const string& _sig,
     const string& _publicKey, const string& pkSig, block_id _blockID, node_id _nodeId ) {
     MONITOR( __CLASS_NAME__, __FUNCTION__ );
 
 
     CHECK_STATE( !_sig.empty() );
-    CHECK_STATE( _hash );
 
 
     {
@@ -779,9 +777,7 @@ bool CryptoManager::verifyProposalECDSA(
 
     auto hash = _proposal->getHash();
 
-    CHECK_STATE( hash );
-
-    if ( hash->toHex() != _hashStr ) {
+    if ( hash.toHex() != _hashStr ) {
         LOG( warn, "Incorrect proposal hash" );
         return false;
     }
@@ -795,10 +791,10 @@ bool CryptoManager::verifyProposalECDSA(
 
 
 ptr< ThresholdSignature > CryptoManager::verifyDAProofThresholdSig(
-    const ptr< BLAKE3Hash >& _hash, const string& _signature, block_id _blockId ) {
+    BLAKE3Hash & _hash, const string& _signature, block_id _blockId ) {
     MONITOR( __CLASS_NAME__, __FUNCTION__ )
 
-    CHECK_ARGUMENT( _hash );
+
     CHECK_ARGUMENT( !_signature.empty() );
 
     if ( getSchain()->getNode()->isSgxEnabled() ) {
@@ -811,7 +807,7 @@ ptr< ThresholdSignature > CryptoManager::verifyDAProofThresholdSig(
         auto sig =
             make_shared< MockupSignature >( _signature, _blockId, requiredSigners, totalSigners );
 
-        if ( sig->toString() != _hash->toHex() ) {
+        if ( sig->toString() != _hash.toHex() ) {
             BOOST_THROW_EXCEPTION( InvalidArgumentException(
                 "Mockup threshold signature did not verify", __CLASS_NAME__ ) );
         }
@@ -956,14 +952,14 @@ string CryptoManager::sgxURL = "";
 bool CryptoManager::isRetryHappened() {
     return retryHappened;
 }
-void CryptoManager::setRetryHappened( bool retryHappened ) {
-    CryptoManager::retryHappened = retryHappened;
+void CryptoManager::setRetryHappened( bool _retryHappened ) {
+    CryptoManager::retryHappened = _retryHappened;
 }
 const string& CryptoManager::getSgxUrl() {
     return sgxURL;
 }
-void CryptoManager::setSgxUrl( const string& sgxUrl ) {
-    sgxURL = sgxUrl;
+void CryptoManager::setSgxUrl( const string& _sgxUrl ) {
+    sgxURL = _sgxUrl;
 }
 
 
