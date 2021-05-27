@@ -130,17 +130,17 @@ bool Utils::isValidIpAddress(const string& ipAddress) {
 
 
 string Utils::carray2Hex(const uint8_t *d, size_t _len) {
-    auto hex = make_shared<vector<char>>(2 * _len);
+    char hex[2 * _len];
 
     static char hexval[16] = {
             '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
 
     for (size_t j = 0; j < _len; j++) {
-        hex->at(j * 2) = hexval[((d[j] >> 4) & 0xF)];
-        hex->at((j * 2) + 1) = hexval[(d[j]) & 0x0F];
+        hex[j * 2] = hexval[((d[j] >> 4) & 0xF)];
+        hex[(j * 2) + 1] = hexval[(d[j]) & 0x0F];
     }
 
-    string result((char *) hex->data(), 2 * _len);
+    string result((char *) hex, 2 * _len);
     return result;
 }
 
