@@ -424,3 +424,11 @@ Schain* SgxZmqClient::getSchain() const {
     CHECK_STATE( schain );
     return schain;
 }
+
+SgxZmqClient::zmq_status SgxZmqClient::getZMQStatus() const {
+    return zmqStatus;
+}
+
+void SgxZmqClient::setZmqStatus(SgxZmqClient::zmq_status _status) {
+    zmqStatus = _status;
+}

@@ -56,14 +56,19 @@
 
 class SgxZmqClient {
 
+public:
+
+    enum zmq_status {UNKNOWN, TRUE, FALSE};
+    zmq_status getZMQStatus() const;
+    void setZmqStatus(zmq_status _status);
 
 private:
+
+    zmq_status zmqStatus = UNKNOWN;
 
     EVP_PKEY* pkey = 0;
     EVP_PKEY* pubkey = 0;
     X509* x509Cert = 0;
-
-
 
 
     zmq::context_t ctx;
@@ -87,7 +92,6 @@ public:
     Schain* getSchain() const;
 
 private:
-    bool isZMQEnabled = false;
 
     static cache::lru_cache<string, pair < EVP_PKEY * , X509 *>> verifiedCerts;
 

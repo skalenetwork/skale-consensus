@@ -271,6 +271,10 @@ public:
     static uint64_t getBLSTotals() {
         return blsCounter;
     }
+
+    void checkZMQStatusIfUnknownECDSA(const string &_keyName);
+
+    void checkZMQStatusIfUnknownBLS();
 };
 
 #define RETRY_BEGIN \
