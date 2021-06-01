@@ -602,7 +602,7 @@ ptr< ThresholdSigShare > CryptoManager::signSigShare(
     uint64_t time = 0;
     blsCounter.fetch_add(1);
 
-    auto measureTime = (ecdsaCounter % 100 == 0);
+    auto measureTime = (blsCounter % 100 == 0);
     if (measureTime)
         time = Time::getCurrentTimeMs();
 
