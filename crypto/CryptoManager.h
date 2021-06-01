@@ -151,9 +151,6 @@ private:
     ptr< ThresholdSigShare > signDAProofSigShare(
         BLAKE3Hash & _hash, block_id _blockId, bool _forceMockup );
 
-    void verifyThresholdSig(
-        ptr< ThresholdSignature > _signature, BLAKE3Hash& _hash, bool _forceMockup );
-
 
 
         void initSGXClient();
@@ -163,6 +160,12 @@ private:
 
 
 public:
+
+    void verifyThresholdSig(
+        ptr< ThresholdSignature > _signature, BLAKE3Hash& _hash, bool _forceMockup );
+
+    void  verifyBlockSig(ptr< ThresholdSignature > _signature,  BLAKE3Hash & _hash);
+
 
     static bool isRetryHappened();
 

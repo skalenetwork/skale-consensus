@@ -229,7 +229,6 @@ void NetworkMessage::addFields(nlohmann::basic_json<>& ) {
 
 ptr<NetworkMessage> NetworkMessage::parseMessage(const string& _header, Schain *_sChain) {
 
-auto time = Time::getCurrentTimeMs();
 
     uint64_t sChainID;
     uint64_t blockID;
@@ -318,7 +317,7 @@ auto time = Time::getCurrentTimeMs();
             CHECK_STATE(false)
         }
 
-        cerr << Time::getCurrentTimeMs() - time << endl;
+
         return nwkMsg;
 
     } catch (ExitRequestedException &) { throw; } catch (...) {

@@ -543,6 +543,12 @@ ptr< ThresholdSigShare > CryptoManager::signBlockSigShare(
     return result;
 }
 
+void CryptoManager::verifyBlockSig(
+    ptr< ThresholdSignature > _signature, BLAKE3Hash & _hash ) {
+    CHECK_STATE(_signature);
+    verifyThresholdSig( _signature, _hash, false );
+}
+
 
 
 
@@ -645,6 +651,8 @@ ptr< ThresholdSigShare > CryptoManager::signSigShare(
 
 void CryptoManager::verifyThresholdSig(
     ptr< ThresholdSignature > _signature, BLAKE3Hash& _hash, bool _forceMockup ) {
+
+    CHECK_STATE(_signature);
 
     MONITOR( __CLASS_NAME__, __FUNCTION__ )
 

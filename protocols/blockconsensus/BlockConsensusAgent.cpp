@@ -298,6 +298,7 @@ void BlockConsensusAgent::processBlockSignMessage(const ptr<BlockSignBroadcastMe
             return;
         }
 
+
         auto proposer = _message->getBlockProposerIndex();
         auto blockId = _message->getBlockId();
 
