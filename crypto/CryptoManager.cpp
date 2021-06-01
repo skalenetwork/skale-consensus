@@ -539,7 +539,7 @@ tuple< ptr< ThresholdSigShare >, string, string, string > CryptoManager::signDAP
 
 ptr< ThresholdSigShare > CryptoManager::signBinaryConsensusSigShare(
     BLAKE3Hash & _hash, block_id _blockId, uint64_t _round ) {
-    auto result = signSigShare( _hash, _blockId, ( ( uint64_t ) _round ) <= 3 );
+    auto result = signSigShare( _hash, _blockId, ( ( uint64_t ) _round ) < COMMON_COIN_ROUND );
     CHECK_STATE( result );
     return result;
 }
