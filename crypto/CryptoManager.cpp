@@ -235,14 +235,6 @@ CryptoManager::CryptoManager( Schain& _sChain )
                 };
             }
         }
-
-
-        try {
-            blsPublicKeyObj = getSgxBlsPublicKey();
-        } catch ( ... ) {
-            throw_with_nested(
-                InvalidStateException( "Could not create blsPublicKey", __CLASS_NAME__ ) );
-        }
     }
 }
 
@@ -552,6 +544,9 @@ ptr< ThresholdSigShare > CryptoManager::signBlockSigShare(
 }
 
 
+
+
+
 ptr< ThresholdSigShare > CryptoManager::signDAProofSigShare(
     BLAKE3Hash & _hash, block_id _blockId, bool _forceMockup ) {
     MONITOR( __CLASS_NAME__, __FUNCTION__ )
@@ -647,6 +642,35 @@ ptr< ThresholdSigShare > CryptoManager::signSigShare(
     return result;
 }
 
+
+void CryptoManager::verifyThresholdSig(
+    ptr< ThresholdSignature > _signature, BLAKE3Hash& _hash, bool _forceMockup ) {
+
+    MONITOR( __CLASS_NAME__, __FUNCTION__ )
+
+    if ( getSchain()->getNode()->isSgxEnabled() && !_forceMockup ) {
+
+        auto blsSig = dynamic_pointer_cast<ConsensusBLSSignature>(_signature);
+
+        CHECK_STATE(blsSig);
+
+        auto blsKey = getSgxBlsPublicKey();
+
+        auto libBlsSig = blsSig->getBlsSig();
+
+        CHECK_STATE(blsKey->VerifySig(
+            make_shared<array<uint8_t, HASH_LEN>>(_hash.getHash()),
+            libBlsSig, blsKey->getRequiredSigners(),
+            blsKey->getTotalSigners()));
+
+    } else {
+        // mockups sigs are not verified
+    }
+
+
+}
+
+
 ptr< ThresholdSigShareSet > CryptoManager::createSigShareSet( block_id _blockId ) {
     if ( getSchain()->getNode()->isSgxEnabled() ) {
         return make_shared< ConsensusSigShareSet >( _blockId, totalSigners, requiredSigners );
@@ -678,6 +702,7 @@ ptr< ThresholdSigShare > CryptoManager::createSigShare( const string& _sigShare,
             _sigShare, _schainID, _blockID, _signerIndex, totalSigners, requiredSigners );
     }
 }
+
 
 ptr< ThresholdSigShare > CryptoManager::createDAProofSigShare( const string& _sigShare,
     schain_id _schainID, block_id _blockID, schain_index _signerIndex, bool _forceMockup ) {

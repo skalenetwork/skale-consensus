@@ -120,7 +120,6 @@ class CryptoManager {
 
 
     ptr< BLSPublicKey > sgxBLSPublicKey;
-    ptr< BLSPublicKey > blsPublicKeyObj = nullptr;
 
     Schain* sChain = nullptr;
 
@@ -131,7 +130,6 @@ class CryptoManager {
     string sgxDomainName;
     uint16_t sgxPort = 0;
 
-    uint64_t doesServerSupportZMQ = 0;
 
 
 
@@ -153,7 +151,12 @@ private:
     ptr< ThresholdSigShare > signDAProofSigShare(
         BLAKE3Hash & _hash, block_id _blockId, bool _forceMockup );
 
-    void initSGXClient();
+    void verifyThresholdSig(
+        ptr< ThresholdSignature > _signature, BLAKE3Hash& _hash, bool _forceMockup );
+
+
+
+        void initSGXClient();
 
     static pair<string, uint64_t> parseSGXDomainAndPort( const string& _url );
 
@@ -271,6 +274,7 @@ public:
     static uint64_t getBLSTotals() {
         return blsCounter;
     }
+
 
     void checkZMQStatusIfUnknownECDSA(const string &_keyName);
 
