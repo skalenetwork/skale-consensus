@@ -550,6 +550,18 @@ void CryptoManager::verifyBlockSig(
 }
 
 
+void CryptoManager::verifyBlockSig(
+    string& _sigStr, block_id _blockId, BLAKE3Hash & _hash ) {
+    if ( getSchain()->getNode()->isSgxEnabled()) {
+
+        auto _signature = make_shared<ConsensusBLSSignature>(_sigStr, _blockId,
+            totalSigners, requiredSigners);
+
+        verifyBlockSig( _signature, _hash );
+    }
+}
+
+
 
 
 

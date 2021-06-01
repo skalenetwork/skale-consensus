@@ -166,6 +166,8 @@ public:
 
     void  verifyBlockSig(ptr< ThresholdSignature > _signature,  BLAKE3Hash & _hash);
 
+    void  verifyBlockSig(string& _signature,  block_id _blockId, BLAKE3Hash & _hash);
+
 
     static bool isRetryHappened();
 
