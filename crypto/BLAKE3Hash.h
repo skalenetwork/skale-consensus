@@ -65,6 +65,9 @@ public:
 
     static BLAKE3Hash merkleTreeMerge(const BLAKE3Hash& _left, const BLAKE3Hash& _right);
 
+    static BLAKE3Hash getBlockHash(uint64_t _blockProposerIndex, uint64_t _blockId, uint64_t _schainId);
+
+
 };
 
 

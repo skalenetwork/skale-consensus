@@ -235,14 +235,6 @@ CryptoManager::CryptoManager( Schain& _sChain )
                 };
             }
         }
-
-
-        try {
-            blsPublicKeyObj = getSgxBlsPublicKey();
-        } catch ( ... ) {
-            throw_with_nested(
-                InvalidStateException( "Could not create blsPublicKey", __CLASS_NAME__ ) );
-        }
     }
 }
 
@@ -539,7 +531,7 @@ tuple< ptr< ThresholdSigShare >, string, string, string > CryptoManager::signDAP
 
 ptr< ThresholdSigShare > CryptoManager::signBinaryConsensusSigShare(
     BLAKE3Hash & _hash, block_id _blockId, uint64_t _round ) {
-    auto result = signSigShare( _hash, _blockId, ( ( uint64_t ) _round ) <= 3 );
+    auto result = signSigShare( _hash, _blockId, ( ( uint64_t ) _round ) < COMMON_COIN_ROUND );
     CHECK_STATE( result );
     return result;
 }
@@ -550,6 +542,27 @@ ptr< ThresholdSigShare > CryptoManager::signBlockSigShare(
     CHECK_STATE( result );
     return result;
 }
+
+void CryptoManager::verifyBlockSig(
+    ptr< ThresholdSignature > _signature, BLAKE3Hash & _hash ) {
+    CHECK_STATE(_signature);
+    verifyThresholdSig( _signature, _hash, false );
+}
+
+
+void CryptoManager::verifyBlockSig(
+    string& _sigStr, block_id _blockId, BLAKE3Hash & _hash ) {
+    if ( getSchain()->getNode()->isSgxEnabled()) {
+
+        auto _signature = make_shared<ConsensusBLSSignature>(_sigStr, _blockId,
+            totalSigners, requiredSigners);
+
+        verifyBlockSig( _signature, _hash );
+    }
+}
+
+
+
 
 
 ptr< ThresholdSigShare > CryptoManager::signDAProofSigShare(
@@ -602,7 +615,7 @@ ptr< ThresholdSigShare > CryptoManager::signSigShare(
     uint64_t time = 0;
     blsCounter.fetch_add(1);
 
-    auto measureTime = (ecdsaCounter % 100 == 0);
+    auto measureTime = (blsCounter % 100 == 0);
     if (measureTime)
         time = Time::getCurrentTimeMs();
 
@@ -647,6 +660,37 @@ ptr< ThresholdSigShare > CryptoManager::signSigShare(
     return result;
 }
 
+
+void CryptoManager::verifyThresholdSig(
+    ptr< ThresholdSignature > _signature, BLAKE3Hash& _hash, bool _forceMockup ) {
+
+    CHECK_STATE(_signature);
+
+    MONITOR( __CLASS_NAME__, __FUNCTION__ )
+
+    if ( getSchain()->getNode()->isSgxEnabled() && !_forceMockup ) {
+
+        auto blsSig = dynamic_pointer_cast<ConsensusBLSSignature>(_signature);
+
+        CHECK_STATE(blsSig);
+
+        auto blsKey = getSgxBlsPublicKey();
+
+        auto libBlsSig = blsSig->getBlsSig();
+
+        CHECK_STATE(blsKey->VerifySig(
+            make_shared<array<uint8_t, HASH_LEN>>(_hash.getHash()),
+            libBlsSig, blsKey->getRequiredSigners(),
+            blsKey->getTotalSigners()));
+
+    } else {
+        // mockups sigs are not verified
+    }
+
+
+}
+
+
 ptr< ThresholdSigShareSet > CryptoManager::createSigShareSet( block_id _blockId ) {
     if ( getSchain()->getNode()->isSgxEnabled() ) {
         return make_shared< ConsensusSigShareSet >( _blockId, totalSigners, requiredSigners );
@@ -678,6 +722,7 @@ ptr< ThresholdSigShare > CryptoManager::createSigShare( const string& _sigShare,
             _sigShare, _schainID, _blockID, _signerIndex, totalSigners, requiredSigners );
     }
 }
+
 
 ptr< ThresholdSigShare > CryptoManager::createDAProofSigShare( const string& _sigShare,
     schain_id _schainID, block_id _blockID, schain_index _signerIndex, bool _forceMockup ) {

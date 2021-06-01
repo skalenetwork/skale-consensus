@@ -79,6 +79,7 @@ BlockSigShareDB::checkAndSaveShareInMemory(const ptr<ThresholdSigShare>& _sigSha
 
         CHECK_STATE(_sigShareSet->isEnough())
         auto signature = _sigShareSet->mergeSignature();
+
         CHECK_STATE(signature)
         return signature;
     } catch (ExitRequestedException &) { throw; } catch (...) {
