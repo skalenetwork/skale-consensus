@@ -46,17 +46,7 @@ bin_consensus_value BlockSignBroadcastMessage::getValue() const {
     CHECK_STATE(false);
 }
 
-BLAKE3Hash getBlockHash(uint64_t _blockProposerIndex, uint64_t _blockId, uint64_t _schainId) {
-    uint32_t msgType = MSG_BLOCK_SIGN_BROADCAST;
-    BLAKE3Hash _hash;
-    HASH_INIT(hashObj)
-    HASH_UPDATE(hashObj, _blockProposerIndex)
-    HASH_UPDATE(hashObj, _blockId)
-    HASH_UPDATE(hashObj, _schainId)
-    HASH_UPDATE(hashObj, msgType);
-    HASH_FINAL(hashObj, _hash.data());
-    return _hash;
-}
+
 
 
 BlockSignBroadcastMessage::BlockSignBroadcastMessage(block_id _blockID, schain_index _blockProposerIndex,
@@ -67,7 +57,7 @@ BlockSignBroadcastMessage::BlockSignBroadcastMessage(block_id _blockID, schain_i
     printPrefix = "f";
 
     auto schain = _sourceProtocolInstance.getSchain();
-    auto hash = getBlockHash(
+    auto hash = BLAKE3Hash::getBlockHash(
         (uint64_t ) getBlockProposerIndex(),
         (uint64_t) _blockID,
         (uint64_t) schain->getSchainID());

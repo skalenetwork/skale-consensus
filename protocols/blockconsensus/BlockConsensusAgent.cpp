@@ -32,6 +32,7 @@
 #include "chains/Schain.h"
 #include "crypto/BLAKE3Hash.h"
 #include "crypto/ThresholdSigShare.h"
+#include "crypto/CryptoManager.h"
 #include "datastructures/BlockProposal.h"
 #include "datastructures/BooleanProposalVector.h"
 #include "datastructures/TransactionList.h"
@@ -302,8 +303,18 @@ void BlockConsensusAgent::processBlockSignMessage(const ptr<BlockSignBroadcastMe
         auto proposer = _message->getBlockProposerIndex();
         auto blockId = _message->getBlockId();
 
+
+        auto hash = BLAKE3Hash::getBlockHash(
+            (uint64_t ) proposer,
+            (uint64_t) blockId,
+            (uint64_t) getSchain()->getSchainID());
+
+        getSchain()->getCryptoManager()->verifyBlockSig(signature,
+            hash);
+
         LOG(info, string("BLOCK_DECIDE (GOT SIG): PRPSR:") + to_string(proposer) +
                   ":BID:" + to_string(blockId) + "| Now signing block ...");
+
 
         getSchain()->finalizeDecidedAndSignedBlock(
             blockId, proposer, signature );
