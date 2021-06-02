@@ -345,7 +345,7 @@ string CryptoManager::sgxSignECDSA( BLAKE3Hash & _hash, string& _keyName ) {
 
     // temporary solution to support old servers
     if (zmqClient->getZMQStatus() == SgxZmqClient::TRUE ) {
-        ret = zmqClient->ecdsaSignMessageHash( 16, _keyName, _hash.toHex() );
+        ret = zmqClient->ecdsaSignMessageHash( 16, _keyName, _hash.toHex(), false );
     } else {
         Json::Value result;
         RETRY_BEGIN
@@ -373,7 +373,7 @@ void CryptoManager::checkZMQStatusIfUnknownBLS() {
         try {
             auto ret1 = zmqClient->blsSignMessageHash(
                     getSgxBlsKeyName(),
-                    sampleHash, requiredSigners, totalSigners);
+                    sampleHash, requiredSigners, totalSigners, true);
             zmqClient->setZmqStatus(SgxZmqClient::TRUE);
             LOG(info, "Successfully connected to SGX ZMQ API.");
         } catch (...) {
@@ -388,7 +388,8 @@ void CryptoManager::checkZMQStatusIfUnknownECDSA(const string &_keyName) {
         static string sampleHash = "01020304050607080910111213141516171819202122232425262728"
                                    "29303132";
         try {
-            auto ret1 = zmqClient->ecdsaSignMessageHash(16, _keyName, sampleHash);
+            auto ret1 = zmqClient->ecdsaSignMessageHash(16, _keyName, sampleHash,
+                 true);
             zmqClient->setZmqStatus(SgxZmqClient::TRUE);
             LOG(info, "Successfully connected to SGX ZMQ API.");
         } catch (...) {
@@ -629,7 +630,8 @@ ptr< ThresholdSigShare > CryptoManager::signSigShare(
         // temporary solution to support old servers
         if (zmqClient->getZMQStatus() == SgxZmqClient::TRUE ) {
             ret = zmqClient->blsSignMessageHash(
-                getSgxBlsKeyName(), _hash.toHex(), requiredSigners, totalSigners );
+                getSgxBlsKeyName(), _hash.toHex(), requiredSigners, totalSigners,
+                false);
         } else {
             RETRY_BEGIN
             getSchain()->getNode()->exitCheck();

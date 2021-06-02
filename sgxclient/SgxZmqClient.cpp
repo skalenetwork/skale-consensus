@@ -42,7 +42,8 @@
 #include "network/Utils.h"
 
 
-shared_ptr< SgxZmqMessage > SgxZmqClient::doRequestReply( Json::Value& _req ) {
+shared_ptr< SgxZmqMessage > SgxZmqClient::doRequestReply( Json::Value& _req,
+    bool _throwExceptionOnTimeout) {
     Json::FastWriter fastWriter;
     fastWriter.omitEndingLineFeed();
 
@@ -76,7 +77,7 @@ shared_ptr< SgxZmqMessage > SgxZmqClient::doRequestReply( Json::Value& _req ) {
     CHECK_STATE( reqStr.front() == '{' );
     CHECK_STATE( reqStr.back() == '}' );
 
-    auto resultStr = doZmqRequestReply( reqStr );
+    auto resultStr = doZmqRequestReply( reqStr, _throwExceptionOnTimeout );
 
 
     try {
@@ -96,7 +97,7 @@ shared_ptr< SgxZmqMessage > SgxZmqClient::doRequestReply( Json::Value& _req ) {
 }
 
 
-string SgxZmqClient::doZmqRequestReply( string& _req ) {
+string SgxZmqClient::doZmqRequestReply( string& _req, bool _throwExceptionOnTimeout ) {
     stringstream request;
 
     shared_ptr< zmq::socket_t > clientSocket = nullptr;
@@ -132,7 +133,11 @@ string SgxZmqClient::doZmqRequestReply( string& _req ) {
 
             return reply;
         } else {
-            LOG( err, "W: no response from server, retrying..." );
+            if (_throwExceptionOnTimeout) {
+                LOG(err, "No response from sgx server");
+                CHECK_STATE(false);
+            }
+            LOG( err, "W: no response from SGX server, retrying..." );
             reconnect();
 
             //  Send request again, on new socket
@@ -292,14 +297,16 @@ void SgxZmqClient::reconnect() {
 
 
 string SgxZmqClient::blsSignMessageHash(
-    const std::string& keyShareName, const std::string& messageHash, int t, int n ) {
+    const std::string& keyShareName, const std::string& messageHash, int t, int n,
+    bool _throwExceptionOnTimeout) {
     Json::Value p;
     p["type"] = SgxZmqMessage::BLS_SIGN_REQ;
     p["keyShareName"] = keyShareName;
     p["messageHash"] = messageHash;
     p["n"] = n;
     p["t"] = t;
-    auto result = dynamic_pointer_cast< BLSSignRspMessage >( doRequestReply( p ) );
+    auto result = dynamic_pointer_cast< BLSSignRspMessage >( doRequestReply( p,
+        _throwExceptionOnTimeout) );
     CHECK_STATE( result );
     CHECK_STATE( result->getStatus() == 0 );
 
@@ -307,13 +314,15 @@ string SgxZmqClient::blsSignMessageHash(
 }
 
 string SgxZmqClient::ecdsaSignMessageHash(
-    int base, const std::string& keyName, const std::string& messageHash ) {
+    int base, const std::string& keyName, const std::string& messageHash,
+    bool _throwExceptionOnTimeout) {
     Json::Value p;
     p["type"] = SgxZmqMessage::ECDSA_SIGN_REQ;
     p["base"] = base;
     p["keyName"] = keyName;
     p["messageHash"] = messageHash;
-    auto result = dynamic_pointer_cast< ECDSASignRspMessage >( doRequestReply( p ) );
+    auto result = dynamic_pointer_cast< ECDSASignRspMessage >( doRequestReply( p,
+        _throwExceptionOnTimeout ) );
     CHECK_STATE( result );
     CHECK_STATE( result->getStatus() == 0 );
     return result->getSignature();
