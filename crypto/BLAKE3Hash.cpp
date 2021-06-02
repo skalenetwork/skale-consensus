@@ -24,9 +24,11 @@
 
 #include "SkaleCommon.h"
 #include "Log.h"
+
 #include "thirdparty/json.hpp"
 
 
+#include "messages/Message.h"
 #include "network/Utils.h"
 #include "exceptions/InvalidArgumentException.h"
 
@@ -105,3 +107,15 @@ const array<uint8_t, HASH_LEN>& BLAKE3Hash::getHash() const {
 }
 
 
+
+BLAKE3Hash BLAKE3Hash::getBlockHash(uint64_t _blockProposerIndex, uint64_t _blockId, uint64_t _schainId) {
+    uint32_t msgType = MSG_BLOCK_SIGN_BROADCAST;
+    BLAKE3Hash _hash;
+    HASH_INIT(hashObj)
+    HASH_UPDATE(hashObj, _blockProposerIndex)
+    HASH_UPDATE(hashObj, _blockId)
+    HASH_UPDATE(hashObj, _schainId)
+    HASH_UPDATE(hashObj, msgType);
+    HASH_FINAL(hashObj, _hash.data());
+    return _hash;
+}

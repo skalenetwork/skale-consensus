@@ -29,10 +29,12 @@
 
 #include "thirdparty/json.hpp"
 
+#include "crypto/CryptoManager.h"
 #include "abstracttcpserver/ConnectionStatus.h"
 
 #include "chains/Schain.h"
 #include "datastructures/CommittedBlockList.h"
+#include "datastructures/CommittedBlock.h"
 #include "exceptions/ConnectionRefusedException.h"
 #include "exceptions/NetworkProtocolException.h"
 #include "headers/CatchupRequestHeader.h"
@@ -144,6 +146,10 @@ void CatchupClientAgent::sync( schain_index _dstIndex ) {
 
     try {
         blocks = readMissingBlocks( socket, response );
+
+
+
+
         CHECK_STATE( blocks );
     } catch ( ExitRequestedException& ) {
         throw;
@@ -232,6 +238,16 @@ ptr< CommittedBlockList > CatchupClientAgent::readMissingBlocks(
     } catch ( ExitRequestedException& ) { throw; } catch ( ... ) {
         throw_with_nested(
             NetworkProtocolException( "Could not parse block list", __CLASS_NAME__ ) );
+    }
+
+    for (auto&& item : *blockList->getBlocks() ) {
+        auto sig = item->getThresholdSig();
+
+        auto hash = BLAKE3Hash::getBlockHash((uint64_t ) item->getProposerIndex(),
+                                             (uint64_t ) item->getBlockID(),
+                                             (uint64_t ) item->getSchainID());
+        getSchain()->getCryptoManager()->verifyBlockSig(sig, item->getBlockID(),
+            hash);
     }
 
     return blockList;

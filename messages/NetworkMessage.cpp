@@ -225,6 +225,8 @@ void NetworkMessage::addFields(nlohmann::basic_json<>& ) {
 }
 
 
+#include "utils/Time.h"
+
 ptr<NetworkMessage> NetworkMessage::parseMessage(const string& _header, Schain *_sChain) {
 
 
@@ -314,6 +316,7 @@ ptr<NetworkMessage> NetworkMessage::parseMessage(const string& _header, Schain *
         } else {
             CHECK_STATE(false)
         }
+
 
         return nwkMsg;
 
