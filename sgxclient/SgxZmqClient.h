@@ -95,9 +95,10 @@ private:
 
     static cache::lru_cache<string, pair < EVP_PKEY * , X509 *>> verifiedCerts;
 
-    shared_ptr < SgxZmqMessage > doRequestReply(Json::Value &_req);
+    shared_ptr < SgxZmqMessage > doRequestReply(Json::Value &_req,
+                               bool _throwExceptionOnTimeout = false);
 
-    string doZmqRequestReply(string &_req);
+    string doZmqRequestReply(string &_req, bool _throwExceptionOnTimeout = false);
 
     uint64_t getProcessID();
 
@@ -116,9 +117,10 @@ public:
     static string signString(EVP_PKEY* _pkey, const string& _str);
 
     string blsSignMessageHash(const string &_keyShareName, const string &_messageHash, 
-        int _t, int _n);
+        int _t, int _n, bool _throwExceptionOnTimeout);
 
-    string ecdsaSignMessageHash(int _base, const string &_keyName, const string &_messageHash);
+    string ecdsaSignMessageHash(int _base, const string &_keyName, const string &_messageHash,
+        bool _throwExceptionOnTimeout);
 
     void exit();
 
