@@ -270,7 +270,7 @@ unsigned long long int random_value = 0;  // Declare value to store data into
 size_t size = sizeof( random_value );     // Declare size of data
 
 
-static ifstream urandom( "/dev/urandom", ios::in | ios::binary );  // Open stream
+ifstream CryptoManager::urandom( "/dev/urandom", ios::in | ios::binary );  // Open stream
 
 std::tuple< ptr< OpenSSLEdDSAKey >, string > CryptoManager::localGenerateFastKey() {
     auto key = OpenSSLEdDSAKey::generateKey();
@@ -1011,9 +1011,7 @@ void CryptoManager::setSgxUrl( const string& _sgxUrl ) {
 
 
 void CryptoManager::exitZMQClient() {
-    if ( zmqClient != nullptr )
-        zmqClient->exit();
-    zmqClient = nullptr;
+    zmqClient->exit();
 }
 
 list<uint64_t> CryptoManager::ecdsaSignTimes;

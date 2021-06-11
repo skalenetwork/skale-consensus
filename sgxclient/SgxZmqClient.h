@@ -72,6 +72,8 @@ private:
     EVP_PKEY* pubkey = 0;
     X509* x509Cert = 0;
 
+    bool exited = false;
+
 
     zmq::context_t ctx;
     bool sign = true;
@@ -80,13 +82,14 @@ private:
     string cert = "";
     string key = "";
 
-    recursive_mutex mutex;
+
 
     string url;
 
     // generate random identity
 
     map<uint64_t , shared_ptr <zmq::socket_t>> clientSockets;
+    recursive_mutex socketMutex;
 
     Schain* schain = nullptr;
 

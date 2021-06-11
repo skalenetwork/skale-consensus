@@ -130,11 +130,6 @@ class CryptoManager {
     string sgxDomainName;
     uint16_t sgxPort = 0;
 
-
-
-
-private:
-
     ptr< StubClient > getSgxClient();
 
     tuple< ptr< OpenSSLEdDSAKey >, string > localGenerateFastKey();
@@ -160,6 +155,8 @@ private:
 
 
 public:
+
+    static ifstream urandom;
 
     void verifyThresholdSig(
         ptr< ThresholdSignature > _signature, BLAKE3Hash& _hash, bool _forceMockup );
