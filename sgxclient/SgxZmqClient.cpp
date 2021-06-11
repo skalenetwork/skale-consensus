@@ -124,7 +124,10 @@ string SgxZmqClient::doZmqRequestReply( string& _req, bool _throwExceptionOnTime
         if ( items[0].revents & ZMQ_POLLIN ) {
             string reply = s_recv( *clientSocket );
 
-            CHECK_STATE( reply.size() > 5 );
+            // check for null chars
+            CHECK_STATE(strlen(reply.c_str()) == reply.length())
+
+            CHECK_STATE( reply.length() > 5 );
             LOG( debug, "ZMQ client received reply:" + reply );
             CHECK_STATE( reply.front() == '{' );
             CHECK_STATE( reply.back() == '}' );
