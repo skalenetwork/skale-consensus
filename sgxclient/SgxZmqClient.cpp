@@ -289,8 +289,26 @@ void SgxZmqClient::reconnect() {
     auto clientSocket = make_shared< zmq::socket_t >( ctx, ZMQ_DEALER );
     clientSocket->setsockopt( ZMQ_IDENTITY, identity.c_str(), identity.size() + 1 );
     //  Configure socket to not wait at close time
+
+
+    int timeout = ZMQ_TIMEOUT;
+
+    clientSocket->setsockopt(ZMQ_SNDTIMEO, &timeout, sizeof(int));
+    clientSocket->setsockopt(ZMQ_RCVTIMEO, &timeout, sizeof(int));
+
+
     int linger = 0;
     clientSocket->setsockopt( ZMQ_LINGER, &linger, sizeof( linger ) );
+
+    int val = 15000;
+    clientSocket->setsockopt(ZMQ_HEARTBEAT_IVL, &val, sizeof( val ) );
+    val = 3000;
+    clientSocket->setsockopt(ZMQ_HEARTBEAT_TIMEOUT, &val, sizeof( val ) );
+    val = 60000;
+    clientSocket->setsockopt(ZMQ_HEARTBEAT_TTL, &val, sizeof( val ) );
+
+
+
     clientSocket->connect( url );
     clientSockets.insert( { pid, clientSocket } );
 }
