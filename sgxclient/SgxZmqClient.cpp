@@ -24,20 +24,19 @@
 #include "sys/random.h"
 #include <sys/syscall.h>
 #include <sys/types.h>
-
-
 #include <fstream>
 #include <regex>
 #include <streambuf>
 
-
+#include "SkaleCommon.h"
+#include "crypto/CryptoManager.h"
 #include "BLSSignReqMessage.h"
 #include "BLSSignRspMessage.h"
 #include "ECDSASignReqMessage.h"
 #include "ECDSASignRspMessage.h"
 #include "Log.h"
 #include "SgxZmqClient.h"
-#include "SkaleCommon.h"
+
 #include "chains/Schain.h"
 #include "network/Utils.h"
 
@@ -50,8 +49,8 @@ shared_ptr< SgxZmqMessage > SgxZmqClient::doRequestReply( Json::Value& _req,
     static uint64_t i = 0;
 
     if ( sign ) {
-        CHECK_STATE( !cert.empty() );
-        CHECK_STATE( !key.empty() );
+        CHECK_STATE(!cert.empty() )
+        CHECK_STATE(!key.empty())
         _req["cert"] = cert;
     }
 
@@ -85,7 +84,6 @@ shared_ptr< SgxZmqMessage > SgxZmqClient::doRequestReply( Json::Value& _req,
         CHECK_STATE( resultStr.front() == '{' )
         CHECK_STATE( resultStr.back() == '}' )
 
-
         return SgxZmqMessage::parse( resultStr.c_str(), resultStr.size(), false );
     } catch ( std::exception& e ) {
         spdlog::error( string( "Error in doRequestReply:" ) + e.what() );
@@ -103,7 +101,7 @@ string SgxZmqClient::doZmqRequestReply( string& _req, bool _throwExceptionOnTime
     shared_ptr< zmq::socket_t > clientSocket = nullptr;
 
     {
-        lock_guard< recursive_mutex > m( mutex );
+        LOCK(socketMutex)
         if ( !clientSockets.count( getProcessID() ) )
             reconnect();
         clientSocket = clientSockets.at( getProcessID() );
@@ -272,25 +270,44 @@ SgxZmqClient::SgxZmqClient( Schain* _sChain, const string& ip, uint16_t port, bo
 }
 
 void SgxZmqClient::reconnect() {
-    lock_guard< recursive_mutex > lock( mutex );
-
+    LOCK(socketMutex)
     auto pid = getProcessID();
 
     if ( clientSockets.count( pid ) > 0 ) {
         clientSockets.erase( pid );
     }
 
-    uint64_t randNumber;
-    CHECK_STATE( getrandom( &randNumber, sizeof( uint64_t ), 0 ) == sizeof( uint64_t ) );
+    uint64_t randNumber1, randNumber2;
+
+    getSchain()->getCryptoManager()->urandom.read((char*) &randNumber1, sizeof( uint64_t ));
+    getSchain()->getCryptoManager()->urandom.read((char*) &randNumber2, sizeof( uint64_t ));
 
     string identity =
-        to_string( ( uint64_t ) getSchain()->getSchainIndex() ) + ":" + to_string( randNumber );
+        to_string( ( uint64_t ) getSchain()->getSchainID() ) + ":" +
+        to_string( ( uint64_t ) getSchain()->getSchainIndex() ) + ":"
+        + ":"+ to_string( randNumber1 )
+        + to_string(randNumber2);
 
     auto clientSocket = make_shared< zmq::socket_t >( ctx, ZMQ_DEALER );
     clientSocket->setsockopt( ZMQ_IDENTITY, identity.c_str(), identity.size() + 1 );
     //  Configure socket to not wait at close time
+
+
+    int timeout = ZMQ_TIMEOUT;
+
+    clientSocket->setsockopt(ZMQ_SNDTIMEO, &timeout, sizeof(int));
+    clientSocket->setsockopt(ZMQ_RCVTIMEO, &timeout, sizeof(int));
+
     int linger = 0;
     clientSocket->setsockopt( ZMQ_LINGER, &linger, sizeof( linger ) );
+
+    int val = 15000;
+    clientSocket->setsockopt(ZMQ_HEARTBEAT_IVL, &val, sizeof( val ) );
+    val = 3000;
+    clientSocket->setsockopt(ZMQ_HEARTBEAT_TIMEOUT, &val, sizeof( val ) );
+    val = 60000;
+    clientSocket->setsockopt(ZMQ_HEARTBEAT_TTL, &val, sizeof( val ) );
+
     clientSocket->connect( url );
     clientSockets.insert( { pid, clientSocket } );
 }
@@ -323,7 +340,8 @@ string SgxZmqClient::ecdsaSignMessageHash(
     p["messageHash"] = messageHash;
     auto result = dynamic_pointer_cast< ECDSASignRspMessage >( doRequestReply( p,
         _throwExceptionOnTimeout ) );
-    CHECK_STATE( result );
+
+    CHECK_STATE( result != nullptr);
     CHECK_STATE( result->getStatus() == 0 );
     return result->getSignature();
 }
@@ -332,9 +350,25 @@ string SgxZmqClient::ecdsaSignMessageHash(
 uint64_t SgxZmqClient::getProcessID() {
     return syscall( __NR_gettid );
 }
+
+
 void SgxZmqClient::exit() {
+
+
+    LOG(info, "Exiting SgxZmqClient");
+    LOCK(socketMutex);
+
+    if (exited)
+        return;
+    LOG(info, "Shutting down SgxZmq context");
     this->ctx.shutdown();
-    this->clientSockets.clear();
+    LOG(info, "Shut down SgxZmq context");
+    LOG(info, "Closing SgxZmq client sockets");
+    for (auto && item : clientSockets) {
+        item.second->close();
+    }
+    exited = true;
+    LOG(info, "Exited SgxZmqClient");
 }
 
 
@@ -364,7 +398,7 @@ void SgxZmqClient::verifyMsgSig( const char* _msg, size_t ) {
     EVP_PKEY* publicKey = nullptr;
 
     {
-        lock_guard< recursive_mutex > lock( m );
+        LOCK( socketMutex);
 
         if ( !verifiedCerts.exists( *cert ) ) {
             auto handles = SgxZmqClient::readPublicKeyFromCertStr( *cert );
@@ -440,4 +474,8 @@ SgxZmqClient::zmq_status SgxZmqClient::getZMQStatus() const {
 
 void SgxZmqClient::setZmqStatus(SgxZmqClient::zmq_status _status) {
     zmqStatus = _status;
+}
+uint64_t SgxZmqClient::getZmqSocketCount() {
+    LOCK(socketMutex);
+    return clientSockets.size();
 }

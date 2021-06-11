@@ -62,6 +62,8 @@ public:
     zmq_status getZMQStatus() const;
     void setZmqStatus(zmq_status _status);
 
+    uint64_t getZmqSocketCount();
+
 private:
 
     zmq_status zmqStatus = UNKNOWN;
@@ -69,6 +71,8 @@ private:
     EVP_PKEY* pkey = 0;
     EVP_PKEY* pubkey = 0;
     X509* x509Cert = 0;
+
+    bool exited = false;
 
 
     zmq::context_t ctx;
@@ -78,13 +82,14 @@ private:
     string cert = "";
     string key = "";
 
-    recursive_mutex mutex;
+
 
     string url;
 
     // generate random identity
 
     map<uint64_t , shared_ptr <zmq::socket_t>> clientSockets;
+    recursive_mutex socketMutex;
 
     Schain* schain = nullptr;
 

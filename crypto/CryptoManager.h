@@ -130,11 +130,6 @@ class CryptoManager {
     string sgxDomainName;
     uint16_t sgxPort = 0;
 
-
-
-
-private:
-
     ptr< StubClient > getSgxClient();
 
     tuple< ptr< OpenSSLEdDSAKey >, string > localGenerateFastKey();
@@ -160,6 +155,8 @@ private:
 
 
 public:
+
+    static ifstream urandom;
 
     void verifyThresholdSig(
         ptr< ThresholdSignature > _signature, BLAKE3Hash& _hash, bool _forceMockup );
@@ -279,6 +276,8 @@ public:
     static uint64_t getBLSTotals() {
         return blsCounter;
     }
+
+    uint64_t getZMQSocketCount();
 
 
     void checkZMQStatusIfUnknownECDSA(const string &_keyName);
