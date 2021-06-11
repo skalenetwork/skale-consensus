@@ -62,6 +62,8 @@ public:
     zmq_status getZMQStatus() const;
     void setZmqStatus(zmq_status _status);
 
+    uint64_t getZmqSocketCount();
+
 private:
 
     zmq_status zmqStatus = UNKNOWN;

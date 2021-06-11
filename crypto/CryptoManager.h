@@ -280,6 +280,8 @@ public:
         return blsCounter;
     }
 
+    uint64_t getZMQSocketCount();
+
 
     void checkZMQStatusIfUnknownECDSA(const string &_keyName);
 

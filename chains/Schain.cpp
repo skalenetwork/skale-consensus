@@ -479,6 +479,7 @@ void Schain::processCommittedBlock( const ptr< CommittedBlock >& _block ) {
                 ":SBT:" + to_string( CryptoManager::getBLSStats() ) +
                 ":SEC:" + to_string( CryptoManager::getECDSATotals() ) +
                 ":SBC:" + to_string( CryptoManager::getBLSTotals() ) +
+                ":ZSC:" + to_string(getCryptoManager()->getZMQSocketCount()) +
                 ":STAMP:" + stamp.toString() );
 
         //get malloc stats

@@ -441,3 +441,7 @@ SgxZmqClient::zmq_status SgxZmqClient::getZMQStatus() const {
 void SgxZmqClient::setZmqStatus(SgxZmqClient::zmq_status _status) {
     zmqStatus = _status;
 }
+uint64_t SgxZmqClient::getZmqSocketCount() {
+    lock_guard< recursive_mutex > lock( mutex );
+    return clientSockets.size();
+}
