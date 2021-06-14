@@ -1011,7 +1011,8 @@ void CryptoManager::setSgxUrl( const string& _sgxUrl ) {
 
 
 void CryptoManager::exitZMQClient() {
-    zmqClient->exit();
+    if (isSGXEnabled && zmqClient)
+        zmqClient->exit();
 }
 
 list<uint64_t> CryptoManager::ecdsaSignTimes;
