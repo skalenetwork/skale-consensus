@@ -454,7 +454,12 @@ void Node::exit() {
 
 
 void Node::closeAllSocketsAndNotifyAllAgentsAndThreads() {
+
+    LOG(info, "consensus engine exiting: close all sockets called");
+
     getSchain()->getNode()->threadServerConditionVariable.notify_all();
+
+    LOG(info, "consensus engine exiting: server conditional vars notified");
 
     {
         LOCK( agentsLock );
@@ -466,13 +471,21 @@ void Node::closeAllSocketsAndNotifyAllAgentsAndThreads() {
         }
     }
 
+    LOG(info, "consensus engine exiting: agent conditional vars notified");
+
     if (sockets && sockets->blockProposalSocket)
         sockets->blockProposalSocket->touch();
+
+    LOG(info, "consensus engine exiting: block proposal socket touched");
 
     if (sockets && sockets->catchupSocket)
         sockets->catchupSocket->touch();
 
+    LOG(info, "consensus engine exiting: catchup socket touched");
+
     getSchain()->getCryptoManager()->exitZMQClient();
+
+    LOG(info, "consensus engine exiting: closeAndCleanupAll consensus zmq sockets");
 
     if (sockets)
         sockets->getConsensusZMQSockets()->closeAndCleanupAll();

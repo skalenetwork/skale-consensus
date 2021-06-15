@@ -1011,8 +1011,10 @@ void CryptoManager::setSgxUrl( const string& _sgxUrl ) {
 
 
 void CryptoManager::exitZMQClient() {
+    LOG(info, "consensus engine exiting: SGXZMQClient exiting");
     if (isSGXEnabled && zmqClient)
         zmqClient->exit();
+    LOG(info, "consensus engine exiting: SGXZMQClient exited");
 }
 
 list<uint64_t> CryptoManager::ecdsaSignTimes;
