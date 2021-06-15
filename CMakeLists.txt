@@ -52,7 +52,7 @@ find_package(leveldb CONFIG REQUIRED)
 
 
 set(CMAKE_CXX_STANDARD 17)
-add_compile_options(-Wall -Wextra -Werror -Wno-error=deprecated-declarations)
+add_compile_options(-Wall -Wextra -Werror -Wno-error=deprecated-declarations -Wno-error=unused-result -Wno-error=maybe-uninitialized)
 add_definitions("-DZMQ_BUILD_DRAFT_API")
 add_definitions("-DUSER_SPACE")
 add_definitions("-DZMQ_EXPERIMENTAL")
