@@ -105,6 +105,8 @@ void ZMQSockets::closeReceive() {
 
     LOCK(m);
 
+    LOG(info, "consensus engine exiting: closing receive sockets");
+
     if(receiveSocket){
         zmq_close(receiveSocket);
     }
@@ -113,6 +115,7 @@ void ZMQSockets::closeReceive() {
 
 void ZMQSockets::closeSend() {
     LOCK(m);
+    LOG(info, "consensus engine exiting: closing ZMQ send sockets");
     for (auto &&item : sendSockets) {
         if(item.second){
             LOG(debug, getThreadName() + " zmq debug in closeSend(): closing " + to_string((uint64_t) item.second));
@@ -123,8 +126,6 @@ void ZMQSockets::closeSend() {
 
 
 void ZMQSockets::closeAndCleanupAll() {
-
-
 
     LOCK(m);
 
@@ -142,16 +143,15 @@ void ZMQSockets::closeAndCleanupAll() {
         throw;
     }
 
-
     LOG(info, "Closing ZMQ context");
 
     try {
         zmq_ctx_term(context);
     } catch(const exception& ex){
-        LOG(err, "Exception from zmq_ctx_term");
+        LOG(err, "Exception in zmq_ctx_term");
         LOG(err, ex.what());
     } catch(...) {
-        LOG(err, "Unknown exception from zmq_ctx_term");
+        LOG(err, "Unknown exception in zmq_ctx_term");
     }
 
     LOG(info, "Closed ZMQ");

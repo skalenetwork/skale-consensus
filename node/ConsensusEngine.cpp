@@ -687,8 +687,16 @@ ConsensusExtFace* ConsensusEngine::getExtFace() const {
 
 
 void ConsensusEngine::exitGracefullyBlocking() {
+
+
+    LOG(info, "consensus engine exiting: blocking exit called");
+
+
     // !! if we don't check this - exitGracefullyAsync()
     // will try to exit on deleted object!
+
+
+
     if ( getStatus() != CONSENSUS_EXITED )
         exitGracefully();
 
@@ -708,6 +716,9 @@ consensus_engine_status ConsensusEngine::getStatus() const {
 }
 
 void ConsensusEngine::exitGracefullyAsync() {
+
+    LOG(info, "consensus engine exiting: async exit called");
+
     try {
         auto previouslyCalled = exitRequested.exchange( true );
 
@@ -715,7 +726,7 @@ void ConsensusEngine::exitGracefullyAsync() {
             return;
         }
 
-        LOG( info, "exitGracefullyAsync called" );
+        LOG( info, "exitGracefullyAsync running" );
 
 
         for ( auto&& it : nodes ) {
