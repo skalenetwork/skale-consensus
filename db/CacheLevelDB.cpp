@@ -582,6 +582,10 @@ CacheLevelDB::readSet(block_id _blockId) {
 ptr<map<schain_index, string>>
 CacheLevelDB::writeByteArrayToSet(const char *_value, uint64_t _valueLen, block_id _blockId, schain_index _index) {
 
+
+    rotateDBsIfNeeded();
+
+
     {
 
         lock_guard<shared_mutex> lock(m);
