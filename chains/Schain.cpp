@@ -677,20 +677,15 @@ void Schain::proposedBlockArrived( const ptr< BlockProposal >& _proposal ) {
 
 void Schain::bootstrap( block_id _lastCommittedBlockID, uint64_t _lastCommittedBlockTimeStamp,
     uint64_t _lastCommittedBlockTimeStampMs ) {
+
     LOCK( m )
 
     LOG( info, "Bootstrapping consensus ..." );
     auto _lastCommittedBlockIDInConsensus = getNode()->getBlockDB()->readLastCommittedBlockID();
-    LOG( info, "Check the consensus database for corruption ..." );
-    this->startingFromCorruptState = fixCorruptStateIfNeeded( _lastCommittedBlockIDInConsensus );
-    if ( startingFromCorruptState ) {
-        LOG( warn,
-            "Corrupt consensus database has been repaired successfully."
-            "Starting from repaired consensus database." );
-    }
-
     LOG( info,
-        "Last committed block in consensus:" + to_string( _lastCommittedBlockIDInConsensus ) );
+         "Last committed block in consensus:" + to_string( _lastCommittedBlockIDInConsensus ) );
+    LOG( info, "Check the consensus database for corruption ..." );
+    fixCorruptStateIfNeeded( _lastCommittedBlockIDInConsensus );
 
     checkForExit();
 
@@ -705,7 +700,6 @@ void Schain::bootstrap( block_id _lastCommittedBlockID, uint64_t _lastCommittedB
 
     // Step 1: solve block id  mismatch
 
-
     if ( _lastCommittedBlockIDInConsensus == _lastCommittedBlockID + 1 ) {
         // consensus has one more block than skaled
         // This happens when starting from a snapshot
@@ -713,15 +707,12 @@ void Schain::bootstrap( block_id _lastCommittedBlockID, uint64_t _lastCommittedB
         try {
             auto block = getNode()->getBlockDB()->getBlock(
                 _lastCommittedBlockIDInConsensus, getCryptoManager() );
-            if ( block != nullptr ) {
-                // we have one more block in consensus, so we push it out
-
-                pushBlockToExtFace( block );
-                _lastCommittedBlockID = _lastCommittedBlockID + 1;
-            }
+            CHECK_STATE2(block, "No block in consensus, repair needed");
+            pushBlockToExtFace( block );
+            _lastCommittedBlockID = _lastCommittedBlockID + 1;
         } catch ( ... ) {
             // Cant read the block form db, may be it is corrupt in the  snapshot
-            LOG( err, "Bootstrap could not read block from db" );
+            LOG( err, "Bootstrap could not read block from db. Repair." );
             // The block will be pulled by catchup
         }
     } else {
@@ -733,7 +724,7 @@ void Schain::bootstrap( block_id _lastCommittedBlockID, uint64_t _lastCommittedB
 
         if ( _lastCommittedBlockIDInConsensus > _lastCommittedBlockID + 1 ) {
             BOOST_THROW_EXCEPTION( InvalidStateException(
-                "_lastCommittedBlockIDInConsensus >& _lastCommittedBlockID + 1", __CLASS_NAME__ ) );
+                "_lastCommittedBlockIDInConsensus > _lastCommittedBlockID + 1", __CLASS_NAME__ ) );
         }
     }
 
@@ -744,19 +735,15 @@ void Schain::bootstrap( block_id _lastCommittedBlockID, uint64_t _lastCommittedB
     try {
         CHECK_STATE( !bootStrapped );
         bootStrapped = true;
-        bootstrapBlockID.store( ( uint64_t ) _lastCommittedBlockID );
+        bootstrapBlockID =  ( uint64_t ) _lastCommittedBlockID;
         CHECK_STATE( _lastCommittedBlockTimeStamp < ( uint64_t ) 2 * MODERN_TIME );
 
-        LOCK( m )
-
-        ptr< BlockProposal > committedProposal = nullptr;
-
         TimeStamp stamp( _lastCommittedBlockTimeStamp, _lastCommittedBlockTimeStampMs );
-
         initLastCommittedBlockInfo( ( uint64_t ) _lastCommittedBlockID, stamp );
 
 
         LOG( info, "Jump starting the system with block:" + to_string( _lastCommittedBlockID ) );
+
         if ( getLastCommittedBlockID() == 0 )
             this->pricingAgent->calculatePrice( ConsensusExtFace::transactions_vector(), 0, 0, 0 );
 
@@ -963,15 +950,16 @@ bool Schain::fixCorruptStateIfNeeded( block_id _lastCommittedBlockID ) {
     block_id nextBlock = _lastCommittedBlockID + 1;
     if ( getNode()->getBlockDB()->unfinishedBlockExists( nextBlock ) ) {
         return true;
+        LOG( warn,
+             "Corrupt consensus database has been repaired successfully."
+             "Starting from repaired consensus database." );
     } else {
         return false;
     }
 }
 
 
-bool Schain::isStartingFromCorruptState() const {
-    return startingFromCorruptState;
-}
+
 void Schain::startStatusServer() {
     if ( !s ) {
         httpserver = make_shared< jsonrpc::HttpServer >(
