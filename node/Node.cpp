@@ -547,3 +547,6 @@ ptr< BLSPublicKey > Node::getBlsPublicKey() {
 bool Node::isInited() const {
     return inited;
 }
+uint64_t Node::getVisualizationType() const {
+    return visualizationType;
+}

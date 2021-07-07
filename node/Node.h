@@ -189,7 +189,10 @@ class Node {
     uint64_t randomDBSize = 0;
     uint64_t priceDBSize = 0;
     uint64_t blockProposalDBSize = 0;
+    uint64_t visualizationType = 0;
 
+
+private:
     bool inited = false;
 
     void releaseGlobalServerBarrier();
@@ -239,6 +242,8 @@ public:
     ptr< BlockProposalDB > getBlockProposalDB() const;
 
 
+public:
+    uint64_t getVisualizationType() const;
     uint64_t getProposalHashDBSize() const;
     uint64_t getProposalVectorDBSize() const;
     uint64_t getOutgoingMsgDBSize() const;
