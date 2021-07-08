@@ -1029,7 +1029,7 @@ ptr< ofstream > Schain::getVisualizationDataStream() {
         visualizationDataStream->exceptions(std::ofstream::badbit | std::ofstream::failbit);
         auto t = Time::getCurrentTimeMs();
         auto fileName = "/tmp/convensusv_" + to_string(t) + ".data";
-        visualizationDataStream->open("/tmp/convensusv, ios_base::trunc);
+        visualizationDataStream->open(fileName, ios_base::trunc);
     }
     return visualizationDataStream;
 }
