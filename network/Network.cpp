@@ -51,6 +51,7 @@
 #include "messages/NetworkMessageEnvelope.h"
 #include "network/Sockets.h"
 #include "network/ZMQSockets.h"
+#include "utils/Time.h"
 #include "threads/GlobalThreadRegistry.h"
 
 TransportType Network::transport = TransportType::ZMQ;
@@ -454,6 +455,8 @@ Network::~Network() {}
 
 void Network::saveToVisualization( ptr< NetworkMessage > _msg ) {
     auto stream = getSchain()->getVisualizationDataStream();
-    string haha = to_string(_msg->getTimeMs()) + "\n";
-    stream->write(haha.c_str(), haha.size());
+    string info = string ("{\"type\":1,") +
+                  "\"s\":" +   to_string(_msg->getTimeMs()) + "," +
+                  "\"f\":" +   to_string(Time::getCurrentTimeMs()) + "}\n";
+    stream->write(info.c_str(), info.size());
 }

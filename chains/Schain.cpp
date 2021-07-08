@@ -1028,7 +1028,7 @@ ptr< ofstream > Schain::getVisualizationDataStream() {
         visualizationDataStream = make_shared<ofstream>();
         visualizationDataStream->exceptions(std::ofstream::badbit | std::ofstream::failbit);
         auto t = Time::getCurrentTimeMs();
-        auto fileName = "/tmp/convensusv_" + to_string(t) + ".data";
+        auto fileName = "/tmp/consensusv_" + to_string(t) + ".data";
         visualizationDataStream->open(fileName, ios_base::trunc);
     }
     return visualizationDataStream;
