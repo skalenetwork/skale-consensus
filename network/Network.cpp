@@ -377,6 +377,11 @@ ptr< NetworkMessageEnvelope > Network::receiveMessage() {
 
     CHECK_STATE( mptr );
 
+    if (getSchain()->getNode()->getVisualizationType() > 0) {
+        saveToVisualization(mptr);
+    }
+
+
     mptr->verify( getSchain()->getCryptoManager() );
 
     ptr< NodeInfo > realSender = sChain->getNode()->getNodeInfoByIndex( mptr->getSrcSchainIndex() );
@@ -446,3 +451,7 @@ Network::Network( Schain& _sChain )
 }
 
 Network::~Network() {}
+
+void Network::saveToVisualization( ptr< NetworkMessage > _msg ) {
+    _msg->getTimeMs();
+}

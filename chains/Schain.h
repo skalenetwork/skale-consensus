@@ -25,6 +25,7 @@
 
 #pragma once
 
+
 #include "Agent.h"
 #include <jsonrpccpp/server/connectors/httpserver.h>
 #include "statusserver/StatusServer.h"
@@ -142,12 +143,18 @@ class Schain : public Agent {
     unordered_map <uint64_t, uint64_t> deadNodes;
     recursive_mutex deadNodesLock;
 
+    ptr<ofstream> visualizationDataStream = nullptr;
 
+    ptr< ofstream > getVisualizationDataStream();
+
+    recursive_mutex vdsMutex;
 
 public:
 
     void addDeadNode(uint64_t _schainIndex, uint64_t timeMs);
+
     uint64_t getDeathTime(uint64_t  _schainIndex);
+
     void markAliveNode(uint64_t  _schainIndex);
 
     uint64_t getBlockSizeAverage() const;

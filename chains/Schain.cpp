@@ -1022,3 +1022,14 @@ uint64_t Schain::getDeathTime( uint64_t _schainIndex ) {
         }
     }
 }
+ptr< ofstream > Schain::getVisualizationDataStream() {
+    LOCK(vdsMutex)
+    if (!visualizationDataStream) {
+        visualizationDataStream = make_shared<ofstream>();
+        visualizationDataStream->exceptions(std::ofstream::badbit | std::ofstream::failbit);
+        auto t = Time::getCurrentTimeMs();
+        auto fileName = "/tmp/convensusv" + to_string(t) + ".data";
+        visualizationDataStream->open("/tmp/convensusv.data", ios_base::trunc);
+    }
+    return visualizationDataStream;
+}
