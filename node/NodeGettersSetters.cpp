@@ -375,3 +375,7 @@ string Node::getSgxSslKeyFileFullPath()  {
 string Node::getSgxSslCertFileFullPath() {
     return sgxSSLCertFileFullPath;
 }
+
+uint64_t Node::getVisualizationType() const {
+    return visualizationType;
+}
