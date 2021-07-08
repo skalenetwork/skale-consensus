@@ -453,5 +453,7 @@ Network::Network( Schain& _sChain )
 Network::~Network() {}
 
 void Network::saveToVisualization( ptr< NetworkMessage > _msg ) {
-    _msg->getTimeMs();
+    auto stream = getSchain()->getVisualizationDataStream();
+    string haha = to_string(_msg->getTimeMs()) + "\n";
+    stream->write(haha.c_str(), haha.size());
 }
