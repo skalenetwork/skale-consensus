@@ -350,9 +350,9 @@ pair< ConnectionStatus, ConnectionSubStatus > BlockProposalClientAgent::sendBloc
 
 void BlockProposalClientAgent::saveToVisualization(
     ptr< BlockProposal > _proposal, schain_index _dst ) {
-    auto stream = getSchain()->getVisualizationDataStream();
+    CHECK_STATE(_proposal);
 
-    string info = string( "{" ) + "\"t\":" + to_string( MsgType::MSG_BLOCK_PROPOSAL ) +
+    string info = string( "{" ) + "\"t\":" + to_string( MsgType::MSG_BLOCK_PROPOSAL ) + "," +
                   "\"b\":" + to_string( _proposal->getCreationTime() ) + "," +
                   "\"f\":" + to_string( Time::getCurrentTimeMs() ) + "," +
                   "\"s\":" + to_string( getSchain()->getSchainIndex() ) + "," +
@@ -360,8 +360,8 @@ void BlockProposalClientAgent::saveToVisualization(
                   "\"p\":" + to_string( _proposal->getProposerIndex() ) + "," +
                   "\"b\":" + to_string( _proposal->getBlockID() ) + "}\n";
 
+    Schain::writeToVisualizationStream(info);
 
-    stream->write( info.c_str(), info.size() );
 }
 
 

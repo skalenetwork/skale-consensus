@@ -1022,6 +1022,7 @@ uint64_t Schain::getDeathTime( uint64_t _schainIndex ) {
         }
     }
 }
+
 ptr< ofstream > Schain::getVisualizationDataStream() {
     LOCK(vdsMutex)
     if (!visualizationDataStream) {
@@ -1032,6 +1033,12 @@ ptr< ofstream > Schain::getVisualizationDataStream() {
         visualizationDataStream->open(fileName, ios_base::trunc);
     }
     return visualizationDataStream;
+}
+
+void Schain::writeToVisualizationStream(string& _s) {
+    LOCK(vdsMutex)
+    auto stream = getVisualizationDataStream();
+    stream->write(_s.c_str(), _s.size());
 }
 
 ptr<ofstream> Schain::visualizationDataStream = nullptr;

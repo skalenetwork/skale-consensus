@@ -454,7 +454,7 @@ Network::Network( Schain& _sChain )
 Network::~Network() {}
 
 void Network::saveToVisualization( ptr< NetworkMessage > _msg ) {
-    auto stream = getSchain()->getVisualizationDataStream();
+    CHECK_STATE(_msg);
 
     uint64_t  round = 0;
     uint8_t  value = 0;
@@ -465,7 +465,7 @@ void Network::saveToVisualization( ptr< NetworkMessage > _msg ) {
     }
 
     string info = string ("{") +
-                  "\"t\":" +   to_string(_msg->getMsgType()) +
+                  "\"t\":" +   to_string(_msg->getMsgType()) + "," +
                   "\"b\":" +   to_string(_msg->getTimeMs()) + "," +
                   "\"f\":" +   to_string(Time::getCurrentTimeMs()) + "," +
                   "\"s\":" +   to_string(_msg->getSrcSchainIndex()) + ","+
@@ -477,5 +477,5 @@ void Network::saveToVisualization( ptr< NetworkMessage > _msg ) {
                   "}\n";
 
 
-    stream->write(info.c_str(), info.size());
+    Schain::writeToVisualizationStream(info);
 }

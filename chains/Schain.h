@@ -168,10 +168,12 @@ class Schain : public Agent {
 
     ptr< BlockProposal > createDefaultEmptyBlockProposal( block_id _blockId );
 
+    static ptr< ofstream > getVisualizationDataStream();
+
 
 public:
 
-    static ptr< ofstream > getVisualizationDataStream();
+    static void writeToVisualizationStream(string& _s);
 
     void addDeadNode(uint64_t _schainIndex, uint64_t timeMs);
 
