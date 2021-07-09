@@ -39,6 +39,13 @@ class SubmitDAProofRequestHeader;
 
 class DAProof : public SendableItem {
 
+
+
+    uint64_t creationTime;
+
+public:
+    uint64_t getCreationTime() const;
+
 protected:
 
     schain_id schainID;

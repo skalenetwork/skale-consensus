@@ -127,7 +127,7 @@ pair< ConnectionStatus, ConnectionSubStatus > BlockProposalClientAgent::sendItem
     } else {
         auto _daProof = dynamic_pointer_cast< DAProof >( _item );
         CHECK_STATE( _daProof );  // a sendable item is either DAProof or Proposal
-        return sendDAProof( _daProof, _socket );
+        return sendDAProof( _daProof, _socket, _index);
     }
 }
 
@@ -365,8 +365,27 @@ void BlockProposalClientAgent::saveToVisualization(
 }
 
 
+void BlockProposalClientAgent::saveToVisualization(
+    ptr< DAProof > _daProof, schain_index _dst ) {
+    CHECK_STATE(_daProof);
+
+    string info = string( "{" ) + "\"t\":" + to_string( MsgType::MSG_CONSENSUS_PROPOSAL ) + "," +
+                  "\"b\":" + to_string( _daProof->getCreationTime() ) + "," +
+                  "\"f\":" + to_string( Time::getCurrentTimeMs() ) + "," +
+                  "\"s\":" + to_string( getSchain()->getSchainIndex() ) + "," +
+                  "\"d\":" + to_string( _dst ) + "," +
+                  "\"p\":" + to_string( _daProof->getProposerIndex() ) + "," +
+                  "\"b\":" + to_string( _daProof->getBlockId() ) + "}\n";
+
+    Schain::writeToVisualizationStream(info);
+
+}
+
+
+
+
 pair< ConnectionStatus, ConnectionSubStatus > BlockProposalClientAgent::sendDAProof(
-    const ptr< DAProof >& _daProof, const ptr< ClientSocket >& _socket ) {
+    const ptr< DAProof >& _daProof, const ptr< ClientSocket >& _socket,schain_index _index ) {
     CHECK_ARGUMENT( _daProof );
     CHECK_ARGUMENT( _socket );
 
@@ -411,6 +430,11 @@ pair< ConnectionStatus, ConnectionSubStatus > BlockProposalClientAgent::sendDAPr
         LOG( err,
             "Failure submitting DA proof:" + to_string( status ) + ":" + to_string( substatus ) );
     }
+
+    if ( getSchain()->getNode()->getVisualizationType() != 0 ) {
+        saveToVisualization( _daProof, _index);
+    }
+
 
     return { status, substatus };
 }
