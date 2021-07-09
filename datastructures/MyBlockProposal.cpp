@@ -28,6 +28,7 @@
 
 #include "crypto/CryptoManager.h"
 #include "chains/Schain.h"
+#include "utils/Time.h"
 #include "Transaction.h"
 
 #include "MyBlockProposal.h"

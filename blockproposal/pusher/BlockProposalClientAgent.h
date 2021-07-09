@@ -69,6 +69,11 @@ class BlockProposalClientAgent : public AbstractClientAgent {
     pair< ConnectionStatus, ConnectionSubStatus > sendDAProof(
         const ptr< DAProof >& _daProof, const ptr< ClientSocket >& _socket );
 
+
+    void saveToVisualization( ptr<BlockProposal > _proposal, schain_index _dst );
+
 public:
     explicit BlockProposalClientAgent( Schain& _sChain );
+
+
 };

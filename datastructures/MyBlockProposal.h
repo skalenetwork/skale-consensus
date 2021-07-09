@@ -31,6 +31,8 @@
 
 class MyBlockProposal : public BlockProposal {
 
+
+private:
     static atomic<int64_t>  totalObjects;
 
 public:

@@ -48,6 +48,10 @@ class BlockProposalFragmentList;
 #define SERIALIZE_AS_PROPOSAL 1
 
 class BlockProposal : public SendableItem {
+
+
+    uint64_t creationTime;
+
     ptr< BlockProposalRequestHeader > header = nullptr; // tsafe
 
     ptr< vector< uint8_t > > serializedProposal = nullptr;  // tsafe
@@ -132,4 +136,7 @@ public:
 
     static ptr< BlockProposal > defragment( const ptr< BlockProposalFragmentList >& _fragmentList,
         const ptr< CryptoManager >& _cryptoManager );
+
+    uint64_t getCreationTime() const;
+
 };
