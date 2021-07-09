@@ -170,6 +170,7 @@ class Schain : public Agent {
 
     static ptr< ofstream > getVisualizationDataStream();
 
+    void saveToVisualization( ptr<CommittedBlock > _block );
 
 public:
 
