@@ -146,20 +146,6 @@ class Schain : public Agent {
     static ptr<ofstream> visualizationDataStream;
     static recursive_mutex vdsMutex;
 
-public:
-
-    static ptr< ofstream > getVisualizationDataStream();
-
-    void addDeadNode(uint64_t _schainIndex, uint64_t timeMs);
-
-    uint64_t getDeathTime(uint64_t  _schainIndex);
-
-    void markAliveNode(uint64_t  _schainIndex);
-
-    uint64_t getBlockSizeAverage() const;
-    uint64_t getBlockTimeAverageMs() const;
-    uint64_t getTpsAverage() const;
-private:
     uint64_t blockTimeAverageMs = 0 ;
     uint64_t tpsAverage = 0 ;
 
@@ -182,7 +168,20 @@ private:
 
     ptr< BlockProposal > createDefaultEmptyBlockProposal( block_id _blockId );
 
+
 public:
+
+    static ptr< ofstream > getVisualizationDataStream();
+
+    void addDeadNode(uint64_t _schainIndex, uint64_t timeMs);
+
+    uint64_t getDeathTime(uint64_t  _schainIndex);
+
+    void markAliveNode(uint64_t  _schainIndex);
+
+    uint64_t getBlockSizeAverage() const;
+    uint64_t getBlockTimeAverageMs() const;
+    uint64_t getTpsAverage() const;
 
     bool isStartingFromCorruptState() const;
 
