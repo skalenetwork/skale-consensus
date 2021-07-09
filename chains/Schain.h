@@ -143,13 +143,12 @@ class Schain : public Agent {
     unordered_map <uint64_t, uint64_t> deadNodes;
     recursive_mutex deadNodesLock;
 
-    ptr<ofstream> visualizationDataStream = nullptr;
-
-    recursive_mutex vdsMutex;
+    static ptr<ofstream> visualizationDataStream;
+    static recursive_mutex vdsMutex;
 
 public:
 
-    ptr< ofstream > getVisualizationDataStream();
+    static ptr< ofstream > getVisualizationDataStream();
 
     void addDeadNode(uint64_t _schainIndex, uint64_t timeMs);
 

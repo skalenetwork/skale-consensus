@@ -455,8 +455,25 @@ Network::~Network() {}
 
 void Network::saveToVisualization( ptr< NetworkMessage > _msg ) {
     auto stream = getSchain()->getVisualizationDataStream();
-    string info = string ("{\"type\":1,") +
-                  "\"s\":" +   to_string(_msg->getTimeMs()) + "," +
-                  "\"f\":" +   to_string(Time::getCurrentTimeMs()) + "}\n";
+
+    uint64_t  round = 0;
+
+    if (_msg->getMsgType() != MSG_BLOCK_SIGN_BROADCAST) {
+        round =  (uint64_t) _msg->getRound();
+    }
+
+    string info = string ("{") +
+                  "\"t\":" +   to_string(_msg->getMsgType()) +
+                  "\"b\":" +   to_string(_msg->getTimeMs()) + "," +
+                  "\"f\":" +   to_string(Time::getCurrentTimeMs()) + "," +
+                  "\"s\":" +   to_string(_msg->getSrcSchainIndex()) + ","+
+                  "\"d\":" +   to_string(getSchain()->getSchainIndex()) + ","+
+                  "\"p\":" +   to_string(_msg->getBlockProposerIndex()) + ","+
+                  "\"v\":" +   to_string(_msg->getValue()) + "," +
+                  "\"r\":" +   to_string(round) + "," +
+                  "\"b\":" +   to_string(_msg->getBlockID()) +
+                  "}\n";
+
+
     stream->write(info.c_str(), info.size());
 }

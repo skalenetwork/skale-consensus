@@ -1033,3 +1033,6 @@ ptr< ofstream > Schain::getVisualizationDataStream() {
     }
     return visualizationDataStream;
 }
+
+ptr<ofstream> Schain::visualizationDataStream = nullptr;
+recursive_mutex Schain::vdsMutex;
