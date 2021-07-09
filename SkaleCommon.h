@@ -36,7 +36,6 @@
 #include <thread>
 #include <mutex>
 #include <shared_mutex>
-#include <iostream>
 #include "assert.h"
 #include <condition_variable>
 #include "stdlib.h"
@@ -66,6 +65,8 @@
 #include <fstream>
 #include <netinet/in.h>
 #include <netdb.h>
+
+#include <iostream>
 
 
 #include <boost/exception/exception.hpp>

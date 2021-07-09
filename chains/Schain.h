@@ -25,6 +25,7 @@
 
 #pragma once
 
+
 #include "Agent.h"
 #include <jsonrpccpp/server/connectors/httpserver.h>
 #include "statusserver/StatusServer.h"
@@ -142,17 +143,9 @@ class Schain : public Agent {
     unordered_map <uint64_t, uint64_t> deadNodes;
     recursive_mutex deadNodesLock;
 
+    static ptr<ofstream> visualizationDataStream;
+    static recursive_mutex vdsMutex;
 
-public:
-
-    void addDeadNode(uint64_t _schainIndex, uint64_t timeMs);
-    uint64_t getDeathTime(uint64_t  _schainIndex);
-    void markAliveNode(uint64_t  _schainIndex);
-
-    uint64_t getBlockSizeAverage() const;
-    uint64_t getBlockTimeAverageMs() const;
-    uint64_t getTpsAverage() const;
-private:
     uint64_t blockTimeAverageMs = 0 ;
     uint64_t tpsAverage = 0 ;
 
@@ -175,7 +168,23 @@ private:
 
     ptr< BlockProposal > createDefaultEmptyBlockProposal( block_id _blockId );
 
+    static ptr< ofstream > getVisualizationDataStream();
+
+    void saveToVisualization( ptr<CommittedBlock > _block );
+
 public:
+
+    static void writeToVisualizationStream(string& _s);
+
+    void addDeadNode(uint64_t _schainIndex, uint64_t timeMs);
+
+    uint64_t getDeathTime(uint64_t  _schainIndex);
+
+    void markAliveNode(uint64_t  _schainIndex);
+
+    uint64_t getBlockSizeAverage() const;
+    uint64_t getBlockTimeAverageMs() const;
+    uint64_t getTpsAverage() const;
 
     bool isStartingFromCorruptState() const;
 

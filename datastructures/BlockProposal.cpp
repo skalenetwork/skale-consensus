@@ -45,6 +45,7 @@
 #include "datastructures/BlockProposalFragmentList.h"
 #include "headers/BlockProposalRequestHeader.h"
 
+#include "utils//Time.h"
 
 #include "Transaction.h"
 #include "TransactionList.h"
@@ -94,6 +95,7 @@ void BlockProposal::calculateHash() {
 BlockProposal::BlockProposal(uint64_t _timeStamp, uint32_t _timeStampMs) : timeStamp(_timeStamp),
                                                                            timeStampMs(_timeStampMs) {
     proposerNodeID = 0;
+    creationTime = Time::getCurrentTimeMs();
 };
 
 BlockProposal::BlockProposal(schain_id _sChainId, node_id _proposerNodeId, block_id _blockID,
@@ -103,9 +105,7 @@ BlockProposal::BlockProposal(schain_id _sChainId, node_id _proposerNodeId, block
         : schainID(_sChainId), proposerNodeID(_proposerNodeId), blockID(_blockID),
           proposerIndex(_proposerIndex), timeStamp(_timeStamp), timeStampMs(_timeStampMs),
           stateRoot(_stateRoot), transactionList(_transactions), signature(_signature) {
-
-
-
+    creationTime = Time::getCurrentTimeMs();
     CHECK_ARGUMENT(_transactions);
 
     if (_proposerIndex == 0) {
@@ -458,4 +458,9 @@ u256 BlockProposal::getStateRoot() const {
 }
 TimeStamp  BlockProposal::getTimeStamp() const {
     return TimeStamp(getTimeStampS(), getTimeStampMs());
+}
+
+
+uint64_t BlockProposal::getCreationTime() const {
+    return creationTime;
 }

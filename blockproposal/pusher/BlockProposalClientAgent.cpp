@@ -40,6 +40,7 @@
 #include "datastructures/BlockProposal.h"
 #include "datastructures/CommittedBlock.h"
 #include "datastructures/DAProof.h"
+#include "datastructures/MyBlockProposal.h"
 #include "exceptions/NetworkProtocolException.h"
 #include "headers/BlockProposalRequestHeader.h"
 #include "headers/FinalProposalResponseHeader.h"
@@ -53,6 +54,7 @@
 #include "node/Node.h"
 #include "node/NodeInfo.h"
 #include "pendingqueue/PendingTransactionsAgent.h"
+#include "utils/Time.h"
 
 #include "BlockProposalClientAgent.h"
 #include "BlockProposalPusherThreadPool.h"
@@ -79,9 +81,8 @@ BlockProposalClientAgent::BlockProposalClientAgent( Schain& _sChain )
 ptr< MissingTransactionsRequestHeader >
 BlockProposalClientAgent::readMissingTransactionsRequestHeader(
     const ptr< ClientSocket >& _socket ) {
-    auto js =
-        sChain->getIo()->readJsonHeader( _socket->getDescriptor(), "Read missing trans request",
-            10, _socket->getIP());
+    auto js = sChain->getIo()->readJsonHeader(
+        _socket->getDescriptor(), "Read missing trans request", 10, _socket->getIP() );
     auto mtrh = make_shared< MissingTransactionsRequestHeader >();
 
     auto status = ( ConnectionStatus ) Header::getUint64( js, "status" );
@@ -99,10 +100,8 @@ BlockProposalClientAgent::readMissingTransactionsRequestHeader(
 ptr< FinalProposalResponseHeader >
 BlockProposalClientAgent::readAndProcessFinalProposalResponseHeader(
     const ptr< ClientSocket >& _socket ) {
-    auto js =
-        sChain->getIo()->readJsonHeader( _socket->getDescriptor(), "Read final response header",
-            10,
-            _socket->getIP());
+    auto js = sChain->getIo()->readJsonHeader(
+        _socket->getDescriptor(), "Read final response header", 10, _socket->getIP() );
 
     auto status = ( ConnectionStatus ) Header::getUint64( js, "status" );
     auto subStatus = ( ConnectionSubStatus ) Header::getUint64( js, "substatus" );
@@ -128,7 +127,7 @@ pair< ConnectionStatus, ConnectionSubStatus > BlockProposalClientAgent::sendItem
     } else {
         auto _daProof = dynamic_pointer_cast< DAProof >( _item );
         CHECK_STATE( _daProof );  // a sendable item is either DAProof or Proposal
-        return sendDAProof( _daProof, _socket );
+        return sendDAProof( _daProof, _socket, _index);
     }
 }
 
@@ -176,10 +175,8 @@ pair< ConnectionStatus, ConnectionSubStatus > BlockProposalClientAgent::sendBloc
 
     LOG( trace, "Proposal step 1: wrote proposal header" );
 
-    auto response =
-        sChain->getIo()->readJsonHeader( _socket->getDescriptor(), "Read proposal resp" ,
-            10,
-            _socket->getIP());
+    auto response = sChain->getIo()->readJsonHeader(
+        _socket->getDescriptor(), "Read proposal resp", 10, _socket->getIP() );
 
 
     LOG( trace, "Proposal step 2: read proposal response" );
@@ -343,12 +340,52 @@ pair< ConnectionStatus, ConnectionSubStatus > BlockProposalClientAgent::sendBloc
 
     getSchain()->daProofSigShareArrived( sigShare, _proposal );
 
+    if ( getSchain()->getNode()->getVisualizationType() != 0 ) {
+        saveToVisualization( _proposal, _index);
+    }
+
     return finalResult;
 }
 
 
+void BlockProposalClientAgent::saveToVisualization(
+    ptr< BlockProposal > _proposal, schain_index _dst ) {
+    CHECK_STATE(_proposal);
+
+    string info = string( "{" ) + "\"t\":" + to_string( MsgType::MSG_BLOCK_PROPOSAL ) + "," +
+                  "\"b\":" + to_string( _proposal->getCreationTime() ) + "," +
+                  "\"f\":" + to_string( Time::getCurrentTimeMs() ) + "," +
+                  "\"s\":" + to_string( getSchain()->getSchainIndex() ) + "," +
+                  "\"d\":" + to_string( _dst ) + "," +
+                  "\"p\":" + to_string( _proposal->getProposerIndex() ) + "," +
+                  "\"b\":" + to_string( _proposal->getBlockID() ) + "}\n";
+
+    Schain::writeToVisualizationStream(info);
+
+}
+
+
+void BlockProposalClientAgent::saveToVisualization(
+    ptr< DAProof > _daProof, schain_index _dst ) {
+    CHECK_STATE(_daProof);
+
+    string info = string( "{" ) + "\"t\":" + to_string( MsgType::MSG_CONSENSUS_PROPOSAL ) + "," +
+                  "\"b\":" + to_string( _daProof->getCreationTime() ) + "," +
+                  "\"f\":" + to_string( Time::getCurrentTimeMs() ) + "," +
+                  "\"s\":" + to_string( getSchain()->getSchainIndex() ) + "," +
+                  "\"d\":" + to_string( _dst ) + "," +
+                  "\"p\":" + to_string( _daProof->getProposerIndex() ) + "," +
+                  "\"b\":" + to_string( _daProof->getBlockId() ) + "}\n";
+
+    Schain::writeToVisualizationStream(info);
+
+}
+
+
+
+
 pair< ConnectionStatus, ConnectionSubStatus > BlockProposalClientAgent::sendDAProof(
-    const ptr< DAProof >& _daProof, const ptr< ClientSocket >& _socket ) {
+    const ptr< DAProof >& _daProof, const ptr< ClientSocket >& _socket,schain_index _index ) {
     CHECK_ARGUMENT( _daProof );
     CHECK_ARGUMENT( _socket );
 
@@ -371,10 +408,8 @@ pair< ConnectionStatus, ConnectionSubStatus > BlockProposalClientAgent::sendDAPr
 
     LOG( trace, "DA proof step 1: wrote request header" );
 
-    auto response =
-        sChain->getIo()->readJsonHeader( _socket->getDescriptor(), "Read dap proof resp",
-            10,
-            _socket->getIP());
+    auto response = sChain->getIo()->readJsonHeader(
+        _socket->getDescriptor(), "Read dap proof resp", 10, _socket->getIP() );
 
 
     LOG( trace, "DAProof step 2: read response" );
@@ -386,14 +421,20 @@ pair< ConnectionStatus, ConnectionSubStatus > BlockProposalClientAgent::sendDAPr
     try {
         status = ( ConnectionStatus ) Header::getUint64( response, "status" );
         substatus = ( ConnectionSubStatus ) Header::getUint64( response, "substatus" );
-    } catch (...) {
-        LOG( err, "Unknown failure submitting DA proof");
-        return {status, substatus};
+    } catch ( ... ) {
+        LOG( err, "Unknown failure submitting DA proof" );
+        return { status, substatus };
     }
 
     if ( status == CONNECTION_ERROR ) {
-        LOG( err, "Failure submitting DA proof:" + to_string( status ) + ":" + to_string( substatus ) );
+        LOG( err,
+            "Failure submitting DA proof:" + to_string( status ) + ":" + to_string( substatus ) );
     }
+
+    if ( getSchain()->getNode()->getVisualizationType() != 0 ) {
+        saveToVisualization( _daProof, _index);
+    }
+
 
     return { status, substatus };
 }
@@ -413,8 +454,8 @@ BlockProposalClientAgent::readMissingHashes( const ptr< ClientSocket >& _socket,
 
 
     try {
-        getSchain()->getIo()->readBytes( _socket->getDescriptor(), buffer, msg_len( bytesToRead ),
-            30);
+        getSchain()->getIo()->readBytes(
+            _socket->getDescriptor(), buffer, msg_len( bytesToRead ), 30 );
     } catch ( ExitRequestedException& ) {
         throw;
     } catch ( ... ) {

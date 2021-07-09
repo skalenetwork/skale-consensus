@@ -348,6 +348,10 @@ void Schain::blockCommitArrived( block_id _committedBlockID, schain_index _propo
 
         unbumpPriority();
 
+
+
+
+
     } catch ( ExitRequestedException& e ) {
         throw;
     } catch ( ... ) {
@@ -433,11 +437,35 @@ void Schain::unbumpPriority() {
     CHECK_STATE( pthread_setschedparam( this_thread, 0, &params ) == 0 )
 }
 
+
+
+void Schain::saveToVisualization( ptr<CommittedBlock > _block ) {
+    CHECK_STATE(_block);
+
+
+    string info = string ("{") +
+                  "\"t\":" +   to_string(MsgType::MSG_BLOCK_COMMIT) + "," +
+                  "\"b\":" +   to_string(Time::getCurrentTimeMs()) + "," +
+                  "\"s\":" +   to_string(getSchain()->getSchainIndex()) + ","+
+                  "\"p\":" +   to_string(_block->getProposerIndex()) + ","+
+                  "\"b\":" +   to_string(_block->getBlockID()) +
+                  "}\n";
+
+
+    Schain::writeToVisualizationStream(info);
+}
+
 void Schain::processCommittedBlock( const ptr< CommittedBlock >& _block ) {
     CHECK_ARGUMENT( _block );
     MONITOR2( __CLASS_NAME__, __FUNCTION__, getMaxExternalBlockProcessingTime() )
 
     checkForExit();
+
+
+    if (getSchain()->getNode()->getVisualizationType() > 0) {
+        saveToVisualization(_block);
+    }
+
 
     LOCK( m )
 
@@ -1022,3 +1050,24 @@ uint64_t Schain::getDeathTime( uint64_t _schainIndex ) {
         }
     }
 }
+
+ptr< ofstream > Schain::getVisualizationDataStream() {
+    LOCK(vdsMutex)
+    if (!visualizationDataStream) {
+        visualizationDataStream = make_shared<ofstream>();
+        visualizationDataStream->exceptions(std::ofstream::badbit | std::ofstream::failbit);
+        auto t = Time::getCurrentTimeMs();
+        auto fileName = "/tmp/consensusv_" + to_string(t) + ".data";
+        visualizationDataStream->open(fileName, ios_base::trunc);
+    }
+    return visualizationDataStream;
+}
+
+void Schain::writeToVisualizationStream(string& _s) {
+    LOCK(vdsMutex)
+    auto stream = getVisualizationDataStream();
+    stream->write(_s.c_str(), _s.size());
+}
+
+ptr<ofstream> Schain::visualizationDataStream = nullptr;
+recursive_mutex Schain::vdsMutex;

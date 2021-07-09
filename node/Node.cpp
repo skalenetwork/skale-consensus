@@ -228,7 +228,7 @@ void Node::initParamsFromConfig() {
     randomDBSize = getParamUint64("randomDBSize", storageLimits->getRandomDbSize());
     priceDBSize = getParamUint64("priceDBSize", storageLimits->getPriceDbSize());
     blockProposalDBSize = getParamUint64("blockProposalDBSize", storageLimits->getBlockProposalDbSize());
-
+    visualizationType = getParamUint64("visualizationType", 0);
 
     simulateNetworkWriteDelayMs = getParamInt64("simulateNetworkWriteDelayMs", 0);
 
@@ -547,3 +547,4 @@ ptr< BLSPublicKey > Node::getBlsPublicKey() {
 bool Node::isInited() const {
     return inited;
 }
+

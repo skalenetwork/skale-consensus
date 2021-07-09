@@ -107,4 +107,5 @@ public:
 
     uint64_t computeTotalDelayedSends();
 
+    void saveToVisualization( ptr< NetworkMessage > sharedPtr );
 };

@@ -22,13 +22,13 @@
 */
 
 
+#include "SkaleCommon.h"
+#include "Log.h"
+#include "utils/Time.h"
+#include "exceptions/InvalidStateException.h"
 
 #include "BlockProposal.h"
 #include "DAProof.h"
-#include "SkaleCommon.h"
-#include "Log.h"
-#include "exceptions/InvalidStateException.h"
-
 
 
 DAProof::DAProof(const ptr<BlockProposal>& _proposal, ptr<ThresholdSignature>& _thresholdSignature) {
@@ -41,6 +41,7 @@ DAProof::DAProof(const ptr<BlockProposal>& _proposal, ptr<ThresholdSignature>& _
     this->proposerIndex = _proposal->getProposerIndex();
     this->proposerNodeID = _proposal->getProposerNodeID();
     this->hash = _proposal->getHash();
+    this->creationTime = Time::getCurrentTimeMs();
 }
 
 schain_id DAProof::getSchainId() const {
@@ -66,4 +67,7 @@ ptr<ThresholdSignature> DAProof::getThresholdSig() const {
 
 BLAKE3Hash DAProof::getHash() const {
     return hash;
+}
+uint64_t DAProof::getCreationTime() const {
+    return creationTime;
 }

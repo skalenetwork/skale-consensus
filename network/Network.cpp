@@ -51,6 +51,7 @@
 #include "messages/NetworkMessageEnvelope.h"
 #include "network/Sockets.h"
 #include "network/ZMQSockets.h"
+#include "utils/Time.h"
 #include "threads/GlobalThreadRegistry.h"
 
 TransportType Network::transport = TransportType::ZMQ;
@@ -377,6 +378,11 @@ ptr< NetworkMessageEnvelope > Network::receiveMessage() {
 
     CHECK_STATE( mptr );
 
+    if (getSchain()->getNode()->getVisualizationType() > 0) {
+        saveToVisualization(mptr);
+    }
+
+
     mptr->verify( getSchain()->getCryptoManager() );
 
     ptr< NodeInfo > realSender = sChain->getNode()->getNodeInfoByIndex( mptr->getSrcSchainIndex() );
@@ -446,3 +452,30 @@ Network::Network( Schain& _sChain )
 }
 
 Network::~Network() {}
+
+void Network::saveToVisualization( ptr< NetworkMessage > _msg ) {
+    CHECK_STATE(_msg);
+
+    uint64_t  round = 0;
+    uint8_t  value = 0;
+
+    if (_msg->getMsgType() != MSG_BLOCK_SIGN_BROADCAST) {
+        round =  (uint64_t) _msg->getRound();
+        value =  (uint8_t) _msg->getValue();
+    }
+
+    string info = string ("{") +
+                  "\"t\":" +   to_string(_msg->getMsgType()) + "," +
+                  "\"b\":" +   to_string(_msg->getTimeMs()) + "," +
+                  "\"f\":" +   to_string(Time::getCurrentTimeMs()) + "," +
+                  "\"s\":" +   to_string(_msg->getSrcSchainIndex()) + ","+
+                  "\"d\":" +   to_string(getSchain()->getSchainIndex()) + ","+
+                  "\"p\":" +   to_string(_msg->getBlockProposerIndex()) + ","+
+                  "\"v\":" +   to_string(value) + "," +
+                  "\"r\":" +   to_string(round) + "," +
+                  "\"b\":" +   to_string(_msg->getBlockID()) +
+                  "}\n";
+
+
+    Schain::writeToVisualizationStream(info);
+}
