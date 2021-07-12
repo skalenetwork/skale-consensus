@@ -373,7 +373,7 @@ void BlockProposalClientAgent::saveToVisualization(
 
     string info = string( "{" ) + "\"t\":" + to_string( MsgType::MSG_CONSENSUS_PROPOSAL ) + "," +
                   "\"b\":" + to_string( _daProof->getCreationTime() - getSchain()->getStartTimeMs() ) + "," +
-                  "\"f\":" + to_string( Time::getCurrentTimeMs() ) + "," +
+                  "\"f\":" + to_string( Time::getCurrentTimeMs() - getSchain()->getStartTimeMs() ) + "," +
                   "\"s\":" + to_string( getSchain()->getSchainIndex() ) + "," +
                   "\"d\":" + to_string( _dst ) + "," +
                   "\"p\":" + to_string( _daProof->getProposerIndex() ) + "," +
