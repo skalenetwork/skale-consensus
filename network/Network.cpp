@@ -475,7 +475,7 @@ void Network::saveToVisualization( ptr< NetworkMessage > _msg ) {
                   "\"p\":" +   to_string(_msg->getBlockProposerIndex()) + ","+
                   "\"v\":" +   to_string(value) + "," +
                   "\"r\":" +   to_string(round) + "," +
-                  "\"b\":" +   to_string(_msg->getBlockID()) +
+                  "\"i\":" +   to_string(_msg->getBlockID()) +
                   "}\n";
 
 

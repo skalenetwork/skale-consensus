@@ -377,7 +377,7 @@ void BlockProposalClientAgent::saveToVisualization(
                   "\"s\":" + to_string( getSchain()->getSchainIndex() ) + "," +
                   "\"d\":" + to_string( _dst ) + "," +
                   "\"p\":" + to_string( _daProof->getProposerIndex() ) + "," +
-                  "\"b\":" + to_string( _daProof->getBlockId() ) + "}\n";
+                  "\"i\":" + to_string( _daProof->getBlockId() ) + "}\n";
 
     Schain::writeToVisualizationStream(info);
 

@@ -449,7 +449,7 @@ void Schain::saveToVisualization( ptr<CommittedBlock > _block ) {
                                  getStartTimeMs()) + "," +
                   "\"s\":" +   to_string(getSchain()->getSchainIndex()) + ","+
                   "\"p\":" +   to_string(_block->getProposerIndex()) + ","+
-                  "\"b\":" +   to_string(_block->getBlockID()) +
+                  "\"i\":" +   to_string(_block->getBlockID()) +
                   "}\n";
 
 
