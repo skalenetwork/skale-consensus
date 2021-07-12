@@ -384,8 +384,6 @@ void BlockProposalClientAgent::saveToVisualization(
 }
 
 
-
-
 pair< ConnectionStatus, ConnectionSubStatus > BlockProposalClientAgent::sendDAProof(
     const ptr< DAProof >& _daProof, const ptr< ClientSocket >& _socket,schain_index _index ) {
     CHECK_ARGUMENT( _daProof );

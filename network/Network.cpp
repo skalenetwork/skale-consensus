@@ -468,7 +468,8 @@ void Network::saveToVisualization( ptr< NetworkMessage > _msg ) {
                   "\"t\":" +   to_string(_msg->getMsgType()) + "," +
                   "\"b\":" +   to_string(_msg->getTimeMs() -
                                  getSchain()->getStartTimeMs()) + "," +
-                  "\"f\":" +   to_string(Time::getCurrentTimeMs()) + "," +
+                  "\"f\":" +   to_string(Time::getCurrentTimeMs()
+                                            - getSchain()->getStartTimeMs()) + "," +
                   "\"s\":" +   to_string(_msg->getSrcSchainIndex()) + ","+
                   "\"d\":" +   to_string(getSchain()->getSchainIndex()) + ","+
                   "\"p\":" +   to_string(_msg->getBlockProposerIndex()) + ","+
