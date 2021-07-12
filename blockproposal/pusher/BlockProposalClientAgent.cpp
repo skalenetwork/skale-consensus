@@ -353,8 +353,9 @@ void BlockProposalClientAgent::saveToVisualization(
     CHECK_STATE(_proposal);
 
     string info = string( "{" ) + "\"t\":" + to_string( MsgType::MSG_BLOCK_PROPOSAL ) + "," +
-                  "\"b\":" + to_string( _proposal->getCreationTime() ) + "," +
-                  "\"f\":" + to_string( Time::getCurrentTimeMs() ) + "," +
+                  "\"b\":" + to_string( _proposal->getCreationTime() -
+                                 getSchain()->getStartTimeMs()) + "," +
+                  "\"f\":" + to_string( Time::getCurrentTimeMs() - getSchain()->getStartTimeMs() ) + "," +
                   "\"s\":" + to_string( getSchain()->getSchainIndex() ) + "," +
                   "\"d\":" + to_string( _dst ) + "," +
                   "\"p\":" + to_string( _proposal->getProposerIndex() ) + "," +
@@ -367,21 +368,20 @@ void BlockProposalClientAgent::saveToVisualization(
 
 void BlockProposalClientAgent::saveToVisualization(
     ptr< DAProof > _daProof, schain_index _dst ) {
+
     CHECK_STATE(_daProof);
 
     string info = string( "{" ) + "\"t\":" + to_string( MsgType::MSG_CONSENSUS_PROPOSAL ) + "," +
-                  "\"b\":" + to_string( _daProof->getCreationTime() ) + "," +
-                  "\"f\":" + to_string( Time::getCurrentTimeMs() ) + "," +
+                  "\"b\":" + to_string( _daProof->getCreationTime() - getSchain()->getStartTimeMs() ) + "," +
+                  "\"f\":" + to_string( Time::getCurrentTimeMs() - getSchain()->getStartTimeMs() ) + "," +
                   "\"s\":" + to_string( getSchain()->getSchainIndex() ) + "," +
                   "\"d\":" + to_string( _dst ) + "," +
                   "\"p\":" + to_string( _daProof->getProposerIndex() ) + "," +
-                  "\"b\":" + to_string( _daProof->getBlockId() ) + "}\n";
+                  "\"i\":" + to_string( _daProof->getBlockId() ) + "}\n";
 
     Schain::writeToVisualizationStream(info);
 
 }
-
-
 
 
 pair< ConnectionStatus, ConnectionSubStatus > BlockProposalClientAgent::sendDAProof(

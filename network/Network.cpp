@@ -466,14 +466,16 @@ void Network::saveToVisualization( ptr< NetworkMessage > _msg ) {
 
     string info = string ("{") +
                   "\"t\":" +   to_string(_msg->getMsgType()) + "," +
-                  "\"b\":" +   to_string(_msg->getTimeMs()) + "," +
-                  "\"f\":" +   to_string(Time::getCurrentTimeMs()) + "," +
+                  "\"b\":" +   to_string(_msg->getTimeMs() -
+                                 getSchain()->getStartTimeMs()) + "," +
+                  "\"f\":" +   to_string(Time::getCurrentTimeMs()
+                                            - getSchain()->getStartTimeMs()) + "," +
                   "\"s\":" +   to_string(_msg->getSrcSchainIndex()) + ","+
                   "\"d\":" +   to_string(getSchain()->getSchainIndex()) + ","+
                   "\"p\":" +   to_string(_msg->getBlockProposerIndex()) + ","+
                   "\"v\":" +   to_string(value) + "," +
                   "\"r\":" +   to_string(round) + "," +
-                  "\"b\":" +   to_string(_msg->getBlockID()) +
+                  "\"i\":" +   to_string(_msg->getBlockID()) +
                   "}\n";
 
 
