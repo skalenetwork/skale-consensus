@@ -146,6 +146,7 @@ class Schain : public Agent {
     static ptr<ofstream> visualizationDataStream;
     static recursive_mutex vdsMutex;
 
+private:
     uint64_t blockTimeAverageMs = 0 ;
     uint64_t tpsAverage = 0 ;
 

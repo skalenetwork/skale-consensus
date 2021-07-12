@@ -445,7 +445,8 @@ void Schain::saveToVisualization( ptr<CommittedBlock > _block ) {
 
     string info = string ("{") +
                   "\"t\":" +   to_string(MsgType::MSG_BLOCK_COMMIT) + "," +
-                  "\"b\":" +   to_string(Time::getCurrentTimeMs()) + "," +
+                  "\"b\":" +   to_string(Time::getCurrentTimeMs() -
+                                 getStartTimeMs()) + "," +
                   "\"s\":" +   to_string(getSchain()->getSchainIndex()) + ","+
                   "\"p\":" +   to_string(_block->getProposerIndex()) + ","+
                   "\"b\":" +   to_string(_block->getBlockID()) +
@@ -1070,4 +1071,5 @@ void Schain::writeToVisualizationStream(string& _s) {
 }
 
 ptr<ofstream> Schain::visualizationDataStream = nullptr;
+
 recursive_mutex Schain::vdsMutex;

@@ -466,7 +466,8 @@ void Network::saveToVisualization( ptr< NetworkMessage > _msg ) {
 
     string info = string ("{") +
                   "\"t\":" +   to_string(_msg->getMsgType()) + "," +
-                  "\"b\":" +   to_string(_msg->getTimeMs()) + "," +
+                  "\"b\":" +   to_string(_msg->getTimeMs() -
+                                 getSchain()->getStartTimeMs()) + "," +
                   "\"f\":" +   to_string(Time::getCurrentTimeMs()) + "," +
                   "\"s\":" +   to_string(_msg->getSrcSchainIndex()) + ","+
                   "\"d\":" +   to_string(getSchain()->getSchainIndex()) + ","+
