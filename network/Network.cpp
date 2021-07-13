@@ -479,6 +479,7 @@ void Network::saveToVisualization( ptr< NetworkMessage > _msg, uint64_t _visuali
                   "}\n";
 
 
-    if (_visualizationType == 1 || (_msg->getBlockProposerIndex() == 2 && _msg->getBlockID() == 3))
-    Schain::writeToVisualizationStream(info);
+    if (_visualizationType == 1 || (_msg->getBlockProposerIndex() == 2 && _msg->getBlockID() == 3)) {
+        Schain::writeToVisualizationStream( info );
+    }
 }
