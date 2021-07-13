@@ -379,7 +379,7 @@ ptr< NetworkMessageEnvelope > Network::receiveMessage() {
     CHECK_STATE( mptr );
 
     if (getSchain()->getNode()->getVisualizationType() > 0) {
-        saveToVisualization(mptr);
+        saveToVisualization( mptr, getSchain()->getNode()->getVisualizationType() );
     }
 
 
@@ -453,7 +453,7 @@ Network::Network( Schain& _sChain )
 
 Network::~Network() {}
 
-void Network::saveToVisualization( ptr< NetworkMessage > _msg ) {
+void Network::saveToVisualization( ptr< NetworkMessage > _msg, uint64_t _visualizationType ) {
     CHECK_STATE(_msg);
 
     uint64_t  round = 0;
@@ -479,5 +479,6 @@ void Network::saveToVisualization( ptr< NetworkMessage > _msg ) {
                   "}\n";
 
 
+    if (_visualizationType == 1 || (_msg->getBlockProposerIndex() == 2 && _msg->getBlockID() == 3))
     Schain::writeToVisualizationStream(info);
 }

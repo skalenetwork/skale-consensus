@@ -341,7 +341,7 @@ pair< ConnectionStatus, ConnectionSubStatus > BlockProposalClientAgent::sendBloc
     getSchain()->daProofSigShareArrived( sigShare, _proposal );
 
     if ( getSchain()->getNode()->getVisualizationType() != 0 ) {
-        saveToVisualization( _proposal, _index);
+        saveToVisualization( _proposal, _index, getSchain()->getNode()->getVisualizationType() );
     }
 
     return finalResult;
@@ -349,7 +349,7 @@ pair< ConnectionStatus, ConnectionSubStatus > BlockProposalClientAgent::sendBloc
 
 
 void BlockProposalClientAgent::saveToVisualization(
-    ptr< BlockProposal > _proposal, schain_index _dst ) {
+    ptr< BlockProposal > _proposal, schain_index _dst, uint64_t _visualizationType ) {
     CHECK_STATE(_proposal);
 
     string info = string( "{" ) + "\"t\":" + to_string( MsgType::MSG_BLOCK_PROPOSAL ) + "," +
@@ -361,7 +361,8 @@ void BlockProposalClientAgent::saveToVisualization(
                   "\"p\":" + to_string( _proposal->getProposerIndex() ) + "," +
                   "\"b\":" + to_string( _proposal->getBlockID() ) + "}\n";
 
-    Schain::writeToVisualizationStream(info);
+    if (_visualizationType == 1)
+        Schain::writeToVisualizationStream(info);
 
 }
 
