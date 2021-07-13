@@ -368,7 +368,7 @@ void BlockProposalClientAgent::saveToVisualization(
 
 
 void BlockProposalClientAgent::saveToVisualization(
-    ptr< DAProof > _daProof, schain_index _dst ) {
+    ptr< DAProof > _daProof, schain_index _dst, uint64_t _visualizationType ) {
 
     CHECK_STATE(_daProof);
 
@@ -380,7 +380,8 @@ void BlockProposalClientAgent::saveToVisualization(
                   "\"p\":" + to_string( _daProof->getProposerIndex() ) + "," +
                   "\"i\":" + to_string( _daProof->getBlockId() ) + "}\n";
 
-    Schain::writeToVisualizationStream(info);
+    if (_visualizationType == 1)
+        Schain::writeToVisualizationStream(info);
 
 }
 
@@ -433,7 +434,7 @@ pair< ConnectionStatus, ConnectionSubStatus > BlockProposalClientAgent::sendDAPr
     }
 
     if ( getSchain()->getNode()->getVisualizationType() != 0 ) {
-        saveToVisualization( _daProof, _index);
+        saveToVisualization( _daProof, _index, getSchain()->getNode()->getVisualizationType()  );
     }
 
 

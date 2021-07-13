@@ -74,7 +74,8 @@ class BlockProposalClientAgent : public AbstractClientAgent {
     void saveToVisualization(
         ptr< BlockProposal > _proposal, schain_index _dst, uint64_t _visualizationType );
 
-    void saveToVisualization( ptr<DAProof > _proposal, schain_index _dst );
+    void saveToVisualization(
+        ptr< DAProof > _daProof, schain_index _dst, uint64_t _visualizationType );
 
 public:
     explicit BlockProposalClientAgent( Schain& _sChain );
