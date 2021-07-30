@@ -171,7 +171,7 @@ private:
 
     static ptr< ofstream > getVisualizationDataStream();
 
-    void saveToVisualization( ptr<CommittedBlock > _block );
+    void saveToVisualization( ptr< CommittedBlock > _block, uint64_t _visualizationType );
 
 public:
 

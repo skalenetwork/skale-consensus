@@ -438,8 +438,7 @@ void Schain::unbumpPriority() {
 }
 
 
-
-void Schain::saveToVisualization( ptr<CommittedBlock > _block ) {
+void Schain::saveToVisualization( ptr< CommittedBlock > _block, uint64_t _visualizationType ) {
     CHECK_STATE(_block);
 
 
@@ -453,7 +452,8 @@ void Schain::saveToVisualization( ptr<CommittedBlock > _block ) {
                   "}\n";
 
 
-    Schain::writeToVisualizationStream(info);
+    if (_visualizationType == 1)
+       Schain::writeToVisualizationStream(info);
 }
 
 void Schain::processCommittedBlock( const ptr< CommittedBlock >& _block ) {
@@ -464,7 +464,7 @@ void Schain::processCommittedBlock( const ptr< CommittedBlock >& _block ) {
 
 
     if (getSchain()->getNode()->getVisualizationType() > 0) {
-        saveToVisualization(_block);
+        saveToVisualization( _block, getSchain()->getNode()->getVisualizationType());
     }
 
 
