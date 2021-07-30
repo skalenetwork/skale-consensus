@@ -86,7 +86,6 @@ uint64_t Node::getParamUint64(const string &_paramName, uint64_t paramDefault) {
         }
     }
 
-
     try {
         if (cfg.find(_paramName) != cfg.end()) {
             return cfg.at(_paramName).get<uint64_t>();
@@ -284,7 +283,6 @@ uint64_t Node::getBlockDBSize() const {
 uint64_t Node::getConsensusStateDBSize() const {
     return consensusStateDBSize;
 }
-
 
 
 uint64_t Node::getCommittedTransactionHistoryLimit() const {
