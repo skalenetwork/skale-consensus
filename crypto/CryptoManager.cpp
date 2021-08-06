@@ -1051,5 +1051,5 @@ uint64_t CryptoManager::getZMQSocketCount() {
     if (!zmqClient)
         return 0;
     else
-        return zmqClient->getZmqSocketCount();
+        return 1;
 }
