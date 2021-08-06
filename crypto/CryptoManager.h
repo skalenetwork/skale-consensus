@@ -72,6 +72,7 @@ class OpenSSLEdDSAKey;
 class CryptoManager {
 
 
+
     static list<uint64_t> ecdsaSignTimes;
     static recursive_mutex ecdsaSignMutex;
     static atomic<uint64_t> ecdsaSignTotal;
@@ -160,6 +161,8 @@ private:
 
 
 public:
+
+    static ifstream urandom;
 
     static bool isRetryHappened();
 

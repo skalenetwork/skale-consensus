@@ -303,6 +303,8 @@ static const uint64_t REBROADCAST_TIMEOUT_MS = 120000;
 
 static const uint64_t ZMQ_RECEIVE_RETRY_MS = 10;
 
+static const int ZMQ_TIMEOUT = 1000;
+
 static const uint64_t DEFAULT_MIN_PRICE = 100000;
 
 static const uint64_t COMMON_COIN_ROUND = 4;

@@ -56,14 +56,23 @@
 
 class SgxZmqClient {
 
+public:
+
+    enum zmq_status {UNKNOWN, TRUE, FALSE};
+    zmq_status getZMQStatus() const;
+    void setZmqStatus(zmq_status _status);
+
+    uint64_t getZmqSocketCount();
 
 private:
+
+    zmq_status zmqStatus = UNKNOWN;
 
     EVP_PKEY* pkey = 0;
     EVP_PKEY* pubkey = 0;
     X509* x509Cert = 0;
 
-
+    bool exited = false;
 
 
     zmq::context_t ctx;
@@ -73,13 +82,15 @@ private:
     string cert = "";
     string key = "";
 
-    recursive_mutex mutex;
+
 
     string url;
 
     // generate random identity
 
-    map<uint64_t , shared_ptr <zmq::socket_t>> clientSockets;
+    shared_ptr <zmq::socket_t> clientSocket = nullptr;
+    recursive_mutex socketMutex;
+    recursive_mutex certMutex;
 
     Schain* schain = nullptr;
 
@@ -87,13 +98,13 @@ public:
     Schain* getSchain() const;
 
 private:
-    bool isZMQEnabled = false;
 
     static cache::lru_cache<string, pair < EVP_PKEY * , X509 *>> verifiedCerts;
 
-    shared_ptr < SgxZmqMessage > doRequestReply(Json::Value &_req);
+    shared_ptr < SgxZmqMessage > doRequestReply(Json::Value &_req,
+                               bool _throwExceptionOnTimeout = false);
 
-    string doZmqRequestReply(string &_req);
+    string doZmqRequestReply(string &_req, bool _throwExceptionOnTimeout = false);
 
     uint64_t getProcessID();
 
@@ -112,9 +123,10 @@ public:
     static string signString(EVP_PKEY* _pkey, const string& _str);
 
     string blsSignMessageHash(const string &_keyShareName, const string &_messageHash, 
-        int _t, int _n);
+        int _t, int _n, bool _throwExceptionOnTimeout);
 
-    string ecdsaSignMessageHash(int _base, const string &_keyName, const string &_messageHash);
+    string ecdsaSignMessageHash(int _base, const string &_keyName, const string &_messageHash,
+        bool _throwExceptionOnTimeout);
 
     void exit();
 

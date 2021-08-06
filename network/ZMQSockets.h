@@ -27,7 +27,6 @@
 #include "ServerSocket.h"
 
 
-static const int ZMQ_TIMEOUT = 1000;
 
 class ZMQSockets : public ServerSocket {
 

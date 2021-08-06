@@ -379,7 +379,7 @@ string CryptoManager::sgxSignECDSA( const ptr< BLAKE3Hash >& _hash, string& _key
 
     // temporary solution to support old servers
     if ( zmqClient ) {
-        ret = zmqClient->ecdsaSignMessageHash( 16, _keyName, _hash->toHex() );
+        ret = zmqClient->ecdsaSignMessageHash( 16, _keyName, _hash->toHex(), false );
     } else {
         Json::Value result;
         RETRY_BEGIN
@@ -605,7 +605,7 @@ ptr< ThresholdSigShare > CryptoManager::signSigShare(
         // temporary solution to support old servers
         if ( zmqClient ) {
             ret = zmqClient->blsSignMessageHash(
-                getSgxBlsKeyName(), _hash->toHex(), requiredSigners, totalSigners );
+                getSgxBlsKeyName(), _hash->toHex(), requiredSigners, totalSigners, false);
         } else {
             RETRY_BEGIN
             getSchain()->getNode()->exitCheck();
@@ -989,3 +989,7 @@ void CryptoManager::addBLSSignStats(uint64_t _time) {
         blsSignTimes.pop_front();
     }
 }
+
+
+
+ifstream CryptoManager::urandom( "/dev/urandom", ios::in | ios::binary );  // Open stream
