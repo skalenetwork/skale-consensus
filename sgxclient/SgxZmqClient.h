@@ -88,8 +88,9 @@ private:
 
     // generate random identity
 
-    map<uint64_t , shared_ptr <zmq::socket_t>> clientSockets;
+    shared_ptr <zmq::socket_t> clientSocket = nullptr;
     recursive_mutex socketMutex;
+    recursive_mutex certMutex;
 
     Schain* schain = nullptr;
 
