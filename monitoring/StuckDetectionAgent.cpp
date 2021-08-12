@@ -59,21 +59,26 @@ void StuckDetectionAgent::StuckDetectionLoop( StuckDetectionAgent* _agent ) {
 
     LOG( info, "StuckDetection agent started monitoring" );
 
-    try {
-        while ( true ) {
-            auto restartTime = _agent->checkForRestart();
+    uint64_t restartTime = 0;
 
-            if ( restartTime > 0 ) {
-                _agent->restart( restartTime );
-            }
-
-        usleep(_agent->getSchain()->getNode()->getStuckMonitoringIntervalMs() * 1000);
+    while ( restartTime == 0 ) {
+        try {
+            usleep( _agent->getSchain()->getNode()->getStuckMonitoringIntervalMs() * 1000 );
+            _agent->getSchain()->getNode()->exitCheck();
+            restartTime = _agent->checkForRestart();
+        } catch ( ExitRequestedException& ) {
+            return;
+        } catch ( exception& e ) {
+            SkaleException::logNested( e );
         }
+    }
 
+
+    CHECK_STATE(restartTime > 0);
+    try {
+        _agent->restart( restartTime );
     } catch ( ExitRequestedException& ) {
         return;
-    } catch ( exception& e ) {
-        SkaleException::logNested( e );
     }
 }
 
@@ -83,9 +88,19 @@ void StuckDetectionAgent::join() {
 }
 
 uint64_t StuckDetectionAgent::checkForRestart() {
-    return Time::getCurrentTimeMs() + 10000;
+    return 0;
 }
-void StuckDetectionAgent::restart( uint64_t _timeMs) {
-    usleep(_timeMs);
-    exit(13);
+void StuckDetectionAgent::restart( uint64_t _restartTimeMs ) {
+    CHECK_STATE(_restartTimeMs > 0);
+
+    while ( Time::getCurrentTimeMs() < _restartTimeMs ) {
+        try {
+            usleep( 100 );
+
+        } catch ( ... ) {
+        }
+
+        getNode()->exitCheck();
+    }
+    exit( 13 );
 }
