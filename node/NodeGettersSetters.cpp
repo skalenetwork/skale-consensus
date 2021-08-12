@@ -255,6 +255,11 @@ uint64_t Node::getMonitoringIntervalMs() {
     return monitoringIntervalMS;
 }
 
+uint64_t Node::getStuckMonitoringIntervalMs() {
+    return stuckMonitoringIntervalMS;
+}
+
+
 uint64_t Node::getWaitAfterNetworkErrorMs() {
     return waitAfterNetworkErrorMs;
 }

@@ -41,4 +41,6 @@ public:
 
     void join();
 
+    uint64_t checkForRestart();
+    void restart( uint64_t i );
 };

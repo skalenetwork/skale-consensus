@@ -16,111 +16,76 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file TimeoutAgent.cpp
+    @file StuckDetectionAgent.cpp
     @author Stan Kladko
     @date 2021
 */
 
-#include "SkaleCommon.h"
 #include "Log.h"
+#include "SkaleCommon.h"
 #include "exceptions/ExitRequestedException.h"
 #include "exceptions/FatalError.h"
 #include "thirdparty/json.hpp"
 #include <node/ConsensusEngine.h>
 
-#include "utils/Time.h"
-#include "node/Node.h"
-#include "chains/Schain.h"
 #include "LivelinessMonitor.h"
-#include "TimeoutAgent.h"
-#include "TimeoutThreadPool.h"
+#include "StuckDetectionAgent.h"
+#include "StuckDetectionThreadPool.h"
+#include "chains/Schain.h"
+#include "node/Node.h"
+#include "utils/Time.h"
 
 #include "utils/Time.h"
 
-TimeoutAgent::TimeoutAgent(Schain &_sChain) : Agent(_sChain, false, true) {
+StuckDetectionAgent::StuckDetectionAgent( Schain& _sChain ) : Agent( _sChain, false, true ) {
     try {
         logThreadLocal_ = _sChain.getNode()->getLog();
         this->sChain = &_sChain;
-        this->timeoutThreadPool = make_shared<TimeoutThreadPool>(1, this);
-        timeoutThreadPool->startService();
+        this->stuckDetectionThreadPool = make_shared< StuckDetectionThreadPool >( 1, this );
+        stuckDetectionThreadPool->startService();
 
-    } catch (...) {
-        throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
+    } catch ( ... ) {
+        throw_with_nested( FatalError( __FUNCTION__, __CLASS_NAME__ ) );
     }
-
 }
 
 
-void TimeoutAgent::timeoutLoop(TimeoutAgent *_agent) {
+void StuckDetectionAgent::StuckDetectionLoop( StuckDetectionAgent* _agent ) {
+    CHECK_ARGUMENT( _agent );
 
-
-    CHECK_ARGUMENT(_agent);
-
-    setThreadName("TimeoutLoop", _agent->getSchain()->getNode()->getConsensusEngine());
+    setThreadName( "StuckDetectionLoop", _agent->getSchain()->getNode()->getConsensusEngine() );
 
     _agent->getSchain()->getSchain()->waitOnGlobalStartBarrier();
 
-    LOG(info, "Timeout agent started monitoring");
-
-    uint64_t blockProcessingStart = max(_agent->getSchain()->getLastCommitTimeMs(),
-                                                           _agent->getSchain()->getStartTimeMs());
-
-    if( blockProcessingStart == 0)
-        blockProcessingStart = Time::getCurrentTimeMs();
-
-    uint64_t lastRebroadCastTime = blockProcessingStart;
-
-    bool proposalReceiptTimedOut = false;
+    LOG( info, "StuckDetection agent started monitoring" );
 
     try {
-        while (!_agent->getSchain()->getNode()->isExitRequested()) {
+        while ( true ) {
+            auto restartTime = _agent->checkForRestart();
 
-            usleep(_agent->getSchain()->getNode()->getMonitoringIntervalMs() * 1000);
-
-            try {
-
-                auto currentBlockId = _agent->getSchain()->getLastCommittedBlockID() + 1;
-                auto currentTime = Time::getCurrentTimeMs();
-
-                auto timeZero = max(_agent->getSchain()->getLastCommitTimeMs(),
-                                    _agent->getSchain()->getStartTimeMs());
-
-                blockProcessingStart = timeZero;
-
-                lastRebroadCastTime = max(lastRebroadCastTime, timeZero);
-
-                if (_agent->getSchain()->getNodeCount() > 2) {
-
-                    if ( currentTime - blockProcessingStart <= BLOCK_PROPOSAL_RECEIVE_TIMEOUT_MS )
-                        proposalReceiptTimedOut = false;
-
-                    if ( !proposalReceiptTimedOut && currentBlockId > 2 && currentTime - blockProcessingStart > BLOCK_PROPOSAL_RECEIVE_TIMEOUT_MS ) {
-                        try {
-                            _agent->getSchain()->blockProposalReceiptTimeoutArrived(
-                                currentBlockId );
-                            proposalReceiptTimedOut = true;
-                        } catch ( ... ) {
-                        }
-                    }
-
-                    if ( currentBlockId > 2 && currentTime - lastRebroadCastTime > REBROADCAST_TIMEOUT_MS) {
-                        _agent->getSchain()->rebroadcastAllMessagesForCurrentBlock();
-                        lastRebroadCastTime = currentTime;
-                    }
-                }
-            } catch (ExitRequestedException &) {
-                return;
-            } catch (exception &e) {
-                SkaleException::logNested(e);
+            if ( restartTime > 0 ) {
+                _agent->restart( restartTime );
             }
-        };
-    } catch (FatalError& e) {
-        SkaleException::logNested(e);
-        _agent->getSchain()->getNode()->exitOnFatalError(e.what());
+
+        usleep(_agent->getSchain()->getNode()->getStuckMonitoringIntervalMs() * 1000);
+        }
+
+    } catch ( ExitRequestedException& ) {
+        return;
+    } catch ( exception& e ) {
+        SkaleException::logNested( e );
     }
 }
 
-void TimeoutAgent::join() {
-    CHECK_STATE( timeoutThreadPool );
-    timeoutThreadPool->joinAll();
+void StuckDetectionAgent::join() {
+    CHECK_STATE( stuckDetectionThreadPool );
+    stuckDetectionThreadPool->joinAll();
+}
+
+uint64_t StuckDetectionAgent::checkForRestart() {
+    return Time::getCurrentTimeMs() + 10000;
+}
+void StuckDetectionAgent::restart( uint64_t _timeMs) {
+    usleep(_timeMs);
+    exit(13);
 }

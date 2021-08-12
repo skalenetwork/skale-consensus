@@ -163,6 +163,8 @@ class Node {
 
     uint64_t monitoringIntervalMS = 0;
 
+    uint64_t stuckMonitoringIntervalMS = 0;
+
     uint64_t waitAfterNetworkErrorMs = 0;
 
     uint64_t emptyBlockIntervalMs = 0;
@@ -328,6 +330,8 @@ public:
     uint64_t getCatchupIntervalMs();
 
     uint64_t getMonitoringIntervalMs();
+
+    uint64_t getStuckMonitoringIntervalMs();
 
     uint64_t getEmptyBlockIntervalMs() const;
 
