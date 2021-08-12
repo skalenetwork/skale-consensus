@@ -29,6 +29,7 @@
 #include "CacheLevelDB.h"
 
 class CryptoManager;
+class ThresholdSigShare;
 
 class ConsensusStateDB : public CacheLevelDB {
 

@@ -252,11 +252,15 @@ uint64_t Node::getCatchupIntervalMs() {
 }
 
 uint64_t Node::getMonitoringIntervalMs() {
-    return monitoringIntervalMS;
+    return monitoringIntervalMs;
 }
 
 uint64_t Node::getStuckMonitoringIntervalMs() {
-    return stuckMonitoringIntervalMS;
+    return stuckMonitoringIntervalMs;
+}
+
+uint64_t Node::getStuckRestartIntervalMs() {
+    return stuckRestartIntervalMs;
 }
 
 

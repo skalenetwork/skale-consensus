@@ -29,6 +29,7 @@
 #include "CacheLevelDB.h"
 
 class CryptoManager;
+class BooleanProposalVector;
 
 class ProposalVectorDB : public CacheLevelDB {
 

@@ -62,7 +62,7 @@ using namespace leveldb;
 static WriteOptions writeOptions; // NOLINT(cert-err58-cpp)
 static ReadOptions readOptions; // NOLINT(cert-err58-cpp)
 
-string CacheLevelDB::path2Index(uint64_t index){
+string CacheLevelDB::index2Path(uint64_t index){
     return dirname + "/db." + to_string(index);
 }
 
@@ -360,7 +360,7 @@ shared_ptr<leveldb::DB> CacheLevelDB::openDB(uint64_t _index) {
 
         options.create_if_missing = true;
 
-        CHECK_STATE2(leveldb::DB::Open(options, path2Index( _index ),
+        CHECK_STATE2(leveldb::DB::Open(options, index2Path( _index ),
                                        &dbase).ok(),
                      "Unable to open database")
         CHECK_STATE(dbase)
@@ -422,7 +422,7 @@ uint64_t CacheLevelDB::getActiveDBSize() {
     try {
         vector<path> files;
 
-        path levelDBPath( path2Index( highestDBIndex ));
+        path levelDBPath( index2Path( highestDBIndex ));
 
         if (!is_directory(levelDBPath)) {
             return 0;
@@ -514,7 +514,7 @@ void CacheLevelDB::rotateDBsIfNeeded() {
                     return;
                 }
 
-                auto dbName = path2Index( minIndex );
+                auto dbName = index2Path( minIndex );
                 try {
 
                     boost::filesystem::remove_all(path(dbName));
@@ -754,4 +754,13 @@ uint64_t CacheLevelDB::getReadStats() {
 
 uint64_t CacheLevelDB::getWriteStats() {
     return readTimeTotal;
+}
+void CacheLevelDB::destroy() {
+    lock_guard<shared_mutex> lock(m);
+
+    for (int i = LEVELDB_SHARDS - 1; i >= 0; i--) {
+        CHECK_STATE(db.at(i))
+        db.at(i) = nullptr;
+        DestroyDB( index2Path(i), leveldb::Options());
+    }
 }
