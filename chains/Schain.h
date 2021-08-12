@@ -57,6 +57,7 @@ class CatchupClientAgent;
 class CatchupServerAgent;
 class MonitoringAgent;
 class TimeoutAgent;
+class StuckDetectionAgent;
 
 class BlockProposalServerAgent;
 
@@ -107,6 +108,8 @@ class Schain : public Agent {
     ptr< MonitoringAgent > monitoringAgent;
 
     ptr< TimeoutAgent > timeoutAgent;
+
+    ptr< StuckDetectionAgent > stuckDetectionAgent;
 
     ptr< PendingTransactionsAgent > pendingTransactionsAgent;
 

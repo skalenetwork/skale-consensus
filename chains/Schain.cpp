@@ -77,6 +77,7 @@
 #include "messages/MessageEnvelope.h"
 #include "messages/NetworkMessageEnvelope.h"
 #include "monitoring/MonitoringAgent.h"
+#include "monitoring/StuckDetectionAgent.h"
 #include "network/ClientSocket.h"
 #include "network/IO.h"
 #include "network/Sockets.h"
@@ -198,10 +199,10 @@ Schain::Schain( weak_ptr< Node > _node, schain_index _schainIndex, const schain_
       schainIndex( _schainIndex ) {
     lastCommittedBlockTimeStamp = TimeStamp( 0, 0 );
 
-    // construct monitoring and timeout agents early
+    // construct monitoring, timeout and stuck detection agents early
     monitoringAgent = make_shared< MonitoringAgent >( *this );
     timeoutAgent = make_shared< TimeoutAgent >( *this );
-
+    stuckDetectionAgent = make_shared< StuckDetectionAgent >( *this );
 
     maxExternalBlockProcessingTime =
         std::max( 2 * getNode()->getEmptyBlockIntervalMs(), ( uint64_t ) 3000 );

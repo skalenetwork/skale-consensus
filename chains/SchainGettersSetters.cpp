@@ -32,6 +32,7 @@
 #include "headers/BlockProposalRequestHeader.h"
 #include "monitoring/MonitoringAgent.h"
 #include "monitoring/TimeoutAgent.h"
+#include "monitoring/StuckDetectionAgent.h"
 #include "utils/Time.h"
 
 #include "SchainMessageThreadPool.h"
@@ -248,8 +249,11 @@ uint64_t Schain::getMaxExternalBlockProcessingTime() const {
 void Schain::joinMonitorAndTimeoutThreads() {
     CHECK_STATE(monitoringAgent);
     CHECK_STATE(timeoutAgent);
+    CHECK_STATE(stuckDetectionAgent);
+
     monitoringAgent->join();
     timeoutAgent->join();
+    stuckDetectionAgent->join();
 }
 
  ptr<CryptoManager> Schain::getCryptoManager() const {
