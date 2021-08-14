@@ -27,15 +27,16 @@
 #include "exceptions/ExitRequestedException.h"
 #include "exceptions/FatalError.h"
 #include "thirdparty/json.hpp"
+#include <db/BlockSigShareDB.h>
+#include <db/ConsensusStateDB.h>
+#include <db/DAProofDB.h>
+#include <db/DASigShareDB.h>
+#include <db/MsgDB.h>
+#include <db/ProposalVectorDB.h>
+#include <db/RandomDB.h>
 #include <network/ClientSocket.h>
 #include <network/IO.h>
 #include <node/ConsensusEngine.h>
-#include <db/MsgDB.h>
-#include <db/ProposalVectorDB.h>
-#include <db/ConsensusStateDB.h>
-#include <db/DASigShareDB.h>
-#include <db/DAProofDB.h>
-#include <db/BlockSigShareDB.h>
 
 #include "LivelinessMonitor.h"
 #include "StuckDetectionAgent.h"
@@ -68,13 +69,27 @@ void StuckDetectionAgent::StuckDetectionLoop( StuckDetectionAgent* _agent ) {
 
     LOG( info, "StuckDetection agent started monitoring" );
 
+
+    uint64_t restartIteration = 1;
+
+    while ( true ) {
+        auto restartFileName = _agent->createStuckFileName( restartIteration );
+
+        if ( !boost::filesystem::exists( restartFileName ) ) {
+            break;
+        }
+        restartIteration++;
+        CHECK_STATE( restartIteration < 64 );
+    }
+
+
     uint64_t restartTime = 0;
 
     while ( restartTime == 0 ) {
         try {
             usleep( _agent->getSchain()->getNode()->getStuckMonitoringIntervalMs() * 1000 );
             _agent->getSchain()->getNode()->exitCheck();
-            restartTime = _agent->checkForRestart();
+            restartTime = _agent->checkForRestart( restartIteration );
         } catch ( ExitRequestedException& ) {
             return;
         } catch ( exception& e ) {
@@ -85,7 +100,7 @@ void StuckDetectionAgent::StuckDetectionLoop( StuckDetectionAgent* _agent ) {
 
     CHECK_STATE( restartTime > 0 );
     try {
-        _agent->restart( restartTime );
+        _agent->restart( restartTime, restartIteration );
     } catch ( ExitRequestedException& ) {
         return;
     }
@@ -96,61 +111,100 @@ void StuckDetectionAgent::join() {
     stuckDetectionThreadPool->joinAll();
 }
 
-uint64_t StuckDetectionAgent::checkForRestart() {
-    auto restartIntervalMs = getSchain()->getNode()->getStuckRestartIntervalMs();
+uint64_t StuckDetectionAgent::checkForRestart( uint64_t _restartIteration ) {
+    CHECK_STATE( _restartIteration >= 1 );
+
+    auto baseRestartIntervalMs = getSchain()->getNode()->getStuckRestartIntervalMs();
+
+    uint64_t restartIntervalMs = baseRestartIntervalMs * pow( 4, _restartIteration - 1 );
+
     auto blockID = getSchain()->getLastCommittedBlockID();
+
+    auto currentTime = Time::getCurrentTimeSec();
+
     if ( getSchain()->getLastCommittedBlockID() > 2 ) {
         auto timeStamp = getSchain()->getBlock( blockID )->getTimeStampS() * 1000;
-        if ( Time::getCurrentTimeMs() - timeStamp >= restartIntervalMs ) {
-            std::unordered_set< uint64_t > connections;
-            auto beginTime = Time::getCurrentTimeSec();
-            auto nodeCount = getSchain()->getNodeCount();
+        // check that nodes are online and do not mine blocks for at least 60 seconds
+        while ( Time::getCurrentTimeSec() - currentTime < 60 ) {
+            if ( Time::getCurrentTimeMs() - timeStamp >= restartIntervalMs ) {
+                std::unordered_set< uint64_t > connections;
+                auto beginTime = Time::getCurrentTimeSec();
+                auto nodeCount = getSchain()->getNodeCount();
 
-            // check if can connect to 2/3 of peers. If yes, restart
-            while ( 3 * ( connections.size() + 1 ) < 2 * nodeCount ) {
-                if ( Time::getCurrentTimeSec() - beginTime > 10 ) {
-                    return 0;  // could not connect to 2/3 of peers
+                // check if can connect to 2/3 of peers. If yes, restart
+                while ( 3 * ( connections.size() + 1 ) < 2 * nodeCount ) {
+                    if ( Time::getCurrentTimeSec() - beginTime > 10 ) {
+                        return 0;  // could not connect to 2/3 of peers
+                    }
                 }
-            }
 
-            for ( int i = 1; i <= nodeCount; i++ ) {
-                if ( i != ( getSchain()->getSchainIndex() ) && !connections.count( i ) ) {
-                    try {
-                        if ( getNode()->isExitRequested() ) {
-                            BOOST_THROW_EXCEPTION( ExitRequestedException( __CLASS_NAME__ ) );
+                for ( int i = 1; i <= nodeCount; i++ ) {
+                    if ( i != ( getSchain()->getSchainIndex() ) && !connections.count( i ) ) {
+                        try {
+                            if ( getNode()->isExitRequested() ) {
+                                BOOST_THROW_EXCEPTION( ExitRequestedException( __CLASS_NAME__ ) );
+                            }
+                            auto socket = make_shared< ClientSocket >(
+                                *getSchain(), schain_index( i ), port_type::PROPOSAL );
+                            LOG( debug, "Stuck check: connected to peer" );
+                            getSchain()->getIo()->writeMagic( socket, true );
+                            connections.insert( i );
+                        } catch ( ExitRequestedException& ) {
+                            throw;
+                        } catch ( std::exception& e ) {
                         }
-                        auto socket = make_shared< ClientSocket >(
-                            *getSchain(), schain_index( i ), port_type::PROPOSAL );
-                        LOG( debug, "Stuck check: connected to peer" );
-                        getSchain()->getIo()->writeMagic( socket, true );
-                        connections.insert( i );
-                    } catch ( ExitRequestedException& ) {
-                        throw;
-                    } catch ( std::exception& e ) {
                     }
                 }
             }
+            // sleep 10 sec before the next check
+            usleep( 10000000 );
         }
 
         cleanupState();
-        return timeStamp + restartIntervalMs + 60000;
+        return timeStamp + restartIntervalMs + 120000;
     }
     return 0;
 }
-void StuckDetectionAgent::restart( uint64_t _restartTimeMs ) {
-    CHECK_STATE( _restartTimeMs > 0 );
+void StuckDetectionAgent::restart( uint64_t _baseRestartTimeMs, uint64_t _iteration ) {
+    CHECK_STATE( _baseRestartTimeMs > 0 );
 
-    while ( Time::getCurrentTimeMs() < _restartTimeMs ) {
+
+    while ( Time::getCurrentTimeMs() < _baseRestartTimeMs ) {
         try {
             usleep( 100 );
-
         } catch ( ... ) {
         }
 
         getNode()->exitCheck();
     }
+
+    createStuckRestartFile( _iteration + 1 );
+
     exit( 13 );
 }
+
+string StuckDetectionAgent::createStuckFileName( uint64_t _iteration ) {
+    CHECK_STATE( _iteration >= 1 );
+    auto engine = getNode()->getConsensusEngine();
+    CHECK_STATE( engine );
+    string fileName = engine->getHealthCheckDir() + "/STUCK_RESTART";
+    fileName.append( "." + to_string( getNode()->getNodeID() ) );
+    fileName.append( "." + to_string( sChain->getLastCommittedBlockID() ) );
+    fileName.append( "." + to_string( _iteration ) );
+    return fileName;
+};
+
+void StuckDetectionAgent::createStuckRestartFile( uint64_t _iteration ) {
+    CHECK_STATE( _iteration >= 1 );
+
+    auto fileName = createStuckFileName( _iteration );
+
+    ofstream f;
+    f.open( fileName, ios::trunc );
+    f << " ";
+    f.close();
+}
+
 void StuckDetectionAgent::cleanupState() {
     getSchain()->getNode()->getIncomingMsgDB()->destroy();
     getSchain()->getNode()->getOutgoingMsgDB()->destroy();
@@ -159,4 +213,5 @@ void StuckDetectionAgent::cleanupState() {
     getSchain()->getNode()->getDaProofDB()->destroy();
     getSchain()->getNode()->getConsensusStateDB()->destroy();
     getSchain()->getNode()->getProposalVectorDB()->destroy();
+    getSchain()->getNode()->getRandomDB()->destroy();
 }

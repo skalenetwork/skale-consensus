@@ -41,7 +41,13 @@ public:
 
     void join();
 
-    uint64_t checkForRestart();
-    void restart( uint64_t i );
+    uint64_t checkForRestart(uint64_t _restartIteration);
+
+    void restart( uint64_t _baseRestartTimeMs, uint64_t _iteration );
+
+    void createStuckRestartFile( uint64_t _iteration );
+
     void cleanupState();
+
+    string createStuckFileName(uint64_t _iteration);
 };

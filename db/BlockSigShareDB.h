@@ -32,11 +32,11 @@ class ThresholdSignature;
 #include "CacheLevelDB.h"
 
 class CryptoManager;
+class ThresholdSigShare;
 
 class BlockSigShareDB : public CacheLevelDB {
 
     cache::lru_cache<string,string> sigShares;
-
 
     recursive_mutex sigShareMutex;
 
