@@ -51,9 +51,9 @@ StuckDetectionAgent::StuckDetectionAgent( Schain& _sChain ) : Agent( _sChain, fa
     try {
         logThreadLocal_ = _sChain.getNode()->getLog();
         this->sChain = &_sChain;
+        // we only need one agent
         this->stuckDetectionThreadPool = make_shared< StuckDetectionThreadPool >( 1, this );
         stuckDetectionThreadPool->startService();
-
     } catch ( ... ) {
         throw_with_nested( FatalError( __FUNCTION__, __CLASS_NAME__ ) );
     }
@@ -62,9 +62,7 @@ StuckDetectionAgent::StuckDetectionAgent( Schain& _sChain ) : Agent( _sChain, fa
 
 void StuckDetectionAgent::StuckDetectionLoop( StuckDetectionAgent* _agent ) {
     CHECK_ARGUMENT( _agent );
-
     setThreadName( "StuckDetectionLoop", _agent->getSchain()->getNode()->getConsensusEngine() );
-
     _agent->getSchain()->getSchain()->waitOnGlobalStartBarrier();
 
     LOG( info, "StuckDetection agent started monitoring" );
@@ -73,6 +71,7 @@ void StuckDetectionAgent::StuckDetectionLoop( StuckDetectionAgent* _agent ) {
     uint64_t restartIteration = 1;
 
     while ( true ) {
+
         auto restartFileName = _agent->createStuckFileName( restartIteration );
 
         if ( !boost::filesystem::exists( restartFileName ) ) {
@@ -81,7 +80,6 @@ void StuckDetectionAgent::StuckDetectionLoop( StuckDetectionAgent* _agent ) {
         restartIteration++;
         CHECK_STATE( restartIteration < 64 );
     }
-
 
     uint64_t restartTime = 0;
 
@@ -112,6 +110,7 @@ void StuckDetectionAgent::join() {
 }
 
 uint64_t StuckDetectionAgent::checkForRestart( uint64_t _restartIteration ) {
+
     CHECK_STATE( _restartIteration >= 1 );
 
     auto baseRestartIntervalMs = getSchain()->getNode()->getStuckRestartIntervalMs();
@@ -120,12 +119,15 @@ uint64_t StuckDetectionAgent::checkForRestart( uint64_t _restartIteration ) {
 
     auto blockID = getSchain()->getLastCommittedBlockID();
 
-    auto currentTime = Time::getCurrentTimeSec();
+    auto currentTimeMs = Time::getCurrentTimeMs();
 
-    if ( getSchain()->getLastCommittedBlockID() > 2 ) {
+    // check that the chain has not been doing much for a long time
+    if ( getSchain()->getLastCommittedBlockID() > 2 &&
+    (currentTimeMs - getSchain()->getStartTimeMs()) > restartIntervalMs &&
+    (currentTimeMs - getSchain()->getLastCommitTimeMs() > restartIntervalMs)) {
         auto timeStamp = getSchain()->getBlock( blockID )->getTimeStampS() * 1000;
         // check that nodes are online and do not mine blocks for at least 60 seconds
-        while ( Time::getCurrentTimeSec() - currentTime < 60 ) {
+        while ( Time::getCurrentTimeMs() - currentTimeMs < 60000 ) {
             if ( Time::getCurrentTimeMs() - timeStamp >= restartIntervalMs ) {
                 std::unordered_set< uint64_t > connections;
                 auto beginTime = Time::getCurrentTimeSec();
@@ -165,11 +167,11 @@ uint64_t StuckDetectionAgent::checkForRestart( uint64_t _restartIteration ) {
     }
     return 0;
 }
-void StuckDetectionAgent::restart( uint64_t _baseRestartTimeMs, uint64_t _iteration ) {
-    CHECK_STATE( _baseRestartTimeMs > 0 );
+void StuckDetectionAgent::restart( uint64_t _restartTimeMs, uint64_t _iteration ) {
+    CHECK_STATE( _restartTimeMs > 0 );
 
 
-    while ( Time::getCurrentTimeMs() < _baseRestartTimeMs ) {
+    while ( Time::getCurrentTimeMs() < _restartTimeMs ) {
         try {
             usleep( 100 );
         } catch ( ... ) {
@@ -196,7 +198,6 @@ string StuckDetectionAgent::createStuckFileName( uint64_t _iteration ) {
 
 void StuckDetectionAgent::createStuckRestartFile( uint64_t _iteration ) {
     CHECK_STATE( _iteration >= 1 );
-
     auto fileName = createStuckFileName( _iteration );
 
     ofstream f;

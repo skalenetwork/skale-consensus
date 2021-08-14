@@ -54,7 +54,6 @@ Agent::Agent(Schain &_sChain, bool _isServer, bool _dontRegister) : isServer(_is
         return;
     lock_guard<recursive_mutex> lock(_sChain.getMainMutex());
     sChain->getNode()->registerAgent(this);
-
 }
 
 Agent::Agent() {}// empty constructor is used by tests}
