@@ -166,7 +166,7 @@ static constexpr uint64_t CATCHUP_INTERVAL_MS = 5000;
 
 static constexpr uint64_t MONITORING_INTERVAL_MS = 1000;
 
-static constexpr uint64_t STUCK_MONITORING_INTERVAL_MS = 10000;
+static constexpr uint64_t STUCK_MONITORING_INTERVAL_MS = 3000;
 
 static constexpr uint64_t STUCK_RESTART_INTERVAL_MS = 600000;
 

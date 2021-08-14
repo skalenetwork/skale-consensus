@@ -82,10 +82,11 @@ void StuckDetectionAgent::StuckDetectionLoop( StuckDetectionAgent* _agent ) {
     }
 
     uint64_t restartTime = 0;
+    uint64_t sleepTime = _agent->getSchain()->getNode()->getStuckMonitoringIntervalMs() * 1000;
 
     while ( restartTime == 0 ) {
         try {
-            usleep( _agent->getSchain()->getNode()->getStuckMonitoringIntervalMs() * 1000 );
+            usleep( sleepTime );
             _agent->getSchain()->getNode()->exitCheck();
             restartTime = _agent->checkForRestart( restartIteration );
         } catch ( ExitRequestedException& ) {
