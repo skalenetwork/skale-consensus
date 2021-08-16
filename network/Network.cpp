@@ -136,6 +136,14 @@ void Network::broadcastMessageImpl( const ptr< NetworkMessage >& _msg, bool _isF
         return;
     }
 
+
+    if (_msg->getBlockID() == 5
+         //&& getSchain()->getBlockProposerTest() == "BAD_NETWORK"
+        //
+        ) {
+        return;
+    }
+
     try {
         if ( _isFirstBroadcast ) {
             // sign message before sending

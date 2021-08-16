@@ -183,7 +183,10 @@ void JSONFactory::createAndAddSChainFromJson(
                 _node->getSchain()->setBlockProposerTest( SchainTest::NONE );
             } else if ( test == SchainTest::SLOW ) {
                 _node->getSchain()->setBlockProposerTest( SchainTest::SLOW );
-            } else {
+            } else if (test == SchainTest::BAD_NETWORK) {
+                _node->getSchain()->setBlockProposerTest( SchainTest::BAD_NETWORK );
+            }
+            else {
                 BOOST_THROW_EXCEPTION( ParsingException(
                     "Unknown test type parsing schain config:" + test, __CLASS_NAME__ ) );
             }
