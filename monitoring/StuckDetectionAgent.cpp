@@ -71,7 +71,6 @@ void StuckDetectionAgent::StuckDetectionLoop( StuckDetectionAgent* _agent ) {
     uint64_t restartIteration = 1;
 
     while ( true ) {
-
         auto restartFileName = _agent->createStuckFileName( restartIteration );
 
         if ( !boost::filesystem::exists( restartFileName ) ) {
@@ -99,7 +98,7 @@ void StuckDetectionAgent::StuckDetectionLoop( StuckDetectionAgent* _agent ) {
 
     CHECK_STATE( restartTime > 0 );
     try {
-        LOG(info, "Restarting node because of stuck detected.");
+        LOG( info, "Restarting node because of stuck detected." );
         _agent->restart( restartTime, restartIteration );
     } catch ( ExitRequestedException& ) {
         return;
@@ -112,7 +111,6 @@ void StuckDetectionAgent::join() {
 }
 
 uint64_t StuckDetectionAgent::checkForRestart( uint64_t _restartIteration ) {
-
     CHECK_STATE( _restartIteration >= 1 );
 
     auto baseRestartIntervalMs = getSchain()->getNode()->getStuckRestartIntervalMs();
@@ -125,54 +123,61 @@ uint64_t StuckDetectionAgent::checkForRestart( uint64_t _restartIteration ) {
 
     // check that the chain has not been doing much for a long time
     if ( getSchain()->getLastCommittedBlockID() > 2 &&
-    (currentTimeMs - getSchain()->getStartTimeMs()) > restartIntervalMs &&
-    (currentTimeMs - getSchain()->getLastCommitTimeMs() > restartIntervalMs)) {
-
-        LOG(info, "Stuck detected. Checking network connectivity ...");
-
+         ( currentTimeMs - getSchain()->getStartTimeMs() ) > restartIntervalMs &&
+         ( currentTimeMs - getSchain()->getLastCommitTimeMs() > restartIntervalMs ) ) {
         auto timeStamp = getSchain()->getBlock( blockID )->getTimeStampS() * 1000;
+
+        if ( Time::getCurrentTimeMs() - timeStamp < restartIntervalMs ) {
+            return 0;
+        }
+
+        LOG( info, "Stuck detected. Checking network connectivity ..." );
+
+
         // check that nodes are online and do not mine blocks for at least 60 seconds
+
+
         while ( Time::getCurrentTimeMs() - currentTimeMs < 60000 ) {
-            if ( Time::getCurrentTimeMs() - timeStamp >= restartIntervalMs ) {
-                std::unordered_set< uint64_t > connections;
-                auto beginTime = Time::getCurrentTimeSec();
-                auto nodeCount = getSchain()->getNodeCount();
+            std::unordered_set< uint64_t > connections;
+            auto beginTime = Time::getCurrentTimeSec();
+            auto nodeCount = getSchain()->getNodeCount();
 
-                // check if can connect to 2/3 of peers. If yes, restart
-                while ( 3 * ( connections.size() + 1 ) < 2 * nodeCount ) {
-                    if ( Time::getCurrentTimeSec() - beginTime > 10 ) {
-                        LOG(info, "Could not connect to 2/3 of nodes. Will not restart");
-                        return 0;  // could not connect to 2/3 of peers
-                    }
+            // check if can connect to 2/3 of peers. If yes, restart
+            while ( 3 * ( connections.size() + 1 ) < 2 * nodeCount ) {
+                if ( Time::getCurrentTimeSec() - beginTime > 10 ) {
+                    LOG( info, "Could not connect to 2/3 of nodes. Will not restart" );
+                    return 0;  // could not connect to 2/3 of peers
                 }
+            }
 
-                for ( int i = 1; i <= nodeCount; i++ ) {
-                    if ( i != ( getSchain()->getSchainIndex() ) && !connections.count( i ) ) {
-                        try {
-                            if ( getNode()->isExitRequested() ) {
-                                BOOST_THROW_EXCEPTION( ExitRequestedException( __CLASS_NAME__ ) );
-                            }
-                            auto socket = make_shared< ClientSocket >(
-                                *getSchain(), schain_index( i ), port_type::PROPOSAL );
-                            LOG( debug, "Stuck check: connected to peer" );
-                            getSchain()->getIo()->writeMagic( socket, true );
-                            connections.insert( i );
-                        } catch ( ExitRequestedException& ) {
-                            throw;
-                        } catch ( std::exception& e ) {
+            for ( int i = 1; i <= nodeCount; i++ ) {
+                if ( i != ( getSchain()->getSchainIndex() ) && !connections.count( i ) ) {
+                    try {
+                        if ( getNode()->isExitRequested() ) {
+                            BOOST_THROW_EXCEPTION( ExitRequestedException( __CLASS_NAME__ ) );
                         }
+                        LOG( info, "Stuck check: connecting to peer:" + to_string( i ) );
+                        auto socket = make_shared< ClientSocket >(
+                            *getSchain(), schain_index( i ), port_type::PROPOSAL );
+                        LOG( info, "Stuck check: connected to peer:" + to_string( i ) );
+                        getSchain()->getIo()->writeMagic( socket, true );
+                        connections.insert( i );
+                    } catch ( ExitRequestedException& ) {
+                        throw;
+                    } catch ( std::exception& e ) {
                     }
                 }
             }
+
             // sleep 10 sec before the next check
             usleep( 10000000 );
         }
 
-        LOG(info, "Could connect to 2/3 of nodes. Will  restart");
+        LOG( info, "Could connect to 2/3 of nodes. Will  restart" );
 
         cleanupState();
 
-        LOG(info, "Cleaned up state");
+        LOG( info, "Cleaned up state" );
 
         return timeStamp + restartIntervalMs + 120000;
     }

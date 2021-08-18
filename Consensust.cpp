@@ -127,7 +127,7 @@ block_id basicRun(block_id _lastId = 0) {
 
         engine->parseTestConfigsAndCreateAllNodes( Consensust::getConfigDirPath() );
         engine->slowStartBootStrapTest();
-        sleep(Consensust::getRunningTimeMS()/1000); /* Flawfinder: ignore */
+        sleep(1000 * Consensust::getRunningTimeMS()/1000); /* Flawfinder: ignore */
 
         REQUIRE(engine->nodesCount() > 0);
         auto lastId = engine->getLargestCommittedBlockID();

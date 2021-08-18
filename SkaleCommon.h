@@ -168,7 +168,7 @@ static constexpr uint64_t MONITORING_INTERVAL_MS = 1000;
 
 static constexpr uint64_t STUCK_MONITORING_INTERVAL_MS = 3000;
 
-static constexpr uint64_t STUCK_RESTART_INTERVAL_MS = 600000;
+static constexpr uint64_t STUCK_RESTART_INTERVAL_MS = 6000;
 
 static constexpr uint64_t WAIT_AFTER_NETWORK_ERROR_MS = 3000;
 
