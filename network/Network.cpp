@@ -138,9 +138,7 @@ void Network::broadcastMessageImpl( const ptr< NetworkMessage >& _msg, bool _isF
 
 
     if (_msg->getBlockID() == 5
-         //&& getSchain()->getBlockProposerTest() == "BAD_NETWORK"
-        //
-        ) {
+         && getSchain()->getBlockProposerTest() == "BAD_NETWORK") {
         return;
     }
 

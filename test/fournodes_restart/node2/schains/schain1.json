@@ -9,5 +9,5 @@
   ],
 
 
-  "blockProposalTest": "SLOW"
+  "blockProposalTest": "BAD_NETWORK"
 }
