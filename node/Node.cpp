@@ -206,7 +206,9 @@ void Node::initParamsFromConfig() {
     basePort = network_port(cfg.at("basePort").get<int>());
 
     catchupIntervalMS = getParamUint64("catchupIntervalMs", CATCHUP_INTERVAL_MS);
-    monitoringIntervalMS = getParamUint64("monitoringIntervalMs", MONITORING_INTERVAL_MS);
+    monitoringIntervalMs = getParamUint64("monitoringIntervalMs", MONITORING_INTERVAL_MS);
+    stuckMonitoringIntervalMs = getParamUint64("stuckMonitoringIntervalMs", STUCK_MONITORING_INTERVAL_MS);
+    stuckRestartIntervalMs = getParamUint64("stuckRestartIntervalMs", STUCK_RESTART_INTERVAL_MS);
     waitAfterNetworkErrorMs = getParamUint64("waitAfterNetworkErrorMs", WAIT_AFTER_NETWORK_ERROR_MS);
     blockProposalHistorySize = getParamUint64("blockProposalHistorySize", BLOCK_PROPOSAL_HISTORY_SIZE);
     committedTransactionsHistory = getParamUint64("committedTransactionsHistory", COMMITTED_TRANSACTIONS_HISTORY);

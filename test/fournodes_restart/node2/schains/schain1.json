@@ -1,0 +1,13 @@
+{
+  "schainName": "TestChain",
+  "schainID": 1,
+  "nodes": [
+    { "nodeID": 1112, "ip": "127.0.0.1", "basePort": 1231, "schainIndex" : 1},
+    { "nodeID": 1113, "ip": "127.0.0.2", "basePort":1231, "schainIndex" : 2},
+    { "nodeID": 1114, "ip": "127.0.0.3", "basePort":1231, "schainIndex" : 3},
+    { "nodeID": 1115, "ip": "127.0.0.4", "basePort":1231, "schainIndex" : 4}
+  ],
+
+
+  "blockProposalTest": "BAD_NETWORK"
+}

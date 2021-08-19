@@ -16,21 +16,43 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file SchainTest.h
+    @file StuckDetectionAgent.h
     @author Stan Kladko
-    @date 2018
+    @date 2020
 */
 
 #pragma once
 
 
+class Schain;
 
+class StuckDetectionThreadPool;
+class LivelinessMonitor;
 
-class SchainTest {
+class StuckDetectionAgent : public Agent  {
+
+    ptr< StuckDetectionThreadPool > stuckDetectionThreadPool = nullptr;
 
 public:
 
-    static constexpr const char*  NONE = "NONE";
-    static constexpr const char* SLOW = "SLOW";
-    static constexpr const char* BAD_NETWORK = "BAD_NETWORK";
+    explicit StuckDetectionAgent( Schain& _sChain );
+
+    static void StuckDetectionLoop( StuckDetectionAgent* agent );
+
+    void join();
+
+    uint64_t checkForRestart(uint64_t _restartIteration);
+
+    void restart( uint64_t _baseRestartTimeMs, uint64_t _iteration );
+
+    void createStuckRestartFile( uint64_t _iteration );
+
+    void cleanupState();
+
+    string createStuckFileName(uint64_t _iteration);
+
+    bool checkNodesAreOnline();
+
+    bool stuckCheck(uint64_t _restartIntervalMs,  uint64_t _timeStamp);
+
 };

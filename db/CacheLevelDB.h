@@ -67,9 +67,11 @@ protected:
     Schain* sChain = nullptr;
 
     void verify();
+
+
     ptr< map< schain_index, string > > writeByteArrayToSetUnsafe(
         const char* _value, uint64_t _valueLen, block_id _blockId, schain_index _index );
-    string path2Index( uint64_t index );
+    string index2Path( uint64_t index );
 
     string readString( string& _key );
     string readStringUnsafe( string& _key );
@@ -124,6 +126,9 @@ protected:
         string& _prefix, const ptr< leveldb::DB >& _db, bool lastOnly = false );
 
 public:
+
+
+    void destroy();
 
     virtual const string& getFormatVersion() = 0;
 

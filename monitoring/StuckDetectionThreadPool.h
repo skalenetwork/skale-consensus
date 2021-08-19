@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2019 SKALE Labs
+    Copyright (C) 2018-2019 SKALE Labs
 
     This file is part of skale-consensus.
 
@@ -16,35 +16,23 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file ProposalVectorDB.h
+    @file StuckDetectionThreadPool.h
     @author Stan Kladko
-    @date 2019
+    @date 2020
 */
 
+#pragma once
 
-#ifndef SKALED_PROPOSAL_VECTOR_DB_H
-#define SKALED_PROPOSAL_VECTOR_DB_
+#include <cstdint>
 
+#include "threads/WorkerThreadPool.h"
 
-#include "CacheLevelDB.h"
-
-class CryptoManager;
-class BooleanProposalVector;
-
-class ProposalVectorDB : public CacheLevelDB {
-
-    recursive_mutex m;
+class StuckDetectionThreadPool : public WorkerThreadPool {
 
 public:
 
-    ProposalVectorDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize);
+    StuckDetectionThreadPool(num_threads _numThreads, Agent* _agent);
 
-    bool trySavingProposalVector(block_id _proposalBlockID, const ptr<BooleanProposalVector>& _proposalVector);
+    void createThread(uint64_t _number) override;
 
-    ptr<BooleanProposalVector> getVector(block_id _blockID);
-
-    const string& getFormatVersion() override ;
 };
-
-
-#endif //SKALED_PROPOSAL_VECTOR_DB_H

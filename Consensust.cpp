@@ -103,6 +103,7 @@ const fs_path &Consensust::getConfigDirPath() {
     return configDirPath;
 }
 
+
 void Consensust::setConfigDirPath(const fs_path &_configDirPath) {
     Consensust::configDirPath = _configDirPath;
 }
