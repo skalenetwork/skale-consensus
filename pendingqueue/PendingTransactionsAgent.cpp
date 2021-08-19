@@ -186,6 +186,7 @@ void PendingTransactionsAgent::pushKnownTransaction(const ptr<Transaction>& _tra
 uint64_t PendingTransactionsAgent::getKnownTransactionsSize() {
     LOCK(transactionsMutex);
     return knownTransactions.size();
+
 }
 
 
