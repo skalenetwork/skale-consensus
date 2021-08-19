@@ -270,7 +270,7 @@ void Schain::constructChildAgents() {
 }
 
 
-void Schain::blockCommitsArrivedThroughCatchup( const ptr< CommittedBlockList >& _blockList ) {
+[[nodiscard]] uint64_t Schain::blockCommitsArrivedThroughCatchup( const ptr< CommittedBlockList >& _blockList ) {
     CHECK_ARGUMENT( _blockList );
 
     auto blocks = _blockList->getBlocks();
@@ -278,7 +278,7 @@ void Schain::blockCommitsArrivedThroughCatchup( const ptr< CommittedBlockList >&
     CHECK_STATE( blocks );
 
     if ( blocks->size() == 0 ) {
-        return;
+        return 0;
     }
 
     LOCK( m )
@@ -300,13 +300,18 @@ void Schain::blockCommitsArrivedThroughCatchup( const ptr< CommittedBlockList >&
         }
     }
 
+    uint64_t result = 0;
+
     if ( committedIDOld < getLastCommittedBlockID() ) {
         LOG( info, "BLOCK_CATCHUP: " + to_string( getLastCommittedBlockID() - committedIDOld ) +
                        " BLOCKS" );
+        result = ((uint64_t) getLastCommittedBlockID()) - committedIDOld;
         proposeNextBlock();
     }
 
     unbumpPriority();
+
+    return result;
 }
 
 
