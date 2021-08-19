@@ -146,6 +146,7 @@ bool StuckDetectionAgent::checkNodesAreOnline() {
             }
         }
     }
+    LOG( info, "Could connect to 2/3 of nodes" );
     return true;
 }
 
@@ -158,7 +159,7 @@ bool StuckDetectionAgent::stuckCheck( uint64_t _restartIntervalMs, uint64_t _tim
                   ( Time::getCurrentTimeMs() - _timeStamp > _restartIntervalMs ) &&
                   checkNodesAreOnline();
 
-    LOG( info, "Could connect to 2/3 of nodes" );
+
 
     return result;
 }
