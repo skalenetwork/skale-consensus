@@ -269,6 +269,7 @@ void CatchupClientAgent::workerThreadItemSendLoop( CatchupClientAgent* _agent ) 
 
     uint64_t  startIndex;
 
+    auto lastBlockCount = 0;
 
     do {
         uint64_t random;
@@ -280,12 +281,14 @@ void CatchupClientAgent::workerThreadItemSendLoop( CatchupClientAgent* _agent ) 
 
     try {
         while ( !_agent->getSchain()->getNode()->isExitRequested() ) {
-            std::this_thread::sleep_for(std::chrono::milliseconds(
+            // sleep if previous iteration did not result in blocks
+            if (lastBlockCount == 0)
+                std::this_thread::sleep_for(std::chrono::milliseconds(
                                         _agent->getNode()->getCatchupIntervalMs()
                                         ));
 
             try {
-                _agent->sync( destinationSchainIndex );
+                lastBlockCount = _agent->sync( destinationSchainIndex );
             } catch ( ExitRequestedException& ) {
                 return;
             } catch ( ConnectionRefusedException& e ) {
