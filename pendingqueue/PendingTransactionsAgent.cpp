@@ -26,6 +26,7 @@
 #include "db/BlockDB.h"
 #include "db/CacheLevelDB.h"
 #include "exceptions/FatalError.h"
+#include "datastructures/Transaction.h"
 #include "leveldb/db.h"
 #include "thirdparty/json.hpp"
 #include <monitoring/LivelinessMonitor.h>
@@ -169,11 +170,15 @@ void PendingTransactionsAgent::pushKnownTransaction(const ptr<Transaction>& _tra
     CHECK_STATE(partialHash);
 
     knownTransactions[partialHash] = _transaction;
+    knownTransactionsTotalSize+= (_transaction->getData()->size() + PARTIAL_HASH_LEN);
 
-    while (knownTransactions.size() > KNOWN_TRANSACTIONS_HISTORY) {
-        auto tx = knownTransactions.begin()->first;
-        CHECK_STATE(tx);
-        knownTransactions.erase(tx);
+    while (knownTransactions.size() > KNOWN_TRANSACTIONS_HISTORY ||
+    knownTransactionsTotalSize > MAX_KNOWN_TRANSACTIONS_TOTAL_SIZE ) {
+        auto tx = knownTransactions.begin();
+        CHECK_STATE(tx->first);
+        CHECK_STATE(tx->second);
+        knownTransactionsTotalSize-= (tx->second->getData()->size() + PARTIAL_HASH_LEN);
+        knownTransactions.erase(tx->first);
     }
 }
 
