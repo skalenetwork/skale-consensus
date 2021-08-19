@@ -103,6 +103,7 @@ const fs_path &Consensust::getConfigDirPath() {
     return configDirPath;
 }
 
+
 void Consensust::setConfigDirPath(const fs_path &_configDirPath) {
     Consensust::configDirPath = _configDirPath;
 }
@@ -127,7 +128,7 @@ block_id basicRun(block_id _lastId = 0) {
 
         engine->parseTestConfigsAndCreateAllNodes( Consensust::getConfigDirPath() );
         engine->slowStartBootStrapTest();
-        sleep(1000 * Consensust::getRunningTimeMS()/1000); /* Flawfinder: ignore */
+        sleep(Consensust::getRunningTimeMS()/1000); /* Flawfinder: ignore */
 
         REQUIRE(engine->nodesCount() > 0);
         auto lastId = engine->getLargestCommittedBlockID();

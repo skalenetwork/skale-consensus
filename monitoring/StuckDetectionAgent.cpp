@@ -112,6 +112,7 @@ void StuckDetectionAgent::join() {
 
 
 bool StuckDetectionAgent::checkNodesAreOnline() {
+
     LOG( info, "Stuck detected. Checking network connectivity ..." );
 
     std::unordered_set< uint64_t > connections;
@@ -126,7 +127,6 @@ bool StuckDetectionAgent::checkNodesAreOnline() {
         }
 
         for ( int i = 1; i <= nodeCount; i++ ) {
-            LOG( info, "Iteration" + to_string( i ) );
             if ( i != ( getSchain()->getSchainIndex() ) && !connections.count( i ) ) {
                 try {
                     if ( getNode()->isExitRequested() ) {
@@ -153,7 +153,6 @@ bool StuckDetectionAgent::checkNodesAreOnline() {
 bool StuckDetectionAgent::stuckCheck( uint64_t _restartIntervalMs, uint64_t _timeStamp ) {
     auto currentTimeMs = Time::getCurrentTimeMs();
 
-
     auto result = ( currentTimeMs - getSchain()->getStartTimeMs() ) > _restartIntervalMs &&
                   ( currentTimeMs - getSchain()->getLastCommitTimeMs() > _restartIntervalMs ) &&
                   ( Time::getCurrentTimeMs() - _timeStamp > _restartIntervalMs ) &&
@@ -173,7 +172,7 @@ uint64_t StuckDetectionAgent::checkForRestart( uint64_t _restartIteration ) {
 
     auto blockID = getSchain()->getLastCommittedBlockID();
 
-    if ( blockID < 5 )
+    if ( blockID < 2 )
         return 0;
 
     auto timeStampMs = getSchain()->getBlock( blockID )->getTimeStampS() * 1000;
