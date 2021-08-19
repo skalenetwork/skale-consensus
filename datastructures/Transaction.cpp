@@ -116,7 +116,7 @@ Transaction::Transaction( const ptr<vector<uint8_t>>& _trx, bool _includesPartia
 
 
 ptr<vector<uint8_t>> Transaction::getData() const {
-    CHECK_STATE(data != nullptr);
+    CHECK_STATE(data);
     CHECK_STATE(data->size() > 0);
     return data;
 }
