@@ -51,7 +51,18 @@ using namespace std;
 BlockProposalDB::BlockProposalDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId,
                                  uint64_t _maxDBSize) :
         CacheLevelDB(_sChain, _dirName, _prefix, _nodeId, _maxDBSize, true) {
-    proposalCache = make_shared<cache::lru_cache<string, ptr<BlockProposal>>>((uint64_t)_sChain->getNodeCount() * PROPOSAL_CACHE_SIZE);
+    proposalCaches = make_shared<vector<ptr<cache::lru_cache<string, ptr<BlockProposal>>>>>();
+
+    for (int i = 0; i < _sChain->getNodeCount(); i++) {
+
+        auto emptyCache = make_shared<cache::lru_cache<string, ptr<BlockProposal>>>(PROPOSAL_CACHE_SIZE);
+
+        proposalCaches->push_back(emptyCache);
+
+    }
+
+
+
 };
 
 void BlockProposalDB::addBlockProposal(const ptr<BlockProposal>& _proposal) {
@@ -61,6 +72,12 @@ void BlockProposalDB::addBlockProposal(const ptr<BlockProposal>& _proposal) {
     CHECK_ARGUMENT(_proposal);
     CHECK_ARGUMENT(_proposal->getSignature() != "");
 
+    auto proposerIndex =  _proposal->getProposerIndex();
+
+
+
+    CHECK_STATE((uint64_t) proposerIndex <= getSchain()->getNodeCount() );
+
     LOG(trace, "addBlockProposal blockID_=" + to_string(_proposal->getBlockID()) + " proposerIndex=" +
                to_string(_proposal->getProposerIndex()));
 
@@ -68,7 +85,9 @@ void BlockProposalDB::addBlockProposal(const ptr<BlockProposal>& _proposal) {
     CHECK_STATE(key != "");
 
 
-    proposalCache->putIfDoesNotExist(key, _proposal);
+    auto cache = proposalCaches->at((uint64_t) proposerIndex - 1);
+    CHECK_STATE(cache);
+    cache->putIfDoesNotExist(key, _proposal);
 
     // dont save non-own proposals
     if (_proposal->getProposerIndex() !=  getSchain()->getSchainIndex())
@@ -93,7 +112,7 @@ void BlockProposalDB::addBlockProposal(const ptr<BlockProposal>& _proposal) {
 
 
 ptr<vector<uint8_t> >
-BlockProposalDB::getSerializedProposalFromLevelDB(block_id _blockID, schain_index _proposerIndex) {
+BlockProposalDB::getMyProposalFromLevelDB(block_id _blockID, schain_index _proposerIndex) {
 
     try {
 
@@ -118,11 +137,20 @@ ptr<BlockProposal> BlockProposalDB::getBlockProposal(block_id _blockID, schain_i
     auto key = createKey(_blockID, _proposerIndex);
     CHECK_STATE(!key.empty());
 
-    if (auto result = proposalCache->getIfExists(key); result.has_value()) {
+    auto cache = proposalCaches->at((uint64_t) _proposerIndex - 1);
+
+    CHECK_STATE(cache);
+
+    if (auto result = cache->getIfExists(key); result.has_value()) {
             return any_cast<ptr<BlockProposal>>(result);
     }
 
-    auto serializedProposal = getSerializedProposalFromLevelDB(_blockID, _proposerIndex);
+    if (getSchain()->getSchainIndex() != _proposerIndex) {
+        // non-owned proposals are never saved in DB
+        return nullptr;
+    }
+
+    auto serializedProposal = getMyProposalFromLevelDB( _blockID, _proposerIndex );
 
     if (serializedProposal == nullptr)
         return nullptr;
@@ -133,9 +161,9 @@ ptr<BlockProposal> BlockProposalDB::getBlockProposal(block_id _blockID, schain_i
         return nullptr;
 
 
-    CHECK_STATE(proposalCache)
+    CHECK_STATE( proposalCaches )
 
-    proposalCache->putIfDoesNotExist(key, proposal);
+    cache->putIfDoesNotExist(key, proposal);
 
     CHECK_STATE(!proposal->getSignature().empty());
 
