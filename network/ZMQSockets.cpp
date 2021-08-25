@@ -55,6 +55,8 @@ void* ZMQSockets::getDestinationSocket(const ptr< NodeInfo >& _remoteNodeInfo ) 
     int val = CONSENSUS_ZMQ_HWM;
     auto rc = zmq_setsockopt (requester, ZMQ_RCVHWM, &val, sizeof (val));
     CHECK_STATE(rc == 0);
+    rc = zmq_setsockopt (requester, ZMQ_SNDHWM, &val, sizeof (val));
+    CHECK_STATE(rc == 0);
 
     CHECK_STATE(requester);
 
@@ -83,6 +85,12 @@ void * ZMQSockets::getReceiveSocket()  {
 
         receiveSocket = zmq_socket(context, ZMQ_SERVER);
 
+        int val = CONSENSUS_ZMQ_HWM;
+        auto rc = zmq_setsockopt (receiveSocket, ZMQ_RCVHWM, &val, sizeof (val));
+        CHECK_STATE(rc == 0);
+        rc = zmq_setsockopt (receiveSocket, ZMQ_SNDHWM, &val, sizeof (val));
+        CHECK_STATE(rc == 0);
+
         CHECK_STATE(receiveSocket);
 
         LOG(debug, getThreadName() + " zmq debug: receiveSocket = " + to_string((uint64_t)receiveSocket));
@@ -94,7 +102,8 @@ void * ZMQSockets::getReceiveSocket()  {
         zmq_setsockopt(receiveSocket, ZMQ_SNDTIMEO, &timeout, sizeof(int));
         zmq_setsockopt(receiveSocket, ZMQ_LINGER, &linger, sizeof(int));
 
-        int rc = zmq_bind(receiveSocket, ("tcp://" + bindIP + ":" + to_string(bindPort)).c_str());
+        rc = zmq_bind(receiveSocket, ("tcp://" + bindIP + ":" + to_string(bindPort)).c_str());
+
         if (rc != 0) {
             BOOST_THROW_EXCEPTION(FatalError(string("Could not bind ZMQ server socket:") + zmq_strerror(errno)));
         }
