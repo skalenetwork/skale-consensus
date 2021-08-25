@@ -88,6 +88,7 @@ void * ZMQSockets::getReceiveSocket()  {
         int val = CONSENSUS_ZMQ_HWM;
         auto rc = zmq_setsockopt (receiveSocket, ZMQ_RCVHWM, &val, sizeof (val));
         CHECK_STATE(rc == 0);
+        val = CONSENSUS_ZMQ_HWM;
         rc = zmq_setsockopt (receiveSocket, ZMQ_SNDHWM, &val, sizeof (val));
         CHECK_STATE(rc == 0);
 
