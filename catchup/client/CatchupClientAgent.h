@@ -39,7 +39,7 @@ public:
     explicit CatchupClientAgent( Schain& _sChain );
 
 
-    void sync( schain_index _dstIndex );
+    [[nodiscard]] uint64_t sync( schain_index _dstIndex );
 
 
     static void workerThreadItemSendLoop( CatchupClientAgent* _agent );

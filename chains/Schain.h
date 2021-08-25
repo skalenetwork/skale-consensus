@@ -242,7 +242,7 @@ public:
         const ptr< ThresholdSignature >& _thresholdSig );
 
 
-    void blockCommitsArrivedThroughCatchup( const ptr< CommittedBlockList >& _blockList );
+    [[nodiscard]] uint64_t blockCommitsArrivedThroughCatchup( const ptr< CommittedBlockList >& _blockList );
 
     void daProofSigShareArrived(
         const ptr< ThresholdSigShare >& _sigShare, const ptr< BlockProposal >& _proposal );

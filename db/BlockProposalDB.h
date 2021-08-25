@@ -34,7 +34,8 @@ class BooleanProposalVector;
 
 class BlockProposalDB : public CacheLevelDB {
 
-    ptr<cache::lru_cache<string, ptr<BlockProposal>>> proposalCache; // tsafe
+    ptr<vector<ptr<cache::lru_cache<string, ptr<BlockProposal>>>>>
+        proposalCaches; // tsafe
 
 public:
 
@@ -48,7 +49,7 @@ public:
 
     const string& getFormatVersion() override;
 
-    ptr<vector<uint8_t> > getSerializedProposalFromLevelDB(block_id _blockID, schain_index _proposerIndex);
+    ptr<vector<uint8_t> > getMyProposalFromLevelDB(block_id _blockID, schain_index _proposerIndex);
 };
 
 

@@ -76,7 +76,7 @@ nlohmann::json CatchupClientAgent::readCatchupResponseHeader(const ptr< ClientSo
 }
 
 
-void CatchupClientAgent::sync( schain_index _dstIndex ) {
+[[nodiscard]] uint64_t CatchupClientAgent::sync( schain_index _dstIndex ) {
     LOG( debug, "Catchupc step 0: requesting blocks after " +
                     to_string( getSchain()->getLastCommittedBlockID() ) );
 
@@ -131,7 +131,7 @@ void CatchupClientAgent::sync( schain_index _dstIndex ) {
 
     if ( status == CONNECTION_DISCONNECT ) {
         LOG( debug, "Catchupc got response::no missing blocks" );
-        return;
+        return 0;
     }
 
 
@@ -147,9 +147,6 @@ void CatchupClientAgent::sync( schain_index _dstIndex ) {
     try {
         blocks = readMissingBlocks( socket, response );
 
-
-
-
         CHECK_STATE( blocks );
     } catch ( ExitRequestedException& ) {
         throw;
@@ -161,8 +158,9 @@ void CatchupClientAgent::sync( schain_index _dstIndex ) {
 
     LOG( debug, "Catchupc step 3: got missing blocks:" + to_string( blocks->getBlocks()->size() ) );
 
-    getSchain()->blockCommitsArrivedThroughCatchup( blocks );
+    auto result = getSchain()->blockCommitsArrivedThroughCatchup( blocks );
     LOG( debug, "Catchupc success" );
+    return result;
 }
 
 size_t CatchupClientAgent::parseBlockSizes(
@@ -271,6 +269,7 @@ void CatchupClientAgent::workerThreadItemSendLoop( CatchupClientAgent* _agent ) 
 
     uint64_t  startIndex;
 
+    auto lastBlockCount = 0;
 
     do {
         uint64_t random;
@@ -282,12 +281,14 @@ void CatchupClientAgent::workerThreadItemSendLoop( CatchupClientAgent* _agent ) 
 
     try {
         while ( !_agent->getSchain()->getNode()->isExitRequested() ) {
-            std::this_thread::sleep_for(std::chrono::milliseconds(
+            // sleep if previous iteration did not result in blocks
+            if (lastBlockCount == 0)
+                std::this_thread::sleep_for(std::chrono::milliseconds(
                                         _agent->getNode()->getCatchupIntervalMs()
                                         ));
 
             try {
-                _agent->sync( destinationSchainIndex );
+                lastBlockCount = _agent->sync( destinationSchainIndex );
             } catch ( ExitRequestedException& ) {
                 return;
             } catch ( ConnectionRefusedException& e ) {

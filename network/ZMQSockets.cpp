@@ -52,6 +52,10 @@ void* ZMQSockets::getDestinationSocket(const ptr< NodeInfo >& _remoteNodeInfo ) 
 
     void *requester = zmq_socket(context, ZMQ_CLIENT);
 
+    int val = CONSENSUS_ZMQ_HWM;
+    auto rc = zmq_setsockopt (requester, ZMQ_RCVHWM, &val, sizeof (val));
+    CHECK_STATE(rc == 0);
+
     CHECK_STATE(requester);
 
     LOG(debug, getThreadName() + " zmq debug: requester = " +  to_string((uint64_t )requester));

@@ -207,6 +207,8 @@ static const uint64_t LEVELDB_STATS_HISTORY = 8;
 
 static const int ZMQ_TIMEOUT = 1000;
 
+static const int CONSENSUS_ZMQ_HWM = 32;
+
 enum port_type {
     PROPOSAL = 0, CATCHUP = 1, RETRIEVE = 2, HTTP_JSON = 3, BINARY_CONSENSUS = 4, ZMQ_BROADCAST = 5,
     MTA = 6,
@@ -301,9 +303,9 @@ static const num_threads NUM_DISPATCH_THREADS = num_threads(1);
 
 static const uint64_t DEFAULT_DB_STORAGE_LIMIT = 5000000000; // 5Gbyte
 
-static const uint64_t  MAX_DELAYED_MESSAGE_SENDS = 256;
+static const uint64_t  MAX_DELAYED_MESSAGE_SENDS = 128;
 
-static const uint64_t  MAX_PROPOSAL_QUEUE_SIZE = 8;
+static const uint64_t  MAX_PROPOSAL_QUEUE_SIZE = 4;
 
 static const uint64_t SGX_SSL_PORT = 1026;
 

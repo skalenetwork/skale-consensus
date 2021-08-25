@@ -289,7 +289,6 @@ ptr<vector<uint8_t>> CatchupServerAgent::createBlockCatchupResponse(nlohmann::js
 
             blockSizes->push_back(serializedBlock->size());
 
-
         }
 
         serializedBlocks->push_back(']');
