@@ -153,6 +153,15 @@ bool ZMQNetwork::interruptableSend( void* _socket, void* _buf, size_t _len ) {
 
 uint64_t ZMQNetwork::readMessageFromNetwork( const ptr< Buffer > buf ) {
     getSchain()->getNode()->exitCheck();
+
+    if (getSchain()->getNodeCount() == 1) {
+        // there is no one to receive from
+        while (true) {
+            usleep(100000);
+            getSchain()->getNode()->exitCheck();
+        }
+    }
+
     auto s = sChain->getNode()->getSockets()->consensusZMQSockets->getReceiveSocket();
 
     auto rc = interruptableRecv( s, buf->getBuf()->data(), MAX_CONSENSUS_MESSAGE_LEN );
