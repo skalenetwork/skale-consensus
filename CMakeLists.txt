@@ -201,6 +201,7 @@ SET(LINK_LIBRARIES
         "${DEPS_INSTALL_ROOT}/lib/libjsonrpccpp-common.a"
         bls # "${CMAKE_CURRENT_SOURCE_DIR}/libBLS/build/libbls.a"
         "${DEPS_INSTALL_ROOT}/lib/libzmq.a"
+        "${DEPS_INSTALL_ROOT}/lib/libsodium.a"
         ff
         "${DEPS_INSTALL_ROOT}/lib/libcryptopp.a"
         gmp
