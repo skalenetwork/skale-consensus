@@ -259,6 +259,8 @@ setup_variable WITH_OPENSSL "no"
 setup_variable WITH_CURL "yes"
 setup_variable WITH_LZMA "no"
 setup_variable WITH_SSH "no"
+setup_variable WITH_SODIUM "yes"
+setup_variable WITH_ZMQ "yes"
 
 setup_variable WITH_SDL "no"
 setup_variable WITH_SDL_TTF "no"
@@ -573,6 +575,8 @@ echo -e "${COLOR_VAR_NAME}WITH_OPENSSL${COLOR_DOTS}...........${COLOR_VAR_DESC}O
 echo -e "${COLOR_VAR_NAME}WITH_CURL${COLOR_DOTS}..............${COLOR_VAR_DESC}CURL${COLOR_DOTS}...................................${COLOR_VAR_VAL}$WITH_CURL${COLOR_RESET}"
 #echo -e "${COLOR_VAR_NAME}WITH_LZMA${COLOR_DOTS}..............${COLOR_VAR_DESC}LZMA${COLOR_DOTS}...................................${COLOR_VAR_VAL}$WITH_LZMA${COLOR_RESET}"
 echo -e "${COLOR_VAR_NAME}WITH_SSH${COLOR_DOTS}...............${COLOR_VAR_DESC}SSH${COLOR_DOTS}....................................${COLOR_VAR_VAL}$WITH_SSH${COLOR_RESET}"
+echo -e "${COLOR_VAR_NAME}WITH_SODIUM${COLOR_DOTS}............${COLOR_VAR_DESC}LibSodium${COLOR_DOTS}..............................${COLOR_VAR_VAL}$WITH_SODIUM${COLOR_RESET}"
+echo -e "${COLOR_VAR_NAME}WITH_ZMQ${COLOR_DOTS}...............${COLOR_VAR_DESC}ZeroMQ${COLOR_DOTS}.................................${COLOR_VAR_VAL}$WITH_ZMQ${COLOR_RESET}"
 #echo -e "${COLOR_VAR_NAME}WITH_SDL${COLOR_DOTS}...............${COLOR_VAR_DESC}SDL${COLOR_DOTS}....................................${COLOR_VAR_VAL}$WITH_SDL${COLOR_RESET}"
 #echo -e "${COLOR_VAR_NAME}WITH_SDL_TTF${COLOR_DOTS}...........${COLOR_VAR_DESC}SDL-TTF${COLOR_DOTS}................................${COLOR_VAR_VAL}$WITH_SDL_TTF${COLOR_RESET}"
 #echo -e "${COLOR_VAR_NAME}WITH_EV${COLOR_DOTS}................${COLOR_VAR_DESC}libEv${COLOR_DOTS}..................................${COLOR_VAR_VAL}$WITH_EV${COLOR_RESET}"
@@ -2250,6 +2254,45 @@ then
     fi
 fi
 
+#https://github.com/jedisct1/libsodium
+#https://github.com/jedisct1/libsodium.git
+if [ "$WITH_SODIUM" = "yes" ];
+then
+    echo -e "${COLOR_SEPARATOR}==================== ${COLOR_PROJECT_NAME}libSodium${COLOR_SEPARATOR} ====================================${COLOR_RESET}"
+    if [ ! -f "$INSTALL_ROOT/lib/libsodium.a" ];
+    then
+        ## (required for libssh)
+        env_restore
+        cd "$SOURCES_ROOT"
+        if [ ! -d "libsodium" ];
+        then
+            if [ ! -f "libsodium-from-git.tar.gz" ];
+            then
+                echo -e "${COLOR_INFO}getting it from git${COLOR_DOTS}...${COLOR_RESET}"
+                git clone https://github.com/jedisct1/libsodium.git --recursive
+                echo -e "${COLOR_INFO}archiving it${COLOR_DOTS}...${COLOR_RESET}"
+                tar -czf libsodium-from-git.tar.gz ./libsodium
+            else
+                echo -e "${COLOR_INFO}unpacking it${COLOR_DOTS}...${COLOR_RESET}"
+                tar -xzf libsodium-from-git.tar.gz
+            fi
+            echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
+            cd libsodium
+            ./autogen.sh -s
+            ./configure --enable-static --disable-shared --disable-pie --prefix="$INSTALL_ROOT"
+            cd ..
+        fi
+        echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
+        cd libsodium
+        $MAKE ${PARALLEL_MAKE_OPTIONS}
+        $MAKE ${PARALLEL_MAKE_OPTIONS} install
+        cd ..
+        cd "$SOURCES_ROOT"
+    else
+        echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
+    fi
+fi
+
 # echo -e "${COLOR_SEPARATOR}==================== ${COLOR_PROJECT_NAME}ZMQ (un-conditional)${COLOR_SEPARATOR} =========================${COLOR_RESET}"
 # env_restore
 # cd "$SOURCES_ROOT"
@@ -2259,7 +2302,7 @@ fi
 # cmake --build build  -- -j$(nproc)
 # cd "$SOURCES_ROOT"
 
-if [ "$WITH_CURL" = "yes" ];
+if [ "$WITH_ZMQ" = "yes" ];
 then
 	echo -e "${COLOR_SEPARATOR}==================== ${COLOR_PROJECT_NAME}ZMQ${COLOR_SEPARATOR} ==========================================${COLOR_RESET}"
 	if [ ! -f "$INSTALL_ROOT/lib/libzmq.a" ];
@@ -2271,7 +2314,7 @@ then
 		echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
 		# cmake . -Bbuild -DCMAKE_BUILD_TYPE=Debug -DBUILD_STATIC_LIBS=ON
 		# cmake --build build  -- -j$(nproc)
-		cmake "${CMAKE_CROSSCOMPILING_OPTS}" -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DBUILD_STATIC_LIBS=ON -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" . -Bbuild
+        cmake "${CMAKE_CROSSCOMPILING_OPTS}" -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DBUILD_STATIC_LIBS=ON -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" -DWITH_LIBSODIUM="$INSTALL_ROOT" -DCMAKE_POSITION_INDEPENDENT_CODE=ON . -Bbuild
 		cd build
         $MAKE ${PARALLEL_MAKE_OPTIONS}
         $MAKE ${PARALLEL_MAKE_OPTIONS} install

@@ -52,7 +52,14 @@ find_package(leveldb CONFIG REQUIRED)
 
 
 set(CMAKE_CXX_STANDARD 17)
-add_compile_options(-Wall -Wextra -Werror -Wno-error=deprecated-declarations -Wno-error=unused-result -Wno-error=maybe-uninitialized)
+execute_process( COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/gcc_ver_query.sh OUTPUT_VARIABLE GXX_MAJOR_VERSION )
+message( STATUS "-------- GXX_MAJOR_VERSION is ${GXX_MAJOR_VERSION}" )
+set( GXX_9_SPECIFIC_OPTS "" )
+if( GXX_MAJOR_VERSION GREATER_EQUAL "9" )
+    set( GXX_9_SPECIFIC_OPTS -Wno-error=deprecated-copy -Wno-error=pessimizing-move )
+endif()
+message( STATUS "-------- GXX_9_SPECIFIC_OPTS is ${GXX_9_SPECIFIC_OPTS}" )
+add_compile_options( -Wall -Wextra -Werror -Wno-error=deprecated-declarations -Wno-error=unused-result -Wno-error=maybe-uninitialized ${GXX_9_SPECIFIC_OPTS} )
 add_definitions("-DZMQ_BUILD_DRAFT_API")
 add_definitions("-DUSER_SPACE")
 add_definitions("-DZMQ_EXPERIMENTAL")
@@ -194,6 +201,7 @@ SET(LINK_LIBRARIES
         "${DEPS_INSTALL_ROOT}/lib/libjsonrpccpp-common.a"
         bls # "${CMAKE_CURRENT_SOURCE_DIR}/libBLS/build/libbls.a"
         "${DEPS_INSTALL_ROOT}/lib/libzmq.a"
+        "${DEPS_INSTALL_ROOT}/lib/libsodium.a"
         ff
         "${DEPS_INSTALL_ROOT}/lib/libcryptopp.a"
         gmp

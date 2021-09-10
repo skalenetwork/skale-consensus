@@ -135,6 +135,7 @@ rm -rf ./libcryptopp
 rm -rf ./gmp-6.1.2
 rm -rf ./libff
 rm -rf ./pbc
+rm -rf ./libsodium
 echo "Done (all clean)."
 
 #finish
