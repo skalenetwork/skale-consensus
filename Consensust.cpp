@@ -129,10 +129,10 @@ block_id basicRun(block_id _lastId = 0) {
         engine->parseTestConfigsAndCreateAllNodes( Consensust::getConfigDirPath() );
         engine->slowStartBootStrapTest();
 
-        auto testRunningTimeMs = Consensust::getRunningTimeS();
+        uint64_t testRunningTimeMs = Consensust::getRunningTimeS();
 
-        usleep(testRunningTimeMs * 1000);
-
+        usleep(testRunningTimeMs * 1000 * 1000);
+b
         REQUIRE(engine->nodesCount() > 0);
         auto lastId = engine->getLargestCommittedBlockID();
         REQUIRE(lastId > 0);
