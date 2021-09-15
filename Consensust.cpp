@@ -56,6 +56,21 @@
 
 ConsensusEngine *engine;
 
+
+class DontCleanup {
+public:
+    DontCleanup() {
+
+        Consensust::setConfigDirPath(boost::filesystem::system_complete("."));
+
+    };
+
+    ~DontCleanup() {
+    }
+};
+
+
+
 class StartFromScratch {
 public:
     StartFromScratch() {
@@ -132,7 +147,7 @@ block_id basicRun(block_id _lastId = 0) {
         uint64_t testRunningTimeMs = Consensust::getRunningTimeS();
 
         usleep(testRunningTimeMs * 1000 * 1000);
-b
+
         REQUIRE(engine->nodesCount() > 0);
         auto lastId = engine->getLargestCommittedBlockID();
         REQUIRE(lastId > 0);

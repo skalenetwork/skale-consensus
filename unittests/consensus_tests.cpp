@@ -8,6 +8,12 @@ basicRun();
 SUCCEED();
 }
 
+TEST_CASE_METHOD(DontCleanup, "Run basic consensus without cleanup", "[consensus-basic-no-cleanup]") {
+    basicRun();
+    SUCCEED();
+}
+
+
 TEST_CASE_METHOD(StartFromScratch, "Run two engines", "[consensus-two-engines]") {
 auto lastId = basicRun();
 basicRun(lastId);
