@@ -79,23 +79,23 @@ public:
     }
 };
 
-uint64_t Consensust::getRunningTimeMS() {
+uint64_t Consensust::getRunningTimeS() {
 
-    if (runningTimeMs == 0) {
+    if (runningTimeS == 0) {
 
-        auto env = std::getenv("TEST_TIME_MS");
+        auto env = getenv("TEST_TIME_S");
 
         if (env != NULL) {
-            runningTimeMs = strtoul(env, NULL, 10);
+            runningTimeS = strtoul(env, NULL, 10);
         } else {
-            runningTimeMs = DEFAULT_RUNNING_TIME_MS;
+            runningTimeS = DEFAULT_RUNNING_TIME_S;
         }
     }
 
-    return runningTimeMs;
+    return runningTimeS;
 }
 
-uint64_t Consensust::runningTimeMs = 0;
+uint64_t Consensust::runningTimeS = 0;
 
 fs_path Consensust::configDirPath;
 
@@ -128,7 +128,10 @@ block_id basicRun(block_id _lastId = 0) {
 
         engine->parseTestConfigsAndCreateAllNodes( Consensust::getConfigDirPath() );
         engine->slowStartBootStrapTest();
-        sleep(Consensust::getRunningTimeMS()/1000); /* Flawfinder: ignore */
+
+        auto testRunningTimeMs = Consensust::getRunningTimeS();
+
+        usleep(testRunningTimeMs * 1000);
 
         REQUIRE(engine->nodesCount() > 0);
         auto lastId = engine->getLargestCommittedBlockID();
