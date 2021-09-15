@@ -132,7 +132,7 @@ void testLog(const char *message) {
     printf("TEST_LOG: %s\n", message);
 }
 
-block_id basicRun(block_id _lastId = 0) {
+block_id basicRun(int64_t _lastId = 0) {
     try {
 
         REQUIRE(ConsensusEngine::getEngineVersion().size() > 0);
@@ -142,6 +142,14 @@ block_id basicRun(block_id _lastId = 0) {
         engine->setTotalStorageLimitBytes(1000000000);
 
         engine->parseTestConfigsAndCreateAllNodes( Consensust::getConfigDirPath() );
+
+        if (_lastId == -1) {
+            _lastId = (int64_t)(uint64_t) engine->getLargestCommittedBlockID();
+            delete(engine);
+            engine = new ConsensusEngine(_lastId);
+        }
+
+
         engine->slowStartBootStrapTest();
 
         uint64_t testRunningTimeMs = Consensust::getRunningTimeS();

@@ -187,7 +187,7 @@
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="3d-4" type="CMakeRunConfiguration" factoryName="Application" singleton="false" PROGRAM_PARAMS="[consensus-basic-no-cleanup]" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" WORKING_DIR="file://$PROJECT_DIR$/test/third_out_of_four" PASS_PARENT_ENVS_2="true" PROJECT_NAME="consensus" TARGET_NAME="consensus" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="consensus" RUN_TARGET_NAME="consensust">
+    <configuration name="3d-4" type="CMakeRunConfiguration" factoryName="Application" singleton="false" PROGRAM_PARAMS="[consensus-basic-continue]" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" WORKING_DIR="file://$PROJECT_DIR$/test/third_out_of_four" PASS_PARENT_ENVS_2="true" PROJECT_NAME="consensus" TARGET_NAME="consensus" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="consensus" RUN_TARGET_NAME="consensust">
       <envs>
         <env name="TEST_TIME_S" value="1000000000" />
       </envs>
@@ -354,14 +354,7 @@
       <workItem from="1631535580951" duration="4231000" />
       <workItem from="1631545058546" duration="1782000" />
       <workItem from="1631613403904" duration="2725000" />
-      <workItem from="1631699230594" duration="9504000" />
-    </task>
-    <task id="LOCAL-00026" summary="task/SKALE-4386-save-visualization">
-      <created>1625754414138</created>
-      <option name="number" value="00026" />
-      <option name="presentableId" value="LOCAL-00026" />
-      <option name="project" value="LOCAL" />
-      <updated>1625754414138</updated>
+      <workItem from="1631699230594" duration="10620000" />
     </task>
     <task id="LOCAL-00027" summary="task/SKALE-4386-save-visualization">
       <created>1625758284219</created>
@@ -699,7 +692,14 @@
       <option name="project" value="LOCAL" />
       <updated>1631717715012</updated>
     </task>
-    <option name="localTasksCounter" value="75" />
+    <task id="LOCAL-00075" summary="bug/SKALE-4577-fix-test-running-time">
+      <created>1631719229916</created>
+      <option name="number" value="00075" />
+      <option name="presentableId" value="LOCAL-00075" />
+      <option name="project" value="LOCAL" />
+      <updated>1631719229916</updated>
+    </task>
+    <option name="localTasksCounter" value="76" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
