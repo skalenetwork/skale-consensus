@@ -29,7 +29,7 @@ setenv("TEST_FINALIZATION_DOWNLOAD_ONLY", "1", 1);
 engine = new ConsensusEngine();
 engine->parseTestConfigsAndCreateAllNodes( Consensust::getConfigDirPath() );
 engine->slowStartBootStrapTest();
-usleep(1000 * Consensust::getRunningTimeMS()); /* Flawfinder: ignore */
+usleep(1000 * Consensust::getRunningTimeS()); /* Flawfinder: ignore */
 
 REQUIRE(engine->nodesCount() > 0);
 REQUIRE(engine->getLargestCommittedBlockID() > 0);
@@ -67,7 +67,7 @@ try {
 engine = new ConsensusEngine();
 engine->parseTestConfigsAndCreateAllNodes( Consensust::getConfigDirPath() );
 engine->slowStartBootStrapTest();
-usleep(1000 * Consensust::getRunningTimeMS()); /* Flawfinder: ignore */
+usleep(1000 * Consensust::getRunningTimeS()); /* Flawfinder: ignore */
 
 REQUIRE(engine->nodesCount() > 0);
 REQUIRE(engine->getLargestCommittedBlockID() == 0);

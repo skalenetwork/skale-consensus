@@ -23,12 +23,12 @@
 
 #pragma once
 
-#define DEFAULT_RUNNING_TIME_MS 50000
+#define DEFAULT_RUNNING_TIME_S 50
 #define STUCK_TEST_TIME 5
 
 class Consensust {
 
-    static uint64_t runningTimeMs;
+    static uint64_t runningTimeS;
     static fs_path configDirPath;
 
 public:
@@ -38,7 +38,7 @@ public:
 
     static void useCorruptConfigs();
 
-    static uint64_t getRunningTimeMS();
+    static uint64_t getRunningTimeS();
 
 
     static void testInit();
