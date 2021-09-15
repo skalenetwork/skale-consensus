@@ -56,6 +56,21 @@
 
 ConsensusEngine *engine;
 
+
+class DontCleanup {
+public:
+    DontCleanup() {
+
+        Consensust::setConfigDirPath(boost::filesystem::system_complete("."));
+
+    };
+
+    ~DontCleanup() {
+    }
+};
+
+
+
 class StartFromScratch {
 public:
     StartFromScratch() {
@@ -117,7 +132,7 @@ void testLog(const char *message) {
     printf("TEST_LOG: %s\n", message);
 }
 
-block_id basicRun(block_id _lastId = 0) {
+block_id basicRun(int64_t _lastId = 0) {
     try {
 
         REQUIRE(ConsensusEngine::getEngineVersion().size() > 0);
@@ -127,12 +142,22 @@ block_id basicRun(block_id _lastId = 0) {
         engine->setTotalStorageLimitBytes(1000000000);
 
         engine->parseTestConfigsAndCreateAllNodes( Consensust::getConfigDirPath() );
+
+        if (_lastId == -1) {
+            _lastId = (int64_t)(uint64_t) engine->getLargestCommittedBlockIDInDb();
+            cerr << "Continuing consensus from block id " << _lastId << endl;
+            delete(engine);
+            engine = new ConsensusEngine(_lastId);
+            cerr << "Created consensus engine" << endl;
+
+        }
+
         engine->slowStartBootStrapTest();
 
         uint64_t testRunningTimeMs = Consensust::getRunningTimeS();
 
         usleep(testRunningTimeMs * 1000 * 1000);
-b
+
         REQUIRE(engine->nodesCount() > 0);
         auto lastId = engine->getLargestCommittedBlockID();
         REQUIRE(lastId > 0);

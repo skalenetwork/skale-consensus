@@ -710,13 +710,19 @@ void Schain::proposedBlockArrived( const ptr< BlockProposal >& _proposal ) {
 }
 
 
+block_id Schain::readLastCommittedBlockIDFromDb() {
+    return getNode()->getBlockDB()->readLastCommittedBlockID();
+}
+
 void Schain::bootstrap( block_id _lastCommittedBlockID, uint64_t _lastCommittedBlockTimeStamp,
     uint64_t _lastCommittedBlockTimeStampMs ) {
 
     LOCK( m )
 
     LOG( info, "Bootstrapping consensus ..." );
-    auto _lastCommittedBlockIDInConsensus = getNode()->getBlockDB()->readLastCommittedBlockID();
+
+    auto _lastCommittedBlockIDInConsensus = readLastCommittedBlockIDFromDb();
+
     LOG( info,
          "Last committed block in consensus:" + to_string( _lastCommittedBlockIDInConsensus ) );
     LOG( info, "Check the consensus database for corruption ..." );

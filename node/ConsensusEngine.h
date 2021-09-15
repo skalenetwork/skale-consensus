@@ -196,6 +196,8 @@ public:
 
     block_id getLargestCommittedBlockID();
 
+    block_id getLargestCommittedBlockIDInDb();
+
     explicit ConsensusEngine( block_id _lastId = 0 );
 
     ~ConsensusEngine() override;

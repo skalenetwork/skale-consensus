@@ -787,6 +787,22 @@ block_id ConsensusEngine::getLargestCommittedBlockID() {
     return id;
 }
 
+block_id ConsensusEngine::getLargestCommittedBlockIDInDb() {
+    block_id id = 0;
+
+    for ( auto&& item : nodes ) {
+        CHECK_STATE( item.second );
+
+        auto id2 = item.second->getSchain()->readLastCommittedBlockIDFromDb();
+
+        if ( id2 > id ) {
+            id = id2;
+        }
+    }
+
+    return id;
+}
+
 u256 ConsensusEngine::getPriceForBlockId( uint64_t _blockId ) const {
     CHECK_STATE( nodes.size() == 1 );
 

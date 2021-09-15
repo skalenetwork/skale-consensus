@@ -311,5 +311,10 @@ public:
     void startStatusServer();
     void stopStatusServer();
     void setLastCommittedBlockId( uint64_t lastCommittedBlockId );
+
+
+
+    block_id readLastCommittedBlockIDFromDb();
+
 };
 
