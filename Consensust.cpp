@@ -144,11 +144,13 @@ block_id basicRun(int64_t _lastId = 0) {
         engine->parseTestConfigsAndCreateAllNodes( Consensust::getConfigDirPath() );
 
         if (_lastId == -1) {
-            _lastId = (int64_t)(uint64_t) engine->getLargestCommittedBlockID();
+            _lastId = (int64_t)(uint64_t) engine->getLargestCommittedBlockIDInDb();
+            cerr << "Continuing consensus from block id " << _lastId << endl;
             delete(engine);
             engine = new ConsensusEngine(_lastId);
-        }
+            cerr << "Created consensus engine" << endl;
 
+        }
 
         engine->slowStartBootStrapTest();
 
