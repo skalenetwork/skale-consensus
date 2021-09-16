@@ -84,6 +84,8 @@ class Schain : public Agent {
 
     queue< ptr< MessageEnvelope > > messageQueue;
 
+    recursive_timed_mutex blockProcessMutex;
+
     bool bootStrapped = false;
     bool startingFromCorruptState = false;
 
@@ -134,7 +136,7 @@ class Schain : public Agent {
     atomic< uint64_t > lastCommittedBlockID = 0;
     atomic< uint64_t > lastCommitTimeMs = 0;
     TimeStamp  lastCommittedBlockTimeStamp;
-    recursive_mutex lastCommittedBlockInfoMutex;
+    mutex lastCommittedBlockInfoMutex;
     atomic<uint64_t> proposalReceiptTime = 0;
 
 
@@ -144,10 +146,10 @@ class Schain : public Agent {
     uint64_t blockSizeAverage = 0;
 
     unordered_map <uint64_t, uint64_t> deadNodes;
-    recursive_mutex deadNodesLock;
+    mutex deadNodesLock;
 
     static ptr<ofstream> visualizationDataStream;
-    static recursive_mutex vdsMutex;
+    static mutex vdsMutex;
 
 private:
     uint64_t blockTimeAverageMs = 0 ;
@@ -316,5 +318,8 @@ public:
 
     block_id readLastCommittedBlockIDFromDb();
 
+    void checkForDeadLock(const char* _functionName);
+
+    void printBlockLog(const ptr< CommittedBlock >& _block);
 };
 

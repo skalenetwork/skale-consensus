@@ -63,10 +63,7 @@ void MonitoringAgent::monitor() {
     map< uint64_t, weak_ptr< LivelinessMonitor > > monitorsCopy;
 
     {
-        LOCK( m )
-
-        lock_guard< recursive_mutex > lock( m );
-
+        LOCK( monitorsMutex )
         monitorsCopy = activeMonitors;
     }
 
@@ -119,13 +116,12 @@ void MonitoringAgent::monitoringLoop( MonitoringAgent* _agent ) {
 
 void MonitoringAgent::registerMonitor( const ptr< LivelinessMonitor >& _m ) {
     CHECK_ARGUMENT( _m )
-    LOCK( m )
+    LOCK( monitorsMutex )
     activeMonitors[_m->getId()] = _m;
 }
 
 void MonitoringAgent::unregisterMonitor( uint64_t _id ) {
-    LOCK( m )
-
+    LOCK( monitorsMutex )
     activeMonitors.erase( _id );
 }
 
