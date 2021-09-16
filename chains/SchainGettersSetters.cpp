@@ -181,7 +181,7 @@ uint64_t Schain::getTotalTransactions() const {
 }
 
 TimeStamp  Schain::getLastCommittedBlockTimeStamp() {
-    LOCK(lastCommittedBlockInfoMutex);
+    lock_guard<mutex> l(lastCommittedBlockInfoMutex);
     return lastCommittedBlockTimeStamp;
 }
 
@@ -273,7 +273,7 @@ uint64_t Schain::getLastCommitTimeMs() {
 void Schain::initLastCommittedBlockInfo( uint64_t _lastCommittedBlockID,
                                            TimeStamp& _lastCommittedBlockTimeStamp ){
 
-    LOCK(lastCommittedBlockInfoMutex);
+    lock_guard<mutex> l(lastCommittedBlockInfoMutex);
     lastCommittedBlockID = _lastCommittedBlockID;
     lastCommittedBlockTimeStamp = _lastCommittedBlockTimeStamp;
     lastCommitTimeMs = Time::getCurrentTimeMs();
@@ -284,14 +284,14 @@ void Schain::initLastCommittedBlockInfo( uint64_t _lastCommittedBlockID,
 void Schain::updateLastCommittedBlockInfo( uint64_t _lastCommittedBlockID,
                                    TimeStamp& _lastCommittedBlockTimeStamp,
                                    uint64_t _blockSize){
-    LOCK(lastCommittedBlockInfoMutex);
+    lock_guard<mutex> lock(lastCommittedBlockInfoMutex);
     CHECK_STATE(
                 _lastCommittedBlockID == lastCommittedBlockID + 1)
     if (_lastCommittedBlockTimeStamp < _lastCommittedBlockTimeStamp) {
         LOG(err, "TimeStamp in the past:"+ lastCommittedBlockTimeStamp.toString() +
             ":"+ _lastCommittedBlockTimeStamp.toString());
     }
-    CHECK_STATE(getLastCommittedBlockTimeStamp() < _lastCommittedBlockTimeStamp);
+    CHECK_STATE(lastCommittedBlockTimeStamp < _lastCommittedBlockTimeStamp);
     auto currentTime = Time::getCurrentTimeMs();
     CHECK_STATE(currentTime >= lastCommitTimeMs);
 
@@ -303,9 +303,7 @@ void Schain::updateLastCommittedBlockInfo( uint64_t _lastCommittedBlockID,
     blockTimeAverageMs = (currentTime - this->startTimeMs) / (_lastCommittedBlockID - this->bootstrapBlockID);
     if (blockTimeAverageMs == 0)
         blockTimeAverageMs = 1;
-
     tpsAverage = (blockSizeAverage * 1000 ) / blockTimeAverageMs;
-
 }
 
 

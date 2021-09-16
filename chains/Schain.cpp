@@ -112,7 +112,7 @@ void Schain::postMessage( const ptr< MessageEnvelope >& _me ) {
 
     CHECK_STATE( ( uint64_t ) _me->getMessage()->getBlockId() != 0 );
     {
-        lock_guard< mutex > lock( messageMutex );
+        lock_guard< mutex > l( messageMutex );
         messageQueue.push( _me );
         messageCond.notify_all();
     }
@@ -270,6 +270,14 @@ void Schain::constructChildAgents() {
 }
 
 
+
+void Schain::checkForDeadLock(const char*  _functionName) {
+    while (!blockProcessMutex.try_lock_for(chrono::seconds(60))) {
+        LOG(err, "Deadlock detected in " + string(_functionName));
+    }
+}
+
+
 [[nodiscard]] uint64_t Schain::blockCommitsArrivedThroughCatchup( const ptr< CommittedBlockList >& _blockList ) {
     CHECK_ARGUMENT( _blockList );
 
@@ -281,7 +289,9 @@ void Schain::constructChildAgents() {
         return 0;
     }
 
-    LOCK( m )
+
+    checkForDeadLock(__FUNCTION__);
+    lock_guard<recursive_timed_mutex> l( blockProcessMutex );
 
     bumpPriority();
 
@@ -321,7 +331,8 @@ void Schain::blockCommitArrived( block_id _committedBlockID, schain_index _propo
 
     checkForExit();
 
-    LOCK( m )
+    checkForDeadLock(__FUNCTION__);
+    lock_guard<recursive_timed_mutex> l( blockProcessMutex );
 
     if ( _committedBlockID <= getLastCommittedBlockID() )
         return;
@@ -355,9 +366,6 @@ void Schain::blockCommitArrived( block_id _committedBlockID, schain_index _propo
         unbumpPriority();
 
 
-
-
-
     } catch ( ExitRequestedException& e ) {
         throw;
     } catch ( ... ) {
@@ -374,7 +382,6 @@ void Schain::checkForExit() {
 
 void Schain::proposeNextBlock() {
     MONITOR2( __CLASS_NAME__, __FUNCTION__, getMaxExternalBlockProcessingTime() )
-
 
     checkForExit();
     try {
@@ -462,75 +469,81 @@ void Schain::saveToVisualization( ptr< CommittedBlock > _block, uint64_t _visual
        Schain::writeToVisualizationStream(info);
 }
 
+void Schain::printBlockLog(const ptr< CommittedBlock >& _block) {
+    CHECK_STATE(_block);
+
+    MONITOR2( __CLASS_NAME__, __FUNCTION__, getMaxExternalBlockProcessingTime() )
+
+    totalTransactions += _block->getTransactionList()->size();
+
+    auto h = _block->getHash().toHex().substr( 0, 8 );
+
+    auto stamp = TimeStamp( _block->getTimeStampS(), _block->getTimeStampMs() );
+
+    LOG(info,
+        "BLOCK_COMMIT: PRPSR:" + to_string(_block->getProposerIndex()) +
+        ":BID: " + to_string(_block->getBlockID()) +
+        ":ROOT:" + _block->getStateRoot().convert_to<string>() + ":HASH:" + h +
+        ":BLOCK_TXS:" + to_string(_block->getTransactionCount()) +
+        ":DMSG:" + to_string(getMessagesCount()) +
+        ":MPRPS:" + to_string(MyBlockProposal::getTotalObjects()) +
+        ":RPRPS:" + to_string(ReceivedBlockProposal::getTotalObjects()) +
+        ":TXS:" + to_string(Transaction::getTotalObjects()) +
+        ":TXLS:" + to_string(TransactionList::getTotalObjects()) +
+        ":KNWN:" + to_string(pendingTransactionsAgent->getKnownTransactionsSize()) +
+        ":MGS:" + to_string(Message::getTotalObjects()) +
+        ":INSTS:" + to_string(ProtocolInstance::getTotalObjects()) +
+        ":BPS:" + to_string(BlockProposalSet::getTotalObjects()) +
+        ":HDRS:" + to_string(Header::getTotalObjects()) +
+        ":SOCK:" + to_string(ClientSocket::getTotalSockets()) +
+        ":CONS:" + to_string(ServerConnection::getTotalObjects()) + ":DSDS:" +
+        to_string(getSchain()->getNode()->getNetwork()->computeTotalDelayedSends()) +
+        ":FDS:" + to_string(ConsensusEngine::getOpenDescriptors()) + ":PRT:" +
+        to_string(proposalReceiptTime) + ":BTA:" + to_string(blockTimeAverageMs) +
+        ":BSA:" + to_string(blockSizeAverage) + ":TPS:" + to_string(tpsAverage) +
+        ":LWT:" + to_string(CacheLevelDB::getWriteStats()) +
+        ":LRT:" + to_string(CacheLevelDB::getReadStats()) +
+        ":LWC:" + to_string(CacheLevelDB::getWrites()) +
+        ":LRC:" + to_string(CacheLevelDB::getReads()) +
+        ":SET:" + to_string(CryptoManager::getEcdsaStats()) +
+        ":SBT:" + to_string(CryptoManager::getBLSStats()) +
+        ":SEC:" + to_string(CryptoManager::getECDSATotals()) +
+        ":SBC:" + to_string(CryptoManager::getBLSTotals()) +
+        ":ZSC:" + to_string(getCryptoManager()->getZMQSocketCount()) +
+        ":STAMP:" + stamp.toString());
+
+    //get malloc stats
+    static atomic<uint64_t> mallocCounter = 0;
+    if (mallocCounter % 1000 == 0) {
+        char *bp = nullptr;
+        size_t size = 0;
+        FILE *stream = open_memstream(&bp, &size);
+        CHECK_STATE(stream);;
+        CHECK_STATE(malloc_info(0, stream) == 0);
+        fclose(stream);
+        CHECK_STATE(bp);
+        LOG(info, bp);
+        free(bp);
+    }
+    mallocCounter.fetch_add(1);
+}
+
 void Schain::processCommittedBlock( const ptr< CommittedBlock >& _block ) {
     CHECK_ARGUMENT( _block );
+    // process committed block needs to be called why holding main mutex
+
     MONITOR2( __CLASS_NAME__, __FUNCTION__, getMaxExternalBlockProcessingTime() )
 
     checkForExit();
-
 
     if (getSchain()->getNode()->getVisualizationType() > 0) {
         saveToVisualization( _block, getSchain()->getNode()->getVisualizationType());
     }
 
-
-    LOCK( m )
-
     try {
         CHECK_STATE( getLastCommittedBlockID() + 1 == _block->getBlockID() )
 
-        totalTransactions += _block->getTransactionList()->size();
-
-        auto h = _block->getHash().toHex().substr( 0, 8 );
-
-        auto stamp = TimeStamp( _block->getTimeStampS(), _block->getTimeStampMs() );
-
-        LOG( info,
-            "BLOCK_COMMIT: PRPSR:" + to_string( _block->getProposerIndex() ) +
-                ":BID: " + to_string( _block->getBlockID() ) +
-                ":ROOT:" + _block->getStateRoot().convert_to< string >() + ":HASH:" + h +
-                ":BLOCK_TXS:" + to_string( _block->getTransactionCount() ) +
-                ":DMSG:" + to_string( getMessagesCount() ) +
-                ":MPRPS:" + to_string( MyBlockProposal::getTotalObjects() ) +
-                ":RPRPS:" + to_string( ReceivedBlockProposal::getTotalObjects() ) +
-                ":TXS:" + to_string( Transaction::getTotalObjects() ) +
-                ":TXLS:" + to_string( TransactionList::getTotalObjects() ) +
-                ":KNWN:" + to_string( pendingTransactionsAgent->getKnownTransactionsSize() ) +
-                ":MGS:" + to_string( Message::getTotalObjects() ) +
-                ":INSTS:" + to_string( ProtocolInstance::getTotalObjects() ) +
-                ":BPS:" + to_string( BlockProposalSet::getTotalObjects() ) +
-                ":HDRS:" + to_string( Header::getTotalObjects() ) +
-                ":SOCK:" + to_string( ClientSocket::getTotalSockets() ) +
-                ":CONS:" + to_string( ServerConnection::getTotalObjects() ) + ":DSDS:" +
-                to_string( getSchain()->getNode()->getNetwork()->computeTotalDelayedSends() ) +
-                ":FDS:" + to_string( ConsensusEngine::getOpenDescriptors() ) + ":PRT:" +
-                to_string( proposalReceiptTime ) + ":BTA:" + to_string( blockTimeAverageMs ) +
-                ":BSA:" + to_string( blockSizeAverage ) + ":TPS:" + to_string( tpsAverage ) +
-                ":LWT:" + to_string( CacheLevelDB::getWriteStats() ) +
-                ":LRT:" + to_string( CacheLevelDB::getReadStats() ) +
-                ":LWC:" + to_string( CacheLevelDB::getWrites() ) +
-                ":LRC:" + to_string( CacheLevelDB::getReads() ) +
-                ":SET:" + to_string( CryptoManager::getEcdsaStats() ) +
-                ":SBT:" + to_string( CryptoManager::getBLSStats() ) +
-                ":SEC:" + to_string( CryptoManager::getECDSATotals() ) +
-                ":SBC:" + to_string( CryptoManager::getBLSTotals() ) +
-                ":ZSC:" + to_string(getCryptoManager()->getZMQSocketCount()) +
-                ":STAMP:" + stamp.toString() );
-
-        //get malloc stats
-        static atomic<uint64_t> mallocCounter = 0;
-        if (mallocCounter % 1000 == 0) {
-            char *bp = nullptr;
-            size_t size = 0;
-            FILE* stream = open_memstream (&bp, &size);
-            CHECK_STATE(stream);;
-            CHECK_STATE(malloc_info(0, stream) == 0);
-            fclose(stream);
-            CHECK_STATE(bp);
-            LOG(info, bp);
-            free(bp);
-        }
-        mallocCounter.fetch_add(1);
+        printBlockLog(_block);
 
         proposalReceiptTime = 0;
 
@@ -539,6 +552,8 @@ void Schain::processCommittedBlock( const ptr< CommittedBlock >& _block ) {
         saveBlock( _block );
 
         pushBlockToExtFace( _block );
+
+        auto stamp = TimeStamp( _block->getTimeStampS(), _block->getTimeStampMs() );
 
         updateLastCommittedBlockInfo(
             ( uint64_t ) _block->getBlockID(), stamp, _block->getTransactionList()->size() );
@@ -901,9 +916,16 @@ void Schain::constructServers( const ptr< Sockets >& _sockets ) {
 }
 
 ptr< BlockProposal > Schain::createDefaultEmptyBlockProposal( block_id _blockId ) {
-    LOCK( lastCommittedBlockInfoMutex );
 
-    auto newStamp = getLastCommittedBlockTimeStamp().incrementByMs();
+
+    TimeStamp newStamp;
+
+    {
+
+
+        lock_guard<mutex> l(lastCommittedBlockInfoMutex);
+        newStamp = lastCommittedBlockTimeStamp.incrementByMs();
+    }
 
     return make_shared< ReceivedBlockProposal >(
         *this, _blockId, newStamp.getS(), newStamp.getMs(), 0 );
@@ -1033,7 +1055,7 @@ void Schain::addDeadNode( uint64_t _schainIndex, uint64_t _checkTime ) {
     CHECK_STATE( _schainIndex > 0 );
     CHECK_STATE( _schainIndex <= getNodeCount() );
     {
-        LOCK( deadNodesLock )
+        lock_guard<mutex> l( deadNodesLock );
         if ( deadNodes.count( _schainIndex ) == 0 ) {
             deadNodes.insert( { _schainIndex, _checkTime } );
         }
@@ -1044,7 +1066,7 @@ void Schain::markAliveNode( uint64_t _schainIndex ) {
     CHECK_STATE( _schainIndex > 0 );
     CHECK_STATE( _schainIndex <= getNodeCount() );
     {
-        LOCK( deadNodesLock )
+        lock_guard<mutex> l( deadNodesLock );
         if ( deadNodes.count( _schainIndex ) > 0 ) {
             deadNodes.erase( _schainIndex );
         }
@@ -1055,7 +1077,7 @@ uint64_t Schain::getDeathTime( uint64_t _schainIndex ) {
     CHECK_STATE( _schainIndex > 0 );
     CHECK_STATE( _schainIndex <= getNodeCount() );
     {
-        LOCK( deadNodesLock )
+        lock_guard<mutex> l( deadNodesLock );
         if ( deadNodes.count( _schainIndex ) == 0 ) {
             return 0;
         } else {
@@ -1065,7 +1087,7 @@ uint64_t Schain::getDeathTime( uint64_t _schainIndex ) {
 }
 
 ptr< ofstream > Schain::getVisualizationDataStream() {
-    LOCK(vdsMutex)
+    lock_guard<mutex> l(vdsMutex);
     if (!visualizationDataStream) {
         visualizationDataStream = make_shared<ofstream>();
         visualizationDataStream->exceptions(std::ofstream::badbit | std::ofstream::failbit);
@@ -1077,11 +1099,11 @@ ptr< ofstream > Schain::getVisualizationDataStream() {
 }
 
 void Schain::writeToVisualizationStream(string& _s) {
-    LOCK(vdsMutex)
+    lock_guard<mutex> l(vdsMutex);
     auto stream = getVisualizationDataStream();
     stream->write(_s.c_str(), _s.size());
 }
 
 ptr<ofstream> Schain::visualizationDataStream = nullptr;
 
-recursive_mutex Schain::vdsMutex;
+mutex Schain::vdsMutex;

@@ -30,6 +30,7 @@ class LivelinessMonitor;
 class MonitoringAgent : public Agent  {
 
     map<uint64_t, weak_ptr<LivelinessMonitor>> activeMonitors; // tsafe
+    recursive_mutex monitorsMutex;
 
     ptr< MonitoringThreadPool > monitoringThreadPool = nullptr;
 
