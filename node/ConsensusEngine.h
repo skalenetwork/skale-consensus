@@ -217,7 +217,7 @@ public:
 
     // used for standalone debugging
 
-    void parseTestConfigsAndCreateAllNodes( const fs_path& dirname );
+    void parseTestConfigsAndCreateAllNodes( const fs_path& dirname, bool _useBlockIDFromConsensus = false) ;
 
     void exitGracefullyBlocking();
 

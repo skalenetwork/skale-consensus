@@ -53,11 +53,13 @@ class CacheLevelDB {
     static atomic<uint64_t> readCounter;
     static atomic<uint64_t> writeCounter;
 
+    shared_timed_mutex m;
+
 protected:
 
     vector< ptr< leveldb::DB > > db;
     uint64_t highestDBIndex = 0;
-    shared_timed_mutex m;
+
 
     node_id nodeId = 0;
     string prefix;
