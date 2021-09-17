@@ -250,20 +250,17 @@ Schain::Schain( weak_ptr< Node > _node, schain_index _schainIndex, const schain_
 }
 
 
+// called from constructor so no locks needed
 void Schain::constructChildAgents() {
     MONITOR( __CLASS_NAME__, __FUNCTION__ )
 
     try {
-        LOCK( m )
         pendingTransactionsAgent = make_shared< PendingTransactionsAgent >( *this );
         blockProposalClient = make_shared< BlockProposalClientAgent >( *this );
         catchupClientAgent = make_shared< CatchupClientAgent >( *this );
-
-
         testMessageGeneratorAgent = make_shared< TestMessageGeneratorAgent >( *this );
         pricingAgent = make_shared< PricingAgent >( *this );
         cryptoManager = make_shared< CryptoManager >( *this );
-
     } catch ( ... ) {
         throw_with_nested( FatalError( __FUNCTION__, __CLASS_NAME__ ) );
     }
@@ -736,7 +733,8 @@ block_id Schain::readLastCommittedBlockIDFromDb() {
 void Schain::bootstrap( block_id _lastCommittedBlockID, uint64_t _lastCommittedBlockTimeStamp,
     uint64_t _lastCommittedBlockTimeStampMs ) {
 
-    LOCK( m )
+    // should be called only once
+    CHECK_STATE(!bootStrapped.exchange(true));
 
     LOG( info, "Bootstrapping consensus ..." );
 
@@ -793,8 +791,6 @@ void Schain::bootstrap( block_id _lastCommittedBlockID, uint64_t _lastCommittedB
     // Step 2 : Bootstrap
 
     try {
-        CHECK_STATE( !bootStrapped );
-        bootStrapped = true;
         bootstrapBlockID =  ( uint64_t ) _lastCommittedBlockID;
         CHECK_STATE( _lastCommittedBlockTimeStamp < ( uint64_t ) 2 * MODERN_TIME );
 

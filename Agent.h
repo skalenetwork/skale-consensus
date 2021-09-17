@@ -47,8 +47,6 @@ protected:
 
     Schain* sChain = nullptr;
 
-    recursive_mutex m;
-
     map<schain_index, uint64_t> lastConnectionRefusedLogTime; // tsafe
     recursive_mutex lastConnectionRefusedLogTimeLock;
 
@@ -68,8 +66,6 @@ public:
     Schain* getSchain() const;
 
     void waitOnGlobalStartBarrier();
-    
-    recursive_mutex& getMainMutex() { return m; }
 
     void logConnectionRefused(ConnectionRefusedException &_e, schain_index _index);
 
