@@ -112,7 +112,8 @@ Schain *CacheLevelDB::getSchain() const {
 }
 
 string CacheLevelDB::readString(string &_key) {
-    shared_lock<shared_mutex> lock(m);
+    checkForDeadLockRead(__FUNCTION__ );
+    shared_lock<shared_timed_mutex> lock(m);
     return readStringUnsafe(_key);
 }
 
@@ -157,12 +158,25 @@ bool CacheLevelDB::keyExistsUnsafe(const string &_key) {
 }
 
 bool CacheLevelDB::keyExists(const string &_key) {
-
-    shared_lock<shared_mutex> lock(m);
-
+    checkForDeadLockRead(__FUNCTION__ );
+    shared_lock<shared_timed_mutex> lock(m);
     return keyExistsUnsafe(_key);
 }
 
+
+void CacheLevelDB::checkForDeadLock(const char*  _functionName) {
+    while (!m.try_lock_for(chrono::seconds(60))) {
+        LOG(err, "Deadlock detected in " + string(_functionName));
+    }
+    m.unlock();
+}
+
+void CacheLevelDB::checkForDeadLockRead(const char*  _functionName) {
+    while (!m.try_lock_shared_for(chrono::seconds(60))) {
+        LOG(err, "Deadlock detected in " + string(_functionName));
+    }
+    m.unlock_shared();
+}
 
 void CacheLevelDB::writeString(const string &_key, const string &_value,
                                bool _overWrite) {
@@ -177,7 +191,10 @@ void CacheLevelDB::writeString(const string &_key, const string &_value,
 
 
     {
-        lock_guard<shared_mutex> lock(m);
+
+
+        checkForDeadLock(__FUNCTION__);
+        lock_guard<shared_timed_mutex> lock(m);
 
         if ((!_overWrite) && keyExistsUnsafe(_key))
         {
@@ -211,7 +228,8 @@ void CacheLevelDB::writeByteArray(const char *_key, size_t _keyLen, const char *
 
 
     {
-        lock_guard<shared_mutex> lock(m);
+        checkForDeadLock(__FUNCTION__);
+        lock_guard<shared_timed_mutex> lock(m);
 
         if (keyExistsUnsafe(string(_key))) {
             LOG(trace, "Double entry written to db");
@@ -243,7 +261,8 @@ void CacheLevelDB::writeByteArray(string &_key, const ptr<vector<uint8_t>>& _dat
     auto valueLen = _data->size();
 
     {
-        lock_guard<shared_mutex> lock(m);
+        checkForDeadLock(__FUNCTION__ );
+        lock_guard<shared_timed_mutex> lock(m);
         auto status = db.back()->Put(writeOptions, Slice(_key), Slice(value, valueLen));
         throwExceptionOnError(status);
     }
@@ -269,7 +288,8 @@ ptr<map<string, string>> CacheLevelDB::readPrefixRange(string &_prefix) {
 
     ptr<map<string, string>> result = nullptr;
 
-    shared_lock<shared_mutex> lock(m);
+    checkForDeadLockRead(__FUNCTION__ );
+    shared_lock<shared_timed_mutex> lock(m);
 
     for (int i = LEVELDB_SHARDS - 1; i >= 0; i--) {
         CHECK_STATE(db.at(i))
@@ -319,7 +339,8 @@ uint64_t CacheLevelDB::visitKeys(CacheLevelDB::KeyVisitor *_visitor, uint64_t _m
 
     CHECK_ARGUMENT(_visitor)
 
-    shared_lock<shared_mutex> lock(m);
+    checkForDeadLockRead(__FUNCTION__ );
+    shared_lock<shared_timed_mutex> lock(m);
 
     uint64_t readC = 0;
 
@@ -487,7 +508,8 @@ void CacheLevelDB::rotateDBsIfNeeded() {
         if (getActiveDBSize() <= maxDBSize)
             return;
         {
-            lock_guard<shared_mutex> lock(m);
+            checkForDeadLock(__FUNCTION__ );
+            lock_guard<shared_timed_mutex> lock(m);
 
             if (getActiveDBSize() <= maxDBSize)
                 return;
@@ -571,8 +593,8 @@ CacheLevelDB::writeStringToSet(const string &_value, block_id _blockId, schain_i
 ptr<map<schain_index, string>>
 CacheLevelDB::readSet(block_id _blockId) {
 
-
-    shared_lock<shared_mutex> lock(m);
+    checkForDeadLockRead(__FUNCTION__ );
+    shared_lock<shared_timed_mutex> lock(m);
 
     return readSetUnsafe(_blockId);
 
@@ -588,7 +610,8 @@ CacheLevelDB::writeByteArrayToSet(const char *_value, uint64_t _valueLen, block_
 
     {
 
-        lock_guard<shared_mutex> lock(m);
+        checkForDeadLock(__FUNCTION__);
+        lock_guard<shared_timed_mutex> lock(m);
 
         return writeByteArrayToSetUnsafe(_value, _valueLen, _blockId, _index);
 
@@ -756,7 +779,9 @@ uint64_t CacheLevelDB::getWriteStats() {
     return readTimeTotal;
 }
 void CacheLevelDB::destroy() {
-    lock_guard<shared_mutex> lock(m);
+
+    checkForDeadLock(__FUNCTION__);
+    lock_guard<shared_timed_mutex> lock(m);
 
     for (int i = LEVELDB_SHARDS - 1; i >= 0; i--) {
         CHECK_STATE(db.at(i))

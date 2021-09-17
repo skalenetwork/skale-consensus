@@ -273,8 +273,12 @@ void Schain::constructChildAgents() {
 
 void Schain::checkForDeadLock(const char*  _functionName) {
     while (!blockProcessMutex.try_lock_for(chrono::seconds(60))) {
+        if (getNode()->isExitRequested())
+            break;
         LOG(err, "Deadlock detected in " + string(_functionName));
     }
+    blockProcessMutex.unlock();
+    checkForExit();
 }
 
 
@@ -291,7 +295,7 @@ void Schain::checkForDeadLock(const char*  _functionName) {
 
 
     checkForDeadLock(__FUNCTION__);
-    lock_guard<recursive_timed_mutex> l( blockProcessMutex );
+    lock_guard<timed_mutex> l( blockProcessMutex );
 
     bumpPriority();
 
@@ -332,7 +336,7 @@ void Schain::blockCommitArrived( block_id _committedBlockID, schain_index _propo
     checkForExit();
 
     checkForDeadLock(__FUNCTION__);
-    lock_guard<recursive_timed_mutex> l( blockProcessMutex );
+    lock_guard<timed_mutex> l( blockProcessMutex );
 
     if ( _committedBlockID <= getLastCommittedBlockID() )
         return;

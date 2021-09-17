@@ -84,7 +84,7 @@ class Schain : public Agent {
 
     queue< ptr< MessageEnvelope > > messageQueue;
 
-    recursive_timed_mutex blockProcessMutex;
+    timed_mutex blockProcessMutex;
 
     bool bootStrapped = false;
     bool startingFromCorruptState = false;
