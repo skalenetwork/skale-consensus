@@ -28,6 +28,8 @@
 #include "SkaleCommon.h"
 #include "thirdparty/lrucache.hpp"
 
+
+
 class Schain;
 
 namespace leveldb {
@@ -55,7 +57,7 @@ protected:
 
     vector< ptr< leveldb::DB > > db;
     uint64_t highestDBIndex = 0;
-    shared_mutex m;
+    shared_timed_mutex m;
 
     node_id nodeId = 0;
     string prefix;
@@ -166,6 +168,9 @@ public:
     }
 
 
+    void checkForDeadLock(const char *_functionName);
+
+    void checkForDeadLockRead(const char *_functionName);
 };
 
 

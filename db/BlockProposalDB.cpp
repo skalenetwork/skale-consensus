@@ -134,6 +134,8 @@ BlockProposalDB::getMyProposalFromLevelDB(block_id _blockID, schain_index _propo
 
 ptr<BlockProposal> BlockProposalDB::getBlockProposal(block_id _blockID, schain_index _proposerIndex) {
 
+    MONITOR( __CLASS_NAME__, __FUNCTION__)
+
     auto key = createKey(_blockID, _proposerIndex);
     CHECK_STATE(!key.empty());
 

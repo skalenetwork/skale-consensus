@@ -40,12 +40,12 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/chains/Schain.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/chains/Schain.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/chains/Schain.h" beforeDir="false" afterPath="$PROJECT_DIR$/chains/Schain.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chains/SchainGettersSetters.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/chains/SchainGettersSetters.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/BlockProposalDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/BlockProposalDB.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/CacheLevelDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/CacheLevelDB.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/CacheLevelDB.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/CacheLevelDB.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/deps/zlib/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/deps/zlib/Makefile" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/deps/zlib/zconf.h" beforeDir="false" afterPath="$PROJECT_DIR$/deps/zlib/zconf.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libBLS/deps/libff/depends/xbyak" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/deps/libff/depends/xbyak" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/monitoring/MonitoringAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/monitoring/MonitoringAgent.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/monitoring/MonitoringAgent.h" beforeDir="false" afterPath="$PROJECT_DIR$/monitoring/MonitoringAgent.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -248,9 +248,6 @@
       </method>
     </configuration>
     <configuration name="consensust" type="CMakeRunConfiguration" factoryName="Application" singleton="false" PROGRAM_PARAMS="[consensus-basic]" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" WORKING_DIR="file://$PROJECT_DIR$/test/three_out_of_four" PASS_PARENT_ENVS_2="true" PROJECT_NAME="consensus" TARGET_NAME="consensus" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="consensus" RUN_TARGET_NAME="consensust">
-      <envs>
-        <env name="TEST_TIME_S" value="10000000" />
-      </envs>
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
@@ -755,7 +752,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
           <url>file://$PROJECT_DIR$/db/CacheLevelDB.cpp</url>
-          <line>495</line>
+          <line>517</line>
           <option name="timeStamp" value="28" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
