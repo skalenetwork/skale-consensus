@@ -90,7 +90,6 @@ void BinConsensusInstance::processMessage(const ptr<MessageEnvelope>& _me ) {
     }
 }
 
-
 void BinConsensusInstance::ifAlreadyDecidedSendDelayedEstimateForNextRound(bin_consensus_round _round) {
     if (isDecided && _round == getCurrentRound() + 1 && isTwoThird(totalAUXVotes(getCurrentRound()))) {
         LOG(debug,
