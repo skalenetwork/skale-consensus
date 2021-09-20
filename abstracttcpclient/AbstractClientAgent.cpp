@@ -122,8 +122,6 @@ void AbstractClientAgent::enqueueItemImpl( const ptr< SendableItem >& _item ) {
                 dynamic_pointer_cast<BlockProposal>(_item));
 
 
-    LOCK( m )
-
     for ( uint64_t i = 1; i <= ( uint64_t ) getSchain()->getNodeCount(); i++ ) {
         {
             lock_guard< std::mutex > lock( *queueMutex[schain_index( i )] );

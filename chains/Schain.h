@@ -86,7 +86,7 @@ class Schain : public Agent {
 
     timed_mutex blockProcessMutex;
 
-    bool bootStrapped = false;
+    atomic_bool bootStrapped = false;
     bool startingFromCorruptState = false;
 
     atomic< uint64_t > totalTransactions;
