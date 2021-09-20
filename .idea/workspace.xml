@@ -37,6 +37,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ec15c893-7f20-4493-be40-38b8f69efc54" name="Default Changelist" comment="bug/SKALE-4275-test-eth-fails">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Agent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Agent.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Agent.h" beforeDir="false" afterPath="$PROJECT_DIR$/Agent.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/abstracttcpclient/AbstractClientAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/abstracttcpclient/AbstractClientAgent.cpp" afterDir="false" />
@@ -63,7 +64,7 @@
     </option>
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="bug/3-out-of-four" />
+        <entry key="$PROJECT_DIR$" value="eb10e82bb2ed0188e9a92e8a58c762a11d6013e8" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -359,6 +360,13 @@
       <workItem from="1631613403904" duration="2725000" />
       <workItem from="1631699230594" duration="12654000" />
       <workItem from="1631801800844" duration="3900000" />
+    </task>
+    <task id="LOCAL-00029" summary="task/SKALE-4386-save-visualization">
+      <created>1625830863815</created>
+      <option name="number" value="00029" />
+      <option name="presentableId" value="LOCAL-00029" />
+      <option name="project" value="LOCAL" />
+      <updated>1625830863815</updated>
     </task>
     <task id="LOCAL-00030" summary="task/SKALE-4386-save-visualization">
       <created>1625832907414</created>
@@ -689,6 +697,14 @@
       <option name="project" value="LOCAL" />
       <updated>1631720350116</updated>
     </task>
+    <task id="LOCAL-00077" summary="bug/SKALE-4591">
+      <created>1632138379153</created>
+      <option name="number" value="00077" />
+      <option name="presentableId" value="LOCAL-00077" />
+      <option name="project" value="LOCAL" />
+      <updated>1632138379153</updated>
+    </task>
+    <option name="localTasksCounter" value="78" />
     <task id="LOCAL-00077" summary="bug/SKALE-4285-deadlock-detection">
       <created>1631886698073</created>
       <option name="number" value="00077" />
@@ -734,6 +750,8 @@
     <MESSAGE value="bug/SKALE-4275-test-eth-fails" />
     <MESSAGE value="bug/SKALE-4577-fix-test-running-time" />
     <MESSAGE value="bug/SKALE-4577" />
+    <MESSAGE value="bug/SKALE-4591" />
+    <option name="LAST_COMMIT_MESSAGE" value="bug/SKALE-4591" />
     <MESSAGE value="bug/SKALE-4285-deadlock-detection" />
     <option name="LAST_COMMIT_MESSAGE" value="bug/SKALE-4285-deadlock-detection" />
   </component>

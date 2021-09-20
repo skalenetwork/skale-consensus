@@ -18,7 +18,7 @@
 
     @file BlockConsensusAgent.cpp
     @author Stan Kladko
-    @date 2018
+    @date 2018-
 */
 
 #include "SkaleCommon.h"
@@ -140,7 +140,7 @@ void BlockConsensusAgent::propose(bin_consensus_value _proposal, schain_index _i
 
         CHECK_STATE(id != 0);
 
-        child->processParentProposal(make_shared<InternalMessageEnvelope>(ORIGIN_PARENT, msg, *getSchain()));
+        child->processMessage(make_shared<InternalMessageEnvelope>(ORIGIN_PARENT, msg, *getSchain()));
 
     } catch (ExitRequestedException &) { throw; } catch (...) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));

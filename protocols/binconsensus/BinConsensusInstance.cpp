@@ -90,7 +90,6 @@ void BinConsensusInstance::processMessage(const ptr<MessageEnvelope>& _me ) {
     }
 }
 
-
 void BinConsensusInstance::ifAlreadyDecidedSendDelayedEstimateForNextRound(bin_consensus_round _round) {
     if (isDecided && _round == getCurrentRound() + 1 && isTwoThird(totalAUXVotes(getCurrentRound()))) {
         LOG(debug,
@@ -114,14 +113,20 @@ void BinConsensusInstance::processNetworkMessageImpl(const ptr<NetworkMessageEnv
     if (_me->getMessage()->getMessageType() == MSG_BVB_BROADCAST) {
         auto m = dynamic_pointer_cast<BVBroadcastMessage>(_me->getMessage());
         CHECK_STATE(m);
-        bvbVote(_me);
+        if (! bvbVote(_me)) {
+            // duplicate vote
+            return;
+        }
         networkBroadcastValueIfThird(m);
         ifAlreadyDecidedSendDelayedEstimateForNextRound(m->getRound());
         commitValueIfTwoThirds(m);
     } else if (_me->getMessage()->getMessageType() == MSG_AUX_BROADCAST) {
         auto m = dynamic_pointer_cast<AUXBroadcastMessage>(_me->getMessage());
         CHECK_STATE(m);
-        auxVote(_me);
+        if (!auxVote(_me)) {
+            // duplicatr vote
+            return;
+        }
         if (m->getRound() == getCurrentRound())
             proceedWithCommonCoinIfAUXTwoThird(m->getRound());
     }
@@ -230,7 +235,7 @@ void BinConsensusInstance::addCommonCoinToHistory(bin_consensus_round _r, bin_co
 }
 
 
-void BinConsensusInstance::bvbVote(const ptr<MessageEnvelope>& _me) {
+[[nodiscard]] bool BinConsensusInstance::bvbVote(const ptr<MessageEnvelope>& _me) {
 
     auto m = dynamic_pointer_cast<BVBroadcastMessage>(_me->getMessage());
     CHECK_STATE(m);
@@ -244,14 +249,14 @@ void BinConsensusInstance::bvbVote(const ptr<MessageEnvelope>& _me) {
 
 
     if (v) {
-        bvbTrueVotes[r].insert(index);
+        return bvbTrueVotes[r].insert(index).second;
     } else {
-        bvbFalseVotes[r].insert(index);
+        return bvbFalseVotes[r].insert(index).second;
     }
 }
 
 
-void BinConsensusInstance::auxVote(const ptr<MessageEnvelope>& _me) {
+[[nodiscard]] bool BinConsensusInstance::auxVote(const ptr<MessageEnvelope>& _me) {
     auto m = dynamic_pointer_cast<AUXBroadcastMessage>(_me->getMessage());
     auto r = m->getRound();
     bin_consensus_value v = m->getValue();
@@ -259,22 +264,16 @@ void BinConsensusInstance::auxVote(const ptr<MessageEnvelope>& _me) {
     auto index = _me->getSrcNodeInfo()->getSchainIndex();
 
 
+    ptr<ThresholdSigShare> sigShare = nullptr;
 
+    if (r >= COMMON_COIN_ROUND) {
+        sigShare = m->getSigShare();
+    }
 
     if (v) {
-        if (r >= COMMON_COIN_ROUND) {
-            auto sigShare = m->getSigShare();
-            auxTrueVotes[r][index] = sigShare;
-        } else {
-            auxTrueVotes[r][index] = nullptr;
-        }
+            return auxTrueVotes[r].insert({index, sigShare}).second;
     } else {
-        if (r >= COMMON_COIN_ROUND) {
-            auto sigShare = m->getSigShare();
-            auxFalseVotes[r][index] = sigShare;
-        } else {
-            auxFalseVotes[r][index] = nullptr;
-        }
+            return auxFalseVotes[r].insert({index, sigShare}).second;
     }
 }
 
@@ -509,7 +508,10 @@ void BinConsensusInstance::proceedWithNewRound(bin_consensus_value _value) {
     networkBroadcastValue(m);
 
     addBVSelfVoteToHistory(m->getRound(), m->getValue());
-    bvbVote(me);
+    if (!bvbVote(me)) {
+        // duplicate vote
+        return;
+    }
 
     commitValueIfTwoThirds(m);
 
