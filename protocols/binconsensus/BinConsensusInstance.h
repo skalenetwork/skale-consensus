@@ -18,7 +18,7 @@
 
     @file BinConsensusInstance.h
     @author Stan Kladko
-    @date 2018
+    @date 2018=
 */
 
 #pragma  once
@@ -126,9 +126,9 @@ class BinConsensusInstance : public ProtocolInstance{
 
     void commitValueIfTwoThirds(const ptr<BVBroadcastMessage>& _m);
 
-    void bvbVote(const ptr<MessageEnvelope>& _me);
+    bool bvbVote(const ptr<MessageEnvelope>& _me);
 
-    void auxVote(const ptr<MessageEnvelope>& _me);
+    bool auxVote(const ptr<MessageEnvelope>& _me);
 
 
     node_count getBVBVoteCount(bin_consensus_value _v, bin_consensus_round _round);
@@ -189,7 +189,23 @@ class BinConsensusInstance : public ProtocolInstance{
 
     void updateStats(const ptr<NetworkMessageEnvelope> &_me);
 
+
+    void processParentProposal(const ptr<InternalMessageEnvelope>& _me);
+
 public:
+
+    void processMessage(const ptr<MessageEnvelope>& _me );
+
+    BinConsensusInstance(BlockConsensusAgent* _instance, block_id _blockId, schain_index _blockProposerIndex,
+            bool _initFromDB = false);
+
+    bin_consensus_round getCurrentRound();
+
+    static void initHistory(node_count _nodeCount);
+
+    void initFromDB(const BlockConsensusAgent *_instance);
+
+    static void logGlobalStats();
 
     bool decided() const;
 
@@ -203,20 +219,6 @@ public:
     }
 
 
-    void processMessage(const ptr<MessageEnvelope>& _me );
-
-    void processParentProposal(const ptr<InternalMessageEnvelope>& _me);
-
-    BinConsensusInstance(BlockConsensusAgent* _instance, block_id _blockId, schain_index _blockProposerIndex,
-            bool _initFromDB = false);
-
-    bin_consensus_round getCurrentRound();
-
-    static void initHistory(node_count _nodeCount);
-
-    void initFromDB(const BlockConsensusAgent *_instance);
-
-    static void logGlobalStats();
 
 };
 
