@@ -122,9 +122,9 @@ class BinConsensusInstance : public ProtocolInstance{
     void setProposal(bin_consensus_round _r, bin_consensus_value _v);
 
 
-    void insertValue(bin_consensus_round _r, bin_consensus_value _v);
+    void insertIntoBinValues(bin_consensus_round _r, bin_consensus_value _v);
 
-    void commitValueIfTwoThirds(const ptr<BVBroadcastMessage>& _m);
+    void addToBinValuesIfTwoThirds(const ptr<BVBroadcastMessage>& _m);
 
     bool bvbVote(const ptr<MessageEnvelope>& _me);
 
@@ -138,17 +138,17 @@ class BinConsensusInstance : public ProtocolInstance{
     bool isThirdVote(const ptr<BVBroadcastMessage>& _m);
 
 
-    void proceedWithCommonCoinIfAUXTwoThird(bin_consensus_round _r);
+    void proceedWithDecisionLotteryIfAUXTwoThird(bin_consensus_round _r);
 
-    void auxBroadcastSelfValue(bin_consensus_round _r, bin_consensus_value _v);
+    void auxSelfVoteAndBroadcastValue(bin_consensus_round _r, bin_consensus_value _v);
 
     bool isThird(node_count _count);
 
     bool isTwoThird(node_count _count);
 
-    void proceedWithCommonCoin(bool _hasTrue, bool _hasFalse, uint64_t _random);
+    void playDecisionLottery(bool _hasTrue, bool _hasFalse, uint64_t _random);
 
-    void proceedWithNewRound(bin_consensus_value _value);
+    void proceedWithNextRound(bin_consensus_value _value);
 
     void printHistory();
 
@@ -219,7 +219,12 @@ public:
     }
 
 
+    bool bvbVoteCore(const bin_consensus_round &r, const bin_consensus_value &v, const schain_index &index);
 
+    bool auxVoteCore(const bin_consensus_round &r, const bin_consensus_value &v, const schain_index &index,
+                     const ptr<ThresholdSigShare> &sigShare);
+
+    uint64_t computeRandom(bin_consensus_round &_r);
 };
 
 

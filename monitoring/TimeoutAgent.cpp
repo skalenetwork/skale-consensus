@@ -104,7 +104,7 @@ void TimeoutAgent::timeoutLoop(TimeoutAgent *_agent) {
                     }
 
                     if ( currentBlockId > 2 && currentTime - lastRebroadCastTime > REBROADCAST_TIMEOUT_MS) {
-                        _agent->getSchain()->rebroadcastAllMessagesForCurrentBlock();
+                        _agent->getSchain()->ifIncompleteConsensusDetectedRestartAndRebroadcastAllMessagesForCurrentBlock();
                         lastRebroadCastTime = currentTime;
                     }
                 }

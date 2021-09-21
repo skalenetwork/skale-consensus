@@ -805,7 +805,7 @@ void Schain::bootstrap( block_id _lastCommittedBlockID, uint64_t _lastCommittedB
 
         proposeNextBlock();
 
-        rebroadcastAllMessagesForCurrentBlock();
+        ifIncompleteConsensusDetectedRestartAndRebroadcastAllMessagesForCurrentBlock();
 
 
     } catch ( exception& e ) {
@@ -813,13 +813,14 @@ void Schain::bootstrap( block_id _lastCommittedBlockID, uint64_t _lastCommittedB
         return;
     }
 }
-void Schain::rebroadcastAllMessagesForCurrentBlock() const {
+void Schain::ifIncompleteConsensusDetectedRestartAndRebroadcastAllMessagesForCurrentBlock()  {
     auto proposalVector = getNode()->getProposalVectorDB()->getVector( lastCommittedBlockID + 1 );
     if ( proposalVector ) {
+        startConsensus(lastCommittedBlockID + 1, proposalVector);
         LOG( info, "Rebroadcasting messages for the current block" );
         auto messages = getNode()->getOutgoingMsgDB()->getMessages( lastCommittedBlockID + 1 );
         for ( auto&& m : *messages ) {
-            getNode()->getNetwork()->rebroadcastMessage( m );
+            getNode()->getNetwork()->rebroadcastMessage(m);
         }
     }
 }

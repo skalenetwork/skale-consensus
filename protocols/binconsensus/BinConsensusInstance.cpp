@@ -19,9 +19,18 @@
     @file BinConsensusInstance.cpp
     @author Stan Kladko
     @date 2018
+
+
 */
 
-
+/*
+ *     Note: comments refer to
+ *    Signature-Free Asynchronous Byzantine Consensus with < n/3 and O(n2)) Messages
+ *    Achour Mostefaoui, Moumen Hamouna, Michel Raynal
+ *
+ *    https://hal.inria.fr/hal-00944019v2/document
+ *
+ */
 
 
 #include "SkaleCommon.h"
@@ -94,7 +103,7 @@ void BinConsensusInstance::ifAlreadyDecidedSendDelayedEstimateForNextRound(bin_c
     if (isDecided && _round == getCurrentRound() + 1 && isTwoThird(totalAUXVotes(getCurrentRound()))) {
         LOG(debug,
             to_string(getBlockProposerIndex()) + ":NEW_ROUND_REQUESTED:BLOCK:" + to_string(blockID) + ":ROUND:" + to_string(getCurrentRound() + 1));
-        proceedWithNewRound(decidedValue);
+        proceedWithNextRound(decidedValue);
     }
 }
 
@@ -119,16 +128,18 @@ void BinConsensusInstance::processNetworkMessageImpl(const ptr<NetworkMessageEnv
         }
         networkBroadcastValueIfThird(m);
         ifAlreadyDecidedSendDelayedEstimateForNextRound(m->getRound());
-        commitValueIfTwoThirds(m);
+        addToBinValuesIfTwoThirds(m);
     } else if (_me->getMessage()->getMessageType() == MSG_AUX_BROADCAST) {
         auto m = dynamic_pointer_cast<AUXBroadcastMessage>(_me->getMessage());
         CHECK_STATE(m);
         if (!auxVote(_me)) {
-            // duplicatr vote
+            // duplicate vote received
             return;
         }
+
+        // Decision lottery has not yet been done for this round.
         if (m->getRound() == getCurrentRound())
-            proceedWithCommonCoinIfAUXTwoThird(m->getRound());
+            proceedWithDecisionLotteryIfAUXTwoThird(m->getRound());
     }
 }
 
@@ -171,7 +182,7 @@ void BinConsensusInstance::processParentProposal(const ptr<InternalMessageEnvelo
 
     bvbVote(_me);
 
-    commitValueIfTwoThirds(m);
+    addToBinValuesIfTwoThirds(m);
 
 }
 
@@ -248,10 +259,17 @@ void BinConsensusInstance::addCommonCoinToHistory(bin_consensus_round _r, bin_co
                                                                 getBlockProposerIndex(), r, index, v);
 
 
-    if (v) {
-        return bvbTrueVotes[r].insert(index).second;
+    return bvbVoteCore(r, v, index);
+
+}
+
+bool BinConsensusInstance::bvbVoteCore(const bin_consensus_round &_r, const bin_consensus_value &_v,
+                                       const schain_index &_index) {
+
+    if (_v) {
+        return bvbTrueVotes[_r].insert(_index).second;
     } else {
-        return bvbFalseVotes[r].insert(index).second;
+        return bvbFalseVotes[_r].insert(_index).second;
     }
 }
 
@@ -270,10 +288,23 @@ void BinConsensusInstance::addCommonCoinToHistory(bin_consensus_round _r, bin_co
         sigShare = m->getSigShare();
     }
 
-    if (v) {
-            return auxTrueVotes[r].insert({index, sigShare}).second;
+    return auxVoteCore(r, v, index, sigShare);
+}
+
+bool
+BinConsensusInstance::auxVoteCore(const bin_consensus_round &_r, const bin_consensus_value &_v, const schain_index &_index,
+                                  const ptr<ThresholdSigShare> &_sigShare) {
+
+    if (_r >= COMMON_COIN_ROUND) {
+        CHECK_STATE(_sigShare);
     } else {
-            return auxFalseVotes[r].insert({index, sigShare}).second;
+        CHECK_STATE(_sigShare == nullptr);
+    }
+
+    if (_v) {
+            return auxTrueVotes[_r].insert({_index, _sigShare}).second;
+    } else {
+            return auxFalseVotes[_r].insert({_index, _sigShare}).second;
     }
 }
 
@@ -288,11 +319,7 @@ void BinConsensusInstance::auxSelfVote(bin_consensus_round _r,
 
     addAUXSelfVoteToHistory(_r, _v);
 
-    if (_v) {
-        auxTrueVotes[_r][getSchain()->getSchainIndex()] = _sigShare;
-    } else {
-        auxFalseVotes[_r][getSchain()->getSchainIndex()] = _sigShare;
-    }
+    auxVoteCore(_r,  _v, getSchain()->getSchainIndex(), _sigShare);
 
 }
 
@@ -324,32 +351,46 @@ bool BinConsensusInstance::isTwoThirdVote(const ptr<BVBroadcastMessage>& _m) {
     return isTwoThird(getBVBVoteCount(_m->getValue(), _m->getRound()));
 }
 
-void BinConsensusInstance::insertValue(bin_consensus_round _r, bin_consensus_value _v) {
+void BinConsensusInstance::insertIntoBinValues(bin_consensus_round _r, bin_consensus_value _v) {
     getSchain()->getNode()->getConsensusStateDB()->writeBinValue(getBlockID(),
             getBlockProposerIndex(), _r, _v);
     binValues[_r].insert(_v);
 }
 
-void BinConsensusInstance::commitValueIfTwoThirds(const ptr<BVBroadcastMessage>& _m) {
+void BinConsensusInstance::addToBinValuesIfTwoThirds(const ptr<BVBroadcastMessage>& _m) {
 
     auto r = _m->getRound();
     auto v = _m->getValue();
 
 
-    if (binValues[r].count(v))
+
+    if (binValues[r].count(v)) {
+        // bin values already includes the value in question
         return;
+    }
 
     if (isTwoThirdVote(_m)) {
-        bool didAUXBroadcast = binValues[r].size() > 0;
 
-        insertValue(r, v);
+        // Section 3.2 (06) the value is not yet in bin values, and 2t+1 nodes voted for it. Insert.
+        insertIntoBinValues(r, v);
 
+        // Section 4.2 (04) The first time binValues is updated it is broadcast
+        // Also the aux message needs to be added as self vote in
+        // Section 4.2 (05)
+        bool didAUXBroadcast = binValues[r].size() > 1;
         if (!didAUXBroadcast) {
-            auxBroadcastSelfValue( r, v );
+            auxSelfVoteAndBroadcastValue(r, v);
         }
 
-        if (r == getCurrentRound())
-            proceedWithCommonCoinIfAUXTwoThird(r);
+        if (r == getCurrentRound()) {
+            // Section 4.2 steps (07, 08, 09, 10) have not yet been performed for
+            // r. Do them if received TwoThird of AUX messages
+            // Note that condition (05) can be fullfiled
+            // (1) if a message is added to binValues
+            // (2) if a new SUX messages comes.
+            // The below check corresponds to case (1)
+            proceedWithDecisionLotteryIfAUXTwoThird(r);
+        }
 
     }
 
@@ -358,6 +399,8 @@ void BinConsensusInstance::commitValueIfTwoThirds(const ptr<BVBroadcastMessage>&
 
 void BinConsensusInstance::networkBroadcastValueIfThird(const ptr<BVBroadcastMessage>& _m) {
     if (isThirdVote(_m)) {
+        // Section 3.2 (02)(03)(04) BVB value has been received from 2 t + 1 nodes. Broadcast it
+        // if it has not yet been broadcast
         networkBroadcastValue(_m);
     }
 }
@@ -380,7 +423,7 @@ void BinConsensusInstance::networkBroadcastValue(const ptr<BVBroadcastMessage>& 
 }
 
 
-void BinConsensusInstance::auxBroadcastSelfValue(bin_consensus_round _r, bin_consensus_value _v) {
+void BinConsensusInstance::auxSelfVoteAndBroadcastValue(bin_consensus_round _r, bin_consensus_value _v) {
 
     auto m = make_shared<AUXBroadcastMessage>(_r, _v, blockID, blockProposerIndex,
             Time::getCurrentTimeMs(), *this);
@@ -396,10 +439,13 @@ void BinConsensusInstance::auxBroadcastSelfValue(bin_consensus_round _r, bin_con
 }
 
 
-void BinConsensusInstance::proceedWithCommonCoinIfAUXTwoThird(bin_consensus_round _r) {
+void BinConsensusInstance::proceedWithDecisionLotteryIfAUXTwoThird(bin_consensus_round _r) {
 
-    if (decided())
+    if (decided()) {
+        // bin consensus has been decided. The only thing that
+        // consensus will do after it has been decided is send the decided value in the next round.
         return;
+    }
 
     CHECK_STATE(_r == getCurrentRound());
 
@@ -419,39 +465,46 @@ void BinConsensusInstance::proceedWithCommonCoinIfAUXTwoThird(bin_consensus_roun
     }
 
     if (isTwoThird(node_count(verifiedValuesSize))) {
+        // Section 4.2 (06)
+        auto randomN = computeRandom(_r);
 
-        uint64_t random;
 
-        if (getSchain()->getNode()->isSgxEnabled() && ((uint64_t) _r) >= COMMON_COIN_ROUND) {
-            random = this->calculateBLSRandom(_r);
-        } else {
-
-            string key = to_string((uint64_t )getBlockID()) + ":" +
-                         to_string((uint64_t)_r) + ":" +
-                         to_string((uint64_t) getBlockProposerIndex());
-
-            auto  d = make_shared<vector<uint8_t>>();
-
-            for (uint64_t z = 0; z < key.length(); z++ ) {
-                d->push_back(key.at(z));
-            }
-            auto hash = BLAKE3Hash::calculateHash(d);
-            random = *((uint64_t*) hash.data());
-        }
-
-        auto randomDB = getSchain()->getNode()->getRandomDB();
-
-        randomDB->writeRandom(getBlockID(), getBlockProposerIndex(),
-                              _r, random);
-
-        proceedWithCommonCoin(hasTrue, hasFalse, random);
-
+        // Section 4.2 Lines (07)(08)(09)(10)
+        playDecisionLottery(hasTrue, hasFalse, randomN);
     }
 
 }
 
+uint64_t BinConsensusInstance::computeRandom(bin_consensus_round &_r) {
+    uint64_t randomN;
+    if (getSchain()->getNode()->isSgxEnabled() && ((uint64_t) _r) >= COMMON_COIN_ROUND) {
+        randomN = calculateBLSRandom(_r);
+    } else {
 
-void BinConsensusInstance::proceedWithCommonCoin(bool _hasTrue, bool _hasFalse, uint64_t _random) {
+        string key = to_string((uint64_t ) getBlockID()) + ":" +
+                     to_string((uint64_t)_r) + ":" +
+                     to_string((uint64_t) getBlockProposerIndex());
+
+        auto  d = make_shared<vector<uint8_t>>();
+
+        for (uint64_t z = 0; z < key.length(); z++ ) {
+            d->push_back(key.at(z));
+        }
+        auto hash = BLAKE3Hash::calculateHash(d);
+        randomN = *((uint64_t*) hash.data());
+    }
+
+    auto randomDB = getSchain()->getNode()->getRandomDB();
+
+    randomDB->writeRandom(getBlockID(), getBlockProposerIndex(),
+                          _r, randomN);
+
+
+    return randomN;
+}
+
+
+void BinConsensusInstance::playDecisionLottery(bool _hasTrue, bool _hasFalse, uint64_t _random) {
 
 
     CHECK_STATE(!isDecided);
@@ -459,36 +512,42 @@ void BinConsensusInstance::proceedWithCommonCoin(bool _hasTrue, bool _hasFalse, 
     LOG(debug,
         to_string(getBlockProposerIndex()) + "ROUND_COMPLETE:BLOCK:" + to_string(blockID) + ":ROUND:" + to_string(getCurrentRound()));
 
-    bin_consensus_value random(_random % 2 == 0);
+    bin_consensus_value common_coin_value(_random % 2 == 0);
 
-    addCommonCoinToHistory(getCurrentRound(), random);
+    addCommonCoinToHistory(getCurrentRound(), common_coin_value);
 
 
     if (_hasTrue && _hasFalse) {
+        // Section (4.2) (07) Got both values proceed with the next round
         LOG(debug,
-            to_string(getBlockProposerIndex()) + ":NEW ROUND:BLOCK:" + to_string(blockID) + ":ROUND:" + to_string(getCurrentRound() + 1));
-        proceedWithNewRound(random);
+            to_string(getBlockProposerIndex()) + ":NEW ROUND:BLOCK:" + to_string(blockID) + ":ROUND:" +
+                to_string(getCurrentRound() + 1));
+        // Section 4.2 (10)
+        proceedWithNextRound(common_coin_value);
         return;
     } else {
 
+        // Section 4.2 (08) Check if we are lucky
         bin_consensus_value v(_hasTrue);
-
-        if (v == random) {
+        if (v == common_coin_value) {
+            // Lucky. Decide.
             LOG(debug,
-                to_string(getBlockProposerIndex()) + ":DECIDED VALUE" + to_string(blockID) + ":ROUND:" + to_string(getCurrentRound()));
+                ":PROPOSER:" + to_string(getBlockProposerIndex()) + ":DECIDED VALUE" + to_string(v) + ":ROUND:" +
+                    to_string(getCurrentRound()));
             decide(v);
         } else {
+            // Unlucky. Next round.
             LOG(debug,
-                to_string(getBlockProposerIndex()) +":NEW ROUND:BLOCK:" + to_string(blockID) + ":ROUND:" + to_string(getCurrentRound()));
-            proceedWithNewRound(v);
+                to_string(getBlockProposerIndex()) +":NEW ROUND:BLOCK:" + to_string(v) + ":ROUND:" +
+                   to_string(getCurrentRound()));
+            proceedWithNextRound(v);
         }
     }
 
 }
 
 
-void BinConsensusInstance::proceedWithNewRound(bin_consensus_value _value) {
-
+void BinConsensusInstance::proceedWithNextRound(bin_consensus_value _value) {
 
     CHECK_STATE(getCurrentRound() < 100);
     CHECK_STATE(isTwoThird(totalAUXVotes(getCurrentRound())));
@@ -513,7 +572,7 @@ void BinConsensusInstance::proceedWithNewRound(bin_consensus_value _value) {
         return;
     }
 
-    commitValueIfTwoThirds(m);
+    addToBinValuesIfTwoThirds(m);
 
 }
 

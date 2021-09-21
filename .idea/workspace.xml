@@ -36,16 +36,10 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ec15c893-7f20-4493-be40-38b8f69efc54" name="Default Changelist" comment="bug/SKALE-4275-test-eth-fails">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Agent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Agent.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Agent.h" beforeDir="false" afterPath="$PROJECT_DIR$/Agent.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/abstracttcpclient/AbstractClientAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/abstracttcpclient/AbstractClientAgent.cpp" afterDir="false" />
+    <list default="true" id="ec15c893-7f20-4493-be40-38b8f69efc54" name="Default Changelist" comment="bug/SKALE-4593">
       <change beforePath="$PROJECT_DIR$/chains/Schain.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/chains/Schain.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chains/Schain.h" beforeDir="false" afterPath="$PROJECT_DIR$/chains/Schain.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/deps/zlib/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/deps/zlib/Makefile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/deps/zlib/zconf.h" beforeDir="false" afterPath="$PROJECT_DIR$/deps/zlib/zconf.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libBLS/deps/libff/depends/xbyak" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/deps/libff/depends/xbyak" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/protocols/binconsensus/BinConsensusInstance.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/protocols/binconsensus/BinConsensusInstance.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -79,35 +73,35 @@
     </file-type-list>
   </component>
   <component name="HighlightingSettingsPerFile">
-    <setting file="file://$PROJECT_DIR$/SkaleCommon.h" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/sgxclient/SgxZmqClient.h" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Consensust.cpp" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/catchup/client/CatchupClientAgent.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/unittests/consensus_tests.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/network/ZMQSockets.h" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/sgxwallet/ServerWorker.cpp" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/json/JSONFactory.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/network/IO.cpp" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/sgxwallet/ZMQServer.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/crypto/BLAKE3Hash.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/sgxwallet/ZMQServer.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/sgxclient/SgxZmqClient.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/sgxclient/SgxZmqClient.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/crypto/CryptoManager.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/node/NodeGettersSetters.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/monitoring/TimeoutAgent.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/network/Network.h" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/cppzmq/zmq.hpp" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/crypto/CryptoManager.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/chains/Schain.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file:///usr/include/c++/7/bits/shared_ptr.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/cppzmq/zmq.hpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/libBLS/bls/BLSPublicKey.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/node/Node.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/SkaleCommon.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/libBLS/bls/BLSPublicKey.h" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/crypto/BLAKE3Hash.cpp" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/sgxclient/SgxZmqClient.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/cmake/precompiledheader.cmake" root0="FORCE_HIGHLIGHTING" />
     <setting file="file:///usr/include/x86_64-linux-gnu/bits/confname.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/thirdparty/zguide/zhelpers.hpp" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/cmake/precompiledheader.cmake" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/crypto/BLAKE3Hash.h" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/unittests/consensus_tests.cpp" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/chains/Schain.cpp" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/sgxwallet/ZMQServer.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/blockproposal/pusher/BlockProposalClientAgent.cpp" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/monitoring/TimeoutAgent.cpp" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/node/NodeGettersSetters.cpp" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/crypto/CryptoManager.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/crypto/CryptoManager.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/sgxwallet/ServerWorker.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Consensust.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/catchup/client/CatchupClientAgent.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/crypto/BLAKE3Hash.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/json/JSONFactory.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/sgxwallet/ZMQServer.cpp" root0="FORCE_HIGHLIGHTING" />
   </component>
   <component name="ProjectId" id="1tLjZg8PrXyNb5KH1T9D17V0hIk" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
@@ -138,7 +132,7 @@
       <recent name="$PROJECT_DIR$/monitoring" />
     </key>
   </component>
-  <component name="RunManager" selected="CMake Application.consensust">
+  <component name="RunManager" selected="CMake Application.3d-4">
     <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
       <method v="2">
         <option name="CLION.EXTERNAL.BUILD" enabled="true" />
@@ -360,41 +354,6 @@
       <workItem from="1631613403904" duration="2725000" />
       <workItem from="1631699230594" duration="12654000" />
       <workItem from="1631801800844" duration="3900000" />
-    </task>
-    <task id="LOCAL-00029" summary="task/SKALE-4386-save-visualization">
-      <created>1625830863815</created>
-      <option name="number" value="00029" />
-      <option name="presentableId" value="LOCAL-00029" />
-      <option name="project" value="LOCAL" />
-      <updated>1625830863815</updated>
-    </task>
-    <task id="LOCAL-00030" summary="task/SKALE-4386-save-visualization">
-      <created>1625832907414</created>
-      <option name="number" value="00030" />
-      <option name="presentableId" value="LOCAL-00030" />
-      <option name="project" value="LOCAL" />
-      <updated>1625832907414</updated>
-    </task>
-    <task id="LOCAL-00031" summary="task/SKALE-4386-save-visualization">
-      <created>1625837040879</created>
-      <option name="number" value="00031" />
-      <option name="presentableId" value="LOCAL-00031" />
-      <option name="project" value="LOCAL" />
-      <updated>1625837040879</updated>
-    </task>
-    <task id="LOCAL-00032" summary="task/SKALE-4386-save-visualization">
-      <created>1625837634016</created>
-      <option name="number" value="00032" />
-      <option name="presentableId" value="LOCAL-00032" />
-      <option name="project" value="LOCAL" />
-      <updated>1625837634016</updated>
-    </task>
-    <task id="LOCAL-00033" summary="task/SKALE-4386-save-visualization">
-      <created>1625838819891</created>
-      <option name="number" value="00033" />
-      <option name="presentableId" value="LOCAL-00033" />
-      <option name="project" value="LOCAL" />
-      <updated>1625838819891</updated>
     </task>
     <task id="LOCAL-00034" summary="task/SKALE-4386-save-visualization">
       <created>1625839716788</created>
@@ -697,14 +656,6 @@
       <option name="project" value="LOCAL" />
       <updated>1631720350116</updated>
     </task>
-    <task id="LOCAL-00077" summary="bug/SKALE-4591">
-      <created>1632138379153</created>
-      <option name="number" value="00077" />
-      <option name="presentableId" value="LOCAL-00077" />
-      <option name="project" value="LOCAL" />
-      <updated>1632138379153</updated>
-    </task>
-    <option name="localTasksCounter" value="78" />
     <task id="LOCAL-00077" summary="bug/SKALE-4285-deadlock-detection">
       <created>1631886698073</created>
       <option name="number" value="00077" />
@@ -719,7 +670,35 @@
       <option name="project" value="LOCAL" />
       <updated>1631891083981</updated>
     </task>
-    <option name="localTasksCounter" value="79" />
+    <task id="LOCAL-00079" summary="bug/SKALE-4593">
+      <created>1632231595758</created>
+      <option name="number" value="00079" />
+      <option name="presentableId" value="LOCAL-00079" />
+      <option name="project" value="LOCAL" />
+      <updated>1632231595758</updated>
+    </task>
+    <task id="LOCAL-00080" summary="bug/SKALE-4593">
+      <created>1632232026032</created>
+      <option name="number" value="00080" />
+      <option name="presentableId" value="LOCAL-00080" />
+      <option name="project" value="LOCAL" />
+      <updated>1632232026033</updated>
+    </task>
+    <task id="LOCAL-00081" summary="bug/SKALE-4593">
+      <created>1632232183331</created>
+      <option name="number" value="00081" />
+      <option name="presentableId" value="LOCAL-00081" />
+      <option name="project" value="LOCAL" />
+      <updated>1632232183331</updated>
+    </task>
+    <task id="LOCAL-00082" summary="bug/SKALE-4593">
+      <created>1632238965781</created>
+      <option name="number" value="00082" />
+      <option name="presentableId" value="LOCAL-00082" />
+      <option name="project" value="LOCAL" />
+      <updated>1632238965781</updated>
+    </task>
+    <option name="localTasksCounter" value="83" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -751,9 +730,9 @@
     <MESSAGE value="bug/SKALE-4577-fix-test-running-time" />
     <MESSAGE value="bug/SKALE-4577" />
     <MESSAGE value="bug/SKALE-4591" />
-    <option name="LAST_COMMIT_MESSAGE" value="bug/SKALE-4591" />
     <MESSAGE value="bug/SKALE-4285-deadlock-detection" />
-    <option name="LAST_COMMIT_MESSAGE" value="bug/SKALE-4285-deadlock-detection" />
+    <MESSAGE value="bug/SKALE-4593" />
+    <option name="LAST_COMMIT_MESSAGE" value="bug/SKALE-4593" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
