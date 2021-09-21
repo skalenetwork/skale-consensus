@@ -825,6 +825,17 @@ void Schain::ifIncompleteConsensusDetectedRestartAndRebroadcastAllMessagesForCur
     }
 }
 
+void Schain::rebroadcastAllMessagesForCurrentBlock()  {
+    auto proposalVector = getNode()->getProposalVectorDB()->getVector( lastCommittedBlockID + 1 );
+    if ( proposalVector ) {
+        LOG( info, "Rebroadcasting messages for the current block" );
+        auto messages = getNode()->getOutgoingMsgDB()->getMessages( lastCommittedBlockID + 1 );
+        for ( auto&& m : *messages ) {
+            getNode()->getNetwork()->rebroadcastMessage(m);
+        }
+    }
+}
+
 
 void Schain::healthCheck() {
     std::unordered_set< uint64_t > connections;
