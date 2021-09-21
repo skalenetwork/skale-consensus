@@ -219,7 +219,10 @@ public:
     }
 
 
+    bool bvbVoteCore(const bin_consensus_round &r, const bin_consensus_value &v, const schain_index &index);
 
+    bool auxVoteCore(const bin_consensus_round &r, const bin_consensus_value &v, const schain_index &index,
+                     const ptr<ThresholdSigShare> &sigShare);
 };
 
 

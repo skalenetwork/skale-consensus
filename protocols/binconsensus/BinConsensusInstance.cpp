@@ -248,10 +248,17 @@ void BinConsensusInstance::addCommonCoinToHistory(bin_consensus_round _r, bin_co
                                                                 getBlockProposerIndex(), r, index, v);
 
 
-    if (v) {
-        return bvbTrueVotes[r].insert(index).second;
+    return bvbVoteCore(r, v, index);
+
+}
+
+bool BinConsensusInstance::bvbVoteCore(const bin_consensus_round &_r, const bin_consensus_value &_v,
+                                       const schain_index &_index) {
+
+    if (_v) {
+        return bvbTrueVotes[_r].insert(_index).second;
     } else {
-        return bvbFalseVotes[r].insert(index).second;
+        return bvbFalseVotes[_r].insert(_index).second;
     }
 }
 
@@ -270,10 +277,23 @@ void BinConsensusInstance::addCommonCoinToHistory(bin_consensus_round _r, bin_co
         sigShare = m->getSigShare();
     }
 
-    if (v) {
-            return auxTrueVotes[r].insert({index, sigShare}).second;
+    return auxVoteCore(r, v, index, sigShare);
+}
+
+bool
+BinConsensusInstance::auxVoteCore(const bin_consensus_round &_r, const bin_consensus_value &_v, const schain_index &_index,
+                                  const ptr<ThresholdSigShare> &_sigShare) {
+
+    if (_r >= COMMON_COIN_ROUND) {
+        CHECK_STATE(_sigShare);
     } else {
-            return auxFalseVotes[r].insert({index, sigShare}).second;
+        CHECK_STATE(_sigShare == nullptr);
+    }
+
+    if (_v) {
+            return auxTrueVotes[_r].insert({_index, _sigShare}).second;
+    } else {
+            return auxFalseVotes[_r].insert({_index, _sigShare}).second;
     }
 }
 
