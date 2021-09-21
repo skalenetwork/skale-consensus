@@ -549,7 +549,6 @@ void BinConsensusInstance::playDecisionLottery(bool _hasTrue, bool _hasFalse, ui
 
 void BinConsensusInstance::proceedWithNextRound(bin_consensus_value _value) {
 
-
     CHECK_STATE(getCurrentRound() < 100);
     CHECK_STATE(isTwoThird(totalAUXVotes(getCurrentRound())));
 
