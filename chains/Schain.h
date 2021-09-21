@@ -306,7 +306,10 @@ public:
     void tryStartingConsensus( const ptr< BooleanProposalVector >& pv, const block_id& bid );
 
     bool fixCorruptStateIfNeeded( block_id id );
+
     void ifIncompleteConsensusDetectedRestartAndRebroadcastAllMessagesForCurrentBlock();
+
+    void rebroadcastAllMessagesForCurrentBlock();
 
     static void bumpPriority();
     static void unbumpPriority();
