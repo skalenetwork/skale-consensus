@@ -19,9 +19,18 @@
     @file BinConsensusInstance.cpp
     @author Stan Kladko
     @date 2018
+
+
 */
 
-
+/*
+ *     Note: comments refer to
+ *    Signature-Free Asynchronous Byzantine Consensus with < n/3 and O(n2)) Messages
+ *    Achour Mostefaoui, Moumen Hamouna, Michel Raynal
+ *
+ *    https://hal.inria.fr/hal-00944019v2/document
+ *
+ */
 
 
 #include "SkaleCommon.h"
@@ -124,7 +133,7 @@ void BinConsensusInstance::processNetworkMessageImpl(const ptr<NetworkMessageEnv
         auto m = dynamic_pointer_cast<AUXBroadcastMessage>(_me->getMessage());
         CHECK_STATE(m);
         if (!auxVote(_me)) {
-            // duplicatr vote
+            // duplicate vote received
             return;
         }
         if (m->getRound() == getCurrentRound())
@@ -366,7 +375,7 @@ void BinConsensusInstance::addToBinValuesIfTwoThirds(const ptr<BVBroadcastMessag
 
         bool didAUXBroadcast = binValues[r].size() > 0;
 
-        // BVB (06) the value is not yet in bin values, and 2t+1 nodes voted for it. Insert.
+        // Section 3.2 (06) the value is not yet in bin values, and 2t+1 nodes voted for it. Insert.
         insertIntoBinValues(r, v);
 
         if (!didAUXBroadcast) {
@@ -383,7 +392,7 @@ void BinConsensusInstance::addToBinValuesIfTwoThirds(const ptr<BVBroadcastMessag
 
 void BinConsensusInstance::networkBroadcastValueIfThird(const ptr<BVBroadcastMessage>& _m) {
     if (isThirdVote(_m)) {
-        // BVB (02)(03)(04) BVB value has been received from 2 t + 1 nodes. Broadcast it
+        // Section 3.2 (02)(03)(04) BVB value has been received from 2 t + 1 nodes. Broadcast it
         // if it has not yet been broadcast
         networkBroadcastValue(_m);
     }
