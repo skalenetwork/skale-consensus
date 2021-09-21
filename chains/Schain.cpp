@@ -813,9 +813,10 @@ void Schain::bootstrap( block_id _lastCommittedBlockID, uint64_t _lastCommittedB
         return;
     }
 }
-void Schain::rebroadcastAllMessagesForCurrentBlock() const {
+void Schain::rebroadcastAllMessagesForCurrentBlock()  {
     auto proposalVector = getNode()->getProposalVectorDB()->getVector( lastCommittedBlockID + 1 );
     if ( proposalVector ) {
+        startConsensus(lastCommittedBlockID + 1, proposalVector);
         LOG( info, "Rebroadcasting messages for the current block" );
         auto messages = getNode()->getOutgoingMsgDB()->getMessages( lastCommittedBlockID + 1 );
         for ( auto&& m : *messages ) {
