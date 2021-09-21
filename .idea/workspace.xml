@@ -36,9 +36,8 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ec15c893-7f20-4493-be40-38b8f69efc54" name="Default Changelist" comment="bug/SKALE-4275-test-eth-fails">
-      <change beforePath="$PROJECT_DIR$/deps/zlib/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/deps/zlib/Makefile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/deps/zlib/zconf.h" beforeDir="false" afterPath="$PROJECT_DIR$/deps/zlib/zconf.h" afterDir="false" />
+    <list default="true" id="ec15c893-7f20-4493-be40-38b8f69efc54" name="Default Changelist" comment="bug/SKALE-4593">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libBLS/deps/libff/depends/xbyak" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/deps/libff/depends/xbyak" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/protocols/binconsensus/BinConsensusInstance.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/protocols/binconsensus/BinConsensusInstance.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/protocols/binconsensus/BinConsensusInstance.h" beforeDir="false" afterPath="$PROJECT_DIR$/protocols/binconsensus/BinConsensusInstance.h" afterDir="false" />
@@ -356,20 +355,6 @@
       <workItem from="1631613403904" duration="2725000" />
       <workItem from="1631699230594" duration="12654000" />
       <workItem from="1631801800844" duration="3900000" />
-    </task>
-    <task id="LOCAL-00031" summary="task/SKALE-4386-save-visualization">
-      <created>1625837040879</created>
-      <option name="number" value="00031" />
-      <option name="presentableId" value="LOCAL-00031" />
-      <option name="project" value="LOCAL" />
-      <updated>1625837040879</updated>
-    </task>
-    <task id="LOCAL-00032" summary="task/SKALE-4386-save-visualization">
-      <created>1625837634016</created>
-      <option name="number" value="00032" />
-      <option name="presentableId" value="LOCAL-00032" />
-      <option name="project" value="LOCAL" />
-      <updated>1625837634016</updated>
     </task>
     <task id="LOCAL-00033" summary="task/SKALE-4386-save-visualization">
       <created>1625838819891</created>
@@ -700,7 +685,21 @@
       <option name="project" value="LOCAL" />
       <updated>1632231595758</updated>
     </task>
-    <option name="localTasksCounter" value="80" />
+    <task id="LOCAL-00080" summary="bug/SKALE-4593">
+      <created>1632232026032</created>
+      <option name="number" value="00080" />
+      <option name="presentableId" value="LOCAL-00080" />
+      <option name="project" value="LOCAL" />
+      <updated>1632232026033</updated>
+    </task>
+    <task id="LOCAL-00081" summary="bug/SKALE-4593">
+      <created>1632232183331</created>
+      <option name="number" value="00081" />
+      <option name="presentableId" value="LOCAL-00081" />
+      <option name="project" value="LOCAL" />
+      <updated>1632232183331</updated>
+    </task>
+    <option name="localTasksCounter" value="82" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
