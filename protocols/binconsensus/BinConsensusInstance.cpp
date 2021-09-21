@@ -531,14 +531,14 @@ void BinConsensusInstance::playDecisionLottery(bool _hasTrue, bool _hasFalse, ui
         bin_consensus_value v(_hasTrue);
         if (v == common_coin_value) {
             // Lucky. Decide.
-            LOG(debug,
-                to_string(getBlockProposerIndex()) + ":DECIDED VALUE" + to_string(blockID) + ":ROUND:" +
+            LOG(info,
+                ":PROPOSER:" + to_string(getBlockProposerIndex()) + ":DECIDED VALUE" + to_string(v) + ":ROUND:" +
                     to_string(getCurrentRound()));
             decide(v);
         } else {
             // Unlucky. Next round.
             LOG(debug,
-                to_string(getBlockProposerIndex()) +":NEW ROUND:BLOCK:" + to_string(blockID) + ":ROUND:" +
+                to_string(getBlockProposerIndex()) +":NEW ROUND:BLOCK:" + to_string(v) + ":ROUND:" +
                    to_string(getCurrentRound()));
             proceedWithNextRound(v);
         }
