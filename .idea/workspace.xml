@@ -37,10 +37,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ec15c893-7f20-4493-be40-38b8f69efc54" name="Default Changelist" comment="bug/SKALE-4593">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/chains/Schain.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/chains/Schain.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chains/Schain.h" beforeDir="false" afterPath="$PROJECT_DIR$/chains/Schain.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libBLS/deps/libff/depends/xbyak" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/deps/libff/depends/xbyak" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/protocols/binconsensus/BinConsensusInstance.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/protocols/binconsensus/BinConsensusInstance.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -355,13 +354,6 @@
       <workItem from="1631613403904" duration="2725000" />
       <workItem from="1631699230594" duration="12654000" />
       <workItem from="1631801800844" duration="3900000" />
-    </task>
-    <task id="LOCAL-00033" summary="task/SKALE-4386-save-visualization">
-      <created>1625838819891</created>
-      <option name="number" value="00033" />
-      <option name="presentableId" value="LOCAL-00033" />
-      <option name="project" value="LOCAL" />
-      <updated>1625838819891</updated>
     </task>
     <task id="LOCAL-00034" summary="task/SKALE-4386-save-visualization">
       <created>1625839716788</created>
@@ -699,7 +691,14 @@
       <option name="project" value="LOCAL" />
       <updated>1632232183331</updated>
     </task>
-    <option name="localTasksCounter" value="82" />
+    <task id="LOCAL-00082" summary="bug/SKALE-4593">
+      <created>1632238965781</created>
+      <option name="number" value="00082" />
+      <option name="presentableId" value="LOCAL-00082" />
+      <option name="project" value="LOCAL" />
+      <updated>1632238965781</updated>
+    </task>
+    <option name="localTasksCounter" value="83" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

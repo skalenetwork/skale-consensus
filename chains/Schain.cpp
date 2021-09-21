@@ -820,7 +820,7 @@ void Schain::rebroadcastAllMessagesForCurrentBlock()  {
         LOG( info, "Rebroadcasting messages for the current block" );
         auto messages = getNode()->getOutgoingMsgDB()->getMessages( lastCommittedBlockID + 1 );
         for ( auto&& m : *messages ) {
-            getNode()->getNetwork()->rebroadcastMessage( m );
+            getNode()->getNetwork()->rebroadcastMessage(m);
         }
     }
 }

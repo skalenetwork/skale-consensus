@@ -531,7 +531,7 @@ void BinConsensusInstance::playDecisionLottery(bool _hasTrue, bool _hasFalse, ui
         bin_consensus_value v(_hasTrue);
         if (v == common_coin_value) {
             // Lucky. Decide.
-            LOG(info,
+            LOG(debug,
                 ":PROPOSER:" + to_string(getBlockProposerIndex()) + ":DECIDED VALUE" + to_string(v) + ":ROUND:" +
                     to_string(getCurrentRound()));
             decide(v);
