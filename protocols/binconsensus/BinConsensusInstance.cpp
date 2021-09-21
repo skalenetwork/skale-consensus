@@ -119,7 +119,7 @@ void BinConsensusInstance::processNetworkMessageImpl(const ptr<NetworkMessageEnv
         }
         networkBroadcastValueIfThird(m);
         ifAlreadyDecidedSendDelayedEstimateForNextRound(m->getRound());
-        commitValueIfTwoThirds(m);
+        addToBinValuesIfTwoThirds(m);
     } else if (_me->getMessage()->getMessageType() == MSG_AUX_BROADCAST) {
         auto m = dynamic_pointer_cast<AUXBroadcastMessage>(_me->getMessage());
         CHECK_STATE(m);
@@ -171,7 +171,7 @@ void BinConsensusInstance::processParentProposal(const ptr<InternalMessageEnvelo
 
     bvbVote(_me);
 
-    commitValueIfTwoThirds(m);
+    addToBinValuesIfTwoThirds(m);
 
 }
 
@@ -344,25 +344,30 @@ bool BinConsensusInstance::isTwoThirdVote(const ptr<BVBroadcastMessage>& _m) {
     return isTwoThird(getBVBVoteCount(_m->getValue(), _m->getRound()));
 }
 
-void BinConsensusInstance::insertValue(bin_consensus_round _r, bin_consensus_value _v) {
+void BinConsensusInstance::insertIntoBinValues(bin_consensus_round _r, bin_consensus_value _v) {
     getSchain()->getNode()->getConsensusStateDB()->writeBinValue(getBlockID(),
             getBlockProposerIndex(), _r, _v);
     binValues[_r].insert(_v);
 }
 
-void BinConsensusInstance::commitValueIfTwoThirds(const ptr<BVBroadcastMessage>& _m) {
+void BinConsensusInstance::addToBinValuesIfTwoThirds(const ptr<BVBroadcastMessage>& _m) {
 
     auto r = _m->getRound();
     auto v = _m->getValue();
 
 
-    if (binValues[r].count(v))
+
+    if (binValues[r].count(v)) {
+        // bin values already includes the value in question
         return;
+    }
 
     if (isTwoThirdVote(_m)) {
+
         bool didAUXBroadcast = binValues[r].size() > 0;
 
-        insertValue(r, v);
+        // BVB (06) the value is not yet in bin values, and 2t+1 nodes voted for it. Insert.
+        insertIntoBinValues(r, v);
 
         if (!didAUXBroadcast) {
             auxBroadcastSelfValue( r, v );
@@ -378,6 +383,8 @@ void BinConsensusInstance::commitValueIfTwoThirds(const ptr<BVBroadcastMessage>&
 
 void BinConsensusInstance::networkBroadcastValueIfThird(const ptr<BVBroadcastMessage>& _m) {
     if (isThirdVote(_m)) {
+        // BVB (02)(03)(04) BVB value has been received from 2 t + 1 nodes. Broadcast it
+        // if it has not yet been broadcast
         networkBroadcastValue(_m);
     }
 }
@@ -533,7 +540,7 @@ void BinConsensusInstance::proceedWithNewRound(bin_consensus_value _value) {
         return;
     }
 
-    commitValueIfTwoThirds(m);
+    addToBinValuesIfTwoThirds(m);
 
 }
 

@@ -122,9 +122,9 @@ class BinConsensusInstance : public ProtocolInstance{
     void setProposal(bin_consensus_round _r, bin_consensus_value _v);
 
 
-    void insertValue(bin_consensus_round _r, bin_consensus_value _v);
+    void insertIntoBinValues(bin_consensus_round _r, bin_consensus_value _v);
 
-    void commitValueIfTwoThirds(const ptr<BVBroadcastMessage>& _m);
+    void addToBinValuesIfTwoThirds(const ptr<BVBroadcastMessage>& _m);
 
     bool bvbVote(const ptr<MessageEnvelope>& _me);
 
