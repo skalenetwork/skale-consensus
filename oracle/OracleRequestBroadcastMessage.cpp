@@ -35,16 +35,16 @@
 #include "OracleAgent.h"
 #include "OracleRequestBroadcastMessage.h"
 
-OracleRequestBroadcastMessage::OracleRequestBroadcastMessage(block_id _blockID,
+OracleRequestBroadcastMessage::OracleRequestBroadcastMessage(string _uri, block_id _blockID,
                                                              uint64_t _timeMs,
                                                              OracleAgent &sourceProtocolInstance)
         : NetworkMessage(MSG_ORACLE_REQ_BROADCAST, _blockID, 0, 0, 0, _timeMs,
-                         sourceProtocolInstance) {
+                         sourceProtocolInstance), uri(_uri) {
     printPrefix = "o";
 }
 
 
-OracleRequestBroadcastMessage::OracleRequestBroadcastMessage(node_id _srcNodeID, block_id _blockID,
+OracleRequestBroadcastMessage::OracleRequestBroadcastMessage(string _uri, node_id _srcNodeID, block_id _blockID,
                                                              uint64_t _timeMs,
                                                              schain_id _schainId, msg_id _msgID,
                                                              schain_index _srcSchainIndex,
@@ -53,7 +53,7 @@ OracleRequestBroadcastMessage::OracleRequestBroadcastMessage(node_id _srcNodeID,
         : NetworkMessage(
         MSG_ORACLE_REQ_BROADCAST, _srcNodeID, _blockID, 0, 0, 0, _timeMs, _schainId, _msgID,
         "", _ecdsaSig, _publicKey, _pkSig,
-        _srcSchainIndex, _sChain->getCryptoManager()) {
+        _srcSchainIndex, _sChain->getCryptoManager()), uri(_uri) {
     printPrefix = "o";
 };
 
