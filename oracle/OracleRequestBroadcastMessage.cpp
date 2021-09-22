@@ -35,7 +35,7 @@
 #include "OracleAgent.h"
 #include "OracleRequestBroadcastMessage.h"
 
-OracleRequestBroadcastMessage::OracleRequestBroadcastMessage(string _uri, block_id _blockID,
+OracleRequestBroadcastMessage::OracleRequestBroadcastMessage(string& _uri, block_id _blockID,
                                                              uint64_t _timeMs,
                                                              OracleAgent &sourceProtocolInstance)
         : NetworkMessage(MSG_ORACLE_REQ_BROADCAST, _blockID, 0, 0, 0, _timeMs,
@@ -44,7 +44,7 @@ OracleRequestBroadcastMessage::OracleRequestBroadcastMessage(string _uri, block_
 }
 
 
-OracleRequestBroadcastMessage::OracleRequestBroadcastMessage(string _uri, node_id _srcNodeID, block_id _blockID,
+OracleRequestBroadcastMessage::OracleRequestBroadcastMessage(string& _uri, node_id _srcNodeID, block_id _blockID,
                                                              uint64_t _timeMs,
                                                              schain_id _schainId, msg_id _msgID,
                                                              schain_index _srcSchainIndex,

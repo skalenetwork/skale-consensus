@@ -45,6 +45,7 @@
 #include "network/Buffer.h"
 #include "network/Network.h"
 #include "node/NodeInfo.h"
+#include "oracle/OracleRequestBroadcastMessage.h"
 #include "protocols/ProtocolKey.h"
 #include "protocols/binconsensus/AUXBroadcastMessage.h"
 #include "protocols/binconsensus/BVBroadcastMessage.h"
@@ -248,9 +249,11 @@ ptr<NetworkMessage> NetworkMessage::parseMessage(const string& _header, Schain *
     CHECK_ARGUMENT(!_header.empty());
     CHECK_ARGUMENT(_sChain);
 
+    Document d;
+
     try {
 
-        Document d;
+
         d.Parse(_header.data());
 
         CHECK_STATE(!d.HasParseError());
@@ -313,6 +316,15 @@ ptr<NetworkMessage> NetworkMessage::parseMessage(const string& _header, Schain *
                                                           sigShare,
                                                           srcSchainIndex, ecdsaSig, publicKey, pkSig,
                                                           _sChain);
+        } else if (type == BasicHeader::ORACLE_REQUEST_BROADCAST) {
+            string uri = getStringRapid(d, "uri");
+            CHECK_STATE(!uri.empty())
+            nwkMsg = make_shared<OracleRequestBroadcastMessage>(uri, node_id(srcNodeID),
+                                                            block_id(blockID),
+                                                            timeMs,
+                                                            schain_id(sChainID), msg_id(msgID),
+                                                            srcSchainIndex, ecdsaSig, publicKey, pkSig,
+                                                            _sChain);
         } else {
             CHECK_STATE(false)
         }
