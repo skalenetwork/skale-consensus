@@ -83,6 +83,7 @@
 #include "network/Sockets.h"
 #include "network/ZMQSockets.h"
 #include "node/NodeInfo.h"
+#include "oracle/OracleAgent.h"
 #include "pricing/PricingAgent.h"
 #include "protocols/ProtocolInstance.h"
 #include "protocols/blockconsensus/BlockConsensusAgent.h"
@@ -161,9 +162,10 @@ void Schain::messageThreadProcessingLoop( Schain* _sChain ) {
 
                 try {
                     if (m->getMessage()->getMsgType() == MSG_ORACLE_REQ_BROADCAST) {
-
+                        _sChain->getOracleInstance()->routeAndProcessMessage( m );
+                    } else {
+                        _sChain->getBlockConsensusInstance()->routeAndProcessMessage(m);
                     }
-                    _sChain->getBlockConsensusInstance()->routeAndProcessMessage( m );
                 } catch ( exception& e ) {
                     SkaleException::logNested( e );
 

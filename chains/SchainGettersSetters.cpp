@@ -160,6 +160,11 @@ ptr<BlockConsensusAgent> Schain::getBlockConsensusInstance() {
     return blockConsensusInstance;
 }
 
+ptr<OracleAgent> Schain::getOracleInstance() {
+    CHECK_STATE(oracleInstance != nullptr)
+    return oracleInstance;
+}
+
 
 ptr<NodeInfo> Schain::getThisNodeInfo() const {
     CHECK_STATE(thisNodeInfo)

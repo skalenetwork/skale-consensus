@@ -271,6 +271,9 @@ public:
 
     ptr< BlockConsensusAgent > getBlockConsensusInstance();
 
+    ptr< OracleAgent > getOracleInstance();
+
+
     ptr< NodeInfo > getThisNodeInfo() const;
 
     node_count getNodeCount();
