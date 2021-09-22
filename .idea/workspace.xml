@@ -37,14 +37,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ec15c893-7f20-4493-be40-38b8f69efc54" name="Default Changelist" comment="bug/SKALE-4616-oracle-mvp">
+      <change afterPath="$PROJECT_DIR$/oracle/OracleResponseMessage.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/oracle/OracleResponseMessage.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/headers/BasicHeader.h" beforeDir="false" afterPath="$PROJECT_DIR$/headers/BasicHeader.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libBLS/deps/libff/depends/xbyak" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/deps/libff/depends/xbyak" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/messages/Message.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/messages/Message.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/messages/Message.h" beforeDir="false" afterPath="$PROJECT_DIR$/messages/Message.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/messages/NetworkMessage.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/messages/NetworkMessage.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/oracle/OracleRequestBroadcastMessage.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/oracle/OracleRequestBroadcastMessage.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/oracle/OracleRequestBroadcastMessage.h" beforeDir="false" afterPath="$PROJECT_DIR$/oracle/OracleRequestBroadcastMessage.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -364,13 +361,6 @@
       <workItem from="1631613403904" duration="2725000" />
       <workItem from="1631699230594" duration="12654000" />
       <workItem from="1631801800844" duration="3900000" />
-    </task>
-    <task id="LOCAL-00039" summary="task/SKALE-4386-save-visualization">
-      <created>1626203295353</created>
-      <option name="number" value="00039" />
-      <option name="presentableId" value="LOCAL-00039" />
-      <option name="project" value="LOCAL" />
-      <updated>1626203295353</updated>
     </task>
     <task id="LOCAL-00040" summary="task/SKALE-4386-save-visualization">
       <created>1626207474707</created>
@@ -708,7 +698,14 @@
       <option name="project" value="LOCAL" />
       <updated>1632317429856</updated>
     </task>
-    <option name="localTasksCounter" value="88" />
+    <task id="LOCAL-00088" summary="bug/SKALE-4616-oracle-mvp">
+      <created>1632321104438</created>
+      <option name="number" value="00088" />
+      <option name="presentableId" value="LOCAL-00088" />
+      <option name="project" value="LOCAL" />
+      <updated>1632321104438</updated>
+    </task>
+    <option name="localTasksCounter" value="89" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
