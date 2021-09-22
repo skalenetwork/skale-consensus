@@ -127,6 +127,8 @@ AUX_SOURCE_DIRECTORY(monitoring monitoring_src)
 AUX_SOURCE_DIRECTORY(utils utils_src)
 AUX_SOURCE_DIRECTORY(statusserver statusserver_src)
 AUX_SOURCE_DIRECTORY(sgxclient sgxclient_src)
+AUX_SOURCE_DIRECTORY(oracle oracle_src)
+
 
 
 SET(SRC_FILES
@@ -151,6 +153,7 @@ SET(SRC_FILES
         ${messages_src}
         ${network_src}
         ${node_src}
+        ${oracle_src}
         ${pendingqueue_src}
         ${pricing_src}
         ${protocols_src}
