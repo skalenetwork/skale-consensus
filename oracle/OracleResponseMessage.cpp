@@ -35,16 +35,16 @@
 #include "OracleAgent.h"
 #include "OracleResponseMessage.h"
 
-OracleResponseMessage::OracleResponseMessage(string& _uri, block_id _blockID,
+OracleResponseMessage::OracleResponseMessage(string _value, string& _uri, block_id _blockID,
                                                              uint64_t _timeMs,
                                                              OracleAgent &sourceProtocolInstance)
         : NetworkMessage(MSG_ORACLE_RSP, _blockID, 0, 0, 0, _timeMs,
-                         sourceProtocolInstance), uri(_uri) {
-    printPrefix = "o";
+                         sourceProtocolInstance), uri(_uri), value(_value)  {
+    printPrefix = "r";
 }
 
 
-OracleResponseMessage::OracleResponseMessage(string& _uri, node_id _srcNodeID, block_id _blockID,
+OracleResponseMessage::OracleResponseMessage(string _value, string& _uri, node_id _srcNodeID, block_id _blockID,
                                                              uint64_t _timeMs,
                                                              schain_id _schainId, msg_id _msgID,
                                                              schain_index _srcSchainIndex,
@@ -53,7 +53,7 @@ OracleResponseMessage::OracleResponseMessage(string& _uri, node_id _srcNodeID, b
         : NetworkMessage(
         MSG_ORACLE_RSP, _srcNodeID, _blockID, 0, 0, 0, _timeMs, _schainId, _msgID,
         "", _ecdsaSig, _publicKey, _pkSig,
-        _srcSchainIndex, _sChain->getCryptoManager()), uri(_uri) {
-    printPrefix = "o";
+        _srcSchainIndex, _sChain->getCryptoManager()), uri(_uri), value(_value) {
+    printPrefix = "r";
 };
 
