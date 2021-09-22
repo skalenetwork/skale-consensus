@@ -16,24 +16,35 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file OracleRequestBroadcastMessage.h
+    @file OracleAgent.h
     @author Stan Kladko
     @date 2018
 */
 
 #pragma once
 
+class Schain;
 
-#include "messages/NetworkMessage.h"
+class OracleRequestBroadcastMessage;
+class CryptoManager;
 
-class OracleProtocolInstance;
 
+#include "protocols/ProtocolInstance.h"
 
-class OracleRequestBroadcastMessage : public NetworkMessage {
+#include "thirdparty/lrucache.hpp"
+
+class OracleAgent : public ProtocolInstance {
+
+    recursive_mutex m;
+
 public:
-    OracleRequestBroadcastMessage( block_id _blockID, uint64_t _timeMs, OracleAgent& sourceProtocolInstance );
 
-    OracleRequestBroadcastMessage( node_id _srcNodeID, block_id _blockID,  uint64_t _timeMs, schain_id _schainId,
-                        msg_id _msgID, schain_index _srcSchainIndex, const string & _ecdsaSig,
-                        const string & _publicKey, const string & _pkSig, Schain* _sChain );
+
+    OracleAgent(Schain& _schain);
+
+
+    void routeAndProcessMessage(const ptr<MessageEnvelope>& _me );
+
+    void doOracle(const ptr<OracleRequestBroadcastMessage> &_m);
 };
+

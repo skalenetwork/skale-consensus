@@ -36,13 +36,14 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ec15c893-7f20-4493-be40-38b8f69efc54" name="Default Changelist" comment="bug/SKALE-4593">
-      <change afterPath="$PROJECT_DIR$/oracle/OracleRequestBroadCastMessage.h" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/oracle/OracleRequestBroadcastMessage.cpp" afterDir="false" />
+    <list default="true" id="ec15c893-7f20-4493-be40-38b8f69efc54" name="Default Changelist" comment="bug/SKALE-4616-oracle-mvp">
+      <change afterPath="$PROJECT_DIR$/oracle/OracleAgent.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/oracle/OracleAgent.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libBLS/deps/libff/depends/xbyak" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/deps/libff/depends/xbyak" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/messages/Message.h" beforeDir="false" afterPath="$PROJECT_DIR$/messages/Message.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/oracle/OracleRequestBroadcastMessage.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/oracle/OracleRequestBroadcastMessage.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/oracle/OracleRequestBroadcastMessage.h" beforeDir="false" afterPath="$PROJECT_DIR$/oracle/OracleRequestBroadcastMessage.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/protocols/ProtocolInstance.h" beforeDir="false" afterPath="$PROJECT_DIR$/protocols/ProtocolInstance.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -61,7 +62,7 @@
     </option>
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="eb10e82bb2ed0188e9a92e8a58c762a11d6013e8" />
+        <entry key="$PROJECT_DIR$" value="develop" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -106,6 +107,9 @@
     <setting file="file://$PROJECT_DIR$/json/JSONFactory.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/sgxwallet/ZMQServer.cpp" root0="FORCE_HIGHLIGHTING" />
   </component>
+  <component name="ProblemsViewState">
+    <option name="selectedIndex" value="1" />
+  </component>
   <component name="ProjectId" id="1tLjZg8PrXyNb5KH1T9D17V0hIk" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
@@ -131,12 +135,13 @@
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/oracle/" />
       <recent name="$PROJECT_DIR$/oracle" />
       <recent name="$PROJECT_DIR$/test" />
       <recent name="$PROJECT_DIR$/monitoring" />
     </key>
   </component>
-  <component name="RunManager" selected="CMake Application.3d-4">
+  <component name="RunManager" selected="CMake Application.consensust">
     <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
       <method v="2">
         <option name="CLION.EXTERNAL.BUILD" enabled="true" />
@@ -358,13 +363,6 @@
       <workItem from="1631613403904" duration="2725000" />
       <workItem from="1631699230594" duration="12654000" />
       <workItem from="1631801800844" duration="3900000" />
-    </task>
-    <task id="LOCAL-00034" summary="task/SKALE-4386-save-visualization">
-      <created>1625839716788</created>
-      <option name="number" value="00034" />
-      <option name="presentableId" value="LOCAL-00034" />
-      <option name="project" value="LOCAL" />
-      <updated>1625839716788</updated>
     </task>
     <task id="LOCAL-00035" summary="task/SKALE-4386-save-visualization">
       <created>1626084900617</created>
@@ -702,7 +700,14 @@
       <option name="project" value="LOCAL" />
       <updated>1632238965781</updated>
     </task>
-    <option name="localTasksCounter" value="83" />
+    <task id="LOCAL-00083" summary="bug/SKALE-4616-oracle-mvp">
+      <created>1632312022938</created>
+      <option name="number" value="00083" />
+      <option name="presentableId" value="LOCAL-00083" />
+      <option name="project" value="LOCAL" />
+      <updated>1632312022938</updated>
+    </task>
+    <option name="localTasksCounter" value="84" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -736,7 +741,8 @@
     <MESSAGE value="bug/SKALE-4591" />
     <MESSAGE value="bug/SKALE-4285-deadlock-detection" />
     <MESSAGE value="bug/SKALE-4593" />
-    <option name="LAST_COMMIT_MESSAGE" value="bug/SKALE-4593" />
+    <MESSAGE value="bug/SKALE-4616-oracle-mvp" />
+    <option name="LAST_COMMIT_MESSAGE" value="bug/SKALE-4616-oracle-mvp" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
