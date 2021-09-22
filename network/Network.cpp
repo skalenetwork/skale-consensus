@@ -270,7 +270,9 @@ void Network::postDeferOrDrop( const ptr< NetworkMessageEnvelope >& _me ) {
 
     CHECK_STATE( msg );
 
-    if ( sChain->getBlockConsensusInstance()->shouldPost( msg ) ) {
+    if (msg->getMsgType() == MSG_ORACLE_REQ_BROADCAST) {
+        sChain->postMessage( _me );
+    } else if( sChain->getBlockConsensusInstance()->shouldPost( msg ) ) {
         sChain->postMessage( _me );
     } else {
         addToDeferredMessageQueue( _me );

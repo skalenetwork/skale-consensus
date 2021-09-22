@@ -67,6 +67,7 @@ class Node;
 class PendingTransactionsAgent;
 
 class BlockConsensusAgent;
+class OracleAgent;
 class PricingAgent;
 class IO;
 class Sockets;
@@ -204,6 +205,7 @@ public:
     uint64_t getLastCommitTimeMs();
 
     ptr< BlockConsensusAgent > blockConsensusInstance;
+    ptr< OracleAgent > oracleInstance;
 
     void createBlockConsensusInstance();
 
@@ -324,5 +326,7 @@ public:
     void checkForDeadLock(const char* _functionName);
 
     void printBlockLog(const ptr< CommittedBlock >& _block);
+
+    void createOracleInstance();
 };
 

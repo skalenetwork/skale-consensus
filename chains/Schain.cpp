@@ -160,6 +160,9 @@ void Schain::messageThreadProcessingLoop( Schain* _sChain ) {
                 CHECK_STATE( ( uint64_t ) m->getMessage()->getBlockId() != 0 );
 
                 try {
+                    if (m->getMessage()->getMsgType() == MSG_ORACLE_REQ_BROADCAST) {
+
+                    }
                     _sChain->getBlockConsensusInstance()->routeAndProcessMessage( m );
                 } catch ( exception& e ) {
                     SkaleException::logNested( e );

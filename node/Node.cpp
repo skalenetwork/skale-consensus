@@ -389,6 +389,7 @@ void Node::initSchain(const ptr<Node>& _node, const ptr<NodeInfo>& _localNodeInf
         _node->setSchain(sChain);
 
         sChain->createBlockConsensusInstance();
+        sChain->createOracleInstance();
 
     } catch (...) {
         throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
