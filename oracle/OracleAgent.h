@@ -30,12 +30,23 @@ class CryptoManager;
 
 
 #include "protocols/ProtocolInstance.h"
+#include "OracleRequestBroadcastMessage.h"
+#include "OracleResponseMessage.h"
+
 
 #include "thirdparty/lrucache.hpp"
+#include "sgxwallet/third_party/concurrentqueue.h"
+#include "sgxwallet/third_party/readerwriterqueue.h"
+
+using namespace moodycamel;
 
 class OracleAgent : public ProtocolInstance {
 
     recursive_mutex m;
+
+    ConcurrentQueue<shared_ptr<OracleResponseMessage>> outgoingQueue;
+
+    vector<BlockingReaderWriterQueue<shared_ptr<OracleResponseMessage>>> incomingQueues;
 
 public:
 
