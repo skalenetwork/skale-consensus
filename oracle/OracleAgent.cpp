@@ -81,6 +81,6 @@ void OracleAgent::routeAndProcessMessage(const ptr<MessageEnvelope> &_me) {
 
 }
 
-void OracleAgent::doOracle(const ptr<OracleRequestBroadcastMessage> &) {
+void OracleAgent::workerThreadItemSendLoop(OracleAgent* ) {
 
 }

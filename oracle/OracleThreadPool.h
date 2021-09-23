@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2018-2019 SKALE Labs
+    Copyright (C) 2021- SKALE Labs
 
     This file is part of skale-consensus.
 
@@ -16,42 +16,19 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file OracleAgent.h
+    @file OraclePusherThreadPool.h
     @author Stan Kladko
-    @date 2018
+    @date 2021
 */
 
 #pragma once
 
-class Schain;
 
-class OracleRequestBroadcastMessage;
-class CryptoManager;
+#include "threads/WorkerThreadPool.h"
 
-
-#include "protocols/ProtocolInstance.h"
-
-
-#include "thirdparty/lrucache.hpp"
-#include "sgxwallet/third_party/concurrentqueue.h"
-#include "sgxwallet/third_party/readerwriterqueue.h"
-
-using namespace moodycamel;
-
-class MessageEnvelope;
-class OracleResponseMessage;
-class OracleRequestBroadcastMessage;
-
-class OracleAgent : public ProtocolInstance {
-
-    vector<shared_ptr<BlockingReaderWriterQueue<shared_ptr<MessageEnvelope>>>> incomingQueues;
-
+class OracleThreadPool : public WorkerThreadPool {
 public:
+    OracleThreadPool( num_threads _numThreads, Agent* _agent );
 
-    OracleAgent(Schain& _schain);
-
-    void routeAndProcessMessage(const ptr<MessageEnvelope>& _me );
-
-    static void workerThreadItemSendLoop(OracleAgent* agent );
+    void createThread( uint64_t _number ) override;
 };
-
