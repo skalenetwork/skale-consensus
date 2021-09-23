@@ -81,6 +81,8 @@ void OracleAgent::routeAndProcessMessage(const ptr<MessageEnvelope>& _me ) {
                     dynamic_pointer_cast<OracleRequestBroadcastMessage>( _me->getMessage());
 
 
+
+
         this->doOracle(requestMessage);
         return;
 

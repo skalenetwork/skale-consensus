@@ -30,8 +30,6 @@ class CryptoManager;
 
 
 #include "protocols/ProtocolInstance.h"
-#include "OracleRequestBroadcastMessage.h"
-#include "OracleResponseMessage.h"
 
 
 #include "thirdparty/lrucache.hpp"
@@ -40,13 +38,17 @@ class CryptoManager;
 
 using namespace moodycamel;
 
+class MessageEnvelope;
+class OracleResponseMessage;
+class OracleRequestBroadcastMessage;
+
 class OracleAgent : public ProtocolInstance {
 
     recursive_mutex m;
 
-    ConcurrentQueue<shared_ptr<OracleResponseMessage>> outgoingQueue;
+    ConcurrentQueue<shared_ptr<MessageEnvelope>> outgoingQueue;
 
-    vector<BlockingReaderWriterQueue<shared_ptr<OracleResponseMessage>>> incomingQueues;
+    vector<BlockingReaderWriterQueue<shared_ptr<MessageEnvelope>>> incomingQueues;
 
 public:
 
