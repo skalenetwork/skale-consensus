@@ -77,6 +77,8 @@ public:
 
     static string ipToString(uint32_t _ip);
 
+    void broadcastOracleMessage(const ptr<NetworkMessage>& _msg);
+
     void broadcastMessage(const ptr<NetworkMessage>& _msg);
 
     void rebroadcastMessage(const ptr<NetworkMessage>& _msg);

@@ -37,9 +37,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ec15c893-7f20-4493-be40-38b8f69efc54" name="Default Changelist" comment="bug/SKALE-4616-oracle-mvp">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libBLS/deps/libff/depends/xbyak" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/deps/libff/depends/xbyak" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/oracle/OracleAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/oracle/OracleAgent.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/oracle/OracleAgent.h" beforeDir="false" afterPath="$PROJECT_DIR$/oracle/OracleAgent.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/network/Network.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/network/Network.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/network/Network.h" beforeDir="false" afterPath="$PROJECT_DIR$/network/Network.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/sgxwallet" beforeDir="false" afterPath="$PROJECT_DIR$/sgxwallet" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/sgxwallet/intel-sgx-ssl" beforeDir="false" afterPath="$PROJECT_DIR$/sgxwallet/intel-sgx-ssl" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/sgxwallet/libBLS" beforeDir="false" afterPath="$PROJECT_DIR$/sgxwallet/libBLS" afterDir="false" />
@@ -360,14 +361,7 @@
       <workItem from="1631613403904" duration="2725000" />
       <workItem from="1631699230594" duration="12654000" />
       <workItem from="1631801800844" duration="3900000" />
-      <workItem from="1632390070861" duration="1292000" />
-    </task>
-    <task id="LOCAL-00044" summary="bug/SKALE-4440-sgx">
-      <created>1628259964970</created>
-      <option name="number" value="00044" />
-      <option name="presentableId" value="LOCAL-00044" />
-      <option name="project" value="LOCAL" />
-      <updated>1628259964970</updated>
+      <workItem from="1632390070861" duration="2654000" />
     </task>
     <task id="LOCAL-00045" summary="bug/SKALE-4440-sgx cherrypick">
       <created>1628263307495</created>
@@ -705,7 +699,14 @@
       <option name="project" value="LOCAL" />
       <updated>1632390703378</updated>
     </task>
-    <option name="localTasksCounter" value="93" />
+    <task id="LOCAL-00093" summary="bug/SKALE-4616-oracle-mvp">
+      <created>1632391582865</created>
+      <option name="number" value="00093" />
+      <option name="presentableId" value="LOCAL-00093" />
+      <option name="project" value="LOCAL" />
+      <updated>1632391582865</updated>
+    </task>
+    <option name="localTasksCounter" value="94" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
