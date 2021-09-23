@@ -59,38 +59,28 @@
 #include "OracleRequestBroadcastMessage.h"
 
 
-
 OracleAgent::OracleAgent(Schain &_schain) : ProtocolInstance(
         ORACLE, _schain) {
+    for (int i = 0; i < NUM_ORACLE_THREADS; i++) {
+        incomingQueues.push_back(
+                make_shared<BlockingReaderWriterQueue<shared_ptr<MessageEnvelope>>>());
+    }
 };
 
-void OracleAgent::routeAndProcessMessage(const ptr<MessageEnvelope>& _me ) {
+void OracleAgent::routeAndProcessMessage(const ptr<MessageEnvelope> &_me) {
 
-    CHECK_ARGUMENT( _me );
+    CHECK_ARGUMENT(_me);
 
-    try {
+    CHECK_ARGUMENT(_me->getMessage()->getBlockId() > 0);
 
+    CHECK_STATE(_me->getMessage()->getMessageType() == MSG_ORACLE_REQ_BROADCAST);
 
-        CHECK_ARGUMENT( _me->getMessage()->getBlockId() > 0);
-        CHECK_ARGUMENT( _me->getOrigin() != ORIGIN_PARENT);
+    this->incomingQueues.at(0)->enqueue(_me);
 
-        CHECK_STATE(_me->getMessage()->getMessageType() == MSG_ORACLE_REQ_BROADCAST);
+    return;
 
-
-        auto requestMessage =
-                    dynamic_pointer_cast<OracleRequestBroadcastMessage>( _me->getMessage());
-
-
-
-
-        this->doOracle(requestMessage);
-        return;
-
-    } catch (ExitRequestedException &) { throw; } catch (...) {
-        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
-    }
 }
 
-void OracleAgent::doOracle(const ptr<OracleRequestBroadcastMessage>&  ) {
+void OracleAgent::doOracle(const ptr<OracleRequestBroadcastMessage> &) {
 
 }

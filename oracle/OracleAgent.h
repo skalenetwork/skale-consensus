@@ -46,9 +46,7 @@ class OracleAgent : public ProtocolInstance {
 
     recursive_mutex m;
 
-    ConcurrentQueue<shared_ptr<MessageEnvelope>> outgoingQueue;
-
-    vector<BlockingReaderWriterQueue<shared_ptr<MessageEnvelope>>> incomingQueues;
+    vector<shared_ptr<BlockingReaderWriterQueue<shared_ptr<MessageEnvelope>>>> incomingQueues;
 
 public:
 
