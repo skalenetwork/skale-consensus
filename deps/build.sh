@@ -2130,6 +2130,7 @@ then
 			-DARGTABLE_INCLUDE_DIR="$SOURCES_ROOT/argtable2/src" \
 			-DARGTABLE_LIBRARY="$INSTALL_ROOT/lib/libargtable2${DEBUG_D}.a" \
 			-DJSONCPP_INCLUDE_DIR="$INSTALL_ROOT/include" \
+			-DCURL_INCLUDE_DIR="$INSTALL_ROOT/include" \
 			..
 		echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
 		$MAKE ${PARALLEL_MAKE_OPTIONS}
