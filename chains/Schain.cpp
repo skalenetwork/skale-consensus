@@ -821,7 +821,7 @@ void Schain::ifIncompleteConsensusDetectedRestartAndRebroadcastAllMessagesForCur
 
         auto messages = getNode()->getOutgoingMsgDB()->getMessages( lastCommittedBlockID + 1 );
         CHECK_STATE(messages);
-        LOG(info, "Rebroadcasting " + to_string(messages->size()) + "messages for block" +
+        LOG(info, "Rebroadcasting " + to_string(messages->size()) + " messages for block " +
                   to_string(lastCommittedBlockID + 1));
         for ( auto&& m : *messages ) {
             getNode()->getNetwork()->rebroadcastMessage(m);
@@ -834,7 +834,7 @@ void Schain::rebroadcastAllMessagesForCurrentBlock()  {
     if ( proposalVector ) {
         auto messages = getNode()->getOutgoingMsgDB()->getMessages( lastCommittedBlockID + 1 );
         CHECK_STATE(messages);
-        LOG(info, "Rebroadcasting " + to_string(messages->size()) + "messages for block" +
+        LOG(info, "Rebroadcasting " + to_string(messages->size()) + " messages for block " +
         to_string(lastCommittedBlockID + 1));
         for ( auto&& m : *messages ) {
             getNode()->getNetwork()->rebroadcastMessage(m);
