@@ -37,23 +37,20 @@ protected:
 
 protected:
 
-    ptr<NodeInfo> srcNodeInfo;
+    schain_index srcSchainIndex;
 
 public:
 
 
     MessageEnvelope(MessageOrigin origin, const ptr<Message> &_message,
-                    const ptr<NodeInfo> &_realSender);
+                    schain_index _srcSchainIndex);
 
     [[nodiscard]] ptr<Message> getMessage() const;
 
     [[nodiscard]] MessageOrigin getOrigin() const;
 
 
-    [[nodiscard]] ptr<NodeInfo> getSrcNodeInfo() const {
-        CHECK_STATE(srcNodeInfo);
-        return srcNodeInfo;
-    }
+    [[nodiscard]] schain_index getSrcSchainIndex() const;
 
     virtual ~MessageEnvelope();;
 

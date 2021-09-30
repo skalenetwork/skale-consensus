@@ -51,7 +51,6 @@ class BlockConsensusAgent : public ProtocolInstance {
     ptr<cache::lru_cache<uint64_t , ptr<map<schain_index, ptr<ChildBVDecidedMessage>>>>> falseDecisions;
     ptr<cache::lru_cache<uint64_t , schain_index>> decidedIndices;
 
-
     void processChildMessageImpl(const ptr<InternalMessageEnvelope>& _me);
 
     void decideBlock(block_id _blockId, schain_index _sChainIndex, const string& _stats);
@@ -64,7 +63,6 @@ class BlockConsensusAgent : public ProtocolInstance {
 
     void startConsensusProposal(block_id _blockID, const ptr<BooleanProposalVector>& _proposal);
 
-
     void processBlockSignMessage(const ptr<BlockSignBroadcastMessage>& _message);
 
 
@@ -72,7 +70,6 @@ class BlockConsensusAgent : public ProtocolInstance {
 
 
     bool decided(const ptr<ProtocolKey>& _key);
-
 
     string buildStats(block_id _blockID);
 

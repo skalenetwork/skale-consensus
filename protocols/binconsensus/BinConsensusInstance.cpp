@@ -253,7 +253,7 @@ void BinConsensusInstance::addCommonCoinToHistory(bin_consensus_round _r, bin_co
     bin_consensus_round r = m->getRound();
     bin_consensus_value v = m->getValue();
 
-    schain_index index = _me->getSrcNodeInfo()->getSchainIndex();
+    schain_index index = _me->getSrcSchainIndex();
 
     getSchain()->getNode()->getConsensusStateDB()->writeBVBVote(getBlockID(),
                                                                 getBlockProposerIndex(), r, index, v);
@@ -279,7 +279,7 @@ bool BinConsensusInstance::bvbVoteCore(const bin_consensus_round &_r, const bin_
     auto r = m->getRound();
     bin_consensus_value v = m->getValue();
 
-    auto index = _me->getSrcNodeInfo()->getSchainIndex();
+    auto index = _me->getSrcSchainIndex();
 
 
     ptr<ThresholdSigShare> sigShare = nullptr;
@@ -562,7 +562,7 @@ void BinConsensusInstance::proceedWithNextRound(bin_consensus_value _value) {
                                              getCurrentRound(), _value,
                                              Time::getCurrentTimeMs(), *this);
 
-    ptr<MessageEnvelope> me = make_shared<MessageEnvelope>(ORIGIN_NETWORK, m, getSchain()->getThisNodeInfo());
+    ptr<MessageEnvelope> me = make_shared<MessageEnvelope>(ORIGIN_NETWORK, m, getSchain()->getSchainIndex());
 
     networkBroadcastValue(m);
 
