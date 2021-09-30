@@ -845,4 +845,6 @@ void BinConsensusInstance::setProposal(bin_consensus_round _r, bin_consensus_val
     proposals[_r] = _v;
 }
 
+
+
 recursive_mutex BinConsensusInstance::historyMutex;

@@ -42,6 +42,9 @@ class ProtocolKey;
 
 class BinConsensusInstance : public ProtocolInstance{
 
+    friend class BlockConsensusAgent;
+    friend class HistoryMessage;
+
     BlockConsensusAgent* const blockConsensusInstance = nullptr;
     const block_id blockID = 0;;
     const schain_index blockProposerIndex = 0;
@@ -192,16 +195,10 @@ class BinConsensusInstance : public ProtocolInstance{
 
     void processParentProposal(const ptr<InternalMessageEnvelope>& _me);
 
-public:
-
     void processMessage(const ptr<MessageEnvelope>& _me );
 
-    BinConsensusInstance(BlockConsensusAgent* _instance, block_id _blockId, schain_index _blockProposerIndex,
-            bool _initFromDB = false);
 
     bin_consensus_round getCurrentRound();
-
-    static void initHistory(node_count _nodeCount);
 
     void initFromDB(const BlockConsensusAgent *_instance);
 
@@ -225,6 +222,17 @@ public:
                      const ptr<ThresholdSigShare> &sigShare);
 
     uint64_t computeRandom(bin_consensus_round &_r);
+
+
+
+public:
+
+    BinConsensusInstance(BlockConsensusAgent* _instance, block_id _blockId, schain_index _blockProposerIndex,
+                         bool _initFromDB = false);
+
+
+    static void initHistory(node_count _nodeCount);
+
 };
 
 
