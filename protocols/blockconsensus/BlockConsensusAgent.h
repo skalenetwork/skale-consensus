@@ -38,6 +38,8 @@ class CryptoManager;
 
 class BlockConsensusAgent : public ProtocolInstance {
 
+    friend class BinConsensusInstance;
+
     recursive_mutex m;
 
     // protocol cache for each block proposer
@@ -74,20 +76,14 @@ class BlockConsensusAgent : public ProtocolInstance {
 
     string buildStats(block_id _blockID);
 
-public:
-
-
-
     ptr<BinConsensusInstance> getChild(const ptr<ProtocolKey>& _key);
 
+public:
 
 
     BlockConsensusAgent(Schain& _schain);
 
-
-
     bool shouldPost(const ptr<NetworkMessage>& _msg);
-
 
     void routeAndProcessMessage(const ptr<MessageEnvelope>& _me );
 
