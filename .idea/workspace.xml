@@ -37,9 +37,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ec15c893-7f20-4493-be40-38b8f69efc54" name="Default Changelist" comment="bug/SKALE-4593">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/chains/Schain.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/chains/Schain.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libBLS/deps/libff/depends/xbyak" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/deps/libff/depends/xbyak" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/protocols/binconsensus/BinConsensusInstance.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/protocols/binconsensus/BinConsensusInstance.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sgxwallet" beforeDir="false" afterPath="$PROJECT_DIR$/sgxwallet" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sgxwallet/intel-sgx-ssl" beforeDir="false" afterPath="$PROJECT_DIR$/sgxwallet/intel-sgx-ssl" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sgxwallet/libBLS" beforeDir="false" afterPath="$PROJECT_DIR$/sgxwallet/libBLS" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sgxwallet/linux-sgx-driver" beforeDir="false" afterPath="$PROJECT_DIR$/sgxwallet/linux-sgx-driver" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -58,7 +62,7 @@
     </option>
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="eb10e82bb2ed0188e9a92e8a58c762a11d6013e8" />
+        <entry key="$PROJECT_DIR$" value="develop" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -77,7 +81,6 @@
     <setting file="file://$PROJECT_DIR$/network/ZMQSockets.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/network/IO.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/crypto/BLAKE3Hash.h" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/sgxwallet/ZMQServer.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/sgxclient/SgxZmqClient.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/sgxclient/SgxZmqClient.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/crypto/CryptoManager.cpp" root0="FORCE_HIGHLIGHTING" />
@@ -96,12 +99,10 @@
     <setting file="file://$PROJECT_DIR$/thirdparty/zguide/zhelpers.hpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/blockproposal/pusher/BlockProposalClientAgent.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/crypto/CryptoManager.h" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/sgxwallet/ServerWorker.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Consensust.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/catchup/client/CatchupClientAgent.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/crypto/BLAKE3Hash.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/json/JSONFactory.cpp" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/sgxwallet/ZMQServer.cpp" root0="FORCE_HIGHLIGHTING" />
   </component>
   <component name="ProjectId" id="1tLjZg8PrXyNb5KH1T9D17V0hIk" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
@@ -122,17 +123,18 @@
     <property name="cf.first.check.clang-format" value="false" />
     <property name="cidr.known.project.marker" value="true" />
     <property name="cmake.loaded.for.project" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../skaled" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/test" />
     <property name="run.code.analysis.last.selected.profile" value="pProject Default" />
     <property name="settings.editor.selected.configurable" value="CMakeSettings" />
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/test" />
+      <recent name="$PROJECT_DIR$/test/fournodes" />
       <recent name="$PROJECT_DIR$/monitoring" />
     </key>
   </component>
-  <component name="RunManager" selected="CMake Application.3d-4">
+  <component name="RunManager" selected="CMake Application.1st-4 ">
     <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
       <method v="2">
         <option name="CLION.EXTERNAL.BUILD" enabled="true" />
@@ -180,9 +182,25 @@
         <option name="BeforeTestRunTask" enabled="true" />
       </method>
     </configuration>
+    <configuration name="1st-4 " type="CMakeRunConfiguration" factoryName="Application" singleton="false" PROGRAM_PARAMS="[consensus-basic]" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" WORKING_DIR="file://$PROJECT_DIR$/test/first_out_of_four" PASS_PARENT_ENVS_2="true" PROJECT_NAME="consensus" TARGET_NAME="consensus" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="consensus" RUN_TARGET_NAME="consensust">
+      <envs>
+        <env name="TEST_TIME_S" value="10000" />
+      </envs>
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="2-4" type="CMakeRunConfiguration" factoryName="Application" singleton="false" PROGRAM_PARAMS="[consensus-basic]" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" WORKING_DIR="file://$PROJECT_DIR$/test/two_out_of_four" PASS_PARENT_ENVS_2="true" PROJECT_NAME="consensus" TARGET_NAME="consensus" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="consensus" RUN_TARGET_NAME="consensust">
       <envs>
         <env name="TEST_TIME_S" value="10000" />
+      </envs>
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="2nd-4" type="CMakeRunConfiguration" factoryName="Application" singleton="false" PROGRAM_PARAMS="[consensus-basic-continue]" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" WORKING_DIR="file://$PROJECT_DIR$/test/second_out_of_four" PASS_PARENT_ENVS_2="true" PROJECT_NAME="consensus" TARGET_NAME="consensus" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="consensus" RUN_TARGET_NAME="consensust">
+      <envs>
+        <env name="TEST_TIME_S" value="1000000000" />
       </envs>
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -192,11 +210,6 @@
       <envs>
         <env name="TEST_TIME_S" value="1000000000" />
       </envs>
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
@@ -281,6 +294,11 @@
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
+    <configuration default="true" type="GradleAppRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
+      <method v="2">
+        <option name="com.jetbrains.cidr.cpp.gradle.execution.GradleNativeBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
     <list>
       <item itemvalue="Boost.Test.bls_test" />
       <item itemvalue="Boost.Test.bls_unit_test" />
@@ -291,7 +309,9 @@
       <item itemvalue="Catch.consensust" />
       <item itemvalue="CMake Application.consensust" />
       <item itemvalue="CMake Application.2-4" />
+      <item itemvalue="CMake Application.1st-4 " />
       <item itemvalue="CMake Application.3d-4" />
+      <item itemvalue="CMake Application.2nd-4" />
       <item itemvalue="CMake Application.consensusd" />
       <item itemvalue="CMake Application.all_bls_tests" />
       <item itemvalue="CMake Application.bls" />
@@ -354,20 +374,6 @@
       <workItem from="1631613403904" duration="2725000" />
       <workItem from="1631699230594" duration="12654000" />
       <workItem from="1631801800844" duration="3900000" />
-    </task>
-    <task id="LOCAL-00034" summary="task/SKALE-4386-save-visualization">
-      <created>1625839716788</created>
-      <option name="number" value="00034" />
-      <option name="presentableId" value="LOCAL-00034" />
-      <option name="project" value="LOCAL" />
-      <updated>1625839716788</updated>
-    </task>
-    <task id="LOCAL-00035" summary="task/SKALE-4386-save-visualization">
-      <created>1626084900617</created>
-      <option name="number" value="00035" />
-      <option name="presentableId" value="LOCAL-00035" />
-      <option name="project" value="LOCAL" />
-      <updated>1626084900617</updated>
     </task>
     <task id="LOCAL-00036" summary="task/SKALE-4386-save-visualization">
       <created>1626088936686</created>
@@ -698,7 +704,21 @@
       <option name="project" value="LOCAL" />
       <updated>1632238965781</updated>
     </task>
-    <option name="localTasksCounter" value="83" />
+    <task id="LOCAL-00083" summary="bug/SKALE-4352">
+      <created>1633007337480</created>
+      <option name="number" value="00083" />
+      <option name="presentableId" value="LOCAL-00083" />
+      <option name="project" value="LOCAL" />
+      <updated>1633007337480</updated>
+    </task>
+    <task id="LOCAL-00084" summary="bug/SKALE-4352">
+      <created>1633008021381</created>
+      <option name="number" value="00084" />
+      <option name="presentableId" value="LOCAL-00084" />
+      <option name="project" value="LOCAL" />
+      <updated>1633008021381</updated>
+    </task>
+    <option name="localTasksCounter" value="85" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -732,7 +752,8 @@
     <MESSAGE value="bug/SKALE-4591" />
     <MESSAGE value="bug/SKALE-4285-deadlock-detection" />
     <MESSAGE value="bug/SKALE-4593" />
-    <option name="LAST_COMMIT_MESSAGE" value="bug/SKALE-4593" />
+    <MESSAGE value="bug/SKALE-4352" />
+    <option name="LAST_COMMIT_MESSAGE" value="bug/SKALE-4352" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
