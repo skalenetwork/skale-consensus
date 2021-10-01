@@ -350,6 +350,8 @@ void BlockConsensusAgent::routeAndProcessMessage(const ptr<MessageEnvelope>& _me
             auto consensusProposalMessage =
                 dynamic_pointer_cast<ConsensusProposalMessage>( _me->getMessage());
 
+            cerr << consensusProposalMessage->serializeToString() << endl;
+
             this->startConsensusProposal(
                 _me->getMessage()->getBlockId(),
                                          consensusProposalMessage->getProposals());
@@ -360,7 +362,10 @@ void BlockConsensusAgent::routeAndProcessMessage(const ptr<MessageEnvelope>& _me
 
             auto blockSignBroadcastMessage = dynamic_pointer_cast<BlockSignBroadcastMessage>( _me->getMessage());
 
+
             CHECK_STATE(blockSignBroadcastMessage);
+
+            cerr << blockSignBroadcastMessage->serializeToString() << endl;
 
             this->processBlockSignMessage(dynamic_pointer_cast<BlockSignBroadcastMessage>( _me->getMessage()));
             return;

@@ -90,6 +90,7 @@ void BinConsensusInstance::processMessage(const ptr<MessageEnvelope>& _me ) {
 
         auto nwe = dynamic_pointer_cast<NetworkMessageEnvelope>( _me );
         CHECK_STATE(nwe);
+
         processNetworkMessageImpl(nwe);
         return;
     } else if (msgOrigin == ORIGIN_PARENT) {
@@ -114,6 +115,9 @@ void BinConsensusInstance::processNetworkMessageImpl(const ptr<NetworkMessageEnv
 
     auto message = dynamic_pointer_cast<NetworkMessage>(_me->getMessage());
     CHECK_STATE(message);
+
+    cerr << message->serializeToString() << endl;
+
     auto round = message->getRound();
     addToHistory(message);
 
