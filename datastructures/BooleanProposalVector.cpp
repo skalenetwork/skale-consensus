@@ -81,6 +81,5 @@ string BooleanProposalVector::toString() {
         auto value = (proposals.at(i) ? "1" : "0");
         vectorStr.append(value);
     }
-
     return vectorStr;
 }

@@ -38,15 +38,10 @@
   <component name="ChangeListManager">
     <list default="true" id="ec15c893-7f20-4493-be40-38b8f69efc54" name="Default Changelist" comment="bug/SKALE-4593">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/datastructures/BooleanProposalVector.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/BooleanProposalVector.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libBLS/deps/libff/depends/xbyak" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/deps/libff/depends/xbyak" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/messages/InternalMessageEnvelope.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/messages/InternalMessageEnvelope.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/messages/MessageEnvelope.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/messages/MessageEnvelope.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/messages/MessageEnvelope.h" beforeDir="false" afterPath="$PROJECT_DIR$/messages/MessageEnvelope.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/messages/NetworkMessageEnvelope.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/messages/NetworkMessageEnvelope.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/messages/NetworkMessageEnvelope.h" beforeDir="false" afterPath="$PROJECT_DIR$/messages/NetworkMessageEnvelope.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/network/Network.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/network/Network.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/protocols/binconsensus/BinConsensusInstance.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/protocols/binconsensus/BinConsensusInstance.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/protocols/blockconsensus/BlockConsensusAgent.h" beforeDir="false" afterPath="$PROJECT_DIR$/protocols/blockconsensus/BlockConsensusAgent.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messages/ConsensusProposalMessage.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/messages/ConsensusProposalMessage.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messages/ConsensusProposalMessage.h" beforeDir="false" afterPath="$PROJECT_DIR$/messages/ConsensusProposalMessage.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/sgxwallet" beforeDir="false" afterPath="$PROJECT_DIR$/sgxwallet" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/sgxwallet/intel-sgx-ssl" beforeDir="false" afterPath="$PROJECT_DIR$/sgxwallet/intel-sgx-ssl" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/sgxwallet/libBLS" beforeDir="false" afterPath="$PROJECT_DIR$/sgxwallet/libBLS" afterDir="false" />
