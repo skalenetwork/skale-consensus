@@ -98,7 +98,7 @@ public:
 
     [[nodiscard]] ptr< ThresholdSigShare > getSigShare() const;
 
-    static ptr< NetworkMessage > parseMessage( const string& _header, Schain* _sChain );
+    static ptr< NetworkMessage > parseMessage( const string& _header, Schain* _sChain, bool _lite = false);
 
     static const char* getTypeString( MsgType _type );
 
@@ -111,4 +111,6 @@ public:
     [[nodiscard]] const string & getECDSASig() const;
     [[nodiscard]] const string & getPublicKey() const;
     [[nodiscard]] const string & getPkSig() const;
+
+    string serializeToStringLite();
 };

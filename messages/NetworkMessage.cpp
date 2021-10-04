@@ -141,6 +141,60 @@ void NetworkMessage::printMessage() {
 
 using namespace rapidjson;
 
+// fast serialization for minimum info
+string NetworkMessage::serializeToStringLite() {
+    CHECK_STATE(complete);
+
+
+    StringBuffer sb;
+    Writer<StringBuffer> writer(sb);
+
+    writer.StartObject();
+
+    CHECK_STATE(type != nullptr);
+
+    writer.String("type");
+    writer.String(type);
+    writer.String("bpi");
+    writer.Uint64((uint64_t )getBlockProposerIndex());
+    writer.String("mt");
+    writer.Uint64((uint64_t )msgType);
+    writer.String("mi");
+    writer.Uint64((uint64_t )msgID);
+    writer.String("sni");
+    writer.Uint64((uint64_t) srcNodeID);
+    writer.String("ssi");
+    writer.Uint64((uint64_t) srcSchainIndex);
+    writer.String("r");
+    writer.Uint64((uint64_t )r);
+    writer.String("t");
+    writer.Uint64((uint64_t) timeMs);
+    writer.String("v");
+    writer.Uint64((uint8_t )value);
+
+    if (!sigShareString.empty()) {
+        writer.String("sss");
+        writer.String(sigShareString.data(), sigShareString.size());
+    }
+
+    CHECK_STATE(!ecdsaSig.empty())
+    writer.String("sig");
+    writer.String(ecdsaSig.data(), ecdsaSig.size());
+    writer.String("pk");
+    writer.String(publicKey.data(), publicKey.size());
+    writer.String("pks");
+    writer.String(pkSig.data(), pkSig.size());
+
+    writer.EndObject();
+    writer.Flush();
+    string s(sb.GetString());
+
+    CHECK_STATE(s.size() > 16);
+
+    return s;
+
+}
+
 string NetworkMessage::serializeToString() {
     CHECK_STATE(complete);
 
@@ -227,7 +281,7 @@ void NetworkMessage::addFields(nlohmann::basic_json<>& ) {
 
 #include "utils/Time.h"
 
-ptr<NetworkMessage> NetworkMessage::parseMessage(const string& _header, Schain *_sChain) {
+ptr<NetworkMessage> NetworkMessage::parseMessage(const string& _header, Schain *_sChain, bool _lite) {
 
 
     uint64_t sChainID;
@@ -255,8 +309,13 @@ ptr<NetworkMessage> NetworkMessage::parseMessage(const string& _header, Schain *
 
         CHECK_STATE(!d.HasParseError());
         CHECK_STATE(d.IsObject())
-        sChainID = getUint64Rapid(d, "si");
-        blockID = getUint64Rapid(d, "bi");
+        if (_lite) {
+            sChainID = (uint64_t ) _sChain->getSchainID();
+            blockID = (uint64_t ) _sChain->getLastCommittedBlockID() + 1;
+        } else {
+            sChainID = getUint64Rapid(d, "si");
+            blockID = getUint64Rapid(d, "bi");
+        }
         blockProposerIndex = getUint64Rapid(d, "bpi");
         type = getStringRapid(d, "type");
         msgID = getUint64Rapid(d, "mi");

@@ -47,8 +47,8 @@ public:
 
     [[nodiscard]] const ptr<BooleanProposalVector> getProposals() const;
 
-    string serializeToString();
+    string serializeToStringLite();
 
-    static ptr< ConsensusProposalMessage > parseMessage( const string& _header, Schain* _sChain );
+    static ptr< ConsensusProposalMessage > parseMessageLite(const string& _header, Schain* _sChain );
 
 };

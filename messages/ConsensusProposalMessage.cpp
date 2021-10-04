@@ -53,24 +53,15 @@ const ptr<BooleanProposalVector> ConsensusProposalMessage::getProposals() const 
 
 using namespace rapidjson;
 
-string ConsensusProposalMessage::serializeToString() {
+// Serialize only recording the most important info
+string ConsensusProposalMessage::serializeToStringLite() {
 
     StringBuffer sb;
     Writer<StringBuffer> writer(sb);
 
     writer.StartObject();
-
-
-    writer.String("si");
-    writer.Uint64((uint64_t) schainID);
-    writer.String("bi");
-    writer.Uint64((uint64_t) blockID);
     writer.String("cv");
     writer.String(this->getProposals()->toString().c_str());
-    writer.String("mt");
-    writer.Uint64((uint64_t) msgType);
-
-
     writer.EndObject();
     writer.Flush();
     string s(sb.GetString());
@@ -81,10 +72,8 @@ string ConsensusProposalMessage::serializeToString() {
 
 using namespace rapidjson;
 
-ptr<ConsensusProposalMessage> ConsensusProposalMessage::parseMessage(const string &_header, Schain *_sChain) {
+ptr<ConsensusProposalMessage> ConsensusProposalMessage::parseMessageLite(const string &_header, Schain *_sChain) {
 
-    uint64_t blockID;
-    string type;
     string proposalsStr;
 
     CHECK_ARGUMENT(!_header.empty());
@@ -95,14 +84,8 @@ ptr<ConsensusProposalMessage> ConsensusProposalMessage::parseMessage(const strin
         Document d;
         d.Parse(_header.data());
 
-
-
         CHECK_STATE(!d.HasParseError());
         CHECK_STATE(d.IsObject())
-
-        type = BasicHeader::getStringRapid(d, "type");
-
-        blockID = BasicHeader::getUint64Rapid(d, "bi");
         proposalsStr = BasicHeader::getStringRapid(d, "cv");
     } catch (...) {
         throw_with_nested(InvalidStateException("Could not parse message", __CLASS_NAME__));
@@ -110,15 +93,14 @@ ptr<ConsensusProposalMessage> ConsensusProposalMessage::parseMessage(const strin
 
     try {
 
-        auto vector = make_shared<BooleanProposalVector>( _sChain->getNodeCount(), proposalsStr);
+        auto vector = make_shared<BooleanProposalVector>(_sChain->getNodeCount(), proposalsStr);
 
         auto msg = make_shared<ConsensusProposalMessage>(*_sChain,
-                                                         block_id(blockID),
+                                                         _sChain->getLastCommittedBlockID() + 1,
                                                          vector);
         return msg;
 
     } catch (...) {
-        throw_with_nested(InvalidStateException("Could not create message of type:"
-                                                + type, __CLASS_NAME__));
+        throw_with_nested(InvalidStateException("Could not create message of type:", __CLASS_NAME__));
     }
 }
