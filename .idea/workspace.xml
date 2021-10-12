@@ -40,9 +40,7 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libBLS/deps/libff/depends/xbyak" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/deps/libff/depends/xbyak" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/protocols/blockconsensus/BlockConsensusAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/protocols/blockconsensus/BlockConsensusAgent.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/protocols/blockconsensus/BlockConsensusAgent.h" beforeDir="false" afterPath="$PROJECT_DIR$/protocols/blockconsensus/BlockConsensusAgent.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/protocols/blockconsensus/FastMessageLedger.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/protocols/blockconsensus/FastMessageLedger.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/protocols/blockconsensus/FastMessageLedger.h" beforeDir="false" afterPath="$PROJECT_DIR$/protocols/blockconsensus/FastMessageLedger.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/sgxwallet" beforeDir="false" afterPath="$PROJECT_DIR$/sgxwallet" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/sgxwallet/intel-sgx-ssl" beforeDir="false" afterPath="$PROJECT_DIR$/sgxwallet/intel-sgx-ssl" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/sgxwallet/libBLS" beforeDir="false" afterPath="$PROJECT_DIR$/sgxwallet/libBLS" afterDir="false" />
@@ -373,14 +371,7 @@
       <workItem from="1631699230594" duration="12654000" />
       <workItem from="1631801800844" duration="3900000" />
       <workItem from="1633352635874" duration="7182000" />
-      <workItem from="1633960378769" duration="633000" />
-    </task>
-    <task id="LOCAL-00040" summary="task/SKALE-4386-save-visualization">
-      <created>1626207474707</created>
-      <option name="number" value="00040" />
-      <option name="presentableId" value="LOCAL-00040" />
-      <option name="project" value="LOCAL" />
-      <updated>1626207474707</updated>
+      <workItem from="1633960378769" duration="2552000" />
     </task>
     <task id="LOCAL-00041" summary="task/SKALE-4386-save-visualization">
       <created>1626207614683</created>
@@ -718,7 +709,14 @@
       <option name="project" value="LOCAL" />
       <updated>1633371481121</updated>
     </task>
-    <option name="localTasksCounter" value="89" />
+    <task id="LOCAL-00089" summary="bug/SKALE-4352">
+      <created>1634035306785</created>
+      <option name="number" value="00089" />
+      <option name="presentableId" value="LOCAL-00089" />
+      <option name="project" value="LOCAL" />
+      <updated>1634035306785</updated>
+    </task>
+    <option name="localTasksCounter" value="90" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

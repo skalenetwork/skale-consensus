@@ -28,24 +28,29 @@
 #include "SkaleCommon.h"
 #include "Log.h"
 
+#include "chains/Schain.h"
+
 #include "FastMessageLedger.h"
 
-FastMessageLedger::FastMessageLedger(Schain *_schain, string  _ledgerFileFullPath) :
-        schain(_schain),
-        ledgerFileFullPath(
-                _ledgerFileFullPath) {
+FastMessageLedger::FastMessageLedger(Schain *_schain, string  _dirFullPath) :
+        schain(_schain) {
     CHECK_STATE(schain);
-    CHECK_STATE(ledgerFileFullPath.size() > 2);
+    CHECK_STATE(_dirFullPath.size() > 2);
 
-    this->fd = open(_ledgerFileFullPath.c_str(), O_CREAT| O_RDONLY);
+    CHECK_STATE(_dirFullPath.back() != '/');
 
-    CHECK_STATE2(fd > 0, _ledgerFileFullPath + " file read open failed with errno:" +
+    ledgerFileFullPath= _dirFullPath + "/cons_incoming_msg_ledger_" +
+            to_string(schain->getSchainIndex());
+
+    this->fd = open(ledgerFileFullPath.c_str(), O_CREAT| O_RDONLY, S_IRWXU);
+
+    CHECK_STATE2(fd > 0,ledgerFileFullPath + " file read open failed with errno:" +
         string(strerror(errno)));
 
     close(this->fd);
 
-    this->fd = open(_ledgerFileFullPath.c_str(), O_CREAT| O_TRUNC | O_WRONLY);
-    CHECK_STATE2(fd > 0, _ledgerFileFullPath + " file write open failed with errno:" +
+    this->fd = open(ledgerFileFullPath.c_str(), O_CREAT| O_TRUNC | O_WRONLY, S_IRWXU);
+    CHECK_STATE2(fd > 0, ledgerFileFullPath + " file write open failed with errno:" +
          string(strerror(errno)));
 
 
