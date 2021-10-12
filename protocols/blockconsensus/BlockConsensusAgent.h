@@ -35,6 +35,7 @@ class CryptoManager;
 
 
 #include "thirdparty/lrucache.hpp"
+#include "FastMessageLedger.h"
 
 class BlockConsensusAgent : public ProtocolInstance {
 
@@ -45,6 +46,8 @@ class BlockConsensusAgent : public ProtocolInstance {
     // protocol cache for each block proposer
 
     vector<ptr<cache::lru_cache<uint64_t, ptr<BinConsensusInstance>>>> children; // tsafe
+
+    ptr<FastMessageLedger> fastMessageLedger = nullptr;
 
     ptr<cache::lru_cache<uint64_t , ptr<map<schain_index, ptr<ChildBVDecidedMessage>>>>>
         trueDecisions;

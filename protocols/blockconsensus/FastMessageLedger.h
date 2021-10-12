@@ -38,8 +38,11 @@ class FastMessageLedger {
 
     Schain* schain = nullptr;
     string ledgerFileFullPath;
-public:
-    FastMessageLedger(Schain *schain, const string &ledgerFileFullPath);
+    ptr<vector<ptr<Message>>> previousRunMessages = nullptr;
+
+    ptr<vector<ptr<Message>>> retrieveAndClearPreviosRunMessages();
+
+
 
 private:
     int fd = -1;
@@ -53,6 +56,9 @@ private:
     // writes consensus proposal message to ledger
     void writeNetworkMessage(ptr<NetworkMessage> _message);
 
+
+public:
+    FastMessageLedger(Schain *schain, string ledgerFileFullPath);
 
 };
 

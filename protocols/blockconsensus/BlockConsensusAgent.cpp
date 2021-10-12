@@ -86,6 +86,10 @@ BlockConsensusAgent::BlockConsensusAgent(Schain &_schain) : ProtocolInstance(
     for (int i = 0; i < _schain.getNodeCount(); i++) {
         children[i]->put((uint64_t) currentBlock, make_shared<BinConsensusInstance>(this, currentBlock, i + 1, true));
     }
+
+    fastMessageLedger = make_shared<FastMessageLedger>(getSchain(), "/tmp/fast_message_ledger"
+            + to_string((uint64_t) getSchain()->getSchainIndex()));
+
 };
 
 

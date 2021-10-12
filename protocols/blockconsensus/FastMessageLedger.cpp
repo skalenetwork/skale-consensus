@@ -30,13 +30,30 @@
 
 #include "FastMessageLedger.h"
 
-FastMessageLedger::FastMessageLedger(Schain *_schain, const string & _ledgerFileFullPath) :
+FastMessageLedger::FastMessageLedger(Schain *_schain, string  _ledgerFileFullPath) :
         schain(_schain),
         ledgerFileFullPath(
                 _ledgerFileFullPath) {
     CHECK_STATE(schain);
     CHECK_STATE(ledgerFileFullPath.size() > 2);
 
-    this->fd = open(_ledgerFileFullPath.c_str()
+    this->fd = open(_ledgerFileFullPath.c_str(), O_CREAT| O_RDONLY);
 
+    CHECK_STATE2(fd > 0, _ledgerFileFullPath + " file read open failed with errno:" +
+        string(strerror(errno)));
+
+    close(this->fd);
+
+    this->fd = open(_ledgerFileFullPath.c_str(), O_CREAT| O_TRUNC | O_WRONLY);
+    CHECK_STATE2(fd > 0, _ledgerFileFullPath + " file write open failed with errno:" +
+         string(strerror(errno)));
+
+
+}
+
+ptr<vector<ptr<Message>>> FastMessageLedger::retrieveAndClearPreviosRunMessages() {
+    auto result = previousRunMessages;
+    previousRunMessages = nullptr;
+    CHECK_STATE(result);
+    return result;
 }
