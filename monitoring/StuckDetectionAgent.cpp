@@ -179,10 +179,11 @@ uint64_t StuckDetectionAgent::checkForRestart( uint64_t _restartIteration ) {
     auto timeStampMs = getSchain()->getBlock( blockID )->getTimeStampS() * 1000;
 
     // check that the chain has not been doing much for a long time
-    auto startTime = Time::getCurrentTimeMs();
-    while ( Time::getCurrentTimeMs() - startTime < 60000 ) {
+    auto startTimeMs = Time::getCurrentTimeMs();
+    while (Time::getCurrentTimeMs() - startTimeMs < 60000 ) {
         if ( !stuckCheck( restartIntervalMs, timeStampMs ) )
             return 0;
+        usleep(5 * 1000 * 1000);
     }
 
 
