@@ -304,6 +304,7 @@ void Schain::updateLastCommittedBlockInfo( uint64_t _lastCommittedBlockID,
     if (blockTimeAverageMs == 0)
         blockTimeAverageMs = 1;
     tpsAverage = (blockSizeAverage * 1000 ) / blockTimeAverageMs;
+    blockConsensusInstance->startNewBlock(lastCommittedBlockID + 1);
 }
 
 

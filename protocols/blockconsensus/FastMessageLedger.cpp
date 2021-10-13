@@ -32,8 +32,8 @@
 
 #include "FastMessageLedger.h"
 
-FastMessageLedger::FastMessageLedger(Schain *_schain, string  _dirFullPath) :
-        schain(_schain) {
+FastMessageLedger::FastMessageLedger(Schain *_schain, string  _dirFullPath, block_id _blockId) :
+        schain(_schain), blockId(_blockId) {
 
     previousRunMessages = make_shared<vector<ptr<Message>>>();
     CHECK_STATE(schain);
@@ -59,12 +59,14 @@ FastMessageLedger::FastMessageLedger(Schain *_schain, string  _dirFullPath) :
         }
     }
 
-    this->fd = open(ledgerFileFullPath.c_str(), O_CREAT| O_TRUNC | O_WRONLY, S_IRWXU);
-    CHECK_STATE2(fd > 0, ledgerFileFullPath + " file write open failed with errno:" +
-         string(strerror(errno)));
+    closeFd();
 
+    startNewBlock(_blockId);
 
 }
+
+
+
 
 ptr<Message> FastMessageLedger::parseLine(string& _line) {
     if (_line.size() < 15  && _line.find("\"cv\"") != string::npos) {
@@ -91,4 +93,28 @@ void FastMessageLedger::writeNetworkMessage(ptr<NetworkMessage> _message) {
     CHECK_STATE(_message);
     auto msg = _message->serializeToStringLite();
     cerr << msg << endl;
+}
+
+void FastMessageLedger::closeFd() {
+    if (fd > 0) {
+        close(fd);
+        fd = -1;
+    }
+}
+
+void FastMessageLedger::writeString(string& _str) {
+    write(fd, _str.c_str(), _str.length());
+}
+
+
+void FastMessageLedger::startNewBlock(block_id _blockId) {
+    blockId = _blockId;
+    closeFd();
+    fd = open(ledgerFileFullPath.c_str(), O_CREAT| O_TRUNC | O_WRONLY, S_IRWXU);
+    CHECK_STATE2(fd > 0, ledgerFileFullPath + " file write open failed with errno:" +
+                         string(strerror(errno)));
+
+    string header = "{\"bi\":\"" + to_string((uint64_t) _blockId) + "}\n";
+
+    writeString(header);
 }

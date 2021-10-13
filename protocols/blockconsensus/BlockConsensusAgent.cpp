@@ -87,7 +87,6 @@ BlockConsensusAgent::BlockConsensusAgent(Schain &_schain) : ProtocolInstance(
         children[i]->put((uint64_t) currentBlock, make_shared<BinConsensusInstance>(this, currentBlock, i + 1, true));
     }
 
-    fastMessageLedger = make_shared<FastMessageLedger>(getSchain(), "/tmp");
 
 };
 
@@ -513,3 +512,19 @@ string BlockConsensusAgent::buildStats(block_id _blockID) {
     return resultStr;
 
 }
+
+ptr<vector<ptr<Message>>> BlockConsensusAgent::initFastLedgerAndReplayMessages(block_id _blockID) {
+
+    fastMessageLedger = make_shared<FastMessageLedger>(getSchain(), "/tmp", _blockID);
+
+    auto msgs = fastMessageLedger->retrieveAndClearPreviosRunMessages();
+
+    return msgs;
+}
+
+void BlockConsensusAgent::startNewBlock(block_id _blockID) {
+    CHECK_STATE(fastMessageLedger);
+    fastMessageLedger->startNewBlock(_blockID);
+}
+
+

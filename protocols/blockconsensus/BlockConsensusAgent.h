@@ -64,6 +64,7 @@ class BlockConsensusAgent : public ProtocolInstance {
 
     void decideDefaultBlock(block_id _blockNumber);
 
+
     void startConsensusProposal(block_id _blockID, const ptr<BooleanProposalVector>& _proposal);
 
     void processBlockSignMessage(const ptr<BlockSignBroadcastMessage>& _message);
@@ -78,6 +79,8 @@ class BlockConsensusAgent : public ProtocolInstance {
 
     ptr<BinConsensusInstance> getChild(const ptr<ProtocolKey>& _key);
 
+    void writeString(string& _str);
+
 public:
 
 
@@ -86,6 +89,10 @@ public:
     bool shouldPost(const ptr<NetworkMessage>& _msg);
 
     void routeAndProcessMessage(const ptr<MessageEnvelope>& _me );
+
+    ptr<vector<ptr<Message>>> initFastLedgerAndReplayMessages(block_id _blockID);
+
+    void startNewBlock(block_id _blockID);
 
 };
 

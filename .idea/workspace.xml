@@ -38,11 +38,11 @@
   <component name="ChangeListManager">
     <list default="true" id="ec15c893-7f20-4493-be40-38b8f69efc54" name="Default Changelist" comment="bug/SKALE-4593">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/chains/Schain.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/chains/Schain.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/chains/SchainGettersSetters.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/chains/SchainGettersSetters.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libBLS/deps/libff/depends/xbyak" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/deps/libff/depends/xbyak" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/messages/ConsensusProposalMessage.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/messages/ConsensusProposalMessage.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/messages/NetworkMessage.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/messages/NetworkMessage.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/protocols/binconsensus/BinConsensusInstance.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/protocols/binconsensus/BinConsensusInstance.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/protocols/blockconsensus/BlockConsensusAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/protocols/blockconsensus/BlockConsensusAgent.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/protocols/blockconsensus/BlockConsensusAgent.h" beforeDir="false" afterPath="$PROJECT_DIR$/protocols/blockconsensus/BlockConsensusAgent.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/protocols/blockconsensus/FastMessageLedger.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/protocols/blockconsensus/FastMessageLedger.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/protocols/blockconsensus/FastMessageLedger.h" beforeDir="false" afterPath="$PROJECT_DIR$/protocols/blockconsensus/FastMessageLedger.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/sgxwallet" beforeDir="false" afterPath="$PROJECT_DIR$/sgxwallet" afterDir="false" />
@@ -382,13 +382,6 @@
       <workItem from="1633352635874" duration="7182000" />
       <workItem from="1633960378769" duration="7941000" />
     </task>
-    <task id="LOCAL-00044" summary="bug/SKALE-4440-sgx">
-      <created>1628259964970</created>
-      <option name="number" value="00044" />
-      <option name="presentableId" value="LOCAL-00044" />
-      <option name="project" value="LOCAL" />
-      <updated>1628259964970</updated>
-    </task>
     <task id="LOCAL-00045" summary="bug/SKALE-4440-sgx cherrypick">
       <created>1628263307495</created>
       <option name="number" value="00045" />
@@ -725,7 +718,14 @@
       <option name="project" value="LOCAL" />
       <updated>1634118969524</updated>
     </task>
-    <option name="localTasksCounter" value="93" />
+    <task id="LOCAL-00093" summary="bug/SKALE-4352">
+      <created>1634133299846</created>
+      <option name="number" value="00093" />
+      <option name="presentableId" value="LOCAL-00093" />
+      <option name="project" value="LOCAL" />
+      <updated>1634133299846</updated>
+    </task>
+    <option name="localTasksCounter" value="94" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
