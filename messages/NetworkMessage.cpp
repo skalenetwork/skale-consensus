@@ -304,6 +304,10 @@ ptr<NetworkMessage> NetworkMessage::parseMessage(const string& _header, Schain *
     CHECK_ARGUMENT(!_header.empty());
     CHECK_ARGUMENT(_sChain);
 
+    if (_lite) {
+        cerr << _header << endl;
+    }
+
     try {
 
         Document d;

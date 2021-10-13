@@ -82,6 +82,10 @@ ptr<ConsensusProposalMessage> ConsensusProposalMessage::parseMessageLite(const s
     CHECK_ARGUMENT(!_header.empty());
     CHECK_ARGUMENT(_sChain);
 
+
+    cerr << _header << endl;
+
+
     try {
 
         Document d;
