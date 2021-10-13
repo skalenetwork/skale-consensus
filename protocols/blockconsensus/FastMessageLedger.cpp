@@ -34,6 +34,8 @@
 
 FastMessageLedger::FastMessageLedger(Schain *_schain, string  _dirFullPath) :
         schain(_schain) {
+
+    previousRunMessages = make_shared<vector<ptr<Message>>>();
     CHECK_STATE(schain);
     CHECK_STATE(_dirFullPath.size() > 2);
 
@@ -42,12 +44,20 @@ FastMessageLedger::FastMessageLedger(Schain *_schain, string  _dirFullPath) :
     ledgerFileFullPath= _dirFullPath + "/cons_incoming_msg_ledger_" +
             to_string(schain->getSchainIndex());
 
-    this->fd = open(ledgerFileFullPath.c_str(), O_CREAT| O_RDONLY, S_IRWXU);
 
-    CHECK_STATE2(fd > 0,ledgerFileFullPath + " file read open failed with errno:" +
-        string(strerror(errno)));
+    std::ifstream infile(ledgerFileFullPath);
 
-    close(this->fd);
+    // if file exist, read and parse
+
+    if (infile.is_open()) {
+        string line;
+        while (std::getline(infile, line))
+        {
+            ptr<Message> nextMessage = nullptr;
+            // parse line here
+            previousRunMessages->push_back(nextMessage);
+        }
+    }
 
     this->fd = open(ledgerFileFullPath.c_str(), O_CREAT| O_TRUNC | O_WRONLY, S_IRWXU);
     CHECK_STATE2(fd > 0, ledgerFileFullPath + " file write open failed with errno:" +
