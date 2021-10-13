@@ -36,10 +36,10 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ec15c893-7f20-4493-be40-38b8f69efc54" name="Default Changelist" comment="bug/SKALE-4593">
+    <list default="true" id="ec15c893-7f20-4493-be40-38b8f69efc54" name="Default Changelist" comment="bug/SKALE-4654">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libBLS/deps/libff/depends/xbyak" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/deps/libff/depends/xbyak" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/monitoring/StuckDetectionAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/monitoring/StuckDetectionAgent.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pendingqueue/PendingTransactionsAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/pendingqueue/PendingTransactionsAgent.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/sgxwallet" beforeDir="false" afterPath="$PROJECT_DIR$/sgxwallet" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/sgxwallet/intel-sgx-ssl" beforeDir="false" afterPath="$PROJECT_DIR$/sgxwallet/intel-sgx-ssl" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/sgxwallet/libBLS" beforeDir="false" afterPath="$PROJECT_DIR$/sgxwallet/libBLS" afterDir="false" />
@@ -133,7 +133,7 @@
       <recent name="$PROJECT_DIR$/monitoring" />
     </key>
   </component>
-  <component name="RunManager" selected="CMake Application.3d-4">
+  <component name="RunManager" selected="CMake Application.consensust">
     <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
       <method v="2">
         <option name="CLION.EXTERNAL.BUILD" enabled="true" />
