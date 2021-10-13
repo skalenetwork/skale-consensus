@@ -186,7 +186,6 @@ uint64_t StuckDetectionAgent::checkForRestart( uint64_t _restartIteration ) {
         usleep(5 * 1000 * 1000);
     }
 
-
     LOG( info, "Need for restart detected. Cleaning and restarting " );
     cleanupState();
 
@@ -196,7 +195,6 @@ uint64_t StuckDetectionAgent::checkForRestart( uint64_t _restartIteration ) {
 }
 void StuckDetectionAgent::restart( uint64_t _restartTimeMs, uint64_t _iteration ) {
     CHECK_STATE( _restartTimeMs > 0 );
-
 
     while ( Time::getCurrentTimeMs() < _restartTimeMs ) {
         try {
