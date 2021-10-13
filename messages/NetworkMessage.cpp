@@ -191,7 +191,7 @@ string NetworkMessage::serializeToStringLite() {
 
     CHECK_STATE(s.size() > 16);
 
-    cerr << s << endl;
+    cerr << s;
 
     return s;
 

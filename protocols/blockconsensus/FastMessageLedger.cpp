@@ -51,8 +51,13 @@ FastMessageLedger::FastMessageLedger(Schain *_schain, string  _dirFullPath, bloc
 
     if (infile.is_open()) {
         string line;
+        uint64_t lineCount = 0;
         while (std::getline(infile, line))
         {
+            lineCount++;
+            if (lineCount == 1) {
+                continue; // skip first line
+            }
             auto nextMessage = parseLine(line);
             CHECK_STATE(nextMessage);
             previousRunMessages->push_back(nextMessage);
@@ -86,13 +91,15 @@ ptr<vector<ptr<Message>>> FastMessageLedger::retrieveAndClearPreviosRunMessages(
 void FastMessageLedger::writeProposalMessage(ptr<ConsensusProposalMessage> _message) {
     CHECK_STATE(_message);
     auto msg = _message->serializeToStringLite();
-    cerr << msg << endl;
+    writeString(msg);
+    cerr << msg;
 }
 
 void FastMessageLedger::writeNetworkMessage(ptr<NetworkMessage> _message) {
     CHECK_STATE(_message);
     auto msg = _message->serializeToStringLite();
-    cerr << msg << endl;
+    writeString(msg);
+    cerr << msg;
 }
 
 void FastMessageLedger::closeFd() {

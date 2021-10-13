@@ -66,7 +66,7 @@ string ConsensusProposalMessage::serializeToStringLite() {
     writer.Flush();
     string s(sb.GetString());
 
-    cerr << s << endl;
+    cerr << s;
 
 
     return s;
