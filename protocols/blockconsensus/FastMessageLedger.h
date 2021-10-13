@@ -40,21 +40,11 @@ class FastMessageLedger {
     string ledgerFileFullPath;
     ptr<vector<ptr<Message>>> previousRunMessages = nullptr;
 
-    ptr<vector<ptr<Message>>> retrieveAndClearPreviosRunMessages();
-
-
 
 private:
     int fd = -1;
 
-    // reads all messages if any and resets the ledger to empty
-    vector<ptr<Message>> readAllMessagesAndReset();
 
-    // writes consensus proposal message to ledger
-    void writeProposalMessage(ptr<ConsensusProposalMessage> _message);
-
-    // writes consensus proposal message to ledger
-    void writeNetworkMessage(ptr<NetworkMessage> _message);
 
     ptr<Message> parseLine(string& _line);
 
@@ -62,6 +52,14 @@ private:
 public:
     FastMessageLedger(Schain *schain, string ledgerFileFullPath);
 
+
+    // writes consensus proposal message to ledger
+    void writeProposalMessage(ptr<ConsensusProposalMessage> _message);
+
+    // writes consensus proposal message to ledger
+    void writeNetworkMessage(ptr<NetworkMessage> _message);
+
+    ptr<vector<ptr<Message>>> retrieveAndClearPreviosRunMessages();
 
 };
 

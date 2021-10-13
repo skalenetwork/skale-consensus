@@ -53,8 +53,8 @@ FastMessageLedger::FastMessageLedger(Schain *_schain, string  _dirFullPath) :
         string line;
         while (std::getline(infile, line))
         {
-            ptr<Message> nextMessage = nullptr;
-            // parse line here
+            auto nextMessage = parseLine(line);
+            CHECK_STATE(nextMessage);
             previousRunMessages->push_back(nextMessage);
         }
     }
@@ -67,13 +67,11 @@ FastMessageLedger::FastMessageLedger(Schain *_schain, string  _dirFullPath) :
 }
 
 ptr<Message> FastMessageLedger::parseLine(string& _line) {
-    cerr << _line << endl;
     if (_line.size() < 15  && _line.find("\"cv\"") != string::npos) {
         return NetworkMessage::parseMessage(_line, schain, false);
     } else {
         return ConsensusProposalMessage::parseMessageLite(_line, schain);
     }
-    return nullptr;
 }
 
 ptr<vector<ptr<Message>>> FastMessageLedger::retrieveAndClearPreviosRunMessages() {
@@ -81,4 +79,16 @@ ptr<vector<ptr<Message>>> FastMessageLedger::retrieveAndClearPreviosRunMessages(
     previousRunMessages = nullptr;
     CHECK_STATE(result);
     return result;
+}
+
+void FastMessageLedger::writeProposalMessage(ptr<ConsensusProposalMessage> _message) {
+    CHECK_STATE(_message);
+    auto msg = _message->serializeToStringLite();
+    cerr << msg << endl;
+}
+
+void FastMessageLedger::writeNetworkMessage(ptr<NetworkMessage> _message) {
+    CHECK_STATE(_message);
+    auto msg = _message->serializeToStringLite();
+    cerr << msg << endl;
 }

@@ -353,11 +353,9 @@ void BlockConsensusAgent::routeAndProcessMessage(const ptr<MessageEnvelope>& _me
             auto consensusProposalMessage =
                 dynamic_pointer_cast<ConsensusProposalMessage>( _me->getMessage());
 
-            auto msgStr = consensusProposalMessage->serializeToStringLite();
+            CHECK_STATE(fastMessageLedger);
+            fastMessageLedger->writeProposalMessage(consensusProposalMessage);
 
-            cerr << msgStr << endl;
-
-            ConsensusProposalMessage::parseMessageLite(msgStr, getSchain());
 
             this->startConsensusProposal(
                 _me->getMessage()->getBlockId(),
@@ -372,11 +370,7 @@ void BlockConsensusAgent::routeAndProcessMessage(const ptr<MessageEnvelope>& _me
 
             CHECK_STATE(blockSignBroadcastMessage);
 
-            auto msgStr = blockSignBroadcastMessage->serializeToStringLite();
-
-            cerr << msgStr << endl;
-
-            NetworkMessage::parseMessage(msgStr, getSchain(), true);
+            fastMessageLedger->writeNetworkMessage(blockSignBroadcastMessage);
 
             this->processBlockSignMessage(dynamic_pointer_cast<BlockSignBroadcastMessage>( _me->getMessage()));
             return;
