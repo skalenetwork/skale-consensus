@@ -371,14 +371,7 @@
       <workItem from="1631699230594" duration="12654000" />
       <workItem from="1631801800844" duration="3900000" />
       <workItem from="1633352635874" duration="7182000" />
-      <workItem from="1633960378769" duration="6532000" />
-    </task>
-    <task id="LOCAL-00043" summary="task/SKALE-4386-save-visualization">
-      <created>1627659760356</created>
-      <option name="number" value="00043" />
-      <option name="presentableId" value="LOCAL-00043" />
-      <option name="project" value="LOCAL" />
-      <updated>1627659760357</updated>
+      <workItem from="1633960378769" duration="7941000" />
     </task>
     <task id="LOCAL-00044" summary="bug/SKALE-4440-sgx">
       <created>1628259964970</created>
@@ -716,7 +709,14 @@
       <option name="project" value="LOCAL" />
       <updated>1634116922965</updated>
     </task>
-    <option name="localTasksCounter" value="92" />
+    <task id="LOCAL-00092" summary="bug/SKALE-4352">
+      <created>1634118969524</created>
+      <option name="number" value="00092" />
+      <option name="presentableId" value="LOCAL-00092" />
+      <option name="project" value="LOCAL" />
+      <updated>1634118969524</updated>
+    </task>
+    <option name="localTasksCounter" value="93" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

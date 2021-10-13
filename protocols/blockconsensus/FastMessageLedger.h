@@ -56,11 +56,13 @@ private:
     // writes consensus proposal message to ledger
     void writeNetworkMessage(ptr<NetworkMessage> _message);
 
+    ptr<Message> parseLine(string& _line);
+
 
 public:
     FastMessageLedger(Schain *schain, string ledgerFileFullPath);
 
-    ptr<Message> parseLine(string& _line);
+
 };
 
 

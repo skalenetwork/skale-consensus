@@ -68,6 +68,11 @@ FastMessageLedger::FastMessageLedger(Schain *_schain, string  _dirFullPath) :
 
 ptr<Message> FastMessageLedger::parseLine(string& _line) {
     cerr << _line << endl;
+    if (_line.size() < 15  && _line.find("\"cv\"") != string::npos) {
+        return NetworkMessage::parseMessage(_line, schain, false);
+    } else {
+        return ConsensusProposalMessage::parseMessageLite(_line, schain);
+    }
     return nullptr;
 }
 
