@@ -196,7 +196,6 @@ uint64_t StuckDetectionAgent::checkForRestart( uint64_t _restartIteration ) {
 void StuckDetectionAgent::restart( uint64_t _restartTimeMs, uint64_t _iteration ) {
     CHECK_STATE( _restartTimeMs > 0 );
 
-
     while ( Time::getCurrentTimeMs() < _restartTimeMs ) {
         try {
             usleep( 100 );
