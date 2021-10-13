@@ -60,6 +60,7 @@ private:
 public:
     FastMessageLedger(Schain *schain, string ledgerFileFullPath);
 
+    ptr<Message> parseLine(string& _line);
 };
 
 

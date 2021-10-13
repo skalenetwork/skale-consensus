@@ -66,6 +66,11 @@ FastMessageLedger::FastMessageLedger(Schain *_schain, string  _dirFullPath) :
 
 }
 
+ptr<Message> FastMessageLedger::parseLine(string& _line) {
+    cerr << _line << endl;
+    return nullptr;
+}
+
 ptr<vector<ptr<Message>>> FastMessageLedger::retrieveAndClearPreviosRunMessages() {
     auto result = previousRunMessages;
     previousRunMessages = nullptr;
