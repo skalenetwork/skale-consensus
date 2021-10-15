@@ -59,7 +59,7 @@ public:
 
     void startNewBlock(block_id _blockID);
 
-    void writeString(string& _str);
+    void writeLine(string& _str);
 };
 
 

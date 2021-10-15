@@ -78,7 +78,7 @@ ptr<Message> FastMessageLedger::parseLine(string& _line) {
     if (_line.size() < 15  && _line.find("\"cv\"") != string::npos) {
         return ConsensusProposalMessage::parseMessageLite(_line, schain);
     } else {
-        return NetworkMessage::parseMessage(_line, schain, false);
+        return NetworkMessage::parseMessage(_line, schain, true);
     }
     } catch (...) {
         throw_with_nested(InvalidStateException("Could not parse message:" + _line, __CLASS_NAME__));
@@ -95,14 +95,14 @@ ptr<vector<ptr<Message>>> FastMessageLedger::retrieveAndClearPreviosRunMessages(
 void FastMessageLedger::writeProposalMessage(ptr<ConsensusProposalMessage> _message) {
     CHECK_STATE(_message);
     auto msg = _message->serializeToStringLite();
-    writeString(msg);
+    writeLine(msg);
     cerr << msg;
 }
 
 void FastMessageLedger::writeNetworkMessage(ptr<NetworkMessage> _message) {
     CHECK_STATE(_message);
     auto msg = _message->serializeToStringLite();
-    writeString(msg);
+    writeLine(msg);
     cerr << msg;
 }
 
@@ -113,9 +113,20 @@ void FastMessageLedger::closeFd() {
     }
 }
 
-void FastMessageLedger::writeString(string& _str) {
-    write(fd, _str.c_str(), _str.length());
-    write(fd, "\n", 1);
+void FastMessageLedger::writeLine(string& _str) {
+    CHECK_STATE(_str.size() > 0);
+    int64_t written = 0;
+    int64_t result = -1;
+    do {
+        result  = write(fd, _str.c_str() + written, _str.length());
+        CHECK_STATE(result >= 0);
+        written += result;
+    } while (written < (int64_t) _str.size());
+
+    do {
+        result  = write(fd, "\n", 1);
+        CHECK_STATE(result >= 0);
+    } while (result == 0);
 }
 
 
@@ -126,7 +137,7 @@ void FastMessageLedger::startNewBlock(block_id _blockId) {
     CHECK_STATE2(fd > 0, ledgerFileFullPath + " file write open failed with errno:" +
                          string(strerror(errno)));
 
-    string header = "{\"bi\":\"" + to_string((uint64_t) _blockId) + "}";
+    string header = "{\"bi\":" + to_string((uint64_t) _blockId) + "}";
 
-    writeString(header);
+    writeLine(header);
 }
