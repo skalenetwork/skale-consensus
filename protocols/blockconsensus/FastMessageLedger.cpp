@@ -74,10 +74,14 @@ FastMessageLedger::FastMessageLedger(Schain *_schain, string  _dirFullPath, bloc
 
 
 ptr<Message> FastMessageLedger::parseLine(string& _line) {
+    try {
     if (_line.size() < 15  && _line.find("\"cv\"") != string::npos) {
-        return NetworkMessage::parseMessage(_line, schain, false);
-    } else {
         return ConsensusProposalMessage::parseMessageLite(_line, schain);
+    } else {
+        return NetworkMessage::parseMessage(_line, schain, false);
+    }
+    } catch (...) {
+        throw_with_nested(InvalidStateException("Could not parse message:" + _line, __CLASS_NAME__));
     }
 }
 
@@ -111,6 +115,7 @@ void FastMessageLedger::closeFd() {
 
 void FastMessageLedger::writeString(string& _str) {
     write(fd, _str.c_str(), _str.length());
+    write(fd, "\n", 1);
 }
 
 
@@ -121,7 +126,7 @@ void FastMessageLedger::startNewBlock(block_id _blockId) {
     CHECK_STATE2(fd > 0, ledgerFileFullPath + " file write open failed with errno:" +
                          string(strerror(errno)));
 
-    string header = "{\"bi\":\"" + to_string((uint64_t) _blockId) + "}\n";
+    string header = "{\"bi\":\"" + to_string((uint64_t) _blockId) + "}";
 
     writeString(header);
 }

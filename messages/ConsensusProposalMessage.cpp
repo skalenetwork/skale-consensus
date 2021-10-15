@@ -83,13 +83,18 @@ ptr<ConsensusProposalMessage> ConsensusProposalMessage::parseMessageLite(const s
     CHECK_ARGUMENT(_sChain);
 
 
+
+
     cerr << _header << endl;
 
+    CHECK_STATE(_header.size() > 2);
 
     try {
 
         Document d;
+        
         d.Parse(_header.data());
+
 
         CHECK_STATE(!d.HasParseError());
         CHECK_STATE(d.IsObject())

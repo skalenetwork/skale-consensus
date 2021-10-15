@@ -188,11 +188,7 @@ string NetworkMessage::serializeToStringLite() {
     writer.EndObject();
     writer.Flush();
     string s(sb.GetString());
-
-    CHECK_STATE(s.size() > 16);
-
     cerr << s;
-
     return s;
 
 }
