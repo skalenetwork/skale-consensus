@@ -76,8 +76,8 @@ FastMessageLedger::FastMessageLedger(Schain *_schain, string  _dirFullPath, bloc
 
     closeFd();
 
+    cerr << "start new block" << endl;
     startNewBlock(_blockId);
-
 }
 
 
@@ -142,10 +142,14 @@ void FastMessageLedger::closeFd() {
 
 void FastMessageLedger::writeLine(string& _str) {
     CHECK_STATE(_str.size() > 0);
+    CHECK_STATE(fd > 0);
     int64_t written = 0;
     int64_t result = -1;
     do {
-        result  = write(fd, _str.c_str() + written, _str.length());
+        result  = write(fd, _str.c_str() + written, _str.length() - written);
+        if (result < 0) {
+            LOG(err, "Write failed with errno:" + string(strerror(errno)) );
+        }
         CHECK_STATE(result >= 0);
         written += result;
     } while (written < (int64_t) _str.size());
