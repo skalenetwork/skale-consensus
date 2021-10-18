@@ -188,7 +188,6 @@ string NetworkMessage::serializeToStringLite() {
     writer.EndObject();
     writer.Flush();
     string s(sb.GetString());
-    cerr << s;
     return s;
 
 }
