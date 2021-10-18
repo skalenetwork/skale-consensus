@@ -814,6 +814,11 @@ block_id ConsensusEngine::getLargestCommittedBlockIDInDb() {
     return id;
 }
 
+
+u256 ConsensusEngine::getRandomForBlockId(uint64_t ) const {
+    return 0;
+}
+
 u256 ConsensusEngine::getPriceForBlockId(uint64_t _blockId) const {
     CHECK_STATE(nodes.size() == 1);
 

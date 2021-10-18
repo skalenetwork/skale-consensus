@@ -247,6 +247,8 @@ public:
 
     u256 getPriceForBlockId( uint64_t _blockId ) const override;
 
+    u256 getRandomForBlockId( uint64_t _blockId ) const override;
+
     void systemHealthCheck();
 
     static string getEngineVersion();
