@@ -73,9 +73,6 @@ FastMessageLedger::FastMessageLedger(Schain *_schain, string  _dirFullPath, bloc
             previousRunMessages->push_back(nextMessage);
         }
     }
-
-    closeFd();
-
     cerr << "start new block" << endl;
     startNewBlock(_blockId);
 }
@@ -134,6 +131,7 @@ void FastMessageLedger::writeNetworkMessage(ptr<NetworkMessage> _message) {
 }
 
 void FastMessageLedger::closeFd() {
+    LOG(info, "Close");
     if (fd > 0) {
         close(fd);
         fd = -1;
@@ -159,7 +157,6 @@ void FastMessageLedger::writeLine(string& _str) {
         CHECK_STATE(result >= 0);
     } while (result == 0);
 }
-
 
 void FastMessageLedger::startNewBlock(block_id _blockId) {
     blockId = _blockId;
