@@ -60,6 +60,8 @@ public:
     void startNewBlock(block_id _blockID);
 
     void writeLine(string& _str);
+
+    uint64_t parseFirstLine(string _line);
 };
 
 

@@ -39,6 +39,10 @@
     <list default="true" id="ec15c893-7f20-4493-be40-38b8f69efc54" name="Default Changelist" comment="bug/SKALE-4593">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libBLS/deps/libff/depends/xbyak" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/deps/libff/depends/xbyak" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messages/ConsensusProposalMessage.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/messages/ConsensusProposalMessage.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messages/NetworkMessage.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/messages/NetworkMessage.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/protocols/blockconsensus/FastMessageLedger.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/protocols/blockconsensus/FastMessageLedger.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/protocols/blockconsensus/FastMessageLedger.h" beforeDir="false" afterPath="$PROJECT_DIR$/protocols/blockconsensus/FastMessageLedger.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/sgxwallet" beforeDir="false" afterPath="$PROJECT_DIR$/sgxwallet" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/sgxwallet/intel-sgx-ssl" beforeDir="false" afterPath="$PROJECT_DIR$/sgxwallet/intel-sgx-ssl" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/sgxwallet/libBLS" beforeDir="false" afterPath="$PROJECT_DIR$/sgxwallet/libBLS" afterDir="false" />
@@ -376,13 +380,6 @@
       <workItem from="1633352635874" duration="7182000" />
       <workItem from="1633960378769" duration="7941000" />
     </task>
-    <task id="LOCAL-00049" summary="bug/SKALE-4400&#10;Added basic stuck detection classes.">
-      <created>1628775400748</created>
-      <option name="number" value="00049" />
-      <option name="presentableId" value="LOCAL-00049" />
-      <option name="project" value="LOCAL" />
-      <updated>1628775400748</updated>
-    </task>
     <task id="LOCAL-00050" summary="bug/SKALE-4400&#10;Added basic stuck detection classes.">
       <created>1628779304341</created>
       <option name="number" value="00050" />
@@ -719,7 +716,14 @@
       <option name="project" value="LOCAL" />
       <updated>1634309105352</updated>
     </task>
-    <option name="localTasksCounter" value="98" />
+    <task id="LOCAL-00098" summary="bug/SKALE-4352">
+      <created>1634559136431</created>
+      <option name="number" value="00098" />
+      <option name="presentableId" value="LOCAL-00098" />
+      <option name="project" value="LOCAL" />
+      <updated>1634559136431</updated>
+    </task>
+    <option name="localTasksCounter" value="99" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

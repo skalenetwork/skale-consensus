@@ -276,8 +276,6 @@ void NetworkMessage::addFields(nlohmann::basic_json<>& ) {
 }
 
 
-#include "utils/Time.h"
-
 ptr<NetworkMessage> NetworkMessage::parseMessage(const string& _header, Schain *_sChain, bool _lite) {
 
 

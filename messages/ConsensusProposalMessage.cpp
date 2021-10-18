@@ -95,7 +95,6 @@ ptr<ConsensusProposalMessage> ConsensusProposalMessage::parseMessageLite(const s
         
         d.Parse(_header.data());
 
-
         CHECK_STATE(!d.HasParseError());
         CHECK_STATE(d.IsObject())
         proposalsStr = BasicHeader::getStringRapid(d, "cv");

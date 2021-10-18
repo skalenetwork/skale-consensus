@@ -25,6 +25,10 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
+#include "thirdparty/rapidjson/document.h"
+#include "thirdparty/json.hpp"
+#include "thirdparty/rapidjson/prettywriter.h" // for stringify JSON
+
 #include "SkaleCommon.h"
 #include "Log.h"
 
@@ -56,6 +60,12 @@ FastMessageLedger::FastMessageLedger(Schain *_schain, string  _dirFullPath, bloc
         {
             lineCount++;
             if (lineCount == 1) {
+                uint64_t bid = parseFirstLine(line);
+                if (bid != _blockId) {
+                    LOG(warn, "Fast ledger block id does not match");
+                    return;
+                }
+
                 continue; // skip first line
             }
             auto nextMessage = parseLine(line);
@@ -70,6 +80,23 @@ FastMessageLedger::FastMessageLedger(Schain *_schain, string  _dirFullPath, bloc
 
 }
 
+
+uint64_t FastMessageLedger::parseFirstLine(string _line) {
+    try {
+
+        rapidjson::Document d;
+
+        d.Parse(_line.data());
+
+        CHECK_STATE(!d.HasParseError());
+        CHECK_STATE(d.IsObject())
+        auto bid  = BasicHeader::getUint64Rapid(d, "bi");
+        return bid;
+    } catch (...) {
+        throw_with_nested(InvalidStateException("Could not parse message", __CLASS_NAME__));
+    }
+
+}
 
 
 
