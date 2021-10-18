@@ -25,10 +25,8 @@
 #include "thirdparty/json.hpp"
 #include "thirdparty/rapidjson/prettywriter.h" // for stringify JSON
 
-
 #include "SkaleCommon.h"
 #include "Log.h"
-
 
 #include "Message.h"
 

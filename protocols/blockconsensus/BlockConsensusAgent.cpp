@@ -515,9 +515,13 @@ string BlockConsensusAgent::buildStats(block_id _blockID) {
 
 ptr<vector<ptr<Message>>> BlockConsensusAgent::initFastLedgerAndReplayMessages(block_id _blockID) {
 
+    LOG(info, "Initing fast message ledger with block ID:" + to_string((uint64_t) _blockID));
+
     fastMessageLedger = make_shared<FastMessageLedger>(getSchain(), "/tmp", _blockID);
 
     auto msgs = fastMessageLedger->retrieveAndClearPreviosRunMessages();
+
+    LOG(info, "Inited fast message ledger with previous run messages:" + to_string(msgs->size()));
 
     return msgs;
 }
