@@ -407,7 +407,7 @@ ptr< NetworkMessageEnvelope > Network::receiveMessage() {
             "Network Message with corrupt protocol key", __CLASS_NAME__ ) );
     };
 
-    return make_shared< NetworkMessageEnvelope >( mptr, realSender );
+    return make_shared< NetworkMessageEnvelope >( mptr, realSender->getSchainIndex());
 };
 
 

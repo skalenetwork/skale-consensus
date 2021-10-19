@@ -24,11 +24,12 @@
 #include "SkaleCommon.h"
 #include "Log.h"
 #include "chains/Schain.h"
+#include "node/NodeInfo.h"
 #include "Message.h"
 #include "MessageEnvelope.h"
 #include "InternalMessageEnvelope.h"
 
 
-InternalMessageEnvelope::InternalMessageEnvelope(MessageOrigin _origin, const ptr<Message> _message, Schain& _subchain): MessageEnvelope(
-        _origin, _message, _subchain.getThisNodeInfo()) {
+InternalMessageEnvelope::InternalMessageEnvelope(MessageOrigin _origin, const ptr<Message> _message, Schain& _sChain): MessageEnvelope(
+        _origin, _message, _sChain.getThisNodeInfo()->getSchainIndex()) {
 }

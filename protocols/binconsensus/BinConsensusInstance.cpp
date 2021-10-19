@@ -90,6 +90,7 @@ void BinConsensusInstance::processMessage(const ptr<MessageEnvelope>& _me ) {
 
         auto nwe = dynamic_pointer_cast<NetworkMessageEnvelope>( _me );
         CHECK_STATE(nwe);
+
         processNetworkMessageImpl(nwe);
         return;
     } else if (msgOrigin == ORIGIN_PARENT) {
@@ -114,6 +115,10 @@ void BinConsensusInstance::processNetworkMessageImpl(const ptr<NetworkMessageEnv
 
     auto message = dynamic_pointer_cast<NetworkMessage>(_me->getMessage());
     CHECK_STATE(message);
+    CHECK_STATE(blockConsensusInstance);
+    CHECK_STATE(blockConsensusInstance->fastMessageLedger);
+    this->blockConsensusInstance->fastMessageLedger->writeNetworkMessage(message);
+
     auto round = message->getRound();
     addToHistory(message);
 
@@ -253,7 +258,7 @@ void BinConsensusInstance::addCommonCoinToHistory(bin_consensus_round _r, bin_co
     bin_consensus_round r = m->getRound();
     bin_consensus_value v = m->getValue();
 
-    schain_index index = _me->getSrcNodeInfo()->getSchainIndex();
+    schain_index index = _me->getSrcSchainIndex();
 
     getSchain()->getNode()->getConsensusStateDB()->writeBVBVote(getBlockID(),
                                                                 getBlockProposerIndex(), r, index, v);
@@ -279,7 +284,7 @@ bool BinConsensusInstance::bvbVoteCore(const bin_consensus_round &_r, const bin_
     auto r = m->getRound();
     bin_consensus_value v = m->getValue();
 
-    auto index = _me->getSrcNodeInfo()->getSchainIndex();
+    auto index = _me->getSrcSchainIndex();
 
 
     ptr<ThresholdSigShare> sigShare = nullptr;
@@ -562,7 +567,7 @@ void BinConsensusInstance::proceedWithNextRound(bin_consensus_value _value) {
                                              getCurrentRound(), _value,
                                              Time::getCurrentTimeMs(), *this);
 
-    ptr<MessageEnvelope> me = make_shared<MessageEnvelope>(ORIGIN_NETWORK, m, getSchain()->getThisNodeInfo());
+    ptr<MessageEnvelope> me = make_shared<MessageEnvelope>(ORIGIN_NETWORK, m, getSchain()->getSchainIndex());
 
     networkBroadcastValue(m);
 
@@ -844,5 +849,7 @@ void BinConsensusInstance::setProposal(bin_consensus_round _r, bin_consensus_val
                                                            _r, _v);
     proposals[_r] = _v;
 }
+
+
 
 recursive_mutex BinConsensusInstance::historyMutex;
