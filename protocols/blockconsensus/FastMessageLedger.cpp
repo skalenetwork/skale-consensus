@@ -117,6 +117,7 @@ ptr<vector<ptr<Message>>> FastMessageLedger::retrieveAndClearPreviosRunMessages(
 }
 
 void FastMessageLedger::writeProposalMessage(ptr<ConsensusProposalMessage> _message) {
+    CHECK_STATE(this->fd > 0);
     CHECK_STATE(_message);
     auto msg = _message->serializeToStringLite();
     LOCK(m)
@@ -126,6 +127,7 @@ void FastMessageLedger::writeProposalMessage(ptr<ConsensusProposalMessage> _mess
 }
 
 void FastMessageLedger::writeNetworkMessage(ptr<NetworkMessage> _message) {
+    CHECK_STATE(this->fd > 0);
     CHECK_STATE(_message);
     auto msg = _message->serializeToStringLite();
     LOCK(m)
@@ -172,4 +174,5 @@ void FastMessageLedger::startNewBlock(block_id _blockId) {
     string header = "{\"bi\":" + to_string((uint64_t) _blockId) + "}";
 
     writeLine(header);
+    CHECK_STATE(this->fd > 0);
 }
