@@ -39,8 +39,6 @@
     <list default="true" id="ec15c893-7f20-4493-be40-38b8f69efc54" name="Default Changelist" comment="bug/SKALE-4352">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libBLS/deps/libff/depends/xbyak" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/deps/libff/depends/xbyak" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/protocols/blockconsensus/FastMessageLedger.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/protocols/blockconsensus/FastMessageLedger.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/protocols/blockconsensus/FastMessageLedger.h" beforeDir="false" afterPath="$PROJECT_DIR$/protocols/blockconsensus/FastMessageLedger.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/sgxwallet" beforeDir="false" afterPath="$PROJECT_DIR$/sgxwallet" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/sgxwallet/intel-sgx-ssl" beforeDir="false" afterPath="$PROJECT_DIR$/sgxwallet/intel-sgx-ssl" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/sgxwallet/libBLS" beforeDir="false" afterPath="$PROJECT_DIR$/sgxwallet/libBLS" afterDir="false" />
@@ -135,7 +133,7 @@
       <recent name="$PROJECT_DIR$/monitoring" />
     </key>
   </component>
-  <component name="RunManager" selected="CMake Application.consensust">
+  <component name="RunManager" selected="CMake Application.3d-4">
     <configuration name="bls_test" type="CMakeBoostTestRunConfigurationType" factoryName="Boost Test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="consensus" TARGET_NAME="bls_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="consensus" RUN_TARGET_NAME="bls_test" TEST_MODE="SUITE_TEST">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -255,7 +253,7 @@
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="consensust" type="CMakeRunConfiguration" factoryName="Application" singleton="false" PROGRAM_PARAMS="[consensus-basic]" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" WORKING_DIR="file://$PROJECT_DIR$/test/three_out_of_four" PASS_PARENT_ENVS_2="true" PROJECT_NAME="consensus" TARGET_NAME="consensus" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="consensus" RUN_TARGET_NAME="consensust">
+    <configuration name="consensust" type="CMakeRunConfiguration" factoryName="Application" singleton="false" PROGRAM_PARAMS="[consensus-basic]" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" WORKING_DIR="file://$PROJECT_DIR$/test/sixteennodes" PASS_PARENT_ENVS_2="true" PROJECT_NAME="consensus" TARGET_NAME="consensus" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="consensus" RUN_TARGET_NAME="consensust">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
@@ -377,27 +375,6 @@
       <workItem from="1631801800844" duration="3900000" />
       <workItem from="1633352635874" duration="7182000" />
       <workItem from="1633960378769" duration="7941000" />
-    </task>
-    <task id="LOCAL-00058" summary="bug/SKALE-4400&#10;Added basic stuck detection classes.">
-      <created>1629366819724</created>
-      <option name="number" value="00058" />
-      <option name="presentableId" value="LOCAL-00058" />
-      <option name="project" value="LOCAL" />
-      <updated>1629366819725</updated>
-    </task>
-    <task id="LOCAL-00059" summary="bug/SKALE-4400&#10;Added basic stuck detection classes.">
-      <created>1629376329092</created>
-      <option name="number" value="00059" />
-      <option name="presentableId" value="LOCAL-00059" />
-      <option name="project" value="LOCAL" />
-      <updated>1629376329092</updated>
-    </task>
-    <task id="LOCAL-00060" summary="bug/SKALE-4400&#10;Added basic stuck detection classes.">
-      <created>1629376856949</created>
-      <option name="number" value="00060" />
-      <option name="presentableId" value="LOCAL-00060" />
-      <option name="project" value="LOCAL" />
-      <updated>1629376856949</updated>
     </task>
     <task id="LOCAL-00061" summary="bug/SKALE-4502-RAM-grows">
       <created>1629376883775</created>
@@ -721,7 +698,28 @@
       <option name="project" value="LOCAL" />
       <updated>1634635052040</updated>
     </task>
-    <option name="localTasksCounter" value="107" />
+    <task id="LOCAL-00107" summary="bug/SKALE-4352">
+      <created>1634636114378</created>
+      <option name="number" value="00107" />
+      <option name="presentableId" value="LOCAL-00107" />
+      <option name="project" value="LOCAL" />
+      <updated>1634636114378</updated>
+    </task>
+    <task id="LOCAL-00108" summary="bug/SKALE-4352">
+      <created>1634637705908</created>
+      <option name="number" value="00108" />
+      <option name="presentableId" value="LOCAL-00108" />
+      <option name="project" value="LOCAL" />
+      <updated>1634637705908</updated>
+    </task>
+    <task id="LOCAL-00109" summary="bug/SKALE-4352">
+      <created>1634638453216</created>
+      <option name="number" value="00109" />
+      <option name="presentableId" value="LOCAL-00109" />
+      <option name="project" value="LOCAL" />
+      <updated>1634638453216</updated>
+    </task>
+    <option name="localTasksCounter" value="110" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
