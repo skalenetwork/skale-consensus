@@ -73,8 +73,8 @@ FastMessageLedger::FastMessageLedger(Schain *_schain, string  _dirFullPath, bloc
             previousRunMessages->push_back(nextMessage);
         }
     }
-    cerr << "start new block" << endl;
     startNewBlock(_blockId);
+    CHECK_STATE(this->fd);
 }
 
 
@@ -120,7 +120,7 @@ void FastMessageLedger::writeProposalMessage(ptr<ConsensusProposalMessage> _mess
     CHECK_STATE(_message);
     auto msg = _message->serializeToStringLite();
     LOCK(m)
-    CHECK_STATE(fd > 0);
+    CHECK_STATE(this->fd > 0);
     writeLine(msg);
     cerr << msg;
 }
@@ -135,15 +135,15 @@ void FastMessageLedger::writeNetworkMessage(ptr<NetworkMessage> _message) {
 
 void FastMessageLedger::closeFd() {
     LOG(info, "Close");
-    if (fd > 0) {
-        close(fd);
-        fd = -1;
+    if (this->fd > 0) {
+        close(this->fd);
+        this->fd = -1;
     }
 }
 
 void FastMessageLedger::writeLine(string& _str) {
     CHECK_STATE(_str.size() > 0);
-    CHECK_STATE(fd > 0);
+    CHECK_STATE(this->fd > 0);
     int64_t written = 0;
     int64_t result = -1;
     do {
@@ -165,7 +165,7 @@ void FastMessageLedger::startNewBlock(block_id _blockId) {
     LOCK(m)
     blockId = _blockId;
     closeFd();
-    fd = open(ledgerFileFullPath.c_str(), O_CREAT| O_TRUNC | O_WRONLY, S_IRWXU);
+    this->fd = open(ledgerFileFullPath.c_str(), O_CREAT| O_TRUNC | O_WRONLY, S_IRWXU);
     CHECK_STATE2(fd > 0, ledgerFileFullPath + " file write open failed with errno:" +
                          string(strerror(errno)));
 
