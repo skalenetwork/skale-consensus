@@ -521,6 +521,28 @@ ptr<vector<ptr<Message>>> BlockConsensusAgent::initFastLedgerAndReplayMessages(b
 
     auto msgs = fastMessageLedger->retrieveAndClearPreviosRunMessages();
 
+    for (auto&& msg : *msgs) {
+
+        ptr<MessageEnvelope> me;
+
+        CHECK_STATE(getSchain());
+
+        if (dynamic_pointer_cast<NetworkMessage>(msg) != nullptr) {
+
+            auto nodeInfo = getSchain()->getNode()->getNodeInfoById(msg->getSrcNodeID());
+
+            CHECK_STATE(nodeInfo);
+
+            me = make_shared<NetworkMessageEnvelope>(
+                    dynamic_pointer_cast<NetworkMessage>(msg),nodeInfo->getSchainIndex());
+        } else {
+            me = make_shared<InternalMessageEnvelope>(ORIGIN_PARENT,
+                                                      dynamic_pointer_cast<ConsensusProposalMessage>(msg), *getSchain());
+        }
+
+        getSchain()->postMessage(me);
+    }
+
     LOG(info, "Inited fast message ledger with previous run messages:" + to_string(msgs->size()));
 
     return msgs;
