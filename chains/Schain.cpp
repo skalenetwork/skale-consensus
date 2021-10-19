@@ -803,7 +803,7 @@ void Schain::bootstrap( block_id _lastCommittedBlockID, uint64_t _lastCommittedB
         if ( getLastCommittedBlockID() == 0 )
             this->pricingAgent->calculatePrice( ConsensusExtFace::transactions_vector(), 0, 0, 0 );
 
-        this->blockConsensusInstance->initFastLedgerAndReplayMessages(lastCommittedBlockID + 1);
+
 
         proposeNextBlock();
 

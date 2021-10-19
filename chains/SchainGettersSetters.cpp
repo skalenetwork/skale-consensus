@@ -277,6 +277,7 @@ void Schain::initLastCommittedBlockInfo( uint64_t _lastCommittedBlockID,
     lastCommittedBlockID = _lastCommittedBlockID;
     lastCommittedBlockTimeStamp = _lastCommittedBlockTimeStamp;
     lastCommitTimeMs = Time::getCurrentTimeMs();
+    this->blockConsensusInstance->initFastLedgerAndReplayMessages(lastCommittedBlockID + 1);
 }
 
 
