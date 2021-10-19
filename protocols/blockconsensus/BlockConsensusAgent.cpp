@@ -536,7 +536,7 @@ ptr<vector<ptr<Message>>> BlockConsensusAgent::initFastLedgerAndReplayMessages(b
             me = make_shared<NetworkMessageEnvelope>(
                     dynamic_pointer_cast<NetworkMessage>(msg),nodeInfo->getSchainIndex());
         } else {
-            me = make_shared<InternalMessageEnvelope>(ORIGIN_PARENT,
+            me = make_shared<InternalMessageEnvelope>(ORIGIN_EXTERNAL,
                                                       dynamic_pointer_cast<ConsensusProposalMessage>(msg), *getSchain());
         }
 
