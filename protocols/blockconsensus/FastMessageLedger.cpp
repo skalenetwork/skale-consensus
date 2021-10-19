@@ -119,6 +119,8 @@ ptr<vector<ptr<Message>>> FastMessageLedger::retrieveAndClearPreviosRunMessages(
 void FastMessageLedger::writeProposalMessage(ptr<ConsensusProposalMessage> _message) {
     CHECK_STATE(_message);
     auto msg = _message->serializeToStringLite();
+    LOCK(m)
+    CHECK_STATE(fd > 0);
     writeLine(msg);
     cerr << msg;
 }
@@ -126,6 +128,7 @@ void FastMessageLedger::writeProposalMessage(ptr<ConsensusProposalMessage> _mess
 void FastMessageLedger::writeNetworkMessage(ptr<NetworkMessage> _message) {
     CHECK_STATE(_message);
     auto msg = _message->serializeToStringLite();
+    LOCK(m)
     writeLine(msg);
     cerr << msg;
 }
@@ -159,6 +162,7 @@ void FastMessageLedger::writeLine(string& _str) {
 }
 
 void FastMessageLedger::startNewBlock(block_id _blockId) {
+    LOCK(m)
     blockId = _blockId;
     closeFd();
     fd = open(ledgerFileFullPath.c_str(), O_CREAT| O_TRUNC | O_WRONLY, S_IRWXU);

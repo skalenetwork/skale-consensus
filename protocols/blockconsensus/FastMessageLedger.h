@@ -40,7 +40,9 @@ class FastMessageLedger {
     block_id blockId = 0;
     string ledgerFileFullPath;
     ptr<vector<ptr<Message>>> previousRunMessages = nullptr;
-    int fd = -1;
+    atomic<int> fd = -1;
+    recursive_mutex m;
+
 
     ptr<Message> parseLine(string& _line);
 
