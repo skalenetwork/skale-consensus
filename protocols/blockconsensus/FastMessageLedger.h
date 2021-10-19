@@ -48,6 +48,11 @@ class FastMessageLedger {
 
     void closeFd();
 
+    void writeLine(string& _str);
+
+    uint64_t parseFirstLine(string _line);
+
+
 public:
     FastMessageLedger(Schain *schain, string ledgerFileFullPath, block_id _blockID);
 
@@ -61,9 +66,7 @@ public:
 
     void startNewBlock(block_id _blockID);
 
-    void writeLine(string& _str);
 
-    uint64_t parseFirstLine(string _line);
 };
 
 

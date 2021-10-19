@@ -63,7 +63,7 @@ FastMessageLedger::FastMessageLedger(Schain *_schain, string  _dirFullPath, bloc
                 uint64_t bid = parseFirstLine(line);
                 if (bid != _blockId) {
                     LOG(warn, "Fast ledger block id does not match");
-                    return;
+                    break;
                 }
 
                 continue; // skip first line
@@ -74,7 +74,7 @@ FastMessageLedger::FastMessageLedger(Schain *_schain, string  _dirFullPath, bloc
         }
     }
     startNewBlock(_blockId);
-    CHECK_STATE(this->fd);
+    CHECK_STATE(fd > 0);
 }
 
 
@@ -110,6 +110,7 @@ ptr<Message> FastMessageLedger::parseLine(string& _line) {
 }
 
 ptr<vector<ptr<Message>>> FastMessageLedger::retrieveAndClearPreviosRunMessages() {
+    CHECK_STATE(fd > 0);
     auto result = previousRunMessages;
     previousRunMessages = nullptr;
     CHECK_STATE(result);
@@ -117,35 +118,31 @@ ptr<vector<ptr<Message>>> FastMessageLedger::retrieveAndClearPreviosRunMessages(
 }
 
 void FastMessageLedger::writeProposalMessage(ptr<ConsensusProposalMessage> _message) {
-    CHECK_STATE(this->fd > 0);
+    CHECK_STATE(fd > 0);
     CHECK_STATE(_message);
     auto msg = _message->serializeToStringLite();
     LOCK(m)
-    CHECK_STATE(this->fd > 0);
     writeLine(msg);
-    cerr << msg;
 }
 
 void FastMessageLedger::writeNetworkMessage(ptr<NetworkMessage> _message) {
-    CHECK_STATE(this->fd > 0);
+    CHECK_STATE(fd > 0);
     CHECK_STATE(_message);
     auto msg = _message->serializeToStringLite();
     LOCK(m)
     writeLine(msg);
-    cerr << msg;
 }
 
 void FastMessageLedger::closeFd() {
-    LOG(info, "Close");
-    if (this->fd > 0) {
-        close(this->fd);
-        this->fd = -1;
+    if (fd > 0) {
+        close(fd);
+        fd = -1;
     }
 }
 
 void FastMessageLedger::writeLine(string& _str) {
     CHECK_STATE(_str.size() > 0);
-    CHECK_STATE(this->fd > 0);
+    CHECK_STATE(fd > 0);
     int64_t written = 0;
     int64_t result = -1;
     do {
@@ -167,12 +164,11 @@ void FastMessageLedger::startNewBlock(block_id _blockId) {
     LOCK(m)
     blockId = _blockId;
     closeFd();
-    this->fd = open(ledgerFileFullPath.c_str(), O_CREAT| O_TRUNC | O_WRONLY, S_IRWXU);
+    fd = open(ledgerFileFullPath.c_str(), O_CREAT| O_TRUNC | O_WRONLY, S_IRWXU);
     CHECK_STATE2(fd > 0, ledgerFileFullPath + " file write open failed with errno:" +
                          string(strerror(errno)));
 
     string header = "{\"bi\":" + to_string((uint64_t) _blockId) + "}";
 
     writeLine(header);
-    CHECK_STATE(this->fd > 0);
 }
