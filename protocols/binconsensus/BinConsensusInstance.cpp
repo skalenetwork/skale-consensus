@@ -116,8 +116,8 @@ void BinConsensusInstance::processNetworkMessageImpl(const ptr<NetworkMessageEnv
     auto message = dynamic_pointer_cast<NetworkMessage>(_me->getMessage());
     CHECK_STATE(message);
     CHECK_STATE(blockConsensusInstance);
-    CHECK_STATE(blockConsensusInstance->fastMessageLedger);
-    this->blockConsensusInstance->fastMessageLedger->writeNetworkMessage(message);
+     if (blockConsensusInstance->fastMessageLedger)
+         blockConsensusInstance->fastMessageLedger->writeNetworkMessage(message);
 
     auto round = message->getRound();
     addToHistory(message);

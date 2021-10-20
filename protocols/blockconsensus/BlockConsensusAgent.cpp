@@ -335,7 +335,6 @@ void BlockConsensusAgent::routeAndProcessMessage(const ptr<MessageEnvelope>& _me
 
     try {
 
-
         CHECK_ARGUMENT( _me->getMessage()->getBlockId() > 0);
         CHECK_ARGUMENT( _me->getOrigin() != ORIGIN_PARENT);
 
@@ -352,9 +351,8 @@ void BlockConsensusAgent::routeAndProcessMessage(const ptr<MessageEnvelope>& _me
             auto consensusProposalMessage =
                 dynamic_pointer_cast<ConsensusProposalMessage>( _me->getMessage());
 
-            CHECK_STATE(fastMessageLedger);
-            fastMessageLedger->writeProposalMessage(consensusProposalMessage);
-
+            if (fastMessageLedger)
+                fastMessageLedger->writeProposalMessage(consensusProposalMessage);
 
             this->startConsensusProposal(
                 _me->getMessage()->getBlockId(),
@@ -369,7 +367,8 @@ void BlockConsensusAgent::routeAndProcessMessage(const ptr<MessageEnvelope>& _me
 
             CHECK_STATE(blockSignBroadcastMessage);
 
-            fastMessageLedger->writeNetworkMessage(blockSignBroadcastMessage);
+            if (fastMessageLedger)
+                fastMessageLedger->writeNetworkMessage(blockSignBroadcastMessage);
 
             this->processBlockSignMessage(dynamic_pointer_cast<BlockSignBroadcastMessage>( _me->getMessage()));
             return;

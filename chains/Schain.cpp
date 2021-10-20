@@ -1124,8 +1124,20 @@ void Schain::writeToVisualizationStream(string& _s) {
 }
 
 
-u256 Schain::getRandomForBlockId(block_id ) {
-    return 0;
+u256 Schain::getRandomForBlockId(block_id _blockId) {
+    auto block  = getBlock(_blockId);
+    CHECK_STATE(block);
+    auto signature = block->getThresholdSig();
+
+    auto data = make_shared<vector<uint8_t>>();
+
+    for (uint64_t i = 0; i < signature.size(); i++) {
+        data->push_back((uint8_t)signature.at(i));
+    }
+
+    auto hash = BLAKE3Hash::calculateHash(data);
+    cerr << hash.toHex() << endl;
+    return u256(hash.toHex());
 }
 
 ptr<ofstream> Schain::visualizationDataStream = nullptr;
