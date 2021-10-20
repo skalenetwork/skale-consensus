@@ -37,8 +37,8 @@
 
 
 NetworkMessageEnvelope::NetworkMessageEnvelope(
-    const ptr< NetworkMessage >& message, const ptr< NodeInfo >& realSender )
-    : MessageEnvelope( ORIGIN_NETWORK, message, realSender ) {
+    const ptr< NetworkMessage >& message, schain_index _senderIndex )
+    : MessageEnvelope( ORIGIN_NETWORK, message, _senderIndex ) {
     arrivalTime = Time::getCurrentTimeMs();
 }
 

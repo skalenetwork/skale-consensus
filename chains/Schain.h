@@ -331,5 +331,8 @@ public:
     void printBlockLog(const ptr< CommittedBlock >& _block);
 
     void createOracleInstance();
+
+    u256 getRandomForBlockId(block_id _blockid);
+
 };
 

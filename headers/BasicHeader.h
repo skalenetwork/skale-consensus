@@ -66,6 +66,7 @@ public:
     static constexpr const char *BLOCK_SIG_BROADCAST = "S";
     static constexpr const char *ORACLE_REQUEST_BROADCAST = "O";
     static constexpr const char *ORACLE_RESPONSE = "R";
+    static constexpr const char *CONSENSUS_PROPOSAL = "C";
 
     explicit BasicHeader(const char *_type);
 

@@ -86,6 +86,8 @@ BlockConsensusAgent::BlockConsensusAgent(Schain &_schain) : ProtocolInstance(
     for (int i = 0; i < _schain.getNodeCount(); i++) {
         children[i]->put((uint64_t) currentBlock, make_shared<BinConsensusInstance>(this, currentBlock, i + 1, true));
     }
+
+
 };
 
 
@@ -333,7 +335,6 @@ void BlockConsensusAgent::routeAndProcessMessage(const ptr<MessageEnvelope>& _me
 
     try {
 
-
         CHECK_ARGUMENT( _me->getMessage()->getBlockId() > 0);
         CHECK_ARGUMENT( _me->getOrigin() != ORIGIN_PARENT);
 
@@ -350,6 +351,9 @@ void BlockConsensusAgent::routeAndProcessMessage(const ptr<MessageEnvelope>& _me
             auto consensusProposalMessage =
                 dynamic_pointer_cast<ConsensusProposalMessage>( _me->getMessage());
 
+            if (fastMessageLedger)
+                fastMessageLedger->writeProposalMessage(consensusProposalMessage);
+
             this->startConsensusProposal(
                 _me->getMessage()->getBlockId(),
                                          consensusProposalMessage->getProposals());
@@ -360,7 +364,11 @@ void BlockConsensusAgent::routeAndProcessMessage(const ptr<MessageEnvelope>& _me
 
             auto blockSignBroadcastMessage = dynamic_pointer_cast<BlockSignBroadcastMessage>( _me->getMessage());
 
+
             CHECK_STATE(blockSignBroadcastMessage);
+
+            if (fastMessageLedger)
+                fastMessageLedger->writeNetworkMessage(blockSignBroadcastMessage);
 
             this->processBlockSignMessage(dynamic_pointer_cast<BlockSignBroadcastMessage>( _me->getMessage()));
             return;
@@ -503,3 +511,46 @@ string BlockConsensusAgent::buildStats(block_id _blockID) {
     return resultStr;
 
 }
+
+ptr<vector<ptr<Message>>> BlockConsensusAgent::initFastLedgerAndReplayMessages(block_id _blockID) {
+
+    LOG(info, "Initing fast message ledger with block ID:" + to_string((uint64_t) _blockID));
+
+    fastMessageLedger = make_shared<FastMessageLedger>(getSchain(),
+                                                       getSchain()->getNode()->getConsensusEngine()->getDbDir(), _blockID);
+
+    auto msgs = fastMessageLedger->retrieveAndClearPreviosRunMessages();
+
+    for (auto&& msg : *msgs) {
+
+        ptr<MessageEnvelope> me;
+
+        CHECK_STATE(getSchain());
+
+        if (dynamic_pointer_cast<NetworkMessage>(msg) != nullptr) {
+
+            auto nodeInfo = getSchain()->getNode()->getNodeInfoById(msg->getSrcNodeID());
+
+            CHECK_STATE(nodeInfo);
+
+            me = make_shared<NetworkMessageEnvelope>(
+                    dynamic_pointer_cast<NetworkMessage>(msg),nodeInfo->getSchainIndex());
+        } else {
+            me = make_shared<InternalMessageEnvelope>(ORIGIN_EXTERNAL,
+                                                      dynamic_pointer_cast<ConsensusProposalMessage>(msg), *getSchain());
+        }
+
+        getSchain()->postMessage(me);
+    }
+
+    LOG(info, "Inited fast message ledger with previous run messages:" + to_string(msgs->size()));
+
+    return msgs;
+}
+
+void BlockConsensusAgent::startNewBlock(block_id _blockID) {
+    CHECK_STATE(fastMessageLedger);
+    fastMessageLedger->startNewBlock(_blockID);
+}
+
+

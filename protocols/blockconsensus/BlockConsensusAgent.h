@@ -35,8 +35,11 @@ class CryptoManager;
 
 
 #include "thirdparty/lrucache.hpp"
+#include "FastMessageLedger.h"
 
 class BlockConsensusAgent : public ProtocolInstance {
+
+    friend class BinConsensusInstance;
 
     recursive_mutex m;
 
@@ -44,11 +47,12 @@ class BlockConsensusAgent : public ProtocolInstance {
 
     vector<ptr<cache::lru_cache<uint64_t, ptr<BinConsensusInstance>>>> children; // tsafe
 
+    ptr<FastMessageLedger> fastMessageLedger = nullptr;
+
     ptr<cache::lru_cache<uint64_t , ptr<map<schain_index, ptr<ChildBVDecidedMessage>>>>>
         trueDecisions;
     ptr<cache::lru_cache<uint64_t , ptr<map<schain_index, ptr<ChildBVDecidedMessage>>>>> falseDecisions;
     ptr<cache::lru_cache<uint64_t , schain_index>> decidedIndices;
-
 
     void processChildMessageImpl(const ptr<InternalMessageEnvelope>& _me);
 
@@ -60,8 +64,8 @@ class BlockConsensusAgent : public ProtocolInstance {
 
     void decideDefaultBlock(block_id _blockNumber);
 
-    void startConsensusProposal(block_id _blockID, const ptr<BooleanProposalVector>& _proposal);
 
+    void startConsensusProposal(block_id _blockID, const ptr<BooleanProposalVector>& _proposal);
 
     void processBlockSignMessage(const ptr<BlockSignBroadcastMessage>& _message);
 
@@ -71,25 +75,24 @@ class BlockConsensusAgent : public ProtocolInstance {
 
     bool decided(const ptr<ProtocolKey>& _key);
 
-
     string buildStats(block_id _blockID);
+
+    ptr<BinConsensusInstance> getChild(const ptr<ProtocolKey>& _key);
+
+    void writeString(string& _str);
 
 public:
 
 
-
-    ptr<BinConsensusInstance> getChild(const ptr<ProtocolKey>& _key);
-
-
-
     BlockConsensusAgent(Schain& _schain);
-
-
 
     bool shouldPost(const ptr<NetworkMessage>& _msg);
 
-
     void routeAndProcessMessage(const ptr<MessageEnvelope>& _me );
+
+    ptr<vector<ptr<Message>>> initFastLedgerAndReplayMessages(block_id _blockID);
+
+    void startNewBlock(block_id _blockID);
 
 };
 

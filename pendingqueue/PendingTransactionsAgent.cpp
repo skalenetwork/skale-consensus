@@ -110,6 +110,8 @@ pair<ptr<vector<ptr<Transaction>>>, u256> PendingTransactionsAgent::createTransa
     u256 stateRoot = 0;
     static u256 stateRootSample = 1;
 
+    uint64_t waitTimeMs = 10;
+
     while( txVector.empty() ){
 
         getSchain()->getNode()->exitCheck();
@@ -132,7 +134,11 @@ pair<ptr<vector<ptr<Transaction>>>, u256> PendingTransactionsAgent::createTransa
         if( this->sChain->getLastCommittedBlockID() == 0 || (uint64_t ) diff.total_milliseconds() >= getSchain()->getNode()->getEmptyBlockIntervalMs())
             break;
 
-        usleep(100 * 1000);
+        usleep(waitTimeMs * 1000);
+
+        if (waitTimeMs < 10  * 32) {
+            waitTimeMs *= 2;
+        }
 
     }// while
 

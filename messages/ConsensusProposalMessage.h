@@ -24,6 +24,11 @@
 #pragma  once
 #include <vector>
 
+#include "thirdparty/rapidjson/document.h"
+#include "thirdparty/json.hpp"
+#include "thirdparty/rapidjson/prettywriter.h" // for stringify JSON
+
+
 #include "Message.h"
 #include "SkaleCommon.h"
 #include "Log.h"
@@ -41,5 +46,9 @@ public:
     ConsensusProposalMessage(Schain& _sChain, const block_id &_blockID, const ptr<BooleanProposalVector> _proposals);
 
     [[nodiscard]] const ptr<BooleanProposalVector> getProposals() const;
+
+    string serializeToStringLite();
+
+    static ptr< ConsensusProposalMessage > parseMessageLite(const string& _header, Schain* _sChain );
 
 };

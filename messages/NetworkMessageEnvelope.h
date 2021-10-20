@@ -38,7 +38,7 @@ class NetworkMessageEnvelope : public MessageEnvelope {
 
 public:
     NetworkMessageEnvelope(const ptr <NetworkMessage> &message,
-                           const ptr <NodeInfo> &realSender);
+                           schain_index _senderIndex);
 
     [[nodiscard]] uint64_t getArrivalTime() const;
 

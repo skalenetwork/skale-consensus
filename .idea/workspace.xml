@@ -56,7 +56,6 @@
   <component name="ClangdSettings">
     <option name="formatViaClangd" value="false" />
   </component>
-  <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:Debug" />
   <component name="Git.Settings">
     <option name="PREVIOUS_COMMIT_AUTHORS">
       <list>
@@ -138,6 +137,7 @@
       <recent name="$PROJECT_DIR$/oracle" />
       <recent name="$PROJECT_DIR$/oracle/" />
       <recent name="$PROJECT_DIR$/test" />
+      <recent name="$PROJECT_DIR$/test/fournodes" />
       <recent name="$PROJECT_DIR$/monitoring" />
     </key>
   </component>
@@ -184,9 +184,25 @@
         <option name="BeforeTestRunTask" enabled="true" />
       </method>
     </configuration>
+    <configuration name="1st-4 " type="CMakeRunConfiguration" factoryName="Application" singleton="false" PROGRAM_PARAMS="[consensus-basic]" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" WORKING_DIR="file://$PROJECT_DIR$/test/first_out_of_four" PASS_PARENT_ENVS_2="true" PROJECT_NAME="consensus" TARGET_NAME="consensus" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="consensus" RUN_TARGET_NAME="consensust">
+      <envs>
+        <env name="TEST_TIME_S" value="10000" />
+      </envs>
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="2-4" type="CMakeRunConfiguration" factoryName="Application" singleton="false" PROGRAM_PARAMS="[consensus-basic]" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" WORKING_DIR="file://$PROJECT_DIR$/test/two_out_of_four" PASS_PARENT_ENVS_2="true" PROJECT_NAME="consensus" TARGET_NAME="consensus" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="consensus" RUN_TARGET_NAME="consensust">
       <envs>
         <env name="TEST_TIME_S" value="10000" />
+      </envs>
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="2nd-4" type="CMakeRunConfiguration" factoryName="Application" singleton="false" PROGRAM_PARAMS="[consensus-basic-continue]" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" WORKING_DIR="file://$PROJECT_DIR$/test/second_out_of_four" PASS_PARENT_ENVS_2="true" PROJECT_NAME="consensus" TARGET_NAME="consensus" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="consensus" RUN_TARGET_NAME="consensust">
+      <envs>
+        <env name="TEST_TIME_S" value="1000000000" />
       </envs>
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -245,7 +261,7 @@
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="consensust" type="CMakeRunConfiguration" factoryName="Application" singleton="false" PROGRAM_PARAMS="[consensus-basic]" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" WORKING_DIR="file://$PROJECT_DIR$/test/three_out_of_four" PASS_PARENT_ENVS_2="true" PROJECT_NAME="consensus" TARGET_NAME="consensus" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="consensus" RUN_TARGET_NAME="consensust">
+    <configuration name="consensust" type="CMakeRunConfiguration" factoryName="Application" singleton="false" PROGRAM_PARAMS="[consensus-basic]" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" WORKING_DIR="file://$PROJECT_DIR$/test/sixteennodes" PASS_PARENT_ENVS_2="true" PROJECT_NAME="consensus" TARGET_NAME="consensus" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="consensus" RUN_TARGET_NAME="consensust">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
@@ -300,7 +316,9 @@
       <item itemvalue="Catch.consensust" />
       <item itemvalue="CMake Application.consensust" />
       <item itemvalue="CMake Application.2-4" />
+      <item itemvalue="CMake Application.1st-4 " />
       <item itemvalue="CMake Application.3d-4" />
+      <item itemvalue="CMake Application.2nd-4" />
       <item itemvalue="CMake Application.consensusd" />
       <item itemvalue="CMake Application.all_bls_tests" />
       <item itemvalue="CMake Application.bls" />
@@ -364,118 +382,6 @@
       <workItem from="1631699230594" duration="12654000" />
       <workItem from="1631801800844" duration="3900000" />
       <workItem from="1632390070861" duration="6918000" />
-    </task>
-    <task id="LOCAL-00047" summary="bug/SKALE-4400&#10;Added basic stuck detection classes.">
-      <created>1628771485562</created>
-      <option name="number" value="00047" />
-      <option name="presentableId" value="LOCAL-00047" />
-      <option name="project" value="LOCAL" />
-      <updated>1628771485562</updated>
-    </task>
-    <task id="LOCAL-00048" summary="bug/SKALE-4400&#10;Added basic stuck detection classes.">
-      <created>1628773275764</created>
-      <option name="number" value="00048" />
-      <option name="presentableId" value="LOCAL-00048" />
-      <option name="project" value="LOCAL" />
-      <updated>1628773275764</updated>
-    </task>
-    <task id="LOCAL-00049" summary="bug/SKALE-4400&#10;Added basic stuck detection classes.">
-      <created>1628775400748</created>
-      <option name="number" value="00049" />
-      <option name="presentableId" value="LOCAL-00049" />
-      <option name="project" value="LOCAL" />
-      <updated>1628775400748</updated>
-    </task>
-    <task id="LOCAL-00050" summary="bug/SKALE-4400&#10;Added basic stuck detection classes.">
-      <created>1628779304341</created>
-      <option name="number" value="00050" />
-      <option name="presentableId" value="LOCAL-00050" />
-      <option name="project" value="LOCAL" />
-      <updated>1628779304342</updated>
-    </task>
-    <task id="LOCAL-00051" summary="bug/SKALE-4400&#10;Added basic stuck detection classes.">
-      <created>1628958228656</created>
-      <option name="number" value="00051" />
-      <option name="presentableId" value="LOCAL-00051" />
-      <option name="project" value="LOCAL" />
-      <updated>1628958228656</updated>
-    </task>
-    <task id="LOCAL-00052" summary="bug/SKALE-4400&#10;Added basic stuck detection classes.">
-      <created>1628959081657</created>
-      <option name="number" value="00052" />
-      <option name="presentableId" value="LOCAL-00052" />
-      <option name="project" value="LOCAL" />
-      <updated>1628959081658</updated>
-    </task>
-    <task id="LOCAL-00053" summary="bug/SKALE-4400&#10;Added basic stuck detection classes.">
-      <created>1628960593690</created>
-      <option name="number" value="00053" />
-      <option name="presentableId" value="LOCAL-00053" />
-      <option name="project" value="LOCAL" />
-      <updated>1628960593690</updated>
-    </task>
-    <task id="LOCAL-00054" summary="bug/SKALE-4400&#10;Added basic stuck detection classes.">
-      <created>1629122183330</created>
-      <option name="number" value="00054" />
-      <option name="presentableId" value="LOCAL-00054" />
-      <option name="project" value="LOCAL" />
-      <updated>1629122183330</updated>
-    </task>
-    <task id="LOCAL-00055" summary="bug/SKALE-4400&#10;Added basic stuck detection classes.">
-      <created>1629296373157</created>
-      <option name="number" value="00055" />
-      <option name="presentableId" value="LOCAL-00055" />
-      <option name="project" value="LOCAL" />
-      <updated>1629296373157</updated>
-    </task>
-    <task id="LOCAL-00056" summary="bug/SKALE-4400&#10;Added basic stuck detection classes.">
-      <created>1629298778971</created>
-      <option name="number" value="00056" />
-      <option name="presentableId" value="LOCAL-00056" />
-      <option name="project" value="LOCAL" />
-      <updated>1629298778971</updated>
-    </task>
-    <task id="LOCAL-00057" summary="bug/SKALE-4400&#10;Added basic stuck detection classes.">
-      <created>1629361535038</created>
-      <option name="number" value="00057" />
-      <option name="presentableId" value="LOCAL-00057" />
-      <option name="project" value="LOCAL" />
-      <updated>1629361535038</updated>
-    </task>
-    <task id="LOCAL-00058" summary="bug/SKALE-4400&#10;Added basic stuck detection classes.">
-      <created>1629366819724</created>
-      <option name="number" value="00058" />
-      <option name="presentableId" value="LOCAL-00058" />
-      <option name="project" value="LOCAL" />
-      <updated>1629366819725</updated>
-    </task>
-    <task id="LOCAL-00059" summary="bug/SKALE-4400&#10;Added basic stuck detection classes.">
-      <created>1629376329092</created>
-      <option name="number" value="00059" />
-      <option name="presentableId" value="LOCAL-00059" />
-      <option name="project" value="LOCAL" />
-      <updated>1629376329092</updated>
-    </task>
-    <task id="LOCAL-00060" summary="bug/SKALE-4400&#10;Added basic stuck detection classes.">
-      <created>1629376856949</created>
-      <option name="number" value="00060" />
-      <option name="presentableId" value="LOCAL-00060" />
-      <option name="project" value="LOCAL" />
-      <updated>1629376856949</updated>
-    </task>
-    <task id="LOCAL-00061" summary="bug/SKALE-4502-RAM-grows">
-      <created>1629376883775</created>
-      <option name="number" value="00061" />
-      <option name="presentableId" value="LOCAL-00061" />
-      <option name="project" value="LOCAL" />
-      <updated>1629376883775</updated>
-    </task>
-    <task id="LOCAL-00062" summary="bug/SKALE-4502-RAM-grows&#10;Removed empty space">
-      <created>1629378215636</created>
-      <option name="number" value="00062" />
-      <option name="presentableId" value="LOCAL-00062" />
-      <option name="project" value="LOCAL" />
-      <updated>1629378215636</updated>
     </task>
     <task id="LOCAL-00063" summary="bug/SKALE-4502-RAM-grows&#10;Removed empty space">
       <created>1629378736552</created>
@@ -617,98 +523,210 @@
       <option name="project" value="LOCAL" />
       <updated>1632238965781</updated>
     </task>
-    <task id="LOCAL-00083" summary="bug/SKALE-4616-oracle-mvp">
-      <created>1632312022938</created>
+    <task id="LOCAL-00083" summary="bug/SKALE-4352">
+      <created>1633007337480</created>
       <option name="number" value="00083" />
       <option name="presentableId" value="LOCAL-00083" />
       <option name="project" value="LOCAL" />
-      <updated>1632312022938</updated>
+      <updated>1633007337480</updated>
     </task>
-    <task id="LOCAL-00084" summary="bug/SKALE-4616-oracle-mvp">
-      <created>1632315008401</created>
+    <task id="LOCAL-00084" summary="bug/SKALE-4352">
+      <created>1633008021381</created>
       <option name="number" value="00084" />
       <option name="presentableId" value="LOCAL-00084" />
       <option name="project" value="LOCAL" />
-      <updated>1632315008401</updated>
+      <updated>1633008021381</updated>
     </task>
-    <task id="LOCAL-00085" summary="bug/SKALE-4616-oracle-mvp">
-      <created>1632316101766</created>
+    <task id="LOCAL-00085" summary="bug/SKALE-4352">
+      <created>1633014600648</created>
       <option name="number" value="00085" />
       <option name="presentableId" value="LOCAL-00085" />
       <option name="project" value="LOCAL" />
-      <updated>1632316101766</updated>
+      <updated>1633014600648</updated>
     </task>
-    <task id="LOCAL-00086" summary="bug/SKALE-4616-oracle-mvp">
-      <created>1632317067822</created>
+    <task id="LOCAL-00086" summary="bug/SKALE-4352">
+      <created>1633098652974</created>
       <option name="number" value="00086" />
       <option name="presentableId" value="LOCAL-00086" />
       <option name="project" value="LOCAL" />
-      <updated>1632317067823</updated>
+      <updated>1633098652974</updated>
     </task>
-    <task id="LOCAL-00087" summary="bug/SKALE-4616-oracle-mvp">
-      <created>1632317429856</created>
+    <task id="LOCAL-00087" summary="bug/SKALE-4352">
+      <created>1633099626793</created>
       <option name="number" value="00087" />
       <option name="presentableId" value="LOCAL-00087" />
       <option name="project" value="LOCAL" />
-      <updated>1632317429856</updated>
+      <updated>1633099626793</updated>
     </task>
-    <task id="LOCAL-00088" summary="bug/SKALE-4616-oracle-mvp">
-      <created>1632321104438</created>
+    <task id="LOCAL-00088" summary="bug/SKALE-4352">
+      <created>1633371481121</created>
       <option name="number" value="00088" />
       <option name="presentableId" value="LOCAL-00088" />
       <option name="project" value="LOCAL" />
-      <updated>1632321104438</updated>
+      <updated>1633371481121</updated>
     </task>
-    <task id="LOCAL-00089" summary="bug/SKALE-4616-oracle-mvp">
-      <created>1632321722613</created>
+    <task id="LOCAL-00089" summary="bug/SKALE-4352">
+      <created>1634035306785</created>
       <option name="number" value="00089" />
       <option name="presentableId" value="LOCAL-00089" />
       <option name="project" value="LOCAL" />
-      <updated>1632321722613</updated>
+      <updated>1634035306785</updated>
     </task>
-    <task id="LOCAL-00090" summary="bug/SKALE-4616-oracle-mvp">
-      <created>1632335480948</created>
+    <task id="LOCAL-00090" summary="bug/SKALE-4352">
+      <created>1634047014474</created>
       <option name="number" value="00090" />
       <option name="presentableId" value="LOCAL-00090" />
       <option name="project" value="LOCAL" />
-      <updated>1632335480948</updated>
+      <updated>1634047014474</updated>
     </task>
-    <task id="LOCAL-00091" summary="bug/SKALE-4616-oracle-mvp">
-      <created>1632390098299</created>
+    <task id="LOCAL-00091" summary="bug/SKALE-4352">
+      <created>1634116922965</created>
       <option name="number" value="00091" />
       <option name="presentableId" value="LOCAL-00091" />
       <option name="project" value="LOCAL" />
-      <updated>1632390098299</updated>
+      <updated>1634116922965</updated>
     </task>
-    <task id="LOCAL-00092" summary="bug/SKALE-4616-oracle-mvp">
-      <created>1632390703378</created>
+    <task id="LOCAL-00092" summary="bug/SKALE-4352">
+      <created>1634118969524</created>
       <option name="number" value="00092" />
       <option name="presentableId" value="LOCAL-00092" />
       <option name="project" value="LOCAL" />
-      <updated>1632390703378</updated>
+      <updated>1634118969524</updated>
     </task>
-    <task id="LOCAL-00093" summary="bug/SKALE-4616-oracle-mvp">
-      <created>1632391582865</created>
+    <task id="LOCAL-00093" summary="bug/SKALE-4352">
+      <created>1634133299846</created>
       <option name="number" value="00093" />
       <option name="presentableId" value="LOCAL-00093" />
       <option name="project" value="LOCAL" />
-      <updated>1632391582865</updated>
+      <updated>1634133299846</updated>
     </task>
-    <task id="LOCAL-00094" summary="bug/SKALE-4616-oracle-mvp">
-      <created>1632393010890</created>
+    <task id="LOCAL-00094" summary="bug/SKALE-4352">
+      <created>1634137334622</created>
       <option name="number" value="00094" />
       <option name="presentableId" value="LOCAL-00094" />
       <option name="project" value="LOCAL" />
-      <updated>1632393010890</updated>
+      <updated>1634137334622</updated>
     </task>
-    <task id="LOCAL-00095" summary="bug/SKALE-4616-oracle-mvp">
-      <created>1632408404450</created>
+    <task id="LOCAL-00095" summary="bug/SKALE-4352">
+      <created>1634138188974</created>
       <option name="number" value="00095" />
       <option name="presentableId" value="LOCAL-00095" />
       <option name="project" value="LOCAL" />
-      <updated>1632408404450</updated>
+      <updated>1634138188974</updated>
     </task>
-    <option name="localTasksCounter" value="96" />
+    <task id="LOCAL-00096" summary="bug/SKALE-4352">
+      <created>1634141146057</created>
+      <option name="number" value="00096" />
+      <option name="presentableId" value="LOCAL-00096" />
+      <option name="project" value="LOCAL" />
+      <updated>1634141146057</updated>
+    </task>
+    <task id="LOCAL-00097" summary="bug/SKALE-4352">
+      <created>1634309105352</created>
+      <option name="number" value="00097" />
+      <option name="presentableId" value="LOCAL-00097" />
+      <option name="project" value="LOCAL" />
+      <updated>1634309105352</updated>
+    </task>
+    <task id="LOCAL-00098" summary="bug/SKALE-4352">
+      <created>1634559136431</created>
+      <option name="number" value="00098" />
+      <option name="presentableId" value="LOCAL-00098" />
+      <option name="project" value="LOCAL" />
+      <updated>1634559136431</updated>
+    </task>
+    <task id="LOCAL-00099" summary="bug/SKALE-4352">
+      <created>1634560051993</created>
+      <option name="number" value="00099" />
+      <option name="presentableId" value="LOCAL-00099" />
+      <option name="project" value="LOCAL" />
+      <updated>1634560051993</updated>
+    </task>
+    <task id="LOCAL-00100" summary="bug/SKALE-4352">
+      <created>1634562684276</created>
+      <option name="number" value="00100" />
+      <option name="presentableId" value="LOCAL-00100" />
+      <option name="project" value="LOCAL" />
+      <updated>1634562684276</updated>
+    </task>
+    <task id="LOCAL-00101" summary="bug/SKALE-4352">
+      <created>1634568938458</created>
+      <option name="number" value="00101" />
+      <option name="presentableId" value="LOCAL-00101" />
+      <option name="project" value="LOCAL" />
+      <updated>1634568938458</updated>
+    </task>
+    <task id="LOCAL-00102" summary="bug/SKALE-4352">
+      <created>1634570796553</created>
+      <option name="number" value="00102" />
+      <option name="presentableId" value="LOCAL-00102" />
+      <option name="project" value="LOCAL" />
+      <updated>1634570796553</updated>
+    </task>
+    <task id="LOCAL-00103" summary="bug/SKALE-4352">
+      <created>1634631931278</created>
+      <option name="number" value="00103" />
+      <option name="presentableId" value="LOCAL-00103" />
+      <option name="project" value="LOCAL" />
+      <updated>1634631931278</updated>
+    </task>
+    <task id="LOCAL-00104" summary="bug/SKALE-4352">
+      <created>1634632211049</created>
+      <option name="number" value="00104" />
+      <option name="presentableId" value="LOCAL-00104" />
+      <option name="project" value="LOCAL" />
+      <updated>1634632211049</updated>
+    </task>
+    <task id="LOCAL-00105" summary="bug/SKALE-4352">
+      <created>1634634932195</created>
+      <option name="number" value="00105" />
+      <option name="presentableId" value="LOCAL-00105" />
+      <option name="project" value="LOCAL" />
+      <updated>1634634932196</updated>
+    </task>
+    <task id="LOCAL-00106" summary="bug/SKALE-4352">
+      <created>1634635052040</created>
+      <option name="number" value="00106" />
+      <option name="presentableId" value="LOCAL-00106" />
+      <option name="project" value="LOCAL" />
+      <updated>1634635052040</updated>
+    </task>
+    <task id="LOCAL-00107" summary="bug/SKALE-4352">
+      <created>1634636114378</created>
+      <option name="number" value="00107" />
+      <option name="presentableId" value="LOCAL-00107" />
+      <option name="project" value="LOCAL" />
+      <updated>1634636114378</updated>
+    </task>
+    <task id="LOCAL-00108" summary="bug/SKALE-4352">
+      <created>1634637705908</created>
+      <option name="number" value="00108" />
+      <option name="presentableId" value="LOCAL-00108" />
+      <option name="project" value="LOCAL" />
+      <updated>1634637705908</updated>
+    </task>
+    <task id="LOCAL-00109" summary="bug/SKALE-4352">
+      <created>1634638453216</created>
+      <option name="number" value="00109" />
+      <option name="presentableId" value="LOCAL-00109" />
+      <option name="project" value="LOCAL" />
+      <updated>1634638453216</updated>
+    </task>
+    <task id="LOCAL-00110" summary="bug/SKALE-4352">
+      <created>1634640228201</created>
+      <option name="number" value="00110" />
+      <option name="presentableId" value="LOCAL-00110" />
+      <option name="project" value="LOCAL" />
+      <updated>1634640228201</updated>
+    </task>
+    <task id="LOCAL-00111" summary="bug/SKALE-4352">
+      <created>1634641434523</created>
+      <option name="number" value="00111" />
+      <option name="presentableId" value="LOCAL-00111" />
+      <option name="project" value="LOCAL" />
+      <updated>1634641434523</updated>
+    </task>
+    <option name="localTasksCounter" value="112" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
