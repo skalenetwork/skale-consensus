@@ -517,7 +517,8 @@ ptr<vector<ptr<Message>>> BlockConsensusAgent::initFastLedgerAndReplayMessages(b
 
     LOG(info, "Initing fast message ledger with block ID:" + to_string((uint64_t) _blockID));
 
-    fastMessageLedger = make_shared<FastMessageLedger>(getSchain(), "/tmp", _blockID);
+    fastMessageLedger = make_shared<FastMessageLedger>(getSchain(),
+                                                       getSchain()->getNode()->getConsensusEngine()->getDbDir(), _blockID);
 
     auto msgs = fastMessageLedger->retrieveAndClearPreviosRunMessages();
 
