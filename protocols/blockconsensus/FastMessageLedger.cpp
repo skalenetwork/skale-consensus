@@ -48,6 +48,7 @@ FastMessageLedger::FastMessageLedger(Schain *_schain, string  _dirFullPath, bloc
     ledgerFileFullPath= _dirFullPath + "/cons_incoming_msg_ledger_" +
             to_string(schain->getSchainIndex());
 
+    LOG(info, "Creating fast ledger at: " + string(ledgerFileFullPath));
 
     std::ifstream infile(ledgerFileFullPath);
 
