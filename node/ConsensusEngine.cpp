@@ -803,9 +803,7 @@ block_id ConsensusEngine::getLargestCommittedBlockIDInDb() {
 
     for (auto &&item: nodes) {
         CHECK_STATE(item.second);
-
         auto id2 = item.second->getSchain()->readLastCommittedBlockIDFromDb();
-
         if (id2 > id) {
             id = id2;
         }
@@ -815,8 +813,15 @@ block_id ConsensusEngine::getLargestCommittedBlockIDInDb() {
 }
 
 
-u256 ConsensusEngine::getRandomForBlockId(uint64_t ) const {
-    return 0;
+u256 ConsensusEngine::getRandomForBlockId(uint64_t _blockId) const {
+
+    CHECK_STATE(nodes.size() > 0);
+
+    for (auto &&item: nodes) {
+        CHECK_STATE(item.second);
+        return item.second->getSchain()->getRandomForBlockId(_blockId);
+    }
+    return 0; // make compiler happy
 }
 
 u256 ConsensusEngine::getPriceForBlockId(uint64_t _blockId) const {

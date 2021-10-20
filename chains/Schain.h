@@ -324,5 +324,7 @@ public:
     void checkForDeadLock(const char* _functionName);
 
     void printBlockLog(const ptr< CommittedBlock >& _block);
+
+    u256 getRandomForBlockId(block_id _blockid);
 };
 

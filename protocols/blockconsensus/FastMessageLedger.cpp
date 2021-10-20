@@ -100,7 +100,7 @@ uint64_t FastMessageLedger::parseFirstLine(string _line) {
 
 ptr<Message> FastMessageLedger::parseLine(string& _line) {
     try {
-    if (_line.size() < 15  && _line.find("\"cv\"") != string::npos) {
+    if (_line.find("\"cv\"") != string::npos) {
         return ConsensusProposalMessage::parseMessageLite(_line, schain);
     } else {
         return NetworkMessage::parseMessage(_line, schain, true);
