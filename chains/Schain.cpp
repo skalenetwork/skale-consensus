@@ -1123,6 +1123,11 @@ void Schain::writeToVisualizationStream(string& _s) {
     stream->write(_s.c_str(), _s.size());
 }
 
+
+u256 Schain::getRandomForBlockId(block_id ) {
+    return 0;
+}
+
 ptr<ofstream> Schain::visualizationDataStream = nullptr;
 
 mutex Schain::vdsMutex;
