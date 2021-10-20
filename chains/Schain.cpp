@@ -1136,8 +1136,7 @@ u256 Schain::getRandomForBlockId(block_id _blockId) {
     }
 
     auto hash = BLAKE3Hash::calculateHash(data);
-    cerr << hash.toHex() << endl;
-    return u256(hash.toHex());
+    return u256("0x" + hash.toHex());
 }
 
 ptr<ofstream> Schain::visualizationDataStream = nullptr;
