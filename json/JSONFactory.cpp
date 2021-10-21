@@ -24,7 +24,6 @@
 #include "thirdparty/catch.hpp"
 
 #undef CHECK
-// #include "bls/BLSutils.h"
 #include "BLSPublicKey.h"
 
 
