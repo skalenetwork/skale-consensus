@@ -129,8 +129,10 @@ string SgxZmqClient::doZmqRequestReply( string& _req, bool _throwExceptionOnTime
             CHECK_STATE( reply.front() == '{' );
             CHECK_STATE( reply.back() == '}' );
 
+            serverDown = false;
             return reply;
         } else {
+            serverDown = true;
             if ( _throwExceptionOnTimeout ) {
                 LOG( err, "No response from sgx server" );
                 CHECK_STATE( false );
@@ -464,4 +466,8 @@ SgxZmqClient::zmq_status SgxZmqClient::getZMQStatus() const {
 
 void SgxZmqClient::setZmqStatus( SgxZmqClient::zmq_status _status ) {
     zmqStatus = _status;
+}
+
+bool SgxZmqClient::isServerDown() const {
+    return serverDown;
 }

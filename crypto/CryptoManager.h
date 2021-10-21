@@ -283,6 +283,8 @@ public:
     void checkZMQStatusIfUnknownECDSA(const string &_keyName);
 
     void checkZMQStatusIfUnknownBLS();
+
+    bool isSGXServerDown();
 };
 
 #define RETRY_BEGIN \
