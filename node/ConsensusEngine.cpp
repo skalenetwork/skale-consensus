@@ -92,7 +92,7 @@
 #include "protocols/ProtocolKey.h"
 #include "protocols/binconsensus/BinConsensusInstance.h"
 
-#include "bls/BLSutils.h"
+#include "tools/utils.h"
 
 #include "exceptions/FatalError.h"
 
@@ -629,7 +629,7 @@ void ConsensusEngine::init() {
 
     libff::inhibit_profiling_counters = true;
 
-    BLSutils::initBLS();
+    crypto::ThresholdUtils::initCurve();
 
     threadRegistry = make_shared<GlobalThreadRegistry>();
 
