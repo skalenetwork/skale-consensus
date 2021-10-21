@@ -380,13 +380,6 @@
       <workItem from="1633352635874" duration="7182000" />
       <workItem from="1633960378769" duration="7941000" />
     </task>
-    <task id="LOCAL-00064" summary="bug/SKALE-4311-RSS-at-catchup">
-      <created>1629382135761</created>
-      <option name="number" value="00064" />
-      <option name="presentableId" value="LOCAL-00064" />
-      <option name="project" value="LOCAL" />
-      <updated>1629382135762</updated>
-    </task>
     <task id="LOCAL-00065" summary="bug/SKALE-4311-RSS-at-catchup">
       <created>1629382420278</created>
       <option name="number" value="00065" />
@@ -723,7 +716,14 @@
       <option name="project" value="LOCAL" />
       <updated>1634824187936</updated>
     </task>
-    <option name="localTasksCounter" value="113" />
+    <task id="LOCAL-00113" summary="bug/SKALE-4699">
+      <created>1634836843425</created>
+      <option name="number" value="00113" />
+      <option name="presentableId" value="LOCAL-00113" />
+      <option name="project" value="LOCAL" />
+      <updated>1634836843425</updated>
+    </task>
+    <option name="localTasksCounter" value="114" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -733,7 +733,6 @@
     <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Fix bug/SKALE-4239" />
     <MESSAGE value="bug/SKALE-4263" />
     <MESSAGE value="ub/SKALE-2454-enable-bls-verification-in-catchup" />
     <MESSAGE value="bug/SKALE-4284-server-worker" />
@@ -758,7 +757,8 @@
     <MESSAGE value="bug/SKALE-4593" />
     <MESSAGE value="bug/SKALE-4352" />
     <MESSAGE value="bug/SKALE-2983-sgx-down" />
-    <option name="LAST_COMMIT_MESSAGE" value="bug/SKALE-2983-sgx-down" />
+    <MESSAGE value="bug/SKALE-4699" />
+    <option name="LAST_COMMIT_MESSAGE" value="bug/SKALE-4699" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
