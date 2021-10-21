@@ -629,7 +629,7 @@ void ConsensusEngine::init() {
 
     libff::inhibit_profiling_counters = true;
 
-    crypto::ThresholdUtils::initCurve();
+    libBLS::ThresholdUtils::initCurve();
 
     threadRegistry = make_shared<GlobalThreadRegistry>();
 
