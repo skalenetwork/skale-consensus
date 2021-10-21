@@ -16,7 +16,6 @@ RUN    ln -s /usr/bin/ccache /usr/local/bin/clang && \
        ln -s /usr/bin/ccache /usr/local/bin/cc && \
        ln -s /usr/bin/ccache /usr/local/bin/c++
 
-
 ENV CC gcc-7
 ENV CXX g++-7
 ENV TARGET all
