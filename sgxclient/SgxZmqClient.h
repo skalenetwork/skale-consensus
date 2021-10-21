@@ -59,6 +59,10 @@ class SgxZmqClient {
 public:
 
     enum zmq_status {UNKNOWN, TRUE, FALSE};
+    bool serverDown = false;
+
+    bool isServerDown() const;
+
     zmq_status getZMQStatus() const;
     void setZmqStatus(zmq_status _status);
 
