@@ -1053,3 +1053,8 @@ uint64_t CryptoManager::getZMQSocketCount() {
     else
         return 1;
 }
+
+bool CryptoManager::isSGXServerDown() {
+    CHECK_STATE(zmqClient);
+    return zmqClient->isServerDown();
+}
