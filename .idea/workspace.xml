@@ -41,7 +41,6 @@
       <change beforePath="$PROJECT_DIR$/crypto/CryptoManager.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/crypto/CryptoManager.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/crypto/CryptoManager.h" beforeDir="false" afterPath="$PROJECT_DIR$/crypto/CryptoManager.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libBLS/deps/libff/depends/xbyak" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/deps/libff/depends/xbyak" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/monitoring/StuckDetectionAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/monitoring/StuckDetectionAgent.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/sgxclient/SgxZmqClient.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/sgxclient/SgxZmqClient.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/sgxclient/SgxZmqClient.h" beforeDir="false" afterPath="$PROJECT_DIR$/sgxclient/SgxZmqClient.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/sgxwallet" beforeDir="false" afterPath="$PROJECT_DIR$/sgxwallet" afterDir="false" />
@@ -381,13 +380,6 @@
       <workItem from="1633352635874" duration="7182000" />
       <workItem from="1633960378769" duration="7941000" />
     </task>
-    <task id="LOCAL-00063" summary="bug/SKALE-4502-RAM-grows&#10;Removed empty space">
-      <created>1629378736552</created>
-      <option name="number" value="00063" />
-      <option name="presentableId" value="LOCAL-00063" />
-      <option name="project" value="LOCAL" />
-      <updated>1629378736552</updated>
-    </task>
     <task id="LOCAL-00064" summary="bug/SKALE-4311-RSS-at-catchup">
       <created>1629382135761</created>
       <option name="number" value="00064" />
@@ -724,7 +716,14 @@
       <option name="project" value="LOCAL" />
       <updated>1634641434523</updated>
     </task>
-    <option name="localTasksCounter" value="112" />
+    <task id="LOCAL-00112" summary="bug/SKALE-2983-sgx-down">
+      <created>1634824187936</created>
+      <option name="number" value="00112" />
+      <option name="presentableId" value="LOCAL-00112" />
+      <option name="project" value="LOCAL" />
+      <updated>1634824187936</updated>
+    </task>
+    <option name="localTasksCounter" value="113" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -734,7 +733,6 @@
     <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Fix bug/SKALE-4230" />
     <MESSAGE value="Fix bug/SKALE-4239" />
     <MESSAGE value="bug/SKALE-4263" />
     <MESSAGE value="ub/SKALE-2454-enable-bls-verification-in-catchup" />
@@ -759,7 +757,8 @@
     <MESSAGE value="bug/SKALE-4285-deadlock-detection" />
     <MESSAGE value="bug/SKALE-4593" />
     <MESSAGE value="bug/SKALE-4352" />
-    <option name="LAST_COMMIT_MESSAGE" value="bug/SKALE-4352" />
+    <MESSAGE value="bug/SKALE-2983-sgx-down" />
+    <option name="LAST_COMMIT_MESSAGE" value="bug/SKALE-2983-sgx-down" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
