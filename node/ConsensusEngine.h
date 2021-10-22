@@ -198,13 +198,13 @@ public:
 
     block_id getLargestCommittedBlockIDInDb();
 
-    ConsensusEngine( block_id _lastId, uint64_t totalStorageLimitBytes );
+    ConsensusEngine( block_id _lastId, uint64_t totalStorageLimitBytes = DEFAULT_DB_STORAGE_LIMIT);
 
     ~ConsensusEngine() override;
 
     ConsensusEngine( ConsensusExtFace& _extFace, uint64_t _lastCommittedBlockID,
         uint64_t _lastCommittedBlockTimeStamp,uint64_t _lastCommittedBlockTimeStampMs,
-        uint64_t _totalStorageLimitBytes);
+        uint64_t _totalStorageLimitBytes = DEFAULT_DB_STORAGE_LIMIT);
 
     [[nodiscard]] ConsensusExtFace* getExtFace() const;
 
