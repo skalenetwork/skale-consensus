@@ -198,12 +198,13 @@ public:
 
     block_id getLargestCommittedBlockIDInDb();
 
-    explicit ConsensusEngine( block_id _lastId = 0 );
+    ConsensusEngine( block_id _lastId, uint64_t totalStorageLimitBytes );
 
     ~ConsensusEngine() override;
 
     ConsensusEngine( ConsensusExtFace& _extFace, uint64_t _lastCommittedBlockID,
-        uint64_t _lastCommittedBlockTimeStamp,uint64_t _lastCommittedBlockTimeStampMs );
+        uint64_t _lastCommittedBlockTimeStamp,uint64_t _lastCommittedBlockTimeStampMs,
+        uint64_t _totalStorageLimitBytes);
 
     [[nodiscard]] ConsensusExtFace* getExtFace() const;
 
@@ -270,12 +271,9 @@ public:
                        uint64_t _requiredSigners,
                        uint64_t _totalSigners);
 
-    void setTotalStorageLimitBytes(uint64_t _storageLimitBytes);
 
     [[nodiscard]] uint64_t getTotalStorageLimitBytes() const;
 
     static int getOpenDescriptors();
-
-
 
 };
