@@ -460,13 +460,7 @@ Schain* SgxZmqClient::getSchain() const {
     return schain;
 }
 
-SgxZmqClient::zmq_status SgxZmqClient::getZMQStatus() const {
-    return zmqStatus;
-}
 
-void SgxZmqClient::setZmqStatus( SgxZmqClient::zmq_status _status ) {
-    zmqStatus = _status;
-}
 
 bool SgxZmqClient::isServerDown() const {
     return serverDown;
