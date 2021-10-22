@@ -611,9 +611,8 @@ void CryptoManager::verifyThresholdSig(
         auto libBlsSig = blsSig->getBlsSig();
 
         CHECK_STATE(blsKey->VerifySig(
-                make_shared<array<uint8_t, HASH_LEN>>(_hash.getHash()),
-                libBlsSig, blsKey->getRequiredSigners(),
-                blsKey->getTotalSigners()));
+            make_shared<array<uint8_t, HASH_LEN>>(_hash.getHash()),
+            libBlsSig ));
 
     } else {
         // mockups sigs are not verified
