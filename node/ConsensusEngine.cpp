@@ -624,9 +624,6 @@ void ConsensusEngine::systemHealthCheck() {
 void ConsensusEngine::init() {
     cout << "Consensus engine version:" + ConsensusEngine::getEngineVersion() << endl;
 
-    storageLimits = make_shared<StorageLimits>(DEFAULT_DB_STORAGE_LIMIT);
-
-
     libff::inhibit_profiling_counters = true;
 
     libBLS::ThresholdUtils::initCurve();
@@ -647,7 +644,10 @@ void ConsensusEngine::init() {
 }
 
 
-ConsensusEngine::ConsensusEngine(block_id _lastId) : prices(256), exitRequested(false) {
+ConsensusEngine::ConsensusEngine(block_id _lastId, uint64_t _totalStorageLimitBytes) : prices(256), exitRequested(false) {
+
+    storageLimits = make_shared<StorageLimits>(_totalStorageLimitBytes);
+
     lastCommittedBlockTimeStamp = make_shared<TimeStamp>(0, 0);
 
     try {
@@ -661,8 +661,12 @@ ConsensusEngine::ConsensusEngine(block_id _lastId) : prices(256), exitRequested(
 }
 
 ConsensusEngine::ConsensusEngine(ConsensusExtFace &_extFace, uint64_t _lastCommittedBlockID,
-                                 uint64_t _lastCommittedBlockTimeStamp, uint64_t _lastCommittedBlockTimeStampMs)
+                                 uint64_t _lastCommittedBlockTimeStamp, uint64_t _lastCommittedBlockTimeStampMs,
+                                 uint64_t _totalStorageLimitBytes)
         : prices(256), exitRequested(false) {
+
+    storageLimits = make_shared<StorageLimits>(_totalStorageLimitBytes);
+
     // for the first block time stamp shall allways be zero
 
     CHECK_STATE(
@@ -975,9 +979,7 @@ void ConsensusEngine::setBlsKeyName(const string &_blsKeyName) {
     blsKeyName = _blsKeyName;
 }
 
-void ConsensusEngine::setTotalStorageLimitBytes(uint64_t _storageLimitBytes) {
-    storageLimits = make_shared<StorageLimits>(_storageLimitBytes);
-}
+
 
 ptr<StorageLimits> ConsensusEngine::getStorageLimits() const {
     CHECK_STATE(storageLimits);

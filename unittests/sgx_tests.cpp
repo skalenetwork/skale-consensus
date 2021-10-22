@@ -57,8 +57,8 @@ TEST_CASE_METHOD( StartFromScratch, "Test sgx server connection", "[sgx]" ) {
 
 TEST_CASE( "Parse sgx keys", "[sgx-parse]" ) {
     auto serverURL = string("http://localhost:1029");
-    auto eng = make_shared< ConsensusEngine >();
+    auto eng = make_shared< ConsensusEngine >(0, 100000000);
     eng->setTestKeys(serverURL, "run_sgx_test/sgx_data/4node.json", 4, 1 );
-    eng = make_shared< ConsensusEngine >();
+    eng = make_shared< ConsensusEngine >(0, 100000000);
     eng->setTestKeys(serverURL,  "run_sgx_test/sgx_data/16node.json", 16, 5 );
 }

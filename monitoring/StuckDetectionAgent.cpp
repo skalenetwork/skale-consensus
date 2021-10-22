@@ -174,10 +174,11 @@ uint64_t StuckDetectionAgent::checkForRestart( uint64_t _restartIteration ) {
 
     auto blockID = getSchain()->getLastCommittedBlockID();
 
+    // do not restart for the first block
     if ( blockID < 2 )
         return 0;
 
-    // if SGX server is down, there is no point restarting
+    // if sgx is enabled and SGX server is down, there is no point restarting
     if (sChain->getCryptoManager()->isSGXServerDown())
         return 0;
 

@@ -217,19 +217,19 @@ void Node::initParamsFromConfig() {
     minBlockIntervalMs = getParamUint64("minBlockIntervalMs", MIN_BLOCK_INTERVAL_MS);
 
 
-    blockDBSize = getParamUint64("blockDBSize", storageLimits->getBlockDbSize());
-    proposalHashDBSize = getParamUint64("proposalHashDBSize", storageLimits->getProposalHashDbSize() );
-    proposalVectorDBSize = getParamUint64("proposalVectorDBSize", storageLimits->getProposalVectorDbSize());
-    outgoingMsgDBSize = getParamUint64("outgoingMsgDBSize", storageLimits->getOutgoingMsgDbSize());
-    incomingMsgDBSize = getParamUint64("incomingMsgDBSize", storageLimits->getIncomingMsgDbSize());
-    consensusStateDBSize = getParamUint64("consensusStateDBSize", storageLimits->getConsensusStateDbSize());
+    blockDBSize = storageLimits->getBlockDbSize();
+    proposalHashDBSize = storageLimits->getProposalHashDbSize();
+    proposalVectorDBSize = storageLimits->getProposalVectorDbSize();
+    outgoingMsgDBSize = storageLimits->getOutgoingMsgDbSize();
+    incomingMsgDBSize = storageLimits->getIncomingMsgDbSize();
+    consensusStateDBSize = storageLimits->getConsensusStateDbSize();
+    blockSigShareDBSize = storageLimits->getBlockSigShareDbSize();
+    daSigShareDBSize = storageLimits->getDaSigShareDbSize();
+    daProofDBSize = storageLimits->getDaProofDbSize();
+    randomDBSize = storageLimits->getRandomDbSize();
+    priceDBSize = storageLimits->getPriceDbSize();
+    blockProposalDBSize = storageLimits->getBlockProposalDbSize();
 
-    blockSigShareDBSize = getParamUint64("blockSigShareDBSize", storageLimits->getBlockSigShareDbSize());
-    daSigShareDBSize = getParamUint64("daSigShareDBSize", storageLimits->getDaSigShareDbSize());
-    daProofDBSize = getParamUint64("daProofDBSize", storageLimits->getDaProofDbSize());
-    randomDBSize = getParamUint64("randomDBSize", storageLimits->getRandomDbSize());
-    priceDBSize = getParamUint64("priceDBSize", storageLimits->getPriceDbSize());
-    blockProposalDBSize = getParamUint64("blockProposalDBSize", storageLimits->getBlockProposalDbSize());
     visualizationType = getParamUint64("visualizationType", 0);
 
     simulateNetworkWriteDelayMs = getParamInt64("simulateNetworkWriteDelayMs", 0);
