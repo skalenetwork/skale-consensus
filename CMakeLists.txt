@@ -254,11 +254,15 @@ SET(LINK_LIBRARIES
 
 add_library(consensus STATIC ${SRC_FILES})
 
+target_compile_options( consensus PRIVATE -Wno-error=unused-variable )
+
 target_link_libraries(consensus ${LINK_LIBRARIES})
 
 # consensus test agent
 
 add_executable(consensusd Consensusd.h Consensusd.cpp)
+
+target_compile_options( consensusd PRIVATE -Wno-error=unused-variable )
 
 # # libgoogle-perftools-dev
 # if (CMAKE_PROJECT_NAME STREQUAL "consensus")
@@ -270,6 +274,8 @@ target_link_libraries(consensusd consensus)
 # endif ()
 
 add_executable(consensust Consensust.h Consensust.cpp datastructures/SerializationTests.cpp db/DBTests.cpp)
+
+target_compile_options( consensust PRIVATE -Wno-error=unused-variable )
 
 # # libgoogle-perftools-dev
 # if (CMAKE_PROJECT_NAME STREQUAL "consensus")
