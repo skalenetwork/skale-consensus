@@ -638,8 +638,8 @@ then
 		fi
 		echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
 		cd zlib
-		eval $MAKE "${PARALLEL_MAKE_OPTIONS}"
-		eval $MAKE "${PARALLEL_MAKE_OPTIONS}" install
+		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}"
+		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}" install
 		cd ..
 		cd "$SOURCES_ROOT"
 	else
@@ -698,10 +698,10 @@ then
 		fi
 		echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
 		cd openssl
-		eval $MAKE "${PARALLEL_MAKE_OPTIONS}" depend
-		eval $MAKE "${PARALLEL_MAKE_OPTIONS}"
-		#eval $MAKE "${PARALLEL_MAKE_OPTIONS}" install
-		eval $MAKE "${PARALLEL_MAKE_OPTIONS}" install_sw
+		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}" depend
+		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}"
+		#eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}" install
+		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}" install_sw
 		cd "$SOURCES_ROOT"
 	else
 		echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
@@ -743,8 +743,8 @@ then
 		fi
 		echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
 		cd libssh/build
-		eval $MAKE "${PARALLEL_MAKE_OPTIONS}"
-		eval $MAKE "${PARALLEL_MAKE_OPTIONS}" install
+		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}"
+		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}" install
 		cd ..
 		cd ..
 		cd "$SOURCES_ROOT"
@@ -796,8 +796,8 @@ then
 		fi
 		echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
 		cd curl/build
-		eval $MAKE "${PARALLEL_MAKE_OPTIONS}"
-		eval $MAKE "${PARALLEL_MAKE_OPTIONS}" install
+		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}"
+		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}" install
 		if [ "$DEBUG" = "1" ];
 		then
 			eval mv "$INSTALL_ROOT/lib/libcurl-d.a" "$INSTALL_ROOT/lib/libcurl.a" &> /dev/null
@@ -836,8 +836,8 @@ then
 		fi
 		echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
 		cd libiconv-1.15
-		eval $MAKE "${PARALLEL_MAKE_OPTIONS}"
-		eval $MAKE "${PARALLEL_MAKE_OPTIONS}" install
+		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}"
+		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}" install
 		cd ..
 		cd "$SOURCES_ROOT"
 	fi
@@ -867,10 +867,10 @@ then
 		fi
 		echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
 		cd SDL2-2.0.7
-		eval $MAKE "${PARALLEL_MAKE_OPTIONS}"
+		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}"
 		# ??? this parallel install does not work on OSX ???
-		#eval $MAKE "${PARALLEL_MAKE_OPTIONS}" install
-		eval $MAKE install
+		#eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}" install
+		eval "$MAKE" install
 		cd ..
 		cd "$SOURCES_ROOT"
 	else
@@ -906,17 +906,17 @@ then
 		./autogen.sh
 		./configure --enable-static --disable-shared --with-pic --prefix="$INSTALL_ROOT" "${CONF_DEBUG_OPTIONS}"
 		# ??? this parallel build does not work on OSX ???
-		#eval $MAKE "${PARALLEL_MAKE_OPTIONS}"
+		#eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}"
 		$MAKE
 		# ??? this parallel install does not work on OSX ???
-		#eval $MAKE "${PARALLEL_MAKE_OPTIONS}" install
-		eval $MAKE install
+		#eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}" install
+		eval "$MAKE" install
 		popd
 		echo -e "${COLOR_INFO}building SDL2_ttf${COLOR_DOTS}...${COLOR_RESET}"
 		eval ./autogen.sh
 		eval ./configure --enable-static --disable-shared --with-pic --prefix="$INSTALL_ROOT" --with-sdl-prefix="$INSTALL_ROOT" --with-freetype-prefix="$INSTALL_ROOT" "${CONF_DEBUG_OPTIONS}"
-		eval $MAKE "${PARALLEL_MAKE_OPTIONS}"
-		eval $MAKE "${PARALLEL_MAKE_OPTIONS}" install
+		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}"
+		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}" install
 		cd ..
 		#
 		#export LDFLAGS=$LDFLAGS_SAVED_OLD
@@ -958,8 +958,8 @@ then
 			cd ../..
 		fi
 		cd libev/build
-		eval $MAKE "${PARALLEL_MAKE_OPTIONS}"
-		eval $MAKE "${PARALLEL_MAKE_OPTIONS}" install
+		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}"
+		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}" install
 		cd ../..
 		cd "$SOURCES_ROOT"
 	else
@@ -1000,8 +1000,8 @@ then
 			cd ../..
 		fi
 		cd libevent/build
-		eval $MAKE "${PARALLEL_MAKE_OPTIONS}"
-		eval $MAKE "${PARALLEL_MAKE_OPTIONS}" install
+		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}"
+		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}" install
 		cd ../..
 		cd "$SOURCES_ROOT"
 	else
@@ -1049,8 +1049,8 @@ then
 		fi
 		echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
 		cd libuv
-		eval $MAKE "${PARALLEL_MAKE_OPTIONS}"
-		eval $MAKE "${PARALLEL_MAKE_OPTIONS}" install
+		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}"
+		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}" install
 		cd ..
 		cd "$SOURCES_ROOT"
 	else
@@ -1202,8 +1202,8 @@ then
 		fi
 		echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
 		cd libwebsockets/build
-		eval $MAKE "${PARALLEL_MAKE_OPTIONS}"
-		eval $MAKE "${PARALLEL_MAKE_OPTIONS}" install
+		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}"
+		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}" install
 		cd ../..
 		cd "$SOURCES_ROOT"
 	else
@@ -1241,8 +1241,8 @@ then
 		fi
 		echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
 		cd libsourcey/build
-		eval $MAKE "${PARALLEL_MAKE_OPTIONS}"
-		eval $MAKE "${PARALLEL_MAKE_OPTIONS}" install
+		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}"
+		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}" install
 		cd "$SOURCES_ROOT"
 	else
 		echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
@@ -1305,8 +1305,8 @@ then
 		fi
 		echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
 		cd libupnp-1.8.3
-		eval $MAKE "${PARALLEL_MAKE_OPTIONS}"
-		eval $MAKE "${PARALLEL_MAKE_OPTIONS}" install
+		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}"
+		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}" install
 		cd "$SOURCES_ROOT"
 	else
 		echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
@@ -1338,8 +1338,8 @@ then
 		fi
 		echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
 		cd build
-		eval $MAKE "${PARALLEL_MAKE_OPTIONS}"
-		eval $MAKE "${PARALLEL_MAKE_OPTIONS}" install
+		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}"
+		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}" install
 		cd "$SOURCES_ROOT"
 	else
 		echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
@@ -1368,8 +1368,8 @@ then
             cd nettle-3.4.1
         fi
         echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
-        eval $MAKE "${PARALLEL_MAKE_OPTIONS}"
-        eval $MAKE "${PARALLEL_MAKE_OPTIONS}" install
+        eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}"
+        eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}" install
         cd "$SOURCES_ROOT"
     else
         echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
@@ -1402,8 +1402,8 @@ then
             cd libtasn1
         fi
         echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
-        eval $MAKE "${PARALLEL_MAKE_OPTIONS}"
-        eval $MAKE "${PARALLEL_MAKE_OPTIONS}" install
+        eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}"
+        eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}" install
         #export PKG_CONFIG_PATH=$PKG_CONFIG_PATH_SAVED
         #export PKG_CONFIG_PATH_SAVED=
         cd "$SOURCES_ROOT"
@@ -1433,8 +1433,8 @@ then
 			cd gnutls
 		fi
 		echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
-		eval $MAKE
-		eval $MAKE install
+		eval "$MAKE"
+		eval "$MAKE" install
 		cd "$SOURCES_ROOT"
 	else
 		echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
@@ -1462,8 +1462,8 @@ then
 			cd libgpg-error
 		fi
 		echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
-		eval $MAKE
-		eval $MAKE install
+		eval "$MAKE"
+		eval "$MAKE" install
 		cd "$SOURCES_ROOT"
 	else
 		echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
@@ -1491,8 +1491,8 @@ then
 			cd libgcrypt
 		fi
 		echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
-		eval $MAKE
-		eval $MAKE install
+		eval "$MAKE"
+		eval "$MAKE" install
 		cd "$SOURCES_ROOT"
 	else
 		echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
@@ -1525,8 +1525,8 @@ then
 			cd libmicrohttpd
 		fi
 		echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
-		eval $MAKE
-		eval $MAKE install
+		eval "$MAKE"
+		eval "$MAKE" install
 		cd "$SOURCES_ROOT"
 	else
 		echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
@@ -1549,8 +1549,8 @@ then
 			-DBUILD_STATIC_LIBS=YES \
 			..
 		echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
-		eval $MAKE "${PARALLEL_MAKE_OPTIONS}"
-		eval $MAKE "${PARALLEL_MAKE_OPTIONS}" install
+		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}"
+		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}" install
 		cd "$SOURCES_ROOT"
 	else
 		echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
@@ -1592,8 +1592,8 @@ then
 			-DCURL_INCLUDE_DIR="$INSTALL_ROOT/include" \
 			..
 		echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
-		eval $MAKE "${PARALLEL_MAKE_OPTIONS}"
-		eval $MAKE "${PARALLEL_MAKE_OPTIONS}" install
+		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}"
+		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}" install
 		cd "$SOURCES_ROOT"
 	else
 		echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
@@ -1616,8 +1616,8 @@ then
             echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
         fi
         cd "$SOURCES_ROOT"/libcryptopp
-        eval $MAKE "${PARALLEL_MAKE_OPTIONS}" static
-        eval $MAKE "${PARALLEL_MAKE_OPTIONS}" install PREFIX="$INSTALL_ROOT"
+        eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}" static
+        eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}" install PREFIX="$INSTALL_ROOT"
         cd "$SOURCES_ROOT"
     else
         echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
@@ -1645,8 +1645,8 @@ then
         echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
         eval ./configure "${CONF_CROSSCOMPILING_OPTS_GENERIC}" "${CONF_DEBUG_OPTIONS}" --enable-cxx --enable-static --disable-shared --prefix="$INSTALL_ROOT"
         echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
-        eval $MAKE "${PARALLEL_MAKE_OPTIONS}"
-        eval $MAKE "${PARALLEL_MAKE_OPTIONS}" install
+        eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}"
+        eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}" install
         cd ..
         cd "$SOURCES_ROOT"
     else
@@ -1672,8 +1672,8 @@ then
         cd build
         eval "$CMAKE" "${CMAKE_CROSSCOMPILING_OPTS}" -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" .. -DWITH_PROCPS=OFF
         echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
-        eval $MAKE "${PARALLEL_MAKE_OPTIONS}"
-        eval $MAKE "${PARALLEL_MAKE_OPTIONS}" install
+        eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}"
+        eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}" install
         cd "$SOURCES_ROOT"
     else
         echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
@@ -1705,8 +1705,8 @@ then
         eval $LIBTOOLIZE --force && aclocal && autoheader && automake --force-missing --add-missing && autoconf
         ./configure "${CONF_CROSSCOMPILING_OPTS_GENERIC}" "${CONF_DEBUG_OPTIONS}" --with-pic --enable-static --disable-shared --prefix="$INSTALL_ROOT"
         echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
-        eval $MAKE "${PARALLEL_MAKE_OPTIONS}"
-        eval $MAKE "${PARALLEL_MAKE_OPTIONS}" install
+        eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}"
+        eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}" install
         cd "$SOURCES_ROOT"
     else
         echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
@@ -1743,8 +1743,8 @@ then
         fi
         echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
         cd libsodium
-        eval $MAKE "${PARALLEL_MAKE_OPTIONS}"
-        eval $MAKE "${PARALLEL_MAKE_OPTIONS}" install
+        eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}"
+        eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}" install
         cd ..
         cd "$SOURCES_ROOT"
     else
@@ -1764,8 +1764,8 @@ then
 		echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
         eval cmake "${CMAKE_CROSSCOMPILING_OPTS}" -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DBUILD_STATIC_LIBS=ON -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" -DWITH_LIBSODIUM="$INSTALL_ROOT" -DCMAKE_POSITION_INDEPENDENT_CODE=ON . -Bbuild
 		cd build
-        eval $MAKE "${PARALLEL_MAKE_OPTIONS}"
-        eval $MAKE "${PARALLEL_MAKE_OPTIONS}" install
+        eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}"
+        eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}" install
 		cd "$SOURCES_ROOT"
 	else
 		echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
@@ -1808,7 +1808,7 @@ if [ "$WITH_BLAKE3" = "yes" ]; then
 			cd ../..
 		fi
 		echo -e "${COLOR_INFO}built libblake3.a ${COLOR_DOTS}...${COLOR_RESET}"
-		eval cp BLAKE3/c/libblake3.a ${INSTALL_ROOT}/lib
+		eval cp BLAKE3/c/libblake3.a "${INSTALL_ROOT}/lib"
 	else
 		echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
 	fi
