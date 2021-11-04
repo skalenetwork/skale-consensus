@@ -1702,7 +1702,7 @@ then
         echo "    CXXFLAGS = $CXXFLAGS"
         echo "    CPPFLAGS = $CPPFLAGS"
         echo "    LDFLAGS  = $LDFLAGS"
-        eval $LIBTOOLIZE --force && aclocal && autoheader && automake --force-missing --add-missing && autoconf
+        eval "$LIBTOOLIZE" --force && aclocal && autoheader && automake --force-missing --add-missing && autoconf
         ./configure "${CONF_CROSSCOMPILING_OPTS_GENERIC}" "${CONF_DEBUG_OPTIONS}" --with-pic --enable-static --disable-shared --prefix="$INSTALL_ROOT"
         echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
         eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}"
@@ -1794,12 +1794,12 @@ if [ "$WITH_BLAKE3" = "yes" ]; then
 			eval git checkout master
 			if [ "$ARCH" = "x86_or_x64" ]; then
 				if [ "$UNIX_SYSTEM_NAME" = "Darwin" ]; then
-					eval $CC -c -O3 -g blake3.c blake3_dispatch.c blake3_portable.c \
+					eval "$CC" -c -O3 -g blake3.c blake3_dispatch.c blake3_portable.c \
 						blake3_sse2_x86-64_unix.S blake3_sse41_x86-64_unix.S blake3_avx2_x86-64_unix.S \
 						blake3_avx512_x86-64_unix.S
-					eval ar rcs libblake3.a *.o
+					ar rcs libblake3.a *.o
 				else
-					eval $CC -c -O3 -g blake3.c blake3_dispatch.c blake3_portable.c \
+					eval "$CC" -c -O3 -g blake3.c blake3_dispatch.c blake3_portable.c \
 						blake3_sse2_x86-64_unix.S blake3_sse41_x86-64_unix.S blake3_avx2_x86-64_unix.S \
 						blake3_avx512_x86-64_unix.S
 						ar rcs libblake3.a *.o
