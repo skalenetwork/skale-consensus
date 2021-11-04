@@ -638,8 +638,8 @@ then
 		fi
 		echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
 		cd zlib
-		eval $MAKE ${PARALLEL_MAKE_OPTIONS}
-		eval $MAKE ${PARALLEL_MAKE_OPTIONS} install
+		eval $MAKE "${PARALLEL_MAKE_OPTIONS}"
+		eval $MAKE "${PARALLEL_MAKE_OPTIONS}" install
 		cd ..
 		cd "$SOURCES_ROOT"
 	else
@@ -698,10 +698,10 @@ then
 		fi
 		echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
 		cd openssl
-		eval $MAKE ${PARALLEL_MAKE_OPTIONS} depend
-		eval $MAKE ${PARALLEL_MAKE_OPTIONS}
-		#eval $MAKE ${PARALLEL_MAKE_OPTIONS} install
-		eval $MAKE ${PARALLEL_MAKE_OPTIONS} install_sw
+		eval $MAKE "${PARALLEL_MAKE_OPTIONS}" depend
+		eval $MAKE "${PARALLEL_MAKE_OPTIONS}"
+		#eval $MAKE "${PARALLEL_MAKE_OPTIONS}" install
+		eval $MAKE "${PARALLEL_MAKE_OPTIONS}" install_sw
 		cd "$SOURCES_ROOT"
 	else
 		echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
@@ -737,14 +737,14 @@ then
 		cd libssh
 		eval mkdir -p build
 		cd build
-		eval $CMAKE -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DLIBSSH_STATIC=1 -DOPENSSL_ROOT_DIR="$SOURCES_ROOT/openssl/" -DOPENSSL_LIBRARIES="$SOURCES_ROOT/openssl/" -DZLIB_ROOT="$SOURCES_ROOT/zlib/" -DCMAKE_BUILD_TYPE=Release ..
+		eval "$CMAKE" -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DLIBSSH_STATIC=1 -DOPENSSL_ROOT_DIR="$SOURCES_ROOT/openssl/" -DOPENSSL_LIBRARIES="$SOURCES_ROOT/openssl/" -DZLIB_ROOT="$SOURCES_ROOT/zlib/" -DCMAKE_BUILD_TYPE=Release ..
 		cd ..
 		cd ..
 		fi
 		echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
 		cd libssh/build
-		eval $MAKE ${PARALLEL_MAKE_OPTIONS}
-		eval $MAKE ${PARALLEL_MAKE_OPTIONS} install
+		eval $MAKE "${PARALLEL_MAKE_OPTIONS}"
+		eval $MAKE "${PARALLEL_MAKE_OPTIONS}" install
 		cd ..
 		cd ..
 		cd "$SOURCES_ROOT"
@@ -787,7 +787,7 @@ then
 			cd curl
 			eval mkdir -p build
 			cd build
-			eval $CMAKE "${CMAKE_CROSSCOMPILING_OPTS}" -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DOPENSSL_ROOT_DIR="$SOURCES_ROOT/openssl" -DBUILD_CURL_EXE=OFF -DBUILD_TESTING=OFF -DCMAKE_USE_LIBSSH2=OFF -DBUILD_SHARED_LIBS=OFF -DCURL_DISABLE_LDAP=ON -DCURL_STATICLIB=ON -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" ..
+			eval "$CMAKE" "${CMAKE_CROSSCOMPILING_OPTS}" -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DOPENSSL_ROOT_DIR="$SOURCES_ROOT/openssl" -DBUILD_CURL_EXE=OFF -DBUILD_TESTING=OFF -DCMAKE_USE_LIBSSH2=OFF -DBUILD_SHARED_LIBS=OFF -DCURL_DISABLE_LDAP=ON -DCURL_STATICLIB=ON -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" ..
 			echo " " >> lib/curl_config.h
 			echo "#define HAVE_POSIX_STRERROR_R 1" >> lib/curl_config.h
 			echo " " >> lib/curl_config.h
@@ -796,8 +796,8 @@ then
 		fi
 		echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
 		cd curl/build
-		eval $MAKE ${PARALLEL_MAKE_OPTIONS}
-		eval $MAKE ${PARALLEL_MAKE_OPTIONS} install
+		eval $MAKE "${PARALLEL_MAKE_OPTIONS}"
+		eval $MAKE "${PARALLEL_MAKE_OPTIONS}" install
 		if [ "$DEBUG" = "1" ];
 		then
 			eval mv "$INSTALL_ROOT/lib/libcurl-d.a" "$INSTALL_ROOT/lib/libcurl.a" &> /dev/null
@@ -825,19 +825,19 @@ then
 			if [ ! -f "libiconv-1.15.tar.gz" ];
 			then
 				echo -e "${COLOR_INFO}downloading it${COLOR_DOTS}...${COLOR_RESET}"
-				eval $WGET https://ftp.gnu.org/pub/gnu/libiconv/libiconv-1.15.tar.gz
+				eval "$WGET" https://ftp.gnu.org/pub/gnu/libiconv/libiconv-1.15.tar.gz
 			fi
 			echo -e "${COLOR_INFO}unpacking it${COLOR_DOTS}...${COLOR_RESET}"
 			eval tar -xzf libiconv-1.15.tar.gz
 			echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
 			cd libiconv-1.15
-			eval ./configure ${CONF_CROSSCOMPILING_OPTS_GENERIC} --enable-static --disable-shared --prefix="$INSTALL_ROOT" ${CONF_DEBUG_OPTIONS}
+			eval ./configure "${CONF_CROSSCOMPILING_OPTS_GENERIC}" --enable-static --disable-shared --prefix="$INSTALL_ROOT" "${CONF_DEBUG_OPTIONS}"
 			cd ..
 		fi
 		echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
 		cd libiconv-1.15
-		eval $MAKE ${PARALLEL_MAKE_OPTIONS}
-		eval $MAKE ${PARALLEL_MAKE_OPTIONS} install
+		eval $MAKE "${PARALLEL_MAKE_OPTIONS}"
+		eval $MAKE "${PARALLEL_MAKE_OPTIONS}" install
 		cd ..
 		cd "$SOURCES_ROOT"
 	fi
@@ -862,14 +862,14 @@ then
 			eval tar -xzf SDL2-2.0.7.tar.gz
 			cd SDL2-2.0.7
 			echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
-			eval ./configure --enable-static --disable-shared --prefix="$INSTALL_ROOT" ${CONF_DEBUG_OPTIONS}
+			eval ./configure --enable-static --disable-shared --prefix="$INSTALL_ROOT" "${CONF_DEBUG_OPTIONS}"
 			cd ..
 		fi
 		echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
 		cd SDL2-2.0.7
-		eval $MAKE ${PARALLEL_MAKE_OPTIONS}
+		eval $MAKE "${PARALLEL_MAKE_OPTIONS}"
 		# ??? this parallel install does not work on OSX ???
-		#eval $MAKE ${PARALLEL_MAKE_OPTIONS} install
+		#eval $MAKE "${PARALLEL_MAKE_OPTIONS}" install
 		eval $MAKE install
 		cd ..
 		cd "$SOURCES_ROOT"
@@ -894,7 +894,7 @@ then
 		if [ ! -d "SDL2_ttf-2.0.14" ]; then
 			if [ ! -f "SDL2_ttf-2.0.14.tar.gz" ]; then
 				echo -e "${COLOR_INFO}downloading it${COLOR_DOTS}...${COLOR_RESET}"
-				eval $WGET https://www.libsdl.org/projects/SDL_ttf/release/SDL2_ttf-2.0.14.tar.gz
+				eval "$WGET" https://www.libsdl.org/projects/SDL_ttf/release/SDL2_ttf-2.0.14.tar.gz
 			fi
 			eval tar -xzf SDL2_ttf-2.0.14.tar.gz
 			cd SDL2_ttf-2.0.14
@@ -904,19 +904,19 @@ then
 		echo -e "${COLOR_INFO}building freetype${COLOR_DOTS}...${COLOR_RESET}"
 		pushd external/freetype-2.4.12
 		./autogen.sh
-		./configure --enable-static --disable-shared --with-pic --prefix="$INSTALL_ROOT" ${CONF_DEBUG_OPTIONS}
+		./configure --enable-static --disable-shared --with-pic --prefix="$INSTALL_ROOT" "${CONF_DEBUG_OPTIONS}"
 		# ??? this parallel build does not work on OSX ???
-		#eval $MAKE ${PARALLEL_MAKE_OPTIONS}
+		#eval $MAKE "${PARALLEL_MAKE_OPTIONS}"
 		$MAKE
 		# ??? this parallel install does not work on OSX ???
-		#eval $MAKE ${PARALLEL_MAKE_OPTIONS} install
+		#eval $MAKE "${PARALLEL_MAKE_OPTIONS}" install
 		eval $MAKE install
 		popd
 		echo -e "${COLOR_INFO}building SDL2_ttf${COLOR_DOTS}...${COLOR_RESET}"
 		eval ./autogen.sh
-		eval ./configure --enable-static --disable-shared --with-pic --prefix="$INSTALL_ROOT" --with-sdl-prefix="$INSTALL_ROOT" --with-freetype-prefix="$INSTALL_ROOT" ${CONF_DEBUG_OPTIONS}
-		eval $MAKE ${PARALLEL_MAKE_OPTIONS}
-		eval $MAKE ${PARALLEL_MAKE_OPTIONS} install
+		eval ./configure --enable-static --disable-shared --with-pic --prefix="$INSTALL_ROOT" --with-sdl-prefix="$INSTALL_ROOT" --with-freetype-prefix="$INSTALL_ROOT" "${CONF_DEBUG_OPTIONS}"
+		eval $MAKE "${PARALLEL_MAKE_OPTIONS}"
+		eval $MAKE "${PARALLEL_MAKE_OPTIONS}" install
 		cd ..
 		#
 		#export LDFLAGS=$LDFLAGS_SAVED_OLD
@@ -953,13 +953,13 @@ then
 			cd libev
 			eval mkdir -p build
 			cd build
-			#eval $CMAKE "${CMAKE_CROSSCOMPILING_OPTS}" -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" -DARCH=$ARCH ..
-			eval $CMAKE "${CMAKE_CROSSCOMPILING_OPTS}" -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" ..
+			#eval "$CMAKE" "${CMAKE_CROSSCOMPILING_OPTS}" -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" -DARCH=$ARCH ..
+			eval "$CMAKE" "${CMAKE_CROSSCOMPILING_OPTS}" -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" ..
 			cd ../..
 		fi
 		cd libev/build
-		eval $MAKE ${PARALLEL_MAKE_OPTIONS}
-		eval $MAKE ${PARALLEL_MAKE_OPTIONS} install
+		eval $MAKE "${PARALLEL_MAKE_OPTIONS}"
+		eval $MAKE "${PARALLEL_MAKE_OPTIONS}" install
 		cd ../..
 		cd "$SOURCES_ROOT"
 	else
@@ -995,13 +995,13 @@ then
 			then
 				OS_SPECIFIC_LIB_EVENT_FLAGS="-DEVENT__DISABLE_SAMPLES=ON -DEVENT__DISABLE_TESTS=ON -DEVENT__DISABLE_BENCHMARK=ON -DEVENT__DISABLE_REGRESS=ON"
 			fi
-			#eval $CMAKE "${CMAKE_CROSSCOMPILING_OPTS}" -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" -DARCH=$ARCH ..
-			eval $CMAKE "${CMAKE_CROSSCOMPILING_OPTS}" "${OS_SPECIFIC_LIB_EVENT_FLAGS}" -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" ..
+			#eval "$CMAKE" "${CMAKE_CROSSCOMPILING_OPTS}" -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" -DARCH=$ARCH ..
+			eval "$CMAKE" "${CMAKE_CROSSCOMPILING_OPTS}" "${OS_SPECIFIC_LIB_EVENT_FLAGS}" -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" ..
 			cd ../..
 		fi
 		cd libevent/build
-		eval $MAKE ${PARALLEL_MAKE_OPTIONS}
-		eval $MAKE ${PARALLEL_MAKE_OPTIONS} install
+		eval $MAKE "${PARALLEL_MAKE_OPTIONS}"
+		eval $MAKE "${PARALLEL_MAKE_OPTIONS}" install
 		cd ../..
 		cd "$SOURCES_ROOT"
 	else
@@ -1043,14 +1043,14 @@ then
 			echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
 			cd libuv
 			eval ./autogen.sh
-			eval ./configure ${CONF_CROSSCOMPILING_OPTS_GENERIC} --enable-static --disable-shared --with-pic --prefix="$INSTALL_ROOT" ${CONF_DEBUG_OPTIONS}
+			eval ./configure "${CONF_CROSSCOMPILING_OPTS_GENERIC}" --enable-static --disable-shared --with-pic --prefix="$INSTALL_ROOT" "${CONF_DEBUG_OPTIONS}"
 			#--with-sysroot=="$INSTALL_ROOT"
 			cd ..
 		fi
 		echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
 		cd libuv
-		eval $MAKE ${PARALLEL_MAKE_OPTIONS}
-		eval $MAKE ${PARALLEL_MAKE_OPTIONS} install
+		eval $MAKE "${PARALLEL_MAKE_OPTIONS}"
+		eval $MAKE "${PARALLEL_MAKE_OPTIONS}" install
 		cd ..
 		cd "$SOURCES_ROOT"
 	else
@@ -1151,10 +1151,10 @@ then
 			#
 			#
 			echo "$LWS_WITH_LIBEV$LWS_WITH_LIBEVENT$LWS_WITH_LIBUV" &>/dev/null
-			#eval $CMAKE "${CMAKE_CROSSCOMPILING_OPTS}" -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" $CMAKE_ARGS_FOR_LIB_WEB_SOCKETS ..
+			#eval "$CMAKE" "${CMAKE_CROSSCOMPILING_OPTS}" -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" $CMAKE_ARGS_FOR_LIB_WEB_SOCKETS ..
 			export SAVED_CFLAGS=$CFLAGS
 			export CFLAGS="$CFLAGS -Wno-deprecated-declarations"
-			eval $CMAKE "${CMAKE_CROSSCOMPILING_OPTS}" -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" \
+			eval "$CMAKE" "${CMAKE_CROSSCOMPILING_OPTS}" -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" \
 				-DLWS_WITH_STATIC=ON -DLWS_WITH_SHARED=OFF -DLWS_STATIC_PIC=ON \
 				-DLWS_IPV6=ON -DLWS_UNIX_SOCK=ON -DLWS_WITH_HTTP2=OFF -DLWS_WITHOUT_TESTAPPS=ON \
 				-DLWS_WITH_ACCESS_LOG=ON -DLWS_WITH_SERVER_STATUS=ON \
@@ -1202,8 +1202,8 @@ then
 		fi
 		echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
 		cd libwebsockets/build
-		eval $MAKE ${PARALLEL_MAKE_OPTIONS}
-		eval $MAKE ${PARALLEL_MAKE_OPTIONS} install
+		eval $MAKE "${PARALLEL_MAKE_OPTIONS}"
+		eval $MAKE "${PARALLEL_MAKE_OPTIONS}" install
 		cd ../..
 		cd "$SOURCES_ROOT"
 	else
@@ -1227,7 +1227,7 @@ then
 			cd libsourcey
 			eval mkdir -p build
 			cd build
-			eval $CMAKE .. -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" \
+			eval "$CMAKE" .. -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" \
 				-DCMAKE_LIBRARY_PATH="$LIBS_ROOT" \
 				-DBUILD_SHARED_LIBS=OFF \
 				-DBUILD_DEPENDENCIES=OFF -DBUILD_APPLICATIONS=OFF -DBUILD_MODULES=OFF \
@@ -1241,8 +1241,8 @@ then
 		fi
 		echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
 		cd libsourcey/build
-		eval $MAKE ${PARALLEL_MAKE_OPTIONS}
-		eval $MAKE ${PARALLEL_MAKE_OPTIONS} install
+		eval $MAKE "${PARALLEL_MAKE_OPTIONS}"
+		eval $MAKE "${PARALLEL_MAKE_OPTIONS}" install
 		cd "$SOURCES_ROOT"
 	else
 		echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
@@ -1262,7 +1262,7 @@ then
 			if [ ! -f "boost_1_68_0.tar.bz2" ];
 			then
 				echo -e "${COLOR_INFO}downloading it${COLOR_DOTS}...${COLOR_RESET}"
-				eval $WGET https://boostorg.jfrog.io/artifactory/main/release/1.68.0/source/boost_1_68_0.tar.bz2
+				eval "$WGET" https://boostorg.jfrog.io/artifactory/main/release/1.68.0/source/boost_1_68_0.tar.bz2
 			fi
 			echo -e "${COLOR_INFO}unpacking it${COLOR_DOTS}...${COLOR_RESET}"
 			eval tar -xf boost_1_68_0.tar.bz2
@@ -1275,9 +1275,9 @@ then
 	if [ ${ARCH} = "arm" ]
 	then
 		sed -i -e 's#using gcc ;#using gcc : arm : /usr/local/toolchains/gcc7.2-arm/bin/arm-linux-gnueabihf-g++ ;#g' project-config.jam
-		eval ./b2 "${CONF_CROSSCOMPILING_OPTS_BOOST}" cxxflags=-fPIC cflags=-fPIC ${PARALLEL_MAKE_OPTIONS} --prefix="$INSTALL_ROOT" --layout=system variant=debug link=static threading=multi install
+		eval ./b2 "${CONF_CROSSCOMPILING_OPTS_BOOST}" cxxflags=-fPIC cflags=-fPIC "${PARALLEL_MAKE_OPTIONS}" --prefix="$INSTALL_ROOT" --layout=system variant=debug link=static threading=multi install
 	else
-		eval ./b2 cxxflags=-fPIC cflags=-fPIC ${PARALLEL_MAKE_OPTIONS} --prefix="$INSTALL_ROOT" --layout=system variant=debug link=static threading=multi install
+		eval ./b2 cxxflags=-fPIC cflags=-fPIC "${PARALLEL_MAKE_OPTIONS}" --prefix="$INSTALL_ROOT" --layout=system variant=debug link=static threading=multi install
 	fi
 		cd ..
 		cd "$SOURCES_ROOT"
@@ -1300,13 +1300,13 @@ then
 			eval tar -xvjf "$PREDOWNLOADED_ROOT/libupnp-1.8.3.tar.bz2"
 			echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
 			cd libupnp-1.8.3
-			eval ./configure ${CONF_CROSSCOMPILING_OPTS_GENERIC} --enable-static --disable-shared --with-pic --prefix="$INSTALL_ROOT" ${UPNP_DISABLE_LARGE_FILE_SUPPORT} ${CONF_DEBUG_OPTIONS}
+			eval ./configure "${CONF_CROSSCOMPILING_OPTS_GENERIC}" --enable-static --disable-shared --with-pic --prefix="$INSTALL_ROOT" ${UPNP_DISABLE_LARGE_FILE_SUPPORT} "${CONF_DEBUG_OPTIONS}"
 			cd "$SOURCES_ROOT"
 		fi
 		echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
 		cd libupnp-1.8.3
-		eval $MAKE ${PARALLEL_MAKE_OPTIONS}
-		eval $MAKE ${PARALLEL_MAKE_OPTIONS} install
+		eval $MAKE "${PARALLEL_MAKE_OPTIONS}"
+		eval $MAKE "${PARALLEL_MAKE_OPTIONS}" install
 		cd "$SOURCES_ROOT"
 	else
 		echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
@@ -1331,15 +1331,15 @@ then
 			cd argtable2
 			eval mkdir -p build
 			cd build
-			eval $CMAKE "${CMAKE_CROSSCOMPILING_OPTS}" -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" ..
+			eval "$CMAKE" "${CMAKE_CROSSCOMPILING_OPTS}" -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" ..
 			cd ..
 		else
 			cd argtable2
 		fi
 		echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
 		cd build
-		eval $MAKE ${PARALLEL_MAKE_OPTIONS}
-		eval $MAKE ${PARALLEL_MAKE_OPTIONS} install
+		eval $MAKE "${PARALLEL_MAKE_OPTIONS}"
+		eval $MAKE "${PARALLEL_MAKE_OPTIONS}" install
 		cd "$SOURCES_ROOT"
 	else
 		echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
@@ -1358,18 +1358,18 @@ then
             if [ ! -f "nettle-3.4.1.tar.gz" ];
             then
                 echo -e "${COLOR_INFO}downloading it${COLOR_DOTS}...${COLOR_RESET}"
-                eval $WGET https://ftp.gnu.org/gnu/nettle/nettle-3.4.1.tar.gz
+                eval "$WGET" https://ftp.gnu.org/gnu/nettle/nettle-3.4.1.tar.gz
             fi
             eval tar -xvzf nettle-3.4.1.tar.gz
             echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
             cd nettle-3.4.1
-            eval ./configure ${CONF_CROSSCOMPILING_OPTS_GENERIC} --enable-static --disable-shared --prefix="$INSTALL_ROOT" ${CONF_DEBUG_OPTIONS}
+            eval ./configure "${CONF_CROSSCOMPILING_OPTS_GENERIC}" --enable-static --disable-shared --prefix="$INSTALL_ROOT" "${CONF_DEBUG_OPTIONS}"
         else
             cd nettle-3.4.1
         fi
         echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
-        eval $MAKE ${PARALLEL_MAKE_OPTIONS}
-        eval $MAKE ${PARALLEL_MAKE_OPTIONS} install
+        eval $MAKE "${PARALLEL_MAKE_OPTIONS}"
+        eval $MAKE "${PARALLEL_MAKE_OPTIONS}" install
         cd "$SOURCES_ROOT"
     else
         echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
@@ -1397,13 +1397,13 @@ then
             eval autoheader
             eval automake --add-missing
             eval ./configure --disable-doc --disable-gtk-doc=1 --disable-gtk-doc-html --disable-gtk-doc-pdf \
-                ${CONF_CROSSCOMPILING_OPTS_GENERIC} --enable-static --disable-shared --prefix="$INSTALL_ROOT" ${CONF_DEBUG_OPTIONS}
+                "${CONF_CROSSCOMPILING_OPTS_GENERIC}" --enable-static --disable-shared --prefix="$INSTALL_ROOT" "${CONF_DEBUG_OPTIONS}"
         else
             cd libtasn1
         fi
         echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
-        eval $MAKE ${PARALLEL_MAKE_OPTIONS}
-        eval $MAKE ${PARALLEL_MAKE_OPTIONS} install
+        eval $MAKE "${PARALLEL_MAKE_OPTIONS}"
+        eval $MAKE "${PARALLEL_MAKE_OPTIONS}" install
         #export PKG_CONFIG_PATH=$PKG_CONFIG_PATH_SAVED
         #export PKG_CONFIG_PATH_SAVED=
         cd "$SOURCES_ROOT"
@@ -1428,7 +1428,7 @@ then
 			echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
 			cd gnutls
 			eval ./bootstrap
-			eval ./configure ${CONF_CROSSCOMPILING_OPTS_GENERIC} --enable-static --disable-shared --with-pic --prefix="$INSTALL_ROOT" ${CONF_DEBUG_OPTIONS}
+			eval ./configure "${CONF_CROSSCOMPILING_OPTS_GENERIC}" --enable-static --disable-shared --with-pic --prefix="$INSTALL_ROOT" "${CONF_DEBUG_OPTIONS}"
 		else
 			cd gnutls
 		fi
@@ -1457,7 +1457,7 @@ then
 			echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
 			cd libgpg-error
 			eval ./autogen.sh --git-build
-			eval ./configure ${CONF_CROSSCOMPILING_OPTS_GENERIC} --enable-static --disable-shared --with-pic --prefix="$INSTALL_ROOT" ${CONF_DEBUG_OPTIONS}
+			eval ./configure "${CONF_CROSSCOMPILING_OPTS_GENERIC}" --enable-static --disable-shared --with-pic --prefix="$INSTALL_ROOT" "${CONF_DEBUG_OPTIONS}"
 		else
 			cd libgpg-error
 		fi
@@ -1486,7 +1486,7 @@ then
 			echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
 			cd libgcrypt
 			eval ./autogen.sh
-			eval ./configure ${CONF_CROSSCOMPILING_OPTS_GENERIC} --enable-static --disable-shared --with-pic --prefix="$INSTALL_ROOT" ${CONF_DEBUG_OPTIONS}
+			eval ./configure "${CONF_CROSSCOMPILING_OPTS_GENERIC}" --enable-static --disable-shared --with-pic --prefix="$INSTALL_ROOT" "${CONF_DEBUG_OPTIONS}"
 		else
 			cd libgcrypt
 		fi
@@ -1520,7 +1520,7 @@ then
 				MHD_HTTPS_OPT="--enable-https"
 			fi
 			eval ./bootstrap
-			eval ./configure ${CONF_CROSSCOMPILING_OPTS_GENERIC} --enable-static --disable-shared --with-pic --prefix="$INSTALL_ROOT" ${MHD_HTTPS_OPT} ${CONF_DEBUG_OPTIONS}
+			eval ./configure "${CONF_CROSSCOMPILING_OPTS_GENERIC}" --enable-static --disable-shared --with-pic --prefix="$INSTALL_ROOT" ${MHD_HTTPS_OPT} "${CONF_DEBUG_OPTIONS}"
 		else
 			cd libmicrohttpd
 		fi
@@ -1544,13 +1544,13 @@ then
 		cd ../jsoncpp
 		eval mkdir -p build
 		cd build
-		eval $CMAKE "${CMAKE_CROSSCOMPILING_OPTS}" -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" \
+		eval "$CMAKE" "${CMAKE_CROSSCOMPILING_OPTS}" -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" \
 			-DBUILD_SHARED_LIBS=NO \
 			-DBUILD_STATIC_LIBS=YES \
 			..
 		echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
-		eval $MAKE ${PARALLEL_MAKE_OPTIONS}
-		eval $MAKE ${PARALLEL_MAKE_OPTIONS} install
+		eval $MAKE "${PARALLEL_MAKE_OPTIONS}"
+		eval $MAKE "${PARALLEL_MAKE_OPTIONS}" install
 		cd "$SOURCES_ROOT"
 	else
 		echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
@@ -1569,7 +1569,7 @@ then
 		echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
 		eval mkdir -p build
 		cd build
-		eval $CMAKE "${CMAKE_CROSSCOMPILING_OPTS}" -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" \
+		eval "$CMAKE" "${CMAKE_CROSSCOMPILING_OPTS}" -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" \
 			-DBUILD_SHARED_LIBS=NO \
 			-DBUILD_STATIC_LIBS=YES \
 			-DUNIX_DOMAIN_SOCKET_SERVER=YES \
@@ -1592,8 +1592,8 @@ then
 			-DCURL_INCLUDE_DIR="$INSTALL_ROOT/include" \
 			..
 		echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
-		eval $MAKE ${PARALLEL_MAKE_OPTIONS}
-		eval $MAKE ${PARALLEL_MAKE_OPTIONS} install
+		eval $MAKE "${PARALLEL_MAKE_OPTIONS}"
+		eval $MAKE "${PARALLEL_MAKE_OPTIONS}" install
 		cd "$SOURCES_ROOT"
 	else
 		echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
@@ -1616,8 +1616,8 @@ then
             echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
         fi
         cd "$SOURCES_ROOT"/libcryptopp
-        eval $MAKE ${PARALLEL_MAKE_OPTIONS} static
-        eval $MAKE ${PARALLEL_MAKE_OPTIONS} install PREFIX="$INSTALL_ROOT"
+        eval $MAKE "${PARALLEL_MAKE_OPTIONS}" static
+        eval $MAKE "${PARALLEL_MAKE_OPTIONS}" install PREFIX="$INSTALL_ROOT"
         cd "$SOURCES_ROOT"
     else
         echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
@@ -1636,17 +1636,17 @@ then
             if [ ! -f "gmp-6.1.2.tar.xz" ];
             then
                 echo -e "${COLOR_INFO}getting it from gmp website${COLOR_DOTS}...${COLOR_RESET}"
-                eval $WGET https://ftp.gnu.org/gnu/gmp/gmp-6.1.2.tar.xz
+                eval "$WGET" https://ftp.gnu.org/gnu/gmp/gmp-6.1.2.tar.xz
             fi
             echo -e "${COLOR_INFO}unpacking it${COLOR_DOTS}...${COLOR_RESET}"
             eval tar -xf gmp-6.1.2.tar.xz
         fi
         cd gmp-6.1.2
         echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
-        eval ./configure ${CONF_CROSSCOMPILING_OPTS_GENERIC} ${CONF_DEBUG_OPTIONS} --enable-cxx --enable-static --disable-shared --prefix="$INSTALL_ROOT"
+        eval ./configure "${CONF_CROSSCOMPILING_OPTS_GENERIC}" "${CONF_DEBUG_OPTIONS}" --enable-cxx --enable-static --disable-shared --prefix="$INSTALL_ROOT"
         echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
-        eval $MAKE ${PARALLEL_MAKE_OPTIONS}
-        eval $MAKE ${PARALLEL_MAKE_OPTIONS} install
+        eval $MAKE "${PARALLEL_MAKE_OPTIONS}"
+        eval $MAKE "${PARALLEL_MAKE_OPTIONS}" install
         cd ..
         cd "$SOURCES_ROOT"
     else
@@ -1670,10 +1670,10 @@ then
         echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
         eval mkdir -p build
         cd build
-        eval $CMAKE "${CMAKE_CROSSCOMPILING_OPTS}" -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" .. -DWITH_PROCPS=OFF
+        eval "$CMAKE" "${CMAKE_CROSSCOMPILING_OPTS}" -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" .. -DWITH_PROCPS=OFF
         echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
-        eval $MAKE ${PARALLEL_MAKE_OPTIONS}
-        eval $MAKE ${PARALLEL_MAKE_OPTIONS} install
+        eval $MAKE "${PARALLEL_MAKE_OPTIONS}"
+        eval $MAKE "${PARALLEL_MAKE_OPTIONS}" install
         cd "$SOURCES_ROOT"
     else
         echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
@@ -1703,10 +1703,10 @@ then
         echo "    CPPFLAGS = $CPPFLAGS"
         echo "    LDFLAGS  = $LDFLAGS"
         eval $LIBTOOLIZE --force && aclocal && autoheader && automake --force-missing --add-missing && autoconf
-        ./configure ${CONF_CROSSCOMPILING_OPTS_GENERIC} ${CONF_DEBUG_OPTIONS} --with-pic --enable-static --disable-shared --prefix="$INSTALL_ROOT"
+        ./configure "${CONF_CROSSCOMPILING_OPTS_GENERIC}" "${CONF_DEBUG_OPTIONS}" --with-pic --enable-static --disable-shared --prefix="$INSTALL_ROOT"
         echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
-        eval $MAKE ${PARALLEL_MAKE_OPTIONS}
-        eval $MAKE ${PARALLEL_MAKE_OPTIONS} install
+        eval $MAKE "${PARALLEL_MAKE_OPTIONS}"
+        eval $MAKE "${PARALLEL_MAKE_OPTIONS}" install
         cd "$SOURCES_ROOT"
     else
         echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
@@ -1743,8 +1743,8 @@ then
         fi
         echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
         cd libsodium
-        eval $MAKE ${PARALLEL_MAKE_OPTIONS}
-        eval $MAKE ${PARALLEL_MAKE_OPTIONS} install
+        eval $MAKE "${PARALLEL_MAKE_OPTIONS}"
+        eval $MAKE "${PARALLEL_MAKE_OPTIONS}" install
         cd ..
         cd "$SOURCES_ROOT"
     else
@@ -1764,8 +1764,8 @@ then
 		echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
         eval cmake "${CMAKE_CROSSCOMPILING_OPTS}" -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DBUILD_STATIC_LIBS=ON -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" -DWITH_LIBSODIUM="$INSTALL_ROOT" -DCMAKE_POSITION_INDEPENDENT_CODE=ON . -Bbuild
 		cd build
-        eval $MAKE ${PARALLEL_MAKE_OPTIONS}
-        eval $MAKE ${PARALLEL_MAKE_OPTIONS} install
+        eval $MAKE "${PARALLEL_MAKE_OPTIONS}"
+        eval $MAKE "${PARALLEL_MAKE_OPTIONS}" install
 		cd "$SOURCES_ROOT"
 	else
 		echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
