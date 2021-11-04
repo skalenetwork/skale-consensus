@@ -65,7 +65,7 @@ jobs:
 
       - name: install packages
         run: |
-          sudo apt-get install software-properties-common; sudo apt-add-repository universe; \
+          sudo apt-get install -y software-properties-common; sudo apt-add-repository universe; \
           sudo apt-get update; sudo apt-get install -y software-properties-common apt-utils libprocps-dev \
           gcc-9 g++-9 valgrind gawk sed libffi-dev ccache libgoogle-perftools-dev flex \
           bison yasm texinfo \

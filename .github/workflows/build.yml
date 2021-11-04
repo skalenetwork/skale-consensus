@@ -111,8 +111,8 @@ jobs:
 
     - name: install packages
       run: |
-        sudo apt-get install software-properties-common; sudo apt-add-repository universe; \
-        sudo apt-get update; sudo apt-get install -y software-properties-common apt-utils libprocps-dev \
+        sudo apt-get -y install software-properties-common; sudo apt-add-repository universe; \
+        sudo apt-get update; sudo apt-get -y install -y software-properties-common apt-utils libprocps-dev \
         gcc-9 g++-9 valgrind gawk sed libffi-dev ccache libgoogle-perftools-dev flex \
         bison yasm texinfo \
         autotools-dev autogen automake autoconf m4 shtool pkg-config sed gawk yasm nasm \
@@ -143,7 +143,7 @@ jobs:
               ${ { matrix.config.name } }-ccache-
     - name: build dependencies
       run: |
-        sudo apt-get install nettle-dev gnutls-dev
+        sudo apt-get install -y nettle-dev gnutls-dev
         cd deps && ./build.sh && cd ..
 
     - name: verify jsonrpc has been built
