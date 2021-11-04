@@ -70,7 +70,7 @@ jobs:
       run: |
         sudo apt-get install software-properties-common; sudo apt-add-repository universe; \
         sudo apt-get update; sudo apt-get install -y software-properties-common apt-utils libprocps-dev \
-        g++-7 valgrind gawk sed libffi-dev ccache libgoogle-perftools-dev flex \
+        gcc-9 g++-9 valgrind gawk sed libffi-dev ccache libgoogle-perftools-dev flex \
         bison yasm texinfo \
         autotools-dev autogen automake autoconf m4 shtool pkg-config sed gawk yasm nasm \
         python3 python3-pip python-is-python3 \

@@ -23,7 +23,7 @@ matrix:
     # GCC on Linux
     ##########################################################
 
-    # Coverage, GCC 7, draft enabled, latest libzmq (default)
+    # Coverage, GCC 9, draft enabled, latest libzmq (default)
     - os: linux
       before_install:
         - pip install --user cpp-coveralls
@@ -32,9 +32,9 @@ matrix:
           sources:
             - ubuntu-toolchain-r-test
           packages:
-            - g++-7
+            - g++-9
       env:
-        - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7" ENABLE_DRAFTS=ON COVERAGE=ON
+        - MATRIX_EVAL="CC=gcc-9 && CXX=g++-9" ENABLE_DRAFTS=ON COVERAGE=ON
       after_success:
         - coveralls -r . -E ".*external.*" -E ".*CMakeFiles.*" -E ".*tests/" -E ".*demo/" -E ".*libzmq.*/" -E ".*catch/" -b cppzmq-build --gcov-options '\-lp'
 
@@ -71,16 +71,16 @@ matrix:
       env:
         - MATRIX_EVAL="CC=gcc-4.9 && CXX=g++-4.9" CMAKE_CPP_STD=-DCMAKE_CXX_STANDARD=11
 
-    # GCC 7, draft enabled, latest libzmq (default)
+    # GCC 9, draft enabled, latest libzmq (default)
     - os: linux
       addons:
         apt:
           sources:
             - ubuntu-toolchain-r-test
           packages:
-            - g++-7
+            - g++-9
       env:
-        - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7" ENABLE_DRAFTS=ON
+        - MATRIX_EVAL="CC=gcc-9 && CXX=g++-9" ENABLE_DRAFTS=ON
 
     # Clang 8.0, draft disabled (default), latest libzmq (default), C++17
     - os: linux
