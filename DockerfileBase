@@ -11,6 +11,12 @@ RUN apt-get install -y software-properties-common; sudo apt-add-repository unive
     libgcrypt20-dev
     # python python-pip
 
+RUN update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 9
+RUN update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-9 9
+RUN update-alternatives --install /usr/bin/gcov gcov /usr/bin/gcov-9 9
+RUN update-alternatives --install /usr/bin/gcov-dump gcov-dump /usr/bin/gcov-dump-9 9
+RUN update-alternatives --install /usr/bin/gcov-tool gcov-tool /usr/bin/gcov-tool-9 9
+
 RUN    ln -s /usr/bin/ccache /usr/local/bin/clang && \
        ln -s /usr/bin/ccache /usr/local/bin/clang++ && \
        ln -s /usr/bin/ccache /usr/local/bin/gcc && \
