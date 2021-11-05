@@ -21,6 +21,11 @@ RUN update-alternatives --install /usr/bin/gcov-tool gcov-tool /usr/bin/gcov-too
 COPY . /consensust
 WORKDIR /consensust
 
+ENV CC gcc-9
+ENV CXX g++-9
+ENV TARGET all
+ENV TRAVIS_BUILD_TYPE Debug
+
 RUN deps/build.sh DEBUG=1 PARALLEL_COUNT=$(nproc)
 
 RUN cmake . -Bbuild -DCMAKE_BUILD_TYPE=Debug  -DCOVERAGE=ON -DMICROPROFILE_ENABLED=0

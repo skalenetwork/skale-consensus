@@ -29,6 +29,7 @@ RUN    ln -s /usr/bin/ccache /usr/local/bin/clang && \
 ENV CC gcc-9
 ENV CXX g++-9
 ENV TARGET all
+ENV TRAVIS_BUILD_TYPE Debug
 
 COPY . /consensust
 WORKDIR /consensust
