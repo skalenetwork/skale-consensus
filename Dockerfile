@@ -1,6 +1,6 @@
 FROM skalenetwork/consensust_base:latest
 
-RUN apt-get install software-properties-common
+RUN apt-get install -yq software-properties-common
 RUN add-apt-repository ppa:ubuntu-toolchain-r/test
 RUN apt-get update
 RUN apt-get install -y software-properties-common; sudo apt-add-repository universe; apt-get update; \
