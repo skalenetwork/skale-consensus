@@ -92,7 +92,7 @@
 #include "protocols/ProtocolKey.h"
 #include "protocols/binconsensus/BinConsensusInstance.h"
 
-#include "bls/BLSutils.h"
+#include "tools/utils.h"
 
 #include "exceptions/FatalError.h"
 
