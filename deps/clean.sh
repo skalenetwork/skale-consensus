@@ -96,7 +96,7 @@ WORKING_DIR_NEW=$("$READLINK" -f "$WORKING_DIR_NEW")
 cd "$WORKING_DIR_NEW"
 
 cd "$WORKING_DIR_NEW"/../libBLS/deps
-./clean.sh
+eval bash ./clean.sh
 cd ../../deps
 
 echo -e " "
@@ -122,6 +122,7 @@ rm -rf ./BLAKE3
 rm -rf ./openssl
 rm -rf ./curl
 rm -rf ./libuv
+rm -rf ./libevent
 rm -rf ./libwebsockets
 rm -rf ./boost_1_68_0
 rm -rf ./argtable2
@@ -136,6 +137,9 @@ rm -rf ./gmp-6.1.2
 rm -rf ./libff
 rm -rf ./pbc
 rm -rf ./libsodium
+rm -rf ../libzmq/build/*
+rm -rf ../jsoncpp/build/*
+rm -rf ../libjson-rpc-cpp/build/*
 echo "Done (all clean)."
 
 #finish
