@@ -514,7 +514,7 @@ ptr< Header > BlockProposalServerAgent::createProposalResponseHeader(
     if ( myBlockProposalForTheSameBlockID == nullptr ) {
         // did not create proposal yet, ask the client to retry later
         responseHeader->setStatusSubStatus(
-            CONNECTION_RETRY_LATER, CONNECTION_BLOCK_PROPOSAL_IN_THE_FUTURE );
+            CONNECTION_RETRY_LATER, CONNECTION_DID_NOT_CREATE_OWN_PROPOSAL_YET );
         responseHeader->setComplete();
         return responseHeader;
     }
@@ -646,7 +646,7 @@ ptr< Header > BlockProposalServerAgent::createDAProofResponseHeader(
 
     if ( ( uint64_t ) sChain->getLastCommittedBlockID() + 1 < _header->getBlockId() ) {
         responseHeader->setStatusSubStatus(
-            CONNECTION_RETRY_LATER, CONNECTION_BLOCK_PROPOSAL_IN_THE_FUTURE );
+            CONNECTION_RETRY_LATER, CONNECTION_DA_PROOF_IN_THE_FUTURE );
         responseHeader->setComplete();
         return responseHeader;
     }
