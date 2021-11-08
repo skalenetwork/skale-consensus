@@ -102,3 +102,4 @@ libBLS/
 
 /run_sgx_test/sgx_data/4node.json
 /run_sgx_test/sgx_data/16node.json
+/deps/zlib/

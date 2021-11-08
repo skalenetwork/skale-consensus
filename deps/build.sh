@@ -75,8 +75,7 @@ WORKING_DIR_NEW=$("$READLINK" -f "$WORKING_DIR_NEW")
 cd "$WORKING_DIR_NEW"
 
 cd "$WORKING_DIR_NEW/../libBLS/deps"
-./build.sh
-echo "BLS deps visible build result" $?
+eval bash ./build.sh
 cd ../../deps
 
 #
@@ -127,15 +126,6 @@ simple_find_tool_program () { # program_name, var_name_to_export_full_path, is_o
 			echo -e "....${COLOR_SUCCESS}SUCCESS: $2 found as $TMP_VAL" "${COLOR_RESET}"
 			return 0
 		fi
-		#TMP_CMD="export $2=/opt/local/bin/$1"
-		#$TMP_CMD
-		#TMP_CMD="echo ${!2}"
-		#TMP_VAL="$($TMP_CMD)"
-		#if [ -f "$TMP_VAL" ];
-		#then
-		#	#echo -e "${COLOR_SUCCESS}SUCCESS: $2 found as $TMP_VAL" "${COLOR_RESET}"
-		#	return 0
-		#fi
 	fi
 	if [ -f "$TMP_VAL" ];
 	then
@@ -238,13 +228,6 @@ setup_variable() {
     TMP_VAL=$1
     TMP_CMD="echo ${!TMP_VAL}"
     TMP_VAL="$($TMP_CMD)"
-    #echo $TMP_VAL
-    #if [ -z "$TMP_VAL" ]
-    #then
-    #      echo "$1 is empty"
-    #else
-    #      echo "$1 is NOT empty, it is:" $TMP_VAL
-    #fi
     TMP_CMD="export $1=$2"
     $TMP_CMD
 }
@@ -259,6 +242,8 @@ setup_variable WITH_OPENSSL "no"
 setup_variable WITH_CURL "yes"
 setup_variable WITH_LZMA "no"
 setup_variable WITH_SSH "no"
+setup_variable WITH_SODIUM "yes"
+setup_variable WITH_ZMQ "yes"
 
 setup_variable WITH_SDL "no"
 setup_variable WITH_SDL_TTF "no"
@@ -278,7 +263,7 @@ setup_variable WITH_ARGTABLE2 "yes"
 
 #
 # notice: nettle and gnutls are needed for microhttpd on ubuntu 18.04
-# sudo apt-get install nettle-dev gnutls-dev
+# sudo apt-get install -y nettle-dev gnutls-dev
 #
 setup_variable WITH_NETTLE "no"
 setup_variable WITH_TASN1 "no"
@@ -375,12 +360,12 @@ then
 	else
 		if [ "$UNIX_SYSTEM_NAME" = "Linux" ];
 		then
-			export CC=$(which gcc-7)
+			export CC=$(which gcc-9)
 			if [ -z "${CC}" ];
 			then
 				export CC=$(which gcc)
 			fi
-			export CXX=$(which g++-7)
+			export CXX=$(which g++-9)
 			if [ -z "${CXX}" ];
 			then
 				export CXX=$(which g++)
@@ -573,6 +558,8 @@ echo -e "${COLOR_VAR_NAME}WITH_OPENSSL${COLOR_DOTS}...........${COLOR_VAR_DESC}O
 echo -e "${COLOR_VAR_NAME}WITH_CURL${COLOR_DOTS}..............${COLOR_VAR_DESC}CURL${COLOR_DOTS}...................................${COLOR_VAR_VAL}$WITH_CURL${COLOR_RESET}"
 #echo -e "${COLOR_VAR_NAME}WITH_LZMA${COLOR_DOTS}..............${COLOR_VAR_DESC}LZMA${COLOR_DOTS}...................................${COLOR_VAR_VAL}$WITH_LZMA${COLOR_RESET}"
 echo -e "${COLOR_VAR_NAME}WITH_SSH${COLOR_DOTS}...............${COLOR_VAR_DESC}SSH${COLOR_DOTS}....................................${COLOR_VAR_VAL}$WITH_SSH${COLOR_RESET}"
+echo -e "${COLOR_VAR_NAME}WITH_SODIUM${COLOR_DOTS}............${COLOR_VAR_DESC}LibSodium${COLOR_DOTS}..............................${COLOR_VAR_VAL}$WITH_SODIUM${COLOR_RESET}"
+echo -e "${COLOR_VAR_NAME}WITH_ZMQ${COLOR_DOTS}...............${COLOR_VAR_DESC}ZeroMQ${COLOR_DOTS}.................................${COLOR_VAR_VAL}$WITH_ZMQ${COLOR_RESET}"
 #echo -e "${COLOR_VAR_NAME}WITH_SDL${COLOR_DOTS}...............${COLOR_VAR_DESC}SDL${COLOR_DOTS}....................................${COLOR_VAR_VAL}$WITH_SDL${COLOR_RESET}"
 #echo -e "${COLOR_VAR_NAME}WITH_SDL_TTF${COLOR_DOTS}...........${COLOR_VAR_DESC}SDL-TTF${COLOR_DOTS}................................${COLOR_VAR_VAL}$WITH_SDL_TTF${COLOR_RESET}"
 #echo -e "${COLOR_VAR_NAME}WITH_EV${COLOR_DOTS}................${COLOR_VAR_DESC}libEv${COLOR_DOTS}..................................${COLOR_VAR_VAL}$WITH_EV${COLOR_RESET}"
@@ -624,98 +611,6 @@ env_save
 #
 #
 
-# echo -e "${COLOR_SEPARATOR}==================== ${COLOR_PROJECT_NAME}BZIP2${COLOR_SEPARATOR} ========================================${COLOR_RESET}"
-# if [ ! -f "$INSTALL_ROOT/lib/libbz2.a" ];
-# then
-# 	# https://github.com/VFR-maniac/bzip2
-# 	env_restore
-# 	cd "$SOURCES_ROOT"
-# 	if [ ! -d "bzip2" ];
-# 	then
-# 		#if [ ! -f "bzip2-from-git.tar.gz" ];
-# 		#then
-# 		#		echo -e "${COLOR_INFO}getting it from git${COLOR_DOTS}...${COLOR_RESET}"
-# 		#		git clone https://github.com/VFR-maniac/bzip2
-# 		#		echo -e "${COLOR_INFO}archiving it${COLOR_DOTS}...${COLOR_RESET}"
-# 		#		tar -czf bzip2-from-git.tar.gz ./bzip2
-# 		#else
-# 		#		echo -e "${COLOR_INFO}unpacking it${COLOR_DOTS}...${COLOR_RESET}"
-# 		#		tar -xzf bzip2-from-git.tar.gz
-# 		#fi
-# 		#
-# 		# l_sergiy: moved into $PREDOWNLOADED_ROOT
-# 		#
-# 		echo -e "${COLOR_INFO}unpacking it${COLOR_DOTS}...${COLOR_RESET}"
-# 		tar -xzf $PREDOWNLOADED_ROOT/bzip2-from-git.tar.gz
-# 		#
-# 		#
-# 		#
-# 		if [ ! -f "Makefile.original.saved" ];
-# 		then
-# 			echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
-# 			cd bzip2
-# 			cp Makefile Makefile.original.saved
-# 			awk '{gsub("CC=gcc", "", $0); print}' Makefile > Makefile.tmp; mv -f Makefile.tmp Makefile
-# 			awk '{gsub("CXX=g++", "", $0); print}' Makefile > Makefile.tmp; mv -f Makefile.tmp Makefile
-# 			awk '{gsub("AR=ar", "", $0); print}' Makefile > Makefile.tmp; mv -f Makefile.tmp Makefile
-# 			awk '{gsub("RANLIB=ranlib", "", $0); print}' Makefile > Makefile.tmp; mv -f Makefile.tmp Makefile
-#
-# 			if [ "$ARCH" = "arm" ];
-# 			then
-# 				awk '{gsub("all: libbz2.a bzip2 bzip2recover test", "all: libbz2.a bzip2 bzip2recover", $0); print}' Makefile > Makefile.tmp; mv -f Makefile.tmp Makefile
-# 				awk '{gsub("LDFLAGS=", "", $0); print}' Makefile > Makefile.tmp; mv -f Makefile.tmp Makefile
-# 				awk '{gsub("CFLAGS=", "CFLAGS:=$(CFLAGS) ", $0); print}' Makefile > Makefile.tmp; mv -f Makefile.tmp Makefile
-# 			fi
-#
-# 			cd ..
-# 		fi
-# 	fi
-# 	echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
-# 	cd bzip2
-# 	$MAKE ${PARALLEL_MAKE_OPTIONS} ${DIRECT_MAKE_CROSSCOMPILING_OPTS}
-# 	$MAKE ${PARALLEL_MAKE_OPTIONS} ${DIRECT_MAKE_CROSSCOMPILING_OPTS} install PREFIX="$INSTALL_ROOT"
-# 	cd ..
-# 	cd "$SOURCES_ROOT"
-# else
-# 	echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
-# fi
-
-# if [ "$WITH_LZMA" = "yes" ];
-# then
-# 	echo -e "${COLOR_SEPARATOR}==================== ${COLOR_PROJECT_NAME}LZMA${COLOR_SEPARATOR} =========================================${COLOR_RESET}"
-# 	if [ ! -f "$INSTALL_ROOT/lib/liblzma.a" ];
-# 	then
-# 		env_restore
-# 		cd "$SOURCES_ROOT"
-# 		export PKG_CONFIG_PATH_SAVED=$PKG_CONFIG_PATH
-# 		export PKG_CONFIG_PATH=/$INSTALL_ROOT/lib/pkgconfig:$PKG_CONFIG_PATH
-# 		if [ ! -d "lzma" ];
-# 		then
-# 			echo -e "${COLOR_INFO}unpacking it${COLOR_DOTS}...${COLOR_RESET}"
-# 			tar -xzf $PREDOWNLOADED_ROOT/lzma-from-git.tar.gz
-# 			#
-# 			#
-# 			#
-# 			echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
-# 			cd lzma
-# 			mkdir -p build
-# 			cd build
-# 			cmake "${CMAKE_CROSSCOMPILING_OPTS}" -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DBUILD_SHARED_LIBS=OFF -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" ..
-# 			cd ../..
-# 		fi
-# 		echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
-# 		cd lzma/build
-# 		$MAKE ${PARALLEL_MAKE_OPTIONS}
-# 		$MAKE ${PARALLEL_MAKE_OPTIONS} install
-# 		cd ..
-# 		export PKG_CONFIG_PATH=$PKG_CONFIG_PATH_SAVED
-# 		export PKG_CONFIG_PATH_SAVED=
-# 		cd "$SOURCES_ROOT"
-# 	else
-# 		echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
-# 	fi
-# fi
-
 if [ "$WITH_ZLIB" = "yes" ];
 then
 	echo -e "${COLOR_SEPARATOR}==================== ${COLOR_PROJECT_NAME}ZLIB${COLOR_SEPARATOR} =========================================${COLOR_RESET}"
@@ -729,62 +624,28 @@ then
 			if [ ! -f "zlib-from-git.tar.gz" ];
 			then
 				echo -e "${COLOR_INFO}getting it from git${COLOR_DOTS}...${COLOR_RESET}"
-				git clone https://github.com/madler/zlib.git
+				eval git clone https://github.com/madler/zlib.git
 				echo -e "${COLOR_INFO}archiving it${COLOR_DOTS}...${COLOR_RESET}"
-				tar -czf zlib-from-git.tar.gz ./zlib
+				eval tar -czf zlib-from-git.tar.gz ./zlib
 			else
 				echo -e "${COLOR_INFO}unpacking it${COLOR_DOTS}...${COLOR_RESET}"
-				tar -xzf zlib-from-git.tar.gz
+				eval tar -xzf zlib-from-git.tar.gz
 			fi
 			echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
 			cd zlib
-			./configure --static --prefix="$INSTALL_ROOT"
+			eval ./configure --static --prefix="$INSTALL_ROOT"
 			cd ..
 		fi
 		echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
 		cd zlib
-		$MAKE ${PARALLEL_MAKE_OPTIONS}
-		$MAKE ${PARALLEL_MAKE_OPTIONS} install
+		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}"
+		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}" install
 		cd ..
 		cd "$SOURCES_ROOT"
 	else
 		echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
 	fi
 fi
-
-#echo -e "${COLOR_SEPARATOR}==================== ${COLOR_PROJECT_NAME}LIBXML2${COLOR_SEPARATOR} =======================${COLOR_RESET}"
-#if [ ! -f "$INSTALL_ROOT/lib/libxml2.a" ];
-#then
-#	env_restore
-#	cd "$SOURCES_ROOT"
-#	if [ ! -d "libxml2" ];
-#	then
-#		echo -e "${COLOR_INFO}getting it from git${COLOR_DOTS}...${COLOR_RESET}"
-#		git clone git://git.gnome.org/libxml2
-#		echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
-#		cd libxml2
-#		echo "--------------___> ${INSTALL_ROOT}"
-#		./autogen.sh --prefix="$INSTALL_ROOT" --host=arm-linux --disable-shared --without-python
-#		cd ..
-#	fi
-#	echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
-#    cd libxml2
-#
-#    CFLAGS=$(xml2-config --cflags)
-#    LIBS=$(xml2-config --libs)
-#
-#	$MAKE ${PARALLEL_MAKE_OPTIONS}
-#	$MAKE ${PARALLEL_MAKE_OPTIONS} install
-#	mv $INSTALL_ROOT/include/libxml2 $INSTALL_ROOT/include
-#
-#	#cp -r $INSTALL_ROOT/liblibxml2/include $INSTALL_ROOT/include
-#	#cp -r $INSTALL_ROOT/liblibxml2/include $INSTALL_ROOT/include
-#	#rm -rf $INSTALL_ROOT/include/libxml2
-#	#cd ..
-#	#cd "$SOURCES_ROOT"ls
-#else
-#	echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
-#fi
 
 if [ "$WITH_OPENSSL" = "yes" ];
 then
@@ -802,86 +663,50 @@ then
 			if [ ! -f "openssl-from-git.tar.gz" ];
 			then
 				echo -e "${COLOR_INFO}getting it from git${COLOR_DOTS}...${COLOR_RESET}"
-				git clone https://github.com/openssl/openssl.git
+				eval git clone https://github.com/openssl/openssl.git
 				echo -e "${COLOR_INFO}archiving it${COLOR_DOTS}...${COLOR_RESET}"
-				tar -czf openssl-from-git.tar.gz ./openssl
+				eval tar -czf openssl-from-git.tar.gz ./openssl
 			else
 				echo -e "${COLOR_INFO}unpacking it${COLOR_DOTS}...${COLOR_RESET}"
-				tar -xzf openssl-from-git.tar.gz
+				eval tar -xzf openssl-from-git.tar.gz
 			fi
 			echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
 			cd openssl
-			git fetch
-			#git checkout OpenSSL_1_0_1-stable
-			#git checkout OpenSSL_1_0_2-stable
-			#git checkout OpenSSL_1_0_2g
-			#git checkout OpenSSL_1_1_0-stable
+			eval git fetch
+			#eval git checkout OpenSSL_1_0_1-stable
+			#eval git checkout OpenSSL_1_0_2-stable
+			#eval git checkout OpenSSL_1_0_2g
+			#eval git checkout OpenSSL_1_1_0-stable
 			git checkout OpenSSL_1_1_1-stable
 			if [ "$ARCH" = "x86_or_x64" ];
 			then
 				if [ "$UNIX_SYSTEM_NAME" = "Darwin" ];
 				then
 					export KERNEL_BITS=64
-					./Configure darwin64-x86_64-cc -fPIC no-shared --prefix="$INSTALL_ROOT"
+					eval ./Configure darwin64-x86_64-cc -fPIC no-shared --prefix="$INSTALL_ROOT"
 				else
-					./config -fPIC no-shared --prefix="$INSTALL_ROOT" --openssldir="$INSTALL_ROOT"
+					eval ./config -fPIC no-shared --prefix="$INSTALL_ROOT" --openssldir="$INSTALL_ROOT"
 				fi
 			else
-				./Configure linux-armv4 --prefix="$INSTALL_ROOT" "${ADDITIONAL_INCLUDES}" "${ADDITIONAL_LIBRARIES}" no-shared no-tests no-dso
-				#./Configure linux-armv4 --prefix=/work/deps_inst/arm no-shared no-dso no-engine
-				#./Configure linux-armv4 --prefix="$INSTALL_ROOT" no-shared no-dso no-engine
-				#./Configure linux-armv4 --prefix="$INSTALL_ROOT" no-shared no-dso no-engine no-asm
-				#./Configure linux-armv4 --prefix="$INSTALL_ROOT" no-shared no-dso no-asm
+				eval ./Configure linux-armv4 --prefix="$INSTALL_ROOT" "${ADDITIONAL_INCLUDES}" "${ADDITIONAL_LIBRARIES}" no-shared no-tests no-dso
+				#eval ./Configure linux-armv4 --prefix=/work/deps_inst/arm no-shared no-dso no-engine
+				#eval ./Configure linux-armv4 --prefix="$INSTALL_ROOT" no-shared no-dso no-engine
+				#eval ./Configure linux-armv4 --prefix="$INSTALL_ROOT" no-shared no-dso no-engine no-asm
+				#eval ./Configure linux-armv4 --prefix="$INSTALL_ROOT" no-shared no-dso no-asm
 			fi
-			#$MAKE ${PARALLEL_MAKE_OPTIONS} depend
-			#$MAKE depend
 			cd ..
 		fi
 		echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
 		cd openssl
-		$MAKE ${PARALLEL_MAKE_OPTIONS} depend
-		$MAKE ${PARALLEL_MAKE_OPTIONS}
-		##$MAKE ${PARALLEL_MAKE_OPTIONS} install
-		$MAKE ${PARALLEL_MAKE_OPTIONS} install_sw
+		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}" depend
+		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}"
+		#eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}" install
+		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}" install_sw
 		cd "$SOURCES_ROOT"
 	else
 		echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
 	fi
 fi
-
-##########################sudo apt-get install libsasl2-dev
-#echo -e "${COLOR_SEPARATOR}==================== ${COLOR_PROJECT_NAME}SASL${COLOR_SEPARATOR} =========================================${COLOR_RESET}"
-#if [ ! -f "$INSTALL_ROOT/lib/libsasl2.a" ];
-#then
-#	env_restore
-#	cd "$SOURCES_ROOT"
-#	if [ ! -d "cyrus-sasl" ];
-#	then
-#		if [ ! -f "sasl-from-git.tar.gz" ];
-#		then
-#			echo -e "${COLOR_INFO}getting it from git${COLOR_DOTS}...${COLOR_RESET}"
-#			git clone git@github.com:cyrusimap/cyrus-sasl.git
-#			cd cyrus-sasl
-#			#git fetch
-#			#git checkout cyrus-sasl-2.1
-#			#git pull
-#			cd ..
-#			echo -e "${COLOR_INFO}archiving it${COLOR_DOTS}...${COLOR_RESET}"
-#			tar -czf sasl-from-git.tar.gz ./cyrus-sasl
-#		else
-#			echo -e "${COLOR_INFO}unpacking it${COLOR_DOTS}...${COLOR_RESET}"
-#			tar -xzf sasl-from-git.tar.gz
-#		fi
-#	fi
-#	cd cyrus-sasl
-#	./autogen.sh --prefix="$INSTALL_ROOT" --enable-static
-#	$MAKE ${PARALLEL_MAKE_OPTIONS}
-#	$MAKE ${PARALLEL_MAKE_OPTIONS} install
-#	cd "$SOURCES_ROOT"
-#else
-#	echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
-#	cd "$SOURCES_ROOT"
-#fi
 
 if [ "$WITH_SSH" = "yes" ];
 then
@@ -901,26 +726,25 @@ then
 		if [ ! -f "libssh-from-git.tar.gz" ];
 		then
 			echo -e "${COLOR_INFO}getting it from git${COLOR_DOTS}...${COLOR_RESET}"
-			git clone git://git.libssh.org/projects/libssh.git libssh
+			eval git clone git://git.libssh.org/projects/libssh.git libssh
 			echo -e "${COLOR_INFO}archiving it${COLOR_DOTS}...${COLOR_RESET}"
-			tar -czf libssh-from-git.tar.gz ./libssh
+			eval tar -czf libssh-from-git.tar.gz ./libssh
 		else
 			echo -e "${COLOR_INFO}unpacking it${COLOR_DOTS}...${COLOR_RESET}"
-			tar -xzf libssh-from-git.tar.gz
+			eval tar -xzf libssh-from-git.tar.gz
 		fi
 		echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
 		cd libssh
-		mkdir -p build
+		eval mkdir -p build
 		cd build
-		$CMAKE -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DLIBSSH_STATIC=1 -DOPENSSL_ROOT_DIR="$SOURCES_ROOT/openssl/" -DOPENSSL_LIBRARIES="$SOURCES_ROOT/openssl/" -DZLIB_ROOT="$SOURCES_ROOT/zlib/" -DCMAKE_BUILD_TYPE=Release
-		..
+		eval "$CMAKE" -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DLIBSSH_STATIC=1 -DOPENSSL_ROOT_DIR="$SOURCES_ROOT/openssl/" -DOPENSSL_LIBRARIES="$SOURCES_ROOT/openssl/" -DZLIB_ROOT="$SOURCES_ROOT/zlib/" -DCMAKE_BUILD_TYPE=Release ..
 		cd ..
 		cd ..
 		fi
 		echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
 		cd libssh/build
-		$MAKE ${PARALLEL_MAKE_OPTIONS}
-		$MAKE ${PARALLEL_MAKE_OPTIONS} install
+		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}"
+		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}" install
 		cd ..
 		cd ..
 		cd "$SOURCES_ROOT"
@@ -934,7 +758,7 @@ then
 	echo -e "${COLOR_SEPARATOR}==================== ${COLOR_PROJECT_NAME}CURL${COLOR_SEPARATOR} =========================================${COLOR_RESET}"
 	if [ ! -f "$INSTALL_ROOT/lib/libcurl.a" ];
 	then
-		# https://github.com/curl/curl
+		## https://github.com/curl/curl
 		env_restore
 		cd "$SOURCES_ROOT"
 		export PKG_CONFIG_PATH_SAVED=$PKG_CONFIG_PATH
@@ -944,27 +768,26 @@ then
 			if [ ! -f "curl-from-git.tar.gz" ];
 			then
 				echo -e "${COLOR_INFO}getting it from git${COLOR_DOTS}...${COLOR_RESET}"
-				git clone https://github.com/curl/curl.git
+				eval git clone https://github.com/curl/curl.git
 				echo -e "${COLOR_INFO}archiving it${COLOR_DOTS}...${COLOR_RESET}"
-				tar -czf curl-from-git.tar.gz ./curl
+				eval tar -czf curl-from-git.tar.gz ./curl
 			else
 				echo -e "${COLOR_INFO}unpacking it${COLOR_DOTS}...${COLOR_RESET}"
-				tar -xzf curl-from-git.tar.gz
+				eval tar -xzf curl-from-git.tar.gz
 			fi
 			#
 			# l_sergiy: moved into $PREDOWNLOADED_ROOT
 			#
-	# # 		echo -e "${COLOR_INFO}unpacking it${COLOR_DOTS}...${COLOR_RESET}"
-	# # 		tar -xzf $PREDOWNLOADED_ROOT/curl-from-git.tar.gz
+			# echo -e "${COLOR_INFO}unpacking it${COLOR_DOTS}...${COLOR_RESET}"
+			# eval tar -xzf $PREDOWNLOADED_ROOT/curl-from-git.tar.gz
 			#
 			#
 			#
 			echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
 			cd curl
-			mkdir -p build
+			eval mkdir -p build
 			cd build
-			#$CMAKE "${CMAKE_CROSSCOMPILING_OPTS}" -DBUILD_CURL_EXE=OFF -DBUILD_TESTING=OFF -DCMAKE_USE_LIBSSH2=OFF -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DCURL_STATICLIB=ON -DOPENSSL_CRYPTO_LIBRARY="$INSTALL_ROOT/lib/libcrypto.a" -DOPENSSL_INCLUDE_DIR="$INSTALL_ROOT/include" -DOPENSSL_SSL_LIBRARY="$INSTALL_ROOT/lib/libssl.a" CMAKE_C_COMPILER_WORKS=ON CMAKE_CXX_COMPILER_WORKS=ON ..
-			cmake "${CMAKE_CROSSCOMPILING_OPTS}" -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DOPENSSL_ROOT_DIR="$SOURCES_ROOT/openssl" -DBUILD_CURL_EXE=OFF -DBUILD_TESTING=OFF -DCMAKE_USE_LIBSSH2=OFF -DBUILD_SHARED_LIBS=OFF -DCURL_DISABLE_LDAP=ON -DCURL_STATICLIB=ON -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" ..
+			eval "$CMAKE" "${CMAKE_CROSSCOMPILING_OPTS}" -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DOPENSSL_ROOT_DIR="$SOURCES_ROOT/openssl" -DBUILD_CURL_EXE=OFF -DBUILD_TESTING=OFF -DCMAKE_USE_LIBSSH2=OFF -DBUILD_SHARED_LIBS=OFF -DCURL_DISABLE_LDAP=ON -DCURL_STATICLIB=ON -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" ..
 			echo " " >> lib/curl_config.h
 			echo "#define HAVE_POSIX_STRERROR_R 1" >> lib/curl_config.h
 			echo " " >> lib/curl_config.h
@@ -973,11 +796,11 @@ then
 		fi
 		echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
 		cd curl/build
-		$MAKE ${PARALLEL_MAKE_OPTIONS}
-		$MAKE ${PARALLEL_MAKE_OPTIONS} install
+		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}"
+		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}" install
 		if [ "$DEBUG" = "1" ];
 		then
-			mv "$INSTALL_ROOT/lib/libcurl-d.a" "$INSTALL_ROOT/lib/libcurl.a" &> /dev/null
+			eval mv "$INSTALL_ROOT/lib/libcurl-d.a" "$INSTALL_ROOT/lib/libcurl.a" &> /dev/null
 		fi
 		cd ..
 		export PKG_CONFIG_PATH=$PKG_CONFIG_PATH_SAVED
@@ -1002,19 +825,19 @@ then
 			if [ ! -f "libiconv-1.15.tar.gz" ];
 			then
 				echo -e "${COLOR_INFO}downloading it${COLOR_DOTS}...${COLOR_RESET}"
-				$WGET https://ftp.gnu.org/pub/gnu/libiconv/libiconv-1.15.tar.gz
+				eval "$WGET" https://ftp.gnu.org/pub/gnu/libiconv/libiconv-1.15.tar.gz
 			fi
 			echo -e "${COLOR_INFO}unpacking it${COLOR_DOTS}...${COLOR_RESET}"
-			tar -xzf libiconv-1.15.tar.gz
+			eval tar -xzf libiconv-1.15.tar.gz
 			echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
 			cd libiconv-1.15
-			./configure ${CONF_CROSSCOMPILING_OPTS_GENERIC} --enable-static --disable-shared --prefix="$INSTALL_ROOT" ${CONF_DEBUG_OPTIONS}
+			eval ./configure "${CONF_CROSSCOMPILING_OPTS_GENERIC}" --enable-static --disable-shared --prefix="$INSTALL_ROOT" "${CONF_DEBUG_OPTIONS}"
 			cd ..
 		fi
 		echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
 		cd libiconv-1.15
-		$MAKE ${PARALLEL_MAKE_OPTIONS}
-		$MAKE ${PARALLEL_MAKE_OPTIONS} install
+		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}"
+		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}" install
 		cd ..
 		cd "$SOURCES_ROOT"
 	fi
@@ -1036,18 +859,18 @@ then
 				echo -e "${COLOR_INFO}downloading it${COLOR_DOTS}...${COLOR_RESET}"
 				$WGET https://www.libsdl.org/release/SDL2-2.0.7.tar.gz
 			fi
-			tar -xzf SDL2-2.0.7.tar.gz
+			eval tar -xzf SDL2-2.0.7.tar.gz
 			cd SDL2-2.0.7
 			echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
-			./configure --enable-static --disable-shared --prefix="$INSTALL_ROOT" ${CONF_DEBUG_OPTIONS}
+			eval ./configure --enable-static --disable-shared --prefix="$INSTALL_ROOT" "${CONF_DEBUG_OPTIONS}"
 			cd ..
 		fi
 		echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
 		cd SDL2-2.0.7
-		$MAKE ${PARALLEL_MAKE_OPTIONS}
+		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}"
 		# ??? this parallel install does not work on OSX ???
-		#$MAKE ${PARALLEL_MAKE_OPTIONS} install
-		$MAKE install
+		#eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}" install
+		eval "$MAKE" install
 		cd ..
 		cd "$SOURCES_ROOT"
 	else
@@ -1071,37 +894,29 @@ then
 		if [ ! -d "SDL2_ttf-2.0.14" ]; then
 			if [ ! -f "SDL2_ttf-2.0.14.tar.gz" ]; then
 				echo -e "${COLOR_INFO}downloading it${COLOR_DOTS}...${COLOR_RESET}"
-				$WGET https://www.libsdl.org/projects/SDL_ttf/release/SDL2_ttf-2.0.14.tar.gz
+				eval "$WGET" https://www.libsdl.org/projects/SDL_ttf/release/SDL2_ttf-2.0.14.tar.gz
 			fi
-			tar -xzf SDL2_ttf-2.0.14.tar.gz
+			eval tar -xzf SDL2_ttf-2.0.14.tar.gz
 			cd SDL2_ttf-2.0.14
-			#pushd external/freetype-2.4.12
-			#echo -e "${COLOR_INFO}configuring freetype${COLOR_DOTS}...${COLOR_RESET}"
-			#./autogen.sh
-			#./configure --enable-static --disable-shared --with-pic --prefix="$INSTALL_ROOT" ${CONF_DEBUG_OPTIONS}
-			#popd
-			#echo -e "${COLOR_INFO}configuring SDL2_ttf${COLOR_DOTS}...${COLOR_RESET}"
-			#./autogen.sh
-			#./configure --enable-static --disable-shared --with-pic --prefix="$INSTALL_ROOT" --with-sdl-prefix="$INSTALL_ROOT" ${CONF_DEBUG_OPTIONS}
 			cd ..
 		fi
 		cd SDL2_ttf-2.0.14
 		echo -e "${COLOR_INFO}building freetype${COLOR_DOTS}...${COLOR_RESET}"
 		pushd external/freetype-2.4.12
 		./autogen.sh
-		./configure --enable-static --disable-shared --with-pic --prefix="$INSTALL_ROOT" ${CONF_DEBUG_OPTIONS}
+		./configure --enable-static --disable-shared --with-pic --prefix="$INSTALL_ROOT" "${CONF_DEBUG_OPTIONS}"
 		# ??? this parallel build does not work on OSX ???
-		#$MAKE ${PARALLEL_MAKE_OPTIONS}
+		#eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}"
 		$MAKE
 		# ??? this parallel install does not work on OSX ???
-		#$MAKE ${PARALLEL_MAKE_OPTIONS} install
-		$MAKE install
+		#eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}" install
+		eval "$MAKE" install
 		popd
 		echo -e "${COLOR_INFO}building SDL2_ttf${COLOR_DOTS}...${COLOR_RESET}"
-		./autogen.sh
-		./configure --enable-static --disable-shared --with-pic --prefix="$INSTALL_ROOT" --with-sdl-prefix="$INSTALL_ROOT" --with-freetype-prefix="$INSTALL_ROOT" ${CONF_DEBUG_OPTIONS}
-		$MAKE ${PARALLEL_MAKE_OPTIONS}
-		$MAKE ${PARALLEL_MAKE_OPTIONS} install
+		eval ./autogen.sh
+		eval ./configure --enable-static --disable-shared --with-pic --prefix="$INSTALL_ROOT" --with-sdl-prefix="$INSTALL_ROOT" --with-freetype-prefix="$INSTALL_ROOT" "${CONF_DEBUG_OPTIONS}"
+		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}"
+		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}" install
 		cd ..
 		#
 		#export LDFLAGS=$LDFLAGS_SAVED_OLD
@@ -1127,24 +942,24 @@ then
 			if [ ! -f "libev-from-git.tar.gz" ];
 			then
 				echo -e "${COLOR_INFO}downloading it${COLOR_DOTS}...${COLOR_RESET}"
-				git clone git@github.com:LuaDist/libev.git
+				eval git clone git@github.com:LuaDist/libev.git
 				echo -e "${COLOR_INFO}archiving it${COLOR_DOTS}...${COLOR_RESET}"
-				tar -czf libev-from-git.tar.gz ./libev
+				eval tar -czf libev-from-git.tar.gz ./libev
 			else
 				echo -e "${COLOR_INFO}unpacking it${COLOR_DOTS}...${COLOR_RESET}"
-				tar -xzf libev-from-git.tar.gz
+				eval tar -xzf libev-from-git.tar.gz
 			fi
 			echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
 			cd libev
-			mkdir -p build
+			eval mkdir -p build
 			cd build
-			#$CMAKE "${CMAKE_CROSSCOMPILING_OPTS}" -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" -DARCH=$ARCH ..
-			$CMAKE "${CMAKE_CROSSCOMPILING_OPTS}" -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" ..
+			#eval "$CMAKE" "${CMAKE_CROSSCOMPILING_OPTS}" -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" -DARCH=$ARCH ..
+			eval "$CMAKE" "${CMAKE_CROSSCOMPILING_OPTS}" -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" ..
 			cd ../..
 		fi
 		cd libev/build
-		$MAKE ${PARALLEL_MAKE_OPTIONS}
-		$MAKE ${PARALLEL_MAKE_OPTIONS} install
+		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}"
+		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}" install
 		cd ../..
 		cd "$SOURCES_ROOT"
 	else
@@ -1164,29 +979,29 @@ then
 			if [ ! -f "libevent-from-git.tar.gz" ];
 			then
 				echo -e "${COLOR_INFO}downloading it${COLOR_DOTS}...${COLOR_RESET}"
-				git clone git@github.com:libevent/libevent.git
+				eval git clone https://github.com/libevent/libevent.git
 				echo -e "${COLOR_INFO}archiving it${COLOR_DOTS}...${COLOR_RESET}"
-				tar -czf libevent-from-git.tar.gz ./libevent
+				eval tar -czf libevent-from-git.tar.gz ./libevent
 			else
 				echo -e "${COLOR_INFO}unpacking it${COLOR_DOTS}...${COLOR_RESET}"
-				tar -xzf libevent-from-git.tar.gz
+				eval tar -xzf libevent-from-git.tar.gz
 			fi
 			echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
 			cd libevent
-			mkdir -p build
+			eval mkdir -p build
 			cd build
 			OS_SPECIFIC_LIB_EVENT_FLAGS=""
 			if [ ${ARCH} = "arm" ]
 			then
 				OS_SPECIFIC_LIB_EVENT_FLAGS="-DEVENT__DISABLE_SAMPLES=ON -DEVENT__DISABLE_TESTS=ON -DEVENT__DISABLE_BENCHMARK=ON -DEVENT__DISABLE_REGRESS=ON"
 			fi
-			#$CMAKE "${CMAKE_CROSSCOMPILING_OPTS}" -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" -DARCH=$ARCH ..
-			$CMAKE "${CMAKE_CROSSCOMPILING_OPTS}" "${OS_SPECIFIC_LIB_EVENT_FLAGS}" -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" ..
+			#eval "$CMAKE" "${CMAKE_CROSSCOMPILING_OPTS}" -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" -DARCH=$ARCH ..
+			eval "$CMAKE" "${CMAKE_CROSSCOMPILING_OPTS}" "${OS_SPECIFIC_LIB_EVENT_FLAGS}" -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" ..
 			cd ../..
 		fi
 		cd libevent/build
-		$MAKE ${PARALLEL_MAKE_OPTIONS}
-		$MAKE ${PARALLEL_MAKE_OPTIONS} install
+		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}"
+		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}" install
 		cd ../..
 		cd "$SOURCES_ROOT"
 	else
@@ -1206,36 +1021,36 @@ then
 			if [ ! -f "libuv-from-git.tar.gz" ];
 			then
 				echo -e "${COLOR_INFO}getting it from git${COLOR_DOTS}...${COLOR_RESET}"
-                                git clone https://github.com/libuv/libuv.git
+                eval git clone https://github.com/libuv/libuv.git
 				cd libuv
-				git checkout v1.x
-				git pull
+				eval git checkout v1.x
+				eval git pull
 				cd ..
 				echo -e "${COLOR_INFO}archiving it${COLOR_DOTS}...${COLOR_RESET}"
-				tar -czf libuv-from-git.tar.gz ./libuv
+				eval tar -czf libuv-from-git.tar.gz ./libuv
 			else
 				echo -e "${COLOR_INFO}unpacking it${COLOR_DOTS}...${COLOR_RESET}"
-				tar -xzf libuv-from-git.tar.gz
+				eval tar -xzf libuv-from-git.tar.gz
 			fi
 			#
 			# l_sergiy: moved into $PREDOWNLOADED_ROOT
 			#
-# # # 			echo -e "${COLOR_INFO}unpacking it${COLOR_DOTS}...${COLOR_RESET}"
-# # # 			#tar -xzf $PREDOWNLOADED_ROOT/libuv-from-git.tar.gz
-# # # 			tar -xzf $PREDOWNLOADED_ROOT/libuv-modified.tar.gz
+			# eval echo -e "${COLOR_INFO}unpacking it${COLOR_DOTS}...${COLOR_RESET}"
+			# #eval tar -xzf $PREDOWNLOADED_ROOT/libuv-from-git.tar.gz
+			# eval tar -xzf $PREDOWNLOADED_ROOT/libuv-modified.tar.gz
 			#
 			#
 			echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
 			cd libuv
-			./autogen.sh
-			./configure ${CONF_CROSSCOMPILING_OPTS_GENERIC} --enable-static --disable-shared --with-pic --prefix="$INSTALL_ROOT" ${CONF_DEBUG_OPTIONS}
+			eval ./autogen.sh
+			eval ./configure "${CONF_CROSSCOMPILING_OPTS_GENERIC}" --enable-static --disable-shared --with-pic --prefix="$INSTALL_ROOT" "${CONF_DEBUG_OPTIONS}"
 			#--with-sysroot=="$INSTALL_ROOT"
 			cd ..
 		fi
 		echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
 		cd libuv
-		$MAKE ${PARALLEL_MAKE_OPTIONS}
-		$MAKE ${PARALLEL_MAKE_OPTIONS} install
+		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}"
+		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}" install
 		cd ..
 		cd "$SOURCES_ROOT"
 	else
@@ -1255,28 +1070,28 @@ then
 			if [ ! -f "libwebsockets-from-git.tar.gz" ];
 			then
 				echo -e "${COLOR_INFO}downloading it${COLOR_DOTS}...${COLOR_RESET}"
-                git clone https://github.com/warmcat/libwebsockets.git
+                eval git clone https://github.com/warmcat/libwebsockets.git
 				cd libwebsockets
-				git checkout v3.1-stable
-				git pull
+				eval git checkout v3.1-stable
+				eval git pull
 				cd ..
 				echo -e "${COLOR_INFO}archiving it${COLOR_DOTS}...${COLOR_RESET}"
-				tar -czf libwebsockets-from-git.tar.gz ./libwebsockets
+				eval tar -czf libwebsockets-from-git.tar.gz ./libwebsockets
 			else
 				echo -e "${COLOR_INFO}unpacking it${COLOR_DOTS}...${COLOR_RESET}"
-				tar -xzf libwebsockets-from-git.tar.gz
+				eval tar -xzf libwebsockets-from-git.tar.gz
 			fi
 			#
 			# l_sergiy: ... if moved into $PREDOWNLOADED_ROOT ...
 			#
 			#echo -e "${COLOR_INFO}unpacking it${COLOR_DOTS}...${COLOR_RESET}"
-			#tar -xzf $PREDOWNLOADED_ROOT/libwebsockets-modified.tar.gz
-			#tar -xzf $PREDOWNLOADED_ROOT/libwebsockets-from-git.tar.gz
+			#eval tar -xzf $PREDOWNLOADED_ROOT/libwebsockets-modified.tar.gz
+			#eval tar -xzf $PREDOWNLOADED_ROOT/libwebsockets-from-git.tar.gz
 			#
 			#
 			echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
 			cd libwebsockets
-			mkdir -p build
+			eval mkdir -p build
 			cd build
 			LWS_WITH_LIBEV=OFF
 			LWS_WITH_LIBEVENT=OFF
@@ -1336,10 +1151,10 @@ then
 			#
 			#
 			echo "$LWS_WITH_LIBEV$LWS_WITH_LIBEVENT$LWS_WITH_LIBUV" &>/dev/null
-			#$CMAKE "${CMAKE_CROSSCOMPILING_OPTS}" -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" $CMAKE_ARGS_FOR_LIB_WEB_SOCKETS ..
+			#eval "$CMAKE" "${CMAKE_CROSSCOMPILING_OPTS}" -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" $CMAKE_ARGS_FOR_LIB_WEB_SOCKETS ..
 			export SAVED_CFLAGS=$CFLAGS
 			export CFLAGS="$CFLAGS -Wno-deprecated-declarations"
-			$CMAKE "${CMAKE_CROSSCOMPILING_OPTS}" -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" \
+			eval "$CMAKE" "${CMAKE_CROSSCOMPILING_OPTS}" -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" \
 				-DLWS_WITH_STATIC=ON -DLWS_WITH_SHARED=OFF -DLWS_STATIC_PIC=ON \
 				-DLWS_IPV6=ON -DLWS_UNIX_SOCK=ON -DLWS_WITH_HTTP2=OFF -DLWS_WITHOUT_TESTAPPS=ON \
 				-DLWS_WITH_ACCESS_LOG=ON -DLWS_WITH_SERVER_STATUS=ON \
@@ -1349,7 +1164,7 @@ then
 				-DLWS_WITH_HTTP2=1 \
 				-DLWS_WITH_SSL=ON \
 				-DLWS_OPENSSL_INCLUDE_DIRS="$INSTALL_ROOT/include/openssl" \
-         		-DCMAKE_INCLUDE_DIRECTORIES_PROJECT_BEFORE=/usr/local/ssl \
+				-DCMAKE_INCLUDE_DIRECTORIES_PROJECT_BEFORE=/usr/local/ssl \
 				-DZLIB_INCLUDE_DIR="$INSTALL_ROOT/include" \
 				..
 			export CFLAGS=$SAVED_CFLAGS
@@ -1387,8 +1202,8 @@ then
 		fi
 		echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
 		cd libwebsockets/build
-		$MAKE ${PARALLEL_MAKE_OPTIONS}
-		$MAKE ${PARALLEL_MAKE_OPTIONS} install
+		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}"
+		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}" install
 		cd ../..
 		cd "$SOURCES_ROOT"
 	else
@@ -1406,13 +1221,13 @@ then
 		if [ ! -d "libsourcey" ];
 		then
 			echo -e "${COLOR_INFO}unpacking it${COLOR_DOTS}...${COLOR_RESET}"
-			tar -xzf "$PREDOWNLOADED_ROOT/libsourcey-1.1.4.tar.gz"
+			eval tar -xzf "$PREDOWNLOADED_ROOT/libsourcey-1.1.4.tar.gz"
 
 			echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
 			cd libsourcey
-			mkdir -p build
+			eval mkdir -p build
 			cd build
-			$CMAKE .. -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" \
+			eval "$CMAKE" .. -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" \
 				-DCMAKE_LIBRARY_PATH="$LIBS_ROOT" \
 				-DBUILD_SHARED_LIBS=OFF \
 				-DBUILD_DEPENDENCIES=OFF -DBUILD_APPLICATIONS=OFF -DBUILD_MODULES=OFF \
@@ -1426,77 +1241,43 @@ then
 		fi
 		echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
 		cd libsourcey/build
-		$MAKE ${PARALLEL_MAKE_OPTIONS}
-		$MAKE ${PARALLEL_MAKE_OPTIONS} install
+		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}"
+		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}" install
 		cd "$SOURCES_ROOT"
-		else
-			echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
-		fi
+	else
+		echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
+	fi
 fi
-
-# 	echo -e "${COLOR_SEPARATOR}==================== ${COLOR_PROJECT_NAME}ASIO${COLOR_SEPARATOR} ======================================${COLOR_RESET}"
-# 	if [ ! -d "$INSTALL_ROOT/include/asio" ];
-# 	then
-# 		# (required for libssh)
-#		env_restore
-# 		cd "$SOURCES_ROOT"
-# 		if [ ! -d "asio" ]; then
-# 			if [ ! -f "asio-from-git.tar.gz" ]; then
-# 				echo -e "${COLOR_INFO}getting it from git${COLOR_DOTS}...${COLOR_RESET}"
-# 				git clone https://github.com/chriskohlhoff/asio.git
-# 				echo -e "${COLOR_INFO}archiving it${COLOR_DOTS}...${COLOR_RESET}"
-# 				tar -cvzf asio-from-git.tar.gz ./asio
-# 			else
-# 				echo -e "${COLOR_INFO}unpacking it${COLOR_DOTS}...${COLOR_RESET}"
-# 				tar -xvzf asio-from-git.tar.gz
-# 			fi
-# 			echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
-# 			cd asio/asio
-# 			./autogen.sh
-# 			./configure --prefix="$INSTALL_ROOT" --without-boost --with-openssl=$SOURCES_ROOT/openssl ${CONF_DEBUG_OPTIONS}
-# 			cd ../..
-# 		fi
-# 		echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
-# 		cd asio/asio
-# 		$MAKE ${PARALLEL_MAKE_OPTIONS}
-# 		$MAKE ${PARALLEL_MAKE_OPTIONS} install
-# 		cd ../..
-# 		cd "$SOURCES_ROOT"
-# 	else
-# 		echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
-# 	fi
 
 if [ "$WITH_BOOST" = "yes" ];
 then
-        echo -e "${COLOR_SEPARATOR}==================== ${COLOR_PROJECT_NAME}BOOST${COLOR_SEPARATOR} ========================================${COLOR_RESET}"
-        if [ ! -f "$INSTALL_ROOT/lib/libboost_system.a" ];
-        then
-                #####https://dl.bintray.com/boostorg/release/1.68.0/source/boost_1_68_0.tar.gz
-                env_restore
-                cd "$SOURCES_ROOT"
-                if [ ! -d "boost_1_68_0" ];
-                then
-                        if [ ! -f "boost_1_68_0.tar.bz2" ];
-                        then
-                                echo -e "${COLOR_INFO}downloading it${COLOR_DOTS}...${COLOR_RESET}"
-                                # $WGET https://dl.bintray.com/boostorg/release/1.68.0/source/boost_1_68_0.tar.gz
-                                $WGET https://boostorg.jfrog.io/artifactory/main/release/1.68.0/source/boost_1_68_0.tar.bz2
-                        fi
-                        echo -e "${COLOR_INFO}unpacking it${COLOR_DOTS}...${COLOR_RESET}"
-                        tar -xf boost_1_68_0.tar.bz2
-		fi
-		cd boost_1_68_0
-		echo -e "${COLOR_INFO}configuring and building it${COLOR_DOTS}...${COLOR_RESET}"
+	echo -e "${COLOR_SEPARATOR}==================== ${COLOR_PROJECT_NAME}BOOST${COLOR_SEPARATOR} ========================================${COLOR_RESET}"
+	if [ ! -f "$INSTALL_ROOT/lib/libboost_system.a" ];
+	then
+		## https://dl.bintray.com/boostorg/release/1.68.0/source/boost_1_68_0.tar.gz
+		env_restore
+		cd "$SOURCES_ROOT"
+		if [ ! -d "boost_1_68_0" ];
+		then
+			if [ ! -f "boost_1_68_0.tar.bz2" ];
+			then
+				echo -e "${COLOR_INFO}downloading it${COLOR_DOTS}...${COLOR_RESET}"
+				eval "$WGET" https://boostorg.jfrog.io/artifactory/main/release/1.68.0/source/boost_1_68_0.tar.bz2
+			fi
+			echo -e "${COLOR_INFO}unpacking it${COLOR_DOTS}...${COLOR_RESET}"
+			eval tar -xf boost_1_68_0.tar.bz2
+	fi
+	cd boost_1_68_0
+	echo -e "${COLOR_INFO}configuring and building it${COLOR_DOTS}...${COLOR_RESET}"
 
-		./bootstrap.sh --prefix="$INSTALL_ROOT" --with-libraries=system,thread,filesystem,regex,atomic
+	eval ./bootstrap.sh --prefix="$INSTALL_ROOT" --with-libraries=system,thread,filesystem,regex,atomic
 
 	if [ ${ARCH} = "arm" ]
 	then
 		sed -i -e 's#using gcc ;#using gcc : arm : /usr/local/toolchains/gcc7.2-arm/bin/arm-linux-gnueabihf-g++ ;#g' project-config.jam
-		./b2 "${CONF_CROSSCOMPILING_OPTS_BOOST}" cxxflags=-fPIC cflags=-fPIC ${PARALLEL_MAKE_OPTIONS} --prefix="$INSTALL_ROOT" --layout=system variant=debug link=static threading=multi install
-		else
-	#	    sed -i -e 's#using gcc ;#using gcc : arm : /usr/bin/g++-7 ;#g' project-config.jam
-		./b2 cxxflags=-fPIC cflags=-fPIC ${PARALLEL_MAKE_OPTIONS} --prefix="$INSTALL_ROOT" --layout=system variant=debug link=static threading=multi install
+		eval ./b2 "${CONF_CROSSCOMPILING_OPTS_BOOST}" cxxflags=-fPIC cflags=-fPIC "${PARALLEL_MAKE_OPTIONS}" --prefix="$INSTALL_ROOT" --layout=system variant=debug link=static threading=multi install
+	else
+		eval ./b2 cxxflags=-fPIC cflags=-fPIC "${PARALLEL_MAKE_OPTIONS}" --prefix="$INSTALL_ROOT" --layout=system variant=debug link=static threading=multi install
 	fi
 		cd ..
 		cd "$SOURCES_ROOT"
@@ -1505,10 +1286,9 @@ then
 	fi
 fi
 
-
 if [ "$WITH_PUPNP" = "yes" ];
 then
-	# http://pupnp.sourceforge.net/
+	## http://pupnp.sourceforge.net/
 	echo -e "${COLOR_SEPARATOR}==================== ${COLOR_PROJECT_NAME}pupnp${COLOR_SEPARATOR} ========================================${COLOR_RESET}"
 	if [ ! -f "$INSTALL_ROOT/lib/libupnp.a" ];
 	then
@@ -1517,177 +1297,21 @@ then
 		if [ ! -d "libupnp-1.8.3" ];
 		then
 			echo -e "${COLOR_INFO}unpacking it${COLOR_DOTS}...${COLOR_RESET}"
-			tar -xvjf "$PREDOWNLOADED_ROOT/libupnp-1.8.3.tar.bz2"
+			eval tar -xvjf "$PREDOWNLOADED_ROOT/libupnp-1.8.3.tar.bz2"
 			echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
 			cd libupnp-1.8.3
-			./configure ${CONF_CROSSCOMPILING_OPTS_GENERIC} --enable-static --disable-shared --with-pic --prefix="$INSTALL_ROOT" ${UPNP_DISABLE_LARGE_FILE_SUPPORT} ${CONF_DEBUG_OPTIONS}
+			eval ./configure "${CONF_CROSSCOMPILING_OPTS_GENERIC}" --enable-static --disable-shared --with-pic --prefix="$INSTALL_ROOT" ${UPNP_DISABLE_LARGE_FILE_SUPPORT} "${CONF_DEBUG_OPTIONS}"
 			cd "$SOURCES_ROOT"
 		fi
 		echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
 		cd libupnp-1.8.3
-		$MAKE ${PARALLEL_MAKE_OPTIONS}
-		$MAKE ${PARALLEL_MAKE_OPTIONS} install
+		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}"
+		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}" install
 		cd "$SOURCES_ROOT"
 	else
 		echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
 	fi
 fi
-
-
-#echo -e "${COLOR_SEPARATOR}==================== ${COLOR_PROJECT_NAME}READLINE${COLOR_SEPARATOR} ======================${COLOR_RESET}"
-#if [ ! -f "$INSTALL_ROOT/lib/libreadline.a" ];
-#then
-#	env_restore
-#    cd "$SOURCES_ROOT"
-#    if [ ! -d "readline-7.0" ];
-#    then
-#        if [ ! -f "readline-7.0.tar.gz" ];
-#        then
-#            echo -e "${COLOR_INFO}downloading it${COLOR_DOTS}...${COLOR_RESET}"
-#            $WGET https://ftp.gnu.org/gnu/readline/readline-7.0.tar.gz
-#        fi
-#        echo -e "${COLOR_INFO}unpacking it${COLOR_DOTS}...${COLOR_RESET}"
-#        tar -xzf readline-7.0.tar.gz
-#        echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
-#        cd readline-7.0
-#        mkdir -p build
-#        cd build
-#        ../configure ${CONF_CROSSCOMPILING_OPTS_GENERIC} --host=arm-linux --prefix="$INSTALL_ROOT" ${CONF_DEBUG_OPTIONS}
-#        cd "$SOURCES_ROOT"
-#    fi
-#    cd readline-7.0
-#    cd build
-#    make ${PARALLEL_MAKE_OPTIONS}
-#    make ${PARALLEL_MAKE_OPTIONS} install
-#    cd ..
-#    cd "$SOURCES_ROOT"
-#else
-#	echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
-#fi
-
-# echo -e "${COLOR_SEPARATOR}==================== ${COLOR_PROJECT_NAME}LIBXML2${COLOR_SEPARATOR} ======================${COLOR_RESET}"
-# if [ ! -f "$INSTALL_ROOT/lib/libxml2.so" ];
-# then
-# 	env_restore
-# 	cd "$SOURCES_ROOT"
-# 	if [ ! -d "libxml2-2.9.7" ];
-# 	then
-# 		if [ ! -f "libxml2-2.9.7.tar.gz" ];
-# 		then
-# 			echo -e "${COLOR_INFO}downloading it${COLOR_DOTS}...${COLOR_RESET}"
-# 			$WGET http://xmlsoft.org/sources/libxml2-2.9.7.tar.gz
-# 		fi
-# 		echo -e "${COLOR_INFO}unpacking it${COLOR_DOTS}...${COLOR_RESET}"
-# 		tar -xzf libxml2-2.9.7.tar.gz
-# 		echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
-# 		cd libxml2-2.9.7
-# 		mkdir -p build
-# 		cd build
-# 		../configure ${CONF_CROSSCOMPILING_OPTS_GENERIC} --host=arm-linux --without-html --without-python --prefix="$INSTALL_ROOT" ${CONF_DEBUG_OPTIONS}
-# 		cd "$SOURCES_ROOT"
-# 	fi
-# 	cd libxml2-2.9.7
-# 	cd build
-# 	make ${PARALLEL_MAKE_OPTIONS}
-# 	make ${PARALLEL_MAKE_OPTIONS} install
-# 	cd ..
-# 	cd "$SOURCES_ROOT"
-# else
-# 	echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
-# fi
-
-# echo -e "${COLOR_SEPARATOR}==================== ${COLOR_PROJECT_NAME}LIBARCHIVE${COLOR_SEPARATOR} ======================${COLOR_RESET}"
-# if [ ! -f "$INSTALL_ROOT/lib/libarchive.so" ];
-# then
-# 	env_restore
-# 	cd "$SOURCES_ROOT"
-# 	if [ ! -d "libarchive-3.3.2" ];
-# 	then
-# 		if [ ! -f "libarchive-3.3.2.tar.gz" ];
-# 		then
-# 			echo -e "${COLOR_INFO}downloading it${COLOR_DOTS}...${COLOR_RESET}"
-# 			$WGET https://www.libarchive.org/downloads/libarchive-3.3.2.tar.gz
-# 		fi
-# 		echo -e "${COLOR_INFO}unpacking it${COLOR_DOTS}...${COLOR_RESET}"
-# 		tar -xzf libarchive-3.3.2.tar.gz
-# 		echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
-# 		cd libarchive-3.3.2
-# 		mkdir -p build
-# 		cd build
-# 		../configure ${CONF_CROSSCOMPILING_OPTS_GENERIC} --host=arm-linux --prefix="$INSTALL_ROOT" ${CONF_DEBUG_OPTIONS}
-# 		cd "$SOURCES_ROOT"
-# 	fi
-# 	cd libarchive-3.3.2/build
-# 	make ${PARALLEL_MAKE_OPTIONS}
-# 	make ${PARALLEL_MAKE_OPTIONS} install
-# 	cd ..
-# 	cd "$SOURCES_ROOT"
-# else
-# 	echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
-# fi
-
-
-# if [ "$WITH_GTEST" = "1" ];
-# then
-# 	echo -e "${COLOR_SEPARATOR}==================== ${COLOR_PROJECT_NAME}GTEST${COLOR_SEPARATOR} ========================================${COLOR_RESET}"
-#
-# 	if [ ! -f "$INSTALL_ROOT/lib/libgtest.a" ];
-# 	then
-# 		env_restore
-# 		cd "$SOURCES_ROOT"
-#
-# 		if [ ! -d gtest ];
-# 		then
-# 			git clone https://github.com/google/googletest.git gtest
-# 		fi
-#
-# 		cd gtest
-#
-# 		mkdir -p build
-# 		cd build
-#
-# 		$CMAKE_CROSSCOMPILING_OPTS -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" ..
-# 		$MAKE ${PARALLEL_MAKE_OPTIONS}
-# 		$MAKE ${PARALLEL_MAKE_OPTIONS} install
-#
-# 		if [ $DEBUG = "1" ];
-# 		then
-# 			mv "$LIBRARIES_ROOT/libgtestd.a" "$LIBRARIES_ROOT/libgtest.a"
-# 			mv "$LIBRARIES_ROOT/libgtest_maind.a" "$LIBRARIES_ROOT/libgtest_main.a"
-# 			mv "$LIBRARIES_ROOT/libgmockd.a" "$LIBRARIES_ROOT/libgmock.a"
-# 			mv "$LIBRARIES_ROOT/libgmock_maind.a" "$LIBRARIES_ROOT/libgmock_main.a"
-# 		fi
-#
-# 		cd "$SOURCES_ROOT"
-# 	else
-# 		echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
-# 	fi
-# fi
-#
-# if [[ "$WITH_V8" = "yes" ]]
-# then
-# 	echo -e "${COLOR_SEPARATOR}==================== ${COLOR_PROJECT_NAME}V8${COLOR_SEPARATOR} ========================================${COLOR_RESET}"
-# 	if [ ! -d v8 ];
-# 	then
-# 		git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git
-# 		export SAVED_PATH=$PATH
-# 		export PATH=$PATH:$(realpath depot_tools)
-#
-# 		gclient
-# 		fetch v8
-# 		cd v8
-#
-# 		gn gen out/x64/Release --args='is_debug=false is_clang=false target_cpu="x64" treat_warnings_as_errors=false is_component_build=false use_custom_libcxx=false v8_use_snapshot=false v8_static_library=true'
-# 		ninja -C out/x64/Release
-#
-# 		export PATH=$SAVED_PATH
-# 		rm -rf depot_tools
-# 		rm .gclient
-# 		rm .gclient_entries
-# 	else
-# 		echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
-# 	fi
-# fi
 
 
 #https://github.com/jonathanmarvens/argtable2
@@ -1702,20 +1326,20 @@ then
 		if [ ! -d "argtable2" ];
 		then
 			echo -e "${COLOR_INFO}getting it from git${COLOR_DOTS}...${COLOR_RESET}"
-                        git clone https://github.com/jonathanmarvens/argtable2.git
+            eval git clone https://github.com/jonathanmarvens/argtable2.git
 			echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
 			cd argtable2
-			mkdir -p build
+			eval mkdir -p build
 			cd build
-			$CMAKE "${CMAKE_CROSSCOMPILING_OPTS}" -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" ..
+			eval "$CMAKE" "${CMAKE_CROSSCOMPILING_OPTS}" -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" ..
 			cd ..
 		else
 			cd argtable2
 		fi
 		echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
 		cd build
-		$MAKE ${PARALLEL_MAKE_OPTIONS}
-		$MAKE ${PARALLEL_MAKE_OPTIONS} install
+		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}"
+		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}" install
 		cd "$SOURCES_ROOT"
 	else
 		echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
@@ -1734,18 +1358,18 @@ then
             if [ ! -f "nettle-3.4.1.tar.gz" ];
             then
                 echo -e "${COLOR_INFO}downloading it${COLOR_DOTS}...${COLOR_RESET}"
-                $WGET https://ftp.gnu.org/gnu/nettle/nettle-3.4.1.tar.gz
+                eval "$WGET" https://ftp.gnu.org/gnu/nettle/nettle-3.4.1.tar.gz
             fi
-            tar -xvzf nettle-3.4.1.tar.gz
+            eval tar -xvzf nettle-3.4.1.tar.gz
             echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
             cd nettle-3.4.1
-            ./configure ${CONF_CROSSCOMPILING_OPTS_GENERIC} --enable-static --disable-shared --prefix="$INSTALL_ROOT" ${CONF_DEBUG_OPTIONS}
+            eval ./configure "${CONF_CROSSCOMPILING_OPTS_GENERIC}" --enable-static --disable-shared --prefix="$INSTALL_ROOT" "${CONF_DEBUG_OPTIONS}"
         else
             cd nettle-3.4.1
         fi
         echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
-        $MAKE ${PARALLEL_MAKE_OPTIONS}
-        $MAKE ${PARALLEL_MAKE_OPTIONS} install
+        eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}"
+        eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}" install
         cd "$SOURCES_ROOT"
     else
         echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
@@ -1764,22 +1388,22 @@ then
         if [ ! -d "libtasn1" ];
         then
             echo -e "${COLOR_INFO}getting it from git${COLOR_DOTS}...${COLOR_RESET}"
-            git clone git@github.com:gnutls/libtasn1.git
+            eval git clone git@github.com:gnutls/libtasn1.git
             echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
             cd libtasn1
-            test -f ./configure || autoreconf --install
-            aclocal
-            autoconf
-            autoheader
-            automake --add-missing
-            ./configure --disable-doc --disable-gtk-doc=1 --disable-gtk-doc-html --disable-gtk-doc-pdf \
-                ${CONF_CROSSCOMPILING_OPTS_GENERIC} --enable-static --disable-shared --prefix="$INSTALL_ROOT" ${CONF_DEBUG_OPTIONS}
+            eval test -f ./configure || autoreconf --install
+            eval aclocal
+            eval autoconf
+            eval autoheader
+            eval automake --add-missing
+            eval ./configure --disable-doc --disable-gtk-doc=1 --disable-gtk-doc-html --disable-gtk-doc-pdf \
+                "${CONF_CROSSCOMPILING_OPTS_GENERIC}" --enable-static --disable-shared --prefix="$INSTALL_ROOT" "${CONF_DEBUG_OPTIONS}"
         else
             cd libtasn1
         fi
         echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
-        $MAKE ${PARALLEL_MAKE_OPTIONS}
-        $MAKE ${PARALLEL_MAKE_OPTIONS} install
+        eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}"
+        eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}" install
         #export PKG_CONFIG_PATH=$PKG_CONFIG_PATH_SAVED
         #export PKG_CONFIG_PATH_SAVED=
         cd "$SOURCES_ROOT"
@@ -1787,41 +1411,6 @@ then
         echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
     fi
 fi
-
-# if [ "$WITH_GNU_TLS" = "yes" ];
-# then
-# 	echo -e "${COLOR_SEPARATOR}==================== ${COLOR_PROJECT_NAME}libGnuTLS${COLOR_SEPARATOR} ====================================${COLOR_RESET}"
-# 	if [ ! -f "$INSTALL_ROOT/lib/libgnutls.a" ];
-# 	then
-# 		env_restore
-# 		cd "$SOURCES_ROOT"
-# 		export PKG_CONFIG_PATH_SAVED=$PKG_CONFIG_PATH
-# 		export PKG_CONFIG_PATH=/$INSTALL_ROOT/lib/pkgconfig:$PKG_CONFIG_PATH
-# 		if [ ! -d "gnutls-3.6.5" ];
-# 		then
-# 			if [ ! -f "gnutls-3.6.5.tar.xz" ];
-# 			then
-# 				echo -e "${COLOR_INFO}downloading it${COLOR_DOTS}...${COLOR_RESET}"
-# 				$WGET https://www.gnupg.org/ftp/gcrypt/gnutls/v3.6/gnutls-3.6.5.tar.xz
-# 			fi
-# 			tar -xf gnutls-3.6.5.tar.xz
-# 			echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
-# 			cd gnutls-3.6.5
-# 			#export PKG_CONFIG_PATH="$INSTALL_ROOT/lib/pkgconfig:$PKG_CONFIG_PATH"
-#             ./configure ${CONF_CROSSCOMPILING_OPTS_GENERIC} --enable-static --disable-shared --prefix="$INSTALL_ROOT" --with-nettle-mini="$SOURCES_ROOT/nettle-3.4.1" --with-libnettle-prefix="$INSTALL_ROOT" ${CONF_DEBUG_OPTIONS}
-#         else
-# 			cd gnutls-3.6.5
-# 		fi
-# 		echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
-# 		$MAKE ${PARALLEL_MAKE_OPTIONS}
-# 		$MAKE ${PARALLEL_MAKE_OPTIONS} install
-# 		export PKG_CONFIG_PATH=$PKG_CONFIG_PATH_SAVED
-# 		export PKG_CONFIG_PATH_SAVED=
-# 		cd "$SOURCES_ROOT"
-# 	else
-# 		echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
-# 	fi
-# fi
 
 #https://github.com/gnutls/gnutls
 #git@github.com:gnutls/gnutls.git
@@ -1835,17 +1424,17 @@ then
 		if [ ! -d "gnutls" ];
 		then
 			echo -e "${COLOR_INFO}getting it from git${COLOR_DOTS}...${COLOR_RESET}"
-            git clone git@github.com:gnutls/gnutls.git
+            eval git clone git@github.com:gnutls/gnutls.git
 			echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
 			cd gnutls
-			./bootstrap
-			./configure ${CONF_CROSSCOMPILING_OPTS_GENERIC} --enable-static --disable-shared --with-pic --prefix="$INSTALL_ROOT" ${CONF_DEBUG_OPTIONS}
+			eval ./bootstrap
+			eval ./configure "${CONF_CROSSCOMPILING_OPTS_GENERIC}" --enable-static --disable-shared --with-pic --prefix="$INSTALL_ROOT" "${CONF_DEBUG_OPTIONS}"
 		else
 			cd gnutls
 		fi
 		echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
-		$MAKE
-		$MAKE install
+		eval "$MAKE"
+		eval "$MAKE" install
 		cd "$SOURCES_ROOT"
 	else
 		echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
@@ -1864,17 +1453,17 @@ then
 		if [ ! -d "libgpg-error" ];
 		then
 			echo -e "${COLOR_INFO}getting it from git${COLOR_DOTS}...${COLOR_RESET}"
-            git clone git@github.com:gpg/libgpg-error.git
+            eval git clone git@github.com:gpg/libgpg-error.git
 			echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
 			cd libgpg-error
-			./autogen.sh --git-build
-			./configure ${CONF_CROSSCOMPILING_OPTS_GENERIC} --enable-static --disable-shared --with-pic --prefix="$INSTALL_ROOT" ${CONF_DEBUG_OPTIONS}
+			eval ./autogen.sh --git-build
+			eval ./configure "${CONF_CROSSCOMPILING_OPTS_GENERIC}" --enable-static --disable-shared --with-pic --prefix="$INSTALL_ROOT" "${CONF_DEBUG_OPTIONS}"
 		else
 			cd libgpg-error
 		fi
 		echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
-		$MAKE
-		$MAKE install
+		eval "$MAKE"
+		eval "$MAKE" install
 		cd "$SOURCES_ROOT"
 	else
 		echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
@@ -1893,17 +1482,17 @@ then
 		if [ ! -d "libgcrypt" ];
 		then
 			echo -e "${COLOR_INFO}getting it from git${COLOR_DOTS}...${COLOR_RESET}"
-            git clone git@github.com:gpg/libgcrypt.git
+            eval git clone git@github.com:gpg/libgcrypt.git
 			echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
 			cd libgcrypt
-			./autogen.sh
-			./configure ${CONF_CROSSCOMPILING_OPTS_GENERIC} --enable-static --disable-shared --with-pic --prefix="$INSTALL_ROOT" ${CONF_DEBUG_OPTIONS}
+			eval ./autogen.sh
+			eval ./configure "${CONF_CROSSCOMPILING_OPTS_GENERIC}" --enable-static --disable-shared --with-pic --prefix="$INSTALL_ROOT" "${CONF_DEBUG_OPTIONS}"
 		else
 			cd libgcrypt
 		fi
 		echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
-		$MAKE
-		$MAKE install
+		eval "$MAKE"
+		eval "$MAKE" install
 		cd "$SOURCES_ROOT"
 	else
 		echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
@@ -1922,7 +1511,7 @@ then
 		if [ ! -d "libmicrohttpd" ];
 		then
 			echo -e "${COLOR_INFO}getting it from git${COLOR_DOTS}...${COLOR_RESET}"
-            git clone https://github.com/scottjg/libmicrohttpd.git
+            eval git clone https://github.com/scottjg/libmicrohttpd.git
 			echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
 			cd libmicrohttpd
 			MHD_HTTPS_OPT=""
@@ -1930,88 +1519,19 @@ then
 			then
 				MHD_HTTPS_OPT="--enable-https"
 			fi
-			./bootstrap
-			./configure ${CONF_CROSSCOMPILING_OPTS_GENERIC} --enable-static --disable-shared --with-pic --prefix="$INSTALL_ROOT" ${MHD_HTTPS_OPT} ${CONF_DEBUG_OPTIONS}
+			eval ./bootstrap
+			eval ./configure "${CONF_CROSSCOMPILING_OPTS_GENERIC}" --enable-static --disable-shared --with-pic --prefix="$INSTALL_ROOT" ${MHD_HTTPS_OPT} "${CONF_DEBUG_OPTIONS}"
 		else
 			cd libmicrohttpd
 		fi
 		echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
-		$MAKE
-		$MAKE install
+		eval "$MAKE"
+		eval "$MAKE" install
 		cd "$SOURCES_ROOT"
 	else
 		echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
 	fi
 fi
-
-# #https://github.com/Sajoch/libmicrohttpd_openssl
-# #git@github.com:Sajoch/libmicrohttpd_openssl.git
-# if [ "$WITH_MICRO_HTTP_D" = "yes" ];
-# then
-# 	echo -e "${COLOR_SEPARATOR}==================== ${COLOR_PROJECT_NAME}libMiniHttpD${COLOR_SEPARATOR} =================================${COLOR_RESET}"
-# 	if [ ! -f "$INSTALL_ROOT/lib/libmicrohttpd.a" ];
-# 	then
-# 		env_restore
-# 		cd "$SOURCES_ROOT"
-# 		if [ ! -d "libmicrohttpd_openssl" ];
-# 		then
-# 			echo -e "${COLOR_INFO}getting it from git${COLOR_DOTS}...${COLOR_RESET}"
-#             git clone git@github.com:Sajoch/libmicrohttpd_openssl.git
-# 			echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
-# 			cd libmicrohttpd_openssl
-# 			./bootstrap
-# 			./configure ${CONF_CROSSCOMPILING_OPTS_GENERIC} --enable-static --disable-shared --with-pic --prefix="$INSTALL_ROOT" --enable-https ${CONF_DEBUG_OPTIONS}
-# 		else
-# 			cd libmicrohttpd_openssl
-# 		fi
-# 		echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
-# 		$MAKE
-# 		$MAKE install
-# 		cd "$SOURCES_ROOT"
-# 	else
-# 		echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
-# 	fi
-# fi
-
-# #https://github.com/open-source-parsers/jsoncpp
-# #git@github.com:open-source-parsers///.git
-# if [ "$WITH_JSONCPP" = "yes" ];
-# then
-# 	echo -e "${COLOR_SEPARATOR}==================== ${COLOR_PROJECT_NAME}libJsonC++${COLOR_SEPARATOR} ===================================${COLOR_RESET}"
-# 	if [ ! -f "$INSTALL_ROOT/lib/libjsoncpp.a" ];
-# 	then
-# 		env_restore
-# 		cd "$SOURCES_ROOT"
-# 		if [ ! -d "jsoncpp" ];
-# 		then
-# 			#
-# 			#echo -e "${COLOR_INFO}getting it from git${COLOR_DOTS}...${COLOR_RESET}"
-# 			#git clone git@github.com:open-source-parsers/jsoncpp.git
-# 			#
-# 			echo -e "${COLOR_INFO}unpacking it${COLOR_DOTS}...${COLOR_RESET}"
-# 			tar -xzf "$PREDOWNLOADED_ROOT/jsoncpp.tar.gz"
-# 			#
-# 			echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
-# 			cd jsoncpp
-# 			mkdir -p build
-# 			cd build
-# 			$CMAKE "${CMAKE_CROSSCOMPILING_OPTS}" -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" \
-# 				-DBUILD_SHARED_LIBS=NO \
-# 				-DBUILD_STATIC_LIBS=YES \
-# 				..
-# 			cd ..
-# 		else
-# 			cd jsoncpp
-# 		fi
-# 		echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
-# 		cd build
-# 		$MAKE ${PARALLEL_MAKE_OPTIONS}
-# 		$MAKE ${PARALLEL_MAKE_OPTIONS} install
-# 		cd "$SOURCES_ROOT"
-# 	else
-# 		echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
-# 	fi
-# fi
 
 if [ "$WITH_JSONCPP" = "yes" ];
 then
@@ -2022,78 +1542,20 @@ then
 		cd "$SOURCES_ROOT"
 		echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
 		cd ../jsoncpp
-		mkdir -p build
+		eval mkdir -p build
 		cd build
-		$CMAKE "${CMAKE_CROSSCOMPILING_OPTS}" -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" \
+		eval "$CMAKE" "${CMAKE_CROSSCOMPILING_OPTS}" -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" \
 			-DBUILD_SHARED_LIBS=NO \
 			-DBUILD_STATIC_LIBS=YES \
 			..
 		echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
-		$MAKE ${PARALLEL_MAKE_OPTIONS}
-		$MAKE ${PARALLEL_MAKE_OPTIONS} install
+		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}"
+		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}" install
 		cd "$SOURCES_ROOT"
 	else
 		echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
 	fi
 fi
-
-# #https://github.com/cinemast/libjson-rpc-cpp
-# #git@github.com:cinemast/libjson-rpc-cpp.git
-# if [ "$WITH_JSONRPCCPP" = "yes" ];
-# then
-# 	echo -e "${COLOR_SEPARATOR}==================== ${COLOR_PROJECT_NAME}libJsonRpcC++${COLOR_SEPARATOR} ================================${COLOR_RESET}"
-# 	if [ ! -f "$INSTALL_ROOT/lib/libjsonrpccpp-server.a" ];
-# 	then
-# 		env_restore
-# 		cd "$SOURCES_ROOT"
-# 		if [ ! -d "libjson-rpc-cpp" ];
-# 		then
-# 			#
-# 			#echo -e "${COLOR_INFO}getting it from git${COLOR_DOTS}...${COLOR_RESET}"
-# 			#git clone git@github.com:cinemast/libjson-rpc-cpp.git
-# 			#
-# 			echo -e "${COLOR_INFO}unpacking it${COLOR_DOTS}...${COLOR_RESET}"
-# 			unzip -o "$PREDOWNLOADED_ROOT/libjson-rpc-cpp.zip"
-# 			cp -r libjson-rpc-cpp-develop libjson-rpc-cpp
-# 			#
-# 			echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
-# 			cd libjson-rpc-cpp
-# 			mkdir -p build
-# 			cd build
-# 			$CMAKE "${CMAKE_CROSSCOMPILING_OPTS}" -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" \
-# 				-DBUILD_SHARED_LIBS=NO \
-# 				-DBUILD_STATIC_LIBS=YES \
-# 				-DUNIX_DOMAIN_SOCKET_SERVER=YES \
-# 				-DUNIX_DOMAIN_SOCKET_CLIENT=YES \
-# 				-DFILE_DESCRIPTOR_SERVER=YES \
-# 				-DFILE_DESCRIPTOR_CLIENT=YES \
-# 				-DTCP_SOCKET_SERVER=YES \
-# 				-DTCP_SOCKET_CLIENT=YES \
-# 				-DREDIS_SERVER=NO \
-# 				-DREDIS_CLIENT=NO \
-# 				-DHTTP_SERVER=YES \
-# 				-DHTTP_CLIENT=YES \
-# 				-DCOMPILE_TESTS=NO \
-# 				-DCOMPILE_STUBGEN=YES \
-# 				-DCOMPILE_EXAMPLES=NO \
-# 				-DWITH_COVERAGE=NO \
-# 				-DARGTABLE_INCLUDE_DIR="$SOURCES_ROOT/argtable2/src" \
-# 				-DARGTABLE_LIBRARY="$INSTALL_ROOT/lib/libargtable2${DEBUG_D}.a" \
-# 				-DJSONCPP_INCLUDE_DIR="$INSTALL_ROOT/include" \
-# 				..
-# 			cd ..
-# 		else
-# 			cd libjson-rpc-cpp
-# 		fi
-# 		echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
-# 		cd build
-# 		$MAKE ${PARALLEL_MAKE_OPTIONS}
-# 		$MAKE ${PARALLEL_MAKE_OPTIONS} install
-# 		cd "$SOURCES_ROOT"
-# 	else
-# 		echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
-# 	fi
-# fi
 
 if [ "$WITH_JSONRPCCPP" = "yes" ];
 then
@@ -2105,9 +1567,9 @@ then
 		cd ../libjson-rpc-cpp
 		#
 		echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
-		mkdir -p build
+		eval mkdir -p build
 		cd build
-		$CMAKE "${CMAKE_CROSSCOMPILING_OPTS}" -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" \
+		eval "$CMAKE" "${CMAKE_CROSSCOMPILING_OPTS}" -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" \
 			-DBUILD_SHARED_LIBS=NO \
 			-DBUILD_STATIC_LIBS=YES \
 			-DUNIX_DOMAIN_SOCKET_SERVER=YES \
@@ -2127,10 +1589,11 @@ then
 			-DARGTABLE_INCLUDE_DIR="$SOURCES_ROOT/argtable2/src" \
 			-DARGTABLE_LIBRARY="$INSTALL_ROOT/lib/libargtable2${DEBUG_D}.a" \
 			-DJSONCPP_INCLUDE_DIR="$INSTALL_ROOT/include" \
+			-DCURL_INCLUDE_DIR="$INSTALL_ROOT/include" \
 			..
 		echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
-		$MAKE ${PARALLEL_MAKE_OPTIONS}
-		$MAKE ${PARALLEL_MAKE_OPTIONS} install
+		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}"
+		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}" install
 		cd "$SOURCES_ROOT"
 	else
 		echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
@@ -2149,13 +1612,12 @@ then
         if [ ! -d "libcryptopp" ];
         then
             mkdir libcryptopp
-            git clone https://github.com/DimaStebaev/cryptopp.git libcryptopp
-            #git clone http://github.com/weidai11/cryptopp.git libcryptopp
+            eval git clone https://github.com/DimaStebaev/cryptopp.git libcryptopp
             echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
         fi
         cd "$SOURCES_ROOT"/libcryptopp
-        $MAKE ${PARALLEL_MAKE_OPTIONS} static
-        $MAKE ${PARALLEL_MAKE_OPTIONS} install PREFIX="$INSTALL_ROOT"
+        eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}" static
+        eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}" install PREFIX="$INSTALL_ROOT"
         cd "$SOURCES_ROOT"
     else
         echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
@@ -2174,17 +1636,17 @@ then
             if [ ! -f "gmp-6.1.2.tar.xz" ];
             then
                 echo -e "${COLOR_INFO}getting it from gmp website${COLOR_DOTS}...${COLOR_RESET}"
-                $WGET https://ftp.gnu.org/gnu/gmp/gmp-6.1.2.tar.xz
+                eval "$WGET" https://ftp.gnu.org/gnu/gmp/gmp-6.1.2.tar.xz
             fi
             echo -e "${COLOR_INFO}unpacking it${COLOR_DOTS}...${COLOR_RESET}"
-            tar -xf gmp-6.1.2.tar.xz
+            eval tar -xf gmp-6.1.2.tar.xz
         fi
         cd gmp-6.1.2
         echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
-        ./configure ${CONF_CROSSCOMPILING_OPTS_GENERIC} ${CONF_DEBUG_OPTIONS} --enable-cxx --enable-static --disable-shared --prefix="$INSTALL_ROOT"
+        eval ./configure "${CONF_CROSSCOMPILING_OPTS_GENERIC}" "${CONF_DEBUG_OPTIONS}" --enable-cxx --enable-static --disable-shared --prefix="$INSTALL_ROOT"
         echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
-        $MAKE ${PARALLEL_MAKE_OPTIONS}
-        $MAKE ${PARALLEL_MAKE_OPTIONS} install
+        eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}"
+        eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}" install
         cd ..
         cd "$SOURCES_ROOT"
     else
@@ -2202,16 +1664,16 @@ then
         if [ ! -d "libff" ];
         then
             echo -e "${COLOR_INFO}getting it from git${COLOR_DOTS}...${COLOR_RESET}"
-            git clone https://github.com/scipr-lab/libff.git --recursive
+            eval git clone https://github.com/scipr-lab/libff.git --recursive
         fi
         cd libff
         echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
-        mkdir -p build
+        eval mkdir -p build
         cd build
-        $CMAKE "${CMAKE_CROSSCOMPILING_OPTS}" -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" .. -DWITH_PROCPS=OFF
+        eval "$CMAKE" "${CMAKE_CROSSCOMPILING_OPTS}" -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" .. -DWITH_PROCPS=OFF
         echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
-        $MAKE ${PARALLEL_MAKE_OPTIONS}
-        $MAKE ${PARALLEL_MAKE_OPTIONS} install
+        eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}"
+        eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}" install
         cd "$SOURCES_ROOT"
     else
         echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
@@ -2228,7 +1690,7 @@ then
         if [ ! -d "pbc" ];
         then
             echo -e "${COLOR_INFO}getting it from git${COLOR_DOTS}...${COLOR_RESET}"
-            git clone https://github.com/skalenetwork/pbc.git # pbc
+            eval git clone https://github.com/skalenetwork/pbc.git # pbc
         fi
         echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
         cd pbc
@@ -2240,27 +1702,57 @@ then
         echo "    CXXFLAGS = $CXXFLAGS"
         echo "    CPPFLAGS = $CPPFLAGS"
         echo "    LDFLAGS  = $LDFLAGS"
-        $LIBTOOLIZE --force && aclocal && autoheader && automake --force-missing --add-missing && autoconf
-        ./configure ${CONF_CROSSCOMPILING_OPTS_GENERIC} ${CONF_DEBUG_OPTIONS} --with-pic --enable-static --disable-shared --prefix="$INSTALL_ROOT"
+        eval "$LIBTOOLIZE" --force && aclocal && autoheader && automake --force-missing --add-missing && autoconf
+        ./configure "${CONF_CROSSCOMPILING_OPTS_GENERIC}" "${CONF_DEBUG_OPTIONS}" --with-pic --enable-static --disable-shared --prefix="$INSTALL_ROOT"
         echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
-        $MAKE ${PARALLEL_MAKE_OPTIONS}
-        $MAKE ${PARALLEL_MAKE_OPTIONS} install
+        eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}"
+        eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}" install
         cd "$SOURCES_ROOT"
     else
         echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
     fi
 fi
 
-# echo -e "${COLOR_SEPARATOR}==================== ${COLOR_PROJECT_NAME}ZMQ (un-conditional)${COLOR_SEPARATOR} =========================${COLOR_RESET}"
-# env_restore
-# cd "$SOURCES_ROOT"
-# cd ../libzmq
-# #cmake . -Bbuild -DCMAKE_BUILD_TYPE=Debug -DBUILD_STATIC_LIBS=ON
-# cmake "${CMAKE_CROSSCOMPILING_OPTS}" -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DBUILD_STATIC_LIBS=ON -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" . -Bbuild
-# cmake --build build  -- -j$(nproc)
-# cd "$SOURCES_ROOT"
+#https://github.com/jedisct1/libsodium
+#https://github.com/jedisct1/libsodium.git
+if [ "$WITH_SODIUM" = "yes" ];
+then
+    echo -e "${COLOR_SEPARATOR}==================== ${COLOR_PROJECT_NAME}libSodium${COLOR_SEPARATOR} ====================================${COLOR_RESET}"
+    if [ ! -f "$INSTALL_ROOT/lib/libsodium.a" ];
+    then
+        ## (required for libssh)
+        env_restore
+        cd "$SOURCES_ROOT"
+        if [ ! -d "libsodium" ];
+        then
+            if [ ! -f "libsodium-from-git.tar.gz" ];
+            then
+                echo -e "${COLOR_INFO}getting it from git${COLOR_DOTS}...${COLOR_RESET}"
+                eval git clone https://github.com/jedisct1/libsodium.git --recursive
+                echo -e "${COLOR_INFO}archiving it${COLOR_DOTS}...${COLOR_RESET}"
+                eval tar -czf libsodium-from-git.tar.gz ./libsodium
+            else
+                echo -e "${COLOR_INFO}unpacking it${COLOR_DOTS}...${COLOR_RESET}"
+                eval tar -xzf libsodium-from-git.tar.gz
+            fi
+            echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
+            cd libsodium
+            eval ./autogen.sh -s
+            eval ./configure --enable-static --disable-shared --disable-pie --prefix="$INSTALL_ROOT"
+            cd ..
+        fi
+        echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
+        cd libsodium
+        eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}"
+        eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}" install
+        cd ..
+        cd "$SOURCES_ROOT"
+    else
+        echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
+    fi
+fi
 
-if [ "$WITH_CURL" = "yes" ];
+if [ "$WITH_ZMQ" = "yes" ];
 then
 	echo -e "${COLOR_SEPARATOR}==================== ${COLOR_PROJECT_NAME}ZMQ${COLOR_SEPARATOR} ==========================================${COLOR_RESET}"
 	if [ ! -f "$INSTALL_ROOT/lib/libzmq.a" ];
@@ -2270,12 +1762,10 @@ then
 		cd "$SOURCES_ROOT"
 		cd ../libzmq
 		echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
-		# cmake . -Bbuild -DCMAKE_BUILD_TYPE=Debug -DBUILD_STATIC_LIBS=ON
-		# cmake --build build  -- -j$(nproc)
-		cmake "${CMAKE_CROSSCOMPILING_OPTS}" -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DBUILD_STATIC_LIBS=ON -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" . -Bbuild
+        eval cmake "${CMAKE_CROSSCOMPILING_OPTS}" -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DBUILD_STATIC_LIBS=ON -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" -DWITH_LIBSODIUM="$INSTALL_ROOT" -DCMAKE_POSITION_INDEPENDENT_CODE=ON . -Bbuild
 		cd build
-        $MAKE ${PARALLEL_MAKE_OPTIONS}
-        $MAKE ${PARALLEL_MAKE_OPTIONS} install
+        eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}"
+        eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}" install
 		cd "$SOURCES_ROOT"
 	else
 		echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
@@ -2284,48 +1774,44 @@ fi
 
 
 if [ "$WITH_BLAKE3" = "yes" ]; then
-  echo -e "${COLOR_SEPARATOR}==================== ${COLOR_PROJECT_NAME}BLAKE3 ${COLOR_SEPARATOR} =====================================${COLOR_RESET}"
-  if [ ! -f "$INSTALL_ROOT/lib/libblake3.a" ]; then
-    env_restore
-    cd "$SOURCES_ROOT"
-    if [ ! -d "BLAKE3" ]; then
-      if [ ! -f "blake3-from-git.tar.gz" ]; then
-        echo -e "${COLOR_INFO}getting it from git${COLOR_DOTS}...${COLOR_RESET}"
-        git clone https://github.com/BLAKE3-team/BLAKE3.git
-        echo -e "${COLOR_INFO}archiving it${COLOR_DOTS}...${COLOR_RESET}"
-        tar -czf blake3-from-git.tar.gz ./BLAKE3
-      else
-        echo -e "${COLOR_INFO}unpacking it${COLOR_DOTS}...${COLOR_RESET}"
-        tar -xzf blake3-from-git.tar.gz
-      fi
-      echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
-      cd BLAKE3/c
-      git fetch
-      git checkout master
-      if [ "$ARCH" = "x86_or_x64" ]; then
-        if [ "$UNIX_SYSTEM_NAME" = "Darwin" ]; then
-          gcc -c -O3 -g blake3.c blake3_dispatch.c blake3_portable.c \
-            blake3_sse2_x86-64_unix.S blake3_sse41_x86-64_unix.S blake3_avx2_x86-64_unix.S \
-            blake3_avx512_x86-64_unix.S
-          ar rcs libblake3.a *.o
-        else
-          gcc -c -O3 -g blake3.c blake3_dispatch.c blake3_portable.c \
-            blake3_sse2_x86-64_unix.S blake3_sse41_x86-64_unix.S blake3_avx2_x86-64_unix.S \
-            blake3_avx512_x86-64_unix.S
-            ar rcs libblake3.a *.o
-        fi
-      fi
-      #$MAKE ${PARALLEL_MAKE_OPTIONS} depend
-      #$MAKE depend
-      cd ../..
-    fi
-    echo -e "${COLOR_INFO}built libblake3.a ${COLOR_DOTS}...${COLOR_RESET}"
-    ls
-    pwd
-    cp BLAKE3/c/libblake3.a ${INSTALL_ROOT}/lib
-  else
-    echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
-  fi
+	echo -e "${COLOR_SEPARATOR}==================== ${COLOR_PROJECT_NAME}BLAKE3 ${COLOR_SEPARATOR} =====================================${COLOR_RESET}"
+	if [ ! -f "$INSTALL_ROOT/lib/libblake3.a" ]; then
+		env_restore
+		cd "$SOURCES_ROOT"
+		if [ ! -d "BLAKE3" ]; then
+			if [ ! -f "blake3-from-git.tar.gz" ]; then
+				echo -e "${COLOR_INFO}getting it from git${COLOR_DOTS}...${COLOR_RESET}"
+				eval git clone https://github.com/BLAKE3-team/BLAKE3.git
+				echo -e "${COLOR_INFO}archiving it${COLOR_DOTS}...${COLOR_RESET}"
+				eval tar -czf blake3-from-git.tar.gz ./BLAKE3
+			else
+				echo -e "${COLOR_INFO}unpacking it${COLOR_DOTS}...${COLOR_RESET}"
+				eval tar -xzf blake3-from-git.tar.gz
+			fi
+			echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
+			cd BLAKE3/c
+			eval git fetch
+			eval git checkout master
+			if [ "$ARCH" = "x86_or_x64" ]; then
+				if [ "$UNIX_SYSTEM_NAME" = "Darwin" ]; then
+					eval "$CC" -c -O3 -g blake3.c blake3_dispatch.c blake3_portable.c \
+						blake3_sse2_x86-64_unix.S blake3_sse41_x86-64_unix.S blake3_avx2_x86-64_unix.S \
+						blake3_avx512_x86-64_unix.S
+					ar rcs libblake3.a *.o
+				else
+					eval "$CC" -c -O3 -g blake3.c blake3_dispatch.c blake3_portable.c \
+						blake3_sse2_x86-64_unix.S blake3_sse41_x86-64_unix.S blake3_avx2_x86-64_unix.S \
+						blake3_avx512_x86-64_unix.S
+						ar rcs libblake3.a *.o
+				fi
+			fi
+			cd ../..
+		fi
+		echo -e "${COLOR_INFO}built libblake3.a ${COLOR_DOTS}...${COLOR_RESET}"
+		eval cp BLAKE3/c/libblake3.a "${INSTALL_ROOT}/lib"
+	else
+		echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
+	fi
 fi
 
 echo -e "${COLOR_SEPARATOR}===================================================================${COLOR_RESET}"
