@@ -37,6 +37,7 @@
 #include <network/ClientSocket.h>
 #include <network/IO.h>
 #include <node/ConsensusEngine.h>
+#include <crypto/CryptoManager.h>
 
 #include "LivelinessMonitor.h"
 #include "StuckDetectionAgent.h"
@@ -173,7 +174,12 @@ uint64_t StuckDetectionAgent::checkForRestart( uint64_t _restartIteration ) {
 
     auto blockID = getSchain()->getLastCommittedBlockID();
 
+    // do not restart for the first block
     if ( blockID < 2 )
+        return 0;
+
+    // if sgx is enabled and SGX server is down, there is no point restarting
+    if (sChain->getCryptoManager()->isSGXServerDown())
         return 0;
 
     auto timeStampMs = getSchain()->getBlock( blockID )->getTimeStampS() * 1000;

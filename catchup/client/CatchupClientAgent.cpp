@@ -43,6 +43,7 @@
 #include "network/IO.h"
 #include "network/Network.h"
 #include "pendingqueue/PendingTransactionsAgent.h"
+#include "utils/Time.h"
 #include "sys/random.h"
 #include "CatchupClientAgent.h"
 #include "CatchupClientThreadPool.h"
@@ -83,7 +84,8 @@ nlohmann::json CatchupClientAgent::readCatchupResponseHeader(const ptr< ClientSo
     auto header = make_shared< CatchupRequestHeader >( *sChain, _dstIndex );
     CHECK_STATE(_dstIndex != (uint64_t ) getSchain()->getSchainIndex());
 
-    if (sChain->getDeathTime((uint64_t) _dstIndex) > 0) {
+    if (getSchain()->getDeathTimeMs((uint64_t) _dstIndex) + NODE_DEATH_INTERVAL_MS >
+        Time::getCurrentTimeMs()) {
         usleep(100000);
         throw ConnectionRefusedException("Connecting to dead node " +
                      to_string(_dstIndex), 5, __CLASS_NAME__);

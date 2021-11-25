@@ -37,7 +37,7 @@ TEST_CASE_METHOD(StartFromScratch, "Use finalization download only", "[consensus
 
     setenv("TEST_FINALIZATION_DOWNLOAD_ONLY", "1", 1);
 
-    engine = new ConsensusEngine();
+    engine = new ConsensusEngine(0, 100000000);
     engine->parseTestConfigsAndCreateAllNodes(Consensust::getConfigDirPath());
     engine->slowStartBootStrapTest();
     usleep(1000 * Consensust::getRunningTimeS()); /* Flawfinder: ignore */
@@ -55,7 +55,7 @@ TEST_CASE_METHOD(StartFromScratch, "Get consensus to stuck", "[consensus-stuck]"
     std::thread timer(exit_check);
     try {
         auto startTime = time(NULL);
-        engine = new ConsensusEngine();
+        engine = new ConsensusEngine(0, 100000000);
         engine->parseTestConfigsAndCreateAllNodes(Consensust::getConfigDirPath());
         engine->slowStartBootStrapTest();
         auto finishTime = time(NULL);
@@ -75,7 +75,7 @@ TEST_CASE_METHOD(StartFromScratch, "Issue different proposals to different nodes
     setenv("CORRUPT_PROPOSAL_TEST", "1", 1);
 
     try {
-        engine = new ConsensusEngine();
+        engine = new ConsensusEngine(0, 1000000000);
         engine->parseTestConfigsAndCreateAllNodes(Consensust::getConfigDirPath());
         engine->slowStartBootStrapTest();
         usleep(1000 * Consensust::getRunningTimeS()); /* Flawfinder: ignore */

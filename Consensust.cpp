@@ -137,9 +137,8 @@ block_id basicRun(int64_t _lastId = 0) {
 
         REQUIRE(ConsensusEngine::getEngineVersion().size() > 0);
 
-        engine = new ConsensusEngine(_lastId);
+        engine = new ConsensusEngine(_lastId, 1000000000);
 
-        engine->setTotalStorageLimitBytes(1000000000);
 
 
 

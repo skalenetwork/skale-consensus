@@ -129,8 +129,10 @@ string SgxZmqClient::doZmqRequestReply( string& _req, bool _throwExceptionOnTime
             CHECK_STATE( reply.front() == '{' );
             CHECK_STATE( reply.back() == '}' );
 
+            serverDown = false;
             return reply;
         } else {
+            serverDown = true;
             if ( _throwExceptionOnTimeout ) {
                 LOG( err, "No response from sgx server" );
                 CHECK_STATE( false );
@@ -381,7 +383,7 @@ void SgxZmqClient::verifyMsgSig( const char* _msg, size_t ) {
     CHECK_STATE( ( *d )["cert"].IsString() );
     CHECK_STATE( ( *d )["msgSig"].IsString() );
 
-    auto cert = make_shared< string >( ( *d )["cert"].GetString() );
+    auto crt = make_shared< string >( ( *d )["cert"].GetString() );
 
     static recursive_mutex m;
 
@@ -390,15 +392,15 @@ void SgxZmqClient::verifyMsgSig( const char* _msg, size_t ) {
     {
         LOCK( certMutex );
 
-        if ( !verifiedCerts.exists( *cert ) ) {
-            auto handles = SgxZmqClient::readPublicKeyFromCertStr( *cert );
+        if ( !verifiedCerts.exists( *crt ) ) {
+            auto handles = SgxZmqClient::readPublicKeyFromCertStr( *crt );
             CHECK_STATE( handles.first );
             CHECK_STATE( handles.second );
-            verifiedCerts.put( *cert, handles );
-            remove( cert->c_str() );
+            verifiedCerts.put( *crt, handles );
+            remove( crt->c_str() );
         }
 
-        publicKey = verifiedCerts.get( *cert ).first;
+        publicKey = verifiedCerts.get( *crt ).first;
 
 
         CHECK_STATE( publicKey );
@@ -458,10 +460,8 @@ Schain* SgxZmqClient::getSchain() const {
     return schain;
 }
 
-SgxZmqClient::zmq_status SgxZmqClient::getZMQStatus() const {
-    return zmqStatus;
-}
 
-void SgxZmqClient::setZmqStatus( SgxZmqClient::zmq_status _status ) {
-    zmqStatus = _status;
+
+bool SgxZmqClient::isServerDown() const {
+    return serverDown;
 }

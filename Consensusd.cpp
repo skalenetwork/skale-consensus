@@ -50,7 +50,7 @@ int main(int argc, char **argv) {
     }
 
 
-    ConsensusEngine engine;
+    ConsensusEngine engine(0, 100000000);
 
 
     for (int i = 2; i < argc; i++) {

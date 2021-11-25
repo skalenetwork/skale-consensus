@@ -148,7 +148,7 @@ class CryptoManager {
 
 
 
-        void initSGXClient();
+    void initSGXClient();
 
     static pair<string, uint64_t> parseSGXDomainAndPort( const string& _url );
 
@@ -249,9 +249,8 @@ public:
 
     void exitZMQClient();
 
-
-
     static void addECDSASignStats(uint64_t _time);
+
     static void addBLSSignStats(uint64_t _time);
 
     static  uint64_t getEcdsaStats() {
@@ -279,10 +278,7 @@ public:
 
     uint64_t getZMQSocketCount();
 
-
-    void checkZMQStatusIfUnknownECDSA(const string &_keyName);
-
-    void checkZMQStatusIfUnknownBLS();
+    bool isSGXServerDown();
 };
 
 #define RETRY_BEGIN \

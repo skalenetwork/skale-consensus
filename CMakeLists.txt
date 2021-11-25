@@ -27,6 +27,33 @@ include("cmake/precompiledheader.cmake")
 
 HunterGate(URL "https://github.com/ruslo/hunter/archive/v0.23.76.tar.gz" SHA1 "c7b60993e841850e2c449afd454f5d5aa4ec04e4")
 
+option( CONSENSUS_PROFILING "Build for profiling" OFF )
+if( SKALED_PROFILING )
+    set( CONSENSUS_PROFILING ON )
+endif()
+if( CONSENSUS_PROFILING )
+    set( CMAKE_C_FLAGS "${CMAKE_CXX_FLAGS} -pg" )
+    set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pg" )
+    set( CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pg" )
+    set( CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -pg" )
+endif()
+
+if( CMAKE_BUILD_TYPE STREQUAL "Release" )
+    set( CMAKE_C_FLAGS "${CMAKE_CXX_FLAGS} -O3" )
+    set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3" )
+elseif( CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo" )
+    set( CMAKE_C_FLAGS "${CMAKE_CXX_FLAGS} -O3" )
+    set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3" )
+elseif( CMAKE_BUILD_TYPE STREQUAL "MinSizeRel" )
+    set( CMAKE_C_FLAGS "${CMAKE_CXX_FLAGS} -Os" )
+    set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Os" )
+elseif( CMAKE_BUILD_TYPE STREQUAL "Debug" )
+    set( CMAKE_C_FLAGS "${CMAKE_CXX_FLAGS} -O0" )
+    set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0" )
+else()
+	message( INFO "---- CMAKE_BUILD_TYPE = ${DEPS_INSTALL_ROOT} is not supported explicitly" )
+endif()
+
 add_subdirectory(libBLS)
 
 project(consensus)
@@ -54,12 +81,10 @@ find_package(leveldb CONFIG REQUIRED)
 set(CMAKE_CXX_STANDARD 17)
 execute_process( COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/gcc_ver_query.sh OUTPUT_VARIABLE GXX_MAJOR_VERSION )
 message( STATUS "-------- GXX_MAJOR_VERSION is ${GXX_MAJOR_VERSION}" )
-set( GXX_9_SPECIFIC_OPTS "" )
-if( GXX_MAJOR_VERSION GREATER_EQUAL "9" )
-    set( GXX_9_SPECIFIC_OPTS -Wno-error=deprecated-copy -Wno-error=pessimizing-move )
+add_compile_options( -Wno-error=deprecated-declarations -Wno-error=return-type -Wno-error=unused-result -Wno-error=unused-variable -Wno-error=maybe-uninitialized -Wno-error=deprecated-copy -Wno-error=pessimizing-move )
+if( CMAKE_BUILD_TYPE STREQUAL "Debug" )
+    add_compile_options( -Wall -Wextra -Werror )
 endif()
-message( STATUS "-------- GXX_9_SPECIFIC_OPTS is ${GXX_9_SPECIFIC_OPTS}" )
-add_compile_options( -Wall -Wextra -Werror -Wno-error=deprecated-declarations -Wno-error=unused-result -Wno-error=maybe-uninitialized ${GXX_9_SPECIFIC_OPTS} )
 add_definitions("-DZMQ_BUILD_DRAFT_API")
 add_definitions("-DUSER_SPACE")
 add_definitions("-DZMQ_EXPERIMENTAL")
@@ -227,11 +252,15 @@ SET(LINK_LIBRARIES
 
 add_library(consensus STATIC ${SRC_FILES})
 
+target_compile_options( consensus PRIVATE -Wno-error=unused-variable )
+
 target_link_libraries(consensus ${LINK_LIBRARIES})
 
 # consensus test agent
 
 add_executable(consensusd Consensusd.h Consensusd.cpp)
+
+target_compile_options( consensusd PRIVATE -Wno-error=unused-variable )
 
 # # libgoogle-perftools-dev
 # if (CMAKE_PROJECT_NAME STREQUAL "consensus")
@@ -243,6 +272,8 @@ target_link_libraries(consensusd consensus)
 # endif ()
 
 add_executable(consensust Consensust.h Consensust.cpp datastructures/SerializationTests.cpp db/DBTests.cpp)
+
+target_compile_options( consensust PRIVATE -Wno-error=unused-variable )
 
 # # libgoogle-perftools-dev
 # if (CMAKE_PROJECT_NAME STREQUAL "consensus")

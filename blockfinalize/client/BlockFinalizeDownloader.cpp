@@ -66,6 +66,7 @@
 #include "headers/BlockProposalRequestHeader.h"
 #include "monitoring/LivelinessMonitor.h"
 #include "pendingqueue/PendingTransactionsAgent.h"
+#include "utils/Time.h"
 
 #include "BlockFinalizeDownloader.h"
 #include "BlockFinalizeDownloaderThreadPool.h"
@@ -113,7 +114,7 @@ uint64_t BlockFinalizeDownloader::downloadFragment(schain_index _dstIndex, fragm
         auto header = make_shared<BlockFinalizeRequestHeader>(*sChain, blockId, proposerIndex,
                 this->getNode()->getNodeID(), _fragmentIndex);
         CHECK_STATE(_dstIndex != (uint64_t) getSchain()->getSchainIndex())
-        if (sChain->getDeathTime((uint64_t ) _dstIndex) > 0) {
+        if (getSchain()->getDeathTimeMs((uint64_t) _dstIndex) + NODE_DEATH_INTERVAL_MS > Time::getCurrentTimeMs()) {
             usleep(100000); // emulate timeout
             BOOST_THROW_EXCEPTION(ConnectionRefusedException("Dead node:" + to_string(_dstIndex),
                 5, __CLASS_NAME__));
