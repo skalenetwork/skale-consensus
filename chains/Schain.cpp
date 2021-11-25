@@ -1092,7 +1092,7 @@ void Schain::markAliveNode( uint64_t _schainIndex ) {
     }
 }
 
-uint64_t Schain::getDeathTime( uint64_t _schainIndex ) {
+uint64_t Schain::getDeathTimeMs(uint64_t _schainIndex ) {
     CHECK_STATE( _schainIndex > 0 );
     CHECK_STATE( _schainIndex <= getNodeCount() );
     {

@@ -46,6 +46,7 @@ blic License as published
 
 #include "datastructures/BlockProposal.h"
 #include "datastructures/DAProof.h"
+#include "utils/Time.h"
 
 
 AbstractClientAgent::AbstractClientAgent( Schain& _sChain, port_type _portType )
@@ -80,8 +81,7 @@ void AbstractClientAgent::sendItem( const ptr< SendableItem >& _item, schain_ind
     while ( true ) {
         CHECK_STATE( _dstIndex != ( uint64_t ) getSchain()->getSchainIndex() );
 
-        if (getSchain()->getDeathTime((uint64_t) _dstIndex) + 30000 >
-                                        Time::getCurrentTimeMs()) {
+        if (getSchain()->getDeathTimeMs((uint64_t) _dstIndex) + NODE_DEATH_INTERVAL_MS > Time::getCurrentTimeMs()) {
             BOOST_THROW_EXCEPTION(ConnectionRefusedException("Dead node:" + to_string(_dstIndex),
                                                              5, __CLASS_NAME__));
         }

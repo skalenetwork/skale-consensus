@@ -209,6 +209,8 @@ static const int ZMQ_TIMEOUT = 1000;
 
 static const int CONSENSUS_ZMQ_HWM = 32;
 
+static const int NODE_DEATH_INTERVAL_MS = 30000;
+
 enum port_type {
     PROPOSAL = 0, CATCHUP = 1, RETRIEVE = 2, HTTP_JSON = 3, BINARY_CONSENSUS = 4, ZMQ_BROADCAST = 5,
     MTA = 6,
