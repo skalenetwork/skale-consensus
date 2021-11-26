@@ -60,7 +60,7 @@
 
 
 OracleAgent::OracleAgent(Schain &_schain) : ProtocolInstance(
-        ORACLE, _schain)  : requestCounter(0) {
+        ORACLE, _schain), Agent(_schain, true),  requestCounter(0) {
     for (int i = 0; i < NUM_ORACLE_THREADS; i++) {
         incomingQueues.push_back(
                 make_shared<BlockingReaderWriterQueue<shared_ptr<MessageEnvelope>>>());
@@ -83,6 +83,13 @@ void OracleAgent::routeAndProcessMessage(const ptr<MessageEnvelope> &_me) {
 
 }
 
-void OracleAgent::workerThreadItemSendLoop(OracleAgent* ) {
+void OracleAgent::workerThreadItemSendLoop(OracleAgent* _agent) {
+
+    CHECK_STATE(_agent);
+
+    _agent->waitOnGlobalStartBarrier();
+
+    exit(-1);
+
 
 }
