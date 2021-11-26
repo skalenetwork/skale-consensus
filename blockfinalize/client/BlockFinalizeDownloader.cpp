@@ -272,6 +272,8 @@ void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(BlockFinalizeDown
     setThreadName("BlckFinLoop", node->getConsensusEngine());
 
     node->waitOnGlobalClientStartBarrier();
+    if( node->isExitRequested() )
+        return;
 
     // since the node does not download from itself
     // and since the number of fragment is one less the number of
