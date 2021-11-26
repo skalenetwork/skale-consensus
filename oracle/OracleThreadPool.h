@@ -28,7 +28,7 @@
 
 class OracleThreadPool : public WorkerThreadPool {
 public:
-    OracleThreadPool( num_threads _numThreads, Agent* _agent );
+    OracleThreadPool(Agent* _agent );
 
     void createThread( uint64_t _number ) override;
 };

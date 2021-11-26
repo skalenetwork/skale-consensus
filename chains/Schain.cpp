@@ -84,6 +84,7 @@
 #include "network/ZMQSockets.h"
 #include "node/NodeInfo.h"
 #include "oracle/OracleAgent.h"
+#include "oracle/OracleThreadPool.h"
 #include "pricing/PricingAgent.h"
 #include "protocols/ProtocolInstance.h"
 #include "protocols/blockconsensus/BlockConsensusAgent.h"
@@ -188,7 +189,9 @@ void Schain::messageThreadProcessingLoop( Schain* _sChain ) {
 
 void Schain::startThreads() {
     CHECK_STATE( consensusMessageThreadPool );
+    CHECK_STATE(oracleThreadPool);
     this->consensusMessageThreadPool->startService();
+    this->oracleThreadPool->startService();
 }
 
 
@@ -200,6 +203,7 @@ Schain::Schain( weak_ptr< Node > _node, schain_index _schainIndex, const schain_
       schainID( _schainID ),
       startTimeMs( 0 ),
       consensusMessageThreadPool( new SchainMessageThreadPool( this ) ),
+      oracleThreadPool( new OracleThreadPool( this ) ),
       node( _node ),
       schainIndex( _schainIndex ) {
     lastCommittedBlockTimeStamp = TimeStamp( 0, 0 );

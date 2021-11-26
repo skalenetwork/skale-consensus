@@ -48,6 +48,8 @@ class BlockProposalPusherThreadPool;
 class BlockFinalizeDownloader;
 class BlockFinalizeDownloaderThreadPool;
 
+
+
 class SchainMessageThreadPool;
 
 class TestMessageGeneratorAgent;
@@ -67,7 +69,10 @@ class Node;
 class PendingTransactionsAgent;
 
 class BlockConsensusAgent;
+
 class OracleAgent;
+class OracleThreadPool;
+
 class PricingAgent;
 class IO;
 class Sockets;
@@ -123,6 +128,8 @@ class Schain : public Agent {
     ptr< PricingAgent > pricingAgent;
 
     ptr< SchainMessageThreadPool > consensusMessageThreadPool;
+
+    ptr <OracleThreadPool> oracleThreadPool;
 
     ptr< IO > io;
 

@@ -27,9 +27,8 @@
 #include "OracleAgent.h"
 #include "OracleThreadPool.h"
 
-OracleThreadPool::OracleThreadPool(
-        num_threads _numThreads, Agent* _agent )
-        : WorkerThreadPool( _numThreads, _agent, false ) {}
+OracleThreadPool::OracleThreadPool(Agent* _agent )
+        : WorkerThreadPool( NUM_ORACLE_THREADS, _agent, false ) {}
 
 
 void OracleThreadPool::createThread( uint64_t /*number*/ ) {
