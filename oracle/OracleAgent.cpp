@@ -60,7 +60,7 @@
 
 
 OracleAgent::OracleAgent(Schain &_schain) : ProtocolInstance(
-        ORACLE, _schain) {
+        ORACLE, _schain)  : requestCounter(0) {
     for (int i = 0; i < NUM_ORACLE_THREADS; i++) {
         incomingQueues.push_back(
                 make_shared<BlockingReaderWriterQueue<shared_ptr<MessageEnvelope>>>());
@@ -75,7 +75,9 @@ void OracleAgent::routeAndProcessMessage(const ptr<MessageEnvelope> &_me) {
 
     CHECK_STATE(_me->getMessage()->getMessageType() == MSG_ORACLE_REQ_BROADCAST);
 
-    this->incomingQueues.at(0)->enqueue(_me);
+    auto value = requestCounter.fetch_add(1);
+
+    this->incomingQueues.at(value %  (uint64_t) NUM_ORACLE_THREADS)->enqueue(_me);
 
     return;
 

@@ -46,6 +46,8 @@ class OracleAgent : public ProtocolInstance {
 
     vector<shared_ptr<BlockingReaderWriterQueue<shared_ptr<MessageEnvelope>>>> incomingQueues;
 
+    atomic<uint64_t> requestCounter;
+
 public:
 
     OracleAgent(Schain& _schain);
