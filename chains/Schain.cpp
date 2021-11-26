@@ -83,7 +83,7 @@
 #include "network/Sockets.h"
 #include "network/ZMQSockets.h"
 #include "node/NodeInfo.h"
-#include "oracle/OracleAgent.h"
+#include "oracle/OracleAgentServer.h"
 #include "oracle/OracleThreadPool.h"
 #include "pricing/PricingAgent.h"
 #include "protocols/ProtocolInstance.h"

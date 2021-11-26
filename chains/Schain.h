@@ -70,7 +70,7 @@ class PendingTransactionsAgent;
 
 class BlockConsensusAgent;
 
-class OracleAgent;
+class OracleAgentServer;
 class OracleThreadPool;
 
 class PricingAgent;
@@ -212,7 +212,7 @@ public:
     uint64_t getLastCommitTimeMs();
 
     ptr< BlockConsensusAgent > blockConsensusInstance;
-    ptr< OracleAgent > oracleInstance;
+    ptr< OracleAgentServer > oracleInstance;
 
     void createBlockConsensusInstance();
 
@@ -278,7 +278,7 @@ public:
 
     ptr< BlockConsensusAgent > getBlockConsensusInstance();
 
-    ptr< OracleAgent > getOracleInstance();
+    ptr< OracleAgentServer > getOracleInstance();
 
 
     ptr< NodeInfo > getThisNodeInfo() const;

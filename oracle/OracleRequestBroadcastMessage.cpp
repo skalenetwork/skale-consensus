@@ -30,12 +30,12 @@
 #include "chains/Schain.h"
 #include "protocols/ProtocolKey.h"
 
-#include "OracleAgent.h"
+#include "OracleAgentServer.h"
 #include "OracleRequestBroadcastMessage.h"
 
 OracleRequestBroadcastMessage::OracleRequestBroadcastMessage(string& _uri, block_id _blockID,
                                                              uint64_t _timeMs,
-                                                             OracleAgent &sourceProtocolInstance)
+                                                             OracleAgentServer &sourceProtocolInstance)
         : NetworkMessage(MSG_ORACLE_REQ_BROADCAST, _blockID, 0, 0, 0, _timeMs,
                          sourceProtocolInstance), uri(_uri) {
     printPrefix = "o";

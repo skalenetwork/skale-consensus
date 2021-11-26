@@ -44,7 +44,7 @@
 #include "node/NodeInfo.h"
 
 #include "protocols/blockconsensus/BlockConsensusAgent.h"
-#include "oracle/OracleAgent.h"
+#include "oracle/OracleAgentServer.h"
 
 #include "datastructures/BlockProposal.h"
 
@@ -160,7 +160,7 @@ ptr<BlockConsensusAgent> Schain::getBlockConsensusInstance() {
     return blockConsensusInstance;
 }
 
-ptr<OracleAgent> Schain::getOracleInstance() {
+ptr<OracleAgentServer> Schain::getOracleInstance() {
     CHECK_STATE(oracleInstance != nullptr)
     return oracleInstance;
 }
@@ -272,7 +272,7 @@ void Schain::createBlockConsensusInstance() {
 }
 
 void Schain::createOracleInstance() {
-    oracleInstance = make_shared<OracleAgent>(*this);
+    oracleInstance = make_shared<OracleAgentServer>(*this);
 }
 
 uint64_t Schain::getLastCommitTimeMs() {

@@ -16,7 +16,7 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file OracleAgent.h
+    @file OracleAgentServer.h
     @author Stan Kladko
     @date 2018
 */
@@ -42,7 +42,7 @@ class MessageEnvelope;
 class OracleResponseMessage;
 class OracleRequestBroadcastMessage;
 
-class OracleAgent : public ProtocolInstance, Agent {
+class OracleAgentServer : public ProtocolInstance, Agent {
 
     vector<shared_ptr<BlockingReaderWriterQueue<shared_ptr<MessageEnvelope>>>> incomingQueues;
 
@@ -50,10 +50,10 @@ class OracleAgent : public ProtocolInstance, Agent {
 
 public:
 
-    OracleAgent(Schain& _schain);
+    OracleAgentServer(Schain& _schain);
 
     void routeAndProcessMessage(const ptr<MessageEnvelope>& _me );
 
-    static void workerThreadItemSendLoop(OracleAgent* agent );
+    static void workerThreadItemSendLoop(OracleAgentServer* agent );
 };
 

@@ -32,12 +32,12 @@
 
 #include "protocols/binconsensus/BinConsensusInstance.h"
 
-#include "OracleAgent.h"
+#include "OracleAgentServer.h"
 #include "OracleResponseMessage.h"
 
 OracleResponseMessage::OracleResponseMessage(string _value, string& _uri, block_id _blockID,
-                                                             uint64_t _timeMs,
-                                                             OracleAgent &sourceProtocolInstance)
+                                             uint64_t _timeMs,
+                                             OracleAgentServer &sourceProtocolInstance)
         : NetworkMessage(MSG_ORACLE_RSP, _blockID, 0, 0, 0, _timeMs,
                          sourceProtocolInstance), uri(_uri), value(_value)  {
     printPrefix = "r";

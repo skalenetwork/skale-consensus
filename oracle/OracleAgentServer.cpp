@@ -16,7 +16,7 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file OracleAgent.cpp
+    @file OracleAgentServer.cpp
     @author Stan Kladko
     @date 2018-
 */
@@ -55,19 +55,19 @@
 
 #include "utils/Time.h"
 #include "protocols/ProtocolInstance.h"
-#include "OracleAgent.h"
+#include "OracleAgentServer.h"
 #include "OracleRequestBroadcastMessage.h"
 
 
-OracleAgent::OracleAgent(Schain &_schain) : ProtocolInstance(
-        ORACLE, _schain), Agent(_schain, true),  requestCounter(0) {
+OracleAgentServer::OracleAgentServer(Schain &_schain) : ProtocolInstance(
+        ORACLE, _schain), Agent(_schain, true), requestCounter(0) {
     for (int i = 0; i < NUM_ORACLE_THREADS; i++) {
         incomingQueues.push_back(
                 make_shared<BlockingReaderWriterQueue<shared_ptr<MessageEnvelope>>>());
     }
 };
 
-void OracleAgent::routeAndProcessMessage(const ptr<MessageEnvelope> &_me) {
+void OracleAgentServer::routeAndProcessMessage(const ptr<MessageEnvelope> &_me) {
 
     CHECK_ARGUMENT(_me);
 
@@ -83,13 +83,10 @@ void OracleAgent::routeAndProcessMessage(const ptr<MessageEnvelope> &_me) {
 
 }
 
-void OracleAgent::workerThreadItemSendLoop(OracleAgent* _agent) {
+void OracleAgentServer::workerThreadItemSendLoop(OracleAgentServer* _agent) {
 
     CHECK_STATE(_agent);
 
     _agent->waitOnGlobalStartBarrier();
-
-    exit(-1);
-
 
 }

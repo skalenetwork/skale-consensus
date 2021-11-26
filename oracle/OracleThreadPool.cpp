@@ -24,7 +24,7 @@
 #include "SkaleCommon.h"
 #include "Log.h"
 
-#include "OracleAgent.h"
+#include "OracleAgentServer.h"
 #include "OracleThreadPool.h"
 
 OracleThreadPool::OracleThreadPool(Agent* _agent )
@@ -32,9 +32,9 @@ OracleThreadPool::OracleThreadPool(Agent* _agent )
 
 
 void OracleThreadPool::createThread( uint64_t /*number*/ ) {
-    auto p = ( OracleAgent* ) agent;
+    auto p = ( OracleAgentServer* ) agent;
 
     LOCK(threadPoolLock);
     this->threadpool.push_back(
-            make_shared< thread >( OracleAgent::workerThreadItemSendLoop, p ) );
+            make_shared< thread >(OracleAgentServer::workerThreadItemSendLoop, p ) );
 }
