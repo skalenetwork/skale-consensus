@@ -29,6 +29,7 @@
 #include "blockfinalize/client/BlockFinalizeDownloader.h"
 #include "blockfinalize/client/BlockFinalizeDownloaderThreadPool.h"
 #include "blockproposal/pusher/BlockProposalClientAgent.h"
+#include "Agent.h"
 #include "chains/Schain.h"
 #include "crypto/BLAKE3Hash.h"
 #include "crypto/ThresholdSigShare.h"
@@ -115,5 +116,13 @@ void OracleAgentServer::workerThreadItemSendLoop(OracleAgentServer* _agent) {
     _agent->waitOnGlobalStartBarrier();
 
     LOG(info, "Started Oracle worker thread " + to_string(threadNumber));
+
+    auto agent = (Agent*)_agent;
+
+    while (!agent->getSchain()->getNode()->isExitRequested()) {
+        usleep(1000000);
+    }
+
+    LOG(info, "Exited Oracle worker thread " + to_string(threadNumber));
 
 }
