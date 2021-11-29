@@ -62,7 +62,6 @@
 #include "OracleRequestBroadcastMessage.h"
 
 
-
 OracleAgentServer::OracleAgentServer(Schain &_schain) : ProtocolInstance(
         ORACLE, _schain), Agent(_schain, true), requestCounter(0), threadCounter(0) {
 
@@ -72,14 +71,14 @@ OracleAgentServer::OracleAgentServer(Schain &_schain) : ProtocolInstance(
     }
 
     try {
-        LOG( info, "Constructing OracleThreadPool" );
+        LOG(info, "Constructing OracleThreadPool");
 
-        this->oracleThreadPool = make_shared< OracleThreadPool >(this );
+        this->oracleThreadPool = make_shared<OracleThreadPool>(this);
         oracleThreadPool->startService();
-    } catch ( ExitRequestedException& ) {
+    } catch (ExitRequestedException &) {
         throw;
-    } catch ( ... ) {
-        throw_with_nested( FatalError( __FUNCTION__, __CLASS_NAME__ ) );
+    } catch (...) {
+        throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
     }
 
 
@@ -95,13 +94,13 @@ void OracleAgentServer::routeAndProcessMessage(const ptr<MessageEnvelope> &_me) 
 
     auto value = requestCounter.fetch_add(1);
 
-    this->incomingQueues.at(value %  (uint64_t) NUM_ORACLE_THREADS)->enqueue(_me);
+    this->incomingQueues.at(value % (uint64_t) NUM_ORACLE_THREADS)->enqueue(_me);
 
     return;
 
 }
 
-void OracleAgentServer::workerThreadItemSendLoop(OracleAgentServer* _agent) {
+void OracleAgentServer::workerThreadItemSendLoop(OracleAgentServer *_agent) {
 
     CHECK_STATE(_agent)
 
@@ -117,10 +116,18 @@ void OracleAgentServer::workerThreadItemSendLoop(OracleAgentServer* _agent) {
 
     LOG(info, "Started Oracle worker thread " + to_string(threadNumber));
 
-    auto agent = (Agent*)_agent;
+    auto agent = (Agent *) _agent;
 
-    while (!agent->getSchain()->getNode()->isExitRequested()) {
-        usleep(1000000);
+    try {
+        while (!agent->getSchain()->getNode()->isExitRequested()) {
+            usleep(1000000);
+        }
+    } catch (FatalError &e) {
+        SkaleException::logNested(e);
+        agent->getNode()->exitOnFatalError(e.what());
+    } catch (ExitRequestedException &e) {
+    } catch (exception &e) {
+        SkaleException::logNested(e);
     }
 
     LOG(info, "Exited Oracle worker thread " + to_string(threadNumber));
