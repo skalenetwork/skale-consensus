@@ -49,22 +49,39 @@
 #include "network/Network.h"
 #include "node/Node.h"
 #include "node/NodeInfo.h"
+
 #include "pendingqueue/PendingTransactionsAgent.h"
 
 #include "thirdparty/lrucache.hpp"
 
 #include "utils/Time.h"
 #include "protocols/ProtocolInstance.h"
+#include "OracleThreadPool.h"
 #include "OracleAgentServer.h"
 #include "OracleRequestBroadcastMessage.h"
 
 
+
 OracleAgentServer::OracleAgentServer(Schain &_schain) : ProtocolInstance(
-        ORACLE, _schain), Agent(_schain, true), requestCounter(0) {
+        ORACLE, _schain), Agent(_schain, true), requestCounter(0), threadCounter(0) {
+
     for (int i = 0; i < NUM_ORACLE_THREADS; i++) {
         incomingQueues.push_back(
                 make_shared<BlockingReaderWriterQueue<shared_ptr<MessageEnvelope>>>());
     }
+
+    try {
+        LOG( info, "Constructing OracleThreadPool" );
+
+        this->oracleThreadPool = make_shared< OracleThreadPool >(this );
+        oracleThreadPool->startService();
+    } catch ( ExitRequestedException& ) {
+        throw;
+    } catch ( ... ) {
+        throw_with_nested( FatalError( __FUNCTION__, __CLASS_NAME__ ) );
+    }
+
+
 };
 
 void OracleAgentServer::routeAndProcessMessage(const ptr<MessageEnvelope> &_me) {
@@ -85,8 +102,18 @@ void OracleAgentServer::routeAndProcessMessage(const ptr<MessageEnvelope> &_me) 
 
 void OracleAgentServer::workerThreadItemSendLoop(OracleAgentServer* _agent) {
 
-    CHECK_STATE(_agent);
+    CHECK_STATE(_agent)
+
+    CHECK_STATE(_agent->threadCounter == 0);
+
+    LOG(info, "Thread counter is : " + to_string(_agent->threadCounter));
+
+    auto threadNumber = ++(_agent->threadCounter);
+
+    LOG(info, "Starting Oracle worker thread: " + to_string(threadNumber));
 
     _agent->waitOnGlobalStartBarrier();
+
+    LOG(info, "Started Oracle worker thread " + to_string(threadNumber));
 
 }

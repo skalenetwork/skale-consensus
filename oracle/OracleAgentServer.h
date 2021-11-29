@@ -41,16 +41,24 @@ using namespace moodycamel;
 class MessageEnvelope;
 class OracleResponseMessage;
 class OracleRequestBroadcastMessage;
+class OracleThreadPool;
 
-class OracleAgentServer : public ProtocolInstance, Agent {
+class OracleAgentServer : public ProtocolInstance, public Agent {
 
     vector<shared_ptr<BlockingReaderWriterQueue<shared_ptr<MessageEnvelope>>>> incomingQueues;
 
     atomic<uint64_t> requestCounter;
 
+    atomic<uint64_t> threadCounter;
+
+    ptr <OracleThreadPool> oracleThreadPool = nullptr;
+
+
 public:
 
     OracleAgentServer(Schain& _schain);
+
+    virtual ~OracleAgentServer() {};
 
     void routeAndProcessMessage(const ptr<MessageEnvelope>& _me );
 

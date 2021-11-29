@@ -129,7 +129,7 @@ class Schain : public Agent {
 
     ptr< SchainMessageThreadPool > consensusMessageThreadPool;
 
-    ptr <OracleThreadPool> oracleThreadPool;
+
 
     ptr< IO > io;
 
