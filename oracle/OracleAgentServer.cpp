@@ -120,7 +120,23 @@ void OracleAgentServer::workerThreadItemSendLoop(OracleAgentServer *_agent) {
 
     try {
         while (!agent->getSchain()->getNode()->isExitRequested()) {
-            usleep(1000000);
+
+            ptr<MessageEnvelope> msge;
+
+            auto success = _agent->incomingQueues.at(threadNumber - 1)->wait_dequeue_timed(msge,
+                                                                                           1000 *
+                                                                                           ORACLE_QUEUE_TIMEOUT_MS);
+            if (!success)
+                continue;
+
+            auto orclMsg = dynamic_pointer_cast<OracleRequestBroadcastMessage>(msge->getMessage());
+
+            CHECK_STATE(orclMsg);
+
+            auto msg = _agent->doEndpointRequestResponse(orclMsg);
+
+            _agent->sendOutResult(msg, msge->getSrcSchainIndex());
+
         }
     } catch (FatalError &e) {
         SkaleException::logNested(e);
@@ -132,4 +148,13 @@ void OracleAgentServer::workerThreadItemSendLoop(OracleAgentServer *_agent) {
 
     LOG(info, "Exited Oracle worker thread " + to_string(threadNumber));
 
+}
+
+
+ptr<OracleResponseMessage> OracleAgentServer::doEndpointRequestResponse(ptr<OracleRequestBroadcastMessage> /* _request */) {
+    return nullptr;
+}
+
+void OracleAgentServer::sendOutResult(ptr<OracleResponseMessage> /*_msg */, schain_index _destination) {
+    CHECK_STATE(_destination != 0)
 }

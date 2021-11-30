@@ -54,6 +54,12 @@ class OracleAgentServer : public ProtocolInstance, public Agent {
     ptr <OracleThreadPool> oracleThreadPool = nullptr;
 
 
+    ptr<OracleResponseMessage> doEndpointRequestResponse(ptr<OracleRequestBroadcastMessage> /* _request */);
+
+
+    void sendOutResult(ptr<OracleResponseMessage> _msg, schain_index /* _destination*/);
+
+
 public:
 
     OracleAgentServer(Schain& _schain);
