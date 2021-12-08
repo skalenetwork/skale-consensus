@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2018-2019 SKALE Labs
+    Copyright (C) 2021- SKALE Labs
 
     This file is part of skale-consensus.
 
@@ -16,9 +16,9 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file OracleAgentServer.cpp
+    @file OracleServerAgent.cpp
     @author Stan Kladko
-    @date 2018-
+    @date 2021-
 */
 
 #include "SkaleCommon.h"
@@ -58,11 +58,11 @@
 #include "utils/Time.h"
 #include "protocols/ProtocolInstance.h"
 #include "OracleThreadPool.h"
-#include "OracleAgentServer.h"
+#include "OracleServerAgent.h"
 #include "OracleRequestBroadcastMessage.h"
 
 
-OracleAgentServer::OracleAgentServer(Schain &_schain) : ProtocolInstance(
+OracleServerAgent::OracleServerAgent(Schain &_schain) : ProtocolInstance(
         ORACLE, _schain), Agent(_schain, true), requestCounter(0), threadCounter(0) {
 
     for (int i = 0; i < NUM_ORACLE_THREADS; i++) {
@@ -84,7 +84,7 @@ OracleAgentServer::OracleAgentServer(Schain &_schain) : ProtocolInstance(
 
 };
 
-void OracleAgentServer::routeAndProcessMessage(const ptr<MessageEnvelope> &_me) {
+void OracleServerAgent::routeAndProcessMessage(const ptr<MessageEnvelope> &_me) {
 
     CHECK_ARGUMENT(_me);
 
@@ -100,7 +100,7 @@ void OracleAgentServer::routeAndProcessMessage(const ptr<MessageEnvelope> &_me) 
 
 }
 
-void OracleAgentServer::workerThreadItemSendLoop(OracleAgentServer *_agent) {
+void OracleServerAgent::workerThreadItemSendLoop(OracleServerAgent *_agent) {
 
     CHECK_STATE(_agent)
 
@@ -151,10 +151,10 @@ void OracleAgentServer::workerThreadItemSendLoop(OracleAgentServer *_agent) {
 }
 
 
-ptr<OracleResponseMessage> OracleAgentServer::doEndpointRequestResponse(ptr<OracleRequestBroadcastMessage> /* _request */) {
+ptr<OracleResponseMessage> OracleServerAgent::doEndpointRequestResponse(ptr<OracleRequestBroadcastMessage> /* _request */) {
     return nullptr;
 }
 
-void OracleAgentServer::sendOutResult(ptr<OracleResponseMessage> /*_msg */, schain_index _destination) {
+void OracleServerAgent::sendOutResult(ptr<OracleResponseMessage> /*_msg */, schain_index _destination) {
     CHECK_STATE(_destination != 0)
 }

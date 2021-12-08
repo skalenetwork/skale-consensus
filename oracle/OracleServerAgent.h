@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2018-2019 SKALE Labs
+    Copyright (C) 2021- SKALE Labs
 
     This file is part of skale-consensus.
 
@@ -16,9 +16,9 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file OracleAgentServer.h
+    @file OracleServerAgent.h
     @author Stan Kladko
-    @date 2018
+    @date 2021-
 */
 
 #pragma once
@@ -43,7 +43,7 @@ class OracleResponseMessage;
 class OracleRequestBroadcastMessage;
 class OracleThreadPool;
 
-class OracleAgentServer : public ProtocolInstance, public Agent {
+class OracleServerAgent : public ProtocolInstance, public Agent {
 
     vector<shared_ptr<BlockingReaderWriterQueue<shared_ptr<MessageEnvelope>>>> incomingQueues;
 
@@ -62,12 +62,12 @@ class OracleAgentServer : public ProtocolInstance, public Agent {
 
 public:
 
-    OracleAgentServer(Schain& _schain);
+    OracleServerAgent(Schain& _schain);
 
-    virtual ~OracleAgentServer() {};
+    virtual ~OracleServerAgent() {};
 
     void routeAndProcessMessage(const ptr<MessageEnvelope>& _me );
 
-    static void workerThreadItemSendLoop(OracleAgentServer* agent );
+    static void workerThreadItemSendLoop(OracleServerAgent* agent );
 };
 

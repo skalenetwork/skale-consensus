@@ -83,7 +83,8 @@
 #include "network/Sockets.h"
 #include "network/ZMQSockets.h"
 #include "node/NodeInfo.h"
-#include "oracle/OracleAgentServer.h"
+#include "oracle/OracleServerAgent.h"
+#include "oracle/OracleClient.h"
 #include "oracle/OracleThreadPool.h"
 #include "pricing/PricingAgent.h"
 #include "protocols/ProtocolInstance.h"
@@ -267,6 +268,7 @@ void Schain::constructChildAgents() {
         testMessageGeneratorAgent = make_shared< TestMessageGeneratorAgent >( *this );
         pricingAgent = make_shared< PricingAgent >( *this );
         cryptoManager = make_shared< CryptoManager >( *this );
+        oracleClient = make_shared<OracleClient>( *this );
     } catch ( ... ) {
         throw_with_nested( FatalError( __FUNCTION__, __CLASS_NAME__ ) );
     }

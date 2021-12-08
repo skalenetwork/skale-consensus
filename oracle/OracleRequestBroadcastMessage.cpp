@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2018-2019 SKALE Labs
+    Copyright (C) 2021- SKALE Labs
 
     This file is part of skale-consensus.
 
@@ -18,7 +18,7 @@
 
     @file OracleRequestBroadcastMessage.cpp
     @author Stan Kladko
-    @date 2018
+    @date 2021-
 */
 
 #include "SkaleCommon.h"
@@ -30,19 +30,20 @@
 #include "chains/Schain.h"
 #include "protocols/ProtocolKey.h"
 
-#include "OracleAgentServer.h"
+#include "OracleServerAgent.h"
 #include "OracleRequestBroadcastMessage.h"
 
-OracleRequestBroadcastMessage::OracleRequestBroadcastMessage(string& _uri, block_id _blockID,
+OracleRequestBroadcastMessage::OracleRequestBroadcastMessage(string& _requestSpec, block_id _blockID,
                                                              uint64_t _timeMs,
-                                                             OracleAgentServer &sourceProtocolInstance)
+                                                             OracleServerAgent &sourceProtocolInstance)
         : NetworkMessage(MSG_ORACLE_REQ_BROADCAST, _blockID, 0, 0, 0, _timeMs,
-                         sourceProtocolInstance), uri(_uri) {
+                         sourceProtocolInstance), requestSpec(_requestSpec) {
     printPrefix = "o";
+    CHECK_STATE(_requestSpec.front() == '{' && _requestSpec.back() == '}');
 }
 
 
-OracleRequestBroadcastMessage::OracleRequestBroadcastMessage(string& _uri, node_id _srcNodeID, block_id _blockID,
+OracleRequestBroadcastMessage::OracleRequestBroadcastMessage(string& _requestSpec, node_id _srcNodeID, block_id _blockID,
                                                              uint64_t _timeMs,
                                                              schain_id _schainId, msg_id _msgID,
                                                              schain_index _srcSchainIndex,
@@ -51,7 +52,8 @@ OracleRequestBroadcastMessage::OracleRequestBroadcastMessage(string& _uri, node_
         : NetworkMessage(
         MSG_ORACLE_REQ_BROADCAST, _srcNodeID, _blockID, 0, 0, 0, _timeMs, _schainId, _msgID,
         "", _ecdsaSig, _publicKey, _pkSig,
-        _srcSchainIndex, _sChain->getCryptoManager()), uri(_uri) {
+        _srcSchainIndex, _sChain->getCryptoManager()), requestSpec(_requestSpec) {
+    CHECK_STATE(_requestSpec.front() == '{' && _requestSpec.back() == '}');
     printPrefix = "o";
 };
 

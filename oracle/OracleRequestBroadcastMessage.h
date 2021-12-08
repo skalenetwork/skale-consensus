@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2018-2019 SKALE Labs
+    Copyright (C) 2021- SKALE Labs
 
     This file is part of skale-consensus.
 
@@ -18,7 +18,7 @@
 
     @file OracleRequestBroadcastMessage.h
     @author Stan Kladko
-    @date 2018
+    @date 2021-
 */
 
 #pragma once
@@ -31,12 +31,12 @@ class OracleProtocolInstance;
 
 class OracleRequestBroadcastMessage : public NetworkMessage {
 
-    string uri;
+    string requestSpec;
 
 public:
-    OracleRequestBroadcastMessage(string& _uri, block_id _blockID, uint64_t _timeMs, OracleAgentServer& sourceProtocolInstance );
+    OracleRequestBroadcastMessage(string& _requestSpec, block_id _blockID, uint64_t _timeMs, OracleServerAgent& sourceProtocolInstance );
 
-    OracleRequestBroadcastMessage(string& _uri, node_id _srcNodeID, block_id _blockID,  uint64_t _timeMs, schain_id _schainId,
+    OracleRequestBroadcastMessage(string& _requestSpec, node_id _srcNodeID, block_id _blockID,  uint64_t _timeMs, schain_id _schainId,
                         msg_id _msgID, schain_index _srcSchainIndex, const string & _ecdsaSig,
                         const string & _publicKey, const string & _pkSig, Schain* _sChain );
 };

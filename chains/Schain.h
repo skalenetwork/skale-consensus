@@ -70,7 +70,7 @@ class PendingTransactionsAgent;
 
 class BlockConsensusAgent;
 
-class OracleAgentServer;
+class OracleServerAgent;
 class OracleThreadPool;
 
 class PricingAgent;
@@ -85,6 +85,7 @@ class BooleanProposalVector;
 class TimeStamp;
 class CryptoManager;
 class StatusServer;
+class OracleClient;
 
 class Schain : public Agent {
 
@@ -212,7 +213,10 @@ public:
     uint64_t getLastCommitTimeMs();
 
     ptr< BlockConsensusAgent > blockConsensusInstance;
-    ptr< OracleAgentServer > oracleInstance;
+
+    ptr< OracleServerAgent > oracleServer;
+
+    ptr< OracleClient > oracleClient;
 
     void createBlockConsensusInstance();
 
@@ -278,8 +282,7 @@ public:
 
     ptr< BlockConsensusAgent > getBlockConsensusInstance();
 
-    ptr< OracleAgentServer > getOracleInstance();
-
+    ptr< OracleServerAgent > getOracleInstance();
 
     ptr< NodeInfo > getThisNodeInfo() const;
 
@@ -328,8 +331,6 @@ public:
     void startStatusServer();
     void stopStatusServer();
     void setLastCommittedBlockId( uint64_t lastCommittedBlockId );
-
-
 
     block_id readLastCommittedBlockIDFromDb();
 

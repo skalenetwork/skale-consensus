@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2018-2019 SKALE Labs
+    Copyright (C) 2021- SKALE Labs
 
     This file is part of skale-consensus.
 
@@ -16,29 +16,26 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file OracleResponseBroadcastMessage.h
+    @file OracleRequestBroadcastMessage.h
     @author Stan Kladko
-    @date 2018
+    @date 2021-
 */
 
-#pragma once
 
+#ifndef SKALED_ORACLECLIENT_H
+#define SKALED_ORACLECLIENT_H
 
-#include "messages/NetworkMessage.h"
+class Schain;
 
-class OracleProtocolInstance;
-
-
-class OracleResponseMessage : public NetworkMessage {
-
-    string uri;
-    string value;
-
+class OracleClient {
 public:
+    OracleClient(Schain& _sChain);
 
-    OracleResponseMessage(string _value, string& _uri, block_id _blockID, uint64_t _timeMs, OracleServerAgent& sourceProtocolInstance );
+private:
 
-    OracleResponseMessage(string value, string& _uri, node_id _srcNodeID, block_id _blockID,  uint64_t _timeMs, schain_id _schainId,
-                                  msg_id _msgID, schain_index _srcSchainIndex, const string & _ecdsaSig,
-                                  const string & _publicKey, const string & _pkSig, Schain* _sChain );
+    Schain* sChain = nullptr;
+
 };
+
+
+#endif //SKALED_ORACLECLIENT_H

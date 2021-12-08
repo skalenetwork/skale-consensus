@@ -16,25 +16,14 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file OracleThreadPool.cpp
+    @file OracleRequestBroadcastMessage.h
     @author Stan Kladko
-    @date 2021
+    @date 2021-
 */
 
 #include "SkaleCommon.h"
 #include "Log.h"
+#include "OracleClient.h"
 
-#include "OracleServerAgent.h"
-#include "OracleThreadPool.h"
-
-OracleThreadPool::OracleThreadPool(Agent* _agent )
-        : WorkerThreadPool( NUM_ORACLE_THREADS, _agent, false ) {}
-
-
-void OracleThreadPool::createThread( uint64_t /*number*/ ) {
-    auto p = ( OracleServerAgent* ) agent;
-
-    LOCK(threadPoolLock);
-    this->threadpool.push_back(
-            make_shared< thread >(OracleServerAgent::workerThreadItemSendLoop, p ) );
+OracleClient::OracleClient(Schain& _sChain) : sChain(&_sChain) {
 }
