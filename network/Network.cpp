@@ -237,6 +237,11 @@ void Network::networkReadLoop() {
                     continue;
                 }
 
+                if (msg->getMsgType() == MSG_ORACLE_REQ_BROADCAST) {
+                    sChain->postMessage(m);
+                    continue;
+                }
+
                 CHECK_STATE(sChain);
 
                 postDeferOrDrop(m);

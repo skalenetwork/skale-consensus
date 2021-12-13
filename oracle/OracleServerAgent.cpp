@@ -85,6 +85,7 @@ OracleServerAgent::OracleServerAgent(Schain &_schain) : Agent(_schain, true), re
 
 void OracleServerAgent::routeAndProcessMessage(const ptr<MessageEnvelope> &_me) {
 
+
     CHECK_ARGUMENT(_me);
 
     CHECK_ARGUMENT(_me->getMessage()->getBlockId() > 0);
