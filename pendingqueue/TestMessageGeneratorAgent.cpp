@@ -42,12 +42,12 @@ TestMessageGeneratorAgent::TestMessageGeneratorAgent(Schain& _sChain_) : Agent(_
 
 
 ConsensusExtFace::transactions_vector TestMessageGeneratorAgent::pendingTransactions( size_t _limit ) {
-    static uint64_t counter = 0;
 
-    if (counter == 1) {
+    // test oracle for the first block
+
+    if (counter > 1) {
         getSchain()->getOracleClient()->sendTestRequest();
     }
-
 
     uint64_t  messageSize = 200;
 

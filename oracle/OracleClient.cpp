@@ -46,18 +46,18 @@ string OracleClient::broadcastRequestAndWaitForAnswer(ptr<OracleRequestBroadcast
 }
 
 string OracleClient::waitForAnswer(ptr<OracleRequestBroadcastMessage> /*_msg*/ ) {
-    usleep(100000);
-    return "";
+    return "{\"result\":\"hihi\"}";
 }
 
 void OracleClient::sendTestRequest() {
-    string result = broadcastRequestAndWaitForAnswer(nullptr);
+    string result = runOracleRequestResponse("{\"request\":\"haha\"}");
     LOG(info, "Oracle result:\n" + result);
 }
 
 
 string OracleClient::runOracleRequestResponse(string _spec) {
-    auto msg = new OracleRequestBroadcastMessage(_spec,  sChain->getLastCommittedBlockID(),
+    auto msg = make_shared<OracleRequestBroadcastMessage>(_spec,  sChain->getLastCommittedBlockID(),
                                                  Time::getCurrentTimeMs(),
                                                  *sChain->getOracleClient());
+    return broadcastRequestAndWaitForAnswer(msg);
 }

@@ -93,7 +93,7 @@ uint64_t BasicHeader::getUint64Rapid(rapidjson::Document &_d, const char *_name)
 
 string BasicHeader::getStringRapid(rapidjson::Document &_d, const char *_name) {
     CHECK_ARGUMENT(_name);
-    CHECK_STATE(_d.HasMember(_name));
+    CHECK_STATE2(_d.HasMember(_name), "No JSON member:" + string(_name));
     CHECK_STATE(_d[_name].IsString());
     return _d[_name].GetString();
 };

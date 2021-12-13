@@ -402,6 +402,9 @@ const char *NetworkMessage::getTypeString(MsgType _type) {
         case MSG_BLOCK_SIGN_BROADCAST : {
             return BLOCK_SIG_BROADCAST;
         }
+        case MSG_ORACLE_REQ_BROADCAST : {
+            return ORACLE_REQUEST_BROADCAST;
+        }
         default: {
             return "history";
         }
