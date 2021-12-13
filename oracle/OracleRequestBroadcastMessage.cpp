@@ -57,6 +57,10 @@ OracleRequestBroadcastMessage::OracleRequestBroadcastMessage(string& _requestSpe
     printPrefix = "o";
 };
 
-void OracleRequestBroadcastMessage::updateWithChildHash(blake3_hasher& ) {
-
+void OracleRequestBroadcastMessage::updateWithChildHash(blake3_hasher& _hasher) {
+    uint32_t  requestLen = requestSpec.size();
+    HASH_UPDATE(_hasher, requestLen);
+    if (requestLen > 0) {
+        blake3_hasher_update(&_hasher, (unsigned char *) requestSpec.data(), requestLen);
+    }
 }

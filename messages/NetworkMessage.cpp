@@ -447,14 +447,10 @@ BLAKE3Hash NetworkMessage::calculateHash() {
     HASH_UPDATE(hasher, typeLen);
     blake3_hasher_update(&hasher, (unsigned char*)type, strlen(type));
 
-    uint32_t  sigShareLen = 0;
-
-    if (!sigShareString.empty()) {
-        sigShareLen = sigShareString.size();
-        HASH_UPDATE(hasher, sigShareLen);
+    uint32_t  sigShareLen = sigShareString.size();
+    HASH_UPDATE(hasher, sigShareLen);
+    if (sigShareLen > 0) {
         blake3_hasher_update(&hasher, (unsigned char *) sigShareString.data(), sigShareLen);
-    } else {
-        HASH_UPDATE(hasher, sigShareLen);
     }
 
     HASH_FINAL(hasher, hash.data());

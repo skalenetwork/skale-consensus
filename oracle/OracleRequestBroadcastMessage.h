@@ -35,7 +35,7 @@ class OracleRequestBroadcastMessage : public NetworkMessage {
 
 protected:
 
-    void updateWithChildHash(blake3_hasher& );
+    void updateWithChildHash(blake3_hasher& _hasher);
 
 
 public:
