@@ -38,6 +38,10 @@ protected:
     void updateWithChildHash(blake3_hasher& _hasher);
 
 
+
+    void serializeToStringChild(rapidjson::Writer<rapidjson::StringBuffer>& _writer);
+
+
 public:
 
     OracleRequestBroadcastMessage(string& _requestSpec, block_id _blockID, uint64_t _timeMs, OracleClient& sourceProtocolInstance );

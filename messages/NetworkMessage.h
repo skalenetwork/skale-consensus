@@ -26,6 +26,10 @@
 #undef CHECK
 #include "crypto/bls_include.h"
 
+#include "thirdparty/rapidjson/document.h"
+#include "thirdparty/json.hpp"
+#include "thirdparty/rapidjson/prettywriter.h" // for stringify JSON
+
 #include "Message.h"
 
 #include "headers/BasicHeader.h"
@@ -83,6 +87,8 @@ protected:
     void addFields( nlohmann::json& j ) override;
 
     virtual void updateWithChildHash(blake3_hasher &hasher);
+
+    virtual void serializeToStringChild(rapidjson::Writer<rapidjson::StringBuffer>& _writer);
 
 public:
 

@@ -21,6 +21,10 @@
     @date 2021-
 */
 
+#include "thirdparty/rapidjson/document.h"
+#include "thirdparty/json.hpp"
+#include "thirdparty/rapidjson/prettywriter.h" // for stringify JSON
+
 #include "SkaleCommon.h"
 
 #include "exceptions/FatalError.h"
@@ -63,4 +67,10 @@ void OracleRequestBroadcastMessage::updateWithChildHash(blake3_hasher& _hasher) 
     if (requestLen > 0) {
         blake3_hasher_update(&_hasher, (unsigned char *) requestSpec.data(), requestLen);
     }
+}
+
+
+void OracleRequestBroadcastMessage::serializeToStringChild(rapidjson::Writer<rapidjson::StringBuffer>& _writer) {
+    _writer.String("spec");
+    _writer.String(requestSpec.data(), requestSpec.size());
 }

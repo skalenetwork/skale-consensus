@@ -184,10 +184,16 @@ string NetworkMessage::serializeToStringLite() {
     writer.String("pks");
     writer.String(pkSig.data(), pkSig.size());
 
+
+
     writer.EndObject();
     writer.Flush();
     string s(sb.GetString());
     return s;
+
+}
+
+void NetworkMessage::serializeToStringChild(Writer<StringBuffer>&) {
 
 }
 
@@ -237,6 +243,8 @@ string NetworkMessage::serializeToString() {
     writer.String(publicKey.data(), publicKey.size());
     writer.String("pks");
     writer.String(pkSig.data(), pkSig.size());
+
+    serializeToStringChild(writer);
 
     writer.EndObject();
     writer.Flush();
@@ -369,14 +377,15 @@ ptr<NetworkMessage> NetworkMessage::parseMessage(const string& _header, Schain *
                                                           srcSchainIndex, ecdsaSig, publicKey, pkSig,
                                                           _sChain);
         } else if (type == BasicHeader::ORACLE_REQUEST_BROADCAST) {
-            string uri = getStringRapid(d, "uri");
-            CHECK_STATE(!uri.empty())
-            nwkMsg = make_shared<OracleRequestBroadcastMessage>(uri, node_id(srcNodeID),
+            string spec = getStringRapid(d, "spec");
+            CHECK_STATE(!spec.empty())
+            nwkMsg = make_shared<OracleRequestBroadcastMessage>(spec, node_id(srcNodeID),
                                                             block_id(blockID),
                                                             timeMs,
                                                             schain_id(sChainID), msg_id(msgID),
                                                             srcSchainIndex, ecdsaSig, publicKey, pkSig,
                                                             _sChain);
+            LOG(info, "Received spec:" + spec);
         } else {
             CHECK_STATE(false)
         }
