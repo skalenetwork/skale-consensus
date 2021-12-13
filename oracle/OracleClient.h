@@ -33,11 +33,14 @@ public:
     OracleClient(Schain& _sChain);
 
 
-    void broadcastMessage(ptr<OracleRequestBroadcastMessage> _msg);
+    string broadcastRequestAndWaitForAnswer(ptr<OracleRequestBroadcastMessage> _msg);
+
 
 private:
 
     Schain* sChain = nullptr;
+
+    string waitForAnswer(ptr<OracleRequestBroadcastMessage> /*_msg*/ );
 
 };
 

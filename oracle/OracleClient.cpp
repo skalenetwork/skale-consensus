@@ -24,10 +24,23 @@
 #include "SkaleCommon.h"
 #include "Log.h"
 #include "OracleClient.h"
+#include "chains/Schain.h"
+#include "network/Network.h"
 
 OracleClient::OracleClient(Schain& _sChain) : sChain(&_sChain) {
 }
 
-void OracleClient::broadcastMessage(ptr<OracleRequestBroadcastMessage> _msg) {
+string OracleClient::broadcastRequestAndWaitForAnswer(ptr<OracleRequestBroadcastMessage> _msg) {
     CHECK_STATE(_msg);
+    CHECK_STATE(sChain);
+    sChain->getNode()->getNetwork()->broadcastOracleMessage(_msg);
+
+    auto result = waitForAnswer(_msg);
+    return result;
+
+}
+
+string OracleClient::waitForAnswer(ptr<OracleRequestBroadcastMessage> /*_msg*/ ) {
+    usleep(100000);
+    return "";
 }

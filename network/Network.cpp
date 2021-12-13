@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2018-2019 SKALE Labs
+    Copyright (C) 2018- SKALE Labs
 
     This file is part of skale-consensus.
 
@@ -18,7 +18,7 @@
 
     @file TransportNetwork.cpp
     @author Stan Kladko
-    @date 2018
+    @date 2018-
 */
 
 
@@ -32,6 +32,7 @@
 #include "db/BlockProposalDB.h"
 #include "exceptions/FatalError.h"
 #include "messages/NetworkMessage.h"
+#include "oracle/OracleRequestBroadcastMessage.h"
 #include "node/Node.h"
 #include "node/NodeInfo.h"
 #include "protocols/blockconsensus/BlockSignBroadcastMessage.h"
@@ -186,9 +187,10 @@ void Network::broadcastMessageImpl(const ptr<NetworkMessage> &_msg, bool _isFirs
 }
 
 
-void Network::broadcastOracleMessage(const ptr<NetworkMessage> &_msg) {
+void Network::broadcastOracleMessage(const ptr<OracleRequestBroadcastMessage> &_msg) {
     // Oracle messages are simply broadcast without resends
     CHECK_ARGUMENT(_msg);
+
 
     try {
 

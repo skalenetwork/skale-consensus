@@ -29,6 +29,7 @@ class Schain;
 class NetworkMessageEnvelope;
 class NodeInfo;
 class NetworkMessage;
+class OracleRequestBroadcastMessage;
 class Buffer;
 class Node;
 class Schain;
@@ -77,7 +78,7 @@ public:
 
     static string ipToString(uint32_t _ip);
 
-    void broadcastOracleMessage(const ptr<NetworkMessage>& _msg);
+    void broadcastOracleMessage(const ptr<OracleRequestBroadcastMessage>& _msg);
 
     void broadcastMessage(const ptr<NetworkMessage>& _msg);
 
