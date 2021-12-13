@@ -25,22 +25,25 @@
 #ifndef SKALED_ORACLECLIENT_H
 #define SKALED_ORACLECLIENT_H
 
+#include "protocols/ProtocolInstance.h"
+
 class Schain;
 class OracleRequestBroadcastMessage;
 
-class OracleClient {
-public:
-    OracleClient(Schain& _sChain);
-
-
-    string broadcastRequestAndWaitForAnswer(ptr<OracleRequestBroadcastMessage> _msg);
-
-
-private:
+class OracleClient : public ProtocolInstance {
 
     Schain* sChain = nullptr;
 
     string waitForAnswer(ptr<OracleRequestBroadcastMessage> /*_msg*/ );
+
+public:
+    explicit OracleClient(Schain& _sChain);
+
+    string runOracleRequestResponse(string _spec);
+
+    string broadcastRequestAndWaitForAnswer(ptr<OracleRequestBroadcastMessage> _msg);
+
+    void sendTestRequest();
 
 };
 

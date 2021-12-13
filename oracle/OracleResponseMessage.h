@@ -36,7 +36,7 @@ class OracleResponseMessage : public NetworkMessage {
 
 public:
 
-    OracleResponseMessage(string _value, string& _uri, block_id _blockID, uint64_t _timeMs, OracleServerAgent& sourceProtocolInstance );
+    OracleResponseMessage(string _value, string& _uri, block_id _blockID, uint64_t _timeMs, OracleClient& sourceProtocolInstance );
 
     OracleResponseMessage(string value, string& _uri, node_id _srcNodeID, block_id _blockID,  uint64_t _timeMs, schain_id _schainId,
                                   msg_id _msgID, schain_index _srcSchainIndex, const string & _ecdsaSig,

@@ -342,5 +342,7 @@ public:
 
     u256 getRandomForBlockId(block_id _blockid);
 
+    const ptr<OracleClient> getOracleClient() const;
+
 };
 

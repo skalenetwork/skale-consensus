@@ -29,17 +29,17 @@
 
 #include "chains/Schain.h"
 #include "protocols/ProtocolKey.h"
-
+#include "OracleClient.h"
 #include "OracleServerAgent.h"
 #include "OracleRequestBroadcastMessage.h"
 
 OracleRequestBroadcastMessage::OracleRequestBroadcastMessage(string& _requestSpec, block_id _blockID,
                                                              uint64_t _timeMs,
-                                                             OracleServerAgent &sourceProtocolInstance)
+                                                             OracleClient &sourceProtocolInstance)
         : NetworkMessage(MSG_ORACLE_REQ_BROADCAST, _blockID, 0, 0, 0, _timeMs,
                          sourceProtocolInstance), requestSpec(_requestSpec) {
     printPrefix = "o";
-    CHECK_STATE(_requestSpec.front() == '{' && _requestSpec.back() == '}');
+    CHECK_STATE(_requestSpec.front() == '{' && _requestSpec.back() == '}')
 }
 
 
@@ -53,13 +53,13 @@ OracleRequestBroadcastMessage::OracleRequestBroadcastMessage(string& _requestSpe
         MSG_ORACLE_REQ_BROADCAST, _srcNodeID, _blockID, 0, 0, 0, _timeMs, _schainId, _msgID,
         "", _ecdsaSig, _publicKey, _pkSig,
         _srcSchainIndex, _sChain->getCryptoManager()), requestSpec(_requestSpec) {
-    CHECK_STATE(_requestSpec.front() == '{' && _requestSpec.back() == '}');
+    CHECK_STATE(_requestSpec.front() == '{' && _requestSpec.back() == '}')
     printPrefix = "o";
-};
+}
 
 void OracleRequestBroadcastMessage::updateWithChildHash(blake3_hasher& _hasher) {
     uint32_t  requestLen = requestSpec.size();
-    HASH_UPDATE(_hasher, requestLen);
+    HASH_UPDATE(_hasher, requestLen)
     if (requestLen > 0) {
         blake3_hasher_update(&_hasher, (unsigned char *) requestSpec.data(), requestLen);
     }

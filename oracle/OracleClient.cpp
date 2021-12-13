@@ -23,16 +23,21 @@
 
 #include "SkaleCommon.h"
 #include "Log.h"
-#include "OracleClient.h"
+#include "OracleRequestBroadcastMessage.h"
 #include "chains/Schain.h"
 #include "network/Network.h"
+#include "utils/Time.h"
+#include "protocols/ProtocolInstance.h"
+#include "OracleRequestBroadcastMessage.h"
+#include "OracleClient.h"
 
-OracleClient::OracleClient(Schain& _sChain) : sChain(&_sChain) {
+
+OracleClient::OracleClient(Schain& _sChain) : ProtocolInstance(ORACLE, _sChain), sChain(&_sChain) {
 }
 
 string OracleClient::broadcastRequestAndWaitForAnswer(ptr<OracleRequestBroadcastMessage> _msg) {
-    CHECK_STATE(_msg);
-    CHECK_STATE(sChain);
+    CHECK_STATE(_msg)
+    CHECK_STATE(sChain)
     sChain->getNode()->getNetwork()->broadcastOracleMessage(_msg);
 
     auto result = waitForAnswer(_msg);
@@ -43,4 +48,16 @@ string OracleClient::broadcastRequestAndWaitForAnswer(ptr<OracleRequestBroadcast
 string OracleClient::waitForAnswer(ptr<OracleRequestBroadcastMessage> /*_msg*/ ) {
     usleep(100000);
     return "";
+}
+
+void OracleClient::sendTestRequest() {
+    string result = broadcastRequestAndWaitForAnswer(nullptr);
+    LOG(info, "Oracle result:\n" + result);
+}
+
+
+string OracleClient::runOracleRequestResponse(string _spec) {
+    auto msg = new OracleRequestBroadcastMessage(_spec,  sChain->getLastCommittedBlockID(),
+                                                 Time::getCurrentTimeMs(),
+                                                 *sChain->getOracleClient());
 }

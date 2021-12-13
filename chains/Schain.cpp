@@ -1149,4 +1149,6 @@ u256 Schain::getRandomForBlockId(block_id _blockId) {
 
 ptr<ofstream> Schain::visualizationDataStream = nullptr;
 
+
+
 mutex Schain::vdsMutex;

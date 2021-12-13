@@ -43,7 +43,7 @@ class OracleResponseMessage;
 class OracleRequestBroadcastMessage;
 class OracleThreadPool;
 
-class OracleServerAgent : public ProtocolInstance, public Agent {
+class OracleServerAgent : public Agent {
 
     vector<shared_ptr<BlockingReaderWriterQueue<shared_ptr<MessageEnvelope>>>> incomingQueues;
 

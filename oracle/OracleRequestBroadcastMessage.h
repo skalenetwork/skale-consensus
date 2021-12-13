@@ -26,7 +26,7 @@
 
 #include "messages/NetworkMessage.h"
 
-class OracleProtocolInstance;
+class OracleClient;
 
 
 class OracleRequestBroadcastMessage : public NetworkMessage {
@@ -39,7 +39,8 @@ protected:
 
 
 public:
-    OracleRequestBroadcastMessage(string& _requestSpec, block_id _blockID, uint64_t _timeMs, OracleServerAgent& sourceProtocolInstance );
+
+    OracleRequestBroadcastMessage(string& _requestSpec, block_id _blockID, uint64_t _timeMs, OracleClient& sourceProtocolInstance );
 
     OracleRequestBroadcastMessage(string& _requestSpec, node_id _srcNodeID, block_id _blockID,  uint64_t _timeMs, schain_id _schainId,
                         msg_id _msgID, schain_index _srcSchainIndex, const string & _ecdsaSig,

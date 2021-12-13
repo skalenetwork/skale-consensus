@@ -62,8 +62,7 @@
 #include "OracleRequestBroadcastMessage.h"
 
 
-OracleServerAgent::OracleServerAgent(Schain &_schain) : ProtocolInstance(
-        ORACLE, _schain), Agent(_schain, true), requestCounter(0), threadCounter(0) {
+OracleServerAgent::OracleServerAgent(Schain &_schain) : Agent(_schain, true), requestCounter(0), threadCounter(0) {
 
     for (int i = 0; i < NUM_ORACLE_THREADS; i++) {
         incomingQueues.push_back(
