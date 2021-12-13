@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2018-2019 SKALE Labs
+    Copyright (C) 2018- SKALE Labs
 
     This file is part of skale-consensus.
 
@@ -18,7 +18,7 @@
 
     @file BlockProposal.h
     @author Stan Kladko
-    @date 2018
+    @date 2018 -
 */
 
 #pragma once
