@@ -27,3 +27,7 @@
 
 OracleClient::OracleClient(Schain& _sChain) : sChain(&_sChain) {
 }
+
+void OracleClient::broadcastMessage(ptr<OracleRequestBroadcastMessage> _msg) {
+    CHECK_STATE(_msg);
+}

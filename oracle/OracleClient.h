@@ -26,10 +26,14 @@
 #define SKALED_ORACLECLIENT_H
 
 class Schain;
+class OracleRequestBroadcastMessage;
 
 class OracleClient {
 public:
     OracleClient(Schain& _sChain);
+
+
+    void broadcastMessage(ptr<OracleRequestBroadcastMessage> _msg);
 
 private:
 
