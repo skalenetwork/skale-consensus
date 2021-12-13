@@ -202,6 +202,8 @@ void Network::broadcastOracleMessage(const ptr<OracleRequestBroadcastMessage> &_
 
             if (dstIndex != (getSchain()->getSchainIndex())) {
                 sendMessage(it.second, _msg);
+            } else {
+                getSchain()->postMessage(make_shared<NetworkMessageEnvelope>(_msg, dstIndex));
             }
         }
     } catch (...) {
