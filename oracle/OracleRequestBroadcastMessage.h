@@ -33,6 +33,11 @@ class OracleRequestBroadcastMessage : public NetworkMessage {
 
     string requestSpec;
 
+protected:
+
+    void updateWithChildHash(blake3_hasher& );
+
+
 public:
     OracleRequestBroadcastMessage(string& _requestSpec, block_id _blockID, uint64_t _timeMs, OracleServerAgent& sourceProtocolInstance );
 

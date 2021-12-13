@@ -82,6 +82,8 @@ protected:
 
     void addFields( nlohmann::json& j ) override;
 
+    virtual void updateWithChildHash(blake3_hasher &hasher);
+
 public:
 
     [[nodiscard]] uint64_t getTimeMs() const;
@@ -113,4 +115,5 @@ public:
     [[nodiscard]] const string & getPkSig() const;
 
     string serializeToStringLite();
+
 };

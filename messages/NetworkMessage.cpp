@@ -425,6 +425,10 @@ BLAKE3Hash NetworkMessage::getHash() {
     return hash;
 }
 
+void NetworkMessage::updateWithChildHash(blake3_hasher& ) {
+
+}
+
 BLAKE3Hash NetworkMessage::calculateHash() {
 
     HASH_INIT(hasher);
