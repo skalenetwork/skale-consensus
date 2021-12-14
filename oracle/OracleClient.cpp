@@ -76,3 +76,8 @@ uint64_t OracleClient::runOracleRequest(string _spec, string result) {
                                                  *sChain->getOracleClient());
     return broadcastRequestAndReturnReceipt(msg, result);
 }
+
+
+void OracleClient::processResponseMessage(const ptr<MessageEnvelope> &_me) {
+    CHECK_STATE(_me);
+}

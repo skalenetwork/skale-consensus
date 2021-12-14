@@ -59,6 +59,7 @@
 #include "protocols/ProtocolInstance.h"
 #include "OracleThreadPool.h"
 #include "OracleServerAgent.h"
+#include "OracleClient.h"
 #include "OracleRequestBroadcastMessage.h"
 
 
@@ -90,13 +91,20 @@ void OracleServerAgent::routeAndProcessMessage(const ptr<MessageEnvelope> &_me) 
 
     CHECK_ARGUMENT(_me->getMessage()->getBlockId() > 0);
 
-    CHECK_STATE(_me->getMessage()->getMessageType() == MSG_ORACLE_REQ_BROADCAST);
+    CHECK_STATE(_me->getMessage()->getMessageType() == MSG_ORACLE_REQ_BROADCAST ||
+                        _me->getMessage()->getMessageType() == MSG_ORACLE_RSP);
 
-    auto value = requestCounter.fetch_add(1);
+    if (_me->getMessage()->getMessageType() == MSG_ORACLE_REQ_BROADCAST) {
 
-    this->incomingQueues.at(value % (uint64_t) NUM_ORACLE_THREADS)->enqueue(_me);
+        auto value = requestCounter.fetch_add(1);
 
-    return;
+        this->incomingQueues.at(value % (uint64_t) NUM_ORACLE_THREADS)->enqueue(_me);
+
+        return;
+    } else {
+        auto client = getSchain()->getOracleClient();
+        client->processResponseMessage(_me);
+    }
 
 }
 

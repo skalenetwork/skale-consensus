@@ -163,7 +163,8 @@ void Schain::messageThreadProcessingLoop( Schain* _sChain ) {
                 CHECK_STATE( ( uint64_t ) m->getMessage()->getBlockId() != 0 );
 
                 try {
-                    if (m->getMessage()->getMsgType() == MSG_ORACLE_REQ_BROADCAST) {
+                    if (m->getMessage()->getMsgType() == MSG_ORACLE_REQ_BROADCAST ||
+                        m->getMessage()->getMsgType() == MSG_ORACLE_RSP) {
                         _sChain->getOracleInstance()->routeAndProcessMessage( m );
                     } else {
                         _sChain->getBlockConsensusInstance()->routeAndProcessMessage(m);

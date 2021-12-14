@@ -49,6 +49,9 @@ public:
 
     void sendTestRequest();
 
+
+    void processResponseMessage(const ptr<MessageEnvelope> &_me);
+
 };
 
 
