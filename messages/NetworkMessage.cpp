@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2018-2019 SKALE Labs
+    Copyright (C) 2018- SKALE Labs
 
     This file is part of skale-consensus.
 
@@ -18,7 +18,7 @@
 
     @file NetworkMessage.cpp
     @author Stan Kladko
-    @date 2018
+    @date 2018-
 */
 
 #include "thirdparty/rapidjson/document.h"
@@ -44,6 +44,7 @@
 #include "network/Network.h"
 #include "node/NodeInfo.h"
 #include "oracle/OracleRequestBroadcastMessage.h"
+#include "oracle/OracleResponseMessage.h"
 #include "protocols/ProtocolKey.h"
 #include "protocols/binconsensus/AUXBroadcastMessage.h"
 #include "protocols/binconsensus/BVBroadcastMessage.h"
@@ -386,7 +387,23 @@ ptr<NetworkMessage> NetworkMessage::parseMessage(const string& _header, Schain *
                                                             srcSchainIndex, ecdsaSig, publicKey, pkSig,
                                                             _sChain);
             LOG(info, "Received spec:" + spec);
-        } else {
+        }
+    else if (type == BasicHeader::ORACLE_RESPONSE) {
+        string result = getStringRapid(d, "rslt");
+        CHECK_STATE(!result.empty())
+
+        string receipt = getStringRapid(d, "rcpt");
+        CHECK_STATE(!receipt.empty())
+
+        nwkMsg = make_shared<OracleResponseMessage>(result, receipt, node_id(srcNodeID),
+                                                            block_id(blockID),
+                                                            timeMs,
+                                                            schain_id(sChainID), msg_id(msgID),
+                                                            srcSchainIndex, ecdsaSig, publicKey, pkSig,
+                                                            _sChain);
+        LOG(info, "Received result:" + result + " for oracle receipt: " + receipt);
+    }
+    else {
             CHECK_STATE(false)
         }
 
