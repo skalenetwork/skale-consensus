@@ -65,3 +65,18 @@ void OracleResponseMessage::serializeToStringChild(rapidjson::Writer<rapidjson::
     _writer.String("rcpt");
     _writer.String(receipt.data(), receipt.size());
 }
+
+
+void OracleResponseMessage::updateWithChildHash(blake3_hasher& _hasher) {
+    uint32_t  resultLen = oracleResult.size();
+    HASH_UPDATE(_hasher, resultLen)
+    if (resultLen > 0) {
+        blake3_hasher_update(&_hasher, (unsigned char *) oracleResult.data(), resultLen);
+    }
+
+    uint32_t  receiptLen = receipt.size();
+    HASH_UPDATE(_hasher, receiptLen)
+    if (receiptLen > 0) {
+        blake3_hasher_update(&_hasher, (unsigned char *) receipt.data(), receiptLen);
+    }
+}
