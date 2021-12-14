@@ -465,6 +465,8 @@ BLAKE3Hash NetworkMessage::calculateHash() {
         blake3_hasher_update(&hasher, (unsigned char *) sigShareString.data(), sigShareLen);
     }
 
+    updateWithChildHash(hasher);
+
     HASH_FINAL(hasher, hash.data());
     return hash;
 }

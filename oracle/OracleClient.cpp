@@ -39,6 +39,7 @@ string OracleClient::broadcastRequestAndWaitForAnswer(ptr<OracleRequestBroadcast
     CHECK_STATE(_msg)
     CHECK_STATE(sChain)
     sChain->getNode()->getNetwork()->broadcastOracleMessage(_msg);
+    return _msg->getHash().toHex();
 
     auto result = waitForAnswer(_msg);
     return result;
