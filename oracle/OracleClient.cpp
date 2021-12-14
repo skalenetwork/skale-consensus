@@ -28,22 +28,33 @@
 #include "network/Network.h"
 #include "utils/Time.h"
 #include "protocols/ProtocolInstance.h"
+#include "OracleErrors.h"
 #include "OracleRequestBroadcastMessage.h"
 #include "OracleClient.h"
 
 
-OracleClient::OracleClient(Schain& _sChain) : ProtocolInstance(ORACLE, _sChain), sChain(&_sChain) {
+OracleClient::OracleClient(Schain& _sChain) : ProtocolInstance(ORACLE, _sChain), sChain(&_sChain),
+                                              receiptsMap(ORACLE_RECEIPTS_MAP_SIZE){
 }
 
-string OracleClient::broadcastRequestAndWaitForAnswer(ptr<OracleRequestBroadcastMessage> _msg) {
+uint64_t OracleClient::broadcastRequestAndReturnReceipt(ptr<OracleRequestBroadcastMessage> _msg, string& receipt) {
+
     CHECK_STATE(_msg)
     CHECK_STATE(sChain)
+    auto r = _msg->getHash().toHex();
+
+
+    auto exists = receiptsMap.putIfDoesNotExist(r, make_shared<list<string>>());
+
+    if (!exists) {
+        LOG(err, "Request exists:" + r);
+        return ORACLE_DUPLICATE_REQUEST;
+    }
+
+    LOCK(m);
     sChain->getNode()->getNetwork()->broadcastOracleMessage(_msg);
-    return _msg->getHash().toHex();
-
-    auto result = waitForAnswer(_msg);
-    return result;
-
+    receipt = r;
+    return ORACLE_SUCCESS;
 }
 
 string OracleClient::waitForAnswer(ptr<OracleRequestBroadcastMessage> /*_msg*/ ) {
@@ -51,14 +62,17 @@ string OracleClient::waitForAnswer(ptr<OracleRequestBroadcastMessage> /*_msg*/ )
 }
 
 void OracleClient::sendTestRequest() {
-    string result = runOracleRequestResponse("{\"request\":\"haha\"}");
+    string result;
+
+    auto status = runOracleRequest("{\"request\":\"haha\"}", result);
+    CHECK_STATE(status == ORACLE_SUCCESS);
     LOG(info, "Oracle result:\n" + result);
 }
 
 
-string OracleClient::runOracleRequestResponse(string _spec) {
+uint64_t OracleClient::runOracleRequest(string _spec, string result) {
     auto msg = make_shared<OracleRequestBroadcastMessage>(_spec,  sChain->getLastCommittedBlockID(),
                                                  Time::getCurrentTimeMs(),
                                                  *sChain->getOracleClient());
-    return broadcastRequestAndWaitForAnswer(msg);
+    return broadcastRequestAndReturnReceipt(msg, result);
 }

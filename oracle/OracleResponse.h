@@ -24,11 +24,7 @@
 #ifndef SKALED_ORACLERESPONSE_H
 #define SKALED_ORACLERESPONSE_H
 
-#define ORACLE_SUCCESS  0
-#define ORACLE_TIMEOUT 1
-#define ORACLE_NO_CONSENSUS  2
-#define ORACLE_UNKNOWN_ERROR  3
-
+#include "OracleErrors.h"
 
 
 class OracleResponse {

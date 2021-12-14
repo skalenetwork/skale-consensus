@@ -32,16 +32,20 @@ class OracleRequestBroadcastMessage;
 
 class OracleClient : public ProtocolInstance {
 
+    recursive_mutex m;
+
     Schain* sChain = nullptr;
+
+    cache::lru_cache<string, ptr<list<string>>> receiptsMap;
 
     string waitForAnswer(ptr<OracleRequestBroadcastMessage> /*_msg*/ );
 
 public:
     explicit OracleClient(Schain& _sChain);
 
-    string runOracleRequestResponse(string _spec);
+    uint64_t runOracleRequest(string _spec, string result);
 
-    string broadcastRequestAndWaitForAnswer(ptr<OracleRequestBroadcastMessage> _msg);
+    uint64_t broadcastRequestAndReturnReceipt(ptr<OracleRequestBroadcastMessage> _msg, string& receipt);
 
     void sendTestRequest();
 

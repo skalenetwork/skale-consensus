@@ -326,6 +326,8 @@ static const uint64_t DEFAULT_MIN_PRICE = 100000;
 
 static const uint64_t COMMON_COIN_ROUND = 4;
 
+static const uint64_t  ORACLE_RECEIPTS_MAP_SIZE = 100000;
+
 extern void setThreadName(std::string const &_n, ConsensusEngine* _engine);
 
 extern std::string getThreadName();
