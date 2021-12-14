@@ -35,11 +35,9 @@ class OracleRequestBroadcastMessage : public NetworkMessage {
 
 protected:
 
-    void updateWithChildHash(blake3_hasher& _hasher);
+    void updateWithChildHash(blake3_hasher& _hasher) override;
 
-
-
-    void serializeToStringChild(rapidjson::Writer<rapidjson::StringBuffer>& _writer);
+    void serializeToStringChild(rapidjson::Writer<rapidjson::StringBuffer>& _writer) override;
 
 
 public:

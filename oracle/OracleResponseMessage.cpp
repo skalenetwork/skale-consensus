@@ -35,16 +35,16 @@
 #include "OracleServerAgent.h"
 #include "OracleResponseMessage.h"
 
-OracleResponseMessage::OracleResponseMessage(string _value, string& _uri, block_id _blockID,
+OracleResponseMessage::OracleResponseMessage(string& _oracleResult, string& _receipt, block_id _blockID,
                                              uint64_t _timeMs,
                                              OracleClient &sourceProtocolInstance)
         : NetworkMessage(MSG_ORACLE_RSP, _blockID, 0, 0, 0, _timeMs,
-                         sourceProtocolInstance), uri(_uri), value(_value)  {
+                         sourceProtocolInstance), oracleResult(_oracleResult), receipt(_receipt)  {
     printPrefix = "r";
 }
 
 
-OracleResponseMessage::OracleResponseMessage(string _value, string& _uri, node_id _srcNodeID, block_id _blockID,
+OracleResponseMessage::OracleResponseMessage(string& _oracleResult, string& _receipt, node_id _srcNodeID, block_id _blockID,
                                                              uint64_t _timeMs,
                                                              schain_id _schainId, msg_id _msgID,
                                                              schain_index _srcSchainIndex,
@@ -53,7 +53,15 @@ OracleResponseMessage::OracleResponseMessage(string _value, string& _uri, node_i
         : NetworkMessage(
         MSG_ORACLE_RSP, _srcNodeID, _blockID, 0, 0, 0, _timeMs, _schainId, _msgID,
         "", _ecdsaSig, _publicKey, _pkSig,
-        _srcSchainIndex, _sChain->getCryptoManager()), uri(_uri), value(_value) {
+        _srcSchainIndex, _sChain->getCryptoManager()), oracleResult(_oracleResult), receipt(_receipt) {
     printPrefix = "r";
 };
 
+
+void OracleResponseMessage::serializeToStringChild(rapidjson::Writer<rapidjson::StringBuffer>& _writer) {
+    _writer.String("rslt");
+    _writer.String(oracleResult.data(), oracleResult.size());
+
+    _writer.String("rcpt");
+    _writer.String(receipt.data(), receipt.size());
+}
