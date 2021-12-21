@@ -55,6 +55,7 @@ class FastMessageLedger {
 
 public:
     FastMessageLedger(Schain *schain, string ledgerFileFullPath, block_id _blockID);
+    ~FastMessageLedger(){ closeFd(); }
 
     // writes consensus proposal message to ledger
     void writeProposalMessage(ptr<ConsensusProposalMessage> _message);
