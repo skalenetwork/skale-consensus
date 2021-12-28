@@ -64,7 +64,8 @@
 
 #include "ConsensusEdDSASigShare.h"
 #include "bls/BLSPrivateKeyShare.h"
-#include "datastructures/BlockProposal.h"
+// #include "datastructures/BlockProposal.h"
+#include "datastructures/CommittedBlock.h"
 #include "monitoring/LivelinessMonitor.h"
 #include "node/Node.h"
 #include "node/NodeInfo.h"
@@ -102,9 +103,13 @@ void CryptoManager::initSGXClient() {
     }
 }
 
-ptr<BLSPublicKey> CryptoManager::getSgxBlsPublicKey() {
-    CHECK_STATE(sgxBLSPublicKey)
-    return sgxBLSPublicKey;
+ptr<BLSPublicKey> CryptoManager::getSgxBlsPublicKey( uint64_t _timestamp ) {
+    if ( _timestamp == 0 || previousBlsPublicKeys->empty() ) {
+        CHECK_STATE(sgxBLSPublicKey)
+        return sgxBLSPublicKey;
+    } else {
+        return (*previousBlsPublicKeys->lower_bound( _timestamp )).second;
+    }
 }
 
 string CryptoManager::getSgxBlsKeyName() {
@@ -199,6 +204,7 @@ CryptoManager::CryptoManager(Schain &_sChain)
         sgxBlsKeyName = node->getBlsKeyName();
         sgxBLSPublicKeys = node->getBlsPublicKeys();
         sgxBLSPublicKey = node->getBlsPublicKey();
+        previousBlsPublicKeys = node->getPreviousBLSPublicKeys();
         tie(sgxDomainName, sgxPort) = parseSGXDomainAndPort(sgxURL);
 
         CHECK_STATE(sgxURL != "");
@@ -592,7 +598,6 @@ ptr<ThresholdSigShare> CryptoManager::signSigShare(
     return result;
 }
 
-
 void CryptoManager::verifyThresholdSig(
         ptr<ThresholdSignature> _signature, BLAKE3Hash &_hash, bool _forceMockup) {
 
@@ -606,7 +611,7 @@ void CryptoManager::verifyThresholdSig(
 
         CHECK_STATE(blsSig);
 
-        auto blsKey = getSgxBlsPublicKey();
+        auto blsKey = getSgxBlsPublicKey( getSchain()->getBlock( _signature->getBlockId() )->getTimeStampS() );
 
         auto libBlsSig = blsSig->getBlsSig();
 

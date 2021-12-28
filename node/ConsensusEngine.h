@@ -79,6 +79,7 @@ class ConsensusEngine : public ConsensusInterface {
     ptr< vector<string> > ecdsaPublicKeys; //tsafe
     ptr< vector< ptr< vector<string>>>> blsPublicKeys; //tsafe
     ptr< BLSPublicKey > blsPublicKey;
+    ptr< map< uint64_t, ptr< BLSPublicKey > > > previousBlsPublicKeys;
     
     atomic< consensus_engine_status > status = CONSENSUS_ACTIVE;
 
@@ -157,7 +158,8 @@ public:
         string _sgxSSLCertFileFullPath = "", string _ecdsaKeyName = "",
         ptr< vector<string> > _ecdsaPublicKeys = nullptr, string _blsKeyName = "",
         ptr< vector< ptr< vector<string>>>> _blsPublicKeys = nullptr,
-        ptr< BLSPublicKey > _blsPublicKey = nullptr );
+        ptr< BLSPublicKey > _blsPublicKey = nullptr, 
+        ptr< map< uint64_t, ptr< BLSPublicKey > > > _previousBlsPublicKeys = nullptr );
     
     void readSchainConfigFiles(const ptr< Node >& _node, const fs_path& _dirPath );
     
@@ -271,6 +273,7 @@ public:
                        uint64_t _requiredSigners,
                        uint64_t _totalSigners);
 
+    void setRotationHistory(ptr<vector<pair<uint64_t, vector<string>>>> _rh);
 
     [[nodiscard]] uint64_t getTotalStorageLimitBytes() const;
 

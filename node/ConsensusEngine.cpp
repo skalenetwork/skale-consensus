@@ -241,10 +241,10 @@ void ConsensusEngine::parseFullConfigAndCreateNode(const string &configFileConte
                                                          true, sgxServerUrl, sgxSSLKeyFileFullPath,
                                                          sgxSSLCertFileFullPath,
                                                          getEcdsaKeyName(), ecdsaPublicKeys, getBlsKeyName(),
-                                                         blsPublicKeys, blsPublicKey);
+                                                         blsPublicKeys, blsPublicKey, previousBlsPublicKeys);
         } else {
             node = JSONFactory::createNodeFromJsonObject(j["skaleConfig"]["nodeInfo"], dummy, this,
-                                                         false, "", "", "", "", nullptr, "", nullptr, nullptr);
+                                                         false, "", "", "", "", nullptr, "", nullptr, nullptr, nullptr);
         }
 
         JSONFactory::createAndAddSChainFromJsonObject(node, j["skaleConfig"]["sChain"], this);
@@ -264,7 +264,8 @@ ptr<Node> ConsensusEngine::readNodeConfigFileAndCreateNode(const string path,
                                                            ptr<vector<string> > _ecdsaPublicKeys,
                                                            string _blsKeyName,
                                                            ptr<vector<ptr<vector<string> > > > _blsPublicKeys,
-                                                           ptr<BLSPublicKey> _blsPublicKey) {
+                                                           ptr<BLSPublicKey> _blsPublicKey,
+                                                           ptr< map< uint64_t, ptr< BLSPublicKey > > > _previousBlsPublicKeys) {
     try {
         if (_useSGX) {
             CHECK_ARGUMENT(!_ecdsaKeyName.empty() && _ecdsaPublicKeys);
@@ -288,7 +289,8 @@ ptr<Node> ConsensusEngine::readNodeConfigFileAndCreateNode(const string path,
         auto node = JSONFactory::createNodeFromJsonFile(sgxServerUrl, nodeFileNamePath.string(),
                                                         _nodeIDs, this, _useSGX, _sgxSSLKeyFileFullPath,
                                                         _sgxSSLCertFileFullPath, _ecdsaKeyName,
-                                                        _ecdsaPublicKeys, _blsKeyName, _blsPublicKeys, _blsPublicKey);
+                                                        _ecdsaPublicKeys, _blsKeyName, _blsPublicKeys, _blsPublicKey,
+                                                        _previousBlsPublicKeys);
 
 
         if (node == nullptr) {
@@ -955,6 +957,16 @@ void ConsensusEngine::setSGXKeyInfo(const string &_sgxServerURL, string &_sgxSSL
 
     sgxSSLCertFileFullPath = _sgxSSLCertFileFullPath;
     sgxSSLKeyFileFullPath = _sgxSSLKeyFileFullPath;
+}
+
+void ConsensusEngine::setRotationHistory(ptr<vector<pair<uint64_t, vector<string>>>> _rh) {
+    CHECK_STATE(_rh);
+
+    map< uint64_t, ptr< BLSPublicKey > > _previousBlsPublicKeys;
+    for (const auto& previousGroup: *_rh) {
+        _previousBlsPublicKeys[previousGroup.first] = make_shared<BLSPublicKey>(make_shared<vector<string>>(previousGroup.second));
+    }
+    previousBlsPublicKeys = make_shared< map< uint64_t, ptr< BLSPublicKey > > >( _previousBlsPublicKeys );
 }
 
 const string ConsensusEngine::getEcdsaKeyName() const {

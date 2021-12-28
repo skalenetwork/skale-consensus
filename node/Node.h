@@ -130,6 +130,8 @@ class Node {
 
     ptr< BLSPublicKey > blsPublicKey;
 
+    ptr< map< uint64_t, ptr< BLSPublicKey > > > previousBlsPublicKeys;
+
     string sgxURL;
 
     string sgxSSLKeyFileFullPath;
@@ -217,6 +219,8 @@ public:
 
     ptr< BLSPublicKey > getBlsPublicKey();
 
+    ptr< map< uint64_t, ptr< BLSPublicKey > > > getPreviousBLSPublicKeys();
+
     bool isSgxEnabled();
 
     [[nodiscard]] const ptr< TestConfig >& getTestConfig() const;
@@ -270,11 +274,12 @@ public:
 
     Node( const nlohmann::json& _cfg, ConsensusEngine* _consensusEngine, bool _useSGX,
         string _sgxURL,
-          string _sgxSSLKeyFileFullPath,
-    string _sgxSSLCertFileFullPath,
+        string _sgxSSLKeyFileFullPath,
+        string _sgxSSLCertFileFullPath,
         string _ecdsaKeyName, ptr< vector<string> > _ecdsaPublicKeys,
         string _blsKeyName, ptr< vector< ptr< vector<string>>>> _blsPublicKeys,
-        ptr< BLSPublicKey > _blsPublicKey );
+        ptr< BLSPublicKey > _blsPublicKey,
+        ptr< map< uint64_t, ptr< BLSPublicKey > > > _previousBlsPublicKeys );
 
     ~Node();
 

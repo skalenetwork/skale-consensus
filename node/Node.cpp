@@ -80,7 +80,8 @@ Node::Node(const nlohmann::json &_cfg, ConsensusEngine *_consensusEngine,
            string _ecdsaKeyName,
            ptr< vector<string> > _ecdsaPublicKeys, string _blsKeyName,
            ptr< vector< ptr< vector<string>>>> _blsPublicKeys,
-           ptr< BLSPublicKey > _blsPublicKey) {
+           ptr< BLSPublicKey > _blsPublicKey,
+           ptr< map< uint64_t, ptr< BLSPublicKey > > > _previousBlsPublicKeys) {
 
     if (_useSGX) {
         CHECK_ARGUMENT(!_sgxURL.empty())
@@ -91,6 +92,7 @@ Node::Node(const nlohmann::json &_cfg, ConsensusEngine *_consensusEngine,
         CHECK_ARGUMENT(!_ecdsaKeyName.empty() && _ecdsaPublicKeys);
         CHECK_ARGUMENT(!_blsKeyName.empty() && _blsPublicKeys);
         CHECK_ARGUMENT(_blsPublicKey);
+        CHECK_ARGUMENT(_previousBlsPublicKeys);
 
         sgxEnabled = true;
 
@@ -103,6 +105,8 @@ Node::Node(const nlohmann::json &_cfg, ConsensusEngine *_consensusEngine,
         blsKeyName = _blsKeyName;
         blsPublicKeys = _blsPublicKeys;
         blsPublicKey = _blsPublicKey;
+
+        previousBlsPublicKeys = _previousBlsPublicKeys;
 
         static string empty("");
 
@@ -547,6 +551,10 @@ ptr< vector< ptr< vector<string>>>> Node::getBlsPublicKeys() {
 ptr< BLSPublicKey > Node::getBlsPublicKey() {
     CHECK_STATE(blsPublicKey);
     return blsPublicKey;
+}
+ptr< map< uint64_t, ptr< BLSPublicKey > > > Node::getPreviousBLSPublicKeys() {
+    CHECK_STATE(previousBlsPublicKeys);
+    return previousBlsPublicKeys;
 }
 bool Node::isInited() const {
     return inited;

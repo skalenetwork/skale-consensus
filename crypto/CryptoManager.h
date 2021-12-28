@@ -106,6 +106,8 @@ class CryptoManager {
 
     ptr< vector< string > > sgxECDSAPublicKeys;  // tsafe
 
+    ptr< map< uint64_t, ptr< BLSPublicKey > > > previousBlsPublicKeys;
+
     uint64_t totalSigners;
     uint64_t requiredSigners;
 
@@ -234,7 +236,7 @@ public:
         BLAKE3Hash & _hash, const string& _sig, const string& _publicKey );
 
 
-    ptr< BLSPublicKey > getSgxBlsPublicKey();
+    ptr< BLSPublicKey > getSgxBlsPublicKey( uint64_t _timestamp = 0 );
 
     string getSgxBlsKeyName();
 
