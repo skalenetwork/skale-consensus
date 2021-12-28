@@ -400,13 +400,13 @@ void Node::initSchain(const ptr<Node>& _node, const ptr<NodeInfo>& _localNodeInf
 
 void Node::waitOnGlobalServerStartBarrier(Agent * _agent ) {
     CHECK_ARGUMENT( _agent );
-
     logThreadLocal_ = _agent->getSchain()->getNode()->getLog();
-
-
     std::unique_lock<std::mutex> mlock(threadServerCondMutex);
     while (!startedServers) {
-        threadServerConditionVariable.wait(mlock);
+        if( exitRequested )
+            break;
+        // threadServerConditionVariable.wait(mlock);
+        threadServerConditionVariable.wait_for( mlock, std::chrono::milliseconds( 1000 ) );
     }
 }
 
@@ -422,10 +422,12 @@ void Node::releaseGlobalServerBarrier() {
 
 void Node::waitOnGlobalClientStartBarrier() {
     logThreadLocal_ = getLog();
-
     std::unique_lock<std::mutex> mlock(threadClientCondMutex);
     while (!startedClients) {
-        threadClientConditionVariable.wait_for( mlock, std::chrono::milliseconds( 5000 ) ); // threadClientConditionVariable.wait(mlock);
+        if( exitRequested )
+            break;
+        // threadClientConditionVariable.wait(mlock);
+        threadClientConditionVariable.wait_for( mlock, std::chrono::milliseconds( 1000 ) );
     }
 }
 

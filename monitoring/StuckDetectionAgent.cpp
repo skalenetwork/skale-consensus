@@ -72,6 +72,8 @@ void StuckDetectionAgent::StuckDetectionLoop( StuckDetectionAgent* _agent ) {
     uint64_t restartIteration = 1;
 
     while ( true ) {
+        if( _agent->getSchain()->getNode()->isExitRequested() )
+            return;
         auto restartFileName = _agent->createStuckFileName( restartIteration );
 
         if ( !boost::filesystem::exists( restartFileName ) ) {
@@ -81,10 +83,15 @@ void StuckDetectionAgent::StuckDetectionLoop( StuckDetectionAgent* _agent ) {
         CHECK_STATE( restartIteration < 64 );
     }
 
+    if( _agent->getSchain()->getNode()->isExitRequested() )
+        return;
+
     uint64_t restartTime = 0;
     uint64_t sleepTime = _agent->getSchain()->getNode()->getStuckMonitoringIntervalMs() * 1000;
 
     while ( restartTime == 0 ) {
+        if( _agent->getSchain()->getNode()->isExitRequested() )
+            return;
         try {
             usleep( sleepTime );
             _agent->getSchain()->getNode()->exitCheck();

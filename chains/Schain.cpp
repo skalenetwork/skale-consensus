@@ -106,6 +106,30 @@
 #include "monitoring/TimeoutAgent.h"
 #include "pendingqueue/TestMessageGeneratorAgent.h"
 
+template < class M >
+class try_lock_timed_guard {
+private:
+    M& mtx_;
+    std::atomic_bool was_locked_;
+    bool try_lock( const size_t nNumberOfMilliseconds ) {
+        auto now = std::chrono::steady_clock::now();
+        if ( mtx_.try_lock_until( now + std::chrono::milliseconds( nNumberOfMilliseconds ) ) )
+            return true;  // was locked
+        return false;
+    }
+
+public:
+    explicit try_lock_timed_guard( M& mtx, const size_t nNumberOfMilliseconds = 1000 )
+        : mtx_( mtx ), was_locked_( false ) {
+        was_locked_ = try_lock( nNumberOfMilliseconds );
+    }
+    ~try_lock_timed_guard() {
+        if ( was_locked_ )
+            mtx_.unlock();
+    }
+    bool was_locked() const { return was_locked_; }
+};
+
 void Schain::postMessage( const ptr< MessageEnvelope >& _me ) {
     CHECK_ARGUMENT( _me );
 
@@ -301,7 +325,11 @@ void Schain::checkForDeadLock(const char*  _functionName) {
 
 
     checkForDeadLock(__FUNCTION__);
-    lock_guard<timed_mutex> l( blockProcessMutex );
+    // lock_guard<timed_mutex> l( blockProcessMutex );
+    try_lock_timed_guard< std::timed_mutex > pauseLock( blockProcessMutex );
+    if ( !pauseLock.was_locked() )
+        return 0;
+    checkForExit();
 
     bumpPriority();
 
@@ -310,6 +338,8 @@ void Schain::checkForDeadLock(const char*  _functionName) {
     CHECK_STATE( blocks->at( 0 )->getBlockID() <= ( uint64_t ) getLastCommittedBlockID() + 1 );
 
     for ( size_t i = 0; i < blocks->size(); i++ ) {
+        checkForExit();
+
         auto block = blocks->at( i );
 
         CHECK_STATE( block );

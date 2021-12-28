@@ -59,6 +59,8 @@ void TimeoutAgent::timeoutLoop(TimeoutAgent *_agent) {
     setThreadName("TimeoutLoop", _agent->getSchain()->getNode()->getConsensusEngine());
 
     _agent->getSchain()->getSchain()->waitOnGlobalStartBarrier();
+    if( _agent->getSchain()->getNode()->isExitRequested() )
+        return;
 
     LOG(info, "Timeout agent started monitoring");
 
