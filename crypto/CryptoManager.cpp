@@ -104,7 +104,7 @@ void CryptoManager::initSGXClient() {
 }
 
 ptr<BLSPublicKey> CryptoManager::getSgxBlsPublicKey( uint64_t _timestamp ) {
-    if ( _timestamp == 0 || previousBlsPublicKeys->empty() ) {
+    if ( _timestamp == uint64_t( -1 ) || previousBlsPublicKeys->empty() ) {
         CHECK_STATE(sgxBLSPublicKey)
         return sgxBLSPublicKey;
     } else {
