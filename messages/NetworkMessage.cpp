@@ -78,9 +78,9 @@ NetworkMessage::NetworkMessage(MsgType _messageType, block_id _blockID, schain_i
 NetworkMessage::NetworkMessage(MsgType _messageType, node_id _srcNodeID, block_id _blockID,
                                schain_index _blockProposerIndex,
                                bin_consensus_round _r, bin_consensus_value _value, uint64_t _timeMs,
-                               schain_id _schainId, msg_id _msgID, const string& _sigShareStr, const string& _ecdsaSig,
-                               const string& _publicKey, const string& _pkSig,
-                               schain_index _srcSchainIndex, const ptr<CryptoManager>& _cryptoManager)
+                               schain_id _schainId, msg_id _msgID, const string &_sigShareStr, const string &_ecdsaSig,
+                               const string &_publicKey, const string &_pkSig,
+                               schain_index _srcSchainIndex, const ptr<CryptoManager> &_cryptoManager)
         : Message(_schainId, _messageType, _msgID, _srcNodeID, _blockID, _blockProposerIndex),
           BasicHeader(getTypeString(_messageType)) {
 
@@ -107,10 +107,12 @@ NetworkMessage::NetworkMessage(MsgType _messageType, node_id _srcNodeID, block_i
     setComplete();
 
 }
-const string& NetworkMessage::getPublicKey() const {
+
+const string &NetworkMessage::getPublicKey() const {
     return publicKey;
 }
-const string& NetworkMessage::getPkSig() const {
+
+const string &NetworkMessage::getPkSig() const {
     return pkSig;
 }
 
@@ -156,21 +158,21 @@ string NetworkMessage::serializeToStringLite() {
     writer.String("type");
     writer.String(type);
     writer.String("bpi");
-    writer.Uint64((uint64_t )getBlockProposerIndex());
+    writer.Uint64((uint64_t) getBlockProposerIndex());
     writer.String("mt");
-    writer.Uint64((uint64_t )msgType);
+    writer.Uint64((uint64_t) msgType);
     writer.String("mi");
-    writer.Uint64((uint64_t )msgID);
+    writer.Uint64((uint64_t) msgID);
     writer.String("sni");
     writer.Uint64((uint64_t) srcNodeID);
     writer.String("ssi");
     writer.Uint64((uint64_t) srcSchainIndex);
     writer.String("r");
-    writer.Uint64((uint64_t )r);
+    writer.Uint64((uint64_t) r);
     writer.String("t");
     writer.Uint64((uint64_t) timeMs);
     writer.String("v");
-    writer.Uint64((uint8_t )value);
+    writer.Uint64((uint8_t) value);
 
     if (!sigShareString.empty()) {
         writer.String("sss");
@@ -186,7 +188,6 @@ string NetworkMessage::serializeToStringLite() {
     writer.String(pkSig.data(), pkSig.size());
 
 
-
     writer.EndObject();
     writer.Flush();
     string s(sb.GetString());
@@ -194,7 +195,7 @@ string NetworkMessage::serializeToStringLite() {
 
 }
 
-void NetworkMessage::serializeToStringChild(Writer<StringBuffer>&) {
+void NetworkMessage::serializeToStringChild(Writer<StringBuffer> &) {
 
 }
 
@@ -212,25 +213,25 @@ string NetworkMessage::serializeToString() {
     writer.String("type");
     writer.String(type);
     writer.String("si");
-    writer.Uint64((uint64_t ) schainID);
+    writer.Uint64((uint64_t) schainID);
     writer.String("bi");
-    writer.Uint64((uint64_t )blockID);
+    writer.Uint64((uint64_t) blockID);
     writer.String("bpi");
-    writer.Uint64((uint64_t )getBlockProposerIndex());
+    writer.Uint64((uint64_t) getBlockProposerIndex());
     writer.String("mt");
-    writer.Uint64((uint64_t )msgType);
+    writer.Uint64((uint64_t) msgType);
     writer.String("mi");
-    writer.Uint64((uint64_t )msgID);
+    writer.Uint64((uint64_t) msgID);
     writer.String("sni");
     writer.Uint64((uint64_t) srcNodeID);
     writer.String("ssi");
     writer.Uint64((uint64_t) srcSchainIndex);
     writer.String("r");
-    writer.Uint64((uint64_t )r);
+    writer.Uint64((uint64_t) r);
     writer.String("t");
     writer.Uint64((uint64_t) timeMs);
     writer.String("v");
-    writer.Uint64((uint8_t )value);
+    writer.Uint64((uint8_t) value);
 
     if (!sigShareString.empty()) {
         writer.String("sss");
@@ -257,7 +258,7 @@ string NetworkMessage::serializeToString() {
 
 }
 
-void NetworkMessage::addFields(nlohmann::basic_json<>& ) {
+void NetworkMessage::addFields(nlohmann::basic_json<> &) {
 
     /*
     j["si"] = (uint64_t ) schainID;
@@ -284,7 +285,7 @@ void NetworkMessage::addFields(nlohmann::basic_json<>& ) {
 }
 
 
-ptr<NetworkMessage> NetworkMessage::parseMessage(const string& _header, Schain *_sChain, bool _lite) {
+ptr<NetworkMessage> NetworkMessage::parseMessage(const string &_header, Schain *_sChain, bool _lite) {
 
 
     uint64_t sChainID;
@@ -315,8 +316,8 @@ ptr<NetworkMessage> NetworkMessage::parseMessage(const string& _header, Schain *
         CHECK_STATE(!d.HasParseError());
         CHECK_STATE(d.IsObject())
         if (_lite) {
-            sChainID = (uint64_t ) _sChain->getSchainID();
-            blockID = (uint64_t ) _sChain->getLastCommittedBlockID() + 1;
+            sChainID = (uint64_t) _sChain->getSchainID();
+            blockID = (uint64_t) _sChain->getLastCommittedBlockID() + 1;
         } else {
             sChainID = getUint64Rapid(d, "si");
             blockID = getUint64Rapid(d, "bi");
@@ -354,65 +355,65 @@ ptr<NetworkMessage> NetworkMessage::parseMessage(const string& _header, Schain *
 
         if (type == BasicHeader::BV_BROADCAST) {
             nwkMsg = make_shared<BVBroadcastMessage>(node_id(srcNodeID),
-                                                   block_id(blockID), schain_index(blockProposerIndex),
-                                                   bin_consensus_round(round),
-                                                   bin_consensus_value(value), timeMs, schain_id(sChainID), msg_id(msgID),
-                                                   srcSchainIndex, ecdsaSig, publicKey, pkSig,
-                                                   _sChain);
+                                                     block_id(blockID), schain_index(blockProposerIndex),
+                                                     bin_consensus_round(round),
+                                                     bin_consensus_value(value), timeMs, schain_id(sChainID),
+                                                     msg_id(msgID),
+                                                     srcSchainIndex, ecdsaSig, publicKey, pkSig,
+                                                     _sChain);
         } else if (type == BasicHeader::AUX_BROADCAST) {
             nwkMsg = make_shared<AUXBroadcastMessage>(node_id(srcNodeID),
-                                                    block_id(blockID), schain_index(blockProposerIndex),
-                                                    bin_consensus_round(round),
-                                                    bin_consensus_value(value),
-                                                    timeMs,
-                                                    schain_id(sChainID), msg_id(msgID),
-                                                    sigShare,
-                                                    srcSchainIndex, ecdsaSig, publicKey, pkSig,
-                                                    _sChain);
+                                                      block_id(blockID), schain_index(blockProposerIndex),
+                                                      bin_consensus_round(round),
+                                                      bin_consensus_value(value),
+                                                      timeMs,
+                                                      schain_id(sChainID), msg_id(msgID),
+                                                      sigShare,
+                                                      srcSchainIndex, ecdsaSig, publicKey, pkSig,
+                                                      _sChain);
         } else if (type == BasicHeader::BLOCK_SIG_BROADCAST) {
             nwkMsg = make_shared<BlockSignBroadcastMessage>(node_id(srcNodeID),
-                                                          block_id(blockID), schain_index(blockProposerIndex),
-                                                          timeMs,
-                                                          schain_id(sChainID), msg_id(msgID),
-                                                          sigShare,
-                                                          srcSchainIndex, ecdsaSig, publicKey, pkSig,
-                                                          _sChain);
+                                                            block_id(blockID), schain_index(blockProposerIndex),
+                                                            timeMs,
+                                                            schain_id(sChainID), msg_id(msgID),
+                                                            sigShare,
+                                                            srcSchainIndex, ecdsaSig, publicKey, pkSig,
+                                                            _sChain);
         } else if (type == BasicHeader::ORACLE_REQUEST_BROADCAST) {
             string spec = getStringRapid(d, "spec");
             CHECK_STATE(!spec.empty())
             nwkMsg = make_shared<OracleRequestBroadcastMessage>(spec, node_id(srcNodeID),
-                                                            block_id(blockID),
-                                                            timeMs,
-                                                            schain_id(sChainID), msg_id(msgID),
-                                                            srcSchainIndex, ecdsaSig, publicKey, pkSig,
-                                                            _sChain);
+                                                                block_id(blockID),
+                                                                timeMs,
+                                                                schain_id(sChainID), msg_id(msgID),
+                                                                srcSchainIndex, ecdsaSig, publicKey, pkSig,
+                                                                _sChain);
             LOG(info, "Received spec:" + spec);
-        }
-    else if (type == BasicHeader::ORACLE_RESPONSE) {
-        string result = getStringRapid(d, "rslt");
-        CHECK_STATE(!result.empty())
+        } else if (type == BasicHeader::ORACLE_RESPONSE) {
+            string result = getStringRapid(d, "rslt");
+            CHECK_STATE(!result.empty())
 
-        string receipt = getStringRapid(d, "rcpt");
-        CHECK_STATE(!receipt.empty())
+            string receipt = getStringRapid(d, "rcpt");
+            CHECK_STATE(!receipt.empty())
 
-        nwkMsg = make_shared<OracleResponseMessage>(result, receipt, node_id(srcNodeID),
-                                                            block_id(blockID),
-                                                            timeMs,
-                                                            schain_id(sChainID), msg_id(msgID),
-                                                            srcSchainIndex, ecdsaSig, publicKey, pkSig,
-                                                            _sChain);
-        LOG(info, "Received result:" + result + " for oracle receipt: " + receipt);
-    }
-    else {
+
+            nwkMsg = make_shared<OracleResponseMessage>(result, receipt, node_id(srcNodeID),
+                                                        block_id(blockID),
+                                                        timeMs,
+                                                        schain_id(sChainID), msg_id(msgID),
+                                                        srcSchainIndex, ecdsaSig, publicKey, pkSig,
+                                                        _sChain);
+
+            LOG(info, "Received result:" + result + " for oracle receipt: " + receipt);
+        } else {
             CHECK_STATE(false)
         }
-
 
         return nwkMsg;
 
     } catch (ExitRequestedException &) { throw; } catch (...) {
         throw_with_nested(InvalidStateException("Could not create message of type:"
-                                                + type , __CLASS_NAME__));
+                                                + type, __CLASS_NAME__));
     }
 }
 
@@ -431,6 +432,11 @@ const char *NetworkMessage::getTypeString(MsgType _type) {
         case MSG_ORACLE_REQ_BROADCAST : {
             return ORACLE_REQUEST_BROADCAST;
         }
+
+        case MSG_ORACLE_RSP : {
+            return ORACLE_RESPONSE;
+        }
+
         default: {
             return "history";
         }
@@ -454,7 +460,7 @@ BLAKE3Hash NetworkMessage::getHash() {
     return hash;
 }
 
-void NetworkMessage::updateWithChildHash(blake3_hasher& ) {
+void NetworkMessage::updateWithChildHash(blake3_hasher &) {
 
 }
 
@@ -474,9 +480,9 @@ BLAKE3Hash NetworkMessage::calculateHash() {
 
     uint32_t typeLen = strlen(type);
     HASH_UPDATE(hasher, typeLen);
-    blake3_hasher_update(&hasher, (unsigned char*)type, strlen(type));
+    blake3_hasher_update(&hasher, (unsigned char *) type, strlen(type));
 
-    uint32_t  sigShareLen = sigShareString.size();
+    uint32_t sigShareLen = sigShareString.size();
     HASH_UPDATE(hasher, sigShareLen);
     if (sigShareLen > 0) {
         blake3_hasher_update(&hasher, (unsigned char *) sigShareString.data(), sigShareLen);
@@ -488,13 +494,13 @@ BLAKE3Hash NetworkMessage::calculateHash() {
     return hash;
 }
 
-void NetworkMessage::sign(const ptr<CryptoManager>& _mgr) {
+void NetworkMessage::sign(const ptr<CryptoManager> &_mgr) {
     CHECK_ARGUMENT(_mgr)
     tie(ecdsaSig, publicKey, pkSig) = _mgr->signNetworkMsg(*this);
     CHECK_STATE(!ecdsaSig.empty())
 }
 
-void NetworkMessage::verify(const ptr<CryptoManager>& _mgr) {
+void NetworkMessage::verify(const ptr<CryptoManager> &_mgr) {
     CHECK_ARGUMENT(_mgr)
     CHECK_STATE2(_mgr->verifyNetworkMsg(*this), "ECDSA sig did not verify")
 }

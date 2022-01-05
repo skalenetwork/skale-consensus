@@ -61,6 +61,7 @@
 #include "OracleServerAgent.h"
 #include "OracleClient.h"
 #include "OracleRequestBroadcastMessage.h"
+#include "OracleResponseMessage.h"
 
 
 OracleServerAgent::OracleServerAgent(Schain &_schain) : Agent(_schain, true), requestCounter(0), threadCounter(0) {
@@ -92,7 +93,7 @@ void OracleServerAgent::routeAndProcessMessage(const ptr<MessageEnvelope> &_me) 
     CHECK_ARGUMENT(_me->getMessage()->getBlockId() > 0);
 
     CHECK_STATE(_me->getMessage()->getMessageType() == MSG_ORACLE_REQ_BROADCAST ||
-                        _me->getMessage()->getMessageType() == MSG_ORACLE_RSP);
+                _me->getMessage()->getMessageType() == MSG_ORACLE_RSP);
 
     if (_me->getMessage()->getMessageType() == MSG_ORACLE_REQ_BROADCAST) {
 
@@ -159,11 +160,21 @@ void OracleServerAgent::workerThreadItemSendLoop(OracleServerAgent *_agent) {
 }
 
 
-ptr<OracleResponseMessage> OracleServerAgent::doEndpointRequestResponse(ptr<OracleRequestBroadcastMessage> /* _request */) {
-    return nullptr;
+ptr<OracleResponseMessage> OracleServerAgent::doEndpointRequestResponse(ptr<OracleRequestBroadcastMessage> _request) {
+    CHECK_ARGUMENT(_request)
+
+
+    string result = "{\"huhu\":\"huhu\"}";
+    string receipt = _request->getHash().toHex();
+
+    return make_shared<OracleResponseMessage>(result,
+                                              receipt,
+                                              getSchain()->getLastCommittedBlockID() + 1,
+                                              Time::getCurrentTimeMs(),
+                                              *getSchain()->getOracleClient());
 }
 
-void OracleServerAgent::sendOutResult(ptr<OracleResponseMessage> _msg , schain_index _destination) {
+void OracleServerAgent::sendOutResult(ptr<OracleResponseMessage> _msg, schain_index _destination) {
     CHECK_STATE(_destination != 0)
 
     getSchain()->getNode()->getNetwork()->sendOracleResponseMessage(_msg, _destination);

@@ -72,9 +72,7 @@ Message::Message(const schain_id &schainID, MsgType msgType, const msg_id &msgID
                                                                                     blockProposerIndex(blockProposerIndex),
                                                                                     msgType(msgType), msgID(msgID),
                                                                                     srcNodeID(srcNodeID) {
-    if ((uint64_t)blockID == 0) {
-        CHECK_STATE(false);
-    }
+    CHECK_STATE((uint64_t)blockID != 0);
     totalObjects++;
 }
 

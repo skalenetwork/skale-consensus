@@ -448,6 +448,7 @@ ptr<NetworkMessageEnvelope> Network::receiveMessage() {
 
     mptr->verify(getSchain()->getCryptoManager());
 
+
     ptr<NodeInfo> realSender = sChain->getNode()->getNodeInfoByIndex(mptr->getSrcSchainIndex());
 
     if (realSender == nullptr) {
