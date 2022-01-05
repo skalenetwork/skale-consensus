@@ -130,6 +130,7 @@ void BlockConsensusAgent::propose(bin_consensus_value _proposal, schain_index _i
 
     try {
 
+        CHECK_ARGUMENT((uint64_t ) _index > 0);
         auto key = make_shared<ProtocolKey>(_id, _index);
 
         auto child = getChild(key);
@@ -427,7 +428,7 @@ ptr<BinConsensusInstance> BlockConsensusAgent::getChild(const ptr<ProtocolKey>& 
     auto bpi = _key->getBlockProposerIndex();
     auto bid = _key->getBlockID();
 
-    CHECK_ARGUMENT(bpi > 0);
+    CHECK_ARGUMENT((uint64_t ) bpi > 0);
     CHECK_ARGUMENT ((uint64_t) bpi <= (uint64_t) getSchain()->getNodeCount())
 
     try {

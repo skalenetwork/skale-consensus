@@ -45,6 +45,10 @@ schain_index ProtocolKey::getBlockProposerIndex() const {
 ProtocolKey::ProtocolKey(block_id _blockId, schain_index _blockProposerIndex) :
         blockID(_blockId),  blockProposerIndex(_blockProposerIndex){
     CHECK_STATE((uint64_t) blockID > 0);
+    if (blockProposerIndex == 0) {
+        CHECK_ARGUMENT((uint64_t) blockProposerIndex > 0);
+    }
+
 }
 
 bool operator<(const ProtocolKey &l, const ProtocolKey &r) {
