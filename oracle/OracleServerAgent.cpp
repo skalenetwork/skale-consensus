@@ -163,6 +163,10 @@ ptr<OracleResponseMessage> OracleServerAgent::doEndpointRequestResponse(ptr<Orac
     return nullptr;
 }
 
-void OracleServerAgent::sendOutResult(ptr<OracleResponseMessage> /*_msg */, schain_index _destination) {
+void OracleServerAgent::sendOutResult(ptr<OracleResponseMessage> _msg , schain_index _destination) {
     CHECK_STATE(_destination != 0)
+
+    getSchain()->getNode()->getNetwork()->sendOracleResponseMessage(_msg, _destination);
+
+
 }

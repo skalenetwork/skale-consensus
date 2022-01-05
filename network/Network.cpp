@@ -33,6 +33,7 @@
 #include "exceptions/FatalError.h"
 #include "messages/NetworkMessage.h"
 #include "oracle/OracleRequestBroadcastMessage.h"
+#include "oracle/OracleResponseMessage.h"
 #include "node/Node.h"
 #include "node/NodeInfo.h"
 #include "protocols/blockconsensus/BlockSignBroadcastMessage.h"
@@ -187,7 +188,7 @@ void Network::broadcastMessageImpl(const ptr<NetworkMessage> &_msg, bool _isFirs
 }
 
 
-void Network::broadcastOracleMessage(const ptr<OracleRequestBroadcastMessage> &_msg) {
+void Network::broadcastOracleRequestMessage(const ptr<OracleRequestBroadcastMessage> &_msg) {
     // Oracle messages are simply broadcast without resends
     CHECK_ARGUMENT(_msg);
 
@@ -209,6 +210,28 @@ void Network::broadcastOracleMessage(const ptr<OracleRequestBroadcastMessage> &_
     } catch (...) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
+}
+
+void Network::sendOracleResponseMessage(const ptr<OracleResponseMessage> &_msg, schain_index _dstIndex) {
+    // Oracle messages are simply sent without resends
+    CHECK_ARGUMENT(_msg);
+
+    try {
+
+        _msg->sign(getSchain()->getCryptoManager());
+
+
+        if (_dstIndex != (getSchain()->getSchainIndex())) {
+            auto dstNodeInfo = getSchain()->getNode()->getNodeInfoByIndex(_dstIndex);
+            CHECK_STATE(dstNodeInfo);
+            sendMessage(dstNodeInfo, _msg);
+        } else {
+            getSchain()->postMessage(make_shared<NetworkMessageEnvelope>(_msg, _dstIndex));
+        }
+    } catch (...) {
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+    }
+
 }
 
 
@@ -441,7 +464,7 @@ ptr<NetworkMessageEnvelope> Network::receiveMessage() {
                                       "Network Message with corrupt protocol key", __CLASS_NAME__ ));
     };
 
-    return make_shared< NetworkMessageEnvelope >( mptr, realSender->getSchainIndex());
+    return make_shared<NetworkMessageEnvelope>(mptr, realSender->getSchainIndex());
 };
 
 
