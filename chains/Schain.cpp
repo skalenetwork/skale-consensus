@@ -194,8 +194,8 @@ void Schain::messageThreadProcessingLoop( Schain* _sChain ) {
                         _sChain->getBlockConsensusInstance()->routeAndProcessMessage(m);
                     }
                 } catch ( exception& e ) {
+                    LOG(err, "Exception in Schain::messageThreadProcessingLoop");
                     SkaleException::logNested( e );
-
                     if ( _sChain->getNode()->isExitRequested() )
                         return;
                 }  // catch

@@ -333,10 +333,12 @@ void BlockConsensusAgent::routeAndProcessMessage(const ptr<MessageEnvelope>& _me
 
     CHECK_ARGUMENT( _me );
 
+
     try {
 
         CHECK_ARGUMENT( _me->getMessage()->getBlockId() > 0);
         CHECK_ARGUMENT( _me->getOrigin() != ORIGIN_PARENT);
+        CHECK_ARGUMENT(_me->getMessage()->getBlockProposerIndex() > 0);
 
         auto blockID = _me->getMessage()->getBlockId();
 
@@ -425,6 +427,7 @@ ptr<BinConsensusInstance> BlockConsensusAgent::getChild(const ptr<ProtocolKey>& 
     auto bpi = _key->getBlockProposerIndex();
     auto bid = _key->getBlockID();
 
+    CHECK_ARGUMENT(bpi > 0);
     CHECK_ARGUMENT ((uint64_t) bpi <= (uint64_t) getSchain()->getNodeCount())
 
     try {
@@ -437,7 +440,7 @@ ptr<BinConsensusInstance> BlockConsensusAgent::getChild(const ptr<ProtocolKey>& 
 
         return children.at((uint64_t) bpi - 1)->get((uint64_t) bid);
 
-    } catch (ExitRequestedException &) { throw; } catch (SkaleException &e) {
+    } catch (ExitRequestedException &) { throw; } catch (...) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
 
