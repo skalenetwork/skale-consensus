@@ -66,7 +66,6 @@ void OracleClient::sendTestRequest() {
 
     auto status = runOracleRequest("{\"request\":\"haha\"}", result);
     CHECK_STATE(status == ORACLE_SUCCESS);
-    LOG(info, "Oracle result:\n" + result);
 }
 
 

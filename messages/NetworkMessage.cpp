@@ -388,7 +388,6 @@ ptr<NetworkMessage> NetworkMessage::parseMessage(const string &_header, Schain *
                                                                 schain_id(sChainID), msg_id(msgID),
                                                                 srcSchainIndex, ecdsaSig, publicKey, pkSig,
                                                                 _sChain);
-            LOG(info, "Received spec:" + spec);
         } else if (type == BasicHeader::ORACLE_RESPONSE) {
             string result = getStringRapid(d, "rslt");
             CHECK_STATE(!result.empty())
@@ -404,8 +403,8 @@ ptr<NetworkMessage> NetworkMessage::parseMessage(const string &_header, Schain *
                                                         srcSchainIndex, ecdsaSig, publicKey, pkSig,
                                                         _sChain);
 
-            LOG(info, "Received result:" + result + " for oracle receipt: " + receipt);
         } else {
+            LOG(warn, "Incorrect message type in received message:" + type);
             CHECK_STATE(false)
         }
 
