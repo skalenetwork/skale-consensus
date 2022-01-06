@@ -390,7 +390,7 @@ void BlockConsensusAgent::routeAndProcessMessage(const ptr<MessageEnvelope>& _me
         }
 
 
-        ptr<ProtocolKey> key = _me->getMessage()->createDestinationProtocolKey();
+        ptr<ProtocolKey> key = _me->getMessage()->createProtocolKey();
 
         CHECK_STATE(key);
 
@@ -454,7 +454,7 @@ bool BlockConsensusAgent::shouldPost(const ptr<NetworkMessage>& _msg) {
         return true;
     }
 
-    auto key = _msg->createDestinationProtocolKey();
+    auto key = _msg->createProtocolKey();
     auto currentRound = getRound(key);
     auto r = _msg->getRound();
 

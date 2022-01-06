@@ -262,7 +262,7 @@ void Network::networkReadLoop() {
                     continue;
                 }
 
-                if (msg->getMsgType() == MSG_ORACLE_REQ_BROADCAST) {
+                if (msg->getMsgType() == MSG_ORACLE_REQ_BROADCAST  || msg->getMsgType() == MSG_ORACLE_RSP) {
                     sChain->postMessage(m);
                     continue;
                 }
@@ -325,7 +325,7 @@ void Network::postDeferOrDrop(const ptr<NetworkMessageEnvelope> &_me) {
 
     CHECK_STATE(msg);
 
-    if (msg->getMsgType() == MSG_ORACLE_REQ_BROADCAST) {
+    if (msg->getMsgType() == MSG_ORACLE_REQ_BROADCAST || msg->getMsgType() == MSG_ORACLE_RSP) {
         sChain->postMessage(_me);
     } else if (sChain->getBlockConsensusInstance()->shouldPost(msg)) {
         sChain->postMessage(_me);
@@ -456,7 +456,7 @@ ptr<NetworkMessageEnvelope> Network::receiveMessage() {
                                       "NetworkMessage from unknown sender schain index", __CLASS_NAME__ ));
     }
 
-    ptr<ProtocolKey> key = mptr->createDestinationProtocolKey();
+    ptr<ProtocolKey> key = mptr->createProtocolKey();
 
     CHECK_STATE(key);
 

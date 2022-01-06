@@ -67,7 +67,7 @@ public:
 
     [[nodiscard]] schain_id getSchainID() const;
 
-    ptr<ProtocolKey> createDestinationProtocolKey();
+    ptr<ProtocolKey> createProtocolKey();
 
     block_id getBlockID();
 
