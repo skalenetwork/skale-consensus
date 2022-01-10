@@ -40,6 +40,8 @@ class OracleClient : public ProtocolInstance {
 
     string waitForAnswer(ptr<OracleRequestBroadcastMessage> /*_msg*/ );
 
+    uint64_t  tryGettingOracleResult(string& _receipt, string& _result);
+
 public:
     explicit OracleClient(Schain& _sChain);
 
@@ -53,6 +55,10 @@ public:
     void processResponseMessage(const ptr<MessageEnvelope> &_me);
 
 };
+
+
+
+
 
 
 #endif //SKALED_ORACLECLIENT_H

@@ -115,13 +115,15 @@ void OracleClient::processResponseMessage(const ptr<MessageEnvelope> &_me) {
         return;
     }
 
-    if (receipts->size() > getSchain()->getRequiredSigners()) {
-        return;
-    }
 
     receipts->insert({origin, msg->getOracleResult()});
 
-    if (receipts->size() == getSchain()->getRequiredSigners()) {
-        LOG(err, "Processing oracle messages:" + to_string(origin));
-    }
+    LOG(err, "Processing oracle message:" + to_string(origin));
 }
+
+
+uint64_t OracleClient::tryGettingOracleResult(string& /* _receipt */,
+                                              string& /* _result */) {
+    return 0;
+}
+
