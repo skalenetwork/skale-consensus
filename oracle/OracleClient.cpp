@@ -84,6 +84,7 @@ void OracleClient::processResponseMessage(const ptr<MessageEnvelope> &_me) {
 
     auto msg = dynamic_pointer_cast<OracleResponseMessage>(_me->getMessage());
 
+
     CHECK_STATE(msg);
 
     LOG(err, "Processing message");

@@ -80,3 +80,11 @@ void OracleResponseMessage::updateWithChildHash(blake3_hasher& _hasher) {
         blake3_hasher_update(&_hasher, (unsigned char *) receipt.data(), receiptLen);
     }
 }
+
+const string &OracleResponseMessage::getOracleResult() const {
+    return oracleResult;
+}
+
+const string &OracleResponseMessage::getReceipt() const {
+    return receipt;
+}

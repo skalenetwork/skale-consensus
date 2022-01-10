@@ -35,6 +35,12 @@ class OracleResponseMessage : public NetworkMessage {
     string receipt;
 
 protected:
+public:
+    const string &getOracleResult() const;
+
+    const string &getReceipt() const;
+
+protected:
 
     void updateWithChildHash(blake3_hasher& _hasher) override;
 
