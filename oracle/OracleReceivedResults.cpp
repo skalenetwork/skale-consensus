@@ -8,4 +8,5 @@
 
 OracleReceivedResults::OracleReceivedResults() {
     resultsBySchainIndex = make_shared<map<uint64_t, string>>();
+    resultsByCount = make_shared<map<string, uint64_t>>();
 }

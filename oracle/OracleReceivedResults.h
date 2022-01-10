@@ -11,6 +11,7 @@ public:
     OracleReceivedResults();
 
     ptr<map<uint64_t, string>> resultsBySchainIndex;
+    ptr<map<string, uint64_t>> resultsByCount;
 };
 
 
