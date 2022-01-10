@@ -93,11 +93,6 @@ void OracleClient::processResponseMessage(const ptr<MessageEnvelope> &_me) {
 
     auto receipt = msg->getReceipt();
 
-    if (!this->receiptsMap.exists(receipt)) {
-        LOG(warn, "Received OracleResponseMessage with unknown receipt" + receipt);
-        return;
-    }
-
     auto result = receiptsMap.getIfExists(receipt);
 
     if (!result.has_value()) {
@@ -122,8 +117,22 @@ void OracleClient::processResponseMessage(const ptr<MessageEnvelope> &_me) {
 }
 
 
-uint64_t OracleClient::tryGettingOracleResult(string& /* _receipt */,
+uint64_t OracleClient::tryGettingOracleResult(string& _receipt ,
                                               string& /* _result */) {
-    return 0;
+    auto result = receiptsMap.getIfExists(_receipt);
+
+    if (!result.has_value()) {
+        LOG(warn, "Received tryGettingOracleResult  with unknown receipt" + _receipt);
+        return ORACLE_UNKNOWN_RECEIPT;
+    }
+
+    auto receipts = std::any_cast<ptr<map<uint64_t, string>>>(result);
+
+    if (receipts->size() < getSchain()->getRequiredSigners()) {
+        return ORACLE_RESULT_NOT_READY;
+    }
+
+    return ORACLE_UNKNOWN_ERROR;
+
 }
 
