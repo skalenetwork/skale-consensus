@@ -25,7 +25,9 @@
 #include "Log.h"
 #include "OracleRequestBroadcastMessage.h"
 #include "chains/Schain.h"
+#include "messages/MessageEnvelope.h"
 #include "network/Network.h"
+#include "OracleResponseMessage.h"
 #include "utils/Time.h"
 #include "protocols/ProtocolInstance.h"
 #include "OracleErrors.h"
@@ -79,5 +81,10 @@ uint64_t OracleClient::runOracleRequest(string _spec, string result) {
 
 void OracleClient::processResponseMessage(const ptr<MessageEnvelope> &_me) {
     CHECK_STATE(_me);
+
+    auto msg = dynamic_pointer_cast<OracleResponseMessage>(_me->getMessage());
+
+    CHECK_STATE(msg);
+
     LOG(err, "Processing message");
 }
