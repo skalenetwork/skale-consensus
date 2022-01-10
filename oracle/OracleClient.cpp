@@ -46,7 +46,7 @@ uint64_t OracleClient::broadcastRequestAndReturnReceipt(ptr<OracleRequestBroadca
     auto r = _msg->getHash().toHex();
 
 
-    auto exists = receiptsMap.putIfDoesNotExist(r, make_shared<map<uint64_t, string>>());
+    auto exists = receiptsMap.putIfDoesNotExist(r, make_shared<OracleReceivedResults>());
 
     if (!exists) {
         LOG(err, "Request exists:" + r);
@@ -100,18 +100,18 @@ void OracleClient::processResponseMessage(const ptr<MessageEnvelope> &_me) {
         return;
     }
 
-    auto receipts = std::any_cast<ptr<map<uint64_t, string>>>(result);
+    auto receipts = std::any_cast<ptr<OracleReceivedResults>>(result);
 
     LOCK(m)
 
-    if (receipts->count(origin) > 0) {
+    if (receipts->resultsBySchainIndex->count(origin) > 0) {
         LOG(warn, "Duplicate OracleResponseMessage for receipt:" + receipt +
              " index:" + to_string(origin));
         return;
     }
 
 
-    receipts->insert({origin, msg->getOracleResult()});
+    receipts->resultsBySchainIndex->insert({origin, msg->getOracleResult()});
 
     LOG(err, "Processing oracle message:" + to_string(origin));
 }

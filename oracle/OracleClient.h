@@ -26,6 +26,7 @@
 #define SKALED_ORACLECLIENT_H
 
 #include "protocols/ProtocolInstance.h"
+#include "OracleReceivedResults.h"
 
 class Schain;
 class OracleRequestBroadcastMessage;
@@ -36,7 +37,8 @@ class OracleClient : public ProtocolInstance {
 
     Schain* sChain = nullptr;
 
-    cache::lru_cache<string, ptr<map<uint64_t, string>>> receiptsMap;
+    cache::lru_cache<string, ptr<OracleReceivedResults>> receiptsMap;
+
 
     string waitForAnswer(ptr<OracleRequestBroadcastMessage> /*_msg*/ );
 
