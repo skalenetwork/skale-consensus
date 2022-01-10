@@ -87,5 +87,13 @@ void OracleClient::processResponseMessage(const ptr<MessageEnvelope> &_me) {
 
     CHECK_STATE(msg);
 
+    auto origin = _me->getSrcSchainIndex();
+
+    CHECK_STATE(origin > 0 || (uint64_t ) origin <= getSchain()->getNodeCount());
+
+    auto receipt = msg->getReceipt();
+
+    CHECK_STATE(this->receiptsMap.exists(receipt));
+
     LOG(err, "Processing message");
 }
