@@ -87,13 +87,41 @@ void OracleClient::processResponseMessage(const ptr<MessageEnvelope> &_me) {
 
     CHECK_STATE(msg);
 
-    auto origin = _me->getSrcSchainIndex();
+    auto origin = (uint64_t) _me->getSrcSchainIndex();
 
-    CHECK_STATE(origin > 0 || (uint64_t ) origin <= getSchain()->getNodeCount());
+    CHECK_STATE(origin > 0 || origin <= getSchain()->getNodeCount());
 
     auto receipt = msg->getReceipt();
 
-    CHECK_STATE(this->receiptsMap.exists(receipt));
+    if (!this->receiptsMap.exists(receipt)) {
+        LOG(warn, "Received OracleResponseMessage with unknown receipt" + receipt);
+        return;
+    }
 
-    LOG(err, "Processing message");
+    auto result = receiptsMap.getIfExists(receipt);
+
+    if (!result.has_value()) {
+        LOG(warn, "Received OracleResponseMessage with unknown receipt" + receipt);
+        return;
+    }
+
+    auto receipts = std::any_cast<ptr<map<uint64_t, string>>>(result);
+
+    LOCK(m)
+
+    if (receipts->count(origin) > 0) {
+        LOG(warn, "Duplicate OracleResponseMessage for receipt:" + receipt +
+             " index:" + to_string(origin));
+        return;
+    }
+
+    if (receipts->size() > getSchain()->getRequiredSigners()) {
+        return;
+    }
+
+    receipts->insert({origin, msg->getOracleResult()});
+
+    if (receipts->size() == getSchain()->getRequiredSigners()) {
+        LOG(err, "Processing oracle messages:" + to_string(origin));
+    }
 }
