@@ -44,7 +44,7 @@ uint64_t OracleClient::broadcastRequestAndReturnReceipt(ptr<OracleRequestBroadca
     auto r = _msg->getHash().toHex();
 
 
-    auto exists = receiptsMap.putIfDoesNotExist(r, make_shared<list<string>>());
+    auto exists = receiptsMap.putIfDoesNotExist(r, make_shared<map<uint64_t, string>>());
 
     if (!exists) {
         LOG(err, "Request exists:" + r);
@@ -79,4 +79,5 @@ uint64_t OracleClient::runOracleRequest(string _spec, string result) {
 
 void OracleClient::processResponseMessage(const ptr<MessageEnvelope> &_me) {
     CHECK_STATE(_me);
+    LOG(err, "Processing message");
 }
