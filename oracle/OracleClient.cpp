@@ -55,6 +55,7 @@ uint64_t OracleClient::broadcastRequestAndReturnReceipt(ptr<OracleRequestBroadca
     }
 
     LOCK(m);
+
     sChain->getNode()->getNetwork()->broadcastOracleRequestMessage(_msg);
     receipt = r;
     return ORACLE_SUCCESS;
