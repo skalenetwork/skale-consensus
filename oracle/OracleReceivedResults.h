@@ -7,12 +7,11 @@
 
 
 class OracleReceivedResults {
+    recursive_mutex m;
     uint64_t requiredSigners;
     uint64_t requestTime;
     ptr<map<uint64_t, string>> resultsBySchainIndex;
     ptr<map<string, uint64_t>> resultsByCount;
-public:
-    const ptr<map<string, uint64_t>> &getResultsByCount() const;
 
 public:
 

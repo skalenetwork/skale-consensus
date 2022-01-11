@@ -21,6 +21,9 @@ uint64_t OracleReceivedResults::getRequestTime() const {
 }
 
 void OracleReceivedResults::insertIfDoesntExist(uint64_t _origin, string _result) {
+
+    LOCK(m)
+
     if (resultsBySchainIndex->count(_origin) > 0) {
         LOG(warn, "Duplicate OracleResponseMessage for result:" + _result +
                   " index:" + to_string(_origin));
@@ -39,6 +42,8 @@ void OracleReceivedResults::insertIfDoesntExist(uint64_t _origin, string _result
 uint64_t OracleReceivedResults::tryGettingResult(string &_result) {
     if (getRequestTime() + ORACLE_QUEUE_TIMEOUT_MS < Time::getCurrentTimeMs())
         return ORACLE_TIMEOUT;
+
+    LOCK(m)
 
     for (auto &&item: *resultsByCount) {
         if (item.second >= requiredSigners) {

@@ -179,5 +179,4 @@ void OracleServerAgent::sendOutResult(ptr<OracleResponseMessage> _msg, schain_in
 
     getSchain()->getNode()->getNetwork()->sendOracleResponseMessage(_msg, _destination);
 
-
 }
