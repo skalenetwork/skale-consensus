@@ -35,6 +35,7 @@
 #include "protocols/ProtocolKey.h"
 #include "OracleClient.h"
 #include "OracleServerAgent.h"
+#include "OracleRequestSpec.h"
 #include "OracleRequestBroadcastMessage.h"
 
 OracleRequestBroadcastMessage::OracleRequestBroadcastMessage(string& _requestSpec, block_id _blockID,
@@ -44,6 +45,9 @@ OracleRequestBroadcastMessage::OracleRequestBroadcastMessage(string& _requestSpe
                          sourceProtocolInstance), requestSpec(_requestSpec) {
     printPrefix = "o";
     CHECK_STATE(_requestSpec.front() == '{' && _requestSpec.back() == '}')
+
+    CHECK_STATE(OracleRequestSpec::parseSpec(_requestSpec));
+
 }
 
 
@@ -59,6 +63,8 @@ OracleRequestBroadcastMessage::OracleRequestBroadcastMessage(string& _requestSpe
         _srcSchainIndex, _sChain->getCryptoManager()), requestSpec(_requestSpec) {
     CHECK_STATE(_requestSpec.front() == '{' && _requestSpec.back() == '}')
     printPrefix = "o";
+
+    CHECK_STATE(OracleRequestSpec::parseSpec(_requestSpec));
 }
 
 void OracleRequestBroadcastMessage::updateWithChildHash(blake3_hasher& _hasher) {

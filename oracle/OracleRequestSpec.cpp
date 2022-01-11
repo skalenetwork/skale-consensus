@@ -54,3 +54,5 @@ ptr<OracleRequestSpec> OracleRequestSpec::parseSpec(string& _spec) {
 
     return make_shared<OracleRequestSpec>(_spec);
 }
+
+OracleRequestSpec::OracleRequestSpec(string& )  {}

@@ -11,13 +11,11 @@ class OracleRequestSpec {
     string url;
     string jsonPath;
 
-
-
 public:
 
-    OracleRequestSpec(string _spec);
+    OracleRequestSpec(string& _spec);
 
-    ptr<OracleRequestSpec> parseSpec(string& _spec);
+    static ptr<OracleRequestSpec> parseSpec(string& _spec);
 
 };
 
