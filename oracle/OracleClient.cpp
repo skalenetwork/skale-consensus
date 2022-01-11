@@ -105,7 +105,6 @@ void OracleClient::processResponseMessage(const ptr<MessageEnvelope> &_me) {
 
     auto receipts = std::any_cast<ptr < OracleReceivedResults>>(receivedResults);
 
-    LOCK(m)
 
     receipts->insertIfDoesntExist(origin, res);
 
