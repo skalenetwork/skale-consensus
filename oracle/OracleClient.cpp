@@ -35,11 +35,11 @@
 #include "OracleClient.h"
 
 
-OracleClient::OracleClient(Schain& _sChain) : ProtocolInstance(ORACLE, _sChain), sChain(&_sChain),
-                                              receiptsMap(ORACLE_RECEIPTS_MAP_SIZE){
+OracleClient::OracleClient(Schain &_sChain) : ProtocolInstance(ORACLE, _sChain), sChain(&_sChain),
+                                              receiptsMap(ORACLE_RECEIPTS_MAP_SIZE) {
 }
 
-uint64_t OracleClient::broadcastRequestAndReturnReceipt(ptr<OracleRequestBroadcastMessage> _msg, string& receipt) {
+uint64_t OracleClient::broadcastRequestAndReturnReceipt(ptr<OracleRequestBroadcastMessage> _msg, string &receipt) {
 
     CHECK_STATE(_msg)
     CHECK_STATE(sChain)
@@ -59,7 +59,7 @@ uint64_t OracleClient::broadcastRequestAndReturnReceipt(ptr<OracleRequestBroadca
     return ORACLE_SUCCESS;
 }
 
-string OracleClient::waitForAnswer(ptr<OracleRequestBroadcastMessage> /*_msg*/ ) {
+string OracleClient::waitForAnswer(ptr<OracleRequestBroadcastMessage> /*_msg*/) {
     return "{\"result\":\"hihi\"}";
 }
 
@@ -72,9 +72,9 @@ void OracleClient::sendTestRequest() {
 
 
 uint64_t OracleClient::runOracleRequest(string _spec, string result) {
-    auto msg = make_shared<OracleRequestBroadcastMessage>(_spec,  sChain->getLastCommittedBlockID(),
-                                                 Time::getCurrentTimeMs(),
-                                                 *sChain->getOracleClient());
+    auto msg = make_shared<OracleRequestBroadcastMessage>(_spec, sChain->getLastCommittedBlockID(),
+                                                          Time::getCurrentTimeMs(),
+                                                          *sChain->getOracleClient());
     return broadcastRequestAndReturnReceipt(msg, result);
 }
 
@@ -101,13 +101,14 @@ void OracleClient::processResponseMessage(const ptr<MessageEnvelope> &_me) {
         return;
     }
 
-    auto receipts = std::any_cast<ptr<OracleReceivedResults>>(receivedResults);
+    auto receipts = std::any_cast<ptr < OracleReceivedResults>>
+    (receivedResults);
 
     LOCK(m)
 
     if (receipts->resultsBySchainIndex->count(origin) > 0) {
         LOG(warn, "Duplicate OracleResponseMessage for receipt:" + receipt +
-             " index:" + to_string(origin));
+                  " index:" + to_string(origin));
         return;
     }
 
@@ -121,11 +122,14 @@ void OracleClient::processResponseMessage(const ptr<MessageEnvelope> &_me) {
     }
 
     LOG(err, "Processing oracle message:" + to_string(origin));
+
+    string r;
+    tryGettingOracleResult(receipt, r);
 }
 
 
-uint64_t OracleClient::tryGettingOracleResult(string& _receipt ,
-                                              string& _result ) {
+uint64_t OracleClient::tryGettingOracleResult(string &_receipt,
+                                              string &_result) {
     auto oracleReceivedResults = receiptsMap.getIfExists(_receipt);
 
     if (!oracleReceivedResults.has_value()) {
@@ -136,11 +140,15 @@ uint64_t OracleClient::tryGettingOracleResult(string& _receipt ,
 
     auto receipts = std::any_cast<ptr<OracleReceivedResults>>(oracleReceivedResults);
 
-    for (auto&& item : *receipts->resultsByCount) {
+    if (receipts->getRequestTime() + ORACLE_QUEUE_TIMEOUT_MS < Time::getCurrentTimeMs())
+        return ORACLE_TIMEOUT;
+
+    for (auto &&item: *receipts->resultsByCount) {
         if (item.second >= getSchain()->getRequiredSigners()) {
             _result = item.first;
+            LOG(err, "ORACLE SUCCESS!");
             return ORACLE_SUCCESS;
-        }
+        };
     }
 
     return ORACLE_RESULT_NOT_READY;;

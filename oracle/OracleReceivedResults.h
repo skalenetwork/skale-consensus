@@ -7,8 +7,12 @@
 
 
 class OracleReceivedResults {
+    uint64_t requestTime;
 public:
     OracleReceivedResults();
+
+    uint64_t getRequestTime() const;
+
 
     ptr<map<uint64_t, string>> resultsBySchainIndex;
     ptr<map<string, uint64_t>> resultsByCount;
