@@ -7,15 +7,24 @@
 
 
 class OracleReceivedResults {
+    uint64_t requiredSigners;
     uint64_t requestTime;
+    ptr<map<uint64_t, string>> resultsBySchainIndex;
+    ptr<map<string, uint64_t>> resultsByCount;
 public:
-    OracleReceivedResults();
+    const ptr<map<string, uint64_t>> &getResultsByCount() const;
+
+public:
+
+    OracleReceivedResults(uint64_t _requiredSigners);
 
     uint64_t getRequestTime() const;
 
+    void insertIfDoesntExist(uint64_t _origin, string _result);
 
-    ptr<map<uint64_t, string>> resultsBySchainIndex;
-    ptr<map<string, uint64_t>> resultsByCount;
+    uint64_t tryGettingResult(string& _result);
+
+
 };
 
 

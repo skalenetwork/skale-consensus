@@ -46,7 +46,8 @@ uint64_t OracleClient::broadcastRequestAndReturnReceipt(ptr<OracleRequestBroadca
     auto r = _msg->getHash().toHex();
 
 
-    auto exists = receiptsMap.putIfDoesNotExist(r, make_shared<OracleReceivedResults>());
+    auto exists = receiptsMap.putIfDoesNotExist(r,
+                                                make_shared<OracleReceivedResults>(getSchain()->getRequiredSigners()));
 
     if (!exists) {
         LOG(err, "Request exists:" + r);
@@ -101,25 +102,12 @@ void OracleClient::processResponseMessage(const ptr<MessageEnvelope> &_me) {
         return;
     }
 
-    auto receipts = std::any_cast<ptr < OracleReceivedResults>>
-    (receivedResults);
+    auto receipts = std::any_cast<ptr < OracleReceivedResults>>(receivedResults);
 
     LOCK(m)
 
-    if (receipts->resultsBySchainIndex->count(origin) > 0) {
-        LOG(warn, "Duplicate OracleResponseMessage for receipt:" + receipt +
-                  " index:" + to_string(origin));
-        return;
-    }
+    receipts->insertIfDoesntExist(origin, res);
 
-
-    receipts->resultsBySchainIndex->insert({origin, res});
-    if (receipts->resultsByCount->count(res) == 0) {
-        receipts->resultsByCount->insert({res, 1});
-    } else {
-        auto count = receipts->resultsByCount->at(res);
-        receipts->resultsByCount->insert({res, count + 1});
-    }
 
     LOG(err, "Processing oracle message:" + to_string(origin));
 
@@ -140,18 +128,7 @@ uint64_t OracleClient::tryGettingOracleResult(string &_receipt,
 
     auto receipts = std::any_cast<ptr<OracleReceivedResults>>(oracleReceivedResults);
 
-    if (receipts->getRequestTime() + ORACLE_QUEUE_TIMEOUT_MS < Time::getCurrentTimeMs())
-        return ORACLE_TIMEOUT;
-
-    for (auto &&item: *receipts->resultsByCount) {
-        if (item.second >= getSchain()->getRequiredSigners()) {
-            _result = item.first;
-            LOG(err, "ORACLE SUCCESS!");
-            return ORACLE_SUCCESS;
-        };
-    }
-
-    return ORACLE_RESULT_NOT_READY;;
+    return receipts->tryGettingResult(_result);
 
 }
 
