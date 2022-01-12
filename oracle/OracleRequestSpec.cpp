@@ -31,11 +31,9 @@ OracleRequestSpec::OracleRequestSpec(string& _spec ) : spec(_spec) {
 
     CHECK_STATE2(d["uri"].IsString(), "Uri in Oracle spec is not string:" + _spec);
 
-    CHECK_STATE2(d.HasMember("jsp"), "No json pointer in Oracle spec:" + _spec);
+    CHECK_STATE2(d.HasMember("jsps"), "No json pointer in Oracle spec:" + _spec);
 
-    CHECK_STATE2(d["jsp"].IsString(), "Jsp in Oracle spec is not string:" + _spec);
-
-    CHECK_STATE2(d.HasMember("jsp"), "No json pointer in Oracle spec:" + _spec);
+    CHECK_STATE2(d["jsps"].IsArray(), "Jsps in Oracle spec is not array:" + _spec);
 
     CHECK_STATE2(d.HasMember("time"), "No time pointer in Oracle spec:" + _spec);
 
@@ -45,8 +43,13 @@ OracleRequestSpec::OracleRequestSpec(string& _spec ) : spec(_spec) {
 
     CHECK_STATE2(d["pow"].IsString(), "Pow in Oracle spec is not string:" + _spec);
 
-    uri = d["uri"].GetString();
-    jsp = d["jsp"].GetString();
+    auto array = d["jsps"].GetArray();
+
+    for (auto&& item : array) {
+        CHECK_STATE2(item.IsString(), "Jsp array item is not string:" + _spec);
+        jsps.push_back(item.GetString());
+    }
+
     time = d["time"].GetUint64();
     pow = d["pow"].GetString();
 
@@ -60,9 +63,6 @@ const string &OracleRequestSpec::getUri() const {
     return uri;
 }
 
-const string &OracleRequestSpec::getJsp() const {
-    return jsp;
-}
 
 uint64_t OracleRequestSpec::getTime() const {
     return time;
@@ -70,4 +70,8 @@ uint64_t OracleRequestSpec::getTime() const {
 
 const string &OracleRequestSpec::getPow() const {
     return pow;
+}
+
+const vector<string> &OracleRequestSpec::getJsps() const {
+    return jsps;
 }
