@@ -10,8 +10,21 @@ class OracleRequestSpec {
 
     string spec;
     string uri;
+public:
+    const string &getSpec() const;
+
+    const string &getUri() const;
+
+    const string &getJsp() const;
+
+    uint64_t getTime() const;
+
+    const string &getPow() const;
+
+private:
     string jsp;
     uint64_t time;
+    string pow;
 
 public:
 
