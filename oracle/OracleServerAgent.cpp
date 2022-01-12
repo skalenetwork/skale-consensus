@@ -57,6 +57,7 @@
 
 #include "utils/Time.h"
 #include "protocols/ProtocolInstance.h"
+#include "OracleRequestSpec.h"
 #include "OracleThreadPool.h"
 #include "OracleServerAgent.h"
 #include "OracleClient.h"
@@ -162,6 +163,10 @@ void OracleServerAgent::workerThreadItemSendLoop(OracleServerAgent *_agent) {
 
 ptr<OracleResponseMessage> OracleServerAgent::doEndpointRequestResponse(ptr<OracleRequestBroadcastMessage> _request) {
     CHECK_ARGUMENT(_request)
+
+    auto spec = _request->getParsedSpec();
+
+    auto uri = spec->getUri();
 
 
 
