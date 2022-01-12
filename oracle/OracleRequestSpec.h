@@ -8,8 +8,10 @@
 
 class OracleRequestSpec {
 
-    string url;
-    string jsonPath;
+    string spec;
+    string uri;
+    string jsp;
+    uint64_t time;
 
 public:
 

@@ -15,44 +15,33 @@
 
 ptr<OracleRequestSpec> OracleRequestSpec::parseSpec(string& _spec) {
 
-    rapidjson::Document d;
-
-    d.Parse(_spec.data());
-
-    if (!d.HasMember("uri")) {
-        LOG(err, "No URI in Oracle spec");
-        return nullptr;
-    }
-
-    if (!d["uri"].IsString()) {
-        LOG(err, "Uri in Oracle spec is not string");
-    }
-
-    if (!d.HasMember("jsp")) {
-        LOG(err, "No json pointer in Oracle spec");
-        return nullptr;
-    }
-
-    if (!d["jsp"].IsString()) {
-        LOG(err, "Jsp in Oracle spec is not string");
-    }
-
-    if (!d.HasMember("jsp")) {
-        LOG(err, "No json pointer in Oracle spec");
-        return nullptr;
-    }
-
-    if (!d.HasMember("time")) {
-        LOG(err, "No json pointer in Oracle spec");
-        return nullptr;
-    }
-
-    if (!d["time"].IsInt64()) {
-        LOG(err, "time in Oracle spec is not int64");
-        return nullptr;
-    }
 
     return make_shared<OracleRequestSpec>(_spec);
 }
 
-OracleRequestSpec::OracleRequestSpec(string& )  {}
+OracleRequestSpec::OracleRequestSpec(string& _spec ) : spec(_spec) {
+    rapidjson::Document d;
+
+    spec.erase(std::remove_if(spec.begin(), spec.end(), ::isspace), spec.end());
+
+    d.Parse(spec.data());
+
+    CHECK_STATE2(!d.HasParseError(), "Unparsable Oracle spec:" + _spec);
+
+    CHECK_STATE2(d.HasMember("uri"),"No URI in Oracle spec:" + _spec);
+
+    CHECK_STATE2(d["uri"].IsString(), "Uri in Oracle spec is not string:" + _spec);
+
+    CHECK_STATE2(d.HasMember("jsp"), "No json pointer in Oracle spec:" + _spec);
+
+    CHECK_STATE2(d["jsp"].IsString(), "Jsp in Oracle spec is not string:" + _spec);
+
+    CHECK_STATE2(d.HasMember("jsp"), "No json pointer in Oracle spec:" + _spec);
+
+    CHECK_STATE2(d.HasMember("time"), "No time pointer in Oracle spec:" + _spec);
+
+    CHECK_STATE2(d["time"].IsUint64(),"time in Oracle spec is not uint64:" + _spec)
+    uri = d["uri"].GetString();
+    jsp = d["jsp"].GetString();
+    time = d["time"].GetUint64();
+}

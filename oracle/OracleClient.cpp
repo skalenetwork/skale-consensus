@@ -68,7 +68,14 @@ string OracleClient::waitForAnswer(ptr<OracleRequestBroadcastMessage> /*_msg*/) 
 void OracleClient::sendTestRequest() {
     string result;
 
-    auto status = runOracleRequest("{\"request\":\"haha\"}", result);
+
+    string uri = "\"uri\":\"http://worldtimeapi.org/api/timezone/Europe/Kiev\"";
+    string jsp = "\"jsp\":\"/unixtime\"";
+    string time = "\"time\":" + to_string(Time::getCurrentTimeMs());
+
+
+    string spec = "{" + uri + "," + jsp + "," + time + "}";
+    auto status = runOracleRequest(spec, result);
     CHECK_STATE(status == ORACLE_SUCCESS);
 }
 

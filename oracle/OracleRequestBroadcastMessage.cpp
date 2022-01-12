@@ -44,7 +44,6 @@ OracleRequestBroadcastMessage::OracleRequestBroadcastMessage(string& _requestSpe
         : NetworkMessage(MSG_ORACLE_REQ_BROADCAST, _blockID, 0, 0, 0, _timeMs,
                          sourceProtocolInstance), requestSpec(_requestSpec) {
     printPrefix = "o";
-    CHECK_STATE(_requestSpec.front() == '{' && _requestSpec.back() == '}')
 
     CHECK_STATE(OracleRequestSpec::parseSpec(_requestSpec));
 
