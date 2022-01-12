@@ -31,6 +31,10 @@ OracleRequestSpec::OracleRequestSpec(string& _spec ) : spec(_spec) {
 
     CHECK_STATE2(d["uri"].IsString(), "Uri in Oracle spec is not string:" + _spec);
 
+    uri = d["uri"].GetString();
+
+    CHECK_STATE(uri.size() > 5);
+
     CHECK_STATE2(d.HasMember("jsps"), "No json pointer in Oracle spec:" + _spec);
 
     CHECK_STATE2(d["jsps"].IsArray(), "Jsps in Oracle spec is not array:" + _spec);
@@ -39,9 +43,17 @@ OracleRequestSpec::OracleRequestSpec(string& _spec ) : spec(_spec) {
 
     CHECK_STATE2(d["time"].IsUint64(),"time in Oracle spec is not uint64:" + _spec)
 
+    time = d["time"].GetUint64();
+
+    CHECK_STATE(time > 0);
+
     CHECK_STATE2(d.HasMember("pow"), "No  pow in Oracle spec:" + _spec);
 
     CHECK_STATE2(d["pow"].IsString(), "Pow in Oracle spec is not string:" + _spec);
+
+    pow = d["pow"].GetString();
+
+    CHECK_STATE(pow.size() > 4);
 
     auto array = d["jsps"].GetArray();
 

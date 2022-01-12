@@ -21,6 +21,9 @@
     @date 2021-
 */
 
+#include <curl/curl.h>
+
+
 #include "SkaleCommon.h"
 #include "Log.h"
 #include "exceptions/FatalError.h"
@@ -160,6 +163,27 @@ void OracleServerAgent::workerThreadItemSendLoop(OracleServerAgent *_agent) {
 
 }
 
+struct MemoryStruct {
+    char *memory;
+    size_t size;
+};
+
+static size_t
+WriteMemoryCallback(void *contents, size_t size, size_t nmemb, void *userp)
+{
+    size_t realsize = size * nmemb;
+    struct MemoryStruct *mem = (struct MemoryStruct *)userp;
+
+    char *ptr = (char*) realloc(mem->memory, mem->size + realsize + 1);
+    CHECK_STATE(ptr);
+    mem->memory = ptr;
+    memcpy(&(mem->memory[mem->size]), contents, realsize);
+    mem->size += realsize;
+    mem->memory[mem->size] = 0;
+
+    return realsize;
+}
+
 
 ptr<OracleResponseMessage> OracleServerAgent::doEndpointRequestResponse(ptr<OracleRequestBroadcastMessage> _request) {
     CHECK_ARGUMENT(_request)
@@ -168,10 +192,49 @@ ptr<OracleResponseMessage> OracleServerAgent::doEndpointRequestResponse(ptr<Orac
 
     auto uri = spec->getUri();
 
+    CURL *curl;
+    CURLcode res;
+    struct MemoryStruct chunk;
+    chunk.memory = (char*) malloc(1);  /* will be grown as needed by the realloc above */
+    chunk.size = 0;    /* no data at this point */
+
+    curl_global_init(CURL_GLOBAL_ALL);
+
+    curl = curl_easy_init();
+
+    CHECK_STATE2(curl, "Could not init curl object");
+
+   curl_easy_setopt(curl, CURLOPT_URL, uri.c_str());
+   curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
+
+    string pagedata;
+
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteMemoryCallback);
+    /* we pass our 'chunk' struct to the callback function */
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *) &chunk);
+    curl_easy_setopt(curl, CURLOPT_COOKIEFILE, "");
+    curl_easy_setopt(curl, CURLOPT_TIMEOUT, 5);
+    curl_easy_setopt(curl, CURLOPT_USERAGENT, "libcurl-agent/1.0");
+
+    res = curl_easy_perform(curl);
+
+    CHECK_STATE2(res == CURLE_OK, "Curl easy perform failed for url: " + uri + " with error code:" +
+      string(curl_easy_strerror(res)));
+
+    curl_easy_cleanup(curl);
+
+
+    string result(chunk.memory, chunk.size);
+
+    cerr << result << endl;
+
+    exit(-5);
+
+    free(chunk.memory);
+    curl_global_cleanup();
 
 
 
-    string result = "{\"huhu\":\"huhu\"}";
     string receipt = _request->getHash().toHex();
 
     return make_shared<OracleResponseMessage>(result,
