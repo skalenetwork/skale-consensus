@@ -27,11 +27,13 @@
 #include "messages/NetworkMessage.h"
 
 class OracleClient;
+class OracleRequestSpec;
 
 
 class OracleRequestBroadcastMessage : public NetworkMessage {
 
     string requestSpec;
+    ptr<OracleRequestSpec> parsedSpec = nullptr;
 
 protected:
 
@@ -43,6 +45,8 @@ protected:
 public:
 
     OracleRequestBroadcastMessage(string& _requestSpec, block_id _blockID, uint64_t _timeMs, OracleClient& sourceProtocolInstance );
+
+    const ptr<OracleRequestSpec> &getParsedSpec() const;
 
     OracleRequestBroadcastMessage(string& _requestSpec, node_id _srcNodeID, block_id _blockID,  uint64_t _timeMs, schain_id _schainId,
                         msg_id _msgID, schain_index _srcSchainIndex, const string & _ecdsaSig,

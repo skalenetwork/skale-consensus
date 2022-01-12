@@ -45,7 +45,7 @@ OracleRequestBroadcastMessage::OracleRequestBroadcastMessage(string& _requestSpe
                          sourceProtocolInstance), requestSpec(_requestSpec) {
     printPrefix = "o";
 
-    CHECK_STATE(OracleRequestSpec::parseSpec(_requestSpec));
+    parsedSpec = OracleRequestSpec::parseSpec(_requestSpec);
 
 }
 
@@ -63,7 +63,7 @@ OracleRequestBroadcastMessage::OracleRequestBroadcastMessage(string& _requestSpe
     CHECK_STATE(_requestSpec.front() == '{' && _requestSpec.back() == '}')
     printPrefix = "o";
 
-    CHECK_STATE(OracleRequestSpec::parseSpec(_requestSpec));
+    parsedSpec = OracleRequestSpec::parseSpec(_requestSpec);
 }
 
 void OracleRequestBroadcastMessage::updateWithChildHash(blake3_hasher& _hasher) {
@@ -78,4 +78,8 @@ void OracleRequestBroadcastMessage::updateWithChildHash(blake3_hasher& _hasher) 
 void OracleRequestBroadcastMessage::serializeToStringChild(rapidjson::Writer<rapidjson::StringBuffer>& _writer) {
     _writer.String("spec");
     _writer.String(requestSpec.data(), requestSpec.size());
+}
+
+const ptr<OracleRequestSpec> &OracleRequestBroadcastMessage::getParsedSpec() const {
+    return parsedSpec;
 }

@@ -164,6 +164,8 @@ ptr<OracleResponseMessage> OracleServerAgent::doEndpointRequestResponse(ptr<Orac
     CHECK_ARGUMENT(_request)
 
 
+
+
     string result = "{\"huhu\":\"huhu\"}";
     string receipt = _request->getHash().toHex();
 
