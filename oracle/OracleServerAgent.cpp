@@ -226,7 +226,6 @@ void OracleServerAgent::appendResultsToSpec(string &specStr, ptr<vector<string>>
 
         CHECK_STATE(commaPosition != string::npos);
 
-
         specStr = specStr.substr(0, commaPosition + 1);
 
         specStr.append("\"rslts\":[");
