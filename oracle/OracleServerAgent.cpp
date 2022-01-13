@@ -196,7 +196,7 @@ ptr<OracleResponseMessage> OracleServerAgent::doEndpointRequestResponse(ptr<Orac
 
     cerr << r << endl;
 
-//    exit(-5);
+    exit(-5);
 
 
     string receipt = _request->getHash().toHex();
@@ -213,6 +213,7 @@ string OracleServerAgent::curlHttpGet(const string &uri)  {
     CURLcode res;
     struct MemoryStruct chunk;
     chunk.memory = (char *) malloc(1);  /* will be grown as needed by the realloc above */
+    CHECK_STATE(chunk.memory);
     chunk.size = 0;    /* no data at this point */
 
     curl = curl_easy_init();

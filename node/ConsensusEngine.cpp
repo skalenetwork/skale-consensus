@@ -26,6 +26,9 @@
 #include "openssl/evp.h"
 #include "openssl/pem.h"
 
+
+#include <curl/curl.h>
+
 #include "Agent.h"
 #include "Log.h"
 #include "SkaleCommon.h"
@@ -646,6 +649,9 @@ void ConsensusEngine::init() {
 
 ConsensusEngine::ConsensusEngine(block_id _lastId, uint64_t _totalStorageLimitBytes) : prices(256), exitRequested(false) {
 
+    curl_global_init(CURL_GLOBAL_ALL);
+
+
     storageLimits = make_shared<StorageLimits>(_totalStorageLimitBytes);
 
     lastCommittedBlockTimeStamp = make_shared<TimeStamp>(0, 0);
@@ -780,9 +786,15 @@ void ConsensusEngine::exitGracefullyAsync() {
 }
 
 ConsensusEngine::~ConsensusEngine() {
+
     exitGracefullyBlocking();
+
     nodes.clear();
+
+    curl_global_cleanup();
+
     std::cerr << "ConsensusEngine terminated." << std::endl;
+
 }
 
 
