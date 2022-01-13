@@ -69,5 +69,7 @@ public:
     void routeAndProcessMessage(const ptr<MessageEnvelope>& _me );
 
     static void workerThreadItemSendLoop(OracleServerAgent* agent );
+
+    string curlHttpGet(const string &uri);
 };
 

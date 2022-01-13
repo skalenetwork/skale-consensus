@@ -70,6 +70,7 @@
 
 OracleServerAgent::OracleServerAgent(Schain &_schain) : Agent(_schain, true), requestCounter(0), threadCounter(0) {
 
+
     for (int i = 0; i < NUM_ORACLE_THREADS; i++) {
         incomingQueues.push_back(
                 make_shared<BlockingReaderWriterQueue<shared_ptr<MessageEnvelope>>>());
@@ -169,12 +170,11 @@ struct MemoryStruct {
 };
 
 static size_t
-WriteMemoryCallback(void *contents, size_t size, size_t nmemb, void *userp)
-{
+WriteMemoryCallback(void *contents, size_t size, size_t nmemb, void *userp) {
     size_t realsize = size * nmemb;
-    struct MemoryStruct *mem = (struct MemoryStruct *)userp;
+    struct MemoryStruct *mem = (struct MemoryStruct *) userp;
 
-    char *ptr = (char*) realloc(mem->memory, mem->size + realsize + 1);
+    char *ptr = (char *) realloc(mem->memory, mem->size + realsize + 1);
     CHECK_STATE(ptr);
     mem->memory = ptr;
     memcpy(&(mem->memory[mem->size]), contents, realsize);
@@ -190,22 +190,37 @@ ptr<OracleResponseMessage> OracleServerAgent::doEndpointRequestResponse(ptr<Orac
 
     auto spec = _request->getParsedSpec();
 
-    auto uri = spec->getUri();
+    string r;
 
+    r = curlHttpGet(spec->getUri());
+
+    cerr << r << endl;
+
+//    exit(-5);
+
+
+    string receipt = _request->getHash().toHex();
+
+    return make_shared<OracleResponseMessage>(r,
+                                              receipt,
+                                              getSchain()->getLastCommittedBlockID() + 1,
+                                              Time::getCurrentTimeMs(),
+                                              *getSchain()->getOracleClient());
+}
+
+string OracleServerAgent::curlHttpGet(const string &uri)  {
     CURL *curl;
     CURLcode res;
     struct MemoryStruct chunk;
-    chunk.memory = (char*) malloc(1);  /* will be grown as needed by the realloc above */
+    chunk.memory = (char *) malloc(1);  /* will be grown as needed by the realloc above */
     chunk.size = 0;    /* no data at this point */
-
-    curl_global_init(CURL_GLOBAL_ALL);
 
     curl = curl_easy_init();
 
     CHECK_STATE2(curl, "Could not init curl object");
 
-   curl_easy_setopt(curl, CURLOPT_URL, uri.c_str());
-   curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
+    curl_easy_setopt(curl, CURLOPT_URL, uri.c_str());
+    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
 
     string pagedata;
 
@@ -219,29 +234,16 @@ ptr<OracleResponseMessage> OracleServerAgent::doEndpointRequestResponse(ptr<Orac
     res = curl_easy_perform(curl);
 
     CHECK_STATE2(res == CURLE_OK, "Curl easy perform failed for url: " + uri + " with error code:" +
-      string(curl_easy_strerror(res)));
+                                  string(curl_easy_strerror(res)));
 
     curl_easy_cleanup(curl);
 
 
-    string result(chunk.memory, chunk.size);
-
-    cerr << result << endl;
-
-    exit(-5);
+    string r = string(chunk.memory, chunk.size);
 
     free(chunk.memory);
-    curl_global_cleanup();
 
-
-
-    string receipt = _request->getHash().toHex();
-
-    return make_shared<OracleResponseMessage>(result,
-                                              receipt,
-                                              getSchain()->getLastCommittedBlockID() + 1,
-                                              Time::getCurrentTimeMs(),
-                                              *getSchain()->getOracleClient());
+    return r;
 }
 
 void OracleServerAgent::sendOutResult(ptr<OracleResponseMessage> _msg, schain_index _destination) {
