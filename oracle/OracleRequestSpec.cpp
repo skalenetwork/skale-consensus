@@ -13,12 +13,12 @@
 
 #include "OracleRequestSpec.h"
 
-ptr<OracleRequestSpec> OracleRequestSpec::parseSpec(string& _spec) {
+ptr<OracleRequestSpec> OracleRequestSpec::parseSpec(string &_spec) {
 
     return make_shared<OracleRequestSpec>(_spec);
 }
 
-OracleRequestSpec::OracleRequestSpec(string& _spec ) : spec(_spec) {
+OracleRequestSpec::OracleRequestSpec(string &_spec) : spec(_spec) {
     rapidjson::Document d;
 
     spec.erase(std::remove_if(spec.begin(), spec.end(), ::isspace), spec.end());
@@ -27,7 +27,7 @@ OracleRequestSpec::OracleRequestSpec(string& _spec ) : spec(_spec) {
 
     CHECK_STATE2(!d.HasParseError(), "Unparsable Oracle spec:" + _spec);
 
-    CHECK_STATE2(d.HasMember("uri"),"No URI in Oracle spec:" + _spec);
+    CHECK_STATE2(d.HasMember("uri"), "No URI in Oracle spec:" + _spec);
 
     CHECK_STATE2(d["uri"].IsString(), "Uri in Oracle spec is not string:" + _spec);
 
@@ -41,7 +41,7 @@ OracleRequestSpec::OracleRequestSpec(string& _spec ) : spec(_spec) {
 
     CHECK_STATE2(d.HasMember("time"), "No time pointer in Oracle spec:" + _spec);
 
-    CHECK_STATE2(d["time"].IsUint64(),"time in Oracle spec is not uint64:" + _spec)
+    CHECK_STATE2(d["time"].IsUint64(), "time in Oracle spec is not uint64:" + _spec)
 
     time = d["time"].GetUint64();
 
@@ -57,9 +57,23 @@ OracleRequestSpec::OracleRequestSpec(string& _spec ) : spec(_spec) {
 
     auto array = d["jsps"].GetArray();
 
-    for (auto&& item : array) {
+    for (auto &&item: array) {
         CHECK_STATE2(item.IsString(), "Jsp array item is not string:" + _spec);
         jsps.push_back(item.GetString());
+    }
+
+    if (d.HasMember("trims")) {
+        auto trimArray = d["trims"].GetArray();
+        for (auto &&item: trimArray) {
+            CHECK_STATE2(item.IsUint64(), "Trims array item is uint64 :" + _spec);
+            trims.push_back(item.GetUint64());
+        }
+
+        CHECK_STATE2(jsps.size() == trims.size(), "hsps array size not equal trims array size");
+    } else {
+        for (uint64_t i = 0; i < jsps.size(); i++) {
+            trims.push_back(0);
+        }
     }
 
     time = d["time"].GetUint64();

@@ -12,6 +12,7 @@ class OracleRequestSpec {
     string uri;
 
     vector<string> jsps;
+    vector<uint64_t> trims;
     uint64_t time;
     string pow;
 
