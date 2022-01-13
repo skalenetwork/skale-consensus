@@ -210,13 +210,9 @@ ptr<OracleResponseMessage> OracleServerAgent::doEndpointRequestResponse(ptr<Orac
 
     appendResultsToSpec(specStr, results);
 
-    cerr << specStr << endl;
-
-    exit(-7);
-
     string receipt = _request->getHash().toHex();
 
-    return make_shared<OracleResponseMessage>(r,
+    return make_shared<OracleResponseMessage>(specStr,
                                               receipt,
                                               getSchain()->getLastCommittedBlockID() + 1,
                                               Time::getCurrentTimeMs(),
