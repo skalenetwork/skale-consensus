@@ -208,24 +208,7 @@ ptr<OracleResponseMessage> OracleServerAgent::doEndpointRequestResponse(ptr<Orac
 
     auto specStr = _request->getRequestSpec();
 
-    auto commaPosition = specStr.find_last_of(",");
-
-    CHECK_STATE(commaPosition != string::npos);
-
-    specStr = specStr.substr(0, commaPosition + 1);
-
-    specStr.append("\"rslts\":[");
-
-    for (uint64_t i = 0; i < results->size(); i++) {
-        if (i != 0) {
-            specStr.append(",");
-        }
-        specStr.append("\"");
-        specStr.append(results->at(i));
-        specStr.append("\"");
-    }
-
-    specStr.append("]}");
+    appendResultsToSpec(specStr, results);
 
     cerr << specStr << endl;
 
@@ -238,6 +221,32 @@ ptr<OracleResponseMessage> OracleServerAgent::doEndpointRequestResponse(ptr<Orac
                                               getSchain()->getLastCommittedBlockID() + 1,
                                               Time::getCurrentTimeMs(),
                                               *getSchain()->getOracleClient());
+}
+
+void OracleServerAgent::appendResultsToSpec(string &specStr, ptr<vector<string>> &results) const {
+    {
+
+        auto commaPosition = specStr.find_last_of(",");
+
+        CHECK_STATE(commaPosition != string::npos);
+
+
+        specStr = specStr.substr(0, commaPosition + 1);
+
+        specStr.append("\"rslts\":[");
+
+        for (uint64_t i = 0; i < results->size(); i++) {
+            if (i != 0) {
+                specStr.append(",");
+            }
+            specStr.append("\"");
+            specStr.append(results->at(i));
+            specStr.append("\"");
+        }
+
+        specStr.append("]}");
+
+    }
 }
 
 void OracleServerAgent::trimResults(ptr<vector<string>> &results, vector<uint64_t> &trims) const {

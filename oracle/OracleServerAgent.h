@@ -76,5 +76,7 @@ public:
             string& _response, vector<string> & _jsps) const;
 
     void trimResults(ptr<vector<string>> &results, vector<uint64_t> &trims) const;
+
+    void appendResultsToSpec(string &specStr, ptr<vector<string>> &results) const;
 };
 
