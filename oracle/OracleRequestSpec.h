@@ -32,6 +32,8 @@ public:
 
     static ptr<OracleRequestSpec> parseSpec(string& _spec);
 
+    const vector<uint64_t> &getTrims() const;
+
 };
 
 

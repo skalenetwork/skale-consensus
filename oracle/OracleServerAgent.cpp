@@ -202,11 +202,24 @@ ptr<OracleResponseMessage> OracleServerAgent::doEndpointRequestResponse(ptr<Orac
 
     auto results = extractResults(r, jsps);
 
-    for (auto &&s: *results) {
-        cerr << s << endl;
-    }
+    auto trims = spec->getTrims();
 
-    exit(-5);
+    CHECK_STATE(results->size() == trims.size())
+
+    for (uint64_t i = 0; i < results->size(); i++) {
+        auto trim = trims.at(i);
+        if (trim != 0) {
+            auto res = results->at(i);
+            if (res.size() <= trim) {
+                res = "";
+            } else {
+                res = res.substr(0, res.size() - trim);
+            }
+            (*results)[i] = res;
+        }
+
+        cerr << results->at(i) << endl;
+    }
 
     string receipt = _request->getHash().toHex();
 

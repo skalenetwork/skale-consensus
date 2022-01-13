@@ -101,3 +101,7 @@ const string &OracleRequestSpec::getPow() const {
 const vector<string> &OracleRequestSpec::getJsps() const {
     return jsps;
 }
+
+const vector<uint64_t> &OracleRequestSpec::getTrims() const {
+    return trims;
+}
