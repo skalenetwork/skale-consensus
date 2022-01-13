@@ -120,6 +120,7 @@ void OracleClient::processResponseMessage(const ptr<MessageEnvelope> &_me) {
     LOG(err, "Processing oracle message:" + to_string(origin));
 
     string r;
+
     tryGettingOracleResult(receipt, r);
 }
 
