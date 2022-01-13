@@ -71,5 +71,8 @@ public:
     static void workerThreadItemSendLoop(OracleServerAgent* agent );
 
     string curlHttpGet(const string &uri);
+
+    ptr<vector<string>> extractResults(
+            string& _response, vector<string> & _jsps) const;
 };
 

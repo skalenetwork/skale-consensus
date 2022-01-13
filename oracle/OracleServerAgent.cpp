@@ -57,6 +57,7 @@
 #include "pendingqueue/PendingTransactionsAgent.h"
 
 #include "thirdparty/lrucache.hpp"
+#include "third_party/json.hpp"
 
 #include "utils/Time.h"
 #include "protocols/ProtocolInstance.h"
@@ -184,6 +185,7 @@ WriteMemoryCallback(void *contents, size_t size, size_t nmemb, void *userp) {
     return realsize;
 }
 
+using namespace nlohmann;
 
 ptr<OracleResponseMessage> OracleServerAgent::doEndpointRequestResponse(ptr<OracleRequestBroadcastMessage> _request) {
     CHECK_ARGUMENT(_request)
@@ -196,8 +198,15 @@ ptr<OracleResponseMessage> OracleServerAgent::doEndpointRequestResponse(ptr<Orac
 
     cerr << r << endl;
 
-    exit(-5);
+    auto jsps = spec->getJsps();
 
+    auto results = extractResults(r, jsps);
+
+    for (auto &&s: *results) {
+        cerr << s << endl;
+    }
+
+    exit(-5);
 
     string receipt = _request->getHash().toHex();
 
@@ -208,7 +217,39 @@ ptr<OracleResponseMessage> OracleServerAgent::doEndpointRequestResponse(ptr<Orac
                                               *getSchain()->getOracleClient());
 }
 
-string OracleServerAgent::curlHttpGet(const string &uri)  {
+ptr<vector<string>> OracleServerAgent::extractResults(
+        string & _response,
+        vector<string> &jsps) const {
+
+    auto j = json::parse(_response);
+
+    auto rs = make_shared<vector<string>>();
+
+    for (auto &&jsp: jsps) {
+        auto pointer = json::json_pointer(jsp);
+        auto val = j.at(pointer);
+        CHECK_STATE(val.is_primitive());
+        string strVal;
+        if (val.is_string()) {
+            strVal = val.get<string>();
+        } else if (val.is_number_integer()) {
+            if (val.is_number_unsigned()) {
+                strVal = to_string(val.get<uint64_t>());
+            } else {
+                strVal = to_string(val.get<int64_t>());
+            }
+        } else if (val.is_number_float()) {
+            strVal = to_string(val.get<double>());
+        }
+        CHECK_STATE(!strVal.empty())
+
+        rs->push_back(strVal);
+    }
+
+    return rs;
+}
+
+string OracleServerAgent::curlHttpGet(const string &uri) {
     CURL *curl;
     CURLcode res;
     struct MemoryStruct chunk;
