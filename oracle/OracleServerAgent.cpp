@@ -212,10 +212,24 @@ ptr<OracleResponseMessage> OracleServerAgent::doEndpointRequestResponse(ptr<Orac
 
     CHECK_STATE(commaPosition != string::npos);
 
-    specStr = specStr.substr(0, commaPosition);
+    specStr = specStr.substr(0, commaPosition + 1);
+
+    specStr.append("\"rslts\":[");
+
+    for (uint64_t i = 0; i < results->size(); i++) {
+        if (i != 0) {
+            specStr.append(",");
+        }
+        specStr.append("\"");
+        specStr.append(results->at(i));
+        specStr.append("\"");
+    }
+
+    specStr.append("]}");
 
     cerr << specStr << endl;
 
+    exit(-7);
 
     string receipt = _request->getHash().toHex();
 
