@@ -204,6 +204,30 @@ ptr<OracleResponseMessage> OracleServerAgent::doEndpointRequestResponse(ptr<Orac
 
     auto trims = spec->getTrims();
 
+    trimResults(results, trims);
+
+    auto specStr = _request->getRequestSpec();
+
+    auto commaPosition = specStr.find_last_of(",");
+
+    CHECK_STATE(commaPosition != string::npos);
+
+    specStr = specStr.substr(0, commaPosition);
+
+    cerr << specStr << endl;
+
+
+    string receipt = _request->getHash().toHex();
+
+    return make_shared<OracleResponseMessage>(r,
+                                              receipt,
+                                              getSchain()->getLastCommittedBlockID() + 1,
+                                              Time::getCurrentTimeMs(),
+                                              *getSchain()->getOracleClient());
+}
+
+void OracleServerAgent::trimResults(ptr<vector<string>> &results, vector<uint64_t> &trims) const {
+
     CHECK_STATE(results->size() == trims.size())
 
     for (uint64_t i = 0; i < results->size(); i++) {
@@ -220,14 +244,6 @@ ptr<OracleResponseMessage> OracleServerAgent::doEndpointRequestResponse(ptr<Orac
 
         cerr << results->at(i) << endl;
     }
-
-    string receipt = _request->getHash().toHex();
-
-    return make_shared<OracleResponseMessage>(r,
-                                              receipt,
-                                              getSchain()->getLastCommittedBlockID() + 1,
-                                              Time::getCurrentTimeMs(),
-                                              *getSchain()->getOracleClient());
 }
 
 ptr<vector<string>> OracleServerAgent::extractResults(

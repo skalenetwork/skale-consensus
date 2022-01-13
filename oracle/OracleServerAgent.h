@@ -74,5 +74,7 @@ public:
 
     ptr<vector<string>> extractResults(
             string& _response, vector<string> & _jsps) const;
+
+    void trimResults(ptr<vector<string>> &results, vector<uint64_t> &trims) const;
 };
 

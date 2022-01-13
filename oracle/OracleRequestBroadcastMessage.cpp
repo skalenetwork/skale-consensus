@@ -83,3 +83,7 @@ void OracleRequestBroadcastMessage::serializeToStringChild(rapidjson::Writer<rap
 const ptr<OracleRequestSpec> &OracleRequestBroadcastMessage::getParsedSpec() const {
     return parsedSpec;
 }
+
+const string &OracleRequestBroadcastMessage::getRequestSpec() const {
+    return requestSpec;
+}

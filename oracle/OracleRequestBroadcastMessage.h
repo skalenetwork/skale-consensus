@@ -36,6 +36,10 @@ class OracleRequestBroadcastMessage : public NetworkMessage {
     ptr<OracleRequestSpec> parsedSpec = nullptr;
 
 protected:
+public:
+    const string &getRequestSpec() const;
+
+protected:
 
     void updateWithChildHash(blake3_hasher& _hasher) override;
 
