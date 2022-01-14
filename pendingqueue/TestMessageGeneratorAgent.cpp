@@ -45,7 +45,7 @@ ConsensusExtFace::transactions_vector TestMessageGeneratorAgent::pendingTransact
 
     // test oracle for the first block
 
-    if (counter > 1) {
+    if (counter == 2) {
         getSchain()->getOracleClient()->sendTestRequest();
     }
 
