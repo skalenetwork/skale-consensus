@@ -65,7 +65,7 @@ OracleResult::OracleResult(string &_result) : oracleResult(_result) {
 
 
     if (d.HasMember("err")) {
-        CHECK_STATE2(d["err"].IsUint64(), "Error is not uint65_t");
+        CHECK_STATE2(d["err"].IsUint64(), "Error is not uint64_t");
         error = d["err"].GetUint64();
         return;
     }

@@ -263,9 +263,9 @@ void OracleServerAgent::appendErrorToSpec(string &specStr, uint64_t _error) cons
     auto commaPosition = specStr.find_last_of(",");
     CHECK_STATE(commaPosition != string::npos);
     specStr = specStr.substr(0, commaPosition + 1);
-    specStr.append("\"err\":\"");
+    specStr.append("\"err\":");
     specStr.append(to_string(_error));
-    specStr.append("\",");
+    specStr.append(",");
 }
 
 
@@ -384,7 +384,9 @@ void OracleServerAgent::sendOutResult(ptr<OracleResponseMessage> _msg, schain_in
 }
 
 void OracleServerAgent::signResult(string & _result) {
+    CHECK_STATE(_result.at(_result.size() - 1) == ',')
+    auto sig = getSchain()->getCryptoManager()->signOracleResult(_result);
     _result.append("\"sig\":\"");
-    _result.append("0x012345678");
+    _result.append(sig);
     _result.append("\"}");
 }
