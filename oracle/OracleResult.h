@@ -14,8 +14,8 @@ class OracleResult {
     vector<string> jsps;
     vector<uint64_t> trims;
     uint64_t time;
-    uint64_t error;
-    vector<string> results;
+    uint64_t error = 0;
+    vector<ptr<string>> results;
 public:
 
     const vector<string> &getJsps() const;
@@ -31,6 +31,12 @@ public:
     static ptr<OracleResult> parseResult(string& _oracleResult);
 
     const vector<uint64_t> &getTrims() const;
+
+    const string &getOracleResult() const;
+
+    uint64_t getError() const;
+
+    const vector<ptr<string>> &getResults() const;
 
 
 };

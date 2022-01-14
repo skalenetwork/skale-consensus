@@ -50,7 +50,7 @@ OracleResult::OracleResult(string &_result) : oracleResult(_result) {
     if (d.HasMember("trims")) {
         auto trimArray = d["trims"].GetArray();
         for (auto &&item: trimArray) {
-            CHECK_STATE2(item.IsUint64(), "Trims array item is uint64 :" + _result);
+            CHECK_STATE2(item.IsUint64(), "Trims array item is not uint64 :" + _result);
             trims.push_back(item.GetUint64());
         }
 
@@ -63,6 +63,39 @@ OracleResult::OracleResult(string &_result) : oracleResult(_result) {
 
     time = d["time"].GetUint64();
 
+
+    if (d.HasMember("err")) {
+        CHECK_STATE2(d["err"].IsUint64(), "Error is not uint65_t");
+        error = d["err"].GetUint64();
+        return;
+    }
+
+    auto resultsArray = d["rslts"].GetArray();
+    for (auto &&item: resultsArray) {
+        if (item.IsString()) {
+            results.push_back(make_shared<string>(item.GetString()));
+        } else if (item.IsBool() && item.GetBool() == false) {
+            results.push_back(nullptr);
+        } else {
+            CHECK_STATE2(false, "Unknown item in results:" + _result)
+        }
+    }
+
+    CHECK_STATE2(results.size() == trims.size(), "hsps array size not equal trims array size");
+
+
+}
+
+const string &OracleResult::getOracleResult() const {
+    return oracleResult;
+}
+
+uint64_t OracleResult::getError() const {
+    return error;
+}
+
+const vector<ptr<string>> &OracleResult::getResults() const {
+    return results;
 }
 
 const string &OracleResult::getResult() const {
