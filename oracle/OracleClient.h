@@ -47,9 +47,9 @@ class OracleClient : public ProtocolInstance {
 public:
     explicit OracleClient(Schain& _sChain);
 
-    uint64_t runOracleRequest(string _spec, string result);
+    uint64_t runOracleRequest(string _spec, string &_receipt);
 
-    uint64_t broadcastRequestAndReturnReceipt(ptr<OracleRequestBroadcastMessage> _msg, string& receipt);
+    uint64_t broadcastRequestAndReturnReceipt(ptr<OracleRequestBroadcastMessage> _msg, string& _receipt);
 
     void sendTestRequest();
 

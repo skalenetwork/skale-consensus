@@ -39,7 +39,7 @@ OracleClient::OracleClient(Schain &_sChain) : ProtocolInstance(ORACLE, _sChain),
                                               receiptsMap(ORACLE_RECEIPTS_MAP_SIZE) {
 }
 
-uint64_t OracleClient::broadcastRequestAndReturnReceipt(ptr<OracleRequestBroadcastMessage> _msg, string &receipt) {
+uint64_t OracleClient::broadcastRequestAndReturnReceipt(ptr<OracleRequestBroadcastMessage> _msg, string &_receipt) {
 
     CHECK_STATE(_msg)
     CHECK_STATE(sChain)
@@ -57,7 +57,7 @@ uint64_t OracleClient::broadcastRequestAndReturnReceipt(ptr<OracleRequestBroadca
     LOCK(m);
 
     sChain->getNode()->getNetwork()->broadcastOracleRequestMessage(_msg);
-    receipt = r;
+    _receipt = r;
     return ORACLE_SUCCESS;
 }
 
@@ -66,7 +66,7 @@ string OracleClient::waitForAnswer(ptr<OracleRequestBroadcastMessage> /*_msg*/) 
 }
 
 void OracleClient::sendTestRequest() {
-    string result;
+    string _receipt;
 
 
     string uri = "\"uri\":\"http://worldtimeapi.org/api/timezone/Europe/Kiev\"";
@@ -76,17 +76,26 @@ void OracleClient::sendTestRequest() {
     string pow = "\"pow\":" + string("\"0x0000\"");
 
     string spec = "{" + uri + "," + jsps + "," + trims  + "," + time + "," + pow + "}";
-    auto status = runOracleRequest(spec, result);
+    auto status = runOracleRequest(spec, _receipt);
 
     CHECK_STATE(status == ORACLE_SUCCESS);
+
+    string result;
+
+    while (this->tryGettingOracleResult(_receipt, result) == ORACLE_RESULT_NOT_READY) {
+        sleep(1);
+    }
+
+    exit(-5);
+
 }
 
 
-uint64_t OracleClient::runOracleRequest(string _spec, string result) {
+uint64_t OracleClient::runOracleRequest(string _spec, string &_receipt) {
     auto msg = make_shared<OracleRequestBroadcastMessage>(_spec, sChain->getLastCommittedBlockID(),
                                                           Time::getCurrentTimeMs(),
                                                           *sChain->getOracleClient());
-    return broadcastRequestAndReturnReceipt(msg, result);
+    return broadcastRequestAndReturnReceipt(msg, _receipt);
 }
 
 

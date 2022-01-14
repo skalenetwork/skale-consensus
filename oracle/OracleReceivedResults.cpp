@@ -9,8 +9,8 @@
 #include "OracleErrors.h"
 #include "OracleReceivedResults.h"
 
-OracleReceivedResults::OracleReceivedResults(uint64_t _requredSigners) : requiredSigners(_requredSigners)
-               {
+OracleReceivedResults::OracleReceivedResults(uint64_t _requredSigners) {
+    requiredConfirmations = (_requredSigners - 1) / 2 + 1;
     requestTime = Time::getCurrentTimeMs();
     resultsBySchainIndex = make_shared<map<uint64_t, string>>();
     resultsByCount = make_shared<map<string, uint64_t>>();
@@ -46,7 +46,7 @@ uint64_t OracleReceivedResults::tryGettingResult(string &_result) {
     LOCK(m)
 
     for (auto &&item: *resultsByCount) {
-        if (item.second >= requiredSigners) {
+        if (item.second >= requiredConfirmations) {
             _result = item.first;
             LOG(err, "ORACLE SUCCESS!");
             return ORACLE_SUCCESS;
