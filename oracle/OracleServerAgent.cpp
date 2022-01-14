@@ -219,7 +219,7 @@ ptr<OracleResponseMessage> OracleServerAgent::doEndpointRequestResponse(ptr<Orac
                                               *getSchain()->getOracleClient());
 }
 
-void OracleServerAgent::appendResultsToSpec(string &specStr, ptr<vector<string>> &results) const {
+void OracleServerAgent::appendResultsToSpec(string &specStr, ptr<vector<ptr<string>>> &_results) const {
     {
 
         auto commaPosition = specStr.find_last_of(",");
@@ -230,17 +230,20 @@ void OracleServerAgent::appendResultsToSpec(string &specStr, ptr<vector<string>>
 
         specStr.append("\"rslts\":[");
 
-        for (uint64_t i = 0; i < results->size(); i++) {
+        for (uint64_t i = 0; i < _results->size(); i++) {
             if (i != 0) {
                 specStr.append(",");
             }
             specStr.append("\"");
-            specStr.append(results->at(i));
+            if (_results->at(i)) {
+                specStr.append(*_results->at(i));
+            } else {
+                specStr.append("null");
+            }
             specStr.append("\"");
         }
 
         specStr.append("]}");
-
     }
 }
 
@@ -254,53 +257,59 @@ void OracleServerAgent::appendErrorToSpec(string &specStr, uint64_t _error) cons
 }
 
 
-void OracleServerAgent::trimResults(ptr<vector<string>> &results, vector<uint64_t> &trims) const {
+void OracleServerAgent::trimResults(ptr<vector<ptr<string>>> &_results, vector<uint64_t> &_trims) const {
 
-    CHECK_STATE(results->size() == trims.size())
+    CHECK_STATE(_results->size() == _trims.size())
 
-    for (uint64_t i = 0; i < results->size(); i++) {
-        auto trim = trims.at(i);
-        if (trim != 0) {
-            auto res = results->at(i);
-            if (res.size() <= trim) {
-                res = "";
+    for (uint64_t i = 0; i < _results->size(); i++) {
+        auto trim = _trims.at(i);
+        auto res = _results->at(i);
+        if (res && trim != 0) {
+            if (res->size() <= trim) {
+                res = make_shared<string>("");
             } else {
-                res = res.substr(0, res.size() - trim);
+                res = make_shared<string>(res->substr(0, res->size() - trim));
             }
-            (*results)[i] = res;
+            (*_results)[i] = res;
         }
 
-        cerr << results->at(i) << endl;
+        if (_results->at(i))
+            cerr << _results->at(i) << endl;
+        else cerr << "null" << endl;
     }
 }
 
-ptr<vector<string>> OracleServerAgent::extractResults(
+ptr<vector<ptr<string>>> OracleServerAgent::extractResults(
         string &_response,
         vector<string> &jsps) const {
 
     auto j = json::parse(_response);
 
-    auto rs = make_shared<vector<string>>();
+    auto rs = make_shared<vector<ptr<string>>>();
 
     for (auto &&jsp: jsps) {
         auto pointer = json::json_pointer(jsp);
-        auto val = j.at(pointer);
-        CHECK_STATE(val.is_primitive());
-        string strVal;
-        if (val.is_string()) {
-            strVal = val.get<string>();
-        } else if (val.is_number_integer()) {
-            if (val.is_number_unsigned()) {
-                strVal = to_string(val.get<uint64_t>());
-            } else {
-                strVal = to_string(val.get<int64_t>());
+        try {
+            auto val = j.at(pointer);
+            CHECK_STATE(val.is_primitive());
+            string strVal;
+            if (val.is_string()) {
+                strVal = val.get<string>();
+            } else if (val.is_number_integer()) {
+                if (val.is_number_unsigned()) {
+                    strVal = to_string(val.get<uint64_t>());
+                } else {
+                    strVal = to_string(val.get<int64_t>());
+                }
+            } else if (val.is_number_float()) {
+                strVal = to_string(val.get<double>());
+            } else if (val.is_boolean()) {
+                strVal = to_string(val.get<bool>());
             }
-        } else if (val.is_number_float()) {
-            strVal = to_string(val.get<double>());
+            rs->push_back(make_shared<string>(strVal));
+        } catch(...) {
+            rs->push_back(nullptr);
         }
-        CHECK_STATE(!strVal.empty())
-
-        rs->push_back(strVal);
     }
 
     return rs;

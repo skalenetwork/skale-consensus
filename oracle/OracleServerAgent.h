@@ -72,12 +72,12 @@ public:
 
     uint64_t curlHttpGet(const string &_uri, string& _result);
 
-    ptr<vector<string>> extractResults(
+    ptr<vector<ptr<string>>> extractResults(
             string& _response, vector<string> & _jsps) const;
 
-    void trimResults(ptr<vector<string>> &_results, vector<uint64_t> &_trims) const;
+    void trimResults(ptr<vector<ptr<string>>> &_results, vector<uint64_t> &_trims) const;
 
-    void appendResultsToSpec(string &_specStr, ptr<vector<string>> &_results) const;
+    void appendResultsToSpec(string &_specStr, ptr<vector<ptr<string>>> &_results) const;
 
     void appendErrorToSpec(string &specStr, uint64_t _error) const;
 };
