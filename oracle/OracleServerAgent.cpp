@@ -63,11 +63,12 @@
 #include "protocols/ProtocolInstance.h"
 #include "OracleRequestSpec.h"
 #include "OracleThreadPool.h"
-#include "OracleServerAgent.h"
+
 #include "OracleClient.h"
 #include "OracleRequestBroadcastMessage.h"
 #include "OracleResponseMessage.h"
-
+#include "OracleErrors.h"
+#include "OracleServerAgent.h"
 
 OracleServerAgent::OracleServerAgent(Schain &_schain) : Agent(_schain, true), requestCounter(0), threadCounter(0) {
 
@@ -192,23 +193,22 @@ ptr<OracleResponseMessage> OracleServerAgent::doEndpointRequestResponse(ptr<Orac
 
     auto spec = _request->getParsedSpec();
 
-    string r;
-
-    r = curlHttpGet(spec->getUri());
-
-    cerr << r << endl;
-
-    auto jsps = spec->getJsps();
-
-    auto results = extractResults(r, jsps);
-
-    auto trims = spec->getTrims();
-
-    trimResults(results, trims);
+    string response;
 
     auto specStr = _request->getRequestSpec();
 
-    appendResultsToSpec(specStr, results);
+    auto status = curlHttpGet(spec->getUri(), response);
+
+    if (status != ORACLE_SUCCESS) {
+        appendErrorToSpec(specStr, status);
+    } else {
+        cerr << response << endl;
+        auto jsps = spec->getJsps();
+        auto results = extractResults(response, jsps);
+        auto trims = spec->getTrims();
+        trimResults(results, trims);
+        appendResultsToSpec(specStr, results);
+    }
 
     string receipt = _request->getHash().toHex();
 
@@ -244,6 +244,16 @@ void OracleServerAgent::appendResultsToSpec(string &specStr, ptr<vector<string>>
     }
 }
 
+void OracleServerAgent::appendErrorToSpec(string &specStr, uint64_t _error) const {
+    auto commaPosition = specStr.find_last_of(",");
+    CHECK_STATE(commaPosition != string::npos);
+    specStr = specStr.substr(0, commaPosition + 1);
+    specStr.append("\"err\":\"");
+    specStr.append(to_string(_error));
+    specStr.append("\"}");
+}
+
+
 void OracleServerAgent::trimResults(ptr<vector<string>> &results, vector<uint64_t> &trims) const {
 
     CHECK_STATE(results->size() == trims.size())
@@ -265,7 +275,7 @@ void OracleServerAgent::trimResults(ptr<vector<string>> &results, vector<uint64_
 }
 
 ptr<vector<string>> OracleServerAgent::extractResults(
-        string & _response,
+        string &_response,
         vector<string> &jsps) const {
 
     auto j = json::parse(_response);
@@ -296,7 +306,8 @@ ptr<vector<string>> OracleServerAgent::extractResults(
     return rs;
 }
 
-string OracleServerAgent::curlHttpGet(const string &uri) {
+uint64_t OracleServerAgent::curlHttpGet(const string &_uri, string &_result) {
+    uint64_t status = ORACLE_UNKNOWN_ERROR;
     CURL *curl;
     CURLcode res;
     struct MemoryStruct chunk;
@@ -308,7 +319,7 @@ string OracleServerAgent::curlHttpGet(const string &uri) {
 
     CHECK_STATE2(curl, "Could not init curl object");
 
-    curl_easy_setopt(curl, CURLOPT_URL, uri.c_str());
+    curl_easy_setopt(curl, CURLOPT_URL, _uri.c_str());
     curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
 
     string pagedata;
@@ -317,22 +328,27 @@ string OracleServerAgent::curlHttpGet(const string &uri) {
     /* we pass our 'chunk' struct to the callback function */
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *) &chunk);
     curl_easy_setopt(curl, CURLOPT_COOKIEFILE, "");
-    curl_easy_setopt(curl, CURLOPT_TIMEOUT, 5);
+    curl_easy_setopt(curl, CURLOPT_TIMEOUT, 2);
     curl_easy_setopt(curl, CURLOPT_USERAGENT, "libcurl-agent/1.0");
 
     res = curl_easy_perform(curl);
 
-    CHECK_STATE2(res == CURLE_OK, "Curl easy perform failed for url: " + uri + " with error code:" +
-                                  string(curl_easy_strerror(res)));
+    if (res != CURLE_OK) {
+        LOG(err, "Curl easy perform failed for url: " + _uri + " with error code:" + to_string(res));
+        status = ORACLE_COULD_NOT_CONNECT_TO_ENDPOINT;
+    } else {
+        status = ORACLE_SUCCESS;
+    }
 
     curl_easy_cleanup(curl);
-
 
     string r = string(chunk.memory, chunk.size);
 
     free(chunk.memory);
 
-    return r;
+    _result = r;
+
+    return status;
 }
 
 void OracleServerAgent::sendOutResult(ptr<OracleResponseMessage> _msg, schain_index _destination) {

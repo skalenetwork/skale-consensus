@@ -68,15 +68,17 @@ public:
 
     void routeAndProcessMessage(const ptr<MessageEnvelope>& _me );
 
-    static void workerThreadItemSendLoop(OracleServerAgent* agent );
+    static void workerThreadItemSendLoop(OracleServerAgent* _agent );
 
-    string curlHttpGet(const string &uri);
+    uint64_t curlHttpGet(const string &_uri, string& _result);
 
     ptr<vector<string>> extractResults(
             string& _response, vector<string> & _jsps) const;
 
-    void trimResults(ptr<vector<string>> &results, vector<uint64_t> &trims) const;
+    void trimResults(ptr<vector<string>> &_results, vector<uint64_t> &_trims) const;
 
-    void appendResultsToSpec(string &specStr, ptr<vector<string>> &results) const;
+    void appendResultsToSpec(string &_specStr, ptr<vector<string>> &_results) const;
+
+    void appendErrorToSpec(string &specStr, uint64_t _error) const;
 };
 
