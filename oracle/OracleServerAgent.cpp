@@ -205,10 +205,19 @@ ptr<OracleResponseMessage> OracleServerAgent::doEndpointRequestResponse(ptr<Orac
         cerr << response << endl;
         auto jsps = spec->getJsps();
         auto results = extractResults(response, jsps);
-        auto trims = spec->getTrims();
-        trimResults(results, trims);
-        appendResultsToSpec(specStr, results);
+
+        if (!results) {
+            appendErrorToSpec(specStr, ORACLE_INVALID_JSON_RESPONSE);
+        } else {
+            auto trims = spec->getTrims();
+            trimResults(results, trims);
+            appendResultsToSpec(specStr, results);
+        }
     }
+
+    cerr << specStr << endl;
+
+    exit(-8);
 
     string receipt = _request->getHash().toHex();
 
@@ -234,13 +243,15 @@ void OracleServerAgent::appendResultsToSpec(string &specStr, ptr<vector<ptr<stri
             if (i != 0) {
                 specStr.append(",");
             }
-            specStr.append("\"");
+
             if (_results->at(i)) {
+                specStr.append("\"");
                 specStr.append(*_results->at(i));
+                specStr.append("\"");
             } else {
                 specStr.append("null");
             }
-            specStr.append("\"");
+
         }
 
         specStr.append("]}");
@@ -283,33 +294,40 @@ ptr<vector<ptr<string>>> OracleServerAgent::extractResults(
         string &_response,
         vector<string> &jsps) const {
 
-    auto j = json::parse(_response);
 
     auto rs = make_shared<vector<ptr<string>>>();
 
-    for (auto &&jsp: jsps) {
-        auto pointer = json::json_pointer(jsp);
-        try {
-            auto val = j.at(pointer);
-            CHECK_STATE(val.is_primitive());
-            string strVal;
-            if (val.is_string()) {
-                strVal = val.get<string>();
-            } else if (val.is_number_integer()) {
-                if (val.is_number_unsigned()) {
-                    strVal = to_string(val.get<uint64_t>());
-                } else {
-                    strVal = to_string(val.get<int64_t>());
+
+    try {
+
+        auto j = json::parse(_response);
+        for (auto &&jsp: jsps) {
+            auto pointer = json::json_pointer(jsp);
+            try {
+                auto val = j.at(pointer);
+                CHECK_STATE(val.is_primitive());
+                string strVal;
+                if (val.is_string()) {
+                    strVal = val.get<string>();
+                } else if (val.is_number_integer()) {
+                    if (val.is_number_unsigned()) {
+                        strVal = to_string(val.get<uint64_t>());
+                    } else {
+                        strVal = to_string(val.get<int64_t>());
+                    }
+                } else if (val.is_number_float()) {
+                    strVal = to_string(val.get<double>());
+                } else if (val.is_boolean()) {
+                    strVal = to_string(val.get<bool>());
                 }
-            } else if (val.is_number_float()) {
-                strVal = to_string(val.get<double>());
-            } else if (val.is_boolean()) {
-                strVal = to_string(val.get<bool>());
+                rs->push_back(make_shared<string>(strVal));
+            } catch (...) {
+                rs->push_back(nullptr);
             }
-            rs->push_back(make_shared<string>(strVal));
-        } catch(...) {
-            rs->push_back(nullptr);
         }
+
+    } catch (...) {
+        return nullptr;
     }
 
     return rs;

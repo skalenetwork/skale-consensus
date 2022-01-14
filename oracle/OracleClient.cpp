@@ -70,8 +70,8 @@ void OracleClient::sendTestRequest() {
 
 
     string uri = "\"uri\":\"http://worldtimeapi.org/api/timezone/Europe/Kiev\"";
-    string jsps = "\"jsps\":[\"/unixtime\", \"/day_of_year\"]";
-    string trims = "\"trims\":[1,1]";
+    string jsps = "\"jsps\":[\"/unixtime\", \"/day_of_year\", \"/xxx\"]";
+    string trims = "\"trims\":[1,1,1]";
     string time = "\"time\":" + to_string(Time::getCurrentTimeMs());
     string pow = "\"pow\":" + string("\"0x0000\"");
 
