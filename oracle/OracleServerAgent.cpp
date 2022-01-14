@@ -195,30 +195,34 @@ ptr<OracleResponseMessage> OracleServerAgent::doEndpointRequestResponse(ptr<Orac
 
     string response;
 
-    auto specStr = _request->getRequestSpec();
+    auto resultStr = _request->getRequestSpec();
 
     auto status = curlHttpGet(spec->getUri(), response);
 
     if (status != ORACLE_SUCCESS) {
-        appendErrorToSpec(specStr, status);
+        appendErrorToSpec(resultStr, status);
     } else {
         auto jsps = spec->getJsps();
         auto results = extractResults(response, jsps);
 
         if (!results) {
-            appendErrorToSpec(specStr, ORACLE_INVALID_JSON_RESPONSE);
+            appendErrorToSpec(resultStr, ORACLE_INVALID_JSON_RESPONSE);
         } else {
             auto trims = spec->getTrims();
             trimResults(results, trims);
-            appendResultsToSpec(specStr, results);
+            appendResultsToSpec(resultStr, results);
         }
     }
 
-    cerr << specStr << endl;
+    this->signResult(resultStr);
+
+    cerr << resultStr << endl;
+
+
 
     string receipt = _request->getHash().toHex();
 
-    return make_shared<OracleResponseMessage>(specStr,
+    return make_shared<OracleResponseMessage>(resultStr,
                                               receipt,
                                               getSchain()->getLastCommittedBlockID() + 1,
                                               Time::getCurrentTimeMs(),
@@ -251,7 +255,7 @@ void OracleServerAgent::appendResultsToSpec(string &specStr, ptr<vector<ptr<stri
 
         }
 
-        specStr.append("]}");
+        specStr.append("],");
     }
 }
 
@@ -261,7 +265,7 @@ void OracleServerAgent::appendErrorToSpec(string &specStr, uint64_t _error) cons
     specStr = specStr.substr(0, commaPosition + 1);
     specStr.append("\"err\":\"");
     specStr.append(to_string(_error));
-    specStr.append("\"}");
+    specStr.append("\",");
 }
 
 
@@ -377,4 +381,10 @@ void OracleServerAgent::sendOutResult(ptr<OracleResponseMessage> _msg, schain_in
 
     getSchain()->getNode()->getNetwork()->sendOracleResponseMessage(_msg, _destination);
 
+}
+
+void OracleServerAgent::signResult(string & _result) {
+    _result.append("\"sig\":\"");
+    _result.append("0x012345678");
+    _result.append("\"}");
 }

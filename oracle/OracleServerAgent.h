@@ -80,5 +80,7 @@ public:
     void appendResultsToSpec(string &_specStr, ptr<vector<ptr<string>>> &_results) const;
 
     void appendErrorToSpec(string &specStr, uint64_t _error) const;
+
+    void signResult(string &basicString);
 };
 
