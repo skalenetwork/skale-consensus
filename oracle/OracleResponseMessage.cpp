@@ -32,15 +32,19 @@
 
 #include "protocols/binconsensus/BinConsensusInstance.h"
 #include "OracleClient.h"
+#include "OracleResult.h"
 #include "OracleServerAgent.h"
+
+
 #include "OracleResponseMessage.h"
 
 OracleResponseMessage::OracleResponseMessage(string& _oracleResult, string& _receipt, block_id _blockID,
                                              uint64_t _timeMs,
                                              OracleClient &sourceProtocolInstance)
         : NetworkMessage(MSG_ORACLE_RSP, _blockID, 0, 0, 0, _timeMs,
-                         sourceProtocolInstance), oracleResult(_oracleResult), receipt(_receipt)  {
+                         sourceProtocolInstance), oracleResultStr(_oracleResult), receipt(_receipt)  {
     printPrefix = "r";
+    oracleResult = OracleResult::parseResult(_oracleResult);
 }
 
 
@@ -53,14 +57,15 @@ OracleResponseMessage::OracleResponseMessage(string& _oracleResult, string& _rec
         : NetworkMessage(
         MSG_ORACLE_RSP, _srcNodeID, _blockID, 0, 0, 0, _timeMs, _schainId, _msgID,
         "", _ecdsaSig, _publicKey, _pkSig,
-        _srcSchainIndex, _sChain->getCryptoManager()), oracleResult(_oracleResult), receipt(_receipt) {
+        _srcSchainIndex, _sChain->getCryptoManager()), oracleResultStr(_oracleResult), receipt(_receipt) {
     printPrefix = "r";
+    oracleResult = OracleResult::parseResult(_oracleResult);
 };
 
 
 void OracleResponseMessage::serializeToStringChild(rapidjson::Writer<rapidjson::StringBuffer>& _writer) {
     _writer.String("rslt");
-    _writer.String(oracleResult.data(), oracleResult.size());
+    _writer.String(oracleResultStr.data(), oracleResultStr.size());
 
     _writer.String("rcpt");
     _writer.String(receipt.data(), receipt.size());
@@ -68,10 +73,10 @@ void OracleResponseMessage::serializeToStringChild(rapidjson::Writer<rapidjson::
 
 
 void OracleResponseMessage::updateWithChildHash(blake3_hasher& _hasher) {
-    uint32_t  resultLen = oracleResult.size();
+    uint32_t  resultLen = oracleResultStr.size();
     HASH_UPDATE(_hasher, resultLen)
     if (resultLen > 0) {
-        blake3_hasher_update(&_hasher, (unsigned char *) oracleResult.data(), resultLen);
+        blake3_hasher_update(&_hasher, (unsigned char *) oracleResultStr.data(), resultLen);
     }
 
     uint32_t  receiptLen = receipt.size();
@@ -81,10 +86,15 @@ void OracleResponseMessage::updateWithChildHash(blake3_hasher& _hasher) {
     }
 }
 
-const string &OracleResponseMessage::getOracleResult() const {
-    return oracleResult;
-}
 
 const string &OracleResponseMessage::getReceipt() const {
     return receipt;
+}
+
+const ptr<OracleResult> &OracleResponseMessage::getOracleResult() const {
+    return oracleResult;
+}
+
+const string &OracleResponseMessage::getOracleResultStr() const {
+    return oracleResultStr;
 }

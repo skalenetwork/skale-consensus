@@ -26,19 +26,16 @@
 
 #include "messages/NetworkMessage.h"
 
-class OracleProtocolInstance;
 
+class OracleProtocolInstance;
+class OracleResult;
 
 class OracleResponseMessage : public NetworkMessage {
 
-    string oracleResult;
+    string oracleResultStr;
+    ptr<OracleResult> oracleResult;
     string receipt;
 
-protected:
-public:
-    const string &getOracleResult() const;
-
-    const string &getReceipt() const;
 
 protected:
 
@@ -48,10 +45,17 @@ protected:
 
 
 public:
+    const ptr<OracleResult> &getOracleResult() const;
 
     OracleResponseMessage(string& _oracleResult, string &_receipt, block_id _blockID, uint64_t _timeMs, OracleClient& sourceProtocolInstance );
 
     OracleResponseMessage(string& _oracleResult, string& _receipt, node_id _srcNodeID, block_id _blockID,  uint64_t _timeMs, schain_id _schainId,
                                   msg_id _msgID, schain_index _srcSchainIndex, const string & _ecdsaSig,
                                   const string & _publicKey, const string & _pkSig, Schain* _sChain );
+
+    const string &getOracleResultStr() const;
+
+    const string &getReceipt() const;
+
+
 };

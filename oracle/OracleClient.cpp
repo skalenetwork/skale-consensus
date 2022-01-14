@@ -103,7 +103,7 @@ void OracleClient::processResponseMessage(const ptr<MessageEnvelope> &_me) {
     CHECK_STATE(origin > 0 || origin <= getSchain()->getNodeCount());
 
     auto receipt = msg->getReceipt();
-    auto res = msg->getOracleResult();
+    auto res = msg->getOracleResultStr();
 
     auto receivedResults = receiptsMap.getIfExists(receipt);
 

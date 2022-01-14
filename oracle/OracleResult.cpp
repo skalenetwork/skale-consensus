@@ -74,7 +74,7 @@ OracleResult::OracleResult(string &_result) : oracleResult(_result) {
     for (auto &&item: resultsArray) {
         if (item.IsString()) {
             results.push_back(make_shared<string>(item.GetString()));
-        } else if (item.IsBool() && item.GetBool() == false) {
+        } else if (item.IsNull()) {
             results.push_back(nullptr);
         } else {
             CHECK_STATE2(false, "Unknown item in results:" + _result)

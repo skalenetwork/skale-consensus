@@ -202,7 +202,6 @@ ptr<OracleResponseMessage> OracleServerAgent::doEndpointRequestResponse(ptr<Orac
     if (status != ORACLE_SUCCESS) {
         appendErrorToSpec(specStr, status);
     } else {
-        cerr << response << endl;
         auto jsps = spec->getJsps();
         auto results = extractResults(response, jsps);
 
@@ -216,8 +215,6 @@ ptr<OracleResponseMessage> OracleServerAgent::doEndpointRequestResponse(ptr<Orac
     }
 
     cerr << specStr << endl;
-
-    exit(-8);
 
     string receipt = _request->getHash().toHex();
 
@@ -284,9 +281,6 @@ void OracleServerAgent::trimResults(ptr<vector<ptr<string>>> &_results, vector<u
             (*_results)[i] = res;
         }
 
-        if (_results->at(i))
-            cerr << _results->at(i) << endl;
-        else cerr << "null" << endl;
     }
 }
 
