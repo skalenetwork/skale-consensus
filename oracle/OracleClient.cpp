@@ -48,7 +48,8 @@ uint64_t OracleClient::broadcastRequestAndReturnReceipt(ptr<OracleRequestBroadca
 
 
     auto exists = receiptsMap.putIfDoesNotExist(r,
-                                                make_shared<OracleReceivedResults>(getSchain()->getRequiredSigners()));
+                                                make_shared<OracleReceivedResults>(getSchain()->getRequiredSigners(),
+                                                                                   (uint64_t) getSchain()->getNodeCount()));
 
     if (!exists) {
         LOG(err, "Request exists:" + r);
@@ -76,7 +77,7 @@ void OracleClient::sendTestRequest() {
     string time = "\"time\":" + to_string(Time::getCurrentTimeMs());
     string pow = "\"pow\":" + string("\"0x0000\"");
 
-    string spec = "{" + uri + "," + jsps + "," + trims  + "," + time + "," + pow + "}";
+    string spec = "{" + uri + "," + jsps + "," + trims + "," + time + "," + pow + "}";
     auto status = runOracleRequest(spec, _receipt);
 
     CHECK_STATE(status == ORACLE_SUCCESS);
@@ -94,7 +95,7 @@ uint64_t OracleClient::runOracleRequest(string _spec, string &_receipt) {
 
 
 void OracleClient::processResponseMessage(const ptr<MessageEnvelope> &_me) {
-    exit(-1);
+
 
     CHECK_STATE(_me);
 
@@ -118,17 +119,18 @@ void OracleClient::processResponseMessage(const ptr<MessageEnvelope> &_me) {
         return;
     }
 
-    auto receipts = std::any_cast<ptr < OracleReceivedResults>>(receivedResults);
+    auto receipts = std::any_cast<ptr<OracleReceivedResults>>(receivedResults);
 
 
-    receipts->insertIfDoesntExist(origin, unsignedResult, sig );
+    receipts->insertIfDoesntExist(origin, unsignedResult, sig);
 
 
     LOG(err, "Processing oracle message:" + to_string(origin));
 
     string r;
 
-    tryGettingOracleResult(receipt, r);
+    // tryGettingOracleResult(receipt, r);
+
 }
 
 

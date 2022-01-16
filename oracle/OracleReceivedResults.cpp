@@ -9,8 +9,9 @@
 #include "OracleErrors.h"
 #include "OracleReceivedResults.h"
 
-OracleReceivedResults::OracleReceivedResults(uint64_t _requredSigners) {
+OracleReceivedResults::OracleReceivedResults(uint64_t _requredSigners, uint64_t _nodeCount) {
     requiredConfirmations = (_requredSigners - 1) / 2 + 1;
+    nodeCount = _nodeCount;
     requestTime = Time::getCurrentTimeMs();
     signaturesBySchainIndex = make_shared<map<uint64_t, string>>();
     resultsByCount = make_shared<map<string, uint64_t>>();
@@ -47,7 +48,25 @@ uint64_t OracleReceivedResults::tryGettingResult(string &_result) {
 
     for (auto &&item: *resultsByCount) {
         if (item.second >= requiredConfirmations) {
-            _result = item.first;
+            auto _unsignedResult = item.first;
+            _unsignedResult.append("\"sigs\":[");
+            for (uint64_t i = 1; i <= nodeCount; i++) {
+                if (signaturesBySchainIndex->count(i) > 0) {
+                    _unsignedResult.append("\"");
+                    _unsignedResult.append(signaturesBySchainIndex->at(i));
+                    _unsignedResult.append("\"");
+
+                } else {
+                    _unsignedResult.append("null");
+                }
+
+                if (i < nodeCount) {
+                    _unsignedResult.append(",");
+                } else {
+                    _unsignedResult.append("]}");
+                }
+            }
+            _result = _unsignedResult;
             LOG(err, "ORACLE SUCCESS!");
             return ORACLE_SUCCESS;
         };
