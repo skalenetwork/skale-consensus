@@ -7,6 +7,10 @@
 
 
 class OracleResult {
+public:
+    const string &getSig() const;
+
+private:
 
     string oracleResult;
     string uri;
@@ -16,6 +20,7 @@ class OracleResult {
     uint64_t time;
     uint64_t error = 0;
     vector<ptr<string>> results;
+    string sig;
 public:
 
     const vector<string> &getJsps() const;

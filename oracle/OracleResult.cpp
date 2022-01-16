@@ -18,27 +18,33 @@ OracleResult::OracleResult(string &_result) : oracleResult(_result) {
     
     d.Parse(_result.data());
 
-    CHECK_STATE2(!d.HasParseError(), "Unparsable Oracle spec:" + _result);
+    CHECK_STATE2(!d.HasParseError(), "Unparsable Oracle result:" + _result);
     
-    CHECK_STATE2(d.HasMember("uri"), "No URI in Oracle spec:" + _result);
+    CHECK_STATE2(d.HasMember("uri"), "No URI in Oracle  result:" + _result);
 
-    CHECK_STATE2(d["uri"].IsString(), "Uri in Oracle spec is not string:" + _result);
+    CHECK_STATE2(d["uri"].IsString(), "Uri in Oracle result is not string:" + _result);
 
     uri = d["uri"].GetString();
 
     CHECK_STATE(uri.size() > 5);
 
-    CHECK_STATE2(d.HasMember("jsps"), "No json pointer in Oracle spec:" + _result);
+    CHECK_STATE2(d.HasMember("jsps"), "No json pointer in Oracle result:" + _result);
 
     CHECK_STATE2(d["jsps"].IsArray(), "Jsps in Oracle spec is not array:" + _result);
 
-    CHECK_STATE2(d.HasMember("time"), "No time pointer in Oracle spec:" + _result);
+    CHECK_STATE2(d.HasMember("time"), "No time pointer in Oracle result:" + _result);
 
-    CHECK_STATE2(d["time"].IsUint64(), "time in Oracle spec is not uint64:" + _result)
+    CHECK_STATE2(d["time"].IsUint64(), "time in Oracle result is not uint64:" + _result)
 
     time = d["time"].GetUint64();
 
     CHECK_STATE(time > 0);
+
+    CHECK_STATE2(d.HasMember("sig"), "No sig in Oracle result:" + _result);
+
+    CHECK_STATE2(d["sig"].IsString(), "sig in Oracle result is not string:" + _result)
+
+    sig = d["sig"].GetString();
 
     auto array = d["jsps"].GetArray();
 
@@ -60,8 +66,6 @@ OracleResult::OracleResult(string &_result) : oracleResult(_result) {
             trims.push_back(0);
         }
     }
-
-    time = d["time"].GetUint64();
 
 
     if (d.HasMember("err")) {
@@ -122,5 +126,9 @@ const vector<uint64_t> &OracleResult::getTrims() const {
 
 ptr<OracleResult> OracleResult::parseResult(string &_oracleResult) {
     return make_shared<OracleResult>(_oracleResult);
+}
+
+const string &OracleResult::getSig() const {
+    return sig;
 }
 
