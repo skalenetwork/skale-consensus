@@ -36,7 +36,6 @@ class OracleResponseMessage : public NetworkMessage {
     ptr<OracleResult> oracleResult;
     string receipt;
 
-
 protected:
 
     void updateWithChildHash(blake3_hasher& _hasher) override;
@@ -54,6 +53,8 @@ public:
                                   const string & _publicKey, const string & _pkSig, Schain* _sChain );
 
     const string &getOracleResultStr() const;
+
+    const string getUnsignedOracleResultStr() const;
 
     const string &getReceipt() const;
 

@@ -12,7 +12,6 @@
 #include "OracleResult.h"
 
 
-
 OracleResult::OracleResult(string &_result) : oracleResult(_result) {
     rapidjson::Document d;
     

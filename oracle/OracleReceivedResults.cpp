@@ -12,7 +12,7 @@
 OracleReceivedResults::OracleReceivedResults(uint64_t _requredSigners) {
     requiredConfirmations = (_requredSigners - 1) / 2 + 1;
     requestTime = Time::getCurrentTimeMs();
-    resultsBySchainIndex = make_shared<map<uint64_t, string>>();
+    signaturesBySchainIndex = make_shared<map<uint64_t, string>>();
     resultsByCount = make_shared<map<string, uint64_t>>();
 }
 
@@ -20,22 +20,22 @@ uint64_t OracleReceivedResults::getRequestTime() const {
     return requestTime;
 }
 
-void OracleReceivedResults::insertIfDoesntExist(uint64_t _origin, string _result) {
+void OracleReceivedResults::insertIfDoesntExist(uint64_t _origin, string _unsignedResult, string _sig) {
 
     LOCK(m)
 
-    if (resultsBySchainIndex->count(_origin) > 0) {
-        LOG(warn, "Duplicate OracleResponseMessage for result:" + _result +
-                  " index:" + to_string(_origin));
+    if (signaturesBySchainIndex->count(_origin) > 0) {
+        LOG(warn, "Duplicate OracleResponseMessage for result:" + _unsignedResult +
+                  "} index:" + to_string(_origin));
         return;
     }
 
-    resultsBySchainIndex->insert({_origin, _result});
-    if (resultsByCount->count(_result) == 0) {
-        resultsByCount->insert({_result, 1});
+    signaturesBySchainIndex->insert({_origin, _sig});
+    if (resultsByCount->count(_unsignedResult) == 0) {
+        resultsByCount->insert({_unsignedResult, 1});
     } else {
-        auto count = resultsByCount->at(_result);
-        resultsByCount->insert({_result, count + 1});
+        auto count = resultsByCount->at(_unsignedResult);
+        resultsByCount->insert({_unsignedResult, count + 1});
     }
 }
 

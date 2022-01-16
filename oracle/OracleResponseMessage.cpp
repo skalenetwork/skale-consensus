@@ -98,3 +98,12 @@ const ptr<OracleResult> &OracleResponseMessage::getOracleResult() const {
 const string &OracleResponseMessage::getOracleResultStr() const {
     return oracleResultStr;
 }
+
+const string OracleResponseMessage::getUnsignedOracleResultStr() const {
+    auto commaPosition = oracleResultStr.find_last_of(",");
+    CHECK_STATE(commaPosition != string::npos);
+    auto res = oracleResultStr.substr(0, commaPosition);
+    cerr << res << endl;
+    exit(-8);
+    return res;
+}
