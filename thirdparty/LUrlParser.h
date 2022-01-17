@@ -48,7 +48,7 @@ namespace LUrlParser
     public:
         LUrlParserError errorCode_ = LUrlParserError_Uninitialized;
         std::string scheme_;
-        std::string host_;
+        std::string  host_;
         std::string port_;
         std::string path_;
         std::string query_;

@@ -23,6 +23,7 @@
 
 #include <curl/curl.h>
 
+#include "thirdparty/LUrlParser.h"
 
 #include "SkaleCommon.h"
 #include "Log.h"
@@ -198,8 +199,25 @@ ptr<OracleResponseMessage> OracleServerAgent::doEndpointRequestResponse(ptr<Orac
     if (spec->isGeth()) {
         uri = gethURL + "/" + uri.substr(string("geth://").size());
     } else {
+        auto result = LUrlParser::ParseURL::parseURL(uri);
+        CHECK_STATE2(result.isValid(), "URL invalid:" + uri);
+        CHECK_STATE2(result.userName_.empty(), "Non empty username");
+        CHECK_STATE2(result.password_.empty(), "Non empty password");
+        auto host = result.host_;
 
-
+        CHECK_STATE2(host.find("0.") != 0 &&
+                     host.find("10.") != 0 &&
+                     host.find("127.") != 0 &&
+                     host.find("172.") != 0 &&
+                     host.find("192.168.") != 0 &&
+                     host.find("169.254.") != 0 &&
+                     host.find("192.0.0") != 0 &&
+                     host.find("192.0.2") != 0 &&
+                     host.find("192.0.2") != 0 &&
+                     host.find("198.18") != 0 &&
+                     host.find("198.19") != 0,
+                     "Private IPs not allowed in Oracle"
+        )
     }
 
     auto isPost = spec->getPost();
@@ -210,9 +228,7 @@ ptr<OracleResponseMessage> OracleServerAgent::doEndpointRequestResponse(ptr<Orac
     auto resultStr = _request->getRequestSpec();
 
 
-
     auto status = curlHttp(spec->getUri(), isPost, postString, response);
-
 
 
     if (status != ORACLE_SUCCESS) {
@@ -345,7 +361,9 @@ ptr<vector<ptr<string>>> OracleServerAgent::extractResults(
     return rs;
 }
 
-uint64_t OracleServerAgent::curlHttp(const string &_uri, bool _isPost, string& _postString, string &_result) {
+uint64_t OracleServerAgent::curlHttp(const string &_uri, bool _isPost, string &_postString, string &_result) {
+
+
     uint64_t status = ORACLE_UNKNOWN_ERROR;
     CURL *curl;
     CURLcode res;
@@ -404,7 +422,7 @@ void OracleServerAgent::sendOutResult(ptr<OracleResponseMessage> _msg, schain_in
 
 }
 
-void OracleServerAgent::signResult(string & _result) {
+void OracleServerAgent::signResult(string &_result) {
     CHECK_STATE(_result.at(_result.size() - 1) == ',')
     auto sig = getSchain()->getCryptoManager()->signOracleResult(_result);
     _result.append("\"sig\":\"");
