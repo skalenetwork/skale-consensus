@@ -279,6 +279,8 @@ public:
     uint64_t getZMQSocketCount();
 
     bool isSGXServerDown();
+
+    string signOracleResult(string _text);
 };
 
 #define RETRY_BEGIN \

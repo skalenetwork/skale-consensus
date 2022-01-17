@@ -33,6 +33,7 @@
 #include <cryptopp/oids.h>
 
 #include <cryptopp/sha.h>
+#include <cryptopp/sha3.h>
 
 #include "JsonStubClient.h"
 
@@ -355,7 +356,6 @@ bool CryptoManager::verifyECDSA(
 
 string CryptoManager::sign(BLAKE3Hash &_hash) {
 
-
     string result;
 
     uint64_t time = 0;
@@ -377,6 +377,36 @@ string CryptoManager::sign(BLAKE3Hash &_hash) {
     return result;
 
 }
+
+string CryptoManager::signOracleResult(string _text) {
+
+    CryptoPP::SHA3_256 hash;
+    string digest;
+    string result;
+
+    hash.Update((const CryptoPP::byte*) _text.data(), _text.size());
+    digest.resize(hash.DigestSize());
+    hash.Final((CryptoPP::byte*)&digest[0]);
+
+    auto hexStr = Utils::carray2Hex((const uint8_t*)digest.data(),
+                                    HASH_LEN);
+
+    if (isSGXEnabled) {
+        CHECK_STATE(sgxECDSAKeyName != "")
+        result = zmqClient->ecdsaSignMessageHash(16,
+                                                 sgxECDSAKeyName,
+                                                 hexStr, true);
+    } else {
+        result = hexStr;
+    }
+
+
+    return result;
+
+}
+
+
+
 
 
 tuple<string, string, string> CryptoManager::sessionSign(

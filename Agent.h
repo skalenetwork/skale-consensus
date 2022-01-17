@@ -37,7 +37,7 @@ class Agent {
 
 protected:
 
-    bool isServer;
+    bool isServer = false;
 
     mutex messageMutex;
     condition_variable messageCond;

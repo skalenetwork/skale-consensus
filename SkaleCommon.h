@@ -303,6 +303,11 @@ static const num_threads NUM_SCHAIN_THREADS = num_threads(1);
 
 static const num_threads NUM_DISPATCH_THREADS = num_threads(1);
 
+static const num_threads NUM_ORACLE_THREADS = num_threads(1);
+
+static const uint64_t  ORACLE_QUEUE_TIMEOUT_MS = 1000;
+
+
 static const uint64_t DEFAULT_DB_STORAGE_LIMIT = 5000000000; // 5Gbyte
 
 static const uint64_t  MAX_DELAYED_MESSAGE_SENDS = 128;
@@ -320,6 +325,8 @@ static const uint64_t ZMQ_RECEIVE_RETRY_MS = 10;
 static const uint64_t DEFAULT_MIN_PRICE = 100000;
 
 static const uint64_t COMMON_COIN_ROUND = 4;
+
+static const uint64_t  ORACLE_RECEIPTS_MAP_SIZE = 100000;
 
 extern void setThreadName(std::string const &_n, ConsensusEngine* _engine);
 

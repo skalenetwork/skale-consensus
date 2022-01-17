@@ -215,7 +215,7 @@ void AbstractClientAgent::workerThreadItemSendLoop( AbstractClientAgent* agent )
         agent->getNode()->exitOnFatalError( e.what() );
     } catch ( ExitRequestedException& e ) {
         return;
-    } catch ( SkaleException& e ) {
+    } catch ( exception& e ) {
         SkaleException::logNested( e );
     }
 }

@@ -31,6 +31,7 @@
 #include "exceptions/FatalError.h"
 #include "node/ConsensusEngine.h"
 #include "thirdparty/json.hpp"
+#include "oracle/OracleClient.h"
 
 
 TestMessageGeneratorAgent::TestMessageGeneratorAgent(Schain& _sChain_) : Agent(_sChain_, false) {
@@ -39,7 +40,15 @@ TestMessageGeneratorAgent::TestMessageGeneratorAgent(Schain& _sChain_) : Agent(_
 
 
 
+
 ConsensusExtFace::transactions_vector TestMessageGeneratorAgent::pendingTransactions( size_t _limit ) {
+
+    // test oracle for the first block
+
+    if (counter > 2) {
+        //getSchain()->getOracleClient()->sendTestRequestGet();
+        getSchain()->getOracleClient()->sendTestRequestPost();
+    }
 
     uint64_t  messageSize = 200;
 

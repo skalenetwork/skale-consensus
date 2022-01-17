@@ -83,6 +83,9 @@
 #include "network/Sockets.h"
 #include "network/ZMQSockets.h"
 #include "node/NodeInfo.h"
+#include "oracle/OracleServerAgent.h"
+#include "oracle/OracleClient.h"
+#include "oracle/OracleThreadPool.h"
 #include "pricing/PricingAgent.h"
 #include "protocols/ProtocolInstance.h"
 #include "protocols/blockconsensus/BlockConsensusAgent.h"
@@ -184,10 +187,15 @@ void Schain::messageThreadProcessingLoop( Schain* _sChain ) {
                 CHECK_STATE( ( uint64_t ) m->getMessage()->getBlockId() != 0 );
 
                 try {
-                    _sChain->getBlockConsensusInstance()->routeAndProcessMessage( m );
+                    if (m->getMessage()->getMsgType() == MSG_ORACLE_REQ_BROADCAST ||
+                        m->getMessage()->getMsgType() == MSG_ORACLE_RSP) {
+                        _sChain->getOracleInstance()->routeAndProcessMessage( m );
+                    } else {
+                        _sChain->getBlockConsensusInstance()->routeAndProcessMessage(m);
+                    }
                 } catch ( exception& e ) {
+                    LOG(err, "Exception in Schain::messageThreadProcessingLoop");
                     SkaleException::logNested( e );
-
                     if ( _sChain->getNode()->isExitRequested() )
                         return;
                 }  // catch
@@ -285,6 +293,7 @@ void Schain::constructChildAgents() {
         testMessageGeneratorAgent = make_shared< TestMessageGeneratorAgent >( *this );
         pricingAgent = make_shared< PricingAgent >( *this );
         cryptoManager = make_shared< CryptoManager >( *this );
+        oracleClient = make_shared<OracleClient>( *this);
     } catch ( ... ) {
         throw_with_nested( FatalError( __FUNCTION__, __CLASS_NAME__ ) );
     }
@@ -1170,5 +1179,7 @@ u256 Schain::getRandomForBlockId(block_id _blockId) {
 }
 
 ptr<ofstream> Schain::visualizationDataStream = nullptr;
+
+
 
 mutex Schain::vdsMutex;
