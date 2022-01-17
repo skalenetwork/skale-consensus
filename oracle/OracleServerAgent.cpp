@@ -369,6 +369,7 @@ uint64_t OracleServerAgent::curlHttp(const string &_uri, bool _isPost, string& _
     curl_easy_setopt(curl, CURLOPT_COOKIEFILE, "");
     curl_easy_setopt(curl, CURLOPT_TIMEOUT, 2);
     curl_easy_setopt(curl, CURLOPT_USERAGENT, "libcurl-agent/1.0");
+    curl_easy_setopt(curl, CURLOPT_DNS_SERVERS, "8.8.8.8");
 
     if (_isPost) {
         curl_easy_setopt(curl, CURLOPT_POSTFIELDS, _postString.c_str());
