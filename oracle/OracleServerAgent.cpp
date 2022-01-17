@@ -411,8 +411,6 @@ uint64_t OracleServerAgent::curlHttp(const string &_uri, bool _isPost, string &_
     _result = r;
 
     return status;
-
-
 }
 
 void OracleServerAgent::sendOutResult(ptr<OracleResponseMessage> _msg, schain_index _destination) {

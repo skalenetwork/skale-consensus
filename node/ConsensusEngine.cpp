@@ -35,6 +35,7 @@
 #include "exceptions/FatalError.h"
 #include "thirdparty/json.hpp"
 #include "threads/GlobalThreadRegistry.h"
+#include "oracle/OracleClient.h"
 
 #include "zmq.h"
 
@@ -1002,10 +1003,7 @@ ptr<StorageLimits> ConsensusEngine::getStorageLimits() const {
 tuple<ptr<ConsensusExtFace::transactions_vector>, uint32_t, uint32_t, u256, u256>
 ConsensusEngine::getBlock(block_id _blockId) {
     CHECK_STATE(nodes.size() > 0)
-
-
     auto node = nodes.begin()->second;
-
     CHECK_STATE(node)
 
     auto schain = nodes.begin()->second->getSchain();
@@ -1025,4 +1023,34 @@ ConsensusEngine::getBlock(block_id _blockId) {
     auto tv = committedBlock->getTransactionList()->createTransactionVector();
 
     return {tv, timeStampS, timeStampMs, currentPrice, stateRoot};
+}
+
+
+uint64_t ConsensusEngine::submitOracleRequest(string _spec, string &_receipt) {
+    CHECK_STATE(nodes.size() > 0)
+    auto node = nodes.begin()->second;
+    CHECK_STATE(node)
+    auto oracleClient = node->getSchain()->getOracleClient();
+
+    CHECK_STATE(oracleClient);
+    return oracleClient->submitOracleRequest(_spec, _receipt);
+}
+
+/*
+ * Check if Oracle result has been derived.  This will return ORACLE_SUCCESS if
+ * nodes agreed on result. The signed result will be returned in _result string.
+ *
+ * If no result has been derived yet, ORACLE_RESULT_NOT_READY is returned.
+ *
+ * In case of an error, an error is returned.
+ */
+
+
+uint64_t  ConsensusEngine::checkOracleResult(string& _receipt, string& _result) {
+    CHECK_STATE(nodes.size() > 0)
+    auto node = nodes.begin()->second;
+    CHECK_STATE(node)
+    auto oracleClient = node->getSchain()->getOracleClient();
+    CHECK_STATE(oracleClient);
+    return oracleClient->checkOracleResult(_receipt, _result);
 }
