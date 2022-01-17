@@ -97,6 +97,27 @@ OracleResult::OracleResult(string &_result) : oracleResult(_result) {
     }
 
 
+    if (this->isGeth()) {
+        rapidjson::Document d2;
+        postStr.erase(std::remove_if(postStr.begin(), postStr.end(), ::isspace), postStr.end());
+        d2.Parse(postStr.data());
+        CHECK_STATE2(!d2.HasParseError(), "Unparsable geth Oracle post:" + postStr);
+
+        CHECK_STATE2(d2.HasMember("method"), "No JSON-RPC method in geth Oracle post:" + postStr);
+
+        CHECK_STATE2(d2["method"].IsString(), "method in Oracle post is not string:" + postStr)
+
+        auto meth  = d2["method"].GetString();
+
+        if (meth == string("eth_call") ||
+            meth == string("eth_gasPrice") || meth == string("eth_blockNumber") ||
+            meth == string("eth_getBlockByNumber") ||
+            meth == string("eth_getBlockByHash") ) {} else {
+            CHECK_STATE2(false, "Geth Method not allowed:" + meth);
+        }
+    }
+
+
     CHECK_STATE2(results.size() == trims.size(), "hsps array size not equal trims array size");
 
 

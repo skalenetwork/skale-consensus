@@ -194,6 +194,14 @@ ptr<OracleResponseMessage> OracleServerAgent::doEndpointRequestResponse(ptr<Orac
 
     auto spec = _request->getParsedSpec();
 
+    auto uri = spec->getUri();
+    if (spec->isGeth()) {
+        uri = gethURL + "/" + uri.substr(string("geth://").size());
+    } else {
+
+
+    }
+
     auto isPost = spec->getPost();
     auto postString = spec->getPostStr();
 
@@ -201,7 +209,11 @@ ptr<OracleResponseMessage> OracleServerAgent::doEndpointRequestResponse(ptr<Orac
 
     auto resultStr = _request->getRequestSpec();
 
-    auto status = curlHttpGet(spec->getUri(), isPost, postString, response);
+
+
+    auto status = curlHttp(spec->getUri(), isPost, postString, response);
+
+
 
     if (status != ORACLE_SUCCESS) {
         appendErrorToSpec(resultStr, status);
@@ -333,7 +345,7 @@ ptr<vector<ptr<string>>> OracleServerAgent::extractResults(
     return rs;
 }
 
-uint64_t OracleServerAgent::curlHttpGet(const string &_uri, bool _isPost, string& _postString, string &_result) {
+uint64_t OracleServerAgent::curlHttp(const string &_uri, bool _isPost, string& _postString, string &_result) {
     uint64_t status = ORACLE_UNKNOWN_ERROR;
     CURL *curl;
     CURLcode res;

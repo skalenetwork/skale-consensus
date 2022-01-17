@@ -19,18 +19,16 @@ ptr<OracleRequestSpec> OracleRequestSpec::parseSpec(string &_spec) {
 
 OracleRequestSpec::OracleRequestSpec(string &_spec) : spec(_spec) {
     rapidjson::Document d;
-
     spec.erase(std::remove_if(spec.begin(), spec.end(), ::isspace), spec.end());
-
     d.Parse(spec.data());
+    CHECK_STATE2(!d.HasParseError(), "Unparsable Oracle spec:" + _spec);
+
 
     CHECK_STATE2(d.HasMember("cid"), "No chainid in Oracle spec:" + _spec);
 
     CHECK_STATE2(d["cid"].IsUint64(), "ChainId in Oracle spec is not uint64_t" + _spec);
 
     chainid = d["cid"].GetUint64();
-
-    CHECK_STATE2(!d.HasParseError(), "Unparsable Oracle spec:" + _spec);
 
     CHECK_STATE2(d.HasMember("uri"), "No URI in Oracle spec:" + _spec);
 
@@ -88,9 +86,25 @@ OracleRequestSpec::OracleRequestSpec(string &_spec) : spec(_spec) {
     }
 
 
-        time = d["time"].GetUint64();
-    pow = d["pow"].GetString();
+    if (this->isGeth()) {
+        rapidjson::Document d2;
+        postStr.erase(std::remove_if(postStr.begin(), postStr.end(), ::isspace), postStr.end());
+        d2.Parse(postStr.data());
+        CHECK_STATE2(!d2.HasParseError(), "Unparsable geth Oracle post:" + postStr);
 
+        CHECK_STATE2(d2.HasMember("method"), "No JSON-RPC method in geth Oracle post:" + postStr);
+
+        CHECK_STATE2(d2["method"].IsString(), "method in Oracle post is not string:" + postStr)
+
+        auto meth  = d2["method"].GetString();
+
+        if (meth == string("eth_call") ||
+            meth == string("eth_gasPrice") || meth == string("eth_blockNumber") ||
+                    meth == string("eth_getBlockByNumber") ||
+                    meth == string("eth_getBlockByHash") ) {} else {
+            CHECK_STATE2(false, "Geth Method not allowed:" + meth);
+        }
+    }
 }
 
 const string &OracleRequestSpec::getSpec() const {
