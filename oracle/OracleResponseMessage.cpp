@@ -104,6 +104,5 @@ const string OracleResponseMessage::getUnsignedOracleResultStr() const {
     CHECK_STATE(commaPosition != string::npos);
     auto res = oracleResultStr.substr(0, commaPosition + 1);
     cerr << res << endl;
-    exit(-8);
     return res;
 }

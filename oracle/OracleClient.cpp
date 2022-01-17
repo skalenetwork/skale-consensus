@@ -38,6 +38,12 @@
 
 OracleClient::OracleClient(Schain &_sChain) : ProtocolInstance(ORACLE, _sChain), sChain(&_sChain),
                                               receiptsMap(ORACLE_RECEIPTS_MAP_SIZE) {
+
+    gethURL = getSchain()->getNode()->getGethUrl();
+
+    if (gethURL.empty()) {
+        LOG(err, "Consensus initialized with empty gethURL. Geth-related Oracle functions will be disabled");
+    }
 }
 
 uint64_t OracleClient::broadcastRequestAndReturnReceipt(ptr<OracleRequestBroadcastMessage> _msg, string &_receipt) {

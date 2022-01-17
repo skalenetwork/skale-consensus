@@ -195,8 +195,8 @@ class Node {
     uint64_t blockProposalDBSize = 0;
     uint64_t visualizationType = 0;
 
+    string gethURL = "";
 
-private:
     bool inited = false;
 
     void releaseGlobalServerBarrier();
@@ -274,7 +274,7 @@ public:
     string _sgxSSLCertFileFullPath,
         string _ecdsaKeyName, ptr< vector<string> > _ecdsaPublicKeys,
         string _blsKeyName, ptr< vector< ptr< vector<string>>>> _blsPublicKeys,
-        ptr< BLSPublicKey > _blsPublicKey );
+        ptr< BLSPublicKey > _blsPublicKey, string& _gethURL);
 
     ~Node();
 
@@ -370,4 +370,6 @@ public:
     string getSgxSslCertFileFullPath();
 
     bool isInited() const;
+
+    const string &getGethUrl() const;
 };

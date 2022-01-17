@@ -39,6 +39,8 @@ class OracleClient : public ProtocolInstance {
 
     cache::lru_cache<string, ptr<OracleReceivedResults>> receiptsMap;
 
+    string gethURL;
+
 
     string waitForAnswer(ptr<OracleRequestBroadcastMessage> /*_msg*/ );
 

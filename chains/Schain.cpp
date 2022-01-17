@@ -293,7 +293,7 @@ void Schain::constructChildAgents() {
         testMessageGeneratorAgent = make_shared< TestMessageGeneratorAgent >( *this );
         pricingAgent = make_shared< PricingAgent >( *this );
         cryptoManager = make_shared< CryptoManager >( *this );
-        oracleClient = make_shared<OracleClient>( *this );
+        oracleClient = make_shared<OracleClient>( *this);
     } catch ( ... ) {
         throw_with_nested( FatalError( __FUNCTION__, __CLASS_NAME__ ) );
     }

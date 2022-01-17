@@ -231,7 +231,7 @@ void ConsensusEngine::log(
 }
 
 
-void ConsensusEngine::parseFullConfigAndCreateNode(const string &configFileContents) {
+void ConsensusEngine::parseFullConfigAndCreateNode(const string &configFileContents, string& _gethURL) {
     try {
         nlohmann::json j = nlohmann::json::parse(configFileContents);
 
@@ -244,10 +244,10 @@ void ConsensusEngine::parseFullConfigAndCreateNode(const string &configFileConte
                                                          true, sgxServerUrl, sgxSSLKeyFileFullPath,
                                                          sgxSSLCertFileFullPath,
                                                          getEcdsaKeyName(), ecdsaPublicKeys, getBlsKeyName(),
-                                                         blsPublicKeys, blsPublicKey);
+                                                         blsPublicKeys, blsPublicKey, _gethURL);
         } else {
             node = JSONFactory::createNodeFromJsonObject(j["skaleConfig"]["nodeInfo"], dummy, this,
-                                                         false, "", "", "", "", nullptr, "", nullptr, nullptr);
+                                                         false, "", "", "", "", nullptr, "", nullptr, nullptr, _gethURL);
         }
 
         JSONFactory::createAndAddSChainFromJsonObject(node, j["skaleConfig"]["sChain"], this);
@@ -260,14 +260,14 @@ void ConsensusEngine::parseFullConfigAndCreateNode(const string &configFileConte
     }
 }
 
-ptr<Node> ConsensusEngine::readNodeConfigFileAndCreateNode(const string path,
-                                                           set<node_id> &_nodeIDs, bool _useSGX,
-                                                           string _sgxSSLKeyFileFullPath,
-                                                           string _sgxSSLCertFileFullPath, string _ecdsaKeyName,
-                                                           ptr<vector<string> > _ecdsaPublicKeys,
-                                                           string _blsKeyName,
-                                                           ptr<vector<ptr<vector<string> > > > _blsPublicKeys,
-                                                           ptr<BLSPublicKey> _blsPublicKey) {
+ptr<Node> ConsensusEngine::readNodeTestConfigFileAndCreateNode(const string path,
+                                                               set<node_id> &_nodeIDs, bool _useSGX,
+                                                               string _sgxSSLKeyFileFullPath,
+                                                               string _sgxSSLCertFileFullPath, string _ecdsaKeyName,
+                                                               ptr<vector<string> > _ecdsaPublicKeys,
+                                                               string _blsKeyName,
+                                                               ptr<vector<ptr<vector<string> > > > _blsPublicKeys,
+                                                               ptr<BLSPublicKey> _blsPublicKey) {
     try {
         if (_useSGX) {
             CHECK_ARGUMENT(!_ecdsaKeyName.empty() && _ecdsaPublicKeys);
@@ -288,10 +288,11 @@ ptr<Node> ConsensusEngine::readNodeConfigFileAndCreateNode(const string path,
 
         checkExistsAndDirectory(schainDirNamePath.string());
 
-        auto node = JSONFactory::createNodeFromJsonFile(sgxServerUrl, nodeFileNamePath.string(),
-                                                        _nodeIDs, this, _useSGX, _sgxSSLKeyFileFullPath,
-                                                        _sgxSSLCertFileFullPath, _ecdsaKeyName,
-                                                        _ecdsaPublicKeys, _blsKeyName, _blsPublicKeys, _blsPublicKey);
+        auto node = JSONFactory::createNodeFromTestJsonFile(sgxServerUrl, nodeFileNamePath.string(),
+                                                            _nodeIDs, this, _useSGX, _sgxSSLKeyFileFullPath,
+                                                            _sgxSSLCertFileFullPath, _ecdsaKeyName,
+                                                            _ecdsaPublicKeys, _blsKeyName, _blsPublicKeys,
+                                                            _blsPublicKey);
 
 
         if (node == nullptr) {
@@ -455,9 +456,9 @@ void ConsensusEngine::parseTestConfigsAndCreateAllNodes(const fs_path &dirname, 
             }
 
             // cert and key file name for tests come from the config
-            readNodeConfigFileAndCreateNode(dirNames.at(j), nodeIDs, isSGXEnabled, sgxSSLKeyFileFullPath,
-                                            sgxSSLCertFileFullPath,
-                                            ecdsaKey, ecdsaPublicKeys, blsKey, blsPublicKeys, blsPublicKey);
+            readNodeTestConfigFileAndCreateNode(dirNames.at(j), nodeIDs, isSGXEnabled, sgxSSLKeyFileFullPath,
+                                                sgxSSLCertFileFullPath,
+                                                ecdsaKey, ecdsaPublicKeys, blsKey, blsPublicKeys, blsPublicKey);
         };
 
         if (nodes.size() == 0) {

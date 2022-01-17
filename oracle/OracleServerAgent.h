@@ -53,6 +53,8 @@ class OracleServerAgent : public Agent {
 
     ptr <OracleThreadPool> oracleThreadPool = nullptr;
 
+    string gethURL;
+
 
     ptr<OracleResponseMessage> doEndpointRequestResponse(ptr<OracleRequestBroadcastMessage> /* _request */);
 

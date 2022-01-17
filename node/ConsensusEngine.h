@@ -152,12 +152,12 @@ public:
 
     static void checkExistsAndFile( const fs_path& filename );
 
-    ptr< Node > readNodeConfigFileAndCreateNode( const string path, set< node_id >& nodeIDs,
-        bool _useSGX = false, string _sgxSSLKeyFileFullPath = "",
-        string _sgxSSLCertFileFullPath = "", string _ecdsaKeyName = "",
-        ptr< vector<string> > _ecdsaPublicKeys = nullptr, string _blsKeyName = "",
-        ptr< vector< ptr< vector<string>>>> _blsPublicKeys = nullptr,
-        ptr< BLSPublicKey > _blsPublicKey = nullptr );
+    ptr< Node > readNodeTestConfigFileAndCreateNode(const string path, set< node_id >& _nodeIDs,
+                                                    bool _useSGX = false, string _sgxSSLKeyFileFullPath = "",
+                                                    string _sgxSSLCertFileFullPath = "", string _ecdsaKeyName = "",
+                                                    ptr< vector<string> > _ecdsaPublicKeys = nullptr, string _blsKeyName = "",
+                                                    ptr< vector< ptr< vector<string>>>> _blsPublicKeys = nullptr,
+                                                    ptr< BLSPublicKey > _blsPublicKey = nullptr );
     
     void readSchainConfigFiles(const ptr< Node >& _node, const fs_path& _dirPath );
     
@@ -214,7 +214,7 @@ public:
 
     void startAll() override;
 
-    void parseFullConfigAndCreateNode( const string& fullPathToConfigFile ) override;
+    void parseFullConfigAndCreateNode( const string& fullPathToConfigFile, string& _gethURL ) override;
 
     // used for standalone debugging
 
