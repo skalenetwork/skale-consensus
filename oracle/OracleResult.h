@@ -21,6 +21,9 @@ private:
     uint64_t error = 0;
     uint64_t chainId;
     vector<ptr<string>> results;
+    bool isPost;
+    string postStr;
+
 public:
     uint64_t getChainId() const;
 
@@ -47,6 +50,10 @@ public:
     uint64_t getError() const;
 
     const vector<ptr<string>> &getResults() const;
+
+    bool isPost1() const;
+
+    const string &getPostStr() const;
 
 
 };

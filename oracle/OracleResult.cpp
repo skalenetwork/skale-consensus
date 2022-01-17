@@ -90,9 +90,24 @@ OracleResult::OracleResult(string &_result) : oracleResult(_result) {
         }
     }
 
+    if (d.HasMember("post")) {
+        isPost = true;
+        CHECK_STATE2(d["post"].IsString(), "Post in Oracle result is not string:" + _result);
+        postStr = d["post"].GetString();
+    }
+
+
     CHECK_STATE2(results.size() == trims.size(), "hsps array size not equal trims array size");
 
 
+}
+
+bool OracleResult::isPost1() const {
+    return isPost;
+}
+
+const string &OracleResult::getPostStr() const {
+    return postStr;
 }
 
 const string &OracleResult::getOracleResult() const {

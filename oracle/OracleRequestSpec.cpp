@@ -81,7 +81,14 @@ OracleRequestSpec::OracleRequestSpec(string &_spec) : spec(_spec) {
         }
     }
 
-    time = d["time"].GetUint64();
+    if (d.HasMember("post")) {
+        isPost = true;
+        CHECK_STATE2(d["post"].IsString(), "Pow in Oracle spec is not string:" + _spec);
+        postStr = d["post"].GetString();
+    }
+
+
+        time = d["time"].GetUint64();
     pow = d["pow"].GetString();
 
 }
@@ -113,4 +120,12 @@ const vector<uint64_t> &OracleRequestSpec::getTrims() const {
 
 uint64_t OracleRequestSpec::getChainid() const {
     return chainid;
+}
+
+bool OracleRequestSpec::getPost() const {
+    return isPost;
+}
+
+const string &OracleRequestSpec::getPostStr() const {
+    return postStr;
 }

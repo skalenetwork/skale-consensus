@@ -53,8 +53,9 @@ public:
 
     uint64_t broadcastRequestAndReturnReceipt(ptr<OracleRequestBroadcastMessage> _msg, string& _receipt);
 
-    void sendTestRequest();
+    void sendTestRequestGet();
 
+    void sendTestRequestPost();
 
     void processResponseMessage(const ptr<MessageEnvelope> &_me);
 

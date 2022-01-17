@@ -16,8 +16,15 @@ class OracleRequestSpec {
     vector<uint64_t> trims;
     uint64_t time;
     string pow;
+    bool isPost = false;
+    string postStr = "";
 
 public:
+
+    bool getPost() const;
+
+    const string &getPostStr() const;
+
 
     const vector<string> &getJsps() const;
 

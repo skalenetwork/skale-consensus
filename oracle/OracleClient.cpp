@@ -73,7 +73,7 @@ string OracleClient::waitForAnswer(ptr<OracleRequestBroadcastMessage> /*_msg*/) 
     return "{\"result\":\"hihi\"}";
 }
 
-void OracleClient::sendTestRequest() {
+void OracleClient::sendTestRequestGet() {
     string _receipt;
 
     string cid = "\"cid\":" +
@@ -85,6 +85,26 @@ void OracleClient::sendTestRequest() {
     string pow = "\"pow\":" + string("\"0x0000\"");
 
     string spec = "{" + cid + "," + uri + "," + jsps + "," + trims + "," + time + "," + pow + "}";
+    auto status = runOracleRequest(spec, _receipt);
+
+    CHECK_STATE(status == ORACLE_SUCCESS);
+
+    string result;
+}
+
+void OracleClient::sendTestRequestPost() {
+    string _receipt;
+
+    string cid = "\"cid\":" +
+                 to_string((uint64_t) getSchain()->getSchainID());
+    string uri = "\"uri\":\"https://reqres.in/api/users\"";
+    string jsps = "\"jsps\":[\"/id\"]";
+    string time = "\"time\":" + to_string(Time::getCurrentTimeMs());
+    string pow = "\"pow\":" + string("\"0x0000\"");
+    string post = "\"post\":\"haha\"";
+
+    string spec = "{" + cid + "," + uri + "," + jsps + "," + time + "," + pow +
+            + "," + post + "}";
     auto status = runOracleRequest(spec, _receipt);
 
     CHECK_STATE(status == ORACLE_SUCCESS);
