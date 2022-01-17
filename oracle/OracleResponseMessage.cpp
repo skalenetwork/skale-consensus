@@ -45,6 +45,9 @@ OracleResponseMessage::OracleResponseMessage(string& _oracleResult, string& _rec
                          sourceProtocolInstance), oracleResultStr(_oracleResult), receipt(_receipt)  {
     printPrefix = "r";
     oracleResult = OracleResult::parseResult(_oracleResult);
+
+    CHECK_STATE2(oracleResult->getChainId() == sourceProtocolInstance.getSchain()->getSchainID(),
+                 "Invalid schain id in oracle spec:" + to_string(oracleResult->getChainId()));
 }
 
 

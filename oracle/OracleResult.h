@@ -19,7 +19,12 @@ private:
     vector<uint64_t> trims;
     uint64_t time;
     uint64_t error = 0;
+    uint64_t chainId;
     vector<ptr<string>> results;
+public:
+    uint64_t getChainId() const;
+
+private:
     string sig;
 public:
 

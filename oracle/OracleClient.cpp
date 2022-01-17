@@ -76,14 +76,15 @@ string OracleClient::waitForAnswer(ptr<OracleRequestBroadcastMessage> /*_msg*/) 
 void OracleClient::sendTestRequest() {
     string _receipt;
 
-
+    string cid = "\"cid\":" +
+                 to_string((uint64_t) getSchain()->getSchainID());
     string uri = "\"uri\":\"http://worldtimeapi.org/api/timezone/Europe/Kiev\"";
     string jsps = "\"jsps\":[\"/unixtime\", \"/day_of_year\", \"/xxx\"]";
     string trims = "\"trims\":[1,1,1]";
     string time = "\"time\":" + to_string(Time::getCurrentTimeMs());
     string pow = "\"pow\":" + string("\"0x0000\"");
 
-    string spec = "{" + uri + "," + jsps + "," + trims + "," + time + "," + pow + "}";
+    string spec = "{" + cid + "," + uri + "," + jsps + "," + trims + "," + time + "," + pow + "}";
     auto status = runOracleRequest(spec, _receipt);
 
     CHECK_STATE(status == ORACLE_SUCCESS);

@@ -9,6 +9,7 @@
 class OracleRequestSpec {
 
     string spec;
+    uint64_t chainid;
     string uri;
 
     vector<string> jsps;
@@ -29,6 +30,8 @@ public:
     const string &getPow() const;
 
     OracleRequestSpec(string& _spec);
+
+    uint64_t getChainid() const;
 
     static ptr<OracleRequestSpec> parseSpec(string& _spec);
 

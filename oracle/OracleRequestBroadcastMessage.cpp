@@ -46,6 +46,8 @@ OracleRequestBroadcastMessage::OracleRequestBroadcastMessage(string& _requestSpe
     printPrefix = "o";
 
     parsedSpec = OracleRequestSpec::parseSpec(_requestSpec);
+    CHECK_STATE2(parsedSpec->getChainid() == sourceProtocolInstance.getSchain()->getSchainID(),
+                 "Invalid schain id in oracle spec:" + to_string(parsedSpec->getChainid()));
 
 }
 
@@ -64,6 +66,9 @@ OracleRequestBroadcastMessage::OracleRequestBroadcastMessage(string& _requestSpe
     printPrefix = "o";
 
     parsedSpec = OracleRequestSpec::parseSpec(_requestSpec);
+    CHECK_STATE2(parsedSpec->getChainid() == _schainId,
+                 "Invalid schain id in oracle spec:" + to_string(_schainId));
+
 }
 
 void OracleRequestBroadcastMessage::updateWithChildHash(blake3_hasher& _hasher) {

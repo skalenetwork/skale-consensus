@@ -14,7 +14,6 @@
 #include "OracleRequestSpec.h"
 
 ptr<OracleRequestSpec> OracleRequestSpec::parseSpec(string &_spec) {
-
     return make_shared<OracleRequestSpec>(_spec);
 }
 
@@ -24,6 +23,12 @@ OracleRequestSpec::OracleRequestSpec(string &_spec) : spec(_spec) {
     spec.erase(std::remove_if(spec.begin(), spec.end(), ::isspace), spec.end());
 
     d.Parse(spec.data());
+
+    CHECK_STATE2(d.HasMember("cid"), "No chainid in Oracle spec:" + _spec);
+
+    CHECK_STATE2(d["cid"].IsUint64(), "ChainId in Oracle spec is not uint64_t" + _spec);
+
+    chainid = d["cid"].GetUint64();
 
     CHECK_STATE2(!d.HasParseError(), "Unparsable Oracle spec:" + _spec);
 
@@ -104,4 +109,8 @@ const vector<string> &OracleRequestSpec::getJsps() const {
 
 const vector<uint64_t> &OracleRequestSpec::getTrims() const {
     return trims;
+}
+
+uint64_t OracleRequestSpec::getChainid() const {
+    return chainid;
 }

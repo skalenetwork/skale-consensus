@@ -18,7 +18,13 @@ OracleResult::OracleResult(string &_result) : oracleResult(_result) {
     d.Parse(_result.data());
 
     CHECK_STATE2(!d.HasParseError(), "Unparsable Oracle result:" + _result);
-    
+
+    CHECK_STATE2(d.HasMember("cid"), "No chainid in Oracle  result:" + _result);
+
+    CHECK_STATE2(d["cid"].IsUint64(), "ChainId in Oracle result is not uint64_t" + _result);
+
+    chainId = d["cid"].GetUint64();
+
     CHECK_STATE2(d.HasMember("uri"), "No URI in Oracle  result:" + _result);
 
     CHECK_STATE2(d["uri"].IsString(), "Uri in Oracle result is not string:" + _result);
@@ -129,5 +135,9 @@ ptr<OracleResult> OracleResult::parseResult(string &_oracleResult) {
 
 const string &OracleResult::getSig() const {
     return sig;
+}
+
+uint64_t OracleResult::getChainId() const {
+    return chainId;
 }
 
