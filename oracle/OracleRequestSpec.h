@@ -44,6 +44,8 @@ public:
 
     const vector<uint64_t> &getTrims() const;
 
+    bool isGeth();
+
 };
 
 

@@ -102,7 +102,7 @@ OracleResult::OracleResult(string &_result) : oracleResult(_result) {
 
 }
 
-bool OracleResult::isPost1() const {
+bool OracleResult::getPost() const {
     return isPost;
 }
 
@@ -154,5 +154,10 @@ const string &OracleResult::getSig() const {
 
 uint64_t OracleResult::getChainId() const {
     return chainId;
+}
+
+
+bool OracleResult::isGeth() {
+    return (uri.find("geth://") == 0);
 }
 

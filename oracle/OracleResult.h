@@ -51,10 +51,11 @@ public:
 
     const vector<ptr<string>> &getResults() const;
 
-    bool isPost1() const;
-
     const string &getPostStr() const;
 
+    bool getPost() const;
+
+    bool isGeth();
 
 };
 

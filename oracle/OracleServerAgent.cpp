@@ -222,8 +222,6 @@ ptr<OracleResponseMessage> OracleServerAgent::doEndpointRequestResponse(ptr<Orac
 
     cerr << resultStr << endl;
 
-
-
     string receipt = _request->getHash().toHex();
 
     return make_shared<OracleResponseMessage>(resultStr,

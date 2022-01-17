@@ -129,3 +129,7 @@ bool OracleRequestSpec::getPost() const {
 const string &OracleRequestSpec::getPostStr() const {
     return postStr;
 }
+
+bool OracleRequestSpec::isGeth() {
+    return (uri.find("geth://") == 0);
+}
