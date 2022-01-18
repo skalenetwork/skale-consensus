@@ -102,6 +102,7 @@ void OracleClient::sendTestRequestPost() {
 
     string spec = "{" + cid + "," + uri + "," + jsps + "," + time + "," + pow +
             + "," + post + "}";
+
     auto status = submitOracleRequest(spec, _receipt);
 
     CHECK_STATE(status == ORACLE_SUCCESS);
@@ -119,12 +120,8 @@ uint64_t OracleClient::submitOracleRequest(string _spec, string &_receipt) {
 
 
 void OracleClient::processResponseMessage(const ptr<MessageEnvelope> &_me) {
-
-
     CHECK_STATE(_me);
-
     auto msg = dynamic_pointer_cast<OracleResponseMessage>(_me->getMessage());
-
 
     CHECK_STATE(msg);
 
