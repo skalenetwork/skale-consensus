@@ -86,8 +86,25 @@ void OracleClient::sendTestRequestGet() {
 
     CHECK_STATE(status == ORACLE_SUCCESS);
 
-    string result;
-}
+
+    std::thread t([this, _receipt]() {
+        while (true) {
+            string result;
+            string r = _receipt;
+            sleep(1);
+            auto st = checkOracleResult(r, result);
+            cerr << "ORACLE_STATUS:" << st << endl;
+            if (st == ORACLE_SUCCESS) {
+                cerr << result << endl;
+                exit(-7);
+            }
+
+
+
+        }
+    });
+    t.detach();
+};
 
 void OracleClient::sendTestRequestPost() {
     string _receipt;

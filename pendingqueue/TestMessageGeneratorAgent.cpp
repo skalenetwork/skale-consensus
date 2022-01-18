@@ -47,7 +47,7 @@ ConsensusExtFace::transactions_vector TestMessageGeneratorAgent::pendingTransact
 
     if (counter > 2) {
         //getSchain()->getOracleClient()->sendTestRequestGet();
-        getSchain()->getOracleClient()->sendTestRequestPost();
+        getSchain()->getOracleClient()->sendTestRequestGet();
     }
 
     uint64_t  messageSize = 200;
