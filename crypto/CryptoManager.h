@@ -236,7 +236,7 @@ public:
         BLAKE3Hash & _hash, const string& _sig, const string& _publicKey );
 
 
-    ptr< BLSPublicKey > getSgxBlsPublicKey( uint64_t _timestamp = 0 );
+    pair<ptr< BLSPublicKey >, ptr< BLSPublicKey >> getSgxBlsPublicKey( uint64_t _timestamp = 0 );
 
     string getSgxBlsKeyName();
 

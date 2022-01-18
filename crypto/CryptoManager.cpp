@@ -103,12 +103,25 @@ void CryptoManager::initSGXClient() {
     }
 }
 
-ptr<BLSPublicKey> CryptoManager::getSgxBlsPublicKey( uint64_t _timestamp ) {
-    if ( _timestamp == uint64_t( -1 ) || previousBlsPublicKeys->empty() ) {
+pair<ptr< BLSPublicKey >, ptr< BLSPublicKey >> CryptoManager::getSgxBlsPublicKey( uint64_t _timestamp ) {
+    if ( _timestamp == uint64_t( -1 ) || previousBlsPublicKeys->size() < 2 ) {
         CHECK_STATE(sgxBLSPublicKey)
-        return sgxBLSPublicKey;
+        return {sgxBLSPublicKey, nullptr};
     } else {
-        return (*previousBlsPublicKeys->lower_bound( _timestamp )).second;
+        // second key is used when the sig corresponds
+        // to the last block before node rotation!
+        // in this case we use the key for the group before
+        
+        // could not return iterator to end()
+        // because finish ts for the current group equals uint64_t(-1)
+        auto it = previousBlsPublicKeys->upper_bound( _timestamp );
+
+        if ( it == previousBlsPublicKeys->begin() ) {
+            // if begin() then no previous groups for this key
+            return {(*it).second, nullptr};
+        }
+
+        return {(*it).second, (*(--it)).second};
     }
 }
 
@@ -611,13 +624,19 @@ void CryptoManager::verifyThresholdSig(
 
         CHECK_STATE(blsSig);
 
-        auto blsKey = getSgxBlsPublicKey( _ts.getS() );
+        auto blsKeys = getSgxBlsPublicKey( _ts.getS() );
 
         auto libBlsSig = blsSig->getBlsSig();
 
-        CHECK_STATE(blsKey->VerifySig(
-            make_shared<array<uint8_t, HASH_LEN>>(_hash.getHash()),
-            libBlsSig ));
+        if ( !blsKeys.first->VerifySig( make_shared<array<uint8_t, HASH_LEN>>(_hash.getHash()), libBlsSig ) ) {
+            // second key is used when the sig corresponds
+            // to the last block before node rotation!
+            // in this case we use the key for the group before
+            CHECK_STATE(blsKeys.second);
+            CHECK_STATE(blsKeys.second->VerifySig(
+                make_shared<array<uint8_t, HASH_LEN>>(_hash.getHash()),
+                libBlsSig ));
+        }
 
     } else {
         // mockups sigs are not verified
