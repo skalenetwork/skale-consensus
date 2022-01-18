@@ -32,6 +32,7 @@
 #include "messages/NetworkMessage.h"
 
 #include "chains/Schain.h"
+#include "utils/Time.h"
 #include "protocols/ProtocolKey.h"
 #include "OracleClient.h"
 #include "OracleServerAgent.h"
@@ -49,6 +50,8 @@ OracleRequestBroadcastMessage::OracleRequestBroadcastMessage(string& _requestSpe
     CHECK_STATE2(parsedSpec->getChainid() == sourceProtocolInstance.getSchain()->getSchainID(),
                  "Invalid schain id in oracle spec:" + to_string(parsedSpec->getChainid()));
 
+    CHECK_STATE(parsedSpec->getTime() + ORACLE_TIMEOUT_MS > Time::getCurrentTimeMs())
+    CHECK_STATE(parsedSpec->getTime()  < Time::getCurrentTimeMs() + ORACLE_FUTURE_JITTER_MS)
 }
 
 
@@ -68,6 +71,9 @@ OracleRequestBroadcastMessage::OracleRequestBroadcastMessage(string& _requestSpe
     parsedSpec = OracleRequestSpec::parseSpec(_requestSpec);
     CHECK_STATE2(parsedSpec->getChainid() == _schainId,
                  "Invalid schain id in oracle spec:" + to_string(_schainId));
+    CHECK_STATE(parsedSpec->getTime() + ORACLE_TIMEOUT_MS > Time::getCurrentTimeMs())
+    CHECK_STATE(parsedSpec->getTime()  < Time::getCurrentTimeMs() + ORACLE_FUTURE_JITTER_MS)
+
 
 }
 

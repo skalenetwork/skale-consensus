@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2018-2019 SKALE Labs
+    Copyright (C) 2022- SKALE Labs
 
     This file is part of skale-consensus.
 
@@ -18,7 +18,7 @@
 
     @file OracleResponseBroadcastMessage.cpp
     @author Stan Kladko
-    @date 2018
+    @date 2022-
 */
 
 #include "SkaleCommon.h"
@@ -29,6 +29,7 @@
 
 #include "chains/Schain.h"
 #include "protocols/ProtocolKey.h"
+#include "utils/Time.h"
 
 #include "protocols/binconsensus/BinConsensusInstance.h"
 #include "OracleClient.h"
@@ -48,6 +49,9 @@ OracleResponseMessage::OracleResponseMessage(string& _oracleResult, string& _rec
 
     CHECK_STATE2(oracleResult->getChainId() == sourceProtocolInstance.getSchain()->getSchainID(),
                  "Invalid schain id in oracle spec:" + to_string(oracleResult->getChainId()));
+    CHECK_STATE(oracleResult->getTime() + ORACLE_TIMEOUT_MS > Time::getCurrentTimeMs())
+    CHECK_STATE(oracleResult->getTime()  < Time::getCurrentTimeMs() + ORACLE_FUTURE_JITTER_MS)
+
 }
 
 
@@ -63,6 +67,8 @@ OracleResponseMessage::OracleResponseMessage(string& _oracleResult, string& _rec
         _srcSchainIndex, _sChain->getCryptoManager()), oracleResultStr(_oracleResult), receipt(_receipt) {
     printPrefix = "r";
     oracleResult = OracleResult::parseResult(_oracleResult);
+    CHECK_STATE(oracleResult->getTime() + ORACLE_TIMEOUT_MS > Time::getCurrentTimeMs())
+    CHECK_STATE(oracleResult->getTime()  < Time::getCurrentTimeMs() + ORACLE_FUTURE_JITTER_MS)
 };
 
 

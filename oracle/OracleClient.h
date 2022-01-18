@@ -41,9 +41,6 @@ class OracleClient : public ProtocolInstance {
 
     string gethURL;
 
-
-    string waitForAnswer(ptr<OracleRequestBroadcastMessage> /*_msg*/ );
-
     uint64_t broadcastRequestAndReturnReceipt(ptr<OracleRequestBroadcastMessage> _msg, string& _receipt);
 
 

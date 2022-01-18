@@ -2,7 +2,6 @@
    
 The following two JSON-RPC calls impelemented by ```skaled``` agent provide access to Oracle.
 
-
 ## oracle_submitRequest
 
 This API call is used to submit Oracle request
@@ -114,6 +113,3 @@ result signed by ```t + 1``` nodes.
 This result can then be provided to a smartcontract.
 
 
-
-
-    

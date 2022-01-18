@@ -41,7 +41,7 @@ void OracleReceivedResults::insertIfDoesntExist(uint64_t _origin, string _unsign
 }
 
 uint64_t OracleReceivedResults::tryGettingResult(string &_result) {
-    if (getRequestTime() + ORACLE_QUEUE_TIMEOUT_MS < Time::getCurrentTimeMs())
+    if (getRequestTime() + ORACLE_TIMEOUT_MS < Time::getCurrentTimeMs())
         return ORACLE_TIMEOUT;
 
     LOCK(m)

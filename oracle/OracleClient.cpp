@@ -99,8 +99,9 @@ void OracleClient::sendTestRequestGet() {
                 exit(-7);
             }
 
-
-
+            if (st != ORACLE_RESULT_NOT_READY) {
+                return;
+            }
         }
     });
     t.detach();
