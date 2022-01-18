@@ -161,11 +161,11 @@ public:
     static ifstream urandom;
 
     void verifyThresholdSig(
-        ptr< ThresholdSignature > _signature, BLAKE3Hash& _hash, bool _forceMockup );
+        ptr< ThresholdSignature > _signature, BLAKE3Hash& _hash, bool _forceMockup, const TimeStamp& _ts = TimeStamp(uint64_t(-1), 0));
 
-    void  verifyBlockSig(ptr< ThresholdSignature > _signature,  BLAKE3Hash & _hash);
+    void  verifyBlockSig(ptr< ThresholdSignature > _signature,  BLAKE3Hash & _hash, const TimeStamp& _ts = TimeStamp(uint64_t(-1), 0));
 
-    void  verifyBlockSig(string& _signature,  block_id _blockId, BLAKE3Hash & _hash);
+    void  verifyBlockSig(string& _signature,  block_id _blockId, BLAKE3Hash & _hash, const TimeStamp& _ts = TimeStamp(uint64_t(-1), 0));
 
 
     static bool isRetryHappened();

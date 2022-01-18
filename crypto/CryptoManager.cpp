@@ -495,20 +495,20 @@ ptr<ThresholdSigShare> CryptoManager::signBlockSigShare(
 }
 
 void CryptoManager::verifyBlockSig(
-        ptr<ThresholdSignature> _signature, BLAKE3Hash &_hash) {
+        ptr<ThresholdSignature> _signature, BLAKE3Hash &_hash, const TimeStamp& _ts) {
     CHECK_STATE(_signature);
-    verifyThresholdSig(_signature, _hash, false);
+    verifyThresholdSig(_signature, _hash, false, _ts);
 }
 
 
 void CryptoManager::verifyBlockSig(
-        string &_sigStr, block_id _blockId, BLAKE3Hash &_hash) {
+        string &_sigStr, block_id _blockId, BLAKE3Hash &_hash, const TimeStamp& _ts) {
     if (getSchain()->getNode()->isSgxEnabled()) {
 
         auto _signature = make_shared<ConsensusBLSSignature>(_sigStr, _blockId,
                                                              totalSigners, requiredSigners);
 
-        verifyBlockSig(_signature, _hash);
+        verifyBlockSig(_signature, _hash, _ts);
     }
 }
 
@@ -599,7 +599,7 @@ ptr<ThresholdSigShare> CryptoManager::signSigShare(
 }
 
 void CryptoManager::verifyThresholdSig(
-        ptr<ThresholdSignature> _signature, BLAKE3Hash &_hash, bool _forceMockup) {
+        ptr<ThresholdSignature> _signature, BLAKE3Hash &_hash, bool _forceMockup, const TimeStamp& _ts) {
 
     CHECK_STATE(_signature);
 
@@ -611,7 +611,7 @@ void CryptoManager::verifyThresholdSig(
 
         CHECK_STATE(blsSig);
 
-        auto blsKey = getSgxBlsPublicKey( getSchain()->getBlock( _signature->getBlockId() )->getTimeStampS() );
+        auto blsKey = getSgxBlsPublicKey( _ts.getS() );
 
         auto libBlsSig = blsSig->getBlsSig();
 
