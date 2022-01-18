@@ -45,15 +45,9 @@ ConsensusExtFace::transactions_vector TestMessageGeneratorAgent::pendingTransact
 
     // test oracle for the first block
 
-    if (counter > 2) {
-        //getSchain()->getOracleClient()->sendTestRequestGet();
-        getSchain()->getOracleClient()->sendTestRequestPost();
-    }
-
     uint64_t  messageSize = 200;
 
     ConsensusExtFace::transactions_vector result;
-
 
     auto test = sChain->getBlockProposerTest();
 
@@ -81,6 +75,17 @@ ConsensusExtFace::transactions_vector TestMessageGeneratorAgent::pendingTransact
         counter++;
 
     }
+
+    static uint64_t iterations = 0;
+    // send oracle test once from schain index 1
+    if (iterations == 40) {
+        LOG(info, "Sending Oracle test");
+        getSchain()->getOracleClient()->sendTestRequestGet();
+        LOG(info, "Sent Oracle test");
+    }
+    iterations++;
+
+
 
     return result;
 

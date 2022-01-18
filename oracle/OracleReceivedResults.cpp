@@ -36,26 +36,27 @@ void OracleReceivedResults::insertIfDoesntExist(uint64_t _origin, string _unsign
         resultsByCount->insert({_unsignedResult, 1});
     } else {
         auto count = resultsByCount->at(_unsignedResult);
-        resultsByCount->insert({_unsignedResult, count + 1});
+        resultsByCount->insert_or_assign(_unsignedResult, count + 1);
     }
 }
 
 uint64_t OracleReceivedResults::tryGettingResult(string &_result) {
-    if (getRequestTime() + ORACLE_QUEUE_TIMEOUT_MS < Time::getCurrentTimeMs())
+    if (getRequestTime() + ORACLE_TIMEOUT_MS < Time::getCurrentTimeMs())
         return ORACLE_TIMEOUT;
 
     LOCK(m)
 
     for (auto &&item: *resultsByCount) {
         if (item.second >= requiredConfirmations) {
+            uint64_t  sigCount = 0;
             auto _unsignedResult = item.first;
             _unsignedResult.append("\"sigs\":[");
             for (uint64_t i = 1; i <= nodeCount; i++) {
-                if (signaturesBySchainIndex->count(i) > 0) {
+                if (signaturesBySchainIndex->count(i) > 0 && sigCount < requiredConfirmations) {
                     _unsignedResult.append("\"");
                     _unsignedResult.append(signaturesBySchainIndex->at(i));
                     _unsignedResult.append("\"");
-
+                    sigCount++;
                 } else {
                     _unsignedResult.append("null");
                 }

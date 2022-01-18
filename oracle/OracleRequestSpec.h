@@ -46,6 +46,8 @@ public:
 
     bool isGeth();
 
+    string getReceipt();
+
 };
 
 

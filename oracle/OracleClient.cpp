@@ -29,6 +29,7 @@
 #include "OracleResponseMessage.h"
 #include "utils/Time.h"
 #include "protocols/ProtocolInstance.h"
+#include "OracleRequestSpec.h"
 #include "OracleResult.h"
 #include "OracleReceivedResults.h"
 #include "OracleErrors.h"
@@ -50,7 +51,7 @@ uint64_t OracleClient::broadcastRequestAndReturnReceipt(ptr<OracleRequestBroadca
 
     CHECK_STATE(_msg)
     CHECK_STATE(sChain)
-    auto r = _msg->getHash().toHex();
+    auto r = _msg->getParsedSpec()->getReceipt();
 
 
     auto exists = receiptsMap.putIfDoesNotExist(r,
@@ -71,6 +72,7 @@ uint64_t OracleClient::broadcastRequestAndReturnReceipt(ptr<OracleRequestBroadca
 
 
 void OracleClient::sendTestRequestGet() {
+
     string _receipt;
 
     string cid = "\"cid\":" +
@@ -86,10 +88,33 @@ void OracleClient::sendTestRequestGet() {
 
     CHECK_STATE(status == ORACLE_SUCCESS);
 
-    string result;
-}
+
+    std::thread t([this, _receipt]() {
+        while (true) {
+            string result;
+            string r = _receipt;
+            sleep(3);
+            auto st = checkOracleResult(r, result);
+            cerr << "ORACLE_STATUS:" << st << endl;
+            if (st == ORACLE_SUCCESS) {
+                cerr << result << endl;
+                return;
+            }
+
+            if (st != ORACLE_RESULT_NOT_READY) {
+                return;
+            }
+        }
+    });
+    t.detach();
+};
 
 void OracleClient::sendTestRequestPost() {
+
+    if (getSchain()->getSchainIndex() != 1) {
+        return;
+    }
+
     string _receipt;
 
     string cid = "\"cid\":" +
@@ -102,6 +127,7 @@ void OracleClient::sendTestRequestPost() {
 
     string spec = "{" + cid + "," + uri + "," + jsps + "," + time + "," + pow +
             + "," + post + "}";
+
     auto status = submitOracleRequest(spec, _receipt);
 
     CHECK_STATE(status == ORACLE_SUCCESS);
@@ -119,12 +145,8 @@ uint64_t OracleClient::submitOracleRequest(string _spec, string &_receipt) {
 
 
 void OracleClient::processResponseMessage(const ptr<MessageEnvelope> &_me) {
-
-
     CHECK_STATE(_me);
-
     auto msg = dynamic_pointer_cast<OracleResponseMessage>(_me->getMessage());
-
 
     CHECK_STATE(msg);
 
@@ -149,7 +171,7 @@ void OracleClient::processResponseMessage(const ptr<MessageEnvelope> &_me) {
     receipts->insertIfDoesntExist(origin, unsignedResult, sig);
 
 
-    LOG(err, "Processing oracle message:" + to_string(origin));
+    LOG(info, "Processing oracle message:" + to_string(origin));
 
     string r;
 
