@@ -105,11 +105,38 @@ The client is supposed to wait 1 second and try again.
 1. ```receipt```, string - receipt, returned by a call to ```oracle_submitRequest``` 
 
 
-### Return
+### Oracle Result JSON String
 
 A JSON string ```ORACLE_RESULT``` is returned, which provides
 result signed by ```t + 1``` nodes.
 
-This result can then be provided to a smartcontract.
+This result can then be provided to a smartcontract for verification.
 
+### Oracle Result JSON elements
+
+Oracle result repeats JSON elements from the corresponding
+Oracle request spec, plus includes a set of additional elements
+
+1. ```rslts ``` - array of string results
+2. ```sigs``` - array of ECDSA signatures where ```t``` signatures are not null.
+
+
+### Oracle Result Example 
+
+An example of Oracle result is provided below
+
+```
+{"cid":1,
+ "uri":"http://worldtimeapi.org/api/timezone/Europe/Kiev",
+  "jsps":["/unixtime", "/day_of_year", "/xxx"],
+  "trims":[1,1,1],"time":1642521456593,
+  "rslts":["164252145","1",null],
+   "sigs":["6d50daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f",
+           "7d50daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f",
+           "8d50daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f",
+           "9d50daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f",
+           "1050daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f",
+           "6d50daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f",
+          null,null,null,null,null,null,null,null,null,null]}
+```
 

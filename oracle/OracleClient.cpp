@@ -73,8 +73,6 @@ uint64_t OracleClient::broadcastRequestAndReturnReceipt(ptr<OracleRequestBroadca
 
 void OracleClient::sendTestRequestGet() {
 
-
-
     string _receipt;
 
     string cid = "\"cid\":" +
@@ -98,7 +96,6 @@ void OracleClient::sendTestRequestGet() {
             sleep(3);
             auto st = checkOracleResult(r, result);
             cerr << "ORACLE_STATUS:" << st << endl;
-            exit (-7);
             if (st == ORACLE_SUCCESS) {
                 cerr << result << endl;
                 return;
