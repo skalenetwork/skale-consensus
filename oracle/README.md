@@ -89,7 +89,7 @@ Here is an example of a receipt:
 ee188f09d94848ec07644e45bba4934d412f0bef7fa61a299e0b5fe3b2b703ec
 ```
 
-## oracle_submitRequest
+## oracle_checkResult
 
 Check if Oracle result has been derived. By default the result is signed
 by ```t+1``` nodes, where ```t``` is the max number of untruthful nodes.
