@@ -36,6 +36,8 @@ void OracleReceivedResults::insertIfDoesntExist(uint64_t _origin, string _unsign
         resultsByCount->insert({_unsignedResult, 1});
     } else {
         auto count = resultsByCount->at(_unsignedResult);
+        cerr << resultsByCount;
+        cerr << "COUNT!:" << count << endl;
         resultsByCount->insert({_unsignedResult, count + 1});
     }
 }

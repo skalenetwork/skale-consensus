@@ -72,6 +72,9 @@ uint64_t OracleClient::broadcastRequestAndReturnReceipt(ptr<OracleRequestBroadca
 
 
 void OracleClient::sendTestRequestGet() {
+
+
+
     string _receipt;
 
     string cid = "\"cid\":" +
@@ -110,6 +113,11 @@ void OracleClient::sendTestRequestGet() {
 };
 
 void OracleClient::sendTestRequestPost() {
+
+    if (getSchain()->getSchainIndex() != 1) {
+        return;
+    }
+
     string _receipt;
 
     string cid = "\"cid\":" +
