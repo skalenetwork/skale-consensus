@@ -9,6 +9,7 @@
 #include "SkaleCommon.h"
 #include "Log.h"
 
+#include "crypto/CryptoManager.h"
 #include "headers/BasicHeader.h"
 
 #include "OracleRequestSpec.h"
@@ -146,4 +147,8 @@ const string &OracleRequestSpec::getPostStr() const {
 
 bool OracleRequestSpec::isGeth() {
     return (uri.find("geth://") == 0);
+}
+
+string OracleRequestSpec::getReceipt() {
+    return CryptoManager::hashForOracle(spec);
 }

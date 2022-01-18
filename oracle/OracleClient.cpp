@@ -29,6 +29,7 @@
 #include "OracleResponseMessage.h"
 #include "utils/Time.h"
 #include "protocols/ProtocolInstance.h"
+#include "OracleRequestSpec.h"
 #include "OracleResult.h"
 #include "OracleReceivedResults.h"
 #include "OracleErrors.h"
@@ -50,7 +51,7 @@ uint64_t OracleClient::broadcastRequestAndReturnReceipt(ptr<OracleRequestBroadca
 
     CHECK_STATE(_msg)
     CHECK_STATE(sChain)
-    auto r = _msg->getHash().toHex();
+    auto r = _msg->getParsedSpec()->getReceipt();
 
 
     auto exists = receiptsMap.putIfDoesNotExist(r,
@@ -91,12 +92,13 @@ void OracleClient::sendTestRequestGet() {
         while (true) {
             string result;
             string r = _receipt;
-            sleep(1);
+            sleep(3);
             auto st = checkOracleResult(r, result);
             cerr << "ORACLE_STATUS:" << st << endl;
+            exit (-7);
             if (st == ORACLE_SUCCESS) {
                 cerr << result << endl;
-                exit(-7);
+                return;
             }
 
             if (st != ORACLE_RESULT_NOT_READY) {
@@ -164,7 +166,7 @@ void OracleClient::processResponseMessage(const ptr<MessageEnvelope> &_me) {
     receipts->insertIfDoesntExist(origin, unsignedResult, sig);
 
 
-    LOG(err, "Processing oracle message:" + to_string(origin));
+    LOG(info, "Processing oracle message:" + to_string(origin));
 
     string r;
 

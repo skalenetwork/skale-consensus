@@ -67,6 +67,7 @@
 
 #include "OracleClient.h"
 #include "OracleRequestBroadcastMessage.h"
+#include "OracleRequestSpec.h"
 #include "OracleResponseMessage.h"
 #include "OracleErrors.h"
 #include "OracleServerAgent.h"
@@ -250,7 +251,7 @@ ptr<OracleResponseMessage> OracleServerAgent::doEndpointRequestResponse(ptr<Orac
 
     cerr << resultStr << endl;
 
-    string receipt = _request->getHash().toHex();
+    string receipt = _request->getParsedSpec()->getReceipt();
 
     return make_shared<OracleResponseMessage>(resultStr,
                                               receipt,

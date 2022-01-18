@@ -380,24 +380,17 @@ string CryptoManager::sign(BLAKE3Hash &_hash) {
 
 string CryptoManager::signOracleResult(string _text) {
 
-    CryptoPP::SHA3_256 hash;
-    string digest;
     string result;
 
-    hash.Update((const CryptoPP::byte*) _text.data(), _text.size());
-    digest.resize(hash.DigestSize());
-    hash.Final((CryptoPP::byte*)&digest[0]);
-
-    auto hexStr = Utils::carray2Hex((const uint8_t*)digest.data(),
-                                    HASH_LEN);
+    auto hashStr = hashForOracle(_text);
 
     if (isSGXEnabled) {
         CHECK_STATE(sgxECDSAKeyName != "")
         result = zmqClient->ecdsaSignMessageHash(16,
                                                  sgxECDSAKeyName,
-                                                 hexStr, true);
+                                                 hashStr, true);
     } else {
-        result = hexStr;
+        result = hashStr;
     }
 
 
@@ -405,8 +398,18 @@ string CryptoManager::signOracleResult(string _text) {
 
 }
 
+string CryptoManager::hashForOracle(string &_text)  {
+
+    CryptoPP::SHA3_256 hash;
+    string digest;
 
 
+    hash.Update((const CryptoPP::byte *) _text.data(), _text.size());
+    digest.resize(hash.DigestSize());
+    hash.Final((CryptoPP::byte *) &digest[0]);
+
+    return Utils::carray2Hex((const uint8_t *) digest.data(), HASH_LEN);
+}
 
 
 tuple<string, string, string> CryptoManager::sessionSign(
