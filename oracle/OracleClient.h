@@ -44,14 +44,17 @@ class OracleClient : public ProtocolInstance {
 
     string waitForAnswer(ptr<OracleRequestBroadcastMessage> /*_msg*/ );
 
-    uint64_t  tryGettingOracleResult(string& _receipt, string& _result);
+    uint64_t broadcastRequestAndReturnReceipt(ptr<OracleRequestBroadcastMessage> _msg, string& _receipt);
+
+
 
 public:
+
     explicit OracleClient(Schain& _sChain);
 
-    uint64_t runOracleRequest(string _spec, string &_receipt);
+    uint64_t  checkOracleResult(string& _receipt, string& _result);
 
-    uint64_t broadcastRequestAndReturnReceipt(ptr<OracleRequestBroadcastMessage> _msg, string& _receipt);
+    uint64_t submitOracleRequest(string _spec, string &_receipt);
 
     void sendTestRequestGet();
 

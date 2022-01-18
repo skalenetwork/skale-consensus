@@ -69,9 +69,6 @@ uint64_t OracleClient::broadcastRequestAndReturnReceipt(ptr<OracleRequestBroadca
     return ORACLE_SUCCESS;
 }
 
-string OracleClient::waitForAnswer(ptr<OracleRequestBroadcastMessage> /*_msg*/) {
-    return "{\"result\":\"hihi\"}";
-}
 
 void OracleClient::sendTestRequestGet() {
     string _receipt;
@@ -85,7 +82,7 @@ void OracleClient::sendTestRequestGet() {
     string pow = "\"pow\":" + string("\"0x0000\"");
 
     string spec = "{" + cid + "," + uri + "," + jsps + "," + trims + "," + time + "," + pow + "}";
-    auto status = runOracleRequest(spec, _receipt);
+    auto status = submitOracleRequest(spec, _receipt);
 
     CHECK_STATE(status == ORACLE_SUCCESS);
 
@@ -105,7 +102,7 @@ void OracleClient::sendTestRequestPost() {
 
     string spec = "{" + cid + "," + uri + "," + jsps + "," + time + "," + pow +
             + "," + post + "}";
-    auto status = runOracleRequest(spec, _receipt);
+    auto status = submitOracleRequest(spec, _receipt);
 
     CHECK_STATE(status == ORACLE_SUCCESS);
 
@@ -113,7 +110,7 @@ void OracleClient::sendTestRequestPost() {
 }
 
 
-uint64_t OracleClient::runOracleRequest(string _spec, string &_receipt) {
+uint64_t OracleClient::submitOracleRequest(string _spec, string &_receipt) {
     auto msg = make_shared<OracleRequestBroadcastMessage>(_spec, sChain->getLastCommittedBlockID(),
                                                           Time::getCurrentTimeMs(),
                                                           *sChain->getOracleClient());
@@ -161,7 +158,7 @@ void OracleClient::processResponseMessage(const ptr<MessageEnvelope> &_me) {
 }
 
 
-uint64_t OracleClient::tryGettingOracleResult(string &_receipt,
+uint64_t OracleClient::checkOracleResult(string &_receipt,
                                               string &_result) {
     auto oracleReceivedResults = receiptsMap.getIfExists(_receipt);
 
