@@ -102,10 +102,10 @@ void OracleServerAgent::routeAndProcessMessage(const ptr<MessageEnvelope> &_me) 
 
     CHECK_ARGUMENT(_me->getMessage()->getBlockId() > 0);
 
-    CHECK_STATE(_me->getMessage()->getMessageType() == MSG_ORACLE_REQ_BROADCAST ||
-                _me->getMessage()->getMessageType() == MSG_ORACLE_RSP);
+    CHECK_STATE(_me->getMessage()->getMsgType() == MSG_ORACLE_REQ_BROADCAST ||
+                _me->getMessage()->getMsgType() == MSG_ORACLE_RSP);
 
-    if (_me->getMessage()->getMessageType() == MSG_ORACLE_REQ_BROADCAST) {
+    if (_me->getMessage()->getMsgType() == MSG_ORACLE_REQ_BROADCAST) {
 
         auto value = requestCounter.fetch_add(1);
 

@@ -79,7 +79,7 @@ void BinConsensusInstance::processMessage(const ptr<MessageEnvelope>& _me ) {
     CHECK_STATE(msg->getBlockID() == getBlockID());
     CHECK_STATE(msg->getBlockProposerIndex() == getBlockProposerIndex());
 
-    auto msgType = _me->getMessage()->getMessageType();
+    auto msgType = _me->getMessage()->getMsgType();
 
     auto msgOrigin = _me->getOrigin();
 
@@ -124,7 +124,7 @@ void BinConsensusInstance::processNetworkMessageImpl(const ptr<NetworkMessageEnv
 
     CHECK_STATE2(round <= getCurrentRound() + 1, to_string(round) + ":" +
     to_string(getCurrentRound()) + ":" + to_string(getBlockID())) ;
-    if (_me->getMessage()->getMessageType() == MSG_BVB_BROADCAST) {
+    if (_me->getMessage()->getMsgType() == MSG_BVB_BROADCAST) {
         auto m = dynamic_pointer_cast<BVBroadcastMessage>(_me->getMessage());
         CHECK_STATE(m);
         if (! bvbVote(_me)) {
@@ -134,7 +134,7 @@ void BinConsensusInstance::processNetworkMessageImpl(const ptr<NetworkMessageEnv
         networkBroadcastValueIfThird(m);
         ifAlreadyDecidedSendDelayedEstimateForNextRound(m->getRound());
         addToBinValuesIfTwoThirds(m);
-    } else if (_me->getMessage()->getMessageType() == MSG_AUX_BROADCAST) {
+    } else if (_me->getMessage()->getMsgType() == MSG_AUX_BROADCAST) {
         auto m = dynamic_pointer_cast<AUXBroadcastMessage>(_me->getMessage());
         CHECK_STATE(m);
         if (!auxVote(_me)) {
