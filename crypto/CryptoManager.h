@@ -106,6 +106,8 @@ class CryptoManager {
 
     ptr< vector< string > > sgxECDSAPublicKeys;  // tsafe
 
+    ptr< map< uint64_t, ptr< BLSPublicKey > > > previousBlsPublicKeys;
+
     uint64_t totalSigners;
     uint64_t requiredSigners;
 
@@ -159,11 +161,11 @@ public:
     static ifstream urandom;
 
     void verifyThresholdSig(
-        ptr< ThresholdSignature > _signature, BLAKE3Hash& _hash, bool _forceMockup );
+        ptr< ThresholdSignature > _signature, BLAKE3Hash& _hash, bool _forceMockup, const TimeStamp& _ts = TimeStamp(uint64_t(-1), 0));
 
-    void  verifyBlockSig(ptr< ThresholdSignature > _signature,  BLAKE3Hash & _hash);
+    void  verifyBlockSig(ptr< ThresholdSignature > _signature,  BLAKE3Hash & _hash, const TimeStamp& _ts = TimeStamp(uint64_t(-1), 0));
 
-    void  verifyBlockSig(string& _signature,  block_id _blockId, BLAKE3Hash & _hash);
+    void  verifyBlockSig(string& _signature,  block_id _blockId, BLAKE3Hash & _hash, const TimeStamp& _ts = TimeStamp(uint64_t(-1), 0));
 
 
     static bool isRetryHappened();
@@ -234,7 +236,7 @@ public:
         BLAKE3Hash & _hash, const string& _sig, const string& _publicKey );
 
 
-    ptr< BLSPublicKey > getSgxBlsPublicKey();
+    pair<ptr< BLSPublicKey >, ptr< BLSPublicKey >> getSgxBlsPublicKey( uint64_t _timestamp = 0 );
 
     string getSgxBlsKeyName();
 
