@@ -67,7 +67,8 @@ ptr< Node > JSONFactory::createNodeFromTestJsonFile(
     const string& _ecdsaKeyName,
     const ptr< vector<string> >& _ecdsaPublicKeys, const string& _blsKeyName,
     const ptr< vector< ptr< vector<string>>>>& _blsPublicKeys,
-    const ptr< BLSPublicKey >& _blsPublicKey ) {
+    const ptr< BLSPublicKey >& _blsPublicKey,
+    const ptr< map< uint64_t, ptr< BLSPublicKey > > >& _previousBlsPublicKeys ) {
 
     string sgxUrl = "";
 
@@ -95,7 +96,7 @@ ptr< Node > JSONFactory::createNodeFromTestJsonFile(
             _sgxSSLCertFileFullPath,
             _ecdsaKeyName, _ecdsaPublicKeys,
             _blsKeyName, _blsPublicKeys,
-            _blsPublicKey, gethURL);
+            _blsPublicKey, gethURL, _previousBlsPublicKeys);
     } catch ( ... ) {
         throw_with_nested( FatalError( __FUNCTION__ + to_string( __LINE__ ), __CLASS_NAME__ ) );
     }
@@ -109,7 +110,8 @@ ptr< Node > JSONFactory::createNodeFromJsonObject( const nlohmann::json& _j, set
     const string& _sgxSSLCertFileFullPath,
     const string& _ecdsaKeyName, const ptr< vector<string> >& _ecdsaPublicKeys,
     const string& _blsKeyName, const ptr< vector< ptr< vector<string>>>>& _blsPublicKeys,
-    const ptr<  BLSPublicKey  >& _blsPublicKey, string& _gethURL ) {
+    const ptr<  BLSPublicKey  >& _blsPublicKey, string& _gethURL,
+    const ptr< map< uint64_t, ptr< BLSPublicKey > > >& _previousBlsPublicKeys ) {
 
 
 
@@ -130,6 +132,7 @@ ptr< Node > JSONFactory::createNodeFromJsonObject( const nlohmann::json& _j, set
         CHECK_ARGUMENT( !_ecdsaKeyName.empty() && _ecdsaPublicKeys );
         CHECK_ARGUMENT( !_blsKeyName.empty() && _blsPublicKeys );
         CHECK_ARGUMENT( _blsPublicKey);
+        CHECK_ARGUMENT( _previousBlsPublicKeys);
         CHECK_STATE(JSONFactory::splitString(_ecdsaKeyName)->size() == 2);
         CHECK_STATE(JSONFactory::splitString(_blsKeyName)->size() == 7);
     }
@@ -154,7 +157,7 @@ ptr< Node > JSONFactory::createNodeFromJsonObject( const nlohmann::json& _j, set
                 sgxSSLKeyFileFullPathCopy,
                 sgxSSLCertFileFullPathCopy,
                 _ecdsaKeyName, _ecdsaPublicKeys,
-                _blsKeyName, _blsPublicKeys, _blsPublicKey, _gethURL);
+                _blsKeyName, _blsPublicKeys, _blsPublicKey, _gethURL, _previousBlsPublicKeys);
         } catch ( ... ) {
             throw_with_nested( FatalError( "Could not init node", __CLASS_NAME__ ) );
         }

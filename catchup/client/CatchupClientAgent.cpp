@@ -247,7 +247,7 @@ ptr< CommittedBlockList > CatchupClientAgent::readMissingBlocks(
                                              (uint64_t ) item->getBlockID(),
                                              (uint64_t ) item->getSchainID());
         getSchain()->getCryptoManager()->verifyBlockSig(sig, item->getBlockID(),
-            hash);
+            hash, item->getTimeStamp());
     }
 
     return blockList;

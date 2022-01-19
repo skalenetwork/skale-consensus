@@ -65,7 +65,8 @@
 
 #include "ConsensusEdDSASigShare.h"
 #include "bls/BLSPrivateKeyShare.h"
-#include "datastructures/BlockProposal.h"
+// #include "datastructures/BlockProposal.h"
+#include "datastructures/CommittedBlock.h"
 #include "monitoring/LivelinessMonitor.h"
 #include "node/Node.h"
 #include "node/NodeInfo.h"
@@ -103,9 +104,26 @@ void CryptoManager::initSGXClient() {
     }
 }
 
-ptr<BLSPublicKey> CryptoManager::getSgxBlsPublicKey() {
-    CHECK_STATE(sgxBLSPublicKey)
-    return sgxBLSPublicKey;
+pair<ptr< BLSPublicKey >, ptr< BLSPublicKey >> CryptoManager::getSgxBlsPublicKey( uint64_t _timestamp ) {
+    if ( _timestamp == uint64_t( -1 ) || previousBlsPublicKeys->size() < 2 ) {
+        CHECK_STATE(sgxBLSPublicKey)
+        return {sgxBLSPublicKey, nullptr};
+    } else {
+        // second key is used when the sig corresponds
+        // to the last block before node rotation!
+        // in this case we use the key for the group before
+        
+        // could not return iterator to end()
+        // because finish ts for the current group equals uint64_t(-1)
+        auto it = previousBlsPublicKeys->upper_bound( _timestamp );
+
+        if ( it == previousBlsPublicKeys->begin() ) {
+            // if begin() then no previous groups for this key
+            return {(*it).second, nullptr};
+        }
+
+        return {(*it).second, (*(--it)).second};
+    }
 }
 
 string CryptoManager::getSgxBlsKeyName() {
@@ -200,6 +218,7 @@ CryptoManager::CryptoManager(Schain &_sChain)
         sgxBlsKeyName = node->getBlsKeyName();
         sgxBLSPublicKeys = node->getBlsPublicKeys();
         sgxBLSPublicKey = node->getBlsPublicKey();
+        previousBlsPublicKeys = node->getPreviousBLSPublicKeys();
         tie(sgxDomainName, sgxPort) = parseSGXDomainAndPort(sgxURL);
 
         CHECK_STATE(sgxURL != "");
@@ -522,20 +541,20 @@ ptr<ThresholdSigShare> CryptoManager::signBlockSigShare(
 }
 
 void CryptoManager::verifyBlockSig(
-        ptr<ThresholdSignature> _signature, BLAKE3Hash &_hash) {
+        ptr<ThresholdSignature> _signature, BLAKE3Hash &_hash, const TimeStamp& _ts) {
     CHECK_STATE(_signature);
-    verifyThresholdSig(_signature, _hash, false);
+    verifyThresholdSig(_signature, _hash, false, _ts);
 }
 
 
 void CryptoManager::verifyBlockSig(
-        string &_sigStr, block_id _blockId, BLAKE3Hash &_hash) {
+        string &_sigStr, block_id _blockId, BLAKE3Hash &_hash, const TimeStamp& _ts) {
     if (getSchain()->getNode()->isSgxEnabled()) {
 
         auto _signature = make_shared<ConsensusBLSSignature>(_sigStr, _blockId,
                                                              totalSigners, requiredSigners);
 
-        verifyBlockSig(_signature, _hash);
+        verifyBlockSig(_signature, _hash, _ts);
     }
 }
 
@@ -625,9 +644,8 @@ ptr<ThresholdSigShare> CryptoManager::signSigShare(
     return result;
 }
 
-
 void CryptoManager::verifyThresholdSig(
-        ptr<ThresholdSignature> _signature, BLAKE3Hash &_hash, bool _forceMockup) {
+        ptr<ThresholdSignature> _signature, BLAKE3Hash &_hash, bool _forceMockup, const TimeStamp& _ts) {
 
     CHECK_STATE(_signature);
 
@@ -639,13 +657,19 @@ void CryptoManager::verifyThresholdSig(
 
         CHECK_STATE(blsSig);
 
-        auto blsKey = getSgxBlsPublicKey();
+        auto blsKeys = getSgxBlsPublicKey( _ts.getS() );
 
         auto libBlsSig = blsSig->getBlsSig();
 
-        CHECK_STATE(blsKey->VerifySig(
-            make_shared<array<uint8_t, HASH_LEN>>(_hash.getHash()),
-            libBlsSig ));
+        if ( !blsKeys.first->VerifySig( make_shared<array<uint8_t, HASH_LEN>>(_hash.getHash()), libBlsSig ) ) {
+            // second key is used when the sig corresponds
+            // to the last block before node rotation!
+            // in this case we use the key for the group before
+            CHECK_STATE(blsKeys.second);
+            CHECK_STATE(blsKeys.second->VerifySig(
+                make_shared<array<uint8_t, HASH_LEN>>(_hash.getHash()),
+                libBlsSig ));
+        }
 
     } else {
         // mockups sigs are not verified
