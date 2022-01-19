@@ -30,6 +30,8 @@ public:
 
     const string &getSpec() const;
 
+    const string getSpecWithoutPow() const;
+
     const string &getUri() const;
 
     uint64_t getTime() const;
@@ -47,6 +49,8 @@ public:
     bool isGeth();
 
     string getReceipt();
+
+    bool verifyEnoughGas();
 
 };
 
