@@ -422,17 +422,17 @@ bls-format-check/fast:
 .PHONY : bls-format-check/fast
 
 #=============================================================================
-# Target rules for targets named te_test
+# Target rules for targets named te_sample_sgx
 
 # Build rule for target.
-te_test: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 te_test
-.PHONY : te_test
+te_sample_sgx: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 te_sample_sgx
+.PHONY : te_sample_sgx
 
 # fast build rule for target.
-te_test/fast:
-	$(MAKE) $(MAKESILENT) -f libBLS/threshold_encryption/CMakeFiles/te_test.dir/build.make libBLS/threshold_encryption/CMakeFiles/te_test.dir/build
-.PHONY : te_test/fast
+te_sample_sgx/fast:
+	$(MAKE) $(MAKESILENT) -f libBLS/threshold_encryption/CMakeFiles/te_sample_sgx.dir/build.make libBLS/threshold_encryption/CMakeFiles/te_sample_sgx.dir/build
+.PHONY : te_sample_sgx/fast
 
 #=============================================================================
 # Target rules for targets named te_unit_test
@@ -446,6 +446,19 @@ te_unit_test: cmake_check_build_system
 te_unit_test/fast:
 	$(MAKE) $(MAKESILENT) -f libBLS/threshold_encryption/CMakeFiles/te_unit_test.dir/build.make libBLS/threshold_encryption/CMakeFiles/te_unit_test.dir/build
 .PHONY : te_unit_test/fast
+
+#=============================================================================
+# Target rules for targets named te_test
+
+# Build rule for target.
+te_test: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 te_test
+.PHONY : te_test
+
+# fast build rule for target.
+te_test/fast:
+	$(MAKE) $(MAKESILENT) -f libBLS/threshold_encryption/CMakeFiles/te_test.dir/build.make libBLS/threshold_encryption/CMakeFiles/te_test.dir/build
+.PHONY : te_test/fast
 
 #=============================================================================
 # Target rules for targets named te
@@ -4783,6 +4796,7 @@ help:
 	@echo "... hash_g1"
 	@echo "... sign_bls"
 	@echo "... te"
+	@echo "... te_sample_sgx"
 	@echo "... te_test"
 	@echo "... te_unit_test"
 	@echo "... utils_unit_test"

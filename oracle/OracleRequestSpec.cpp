@@ -24,7 +24,6 @@ OracleRequestSpec::OracleRequestSpec(string &_spec) : spec(_spec) {
     d.Parse(spec.data());
     CHECK_STATE2(!d.HasParseError(), "Unparsable Oracle spec:" + _spec);
 
-
     CHECK_STATE2(d.HasMember("cid"), "No chainid in Oracle spec:" + _spec);
 
     CHECK_STATE2(d["cid"].IsUint64(), "ChainId in Oracle spec is not uint64_t" + _spec);
@@ -53,11 +52,9 @@ OracleRequestSpec::OracleRequestSpec(string &_spec) : spec(_spec) {
 
     CHECK_STATE2(d.HasMember("pow"), "No  pow in Oracle spec:" + _spec);
 
-    CHECK_STATE2(d["pow"].IsString(), "Pow in Oracle spec is not string:" + _spec);
+    CHECK_STATE2(d["pow"].IsUint64(), "Pow in Oracle spec is not uint64:" + _spec);
 
-    pow = d["pow"].GetString();
-
-    CHECK_STATE(pow.size() > 4);
+    pow = d["pow"].GetUint64();
 
     auto array = d["jsps"].GetArray();
 
@@ -112,16 +109,6 @@ const string &OracleRequestSpec::getSpec() const {
     return spec;
 }
 
-const string OracleRequestSpec::getSpecWithoutPow() const {
-    auto commaPosition = spec.find_last_of(",");
-    CHECK_STATE(commaPosition != string::npos);
-    auto res = spec.substr(0, commaPosition + 1);
-    return res;
-}
-
-
-
-
 const string &OracleRequestSpec::getUri() const {
     return uri;
 }
@@ -131,7 +118,7 @@ uint64_t OracleRequestSpec::getTime() const {
     return time;
 }
 
-const string &OracleRequestSpec::getPow() const {
+const uint64_t &OracleRequestSpec::getPow() const {
     return pow;
 }
 
@@ -165,13 +152,11 @@ string OracleRequestSpec::getReceipt() {
 
 
 
-bool OracleRequestSpec::verifyEnoughGas() {
+bool OracleRequestSpec::verifyPow() {
 
     try {
 
-        auto specWithoutPow = getSpecWithoutPow();
-
-        auto hash = CryptoManager::hashForOracle(specWithoutPow);
+        auto hash = CryptoManager::hashForOracle(spec);
 
         u256 binaryHash("0x" + hash);
 

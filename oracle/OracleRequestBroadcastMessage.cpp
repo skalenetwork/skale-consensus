@@ -52,7 +52,7 @@ OracleRequestBroadcastMessage::OracleRequestBroadcastMessage(string& _requestSpe
 
     CHECK_STATE(parsedSpec->getTime() + ORACLE_TIMEOUT_MS > Time::getCurrentTimeMs())
     CHECK_STATE(parsedSpec->getTime()  < Time::getCurrentTimeMs() + ORACLE_FUTURE_JITTER_MS)
-    parsedSpec->verifyEnoughGas();
+    parsedSpec->verifyPow();
 }
 
 
@@ -74,7 +74,7 @@ OracleRequestBroadcastMessage::OracleRequestBroadcastMessage(string& _requestSpe
                  "Invalid schain id in oracle spec:" + to_string(_schainId));
     CHECK_STATE(parsedSpec->getTime() + ORACLE_TIMEOUT_MS > Time::getCurrentTimeMs())
     CHECK_STATE(parsedSpec->getTime()  < Time::getCurrentTimeMs() + ORACLE_FUTURE_JITTER_MS)
-    parsedSpec->verifyEnoughGas();
+    parsedSpec->verifyPow();
 }
 
 void OracleRequestBroadcastMessage::updateWithChildHash(blake3_hasher& _hasher) {

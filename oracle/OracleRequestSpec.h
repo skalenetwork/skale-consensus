@@ -15,7 +15,7 @@ class OracleRequestSpec {
     vector<string> jsps;
     vector<uint64_t> trims;
     uint64_t time;
-    string pow;
+    uint64_t pow;
     bool isPost = false;
     string postStr = "";
 
@@ -30,13 +30,11 @@ public:
 
     const string &getSpec() const;
 
-    const string getSpecWithoutPow() const;
-
     const string &getUri() const;
 
     uint64_t getTime() const;
 
-    const string &getPow() const;
+    const uint64_t &getPow() const;
 
     OracleRequestSpec(string& _spec);
 
@@ -50,7 +48,7 @@ public:
 
     string getReceipt();
 
-    bool verifyEnoughGas();
+    bool verifyPow();
 
 };
 

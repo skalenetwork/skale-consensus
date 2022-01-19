@@ -43,7 +43,7 @@ HTTP post request that posts some data to endpoint
     "trims":[1,1,1],
     "time":9234567, 
      "post":"some_data",
-     "pow":"0x0000"}
+     "pow":1735}
 ```
 
 ### Parameters JSON elements description
@@ -53,8 +53,8 @@ Required elements:
 1. ```cid```, uint64 - chain ID
 2. ```uri```, string - Oracle endpoint (http or https)
 3. ```time```, uint64 - Linux time of request in ms
-4. ```pow```, string - pow string - can be any string for now since pow is not yet implemented
-5. ```jsps```, array of strings - list of JSON pointer to the data elements to be picked from server response.
+4. ```jsps```, array of strings - list of JSON pointer to the data elements to be picked from server response.
+5. ```pow```, string - uint64 proof of work that is used to protect against denial of service attacks 
 
 Please see https://json.nlohmann.me/features/json_pointer/ for intro to
 JSON pointers.
@@ -88,6 +88,37 @@ Here is an example of a receipt:
 ```
 ee188f09d94848ec07644e45bba4934d412f0bef7fa61a299e0b5fe3b2b703ec
 ```
+
+
+### Proof of work
+
+The proof of work is an integer value that is selected by
+iterating from 0 until the following pseudocode returns true
+
+```c++
+bool verifyPow() {
+   auto hash = SHA3_256(specString);
+   return ~u256(0) / hash > u256(10000);
+}
+```
+
+Here ~ is bitwise NOT and u256 is unsigned 256 bit number. 
+
+### Geth 
+
+To get information from SKALE network geth servers, one need to 
+use ```geth://``` in URI".
+
+The following JSON-RPC endpoint are available in the first release:
+
+```
+geth://eth_call
+geth://eth_gasPrice
+geth://eth_blockNumber
+geth://eth_getBlockByNumber
+geth://eth_getBlockByHash
+```
+
 
 ## oracle_checkResult
 
