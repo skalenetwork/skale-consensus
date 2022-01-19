@@ -32,7 +32,7 @@ class ConsensusEngine;
 
 class JSONFactory {
 public:
-    static ptr< Node > createNodeFromJsonFile(const string& _sgxUrl, const fs_path& jsonFile, set< node_id >& nodeIDs,
+    static ptr< Node > createNodeFromTestJsonFile(const string& _sgxUrl, const fs_path& jsonFile, set< node_id >& nodeIDs,
         ConsensusEngine* _consensusEngine, bool _useSGX, const string& _sgxSSLKeyFileFullPath,
         const string& _sgxSSLCertFileFullPath, const string& _ecdsaKeyName,
                                               const ptr< vector<string> >& _ecdsaPublicKeys, const string& _blsKeyName,
