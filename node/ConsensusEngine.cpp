@@ -232,7 +232,7 @@ void ConsensusEngine::log(
 }
 
 
-void ConsensusEngine::parseFullConfigAndCreateNode(const string &configFileContents, string& _gethURL) {
+void ConsensusEngine::parseFullConfigAndCreateNode(const string &configFileContents, const string& _gethURL) {
     try {
         nlohmann::json j = nlohmann::json::parse(configFileContents);
 
@@ -240,12 +240,14 @@ void ConsensusEngine::parseFullConfigAndCreateNode(const string &configFileConte
 
         ptr<Node> node = nullptr;
 
+        string gethURL = _gethURL;
+
         if (this->isSGXEnabled) {
             node = JSONFactory::createNodeFromJsonObject(j["skaleConfig"]["nodeInfo"], dummy, this,
                                                          true, sgxServerUrl, sgxSSLKeyFileFullPath,
                                                          sgxSSLCertFileFullPath,
                                                          getEcdsaKeyName(), ecdsaPublicKeys, getBlsKeyName(),
-                                                         blsPublicKeys, blsPublicKey, _gethURL, previousBlsPublicKeys);
+                                                         blsPublicKeys, blsPublicKey, gethURL, previousBlsPublicKeys);
         } else {
             node = JSONFactory::createNodeFromJsonObject(j["skaleConfig"]["nodeInfo"], dummy, this,
                                                          false, "", "", "", "", nullptr, "", nullptr, nullptr, _gethURL, nullptr);

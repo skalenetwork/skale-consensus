@@ -411,7 +411,7 @@ JSONFactory::parseTestKeyNamesFromJson(const string& _sgxServerURL, const fs_pat
 
             auto element = fourPieces[(int) k];
             CHECK_STATE(element)
-            CHECK_STATE(element.is<string>())
+            CHECK_STATE(element.isString())
 
             string  keyPiece;
             keyPiece += element.asString();
