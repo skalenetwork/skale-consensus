@@ -112,6 +112,16 @@ const string &OracleRequestSpec::getSpec() const {
     return spec;
 }
 
+const string OracleRequestSpec::getSpecWithoutPow() const {
+    auto commaPosition = spec.find_last_of(",");
+    CHECK_STATE(commaPosition != string::npos);
+    auto res = spec.substr(0, commaPosition + 1);
+    return res;
+}
+
+
+
+
 const string &OracleRequestSpec::getUri() const {
     return uri;
 }
@@ -152,3 +162,18 @@ bool OracleRequestSpec::isGeth() {
 string OracleRequestSpec::getReceipt() {
     return CryptoManager::hashForOracle(spec);
 }
+
+
+
+bool OracleRequestSpec::verifyEnoughGas() {
+
+    auto specWithoutPow = getSpecWithoutPow();
+
+    auto hash = CryptoManager::hashForOracle(specWithoutPow);
+
+    u256 binaryHash(hash);
+
+    return  ~u256( 0 ) / binaryHash > u256(1000);
+}
+
+
