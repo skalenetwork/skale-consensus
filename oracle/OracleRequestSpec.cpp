@@ -167,13 +167,23 @@ string OracleRequestSpec::getReceipt() {
 
 bool OracleRequestSpec::verifyEnoughGas() {
 
-    auto specWithoutPow = getSpecWithoutPow();
+    try {
 
-    auto hash = CryptoManager::hashForOracle(specWithoutPow);
+        auto specWithoutPow = getSpecWithoutPow();
 
-    u256 binaryHash(hash);
+        auto hash = CryptoManager::hashForOracle(specWithoutPow);
 
-    return  ~u256( 0 ) / binaryHash > u256(1000);
+        u256 binaryHash("0x" + hash);
+
+        if (~u256(0) / binaryHash > u256(10000)) {
+            return true;
+        } {
+            return false;
+        }
+
+    } catch (...) {
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+    }
 }
 
 

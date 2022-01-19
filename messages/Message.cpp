@@ -44,10 +44,6 @@ ptr<ProtocolKey> Message::createProtocolKey()  {
 }
 
 
-MsgType Message::getMessageType() const {
-    return msgType;
-}
-
 
 schain_id Message::getSchainID() const {
     return schainID;

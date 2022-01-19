@@ -73,17 +73,32 @@ uint64_t OracleClient::broadcastRequestAndReturnReceipt(ptr<OracleRequestBroadca
 
 void OracleClient::sendTestRequestGet() {
 
+    string spec;
     string _receipt;
 
-    string cid = "\"cid\":" +
-                 to_string((uint64_t) getSchain()->getSchainID());
-    string uri = "\"uri\":\"http://worldtimeapi.org/api/timezone/Europe/Kiev\"";
-    string jsps = "\"jsps\":[\"/unixtime\", \"/day_of_year\", \"/xxx\"]";
-    string trims = "\"trims\":[1,1,1]";
-    string time = "\"time\":" + to_string(Time::getCurrentTimeMs());
-    string pow = "\"pow\":" + string("\"0x0000\"");
+    for (uint64_t i = 0; i < 1000000000; i++) {
 
-    string spec = "{" + cid + "," + uri + "," + jsps + "," + trims + "," + time + "," + pow + "}";
+
+        string cid = "\"cid\":" +
+                     to_string((uint64_t) getSchain()->getSchainID());
+        string uri = "\"uri\":\"http://worldtimeapi.org/api/timezone/Europe/Kiev\"";
+        string jsps = "\"jsps\":[\"/unixtime\", \"/day_of_year\", \"/xxx\"]";
+        string trims = "\"trims\":[1,1,1]";
+        string time = "\"time\":" + to_string(Time::getCurrentTimeMs());
+        string nonce = "\"nonce\":" + to_string(i);
+        string pow = "\"pow\":" + string("\"0x0000\"");
+
+        spec = "{" + cid + "," + uri + "," + jsps + "," + trims + "," + time + ","
+               + nonce + "," + pow + "}";
+
+        auto os = make_shared<OracleRequestSpec>(spec);
+
+        if (os->verifyEnoughGas()) {
+            break;
+        }
+    }
+
+
     auto status = submitOracleRequest(spec, _receipt);
 
     CHECK_STATE(status == ORACLE_SUCCESS);
@@ -126,7 +141,7 @@ void OracleClient::sendTestRequestPost() {
     string post = "\"post\":\"haha\"";
 
     string spec = "{" + cid + "," + uri + "," + jsps + "," + time + "," + pow +
-            + "," + post + "}";
+                  +"," + post + "}";
 
     auto status = submitOracleRequest(spec, _receipt);
 
@@ -181,7 +196,7 @@ void OracleClient::processResponseMessage(const ptr<MessageEnvelope> &_me) {
 
 
 uint64_t OracleClient::checkOracleResult(string &_receipt,
-                                              string &_result) {
+                                         string &_result) {
     auto oracleReceivedResults = receiptsMap.getIfExists(_receipt);
 
     if (!oracleReceivedResults.has_value()) {

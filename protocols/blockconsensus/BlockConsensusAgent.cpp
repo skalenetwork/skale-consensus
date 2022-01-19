@@ -339,7 +339,12 @@ void BlockConsensusAgent::routeAndProcessMessage(const ptr<MessageEnvelope>& _me
 
         CHECK_ARGUMENT( _me->getMessage()->getBlockId() > 0);
         CHECK_ARGUMENT( _me->getOrigin() != ORIGIN_PARENT);
-        CHECK_ARGUMENT(_me->getMessage()->getBlockProposerIndex() > 0);
+        /*
+        if (_me->getMessage()->getBlockProposerIndex() == 0) {
+            cerr << (uint64_t ) _me->getOrigin() << ":" << _me->getMessage()->getMsgType() << endl;
+            exit(-12);
+        }
+         */
 
         auto blockID = _me->getMessage()->getBlockId();
 
@@ -349,7 +354,7 @@ void BlockConsensusAgent::routeAndProcessMessage(const ptr<MessageEnvelope>& _me
         if (blockID + MAX_ACTIVE_CONSENSUSES < getSchain()->getLastCommittedBlockID())
             return; // message has a very old block id, ignore. They need to catchup
 
-        if ( _me->getMessage()->getMessageType() == MSG_CONSENSUS_PROPOSAL) {
+        if ( _me->getMessage()->getMsgType() == MSG_CONSENSUS_PROPOSAL) {
 
             auto consensusProposalMessage =
                 dynamic_pointer_cast<ConsensusProposalMessage>( _me->getMessage());
@@ -363,7 +368,7 @@ void BlockConsensusAgent::routeAndProcessMessage(const ptr<MessageEnvelope>& _me
             return;
         }
 
-        if ( _me->getMessage()->getMessageType() == MSG_BLOCK_SIGN_BROADCAST) {
+        if ( _me->getMessage()->getMsgType() == MSG_BLOCK_SIGN_BROADCAST) {
 
             auto blockSignBroadcastMessage = dynamic_pointer_cast<BlockSignBroadcastMessage>( _me->getMessage());
 
@@ -450,7 +455,7 @@ ptr<BinConsensusInstance> BlockConsensusAgent::getChild(const ptr<ProtocolKey>& 
 
 bool BlockConsensusAgent::shouldPost(const ptr<NetworkMessage>& _msg) {
 
-    if (_msg->getMessageType() == MSG_BLOCK_SIGN_BROADCAST) {
+    if (_msg->getMsgType() == MSG_BLOCK_SIGN_BROADCAST) {
         return true;
     }
 
