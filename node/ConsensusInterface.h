@@ -45,7 +45,7 @@ public:
     virtual ~ConsensusInterface() = default;
 
     virtual void parseFullConfigAndCreateNode(const std::string &fullPathToConfigFile,
-                                              string& gethURL) = 0;
+                                              const string& gethURL) = 0;
 
     virtual void startAll() = 0;
 
