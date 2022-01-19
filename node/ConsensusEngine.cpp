@@ -250,7 +250,7 @@ void ConsensusEngine::parseFullConfigAndCreateNode(const string &configFileConte
                                                          blsPublicKeys, blsPublicKey, gethURL, previousBlsPublicKeys);
         } else {
             node = JSONFactory::createNodeFromJsonObject(j["skaleConfig"]["nodeInfo"], dummy, this,
-                                                         false, "", "", "", "", nullptr, "", nullptr, nullptr, _gethURL, nullptr);
+                                                         false, "", "", "", "", nullptr, "", nullptr, nullptr, gethURL, nullptr);
         }
 
         JSONFactory::createAndAddSChainFromJsonObject(node, j["skaleConfig"]["sChain"], this);
