@@ -73,6 +73,12 @@
 
 using namespace std;
 
+
+const string& Node::getGethUrl() const {
+    return gethURL;
+}
+
+
 Node::Node(const nlohmann::json &_cfg, ConsensusEngine *_consensusEngine,
            bool _useSGX, string _sgxURL,
            string _sgxSSLKeyFileFullPath,
@@ -80,8 +86,15 @@ Node::Node(const nlohmann::json &_cfg, ConsensusEngine *_consensusEngine,
            string _ecdsaKeyName,
            ptr< vector<string> > _ecdsaPublicKeys, string _blsKeyName,
            ptr< vector< ptr< vector<string>>>> _blsPublicKeys,
-           ptr< BLSPublicKey > _blsPublicKey,
-           ptr< map< uint64_t, ptr< BLSPublicKey > > > _previousBlsPublicKeys) {
+           ptr< BLSPublicKey > _blsPublicKey, string & _gethURL,
+           ptr< map< uint64_t, ptr< BLSPublicKey > > > _previousBlsPublicKeys) : gethURL(_gethURL) {
+
+
+
+    // trim slash from URL
+    if (!gethURL.empty() && gethURL.at(gethURL.size() - 1) == '/') {
+        gethURL = gethURL.substr(0, gethURL.size() - 1);
+    }
 
     if (_useSGX) {
         CHECK_ARGUMENT(!_sgxURL.empty())
@@ -393,6 +406,7 @@ void Node::initSchain(const ptr<Node>& _node, const ptr<NodeInfo>& _localNodeInf
         _node->setSchain(sChain);
 
         sChain->createBlockConsensusInstance();
+        sChain->createOracleInstance();
 
     } catch (...) {
         throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));

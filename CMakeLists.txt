@@ -81,7 +81,7 @@ find_package(leveldb CONFIG REQUIRED)
 set(CMAKE_CXX_STANDARD 17)
 execute_process( COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/gcc_ver_query.sh OUTPUT_VARIABLE GXX_MAJOR_VERSION )
 message( STATUS "-------- GXX_MAJOR_VERSION is ${GXX_MAJOR_VERSION}" )
-add_compile_options( -Wno-error=deprecated-declarations -Wno-error=return-type -Wno-error=unused-result -Wno-error=unused-variable -Wno-error=maybe-uninitialized -Wno-error=deprecated-copy -Wno-error=pessimizing-move )
+add_compile_options( -Wno-error=deprecated-declarations -Wno-error=return-type -Wno-error=unused-result -Wno-error=unused-variable -Wno-error=maybe-uninitialized -Wno-error=deprecated-copy -Wno-error=pessimizing-move -Wno-sign-compare)
 if( CMAKE_BUILD_TYPE STREQUAL "Debug" )
     add_compile_options( -Wall -Wextra -Werror )
 endif()
@@ -152,6 +152,8 @@ AUX_SOURCE_DIRECTORY(monitoring monitoring_src)
 AUX_SOURCE_DIRECTORY(utils utils_src)
 AUX_SOURCE_DIRECTORY(statusserver statusserver_src)
 AUX_SOURCE_DIRECTORY(sgxclient sgxclient_src)
+AUX_SOURCE_DIRECTORY(oracle oracle_src)
+
 
 
 SET(SRC_FILES
@@ -176,6 +178,7 @@ SET(SRC_FILES
         ${messages_src}
         ${network_src}
         ${node_src}
+        ${oracle_src}
         ${pendingqueue_src}
         ${pricing_src}
         ${protocols_src}
@@ -190,7 +193,7 @@ SET(SRC_FILES
         ${statusserver_src}
         ${sgxclient_src}
         Agent.h Agent.cpp SkaleCommon.cpp Log.cpp microprofile.cpp miniz.c
-        )
+        oracle/OracleClient.cpp oracle/OracleClient.h)
 
 
 include_directories(. spdlog/include ${BLS_INCLUDE_DIRS} ${DEPS_INSTALL_ROOT}/include libBLS/bls libBLS

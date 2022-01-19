@@ -153,13 +153,13 @@ public:
 
     static void checkExistsAndFile( const fs_path& filename );
 
-    ptr< Node > readNodeConfigFileAndCreateNode( const string path, set< node_id >& nodeIDs,
-        bool _useSGX = false, string _sgxSSLKeyFileFullPath = "",
-        string _sgxSSLCertFileFullPath = "", string _ecdsaKeyName = "",
-        ptr< vector<string> > _ecdsaPublicKeys = nullptr, string _blsKeyName = "",
-        ptr< vector< ptr< vector<string>>>> _blsPublicKeys = nullptr,
-        ptr< BLSPublicKey > _blsPublicKey = nullptr, 
-        ptr< map< uint64_t, ptr< BLSPublicKey > > > _previousBlsPublicKeys = nullptr );
+    ptr< Node > readNodeTestConfigFileAndCreateNode(const string path, set< node_id >& _nodeIDs,
+                                                    bool _useSGX = false, string _sgxSSLKeyFileFullPath = "",
+                                                    string _sgxSSLCertFileFullPath = "", string _ecdsaKeyName = "",
+                                                    ptr< vector<string> > _ecdsaPublicKeys = nullptr, string _blsKeyName = "",
+                                                    ptr< vector< ptr< vector<string>>>> _blsPublicKeys = nullptr,
+                                                    ptr< BLSPublicKey > _blsPublicKey = nullptr,
+                                                    ptr< map< uint64_t, ptr< BLSPublicKey > > > _previousBlsPublicKeys = nullptr);
     
     void readSchainConfigFiles(const ptr< Node >& _node, const fs_path& _dirPath );
     
@@ -216,7 +216,7 @@ public:
 
     void startAll() override;
 
-    void parseFullConfigAndCreateNode( const string& fullPathToConfigFile ) override;
+    void parseFullConfigAndCreateNode( const string& fullPathToConfigFile, string& _gethURL ) override;
 
     // used for standalone debugging
 
@@ -278,5 +278,10 @@ public:
     [[nodiscard]] uint64_t getTotalStorageLimitBytes() const;
 
     static int getOpenDescriptors();
+
+    uint64_t submitOracleRequest(string _spec, string &_receipt);
+
+
+    uint64_t  checkOracleResult(string& _receipt, string& _result);
 
 };

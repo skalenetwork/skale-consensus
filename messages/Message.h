@@ -29,7 +29,8 @@ enum MsgType {CHILD_COMPLETED = 0, PARENT_COMPLETED = 1,
     BIN_CONSENSUS_HISTORY_CC = 6, BIN_CONSENSUS_HISTORY_BVSELF = 7,
     BIN_CONSENSUS_HISTORY_AUXSELF = 8, BIN_CONSENSUS_HISTORY_NEW_ROUND = 9,
     MSG_BLOCK_CONSENSUS_INIT = 10, MSG_CONSENSUS_PROPOSAL = 11, MSG_BLOCK_SIGN_BROADCAST = 12,
-    MSG_BLOCK_PROPOSAL = 13, MSG_BLOCK_COMMIT = 14, MSG_DA_PROOF = 15};
+    MSG_BLOCK_PROPOSAL = 13, MSG_BLOCK_COMMIT = 14, MSG_DA_PROOF = 15,
+    MSG_ORACLE_REQ_BROADCAST = 16, MSG_ORACLE_RSP = 17};
 
 class ProtocolInstance;
 class ProtocolKey;
@@ -66,7 +67,7 @@ public:
 
     [[nodiscard]] schain_id getSchainID() const;
 
-    ptr<ProtocolKey> createDestinationProtocolKey();
+    ptr<ProtocolKey> createProtocolKey();
 
     block_id getBlockID();
 

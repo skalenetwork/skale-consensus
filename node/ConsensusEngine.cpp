@@ -26,12 +26,16 @@
 #include "openssl/evp.h"
 #include "openssl/pem.h"
 
+
+#include <curl/curl.h>
+
 #include "Agent.h"
 #include "Log.h"
 #include "SkaleCommon.h"
 #include "exceptions/FatalError.h"
 #include "thirdparty/json.hpp"
 #include "threads/GlobalThreadRegistry.h"
+#include "oracle/OracleClient.h"
 
 #include "zmq.h"
 
@@ -228,7 +232,7 @@ void ConsensusEngine::log(
 }
 
 
-void ConsensusEngine::parseFullConfigAndCreateNode(const string &configFileContents) {
+void ConsensusEngine::parseFullConfigAndCreateNode(const string &configFileContents, string& _gethURL) {
     try {
         nlohmann::json j = nlohmann::json::parse(configFileContents);
 
@@ -241,10 +245,10 @@ void ConsensusEngine::parseFullConfigAndCreateNode(const string &configFileConte
                                                          true, sgxServerUrl, sgxSSLKeyFileFullPath,
                                                          sgxSSLCertFileFullPath,
                                                          getEcdsaKeyName(), ecdsaPublicKeys, getBlsKeyName(),
-                                                         blsPublicKeys, blsPublicKey, previousBlsPublicKeys);
+                                                         blsPublicKeys, blsPublicKey, _gethURL, previousBlsPublicKeys);
         } else {
             node = JSONFactory::createNodeFromJsonObject(j["skaleConfig"]["nodeInfo"], dummy, this,
-                                                         false, "", "", "", "", nullptr, "", nullptr, nullptr, nullptr);
+                                                         false, "", "", "", "", nullptr, "", nullptr, nullptr, _gethURL, nullptr);
         }
 
         JSONFactory::createAndAddSChainFromJsonObject(node, j["skaleConfig"]["sChain"], this);
@@ -257,15 +261,15 @@ void ConsensusEngine::parseFullConfigAndCreateNode(const string &configFileConte
     }
 }
 
-ptr<Node> ConsensusEngine::readNodeConfigFileAndCreateNode(const string path,
-                                                           set<node_id> &_nodeIDs, bool _useSGX,
-                                                           string _sgxSSLKeyFileFullPath,
-                                                           string _sgxSSLCertFileFullPath, string _ecdsaKeyName,
-                                                           ptr<vector<string> > _ecdsaPublicKeys,
-                                                           string _blsKeyName,
-                                                           ptr<vector<ptr<vector<string> > > > _blsPublicKeys,
-                                                           ptr<BLSPublicKey> _blsPublicKey,
-                                                           ptr< map< uint64_t, ptr< BLSPublicKey > > > _previousBlsPublicKeys) {
+ptr<Node> ConsensusEngine::readNodeTestConfigFileAndCreateNode(const string path,
+                                                               set<node_id> &_nodeIDs, bool _useSGX,
+                                                               string _sgxSSLKeyFileFullPath,
+                                                               string _sgxSSLCertFileFullPath, string _ecdsaKeyName,
+                                                               ptr<vector<string> > _ecdsaPublicKeys,
+                                                               string _blsKeyName,
+                                                               ptr<vector<ptr<vector<string> > > > _blsPublicKeys,
+                                                               ptr<BLSPublicKey> _blsPublicKey,
+                                                               ptr< map< uint64_t, ptr< BLSPublicKey > > > _previousBlsPublicKeys) {
     try {
         if (_useSGX) {
             CHECK_ARGUMENT(!_ecdsaKeyName.empty() && _ecdsaPublicKeys);
@@ -286,11 +290,11 @@ ptr<Node> ConsensusEngine::readNodeConfigFileAndCreateNode(const string path,
 
         checkExistsAndDirectory(schainDirNamePath.string());
 
-        auto node = JSONFactory::createNodeFromJsonFile(sgxServerUrl, nodeFileNamePath.string(),
-                                                        _nodeIDs, this, _useSGX, _sgxSSLKeyFileFullPath,
-                                                        _sgxSSLCertFileFullPath, _ecdsaKeyName,
-                                                        _ecdsaPublicKeys, _blsKeyName, _blsPublicKeys, _blsPublicKey,
-                                                        _previousBlsPublicKeys);
+        auto node = JSONFactory::createNodeFromTestJsonFile(sgxServerUrl, nodeFileNamePath.string(),
+                                                            _nodeIDs, this, _useSGX, _sgxSSLKeyFileFullPath,
+                                                            _sgxSSLCertFileFullPath, _ecdsaKeyName,
+                                                            _ecdsaPublicKeys, _blsKeyName, _blsPublicKeys,
+                                                            _blsPublicKey, _previousBlsPublicKeys);
 
 
         if (node == nullptr) {
@@ -454,9 +458,9 @@ void ConsensusEngine::parseTestConfigsAndCreateAllNodes(const fs_path &dirname, 
             }
 
             // cert and key file name for tests come from the config
-            readNodeConfigFileAndCreateNode(dirNames.at(j), nodeIDs, isSGXEnabled, sgxSSLKeyFileFullPath,
-                                            sgxSSLCertFileFullPath,
-                                            ecdsaKey, ecdsaPublicKeys, blsKey, blsPublicKeys, blsPublicKey);
+            readNodeTestConfigFileAndCreateNode(dirNames.at(j), nodeIDs, isSGXEnabled, sgxSSLKeyFileFullPath,
+                                                sgxSSLCertFileFullPath,
+                                                ecdsaKey, ecdsaPublicKeys, blsKey, blsPublicKeys, blsPublicKey);
         };
 
         if (nodes.size() == 0) {
@@ -648,6 +652,9 @@ void ConsensusEngine::init() {
 
 ConsensusEngine::ConsensusEngine(block_id _lastId, uint64_t _totalStorageLimitBytes) : prices(256), exitRequested(false) {
 
+    curl_global_init(CURL_GLOBAL_ALL);
+
+
     storageLimits = make_shared<StorageLimits>(_totalStorageLimitBytes);
 
     lastCommittedBlockTimeStamp = make_shared<TimeStamp>(0, 0);
@@ -782,9 +789,15 @@ void ConsensusEngine::exitGracefullyAsync() {
 }
 
 ConsensusEngine::~ConsensusEngine() {
+
     exitGracefullyBlocking();
+
     nodes.clear();
+
+    curl_global_cleanup();
+
     std::cerr << "ConsensusEngine terminated." << std::endl;
+
 }
 
 
@@ -1001,10 +1014,7 @@ ptr<StorageLimits> ConsensusEngine::getStorageLimits() const {
 tuple<ptr<ConsensusExtFace::transactions_vector>, uint32_t, uint32_t, u256, u256>
 ConsensusEngine::getBlock(block_id _blockId) {
     CHECK_STATE(nodes.size() > 0)
-
-
     auto node = nodes.begin()->second;
-
     CHECK_STATE(node)
 
     auto schain = nodes.begin()->second->getSchain();
@@ -1024,4 +1034,34 @@ ConsensusEngine::getBlock(block_id _blockId) {
     auto tv = committedBlock->getTransactionList()->createTransactionVector();
 
     return {tv, timeStampS, timeStampMs, currentPrice, stateRoot};
+}
+
+
+uint64_t ConsensusEngine::submitOracleRequest(string _spec, string &_receipt) {
+    CHECK_STATE(nodes.size() > 0)
+    auto node = nodes.begin()->second;
+    CHECK_STATE(node)
+    auto oracleClient = node->getSchain()->getOracleClient();
+
+    CHECK_STATE(oracleClient);
+    return oracleClient->submitOracleRequest(_spec, _receipt);
+}
+
+/*
+ * Check if Oracle result has been derived.  This will return ORACLE_SUCCESS if
+ * nodes agreed on result. The signed result will be returned in _result string.
+ *
+ * If no result has been derived yet, ORACLE_RESULT_NOT_READY is returned.
+ *
+ * In case of an error, an error is returned.
+ */
+
+
+uint64_t  ConsensusEngine::checkOracleResult(string& _receipt, string& _result) {
+    CHECK_STATE(nodes.size() > 0)
+    auto node = nodes.begin()->second;
+    CHECK_STATE(node)
+    auto oracleClient = node->getSchain()->getOracleClient();
+    CHECK_STATE(oracleClient);
+    return oracleClient->checkOracleResult(_receipt, _result);
 }

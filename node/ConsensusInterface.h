@@ -44,7 +44,8 @@ class ConsensusInterface {
 public:
     virtual ~ConsensusInterface() = default;
 
-    virtual void parseFullConfigAndCreateNode(const std::string &fullPathToConfigFile) = 0;
+    virtual void parseFullConfigAndCreateNode(const std::string &fullPathToConfigFile,
+                                              string& gethURL) = 0;
 
     virtual void startAll() = 0;
 
@@ -77,6 +78,38 @@ public:
     virtual void setEmptyBlockIntervalMs(uint64_t) {}
 
     virtual consensus_engine_status getStatus() const = 0;
+
+#define ORACLE_SUCCESS  0
+#define ORACLE_UNKNOWN_RECEIPT  1
+#define ORACLE_TIMEOUT 2
+#define ORACLE_NO_CONSENSUS  3
+#define ORACLE_UNKNOWN_ERROR  4
+#define ORACLE_RESULT_NOT_READY 5
+#define ORACLE_DUPLICATE_REQUEST 6
+#define ORACLE_COULD_NOT_CONNECT_TO_ENDPOINT 7
+#define ORACLE_INVALID_JSON_RESPONSE 8
+
+
+    /*
+     * Submit Oracle Request. This will return ORACLE_SUCCESS and a string receipt if everything
+     * is. In case of an error, a non-zero error will be returned.
+     */
+
+    uint64_t submitOracleRequest(string _spec, string &_receipt);
+
+    /*
+     * Check if Oracle result has been derived.  This will return ORACLE_SUCCESS if
+     * nodes agreed on result. The signed result will be returned in _result string.
+     *
+     * If no result has been derived yet, ORACLE_RESULT_NOT_READY is returned.
+     *
+     * In case of an error, an error is returned.
+     */
+
+
+    uint64_t  checkOracleResult(string& _receipt, string& _result);
+
+
 };
 
 /**

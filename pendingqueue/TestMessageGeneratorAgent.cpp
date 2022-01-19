@@ -31,6 +31,7 @@
 #include "exceptions/FatalError.h"
 #include "node/ConsensusEngine.h"
 #include "thirdparty/json.hpp"
+#include "oracle/OracleClient.h"
 
 
 TestMessageGeneratorAgent::TestMessageGeneratorAgent(Schain& _sChain_) : Agent(_sChain_, false) {
@@ -39,12 +40,14 @@ TestMessageGeneratorAgent::TestMessageGeneratorAgent(Schain& _sChain_) : Agent(_
 
 
 
+
 ConsensusExtFace::transactions_vector TestMessageGeneratorAgent::pendingTransactions( size_t _limit ) {
+
+    // test oracle for the first block
 
     uint64_t  messageSize = 200;
 
     ConsensusExtFace::transactions_vector result;
-
 
     auto test = sChain->getBlockProposerTest();
 
@@ -72,6 +75,17 @@ ConsensusExtFace::transactions_vector TestMessageGeneratorAgent::pendingTransact
         counter++;
 
     }
+
+    static uint64_t iterations = 0;
+    // send oracle test once from schain index 1
+    if (iterations == 40) {
+        LOG(info, "Sending Oracle test");
+        getSchain()->getOracleClient()->sendTestRequestGet();
+        LOG(info, "Sent Oracle test");
+    }
+    iterations++;
+
+
 
     return result;
 

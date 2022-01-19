@@ -130,6 +130,7 @@ void BlockConsensusAgent::propose(bin_consensus_value _proposal, schain_index _i
 
     try {
 
+        CHECK_ARGUMENT((uint64_t ) _index > 0);
         auto key = make_shared<ProtocolKey>(_id, _index);
 
         auto child = getChild(key);
@@ -333,10 +334,12 @@ void BlockConsensusAgent::routeAndProcessMessage(const ptr<MessageEnvelope>& _me
 
     CHECK_ARGUMENT( _me );
 
+
     try {
 
         CHECK_ARGUMENT( _me->getMessage()->getBlockId() > 0);
         CHECK_ARGUMENT( _me->getOrigin() != ORIGIN_PARENT);
+        CHECK_ARGUMENT(_me->getMessage()->getBlockProposerIndex() > 0);
 
         auto blockID = _me->getMessage()->getBlockId();
 
@@ -387,7 +390,7 @@ void BlockConsensusAgent::routeAndProcessMessage(const ptr<MessageEnvelope>& _me
         }
 
 
-        ptr<ProtocolKey> key = _me->getMessage()->createDestinationProtocolKey();
+        ptr<ProtocolKey> key = _me->getMessage()->createProtocolKey();
 
         CHECK_STATE(key);
 
@@ -425,6 +428,7 @@ ptr<BinConsensusInstance> BlockConsensusAgent::getChild(const ptr<ProtocolKey>& 
     auto bpi = _key->getBlockProposerIndex();
     auto bid = _key->getBlockID();
 
+    CHECK_ARGUMENT((uint64_t ) bpi > 0);
     CHECK_ARGUMENT ((uint64_t) bpi <= (uint64_t) getSchain()->getNodeCount())
 
     try {
@@ -437,7 +441,7 @@ ptr<BinConsensusInstance> BlockConsensusAgent::getChild(const ptr<ProtocolKey>& 
 
         return children.at((uint64_t) bpi - 1)->get((uint64_t) bid);
 
-    } catch (ExitRequestedException &) { throw; } catch (SkaleException &e) {
+    } catch (ExitRequestedException &) { throw; } catch (...) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
 
@@ -450,7 +454,7 @@ bool BlockConsensusAgent::shouldPost(const ptr<NetworkMessage>& _msg) {
         return true;
     }
 
-    auto key = _msg->createDestinationProtocolKey();
+    auto key = _msg->createProtocolKey();
     auto currentRound = getRound(key);
     auto r = _msg->getRound();
 

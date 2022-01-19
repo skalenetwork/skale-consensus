@@ -39,7 +39,7 @@ class BlockConsensusAgent;
 class BinConsensusInstance;
 
 
-enum ProtocolType { BLOCK_SIGN, BIN_CONSENSUS};
+enum ProtocolType { BLOCK_SIGN, BIN_CONSENSUS, ORACLE};
 
 enum ProtocolStatus { STATUS_ACTIVE, STATUS_COMPLETED};
 enum ProtocolOutcome { OUTCOME_UNKNOWN, OUTCOME_SUCCESS, OUTCOME_FAILURE, OUTCOME_KILLED};

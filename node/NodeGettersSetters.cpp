@@ -215,7 +215,7 @@ ptr<NodeInfo> Node::getNodeInfoByIndex(schain_index _index) {
     CHECK_STATE(nodeInfosByIndex);
 
     if (nodeInfosByIndex->count((uint64_t )_index) == 0)
-        return nullptr;;
+        return nullptr;
     return nodeInfosByIndex->at((uint64_t )_index);
 }
 

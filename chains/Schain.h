@@ -48,6 +48,8 @@ class BlockProposalPusherThreadPool;
 class BlockFinalizeDownloader;
 class BlockFinalizeDownloaderThreadPool;
 
+
+
 class SchainMessageThreadPool;
 
 class TestMessageGeneratorAgent;
@@ -67,6 +69,10 @@ class Node;
 class PendingTransactionsAgent;
 
 class BlockConsensusAgent;
+
+class OracleServerAgent;
+class OracleThreadPool;
+
 class PricingAgent;
 class IO;
 class Sockets;
@@ -79,6 +85,7 @@ class BooleanProposalVector;
 class TimeStamp;
 class CryptoManager;
 class StatusServer;
+class OracleClient;
 
 class Schain : public Agent {
 
@@ -122,6 +129,8 @@ class Schain : public Agent {
     ptr< PricingAgent > pricingAgent;
 
     ptr< SchainMessageThreadPool > consensusMessageThreadPool;
+
+
 
     ptr< IO > io;
 
@@ -205,6 +214,10 @@ public:
 
     ptr< BlockConsensusAgent > blockConsensusInstance;
 
+    ptr< OracleServerAgent > oracleServer;
+
+    ptr< OracleClient > oracleClient;
+
     void createBlockConsensusInstance();
 
     void joinMonitorAndTimeoutThreads();
@@ -269,6 +282,8 @@ public:
 
     ptr< BlockConsensusAgent > getBlockConsensusInstance();
 
+    ptr< OracleServerAgent > getOracleInstance();
+
     ptr< NodeInfo > getThisNodeInfo() const;
 
     node_count getNodeCount();
@@ -317,14 +332,17 @@ public:
     void stopStatusServer();
     void setLastCommittedBlockId( uint64_t lastCommittedBlockId );
 
-
-
     block_id readLastCommittedBlockIDFromDb();
 
     void checkForDeadLock(const char* _functionName);
 
     void printBlockLog(const ptr< CommittedBlock >& _block);
 
+    void createOracleInstance();
+
     u256 getRandomForBlockId(block_id _blockid);
+
+    const ptr<OracleClient> getOracleClient() const;
+
 };
 
