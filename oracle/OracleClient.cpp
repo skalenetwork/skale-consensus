@@ -94,7 +94,7 @@ void OracleClient::sendTestRequestGet() {
         auto os = make_shared<OracleRequestSpec>(spec);
 
         if (os->verifyEnoughGas()) {
-            exit(-7);
+            break;
         }
     }
 

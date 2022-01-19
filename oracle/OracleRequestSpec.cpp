@@ -169,14 +169,17 @@ bool OracleRequestSpec::verifyEnoughGas() {
 
     try {
 
-
         auto specWithoutPow = getSpecWithoutPow();
 
         auto hash = CryptoManager::hashForOracle(specWithoutPow);
 
-        u256 binaryHash(hash);
+        u256 binaryHash("0x" + hash);
 
-        return ~u256(0) / binaryHash > u256(1000);
+        if (~u256(0) / binaryHash > u256(10000)) {
+            return true;
+        } {
+            return false;
+        }
 
     } catch (...) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
