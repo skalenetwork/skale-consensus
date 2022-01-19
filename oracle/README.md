@@ -21,7 +21,7 @@ day of year from worldtimeapi.org.
     "jsps":["/unixtime", "/day_of_year", "/xxx"],
     "trims":[1,1,1],
     "time":9234567,
-    "pow":"0x0000"}
+    "pow": 53458}
 
 
 
