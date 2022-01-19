@@ -85,15 +85,14 @@ void OracleClient::sendTestRequestGet() {
         string jsps = "\"jsps\":[\"/unixtime\", \"/day_of_year\", \"/xxx\"]";
         string trims = "\"trims\":[1,1,1]";
         string time = "\"time\":" + to_string(Time::getCurrentTimeMs());
-        string nonce = "\"nonce\":" + to_string(i);
-        string pow = "\"pow\":" + string("\"0x0000\"");
+        string pow = "\"pow\":" + to_string(i);
 
         spec = "{" + cid + "," + uri + "," + jsps + "," + trims + "," + time + ","
-               + nonce + "," + pow + "}";
+                + pow + "}";
 
         auto os = make_shared<OracleRequestSpec>(spec);
 
-        if (os->verifyEnoughGas()) {
+        if (os->verifyPow()) {
             break;
         }
     }
