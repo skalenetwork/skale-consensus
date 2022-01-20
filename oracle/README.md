@@ -39,8 +39,7 @@ HTTP post request that posts some data to endpoint
 ```json
     {
     "cid": 1, "uri": "https://reqres.in/api/users", 
-    "jsps":["/id"], 
-    "trims":[1,1,1],
+    "jsps":["/id"],   
     "time":9234567, 
      "post":"some_data",
      "pow":1735}
