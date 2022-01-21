@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2019 SKALE Labs
+    Copyright (C) 2018-2019 SKALE Labs
 
     This file is part of skale-consensus.
 
@@ -16,34 +16,41 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file BlockDecryptionShare.h
+    @file BlockDecryptionSet.h
     @author Stan Kladko
-    @date 2019
+    @date 2018
 */
-#ifndef SKALED_BLOCKPROPOSALFRAGMENT_H
-#define SKALED_BLOCKPROPOSALFRAGMENT_H
 
-class BlockDecryptionShare {
+#pragma once
 
-    string data; // tsafe
+#include "DataStructure.h"
 
-    const block_id blockId  = 0;
+class PartialHashesList;
+class Schain;
+class BlockDecryptionShare;
+class BLAKE3Hash;
+class BooleanProposalVector;
+class DAProof;
 
-    const uint64_t totalShares  = 0;
-    const te_share_index schainIndex  = 0;
+class BlockDecryptionSet : public DataStructure {
+
+    map< uint64_t, ptr< BlockDecryptionShare > > decryptions; // tsafe
+
+    node_count nodeCount  = 0;
+
+    block_id blockId  = 0;
+
+    static atomic< int64_t > totalObjects;
 
 public:
+    node_count getCount();
 
-    BlockDecryptionShare(const block_id & _blockId, uint64_t _totalShares, const te_share_index &_schainIndex,
-                          const string & _data);
+    BlockDecryptionSet( Schain* _sChain, block_id _blockId );
 
-    [[nodiscard]] block_id getBlockId() const;
+    bool add(const ptr<BlockDecryptionShare>& _decryption);
 
-    [[nodiscard]] uint64_t getTotalShares() const;
+    static int64_t getTotalObjects() { return totalObjects; }
 
-    [[nodiscard]] te_share_index getSchainIndex() const;
+    ~BlockDecryptionSet() override;
 
 };
-
-
-#endif //SKALED_BLOCKPROPOSALFRAGMENT_H
