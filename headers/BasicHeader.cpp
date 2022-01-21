@@ -118,9 +118,28 @@ uint32_t BasicHeader::getUint32(nlohmann::json &_js, const char *_name) {
 string BasicHeader::getString(nlohmann::json &_js, const char *_name) {
     CHECK_ARGUMENT(_name);
     nullCheck(_js, _name);
+    CHECK_ARGUMENT(_js.is_string());
     string result = _js[_name];
     return result;
 }
+
+ptr<vector<string>> BasicHeader::getStringVector(nlohmann::json &_js, const char *_name) {
+    auto result = make_shared<vector<string>>();
+    CHECK_ARGUMENT(_name);
+    nullCheck(_js, _name);
+    nlohmann::json arr =  _js[_name];
+    CHECK_ARGUMENT(arr.is_array());
+
+    for (auto&& item : arr.items())
+    {
+        CHECK_ARGUMENT(item.value().is_string());
+        string s = item.value();
+        result->push_back(s);
+    }
+
+    return result;
+}
+
 
 BasicHeader::BasicHeader(const char *_type) : type(_type)  {
     CHECK_ARGUMENT(_type);

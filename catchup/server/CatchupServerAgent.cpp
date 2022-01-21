@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2018-2019 SKALE Labs
+    Copyright (C) 2018- SKALE Labs
 
     This file is part of skale-consensus.
 
@@ -18,7 +18,7 @@
 
     @file CatchupServerAgent.cpp
     @author Stan Kladko
-    @date 2018
+    @date 2018-
 */
 
 #include "SkaleCommon.h"
@@ -51,6 +51,7 @@
 
 #include "chains/Schain.h"
 #include "headers/BlockFinalizeResponseHeader.h"
+#include "headers/BlockDecryptResponseHeader.h"
 #include "headers/BlockProposalHeader.h"
 #include "headers/CatchupRequestHeader.h"
 #include "headers/CatchupResponseHeader.h"
@@ -64,7 +65,7 @@
 #include "datastructures/CommittedBlock.h"
 
 
-CatchupServerAgent::CatchupServerAgent(Schain &_schain, const ptr<TCPServerSocket>& _s) : AbstractServerAgent(
+CatchupServerAgent::CatchupServerAgent(Schain &_schain, const ptr<TCPServerSocket> &_s) : AbstractServerAgent(
         "CatchupServer", _schain, _s) {
     CHECK_ARGUMENT(_s);
     catchupWorkerThreadPool = make_shared<CatchupWorkerThreadPool>(num_threads(2), this);
@@ -77,7 +78,7 @@ CatchupServerAgent::~CatchupServerAgent() {
 }
 
 
-void CatchupServerAgent::processNextAvailableConnection(const ptr<ServerConnection>& _connection) {
+void CatchupServerAgent::processNextAvailableConnection(const ptr<ServerConnection> &_connection) {
 
 
     MONITOR(__CLASS_NAME__, __FUNCTION__);
@@ -98,8 +99,8 @@ void CatchupServerAgent::processNextAvailableConnection(const ptr<ServerConnecti
 
     try {
         jsonRequest = sChain->getIo()->readJsonHeader(_connection->getDescriptor(), "Read catchup request",
-            10,
-            _connection->getIP());
+                                                      10,
+                                                      _connection->getIP());
     }
     catch (ExitRequestedException &) { throw; }
     catch (...) {
@@ -116,6 +117,8 @@ void CatchupServerAgent::processNextAvailableConnection(const ptr<ServerConnecti
         responseHeader = make_shared<CatchupResponseHeader>();
     } else if (type.compare(Header::BLOCK_FINALIZE_REQ) == 0) {
         responseHeader = make_shared<BlockFinalizeResponseHeader>();
+    } else if (type.compare(Header::BLOCK_DECRYPT_REQ) == 0) {
+        responseHeader = make_shared<BlockDecryptResponseHeader>();
     } else {
         BOOST_THROW_EXCEPTION(
                 InvalidMessageFormatException("Unknown request type:" + type, __CLASS_NAME__));
@@ -175,7 +178,7 @@ void CatchupServerAgent::processNextAvailableConnection(const ptr<ServerConnecti
 }
 
 
-ptr<vector<uint8_t>> CatchupServerAgent::createResponseHeaderAndBinary(const ptr<ServerConnection>& ,
+ptr<vector<uint8_t>> CatchupServerAgent::createResponseHeaderAndBinary(const ptr<ServerConnection> &,
                                                                        nlohmann::json _jsonRequest,
                                                                        const ptr<Header> &_responseHeader) {
 
@@ -188,7 +191,7 @@ ptr<vector<uint8_t>> CatchupServerAgent::createResponseHeaderAndBinary(const ptr
         node_id nodeID = Header::getUint64(_jsonRequest, "nodeID");
 
 
-        if ((uint64_t ) sChain->getSchainID() != schainID) {
+        if ((uint64_t) sChain->getSchainID() != schainID) {
             _responseHeader->setStatusSubStatus(CONNECTION_ERROR, CONNECTION_ERROR_UNKNOWN_SCHAIN_ID);
             BOOST_THROW_EXCEPTION(InvalidSchainException("Incorrect schain " + to_string(schainID), __CLASS_NAME__));
 
@@ -201,7 +204,7 @@ ptr<vector<uint8_t>> CatchupServerAgent::createResponseHeaderAndBinary(const ptr
             _responseHeader->setStatusSubStatus(CONNECTION_ERROR, CONNECTION_ERROR_DONT_KNOW_THIS_NODE);
             BOOST_THROW_EXCEPTION(
                     InvalidNodeIDException("Could not find node info for NODE_ID:" + to_string((uint64_t) nodeID),
-                            __CLASS_NAME__));
+                                           __CLASS_NAME__));
         }
 
         auto type = Header::getString(_jsonRequest, "type");
@@ -220,6 +223,12 @@ ptr<vector<uint8_t>> CatchupServerAgent::createResponseHeaderAndBinary(const ptr
                                                            dynamic_pointer_cast<BlockFinalizeResponseHeader>(
                                                                    _responseHeader), blockID);
 
+        } else if (type.compare(Header::BLOCK_DECRYPT_REQ) == 0) {
+
+            serializedBinary = createBlockDecryptResponse(_jsonRequest,
+                                                          dynamic_pointer_cast<BlockDecryptResponseHeader>(
+                                                                  _responseHeader), blockID);
+
         }
 
 
@@ -234,7 +243,7 @@ ptr<vector<uint8_t>> CatchupServerAgent::createResponseHeaderAndBinary(const ptr
 
 
 ptr<vector<uint8_t>> CatchupServerAgent::createBlockCatchupResponse(nlohmann::json /*_jsonRequest */,
-                                                                    const ptr<CatchupResponseHeader>& _responseHeader,
+                                                                    const ptr<CatchupResponseHeader> &_responseHeader,
                                                                     block_id _blockID) {
 
     CHECK_ARGUMENT(_responseHeader);
@@ -275,7 +284,7 @@ ptr<vector<uint8_t>> CatchupServerAgent::createBlockCatchupResponse(nlohmann::js
             auto serializedBlock = getSchain()->getNode()->getBlockDB()->getSerializedBlockFromLevelDB(i);
 
             if (serializedBlock == nullptr) {
-                _responseHeader->setStatusSubStatus(CONNECTION_DISCONNECT, CONNECTION_CATCHUP_DONT_HAVE_THIS_BLOCK );
+                _responseHeader->setStatusSubStatus(CONNECTION_DISCONNECT, CONNECTION_CATCHUP_DONT_HAVE_THIS_BLOCK);
                 _responseHeader->setComplete();
                 return nullptr;
             }
@@ -306,7 +315,7 @@ ptr<vector<uint8_t>> CatchupServerAgent::createBlockCatchupResponse(nlohmann::js
 
 
 ptr<vector<uint8_t>> CatchupServerAgent::createBlockFinalizeResponse(nlohmann::json _jsonRequest,
-                                                                     const ptr<BlockFinalizeResponseHeader>& _responseHeader,
+                                                                     const ptr<BlockFinalizeResponseHeader> &_responseHeader,
                                                                      block_id _blockID) {
 
     CHECK_ARGUMENT(_responseHeader);
@@ -343,11 +352,11 @@ ptr<vector<uint8_t>> CatchupServerAgent::createBlockFinalizeResponse(nlohmann::j
 
             auto committedBlock = getSchain()->getBlock(_blockID);
 
-            if (committedBlock && committedBlock->getProposerIndex() == (uint64_t ) proposerIndex) {
+            if (committedBlock && committedBlock->getProposerIndex() == (uint64_t) proposerIndex) {
                 proposal = committedBlock;
             } else {
                 _responseHeader->setStatusSubStatus(
-                    CONNECTION_DISCONNECT, CONNECTION_FINALIZE_DONT_HAVE_PROPOSAL );
+                        CONNECTION_DISCONNECT, CONNECTION_FINALIZE_DONT_HAVE_PROPOSAL);
                 _responseHeader->setComplete();
                 return nullptr;
             }
@@ -380,4 +389,39 @@ ptr<vector<uint8_t>> CatchupServerAgent::createBlockFinalizeResponse(nlohmann::j
     } catch (ExitRequestedException &e) { throw; } catch (...) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
+}
+
+ptr<vector<uint8_t>> CatchupServerAgent::createBlockDecryptResponse(nlohmann::json _jsonRequest,
+                                                                    const ptr<BlockDecryptResponseHeader> &_responseHeader,
+                                                                    block_id _blockID) {
+
+    CHECK_ARGUMENT(_responseHeader);
+
+    MONITOR(__CLASS_NAME__, __FUNCTION__);
+
+    auto encryptedKeys = Header::getStringVector(_jsonRequest, "encryptedKeys");
+
+
+    schain_index proposerIndex = Header::getUint64(_jsonRequest, "proposerIndex");
+
+
+    auto proposal = getSchain()->getBlockProposal(_blockID, proposerIndex);
+
+    if (proposal == nullptr) {
+        LOG(debug, "No proposal in finalization:" + to_string(proposerIndex));
+
+
+        auto committedBlock = getSchain()->getBlock(_blockID);
+
+        if (committedBlock && committedBlock->getProposerIndex() == (uint64_t) proposerIndex) {
+            proposal = committedBlock;
+        } else {
+            _responseHeader->setStatusSubStatus(
+                    CONNECTION_DISCONNECT, CONNECTION_FINALIZE_DONT_HAVE_PROPOSAL);
+            _responseHeader->setComplete();
+            return nullptr;
+        }
+    }
+
+    return nullptr;
 }

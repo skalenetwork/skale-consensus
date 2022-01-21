@@ -98,6 +98,8 @@ public:
 
     static string getString( nlohmann::json& _js, const char* _name );
 
+    static ptr<vector<string>> getStringVector(nlohmann::json &_js, const char *_name);
+
 };
 
 
