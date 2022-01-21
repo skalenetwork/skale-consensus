@@ -52,13 +52,11 @@ class CommittedBlockList;
 class ClientSocket;
 class Schain;
 class BlockDecryptResponseHeader;
-class BlockProposalFragment;
-class BlockProposalFragmentList;
-class BlockProposal;
+class BlockDecrypttionShare;
 class BlockDecryptDownloaderThreadPool;
-class BlockProposalSet;
 
-#include "datastructures/BlockProposalFragmentList.h"
+
+#include "datastructures/BlockDecryptionSet.h"
 
 class BlockDecryptDownloader : public Agent {
 
@@ -66,39 +64,23 @@ class BlockDecryptDownloader : public Agent {
 
     schain_index proposerIndex = 0;
 
-    BlockProposalFragmentList fragmentList;
+    BlockDecryptionSet decryptionSet;
 
 public:
 
     ptr<BlockDecryptDownloaderThreadPool> threadPool = nullptr;
 
-    BlockDecryptDownloader(Schain *_sChain, block_id _blockId, schain_index _proposerIndex);
-
+    BlockDecryptDownloader(Schain *_sChain, block_id _blockId);
 
     ~BlockDecryptDownloader() override;
 
-    uint64_t downloadFragment(schain_index _dstIndex, fragment_index _fragmentIndex);
-
+    uint64_t downloadDecryption(schain_index _dstIndex);
 
     static void workerThreadDecryptionDownloadLoop(BlockDecryptDownloader* _agent, schain_index _dstIndex );
 
     nlohmann::json readBlockDecryptResponseHeader( const ptr< ClientSocket >& _socket );
 
-
-    ptr<BlockProposalFragment>
-    readBlockFragment(const ptr<ClientSocket>& _socket, nlohmann::json responseHeader, fragment_index _fragmentIndex,
-                      node_count _nodeCount);
-
-    static uint64_t readFragmentSize(nlohmann::json _responseHeader);
-
-    ptr<BlockProposal> downloadProposal();
-
-    uint64_t readBlockSize(nlohmann::json _responseHeader);
-
-    string readBlockHash(nlohmann::json _responseHeader);
-
     block_id getBlockId();
 
-    schain_index getProposerIndex();
 };
 

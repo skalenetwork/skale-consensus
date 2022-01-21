@@ -66,6 +66,7 @@ BlockDecryptionSet::BlockDecryptionSet(Schain* _sChain, block_id _blockId)
     CHECK_ARGUMENT(_blockId > 0);
 
     nodeCount = _sChain->getNodeCount();
+    requiredDecryptionCount = _sChain->getRequiredSigners();
     totalObjects++;
 }
 
@@ -80,3 +81,8 @@ node_count BlockDecryptionSet::getCount() {
 
 
 atomic<int64_t>  BlockDecryptionSet::totalObjects(0);
+
+bool BlockDecryptionSet::isEnough()  {
+    LOCK(m)
+    return decryptions.size() >= this->requiredDecryptionCount;
+}

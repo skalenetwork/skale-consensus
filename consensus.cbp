@@ -5,90 +5,66 @@
 		<Option title="consensus"/>
 		<Option makefile_is_custom="1"/>
 		<Option compiler="gcc"/>
-		<Option virtualFolders="CMake Files\;CMake Files\cmake\;CMake Files\..\;CMake Files\..\..\;CMake Files\..\..\home\;CMake Files\..\..\home\kladko\;CMake Files\..\..\home\kladko\.hunter\;CMake Files\..\..\home\kladko\.hunter\_Base\;CMake Files\..\..\home\kladko\.hunter\_Base\Download\;CMake Files\..\..\home\kladko\.hunter\_Base\Download\Hunter\;CMake Files\..\..\home\kladko\.hunter\_Base\Download\Hunter\0.23.76\;CMake Files\..\..\home\kladko\.hunter\_Base\Download\Hunter\0.23.76\c7b6099\;CMake Files\..\..\home\kladko\.hunter\_Base\Download\Hunter\0.23.76\c7b6099\Unpacked\;CMake Files\..\..\home\kladko\.hunter\_Base\Download\Hunter\0.23.76\c7b6099\Unpacked\cmake\;CMake Files\..\..\home\kladko\.hunter\_Base\Download\Hunter\0.23.76\c7b6099\Unpacked\cmake\modules\;CMake Files\..\..\home\kladko\.hunter\_Base\Download\Hunter\0.23.76\c7b6099\Unpacked\cmake\configs\;CMake Files\..\..\home\kladko\.hunter\_Base\Download\Hunter\0.23.76\c7b6099\Unpacked\cmake\projects\;CMake Files\..\..\home\kladko\.hunter\_Base\Download\Hunter\0.23.76\c7b6099\Unpacked\cmake\projects\ZeroMQ\;CMake Files\..\..\home\kladko\.hunter\_Base\Download\Hunter\0.23.76\c7b6099\Unpacked\cmake\projects\leveldb\;CMake Files\..\..\home\kladko\.hunter\_Base\Download\Hunter\0.23.76\c7b6099\Unpacked\cmake\projects\cryptopp\;CMake Files\..\..\home\kladko\.hunter\_Base\Download\Hunter\0.23.76\c7b6099\Unpacked\cmake\projects\Boost\;CMake Files\..\..\home\kladko\.hunter\_Base\Download\Hunter\0.23.76\c7b6099\Unpacked\cmake\projects\Boost\filesystem\;CMake Files\..\..\home\kladko\.hunter\_Base\Download\Hunter\0.23.76\c7b6099\Unpacked\cmake\projects\Boost\system\;CMake Files\..\..\home\kladko\.hunter\_Base\Download\Hunter\0.23.76\c7b6099\Unpacked\cmake\projects\Boost\thread\;CMake Files\..\..\home\kladko\.hunter\_Base\Download\Hunter\0.23.76\c7b6099\Unpacked\cmake\projects\Boost\log\;CMake Files\..\..\home\kladko\.hunter\_Base\Download\Hunter\0.23.76\c7b6099\Unpacked\cmake\projects\Boost\random\;CMake Files\..\..\home\kladko\.hunter\_Base\Download\Hunter\0.23.76\c7b6099\Unpacked\cmake\projects\spdlog\;CMake Files\..\..\home\kladko\.hunter\_Base\Download\Hunter\0.23.76\c7b6099\Unpacked\cmake\find\;CMake Files\..\..\home\kladko\.hunter\_Base\Download\Hunter\0.23.76\c7b6099\Unpacked\scripts\;CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\;CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\511a137\;CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\511a137\e190f5f\;CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\511a137\e190f5f\Install\;CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\511a137\e190f5f\Install\lib\;CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\511a137\e190f5f\Install\lib\cmake\;CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\511a137\e190f5f\Install\lib\cmake\ZeroMQ\;CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\511a137\e190f5f\Install\lib\cmake\leveldb\;CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\511a137\e190f5f\Install\lib\cmake\crc32c\;CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\511a137\e190f5f\Install\lib\cmake\Snappy\;CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\511a137\e190f5f\Install\lib\cmake\cryptopp\;CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\511a137\e190f5f\Install\lib\cmake\Boost\;CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\511a137\e190f5f\Install\lib\cmake\spdlog\;CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\511a137\e190f5f\Install\lib\cmake\fmt\;CMake Files\_3rdParty\;CMake Files\_3rdParty\Hunter\;CMake Files\_3rdParty\Hunter\toolchain\;CMake Files\_3rdParty\Hunter\config-id\;CMake Files\libBLS\;CMake Files\libBLS\deps\;CMake Files\libBLS\libff\;CMake Files\libBLS\libff\depends\;CMake Files\libBLS\libff\libff\;CMake Files\libBLS\threshold_encryption\;CMake Files\libBLS\threshold_encryption\deps\;CMake Files\libBLS\threshold_encryption\pbc-prefix\;CMake Files\libBLS\threshold_encryption\pbc-prefix\tmp\;CMake Files\deps\;CMake Files\deps\tmp\;"/>
+		<Option virtualFolders="CMake Files\;CMake Files\cmake\;CMake Files\..\;CMake Files\..\..\;CMake Files\..\..\home\;CMake Files\..\..\home\kladko\;CMake Files\..\..\home\kladko\.hunter\;CMake Files\..\..\home\kladko\.hunter\_Base\;CMake Files\..\..\home\kladko\.hunter\_Base\Download\;CMake Files\..\..\home\kladko\.hunter\_Base\Download\Hunter\;CMake Files\..\..\home\kladko\.hunter\_Base\Download\Hunter\0.23.76\;CMake Files\..\..\home\kladko\.hunter\_Base\Download\Hunter\0.23.76\c7b6099\;CMake Files\..\..\home\kladko\.hunter\_Base\Download\Hunter\0.23.76\c7b6099\Unpacked\;CMake Files\..\..\home\kladko\.hunter\_Base\Download\Hunter\0.23.76\c7b6099\Unpacked\cmake\;CMake Files\..\..\home\kladko\.hunter\_Base\Download\Hunter\0.23.76\c7b6099\Unpacked\cmake\modules\;CMake Files\..\..\home\kladko\.hunter\_Base\Download\Hunter\0.23.76\c7b6099\Unpacked\cmake\configs\;CMake Files\..\..\home\kladko\.hunter\_Base\Download\Hunter\0.23.76\c7b6099\Unpacked\cmake\projects\;CMake Files\..\..\home\kladko\.hunter\_Base\Download\Hunter\0.23.76\c7b6099\Unpacked\cmake\projects\leveldb\;CMake Files\..\..\home\kladko\.hunter\_Base\Download\Hunter\0.23.76\c7b6099\Unpacked\scripts\;CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\;CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\4162dcb\;CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\4162dcb\e190f5f\;CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\4162dcb\e190f5f\Install\;CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\4162dcb\e190f5f\Install\lib\;CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\4162dcb\e190f5f\Install\lib\cmake\;CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\4162dcb\e190f5f\Install\lib\cmake\leveldb\;CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\4162dcb\e190f5f\Install\lib\cmake\crc32c\;CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\4162dcb\e190f5f\Install\lib\cmake\Snappy\;CMake Files\_3rdParty\;CMake Files\_3rdParty\Hunter\;CMake Files\_3rdParty\Hunter\toolchain\;CMake Files\_3rdParty\Hunter\config-id\;CMake Files\libBLS\;CMake Files\libBLS\cmake\;CMake Files\libBLS\threshold_encryption\;"/>
 		<Build>
 			<Target title="all">
 				<Option working_dir="/d/skale-consensus"/>
 				<Option type="4"/>
 				<MakeCommands>
-					<Build command="/usr/bin/make -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 all"/>
-					<CompileFile command="/usr/bin/make -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 clean"/>
-				</MakeCommands>
-			</Target>
-			<Target title="install/strip">
-				<Option working_dir="/d/skale-consensus"/>
-				<Option type="4"/>
-				<MakeCommands>
-					<Build command="/usr/bin/make -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 install/strip"/>
-					<CompileFile command="/usr/bin/make -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/gmake -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="/usr/bin/gmake -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="install">
 				<Option working_dir="/d/skale-consensus"/>
 				<Option type="4"/>
 				<MakeCommands>
-					<Build command="/usr/bin/make -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 install"/>
-					<CompileFile command="/usr/bin/make -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/gmake -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 install"/>
+					<CompileFile command="/usr/bin/gmake -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
-			<Target title="consensusd">
-				<Option output="/d/skale-consensus/consensusd" prefix_auto="0" extension_auto="0"/>
+			<Target title="list_install_components">
 				<Option working_dir="/d/skale-consensus"/>
-				<Option object_output="./"/>
-				<Option type="1"/>
-				<Option compiler="gcc"/>
-				<Compiler>
-					<Add option="-DZMQ_BUILD_DRAFT_API"/>
-					<Add option="-DZMQ_EXPERIMENTAL"/>
-					<Add option="-DZMQ_NONBLOCKING"/>
-					<Add option="-DCONSENSUS_STANDALONE"/>
-					<Add option="-DMICROPROFILE_ENABLED=0"/>
-					<Add option="-DZMQ_STATIC"/>
-					<Add directory="/d/skale-consensus/libBLS"/>
-					<Add directory="/d/skale-consensus/libBLS/bls"/>
-					<Add directory="/d/skale-consensus/libBLS/deps/include"/>
-					<Add directory="/d/skale-consensus/libBLS/libff"/>
-					<Add directory="/home/kladko/.hunter/_Base/c7b6099/511a137/e190f5f/Install/include"/>
-					<Add directory="/home/kladko/.hunter/_Base/c7b6099/511a137/e190f5f/Install/include/cryptopp"/>
-				</Compiler>
+				<Option type="4"/>
 				<MakeCommands>
-					<Build command="/usr/bin/make -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 consensusd"/>
-					<CompileFile command="/usr/bin/make -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/gmake -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 list_install_components"/>
+					<CompileFile command="/usr/bin/gmake -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
-			<Target title="consensusd/fast">
-				<Option output="/d/skale-consensus/consensusd" prefix_auto="0" extension_auto="0"/>
+			<Target title="rebuild_cache">
 				<Option working_dir="/d/skale-consensus"/>
-				<Option object_output="./"/>
-				<Option type="1"/>
-				<Option compiler="gcc"/>
-				<Compiler>
-					<Add option="-DZMQ_BUILD_DRAFT_API"/>
-					<Add option="-DZMQ_EXPERIMENTAL"/>
-					<Add option="-DZMQ_NONBLOCKING"/>
-					<Add option="-DCONSENSUS_STANDALONE"/>
-					<Add option="-DMICROPROFILE_ENABLED=0"/>
-					<Add option="-DZMQ_STATIC"/>
-					<Add directory="/d/skale-consensus/libBLS"/>
-					<Add directory="/d/skale-consensus/libBLS/bls"/>
-					<Add directory="/d/skale-consensus/libBLS/deps/include"/>
-					<Add directory="/d/skale-consensus/libBLS/libff"/>
-					<Add directory="/home/kladko/.hunter/_Base/c7b6099/511a137/e190f5f/Install/include"/>
-					<Add directory="/home/kladko/.hunter/_Base/c7b6099/511a137/e190f5f/Install/include/cryptopp"/>
-				</Compiler>
+				<Option type="4"/>
 				<MakeCommands>
-					<Build command="/usr/bin/make -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 consensusd/fast"/>
-					<CompileFile command="/usr/bin/make -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/gmake -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
+					<CompileFile command="/usr/bin/gmake -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="install/strip">
+				<Option working_dir="/d/skale-consensus"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/gmake -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 install/strip"/>
+					<CompileFile command="/usr/bin/gmake -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="install/local">
+				<Option working_dir="/d/skale-consensus"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/gmake -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 install/local"/>
+					<CompileFile command="/usr/bin/gmake -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="consensus">
@@ -99,23 +75,29 @@
 				<Option compiler="gcc"/>
 				<Compiler>
 					<Add option="-DZMQ_BUILD_DRAFT_API"/>
+					<Add option="-DUSER_SPACE"/>
 					<Add option="-DZMQ_EXPERIMENTAL"/>
 					<Add option="-DZMQ_NONBLOCKING"/>
 					<Add option="-DCONSENSUS_STANDALONE"/>
 					<Add option="-DMICROPROFILE_ENABLED=0"/>
-					<Add option="-DZMQ_STATIC"/>
+					<Add directory="/d/skale-consensus/libBLS/deps/deps_inst/x86_or_x64/include"/>
+					<Add directory="/d/skale-consensus/libBLS/deps/deps_inst/x86_or_x64/include/cryptopp"/>
+					<Add directory="/d/skale-consensus/cppzmq"/>
+					<Add directory="/d/skale-consensus/."/>
+					<Add directory="/d/skale-consensus/spdlog/include"/>
 					<Add directory="/d/skale-consensus/libBLS"/>
 					<Add directory="/d/skale-consensus/libBLS/bls"/>
+					<Add directory="/d/skale-consensus/libBLS/deps"/>
+					<Add directory="/d/skale-consensus/libBLS/deps/deps_inst/x86_or_x64"/>
 					<Add directory="/d/skale-consensus/libBLS/deps/include"/>
-					<Add directory="/d/skale-consensus/libBLS/libff"/>
-					<Add directory="/home/kladko/.hunter/_Base/c7b6099/511a137/e190f5f/Install/include"/>
-					<Add directory="/home/kladko/.hunter/_Base/c7b6099/511a137/e190f5f/Install/include/cryptopp"/>
+					<Add directory="/d/skale-consensus/deps/include"/>
+					<Add directory="/home/kladko/.hunter/_Base/c7b6099/4162dcb/e190f5f/Install/include"/>
 				</Compiler>
 				<MakeCommands>
-					<Build command="/usr/bin/make -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 consensus"/>
-					<CompileFile command="/usr/bin/make -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/gmake -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 consensus"/>
+					<CompileFile command="/usr/bin/gmake -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="consensus/fast">
@@ -126,33 +108,95 @@
 				<Option compiler="gcc"/>
 				<Compiler>
 					<Add option="-DZMQ_BUILD_DRAFT_API"/>
+					<Add option="-DUSER_SPACE"/>
 					<Add option="-DZMQ_EXPERIMENTAL"/>
 					<Add option="-DZMQ_NONBLOCKING"/>
 					<Add option="-DCONSENSUS_STANDALONE"/>
 					<Add option="-DMICROPROFILE_ENABLED=0"/>
-					<Add option="-DZMQ_STATIC"/>
+					<Add directory="/d/skale-consensus/libBLS/deps/deps_inst/x86_or_x64/include"/>
+					<Add directory="/d/skale-consensus/libBLS/deps/deps_inst/x86_or_x64/include/cryptopp"/>
+					<Add directory="/d/skale-consensus/cppzmq"/>
+					<Add directory="/d/skale-consensus/."/>
+					<Add directory="/d/skale-consensus/spdlog/include"/>
 					<Add directory="/d/skale-consensus/libBLS"/>
 					<Add directory="/d/skale-consensus/libBLS/bls"/>
+					<Add directory="/d/skale-consensus/libBLS/deps"/>
+					<Add directory="/d/skale-consensus/libBLS/deps/deps_inst/x86_or_x64"/>
 					<Add directory="/d/skale-consensus/libBLS/deps/include"/>
-					<Add directory="/d/skale-consensus/libBLS/libff"/>
-					<Add directory="/home/kladko/.hunter/_Base/c7b6099/511a137/e190f5f/Install/include"/>
-					<Add directory="/home/kladko/.hunter/_Base/c7b6099/511a137/e190f5f/Install/include/cryptopp"/>
+					<Add directory="/d/skale-consensus/deps/include"/>
+					<Add directory="/home/kladko/.hunter/_Base/c7b6099/4162dcb/e190f5f/Install/include"/>
 				</Compiler>
 				<MakeCommands>
-					<Build command="/usr/bin/make -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 consensus/fast"/>
-					<CompileFile command="/usr/bin/make -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/gmake -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 consensus/fast"/>
+					<CompileFile command="/usr/bin/gmake -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
-			<Target title="install/local">
+			<Target title="consensusd">
+				<Option output="/d/skale-consensus/consensusd" prefix_auto="0" extension_auto="0"/>
 				<Option working_dir="/d/skale-consensus"/>
-				<Option type="4"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add option="-DZMQ_BUILD_DRAFT_API"/>
+					<Add option="-DUSER_SPACE"/>
+					<Add option="-DZMQ_EXPERIMENTAL"/>
+					<Add option="-DZMQ_NONBLOCKING"/>
+					<Add option="-DCONSENSUS_STANDALONE"/>
+					<Add option="-DMICROPROFILE_ENABLED=0"/>
+					<Add directory="/d/skale-consensus/libBLS/deps/deps_inst/x86_or_x64/include"/>
+					<Add directory="/d/skale-consensus/libBLS/deps/deps_inst/x86_or_x64/include/cryptopp"/>
+					<Add directory="/d/skale-consensus/cppzmq"/>
+					<Add directory="/d/skale-consensus/."/>
+					<Add directory="/d/skale-consensus/spdlog/include"/>
+					<Add directory="/d/skale-consensus/libBLS"/>
+					<Add directory="/d/skale-consensus/libBLS/bls"/>
+					<Add directory="/d/skale-consensus/libBLS/deps"/>
+					<Add directory="/d/skale-consensus/libBLS/deps/deps_inst/x86_or_x64"/>
+					<Add directory="/d/skale-consensus/libBLS/deps/include"/>
+					<Add directory="/d/skale-consensus/deps/include"/>
+					<Add directory="/home/kladko/.hunter/_Base/c7b6099/4162dcb/e190f5f/Install/include"/>
+				</Compiler>
 				<MakeCommands>
-					<Build command="/usr/bin/make -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 install/local"/>
-					<CompileFile command="/usr/bin/make -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/gmake -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 consensusd"/>
+					<CompileFile command="/usr/bin/gmake -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="consensusd/fast">
+				<Option output="/d/skale-consensus/consensusd" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/d/skale-consensus"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add option="-DZMQ_BUILD_DRAFT_API"/>
+					<Add option="-DUSER_SPACE"/>
+					<Add option="-DZMQ_EXPERIMENTAL"/>
+					<Add option="-DZMQ_NONBLOCKING"/>
+					<Add option="-DCONSENSUS_STANDALONE"/>
+					<Add option="-DMICROPROFILE_ENABLED=0"/>
+					<Add directory="/d/skale-consensus/libBLS/deps/deps_inst/x86_or_x64/include"/>
+					<Add directory="/d/skale-consensus/libBLS/deps/deps_inst/x86_or_x64/include/cryptopp"/>
+					<Add directory="/d/skale-consensus/cppzmq"/>
+					<Add directory="/d/skale-consensus/."/>
+					<Add directory="/d/skale-consensus/spdlog/include"/>
+					<Add directory="/d/skale-consensus/libBLS"/>
+					<Add directory="/d/skale-consensus/libBLS/bls"/>
+					<Add directory="/d/skale-consensus/libBLS/deps"/>
+					<Add directory="/d/skale-consensus/libBLS/deps/deps_inst/x86_or_x64"/>
+					<Add directory="/d/skale-consensus/libBLS/deps/include"/>
+					<Add directory="/d/skale-consensus/deps/include"/>
+					<Add directory="/home/kladko/.hunter/_Base/c7b6099/4162dcb/e190f5f/Install/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/gmake -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 consensusd/fast"/>
+					<CompileFile command="/usr/bin/gmake -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="consensust">
@@ -163,23 +207,29 @@
 				<Option compiler="gcc"/>
 				<Compiler>
 					<Add option="-DZMQ_BUILD_DRAFT_API"/>
+					<Add option="-DUSER_SPACE"/>
 					<Add option="-DZMQ_EXPERIMENTAL"/>
 					<Add option="-DZMQ_NONBLOCKING"/>
 					<Add option="-DCONSENSUS_STANDALONE"/>
 					<Add option="-DMICROPROFILE_ENABLED=0"/>
-					<Add option="-DZMQ_STATIC"/>
+					<Add directory="/d/skale-consensus/libBLS/deps/deps_inst/x86_or_x64/include"/>
+					<Add directory="/d/skale-consensus/libBLS/deps/deps_inst/x86_or_x64/include/cryptopp"/>
+					<Add directory="/d/skale-consensus/cppzmq"/>
+					<Add directory="/d/skale-consensus/."/>
+					<Add directory="/d/skale-consensus/spdlog/include"/>
 					<Add directory="/d/skale-consensus/libBLS"/>
 					<Add directory="/d/skale-consensus/libBLS/bls"/>
+					<Add directory="/d/skale-consensus/libBLS/deps"/>
+					<Add directory="/d/skale-consensus/libBLS/deps/deps_inst/x86_or_x64"/>
 					<Add directory="/d/skale-consensus/libBLS/deps/include"/>
-					<Add directory="/d/skale-consensus/libBLS/libff"/>
-					<Add directory="/home/kladko/.hunter/_Base/c7b6099/511a137/e190f5f/Install/include"/>
-					<Add directory="/home/kladko/.hunter/_Base/c7b6099/511a137/e190f5f/Install/include/cryptopp"/>
+					<Add directory="/d/skale-consensus/deps/include"/>
+					<Add directory="/home/kladko/.hunter/_Base/c7b6099/4162dcb/e190f5f/Install/include"/>
 				</Compiler>
 				<MakeCommands>
-					<Build command="/usr/bin/make -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 consensust"/>
-					<CompileFile command="/usr/bin/make -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/gmake -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 consensust"/>
+					<CompileFile command="/usr/bin/gmake -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="consensust/fast">
@@ -190,53 +240,77 @@
 				<Option compiler="gcc"/>
 				<Compiler>
 					<Add option="-DZMQ_BUILD_DRAFT_API"/>
+					<Add option="-DUSER_SPACE"/>
 					<Add option="-DZMQ_EXPERIMENTAL"/>
 					<Add option="-DZMQ_NONBLOCKING"/>
 					<Add option="-DCONSENSUS_STANDALONE"/>
 					<Add option="-DMICROPROFILE_ENABLED=0"/>
-					<Add option="-DZMQ_STATIC"/>
+					<Add directory="/d/skale-consensus/libBLS/deps/deps_inst/x86_or_x64/include"/>
+					<Add directory="/d/skale-consensus/libBLS/deps/deps_inst/x86_or_x64/include/cryptopp"/>
+					<Add directory="/d/skale-consensus/cppzmq"/>
+					<Add directory="/d/skale-consensus/."/>
+					<Add directory="/d/skale-consensus/spdlog/include"/>
 					<Add directory="/d/skale-consensus/libBLS"/>
 					<Add directory="/d/skale-consensus/libBLS/bls"/>
+					<Add directory="/d/skale-consensus/libBLS/deps"/>
+					<Add directory="/d/skale-consensus/libBLS/deps/deps_inst/x86_or_x64"/>
 					<Add directory="/d/skale-consensus/libBLS/deps/include"/>
-					<Add directory="/d/skale-consensus/libBLS/libff"/>
-					<Add directory="/home/kladko/.hunter/_Base/c7b6099/511a137/e190f5f/Install/include"/>
-					<Add directory="/home/kladko/.hunter/_Base/c7b6099/511a137/e190f5f/Install/include/cryptopp"/>
+					<Add directory="/d/skale-consensus/deps/include"/>
+					<Add directory="/home/kladko/.hunter/_Base/c7b6099/4162dcb/e190f5f/Install/include"/>
 				</Compiler>
 				<MakeCommands>
-					<Build command="/usr/bin/make -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 consensust/fast"/>
-					<CompileFile command="/usr/bin/make -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 clean"/>
-				</MakeCommands>
-			</Target>
-			<Target title="rebuild_cache">
-				<Option working_dir="/d/skale-consensus"/>
-				<Option type="4"/>
-				<MakeCommands>
-					<Build command="/usr/bin/make -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
-					<CompileFile command="/usr/bin/make -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/gmake -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 consensust/fast"/>
+					<CompileFile command="/usr/bin/gmake -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="edit_cache">
 				<Option working_dir="/d/skale-consensus"/>
 				<Option type="4"/>
 				<MakeCommands>
-					<Build command="/usr/bin/make -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 edit_cache"/>
-					<CompileFile command="/usr/bin/make -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/gmake -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 edit_cache"/>
+					<CompileFile command="/usr/bin/gmake -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
-			<Target title="list_install_components">
-				<Option working_dir="/d/skale-consensus"/>
-				<Option type="4"/>
+			<Target title="hash_g1">
+				<Option output="/d/skale-consensus/libBLS/hash_g1" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/d/skale-consensus/libBLS"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add option="-DBLS_VERSION=0.2.0"/>
+					<Add directory="/d/skale-consensus/libBLS/deps/deps_inst/x86_or_x64/include"/>
+					<Add directory="/d/skale-consensus/deps/include"/>
+					<Add directory="/d/skale-consensus/libBLS"/>
+				</Compiler>
 				<MakeCommands>
-					<Build command="/usr/bin/make -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 list_install_components"/>
-					<CompileFile command="/usr/bin/make -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -f &quot;/d/skale-consensus/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 hash_g1"/>
+					<CompileFile command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="hash_g1/fast">
+				<Option output="/d/skale-consensus/libBLS/hash_g1" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/d/skale-consensus/libBLS"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add option="-DBLS_VERSION=0.2.0"/>
+					<Add directory="/d/skale-consensus/libBLS/deps/deps_inst/x86_or_x64/include"/>
+					<Add directory="/d/skale-consensus/deps/include"/>
+					<Add directory="/d/skale-consensus/libBLS"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 hash_g1/fast"/>
+					<CompileFile command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="dkg_glue">
@@ -246,16 +320,16 @@
 				<Option type="1"/>
 				<Option compiler="gcc"/>
 				<Compiler>
-					<Add option="-DBLS_VERSION=0.4.0"/>
+					<Add option="-DBLS_VERSION=0.2.0"/>
+					<Add directory="/d/skale-consensus/libBLS/deps/deps_inst/x86_or_x64/include"/>
 					<Add directory="/d/skale-consensus/deps/include"/>
-					<Add directory="/d/skale-consensus/libBLS/libff"/>
 					<Add directory="/d/skale-consensus/libBLS"/>
 				</Compiler>
 				<MakeCommands>
-					<Build command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 dkg_glue"/>
-					<CompileFile command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 dkg_glue"/>
+					<CompileFile command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="dkg_glue/fast">
@@ -265,266 +339,16 @@
 				<Option type="1"/>
 				<Option compiler="gcc"/>
 				<Compiler>
-					<Add option="-DBLS_VERSION=0.4.0"/>
+					<Add option="-DBLS_VERSION=0.2.0"/>
+					<Add directory="/d/skale-consensus/libBLS/deps/deps_inst/x86_or_x64/include"/>
 					<Add directory="/d/skale-consensus/deps/include"/>
-					<Add directory="/d/skale-consensus/libBLS/libff"/>
 					<Add directory="/d/skale-consensus/libBLS"/>
 				</Compiler>
 				<MakeCommands>
-					<Build command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 dkg_glue/fast"/>
-					<CompileFile command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
-				</MakeCommands>
-			</Target>
-			<Target title="sign_bls">
-				<Option output="/d/skale-consensus/libBLS/sign_bls" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/d/skale-consensus/libBLS"/>
-				<Option object_output="./"/>
-				<Option type="1"/>
-				<Option compiler="gcc"/>
-				<Compiler>
-					<Add option="-DBLS_VERSION=0.4.0"/>
-					<Add directory="/d/skale-consensus/deps/include"/>
-					<Add directory="/d/skale-consensus/libBLS/libff"/>
-					<Add directory="/d/skale-consensus/libBLS"/>
-				</Compiler>
-				<MakeCommands>
-					<Build command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 sign_bls"/>
-					<CompileFile command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
-				</MakeCommands>
-			</Target>
-			<Target title="sign_bls/fast">
-				<Option output="/d/skale-consensus/libBLS/sign_bls" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/d/skale-consensus/libBLS"/>
-				<Option object_output="./"/>
-				<Option type="1"/>
-				<Option compiler="gcc"/>
-				<Compiler>
-					<Add option="-DBLS_VERSION=0.4.0"/>
-					<Add directory="/d/skale-consensus/deps/include"/>
-					<Add directory="/d/skale-consensus/libBLS/libff"/>
-					<Add directory="/d/skale-consensus/libBLS"/>
-				</Compiler>
-				<MakeCommands>
-					<Build command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 sign_bls/fast"/>
-					<CompileFile command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
-				</MakeCommands>
-			</Target>
-			<Target title="secp256k1">
-				<Option working_dir="/d/skale-consensus/libBLS"/>
-				<Option type="4"/>
-				<MakeCommands>
-					<Build command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 secp256k1"/>
-					<CompileFile command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
-				</MakeCommands>
-			</Target>
-			<Target title="dkg_keygen">
-				<Option output="/d/skale-consensus/libBLS/dkg_keygen" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/d/skale-consensus/libBLS"/>
-				<Option object_output="./"/>
-				<Option type="1"/>
-				<Option compiler="gcc"/>
-				<Compiler>
-					<Add option="-DBLS_VERSION=0.4.0"/>
-					<Add directory="/d/skale-consensus/deps/include"/>
-					<Add directory="/d/skale-consensus/libBLS/libff"/>
-					<Add directory="/d/skale-consensus/libBLS"/>
-				</Compiler>
-				<MakeCommands>
-					<Build command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 dkg_keygen"/>
-					<CompileFile command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
-				</MakeCommands>
-			</Target>
-			<Target title="dkg_keygen/fast">
-				<Option output="/d/skale-consensus/libBLS/dkg_keygen" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/d/skale-consensus/libBLS"/>
-				<Option object_output="./"/>
-				<Option type="1"/>
-				<Option compiler="gcc"/>
-				<Compiler>
-					<Add option="-DBLS_VERSION=0.4.0"/>
-					<Add directory="/d/skale-consensus/deps/include"/>
-					<Add directory="/d/skale-consensus/libBLS/libff"/>
-					<Add directory="/d/skale-consensus/libBLS"/>
-				</Compiler>
-				<MakeCommands>
-					<Build command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 dkg_keygen/fast"/>
-					<CompileFile command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
-				</MakeCommands>
-			</Target>
-			<Target title="bls">
-				<Option output="/d/skale-consensus/libBLS/libblsd.a" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/d/skale-consensus/libBLS"/>
-				<Option object_output="./"/>
-				<Option type="2"/>
-				<Option compiler="gcc"/>
-				<Compiler>
-					<Add option="-DBLS_VERSION=0.4.0"/>
-					<Add directory="/d/skale-consensus/libBLS/libff"/>
-					<Add directory="/d/skale-consensus/libBLS"/>
-					<Add directory="/d/skale-consensus/libBLS/libff/libff/.."/>
-					<Add directory="/d/skale-consensus/deps/include"/>
-				</Compiler>
-				<MakeCommands>
-					<Build command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 bls"/>
-					<CompileFile command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
-				</MakeCommands>
-			</Target>
-			<Target title="bls/fast">
-				<Option output="/d/skale-consensus/libBLS/libblsd.a" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/d/skale-consensus/libBLS"/>
-				<Option object_output="./"/>
-				<Option type="2"/>
-				<Option compiler="gcc"/>
-				<Compiler>
-					<Add option="-DBLS_VERSION=0.4.0"/>
-					<Add directory="/d/skale-consensus/libBLS/libff"/>
-					<Add directory="/d/skale-consensus/libBLS"/>
-					<Add directory="/d/skale-consensus/libBLS/libff/libff/.."/>
-					<Add directory="/d/skale-consensus/deps/include"/>
-				</Compiler>
-				<MakeCommands>
-					<Build command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 bls/fast"/>
-					<CompileFile command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
-				</MakeCommands>
-			</Target>
-			<Target title="bls_test">
-				<Option output="/d/skale-consensus/libBLS/bls_test" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/d/skale-consensus/libBLS"/>
-				<Option object_output="./"/>
-				<Option type="1"/>
-				<Option compiler="gcc"/>
-				<Compiler>
-					<Add option="-DBLS_VERSION=0.4.0"/>
-					<Add directory="/d/skale-consensus/deps/include"/>
-					<Add directory="/d/skale-consensus/libBLS/libff"/>
-					<Add directory="/d/skale-consensus/libBLS"/>
-				</Compiler>
-				<MakeCommands>
-					<Build command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 bls_test"/>
-					<CompileFile command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
-				</MakeCommands>
-			</Target>
-			<Target title="bls_test/fast">
-				<Option output="/d/skale-consensus/libBLS/bls_test" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/d/skale-consensus/libBLS"/>
-				<Option object_output="./"/>
-				<Option type="1"/>
-				<Option compiler="gcc"/>
-				<Compiler>
-					<Add option="-DBLS_VERSION=0.4.0"/>
-					<Add directory="/d/skale-consensus/deps/include"/>
-					<Add directory="/d/skale-consensus/libBLS/libff"/>
-					<Add directory="/d/skale-consensus/libBLS"/>
-				</Compiler>
-				<MakeCommands>
-					<Build command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 bls_test/fast"/>
-					<CompileFile command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
-				</MakeCommands>
-			</Target>
-			<Target title="bls_glue">
-				<Option output="/d/skale-consensus/libBLS/bls_glue" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/d/skale-consensus/libBLS"/>
-				<Option object_output="./"/>
-				<Option type="1"/>
-				<Option compiler="gcc"/>
-				<Compiler>
-					<Add option="-DBLS_VERSION=0.4.0"/>
-					<Add directory="/d/skale-consensus/deps/include"/>
-					<Add directory="/d/skale-consensus/libBLS/libff"/>
-					<Add directory="/d/skale-consensus/libBLS"/>
-				</Compiler>
-				<MakeCommands>
-					<Build command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 bls_glue"/>
-					<CompileFile command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
-				</MakeCommands>
-			</Target>
-			<Target title="bls_glue/fast">
-				<Option output="/d/skale-consensus/libBLS/bls_glue" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/d/skale-consensus/libBLS"/>
-				<Option object_output="./"/>
-				<Option type="1"/>
-				<Option compiler="gcc"/>
-				<Compiler>
-					<Add option="-DBLS_VERSION=0.4.0"/>
-					<Add directory="/d/skale-consensus/deps/include"/>
-					<Add directory="/d/skale-consensus/libBLS/libff"/>
-					<Add directory="/d/skale-consensus/libBLS"/>
-				</Compiler>
-				<MakeCommands>
-					<Build command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 bls_glue/fast"/>
-					<CompileFile command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
-				</MakeCommands>
-			</Target>
-			<Target title="bls_unit_test">
-				<Option output="/d/skale-consensus/libBLS/bls_unit_test" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/d/skale-consensus/libBLS"/>
-				<Option object_output="./"/>
-				<Option type="1"/>
-				<Option compiler="gcc"/>
-				<Compiler>
-					<Add option="-DBLS_VERSION=0.4.0"/>
-					<Add directory="/d/skale-consensus/deps/include"/>
-					<Add directory="/d/skale-consensus/libBLS/libff"/>
-					<Add directory="/d/skale-consensus/libBLS"/>
-				</Compiler>
-				<MakeCommands>
-					<Build command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 bls_unit_test"/>
-					<CompileFile command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
-				</MakeCommands>
-			</Target>
-			<Target title="bls_unit_test/fast">
-				<Option output="/d/skale-consensus/libBLS/bls_unit_test" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/d/skale-consensus/libBLS"/>
-				<Option object_output="./"/>
-				<Option type="1"/>
-				<Option compiler="gcc"/>
-				<Compiler>
-					<Add option="-DBLS_VERSION=0.4.0"/>
-					<Add directory="/d/skale-consensus/deps/include"/>
-					<Add directory="/d/skale-consensus/libBLS/libff"/>
-					<Add directory="/d/skale-consensus/libBLS"/>
-				</Compiler>
-				<MakeCommands>
-					<Build command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 bls_unit_test/fast"/>
-					<CompileFile command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
-				</MakeCommands>
-			</Target>
-			<Target title="gmp">
-				<Option working_dir="/d/skale-consensus/libBLS"/>
-				<Option type="4"/>
-				<MakeCommands>
-					<Build command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 gmp"/>
-					<CompileFile command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 dkg_glue/fast"/>
+					<CompileFile command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="verify_bls">
@@ -534,16 +358,16 @@
 				<Option type="1"/>
 				<Option compiler="gcc"/>
 				<Compiler>
-					<Add option="-DBLS_VERSION=0.4.0"/>
+					<Add option="-DBLS_VERSION=0.2.0"/>
+					<Add directory="/d/skale-consensus/libBLS/deps/deps_inst/x86_or_x64/include"/>
 					<Add directory="/d/skale-consensus/deps/include"/>
-					<Add directory="/d/skale-consensus/libBLS/libff"/>
 					<Add directory="/d/skale-consensus/libBLS"/>
 				</Compiler>
 				<MakeCommands>
-					<Build command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 verify_bls"/>
-					<CompileFile command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 verify_bls"/>
+					<CompileFile command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="verify_bls/fast">
@@ -553,16 +377,168 @@
 				<Option type="1"/>
 				<Option compiler="gcc"/>
 				<Compiler>
-					<Add option="-DBLS_VERSION=0.4.0"/>
+					<Add option="-DBLS_VERSION=0.2.0"/>
+					<Add directory="/d/skale-consensus/libBLS/deps/deps_inst/x86_or_x64/include"/>
 					<Add directory="/d/skale-consensus/deps/include"/>
-					<Add directory="/d/skale-consensus/libBLS/libff"/>
 					<Add directory="/d/skale-consensus/libBLS"/>
 				</Compiler>
 				<MakeCommands>
-					<Build command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 verify_bls/fast"/>
-					<CompileFile command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 verify_bls/fast"/>
+					<CompileFile command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="bls_glue">
+				<Option output="/d/skale-consensus/libBLS/bls_glue" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/d/skale-consensus/libBLS"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add option="-DBLS_VERSION=0.2.0"/>
+					<Add directory="/d/skale-consensus/libBLS/deps/deps_inst/x86_or_x64/include"/>
+					<Add directory="/d/skale-consensus/deps/include"/>
+					<Add directory="/d/skale-consensus/libBLS"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 bls_glue"/>
+					<CompileFile command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="bls_glue/fast">
+				<Option output="/d/skale-consensus/libBLS/bls_glue" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/d/skale-consensus/libBLS"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add option="-DBLS_VERSION=0.2.0"/>
+					<Add directory="/d/skale-consensus/libBLS/deps/deps_inst/x86_or_x64/include"/>
+					<Add directory="/d/skale-consensus/deps/include"/>
+					<Add directory="/d/skale-consensus/libBLS"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 bls_glue/fast"/>
+					<CompileFile command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="sign_bls">
+				<Option output="/d/skale-consensus/libBLS/sign_bls" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/d/skale-consensus/libBLS"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add option="-DBLS_VERSION=0.2.0"/>
+					<Add directory="/d/skale-consensus/libBLS/deps/deps_inst/x86_or_x64/include"/>
+					<Add directory="/d/skale-consensus/deps/include"/>
+					<Add directory="/d/skale-consensus/libBLS"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 sign_bls"/>
+					<CompileFile command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="sign_bls/fast">
+				<Option output="/d/skale-consensus/libBLS/sign_bls" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/d/skale-consensus/libBLS"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add option="-DBLS_VERSION=0.2.0"/>
+					<Add directory="/d/skale-consensus/libBLS/deps/deps_inst/x86_or_x64/include"/>
+					<Add directory="/d/skale-consensus/deps/include"/>
+					<Add directory="/d/skale-consensus/libBLS"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 sign_bls/fast"/>
+					<CompileFile command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="utils_unit_test">
+				<Option output="/d/skale-consensus/libBLS/utils_unit_test" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/d/skale-consensus/libBLS"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add option="-DBLS_VERSION=0.2.0"/>
+					<Add directory="/d/skale-consensus/libBLS/deps/deps_inst/x86_or_x64/include"/>
+					<Add directory="/d/skale-consensus/deps/include"/>
+					<Add directory="/d/skale-consensus/libBLS"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 utils_unit_test"/>
+					<CompileFile command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="utils_unit_test/fast">
+				<Option output="/d/skale-consensus/libBLS/utils_unit_test" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/d/skale-consensus/libBLS"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add option="-DBLS_VERSION=0.2.0"/>
+					<Add directory="/d/skale-consensus/libBLS/deps/deps_inst/x86_or_x64/include"/>
+					<Add directory="/d/skale-consensus/deps/include"/>
+					<Add directory="/d/skale-consensus/libBLS"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 utils_unit_test/fast"/>
+					<CompileFile command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="dkg_keygen">
+				<Option output="/d/skale-consensus/libBLS/dkg_keygen" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/d/skale-consensus/libBLS"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add option="-DBLS_VERSION=0.2.0"/>
+					<Add directory="/d/skale-consensus/libBLS/deps/deps_inst/x86_or_x64/include"/>
+					<Add directory="/d/skale-consensus/deps/include"/>
+					<Add directory="/d/skale-consensus/libBLS"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 dkg_keygen"/>
+					<CompileFile command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="dkg_keygen/fast">
+				<Option output="/d/skale-consensus/libBLS/dkg_keygen" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/d/skale-consensus/libBLS"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add option="-DBLS_VERSION=0.2.0"/>
+					<Add directory="/d/skale-consensus/libBLS/deps/deps_inst/x86_or_x64/include"/>
+					<Add directory="/d/skale-consensus/deps/include"/>
+					<Add directory="/d/skale-consensus/libBLS"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 dkg_keygen/fast"/>
+					<CompileFile command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="dkg_unit_test">
@@ -572,16 +548,16 @@
 				<Option type="1"/>
 				<Option compiler="gcc"/>
 				<Compiler>
-					<Add option="-DBLS_VERSION=0.4.0"/>
+					<Add option="-DBLS_VERSION=0.2.0"/>
+					<Add directory="/d/skale-consensus/libBLS/deps/deps_inst/x86_or_x64/include"/>
 					<Add directory="/d/skale-consensus/deps/include"/>
-					<Add directory="/d/skale-consensus/libBLS/libff"/>
 					<Add directory="/d/skale-consensus/libBLS"/>
 				</Compiler>
 				<MakeCommands>
-					<Build command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 dkg_unit_test"/>
-					<CompileFile command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 dkg_unit_test"/>
+					<CompileFile command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="dkg_unit_test/fast">
@@ -591,452 +567,288 @@
 				<Option type="1"/>
 				<Option compiler="gcc"/>
 				<Compiler>
-					<Add option="-DBLS_VERSION=0.4.0"/>
+					<Add option="-DBLS_VERSION=0.2.0"/>
+					<Add directory="/d/skale-consensus/libBLS/deps/deps_inst/x86_or_x64/include"/>
 					<Add directory="/d/skale-consensus/deps/include"/>
-					<Add directory="/d/skale-consensus/libBLS/libff"/>
 					<Add directory="/d/skale-consensus/libBLS"/>
 				</Compiler>
 				<MakeCommands>
-					<Build command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 dkg_unit_test/fast"/>
-					<CompileFile command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 dkg_unit_test/fast"/>
+					<CompileFile command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="bls-format">
+				<Option working_dir="/d/skale-consensus/libBLS"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 bls-format"/>
+					<CompileFile command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="bls-format-check-changed">
+				<Option working_dir="/d/skale-consensus/libBLS"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 bls-format-check-changed"/>
+					<CompileFile command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="bls">
+				<Option output="/d/skale-consensus/libBLS/libblsd.a" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/d/skale-consensus/libBLS"/>
+				<Option object_output="./"/>
+				<Option type="2"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add option="-DBLS_VERSION=0.2.0"/>
+					<Add directory="/d/skale-consensus/libBLS/deps/deps_inst/x86_or_x64/include"/>
+					<Add directory="/d/skale-consensus/deps/include"/>
+					<Add directory="/d/skale-consensus/libBLS"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 bls"/>
+					<CompileFile command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="bls/fast">
+				<Option output="/d/skale-consensus/libBLS/libblsd.a" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/d/skale-consensus/libBLS"/>
+				<Option object_output="./"/>
+				<Option type="2"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add option="-DBLS_VERSION=0.2.0"/>
+					<Add directory="/d/skale-consensus/libBLS/deps/deps_inst/x86_or_x64/include"/>
+					<Add directory="/d/skale-consensus/deps/include"/>
+					<Add directory="/d/skale-consensus/libBLS"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 bls/fast"/>
+					<CompileFile command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="bls_unit_test">
+				<Option output="/d/skale-consensus/libBLS/bls_unit_test" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/d/skale-consensus/libBLS"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add option="-DBLS_VERSION=0.2.0"/>
+					<Add directory="/d/skale-consensus/libBLS/deps/deps_inst/x86_or_x64/include"/>
+					<Add directory="/d/skale-consensus/deps/include"/>
+					<Add directory="/d/skale-consensus/libBLS"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 bls_unit_test"/>
+					<CompileFile command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="bls_unit_test/fast">
+				<Option output="/d/skale-consensus/libBLS/bls_unit_test" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/d/skale-consensus/libBLS"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add option="-DBLS_VERSION=0.2.0"/>
+					<Add directory="/d/skale-consensus/libBLS/deps/deps_inst/x86_or_x64/include"/>
+					<Add directory="/d/skale-consensus/deps/include"/>
+					<Add directory="/d/skale-consensus/libBLS"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 bls_unit_test/fast"/>
+					<CompileFile command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="dkg_attack">
+				<Option output="/d/skale-consensus/libBLS/dkg_attack" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/d/skale-consensus/libBLS"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add option="-DBLS_VERSION=0.2.0"/>
+					<Add directory="/d/skale-consensus/libBLS/deps/deps_inst/x86_or_x64/include"/>
+					<Add directory="/d/skale-consensus/deps/include"/>
+					<Add directory="/d/skale-consensus/libBLS"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 dkg_attack"/>
+					<CompileFile command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="dkg_attack/fast">
+				<Option output="/d/skale-consensus/libBLS/dkg_attack" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/d/skale-consensus/libBLS"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add option="-DBLS_VERSION=0.2.0"/>
+					<Add directory="/d/skale-consensus/libBLS/deps/deps_inst/x86_or_x64/include"/>
+					<Add directory="/d/skale-consensus/deps/include"/>
+					<Add directory="/d/skale-consensus/libBLS"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 dkg_attack/fast"/>
+					<CompileFile command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="all_bls_tests">
 				<Option working_dir="/d/skale-consensus/libBLS"/>
 				<Option type="4"/>
 				<MakeCommands>
-					<Build command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 all_bls_tests"/>
-					<CompileFile command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 all_bls_tests"/>
+					<CompileFile command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
-			<Target title="check">
-				<Option working_dir="/d/skale-consensus/libBLS/libff"/>
+			<Target title="bls_test">
+				<Option output="/d/skale-consensus/libBLS/bls_test" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/d/skale-consensus/libBLS"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add option="-DBLS_VERSION=0.2.0"/>
+					<Add directory="/d/skale-consensus/libBLS/deps/deps_inst/x86_or_x64/include"/>
+					<Add directory="/d/skale-consensus/deps/include"/>
+					<Add directory="/d/skale-consensus/libBLS"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 bls_test"/>
+					<CompileFile command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="bls_test/fast">
+				<Option output="/d/skale-consensus/libBLS/bls_test" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/d/skale-consensus/libBLS"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add option="-DBLS_VERSION=0.2.0"/>
+					<Add directory="/d/skale-consensus/libBLS/deps/deps_inst/x86_or_x64/include"/>
+					<Add directory="/d/skale-consensus/deps/include"/>
+					<Add directory="/d/skale-consensus/libBLS"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 bls_test/fast"/>
+					<CompileFile command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="generate_key_system">
+				<Option output="/d/skale-consensus/libBLS/generate_key_system" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/d/skale-consensus/libBLS"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add option="-DBLS_VERSION=0.2.0"/>
+					<Add directory="/d/skale-consensus/libBLS/deps/deps_inst/x86_or_x64/include"/>
+					<Add directory="/d/skale-consensus/deps/include"/>
+					<Add directory="/d/skale-consensus/libBLS"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 generate_key_system"/>
+					<CompileFile command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="generate_key_system/fast">
+				<Option output="/d/skale-consensus/libBLS/generate_key_system" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/d/skale-consensus/libBLS"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add option="-DBLS_VERSION=0.2.0"/>
+					<Add directory="/d/skale-consensus/libBLS/deps/deps_inst/x86_or_x64/include"/>
+					<Add directory="/d/skale-consensus/deps/include"/>
+					<Add directory="/d/skale-consensus/libBLS"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 generate_key_system/fast"/>
+					<CompileFile command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="bls-format-check">
+				<Option working_dir="/d/skale-consensus/libBLS"/>
 				<Option type="4"/>
 				<MakeCommands>
-					<Build command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/libff/Makefile&quot;  VERBOSE=1 check"/>
-					<CompileFile command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/libff/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/libff/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/libff/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 bls-format-check"/>
+					<CompileFile command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
-			<Target title="profile">
-				<Option working_dir="/d/skale-consensus/libBLS/libff"/>
-				<Option type="4"/>
-				<MakeCommands>
-					<Build command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/libff/Makefile&quot;  VERBOSE=1 profile"/>
-					<CompileFile command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/libff/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/libff/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/libff/Makefile&quot;  VERBOSE=1 clean"/>
-				</MakeCommands>
-			</Target>
-			<Target title="doc">
-				<Option working_dir="/d/skale-consensus/libBLS/libff"/>
-				<Option type="4"/>
-				<MakeCommands>
-					<Build command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/libff/Makefile&quot;  VERBOSE=1 doc"/>
-					<CompileFile command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/libff/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/libff/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/libff/Makefile&quot;  VERBOSE=1 clean"/>
-				</MakeCommands>
-			</Target>
-			<Target title="zm">
-				<Option output="/d/skale-consensus/libBLS/libff/depends/libzmd.a" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/d/skale-consensus/libBLS/libff/depends"/>
-				<Option object_output="./"/>
-				<Option type="2"/>
-				<Option compiler="gcc"/>
-				<Compiler>
-					<Add option="-DBLS_VERSION=0.4.0"/>
-					<Add option="-DCURVE_BN128"/>
-					<Add option="-DBN_SUPPORT_SNARK=1"/>
-					<Add option="-DBINARY_OUTPUT"/>
-					<Add option="-DMONTGOMERY_OUTPUT"/>
-					<Add option="-DUSE_ASM"/>
-					<Add directory="/d/skale-consensus/deps/include"/>
-					<Add directory="/d/skale-consensus/libBLS/libff/depends/ate-pairing/include"/>
-					<Add directory="/d/skale-consensus/libBLS/libff/depends/xbyak"/>
-				</Compiler>
-				<MakeCommands>
-					<Build command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/libff/depends/Makefile&quot;  VERBOSE=1 zm"/>
-					<CompileFile command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/libff/depends/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/libff/depends/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/libff/depends/Makefile&quot;  VERBOSE=1 clean"/>
-				</MakeCommands>
-			</Target>
-			<Target title="zm/fast">
-				<Option output="/d/skale-consensus/libBLS/libff/depends/libzmd.a" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/d/skale-consensus/libBLS/libff/depends"/>
-				<Option object_output="./"/>
-				<Option type="2"/>
-				<Option compiler="gcc"/>
-				<Compiler>
-					<Add option="-DBLS_VERSION=0.4.0"/>
-					<Add option="-DCURVE_BN128"/>
-					<Add option="-DBN_SUPPORT_SNARK=1"/>
-					<Add option="-DBINARY_OUTPUT"/>
-					<Add option="-DMONTGOMERY_OUTPUT"/>
-					<Add option="-DUSE_ASM"/>
-					<Add directory="/d/skale-consensus/deps/include"/>
-					<Add directory="/d/skale-consensus/libBLS/libff/depends/ate-pairing/include"/>
-					<Add directory="/d/skale-consensus/libBLS/libff/depends/xbyak"/>
-				</Compiler>
-				<MakeCommands>
-					<Build command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/libff/depends/Makefile&quot;  VERBOSE=1 zm/fast"/>
-					<CompileFile command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/libff/depends/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/libff/depends/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/libff/depends/Makefile&quot;  VERBOSE=1 clean"/>
-				</MakeCommands>
-			</Target>
-			<Target title="algebra_bilinearity_test">
-				<Option output="/d/skale-consensus/libBLS/libff/libff/algebra_bilinearity_test" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/d/skale-consensus/libBLS/libff/libff"/>
-				<Option object_output="./"/>
-				<Option type="1"/>
-				<Option compiler="gcc"/>
-				<Compiler>
-					<Add option="-DBLS_VERSION=0.4.0"/>
-					<Add option="-DCURVE_BN128"/>
-					<Add option="-DBN_SUPPORT_SNARK=1"/>
-					<Add option="-DBINARY_OUTPUT"/>
-					<Add option="-DMONTGOMERY_OUTPUT"/>
-					<Add option="-DUSE_ASM"/>
-					<Add directory="/d/skale-consensus/libBLS/libff/libff/.."/>
-					<Add directory="/d/skale-consensus/deps/include"/>
-				</Compiler>
-				<MakeCommands>
-					<Build command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/libff/libff/Makefile&quot;  VERBOSE=1 algebra_bilinearity_test"/>
-					<CompileFile command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/libff/libff/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/libff/libff/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/libff/libff/Makefile&quot;  VERBOSE=1 clean"/>
-				</MakeCommands>
-			</Target>
-			<Target title="algebra_bilinearity_test/fast">
-				<Option output="/d/skale-consensus/libBLS/libff/libff/algebra_bilinearity_test" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/d/skale-consensus/libBLS/libff/libff"/>
-				<Option object_output="./"/>
-				<Option type="1"/>
-				<Option compiler="gcc"/>
-				<Compiler>
-					<Add option="-DBLS_VERSION=0.4.0"/>
-					<Add option="-DCURVE_BN128"/>
-					<Add option="-DBN_SUPPORT_SNARK=1"/>
-					<Add option="-DBINARY_OUTPUT"/>
-					<Add option="-DMONTGOMERY_OUTPUT"/>
-					<Add option="-DUSE_ASM"/>
-					<Add directory="/d/skale-consensus/libBLS/libff/libff/.."/>
-					<Add directory="/d/skale-consensus/deps/include"/>
-				</Compiler>
-				<MakeCommands>
-					<Build command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/libff/libff/Makefile&quot;  VERBOSE=1 algebra_bilinearity_test/fast"/>
-					<CompileFile command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/libff/libff/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/libff/libff/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/libff/libff/Makefile&quot;  VERBOSE=1 clean"/>
-				</MakeCommands>
-			</Target>
-			<Target title="Continuous">
-				<Option working_dir="/d/skale-consensus/libBLS/libff/libff"/>
-				<Option type="4"/>
-				<MakeCommands>
-					<Build command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/libff/libff/Makefile&quot;  VERBOSE=1 Continuous"/>
-					<CompileFile command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/libff/libff/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/libff/libff/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/libff/libff/Makefile&quot;  VERBOSE=1 clean"/>
-				</MakeCommands>
-			</Target>
-			<Target title="Experimental">
-				<Option working_dir="/d/skale-consensus/libBLS/libff/libff"/>
-				<Option type="4"/>
-				<MakeCommands>
-					<Build command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/libff/libff/Makefile&quot;  VERBOSE=1 Experimental"/>
-					<CompileFile command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/libff/libff/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/libff/libff/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/libff/libff/Makefile&quot;  VERBOSE=1 clean"/>
-				</MakeCommands>
-			</Target>
-			<Target title="ff">
-				<Option output="/d/skale-consensus/libBLS/libff/libff/libffd.a" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/d/skale-consensus/libBLS/libff/libff"/>
-				<Option object_output="./"/>
-				<Option type="2"/>
-				<Option compiler="gcc"/>
-				<Compiler>
-					<Add option="-DBLS_VERSION=0.4.0"/>
-					<Add option="-DCURVE_BN128"/>
-					<Add option="-DBN_SUPPORT_SNARK=1"/>
-					<Add option="-DBINARY_OUTPUT"/>
-					<Add option="-DMONTGOMERY_OUTPUT"/>
-					<Add option="-DUSE_ASM"/>
-					<Add directory="/d/skale-consensus/libBLS/libff/libff/.."/>
-					<Add directory="/d/skale-consensus/deps/include"/>
-				</Compiler>
-				<MakeCommands>
-					<Build command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/libff/libff/Makefile&quot;  VERBOSE=1 ff"/>
-					<CompileFile command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/libff/libff/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/libff/libff/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/libff/libff/Makefile&quot;  VERBOSE=1 clean"/>
-				</MakeCommands>
-			</Target>
-			<Target title="ff/fast">
-				<Option output="/d/skale-consensus/libBLS/libff/libff/libffd.a" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/d/skale-consensus/libBLS/libff/libff"/>
-				<Option object_output="./"/>
-				<Option type="2"/>
-				<Option compiler="gcc"/>
-				<Compiler>
-					<Add option="-DBLS_VERSION=0.4.0"/>
-					<Add option="-DCURVE_BN128"/>
-					<Add option="-DBN_SUPPORT_SNARK=1"/>
-					<Add option="-DBINARY_OUTPUT"/>
-					<Add option="-DMONTGOMERY_OUTPUT"/>
-					<Add option="-DUSE_ASM"/>
-					<Add directory="/d/skale-consensus/libBLS/libff/libff/.."/>
-					<Add directory="/d/skale-consensus/deps/include"/>
-				</Compiler>
-				<MakeCommands>
-					<Build command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/libff/libff/Makefile&quot;  VERBOSE=1 ff/fast"/>
-					<CompileFile command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/libff/libff/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/libff/libff/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/libff/libff/Makefile&quot;  VERBOSE=1 clean"/>
-				</MakeCommands>
-			</Target>
-			<Target title="Nightly">
-				<Option working_dir="/d/skale-consensus/libBLS/libff/libff"/>
-				<Option type="4"/>
-				<MakeCommands>
-					<Build command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/libff/libff/Makefile&quot;  VERBOSE=1 Nightly"/>
-					<CompileFile command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/libff/libff/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/libff/libff/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/libff/libff/Makefile&quot;  VERBOSE=1 clean"/>
-				</MakeCommands>
-			</Target>
-			<Target title="algebra_groups_test">
-				<Option output="/d/skale-consensus/libBLS/libff/libff/algebra_groups_test" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/d/skale-consensus/libBLS/libff/libff"/>
-				<Option object_output="./"/>
-				<Option type="1"/>
-				<Option compiler="gcc"/>
-				<Compiler>
-					<Add option="-DBLS_VERSION=0.4.0"/>
-					<Add option="-DCURVE_BN128"/>
-					<Add option="-DBN_SUPPORT_SNARK=1"/>
-					<Add option="-DBINARY_OUTPUT"/>
-					<Add option="-DMONTGOMERY_OUTPUT"/>
-					<Add option="-DUSE_ASM"/>
-					<Add directory="/d/skale-consensus/libBLS/libff/libff/.."/>
-					<Add directory="/d/skale-consensus/deps/include"/>
-				</Compiler>
-				<MakeCommands>
-					<Build command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/libff/libff/Makefile&quot;  VERBOSE=1 algebra_groups_test"/>
-					<CompileFile command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/libff/libff/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/libff/libff/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/libff/libff/Makefile&quot;  VERBOSE=1 clean"/>
-				</MakeCommands>
-			</Target>
-			<Target title="algebra_groups_test/fast">
-				<Option output="/d/skale-consensus/libBLS/libff/libff/algebra_groups_test" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/d/skale-consensus/libBLS/libff/libff"/>
-				<Option object_output="./"/>
-				<Option type="1"/>
-				<Option compiler="gcc"/>
-				<Compiler>
-					<Add option="-DBLS_VERSION=0.4.0"/>
-					<Add option="-DCURVE_BN128"/>
-					<Add option="-DBN_SUPPORT_SNARK=1"/>
-					<Add option="-DBINARY_OUTPUT"/>
-					<Add option="-DMONTGOMERY_OUTPUT"/>
-					<Add option="-DUSE_ASM"/>
-					<Add directory="/d/skale-consensus/libBLS/libff/libff/.."/>
-					<Add directory="/d/skale-consensus/deps/include"/>
-				</Compiler>
-				<MakeCommands>
-					<Build command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/libff/libff/Makefile&quot;  VERBOSE=1 algebra_groups_test/fast"/>
-					<CompileFile command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/libff/libff/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/libff/libff/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/libff/libff/Makefile&quot;  VERBOSE=1 clean"/>
-				</MakeCommands>
-			</Target>
-			<Target title="algebra_fields_test">
-				<Option output="/d/skale-consensus/libBLS/libff/libff/algebra_fields_test" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/d/skale-consensus/libBLS/libff/libff"/>
-				<Option object_output="./"/>
-				<Option type="1"/>
-				<Option compiler="gcc"/>
-				<Compiler>
-					<Add option="-DBLS_VERSION=0.4.0"/>
-					<Add option="-DCURVE_BN128"/>
-					<Add option="-DBN_SUPPORT_SNARK=1"/>
-					<Add option="-DBINARY_OUTPUT"/>
-					<Add option="-DMONTGOMERY_OUTPUT"/>
-					<Add option="-DUSE_ASM"/>
-					<Add directory="/d/skale-consensus/libBLS/libff/libff/.."/>
-					<Add directory="/d/skale-consensus/deps/include"/>
-				</Compiler>
-				<MakeCommands>
-					<Build command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/libff/libff/Makefile&quot;  VERBOSE=1 algebra_fields_test"/>
-					<CompileFile command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/libff/libff/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/libff/libff/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/libff/libff/Makefile&quot;  VERBOSE=1 clean"/>
-				</MakeCommands>
-			</Target>
-			<Target title="algebra_fields_test/fast">
-				<Option output="/d/skale-consensus/libBLS/libff/libff/algebra_fields_test" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/d/skale-consensus/libBLS/libff/libff"/>
-				<Option object_output="./"/>
-				<Option type="1"/>
-				<Option compiler="gcc"/>
-				<Compiler>
-					<Add option="-DBLS_VERSION=0.4.0"/>
-					<Add option="-DCURVE_BN128"/>
-					<Add option="-DBN_SUPPORT_SNARK=1"/>
-					<Add option="-DBINARY_OUTPUT"/>
-					<Add option="-DMONTGOMERY_OUTPUT"/>
-					<Add option="-DUSE_ASM"/>
-					<Add directory="/d/skale-consensus/libBLS/libff/libff/.."/>
-					<Add directory="/d/skale-consensus/deps/include"/>
-				</Compiler>
-				<MakeCommands>
-					<Build command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/libff/libff/Makefile&quot;  VERBOSE=1 algebra_fields_test/fast"/>
-					<CompileFile command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/libff/libff/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/libff/libff/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/libff/libff/Makefile&quot;  VERBOSE=1 clean"/>
-				</MakeCommands>
-			</Target>
-			<Target title="multiexp_profile">
-				<Option output="/d/skale-consensus/libBLS/libff/libff/multiexp_profile" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/d/skale-consensus/libBLS/libff/libff"/>
-				<Option object_output="./"/>
-				<Option type="1"/>
-				<Option compiler="gcc"/>
-				<Compiler>
-					<Add option="-DBLS_VERSION=0.4.0"/>
-					<Add option="-DCURVE_BN128"/>
-					<Add option="-DBN_SUPPORT_SNARK=1"/>
-					<Add option="-DBINARY_OUTPUT"/>
-					<Add option="-DMONTGOMERY_OUTPUT"/>
-					<Add option="-DUSE_ASM"/>
-					<Add directory="/d/skale-consensus/libBLS/libff/libff/.."/>
-					<Add directory="/d/skale-consensus/deps/include"/>
-				</Compiler>
-				<MakeCommands>
-					<Build command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/libff/libff/Makefile&quot;  VERBOSE=1 multiexp_profile"/>
-					<CompileFile command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/libff/libff/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/libff/libff/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/libff/libff/Makefile&quot;  VERBOSE=1 clean"/>
-				</MakeCommands>
-			</Target>
-			<Target title="multiexp_profile/fast">
-				<Option output="/d/skale-consensus/libBLS/libff/libff/multiexp_profile" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/d/skale-consensus/libBLS/libff/libff"/>
-				<Option object_output="./"/>
-				<Option type="1"/>
-				<Option compiler="gcc"/>
-				<Compiler>
-					<Add option="-DBLS_VERSION=0.4.0"/>
-					<Add option="-DCURVE_BN128"/>
-					<Add option="-DBN_SUPPORT_SNARK=1"/>
-					<Add option="-DBINARY_OUTPUT"/>
-					<Add option="-DMONTGOMERY_OUTPUT"/>
-					<Add option="-DUSE_ASM"/>
-					<Add directory="/d/skale-consensus/libBLS/libff/libff/.."/>
-					<Add directory="/d/skale-consensus/deps/include"/>
-				</Compiler>
-				<MakeCommands>
-					<Build command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/libff/libff/Makefile&quot;  VERBOSE=1 multiexp_profile/fast"/>
-					<CompileFile command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/libff/libff/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/libff/libff/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/libff/libff/Makefile&quot;  VERBOSE=1 clean"/>
-				</MakeCommands>
-			</Target>
-			<Target title="te">
-				<Option output="/d/skale-consensus/libBLS/threshold_encryption/libted.a" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/d/skale-consensus/libBLS/threshold_encryption"/>
-				<Option object_output="./"/>
-				<Option type="2"/>
-				<Option compiler="gcc"/>
-				<Compiler>
-					<Add option="-DBLS_VERSION=0.4.0"/>
-					<Add directory="/d/skale-consensus/deps/include"/>
-					<Add directory="/d/skale-consensus/libBLS/libff"/>
-					<Add directory="/d/skale-consensus"/>
-					<Add directory="/d/skale-consensus/deps/include/pbc"/>
-					<Add directory="/d/skale-consensus/libBLS/threshold_encryption"/>
-					<Add directory="/d/skale-consensus/libBLS/threshold_encryption/.."/>
-				</Compiler>
-				<MakeCommands>
-					<Build command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/threshold_encryption/Makefile&quot;  VERBOSE=1 te"/>
-					<CompileFile command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/threshold_encryption/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/threshold_encryption/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/threshold_encryption/Makefile&quot;  VERBOSE=1 clean"/>
-				</MakeCommands>
-			</Target>
-			<Target title="te/fast">
-				<Option output="/d/skale-consensus/libBLS/threshold_encryption/libted.a" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/d/skale-consensus/libBLS/threshold_encryption"/>
-				<Option object_output="./"/>
-				<Option type="2"/>
-				<Option compiler="gcc"/>
-				<Compiler>
-					<Add option="-DBLS_VERSION=0.4.0"/>
-					<Add directory="/d/skale-consensus/deps/include"/>
-					<Add directory="/d/skale-consensus/libBLS/libff"/>
-					<Add directory="/d/skale-consensus"/>
-					<Add directory="/d/skale-consensus/deps/include/pbc"/>
-					<Add directory="/d/skale-consensus/libBLS/threshold_encryption"/>
-					<Add directory="/d/skale-consensus/libBLS/threshold_encryption/.."/>
-				</Compiler>
-				<MakeCommands>
-					<Build command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/threshold_encryption/Makefile&quot;  VERBOSE=1 te/fast"/>
-					<CompileFile command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/threshold_encryption/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/threshold_encryption/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/threshold_encryption/Makefile&quot;  VERBOSE=1 clean"/>
-				</MakeCommands>
-			</Target>
-			<Target title="dkg_te_unit_test">
-				<Option output="/d/skale-consensus/libBLS/threshold_encryption/dkg_te_unit_test" prefix_auto="0" extension_auto="0"/>
+			<Target title="te_sample_sgx">
+				<Option output="/d/skale-consensus/libBLS/threshold_encryption/te_sample_sgx" prefix_auto="0" extension_auto="0"/>
 				<Option working_dir="/d/skale-consensus/libBLS/threshold_encryption"/>
 				<Option object_output="./"/>
 				<Option type="1"/>
 				<Option compiler="gcc"/>
 				<Compiler>
-					<Add option="-DBLS_VERSION=0.4.0"/>
+					<Add option="-DBLS_VERSION=0.2.0"/>
+					<Add directory="/d/skale-consensus/libBLS/deps/deps_inst/x86_or_x64/include"/>
 					<Add directory="/d/skale-consensus/deps/include"/>
-					<Add directory="/d/skale-consensus/libBLS/libff"/>
 					<Add directory="/d/skale-consensus"/>
-					<Add directory="/d/skale-consensus/deps/include/pbc"/>
 					<Add directory="/d/skale-consensus/libBLS/threshold_encryption"/>
 					<Add directory="/d/skale-consensus/libBLS/threshold_encryption/.."/>
 				</Compiler>
 				<MakeCommands>
-					<Build command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/threshold_encryption/Makefile&quot;  VERBOSE=1 dkg_te_unit_test"/>
-					<CompileFile command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/threshold_encryption/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/threshold_encryption/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/threshold_encryption/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/threshold_encryption/Makefile&quot;  VERBOSE=1 te_sample_sgx"/>
+					<CompileFile command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/threshold_encryption/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/threshold_encryption/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/threshold_encryption/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
-			<Target title="dkg_te_unit_test/fast">
-				<Option output="/d/skale-consensus/libBLS/threshold_encryption/dkg_te_unit_test" prefix_auto="0" extension_auto="0"/>
+			<Target title="te_sample_sgx/fast">
+				<Option output="/d/skale-consensus/libBLS/threshold_encryption/te_sample_sgx" prefix_auto="0" extension_auto="0"/>
 				<Option working_dir="/d/skale-consensus/libBLS/threshold_encryption"/>
 				<Option object_output="./"/>
 				<Option type="1"/>
 				<Option compiler="gcc"/>
 				<Compiler>
-					<Add option="-DBLS_VERSION=0.4.0"/>
+					<Add option="-DBLS_VERSION=0.2.0"/>
+					<Add directory="/d/skale-consensus/libBLS/deps/deps_inst/x86_or_x64/include"/>
 					<Add directory="/d/skale-consensus/deps/include"/>
-					<Add directory="/d/skale-consensus/libBLS/libff"/>
 					<Add directory="/d/skale-consensus"/>
-					<Add directory="/d/skale-consensus/deps/include/pbc"/>
 					<Add directory="/d/skale-consensus/libBLS/threshold_encryption"/>
 					<Add directory="/d/skale-consensus/libBLS/threshold_encryption/.."/>
 				</Compiler>
 				<MakeCommands>
-					<Build command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/threshold_encryption/Makefile&quot;  VERBOSE=1 dkg_te_unit_test/fast"/>
-					<CompileFile command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/threshold_encryption/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/threshold_encryption/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/threshold_encryption/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/threshold_encryption/Makefile&quot;  VERBOSE=1 te_sample_sgx/fast"/>
+					<CompileFile command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/threshold_encryption/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/threshold_encryption/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/threshold_encryption/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="te_unit_test">
@@ -1046,19 +858,18 @@
 				<Option type="1"/>
 				<Option compiler="gcc"/>
 				<Compiler>
-					<Add option="-DBLS_VERSION=0.4.0"/>
+					<Add option="-DBLS_VERSION=0.2.0"/>
+					<Add directory="/d/skale-consensus/libBLS/deps/deps_inst/x86_or_x64/include"/>
 					<Add directory="/d/skale-consensus/deps/include"/>
-					<Add directory="/d/skale-consensus/libBLS/libff"/>
 					<Add directory="/d/skale-consensus"/>
-					<Add directory="/d/skale-consensus/deps/include/pbc"/>
 					<Add directory="/d/skale-consensus/libBLS/threshold_encryption"/>
 					<Add directory="/d/skale-consensus/libBLS/threshold_encryption/.."/>
 				</Compiler>
 				<MakeCommands>
-					<Build command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/threshold_encryption/Makefile&quot;  VERBOSE=1 te_unit_test"/>
-					<CompileFile command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/threshold_encryption/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/threshold_encryption/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/threshold_encryption/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/threshold_encryption/Makefile&quot;  VERBOSE=1 te_unit_test"/>
+					<CompileFile command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/threshold_encryption/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/threshold_encryption/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/threshold_encryption/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="te_unit_test/fast">
@@ -1068,39 +879,112 @@
 				<Option type="1"/>
 				<Option compiler="gcc"/>
 				<Compiler>
-					<Add option="-DBLS_VERSION=0.4.0"/>
+					<Add option="-DBLS_VERSION=0.2.0"/>
+					<Add directory="/d/skale-consensus/libBLS/deps/deps_inst/x86_or_x64/include"/>
 					<Add directory="/d/skale-consensus/deps/include"/>
-					<Add directory="/d/skale-consensus/libBLS/libff"/>
 					<Add directory="/d/skale-consensus"/>
-					<Add directory="/d/skale-consensus/deps/include/pbc"/>
 					<Add directory="/d/skale-consensus/libBLS/threshold_encryption"/>
 					<Add directory="/d/skale-consensus/libBLS/threshold_encryption/.."/>
 				</Compiler>
 				<MakeCommands>
-					<Build command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/threshold_encryption/Makefile&quot;  VERBOSE=1 te_unit_test/fast"/>
-					<CompileFile command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/threshold_encryption/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/threshold_encryption/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/threshold_encryption/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/threshold_encryption/Makefile&quot;  VERBOSE=1 te_unit_test/fast"/>
+					<CompileFile command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/threshold_encryption/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/threshold_encryption/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/threshold_encryption/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="te_test">
+				<Option output="/d/skale-consensus/libBLS/threshold_encryption/te_test" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/d/skale-consensus/libBLS/threshold_encryption"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add option="-DBLS_VERSION=0.2.0"/>
+					<Add directory="/d/skale-consensus/libBLS/deps/deps_inst/x86_or_x64/include"/>
+					<Add directory="/d/skale-consensus/deps/include"/>
+					<Add directory="/d/skale-consensus"/>
+					<Add directory="/d/skale-consensus/libBLS/threshold_encryption"/>
+					<Add directory="/d/skale-consensus/libBLS/threshold_encryption/.."/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/threshold_encryption/Makefile&quot;  VERBOSE=1 te_test"/>
+					<CompileFile command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/threshold_encryption/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/threshold_encryption/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/threshold_encryption/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="te_test/fast">
+				<Option output="/d/skale-consensus/libBLS/threshold_encryption/te_test" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/d/skale-consensus/libBLS/threshold_encryption"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add option="-DBLS_VERSION=0.2.0"/>
+					<Add directory="/d/skale-consensus/libBLS/deps/deps_inst/x86_or_x64/include"/>
+					<Add directory="/d/skale-consensus/deps/include"/>
+					<Add directory="/d/skale-consensus"/>
+					<Add directory="/d/skale-consensus/libBLS/threshold_encryption"/>
+					<Add directory="/d/skale-consensus/libBLS/threshold_encryption/.."/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/threshold_encryption/Makefile&quot;  VERBOSE=1 te_test/fast"/>
+					<CompileFile command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/threshold_encryption/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/threshold_encryption/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/threshold_encryption/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="te">
+				<Option output="/d/skale-consensus/libBLS/threshold_encryption/libted.a" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/d/skale-consensus/libBLS/threshold_encryption"/>
+				<Option object_output="./"/>
+				<Option type="2"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add option="-DBLS_VERSION=0.2.0"/>
+					<Add directory="/d/skale-consensus/libBLS/deps/deps_inst/x86_or_x64/include"/>
+					<Add directory="/d/skale-consensus/deps/include"/>
+					<Add directory="/d/skale-consensus"/>
+					<Add directory="/d/skale-consensus/libBLS/threshold_encryption"/>
+					<Add directory="/d/skale-consensus/libBLS/threshold_encryption/.."/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/threshold_encryption/Makefile&quot;  VERBOSE=1 te"/>
+					<CompileFile command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/threshold_encryption/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/threshold_encryption/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/threshold_encryption/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="te/fast">
+				<Option output="/d/skale-consensus/libBLS/threshold_encryption/libted.a" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/d/skale-consensus/libBLS/threshold_encryption"/>
+				<Option object_output="./"/>
+				<Option type="2"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add option="-DBLS_VERSION=0.2.0"/>
+					<Add directory="/d/skale-consensus/libBLS/deps/deps_inst/x86_or_x64/include"/>
+					<Add directory="/d/skale-consensus/deps/include"/>
+					<Add directory="/d/skale-consensus"/>
+					<Add directory="/d/skale-consensus/libBLS/threshold_encryption"/>
+					<Add directory="/d/skale-consensus/libBLS/threshold_encryption/.."/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/threshold_encryption/Makefile&quot;  VERBOSE=1 te/fast"/>
+					<CompileFile command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/threshold_encryption/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/threshold_encryption/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/threshold_encryption/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="all_te_tests">
 				<Option working_dir="/d/skale-consensus/libBLS/threshold_encryption"/>
 				<Option type="4"/>
 				<MakeCommands>
-					<Build command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/threshold_encryption/Makefile&quot;  VERBOSE=1 all_te_tests"/>
-					<CompileFile command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/threshold_encryption/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/threshold_encryption/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/threshold_encryption/Makefile&quot;  VERBOSE=1 clean"/>
-				</MakeCommands>
-			</Target>
-			<Target title="pbc">
-				<Option working_dir="/d/skale-consensus/libBLS/threshold_encryption"/>
-				<Option type="4"/>
-				<MakeCommands>
-					<Build command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/threshold_encryption/Makefile&quot;  VERBOSE=1 pbc"/>
-					<CompileFile command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/threshold_encryption/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/threshold_encryption/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -f &quot;/d/skale-consensus/libBLS/threshold_encryption/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/threshold_encryption/Makefile&quot;  VERBOSE=1 all_te_tests"/>
+					<CompileFile command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/threshold_encryption/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/threshold_encryption/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -f &quot;/d/skale-consensus/libBLS/threshold_encryption/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 		</Build>
@@ -1146,6 +1030,18 @@
 		<Unit filename="/d/skale-consensus/abstracttcpserver/AbstractServerAgent.h">
 			<Option target="consensus"/>
 		</Unit>
+		<Unit filename="/d/skale-consensus/blockdecrypt/client/BlockDecryptDownloader.cpp">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/blockdecrypt/client/BlockDecryptDownloader.h">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/blockdecrypt/client/BlockDecryptDownloaderThreadPool.cpp">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/blockdecrypt/client/BlockDecryptDownloaderThreadPool.h">
+			<Option target="consensus"/>
+		</Unit>
 		<Unit filename="/d/skale-consensus/blockfinalize/client/BlockFinalizeDownloader.cpp">
 			<Option target="consensus"/>
 		</Unit>
@@ -1158,12 +1054,6 @@
 		<Unit filename="/d/skale-consensus/blockfinalize/client/BlockFinalizeDownloaderThreadPool.h">
 			<Option target="consensus"/>
 		</Unit>
-		<Unit filename="/d/skale-consensus/blockfinalize/received/ReceivedBlockSigSharesDatabase.cpp">
-			<Option target="consensus"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/blockfinalize/received/ReceivedBlockSigSharesDatabase.h">
-			<Option target="consensus"/>
-		</Unit>
 		<Unit filename="/d/skale-consensus/blockproposal/pusher/BlockProposalClientAgent.cpp">
 			<Option target="consensus"/>
 		</Unit>
@@ -1174,18 +1064,6 @@
 			<Option target="consensus"/>
 		</Unit>
 		<Unit filename="/d/skale-consensus/blockproposal/pusher/BlockProposalPusherThreadPool.h">
-			<Option target="consensus"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/blockproposal/received/ReceivedBlockProposalsDatabase.cpp">
-			<Option target="consensus"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/blockproposal/received/ReceivedBlockProposalsDatabase.h">
-			<Option target="consensus"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/blockproposal/received/ReceivedDASigShareDatabase.cpp">
-			<Option target="consensus"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/blockproposal/received/ReceivedDASigShareDatabase.h">
 			<Option target="consensus"/>
 		</Unit>
 		<Unit filename="/d/skale-consensus/blockproposal/server/BlockProposalServerAgent.cpp">
@@ -1230,12 +1108,6 @@
 		<Unit filename="/d/skale-consensus/chains/Schain.h">
 			<Option target="consensus"/>
 		</Unit>
-		<Unit filename="/d/skale-consensus/chains/SchainDispatchThreadPool.cpp">
-			<Option target="consensus"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/chains/SchainDispatchThreadPool.h">
-			<Option target="consensus"/>
-		</Unit>
 		<Unit filename="/d/skale-consensus/chains/SchainGettersSetters.cpp">
 			<Option target="consensus"/>
 		</Unit>
@@ -1257,13 +1129,11 @@
 		<Unit filename="/d/skale-consensus/chains/TestConfig.h">
 			<Option target="consensus"/>
 		</Unit>
-		<Unit filename="/d/skale-consensus/consensus_pch/SkaleCommon.h.gch/.c++.rule">
+		<Unit filename="/d/skale-consensus/crypto/BLAKE3Hash.cpp">
 			<Option target="consensus"/>
-			<Option target="consensust"/>
 		</Unit>
-		<Unit filename="/d/skale-consensus/consensus_pch/SkaleCommon.h.rule">
+		<Unit filename="/d/skale-consensus/crypto/BLAKE3Hash.h">
 			<Option target="consensus"/>
-			<Option target="consensust"/>
 		</Unit>
 		<Unit filename="/d/skale-consensus/crypto/ConsensusBLSSigShare.cpp">
 			<Option target="consensus"/>
@@ -1277,40 +1147,118 @@
 		<Unit filename="/d/skale-consensus/crypto/ConsensusBLSSignature.h">
 			<Option target="consensus"/>
 		</Unit>
+		<Unit filename="/d/skale-consensus/crypto/ConsensusEdDSASigShare.cpp">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/crypto/ConsensusEdDSASigShare.h">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/crypto/ConsensusEdDSASigShareSet.cpp">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/crypto/ConsensusEdDSASigShareSet.h">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/crypto/ConsensusEdDSASignature.cpp">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/crypto/ConsensusEdDSASignature.h">
+			<Option target="consensus"/>
+		</Unit>
 		<Unit filename="/d/skale-consensus/crypto/ConsensusSigShareSet.cpp">
 			<Option target="consensus"/>
 		</Unit>
 		<Unit filename="/d/skale-consensus/crypto/ConsensusSigShareSet.h">
 			<Option target="consensus"/>
 		</Unit>
-		<Unit filename="/d/skale-consensus/crypto/PartialSHAHash.cpp">
+		<Unit filename="/d/skale-consensus/crypto/CryptoManager.cpp">
 			<Option target="consensus"/>
 		</Unit>
-		<Unit filename="/d/skale-consensus/crypto/PartialSHAHash.h">
+		<Unit filename="/d/skale-consensus/crypto/CryptoManager.h">
 			<Option target="consensus"/>
 		</Unit>
-		<Unit filename="/d/skale-consensus/crypto/Random.cpp">
+		<Unit filename="/d/skale-consensus/crypto/ECDSAVerify.cpp">
 			<Option target="consensus"/>
 		</Unit>
-		<Unit filename="/d/skale-consensus/crypto/Random.h">
+		<Unit filename="/d/skale-consensus/crypto/ECDSAVerify.h">
 			<Option target="consensus"/>
 		</Unit>
-		<Unit filename="/d/skale-consensus/crypto/ReceivedSigSharesDatabase.cpp">
+		<Unit filename="/d/skale-consensus/crypto/MockupSigShare.cpp">
 			<Option target="consensus"/>
 		</Unit>
-		<Unit filename="/d/skale-consensus/crypto/ReceivedSigSharesDatabase.h">
+		<Unit filename="/d/skale-consensus/crypto/MockupSigShare.h">
 			<Option target="consensus"/>
 		</Unit>
-		<Unit filename="/d/skale-consensus/crypto/SHAHash.cpp">
+		<Unit filename="/d/skale-consensus/crypto/MockupSigShareSet.cpp">
 			<Option target="consensus"/>
 		</Unit>
-		<Unit filename="/d/skale-consensus/crypto/SHAHash.h">
+		<Unit filename="/d/skale-consensus/crypto/MockupSigShareSet.h">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/crypto/MockupSignature.cpp">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/crypto/MockupSignature.h">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/crypto/OpenSSLECDSAKey.cpp">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/crypto/OpenSSLECDSAKey.h">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/crypto/OpenSSLEdDSAKey.cpp">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/crypto/OpenSSLEdDSAKey.h">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/crypto/ThresholdSigShare.cpp">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/crypto/ThresholdSigShare.h">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/crypto/ThresholdSigShareSet.cpp">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/crypto/ThresholdSigShareSet.h">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/crypto/ThresholdSignature.cpp">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/crypto/ThresholdSignature.h">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/datastructures/BlockDecryptionSet.cpp">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/datastructures/BlockDecryptionSet.h">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/datastructures/BlockDecryptionShare.cpp">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/datastructures/BlockDecryptionShare.h">
 			<Option target="consensus"/>
 		</Unit>
 		<Unit filename="/d/skale-consensus/datastructures/BlockProposal.cpp">
 			<Option target="consensus"/>
 		</Unit>
 		<Unit filename="/d/skale-consensus/datastructures/BlockProposal.h">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/datastructures/BlockProposalFragment.cpp">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/datastructures/BlockProposalFragment.h">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/datastructures/BlockProposalFragmentList.cpp">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/datastructures/BlockProposalFragmentList.h">
 			<Option target="consensus"/>
 		</Unit>
 		<Unit filename="/d/skale-consensus/datastructures/BlockProposalSet.cpp">
@@ -1331,28 +1279,28 @@
 		<Unit filename="/d/skale-consensus/datastructures/CommittedBlock.h">
 			<Option target="consensus"/>
 		</Unit>
-		<Unit filename="/d/skale-consensus/datastructures/CommittedBlockFragment.cpp">
-			<Option target="consensus"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/datastructures/CommittedBlockFragment.h">
-			<Option target="consensus"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/datastructures/CommittedBlockFragmentList.cpp">
-			<Option target="consensus"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/datastructures/CommittedBlockFragmentList.h">
-			<Option target="consensus"/>
-		</Unit>
 		<Unit filename="/d/skale-consensus/datastructures/CommittedBlockList.cpp">
 			<Option target="consensus"/>
 		</Unit>
 		<Unit filename="/d/skale-consensus/datastructures/CommittedBlockList.h">
 			<Option target="consensus"/>
 		</Unit>
+		<Unit filename="/d/skale-consensus/datastructures/DAProof.cpp">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/datastructures/DAProof.h">
+			<Option target="consensus"/>
+		</Unit>
 		<Unit filename="/d/skale-consensus/datastructures/DataStructure.cpp">
 			<Option target="consensus"/>
 		</Unit>
 		<Unit filename="/d/skale-consensus/datastructures/DataStructure.h">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/datastructures/ListOfHashes.cpp">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/datastructures/ListOfHashes.h">
 			<Option target="consensus"/>
 		</Unit>
 		<Unit filename="/d/skale-consensus/datastructures/MyBlockProposal.cpp">
@@ -1373,9 +1321,21 @@
 		<Unit filename="/d/skale-consensus/datastructures/ReceivedBlockProposal.h">
 			<Option target="consensus"/>
 		</Unit>
+		<Unit filename="/d/skale-consensus/datastructures/SendableItem.cpp">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/datastructures/SendableItem.h">
+			<Option target="consensus"/>
+		</Unit>
 		<Unit filename="/d/skale-consensus/datastructures/SerializationTests.cpp">
 			<Option target="consensus"/>
 			<Option target="consensust"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/datastructures/TimeStamp.cpp">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/datastructures/TimeStamp.h">
+			<Option target="consensus"/>
 		</Unit>
 		<Unit filename="/d/skale-consensus/datastructures/Transaction.cpp">
 			<Option target="consensus"/>
@@ -1395,26 +1355,74 @@
 		<Unit filename="/d/skale-consensus/db/BlockDB.h">
 			<Option target="consensus"/>
 		</Unit>
+		<Unit filename="/d/skale-consensus/db/BlockProposalDB.cpp">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/db/BlockProposalDB.h">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/db/BlockSigShareDB.cpp">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/db/BlockSigShareDB.h">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/db/CacheLevelDB.cpp">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/db/CacheLevelDB.h">
+			<Option target="consensus"/>
+		</Unit>
 		<Unit filename="/d/skale-consensus/db/CommittedTransactionDB.cpp">
 			<Option target="consensus"/>
 		</Unit>
 		<Unit filename="/d/skale-consensus/db/CommittedTransactionDB.h">
 			<Option target="consensus"/>
 		</Unit>
+		<Unit filename="/d/skale-consensus/db/ConsensusStateDB.cpp">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/db/ConsensusStateDB.h">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/db/DAProofDB.cpp">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/db/DAProofDB.h">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/db/DASigShareDB.cpp">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/db/DASigShareDB.h">
+			<Option target="consensus"/>
+		</Unit>
 		<Unit filename="/d/skale-consensus/db/DBTests.cpp">
 			<Option target="consensus"/>
 			<Option target="consensust"/>
 		</Unit>
-		<Unit filename="/d/skale-consensus/db/LevelDB.cpp">
+		<Unit filename="/d/skale-consensus/db/MsgDB.cpp">
 			<Option target="consensus"/>
 		</Unit>
-		<Unit filename="/d/skale-consensus/db/LevelDB.h">
+		<Unit filename="/d/skale-consensus/db/MsgDB.h">
 			<Option target="consensus"/>
 		</Unit>
 		<Unit filename="/d/skale-consensus/db/PriceDB.cpp">
 			<Option target="consensus"/>
 		</Unit>
 		<Unit filename="/d/skale-consensus/db/PriceDB.h">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/db/ProposalHashDB.cpp">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/db/ProposalHashDB.h">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/db/ProposalVectorDB.cpp">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/db/ProposalVectorDB.h">
 			<Option target="consensus"/>
 		</Unit>
 		<Unit filename="/d/skale-consensus/db/RandomDB.cpp">
@@ -1427,6 +1435,12 @@
 			<Option target="consensus"/>
 		</Unit>
 		<Unit filename="/d/skale-consensus/db/SigDB.h">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/db/StorageLimits.cpp">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/db/StorageLimits.h">
 			<Option target="consensus"/>
 		</Unit>
 		<Unit filename="/d/skale-consensus/exceptions/ConnectionRefusedException.cpp">
@@ -1451,12 +1465,6 @@
 			<Option target="consensus"/>
 		</Unit>
 		<Unit filename="/d/skale-consensus/exceptions/EngineInitException.h">
-			<Option target="consensus"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/exceptions/Exception.cpp">
-			<Option target="consensus"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/exceptions/Exception.h">
 			<Option target="consensus"/>
 		</Unit>
 		<Unit filename="/d/skale-consensus/exceptions/ExitRequestedException.cpp">
@@ -1537,10 +1545,28 @@
 		<Unit filename="/d/skale-consensus/exceptions/SerializeException.h">
 			<Option target="consensus"/>
 		</Unit>
+		<Unit filename="/d/skale-consensus/exceptions/SkaleException.cpp">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/exceptions/SkaleException.h">
+			<Option target="consensus"/>
+		</Unit>
 		<Unit filename="/d/skale-consensus/headers/AbstractBlockRequestHeader.cpp">
 			<Option target="consensus"/>
 		</Unit>
 		<Unit filename="/d/skale-consensus/headers/AbstractBlockRequestHeader.h">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/headers/BasicHeader.cpp">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/headers/BasicHeader.h">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/headers/BlockDecryptRequestHeader.cpp">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/headers/BlockDecryptRequestHeader.h">
 			<Option target="consensus"/>
 		</Unit>
 		<Unit filename="/d/skale-consensus/headers/BlockFinalizeRequestHeader.cpp">
@@ -1559,6 +1585,12 @@
 			<Option target="consensus"/>
 		</Unit>
 		<Unit filename="/d/skale-consensus/headers/BlockProposalHeader.h">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/headers/BlockProposalRequestHeader.cpp">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/headers/BlockProposalRequestHeader.h">
 			<Option target="consensus"/>
 		</Unit>
 		<Unit filename="/d/skale-consensus/headers/BlockProposalResponseHeader.cpp">
@@ -1585,6 +1617,12 @@
 		<Unit filename="/d/skale-consensus/headers/CommittedBlockHeader.h">
 			<Option target="consensus"/>
 		</Unit>
+		<Unit filename="/d/skale-consensus/headers/FinalProposalResponseHeader.cpp">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/headers/FinalProposalResponseHeader.h">
+			<Option target="consensus"/>
+		</Unit>
 		<Unit filename="/d/skale-consensus/headers/Header.cpp">
 			<Option target="consensus"/>
 		</Unit>
@@ -1601,6 +1639,18 @@
 			<Option target="consensus"/>
 		</Unit>
 		<Unit filename="/d/skale-consensus/headers/MissingTransactionsResponseHeader.h">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/headers/SubmitDAProofRequestHeader.cpp">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/headers/SubmitDAProofRequestHeader.h">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/headers/SubmitDAProofResponseHeader.cpp">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/headers/SubmitDAProofResponseHeader.h">
 			<Option target="consensus"/>
 		</Unit>
 		<Unit filename="/d/skale-consensus/json/JSONFactory.cpp">
@@ -1651,224 +1701,55 @@
 		<Unit filename="/d/skale-consensus/libBLS/bls/BLSSignature.h">
 			<Option target="bls"/>
 		</Unit>
-		<Unit filename="/d/skale-consensus/libBLS/bls/BLSutils.cpp">
-			<Option target="bls"/>
-		</Unit>
 		<Unit filename="/d/skale-consensus/libBLS/bls/bls.cpp">
 			<Option target="bls"/>
 		</Unit>
 		<Unit filename="/d/skale-consensus/libBLS/bls/bls.h">
 			<Option target="bls"/>
 		</Unit>
+		<Unit filename="/d/skale-consensus/libBLS/dkg/DKGBLSSecret.cpp">
+			<Option target="bls"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/libBLS/dkg/DKGBLSSecret.h">
+			<Option target="bls"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/libBLS/dkg/DKGBLSWrapper.cpp">
+			<Option target="bls"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/libBLS/dkg/DKGBLSWrapper.h">
+			<Option target="bls"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/libBLS/dkg/DKGTESecret.cpp">
+			<Option target="te"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/libBLS/dkg/DKGTESecret.h">
+			<Option target="te"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/libBLS/dkg/DKGTEWrapper.cpp">
+			<Option target="te"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/libBLS/dkg/DKGTEWrapper.h">
+			<Option target="te"/>
+		</Unit>
 		<Unit filename="/d/skale-consensus/libBLS/dkg/dkg.cpp">
 			<Option target="bls"/>
+			<Option target="te"/>
 		</Unit>
 		<Unit filename="/d/skale-consensus/libBLS/dkg/dkg.h">
 			<Option target="bls"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/libBLS/dkg/dkg_te.cpp">
 			<Option target="te"/>
 		</Unit>
-		<Unit filename="/d/skale-consensus/libBLS/dkg/dkg_te.h">
-			<Option target="te"/>
+		<Unit filename="/d/skale-consensus/libBLS/libBLS.h">
+			<Option target="bls"/>
 		</Unit>
-		<Unit filename="/d/skale-consensus/libBLS/libff/depends/ate-pairing/src/zm.cpp">
-			<Option target="zm"/>
+		<Unit filename="/d/skale-consensus/libBLS/test/dkg_attack.cpp">
+			<Option target="dkg_attack"/>
 		</Unit>
-		<Unit filename="/d/skale-consensus/libBLS/libff/depends/ate-pairing/src/zm2.cpp">
-			<Option target="zm"/>
+		<Unit filename="/d/skale-consensus/libBLS/test/te_sample_sgx.cpp">
+			<Option target="te_sample_sgx"/>
 		</Unit>
-		<Unit filename="/d/skale-consensus/libBLS/libff/libff/algebra/curves/alt_bn128/alt_bn128_g1.cpp">
-			<Option target="ff"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/libBLS/libff/libff/algebra/curves/alt_bn128/alt_bn128_g1.hpp">
-			<Option target="ff"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/libBLS/libff/libff/algebra/curves/alt_bn128/alt_bn128_g2.cpp">
-			<Option target="ff"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/libBLS/libff/libff/algebra/curves/alt_bn128/alt_bn128_g2.hpp">
-			<Option target="ff"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/libBLS/libff/libff/algebra/curves/alt_bn128/alt_bn128_init.cpp">
-			<Option target="ff"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/libBLS/libff/libff/algebra/curves/alt_bn128/alt_bn128_init.hpp">
-			<Option target="ff"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/libBLS/libff/libff/algebra/curves/alt_bn128/alt_bn128_pairing.cpp">
-			<Option target="ff"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/libBLS/libff/libff/algebra/curves/alt_bn128/alt_bn128_pairing.hpp">
-			<Option target="ff"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/libBLS/libff/libff/algebra/curves/alt_bn128/alt_bn128_pp.cpp">
-			<Option target="ff"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/libBLS/libff/libff/algebra/curves/alt_bn128/alt_bn128_pp.hpp">
-			<Option target="ff"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/libBLS/libff/libff/algebra/curves/bn128/bn128_g1.cpp">
-			<Option target="ff"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/libBLS/libff/libff/algebra/curves/bn128/bn128_g1.hpp">
-			<Option target="ff"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/libBLS/libff/libff/algebra/curves/bn128/bn128_g2.cpp">
-			<Option target="ff"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/libBLS/libff/libff/algebra/curves/bn128/bn128_g2.hpp">
-			<Option target="ff"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/libBLS/libff/libff/algebra/curves/bn128/bn128_gt.cpp">
-			<Option target="ff"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/libBLS/libff/libff/algebra/curves/bn128/bn128_gt.hpp">
-			<Option target="ff"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/libBLS/libff/libff/algebra/curves/bn128/bn128_init.cpp">
-			<Option target="ff"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/libBLS/libff/libff/algebra/curves/bn128/bn128_init.hpp">
-			<Option target="ff"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/libBLS/libff/libff/algebra/curves/bn128/bn128_pairing.cpp">
-			<Option target="ff"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/libBLS/libff/libff/algebra/curves/bn128/bn128_pairing.hpp">
-			<Option target="ff"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/libBLS/libff/libff/algebra/curves/bn128/bn128_pp.cpp">
-			<Option target="ff"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/libBLS/libff/libff/algebra/curves/bn128/bn128_pp.hpp">
-			<Option target="ff"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/libBLS/libff/libff/algebra/curves/edwards/edwards_g1.cpp">
-			<Option target="ff"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/libBLS/libff/libff/algebra/curves/edwards/edwards_g1.hpp">
-			<Option target="ff"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/libBLS/libff/libff/algebra/curves/edwards/edwards_g2.cpp">
-			<Option target="ff"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/libBLS/libff/libff/algebra/curves/edwards/edwards_g2.hpp">
-			<Option target="ff"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/libBLS/libff/libff/algebra/curves/edwards/edwards_init.cpp">
-			<Option target="ff"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/libBLS/libff/libff/algebra/curves/edwards/edwards_init.hpp">
-			<Option target="ff"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/libBLS/libff/libff/algebra/curves/edwards/edwards_pairing.cpp">
-			<Option target="ff"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/libBLS/libff/libff/algebra/curves/edwards/edwards_pairing.hpp">
-			<Option target="ff"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/libBLS/libff/libff/algebra/curves/edwards/edwards_pp.cpp">
-			<Option target="ff"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/libBLS/libff/libff/algebra/curves/edwards/edwards_pp.hpp">
-			<Option target="ff"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/libBLS/libff/libff/algebra/curves/mnt/mnt4/mnt4_g1.cpp">
-			<Option target="ff"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/libBLS/libff/libff/algebra/curves/mnt/mnt4/mnt4_g1.hpp">
-			<Option target="ff"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/libBLS/libff/libff/algebra/curves/mnt/mnt4/mnt4_g2.cpp">
-			<Option target="ff"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/libBLS/libff/libff/algebra/curves/mnt/mnt4/mnt4_g2.hpp">
-			<Option target="ff"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/libBLS/libff/libff/algebra/curves/mnt/mnt4/mnt4_init.cpp">
-			<Option target="ff"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/libBLS/libff/libff/algebra/curves/mnt/mnt4/mnt4_init.hpp">
-			<Option target="ff"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/libBLS/libff/libff/algebra/curves/mnt/mnt4/mnt4_pairing.cpp">
-			<Option target="ff"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/libBLS/libff/libff/algebra/curves/mnt/mnt4/mnt4_pairing.hpp">
-			<Option target="ff"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/libBLS/libff/libff/algebra/curves/mnt/mnt4/mnt4_pp.cpp">
-			<Option target="ff"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/libBLS/libff/libff/algebra/curves/mnt/mnt4/mnt4_pp.hpp">
-			<Option target="ff"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/libBLS/libff/libff/algebra/curves/mnt/mnt46_common.cpp">
-			<Option target="ff"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/libBLS/libff/libff/algebra/curves/mnt/mnt46_common.hpp">
-			<Option target="ff"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/libBLS/libff/libff/algebra/curves/mnt/mnt6/mnt6_g1.cpp">
-			<Option target="ff"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/libBLS/libff/libff/algebra/curves/mnt/mnt6/mnt6_g1.hpp">
-			<Option target="ff"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/libBLS/libff/libff/algebra/curves/mnt/mnt6/mnt6_g2.cpp">
-			<Option target="ff"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/libBLS/libff/libff/algebra/curves/mnt/mnt6/mnt6_g2.hpp">
-			<Option target="ff"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/libBLS/libff/libff/algebra/curves/mnt/mnt6/mnt6_init.cpp">
-			<Option target="ff"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/libBLS/libff/libff/algebra/curves/mnt/mnt6/mnt6_init.hpp">
-			<Option target="ff"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/libBLS/libff/libff/algebra/curves/mnt/mnt6/mnt6_pairing.cpp">
-			<Option target="ff"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/libBLS/libff/libff/algebra/curves/mnt/mnt6/mnt6_pairing.hpp">
-			<Option target="ff"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/libBLS/libff/libff/algebra/curves/mnt/mnt6/mnt6_pp.cpp">
-			<Option target="ff"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/libBLS/libff/libff/algebra/curves/mnt/mnt6/mnt6_pp.hpp">
-			<Option target="ff"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/libBLS/libff/libff/algebra/curves/tests/test_bilinearity.cpp">
-			<Option target="algebra_bilinearity_test"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/libBLS/libff/libff/algebra/curves/tests/test_groups.cpp">
-			<Option target="algebra_groups_test"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/libBLS/libff/libff/algebra/fields/tests/test_fields.cpp">
-			<Option target="algebra_fields_test"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/libBLS/libff/libff/algebra/scalar_multiplication/multiexp_profile.cpp">
-			<Option target="multiexp_profile"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/libBLS/libff/libff/common/double.cpp">
-			<Option target="ff"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/libBLS/libff/libff/common/double.hpp">
-			<Option target="ff"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/libBLS/libff/libff/common/profiling.cpp">
-			<Option target="ff"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/libBLS/libff/libff/common/profiling.hpp">
-			<Option target="ff"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/libBLS/libff/libff/common/utils.cpp">
-			<Option target="ff"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/libBLS/libff/libff/common/utils.hpp">
-			<Option target="ff"/>
+		<Unit filename="/d/skale-consensus/libBLS/test/test_TE_wrappers.cpp">
+			<Option target="te_test"/>
 		</Unit>
 		<Unit filename="/d/skale-consensus/libBLS/test/test_bls.cpp">
 			<Option target="bls_test"/>
@@ -1879,11 +1760,11 @@
 		<Unit filename="/d/skale-consensus/libBLS/test/unit_tests_dkg.cpp">
 			<Option target="dkg_unit_test"/>
 		</Unit>
-		<Unit filename="/d/skale-consensus/libBLS/test/unit_tests_dkg_te.cpp">
-			<Option target="dkg_te_unit_test"/>
-		</Unit>
 		<Unit filename="/d/skale-consensus/libBLS/test/unit_tests_te.cpp">
 			<Option target="te_unit_test"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/libBLS/test/unit_tests_utils.cpp">
+			<Option target="utils_unit_test"/>
 		</Unit>
 		<Unit filename="/d/skale-consensus/libBLS/third_party/cryptlite/base64.cpp">
 			<Option target="bls"/>
@@ -1903,6 +1784,36 @@
 		<Unit filename="/d/skale-consensus/libBLS/third_party/json.hpp">
 			<Option target="bls"/>
 		</Unit>
+		<Unit filename="/d/skale-consensus/libBLS/threshold_encryption/TEDecryptSet.cpp">
+			<Option target="te"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/libBLS/threshold_encryption/TEDecryptSet.h">
+			<Option target="te"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/libBLS/threshold_encryption/TEPrivateKey.cpp">
+			<Option target="te"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/libBLS/threshold_encryption/TEPrivateKey.h">
+			<Option target="te"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/libBLS/threshold_encryption/TEPrivateKeyShare.cpp">
+			<Option target="te"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/libBLS/threshold_encryption/TEPrivateKeyShare.h">
+			<Option target="te"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/libBLS/threshold_encryption/TEPublicKey.cpp">
+			<Option target="te"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/libBLS/threshold_encryption/TEPublicKey.h">
+			<Option target="te"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/libBLS/threshold_encryption/TEPublicKeyShare.cpp">
+			<Option target="te"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/libBLS/threshold_encryption/TEPublicKeyShare.h">
+			<Option target="te"/>
+		</Unit>
 		<Unit filename="/d/skale-consensus/libBLS/threshold_encryption/threshold_encryption.cpp">
 			<Option target="te"/>
 		</Unit>
@@ -1918,17 +1829,25 @@
 		<Unit filename="/d/skale-consensus/libBLS/tools/dkg_key_gen.cpp">
 			<Option target="dkg_keygen"/>
 		</Unit>
+		<Unit filename="/d/skale-consensus/libBLS/tools/generate_key_system.cpp">
+			<Option target="generate_key_system"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/libBLS/tools/hash_g1.cpp">
+			<Option target="hash_g1"/>
+		</Unit>
 		<Unit filename="/d/skale-consensus/libBLS/tools/sign_bls.cpp">
 			<Option target="sign_bls"/>
 		</Unit>
+		<Unit filename="/d/skale-consensus/libBLS/tools/utils.cpp">
+			<Option target="bls"/>
+			<Option target="te"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/libBLS/tools/utils.h">
+			<Option target="bls"/>
+			<Option target="te"/>
+		</Unit>
 		<Unit filename="/d/skale-consensus/libBLS/tools/verify_bls.cpp">
 			<Option target="verify_bls"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/messages/ChildCompletedMessage.cpp">
-			<Option target="consensus"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/messages/ChildCompletedMessage.h">
-			<Option target="consensus"/>
 		</Unit>
 		<Unit filename="/d/skale-consensus/messages/ChildMessage.cpp">
 			<Option target="consensus"/>
@@ -1984,12 +1903,6 @@
 		<Unit filename="/d/skale-consensus/messages/NetworkMessageEnvelope.h">
 			<Option target="consensus"/>
 		</Unit>
-		<Unit filename="/d/skale-consensus/messages/ParentCompletedMessage.cpp">
-			<Option target="consensus"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/messages/ParentCompletedMessage.h">
-			<Option target="consensus"/>
-		</Unit>
 		<Unit filename="/d/skale-consensus/messages/ParentMessage.cpp">
 			<Option target="consensus"/>
 		</Unit>
@@ -2026,6 +1939,30 @@
 		<Unit filename="/d/skale-consensus/monitoring/MonitoringThreadPool.h">
 			<Option target="consensus"/>
 		</Unit>
+		<Unit filename="/d/skale-consensus/monitoring/StuckDetectionAgent.cpp">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/monitoring/StuckDetectionAgent.h">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/monitoring/StuckDetectionThreadPool.cpp">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/monitoring/StuckDetectionThreadPool.h">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/monitoring/TimeoutAgent.cpp">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/monitoring/TimeoutAgent.h">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/monitoring/TimeoutThreadPool.cpp">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/monitoring/TimeoutThreadPool.h">
+			<Option target="consensus"/>
+		</Unit>
 		<Unit filename="/d/skale-consensus/network/Buffer.cpp">
 			<Option target="consensus"/>
 		</Unit>
@@ -2038,12 +1975,6 @@
 		<Unit filename="/d/skale-consensus/network/ClientSocket.h">
 			<Option target="consensus"/>
 		</Unit>
-		<Unit filename="/d/skale-consensus/network/Connection.cpp">
-			<Option target="consensus"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/network/Connection.h">
-			<Option target="consensus"/>
-		</Unit>
 		<Unit filename="/d/skale-consensus/network/IO.cpp">
 			<Option target="consensus"/>
 		</Unit>
@@ -2054,6 +1985,18 @@
 			<Option target="consensus"/>
 		</Unit>
 		<Unit filename="/d/skale-consensus/network/NTPClient.h">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/network/Network.cpp">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/network/Network.h">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/network/ServerConnection.cpp">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/network/ServerConnection.h">
 			<Option target="consensus"/>
 		</Unit>
 		<Unit filename="/d/skale-consensus/network/ServerSocket.cpp">
@@ -2072,12 +2015,6 @@
 			<Option target="consensus"/>
 		</Unit>
 		<Unit filename="/d/skale-consensus/network/TCPServerSocket.h">
-			<Option target="consensus"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/network/TransportNetwork.cpp">
-			<Option target="consensus"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/network/TransportNetwork.h">
 			<Option target="consensus"/>
 		</Unit>
 		<Unit filename="/d/skale-consensus/network/Utils.cpp">
@@ -2110,10 +2047,61 @@
 		<Unit filename="/d/skale-consensus/node/Node.h">
 			<Option target="consensus"/>
 		</Unit>
+		<Unit filename="/d/skale-consensus/node/NodeGettersSetters.cpp">
+			<Option target="consensus"/>
+		</Unit>
 		<Unit filename="/d/skale-consensus/node/NodeInfo.cpp">
 			<Option target="consensus"/>
 		</Unit>
 		<Unit filename="/d/skale-consensus/node/NodeInfo.h">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/oracle/OracleClient.cpp">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/oracle/OracleClient.h">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/oracle/OracleReceivedResults.cpp">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/oracle/OracleReceivedResults.h">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/oracle/OracleRequestBroadcastMessage.cpp">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/oracle/OracleRequestBroadcastMessage.h">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/oracle/OracleRequestSpec.cpp">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/oracle/OracleRequestSpec.h">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/oracle/OracleResponseMessage.cpp">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/oracle/OracleResponseMessage.h">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/oracle/OracleResult.cpp">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/oracle/OracleResult.h">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/oracle/OracleServerAgent.cpp">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/oracle/OracleServerAgent.h">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/oracle/OracleThreadPool.cpp">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/oracle/OracleThreadPool.h">
 			<Option target="consensus"/>
 		</Unit>
 		<Unit filename="/d/skale-consensus/pendingqueue/PendingTransactionsAgent.cpp">
@@ -2152,12 +2140,6 @@
 		<Unit filename="/d/skale-consensus/pricing/ZeroPricingStrategy.h">
 			<Option target="consensus"/>
 		</Unit>
-		<Unit filename="/d/skale-consensus/protocols/InstanceGarbageCollectorAgent.cpp">
-			<Option target="consensus"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/protocols/InstanceGarbageCollectorAgent.h">
-			<Option target="consensus"/>
-		</Unit>
 		<Unit filename="/d/skale-consensus/protocols/ProtocolInstance.cpp">
 			<Option target="consensus"/>
 		</Unit>
@@ -2174,12 +2156,6 @@
 			<Option target="consensus"/>
 		</Unit>
 		<Unit filename="/d/skale-consensus/protocols/binconsensus/AUXBroadcastMessage.h">
-			<Option target="consensus"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/protocols/binconsensus/BVBMessagePayload.cpp">
-			<Option target="consensus"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/protocols/binconsensus/BVBMessagePayload.h">
 			<Option target="consensus"/>
 		</Unit>
 		<Unit filename="/d/skale-consensus/protocols/binconsensus/BVBroadcastMessage.cpp">
@@ -2210,6 +2186,66 @@
 			<Option target="consensus"/>
 		</Unit>
 		<Unit filename="/d/skale-consensus/protocols/blockconsensus/BlockConsensusParentConsensusInitMessage.h">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/protocols/blockconsensus/BlockSignBroadcastMessage.cpp">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/protocols/blockconsensus/BlockSignBroadcastMessage.h">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/protocols/blockconsensus/FastMessageLedger.cpp">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/protocols/blockconsensus/FastMessageLedger.h">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/sgxclient/BLSSignReqMessage.cpp">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/sgxclient/BLSSignReqMessage.h">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/sgxclient/BLSSignRspMessage.cpp">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/sgxclient/BLSSignRspMessage.h">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/sgxclient/ECDSASignReqMessage.cpp">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/sgxclient/ECDSASignReqMessage.h">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/sgxclient/ECDSASignRspMessage.cpp">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/sgxclient/ECDSASignRspMessage.h">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/sgxclient/SgxZmqClient.cpp">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/sgxclient/SgxZmqClient.h">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/sgxclient/SgxZmqMessage.cpp">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/sgxclient/SgxZmqMessage.h">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/statusserver/StatusServer.cpp">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/statusserver/StatusServer.h">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/thirdparty/LUrlParser.cpp">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/thirdparty/LUrlParser.h">
 			<Option target="consensus"/>
 		</Unit>
 		<Unit filename="/d/skale-consensus/threads/GlobalThreadRegistry.cpp">
@@ -2282,9 +2318,6 @@
 			<Option virtualFolder="CMake Files\..\..\home\kladko\.hunter\_Base\Download\Hunter\0.23.76\c7b6099\Unpacked\cmake\modules\"/>
 		</Unit>
 		<Unit filename="/d/skale-consensus/../../home/kladko/.hunter/_Base/Download/Hunter/0.23.76/c7b6099/Unpacked/cmake/modules/hunter_check_flush_needed.cmake">
-			<Option virtualFolder="CMake Files\..\..\home\kladko\.hunter\_Base\Download\Hunter\0.23.76\c7b6099\Unpacked\cmake\modules\"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/../../home/kladko/.hunter/_Base/Download/Hunter/0.23.76/c7b6099/Unpacked/cmake/modules/hunter_check_toolchain_definition.cmake">
 			<Option virtualFolder="CMake Files\..\..\home\kladko\.hunter\_Base\Download\Hunter\0.23.76\c7b6099\Unpacked\cmake\modules\"/>
 		</Unit>
 		<Unit filename="/d/skale-consensus/../../home/kladko/.hunter/_Base/Download/Hunter/0.23.76/c7b6099/Unpacked/cmake/modules/hunter_cmake_args.cmake">
@@ -2479,149 +2512,59 @@
 		<Unit filename="/d/skale-consensus/../../home/kladko/.hunter/_Base/Download/Hunter/0.23.76/c7b6099/Unpacked/cmake/configs/default.cmake">
 			<Option virtualFolder="CMake Files\..\..\home\kladko\.hunter\_Base\Download\Hunter\0.23.76\c7b6099\Unpacked\cmake\configs\"/>
 		</Unit>
-		<Unit filename="/d/skale-consensus/../../home/kladko/.hunter/_Base/Download/Hunter/0.23.76/c7b6099/Unpacked/cmake/projects/ZeroMQ/hunter.cmake">
-			<Option virtualFolder="CMake Files\..\..\home\kladko\.hunter\_Base\Download\Hunter\0.23.76\c7b6099\Unpacked\cmake\projects\ZeroMQ\"/>
-		</Unit>
 		<Unit filename="/d/skale-consensus/../../home/kladko/.hunter/_Base/Download/Hunter/0.23.76/c7b6099/Unpacked/cmake/projects/leveldb/hunter.cmake">
 			<Option virtualFolder="CMake Files\..\..\home\kladko\.hunter\_Base\Download\Hunter\0.23.76\c7b6099\Unpacked\cmake\projects\leveldb\"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/../../home/kladko/.hunter/_Base/Download/Hunter/0.23.76/c7b6099/Unpacked/cmake/projects/cryptopp/hunter.cmake">
-			<Option virtualFolder="CMake Files\..\..\home\kladko\.hunter\_Base\Download\Hunter\0.23.76\c7b6099\Unpacked\cmake\projects\cryptopp\"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/../../home/kladko/.hunter/_Base/Download/Hunter/0.23.76/c7b6099/Unpacked/cmake/projects/Boost/hunter.cmake">
-			<Option virtualFolder="CMake Files\..\..\home\kladko\.hunter\_Base\Download\Hunter\0.23.76\c7b6099\Unpacked\cmake\projects\Boost\"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/../../home/kladko/.hunter/_Base/Download/Hunter/0.23.76/c7b6099/Unpacked/cmake/projects/Boost/filesystem/hunter.cmake">
-			<Option virtualFolder="CMake Files\..\..\home\kladko\.hunter\_Base\Download\Hunter\0.23.76\c7b6099\Unpacked\cmake\projects\Boost\filesystem\"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/../../home/kladko/.hunter/_Base/Download/Hunter/0.23.76/c7b6099/Unpacked/cmake/projects/Boost/system/hunter.cmake">
-			<Option virtualFolder="CMake Files\..\..\home\kladko\.hunter\_Base\Download\Hunter\0.23.76\c7b6099\Unpacked\cmake\projects\Boost\system\"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/../../home/kladko/.hunter/_Base/Download/Hunter/0.23.76/c7b6099/Unpacked/cmake/projects/Boost/thread/hunter.cmake">
-			<Option virtualFolder="CMake Files\..\..\home\kladko\.hunter\_Base\Download\Hunter\0.23.76\c7b6099\Unpacked\cmake\projects\Boost\thread\"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/../../home/kladko/.hunter/_Base/Download/Hunter/0.23.76/c7b6099/Unpacked/cmake/projects/Boost/log/hunter.cmake">
-			<Option virtualFolder="CMake Files\..\..\home\kladko\.hunter\_Base\Download\Hunter\0.23.76\c7b6099\Unpacked\cmake\projects\Boost\log\"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/../../home/kladko/.hunter/_Base/Download/Hunter/0.23.76/c7b6099/Unpacked/cmake/projects/Boost/random/hunter.cmake">
-			<Option virtualFolder="CMake Files\..\..\home\kladko\.hunter\_Base\Download\Hunter\0.23.76\c7b6099\Unpacked\cmake\projects\Boost\random\"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/../../home/kladko/.hunter/_Base/Download/Hunter/0.23.76/c7b6099/Unpacked/cmake/projects/spdlog/hunter.cmake">
-			<Option virtualFolder="CMake Files\..\..\home\kladko\.hunter\_Base\Download\Hunter\0.23.76\c7b6099\Unpacked\cmake\projects\spdlog\"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/../../home/kladko/.hunter/_Base/Download/Hunter/0.23.76/c7b6099/Unpacked/cmake/find/FindBoost.cmake">
-			<Option virtualFolder="CMake Files\..\..\home\kladko\.hunter\_Base\Download\Hunter\0.23.76\c7b6099\Unpacked\cmake\find\"/>
 		</Unit>
 		<Unit filename="/d/skale-consensus/../../home/kladko/.hunter/_Base/Download/Hunter/0.23.76/c7b6099/Unpacked/scripts/create-toolchain-info.cmake">
 			<Option virtualFolder="CMake Files\..\..\home\kladko\.hunter\_Base\Download\Hunter\0.23.76\c7b6099\Unpacked\scripts\"/>
 		</Unit>
-		<Unit filename="/d/skale-consensus/../../home/kladko/.hunter/_Base/c7b6099/511a137/e190f5f/config.cmake">
-			<Option virtualFolder="CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\511a137\e190f5f\"/>
+		<Unit filename="/d/skale-consensus/../../home/kladko/.hunter/_Base/c7b6099/4162dcb/e190f5f/config.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\4162dcb\e190f5f\"/>
 		</Unit>
-		<Unit filename="/d/skale-consensus/../../home/kladko/.hunter/_Base/c7b6099/511a137/e190f5f/Install/lib/cmake/ZeroMQ/ZeroMQConfig.cmake">
-			<Option virtualFolder="CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\511a137\e190f5f\Install\lib\cmake\ZeroMQ\"/>
+		<Unit filename="/d/skale-consensus/../../home/kladko/.hunter/_Base/c7b6099/4162dcb/e190f5f/Install/lib/cmake/leveldb/leveldbConfig.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\4162dcb\e190f5f\Install\lib\cmake\leveldb\"/>
 		</Unit>
-		<Unit filename="/d/skale-consensus/../../home/kladko/.hunter/_Base/c7b6099/511a137/e190f5f/Install/lib/cmake/ZeroMQ/ZeroMQConfigVersion.cmake">
-			<Option virtualFolder="CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\511a137\e190f5f\Install\lib\cmake\ZeroMQ\"/>
+		<Unit filename="/d/skale-consensus/../../home/kladko/.hunter/_Base/c7b6099/4162dcb/e190f5f/Install/lib/cmake/leveldb/leveldbConfigVersion.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\4162dcb\e190f5f\Install\lib\cmake\leveldb\"/>
 		</Unit>
-		<Unit filename="/d/skale-consensus/../../home/kladko/.hunter/_Base/c7b6099/511a137/e190f5f/Install/lib/cmake/ZeroMQ/ZeroMQTargets-debug.cmake">
-			<Option virtualFolder="CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\511a137\e190f5f\Install\lib\cmake\ZeroMQ\"/>
+		<Unit filename="/d/skale-consensus/../../home/kladko/.hunter/_Base/c7b6099/4162dcb/e190f5f/Install/lib/cmake/leveldb/leveldbTargets-debug.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\4162dcb\e190f5f\Install\lib\cmake\leveldb\"/>
 		</Unit>
-		<Unit filename="/d/skale-consensus/../../home/kladko/.hunter/_Base/c7b6099/511a137/e190f5f/Install/lib/cmake/ZeroMQ/ZeroMQTargets-release.cmake">
-			<Option virtualFolder="CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\511a137\e190f5f\Install\lib\cmake\ZeroMQ\"/>
+		<Unit filename="/d/skale-consensus/../../home/kladko/.hunter/_Base/c7b6099/4162dcb/e190f5f/Install/lib/cmake/leveldb/leveldbTargets-release.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\4162dcb\e190f5f\Install\lib\cmake\leveldb\"/>
 		</Unit>
-		<Unit filename="/d/skale-consensus/../../home/kladko/.hunter/_Base/c7b6099/511a137/e190f5f/Install/lib/cmake/ZeroMQ/ZeroMQTargets.cmake">
-			<Option virtualFolder="CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\511a137\e190f5f\Install\lib\cmake\ZeroMQ\"/>
+		<Unit filename="/d/skale-consensus/../../home/kladko/.hunter/_Base/c7b6099/4162dcb/e190f5f/Install/lib/cmake/leveldb/leveldbTargets.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\4162dcb\e190f5f\Install\lib\cmake\leveldb\"/>
 		</Unit>
-		<Unit filename="/d/skale-consensus/../../home/kladko/.hunter/_Base/c7b6099/511a137/e190f5f/Install/lib/cmake/leveldb/leveldbConfig.cmake">
-			<Option virtualFolder="CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\511a137\e190f5f\Install\lib\cmake\leveldb\"/>
+		<Unit filename="/d/skale-consensus/../../home/kladko/.hunter/_Base/c7b6099/4162dcb/e190f5f/Install/lib/cmake/crc32c/crc32cConfig.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\4162dcb\e190f5f\Install\lib\cmake\crc32c\"/>
 		</Unit>
-		<Unit filename="/d/skale-consensus/../../home/kladko/.hunter/_Base/c7b6099/511a137/e190f5f/Install/lib/cmake/leveldb/leveldbConfigVersion.cmake">
-			<Option virtualFolder="CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\511a137\e190f5f\Install\lib\cmake\leveldb\"/>
+		<Unit filename="/d/skale-consensus/../../home/kladko/.hunter/_Base/c7b6099/4162dcb/e190f5f/Install/lib/cmake/crc32c/crc32cConfigVersion.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\4162dcb\e190f5f\Install\lib\cmake\crc32c\"/>
 		</Unit>
-		<Unit filename="/d/skale-consensus/../../home/kladko/.hunter/_Base/c7b6099/511a137/e190f5f/Install/lib/cmake/leveldb/leveldbTargets-debug.cmake">
-			<Option virtualFolder="CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\511a137\e190f5f\Install\lib\cmake\leveldb\"/>
+		<Unit filename="/d/skale-consensus/../../home/kladko/.hunter/_Base/c7b6099/4162dcb/e190f5f/Install/lib/cmake/crc32c/crc32cTargets-debug.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\4162dcb\e190f5f\Install\lib\cmake\crc32c\"/>
 		</Unit>
-		<Unit filename="/d/skale-consensus/../../home/kladko/.hunter/_Base/c7b6099/511a137/e190f5f/Install/lib/cmake/leveldb/leveldbTargets-release.cmake">
-			<Option virtualFolder="CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\511a137\e190f5f\Install\lib\cmake\leveldb\"/>
+		<Unit filename="/d/skale-consensus/../../home/kladko/.hunter/_Base/c7b6099/4162dcb/e190f5f/Install/lib/cmake/crc32c/crc32cTargets-release.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\4162dcb\e190f5f\Install\lib\cmake\crc32c\"/>
 		</Unit>
-		<Unit filename="/d/skale-consensus/../../home/kladko/.hunter/_Base/c7b6099/511a137/e190f5f/Install/lib/cmake/leveldb/leveldbTargets.cmake">
-			<Option virtualFolder="CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\511a137\e190f5f\Install\lib\cmake\leveldb\"/>
+		<Unit filename="/d/skale-consensus/../../home/kladko/.hunter/_Base/c7b6099/4162dcb/e190f5f/Install/lib/cmake/crc32c/crc32cTargets.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\4162dcb\e190f5f\Install\lib\cmake\crc32c\"/>
 		</Unit>
-		<Unit filename="/d/skale-consensus/../../home/kladko/.hunter/_Base/c7b6099/511a137/e190f5f/Install/lib/cmake/crc32c/crc32cConfig.cmake">
-			<Option virtualFolder="CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\511a137\e190f5f\Install\lib\cmake\crc32c\"/>
+		<Unit filename="/d/skale-consensus/../../home/kladko/.hunter/_Base/c7b6099/4162dcb/e190f5f/Install/lib/cmake/Snappy/SnappyConfig.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\4162dcb\e190f5f\Install\lib\cmake\Snappy\"/>
 		</Unit>
-		<Unit filename="/d/skale-consensus/../../home/kladko/.hunter/_Base/c7b6099/511a137/e190f5f/Install/lib/cmake/crc32c/crc32cConfigVersion.cmake">
-			<Option virtualFolder="CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\511a137\e190f5f\Install\lib\cmake\crc32c\"/>
+		<Unit filename="/d/skale-consensus/../../home/kladko/.hunter/_Base/c7b6099/4162dcb/e190f5f/Install/lib/cmake/Snappy/SnappyConfigVersion.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\4162dcb\e190f5f\Install\lib\cmake\Snappy\"/>
 		</Unit>
-		<Unit filename="/d/skale-consensus/../../home/kladko/.hunter/_Base/c7b6099/511a137/e190f5f/Install/lib/cmake/crc32c/crc32cTargets-debug.cmake">
-			<Option virtualFolder="CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\511a137\e190f5f\Install\lib\cmake\crc32c\"/>
+		<Unit filename="/d/skale-consensus/../../home/kladko/.hunter/_Base/c7b6099/4162dcb/e190f5f/Install/lib/cmake/Snappy/SnappyTargets-debug.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\4162dcb\e190f5f\Install\lib\cmake\Snappy\"/>
 		</Unit>
-		<Unit filename="/d/skale-consensus/../../home/kladko/.hunter/_Base/c7b6099/511a137/e190f5f/Install/lib/cmake/crc32c/crc32cTargets-release.cmake">
-			<Option virtualFolder="CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\511a137\e190f5f\Install\lib\cmake\crc32c\"/>
+		<Unit filename="/d/skale-consensus/../../home/kladko/.hunter/_Base/c7b6099/4162dcb/e190f5f/Install/lib/cmake/Snappy/SnappyTargets-release.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\4162dcb\e190f5f\Install\lib\cmake\Snappy\"/>
 		</Unit>
-		<Unit filename="/d/skale-consensus/../../home/kladko/.hunter/_Base/c7b6099/511a137/e190f5f/Install/lib/cmake/crc32c/crc32cTargets.cmake">
-			<Option virtualFolder="CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\511a137\e190f5f\Install\lib\cmake\crc32c\"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/../../home/kladko/.hunter/_Base/c7b6099/511a137/e190f5f/Install/lib/cmake/Snappy/SnappyConfig.cmake">
-			<Option virtualFolder="CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\511a137\e190f5f\Install\lib\cmake\Snappy\"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/../../home/kladko/.hunter/_Base/c7b6099/511a137/e190f5f/Install/lib/cmake/Snappy/SnappyConfigVersion.cmake">
-			<Option virtualFolder="CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\511a137\e190f5f\Install\lib\cmake\Snappy\"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/../../home/kladko/.hunter/_Base/c7b6099/511a137/e190f5f/Install/lib/cmake/Snappy/SnappyTargets-debug.cmake">
-			<Option virtualFolder="CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\511a137\e190f5f\Install\lib\cmake\Snappy\"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/../../home/kladko/.hunter/_Base/c7b6099/511a137/e190f5f/Install/lib/cmake/Snappy/SnappyTargets-release.cmake">
-			<Option virtualFolder="CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\511a137\e190f5f\Install\lib\cmake\Snappy\"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/../../home/kladko/.hunter/_Base/c7b6099/511a137/e190f5f/Install/lib/cmake/Snappy/SnappyTargets.cmake">
-			<Option virtualFolder="CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\511a137\e190f5f\Install\lib\cmake\Snappy\"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/../../home/kladko/.hunter/_Base/c7b6099/511a137/e190f5f/Install/lib/cmake/cryptopp/cryptopp-config-version.cmake">
-			<Option virtualFolder="CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\511a137\e190f5f\Install\lib\cmake\cryptopp\"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/../../home/kladko/.hunter/_Base/c7b6099/511a137/e190f5f/Install/lib/cmake/cryptopp/cryptopp-config.cmake">
-			<Option virtualFolder="CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\511a137\e190f5f\Install\lib\cmake\cryptopp\"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/../../home/kladko/.hunter/_Base/c7b6099/511a137/e190f5f/Install/lib/cmake/cryptopp/cryptopp-targets-debug.cmake">
-			<Option virtualFolder="CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\511a137\e190f5f\Install\lib\cmake\cryptopp\"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/../../home/kladko/.hunter/_Base/c7b6099/511a137/e190f5f/Install/lib/cmake/cryptopp/cryptopp-targets-release.cmake">
-			<Option virtualFolder="CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\511a137\e190f5f\Install\lib\cmake\cryptopp\"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/../../home/kladko/.hunter/_Base/c7b6099/511a137/e190f5f/Install/lib/cmake/cryptopp/cryptopp-targets.cmake">
-			<Option virtualFolder="CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\511a137\e190f5f\Install\lib\cmake\cryptopp\"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/../../home/kladko/.hunter/_Base/c7b6099/511a137/e190f5f/Install/lib/cmake/Boost/BoostConfig.cmake">
-			<Option virtualFolder="CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\511a137\e190f5f\Install\lib\cmake\Boost\"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/../../home/kladko/.hunter/_Base/c7b6099/511a137/e190f5f/Install/lib/cmake/Boost/BoostConfigVersion.cmake">
-			<Option virtualFolder="CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\511a137\e190f5f\Install\lib\cmake\Boost\"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/../../home/kladko/.hunter/_Base/c7b6099/511a137/e190f5f/Install/lib/cmake/spdlog/spdlogConfig.cmake">
-			<Option virtualFolder="CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\511a137\e190f5f\Install\lib\cmake\spdlog\"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/../../home/kladko/.hunter/_Base/c7b6099/511a137/e190f5f/Install/lib/cmake/spdlog/spdlogConfigVersion.cmake">
-			<Option virtualFolder="CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\511a137\e190f5f\Install\lib\cmake\spdlog\"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/../../home/kladko/.hunter/_Base/c7b6099/511a137/e190f5f/Install/lib/cmake/spdlog/spdlogTargets.cmake">
-			<Option virtualFolder="CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\511a137\e190f5f\Install\lib\cmake\spdlog\"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/../../home/kladko/.hunter/_Base/c7b6099/511a137/e190f5f/Install/lib/cmake/fmt/fmt-config-version.cmake">
-			<Option virtualFolder="CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\511a137\e190f5f\Install\lib\cmake\fmt\"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/../../home/kladko/.hunter/_Base/c7b6099/511a137/e190f5f/Install/lib/cmake/fmt/fmt-config.cmake">
-			<Option virtualFolder="CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\511a137\e190f5f\Install\lib\cmake\fmt\"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/../../home/kladko/.hunter/_Base/c7b6099/511a137/e190f5f/Install/lib/cmake/fmt/fmt-targets-debug.cmake">
-			<Option virtualFolder="CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\511a137\e190f5f\Install\lib\cmake\fmt\"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/../../home/kladko/.hunter/_Base/c7b6099/511a137/e190f5f/Install/lib/cmake/fmt/fmt-targets-release.cmake">
-			<Option virtualFolder="CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\511a137\e190f5f\Install\lib\cmake\fmt\"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/../../home/kladko/.hunter/_Base/c7b6099/511a137/e190f5f/Install/lib/cmake/fmt/fmt-targets.cmake">
-			<Option virtualFolder="CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\511a137\e190f5f\Install\lib\cmake\fmt\"/>
+		<Unit filename="/d/skale-consensus/../../home/kladko/.hunter/_Base/c7b6099/4162dcb/e190f5f/Install/lib/cmake/Snappy/SnappyTargets.cmake">
+			<Option virtualFolder="CMake Files\..\..\home\kladko\.hunter\_Base\c7b6099\4162dcb\e190f5f\Install\lib\cmake\Snappy\"/>
 		</Unit>
 		<Unit filename="/d/skale-consensus/_3rdParty/Hunter/toolchain/toolchain.info.NOLF">
 			<Option virtualFolder="CMake Files\_3rdParty\Hunter\toolchain\"/>
@@ -2632,35 +2575,14 @@
 		<Unit filename="/d/skale-consensus/libBLS/CMakeLists.txt">
 			<Option virtualFolder="CMake Files\libBLS\"/>
 		</Unit>
-		<Unit filename="/d/skale-consensus/libBLS/deps/ProjectGMP.cmake">
-			<Option virtualFolder="CMake Files\libBLS\deps\"/>
+		<Unit filename="/d/skale-consensus/libBLS/cmake/BlsFindClangFormat.cmake">
+			<Option virtualFolder="CMake Files\libBLS\cmake\"/>
 		</Unit>
-		<Unit filename="/d/skale-consensus/libBLS/deps/ProjectSecp256k1.cmake">
-			<Option virtualFolder="CMake Files\libBLS\deps\"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/libBLS/libff/CMakeLists.txt">
-			<Option virtualFolder="CMake Files\libBLS\libff\"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/libBLS/libff/depends/CMakeLists.txt">
-			<Option virtualFolder="CMake Files\libBLS\libff\depends\"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/libBLS/libff/libff/CMakeLists.txt">
-			<Option virtualFolder="CMake Files\libBLS\libff\libff\"/>
+		<Unit filename="/d/skale-consensus/libBLS/cmake/bls-clang-format.cmake">
+			<Option virtualFolder="CMake Files\libBLS\cmake\"/>
 		</Unit>
 		<Unit filename="/d/skale-consensus/libBLS/threshold_encryption/CMakeLists.txt">
 			<Option virtualFolder="CMake Files\libBLS\threshold_encryption\"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/libBLS/threshold_encryption/deps/ProjectPBC.cmake">
-			<Option virtualFolder="CMake Files\libBLS\threshold_encryption\deps\"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/libBLS/threshold_encryption/pbc-prefix/tmp/pbc-cfgcmd.txt.in">
-			<Option virtualFolder="CMake Files\libBLS\threshold_encryption\pbc-prefix\tmp\"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/deps/tmp/gmp-cfgcmd.txt.in">
-			<Option virtualFolder="CMake Files\deps\tmp\"/>
-		</Unit>
-		<Unit filename="/d/skale-consensus/deps/tmp/secp256k1-cfgcmd.txt.in">
-			<Option virtualFolder="CMake Files\deps\tmp\"/>
 		</Unit>
 	</Project>
 </CodeBlocks_project_file>

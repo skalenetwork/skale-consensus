@@ -38,12 +38,16 @@ class BlockDecryptionSet : public DataStructure {
 
     node_count nodeCount  = 0;
 
+    uint64_t requiredDecryptionCount;
+
     block_id blockId  = 0;
 
     static atomic< int64_t > totalObjects;
 
 public:
     node_count getCount();
+
+    bool isEnough();
 
     BlockDecryptionSet( Schain* _sChain, block_id _blockId );
 

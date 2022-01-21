@@ -57,13 +57,8 @@
 #include "network/Network.h"
 
 #include "chains/Schain.h"
-#include "datastructures/BlockProposalFragment.h"
-
-#include "datastructures/CommittedBlock.h"
-#include "db/BlockProposalDB.h"
-#include "db/DAProofDB.h"
-#include "headers/BlockFinalizeRequestHeader.h"
-#include "headers/BlockProposalRequestHeader.h"
+#include "datastructures/BlockDecryptionSet.h"
+#include "headers/BlockDecryptRequestHeader.h"
 #include "monitoring/LivelinessMonitor.h"
 #include "pendingqueue/PendingTransactionsAgent.h"
 #include "utils/Time.h"
@@ -72,11 +67,10 @@
 #include "BlockDecryptDownloaderThreadPool.h"
 
 
-BlockDecryptDownloader::BlockDecryptDownloader(Schain *_sChain, block_id _blockId, schain_index _proposerIndex)
+BlockDecryptDownloader::BlockDecryptDownloader(Schain *_sChain, block_id _blockId)
         : Agent(*_sChain, false, true),
           blockId(_blockId),
-          proposerIndex(_proposerIndex),
-          fragmentList(_blockId, (uint64_t) _sChain->getNodeCount() - 1) {
+          decryptionSet(_sChain, _blockId) {
 
     CHECK_ARGUMENT(_sChain)
 
@@ -84,9 +78,7 @@ BlockDecryptDownloader::BlockDecryptDownloader(Schain *_sChain, block_id _blockI
 
     try {
         logThreadLocal_ = _sChain->getNode()->getLog();
-
         CHECK_STATE(sChain)
-
     }
     catch (ExitRequestedException &) { throw; }
     catch (...) {
@@ -95,29 +87,69 @@ BlockDecryptDownloader::BlockDecryptDownloader(Schain *_sChain, block_id _blockI
 }
 
 
-nlohmann::json BlockDecryptDownloader::readBlockDecryptResponseHeader(const ptr<ClientSocket>& _socket) {
+nlohmann::json BlockDecryptDownloader::readBlockDecryptResponseHeader(const ptr<ClientSocket> &_socket) {
     MONITOR(__CLASS_NAME__, __FUNCTION__)
     CHECK_ARGUMENT(_socket)
     return getSchain()->getIo()->readJsonHeader(_socket->getDescriptor(),
-        "Read BlockDecrypt response",
-        10, _socket->getIP());
+                                                "Read BlockDecrypt response",
+                                                10, _socket->getIP());
 }
 
 
-uint64_t BlockDecryptDownloader::downloadFragment(schain_index _dstIndex, fragment_index _fragmentIndex) {
+void
+BlockDecryptDownloader::workerThreadDecryptionDownloadLoop(BlockDecryptDownloader *_agent, schain_index _dstIndex) {
 
-    LOG(info, "BLCK_FRG_DWNLD:" + to_string(_fragmentIndex) + ":" +
-        to_string(_dstIndex));
+
+    CHECK_STATE(_agent);
+
+    auto sChain = _agent->getSchain();
+    auto node = sChain->getNode();
+    auto blockId = _agent->getBlockId();
+
+    setThreadName("BlckDecrLoop", node->getConsensusEngine());
+
+    node->waitOnGlobalClientStartBarrier();
+
+    while (!node->isExitRequested() && !_agent->decryptionSet.isEnough()) {
+        // take into account that the decrypted block can come through catchup
+        if (sChain->getLastCommittedBlockID() >= blockId) {
+            return;
+        }
+
+        try {
+            if (_agent->downloadDecryption(_dstIndex)) {
+                // Decryption has been downloaded
+                return;
+            }
+        } catch (ExitRequestedException &) {
+            return;
+        } catch (exception &e) {
+            SkaleException::logNested(e);
+            usleep(static_cast< __useconds_t >( node->getWaitAfterNetworkErrorMs() * 1000 ));
+        };
+    };
+}
+
+BlockDecryptDownloader::~BlockDecryptDownloader() {}
+
+block_id BlockDecryptDownloader::getBlockId() {
+    return blockId;
+}
+
+
+uint64_t BlockDecryptDownloader::downloadDecryption(schain_index _dstIndex) {
+
+    LOG(info, "BLCK_DECR_DWNLD:" + to_string(_dstIndex));
 
     try {
 
-        auto header = make_shared<BlockFinalizeRequestHeader>(*sChain, blockId, proposerIndex,
-                this->getNode()->getNodeID(), _fragmentIndex);
+        auto header = make_shared<BlockDecryptRequestHeader>(*sChain, blockId, proposerIndex,
+                                                             this->getNode()->getNodeID(), (uint64_t )_dstIndex);
         CHECK_STATE(_dstIndex != (uint64_t) getSchain()->getSchainIndex())
         if (getSchain()->getDeathTimeMs((uint64_t) _dstIndex) + NODE_DEATH_INTERVAL_MS > Time::getCurrentTimeMs()) {
             usleep(100000); // emulate timeout
             BOOST_THROW_EXCEPTION(ConnectionRefusedException("Dead node:" + to_string(_dstIndex),
-                5, __CLASS_NAME__));
+                                                             5, __CLASS_NAME__));
         }
         auto socket = make_shared<ClientSocket>(*sChain, _dstIndex, CATCHUP);
 
@@ -127,13 +159,13 @@ uint64_t BlockDecryptDownloader::downloadFragment(schain_index _dstIndex, fragme
             io->writeMagic(socket);
         } catch (ExitRequestedException &) { throw; } catch (...) {
             throw_with_nested(
-                    NetworkProtocolException("BlockDecryptc: Server disconnect sending magic", __CLASS_NAME__));
+                    NetworkProtocolException("BlockFinalizec: Server disconnect sending magic", __CLASS_NAME__));
         }
 
         try {
             io->writeHeader(socket, header);
         } catch (ExitRequestedException &) { throw; } catch (...) {
-            auto errString = "BlockDecryptc step 1: can not write BlockDecrypt request";
+            auto errString = "BlockFinalizec step 1: can not write BlockFinalize request";
             LOG(err, errString);
             throw_with_nested(NetworkProtocolException(errString, __CLASS_NAME__));
         }
@@ -143,7 +175,7 @@ uint64_t BlockDecryptDownloader::downloadFragment(schain_index _dstIndex, fragme
         try {
             response = readBlockDecryptResponseHeader(socket);
         } catch (ExitRequestedException &) { throw; } catch (...) {
-            auto errString = "BlockDecryptc step 2: can not read BlockDecrypt response";
+            auto errString = "BlockFinalizec step 2: can not read BlockFinalize response";
             LOG(err, errString);
             throw_with_nested(NetworkProtocolException(errString, __CLASS_NAME__));
         }
@@ -152,9 +184,9 @@ uint64_t BlockDecryptDownloader::downloadFragment(schain_index _dstIndex, fragme
         auto status = (ConnectionStatus) Header::getUint64(response, "status");
 
         if (status == CONNECTION_DISCONNECT) {
-            LOG(info, "BLCK_FRG_DWNLD:NO_FRG:" + to_string(_fragmentIndex) + ":" +
+            LOG(info, "BLCK_DECR_DWNLD:DICONNEVT:" + to_string(_dstIndex) + ":" +
                       to_string(_dstIndex));
-            return 0;
+            return false;
         }
 
         if (status != CONNECTION_PROCEED) {
@@ -164,213 +196,12 @@ uint64_t BlockDecryptDownloader::downloadFragment(schain_index _dstIndex, fragme
         }
 
 
-        ptr<BlockProposalFragment> blockFragment;
+        ptr<BlockDecryptionShare> decryptionShare;
 
-        try {
-            blockFragment = readBlockFragment(socket, response, _fragmentIndex, getSchain()->getNodeCount());
-            CHECK_ARGUMENT(blockFragment)
-        } catch (ExitRequestedException &) { throw; } catch (...) {
-            auto errString = "BlockDecryptc step 3: can not read fragment";
-            LOG(err, errString);
-            throw_with_nested(NetworkProtocolException(errString, __CLASS_NAME__));
-        }
-
-
-        uint64_t next = 0;
-
-        fragmentList.addFragment(blockFragment, next);
-
-        return next;
+        return true;
 
     } catch (ExitRequestedException &e) { throw; } catch (...) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
 
 }
-
-uint64_t BlockDecryptDownloader::readFragmentSize(nlohmann::json _responseHeader) {
-
-    uint64_t result = Header::getUint64(_responseHeader, "fragmentSize");
-
-    if (result == 0) {
-        BOOST_THROW_EXCEPTION(NetworkProtocolException("fragmentSize == 0", __CLASS_NAME__));
-    }
-
-    return result;
-};
-
-uint64_t BlockDecryptDownloader::readBlockSize(nlohmann::json _responseHeader) {
-    uint64_t result = Header::getUint64(_responseHeader, "blockSize");
-
-    if (result == 0) {
-        BOOST_THROW_EXCEPTION(NetworkProtocolException("blockSize == 0", __CLASS_NAME__));
-    }
-
-    return result;
-};
-
-string BlockDecryptDownloader::readBlockHash(nlohmann::json _responseHeader) {
-    auto result = Header::getString(_responseHeader, "blockHash");
-    return result;
-};
-
-ptr<BlockProposalFragment>
-BlockDecryptDownloader::readBlockFragment(const ptr<ClientSocket>& _socket, nlohmann::json responseHeader,
-                                           fragment_index _fragmentIndex, node_count _nodeCount) {
-
-    CHECK_ARGUMENT(_socket);
-
-    CHECK_ARGUMENT(responseHeader > 0);
-
-    MONITOR(__CLASS_NAME__, __FUNCTION__);
-
-    auto fragmentSize = readFragmentSize(responseHeader);
-    auto blockSize = readBlockSize(responseHeader);
-    auto blockHash = readBlockHash(responseHeader);
-
-    auto serializedFragment = make_shared<vector<uint8_t> >(fragmentSize);
-
-    try {
-        getSchain()->getIo()->readBytes(_socket->getDescriptor(), serializedFragment,
-                                        msg_len(fragmentSize), 30);
-    } catch (ExitRequestedException &) {
-        throw;
-    } catch (...) {
-        throw_with_nested(NetworkProtocolException("Could not read blocks", __CLASS_NAME__));
-    }
-
-    ptr<BlockProposalFragment> fragment = nullptr;
-
-    try {
-        fragment = make_shared<BlockProposalFragment>(blockId, (uint64_t) _nodeCount - 1,
-                                                      _fragmentIndex, serializedFragment,
-                                                      blockSize, blockHash);
-    } catch (ExitRequestedException &) { throw; } catch (...) {
-        throw_with_nested(NetworkProtocolException("Could not parse block fragment", __CLASS_NAME__));
-    }
-
-    return fragment;
-
-}
-
-
-void BlockDecryptDownloader::workerThreadDecryptionDownloadLoop(BlockDecryptDownloader * _agent, schain_index _dstIndex) {
-
-
-    CHECK_STATE( _agent );
-
-
-    auto sChain = _agent->getSchain();
-    auto node = sChain->getNode();
-    auto proposalDB = node->getBlockProposalDB();
-    auto daProofDB = node->getDaProofDB();
-    auto blockId = _agent->getBlockId();
-    auto proposerIndex = _agent->getProposerIndex();
-    auto sChainIndex = sChain->getSchainIndex();
-    bool testFinalizationDownloadOnly = node->getTestConfig()->isFinalizationDownloadOnly();
-
-    setThreadName("BlckFinLoop", node->getConsensusEngine());
-
-    node->waitOnGlobalClientStartBarrier();
-    if( node->isExitRequested() )
-        return;
-
-    // since the node does not download from itself
-    // and since the number of fragment is one less the number of
-    // nodes, nodes that have sChainIndex more than current node, download _dstNodeIndex - 1
-    // fragment
-
-    uint64_t nextFragment;
-
-    if (_dstIndex > (uint64_t) sChainIndex) {
-        nextFragment = ( uint64_t ) _dstIndex - 1;
-    } else {
-        nextFragment = (uint64_t ) _dstIndex;
-    }
-
-    try {
-
-        while (!node->isExitRequested() && !_agent->fragmentList.isComplete()) {
-
-            if (!testFinalizationDownloadOnly) {
-                // take into account that the block can
-                //  be in parallel committed through catchup
-                if (sChain->getLastCommittedBlockID() >= blockId) {
-                    return;
-                }
-
-                // take into account that the proposal and da proof can arrive through
-                // BlockproposalServerAgent
-
-                if (proposalDB->proposalExists(blockId, proposerIndex)) {
-                    auto proposal = proposalDB->getBlockProposal( _agent->blockId, _agent->proposerIndex);
-                    CHECK_STATE(proposal);
-                    if (daProofDB->haveDAProof(proposal)) {
-                        return;
-                    }
-                }
-
-            }
-
-            try {
-                nextFragment = _agent->downloadFragment(_dstIndex, nextFragment);
-                if (nextFragment == 0) {
-                    // all fragments have been downloaded
-                    return;
-                }
-            } catch (ExitRequestedException &) {
-                return;
-            } catch (ConnectionRefusedException &e) {
-                _agent->logConnectionRefused(e, _dstIndex);
-                if( _agent->fragmentList.isComplete() )
-                    return;
-                usleep( static_cast< __useconds_t >( node->getWaitAfterNetworkErrorMs() * 1000 ) );
-            } catch (exception &e) {
-                SkaleException::logNested(e);
-                if( _agent->fragmentList.isComplete() )
-                    return;
-                usleep( static_cast< __useconds_t >( node->getWaitAfterNetworkErrorMs() * 1000 ) );
-            };
-        };
-    } catch (FatalError& e) {
-        SkaleException::logNested( e );
-        node->exitOnFatalError(e.what());
-    }
-}
-
-ptr<BlockProposal> BlockDecryptDownloader::downloadProposal() {
-
-    MONITOR(__CLASS_NAME__, __FUNCTION__);
-
-    {
-        threadPool = make_shared<BlockDecryptDownloaderThreadPool>((uint64_t) getSchain()->getNodeCount(), this);
-        threadPool->startService();
-        threadPool->joinAll();
-    }
-
-    try {
-
-        if (fragmentList.isComplete()) {
-            auto block = BlockProposal::deserialize(fragmentList.serialize(), getSchain()->getCryptoManager());
-            CHECK_STATE(block);
-            return block;
-        } else {
-            return nullptr;
-        }
-    } catch (ExitRequestedException &) { throw; } catch (exception &e) {
-        SkaleException::logNested(e);
-        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
-    }
-}
-
-BlockDecryptDownloader::~BlockDecryptDownloader() {}
-
-block_id BlockDecryptDownloader::getBlockId() {
-    return blockId;
-}
-
-schain_index BlockDecryptDownloader::getProposerIndex() {
-    return proposerIndex;
-}
-
-
