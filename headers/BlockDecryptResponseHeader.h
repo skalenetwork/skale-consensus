@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2019 SKALE Labs
+    Copyright (C) 2022- SKALE Labs
 
     This file is part of skale-consensus.
 
@@ -16,35 +16,29 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file BlockDecryptRequestHeader.h
+    @file BlockFinalizeRequestHeader.h
     @author Stan Kladko
     @date 2022-
 */
 
-#pragma  once
+#pragma once
 
-#include "AbstractBlockRequestHeader.h"
+#include "Header.h"
 
-class BlockDecryptRequestHeader : public AbstractBlockRequestHeader{
+class BlockDecryptResponseHeader : public Header {
 
-
-   te_share_index shareIndex;
-   node_id        nodeID;
-   vector<string> encryptedKeys;
+    vector<string> decryptionShares;
 
 public:
 
-    BlockDecryptRequestHeader(Schain &_sChain, block_id _blockID,
-            schain_index _proposerIndex, node_id _nodeID,
-                               te_share_index _shareIndex, vector<string>& _encryptedKeys);
+    void setDecryptionShare(const string& _decryptionShare);
 
+    BlockDecryptResponseHeader();
 
+    void addFields(nlohmann::json &jsonRequest) override;
+    void setDecryptionShares(const vector<string> &_decrShares);
 
-    void addFields(nlohmann::basic_json<> &jsonRequest) override;
-
-    const node_id &getNodeId() const;
 
 };
-
 
 

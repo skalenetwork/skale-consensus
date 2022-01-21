@@ -143,8 +143,12 @@ uint64_t BlockDecryptDownloader::downloadDecryption(schain_index _dstIndex) {
 
     try {
 
+        auto encryptedKeys = vector<string>();
+        encryptedKeys.push_back("haha");
+
         auto header = make_shared<BlockDecryptRequestHeader>(*sChain, blockId, proposerIndex,
-                                                             this->getNode()->getNodeID(), (uint64_t )_dstIndex);
+                                                             this->getNode()->getNodeID(), (uint64_t )_dstIndex,
+                                                             encryptedKeys);
         CHECK_STATE(_dstIndex != (uint64_t) getSchain()->getSchainIndex())
         if (getSchain()->getDeathTimeMs((uint64_t) _dstIndex) + NODE_DEATH_INTERVAL_MS > Time::getCurrentTimeMs()) {
             usleep(100000); // emulate timeout
@@ -184,7 +188,7 @@ uint64_t BlockDecryptDownloader::downloadDecryption(schain_index _dstIndex) {
         auto status = (ConnectionStatus) Header::getUint64(response, "status");
 
         if (status == CONNECTION_DISCONNECT) {
-            LOG(info, "BLCK_DECR_DWNLD:DICONNEVT:" + to_string(_dstIndex) + ":" +
+            LOG(info, "BLCK_DECR_DWNLD:DICONNECT:" + to_string(_dstIndex) + ":" +
                       to_string(_dstIndex));
             return false;
         }
