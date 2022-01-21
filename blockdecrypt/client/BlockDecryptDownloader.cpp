@@ -254,7 +254,7 @@ BlockDecryptDownloader::readBlockFragment(const ptr<ClientSocket>& _socket, nloh
 }
 
 
-void BlockDecryptDownloader::workerThreadFragmentDownloadLoop(BlockDecryptDownloader * _agent, schain_index _dstIndex) {
+void BlockDecryptDownloader::workerThreadDecryptionDownloadLoop(BlockDecryptDownloader * _agent, schain_index _dstIndex) {
 
 
     CHECK_STATE( _agent );

@@ -63,7 +63,7 @@ void BlockDecryptDownloaderThreadPool::createThread(uint64_t threadIndex ) {
 
     LOCK(threadPoolLock);
     this->threadpool.push_back(make_shared<thread>(
-            BlockDecryptDownloader::workerThreadFragmentDownloadLoop, downloader, destinationIndex ));
+            BlockDecryptDownloader::workerThreadDecryptionDownloadLoop, downloader, destinationIndex));
 
 }
 

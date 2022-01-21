@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2019 SKALE Labs
+    Copyright (C) 2022- SKALE Labs
 
     This file is part of skale-consensus.
 
@@ -18,11 +18,11 @@
 
     @file BlockDecryptDownloader.h
     @author Stan Kladko
-    @date 2019
+    @date 2021
 */
 
 /*
-    Copyright (C) 2018-2019 SKALE Labs
+    Copyright (C) 2022- SKALE Labs
 
     This file is part of skale-consensus.
 
@@ -41,7 +41,7 @@
 
     @file BlockDecryptDownloader.h
     @author Stan Kladko
-    @date 2018
+    @date 2022-
 */
 
 #pragma once
@@ -80,7 +80,7 @@ public:
     uint64_t downloadFragment(schain_index _dstIndex, fragment_index _fragmentIndex);
 
 
-    static void workerThreadFragmentDownloadLoop(BlockDecryptDownloader* _agent, schain_index _dstIndex );
+    static void workerThreadDecryptionDownloadLoop(BlockDecryptDownloader* _agent, schain_index _dstIndex );
 
     nlohmann::json readBlockDecryptResponseHeader( const ptr< ClientSocket >& _socket );
 
