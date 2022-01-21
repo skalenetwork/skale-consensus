@@ -61,8 +61,6 @@ BlockDecryptRequestHeader::BlockDecryptRequestHeader(Schain &_sChain, block_id _
 
     this->shareIndex = _shareIndex;
     this->nodeID = _nodeID;
-
-
     complete = true;
 }
 
