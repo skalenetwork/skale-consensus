@@ -974,7 +974,7 @@ void ConsensusEngine::setSGXKeyInfo(const string &_sgxServerURL, string &_sgxSSL
     sgxSSLKeyFileFullPath = _sgxSSLKeyFileFullPath;
 }
 
-void ConsensusEngine::setRotationHistory(ptr<vector<pair<uint64_t, vector<string>>>> _rh) {
+void ConsensusEngine::setRotationHistory(ptr<map<uint64_t, vector<string>>> _rh) {
     CHECK_STATE(_rh);
 
     map< uint64_t, ptr< BLSPublicKey > > _previousBlsPublicKeys;
