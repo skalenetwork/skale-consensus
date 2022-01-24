@@ -150,7 +150,18 @@ void OracleClient::sendTestRequestPost() {
 }
 
 
+
 uint64_t OracleClient::submitOracleRequest(const string& _spec, string &_receipt) {
+    _spec.erase(std::remove_if(_spec.begin(), _spec.end(), ::isspace), _spec.end());
+
+    auto index = _spec.find_last_of(",");
+
+    CHECK_STATE2(index != string::npos, "No comma in request");
+
+    auto end = _spec.substr(index);
+
+    CHECK_STATE2(end.find_last_of("pow") != string::npos, "Request does not end with pow element");
+
     auto msg = make_shared<OracleRequestBroadcastMessage>(_spec, sChain->getLastCommittedBlockID(),
                                                           Time::getCurrentTimeMs(),
                                                           *sChain->getOracleClient());
