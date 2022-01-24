@@ -44,9 +44,12 @@ OracleRequestBroadcastMessage::OracleRequestBroadcastMessage(const string& _requ
                                                              OracleClient &sourceProtocolInstance)
         : NetworkMessage(MSG_ORACLE_REQ_BROADCAST, _blockID, 0, 0, 0, _timeMs,
                          sourceProtocolInstance), requestSpec(_requestSpec) {
+
+    requestSpec.erase(std::remove_if(requestSpec.begin(), requestSpec.end(), ::isspace), requestSpec.end());
+
     printPrefix = "o";
 
-    parsedSpec = OracleRequestSpec::parseSpec(_requestSpec);
+    parsedSpec = OracleRequestSpec::parseSpec(requestSpec);
     CHECK_STATE2(parsedSpec->getChainid() == sourceProtocolInstance.getSchain()->getSchainID(),
                  "Invalid schain id in oracle spec:" + to_string(parsedSpec->getChainid()));
 
@@ -69,7 +72,9 @@ OracleRequestBroadcastMessage::OracleRequestBroadcastMessage(const string& _requ
     CHECK_STATE(_requestSpec.front() == '{' && _requestSpec.back() == '}')
     printPrefix = "o";
 
-    parsedSpec = OracleRequestSpec::parseSpec(_requestSpec);
+    requestSpec.erase(std::remove_if(requestSpec.begin(), requestSpec.end(), ::isspace), requestSpec.end());
+
+    parsedSpec = OracleRequestSpec::parseSpec(requestSpec);
     CHECK_STATE2(parsedSpec->getChainid() == _schainId,
                  "Invalid schain id in oracle spec:" + to_string(_schainId));
     CHECK_STATE(parsedSpec->getTime() + ORACLE_TIMEOUT_MS > Time::getCurrentTimeMs())
