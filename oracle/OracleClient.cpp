@@ -150,7 +150,7 @@ void OracleClient::sendTestRequestPost() {
 }
 
 
-uint64_t OracleClient::submitOracleRequest(string _spec, string &_receipt) {
+uint64_t OracleClient::submitOracleRequest(const string& _spec, string &_receipt) {
     auto msg = make_shared<OracleRequestBroadcastMessage>(_spec, sChain->getLastCommittedBlockID(),
                                                           Time::getCurrentTimeMs(),
                                                           *sChain->getOracleClient());
@@ -194,7 +194,7 @@ void OracleClient::processResponseMessage(const ptr<MessageEnvelope> &_me) {
 }
 
 
-uint64_t OracleClient::checkOracleResult(string &_receipt,
+uint64_t OracleClient::checkOracleResult(const string &_receipt,
                                          string &_result) {
     auto oracleReceivedResults = receiptsMap.getIfExists(_receipt);
 

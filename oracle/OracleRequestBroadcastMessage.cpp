@@ -39,7 +39,7 @@
 #include "OracleRequestSpec.h"
 #include "OracleRequestBroadcastMessage.h"
 
-OracleRequestBroadcastMessage::OracleRequestBroadcastMessage(string& _requestSpec, block_id _blockID,
+OracleRequestBroadcastMessage::OracleRequestBroadcastMessage(const string& _requestSpec, block_id _blockID,
                                                              uint64_t _timeMs,
                                                              OracleClient &sourceProtocolInstance)
         : NetworkMessage(MSG_ORACLE_REQ_BROADCAST, _blockID, 0, 0, 0, _timeMs,
@@ -52,11 +52,11 @@ OracleRequestBroadcastMessage::OracleRequestBroadcastMessage(string& _requestSpe
 
     CHECK_STATE(parsedSpec->getTime() + ORACLE_TIMEOUT_MS > Time::getCurrentTimeMs())
     CHECK_STATE(parsedSpec->getTime()  < Time::getCurrentTimeMs() + ORACLE_FUTURE_JITTER_MS)
-    parsedSpec->verifyPow();
+    CHECK_STATE2(parsedSpec->verifyPow(), "PoW did not verify)");
 }
 
 
-OracleRequestBroadcastMessage::OracleRequestBroadcastMessage(string& _requestSpec, node_id _srcNodeID, block_id _blockID,
+OracleRequestBroadcastMessage::OracleRequestBroadcastMessage(const string& _requestSpec, node_id _srcNodeID, block_id _blockID,
                                                              uint64_t _timeMs,
                                                              schain_id _schainId, msg_id _msgID,
                                                              schain_index _srcSchainIndex,
@@ -74,7 +74,7 @@ OracleRequestBroadcastMessage::OracleRequestBroadcastMessage(string& _requestSpe
                  "Invalid schain id in oracle spec:" + to_string(_schainId));
     CHECK_STATE(parsedSpec->getTime() + ORACLE_TIMEOUT_MS > Time::getCurrentTimeMs())
     CHECK_STATE(parsedSpec->getTime()  < Time::getCurrentTimeMs() + ORACLE_FUTURE_JITTER_MS)
-    parsedSpec->verifyPow();
+    CHECK_STATE2(parsedSpec->verifyPow(), "PoW did not verify)");
 }
 
 void OracleRequestBroadcastMessage::updateWithChildHash(blake3_hasher& _hasher) {

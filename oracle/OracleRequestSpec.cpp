@@ -14,11 +14,11 @@
 
 #include "OracleRequestSpec.h"
 
-ptr<OracleRequestSpec> OracleRequestSpec::parseSpec(string &_spec) {
+ptr<OracleRequestSpec> OracleRequestSpec::parseSpec(const string &_spec) {
     return make_shared<OracleRequestSpec>(_spec);
 }
 
-OracleRequestSpec::OracleRequestSpec(string &_spec) : spec(_spec) {
+OracleRequestSpec::OracleRequestSpec(const string &_spec) : spec(_spec) {
     rapidjson::Document d;
     spec.erase(std::remove_if(spec.begin(), spec.end(), ::isspace), spec.end());
     d.Parse(spec.data());
