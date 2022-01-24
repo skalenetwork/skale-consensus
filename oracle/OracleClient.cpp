@@ -150,9 +150,7 @@ void OracleClient::sendTestRequestPost() {
 }
 
 
-
 uint64_t OracleClient::submitOracleRequest(const string& _spec, string &_receipt) {
-    _spec.erase(std::remove_if(_spec.begin(), _spec.end(), ::isspace), _spec.end());
 
     auto index = _spec.find_last_of(",");
 
