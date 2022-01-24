@@ -150,8 +150,7 @@ void OracleClient::sendTestRequestPost() {
 }
 
 
-uint64_t OracleClient::submitOracleRequest(string _spec, string &_receipt) {
-    _spec.erase(std::remove_if(_spec.begin(), _spec.end(), ::isspace), _spec.end());
+uint64_t OracleClient::submitOracleRequest(const string& _spec, string &_receipt) {
 
     auto index = _spec.find_last_of(",");
 
@@ -204,7 +203,7 @@ void OracleClient::processResponseMessage(const ptr<MessageEnvelope> &_me) {
 }
 
 
-uint64_t OracleClient::checkOracleResult(string &_receipt,
+uint64_t OracleClient::checkOracleResult(const string &_receipt,
                                          string &_result) {
     auto oracleReceivedResults = receiptsMap.getIfExists(_receipt);
 

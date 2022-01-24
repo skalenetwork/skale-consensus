@@ -36,11 +36,11 @@ public:
 
     const uint64_t &getPow() const;
 
-    OracleRequestSpec(string& _spec);
+    OracleRequestSpec(const string& _spec);
 
     uint64_t getChainid() const;
 
-    static ptr<OracleRequestSpec> parseSpec(string& _spec);
+    static ptr<OracleRequestSpec> parseSpec(const string& _spec);
 
     const vector<uint64_t> &getTrims() const;
 

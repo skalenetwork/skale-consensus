@@ -18,7 +18,7 @@
 
    @file ConsensusEngine.cpp
    @author Stan Kladko
-   @date 2018
+   @date 2022-
 */
 
 
@@ -1039,7 +1039,7 @@ ConsensusEngine::getBlock(block_id _blockId) {
 }
 
 
-uint64_t ConsensusEngine::submitOracleRequest(string _spec, string &_receipt) {
+uint64_t ConsensusEngine::submitOracleRequest(const string& _spec, string &_receipt) {
     CHECK_STATE(nodes.size() > 0)
     auto node = nodes.begin()->second;
     CHECK_STATE(node)
@@ -1059,7 +1059,7 @@ uint64_t ConsensusEngine::submitOracleRequest(string _spec, string &_receipt) {
  */
 
 
-uint64_t  ConsensusEngine::checkOracleResult(string& _receipt, string& _result) {
+uint64_t  ConsensusEngine::checkOracleResult(const string& _receipt, string& _result) {
     CHECK_STATE(nodes.size() > 0)
     auto node = nodes.begin()->second;
     CHECK_STATE(node)

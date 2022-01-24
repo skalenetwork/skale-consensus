@@ -95,7 +95,7 @@ public:
      * is. In case of an error, a non-zero error will be returned.
      */
 
-    virtual uint64_t submitOracleRequest(string _spec, string &_receipt) = 0;
+    virtual uint64_t submitOracleRequest(const string& _spec, string &_receipt) = 0;
 
     /*
      * Check if Oracle result has been derived.  This will return ORACLE_SUCCESS if
@@ -107,7 +107,7 @@ public:
      */
 
 
-    virtual uint64_t  checkOracleResult(string& _receipt, string& _result) = 0;
+    virtual uint64_t  checkOracleResult(const string& _receipt, string& _result) = 0;
 
 };
 
