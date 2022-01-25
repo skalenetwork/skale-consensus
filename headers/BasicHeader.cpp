@@ -79,6 +79,7 @@ void BasicHeader::nullCheck(nlohmann::json &js, const char * _name ) {
 uint64_t BasicHeader::getUint64(nlohmann::json &_js, const char *_name) {
     CHECK_ARGUMENT(_name);
     nullCheck(_js, _name);
+    CHECK_ARGUMENT2(_js[_name].is_number_unsigned(), "Json element in " + _js.dump() + " is not unsigned number:" + _name);
     uint64_t result = _js[_name];
     return result;
 };
@@ -111,6 +112,7 @@ int32_t BasicHeader::getInt32(nlohmann::json &_js, const char *_name) {
 uint32_t BasicHeader::getUint32(nlohmann::json &_js, const char *_name) {
     CHECK_ARGUMENT(_name);
     nullCheck(_js, _name);
+    CHECK_ARGUMENT2(_js[_name].is_number_unsigned(), "Json element in " + _js.dump() + " is not unsigned number:" + _name);
     uint32_t result = _js[_name];
     return result;
 };
@@ -118,7 +120,7 @@ uint32_t BasicHeader::getUint32(nlohmann::json &_js, const char *_name) {
 string BasicHeader::getString(nlohmann::json &_js, const char *_name) {
     CHECK_ARGUMENT(_name);
     nullCheck(_js, _name);
-    CHECK_ARGUMENT(_js.is_string());
+    CHECK_ARGUMENT2(_js[_name].is_string(), "Json element in " + _js.dump() + " is not a string:" + _name);
     string result = _js[_name];
     return result;
 }
