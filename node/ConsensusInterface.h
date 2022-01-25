@@ -18,7 +18,7 @@
 
     @file ConsensusInterface.h
     @author Stan Kladko
-    @date 2018
+    @date 2018-
 */
 
 #ifndef CONSENSUSINTERFACE_H
@@ -40,12 +40,36 @@ enum consensus_engine_status {
 using u256 = boost::multiprecision::number<boost::multiprecision::backends::cpp_int_backend<256, 256,
         boost::multiprecision::unsigned_magnitude, boost::multiprecision::unchecked, void> >;
 
+/*
+ * This is used by consensus to get the last argument of a call if transaction
+ * is a call to a smartcontact. Will return true if:
+ * 1. the transaction is a smart contract call AND
+ * 2. the last argument of the call is array of bytes
+ *
+ * Otherwise will return false
+ *
+ * lastArgument - thats where the argument is copied if return value is true.
+ */
+
+class EncryptedTransactionAnalyzer {
+    virtual bool getLastSmartContractArgument(std::vector<uint8_t>& lastArgument) = 0;
+};
+
+class EmptyEncryptedTransactionAnalyzer : public EncryptedTransactionAnalyzer {
+    bool getLastSmartContractArgument(std::vector<uint8_t>& ) override {
+        return false;
+    }
+};
+
+
 class ConsensusInterface {
 public:
     virtual ~ConsensusInterface() = default;
 
     virtual void parseFullConfigAndCreateNode(const std::string &fullPathToConfigFile,
-                                              const string& gethURL) = 0;
+                                              const string& gethURL,
+                                              std::shared_ptr<EncryptedTransactionAnalyzer> _analyzer)
+                                              = 0;
 
     virtual void startAll() = 0;
 
@@ -111,6 +135,10 @@ public:
 
 };
 
+
+
+
+
 /**
  * Through this interface Consensus interacts with the rest of the system
  */
@@ -122,9 +150,11 @@ public:
     virtual transactions_vector pendingTransactions(size_t _limit, u256& _stateRoot) = 0;
 
     // Creates new block with specified transactions AND removes them from the queue
-    virtual void createBlock(const transactions_vector &_approvedTransactions, uint64_t _timeStamp,
+    virtual void createBlock(const transactions_vector &_approvedTransactions,
+                             uint64_t _timeStamp,
                              uint32_t _timeStampMillis, uint64_t _blockID, u256 _gasPrice,
-                             u256 _stateRoot, uint64_t _winningNodeIndex) = 0;
+                             u256 _stateRoot, uint64_t _winningNodeIndex,
+                             vector<uint64_t> decryptedArgs = vector<uint64_t>()) = 0;
 
     virtual ~ConsensusExtFace() = default;
 

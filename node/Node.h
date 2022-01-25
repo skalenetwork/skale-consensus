@@ -66,7 +66,9 @@ enum PricingStrategyEnum { ZERO, DOS_PROTECT };
 
 
 class Node {
-    
+
+
+
     ConsensusEngine* consensusEngine;
 
     vector< Agent* > agents;
@@ -108,6 +110,8 @@ class Node {
     ptr< Schain > sChain = nullptr;
 
     ptr< TestConfig > testConfig = nullptr;
+
+
 
     class Comparator {
     public:
@@ -199,6 +203,8 @@ class Node {
 
     string gethURL = "";
 
+    shared_ptr<EncryptedTransactionAnalyzer> analyzer;
+
     bool inited = false;
 
     void releaseGlobalServerBarrier();
@@ -279,7 +285,8 @@ public:
         string _ecdsaKeyName, ptr< vector<string> > _ecdsaPublicKeys,
         string _blsKeyName, ptr< vector< ptr< vector<string>>>> _blsPublicKeys,
         ptr< BLSPublicKey > _blsPublicKey, string& _gethURL,
-        ptr< map< uint64_t, ptr< BLSPublicKey > > > _previousBlsPublicKeys);
+        ptr< map< uint64_t, ptr< BLSPublicKey > > > _previousBlsPublicKeys,
+        shared_ptr<EncryptedTransactionAnalyzer> _analyzer);
 
     ~Node();
 

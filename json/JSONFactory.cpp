@@ -70,6 +70,8 @@ ptr< Node > JSONFactory::createNodeFromTestJsonFile(
     const ptr< BLSPublicKey >& _blsPublicKey,
     const ptr< map< uint64_t, ptr< BLSPublicKey > > >& _previousBlsPublicKeys ) {
 
+    auto testTransactionAnalyzer = make_shared<EmptyEncryptedTransactionAnalyzer>();
+
     string sgxUrl = "";
 
     try {
@@ -96,7 +98,8 @@ ptr< Node > JSONFactory::createNodeFromTestJsonFile(
             _sgxSSLCertFileFullPath,
             _ecdsaKeyName, _ecdsaPublicKeys,
             _blsKeyName, _blsPublicKeys,
-            _blsPublicKey, gethURL, _previousBlsPublicKeys);
+            _blsPublicKey, gethURL, _previousBlsPublicKeys,
+            dynamic_pointer_cast<EncryptedTransactionAnalyzer>(testTransactionAnalyzer));
     } catch ( ... ) {
         throw_with_nested( FatalError( __FUNCTION__ + to_string( __LINE__ ), __CLASS_NAME__ ) );
     }
@@ -111,9 +114,8 @@ ptr< Node > JSONFactory::createNodeFromJsonObject( const nlohmann::json& _j, set
     const string& _ecdsaKeyName, const ptr< vector<string> >& _ecdsaPublicKeys,
     const string& _blsKeyName, const ptr< vector< ptr< vector<string>>>>& _blsPublicKeys,
     const ptr<  BLSPublicKey  >& _blsPublicKey, string& _gethURL,
-    const ptr< map< uint64_t, ptr< BLSPublicKey > > >& _previousBlsPublicKeys ) {
-
-
+    const ptr< map< uint64_t, ptr< BLSPublicKey > > >& _previousBlsPublicKeys,
+    shared_ptr<EncryptedTransactionAnalyzer> _analyzer) {
 
 
     auto sgxSSLKeyFileFullPathCopy = _sgxSSLKeyFileFullPath;
@@ -157,7 +159,8 @@ ptr< Node > JSONFactory::createNodeFromJsonObject( const nlohmann::json& _j, set
                 sgxSSLKeyFileFullPathCopy,
                 sgxSSLCertFileFullPathCopy,
                 _ecdsaKeyName, _ecdsaPublicKeys,
-                _blsKeyName, _blsPublicKeys, _blsPublicKey, _gethURL, _previousBlsPublicKeys);
+                _blsKeyName, _blsPublicKeys, _blsPublicKey, _gethURL, _previousBlsPublicKeys,
+                                       _analyzer);
         } catch ( ... ) {
             throw_with_nested( FatalError( "Could not init node", __CLASS_NAME__ ) );
         }

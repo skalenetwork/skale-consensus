@@ -78,6 +78,7 @@ ConsensusExtFace::transactions_vector TestMessageGeneratorAgent::pendingTransact
 
     static uint64_t iterations = 0;
     // send oracle test once from schain index 1
+    /*
     if (iterations == 40) {
         LOG(info, "Sending Oracle test");
         getSchain()->getOracleClient()->sendTestRequestGet();
@@ -85,6 +86,7 @@ ConsensusExtFace::transactions_vector TestMessageGeneratorAgent::pendingTransact
         getSchain()->getOracleClient()->sendTestRequestGet();
         LOG(info, "Sent Oracle test");
     }
+     */
     iterations++;
 
 

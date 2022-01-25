@@ -642,7 +642,7 @@ void Schain::pushBlockToExtFace( const ptr< CommittedBlock >& _block ) {
         if ( extFace ) {
             extFace->createBlock( *tv, _block->getTimeStampS(), _block->getTimeStampMs(),
                 ( __uint64_t ) _block->getBlockID(), currentPrice, _block->getStateRoot(),
-                ( uint64_t ) _block->getProposerIndex() );
+                ( uint64_t ) _block->getProposerIndex());
             // exit immediately if exit has been requested
             getSchain()->getNode()->exitCheck();
         }
