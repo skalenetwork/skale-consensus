@@ -1056,3 +1056,8 @@ bool CryptoManager::isSGXServerDown() {
     CHECK_STATE(zmqClient);
     return (zmqClient->isServerDown());
 }
+
+void CryptoManager::decryptArgs(ptr<CommittedBlock> _block, const vector<uint8_t>& _decryptedArgs) {
+    CHECK_STATE(_block);
+    CHECK_STATE(_decryptedArgs.empty());
+}

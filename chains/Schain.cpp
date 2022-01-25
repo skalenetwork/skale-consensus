@@ -620,7 +620,6 @@ void Schain::saveBlock( const ptr< CommittedBlock >& _block ) {
     }
 }
 
-
 void Schain::pushBlockToExtFace( const ptr< CommittedBlock >& _block ) {
     CHECK_ARGUMENT( _block );
 
@@ -638,11 +637,15 @@ void Schain::pushBlockToExtFace( const ptr< CommittedBlock >& _block ) {
 
         auto currentPrice = this->pricingAgent->readPrice( _block->getBlockID() - 1 );
 
+        vector<uint8_t> decryptedArgs;
+
+        getCryptoManager()->decryptArgs(_block, decryptedArgs);
+
 
         if ( extFace ) {
             extFace->createBlock( *tv, _block->getTimeStampS(), _block->getTimeStampMs(),
                 ( __uint64_t ) _block->getBlockID(), currentPrice, _block->getStateRoot(),
-                ( uint64_t ) _block->getProposerIndex());
+                ( uint64_t ) _block->getProposerIndex(), decryptedArgs);
             // exit immediately if exit has been requested
             getSchain()->getNode()->exitCheck();
         }

@@ -154,7 +154,7 @@ public:
                              uint64_t _timeStamp,
                              uint32_t _timeStampMillis, uint64_t _blockID, u256 _gasPrice,
                              u256 _stateRoot, uint64_t _winningNodeIndex,
-                             vector<uint64_t> decryptedArgs = vector<uint64_t>()) = 0;
+                             const vector<uint8_t>& decryptedArgs = vector<uint8_t>()) = 0;
 
     virtual ~ConsensusExtFace() = default;
 

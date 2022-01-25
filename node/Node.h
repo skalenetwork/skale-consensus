@@ -211,6 +211,11 @@ class Node {
 
     void releaseGlobalClientBarrier();
 
+public:
+    const shared_ptr<EncryptedTransactionAnalyzer> &getAnalyzer() const;
+
+private:
+
     void closeAllSocketsAndNotifyAllAgentsAndThreads();
 
 public:

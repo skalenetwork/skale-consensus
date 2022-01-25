@@ -284,7 +284,10 @@ public:
 
     string signOracleResult(string _text);
 
+    void decryptArgs(ptr<CommittedBlock> _block, const vector<uint8_t>& _decryptedArgs);
+
     static string hashForOracle(string &_text);
+
 };
 
 #define RETRY_BEGIN \
