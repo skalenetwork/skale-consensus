@@ -132,6 +132,8 @@ class CryptoManager {
     string sgxDomainName;
     uint16_t sgxPort = 0;
 
+    array<uint8_t, TE_MAGIC_SIZE> teMagic;
+
     ptr< StubClient > getSgxClient();
 
     tuple< ptr< OpenSSLEdDSAKey >, string > localGenerateFastKey();
@@ -149,10 +151,10 @@ class CryptoManager {
         BLAKE3Hash & _hash, block_id _blockId, bool _forceMockup );
 
 
-
     void initSGXClient();
 
     static pair<string, uint64_t> parseSGXDomainAndPort( const string& _url );
+
 
 
 

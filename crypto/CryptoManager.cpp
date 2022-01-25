@@ -138,6 +138,11 @@ CryptoManager::CryptoManager(uint64_t _totalSigners, uint64_t _requiredSigners, 
                              string _sgxURL, string _sgxSslKeyFileFullPath, string _sgxSslCertFileFullPath,
                              string _sgxEcdsaKeyName, ptr<vector<string> > _sgxEcdsaPublicKeys)
         : sessionKeys(SESSION_KEY_CACHE_SIZE), sessionPublicKeys(SESSION_PUBLIC_KEY_CACHE_SIZE) {
+
+
+
+    Utils::cArrayFromHex(TE_MAGIC, teMagic.data(), TE_MAGIC_SIZE);
+
     CHECK_ARGUMENT(_totalSigners >= _requiredSigners);
     totalSigners = _totalSigners;
     requiredSigners = _requiredSigners;
@@ -1066,16 +1071,22 @@ void CryptoManager::decryptArgs(ptr<CommittedBlock> _block, const vector<uint8_t
 
     map<uint64_t, ptr<vector<uint8_t>>> _argsToDecrypt;
 
-    for (auto&& transaction : *_block->getTransactionList()->getItems()) {
-        auto transactionBytes = transaction->getData();
-        vector<uint8_t> encryptedArgument;
+    auto transactions = _block->getTransactionList()->getItems();
 
+    for (uint64_t i = 0; i < transactions->size(); i++) {
+        auto transactionBytes = transactions->at(i)->getData();
+        vector<uint8_t> encryptedArgument;
         auto lastCallBytes = getSchain()->getNode()->getAnalyzer()->getLastSmartContractArgument(*transactionBytes);
 
-        if (lastCallBytes) {
+        if (lastCallBytes || lastCallBytes->size() > TE_MAGIC_SIZE) {
+            if (memcmp(teMagic.data(), lastCallBytes->data(), TE_MAGIC_SIZE) == 0) {
+                auto first = lastCallBytes->cbegin() + TE_MAGIC_SIZE;
+                auto last = lastCallBytes->cend();
+                auto bytesToDecrypt = make_shared<vector<uint8_t>>(first, last);
+                _argsToDecrypt.emplace(i, bytesToDecrypt);
+            }
         }
     }
-
 
     CHECK_STATE(_block);
     CHECK_STATE(_decryptedArgs.empty());

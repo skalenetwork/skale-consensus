@@ -334,6 +334,7 @@ static const uint64_t  ORACLE_RECEIPTS_MAP_SIZE = 100000;
 static const uint64_t  ORACLE_FUTURE_JITTER_MS = 500;
 
 #define TE_MAGIC "f84a1cf7214ae051cae8"
+static const uint64_t TE_MAGIC_SIZE = 10;
 
 extern void setThreadName(std::string const &_n, ConsensusEngine* _engine);
 
