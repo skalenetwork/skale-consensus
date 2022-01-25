@@ -52,13 +52,20 @@ using u256 = boost::multiprecision::number<boost::multiprecision::backends::cpp_
  */
 
 class EncryptedTransactionAnalyzer {
-    virtual bool getLastSmartContractArgument(std::vector<uint8_t>& lastArgument) = 0;
+public:
+    virtual shared_ptr<std::vector<uint8_t>> getLastSmartContractArgument(
+            const std::vector<uint8_t>& transaction) = 0;
 };
 
 class EmptyEncryptedTransactionAnalyzer : public EncryptedTransactionAnalyzer {
-    bool getLastSmartContractArgument(std::vector<uint8_t>& ) override {
-        return false;
+public:
+
+    shared_ptr<std::vector<uint8_t>> getLastSmartContractArgument(
+            const std::vector<uint8_t>& ) override {
+        return nullptr;
     }
+
+
 };
 
 

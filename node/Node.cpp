@@ -88,7 +88,7 @@ Node::Node(const nlohmann::json &_cfg, ConsensusEngine *_consensusEngine,
            ptr< vector< ptr< vector<string>>>> _blsPublicKeys,
            ptr< BLSPublicKey > _blsPublicKey, string & _gethURL,
            ptr< map< uint64_t, ptr< BLSPublicKey > > > _previousBlsPublicKeys,
-           shared_ptr<EncryptedTransactionAnalyzer> _analyzer) : gethURL(_gethURL) {
+           shared_ptr<EncryptedTransactionAnalyzer> _analyzer) : gethURL(_gethURL), analyzer(_analyzer) {
 
     CHECK_ARGUMENT(_analyzer);
 

@@ -18,8 +18,7 @@
 
     @file CryptoManager.h
     @author Stan Kladko
-    @date 2019
-
+    @date 2019-
 */
 
 
@@ -74,6 +73,10 @@
 #include "json/JSONFactory.h"
 
 #include "network/Utils.h"
+
+#include "datastructures/TransactionList.h"
+#include "datastructures/Transaction.h"
+#include "node/ConsensusInterface.h"
 
 #include "utils/Time.h"
 
@@ -1058,6 +1061,22 @@ bool CryptoManager::isSGXServerDown() {
 }
 
 void CryptoManager::decryptArgs(ptr<CommittedBlock> _block, const vector<uint8_t>& _decryptedArgs) {
+
+    CHECK_STATE(_block);
+
+    map<uint64_t, ptr<vector<uint8_t>>> _argsToDecrypt;
+
+    for (auto&& transaction : *_block->getTransactionList()->getItems()) {
+        auto transactionBytes = transaction->getData();
+        vector<uint8_t> encryptedArgument;
+
+        auto lastCallBytes = getSchain()->getNode()->getAnalyzer()->getLastSmartContractArgument(*transactionBytes);
+
+        if (lastCallBytes) {
+        }
+    }
+
+
     CHECK_STATE(_block);
     CHECK_STATE(_decryptedArgs.empty());
 }
