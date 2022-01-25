@@ -81,6 +81,8 @@ ConsensusExtFace::transactions_vector TestMessageGeneratorAgent::pendingTransact
     if (iterations == 40) {
         LOG(info, "Sending Oracle test");
         getSchain()->getOracleClient()->sendTestRequestGet();
+        sleep(1);
+        getSchain()->getOracleClient()->sendTestRequestGet();
         LOG(info, "Sent Oracle test");
     }
     iterations++;
