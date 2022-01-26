@@ -27,6 +27,7 @@
 #include "Log.h"
 #include "chains/Schain.h"
 #include "chains/SchainTest.h"
+#include "crypto/CryptoManager.h"
 #include "datastructures/Transaction.h"
 #include "exceptions/FatalError.h"
 #include "node/ConsensusEngine.h"
@@ -59,6 +60,11 @@ ConsensusExtFace::transactions_vector TestMessageGeneratorAgent::pendingTransact
     for (uint64_t i = 0; i < _limit; i++) {
 
         vector<uint8_t> transaction(messageSize);
+
+        if (i == 3) {
+            auto magic = getSchain()->getCryptoManager()->getTeMagic();
+            transaction.insert(transaction.end(), magic.cbegin(), magic.cend());
+        }
 
         uint64_t  dummy = counter;
         auto bytes = (uint8_t*) & dummy;

@@ -56,7 +56,7 @@ class BlockDecrypttionShare;
 class BlockDecryptDownloaderThreadPool;
 
 
-#include "datastructures/BlockDecryptionSet.h"
+#include "datastructures/ArgumentDecryptionSet.h"
 
 class BlockDecryptDownloader : public Agent {
 
@@ -64,7 +64,7 @@ class BlockDecryptDownloader : public Agent {
 
     schain_index proposerIndex = 0;
 
-    BlockDecryptionSet decryptionSet;
+    ArgumentDecryptionSet decryptionSet;
 
 public:
 
@@ -74,13 +74,15 @@ public:
 
     ~BlockDecryptDownloader() override;
 
-    uint64_t downloadDecryption(schain_index _dstIndex);
+    uint64_t downloadDecryptionShare(schain_index _dstIndex);
 
     static void workerThreadDecryptionDownloadLoop(BlockDecryptDownloader* _agent, schain_index _dstIndex );
 
     nlohmann::json readBlockDecryptResponseHeader( const ptr< ClientSocket >& _socket );
 
     block_id getBlockId();
+
+
 
 };
 

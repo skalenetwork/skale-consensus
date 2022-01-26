@@ -70,6 +70,8 @@
 #include "node/Node.h"
 #include "node/NodeInfo.h"
 
+#include "blockdecrypt/client/BlockDecryptDownloader.h"
+
 #include "json/JSONFactory.h"
 
 #include "network/Utils.h"
@@ -77,6 +79,7 @@
 #include "datastructures/TransactionList.h"
 #include "datastructures/Transaction.h"
 #include "node/ConsensusInterface.h"
+
 
 #include "utils/Time.h"
 
@@ -1078,16 +1081,34 @@ void CryptoManager::decryptArgs(ptr<CommittedBlock> _block, const vector<uint8_t
         vector<uint8_t> encryptedArgument;
         auto lastCallBytes = getSchain()->getNode()->getAnalyzer()->getLastSmartContractArgument(*transactionBytes);
 
-        if (lastCallBytes || lastCallBytes->size() > TE_MAGIC_SIZE) {
+        if (lastCallBytes && lastCallBytes->size() > TE_MAGIC_SIZE) {
             if (memcmp(teMagic.data(), lastCallBytes->data(), TE_MAGIC_SIZE) == 0) {
                 auto first = lastCallBytes->cbegin() + TE_MAGIC_SIZE;
                 auto last = lastCallBytes->cend();
                 auto bytesToDecrypt = make_shared<vector<uint8_t>>(first, last);
+                exit(-17);
                 _argsToDecrypt.emplace(i, bytesToDecrypt);
             }
         }
     }
 
-    CHECK_STATE(_block);
-    CHECK_STATE(_decryptedArgs.empty());
+
+
+    auto agent = make_unique< BlockDecryptDownloader >( getSchain(), _block->getBlockID());
+
+    {
+        const string msg = "Decryption download:" + to_string(
+                (uint64_t ) _block->getBlockID()
+                );
+
+        MONITOR( __CLASS_NAME__, msg.c_str() );
+        // This will complete successfully also if block arrives through catchup
+        auto decryption = agent->downloadDecryptionShare();
+    }
+
+
+}
+
+const array<uint8_t, TE_MAGIC_SIZE> &CryptoManager::getTeMagic() const {
+    return teMagic;
 }

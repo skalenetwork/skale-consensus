@@ -57,7 +57,7 @@
 #include "network/Network.h"
 
 #include "chains/Schain.h"
-#include "datastructures/BlockDecryptionSet.h"
+#include "datastructures/ArgumentDecryptionSet.h"
 #include "headers/BlockDecryptRequestHeader.h"
 #include "monitoring/LivelinessMonitor.h"
 #include "pendingqueue/PendingTransactionsAgent.h"
@@ -117,7 +117,7 @@ BlockDecryptDownloader::workerThreadDecryptionDownloadLoop(BlockDecryptDownloade
         }
 
         try {
-            if (_agent->downloadDecryption(_dstIndex)) {
+            if (_agent->downloadDecryptionShare(_dstIndex)) {
                 // Decryption has been downloaded
                 return;
             }
@@ -137,7 +137,7 @@ block_id BlockDecryptDownloader::getBlockId() {
 }
 
 
-uint64_t BlockDecryptDownloader::downloadDecryption(schain_index _dstIndex) {
+uint64_t BlockDecryptDownloader::downloadDecryptionShare(schain_index _dstIndex) {
 
     LOG(info, "BLCK_DECR_DWNLD:" + to_string(_dstIndex));
 
@@ -200,7 +200,7 @@ uint64_t BlockDecryptDownloader::downloadDecryption(schain_index _dstIndex) {
         }
 
 
-        ptr<BlockDecryptionShare> decryptionShare;
+        ptr<ArgumentDecryptionShare> decryptionShare;
 
         return true;
 
@@ -208,4 +208,30 @@ uint64_t BlockDecryptDownloader::downloadDecryption(schain_index _dstIndex) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
 
+}
+
+
+map<uint64_t, ptr<vector<uint8_t>> BlockFinalizeDownloader::downloadDecryption() {
+
+    MONITOR(__CLASS_NAME__, __FUNCTION__);
+
+    {
+        threadPool = make_shared<BlockFinalizeDownloaderThreadPool>((uint64_t) getSchain()->getNodeCount(), this);
+        threadPool->startService();
+        threadPool->joinAll();
+    }
+
+    try {
+
+        if (fragmentList.isComplete()) {
+            auto block = BlockProposal::deserialize(fragmentList.serialize(), getSchain()->getCryptoManager());
+            CHECK_STATE(block);
+            return block;
+        } else {
+            return nullptr;
+        }
+    } catch (ExitRequestedException &) { throw; } catch (exception &e) {
+        SkaleException::logNested(e);
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+    }
 }

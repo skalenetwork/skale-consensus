@@ -133,6 +133,10 @@ class CryptoManager {
     uint16_t sgxPort = 0;
 
     array<uint8_t, TE_MAGIC_SIZE> teMagic;
+public:
+    const array<uint8_t, TE_MAGIC_SIZE> &getTeMagic() const;
+
+private:
 
     ptr< StubClient > getSgxClient();
 

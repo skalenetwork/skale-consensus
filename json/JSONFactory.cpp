@@ -58,6 +58,17 @@
 #include "crypto/CryptoManager.h"
 #include "JSONFactory.h"
 
+class TestEncryptedTransactionAnalyzer : public EncryptedTransactionAnalyzer {
+public:
+
+    shared_ptr<std::vector<uint8_t>> getLastSmartContractArgument(
+            const std::vector<uint8_t>& _test) override {
+        return make_shared<vector<uint8_t>>(_test);
+    }
+
+};
+
+
 
 ptr< Node > JSONFactory::createNodeFromTestJsonFile(
     const string& _sgxUrl, const fs_path& jsonFile, set< node_id >& nodeIDs,

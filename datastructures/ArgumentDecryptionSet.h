@@ -27,14 +27,14 @@
 
 class PartialHashesList;
 class Schain;
-class BlockDecryptionShare;
+class ArgumentDecryptionShare;
 class BLAKE3Hash;
 class BooleanProposalVector;
 class DAProof;
 
-class BlockDecryptionSet : public DataStructure {
+class ArgumentDecryptionSet : public DataStructure {
 
-    map< uint64_t, ptr< BlockDecryptionShare > > decryptions; // tsafe
+    map< uint64_t, ptr< ArgumentDecryptionShare > > decryptions; // tsafe
 
     node_count nodeCount  = 0;
 
@@ -49,12 +49,12 @@ public:
 
     bool isEnough();
 
-    BlockDecryptionSet( Schain* _sChain, block_id _blockId );
+    ArgumentDecryptionSet(Schain* _sChain, block_id _blockId );
 
-    bool add(const ptr<BlockDecryptionShare>& _decryption);
+    bool add(const ptr<ArgumentDecryptionShare>& _decryption);
 
     static int64_t getTotalObjects() { return totalObjects; }
 
-    ~BlockDecryptionSet() override;
+    ~ArgumentDecryptionSet() override;
 
 };
