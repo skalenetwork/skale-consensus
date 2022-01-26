@@ -28,10 +28,10 @@
 class BlockDecryptResponseHeader : public Header {
 
     ptr<map<uint64_t, string>> decryptionShares;
-
 public:
+    void setDecryptionShares(const ptr<map<uint64_t, string>> &decryptionShares);
 
-    BlockDecryptResponseHeader(ptr<map<uint64_t, string>> _decryptionShares);
+    BlockDecryptResponseHeader();
 
     void addFields(nlohmann::json &jsonRequest) override;
 

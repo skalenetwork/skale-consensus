@@ -142,6 +142,29 @@ ptr<vector<string>> BasicHeader::getStringVector(nlohmann::json &_js, const char
     return result;
 }
 
+ptr<map<uint64_t, string>> BasicHeader::getIntegerStringMap(nlohmann::json &_js, const char *_name) {
+    auto result = make_shared<map<uint64_t,string>>();
+    CHECK_ARGUMENT(_name);
+    nullCheck(_js, _name);
+    nlohmann::json map =  _js[_name];
+    CHECK_ARGUMENT(map.is_object());
+
+    for (auto&& item : map.items())
+    {
+        CHECK_ARGUMENT(item.value().is_string());
+        string s = item.value();
+        auto key = stoull(item.key());
+        CHECK_STATE(result->count(key) == 0)
+        result->emplace(key, item.value());
+    }
+
+    return result;
+}
+
+
+
+
+
 
 BasicHeader::BasicHeader(const char *_type) : type(_type)  {
     CHECK_ARGUMENT(_type);

@@ -100,6 +100,8 @@ public:
 
     static ptr<vector<string>> getStringVector(nlohmann::json &_js, const char *_name);
 
+    static ptr<map<uint64_t, string>> getIntegerStringMap(nlohmann::json &_js, const char *_name);
+
 };
 
 

@@ -67,7 +67,7 @@ public:
 
     void processNextAvailableConnection(const ptr<ServerConnection> &_connection) override;
 
-    ptr<vector<uint8_t>> createBlockDecryptResponse(nlohmann::json _jsonRequest,
+    void createBlockDecryptResponse(nlohmann::json _jsonRequest,
                                                     const ptr<BlockDecryptResponseHeader> &_responseHeader,
                                                     block_id _blockID);
 

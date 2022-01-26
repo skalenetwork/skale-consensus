@@ -165,7 +165,7 @@ void CatchupServerAgent::processNextAvailableConnection(const ptr<ServerConnecti
 
 
 pair<ptr<Header>, ptr<vector<uint8_t>>> CatchupServerAgent::createResponseHeaderAndBinary(const ptr<ServerConnection> &,
-                                                                       nlohmann::json _jsonRequest) {
+                                                                                          nlohmann::json _jsonRequest) {
 
 
     ptr<Header> responseHeader = nullptr;
@@ -177,7 +177,7 @@ pair<ptr<Header>, ptr<vector<uint8_t>>> CatchupServerAgent::createResponseHeader
     } else if (type.compare(Header::BLOCK_FINALIZE_REQ) == 0) {
         responseHeader = make_shared<BlockFinalizeResponseHeader>();
     } else if (type.compare(Header::BLOCK_DECRYPT_REQ) == 0) {
-        responseHeader = make_shared<BlockDecryptResponseHeader>(nullptr);
+        responseHeader = make_shared<BlockDecryptResponseHeader>();
     } else {
         BOOST_THROW_EXCEPTION(
                 InvalidMessageFormatException("Unknown request type:" + type, __CLASS_NAME__));
@@ -224,9 +224,10 @@ pair<ptr<Header>, ptr<vector<uint8_t>>> CatchupServerAgent::createResponseHeader
 
         } else if (type.compare(Header::BLOCK_DECRYPT_REQ) == 0) {
 
-            serializedBinary = createBlockDecryptResponse(_jsonRequest,
-                                                          dynamic_pointer_cast<BlockDecryptResponseHeader>(
-                                                                  responseHeader), blockID);
+            // no binary for block decrypt
+            createBlockDecryptResponse(_jsonRequest,
+                                       dynamic_pointer_cast<BlockDecryptResponseHeader>(
+                                               responseHeader), blockID);
         }
 
         return {responseHeader, serializedBinary};
@@ -387,37 +388,19 @@ ptr<vector<uint8_t>> CatchupServerAgent::createBlockFinalizeResponse(nlohmann::j
     }
 }
 
-ptr<vector<uint8_t>> CatchupServerAgent::createBlockDecryptResponse(nlohmann::json _jsonRequest,
-                                                                    const ptr<BlockDecryptResponseHeader> &_responseHeader,
-                                                                    block_id _blockID) {
+void CatchupServerAgent::createBlockDecryptResponse(nlohmann::json _jsonRequest,
+                                                    const ptr<BlockDecryptResponseHeader> &_responseHeader,
+                                                    block_id) {
 
     CHECK_ARGUMENT(_responseHeader);
 
     MONITOR(__CLASS_NAME__, __FUNCTION__);
 
-    auto encryptedKeys = Header::getStringVector(_jsonRequest, "encryptedKeys");
+    auto encryptedKeys = Header::getIntegerStringMap(_jsonRequest, "encryptedKeys");
 
-
-    schain_index proposerIndex = Header::getUint64(_jsonRequest, "proposerIndex");
-
-
-    auto proposal = getSchain()->getBlockProposal(_blockID, proposerIndex);
-
-    if (proposal == nullptr) {
-        LOG(debug, "No proposal in finalization:" + to_string(proposerIndex));
-
-
-        auto committedBlock = getSchain()->getBlock(_blockID);
-
-        if (committedBlock && committedBlock->getProposerIndex() == (uint64_t) proposerIndex) {
-            proposal = committedBlock;
-        } else {
-            _responseHeader->setStatusSubStatus(
-                    CONNECTION_DISCONNECT, CONNECTION_FINALIZE_DONT_HAVE_PROPOSAL);
-            _responseHeader->setComplete();
-            return nullptr;
-        }
-    }
-
-    return nullptr;
+    _responseHeader->setDecryptionShares(encryptedKeys);
+    _responseHeader->setStatusSubStatus(CONNECTION_SUCCESS, CONNECTION_OK);
+    _responseHeader->setComplete();
 }
+
+

@@ -32,10 +32,8 @@
 #include "BlockDecryptResponseHeader.h"
 
 
-BlockDecryptResponseHeader::BlockDecryptResponseHeader(ptr<map<uint64_t, string>> _decryptionShares) :
-        Header(Header::BLOCK_DECRYPT_RSP),
-                                   decryptionShares(_decryptionShares) {
-    complete = true;
+BlockDecryptResponseHeader::BlockDecryptResponseHeader() :
+        Header(Header::BLOCK_DECRYPT_RSP) {
 }
 
 
@@ -57,5 +55,9 @@ void BlockDecryptResponseHeader::addFields(nlohmann::json &_j) {
     _j["decryptionShares"] = sharesMap;
 
     setComplete();
+}
+
+void BlockDecryptResponseHeader::setDecryptionShares(const ptr<map<uint64_t, string>> &decryptionShares) {
+    BlockDecryptResponseHeader::decryptionShares = decryptionShares;
 }
 
