@@ -52,7 +52,7 @@ class CommittedBlockList;
 class ClientSocket;
 class Schain;
 class BlockDecryptResponseHeader;
-class BlockDecrypttionShare;
+class BlockDecryptionShares;
 class BlockDecryptDownloaderThreadPool;
 
 
@@ -82,7 +82,7 @@ public:
 
     block_id getBlockId();
 
-
+    ptr<BlockDecryptionShares> downloadDecryptions();
 
 };
 

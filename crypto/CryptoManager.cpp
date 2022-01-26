@@ -110,20 +110,20 @@ void CryptoManager::initSGXClient() {
     }
 }
 
-pair<ptr< BLSPublicKey >, ptr< BLSPublicKey >> CryptoManager::getSgxBlsPublicKey( uint64_t _timestamp ) {
-    if ( _timestamp == uint64_t( -1 ) || previousBlsPublicKeys->size() < 2 ) {
+pair<ptr<BLSPublicKey>, ptr<BLSPublicKey >> CryptoManager::getSgxBlsPublicKey(uint64_t _timestamp) {
+    if (_timestamp == uint64_t(-1) || previousBlsPublicKeys->size() < 2) {
         CHECK_STATE(sgxBLSPublicKey)
         return {sgxBLSPublicKey, nullptr};
     } else {
         // second key is used when the sig corresponds
         // to the last block before node rotation!
         // in this case we use the key for the group before
-        
+
         // could not return iterator to end()
         // because finish ts for the current group equals uint64_t(-1)
-        auto it = previousBlsPublicKeys->upper_bound( _timestamp );
+        auto it = previousBlsPublicKeys->upper_bound(_timestamp);
 
-        if ( it == previousBlsPublicKeys->begin() ) {
+        if (it == previousBlsPublicKeys->begin()) {
             // if begin() then no previous groups for this key
             return {(*it).second, nullptr};
         }
@@ -141,7 +141,6 @@ CryptoManager::CryptoManager(uint64_t _totalSigners, uint64_t _requiredSigners, 
                              string _sgxURL, string _sgxSslKeyFileFullPath, string _sgxSslCertFileFullPath,
                              string _sgxEcdsaKeyName, ptr<vector<string> > _sgxEcdsaPublicKeys)
         : sessionKeys(SESSION_KEY_CACHE_SIZE), sessionPublicKeys(SESSION_PUBLIC_KEY_CACHE_SIZE) {
-
 
 
     Utils::cArrayFromHex(TE_MAGIC, teMagic.data(), TE_MAGIC_SIZE);
@@ -557,14 +556,14 @@ ptr<ThresholdSigShare> CryptoManager::signBlockSigShare(
 }
 
 void CryptoManager::verifyBlockSig(
-        ptr<ThresholdSignature> _signature, BLAKE3Hash &_hash, const TimeStamp& _ts) {
+        ptr<ThresholdSignature> _signature, BLAKE3Hash &_hash, const TimeStamp &_ts) {
     CHECK_STATE(_signature);
     verifyThresholdSig(_signature, _hash, false, _ts);
 }
 
 
 void CryptoManager::verifyBlockSig(
-        string &_sigStr, block_id _blockId, BLAKE3Hash &_hash, const TimeStamp& _ts) {
+        string &_sigStr, block_id _blockId, BLAKE3Hash &_hash, const TimeStamp &_ts) {
     if (getSchain()->getNode()->isSgxEnabled()) {
 
         auto _signature = make_shared<ConsensusBLSSignature>(_sigStr, _blockId,
@@ -661,7 +660,7 @@ ptr<ThresholdSigShare> CryptoManager::signSigShare(
 }
 
 void CryptoManager::verifyThresholdSig(
-        ptr<ThresholdSignature> _signature, BLAKE3Hash &_hash, bool _forceMockup, const TimeStamp& _ts) {
+        ptr<ThresholdSignature> _signature, BLAKE3Hash &_hash, bool _forceMockup, const TimeStamp &_ts) {
 
     CHECK_STATE(_signature);
 
@@ -673,19 +672,19 @@ void CryptoManager::verifyThresholdSig(
 
         CHECK_STATE(blsSig);
 
-        auto blsKeys = getSgxBlsPublicKey( _ts.getS() );
+        auto blsKeys = getSgxBlsPublicKey(_ts.getS());
 
         auto libBlsSig = blsSig->getBlsSig();
 
 
-        if ( !blsKeys.first->VerifySig( make_shared<array<uint8_t, HASH_LEN>>(_hash.getHash()), libBlsSig ) ) {
+        if (!blsKeys.first->VerifySig(make_shared<array<uint8_t, HASH_LEN>>(_hash.getHash()), libBlsSig)) {
             // second key is used when the sig corresponds
             // to the last block before node rotation!
             // in this case we use the key for the group before
             CHECK_STATE(blsKeys.second);
             CHECK_STATE(blsKeys.second->VerifySig(
-                make_shared<array<uint8_t, HASH_LEN>>(_hash.getHash()),
-                libBlsSig ));
+                    make_shared<array<uint8_t, HASH_LEN>>(_hash.getHash()),
+                    libBlsSig));
         }
 
     } else {
@@ -1068,7 +1067,7 @@ bool CryptoManager::isSGXServerDown() {
     return (zmqClient->isServerDown());
 }
 
-void CryptoManager::decryptArgs(ptr<CommittedBlock> _block, const vector<uint8_t>& _decryptedArgs) {
+void CryptoManager::decryptArgs(ptr<CommittedBlock> _block, const vector<uint8_t> &) {
 
     CHECK_STATE(_block);
 
@@ -1093,20 +1092,17 @@ void CryptoManager::decryptArgs(ptr<CommittedBlock> _block, const vector<uint8_t
     }
 
 
-
-    auto agent = make_unique< BlockDecryptDownloader >( getSchain(), _block->getBlockID());
+    auto agent = make_unique<BlockDecryptDownloader>(getSchain(), _block->getBlockID());
 
     {
         const string msg = "Decryption download:" + to_string(
-                (uint64_t ) _block->getBlockID()
-                );
+                (uint64_t) _block->getBlockID()
+        );
 
-        MONITOR( __CLASS_NAME__, msg.c_str() );
+        MONITOR(__CLASS_NAME__, msg.c_str());
         // This will complete successfully also if block arrives through catchup
-        auto decryption = agent->downloadDecryptionShare();
+        auto decryptions = agent->downloadDecryptions();
     }
-
-
 }
 
 const array<uint8_t, TE_MAGIC_SIZE> &CryptoManager::getTeMagic() const {

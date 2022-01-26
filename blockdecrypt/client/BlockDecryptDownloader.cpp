@@ -147,7 +147,7 @@ uint64_t BlockDecryptDownloader::downloadDecryptionShare(schain_index _dstIndex)
         encryptedKeys.push_back("haha");
 
         auto header = make_shared<BlockDecryptRequestHeader>(*sChain, blockId, proposerIndex,
-                                                             this->getNode()->getNodeID(), (uint64_t )_dstIndex,
+                                                             this->getNode()->getNodeID(), (uint64_t) _dstIndex,
                                                              encryptedKeys);
         CHECK_STATE(_dstIndex != (uint64_t) getSchain()->getSchainIndex())
         if (getSchain()->getDeathTimeMs((uint64_t) _dstIndex) + NODE_DEATH_INTERVAL_MS > Time::getCurrentTimeMs()) {
@@ -211,27 +211,21 @@ uint64_t BlockDecryptDownloader::downloadDecryptionShare(schain_index _dstIndex)
 }
 
 
-map<uint64_t, ptr<vector<uint8_t>> BlockFinalizeDownloader::downloadDecryption() {
+ptr<BlockDecryptionShares> BlockDecryptDownloader::downloadDecryptions() {
 
     MONITOR(__CLASS_NAME__, __FUNCTION__);
 
-    {
-        threadPool = make_shared<BlockFinalizeDownloaderThreadPool>((uint64_t) getSchain()->getNodeCount(), this);
-        threadPool->startService();
-        threadPool->joinAll();
-    }
-
     try {
 
-        if (fragmentList.isComplete()) {
-            auto block = BlockProposal::deserialize(fragmentList.serialize(), getSchain()->getCryptoManager());
-            CHECK_STATE(block);
-            return block;
-        } else {
-            return nullptr;
-        }
+        threadPool = make_shared<BlockDecryptDownloaderThreadPool>((uint64_t) getSchain()->getNodeCount(), this);
+        threadPool->startService();
+        threadPool->joinAll();
+
+        return nullptr;
+
     } catch (ExitRequestedException &) { throw; } catch (exception &e) {
         SkaleException::logNested(e);
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
 }
+
