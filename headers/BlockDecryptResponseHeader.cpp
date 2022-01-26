@@ -24,14 +24,18 @@
 
 #include "SkaleCommon.h"
 #include "Log.h"
+#include "chains/Schain.h"
 #include "exceptions/InvalidArgumentException.h"
 #include "thirdparty/json.hpp"
 
 #include "AbstractBlockRequestHeader.h"
 #include "BlockDecryptResponseHeader.h"
 
-BlockDecryptResponseHeader::BlockDecryptResponseHeader() : Header(Header::BLOCK_DECRYPT_RSP ) {
 
+BlockDecryptResponseHeader::BlockDecryptResponseHeader(ptr<map<uint64_t, string>> _decryptionShares) :
+        Header(Header::BLOCK_DECRYPT_RSP),
+                                   decryptionShares(_decryptionShares) {
+    complete = true;
 }
 
 
@@ -44,17 +48,14 @@ void BlockDecryptResponseHeader::addFields(nlohmann::json &_j) {
     if (getStatusSubStatus().first != CONNECTION_PROCEED)
         return;
 
-    auto sharesArray = nlohmann::json::array();
+    auto sharesMap = nlohmann::json::object();
 
-    for (auto&& encryptedKey : decryptionShares) {
-        sharesArray.push_back(encryptedKey);
+    for (auto&& item : *decryptionShares) {
+        sharesMap[to_string(item.first)] = item.second;
     }
 
-    _j["decryptionShares"] = sharesArray;
+    _j["decryptionShares"] = sharesMap;
 
     setComplete();
 }
 
-void BlockDecryptResponseHeader::setDecryptionShares(const vector<string> &_decryptionShares) {
-    decryptionShares = _decryptionShares;
-}

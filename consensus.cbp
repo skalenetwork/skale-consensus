@@ -1231,16 +1231,22 @@
 		<Unit filename="/d/skale-consensus/crypto/ThresholdSignature.h">
 			<Option target="consensus"/>
 		</Unit>
-		<Unit filename="/d/skale-consensus/datastructures/BlockDecryptionSet.cpp">
+		<Unit filename="/d/skale-consensus/datastructures/ArgumentDecryptionSet.cpp">
 			<Option target="consensus"/>
 		</Unit>
-		<Unit filename="/d/skale-consensus/datastructures/BlockDecryptionSet.h">
+		<Unit filename="/d/skale-consensus/datastructures/ArgumentDecryptionSet.h">
 			<Option target="consensus"/>
 		</Unit>
-		<Unit filename="/d/skale-consensus/datastructures/BlockDecryptionShare.cpp">
+		<Unit filename="/d/skale-consensus/datastructures/ArgumentDecryptionShare.cpp">
 			<Option target="consensus"/>
 		</Unit>
-		<Unit filename="/d/skale-consensus/datastructures/BlockDecryptionShare.h">
+		<Unit filename="/d/skale-consensus/datastructures/ArgumentDecryptionShare.h">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/datastructures/BlockDecryptionShares.cpp">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/datastructures/BlockDecryptionShares.h">
 			<Option target="consensus"/>
 		</Unit>
 		<Unit filename="/d/skale-consensus/datastructures/BlockProposal.cpp">
@@ -1567,6 +1573,12 @@
 			<Option target="consensus"/>
 		</Unit>
 		<Unit filename="/d/skale-consensus/headers/BlockDecryptRequestHeader.h">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/headers/BlockDecryptResponseHeader.cpp">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/headers/BlockDecryptResponseHeader.h">
 			<Option target="consensus"/>
 		</Unit>
 		<Unit filename="/d/skale-consensus/headers/BlockFinalizeRequestHeader.cpp">

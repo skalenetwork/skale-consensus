@@ -27,17 +27,13 @@
 
 class BlockDecryptResponseHeader : public Header {
 
-    vector<string> decryptionShares;
+    ptr<map<uint64_t, string>> decryptionShares;
 
 public:
 
-    void setDecryptionShare(const string& _decryptionShare);
-
-    BlockDecryptResponseHeader();
+    BlockDecryptResponseHeader(ptr<map<uint64_t, string>> _decryptionShares);
 
     void addFields(nlohmann::json &jsonRequest) override;
-    void setDecryptionShares(const vector<string> &_decrShares);
-
 
 };
 

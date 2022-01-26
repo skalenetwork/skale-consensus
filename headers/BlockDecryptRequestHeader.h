@@ -39,8 +39,6 @@ public:
                                te_share_index _shareIndex,
                                ptr<map<uint64_t, string>> _encryptedKeys);
 
-
-
     void addFields(nlohmann::basic_json<> &jsonRequest) override;
 
     const node_id &getNodeId() const;

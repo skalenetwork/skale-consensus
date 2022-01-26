@@ -1470,53 +1470,77 @@ crypto/ThresholdSignature.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/consensus.dir/build.make CMakeFiles/consensus.dir/crypto/ThresholdSignature.cpp.s
 .PHONY : crypto/ThresholdSignature.cpp.s
 
-datastructures/BlockDecryptionSet.o: datastructures/BlockDecryptionSet.cpp.o
-.PHONY : datastructures/BlockDecryptionSet.o
+datastructures/ArgumentDecryptionSet.o: datastructures/ArgumentDecryptionSet.cpp.o
+.PHONY : datastructures/ArgumentDecryptionSet.o
 
 # target to build an object file
-datastructures/BlockDecryptionSet.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/consensus.dir/build.make CMakeFiles/consensus.dir/datastructures/BlockDecryptionSet.cpp.o
-.PHONY : datastructures/BlockDecryptionSet.cpp.o
+datastructures/ArgumentDecryptionSet.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/consensus.dir/build.make CMakeFiles/consensus.dir/datastructures/ArgumentDecryptionSet.cpp.o
+.PHONY : datastructures/ArgumentDecryptionSet.cpp.o
 
-datastructures/BlockDecryptionSet.i: datastructures/BlockDecryptionSet.cpp.i
-.PHONY : datastructures/BlockDecryptionSet.i
+datastructures/ArgumentDecryptionSet.i: datastructures/ArgumentDecryptionSet.cpp.i
+.PHONY : datastructures/ArgumentDecryptionSet.i
 
 # target to preprocess a source file
-datastructures/BlockDecryptionSet.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/consensus.dir/build.make CMakeFiles/consensus.dir/datastructures/BlockDecryptionSet.cpp.i
-.PHONY : datastructures/BlockDecryptionSet.cpp.i
+datastructures/ArgumentDecryptionSet.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/consensus.dir/build.make CMakeFiles/consensus.dir/datastructures/ArgumentDecryptionSet.cpp.i
+.PHONY : datastructures/ArgumentDecryptionSet.cpp.i
 
-datastructures/BlockDecryptionSet.s: datastructures/BlockDecryptionSet.cpp.s
-.PHONY : datastructures/BlockDecryptionSet.s
+datastructures/ArgumentDecryptionSet.s: datastructures/ArgumentDecryptionSet.cpp.s
+.PHONY : datastructures/ArgumentDecryptionSet.s
 
 # target to generate assembly for a file
-datastructures/BlockDecryptionSet.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/consensus.dir/build.make CMakeFiles/consensus.dir/datastructures/BlockDecryptionSet.cpp.s
-.PHONY : datastructures/BlockDecryptionSet.cpp.s
+datastructures/ArgumentDecryptionSet.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/consensus.dir/build.make CMakeFiles/consensus.dir/datastructures/ArgumentDecryptionSet.cpp.s
+.PHONY : datastructures/ArgumentDecryptionSet.cpp.s
 
-datastructures/BlockDecryptionShare.o: datastructures/BlockDecryptionShare.cpp.o
-.PHONY : datastructures/BlockDecryptionShare.o
+datastructures/ArgumentDecryptionShare.o: datastructures/ArgumentDecryptionShare.cpp.o
+.PHONY : datastructures/ArgumentDecryptionShare.o
 
 # target to build an object file
-datastructures/BlockDecryptionShare.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/consensus.dir/build.make CMakeFiles/consensus.dir/datastructures/BlockDecryptionShare.cpp.o
-.PHONY : datastructures/BlockDecryptionShare.cpp.o
+datastructures/ArgumentDecryptionShare.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/consensus.dir/build.make CMakeFiles/consensus.dir/datastructures/ArgumentDecryptionShare.cpp.o
+.PHONY : datastructures/ArgumentDecryptionShare.cpp.o
 
-datastructures/BlockDecryptionShare.i: datastructures/BlockDecryptionShare.cpp.i
-.PHONY : datastructures/BlockDecryptionShare.i
+datastructures/ArgumentDecryptionShare.i: datastructures/ArgumentDecryptionShare.cpp.i
+.PHONY : datastructures/ArgumentDecryptionShare.i
 
 # target to preprocess a source file
-datastructures/BlockDecryptionShare.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/consensus.dir/build.make CMakeFiles/consensus.dir/datastructures/BlockDecryptionShare.cpp.i
-.PHONY : datastructures/BlockDecryptionShare.cpp.i
+datastructures/ArgumentDecryptionShare.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/consensus.dir/build.make CMakeFiles/consensus.dir/datastructures/ArgumentDecryptionShare.cpp.i
+.PHONY : datastructures/ArgumentDecryptionShare.cpp.i
 
-datastructures/BlockDecryptionShare.s: datastructures/BlockDecryptionShare.cpp.s
-.PHONY : datastructures/BlockDecryptionShare.s
+datastructures/ArgumentDecryptionShare.s: datastructures/ArgumentDecryptionShare.cpp.s
+.PHONY : datastructures/ArgumentDecryptionShare.s
 
 # target to generate assembly for a file
-datastructures/BlockDecryptionShare.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/consensus.dir/build.make CMakeFiles/consensus.dir/datastructures/BlockDecryptionShare.cpp.s
-.PHONY : datastructures/BlockDecryptionShare.cpp.s
+datastructures/ArgumentDecryptionShare.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/consensus.dir/build.make CMakeFiles/consensus.dir/datastructures/ArgumentDecryptionShare.cpp.s
+.PHONY : datastructures/ArgumentDecryptionShare.cpp.s
+
+datastructures/BlockDecryptionShares.o: datastructures/BlockDecryptionShares.cpp.o
+.PHONY : datastructures/BlockDecryptionShares.o
+
+# target to build an object file
+datastructures/BlockDecryptionShares.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/consensus.dir/build.make CMakeFiles/consensus.dir/datastructures/BlockDecryptionShares.cpp.o
+.PHONY : datastructures/BlockDecryptionShares.cpp.o
+
+datastructures/BlockDecryptionShares.i: datastructures/BlockDecryptionShares.cpp.i
+.PHONY : datastructures/BlockDecryptionShares.i
+
+# target to preprocess a source file
+datastructures/BlockDecryptionShares.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/consensus.dir/build.make CMakeFiles/consensus.dir/datastructures/BlockDecryptionShares.cpp.i
+.PHONY : datastructures/BlockDecryptionShares.cpp.i
+
+datastructures/BlockDecryptionShares.s: datastructures/BlockDecryptionShares.cpp.s
+.PHONY : datastructures/BlockDecryptionShares.s
+
+# target to generate assembly for a file
+datastructures/BlockDecryptionShares.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/consensus.dir/build.make CMakeFiles/consensus.dir/datastructures/BlockDecryptionShares.cpp.s
+.PHONY : datastructures/BlockDecryptionShares.cpp.s
 
 datastructures/BlockProposal.o: datastructures/BlockProposal.cpp.o
 .PHONY : datastructures/BlockProposal.o
@@ -5068,12 +5092,15 @@ help:
 	@echo "... crypto/ThresholdSignature.o"
 	@echo "... crypto/ThresholdSignature.i"
 	@echo "... crypto/ThresholdSignature.s"
-	@echo "... datastructures/BlockDecryptionSet.o"
-	@echo "... datastructures/BlockDecryptionSet.i"
-	@echo "... datastructures/BlockDecryptionSet.s"
-	@echo "... datastructures/BlockDecryptionShare.o"
-	@echo "... datastructures/BlockDecryptionShare.i"
-	@echo "... datastructures/BlockDecryptionShare.s"
+	@echo "... datastructures/ArgumentDecryptionSet.o"
+	@echo "... datastructures/ArgumentDecryptionSet.i"
+	@echo "... datastructures/ArgumentDecryptionSet.s"
+	@echo "... datastructures/ArgumentDecryptionShare.o"
+	@echo "... datastructures/ArgumentDecryptionShare.i"
+	@echo "... datastructures/ArgumentDecryptionShare.s"
+	@echo "... datastructures/BlockDecryptionShares.o"
+	@echo "... datastructures/BlockDecryptionShares.i"
+	@echo "... datastructures/BlockDecryptionShares.s"
 	@echo "... datastructures/BlockProposal.o"
 	@echo "... datastructures/BlockProposal.i"
 	@echo "... datastructures/BlockProposal.s"

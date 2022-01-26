@@ -109,25 +109,11 @@ void CatchupServerAgent::processNextAvailableConnection(const ptr<ServerConnecti
 
 
     ptr<Header> responseHeader = nullptr;
-
-    auto type = Header::getString(jsonRequest, "type");
-
-
-    if (type.compare(Header::BLOCK_CATCHUP_REQ) == 0) {
-        responseHeader = make_shared<CatchupResponseHeader>();
-    } else if (type.compare(Header::BLOCK_FINALIZE_REQ) == 0) {
-        responseHeader = make_shared<BlockFinalizeResponseHeader>();
-    } else if (type.compare(Header::BLOCK_DECRYPT_REQ) == 0) {
-        responseHeader = make_shared<BlockDecryptResponseHeader>();
-    } else {
-        BOOST_THROW_EXCEPTION(
-                InvalidMessageFormatException("Unknown request type:" + type, __CLASS_NAME__));
-    }
-
     ptr<vector<uint8_t>> serializedBinary = nullptr;
 
     try {
-        serializedBinary = this->createResponseHeaderAndBinary(_connection, jsonRequest, responseHeader);
+        tie(responseHeader, serializedBinary) = this->createResponseHeaderAndBinary(_connection, jsonRequest);
+        CHECK_STATE(responseHeader);
     }
     catch (ExitRequestedException &) { throw; }
     catch (...) {
@@ -178,11 +164,25 @@ void CatchupServerAgent::processNextAvailableConnection(const ptr<ServerConnecti
 }
 
 
-ptr<vector<uint8_t>> CatchupServerAgent::createResponseHeaderAndBinary(const ptr<ServerConnection> &,
-                                                                       nlohmann::json _jsonRequest,
-                                                                       const ptr<Header> &_responseHeader) {
+pair<ptr<Header>, ptr<vector<uint8_t>>> CatchupServerAgent::createResponseHeaderAndBinary(const ptr<ServerConnection> &,
+                                                                       nlohmann::json _jsonRequest) {
 
-    CHECK_ARGUMENT(_responseHeader);
+
+    ptr<Header> responseHeader = nullptr;
+
+    auto type = Header::getString(_jsonRequest, "type");
+
+    if (type.compare(Header::BLOCK_CATCHUP_REQ) == 0) {
+        responseHeader = make_shared<CatchupResponseHeader>();
+    } else if (type.compare(Header::BLOCK_FINALIZE_REQ) == 0) {
+        responseHeader = make_shared<BlockFinalizeResponseHeader>();
+    } else if (type.compare(Header::BLOCK_DECRYPT_REQ) == 0) {
+        responseHeader = make_shared<BlockDecryptResponseHeader>(nullptr);
+    } else {
+        BOOST_THROW_EXCEPTION(
+                InvalidMessageFormatException("Unknown request type:" + type, __CLASS_NAME__));
+    }
+
 
     try {
 
@@ -192,7 +192,7 @@ ptr<vector<uint8_t>> CatchupServerAgent::createResponseHeaderAndBinary(const ptr
 
 
         if ((uint64_t) sChain->getSchainID() != schainID) {
-            _responseHeader->setStatusSubStatus(CONNECTION_ERROR, CONNECTION_ERROR_UNKNOWN_SCHAIN_ID);
+            responseHeader->setStatusSubStatus(CONNECTION_ERROR, CONNECTION_ERROR_UNKNOWN_SCHAIN_ID);
             BOOST_THROW_EXCEPTION(InvalidSchainException("Incorrect schain " + to_string(schainID), __CLASS_NAME__));
 
         };
@@ -201,43 +201,39 @@ ptr<vector<uint8_t>> CatchupServerAgent::createResponseHeaderAndBinary(const ptr
         ptr<NodeInfo> nmi = sChain->getNode()->getNodeInfoById(nodeID);
 
         if (nmi == nullptr) {
-            _responseHeader->setStatusSubStatus(CONNECTION_ERROR, CONNECTION_ERROR_DONT_KNOW_THIS_NODE);
+            responseHeader->setStatusSubStatus(CONNECTION_ERROR, CONNECTION_ERROR_DONT_KNOW_THIS_NODE);
             BOOST_THROW_EXCEPTION(
                     InvalidNodeIDException("Could not find node info for NODE_ID:" + to_string((uint64_t) nodeID),
                                            __CLASS_NAME__));
         }
 
-        auto type = Header::getString(_jsonRequest, "type");
 
         ptr<vector<uint8_t>> serializedBinary = nullptr;
 
         if (type.compare(Header::BLOCK_CATCHUP_REQ) == 0) {
 
             serializedBinary = createBlockCatchupResponse(_jsonRequest,
-                                                          dynamic_pointer_cast<CatchupResponseHeader>(_responseHeader),
+                                                          dynamic_pointer_cast<CatchupResponseHeader>(responseHeader),
                                                           blockID);
 
         } else if (type.compare(Header::BLOCK_FINALIZE_REQ) == 0) {
 
             serializedBinary = createBlockFinalizeResponse(_jsonRequest,
                                                            dynamic_pointer_cast<BlockFinalizeResponseHeader>(
-                                                                   _responseHeader), blockID);
+                                                                   responseHeader), blockID);
 
         } else if (type.compare(Header::BLOCK_DECRYPT_REQ) == 0) {
 
             serializedBinary = createBlockDecryptResponse(_jsonRequest,
                                                           dynamic_pointer_cast<BlockDecryptResponseHeader>(
-                                                                  _responseHeader), blockID);
-
+                                                                  responseHeader), blockID);
         }
 
-
-        return serializedBinary;
+        return {responseHeader, serializedBinary};
     }
     catch (ExitRequestedException &e) { throw; } catch (...) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
-
 
 }
 

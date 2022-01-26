@@ -62,9 +62,8 @@ public:
 
     ~CatchupServerAgent() override;
 
-    ptr<vector<uint8_t> > createResponseHeaderAndBinary(
-            const ptr<ServerConnection> &_connectionEnvelope, nlohmann::json _jsonRequest,
-            const ptr<Header> &_responseHeader);
+    pair<ptr<Header>, ptr<vector<uint8_t>>> createResponseHeaderAndBinary(
+            const ptr<ServerConnection> &_connectionEnvelope, nlohmann::json _jsonRequest);
 
     void processNextAvailableConnection(const ptr<ServerConnection> &_connection) override;
 
