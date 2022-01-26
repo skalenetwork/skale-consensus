@@ -30,13 +30,14 @@ class BlockDecryptRequestHeader : public AbstractBlockRequestHeader{
 
    te_share_index shareIndex;
    node_id        nodeID;
-   vector<string> encryptedKeys;
+   ptr<map<uint64_t, string>> encryptedKeys;
 
 public:
 
     BlockDecryptRequestHeader(Schain &_sChain, block_id _blockID,
             schain_index _proposerIndex, node_id _nodeID,
-                               te_share_index _shareIndex, vector<string>& _encryptedKeys);
+                               te_share_index _shareIndex,
+                               ptr<map<uint64_t, string>> _encryptedKeys);
 
 
 

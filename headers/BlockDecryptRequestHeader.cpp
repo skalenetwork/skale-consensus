@@ -49,13 +49,13 @@ BlockDecryptRequestHeader::BlockDecryptRequestHeader(Schain &_sChain, block_id _
                                                            schain_index _proposerIndex,
                                                            node_id _nodeID,
                                                            te_share_index _shareIndex,
-                                                           vector<string>& _encryptedKeys) :
+                                                           ptr<map<uint64_t, string>> _encryptedKeys) :
         AbstractBlockRequestHeader(_sChain.getNodeCount(), _sChain.getSchainID(), _blockID,
                 Header::BLOCK_DECRYPT_REQ, _proposerIndex), encryptedKeys(_encryptedKeys) {
 
     CHECK_ARGUMENT(_shareIndex > 0);
 
-    CHECK_ARGUMENT(encryptedKeys.size() > 0);
+    CHECK_ARGUMENT(encryptedKeys->size() > 0);
 
     CHECK_ARGUMENT((uint64_t ) _shareIndex <= _sChain.getNodeCount())
 
@@ -67,20 +67,16 @@ BlockDecryptRequestHeader::BlockDecryptRequestHeader(Schain &_sChain, block_id _
 void BlockDecryptRequestHeader::addFields(nlohmann::basic_json<> &jsonRequest) {
 
     AbstractBlockRequestHeader::addFields(jsonRequest);
-
-
-
     jsonRequest["shareIndex"] = (uint64_t ) shareIndex;
     jsonRequest["nodeID"] = (uint64_t ) nodeID;
 
-    auto keyArray = nlohmann::json::array();
+    auto keyMap = nlohmann::json::object();
 
-    for (auto&& encryptedKey : encryptedKeys) {
-        keyArray.push_back(encryptedKey);
+    for (auto&& item : *this->encryptedKeys) {
+        keyMap[to_string(item.first)] = item.second;
     }
 
-    jsonRequest["encryptedKeys"] = keyArray;
-
+    jsonRequest["encryptedKeys"] = keyMap;
 }
 
 const node_id &BlockDecryptRequestHeader::getNodeId() const {

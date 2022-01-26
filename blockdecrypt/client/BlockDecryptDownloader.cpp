@@ -143,8 +143,8 @@ uint64_t BlockDecryptDownloader::downloadDecryptionShare(schain_index _dstIndex)
 
     try {
 
-        auto encryptedKeys = vector<string>();
-        encryptedKeys.push_back("haha");
+        auto encryptedKeys = make_shared<map<uint64_t, string>>();
+        encryptedKeys->emplace(1, "haha");
 
         auto header = make_shared<BlockDecryptRequestHeader>(*sChain, blockId, proposerIndex,
                                                              this->getNode()->getNodeID(), (uint64_t) _dstIndex,
