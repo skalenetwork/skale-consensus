@@ -13,7 +13,18 @@
 
 
 class AESKey {
-    static ptr<AESKey> generateKey();
+
+    CryptoPP::SecByteBlock key;
+
+public:
+
+    AESKey(CryptoPP::AutoSeededRandomPool& _prng);
+
+    string toHex();
+
+    ptr<vector<uint8_t>> encrypt(CryptoPP::AutoSeededRandomPool& _prng, ptr<vector<uint8_t>> _plaintext);
+
+    ptr<vector<uint8_t>> decrypt(ptr<vector<uint8_t>> _ciphertext);
 
 };
 

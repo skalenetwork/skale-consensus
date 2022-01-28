@@ -333,6 +333,7 @@ static const uint64_t  ORACLE_RECEIPTS_MAP_SIZE = 100000;
 
 static const uint64_t  ORACLE_FUTURE_JITTER_MS = 500;
 
+static const int AES_GCM_TAG_SIZE = 12;
 
 
 static const uint64_t TE_MAGIC_SIZE = 10;
