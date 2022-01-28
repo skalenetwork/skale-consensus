@@ -15,14 +15,19 @@
 class AesGcmKey {
 
     CryptoPP::SecByteBlock key;
+    ptr<vector<uint8_t>> iv;
 
 public:
 
     AesGcmKey(CryptoPP::AutoSeededRandomPool& _prng);
 
+    AesGcmKey(ptr<vector<uint8_t>> _key, ptr<vector<uint8_t>> _iv);
+
+
+
     string toHex();
 
-    ptr<vector<uint8_t>> encrypt(CryptoPP::AutoSeededRandomPool& _prng, ptr<vector<uint8_t>> _plaintext);
+    ptr<vector<uint8_t>> encrypt(ptr<vector<uint8_t>> _plaintext);
 
     ptr<vector<uint8_t>> decrypt(ptr<vector<uint8_t>> _ciphertext);
 
