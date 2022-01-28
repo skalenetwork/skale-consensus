@@ -84,4 +84,15 @@ ptr<vector<uint8_t>> AesCBCKey::decrypt(
     }
 }
 
+ptr<vector<uint8_t>> AesCBCKey::getKey() {
+    auto res =  make_shared<vector<uint8_t>>(key.size());
+    memcpy(res->data(), key.data(), key.size());
+    return res;
+}
+
+ptr<vector<uint8_t>> AesCBCKey::getIV() {
+    CHECK_STATE(iv);
+    return iv;
+}
+
 

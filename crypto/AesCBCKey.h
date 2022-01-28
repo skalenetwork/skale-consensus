@@ -27,6 +27,10 @@ public:
 
     string toHex();
 
+    ptr<vector<uint8_t>> getKey();
+
+    ptr<vector<uint8_t>> getIV();
+
     ptr<vector<uint8_t>> encrypt(ptr<vector<uint8_t>> _plaintext);
 
     ptr<vector<uint8_t>> decrypt(ptr<vector<uint8_t>> _ciphertext);
