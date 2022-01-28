@@ -35,6 +35,8 @@ enum consensus_engine_status {
     CONSENSUS_ACTIVE = 0, CONSENSUS_EXITED = 1,
 };
 
+#define TE_MAGIC_START "f84a1cf7214ae051cae8"
+#define TE_MAGIC_END "0x98a773d884b2f1c4ac27"
 
 
 using u256 = boost::multiprecision::number<boost::multiprecision::backends::cpp_int_backend<256, 256,

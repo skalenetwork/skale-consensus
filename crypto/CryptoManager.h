@@ -132,11 +132,8 @@ class CryptoManager {
     string sgxDomainName;
     uint16_t sgxPort = 0;
 
-    array<uint8_t, TE_MAGIC_SIZE> teMagic;
-public:
-    const array<uint8_t, TE_MAGIC_SIZE> &getTeMagic() const;
-
-private:
+    array<uint8_t, TE_MAGIC_SIZE> teMagicStart;
+    array<uint8_t, TE_MAGIC_SIZE> teMagicEnd;
 
     ptr< StubClient > getSgxClient();
 
@@ -164,7 +161,15 @@ private:
 
 public:
 
+
+
     static ifstream urandom;
+
+
+    const array<uint8_t, TE_MAGIC_SIZE> &getTeMagicStart() const;
+
+    const array<uint8_t, TE_MAGIC_SIZE> &getTeMagicEnd() const;
+
 
     void verifyThresholdSig(
         ptr< ThresholdSignature > _signature, BLAKE3Hash& _hash, bool _forceMockup, const TimeStamp& _ts = TimeStamp(uint64_t(-1), 0));

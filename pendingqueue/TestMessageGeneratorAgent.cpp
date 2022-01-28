@@ -62,8 +62,8 @@ ConsensusExtFace::transactions_vector TestMessageGeneratorAgent::pendingTransact
         vector<uint8_t> transaction(messageSize);
 
         if (i == 3) {
-            auto magic = getSchain()->getCryptoManager()->getTeMagic();
-            transaction.insert(transaction.end(), magic.cbegin(), magic.cend());
+            auto magicStart = getSchain()->getCryptoManager()->getTeMagicStart();
+            transaction.insert(transaction.end(), magicStart.cbegin(), magicStart.cend());
         }
 
         uint64_t  dummy = counter;
@@ -75,6 +75,13 @@ ConsensusExtFace::transactions_vector TestMessageGeneratorAgent::pendingTransact
             }
 
         }
+
+
+        if (i == 3) {
+            auto magicEnd = getSchain()->getCryptoManager()->getTeMagicEnd();
+            transaction.insert(transaction.end(), magicEnd.cbegin(), magicEnd.cend());
+        }
+
 
         result.push_back(transaction);
 

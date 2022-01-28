@@ -143,7 +143,10 @@ CryptoManager::CryptoManager(uint64_t _totalSigners, uint64_t _requiredSigners, 
         : sessionKeys(SESSION_KEY_CACHE_SIZE), sessionPublicKeys(SESSION_PUBLIC_KEY_CACHE_SIZE) {
 
 
-    Utils::cArrayFromHex(TE_MAGIC, teMagic.data(), TE_MAGIC_SIZE);
+    Utils::cArrayFromHex(TE_MAGIC_START, teMagicStart.data(), TE_MAGIC_SIZE);
+    Utils::cArrayFromHex(TE_MAGIC_END, teMagicEnd.data(), TE_MAGIC_SIZE);
+
+
 
     CHECK_ARGUMENT(_totalSigners >= _requiredSigners);
     totalSigners = _totalSigners;
@@ -1078,16 +1081,10 @@ void CryptoManager::decryptArgs(ptr<CommittedBlock> _block, const vector<uint8_t
     for (uint64_t i = 0; i < transactions->size(); i++) {
         auto transactionBytes = transactions->at(i)->getData();
         vector<uint8_t> encryptedArgument;
-        auto lastCallBytes = getSchain()->getNode()->getAnalyzer()->getLastSmartContractArgument(*transactionBytes);
+        auto bytesToDecrypt = getSchain()->getNode()->getAnalyzer()->getLastSmartContractArgument(*transactionBytes);
 
-        if (lastCallBytes && lastCallBytes->size() > TE_MAGIC_SIZE) {
-            if (memcmp(teMagic.data(), lastCallBytes->data(), TE_MAGIC_SIZE) == 0) {
-                auto first = lastCallBytes->cbegin() + TE_MAGIC_SIZE;
-                auto last = lastCallBytes->cend();
-                auto bytesToDecrypt = make_shared<vector<uint8_t>>(first, last);
-                exit(-17);
+        if (bytesToDecrypt) {
                 _argsToDecrypt.emplace(i, bytesToDecrypt);
-            }
         }
     }
 
@@ -1105,6 +1102,10 @@ void CryptoManager::decryptArgs(ptr<CommittedBlock> _block, const vector<uint8_t
     }
 }
 
-const array<uint8_t, TE_MAGIC_SIZE> &CryptoManager::getTeMagic() const {
-    return teMagic;
+const array<uint8_t, TE_MAGIC_SIZE> &CryptoManager::getTeMagicStart() const {
+    return teMagicStart;
+}
+
+const array<uint8_t, TE_MAGIC_SIZE> &CryptoManager::getTeMagicEnd() const {
+    return teMagicEnd;
 }
