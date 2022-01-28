@@ -12,16 +12,16 @@
 #include <cryptopp/base64.h>
 
 
-class AesCBCKey {
+class AesCbcKey {
 
     CryptoPP::SecByteBlock key;
     ptr<vector<uint8_t>> iv;
 
 public:
 
-    AesCBCKey(CryptoPP::AutoSeededRandomPool& _prng);
+    AesCbcKey(CryptoPP::AutoSeededRandomPool& _prng);
 
-    AesCBCKey(ptr<vector<uint8_t>> _key, ptr<vector<uint8_t>> _iv);
+    AesCbcKey(ptr<vector<uint8_t>> _key, ptr<vector<uint8_t>> _iv);
 
 
 
