@@ -2,8 +2,8 @@
 // Created by kladko on 26.01.22.
 //
 
-#ifndef SKALED_AESKEY_H
-#define SKALED_AESKEY_H
+#ifndef SKALED_AESGCMKEY_H
+#define SKALED_AESGCMKEY_H
 
 #include <cryptopp/osrng.h>
 #include <cryptopp/pwdbased.h>
@@ -12,13 +12,13 @@
 #include <cryptopp/base64.h>
 
 
-class AESKey {
+class AesGcmKey {
 
     CryptoPP::SecByteBlock key;
 
 public:
 
-    AESKey(CryptoPP::AutoSeededRandomPool& _prng);
+    AesGcmKey(CryptoPP::AutoSeededRandomPool& _prng);
 
     string toHex();
 
@@ -29,4 +29,4 @@ public:
 };
 
 
-#endif //SKALED_AESKEY_H
+#endif //SKALED_AESGCMKEY_H

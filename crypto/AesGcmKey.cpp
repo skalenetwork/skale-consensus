@@ -12,15 +12,15 @@
 
 #include "SkaleCommon.h"
 #include "Log.h"
-#include "AESKey.h"
+#include "AesGcmKey.h"
 
 
 
-AESKey::AESKey(CryptoPP::AutoSeededRandomPool& _prng) : key(CryptoPP::AES::DEFAULT_KEYLENGTH ) {
+AesGcmKey::AesGcmKey(CryptoPP::AutoSeededRandomPool& _prng) : key(CryptoPP::AES::DEFAULT_KEYLENGTH ) {
     _prng.GenerateBlock( key, key.size() );
 }
 
-ptr<vector<uint8_t>> AESKey::encrypt(CryptoPP::AutoSeededRandomPool& _prng, ptr<vector<uint8_t>> _plaintext) {
+ptr<vector<uint8_t>> AesGcmKey::encrypt(CryptoPP::AutoSeededRandomPool& _prng, ptr<vector<uint8_t>> _plaintext) {
 
     using namespace CryptoPP;
 
