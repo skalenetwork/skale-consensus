@@ -1070,6 +1070,11 @@ bool CryptoManager::isSGXServerDown() {
     return (zmqClient->isServerDown());
 }
 
+ptr<map<uint64_t, string>> CryptoManager::decryptArgKeys(ptr<BlockProposal>) {
+    return nullptr;
+}
+
+
 ptr<map<uint64_t, ptr<vector<uint8_t>>>> CryptoManager::decryptArgs(ptr<CommittedBlock> _block) {
 
     CHECK_STATE(_block);

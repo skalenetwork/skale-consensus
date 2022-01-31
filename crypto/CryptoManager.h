@@ -308,6 +308,8 @@ public:
 
     ptr<map<uint64_t, ptr<vector<uint8_t>>>> decryptArgs(ptr<CommittedBlock> _block);
 
+    ptr<map<uint64_t, string>> decryptArgKeys(ptr<BlockProposal> _block);
+
     static string hashForOracle(string &_text);
 
 };
