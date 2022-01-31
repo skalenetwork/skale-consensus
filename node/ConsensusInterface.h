@@ -163,7 +163,8 @@ public:
                              uint64_t _timeStamp,
                              uint32_t _timeStampMillis, uint64_t _blockID, u256 _gasPrice,
                              u256 _stateRoot, uint64_t _winningNodeIndex,
-                             const vector<uint8_t>& decryptedArgs = vector<uint8_t>()) = 0;
+                             const ptr<map<uint64_t, ptr<vector<uint8_t>>>> decryptedArgs =
+                                     nullptr) = 0;
 
     virtual ~ConsensusExtFace() = default;
 

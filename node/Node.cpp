@@ -580,3 +580,7 @@ const shared_ptr<EncryptedTransactionAnalyzer> &Node::getAnalyzer() const {
     return analyzer;
 }
 
+bool Node::isTeEnabled() {
+    return true;
+}
+

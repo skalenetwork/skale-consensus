@@ -170,7 +170,8 @@ private:
 
     void proposeNextBlock();
 
-    void processCommittedBlock( const ptr< CommittedBlock >& _block );
+    void processCommittedBlock( const ptr< CommittedBlock >& _block,
+                                ptr<map<uint64_t, ptr<vector<uint8_t>>>> _decryptedArgs = nullptr);
 
     void startConsensus(
         const block_id _blockID, const ptr< BooleanProposalVector >& _propposalVector );
@@ -179,7 +180,8 @@ private:
 
     void saveBlock( const ptr< CommittedBlock >& _block );
 
-    void pushBlockToExtFace( const ptr< CommittedBlock >& _block );
+    void pushBlockToExtFace( const ptr< CommittedBlock >& _block,
+                             ptr<map<uint64_t, ptr<vector<uint8_t>>>> _decryptedArgs);
 
     ptr< BlockProposal > createDefaultEmptyBlockProposal( block_id _blockId );
 

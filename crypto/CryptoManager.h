@@ -306,7 +306,7 @@ public:
 
     string signOracleResult(string _text);
 
-    void decryptArgs(ptr<CommittedBlock> _block, const vector<uint8_t>& _decryptedArgs);
+    ptr<map<uint64_t, ptr<vector<uint8_t>>>> decryptArgs(ptr<CommittedBlock> _block);
 
     static string hashForOracle(string &_text);
 

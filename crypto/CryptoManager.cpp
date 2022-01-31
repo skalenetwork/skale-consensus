@@ -1070,7 +1070,7 @@ bool CryptoManager::isSGXServerDown() {
     return (zmqClient->isServerDown());
 }
 
-void CryptoManager::decryptArgs(ptr<CommittedBlock> _block, const vector<uint8_t> &) {
+ptr<map<uint64_t, ptr<vector<uint8_t>>>> CryptoManager::decryptArgs(ptr<CommittedBlock> _block) {
 
     CHECK_STATE(_block);
 
@@ -1100,6 +1100,8 @@ void CryptoManager::decryptArgs(ptr<CommittedBlock> _block, const vector<uint8_t
         // This will complete successfully also if block arrives through catchup
         auto decryptions = agent->downloadDecryptions();
     }
+
+    return nullptr;
 }
 
 const array<uint8_t, TE_MAGIC_SIZE> &CryptoManager::getTeMagicStart() const {

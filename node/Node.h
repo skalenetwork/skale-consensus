@@ -283,6 +283,8 @@ public:
 
     bool isStarted() const;
 
+    bool isTeEnabled();
+
     Node( const nlohmann::json& _cfg, ConsensusEngine* _consensusEngine, bool _useSGX,
         string _sgxURL,
         string _sgxSSLKeyFileFullPath,
