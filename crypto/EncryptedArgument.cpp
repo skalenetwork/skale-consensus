@@ -35,3 +35,7 @@ EncryptedArgument::EncryptedArgument(ptr<vector<uint8_t>> _rawArgument) {
     this->timeStamp = BasicHeader::getUint64Rapid(d, "ts");
     this->encryptedAESKey = BasicHeader::getStringRapid(d, "ek");
 }
+
+const string &EncryptedArgument::getEncryptedAesKey() const {
+    return encryptedAESKey;
+}
