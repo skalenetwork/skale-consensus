@@ -116,9 +116,11 @@ void Utils::checkTime() {
 
     if (timeDiff > 1 || timeDiff < -1)
         BOOST_THROW_EXCEPTION(FatalError(
-                                      "System time is not synchronized with NTP. Enable NTP: sudo timedatectl set-ntp on. Timediff:" +
-                                      to_string(timeDiff) + ":Local:" + to_string(time(NULL)) +
-                                      ":ntp:" + to_string(ntohl(ntpMessage.txTmS) - TIME_START)));
+                                      "System time is not synchronized with NTP. \n"
+                                      "Please enable NTP by running the following command:"
+                                      "\n sudo apt-get install ntp && sudo timedatectl set-ntp on \n"
+                                      "Time difference:" + to_string(timeDiff) + ":local:" + to_string(time(NULL)) +
+                                      ":ntp.org:" + to_string(ntohl(ntpMessage.txTmS) - TIME_START)));
 }
 
 
