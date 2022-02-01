@@ -203,7 +203,7 @@ class Node {
 
     string gethURL = "";
 
-    shared_ptr<EncryptedTransactionAnalyzer> analyzer;
+    shared_ptr<EncryptedTransactionAnalyzer> encryptedTransactionAnalyzer;
 
     bool inited = false;
 
@@ -212,7 +212,7 @@ class Node {
     void releaseGlobalClientBarrier();
 
 public:
-    const shared_ptr<EncryptedTransactionAnalyzer> &getAnalyzer() const;
+    const shared_ptr<EncryptedTransactionAnalyzer> &getEncryptedTransactionAnalyzer() const;
 
 private:
 

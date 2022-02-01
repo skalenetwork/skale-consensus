@@ -73,20 +73,14 @@
 #include "blockdecrypt/client/BlockDecryptDownloader.h"
 
 #include "json/JSONFactory.h"
-
 #include "network/Utils.h"
-
 #include "datastructures/TransactionList.h"
 #include "datastructures/Transaction.h"
 #include "node/ConsensusInterface.h"
-
-
 #include "utils/Time.h"
-
-
 #include "OpenSSLECDSAKey.h"
 #include "OpenSSLEdDSAKey.h"
-
+#include "BlockEncryptedArguments.h"
 
 #include "CryptoManager.h"
 
@@ -1081,24 +1075,11 @@ ptr<map<uint64_t, string>> CryptoManager::decryptArgKeys(ptr<BlockProposal> _pro
 
 
 
-ptr<map<uint64_t, ptr<vector<uint8_t>>>> CryptoManager::decryptArgs(ptr<CommittedBlock> _block) {
+ptr<BlockDecryptedArguments> CryptoManager::decryptArgs(ptr<BlockProposal> _block) {
 
     CHECK_STATE(_block);
 
-    map<uint64_t, ptr<vector<uint8_t>>> _argsToDecrypt;
-
-    auto transactions = _block->getTransactionList()->getItems();
-
-    for (uint64_t i = 0; i < transactions->size(); i++) {
-        auto transactionBytes = transactions->at(i)->getData();
-        vector<uint8_t> encryptedArgument;
-        auto bytesToDecrypt = getSchain()->getNode()->getAnalyzer()->getLastSmartContractArgument(*transactionBytes);
-
-        if (bytesToDecrypt) {
-                _argsToDecrypt.emplace(i, bytesToDecrypt);
-        }
-    }
-
+    auto args = make_shared<BlockEncryptedArguments>(_block, getSchain()->getNode()->getEncryptedTransactionAnalyzer());
 
     auto agent = make_unique<BlockDecryptDownloader>(getSchain(), _block->getBlockID());
 

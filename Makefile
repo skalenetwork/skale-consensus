@@ -1062,6 +1062,30 @@ chains/TestConfig.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/consensus.dir/build.make CMakeFiles/consensus.dir/chains/TestConfig.cpp.s
 .PHONY : chains/TestConfig.cpp.s
 
+crypto/AesCbcKey.o: crypto/AesCbcKey.cpp.o
+.PHONY : crypto/AesCbcKey.o
+
+# target to build an object file
+crypto/AesCbcKey.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/consensus.dir/build.make CMakeFiles/consensus.dir/crypto/AesCbcKey.cpp.o
+.PHONY : crypto/AesCbcKey.cpp.o
+
+crypto/AesCbcKey.i: crypto/AesCbcKey.cpp.i
+.PHONY : crypto/AesCbcKey.i
+
+# target to preprocess a source file
+crypto/AesCbcKey.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/consensus.dir/build.make CMakeFiles/consensus.dir/crypto/AesCbcKey.cpp.i
+.PHONY : crypto/AesCbcKey.cpp.i
+
+crypto/AesCbcKey.s: crypto/AesCbcKey.cpp.s
+.PHONY : crypto/AesCbcKey.s
+
+# target to generate assembly for a file
+crypto/AesCbcKey.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/consensus.dir/build.make CMakeFiles/consensus.dir/crypto/AesCbcKey.cpp.s
+.PHONY : crypto/AesCbcKey.cpp.s
+
 crypto/BLAKE3Hash.o: crypto/BLAKE3Hash.cpp.o
 .PHONY : crypto/BLAKE3Hash.o
 
@@ -1085,6 +1109,30 @@ crypto/BLAKE3Hash.s: crypto/BLAKE3Hash.cpp.s
 crypto/BLAKE3Hash.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/consensus.dir/build.make CMakeFiles/consensus.dir/crypto/BLAKE3Hash.cpp.s
 .PHONY : crypto/BLAKE3Hash.cpp.s
+
+crypto/BlockEncryptedArguments.o: crypto/BlockEncryptedArguments.cpp.o
+.PHONY : crypto/BlockEncryptedArguments.o
+
+# target to build an object file
+crypto/BlockEncryptedArguments.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/consensus.dir/build.make CMakeFiles/consensus.dir/crypto/BlockEncryptedArguments.cpp.o
+.PHONY : crypto/BlockEncryptedArguments.cpp.o
+
+crypto/BlockEncryptedArguments.i: crypto/BlockEncryptedArguments.cpp.i
+.PHONY : crypto/BlockEncryptedArguments.i
+
+# target to preprocess a source file
+crypto/BlockEncryptedArguments.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/consensus.dir/build.make CMakeFiles/consensus.dir/crypto/BlockEncryptedArguments.cpp.i
+.PHONY : crypto/BlockEncryptedArguments.cpp.i
+
+crypto/BlockEncryptedArguments.s: crypto/BlockEncryptedArguments.cpp.s
+.PHONY : crypto/BlockEncryptedArguments.s
+
+# target to generate assembly for a file
+crypto/BlockEncryptedArguments.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/consensus.dir/build.make CMakeFiles/consensus.dir/crypto/BlockEncryptedArguments.cpp.s
+.PHONY : crypto/BlockEncryptedArguments.cpp.s
 
 crypto/ConsensusBLSSigShare.o: crypto/ConsensusBLSSigShare.cpp.o
 .PHONY : crypto/ConsensusBLSSigShare.o
@@ -1277,6 +1325,30 @@ crypto/ECDSAVerify.s: crypto/ECDSAVerify.cpp.s
 crypto/ECDSAVerify.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/consensus.dir/build.make CMakeFiles/consensus.dir/crypto/ECDSAVerify.cpp.s
 .PHONY : crypto/ECDSAVerify.cpp.s
+
+crypto/EncryptedArgument.o: crypto/EncryptedArgument.cpp.o
+.PHONY : crypto/EncryptedArgument.o
+
+# target to build an object file
+crypto/EncryptedArgument.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/consensus.dir/build.make CMakeFiles/consensus.dir/crypto/EncryptedArgument.cpp.o
+.PHONY : crypto/EncryptedArgument.cpp.o
+
+crypto/EncryptedArgument.i: crypto/EncryptedArgument.cpp.i
+.PHONY : crypto/EncryptedArgument.i
+
+# target to preprocess a source file
+crypto/EncryptedArgument.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/consensus.dir/build.make CMakeFiles/consensus.dir/crypto/EncryptedArgument.cpp.i
+.PHONY : crypto/EncryptedArgument.cpp.i
+
+crypto/EncryptedArgument.s: crypto/EncryptedArgument.cpp.s
+.PHONY : crypto/EncryptedArgument.s
+
+# target to generate assembly for a file
+crypto/EncryptedArgument.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/consensus.dir/build.make CMakeFiles/consensus.dir/crypto/EncryptedArgument.cpp.s
+.PHONY : crypto/EncryptedArgument.cpp.s
 
 crypto/MockupSigShare.o: crypto/MockupSigShare.cpp.o
 .PHONY : crypto/MockupSigShare.o
@@ -1541,6 +1613,30 @@ datastructures/BlockDecryptionShares.s: datastructures/BlockDecryptionShares.cpp
 datastructures/BlockDecryptionShares.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/consensus.dir/build.make CMakeFiles/consensus.dir/datastructures/BlockDecryptionShares.cpp.s
 .PHONY : datastructures/BlockDecryptionShares.cpp.s
+
+datastructures/BlockEncryptedArguments.o: datastructures/BlockEncryptedArguments.cpp.o
+.PHONY : datastructures/BlockEncryptedArguments.o
+
+# target to build an object file
+datastructures/BlockEncryptedArguments.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/consensus.dir/build.make CMakeFiles/consensus.dir/datastructures/BlockEncryptedArguments.cpp.o
+.PHONY : datastructures/BlockEncryptedArguments.cpp.o
+
+datastructures/BlockEncryptedArguments.i: datastructures/BlockEncryptedArguments.cpp.i
+.PHONY : datastructures/BlockEncryptedArguments.i
+
+# target to preprocess a source file
+datastructures/BlockEncryptedArguments.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/consensus.dir/build.make CMakeFiles/consensus.dir/datastructures/BlockEncryptedArguments.cpp.i
+.PHONY : datastructures/BlockEncryptedArguments.cpp.i
+
+datastructures/BlockEncryptedArguments.s: datastructures/BlockEncryptedArguments.cpp.s
+.PHONY : datastructures/BlockEncryptedArguments.s
+
+# target to generate assembly for a file
+datastructures/BlockEncryptedArguments.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/consensus.dir/build.make CMakeFiles/consensus.dir/datastructures/BlockEncryptedArguments.cpp.s
+.PHONY : datastructures/BlockEncryptedArguments.cpp.s
 
 datastructures/BlockProposal.o: datastructures/BlockProposal.cpp.o
 .PHONY : datastructures/BlockProposal.o
@@ -5041,9 +5137,15 @@ help:
 	@echo "... chains/TestConfig.o"
 	@echo "... chains/TestConfig.i"
 	@echo "... chains/TestConfig.s"
+	@echo "... crypto/AesCbcKey.o"
+	@echo "... crypto/AesCbcKey.i"
+	@echo "... crypto/AesCbcKey.s"
 	@echo "... crypto/BLAKE3Hash.o"
 	@echo "... crypto/BLAKE3Hash.i"
 	@echo "... crypto/BLAKE3Hash.s"
+	@echo "... crypto/BlockEncryptedArguments.o"
+	@echo "... crypto/BlockEncryptedArguments.i"
+	@echo "... crypto/BlockEncryptedArguments.s"
 	@echo "... crypto/ConsensusBLSSigShare.o"
 	@echo "... crypto/ConsensusBLSSigShare.i"
 	@echo "... crypto/ConsensusBLSSigShare.s"
@@ -5068,6 +5170,9 @@ help:
 	@echo "... crypto/ECDSAVerify.o"
 	@echo "... crypto/ECDSAVerify.i"
 	@echo "... crypto/ECDSAVerify.s"
+	@echo "... crypto/EncryptedArgument.o"
+	@echo "... crypto/EncryptedArgument.i"
+	@echo "... crypto/EncryptedArgument.s"
 	@echo "... crypto/MockupSigShare.o"
 	@echo "... crypto/MockupSigShare.i"
 	@echo "... crypto/MockupSigShare.s"
@@ -5101,6 +5206,9 @@ help:
 	@echo "... datastructures/BlockDecryptionShares.o"
 	@echo "... datastructures/BlockDecryptionShares.i"
 	@echo "... datastructures/BlockDecryptionShares.s"
+	@echo "... datastructures/BlockEncryptedArguments.o"
+	@echo "... datastructures/BlockEncryptedArguments.i"
+	@echo "... datastructures/BlockEncryptedArguments.s"
 	@echo "... datastructures/BlockProposal.o"
 	@echo "... datastructures/BlockProposal.i"
 	@echo "... datastructures/BlockProposal.s"
