@@ -36,3 +36,14 @@ BlockEncryptedArguments::BlockEncryptedArguments(ptr<BlockProposal> _proposal,
         }
     }
 }
+
+ptr<map<uint64_t, string>> BlockEncryptedArguments::getEncryptedTEKeys() {
+    auto result = make_shared<map<uint64_t,string>>();
+
+    for (auto && argument: args) {
+        auto ret = result->emplace(argument.first,argument.second->getEncryptedAesKey());
+        CHECK_STATE(ret.second)
+    }
+
+    return result;
+}
