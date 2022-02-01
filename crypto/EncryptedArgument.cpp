@@ -24,7 +24,7 @@ EncryptedArgument::EncryptedArgument(ptr<vector<uint8_t>> _rawArgument) {
             break;
     }
 
-    CHECK_STATE(jsonEnd < _rawArgument->size() - 1)
+    CHECK_STATE(jsonEnd < _rawArgument->size() - 5)
 
     using namespace rapidjson;
 
@@ -34,6 +34,19 @@ EncryptedArgument::EncryptedArgument(ptr<vector<uint8_t>> _rawArgument) {
 
     this->timeStamp = BasicHeader::getUint64Rapid(d, "ts");
     this->encryptedAESKey = BasicHeader::getStringRapid(d, "ek");
+
+    this->aesEncryptedArg = make_shared<vector<uint8_t>>(_rawArgument->size() -
+            (jsonEnd + 1));
+
+    memcpy(aesEncryptedArg->data(), _rawArgument->data() + jsonEnd + 1, aesEncryptedArg->size());
+}
+
+uint64_t EncryptedArgument::getTimeStamp() const {
+    return timeStamp;
+}
+
+const ptr<vector<uint8_t>> &EncryptedArgument::getAesEncryptedArg() const {
+    return aesEncryptedArg;
 }
 
 const string &EncryptedArgument::getEncryptedAesKey() const {
