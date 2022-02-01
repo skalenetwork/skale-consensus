@@ -61,7 +61,7 @@ ConsensusExtFace::transactions_vector TestMessageGeneratorAgent::pendingTransact
 
         vector<uint8_t> transaction(messageSize);
 
-        if (getSchain()->getNode()->isTeEnabled()  && i == 3) {
+        if (i == 3) {
             auto magicStart = getSchain()->getCryptoManager()->getTeMagicStart();
             transaction.insert(transaction.end(), magicStart.cbegin(), magicStart.cend());
         }
@@ -76,12 +76,10 @@ ConsensusExtFace::transactions_vector TestMessageGeneratorAgent::pendingTransact
 
         }
 
-
-        if (getSchain()->getNode()->isTeEnabled() && i == 3) {
+        if (i == 3) {
             auto magicEnd = getSchain()->getCryptoManager()->getTeMagicEnd();
             transaction.insert(transaction.end(), magicEnd.cbegin(), magicEnd.cend());
         }
-
 
         result.push_back(transaction);
 
