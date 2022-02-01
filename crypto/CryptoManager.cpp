@@ -1117,6 +1117,7 @@ string CryptoManager::teEncryptAESKey(ptr<vector<uint8_t>> _aesKey) {
         return Utils::carray2Hex(_aesKey->data(), _aesKey->size());
     } else {
         // Encrypt key using TE public key, so it can be decrypted later
+        return "";
     }
 }
 
