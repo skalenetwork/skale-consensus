@@ -36,20 +36,31 @@ EncryptedArgument::EncryptedArgument(ptr<vector<uint8_t>> _rawArgument) {
     this->encryptedAESKey = BasicHeader::getStringRapid(d, "ek");
     this->iv = BasicHeader::getStringRapid(d, "iv");
 
-    this->aesEncryptedArg = make_shared<vector<uint8_t>>(_rawArgument->size() -
-            (jsonEnd + 1));
+    this->aesEncryptedSegment = make_shared<vector<uint8_t>>(_rawArgument->size() -
+                                                             (jsonEnd + 1));
 
-    memcpy(aesEncryptedArg->data(), _rawArgument->data() + jsonEnd + 1, aesEncryptedArg->size());
+    memcpy(aesEncryptedSegment->data(), _rawArgument->data() + jsonEnd + 1, aesEncryptedSegment->size());
 }
 
 uint64_t EncryptedArgument::getTimeStamp() const {
     return timeStamp;
 }
 
-const ptr<vector<uint8_t>> &EncryptedArgument::getAesEncryptedArg() const {
-    return aesEncryptedArg;
+const ptr<vector<uint8_t>> &EncryptedArgument::getAesEncryptedSegment() const {
+    return aesEncryptedSegment;
 }
 
 const string &EncryptedArgument::getEncryptedAesKey() const {
     return encryptedAESKey;
+}
+
+pair<ptr<AesCbcKeyIVPair>, ptr<vector<uint8_t>>>
+EncryptedArgument::generateKeyAndEncryptSegment(ptr<vector<uint8_t>> _plaintextSegment,
+                                                        CryptoPP::AutoSeededRandomPool& _prng) {
+
+    auto keyIVPair = make_shared<AesCbcKeyIVPair>(_prng);
+
+    auto encryption = keyIVPair->encrypt(_plaintextSegment);
+
+    return {keyIVPair, encryption};
 }
