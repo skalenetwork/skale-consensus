@@ -9,7 +9,7 @@
 #include "datastructures/TransactionList.h"
 #include "datastructures/Transaction.h"
 
-#include "EncryptedArgument.h"
+#include "crypto/EncryptedArgument.h"
 #include "BlockEncryptedArguments.h"
 
 

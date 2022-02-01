@@ -80,7 +80,7 @@
 #include "utils/Time.h"
 #include "OpenSSLECDSAKey.h"
 #include "OpenSSLEdDSAKey.h"
-#include "BlockEncryptedArguments.h"
+#include "datastructures/BlockEncryptedArguments.h"
 
 #include "CryptoManager.h"
 
