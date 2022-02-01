@@ -10,7 +10,7 @@
 #include "Log.h"
 
 #include "headers/BasicHeader.h"
-#include "AesCbcKey.h"
+#include "AesCbcKeyIVPair.h"
 
 #include "EncryptedArgument.h"
 
@@ -34,6 +34,7 @@ EncryptedArgument::EncryptedArgument(ptr<vector<uint8_t>> _rawArgument) {
 
     this->timeStamp = BasicHeader::getUint64Rapid(d, "ts");
     this->encryptedAESKey = BasicHeader::getStringRapid(d, "ek");
+    this->iv = BasicHeader::getStringRapid(d, "iv");
 
     this->aesEncryptedArg = make_shared<vector<uint8_t>>(_rawArgument->size() -
             (jsonEnd + 1));

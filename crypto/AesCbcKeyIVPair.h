@@ -2,8 +2,8 @@
 // Created by kladko on 26.01.22.
 //
 
-#ifndef SKALED_AESCBCKEY_H
-#define SKALED_AESCBCKEY_H
+#ifndef SKALED_AESCBCKEYIVPAIR_H
+#define SKALED_AESCBCKEYIVPAIR_H
 
 #include <cryptopp/osrng.h>
 #include <cryptopp/pwdbased.h>
@@ -12,16 +12,16 @@
 #include <cryptopp/base64.h>
 
 
-class AesCbcKey {
+class AesCbcKeyIVPair {
 
     CryptoPP::SecByteBlock key;
     ptr<vector<uint8_t>> iv;
 
 public:
 
-    AesCbcKey(CryptoPP::AutoSeededRandomPool& _prng);
+    AesCbcKeyIVPair(CryptoPP::AutoSeededRandomPool& _prng);
 
-    AesCbcKey(ptr<vector<uint8_t>> _key, ptr<vector<uint8_t>> _iv);
+    AesCbcKeyIVPair(ptr<vector<uint8_t>> _key, ptr<vector<uint8_t>> _iv);
 
 
 
@@ -38,4 +38,4 @@ public:
 };
 
 
-#endif //SKALED_AESCBCKEY_H
+#endif //SKALED_AESCBCKEYIVPAIR_H

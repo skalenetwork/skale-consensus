@@ -12,21 +12,21 @@
 
 #include "SkaleCommon.h"
 #include "Log.h"
-#include "AesCbcKey.h"
+#include "AesCbcKeyIVPair.h"
 
 
 
-AesCbcKey::AesCbcKey(CryptoPP::AutoSeededRandomPool& _prng) : key(CryptoPP::AES::DEFAULT_KEYLENGTH ) {
+AesCbcKeyIVPair::AesCbcKeyIVPair(CryptoPP::AutoSeededRandomPool& _prng) : key(CryptoPP::AES::DEFAULT_KEYLENGTH ) {
     _prng.GenerateBlock( key, key.size() );
     iv = make_shared<vector<uint8_t>>(CryptoPP::AES::BLOCKSIZE);
 }
 
-AesCbcKey::AesCbcKey(ptr<vector<uint8_t>> _key, ptr<vector<uint8_t>> _iv) : key(_key->data(), _key->size()) {
+AesCbcKeyIVPair::AesCbcKeyIVPair(ptr<vector<uint8_t>> _key, ptr<vector<uint8_t>> _iv) : key(_key->data(), _key->size()) {
     CHECK_STATE(_iv)
     iv = _iv;
 }
 
-ptr<vector<uint8_t>> AesCbcKey::encrypt(ptr<vector<uint8_t>> _plaintext) {
+ptr<vector<uint8_t>> AesCbcKeyIVPair::encrypt(ptr<vector<uint8_t>> _plaintext) {
 
     using namespace CryptoPP;
 
@@ -49,7 +49,7 @@ ptr<vector<uint8_t>> AesCbcKey::encrypt(ptr<vector<uint8_t>> _plaintext) {
 }
 
 
-ptr<vector<uint8_t>> AesCbcKey::decrypt(
+ptr<vector<uint8_t>> AesCbcKeyIVPair::decrypt(
         ptr<vector<uint8_t>> _ciphertext) {
 
     using namespace CryptoPP;
@@ -84,13 +84,13 @@ ptr<vector<uint8_t>> AesCbcKey::decrypt(
     }
 }
 
-ptr<vector<uint8_t>> AesCbcKey::getKey() {
+ptr<vector<uint8_t>> AesCbcKeyIVPair::getKey() {
     auto res =  make_shared<vector<uint8_t>>(key.size());
     memcpy(res->data(), key.data(), key.size());
     return res;
 }
 
-ptr<vector<uint8_t>> AesCbcKey::getIV() {
+ptr<vector<uint8_t>> AesCbcKeyIVPair::getIV() {
     CHECK_STATE(iv);
     return iv;
 }

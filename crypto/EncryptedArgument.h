@@ -10,6 +10,7 @@ class EncryptedArgument {
 
     uint64_t timeStamp;
     string encryptedAESKey;
+    string iv;
     ptr<vector<uint8_t>> aesEncryptedArg;
 public:
     const string &getEncryptedAesKey() const;
