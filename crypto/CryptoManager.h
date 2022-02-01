@@ -311,6 +311,10 @@ public:
 
     ptr<map<uint64_t, string>> decryptArgKeys(ptr<BlockProposal> _block);
 
+    string teEncryptAESKey(ptr<vector<uint8_t>> _aesKey);
+
+
+
     static string hashForOracle(string &_text);
 
 };

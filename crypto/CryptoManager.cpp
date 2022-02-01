@@ -1107,3 +1107,18 @@ const array<uint8_t, TE_MAGIC_SIZE> &CryptoManager::getTeMagicEnd() const {
 const AutoSeededRandomPool &CryptoManager::getPrng() const {
     return prng;
 }
+
+string CryptoManager::teEncryptAESKey(ptr<vector<uint8_t>> _aesKey) {
+    CHECK_STATE(_aesKey)
+    CHECK_STATE(_aesKey->size() == CryptoPP::AES::DEFAULT_KEYLENGTH);
+
+    if (!isSGXEnabled) {
+        // mockup - dont encrypt
+        return Utils::carray2Hex(_aesKey->data(), _aesKey->size());
+    } else {
+        // Encrypt key using TE public key, so it can be decrypted later
+    }
+}
+
+
+
