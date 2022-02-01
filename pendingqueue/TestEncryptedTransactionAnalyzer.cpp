@@ -59,24 +59,9 @@ shared_ptr<std::vector<uint8_t>> TestEncryptedTransactionAnalyzer::getLastSmartC
 
         auto result = make_shared<vector<uint8_t>>(segmentSize);
 
-        memcpy(result
-                       ->
+        memcpy(result->data(), _transaction.data() + segmentStart, result->size());
 
-                               data(), _transaction
-
-                                               .
-
-                                                       data()
-
-                                       + segmentStart, result->
-
-                size()
-
-        );
-
-
-        return
-                result;
+        return result;
 
     }
 

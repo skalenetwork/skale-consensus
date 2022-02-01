@@ -56,7 +56,6 @@
 #include "JSONFactory.h"
 
 
-
 ptr<Node> JSONFactory::createNodeFromTestJsonFile(
         const string &_sgxUrl, const fs_path &jsonFile, set<node_id> &nodeIDs,
         ConsensusEngine *_consensusEngine, bool _useSGX,
