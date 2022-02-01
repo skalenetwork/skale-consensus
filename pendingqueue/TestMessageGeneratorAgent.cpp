@@ -18,10 +18,10 @@
 
     @file TestMessageGeneratorAgent.cpp
     @author Stan Kladko
-    @date 2018
+    @date 2018-
 */
 
-#include "pendingqueue/TestMessageGeneratorAgent.h"
+
 #include "PendingTransactionsAgent.h"
 #include "SkaleCommon.h"
 #include "Log.h"
@@ -30,23 +30,23 @@
 #include "crypto/CryptoManager.h"
 #include "datastructures/Transaction.h"
 #include "exceptions/FatalError.h"
+#include "network/Utils.h"
 #include "node/ConsensusEngine.h"
 #include "thirdparty/json.hpp"
 #include "oracle/OracleClient.h"
+#include "TestEncryptedTransactionAnalyzer.h"
+#include "TestMessageGeneratorAgent.h"
 
-
-TestMessageGeneratorAgent::TestMessageGeneratorAgent(Schain& _sChain_) : Agent(_sChain_, false) {
+TestMessageGeneratorAgent::TestMessageGeneratorAgent(Schain &_sChain_) : Agent(_sChain_, false) {
     CHECK_STATE(_sChain_.getNodeCount() > 0);
 }
 
 
-
-
-ConsensusExtFace::transactions_vector TestMessageGeneratorAgent::pendingTransactions( size_t _limit ) {
+ConsensusExtFace::transactions_vector TestMessageGeneratorAgent::pendingTransactions(size_t _limit) {
 
     // test oracle for the first block
 
-    uint64_t  messageSize = 200;
+    uint64_t messageSize = 200;
 
     ConsensusExtFace::transactions_vector result;
 
@@ -61,24 +61,29 @@ ConsensusExtFace::transactions_vector TestMessageGeneratorAgent::pendingTransact
 
         vector<uint8_t> transaction(messageSize);
 
-        if (i == 3) {
-            auto magicStart = getSchain()->getCryptoManager()->getTeMagicStart();
-            transaction.insert(transaction.end(), magicStart.cbegin(), magicStart.cend());
-        }
 
-        uint64_t  dummy = counter;
-        auto bytes = (uint8_t*) & dummy;
+        uint64_t dummy = counter;
+        auto bytes = (uint8_t *) &dummy;
 
-        for (uint64_t j = 0; j < messageSize/8; j++) {
+        for (uint64_t j = 0; j < messageSize / 8; j++) {
             for (int k = 0; k < 7; k++) {
-                transaction.at(2 * j + k ) = bytes[k];
+                transaction.at(2 * j + k) = bytes[k];
             }
 
         }
 
+
         if (i == 3) {
+            auto magicStart = getSchain()->getCryptoManager()->getTeMagicStart();
             auto magicEnd = getSchain()->getCryptoManager()->getTeMagicEnd();
-            transaction.insert(transaction.end(), magicEnd.cbegin(), magicEnd.cend());
+
+            memcpy(transaction.data(), magicStart.data(), magicStart.size());
+            memcpy(transaction.data() + transaction.size() - magicEnd.size(),
+                   magicEnd.data(), magicEnd.size());
+
+            auto analyzer = make_shared<TestEncryptedTransactionAnalyzer>();
+
+            CHECK_STATE(analyzer->getLastSmartContractArgument(transaction) != nullptr);
         }
 
         result.push_back(transaction);
@@ -99,7 +104,6 @@ ConsensusExtFace::transactions_vector TestMessageGeneratorAgent::pendingTransact
     }
      */
     iterations++;
-
 
 
     return result;

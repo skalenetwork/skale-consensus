@@ -25,10 +25,9 @@ shared_ptr<std::vector<uint8_t>> TestEncryptedTransactionAnalyzer::getLastSmartC
         int64_t startIndex = -1;
 
 
-        for (int64_t i = 0; i < (int64_t) _transaction.size() - (int64_t) teMagicStart->size(); i++) {
+        for (int64_t i = 0; i <= (int64_t) _transaction.size() - (int64_t) teMagicStart->size(); i++) {
             if (memcmp(_transaction.data() + i, teMagicStart->data(), teMagicStart->size()) == 0) {
                 startIndex = i;
-                break;
             }
         }
 
@@ -41,12 +40,13 @@ shared_ptr<std::vector<uint8_t>> TestEncryptedTransactionAnalyzer::getLastSmartC
         auto segmentStart = startIndex + teMagicStart->size();
 
 
-        for (int64_t i = segmentStart; i < (int64_t) _transaction.size() - (int64_t) teMagicEnd->size(); i++) {
+        for (int64_t i = segmentStart; i <= (int64_t) _transaction.size() - (int64_t) teMagicEnd->size(); i++) {
             if (memcmp(_transaction.data() + i, teMagicEnd->data(), teMagicEnd->size()) == 0) {
                 endIndex = i;
                 break;
             }
         }
+
 
         if (endIndex < 0) {
             return nullptr;
@@ -63,11 +63,7 @@ shared_ptr<std::vector<uint8_t>> TestEncryptedTransactionAnalyzer::getLastSmartC
 
         return result;
 
-    }
-
-    catch (
-            exception &e
-    ) {
+    } catch (exception &e) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__)
         );
     }

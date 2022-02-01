@@ -204,6 +204,11 @@ CryptoManager::CryptoManager(Schain &_sChain)
         : sessionKeys(SESSION_KEY_CACHE_SIZE),
           sessionPublicKeys(SESSION_PUBLIC_KEY_CACHE_SIZE),
           sChain(&_sChain) {
+
+    Utils::cArrayFromHex(TE_MAGIC_START, teMagicStart.data(), TE_MAGIC_SIZE);
+    Utils::cArrayFromHex(TE_MAGIC_END, teMagicEnd.data(), TE_MAGIC_SIZE);
+
+
     totalSigners = getSchain()->getTotalSigners();
     requiredSigners = getSchain()->getRequiredSigners();
 
