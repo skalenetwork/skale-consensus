@@ -279,6 +279,7 @@ void CryptoManager::setSGXKeyAndCert(
 }
 
 Schain *CryptoManager::getSchain() const {
+    CHECK_STATE(sChain)
     return sChain;
 }
 
@@ -1070,9 +1071,14 @@ bool CryptoManager::isSGXServerDown() {
     return (zmqClient->isServerDown());
 }
 
-ptr<map<uint64_t, string>> CryptoManager::decryptArgKeys(ptr<BlockProposal>) {
+ptr<map<uint64_t, string>> CryptoManager::decryptArgKeys(ptr<BlockProposal> _proposal) {
+    CHECK_STATE(_proposal);
+
+    auto encryptedArgs = _proposal->getEncryptedArguments(*getSchain());
+
     return nullptr;
 }
+
 
 
 ptr<map<uint64_t, ptr<vector<uint8_t>>>> CryptoManager::decryptArgs(ptr<CommittedBlock> _block) {

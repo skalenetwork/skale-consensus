@@ -35,6 +35,7 @@
 #include "exceptions/ParsingException.h"
 #include "crypto/BLAKE3Hash.h"
 #include "crypto/CryptoManager.h"
+#include "crypto/EncryptedArgument.h"
 #include "network/Buffer.h"
 #include "node/ConsensusEngine.h"
 #include "exceptions/ExitRequestedException.h"
@@ -463,4 +464,31 @@ TimeStamp  BlockProposal::getTimeStamp() const {
 
 uint64_t BlockProposal::getCreationTime() const {
     return creationTime;
+}
+
+ptr<map<uint64_t, ptr<EncryptedArgument>>> BlockProposal::getEncryptedArguments(Schain& _schain) {
+    LOCK(cachedEncryptedArgumentsLock);
+    if (cachedEncryptedArguments) {
+        return cachedEncryptedArguments;
+    }
+
+    cachedEncryptedArguments = make_shared<map<uint64_t, ptr<EncryptedArgument>>>();
+
+    if (!transactionList) {
+        return cachedEncryptedArguments;
+    }
+
+    auto transactions = transactionList->getItems();
+
+    auto analyzer = _schain.getNode()->getAnalyzer();
+
+    for (uint64_t i = 0; i <= transactions->size(); i++) {
+        auto rawArg = analyzer->getLastSmartContractArgument(*transactions->at(i)->getData());
+        if (rawArg) {
+            auto argument = make_shared<EncryptedArgument>(rawArg);
+            cachedEncryptedArguments->emplace(i, argument);
+        }
+    }
+
+    return cachedEncryptedArguments;
 }
