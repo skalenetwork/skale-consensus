@@ -860,7 +860,6 @@ void Schain::bootstrap( block_id _lastCommittedBlockID, uint64_t _lastCommittedB
             this->pricingAgent->calculatePrice( ConsensusExtFace::transactions_vector(), 0, 0, 0 );
 
 
-
         proposeNextBlock();
 
         ifIncompleteConsensusDetectedRestartAndRebroadcastAllMessagesForCurrentBlock();

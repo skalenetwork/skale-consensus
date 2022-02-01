@@ -1068,7 +1068,11 @@ bool CryptoManager::isSGXServerDown() {
 ptr<map<uint64_t, string>> CryptoManager::decryptArgKeys(ptr<BlockProposal> _proposal) {
     CHECK_STATE(_proposal);
 
-    auto encryptedArgs = _proposal->getEncryptedArguments(*getSchain());
+    try {
+        auto encryptedArgs = _proposal->getEncryptedArguments(*getSchain());
+    } catch (exception& e) {
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+    }
 
     return nullptr;
 }

@@ -208,8 +208,10 @@ CommittedBlock::CommittedBlock( const schain_id& _schainId, const node_id& _prop
     CHECK_ARGUMENT( _transactions );
     CHECK_ARGUMENT(!_signature.empty() );
     CHECK_ARGUMENT(!_thresholdSig.empty() );
-    CHECK_ARGUMENT(decryptedArgKeys);
     thresholdSig = _thresholdSig;
+    if (!decryptedArgKeys) {
+        decryptedArgKeys = make_shared<map<uint64_t, string>>();
+    }
     decryptedArgKeys = _decryptedArgsKeys;
 }
 

@@ -80,7 +80,7 @@ void BlockProposal::calculateHash() {
     // export into 8-bit unsigned values, most significant bit first:
     auto sr = Utils::u256ToBigEndianArray(getStateRoot());
     auto v = Utils::carray2Hex(sr->data(), sr->size());
-    blake3_hasher_update(&hasher,(unsigned char *) v.data(), v.size());
+    blake3_hasher_update(&hasher, (unsigned char *) v.data(), v.size());
 
     if (transactionList->size() > 0) {
         auto merkleRoot = transactionList->calculateTopMerkleRoot();
@@ -112,7 +112,6 @@ BlockProposal::BlockProposal(schain_id _sChainId, node_id _proposerNodeId, block
     if (_proposerIndex == 0) {
         stateRoot = 0;
     }
-
 
 
     CHECK_STATE(timeStamp > MODERN_TIME);
@@ -223,7 +222,7 @@ ptr<BlockProposalRequestHeader> BlockProposal::createBlockProposalHeader(Schain 
 }
 
 
-ptr<BasicHeader> BlockProposal::createHeader(uint64_t ) {
+ptr<BasicHeader> BlockProposal::createHeader(uint64_t) {
     return make_shared<BlockProposalHeader>(*this);
 }
 
@@ -405,59 +404,69 @@ ptr<TransactionList> BlockProposal::deserializeTransactions(const ptr<BlockPropo
 
 string BlockProposal::extractHeader(const ptr<vector<uint8_t> > &_serializedBlock) {
 
-    CHECK_ARGUMENT(_serializedBlock);
+    try {
 
-    uint64_t headerSize = 0;
+        CHECK_ARGUMENT(_serializedBlock);
 
-    auto size = _serializedBlock->size();
+        uint64_t headerSize = 0;
 
-    CHECK_ARGUMENT2(
-            size >= sizeof(headerSize) + 2, "Serialized block too small:" + to_string(size));
+        auto size = _serializedBlock->size();
 
-    using boost::iostreams::array_source;
-    using boost::iostreams::stream;
+        CHECK_ARGUMENT2(
+                size >= sizeof(headerSize) + 2, "Serialized block too small:" + to_string(size));
 
-    array_source src((char *) _serializedBlock->data(), _serializedBlock->size());
+        using boost::iostreams::array_source;
+        using boost::iostreams::stream;
 
-    stream<array_source> in(src);
+        array_source src((char *) _serializedBlock->data(), _serializedBlock->size());
 
-    in.read((char *) &headerSize, sizeof(headerSize)); /* Flawfinder: ignore */
+        stream<array_source> in(src);
 
-    CHECK_STATE2(headerSize >= 2 && headerSize + sizeof(headerSize) <= _serializedBlock->size(),
-                 "Invalid header size" + to_string(headerSize));
+        in.read((char *) &headerSize, sizeof(headerSize)); /* Flawfinder: ignore */
+
+        CHECK_STATE2(headerSize >= 2 && headerSize + sizeof(headerSize) <= _serializedBlock->size(),
+                     "Invalid header size" + to_string(headerSize));
 
 
-    CHECK_STATE(headerSize <= MAX_BUFFER_SIZE);
+        CHECK_STATE(headerSize <= MAX_BUFFER_SIZE);
 
-    CHECK_STATE(_serializedBlock->at(headerSize + sizeof(headerSize)) == '<');
-    CHECK_STATE(_serializedBlock->at(sizeof(headerSize)) == '{');
-    CHECK_STATE(_serializedBlock->back() == '>');
+        CHECK_STATE(_serializedBlock->at(headerSize + sizeof(headerSize)) == '<');
+        CHECK_STATE(_serializedBlock->at(sizeof(headerSize)) == '{');
+        CHECK_STATE(_serializedBlock->back() == '>');
 
-    string header(headerSize, ' ');
+        string header(headerSize, ' ');
 
-    in.read((char *) header.c_str(), headerSize); /* Flawfinder: ignore */
+        in.read((char *) header.c_str(), headerSize); /* Flawfinder: ignore */
 
-    return header;
+        return header;
+
+    } catch (...) {
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+    }
 }
 
 
 ptr<BlockProposalHeader> BlockProposal::parseBlockHeader(const string &_header) {
-    CHECK_ARGUMENT(_header != "");
-    CHECK_ARGUMENT(_header.size() > 2);
-    CHECK_ARGUMENT2(_header.at(0) == '{', "Block header does not start with {");
-    CHECK_ARGUMENT2(
-            _header.at(_header.size() - 1) == '}', "Block header does not end with }");
+    try {
+        CHECK_ARGUMENT(_header != "");
+        CHECK_ARGUMENT(_header.size() > 2);
+        CHECK_ARGUMENT2(_header.at(0) == '{', "Block header does not start with {");
+        CHECK_ARGUMENT2(
+                _header.at(_header.size() - 1) == '}', "Block header does not end with }");
 
-    auto js = nlohmann::json::parse(_header );
+        auto js = nlohmann::json::parse(_header);
 
-    return make_shared<BlockProposalHeader>(js);
-
+        return make_shared<BlockProposalHeader>(js);
+    } catch (...) {
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+    }
 }
 
 u256 BlockProposal::getStateRoot() const {
     return stateRoot;
 }
-TimeStamp  BlockProposal::getTimeStamp() const {
+
+TimeStamp BlockProposal::getTimeStamp() const {
     return TimeStamp(getTimeStampS(), getTimeStampMs());
 }
 
@@ -466,29 +475,35 @@ uint64_t BlockProposal::getCreationTime() const {
     return creationTime;
 }
 
-ptr<map<uint64_t, ptr<EncryptedArgument>>> BlockProposal::getEncryptedArguments(Schain& _schain) {
-    LOCK(cachedEncryptedArgumentsLock);
-    if (cachedEncryptedArguments) {
-        return cachedEncryptedArguments;
-    }
-
-    cachedEncryptedArguments = make_shared<map<uint64_t, ptr<EncryptedArgument>>>();
-
-    if (!transactionList) {
-        return cachedEncryptedArguments;
-    }
-
-    auto transactions = transactionList->getItems();
-
-    auto analyzer = _schain.getNode()->getEncryptedTransactionAnalyzer();
-
-    for (uint64_t i = 0; i <= transactions->size(); i++) {
-        auto rawArg = analyzer->getLastSmartContractArgument(*transactions->at(i)->getData());
-        if (rawArg) {
-            auto argument = make_shared<EncryptedArgument>(rawArg);
-            cachedEncryptedArguments->emplace(i, argument);
+ptr<map<uint64_t, ptr<EncryptedArgument>>> BlockProposal::getEncryptedArguments(Schain &_schain) {
+    try {
+        LOCK(cachedEncryptedArgumentsLock);
+        if (cachedEncryptedArguments) {
+            return cachedEncryptedArguments;
         }
+
+        cachedEncryptedArguments = make_shared<map<uint64_t, ptr<EncryptedArgument>>>();
+
+        if (!transactionList) {
+            return cachedEncryptedArguments;
+        }
+
+        auto transactions = transactionList->getItems();
+
+        auto analyzer = _schain.getNode()->getEncryptedTransactionAnalyzer();
+
+        for (uint64_t i = 0; i < transactions->size(); i++) {
+            auto rawArg = analyzer->getLastSmartContractArgument(*transactions->at(i)->getData());
+            if (rawArg) {
+                auto argument = make_shared<EncryptedArgument>(rawArg);
+                cachedEncryptedArguments->emplace(i, argument);
+            }
+        }
+
+        return cachedEncryptedArguments;
+
+    } catch (...) {
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
 
-    return cachedEncryptedArguments;
 }
