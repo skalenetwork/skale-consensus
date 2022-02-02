@@ -10,6 +10,7 @@
 class EncryptedTransactionAnalyzerInterface;
 
 class BlockProposal;
+class BlockEncryptedAesKeys;
 
 class BlockEncryptedArguments {
     map<uint64_t, ptr<EncryptedArgument>> args;
@@ -19,7 +20,7 @@ public:
 
     void insert(uint64_t _i, ptr<EncryptedArgument> _arg);
 
-    ptr<map<uint64_t, string>> getEncryptedTEKeys();
+    ptr<BlockEncryptedAesKeys> getEncryptedAesKeys();
 
 };
 

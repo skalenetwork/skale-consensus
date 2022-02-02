@@ -1092,9 +1092,12 @@ ptr<map<uint64_t, string>> CryptoManager::decryptArgKeys(ptr<BlockProposal> _pro
 
     try {
         auto encryptedArgs = _proposal->getEncryptedArguments(*getSchain());
+        auto keys = encryptedArgs->getEncryptedAesKeys();
     } catch (exception& e) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
+
+
 
     return make_shared<map<uint64_t, string>>();
 }

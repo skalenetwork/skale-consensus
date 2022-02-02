@@ -54,6 +54,7 @@ class Schain;
 class BlockDecryptResponseHeader;
 class BlockDecryptionShares;
 class BlockDecryptDownloaderThreadPool;
+class BlockEncryptedAesKeys;
 
 
 #include "datastructures/ArgumentDecryptionSet.h"
@@ -63,6 +64,8 @@ class BlockDecryptDownloader : public Agent {
     block_id blockId = 0;
 
     schain_index proposerIndex = 0;
+
+    ptr<BlockEncryptedAesKeys> encryptedKeys;
 
     ArgumentDecryptionSet decryptionSet;
 

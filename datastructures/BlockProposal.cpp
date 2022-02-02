@@ -47,6 +47,8 @@
 #include "datastructures/BlockProposalFragmentList.h"
 #include "headers/BlockProposalRequestHeader.h"
 
+#include "datastructures/BlockEncryptedArguments.h"
+
 #include "utils//Time.h"
 
 #include "Transaction.h"
