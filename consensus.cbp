@@ -1129,6 +1129,12 @@
 		<Unit filename="/d/skale-consensus/chains/TestConfig.h">
 			<Option target="consensus"/>
 		</Unit>
+		<Unit filename="/d/skale-consensus/crypto/AesCbcKeyIVPair.cpp">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/crypto/AesCbcKeyIVPair.h">
+			<Option target="consensus"/>
+		</Unit>
 		<Unit filename="/d/skale-consensus/crypto/BLAKE3Hash.cpp">
 			<Option target="consensus"/>
 		</Unit>
@@ -1181,6 +1187,12 @@
 			<Option target="consensus"/>
 		</Unit>
 		<Unit filename="/d/skale-consensus/crypto/ECDSAVerify.h">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/crypto/EncryptedArgument.cpp">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/crypto/EncryptedArgument.h">
 			<Option target="consensus"/>
 		</Unit>
 		<Unit filename="/d/skale-consensus/crypto/MockupSigShare.cpp">
@@ -1243,10 +1255,22 @@
 		<Unit filename="/d/skale-consensus/datastructures/ArgumentDecryptionShare.h">
 			<Option target="consensus"/>
 		</Unit>
+		<Unit filename="/d/skale-consensus/datastructures/BlockDecryptedArguments.cpp">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/datastructures/BlockDecryptedArguments.h">
+			<Option target="consensus"/>
+		</Unit>
 		<Unit filename="/d/skale-consensus/datastructures/BlockDecryptionShares.cpp">
 			<Option target="consensus"/>
 		</Unit>
 		<Unit filename="/d/skale-consensus/datastructures/BlockDecryptionShares.h">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/datastructures/BlockEncryptedArguments.cpp">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/datastructures/BlockEncryptedArguments.h">
 			<Option target="consensus"/>
 		</Unit>
 		<Unit filename="/d/skale-consensus/datastructures/BlockProposal.cpp">
@@ -2120,6 +2144,12 @@
 			<Option target="consensus"/>
 		</Unit>
 		<Unit filename="/d/skale-consensus/pendingqueue/PendingTransactionsAgent.h">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/pendingqueue/TestEncryptedTransactionAnalyzer.cpp">
+			<Option target="consensus"/>
+		</Unit>
+		<Unit filename="/d/skale-consensus/pendingqueue/TestEncryptedTransactionAnalyzer.h">
 			<Option target="consensus"/>
 		</Unit>
 		<Unit filename="/d/skale-consensus/pendingqueue/TestMessageGeneratorAgent.cpp">
