@@ -493,7 +493,7 @@ ptr<map<uint64_t, ptr<EncryptedArgument>>> BlockProposal::getEncryptedArguments(
         auto analyzer = _schain.getNode()->getEncryptedTransactionAnalyzer();
 
         for (uint64_t i = 0; i < transactions->size(); i++) {
-            auto rawArg = analyzer->getLastSmartContractArgument(*transactions->at(i)->getData());
+            auto rawArg = analyzer->getEncryptedData(*transactions->at(i)->getData());
             if (rawArg) {
                 auto argument = make_shared<EncryptedArgument>(rawArg);
                 exit(34);

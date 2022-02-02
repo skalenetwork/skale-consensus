@@ -17,7 +17,7 @@ TestEncryptedTransactionAnalyzer::TestEncryptedTransactionAnalyzer() {
 }
 
 
-shared_ptr<std::vector<uint8_t>> TestEncryptedTransactionAnalyzer::getLastSmartContractArgument(
+shared_ptr<std::vector<uint8_t>> TestEncryptedTransactionAnalyzer::getEncryptedData(
         const std::vector<uint8_t> &_transaction) {
     try {
 

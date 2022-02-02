@@ -121,7 +121,7 @@ void TestMessageGeneratorAgent::makeTestEncryptedTransaction(vector<uint8_t> &tr
 
     auto analyzer = make_shared<TestEncryptedTransactionAnalyzer>();
 
-    CHECK_STATE(analyzer->getLastSmartContractArgument(transaction) != nullptr);
+    CHECK_STATE(analyzer->getEncryptedData(transaction) != nullptr);
 
 };
 
