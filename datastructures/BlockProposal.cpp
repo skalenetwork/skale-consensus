@@ -496,10 +496,8 @@ ptr<map<uint64_t, ptr<EncryptedArgument>>> BlockProposal::getEncryptedArguments(
             auto rawArg = analyzer->getEncryptedData(*transactions->at(i)->getData());
             if (rawArg) {
                 auto argument = make_shared<EncryptedArgument>(rawArg);
-                exit(34);
                 CHECK_STATE(cachedEncryptedArguments->emplace(i, argument).second);
             }
-
         }
 
         return cachedEncryptedArguments;

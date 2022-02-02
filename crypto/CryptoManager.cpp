@@ -1136,12 +1136,11 @@ AutoSeededRandomPool &CryptoManager::getPrng() {
 
 string CryptoManager::teEncryptAESKey(ptr<vector<uint8_t>> _aesKey) {
     CHECK_STATE(_aesKey)
-    CHECK_STATE(_aesKey->size() == AES_KEY_LEN);
+    CHECK_STATE(_aesKey->size() == AES_KEY_LEN_BYTES);
 
     if (!isSGXEnabled) {
         // mockup - dont encrypt
         return Utils::carray2Hex(_aesKey->data(), _aesKey->size());
-        exit(101);
     } else {
         teEncryptAESKeySgx(_aesKey);
     }
