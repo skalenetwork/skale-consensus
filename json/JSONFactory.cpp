@@ -51,7 +51,7 @@
 #include "node/ConsensusEngine.h"
 #include "node/Node.h"
 #include "node/NodeInfo.h"
-#include "pendingqueue/TestEncryptedTransactionAnalyzerInterface.h"
+#include "pendingqueue/TestEncryptedTransactionAnalyzer.h"
 
 #include "JSONFactory.h"
 
@@ -67,7 +67,7 @@ ptr<Node> JSONFactory::createNodeFromTestJsonFile(
         const ptr<BLSPublicKey> &_blsPublicKey,
         const ptr<map<uint64_t, ptr<BLSPublicKey> > > &_previousBlsPublicKeys) {
 
-    auto testTransactionAnalyzer = make_shared<TestEncryptedTransactionAnalyzerInterface>();
+    auto testTransactionAnalyzer = make_shared<TestEncryptedTransactionAnalyzer>();
 
     string sgxUrl = "";
 

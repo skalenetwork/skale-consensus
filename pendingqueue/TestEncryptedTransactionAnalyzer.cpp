@@ -6,10 +6,10 @@
 #include "Log.h"
 #include "network/Utils.h"
 
-#include "TestEncryptedTransactionAnalyzerInterface.h"
+#include "TestEncryptedTransactionAnalyzer.h"
 
 
-TestEncryptedTransactionAnalyzerInterface::TestEncryptedTransactionAnalyzerInterface() {
+TestEncryptedTransactionAnalyzer::TestEncryptedTransactionAnalyzer() {
     teMagicStart = make_shared<vector<uint8_t>>(TE_MAGIC_SIZE);
     teMagicEnd = make_shared<vector<uint8_t>>(TE_MAGIC_SIZE);
     Utils::cArrayFromHex(TE_MAGIC_START, teMagicStart->data(), TE_MAGIC_SIZE);
@@ -17,7 +17,7 @@ TestEncryptedTransactionAnalyzerInterface::TestEncryptedTransactionAnalyzerInter
 }
 
 
-shared_ptr<std::vector<uint8_t>> TestEncryptedTransactionAnalyzerInterface::getEncryptedData(
+shared_ptr<std::vector<uint8_t>> TestEncryptedTransactionAnalyzer::getEncryptedData(
         const std::vector<uint8_t> &_transaction) {
     try {
 
