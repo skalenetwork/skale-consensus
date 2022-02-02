@@ -1141,11 +1141,13 @@ string CryptoManager::teEncryptAESKey(ptr<vector<uint8_t>> _aesKey) {
     if (!isSGXEnabled) {
         // mockup - dont encrypt
         return Utils::carray2Hex(_aesKey->data(), _aesKey->size());
+        exit(101);
     } else {
-        // Encrypt key using TE public key, so it can be decrypted later
-        return Utils::carray2Hex(_aesKey->data(), _aesKey->size());
+        teEncryptAESKeySgx(_aesKey);
     }
 }
 
-
-
+// encrypt 128 bit AES key using the current SGX public . Return a hex encryption string
+string CryptoManager::teEncryptAESKeySgx(shared_ptr<vector<uint8_t>> _aesKey) {
+    return "";
+}
