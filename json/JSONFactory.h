@@ -48,7 +48,7 @@ class JSONFactory {
         const string& _blsKeyName, const ptr< vector< ptr< vector<string>>>>& _blsPublicKeys,
         const ptr< BLSPublicKey >& _blsPublicKey, string& _gethURL,
         const ptr< map< uint64_t, ptr< BLSPublicKey > > >& _previousBlsPublicKeys,
-        std::shared_ptr<EncryptedTransactionAnalyzer> _analyzer
+        std::shared_ptr<EncryptedTransactionAnalyzerInterface> _analyzer
     );
 
     static void createAndAddSChainFromJson(

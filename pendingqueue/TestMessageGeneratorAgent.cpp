@@ -36,7 +36,7 @@
 #include "node/ConsensusEngine.h"
 #include "thirdparty/json.hpp"
 #include "oracle/OracleClient.h"
-#include "TestEncryptedTransactionAnalyzer.h"
+#include "TestEncryptedTransactionAnalyzerInterface.h"
 #include "TestMessageGeneratorAgent.h"
 
 TestMessageGeneratorAgent::TestMessageGeneratorAgent(Schain &_sChain_) : Agent(_sChain_, false) {
@@ -111,7 +111,11 @@ void TestMessageGeneratorAgent::makeTestEncryptedTransaction(vector<uint8_t> &tr
 
     auto key = make_shared<AesCbcKeyIVPair>(getSchain()->getCryptoManager()->getPrng());
 
-    auto encryptedArg = make_shared<EncryptedArgument>(string("haha"), key, arg);
+    auto teEncryptedKey = getSchain()->getCryptoManager()->teEncryptAESKey(key->getKey());
+
+
+
+    auto encryptedArg = make_shared<EncryptedArgument>(teEncryptedKey, key, arg);
 
     auto serializedArg = encryptedArg->serialize();
 
@@ -119,7 +123,7 @@ void TestMessageGeneratorAgent::makeTestEncryptedTransaction(vector<uint8_t> &tr
     transaction.insert(transaction.cend(), serializedArg->cbegin(), serializedArg->cend());
     transaction.insert(transaction.cend(), magicEnd.cbegin(), magicEnd.cend());
 
-    auto analyzer = make_shared<TestEncryptedTransactionAnalyzer>();
+    auto analyzer = make_shared<TestEncryptedTransactionAnalyzerInterface>();
 
     CHECK_STATE(analyzer->getEncryptedData(transaction) != nullptr);
 

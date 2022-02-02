@@ -94,7 +94,6 @@ EncryptedArgument::EncryptedArgument(string _encryptedAESKey, ptr<AesCbcKeyIVPai
     writer.Flush();
     string header = sb.GetString();
     cerr << header << endl;
-
     serializedArgument = make_shared<vector<uint8_t>>(header.cbegin(), header.cend());
     serializedArgument->insert(serializedArgument->cend(), aesEncryptedSegment->cbegin(),
                                aesEncryptedSegment->cend());

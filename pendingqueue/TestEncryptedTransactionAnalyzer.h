@@ -8,13 +8,13 @@
 
 #include "node/ConsensusInterface.h"
 
-class TestEncryptedTransactionAnalyzer : public EncryptedTransactionAnalyzer {
+class TestEncryptedTransactionAnalyzerInterface : public EncryptedTransactionAnalyzerInterface {
 
     ptr<vector<uint8_t>> teMagicStart;
     ptr<vector<uint8_t>> teMagicEnd;
 
 public:
-    TestEncryptedTransactionAnalyzer();
+    TestEncryptedTransactionAnalyzerInterface();
 
     shared_ptr<std::vector<uint8_t>> getEncryptedData(
             const std::vector<uint8_t> &_transaction) override;

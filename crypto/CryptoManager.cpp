@@ -48,6 +48,7 @@
 
 #include <gmp.h>
 #include <network/ClientSocket.h>
+#include <network/Utils.h>
 
 #include "BLAKE3Hash.h"
 #include "ConsensusBLSSigShare.h"
@@ -1104,7 +1105,7 @@ ptr<BlockDecryptedArguments> CryptoManager::decryptArgs(ptr<BlockProposal> _bloc
 
     CHECK_STATE(_block);
 
-    auto args = make_shared<BlockEncryptedArguments>(_block, getSchain()->getNode()->getEncryptedTransactionAnalyzer());
+    auto args = make_shared<BlockEncryptedArguments>(_block, getSchain()->getNode()->getEncryptedTransactionAnalyzerInterface());
 
     auto agent = make_unique<BlockDecryptDownloader>(getSchain(), _block->getBlockID());
 
@@ -1135,14 +1136,14 @@ AutoSeededRandomPool &CryptoManager::getPrng() {
 
 string CryptoManager::teEncryptAESKey(ptr<vector<uint8_t>> _aesKey) {
     CHECK_STATE(_aesKey)
-    CHECK_STATE(_aesKey->size() == CryptoPP::AES::DEFAULT_KEYLENGTH);
+    CHECK_STATE(_aesKey->size() == AES_KEY_LEN);
 
     if (!isSGXEnabled) {
         // mockup - dont encrypt
         return Utils::carray2Hex(_aesKey->data(), _aesKey->size());
     } else {
         // Encrypt key using TE public key, so it can be decrypted later
-        return "";
+        return Utils::carray2Hex(_aesKey->data(), _aesKey->size());
     }
 }
 

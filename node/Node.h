@@ -203,7 +203,7 @@ class Node {
 
     string gethURL = "";
 
-    shared_ptr<EncryptedTransactionAnalyzer> encryptedTransactionAnalyzer;
+    shared_ptr<EncryptedTransactionAnalyzerInterface> encryptedTransactionAnalyzer;
 
     bool inited = false;
 
@@ -212,7 +212,7 @@ class Node {
     void releaseGlobalClientBarrier();
 
 public:
-    const shared_ptr<EncryptedTransactionAnalyzer> &getEncryptedTransactionAnalyzer() const;
+    const shared_ptr<EncryptedTransactionAnalyzerInterface> &getEncryptedTransactionAnalyzerInterface() const;
 
 private:
 
@@ -293,7 +293,7 @@ public:
         string _blsKeyName, ptr< vector< ptr< vector<string>>>> _blsPublicKeys,
         ptr< BLSPublicKey > _blsPublicKey, string& _gethURL,
         ptr< map< uint64_t, ptr< BLSPublicKey > > > _previousBlsPublicKeys,
-        shared_ptr<EncryptedTransactionAnalyzer> _analyzer);
+        shared_ptr<EncryptedTransactionAnalyzerInterface> _analyzer);
 
     ~Node();
 

@@ -7,7 +7,7 @@
 #ifndef SKALED_BLOCKENCRYPTEDARGUMENTS_H
 #define SKALED_BLOCKENCRYPTEDARGUMENTS_H
 
-class EncryptedTransactionAnalyzer;
+class EncryptedTransactionAnalyzerInterface;
 
 class BlockProposal;
 
@@ -17,7 +17,7 @@ class BlockEncryptedArguments {
     recursive_mutex m;
 public:
 
-    BlockEncryptedArguments(ptr<BlockProposal> _proposal, ptr<EncryptedTransactionAnalyzer> _analyzer);
+    BlockEncryptedArguments(ptr<BlockProposal> _proposal, ptr<EncryptedTransactionAnalyzerInterface> _analyzer);
 
     void insert(uint64_t _i, ptr<EncryptedArgument> _arg);
 

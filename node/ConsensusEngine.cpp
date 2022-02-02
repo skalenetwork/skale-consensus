@@ -233,10 +233,10 @@ void ConsensusEngine::log(
 
 
 void ConsensusEngine::parseFullConfigAndCreateNode(const string &configFileContents, const string& _gethURL,
-                                                   shared_ptr<EncryptedTransactionAnalyzer> _analyzer = nullptr) {
+                                                   shared_ptr<EncryptedTransactionAnalyzerInterface> _analyzer = nullptr) {
 
     if (!_analyzer) {
-        _analyzer = dynamic_pointer_cast<EncryptedTransactionAnalyzer>(make_shared<EmptyEncryptedTransactionAnalyzer>());
+        _analyzer = dynamic_pointer_cast<EncryptedTransactionAnalyzerInterface>(make_shared<EmptyEncryptedTransactionAnalyzerInterface>());
     }
 
     try {

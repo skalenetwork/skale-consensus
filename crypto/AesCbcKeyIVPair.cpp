@@ -18,7 +18,7 @@
 
 
 
-AesCbcKeyIVPair::AesCbcKeyIVPair(CryptoPP::AutoSeededRandomPool& _prng) : key(CryptoPP::AES::DEFAULT_KEYLENGTH ) {
+AesCbcKeyIVPair::AesCbcKeyIVPair(CryptoPP::AutoSeededRandomPool& _prng) : key(AES_KEY_LEN ) {
     _prng.GenerateBlock( key, key.size() );
     iv = make_shared<vector<uint8_t>>(CryptoPP::AES::BLOCKSIZE);
     _prng.GenerateBlock(iv->data(), iv->size());
