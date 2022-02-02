@@ -63,7 +63,7 @@ public:
 class EmptyEncryptedTransactionAnalyzerInterface : public EncryptedTransactionAnalyzerInterface {
 public:
 
-    shared_ptr<std::vector<uint8_t>> getEncryptedData(
+    std::shared_ptr<std::vector<uint8_t>> getEncryptedData(
             const std::vector<uint8_t>& ) override {
         return nullptr;
     }
@@ -164,7 +164,7 @@ public:
                              uint64_t _timeStamp,
                              uint32_t _timeStampMillis, uint64_t _blockID, u256 _gasPrice,
                              u256 _stateRoot, uint64_t _winningNodeIndex,
-                             const std::shared_ptr<map<uint64_t, std::shared_ptr<vector<uint8_t>>>> decryptedArgs =
+                             const std::shared_ptr<std::map<uint64_t, std::shared_ptr<std::vector<uint8_t>>>> decryptedArgs =
                                      nullptr) = 0;
 
     virtual ~ConsensusExtFace() = default;
