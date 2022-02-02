@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2019-Present SKALE Labs
+    Copyright (C) 2022- SKALE Labs
 
     This file is part of skale-consensus.
 
@@ -16,33 +16,25 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file CommittedBlockHeader.h
+    @file BlockFinalizeRequestHeader.h
     @author Stan Kladko
-    @date 2019
+    @date 2022-
 */
 
-#ifndef SKALED_COMMITTEDBLOCKHEADER_H
-#define SKALED_COMMITTEDBLOCKHEADER_H
+#pragma once
 
-#include "BlockProposalHeader.h"
+#include "Header.h"
 
-class CommittedBlockHeader : public BlockProposalHeader {
+class BlockDecryptResponseHeader : public Header {
 
-    string thresholdSig;
-    ptr<map<uint64_t, string>> decryptedArgKeys = nullptr;
-
+    ptr<map<uint64_t, string>> decryptionShares;
 public:
-    CommittedBlockHeader(BlockProposal &block, const string &thresholdSig,
-                         ptr<map<uint64_t, string>> _decryptedTEKeys);
+    void setDecryptionShares(const ptr<map<uint64_t, string>> &decryptionShares);
 
-    explicit CommittedBlockHeader(nlohmann::json &json);
+    BlockDecryptResponseHeader();
 
-    const ptr<map<uint64_t, string>> &getDecryptedArgKeys() const;
+    void addFields(nlohmann::json &jsonRequest) override;
 
-    [[nodiscard]] const string &getThresholdSig() const;
-
-    void addFields(nlohmann::basic_json<> &j) override;
 };
 
 
-#endif //SKALED_COMMITTEDBLOCKHEADER_H

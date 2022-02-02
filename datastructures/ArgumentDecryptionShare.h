@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2019-Present SKALE Labs
+    Copyright (C) 2019 SKALE Labs
 
     This file is part of skale-consensus.
 
@@ -16,33 +16,34 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file CommittedBlockHeader.h
+    @file BlockDecryptionShare.h
     @author Stan Kladko
     @date 2019
 */
+#ifndef SKALED_BLOCKPROPOSALFRAGMENT_H
+#define SKALED_BLOCKPROPOSALFRAGMENT_H
 
-#ifndef SKALED_COMMITTEDBLOCKHEADER_H
-#define SKALED_COMMITTEDBLOCKHEADER_H
+class ArgumentDecryptionShare {
 
-#include "BlockProposalHeader.h"
+    string data; // tsafe
 
-class CommittedBlockHeader : public BlockProposalHeader {
+    const block_id blockId  = 0;
 
-    string thresholdSig;
-    ptr<map<uint64_t, string>> decryptedArgKeys = nullptr;
+    const uint64_t totalShares  = 0;
+    const te_share_index schainIndex  = 0;
 
 public:
-    CommittedBlockHeader(BlockProposal &block, const string &thresholdSig,
-                         ptr<map<uint64_t, string>> _decryptedTEKeys);
 
-    explicit CommittedBlockHeader(nlohmann::json &json);
+    ArgumentDecryptionShare(const block_id & _blockId, uint64_t _totalShares, const te_share_index &_schainIndex,
+                            const string & _data);
 
-    const ptr<map<uint64_t, string>> &getDecryptedArgKeys() const;
+    [[nodiscard]] block_id getBlockId() const;
 
-    [[nodiscard]] const string &getThresholdSig() const;
+    [[nodiscard]] uint64_t getTotalShares() const;
 
-    void addFields(nlohmann::basic_json<> &j) override;
+    [[nodiscard]] te_share_index getSchainIndex() const;
+
 };
 
 
-#endif //SKALED_COMMITTEDBLOCKHEADER_H
+#endif //SKALED_BLOCKPROPOSALFRAGMENT_H

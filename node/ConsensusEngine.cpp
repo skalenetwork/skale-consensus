@@ -232,7 +232,13 @@ void ConsensusEngine::log(
 }
 
 
-void ConsensusEngine::parseFullConfigAndCreateNode(const string &configFileContents, const string& _gethURL) {
+void ConsensusEngine::parseFullConfigAndCreateNode(const string &configFileContents, const string& _gethURL,
+                                                   shared_ptr<EncryptedTransactionAnalyzer> _analyzer = nullptr) {
+
+    if (!_analyzer) {
+        _analyzer = dynamic_pointer_cast<EncryptedTransactionAnalyzer>(make_shared<EmptyEncryptedTransactionAnalyzer>());
+    }
+
     try {
         nlohmann::json j = nlohmann::json::parse(configFileContents);
 
@@ -247,10 +253,12 @@ void ConsensusEngine::parseFullConfigAndCreateNode(const string &configFileConte
                                                          true, sgxServerUrl, sgxSSLKeyFileFullPath,
                                                          sgxSSLCertFileFullPath,
                                                          getEcdsaKeyName(), ecdsaPublicKeys, getBlsKeyName(),
-                                                         blsPublicKeys, blsPublicKey, gethURL, previousBlsPublicKeys);
+                                                         blsPublicKeys, blsPublicKey, gethURL, previousBlsPublicKeys,
+                                                         _analyzer);
         } else {
             node = JSONFactory::createNodeFromJsonObject(j["skaleConfig"]["nodeInfo"], dummy, this,
-                                                         false, "", "", "", "", nullptr, "", nullptr, nullptr, gethURL, nullptr);
+                                                         false, "", "", "", "", nullptr, "", nullptr, nullptr, gethURL,
+                                                         nullptr, _analyzer);
         }
 
         JSONFactory::createAndAddSChainFromJsonObject(node, j["skaleConfig"]["sChain"], this);

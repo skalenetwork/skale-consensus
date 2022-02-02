@@ -35,6 +35,12 @@
 #include "thirdparty/lru_ordered_cache.hpp"
 #include "thirdparty/lrucache.hpp"
 
+#include <cryptopp/eccrypto.h>
+#include <cryptopp/osrng.h>
+#include <cryptopp/sha.h>
+#include <cryptopp/oids.h>
+#include <cryptopp/hex.h>
+
 class Schain;
 class BLAKE3Hash;
 class ConsensusBLSSigShare;
@@ -45,6 +51,7 @@ class ThresholdSignature;
 class StubClient;
 class ECP;
 class BLSPublicKey;
+class BlockDecryptedArguments;
 
 namespace CryptoPP {
 class ECP;
@@ -71,6 +78,11 @@ class OpenSSLEdDSAKey;
 
 class CryptoManager {
 
+    CryptoPP::AutoSeededRandomPool prng;
+public:
+    const CryptoPP::AutoSeededRandomPool &getPrng() const;
+
+private:
     static list<uint64_t> ecdsaSignTimes;
     static recursive_mutex ecdsaSignMutex;
     static atomic<uint64_t> ecdsaSignTotal;
@@ -132,6 +144,9 @@ class CryptoManager {
     string sgxDomainName;
     uint16_t sgxPort = 0;
 
+    array<uint8_t, TE_MAGIC_SIZE> teMagicStart;
+    array<uint8_t, TE_MAGIC_SIZE> teMagicEnd;
+
     ptr< StubClient > getSgxClient();
 
     tuple< ptr< OpenSSLEdDSAKey >, string > localGenerateFastKey();
@@ -149,16 +164,24 @@ class CryptoManager {
         BLAKE3Hash & _hash, block_id _blockId, bool _forceMockup );
 
 
-
     void initSGXClient();
 
     static pair<string, uint64_t> parseSGXDomainAndPort( const string& _url );
 
 
 
+
 public:
 
+
+
     static ifstream urandom;
+
+
+    const array<uint8_t, TE_MAGIC_SIZE> &getTeMagicStart() const;
+
+    const array<uint8_t, TE_MAGIC_SIZE> &getTeMagicEnd() const;
+
 
     void verifyThresholdSig(
         ptr< ThresholdSignature > _signature, BLAKE3Hash& _hash, bool _forceMockup, const TimeStamp& _ts = TimeStamp(uint64_t(-1), 0));
@@ -284,7 +307,16 @@ public:
 
     string signOracleResult(string _text);
 
+    ptr<BlockDecryptedArguments>  decryptArgs(ptr<BlockProposal> _block);
+
+    ptr<map<uint64_t, string>> decryptArgKeys(ptr<BlockProposal> _block);
+
+    string teEncryptAESKey(ptr<vector<uint8_t>> _aesKey);
+
+
+
     static string hashForOracle(string &_text);
+
 };
 
 #define RETRY_BEGIN \

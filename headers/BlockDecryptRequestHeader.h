@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2019-Present SKALE Labs
+    Copyright (C) 2019 SKALE Labs
 
     This file is part of skale-consensus.
 
@@ -16,33 +16,34 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file CommittedBlockHeader.h
+    @file BlockDecryptRequestHeader.h
     @author Stan Kladko
-    @date 2019
+    @date 2022-
 */
 
-#ifndef SKALED_COMMITTEDBLOCKHEADER_H
-#define SKALED_COMMITTEDBLOCKHEADER_H
+#pragma  once
 
-#include "BlockProposalHeader.h"
+#include "AbstractBlockRequestHeader.h"
 
-class CommittedBlockHeader : public BlockProposalHeader {
+class BlockDecryptRequestHeader : public AbstractBlockRequestHeader{
 
-    string thresholdSig;
-    ptr<map<uint64_t, string>> decryptedArgKeys = nullptr;
+
+   te_share_index shareIndex;
+   node_id        nodeID;
+   ptr<map<uint64_t, string>> encryptedKeys;
 
 public:
-    CommittedBlockHeader(BlockProposal &block, const string &thresholdSig,
-                         ptr<map<uint64_t, string>> _decryptedTEKeys);
 
-    explicit CommittedBlockHeader(nlohmann::json &json);
+    BlockDecryptRequestHeader(Schain &_sChain, block_id _blockID,
+            schain_index _proposerIndex, node_id _nodeID,
+                               te_share_index _shareIndex,
+                               ptr<map<uint64_t, string>> _encryptedKeys);
 
-    const ptr<map<uint64_t, string>> &getDecryptedArgKeys() const;
+    void addFields(nlohmann::basic_json<> &jsonRequest) override;
 
-    [[nodiscard]] const string &getThresholdSig() const;
+    const node_id &getNodeId() const;
 
-    void addFields(nlohmann::basic_json<> &j) override;
 };
 
 
-#endif //SKALED_COMMITTEDBLOCKHEADER_H
+

@@ -18,8 +18,7 @@
 
     @file CryptoManager.h
     @author Stan Kladko
-    @date 2019
-
+    @date 2019-
 */
 
 
@@ -71,16 +70,17 @@
 #include "node/Node.h"
 #include "node/NodeInfo.h"
 
+#include "blockdecrypt/client/BlockDecryptDownloader.h"
+
 #include "json/JSONFactory.h"
-
 #include "network/Utils.h"
-
+#include "datastructures/TransactionList.h"
+#include "datastructures/Transaction.h"
+#include "node/ConsensusInterface.h"
 #include "utils/Time.h"
-
-
 #include "OpenSSLECDSAKey.h"
 #include "OpenSSLEdDSAKey.h"
-
+#include "datastructures/BlockEncryptedArguments.h"
 
 #include "CryptoManager.h"
 
@@ -103,6 +103,7 @@ void CryptoManager::initSGXClient() {
                                               this->isSSLCertEnabled, sgxSSLCertFileFullPath, sgxSSLKeyFileFullPath);
     }
 }
+
 
 std::string blsKeyToString(ptr<BLSPublicKey> pk) {
     auto vectorCoordinates = pk->toString();
@@ -128,7 +129,7 @@ pair<ptr< BLSPublicKey >, ptr< BLSPublicKey >> CryptoManager::getSgxBlsPublicKey
 
         // could not return iterator to end()
         // because finish ts for the current group equals uint64_t(-1)
-        auto it = previousBlsPublicKeys->upper_bound( _timestamp );
+        auto it = previousBlsPublicKeys->upper_bound(_timestamp);
 
         if ( it == previousBlsPublicKeys->begin() ) {
             LOG(info, string("Got first BLS public key ") + blsKeyToString((*it).second));
@@ -150,6 +151,13 @@ CryptoManager::CryptoManager(uint64_t _totalSigners, uint64_t _requiredSigners, 
                              string _sgxURL, string _sgxSslKeyFileFullPath, string _sgxSslCertFileFullPath,
                              string _sgxEcdsaKeyName, ptr<vector<string> > _sgxEcdsaPublicKeys)
         : sessionKeys(SESSION_KEY_CACHE_SIZE), sessionPublicKeys(SESSION_PUBLIC_KEY_CACHE_SIZE) {
+
+
+    Utils::cArrayFromHex(TE_MAGIC_START, teMagicStart.data(), TE_MAGIC_SIZE);
+    Utils::cArrayFromHex(TE_MAGIC_END, teMagicEnd.data(), TE_MAGIC_SIZE);
+
+
+
     CHECK_ARGUMENT(_totalSigners >= _requiredSigners);
     totalSigners = _totalSigners;
     requiredSigners = _requiredSigners;
@@ -212,6 +220,11 @@ CryptoManager::CryptoManager(Schain &_sChain)
         : sessionKeys(SESSION_KEY_CACHE_SIZE),
           sessionPublicKeys(SESSION_PUBLIC_KEY_CACHE_SIZE),
           sChain(&_sChain) {
+
+    Utils::cArrayFromHex(TE_MAGIC_START, teMagicStart.data(), TE_MAGIC_SIZE);
+    Utils::cArrayFromHex(TE_MAGIC_END, teMagicEnd.data(), TE_MAGIC_SIZE);
+
+
     totalSigners = getSchain()->getTotalSigners();
     requiredSigners = getSchain()->getRequiredSigners();
 
@@ -281,6 +294,7 @@ void CryptoManager::setSGXKeyAndCert(
 }
 
 Schain *CryptoManager::getSchain() const {
+    CHECK_STATE(sChain)
     return sChain;
 }
 
@@ -434,6 +448,8 @@ string CryptoManager::signOracleResult(string _text) {
 
 string CryptoManager::hashForOracle(string &_text) {
 
+    _text = "age";
+
     try {
         CryptoPP::SHA3_256 hash;
         string digest;
@@ -559,14 +575,14 @@ ptr<ThresholdSigShare> CryptoManager::signBlockSigShare(
 }
 
 void CryptoManager::verifyBlockSig(
-        ptr<ThresholdSignature> _signature, BLAKE3Hash &_hash, const TimeStamp& _ts) {
+        ptr<ThresholdSignature> _signature, BLAKE3Hash &_hash, const TimeStamp &_ts) {
     CHECK_STATE(_signature);
     verifyThresholdSig(_signature, _hash, false, _ts);
 }
 
 
 void CryptoManager::verifyBlockSig(
-        string &_sigStr, block_id _blockId, BLAKE3Hash &_hash, const TimeStamp& _ts) {
+        string &_sigStr, block_id _blockId, BLAKE3Hash &_hash, const TimeStamp &_ts) {
     if (getSchain()->getNode()->isSgxEnabled()) {
 
         auto _signature = make_shared<ConsensusBLSSignature>(_sigStr, _blockId,
@@ -663,7 +679,7 @@ ptr<ThresholdSigShare> CryptoManager::signSigShare(
 }
 
 void CryptoManager::verifyThresholdSig(
-        ptr<ThresholdSignature> _signature, BLAKE3Hash &_hash, bool _forceMockup, const TimeStamp& _ts) {
+        ptr<ThresholdSignature> _signature, BLAKE3Hash &_hash, bool _forceMockup, const TimeStamp &_ts) {
 
     CHECK_STATE(_signature);
 
@@ -675,19 +691,19 @@ void CryptoManager::verifyThresholdSig(
 
         CHECK_STATE(blsSig);
 
-        auto blsKeys = getSgxBlsPublicKey( _ts.getS() );
+        auto blsKeys = getSgxBlsPublicKey(_ts.getS());
 
         auto libBlsSig = blsSig->getBlsSig();
 
 
-        if ( !blsKeys.first->VerifySig( make_shared<array<uint8_t, HASH_LEN>>(_hash.getHash()), libBlsSig ) ) {
+        if (!blsKeys.first->VerifySig(make_shared<array<uint8_t, HASH_LEN>>(_hash.getHash()), libBlsSig)) {
             // second key is used when the sig corresponds
             // to the last block before node rotation!
             // in this case we use the key for the group before
             CHECK_STATE(blsKeys.second);
             CHECK_STATE(blsKeys.second->VerifySig(
-                make_shared<array<uint8_t, HASH_LEN>>(_hash.getHash()),
-                libBlsSig ));
+                    make_shared<array<uint8_t, HASH_LEN>>(_hash.getHash()),
+                    libBlsSig));
         }
 
     } else {
@@ -1069,3 +1085,66 @@ bool CryptoManager::isSGXServerDown() {
     CHECK_STATE(zmqClient);
     return (zmqClient->isServerDown());
 }
+
+ptr<map<uint64_t, string>> CryptoManager::decryptArgKeys(ptr<BlockProposal> _proposal) {
+    CHECK_STATE(_proposal);
+
+    try {
+        auto encryptedArgs = _proposal->getEncryptedArguments(*getSchain());
+    } catch (exception& e) {
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+    }
+
+    return make_shared<map<uint64_t, string>>();
+}
+
+
+
+ptr<BlockDecryptedArguments> CryptoManager::decryptArgs(ptr<BlockProposal> _block) {
+
+    CHECK_STATE(_block);
+
+    auto args = make_shared<BlockEncryptedArguments>(_block, getSchain()->getNode()->getEncryptedTransactionAnalyzer());
+
+    auto agent = make_unique<BlockDecryptDownloader>(getSchain(), _block->getBlockID());
+
+    {
+        const string msg = "Decryption download:" + to_string(
+                (uint64_t) _block->getBlockID()
+        );
+
+        MONITOR(__CLASS_NAME__, msg.c_str());
+        // This will complete successfully also if block arrives through catchup
+        auto decryptions = agent->downloadDecryptions();
+    }
+
+    return nullptr;
+}
+
+const array<uint8_t, TE_MAGIC_SIZE> &CryptoManager::getTeMagicStart() const {
+    return teMagicStart;
+}
+
+const array<uint8_t, TE_MAGIC_SIZE> &CryptoManager::getTeMagicEnd() const {
+    return teMagicEnd;
+}
+
+const AutoSeededRandomPool &CryptoManager::getPrng() const {
+    return prng;
+}
+
+string CryptoManager::teEncryptAESKey(ptr<vector<uint8_t>> _aesKey) {
+    CHECK_STATE(_aesKey)
+    CHECK_STATE(_aesKey->size() == CryptoPP::AES::DEFAULT_KEYLENGTH);
+
+    if (!isSGXEnabled) {
+        // mockup - dont encrypt
+        return Utils::carray2Hex(_aesKey->data(), _aesKey->size());
+    } else {
+        // Encrypt key using TE public key, so it can be decrypted later
+        return "";
+    }
+}
+
+
+

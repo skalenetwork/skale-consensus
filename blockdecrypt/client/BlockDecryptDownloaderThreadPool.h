@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2019-Present SKALE Labs
+    Copyright (C) 2019 SKALE Labs
 
     This file is part of skale-consensus.
 
@@ -16,33 +16,28 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file CommittedBlockHeader.h
+    @file BlockDecryptDownloaderThreadPool.h
     @author Stan Kladko
-    @date 2019
+    @date 2021
 */
 
-#ifndef SKALED_COMMITTEDBLOCKHEADER_H
-#define SKALED_COMMITTEDBLOCKHEADER_H
+#pragma once
 
-#include "BlockProposalHeader.h"
+#include <cstdint>
 
-class CommittedBlockHeader : public BlockProposalHeader {
+#include "threads/WorkerThreadPool.h"
 
-    string thresholdSig;
-    ptr<map<uint64_t, string>> decryptedArgKeys = nullptr;
+class BlockDecryptDownloaderThreadPool : public WorkerThreadPool {
 
 public:
-    CommittedBlockHeader(BlockProposal &block, const string &thresholdSig,
-                         ptr<map<uint64_t, string>> _decryptedTEKeys);
 
-    explicit CommittedBlockHeader(nlohmann::json &json);
+    BlockDecryptDownloaderThreadPool(num_threads numThreads, Agent *_params);
 
-    const ptr<map<uint64_t, string>> &getDecryptedArgKeys() const;
+    void createThread(uint64_t threadIndex ) override;
 
-    [[nodiscard]] const string &getThresholdSig() const;
+    void startService() override;
 
-    void addFields(nlohmann::basic_json<> &j) override;
+    ~BlockDecryptDownloaderThreadPool() override;
+
 };
 
-
-#endif //SKALED_COMMITTEDBLOCKHEADER_H

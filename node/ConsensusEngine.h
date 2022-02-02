@@ -216,7 +216,8 @@ public:
 
     void startAll() override;
 
-    void parseFullConfigAndCreateNode( const string& fullPathToConfigFile, const string& _gethURL ) override;
+    void parseFullConfigAndCreateNode( const string& fullPathToConfigFile, const string& _gethURL,
+                                       std::shared_ptr<EncryptedTransactionAnalyzer> _analyzer) override;
 
     // used for standalone debugging
 

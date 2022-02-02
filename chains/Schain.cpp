@@ -395,10 +395,28 @@ void Schain::blockCommitArrived( block_id _committedBlockID, schain_index _propo
 
         CHECK_STATE( committedProposal );
 
-        auto newCommittedBlock = CommittedBlock::makeObject( committedProposal, _thresholdSig );
+
+        ptr<map<uint64_t, string>> decryptedArgKeys;
+
+        if (getNode()->isTeEnabled()) {
+            decryptedArgKeys = getCryptoManager()->decryptArgKeys(committedProposal);
+            if (!decryptedArgKeys) {
+                // block received throw cathup, return
+                unbumpPriority();
+                return;
+            }
+        } else {
+            decryptedArgKeys = make_shared<map<uint64_t, string>>();
+        }
+
+
+        auto newCommittedBlock = CommittedBlock::makeObject( committedProposal, _thresholdSig,
+                                                             decryptedArgKeys);
 
         CHECK_STATE( getLastCommittedBlockTimeStamp() < newCommittedBlock->getTimeStamp() );
 
+
+        ptr<map<uint64_t, ptr<vector<uint8_t>>>> decryptedArgs = nullptr;
 
         processCommittedBlock( newCommittedBlock );
         proposeNextBlock();
@@ -568,7 +586,7 @@ void Schain::printBlockLog(const ptr< CommittedBlock >& _block) {
     mallocCounter.fetch_add(1);
 }
 
-void Schain::processCommittedBlock( const ptr< CommittedBlock >& _block ) {
+void Schain::processCommittedBlock( const ptr< CommittedBlock >& _block) {
     CHECK_ARGUMENT( _block );
     // process committed block needs to be called why holding main mutex
 
@@ -591,7 +609,7 @@ void Schain::processCommittedBlock( const ptr< CommittedBlock >& _block ) {
 
         saveBlock( _block );
 
-        pushBlockToExtFace( _block );
+        pushBlockToExtFace( _block);
 
         auto stamp = TimeStamp( _block->getTimeStampS(), _block->getTimeStampMs() );
 
@@ -620,8 +638,8 @@ void Schain::saveBlock( const ptr< CommittedBlock >& _block ) {
     }
 }
 
+void Schain::pushBlockToExtFace( const ptr< CommittedBlock >& _block) {
 
-void Schain::pushBlockToExtFace( const ptr< CommittedBlock >& _block ) {
     CHECK_ARGUMENT( _block );
 
     MONITOR2( __CLASS_NAME__, __FUNCTION__, getMaxExternalBlockProcessingTime() )
@@ -638,11 +656,10 @@ void Schain::pushBlockToExtFace( const ptr< CommittedBlock >& _block ) {
 
         auto currentPrice = this->pricingAgent->readPrice( _block->getBlockID() - 1 );
 
-
         if ( extFace ) {
             extFace->createBlock( *tv, _block->getTimeStampS(), _block->getTimeStampMs(),
                 ( __uint64_t ) _block->getBlockID(), currentPrice, _block->getStateRoot(),
-                ( uint64_t ) _block->getProposerIndex() );
+                ( uint64_t ) _block->getProposerIndex(), _block->getDecryptedArgs());
             // exit immediately if exit has been requested
             getSchain()->getNode()->exitCheck();
         }
@@ -805,7 +822,7 @@ void Schain::bootstrap( block_id _lastCommittedBlockID, uint64_t _lastCommittedB
             auto block = getNode()->getBlockDB()->getBlock(
                 _lastCommittedBlockIDInConsensus, getCryptoManager() );
             CHECK_STATE2(block, "No block in consensus, repair needed");
-            pushBlockToExtFace( block );
+            pushBlockToExtFace( block); //NOTGOOD
             _lastCommittedBlockID = _lastCommittedBlockID + 1;
         } catch ( ... ) {
             // Cant read the block form db, may be it is corrupt in the  snapshot
@@ -841,7 +858,6 @@ void Schain::bootstrap( block_id _lastCommittedBlockID, uint64_t _lastCommittedB
 
         if ( getLastCommittedBlockID() == 0 )
             this->pricingAgent->calculatePrice( ConsensusExtFace::transactions_vector(), 0, 0, 0 );
-
 
 
         proposeNextBlock();

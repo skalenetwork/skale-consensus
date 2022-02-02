@@ -29,14 +29,25 @@
 #include "CommittedBlockHeader.h"
 
 
-CommittedBlockHeader::CommittedBlockHeader(BlockProposal &block, const string &thresholdSig) : BlockProposalHeader(
-        block), thresholdSig(thresholdSig) {
+CommittedBlockHeader::CommittedBlockHeader(BlockProposal &block, const string &thresholdSig,
+                    ptr<map<uint64_t, string>> _decryptedTEKeys) : BlockProposalHeader(
+        block), thresholdSig(thresholdSig), decryptedArgKeys(_decryptedTEKeys) {
     CHECK_ARGUMENT(!thresholdSig.empty())
+
+    if (!decryptedArgKeys) {
+        decryptedArgKeys = make_shared<map<uint64_t, string>>();
+    }
 }
 
 CommittedBlockHeader::CommittedBlockHeader(nlohmann::json &json) : BlockProposalHeader(json) {
     thresholdSig = Header::getString(json, "thrSig");
     CHECK_STATE(!thresholdSig.empty())
+
+    if (json.find("teks" ) != json.end()) {
+        decryptedArgKeys = Header::getIntegerStringMap(json, "teks");
+    } else {
+        decryptedArgKeys = make_shared<map<uint64_t,string>>();
+    }
 }
 
 const string &CommittedBlockHeader::getThresholdSig() const {
@@ -48,6 +59,10 @@ void CommittedBlockHeader::addFields(nlohmann::basic_json<> &j) {
     BlockProposalHeader::addFields(j);
 
     j["thrSig"] = thresholdSig;
+}
+
+const ptr<map<uint64_t, string>> &CommittedBlockHeader::getDecryptedArgKeys() const {
+    return decryptedArgKeys;
 }
 
 

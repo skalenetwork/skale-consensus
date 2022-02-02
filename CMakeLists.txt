@@ -124,7 +124,7 @@ AUX_SOURCE_DIRECTORY(abstracttcpserver abstractcpserver_src)
 AUX_SOURCE_DIRECTORY(abstracttcpclient abstractcpclient_src)
 AUX_SOURCE_DIRECTORY(blockproposal/pusher blockproposalpusher_src)
 AUX_SOURCE_DIRECTORY(blockfinalize/client blockfinalizeclient_src)
-AUX_SOURCE_DIRECTORY(blockfinalize/received blockfinalizereceived_src)
+AUX_SOURCE_DIRECTORY(blockdecrypt/client blockdecryptclient_src)
 AUX_SOURCE_DIRECTORY(blockproposal/server blockproposalserver_src)
 AUX_SOURCE_DIRECTORY(blockproposal/received blockproposalreceived_src)
 AUX_SOURCE_DIRECTORY(blockproposal blockproposal_src)
@@ -164,6 +164,7 @@ SET(SRC_FILES
         ${blockproposalserver_src}
         ${blockproposalpusher_src}
         ${blockfinalizeclient_src}
+        ${blockdecryptclient_src}
         ${blockfinalizereceived_src}
         ${blockretriever_src}
         ${blockproposal_src}
