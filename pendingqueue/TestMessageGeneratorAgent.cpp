@@ -28,6 +28,8 @@
 #include "chains/Schain.h"
 #include "chains/SchainTest.h"
 #include "crypto/CryptoManager.h"
+#include "crypto/EncryptedArgument.h"
+#include "crypto/AesCbcKeyIVPair.h"
 #include "datastructures/Transaction.h"
 #include "exceptions/FatalError.h"
 #include "network/Utils.h"
@@ -61,7 +63,6 @@ ConsensusExtFace::transactions_vector TestMessageGeneratorAgent::pendingTransact
 
         vector<uint8_t> transaction(messageSize);
 
-
         uint64_t dummy = counter;
         auto bytes = (uint8_t *) &dummy;
 
@@ -73,16 +74,8 @@ ConsensusExtFace::transactions_vector TestMessageGeneratorAgent::pendingTransact
         }
 
         if (i == 3) {
-            auto magicStart = getSchain()->getCryptoManager()->getTeMagicStart();
-            auto magicEnd = getSchain()->getCryptoManager()->getTeMagicEnd();
-
-            memcpy(transaction.data(), magicStart.data(), magicStart.size());
-            memcpy(transaction.data() + transaction.size() - magicEnd.size(),
-                   magicEnd.data(), magicEnd.size());
-
-            auto analyzer = make_shared<TestEncryptedTransactionAnalyzer>();
-
-            CHECK_STATE(analyzer->getLastSmartContractArgument(transaction) != nullptr);
+            transaction.clear();
+            makeTestEncryptedTransaction(transaction);
         }
 
         result.push_back(transaction);
@@ -106,6 +99,29 @@ ConsensusExtFace::transactions_vector TestMessageGeneratorAgent::pendingTransact
 
 
     return result;
+
+}
+
+void TestMessageGeneratorAgent::makeTestEncryptedTransaction(vector<uint8_t> &transaction) const {
+
+    auto magicStart = getSchain()->getCryptoManager()->getTeMagicStart();
+    auto magicEnd = getSchain()->getCryptoManager()->getTeMagicEnd();
+
+    auto arg = make_shared<vector<uint8_t>>(10,3);
+
+    auto key = make_shared<AesCbcKeyIVPair>(getSchain()->getCryptoManager()->getPrng());
+
+    auto encryptedArg = make_shared<EncryptedArgument>(string("haha"), key, arg);
+
+    auto serializedArg = encryptedArg->serialize();
+
+    transaction.insert(transaction.cend(), magicStart.cbegin(), magicStart.cend());
+    transaction.insert(transaction.cend(), serializedArg->cbegin(), serializedArg->cend());
+    transaction.insert(transaction.cend(), magicEnd.cbegin(), magicEnd.cend());
+
+    auto analyzer = make_shared<TestEncryptedTransactionAnalyzer>();
+
+    CHECK_STATE(analyzer->getEncryptedData(transaction) != nullptr);
 
 };
 

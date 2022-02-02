@@ -31,6 +31,10 @@ public:
 
     ptr<vector<uint8_t>> getIV();
 
+    string getIvAsHex();
+
+
+
     ptr<vector<uint8_t>> encrypt(ptr<vector<uint8_t>> _plaintext);
 
     ptr<vector<uint8_t>> decrypt(ptr<vector<uint8_t>> _ciphertext);

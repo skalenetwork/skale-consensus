@@ -79,10 +79,7 @@ class OpenSSLEdDSAKey;
 class CryptoManager {
 
     CryptoPP::AutoSeededRandomPool prng;
-public:
-    const CryptoPP::AutoSeededRandomPool &getPrng() const;
 
-private:
     static list<uint64_t> ecdsaSignTimes;
     static recursive_mutex ecdsaSignMutex;
     static atomic<uint64_t> ecdsaSignTotal;
@@ -176,6 +173,9 @@ public:
 
 
     static ifstream urandom;
+
+
+    CryptoPP::AutoSeededRandomPool &getPrng();
 
 
     const array<uint8_t, TE_MAGIC_SIZE> &getTeMagicStart() const;

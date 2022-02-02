@@ -28,7 +28,7 @@ BlockEncryptedArguments::BlockEncryptedArguments(ptr<BlockProposal> _proposal,
     for (uint64_t i = 0; i < transactions->size(); i++) {
         auto transactionBytes = transactions->at(i)->getData();
         vector<uint8_t> encryptedArgument;
-        auto rawEncryptedArg = _analyzer->getLastSmartContractArgument(*transactionBytes);
+        auto rawEncryptedArg = _analyzer->getEncryptedData(*transactionBytes);
 
         if (rawEncryptedArg) {
             auto arg = make_shared<EncryptedArgument>(rawEncryptedArg);
