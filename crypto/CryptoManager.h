@@ -265,6 +265,9 @@ public:
 
     string getSgxBlsKeyName();
 
+    string teEncryptAESKeySgx(shared_ptr<vector<uint8_t>> _aesKey);
+
+
     static const string& getSgxUrl();
     static void setSgxUrl( const string& sgxUrl );
 
@@ -316,6 +319,7 @@ public:
     string teEncryptAESKey(ptr<vector<uint8_t>>_aesKey);
 
     static string hashForOracle(string &_text);
+
 
 };
 
