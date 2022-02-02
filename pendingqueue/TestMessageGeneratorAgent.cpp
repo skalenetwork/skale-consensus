@@ -72,7 +72,6 @@ ConsensusExtFace::transactions_vector TestMessageGeneratorAgent::pendingTransact
 
         }
 
-
         if (i == 3) {
             auto magicStart = getSchain()->getCryptoManager()->getTeMagicStart();
             auto magicEnd = getSchain()->getCryptoManager()->getTeMagicEnd();
