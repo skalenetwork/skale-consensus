@@ -7,7 +7,9 @@
 
 
 class BlockDecryptedArguments {
-
+    ptr<map<uint64_t, ptr<vector<uint8_t>>>> decryptedArgs;
+public:
+    BlockDecryptedArguments();
 };
 
 

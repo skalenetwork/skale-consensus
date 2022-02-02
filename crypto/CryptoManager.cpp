@@ -1105,7 +1105,7 @@ ptr<BlockDecryptedArguments> CryptoManager::decryptArgs(ptr<BlockProposal> _bloc
 
     CHECK_STATE(_block);
 
-    auto args = make_shared<BlockEncryptedArguments>(_block, getSchain()->getNode()->getEncryptedTransactionAnalyzerInterface());
+    auto args = _block->getEncryptedArguments(*getSchain());
 
     auto agent = make_unique<BlockDecryptDownloader>(getSchain(), _block->getBlockID());
 
@@ -1142,7 +1142,7 @@ string CryptoManager::teEncryptAESKey(ptr<vector<uint8_t>> _aesKey) {
         // mockup - dont encrypt
         return Utils::carray2Hex(_aesKey->data(), _aesKey->size());
     } else {
-        teEncryptAESKeySgx(_aesKey);
+        return teEncryptAESKeySgx(_aesKey);
     }
 }
 

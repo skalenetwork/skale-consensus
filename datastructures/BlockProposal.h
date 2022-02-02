@@ -45,6 +45,7 @@ class BlockProposalHeader;
 class BlockProposalFragment;
 class BlockProposalFragmentList;
 class EncryptedArgument;
+class BlockEncryptedArguments;
 
 #define SERIALIZE_AS_PROPOSAL 1
 
@@ -58,7 +59,7 @@ class BlockProposal : public SendableItem {
     ptr< vector< uint8_t > > serializedProposal = nullptr;  // tsafe
 
     recursive_mutex cachedEncryptedArgumentsLock;
-    ptr<map<uint64_t, ptr<EncryptedArgument>>> cachedEncryptedArguments = nullptr;
+    ptr<BlockEncryptedArguments> cachedEncryptedArguments = nullptr;
 
 
 protected:
@@ -145,6 +146,6 @@ public:
     uint64_t getCreationTime() const;
 
 
-    ptr<map<uint64_t, ptr<EncryptedArgument>>> getEncryptedArguments(Schain& _schain);
+    ptr<BlockEncryptedArguments> getEncryptedArguments(Schain& _schain);
 
 };
