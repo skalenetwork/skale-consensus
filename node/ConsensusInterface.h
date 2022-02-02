@@ -56,7 +56,7 @@ using u256 = boost::multiprecision::number<boost::multiprecision::backends::cpp_
 
 class EncryptedTransactionAnalyzerInterface {
 public:
-    virtual shared_ptr<std::vector<uint8_t>> getEncryptedData(
+    virtual std::shared_ptr<std::vector<uint8_t>> getEncryptedData(
             const std::vector<uint8_t>& transaction) = 0;
 };
 
@@ -77,7 +77,7 @@ public:
     virtual ~ConsensusInterface() = default;
 
     virtual void parseFullConfigAndCreateNode(const std::string &fullPathToConfigFile,
-                                              const string& gethURL,
+                                              const std::string& gethURL,
                                               std::shared_ptr<EncryptedTransactionAnalyzerInterface> _analyzer)
                                               = 0;
 
@@ -129,7 +129,7 @@ public:
      * is. In case of an error, a non-zero error will be returned.
      */
 
-    virtual uint64_t submitOracleRequest(const string& _spec, string &_receipt) = 0;
+    virtual uint64_t submitOracleRequest(const std::string& _spec, std::string &_receipt) = 0;
 
     /*
      * Check if Oracle result has been derived.  This will return ORACLE_SUCCESS if
@@ -141,7 +141,7 @@ public:
      */
 
 
-    virtual uint64_t  checkOracleResult(const string& _receipt, string& _result) = 0;
+    virtual uint64_t  checkOracleResult(const std::string& _receipt, std::string& _result) = 0;
 
 };
 
@@ -164,7 +164,7 @@ public:
                              uint64_t _timeStamp,
                              uint32_t _timeStampMillis, uint64_t _blockID, u256 _gasPrice,
                              u256 _stateRoot, uint64_t _winningNodeIndex,
-                             const shared_ptr<map<uint64_t, shared_ptr<vector<uint8_t>>>> decryptedArgs =
+                             const std::shared_ptr<map<uint64_t, std::shared_ptr<vector<uint8_t>>>> decryptedArgs =
                                      nullptr) = 0;
 
     virtual ~ConsensusExtFace() = default;
@@ -174,20 +174,20 @@ public:
 
     /* Set sgx key info */
 
-    void setSGXKeyInfo( string& _sgxServerURL,
+    void setSGXKeyInfo( std::string& _sgxServerURL,
                          // SSL key file full path. Can be null if the server does not require a client cert
-                        string& _sgxSSLKeyFileFullPath,
+                        std::string& _sgxSSLKeyFileFullPath,
                         // SSL cert file full path. Can be null if the server does not require a client cert
-                        string& _sgxSSLCertFileFullPath,
+                        std::string& _sgxSSLCertFileFullPath,
                         // ecdsaKeyName of this node on the SGX server
-                        string& _ecdsaKeyName,
+                        std::string& _ecdsaKeyName,
                         // array of ECDSA public keys of all nodes, including this node
-                        shared_ptr<vector<string>>& _ecdsaPublicKeys,
+                        std::shared_ptr<std::vector<std::string>>& _ecdsaPublicKeys,
                         // blsKeyName of this node on the SGX server
-                        string& _blsKeyName,
+                        std::string& _blsKeyName,
                        // array of BLS public key shares of all nodes, including this node
                        // each BLS public key share is a vector of 4 strings.
-                        shared_ptr<vector<shared_ptr<vector<string>>>>& _blsPublicKeyShares);
+                        std::shared_ptr<std::vector<std::shared_ptr<std::vector<std::string>>>>& _blsPublicKeyShares);
 
 };
 

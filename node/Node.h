@@ -212,7 +212,7 @@ class Node {
     void releaseGlobalClientBarrier();
 
 public:
-    const shared_ptr<EncryptedTransactionAnalyzerInterface> &getEncryptedTransactionAnalyzerInterface() const;
+    const shared_ptr<EncryptedTransactionAnalyzerInterface> &getEncryptedTransactionAnalyzer() const;
 
 private:
 

@@ -575,7 +575,7 @@ bool Node::isInited() const {
     return inited;
 }
 
-const shared_ptr<EncryptedTransactionAnalyzerInterface> &Node::getEncryptedTransactionAnalyzerInterface() const {
+const shared_ptr<EncryptedTransactionAnalyzerInterface> &Node::getEncryptedTransactionAnalyzer() const {
     CHECK_STATE(encryptedTransactionAnalyzer);
     return encryptedTransactionAnalyzer;
 }

@@ -1105,7 +1105,7 @@ ptr<BlockDecryptedArguments> CryptoManager::decryptArgs(ptr<BlockProposal> _bloc
 
     CHECK_STATE(_block);
 
-    auto args = make_shared<BlockEncryptedArguments>(_block, getSchain()->getNode()->getEncryptedTransactionAnalyzerInterface());
+    auto args = _block->getEncryptedArguments(*getSchain());
 
     auto agent = make_unique<BlockDecryptDownloader>(getSchain(), _block->getBlockID());
 
@@ -1136,14 +1136,13 @@ AutoSeededRandomPool &CryptoManager::getPrng() {
 
 string CryptoManager::teEncryptAESKey(ptr<vector<uint8_t>> _aesKey) {
     CHECK_STATE(_aesKey)
-    CHECK_STATE(_aesKey->size() == AES_KEY_LEN);
+    CHECK_STATE(_aesKey->size() == AES_KEY_LEN_BYTES);
 
     if (!isSGXEnabled) {
         // mockup - dont encrypt
         return Utils::carray2Hex(_aesKey->data(), _aesKey->size());
-        exit(101);
     } else {
-        teEncryptAESKeySgx(_aesKey);
+        return teEncryptAESKeySgx(_aesKey);
     }
 }
 

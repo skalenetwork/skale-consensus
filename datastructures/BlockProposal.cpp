@@ -36,6 +36,7 @@
 #include "crypto/BLAKE3Hash.h"
 #include "crypto/CryptoManager.h"
 #include "crypto/EncryptedArgument.h"
+#include "datastructures/BlockEncryptedArguments.h"
 #include "network/Buffer.h"
 #include "node/ConsensusEngine.h"
 #include "exceptions/ExitRequestedException.h"
@@ -475,14 +476,14 @@ uint64_t BlockProposal::getCreationTime() const {
     return creationTime;
 }
 
-ptr<map<uint64_t, ptr<EncryptedArgument>>> BlockProposal::getEncryptedArguments(Schain &_schain) {
+ptr<BlockEncryptedArguments> BlockProposal::getEncryptedArguments(Schain &_schain) {
     try {
         LOCK(cachedEncryptedArgumentsLock);
         if (cachedEncryptedArguments) {
             return cachedEncryptedArguments;
         }
 
-        cachedEncryptedArguments = make_shared<map<uint64_t, ptr<EncryptedArgument>>>();
+        cachedEncryptedArguments = make_shared<BlockEncryptedArguments>();
 
         if (!transactionList) {
             return cachedEncryptedArguments;
@@ -490,16 +491,14 @@ ptr<map<uint64_t, ptr<EncryptedArgument>>> BlockProposal::getEncryptedArguments(
 
         auto transactions = transactionList->getItems();
 
-        auto analyzer = _schain.getNode()->getEncryptedTransactionAnalyzerInterface();
+        auto analyzer = _schain.getNode()->getEncryptedTransactionAnalyzer();
 
         for (uint64_t i = 0; i < transactions->size(); i++) {
             auto rawArg = analyzer->getEncryptedData(*transactions->at(i)->getData());
             if (rawArg) {
                 auto argument = make_shared<EncryptedArgument>(rawArg);
-                exit(34);
-                CHECK_STATE(cachedEncryptedArguments->emplace(i, argument).second);
+                cachedEncryptedArguments->insert(i, argument);
             }
-
         }
 
         return cachedEncryptedArguments;

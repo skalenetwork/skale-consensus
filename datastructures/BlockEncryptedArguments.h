@@ -17,8 +17,6 @@ class BlockEncryptedArguments {
     recursive_mutex m;
 public:
 
-    BlockEncryptedArguments(ptr<BlockProposal> _proposal, ptr<EncryptedTransactionAnalyzerInterface> _analyzer);
-
     void insert(uint64_t _i, ptr<EncryptedArgument> _arg);
 
     ptr<map<uint64_t, string>> getEncryptedTEKeys();
