@@ -274,7 +274,7 @@ public:
                        uint64_t _requiredSigners,
                        uint64_t _totalSigners);
 
-    void setRotationHistory(ptr<vector<pair<uint64_t, vector<string>>>> _rh);
+    void setRotationHistory(ptr<map<uint64_t, vector<string>>> _rh);
 
     [[nodiscard]] uint64_t getTotalStorageLimitBytes() const;
 

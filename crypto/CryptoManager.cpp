@@ -104,9 +104,23 @@ void CryptoManager::initSGXClient() {
     }
 }
 
-pair<ptr<BLSPublicKey>, ptr<BLSPublicKey >> CryptoManager::getSgxBlsPublicKey(uint64_t _timestamp) {
-    if (_timestamp == uint64_t(-1) || previousBlsPublicKeys->size() < 2) {
+
+std::string blsKeyToString(ptr<BLSPublicKey> pk) {
+    auto vectorCoordinates = pk->toString();
+
+    std::string str = "";
+    for ( const auto& coord : *vectorCoordinates ) {
+        str += coord;
+        str += ":";
+    }
+    return str;
+}
+
+pair<ptr< BLSPublicKey >, ptr< BLSPublicKey >> CryptoManager::getSgxBlsPublicKey( uint64_t _timestamp ) {
+    LOG(info, string("Looking for BLS public key for timestamp ") + std::to_string( _timestamp ) + string(" to verify a block came through catchup"));
+    if ( _timestamp == uint64_t( -1 ) || previousBlsPublicKeys->size() < 2 ) {
         CHECK_STATE(sgxBLSPublicKey)
+        LOG(info, string("Got current BLS public key ") + blsKeyToString(sgxBLSPublicKey));
         return {sgxBLSPublicKey, nullptr};
     } else {
         // second key is used when the sig corresponds
@@ -117,11 +131,13 @@ pair<ptr<BLSPublicKey>, ptr<BLSPublicKey >> CryptoManager::getSgxBlsPublicKey(ui
         // because finish ts for the current group equals uint64_t(-1)
         auto it = previousBlsPublicKeys->upper_bound(_timestamp);
 
-        if (it == previousBlsPublicKeys->begin()) {
+        if ( it == previousBlsPublicKeys->begin() ) {
+            LOG(info, string("Got first BLS public key ") + blsKeyToString((*it).second));
             // if begin() then no previous groups for this key
             return {(*it).second, nullptr};
         }
 
+        LOG(info, string("Got two BLS public keys ") + blsKeyToString((*it).second) + " " + blsKeyToString((*std::prev(it)).second));
         return {(*it).second, (*(--it)).second};
     }
 }
