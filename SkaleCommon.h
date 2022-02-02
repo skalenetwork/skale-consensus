@@ -335,6 +335,8 @@ static const uint64_t  ORACLE_FUTURE_JITTER_MS = 500;
 
 static const uint64_t TE_MAGIC_SIZE = 10;
 
+static const uint64_t AES_KEY_LEN = 128;
+
 extern void setThreadName(std::string const &_n, ConsensusEngine* _engine);
 
 extern std::string getThreadName();

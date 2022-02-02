@@ -96,7 +96,7 @@ ptr<Node> JSONFactory::createNodeFromTestJsonFile(
                 _ecdsaKeyName, _ecdsaPublicKeys,
                 _blsKeyName, _blsPublicKeys,
                 _blsPublicKey, gethURL, _previousBlsPublicKeys,
-                dynamic_pointer_cast<EncryptedTransactionAnalyzer>(testTransactionAnalyzer));
+                dynamic_pointer_cast<EncryptedTransactionAnalyzerInterface>(testTransactionAnalyzer));
     } catch (...) {
         throw_with_nested(FatalError(__FUNCTION__ + to_string(__LINE__), __CLASS_NAME__));
     }
@@ -114,7 +114,7 @@ ptr<Node> JSONFactory::createNodeFromJsonObject(const nlohmann::json &_j, set<no
                                                 const ptr<vector<ptr<vector<string>>>> &_blsPublicKeys,
                                                 const ptr<BLSPublicKey> &_blsPublicKey, string &_gethURL,
                                                 const ptr<map<uint64_t, ptr<BLSPublicKey> > > &_previousBlsPublicKeys,
-                                                shared_ptr<EncryptedTransactionAnalyzer> _analyzer) {
+                                                shared_ptr<EncryptedTransactionAnalyzerInterface> _analyzer) {
 
 
     auto sgxSSLKeyFileFullPathCopy = _sgxSSLKeyFileFullPath;

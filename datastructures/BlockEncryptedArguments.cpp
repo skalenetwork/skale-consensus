@@ -19,7 +19,7 @@ void BlockEncryptedArguments::insert(uint64_t _i, ptr<EncryptedArgument> _arg) {
 }
 
 BlockEncryptedArguments::BlockEncryptedArguments(ptr<BlockProposal> _proposal,
-                       ptr<EncryptedTransactionAnalyzer> _analyzer) {
+                       ptr<EncryptedTransactionAnalyzerInterface> _analyzer) {
     CHECK_STATE(_proposal);
     CHECK_STATE(_analyzer);
 

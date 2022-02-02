@@ -25,7 +25,6 @@
 #define SKALED_CRYPTOMANAGER_H
 
 
-#include "messages/NetworkMessage.h"
 #include "openssl/ec.h"
 
 #include "sgxclient/SgxZmqClient.h"
@@ -40,6 +39,9 @@
 #include <cryptopp/sha.h>
 #include <cryptopp/oids.h>
 #include <cryptopp/hex.h>
+
+
+#include "messages/NetworkMessage.h"
 
 class Schain;
 class BLAKE3Hash;
@@ -311,9 +313,7 @@ public:
 
     ptr<map<uint64_t, string>> decryptArgKeys(ptr<BlockProposal> _block);
 
-    string teEncryptAESKey(ptr<vector<uint8_t>> _aesKey);
-
-
+    string teEncryptAESKey(ptr<vector<uint8_t>>_aesKey);
 
     static string hashForOracle(string &_text);
 

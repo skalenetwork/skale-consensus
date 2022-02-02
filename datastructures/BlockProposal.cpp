@@ -490,7 +490,7 @@ ptr<map<uint64_t, ptr<EncryptedArgument>>> BlockProposal::getEncryptedArguments(
 
         auto transactions = transactionList->getItems();
 
-        auto analyzer = _schain.getNode()->getEncryptedTransactionAnalyzer();
+        auto analyzer = _schain.getNode()->getEncryptedTransactionAnalyzerInterface();
 
         for (uint64_t i = 0; i < transactions->size(); i++) {
             auto rawArg = analyzer->getEncryptedData(*transactions->at(i)->getData());

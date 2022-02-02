@@ -28,6 +28,7 @@
 
 #include<boost/multiprecision/cpp_int.hpp>
 
+#include "memory"
 #include <string>
 #include <vector>
 
@@ -53,13 +54,13 @@ using u256 = boost::multiprecision::number<boost::multiprecision::backends::cpp_
  * lastArgument - thats where the argument is copied if return value is true.
  */
 
-class EncryptedTransactionAnalyzer {
+class EncryptedTransactionAnalyzerInterface {
 public:
     virtual shared_ptr<std::vector<uint8_t>> getEncryptedData(
             const std::vector<uint8_t>& transaction) = 0;
 };
 
-class EmptyEncryptedTransactionAnalyzer : public EncryptedTransactionAnalyzer {
+class EmptyEncryptedTransactionAnalyzerInterface : public EncryptedTransactionAnalyzerInterface {
 public:
 
     shared_ptr<std::vector<uint8_t>> getEncryptedData(
@@ -77,7 +78,7 @@ public:
 
     virtual void parseFullConfigAndCreateNode(const std::string &fullPathToConfigFile,
                                               const string& gethURL,
-                                              std::shared_ptr<EncryptedTransactionAnalyzer> _analyzer)
+                                              std::shared_ptr<EncryptedTransactionAnalyzerInterface> _analyzer)
                                               = 0;
 
     virtual void startAll() = 0;
@@ -163,7 +164,7 @@ public:
                              uint64_t _timeStamp,
                              uint32_t _timeStampMillis, uint64_t _blockID, u256 _gasPrice,
                              u256 _stateRoot, uint64_t _winningNodeIndex,
-                             const ptr<map<uint64_t, ptr<vector<uint8_t>>>> decryptedArgs =
+                             const shared_ptr<map<uint64_t, ptr<vector<uint8_t>>>> decryptedArgs =
                                      nullptr) = 0;
 
     virtual ~ConsensusExtFace() = default;

@@ -8,7 +8,7 @@
 
 #include "node/ConsensusInterface.h"
 
-class TestEncryptedTransactionAnalyzer : public EncryptedTransactionAnalyzer {
+class TestEncryptedTransactionAnalyzer : public EncryptedTransactionAnalyzerInterface {
 
     ptr<vector<uint8_t>> teMagicStart;
     ptr<vector<uint8_t>> teMagicEnd;
