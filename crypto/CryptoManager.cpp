@@ -1148,6 +1148,6 @@ string CryptoManager::teEncryptAESKey(ptr<vector<uint8_t>> _aesKey) {
 }
 
 // encrypt 128 bit AES key using the current SGX public . Return a hex encryption string
-string CryptoManager::teEncryptAESKeySgx(shared_ptr<vector<uint8_t>> _aesKey) {
+string CryptoManager::teEncryptAESKeySgx(shared_ptr<vector<uint8_t>> ) {
     return "";
 }

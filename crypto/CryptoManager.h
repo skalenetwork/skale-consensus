@@ -318,8 +318,6 @@ public:
 
     string teEncryptAESKey(ptr<vector<uint8_t>>_aesKey);
 
-    string teEncryptAESKeySgx(ptr<vector<uint8_t>> _aesKey);
-
     static string hashForOracle(string &_text);
 
 
