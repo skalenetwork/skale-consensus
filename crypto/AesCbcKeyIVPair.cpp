@@ -12,6 +12,8 @@
 
 #include "SkaleCommon.h"
 #include "Log.h"
+
+#include "network/Utils.h"
 #include "AesCbcKeyIVPair.h"
 
 
@@ -19,6 +21,7 @@
 AesCbcKeyIVPair::AesCbcKeyIVPair(CryptoPP::AutoSeededRandomPool& _prng) : key(CryptoPP::AES::DEFAULT_KEYLENGTH ) {
     _prng.GenerateBlock( key, key.size() );
     iv = make_shared<vector<uint8_t>>(CryptoPP::AES::BLOCKSIZE);
+    _prng.GenerateBlock(iv->data(), iv->size());
 }
 
 AesCbcKeyIVPair::AesCbcKeyIVPair(ptr<vector<uint8_t>> _key, ptr<vector<uint8_t>> _iv) : key(_key->data(), _key->size()) {
@@ -93,6 +96,11 @@ ptr<vector<uint8_t>> AesCbcKeyIVPair::getKey() {
 ptr<vector<uint8_t>> AesCbcKeyIVPair::getIV() {
     CHECK_STATE(iv);
     return iv;
+}
+
+string AesCbcKeyIVPair::getIvAsHex() {
+    CHECK_STATE(iv)
+    return Utils::carray2Hex(iv->data(), iv->size());
 }
 
 

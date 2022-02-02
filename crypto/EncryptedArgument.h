@@ -17,11 +17,19 @@ class EncryptedArgument {
     string encryptedAESKey;
     string iv;
     ptr<vector<uint8_t>> aesEncryptedSegment;
+
+    ptr<vector<uint8_t>> serializedArgument = nullptr;
+
 public:
     const string &getEncryptedAesKey() const;
 
-public:
-    EncryptedArgument(ptr<vector<uint8_t>> _rawArgument);
+    ptr<vector<uint8_t>> serialize();
+
+    EncryptedArgument(string _encryptedAESKey, ptr<AesCbcKeyIVPair> _plaintextKey,
+                                         ptr<vector<uint8_t>> _plaintextArgument);
+
+
+    EncryptedArgument(ptr<vector<uint8_t>> _serializedArgument);
 
     uint64_t getTimeStamp() const;
 

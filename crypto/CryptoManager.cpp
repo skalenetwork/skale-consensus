@@ -1129,7 +1129,7 @@ const array<uint8_t, TE_MAGIC_SIZE> &CryptoManager::getTeMagicEnd() const {
     return teMagicEnd;
 }
 
-const AutoSeededRandomPool &CryptoManager::getPrng() const {
+AutoSeededRandomPool &CryptoManager::getPrng() {
     return prng;
 }
 
