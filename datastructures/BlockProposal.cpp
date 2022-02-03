@@ -491,10 +491,8 @@ ptr<BlockEncryptedArguments> BlockProposal::getEncryptedArguments(Schain &_schai
 
         auto transactions = transactionList->getItems();
 
-        auto analyzer = _schain.getNode()->getEncryptedTransactionAnalyzer();
-
         for (uint64_t i = 0; i < transactions->size(); i++) {
-            auto rawArg = analyzer->getEncryptedData(*transactions->at(i)->getData());
+            auto rawArg = _schain.getExtFace()->getEncryptedData( *transactions->at(i)->getData() );
             if (rawArg) {
                 auto argument = make_shared<EncryptedArgument>(rawArg);
                 cachedEncryptedArguments->insert(i, argument);
