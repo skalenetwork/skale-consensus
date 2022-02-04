@@ -152,7 +152,6 @@ block_id BlockDecryptDownloader::getBlockId() {
 
 uint64_t BlockDecryptDownloader::downloadDecryptionShare(schain_index _dstIndex) {
 
-    LOG(info, "BLCK_DECR_DWNLD:" + to_string(_dstIndex));
 
     try {
 
@@ -173,13 +172,13 @@ uint64_t BlockDecryptDownloader::downloadDecryptionShare(schain_index _dstIndex)
             io->writeMagic(socket);
         } catch (ExitRequestedException &) { throw; } catch (...) {
             throw_with_nested(
-                    NetworkProtocolException("BlockFinalizec: Server disconnect sending magic", __CLASS_NAME__));
+                    NetworkProtocolException("BlockDecryptC: Server disconnect sending magic", __CLASS_NAME__));
         }
 
         try {
             io->writeHeader(socket, header);
         } catch (ExitRequestedException &) { throw; } catch (...) {
-            auto errString = "BlockFinalizec step 1: can not write BlockFinalize request";
+            auto errString = "BlockDecryptc step 1: can not write BlockDecrypt request";
             LOG(err, errString);
             throw_with_nested(NetworkProtocolException(errString, __CLASS_NAME__));
         }
@@ -189,7 +188,7 @@ uint64_t BlockDecryptDownloader::downloadDecryptionShare(schain_index _dstIndex)
         try {
             response = readBlockDecryptResponseHeader(socket);
         } catch (ExitRequestedException &) { throw; } catch (...) {
-            auto errString = "BlockFinalizec step 2: can not read BlockFinalize response";
+            auto errString = "BlockDecryptc step 2: can not read BlockDecrypt response";
             LOG(err, errString);
             throw_with_nested(NetworkProtocolException(errString, __CLASS_NAME__));
         }
@@ -198,17 +197,19 @@ uint64_t BlockDecryptDownloader::downloadDecryptionShare(schain_index _dstIndex)
         auto status = (ConnectionStatus) Header::getUint64(response, "status");
 
         if (status == CONNECTION_DISCONNECT) {
-            LOG(info, "BLCK_DECR_DWNLD:DICONNECT:" + to_string(_dstIndex) + ":" +
+            LOG(info, "BLCK_DECR_DWNLD:DISCONNECT:" + to_string(_dstIndex) + ":" +
                       to_string(_dstIndex));
             return false;
         }
 
-        if (status != CONNECTION_PROCEED) {
+        if (status != CONNECTION_SUCCESS) {
             BOOST_THROW_EXCEPTION(NetworkProtocolException(
                                           "Server error in BlockDecrypt response:" +
                                           to_string(status), __CLASS_NAME__ ));
         }
 
+
+        LOG(info, "BLCK_DECR_DWNLD:SUCCESS:" + to_string(_dstIndex));
 
         ptr<BlockAesKeyDecryptionShare> decryptionShare;
 
