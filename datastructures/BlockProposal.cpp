@@ -503,7 +503,7 @@ ptr<BlockEncryptedArguments> BlockProposal::getEncryptedArguments(
         auto transactions = transactionList->getItems();
 
         for (uint64_t i = 0; i < transactions->size(); i++) {
-            auto rawArg = _analyzer->getEncryptedData(*transactions->at(i)->getData());
+            auto rawArg = _schain.getExtFace()->getEncryptedData( *transactions->at(i)->getData() );
             if (rawArg) {
                 auto argument = make_shared<EncryptedArgument>(rawArg);
                 cachedEncryptedArguments->insert(i, argument);
