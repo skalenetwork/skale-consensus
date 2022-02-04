@@ -27,17 +27,14 @@
 #include "BlockAesKeyDecryptionShare.h"
 
 BlockAesKeyDecryptionShare::BlockAesKeyDecryptionShare(const block_id & _blockId, const uint64_t _totalShares,
-                                                       const te_share_index &_schainIndex, const string & _data) :
+                                                       const te_share_index &_schainIndex,
+                                                       ptr<map<uint64_t, string>> _data) :
         data( _data ), blockId( _blockId ), totalShares(_totalShares ), schainIndex(_schainIndex) {
 
-    CHECK_ARGUMENT(!_data.empty() );
+    CHECK_ARGUMENT(_data);
+    CHECK_ARGUMENT(_data->size() >0 );
     CHECK_ARGUMENT(_schainIndex <= _totalShares );
     CHECK_ARGUMENT( _blockId > 0);
-
-    if ( _data.size() < 3) {
-        BOOST_THROW_EXCEPTION(ParsingException("Decryption share too short:" +
-         to_string( _data.size()), __CLASS_NAME__));
-    }
 }
 
 block_id BlockAesKeyDecryptionShare::getBlockId() const {

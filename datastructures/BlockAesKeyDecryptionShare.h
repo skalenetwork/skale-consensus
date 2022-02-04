@@ -25,7 +25,7 @@
 
 class BlockAesKeyDecryptionShare {
 
-    string data; // tsafe
+    ptr<map<uint64_t, string>> data; // tsafe
 
     const block_id blockId  = 0;
 
@@ -35,7 +35,7 @@ class BlockAesKeyDecryptionShare {
 public:
 
     BlockAesKeyDecryptionShare(const block_id & _blockId, uint64_t _totalShares, const te_share_index &_schainIndex,
-                               const string & _data);
+                               ptr<map<uint64_t, string>> _data);
 
     [[nodiscard]] block_id getBlockId() const;
 

@@ -65,6 +65,7 @@
 #include "pendingqueue/PendingTransactionsAgent.h"
 #include "utils/Time.h"
 
+#include "datastructures/BlockAesKeyDecryptionShare.h"
 #include "datastructures/BlockEncryptedAesKeys.h"
 #include "datastructures/BlockProposal.h"
 #include "BlockDecryptDownloader.h"
@@ -211,7 +212,15 @@ uint64_t BlockDecryptDownloader::downloadDecryptionShare(schain_index _dstIndex)
 
         LOG(info, "BLCK_DECR_DWNLD:SUCCESS:" + to_string(_dstIndex));
 
-        ptr<BlockAesKeyDecryptionShare> decryptionShare;
+        auto decryptionShares = Header::getIntegerStringMap(response, "decryptionShares");
+
+        auto decryptionShare = make_shared<BlockAesKeyDecryptionShare>(getBlockId(),
+                getSchain()->getTotalSigners(), (te_share_index) (uint64_t ) _dstIndex,
+                decryptionShares);
+
+        CHECK_STATE(decryptionShare);
+
+        this->decryptionSet->add(decryptionShare);
 
         return true;
 
