@@ -33,10 +33,10 @@ ReceivedBlockProposal::ReceivedBlockProposal(Schain &_sChain, const block_id &_b
                                              const ptr<TransactionList> &_transactions, u256 _stateRoot,
                                              const uint64_t &_timeStamp,
                                              const uint32_t &_timeStampMs, const string& _hash, const string& _signature,
-                                             uint32_t _usesTE) : BlockProposal(
+                                             uint32_t _useTe) : BlockProposal(
         _sChain.getSchainID(), _sChain.getNodeIDByIndex(_proposerIndex), _blockID,
         _proposerIndex, _transactions, _stateRoot,
-        _timeStamp, _timeStampMs, _signature, nullptr, _usesTE) {
+        _timeStamp, _timeStampMs, _signature, nullptr, _useTe) {
 
     CHECK_ARGUMENT(_transactions);
     CHECK_ARGUMENT(_hash != "");
@@ -51,10 +51,10 @@ ReceivedBlockProposal::ReceivedBlockProposal(Schain &_sChain, const block_id &_b
 
 ReceivedBlockProposal::ReceivedBlockProposal(Schain &_sChain, const block_id &_blockID, const uint64_t &_timeStamp,
                                              const uint32_t &_timeStampMs, u256 _stateRoot,
-                                             uint32_t _usesTE) : BlockProposal(
+                                             uint32_t _useTe) : BlockProposal(
         _sChain.getSchainID(), 0, _blockID,
         0, make_shared<TransactionList>(make_shared<vector<ptr<Transaction >>>()), _stateRoot, _timeStamp, _timeStampMs,
-        "EMPTY", ptr<CryptoManager>(), _usesTE) {
+        "EMPTY", ptr<CryptoManager>(), _useTe) {
     calculateHash();
     totalObjects++;
 }

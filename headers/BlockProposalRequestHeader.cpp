@@ -79,6 +79,8 @@ BlockProposalRequestHeader::BlockProposalRequestHeader(Schain &_sChain, const pt
 
     CHECK_STATE(timeStamp > MODERN_TIME)
 
+    useTe = proposal->getUseTe();
+
     complete = true;
 
 }
@@ -101,6 +103,7 @@ void BlockProposalRequestHeader::addFields(nlohmann::basic_json<> &jsonRequest) 
     jsonRequest["hash"] = hash;
     jsonRequest["sig"] = signature;
     jsonRequest["sr"] = stateRoot.str();
+    jsonRequest["useTe"] = useTe;
 }
  node_id BlockProposalRequestHeader::getProposerNodeId()  {
     return proposerNodeID;
@@ -130,6 +133,10 @@ string BlockProposalRequestHeader::getSignature()  {
 
  u256 BlockProposalRequestHeader::getStateRoot()  {
     return stateRoot;
+}
+
+uint32_t BlockProposalRequestHeader::getUseTe() {
+    return useTe;
 }
 
 

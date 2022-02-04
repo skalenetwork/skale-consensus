@@ -10,7 +10,11 @@ class BlockEncryptedArguments;
 
 class BlockDecryptedAesKeys {
     ptr<map<uint64_t, ptr<vector<uint8_t>>>> decryptedAesKeys;
+
 public:
+
+    ptr<map<uint64_t, string>> getDecryptedAesKeysAsHex();
+
     BlockDecryptedAesKeys();
 
     explicit BlockDecryptedAesKeys(ptr<map<uint64_t, ptr<vector<uint8_t>>>> _decryptedAesKeys);

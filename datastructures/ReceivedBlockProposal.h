@@ -32,13 +32,13 @@ class ReceivedBlockProposal : public BlockProposal{
 public:
 
     ReceivedBlockProposal(Schain &_sChain, const block_id &_blockID, const uint64_t &_timeStamp,
-                          const uint32_t &_timeStampMs, u256 _stateRoot, uint32_t _usesTE);
+                          const uint32_t &_timeStampMs, u256 _stateRoot, uint32_t _useTe);
 
 
     ReceivedBlockProposal(Schain &_sChain, const block_id &_blockID, const schain_index &_proposerIndex,
                           const ptr<TransactionList> &_transactions, u256 _stateRoot, const uint64_t &_timeStamp,
                           const uint32_t &_timeStampMs, const string& _hash, const string& _signature,
-                          uint32_t _usesTE);
+                          uint32_t _useTe);
 
 
     static int64_t getTotalObjects() {

@@ -58,21 +58,20 @@ public:
         const block_id& _blockId, const schain_index& _proposerIndex,
         const ptr< TransactionList >& _transactions, const u256& stateRoot, uint64_t timeStamp,
         __uint32_t timeStampMs, const string& _signature, const string& _thresholdSig,
-        uint32_t _usesTe,
+        uint32_t _useTe,
         ptr<BlockDecryptedAesKeys> _decryptedAesKeys);
 
     [[nodiscard]] string getThresholdSig() const;
 
     static ptr< CommittedBlock > makeObject(
         const ptr< BlockProposal >& _proposal, const ptr< ThresholdSignature >& _thresholdSig,
-        uint32_t _usesTe,
         ptr<BlockDecryptedAesKeys> _decryptedArgKeys);
 
     static ptr< CommittedBlock > make( schain_id _sChainId, node_id _proposerNodeId,
         block_id _blockId, schain_index _proposerIndex, const  ptr< TransactionList >& _transactions,
         const u256& _stateRoot, uint64_t _timeStamp, uint64_t _timeStampMs,
         const string& _signature, const string& _thresholdSig,
-        uint32_t _usesTe,
+        uint32_t _useTe,
         ptr<BlockDecryptedAesKeys> _decryptedKeys);
 
 

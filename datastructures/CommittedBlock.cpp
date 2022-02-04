@@ -54,7 +54,8 @@ ptr<CommittedBlock> CommittedBlock::makeObject(
     return CommittedBlock::make(_proposal->getSchainID(), _proposal->getProposerNodeID(),
                                 _proposal->getBlockID(), _proposal->getProposerIndex(), _proposal->getTransactionList(),
                                 _proposal->getStateRoot(), _proposal->getTimeStampS(), _proposal->getTimeStampMs(),
-                                _proposal->getSignature(), _thresholdSig->toString(), _decryptedKeys);
+                                _proposal->getSignature(), _thresholdSig->toString(),
+                                _proposal->getUseTe(), _decryptedKeys);
 }
 
 ptr<CommittedBlock> CommittedBlock::make(const schain_id _sChainId,
@@ -63,7 +64,7 @@ ptr<CommittedBlock> CommittedBlock::make(const schain_id _sChainId,
                                          const ptr<TransactionList> &_transactions, const u256 &_stateRoot,
                                          uint64_t _timeStamp,
                                          uint64_t _timeStampMs, const string &_signature, const string &_thresholdSig,
-                                         uint32_t _usesTE,
+                                         uint32_t _useTe,
                                          ptr<BlockDecryptedAesKeys> _decryptedArgKeys) {
     CHECK_ARGUMENT(_transactions);
     CHECK_ARGUMENT(!_signature.empty());
@@ -72,7 +73,7 @@ ptr<CommittedBlock> CommittedBlock::make(const schain_id _sChainId,
 
     return make_shared<CommittedBlock>(_sChainId, _proposerNodeId, _blockId, _proposerIndex,
                                        _transactions, _stateRoot, _timeStamp, _timeStampMs, _signature, _thresholdSig,
-                                       _usesTE,
+                                       _useTe,
                                        _decryptedArgKeys);
 }
 
@@ -97,12 +98,13 @@ ptr<CommittedBlock> CommittedBlock::createRandomSample(const ptr<CryptoManager> 
 
 
     auto p = make_shared<BlockProposal>(
-            1, 1, _blockID, 1, list, stateRoot, MODERN_TIME + 1, 1, nullptr, _manager);
+            1, 1, _blockID, 1, list, stateRoot, MODERN_TIME + 1, 1, nullptr, _manager, 0);
 
 
     return CommittedBlock::make(p->getSchainID(), p->getProposerNodeID(), p->getBlockID(),
                                 p->getProposerIndex(), p->getTransactionList(), p->getStateRoot(), p->getTimeStampS(),
                                 p->getTimeStampMs(), p->getSignature(), "EMPTY",
+                                p->getUseTe(),
                                 make_shared<BlockDecryptedAesKeys>());
 }
 
@@ -112,7 +114,7 @@ ptr<BasicHeader> CommittedBlock::createHeader(uint64_t _flags) {
         return make_shared<BlockProposalHeader>(*this);
     CHECK_STATE(decryptedAesKeys);
     return make_shared<CommittedBlockHeader>(*this, this->getThresholdSig(),
-                                             decryptedAesKeys);
+                                             decryptedAesKeys->getDecryptedAesKeysAsHex());
 }
 
 string CommittedBlock::getThresholdSig() const {
@@ -163,6 +165,7 @@ ptr<CommittedBlock> CommittedBlock::deserialize(
                                      blockHeader->getStateRoot(), blockHeader->getTimeStamp(),
                                      blockHeader->getTimeStampMs(),
                                      blockHeader->getSignature(), blockHeader->getThresholdSig(),
+                                     blockHeader->getUseTe(),
                                      make_shared<BlockDecryptedAesKeys>(blockHeader->getDecryptedArgKeys()));
     } catch (...) {
         throw_with_nested(InvalidStateException("Could not make block", __CLASS_NAME__));
@@ -209,9 +212,9 @@ CommittedBlock::CommittedBlock(const schain_id &_schainId, const node_id &_propo
                                const block_id &_blockId, const schain_index &_proposerIndex,
                                const ptr<TransactionList> &_transactions, const u256 &stateRoot, uint64_t timeStamp,
                                __uint32_t timeStampMs, const string &_signature, const string &_thresholdSig,
-                               uint32_t _usesTe, ptr<BlockDecryptedAesKeys> _decryptedAesKeys)
+                               uint32_t _useTe, ptr<BlockDecryptedAesKeys> _decryptedAesKeys)
         : BlockProposal(_schainId, _proposerNodeId, _blockId, _proposerIndex, _transactions, stateRoot,
-                        timeStamp, timeStampMs, _signature, nullptr, _usesTe ) {
+                        timeStamp, timeStampMs, _signature, nullptr, _useTe ) {
     CHECK_ARGUMENT(_transactions);
     CHECK_ARGUMENT(!_signature.empty());
     CHECK_ARGUMENT(!_thresholdSig.empty());
@@ -229,7 +232,7 @@ ptr<map<uint64_t, ptr<vector<uint8_t>>>> CommittedBlock::getDecryptedArgs(
 
     CHECK_STATE(_analyzer);
 
-    if (this->usesTE == 0) {
+    if (this->useTe == 0) {
         return make_shared<map<uint64_t, ptr<vector<uint8_t>>>>();
     }
 

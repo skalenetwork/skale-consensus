@@ -99,8 +99,7 @@ ptr<vector<uint8_t>> AesCbcKeyIVPair::getIV() {
 }
 
 string AesCbcKeyIVPair::getIvAsHex() {
-    CHECK_STATE(iv)
-    return Utils::carray2Hex(iv->data(), iv->size());
+    return Utils::vector2Hex(iv);
 }
 
 

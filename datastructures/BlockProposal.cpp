@@ -82,7 +82,7 @@ void BlockProposal::calculateHash() {
 
     // export into 8-bit unsigned values, most significant bit first:
     auto sr = Utils::u256ToBigEndianArray(getStateRoot());
-    auto v = Utils::carray2Hex(sr->data(), sr->size());
+    auto v = Utils::vector2Hex(sr);
     blake3_hasher_update(&hasher, (unsigned char *) v.data(), v.size());
 
     if (transactionList->size() > 0) {
@@ -100,13 +100,13 @@ BlockProposal::BlockProposal(uint64_t _timeStamp, uint32_t _timeStampMs) : timeS
                                                                            timeStampMs(_timeStampMs) {
     proposerNodeID = 0;
     creationTime = Time::getCurrentTimeMs();
-    usesTE = 0;
+    useTe = 0;
 };
 
 BlockProposal::BlockProposal(schain_id _sChainId, node_id _proposerNodeId, block_id _blockID,
                              schain_index _proposerIndex, const ptr<TransactionList> &_transactions, u256 _stateRoot,
                              uint64_t _timeStamp, __uint32_t _timeStampMs, const string &_signature,
-                             const ptr<CryptoManager> &_cryptoManager, uint32_t _usesTE)
+                             const ptr<CryptoManager> &_cryptoManager, uint32_t _useTe)
         : schainID(_sChainId), proposerNodeID(_proposerNodeId), blockID(_blockID),
           proposerIndex(_proposerIndex), timeStamp(_timeStamp), timeStampMs(_timeStampMs),
           stateRoot(_stateRoot), transactionList(_transactions), signature(_signature) {
@@ -131,7 +131,7 @@ BlockProposal::BlockProposal(schain_id _sChainId, node_id _proposerNodeId, block
         signature = _signature;
     }
 
-    usesTE = _usesTE;
+    useTe = _useTe;
 }
 
 
@@ -313,7 +313,7 @@ ptr<BlockProposal> BlockProposal::deserialize(const ptr<vector<uint8_t> > &_seri
                                                list, blockHeader->getStateRoot(), blockHeader->getTimeStamp(),
                                                blockHeader->getTimeStampMs(),
                                                blockHeader->getSignature(), nullptr,
-                                               blockHeader->getUsesTe());
+                                               blockHeader->getUseTe());
 
     _manager->verifyProposalECDSA(proposal, blockHeader->getBlockHash(), blockHeader->getSignature());
 
@@ -518,6 +518,6 @@ ptr<BlockEncryptedArguments> BlockProposal::getEncryptedArguments(
 
 }
 
-uint32_t BlockProposal::getUsesTe() const {
-    return usesTE;
+uint32_t BlockProposal::getUseTe() const {
+    return useTe;
 }

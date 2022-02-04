@@ -43,7 +43,7 @@ class BlockProposalHeader : public BasicHeader {
     uint64_t timeStamp = 0;
     uint32_t timeStampMs = 0;
     u256 stateRoot = 0;
-    uint32_t usesTe;
+    uint32_t useTe;
 
 public:
     u256 getStateRoot();
@@ -75,7 +75,7 @@ public:
 
     [[nodiscard]] uint32_t getTimeStampMs() const ;
 
-    uint32_t getUsesTe() const;
+    uint32_t getUseTe() const;
 };
 
 

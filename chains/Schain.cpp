@@ -398,19 +398,13 @@ void Schain::blockCommitArrived( block_id _committedBlockID, schain_index _propo
         CHECK_STATE( committedProposal );
 
 
-        ptr<BlockDecryptedAesKeys> decryptedKeys;
-
-        if (getNode()->isTeEnabled()) {
-            decryptedKeys = getCryptoManager()->decryptBlockEncryptedKeys(committedProposal);
-            if (!decryptedKeys) {
-                // block received throw cathup, return
-                unbumpPriority();
-                return;
-            }
-        } else {
-            decryptedKeys = make_shared<BlockDecryptedAesKeys>();
+        auto decryptedKeys =
+            getCryptoManager()->decryptBlockEncryptedKeys(committedProposal);
+        if (!decryptedKeys) {
+            // block received throw cathup, return
+            unbumpPriority();
+            return;
         }
-
 
         auto newCommittedBlock = CommittedBlock::makeObject( committedProposal, _thresholdSig,
                                                              decryptedKeys);

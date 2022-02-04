@@ -1089,11 +1089,16 @@ bool CryptoManager::isSGXServerDown() {
 }
 
 ptr<BlockDecryptedAesKeys> CryptoManager::decryptBlockEncryptedKeys(ptr<BlockProposal> _proposal) {
+
+    // if proposal does not use te. Return empty set
+    if (_proposal->getUseTe() == 0)
+        return make_shared<BlockDecryptedAesKeys>();
+
     CHECK_STATE(_proposal);
 
     try {
 
-        if (_proposal->getUsesTe() == 0) {
+        if (_proposal->getUseTe() == 0) {
             return make_shared<BlockDecryptedAesKeys>();
         }
 
@@ -1135,7 +1140,7 @@ string CryptoManager::teEncryptAESKey(ptr<vector<uint8_t>> _aesKey) {
 
     if (!isSGXEnabled) {
         // mockup - dont encrypt
-        return Utils::carray2Hex(_aesKey->data(), _aesKey->size());
+        return Utils::vector2Hex(_aesKey);
     } else {
         return teEncryptAESKeySgx(_aesKey);
     }

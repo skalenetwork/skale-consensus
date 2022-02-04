@@ -31,5 +31,19 @@ ptr<map<uint64_t, ptr<vector<uint8_t>>>> BlockDecryptedAesKeys::decryptArgs(ptr<
     return nullptr;
 }
 
+ptr<map<uint64_t, string>> BlockDecryptedAesKeys::getDecryptedAesKeysAsHex()  {
+
+    auto result = make_shared<map<uint64_t, string>>();
+
+    for (auto&& item: *decryptedAesKeys) {
+        auto binaryKey = item.second;
+        CHECK_STATE(binaryKey->size() == AES_KEY_LEN_BYTES);
+        auto hexKey = Utils::vector2Hex(binaryKey);
+        CHECK_STATE(result->emplace(item.first, hexKey).second);
+    }
+
+    return result;
+}
+
 
 

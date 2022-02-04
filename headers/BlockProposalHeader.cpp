@@ -55,7 +55,7 @@ BlockProposalHeader::BlockProposalHeader(BlockProposal& _block) : BasicHeader(He
     this->timeStamp = _block.getTimeStampS();
     this->timeStampMs = _block.getTimeStampMs();
     this->transactionSizes = make_shared<vector<uint64_t>>();
-    this->usesTe = _block.getUsesTe();
+    this->useTe = _block.getUseTe();
 
     auto items = _block.getTransactionList()->getItems();
     CHECK_STATE(items)
@@ -66,8 +66,8 @@ BlockProposalHeader::BlockProposalHeader(BlockProposal& _block) : BasicHeader(He
     setComplete();
 }
 
-uint32_t BlockProposalHeader::getUsesTe() const {
-    return usesTe;
+uint32_t BlockProposalHeader::getUseTe() const {
+    return useTe;
 }
 
 schain_id BlockProposalHeader::getSchainID() {
@@ -101,7 +101,7 @@ void BlockProposalHeader::addFields(nlohmann::json &j) {
 
     j["sr"] = stateRoot.str();
 
-    j["useTe"] = usesTe;
+    j["useTe"] = useTe;
 
     CHECK_STATE(timeStamp > 0)
 }
@@ -121,9 +121,9 @@ BlockProposalHeader::BlockProposalHeader(nlohmann::json& _json) : BasicHeader(He
 
 
     if (_json.find("useTe" ) == _json.end()) {
-        usesTe = 0;
+        useTe = 0;
     } else {
-        usesTe = Header::getUint32(_json, "useTe");
+        useTe = Header::getUint32(_json, "useTe");
     }
 
     Header::nullCheck(_json, "sizes" );
