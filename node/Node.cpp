@@ -573,6 +573,6 @@ bool Node::isInited() const {
 }
 
 bool Node::isTeEnabled() {
-    return false;
+    return true;
 }
 

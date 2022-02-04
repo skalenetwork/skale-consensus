@@ -42,6 +42,9 @@ public:
 
     static uint char2int( char _input );
 
+
+    static string vector2Hex(ptr<vector<uint8_t>> _v);
+
     static void cArrayFromHex(const string &_hex, uint8_t *_data, size_t len);
 };
 
