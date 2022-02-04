@@ -240,7 +240,9 @@ ptr<BlockDecryptedAesKeys> BlockDecryptDownloader::downloadDecryptedKeys() {
         threadPool->startService();
         threadPool->joinAll();
 
-        return nullptr;
+        if (this->decryptionSet->isEnough()) {
+            // GLUE
+        }
 
     } catch (ExitRequestedException &) { throw; } catch (exception &e) {
         SkaleException::logNested(e);
