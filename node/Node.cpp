@@ -87,10 +87,7 @@ Node::Node(const nlohmann::json &_cfg, ConsensusEngine *_consensusEngine,
            ptr< vector<string> > _ecdsaPublicKeys, string _blsKeyName,
            ptr< vector< ptr< vector<string>>>> _blsPublicKeys,
            ptr< BLSPublicKey > _blsPublicKey, string & _gethURL,
-           ptr< map< uint64_t, ptr< BLSPublicKey > > > _previousBlsPublicKeys,
-           shared_ptr<EncryptedTransactionAnalyzerInterface> _analyzer) : gethURL(_gethURL), encryptedTransactionAnalyzer(_analyzer) {
-
-    CHECK_ARGUMENT(_analyzer);
+           ptr< map< uint64_t, ptr< BLSPublicKey > > > _previousBlsPublicKeys) : gethURL(_gethURL) {
 
     // trim slash from URL
     if (!gethURL.empty() && gethURL.at(gethURL.size() - 1) == '/') {
@@ -573,11 +570,6 @@ ptr< map< uint64_t, ptr< BLSPublicKey > > > Node::getPreviousBLSPublicKeys() {
 }
 bool Node::isInited() const {
     return inited;
-}
-
-const shared_ptr<EncryptedTransactionAnalyzerInterface> &Node::getEncryptedTransactionAnalyzer() const {
-    CHECK_STATE(encryptedTransactionAnalyzer);
-    return encryptedTransactionAnalyzer;
 }
 
 bool Node::isTeEnabled() {

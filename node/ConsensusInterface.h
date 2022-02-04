@@ -43,42 +43,13 @@ enum consensus_engine_status {
 using u256 = boost::multiprecision::number<boost::multiprecision::backends::cpp_int_backend<256, 256,
         boost::multiprecision::unsigned_magnitude, boost::multiprecision::unchecked, void> >;
 
-/*
- * This is used by consensus to get the last argument of a call if transaction
- * is a call to a smartcontact. Will return true if:
- * 1. the transaction is a smart contract call AND
- * 2. the last argument of the call is array of bytes
- *
- * Otherwise will return false
- *
- * lastArgument - thats where the argument is copied if return value is true.
- */
-
-class EncryptedTransactionAnalyzerInterface {
-public:
-    virtual std::shared_ptr<std::vector<uint8_t>> getEncryptedData(
-            const std::vector<uint8_t>& transaction) = 0;
-};
-
-class EmptyEncryptedTransactionAnalyzerInterface : public EncryptedTransactionAnalyzerInterface {
-public:
-
-    std::shared_ptr<std::vector<uint8_t>> getEncryptedData(
-            const std::vector<uint8_t>& ) override {
-        return nullptr;
-    }
-
-
-};
-
 
 class ConsensusInterface {
 public:
     virtual ~ConsensusInterface() = default;
 
     virtual void parseFullConfigAndCreateNode(const std::string &fullPathToConfigFile,
-                                              const std::string& gethURL,
-                                              std::shared_ptr<EncryptedTransactionAnalyzerInterface> _analyzer)
+                                              const std::string& gethURL)
                                               = 0;
 
     virtual void startAll() = 0;
@@ -142,7 +113,6 @@ public:
 
 
     virtual uint64_t  checkOracleResult(const std::string& _receipt, std::string& _result) = 0;
-
 };
 
 
@@ -189,6 +159,18 @@ public:
                        // each BLS public key share is a vector of 4 strings.
                         std::shared_ptr<std::vector<std::shared_ptr<std::vector<std::string>>>>& _blsPublicKeyShares);
 
+    /*
+     * This is used by consensus to get the last argument of a call if transaction
+     * is a call to a smartcontact. Will return true if:
+     * 1. the transaction is a smart contract call AND
+     * 2. the last argument of the call is array of bytes
+     *
+     * Otherwise will return false
+     *
+     * lastArgument - thats where the argument is copied if return value is true.
+     */
+    virtual std::shared_ptr<std::vector<uint8_t>> getEncryptedData(
+            const std::vector<uint8_t>& transaction) = 0;
 };
 
 #endif  // CONSENSUSINTERFACE_H

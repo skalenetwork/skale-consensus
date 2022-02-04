@@ -5,10 +5,7 @@
 #ifndef SKALED_TESTENCRYPTEDTRANSACTIONANALYZER_H
 #define SKALED_TESTENCRYPTEDTRANSACTIONANALYZER_H
 
-
-#include "node/ConsensusInterface.h"
-
-class TestEncryptedTransactionAnalyzer : public EncryptedTransactionAnalyzerInterface {
+class TestEncryptedTransactionAnalyzer {
 
     ptr<vector<uint8_t>> teMagicStart;
     ptr<vector<uint8_t>> teMagicEnd;
@@ -17,7 +14,7 @@ public:
     TestEncryptedTransactionAnalyzer();
 
     shared_ptr<std::vector<uint8_t>> getEncryptedData(
-            const std::vector<uint8_t> &_transaction) override;
+            const std::vector<uint8_t> &_transaction);
 
 };
 
