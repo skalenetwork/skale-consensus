@@ -53,7 +53,7 @@ class ThresholdSignature;
 class StubClient;
 class ECP;
 class BLSPublicKey;
-class BlockDecryptedArguments;
+class BlockDecryptedAesKeys;
 
 namespace CryptoPP {
 class ECP;
@@ -312,9 +312,9 @@ public:
 
     string signOracleResult(string _text);
 
-    ptr<BlockDecryptedArguments>  decryptArgs(ptr<BlockProposal> _block);
+    ptr<BlockDecryptedAesKeys>  decryptArgs(ptr<BlockProposal> _block);
 
-    ptr<map<uint64_t, string>> decryptArgKeys(ptr<BlockProposal> _block);
+    ptr<BlockDecryptedAesKeys> decryptBlockEncryptedKeys(ptr<BlockProposal> _block);
 
     string teEncryptAESKey(ptr<vector<uint8_t>>_aesKey);
 

@@ -33,7 +33,7 @@ class CommittedBlockHeader : public BlockProposalHeader {
 
 public:
     CommittedBlockHeader(BlockProposal &block, const string &thresholdSig,
-                         ptr<map<uint64_t, string>> _decryptedTEKeys);
+                         ptr<map<uint64_t, string>> _decryptedAesKeys);
 
     explicit CommittedBlockHeader(nlohmann::json &json);
 

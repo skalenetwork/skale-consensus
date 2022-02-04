@@ -581,6 +581,6 @@ const shared_ptr<EncryptedTransactionAnalyzerInterface> &Node::getEncryptedTrans
 }
 
 bool Node::isTeEnabled() {
-    return false;
+    return true;
 }
 

@@ -24,10 +24,10 @@
 #include "Log.h"
 #include "exceptions/ParsingException.h"
 
-#include "ArgumentDecryptionShare.h"
+#include "BlockAesKeyDecryptionShare.h"
 
-ArgumentDecryptionShare::ArgumentDecryptionShare(const block_id & _blockId, const uint64_t _totalShares,
-                                                 const te_share_index &_schainIndex, const string & _data) :
+BlockAesKeyDecryptionShare::BlockAesKeyDecryptionShare(const block_id & _blockId, const uint64_t _totalShares,
+                                                       const te_share_index &_schainIndex, const string & _data) :
         data( _data ), blockId( _blockId ), totalShares(_totalShares ), schainIndex(_schainIndex) {
 
     CHECK_ARGUMENT(!_data.empty() );
@@ -40,14 +40,14 @@ ArgumentDecryptionShare::ArgumentDecryptionShare(const block_id & _blockId, cons
     }
 }
 
-block_id ArgumentDecryptionShare::getBlockId() const {
+block_id BlockAesKeyDecryptionShare::getBlockId() const {
     return blockId;
 }
 
-uint64_t ArgumentDecryptionShare::getTotalShares() const {
+uint64_t BlockAesKeyDecryptionShare::getTotalShares() const {
     return totalShares;
 }
 
-te_share_index ArgumentDecryptionShare::getSchainIndex() const {
+te_share_index BlockAesKeyDecryptionShare::getSchainIndex() const {
     return schainIndex;
 }

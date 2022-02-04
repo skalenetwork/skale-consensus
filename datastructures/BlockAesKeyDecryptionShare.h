@@ -23,7 +23,7 @@
 #ifndef SKALED_BLOCKPROPOSALFRAGMENT_H
 #define SKALED_BLOCKPROPOSALFRAGMENT_H
 
-class ArgumentDecryptionShare {
+class BlockAesKeyDecryptionShare {
 
     string data; // tsafe
 
@@ -34,8 +34,8 @@ class ArgumentDecryptionShare {
 
 public:
 
-    ArgumentDecryptionShare(const block_id & _blockId, uint64_t _totalShares, const te_share_index &_schainIndex,
-                            const string & _data);
+    BlockAesKeyDecryptionShare(const block_id & _blockId, uint64_t _totalShares, const te_share_index &_schainIndex,
+                               const string & _data);
 
     [[nodiscard]] block_id getBlockId() const;
 

@@ -82,6 +82,7 @@
 #include "OpenSSLECDSAKey.h"
 #include "OpenSSLEdDSAKey.h"
 #include "datastructures/BlockEncryptedArguments.h"
+#include "datastructures/BlockDecryptedAesKeys.h"
 
 #include "CryptoManager.h"
 
@@ -1087,40 +1088,31 @@ bool CryptoManager::isSGXServerDown() {
     return (zmqClient->isServerDown());
 }
 
-ptr<map<uint64_t, string>> CryptoManager::decryptArgKeys(ptr<BlockProposal> _proposal) {
+ptr<BlockDecryptedAesKeys> CryptoManager::decryptBlockEncryptedKeys(ptr<BlockProposal> _proposal) {
+
+    // if proposal does not use te. Return empty set
+    if (_proposal->getUseTe() == 0)
+        return make_shared<BlockDecryptedAesKeys>();
+
     CHECK_STATE(_proposal);
 
     try {
-        auto encryptedArgs = _proposal->getEncryptedArguments(*getSchain());
+
+        if (_proposal->getUseTe() == 0) {
+            return make_shared<BlockDecryptedAesKeys>();
+        }
+
+        CHECK_STATE(sChain)
+        auto downloader = make_shared<BlockDecryptDownloader>(
+                sChain, _proposal);
+        return downloader->downloadDecryptedKeys();
     } catch (exception& e) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
 
-    return make_shared<map<uint64_t, string>>();
 }
 
 
-
-ptr<BlockDecryptedArguments> CryptoManager::decryptArgs(ptr<BlockProposal> _block) {
-
-    CHECK_STATE(_block);
-
-    auto args = _block->getEncryptedArguments(*getSchain());
-
-    auto agent = make_unique<BlockDecryptDownloader>(getSchain(), _block->getBlockID());
-
-    {
-        const string msg = "Decryption download:" + to_string(
-                (uint64_t) _block->getBlockID()
-        );
-
-        MONITOR(__CLASS_NAME__, msg.c_str());
-        // This will complete successfully also if block arrives through catchup
-        auto decryptions = agent->downloadDecryptions();
-    }
-
-    return nullptr;
-}
 
 const array<uint8_t, TE_MAGIC_SIZE> &CryptoManager::getTeMagicStart() const {
     return teMagicStart;
@@ -1140,7 +1132,7 @@ string CryptoManager::teEncryptAESKey(ptr<vector<uint8_t>> _aesKey) {
 
     if (!isSGXEnabled) {
         // mockup - dont encrypt
-        return Utils::carray2Hex(_aesKey->data(), _aesKey->size());
+        return Utils::vector2Hex(_aesKey);
     } else {
         return teEncryptAESKeySgx(_aesKey);
     }

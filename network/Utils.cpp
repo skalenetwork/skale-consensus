@@ -131,6 +131,11 @@ bool Utils::isValidIpAddress(const string& ipAddress) {
 }
 
 
+string Utils::vector2Hex(ptr<vector<uint8_t>> _v) {
+    CHECK_STATE(_v);
+    return carray2Hex(_v->data(), _v->size());
+}
+
 string Utils::carray2Hex(const uint8_t *d, size_t _len) {
     char hex[2 * _len];
 

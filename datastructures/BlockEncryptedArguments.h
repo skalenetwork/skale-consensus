@@ -10,16 +10,23 @@
 class EncryptedTransactionAnalyzerInterface;
 
 class BlockProposal;
+class BlockEncryptedAesKeys;
+class EncryptedArgument;
 
 class BlockEncryptedArguments {
+
     map<uint64_t, ptr<EncryptedArgument>> args;
+
+    ptr<BlockEncryptedAesKeys> cachedEncryptedKeys = nullptr;
 
     recursive_mutex m;
 public:
 
+    uint64_t size();
+
     void insert(uint64_t _i, ptr<EncryptedArgument> _arg);
 
-    ptr<map<uint64_t, string>> getEncryptedTEKeys();
+    ptr<BlockEncryptedAesKeys> getEncryptedAesKeys();
 
 };
 

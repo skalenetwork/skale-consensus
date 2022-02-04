@@ -138,7 +138,7 @@ ptr< BlockProposal > BlockProposalClientAgent::corruptProposal(
             _proposal->getProposerNodeID(), _proposal->getBlockID(), _proposal->getProposerIndex(),
             make_shared< TransactionList >( make_shared< vector< ptr< Transaction > > >() ),
             _proposal->getStateRoot(), MODERN_TIME + 1, 1, nullptr,
-            getSchain()->getCryptoManager() );
+            getSchain()->getCryptoManager(), 0 );
         return proposal2;
     } else {
         return _proposal;

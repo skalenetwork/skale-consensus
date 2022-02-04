@@ -54,9 +54,11 @@ class Schain;
 class BlockDecryptResponseHeader;
 class BlockDecryptionShares;
 class BlockDecryptDownloaderThreadPool;
+class BlockEncryptedAesKeys;
+class BlockDecryptedAesKeys;
 
 
-#include "datastructures/ArgumentDecryptionSet.h"
+#include "datastructures/BlockAesKeyDecryptionSet.h"
 
 class BlockDecryptDownloader : public Agent {
 
@@ -64,13 +66,15 @@ class BlockDecryptDownloader : public Agent {
 
     schain_index proposerIndex = 0;
 
-    ArgumentDecryptionSet decryptionSet;
+    ptr<BlockEncryptedAesKeys> encryptedKeys;
+
+    ptr<BlockAesKeyDecryptionSet> decryptionSet;
 
 public:
 
     ptr<BlockDecryptDownloaderThreadPool> threadPool = nullptr;
 
-    BlockDecryptDownloader(Schain *_sChain, block_id _blockId);
+    BlockDecryptDownloader(Schain *_sChain, ptr<BlockProposal> _proposal);
 
     ~BlockDecryptDownloader() override;
 
@@ -82,7 +86,7 @@ public:
 
     block_id getBlockId();
 
-    ptr<BlockDecryptionShares> downloadDecryptions();
+    ptr<BlockDecryptedAesKeys> downloadDecryptedKeys();
 
 };
 

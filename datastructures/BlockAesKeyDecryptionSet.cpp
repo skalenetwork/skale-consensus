@@ -26,18 +26,18 @@
 
 #include "node/ConsensusEngine.h"
 #include "crypto/BLAKE3Hash.h"
-#include "datastructures/ArgumentDecryptionShare.h"
+#include "datastructures/BlockAesKeyDecryptionShare.h"
 #include "datastructures/BooleanProposalVector.h"
 
 #include "chains/Schain.h"
 #include "pendingqueue/PendingTransactionsAgent.h"
 #include "datastructures/DAProof.h"
 
-#include "ArgumentDecryptionSet.h"
+#include "BlockAesKeyDecryptionSet.h"
 
 using namespace std;
 
-bool ArgumentDecryptionSet::add(const ptr<ArgumentDecryptionShare>& _decryption) {
+bool BlockAesKeyDecryptionSet::add(const ptr<BlockAesKeyDecryptionShare>& _decryption) {
 
     CHECK_ARGUMENT( _decryption);
 
@@ -60,7 +60,7 @@ bool ArgumentDecryptionSet::add(const ptr<ArgumentDecryptionShare>& _decryption)
 
 
 
-ArgumentDecryptionSet::ArgumentDecryptionSet(Schain* _sChain, block_id _blockId)
+BlockAesKeyDecryptionSet::BlockAesKeyDecryptionSet(Schain* _sChain, block_id _blockId)
     : blockId(_blockId){
     CHECK_ARGUMENT(_sChain);
     CHECK_ARGUMENT(_blockId > 0);
@@ -70,19 +70,19 @@ ArgumentDecryptionSet::ArgumentDecryptionSet(Schain* _sChain, block_id _blockId)
     totalObjects++;
 }
 
-ArgumentDecryptionSet::~ArgumentDecryptionSet() {
+BlockAesKeyDecryptionSet::~BlockAesKeyDecryptionSet() {
     totalObjects--;
 }
 
-node_count ArgumentDecryptionSet::getCount() {
+node_count BlockAesKeyDecryptionSet::getCount() {
     LOCK(m)
     return ( node_count ) decryptions.size();
 }
 
 
-atomic<int64_t>  ArgumentDecryptionSet::totalObjects(0);
+atomic<int64_t>  BlockAesKeyDecryptionSet::totalObjects(0);
 
-bool ArgumentDecryptionSet::isEnough()  {
+bool BlockAesKeyDecryptionSet::isEnough()  {
     LOCK(m)
     return decryptions.size() >= this->requiredDecryptionCount;
 }
