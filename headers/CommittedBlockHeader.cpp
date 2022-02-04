@@ -56,6 +56,16 @@ void CommittedBlockHeader::addFields(nlohmann::basic_json<> &j) {
     BlockProposalHeader::addFields(j);
 
     j["thrSig"] = thresholdSig;
+
+    if (this->getUseTe() && decryptedArgKeys && decryptedArgKeys->size() > 0) {
+        auto keyMap = nlohmann::json::object();
+        for (auto&& item : *decryptedArgKeys) {
+            keyMap[to_string(item.first)] = item.second;
+        };
+
+        j["teks"] = keyMap;
+    }
+
 }
 
 const ptr<map<uint64_t, string>> &CommittedBlockHeader::getDecryptedArgKeys() const {

@@ -59,26 +59,35 @@
 #include "chains/Schain.h"
 #include "datastructures/BlockAesKeyDecryptionSet.h"
 #include "datastructures/BlockDecryptedAesKeys.h"
+#include "datastructures/BlockEncryptedArguments.h"
 #include "headers/BlockDecryptRequestHeader.h"
 #include "monitoring/LivelinessMonitor.h"
 #include "pendingqueue/PendingTransactionsAgent.h"
 #include "utils/Time.h"
 
+#include "datastructures/BlockEncryptedAesKeys.h"
+#include "datastructures/BlockProposal.h"
 #include "BlockDecryptDownloader.h"
 #include "BlockDecryptDownloaderThreadPool.h"
 
 
-BlockDecryptDownloader::BlockDecryptDownloader(Schain *_sChain, block_id _blockId, ptr<BlockEncryptedAesKeys> _encryptedKeys)
-        : Agent(*_sChain, false, true),
-          blockId(_blockId),
-          encryptedKeys(_encryptedKeys),
-          decryptionSet(_sChain, _blockId) {
+BlockDecryptDownloader::BlockDecryptDownloader(Schain *_sChain, ptr<BlockProposal> _proposal)
+        : Agent(*_sChain, false, true) {
+
+    CHECK_STATE(_proposal);
+    CHECK_STATE(_sChain);
+
+    decryptionSet = make_shared<BlockAesKeyDecryptionSet>(_sChain, _proposal->getBlockID());
+    auto encryptedArgs = _proposal->getEncryptedArguments(
+            _sChain->getNode()->getEncryptedTransactionAnalyzer());
+
+    encryptedKeys = encryptedArgs->getEncryptedAesKeys();
+
+    blockId = _proposal->getBlockID();
+    proposerIndex = _proposal->getProposerIndex();
 
     CHECK_STATE(encryptedKeys);
-
-    CHECK_ARGUMENT(_sChain)
-
-    CHECK_STATE(_sChain->getNodeCount() > 1)
+    CHECK_STATE(proposerIndex > 0);
 
     try {
         logThreadLocal_ = _sChain->getNode()->getLog();
@@ -114,7 +123,7 @@ BlockDecryptDownloader::workerThreadDecryptionDownloadLoop(BlockDecryptDownloade
 
     node->waitOnGlobalClientStartBarrier();
 
-    while (!node->isExitRequested() && !_agent->decryptionSet.isEnough()) {
+    while (!node->isExitRequested() && !_agent->decryptionSet->isEnough()) {
         // take into account that the decrypted block can come through catchup
         if (sChain->getLastCommittedBlockID() >= blockId) {
             return;
@@ -147,12 +156,9 @@ uint64_t BlockDecryptDownloader::downloadDecryptionShare(schain_index _dstIndex)
 
     try {
 
-        auto encryptedKeys = make_shared<map<uint64_t, string>>();
-        encryptedKeys->emplace(1, "haha");
-
         auto header = make_shared<BlockDecryptRequestHeader>(*sChain, blockId, proposerIndex,
                                                              this->getNode()->getNodeID(), (uint64_t) _dstIndex,
-                                                             encryptedKeys);
+                                                             encryptedKeys->getEncryptedKeys());
         CHECK_STATE(_dstIndex != (uint64_t) getSchain()->getSchainIndex())
         if (getSchain()->getDeathTimeMs((uint64_t) _dstIndex) + NODE_DEATH_INTERVAL_MS > Time::getCurrentTimeMs()) {
             usleep(100000); // emulate timeout

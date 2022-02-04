@@ -1102,18 +1102,10 @@ ptr<BlockDecryptedAesKeys> CryptoManager::decryptBlockEncryptedKeys(ptr<BlockPro
             return make_shared<BlockDecryptedAesKeys>();
         }
 
-        auto encryptedArgs = _proposal->getEncryptedArguments(
-                getSchain()->getNode()->getEncryptedTransactionAnalyzer());
-        if (encryptedArgs->size() == 0) {
-            return make_shared<BlockDecryptedAesKeys>();
-        }
-        auto encryptedKeys = encryptedArgs->getEncryptedAesKeys();
-
         CHECK_STATE(sChain)
         auto downloader = make_shared<BlockDecryptDownloader>(
-                sChain, _proposal->getBlockID(), encryptedKeys);
-        auto decryptedKeys = downloader->downloadDecryptedKeys();
-        return decryptedKeys;
+                sChain, _proposal);
+        return downloader->downloadDecryptedKeys();
     } catch (exception& e) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }

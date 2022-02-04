@@ -11,8 +11,10 @@ class EncryptedTransactionAnalyzerInterface;
 
 class BlockProposal;
 class BlockEncryptedAesKeys;
+class EncryptedArgument;
 
 class BlockEncryptedArguments {
+
     map<uint64_t, ptr<EncryptedArgument>> args;
 
     ptr<BlockEncryptedAesKeys> cachedEncryptedKeys = nullptr;

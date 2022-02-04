@@ -68,13 +68,13 @@ class BlockDecryptDownloader : public Agent {
 
     ptr<BlockEncryptedAesKeys> encryptedKeys;
 
-    BlockAesKeyDecryptionSet decryptionSet;
+    ptr<BlockAesKeyDecryptionSet> decryptionSet;
 
 public:
 
     ptr<BlockDecryptDownloaderThreadPool> threadPool = nullptr;
 
-    BlockDecryptDownloader(Schain *_sChain, block_id _blockId, ptr<BlockEncryptedAesKeys> _keys);
+    BlockDecryptDownloader(Schain *_sChain, ptr<BlockProposal> _proposal);
 
     ~BlockDecryptDownloader() override;
 

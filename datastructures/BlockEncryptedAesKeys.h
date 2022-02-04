@@ -14,6 +14,8 @@ public:
     void add(uint64_t _transactionIndex, const string& _key);
     uint64_t size();
 
+    const ptr<map<uint64_t, string>> &getEncryptedKeys() const;
+
 };
 
 

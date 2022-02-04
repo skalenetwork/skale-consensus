@@ -5,6 +5,8 @@
 #include "SkaleCommon.h"
 #include "Log.h"
 
+#include "network/Utils.h"
+
 #include "BlockEncryptedAesKeys.h"
 
 BlockEncryptedAesKeys::BlockEncryptedAesKeys() {
@@ -21,3 +23,8 @@ uint64_t BlockEncryptedAesKeys::size() {
     LOCK(m)
     return encryptedKeys->size();
 }
+
+const ptr<map<uint64_t, string>> &BlockEncryptedAesKeys::getEncryptedKeys() const {
+    return encryptedKeys;
+}
+
