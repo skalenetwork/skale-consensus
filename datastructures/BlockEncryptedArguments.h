@@ -18,6 +18,7 @@ class BlockEncryptedArguments {
     map<uint64_t, ptr<EncryptedArgument>> args;
 
     ptr<BlockEncryptedAesKeys> cachedEncryptedKeys = nullptr;
+    ptr<map<uint64_t, ptr<vector<uint8_t>>>> cachedEncryptedSegments = nullptr;
 
     recursive_mutex m;
 public:
@@ -27,6 +28,8 @@ public:
     void insert(uint64_t _i, ptr<EncryptedArgument> _arg);
 
     ptr<BlockEncryptedAesKeys> getEncryptedAesKeys();
+
+    ptr<map<uint64_t, ptr<vector<uint8_t>>>> getAesEncryptedSegments();
 
 };
 

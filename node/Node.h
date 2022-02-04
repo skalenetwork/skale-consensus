@@ -56,6 +56,7 @@ class TestConfig;
 class BlockSigShareDB;
 class DASigShareDB;
 class DAProofDB;
+class EncryptedTransactionAnalyzerInterface;
 
 namespace leveldb {
 class DB;
@@ -66,8 +67,6 @@ enum PricingStrategyEnum { ZERO, DOS_PROTECT };
 
 
 class Node {
-
-
 
     ConsensusEngine* consensusEngine;
 
@@ -203,11 +202,16 @@ class Node {
 
     string gethURL = "";
 
+    shared_ptr<EncryptedTransactionAnalyzerInterface> encryptedTransactionAnalyzer;
+
     bool inited = false;
 
     void releaseGlobalServerBarrier();
 
     void releaseGlobalClientBarrier();
+
+public:
+    const shared_ptr<EncryptedTransactionAnalyzerInterface> &getEncryptedTransactionAnalyzer() const;
 
 private:
 
@@ -287,7 +291,8 @@ public:
         string _ecdsaKeyName, ptr< vector<string> > _ecdsaPublicKeys,
         string _blsKeyName, ptr< vector< ptr< vector<string>>>> _blsPublicKeys,
         ptr< BLSPublicKey > _blsPublicKey, string& _gethURL,
-        ptr< map< uint64_t, ptr< BLSPublicKey > > > _previousBlsPublicKeys );
+        ptr< map< uint64_t, ptr< BLSPublicKey > > > _previousBlsPublicKeys,
+        shared_ptr<EncryptedTransactionAnalyzerInterface> _analyzer);
 
     ~Node();
 

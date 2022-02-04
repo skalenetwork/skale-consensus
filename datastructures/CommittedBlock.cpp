@@ -65,16 +65,16 @@ ptr<CommittedBlock> CommittedBlock::make(const schain_id _sChainId,
                                          uint64_t _timeStamp,
                                          uint64_t _timeStampMs, const string &_signature, const string &_thresholdSig,
                                          uint32_t _useTe,
-                                         ptr<BlockDecryptedAesKeys> _decryptedArgKeys) {
+                                         ptr<BlockDecryptedAesKeys> _decryptedAesKeys) {
     CHECK_ARGUMENT(_transactions);
     CHECK_ARGUMENT(!_signature.empty());
     CHECK_ARGUMENT(!_thresholdSig.empty());
-    CHECK_ARGUMENT(_decryptedArgKeys);
+    CHECK_ARGUMENT(_decryptedAesKeys);
 
     return make_shared<CommittedBlock>(_sChainId, _proposerNodeId, _blockId, _proposerIndex,
                                        _transactions, _stateRoot, _timeStamp, _timeStampMs, _signature, _thresholdSig,
                                        _useTe,
-                                       _decryptedArgKeys);
+                                       _decryptedAesKeys);
 }
 
 

@@ -5,7 +5,9 @@
 #ifndef SKALED_TESTENCRYPTEDTRANSACTIONANALYZER_H
 #define SKALED_TESTENCRYPTEDTRANSACTIONANALYZER_H
 
-class TestEncryptedTransactionAnalyzer {
+#include "node/EncryptedTransactionAnalyzerInterface.h"
+
+class TestEncryptedTransactionAnalyzer : public EncryptedTransactionAnalyzerInterface {
 
     ptr<vector<uint8_t>> teMagicStart;
     ptr<vector<uint8_t>> teMagicEnd;
