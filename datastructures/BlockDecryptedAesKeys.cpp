@@ -6,6 +6,7 @@
 #include "Log.h"
 
 #include "network/Utils.h"
+#include "datastructures/BlockEncryptedArguments.h"
 #include "BlockDecryptedAesKeys.h"
 
 
@@ -27,8 +28,16 @@ BlockDecryptedAesKeys::BlockDecryptedAesKeys(ptr<map<uint64_t, string>> _decrypt
     }
 }
 
-ptr<map<uint64_t, ptr<vector<uint8_t>>>> BlockDecryptedAesKeys::decryptArgs(ptr<BlockEncryptedArguments> ) {
-    return nullptr;
+ptr<map<uint64_t, ptr<vector<uint8_t>>>> BlockDecryptedAesKeys::decryptArgs(ptr<BlockEncryptedArguments> _encryptedArgs) {
+    CHECK_STATE(_encryptedArgs);
+    CHECK_STATE(decryptedAesKeys->size() == _encryptedArgs->size())
+
+    auto result = make_shared<map<uint64_t, ptr<vector<uint8_t>>>>();
+
+    for (auto&& item : *_encryptedArgs->getAesEncryptedSegments()) {
+        auto key = decryptedAesKeys->at(item.first);
+    }
+
 }
 
 ptr<map<uint64_t, string>> BlockDecryptedAesKeys::getDecryptedAesKeysAsHex()  {
