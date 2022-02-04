@@ -46,10 +46,15 @@ class BlockProposalFragment;
 class BlockProposalFragmentList;
 class EncryptedArgument;
 class BlockEncryptedArguments;
+class EncryptedTransactionAnalyzerInterface;
 
 #define SERIALIZE_AS_PROPOSAL 1
 
 class BlockProposal : public SendableItem {
+public:
+    uint32_t getUsesTe() const;
+
+private:
 
 
     uint64_t creationTime;
@@ -71,6 +76,7 @@ protected:
     uint64_t timeStamp = 0;
     uint32_t timeStampMs = 0;
     u256 stateRoot = 0;
+    uint32_t usesTE = 0;
 
     ptr< TransactionList > transactionList = nullptr;  // tsafe
 
@@ -96,7 +102,7 @@ public:
     BlockProposal( schain_id _sChainId, node_id _proposerNodeId, block_id _blockID,
         schain_index _proposerIndex, const ptr< TransactionList >& _transactions, u256 _stateRoot,
         uint64_t _timeStamp, __uint32_t _timeStampMs, const string& _signature,
-        const ptr< CryptoManager >& _cryptoManager );
+        const ptr< CryptoManager >& _cryptoManager, uint32_t _usesTE);
 
     [[nodiscard]]  uint64_t getTimeStampS() const;
 
@@ -146,6 +152,7 @@ public:
     uint64_t getCreationTime() const;
 
 
-    ptr<BlockEncryptedArguments> getEncryptedArguments(Schain& _schain);
+    ptr<BlockEncryptedArguments> getEncryptedArguments(ptr<EncryptedTransactionAnalyzerInterface>
+            _analyzer);
 
 };

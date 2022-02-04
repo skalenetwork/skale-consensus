@@ -39,7 +39,8 @@ MyBlockProposal::MyBlockProposal(Schain &_sChain, const block_id &_blockID, cons
                                  const ptr<TransactionList>& _transactions, u256 _stateRoot, uint64_t _timeStamp,
                                  uint32_t _timeStampMs, const ptr<CryptoManager>& _cryptoManager)
         : BlockProposal(_sChain.getSchainID(), _sChain.getNodeIDByIndex(_proposerIndex), _blockID, _proposerIndex,
-                        _transactions, _stateRoot, _timeStamp, _timeStampMs, "", _cryptoManager) {
+                        _transactions, _stateRoot, _timeStamp, _timeStampMs, "", _cryptoManager,
+                        _cryptoManager->getSchain()->getNode()->isTeEnabled()) {
 
     CHECK_STATE(_transactions);
     CHECK_ARGUMENT(_cryptoManager);

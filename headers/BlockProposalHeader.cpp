@@ -43,10 +43,6 @@
 
 using namespace std;
 
-
-
-
-
 BlockProposalHeader::BlockProposalHeader(BlockProposal& _block) : BasicHeader(Header::BLOCK) {
 
     this->proposerIndex = _block.getProposerIndex();
@@ -59,6 +55,7 @@ BlockProposalHeader::BlockProposalHeader(BlockProposal& _block) : BasicHeader(He
     this->timeStamp = _block.getTimeStampS();
     this->timeStampMs = _block.getTimeStampMs();
     this->transactionSizes = make_shared<vector<uint64_t>>();
+    this->usesTe = _block.getUsesTe();
 
     auto items = _block.getTransactionList()->getItems();
     CHECK_STATE(items)
@@ -69,6 +66,9 @@ BlockProposalHeader::BlockProposalHeader(BlockProposal& _block) : BasicHeader(He
     setComplete();
 }
 
+uint32_t BlockProposalHeader::getUsesTe() const {
+    return usesTe;
+}
 
 schain_id BlockProposalHeader::getSchainID() {
     return schainID;
@@ -101,6 +101,7 @@ void BlockProposalHeader::addFields(nlohmann::json &j) {
 
     j["sr"] = stateRoot.str();
 
+    j["useTe"] = usesTe;
 
     CHECK_STATE(timeStamp > 0)
 }
@@ -117,6 +118,13 @@ BlockProposalHeader::BlockProposalHeader(nlohmann::json& _json) : BasicHeader(He
     signature = Header::getString(_json, "sig");
     auto srStr = Header::getString(_json, "sr");
     stateRoot = u256(srStr);
+
+
+    if (_json.find("useTe" ) == _json.end()) {
+        usesTe = 0;
+    } else {
+        usesTe = Header::getUint32(_json, "useTe");
+    }
 
     Header::nullCheck(_json, "sizes" );
     nlohmann::json jsonTransactionSizes = _json["sizes"];

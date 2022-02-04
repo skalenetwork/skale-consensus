@@ -5,19 +5,19 @@
 #ifndef SKALED_BLOCKDECRYPTIONSHARES_H
 #define SKALED_BLOCKDECRYPTIONSHARES_H
 
-#include "ArgumentDecryptionShare.h"
+#include "BlockAesKeyDecryptionShare.h"
 
 
 class BlockDecryptionShares {
 
     recursive_mutex m;
 
-    ptr<map<uint64_t, ptr<ArgumentDecryptionShare>>> shares;
+    ptr<map<uint64_t, ptr<BlockAesKeyDecryptionShare>>> shares;
 
 public:
     BlockDecryptionShares();
 
-    void addShare(uint64_t _index, ptr<ArgumentDecryptionShare> _share);
+    void addShare(uint64_t _index, ptr<BlockAesKeyDecryptionShare> _share);
 
 };
 

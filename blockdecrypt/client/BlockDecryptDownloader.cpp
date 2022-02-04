@@ -57,7 +57,8 @@
 #include "network/Network.h"
 
 #include "chains/Schain.h"
-#include "datastructures/ArgumentDecryptionSet.h"
+#include "datastructures/BlockAesKeyDecryptionSet.h"
+#include "datastructures/BlockDecryptedAesKeys.h"
 #include "headers/BlockDecryptRequestHeader.h"
 #include "monitoring/LivelinessMonitor.h"
 #include "pendingqueue/PendingTransactionsAgent.h"
@@ -67,10 +68,13 @@
 #include "BlockDecryptDownloaderThreadPool.h"
 
 
-BlockDecryptDownloader::BlockDecryptDownloader(Schain *_sChain, block_id _blockId)
+BlockDecryptDownloader::BlockDecryptDownloader(Schain *_sChain, block_id _blockId, ptr<BlockEncryptedAesKeys> _encryptedKeys)
         : Agent(*_sChain, false, true),
           blockId(_blockId),
+          encryptedKeys(_encryptedKeys),
           decryptionSet(_sChain, _blockId) {
+
+    CHECK_STATE(encryptedKeys);
 
     CHECK_ARGUMENT(_sChain)
 
@@ -200,7 +204,7 @@ uint64_t BlockDecryptDownloader::downloadDecryptionShare(schain_index _dstIndex)
         }
 
 
-        ptr<ArgumentDecryptionShare> decryptionShare;
+        ptr<BlockAesKeyDecryptionShare> decryptionShare;
 
         return true;
 
@@ -210,8 +214,7 @@ uint64_t BlockDecryptDownloader::downloadDecryptionShare(schain_index _dstIndex)
 
 }
 
-
-ptr<BlockDecryptionShares> BlockDecryptDownloader::downloadDecryptions() {
+ptr<BlockDecryptedAesKeys> BlockDecryptDownloader::downloadDecryptedKeys() {
 
     MONITOR(__CLASS_NAME__, __FUNCTION__);
 

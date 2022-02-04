@@ -52,6 +52,7 @@
 #include "crypto/BLAKE3Hash.h"
 #include "crypto/ConsensusBLSSigShare.h"
 #include "crypto/ThresholdSignature.h"
+
 #include "datastructures/BlockProposal.h"
 #include "datastructures/BlockProposalSet.h"
 #include "datastructures/BooleanProposalVector.h"
@@ -105,6 +106,7 @@
 #include "monitoring/LivelinessMonitor.h"
 #include "monitoring/TimeoutAgent.h"
 #include "pendingqueue/TestMessageGeneratorAgent.h"
+#include "datastructures/BlockDecryptedAesKeys.h"
 
 template < class M >
 class try_lock_timed_guard {
@@ -396,22 +398,22 @@ void Schain::blockCommitArrived( block_id _committedBlockID, schain_index _propo
         CHECK_STATE( committedProposal );
 
 
-        ptr<map<uint64_t, string>> decryptedArgKeys;
+        ptr<BlockDecryptedAesKeys> decryptedKeys;
 
         if (getNode()->isTeEnabled()) {
-            decryptedArgKeys = getCryptoManager()->decryptArgKeys(committedProposal);
-            if (!decryptedArgKeys) {
+            decryptedKeys = getCryptoManager()->decryptBlockEncryptedKeys(committedProposal);
+            if (!decryptedKeys) {
                 // block received throw cathup, return
                 unbumpPriority();
                 return;
             }
         } else {
-            decryptedArgKeys = make_shared<map<uint64_t, string>>();
+            decryptedKeys = make_shared<BlockDecryptedAesKeys>();
         }
 
 
         auto newCommittedBlock = CommittedBlock::makeObject( committedProposal, _thresholdSig,
-                                                             decryptedArgKeys);
+                                                             decryptedKeys);
 
         CHECK_STATE( getLastCommittedBlockTimeStamp() < newCommittedBlock->getTimeStamp() );
 
@@ -657,9 +659,18 @@ void Schain::pushBlockToExtFace( const ptr< CommittedBlock >& _block) {
         auto currentPrice = this->pricingAgent->readPrice( _block->getBlockID() - 1 );
 
         if ( extFace ) {
+
+            ptr<map<uint64_t, ptr<vector<uint8_t>>>> decryptedArgs;
+
+            if (getNode()->isTeEnabled()) {
+                decryptedArgs =  _block->getDecryptedArgs(getNode()->getEncryptedTransactionAnalyzer());
+            } else {
+                decryptedArgs = make_shared<map<uint64_t, ptr<vector<uint8_t>>>>();
+            }
+
             extFace->createBlock( *tv, _block->getTimeStampS(), _block->getTimeStampMs(),
                 ( __uint64_t ) _block->getBlockID(), currentPrice, _block->getStateRoot(),
-                ( uint64_t ) _block->getProposerIndex(), _block->getDecryptedArgs());
+                ( uint64_t ) _block->getProposerIndex(), decryptedArgs);
             // exit immediately if exit has been requested
             getSchain()->getNode()->exitCheck();
         }
@@ -1002,7 +1013,7 @@ ptr< BlockProposal > Schain::createDefaultEmptyBlockProposal( block_id _blockId 
     }
 
     return make_shared< ReceivedBlockProposal >(
-        *this, _blockId, newStamp.getS(), newStamp.getMs(), 0 );
+        *this, _blockId, newStamp.getS(), newStamp.getMs(), 0 , 0);
 }
 
 

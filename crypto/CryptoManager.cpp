@@ -82,6 +82,7 @@
 #include "OpenSSLECDSAKey.h"
 #include "OpenSSLEdDSAKey.h"
 #include "datastructures/BlockEncryptedArguments.h"
+#include "datastructures/BlockDecryptedAesKeys.h"
 
 #include "CryptoManager.h"
 
@@ -1087,43 +1088,34 @@ bool CryptoManager::isSGXServerDown() {
     return (zmqClient->isServerDown());
 }
 
-ptr<map<uint64_t, string>> CryptoManager::decryptArgKeys(ptr<BlockProposal> _proposal) {
+ptr<BlockDecryptedAesKeys> CryptoManager::decryptBlockEncryptedKeys(ptr<BlockProposal> _proposal) {
     CHECK_STATE(_proposal);
 
     try {
-        auto encryptedArgs = _proposal->getEncryptedArguments(*getSchain());
-        auto keys = encryptedArgs->getEncryptedAesKeys();
+
+        if (_proposal->getUsesTe() == 0) {
+            return make_shared<BlockDecryptedAesKeys>();
+        }
+
+        auto encryptedArgs = _proposal->getEncryptedArguments(
+                getSchain()->getNode()->getEncryptedTransactionAnalyzer());
+        if (encryptedArgs->size() == 0) {
+            return make_shared<BlockDecryptedAesKeys>();
+        }
+        auto encryptedKeys = encryptedArgs->getEncryptedAesKeys();
+
+        CHECK_STATE(sChain)
+        auto downloader = make_shared<BlockDecryptDownloader>(
+                sChain, _proposal->getBlockID(), encryptedKeys);
+        auto decryptedKeys = downloader->downloadDecryptedKeys();
+        return decryptedKeys;
     } catch (exception& e) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
 
-
-
-    return make_shared<map<uint64_t, string>>();
 }
 
 
-
-ptr<BlockDecryptedArguments> CryptoManager::decryptArgs(ptr<BlockProposal> _block) {
-
-    CHECK_STATE(_block);
-
-    auto args = _block->getEncryptedArguments(*getSchain());
-
-    auto agent = make_unique<BlockDecryptDownloader>(getSchain(), _block->getBlockID());
-
-    {
-        const string msg = "Decryption download:" + to_string(
-                (uint64_t) _block->getBlockID()
-        );
-
-        MONITOR(__CLASS_NAME__, msg.c_str());
-        // This will complete successfully also if block arrives through catchup
-        auto decryptions = agent->downloadDecryptions();
-    }
-
-    return nullptr;
-}
 
 const array<uint8_t, TE_MAGIC_SIZE> &CryptoManager::getTeMagicStart() const {
     return teMagicStart;

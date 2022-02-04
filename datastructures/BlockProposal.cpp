@@ -100,17 +100,19 @@ BlockProposal::BlockProposal(uint64_t _timeStamp, uint32_t _timeStampMs) : timeS
                                                                            timeStampMs(_timeStampMs) {
     proposerNodeID = 0;
     creationTime = Time::getCurrentTimeMs();
+    usesTE = 0;
 };
 
 BlockProposal::BlockProposal(schain_id _sChainId, node_id _proposerNodeId, block_id _blockID,
                              schain_index _proposerIndex, const ptr<TransactionList> &_transactions, u256 _stateRoot,
                              uint64_t _timeStamp, __uint32_t _timeStampMs, const string &_signature,
-                             const ptr<CryptoManager> &_cryptoManager)
+                             const ptr<CryptoManager> &_cryptoManager, uint32_t _usesTE)
         : schainID(_sChainId), proposerNodeID(_proposerNodeId), blockID(_blockID),
           proposerIndex(_proposerIndex), timeStamp(_timeStamp), timeStampMs(_timeStampMs),
           stateRoot(_stateRoot), transactionList(_transactions), signature(_signature) {
     creationTime = Time::getCurrentTimeMs();
     CHECK_ARGUMENT(_transactions);
+
 
     if (_proposerIndex == 0) {
         stateRoot = 0;
@@ -128,6 +130,8 @@ BlockProposal::BlockProposal(schain_id _sChainId, node_id _proposerNodeId, block
         CHECK_ARGUMENT(_signature != "");
         signature = _signature;
     }
+
+    usesTE = _usesTE;
 }
 
 
@@ -308,7 +312,8 @@ ptr<BlockProposal> BlockProposal::deserialize(const ptr<vector<uint8_t> > &_seri
                                                blockHeader->getBlockID(), blockHeader->getProposerIndex(),
                                                list, blockHeader->getStateRoot(), blockHeader->getTimeStamp(),
                                                blockHeader->getTimeStampMs(),
-                                               blockHeader->getSignature(), nullptr);
+                                               blockHeader->getSignature(), nullptr,
+                                               blockHeader->getUsesTe());
 
     _manager->verifyProposalECDSA(proposal, blockHeader->getBlockHash(), blockHeader->getSignature());
 
@@ -478,7 +483,11 @@ uint64_t BlockProposal::getCreationTime() const {
     return creationTime;
 }
 
-ptr<BlockEncryptedArguments> BlockProposal::getEncryptedArguments(Schain &_schain) {
+ptr<BlockEncryptedArguments> BlockProposal::getEncryptedArguments(
+        ptr<EncryptedTransactionAnalyzerInterface> _analyzer) {
+
+    CHECK_STATE(_analyzer);
+
     try {
         LOCK(cachedEncryptedArgumentsLock);
         if (cachedEncryptedArguments) {
@@ -493,10 +502,8 @@ ptr<BlockEncryptedArguments> BlockProposal::getEncryptedArguments(Schain &_schai
 
         auto transactions = transactionList->getItems();
 
-        auto analyzer = _schain.getNode()->getEncryptedTransactionAnalyzer();
-
         for (uint64_t i = 0; i < transactions->size(); i++) {
-            auto rawArg = analyzer->getEncryptedData(*transactions->at(i)->getData());
+            auto rawArg = _analyzer->getEncryptedData(*transactions->at(i)->getData());
             if (rawArg) {
                 auto argument = make_shared<EncryptedArgument>(rawArg);
                 cachedEncryptedArguments->insert(i, argument);
@@ -509,4 +516,8 @@ ptr<BlockEncryptedArguments> BlockProposal::getEncryptedArguments(Schain &_schai
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
 
+}
+
+uint32_t BlockProposal::getUsesTe() const {
+    return usesTE;
 }

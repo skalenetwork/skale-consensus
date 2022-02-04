@@ -21,11 +21,24 @@ void BlockEncryptedArguments::insert(uint64_t _i, ptr<EncryptedArgument> _arg) {
 }
 
 ptr<BlockEncryptedAesKeys> BlockEncryptedArguments::getEncryptedAesKeys() {
-    auto result = make_shared<BlockEncryptedAesKeys>();
 
-    for (auto && argument: args) {
-        result->add(argument.first, argument.second->getEncryptedAesKey());
+    LOCK(m)
+
+    if (cachedEncryptedKeys != nullptr) {
+        return cachedEncryptedKeys;
     }
 
-    return result;
+    cachedEncryptedKeys = make_shared<BlockEncryptedAesKeys>();
+
+
+    for (auto && argument: args) {
+        cachedEncryptedKeys->add(argument.first, argument.second->getEncryptedAesKey());
+    }
+
+    return cachedEncryptedKeys;
+}
+
+uint64_t BlockEncryptedArguments::size() {
+    LOCK(m)
+    return this->args.size();
 }

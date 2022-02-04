@@ -12,6 +12,8 @@ class BlockEncryptedAesKeys {
 public:
     BlockEncryptedAesKeys();
     void add(uint64_t _transactionIndex, const string& _key);
+    uint64_t size();
+
 };
 
 
