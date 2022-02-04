@@ -57,6 +57,14 @@ BlockProposalRequestHeader::BlockProposalRequestHeader(nlohmann::json _proposalR
     auto stateRootStr = Header::getString(_proposalRequest, "sr");
     CHECK_STATE(!stateRootStr.empty())
     stateRoot = u256(stateRootStr);
+
+
+    if (_proposalRequest.find( "opt" ) == _proposalRequest.end()) {
+        useTe = 0;
+    } else {
+        useTe =  Header::getUint32(_proposalRequest, "opt");
+    }
+
 }
 
 BlockProposalRequestHeader::BlockProposalRequestHeader(Schain &_sChain, const ptr<BlockProposal>& proposal) :
@@ -103,7 +111,7 @@ void BlockProposalRequestHeader::addFields(nlohmann::basic_json<> &jsonRequest) 
     jsonRequest["hash"] = hash;
     jsonRequest["sig"] = signature;
     jsonRequest["sr"] = stateRoot.str();
-    jsonRequest["useTe"] = useTe;
+    jsonRequest["opt"] = useTe;
 }
  node_id BlockProposalRequestHeader::getProposerNodeId()  {
     return proposerNodeID;

@@ -33,10 +33,7 @@ CommittedBlockHeader::CommittedBlockHeader(BlockProposal &block, const string &t
                     ptr<map<uint64_t, string>> _decryptedTEKeys) : BlockProposalHeader(
         block), thresholdSig(thresholdSig), decryptedArgKeys(_decryptedTEKeys) {
     CHECK_ARGUMENT(!thresholdSig.empty())
-
-    if (!decryptedArgKeys) {
-        decryptedArgKeys = make_shared<map<uint64_t, string>>();
-    }
+    CHECK_STATE(_decryptedTEKeys);
 }
 
 CommittedBlockHeader::CommittedBlockHeader(nlohmann::json &json) : BlockProposalHeader(json) {

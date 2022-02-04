@@ -101,7 +101,7 @@ void BlockProposalHeader::addFields(nlohmann::json &j) {
 
     j["sr"] = stateRoot.str();
 
-    j["useTe"] = useTe;
+    j["opt"] = useTe;
 
     CHECK_STATE(timeStamp > 0)
 }
@@ -120,10 +120,10 @@ BlockProposalHeader::BlockProposalHeader(nlohmann::json& _json) : BasicHeader(He
     stateRoot = u256(srStr);
 
 
-    if (_json.find("useTe" ) == _json.end()) {
+    if (_json.find("opt" ) == _json.end()) {
         useTe = 0;
     } else {
-        useTe = Header::getUint32(_json, "useTe");
+        useTe = Header::getUint32(_json, "opt");
     }
 
     Header::nullCheck(_json, "sizes" );
