@@ -283,7 +283,7 @@ public:
 
     string getSgxBlsKeyName();
 
-    string teEncryptAESKeySgx(shared_ptr<vector<uint8_t>> _aesKey);
+    string teEncryptAESKeySgx(uint64_t _blockTimeStamp, shared_ptr<vector<uint8_t>> _aesKey);
 
 
     static const string &getSgxUrl();
@@ -337,7 +337,7 @@ public:
     ptr<BlockDecryptedAesKeys> decryptBlockEncryptedKeys(ptr<BlockProposal> _block);
 
     /* encrypts 128 bit AES key */
-    string teEncryptAESKey(ptr<vector<uint8_t>> _aesKey);
+    string teEncryptAESKey(uint64_t _timeStamp, ptr<vector<uint8_t>> _aesKey);
 
     ptr<vector<uint8_t>> teMergeDecryptedSharesIntoAESKey(
             ptr<map<uint64_t, string>> _keyShares);
@@ -347,10 +347,10 @@ public:
             ptr<map<uint64_t, string>> _keyShares);
 
 
-    ptr<vector<string>> teDecryptKeyShareVector(
+    ptr<vector<string>> teDecryptKeyShareVector(uint64_t _blockTimeStamp,
             ptr<vector<string>> _keyShares);
 
-    ptr<vector<string>> teDecryptKeyShareVectorSgx(
+    ptr<vector<string>> teDecryptKeyShareVectorSgx(uint64_t _blockTimeStamp,
             ptr<vector<string>> _keyShares);
 
 
