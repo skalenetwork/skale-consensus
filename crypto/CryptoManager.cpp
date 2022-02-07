@@ -1138,7 +1138,57 @@ string CryptoManager::teEncryptAESKey(ptr<vector<uint8_t>> _aesKey) {
     }
 }
 
+
+
+
 // encrypt 128 bit AES key using the current SGX public . Return a hex encryption string
 string CryptoManager::teEncryptAESKeySgx(shared_ptr<vector<uint8_t>> ) {
     return "";
+}
+
+
+ptr<vector<string>> CryptoManager::teDecryptKeyShareVector(
+        ptr<vector<string>> _encryptedKeys) {
+    CHECK_STATE(_encryptedKeys)
+    if (!isSGXEnabled) {
+        // mockup just return the same vector
+        return _encryptedKeys;
+    } else {
+        return teDecryptKeyShareVectorSgx(_encryptedKeys);
+    }
+
+}
+
+ptr<vector<string>> CryptoManager::teDecryptKeyShareVectorSgx(
+        ptr<vector<string>> _encryptedKeys) {
+    CHECK_STATE(_encryptedKeys);
+    // get decrypt shares as a SGX single call. For each string in
+    return nullptr;
+}
+
+
+
+ptr<vector<uint8_t>> CryptoManager::teMergeDecryptedSharesIntoAESKey(
+        ptr<map<uint64_t, string>> _keyShares) {
+
+    CHECK_STATE(_keyShares);
+    CHECK_STATE(_keyShares->size() == getSchain()->getRequiredSigners())
+    if (!isSGXEnabled) {
+        // mockup simply take the first share
+        for (auto&& item : *_keyShares) {
+            auto result = make_shared<vector<uint8_t>>(AES_KEY_LEN_BYTES);
+            CHECK_STATE(item.second.length() == AES_KEY_LEN_BYTES)
+            Utils::cArrayFromHex(item.second, result->data(), AES_KEY_LEN_BYTES);
+            return result;
+        }
+    } else {
+        return teMergeDecryptedSharesIntoAESKeySgx(_keyShares);
+    }
+}
+
+// merge 11 decrypted shares into 128 bit AES key
+ptr<vector<uint8_t>> CryptoManager::teMergeDecryptedSharesIntoAESKeySgx(
+        ptr<map<uint64_t, string>> _keyShares) {
+    CHECK_STATE(_keyShares)
+    return nullptr;
 }
