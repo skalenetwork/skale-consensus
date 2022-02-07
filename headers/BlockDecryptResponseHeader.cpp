@@ -43,7 +43,7 @@ void BlockDecryptResponseHeader::addFields(nlohmann::json &_j) {
     CHECK_STATE(isComplete())
     Header::addFields(_j);
 
-    if (getStatusSubStatus().first != CONNECTION_PROCEED)
+    if (getStatusSubStatus().first != CONNECTION_SUCCESS)
         return;
 
     auto sharesMap = nlohmann::json::object();
