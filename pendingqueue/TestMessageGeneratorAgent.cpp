@@ -111,9 +111,7 @@ void TestMessageGeneratorAgent::makeTestEncryptedTransaction(vector<uint8_t> &tr
 
     auto key = make_shared<AesCbcKeyIVPair>(getSchain()->getCryptoManager()->getPrng());
 
-    auto teEncryptedKey = getSchain()->getCryptoManager()->teEncryptAESKey(key->getKey());
-
-
+    auto teEncryptedKey = getSchain()->getCryptoManager()->teEncryptAESKey(0, key->getKey());
 
     auto encryptedArg = make_shared<EncryptedArgument>(teEncryptedKey, key, arg);
 

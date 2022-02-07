@@ -1126,7 +1126,7 @@ AutoSeededRandomPool &CryptoManager::getPrng() {
     return prng;
 }
 
-string CryptoManager::teEncryptAESKey(ptr<vector<uint8_t>> _aesKey) {
+string CryptoManager::teEncryptAESKey(uint64_t _blockTimeStamp, ptr<vector<uint8_t>> _aesKey) {
     CHECK_STATE(_aesKey)
     CHECK_STATE(_aesKey->size() == AES_KEY_LEN_BYTES);
 
@@ -1134,7 +1134,7 @@ string CryptoManager::teEncryptAESKey(ptr<vector<uint8_t>> _aesKey) {
         // mockup - dont encrypt
         return Utils::vector2Hex(_aesKey);
     } else {
-        return teEncryptAESKeySgx(_aesKey);
+        return teEncryptAESKeySgx(_blockTimeStamp, _aesKey);
     }
 }
 
@@ -1142,23 +1142,24 @@ string CryptoManager::teEncryptAESKey(ptr<vector<uint8_t>> _aesKey) {
 
 
 // encrypt 128 bit AES key using the current SGX public . Return a hex encryption string
-string CryptoManager::teEncryptAESKeySgx(shared_ptr<vector<uint8_t>> ) {
+string CryptoManager::teEncryptAESKeySgx(uint64_t
+                                       /* _blockTimeStamp */, shared_ptr<vector<uint8_t>> ) {
     return "";
 }
 
 
-ptr<vector<string>> CryptoManager::teDecryptKeyShareVector(
+ptr<vector<string>> CryptoManager::teDecryptKeyShareVector(uint64_t _blockTimeStamp,
         ptr<vector<string>> _encryptedKeys) {
     CHECK_STATE(_encryptedKeys)
     if (!isSGXEnabled) {
         // mockup just return the same vector
         return _encryptedKeys;
     } else {
-        return teDecryptKeyShareVectorSgx(_encryptedKeys);
+        return teDecryptKeyShareVectorSgx(_blockTimeStamp, _encryptedKeys);
     }
 }
 
-ptr<vector<string>> CryptoManager::teDecryptKeyShareVectorSgx(
+ptr<vector<string>> CryptoManager::teDecryptKeyShareVectorSgx(uint64_t  /* _blockTimeStamp */,
         ptr<vector<string>> _encryptedKeys) {
     CHECK_STATE(_encryptedKeys);
     // get decrypt shares as a SGX single call. For each string in
@@ -1180,6 +1181,7 @@ ptr<vector<uint8_t>> CryptoManager::teMergeDecryptedSharesIntoAESKey(
             Utils::cArrayFromHex(item.second, result->data(), AES_KEY_LEN_BYTES);
             return result;
         }
+        CHECK_STATE(false)
     } else {
         return teMergeDecryptedSharesIntoAESKeySgx(_keyShares);
     }
