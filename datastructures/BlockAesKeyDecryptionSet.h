@@ -48,10 +48,16 @@ class BlockAesKeyDecryptionSet : public DataStructure {
 
     ptr<BlockEncryptedAesKeys> encryptedKeys;
 
-public:
+    void mergeDecryptedAesKeyForTransaction(const Schain *_sChain,
+                                            shared_ptr<map<uint64_t, ptr<vector<uint8_t>>>> &decryptedKeysMap,
+                                            uint64_t transactionIndex);
+
     node_count getCount();
 
-    bool isEnough();
+
+    ptr<BlockDecryptedAesKeys> mergeDecryptedKeyShares(const Schain *_sChain);
+
+public:
 
     BlockAesKeyDecryptionSet(Schain* _sChain, block_id _blockId,
                              ptr<BlockEncryptedAesKeys> _encryptedKeys);
@@ -60,6 +66,8 @@ public:
                                    Schain* _sChain);
 
     static int64_t getTotalObjects() { return totalObjects; }
+
+    bool isEnough();
 
     ~BlockAesKeyDecryptionSet() override;
 

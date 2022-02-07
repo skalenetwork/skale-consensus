@@ -62,33 +62,44 @@ ptr<BlockDecryptedAesKeys> BlockAesKeyDecryptionSet::add(const ptr<BlockAesKeyDe
     CHECK_STATE(encryptedKeys);
 
     if (isEnough()) {
+        return mergeDecryptedKeyShares(_sChain);
+    }
+}
 
-        auto decryptedKeysMap = make_shared<map<uint64_t, ptr<vector<uint8_t>>>>();
+ptr<BlockDecryptedAesKeys>  BlockAesKeyDecryptionSet::mergeDecryptedKeyShares(const Schain *_sChain) {
 
-        for (auto &&item: *encryptedKeys->getEncryptedKeys()) {
+    auto decryptedKeysMap = make_shared<map<uint64_t, ptr<vector<uint8_t>>>>();
 
-            auto transactionIndex = item.first;
+    for (auto &&item: *encryptedKeys->getEncryptedKeys()) {
 
-            auto sharesMap = make_shared<map<uint64_t, string>>();
+        auto transactionIndex = item.first;
 
-            for (auto &&decryption: decryptions) {
-                if (decryption.second->getData()->count(transactionIndex) > 0) {
-                    CHECK_STATE(sharesMap->emplace(decryption.first,
-                                                   decryption.second->getData()->at(transactionIndex)).second);
-                }
-            }
 
-            if (sharesMap->size() == requiredDecryptionCount) {
-                auto aesKey = _sChain->getCryptoManager()->teMergeDecryptedSharesIntoAESKey(
-                        sharesMap);
-                decryptedKeysMap->emplace(transactionIndex, aesKey);
-            }
-        }
-
-        return make_shared<BlockDecryptedAesKeys>(decryptedKeysMap);
+        mergeDecryptedAesKeyForTransaction(_sChain, decryptedKeysMap, transactionIndex);
     }
 
+    return make_shared<BlockDecryptedAesKeys>(decryptedKeysMap);
 }
+
+void BlockAesKeyDecryptionSet::mergeDecryptedAesKeyForTransaction(const Schain *_sChain,
+                                                                  shared_ptr<map<uint64_t, ptr<vector<uint8_t>>>> &decryptedKeysMap,
+                                                                  uint64_t transactionIndex) {
+
+    auto sharesMap = make_shared<map<uint64_t, string>>();
+
+    for (auto &&decryption: decryptions) {
+        if (decryption.second->getData()->count(transactionIndex) > 0) {
+            CHECK_STATE(sharesMap->emplace(decryption.first,
+                                           decryption.second->getData()->at(transactionIndex)).second);
+        }
+    }
+
+    if (sharesMap->size() == requiredDecryptionCount) {
+        auto aesKey = _sChain->getCryptoManager()->teMergeDecryptedSharesIntoAESKey(
+                sharesMap);
+        decryptedKeysMap->emplace(transactionIndex, aesKey);
+    }
+                                                                  }
 
 BlockAesKeyDecryptionSet::BlockAesKeyDecryptionSet(Schain *_sChain, block_id _blockId,
                                                    ptr<BlockEncryptedAesKeys> _encryptedKeys)
