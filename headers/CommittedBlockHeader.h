@@ -18,7 +18,7 @@
 
     @file CommittedBlockHeader.h
     @author Stan Kladko
-    @date 2019
+    @date 2019-
 */
 
 #ifndef SKALED_COMMITTEDBLOCKHEADER_H

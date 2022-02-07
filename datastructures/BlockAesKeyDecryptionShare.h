@@ -23,7 +23,7 @@
 #ifndef SKALED_BLOCKPROPOSALFRAGMENT_H
 #define SKALED_BLOCKPROPOSALFRAGMENT_H
 
-class BlockAesKeyDecryptionShare {
+class BlockAesKeyDecryptionShares {
 
     ptr<map<uint64_t, string>> data; // tsafe
 
@@ -31,11 +31,13 @@ class BlockAesKeyDecryptionShare {
 
     const uint64_t totalShares  = 0;
     const te_share_index schainIndex  = 0;
+public:
+    const ptr<map<uint64_t, string>> &getData() const;
 
 public:
 
-    BlockAesKeyDecryptionShare(const block_id & _blockId, uint64_t _totalShares, const te_share_index &_schainIndex,
-                               ptr<map<uint64_t, string>> _data);
+    BlockAesKeyDecryptionShares(const block_id & _blockId, uint64_t _totalShares, const te_share_index &_schainIndex,
+                                ptr<map<uint64_t, string>> _data);
 
     [[nodiscard]] block_id getBlockId() const;
 
