@@ -1156,7 +1156,6 @@ ptr<vector<string>> CryptoManager::teDecryptKeyShareVector(
     } else {
         return teDecryptKeyShareVectorSgx(_encryptedKeys);
     }
-
 }
 
 ptr<vector<string>> CryptoManager::teDecryptKeyShareVectorSgx(
