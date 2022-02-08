@@ -65,6 +65,8 @@
 
 #include "ConsensusEdDSASigShare.h"
 #include "bls/BLSPrivateKeyShare.h"
+#include "threshold_encryption/threshold_encryption.h"
+#include "tools/utils.h"
 // #include "datastructures/BlockProposal.h"
 #include "datastructures/CommittedBlock.h"
 #include "monitoring/LivelinessMonitor.h"
@@ -1138,13 +1140,13 @@ string CryptoManager::teEncryptAESKey(uint64_t _blockTimeStamp, ptr<vector<uint8
     }
 }
 
-
-
-
-// encrypt 128 bit AES key using the current SGX public . Return a hex encryption string
-string CryptoManager::teEncryptAESKeySgx(uint64_t
-                                       /* _blockTimeStamp */, shared_ptr<vector<uint8_t>> ) {
-    return "";
+// encrypt 128 bit AES key using the current SGX public. Return a hex encryption string
+string CryptoManager::teEncryptAESKeySgx(uint64_t _blockTimeStamp,
+                                         shared_ptr<vector<uint8_t>> _aesKey) {
+    auto sgxBLSPublicKey = getSgxBlsPublicKey( _blockTimeStamp ).first;
+    auto aesKeyStr = libBLS::ThresholdUtils::carray2Hex( _aesKey->data(), _aesKey->size() );
+    auto ciphertext = libBLS::TE::getCiphertext( aesKeyStr, *(sgxBLSPublicKey->getPublicKey()) );
+    return libBLS::TE::aesCiphertextToString( ciphertext, {} );
 }
 
 
