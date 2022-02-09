@@ -28,9 +28,9 @@ it and prints the decrypted value to the blockchain.
 
 ```javascript
 
-event PrintEvent(byte[] data)
+event PrintEvent(bytes data)
 
-function printSecret(byte[] decryptedSecret) {
+function printSecret(bytes decryptedSecret) {
     emit PrintEvent(decryptedSecret);
 }
 ```
