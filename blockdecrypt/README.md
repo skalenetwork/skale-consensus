@@ -1,21 +1,20 @@
 # Threshold Encryption  of Solidity Arguments Spec
 
-This specification describes threshold encryption of Solidity arguments (TESA). 
+This specification describes threshold encryption of Solidity arguments (TE). 
 
-Arguments are encrypted on the client side. They are decrypted  
-by a committee of nodes after the transaction is committed to the blockchain,  
-but before EVM execution.
+Arguments are encrypted on the client side. They are decrypted by a committee of nodes after the transaction is committed to the blockchain, but before EVM execution.
 
 As a result, front running and manipulation of transactions is provably eliminated,
-since the block proposer does not have information about the sensitive data.
+since the block proposer does not have information about the sensitive data at the time
+the proposal is formed.
 
 ## 1. Compatibility with existing ETH software
 
-The goal of this spec if to enable argument encryption without making modification
+The goal of this spec is to enable argument encryption without making modifications
 to ETH transaction format, Solidity programming language as well as existing ETH software such as 
 client libraries, wallets and development tools.
 
-All methods needed to argument encryption can be provided by a small standalone 
+All methods needed for argument encryption can be provided by a small standalone 
 client library.
 
 
@@ -35,7 +34,7 @@ function printSecret(bytes decryptedSecret) {
 }
 ```
 
-Note 1: the decryption happens before the function is executed. Inside the function the 
+Note 1: The client submits an encrypted value, and the decryption happens before the function is executed. Inside the function the 
 secret is already decrypted.
 
 Note 2: for efficiency purposes only one encrypted argument per function is supported.
@@ -50,22 +49,19 @@ first one is decrypted and the rest are left as is.
 Note 4: in addition to encrypting the argument, in many cases it is also
 necessary to hide which smart contract and which function is called.
 
-This can be easily done by creating a single router contract that routes calls
-to different contract or function depending on the encrypted argument.  
-
-The very fact of the transaction can be disguised too by periodically
-calling an empty function through the router.
+This can be easily done by creating a single router contract that routes the call
+to different contracts or functions depending on the encrypted argument.  
 
 
 Note 5: the attacker may try to obtain some information from the length of the
 encrypted argument, as well as from the gas limit. This can be addressed
-by always padding the argument to a fix length, as well as by always using 
+by always padding the argument to fixed length, as well as by using 
 standard gas limit.
 
 
 ## 3. Client argument encryption  procedure
 
-The client (e.g. browser or mobile device), encrypts the argument ```plaintext``` before submitting the 
+The client (e.g. browser or mobile device) encrypts the byte array argument ```plaintext``` before submitting the 
 transaction as follows:
 
 1. The client generates a random 128-bit AES key ```aesKey``` as a byte array.
@@ -84,7 +80,8 @@ transaction as follows:
 ```
 
 7. The client will now form the encrypted argument by concatenating 
-bytes of the header with the cipherText.
+bytes of the header with the cipherText and wrapping the result into magic constants
+that are used to locate the encrypted argument in ```transaction->data```
 
 ```
 byte[] encryptedArgument  = 
@@ -137,13 +134,11 @@ then ```ARGUMENT_INVALID_ENCRYPTION``` is returned.
 then ```ARGUMENT_INVALID_ENCRYPTION``` error is returned.
 
 
-7. Now ```plaintext``` has been recovered.
-
-8. Now zeroes are appended to the end of the ```plaintext``` to match the size of 
+7. Now zeroes are appended(padded) to the end of the ```plaintext``` to match the size of 
 the original ```encryptedArgument```. This is done to preserve the 
 positions of other arguments in ```transaction->data```
 
-9. The transaction is now passed to
+8. The transaction is now passed to
 EVM for execution, where the corresponding segment in
 ```transaction->data``` has been set to ```plaintext```
 
