@@ -17,7 +17,7 @@
 
     @file Set.cpp
     @author Stan Kladko
-    @date 2018
+    @date 2018-
 */
 
 #include "SkaleCommon.h"
@@ -31,40 +31,83 @@
 
 #include "chains/Schain.h"
 #include "pendingqueue/PendingTransactionsAgent.h"
+#include "crypto/CryptoManager.h"
 #include "datastructures/DAProof.h"
-
+#include "datastructures/BlockEncryptedAesKeys.h"
+#include "datastructures/BlockDecryptedAesKeys.h"
 #include "BlockAesKeyDecryptionSet.h"
 
 using namespace std;
 
-bool BlockAesKeyDecryptionSet::add(const ptr<BlockAesKeyDecryptionShare>& _decryption) {
+ptr<BlockDecryptedAesKeys> BlockAesKeyDecryptionSet::add(const ptr<BlockAesKeyDecryptionShares> &_decryption,
+                                                         Schain *_sChain) {
 
-    CHECK_ARGUMENT( _decryption);
+    CHECK_ARGUMENT(_decryption);
+    CHECK_STATE(_sChain);
 
-    auto index = (uint64_t ) _decryption->getSchainIndex();
+    auto index = (uint64_t) _decryption->getSchainIndex();
 
     CHECK_STATE(index > 0 && index <= nodeCount)
 
     LOCK(m)
 
-    if ( decryptions.count(index) > 0 ) {
-        LOG(trace,
+    if (decryptions.count(index) > 0) {
+        LOG(info,
             "Got block decryption with the same index" + to_string(index));
-        return false;
+        return nullptr;
     }
 
-    decryptions.emplace(index,_decryption);
+    decryptions.emplace(index, _decryption);
 
-    return true;
+    CHECK_STATE(encryptedKeys);
+
+    if (isEnough()) {
+        return mergeDecryptedKeyShares(_sChain);
+    }
 }
 
+ptr<BlockDecryptedAesKeys>  BlockAesKeyDecryptionSet::mergeDecryptedKeyShares(const Schain *_sChain) {
+
+    auto decryptedKeysMap = make_shared<map<uint64_t, ptr<vector<uint8_t>>>>();
+
+    for (auto &&item: *encryptedKeys->getEncryptedKeys()) {
+
+        auto transactionIndex = item.first;
 
 
-BlockAesKeyDecryptionSet::BlockAesKeyDecryptionSet(Schain* _sChain, block_id _blockId)
-    : blockId(_blockId){
+        mergeDecryptedAesKeyForTransaction(_sChain, decryptedKeysMap, transactionIndex);
+    }
+
+    return make_shared<BlockDecryptedAesKeys>(decryptedKeysMap);
+}
+
+void BlockAesKeyDecryptionSet::mergeDecryptedAesKeyForTransaction(const Schain *_sChain,
+                                                                  shared_ptr<map<uint64_t, ptr<vector<uint8_t>>>> &decryptedKeysMap,
+                                                                  uint64_t transactionIndex) {
+
+    auto sharesMap = make_shared<map<uint64_t, string>>();
+
+    for (auto &&decryption: decryptions) {
+        if (decryption.second->getData()->count(transactionIndex) > 0) {
+            CHECK_STATE(sharesMap->emplace(decryption.first,
+                                           decryption.second->getData()->at(transactionIndex)).second);
+        }
+    }
+
+    if (sharesMap->size() == requiredDecryptionCount) {
+        auto aesKey = _sChain->getCryptoManager()->teMergeDecryptedSharesIntoAESKey(
+                sharesMap);
+        decryptedKeysMap->emplace(transactionIndex, aesKey);
+    }
+                                                                  }
+
+BlockAesKeyDecryptionSet::BlockAesKeyDecryptionSet(Schain *_sChain, block_id _blockId,
+                                                   ptr<BlockEncryptedAesKeys> _encryptedKeys)
+        : blockId(_blockId) {
     CHECK_ARGUMENT(_sChain);
     CHECK_ARGUMENT(_blockId > 0);
 
+    encryptedKeys = _encryptedKeys;
     nodeCount = _sChain->getNodeCount();
     requiredDecryptionCount = _sChain->getRequiredSigners();
     totalObjects++;
@@ -76,13 +119,13 @@ BlockAesKeyDecryptionSet::~BlockAesKeyDecryptionSet() {
 
 node_count BlockAesKeyDecryptionSet::getCount() {
     LOCK(m)
-    return ( node_count ) decryptions.size();
+    return (node_count) decryptions.size();
 }
 
 
 atomic<int64_t>  BlockAesKeyDecryptionSet::totalObjects(0);
 
-bool BlockAesKeyDecryptionSet::isEnough()  {
+bool BlockAesKeyDecryptionSet::isEnough() {
     LOCK(m)
-    return decryptions.size() >= this->requiredDecryptionCount;
+    return decryptions.size() == this->requiredDecryptionCount;
 }
