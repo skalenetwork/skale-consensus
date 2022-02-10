@@ -131,6 +131,9 @@ public:
     string ecdsaSignMessageHash(int _base, const string &_keyName, const string &_messageHash,
         bool _throwExceptionOnTimeout);
 
+    vector<string> getDecryptedShares(const string &_keyShareName, const Json::Value& arrayShares,
+                              bool _throwExceptionOnTimeout);
+
     void exit();
 
     static void verifySig(EVP_PKEY* _pubkey, const string& _str, const string& _sig);

@@ -30,6 +30,8 @@
 
 #include "BLSSignReqMessage.h"
 #include "BLSSignRspMessage.h"
+#include "DecryptionShareReqMessage.h"
+#include "DecryptionShareRspMessage.h"
 #include "ECDSASignReqMessage.h"
 #include "ECDSASignRspMessage.h"
 #include "Log.h"
@@ -339,6 +341,21 @@ string SgxZmqClient::ecdsaSignMessageHash( int base, const std::string& keyName,
     CHECK_STATE( result != nullptr );
     CHECK_STATE( result->getStatus() == 0 );
     return result->getSignature();
+}
+
+vector<string> SgxZmqClient::getDecryptedShares(const string &_keyShareName,
+                                        const Json::Value& arrayShares,
+                                        bool _throwExceptionOnTimeout) {
+    Json::Value p;
+    p["type"] = SgxZmqMessage::GET_DECRYPTED_SHARES_REQ;
+    p["blsKeyName"] = _keyShareName;
+    p["publicDecryptionValues"] = arrayShares;
+    auto result = dynamic_pointer_cast< GetDecryptionSharesRspMessage >(
+        doRequestReply( p, _throwExceptionOnTimeout ) );
+
+    CHECK_STATE( result != nullptr );
+    CHECK_STATE( result->getStatus() == 0 );
+    return result->getShares();
 }
 
 

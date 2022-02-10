@@ -65,6 +65,8 @@
 
 #include "ConsensusEdDSASigShare.h"
 #include "bls/BLSPrivateKeyShare.h"
+#include "threshold_encryption/TEDecryptSet.h"
+#include "tools/utils.h"
 // #include "datastructures/BlockProposal.h"
 #include "datastructures/CommittedBlock.h"
 #include "monitoring/LivelinessMonitor.h"
@@ -1148,29 +1150,31 @@ string CryptoManager::teEncryptAESKeySgx(uint64_t
 }
 
 
-ptr<vector<string>> CryptoManager::teDecryptKeyShareVector(uint64_t _blockTimeStamp,
-        ptr<vector<string>> _encryptedKeys) {
+ptr<vector<string>> CryptoManager::teDecryptKeyShareVector(ptr<vector<string>> _encryptedKeys) {
     CHECK_STATE(_encryptedKeys)
     if (!isSGXEnabled) {
         // mockup just return the same vector
         return _encryptedKeys;
     } else {
-        return teDecryptKeyShareVectorSgx(_blockTimeStamp, _encryptedKeys);
+        return teDecryptKeyShareVectorSgx(_encryptedKeys);
     }
 }
 
-ptr<vector<string>> CryptoManager::teDecryptKeyShareVectorSgx(uint64_t  /* _blockTimeStamp */,
-        ptr<vector<string>> _encryptedKeys) {
+ptr<vector<string>> CryptoManager::teDecryptKeyShareVectorSgx(ptr<vector<string>> _encryptedKeys) {
     CHECK_STATE(_encryptedKeys);
     // get decrypt shares as a SGX single call. For each string in
-    return nullptr;
+    Json::Value arrayShares;
+    for ( int i = 0; i < _encryptedKeys->size(); ++i ) {
+        arrayShares[i] = _encryptedKeys->at(i);
+    }
+    auto ret = zmqClient->getDecryptedShares( getSgxBlsKeyName(), arrayShares, true);
+    return make_shared<vector<string>>(ret);
 }
 
 
 
 ptr<vector<uint8_t>> CryptoManager::teMergeDecryptedSharesIntoAESKey(
-        ptr<map<uint64_t, string>> _keyShares) {
-
+        ptr<map<uint64_t, string>> _keyShares ) {
     CHECK_STATE(_keyShares);
     CHECK_STATE(_keyShares->size() == getSchain()->getRequiredSigners())
     if (!isSGXEnabled) {
@@ -1191,5 +1195,11 @@ ptr<vector<uint8_t>> CryptoManager::teMergeDecryptedSharesIntoAESKey(
 ptr<vector<uint8_t>> CryptoManager::teMergeDecryptedSharesIntoAESKeySgx(
         ptr<map<uint64_t, string>> _keyShares) {
     CHECK_STATE(_keyShares)
+    TEDecryptSet decryptSet = TEDecryptSet( requiredSigners, totalSigners );
+    for (const auto& [idx, keyShare]: *_keyShares) {
+        auto key = libBLS::ThresholdUtils::stringToG2( keyShare );
+        decryptSet.addDecrypt( idx, std::make_shared<libff::alt_bn128_G2>( key ) );
+    }
+    auto merged = decryptSet.mergeIntoAESKey();
     return nullptr;
 }

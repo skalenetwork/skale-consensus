@@ -33,6 +33,8 @@
 #include <openssl/sha.h>
 #include <openssl/rand.h>
 
+#include <jsonrpccpp/client.h>
+
 #include "thirdparty/lrucache.hpp"
 
 #include "thirdparty/rapidjson/document.h"
@@ -55,6 +57,8 @@ public:
     static constexpr const char *BLS_SIGN_RSP = "BLSSignRsp";
     static constexpr const char *ECDSA_SIGN_REQ = "ECDSASignReq";
     static constexpr const char *ECDSA_SIGN_RSP = "ECDSASignRsp";
+    static constexpr const char *GET_DECRYPTED_SHARES_REQ = "getDecryptedSharesReq";
+    static constexpr const char *GET_DECRYPTED_SHARES_RSP = "getDecryptedSharesRsp";
 
     explicit SgxZmqMessage(shared_ptr<rapidjson::Document> &_d) : d(_d) {
     };
@@ -62,6 +66,8 @@ public:
     string getStringRapid(const char *_name);
 
     uint64_t getUint64Rapid(const char *_name);
+
+    Json::Value getJsonValueRapid(const char *_name);
 
     uint64_t getStatus() {
         return getUint64Rapid("status");

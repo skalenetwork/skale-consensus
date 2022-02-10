@@ -353,11 +353,9 @@ public:
             ptr<map<uint64_t, string>> _keyShares);
 
 
-    ptr<vector<string>> teDecryptKeyShareVector(uint64_t _blockTimeStamp,
-            ptr<vector<string>> _keyShares);
+    ptr<vector<string>> teDecryptKeyShareVector(ptr<vector<string>> _keyShares);
 
-    ptr<vector<string>> teDecryptKeyShareVectorSgx(uint64_t _blockTimeStamp,
-            ptr<vector<string>> _keyShares);
+    ptr<vector<string>> teDecryptKeyShareVectorSgx(ptr<vector<string>> _keyShares);
 
 
     static string hashForOracle(string &_text);

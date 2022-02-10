@@ -52,7 +52,23 @@ string SgxZmqMessage::getStringRapid(const char *_name) {
     return (*d)[_name].GetString();
 };
 
+Json::Value SgxZmqMessage::getJsonValueRapid(const char *_name) {
+    CHECK_STATE(_name);
+    CHECK_STATE(d->HasMember(_name));
+    CHECK_STATE((*d)[_name].IsObject());
+    const rapidjson::Value &a = (*d)[_name];
+    
+    rapidjson::StringBuffer buffer;
+    rapidjson::Writer< rapidjson::StringBuffer > writer(buffer);
+    a.Accept(writer);
+    std::string strRequest = buffer.GetString();
 
+    Json::Reader reader;
+    Json::Value root;
+    reader.parse(strRequest, root, false);
+
+    return root;
+}
 
 
 shared_ptr < SgxZmqMessage > SgxZmqMessage::parse(const char *_msg,
