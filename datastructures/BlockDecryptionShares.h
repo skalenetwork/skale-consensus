@@ -12,12 +12,12 @@ class BlockDecryptionShares {
 
     recursive_mutex m;
 
-    ptr<map<uint64_t, ptr<BlockAesKeyDecryptionShare>>> shares;
+    ptr<map<uint64_t, ptr<BlockAesKeyDecryptionShares>>> shares;
 
 public:
     BlockDecryptionShares();
 
-    void addShare(uint64_t _index, ptr<BlockAesKeyDecryptionShare> _share);
+    void addShare(uint64_t _index, ptr<BlockAesKeyDecryptionShares> _share);
 
 };
 

@@ -26,9 +26,9 @@
 
 #include "BlockAesKeyDecryptionShare.h"
 
-BlockAesKeyDecryptionShare::BlockAesKeyDecryptionShare(const block_id & _blockId, const uint64_t _totalShares,
-                                                       const te_share_index &_schainIndex,
-                                                       ptr<map<uint64_t, string>> _data) :
+BlockAesKeyDecryptionShares::BlockAesKeyDecryptionShares(const block_id & _blockId, const uint64_t _totalShares,
+                                                         const te_share_index &_schainIndex,
+                                                         ptr<map<uint64_t, string>> _data) :
         data( _data ), blockId( _blockId ), totalShares(_totalShares ), schainIndex(_schainIndex) {
 
     CHECK_ARGUMENT(_data);
@@ -37,14 +37,18 @@ BlockAesKeyDecryptionShare::BlockAesKeyDecryptionShare(const block_id & _blockId
     CHECK_ARGUMENT( _blockId > 0);
 }
 
-block_id BlockAesKeyDecryptionShare::getBlockId() const {
+block_id BlockAesKeyDecryptionShares::getBlockId() const {
     return blockId;
 }
 
-uint64_t BlockAesKeyDecryptionShare::getTotalShares() const {
+uint64_t BlockAesKeyDecryptionShares::getTotalShares() const {
     return totalShares;
 }
 
-te_share_index BlockAesKeyDecryptionShare::getSchainIndex() const {
+te_share_index BlockAesKeyDecryptionShares::getSchainIndex() const {
     return schainIndex;
+}
+
+const ptr<map<uint64_t, string>> &BlockAesKeyDecryptionShares::getData() const {
+    return data;
 }

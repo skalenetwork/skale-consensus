@@ -27,14 +27,16 @@
 
 class PartialHashesList;
 class Schain;
-class BlockAesKeyDecryptionShare;
+class BlockAesKeyDecryptionShares;
 class BLAKE3Hash;
 class BooleanProposalVector;
 class DAProof;
+class BlockDecryptedAesKeys;
+class BlockEncryptedAesKeys;
 
 class BlockAesKeyDecryptionSet : public DataStructure {
 
-    map< uint64_t, ptr< BlockAesKeyDecryptionShare > > decryptions; // tsafe
+    map< uint64_t, ptr< BlockAesKeyDecryptionShares > > decryptions; // tsafe
 
     node_count nodeCount  = 0;
 
@@ -44,16 +46,28 @@ class BlockAesKeyDecryptionSet : public DataStructure {
 
     static atomic< int64_t > totalObjects;
 
-public:
+    ptr<BlockEncryptedAesKeys> encryptedKeys;
+
+    void mergeDecryptedAesKeyForTransaction(const Schain *_sChain,
+                                            shared_ptr<map<uint64_t, ptr<vector<uint8_t>>>> &decryptedKeysMap,
+                                            uint64_t transactionIndex);
+
     node_count getCount();
 
-    bool isEnough();
 
-    BlockAesKeyDecryptionSet(Schain* _sChain, block_id _blockId );
+    ptr<BlockDecryptedAesKeys> mergeDecryptedKeyShares(const Schain *_sChain);
 
-    bool add(const ptr<BlockAesKeyDecryptionShare>& _decryption);
+public:
+
+    BlockAesKeyDecryptionSet(Schain* _sChain, block_id _blockId,
+                             ptr<BlockEncryptedAesKeys> _encryptedKeys);
+
+    ptr<BlockDecryptedAesKeys> add(const ptr<BlockAesKeyDecryptionShares>& _decryption,
+                                   Schain* _sChain);
 
     static int64_t getTotalObjects() { return totalObjects; }
+
+    bool isEnough();
 
     ~BlockAesKeyDecryptionSet() override;
 

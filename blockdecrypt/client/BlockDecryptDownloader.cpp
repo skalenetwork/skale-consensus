@@ -78,11 +78,14 @@ BlockDecryptDownloader::BlockDecryptDownloader(Schain *_sChain, ptr<BlockProposa
     CHECK_STATE(_proposal);
     CHECK_STATE(_sChain);
 
-    decryptionSet = make_shared<BlockAesKeyDecryptionSet>(_sChain, _proposal->getBlockID());
+
     auto encryptedArgs = _proposal->getEncryptedArguments(
             _sChain->getNode()->getEncryptedTransactionAnalyzer());
 
     encryptedKeys = encryptedArgs->getEncryptedAesKeys();
+
+    decryptionSet = make_shared<BlockAesKeyDecryptionSet>(_sChain, _proposal->getBlockID(),
+                                                          encryptedKeys);
 
     blockId = _proposal->getBlockID();
     proposerIndex = _proposal->getProposerIndex();
@@ -214,13 +217,13 @@ uint64_t BlockDecryptDownloader::downloadDecryptionShare(schain_index _dstIndex)
 
         auto decryptionShares = Header::getIntegerStringMap(response, "decryptionShares");
 
-        auto decryptionShare = make_shared<BlockAesKeyDecryptionShare>(getBlockId(),
-                getSchain()->getTotalSigners(), (te_share_index) (uint64_t ) _dstIndex,
-                decryptionShares);
+        auto decryptionShare = make_shared<BlockAesKeyDecryptionShares>(getBlockId(),
+                                                                        getSchain()->getTotalSigners(), (te_share_index) (uint64_t ) _dstIndex,
+                                                                        decryptionShares);
 
         CHECK_STATE(decryptionShare);
 
-        this->decryptionSet->add(decryptionShare);
+        this->decryptionSet->add(decryptionShare, sChain);
 
         return true;
 
@@ -240,9 +243,7 @@ ptr<BlockDecryptedAesKeys> BlockDecryptDownloader::downloadDecryptedKeys() {
         threadPool->startService();
         threadPool->joinAll();
 
-        if (this->decryptionSet->isEnough()) {
-            // GLUE
-        }
+        return nullptr;
 
     } catch (ExitRequestedException &) { throw; } catch (exception &e) {
         SkaleException::logNested(e);

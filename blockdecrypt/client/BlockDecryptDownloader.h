@@ -58,6 +58,9 @@ class BlockEncryptedAesKeys;
 class BlockDecryptedAesKeys;
 
 
+#include "sgxwallet/third_party/concurrentqueue.h"
+#include "sgxwallet/third_party/readerwriterqueue.h"
+
 #include "datastructures/BlockAesKeyDecryptionSet.h"
 
 class BlockDecryptDownloader : public Agent {
