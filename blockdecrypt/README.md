@@ -2,8 +2,7 @@
 
 This specification describes threshold encryption of Solidity arguments (TESA). 
 
-Arguments are encrypted on the client side. They are decrypted  
-by a committee of nodes after the transaction is committed to the blockchain,  
+Arguments are encrypted on the client side. They are decrypted by a committee of nodes after the transaction is committed to the blockchain,  
 but before EVM execution.
 
 As a result, front running and manipulation of transactions is provably eliminated,
