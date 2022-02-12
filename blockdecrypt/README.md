@@ -93,7 +93,7 @@ byte[] encryptedArgument  =
 
 Note: ```TE_MAGIC_START``` and ```TE_MAGIC_END``` are long pseudorandom sequences
 used to match the encrypted values during decryption. Their values are
-defined in Appendix 1.
+defined in 5..
 
 
 
