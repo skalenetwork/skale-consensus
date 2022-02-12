@@ -109,7 +109,7 @@ following procedure to decrypt the Solidity argument.
    ```TE_MAGIC_START``` and end with ```TE_MAGIC_END``` to recover 
 ```encryptedArgument```. 
 
-Note: if mode than one segment is found, the first is processed and the rest are ignored.
+Note: if more than one segment is found, the first is processed and the rest are ignored.
 
 2. The ```encryptedArgument``` is then parsed into ```jsonHeader``` and ```cipherText```, and
    then ```jsonHeader``` is parsed, to retrieve ```currentTimeMs```,
