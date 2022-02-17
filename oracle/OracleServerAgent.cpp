@@ -137,8 +137,8 @@ void OracleServerAgent::workerThreadItemSendLoop(OracleServerAgent *_agent) {
 
     auto agent = (Agent *) _agent;
 
-    try {
-        while (!agent->getSchain()->getNode()->isExitRequested()) {
+    while (!agent->getSchain()->getNode()->isExitRequested()) {
+        try {
 
             ptr<MessageEnvelope> msge;
 
@@ -155,14 +155,15 @@ void OracleServerAgent::workerThreadItemSendLoop(OracleServerAgent *_agent) {
             auto msg = _agent->doEndpointRequestResponse(orclMsg);
 
             _agent->sendOutResult(msg, msge->getSrcSchainIndex());
-
+        } catch (FatalError &e) {
+            SkaleException::logNested(e);
+            agent->getNode()->exitOnFatalError(e.what());
+        } catch (ExitRequestedException &e) {
+        } catch (exception &e) {
+            SkaleException::logNested(e);
+        } catch (...) {
+            LOG(err, "Error in Oracle loop, unknown object is thrown");
         }
-    } catch (FatalError &e) {
-        SkaleException::logNested(e);
-        agent->getNode()->exitOnFatalError(e.what());
-    } catch (ExitRequestedException &e) {
-    } catch (exception &e) {
-        SkaleException::logNested(e);
     }
 
     LOG(info, "Exited Oracle worker thread " + to_string(threadNumber));
@@ -229,7 +230,7 @@ ptr<OracleResponseMessage> OracleServerAgent::doEndpointRequestResponse(ptr<Orac
     auto resultStr = _request->getRequestSpec();
 
 
-    auto status = curlHttp(spec->getUri(), isPost, postString, response);
+    auto status = curlHttp(uri, isPost, postString, response);
 
 
     if (status != ORACLE_SUCCESS) {
@@ -391,6 +392,9 @@ uint64_t OracleServerAgent::curlHttp(const string &_uri, bool _isPost, string &_
     curl_easy_setopt(curl, CURLOPT_DNS_SERVERS, "8.8.8.8");
 
     if (_isPost) {
+        struct curl_slist *headers = NULL;
+        headers = curl_slist_append(headers, "Content-Type: application/json");
+        curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
         curl_easy_setopt(curl, CURLOPT_POSTFIELDS, _postString.c_str());
     }
 
