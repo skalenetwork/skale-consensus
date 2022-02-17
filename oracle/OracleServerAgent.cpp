@@ -392,6 +392,9 @@ uint64_t OracleServerAgent::curlHttp(const string &_uri, bool _isPost, string &_
     curl_easy_setopt(curl, CURLOPT_DNS_SERVERS, "8.8.8.8");
 
     if (_isPost) {
+        struct curl_slist *headers = NULL;
+        headers = curl_slist_append(headers, "Content-Type: application/json");
+        curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
         curl_easy_setopt(curl, CURLOPT_POSTFIELDS, _postString.c_str());
     }
 
