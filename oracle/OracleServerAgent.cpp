@@ -137,8 +137,8 @@ void OracleServerAgent::workerThreadItemSendLoop(OracleServerAgent *_agent) {
 
     auto agent = (Agent *) _agent;
 
-    try {
-        while (!agent->getSchain()->getNode()->isExitRequested()) {
+    while (!agent->getSchain()->getNode()->isExitRequested()) {
+        try {
 
             ptr<MessageEnvelope> msge;
 
@@ -155,14 +155,15 @@ void OracleServerAgent::workerThreadItemSendLoop(OracleServerAgent *_agent) {
             auto msg = _agent->doEndpointRequestResponse(orclMsg);
 
             _agent->sendOutResult(msg, msge->getSrcSchainIndex());
-
+        } catch (FatalError &e) {
+            SkaleException::logNested(e);
+            agent->getNode()->exitOnFatalError(e.what());
+        } catch (ExitRequestedException &e) {
+        } catch (exception &e) {
+            SkaleException::logNested(e);
+        } catch (...) {
+            LOG(err, "Error in Oracle loop, unknown object is thrown");
         }
-    } catch (FatalError &e) {
-        SkaleException::logNested(e);
-        agent->getNode()->exitOnFatalError(e.what());
-    } catch (ExitRequestedException &e) {
-    } catch (exception &e) {
-        SkaleException::logNested(e);
     }
 
     LOG(info, "Exited Oracle worker thread " + to_string(threadNumber));
