@@ -18,7 +18,7 @@
 
     @file CatchupServerAgent.h
     @author Stan Kladko
-    @date 2018
+    @date 2022-
 */
 
 #pragma once
@@ -40,29 +40,36 @@ class CommittedBlock;
 class CommittedBlockList;
 class CatchupResponseHeader;
 class BlockFinalizeResponseHeader;
+class BlockDecryptResponseHeader;
 
 class CatchupServerAgent : public AbstractServerAgent {
 
-    ptr< CatchupWorkerThreadPool > catchupWorkerThreadPool;
+    ptr<CatchupWorkerThreadPool> catchupWorkerThreadPool;
 
-    ptr< vector< uint8_t > > createBlockCatchupResponse( nlohmann::json _jsonRequest,
-        const ptr< CatchupResponseHeader >& _responseHeader, block_id _blockID );
+    ptr<vector<uint8_t> > createBlockCatchupResponse(nlohmann::json _jsonRequest,
+                                                     const ptr<CatchupResponseHeader> &_responseHeader,
+                                                     block_id _blockID);
 
 
-    ptr< vector< uint8_t > > createBlockFinalizeResponse( nlohmann::json _jsonRequest,
-        const ptr< BlockFinalizeResponseHeader >& _responseHeader, block_id _blockID );
+    ptr<vector<uint8_t> > createBlockFinalizeResponse(nlohmann::json _jsonRequest,
+                                                      const ptr<BlockFinalizeResponseHeader> &_responseHeader,
+                                                      block_id _blockID);
 
 
 public:
 
-    CatchupServerAgent( Schain& _schain, const ptr< TCPServerSocket >& _s );
+    CatchupServerAgent(Schain &_schain, const ptr<TCPServerSocket> &_s);
 
     ~CatchupServerAgent() override;
 
-    ptr< vector< uint8_t > > createResponseHeaderAndBinary(
-        const ptr< ServerConnection >& _connectionEnvelope, nlohmann::json _jsonRequest,
-        const ptr< Header >& _responseHeader );
+    pair<ptr<Header>, ptr<vector<uint8_t>>> createResponseHeaderAndBinary(
+            const ptr<ServerConnection> &_connectionEnvelope, nlohmann::json _jsonRequest);
 
-    void processNextAvailableConnection( const ptr< ServerConnection >& _connection ) override;
+    void processNextAvailableConnection(const ptr<ServerConnection> &_connection) override;
+
+    void createBlockDecryptResponse(nlohmann::json _jsonRequest,
+                                                    const ptr<BlockDecryptResponseHeader> &_responseHeader,
+                                                    block_id _blockID);
 
 };
+

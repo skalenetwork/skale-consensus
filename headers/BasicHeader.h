@@ -52,6 +52,9 @@ public:
     static constexpr const char *BLOCK_PROPOSAL_RSP = "BlckPrpslRsp";
     static constexpr const char *BLOCK_FINALIZE_REQ = "BlckFinalizeReq";
     static constexpr const char * BLOCK_FINALIZE_RSP = "BlckFnlzRsp";
+    static constexpr const char *BLOCK_DECRYPT_REQ = "BlckDecrReq";
+    static constexpr const char * BLOCK_DECRYPT_RSP = "BlckDecrRsp";
+
     static constexpr const char *DA_PROOF_REQ = "DAPrfReq";
     static constexpr const char *DA_PROOF_RSP = "DAPrfRsp";
     static constexpr const char *BLOCK_CATCHUP_REQ = "BlckCatchupReq";
@@ -94,6 +97,10 @@ public:
     static int32_t getInt32( nlohmann::json& _js, const char* _name );
 
     static string getString( nlohmann::json& _js, const char* _name );
+
+    static ptr<vector<string>> getStringVector(nlohmann::json &_js, const char *_name);
+
+    static ptr<map<uint64_t, string>> getIntegerStringMap(nlohmann::json &_js, const char *_name);
 
 };
 

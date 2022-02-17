@@ -37,6 +37,7 @@ class BlockProposalRequestHeader : public AbstractBlockRequestHeader{
     uint64_t  timeStamp = 0;
     uint32_t  timeStampMs = 0;
     u256 stateRoot;
+    uint32_t useTe = 0;
 
 public:
 
@@ -59,6 +60,8 @@ public:
     string getSignature();
 
     u256 getStateRoot();
+
+    uint32_t getUseTe();
 
 };
 

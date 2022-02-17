@@ -56,6 +56,7 @@ class TestConfig;
 class BlockSigShareDB;
 class DASigShareDB;
 class DAProofDB;
+class EncryptedTransactionAnalyzerInterface;
 
 namespace leveldb {
 class DB;
@@ -66,7 +67,7 @@ enum PricingStrategyEnum { ZERO, DOS_PROTECT };
 
 
 class Node {
-    
+
     ConsensusEngine* consensusEngine;
 
     vector< Agent* > agents;
@@ -108,6 +109,8 @@ class Node {
     ptr< Schain > sChain = nullptr;
 
     ptr< TestConfig > testConfig = nullptr;
+
+
 
     class Comparator {
     public:
@@ -199,11 +202,18 @@ class Node {
 
     string gethURL = "";
 
+    shared_ptr<EncryptedTransactionAnalyzerInterface> encryptedTransactionAnalyzer;
+
     bool inited = false;
 
     void releaseGlobalServerBarrier();
 
     void releaseGlobalClientBarrier();
+
+public:
+    const shared_ptr<EncryptedTransactionAnalyzerInterface> &getEncryptedTransactionAnalyzer() const;
+
+private:
 
     void closeAllSocketsAndNotifyAllAgentsAndThreads();
 
@@ -272,6 +282,8 @@ public:
 
     bool isStarted() const;
 
+    bool isTeEnabled();
+
     Node( const nlohmann::json& _cfg, ConsensusEngine* _consensusEngine, bool _useSGX,
         string _sgxURL,
         string _sgxSSLKeyFileFullPath,
@@ -279,7 +291,8 @@ public:
         string _ecdsaKeyName, ptr< vector<string> > _ecdsaPublicKeys,
         string _blsKeyName, ptr< vector< ptr< vector<string>>>> _blsPublicKeys,
         ptr< BLSPublicKey > _blsPublicKey, string& _gethURL,
-        ptr< map< uint64_t, ptr< BLSPublicKey > > > _previousBlsPublicKeys);
+        ptr< map< uint64_t, ptr< BLSPublicKey > > > _previousBlsPublicKeys,
+        shared_ptr<EncryptedTransactionAnalyzerInterface> _analyzer);
 
     ~Node();
 

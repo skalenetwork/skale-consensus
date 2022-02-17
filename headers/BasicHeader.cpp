@@ -79,6 +79,7 @@ void BasicHeader::nullCheck(nlohmann::json &js, const char * _name ) {
 uint64_t BasicHeader::getUint64(nlohmann::json &_js, const char *_name) {
     CHECK_ARGUMENT(_name);
     nullCheck(_js, _name);
+    CHECK_ARGUMENT2(_js[_name].is_number_unsigned(), "Json element in " + _js.dump() + " is not unsigned number:" + _name);
     uint64_t result = _js[_name];
     return result;
 };
@@ -111,6 +112,7 @@ int32_t BasicHeader::getInt32(nlohmann::json &_js, const char *_name) {
 uint32_t BasicHeader::getUint32(nlohmann::json &_js, const char *_name) {
     CHECK_ARGUMENT(_name);
     nullCheck(_js, _name);
+    CHECK_ARGUMENT2(_js[_name].is_number_unsigned(), "Json element in " + _js.dump() + " is not unsigned number:" + _name);
     uint32_t result = _js[_name];
     return result;
 };
@@ -118,9 +120,51 @@ uint32_t BasicHeader::getUint32(nlohmann::json &_js, const char *_name) {
 string BasicHeader::getString(nlohmann::json &_js, const char *_name) {
     CHECK_ARGUMENT(_name);
     nullCheck(_js, _name);
+    CHECK_ARGUMENT2(_js[_name].is_string(), "Json element in " + _js.dump() + " is not a string:" + _name);
     string result = _js[_name];
     return result;
 }
+
+ptr<vector<string>> BasicHeader::getStringVector(nlohmann::json &_js, const char *_name) {
+    auto result = make_shared<vector<string>>();
+    CHECK_ARGUMENT(_name);
+    nullCheck(_js, _name);
+    nlohmann::json arr =  _js[_name];
+    CHECK_ARGUMENT(arr.is_array());
+
+    for (auto&& item : arr.items())
+    {
+        CHECK_ARGUMENT(item.value().is_string());
+        string s = item.value();
+        result->push_back(s);
+    }
+
+    return result;
+}
+
+ptr<map<uint64_t, string>> BasicHeader::getIntegerStringMap(nlohmann::json &_js, const char *_name) {
+    auto result = make_shared<map<uint64_t,string>>();
+    CHECK_ARGUMENT(_name);
+    nullCheck(_js, _name);
+    nlohmann::json map =  _js[_name];
+    CHECK_ARGUMENT(map.is_object());
+
+    for (auto&& item : map.items())
+    {
+        CHECK_ARGUMENT(item.value().is_string());
+        string s = item.value();
+        auto key = stoull(item.key());
+        CHECK_STATE(result->count(key) == 0)
+        result->emplace(key, item.value());
+    }
+
+    return result;
+}
+
+
+
+
+
 
 BasicHeader::BasicHeader(const char *_type) : type(_type)  {
     CHECK_ARGUMENT(_type);

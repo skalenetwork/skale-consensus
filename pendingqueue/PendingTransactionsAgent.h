@@ -31,6 +31,7 @@ class Schain;
 class BlockProposal;
 class PartialHashesList;
 class Transaction;
+class TimeStamp;
 
 #include "db/CacheLevelDB.h"
 
