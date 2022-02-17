@@ -229,7 +229,7 @@ ptr<OracleResponseMessage> OracleServerAgent::doEndpointRequestResponse(ptr<Orac
     auto resultStr = _request->getRequestSpec();
 
 
-    auto status = curlHttp(spec->getUri(), isPost, postString, response);
+    auto status = curlHttp(uri, isPost, postString, response);
 
 
     if (status != ORACLE_SUCCESS) {
