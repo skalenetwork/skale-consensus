@@ -112,6 +112,5 @@ const string OracleResponseMessage::getUnsignedOracleResultStr() const {
     auto commaPosition = oracleResultStr.find_last_of(",");
     ORACLE_CHECK_STATE(commaPosition != string::npos);
     auto res = oracleResultStr.substr(0, commaPosition + 1);
-    cerr << res << endl;
     return res;
 }

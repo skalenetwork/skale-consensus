@@ -250,7 +250,7 @@ ptr<OracleResponseMessage> OracleServerAgent::doEndpointRequestResponse(ptr<Orac
 
     this->signResult(resultStr);
 
-    cerr << resultStr << endl;
+    LOG(info, "Oracle request result: " + resultStr);
 
     string receipt = _request->getParsedSpec()->getReceipt();
 

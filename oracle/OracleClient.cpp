@@ -180,6 +180,7 @@ void OracleClient::processResponseMessage(const ptr<MessageEnvelope> &_me) {
     auto receipt = msg->getReceipt();
     auto unsignedResult = msg->getUnsignedOracleResultStr();
     auto sig = msg->getOracleResult()->getSig();
+    LOG(info, "Receiving oracle message from node:" + to_string(origin) + "; Data:" + unsignedResult);
 
     auto receivedResults = receiptsMap.getIfExists(receipt);
 
@@ -189,17 +190,7 @@ void OracleClient::processResponseMessage(const ptr<MessageEnvelope> &_me) {
     }
 
     auto receipts = std::any_cast<ptr<OracleReceivedResults>>(receivedResults);
-
-
     receipts->insertIfDoesntExist(origin, unsignedResult, sig);
-
-
-    LOG(info, "Processing oracle message:" + to_string(origin));
-
-    string r;
-
-    // tryGettingOracleResult(receipt, r);
-
 }
 
 
