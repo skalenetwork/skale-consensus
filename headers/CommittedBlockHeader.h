@@ -18,7 +18,7 @@
 
     @file CommittedBlockHeader.h
     @author Stan Kladko
-    @date 2019
+    @date 2019-
 */
 
 #ifndef SKALED_COMMITTEDBLOCKHEADER_H
@@ -29,11 +29,15 @@
 class CommittedBlockHeader : public BlockProposalHeader {
 
     string thresholdSig;
+    ptr<map<uint64_t, string>> decryptedArgKeys = nullptr;
 
 public:
-    CommittedBlockHeader(BlockProposal &block, const string &thresholdSig);
+    CommittedBlockHeader(BlockProposal &block, const string &thresholdSig,
+                         ptr<map<uint64_t, string>> _decryptedAesKeys);
 
     explicit CommittedBlockHeader(nlohmann::json &json);
+
+    const ptr<map<uint64_t, string>> &getDecryptedArgKeys() const;
 
     [[nodiscard]] const string &getThresholdSig() const;
 

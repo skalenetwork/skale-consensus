@@ -140,9 +140,6 @@ block_id basicRun(int64_t _lastId = 0) {
         engine = new ConsensusEngine(_lastId, 1000000000);
 
 
-
-
-
         engine->parseTestConfigsAndCreateAllNodes( Consensust::getConfigDirPath(), _lastId == -1 );
 
 

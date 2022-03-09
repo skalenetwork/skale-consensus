@@ -84,6 +84,7 @@
 #include "spdlog/sinks/stdout_color_sinks.h"
 #include "spdlog/spdlog.h"
 
+#include "db/StorageLimits.h"
 #include "chains/Schain.h"
 #include "exceptions/EngineInitException.h"
 #include "json/JSONFactory.h"
@@ -99,10 +100,10 @@
 #include "tools/utils.h"
 
 #include "exceptions/FatalError.h"
-
+#include "EncryptedTransactionAnalyzerInterface.h"
 #include "ConsensusEngine.h"
 
-#include "db/StorageLimits.h"
+
 
 #include "ENGINE_VERSION"
 
@@ -232,7 +233,30 @@ void ConsensusEngine::log(
 }
 
 
+class ExtFaceEncryptedTransactionAnalyzer : public EncryptedTransactionAnalyzerInterface {
+    ConsensusExtFace* extFace;
+public:
+    ExtFaceEncryptedTransactionAnalyzer(ConsensusExtFace* _extFace) {
+        CHECK_STATE(_extFace);
+        extFace = _extFace;
+    };
+
+    shared_ptr<std::vector<uint8_t>> getEncryptedData(const std::vector<uint8_t> &_transaction) {
+        CHECK_STATE(extFace);
+        auto result = extFace->getEncryptedData(_transaction);
+        return result;
+    };
+
+};
+
+
 void ConsensusEngine::parseFullConfigAndCreateNode(const string &configFileContents, const string& _gethURL) {
+
+    CHECK_STATE(extFace);
+    auto analyzer = make_shared<ExtFaceEncryptedTransactionAnalyzer>(extFace);
+
+
+
     try {
         nlohmann::json j = nlohmann::json::parse(configFileContents);
 
@@ -247,10 +271,12 @@ void ConsensusEngine::parseFullConfigAndCreateNode(const string &configFileConte
                                                          true, sgxServerUrl, sgxSSLKeyFileFullPath,
                                                          sgxSSLCertFileFullPath,
                                                          getEcdsaKeyName(), ecdsaPublicKeys, getBlsKeyName(),
-                                                         blsPublicKeys, blsPublicKey, gethURL, previousBlsPublicKeys);
+                                                         blsPublicKeys, blsPublicKey, gethURL, previousBlsPublicKeys,
+                                                         dynamic_pointer_cast<EncryptedTransactionAnalyzerInterface>(analyzer));
         } else {
             node = JSONFactory::createNodeFromJsonObject(j["skaleConfig"]["nodeInfo"], dummy, this,
-                                                         false, "", "", "", "", nullptr, "", nullptr, nullptr, gethURL, nullptr);
+                                                         false, "", "", "", "", nullptr, "", nullptr, nullptr, gethURL,
+                                                         nullptr, dynamic_pointer_cast<EncryptedTransactionAnalyzerInterface>(analyzer));
         }
 
         JSONFactory::createAndAddSChainFromJsonObject(node, j["skaleConfig"]["sChain"], this);

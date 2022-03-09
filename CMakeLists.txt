@@ -124,7 +124,7 @@ AUX_SOURCE_DIRECTORY(abstracttcpserver abstractcpserver_src)
 AUX_SOURCE_DIRECTORY(abstracttcpclient abstractcpclient_src)
 AUX_SOURCE_DIRECTORY(blockproposal/pusher blockproposalpusher_src)
 AUX_SOURCE_DIRECTORY(blockfinalize/client blockfinalizeclient_src)
-AUX_SOURCE_DIRECTORY(blockfinalize/received blockfinalizereceived_src)
+AUX_SOURCE_DIRECTORY(blockdecrypt/client blockdecryptclient_src)
 AUX_SOURCE_DIRECTORY(blockproposal/server blockproposalserver_src)
 AUX_SOURCE_DIRECTORY(blockproposal/received blockproposalreceived_src)
 AUX_SOURCE_DIRECTORY(blockproposal blockproposal_src)
@@ -164,6 +164,7 @@ SET(SRC_FILES
         ${blockproposalserver_src}
         ${blockproposalpusher_src}
         ${blockfinalizeclient_src}
+        ${blockdecryptclient_src}
         ${blockfinalizereceived_src}
         ${blockretriever_src}
         ${blockproposal_src}
@@ -228,6 +229,7 @@ SET(LINK_LIBRARIES
         "${DEPS_INSTALL_ROOT}/lib/libjsonrpccpp-stub.a"
         "${DEPS_INSTALL_ROOT}/lib/libjsonrpccpp-common.a"
         bls # "${CMAKE_CURRENT_SOURCE_DIR}/libBLS/build/libbls.a"
+        te
         "${DEPS_INSTALL_ROOT}/lib/libzmq.a"
         "${DEPS_INSTALL_ROOT}/lib/libsodium.a"
         ff

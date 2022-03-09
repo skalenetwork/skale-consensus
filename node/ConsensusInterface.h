@@ -18,7 +18,7 @@
 
     @file ConsensusInterface.h
     @author Stan Kladko
-    @date 2018
+    @date 2018-
 */
 
 #ifndef CONSENSUSINTERFACE_H
@@ -28,6 +28,7 @@
 
 #include<boost/multiprecision/cpp_int.hpp>
 
+#include "memory"
 #include <string>
 #include <vector>
 
@@ -35,17 +36,21 @@ enum consensus_engine_status {
     CONSENSUS_ACTIVE = 0, CONSENSUS_EXITED = 1,
 };
 
+#define TE_MAGIC_START "f84a1cf7214ae051cae8"
+#define TE_MAGIC_END "98a773d884b2f1c4ac27"
 
 
 using u256 = boost::multiprecision::number<boost::multiprecision::backends::cpp_int_backend<256, 256,
         boost::multiprecision::unsigned_magnitude, boost::multiprecision::unchecked, void> >;
+
 
 class ConsensusInterface {
 public:
     virtual ~ConsensusInterface() = default;
 
     virtual void parseFullConfigAndCreateNode(const std::string &fullPathToConfigFile,
-                                              const string& gethURL) = 0;
+                                              const std::string& gethURL)
+                                              = 0;
 
     virtual void startAll() = 0;
 
@@ -95,7 +100,7 @@ public:
      * is. In case of an error, a non-zero error will be returned.
      */
 
-    virtual uint64_t submitOracleRequest(const string& _spec, string &_receipt) = 0;
+    virtual uint64_t submitOracleRequest(const std::string& _spec, std::string &_receipt) = 0;
 
     /*
      * Check if Oracle result has been derived.  This will return ORACLE_SUCCESS if
@@ -107,9 +112,12 @@ public:
      */
 
 
-    virtual uint64_t  checkOracleResult(const string& _receipt, string& _result) = 0;
-
+    virtual uint64_t  checkOracleResult(const std::string& _receipt, std::string& _result) = 0;
 };
+
+
+
+
 
 /**
  * Through this interface Consensus interacts with the rest of the system
@@ -122,9 +130,12 @@ public:
     virtual transactions_vector pendingTransactions(size_t _limit, u256& _stateRoot) = 0;
 
     // Creates new block with specified transactions AND removes them from the queue
-    virtual void createBlock(const transactions_vector &_approvedTransactions, uint64_t _timeStamp,
+    virtual void createBlock(const transactions_vector &_approvedTransactions,
+                             uint64_t _timeStamp,
                              uint32_t _timeStampMillis, uint64_t _blockID, u256 _gasPrice,
-                             u256 _stateRoot, uint64_t _winningNodeIndex) = 0;
+                             u256 _stateRoot, uint64_t _winningNodeIndex,
+                             const std::shared_ptr<std::map<uint64_t, std::shared_ptr<std::vector<uint8_t>>>> decryptedArgs =
+                                     nullptr) = 0;
 
     virtual ~ConsensusExtFace() = default;
 
@@ -133,21 +144,33 @@ public:
 
     /* Set sgx key info */
 
-    void setSGXKeyInfo( string& _sgxServerURL,
+    void setSGXKeyInfo( std::string& _sgxServerURL,
                          // SSL key file full path. Can be null if the server does not require a client cert
-                        string& _sgxSSLKeyFileFullPath,
+                        std::string& _sgxSSLKeyFileFullPath,
                         // SSL cert file full path. Can be null if the server does not require a client cert
-                        string& _sgxSSLCertFileFullPath,
+                        std::string& _sgxSSLCertFileFullPath,
                         // ecdsaKeyName of this node on the SGX server
-                        string& _ecdsaKeyName,
+                        std::string& _ecdsaKeyName,
                         // array of ECDSA public keys of all nodes, including this node
-                        shared_ptr<vector<string>>& _ecdsaPublicKeys,
+                        std::shared_ptr<std::vector<std::string>>& _ecdsaPublicKeys,
                         // blsKeyName of this node on the SGX server
-                        string& _blsKeyName,
+                        std::string& _blsKeyName,
                        // array of BLS public key shares of all nodes, including this node
                        // each BLS public key share is a vector of 4 strings.
-                        shared_ptr<vector<shared_ptr<vector<string>>>>& _blsPublicKeyShares);
+                        std::shared_ptr<std::vector<std::shared_ptr<std::vector<std::string>>>>& _blsPublicKeyShares);
 
+    /*
+     * This is used by consensus to get the last argument of a call if transaction
+     * is a call to a smartcontact. Will return true if:
+     * 1. the transaction is a smart contract call AND
+     * 2. the last argument of the call is array of bytes
+     *
+     * Otherwise will return false
+     *
+     * lastArgument - thats where the argument is copied if return value is true.
+     */
+    virtual std::shared_ptr<std::vector<uint8_t>> getEncryptedData(
+            const std::vector<uint8_t>& transaction) = 0;
 };
 
 #endif  // CONSENSUSINTERFACE_H

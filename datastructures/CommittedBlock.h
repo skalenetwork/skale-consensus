@@ -38,12 +38,12 @@ class ThresholdSignature;
 class CommittedBlockHeader;
 
 class BlockProposalFragment;
-
-
+class BlockDecryptedAesKeys;
 
 class CommittedBlock : public BlockProposal {
 
     string thresholdSig;
+    ptr<BlockDecryptedAesKeys> decryptedAesKeys;
 
     static ptr< CommittedBlockHeader > parseBlockHeader( const string& _header );
 
@@ -57,16 +57,26 @@ public:
     CommittedBlock( const schain_id& _schainId, const node_id& _proposerNodeId,
         const block_id& _blockId, const schain_index& _proposerIndex,
         const ptr< TransactionList >& _transactions, const u256& stateRoot, uint64_t timeStamp,
-        __uint32_t timeStampMs, const string& _signature, const string& _thresholdSig );
+        __uint32_t timeStampMs, const string& _signature, const string& _thresholdSig,
+        uint32_t _useTe,
+        ptr<BlockDecryptedAesKeys> _decryptedAesKeys);
 
     [[nodiscard]] string getThresholdSig() const;
 
     static ptr< CommittedBlock > makeObject(
-        const ptr< BlockProposal >& _proposal, const ptr< ThresholdSignature >& _thresholdSig );
+        const ptr< BlockProposal >& _proposal, const ptr< ThresholdSignature >& _thresholdSig,
+        ptr<BlockDecryptedAesKeys> _decryptedArgKeys);
+
     static ptr< CommittedBlock > make( schain_id _sChainId, node_id _proposerNodeId,
         block_id _blockId, schain_index _proposerIndex, const  ptr< TransactionList >& _transactions,
         const u256& _stateRoot, uint64_t _timeStamp, uint64_t _timeStampMs,
-        const string& _signature, const string& _thresholdSig );
+        const string& _signature, const string& _thresholdSig,
+        uint32_t _useTe,
+        ptr<BlockDecryptedAesKeys> _decryptedKeys);
+
+
+    ptr<map<uint64_t, ptr<vector<uint8_t>>>> getDecryptedArgs(ptr<EncryptedTransactionAnalyzerInterface>
+            _analyzer);
 
 
     static ptr< CommittedBlock > deserialize(

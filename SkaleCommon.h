@@ -278,6 +278,8 @@ BOOST_STRONG_TYPEDEF(uint64_t, num_threads);
 
 BOOST_STRONG_TYPEDEF(uint64_t, fragment_index);
 
+BOOST_STRONG_TYPEDEF(uint64_t, te_share_index);
+
 BOOST_STRONG_TYPEDEF(int, file_descriptor);
 
 BOOST_STRONG_TYPEDEF(char, out_buffer);
@@ -331,8 +333,9 @@ static const uint64_t  ORACLE_RECEIPTS_MAP_SIZE = 100000;
 
 static const uint64_t  ORACLE_FUTURE_JITTER_MS = 500;
 
+static const uint64_t TE_MAGIC_SIZE = 10;
 
-
+static const uint64_t AES_KEY_LEN_BYTES = 16;
 
 extern void setThreadName(std::string const &_n, ConsensusEngine* _engine);
 
