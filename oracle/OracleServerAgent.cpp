@@ -102,7 +102,7 @@ void OracleServerAgent::routeAndProcessMessage(const ptr<MessageEnvelope> &_me) 
 
     CHECK_ARGUMENT(_me->getMessage()->getBlockId() > 0);
 
-    CHECK_STATE(_me->getMessage()->getMsgType() == MSG_ORACLE_REQ_BROADCAST ||
+    ORACLE_CHECK_STATE(_me->getMessage()->getMsgType() == MSG_ORACLE_REQ_BROADCAST ||
                 _me->getMessage()->getMsgType() == MSG_ORACLE_RSP);
 
     if (_me->getMessage()->getMsgType() == MSG_ORACLE_REQ_BROADCAST) {
@@ -121,9 +121,9 @@ void OracleServerAgent::routeAndProcessMessage(const ptr<MessageEnvelope> &_me) 
 
 void OracleServerAgent::workerThreadItemSendLoop(OracleServerAgent *_agent) {
 
-    CHECK_STATE(_agent)
+    ORACLE_CHECK_STATE(_agent)
 
-    CHECK_STATE(_agent->threadCounter == 0);
+    ORACLE_CHECK_STATE(_agent->threadCounter == 0);
 
     LOG(info, "Thread counter is : " + to_string(_agent->threadCounter));
 
@@ -150,7 +150,7 @@ void OracleServerAgent::workerThreadItemSendLoop(OracleServerAgent *_agent) {
 
             auto orclMsg = dynamic_pointer_cast<OracleRequestBroadcastMessage>(msge->getMessage());
 
-            CHECK_STATE(orclMsg);
+            ORACLE_CHECK_STATE(orclMsg);
 
             auto msg = _agent->doEndpointRequestResponse(orclMsg);
 
@@ -181,7 +181,7 @@ WriteMemoryCallback(void *contents, size_t size, size_t nmemb, void *userp) {
     struct MemoryStruct *mem = (struct MemoryStruct *) userp;
 
     char *ptr = (char *) realloc(mem->memory, mem->size + realsize + 1);
-    CHECK_STATE(ptr);
+    ORACLE_CHECK_STATE(ptr);
     mem->memory = ptr;
     memcpy(&(mem->memory[mem->size]), contents, realsize);
     mem->size += realsize;
@@ -202,12 +202,12 @@ ptr<OracleResponseMessage> OracleServerAgent::doEndpointRequestResponse(ptr<Orac
         uri = gethURL + "/" + uri.substr(string("geth://").size());
     } else {
         auto result = LUrlParser::ParseURL::parseURL(uri);
-        CHECK_STATE2(result.isValid(), "URL invalid:" + uri);
-        CHECK_STATE2(result.userName_.empty(), "Non empty username");
-        CHECK_STATE2(result.password_.empty(), "Non empty password");
+        ORACLE_CHECK_STATE2(result.isValid(), "URL invalid:" + uri);
+        ORACLE_CHECK_STATE2(result.userName_.empty(), "Non empty username");
+        ORACLE_CHECK_STATE2(result.password_.empty(), "Non empty password");
         auto host = result.host_;
 
-        CHECK_STATE2(host.find("0.") != 0 &&
+        ORACLE_CHECK_STATE2(host.find("0.") != 0 &&
                      host.find("10.") != 0 &&
                      host.find("127.") != 0 &&
                      host.find("172.") != 0 &&
@@ -250,7 +250,7 @@ ptr<OracleResponseMessage> OracleServerAgent::doEndpointRequestResponse(ptr<Orac
 
     this->signResult(resultStr);
 
-    cerr << resultStr << endl;
+    LOG(info, "Oracle request result: " + resultStr);
 
     string receipt = _request->getParsedSpec()->getReceipt();
 
@@ -266,7 +266,7 @@ void OracleServerAgent::appendResultsToSpec(string &specStr, ptr<vector<ptr<stri
 
         auto commaPosition = specStr.find_last_of(",");
 
-        CHECK_STATE(commaPosition != string::npos);
+        ORACLE_CHECK_STATE(commaPosition != string::npos);
 
         specStr = specStr.substr(0, commaPosition + 1);
 
@@ -293,7 +293,7 @@ void OracleServerAgent::appendResultsToSpec(string &specStr, ptr<vector<ptr<stri
 
 void OracleServerAgent::appendErrorToSpec(string &specStr, uint64_t _error) const {
     auto commaPosition = specStr.find_last_of(",");
-    CHECK_STATE(commaPosition != string::npos);
+    ORACLE_CHECK_STATE(commaPosition != string::npos);
     specStr = specStr.substr(0, commaPosition + 1);
     specStr.append("\"err\":");
     specStr.append(to_string(_error));
@@ -303,7 +303,7 @@ void OracleServerAgent::appendErrorToSpec(string &specStr, uint64_t _error) cons
 
 void OracleServerAgent::trimResults(ptr<vector<ptr<string>>> &_results, vector<uint64_t> &_trims) const {
 
-    CHECK_STATE(_results->size() == _trims.size())
+    ORACLE_CHECK_STATE(_results->size() == _trims.size())
 
     for (uint64_t i = 0; i < _results->size(); i++) {
         auto trim = _trims.at(i);
@@ -335,7 +335,7 @@ ptr<vector<ptr<string>>> OracleServerAgent::extractResults(
             auto pointer = json::json_pointer(jsp);
             try {
                 auto val = j.at(pointer);
-                CHECK_STATE(val.is_primitive());
+                ORACLE_CHECK_STATE(val.is_primitive());
                 string strVal;
                 if (val.is_string()) {
                     strVal = val.get<string>();
@@ -371,12 +371,12 @@ uint64_t OracleServerAgent::curlHttp(const string &_uri, bool _isPost, string &_
     CURLcode res;
     struct MemoryStruct chunk;
     chunk.memory = (char *) malloc(1);  /* will be grown as needed by the realloc above */
-    CHECK_STATE(chunk.memory);
+    ORACLE_CHECK_STATE(chunk.memory);
     chunk.size = 0;    /* no data at this point */
 
     curl = curl_easy_init();
 
-    CHECK_STATE2(curl, "Could not init curl object");
+    ORACLE_CHECK_STATE2(curl, "Could not init curl object");
 
     curl_easy_setopt(curl, CURLOPT_URL, _uri.c_str());
     curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
@@ -419,14 +419,14 @@ uint64_t OracleServerAgent::curlHttp(const string &_uri, bool _isPost, string &_
 }
 
 void OracleServerAgent::sendOutResult(ptr<OracleResponseMessage> _msg, schain_index _destination) {
-    CHECK_STATE(_destination != 0)
+    ORACLE_CHECK_STATE(_destination != 0)
 
     getSchain()->getNode()->getNetwork()->sendOracleResponseMessage(_msg, _destination);
 
 }
 
 void OracleServerAgent::signResult(string &_result) {
-    CHECK_STATE(_result.at(_result.size() - 1) == ',')
+    ORACLE_CHECK_STATE(_result.at(_result.size() - 1) == ',')
     auto sig = getSchain()->getCryptoManager()->signOracleResult(_result);
     _result.append("\"sig\":\"");
     _result.append(sig);
