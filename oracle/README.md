@@ -193,8 +193,6 @@ Example of ```TRIMMED_ORACLE_RESULT```
 
 
 ```
-
-```
 {"cid":1,
  "uri":"http://worldtimeapi.org/api/timezone/Europe/Kiev",
   "jsps":["/unixtime", "/day_of_year", "/xxx"],
