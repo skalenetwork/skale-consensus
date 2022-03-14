@@ -174,27 +174,56 @@ An example of Oracle result is provided below
 
 To verify Oracle signature:
 
-1. Take `ORACLE_RESULT' string as created by Oracle.
+1. Take ```ORACLE_RESULT``` string.
 
 2. Trim away the "sigs" part, so the remaining last character is comma. Call the resulting string ```TRIMMED_ORACLE_RESULT```
+
+
+Example of ```TRIMMED_ORACLE_RESULT```
+
+
+```
+{"cid":1,
+ "uri":"http://worldtimeapi.org/api/timezone/Europe/Kiev",
+  "jsps":["/unixtime", "/day_of_year", "/xxx"],
+  "trims":[1,1,1],"time":1642521456593,
+  "rslts":["164252145","1",null],
+```
+
 
 3. Calculate 256 bit SHA-3 hash of ```TRIMMED_ORACLE_RESULT```
 
 ```
-HASH = SHA-3(TRIMMED_ORACLE_RESULT)
+HASH = SHA-3(TRIMMED_ORACLE_RESULT_AS_BYTES)
 ```
 
 4. For each non-null element ```i``` in "sigs", do 
 
 ```
-VERIFY_ECDSA_SIGNATURE(PUBLIC_KEY_FOR_SCHAIN_INDEX(i)
+VERIFY_ECDSA_SIGNATURE(PUBLIC_KEY_FOR_SCHAIN_INDEX(i))
+```
+
+Note: signature is created in C++ code by using SGX ```ecdsaSignMessageHash```.
+
+```
+ecdsaSignMessageHash(const std::string& keyName,
+    const std::string& messageHash,) {
+    Json::Value p;
+    p["type"] = SgxZmqMessage::ECDSA_SIGN_REQ;
+    p["base"] = 16;
+    p["keyName"] = keyName;
+    p["messageHash"] = messageHash;
+    auto result = dynamic_pointer_cast< ECDSASignRspMessage >(
+    doRequestReply( p, _throwExceptionOnTimeout ) );
+    return result->getSignature();
+}
 ```
 
 
 
 # List of Oracle error codes.
 
-```
+`````
 #define ORACLE_UNKNOWN_RECEIPT  1
 #define ORACLE_TIMEOUT 2
 #define ORACLE_NO_CONSENSUS  3
