@@ -151,7 +151,9 @@ Oracle request spec, plus includes a set of additional elements
 2. ```sigs``` - array of ECDSA signatures where ```t+1``` signatures are not null. In case of 16 nodes, 6 sigs are not null.
 In case of 4 nodes, 2 sigs are not null.
 
-Note: each signature is in the format of concatenation of v, r, and s
+Note: each signature is in the format of concatenation of hex represenation of  v, r, and s.
+
+Note: there is no "0x" at the beginning.
 
 ```
 v:r:s
