@@ -214,22 +214,7 @@ HASH = SHA-3(TRIMMED_ORACLE_RESULT_AS_BYTES)
 VERIFY_ECDSA_SIGNATURE(PUBLIC_KEY_FOR_SCHAIN_INDEX(i)), HASH);
 ```
 
-Note: signature is created in C++ code by using SGX ```ecdsaSignMessageHash```.
-
-```
-ecdsaSignMessageHash(const std::string& keyName,
-    const std::string& messageHash,) {
-    Json::Value p;
-    p["type"] = SgxZmqMessage::ECDSA_SIGN_REQ;
-    p["base"] = 16;
-    p["keyName"] = keyName;
-    p["messageHash"] = messageHash;
-    auto result = dynamic_pointer_cast< ECDSASignRspMessage >(
-    doRequestReply( p, _throwExceptionOnTimeout ) );
-    return result->getSignature();
-}
-```
-
+Note: signature is created in C++ code by using SGX ```ecdsaSignMessageHash``` with 16 as base.
 
 
 # List of Oracle error codes.
