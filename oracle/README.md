@@ -170,6 +170,28 @@ An example of Oracle result is provided below
           null,null,null,null,null,null,null,null,null,null]}
 ```
 
+### Oracle Signature Verification in Solidity.
+
+To verify Oracle signature:
+
+1. Take `ORACLE_RESULT' string as created by Oracle.
+
+2. Trim away the "sigs" part, so the remaining last character is comma. Call the resulting string ```TRIMMED_ORACLE_RESULT```
+
+3. Calculate 256 bit SHA-3 hash of ```TRIMMED_ORACLE_RESULT```
+
+```
+HASH = SHA-3(TRIMMED_ORACLE_RESULT)
+```
+
+4. For each non-null element ```i``` in "sigs", do 
+
+```
+VERIFY_ECDSA_SIGNATURE(PUBLIC_KEY_FOR_SCHAIN_INDEX(i)
+```
+
+
+
 # List of Oracle error codes.
 
 ```
