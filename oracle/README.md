@@ -200,7 +200,7 @@ HASH = SHA-3(TRIMMED_ORACLE_RESULT_AS_BYTES)
 4. For each non-null element ```i``` in "sigs", do 
 
 ```
-VERIFY_ECDSA_SIGNATURE(PUBLIC_KEY_FOR_SCHAIN_INDEX(i))
+VERIFY_ECDSA_SIGNATURE(PUBLIC_KEY_FOR_SCHAIN_INDEX(i)), HASH);
 ```
 
 Note: signature is created in C++ code by using SGX ```ecdsaSignMessageHash```.
