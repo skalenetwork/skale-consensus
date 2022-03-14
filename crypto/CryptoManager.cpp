@@ -452,7 +452,6 @@ string CryptoManager::signOracleResult(string _text) {
 
 string CryptoManager::hashForOracle(string &_text) {
 
-    _text = "age";
 
     try {
         CryptoPP::SHA3_256 hash;
