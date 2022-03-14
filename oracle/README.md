@@ -200,7 +200,7 @@ Example of ```TRIMMED_ORACLE_RESULT```
   "jsps":["/unixtime", "/day_of_year", "/xxx"],
   "trims":[1,1,1],"time":1642521456593,
   "rslts":["164252145","1",null],
-
+  ```
 
 3. Calculate 256 bit SHA-3 hash of ```TRIMMED_ORACLE_RESULT```
 
