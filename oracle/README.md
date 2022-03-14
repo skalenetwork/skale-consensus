@@ -177,7 +177,8 @@ An example of Oracle result is provided below
            "0:9d50daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f:1250daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f",
            "1:050daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f:1350daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f",
            "1:6d50daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f:1450daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f",
-           null, null,  null, null, null,  null, null, null,  null]}
+           null, null,  null, null, null,  null, null, null,  null]
+}
           
 ```
 
