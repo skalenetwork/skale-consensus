@@ -148,7 +148,15 @@ Oracle result repeats JSON elements from the corresponding
 Oracle request spec, plus includes a set of additional elements
 
 1. ```rslts ``` - array of string results
-2. ```sigs``` - array of ECDSA signatures where ```t``` signatures are not null.
+2. ```sigs``` - array of ECDSA signatures where ```t+1``` signatures are not null. In case of 16 nodes, 6 sigs are not null.
+In case of 4 nodes, 2 sigs are not null.
+
+Note: each signature is in the format of concatenation of v, r, and s
+
+```
+v:r:s
+```
+
 
 
 ### Oracle Result Example 
@@ -161,12 +169,12 @@ An example of Oracle result is provided below
   "jsps":["/unixtime", "/day_of_year", "/xxx"],
   "trims":[1,1,1],"time":1642521456593,
   "rslts":["164252145","1",null],
-   "sigs":["6d50daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f",
-           "7d50daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f",
-           "8d50daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f",
-           "9d50daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f",
-           "1050daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f",
-           "6d50daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f",
+   "sigs":["1:6d50daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f:9d50daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f",
+           "0:7d50daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f:10d50daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f",
+           "1:8d50daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f:1150daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f",
+           "0:9d50daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f:1250daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f",
+           "1:050daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f:1350daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f",
+           "1:6d50daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f:1450daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f",
           null,null,null,null,null,null,null,null,null,null]}
 ```
 
@@ -183,11 +191,19 @@ Example of ```TRIMMED_ORACLE_RESULT```
 
 
 ```
+
+```
 {"cid":1,
  "uri":"http://worldtimeapi.org/api/timezone/Europe/Kiev",
   "jsps":["/unixtime", "/day_of_year", "/xxx"],
   "trims":[1,1,1],"time":1642521456593,
   "rslts":["164252145","1",null],
+   "sigs":["1:6d50daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f:9d50daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f",
+           "0:7d50daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f:10d50daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f",
+           "1:8d50daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f:1150daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f",
+           "0:9d50daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f:1250daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f",
+           "1:050daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f:1350daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f",
+           "1:6d50daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f:1450daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f",
 ```
 
 
