@@ -284,6 +284,7 @@ public:
         ptr< map< uint64_t, ptr< BLSPublicKey > > > _previousBlsPublicKeys,
         bool _isReadOnly);
 
+
     ~Node();
 
     void startServers();
@@ -380,4 +381,7 @@ public:
     bool isInited() const;
 
     const string &getGethUrl() const;
+
+    bool getReadOnly() const;
+
 };

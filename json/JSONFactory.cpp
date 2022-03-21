@@ -308,7 +308,10 @@ void JSONFactory::createAndAddSChainFromJsonObject(
             remoteNodeInfos.push_back( rni );
         }
 
-        CHECK_STATE(localNodeInfo );
+        if (!_node->getReadOnly()) {
+            // node readonly node should be part of schain
+            CHECK_STATE(localNodeInfo);
+        }
         Node::initSchain( _node, localNodeInfo, remoteNodeInfos, _engine->getExtFace() );
     } catch ( ... ) {
         throw_with_nested( FatalError( __FUNCTION__, __CLASS_NAME__ ) );

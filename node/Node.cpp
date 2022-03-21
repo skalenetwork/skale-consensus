@@ -575,3 +575,7 @@ bool Node::isInited() const {
     return inited;
 }
 
+bool Node::getReadOnly() const {
+    return isReadOnly;
+}
+
