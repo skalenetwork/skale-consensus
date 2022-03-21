@@ -34,7 +34,7 @@ OracleRequestSpec::OracleRequestSpec(const string &_spec) : spec(_spec) {
 
     CHECK_STATE2(d["uri"].IsString(), "Uri in Oracle spec is not string:" + _spec);
 
-    uri = d["uri"].GetString();f
+    uri = d["uri"].GetString();
 
     CHECK_STATE(uri.size() > 5);
 
@@ -111,10 +111,6 @@ const string &OracleRequestSpec::getSpec() const {
 
 const string &OracleRequestSpec::getUri() const {
     return uri;
-}
-
-void OracleRequestSpec::setUri(const string &_uri) {
-    uri = _uri;
 }
 
 

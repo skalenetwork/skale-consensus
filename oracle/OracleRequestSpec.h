@@ -50,8 +50,6 @@ public:
 
     bool verifyPow();
 
-    void setUri(const string &uri);
-
 };
 
 
