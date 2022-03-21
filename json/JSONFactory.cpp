@@ -314,11 +314,16 @@ void JSONFactory::createAndAddSChainFromJsonObject(
             remoteNodeInfos.push_back( rni );
         }
 
+        schain_index schainIndex = 0;
+
         if (!_node->getReadOnly()) {
             // node readonly node should be part of schain
             CHECK_STATE(localNodeInfo);
+            schainIndex = localNodeInfo->getSchainIndex();
         }
-        Node::initSchain( _node, localNodeInfo, remoteNodeInfos, _engine->getExtFace() );
+
+        Node::initSchain( _node, schainIndex,
+                          schainID, remoteNodeInfos, _engine->getExtFace() );
     } catch ( ... ) {
         throw_with_nested( FatalError( __FUNCTION__, __CLASS_NAME__ ) );
     }
