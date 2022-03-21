@@ -199,6 +199,8 @@ class Node {
 
     string gethURL = "";
 
+    bool isReadOnly = false;
+
     bool inited = false;
 
     void releaseGlobalServerBarrier();
@@ -279,7 +281,8 @@ public:
         string _ecdsaKeyName, ptr< vector<string> > _ecdsaPublicKeys,
         string _blsKeyName, ptr< vector< ptr< vector<string>>>> _blsPublicKeys,
         ptr< BLSPublicKey > _blsPublicKey, string& _gethURL,
-        ptr< map< uint64_t, ptr< BLSPublicKey > > > _previousBlsPublicKeys);
+        ptr< map< uint64_t, ptr< BLSPublicKey > > > _previousBlsPublicKeys,
+        bool _isReadOnly);
 
     ~Node();
 

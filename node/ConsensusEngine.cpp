@@ -232,7 +232,8 @@ void ConsensusEngine::log(
 }
 
 
-void ConsensusEngine::parseFullConfigAndCreateNode(const string &configFileContents, const string& _gethURL) {
+void ConsensusEngine::parseFullConfigAndCreateNode(const string &configFileContents, const string& _gethURL,
+                                                   bool _isReadOnly) {
     try {
         nlohmann::json j = nlohmann::json::parse(configFileContents);
 
@@ -247,10 +248,12 @@ void ConsensusEngine::parseFullConfigAndCreateNode(const string &configFileConte
                                                          true, sgxServerUrl, sgxSSLKeyFileFullPath,
                                                          sgxSSLCertFileFullPath,
                                                          getEcdsaKeyName(), ecdsaPublicKeys, getBlsKeyName(),
-                                                         blsPublicKeys, blsPublicKey, gethURL, previousBlsPublicKeys);
+                                                         blsPublicKeys, blsPublicKey, gethURL, previousBlsPublicKeys,
+                                                         _isReadOnly);
         } else {
             node = JSONFactory::createNodeFromJsonObject(j["skaleConfig"]["nodeInfo"], dummy, this,
-                                                         false, "", "", "", "", nullptr, "", nullptr, nullptr, gethURL, nullptr);
+                                                         false, "", "", "", "", nullptr, "", nullptr, nullptr, gethURL, nullptr,
+                                                         _isReadOnly);
         }
 
         JSONFactory::createAndAddSChainFromJsonObject(node, j["skaleConfig"]["sChain"], this);
@@ -271,7 +274,8 @@ ptr<Node> ConsensusEngine::readNodeTestConfigFileAndCreateNode(const string path
                                                                string _blsKeyName,
                                                                ptr<vector<ptr<vector<string> > > > _blsPublicKeys,
                                                                ptr<BLSPublicKey> _blsPublicKey,
-                                                               ptr< map< uint64_t, ptr< BLSPublicKey > > > _previousBlsPublicKeys) {
+                                                               ptr< map< uint64_t, ptr< BLSPublicKey > > > _previousBlsPublicKeys,
+                                                               bool _isReadOnly) {
     try {
         if (_useSGX) {
             CHECK_ARGUMENT(!_ecdsaKeyName.empty() && _ecdsaPublicKeys);
@@ -296,7 +300,7 @@ ptr<Node> ConsensusEngine::readNodeTestConfigFileAndCreateNode(const string path
                                                             _nodeIDs, this, _useSGX, _sgxSSLKeyFileFullPath,
                                                             _sgxSSLCertFileFullPath, _ecdsaKeyName,
                                                             _ecdsaPublicKeys, _blsKeyName, _blsPublicKeys,
-                                                            _blsPublicKey, _previousBlsPublicKeys);
+                                                            _blsPublicKey, _previousBlsPublicKeys, _isReadOnly);
 
 
         if (node == nullptr) {

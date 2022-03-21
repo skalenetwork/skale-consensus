@@ -13,7 +13,7 @@
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU Affero General Public License for more details.
 
-    You should have received a copy of the GNU Affero General Public License
+    You should have received a copy of the GNU Affero General fPublic License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
     @file Node.cpp
@@ -87,7 +87,8 @@ Node::Node(const nlohmann::json &_cfg, ConsensusEngine *_consensusEngine,
            ptr< vector<string> > _ecdsaPublicKeys, string _blsKeyName,
            ptr< vector< ptr< vector<string>>>> _blsPublicKeys,
            ptr< BLSPublicKey > _blsPublicKey, string & _gethURL,
-           ptr< map< uint64_t, ptr< BLSPublicKey > > > _previousBlsPublicKeys) : gethURL(_gethURL) {
+           ptr< map< uint64_t, ptr< BLSPublicKey > > > _previousBlsPublicKeys,
+           bool _isReadOnly) : gethURL(_gethURL), isReadOnly(_isReadOnly) {
 
 
 
