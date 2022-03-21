@@ -68,8 +68,7 @@ ptr< Node > JSONFactory::createNodeFromTestJsonFile(
     const ptr< vector<string> >& _ecdsaPublicKeys, const string& _blsKeyName,
     const ptr< vector< ptr< vector<string>>>>& _blsPublicKeys,
     const ptr< BLSPublicKey >& _blsPublicKey,
-    const ptr< map< uint64_t, ptr< BLSPublicKey > > >& _previousBlsPublicKeys,
-    bool _isReadOnly) {
+    const ptr< map< uint64_t, ptr< BLSPublicKey > > >& _previousBlsPublicKeys) {
 
     string sgxUrl = "";
 
@@ -90,6 +89,13 @@ ptr< Node > JSONFactory::createNodeFromTestJsonFile(
         string gethURL = "";
 
 
+        bool isReadOnly =  false;
+
+        if (j.find( "isReadOnly" ) != j.end()) {
+            isReadOnly = j.at("isReadOnly").get<bool>();
+        }
+
+
         return createNodeFromJsonObject(
             j, nodeIDs, _consensusEngine, _useSGX,
             sgxUrl,
@@ -97,7 +103,7 @@ ptr< Node > JSONFactory::createNodeFromTestJsonFile(
             _sgxSSLCertFileFullPath,
             _ecdsaKeyName, _ecdsaPublicKeys,
             _blsKeyName, _blsPublicKeys,
-            _blsPublicKey, gethURL, _previousBlsPublicKeys, _isReadOnly);
+            _blsPublicKey, gethURL, _previousBlsPublicKeys, isReadOnly);
     } catch ( ... ) {
         throw_with_nested( FatalError( __FUNCTION__ + to_string( __LINE__ ), __CLASS_NAME__ ) );
     }

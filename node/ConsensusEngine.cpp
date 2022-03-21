@@ -274,8 +274,7 @@ ptr<Node> ConsensusEngine::readNodeTestConfigFileAndCreateNode(const string path
                                                                string _blsKeyName,
                                                                ptr<vector<ptr<vector<string> > > > _blsPublicKeys,
                                                                ptr<BLSPublicKey> _blsPublicKey,
-                                                               ptr< map< uint64_t, ptr< BLSPublicKey > > > _previousBlsPublicKeys,
-                                                               bool _isReadOnly) {
+                                                               ptr< map< uint64_t, ptr< BLSPublicKey > > > _previousBlsPublicKeys) {
     try {
         if (_useSGX) {
             CHECK_ARGUMENT(!_ecdsaKeyName.empty() && _ecdsaPublicKeys);
@@ -300,7 +299,7 @@ ptr<Node> ConsensusEngine::readNodeTestConfigFileAndCreateNode(const string path
                                                             _nodeIDs, this, _useSGX, _sgxSSLKeyFileFullPath,
                                                             _sgxSSLCertFileFullPath, _ecdsaKeyName,
                                                             _ecdsaPublicKeys, _blsKeyName, _blsPublicKeys,
-                                                            _blsPublicKey, _previousBlsPublicKeys, _isReadOnly);
+                                                            _blsPublicKey, _previousBlsPublicKeys);
 
 
         if (node == nullptr) {
