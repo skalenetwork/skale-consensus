@@ -954,8 +954,11 @@ void Schain::healthCheck() {
                     if (getNode()->isExitRequested()) {
                         BOOST_THROW_EXCEPTION(ExitRequestedException( __CLASS_NAME__ ));
                     }
+
+                    auto port = (getNode()->getReadOnly()? port_type::CATCHUP : port_type::PROPOSAL);
+
                     auto socket = make_shared<ClientSocket>(
-                            *this, schain_index(i), port_type::PROPOSAL);
+                            *this, schain_index(i), port);
                     LOG(debug, "Health check: connected to peer");
                     getIo()->writeMagic(socket, true);
                     connections.insert(i);
