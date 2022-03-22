@@ -10,7 +10,7 @@
 class BlockVerifier :  public CryptoVerifier{
 
     void verifyThresholdSig(
-            ptr< ThresholdSignature > _signature, BLAKE3Hash& _hash, bool _forceMockup,
+            ptr< ThresholdSignature > _signature, BLAKE3Hash& _hash,
                      const TimeStamp& _ts = TimeStamp(uint64_t(-1), 0)) override;
 
     void  verifyBlockSig(ptr< ThresholdSignature > _signature,  BLAKE3Hash & _hash,

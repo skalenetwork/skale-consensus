@@ -47,9 +47,7 @@ public:
         const string& _ecdsaKeyName, const ptr< vector<string> >& _ecdsaPublicKeys,
         const string& _blsKeyName, const ptr< vector< ptr< vector<string>>>>& _blsPublicKeys,
         const ptr< BLSPublicKey >& _blsPublicKey, string& _gethURL,
-        const ptr< map< uint64_t, ptr< BLSPublicKey > > >& _previousBlsPublicKeys,
-        bool _isReadOnly
-    );
+        const ptr< map< uint64_t, ptr< BLSPublicKey > > >& _previousBlsPublicKeys);
 
     static void createAndAddSChainFromJson(
         const ptr< Node >& _node, const fs_path& _jsonFile, ConsensusEngine* _engine );
