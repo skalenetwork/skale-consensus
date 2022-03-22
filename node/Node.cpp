@@ -502,13 +502,17 @@ void Node::closeAllSocketsAndNotifyAllAgentsAndThreads() {
 
     LOG(info, "consensus engine exiting: agent conditional vars notified");
 
+    if (sockets && sockets->catchupSocket)
+        sockets->catchupSocket->touch();
+
+    if (getReadOnly())
+        return;
+
     if (sockets && sockets->blockProposalSocket)
         sockets->blockProposalSocket->touch();
 
     LOG(info, "consensus engine exiting: block proposal socket touched");
 
-    if (sockets && sockets->catchupSocket)
-        sockets->catchupSocket->touch();
 
     LOG(info, "consensus engine exiting: catchup socket touched");
 
