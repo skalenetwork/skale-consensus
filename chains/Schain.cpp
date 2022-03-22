@@ -374,7 +374,8 @@ void Schain::checkForDeadLock(const char *_functionName) {
         LOG(info, "BLOCK_CATCHUP: " + to_string(getLastCommittedBlockID() - committedIDOld) +
                   " BLOCKS");
         result = ((uint64_t) getLastCommittedBlockID()) - committedIDOld;
-        proposeNextBlock();
+        if (!getNode()->getReadOnly())
+            proposeNextBlock();
     }
 
     unbumpPriority();
@@ -552,14 +553,11 @@ void Schain::printBlockLog(const ptr<CommittedBlock> &_block) {
                     ":RPRPS:" + to_string(ReceivedBlockProposal::getTotalObjects()) +
                     ":TXS:" + to_string(Transaction::getTotalObjects()) +
                     ":TXLS:" + to_string(TransactionList::getTotalObjects()) +
-                    ":KNWN:" + to_string(pendingTransactionsAgent->getKnownTransactionsSize()) +
                     ":MGS:" + to_string(Message::getTotalObjects()) +
                     ":INSTS:" + to_string(ProtocolInstance::getTotalObjects()) +
                     ":BPS:" + to_string(BlockProposalSet::getTotalObjects()) +
                     ":HDRS:" + to_string(Header::getTotalObjects()) +
                     ":SOCK:" + to_string(ClientSocket::getTotalSockets()) +
-                    ":CONS:" + to_string(ServerConnection::getTotalObjects()) + ":DSDS:" +
-                    to_string(getSchain()->getNode()->getNetwork()->computeTotalDelayedSends()) +
                     ":FDS:" + to_string(ConsensusEngine::getOpenDescriptors()) + ":PRT:" +
                     to_string(proposalReceiptTime) + ":BTA:" + to_string(blockTimeAverageMs) +
                     ":BSA:" + to_string(blockSizeAverage) + ":TPS:" + to_string(tpsAverage) +
@@ -570,7 +568,10 @@ void Schain::printBlockLog(const ptr<CommittedBlock> &_block) {
 
     if (!getNode()->getReadOnly()) {
         output = output +
-                 ":SET:" + to_string(CryptoManager::getEcdsaStats()) +
+                ":KNWN:" + to_string(pendingTransactionsAgent->getKnownTransactionsSize()) +
+                ":CONS:" + to_string(ServerConnection::getTotalObjects()) + ":DSDS:" +
+                to_string(getSchain()->getNode()->getNetwork()->computeTotalDelayedSends()) +
+                ":SET:" + to_string(CryptoManager::getEcdsaStats()) +
                  ":SBT:" + to_string(CryptoManager::getBLSStats()) +
                  ":SEC:" + to_string(CryptoManager::getECDSATotals()) +
                  ":SBC:" + to_string(CryptoManager::getBLSTotals()) +
