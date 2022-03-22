@@ -298,11 +298,13 @@ void Node::startServers() {
 
     LOG(trace, " Creating consensus network");
 
-    network = make_shared<ZMQNetwork>(*sChain);
+    if (!getReadOnly()) {
+       network = make_shared<ZMQNetwork>(*sChain);
 
-    LOG(trace, " Starting consensus messaging");
+       LOG(trace, " Starting consensus messaging");
 
-    network->startThreads();
+       network->startThreads();
+    }
 
     LOG(trace, "Starting schain");
 
@@ -405,6 +407,10 @@ void Node::initSchain(const ptr<Node>& _node, schain_index _schainIndex, schain_
                 _node, _schainIndex, _schainId, _extFace);
 
         _node->setSchain(sChain);
+
+        if (_node->getReadOnly()) {
+            return;
+        }
 
         sChain->createBlockConsensusInstance();
         sChain->createOracleInstance();

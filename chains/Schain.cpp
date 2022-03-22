@@ -214,6 +214,9 @@ void Schain::messageThreadProcessingLoop( Schain* _sChain ) {
 
 
 void Schain::startThreads() {
+    if (getNode()->getReadOnly()) {
+        return;
+    }
     CHECK_STATE( consensusMessageThreadPool );
     this->consensusMessageThreadPool->startService();
 }
@@ -233,20 +236,24 @@ Schain::Schain( weak_ptr< Node > _node, schain_index _schainIndex, const schain_
 
     // construct monitoring, timeout and stuck detection agents early
     monitoringAgent = make_shared< MonitoringAgent >( *this );
-    timeoutAgent = make_shared< TimeoutAgent >( *this );
-    stuckDetectionAgent = make_shared< StuckDetectionAgent >( *this );
+    if (!getNode()->getReadOnly()) {
+        timeoutAgent = make_shared< TimeoutAgent >( *this );
+        stuckDetectionAgent = make_shared< StuckDetectionAgent >( *this );
+    }
 
     maxExternalBlockProcessingTime =
         std::max( 2 * getNode()->getEmptyBlockIntervalMs(), ( uint64_t ) 3000 );
 
     MONITOR( __CLASS_NAME__, __FUNCTION__ )
 
-    CHECK_STATE( schainIndex > 0 );
+    if (!getNode()->getReadOnly()) {
+        CHECK_STATE( schainIndex > 0 );
+        CHECK_STATE( getNode()->getNodeInfosByIndex()->size() > 0 );
+    }
 
     try {
         this->io = make_shared< IO >( this );
 
-        CHECK_STATE( getNode()->getNodeInfosByIndex()->size() > 0 );
 
         for ( auto const& iterator : *getNode()->getNodeInfosByIndex() ) {
             if ( iterator.second->getNodeID() == getNode()->getNodeID() ) {
@@ -255,7 +262,7 @@ Schain::Schain( weak_ptr< Node > _node, schain_index _schainIndex, const schain_
             }
         }
 
-        if ( thisNodeInfo == nullptr ) {
+        if ( thisNodeInfo == nullptr && !getNode()->getReadOnly()) {
             BOOST_THROW_EXCEPTION( EngineInitException(
                 "Schain: " + to_string( ( uint64_t ) getSchainID() ) +
                     " does not include current node with IP " + getNode()->getBindIP() +
@@ -287,11 +294,17 @@ void Schain::constructChildAgents() {
     MONITOR( __CLASS_NAME__, __FUNCTION__ )
 
     try {
+        pricingAgent = make_shared< PricingAgent >( *this );
+        catchupClientAgent = make_shared< CatchupClientAgent >( *this );
+
+        if (getNode()->getReadOnly())
+            return;
+
         pendingTransactionsAgent = make_shared< PendingTransactionsAgent >( *this );
         blockProposalClient = make_shared< BlockProposalClientAgent >( *this );
-        catchupClientAgent = make_shared< CatchupClientAgent >( *this );
+
         testMessageGeneratorAgent = make_shared< TestMessageGeneratorAgent >( *this );
-        pricingAgent = make_shared< PricingAgent >( *this );
+
         cryptoManager = make_shared< CryptoManager >( *this );
         oracleClient = make_shared<OracleClient>( *this);
     } catch ( ... ) {
@@ -368,6 +381,10 @@ void Schain::checkForDeadLock(const char*  _functionName) {
 void Schain::blockCommitArrived( block_id _committedBlockID, schain_index _proposerIndex,
     const ptr< ThresholdSignature >& _thresholdSig ) {
     MONITOR2( __CLASS_NAME__, __FUNCTION__, getMaxExternalBlockProcessingTime() )
+
+
+    // no regular block commits happen for sync nodes
+    CHECK_STATE(!getNode()->getReadOnly());
 
     checkForExit();
 
@@ -843,6 +860,8 @@ void Schain::bootstrap( block_id _lastCommittedBlockID, uint64_t _lastCommittedB
             this->pricingAgent->calculatePrice( ConsensusExtFace::transactions_vector(), 0, 0, 0 );
 
 
+        if (getNode()->getReadOnly())
+            return;
 
         proposeNextBlock();
 
@@ -968,9 +987,15 @@ void Schain::daProofSigShareArrived(
 void Schain::constructServers( const ptr< Sockets >& _sockets ) {
     MONITOR( __CLASS_NAME__, __FUNCTION__ )
 
-    blockProposalServerAgent =
-        make_shared< BlockProposalServerAgent >( *this, _sockets->blockProposalSocket );
     catchupServerAgent = make_shared< CatchupServerAgent >( *this, _sockets->catchupSocket );
+
+
+    if (getNode()->getReadOnly())
+        return;
+
+    blockProposalServerAgent =
+            make_shared< BlockProposalServerAgent >( *this, _sockets->blockProposalSocket );
+
 }
 
 ptr< BlockProposal > Schain::createDefaultEmptyBlockProposal( block_id _blockId ) {

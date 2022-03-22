@@ -254,10 +254,13 @@ uint64_t Schain::getMaxExternalBlockProcessingTime() const {
 
 void Schain::joinMonitorAndTimeoutThreads() {
     CHECK_STATE(monitoringAgent);
+    monitoringAgent->join();
+
+    if (getNode()->getReadOnly())
+        return;
     CHECK_STATE(timeoutAgent);
     CHECK_STATE(stuckDetectionAgent);
 
-    monitoringAgent->join();
     timeoutAgent->join();
     stuckDetectionAgent->join();
 }
@@ -287,6 +290,9 @@ void Schain::initLastCommittedBlockInfo( uint64_t _lastCommittedBlockID,
     lastCommittedBlockID = _lastCommittedBlockID;
     lastCommittedBlockTimeStamp = _lastCommittedBlockTimeStamp;
     lastCommitTimeMs = Time::getCurrentTimeMs();
+
+    if (getSchain()->getNode()->getReadOnly())
+        return;
     this->blockConsensusInstance->initFastLedgerAndReplayMessages(lastCommittedBlockID + 1);
 }
 

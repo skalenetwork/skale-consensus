@@ -501,7 +501,14 @@ Network::Network(Schain &_sChain)
           knownMsgHashes(KNOWN_MSG_HASHES_SIZE),
           delayedSends((uint64_t) _sChain.getNodeCount()),
           delayedSendsLocks((uint64_t) _sChain.getNodeCount()) {
+
+    // no network objects needed for sync nodes
+    CHECK_STATE(!getNode()->getReadOnly());
+
+
     auto cfg = _sChain.getNode()->getCfg();
+
+
 
     if (cfg.find("catchupBlocks") != cfg.end()) {
         uint64_t catchupBlock = cfg.at("catchupBlocks").get<uint64_t>();
