@@ -30,6 +30,7 @@ class CommittedBlock;
 #include "CacheLevelDB.h"
 
 class CryptoManager;
+class CryptoVerifier;
 
 class BlockDB : public CacheLevelDB {
 
@@ -44,7 +45,7 @@ public:
 
     void saveBlock(const ptr<CommittedBlock> &_block);
 
-    ptr<CommittedBlock> getBlock(block_id _blockID, const ptr<CryptoManager>& _cryptoManager);
+    ptr<CommittedBlock> getBlock(block_id _blockID, const ptr<CryptoVerifier>& _cryptoVerifier);
 
     block_id readLastCommittedBlockID();
 

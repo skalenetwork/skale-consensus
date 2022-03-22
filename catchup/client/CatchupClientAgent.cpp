@@ -233,7 +233,7 @@ ptr< CommittedBlockList > CatchupClientAgent::readMissingBlocks(
 
     try {
         blockList = CommittedBlockList::deserialize(
-            getSchain()->getCryptoManager(), blockSizes, serializedBlocks, 0 );
+            getSchain()->getCryptoVerifier(), blockSizes, serializedBlocks, 0 );
         CHECK_STATE( blockList );
     } catch ( ExitRequestedException& ) { throw; } catch ( ... ) {
         throw_with_nested(
@@ -246,7 +246,8 @@ ptr< CommittedBlockList > CatchupClientAgent::readMissingBlocks(
         auto hash = BLAKE3Hash::getBlockHash((uint64_t ) item->getProposerIndex(),
                                              (uint64_t ) item->getBlockID(),
                                              (uint64_t ) item->getSchainID());
-        getSchain()->getCryptoManager()->verifyBlockSig(sig, item->getBlockID(),
+        if (!getSchain()->getNode()->getReadOnly())
+            getSchain()->getCryptoManager()->verifyBlockSig(sig, item->getBlockID(),
             hash, item->getTimeStamp());
     }
 

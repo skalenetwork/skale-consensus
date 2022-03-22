@@ -68,7 +68,7 @@ ptr< Node > JSONFactory::createNodeFromTestJsonFile(
     const ptr< vector<string> >& _ecdsaPublicKeys, const string& _blsKeyName,
     const ptr< vector< ptr< vector<string>>>>& _blsPublicKeys,
     const ptr< BLSPublicKey >& _blsPublicKey,
-    const ptr< map< uint64_t, ptr< BLSPublicKey > > >& _previousBlsPublicKeys ) {
+    const ptr< map< uint64_t, ptr< BLSPublicKey > > >& _previousBlsPublicKeys) {
 
     string sgxUrl = "";
 
@@ -85,6 +85,8 @@ ptr< Node > JSONFactory::createNodeFromTestJsonFile(
         nlohmann::json j;
 
         parseJsonFile( j, jsonFile );
+
+
 
         string gethURL = "";
 
@@ -111,9 +113,14 @@ ptr< Node > JSONFactory::createNodeFromJsonObject( const nlohmann::json& _j, set
     const string& _ecdsaKeyName, const ptr< vector<string> >& _ecdsaPublicKeys,
     const string& _blsKeyName, const ptr< vector< ptr< vector<string>>>>& _blsPublicKeys,
     const ptr<  BLSPublicKey  >& _blsPublicKey, string& _gethURL,
-    const ptr< map< uint64_t, ptr< BLSPublicKey > > >& _previousBlsPublicKeys ) {
+    const ptr< map< uint64_t, ptr< BLSPublicKey > > >& _previousBlsPublicKeys) {
 
 
+    bool isReadOnly =  false;
+
+    if (_j.find( "isReadOnly" ) != _j.end()) {
+        isReadOnly = _j.at("isReadOnly").get<bool>();
+    }
 
 
     auto sgxSSLKeyFileFullPathCopy = _sgxSSLKeyFileFullPath;
@@ -157,7 +164,8 @@ ptr< Node > JSONFactory::createNodeFromJsonObject( const nlohmann::json& _j, set
                 sgxSSLKeyFileFullPathCopy,
                 sgxSSLCertFileFullPathCopy,
                 _ecdsaKeyName, _ecdsaPublicKeys,
-                _blsKeyName, _blsPublicKeys, _blsPublicKey, _gethURL, _previousBlsPublicKeys);
+                _blsKeyName, _blsPublicKeys, _blsPublicKey, _gethURL, _previousBlsPublicKeys,
+                isReadOnly);
         } catch ( ... ) {
             throw_with_nested( FatalError( "Could not init node", __CLASS_NAME__ ) );
         }
@@ -306,8 +314,16 @@ void JSONFactory::createAndAddSChainFromJsonObject(
             remoteNodeInfos.push_back( rni );
         }
 
-        CHECK_STATE(localNodeInfo );
-        Node::initSchain( _node, localNodeInfo, remoteNodeInfos, _engine->getExtFace() );
+        schain_index schainIndex = 0;
+
+        if (!_node->getReadOnly()) {
+            // node readonly node should be part of schain
+            CHECK_STATE(localNodeInfo);
+            schainIndex = localNodeInfo->getSchainIndex();
+        }
+
+        Node::initSchain( _node, schainIndex,
+                          schainID, remoteNodeInfos, _engine->getExtFace() );
     } catch ( ... ) {
         throw_with_nested( FatalError( __FUNCTION__, __CLASS_NAME__ ) );
     }

@@ -32,6 +32,7 @@
 
 #define USER_SPACE 1
 
+#include "CryptoVerifier.h"
 #include "thirdparty/lru_ordered_cache.hpp"
 #include "thirdparty/lrucache.hpp"
 
@@ -69,7 +70,7 @@ public:
 class OpenSSLECDSAKey;
 class OpenSSLEdDSAKey;
 
-class CryptoManager {
+class CryptoManager : public CryptoVerifier {
 
     static list<uint64_t> ecdsaSignTimes;
     static recursive_mutex ecdsaSignMutex;

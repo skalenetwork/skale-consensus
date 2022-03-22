@@ -13,7 +13,7 @@
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU Affero General Public License for more details.
 
-    You should have received a copy of the GNU Affero General Public License
+    You should have received a copy of the GNU Affero General fPublic License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
     @file Node.cpp
@@ -87,7 +87,8 @@ Node::Node(const nlohmann::json &_cfg, ConsensusEngine *_consensusEngine,
            ptr< vector<string> > _ecdsaPublicKeys, string _blsKeyName,
            ptr< vector< ptr< vector<string>>>> _blsPublicKeys,
            ptr< BLSPublicKey > _blsPublicKey, string & _gethURL,
-           ptr< map< uint64_t, ptr< BLSPublicKey > > > _previousBlsPublicKeys) : gethURL(_gethURL) {
+           ptr< map< uint64_t, ptr< BLSPublicKey > > > _previousBlsPublicKeys,
+           bool _isReadOnly) : gethURL(_gethURL), isReadOnly(_isReadOnly) {
 
 
 
@@ -297,11 +298,13 @@ void Node::startServers() {
 
     LOG(trace, " Creating consensus network");
 
-    network = make_shared<ZMQNetwork>(*sChain);
+    if (!getReadOnly()) {
+       network = make_shared<ZMQNetwork>(*sChain);
 
-    LOG(trace, " Starting consensus messaging");
+       LOG(trace, " Starting consensus messaging");
 
-    network->startThreads();
+       network->startThreads();
+    }
 
     LOG(trace, "Starting schain");
 
@@ -372,7 +375,7 @@ void Node::setSchain(const ptr<Schain>& _schain) {
     this->inited = true;
 }
 
-void Node::initSchain(const ptr<Node>& _node, const ptr<NodeInfo>& _localNodeInfo, const vector<ptr<NodeInfo> > &remoteNodeInfos,
+void Node::initSchain(const ptr<Node>& _node, schain_index _schainIndex, schain_id _schainId, const vector<ptr<NodeInfo> > &remoteNodeInfos,
                       ConsensusExtFace *_extFace) {
 
 
@@ -401,9 +404,13 @@ void Node::initSchain(const ptr<Node>& _node, const ptr<NodeInfo>& _localNodeInf
         _node->testNodeInfos();
 
         auto sChain = make_shared<Schain>(
-                _node, _localNodeInfo->getSchainIndex(), _localNodeInfo->getSchainID(), _extFace);
+                _node, _schainIndex, _schainId, _extFace);
 
         _node->setSchain(sChain);
+
+        if (_node->getReadOnly()) {
+            return;
+        }
 
         sChain->createBlockConsensusInstance();
         sChain->createOracleInstance();
@@ -495,13 +502,17 @@ void Node::closeAllSocketsAndNotifyAllAgentsAndThreads() {
 
     LOG(info, "consensus engine exiting: agent conditional vars notified");
 
+    if (sockets && sockets->catchupSocket)
+        sockets->catchupSocket->touch();
+
+    if (getReadOnly())
+        return;
+
     if (sockets && sockets->blockProposalSocket)
         sockets->blockProposalSocket->touch();
 
     LOG(info, "consensus engine exiting: block proposal socket touched");
 
-    if (sockets && sockets->catchupSocket)
-        sockets->catchupSocket->touch();
 
     LOG(info, "consensus engine exiting: catchup socket touched");
 
@@ -572,5 +583,9 @@ ptr< map< uint64_t, ptr< BLSPublicKey > > > Node::getPreviousBLSPublicKeys() {
 }
 bool Node::isInited() const {
     return inited;
+}
+
+bool Node::getReadOnly() const {
+    return isReadOnly;
 }
 
