@@ -51,6 +51,7 @@
 
 #include "abstracttcpserver/ConnectionStatus.h"
 
+#include "crypto/CryptoVerifier.h"
 #include "chains/TestConfig.h"
 #include "network/ClientSocket.h"
 #include "network/IO.h"

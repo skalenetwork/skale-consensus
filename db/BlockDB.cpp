@@ -113,7 +113,7 @@ void BlockDB::saveBlock(const ptr<CommittedBlock> &_block) {
 }
 
 
-ptr<CommittedBlock> BlockDB::getBlock(block_id _blockID, const ptr<CryptoManager>& _cryptoManager) {
+ptr<CommittedBlock> BlockDB::getBlock(block_id _blockID, const ptr<CryptoVerifier>& _cryptoManager) {
 
     CHECK_ARGUMENT(_cryptoManager);
 

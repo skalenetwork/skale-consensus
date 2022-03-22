@@ -40,7 +40,7 @@ class CommittedBlockList : public DataStructure {
 
     ptr< vector< ptr< CommittedBlock > > > blocks; // tsafe
 
-    CommittedBlockList( const ptr< CryptoManager >& _cryptoManager,
+    CommittedBlockList( const ptr< CryptoVerifier >& _cryptoManager,
         const ptr< vector< uint64_t > >& _blockSizes,
         const ptr< vector< uint8_t > >& _serializedBlocks, uint64_t offset = 0 );
 
@@ -55,7 +55,7 @@ public:
 
     ptr< vector< uint8_t > > serialize();
 
-    static ptr< CommittedBlockList > deserialize( const ptr< CryptoManager >& _cryptoManager,
+    static ptr< CommittedBlockList > deserialize( const ptr< CryptoVerifier >& _cryptoManager,
         const ptr< vector< uint64_t > >& _blockSizes,
         const ptr< vector< uint8_t > >& _serializedBlocks, uint64_t _offset );
 

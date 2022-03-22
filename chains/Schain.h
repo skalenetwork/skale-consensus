@@ -60,6 +60,7 @@ class CatchupServerAgent;
 class MonitoringAgent;
 class TimeoutAgent;
 class StuckDetectionAgent;
+class CryptoVerifier;
 
 class BlockProposalServerAgent;
 
@@ -134,7 +135,11 @@ class Schain : public Agent {
 
     ptr< IO > io;
 
+    // not null in regular mode
     ptr< CryptoManager > cryptoManager;
+
+    // not null in read only mode
+    ptr< CryptoVerifier > cryptoVerifier;
 
     weak_ptr< Node > node;
 
@@ -343,6 +348,9 @@ public:
     u256 getRandomForBlockId(block_id _blockid);
 
     const ptr<OracleClient> getOracleClient() const;
+
+
+    ptr<CryptoVerifier> getCryptoVerifier();
 
 };
 
