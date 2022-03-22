@@ -6,7 +6,7 @@
 
 
 void BlockVerifier::verifyThresholdSig(
-        ptr< ThresholdSignature > , BLAKE3Hash& ,
+        ptr< ThresholdSignature > , BLAKE3Hash& , bool ,
         const TimeStamp& ) {
     return;
 };

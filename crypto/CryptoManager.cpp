@@ -561,7 +561,7 @@ ptr<ThresholdSigShare> CryptoManager::signBlockSigShare(
 void CryptoManager::verifyBlockSig(
         ptr<ThresholdSignature> _signature, BLAKE3Hash &_hash, const TimeStamp& _ts) {
     CHECK_STATE(_signature);
-    verifyThresholdSig(_signature, _hash,_ts);
+    verifyThresholdSig(_signature, _hash, false, _ts);
 }
 
 
@@ -663,13 +663,13 @@ ptr<ThresholdSigShare> CryptoManager::signSigShare(
 }
 
 void CryptoManager::verifyThresholdSig(
-        ptr<ThresholdSignature> _signature, BLAKE3Hash &_hash, const TimeStamp& _ts) {
+        ptr<ThresholdSignature> _signature, BLAKE3Hash &_hash, bool _forceMockup, const TimeStamp& _ts) {
 
     CHECK_STATE(_signature);
 
     MONITOR(__CLASS_NAME__, __FUNCTION__)
 
-    if (getSchain()->getNode()->isSgxEnabled()) {
+    if (getSchain()->getNode()->isSgxEnabled() && !_forceMockup) {
 
         auto blsSig = dynamic_pointer_cast<ConsensusBLSSignature>(_signature);
 
