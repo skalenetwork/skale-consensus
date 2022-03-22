@@ -39,10 +39,10 @@ CommittedBlockList::CommittedBlockList(const ptr< vector< ptr< CommittedBlock > 
 }
 
 
-CommittedBlockList::CommittedBlockList(const ptr< CryptoVerifier >& _cryptoManager,
+CommittedBlockList::CommittedBlockList(const ptr< CryptoVerifier >& _cryptoVerifier,
     const ptr<vector<uint64_t>>& _blockSizes, const ptr<vector<uint8_t>>& _serializedBlocks,
     uint64_t _offset ) {
-    CHECK_ARGUMENT( _cryptoManager );
+    CHECK_ARGUMENT( _cryptoVerifier );
     CHECK_ARGUMENT( _blockSizes );
     CHECK_ARGUMENT( _serializedBlocks );
 
@@ -70,10 +70,7 @@ CommittedBlockList::CommittedBlockList(const ptr< CryptoVerifier >& _cryptoManag
             CommittedBlock::serializedSanityCheck( blockData );
 
 
-            auto verifier = dynamic_pointer_cast<CryptoVerifier>(_cryptoManager);
-            CHECK_STATE(verifier);
-
-            auto block = CommittedBlock::deserialize( blockData, verifier );
+            auto block = CommittedBlock::deserialize( blockData, _cryptoVerifier );
 
             blocks->push_back(block);
 

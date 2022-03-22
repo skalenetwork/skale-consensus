@@ -45,7 +45,7 @@ public:
 
     void saveBlock(const ptr<CommittedBlock> &_block);
 
-    ptr<CommittedBlock> getBlock(block_id _blockID, const ptr<CryptoVerifier>& _cryptoManager);
+    ptr<CommittedBlock> getBlock(block_id _blockID, const ptr<CryptoVerifier>& _cryptoVerifier);
 
     block_id readLastCommittedBlockID();
 
