@@ -266,7 +266,9 @@ void Schain::joinMonitorAndTimeoutThreads() {
 }
 
  ptr<CryptoManager> Schain::getCryptoManager() const {
-    CHECK_STATE(cryptoManager);
+    if (!cryptoManager) {
+        CHECK_STATE(cryptoManager);
+    }
     return cryptoManager;
 }
 
