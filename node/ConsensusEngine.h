@@ -216,8 +216,7 @@ public:
 
     void startAll() override;
 
-    void parseFullConfigAndCreateNode( const string& fullPathToConfigFile, const string& _gethURL,
-                                       bool _isReadOnly) override;
+    void parseFullConfigAndCreateNode( const string& fullPathToConfigFile, const string& _gethURL) override;
 
     // used for standalone debugging
 
