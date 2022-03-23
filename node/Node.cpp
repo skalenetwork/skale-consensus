@@ -88,7 +88,7 @@ Node::Node(const nlohmann::json &_cfg, ConsensusEngine *_consensusEngine,
            ptr< vector< ptr< vector<string>>>> _blsPublicKeys,
            ptr< BLSPublicKey > _blsPublicKey, string & _gethURL,
            ptr< map< uint64_t, ptr< BLSPublicKey > > > _previousBlsPublicKeys,
-           bool _isReadOnly) : gethURL(_gethURL), isReadOnly(_isReadOnly) {
+           bool _isSyncNode) : gethURL(_gethURL), isSyncNode(_isSyncNode) {
 
 
 
@@ -298,7 +298,7 @@ void Node::startServers() {
 
     LOG(trace, " Creating consensus network");
 
-    if (!getReadOnly()) {
+    if (!isSyncOnlyNode()) {
        network = make_shared<ZMQNetwork>(*sChain);
 
        LOG(trace, " Starting consensus messaging");
@@ -408,7 +408,7 @@ void Node::initSchain(const ptr<Node>& _node, schain_index _schainIndex, schain_
 
         _node->setSchain(sChain);
 
-        if (_node->getReadOnly()) {
+        if (_node->isSyncOnlyNode()) {
             return;
         }
 
@@ -505,7 +505,7 @@ void Node::closeAllSocketsAndNotifyAllAgentsAndThreads() {
     if (sockets && sockets->catchupSocket)
         sockets->catchupSocket->touch();
 
-    if (getReadOnly())
+    if (isSyncOnlyNode())
         return;
 
     if (sockets && sockets->blockProposalSocket)
@@ -585,7 +585,7 @@ bool Node::isInited() const {
     return inited;
 }
 
-bool Node::getReadOnly() const {
-    return isReadOnly;
+bool Node::isSyncOnlyNode() const {
+    return isSyncNode;
 }
 

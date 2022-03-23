@@ -246,7 +246,7 @@ ptr< CommittedBlockList > CatchupClientAgent::readMissingBlocks(
         auto hash = BLAKE3Hash::getBlockHash((uint64_t ) item->getProposerIndex(),
                                              (uint64_t ) item->getBlockID(),
                                              (uint64_t ) item->getSchainID());
-        if (!getSchain()->getNode()->getReadOnly())
+        if (!getSchain()->getNode()->isSyncOnlyNode())
             getSchain()->getCryptoManager()->verifyBlockSig(sig, item->getBlockID(),
             hash, item->getTimeStamp());
     }
