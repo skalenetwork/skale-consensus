@@ -118,8 +118,8 @@ ptr< Node > JSONFactory::createNodeFromJsonObject( const nlohmann::json& _j, set
 
     bool isReadOnly =  false;
 
-    if (_j.find( "isReadOnly" ) != _j.end()) {
-        isReadOnly = _j.at("isReadOnly").get<bool>();
+    if (_j.find( "syncNode" ) != _j.end()) {
+        isReadOnly = _j.at("syncNode").get<bool>();
     }
 
 
