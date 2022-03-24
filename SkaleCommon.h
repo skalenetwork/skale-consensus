@@ -332,6 +332,10 @@ static const uint64_t  ORACLE_RECEIPTS_MAP_SIZE = 100000;
 static const uint64_t  ORACLE_FUTURE_JITTER_MS = 500;
 
 
+static const uint64_t SYNC_NODE_SLEEP_BEFORE_EXIT_MS = 5000;
+static const uint64_t SYNC_NODE_EXIT_CODE = 314;
+
+
 
 
 extern void setThreadName(std::string const &_n, ConsensusEngine* _engine);
@@ -348,6 +352,11 @@ extern std::string getThreadName();
     if (!(_EXPRESSION_)) { \
         auto __msg__ = string("State check failed::") + #_EXPRESSION_ +  " " + string(__FILE__) + ":" + to_string(__LINE__); \
         throw InvalidStateException(__msg__, __CLASS_NAME__);}
+
+#define CHECK_SIGNATURE_STATE(_EXPRESSION_) \
+    if (!(_EXPRESSION_)) { \
+        auto __msg__ = string("Signature check failed::") + #_EXPRESSION_ +  " " + string(__FILE__) + ":" + to_string(__LINE__); \
+        throw InvalidSignatureException(__msg__, __CLASS_NAME__);}
 
 
 

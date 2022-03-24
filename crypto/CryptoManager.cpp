@@ -65,12 +65,12 @@
 
 #include "ConsensusEdDSASigShare.h"
 #include "bls/BLSPrivateKeyShare.h"
-// #include "datastructures/BlockProposal.h"
 #include "datastructures/CommittedBlock.h"
 #include "monitoring/LivelinessMonitor.h"
 #include "node/Node.h"
 #include "node/NodeInfo.h"
 
+#include "exceptions/InvalidSignatureException.h"
 #include "json/JSONFactory.h"
 
 #include "network/Utils.h"
@@ -684,8 +684,8 @@ void CryptoManager::verifyThresholdSig(
             // second key is used when the sig corresponds
             // to the last block before node rotation!
             // in this case we use the key for the group before
-            CHECK_STATE(blsKeys.second);
-            CHECK_STATE(blsKeys.second->VerifySig(
+            CHECK_SIGNATURE_STATE(blsKeys.second);
+            CHECK_SIGNATURE_STATE(blsKeys.second->VerifySig(
                 make_shared<array<uint8_t, HASH_LEN>>(_hash.getHash()),
                 libBlsSig ));
         }
