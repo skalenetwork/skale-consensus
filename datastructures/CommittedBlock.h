@@ -38,7 +38,6 @@ class ThresholdSignature;
 class CommittedBlockHeader;
 
 class BlockProposalFragment;
-class CryptoVerifier;
 
 
 
@@ -71,7 +70,7 @@ public:
 
 
     static ptr< CommittedBlock > deserialize(
-        const ptr<vector<uint8_t>>& _serializedBlock, const ptr< CryptoVerifier >& _manager );
+        const ptr<vector<uint8_t>>& _serializedBlock, const ptr< CryptoManager >& _manager );
 
 
     static ptr< CommittedBlock > createRandomSample( const ptr< CryptoManager >& _manager,

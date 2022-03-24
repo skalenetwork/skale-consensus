@@ -113,9 +113,9 @@ void BlockDB::saveBlock(const ptr<CommittedBlock> &_block) {
 }
 
 
-ptr<CommittedBlock> BlockDB::getBlock(block_id _blockID, const ptr<CryptoVerifier>& _cryptoVerifier) {
+ptr<CommittedBlock> BlockDB::getBlock(block_id _blockID, const ptr<CryptoManager>& _cryptoManager) {
 
-    CHECK_ARGUMENT(_cryptoVerifier);
+    CHECK_ARGUMENT(_cryptoManager);
 
     shared_lock<shared_mutex> lock(m);
 
@@ -128,7 +128,7 @@ ptr<CommittedBlock> BlockDB::getBlock(block_id _blockID, const ptr<CryptoVerifie
             return nullptr;
         }
 
-        auto result = CommittedBlock::deserialize(serializedBlock, _cryptoVerifier);
+        auto result = CommittedBlock::deserialize(serializedBlock, _cryptoManager);
         CHECK_STATE(result);
         return result;
     }

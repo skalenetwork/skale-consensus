@@ -96,7 +96,6 @@
 #include "SchainTest.h"
 #include "TestConfig.h"
 #include "crypto/CryptoManager.h"
-#include "crypto/BlockVerifier.h"
 #include "crypto/ThresholdSigShare.h"
 #include "crypto/bls_include.h"
 #include "db/BlockDB.h"
@@ -301,8 +300,9 @@ void Schain::constructChildAgents() {
         pricingAgent = make_shared<PricingAgent>(*this);
         catchupClientAgent = make_shared<CatchupClientAgent>(*this);
 
+        cryptoManager = make_shared<CryptoManager>(*this);
+
         if (getNode()->isSyncOnlyNode()) {
-            cryptoVerifier = make_shared<BlockVerifier>();
             return;
         }
 
@@ -311,7 +311,6 @@ void Schain::constructChildAgents() {
 
         testMessageGeneratorAgent = make_shared<TestMessageGeneratorAgent>(*this);
 
-        cryptoManager = make_shared<CryptoManager>(*this);
         oracleClient = make_shared<OracleClient>(*this);
     } catch (...) {
         throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
