@@ -132,6 +132,8 @@ class CryptoManager  {
     string sgxDomainName;
     uint16_t sgxPort = 0;
 
+    uint64_t simulateBLSSigFailBlock = 0;
+
     ptr< StubClient > getSgxClient();
 
     tuple< ptr< OpenSSLEdDSAKey >, string > localGenerateFastKey();

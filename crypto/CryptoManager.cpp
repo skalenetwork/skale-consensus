@@ -169,6 +169,8 @@ CryptoManager::CryptoManager(uint64_t _totalSigners, uint64_t _requiredSigners, 
     }
 
     initSGXClient();
+
+
 }
 
 
@@ -271,6 +273,14 @@ CryptoManager::CryptoManager(Schain &_sChain)
             }
         }
     }
+
+
+    auto cfg = getSchain()->getNode()->getCfg();
+
+    if (cfg.find("simulateBLSSigFailBlock") != cfg.end()) {
+        simulateBLSSigFailBlock = cfg.at("simulateBLSSigFailBlock").get<uint64_t>();
+    }
+
 }
 
 void CryptoManager::setSGXKeyAndCert(
@@ -567,6 +577,13 @@ void CryptoManager::verifyBlockSig(
 
 void CryptoManager::verifyBlockSig(
         string &_sigStr, block_id _blockId, BLAKE3Hash &_hash, const TimeStamp& _ts) {
+
+    if (simulateBLSSigFailBlock > 0) {
+        if (simulateBLSSigFailBlock == (uint64_t) _blockId) {
+            throw InvalidSignatureException("Simulated sig fail", __CLASS_NAME__);
+        }
+    }
+
     if (getSchain()->getNode()->isSgxEnabled()) {
 
         auto _signature = make_shared<ConsensusBLSSignature>(_sigStr, _blockId,
