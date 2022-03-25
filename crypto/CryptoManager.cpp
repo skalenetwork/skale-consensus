@@ -584,7 +584,8 @@ void CryptoManager::verifyBlockSig(
         }
     }
 
-    if (getSchain()->getNode()->isSgxEnabled()) {
+    if (getSchain()->getNode()->isSgxEnabled() ||
+       (getSchain()->getNode()->isSyncOnlyNode() && sgxBLSPublicKey)) {
 
         auto _signature = make_shared<ConsensusBLSSignature>(_sigStr, _blockId,
                                                              totalSigners, requiredSigners);
@@ -686,8 +687,9 @@ void CryptoManager::verifyThresholdSig(
 
     MONITOR(__CLASS_NAME__, __FUNCTION__)
 
-    if (getSchain()->getNode()->isSgxEnabled() && !_forceMockup) {
-
+    if ((getSchain()->getNode()->isSgxEnabled() ||
+        (getSchain()->getNode()->isSyncOnlyNode() && sgxBLSPublicKey))
+        && !_forceMockup) {
         auto blsSig = dynamic_pointer_cast<ConsensusBLSSignature>(_signature);
 
         CHECK_STATE(blsSig);
