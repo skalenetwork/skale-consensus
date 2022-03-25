@@ -931,26 +931,34 @@ void ConsensusEngine::setTestKeys(
 }
 
 void ConsensusEngine::setSGXKeyInfo(const string &_sgxServerURL, string &_sgxSSLKeyFileFullPath,
-                                    string &_sgxSSLCertFileFullPath, string &_ecdsaKeyName,
-                                    ptr<vector<string> > &_ecdsaPublicKeys, string &_blsKeyName,
-                                    ptr<vector<ptr<vector<string> > > > &_blsPublicKeyShares, uint64_t _requiredSigners,
-                                    uint64_t _totalSigners) {
+                                    string &_sgxSSLCertFileFullPath, string &_ecdsaKeyName,string &_blsKeyName) {
     CHECK_STATE(!_sgxServerURL.empty())
     CHECK_STATE(!_ecdsaKeyName.empty())
     CHECK_STATE(!_blsKeyName.empty())
-    CHECK_STATE(_blsPublicKeyShares);
-    CHECK_STATE(_ecdsaPublicKeys);
-    CHECK_STATE(_ecdsaPublicKeys);
-    CHECK_STATE(_totalSigners >= _requiredSigners);
 
     this->sgxServerUrl = _sgxServerURL;
     this->isSGXEnabled = true;
     this->useTestSGXKeys = false;
 
-    this->blsPublicKeys = _blsPublicKeyShares;
-    this->ecdsaPublicKeys = _ecdsaPublicKeys;
     setEcdsaKeyName(_ecdsaKeyName);
     setBlsKeyName(_blsKeyName);
+
+    sgxSSLCertFileFullPath = _sgxSSLCertFileFullPath;
+    sgxSSLKeyFileFullPath = _sgxSSLKeyFileFullPath;
+}
+
+void ConsensusEngine::setPublicKeyInfo( ptr<vector<string> > &_ecdsaPublicKeys,
+                                    ptr<vector<ptr<vector<string> > > > &_blsPublicKeyShares, uint64_t _requiredSigners,
+                                    uint64_t _totalSigners) {
+
+    CHECK_STATE(_blsPublicKeyShares);
+    CHECK_STATE(_ecdsaPublicKeys);
+    CHECK_STATE(_ecdsaPublicKeys);
+    CHECK_STATE(_totalSigners >= _requiredSigners);
+
+
+    this->blsPublicKeys = _blsPublicKeyShares;
+    this->ecdsaPublicKeys = _ecdsaPublicKeys;
 
 
     map<size_t, shared_ptr<BLSPublicKeyShare> > blsPubKeyShares;
@@ -969,10 +977,10 @@ void ConsensusEngine::setSGXKeyInfo(const string &_sgxServerURL, string &_sgxSSL
     blsPublicKey = make_shared<BLSPublicKey>(
             make_shared<map<size_t, shared_ptr<BLSPublicKeyShare> > >(blsPubKeyShares),
             _requiredSigners, _totalSigners);
-
-    sgxSSLCertFileFullPath = _sgxSSLCertFileFullPath;
-    sgxSSLKeyFileFullPath = _sgxSSLKeyFileFullPath;
+    
 }
+
+
 
 void ConsensusEngine::setRotationHistory(ptr<map<uint64_t, vector<string>>> _rh) {
     CHECK_STATE(_rh);
