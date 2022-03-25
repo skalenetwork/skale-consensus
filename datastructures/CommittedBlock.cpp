@@ -109,7 +109,7 @@ string CommittedBlock::getThresholdSig() const {
 
 
 ptr< CommittedBlock > CommittedBlock::deserialize(
-    const ptr<vector<uint8_t>>& _serializedBlock, const ptr< CryptoVerifier >& _manager ) {
+    const ptr<vector<uint8_t>>& _serializedBlock, const ptr< CryptoManager >& _manager ) {
     CHECK_ARGUMENT( _serializedBlock );
     CHECK_ARGUMENT( _manager );
 

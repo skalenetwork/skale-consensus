@@ -39,10 +39,10 @@ CommittedBlockList::CommittedBlockList(const ptr< vector< ptr< CommittedBlock > 
 }
 
 
-CommittedBlockList::CommittedBlockList(const ptr< CryptoVerifier >& _cryptoVerifier,
+CommittedBlockList::CommittedBlockList(const ptr< CryptoManager >& _cryptoManager,
     const ptr<vector<uint64_t>>& _blockSizes, const ptr<vector<uint8_t>>& _serializedBlocks,
     uint64_t _offset ) {
-    CHECK_ARGUMENT( _cryptoVerifier );
+    CHECK_ARGUMENT( _cryptoManager );
     CHECK_ARGUMENT( _blockSizes );
     CHECK_ARGUMENT( _serializedBlocks );
 
@@ -70,7 +70,7 @@ CommittedBlockList::CommittedBlockList(const ptr< CryptoVerifier >& _cryptoVerif
             CommittedBlock::serializedSanityCheck( blockData );
 
 
-            auto block = CommittedBlock::deserialize( blockData, _cryptoVerifier );
+            auto block = CommittedBlock::deserialize( blockData, _cryptoManager );
 
             blocks->push_back(block);
 
@@ -130,7 +130,7 @@ ptr< CommittedBlockList > CommittedBlockList::createRandomSample(
     return make_shared< CommittedBlockList >( blcks );
 }
 
-ptr< CommittedBlockList > CommittedBlockList::deserialize(const ptr< CryptoVerifier >& _cryptoManager,
+ptr< CommittedBlockList > CommittedBlockList::deserialize(const ptr< CryptoManager >& _cryptoManager,
     const ptr<vector<uint64_t>>& _blockSizes, const ptr<vector<uint8_t>>& _serializedBlocks,
     uint64_t _offset ) {
     return ptr< CommittedBlockList >(

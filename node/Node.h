@@ -199,7 +199,7 @@ class Node {
 
     string gethURL = "";
 
-    bool isReadOnly = false;
+    bool isSyncNode = false;
 
     bool inited = false;
 
@@ -282,7 +282,7 @@ public:
         string _blsKeyName, ptr< vector< ptr< vector<string>>>> _blsPublicKeys,
         ptr< BLSPublicKey > _blsPublicKey, string& _gethURL,
         ptr< map< uint64_t, ptr< BLSPublicKey > > > _previousBlsPublicKeys,
-        bool _isReadOnly);
+        bool _isSyncNode);
 
 
     ~Node();
@@ -382,6 +382,6 @@ public:
 
     const string &getGethUrl() const;
 
-    bool getReadOnly() const;
+    bool isSyncOnlyNode() const;
 
 };

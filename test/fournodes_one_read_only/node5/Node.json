@@ -3,5 +3,5 @@
   "nodeID": 1116,
   "bindIP": "127.0.0.5",
   "basePort":1231,
-  "isReadOnly": true
+  "syncNode": true
 }

@@ -96,7 +96,6 @@
 #include "SchainTest.h"
 #include "TestConfig.h"
 #include "crypto/CryptoManager.h"
-#include "crypto/BlockVerifier.h"
 #include "crypto/ThresholdSigShare.h"
 #include "crypto/bls_include.h"
 #include "db/BlockDB.h"
@@ -218,7 +217,7 @@ void Schain::messageThreadProcessingLoop(Schain *_sChain) {
 
 
 void Schain::startThreads() {
-    if (getNode()->getReadOnly()) {
+    if (getNode()->isSyncOnlyNode()) {
         return;
     }
     CHECK_STATE(consensusMessageThreadPool);
@@ -240,7 +239,7 @@ Schain::Schain(weak_ptr<Node> _node, schain_index _schainIndex, const schain_id 
 
     // construct monitoring, timeout and stuck detection agents early
     monitoringAgent = make_shared<MonitoringAgent>(*this);
-    if (!getNode()->getReadOnly()) {
+    if (!getNode()->isSyncOnlyNode()) {
         timeoutAgent = make_shared<TimeoutAgent>(*this);
         stuckDetectionAgent = make_shared<StuckDetectionAgent>(*this);
     }
@@ -250,7 +249,7 @@ Schain::Schain(weak_ptr<Node> _node, schain_index _schainIndex, const schain_id 
 
     MONITOR(__CLASS_NAME__, __FUNCTION__)
 
-    if (!getNode()->getReadOnly()) {
+    if (!getNode()->isSyncOnlyNode()) {
         CHECK_STATE(schainIndex > 0);
         CHECK_STATE(getNode()->getNodeInfosByIndex()->size() > 0);
     }
@@ -266,7 +265,7 @@ Schain::Schain(weak_ptr<Node> _node, schain_index _schainIndex, const schain_id 
             }
         }
 
-        if (thisNodeInfo == nullptr && !getNode()->getReadOnly()) {
+        if (thisNodeInfo == nullptr && !getNode()->isSyncOnlyNode()) {
             BOOST_THROW_EXCEPTION(EngineInitException(
                                           "Schain: " + to_string((uint64_t) getSchainID()) +
                                           " does not include current node with IP " + getNode()->getBindIP() +
@@ -301,8 +300,9 @@ void Schain::constructChildAgents() {
         pricingAgent = make_shared<PricingAgent>(*this);
         catchupClientAgent = make_shared<CatchupClientAgent>(*this);
 
-        if (getNode()->getReadOnly()) {
-            cryptoVerifier = make_shared<BlockVerifier>();
+        cryptoManager = make_shared<CryptoManager>(*this);
+
+        if (getNode()->isSyncOnlyNode()) {
             return;
         }
 
@@ -311,7 +311,6 @@ void Schain::constructChildAgents() {
 
         testMessageGeneratorAgent = make_shared<TestMessageGeneratorAgent>(*this);
 
-        cryptoManager = make_shared<CryptoManager>(*this);
         oracleClient = make_shared<OracleClient>(*this);
     } catch (...) {
         throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
@@ -374,7 +373,7 @@ void Schain::checkForDeadLock(const char *_functionName) {
         LOG(info, "BLOCK_CATCHUP: " + to_string(getLastCommittedBlockID() - committedIDOld) +
                   " BLOCKS");
         result = ((uint64_t) getLastCommittedBlockID()) - committedIDOld;
-        if (!getNode()->getReadOnly())
+        if (!getNode()->isSyncOnlyNode())
             proposeNextBlock();
     }
 
@@ -390,7 +389,7 @@ void Schain::blockCommitArrived(block_id _committedBlockID, schain_index _propos
 
 
     // no regular block commits happen for sync nodes
-    CHECK_STATE(!getNode()->getReadOnly());
+    CHECK_STATE(!getNode()->isSyncOnlyNode());
 
     checkForExit();
 
@@ -566,7 +565,7 @@ void Schain::printBlockLog(const ptr<CommittedBlock> &_block) {
                     ":LWC:" + to_string(CacheLevelDB::getWrites()) +
                     ":LRC:" + to_string(CacheLevelDB::getReads());
 
-    if (!getNode()->getReadOnly()) {
+    if (!getNode()->isSyncOnlyNode()) {
         output = output +
                 ":KNWN:" + to_string(pendingTransactionsAgent->getKnownTransactionsSize()) +
                 ":CONS:" + to_string(ServerConnection::getTotalObjects()) + ":DSDS:" +
@@ -873,7 +872,7 @@ void Schain::bootstrap(block_id _lastCommittedBlockID, uint64_t _lastCommittedBl
             this->pricingAgent->calculatePrice(ConsensusExtFace::transactions_vector(), 0, 0, 0);
 
 
-        if (getNode()->getReadOnly())
+        if (getNode()->isSyncOnlyNode())
             return;
 
         proposeNextBlock();
@@ -955,7 +954,7 @@ void Schain::healthCheck() {
                         BOOST_THROW_EXCEPTION(ExitRequestedException( __CLASS_NAME__ ));
                     }
 
-                    auto port = (getNode()->getReadOnly()? port_type::CATCHUP : port_type::PROPOSAL);
+                    auto port = (getNode()->isSyncOnlyNode()? port_type::CATCHUP : port_type::PROPOSAL);
 
                     auto socket = make_shared<ClientSocket>(
                             *this, schain_index(i), port);
@@ -1007,7 +1006,7 @@ void Schain::constructServers(const ptr<Sockets> &_sockets) {
     catchupServerAgent = make_shared<CatchupServerAgent>(*this, _sockets->catchupSocket);
 
 
-    if (getNode()->getReadOnly())
+    if (getNode()->isSyncOnlyNode())
         return;
 
     blockProposalServerAgent =

@@ -503,7 +503,7 @@ Network::Network(Schain &_sChain)
           delayedSendsLocks((uint64_t) _sChain.getNodeCount()) {
 
     // no network objects needed for sync nodes
-    CHECK_STATE(!getNode()->getReadOnly());
+    CHECK_STATE(!getNode()->isSyncOnlyNode());
 
 
     auto cfg = _sChain.getNode()->getCfg();

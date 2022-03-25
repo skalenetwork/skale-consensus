@@ -97,16 +97,6 @@ ptr<BlockProposal> Schain::getBlockProposal(block_id _blockID, schain_index _sch
 
 }
 
-ptr<CryptoVerifier> Schain::getCryptoVerifier() {
-    if (getNode()->getReadOnly()) {
-        CHECK_STATE(cryptoVerifier);
-        return cryptoVerifier;
-    } else {
-        CHECK_STATE(cryptoManager);
-        auto verifier = dynamic_pointer_cast<CryptoVerifier>(cryptoManager);
-        return verifier;
-    }
-}
 
 
 ptr<CommittedBlock> Schain::getBlock(block_id _blockID) {
@@ -114,7 +104,7 @@ ptr<CommittedBlock> Schain::getBlock(block_id _blockID) {
     MONITOR(__CLASS_NAME__, __FUNCTION__)
 
     try {
-        return getNode()->getBlockDB()->getBlock(_blockID, getCryptoVerifier());
+        return getNode()->getBlockDB()->getBlock(_blockID, getCryptoManager());
     } catch (ExitRequestedException &) { throw; } catch (...) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
@@ -269,7 +259,7 @@ void Schain::joinMonitorAndTimeoutThreads() {
     CHECK_STATE(monitoringAgent);
     monitoringAgent->join();
 
-    if (getNode()->getReadOnly())
+    if (getNode()->isSyncOnlyNode())
         return;
     CHECK_STATE(timeoutAgent);
     CHECK_STATE(stuckDetectionAgent);
@@ -306,7 +296,7 @@ void Schain::initLastCommittedBlockInfo( uint64_t _lastCommittedBlockID,
     lastCommittedBlockTimeStamp = _lastCommittedBlockTimeStamp;
     lastCommitTimeMs = Time::getCurrentTimeMs();
 
-    if (getSchain()->getNode()->getReadOnly())
+    if (getSchain()->getNode()->isSyncOnlyNode())
         return;
     this->blockConsensusInstance->initFastLedgerAndReplayMessages(lastCommittedBlockID + 1);
 }
@@ -338,7 +328,7 @@ void Schain::updateLastCommittedBlockInfo( uint64_t _lastCommittedBlockID,
     tpsAverage = (blockSizeAverage * 1000 ) / blockTimeAverageMs;
     getRandomForBlockId((uint64_t) lastCommittedBlockID);
 
-    if (getNode()->getReadOnly())
+    if (getNode()->isSyncOnlyNode())
         return;
     blockConsensusInstance->startNewBlock(lastCommittedBlockID + 1);
 }

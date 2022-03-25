@@ -65,12 +65,12 @@
 
 #include "ConsensusEdDSASigShare.h"
 #include "bls/BLSPrivateKeyShare.h"
-// #include "datastructures/BlockProposal.h"
 #include "datastructures/CommittedBlock.h"
 #include "monitoring/LivelinessMonitor.h"
 #include "node/Node.h"
 #include "node/NodeInfo.h"
 
+#include "exceptions/InvalidSignatureException.h"
 #include "json/JSONFactory.h"
 
 #include "network/Utils.h"
@@ -169,6 +169,8 @@ CryptoManager::CryptoManager(uint64_t _totalSigners, uint64_t _requiredSigners, 
     }
 
     initSGXClient();
+
+
 }
 
 
@@ -271,6 +273,14 @@ CryptoManager::CryptoManager(Schain &_sChain)
             }
         }
     }
+
+
+    auto cfg = getSchain()->getNode()->getCfg();
+
+    if (cfg.find("simulateBLSSigFailBlock") != cfg.end()) {
+        simulateBLSSigFailBlock = cfg.at("simulateBLSSigFailBlock").get<uint64_t>();
+    }
+
 }
 
 void CryptoManager::setSGXKeyAndCert(
@@ -567,7 +577,15 @@ void CryptoManager::verifyBlockSig(
 
 void CryptoManager::verifyBlockSig(
         string &_sigStr, block_id _blockId, BLAKE3Hash &_hash, const TimeStamp& _ts) {
-    if (getSchain()->getNode()->isSgxEnabled()) {
+
+    if (simulateBLSSigFailBlock > 0) {
+        if (simulateBLSSigFailBlock == (uint64_t) _blockId) {
+            throw InvalidSignatureException("Simulated sig fail", __CLASS_NAME__);
+        }
+    }
+
+    if (getSchain()->getNode()->isSgxEnabled() ||
+       (getSchain()->getNode()->isSyncOnlyNode() && sgxBLSPublicKey)) {
 
         auto _signature = make_shared<ConsensusBLSSignature>(_sigStr, _blockId,
                                                              totalSigners, requiredSigners);
@@ -669,8 +687,9 @@ void CryptoManager::verifyThresholdSig(
 
     MONITOR(__CLASS_NAME__, __FUNCTION__)
 
-    if (getSchain()->getNode()->isSgxEnabled() && !_forceMockup) {
-
+    if ((getSchain()->getNode()->isSgxEnabled() ||
+        (getSchain()->getNode()->isSyncOnlyNode() && sgxBLSPublicKey))
+        && !_forceMockup) {
         auto blsSig = dynamic_pointer_cast<ConsensusBLSSignature>(_signature);
 
         CHECK_STATE(blsSig);
@@ -684,8 +703,8 @@ void CryptoManager::verifyThresholdSig(
             // second key is used when the sig corresponds
             // to the last block before node rotation!
             // in this case we use the key for the group before
-            CHECK_STATE(blsKeys.second);
-            CHECK_STATE(blsKeys.second->VerifySig(
+            CHECK_SIGNATURE_STATE(blsKeys.second);
+            CHECK_SIGNATURE_STATE(blsKeys.second->VerifySig(
                 make_shared<array<uint8_t, HASH_LEN>>(_hash.getHash()),
                 libBlsSig ));
         }

@@ -116,10 +116,17 @@ ptr< Node > JSONFactory::createNodeFromJsonObject( const nlohmann::json& _j, set
     const ptr< map< uint64_t, ptr< BLSPublicKey > > >& _previousBlsPublicKeys) {
 
 
-    bool isReadOnly =  false;
+    bool isSyncNode =  false;
 
-    if (_j.find( "isReadOnly" ) != _j.end()) {
-        isReadOnly = _j.at("isReadOnly").get<bool>();
+
+    if (_j.find( "syncNode" ) != _j.end()) {
+        isSyncNode = _j.at("syncNode").get<bool>();
+    }
+
+
+    if (isSyncNode && _useSGX) {
+        LOG(err, "SGX mode is not available for a sync node");
+        _useSGX = false;
     }
 
 
@@ -165,7 +172,7 @@ ptr< Node > JSONFactory::createNodeFromJsonObject( const nlohmann::json& _j, set
                 sgxSSLCertFileFullPathCopy,
                 _ecdsaKeyName, _ecdsaPublicKeys,
                 _blsKeyName, _blsPublicKeys, _blsPublicKey, _gethURL, _previousBlsPublicKeys,
-                isReadOnly);
+                isSyncNode);
         } catch ( ... ) {
             throw_with_nested( FatalError( "Could not init node", __CLASS_NAME__ ) );
         }
@@ -316,7 +323,7 @@ void JSONFactory::createAndAddSChainFromJsonObject(
 
         schain_index schainIndex = 0;
 
-        if (!_node->getReadOnly()) {
+        if (!_node->isSyncOnlyNode()) {
             // node readonly node should be part of schain
             CHECK_STATE(localNodeInfo);
             schainIndex = localNodeInfo->getSchainIndex();
