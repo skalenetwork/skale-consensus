@@ -222,6 +222,7 @@ void Schain::startThreads() {
     }
     CHECK_STATE(consensusMessageThreadPool);
     this->consensusMessageThreadPool->startService();
+    this->oracleMessageThreadPool->startService();
 }
 
 
@@ -233,6 +234,7 @@ Schain::Schain(weak_ptr<Node> _node, schain_index _schainIndex, const schain_id 
           schainID(_schainID),
           startTimeMs(0),
           consensusMessageThreadPool(new SchainMessageThreadPool(this)),
+          oracleMessageThreadPool(new SchainMessageThreadPool(this)),
           node(_node),
           schainIndex(_schainIndex) {
     lastCommittedBlockTimeStamp = TimeStamp(0, 0);

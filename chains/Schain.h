@@ -131,6 +131,8 @@ class Schain : public Agent {
 
     ptr< SchainMessageThreadPool > consensusMessageThreadPool;
 
+    ptr< SchainMessageThreadPool > oracleMessageThreadPool;
+
 
 
     ptr< IO > io;
@@ -162,7 +164,6 @@ class Schain : public Agent {
     static ptr<ofstream> visualizationDataStream;
     static mutex vdsMutex;
 
-private:
     uint64_t blockTimeAverageMs = 0 ;
     uint64_t tpsAverage = 0 ;
 
