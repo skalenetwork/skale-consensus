@@ -49,8 +49,8 @@ class BlockFinalizeDownloader;
 class BlockFinalizeDownloaderThreadPool;
 
 
-
 class SchainMessageThreadPool;
+class OracleMessageThreadPool;
 
 class TestMessageGeneratorAgent;
 class ConsensusExtFace;
@@ -87,6 +87,7 @@ class TimeStamp;
 class CryptoManager;
 class StatusServer;
 class OracleClient;
+class OracleResultAssemblyAgent;
 
 class Schain : public Agent {
 
@@ -132,6 +133,8 @@ class Schain : public Agent {
     ptr< SchainMessageThreadPool > consensusMessageThreadPool;
 
 
+    ptr<OracleResultAssemblyAgent> oracleResultAssemblyAgent;
+
 
     ptr< IO > io;
 
@@ -168,8 +171,6 @@ private:
 
     ptr< NodeInfo > thisNodeInfo = nullptr;
 
-    void checkForExit();
-
     void proposeNextBlock();
 
     void processCommittedBlock( const ptr< CommittedBlock >& _block );
@@ -192,6 +193,10 @@ private:
 public:
 
     static void writeToVisualizationStream(string& _s);
+
+
+    void checkForExit();
+
 
     void addDeadNode(uint64_t _schainIndex, uint64_t timeMs);
 
@@ -267,6 +272,8 @@ public:
     const ptr< IO > getIo() const;
 
     void postMessage( const ptr< MessageEnvelope >& _me );
+
+    const ptr<OracleResultAssemblyAgent> &getOracleResultAssemblyAgent() const;
 
     ptr< PendingTransactionsAgent > getPendingTransactionsAgent() const;
 
