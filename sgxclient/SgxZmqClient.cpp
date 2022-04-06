@@ -84,7 +84,13 @@ shared_ptr< SgxZmqMessage > SgxZmqClient::doRequestReply(
         CHECK_STATE( resultStr.front() == '{' )
         CHECK_STATE( resultStr.back() == '}' )
 
-        return SgxZmqMessage::parse( resultStr.c_str(), resultStr.size(), false );
+        auto result =  SgxZmqMessage::parse( resultStr.c_str(), resultStr.size(), false );
+
+        CHECK_STATE2( result->getStatus() == 0, "SGX server returned error:" + resultStr );
+
+        return result;
+
+
     } catch ( std::exception& e ) {
         spdlog::error( string( "Error in doRequestReply:" ) + e.what() );
         throw;
@@ -321,7 +327,6 @@ string SgxZmqClient::blsSignMessageHash( const std::string& keyShareName,
     auto result =
         dynamic_pointer_cast< BLSSignRspMessage >( doRequestReply( p, _throwExceptionOnTimeout ) );
     CHECK_STATE( result );
-    CHECK_STATE( result->getStatus() == 0 );
 
     return result->getSigShare();
 }
@@ -336,8 +341,7 @@ string SgxZmqClient::ecdsaSignMessageHash( int base, const std::string& keyName,
     auto result = dynamic_pointer_cast< ECDSASignRspMessage >(
         doRequestReply( p, _throwExceptionOnTimeout ) );
 
-    CHECK_STATE( result != nullptr );
-    CHECK_STATE( result->getStatus() == 0 );
+    CHECK_STATE( result );
     return result->getSignature();
 }
 
