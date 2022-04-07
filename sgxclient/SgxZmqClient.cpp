@@ -87,7 +87,7 @@ shared_ptr< SgxZmqMessage > SgxZmqClient::doRequestReply(
         auto result =  SgxZmqMessage::parse( resultStr.c_str(), resultStr.size(), false );
 
         CHECK_STATE2( result->getStatus() == 0, "SGX server returned error:" + resultStr );
-
+  
         if (result->getWarning()) {
             LOG(warn, "SGX server reported warning:" + *result->getWarning());
         }
