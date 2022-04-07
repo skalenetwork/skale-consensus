@@ -42,7 +42,7 @@
 
 
 shared_ptr< SgxZmqMessage > SgxZmqClient::doRequestReply(
-    Json::Value& _req, bool _throwExceptionOnTimeout ) {
+    Json::Value& _req, string& _description, bool _throwExceptionOnTimeout ) {
     Json::FastWriter fastWriter;
     fastWriter.omitEndingLineFeed();
 
@@ -76,7 +76,7 @@ shared_ptr< SgxZmqMessage > SgxZmqClient::doRequestReply(
     CHECK_STATE( reqStr.front() == '{' );
     CHECK_STATE( reqStr.back() == '}' );
 
-    auto resultStr = doZmqRequestReply( reqStr, _throwExceptionOnTimeout );
+    auto resultStr = doZmqRequestReply( reqStr, _description, _throwExceptionOnTimeout );
 
 
     try {
@@ -87,7 +87,10 @@ shared_ptr< SgxZmqMessage > SgxZmqClient::doRequestReply(
         auto result =  SgxZmqMessage::parse( resultStr.c_str(), resultStr.size(), false );
 
         CHECK_STATE2( result->getStatus() == 0, "SGX server returned error:" + resultStr );
-
+  
+        if (result->getWarning()) {
+            LOG(warn, "SGX server reported warning:" + *result->getWarning());
+        }
         return result;
 
 
@@ -101,7 +104,7 @@ shared_ptr< SgxZmqMessage > SgxZmqClient::doRequestReply(
 }
 
 
-string SgxZmqClient::doZmqRequestReply( string& _req, bool _throwExceptionOnTimeout ) {
+string SgxZmqClient::doZmqRequestReply( string& _req,  string& _description, bool _throwExceptionOnTimeout ) {
 
     stringstream request;
 
@@ -115,6 +118,8 @@ string SgxZmqClient::doZmqRequestReply( string& _req, bool _throwExceptionOnTime
     spdlog::debug( "ZMQ client sending: \n {}", _req );
 
     s_send( *clientSocket, _req );
+
+    auto requestTimeout = REQUEST_TIMEOUT;
 
     while ( true ) {
         //  Poll socket for a reply, with timeout
@@ -140,10 +145,11 @@ string SgxZmqClient::doZmqRequestReply( string& _req, bool _throwExceptionOnTime
         } else {
             serverDown = true;
             if ( _throwExceptionOnTimeout ) {
-                LOG( err, "No response from sgx server" );
+                LOG( err, "No response from sgx server for:" + _description );
                 CHECK_STATE( false );
             }
-            LOG( err, "W: no response from SGX server, retrying..." );
+            LOG( err, "No response from SGX server for " +  _description + ". Retrying..." );
+            usleep(SGX_REQUEST_TIMEOUT_MS * 1000);
             reconnect();
 
             //  Send request again, on new socket
@@ -324,8 +330,9 @@ string SgxZmqClient::blsSignMessageHash( const std::string& keyShareName,
     p["messageHash"] = messageHash;
     p["n"] = n;
     p["t"] = t;
+    static string description("BLS sign");
     auto result =
-        dynamic_pointer_cast< BLSSignRspMessage >( doRequestReply( p, _throwExceptionOnTimeout ) );
+        dynamic_pointer_cast< BLSSignRspMessage >( doRequestReply( p, description, _throwExceptionOnTimeout ) );
     CHECK_STATE( result );
 
     return result->getSigShare();
@@ -338,8 +345,10 @@ string SgxZmqClient::ecdsaSignMessageHash( int base, const std::string& keyName,
     p["base"] = base;
     p["keyName"] = keyName;
     p["messageHash"] = messageHash;
+    static string description("ECDSA sign");
+
     auto result = dynamic_pointer_cast< ECDSASignRspMessage >(
-        doRequestReply( p, _throwExceptionOnTimeout ) );
+        doRequestReply( p, description, _throwExceptionOnTimeout ) );
 
     CHECK_STATE( result );
     return result->getSignature();
