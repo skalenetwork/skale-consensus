@@ -85,7 +85,9 @@
 #include "node/NodeInfo.h"
 #include "oracle/OracleServerAgent.h"
 #include "oracle/OracleClient.h"
+#include "oracle/OracleMessageThreadPool.h"
 #include "oracle/OracleThreadPool.h"
+#include "oracle/OracleResultAssemblyAgent.h"
 #include "pricing/PricingAgent.h"
 #include "protocols/ProtocolInstance.h"
 #include "protocols/blockconsensus/BlockConsensusAgent.h"
@@ -190,12 +192,8 @@ void Schain::messageThreadProcessingLoop(Schain *_sChain) {
                 CHECK_STATE((uint64_t) m->getMessage()->getBlockId() != 0);
 
                 try {
-                    if (m->getMessage()->getMsgType() == MSG_ORACLE_REQ_BROADCAST ||
-                        m->getMessage()->getMsgType() == MSG_ORACLE_RSP) {
-                        _sChain->getOracleInstance()->routeAndProcessMessage(m);
-                    } else {
-                        _sChain->getBlockConsensusInstance()->routeAndProcessMessage(m);
-                    }
+                    _sChain->getBlockConsensusInstance()->routeAndProcessMessage(m);
+
                 } catch (exception &e) {
                     LOG(err, "Exception in Schain::messageThreadProcessingLoop");
                     SkaleException::logNested(e);
@@ -220,7 +218,7 @@ void Schain::startThreads() {
     if (getNode()->isSyncOnlyNode()) {
         return;
     }
-    CHECK_STATE(consensusMessageThreadPool);
+    CHECK_STATE(consensusMessageThreadPool)
     this->consensusMessageThreadPool->startService();
 }
 
@@ -233,8 +231,10 @@ Schain::Schain(weak_ptr<Node> _node, schain_index _schainIndex, const schain_id 
           schainID(_schainID),
           startTimeMs(0),
           consensusMessageThreadPool(new SchainMessageThreadPool(this)),
+
           node(_node),
           schainIndex(_schainIndex) {
+
     lastCommittedBlockTimeStamp = TimeStamp(0, 0);
 
     // construct monitoring, timeout and stuck detection agents early
@@ -297,6 +297,7 @@ void Schain::constructChildAgents() {
     MONITOR(__CLASS_NAME__, __FUNCTION__)
 
     try {
+        oracleResultAssemblyAgent = make_shared<OracleResultAssemblyAgent>(*this);
         pricingAgent = make_shared<PricingAgent>(*this);
         catchupClientAgent = make_shared<CatchupClientAgent>(*this);
 
@@ -567,10 +568,10 @@ void Schain::printBlockLog(const ptr<CommittedBlock> &_block) {
 
     if (!getNode()->isSyncOnlyNode()) {
         output = output +
-                ":KNWN:" + to_string(pendingTransactionsAgent->getKnownTransactionsSize()) +
-                ":CONS:" + to_string(ServerConnection::getTotalObjects()) + ":DSDS:" +
-                to_string(getSchain()->getNode()->getNetwork()->computeTotalDelayedSends()) +
-                ":SET:" + to_string(CryptoManager::getEcdsaStats()) +
+                 ":KNWN:" + to_string(pendingTransactionsAgent->getKnownTransactionsSize()) +
+                 ":CONS:" + to_string(ServerConnection::getTotalObjects()) + ":DSDS:" +
+                 to_string(getSchain()->getNode()->getNetwork()->computeTotalDelayedSends()) +
+                 ":SET:" + to_string(CryptoManager::getEcdsaStats()) +
                  ":SBT:" + to_string(CryptoManager::getBLSStats()) +
                  ":SEC:" + to_string(CryptoManager::getECDSATotals()) +
                  ":SBC:" + to_string(CryptoManager::getBLSTotals()) +
@@ -582,7 +583,7 @@ void Schain::printBlockLog(const ptr<CommittedBlock> &_block) {
     LOG(info, output);
 
     //get malloc stats
-    static atomic <uint64_t> mallocCounter = 0;
+    static atomic<uint64_t> mallocCounter = 0;
     if (mallocCounter % 1000 == 0) {
         char *bp = nullptr;
         size_t size = 0;
@@ -954,7 +955,7 @@ void Schain::healthCheck() {
                         BOOST_THROW_EXCEPTION(ExitRequestedException( __CLASS_NAME__ ));
                     }
 
-                    auto port = (getNode()->isSyncOnlyNode()? port_type::CATCHUP : port_type::PROPOSAL);
+                    auto port = (getNode()->isSyncOnlyNode() ? port_type::CATCHUP : port_type::PROPOSAL);
 
                     auto socket = make_shared<ClientSocket>(
                             *this, schain_index(i), port);
@@ -1223,6 +1224,10 @@ u256 Schain::getRandomForBlockId(block_id _blockId) {
 }
 
 ptr<ofstream> Schain::visualizationDataStream = nullptr;
+
+const ptr<OracleResultAssemblyAgent> &Schain::getOracleResultAssemblyAgent() const {
+    return oracleResultAssemblyAgent;
+}
 
 
 mutex Schain::vdsMutex;

@@ -39,6 +39,7 @@
 #include "protocols/blockconsensus/BlockSignBroadcastMessage.h"
 #include "thirdparty/json.hpp"
 #include "thirdparty/lrucache.hpp"
+#include "oracle/OracleResultAssemblyAgent.h"
 #include <db/MsgDB.h>
 
 #include "unordered_set"
@@ -204,7 +205,8 @@ void Network::broadcastOracleRequestMessage(const ptr<OracleRequestBroadcastMess
             if (dstIndex != (getSchain()->getSchainIndex())) {
                 sendMessage(it.second, _msg);
             } else {
-                getSchain()->postMessage(make_shared<NetworkMessageEnvelope>(_msg, dstIndex));
+                getSchain()->getOracleResultAssemblyAgent()->postMessage(
+                        make_shared<NetworkMessageEnvelope>(_msg, dstIndex));
             }
         }
     } catch (...) {
@@ -226,7 +228,7 @@ void Network::sendOracleResponseMessage(const ptr<OracleResponseMessage> &_msg, 
             CHECK_STATE(dstNodeInfo);
             sendMessage(dstNodeInfo, _msg);
         } else {
-            getSchain()->postMessage(make_shared<NetworkMessageEnvelope>(_msg, _dstIndex));
+            getSchain()->getOracleResultAssemblyAgent()->postMessage(make_shared<NetworkMessageEnvelope>(_msg, _dstIndex));
         }
     } catch (...) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
@@ -263,7 +265,7 @@ void Network::networkReadLoop() {
                 }
 
                 if (msg->getMsgType() == MSG_ORACLE_REQ_BROADCAST  || msg->getMsgType() == MSG_ORACLE_RSP) {
-                    sChain->postMessage(m);
+                    sChain->getOracleResultAssemblyAgent()->postMessage(m);
                     continue;
                 }
 
@@ -326,7 +328,7 @@ void Network::postDeferOrDrop(const ptr<NetworkMessageEnvelope> &_me) {
     CHECK_STATE(msg);
 
     if (msg->getMsgType() == MSG_ORACLE_REQ_BROADCAST || msg->getMsgType() == MSG_ORACLE_RSP) {
-        sChain->postMessage(_me);
+        sChain->getOracleResultAssemblyAgent()->postMessage(_me);
     } else if (sChain->getBlockConsensusInstance()->shouldPost(msg)) {
         sChain->postMessage(_me);
     } else {
