@@ -34,7 +34,6 @@
 
 #include <cryptopp/sha.h>
 #include <cryptopp/sha3.h>
-#include <cryptopp/keccak.h>
 
 #include "JsonStubClient.h"
 
@@ -436,7 +435,7 @@ string CryptoManager::signOracleResult(string _text) {
 string CryptoManager::hashForOracle(string &_text) {
 
     try {
-        CryptoPP::Keccak_256 hash;
+        CryptoPP::SHA3_256 hash;
         string digest;
 
 
