@@ -173,3 +173,11 @@ void FastMessageLedger::startNewBlock(block_id _blockId) {
 
     writeLine(header);
 }
+
+
+void FastMessageLedger::destroy() {
+    LOCK(m)
+    closeFd();
+    auto result = remove(ledgerFileFullPath.c_str());
+    LOG(info, "Removed fast ledger file.  Status:" + to_string(result));
+}
