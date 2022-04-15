@@ -562,4 +562,10 @@ void BlockConsensusAgent::startNewBlock(block_id _blockID) {
     fastMessageLedger->startNewBlock(_blockID);
 }
 
+void BlockConsensusAgent::destroyMessageLedger() {
+    if (fastMessageLedger) {
+        fastMessageLedger->destroy();
+    }
+}
+
 
