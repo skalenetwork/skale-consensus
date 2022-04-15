@@ -36,7 +36,7 @@
 
 class FastMessageLedger {
 
-    Schain* schain = nullptr;
+    Schain *schain = nullptr;
     block_id blockId = 0;
     string ledgerFileFullPath;
     ptr<vector<ptr<Message>>> previousRunMessages = nullptr;
@@ -44,18 +44,19 @@ class FastMessageLedger {
     recursive_mutex m;
 
 
-    ptr<Message> parseLine(string& _line);
+    ptr<Message> parseLine(string &_line);
 
     void closeFd();
 
-    void writeLine(string& _str);
+    void writeLine(string &_str);
 
     uint64_t parseFirstLine(string _line);
 
 
 public:
     FastMessageLedger(Schain *schain, string ledgerFileFullPath, block_id _blockID);
-    ~FastMessageLedger(){ closeFd(); }
+
+    ~FastMessageLedger() { closeFd(); }
 
     // writes consensus proposal message to ledger
     void writeProposalMessage(ptr<ConsensusProposalMessage> _message);
@@ -67,6 +68,7 @@ public:
 
     void startNewBlock(block_id _blockID);
 
+    void destroy();
 
 };
 
