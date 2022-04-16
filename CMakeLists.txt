@@ -153,6 +153,7 @@ AUX_SOURCE_DIRECTORY(utils utils_src)
 AUX_SOURCE_DIRECTORY(statusserver statusserver_src)
 AUX_SOURCE_DIRECTORY(sgxclient sgxclient_src)
 AUX_SOURCE_DIRECTORY(oracle oracle_src)
+AUX_SOURCE_DIRECTORY(thirdparty/ethereum_abi_c thirdparty_abi_src)
 
 
 
@@ -192,6 +193,7 @@ SET(SRC_FILES
         ${utils_src}
         ${statusserver_src}
         ${sgxclient_src}
+        ${thirdparty_abi_src}
         Agent.h Agent.cpp SkaleCommon.cpp Log.cpp microprofile.cpp miniz.c
         oracle/OracleClient.cpp oracle/OracleClient.h)
 
