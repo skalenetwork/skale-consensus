@@ -46,6 +46,8 @@ uint64_t OracleReceivedResults::tryGettingResult(string &_result) {
 
     LOCK(m)
 
+    vector<string> signatures;
+
     for (auto &&item: *resultsByCount) {
         if (item.second >= requiredConfirmations) {
             uint64_t  sigCount = 0;
@@ -54,8 +56,10 @@ uint64_t OracleReceivedResults::tryGettingResult(string &_result) {
             for (uint64_t i = 1; i <= nodeCount; i++) {
                 if (signaturesBySchainIndex->count(i) > 0 && sigCount < requiredConfirmations) {
                     _unsignedResult.append("\"");
+                    auto signature = signaturesBySchainIndex->at(i);
                     _unsignedResult.append(signaturesBySchainIndex->at(i));
                     _unsignedResult.append("\"");
+                    signatures.push_back(signature);
                     sigCount++;
                 } else {
                     _unsignedResult.append("null");
@@ -64,9 +68,18 @@ uint64_t OracleReceivedResults::tryGettingResult(string &_result) {
                 if (i < nodeCount) {
                     _unsignedResult.append(",");
                 } else {
-                    _unsignedResult.append("]}");
+                    _unsignedResult.append("],");
                 }
             }
+
+            _unsignedResult.append("\"abiEncodedSignedResult\":\"");
+
+            auto abiEncodedSignedResult = "HAHA";
+
+            _unsignedResult.append(abiEncodedSignedResult);
+
+            _unsignedResult.append("\"}\"");
+
             _result = _unsignedResult;
             LOG(err, "ORACLE SUCCESS!");
             return ORACLE_SUCCESS;
