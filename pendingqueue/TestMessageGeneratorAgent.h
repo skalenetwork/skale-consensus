@@ -37,4 +37,5 @@ public:
 
     ConsensusExtFace::transactions_vector pendingTransactions( size_t _limit);
 
+    void sendTestOracleRequestIfNeeded() const;
 };
