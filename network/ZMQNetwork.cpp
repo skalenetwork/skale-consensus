@@ -164,9 +164,9 @@ uint64_t ZMQNetwork::readMessageFromNetwork( const ptr< Buffer > buf ) {
 
     auto s = sChain->getNode()->getSockets()->consensusZMQSockets->getReceiveSocket();
 
-    auto rc = interruptableRecv( s, buf->getBuf()->data(), MAX_CONSENSUS_MESSAGE_LEN );
+    auto rc = interruptableRecv(s, buf->getBuf()->data(), MAX_NETWORK_MESSAGE_LEN );
 
-    if ( ( uint64_t ) rc >= MAX_CONSENSUS_MESSAGE_LEN ) {
+    if (( uint64_t ) rc >= MAX_NETWORK_MESSAGE_LEN ) {
         BOOST_THROW_EXCEPTION( NetworkProtocolException(
             "Consensus Message length too large:" + to_string( rc ), __CLASS_NAME__ ) );
     }

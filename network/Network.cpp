@@ -433,7 +433,7 @@ string Network::ipToString(uint32_t _ip) {
 }
 
 ptr<NetworkMessageEnvelope> Network::receiveMessage() {
-    auto buf = make_shared<Buffer>(MAX_CONSENSUS_MESSAGE_LEN);
+    auto buf = make_shared<Buffer>(MAX_NETWORK_MESSAGE_LEN);
 
     uint64_t readBytes = readMessageFromNetwork(buf);
 

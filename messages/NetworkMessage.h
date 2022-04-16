@@ -52,8 +52,6 @@ class ThresholdSigShare;
 class CryptoManager;
 class ThresholdSignature;
 
-static constexpr uint64_t MAX_CONSENSUS_MESSAGE_LEN = 1024;
-
 
 class NetworkMessage : public Message, public BasicHeader {
 
