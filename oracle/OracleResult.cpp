@@ -73,11 +73,14 @@ OracleResult::OracleResult(string &_result) : oracleResult(_result) {
     }
 
 
-    if (d.HasMember("err")) {
-        CHECK_STATE2(d["err"].IsUint64(), "Error is not uint64_t");
-        error = d["err"].GetUint64();
+    CHECK_STATE2(d.HasMember("status"), "No status in Oracle result:" + _result);
+    CHECK_STATE2(d["status"].IsUint64(), "status is not uint64_t");
+    status = d["status"].GetUint64();
+
+    if (status > 0) {
         return;
     }
+
 
     auto resultsArray = d["rslts"].GetArray();
     for (auto &&item: resultsArray) {
@@ -135,8 +138,8 @@ const string &OracleResult::getOracleResult() const {
     return oracleResult;
 }
 
-uint64_t OracleResult::getError() const {
-    return error;
+uint64_t OracleResult::getStatus() const {
+    return status;
 }
 
 const vector<ptr<string>> &OracleResult::getResults() const {

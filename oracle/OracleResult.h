@@ -18,7 +18,7 @@ private:
     vector<string> jsps;
     vector<uint64_t> trims;
     uint64_t time;
-    uint64_t error = 0;
+    uint64_t status = 0;
     uint64_t chainId;
     vector<ptr<string>> results;
     bool isPost;
@@ -47,7 +47,7 @@ public:
 
     const string &getOracleResult() const;
 
-    uint64_t getError() const;
+    uint64_t getStatus() const;
 
     const vector<ptr<string>> &getResults() const;
 

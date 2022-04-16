@@ -208,20 +208,23 @@ ptr<OracleResponseMessage> OracleServerAgent::doEndpointRequestResponse(ptr<Orac
 
     ptr<vector<ptr<string>>> results = nullptr;
 
-    if (status != ORACLE_SUCCESS) {
-        appendErrorToSpec(resultStr, status);
-    } else {
+
+    if (status == ORACLE_SUCCESS) {
         auto jsps = spec->getJsps();
         results = extractResults(response, jsps);
-
         if (!results) {
-            appendErrorToSpec(resultStr, ORACLE_INVALID_JSON_RESPONSE);
-        } else {
-            auto trims = spec->getTrims();
-            trimResults(results, trims);
-            appendResultsToSpec(resultStr, results);
+            status = ORACLE_INVALID_JSON_RESPONSE;
         }
     }
+
+    appendStatusToSpec(resultStr, status);
+
+    if (status == ORACLE_SUCCESS) {
+        auto trims = spec->getTrims();
+        trimResults(results, trims);
+        appendResultsToSpec(resultStr, results);
+    }
+
 
     auto abiEncodedResult = abiEncodeResult(spec, status, results);
 
@@ -239,7 +242,7 @@ ptr<OracleResponseMessage> OracleServerAgent::doEndpointRequestResponse(ptr<Orac
 }
 
 void OracleServerAgent::doCurlRequestResponse(
-                                              ptr<OracleRequestSpec> _spec, string &_response, uint64_t &_status) {
+        ptr<OracleRequestSpec> _spec, string &_response, uint64_t &_status) {
 
     auto uri = _spec->getUri();
     if (_spec->isGeth()) {
@@ -302,12 +305,12 @@ void OracleServerAgent::appendResultsToSpec(string &specStr, ptr<vector<ptr<stri
     }
 }
 
-void OracleServerAgent::appendErrorToSpec(string &specStr, uint64_t _error) const {
+void OracleServerAgent::appendStatusToSpec(string &specStr, uint64_t _status) const {
     auto commaPosition = specStr.find_last_of(",");
     CHECK_STATE(commaPosition != string::npos);
     specStr = specStr.substr(0, commaPosition + 1);
-    specStr.append("\"err\":");
-    specStr.append(to_string(_error));
+    specStr.append("\"status\":");
+    specStr.append(to_string(_status));
     specStr.append(",");
 }
 
@@ -444,8 +447,8 @@ void OracleServerAgent::buildAndSignResult(string &_result, ptr<vector<uint8_t>>
 }
 
 ptr<vector<uint8_t>> OracleServerAgent::abiEncodeResult(ptr<OracleRequestSpec>, uint64_t,
-                                                        ptr<vector<ptr<string>>> ) {
-    auto result =  make_shared<vector<uint8_t>>();
+                                                        ptr<vector<ptr<string>>>) {
+    auto result = make_shared<vector<uint8_t>>();
     result->push_back(1);
     return result;
 }
