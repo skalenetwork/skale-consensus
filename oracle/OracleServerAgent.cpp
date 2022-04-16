@@ -195,10 +195,54 @@ using namespace nlohmann;
 ptr<OracleResponseMessage> OracleServerAgent::doEndpointRequestResponse(ptr<OracleRequestBroadcastMessage> _request) {
     CHECK_ARGUMENT(_request)
 
+
     auto spec = _request->getParsedSpec();
 
-    auto uri = spec->getUri();
-    if (spec->isGeth()) {
+    string response;
+    uint64_t status;
+
+    doCurlRequestResponse(spec, response, status);
+
+
+    auto resultStr = _request->getRequestSpec();
+
+    ptr<vector<ptr<string>>> results = nullptr;
+
+    if (status != ORACLE_SUCCESS) {
+        appendErrorToSpec(resultStr, status);
+    } else {
+        auto jsps = spec->getJsps();
+        results = extractResults(response, jsps);
+
+        if (!results) {
+            appendErrorToSpec(resultStr, ORACLE_INVALID_JSON_RESPONSE);
+        } else {
+            auto trims = spec->getTrims();
+            trimResults(results, trims);
+            appendResultsToSpec(resultStr, results);
+        }
+    }
+
+    auto abiEncodedResult = abiEncodeResult(spec, status, results);
+
+    this->buildAndSignResult(resultStr, abiEncodedResult);
+
+    cerr << resultStr << endl;
+
+    string receipt = _request->getParsedSpec()->getReceipt();
+
+    return make_shared<OracleResponseMessage>(resultStr,
+                                              receipt,
+                                              getSchain()->getLastCommittedBlockID() + 1,
+                                              Time::getCurrentTimeMs(),
+                                              *getSchain()->getOracleClient());
+}
+
+void OracleServerAgent::doCurlRequestResponse(
+                                              ptr<OracleRequestSpec> _spec, string &_response, uint64_t &_status) {
+
+    auto uri = _spec->getUri();
+    if (_spec->isGeth()) {
         uri = gethURL + "/" + uri.substr(string("geth://").size());
     } else {
         auto result = LUrlParser::ParseURL::parseURL(uri);
@@ -222,43 +266,10 @@ ptr<OracleResponseMessage> OracleServerAgent::doEndpointRequestResponse(ptr<Orac
         )
     }
 
-    auto isPost = spec->getPost();
-    auto postString = spec->getPostStr();
+    auto isPost = _spec->getPost();
+    auto postString = _spec->getPostStr();
 
-    string response;
-
-    auto resultStr = _request->getRequestSpec();
-
-
-    auto status = curlHttp(spec->getUri(), isPost, postString, response);
-
-
-    if (status != ORACLE_SUCCESS) {
-        appendErrorToSpec(resultStr, status);
-    } else {
-        auto jsps = spec->getJsps();
-        auto results = extractResults(response, jsps);
-
-        if (!results) {
-            appendErrorToSpec(resultStr, ORACLE_INVALID_JSON_RESPONSE);
-        } else {
-            auto trims = spec->getTrims();
-            trimResults(results, trims);
-            appendResultsToSpec(resultStr, results);
-        }
-    }
-
-    this->buildAndSignResult(resultStr, nullptr);
-
-    cerr << resultStr << endl;
-
-    string receipt = _request->getParsedSpec()->getReceipt();
-
-    return make_shared<OracleResponseMessage>(resultStr,
-                                              receipt,
-                                              getSchain()->getLastCommittedBlockID() + 1,
-                                              Time::getCurrentTimeMs(),
-                                              *getSchain()->getOracleClient());
+    _status = curlHttp(uri, isPost, postString, _response);
 }
 
 void OracleServerAgent::appendResultsToSpec(string &specStr, ptr<vector<ptr<string>>> &_results) const {
@@ -422,12 +433,19 @@ void OracleServerAgent::sendOutResult(ptr<OracleResponseMessage> _msg, schain_in
 
 }
 
-void OracleServerAgent::buildAndSignResult(string& _result, ptr<vector<uint8_t>> _abiEncodedResult) {
+void OracleServerAgent::buildAndSignResult(string &_result, ptr<vector<uint8_t>> _abiEncodedResult) {
     CHECK_STATE(_result.at(_result.size() - 1) == ',')
     auto sig = getSchain()->getCryptoManager()->signOracleResult(_abiEncodedResult);
     _result.append("\"abiEncodedResult\":\"");
     _result.append(Utils::carray2Hex(_abiEncodedResult->data(), _abiEncodedResult->size()));
-    _result.append("\"sig\":\"");
+    _result.append("\",\"sig\":\"");
     _result.append(sig);
     _result.append("\"}");
+}
+
+ptr<vector<uint8_t>> OracleServerAgent::abiEncodeResult(ptr<OracleRequestSpec>, uint64_t,
+                                                        ptr<vector<ptr<string>>> ) {
+    auto result =  make_shared<vector<uint8_t>>();
+    result->push_back(1);
+    return result;
 }

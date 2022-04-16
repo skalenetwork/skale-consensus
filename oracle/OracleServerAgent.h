@@ -42,6 +42,7 @@ class MessageEnvelope;
 class OracleResponseMessage;
 class OracleRequestBroadcastMessage;
 class OracleThreadPool;
+class OracleRequestSpec;
 
 class OracleServerAgent : public Agent {
 
@@ -88,5 +89,9 @@ public:
 
     static void workerThreadItemSendLoop(OracleServerAgent* _agent );
 
+    void doCurlRequestResponse(ptr<OracleRequestSpec> _spec, string &_response, uint64_t &_status);
+
+    ptr<vector<uint8_t>>
+    abiEncodeResult(ptr<OracleRequestSpec> _spec, uint64_t _status, ptr<vector<ptr<string>>> _results);
 };
 
