@@ -52,6 +52,7 @@
 #include "messages/NetworkMessageEnvelope.h"
 #include "messages/ParentMessage.h"
 #include "network/Network.h"
+#include "network/Utils.h"
 #include "node/Node.h"
 #include "node/NodeInfo.h"
 
@@ -247,7 +248,7 @@ ptr<OracleResponseMessage> OracleServerAgent::doEndpointRequestResponse(ptr<Orac
         }
     }
 
-    this->signResult(resultStr);
+    this->buildAndSignResult(resultStr, nullptr);
 
     cerr << resultStr << endl;
 
@@ -421,9 +422,11 @@ void OracleServerAgent::sendOutResult(ptr<OracleResponseMessage> _msg, schain_in
 
 }
 
-void OracleServerAgent::signResult(string &_result) {
+void OracleServerAgent::buildAndSignResult(string& _result, ptr<vector<uint8_t>> _abiEncodedResult) {
     CHECK_STATE(_result.at(_result.size() - 1) == ',')
-    auto sig = getSchain()->getCryptoManager()->signOracleResult(_result);
+    auto sig = getSchain()->getCryptoManager()->signOracleResult(_abiEncodedResult);
+    _result.append("\"abiEncodedResult\":\"");
+    _result.append(Utils::carray2Hex(_abiEncodedResult->data(), _abiEncodedResult->size()));
     _result.append("\"sig\":\"");
     _result.append(sig);
     _result.append("\"}");

@@ -423,11 +423,13 @@ string CryptoManager::sign(BLAKE3Hash &_hash) {
 
 }
 
-string CryptoManager::signOracleResult(string _text) {
+string CryptoManager::signOracleResult(ptr<vector<uint8_t>> _abiEncodedResult) {
+
+    CHECK_STATE(_abiEncodedResult)
 
     string result;
 
-    auto hashStr = hashForOracle(_text);
+    auto hashStr = hashForOracle(_abiEncodedResult);
 
     if (isSGXEnabled) {
         CHECK_STATE(sgxECDSAKeyName != "")
@@ -443,14 +445,15 @@ string CryptoManager::signOracleResult(string _text) {
 
 }
 
-string CryptoManager::hashForOracle(string &_text) {
+string CryptoManager::hashForOracle(ptr<vector<uint8_t>> _abiEncodedResult) {
+
+    CHECK_STATE(_abiEncodedResult)
 
     try {
         CryptoPP::Keccak_256 hash;
         string digest;
-
-
-        hash.Update((const CryptoPP::byte *) _text.data(), _text.size());
+        
+        hash.Update((const CryptoPP::byte *) _abiEncodedResult->data(), _abiEncodedResult->size());
         digest.resize(hash.DigestSize());
         hash.Final((CryptoPP::byte *) &digest[0]);
 

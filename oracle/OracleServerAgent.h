@@ -55,22 +55,11 @@ class OracleServerAgent : public Agent {
 
     string gethURL;
 
-
     ptr<OracleResponseMessage> doEndpointRequestResponse(ptr<OracleRequestBroadcastMessage> /* _request */);
-
 
     void sendOutResult(ptr<OracleResponseMessage> _msg, schain_index /* _destination*/);
 
 
-public:
-
-    OracleServerAgent(Schain& _schain);
-
-    virtual ~OracleServerAgent() {};
-
-    void routeAndProcessMessage(const ptr<MessageEnvelope>& _me );
-
-    static void workerThreadItemSendLoop(OracleServerAgent* _agent );
 
     uint64_t curlHttp(const string &_uri, bool _isPost, string& _postString, string &_result);
 
@@ -83,6 +72,21 @@ public:
 
     void appendErrorToSpec(string &specStr, uint64_t _error) const;
 
-    void signResult(string &basicString);
+    void buildAndSignResult(string &_result, ptr<vector<uint8_t>> _abiEncodedResult);
+
+
+
+public:
+
+
+    void routeAndProcessMessage(const ptr<MessageEnvelope>& _me );
+
+
+    OracleServerAgent(Schain& _schain);
+
+    virtual ~OracleServerAgent() {};
+
+    static void workerThreadItemSendLoop(OracleServerAgent* _agent );
+
 };
 

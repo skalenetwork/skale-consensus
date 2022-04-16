@@ -284,9 +284,9 @@ public:
 
     bool isSGXServerDown();
 
-    string signOracleResult(string _text);
+    string signOracleResult(ptr<vector<uint8_t>> _abiEncodedResult);
 
-    static string hashForOracle(string &_text);
+    static string hashForOracle(ptr<vector<uint8_t>> _abiEncodedResult);
 };
 
 #define RETRY_BEGIN \
