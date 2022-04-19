@@ -21,22 +21,22 @@ uint64_t OracleReceivedResults::getRequestTime() const {
     return requestTime;
 }
 
-void OracleReceivedResults::insertIfDoesntExist(uint64_t _origin, string _unsignedResult, string _sig) {
+void OracleReceivedResults::insertIfDoesntExist(uint64_t _origin, string _abiEncodedResult, string _sig) {
 
     LOCK(m)
 
     if (signaturesBySchainIndex->count(_origin) > 0) {
-        LOG(warn, "Duplicate OracleResponseMessage for result:" + _unsignedResult +
+        LOG(warn, "Duplicate OracleResponseMessage for result:" + _abiEncodedResult +
                   "} index:" + to_string(_origin));
         return;
     }
 
     signaturesBySchainIndex->insert({_origin, _sig});
-    if (resultsByCount->count(_unsignedResult) == 0) {
-        resultsByCount->insert({_unsignedResult, 1});
+    if (resultsByCount->count(_abiEncodedResult) == 0) {
+        resultsByCount->insert({_abiEncodedResult, 1});
     } else {
-        auto count = resultsByCount->at(_unsignedResult);
-        resultsByCount->insert_or_assign(_unsignedResult, count + 1);
+        auto count = resultsByCount->at(_abiEncodedResult);
+        resultsByCount->insert_or_assign(_abiEncodedResult, count + 1);
     }
 }
 
@@ -51,40 +51,41 @@ uint64_t OracleReceivedResults::tryGettingResult(string &_result) {
     for (auto &&item: *resultsByCount) {
         if (item.second >= requiredConfirmations) {
             uint64_t  sigCount = 0;
-            auto _unsignedResult = item.first;
-            _unsignedResult.append("\"sigs\":[");
+            string buf("{\"abiEncodedResult\":\"");
+
+
+            auto abiEncodedResult = item.first;
+            buf.append(abiEncodedResult);
+            buf.append(("\","));
+            buf.append("\"sigs\":[");
             for (uint64_t i = 1; i <= nodeCount; i++) {
                 if (signaturesBySchainIndex->count(i) > 0 && sigCount < requiredConfirmations) {
-                    _unsignedResult.append("\"");
+                    buf.append("\"");
                     auto signature = signaturesBySchainIndex->at(i);
-                    _unsignedResult.append(signaturesBySchainIndex->at(i));
-                    _unsignedResult.append("\"");
+                    buf.append(signaturesBySchainIndex->at(i));
+                    buf.append("\"");
                     signatures.push_back(signature);
                     sigCount++;
                 } else {
-                    _unsignedResult.append("null");
+                    buf.append("null");
                 }
 
                 if (i < nodeCount) {
-                    _unsignedResult.append(",");
+                    buf.append(",");
                 } else {
-                    _unsignedResult.append("],");
+                    buf.append("]");
                 }
             }
 
-            _unsignedResult.append("\"abiEncodedSignedResult\":\"");
 
-            auto abiEncodedSignedResult = "HAHA";
-
-            _unsignedResult.append(abiEncodedSignedResult);
-
-            _unsignedResult.append("\"}\"");
-
-            _result = _unsignedResult;
-            LOG(err, "ORACLE SUCCESS!");
+            buf.append("\"}");
+            _result = buf;
+            LOG(err, string("ORACLE SUCCESS:") + _result);
+            nlohmann::json::parse(_result); // VERIFY
             return ORACLE_SUCCESS;
         };
     }
+
 
     return ORACLE_RESULT_NOT_READY;
 

@@ -54,8 +54,6 @@ public:
 
     const string &getOracleResultStr() const;
 
-    const string getUnsignedOracleResultStr() const;
-
     const string &getReceipt() const;
 
 

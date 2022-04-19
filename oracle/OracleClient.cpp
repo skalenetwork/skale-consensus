@@ -178,7 +178,7 @@ void OracleClient::processResponseMessage(const ptr<MessageEnvelope> &_me) {
     CHECK_STATE(origin > 0 || origin <= getSchain()->getNodeCount());
 
     auto receipt = msg->getReceipt();
-    auto unsignedResult = msg->getUnsignedOracleResultStr();
+    auto abiEncodedResult = msg->getOracleResult()->getAbiEncodedResult();
     auto sig = msg->getOracleResult()->getSig();
 
     auto receivedResults = receiptsMap.getIfExists(receipt);
@@ -191,7 +191,7 @@ void OracleClient::processResponseMessage(const ptr<MessageEnvelope> &_me) {
     auto receipts = std::any_cast<ptr<OracleReceivedResults>>(receivedResults);
 
 
-    receipts->insertIfDoesntExist(origin, unsignedResult, sig);
+    receipts->insertIfDoesntExist(origin, abiEncodedResult, sig);
 
 
     LOG(info, "Processing oracle message:" + to_string(origin));
