@@ -275,43 +275,45 @@ void OracleServerAgent::doCurlRequestResponse(
     _status = curlHttp(uri, isPost, postString, _response);
 }
 
-void OracleServerAgent::appendResultsToSpec(string &specStr, ptr<vector<ptr<string>>> &_results) const {
-    {
+void OracleServerAgent::appendResultsToSpec(string &specStr, ptr<vector<ptr<string>>> &_results) {
 
         auto commaPosition = specStr.find_last_of(",");
 
         CHECK_STATE(commaPosition != string::npos);
 
         specStr = specStr.substr(0, commaPosition + 1);
+        OracleServerAgent::appendResultsToJsonString(specStr, _results);
 
-        specStr.append("\"rslts\":[");
-
-        for (uint64_t i = 0; i < _results->size(); i++) {
-            if (i != 0) {
-                specStr.append(",");
-            }
-
-            if (_results->at(i)) {
-                specStr.append("\"");
-                specStr.append(*_results->at(i));
-                specStr.append("\"");
-            } else {
-                specStr.append("null");
-            }
-
-        }
-
-        specStr.append("],");
-    }
 }
 
-void OracleServerAgent::appendStatusToSpec(string &specStr, uint64_t _status) const {
-    auto commaPosition = specStr.find_last_of(",");
+void OracleServerAgent::appendResultsToJsonString(string &specStr, ptr<vector<ptr<string>>> &_results) {
+    specStr.append("\"rslts\":[");
+
+    for (uint64_t i = 0; i < _results->size(); i++) {
+        if (i != 0) {
+            specStr.append(",");
+        }
+
+        if (_results->at(i)) {
+            specStr.append("\"");
+            specStr.append(*_results->at(i));
+            specStr.append("\"");
+        } else {
+            specStr.append("null");
+        }
+
+    }
+
+    specStr.append("],");
+}
+
+void OracleServerAgent::appendStatusToSpec(string &_specStr, uint64_t _status)  {
+    auto commaPosition = _specStr.find_last_of(",");
     CHECK_STATE(commaPosition != string::npos);
-    specStr = specStr.substr(0, commaPosition + 1);
-    specStr.append("\"status\":");
-    specStr.append(to_string(_status));
-    specStr.append(",");
+    _specStr = _specStr.substr(0, commaPosition + 1);
+    _specStr.append("\"status\":");
+    _specStr.append(to_string(_status));
+    _specStr.append(",");
 }
 
 

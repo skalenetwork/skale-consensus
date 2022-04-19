@@ -78,7 +78,7 @@ uint64_t OracleReceivedResults::tryGettingResult(string &_result) {
             }
 
 
-            buf.append("\"}");
+            buf.append("}");
             _result = buf;
             LOG(err, string("ORACLE SUCCESS:") + _result);
             nlohmann::json::parse(_result); // VERIFY

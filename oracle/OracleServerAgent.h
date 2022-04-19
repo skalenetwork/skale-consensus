@@ -69,9 +69,16 @@ class OracleServerAgent : public Agent {
 
     void trimResults(ptr<vector<ptr<string>>> &_results, vector<uint64_t> &_trims) const;
 
-    void appendResultsToSpec(string &_specStr, ptr<vector<ptr<string>>> &_results) const;
+    static void appendResultsToSpec(string &_specStr, ptr<vector<ptr<string>>> &_results);
 
-    void appendStatusToSpec(string &specStr, uint64_t _error) const;
+    static void appendStatusToSpec(string &specStr, uint64_t _error);
+
+    static void appendResultsToJsonString(string &specStr, ptr<vector<ptr<string>>> &_results);
+
+
+    ptr<vector<uint8_t>>
+    abiEncodeResult(ptr<OracleRequestSpec> _spec, uint64_t _status, ptr<vector<ptr<string>>> _results);
+
 
     void buildAndSignResult(string &_result, ptr<vector<uint8_t>> _abiEncodedResult);
 
@@ -91,7 +98,6 @@ public:
 
     void doCurlRequestResponse(ptr<OracleRequestSpec> _spec, string &_response, uint64_t &_status);
 
-    ptr<vector<uint8_t>>
-    abiEncodeResult(ptr<OracleRequestSpec> _spec, uint64_t _status, ptr<vector<ptr<string>>> _results);
+
 };
 
