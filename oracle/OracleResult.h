@@ -23,13 +23,14 @@ private:
     vector<ptr<string>> results;
     bool isPost;
     string postStr;
-
-public:
-    uint64_t getChainId() const;
-
-private:
     string sig;
+    string abiEncodedResult;
 public:
+    const string &getAbiEncodedResult() const;
+
+public:
+
+    uint64_t getChainId() const;
 
     const vector<string> &getJsps() const;
 
@@ -55,7 +56,7 @@ public:
 
     bool getPost() const;
 
-    bool isGeth();
+    bool isGethRequest();
 
 };
 

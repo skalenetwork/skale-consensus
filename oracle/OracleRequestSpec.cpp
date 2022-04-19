@@ -84,7 +84,7 @@ OracleRequestSpec::OracleRequestSpec(const string &_spec) : spec(_spec) {
     }
 
 
-    if (this->isGeth()) {
+    if (this->isGethRequest()) {
         rapidjson::Document d2;
         postStr.erase(std::remove_if(postStr.begin(), postStr.end(), ::isspace), postStr.end());
         d2.Parse(postStr.data());
@@ -142,7 +142,7 @@ const string &OracleRequestSpec::getPostStr() const {
     return postStr;
 }
 
-bool OracleRequestSpec::isGeth() {
+bool OracleRequestSpec::isGethRequest() {
     return (uri.find("geth://") == 0);
 }
 

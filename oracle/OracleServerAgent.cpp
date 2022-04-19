@@ -245,7 +245,7 @@ void OracleServerAgent::doCurlRequestResponse(
         ptr<OracleRequestSpec> _spec, string &_response, uint64_t &_status) {
 
     auto uri = _spec->getUri();
-    if (_spec->isGeth()) {
+    if (_spec->isGethRequest()) {
         uri = gethURL + "/" + uri.substr(string("geth://").size());
     } else {
         auto result = LUrlParser::ParseURL::parseURL(uri);

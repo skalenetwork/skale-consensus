@@ -19,11 +19,15 @@ OracleResult::OracleResult(string &_result) : oracleResult(_result) {
 
     CHECK_STATE2(!d.HasParseError(), "Unparsable Oracle result:" + _result);
 
+    // get CID
+
     CHECK_STATE2(d.HasMember("cid"), "No chainid in Oracle  result:" + _result);
 
     CHECK_STATE2(d["cid"].IsUint64(), "ChainId in Oracle result is not uint64_t" + _result);
 
     chainId = d["cid"].GetUint64();
+
+    // get URI
 
     CHECK_STATE2(d.HasMember("uri"), "No URI in Oracle  result:" + _result);
 
@@ -33,9 +37,15 @@ OracleResult::OracleResult(string &_result) : oracleResult(_result) {
 
     CHECK_STATE(uri.size() > 5);
 
-    CHECK_STATE2(d.HasMember("jsps"), "No json pointer in Oracle result:" + _result);
+    // get abiEncodedResult
 
-    CHECK_STATE2(d["jsps"].IsArray(), "Jsps in Oracle spec is not array:" + _result);
+    CHECK_STATE2(d.HasMember("abiEncodedResult"), "No abiEncodedResult in Oracle  result:" + _result);
+
+    CHECK_STATE2(d["abiEncodedResult"].IsString(), "abiEncodedResult in Oracle result is not string:" + _result);
+
+    abiEncodedResult = d["abiEncodedResult"].GetString();
+
+    // get TIME
 
     CHECK_STATE2(d.HasMember("time"), "No time pointer in Oracle result:" + _result);
 
@@ -45,11 +55,21 @@ OracleResult::OracleResult(string &_result) : oracleResult(_result) {
 
     CHECK_STATE(time > 0);
 
+
+    // get sig share
+
     CHECK_STATE2(d.HasMember("sig"), "No sig in Oracle result:" + _result);
 
     CHECK_STATE2(d["sig"].IsString(), "sig in Oracle result is not string:" + _result)
 
     sig = d["sig"].GetString();
+
+
+    // get jsps
+
+    CHECK_STATE2(d.HasMember("jsps"), "No json pointer in Oracle result:" + _result);
+
+    CHECK_STATE2(d["jsps"].IsArray(), "Jsps in Oracle spec is not array:" + _result);
 
     auto array = d["jsps"].GetArray();
 
@@ -57,6 +77,9 @@ OracleResult::OracleResult(string &_result) : oracleResult(_result) {
         CHECK_STATE2(item.IsString(), "Jsp array item is not string:" + _result);
         jsps.push_back(item.GetString());
     }
+
+
+    // get trims
 
     if (d.HasMember("trims")) {
         auto trimArray = d["trims"].GetArray();
@@ -73,6 +96,9 @@ OracleResult::OracleResult(string &_result) : oracleResult(_result) {
     }
 
 
+    // get status
+
+
     CHECK_STATE2(d.HasMember("status"), "No status in Oracle result:" + _result);
     CHECK_STATE2(d["status"].IsUint64(), "status is not uint64_t");
     status = d["status"].GetUint64();
@@ -82,6 +108,15 @@ OracleResult::OracleResult(string &_result) : oracleResult(_result) {
     }
 
 
+    // get results
+
+
+
+    CHECK_STATE2(d.HasMember("rslts"), "No rslts in Oracle result:" + _result);
+
+    CHECK_STATE2(d["rslts"].IsArray(), "Rslts in Oracle result is not array:" + _result);
+
+
     auto resultsArray = d["rslts"].GetArray();
     for (auto &&item: resultsArray) {
         if (item.IsString()) {
@@ -89,7 +124,7 @@ OracleResult::OracleResult(string &_result) : oracleResult(_result) {
         } else if (item.IsNull()) {
             results.push_back(nullptr);
         } else {
-            CHECK_STATE2(false, "Unknown item in results:" + _result)
+            CHECK_STATE2(false, "Unknown item in rslts:" + _result)
         }
     }
 
@@ -100,7 +135,7 @@ OracleResult::OracleResult(string &_result) : oracleResult(_result) {
     }
 
 
-    if (this->isGeth()) {
+    if (this->isGethRequest()) {
         rapidjson::Document d2;
         postStr.erase(std::remove_if(postStr.begin(), postStr.end(), ::isspace), postStr.end());
         d2.Parse(postStr.data());
@@ -181,7 +216,11 @@ uint64_t OracleResult::getChainId() const {
 }
 
 
-bool OracleResult::isGeth() {
+bool OracleResult::isGethRequest() {
     return (uri.find("geth://") == 0);
+}
+
+const string &OracleResult::getAbiEncodedResult() const {
+    return abiEncodedResult;
 }
 
