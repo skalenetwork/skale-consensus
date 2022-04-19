@@ -58,6 +58,15 @@ public:
 
     bool isGethRequest();
 
+    static void trimResults(ptr<vector<ptr<string>>> &_results, vector<uint64_t> &_trims);
+
+    static void appendResultsToSpec(string &_specStr, ptr<vector<ptr<string>>> &_results);
+
+    static void appendStatusToSpec(string &specStr, uint64_t _error);
+
+    static void appendResultsToJsonString(string &specStr, ptr<vector<ptr<string>>> &_results);
+
+
 };
 
 

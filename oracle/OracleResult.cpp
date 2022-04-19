@@ -14,7 +14,7 @@
 
 OracleResult::OracleResult(string &_result) : oracleResult(_result) {
     rapidjson::Document d;
-    
+
     d.Parse(_result.data());
 
     CHECK_STATE2(!d.HasParseError(), "Unparsable Oracle result:" + _result);
@@ -224,3 +224,63 @@ const string &OracleResult::getAbiEncodedResult() const {
     return abiEncodedResult;
 }
 
+void OracleResult::appendResultsToSpec(string &specStr, ptr<vector<ptr<string>>> &_results) {
+
+    auto commaPosition = specStr.find_last_of(",");
+
+    CHECK_STATE(commaPosition != string::npos);
+
+    specStr = specStr.substr(0, commaPosition + 1);
+    appendResultsToJsonString(specStr, _results);
+
+}
+
+void OracleResult::appendResultsToJsonString(string &specStr, ptr<vector<ptr<string>>> &_results) {
+    specStr.append("\"rslts\":[");
+
+    for (uint64_t i = 0; i < _results->size(); i++) {
+        if (i != 0) {
+            specStr.append(",");
+        }
+
+        if (_results->at(i)) {
+            specStr.append("\"");
+            specStr.append(*_results->at(i));
+            specStr.append("\"");
+        } else {
+            specStr.append("null");
+        }
+
+    }
+
+    specStr.append("],");
+}
+
+void OracleResult::appendStatusToSpec(string &_specStr, uint64_t _status)  {
+    auto commaPosition = _specStr.find_last_of(",");
+    CHECK_STATE(commaPosition != string::npos);
+    _specStr = _specStr.substr(0, commaPosition + 1);
+    _specStr.append("\"status\":");
+    _specStr.append(to_string(_status));
+    _specStr.append(",");
+}
+
+
+void OracleResult::trimResults(ptr<vector<ptr<string>>> &_results, vector<uint64_t> &_trims)  {
+
+    CHECK_STATE(_results->size() == _trims.size())
+
+    for (uint64_t i = 0; i < _results->size(); i++) {
+        auto trim = _trims.at(i);
+        auto res = _results->at(i);
+        if (res && trim != 0) {
+            if (res->size() <= trim) {
+                res = make_shared<string>("");
+            } else {
+                res = make_shared<string>(res->substr(0, res->size() - trim));
+            }
+            (*_results)[i] = res;
+        }
+
+    }
+}

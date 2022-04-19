@@ -71,6 +71,7 @@
 #include "OracleRequestSpec.h"
 #include "OracleResponseMessage.h"
 #include "OracleErrors.h"
+#include "OracleResult.h"
 #include "OracleServerAgent.h"
 
 OracleServerAgent::OracleServerAgent(Schain &_schain) : Agent(_schain, true), requestCounter(0), threadCounter(0) {
@@ -217,12 +218,12 @@ ptr<OracleResponseMessage> OracleServerAgent::doEndpointRequestResponse(ptr<Orac
         }
     }
 
-    appendStatusToSpec(resultStr, status);
+    OracleResult::appendStatusToSpec(resultStr, status);
 
     if (status == ORACLE_SUCCESS) {
         auto trims = spec->getTrims();
-        trimResults(results, trims);
-        appendResultsToSpec(resultStr, results);
+        OracleResult::trimResults(results, trims);
+        OracleResult::appendResultsToSpec(resultStr, results);
     }
 
 
@@ -275,66 +276,6 @@ void OracleServerAgent::doCurlRequestResponse(
     _status = curlHttp(uri, isPost, postString, _response);
 }
 
-void OracleServerAgent::appendResultsToSpec(string &specStr, ptr<vector<ptr<string>>> &_results) {
-
-        auto commaPosition = specStr.find_last_of(",");
-
-        CHECK_STATE(commaPosition != string::npos);
-
-        specStr = specStr.substr(0, commaPosition + 1);
-        OracleServerAgent::appendResultsToJsonString(specStr, _results);
-
-}
-
-void OracleServerAgent::appendResultsToJsonString(string &specStr, ptr<vector<ptr<string>>> &_results) {
-    specStr.append("\"rslts\":[");
-
-    for (uint64_t i = 0; i < _results->size(); i++) {
-        if (i != 0) {
-            specStr.append(",");
-        }
-
-        if (_results->at(i)) {
-            specStr.append("\"");
-            specStr.append(*_results->at(i));
-            specStr.append("\"");
-        } else {
-            specStr.append("null");
-        }
-
-    }
-
-    specStr.append("],");
-}
-
-void OracleServerAgent::appendStatusToSpec(string &_specStr, uint64_t _status)  {
-    auto commaPosition = _specStr.find_last_of(",");
-    CHECK_STATE(commaPosition != string::npos);
-    _specStr = _specStr.substr(0, commaPosition + 1);
-    _specStr.append("\"status\":");
-    _specStr.append(to_string(_status));
-    _specStr.append(",");
-}
-
-
-void OracleServerAgent::trimResults(ptr<vector<ptr<string>>> &_results, vector<uint64_t> &_trims) const {
-
-    CHECK_STATE(_results->size() == _trims.size())
-
-    for (uint64_t i = 0; i < _results->size(); i++) {
-        auto trim = _trims.at(i);
-        auto res = _results->at(i);
-        if (res && trim != 0) {
-            if (res->size() <= trim) {
-                res = make_shared<string>("");
-            } else {
-                res = make_shared<string>(res->substr(0, res->size() - trim));
-            }
-            (*_results)[i] = res;
-        }
-
-    }
-}
 
 ptr<vector<ptr<string>>> OracleServerAgent::extractResults(
         string &_response,
