@@ -67,18 +67,20 @@ ptr<vector<uint8_t>> ABIEncoder::abiEncodeResult(ptr<OracleRequestSpec> _spec, u
 
     uint8_t outBuf[32 * 1024] = {0};
 
+
+    auto chainId = _spec->getChainid();
+    auto chainIdEncoding = ABIEncoder::abiEncodeUint64(chainId);
+    offsets.push_back(fullEncoding.size());
+    fullEncoding.insert(fullEncoding.begin(), chainIdEncoding->begin(), chainIdEncoding->end());
+
     auto statusEncoding = ABIEncoder::abiEncodeUint64(_status);
     offsets.push_back(fullEncoding.size());
     fullEncoding.insert(fullEncoding.begin(), statusEncoding->begin(), statusEncoding->end());
 
     auto time = _spec->getTime();
     auto timeEncoding = ABIEncoder::abiEncodeUint64(time);
-
     offsets.push_back(fullEncoding.size());
     fullEncoding.insert(fullEncoding.begin(), timeEncoding->begin(), timeEncoding->end());
-
-
-    cerr << time << endl;
 
     uint64_t numBytes = abi_encode(outBuf, ARRAY_SIZE(outBuf), result_abi, ARRAY_SIZE(result_abi),
                offsets.data(), fullEncoding.data(), fullEncoding.size());
