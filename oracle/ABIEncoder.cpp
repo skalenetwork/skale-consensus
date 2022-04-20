@@ -53,7 +53,8 @@ ptr<vector<uint8_t>> ABIEncoder::abiEncodeString(string& _value) {
 
 
 
-ABI_t result_abi[2] = {
+ABI_t result_abi[3] = {
+        { .type = ABI_UINT64, .isArray = false, .arraySz = 0},
         { .type = ABI_UINT64, .isArray = false, .arraySz = 0},
         { .type = ABI_UINT64, .isArray = false, .arraySz = 0}
 };
@@ -87,13 +88,19 @@ ptr<vector<uint8_t>> ABIEncoder::abiEncodeResult(ptr<OracleRequestSpec> _spec, u
 
     CHECK_STATE(numBytes > 0);
 
-    cerr << Utils::carray2Hex(outBuf, numBytes) << endl;
+    auto hexString = Utils::carray2Hex(outBuf, numBytes);
 
-    exit(-5);
+    cerr << hexString << endl;
 
-    auto result = make_shared<vector<uint8_t>>();
-    result->push_back(1);
+
+    auto result = make_shared<vector<uint8_t>>(numBytes, 0);
+
+    memcpy(result->data(), outBuf, numBytes);
+
+    exit(5);
+
     return result;
+
 }
 
 
