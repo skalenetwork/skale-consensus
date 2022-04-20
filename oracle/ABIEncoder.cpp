@@ -21,14 +21,77 @@
     @date 2021-
 */
 
+#include <algorithm>
+
+extern "C" {
+#include "thirdparty/ethereum_abi_c/abi.h"
+}
 #include "SkaleCommon.h"
 #include "Log.h"
+#include "network/Utils.h"
 #include "OracleRequestSpec.h"
 #include "ABIEncoder.h"
 
-ptr<vector<uint8_t>> ABIEncoder::abiEncodeResult(ptr<OracleRequestSpec>, uint64_t,
+
+#define ARRAY_SIZE(a) sizeof(a)/sizeof(a[0])
+
+
+
+
+ptr<vector<uint8_t>> ABIEncoder::abiEncodeUint64(uint64_t _value) {
+    auto result = make_shared<vector<uint8_t>>(sizeof(uint64_t), 0);
+    memcpy(result->data(), &_value, sizeof(uint64_t));
+    reverse(result->begin(), result->end());
+    return result;
+}
+
+ptr<vector<uint8_t>> ABIEncoder::abiEncodeString(string& _value) {
+    auto result = make_shared<vector<uint8_t>>(_value.size(), 0);
+    memcpy(result->data(), _value.data(), _value.size());
+    return result;
+}
+
+
+
+ABI_t result_abi[2] = {
+        { .type = ABI_UINT64, .isArray = false, .arraySz = 0},
+        { .type = ABI_UINT64, .isArray = false, .arraySz = 0}
+};
+
+
+ptr<vector<uint8_t>> ABIEncoder::abiEncodeResult(ptr<OracleRequestSpec> _spec, uint64_t _status,
                                                         ptr<vector<ptr<string>>>) {
+
+    vector<uint8_t> fullEncoding;
+    vector<size_t> offsets;
+
+    uint8_t outBuf[32 * 1024] = {0};
+
+    auto statusEncoding = ABIEncoder::abiEncodeUint64(_status);
+    offsets.push_back(fullEncoding.size());
+    fullEncoding.insert(fullEncoding.begin(), statusEncoding->begin(), statusEncoding->end());
+
+    auto time = _spec->getTime();
+    auto timeEncoding = ABIEncoder::abiEncodeUint64(time);
+
+    offsets.push_back(fullEncoding.size());
+    fullEncoding.insert(fullEncoding.begin(), timeEncoding->begin(), timeEncoding->end());
+
+
+    cerr << time << endl;
+
+    uint64_t numBytes = abi_encode(outBuf, ARRAY_SIZE(outBuf), result_abi, ARRAY_SIZE(result_abi),
+               offsets.data(), fullEncoding.data(), fullEncoding.size());
+
+    CHECK_STATE(numBytes > 0);
+
+    cerr << Utils::carray2Hex(outBuf, numBytes) << endl;
+
+    exit(-5);
+
     auto result = make_shared<vector<uint8_t>>();
     result->push_back(1);
     return result;
 }
+
+

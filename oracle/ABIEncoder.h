@@ -33,6 +33,12 @@ public:
     static  ptr<vector<uint8_t>> abiEncodeResult(ptr<OracleRequestSpec>, uint64_t,
                                                             ptr<vector<ptr<string>>>);
 
+    static ptr<vector<uint8_t>> abiEncodeUint64(uint64_t _value);
+
+
+    static ptr<vector<uint8_t>> abiEncodeString(string& _value);
+
+
 };
 
 
