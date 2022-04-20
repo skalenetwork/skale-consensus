@@ -14,7 +14,6 @@ class OracleReceivedResults {
     ptr<map<uint64_t, string>> signaturesBySchainIndex;
     ptr<map<string, uint64_t>> resultsByCount;
 
-
 public:
 
     OracleReceivedResults(uint64_t _requiredSigners, uint64_t _nodeCount);

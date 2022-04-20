@@ -51,33 +51,19 @@ uint64_t OracleReceivedResults::tryGettingResult(string &_result) {
     for (auto &&item: *resultsByCount) {
         if (item.second >= requiredConfirmations) {
             uint64_t  sigCount = 0;
+            vector<ptr<string>> sigs;
             string buf("{\"abiEncodedResult\":\"");
-
-
             auto abiEncodedResult = item.first;
             buf.append(abiEncodedResult);
-            buf.append(("\","));
-            buf.append("\"sigs\":[");
+            buf.append("\"");
             for (uint64_t i = 1; i <= nodeCount; i++) {
                 if (signaturesBySchainIndex->count(i) > 0 && sigCount < requiredConfirmations) {
-                    buf.append("\"");
-                    auto signature = signaturesBySchainIndex->at(i);
-                    buf.append(signaturesBySchainIndex->at(i));
-                    buf.append("\"");
-                    signatures.push_back(signature);
+                    sigs.push_back(make_shared<string>(signaturesBySchainIndex->at(i)));
                     sigCount++;
                 } else {
-                    buf.append("null");
-                }
-
-                if (i < nodeCount) {
-                    buf.append(",");
-                } else {
-                    buf.append("]");
+                    sigs.push_back(nullptr);
                 }
             }
-
-
             buf.append("}");
             _result = buf;
             LOG(err, string("ORACLE SUCCESS:") + _result);
@@ -85,7 +71,6 @@ uint64_t OracleReceivedResults::tryGettingResult(string &_result) {
             return ORACLE_SUCCESS;
         };
     }
-
 
     return ORACLE_RESULT_NOT_READY;
 
