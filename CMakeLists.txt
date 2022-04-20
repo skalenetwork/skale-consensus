@@ -194,7 +194,7 @@ SET(SRC_FILES
         ${statusserver_src}
         ${sgxclient_src}
         ${thirdparty_abi_src}
-        Agent.h Agent.cpp SkaleCommon.cpp Log.cpp microprofile.cpp miniz.c
+        Agent.h Agent.cpp SkaleCommon.cpp Log.cpp microprofile.cpp miniz.c thirdparty/ethereum_abi_c/abi.c
         oracle/OracleClient.cpp oracle/OracleClient.h)
 
 

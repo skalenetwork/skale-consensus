@@ -53,10 +53,11 @@ ptr<vector<uint8_t>> ABIEncoder::abiEncodeString(string& _value) {
 
 
 
-ABI_t result_abi[3] = {
+ABI_t result_abi[4] = {
         { .type = ABI_UINT64, .isArray = false, .arraySz = 0},
         { .type = ABI_UINT64, .isArray = false, .arraySz = 0},
-        { .type = ABI_UINT64, .isArray = false, .arraySz = 0}
+        { .type = ABI_UINT64, .isArray = false, .arraySz = 0},
+            { .type = ABI_STRING, .isArray = false, .arraySz = 0}
 };
 
 
@@ -74,14 +75,21 @@ ptr<vector<uint8_t>> ABIEncoder::abiEncodeResult(ptr<OracleRequestSpec> _spec, u
     offsets.push_back(fullEncoding.size());
     fullEncoding.insert(fullEncoding.begin(), chainIdEncoding->begin(), chainIdEncoding->end());
 
-    auto statusEncoding = ABIEncoder::abiEncodeUint64(_status);
+    auto uri = _spec->getUri();
+    auto uriEncoding = ABIEncoder::abiEncodeString(uri);
     offsets.push_back(fullEncoding.size());
-    fullEncoding.insert(fullEncoding.begin(), statusEncoding->begin(), statusEncoding->end());
+    fullEncoding.insert(fullEncoding.begin(), uriEncoding->begin(), uriEncoding->end());
+
 
     auto time = _spec->getTime();
     auto timeEncoding = ABIEncoder::abiEncodeUint64(time);
     offsets.push_back(fullEncoding.size());
     fullEncoding.insert(fullEncoding.begin(), timeEncoding->begin(), timeEncoding->end());
+
+    auto statusEncoding = ABIEncoder::abiEncodeUint64(_status);
+    offsets.push_back(fullEncoding.size());
+    fullEncoding.insert(fullEncoding.begin(), statusEncoding->begin(), statusEncoding->end());
+
 
     uint64_t numBytes = abi_encode(outBuf, ARRAY_SIZE(outBuf), result_abi, ARRAY_SIZE(result_abi),
                offsets.data(), fullEncoding.data(), fullEncoding.size());
