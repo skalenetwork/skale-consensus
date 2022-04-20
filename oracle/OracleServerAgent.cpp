@@ -223,7 +223,7 @@ ptr<OracleResponseMessage> OracleServerAgent::doEndpointRequestResponse(ptr<Orac
     if (status == ORACLE_SUCCESS) {
         auto trims = spec->getTrims();
         OracleResult::trimResults(results, trims);
-        OracleResult::appendResultsToSpec(resultStr, results);
+        OracleResult::appendResultsToJsonString(resultStr, results);
     }
 
 

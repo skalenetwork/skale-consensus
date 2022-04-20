@@ -224,16 +224,7 @@ const string &OracleResult::getAbiEncodedResult() const {
     return abiEncodedResult;
 }
 
-void OracleResult::appendResultsToSpec(string &specStr, ptr<vector<ptr<string>>> &_results) {
 
-    auto commaPosition = specStr.find_last_of(",");
-
-    CHECK_STATE(commaPosition != string::npos);
-
-    specStr = specStr.substr(0, commaPosition + 1);
-    appendResultsToJsonString(specStr, _results);
-
-}
 
 void OracleResult::appendResultsToJsonString(string &specStr, ptr<vector<ptr<string>>> &_results) {
     specStr.append("\"rslts\":[");
