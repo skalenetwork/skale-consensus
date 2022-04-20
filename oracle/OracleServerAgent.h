@@ -68,13 +68,7 @@ class OracleServerAgent : public Agent {
             string& _response, vector<string> & _jsps) const;
 
 
-
-    ptr<vector<uint8_t>>
-    abiEncodeResult(ptr<OracleRequestSpec> _spec, uint64_t _status, ptr<vector<ptr<string>>> _results);
-
-
     void buildAndSignResult(string &_result, ptr<vector<uint8_t>> _abiEncodedResult);
-
 
 
 public:

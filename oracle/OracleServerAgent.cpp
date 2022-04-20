@@ -72,6 +72,7 @@
 #include "OracleResponseMessage.h"
 #include "OracleErrors.h"
 #include "OracleResult.h"
+#include "ABIEncoder.h"
 #include "OracleServerAgent.h"
 
 OracleServerAgent::OracleServerAgent(Schain &_schain) : Agent(_schain, true), requestCounter(0), threadCounter(0) {
@@ -227,7 +228,7 @@ ptr<OracleResponseMessage> OracleServerAgent::doEndpointRequestResponse(ptr<Orac
     }
 
 
-    auto abiEncodedResult = abiEncodeResult(spec, status, results);
+    auto abiEncodedResult = ABIEncoder::abiEncodeResult(spec, status, results);
 
     this->buildAndSignResult(resultStr, abiEncodedResult);
 
@@ -389,9 +390,3 @@ void OracleServerAgent::buildAndSignResult(string &_result, ptr<vector<uint8_t>>
     _result.append("\"}");
 }
 
-ptr<vector<uint8_t>> OracleServerAgent::abiEncodeResult(ptr<OracleRequestSpec>, uint64_t,
-                                                        ptr<vector<ptr<string>>>) {
-    auto result = make_shared<vector<uint8_t>>();
-    result->push_back(1);
-    return result;
-}
