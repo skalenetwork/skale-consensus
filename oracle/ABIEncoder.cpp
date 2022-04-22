@@ -46,8 +46,9 @@ ptr<vector<uint8_t>> ABIEncoder::abiEncodeUint64(uint64_t _value) {
 }
 
 ptr<vector<uint8_t>> ABIEncoder::abiEncodeString(string& _value) {
-    auto result = make_shared<vector<uint8_t>>(_value.size(), 0);
-    memcpy(result->data(), _value.data(), _value.size());
+    cerr << _value << endl;
+    auto result = make_shared<vector<uint8_t>>(_value.size(), 1);
+    memcpy(result->data(), _value.c_str(), _value.size() + 1);
     return result;
 }
 
@@ -55,9 +56,9 @@ ptr<vector<uint8_t>> ABIEncoder::abiEncodeString(string& _value) {
 
 ABI_t result_abi[4] = {
         { .type = ABI_UINT64, .isArray = false, .arraySz = 0},
+        { .type = ABI_STRING, .isArray = false, .arraySz = 0},
         { .type = ABI_UINT64, .isArray = false, .arraySz = 0},
-        { .type = ABI_UINT64, .isArray = false, .arraySz = 0},
-            { .type = ABI_STRING, .isArray = false, .arraySz = 0}
+        { .type = ABI_UINT64, .isArray = false, .arraySz = 0}
 };
 
 
@@ -76,6 +77,7 @@ ptr<vector<uint8_t>> ABIEncoder::abiEncodeResult(ptr<OracleRequestSpec> _spec, u
     fullEncoding.insert(fullEncoding.begin(), chainIdEncoding->begin(), chainIdEncoding->end());
 
     auto uri = _spec->getUri();
+
     auto uriEncoding = ABIEncoder::abiEncodeString(uri);
     offsets.push_back(fullEncoding.size());
     fullEncoding.insert(fullEncoding.begin(), uriEncoding->begin(), uriEncoding->end());
@@ -95,6 +97,9 @@ ptr<vector<uint8_t>> ABIEncoder::abiEncodeResult(ptr<OracleRequestSpec> _spec, u
                offsets.data(), fullEncoding.data(), fullEncoding.size());
 
     CHECK_STATE(numBytes > 0);
+
+    cerr << numBytes << endl;
+
 
     auto hexString = Utils::carray2Hex(outBuf, numBytes);
 

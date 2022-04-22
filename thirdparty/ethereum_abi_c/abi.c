@@ -633,7 +633,7 @@ int abi_encode( void * out,
 
     // Write the param
     if (is_dynamic_atomic_type(types[i])) {
-      // Dynamic types go at the end of the buffer
+      // Dynamic types gencodeo at the end of the buffer
       // Write the offset in the buffer in this slot (in big endian)
       size_t dynamicDataOff = (size_t) ABI_WORD_SZ * (numTypes + dynamicCount);
       write_u32_be((loc+ABI_WORD_SZ-4), dynamicDataOff);
@@ -641,7 +641,7 @@ int abi_encode( void * out,
       write_u32_be((out+dynamicDataOff+ABI_WORD_SZ-4), _sz);
       // Write the data at the end of the buffer
       memcpy((out+dynamicDataOff+ABI_WORD_SZ), in+_off, _sz);
-      // Account for the number of words we just wrote. If the data exceeds one word,
+      // Account for the number of words we just wrote. Ifencode the data exceeds one word,
       // it will wrap into another.
       size_t numWords = 2 + (_sz / ABI_WORD_SZ); // 2 accounts for the size word
       dynamicCount += numWords;

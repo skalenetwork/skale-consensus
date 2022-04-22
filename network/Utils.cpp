@@ -166,3 +166,33 @@ void Utils::cArrayFromHex(const string &_hex, uint8_t *_data, size_t len) {
         _data[i] = Utils::char2int(_hex.at(2 * i)) * 16 + Utils::char2int(_hex.at(2 * i + 1));
     }
 }
+
+
+string execCommand(const string& _cmd) {
+    int _exitStatus = 0;
+
+    auto pPipe = ::popen(_cmd.c_str(), "r");
+
+    CHECK_STATE2(pPipe, "Could not open pipe in exec");
+
+    array<char, 256> buffer;
+
+    string result;
+
+    while(not std::feof(pPipe))
+    {
+        auto bytes = std::fread(buffer.data(), 1, buffer.size(), pPipe);
+        result.append(buffer.data(), bytes);
+    }
+
+    auto rc = ::pclose(pPipe);
+
+    if(WIFEXITED(rc))
+    {
+        _exitStatus = WEXITSTATUS(rc);
+    }
+
+    CHECK_STATE2(_exitStatus == 0, "Command failure:" + _cmd + ":" + to_string(_exitStatus));
+
+    return result;
+}
