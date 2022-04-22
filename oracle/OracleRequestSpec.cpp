@@ -113,10 +113,6 @@ const string &OracleRequestSpec::getUri() const {
     return uri;
 }
 
-void OracleRequestSpec::setUri(const string &_uri) {
-    uri = _uri;
-}
-
 
 uint64_t OracleRequestSpec::getTime() const {
     return time;

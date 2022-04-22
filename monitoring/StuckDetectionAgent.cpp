@@ -38,6 +38,7 @@
 #include <network/IO.h>
 #include <node/ConsensusEngine.h>
 #include <crypto/CryptoManager.h>
+#include "protocols/blockconsensus/BlockConsensusAgent.h"
 
 #include "LivelinessMonitor.h"
 #include "StuckDetectionAgent.h"
@@ -130,7 +131,7 @@ bool StuckDetectionAgent::checkNodesAreOnline() {
     // check if can connect to 2/3 of peers. If yes, restart
     while ( 3 * ( connections.size() + 1 ) < 2 * nodeCount ) {
         if ( Time::getCurrentTimeSec() - beginTime > 10 ) {
-            LOG( info, "Could not connect to 2/3 of nodes. Will not restart" );
+            LOG( info, "Stuck check Could not connect to 2/3 of nodes. Will not restart" );
             return false;  // could not connect to 2/3 of peers
         }
 
@@ -140,17 +141,15 @@ bool StuckDetectionAgent::checkNodesAreOnline() {
                     if ( getNode()->isExitRequested() ) {
                         BOOST_THROW_EXCEPTION( ExitRequestedException( __CLASS_NAME__ ) );
                     }
-                    LOG( info, "Stuck check: connecting to peer:" + to_string( i ) );
                     auto socket = make_shared< ClientSocket >(
                         *getSchain(), schain_index( i ), port_type::PROPOSAL );
-                    LOG( info, "Stuck check: connected to peer:" + to_string( i ) );
                     getSchain()->getIo()->writeMagic( socket, true );
                     connections.insert( i );
                 } catch ( ExitRequestedException& ) {
                     throw;
                 } catch ( std::exception& e ) {
-                    LOG( info, "Stuck check: could not connect to peer:" + to_string( i ) );
                 }
+                usleep(50 * 1000);
             }
         }
     }
@@ -253,4 +252,5 @@ void StuckDetectionAgent::cleanupState() {
     getSchain()->getNode()->getConsensusStateDB()->destroy();
     getSchain()->getNode()->getProposalVectorDB()->destroy();
     getSchain()->getNode()->getRandomDB()->destroy();
+    getSchain()->getBlockConsensusInstance()->destroyMessageLedger();
 }

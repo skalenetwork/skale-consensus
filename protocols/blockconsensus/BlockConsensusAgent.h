@@ -94,5 +94,7 @@ public:
 
     void startNewBlock(block_id _blockID);
 
+    void destroyMessageLedger();
+
 };
 

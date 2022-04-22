@@ -69,7 +69,7 @@ public:
 class OpenSSLECDSAKey;
 class OpenSSLEdDSAKey;
 
-class CryptoManager {
+class CryptoManager  {
 
     static list<uint64_t> ecdsaSignTimes;
     static recursive_mutex ecdsaSignMutex;
@@ -131,6 +131,8 @@ class CryptoManager {
 
     string sgxDomainName;
     uint16_t sgxPort = 0;
+
+    uint64_t simulateBLSSigFailBlock = 0;
 
     ptr< StubClient > getSgxClient();
 

@@ -38,7 +38,7 @@ public:
                                               const ptr< vector<string> >& _ecdsaPublicKeys, const string& _blsKeyName,
                                               const ptr< vector< ptr< vector<string>>>>& _blsPublicKeys,
                                               const ptr< BLSPublicKey >& _blsPublicKey,
-                                              const ptr< map< uint64_t, ptr< BLSPublicKey > > >& _previousBlsPublicKeys );
+                                              const ptr< map< uint64_t, ptr< BLSPublicKey > > >& _previousBlsPublicKeys);
 
     static ptr< Node > createNodeFromJsonObject(
         const nlohmann::json& _j, set< node_id >& nodeIDs, ConsensusEngine* _engine, bool _useSGX,

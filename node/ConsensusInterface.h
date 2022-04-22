@@ -130,24 +130,6 @@ public:
 
     virtual void terminateApplication() {};
 
-
-    /* Set sgx key info */
-
-    void setSGXKeyInfo( string& _sgxServerURL,
-                         // SSL key file full path. Can be null if the server does not require a client cert
-                        string& _sgxSSLKeyFileFullPath,
-                        // SSL cert file full path. Can be null if the server does not require a client cert
-                        string& _sgxSSLCertFileFullPath,
-                        // ecdsaKeyName of this node on the SGX server
-                        string& _ecdsaKeyName,
-                        // array of ECDSA public keys of all nodes, including this node
-                        shared_ptr<vector<string>>& _ecdsaPublicKeys,
-                        // blsKeyName of this node on the SGX server
-                        string& _blsKeyName,
-                       // array of BLS public key shares of all nodes, including this node
-                       // each BLS public key share is a vector of 4 strings.
-                        shared_ptr<vector<shared_ptr<vector<string>>>>& _blsPublicKeyShares);
-
 };
 
 #endif  // CONSENSUSINTERFACE_H

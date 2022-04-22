@@ -216,7 +216,7 @@ public:
 
     void startAll() override;
 
-    void parseFullConfigAndCreateNode( const string& fullPathToConfigFile, const string& _gethURL ) override;
+    void parseFullConfigAndCreateNode( const string& fullPathToConfigFile, const string& _gethURL) override;
 
     // used for standalone debugging
 
@@ -264,14 +264,16 @@ public:
         string& _sgxSSLKeyFileFullPath,
         string& _sgxSSLCertFileFullPath,
         string& _ecdsaKeyName,
-        // array of ECDSA publicKeys of all nodes, including this node
+        string& _blsKeyName);
+
+    void setPublicKeyInfo(
                        ptr<vector<string>>& _ecdsaPublicKeys,
-                       string& _blsKeyName,
-        // array of BLS public key shares of all nodes, including this node
-        // each BLS public key share is a vector of 4 strings.
+            // array of BLS public key shares of all nodes, including this node
+            // each BLS public key share is a vector of 4 strings.
                        ptr<vector<ptr<vector<string>>>>& _blsPublicKeyShares,
                        uint64_t _requiredSigners,
                        uint64_t _totalSigners);
+
 
     void setRotationHistory(ptr<map<uint64_t, vector<string>>> _rh);
 

@@ -69,6 +69,7 @@ CommittedBlockList::CommittedBlockList(const ptr< CryptoManager >& _cryptoManage
 
             CommittedBlock::serializedSanityCheck( blockData );
 
+
             auto block = CommittedBlock::deserialize( blockData, _cryptoManager );
 
             blocks->push_back(block);

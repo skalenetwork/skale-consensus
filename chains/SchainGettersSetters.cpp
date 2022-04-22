@@ -35,8 +35,10 @@
 #include "monitoring/StuckDetectionAgent.h"
 #include "utils/Time.h"
 
+
 #include "SchainMessageThreadPool.h"
 #include "crypto/ConsensusBLSSigShare.h"
+#include "crypto/CryptoManager.h"
 #include "db/BlockProposalDB.h"
 #include "messages/InternalMessageEnvelope.h"
 #include "network/ClientSocket.h"
@@ -96,12 +98,13 @@ ptr<BlockProposal> Schain::getBlockProposal(block_id _blockID, schain_index _sch
 }
 
 
+
 ptr<CommittedBlock> Schain::getBlock(block_id _blockID) {
 
     MONITOR(__CLASS_NAME__, __FUNCTION__)
 
     try {
-        return getNode()->getBlockDB()->getBlock(_blockID, cryptoManager);
+        return getNode()->getBlockDB()->getBlock(_blockID, getCryptoManager());
     } catch (ExitRequestedException &) { throw; } catch (...) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
@@ -254,16 +257,21 @@ uint64_t Schain::getMaxExternalBlockProcessingTime() const {
 
 void Schain::joinMonitorAndTimeoutThreads() {
     CHECK_STATE(monitoringAgent);
+    monitoringAgent->join();
+
+    if (getNode()->isSyncOnlyNode())
+        return;
     CHECK_STATE(timeoutAgent);
     CHECK_STATE(stuckDetectionAgent);
 
-    monitoringAgent->join();
     timeoutAgent->join();
     stuckDetectionAgent->join();
 }
 
  ptr<CryptoManager> Schain::getCryptoManager() const {
-    CHECK_STATE(cryptoManager);
+    if (!cryptoManager) {
+        CHECK_STATE(cryptoManager);
+    }
     return cryptoManager;
 }
 
@@ -287,6 +295,9 @@ void Schain::initLastCommittedBlockInfo( uint64_t _lastCommittedBlockID,
     lastCommittedBlockID = _lastCommittedBlockID;
     lastCommittedBlockTimeStamp = _lastCommittedBlockTimeStamp;
     lastCommitTimeMs = Time::getCurrentTimeMs();
+
+    if (getSchain()->getNode()->isSyncOnlyNode())
+        return;
     this->blockConsensusInstance->initFastLedgerAndReplayMessages(lastCommittedBlockID + 1);
 }
 
@@ -315,8 +326,11 @@ void Schain::updateLastCommittedBlockInfo( uint64_t _lastCommittedBlockID,
     if (blockTimeAverageMs == 0)
         blockTimeAverageMs = 1;
     tpsAverage = (blockSizeAverage * 1000 ) / blockTimeAverageMs;
-    blockConsensusInstance->startNewBlock(lastCommittedBlockID + 1);
     getRandomForBlockId((uint64_t) lastCommittedBlockID);
+
+    if (getNode()->isSyncOnlyNode())
+        return;
+    blockConsensusInstance->startNewBlock(lastCommittedBlockID + 1);
 }
 
 

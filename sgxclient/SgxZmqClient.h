@@ -104,10 +104,10 @@ private:
 
     static cache::lru_cache<string, pair < EVP_PKEY * , X509 *>> verifiedCerts;
 
-    shared_ptr < SgxZmqMessage > doRequestReply(Json::Value &_req,
+    shared_ptr < SgxZmqMessage > doRequestReply(Json::Value &_req, string& _description,
                                bool _throwExceptionOnTimeout = false);
 
-    string doZmqRequestReply(string &_req, bool _throwExceptionOnTimeout = false);
+    string doZmqRequestReply(string &_req, string& _description, bool _throwExceptionOnTimeout = false);
 
     uint64_t getProcessID();
 

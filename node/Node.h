@@ -199,6 +199,8 @@ class Node {
 
     string gethURL = "";
 
+    bool isSyncNode = false;
+
     bool inited = false;
 
     void releaseGlobalServerBarrier();
@@ -279,7 +281,9 @@ public:
         string _ecdsaKeyName, ptr< vector<string> > _ecdsaPublicKeys,
         string _blsKeyName, ptr< vector< ptr< vector<string>>>> _blsPublicKeys,
         ptr< BLSPublicKey > _blsPublicKey, string& _gethURL,
-        ptr< map< uint64_t, ptr< BLSPublicKey > > > _previousBlsPublicKeys);
+        ptr< map< uint64_t, ptr< BLSPublicKey > > > _previousBlsPublicKeys,
+        bool _isSyncNode);
+
 
     ~Node();
 
@@ -291,7 +295,7 @@ public:
 
     void setSchain(const ptr< Schain >& _schain );
 
-    static void initSchain(const ptr< Node >& _node, const ptr< NodeInfo >& _localNodeInfo,
+    static void initSchain(const ptr< Node >& _node, schain_index _schainIndex, schain_id _schainId,
         const vector< ptr< NodeInfo > >& remoteNodeInfos, ConsensusExtFace* _extFace );
 
     void waitOnGlobalServerStartBarrier( Agent* _agent );
@@ -377,4 +381,7 @@ public:
     bool isInited() const;
 
     const string &getGethUrl() const;
+
+    bool isSyncOnlyNode() const;
+
 };
