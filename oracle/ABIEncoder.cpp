@@ -117,3 +117,10 @@ ptr<vector<uint8_t>> ABIEncoder::abiEncodeResult(ptr<OracleRequestSpec> _spec, u
 }
 
 
+void ABIEncoder::healthCheck() {
+    Utils::execCommand("ls /usr/bin/ethabi");
+
+    // sudo cargo install --root /usr/ ethabi-cli
+    // sudo apt install rustc
+
+}

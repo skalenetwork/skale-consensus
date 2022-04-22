@@ -98,7 +98,7 @@
 
 #include "tools/utils.h"
 
-#include "exceptions/FatalError.h"
+#include "oracle/ABIEncoder.h"
 
 #include "ConsensusEngine.h"
 
@@ -284,13 +284,13 @@ ptr<Node> ConsensusEngine::readNodeTestConfigFileAndCreateNode(const string path
 
         nodeFileNamePath /= string(SkaleCommon::NODE_FILE_NAME);
 
-        checkExistsAndFile(nodeFileNamePath.string());
+        Utils::checkExistsAndFile(nodeFileNamePath.string());
 
         fs_path schainDirNamePath(path);
 
         schainDirNamePath /= string(SkaleCommon::SCHAIN_DIR_NAME);
 
-        checkExistsAndDirectory(schainDirNamePath.string());
+        Utils::checkExistsAndDirectory(schainDirNamePath.string());
 
         auto node = JSONFactory::createNodeFromTestJsonFile(sgxServerUrl, nodeFileNamePath.string(),
                                                             _nodeIDs, this, _useSGX, _sgxSSLKeyFileFullPath,
@@ -321,7 +321,7 @@ void ConsensusEngine::readSchainConfigFiles(const ptr<Node> &_node, const fs_pat
     CHECK_ARGUMENT(_node);
 
     try {
-        checkExistsAndDirectory(_dirPath);
+        Utils::checkExistsAndDirectory(_dirPath);
 
         directory_iterator itr(_dirPath);
 
@@ -343,32 +343,12 @@ void ConsensusEngine::readSchainConfigFiles(const ptr<Node> &_node, const fs_pat
 }
 
 
-void ConsensusEngine::checkExistsAndDirectory(const fs_path &_dirPath) {
-    if (!exists(_dirPath)) {
-        BOOST_THROW_EXCEPTION(FatalError("Not found: " + _dirPath.string()));
-    }
 
-    if (!is_directory(_dirPath)) {
-        BOOST_THROW_EXCEPTION(FatalError("Not a directory: " + _dirPath.string()));
-    }
-}
-
-
-void ConsensusEngine::checkExistsAndFile(const fs_path &_filePath) {
-    if (!exists(_filePath)) {
-        BOOST_THROW_EXCEPTION(FatalError("Not found: " + _filePath.string()));
-    }
-
-    if (is_directory(_filePath)) {
-        BOOST_THROW_EXCEPTION(
-                FatalError("Path is a direcotry, regular file is required " + _filePath.string()));
-    }
-}
 
 
 void ConsensusEngine::parseTestConfigsAndCreateAllNodes(const fs_path &dirname, bool _useBlockIDFromConsensus) {
     try {
-        checkExistsAndDirectory(dirname);
+        Utils::checkExistsAndDirectory(dirname);
 
         // cycle through the directory
 
@@ -570,22 +550,6 @@ node_count ConsensusEngine::nodesCount() {
 }
 
 
-std::string ConsensusEngine::exec(const char *cmd) {
-    CHECK_ARGUMENT(cmd);
-
-    std::array<char, 128> buffer;
-    std::string result;
-    std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd, "r"), pclose);
-    if (!pipe) {
-        BOOST_THROW_EXCEPTION(std::runtime_error("popen() failed!"));
-    }
-    while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr) {
-        result += buffer.data();
-    }
-    return result;
-}
-
-
 int ConsensusEngine::getOpenDescriptors() {
     int fd_count = 0;
     char buf[64];
@@ -607,7 +571,7 @@ int ConsensusEngine::getOpenDescriptors() {
 void ConsensusEngine::systemHealthCheck() {
     string ulimit;
     try {
-        ulimit = exec("/bin/bash -c \"ulimit -n\"");
+        ulimit = Utils::execCommand("ulimit -n");
     } catch (...) {
         const char *errStr = "Execution of /bin/bash -c ulimit -n failed";
         throw_with_nested(EngineInitException(errStr, __CLASS_NAME__));
@@ -627,6 +591,9 @@ void ConsensusEngine::systemHealthCheck() {
     }
 
     Utils::checkTime();
+
+    ABIEncoder::healthCheck();
+
 }
 
 void ConsensusEngine::init() {

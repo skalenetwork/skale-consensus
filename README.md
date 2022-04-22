@@ -33,7 +33,7 @@ sudo apt-get install -yq libprocps-dev gcc-9 g++-9 valgrind gawk sed libffi-dev 
     libgoogle-perftools-dev flex bison yasm texinfo autotools-dev automake \
     python python3-pip cmake libtool build-essential pkg-config autoconf wget \
     git  libargtable2-dev libmicrohttpd-dev libhiredis-dev redis-server openssl \
-    libssl-dev doxygen
+    libssl-dev doxygen rustc
 ```
 
 ### Building from source on Ubuntu (Development)

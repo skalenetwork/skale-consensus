@@ -38,6 +38,8 @@ public:
 
     static ptr<vector<uint8_t>> abiEncodeString(string& _value);
 
+    static void healthCheck();
+
 
 };
 

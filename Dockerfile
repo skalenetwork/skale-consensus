@@ -9,7 +9,7 @@ RUN apt-get install -y software-properties-common; sudo apt-add-repository unive
     python3 python3-pip \
     cmake libtool build-essential pkg-config autoconf wget git  libargtable2-dev \
     libmicrohttpd-dev libhiredis-dev redis-server openssl libssl-dev doxygen idn2 \
-    libgcrypt20-dev
+    libgcrypt20-dev rustc
     # python python-pip
 
 RUN update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 9

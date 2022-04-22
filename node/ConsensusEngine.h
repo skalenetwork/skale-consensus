@@ -146,8 +146,6 @@ public:
     const string getDataDir();
     
     const string getLogDir();
-    
-    string exec( const char* cmd );
 
     static void checkExistsAndDirectory( const fs_path& dirname );
 

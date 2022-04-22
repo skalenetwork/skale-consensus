@@ -168,7 +168,7 @@ void Utils::cArrayFromHex(const string &_hex, uint8_t *_data, size_t len) {
 }
 
 
-string execCommand(const string& _cmd) {
+string Utils::execCommand(const string& _cmd) {
     int _exitStatus = 0;
 
     auto pPipe = ::popen(_cmd.c_str(), "r");
@@ -195,4 +195,27 @@ string execCommand(const string& _cmd) {
     CHECK_STATE2(_exitStatus == 0, "Command failure:" + _cmd + ":" + to_string(_exitStatus));
 
     return result;
+}
+
+
+void Utils::checkExistsAndDirectory(const fs_path &_dirPath) {
+    if (!exists(_dirPath)) {
+        BOOST_THROW_EXCEPTION(FatalError("Not found: " + _dirPath.string()));
+    }
+
+    if (!is_directory(_dirPath)) {
+        BOOST_THROW_EXCEPTION(FatalError("Not a directory: " + _dirPath.string()));
+    }
+}
+
+
+void Utils::checkExistsAndFile(const fs_path &_filePath) {
+    if (!exists(_filePath)) {
+        BOOST_THROW_EXCEPTION(FatalError("Not found: " + _filePath.string()));
+    }
+
+    if (is_directory(_filePath)) {
+        BOOST_THROW_EXCEPTION(
+                FatalError("Path is a direcotry, regular file is required " + _filePath.string()));
+    }
 }
