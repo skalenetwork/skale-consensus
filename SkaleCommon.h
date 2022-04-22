@@ -355,10 +355,17 @@ extern std::string getThreadName();
         auto __msg__ = string("State check failed::") + #_EXPRESSION_ +  " " + string(__FILE__) + ":" + to_string(__LINE__); \
         throw InvalidStateException(__msg__, __CLASS_NAME__);}
 
+
+#define ORACLE_CHECK_STATE(_EXPRESSION_) \
+    if (!(_EXPRESSION_)) { \
+        auto __msg__ = string("Oracle check failed: ") + #_EXPRESSION_; \
+        throw InvalidStateException(__msg__, "");}
+
 #define CHECK_SIGNATURE_STATE(_EXPRESSION_) \
     if (!(_EXPRESSION_)) { \
         auto __msg__ = string("Signature check failed::") + #_EXPRESSION_ +  " " + string(__FILE__) + ":" + to_string(__LINE__); \
         throw InvalidSignatureException(__msg__, __CLASS_NAME__);}
+
 
 
 
@@ -371,6 +378,11 @@ extern std::string getThreadName();
     if (!(_EXPRESSION_)) { \
         auto __msg__ = string("Check failed::") + #_EXPRESSION_ +  " " + string(__FILE__) + ":" + to_string(__LINE__); \
         throw InvalidStateException(__msg__ + ":" + _MSG_, __CLASS_NAME__);}
+
+#define ORACLE_CHECK_STATE2(_EXPRESSION_, _MSG_) \
+    if (!(_EXPRESSION_)) { \
+        auto __msg__ = string("Oracle check failed: ") + _MSG_; \
+        throw InvalidStateException(__msg__, ""); }
 
 #define INJECT_TEST(__TEST_NAME__, __TEST_CODE__) \
  { static bool __TEST_NAME__ = (getenv(#__TEST_NAME__) != nullptr); \

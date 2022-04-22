@@ -35,7 +35,11 @@ public:
     bool fatal = false;
 
     SkaleException( const std::string& _message, const std::string& _className ) {
-        message = _className + ":" + _message;
+        if  ( !_className.empty() ) {
+            message = _className + ":" + _message;
+        } else {
+            message = _message;
+        }
     }
     const char* what() const noexcept override {
         return message.empty() ? std::exception::what() : message.c_str();

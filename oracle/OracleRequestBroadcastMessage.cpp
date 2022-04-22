@@ -50,12 +50,12 @@ OracleRequestBroadcastMessage::OracleRequestBroadcastMessage(const string& _requ
     printPrefix = "o";
 
     parsedSpec = OracleRequestSpec::parseSpec(requestSpec);
-    CHECK_STATE2(parsedSpec->getChainid() == sourceProtocolInstance.getSchain()->getSchainID(),
+    ORACLE_CHECK_STATE2(parsedSpec->getChainid() == sourceProtocolInstance.getSchain()->getSchainID(),
                  "Invalid schain id in oracle spec:" + to_string(parsedSpec->getChainid()));
 
-    CHECK_STATE(parsedSpec->getTime() + ORACLE_TIMEOUT_MS > Time::getCurrentTimeMs())
-    CHECK_STATE(parsedSpec->getTime()  < Time::getCurrentTimeMs() + ORACLE_FUTURE_JITTER_MS)
-    CHECK_STATE2(parsedSpec->verifyPow(), "PoW did not verify)");
+    ORACLE_CHECK_STATE2(parsedSpec->getTime() + ORACLE_TIMEOUT_MS > Time::getCurrentTimeMs(), "Request timeout")
+    ORACLE_CHECK_STATE(parsedSpec->getTime()  < Time::getCurrentTimeMs() + ORACLE_FUTURE_JITTER_MS)
+    ORACLE_CHECK_STATE2(parsedSpec->verifyPow(), "PoW did not verify");
 }
 
 
@@ -69,17 +69,17 @@ OracleRequestBroadcastMessage::OracleRequestBroadcastMessage(const string& _requ
         MSG_ORACLE_REQ_BROADCAST, _srcNodeID, _blockID, 0, 0, 0, _timeMs, _schainId, _msgID,
         "", _ecdsaSig, _publicKey, _pkSig,
         _srcSchainIndex, _sChain->getCryptoManager()), requestSpec(_requestSpec) {
-    CHECK_STATE(_requestSpec.front() == '{' && _requestSpec.back() == '}')
+    ORACLE_CHECK_STATE(_requestSpec.front() == '{' && _requestSpec.back() == '}')
     printPrefix = "o";
 
     requestSpec.erase(std::remove_if(requestSpec.begin(), requestSpec.end(), ::isspace), requestSpec.end());
 
     parsedSpec = OracleRequestSpec::parseSpec(requestSpec);
-    CHECK_STATE2(parsedSpec->getChainid() == _schainId,
+    ORACLE_CHECK_STATE2(parsedSpec->getChainid() == _schainId,
                  "Invalid schain id in oracle spec:" + to_string(_schainId));
-    CHECK_STATE(parsedSpec->getTime() + ORACLE_TIMEOUT_MS > Time::getCurrentTimeMs())
-    CHECK_STATE(parsedSpec->getTime()  < Time::getCurrentTimeMs() + ORACLE_FUTURE_JITTER_MS)
-    CHECK_STATE2(parsedSpec->verifyPow(), "PoW did not verify)");
+    ORACLE_CHECK_STATE2(parsedSpec->getTime() + ORACLE_TIMEOUT_MS > Time::getCurrentTimeMs(), "Request timeout")
+    ORACLE_CHECK_STATE(parsedSpec->getTime()  < Time::getCurrentTimeMs() + ORACLE_FUTURE_JITTER_MS)
+    ORACLE_CHECK_STATE2(parsedSpec->verifyPow(), "PoW did not verify");
 }
 
 void OracleRequestBroadcastMessage::updateWithChildHash(blake3_hasher& _hasher) {
