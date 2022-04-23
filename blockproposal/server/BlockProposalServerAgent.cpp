@@ -21,6 +21,8 @@
     @date 2018
 */
 
+#include <boost/algorithm/string.hpp>
+
 #include "Agent.h"
 #include "Log.h"
 #include "SkaleCommon.h"
@@ -520,12 +522,20 @@ ptr< Header > BlockProposalServerAgent::createProposalResponseHeader(
     }
 
 
-    auto chainId = (uint64_t) getSchain()->getSchainID();
 
-    bool checkIt = (chainId != 0xd2ba743e9fef4 &&
-                    chainId != 0x292a2c91ca6a3 &&
-                    chainId != 0x1c6fa7f59eeac &&
-                    chainId != 0x4b127e9c2f7de);
+    auto cfg = getSchain()->getNode()->getCfg();
+
+    string chainId;
+
+    if (cfg.find("chainID") != cfg.end()) {
+        chainId = cfg.at("chainID").get<string>();
+        boost::algorithm::to_lower(chainId);
+    }
+
+    bool checkIt = (chainId != "0xd2ba743e9fef4" &&
+                    chainId != "0x292a2c91ca6a" &&
+                    chainId != "0x1c6fa7f59eeac" &&
+                    chainId != "0x4b127e9c2f7de");
 
 
     if ( checkIt && blockIDInHeader > 1 &&
