@@ -520,7 +520,15 @@ ptr< Header > BlockProposalServerAgent::createProposalResponseHeader(
     }
 
 
-    if ( blockIDInHeader > 1 &&
+    auto chainId = (uint64_t) getSchain()->getSchainID();
+
+    bool checkIt = (chainId != 0xd2ba743e9fef4 &&
+                    chainId != 0x292a2c91ca6a3 &&
+                    chainId != 0x1c6fa7f59eeac &&
+                    chainId != 0x4b127e9c2f7de);
+
+
+    if ( checkIt && blockIDInHeader > 1 &&
         _header.getStateRoot() != myBlockProposalForTheSameBlockID->getStateRoot()){
         responseHeader->setStatusSubStatus(
             CONNECTION_ERROR, CONNECTION_PROPOSAL_STATE_ROOT_DOES_NOT_MATCH );
