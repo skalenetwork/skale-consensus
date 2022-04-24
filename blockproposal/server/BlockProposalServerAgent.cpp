@@ -523,19 +523,12 @@ ptr< Header > BlockProposalServerAgent::createProposalResponseHeader(
 
 
 
-    auto cfg = getSchain()->getNode()->getCfg();
+    auto chainName = getSchain()->getSchainName();
 
-    string chainId;
-
-    if (cfg.find("chainID") != cfg.end()) {
-        chainId = cfg.at("chainID").get<string>();
-        boost::algorithm::to_lower(chainId);
-    }
-
-    bool checkIt = (chainId != "0xd2ba743e9fef4" &&
-                    chainId != "0x292a2c91ca6a" &&
-                    chainId != "0x1c6fa7f59eeac" &&
-                    chainId != "0x4b127e9c2f7de");
+    bool checkIt = (chainName != "rhythmic-tegmen" &&
+                    chainName != "squeaking-nash" &&
+                    chainName != "chubby-sadr" &&
+                    chainName != "tinkling-kaffaljidhma");
 
 
     if ( checkIt && blockIDInHeader > 1 &&
