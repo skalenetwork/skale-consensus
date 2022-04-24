@@ -21,7 +21,6 @@
     @date 2018
 */
 
-#include <boost/algorithm/string.hpp>
 
 #include "Agent.h"
 #include "Log.h"
