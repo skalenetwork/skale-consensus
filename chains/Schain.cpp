@@ -218,13 +218,17 @@ void Schain::startThreads() {
     this->consensusMessageThreadPool->startService();
 }
 
+const string &Schain::getSchainName() const {
+    return schainName;
+}
 
 Schain::Schain( weak_ptr< Node > _node, schain_index _schainIndex, const schain_id& _schainID,
-    ConsensusExtFace* _extFace )
+    ConsensusExtFace* _extFace, string& _schainName )
     : Agent( *this, true, true ),
       totalTransactions( 0 ),
       extFace( _extFace ),
       schainID( _schainID ),
+      schainName(_schainName),
       startTimeMs( 0 ),
       consensusMessageThreadPool( new SchainMessageThreadPool( this ) ),
       node( _node ),

@@ -373,7 +373,7 @@ void Node::setSchain(const ptr<Schain>& _schain) {
 }
 
 void Node::initSchain(const ptr<Node>& _node, const ptr<NodeInfo>& _localNodeInfo, const vector<ptr<NodeInfo> > &remoteNodeInfos,
-                      ConsensusExtFace *_extFace) {
+                      ConsensusExtFace *_extFace, string _schainName) {
 
 
     set<string> ipPortSet;
@@ -401,7 +401,7 @@ void Node::initSchain(const ptr<Node>& _node, const ptr<NodeInfo>& _localNodeInf
         _node->testNodeInfos();
 
         auto sChain = make_shared<Schain>(
-                _node, _localNodeInfo->getSchainIndex(), _localNodeInfo->getSchainID(), _extFace);
+                _node, _localNodeInfo->getSchainIndex(), _localNodeInfo->getSchainID(), _extFace, _schainName);
 
         _node->setSchain(sChain);
 
