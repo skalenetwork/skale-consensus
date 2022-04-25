@@ -375,7 +375,23 @@ string CryptoManager::sgxSignECDSA(BLAKE3Hash &_hash, string &_keyName) {
 
     string ret;
 
-    ret = zmqClient->ecdsaSignMessageHash(16, _keyName, _hash.toHex(), false);
+    // temporary solution to support old servers
+    if (zmqClient->getZMQStatus() == SgxZmqClient::TRUE ) {
+        ret = zmqClient->ecdsaSignMessageHash( 16, _keyName, _hash.toHex(), false );
+    } else {
+        Json::Value result;
+        RETRY_BEGIN
+        getSchain()->getNode()->exitCheck();
+        result = getSgxClient()->ecdsaSignMessageHash( 16, _keyName, _hash.toHex() );
+        RETRY_END
+                JSONFactory::checkSGXStatus( result );
+
+        string r = JSONFactory::getString( result, "signature_r" );
+        string v = JSONFactory::getString( result, "signature_v" );
+        string s = JSONFactory::getString( result, "signature_s" );
+        ret = v + ":" + r.substr( 2 ) + ":" + s.substr( 2 );
+    }
+
 
     return ret;
 }
@@ -638,10 +654,21 @@ ptr<ThresholdSigShare> CryptoManager::signSigShare(
         string ret;
 
 
-        ret = zmqClient->blsSignMessageHash(
-                getSgxBlsKeyName(), _hash.toHex(), requiredSigners, totalSigners,
-                false);
 
+        if (zmqClient->getZMQStatus() == SgxZmqClient::TRUE ) {
+            ret = zmqClient->blsSignMessageHash(
+                    getSgxBlsKeyName(), _hash.toHex(), requiredSigners, totalSigners,
+                    false);
+        } else {
+            RETRY_BEGIN
+                    getSchain()->getNode()->exitCheck();
+                    jsonShare = getSgxClient()->blsSignMessageHash(
+                            getSgxBlsKeyName(), _hash.toHex(), requiredSigners, totalSigners );
+            RETRY_END
+
+            JSONFactory::checkSGXStatus( jsonShare );
+            ret = JSONFactory::getString( jsonShare, "signatureShare" );
+        }
 
         auto sigShare = make_shared<string>(ret);
 
