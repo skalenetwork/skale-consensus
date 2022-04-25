@@ -50,6 +50,10 @@ class FastMessageLedger {
 
     void writeLine(string &_str);
 
+
+    void writeLine2(string &_str);
+
+
     uint64_t parseFirstLine(string _line);
 
 

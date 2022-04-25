@@ -54,6 +54,8 @@ FastMessageLedger::FastMessageLedger(Schain *_schain, string  _dirFullPath, bloc
 
     // if file exist, read and parse
 
+    /*
+
     if (infile.is_open()) {
         string line;
         uint64_t lineCount = 0;
@@ -74,6 +76,7 @@ FastMessageLedger::FastMessageLedger(Schain *_schain, string  _dirFullPath, bloc
             previousRunMessages->push_back(nextMessage);
         }
     }
+    */
     startNewBlock(_blockId);
     CHECK_STATE(fd > 0);
 }
@@ -134,6 +137,8 @@ void FastMessageLedger::writeNetworkMessage(ptr<NetworkMessage> _message) {
     writeLine(msg);
 }
 
+
+
 void FastMessageLedger::closeFd() {
     if (fd > 0) {
         close(fd);
@@ -141,7 +146,12 @@ void FastMessageLedger::closeFd() {
     }
 }
 
-void FastMessageLedger::writeLine(string& _str) {
+void FastMessageLedger::writeLine(string&) {
+    // disable for now
+}
+
+
+void FastMessageLedger::writeLine2(string& _str) {
     CHECK_STATE(_str.size() > 0);
     CHECK_STATE(fd > 0);
     int64_t written = 0;
@@ -160,6 +170,7 @@ void FastMessageLedger::writeLine(string& _str) {
         CHECK_STATE(result >= 0);
     } while (result == 0);
 }
+
 
 void FastMessageLedger::startNewBlock(block_id _blockId) {
     LOCK(m)
