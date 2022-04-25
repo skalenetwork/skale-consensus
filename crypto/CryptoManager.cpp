@@ -375,8 +375,13 @@ string CryptoManager::sgxSignECDSA(BLAKE3Hash &_hash, string &_keyName) {
 
     string ret;
 
+
+    checkZMQStatusIfUnknownECDSA(_keyName);
+
+
     // temporary solution to support old servers
     if (zmqClient->getZMQStatus() == SgxZmqClient::TRUE ) {
+
         ret = zmqClient->ecdsaSignMessageHash( 16, _keyName, _hash.toHex(), false );
     } else {
         Json::Value result;
@@ -654,6 +659,7 @@ ptr<ThresholdSigShare> CryptoManager::signSigShare(
         string ret;
 
 
+        checkZMQStatusIfUnknownBLS();
 
         if (zmqClient->getZMQStatus() == SgxZmqClient::TRUE ) {
             ret = zmqClient->blsSignMessageHash(
@@ -1095,4 +1101,39 @@ bool CryptoManager::isSGXServerDown() {
         return false;
     CHECK_STATE(zmqClient);
     return (zmqClient->isServerDown());
+}
+
+
+void CryptoManager::checkZMQStatusIfUnknownECDSA(const string &_keyName) {
+    if (zmqClient->getZMQStatus() == SgxZmqClient::UNKNOWN) {
+        static string sampleHash = "01020304050607080910111213141516171819202122232425262728"
+                                   "29303132";
+        try {
+            auto ret1 = zmqClient->ecdsaSignMessageHash(16, _keyName, sampleHash,
+                                                        true);
+            zmqClient->setZmqStatus(SgxZmqClient::TRUE);
+            LOG(info, "Successfully connected to SGX ZMQ API.");
+        } catch (...) {
+            zmqClient->setZmqStatus(SgxZmqClient::FALSE);
+            LOG(warn, "Could not connect SGX ZMQ API. Will fallback to HTTP(S)" );
+        }
+    }
+}
+
+
+void CryptoManager::checkZMQStatusIfUnknownBLS() {
+    if (zmqClient->getZMQStatus() == SgxZmqClient::UNKNOWN) {
+        static string sampleHash = "01020304050607080910111213141516171819202122232425262728"
+                                   "29303132";
+        try {
+            auto ret1 = zmqClient->blsSignMessageHash(
+                    getSgxBlsKeyName(),
+                    sampleHash, requiredSigners, totalSigners, true);
+            zmqClient->setZmqStatus(SgxZmqClient::TRUE);
+            LOG(info, "Successfully connected to SGX ZMQ API.");
+        } catch (...) {
+            zmqClient->setZmqStatus(SgxZmqClient::FALSE);
+            LOG(warn, "Could not connect SGX ZMQ API. Will fallback to HTTP(S)" );
+        };
+    }
 }
