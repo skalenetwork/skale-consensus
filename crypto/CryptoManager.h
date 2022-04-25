@@ -285,6 +285,10 @@ public:
     string signOracleResult(string _text);
 
     static string hashForOracle(string &_text);
+
+    void checkZMQStatusIfUnknownECDSA(const string &_keyName);
+    void checkZMQStatusIfUnknownBLS();
+
 };
 
 #define RETRY_BEGIN \
