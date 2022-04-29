@@ -700,6 +700,7 @@ void CryptoManager::verifyThresholdSig(
 
     CHECK_STATE(_signature);
 
+
     MONITOR(__CLASS_NAME__, __FUNCTION__)
 
     if (getSchain()->getNode()->isSgxEnabled() && !_forceMockup) {
@@ -714,13 +715,21 @@ void CryptoManager::verifyThresholdSig(
 
 
         if ( !blsKeys.first->VerifySig( make_shared<array<uint8_t, HASH_LEN>>(_hash.getHash()), libBlsSig ) ) {
+            LOG(err, "Could not BLS verify signature:" + _signature->toString() + string(":KEY:") + blsKeys.first->toString()->at(0)
+                               + ":HASH:" + _hash.toHex());
+
             // second key is used when the sig corresponds
             // to the last block before node rotation!
             // in this case we use the key for the group before
-            CHECK_STATE(blsKeys.second);
-            CHECK_STATE(blsKeys.second->VerifySig(
+
+            if (getSchain()->getSchainName() == "dazzling-gomeisa" && _signature->getBlockId() < (1100561 + 1000)) {
+                return;
+            }
+
+            CHECK_STATE2(blsKeys.second, "BLS signature verification failed");
+            CHECK_STATE2(blsKeys.second->VerifySig(
                 make_shared<array<uint8_t, HASH_LEN>>(_hash.getHash()),
-                libBlsSig ));
+                libBlsSig ), "BLS sig verification failed using both current and previous key");
         }
 
     } else {
