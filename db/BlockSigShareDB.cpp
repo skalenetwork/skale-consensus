@@ -48,7 +48,8 @@ BlockSigShareDB::BlockSigShareDB(Schain *_sChain, string &_dirName, string &_pre
 
 
 ptr<ThresholdSignature>
-BlockSigShareDB::checkAndSaveShareInMemory(const ptr<ThresholdSigShare>& _sigShare, const ptr<CryptoManager>& _cryptoManager) {
+BlockSigShareDB::checkAndSaveShareInMemory(const ptr<ThresholdSigShare>& _sigShare, const ptr<CryptoManager>& _cryptoManager,
+                                           schain_index _proposer) {
     try {
         CHECK_ARGUMENT(_sigShare)
         CHECK_ARGUMENT(_cryptoManager)
@@ -81,6 +82,18 @@ BlockSigShareDB::checkAndSaveShareInMemory(const ptr<ThresholdSigShare>& _sigSha
         auto signature = _sigShareSet->mergeSignature();
 
         CHECK_STATE(signature)
+
+
+
+        auto hash = BLAKE3Hash::getBlockHash(
+                (uint64_t ) _proposer,
+                (uint64_t) signature->getBlockId(),
+                (uint64_t) getSchain()->getSchainID());
+
+        _cryptoManager->verifyBlockSig(signature, hash);
+
+
+
         return signature;
     } catch (ExitRequestedException &) { throw; } catch (...) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
