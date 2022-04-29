@@ -150,6 +150,11 @@ BlockSigShareDB::writeStringToSetInMemory(const string &_value, block_id _blockI
 
     LOCK(sigShareMutex);
 
+    auto alreadySignedKey = createKey(_blockId);
+
+    if (sigShares.exists(alreadySignedKey))
+        return nullptr;
+
     auto entryKey = createKey(_blockId, _proposerIndex, _index);
     CHECK_STATE(entryKey != "");
 
@@ -199,6 +204,8 @@ BlockSigShareDB::writeStringToSetInMemory(const string &_value, block_id _blockI
     }
 
     CHECK_STATE(enoughSet->size() == requiredSigners);
+
+    sigShares.put(alreadySignedKey, "1");
 
     return enoughSet;
 }
