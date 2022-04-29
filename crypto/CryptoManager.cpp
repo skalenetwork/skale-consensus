@@ -880,7 +880,7 @@ bool CryptoManager::verifyProposalECDSA(
     }
 
     if (!verifyECDSASig(hash, _signature, _proposal->getProposerNodeID())) {
-        LOG(warn, "ECDSA sig did not verify");
+        LOG(err, "ECDSA sig did not verify");
         return false;
     }
     return true;
