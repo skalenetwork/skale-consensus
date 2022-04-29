@@ -58,9 +58,11 @@
 #include  "protocols/binconsensus/BVBroadcastMessage.h"
 #include  "protocols/binconsensus/BinConsensusInstance.h"
 
+#include "crypto/ThresholdSignature.h"
 #include "protocols/binconsensus/ChildBVDecidedMessage.h"
 #include "BlockConsensusAgent.h"
 #include "datastructures/CommittedBlock.h"
+
 
 
 BlockConsensusAgent::BlockConsensusAgent(Schain &_schain) : ProtocolInstance(
@@ -170,7 +172,8 @@ void BlockConsensusAgent::decideBlock(block_id _blockId, schain_index _sChainInd
                 Time::getCurrentTimeMs(), *this);
 
         auto signature = getSchain()->getNode()->getBlockSigShareDB()->checkAndSaveShareInMemory(msg->getSigShare(),
-                                                                                         getSchain()->getCryptoManager());
+                                                                                         getSchain()->getCryptoManager(),
+                                                                                         _sChainIndex);
 
         getSchain()->getNode()->getNetwork()->broadcastMessage(msg);
 
@@ -297,7 +300,8 @@ void BlockConsensusAgent::processBlockSignMessage(const ptr<BlockSignBroadcastMe
     try {
         auto signature =
                 getSchain()->getNode()->getBlockSigShareDB()->checkAndSaveShareInMemory(_message->getSigShare(),
-                                                                                getSchain()->getCryptoManager());
+                                                                                getSchain()->getCryptoManager(),
+                                                                                _message->getBlockProposerIndex());
         if (signature == nullptr) {
             return;
         }
@@ -306,21 +310,13 @@ void BlockConsensusAgent::processBlockSignMessage(const ptr<BlockSignBroadcastMe
         auto proposer = _message->getBlockProposerIndex();
         auto blockId = _message->getBlockId();
 
-
-        auto hash = BLAKE3Hash::getBlockHash(
-            (uint64_t ) proposer,
-            (uint64_t) blockId,
-            (uint64_t) getSchain()->getSchainID());
-
-        getSchain()->getCryptoManager()->verifyBlockSig(signature,
-            hash);
-
         LOG(info, string("BLOCK_DECIDE (GOT SIG): PRPSR:") + to_string(proposer) +
-                  ":BID:" + to_string(blockId) + "| Now signing block ...");
+                  ":BID:" + to_string(blockId) + ":SIG:" + signature->toString());
 
 
         getSchain()->finalizeDecidedAndSignedBlock(
             blockId, proposer, signature );
+
 
     } catch (ExitRequestedException &e) { throw; }
     catch (...) {

@@ -52,7 +52,7 @@ public:
         const ptr< ThresholdSigShare >& _sigShare, const ptr< CryptoManager >& _cryptoManager );
 
     ptr< ThresholdSignature > checkAndSaveShareInMemory(
-        const ptr< ThresholdSigShare >& _sigShare, const ptr< CryptoManager >& _cryptoManager );
+        const ptr< ThresholdSigShare >& _sigShare, const ptr< CryptoManager >& _cryptoManager, schain_index _proposer );
 
     ptr< map< schain_index, string > > writeStringToSetInMemory(
         const string& _value, block_id _blockId, schain_index _index );
