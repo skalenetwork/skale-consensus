@@ -70,6 +70,8 @@ public:
 
 private:
 
+    zmq_status zmqStatus = UNKNOWN;
+
 
     EVP_PKEY* pkey = 0;
     EVP_PKEY* pubkey = 0;

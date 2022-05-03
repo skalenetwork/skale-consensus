@@ -48,7 +48,8 @@ BlockSigShareDB::BlockSigShareDB(Schain *_sChain, string &_dirName, string &_pre
 
 
 ptr<ThresholdSignature>
-BlockSigShareDB::checkAndSaveShareInMemory(const ptr<ThresholdSigShare>& _sigShare, const ptr<CryptoManager>& _cryptoManager) {
+BlockSigShareDB::checkAndSaveShareInMemory(const ptr<ThresholdSigShare>& _sigShare, const ptr<CryptoManager>& _cryptoManager,
+                                           schain_index _proposer) {
     try {
         CHECK_ARGUMENT(_sigShare)
         CHECK_ARGUMENT(_cryptoManager)
@@ -59,7 +60,7 @@ BlockSigShareDB::checkAndSaveShareInMemory(const ptr<ThresholdSigShare>& _sigSha
         LOCK(sigShareMutex)
 
         auto enoughSet = writeStringToSetInMemory(sigShareString, _sigShare->getBlockId(),
-                                          _sigShare->getSignerIndex());
+                                          _sigShare->getSignerIndex(), _proposer);
         if (enoughSet == nullptr)
             return nullptr;
 
@@ -81,6 +82,18 @@ BlockSigShareDB::checkAndSaveShareInMemory(const ptr<ThresholdSigShare>& _sigSha
         auto signature = _sigShareSet->mergeSignature();
 
         CHECK_STATE(signature)
+
+
+
+        auto hash = BLAKE3Hash::getBlockHash(
+                (uint64_t ) _proposer,
+                (uint64_t) signature->getBlockId(),
+                (uint64_t) getSchain()->getSchainID());
+
+        _cryptoManager->verifyBlockSig(signature, hash);
+
+
+
         return signature;
     } catch (ExitRequestedException &) { throw; } catch (...) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
@@ -129,14 +142,20 @@ BlockSigShareDB::checkAndSaveShare1(const ptr<ThresholdSigShare>& _sigShare, con
 
 
 ptr<map<schain_index, string>>
-BlockSigShareDB::writeStringToSetInMemory(const string &_value, block_id _blockId, schain_index _index) {
+BlockSigShareDB::writeStringToSetInMemory(const string &_value, block_id _blockId, schain_index _index,
+                                          schain_index _proposerIndex) {
 
 
     CHECK_ARGUMENT(_index > 0 && _index <= totalSigners);
 
     LOCK(sigShareMutex);
 
-    auto entryKey = createKey(_blockId, _index);
+    auto alreadySignedKey = createKey(_blockId);
+
+    if (sigShares.exists(alreadySignedKey))
+        return nullptr;
+
+    auto entryKey = createKey(_blockId, _proposerIndex, _index);
     CHECK_STATE(entryKey != "");
 
     if (sigShares.exists(entryKey)) {
@@ -147,7 +166,7 @@ BlockSigShareDB::writeStringToSetInMemory(const string &_value, block_id _blockI
 
     uint64_t count = 0;
 
-    auto counterKey = createCounterKey(_blockId);
+    auto counterKey = createKey(_blockId, _proposerIndex);
 
     if (sigShares.exists(counterKey)) {
         try {
@@ -173,7 +192,7 @@ BlockSigShareDB::writeStringToSetInMemory(const string &_value, block_id _blockI
     auto enoughSet = make_shared<map<schain_index, string>>();
 
     for (uint64_t i = 1; i <= totalSigners; i++) {
-        auto key = createKey(_blockId, schain_index(i));
+        auto key = createKey(_blockId,  _proposerIndex, schain_index(i));
 
         if (sigShares.exists(key)) {
             auto entry = sigShares.get( key );
@@ -185,6 +204,8 @@ BlockSigShareDB::writeStringToSetInMemory(const string &_value, block_id _blockI
     }
 
     CHECK_STATE(enoughSet->size() == requiredSigners);
+
+    sigShares.put(alreadySignedKey, "1");
 
     return enoughSet;
 }

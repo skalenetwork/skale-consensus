@@ -80,6 +80,11 @@ string CacheLevelDB::createKey(block_id _blockId, schain_index _proposerIndex) {
         getFormatVersion() + ":" + to_string(_blockId) + ":" + to_string(_proposerIndex);
 }
 
+string CacheLevelDB::createKey(block_id _blockId, schain_index _proposerIndex, schain_index _senderIndex) {
+    return
+            getFormatVersion() + ":" + to_string(_blockId) + ":" + to_string(_proposerIndex) + ":" + to_string(_senderIndex);
+}
+
 
 string
 CacheLevelDB::createKey(const block_id &_blockId, const schain_index &_proposerIndex,

@@ -295,8 +295,8 @@ public:
 
     void setSchain(const ptr< Schain >& _schain );
 
-    static void initSchain(const ptr< Node >& _node, schain_index _schainIndex, schain_id _schainId,
-        const vector< ptr< NodeInfo > >& remoteNodeInfos, ConsensusExtFace* _extFace );
+    static void initSchain(const ptr< Node >& _node, const ptr< NodeInfo >& _localNodeInfo,
+        const vector< ptr< NodeInfo > >& remoteNodeInfos, ConsensusExtFace* _extFace, string& _schainName );
 
     void waitOnGlobalServerStartBarrier( Agent* _agent );
 

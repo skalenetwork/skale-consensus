@@ -103,6 +103,7 @@ class Schain : public Agent {
     ConsensusExtFace* extFace = nullptr;
 
     schain_id schainID = 0;
+    string schainName;
 
     ptr<jsonrpc::HttpServer> httpserver;
     ptr<StatusServer> s;
@@ -240,7 +241,7 @@ public:
     uint64_t getMaxExternalBlockProcessingTime() const;
 
     Schain( weak_ptr< Node > _node, schain_index _schainIndex, const schain_id& _schainID,
-        ConsensusExtFace* _extFace );
+        ConsensusExtFace* _extFace, string& _schainName );
 
     Schain();  // empty constructor is used for tests
 
@@ -353,6 +354,7 @@ public:
 
     const ptr<OracleClient> getOracleClient() const;
 
+    const string &getSchainName() const;
 
 };
 

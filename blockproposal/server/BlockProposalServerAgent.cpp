@@ -21,6 +21,7 @@
     @date 2018
 */
 
+
 #include "Agent.h"
 #include "Log.h"
 #include "SkaleCommon.h"
@@ -520,7 +521,16 @@ ptr< Header > BlockProposalServerAgent::createProposalResponseHeader(
     }
 
 
-    if ( blockIDInHeader > 1 &&
+
+    auto chainName = getSchain()->getSchainName();
+
+    bool checkIt = (chainName != "rhythmic-tegmen" &&
+                    chainName != "squeaking-nash" &&
+                    chainName != "chubby-sadr" &&
+                    chainName != "tinkling-kaffaljidhma");
+
+
+    if ( checkIt && blockIDInHeader > 1 &&
         _header.getStateRoot() != myBlockProposalForTheSameBlockID->getStateRoot()){
         responseHeader->setStatusSubStatus(
             CONNECTION_ERROR, CONNECTION_PROPOSAL_STATE_ROOT_DOES_NOT_MATCH );

@@ -99,6 +99,8 @@ protected:
 
     string createKey( block_id _blockId, schain_index _proposerIndex );
 
+    string createKey( block_id _blockId, schain_index _proposerIndex, schain_index _senderIndex );
+
     string createKey( block_id _blockId, uint64_t _counter );
 
     string createKey( const block_id& _blockId, const schain_index& _proposerIndex,
