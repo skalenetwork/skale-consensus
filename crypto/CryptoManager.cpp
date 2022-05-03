@@ -726,6 +726,10 @@ void CryptoManager::verifyThresholdSig(
                 return;
             }
 
+            if (getSchain()->getSchainName() == "plain-rotanev" && _signature->getBlockId() < (1366472 + 1000)) {
+                return;
+            }
+
             CHECK_STATE2(blsKeys.second, "BLS signature verification failed");
             CHECK_STATE2(blsKeys.second->VerifySig(
                 make_shared<array<uint8_t, HASH_LEN>>(_hash.getHash()),
