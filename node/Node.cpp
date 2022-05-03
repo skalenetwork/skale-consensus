@@ -375,7 +375,7 @@ void Node::setSchain(const ptr<Schain>& _schain) {
     this->inited = true;
 }
 
-void Node::initSchain(const ptr<Node>& _node, const ptr<NodeInfo>& _localNodeInfo, const vector<ptr<NodeInfo> > &remoteNodeInfos,
+void Node::initSchain(const ptr<Node>& _node, schain_index _schainIndex, schain_id _schainId, const vector<ptr<NodeInfo> > &remoteNodeInfos,
                       ConsensusExtFace *_extFace, string& _schainName) {
 
 
@@ -403,17 +403,17 @@ void Node::initSchain(const ptr<Node>& _node, const ptr<NodeInfo>& _localNodeInf
         }
         _node->testNodeInfos();
 
-        auto sChain = make_shared<Schain>(
-                _node, _localNodeInfo->getSchainIndex(), _localNodeInfo->getSchainID(), _extFace, _schainName);
+        auto chain = make_shared<Schain>(
+                _node, _schainIndex, _schainId, _extFace, _schainName);
 
-        _node->setSchain(sChain);
+        _node->setSchain(chain);
 
         if (_node->isSyncOnlyNode()) {
             return;
         }
 
-        sChain->createBlockConsensusInstance();
-        sChain->createOracleInstance();
+        chain->createBlockConsensusInstance();
+        chain->createOracleInstance();
 
     } catch (...) {
         throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
