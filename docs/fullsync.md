@@ -45,14 +45,7 @@ is read from SkaleManager and inserted into config.
 
 ## Sync node behavior during rotation.
 
-* After rotation, a block BLS signature will not verify,
-since it uses the new BLS key. 
-* This will cause skaled to
-exit with error code ```SYNC_NODE_EXIT_CODE = 314```
-* This will cause config regeneration, so the new config 
-will include the new key. 
-* After that sync node will start with new config.
-
+* Sync admin will detect rotation, regenerate the config and restart skaled with new config
 
 
 

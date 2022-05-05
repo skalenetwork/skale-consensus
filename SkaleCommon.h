@@ -331,11 +331,6 @@ static const uint64_t  ORACLE_RECEIPTS_MAP_SIZE = 100000;
 
 static const uint64_t  ORACLE_FUTURE_JITTER_MS = 500;
 
-
-static const uint64_t SYNC_NODE_SLEEP_BEFORE_EXIT_MS = 5000;
-static const uint64_t SYNC_NODE_EXIT_CODE = 314;
-
-
 static const uint64_t SGX_REQUEST_TIMEOUT_MS  = 10000;
 
 

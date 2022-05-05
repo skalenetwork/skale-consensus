@@ -238,20 +238,9 @@ ptr<CommittedBlockList> CatchupClientAgent::readMissingBlocks(
         CHECK_STATE(blockList);
     }
     catch (ExitRequestedException &) { throw; }
-    catch (InvalidSignatureException &) {
-        if (getNode()->isSyncOnlyNode()) {
-            LOG(info, "Sync node cant verify ECDSA sig. Rotation must have occured. Restarting ...");
-            // rotation must have occured. Sleep for some seconds and then exit
-            usleep(SYNC_NODE_SLEEP_BEFORE_EXIT_MS * 1000);
-            exit(SYNC_NODE_EXIT_CODE);
-        } else {
-            throw_with_nested(
-                    NetworkProtocolException("Could not parse block list", __CLASS_NAME__));
-        }
-    }
     catch (...) {
         throw_with_nested(
-                NetworkProtocolException("Could not parse block list", __CLASS_NAME__));
+                NetworkProtocolException("Could not process block list", __CLASS_NAME__));
     }
 
 
@@ -265,14 +254,8 @@ ptr<CommittedBlockList> CatchupClientAgent::readMissingBlocks(
             getSchain()->getCryptoManager()->verifyBlockSig(sig, item->getBlockID(),
                                                             hash, item->getTimeStamp());
         } catch (InvalidSignatureException &) {
-            if (getNode()->isSyncOnlyNode()) {
-                LOG(info, "Sync node cant verify BLS sig. Rotation must have occured. Restarting ...");                // rotation must have occured. Sleep for some seconds and then exit
-                usleep(SYNC_NODE_SLEEP_BEFORE_EXIT_MS * 1000);
-                exit(SYNC_NODE_EXIT_CODE);
-            } else {
                 throw_with_nested(
                         NetworkProtocolException("Could not verify block BLS sig:", __CLASS_NAME__));
-            }
         }
     }
 
