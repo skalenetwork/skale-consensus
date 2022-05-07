@@ -1,0 +1,41 @@
+= Consensus Activity Diagram
+
+ifdef::env-github[image::https://www.plantuml.com/plantuml/svg/XL4nZjmm3Epz2fQN8ZWWwRA7mmL8dJ_GCcKJAr66ICNVZoojrrXiiPLb3MT6C_nImsmbXg4T1jtOt09ltmQ7IlKB0m30hp4ddEgLNVg_Io6GCr2UGHVCf7tGvnGXaoF-Hra1PUhtBebQBfNnvpUiEIL_EHowu8q3OqZkka-iIJ7epKwf2erOaMeeQ2LJrstUu5D-fNl0X-A6R8tt2HyHRVdyyVxpuxsTdcPNpCQELpG2bcxy5qQMxtii4YqFgaMC0sZnlf98h1Ean94o90-sK0JFmhfG9-uFkRP3JripmiOYBFEz2ZZmLkfz7sSXfnBWZ2nz_hdRfXv95UV3_bKZZNFE0llQxvv3uEtfdJWgYVNwx-9JsYJK9n-n7j2TgWb3IyQcy82UYprkABG5d_yoiJ-3k1GZMqzx6RugMcBu3m00[]]
+ifndef::env-github[]
+
+[plantuml]
+....
+@startuml
+start
+switch ()
+case () 
+    :broadcast;
+    :collect sig shares 
+    from receivers and 
+    construct DA proof;
+case ()
+    :receive block proposals;
+    :send back signature 
+    share for DA proof;
+case ()
+    :receive DA proofs;
+    :wait for > <math>2/3</math> DA proofs;
+    :participate in 
+    N bin-consensus;
+    :wait until sufficient 
+    number of them finishes;
+    fork
+        :sign winning proposal 
+        and broadcast signature;
+    fork again
+        :receive block sign messages;
+        :wait for > <math>2/3</math> signs;
+        if () then (winning proposal absent)
+            :download winning
+            propsoal and its 
+            DA proof;
+        else ()
+        endif
+        :commit block;
+@enduml
+....
