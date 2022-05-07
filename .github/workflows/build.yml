@@ -1,5 +1,8 @@
 name: Build and test skale-consensus
-on: [push]
+on: 
+  push:
+    branches-ignore:
+      - 'docs*'
 jobs:
   build:
     runs-on: ubuntu-20.04

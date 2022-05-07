@@ -1,5 +1,8 @@
 name: Build consensust container
-on: [push]
+on: 
+  push:
+    branches-ignore:
+      - 'docs*'
 jobs:
   build:
     runs-on: ubuntu-latest
