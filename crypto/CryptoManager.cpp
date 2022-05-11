@@ -529,18 +529,13 @@ bool CryptoManager::verifyECDSASig(
     if (isSGXEnabled) {
         string pubKey;
 
-        {
-            LOCK(ecdsaPublicKeyMapLock)
+        pubKey = getECDSAPublicKeyForNodeId(_nodeId);
 
-            if (ecdsaPublicKeyMap.count((uint64_t) _nodeId) == 0) {
-                // if there is no key report the signature as failed
-                return false;
-            }
 
-            pubKey = ecdsaPublicKeyMap.at((uint64_t) _nodeId);
-        }
+        if (pubKey.empty())
+            return false;
 
-        CHECK_STATE(pubKey != "");
+
         auto result = verifyECDSA(_hash, _sig, pubKey);
 
         return result;
@@ -557,6 +552,31 @@ bool CryptoManager::verifyECDSASig(
 
         return _sig == (_hash.toHex());
     }
+}
+
+// get ECDSA public key for nodeID
+string CryptoManager::getECDSAPublicKeyForNodeId(const node_id &_nodeId) {
+    string result;
+
+    {
+        LOCK(ecdsaPublicKeyMapLock)
+
+        if (ecdsaPublicKeyMap.count((uint64_t) _nodeId) == 0) {
+            // nodeId found in the current set of nodes
+             result = ecdsaPublicKeyMap.at((uint64_t) _nodeId);
+             return result;
+        }
+
+    }
+
+
+    // could not find nodeId in the current 16 node chain
+    // this means the node was probably part of the chain before one of rotations
+
+    // get key from rotation history
+    // return empty string if key is not found
+
+    return result;
 }
 
 
