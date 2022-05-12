@@ -555,8 +555,10 @@ bool CryptoManager::verifyECDSASig(
 }
 
 // get ECDSA public key for nodeID
-string CryptoManager::getECDSAPublicKeyForNodeId(const node_id &_nodeId) {
+string CryptoManager::getECDSAPublicKeyForNodeId(const node_id &_nodeId, uint64_t _timeStamp) {
     string result;
+
+    // check if the node is member of the current node set
 
     {
         LOCK(ecdsaPublicKeyMapLock)
@@ -576,7 +578,22 @@ string CryptoManager::getECDSAPublicKeyForNodeId(const node_id &_nodeId) {
     // get key from rotation history
     // return empty string if key is not found
 
+    return getECDSAHistoricPublicKeyForNodeId((uint64_t ) _nodeId, _timeStamp);
+
     return result;
+}
+
+
+// get ECDSA public key for nodeID and time stamp. Time stamp (uint64_t)-1 is current time.
+// If not found, return empty string;
+string CryptoManager::getECDSAHistoricPublicKeyForNodeId(uint64_t
+                                                      //_nodeId,
+                                                        , uint64_t
+                                                      // _timeStamp
+                                                      ) {
+    // TO BE implemented
+    // return empty string for now
+    return "";
 }
 
 
