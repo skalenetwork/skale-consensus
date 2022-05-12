@@ -291,6 +291,9 @@ public:
     void checkZMQStatusIfUnknownECDSA(const string &_keyName);
     void checkZMQStatusIfUnknownBLS();
 
+    string getECDSAPublicKeyForNodeId(const node_id &_nodeId, uint64_t _timeStamp = (uint64_t) -1);
+
+    string getECDSAHistoricPublicKeyForNodeId(uint64_t _nodeId, uint64_t _timeStamp);
 };
 
 #define RETRY_BEGIN \
