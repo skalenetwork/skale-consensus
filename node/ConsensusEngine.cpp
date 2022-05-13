@@ -982,14 +982,17 @@ void ConsensusEngine::setPublicKeyInfo( ptr<vector<string> > &_ecdsaPublicKeys,
 
 
 
-void ConsensusEngine::setRotationHistory(ptr<map<uint64_t, vector<string>>> _rh) {
-    CHECK_STATE(_rh);
+void ConsensusEngine::setRotationHistory(ptr<map<uint64_t, vector<string>>> _previousBLSKeys,
+                                         ptr<map<uint64_t, string>> _historicECDSAKeys) {
+    CHECK_STATE(_previousBLSKeys);
+    CHECK_STATE(_historicECDSAKeys);
 
     map< uint64_t, ptr< BLSPublicKey > > _previousBlsPublicKeys;
-    for (const auto& previousGroup: *_rh) {
+    for (const auto& previousGroup: *_previousBLSKeys) {
         _previousBlsPublicKeys[previousGroup.first] = make_shared<BLSPublicKey>(make_shared<vector<string>>(previousGroup.second));
     }
     previousBlsPublicKeys = make_shared< map< uint64_t, ptr< BLSPublicKey > > >( _previousBlsPublicKeys );
+    historicECDSAPublicKeys = _historicECDSAKeys;
 }
 
 const string ConsensusEngine::getEcdsaKeyName() const {

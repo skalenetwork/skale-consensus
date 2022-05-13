@@ -108,6 +108,8 @@ class CryptoManager  {
 
     ptr< map< uint64_t, ptr< BLSPublicKey > > > previousBlsPublicKeys;
 
+    ptr< map< uint64_t, string > > historicECDSAPublicKeys;
+
     uint64_t totalSigners;
     uint64_t requiredSigners;
 
