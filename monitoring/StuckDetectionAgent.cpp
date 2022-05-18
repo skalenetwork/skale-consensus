@@ -67,7 +67,7 @@ void StuckDetectionAgent::StuckDetectionLoop( StuckDetectionAgent* _agent ) {
     setThreadName( "StuckDetectionLoop", _agent->getSchain()->getNode()->getConsensusEngine() );
     _agent->getSchain()->getSchain()->waitOnGlobalStartBarrier();
 
-    LOG( info, "StuckDetection agent started monitoring" );
+    LOG( info, "StuckDetection agent: started monitoring." );
 
 
     uint64_t restartIteration = 1;
@@ -81,8 +81,12 @@ void StuckDetectionAgent::StuckDetectionLoop( StuckDetectionAgent* _agent ) {
             break;
         }
         restartIteration++;
-        CHECK_STATE( restartIteration < 64 );
     }
+
+    if (restartIteration > 1) {
+        LOG(info, "Stuck detection engine: previous restarts detected:" + to_string(restartIteration - 1));
+    }
+
 
     if( _agent->getSchain()->getNode()->isExitRequested() )
         return;
@@ -107,7 +111,7 @@ void StuckDetectionAgent::StuckDetectionLoop( StuckDetectionAgent* _agent ) {
 
     CHECK_STATE( restartTime > 0 );
     try {
-        LOG( info, "Restarting node because of stuck detected." );
+        LOG( info, "Stuck detection engine: restarting skaled because of stuck detected." );
         _agent->restart( restartTime, restartIteration );
     } catch ( ExitRequestedException& ) {
         return;
@@ -122,7 +126,7 @@ void StuckDetectionAgent::join() {
 
 bool StuckDetectionAgent::checkNodesAreOnline() {
 
-    LOG( info, "Stuck detected. Checking network connectivity ..." );
+    LOG( info, "StuckDetectionEngine:: stuck detected. Checking network connectivity ..." );
 
     std::unordered_set< uint64_t > connections;
     auto beginTime = Time::getCurrentTimeSec();
@@ -153,7 +157,7 @@ bool StuckDetectionAgent::checkNodesAreOnline() {
             }
         }
     }
-    LOG( info, "Could connect to 2/3 of nodes" );
+    LOG( info, "Stuck detection engine: could connect to 2/3 of nodes." );
     return true;
 }
 
@@ -176,7 +180,7 @@ uint64_t StuckDetectionAgent::checkForRestart( uint64_t _restartIteration ) {
 
     auto baseRestartIntervalMs = getSchain()->getNode()->getStuckRestartIntervalMs();
 
-    uint64_t restartIntervalMs = baseRestartIntervalMs * pow( 4, _restartIteration - 1 );
+    uint64_t restartIntervalMs = baseRestartIntervalMs;
 
     auto blockID = getSchain()->getLastCommittedBlockID();
 
@@ -218,6 +222,9 @@ void StuckDetectionAgent::restart( uint64_t _restartTimeMs, uint64_t _iteration 
     }
 
     createStuckRestartFile( _iteration + 1 );
+
+    LOG(err, "Consensus engine stuck detected, because no blocks were mined for a long time and "
+             "majority of other nodes in the chain seem to be reachable on network. Restarting ...");
 
     exit( 13 );
 }

@@ -150,6 +150,7 @@ class Schain : public Agent {
 
     atomic< uint64_t > lastCommittedBlockID = 0;
     atomic< uint64_t > lastCommitTimeMs = 0;
+    atomic< uint64_t > lastCommittedBlockEvmProcessingTimeMs = 0;
     TimeStamp  lastCommittedBlockTimeStamp;
     mutex lastCommittedBlockInfoMutex;
     atomic<uint64_t> proposalReceiptTime = 0;
@@ -212,7 +213,8 @@ public:
     bool isStartingFromCorruptState() const;
 
     void updateLastCommittedBlockInfo( uint64_t _lastCommittedBlockID,
-        TimeStamp& _lastCommittedBlockTimeStamp, uint64_t _blockSize );
+        TimeStamp& _lastCommittedBlockTimeStamp, uint64_t _blockSize,
+        uint64_t _lastCommittedBlockProcessingTimeMs);
 
     void initLastCommittedBlockInfo( uint64_t _lastCommittedBlockID,
                                        TimeStamp&  _lastCommittedBlockTimeStamp );
