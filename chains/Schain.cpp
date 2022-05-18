@@ -817,10 +817,40 @@ void Schain::bootstrap(block_id _lastCommittedBlockID, uint64_t _lastCommittedBl
 
     LOG(info,
         "Last committed block in consensus:" + to_string(_lastCommittedBlockIDInConsensus));
+
+    LOG(info,
+        "Last committed block in EVM:" + to_string(_lastCommittedBlockID));
+
+
     LOG(info, "Check the consensus database for corruption ...");
     fixCorruptStateIfNeeded(_lastCommittedBlockIDInConsensus);
 
     checkForExit();
+
+
+    // catch situations that should never happen
+
+
+    if (_lastCommittedBlockIDInConsensus > _lastCommittedBlockID + 128) {
+        LOG(critical, "CRITICAL ERROR: consensus has way more blocks than skaled. This should never happen,"
+                      "since consensus passes blocks to skaled.");
+        BOOST_THROW_EXCEPTION(InvalidStateException(
+                                      "_lastCommittedBlockIDInConsensus > _lastCommittedBlockID + 128", __CLASS_NAME__ ));
+    }
+
+
+
+    if (_lastCommittedBlockIDInConsensus < _lastCommittedBlockID) {
+
+        LOG(critical, "CRITICAL ERROR: last committed block in consensus is smaller than"
+                      " last committed block in skaled. This can never happen because consensus passes blocks to skaled");
+
+        BOOST_THROW_EXCEPTION(InvalidStateException(
+                                      "_lastCommittedBlockIDInConsensus < lastCommittedBlockID in EVM", __CLASS_NAME__ ));
+    }
+
+
+
 
     // Step 0 Workaround for the fact that skaled does not yet save timestampMs
 
@@ -831,39 +861,40 @@ void Schain::bootstrap(block_id _lastCommittedBlockID, uint64_t _lastCommittedBl
         };
     }
 
-    // Step 1: solve block id  mismatch
 
-    if (_lastCommittedBlockIDInConsensus == _lastCommittedBlockID + 1) {
-        // consensus has one more block than skaled
+
+    // Step 1: solve block id  mismatch. Consensus may have more blocks than skaled
+    // this can happen in case skaled crashed , can also happen when starting from a snapshot
+
+    if (_lastCommittedBlockIDInConsensus > _lastCommittedBlockID) {
+        // consensus has several more blocks than skaled
         // This happens when starting from a snapshot
         // Since the snapshot is taken just before a block is processed
+        // or after multiple skaled crashes
+        // process these blocks
+
+
+        LOG(warn, "Consensus has more blocks than skaled. This should not happen normally since consensus passes"
+                 "blocks to skaled.  Skaled may have crashed in the past.");
+
+        while (_lastCommittedBlockIDInConsensus > _lastCommittedBlockID)
+
         try {
             auto block = getNode()->getBlockDB()->getBlock(
-                    _lastCommittedBlockIDInConsensus, getCryptoManager());
+                    _lastCommittedBlockID + 1, getCryptoManager());
             CHECK_STATE2(block, "No block in consensus, repair needed");
             pushBlockToExtFace(block);
             _lastCommittedBlockID = _lastCommittedBlockID + 1;
         } catch (...) {
-            // Cant read the block form db, may be it is corrupt in the  snapshot
+            // Cant read the block from db, may be it is corrupt in the  snapshot
             LOG(err, "Bootstrap could not read block from db. Repair.");
-            // The block will be pulled by catchup
-        }
-    } else {
-        // catch situations that should never happen
-        if (_lastCommittedBlockIDInConsensus < _lastCommittedBlockID) {
-            BOOST_THROW_EXCEPTION(InvalidStateException(
-                                          "_lastCommittedBlockIDInConsensus < _lastCommittedBlockID", __CLASS_NAME__ ));
-        }
-
-        if (_lastCommittedBlockIDInConsensus > _lastCommittedBlockID + 1) {
-            BOOST_THROW_EXCEPTION(InvalidStateException(
-                                          "_lastCommittedBlockIDInConsensus > _lastCommittedBlockID + 1", __CLASS_NAME__ ));
+            // The block will be hopefully pulled by catchup
         }
     }
 
     MONITOR2(__CLASS_NAME__, __FUNCTION__, getMaxExternalBlockProcessingTime())
 
-    // Step 2 : Bootstrap
+    // Step 2 : now bootstrap
 
     try {
         bootstrapBlockID = (uint64_t) _lastCommittedBlockID;
