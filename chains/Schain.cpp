@@ -44,6 +44,7 @@
 #include "node/Node.h"
 #include "pendingqueue/PendingTransactionsAgent.h"
 #include "utils/Time.h"
+#include "network/Utils.h"
 
 #include "blockfinalize/client/BlockFinalizeDownloader.h"
 #include "blockproposal/server/BlockProposalServerAgent.h"
@@ -577,7 +578,8 @@ void Schain::printBlockLog(const ptr<CommittedBlock> &_block) {
                  ":SBT:" + to_string(CryptoManager::getBLSStats()) +
                  ":SEC:" + to_string(CryptoManager::getECDSATotals()) +
                  ":SBC:" + to_string(CryptoManager::getBLSTotals()) +
-                 ":ZSC:" + to_string(getCryptoManager()->getZMQSocketCount());
+                 ":ZSC:" + to_string(getCryptoManager()->getZMQSocketCount()) +
+                 ":EPT:" + to_string(lastCommittedBlockEvmProcessingTimeMs);
     }
 
     output = output + ":STAMP:" + stamp.toString();
@@ -623,12 +625,14 @@ void Schain::processCommittedBlock(const ptr<CommittedBlock> &_block) {
 
         saveBlock(_block);
 
+        auto evmProcessingStartMs = Time::getCurrentTimeMs();
         pushBlockToExtFace(_block);
+        auto evmProcessingTimeMs = Time::getCurrentTimeMs() - evmProcessingStartMs;
 
         auto stamp = TimeStamp(_block->getTimeStampS(), _block->getTimeStampMs());
 
         updateLastCommittedBlockInfo(
-                (uint64_t) _block->getBlockID(), stamp, _block->getTransactionList()->size());
+                (uint64_t) _block->getBlockID(), stamp, _block->getTransactionList()->size(), evmProcessingTimeMs);
 
     } catch (ExitRequestedException &e) {
         throw;

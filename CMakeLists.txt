@@ -218,6 +218,7 @@ endif ()
 
 
 SET(LINK_LIBRARIES
+        backtrace
         Threads::Threads
         ${BOOST_LIBS_4_CONSENSUS}
         ${LIB_NAME_cryptopp}
