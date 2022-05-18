@@ -227,18 +227,18 @@ const string &Schain::getSchainName() const {
     return schainName;
 }
 
-Schain::Schain( weak_ptr< Node > _node, schain_index _schainIndex, const schain_id& _schainID,
-    ConsensusExtFace* _extFace, string& _schainName )
-    : Agent( *this, true, true ),
-      totalTransactions( 0 ),
-      extFace( _extFace ),
-      schainID( _schainID ),
-      schainName(_schainName),
-      startTimeMs( 0 ),
-      consensusMessageThreadPool( new SchainMessageThreadPool( this ) ),
-      node( _node ),
-      schainIndex( _schainIndex ) {
-    lastCommittedBlockTimeStamp = TimeStamp( 0, 0 );
+Schain::Schain(weak_ptr<Node> _node, schain_index _schainIndex, const schain_id &_schainID,
+               ConsensusExtFace *_extFace, string &_schainName)
+        : Agent(*this, true, true),
+          totalTransactions(0),
+          extFace(_extFace),
+          schainID(_schainID),
+          schainName(_schainName),
+          startTimeMs(0),
+          consensusMessageThreadPool(new SchainMessageThreadPool(this)),
+          node(_node),
+          schainIndex(_schainIndex) {
+    lastCommittedBlockTimeStamp = TimeStamp(0, 0);
 
     // construct monitoring, timeout and stuck detection agents early
     monitoringAgent = make_shared<MonitoringAgent>(*this);
@@ -839,7 +839,6 @@ void Schain::bootstrap(block_id _lastCommittedBlockID, uint64_t _lastCommittedBl
     }
 
 
-
     if (_lastCommittedBlockIDInConsensus < _lastCommittedBlockID) {
 
         LOG(critical, "CRITICAL ERROR: last committed block in consensus is smaller than"
@@ -875,17 +874,18 @@ void Schain::bootstrap(block_id _lastCommittedBlockID, uint64_t _lastCommittedBl
 
 
         LOG(warn, "Consensus has more blocks than skaled. This should not happen normally since consensus passes"
-                 "blocks to skaled.  Skaled may have crashed in the past.");
+                  "blocks to skaled.  Skaled may have crashed in the past.");
 
-        while (_lastCommittedBlockIDInConsensus > _lastCommittedBlockID)
+        while (_lastCommittedBlockIDInConsensus > _lastCommittedBlockID) {
+            try {
+                auto block = getNode()->getBlockDB()->getBlock(
+                        _lastCommittedBlockID + 1, getCryptoManager());
+                CHECK_STATE2(block, "No block in consensus, repair needed");
+                pushBlockToExtFace(block);
+                _lastCommittedBlockID = _lastCommittedBlockID + 1;
+            } catch (...) {
 
-        try {
-            auto block = getNode()->getBlockDB()->getBlock(
-                    _lastCommittedBlockID + 1, getCryptoManager());
-            CHECK_STATE2(block, "No block in consensus, repair needed");
-            pushBlockToExtFace(block);
-            _lastCommittedBlockID = _lastCommittedBlockID + 1;
-        } catch (...) {
+            }
             // Cant read the block from db, may be it is corrupt in the  snapshot
             LOG(err, "Bootstrap could not read block from db. Repair.");
             // The block will be hopefully pulled by catchup
