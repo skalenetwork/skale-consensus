@@ -77,7 +77,11 @@ void ConsensusEdDSASigShare::verify(
                                                     __CLASS_NAME__));
     }
 
-    CHECK_STATE(_cryptoManager.sessionVerifySigAndKey(_hash, tokens.at(1), tokens.at(2),
-        tokens.at(3), blockId, _nodeId));
+    try {
+        _cryptoManager.sessionVerifySigAndKey(_hash, tokens.at(1), tokens.at(2),
+        tokens.at(3), blockId, _nodeId);
+    } catch (...) {
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+    }
 
 }

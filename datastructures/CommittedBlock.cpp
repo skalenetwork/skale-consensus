@@ -160,10 +160,13 @@ ptr<CommittedBlock> CommittedBlock::deserialize(
 
 
     if (_verifySig) {
-        CHECK_STATE2(_manager->verifyProposalECDSA(block, blockHeader->getBlockHash(), blockHeader->getSignature()),
-                     "Block signature did not verify in catchup");
+        try {
+            _manager->verifyProposalECDSA(block, blockHeader->getBlockHash(), blockHeader->getSignature());
+        } catch (...) {
+            LOG(err, "Block signature did not verify in catchup");
+            throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+        }
     }
-
 
     return block;
 }

@@ -334,9 +334,13 @@ pair< ConnectionStatus, ConnectionSubStatus > BlockProposalClientAgent::sendBloc
 
     CHECK_STATE( nodeInfo );
 
-    CHECK_STATE( getSchain()->getCryptoManager()->sessionVerifySigAndKey( hash,
+    try {
+        getSchain()->getCryptoManager()->sessionVerifySigAndKey( hash,
         finalHeader->getSignature(), finalHeader->getPublicKey(), finalHeader->getPublicKeySig(),
-        _proposal->getBlockID(), nodeInfo->getNodeID() ) );
+        _proposal->getBlockID(), nodeInfo->getNodeID() );
+    } catch (...) {
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+    }
 
     getSchain()->daProofSigShareArrived( sigShare, _proposal );
 
