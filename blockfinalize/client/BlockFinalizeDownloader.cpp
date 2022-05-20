@@ -354,6 +354,7 @@ ptr<BlockProposal> BlockFinalizeDownloader::downloadProposal() {
             auto block = BlockProposal::deserialize(fragmentList.serialize(), getSchain()->getCryptoManager(),
                                                     true);
             CHECK_STATE(block);
+            CHECK_STATE(block->getProposerIndex() == (uint64_t) proposerIndex);
             return block;
         } else {
             return nullptr;
