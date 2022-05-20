@@ -586,14 +586,14 @@ string CryptoManager::getECDSAPublicKeyForNodeId(const node_id &_nodeId, uint64_
 
 // get ECDSA public key for nodeID and time stamp. Time stamp (uint64_t)-1 is current time.
 // If not found, return empty string;
-string CryptoManager::getECDSAHistoricPublicKeyForNodeId(uint64_t
-                                                      //_nodeId,
-                                                        , uint64_t
-                                                      // _timeStamp
+string CryptoManager::getECDSAHistoricPublicKeyForNodeId(uint64_t _nodeId,
+                                                      uint64_t /*_timeStamp*/
                                                       ) {
-    // TO BE implemented
-    // return empty string for now
-    return "";
+    try {
+        return historicECDSAPublicKeys->at( _nodeId );
+    } catch (std::out_of_range&) {
+        return "";
+    }
 }
 
 

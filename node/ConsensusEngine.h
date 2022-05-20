@@ -80,6 +80,7 @@ class ConsensusEngine : public ConsensusInterface {
     ptr< vector< ptr< vector<string>>>> blsPublicKeys; //tsafe
     ptr< BLSPublicKey > blsPublicKey;
     ptr< map< uint64_t, ptr< BLSPublicKey > > > previousBlsPublicKeys;
+    ptr< map< uint64_t, string > > historicECDSAPublicKeys;
     
     atomic< consensus_engine_status > status = CONSENSUS_ACTIVE;
 
@@ -275,7 +276,8 @@ public:
                        uint64_t _totalSigners);
 
 
-    void setRotationHistory(ptr<map<uint64_t, vector<string>>> _rh);
+    void setRotationHistory(ptr<map<uint64_t, vector<string>>> _previousBLSKeys,
+                            ptr<map<uint64_t, string>> _historicECDSAKeys);
 
     [[nodiscard]] uint64_t getTotalStorageLimitBytes() const;
 
