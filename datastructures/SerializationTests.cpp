@@ -216,12 +216,12 @@ void test_committed_block_serialize_deserialize(bool _fail) {
             REQUIRE(out != nullptr);
 
             if (_fail) {
-                REQUIRE_THROWS(CommittedBlock::deserialize(out, cryptoManager));
+                REQUIRE_THROWS(CommittedBlock::deserialize(out, cryptoManager, false));
             } else {
                 ptr<CommittedBlock> imp = nullptr;
 
                 try {
-                    imp = CommittedBlock::deserialize(out, cryptoManager);
+                    imp = CommittedBlock::deserialize(out, cryptoManager, false);
                 } catch (ParsingException &e) {
                     SkaleException::logNested(e, err);
                     throw (e);

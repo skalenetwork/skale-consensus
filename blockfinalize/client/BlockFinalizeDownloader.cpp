@@ -351,7 +351,8 @@ ptr<BlockProposal> BlockFinalizeDownloader::downloadProposal() {
     try {
 
         if (fragmentList.isComplete()) {
-            auto block = BlockProposal::deserialize(fragmentList.serialize(), getSchain()->getCryptoManager());
+            auto block = BlockProposal::deserialize(fragmentList.serialize(), getSchain()->getCryptoManager(),
+                                                    true);
             CHECK_STATE(block);
             return block;
         } else {

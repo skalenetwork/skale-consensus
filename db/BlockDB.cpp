@@ -128,7 +128,9 @@ ptr<CommittedBlock> BlockDB::getBlock(block_id _blockID, const ptr<CryptoManager
             return nullptr;
         }
 
-        auto result = CommittedBlock::deserialize(serializedBlock, _cryptoManager);
+        // dont check signatures on blocks that are already in internal db
+        // they have already been verified
+        auto result = CommittedBlock::deserialize(serializedBlock, _cryptoManager, false);
         CHECK_STATE(result);
         return result;
     }

@@ -274,7 +274,7 @@ ptr<vector<uint8_t> > BlockProposal::serialize(uint64_t _flags) {
 
 
 ptr<BlockProposal> BlockProposal::deserialize(const ptr<vector<uint8_t> > &_serializedProposal,
-                                              const ptr<CryptoManager> &_manager) {
+                                              const ptr<CryptoManager> &_manager, bool _verifySig) {
 
     CHECK_ARGUMENT(_serializedProposal);
     CHECK_ARGUMENT(_manager);
@@ -307,7 +307,11 @@ ptr<BlockProposal> BlockProposal::deserialize(const ptr<vector<uint8_t> > &_seri
                                                blockHeader->getTimeStampMs(),
                                                blockHeader->getSignature(), nullptr);
 
-    _manager->verifyProposalECDSA(proposal, blockHeader->getBlockHash(), blockHeader->getSignature());
+    if (_verifySig) {
+        CHECK_STATE2(_manager->verifyProposalECDSA(proposal, blockHeader->getBlockHash(), blockHeader->getSignature()),
+                    "Block proposer ecdsa signature did not verify for" + to_string((uint64_t) proposal->getProposerIndex()));
+    }
+
 
     proposal->serializedProposal = _serializedProposal;
 
@@ -322,7 +326,7 @@ BlockProposal::defragment(const ptr<BlockProposalFragmentList> &_fragmentList,
     CHECK_ARGUMENT(_cryptoManager);
 
     try {
-        auto result = deserialize(_fragmentList->serialize(), _cryptoManager);
+        auto result = deserialize(_fragmentList->serialize(), _cryptoManager, true);
         CHECK_STATE(result);
         return result;
     } catch (exception &e) {
