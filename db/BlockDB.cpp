@@ -39,10 +39,10 @@ ptr<vector<uint8_t> > BlockDB::getSerializedBlockFromLevelDB(block_id _blockID) 
     try {
 
         auto key = createKey(_blockID);
-        CHECK_STATE(key != "");
+        CHECK_STATE(!key.empty())
         auto value = readString(key);
 
-        if (value != "") {
+        if (!value.empty()) {
             auto serializedBlock = make_shared<vector<uint8_t>>();
             serializedBlock->insert(serializedBlock->begin(), value.data(), value.data() + value.size());
             CommittedBlock::serializedSanityCheck(serializedBlock);
@@ -63,8 +63,8 @@ BlockDB::BlockDB(Schain *_sChain, string &_dirname, string &_prefix, node_id _no
 
 void BlockDB::saveBlock2LevelDB(const ptr<CommittedBlock> &_block) {
 
-    CHECK_ARGUMENT(_block);
-    CHECK_ARGUMENT(_block->getSignature() != "");
+    CHECK_ARGUMENT(_block)
+    CHECK_ARGUMENT(!_block->getSignature().empty())
 
     lock_guard<shared_mutex> lock(m);
 
@@ -72,10 +72,10 @@ void BlockDB::saveBlock2LevelDB(const ptr<CommittedBlock> &_block) {
 
         auto serializedBlock = _block->serialize();
 
-        CHECK_STATE(serializedBlock);
+        CHECK_STATE(serializedBlock)
 
         auto key = createKey(_block->getBlockID());
-        CHECK_STATE(key != "");
+        CHECK_STATE(!key.empty())
         writeByteArray(key, serializedBlock);
         writeString(createLastCommittedKey(), to_string(_block->getBlockID()), true);
     } catch (...) {
@@ -101,8 +101,8 @@ const string& BlockDB::getFormatVersion() {
 
 void BlockDB::saveBlock(const ptr<CommittedBlock> &_block) {
 
-    CHECK_ARGUMENT(_block);
-    CHECK_ARGUMENT(_block->getSignature() != "");
+    CHECK_ARGUMENT(_block)
+    CHECK_ARGUMENT(!_block->getSignature().empty())
 
     try {
         saveBlock2LevelDB(_block);
@@ -115,7 +115,7 @@ void BlockDB::saveBlock(const ptr<CommittedBlock> &_block) {
 
 ptr<CommittedBlock> BlockDB::getBlock(block_id _blockID, const ptr<CryptoManager>& _cryptoManager) {
 
-    CHECK_ARGUMENT(_cryptoManager);
+    CHECK_ARGUMENT(_cryptoManager)
 
     shared_lock<shared_mutex> lock(m);
 
@@ -131,7 +131,7 @@ ptr<CommittedBlock> BlockDB::getBlock(block_id _blockID, const ptr<CryptoManager
         // dont check signatures on blocks that are already in internal db
         // they have already been verified
         auto result = CommittedBlock::deserialize(serializedBlock, _cryptoManager, false);
-        CHECK_STATE(result);
+        CHECK_STATE(result)
         return result;
     }
 
@@ -151,7 +151,7 @@ block_id BlockDB::readLastCommittedBlockID() {
 
     auto blockStr = readString(key);
 
-    if (blockStr == "")
+    if (blockStr.empty())
         return 0;
 
     stringstream(blockStr)  >> lastBlockId;
@@ -166,7 +166,7 @@ bool BlockDB::unfinishedBlockExists( block_id  _blockID) {
     auto key = createBlockStartKey(_blockID);
     auto str = readString(key);
 
-    if (str != "") {
+    if (!str.empty()) {
         return !this->keyExists(createKey(_blockID));
     }
     return false;
