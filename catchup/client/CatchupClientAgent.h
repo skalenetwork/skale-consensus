@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2018-2019 SKALE Labs
+    Copyright (C) 2018- SKALE Labs
 
     This file is part of skale-consensus.
 
@@ -18,7 +18,7 @@
 
     @file CatchupClientAgent.h
     @author Stan Kladko
-    @date 2018
+    @date 2018 -
 */
 
 #pragma once
@@ -48,7 +48,7 @@ public:
 
 
     ptr< CommittedBlockList > readMissingBlocks(
-        ptr< ClientSocket >& _socket, nlohmann::json responseHeader );
+        ptr< ClientSocket >& _socket, nlohmann::json& responseHeader );
 
 
     size_t parseBlockSizes( nlohmann::json _responseHeader, const ptr<vector<uint64_t>>& _blockSizes );

@@ -68,7 +68,7 @@ CatchupClientAgent::CatchupClientAgent(Schain &_sChain) : Agent(_sChain, false) 
 
 
 nlohmann::json CatchupClientAgent::readCatchupResponseHeader(const ptr<ClientSocket> &_socket) {
-    CHECK_ARGUMENT(_socket);
+    CHECK_ARGUMENT(_socket)
     auto result =
             sChain->getIo()->readJsonHeader(_socket->getDescriptor(), "Read catchup response",
                                             30,
@@ -83,7 +83,7 @@ nlohmann::json CatchupClientAgent::readCatchupResponseHeader(const ptr<ClientSoc
                to_string(getSchain()->getLastCommittedBlockID()));
 
     auto header = make_shared<CatchupRequestHeader>(*sChain, _dstIndex);
-    CHECK_STATE(_dstIndex != (uint64_t) getSchain()->getSchainIndex());
+    CHECK_STATE(_dstIndex != (uint64_t) getSchain()->getSchainIndex())
 
     if (getSchain()->getDeathTimeMs((uint64_t) _dstIndex) + NODE_DEATH_INTERVAL_MS >
         Time::getCurrentTimeMs()) {
@@ -93,7 +93,7 @@ nlohmann::json CatchupClientAgent::readCatchupResponseHeader(const ptr<ClientSoc
     }
     auto socket = make_shared<ClientSocket>(*sChain, _dstIndex, CATCHUP);
     auto io = getSchain()->getIo();
-    CHECK_STATE(io);
+    CHECK_STATE(io)
 
     try {
         io->writeMagic(socket);
@@ -150,7 +150,7 @@ nlohmann::json CatchupClientAgent::readCatchupResponseHeader(const ptr<ClientSoc
     try {
         blocks = readMissingBlocks(socket, response);
 
-        CHECK_STATE(blocks);
+        CHECK_STATE(blocks)
     } catch (ExitRequestedException &) {
         throw;
     } catch (...) {
@@ -170,7 +170,7 @@ size_t CatchupClientAgent::parseBlockSizes(
         nlohmann::json _responseHeader, const ptr<vector<uint64_t>> &_blockSizes) {
     nlohmann::json jsonSizes = _responseHeader["sizes"];
 
-    CHECK_ARGUMENT(_blockSizes);
+    CHECK_ARGUMENT(_blockSizes)
 
 
     if (!jsonSizes.is_array()) {
@@ -179,7 +179,7 @@ size_t CatchupClientAgent::parseBlockSizes(
     }
 
 
-    if (jsonSizes.size() == 0) {
+    if (jsonSizes.empty()) {
         BOOST_THROW_EXCEPTION(NetworkProtocolException("JSON sizes is empty", __CLASS_NAME__));
     }
 
@@ -201,13 +201,13 @@ size_t CatchupClientAgent::parseBlockSizes(
     }
 
     return totalSize + 2;
-};
+}
 
 
 ptr<CommittedBlockList> CatchupClientAgent::readMissingBlocks(
-        ptr<ClientSocket> &_socket, nlohmann::json responseHeader) {
-    CHECK_ARGUMENT(responseHeader > 0);
-    CHECK_ARGUMENT(_socket);
+        ptr<ClientSocket> &_socket, nlohmann::json& responseHeader) {
+    CHECK_ARGUMENT(responseHeader > 0)
+    CHECK_ARGUMENT(_socket)
 
     auto blockSizes = make_shared<vector<uint64_t> >();
 
@@ -235,7 +235,7 @@ ptr<CommittedBlockList> CatchupClientAgent::readMissingBlocks(
     try {
         blockList = CommittedBlockList::deserialize(
                 getSchain()->getCryptoManager(), blockSizes, serializedBlocks, 0);
-        CHECK_STATE(blockList);
+        CHECK_STATE(blockList)
     }
     catch (ExitRequestedException &) { throw; }
     catch (...) {
@@ -266,7 +266,7 @@ ptr<CommittedBlockList> CatchupClientAgent::readMissingBlocks(
 void CatchupClientAgent::workerThreadItemSendLoop(CatchupClientAgent *_agent) {
     setThreadName("CatchupClient", _agent->getNode()->getConsensusEngine());
 
-    CHECK_ARGUMENT(_agent);
+    CHECK_ARGUMENT(_agent)
 
     _agent->waitOnGlobalStartBarrier();
 
@@ -308,7 +308,7 @@ void CatchupClientAgent::workerThreadItemSendLoop(CatchupClientAgent *_agent) {
             }
 
             destinationSchainIndex = nextSyncNodeIndex(_agent, destinationSchainIndex);
-        };
+        }
     } catch (FatalError &e) {
         SkaleException::logNested(e);
         _agent->getNode()->exitOnFatalError(e.what());
@@ -318,7 +318,7 @@ void CatchupClientAgent::workerThreadItemSendLoop(CatchupClientAgent *_agent) {
 schain_index CatchupClientAgent::nextSyncNodeIndex(
         const CatchupClientAgent *_agent, schain_index _destinationSchainIndex) {
 
-    CHECK_ARGUMENT(_agent);
+    CHECK_ARGUMENT(_agent)
 
     auto nodeCount = (uint64_t) _agent->getSchain()->getNodeCount();
 
