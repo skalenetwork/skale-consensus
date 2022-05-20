@@ -38,7 +38,7 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ec15c893-7f20-4493-be40-38b8f69efc54" name="Default Changelist" comment="88: Tuning chains">
+    <list default="true" id="ec15c893-7f20-4493-be40-38b8f69efc54" name="Default Changelist" comment="#127 log tuneup">
       <change afterPath="$PROJECT_DIR$/deps/BLAKE3/c/libblake3.a" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/deps/argtable2/build/CMakeCache.txt" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/deps/argtable2/build/CMakeFiles/3.16.3/CMakeCCompiler.cmake" afterDir="false" />
@@ -351,12 +351,14 @@
       <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/stamp-h1" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/test-driver" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/w32/VS2013/microhttpd_dll_res_vc.rc" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/json/JSONFactory.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/json/JSONFactory.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/blockfinalize/client/BlockFinalizeDownloader.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/blockfinalize/client/BlockFinalizeDownloader.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/blockfinalize/client/BlockFinalizeDownloader.h" beforeDir="false" afterPath="$PROJECT_DIR$/blockfinalize/client/BlockFinalizeDownloader.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/catchup/client/CatchupClientAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/catchup/client/CatchupClientAgent.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/catchup/client/CatchupClientAgent.h" beforeDir="false" afterPath="$PROJECT_DIR$/catchup/client/CatchupClientAgent.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libBLS" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libBLS/deps/libff/depends/xbyak" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/deps/libff/depends/xbyak" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/node/Node.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/node/Node.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/node/Node.h" beforeDir="false" afterPath="$PROJECT_DIR$/node/Node.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/sgxwallet" beforeDir="false" afterPath="$PROJECT_DIR$/sgxwallet" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -376,7 +378,7 @@
     </option>
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="amsterdam_fix" />
+        <entry key="$PROJECT_DIR$" value="develop" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -420,8 +422,11 @@
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
   </component>
+  <component name="NamedScopeManager">
+    <scope name="Unnamed" pattern="file[mapreduce_consensus]:abstracttcpclient/*||file[mapreduce_consensus]:abstracttcpserver/*||file[mapreduce_consensus]:blockfinalize/*||file[mapreduce_consensus]:blockproposal/*||file[mapreduce_consensus]:abstracttcpclient//*||file[mapreduce_consensus]:abstracttcpserver//*||file[mapreduce_consensus]:blockfinalize//*||file[mapreduce_consensus]:blockproposal//*||file[mapreduce_consensus]:chains//*||file[mapreduce_consensus]:crypto//*||file[mapreduce_consensus]:datastructures//*||file[mapreduce_consensus]:db//*||file[mapreduce_consensus]:exceptions//*||file[mapreduce_consensus]:json//*||file[mapreduce_consensus]:catchup//*||file[mapreduce_consensus]:messages//*||file[mapreduce_consensus]:monitoring//*||file[mapreduce_consensus]:network//*||file[mapreduce_consensus]:node//*||file[mapreduce_consensus]:oracle//*||file[mapreduce_consensus]:pendingqueue//*||file[mapreduce_consensus]:pricing//*||file[mapreduce_consensus]:protocols//*||file[mapreduce_consensus]:sgxclient//*||file[mapreduce_consensus]:utils//*" />
+  </component>
   <component name="ProblemsViewState">
-    <option name="selectedIndex" value="1" />
+    <option name="selectedTabId" value="ProjectErrors" />
   </component>
   <component name="ProjectId" id="1tLjZg8PrXyNb5KH1T9D17V0hIk" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
@@ -692,27 +697,7 @@
       <workItem from="1651237158179" duration="9181000" />
       <workItem from="1651576809113" duration="6838000" />
       <workItem from="1651590595897" duration="2369000" />
-    </task>
-    <task id="LOCAL-00090" summary="bug/SKALE-4352">
-      <created>1634047014474</created>
-      <option name="number" value="00090" />
-      <option name="presentableId" value="LOCAL-00090" />
-      <option name="project" value="LOCAL" />
-      <updated>1634047014474</updated>
-    </task>
-    <task id="LOCAL-00091" summary="bug/SKALE-4352">
-      <created>1634116922965</created>
-      <option name="number" value="00091" />
-      <option name="presentableId" value="LOCAL-00091" />
-      <option name="project" value="LOCAL" />
-      <updated>1634116922965</updated>
-    </task>
-    <task id="LOCAL-00092" summary="bug/SKALE-4352">
-      <created>1634118969524</created>
-      <option name="number" value="00092" />
-      <option name="presentableId" value="LOCAL-00092" />
-      <option name="project" value="LOCAL" />
-      <updated>1634118969524</updated>
+      <workItem from="1653048605616" duration="3719000" />
     </task>
     <task id="LOCAL-00093" summary="bug/SKALE-4352">
       <created>1634133299846</created>
@@ -1036,7 +1021,28 @@
       <option name="project" value="LOCAL" />
       <updated>1651589171845</updated>
     </task>
-    <option name="localTasksCounter" value="139" />
+    <task id="LOCAL-00139" summary="#127 log tuneup">
+      <created>1653048784014</created>
+      <option name="number" value="00139" />
+      <option name="presentableId" value="LOCAL-00139" />
+      <option name="project" value="LOCAL" />
+      <updated>1653048784015</updated>
+    </task>
+    <task id="LOCAL-00140" summary="#127 log tuneup">
+      <created>1653050459265</created>
+      <option name="number" value="00140" />
+      <option name="presentableId" value="LOCAL-00140" />
+      <option name="project" value="LOCAL" />
+      <updated>1653050459265</updated>
+    </task>
+    <task id="LOCAL-00141" summary="#127 log tuneup">
+      <created>1653051040732</created>
+      <option name="number" value="00141" />
+      <option name="presentableId" value="LOCAL-00141" />
+      <option name="project" value="LOCAL" />
+      <updated>1653051040732</updated>
+    </task>
+    <option name="localTasksCounter" value="142" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -1090,7 +1096,8 @@
     <MESSAGE value="bug/SKALE-4593" />
     <MESSAGE value="bug/SKALE-4616-oracle-mvp" />
     <MESSAGE value="88: Tuning chains" />
-    <option name="LAST_COMMIT_MESSAGE" value="88: Tuning chains" />
+    <MESSAGE value="#127 log tuneup" />
+    <option name="LAST_COMMIT_MESSAGE" value="#127 log tuneup" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

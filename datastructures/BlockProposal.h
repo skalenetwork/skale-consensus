@@ -132,7 +132,7 @@ public:
         Schain* _sChain, const ptr< BlockProposal >& _proposal );
 
     static ptr< BlockProposal > deserialize(
-        const ptr< vector< uint8_t > >& _serializedProposal, const ptr< CryptoManager >& _manager );
+        const ptr< vector< uint8_t > >& _serializedProposal, const ptr< CryptoManager >& _manager, bool _verifySig );
 
     static ptr< BlockProposal > defragment( const ptr< BlockProposalFragmentList >& _fragmentList,
         const ptr< CryptoManager >& _cryptoManager );

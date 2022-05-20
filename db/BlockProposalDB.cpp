@@ -157,7 +157,9 @@ ptr<BlockProposal> BlockProposalDB::getBlockProposal(block_id _blockID, schain_i
     if (serializedProposal == nullptr)
         return nullptr;
 
-    auto proposal = BlockProposal::deserialize(serializedProposal, getSchain()->getCryptoManager());
+
+    // dont check signatures on proposals stored in the db since they have already been verified
+    auto proposal = BlockProposal::deserialize(serializedProposal, getSchain()->getCryptoManager(), false);
 
     if (proposal == nullptr)
         return nullptr;

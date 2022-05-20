@@ -197,7 +197,7 @@ uint64_t BlockFinalizeDownloader::readFragmentSize(nlohmann::json _responseHeade
     }
 
     return result;
-};
+}
 
 uint64_t BlockFinalizeDownloader::readBlockSize(nlohmann::json _responseHeader) {
     uint64_t result = Header::getUint64(_responseHeader, "blockSize");
@@ -207,22 +207,22 @@ uint64_t BlockFinalizeDownloader::readBlockSize(nlohmann::json _responseHeader) 
     }
 
     return result;
-};
+}
 
 string BlockFinalizeDownloader::readBlockHash(nlohmann::json _responseHeader) {
     auto result = Header::getString(_responseHeader, "blockHash");
     return result;
-};
+}
 
 ptr<BlockProposalFragment>
 BlockFinalizeDownloader::readBlockFragment(const ptr<ClientSocket>& _socket, nlohmann::json responseHeader,
                                            fragment_index _fragmentIndex, node_count _nodeCount) {
 
-    CHECK_ARGUMENT(_socket);
+    CHECK_ARGUMENT(_socket)
 
-    CHECK_ARGUMENT(responseHeader > 0);
+    CHECK_ARGUMENT(responseHeader > 0)
 
-    MONITOR(__CLASS_NAME__, __FUNCTION__);
+    MONITOR(__CLASS_NAME__, __FUNCTION__)
 
     auto fragmentSize = readFragmentSize(responseHeader);
     auto blockSize = readBlockSize(responseHeader);
@@ -257,7 +257,7 @@ BlockFinalizeDownloader::readBlockFragment(const ptr<ClientSocket>& _socket, nlo
 void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(BlockFinalizeDownloader * _agent, schain_index _dstIndex) {
 
 
-    CHECK_STATE( _agent );
+    CHECK_STATE( _agent )
 
 
     auto sChain = _agent->getSchain();
@@ -304,7 +304,7 @@ void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(BlockFinalizeDown
 
                 if (proposalDB->proposalExists(blockId, proposerIndex)) {
                     auto proposal = proposalDB->getBlockProposal( _agent->blockId, _agent->proposerIndex);
-                    CHECK_STATE(proposal);
+                    CHECK_STATE(proposal)
                     if (daProofDB->haveDAProof(proposal)) {
                         return;
                     }
@@ -330,8 +330,8 @@ void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(BlockFinalizeDown
                 if( _agent->fragmentList.isComplete() )
                     return;
                 usleep( static_cast< __useconds_t >( node->getWaitAfterNetworkErrorMs() * 1000 ) );
-            };
-        };
+            }
+        }
     } catch (FatalError& e) {
         SkaleException::logNested( e );
         node->exitOnFatalError(e.what());
@@ -340,7 +340,7 @@ void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(BlockFinalizeDown
 
 ptr<BlockProposal> BlockFinalizeDownloader::downloadProposal() {
 
-    MONITOR(__CLASS_NAME__, __FUNCTION__);
+    MONITOR(__CLASS_NAME__, __FUNCTION__)
 
     {
         threadPool = make_shared<BlockFinalizeDownloaderThreadPool>((uint64_t) getSchain()->getNodeCount(), this);
@@ -351,8 +351,10 @@ ptr<BlockProposal> BlockFinalizeDownloader::downloadProposal() {
     try {
 
         if (fragmentList.isComplete()) {
-            auto block = BlockProposal::deserialize(fragmentList.serialize(), getSchain()->getCryptoManager());
-            CHECK_STATE(block);
+            auto block = BlockProposal::deserialize(fragmentList.serialize(), getSchain()->getCryptoManager(),
+                                                    true);
+            CHECK_STATE(block)
+            CHECK_STATE(block->getProposerIndex() == (uint64_t) proposerIndex);
             return block;
         } else {
             return nullptr;

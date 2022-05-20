@@ -905,7 +905,8 @@ bool CryptoManager::sessionVerifySigAndKey(BLAKE3Hash &_hash, const string &_sig
             if (isSGXEnabled) {
                 auto pkeyHash = calculatePublicKeyHash(_publicKey, _blockID);
                 if (!verifyECDSASig(pkeyHash, pkSig, _nodeId)) {
-                    LOG(warn, "PubKey ECDSA sig did not verify");
+                    LOG(err, "PubKey ECDSA sig did not verify NODE_ID:" +
+                    to_string((uint64_t) _nodeId));
                     return false;
                 }
                 sessionPublicKeys.put(pkSig, _publicKey);
@@ -914,7 +915,7 @@ bool CryptoManager::sessionVerifySigAndKey(BLAKE3Hash &_hash, const string &_sig
     }
 
     if (!sessionVerifyEdDSASig(_hash, _sig, _publicKey)) {
-        LOG(warn, "ECDSA sig did not verify");
+        LOG(err, "ECDSA sig did not verify");
         return false;
     }
 

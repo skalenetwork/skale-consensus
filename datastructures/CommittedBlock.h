@@ -70,7 +70,8 @@ public:
 
 
     static ptr< CommittedBlock > deserialize(
-        const ptr<vector<uint8_t>>& _serializedBlock, const ptr< CryptoManager >& _manager );
+        const ptr<vector<uint8_t>>& _serializedBlock, const ptr< CryptoManager >& _manager,
+        bool _verifySig);
 
 
     static ptr< CommittedBlock > createRandomSample( const ptr< CryptoManager >& _manager,

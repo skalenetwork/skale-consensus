@@ -145,7 +145,7 @@ class CryptoManager  {
     tuple< string, string, string > sessionSign(
         BLAKE3Hash & _hash, block_id _blockId );
 
-    bool verifyECDSASig( BLAKE3Hash & _hash, const string& _sig, node_id _nodeId );
+    [[nodiscard]] bool verifyECDSASig( BLAKE3Hash & _hash, const string& _sig, node_id _nodeId );
 
     ptr< ThresholdSigShare > signSigShare(
         BLAKE3Hash & _hash, block_id _blockId, bool _forceMockup );
@@ -176,7 +176,7 @@ public:
 
     static void setRetryHappened( bool retryHappened );
 
-    bool sessionVerifyEdDSASig(
+    [[nodiscard]] bool sessionVerifyEdDSASig(
         BLAKE3Hash & _hash, const string& _sig, const string& _publicKey );
     // This constructor is used for testing
     CryptoManager( uint64_t _totalSigners, uint64_t _requiredSigners, bool _isSGXEnabled,
@@ -206,7 +206,7 @@ public:
 
     void signProposal( BlockProposal* _proposal );
 
-    bool verifyProposalECDSA(
+    [[nodiscard]] bool verifyProposalECDSA(
         const ptr< BlockProposal >& _proposal, const string& _hashStr, const string& _signature );
 
     tuple< ptr< ThresholdSigShare >, string, string, string > signDAProof(
@@ -219,7 +219,7 @@ public:
 
     tuple< string, string, string > signNetworkMsg( NetworkMessage& _msg );
 
-    bool verifyNetworkMsg( NetworkMessage& _msg );
+    [[nodiscard]] bool verifyNetworkMsg( NetworkMessage& _msg );
 
     static ptr< void > decodeSGXPublicKey( const string& _keyHex );
 
@@ -236,7 +236,7 @@ public:
     tuple< string, string, string > sessionSignECDSA(
         BLAKE3Hash & _hash, block_id _blockID );
 
-    bool verifyECDSA(
+    [[nodiscard]] bool verifyECDSA(
         BLAKE3Hash & _hash, const string& _sig, const string& _publicKey );
 
 
@@ -247,10 +247,9 @@ public:
     static const string& getSgxUrl();
     static void setSgxUrl( const string& sgxUrl );
 
-
     static BLAKE3Hash calculatePublicKeyHash( string publicKey, block_id _blockID );
 
-    bool sessionVerifySigAndKey( BLAKE3Hash& _hash, const string& _sig,
+    [[nodiscard]] bool sessionVerifySigAndKey( BLAKE3Hash& _hash, const string& _sig,
         const string& _publicKey, const string& pkSig, block_id _blockID, node_id _nodeId );
 
     void exitZMQClient();
