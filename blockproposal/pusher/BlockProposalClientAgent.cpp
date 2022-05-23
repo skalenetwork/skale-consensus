@@ -324,7 +324,8 @@ pair< ConnectionStatus, ConnectionSubStatus > BlockProposalClientAgent::sendBloc
     auto h = _proposal->getHash();
 
     getSchain()->getCryptoManager()->verifyDAProofSigShare(
-        sigShare, _index, h, getSchain()->getNodeIDByIndex( _index ), false );
+        sigShare, _index, h, getSchain()->getNodeIDByIndex( _index ), false,
+        getSchain()->getLastCommittedBlockTimeStamp().getLinuxTimeMs());
 
     CHECK_STATE( sigShare );
 
@@ -337,7 +338,7 @@ pair< ConnectionStatus, ConnectionSubStatus > BlockProposalClientAgent::sendBloc
     try {
         getSchain()->getCryptoManager()->sessionVerifySigAndKey( hash,
         finalHeader->getSignature(), finalHeader->getPublicKey(), finalHeader->getPublicKeySig(),
-        _proposal->getBlockID(), nodeInfo->getNodeID() );
+        _proposal->getBlockID(), nodeInfo->getNodeID(), _proposal->getTimeStampMs() );
     } catch (...) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }

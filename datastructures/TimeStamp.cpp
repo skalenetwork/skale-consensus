@@ -74,3 +74,7 @@ TimeStamp  TimeStamp::incrementByMs() {
 
     return TimeStamp ( sec, msec );
 }
+
+uint64_t TimeStamp::getLinuxTimeMs() const {
+    return 1000 * s + ms;
+}

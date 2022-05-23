@@ -535,13 +535,13 @@ void CryptoManager::sessionVerifyEdDSASig(
 
 
 void CryptoManager::verifyECDSASig(
-        BLAKE3Hash &_hash, const string &_sig, node_id _nodeId) {
+        BLAKE3Hash &_hash, const string &_sig, node_id _nodeId, uint64_t _timeStamp) {
     CHECK_ARGUMENT(!_sig.empty())
 
     if (isSGXEnabled) {
         string pubKey;
 
-        pubKey = getECDSAPublicKeyForNodeId(_nodeId);
+        pubKey = getECDSAPublicKeyForNodeId(_nodeId, _timeStamp);
 
         CHECK_STATE2(!pubKey.empty(), "Sig verification failed: empty pub key");
 
@@ -687,7 +687,7 @@ ptr<ThresholdSigShare> CryptoManager::signDAProofSigShare(
 
 void CryptoManager::verifyDAProofSigShare(ptr<ThresholdSigShare> _sigShare,
                                           schain_index _schainIndex, BLAKE3Hash &_hash, node_id _nodeId,
-                                          bool _forceMockup) {
+                                          bool _forceMockup, uint64_t _timeStamp) {
 
     MONITOR(__CLASS_NAME__, __FUNCTION__)
 
@@ -696,7 +696,7 @@ void CryptoManager::verifyDAProofSigShare(ptr<ThresholdSigShare> _sigShare,
 
         CHECK_STATE(sShare);
 
-        sShare->verify(*this, _schainIndex, _hash, _nodeId);
+        sShare->verify(*this, _schainIndex, _hash, _nodeId, _timeStamp);
 
         return;
 
@@ -892,7 +892,8 @@ void CryptoManager::verifyNetworkMsg(NetworkMessage &_msg) {
     auto blockId = _msg.getBlockID();
     auto nodeId = _msg.getSrcNodeID();
     try {
-        sessionVerifySigAndKey(hash, sig, publicKey, pkSig, blockId, nodeId);
+        sessionVerifySigAndKey(hash, sig, publicKey, pkSig, blockId, nodeId,
+                               getSchain()->getLastCommittedBlockTimeStamp().getLinuxTimeMs());
     } catch (...) {
         throw_with_nested(InvalidStateException(__FUNCTION__ , __CLASS_NAME__));
     }
@@ -901,7 +902,7 @@ void CryptoManager::verifyNetworkMsg(NetworkMessage &_msg) {
 
 void CryptoManager::sessionVerifySigAndKey(BLAKE3Hash &_hash, const string &_sig,
                                            const string &_publicKey, const string &pkSig, block_id _blockID,
-                                           node_id _nodeId) {
+                                           node_id _nodeId, uint64_t _timeStamp) {
     MONITOR(__CLASS_NAME__, __FUNCTION__);
 
 
@@ -918,7 +919,7 @@ void CryptoManager::sessionVerifySigAndKey(BLAKE3Hash &_hash, const string &_sig
             if (isSGXEnabled) {
                 auto pkeyHash = calculatePublicKeyHash(_publicKey, _blockID);
                 try {
-                    verifyECDSASig(pkeyHash, pkSig, _nodeId);
+                    verifyECDSASig(pkeyHash, pkSig, _nodeId, _timeStamp);
                 } catch (...) {
                     LOG(err, "PubKey ECDSA sig did not verify NODE_ID:" + to_string((uint64_t) _nodeId));
                     throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
@@ -949,7 +950,7 @@ void CryptoManager::verifyProposalECDSA(
     CHECK_STATE2(hash.toHex() == _hashStr, "Incorrect proposal hash");
 
     try {
-        verifyECDSASig(hash, _signature, _proposal->getProposerNodeID());
+        verifyECDSASig(hash, _signature, _proposal->getProposerNodeID(), _proposal->getTimeStampMs());
     } catch (...){
         LOG(err, "ECDSA sig did not verify");
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));

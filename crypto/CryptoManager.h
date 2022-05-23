@@ -145,7 +145,7 @@ class CryptoManager  {
     tuple< string, string, string > sessionSign(
         BLAKE3Hash & _hash, block_id _blockId );
 
-    void verifyECDSASig( BLAKE3Hash & _hash, const string& _sig, node_id _nodeId );
+    void verifyECDSASig( BLAKE3Hash & _hash, const string& _sig, node_id _nodeId, uint64_t _timeStamp );
 
     ptr< ThresholdSigShare > signSigShare(
         BLAKE3Hash & _hash, block_id _blockId, bool _forceMockup );
@@ -190,7 +190,7 @@ public:
 
 
     void verifyDAProofSigShare( ptr< ThresholdSigShare > _sigShare, schain_index _schainIndex,
-        BLAKE3Hash & _hash, node_id _nodeId, bool _forceMockup );
+        BLAKE3Hash & _hash, node_id _nodeId, bool _forceMockup, uint64_t _timeStamp );
 
     ptr< ThresholdSignature > verifyDAProofThresholdSig(
         BLAKE3Hash & _hash, const string& _signature, block_id _blockId );
@@ -250,7 +250,7 @@ public:
     static BLAKE3Hash calculatePublicKeyHash( string publicKey, block_id _blockID );
 
     void sessionVerifySigAndKey( BLAKE3Hash& _hash, const string& _sig,
-        const string& _publicKey, const string& pkSig, block_id _blockID, node_id _nodeId );
+        const string& _publicKey, const string& pkSig, block_id _blockID, node_id _nodeId, uint64_t _timeStamp );
 
     void exitZMQClient();
 
@@ -292,7 +292,7 @@ public:
     void checkZMQStatusIfUnknownECDSA(const string &_keyName);
     void checkZMQStatusIfUnknownBLS();
 
-    string getECDSAPublicKeyForNodeId(const node_id &_nodeId, uint64_t _timeStamp = (uint64_t) -1);
+    string getECDSAPublicKeyForNodeId(const node_id &_nodeId, uint64_t _timeStamp);
 
     string getECDSAHistoricPublicKeyForNodeId(uint64_t _nodeId, uint64_t _timeStamp);
 };
