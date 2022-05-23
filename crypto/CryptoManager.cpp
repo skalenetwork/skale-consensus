@@ -940,7 +940,7 @@ void CryptoManager::sessionVerifySigAndKey(BLAKE3Hash &_hash, const string &_sig
     try {
         sessionVerifyEdDSASig(_hash, _sig, _publicKey);
     } catch (...) {
-        LOG(err, "ECDSA sig did not verify");
+        LOG(err, "sessionVerifySigAndKey ECDSA sig did not verify");
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
 }
@@ -960,7 +960,7 @@ void CryptoManager::verifyProposalECDSA(
     try {
         verifyECDSASig(hash, _signature, _proposal->getProposerNodeID(), _proposal->getTimeStampMs());
     } catch (...) {
-        LOG(err, "ECDSA sig did not verify");
+        LOG(err, "verifyProposalECDSA:  ECDSA sig did not verify");
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
 }
