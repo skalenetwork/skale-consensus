@@ -119,11 +119,11 @@ string blsKeyToString(ptr<BLSPublicKey> _pk) {
 }
 
 pair<ptr<BLSPublicKey>, ptr<BLSPublicKey >> CryptoManager::getSgxBlsPublicKey(uint64_t _timestamp) {
-    LOG(info, string("Looking for BLS public key for timestamp ") + std::to_string(_timestamp) +
+    LOG(debug, string("Looking for BLS public key for timestamp ") + std::to_string(_timestamp) +
               string(" to verify a block came through catchup"));
     if (_timestamp == uint64_t(-1) || previousBlsPublicKeys->size() < 2) {
         CHECK_STATE(sgxBLSPublicKey)
-        LOG(info, string("Got current BLS public key ") + blsKeyToString(sgxBLSPublicKey));
+        LOG(debug, string("Got current BLS public key ") + blsKeyToString(sgxBLSPublicKey));
         return {sgxBLSPublicKey, nullptr};
     } else {
         // second key is used when the sig corresponds
@@ -581,7 +581,7 @@ string CryptoManager::getECDSAPublicKeyForNodeId(const node_id &_nodeId, uint64_
     {
         LOCK(ecdsaPublicKeyMapLock)
 
-        if (ecdsaPublicKeyMap.count((uint64_t) _nodeId) == 0) {
+        if (ecdsaPublicKeyMap.count((uint64_t) _nodeId) > 0) {
             // nodeId found in the current set of nodes
             result = ecdsaPublicKeyMap.at((uint64_t) _nodeId);
             return result;
