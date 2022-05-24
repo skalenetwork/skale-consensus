@@ -525,6 +525,7 @@ void CryptoManager::sessionVerifyEdDSASig(
         try {
             pkey->verifySig(_sig, (const char *) _hash.data());
         } catch (...) {
+            LOG(err, "Could not verify EdDSA sig");
             throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
         }
     } else {
@@ -551,7 +552,7 @@ void CryptoManager::verifyECDSASig(
 
         pubKey = getECDSAPublicKeyForNodeId(_nodeId, _timeStamp);
 
-        CHECK_STATE2(!pubKey.empty(), "Sig verification failed: empty pub key");
+        CHECK_STATE2(!pubKey.empty(), "Sig verification failed: could not find ECDSA key for nodeId");
 
         try {
             verifyECDSA(_hash, _sig, pubKey);
@@ -605,13 +606,10 @@ string CryptoManager::getECDSAPublicKeyForNodeId(const node_id &_nodeId, uint64_
 // get ECDSA public key for nodeID and time stamp. Time stamp (uint64_t)-1 is current time.
 // If not found, return empty string;
 string CryptoManager::getECDSAHistoricPublicKeyForNodeId(uint64_t _nodeId,
-                                                         uint64_t /*_timeStamp*/
-) {
-    try {
+                                                         uint64_t /*_timeStamp*/ ) {
+    if (historicECDSAPublicKeys->count(_nodeId) > 0)
         return historicECDSAPublicKeys->at(_nodeId);
-    } catch (std::out_of_range &) {
-        return "";
-    }
+    else return "";
 }
 
 
