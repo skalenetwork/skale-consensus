@@ -38,7 +38,9 @@ public:
                                               const ptr< vector<string> >& _ecdsaPublicKeys, const string& _blsKeyName,
                                               const ptr< vector< ptr< vector<string>>>>& _blsPublicKeys,
                                               const ptr< BLSPublicKey >& _blsPublicKey,
-                                              const ptr< map< uint64_t, ptr< BLSPublicKey > > >& _previousBlsPublicKeys);
+                                              const ptr< map< uint64_t, ptr< BLSPublicKey > > >& _previousBlsPublicKeys,
+                                              const ptr< map< uint64_t, string > >& _historicECDSAPublicKeys,
+                                              const ptr< map< uint64_t, vector< uint64_t > > >& _historicNodeGroups);
 
     static ptr< Node > createNodeFromJsonObject(
         const nlohmann::json& _j, set< node_id >& nodeIDs, ConsensusEngine* _engine, bool _useSGX,
@@ -47,7 +49,9 @@ public:
         const string& _ecdsaKeyName, const ptr< vector<string> >& _ecdsaPublicKeys,
         const string& _blsKeyName, const ptr< vector< ptr< vector<string>>>>& _blsPublicKeys,
         const ptr< BLSPublicKey >& _blsPublicKey, string& _gethURL,
-        const ptr< map< uint64_t, ptr< BLSPublicKey > > >& _previousBlsPublicKeys
+        const ptr< map< uint64_t, ptr< BLSPublicKey > > >& _previousBlsPublicKeys,
+        const ptr< map< uint64_t, string > >& _historicECDSAPublicKeys,
+        const ptr< map< uint64_t, vector< uint64_t > > >& _historicNodeGroups
     );
 
     static void createAndAddSChainFromJson(

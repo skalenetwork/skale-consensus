@@ -132,6 +132,10 @@ class Node {
 
     ptr< map< uint64_t, ptr< BLSPublicKey > > > previousBlsPublicKeys;
 
+    ptr< map< uint64_t, string > > historicECDSAPublicKeys;
+
+    ptr< map< uint64_t, vector< uint64_t > > > historicNodeGroups;
+
     string sgxURL;
 
     string sgxSSLKeyFileFullPath;
@@ -223,6 +227,10 @@ public:
 
     ptr< map< uint64_t, ptr< BLSPublicKey > > > getPreviousBLSPublicKeys();
 
+    ptr< map< uint64_t, string > > getHistoricECDSAPublicKeys();
+
+    ptr< map< uint64_t, vector< uint64_t > > > getHistoricNodeGroups();
+
     bool isSgxEnabled();
 
     [[nodiscard]] const ptr< TestConfig >& getTestConfig() const;
@@ -282,6 +290,8 @@ public:
         string _blsKeyName, ptr< vector< ptr< vector<string>>>> _blsPublicKeys,
         ptr< BLSPublicKey > _blsPublicKey, string& _gethURL,
         ptr< map< uint64_t, ptr< BLSPublicKey > > > _previousBlsPublicKeys,
+        ptr< map< uint64_t, string > > _historicECDSAPublicKeys,
+        ptr< map< uint64_t, vector< uint64_t > > > _historicNodeGroups,
         bool _isSyncNode);
 
 

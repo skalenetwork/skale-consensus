@@ -110,6 +110,8 @@ class CryptoManager  {
 
     ptr< map< uint64_t, string > > historicECDSAPublicKeys;
 
+    ptr<map<uint64_t, vector<uint64_t>>> historicNodeGroups;
+
     uint64_t totalSigners;
     uint64_t requiredSigners;
 

@@ -68,7 +68,9 @@ ptr<Node> JSONFactory::createNodeFromTestJsonFile(
         const ptr<vector<string> > &_ecdsaPublicKeys, const string &_blsKeyName,
         const ptr<vector<ptr<vector<string>>>> &_blsPublicKeys,
         const ptr<BLSPublicKey> &_blsPublicKey,
-        const ptr<map<uint64_t, ptr<BLSPublicKey> > > &_previousBlsPublicKeys) {
+        const ptr<map<uint64_t, ptr<BLSPublicKey> > > &_previousBlsPublicKeys,
+        const ptr< map< uint64_t, string > >& _historicECDSAPublicKeys,
+        const ptr< map< uint64_t, vector< uint64_t > > >& _historicNodeGroups) {
 
     string sgxUrl = "";
 
@@ -97,7 +99,7 @@ ptr<Node> JSONFactory::createNodeFromTestJsonFile(
                 _sgxSSLCertFileFullPath,
                 _ecdsaKeyName, _ecdsaPublicKeys,
                 _blsKeyName, _blsPublicKeys,
-                _blsPublicKey, gethURL, _previousBlsPublicKeys);
+                _blsPublicKey, gethURL, _previousBlsPublicKeys, _historicECDSAPublicKeys, _historicNodeGroups);
     } catch (...) {
         throw_with_nested(FatalError(__FUNCTION__ + to_string(__LINE__), __CLASS_NAME__));
     }
@@ -114,7 +116,9 @@ ptr<Node> JSONFactory::createNodeFromJsonObject(const nlohmann::json &_j, set<no
                                                 const string &_blsKeyName,
                                                 const ptr<vector<ptr<vector<string>>>> &_blsPublicKeys,
                                                 const ptr<BLSPublicKey> &_blsPublicKey, string &_gethURL,
-                                                const ptr<map<uint64_t, ptr<BLSPublicKey> > > &_previousBlsPublicKeys) {
+                                                const ptr<map<uint64_t, ptr<BLSPublicKey> > > &_previousBlsPublicKeys,
+                                                const ptr< map< uint64_t, string > >& _historicECDSAPublicKeys,
+                                                const ptr< map< uint64_t, vector< uint64_t > > >& _historicNodeGroups) {
 
 
     bool isSyncNode = false;
@@ -148,6 +152,8 @@ ptr<Node> JSONFactory::createNodeFromJsonObject(const nlohmann::json &_j, set<no
         CHECK_ARGUMENT(!_blsKeyName.empty() && _blsPublicKeys);
         CHECK_ARGUMENT(_blsPublicKey);
         CHECK_ARGUMENT(_previousBlsPublicKeys);
+        CHECK_ARGUMENT(_historicECDSAPublicKeys);
+        CHECK_ARGUMENT(_historicNodeGroups);
         CHECK_STATE(JSONFactory::splitString(_ecdsaKeyName)->size() == 2);
         CHECK_STATE(JSONFactory::splitString(_blsKeyName)->size() == 7);
     }
@@ -172,7 +178,7 @@ ptr<Node> JSONFactory::createNodeFromJsonObject(const nlohmann::json &_j, set<no
                                      sgxSSLKeyFileFullPathCopy,
                                      sgxSSLCertFileFullPathCopy,
                                      _ecdsaKeyName, _ecdsaPublicKeys,
-                                     _blsKeyName, _blsPublicKeys, _blsPublicKey, _gethURL, _previousBlsPublicKeys,
+                                     _blsKeyName, _blsPublicKeys, _blsPublicKey, _gethURL, _previousBlsPublicKeys, _historicECDSAPublicKeys, _historicNodeGroups,
                                      isSyncNode);
         } catch (...) {
             throw_with_nested(FatalError("Could not init node", __CLASS_NAME__));
