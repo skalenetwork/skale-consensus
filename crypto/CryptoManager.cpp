@@ -525,6 +525,7 @@ void CryptoManager::sessionVerifyEdDSASig(
         try {
             pkey->verifySig(_sig, (const char *) _hash.data());
         } catch (...) {
+            LOG(err, "Could not verify EdDSA sig");
             throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
         }
     } else {
