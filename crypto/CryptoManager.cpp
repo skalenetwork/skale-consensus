@@ -581,7 +581,7 @@ string CryptoManager::getECDSAPublicKeyForNodeId(const node_id &_nodeId, uint64_
     {
         LOCK(ecdsaPublicKeyMapLock)
 
-        if (ecdsaPublicKeyMap.count((uint64_t) _nodeId) == 0) {
+        if (ecdsaPublicKeyMap.count((uint64_t) _nodeId) > 0) {
             // nodeId found in the current set of nodes
             result = ecdsaPublicKeyMap.at((uint64_t) _nodeId);
             return result;
