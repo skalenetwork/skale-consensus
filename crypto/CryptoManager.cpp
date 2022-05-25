@@ -248,6 +248,8 @@ CryptoManager::CryptoManager(Schain &_sChain)
         sgxBLSPublicKeys = node->getBlsPublicKeys();
         sgxBLSPublicKey = node->getBlsPublicKey();
         previousBlsPublicKeys = node->getPreviousBLSPublicKeys();
+        historicECDSAPublicKeys = node->getHistoricECDSAPublicKeys();
+        historicNodeGroups = node->getHistoricNodeGroups();
         tie(sgxDomainName, sgxPort) = parseSGXDomainAndPort(sgxURL);
 
         CHECK_STATE(sgxURL != "");
@@ -606,10 +608,23 @@ string CryptoManager::getECDSAPublicKeyForNodeId(const node_id &_nodeId, uint64_
 // get ECDSA public key for nodeID and time stamp. Time stamp (uint64_t)-1 is current time.
 // If not found, return empty string;
 string CryptoManager::getECDSAHistoricPublicKeyForNodeId(uint64_t _nodeId,
-                                                         uint64_t /*_timeStamp*/ ) {
-    if (historicECDSAPublicKeys->count(_nodeId) > 0)
-        return historicECDSAPublicKeys->at(_nodeId);
-    else return "";
+                                                      uint64_t _timeStamp
+                                                      ) {
+    vector<uint64_t> nodeIdsInGroup;
+    if ( _timeStamp == uint64_t(-1) ) {
+        nodeIdsInGroup = historicNodeGroups->at(_timeStamp);
+    } else {
+        nodeIdsInGroup = (*historicNodeGroups->upper_bound(_timeStamp)).second;
+    }
+    if ( std::find(nodeIdsInGroup.begin(), nodeIdsInGroup.end(), _nodeId) == nodeIdsInGroup.end() ) {
+        return "";
+    }
+
+    try {
+        return historicECDSAPublicKeys->at( _nodeId );
+    } catch (std::out_of_range&) {
+        return "";
+    }
 }
 
 
