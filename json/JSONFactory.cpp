@@ -91,9 +91,6 @@ ptr<Node> JSONFactory::createNodeFromTestJsonFile(
 
         string gethURL = "";
 
-        auto previousKeys = make_shared<map<uint64_t, ptr<BLSPublicKey>>>();
-
-
         return createNodeFromJsonObject(
                 j, nodeIDs, _consensusEngine, _useSGX,
                 sgxUrl,
@@ -101,7 +98,8 @@ ptr<Node> JSONFactory::createNodeFromTestJsonFile(
                 _sgxSSLCertFileFullPath,
                 _ecdsaKeyName, _ecdsaPublicKeys,
                 _blsKeyName, _blsPublicKeys,
-                _blsPublicKey, gethURL, _previousBlsPublicKeys, _historicECDSAPublicKeys, _historicNodeGroups);
+                _blsPublicKey, gethURL, _previousBlsPublicKeys,
+                _historicECDSAPublicKeys, _historicNodeGroups);
     } catch (...) {
         throw_with_nested(FatalError(__FUNCTION__ + to_string(__LINE__), __CLASS_NAME__));
     }

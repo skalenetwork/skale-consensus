@@ -99,6 +99,8 @@ class CryptoManager  {
 
     map< uint64_t, string > ecdsaPublicKeyMap;  // tsafe
     recursive_mutex ecdsaPublicKeyMapLock;
+    recursive_mutex historicEcdsaPublicKeyMapLock;
+
 
     map< uint64_t, ptr< vector< string > > > blsPublicKeyMap;  // tsafe
 

@@ -92,6 +92,9 @@ Node::Node(const nlohmann::json &_cfg, ConsensusEngine *_consensusEngine,
            ptr< map< uint64_t, vector< uint64_t > > > _historicNodeGroups,
            bool _isSyncNode) : gethURL(_gethURL), isSyncNode(_isSyncNode) {
 
+    historicECDSAPublicKeys = make_shared<map<uint64_t, string>>();
+    historicNodeGroups = make_shared<map<uint64_t, vector< uint64_t>>>();
+
 
 
     // trim slash from URL

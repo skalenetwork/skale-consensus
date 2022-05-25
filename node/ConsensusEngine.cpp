@@ -279,6 +279,11 @@ ptr<Node> ConsensusEngine::readNodeTestConfigFileAndCreateNode(const string path
                                                                ptr< map< uint64_t, ptr< BLSPublicKey > > > _previousBlsPublicKeys,
                                                                ptr< map< uint64_t, string > > _historicECDSAPublicKeys,
                                                                ptr< map< uint64_t, vector< uint64_t > > > _historicNodeGroups) {
+
+    _previousBlsPublicKeys  = make_shared< map< uint64_t, ptr< BLSPublicKey > > >();
+    _historicECDSAPublicKeys = make_shared< map< uint64_t, string>>();
+    _historicNodeGroups = make_shared<map< uint64_t, vector< uint64_t>>>();
+
     try {
         if (_useSGX) {
             CHECK_ARGUMENT(!_ecdsaKeyName.empty() && _ecdsaPublicKeys);

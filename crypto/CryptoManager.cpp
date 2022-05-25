@@ -159,6 +159,7 @@ CryptoManager::CryptoManager(uint64_t _totalSigners, uint64_t _requiredSigners, 
 
 
     historicECDSAPublicKeys = make_shared<map<uint64_t, string>>();
+    historicNodeGroups = make_shared<map<uint64_t, vector< uint64_t>>>();
 
     totalSigners = _totalSigners;
     requiredSigners = _requiredSigners;
@@ -232,6 +233,9 @@ CryptoManager::CryptoManager(Schain &_sChain)
     CHECK_ARGUMENT(totalSigners >= requiredSigners);
 
     isSGXEnabled = _sChain.getNode()->isSgxEnabled();
+
+    historicECDSAPublicKeys = make_shared<map<uint64_t, string>>();
+    historicNodeGroups = make_shared<map<uint64_t, vector< uint64_t>>>();
 
     if (isSGXEnabled) {
         auto node = _sChain.getNode();
@@ -590,18 +594,15 @@ string CryptoManager::getECDSAPublicKeyForNodeId(const node_id &_nodeId, uint64_
             return result;
         }
 
-    }
+        }
 
+        // could not find nodeId in the current 16 node chain
+        // this means the node was probably part of the chain before one of rotations
 
-    // could not find nodeId in the current 16 node chain
-    // this means the node was probably part of the chain before one of rotations
+        // get key from rotation history
+        // return empty string if key is not found
 
-    // get key from rotation history
-    // return empty string if key is not found
-
-    return getECDSAHistoricPublicKeyForNodeId((uint64_t) _nodeId, _timeStamp);
-
-    return result;
+        return getECDSAHistoricPublicKeyForNodeId((uint64_t) _nodeId, _timeStamp);
 }
 
 
@@ -610,19 +611,29 @@ string CryptoManager::getECDSAPublicKeyForNodeId(const node_id &_nodeId, uint64_
 string CryptoManager::getECDSAHistoricPublicKeyForNodeId(uint64_t _nodeId,
                                                       uint64_t _timeStamp
                                                       ) {
+    LOCK(historicEcdsaPublicKeyMapLock);
+
     vector<uint64_t> nodeIdsInGroup;
     if ( _timeStamp == uint64_t(-1) ) {
-        nodeIdsInGroup = historicNodeGroups->at(_timeStamp);
+        if (historicNodeGroups->count(_timeStamp) > 0) {
+            nodeIdsInGroup = historicNodeGroups->at(_timeStamp);
+        } else {
+            LOG(err, "Could not find nodeIds for ECDSA");
+            return "";
+        }
     } else {
         nodeIdsInGroup = (*historicNodeGroups->upper_bound(_timeStamp)).second;
     }
-    if ( std::find(nodeIdsInGroup.begin(), nodeIdsInGroup.end(), _nodeId) == nodeIdsInGroup.end() ) {
+
+    if (find(nodeIdsInGroup.begin(), nodeIdsInGroup.end(), _nodeId) == nodeIdsInGroup.end() ) {
+        LOG(err, "Could not find node in the ECDSA group for this timeStamp");
         return "";
     }
 
-    try {
+    if (historicECDSAPublicKeys->count(_nodeId) > 0) {
         return historicECDSAPublicKeys->at( _nodeId );
-    } catch (std::out_of_range&) {
+    } else {
+        LOG(err, "Could not find nodeId in historic ECDSA public keys");
         return "";
     }
 }
