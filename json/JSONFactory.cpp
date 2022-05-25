@@ -91,6 +91,8 @@ ptr<Node> JSONFactory::createNodeFromTestJsonFile(
 
         string gethURL = "";
 
+        auto previousKeys = make_shared<map<uint64_t, ptr<BLSPublicKey>>>();
+
 
         return createNodeFromJsonObject(
                 j, nodeIDs, _consensusEngine, _useSGX,
