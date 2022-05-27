@@ -534,7 +534,7 @@ void CryptoManager::sessionVerifyEdDSASig(
             LOG(err, "Could not verify EdDSA sig");
             throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
         }
-    } else {
+    } else if (!getSchain()->getNode()->isSyncOnlyNode()) {
         // mockup - used for testing
         if (_sig.find(":") != string::npos) {
             LOG(critical,
@@ -567,7 +567,7 @@ void CryptoManager::verifyECDSASig(
         }
 
 
-    } else {
+    } else if (!getSchain()->getNode()->isSyncOnlyNode()) {
         // mockup - used for testing
         if (_sig.find(":") != string::npos) {
             LOG(critical,
