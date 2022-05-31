@@ -781,17 +781,17 @@ void Schain::bootstrap( block_id _lastCommittedBlockID, uint64_t _lastCommittedB
 
     LOG( info, "Bootstrapping consensus ..." );
 
-    auto _lastCommittedBlockIDInConsensus = readLastCommittedBlockIDFromDb();
+    auto lastCommittedBlockIDInConsensus = readLastCommittedBlockIDFromDb();
 
     LOG(info,
-        "Last committed block in consensus:" + to_string(_lastCommittedBlockIDInConsensus));
+        "Last committed block in consensus:" + to_string(lastCommittedBlockIDInConsensus));
 
     LOG(info,
         "Last committed block in EVM:" + to_string(_lastCommittedBlockID));
 
 
     LOG(info, "Check the consensus database for corruption ...");
-    fixCorruptStateIfNeeded(_lastCommittedBlockIDInConsensus);
+    fixCorruptStateIfNeeded(lastCommittedBlockIDInConsensus);
 
     checkForExit();
 
@@ -799,7 +799,7 @@ void Schain::bootstrap( block_id _lastCommittedBlockID, uint64_t _lastCommittedB
     // catch situations that should never happen
 
 
-    if (_lastCommittedBlockIDInConsensus > _lastCommittedBlockID + 128) {
+    if (lastCommittedBlockIDInConsensus > _lastCommittedBlockID + 128) {
         LOG(critical, "CRITICAL ERROR: consensus has way more blocks than skaled. This should never happen,"
                       "since consensus passes blocks to skaled.");
         BOOST_THROW_EXCEPTION(InvalidStateException(
@@ -808,7 +808,7 @@ void Schain::bootstrap( block_id _lastCommittedBlockID, uint64_t _lastCommittedB
 
 
 
-    if (_lastCommittedBlockIDInConsensus < _lastCommittedBlockID) {
+    if (lastCommittedBlockIDInConsensus < _lastCommittedBlockID) {
 
         LOG(critical, "CRITICAL ERROR: last committed block in consensus is smaller than"
                       " last committed block in skaled. This can never happen because consensus passes blocks to skaled");
@@ -834,7 +834,7 @@ void Schain::bootstrap( block_id _lastCommittedBlockID, uint64_t _lastCommittedB
     // Step 1: solve block id  mismatch. Consensus may have more blocks than skaled
     // this can happen in case skaled crashed , can also happen when starting from a snapshot
 
-    if (_lastCommittedBlockIDInConsensus > _lastCommittedBlockID) {
+    if (lastCommittedBlockIDInConsensus > _lastCommittedBlockID) {
         // consensus has several more blocks than skaled
         // This happens when starting from a snapshot
         // Since the snapshot is taken just before a block is processed
@@ -845,7 +845,7 @@ void Schain::bootstrap( block_id _lastCommittedBlockID, uint64_t _lastCommittedB
         LOG(warn, "Consensus has more blocks than skaled. This should not happen normally since consensus passes"
                  "blocks to skaled.  Skaled may have crashed in the past.");
 
-        while (_lastCommittedBlockIDInConsensus > _lastCommittedBlockID)
+        while (lastCommittedBlockIDInConsensus > _lastCommittedBlockID)
 
         try {
             auto block = getNode()->getBlockDB()->getBlock(
@@ -853,6 +853,8 @@ void Schain::bootstrap( block_id _lastCommittedBlockID, uint64_t _lastCommittedB
            CHECK_STATE2(block, "No block in consensus, repair needed");
             pushBlockToExtFace( block );
             _lastCommittedBlockID = _lastCommittedBlockID + 1;
+            _lastCommittedBlockTimeStamp = block->getTimeStampS();
+            _lastCommittedBlockTimeStampMs = block->getTimeStampMs();
         } catch (...) {
             // Cant read the block from db, may be it is corrupt in the  snapshot
             LOG(err, "Bootstrap could not read block from db. Repair.");
