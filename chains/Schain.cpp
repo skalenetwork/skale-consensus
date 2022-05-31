@@ -821,6 +821,10 @@ void Schain::bootstrap(block_id _lastCommittedBlockID, uint64_t _lastCommittedBl
     LOG(info,
         "Last committed block in skaled:" + to_string(_lastCommittedBlockID));
 
+
+    LOG(info, "Check the consensus database for corruption ...");
+    fixCorruptStateIfNeeded(lastCommittedBlockIDInConsensus);
+
     checkForExit();
 
 
