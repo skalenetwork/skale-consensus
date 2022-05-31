@@ -159,7 +159,8 @@ ptr<CommittedBlock> CommittedBlock::deserialize(
     CHECK_STATE(block);
 
 
-    if (_verifySig) {
+    // default blocks are not ecdsa signed
+    if (_verifySig && (blockHeader->getProposerIndex() != 0)) {
         try {
             _manager->verifyProposalECDSA(block, blockHeader->getBlockHash(), blockHeader->getSignature());
         } catch (...) {

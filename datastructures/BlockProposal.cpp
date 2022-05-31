@@ -306,8 +306,8 @@ ptr<BlockProposal> BlockProposal::deserialize(const ptr<vector<uint8_t> > &_seri
                                                list, blockHeader->getStateRoot(), blockHeader->getTimeStamp(),
                                                blockHeader->getTimeStampMs(),
                                                blockHeader->getSignature(), nullptr);
-
-    if (_verifySig) {
+    // default blocks are not ecdsa signed
+    if (_verifySig && (blockHeader->getProposerIndex() != 0)) {
         try {
             _manager->verifyProposalECDSA(proposal, blockHeader->getBlockHash(), blockHeader->getSignature());
         } catch (...) {
