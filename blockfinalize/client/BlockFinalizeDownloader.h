@@ -93,12 +93,14 @@ public:
 
     ptr<BlockProposal> downloadProposal();
 
-    uint64_t readBlockSize(nlohmann::json _responseHeader);
 
     string readBlockHash(nlohmann::json _responseHeader);
 
     block_id getBlockId();
 
     schain_index getProposerIndex();
+
+    static uint64_t readBlockSize(nlohmann::json _responseHeader);
+
 };
 

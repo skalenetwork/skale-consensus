@@ -49,8 +49,8 @@ class BlockFinalizeDownloader;
 class BlockFinalizeDownloaderThreadPool;
 
 
-
 class SchainMessageThreadPool;
+class OracleMessageThreadPool;
 
 class TestMessageGeneratorAgent;
 class ConsensusExtFace;
@@ -60,6 +60,7 @@ class CatchupServerAgent;
 class MonitoringAgent;
 class TimeoutAgent;
 class StuckDetectionAgent;
+
 
 class BlockProposalServerAgent;
 
@@ -86,6 +87,7 @@ class TimeStamp;
 class CryptoManager;
 class StatusServer;
 class OracleClient;
+class OracleResultAssemblyAgent;
 
 class Schain : public Agent {
 
@@ -132,9 +134,12 @@ class Schain : public Agent {
     ptr< SchainMessageThreadPool > consensusMessageThreadPool;
 
 
+    ptr<OracleResultAssemblyAgent> oracleResultAssemblyAgent;
+
 
     ptr< IO > io;
 
+    // not null in regular mode
     ptr< CryptoManager > cryptoManager;
 
     weak_ptr< Node > node;
@@ -145,6 +150,7 @@ class Schain : public Agent {
 
     atomic< uint64_t > lastCommittedBlockID = 0;
     atomic< uint64_t > lastCommitTimeMs = 0;
+    atomic< uint64_t > lastCommittedBlockEvmProcessingTimeMs = 0;
     TimeStamp  lastCommittedBlockTimeStamp;
     mutex lastCommittedBlockInfoMutex;
     atomic<uint64_t> proposalReceiptTime = 0;
@@ -166,8 +172,6 @@ private:
     uint64_t tpsAverage = 0 ;
 
     ptr< NodeInfo > thisNodeInfo = nullptr;
-
-    void checkForExit();
 
     void proposeNextBlock();
 
@@ -192,6 +196,10 @@ public:
 
     static void writeToVisualizationStream(string& _s);
 
+
+    void checkForExit();
+
+
     void addDeadNode(uint64_t _schainIndex, uint64_t timeMs);
 
     uint64_t getDeathTimeMs(uint64_t  _schainIndex);
@@ -205,7 +213,8 @@ public:
     bool isStartingFromCorruptState() const;
 
     void updateLastCommittedBlockInfo( uint64_t _lastCommittedBlockID,
-        TimeStamp& _lastCommittedBlockTimeStamp, uint64_t _blockSize );
+        TimeStamp& _lastCommittedBlockTimeStamp, uint64_t _blockSize,
+        uint64_t _lastCommittedBlockProcessingTimeMs);
 
     void initLastCommittedBlockInfo( uint64_t _lastCommittedBlockID,
                                        TimeStamp&  _lastCommittedBlockTimeStamp );
@@ -266,6 +275,8 @@ public:
     const ptr< IO > getIo() const;
 
     void postMessage( const ptr< MessageEnvelope >& _me );
+
+    const ptr<OracleResultAssemblyAgent> &getOracleResultAssemblyAgent() const;
 
     ptr< PendingTransactionsAgent > getPendingTransactionsAgent() const;
 

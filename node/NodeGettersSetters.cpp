@@ -173,7 +173,9 @@ ptr<map<uint64_t , ptr<NodeInfo> > > Node::getNodeInfosByIndex() const {
 
 
 ptr< Network > Node::getNetwork() const {
-    CHECK_STATE(network);
+    if (!network) {
+        CHECK_STATE(network);
+    }
     return network;
 }
 

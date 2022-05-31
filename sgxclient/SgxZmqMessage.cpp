@@ -36,6 +36,12 @@
 #include "SgxZmqClient.h"
 #include "sgxclient/SgxZmqMessage.h"
 
+SgxZmqMessage::SgxZmqMessage(shared_ptr<rapidjson::Document> &_d) : d(_d) {
+        if (d->HasMember("warn")) {
+            CHECK_STATE((*d)["warn"].IsString());
+            warning = make_shared<string>((*d)["warn"].GetString());
+        }
+};
 
 uint64_t SgxZmqMessage::getUint64Rapid(const char *_name) {
     CHECK_STATE(_name);
@@ -83,9 +89,6 @@ shared_ptr < SgxZmqMessage > SgxZmqMessage::parse(const char *_msg,
     CHECK_STATE((*d)["type"].IsString());
     string type = (*d)["type"].GetString();
 
-
-    shared_ptr < SgxZmqMessage > result;
-
     if (_isRequest) {
         return buildRequest(type, d);
     } else {
@@ -120,3 +123,7 @@ shared_ptr < SgxZmqMessage > SgxZmqMessage::buildResponse(string &_type, shared_
 }
 
 SgxZmqMessage::~SgxZmqMessage() {}
+
+const shared_ptr<string> &SgxZmqMessage::getWarning() const {
+    return warning;
+}

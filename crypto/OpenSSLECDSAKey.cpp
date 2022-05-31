@@ -127,7 +127,7 @@ string OpenSSLECDSAKey::serializePubKey() {
     return result;
 }
 
-bool OpenSSLECDSAKey::verifySGXSig( const string& _sig, const char* _hash ) {
+void OpenSSLECDSAKey::verifySGXSig( const string& _sig, const char* _hash ) {
     bool returnValue = false;
     BIGNUM* rBN = BN_new();
     BIGNUM* sBN = BN_new();
@@ -192,15 +192,14 @@ clean:
             BN_free( sBN );
     }
 
-    return returnValue;
+    CHECK_STATE2(returnValue, "ECDSA signature did not verify");
 }
 
-bool OpenSSLECDSAKey::verifySig( const string& _signature, const char* _hash ) {
+void OpenSSLECDSAKey::verifySig( const string& _signature, const char* _hash ) {
     CHECK_ARGUMENT( _signature != "" );
     CHECK_ARGUMENT( _hash );
 
-    if ( _signature.size() % 2 != 0 )
-        return false;
+    CHECK_STATE( _signature.size() % 2 == 0);
 
     vector< unsigned char > derSig( _signature.size() / 2 );
 
@@ -210,16 +209,14 @@ bool OpenSSLECDSAKey::verifySig( const string& _signature, const char* _hash ) {
 
     ECDSA_SIG* sig = d2i_ECDSA_SIG( nullptr, &p, ( long ) derSig.size() );
 
-    if ( !sig ) {
-        return false;
-    }
+    CHECK_STATE2(sig, "ECDSA sig did not verify: d2i_ECDSA_SIG failed");
 
     auto status = ECDSA_do_verify( ( const unsigned char* ) _hash, 32, sig, ecKey );
 
     if ( sig )
         ECDSA_SIG_free( sig );
 
-    return status == 1;
+    CHECK_STATE2(status == 1, "ECDSA sig did not verify");
 }
 
 

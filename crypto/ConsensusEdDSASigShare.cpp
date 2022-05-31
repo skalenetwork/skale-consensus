@@ -52,7 +52,7 @@ string ConsensusEdDSASigShare::toString() {
 
 void ConsensusEdDSASigShare::verify(
     CryptoManager& _cryptoManager, schain_index _signerIndex,
-    BLAKE3Hash& _hash, node_id _nodeId) {
+    BLAKE3Hash& _hash, node_id _nodeId, uint64_t _timeStamp ) {
 
     boost::char_separator< char > sep( ";" );
     boost::tokenizer tok {edDSASigShare, sep};
@@ -77,7 +77,11 @@ void ConsensusEdDSASigShare::verify(
                                                     __CLASS_NAME__));
     }
 
-    CHECK_STATE(_cryptoManager.sessionVerifySigAndKey(_hash, tokens.at(1), tokens.at(2),
-        tokens.at(3), blockId, _nodeId));
+    try {
+        _cryptoManager.sessionVerifySigAndKey(_hash, tokens.at(1), tokens.at(2),
+        tokens.at(3), blockId, _nodeId, _timeStamp);
+    } catch (...) {
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+    }
 
 }

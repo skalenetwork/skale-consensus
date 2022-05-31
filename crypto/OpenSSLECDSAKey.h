@@ -56,8 +56,8 @@ public:
 
     string sign(const char* hash);
 
-    bool verifySig(const string& _signature, const char* _hash );
-    bool verifySGXSig(const string& _sig, const char* _hash);
+    void verifySig(const string& _signature, const char* _hash );
+    void verifySGXSig(const string& _sig, const char* _hash);
 
     static ptr< OpenSSLECDSAKey > importSGXPubKey( const string& _publicKey);
     static ptr< OpenSSLECDSAKey > importPubKey( const string& _publicKey);
