@@ -48,15 +48,13 @@ public:
 
     block_id readLastCommittedBlockID();
 
-    const string& getFormatVersion();
+    const string& getFormatVersion() override;
 
     string createLastCommittedKey();
 
     string createBlockStartKey(block_id _blockID );
 
     bool unfinishedBlockExists( block_id _blockID );
-
-    void recordBlockProcessingStart( block_id _blockID );
 
 };
 

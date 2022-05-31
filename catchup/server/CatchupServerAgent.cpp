@@ -195,14 +195,6 @@ ptr<vector<uint8_t>> CatchupServerAgent::createResponseHeaderAndBinary(const ptr
         };
 
 
-        ptr<NodeInfo> nmi = sChain->getNode()->getNodeInfoById(nodeID);
-
-        if (nmi == nullptr) {
-            _responseHeader->setStatusSubStatus(CONNECTION_ERROR, CONNECTION_ERROR_DONT_KNOW_THIS_NODE);
-            BOOST_THROW_EXCEPTION(
-                    InvalidNodeIDException("Could not find node info for NODE_ID:" + to_string((uint64_t) nodeID),
-                            __CLASS_NAME__));
-        }
 
         auto type = Header::getString(_jsonRequest, "type");
 
@@ -215,6 +207,16 @@ ptr<vector<uint8_t>> CatchupServerAgent::createResponseHeaderAndBinary(const ptr
                                                           blockID);
 
         } else if (type.compare(Header::BLOCK_FINALIZE_REQ) == 0) {
+
+            ptr<NodeInfo> nmi = sChain->getNode()->getNodeInfoById(nodeID);
+
+            if (nmi == nullptr) {
+                _responseHeader->setStatusSubStatus(CONNECTION_ERROR, CONNECTION_ERROR_DONT_KNOW_THIS_NODE);
+                BOOST_THROW_EXCEPTION(
+                        InvalidNodeIDException("Could not find node info for NODE_ID:" + to_string((uint64_t) nodeID),
+                                               __CLASS_NAME__));
+            }
+
 
             serializedBinary = createBlockFinalizeResponse(_jsonRequest,
                                                            dynamic_pointer_cast<BlockFinalizeResponseHeader>(

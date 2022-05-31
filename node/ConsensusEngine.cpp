@@ -73,8 +73,10 @@
 #include "datastructures/TransactionList.h"
 
 #pragma GCC diagnostic pop
-
 #include "dirent.h"
+
+#define BOOST_STACKTRACE_USE_BACKTRACE
+#include "boost/stacktrace.hpp"
 #include <libBLS/bls/BLSPublicKeyShare.h>
 #include <boost/multiprecision/cpp_int.hpp>
 #include <libff/common/profiling.hpp>
@@ -117,6 +119,9 @@ atomic<uint64_t> ConsensusEngine::engineCounter;
 
 
 void ConsensusEngine::logInit() {
+
+
+
     engineID = ++engineCounter;
 
     LOCK(logMutex)
@@ -247,10 +252,10 @@ void ConsensusEngine::parseFullConfigAndCreateNode(const string &configFileConte
                                                          true, sgxServerUrl, sgxSSLKeyFileFullPath,
                                                          sgxSSLCertFileFullPath,
                                                          getEcdsaKeyName(), ecdsaPublicKeys, getBlsKeyName(),
-                                                         blsPublicKeys, blsPublicKey, gethURL, previousBlsPublicKeys);
+                                                         blsPublicKeys, blsPublicKey, gethURL, previousBlsPublicKeys, historicECDSAPublicKeys, historicNodeGroups);
         } else {
             node = JSONFactory::createNodeFromJsonObject(j["skaleConfig"]["nodeInfo"], dummy, this,
-                                                         false, "", "", "", "", nullptr, "", nullptr, nullptr, gethURL, nullptr);
+                                                         false, "", "", "", "", nullptr, "", nullptr, nullptr, gethURL, nullptr, nullptr, nullptr);
         }
 
         JSONFactory::createAndAddSChainFromJsonObject(node, j["skaleConfig"]["sChain"], this);
@@ -271,7 +276,14 @@ ptr<Node> ConsensusEngine::readNodeTestConfigFileAndCreateNode(const string path
                                                                string _blsKeyName,
                                                                ptr<vector<ptr<vector<string> > > > _blsPublicKeys,
                                                                ptr<BLSPublicKey> _blsPublicKey,
-                                                               ptr< map< uint64_t, ptr< BLSPublicKey > > > _previousBlsPublicKeys) {
+                                                               ptr< map< uint64_t, ptr< BLSPublicKey > > > _previousBlsPublicKeys,
+                                                               ptr< map< uint64_t, string > > _historicECDSAPublicKeys,
+                                                               ptr< map< uint64_t, vector< uint64_t > > > _historicNodeGroups) {
+
+    _previousBlsPublicKeys  = make_shared< map< uint64_t, ptr< BLSPublicKey > > >();
+    _historicECDSAPublicKeys = make_shared< map< uint64_t, string>>();
+    _historicNodeGroups = make_shared<map< uint64_t, vector< uint64_t>>>();
+
     try {
         if (_useSGX) {
             CHECK_ARGUMENT(!_ecdsaKeyName.empty() && _ecdsaPublicKeys);
@@ -296,7 +308,7 @@ ptr<Node> ConsensusEngine::readNodeTestConfigFileAndCreateNode(const string path
                                                             _nodeIDs, this, _useSGX, _sgxSSLKeyFileFullPath,
                                                             _sgxSSLCertFileFullPath, _ecdsaKeyName,
                                                             _ecdsaPublicKeys, _blsKeyName, _blsPublicKeys,
-                                                            _blsPublicKey, _previousBlsPublicKeys);
+                                                            _blsPublicKey, _previousBlsPublicKeys, _historicECDSAPublicKeys, _historicNodeGroups);
 
 
         if (node == nullptr) {
@@ -507,7 +519,7 @@ void ConsensusEngine::startAll() {
             LOG(info, "Started clients" + to_string(it.second->getNodeID()));
         }
 
-        LOG(info, "Started all nodes");
+        LOG(info, "Started node");
     }
 
     catch (SkaleException &e) {
@@ -542,12 +554,12 @@ void ConsensusEngine::slowStartBootStrapTest() {
 void ConsensusEngine::bootStrapAll() {
     try {
         for (auto &&it: nodes) {
-            LOG(trace, "Bootstrapping node");
+            LOG(info, "ConsensusEngine: bootstrapping node");
             CHECK_STATE(it.second);
             it.second->getSchain()->bootstrap(lastCommittedBlockID,
                                               lastCommittedBlockTimeStamp->getS(),
                                               lastCommittedBlockTimeStamp->getMs());
-            LOG(trace, "Bootstrapped node");
+            LOG(info, "ConsensusEngine: bootstrapped node");
         }
     } catch (exception &e) {
         for (auto &&it: nodes) {
@@ -560,7 +572,7 @@ void ConsensusEngine::bootStrapAll() {
         SkaleException::logNested(e);
 
         throw_with_nested(
-                EngineInitException("Consensus engine bootstrap failed", __CLASS_NAME__));
+                EngineInitException("Consensus engine: bootstrap failed", __CLASS_NAME__));
     }
 }
 
@@ -605,6 +617,7 @@ int ConsensusEngine::getOpenDescriptors() {
 
 
 void ConsensusEngine::systemHealthCheck() {
+
     string ulimit;
     try {
         ulimit = exec("/bin/bash -c \"ulimit -n\"");
@@ -630,7 +643,7 @@ void ConsensusEngine::systemHealthCheck() {
 }
 
 void ConsensusEngine::init() {
-    cout << "Consensus engine version:" + ConsensusEngine::getEngineVersion() << endl;
+    cout << "Consensus engine init(): version:" + ConsensusEngine::getEngineVersion() << endl;
 
     libff::inhibit_profiling_counters = true;
 
@@ -654,6 +667,11 @@ void ConsensusEngine::init() {
 
 ConsensusEngine::ConsensusEngine(block_id _lastId, uint64_t _totalStorageLimitBytes) : prices(256), exitRequested(false) {
 
+
+    cout << "Constructing consensus engine:LAST_BLOCK:" << (uint64_t) _lastId << ":TOTAL_STORAGE_LIMIT:" <<
+           _totalStorageLimitBytes << endl;
+
+
     curl_global_init(CURL_GLOBAL_ALL);
 
 
@@ -669,12 +687,24 @@ ConsensusEngine::ConsensusEngine(block_id _lastId, uint64_t _totalStorageLimitBy
         SkaleException::logNested(e);
         throw_with_nested(EngineInitException("Engine construction failed", __CLASS_NAME__));
     }
+
+
 }
 
 ConsensusEngine::ConsensusEngine(ConsensusExtFace &_extFace, uint64_t _lastCommittedBlockID,
                                  uint64_t _lastCommittedBlockTimeStamp, uint64_t _lastCommittedBlockTimeStampMs,
                                  uint64_t _totalStorageLimitBytes)
         : prices(256), exitRequested(false) {
+
+
+
+    cout << "Constructing consensus engine:" << ""
+                                                "Last block in skaled:" << (uint64_t) _lastCommittedBlockID <<
+                                                "Last block in skaled timestamp:" << (uint64_t) _lastCommittedBlockTimeStamp <<
+                                                "Last block in skaled human readable timestamp:" << (uint64_t) _lastCommittedBlockTimeStamp <<
+                                                "\n Total storage limit for consensus:" << _totalStorageLimitBytes <<
+                                                endl;
+
 
     storageLimits = make_shared<StorageLimits>(_totalStorageLimitBytes);
 
@@ -715,7 +745,13 @@ ConsensusExtFace *ConsensusEngine::getExtFace() const {
 void ConsensusEngine::exitGracefullyBlocking() {
 
 
-    LOG(info, "consensus engine exiting: blocking exit called");
+
+
+    LOG(info, "Consensus engine exiting: exitGracefullyBlocking called by skaled");
+
+    cerr << "Here is exitGracefullyBlocking() stack trace for your information:" << endl;
+
+    cerr << boost::stacktrace::stacktrace() << endl;
 
 
     // !! if we don't check this - exitGracefullyAsync()
@@ -733,6 +769,15 @@ void ConsensusEngine::exitGracefullyBlocking() {
 
 
 void ConsensusEngine::exitGracefully() {
+
+    LOG(info, "Consensus engine exiting: blocking exit exitGracefully called by skaled");
+
+    cerr << "Here is exitGracefullyBlocking() stack trace for your information:" << endl;
+
+    cerr << boost::stacktrace::stacktrace() << endl;
+
+
+
     // run and forget
     thread([this]() { exitGracefullyAsync(); }).detach();
 }
@@ -743,7 +788,8 @@ consensus_engine_status ConsensusEngine::getStatus() const {
 
 void ConsensusEngine::exitGracefullyAsync() {
 
-    LOG(info, "consensus engine exiting: async exit called");
+
+    LOG(info, "Consensus engine exiting: exitGracefullyAsync called by skaled");
 
     try {
         auto previouslyCalled = exitRequested.exchange(true);
@@ -791,6 +837,7 @@ void ConsensusEngine::exitGracefullyAsync() {
 }
 
 ConsensusEngine::~ConsensusEngine() {
+
 
     exitGracefullyBlocking();
 
@@ -931,26 +978,34 @@ void ConsensusEngine::setTestKeys(
 }
 
 void ConsensusEngine::setSGXKeyInfo(const string &_sgxServerURL, string &_sgxSSLKeyFileFullPath,
-                                    string &_sgxSSLCertFileFullPath, string &_ecdsaKeyName,
-                                    ptr<vector<string> > &_ecdsaPublicKeys, string &_blsKeyName,
-                                    ptr<vector<ptr<vector<string> > > > &_blsPublicKeyShares, uint64_t _requiredSigners,
-                                    uint64_t _totalSigners) {
+                                    string &_sgxSSLCertFileFullPath, string &_ecdsaKeyName,string &_blsKeyName) {
     CHECK_STATE(!_sgxServerURL.empty())
     CHECK_STATE(!_ecdsaKeyName.empty())
     CHECK_STATE(!_blsKeyName.empty())
-    CHECK_STATE(_blsPublicKeyShares);
-    CHECK_STATE(_ecdsaPublicKeys);
-    CHECK_STATE(_ecdsaPublicKeys);
-    CHECK_STATE(_totalSigners >= _requiredSigners);
 
     this->sgxServerUrl = _sgxServerURL;
     this->isSGXEnabled = true;
     this->useTestSGXKeys = false;
 
-    this->blsPublicKeys = _blsPublicKeyShares;
-    this->ecdsaPublicKeys = _ecdsaPublicKeys;
     setEcdsaKeyName(_ecdsaKeyName);
     setBlsKeyName(_blsKeyName);
+
+    sgxSSLCertFileFullPath = _sgxSSLCertFileFullPath;
+    sgxSSLKeyFileFullPath = _sgxSSLKeyFileFullPath;
+}
+
+void ConsensusEngine::setPublicKeyInfo( ptr<vector<string> > &_ecdsaPublicKeys,
+                                    ptr<vector<ptr<vector<string> > > > &_blsPublicKeyShares, uint64_t _requiredSigners,
+                                    uint64_t _totalSigners) {
+
+    CHECK_STATE(_blsPublicKeyShares);
+    CHECK_STATE(_ecdsaPublicKeys);
+    CHECK_STATE(_ecdsaPublicKeys);
+    CHECK_STATE(_totalSigners >= _requiredSigners);
+
+
+    this->blsPublicKeys = _blsPublicKeyShares;
+    this->ecdsaPublicKeys = _ecdsaPublicKeys;
 
 
     map<size_t, shared_ptr<BLSPublicKeyShare> > blsPubKeyShares;
@@ -969,19 +1024,25 @@ void ConsensusEngine::setSGXKeyInfo(const string &_sgxServerURL, string &_sgxSSL
     blsPublicKey = make_shared<BLSPublicKey>(
             make_shared<map<size_t, shared_ptr<BLSPublicKeyShare> > >(blsPubKeyShares),
             _requiredSigners, _totalSigners);
-
-    sgxSSLCertFileFullPath = _sgxSSLCertFileFullPath;
-    sgxSSLKeyFileFullPath = _sgxSSLKeyFileFullPath;
+    
 }
 
-void ConsensusEngine::setRotationHistory(ptr<map<uint64_t, vector<string>>> _rh) {
-    CHECK_STATE(_rh);
+
+
+void ConsensusEngine::setRotationHistory(ptr<map<uint64_t, vector<string>>> _previousBLSKeys,
+                                         ptr<map<uint64_t, string>> _historicECDSAKeys,
+                                         ptr<map<uint64_t, vector<uint64_t>>>  _historicNodeGroups) {
+    CHECK_STATE(_previousBLSKeys);
+    CHECK_STATE(_historicECDSAKeys);
+    CHECK_STATE(_historicNodeGroups);
 
     map< uint64_t, ptr< BLSPublicKey > > _previousBlsPublicKeys;
-    for (const auto& previousGroup: *_rh) {
+    for (const auto& previousGroup: *_previousBLSKeys) {
         _previousBlsPublicKeys[previousGroup.first] = make_shared<BLSPublicKey>(make_shared<vector<string>>(previousGroup.second));
     }
     previousBlsPublicKeys = make_shared< map< uint64_t, ptr< BLSPublicKey > > >( _previousBlsPublicKeys );
+    historicECDSAPublicKeys = _historicECDSAKeys;
+    historicNodeGroups = _historicNodeGroups;
 }
 
 const string ConsensusEngine::getEcdsaKeyName() const {

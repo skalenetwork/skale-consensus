@@ -80,6 +80,8 @@ class ConsensusEngine : public ConsensusInterface {
     ptr< vector< ptr< vector<string>>>> blsPublicKeys; //tsafe
     ptr< BLSPublicKey > blsPublicKey;
     ptr< map< uint64_t, ptr< BLSPublicKey > > > previousBlsPublicKeys;
+    ptr< map< uint64_t, string > > historicECDSAPublicKeys;
+    ptr<map<uint64_t, vector<uint64_t>>> historicNodeGroups;
     
     atomic< consensus_engine_status > status = CONSENSUS_ACTIVE;
 
@@ -159,7 +161,9 @@ public:
                                                     ptr< vector<string> > _ecdsaPublicKeys = nullptr, string _blsKeyName = "",
                                                     ptr< vector< ptr< vector<string>>>> _blsPublicKeys = nullptr,
                                                     ptr< BLSPublicKey > _blsPublicKey = nullptr,
-                                                    ptr< map< uint64_t, ptr< BLSPublicKey > > > _previousBlsPublicKeys = nullptr);
+                                                    ptr< map< uint64_t, ptr< BLSPublicKey > > > _previousBlsPublicKeys = nullptr,
+                                                    ptr< map< uint64_t, string > > _historicECDSAPublicKeys = nullptr,
+                                                    ptr< map< uint64_t, vector< uint64_t > > > _historicNodeGroups = nullptr);
     
     void readSchainConfigFiles(const ptr< Node >& _node, const fs_path& _dirPath );
     
@@ -216,7 +220,7 @@ public:
 
     void startAll() override;
 
-    void parseFullConfigAndCreateNode( const string& fullPathToConfigFile, const string& _gethURL ) override;
+    void parseFullConfigAndCreateNode( const string& fullPathToConfigFile, const string& _gethURL) override;
 
     // used for standalone debugging
 
@@ -264,16 +268,20 @@ public:
         string& _sgxSSLKeyFileFullPath,
         string& _sgxSSLCertFileFullPath,
         string& _ecdsaKeyName,
-        // array of ECDSA publicKeys of all nodes, including this node
+        string& _blsKeyName);
+
+    void setPublicKeyInfo(
                        ptr<vector<string>>& _ecdsaPublicKeys,
-                       string& _blsKeyName,
-        // array of BLS public key shares of all nodes, including this node
-        // each BLS public key share is a vector of 4 strings.
+            // array of BLS public key shares of all nodes, including this node
+            // each BLS public key share is a vector of 4 strings.
                        ptr<vector<ptr<vector<string>>>>& _blsPublicKeyShares,
                        uint64_t _requiredSigners,
                        uint64_t _totalSigners);
 
-    void setRotationHistory(ptr<map<uint64_t, vector<string>>> _rh);
+
+    void setRotationHistory(ptr<map<uint64_t, vector<string>>> _previousBLSKeys,
+                            ptr<map<uint64_t, string>> _historicECDSAKeys,
+                            ptr<map<uint64_t, vector<uint64_t>>>  _historicNodeGroups);
 
     [[nodiscard]] uint64_t getTotalStorageLimitBytes() const;
 

@@ -501,5 +501,10 @@ void NetworkMessage::sign(const ptr<CryptoManager> &_mgr) {
 
 void NetworkMessage::verify(const ptr<CryptoManager> &_mgr) {
     CHECK_ARGUMENT(_mgr)
-    CHECK_STATE2(_mgr->verifyNetworkMsg(*this), "ECDSA sig did not verify")
+    try {
+        _mgr->verifyNetworkMsg(*this);
+    } catch (...) {
+        LOG(err, "ECDSA sig did not verify");
+        throw_with_nested(InvalidStateException(__FUNCTION__ , __CLASS_NAME__));
+    }
 }

@@ -69,7 +69,7 @@ public:
 class OpenSSLECDSAKey;
 class OpenSSLEdDSAKey;
 
-class CryptoManager {
+class CryptoManager  {
 
     static list<uint64_t> ecdsaSignTimes;
     static recursive_mutex ecdsaSignMutex;
@@ -99,6 +99,8 @@ class CryptoManager {
 
     map< uint64_t, string > ecdsaPublicKeyMap;  // tsafe
     recursive_mutex ecdsaPublicKeyMapLock;
+    recursive_mutex historicEcdsaPublicKeyMapLock;
+
 
     map< uint64_t, ptr< vector< string > > > blsPublicKeyMap;  // tsafe
 
@@ -107,6 +109,10 @@ class CryptoManager {
     ptr< vector< string > > sgxECDSAPublicKeys;  // tsafe
 
     ptr< map< uint64_t, ptr< BLSPublicKey > > > previousBlsPublicKeys;
+
+    ptr< map< uint64_t, string > > historicECDSAPublicKeys;
+
+    ptr<map<uint64_t, vector<uint64_t>>> historicNodeGroups;
 
     uint64_t totalSigners;
     uint64_t requiredSigners;
@@ -132,6 +138,8 @@ class CryptoManager {
     string sgxDomainName;
     uint16_t sgxPort = 0;
 
+    uint64_t simulateBLSSigFailBlock = 0;
+
     ptr< StubClient > getSgxClient();
 
     tuple< ptr< OpenSSLEdDSAKey >, string > localGenerateFastKey();
@@ -141,7 +149,7 @@ class CryptoManager {
     tuple< string, string, string > sessionSign(
         BLAKE3Hash & _hash, block_id _blockId );
 
-    bool verifyECDSASig( BLAKE3Hash & _hash, const string& _sig, node_id _nodeId );
+    void verifyECDSASig( BLAKE3Hash & _hash, const string& _sig, node_id _nodeId, uint64_t _timeStamp );
 
     ptr< ThresholdSigShare > signSigShare(
         BLAKE3Hash & _hash, block_id _blockId, bool _forceMockup );
@@ -172,7 +180,7 @@ public:
 
     static void setRetryHappened( bool retryHappened );
 
-    bool sessionVerifyEdDSASig(
+    void sessionVerifyEdDSASig(
         BLAKE3Hash & _hash, const string& _sig, const string& _publicKey );
     // This constructor is used for testing
     CryptoManager( uint64_t _totalSigners, uint64_t _requiredSigners, bool _isSGXEnabled,
@@ -186,7 +194,7 @@ public:
 
 
     void verifyDAProofSigShare( ptr< ThresholdSigShare > _sigShare, schain_index _schainIndex,
-        BLAKE3Hash & _hash, node_id _nodeId, bool _forceMockup );
+        BLAKE3Hash & _hash, node_id _nodeId, bool _forceMockup, uint64_t _timeStamp );
 
     ptr< ThresholdSignature > verifyDAProofThresholdSig(
         BLAKE3Hash & _hash, const string& _signature, block_id _blockId );
@@ -202,7 +210,7 @@ public:
 
     void signProposal( BlockProposal* _proposal );
 
-    bool verifyProposalECDSA(
+    void verifyProposalECDSA(
         const ptr< BlockProposal >& _proposal, const string& _hashStr, const string& _signature );
 
     tuple< ptr< ThresholdSigShare >, string, string, string > signDAProof(
@@ -215,7 +223,7 @@ public:
 
     tuple< string, string, string > signNetworkMsg( NetworkMessage& _msg );
 
-    bool verifyNetworkMsg( NetworkMessage& _msg );
+    void verifyNetworkMsg( NetworkMessage& _msg );
 
     static ptr< void > decodeSGXPublicKey( const string& _keyHex );
 
@@ -232,7 +240,7 @@ public:
     tuple< string, string, string > sessionSignECDSA(
         BLAKE3Hash & _hash, block_id _blockID );
 
-    bool verifyECDSA(
+    void verifyECDSA(
         BLAKE3Hash & _hash, const string& _sig, const string& _publicKey );
 
 
@@ -243,11 +251,10 @@ public:
     static const string& getSgxUrl();
     static void setSgxUrl( const string& sgxUrl );
 
-
     static BLAKE3Hash calculatePublicKeyHash( string publicKey, block_id _blockID );
 
-    bool sessionVerifySigAndKey( BLAKE3Hash& _hash, const string& _sig,
-        const string& _publicKey, const string& pkSig, block_id _blockID, node_id _nodeId );
+    void sessionVerifySigAndKey( BLAKE3Hash& _hash, const string& _sig,
+        const string& _publicKey, const string& pkSig, block_id _blockID, node_id _nodeId, uint64_t _timeStamp );
 
     void exitZMQClient();
 
@@ -289,6 +296,9 @@ public:
     void checkZMQStatusIfUnknownECDSA(const string &_keyName);
     void checkZMQStatusIfUnknownBLS();
 
+    string getECDSAPublicKeyForNodeId(const node_id &_nodeId, uint64_t _timeStamp);
+
+    string getECDSAHistoricPublicKeyForNodeId(uint64_t _nodeId, uint64_t _timeStamp);
 };
 
 #define RETRY_BEGIN \

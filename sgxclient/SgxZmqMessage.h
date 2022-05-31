@@ -45,6 +45,7 @@ class SgxZmqMessage {
 
     shared_ptr<rapidjson::Document> d;
 
+    shared_ptr<string> warning = nullptr;
 
     static cache::lru_cache<string, pair<EVP_PKEY*, X509*>> verifiedCerts;
 
@@ -56,9 +57,7 @@ public:
     static constexpr const char *ECDSA_SIGN_REQ = "ECDSASignReq";
     static constexpr const char *ECDSA_SIGN_RSP = "ECDSASignRsp";
 
-    explicit SgxZmqMessage(shared_ptr<rapidjson::Document> &_d) : d(_d) {
-    };
-
+    explicit SgxZmqMessage(shared_ptr<rapidjson::Document> &_d);
     string getStringRapid(const char *_name);
 
     uint64_t getUint64Rapid(const char *_name);
@@ -67,7 +66,11 @@ public:
         return getUint64Rapid("status");
     }
 
+
     static shared_ptr < SgxZmqMessage > parse(const char* _msg, size_t _size, bool _isRequest);
+
+    const shared_ptr<string> &getWarning() const;
+
     virtual ~SgxZmqMessage();
     static shared_ptr< SgxZmqMessage > buildRequest(string& type, shared_ptr<rapidjson::Document> _d);
     static shared_ptr< SgxZmqMessage > buildResponse(string& type, shared_ptr<rapidjson::Document> _d);

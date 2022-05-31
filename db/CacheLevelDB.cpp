@@ -388,7 +388,7 @@ shared_ptr<leveldb::DB> CacheLevelDB::openDB(uint64_t _index) {
 
         CHECK_STATE2(leveldb::DB::Open(options, index2Path( _index ),
                                        &dbase).ok(),
-                     "Unable to open database")
+                     "Unable to open database" + index2Path(_index))
         CHECK_STATE(dbase)
 
         return ptr<DB>(dbase);
