@@ -368,10 +368,20 @@ void Schain::checkForDeadLock(const char*  _functionName) {
     return result;
 }
 
+const atomic<bool> &Schain::getIsStateInitialized() const {
+    return isStateInitialized;
+}
 
-void Schain::blockCommitArrived( block_id _committedBlockID, schain_index _proposerIndex,
-    const ptr< ThresholdSignature >& _thresholdSig ) {
-    MONITOR2( __CLASS_NAME__, __FUNCTION__, getMaxExternalBlockProcessingTime() )
+
+void Schain::blockCommitArrived(block_id _committedBlockID, schain_index _proposerIndex,
+                                const ptr<ThresholdSignature> &_thresholdSig) {
+    MONITOR2(__CLASS_NAME__, __FUNCTION__, getMaxExternalBlockProcessingTime())
+
+    // wait until the schain state is fully initialized and startup
+    // otherwise last committed block id is not fully initialized and the chain can not accept catchup blocks
+    while (!getSchain()->getIsStateInitialized()) {
+        usleep(100 * 1000);
+    }
 
     checkForExit();
 
@@ -847,6 +857,8 @@ void Schain::bootstrap( block_id _lastCommittedBlockID, uint64_t _lastCommittedB
             this->pricingAgent->calculatePrice( ConsensusExtFace::transactions_vector(), 0, 0, 0 );
 
 
+
+        isStateInitialized = true;
 
         proposeNextBlock();
 

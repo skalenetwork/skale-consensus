@@ -165,6 +165,8 @@ private:
     uint64_t blockTimeAverageMs = 0 ;
     uint64_t tpsAverage = 0 ;
 
+    atomic<bool> isStateInitialized = false;
+
     ptr< NodeInfo > thisNodeInfo = nullptr;
 
     void checkForExit();
@@ -187,6 +189,9 @@ private:
     static ptr< ofstream > getVisualizationDataStream();
 
     void saveToVisualization( ptr< CommittedBlock > _block, uint64_t _visualizationType );
+
+
+
 
 public:
 
@@ -346,6 +351,8 @@ public:
     const ptr<OracleClient> getOracleClient() const;
 
     const string &getSchainName() const;
+
+    const atomic<bool> &getIsStateInitialized() const;
 
 };
 
