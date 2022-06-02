@@ -270,6 +270,12 @@ void CatchupClientAgent::workerThreadItemSendLoop(CatchupClientAgent *_agent) {
 
     _agent->waitOnGlobalStartBarrier();
 
+    // wait until the schain state is fully initialized
+    // otherwise the chain can not accept catchup blocks
+    while (!_agent->getSchain()->getIsStateInitialized()) {
+        usleep(100 * 1000);
+    }
+
 
     // start with a random index and then to round-robin
 
