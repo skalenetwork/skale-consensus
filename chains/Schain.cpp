@@ -916,11 +916,11 @@ void Schain::bootstrap(block_id _lastCommittedBlockID, uint64_t _lastCommittedBl
         if (getLastCommittedBlockID() == 0)
             this->pricingAgent->calculatePrice(ConsensusExtFace::transactions_vector(), 0, 0, 0);
 
+        isStateInitialized = true;
+
 
         if (getNode()->isSyncOnlyNode())
             return;
-
-        isStateInitialized = true;
 
         proposeNextBlock();
 
