@@ -524,10 +524,14 @@ ptr< Header > BlockProposalServerAgent::createProposalResponseHeader(
 
     auto chainName = getSchain()->getSchainName();
 
-    bool checkIt = (chainName != "rhythmic-tegmen" &&
-                    chainName != "squeaking-nash" &&
-                    chainName != "chubby-sadr" &&
-                    chainName != "tinkling-kaffaljidhma");
+    bool checkIt = true;
+
+    if (getenv("CONSENSUS_USE_STATEROOT_PATCH")) {
+        checkIt = (chainName == "rhythmic-tegmen" ||
+                    chainName == "squeaking-nash" ||
+                    chainName == "chubby-sadr" ||
+                    chainName == "tinkling-kaffaljidhma");
+    }
 
 
     if ( checkIt && blockIDInHeader > 1 &&
