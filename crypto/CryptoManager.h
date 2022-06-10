@@ -45,6 +45,7 @@ class ThresholdSignature;
 class StubClient;
 class ECP;
 class BLSPublicKey;
+class BLSSigShare;
 
 namespace CryptoPP {
 class ECP;
@@ -175,8 +176,12 @@ public:
 
     void  verifyBlockSig(string& _signature,  block_id _blockId, BLAKE3Hash & _hash, const TimeStamp& _ts = TimeStamp(uint64_t(-1), 0));
 
+    void verifyThresholdSigShare(
+            ptr<ThresholdSigShare> _sigShare, BLAKE3Hash &_hash);
 
-    static bool isRetryHappened();
+
+
+        static bool isRetryHappened();
 
     static void setRetryHappened( bool retryHappened );
 
@@ -255,6 +260,9 @@ public:
 
     void sessionVerifySigAndKey( BLAKE3Hash& _hash, const string& _sig,
         const string& _publicKey, const string& pkSig, block_id _blockID, node_id _nodeId, uint64_t _timeStamp );
+
+
+    void verifyBlsSigShare(ptr<BLSSigShare> _sigShare, BLAKE3Hash &_hash);
 
     void exitZMQClient();
 
