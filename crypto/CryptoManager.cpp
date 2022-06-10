@@ -669,6 +669,11 @@ ptr<ThresholdSigShare> CryptoManager::signBlockSigShare(
     return result;
 }
 
+
+
+
+
+
 void CryptoManager::verifyBlockSig(
         ptr<ThresholdSignature> _signature, BLAKE3Hash &_hash, const TimeStamp &_ts) {
     CHECK_STATE(_signature);
@@ -841,6 +846,54 @@ void CryptoManager::verifyThresholdSig(
 
 
 }
+
+
+// Verify threshold sig share using the current set of BLS keys.
+// Since threshold sig shares are glued for the current block
+// historic keys are not needed in this case.
+// throw an exception if the share does not verify
+
+void CryptoManager::verifyThresholdSigShare(
+        ptr<ThresholdSigShare> _sigShare, BLAKE3Hash &_hash) {
+
+    CHECK_STATE(_sigShare);
+    // sync nodes do not do sig gluing
+    CHECK_STATE(!getSchain()->getNode()->isSyncOnlyNode())
+
+    MONITOR(__CLASS_NAME__, __FUNCTION__)
+
+    if ((getSchain()->getNode()->isSgxEnabled())) {
+
+        auto consensusBlsSigShare = dynamic_pointer_cast<ConsensusBLSSigShare>(_sigShare);
+
+        CHECK_STATE(consensusBlsSigShare);
+
+        ptr<BLSSigShare> blsSigShare = consensusBlsSigShare->getBlsSigShare();
+
+        verifyBlsSigShare(blsSigShare, _hash);
+
+    } else {
+        // mockup sigshares are not verified
+    }
+
+}
+
+
+// Verify BLS sig share using the current set of BLS keys.
+// Since threshold sig shares are glued for the current block
+// historic keys are not needed in this case.
+// throw an exception if the share does not verify
+void CryptoManager::verifyBlsSigShare(
+        ptr<BLSSigShare> _sigShare, BLAKE3Hash &_hash) {
+    CHECK_STATE(_sigShare);
+
+    _hash.getHash();
+
+    // get the correct key share from config
+    // and perform verification
+    // TO BE implemented
+}
+
 
 
 ptr<ThresholdSigShareSet> CryptoManager::createSigShareSet(block_id _blockId) {
