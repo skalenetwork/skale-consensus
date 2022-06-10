@@ -54,6 +54,16 @@ BlockSigShareDB::checkAndSaveShareInMemory(const ptr<ThresholdSigShare>& _sigSha
         CHECK_ARGUMENT(_sigShare)
         CHECK_ARGUMENT(_cryptoManager)
 
+
+
+        auto hash = BLAKE3Hash::getBlockHash(
+                (uint64_t ) _proposer,
+                (uint64_t) _sigShare->getBlockId(),
+                (uint64_t) getSchain()->getSchainID());
+
+        _cryptoManager->verifyThresholdSigShare(_sigShare, hash);
+
+
         auto sigShareString = _sigShare->toString();
         CHECK_STATE(!sigShareString.empty())
 
@@ -84,11 +94,6 @@ BlockSigShareDB::checkAndSaveShareInMemory(const ptr<ThresholdSigShare>& _sigSha
         CHECK_STATE(signature)
 
 
-
-        auto hash = BLAKE3Hash::getBlockHash(
-                (uint64_t ) _proposer,
-                (uint64_t) signature->getBlockId(),
-                (uint64_t) getSchain()->getSchainID());
 
         _cryptoManager->verifyBlockSig(signature, hash);
 
