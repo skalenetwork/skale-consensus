@@ -66,6 +66,7 @@
 
 #include "ConsensusEdDSASigShare.h"
 #include "bls/BLSPrivateKeyShare.h"
+#include "bls/BLSPublicKeyShare.h"
 #include "datastructures/CommittedBlock.h"
 #include "monitoring/LivelinessMonitor.h"
 #include "node/Node.h"
@@ -887,11 +888,18 @@ void CryptoManager::verifyBlsSigShare(
         ptr<BLSSigShare> _sigShare, BLAKE3Hash &_hash) {
     CHECK_STATE(_sigShare);
 
-    _hash.getHash();
+    auto blsPublicKeyShare = BLSPublicKeyShare( blsPublicKeyMap[_sigShare->getSignerIndex()],
+                                                requiredSigners, totalSigners );
+    bool res = false;
+    try {
+        res = blsPublicKeyShare.VerifySig( std::make_shared<std::array< uint8_t, 32 > >( _hash.getHash() ),
+                                           _sigShare, requiredSigners, totalSigners );
+    } catch ( ... ) {
+        LOG(err, "Bls sig share did not verify NODE_ID:" + to_string((uint64_t) _sigShare->getSignerIndex()));
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+    }
 
-    // get the correct key share from config
-    // and perform verification
-    // TO BE implemented
+    CHECK_STATE( res );
 }
 
 
