@@ -184,7 +184,7 @@ jobs:
       run: ls libBLS/deps/deps_inst/x86_or_x64/include/jsonrpccpp/client.h
     
     - name: workaround for HUNTER
-      run: cd .. && mkdir -p "${HOME}"/_Base/Download/crc32c/1.0.5/dc7fa8c/ && wget -O "${HOME}"/_Base/Download/crc32c/1.0.5/dc7fa8c/hunter-1.0.5.tar.gz https://github.com/hunter-packages/crc32c/archive/refs/tags/hunter-1.0.5.tar.gz 
+      run: cd .. && mkdir -p /home/runner/_Base/Download/crc32c/1.0.5/dc7fa8c/ && wget -O /home/runner/_Base/Download/crc32c/1.0.5/dc7fa8c/hunter-1.0.5.tar.gz https://github.com/hunter-packages/crc32c/archive/refs/tags/hunter-1.0.5.tar.gz 
 
     - name: build consensus
       run: |
