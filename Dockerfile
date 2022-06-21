@@ -7,11 +7,15 @@ RUN apt-get install -y software-properties-common; sudo apt-add-repository unive
     apt-get install -yq  libprocps-dev gcc-9 g++-9 valgrind gawk sed libffi-dev ccache libgoogle-perftools-dev \
     flex bison yasm texinfo autotools-dev automake \
     python3 python3-pip \
-    cmake libtool build-essential pkg-config autoconf wget git  libargtable2-dev \
+    libtool build-essential pkg-config autoconf wget git  libargtable2-dev \
     libmicrohttpd-dev libhiredis-dev redis-server openssl libssl-dev doxygen idn2 \
     libgcrypt20-dev
     # python python-pip
 
+RUN wget --no-check-certificate https://cmake.org/files/v3.21/cmake-3.21.0-linux-x86_64.sh && \
+    chmod +x cmake-3.21.0-linux-x86_64.sh && \
+    ./cmake-3.21.0-linux-x86_64.sh --skip-license --include-subdir && \
+    sudo ln -sf `pwd`/cmake-3.21.0-linux-x86_64/bin/* /usr/local/bin
 RUN update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 9
 RUN update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-9 9
 RUN update-alternatives --install /usr/bin/gcov gcov /usr/bin/gcov-9 9
