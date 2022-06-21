@@ -112,7 +112,7 @@ jobs:
       - name: Build the Docker image(GH)
         run: |
           rm -rf ./build/*
-          docker build . --file Dockerfile --tag skalenetwork/consensust:latest   > /tmp/log_of_build.txt   2>&1 || ( tail -1000 /tmp/log_of_build.txt && false );
+          docker build . --file Dockerfile --tag skalenetwork/consensust:latest
 
       - name: push docker image
         run:  docker push skalenetwork/consensust:latest
