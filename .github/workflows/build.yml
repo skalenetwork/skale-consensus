@@ -102,10 +102,10 @@ jobs:
 
     - name: install cmake
       run: |
-        wget --no-check-certificate https://cmake.org/files/v3.10/cmake-3.10.0-Linux-x86_64.sh && \
-        chmod +x cmake-3.10.0-Linux-x86_64.sh && \
-        ./cmake-3.10.0-Linux-x86_64.sh --skip-license --include-subdir && \
-        sudo ln -sf `pwd`/cmake-3.10.0-Linux-x86_64/bin/* /usr/local/bin
+        wget --no-check-certificate https://cmake.org/files/v3.21/cmake-3.21.0-linux-x86_64.sh && \
+        chmod +x cmake-3.21.0-Linux-x86_64.sh && \
+        ./cmake-3.21.0-Linux-x86_64.sh --skip-license --include-subdir && \
+        sudo ln -sf `pwd`/cmake-3.21.0-Linux-x86_64/bin/* /usr/local/bin
 
     - name: install packages
       run: |
@@ -184,7 +184,7 @@ jobs:
       run: ls libBLS/deps/deps_inst/x86_or_x64/include/jsonrpccpp/client.h
     
     - name: workaround for HUNTER
-      run: cd .. && mkdir -p "${HOME}"/_Base/Download/crc32c/1.0.5/dc7fa8c/ && wget -O "${HOME}/_Base/Download/crc32c/1.0.5/dc7fa8c/hunter-1.0.5.tar.gz https://github.com/hunter-packages/crc32c/archive/refs/tags/hunter-1.0.5.tar.gz 
+      run: cd .. && mkdir -p "${HOME}"/_Base/Download/crc32c/1.0.5/dc7fa8c/ && wget -O "${HOME}"/_Base/Download/crc32c/1.0.5/dc7fa8c/hunter-1.0.5.tar.gz https://github.com/hunter-packages/crc32c/archive/refs/tags/hunter-1.0.5.tar.gz 
 
     - name: build consensus
       run: |
