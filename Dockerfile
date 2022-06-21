@@ -1,8 +1,8 @@
 FROM skalenetwork/consensust_base:latest
 
+RUN apt-get update
 RUN apt-get install -yq software-properties-common
 RUN add-apt-repository ppa:ubuntu-toolchain-r/test
-RUN apt-get update
 RUN apt-get install -y software-properties-common; sudo apt-add-repository universe; apt-get update; \
     apt-get install -yq  libprocps-dev gcc-9 g++-9 valgrind gawk sed libffi-dev ccache libgoogle-perftools-dev \
     flex bison yasm texinfo autotools-dev automake \

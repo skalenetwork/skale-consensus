@@ -58,10 +58,10 @@ jobs:
 
       - name: install cmake
         run: |
-          wget --no-check-certificate https://cmake.org/files/v3.10/cmake-3.10.0-Linux-x86_64.sh && \
-          chmod +x cmake-3.10.0-Linux-x86_64.sh && \
-          ./cmake-3.10.0-Linux-x86_64.sh --skip-license --include-subdir && \
-          sudo ln -sf `pwd`/cmake-3.10.0-Linux-x86_64/bin/* /usr/local/bin
+          wget --no-check-certificate https://cmake.org/files/v3.21/cmake-3.21.0-linux-x86_64.sh && \
+          chmod +x cmake-3.21.0-linux-x86_64.sh && \
+          ./cmake-3.21.0-linux-x86_64.sh --skip-license --include-subdir && \
+          sudo ln -sf `pwd`/cmake-3.21.0-linux-x86_64/bin/* /usr/local/bin
 
       - name: install packages
         run: |
