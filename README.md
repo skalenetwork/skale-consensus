@@ -39,14 +39,19 @@ sudo apt-get install -yq libprocps-dev gcc-9 g++-9 valgrind gawk sed libffi-dev 
 
 ### Building from source on Ubuntu (Development)
 
-Clone project and configure build:
+Steps to build from source:
 
 ```bash
+# clone repo
 git clone --recurse-submodules https://github.com/skalenetwork/skale-consensus.git
-# Configure the project and create a build directory.
-cd scripts; ./build_deps.sh # build dependencies
-cd ..; cmake . -Bbuild # Configure the build.
-cmake --build build -- -j$(nproc) # Build all default targets using all cores.
+# build dependencies
+cd scripts; ./build_deps.sh 
+ # Configure the Cmake build.
+cd ..; cmake . -Bbuild
+# now run hunter bug workaround
+mkdir -p "${HOME}"/.hunter/_Base/Download/crc32c/1.0.5/dc7fa8c/ && wget -O "${HOME}"/.hunter/_Base/Download/crc32c/1.0.5/dc7fa8c/hunter-1.0.5.tar.gz https://github.com/hunter-packages/crc32c/archive/refs/tags/hunter-1.0.5.tar.gz
+#  now build all targets using all available CPU cores
+cmake --build build -- -j$(nproc) 
 ```
 
 ### Running tests
