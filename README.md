@@ -22,7 +22,8 @@ _to be posted soon_
 
 ## Installation Requirements
 
-SKALE consensus has been built and tested on Ubuntu.
+SKALE consensus has been built and tested on Ubuntu 18.04 and later.
+The preferred build environment is currenty Ubuntu 22.04
 
 Ensure that the required packages are installed by executing:
 
