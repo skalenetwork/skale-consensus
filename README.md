@@ -23,7 +23,8 @@ _to be posted soon_
 ## Installation Requirements
 
 SKALE consensus has been built and tested on Ubuntu 18.04 and later.
-The preferred build environment is currenty Ubuntu 22.04
+
+The preferred build environment is currenty Ubuntu 22.04.
 
 Ensure that the required packages are installed by executing:
 
@@ -34,7 +35,7 @@ sudo apt-get install -yq libprocps-dev gcc-9 g++-9 valgrind gawk sed libffi-dev 
     libgoogle-perftools-dev flex bison yasm texinfo autotools-dev automake \
     python python3-pip cmake libtool build-essential pkg-config autoconf wget \
     git  libargtable2-dev libmicrohttpd-dev libhiredis-dev redis-server openssl \
-    libssl-dev doxygen
+    libssl-dev doxygen libgcrypt20-dev
 ```
 
 ### Building from source on Ubuntu (Development)
