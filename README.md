@@ -55,7 +55,7 @@ Navigate to the testing directories and run `./consensusd .`
 
 ## Libraries
 
--   [libBLS by SKALE Labs](https://skalelabs.com/)
+-   [libBLS](https://github.com/skalenetwork/libBLS) by [SKALE Labs](https://skalelabs.com/)
 
 ## Contributing
 
