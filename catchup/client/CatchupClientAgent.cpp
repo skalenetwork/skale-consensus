@@ -147,6 +147,7 @@ nlohmann::json CatchupClientAgent::readCatchupResponseHeader(const ptr< ClientSo
 
 
     try {
+        LOG(info, "Catchup step 3: trying to read missing blocks from node " + to_string( _dstIndex ));
         blocks = readMissingBlocks( socket, response );
 
         CHECK_STATE( blocks );
