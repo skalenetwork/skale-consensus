@@ -103,9 +103,9 @@ class CryptoManager  {
     recursive_mutex historicEcdsaPublicKeyMapLock;
 
 
-    map< uint64_t, ptr< vector< string > > > blsPublicKeyMap;  // tsafe
+    map< uint64_t, ptr< vector< string > > > blsPublicKeySharesMapByIndex;  // tsafe
 
-    ptr< vector< ptr< vector< string > > > > sgxBLSPublicKeys;  // tsafe
+    ptr< vector< ptr< vector< string > > > > sgxBLSPublicKeyShares;  // tsafe
 
     ptr< vector< string > > sgxECDSAPublicKeys;  // tsafe
 
@@ -177,7 +177,7 @@ public:
     void  verifyBlockSig(string& _signature,  block_id _blockId, BLAKE3Hash & _hash, const TimeStamp& _ts = TimeStamp(uint64_t(-1), 0));
 
     void verifyThresholdSigShare(
-            ptr<ThresholdSigShare> _sigShare, BLAKE3Hash &_hash);
+            ptr<ThresholdSigShare> _sigShare, BLAKE3Hash &_hash, bool _forceMockup);
 
 
 
