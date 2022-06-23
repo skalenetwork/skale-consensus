@@ -18,7 +18,7 @@
 
     @file AUXBroadcastMessage.h
     @author Stan Kladko
-    @date 2018
+    @date 2018 -
 */
 
 #pragma  once

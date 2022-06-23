@@ -337,7 +337,7 @@ void BinConsensusInstance::auxSelfVote(bin_consensus_round _r,
 
 
     addAUXSelfVoteToHistory(_r, _v);
-    
+
 
     auxVoteCore(_r,  _v, getSchain()->getSchainIndex(), _sigShare);
 
