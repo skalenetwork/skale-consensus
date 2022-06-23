@@ -78,6 +78,7 @@ nlohmann::json CatchupClientAgent::readCatchupResponseHeader(const ptr<ClientSoc
 }
 
 
+
 [[nodiscard]] uint64_t CatchupClientAgent::sync(schain_index _dstIndex) {
     LOG(debug, "Catchupc step 0: requesting blocks after " +
                to_string(getSchain()->getLastCommittedBlockID()));
@@ -148,6 +149,7 @@ nlohmann::json CatchupClientAgent::readCatchupResponseHeader(const ptr<ClientSoc
 
 
     try {
+
         blocks = readMissingBlocks(socket, response);
 
         CHECK_STATE(blocks)
