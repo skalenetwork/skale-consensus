@@ -103,9 +103,9 @@ class CryptoManager  {
     recursive_mutex historicEcdsaPublicKeyMapLock;
 
 
-    map< uint64_t, ptr< vector< string > > > blsPublicKeyMap;  // tsafe
+    map< uint64_t, ptr< vector< string > > > blsPublicKeySharesMapByIndex;  // tsafe
 
-    ptr< vector< ptr< vector< string > > > > sgxBLSPublicKeys;  // tsafe
+    ptr< vector< ptr< vector< string > > > > sgxBLSPublicKeyShares;  // tsafe
 
     ptr< vector< string > > sgxECDSAPublicKeys;  // tsafe
 
