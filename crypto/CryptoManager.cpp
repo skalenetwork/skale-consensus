@@ -903,8 +903,6 @@ void CryptoManager::verifyBlsSigShare( ptr< BLSSigShare > _sigShare, BLAKE3Hash&
 
         bool res = false;
 
-        cerr << "Got share!" << endl;
-
         try {
             res = blsPublicKeyShare.VerifySig(
                 std::make_shared< std::array< uint8_t, 32 > >( _hash.getHash() ), _sigShare,
