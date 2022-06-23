@@ -100,7 +100,7 @@ NetworkMessage::NetworkMessage(MsgType _messageType, node_id _srcNodeID, block_i
 
     if (!_sigShareStr.empty()) {
         sigShare = _cryptoManager->createSigShare(_sigShareStr, _schainId, _blockID, _srcSchainIndex,
-                                                  (uint64_t) _r <= 3);
+                                                  (uint64_t) _r < COMMON_COIN_ROUND);
         CHECK_STATE(sigShare)
     }
 

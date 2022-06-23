@@ -47,4 +47,5 @@ public:
  const string& _blsSigShare, schain_index _srcSchainIndex,
  const string& _ecdsaSig, const string& _pubKey, const string& _pkSig,  Schain *_sChain);
 
+    ptr< BLAKE3Hash > getCommonCoinHash();
 };
