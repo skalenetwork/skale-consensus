@@ -78,6 +78,8 @@ nlohmann::json CatchupClientAgent::readCatchupResponseHeader(const ptr< ClientSo
 
 
 [[nodiscard]] uint64_t CatchupClientAgent::sync( schain_index _dstIndex ) {
+    LOG(info, "Catchup step 0: requesting missing block from node " +
+               to_string( _dstIndex ));
     LOG( debug, "Catchupc step 0: requesting blocks after " +
                     to_string( getSchain()->getLastCommittedBlockID() ) );
 
