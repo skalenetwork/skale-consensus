@@ -45,6 +45,22 @@
 #include "AUXBroadcastMessage.h"
 
 
+ptr<BLAKE3Hash> AUXBroadcastMessage::getCommonCoinHash() {
+    HASH_INIT(hashObj);
+    auto bpi = getBlockProposerIndex();
+
+    HASH_UPDATE(hashObj, bpi);
+    HASH_UPDATE(hashObj, this->r);
+    HASH_UPDATE(hashObj, this->blockID);
+    HASH_UPDATE(hashObj, this->schainID);
+    HASH_UPDATE(hashObj, this->msgType);
+
+    auto hash = make_shared<BLAKE3Hash>();
+    HASH_FINAL(hashObj, hash->data());
+    return hash;
+}
+
+
 AUXBroadcastMessage::AUXBroadcastMessage(bin_consensus_round _round, bin_consensus_value _value, block_id _blockID,
                                          schain_index _proposerIndex, uint64_t _time,
                                          BinConsensusInstance &_sourceProtocolInstance)
@@ -61,18 +77,17 @@ AUXBroadcastMessage::AUXBroadcastMessage(bin_consensus_round _round, bin_consens
     HASH_UPDATE(hashObj, this->schainID);
     HASH_UPDATE(hashObj, this->msgType);
 
-    BLAKE3Hash hash;
-    HASH_FINAL(hashObj, hash.data());
+    auto hash = getCommonCoinHash();
+    CHECK_STATE(hash);
 
     if ((uint64_t) _round >= COMMON_COIN_ROUND) {
         this->sigShare = schain->getCryptoManager()->signBinaryConsensusSigShare(
-            hash, _blockID, ( uint64_t ) _round );
+            *hash, _blockID, ( uint64_t ) _round );
         this->sigShareString = sigShare->toString();
     } else {
         this->sigShare = nullptr;
         this->sigShareString = "";
     }
-
 }
 
 AUXBroadcastMessage::AUXBroadcastMessage(node_id _srcNodeID, block_id _blockID, schain_index _blockProposerIndex,
@@ -85,4 +100,7 @@ AUXBroadcastMessage::AUXBroadcastMessage(node_id _srcNodeID, block_id _blockID, 
 
     printPrefix = "a";
 
+    if (_r >= COMMON_COIN_ROUND && _sChain->getNode()->isSgxEnabled()) {
+        CHECK_STATE(!_blsSigShare.empty())
+    }
 };

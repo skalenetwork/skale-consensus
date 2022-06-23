@@ -860,7 +860,7 @@ void CryptoManager::verifyThresholdSig( ptr< ThresholdSignature > _signature, BL
 // throw an exception if the share does not verify
 
 void CryptoManager::verifyThresholdSigShare(
-    ptr< ThresholdSigShare > _sigShare, BLAKE3Hash& _hash ) {
+    ptr< ThresholdSigShare > _sigShare, BLAKE3Hash& _hash, bool _forceMockup ) {
     CHECK_STATE( _sigShare );
     // sync nodes do not do sig gluing
     CHECK_STATE( !getSchain()->getNode()->isSyncOnlyNode() )
@@ -868,10 +868,12 @@ void CryptoManager::verifyThresholdSigShare(
     MONITOR( __CLASS_NAME__, __FUNCTION__ )
 
     try {
-        if ( ( getSchain()->getNode()->isSgxEnabled() ) ) {
-            auto consensusBlsSigShare = dynamic_pointer_cast< ConsensusBLSSigShare >( _sigShare );
+        if ( ( getSchain()->getNode()->isSgxEnabled() && !_forceMockup) ) {
 
-            CHECK_STATE( consensusBlsSigShare );
+            auto consensusBlsSigShare =
+                dynamic_pointer_cast<ConsensusBLSSigShare>(_sigShare);
+
+            CHECK_STATE(consensusBlsSigShare);
 
             ptr< BLSSigShare > blsSigShare = consensusBlsSigShare->getBlsSigShare();
 
@@ -899,7 +901,8 @@ void CryptoManager::verifyBlsSigShare( ptr< BLSSigShare > _sigShare, BLAKE3Hash&
         CHECK_STATE( blsPublicKeySharesMapByIndex.count(_sigShare->getSignerIndex() > 0));
 
 
-        auto blsPublicKeyShare = BLSPublicKeyShare( blsPublicKeySharesMapByIndex.at(_sigShare->getSignerIndex()), requiredSigners, totalSigners );
+        auto blsPublicKeyShare = BLSPublicKeyShare( blsPublicKeySharesMapByIndex.at(
+                                                        _sigShare->getSignerIndex()), requiredSigners, totalSigners );
 
         bool res = false;
 
