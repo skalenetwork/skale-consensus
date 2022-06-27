@@ -297,9 +297,6 @@ CryptoManager::CryptoManager( Schain& _sChain )
         for ( uint64_t i = 0; i < ( uint64_t ) getSchain()->getNodeCount(); i++ ) {
             blsPublicKeySharesMapByIndex[i + 1] = sgxBLSPublicKeyShares->at( i );
         }
-
-
-
     }
 
 
@@ -711,7 +708,7 @@ ptr< ThresholdSigShare > CryptoManager::signDAProofSigShare(
                      publicKey + ";" + pkSig;
 
         return make_shared< ConsensusEdDSASigShare >( share, sChain->getSchainID(), _blockId,
-            sChain->getSchainIndex(), totalSigners, requiredSigners );
+            totalSigners);
 
     } else {
         auto sigShare = _hash.toHex();
@@ -721,8 +718,7 @@ ptr< ThresholdSigShare > CryptoManager::signDAProofSigShare(
 }
 
 void CryptoManager::verifyDAProofSigShare( ptr< ThresholdSigShare > _sigShare,
-    schain_index _schainIndex, BLAKE3Hash& _hash, node_id _nodeId, bool _forceMockup,
-    uint64_t _timeStamp ) {
+    schain_index _schainIndex, BLAKE3Hash& _hash, node_id _nodeId, bool _forceMockup ) {
     MONITOR( __CLASS_NAME__, __FUNCTION__ )
 
     try {
@@ -731,7 +727,11 @@ void CryptoManager::verifyDAProofSigShare( ptr< ThresholdSigShare > _sigShare,
 
             CHECK_STATE( sShare );
 
-            sShare->verify( *this, _schainIndex, _hash, _nodeId, _timeStamp );
+            CHECK_STATE2( sShare->getSignerIndex() == _schainIndex,
+                "Incorrect schain index in sigShare:" + to_string( sShare->getSignerIndex() ) )
+
+            sShare->verify( *this, _hash, _nodeId );
+
 
             return;
 
@@ -868,12 +868,10 @@ void CryptoManager::verifyThresholdSigShare(
     MONITOR( __CLASS_NAME__, __FUNCTION__ )
 
     try {
-        if ( ( getSchain()->getNode()->isSgxEnabled() && !_forceMockup) ) {
+        if ( ( getSchain()->getNode()->isSgxEnabled() && !_forceMockup ) ) {
+            auto consensusBlsSigShare = dynamic_pointer_cast< ConsensusBLSSigShare >( _sigShare );
 
-            auto consensusBlsSigShare =
-                dynamic_pointer_cast<ConsensusBLSSigShare>(_sigShare);
-
-            CHECK_STATE(consensusBlsSigShare);
+            CHECK_STATE( consensusBlsSigShare );
 
             ptr< BLSSigShare > blsSigShare = consensusBlsSigShare->getBlsSigShare();
 
@@ -896,13 +894,13 @@ void CryptoManager::verifyBlsSigShare( ptr< BLSSigShare > _sigShare, BLAKE3Hash&
     CHECK_STATE( _sigShare );
 
     try {
+        CHECK_STATE( blsPublicKeySharesMapByIndex.size() == getSchain()->getNodeCount() );
+        CHECK_STATE( blsPublicKeySharesMapByIndex.count( _sigShare->getSignerIndex() > 0 ) );
 
-        CHECK_STATE( blsPublicKeySharesMapByIndex.size() == getSchain()->getNodeCount());
-        CHECK_STATE( blsPublicKeySharesMapByIndex.count(_sigShare->getSignerIndex() > 0));
 
-
-        auto blsPublicKeyShare = BLSPublicKeyShare( blsPublicKeySharesMapByIndex.at(
-                                                        _sigShare->getSignerIndex()), requiredSigners, totalSigners );
+        auto blsPublicKeyShare =
+            BLSPublicKeyShare( blsPublicKeySharesMapByIndex.at( _sigShare->getSignerIndex() ),
+                requiredSigners, totalSigners );
 
         bool res = false;
 
@@ -933,7 +931,8 @@ ptr< ThresholdSigShareSet > CryptoManager::createSigShareSet( block_id _blockId 
 
 ptr< ThresholdSigShareSet > CryptoManager::createDAProofSigShareSet( block_id _blockId ) {
     if ( getSchain()->getNode()->isSgxEnabled() ) {
-        return make_shared< ConsensusEdDSASigShareSet >( _blockId, totalSigners, requiredSigners );
+        return make_shared< ConsensusEdDSASigShareSet >(
+            getSchain()->getSchainID(), _blockId, totalSigners, requiredSigners );
     } else {
         return make_shared< MockupSigShareSet >( _blockId, totalSigners, requiredSigners );
     }
@@ -959,18 +958,17 @@ ptr< ThresholdSigShare > CryptoManager::createSigShare( const string& _sigShare,
 ptr< ThresholdSigShare > CryptoManager::createDAProofSigShare( const string& _sigShare,
     schain_id _schainID, block_id _blockID, schain_index _signerIndex, bool _forceMockup ) {
     CHECK_ARGUMENT( !_sigShare.empty() );
-    CHECK_STATE( totalSigners >= requiredSigners );
-
 
     if ( getSchain()->getNode()->isSgxEnabled() && !_forceMockup ) {
         auto result = make_shared< ConsensusEdDSASigShare >(
-            _sigShare, _schainID, _blockID, _signerIndex, totalSigners, requiredSigners );
+            _sigShare, _schainID, _blockID, totalSigners);
 
         return result;
 
     } else {
         return make_shared< MockupSigShare >(
-            _sigShare, _schainID, _blockID, _signerIndex, totalSigners, requiredSigners );
+            _sigShare, _schainID, _blockID, _signerIndex,
+            totalSigners, requiredSigners );
     }
 }
 
@@ -1080,11 +1078,15 @@ ptr< ThresholdSignature > CryptoManager::verifyDAProofThresholdSig(
     try {
         if ( getSchain()->getNode()->isSgxEnabled() ) {
             auto sig = make_shared< ConsensusEdDSASignature >(
-                _signature, _blockId, totalSigners, requiredSigners );
+                _signature, getSchain()->getSchainID(), _blockId , totalSigners,
+                requiredSigners);
+
+            sig->verify( *this, _hash);
+
             return sig;
         } else {
             auto sig = make_shared< MockupSignature >(
-                _signature, _blockId, requiredSigners, totalSigners );
+                _signature, _blockId,  totalSigners, requiredSigners );
 
             CHECK_STATE2(
                 sig->toString() == _hash.toHex(), "Mockup threshold signature did not verify" );

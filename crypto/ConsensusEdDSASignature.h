@@ -27,15 +27,18 @@
 #include "ThresholdSignature.h"
 
 class ConsensusEdDSASigShareSet;
+class CryptoManager;
 
 class ConsensusEdDSASignature : public ThresholdSignature {
 
     string mergedSig;
 
+    map<uint64_t, ptr<ConsensusEdDSASigShare>> shares;
+
 public:
 
     ConsensusEdDSASignature(
-        const string& _sig, block_id _blockID, size_t _totalSigners, size_t _requiredSigners );
+        const string& _sig, schain_id _schainId, block_id _blockID, size_t _totalSigners, size_t _requiredSigners );
 
     string toString() override;
 
@@ -43,6 +46,7 @@ public:
         assert(false); // not implemented
     }
 
+    void verify( CryptoManager& _cryptoManager, BLAKE3Hash& _hash);
 };
 
 #endif  // SKALED_CONSENSUSEDDSASIGNATURE_H

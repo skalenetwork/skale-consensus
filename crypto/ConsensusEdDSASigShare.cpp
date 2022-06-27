@@ -22,7 +22,7 @@
 */
 
 
-#include <boost/tokenizer.hpp>
+
 
 
 #include "SkaleCommon.h"
@@ -35,29 +35,13 @@
 #include "ConsensusEdDSASigShare.h"
 
 ConsensusEdDSASigShare::ConsensusEdDSASigShare(const string& _sigShare, schain_id _schainID, block_id _blockID,
-                                           schain_index _signerIndex,
-                                           uint64_t, uint64_t)
-    : ThresholdSigShare(_schainID, _blockID, _signerIndex), edDSASigShare(_sigShare) {
-
-    CHECK_ARGUMENT(!_sigShare.empty());
-
-    CHECK_STATE(_sigShare.find(";") != string::npos)
-    this->edDSASigShare = _sigShare;
-}
+    uint64_t _totalSigners)
+    : ThresholdSigShare(_schainID, _blockID, 0), sigShare(_sigShare) {
 
 
-string ConsensusEdDSASigShare::toString() {
-    return edDSASigShare;
-}
-
-void ConsensusEdDSASigShare::verify(
-    CryptoManager& _cryptoManager, schain_index _signerIndex,
-    BLAKE3Hash& _hash, node_id _nodeId, uint64_t _timeStamp ) {
 
     boost::char_separator< char > sep( ";" );
-    boost::tokenizer tok {edDSASigShare, sep};
-
-    vector<string> tokens;
+    boost::tokenizer tok {sigShare, sep};
 
     for ( const auto& it : tok) {
         tokens.push_back((it));
@@ -65,21 +49,31 @@ void ConsensusEdDSASigShare::verify(
 
     if (tokens.size() != 4) {
         BOOST_THROW_EXCEPTION(InvalidStateException(string("Incorrect ConsensusEdDSASigShare:") +
-                                                    "tokens.size() ! = 4" + edDSASigShare,
-                                                    __CLASS_NAME__));
+                                                          "tokens.size() ! = 4" + sigShare,
+            __CLASS_NAME__));
     }
 
-    if (to_string((uint64_t)_signerIndex) != tokens.at(0)) {
-        BOOST_THROW_EXCEPTION(InvalidStateException(string("Incorrect ConsensusEdDSASigShare:") +
-                                                    "SignerIndex must be " +
-                                                          to_string(_signerIndex) +
-                                                          ":" + edDSASigShare,
-                                                    __CLASS_NAME__));
-    }
+    signerIndex = boost::lexical_cast<uint64_t >(tokens.at(0));
+
+    CHECK_STATE(signerIndex > 0);
+    CHECK_STATE(signerIndex <= _totalSigners);
+
+}
+
+
+string ConsensusEdDSASigShare::toString() {
+    return sigShare;
+}
+
+void ConsensusEdDSASigShare::verify(
+    CryptoManager& _cryptoManager,
+    BLAKE3Hash& _hash, node_id _nodeId) {
+
 
     try {
+        // EdDSA sig shares are always verified using the current set of ecdsa keys
         _cryptoManager.sessionVerifySigAndKey(_hash, tokens.at(1), tokens.at(2),
-        tokens.at(3), blockId, _nodeId, _timeStamp);
+        tokens.at(3), blockId, _nodeId, uint64_t( -1 ) );
     } catch (...) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
