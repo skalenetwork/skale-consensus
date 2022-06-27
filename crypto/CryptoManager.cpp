@@ -1080,6 +1080,9 @@ ptr< ThresholdSignature > CryptoManager::verifyDAProofThresholdSig(
             auto sig = make_shared< ConsensusEdDSASignature >(
                 _signature, getSchain()->getSchainID(), _blockId , totalSigners,
                 requiredSigners);
+
+            sig->verify( *this, _hash);
+
             return sig;
         } else {
             auto sig = make_shared< MockupSignature >(

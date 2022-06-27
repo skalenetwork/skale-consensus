@@ -28,6 +28,7 @@
 #include "network/Utils.h"
 #include "thirdparty/json.hpp"
 
+#include "chains/Schain.h"
 #include "ConsensusEdDSASigShare.h"
 #include "ConsensusEdDSASignature.h"
 #include "ThresholdSignature.h"
@@ -53,7 +54,7 @@ ConsensusEdDSASignature::ConsensusEdDSASignature(
         shares.emplace(index, share);
 
     }
-    
+
     CHECK_ARGUMENT2(shares.size() == _requiredSigners, "Incorrect shares count:" +
         to_string(shares.size()));
 
@@ -65,6 +66,23 @@ ConsensusEdDSASignature::ConsensusEdDSASignature(
 string  ConsensusEdDSASignature::toString() {
     return mergedSig;
 };
+
+void ConsensusEdDSASignature::verify(
+    CryptoManager& _cryptoManager,
+    BLAKE3Hash& _hash) {
+
+    try {
+
+        for (auto & share: shares ) {
+            share.second->verify(_cryptoManager, _hash,
+                _cryptoManager.getSchain()->getNodeIDByIndex(share.first));
+        }
+
+    } catch (...) {
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+    }
+
+}
 
 
 

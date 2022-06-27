@@ -27,6 +27,7 @@
 #include "ThresholdSignature.h"
 
 class ConsensusEdDSASigShareSet;
+class CryptoManager;
 
 class ConsensusEdDSASignature : public ThresholdSignature {
 
@@ -45,6 +46,7 @@ public:
         assert(false); // not implemented
     }
 
+    void verify( CryptoManager& _cryptoManager, BLAKE3Hash& _hash);
 };
 
 #endif  // SKALED_CONSENSUSEDDSASIGNATURE_H
