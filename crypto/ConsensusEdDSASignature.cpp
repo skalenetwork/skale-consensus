@@ -28,13 +28,14 @@
 #include "network/Utils.h"
 #include "thirdparty/json.hpp"
 
+#include "ConsensusEdDSASigShare.h"
 #include "ConsensusEdDSASignature.h"
 #include "ThresholdSignature.h"
 
 
 ConsensusEdDSASignature::ConsensusEdDSASignature(
-    const string& _mergedSig, block_id _blockID, size_t _totalSigners, size_t _requiredSigners )
-    : ThresholdSignature( _blockID, _totalSigners, _requiredSigners ), mergedSig(_mergedSig) {
+    const string& _mergedSig, schain_id _schainId, block_id _blockId, size_t _totalSigners, size_t _requiredSigners )
+    : ThresholdSignature( _blockId, _totalSigners, _requiredSigners ), mergedSig(_mergedSig) {
 
     CHECK_ARGUMENT(!_mergedSig.empty());
 
@@ -42,11 +43,17 @@ ConsensusEdDSASignature::ConsensusEdDSASignature(
     boost::tokenizer tok {_mergedSig, sep};
 
     for ( const auto& it : tok) {
-        shares.push_back((it));
+        string shareString = it;
+        shares.push_back(shareString);
+        auto share = make_shared<ConsensusEdDSASigShare>(
+                                          shareString, _schainId, _blockId);
+
     }
 
     assert(shares.size() == _requiredSigners);
     CHECK_ARGUMENT(shares.size() == _requiredSigners);
+
+
 
 
 }

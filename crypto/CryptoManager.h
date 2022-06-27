@@ -199,7 +199,7 @@ public:
 
 
     void verifyDAProofSigShare( ptr< ThresholdSigShare > _sigShare, schain_index _schainIndex,
-        BLAKE3Hash & _hash, node_id _nodeId, bool _forceMockup, uint64_t _timeStamp );
+        BLAKE3Hash & _hash, node_id _nodeId, bool _forceMockup);
 
     ptr< ThresholdSignature > verifyDAProofThresholdSig(
         BLAKE3Hash & _hash, const string& _signature, block_id _blockId );

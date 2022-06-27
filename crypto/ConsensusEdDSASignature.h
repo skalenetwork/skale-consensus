@@ -37,7 +37,7 @@ class ConsensusEdDSASignature : public ThresholdSignature {
 public:
 
     ConsensusEdDSASignature(
-        const string& _sig, block_id _blockID, size_t _totalSigners, size_t _requiredSigners );
+        const string& _sig, schain_id _schainId, block_id _blockID, size_t _totalSigners, size_t _requiredSigners );
 
     string toString() override;
 
