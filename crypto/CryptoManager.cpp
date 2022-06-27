@@ -707,7 +707,8 @@ ptr< ThresholdSigShare > CryptoManager::signDAProofSigShare(
         auto share = to_string( ( uint64_t ) getSchain()->getSchainIndex() ) + ";" + sig + ";" +
                      publicKey + ";" + pkSig;
 
-        return make_shared< ConsensusEdDSASigShare >( share, sChain->getSchainID(), _blockId );
+        return make_shared< ConsensusEdDSASigShare >( share, sChain->getSchainID(), _blockId,
+            totalSigners);
 
     } else {
         auto sigShare = _hash.toHex();
@@ -960,7 +961,7 @@ ptr< ThresholdSigShare > CryptoManager::createDAProofSigShare( const string& _si
 
     if ( getSchain()->getNode()->isSgxEnabled() && !_forceMockup ) {
         auto result = make_shared< ConsensusEdDSASigShare >(
-            _sigShare, _schainID, _blockID);
+            _sigShare, _schainID, _blockID, totalSigners);
 
         return result;
 
