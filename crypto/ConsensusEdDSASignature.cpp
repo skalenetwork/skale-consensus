@@ -21,6 +21,7 @@
     @date 2020
 */
 
+#include <boost/tokenizer.hpp>
 
 #include "Log.h"
 #include "SkaleCommon.h"
@@ -37,8 +38,17 @@ ConsensusEdDSASignature::ConsensusEdDSASignature(
 
     CHECK_ARGUMENT(!_mergedSig.empty());
 
-    if (!(_requiredSigners == 1))
-        CHECK_ARGUMENT(_mergedSig.find('*') != string::npos)
+    boost::char_separator< char > sep( "*" );
+    boost::tokenizer tok {_mergedSig, sep};
+
+    for ( const auto& it : tok) {
+        shares.push_back((it));
+    }
+
+    assert(shares.size() == _requiredSigners);
+    CHECK_ARGUMENT(shares.size() == _requiredSigners);
+
+
 }
 
 string  ConsensusEdDSASignature::toString() {

@@ -32,6 +32,8 @@ class ConsensusEdDSASignature : public ThresholdSignature {
 
     string mergedSig;
 
+    vector<string> shares;
+
 public:
 
     ConsensusEdDSASignature(
