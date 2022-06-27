@@ -34,7 +34,8 @@ class ConsensusEdDSASigShare : public ThresholdSigShare {
 
 public:
 
-    ConsensusEdDSASigShare(const string& _sigShare, schain_id _schainId, block_id _blockId);
+    ConsensusEdDSASigShare(const string& _sigShare, schain_id _schainId, block_id _blockId,
+        uint64_t _totalSigners);
 
     string toString() override;
 

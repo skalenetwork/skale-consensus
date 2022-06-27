@@ -32,7 +32,7 @@ class ConsensusEdDSASignature : public ThresholdSignature {
 
     string mergedSig;
 
-    vector<string> shares;
+    map<uint64_t, ptr<ConsensusEdDSASigShare>> shares;
 
 public:
 

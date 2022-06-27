@@ -43,15 +43,19 @@ ConsensusEdDSASignature::ConsensusEdDSASignature(
     boost::tokenizer tok {_mergedSig, sep};
 
     for ( const auto& it : tok) {
-        string shareString = it;
-        shares.push_back(shareString);
         auto share = make_shared<ConsensusEdDSASigShare>(
-                                          shareString, _schainId, _blockId);
+                                          it, _schainId, _blockId, _totalSigners);
+
+        auto index = share->getSignerIndex();
+
+        CHECK_STATE2(shares.count((uint64_t )index) == 0, "Duplicate shares in EdDsaThresholdSig");
+
+        shares.emplace(index, share);
 
     }
-
-    assert(shares.size() == _requiredSigners);
-    CHECK_ARGUMENT(shares.size() == _requiredSigners);
+    
+    CHECK_ARGUMENT2(shares.size() == _requiredSigners, "Incorrect shares count:" +
+        to_string(shares.size()));
 
 
 

@@ -34,7 +34,8 @@
 
 #include "ConsensusEdDSASigShare.h"
 
-ConsensusEdDSASigShare::ConsensusEdDSASigShare(const string& _sigShare, schain_id _schainID, block_id _blockID)
+ConsensusEdDSASigShare::ConsensusEdDSASigShare(const string& _sigShare, schain_id _schainID, block_id _blockID,
+    uint64_t _totalSigners)
     : ThresholdSigShare(_schainID, _blockID, 0), sigShare(_sigShare) {
 
 
@@ -53,6 +54,9 @@ ConsensusEdDSASigShare::ConsensusEdDSASigShare(const string& _sigShare, schain_i
     }
 
     signerIndex = boost::lexical_cast<uint64_t >(tokens.at(0));
+
+    CHECK_STATE(signerIndex > 0);
+    CHECK_STATE(signerIndex <= _totalSigners);
 
 }
 
