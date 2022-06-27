@@ -34,8 +34,9 @@ using namespace std;
 
 
 ConsensusEdDSASigShareSet::ConsensusEdDSASigShareSet(
-    block_id _blockId, size_t _totalSigners, size_t _requiredSigners )
-    : ThresholdSigShareSet( _blockId, _totalSigners, _requiredSigners ) {
+    schain_id _schainId, block_id _blockId, size_t _totalSigners, size_t _requiredSigners )
+    : ThresholdSigShareSet( _blockId, _totalSigners, _requiredSigners ),
+    schainId(_schainId) {
     totalObjects++;
 }
 
@@ -63,7 +64,7 @@ ptr< ThresholdSignature > ConsensusEdDSASigShareSet::mergeSignature() {
 
 
     auto sig =
-        make_shared< ConsensusEdDSASignature >( mergedSig, blockId, totalSigners, requiredSigners );
+        make_shared< ConsensusEdDSASignature >( mergedSig, schainId, blockId, totalSigners, requiredSigners );
     return sig;
 }
 

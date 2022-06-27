@@ -86,6 +86,9 @@
 
 #include <boost/crc.hpp>
 
+#include "boost/lexical_cast.hpp"
+#include <boost/tokenizer.hpp>
+
 class ConsensusEngine;
 class SkaleLog;
 

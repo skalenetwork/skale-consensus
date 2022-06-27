@@ -324,8 +324,7 @@ pair< ConnectionStatus, ConnectionSubStatus > BlockProposalClientAgent::sendBloc
     auto h = _proposal->getHash();
 
     getSchain()->getCryptoManager()->verifyDAProofSigShare(
-        sigShare, _index, h, getSchain()->getNodeIDByIndex( _index ), false,
-        getSchain()->getLastCommittedBlockTimeStamp().getLinuxTimeMs());
+        sigShare, _index, h, getSchain()->getNodeIDByIndex( _index ), false);
 
     CHECK_STATE( sigShare );
 
