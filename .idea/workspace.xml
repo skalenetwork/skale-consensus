@@ -44,8 +44,6 @@
   <component name="ChangeListManager">
     <list default="true" id="ec15c893-7f20-4493-be40-38b8f69efc54" name="Default Changelist" comment="bug/SKALE-4616-oracle-mvp">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crypto/ConsensusEdDSASigShare.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/crypto/ConsensusEdDSASigShare.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crypto/ConsensusEdDSASigShare.h" beforeDir="false" afterPath="$PROJECT_DIR$/crypto/ConsensusEdDSASigShare.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/crypto/ConsensusEdDSASignature.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/crypto/ConsensusEdDSASignature.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/crypto/ConsensusEdDSASignature.h" beforeDir="false" afterPath="$PROJECT_DIR$/crypto/ConsensusEdDSASignature.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/crypto/CryptoManager.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/crypto/CryptoManager.cpp" afterDir="false" />
@@ -396,6 +394,7 @@
       <workItem from="1656336306679" duration="317000" />
       <workItem from="1656336738388" duration="995000" />
       <workItem from="1656338109284" duration="1677000" />
+      <workItem from="1656341645683" duration="2225000" />
     </task>
     <task id="LOCAL-00093" summary="bug/SKALE-4352">
       <created>1634133299846</created>
