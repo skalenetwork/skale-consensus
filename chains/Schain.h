@@ -365,5 +365,7 @@ public:
 
     const atomic<bool> &getIsStateInitialized() const;
 
+    bool isLegacy();
+
 };
 

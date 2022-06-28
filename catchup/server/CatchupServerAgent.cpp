@@ -367,6 +367,8 @@ ptr<vector<uint8_t>> CatchupServerAgent::createBlockFinalizeResponse(nlohmann::j
                 (uint64_t) getSchain()->getNodeCount() - 1,
                 fragmentIndex);
 
+
+
         CHECK_STATE(fragment != nullptr);
 
         _responseHeader->setStatusSubStatus(CONNECTION_PROCEED, CONNECTION_OK);
@@ -375,8 +377,12 @@ ptr<vector<uint8_t>> CatchupServerAgent::createBlockFinalizeResponse(nlohmann::j
 
         CHECK_STATE(serializedFragment);
 
+        auto daProofSig = getNode()->getDaProofDB()->getDASig(proposal->getBlockID(),
+            proposal->getProposerIndex());
+
         _responseHeader->setFragmentParams(serializedFragment->size(),
-                                           proposal->serialize()->size(), proposal->getHash().toHex());
+                                           proposal->serialize()->size(), proposal->getHash().toHex(),
+            daProofSig);
 
         return serializedFragment;
     } catch (ExitRequestedException &e) { throw; } catch (...) {
