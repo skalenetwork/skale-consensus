@@ -59,6 +59,8 @@ public:
     bool haveDAProof(const ptr<BlockProposal>& _proposal);
 
     bool isEnoughProofs(block_id _blockID);
+    
+    string getDASig(block_id _blockId, schain_index _proposerIndex);
 };
 
 

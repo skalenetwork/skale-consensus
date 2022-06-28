@@ -122,6 +122,16 @@ string BasicHeader::getString(nlohmann::json &_js, const char *_name) {
     return result;
 }
 
+string BasicHeader::maybeGetString(nlohmann::json &_js, const char *_name) {
+    CHECK_ARGUMENT(_name);
+    if (_js.find( _name ) == _js.end()) {
+        return "";
+    }
+    return getString(_js, _name);
+}
+
+
+
 BasicHeader::BasicHeader(const char *_type) : type(_type)  {
     CHECK_ARGUMENT(_type);
     totalObjects++;
