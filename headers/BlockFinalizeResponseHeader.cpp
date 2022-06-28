@@ -48,17 +48,22 @@ void BlockFinalizeResponseHeader::addFields(nlohmann::json &_j) {
     _j["blockHash"] = blockHash;
     _j["fragmentSize"] = (uint64_t) fragmentSize;
     _j["blockSize"] = (uint64_t) blockSize;
+
+    if (!daProofSig.empty()) {
+        _j["daSig"] = daProofSig;
+    }
 }
 
-void BlockFinalizeResponseHeader::setFragmentParams(uint64_t _fragmentSize, uint64_t _blockSize, const string& _hash) {
+void BlockFinalizeResponseHeader::setFragmentParams(uint64_t _fragmentSize, uint64_t _blockSize,
+    const string& _hash, const string& _daProofSig) {
 
     CHECK_ARGUMENT(_fragmentSize > 2)
     CHECK_ARGUMENT(_blockSize > 16)
     CHECK_ARGUMENT(!_hash.empty())
 
-
     fragmentSize = _fragmentSize;
     blockSize = _blockSize;
     blockHash = _hash;
+    daProofSig = _daProofSig;
     setComplete();
 }

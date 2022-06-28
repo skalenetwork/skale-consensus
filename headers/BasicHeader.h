@@ -95,6 +95,7 @@ public:
 
     static string getString( nlohmann::json& _js, const char* _name );
 
+    string maybeGetString( nlohmann::json& _js, const char* _name );
 };
 
 

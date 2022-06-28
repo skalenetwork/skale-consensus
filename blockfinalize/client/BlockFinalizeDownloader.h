@@ -68,6 +68,10 @@ class BlockFinalizeDownloader : public Agent {
 
     BlockProposalFragmentList fragmentList;
 
+    string blockHash = "";
+    string daSig = "";
+    recursive_mutex m;
+
 public:
 
     ptr<BlockFinalizeDownloaderThreadPool> threadPool = nullptr;
@@ -102,5 +106,6 @@ public:
 
     static uint64_t readBlockSize(nlohmann::json _responseHeader);
 
+    string readDAProofSig( nlohmann::json _responseHeader );
 };
 

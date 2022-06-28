@@ -63,6 +63,12 @@ bool DAProofDB::haveDAProof(const ptr<BlockProposal>& _proposal) {
     return keyExistsInSet(_proposal->getBlockID(), _proposal->getProposerIndex());
 }
 
+
+string DAProofDB::getDASig(block_id _blockId, schain_index _proposerIndex) {
+    return readStringFromBlockSet(_blockId, _proposerIndex);
+}
+
+
 // return not-null if _daProof completes set, null otherwise (both if not enough and too much)
 ptr<BooleanProposalVector> DAProofDB::addDAProof(const ptr<DAProof>& _daProof) {
 

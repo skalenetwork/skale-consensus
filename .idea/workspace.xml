@@ -42,11 +42,19 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ec15c893-7f20-4493-be40-38b8f69efc54" name="Default Changelist" comment="bug/SKALE-4616-oracle-mvp">
+    <list default="true" id="ec15c893-7f20-4493-be40-38b8f69efc54" name="Default Changelist" comment="#238 better log handling">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crypto/ConsensusEdDSASignature.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/crypto/ConsensusEdDSASignature.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crypto/ConsensusEdDSASignature.h" beforeDir="false" afterPath="$PROJECT_DIR$/crypto/ConsensusEdDSASignature.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crypto/CryptoManager.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/crypto/CryptoManager.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/blockfinalize/client/BlockFinalizeDownloader.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/blockfinalize/client/BlockFinalizeDownloader.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/blockfinalize/client/BlockFinalizeDownloader.h" beforeDir="false" afterPath="$PROJECT_DIR$/blockfinalize/client/BlockFinalizeDownloader.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/catchup/server/CatchupServerAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/catchup/server/CatchupServerAgent.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/chains/Schain.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/chains/Schain.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/chains/Schain.h" beforeDir="false" afterPath="$PROJECT_DIR$/chains/Schain.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/DAProofDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/DAProofDB.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/DAProofDB.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/DAProofDB.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/headers/BasicHeader.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/headers/BasicHeader.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/headers/BasicHeader.h" beforeDir="false" afterPath="$PROJECT_DIR$/headers/BasicHeader.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/headers/BlockFinalizeResponseHeader.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/headers/BlockFinalizeResponseHeader.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/headers/BlockFinalizeResponseHeader.h" beforeDir="false" afterPath="$PROJECT_DIR$/headers/BlockFinalizeResponseHeader.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libBLS/deps/libff/depends/xbyak" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/deps/libff/depends/xbyak" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -395,6 +403,9 @@
       <workItem from="1656336738388" duration="995000" />
       <workItem from="1656338109284" duration="1677000" />
       <workItem from="1656341645683" duration="2225000" />
+      <workItem from="1656431721482" duration="1925000" />
+      <workItem from="1656433806143" duration="694000" />
+      <workItem from="1656434664493" duration="2287000" />
     </task>
     <task id="LOCAL-00093" summary="bug/SKALE-4352">
       <created>1634133299846</created>

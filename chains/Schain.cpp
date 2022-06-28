@@ -390,6 +390,10 @@ const atomic<bool> &Schain::getIsStateInitialized() const {
     return isStateInitialized;
 }
 
+bool Schain::isLegacy() {
+    return Time::getCurrentTimeSec() < 1664383316;
+}
+
 
 void Schain::blockCommitArrived(block_id _committedBlockID, schain_index _proposerIndex,
                                 const ptr<ThresholdSignature> &_thresholdSig) {
