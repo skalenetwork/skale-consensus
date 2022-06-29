@@ -527,10 +527,10 @@ ptr< Header > BlockProposalServerAgent::createProposalResponseHeader(
     bool checkIt = true;
 
     if (getenv("CONSENSUS_USE_STATEROOT_PATCH")) {
-        checkIt = (chainName == "rhythmic-tegmen" ||
-                    chainName == "squeaking-nash" ||
-                    chainName == "chubby-sadr" ||
-                    chainName == "tinkling-kaffaljidhma");
+        checkIt = ! (chainName == "rhythmic-tegmen" ||
+                     chainName == "squeaking-nash" ||
+                     chainName == "chubby-sadr" ||
+                     chainName == "tinkling-kaffaljidhma");
     }
 
 
