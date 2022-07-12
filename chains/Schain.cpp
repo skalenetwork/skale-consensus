@@ -980,36 +980,55 @@ void Schain::healthCheck() {
     setHealthCheckFile(1);
 
     auto beginTime = Time::getCurrentTimeSec();
+    auto lastWarningPrintTimeSec = 0;
 
     LOG(info, "Waiting to connect to peers (could be up to two minutes)");
 
 
     while (connections.size() + 1 < getNodeCount()) {
+
+        // will optimistically wait for all nodes.
+        // if not all nodes are present, will be satisfied by 2/3 nodes
+
         if (3 * (connections.size() + 1) >= 2 * getNodeCount()) {
-            if (Time::getCurrentTimeSec() - beginTime > 5) {
+            if (Time::getCurrentTimeSec() - beginTime > HEALTH_CHECK_TIME_TO_WAIT_FOR_ALL_NODES_SEC) {
                 break;
             }
         }
 
-        if (Time::getCurrentTimeSec() - beginTime > 15000) {
+        // If the health check has been runnning for a long time and one could not connect to 2/3 nodes
+        // skaled will restart
+        if (Time::getCurrentTimeSec() - beginTime > HEALTHCHECK_ON_START_RETRY_TIME_SEC) {
             setHealthCheckFile(0);
             LOG(err, "Coult not connect to 2/3 of peers");
             exit(110);
         }
 
+        // check if it is time to print a warning again and print it
+        if (Time::getCurrentTimeSec() - lastWarningPrintTimeSec > HEALTHCHECK_ON_START_TIME_BETWEEN_WARNINGS_SEC) {
+            LOG(warn, "Coult not connect to 2/3 of peers. Retrying ...");
+            string aliveNodeIndices = "Alive node indices:";
+
+            for (auto& index : connections) {
+                aliveNodeIndices+= to_string(index) + ":";
+            };
+
+            LOG(warn, aliveNodeIndices);
+
+            lastWarningPrintTimeSec = Time::getCurrentTimeSec();
+        }
+
+
         if (getNode()->isExitRequested()) {
             BOOST_THROW_EXCEPTION(ExitRequestedException( __CLASS_NAME__ ));
         }
 
-        usleep(1000000);
-
-        if (getNode()->isExitRequested()) {
-            BOOST_THROW_EXCEPTION(ExitRequestedException( __CLASS_NAME__ ));
-        }
+        usleep(TIME_BETWEEN_STARTUP_HEALTHCHECK_RETRIES_SEC * 1000000);
 
         for (int i = 1; i <= getNodeCount(); i++) {
             if (i != (getSchainIndex()) && !connections.count(i)) {
                 try {
+
                     if (getNode()->isExitRequested()) {
                         BOOST_THROW_EXCEPTION(ExitRequestedException( __CLASS_NAME__ ));
                     }
