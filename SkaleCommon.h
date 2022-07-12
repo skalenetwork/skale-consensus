@@ -336,7 +336,13 @@ static const uint64_t  ORACLE_FUTURE_JITTER_MS = 500;
 
 static const uint64_t SGX_REQUEST_TIMEOUT_MS  = 10000;
 
+static const uint64_t HEALTHCHECK_ON_START_RETRY_TIME_SEC = 1500;
 
+static const uint64_t  HEALTHCHECK_ON_START_TIME_BETWEEN_WARNINGS_SEC = 5 * 60;
+
+static const uint64_t  TIME_BETWEEN_STARTUP_HEALTHCHECK_RETRIES_SEC = 1;
+
+static const uint64_t  HEALTH_CHECK_TIME_TO_WAIT_FOR_ALL_NODES_SEC = 5;
 
 extern void setThreadName(std::string const &_n, ConsensusEngine* _engine);
 
