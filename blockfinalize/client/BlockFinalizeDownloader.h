@@ -57,6 +57,7 @@ class BlockProposalFragmentList;
 class BlockProposal;
 class BlockFinalizeDownloaderThreadPool;
 class BlockProposalSet;
+class ThresholdSignature;
 
 #include "datastructures/BlockProposalFragmentList.h"
 
@@ -68,11 +69,16 @@ class BlockFinalizeDownloader : public Agent {
 
     BlockProposalFragmentList fragmentList;
 
+
+private:
+
     string blockHash = "";
-    string daSig = "";
+    ptr<ThresholdSignature> daSig = nullptr;
     recursive_mutex m;
 
 public:
+
+    ptr<ThresholdSignature> getDaSig();
 
     ptr<BlockFinalizeDownloaderThreadPool> threadPool = nullptr;
 

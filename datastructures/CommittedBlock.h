@@ -44,6 +44,7 @@ class BlockProposalFragment;
 class CommittedBlock : public BlockProposal {
 
     string thresholdSig;
+    string daSig;
 
     static ptr< CommittedBlockHeader > parseBlockHeader( const string& _header );
 
@@ -57,16 +58,20 @@ public:
     CommittedBlock( const schain_id& _schainId, const node_id& _proposerNodeId,
         const block_id& _blockId, const schain_index& _proposerIndex,
         const ptr< TransactionList >& _transactions, const u256& stateRoot, uint64_t timeStamp,
-        __uint32_t timeStampMs, const string& _signature, const string& _thresholdSig );
+        __uint32_t timeStampMs, const string& _signature, const string& _thresholdSig, const string& _daSig );
 
     [[nodiscard]] string getThresholdSig() const;
 
-    static ptr< CommittedBlock > makeObject(
-        const ptr< BlockProposal >& _proposal, const ptr< ThresholdSignature >& _thresholdSig );
+    [[nodiscard]] string getDaSig() const;
+
+
+    static ptr<CommittedBlock>
+    makeObject(const ptr<BlockProposal> &_proposal, const ptr<ThresholdSignature> &_thresholdSig,
+               ptr<ThresholdSignature> _daSig);
     static ptr< CommittedBlock > make( schain_id _sChainId, node_id _proposerNodeId,
         block_id _blockId, schain_index _proposerIndex, const  ptr< TransactionList >& _transactions,
         const u256& _stateRoot, uint64_t _timeStamp, uint64_t _timeStampMs,
-        const string& _signature, const string& _thresholdSig );
+        const string& _signature, const string& _thresholdSig, const string& _daSig );
 
 
     static ptr< CommittedBlock > deserialize(

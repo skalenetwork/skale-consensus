@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2019-Present SKALE Labs
+    Copyright (C) 2019 SKALE Labs
 
     This file is part of skale-consensus.
 
@@ -16,33 +16,29 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file CommittedBlockHeader.h
+    @file MockupSignature.h
     @author Stan Kladko
-    @date 2019
+    @date 2019-
 */
 
-#ifndef SKALED_COMMITTEDBLOCKHEADER_H
-#define SKALED_COMMITTEDBLOCKHEADER_H
+#ifndef SKALED_MOCKUPSIGNATURE_H
+#define SKALED_MOCKUPSIGNATURE_H
 
-#include "BlockProposalHeader.h"
+#include "BLSSignature.h"
+#include "ThresholdSignature.h"
 
-class CommittedBlockHeader : public BlockProposalHeader {
+class TrivialSignature : public ThresholdSignature {
 
-    string thresholdSig;
-    string daSig;
+    string s;
 
 public:
-    CommittedBlockHeader(BlockProposal &block, const string &thresholdSig, const string & _daSig );
 
-    explicit CommittedBlockHeader(nlohmann::json &json);
+    TrivialSignature(block_id _blockID, size_t _totalSigners, size_t _requiredSigners );
 
-    [[nodiscard]] const string &getThresholdSig() const;
+    string toString() override;
 
-
-    [[nodiscard]] const string &getDaSig() const;
-
-    void addFields(nlohmann::basic_json<> &j) override;
+    uint64_t getRandom() override;
 };
 
 
-#endif //SKALED_COMMITTEDBLOCKHEADER_H
+#endif  // SKALED_MockupSIGNATURE_H

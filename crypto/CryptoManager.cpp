@@ -1076,7 +1076,8 @@ ptr< ThresholdSignature > CryptoManager::verifyDAProofThresholdSig(
     CHECK_ARGUMENT( !_signature.empty() );
 
     try {
-        if ( getSchain()->getNode()->isSgxEnabled() ) {
+        if ( getSchain()->getNode()->isSgxEnabled() ||
+                ( getSchain()->getNode()->isSyncOnlyNode() && sgxBLSPublicKey )) {
             auto sig = make_shared< ConsensusEdDSASignature >(
                 _signature, getSchain()->getSchainID(), _blockId , totalSigners,
                 requiredSigners);

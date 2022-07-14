@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2019-Present SKALE Labs
+    Copyright (C) 2019 SKALE Labs
 
     This file is part of skale-consensus.
 
@@ -16,33 +16,32 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file CommittedBlockHeader.h
+    @file MockupSignature.cpp
     @author Stan Kladko
-    @date 2019
+    @date 2019 -
 */
 
-#ifndef SKALED_COMMITTEDBLOCKHEADER_H
-#define SKALED_COMMITTEDBLOCKHEADER_H
 
-#include "BlockProposalHeader.h"
+#include "SkaleCommon.h"
+#include "Log.h"
 
-class CommittedBlockHeader : public BlockProposalHeader {
-
-    string thresholdSig;
-    string daSig;
-
-public:
-    CommittedBlockHeader(BlockProposal &block, const string &thresholdSig, const string & _daSig );
-
-    explicit CommittedBlockHeader(nlohmann::json &json);
-
-    [[nodiscard]] const string &getThresholdSig() const;
+#include "network/Utils.h"
+#include "thirdparty/json.hpp"
 
 
-    [[nodiscard]] const string &getDaSig() const;
+#include "ThresholdSignature.h"
+#include "TrivialSignature.h"
 
-    void addFields(nlohmann::basic_json<> &j) override;
+
+TrivialSignature::TrivialSignature(block_id _blockID, size_t _totalSigners, size_t _requiredSigners )
+    : ThresholdSignature(_blockID, _totalSigners, _requiredSigners) {
+}
+
+
+string TrivialSignature::toString() {
+    CHECK_STATE(false);
 };
 
-
-#endif //SKALED_COMMITTEDBLOCKHEADER_H
+uint64_t TrivialSignature::getRandom() {
+    CHECK_STATE(false);
+}

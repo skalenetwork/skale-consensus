@@ -29,14 +29,15 @@
 #include "CommittedBlockHeader.h"
 
 
-CommittedBlockHeader::CommittedBlockHeader(BlockProposal &block, const string &thresholdSig) : BlockProposalHeader(
-        block), thresholdSig(thresholdSig) {
-    CHECK_ARGUMENT(!thresholdSig.empty())
+CommittedBlockHeader::CommittedBlockHeader(BlockProposal &_block, const string &_thresholdSig, const string& _daSig) : BlockProposalHeader(
+        _block), thresholdSig(_thresholdSig), daSig(_daSig) {
+    CHECK_ARGUMENT(!_thresholdSig.empty())
 }
 
 CommittedBlockHeader::CommittedBlockHeader(nlohmann::json &json) : BlockProposalHeader(json) {
     thresholdSig = Header::getString(json, "thrSig");
     CHECK_STATE(!thresholdSig.empty())
+    daSig = Header::maybeGetString(json, "daSig");
 }
 
 const string &CommittedBlockHeader::getThresholdSig() const {
@@ -44,10 +45,21 @@ const string &CommittedBlockHeader::getThresholdSig() const {
     return thresholdSig;
 }
 
+const string &CommittedBlockHeader::getDaSig() const {
+    return daSig;
+}
+
+
+
 void CommittedBlockHeader::addFields(nlohmann::basic_json<> &j) {
     BlockProposalHeader::addFields(j);
 
     j["thrSig"] = thresholdSig;
+
+    if (!daSig.empty()) {
+        j["daSig"] = daSig;
+    }
+
 }
 
 

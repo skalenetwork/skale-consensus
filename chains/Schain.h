@@ -269,7 +269,7 @@ public:
     void blockProposalReceiptTimeoutArrived( block_id _blockID );
 
     void blockCommitArrived( block_id _committedBlockID, schain_index _proposerIndex,
-        const ptr< ThresholdSignature >& _thresholdSig );
+        const ptr< ThresholdSignature >& _thresholdSig, ptr<ThresholdSignature> _daSig );
 
 
     [[nodiscard]] uint64_t blockCommitsArrivedThroughCatchup( const ptr< CommittedBlockList >& _blockList );
