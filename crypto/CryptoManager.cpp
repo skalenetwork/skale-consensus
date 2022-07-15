@@ -88,12 +88,9 @@ void CryptoManager::initSGXClient() {
     if (isSGXEnabled) {
         if (isHTTPSEnabled) {
             if (isSSLCertEnabled) {
-                LOG(info, string("Setting sgxSSLKeyFileFullPath to ") + sgxSSLKeyFileFullPath);
-                LOG(
-                        info, string("Setting sgxCertKeyFileFullPath to ") + sgxSSLCertFileFullPath);
                 setSGXKeyAndCert(sgxSSLKeyFileFullPath, sgxSSLCertFileFullPath, sgxPort);
             } else {
-                LOG(info, string("Setting sgxSSLKeyCertFileFullPath  is not set."
+                LOG(info, string("sgxSSLKeyCertFileFullPath  is not set."
                                  "Assuming SGX server does not require client certs"));
             }
         }
@@ -941,7 +938,6 @@ string CryptoManager::getSGXEcdsaPublicKey(const string &_keyName, const ptr<Stu
     CHECK_ARGUMENT(_keyName != "");
     CHECK_ARGUMENT(_c);
 
-    LOG(info, "Getting ECDSA public key for " + _keyName.substr(0, 8) + "...");
 
     Json::Value result;
 
