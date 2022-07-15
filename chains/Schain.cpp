@@ -567,8 +567,8 @@ void Schain::printBlockLog(const ptr< CommittedBlock >& _block) {
         ":STAMP:" + stamp.toString());
 
     //get malloc stats
-    static atomic<uint64_t> mallocCounter = 0;
-    if (mallocCounter % 1000 == 0) {
+    static atomic<uint64_t> mallocCounter = 1;
+    if (mallocCounter % HEAP_DUMP_FREQUENCY_BLOCKS == 0) {
         char *bp = nullptr;
         size_t size = 0;
         FILE *stream = open_memstream(&bp, &size);

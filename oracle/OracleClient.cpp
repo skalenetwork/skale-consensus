@@ -180,7 +180,7 @@ void OracleClient::processResponseMessage(const ptr<MessageEnvelope> &_me) {
     auto receipt = msg->getReceipt();
     auto unsignedResult = msg->getUnsignedOracleResultStr();
     auto sig = msg->getOracleResult()->getSig();
-    LOG(info, "Receiving oracle message from node:" + to_string(origin) + "; Data:" + unsignedResult);
+    LOG(debug, "Receiving oracle message from node:" + to_string(origin) + "; Data:" + unsignedResult);
 
     auto receivedResults = receiptsMap.getIfExists(receipt);
 
