@@ -12,6 +12,8 @@
     <mapping directory="$PROJECT_DIR$/deps/zlib" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/jsoncpp" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/libBLS" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/libBLS/deps/argtable2" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/libBLS/deps/curl" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/libBLS/deps/libff" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/libBLS/deps/libff/depends/ate-pairing" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/libBLS/deps/libff/depends/gtest" vcs="Git" />
@@ -19,6 +21,7 @@
     <mapping directory="$PROJECT_DIR$/libBLS/deps/libmicrohttpd" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/libBLS/deps/openssl" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/libBLS/deps/pbc" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/libBLS/deps/zlib" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/libjson-rpc-cpp" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/libzmq" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/sgxwallet" vcs="Git" />

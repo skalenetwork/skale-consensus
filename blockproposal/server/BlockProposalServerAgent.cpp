@@ -407,7 +407,6 @@ pair<ConnectionStatus, ConnectionSubStatus> BlockProposalServerAgent::processPro
                                                        requestHeader->getProposerIndex(), transactionList,
                                                        requestHeader->getStateRoot(),
                                                        requestHeader->getTimeStamp(), requestHeader->getTimeStampMs(),
-                                                       requestHeader->getHash(),
                                                        requestHeader->getSignature());
 
     ptr<Header> finalResponseHeader = nullptr;
