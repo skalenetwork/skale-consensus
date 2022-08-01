@@ -403,10 +403,11 @@ pair< ConnectionStatus, ConnectionSubStatus > BlockProposalServerAgent::processP
 
     auto transactionList = make_shared< TransactionList >( transactions );
 
-    auto proposal = make_shared< ReceivedBlockProposal >( *sChain, requestHeader->getBlockId(),
-        requestHeader->getProposerIndex(), transactionList, requestHeader->getStateRoot(),
-        requestHeader->getTimeStamp(), requestHeader->getTimeStampMs(), requestHeader->getHash(),
-        requestHeader->getSignature() );
+    auto proposal = make_shared<ReceivedBlockProposal>(*sChain, requestHeader->getBlockId(),
+                                                       requestHeader->getProposerIndex(), transactionList,
+                                                       requestHeader->getStateRoot(),
+                                                       requestHeader->getTimeStamp(), requestHeader->getTimeStampMs(),
+                                                       requestHeader->getSignature());
 
     ptr< Header > finalResponseHeader = nullptr;
 
