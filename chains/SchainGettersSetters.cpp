@@ -309,7 +309,7 @@ void Schain::updateLastCommittedBlockInfo( uint64_t _lastCommittedBlockID,
     lock_guard<mutex> lock(lastCommittedBlockInfoMutex);
     CHECK_STATE(
                 _lastCommittedBlockID == lastCommittedBlockID + 1)
-    if (_lastCommittedBlockTimeStamp < _lastCommittedBlockTimeStamp) {
+    if (_lastCommittedBlockTimeStamp < lastCommittedBlockTimeStamp) {
         LOG(err, "TimeStamp in the past:"+ lastCommittedBlockTimeStamp.toString() +
             ":"+ _lastCommittedBlockTimeStamp.toString());
     }
