@@ -297,9 +297,9 @@ public:
         try {
 #define RETRY_END                                                                                  \
     ;                                                                                              \
-    if ( CryptoManager::isRetryHappened() ) {                                                          \
-        LOG( info, "Successfully reconnected to SGX server" );            \
-        CryptoManager::setRetryHappened(false);                                                      \
+    if ( CryptoManager::isRetryHappened() ) {                                                      \
+        LOG( info, "Successfully reconnected to SGX server:"  );                                   \
+        CryptoManager::setRetryHappened(false);                                                    \
     }                                                                                              \
     break;                                                                                         \
     }                                                                                              \
@@ -314,13 +314,13 @@ public:
                     "Got libcurl error 52. You may be trying to connect with http to https "       \
                     "server" );                                                                    \
             };                                                                                     \
-            if (!CryptoManager::isRetryHappened())                                                 \
-                LOG( err, "Could not connect to sgx server, retrying each five seconds ... \n" + string( e.what() ) ); \
-            CryptoManager::setRetryHappened(true);                                                   \
+            if (!CryptoManager::isRetryHappened())                                                                                       \
+                LOG( err, "Could not connect to sgx server: "                                      \
+                          ", retrying each five seconds ... \n"  );                                \
+            CryptoManager::setRetryHappened(true);                                                 \
             sleep( 5 );                                                                            \
         } else {                                                                                   \
-            LOG( err, "Could not connect to sgx server" );                                         \
-            LOG( err, e.what() );                                                                  \
+            LOG( err, "Could not connect to sgx server: "  );                                      \
             throw;                                                                                 \
         }                                                                                          \
     }                                                                                              \
