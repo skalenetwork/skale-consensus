@@ -46,10 +46,12 @@ class CommittedBlock : public BlockProposal {
     string thresholdSig;
     string daSig;
 
+    ptr< vector< uint8_t > > cachedSerializedBlock = nullptr;  // tsafe
+
+
     static ptr< CommittedBlockHeader > parseBlockHeader( const string& _header );
 
-protected:
-    ptr< BasicHeader > createHeader(uint64_t _flags = 0) override;
+    ptr< BasicHeader > createBlockHeader();
 
 public:
     CommittedBlock( uint64_t timeStamp, uint32_t timeStampMs );
@@ -84,4 +86,7 @@ public:
         boost::random::uniform_int_distribution<>& _ubyte, block_id _blockID = block_id( 1 ) );
 
     static void serializedSanityCheck( const ptr<vector<uint8_t>>& _serializedBlock );
+
+    ptr<vector<uint8_t> > serializeBlock();
+
 };

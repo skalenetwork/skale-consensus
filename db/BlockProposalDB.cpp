@@ -97,7 +97,7 @@ void BlockProposalDB::addBlockProposal(const ptr<BlockProposal>& _proposal) {
 
         ptr<vector<uint8_t> > serialized;
 
-        serialized = _proposal->serialize();
+        serialized = _proposal->serializeProposal();
         CHECK_STATE(serialized);
 
         this->writeByteArrayToSet((const char *) serialized->data(), serialized->size(), _proposal->getBlockID(),

@@ -107,9 +107,7 @@ ptr<CommittedBlock> CommittedBlock::createRandomSample(const ptr<CryptoManager> 
 }
 
 
-ptr<BasicHeader> CommittedBlock::createHeader(uint64_t _flags) {
-    if (_flags == SERIALIZE_AS_PROPOSAL)
-        return make_shared<BlockProposalHeader>(*this);
+ptr<BasicHeader> CommittedBlock::createBlockHeader() {
     return make_shared<CommittedBlockHeader>(*this, this->getThresholdSig(), this->getDaSig());
 }
 
@@ -216,4 +214,23 @@ CommittedBlock::CommittedBlock(const schain_id &_schainId, const node_id &_propo
     CHECK_ARGUMENT(!_thresholdSig.empty());
     this->thresholdSig = _thresholdSig;
     this->daSig = _daSig;
+}
+
+
+ptr<vector<uint8_t> > CommittedBlock::serializeBlock() {
+
+    LOCK(m)
+
+    if (cachedSerializedBlock)
+        return cachedSerializedBlock;
+
+    auto blockHeader = createBlockHeader();
+
+    CHECK_STATE(blockHeader);
+
+    cachedSerializedBlock = serializeTransactionsAndCompleteSerialization(blockHeader);
+
+    CHECK_STATE(cachedSerializedBlock);
+
+    return cachedSerializedBlock;
 }

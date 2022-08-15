@@ -381,7 +381,7 @@ ptr<vector<uint8_t>> CatchupServerAgent::createBlockFinalizeResponse(nlohmann::j
             proposal->getProposerIndex());
 
         _responseHeader->setFragmentParams(serializedFragment->size(),
-                                           proposal->serialize()->size(), proposal->getHash().toHex(),
+                                           proposal->serializeProposal()->size(), proposal->getHash().toHex(),
             daProofSig);
 
         return serializedFragment;

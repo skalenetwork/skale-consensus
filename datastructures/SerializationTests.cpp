@@ -115,14 +115,14 @@ void test_committed_block_fragment_defragment(bool _fail) {
             ptr<BlockProposal> imp = nullptr;
 
             try {
-                imp = CommittedBlock::defragment(list, cryptoManager);
+                imp = BlockProposal::defragment(list, cryptoManager);
             } catch (SkaleException &e) {
                 SkaleException::logNested(e, err);
                 throw (e);
             }
-            REQUIRE(imp != nullptr);
+            REQUIRE(imp);
 
-            REQUIRE(*imp->serialize() == *t->serialize());
+            REQUIRE(*imp->serializeProposal() == *t->serializeProposal());
         }
 
     }
@@ -206,7 +206,7 @@ void test_committed_block_serialize_deserialize(bool _fail) {
         for (int i = 0; i < 20; i++) {
             auto t = CommittedBlock::createRandomSample(cryptoManager, i, gen, ubyte);
 
-            auto out = t->serialize();
+            auto out = t->serializeBlock();
 
             if (_fail) {
                 corrupt_byte_vector(out, gen, ubyte);

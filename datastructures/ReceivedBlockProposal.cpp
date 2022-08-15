@@ -39,8 +39,6 @@ ReceivedBlockProposal::ReceivedBlockProposal(Schain &_sChain, const block_id &_b
 
     CHECK_ARGUMENT(_transactions);
     CHECK_ARGUMENT(_signature != "");
-
-    this->signature = _signature;
     totalObjects++;
 }
 
@@ -49,7 +47,6 @@ ReceivedBlockProposal::ReceivedBlockProposal(Schain &_sChain, const block_id &_b
         _sChain.getSchainID(), 0, _blockID,
         0, make_shared<TransactionList>(make_shared<vector<ptr<Transaction >>>()), _stateRoot, _timeStamp, _timeStampMs,
         "EMPTY", ptr<CryptoManager>()) {
-    calculateHash();
     totalObjects++;
 }
 

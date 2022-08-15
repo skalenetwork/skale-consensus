@@ -59,23 +59,23 @@ BlockProposalRequestHeader::BlockProposalRequestHeader(nlohmann::json _proposalR
     stateRoot = u256(stateRootStr);
 }
 
-BlockProposalRequestHeader::BlockProposalRequestHeader(Schain &_sChain, const ptr<BlockProposal>& proposal) :
-        AbstractBlockRequestHeader(_sChain.getNodeCount(), _sChain.getSchainID(), proposal->getBlockID(),
+BlockProposalRequestHeader::BlockProposalRequestHeader(Schain &_sChain, BlockProposal& _proposal) :
+        AbstractBlockRequestHeader(_sChain.getNodeCount(), _sChain.getSchainID(), _proposal.getBlockID(),
                                    Header::BLOCK_PROPOSAL_REQ,
                                    _sChain.getSchainIndex()) {
 
 
     proposerNodeID = _sChain.getNode()->getNodeID();
-    txCount = (uint64_t) proposal->getTransactionCount();
-    timeStamp = proposal->getTimeStampS();
-    timeStampMs = proposal->getTimeStampMs();
+    txCount = (uint64_t) _proposal.getTransactionCount();
+    timeStamp = _proposal.getTimeStampS();
+    timeStampMs = _proposal.getTimeStampMs();
 
-    hash = proposal->getHash().toHex();
+    hash = _proposal.getHash().toHex();
     CHECK_STATE(!hash.empty())
 
-    signature = proposal->getSignature();
+    signature = _proposal.getSignature();
 
-    stateRoot = proposal->getStateRoot();
+    stateRoot = _proposal.getStateRoot();
 
     CHECK_STATE(timeStamp > MODERN_TIME)
 
@@ -84,23 +84,23 @@ BlockProposalRequestHeader::BlockProposalRequestHeader(Schain &_sChain, const pt
 }
 
 
-void BlockProposalRequestHeader::addFields(nlohmann::basic_json<> &jsonRequest) {
+void BlockProposalRequestHeader::addFields(nlohmann::basic_json<> &_jsonRequest) {
 
-    AbstractBlockRequestHeader::addFields(jsonRequest);
+    AbstractBlockRequestHeader::addFields(_jsonRequest);
 
-    jsonRequest["schainID"] = (uint64_t) schainID;
-    jsonRequest["proposerNodeID"] = (uint64_t) proposerNodeID;
-    jsonRequest["proposerIndex"] = (uint64_t) proposerIndex;
-    jsonRequest["blockID"] = (uint64_t) blockID;
-    jsonRequest["txCount"] = txCount;
+    _jsonRequest["schainID"] = (uint64_t) schainID;
+    _jsonRequest["proposerNodeID"] = (uint64_t) proposerNodeID;
+    _jsonRequest["proposerIndex"] = (uint64_t) proposerIndex;
+    _jsonRequest["blockID"] = (uint64_t) blockID;
+    _jsonRequest["txCount"] = txCount;
     CHECK_STATE(timeStamp > MODERN_TIME)
-    jsonRequest["timeStamp"] = timeStamp;
-    jsonRequest["timeStampMs"] = timeStampMs;
+    _jsonRequest["timeStamp"] = timeStamp;
+    _jsonRequest["timeStampMs"] = timeStampMs;
     CHECK_STATE(!hash.empty())
     CHECK_STATE(!signature.empty())
-    jsonRequest["hash"] = hash;
-    jsonRequest["sig"] = signature;
-    jsonRequest["sr"] = stateRoot.str();
+    _jsonRequest["hash"] = hash;
+    _jsonRequest["sig"] = signature;
+    _jsonRequest["sr"] = stateRoot.str();
 }
  node_id BlockProposalRequestHeader::getProposerNodeId()  {
     return proposerNodeID;
