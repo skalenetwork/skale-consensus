@@ -55,8 +55,10 @@
 #include "network/ClientSocket.h"
 #include "network/IO.h"
 #include "network/Network.h"
+#include "node/Node.h"
 
 #include "chains/Schain.h"
+#include "crypto/TrivialSignature.h"
 #include "datastructures/BlockProposalFragment.h"
 
 #include "datastructures/CommittedBlock.h"
@@ -248,10 +250,9 @@ ptr< BlockProposalFragment > BlockFinalizeDownloader::readBlockFragment(
 
     {
         LOCK( m )
-        if ( this->daSig.empty() && !sig.empty() ) {
+        if ( !this->daSig && !sig.empty()) {
             auto blakeHash = BLAKE3Hash::fromHex( h );
-            getSchain()->getCryptoManager()->verifyDAProofThresholdSig( blakeHash, sig, blockId );
-            this->daSig = sig;
+            this->daSig = getSchain()->getCryptoManager()->verifyDAProofThresholdSig( blakeHash, sig, blockId );
             this->blockHash = h;
         } else {
             CHECK_STATE( h == blockHash );
@@ -383,7 +384,6 @@ ptr< BlockProposal > BlockFinalizeDownloader::downloadProposal() {
                 fragmentList.serialize(), getSchain()->getCryptoManager(), true );
             CHECK_STATE( block )
             CHECK_STATE( block->getProposerIndex() == ( uint64_t ) proposerIndex );
-
             {
                 LOCK( m )
                 if ( !this->blockHash.empty() ) {
@@ -411,4 +411,12 @@ block_id BlockFinalizeDownloader::getBlockId() {
 
 schain_index BlockFinalizeDownloader::getProposerIndex() {
     return proposerIndex;
+}
+
+ptr<ThresholdSignature> BlockFinalizeDownloader::getDaSig()  {
+    if (daSig)
+        return daSig;
+    else
+        return make_shared<TrivialSignature>(getBlockId(), getSchain()->getTotalSigners(),
+                                             getSchain()->getRequiredSigners());
 }

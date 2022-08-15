@@ -70,7 +70,7 @@ void BlockDB::saveBlock2LevelDB(const ptr<CommittedBlock> &_block) {
 
     try {
 
-        auto serializedBlock = _block->serialize();
+        auto serializedBlock = _block->serializeBlock();
 
         CHECK_STATE(serializedBlock)
 

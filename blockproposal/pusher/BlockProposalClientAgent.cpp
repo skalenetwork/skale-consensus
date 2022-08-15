@@ -160,7 +160,7 @@ pair< ConnectionStatus, ConnectionSubStatus > BlockProposalClientAgent::sendBloc
     LOG( trace, "Proposal step 0: Starting block proposal" );
 
 
-    ptr< Header > header = BlockProposal::createBlockProposalHeader( sChain, proposalCopy );
+    ptr< Header > header = proposalCopy->createProposalRequestHeader(sChain);
 
     CHECK_STATE( header );
 

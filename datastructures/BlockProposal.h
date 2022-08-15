@@ -52,9 +52,11 @@ class BlockProposal : public SendableItem {
 
     uint64_t creationTime;
 
-    ptr< BlockProposalRequestHeader > header = nullptr; // tsafe
+    ptr< BlockProposalRequestHeader > cachedProposalRequestHeader = nullptr; // tsafe
 
-    ptr< vector< uint8_t > > serializedProposal = nullptr;  // tsafe
+    ptr< vector< uint8_t > > cachedSerializedProposal = nullptr;  // tsafe
+
+    ptr< BasicHeader > createProposalHeader();
 
 protected:
     schain_id schainID = 0;
@@ -74,7 +76,9 @@ protected:
 
     void calculateHash();
 
-    virtual ptr< BasicHeader > createHeader(uint64_t _flags = 0);
+
+    ptr<vector<uint8_t>>
+    serializeTransactionsAndCompleteSerialization(ptr<BasicHeader>  _blockHeader);
 
     static ptr< TransactionList > deserializeTransactions(
         const ptr< BlockProposalHeader >& _header, const string& _headerString,
@@ -120,16 +124,14 @@ public:
 
     string getSignature();
 
-    ptr< vector< uint8_t > > serialize(uint64_t _flags = 0);
+    ptr< vector< uint8_t > > serializeProposal();
 
     ptr< BlockProposalFragment > getFragment( uint64_t _totalFragments, fragment_index _index );
 
     [[nodiscard]]  u256 getStateRoot() const;
 
-    [[nodiscard]]  ptr< BlockProposalRequestHeader > createRequestHeader();
-
-    static ptr< BlockProposalRequestHeader > createBlockProposalHeader(
-        Schain* _sChain, const ptr< BlockProposal >& _proposal );
+    ptr< BlockProposalRequestHeader > createProposalRequestHeader(
+        Schain* _sChain);
 
     static ptr< BlockProposal > deserialize(
         const ptr< vector< uint8_t > >& _serializedProposal, const ptr< CryptoManager >& _manager, bool _verifySig );

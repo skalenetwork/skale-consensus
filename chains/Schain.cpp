@@ -396,8 +396,11 @@ bool Schain::isLegacy() {
 
 
 void Schain::blockCommitArrived(block_id _committedBlockID, schain_index _proposerIndex,
-                                const ptr<ThresholdSignature> &_thresholdSig) {
+                                const ptr<ThresholdSignature> &_thresholdSig, ptr<ThresholdSignature> _daSig) {
     MONITOR2(__CLASS_NAME__, __FUNCTION__, getMaxExternalBlockProcessingTime())
+
+    CHECK_ARGUMENT(_thresholdSig)
+    CHECK_ARGUMENT(_daSig || _proposerIndex == 0)
 
     // wait until the schain state is fully initialized and startup
     // otherwise last committed block id is not fully initialized and the chain can not accept catchup blocks
@@ -427,14 +430,16 @@ void Schain::blockCommitArrived(block_id _committedBlockID, schain_index _propos
 
         if (_proposerIndex > 0) {
             committedProposal = getNode()->getBlockProposalDB()->getBlockProposal(
-                    _committedBlockID, _proposerIndex);
+                   _committedBlockID, _proposerIndex);
+
         } else {
             committedProposal = createDefaultEmptyBlockProposal(_committedBlockID);
         }
 
         CHECK_STATE(committedProposal);
 
-        auto newCommittedBlock = CommittedBlock::makeObject(committedProposal, _thresholdSig);
+        auto newCommittedBlock = CommittedBlock::makeObject(committedProposal, _thresholdSig,
+                                                            _daSig);
 
         CHECK_STATE(getLastCommittedBlockTimeStamp() < newCommittedBlock->getTimeStamp());
 
@@ -1126,11 +1131,12 @@ void Schain::finalizeDecidedAndSignedBlock(block_id _blockId, schain_index _prop
     try {
         if (_proposerIndex == 0) {
             // default empty block
-            blockCommitArrived(_blockId, _proposerIndex, _thresholdSig);
+            blockCommitArrived(_blockId, _proposerIndex, _thresholdSig, nullptr);
             return;
         }
 
         ptr<BlockProposal> proposal = nullptr;
+        ptr<ThresholdSignature> daSig;
 
         proposal = getNode()->getBlockProposalDB()->getBlockProposal(_blockId, _proposerIndex);
 
@@ -1140,8 +1146,14 @@ void Schain::finalizeDecidedAndSignedBlock(block_id _blockId, schain_index _prop
         bool downloadProposal;
 
         if (proposal) {
+            auto daProofSig= getNode()->getDaProofDB()->getDASig(_blockId, _proposerIndex);
             // a proposal without a  DA proof is not trusted and has to be
-            downloadProposal = !getNode()->getDaProofDB()->haveDAProof(proposal);
+            downloadProposal = daProofSig.empty();
+            if (!downloadProposal) {
+                auto hash = proposal->getHash();
+                daSig = getSchain()->getCryptoManager()->verifyDAProofThresholdSig(
+                        hash, daProofSig, _blockId);
+            }
         } else {
             downloadProposal = true;
         }
@@ -1162,6 +1174,7 @@ void Schain::finalizeDecidedAndSignedBlock(block_id _blockId, schain_index _prop
                 MONITOR(__CLASS_NAME__, msg.c_str());
                 // This will complete successfully also if block arrives through catchup
                 proposal = agent->downloadProposal();
+                daSig = agent->getDaSig();
             }
 
             if (proposal)  // Nullptr means catchup happened first
@@ -1169,7 +1182,8 @@ void Schain::finalizeDecidedAndSignedBlock(block_id _blockId, schain_index _prop
         }
 
         if (proposal) {
-            blockCommitArrived(_blockId, _proposerIndex, _thresholdSig);
+            blockCommitArrived(_blockId, _proposerIndex, _thresholdSig,
+                               daSig);
         }
 
     } catch (ExitRequestedException &e) {

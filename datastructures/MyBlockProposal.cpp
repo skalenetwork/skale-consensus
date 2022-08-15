@@ -43,7 +43,6 @@ MyBlockProposal::MyBlockProposal(Schain &_sChain, const block_id &_blockID, cons
 
     CHECK_STATE(_transactions);
     CHECK_ARGUMENT(_cryptoManager);
-
     totalObjects++;
 };
 
