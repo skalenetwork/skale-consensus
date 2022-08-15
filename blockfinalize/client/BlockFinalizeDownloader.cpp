@@ -384,7 +384,6 @@ ptr< BlockProposal > BlockFinalizeDownloader::downloadProposal() {
                 fragmentList.serialize(), getSchain()->getCryptoManager(), true );
             CHECK_STATE( block )
             CHECK_STATE( block->getProposerIndex() == ( uint64_t ) proposerIndex );
-
             {
                 LOCK( m )
                 if ( !this->blockHash.empty() ) {
@@ -392,9 +391,6 @@ ptr< BlockProposal > BlockFinalizeDownloader::downloadProposal() {
                     CHECK_STATE2( block->getHash().compare( h ) == 0, "Incorrect block hash" );
                 }
             }
-
-
-
             return block;
         } else {
             return nullptr;

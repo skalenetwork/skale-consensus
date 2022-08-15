@@ -315,9 +315,9 @@ public:
         try {
 #define RETRY_END                                                                                  \
     ;                                                                                              \
-    if ( CryptoManager::isRetryHappened() ) {                                                          \
-        LOG( info, "Successfully reconnected to SGX server:" + CryptoManager::getSgxUrl() );            \
-        CryptoManager::setRetryHappened(false);                                                      \
+    if ( CryptoManager::isRetryHappened() ) {                                                      \
+        LOG( info, "Successfully reconnected to SGX server:"  );                                   \
+        CryptoManager::setRetryHappened(false);                                                    \
     }                                                                                              \
     break;                                                                                         \
     }                                                                                              \
@@ -333,18 +333,17 @@ public:
                     "server" );                                                                    \
             };                                                                                     \
             if (!CryptoManager::isRetryHappened())                                                                                       \
-                LOG( err, "Could not connect to sgx server: " + CryptoManager::getSgxUrl() +                \
-                          ", retrying each five seconds ... \n" + string( e.what() ) );            \
-            CryptoManager::setRetryHappened(true);                                                   \
+                LOG( err, "Could not connect to sgx server: "                                      \
+                          ", retrying each five seconds ... \n"  );                                \
+            CryptoManager::setRetryHappened(true);                                                 \
             sleep( 5 );                                                                            \
         } else {                                                                                   \
-            LOG( err, "Could not connect to sgx server: " + CryptoManager::getSgxUrl() );               \
-            LOG( err, e.what() );                                                                  \
+            LOG( err, "Could not connect to sgx server: "  );                                      \
             throw;                                                                                 \
         }                                                                                          \
     }                                                                                              \
     catch ( ... ) {                                                                                \
-        LOG( err, "FATAL Unknown error while connecting to sgx server:" + CryptoManager::getSgxUrl() ); \
+        LOG( err, "FATAL Unknown error while connecting to sgx server:"  );                        \
         throw;                                                                                     \
     }                                                                                              \
     }
