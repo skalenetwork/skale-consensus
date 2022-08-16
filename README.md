@@ -27,8 +27,8 @@ Ensure that the required packages are installed by executing:
 
 ```bash
 sudo add-apt-repository ppa:ubuntu-toolchain-r/test
-sudo apt-get update
-sudo apt-get install -yq libprocps-dev gcc-9 g++-9 valgrind gawk sed libffi-dev ccache \
+sudo apt update
+sudo apt install -yq libprocps-dev gcc-9 g++-9 valgrind gawk sed libffi-dev ccache \
     libgoogle-perftools-dev flex bison yasm texinfo autotools-dev automake \
     python3 python3-pip cmake libtool build-essential pkg-config autoconf wget \
     git  libargtable2-dev libmicrohttpd-dev libhiredis-dev redis-server openssl \
