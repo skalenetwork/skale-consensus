@@ -108,7 +108,7 @@ ptr<CommittedBlock> CommittedBlock::createRandomSample(const ptr<CryptoManager> 
 
 
 ptr<BasicHeader> CommittedBlock::createBlockHeader() {
-    return make_shared<CommittedBlockHeader>(*this, this->getThresholdSig(), this->getDaSig());
+    return make_shared<CommittedBlockHeader>(*this) ;
 }
 
 string CommittedBlock::getThresholdSig() const {
@@ -172,6 +172,7 @@ ptr<CommittedBlock> CommittedBlock::deserialize(
     CHECK_STATE(block);
 
 
+    // now verify block proposer signature
     // default blocks are not ecdsa signed
     if (_verifySig && (blockHeader->getProposerIndex() != 0)) {
         try {

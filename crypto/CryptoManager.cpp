@@ -36,9 +36,11 @@
 #include <cryptopp/sha.h>
 #include <cryptopp/sha3.h>
 
+
+#pragma GCC diagnostic push
+
 #include "JsonStubClient.h"
-
-
+#pragma GCC diagnostic pop
 #include <jsonrpccpp/client/connectors/httpclient.h>
 
 #include <sys/types.h>
