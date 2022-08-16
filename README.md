@@ -43,9 +43,9 @@ Steps to build from source:
 # clone repo
 git clone --recurse-submodules https://github.com/skalenetwork/skale-consensus.git
 # build dependencies
-cd scripts; ./build_deps.sh 
+cd scripts && ./build_deps.sh 
  # Configure the Cmake build.
-cd ..; cmake . -Bbuild
+cd .. && cmake . -Bbuild
 # now run hunter bug workaround
 mkdir -p "${HOME}"/.hunter/_Base/Download/crc32c/1.0.5/dc7fa8c/ && wget -O "${HOME}"/.hunter/_Base/Download/crc32c/1.0.5/dc7fa8c/hunter-1.0.5.tar.gz https://github.com/hunter-packages/crc32c/archive/refs/tags/hunter-1.0.5.tar.gz
 #  now build all targets using all available CPU cores
