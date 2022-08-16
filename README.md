@@ -16,9 +16,6 @@ SKALE Consensus uses an Asynchronous Binary Byzantine Agreement (ABBA) protocol.
 
 The SKALE consensus is still in active development and contains bugs. This software should be regarded as _alpha software_. Development is still subject to competing the specification, security hardening, further testing, and breaking changes.  **This consensus engine has not yet been reviewed or audited for security.** Please see [SECURITY.md](SECURITY.md) for reporting policies.
 
-## Roadmap
-
-_to be posted soon_
 
 ## Installation Requirements
 
