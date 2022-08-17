@@ -320,13 +320,6 @@ Schain* CryptoManager::getSchain() const {
     return sChain;
 }
 
-/*
-#define ECDSA_SKEY_LEN 65
-#define ECDSA_SKEY_BASE 16
-
-#define BUF_SIZE 1024
-#define PUB_KEY_SIZE 64
- */
 
 
 MPZNumber::MPZNumber() {
@@ -351,7 +344,7 @@ std::tuple< ptr< OpenSSLEdDSAKey >, string > CryptoManager::localGenerateFastKey
 }
 
 
-tuple< string, string, string > CryptoManager::sessionSignECDSA(
+tuple< string, string, string > CryptoManager::signSessionECDSA(
     BLAKE3Hash& _hash, block_id _blockID ) {
     ptr< OpenSSLEdDSAKey > privateKey = nullptr;
     string publicKey = "";
@@ -498,13 +491,13 @@ string CryptoManager::hashForOracle( string& _text ) {
     }
 }
 
-tuple< string, string, string > CryptoManager::sessionSign( BLAKE3Hash& _hash, block_id _blockId ) {
+tuple< string, string, string > CryptoManager::signSession(BLAKE3Hash& _hash, block_id _blockId ) {
     if ( isSGXEnabled ) {
         string signature = "";
         string pubKey = "";
         string pkSig = "";
 
-        tie( signature, pubKey, pkSig ) = sessionSignECDSA( _hash, _blockId );
+        tie( signature, pubKey, pkSig ) = signSessionECDSA(_hash, _blockId);
         CHECK_STATE( signature != "" );
         CHECK_STATE( pubKey != "" );
         CHECK_STATE( pkSig != "" );
@@ -515,7 +508,7 @@ tuple< string, string, string > CryptoManager::sessionSign( BLAKE3Hash& _hash, b
 }
 
 
-void CryptoManager::sessionVerifyEdDSASig(
+void CryptoManager::verifySessionEdDSASig(
     BLAKE3Hash& _hash, const string& _sig, const string& _publicKey ) {
     try {
         CHECK_ARGUMENT( _sig != "" )
@@ -650,7 +643,7 @@ tuple< ptr< ThresholdSigShare >, string, string, string > CryptoManager::signDAP
     CHECK_STATE( sigShare );
 
     auto combinedHash = BLAKE3Hash::merkleTreeMerge( _p->getHash(), sigShare->computeHash() );
-    auto [ecdsaSig, pubKey, pubKeySig] = sessionSign( combinedHash, _p->getBlockID() );
+    auto [ecdsaSig, pubKey, pubKeySig] = signSession(combinedHash, _p->getBlockID());
     return { sigShare, ecdsaSig, pubKey, pubKeySig };
 }
 
@@ -668,14 +661,6 @@ ptr< ThresholdSigShare > CryptoManager::signBlockSigShare( BLAKE3Hash& _hash, bl
     return result;
 }
 
-
-void CryptoManager::verifyBlockSig(
-    ptr< ThresholdSignature > _signature, BLAKE3Hash& _hash, const TimeStamp& _ts ) {
-    CHECK_STATE( _signature );
-    verifyThresholdSig( _signature, _hash, false, _ts );
-}
-
-
 void CryptoManager::verifyBlockSig(
     string& _sigStr, block_id _blockId, BLAKE3Hash& _hash, const TimeStamp& _ts ) {
     try {
@@ -690,7 +675,7 @@ void CryptoManager::verifyBlockSig(
             auto _signature = make_shared< ConsensusBLSSignature >(
                 _sigStr, _blockId, totalSigners, requiredSigners );
 
-            verifyBlockSig( _signature, _hash, _ts );
+            verifyThresholdSig( _signature, _hash, _ts );
         }
 
     } catch ( ... ) {
@@ -704,7 +689,7 @@ ptr< ThresholdSigShare > CryptoManager::signDAProofSigShare(
     MONITOR( __CLASS_NAME__, __FUNCTION__ )
 
     if ( getSchain()->getNode()->isSgxEnabled() && !_forceMockup ) {
-        auto&& [sig, publicKey, pkSig] = this->sessionSignECDSA( _hash, _blockId );
+        auto&& [sig, publicKey, pkSig] = this->signSessionECDSA(_hash, _blockId);
 
         auto share = to_string( ( uint64_t ) getSchain()->getSchainIndex() ) + ";" + sig + ";" +
                      publicKey + ";" + pkSig;
@@ -799,8 +784,7 @@ ptr< ThresholdSigShare > CryptoManager::signSigShare(
     return result;
 }
 
-void CryptoManager::verifyThresholdSig( ptr< ThresholdSignature > _signature, BLAKE3Hash& _hash,
-    bool _forceMockup, const TimeStamp& _ts ) {
+void CryptoManager::verifyThresholdSig( ptr< ThresholdSignature > _signature, BLAKE3Hash& _hash, const TimeStamp& _ts ) {
     try {
         CHECK_STATE( _signature );
 
@@ -808,8 +792,7 @@ void CryptoManager::verifyThresholdSig( ptr< ThresholdSignature > _signature, BL
         MONITOR( __CLASS_NAME__, __FUNCTION__ )
 
         if ( ( getSchain()->getNode()->isSgxEnabled() ||
-                 ( getSchain()->getNode()->isSyncOnlyNode() && sgxBLSPublicKey ) ) &&
-             !_forceMockup ) {
+                 ( getSchain()->getNode()->isSyncOnlyNode() && sgxBLSPublicKey ) )  ) {
             auto blsSig = dynamic_pointer_cast< ConsensusBLSSignature >( _signature );
 
             CHECK_STATE( blsSig );
@@ -829,15 +812,6 @@ void CryptoManager::verifyThresholdSig( ptr< ThresholdSignature > _signature, BL
                 // to the last block before node rotation!
                 // in this case we use the key for the group before
 
-                if ( getSchain()->getSchainName() == "dazzling-gomeisa" &&
-                     _signature->getBlockId() < ( 1100561 + 1000 ) ) {
-                    return;
-                }
-
-                if ( getSchain()->getSchainName() == "plain-rotanev" &&
-                     _signature->getBlockId() < ( 1366472 + 1000 ) ) {
-                    return;
-                }
 
                 CHECK_STATE2( blsKeys.second, "BLS signature verification failed" );
                 CHECK_STATE2(
@@ -862,7 +836,7 @@ void CryptoManager::verifyThresholdSig( ptr< ThresholdSignature > _signature, BL
 // throw an exception if the share does not verify
 
 void CryptoManager::verifyThresholdSigShare(
-    ptr< ThresholdSigShare > _sigShare, BLAKE3Hash& _hash, bool _forceMockup ) {
+    ptr< ThresholdSigShare > _sigShare, BLAKE3Hash& _hash) {
     CHECK_STATE( _sigShare );
     // sync nodes do not do sig gluing
     CHECK_STATE( !getSchain()->getNode()->isSyncOnlyNode() )
@@ -870,7 +844,7 @@ void CryptoManager::verifyThresholdSigShare(
     MONITOR( __CLASS_NAME__, __FUNCTION__ )
 
     try {
-        if ( ( getSchain()->getNode()->isSgxEnabled() && !_forceMockup ) ) {
+        if ( ( getSchain()->getNode()->isSgxEnabled()) ) {
             auto consensusBlsSigShare = dynamic_pointer_cast< ConsensusBLSSigShare >( _sigShare );
 
             CHECK_STATE( consensusBlsSigShare );
@@ -988,7 +962,7 @@ void CryptoManager::signProposal( BlockProposal* _proposal ) {
 tuple< string, string, string > CryptoManager::signNetworkMsg( NetworkMessage& _msg ) {
     MONITOR( __CLASS_NAME__, __FUNCTION__ );
     auto h = _msg.getHash();
-    auto&& [signature, publicKey, pkSig] = sessionSign( h, _msg.getBlockId() );
+    auto&& [signature, publicKey, pkSig] = signSession(h, _msg.getBlockId());
     CHECK_STATE( signature != "" );
     return { signature, publicKey, pkSig };
 }
@@ -1002,17 +976,17 @@ void CryptoManager::verifyNetworkMsg( NetworkMessage& _msg ) {
     auto blockId = _msg.getBlockID();
     auto nodeId = _msg.getSrcNodeID();
     try {
-        sessionVerifySigAndKey( hash, sig, publicKey, pkSig, blockId, nodeId,
-            getSchain()->getLastCommittedBlockTimeStamp().getLinuxTimeMs() );
+        verifySessionSigAndKey(hash, sig, publicKey, pkSig, blockId, nodeId,
+                               getSchain()->getLastCommittedBlockTimeStamp().getLinuxTimeMs());
     } catch ( ... ) {
         throw_with_nested( InvalidStateException( __FUNCTION__, __CLASS_NAME__ ) );
     }
 }
 
 
-void CryptoManager::sessionVerifySigAndKey( BLAKE3Hash& _hash, const string& _sig,
-    const string& _publicKey, const string& pkSig, block_id _blockID, node_id _nodeId,
-    uint64_t _timeStamp ) {
+void CryptoManager::verifySessionSigAndKey(BLAKE3Hash& _hash, const string& _sig,
+                                           const string& _publicKey, const string& pkSig, block_id _blockID, node_id _nodeId,
+                                           uint64_t _timeStamp ) {
     MONITOR( __CLASS_NAME__, __FUNCTION__ );
 
 
@@ -1041,9 +1015,9 @@ void CryptoManager::sessionVerifySigAndKey( BLAKE3Hash& _hash, const string& _si
     }
 
     try {
-        sessionVerifyEdDSASig( _hash, _sig, _publicKey );
+        verifySessionEdDSASig(_hash, _sig, _publicKey);
     } catch ( ... ) {
-        LOG( err, "sessionVerifySigAndKey ECDSA sig did not verify" );
+        LOG( err, "verifySessionSigAndKey ECDSA sig did not verify" );
         throw_with_nested( InvalidStateException( __FUNCTION__, __CLASS_NAME__ ) );
     }
 }

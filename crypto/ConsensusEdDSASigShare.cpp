@@ -72,8 +72,8 @@ void ConsensusEdDSASigShare::verify(
 
     try {
         // EdDSA sig shares are always verified using the current set of ecdsa keys
-        _cryptoManager.sessionVerifySigAndKey(_hash, tokens.at(1), tokens.at(2),
-        tokens.at(3), blockId, _nodeId, uint64_t( -1 ) );
+        _cryptoManager.verifySessionSigAndKey(_hash, tokens.at(1), tokens.at(2),
+                                              tokens.at(3), blockId, _nodeId, uint64_t(-1));
     } catch (...) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }

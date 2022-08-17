@@ -226,11 +226,6 @@ ptr<CommittedBlockList> CatchupClientAgent::readMissingBlocks(
         throw_with_nested(NetworkProtocolException("Could not read blocks", __CLASS_NAME__));
     }
 
-    if (serializedBlocks->at(0) != '[') {
-        BOOST_THROW_EXCEPTION(
-                NetworkProtocolException("Serialized blocks do not start with [", __CLASS_NAME__));
-    }
-
 
     ptr<CommittedBlockList> blockList = nullptr;
 
@@ -246,20 +241,6 @@ ptr<CommittedBlockList> CatchupClientAgent::readMissingBlocks(
     }
 
 
-    for (auto &&item: *blockList->getBlocks()) {
-        auto sig = item->getThresholdSig();
-
-        auto hash = BLAKE3Hash::getBlockHash((uint64_t) item->getProposerIndex(),
-                                             (uint64_t) item->getBlockID(),
-                                             (uint64_t) item->getSchainID());
-        try {
-            getSchain()->getCryptoManager()->verifyBlockSig(sig, item->getBlockID(),
-                                                            hash, item->getTimeStamp());
-        } catch (InvalidSignatureException &) {
-                throw_with_nested(
-                        NetworkProtocolException("Could not verify block BLS sig:", __CLASS_NAME__));
-        }
-    }
 
     return blockList;
 }

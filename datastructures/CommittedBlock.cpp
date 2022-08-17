@@ -41,6 +41,8 @@
 #include "TransactionList.h"
 #include "datastructures/Transaction.h"
 #include "network/Buffer.h"
+#include "exceptions/InvalidSignatureException.h"
+#include "exceptions/NetworkProtocolException.h"
 
 
 ptr<CommittedBlock>
@@ -108,7 +110,7 @@ ptr<CommittedBlock> CommittedBlock::createRandomSample(const ptr<CryptoManager> 
 
 
 ptr<BasicHeader> CommittedBlock::createBlockHeader() {
-    return make_shared<CommittedBlockHeader>(*this) ;
+    return make_shared<CommittedBlockHeader>(*this);
 }
 
 string CommittedBlock::getThresholdSig() const {
@@ -126,6 +128,8 @@ ptr<CommittedBlock> CommittedBlock::deserialize(
         bool _verifySig) {
     CHECK_ARGUMENT(_serializedBlock);
     CHECK_ARGUMENT(_manager);
+
+    serializedSanityCheck( _serializedBlock );
 
     string headerStr = extractHeader(_serializedBlock);
 
@@ -171,16 +175,26 @@ ptr<CommittedBlock> CommittedBlock::deserialize(
 
     CHECK_STATE(block);
 
+    if (!_verifySig) {
+        return block;
+    }
 
-    // now verify block proposer signature
+    // now verify block proposer signature and block signature
     // default blocks are not ecdsa signed
-    if (_verifySig && (blockHeader->getProposerIndex() != 0)) {
+    if ((blockHeader->getProposerIndex() != 0)) {
         try {
             _manager->verifyProposalECDSA(block, blockHeader->getBlockHash(), blockHeader->getSignature());
         } catch (...) {
-            LOG(err, "Block signature did not verify in catchup");
+            LOG(err, "Block ECDSA signature did not verify in deserialization");
             throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
         }
+    }
+
+    try {
+        block->verifyBlockSig(_manager);
+    } catch (...) {
+        LOG(err, "Block threshold signature did not verify in deserialization");
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
 
     return block;
@@ -207,7 +221,7 @@ CommittedBlock::CommittedBlock(const schain_id &_schainId, const node_id &_propo
                                const block_id &_blockId, const schain_index &_proposerIndex,
                                const ptr<TransactionList> &_transactions, const u256 &stateRoot, uint64_t timeStamp,
                                __uint32_t timeStampMs, const string &_signature, const string &_thresholdSig,
-                               const string & _daSig)
+                               const string &_daSig)
         : BlockProposal(_schainId, _proposerNodeId, _blockId, _proposerIndex, _transactions, stateRoot,
                         timeStamp, timeStampMs, _signature, nullptr) {
     CHECK_ARGUMENT(_transactions);
@@ -234,4 +248,23 @@ ptr<vector<uint8_t> > CommittedBlock::serializeBlock() {
     CHECK_STATE(cachedSerializedBlock);
 
     return cachedSerializedBlock;
+}
+
+void CommittedBlock::verifyBlockSig(ptr<CryptoManager> _cryptoManager) {
+
+    CHECK_STATE(_cryptoManager)
+
+    auto sig = getThresholdSig();
+
+    auto hash = BLAKE3Hash::getBlockHash((uint64_t) getProposerIndex(),
+                                         (uint64_t) getBlockID(),
+                                         (uint64_t) getSchainID());
+    try {
+        _cryptoManager->verifyBlockSig(sig, getBlockID(), hash, getTimeStamp());
+    } catch (InvalidSignatureException &) {
+        throw_with_nested(
+                InvalidStateException("Could not verify block BLS sig:", __CLASS_NAME__)
+        );
+    }
+
 }
