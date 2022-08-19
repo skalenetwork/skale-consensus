@@ -43,40 +43,70 @@ const string &InternalInfoDB::getFormatVersion() {
     return version;
 }
 
+
+string InternalInfoDB::readVersionUpdateHistory() {
+    LOCK(m)
+    return this->readString(VERSION_HISTORY_KEY);
+}
+
+/*
+ * This is called each time consensus starts
+ */
 void InternalInfoDB::updateInternalChainInfo(block_id _blockId) {
 
     LOCK(m)
-
 
     auto currentVersion = getSchain()->getNode()->getConsensusEngine()->getEngineVersion();
 
     if (_blockId == 0) {
         // new chain, init with current version
         this->writeString(VERSION_HISTORY_KEY, currentVersion, true);
-        return;
     } else {
 
         // updating version number for the existing chain
-        auto storedVersionHistory = this->readString(VERSION_HISTORY_KEY);
+        auto storedVersionHistory = readVersionUpdateHistory();
 
-        // first process the legacy case - no version string at all in an existing chain
+        // first process the legacy case - no version string at all in an existing db
         if (storedVersionHistory.empty()) {
             // LEGACY
             auto version = "1.87";
             this->writeString(VERSION_HISTORY_KEY, version, true);
             return;
+        } else {
+
+            auto h = make_shared<VersionUpdateHistory>(storedVersionHistory);
+
+            if (h->getHistory().back() != currentVersion) {
+                storedVersionHistory.append(",");
+                storedVersionHistory.append(currentVersion);
+                this->writeString(VERSION_HISTORY_KEY, storedVersionHistory, true);
+            }
         }
-
-
-        auto h = make_shared<VersionUpdateHistory>(storedVersionHistory);
-
-        if (h->getHistory().back() != currentVersion) {
-            storedVersionHistory.append(",");
-            storedVersionHistory.append(currentVersion);
-            this->writeString(VERSION_HISTORY_KEY, storedVersionHistory, true);
-        }
-
     }
+
+
+    auto h = readVersionUpdateHistory();
+    CHECK_STATE(!h.empty());
+    LOG(info, "Version update history: " + h);
+
+}
+
+ptr<VersionUpdateHistory> InternalInfoDB::getVersionUpdateHistory() {
+    LOCK(m)
+    if (cachedVersionUpdateHistory)
+        return cachedVersionUpdateHistory;
+
+    auto storedVersionHistory = this->readString(VERSION_HISTORY_KEY);
+
+    cachedVersionUpdateHistory = make_shared<VersionUpdateHistory>(storedVersionHistory);
+
+    return cachedVersionUpdateHistory;
+
+}
+
+bool InternalInfoDB::isLegacy() {
+    auto h = getVersionUpdateHistory()->getHistory();
+    return (h.size() == 0) && (h.front() < "2.0");
 }
 
 

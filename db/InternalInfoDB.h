@@ -56,15 +56,19 @@ public:
     const string& getFormatVersion() override ;
 
     /**
-     * Get the current history of  version updates
+     * Get the current history of  version updates.
      */
-    ptr<VersionUpdateHistory> getVersionHistory();
+    ptr<VersionUpdateHistory> getVersionUpdateHistory();
 
     /*
      * Called each time the chain starts
      */
 
     void updateInternalChainInfo(block_id _blockId);
+
+    string readVersionUpdateHistory();
+
+    bool isLegacy();
 };
 
 

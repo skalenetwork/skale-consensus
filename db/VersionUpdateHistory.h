@@ -27,8 +27,11 @@
 
 
 
-
+/**
+ * History of consensus version updates
+ */
 class VersionUpdateHistory {
+
     vector<string> history;
 
 public:

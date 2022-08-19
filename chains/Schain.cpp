@@ -392,7 +392,7 @@ const atomic<bool> &Schain::getIsStateInitialized() const {
 }
 
 bool Schain::isLegacy() {
-    return Time::getCurrentTimeSec() < 1664383316;
+    return getNode()->getInternalInfoDB()->isLegacy() && Time::getCurrentTimeSec() < 1664383316;
 }
 
 

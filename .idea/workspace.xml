@@ -45,25 +45,15 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ec15c893-7f20-4493-be40-38b8f69efc54" name="Default Changelist" comment="#238 better log handling">
-      <change afterPath="$PROJECT_DIR$/db/InternalInfoDB.cpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/db/InternalInfoDB.h" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/db/VersionUpdateHistory.cpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/db/VersionUpdateHistory.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ENGINE_VERSION" beforeDir="false" afterPath="$PROJECT_DIR$/ENGINE_VERSION" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/chains/Schain.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/chains/Schain.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chains/Schain.h" beforeDir="false" afterPath="$PROJECT_DIR$/chains/Schain.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/BlockDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/BlockDB.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/DASigShareDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/DASigShareDB.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/StorageLimits.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/StorageLimits.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/StorageLimits.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/StorageLimits.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/InternalInfoDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/InternalInfoDB.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/InternalInfoDB.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/InternalInfoDB.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/VersionUpdateHistory.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/VersionUpdateHistory.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/VersionUpdateHistory.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/VersionUpdateHistory.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libBLS/deps/libff/depends/xbyak" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/deps/libff/depends/xbyak" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libBLS/deps/zlib/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/deps/zlib/Makefile" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libBLS/deps/zlib/zconf.h" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/deps/zlib/zconf.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/node/Node.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/node/Node.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/node/Node.h" beforeDir="false" afterPath="$PROJECT_DIR$/node/Node.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/node/NodeGettersSetters.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/node/NodeGettersSetters.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -240,11 +230,6 @@
       <envs>
         <env name="TEST_TIME_S" value="1000000000" />
       </envs>
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
@@ -455,6 +440,7 @@
       <workItem from="1660917160880" duration="2273000" />
       <workItem from="1660920452619" duration="3246000" />
       <workItem from="1660924306026" duration="490000" />
+      <workItem from="1660926031359" duration="302000" />
     </task>
     <task id="LOCAL-00093" summary="bug/SKALE-4352">
       <created>1634133299846</created>

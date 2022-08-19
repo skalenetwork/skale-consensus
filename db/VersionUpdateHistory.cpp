@@ -27,9 +27,13 @@
 
 #include "VersionUpdateHistory.h"
 
+/*
+ * Version update history recorded in DB as a list of comma separated values
+ */
 VersionUpdateHistory::VersionUpdateHistory(string &_serializedHistory) {
     using namespace boost;
-    CHECK_STATE(!_serializedHistory.empty())
+    if (_serializedHistory.empty())
+        return;
     char_separator<char> sep{","};
     tokenizer tok{_serializedHistory, sep};
     for (const auto &version : tok) {
