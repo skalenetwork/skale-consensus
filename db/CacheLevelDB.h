@@ -114,7 +114,7 @@ protected:
 
     bool keyExistsInSet( block_id _blockId, schain_index _index );
 
-    string readStringFromBlockSet( block_id _blockId, schain_index _index );
+    string readStringFromSet(block_id _blockId, schain_index _index );
 
     void rotateDBsIfNeeded();
 

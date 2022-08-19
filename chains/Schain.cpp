@@ -444,6 +444,8 @@ void Schain::blockCommitArrived(block_id _committedBlockID, schain_index _propos
         CHECK_STATE(getLastCommittedBlockTimeStamp() < newCommittedBlock->getTimeStamp());
 
 
+
+
         processCommittedBlock(newCommittedBlock);
         proposeNextBlock();
 

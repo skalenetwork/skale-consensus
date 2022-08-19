@@ -81,9 +81,14 @@ BlockFinalizeDownloader::BlockFinalizeDownloader(
       blockId( _blockId ),
       proposerIndex( _proposerIndex ),
       fragmentList( _blockId, ( uint64_t ) _sChain->getNodeCount() - 1 ) {
+
     CHECK_ARGUMENT( _sChain )
 
     CHECK_STATE( _sChain->getNodeCount() > 1 )
+
+    if (_proposerIndex == _sChain->getSchainIndex()) {
+        LOG(err, "Finalizing own proposal");
+    }
 
     try {
         logThreadLocal_ = _sChain->getNode()->getLog();
@@ -235,18 +240,18 @@ string BlockFinalizeDownloader::readDAProofSig( nlohmann::json _responseHeader )
 
 
 ptr< BlockProposalFragment > BlockFinalizeDownloader::readBlockFragment(
-    const ptr< ClientSocket >& _socket, nlohmann::json responseHeader,
+    const ptr< ClientSocket >& _socket, nlohmann::json _responseHeader,
     fragment_index _fragmentIndex, node_count _nodeCount ) {
     CHECK_ARGUMENT( _socket )
 
-    CHECK_ARGUMENT( responseHeader > 0 )
+    CHECK_ARGUMENT( _responseHeader > 0 )
 
     MONITOR( __CLASS_NAME__, __FUNCTION__ )
 
-    auto fragmentSize = readFragmentSize( responseHeader );
-    auto blockSize = readBlockSize( responseHeader );
-    auto h = readBlockHash( responseHeader );
-    auto sig = readDAProofSig( responseHeader );
+    auto fragmentSize = readFragmentSize( _responseHeader );
+    auto blockSize = readBlockSize( _responseHeader );
+    auto h = readBlockHash( _responseHeader );
+    auto sig = readDAProofSig( _responseHeader );
 
     {
         LOCK( m )

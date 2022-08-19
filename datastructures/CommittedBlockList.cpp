@@ -27,7 +27,7 @@
 #include "crypto/CryptoManager.h"
 #include "crypto/BLAKE3Hash.h"
 #include "exceptions/InvalidStateException.h"
-
+#include "chains/Schain.h"
 #include "CommittedBlock.h"
 #include "CommittedBlockList.h"
 
@@ -71,6 +71,9 @@ CommittedBlockList::CommittedBlockList(const ptr< CryptoManager >& _cryptoManage
 
 
             auto block = CommittedBlock::deserialize( blockData, _cryptoManager, true );
+
+            if (!_cryptoManager->getSchain()->isLegacy())
+                CHECK_STATE(!block->getDaSig().empty())
 
             blocks->push_back(block);
 

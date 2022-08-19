@@ -47,16 +47,18 @@
     <list default="true" id="ec15c893-7f20-4493-be40-38b8f69efc54" name="Default Changelist" comment="#238 better log handling">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/SkaleCommon.h" beforeDir="false" afterPath="$PROJECT_DIR$/SkaleCommon.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/blockfinalize/client/BlockFinalizeDownloader.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/blockfinalize/client/BlockFinalizeDownloader.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/blockproposal/server/BlockProposalServerAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/blockproposal/server/BlockProposalServerAgent.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/chains/Schain.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/chains/Schain.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crypto/OpenSSLEdDSAKey.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/crypto/OpenSSLEdDSAKey.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/datastructures/BlockProposal.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/BlockProposal.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/datastructures/CommittedBlock.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/CommittedBlock.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/datastructures/CommittedBlock.h" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/CommittedBlock.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/datastructures/CommittedBlockList.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/CommittedBlockList.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/BlockProposalDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/BlockProposalDB.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/CacheLevelDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/CacheLevelDB.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/CacheLevelDB.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/CacheLevelDB.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/DAProofDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/DAProofDB.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/headers/BlockFinalizeResponseHeader.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/headers/BlockFinalizeResponseHeader.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libBLS/deps/libff/depends/xbyak" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/deps/libff/depends/xbyak" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libBLS/deps/zlib/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/deps/zlib/Makefile" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libBLS/deps/zlib/zconf.h" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/deps/zlib/zconf.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sgxclient/SgxZmqClient.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/sgxclient/SgxZmqClient.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sgxclient/SgxZmqClient.h" beforeDir="false" afterPath="$PROJECT_DIR$/sgxclient/SgxZmqClient.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -431,7 +433,14 @@
       <workItem from="1660900014804" duration="2000" />
       <workItem from="1660900144899" duration="729000" />
       <workItem from="1660901159039" duration="1023000" />
-      <workItem from="1660903444667" duration="2000" />
+      <workItem from="1660903444667" duration="438000" />
+      <workItem from="1660903943580" duration="2000" />
+      <workItem from="1660904674103" duration="308000" />
+      <workItem from="1660905270211" duration="706000" />
+      <workItem from="1660908938149" duration="1000" />
+      <workItem from="1660909584456" duration="1000" />
+      <workItem from="1660910408550" duration="2000" />
+      <workItem from="1660911138524" duration="409000" />
     </task>
     <task id="LOCAL-00093" summary="bug/SKALE-4352">
       <created>1634133299846</created>
