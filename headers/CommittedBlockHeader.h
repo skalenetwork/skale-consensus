@@ -32,7 +32,7 @@ class CommittedBlockHeader : public BlockProposalHeader {
     string daSig;
 
 public:
-    CommittedBlockHeader(BlockProposal &block, const string &thresholdSig, const string & _daSig );
+    CommittedBlockHeader(CommittedBlock &block);
 
     explicit CommittedBlockHeader(nlohmann::json &json);
 

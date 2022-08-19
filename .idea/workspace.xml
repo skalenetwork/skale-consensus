@@ -40,13 +40,24 @@
   </component>
   <component name="CMakeSettings" AUTO_RELOAD="true">
     <configurations>
-      <configuration PROFILE_NAME="Debug" ENABLED="true" CONFIG_NAME="Debug" />
+      <configuration PROFILE_NAME="Debug" ENABLED="true" CONFIG_NAME="Debug" BUILD_OPTIONS="-- -j8" />
     </configurations>
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ec15c893-7f20-4493-be40-38b8f69efc54" name="Default Changelist" comment="#238 better log handling">
       <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+
+      <change beforePath="$PROJECT_DIR$/SkaleCommon.h" beforeDir="false" afterPath="$PROJECT_DIR$/SkaleCommon.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/blockfinalize/client/BlockFinalizeDownloader.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/blockfinalize/client/BlockFinalizeDownloader.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/blockproposal/server/BlockProposalServerAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/blockproposal/server/BlockProposalServerAgent.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/chains/Schain.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/chains/Schain.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/datastructures/CommittedBlockList.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/CommittedBlockList.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/BlockProposalDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/BlockProposalDB.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/CacheLevelDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/CacheLevelDB.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/CacheLevelDB.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/CacheLevelDB.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/DAProofDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/DAProofDB.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/headers/BlockFinalizeResponseHeader.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/headers/BlockFinalizeResponseHeader.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/blockproposal/server/BlockProposalServerAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/blockproposal/server/BlockProposalServerAgent.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/datastructures/ReceivedBlockProposal.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/ReceivedBlockProposal.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/datastructures/ReceivedBlockProposal.h" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/ReceivedBlockProposal.h" afterDir="false" />
@@ -71,7 +82,7 @@
     </option>
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="282_data_availability_improvements" />
+        <entry key="$PROJECT_DIR$" value="develop" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -136,6 +147,7 @@
   </component>
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
+    &quot;Git.Branch.Popup.ShowAllRemotes&quot;: &quot;true&quot;,
     &quot;Git.Branch.Popup.ShowAllRepositories&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
@@ -412,6 +424,28 @@
       <workItem from="1660577749199" duration="861000" />
       <workItem from="1660578848236" duration="1960000" />
       <workItem from="1660584279398" duration="1714000" />
+      <workItem from="1660674877670" duration="598000" />
+      <workItem from="1660675858503" duration="3000" />
+      <workItem from="1660676082369" duration="17000" />
+      <workItem from="1660676110173" duration="3000" />
+      <workItem from="1660737079031" duration="1527000" />
+      <workItem from="1660739300530" duration="3300000" />
+      <workItem from="1660898748543" duration="2000" />
+      <workItem from="1660898861380" duration="1000" />
+      <workItem from="1660899163845" duration="1000" />
+      <workItem from="1660899328559" duration="1000" />
+      <workItem from="1660899587564" duration="36000" />
+      <workItem from="1660900014804" duration="2000" />
+      <workItem from="1660900144899" duration="729000" />
+      <workItem from="1660901159039" duration="1023000" />
+      <workItem from="1660903444667" duration="438000" />
+      <workItem from="1660903943580" duration="2000" />
+      <workItem from="1660904674103" duration="308000" />
+      <workItem from="1660905270211" duration="706000" />
+      <workItem from="1660908938149" duration="1000" />
+      <workItem from="1660909584456" duration="1000" />
+      <workItem from="1660910408550" duration="2000" />
+      <workItem from="1660911138524" duration="409000" />
     </task>
     <task id="LOCAL-00093" summary="bug/SKALE-4352">
       <created>1634133299846</created>
@@ -830,6 +864,11 @@
           <url>file://$PROJECT_DIR$/oracle/OracleRequestBroadcastMessage.cpp</url>
           <line>23</line>
           <option name="timeStamp" value="34" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/datastructures/CommittedBlock.cpp</url>
+          <line>262</line>
+          <option name="timeStamp" value="35" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>

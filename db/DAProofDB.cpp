@@ -65,7 +65,7 @@ bool DAProofDB::haveDAProof(const ptr<BlockProposal>& _proposal) {
 
 
 string DAProofDB::getDASig(block_id _blockId, schain_index _proposerIndex) {
-    return readStringFromBlockSet(_blockId, _proposerIndex);
+    return readStringFromSet(_blockId, _proposerIndex);
 }
 
 

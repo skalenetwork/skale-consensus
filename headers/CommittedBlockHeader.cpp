@@ -26,18 +26,20 @@
 #include "SkaleCommon.h"
 #include "Log.h"
 
+#include "datastructures/CommittedBlock.h"
 #include "CommittedBlockHeader.h"
 
 
-CommittedBlockHeader::CommittedBlockHeader(BlockProposal &_block, const string &_thresholdSig, const string& _daSig) : BlockProposalHeader(
-        _block), thresholdSig(_thresholdSig), daSig(_daSig) {
-    CHECK_ARGUMENT(!_thresholdSig.empty())
+
+CommittedBlockHeader::CommittedBlockHeader(CommittedBlock &_block) : BlockProposalHeader(
+        _block), thresholdSig(_block.getThresholdSig()), daSig(_block.getDaSig()) {
+    CHECK_ARGUMENT(!thresholdSig.empty())
 }
 
-CommittedBlockHeader::CommittedBlockHeader(nlohmann::json &json) : BlockProposalHeader(json) {
-    thresholdSig = Header::getString(json, "thrSig");
+CommittedBlockHeader::CommittedBlockHeader(nlohmann::json &_json) : BlockProposalHeader(_json) {
+    thresholdSig = Header::getString(_json, "thrSig");
     CHECK_STATE(!thresholdSig.empty())
-    daSig = Header::maybeGetString(json, "daSig");
+    daSig = Header::maybeGetString(_json, "daSig");
 }
 
 const string &CommittedBlockHeader::getThresholdSig() const {
@@ -51,13 +53,13 @@ const string &CommittedBlockHeader::getDaSig() const {
 
 
 
-void CommittedBlockHeader::addFields(nlohmann::basic_json<> &j) {
-    BlockProposalHeader::addFields(j);
+void CommittedBlockHeader::addFields(nlohmann::basic_json<> &_j) {
+    BlockProposalHeader::addFields(_j);
 
-    j["thrSig"] = thresholdSig;
+    _j["thrSig"] = thresholdSig;
 
     if (!daSig.empty()) {
-        j["daSig"] = daSig;
+        _j["daSig"] = daSig;
     }
 
 }

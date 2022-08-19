@@ -61,6 +61,10 @@ void BlockFinalizeResponseHeader::setFragmentParams(uint64_t _fragmentSize, uint
     CHECK_ARGUMENT(_blockSize > 16)
     CHECK_ARGUMENT(!_hash.empty())
 
+    if (_daProofSig.empty())
+        exit(-7);
+    CHECK_ARGUMENT(!_daProofSig.empty())
+
     fragmentSize = _fragmentSize;
     blockSize = _blockSize;
     blockHash = _hash;

@@ -524,15 +524,7 @@ ptr<Header> BlockProposalServerAgent::createProposalResponseHeader(
     }
 
 
-    auto chainName = getSchain()->getSchainName();
-
-    bool checkIt = (chainName != "rhythmic-tegmen" &&
-                    chainName != "squeaking-nash" &&
-                    chainName != "chubby-sadr" &&
-                    chainName != "tinkling-kaffaljidhma");
-
-
-    if (checkIt && blockIDInHeader > 1 &&
+    if (blockIDInHeader > 1 &&
         _header.getStateRoot() != myBlockProposalForTheSameBlockID->getStateRoot()) {
         responseHeader->setStatusSubStatus(
                 CONNECTION_ERROR, CONNECTION_PROPOSAL_STATE_ROOT_DOES_NOT_MATCH);
@@ -623,6 +615,7 @@ ptr<Header> BlockProposalServerAgent::createDAProofResponseHeader(
 
     auto responseHeader = make_shared<SubmitDAProofResponseHeader>();
 
+
     if ((uint64_t) sChain->getSchainID() != _header->getSchainId()) {
         responseHeader->setStatusSubStatus(CONNECTION_ERROR, CONNECTION_ERROR_UNKNOWN_SCHAIN_ID);
         BOOST_THROW_EXCEPTION(InvalidSchainException(
@@ -634,7 +627,7 @@ ptr<Header> BlockProposalServerAgent::createDAProofResponseHeader(
     ptr<NodeInfo> nmi = sChain->getNode()->getNodeInfoById(nodeId);
 
 
-    if (nmi == nullptr) {
+    if (!nmi) {
         responseHeader->setStatusSubStatus(
                 CONNECTION_ERROR, CONNECTION_ERROR_DONT_KNOW_THIS_NODE);
         BOOST_THROW_EXCEPTION(InvalidNodeIDException(

@@ -119,8 +119,6 @@ string SgxZmqClient::doZmqRequestReply( string& _req,  string& _description, boo
 
     s_send( *clientSocket, _req );
 
-    auto requestTimeout = REQUEST_TIMEOUT;
-
     while ( true ) {
         //  Poll socket for a reply, with timeout
         zmq::pollitem_t items[] = { { static_cast< void* >( *clientSocket ), 0, ZMQ_POLLIN, 0 } };
@@ -300,6 +298,9 @@ void SgxZmqClient::reconnect() {
                       to_string( ( uint64_t ) getSchain()->getSchainIndex() ) + ":" + ":" +
                       to_string( randNumber1 ) + to_string( randNumber2 );
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+
     clientSocket = make_shared< zmq::socket_t >( ctx, ZMQ_DEALER );
     clientSocket->setsockopt( ZMQ_IDENTITY, identity.c_str(), identity.size() + 1 );
     //  Configure socket to not wait at close time
@@ -317,6 +318,8 @@ void SgxZmqClient::reconnect() {
     clientSocket->setsockopt( ZMQ_HEARTBEAT_TIMEOUT, &val, sizeof( val ) );
     val = 60000;
     clientSocket->setsockopt( ZMQ_HEARTBEAT_TTL, &val, sizeof( val ) );
+
+#pragma GCC diagnostic pop
 
     clientSocket->connect( url );
 }

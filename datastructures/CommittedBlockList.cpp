@@ -27,7 +27,7 @@
 #include "crypto/CryptoManager.h"
 #include "crypto/BLAKE3Hash.h"
 #include "exceptions/InvalidStateException.h"
-
+#include "chains/Schain.h"
 #include "CommittedBlock.h"
 #include "CommittedBlockList.h"
 
@@ -67,10 +67,13 @@ CommittedBlockList::CommittedBlockList(const ptr< CryptoManager >& _cryptoManage
             auto blockData = make_shared<vector<uint8_t>>(
                 _serializedBlocks->begin() + index, _serializedBlocks->begin() + endIndex );
 
-            CommittedBlock::serializedSanityCheck( blockData );
+
 
 
             auto block = CommittedBlock::deserialize( blockData, _cryptoManager, true );
+
+            if (!_cryptoManager->getSchain()->isLegacy())
+                CHECK_STATE(!block->getDaSig().empty())
 
             blocks->push_back(block);
 
@@ -133,6 +136,12 @@ ptr< CommittedBlockList > CommittedBlockList::createRandomSample(
 ptr< CommittedBlockList > CommittedBlockList::deserialize(const ptr< CryptoManager >& _cryptoManager,
     const ptr<vector<uint64_t>>& _blockSizes, const ptr<vector<uint8_t>>& _serializedBlocks,
     uint64_t _offset ) {
+
+    if (_serializedBlocks->at(0) != '[') {
+        BOOST_THROW_EXCEPTION(
+                InvalidStateException("Serialized blocks do not start with [", __CLASS_NAME__));
+    }
+
     return ptr< CommittedBlockList >(
         new CommittedBlockList( _cryptoManager, _blockSizes, _serializedBlocks, _offset ) );
 }

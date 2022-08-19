@@ -82,7 +82,12 @@
 
 #include <boost/bind.hpp>
 #include <boost/thread/thread.hpp>
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-copy"
+#pragma GCC diagnostic ignored "-Wpessimizing-move"
 #include <boost/multiprecision/cpp_int.hpp>
+#pragma GCC diagnostic pop
+
 
 #include <boost/crc.hpp>
 
@@ -213,6 +218,8 @@ static const int ZMQ_TIMEOUT = 1000;
 static const int CONSENSUS_ZMQ_HWM = 32;
 
 static const int NODE_DEATH_INTERVAL_MS = 30000;
+
+static const string VERSION_STRING ("2.1");
 
 
 enum port_type {

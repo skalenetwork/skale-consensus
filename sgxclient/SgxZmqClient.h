@@ -44,13 +44,16 @@
 #include <openssl/err.h>
 #include <openssl/sha.h>
 #include <openssl/rand.h>
-
-#include <zmq.hpp>
-
 #include <jsonrpccpp/client.h>
-
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#include <zmq.hpp>
 #include "sgxclient/SgxZmqMessage.h"
 #include "thirdparty/zguide/zhelpers.hpp"
+#pragma GCC diagnostic pop
+
+
+
 
 #define REQUEST_TIMEOUT     10000    //  msecs, (> 1000!)
 

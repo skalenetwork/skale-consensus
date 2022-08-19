@@ -300,7 +300,7 @@ bool BinConsensusInstance::bvbVoteCore(const bin_consensus_round &_r, const bin_
             CHECK_STATE( sigShare );
             auto hash = m->getCommonCoinHash();
             CHECK_STATE( hash );
-            getSchain()->getCryptoManager()->verifyThresholdSigShare( sigShare, *hash, false );
+            getSchain()->getCryptoManager()->verifyThresholdSigShare( sigShare, *hash);
         }
 
         return auxVoteCore( r, v, index, sigShare );

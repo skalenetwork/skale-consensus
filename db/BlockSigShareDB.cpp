@@ -61,7 +61,7 @@ BlockSigShareDB::checkAndSaveShareInMemory(const ptr<ThresholdSigShare>& _sigSha
                 (uint64_t) _sigShare->getBlockId(),
                 (uint64_t) getSchain()->getSchainID());
 
-        _cryptoManager->verifyThresholdSigShare(_sigShare, hash, false);
+        _cryptoManager->verifyThresholdSigShare(_sigShare, hash);
 
 
         auto sigShareString = _sigShare->toString();
@@ -95,7 +95,7 @@ BlockSigShareDB::checkAndSaveShareInMemory(const ptr<ThresholdSigShare>& _sigSha
 
 
 
-        _cryptoManager->verifyBlockSig(signature, hash);
+        _cryptoManager->verifyThresholdSig(signature, hash);
 
 
 

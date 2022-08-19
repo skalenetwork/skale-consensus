@@ -335,9 +335,12 @@ pair< ConnectionStatus, ConnectionSubStatus > BlockProposalClientAgent::sendBloc
     CHECK_STATE( nodeInfo );
 
     try {
-        getSchain()->getCryptoManager()->sessionVerifySigAndKey( hash,
-        finalHeader->getSignature(), finalHeader->getPublicKey(), finalHeader->getPublicKeySig(),
-        _proposal->getBlockID(), nodeInfo->getNodeID(), _proposal->getTimeStampMs() );
+        getSchain()->getCryptoManager()->verifySessionSigAndKey(hash,
+                                                                finalHeader->getSignature(),
+                                                                finalHeader->getPublicKey(),
+                                                                finalHeader->getPublicKeySig(),
+                                                                _proposal->getBlockID(), nodeInfo->getNodeID(),
+                                                                _proposal->getTimeStampMs());
     } catch (...) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
