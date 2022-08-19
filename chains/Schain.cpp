@@ -68,6 +68,7 @@
 #include "db/DAProofDB.h"
 #include "db/DASigShareDB.h"
 #include "db/ProposalVectorDB.h"
+#include "db/InternalInfoDB.h"
 #include "exceptions/EngineInitException.h"
 #include "exceptions/ExitRequestedException.h"
 #include "exceptions/FatalError.h"
@@ -391,7 +392,7 @@ const atomic<bool> &Schain::getIsStateInitialized() const {
 }
 
 bool Schain::isLegacy() {
-    return Time::getCurrentTimeSec() < 1664383316;
+    return getNode()->getInternalInfoDB()->isLegacy() && Time::getCurrentTimeSec() < 1664383316;
 }
 
 
@@ -825,11 +826,21 @@ block_id Schain::readLastCommittedBlockIDFromDb() {
     return getNode()->getBlockDB()->readLastCommittedBlockID();
 }
 
+void Schain::updateInternalChainInfo(block_id _lastCommittedBlockID) {
+    getNode()->getInternalInfoDB()->updateInternalChainInfo(_lastCommittedBlockID);
+}
+
+
+
 void Schain::bootstrap(block_id _lastCommittedBlockID, uint64_t _lastCommittedBlockTimeStamp,
                        uint64_t _lastCommittedBlockTimeStampMs) {
 
     // should be called only once
     CHECK_STATE(!bootStrapped.exchange(true));
+
+    updateInternalChainInfo(_lastCommittedBlockID);
+
+
 
     LOG(info, "Bootstrapping consensus ...");
 

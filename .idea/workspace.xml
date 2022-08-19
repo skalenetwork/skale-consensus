@@ -40,27 +40,17 @@
   </component>
   <component name="CMakeSettings" AUTO_RELOAD="true">
     <configurations>
-      <configuration PROFILE_NAME="Debug" ENABLED="true" CONFIG_NAME="Debug" BUILD_OPTIONS="-- -j8" />
+      <configuration PROFILE_NAME="Debug" ENABLED="true" CONFIG_NAME="Debug" BUILD_OPTIONS="-- -j4" />
     </configurations>
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ec15c893-7f20-4493-be40-38b8f69efc54" name="Default Changelist" comment="#238 better log handling">
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-
-      <change beforePath="$PROJECT_DIR$/SkaleCommon.h" beforeDir="false" afterPath="$PROJECT_DIR$/SkaleCommon.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/blockfinalize/client/BlockFinalizeDownloader.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/blockfinalize/client/BlockFinalizeDownloader.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/blockproposal/server/BlockProposalServerAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/blockproposal/server/BlockProposalServerAgent.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/chains/Schain.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/chains/Schain.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/datastructures/CommittedBlockList.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/CommittedBlockList.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/BlockProposalDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/BlockProposalDB.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/CacheLevelDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/CacheLevelDB.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/CacheLevelDB.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/CacheLevelDB.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/DAProofDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/DAProofDB.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/headers/BlockFinalizeResponseHeader.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/headers/BlockFinalizeResponseHeader.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/blockproposal/server/BlockProposalServerAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/blockproposal/server/BlockProposalServerAgent.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/datastructures/ReceivedBlockProposal.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/ReceivedBlockProposal.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/datastructures/ReceivedBlockProposal.h" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/ReceivedBlockProposal.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/InternalInfoDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/InternalInfoDB.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/InternalInfoDB.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/InternalInfoDB.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/VersionUpdateHistory.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/VersionUpdateHistory.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/VersionUpdateHistory.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/VersionUpdateHistory.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libBLS/deps/libff/depends/xbyak" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/deps/libff/depends/xbyak" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libBLS/deps/zlib/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/deps/zlib/Makefile" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libBLS/deps/zlib/zconf.h" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/deps/zlib/zconf.h" afterDir="false" />
@@ -135,7 +125,7 @@
     <scope name="Unnamed" pattern="file[mapreduce_consensus]:abstracttcpclient/*||file[mapreduce_consensus]:abstracttcpserver/*||file[mapreduce_consensus]:blockfinalize/*||file[mapreduce_consensus]:blockproposal/*||file[mapreduce_consensus]:abstracttcpclient//*||file[mapreduce_consensus]:abstracttcpserver//*||file[mapreduce_consensus]:blockfinalize//*||file[mapreduce_consensus]:blockproposal//*||file[mapreduce_consensus]:chains//*||file[mapreduce_consensus]:crypto//*||file[mapreduce_consensus]:datastructures//*||file[mapreduce_consensus]:db//*||file[mapreduce_consensus]:exceptions//*||file[mapreduce_consensus]:json//*||file[mapreduce_consensus]:catchup//*||file[mapreduce_consensus]:messages//*||file[mapreduce_consensus]:monitoring//*||file[mapreduce_consensus]:network//*||file[mapreduce_consensus]:node//*||file[mapreduce_consensus]:oracle//*||file[mapreduce_consensus]:pendingqueue//*||file[mapreduce_consensus]:pricing//*||file[mapreduce_consensus]:protocols//*||file[mapreduce_consensus]:sgxclient//*||file[mapreduce_consensus]:utils//*" />
   </component>
   <component name="ProblemsViewState">
-    <option name="selectedTabId" value="ProjectErrors" />
+    <option name="selectedTabId" value="CurrentFile" />
   </component>
   <component name="ProjectId" id="1tLjZg8PrXyNb5KH1T9D17V0hIk" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
@@ -157,17 +147,17 @@
     &quot;cf.advertisement.text.overridden&quot;: &quot;true&quot;,
     &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
     &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/d/skale-consensus&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/d/skale-consensus/db&quot;,
     &quot;settings.editor.selected.configurable&quot;: &quot;CMakeSettings&quot;
   }
 }</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/db" />
       <recent name="$PROJECT_DIR$/oracle" />
       <recent name="$PROJECT_DIR$/oracle/" />
       <recent name="$PROJECT_DIR$/test" />
       <recent name="$PROJECT_DIR$/test/fournodes" />
-      <recent name="$PROJECT_DIR$/monitoring" />
     </key>
   </component>
   <component name="RunManager" selected="CMake Application.consensust">
@@ -445,7 +435,12 @@
       <workItem from="1660908938149" duration="1000" />
       <workItem from="1660909584456" duration="1000" />
       <workItem from="1660910408550" duration="2000" />
-      <workItem from="1660911138524" duration="409000" />
+      <workItem from="1660911138524" duration="3246000" />
+      <workItem from="1660915330372" duration="324000" />
+      <workItem from="1660917160880" duration="2273000" />
+      <workItem from="1660920452619" duration="3246000" />
+      <workItem from="1660924306026" duration="490000" />
+      <workItem from="1660926031359" duration="302000" />
     </task>
     <task id="LOCAL-00093" summary="bug/SKALE-4352">
       <created>1634133299846</created>

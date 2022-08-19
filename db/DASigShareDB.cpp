@@ -39,10 +39,11 @@
 
 #include "leveldb/db.h"
 
-#include "SigDB.h"
-#include "DASigShareDB.h"
 #include "crypto/ThresholdSigShare.h"
 #include "datastructures/DAProof.h"
+
+#include "SigDB.h"
+#include "DASigShareDB.h"
 
 
 using namespace std;

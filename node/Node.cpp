@@ -52,6 +52,7 @@
 #include "db/ConsensusStateDB.h"
 #include "db/DAProofDB.h"
 #include "db/DASigShareDB.h"
+#include "db/InternalInfoDB.h"
 #include "db/MsgDB.h"
 #include "db/PriceDB.h"
 #include "db/ProposalHashDB.h"
@@ -171,6 +172,7 @@ void Node::initLevelDBs() {
     string daSigShareDBPrefix = "/da_sigshares_" + to_string(nodeID) + ".db";
     string daProofDBPrefix = "/da_proofs_" + to_string(nodeID) + ".db";
     string blockProposalDBPrefix = "/block_proposals_" + to_string(nodeID) + ".db";
+    string internalInfoDBPrefix = "/internal_info_" + to_string(nodeID) + ".db";
 
 
     blockDB = make_shared<BlockDB>(getSchain(), dbDir, blockDBPrefix, getNodeID(), getBlockDBSize());
@@ -198,6 +200,10 @@ void Node::initLevelDBs() {
     daProofDB = make_shared<DAProofDB>(getSchain(), dbDir, daProofDBPrefix, getNodeID(), getDaProofDBSize());
     blockProposalDB = make_shared<BlockProposalDB>(getSchain(), dbDir, blockProposalDBPrefix, getNodeID(),
                                                    getBlockProposalDBSize());
+
+    internalInfoDB = make_shared<InternalInfoDB>(getSchain(), dbDir, internalInfoDBPrefix, getNodeID(),
+                                                   getInternalInfoDBSize());
+
 
 }
 
@@ -256,6 +262,7 @@ void Node::initParamsFromConfig() {
     randomDBSize = storageLimits->getRandomDbSize();
     priceDBSize = storageLimits->getPriceDbSize();
     blockProposalDBSize = storageLimits->getBlockProposalDbSize();
+    internalInfoDBSize = storageLimits->getInternalInfoDbSize();
 
     visualizationType = getParamUint64("visualizationType", 0);
 

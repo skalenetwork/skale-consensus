@@ -34,13 +34,13 @@ StorageLimits::StorageLimits( uint64_t _totalStorageLimitBytes ) : storageUnitBy
     PROPOSAL_HASH_DB_SIZE = 10 * unit;
     PROPOSAL_VECTOR_DB_SIZE = 10  * unit;
     OUTGOING_MSG_DB_SIZE = 10 * unit;
-    INCOMING_MSG_DB_SIZE = 10 * unit;
     CONSENSUS_STATE_DB_SIZE = 10 * unit;
     BLOCK_SIG_SHARE_DB_SIZE = 10 * unit;
     DA_SIG_SHARE_DB_SIZE = 10 * unit;
     DA_PROOF_DB_SIZE = 10 * unit;
     BLOCK_PROPOSAL_DB_SIZE = 100 * unit;
-
+    INTERNAL_INFO_DB_SIZE = 1 * unit;
+    INCOMING_MSG_DB_SIZE = 9 * unit;
 }
 uint64_t StorageLimits::getStorageUnitBytes() const {
     return storageUnitBytes;
@@ -80,4 +80,8 @@ uint64_t StorageLimits::getDaProofDbSize() const {
 }
 uint64_t StorageLimits::getBlockProposalDbSize() const {
     return BLOCK_PROPOSAL_DB_SIZE;
+}
+
+uint64_t StorageLimits::getInternalInfoDbSize() const {
+    return INTERNAL_INFO_DB_SIZE;
 }
