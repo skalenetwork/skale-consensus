@@ -23,7 +23,11 @@
 
 
 #include <boost/iostreams/device/array.hpp>
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-copy"
 #include <boost/iostreams/stream.hpp>
+#pragma GCC diagnostic pop
 
 
 #include "SkaleCommon.h"

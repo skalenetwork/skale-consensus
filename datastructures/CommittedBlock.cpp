@@ -46,8 +46,8 @@
 
 
 ptr<CommittedBlock>
-CommittedBlock::makeObject(const ptr<BlockProposal> &_proposal, const ptr<ThresholdSignature> &_thresholdSig,
-                           ptr<ThresholdSignature> _daSig) {
+CommittedBlock::makeFromProposal(const ptr<BlockProposal> &_proposal, const ptr<ThresholdSignature> &_thresholdSig,
+                                 ptr<ThresholdSignature> _daSig) {
     CHECK_ARGUMENT(_proposal);
     CHECK_ARGUMENT(_thresholdSig);
     CHECK_ARGUMENT(_daSig || _proposal->getProposerIndex() == 0)
@@ -122,6 +122,9 @@ string CommittedBlock::getDaSig() const {
     return daSig;
 }
 
+bool CommittedBlock::isLegacy() {
+    return daSig.empty();
+}
 
 ptr<CommittedBlock> CommittedBlock::deserialize(
         const ptr<vector<uint8_t>> &_serializedBlock, const ptr<CryptoManager> &_manager,
@@ -129,7 +132,7 @@ ptr<CommittedBlock> CommittedBlock::deserialize(
     CHECK_ARGUMENT(_serializedBlock);
     CHECK_ARGUMENT(_manager);
 
-    serializedSanityCheck( _serializedBlock );
+    serializedSanityCheck(_serializedBlock);
 
     string headerStr = extractHeader(_serializedBlock);
 
@@ -192,6 +195,14 @@ ptr<CommittedBlock> CommittedBlock::deserialize(
 
     try {
         block->verifyBlockSig(_manager);
+    } catch (...) {
+        LOG(err, "Block threshold signature did not verify in deserialization");
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+    }
+
+    try {
+        if (!block->isLegacy())
+            block->verifyDaSig(_manager);
     } catch (...) {
         LOG(err, "Block threshold signature did not verify in deserialization");
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
@@ -268,3 +279,24 @@ void CommittedBlock::verifyBlockSig(ptr<CryptoManager> _cryptoManager) {
     }
 
 }
+
+void CommittedBlock::verifyDaSig(ptr<CryptoManager> _cryptoManager) {
+
+    CHECK_STATE(_cryptoManager)
+
+    auto sig = getThresholdSig();
+
+    auto hash = BLAKE3Hash::getBlockHash((uint64_t) getProposerIndex(),
+                                         (uint64_t) getBlockID(),
+                                         (uint64_t) getSchainID());
+    try {
+        _cryptoManager->verifyDAProofThresholdSig(hash, sig, getBlockID());
+    } catch (InvalidSignatureException &) {
+        throw_with_nested(
+                InvalidStateException("Could not verify block BLS sig:", __CLASS_NAME__)
+        );
+    }
+
+}
+
+

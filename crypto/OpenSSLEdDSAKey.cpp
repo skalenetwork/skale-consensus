@@ -206,8 +206,6 @@ string OpenSSLEdDSAKey::serializePubKey() const {
 void OpenSSLEdDSAKey::verifySig( const string& _encodedSignature, const char* _hash ) const {
     CHECK_STATE( _hash );
 
-    bool result = false;
-
     EVP_MD_CTX *  verifyCtx = nullptr;
 
     try {

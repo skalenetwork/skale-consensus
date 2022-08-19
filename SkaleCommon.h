@@ -82,7 +82,12 @@
 
 #include <boost/bind.hpp>
 #include <boost/thread/thread.hpp>
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-copy"
+#pragma GCC diagnostic ignored "-Wpessimizing-move"
 #include <boost/multiprecision/cpp_int.hpp>
+#pragma GCC diagnostic pop
+
 
 #include <boost/crc.hpp>
 

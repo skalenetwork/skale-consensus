@@ -438,8 +438,8 @@ void Schain::blockCommitArrived(block_id _committedBlockID, schain_index _propos
 
         CHECK_STATE(committedProposal);
 
-        auto newCommittedBlock = CommittedBlock::makeObject(committedProposal, _thresholdSig,
-                                                            _daSig);
+        auto newCommittedBlock = CommittedBlock::makeFromProposal(committedProposal, _thresholdSig,
+                                                                  _daSig);
 
         CHECK_STATE(getLastCommittedBlockTimeStamp() < newCommittedBlock->getTimeStamp());
 

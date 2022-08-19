@@ -40,25 +40,23 @@
   </component>
   <component name="CMakeSettings" AUTO_RELOAD="true">
     <configurations>
-      <configuration PROFILE_NAME="Debug" ENABLED="true" CONFIG_NAME="Debug" />
+      <configuration PROFILE_NAME="Debug" ENABLED="true" CONFIG_NAME="Debug" BUILD_OPTIONS="-- -j8" />
     </configurations>
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ec15c893-7f20-4493-be40-38b8f69efc54" name="Default Changelist" comment="#238 better log handling">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/blockproposal/pusher/BlockProposalClientAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/blockproposal/pusher/BlockProposalClientAgent.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/catchup/client/CatchupClientAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/catchup/client/CatchupClientAgent.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crypto/ConsensusEdDSASigShare.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/crypto/ConsensusEdDSASigShare.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crypto/CryptoManager.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/crypto/CryptoManager.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crypto/CryptoManager.h" beforeDir="false" afterPath="$PROJECT_DIR$/crypto/CryptoManager.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SkaleCommon.h" beforeDir="false" afterPath="$PROJECT_DIR$/SkaleCommon.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/chains/Schain.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/chains/Schain.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crypto/OpenSSLEdDSAKey.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/crypto/OpenSSLEdDSAKey.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/datastructures/BlockProposal.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/BlockProposal.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/datastructures/CommittedBlock.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/CommittedBlock.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/datastructures/CommittedBlock.h" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/CommittedBlock.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/datastructures/CommittedBlockList.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/CommittedBlockList.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/BlockSigShareDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/BlockSigShareDB.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libBLS/deps/libff/depends/xbyak" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/deps/libff/depends/xbyak" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libBLS/deps/zlib/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/deps/zlib/Makefile" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libBLS/deps/zlib/zconf.h" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/deps/zlib/zconf.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/protocols/binconsensus/BinConsensusInstance.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/protocols/binconsensus/BinConsensusInstance.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sgxclient/SgxZmqClient.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/sgxclient/SgxZmqClient.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sgxclient/SgxZmqClient.h" beforeDir="false" afterPath="$PROJECT_DIR$/sgxclient/SgxZmqClient.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -425,6 +423,15 @@
       <workItem from="1660676110173" duration="3000" />
       <workItem from="1660737079031" duration="1527000" />
       <workItem from="1660739300530" duration="3300000" />
+      <workItem from="1660898748543" duration="2000" />
+      <workItem from="1660898861380" duration="1000" />
+      <workItem from="1660899163845" duration="1000" />
+      <workItem from="1660899328559" duration="1000" />
+      <workItem from="1660899587564" duration="36000" />
+      <workItem from="1660900014804" duration="2000" />
+      <workItem from="1660900144899" duration="729000" />
+      <workItem from="1660901159039" duration="1023000" />
+      <workItem from="1660903444667" duration="2000" />
     </task>
     <task id="LOCAL-00093" summary="bug/SKALE-4352">
       <created>1634133299846</created>
@@ -846,7 +853,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
           <url>file://$PROJECT_DIR$/datastructures/CommittedBlock.cpp</url>
-          <line>251</line>
+          <line>262</line>
           <option name="timeStamp" value="35" />
         </line-breakpoint>
       </breakpoints>
