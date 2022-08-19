@@ -56,6 +56,7 @@ class TestConfig;
 class BlockSigShareDB;
 class DASigShareDB;
 class DAProofDB;
+class InternalInfoDB;
 
 namespace leveldb {
 class DB;
@@ -165,6 +166,8 @@ class Node {
 
     ptr< BlockProposalDB > blockProposalDB;
 
+    ptr< InternalInfoDB > internalInfoDB;
+
     uint64_t catchupIntervalMS = 0;
 
     uint64_t monitoringIntervalMs = 0;
@@ -199,6 +202,7 @@ class Node {
     uint64_t randomDBSize = 0;
     uint64_t priceDBSize = 0;
     uint64_t blockProposalDBSize = 0;
+    uint64_t internalInfoDBSize = 0;
     uint64_t visualizationType = 0;
 
     string gethURL = "";
@@ -241,6 +245,8 @@ public:
 
     ptr< PriceDB > getPriceDB() const;
 
+    ptr< InternalInfoDB > getInternalInfoDB() const;
+
     ptr< ProposalHashDB > getProposalHashDB();
 
     ptr< ProposalVectorDB > getProposalVectorDB();
@@ -274,6 +280,7 @@ public:
     uint64_t getDaSigShareDBSize() const;
     uint64_t getDaProofDBSize() const;
     uint64_t getBlockProposalDBSize() const;
+    uint64_t getInternalInfoDBSize() const;
     uint64_t getSimulateNetworkWriteDelayMs() const;
 
     ptr< BLSPublicKey > getBlsPublicKey() const;

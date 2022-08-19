@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2020 SKALE Labs
+    Copyright (C) 2019 -  SKALE Labs
 
     This file is part of skale-consensus.
 
@@ -41,6 +41,7 @@ class StorageLimits {
     uint64_t  DA_SIG_SHARE_DB_SIZE = 0;
     uint64_t  DA_PROOF_DB_SIZE = 0;
     uint64_t  BLOCK_PROPOSAL_DB_SIZE = 0;
+    uint64_t  INTERNAL_INFO_DB_SIZE = 0;
 
 
 public:
@@ -59,6 +60,7 @@ public:
     uint64_t getDaSigShareDbSize() const;
     uint64_t getDaProofDbSize() const;
     uint64_t getBlockProposalDbSize() const;
+    uint64_t getInternalInfoDbSize() const;
 
 
 public:

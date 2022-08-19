@@ -30,7 +30,6 @@
 #include "utils/Time.h"
 
 #include "BlockDB.h"
-#include "CacheLevelDB.h"
 
 ptr<vector<uint8_t> > BlockDB::getSerializedBlockFromLevelDB(block_id _blockID) {
 

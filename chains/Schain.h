@@ -367,5 +367,6 @@ public:
 
     bool isLegacy();
 
+    void updateInternalChainInfo(block_id _lastCommittedBlockID);
 };
 
