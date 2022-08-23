@@ -31,7 +31,7 @@ OracleRequestSpec::OracleRequestSpec(const string &_spec) : spec(_spec) {
     ORACLE_CHECK_STATE2(d.HasMember("cid"), "No chainid in Oracle spec:" + _spec);
 
 
-    RLPStream stream;
+    RLPStream stream(1);
 
 
     ORACLE_CHECK_STATE2(d["cid"].IsUint64(), "ChainId in Oracle spec is not uint64_t" + _spec);
@@ -69,7 +69,7 @@ OracleRequestSpec::OracleRequestSpec(const string &_spec) : spec(_spec) {
 
     //pow = d["pow"].GetUint64();
 
-    stream.append(pow);
+    //stream.append(pow);
 
     auto array = d["jsps"].GetArray();
 
@@ -183,7 +183,7 @@ bool OracleRequestSpec::verifyPow() {
         auto hash = CryptoManager::hashForOracle(spec);
 
         u256 binaryHash("0x" + hash);
-
+`
         if (~u256(0) / binaryHash > u256(10000)) {
             return true;
         } {
