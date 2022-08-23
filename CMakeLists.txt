@@ -153,7 +153,7 @@ AUX_SOURCE_DIRECTORY(utils utils_src)
 AUX_SOURCE_DIRECTORY(statusserver statusserver_src)
 AUX_SOURCE_DIRECTORY(sgxclient sgxclient_src)
 AUX_SOURCE_DIRECTORY(oracle oracle_src)
-
+AUX_SOURCE_DIRECTORY(rlp rlp_src)
 
 
 SET(SRC_FILES
@@ -184,6 +184,7 @@ SET(SRC_FILES
         ${protocols_src}
         ${protocols_binconsensus_src}
         ${protocols_blockconsensus_src}
+        ${rlp_src}
         ${thirdparty_src}
         ${threads_src}
         ${json_src}
