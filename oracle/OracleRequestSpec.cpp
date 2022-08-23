@@ -11,8 +11,12 @@
 
 #include "crypto/CryptoManager.h"
 #include "headers/BasicHeader.h"
+#include "network/Utils.h"
+
+#include "rlp/RLP.h"
 
 #include "OracleRequestSpec.h"
+
 
 ptr<OracleRequestSpec> OracleRequestSpec::parseSpec(const string &_spec) {
     return make_shared<OracleRequestSpec>(_spec);
@@ -26,15 +30,22 @@ OracleRequestSpec::OracleRequestSpec(const string &_spec) : spec(_spec) {
 
     ORACLE_CHECK_STATE2(d.HasMember("cid"), "No chainid in Oracle spec:" + _spec);
 
+
+    RLPStream stream;
+
+
     ORACLE_CHECK_STATE2(d["cid"].IsUint64(), "ChainId in Oracle spec is not uint64_t" + _spec);
 
     chainid = d["cid"].GetUint64();
+    stream.append(chainid);
 
     ORACLE_CHECK_STATE2(d.HasMember("uri"), "No URI in Oracle spec:" + _spec);
 
     ORACLE_CHECK_STATE2(d["uri"].IsString(), "Uri in Oracle spec is not string:" + _spec);
 
     uri = d["uri"].GetString();
+
+    //stream.append(uri);
 
     ORACLE_CHECK_STATE(uri.size() > 5);
 
@@ -48,13 +59,17 @@ OracleRequestSpec::OracleRequestSpec(const string &_spec) : spec(_spec) {
 
     time = d["time"].GetUint64();
 
+    //stream.append(time);
+
     ORACLE_CHECK_STATE(time > 0);
 
     ORACLE_CHECK_STATE2(d.HasMember("pow"), "No  pow in Oracle spec:" + _spec);
 
     ORACLE_CHECK_STATE2(d["pow"].IsUint64(), "Pow in Oracle spec is not uint64:" + _spec);
 
-    pow = d["pow"].GetUint64();
+    //pow = d["pow"].GetUint64();
+
+    stream.append(pow);
 
     auto array = d["jsps"].GetArray();
 
@@ -79,10 +94,12 @@ OracleRequestSpec::OracleRequestSpec(const string &_spec) : spec(_spec) {
 
     if (d.HasMember("post")) {
         isPost = true;
-        ORACLE_CHECK_STATE2(d["post"].IsString(), "Pow in Oracle spec is not string:" + _spec);
+        ORACLE_CHECK_STATE2(d["post"].IsString(), "Post in Oracle spec is not string:" + _spec);
         postStr = d["post"].GetString();
     }
 
+
+    //stream.append((uint64_t)isPost);
 
     if (this->isGeth()) {
         rapidjson::Document d2;
@@ -103,6 +120,13 @@ OracleRequestSpec::OracleRequestSpec(const string &_spec) : spec(_spec) {
             ORACLE_CHECK_STATE2(false, "Geth Method not allowed:" + meth);
         }
     }
+
+
+    auto encodedChainId = stream.out();
+    auto hex = Utils::carray2Hex(encodedChainId.data(), encodedChainId.size());
+    cerr << hex;
+
+    exit(75);
 }
 
 const string &OracleRequestSpec::getSpec() const {
