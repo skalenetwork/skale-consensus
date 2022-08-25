@@ -66,15 +66,15 @@ struct intTraits<bigint> {
     static const unsigned maxSize = ~(unsigned) 0;
 };
 
-static const uint8_t c_rlpMaxLengthBytes = 8;
-static const uint8_t c_rlpDataImmLenStart = 0x80;
-static const uint8_t c_rlpListStart = 0xc0;
+static const uint8_t RLP_MAX_LENGTH_BYTES = 8;
+static const uint8_t RLP_DATA_IMM_LEN_START = 0x80;
+static const uint8_t RLP_LIST_START = 0xc0;
 
-static const uint8_t c_rlpDataImmLenCount =
-        c_rlpListStart - c_rlpDataImmLenStart - c_rlpMaxLengthBytes;
-static const uint8_t c_rlpDataIndLenZero = c_rlpDataImmLenStart + c_rlpDataImmLenCount - 1;
-static const uint8_t c_rlpListImmLenCount = 256 - c_rlpListStart - c_rlpMaxLengthBytes;
-static const uint8_t c_rlpListIndLenZero = c_rlpListStart + c_rlpListImmLenCount - 1;
+static const uint8_t RLP_DATA_IMM_LEN_COUNT =
+        RLP_LIST_START - RLP_DATA_IMM_LEN_START - RLP_MAX_LENGTH_BYTES;
+static const uint8_t RLP_DATA_IND_LEN_ZERo = RLP_DATA_IMM_LEN_START + RLP_DATA_IMM_LEN_COUNT - 1;
+static const uint8_t RLP_LIST_IMM_LEN_COUNT = 256 - RLP_LIST_START - RLP_MAX_LENGTH_BYTES;
+static const uint8_t RLP_LIST_IND_LEN_ZERO = RLP_LIST_START + RLP_LIST_IMM_LEN_COUNT - 1;
 
 template<class T>
 struct Converter {
@@ -139,14 +139,14 @@ public:
 
     /// Contains a zero-length string or zero-length list.
     bool isEmpty() const {
-        return !isNull() && (m_data[0] == c_rlpDataImmLenStart || m_data[0] == c_rlpListStart);
+        return !isNull() && (m_data[0] == RLP_DATA_IMM_LEN_START || m_data[0] == RLP_LIST_START);
     }
 
     /// String value.
-    bool isData() const { return !isNull() && m_data[0] < c_rlpListStart; }
+    bool isData() const { return !isNull() && m_data[0] < RLP_LIST_START; }
 
     /// List value.
-    bool isList() const { return !isNull() && m_data[0] >= c_rlpListStart; }
+    bool isList() const { return !isNull() && m_data[0] >= RLP_LIST_START; }
 
     /// Integer value. Must not have a leading zero.
     bool isInt() const;
@@ -420,14 +420,14 @@ private:
     void requireGood() const;
 
     /// Single-byte data payload.
-    bool isSingleByte() const { return !isNull() && m_data[0] < c_rlpDataImmLenStart; }
+    bool isSingleByte() const { return !isNull() && m_data[0] < RLP_DATA_IMM_LEN_START; }
 
     /// @returns the amount of bytes used to encode the length of the data. Valid for all types.
     unsigned lengthSize() const {
-        if (isData() && m_data[0] > c_rlpDataIndLenZero)
-            return m_data[0] - c_rlpDataIndLenZero;
-        if (isList() && m_data[0] > c_rlpListIndLenZero)
-            return m_data[0] - c_rlpListIndLenZero;
+        if (isData() && m_data[0] > RLP_DATA_IND_LEN_ZERo)
+            return m_data[0] - RLP_DATA_IND_LEN_ZERo;
+        if (isList() && m_data[0] > RLP_LIST_IND_LEN_ZERO)
+            return m_data[0] - RLP_LIST_IND_LEN_ZERO;
         return 0;
     }
 
@@ -459,48 +459,48 @@ private:
 /**
  * @brief Class for writing to an RLP bytestream.
  */
-class RLPStream {
+class RLPOutputStream {
 public:
-    /// Initializes empty RLPStream.
-    RLPStream() {}
+    /// Initializes empty RLPOutputStream.
+    RLPOutputStream() {}
 
-    /// Initializes the RLPStream as a list of @a _listItems items.
-    explicit RLPStream(size_t _listItems) { appendList(_listItems); }
+    /// Initializes the RLPOutputStream as a list of @a _listItems items.
+    explicit RLPOutputStream(size_t _listItems) { appendList(_listItems); }
 
-    ~RLPStream() {}
+    ~RLPOutputStream() {}
 
     /// Append given datum to the byte stream.
-    RLPStream &append(unsigned long _s) { return append(bigint(_s)); }
+    RLPOutputStream &append(unsigned long _s) { return append(bigint(_s)); }
 
-    RLPStream &append(u160 _s) { return append(bigint(_s)); }
+    RLPOutputStream &append(u160 _s) { return append(bigint(_s)); }
 
-    RLPStream &append(u256 _s) { return append(bigint(_s)); }
+    RLPOutputStream &append(u256 _s) { return append(bigint(_s)); }
 
-    RLPStream &append(bigint _s);
+    RLPOutputStream &append(bigint _s);
 
-    RLPStream &append(vector_ref<uint8_t const> _s, bool _compact = false);
+    RLPOutputStream &append(vector_ref<uint8_t const> _s, bool _compact = false);
 
-    RLPStream &append(vector<uint8_t> const &_s) { return append(vector_ref<uint8_t const>(&_s)); }
+    RLPOutputStream &append(vector<uint8_t> const &_s) { return append(vector_ref<uint8_t const>(&_s)); }
 
-    RLPStream &append(string const &_s) { return append(vector_ref<uint8_t const>(_s)); }
+    RLPOutputStream &append(string const &_s) { return append(vector_ref<uint8_t const>(_s)); }
 
-    RLPStream &append(char const *_s) { return append(string(_s)); }
+    RLPOutputStream &append(char const *_s) { return append(string(_s)); }
 
 
     /// Appends an arbitrary RLP fragment - this *must* be a single item unless @a _itemCount is
     /// given.
-    RLPStream &append(RLP const &_rlp, size_t _itemCount = 1) {
+    RLPOutputStream &append(RLP const &_rlp, size_t _itemCount = 1) {
         return appendRaw(_rlp.data(), _itemCount);
     }
 
     /// Appends a sequence of data to the stream as a list.
     template<class _T>
-    RLPStream &append(vector<_T> const &_s) {
+    RLPOutputStream &append(vector<_T> const &_s) {
         return appendVector(_s);
     }
 
     template<class _T>
-    RLPStream &appendVector(vector<_T> const &_s) {
+    RLPOutputStream &appendVector(vector<_T> const &_s) {
         appendList(_s.size());
         for (auto const &i: _s)
             append(i);
@@ -508,7 +508,7 @@ public:
     }
 
     template<class _T, size_t S>
-    RLPStream &append(array<_T, S> const &_s) {
+    RLPOutputStream &append(array<_T, S> const &_s) {
         appendList(_s.size());
         for (auto const &i: _s)
             append(i);
@@ -516,7 +516,7 @@ public:
     }
 
     template<class _T>
-    RLPStream &append(set<_T> const &_s) {
+    RLPOutputStream &append(set<_T> const &_s) {
         appendList(_s.size());
         for (auto const &i: _s)
             append(i);
@@ -524,7 +524,7 @@ public:
     }
 
     template<class _T>
-    RLPStream &append(unordered_set<_T> const &_s) {
+    RLPOutputStream &append(unordered_set<_T> const &_s) {
         appendList(_s.size());
         for (auto const &i: _s)
             append(i);
@@ -532,7 +532,7 @@ public:
     }
 
     template<class T, class U>
-    RLPStream &append(pair<T, U> const &_s) {
+    RLPOutputStream &append(pair<T, U> const &_s) {
         appendList(2);
         append(_s.first);
         append(_s.second);
@@ -540,24 +540,24 @@ public:
     }
 
     /// Appends a list.
-    RLPStream &appendList(size_t _items);
+    RLPOutputStream &appendList(size_t _items);
 
-    RLPStream &appendList(vector_ref<uint8_t const> _rlp);
+    RLPOutputStream &appendList(vector_ref<uint8_t const> _rlp);
 
-    RLPStream &appendList(vector<uint8_t> const &_rlp) { return appendList(&_rlp); }
+    RLPOutputStream &appendList(vector<uint8_t> const &_rlp) { return appendList(&_rlp); }
 
-    RLPStream &appendList(RLPStream const &_s) { return appendList(&_s.out()); }
+    RLPOutputStream &appendList(RLPOutputStream const &_s) { return appendList(&_s.out()); }
 
     /// Appends raw (pre-serialised) RLP data. Use with caution.
-    RLPStream &appendRaw(vector_ref<uint8_t const> _rlp, size_t _itemCount = 1);
+    RLPOutputStream &appendRaw(vector_ref<uint8_t const> _rlp, size_t _itemCount = 1);
 
-    RLPStream &appendRaw(vector<uint8_t> const &_rlp, size_t _itemCount = 1) {
+    RLPOutputStream &appendRaw(vector<uint8_t> const &_rlp, size_t _itemCount = 1) {
         return appendRaw(&_rlp, _itemCount);
     }
 
     /// Shift operators for appending data items.
     template<class T>
-    RLPStream &operator<<(T _data) {
+    RLPOutputStream &operator<<(T _data) {
         return append(_data);
     }
 
@@ -608,29 +608,29 @@ private:
 };
 
 template<class _T>
-void rlpListAux(RLPStream &_out, _T _t) {
+void rlpListAux(RLPOutputStream &_out, _T _t) {
     _out << _t;
 }
 
 template<class _T, class... _Ts>
-void rlpListAux(RLPStream &_out, _T _t, _Ts... _ts) {
+void rlpListAux(RLPOutputStream &_out, _T _t, _Ts... _ts) {
     rlpListAux(_out << _t, _ts...);
 }
 
 /// Export a single item in RLP format, returning a byte array.
 template<class _T>
 vector<uint8_t> rlp(_T _t) {
-    return (RLPStream() << _t).out();
+    return (RLPOutputStream() << _t).out();
 }
 
 /// Export a list of items in RLP format, returning a byte array.
 inline vector<uint8_t> rlpList() {
-    return RLPStream(0).out();
+    return RLPOutputStream(0).out();
 }
 
 template<class... _Ts>
 vector<uint8_t> rlpList(_Ts... _ts) {
-    RLPStream out(sizeof...(_Ts));
+    RLPOutputStream out(sizeof...(_Ts));
     rlpListAux(out, _ts...);
     return out.out();
 }

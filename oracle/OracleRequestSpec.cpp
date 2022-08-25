@@ -31,13 +31,12 @@ OracleRequestSpec::OracleRequestSpec(const string &_spec) : spec(_spec) {
     ORACLE_CHECK_STATE2(d.HasMember("cid"), "No chainid in Oracle spec:" + _spec);
 
 
-    RLPStream stream(1);
-
 
     ORACLE_CHECK_STATE2(d["cid"].IsUint64(), "ChainId in Oracle spec is not uint64_t" + _spec);
 
     chainid = d["cid"].GetUint64();
-    stream.append(chainid);
+
+
 
     ORACLE_CHECK_STATE2(d.HasMember("uri"), "No URI in Oracle spec:" + _spec);
 
@@ -45,7 +44,6 @@ OracleRequestSpec::OracleRequestSpec(const string &_spec) : spec(_spec) {
 
     uri = d["uri"].GetString();
 
-    //stream.append(uri);
 
     ORACLE_CHECK_STATE(uri.size() > 5);
 
@@ -59,7 +57,6 @@ OracleRequestSpec::OracleRequestSpec(const string &_spec) : spec(_spec) {
 
     time = d["time"].GetUint64();
 
-    //stream.append(time);
 
     ORACLE_CHECK_STATE(time > 0);
 
@@ -67,16 +64,18 @@ OracleRequestSpec::OracleRequestSpec(const string &_spec) : spec(_spec) {
 
     ORACLE_CHECK_STATE2(d["pow"].IsUint64(), "Pow in Oracle spec is not uint64:" + _spec);
 
-    //pow = d["pow"].GetUint64();
-
-    //stream.append(pow);
+    pow = d["pow"].GetUint64();
 
     auto array = d["jsps"].GetArray();
 
+
+    ORACLE_CHECK_STATE2(!array.Empty(), "Jsps array is empty.:" + _spec);
+
     for (auto &&item: array) {
-        ORACLE_CHECK_STATE2(item.IsString(), "Jsp array item is not string:" + _spec);
+        ORACLE_CHECK_STATE2(item.IsString(), "Jsps array item is not string:" + _spec);
         jsps.push_back(item.GetString());
     }
+
 
     if (d.HasMember("trims")) {
         auto trimArray = d["trims"].GetArray();
@@ -92,6 +91,8 @@ OracleRequestSpec::OracleRequestSpec(const string &_spec) : spec(_spec) {
         }
     }
 
+
+
     if (d.HasMember("post")) {
         isPost = true;
         ORACLE_CHECK_STATE2(d["post"].IsString(), "Post in Oracle spec is not string:" + _spec);
@@ -99,7 +100,6 @@ OracleRequestSpec::OracleRequestSpec(const string &_spec) : spec(_spec) {
     }
 
 
-    //stream.append((uint64_t)isPost);
 
     if (this->isGeth()) {
         rapidjson::Document d2;
@@ -122,10 +122,16 @@ OracleRequestSpec::OracleRequestSpec(const string &_spec) : spec(_spec) {
     }
 
 
-    auto encodedChainId = stream.out();
-    auto hex = Utils::carray2Hex(encodedChainId.data(), encodedChainId.size());
-    cerr << hex;
-
+    RLPOutputStream stream(6);
+    stream.append(chainid); //1
+    stream.append(uri);//2
+    stream.append(time); //3
+    stream.append(jsps); // 4
+    stream.append(trims); //5
+    stream.append((uint8_t)isPost); //6
+    auto rlpEncoding = stream.out();
+    auto hex = Utils::carray2Hex(rlpEncoding.data(), rlpEncoding.size());
+    cerr << hex << endl;
     exit(75);
 }
 
@@ -183,7 +189,7 @@ bool OracleRequestSpec::verifyPow() {
         auto hash = CryptoManager::hashForOracle(spec);
 
         u256 binaryHash("0x" + hash);
-`
+
         if (~u256(0) / binaryHash > u256(10000)) {
             return true;
         } {

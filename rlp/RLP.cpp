@@ -124,10 +124,10 @@ size_t RLP::actualSize() const {
 void RLP::requireGood() const {
     CHECK_STATE2(!(isNull()), "BadRLP");
     uint8_t n = m_data[0];
-    if (n != c_rlpDataImmLenStart + 1)
+    if (n != RLP_DATA_IMM_LEN_START + 1)
         return;
     CHECK_STATE2(m_data.size() >= 2, "BadRLP");
-    CHECK_STATE2(m_data[1] >= c_rlpDataImmLenStart, "BadRLP");
+    CHECK_STATE2(m_data[1] >= RLP_DATA_IMM_LEN_START, "BadRLP");
 }
 
 bool RLP::isInt() const {
@@ -135,16 +135,16 @@ bool RLP::isInt() const {
         return false;
     requireGood();
     uint8_t n = m_data[0];
-    if (n < c_rlpDataImmLenStart)
+    if (n < RLP_DATA_IMM_LEN_START)
         return !!n;
-    else if (n == c_rlpDataImmLenStart)
+    else if (n == RLP_DATA_IMM_LEN_START)
         return true;
-    else if (n <= c_rlpDataIndLenZero) {
+    else if (n <= RLP_DATA_IND_LEN_ZERo) {
         CHECK_STATE2(!(m_data.size() <= 1), "BadRLP");
         return m_data[1] != 0;
-    } else if (n < c_rlpListStart) {
-        CHECK_STATE2(!(m_data.size() <= size_t(1 + n - c_rlpDataIndLenZero)), "BadRLP");
-        return m_data[1 + n - c_rlpDataIndLenZero] != 0;
+    } else if (n < RLP_LIST_START) {
+        CHECK_STATE2(!(m_data.size() <= size_t(1 + n - RLP_DATA_IND_LEN_ZERo)), "BadRLP");
+        return m_data[1 + n - RLP_DATA_IND_LEN_ZERo] != 0;
     } else
         return false;
     return false;
@@ -156,16 +156,16 @@ size_t RLP::length() const {
     requireGood();
     size_t ret = 0;
     uint8_t const n = m_data[0];
-    if (n < c_rlpDataImmLenStart)
+    if (n < RLP_DATA_IMM_LEN_START)
         return 1;
-    else if (n <= c_rlpDataIndLenZero)
-        return n - c_rlpDataImmLenStart;
-    else if (n < c_rlpListStart) {
-        CHECK_STATE2(!(m_data.size() <= size_t(n - c_rlpDataIndLenZero)), "BadRLP");
+    else if (n <= RLP_DATA_IND_LEN_ZERo)
+        return n - RLP_DATA_IMM_LEN_START;
+    else if (n < RLP_LIST_START) {
+        CHECK_STATE2(!(m_data.size() <= size_t(n - RLP_DATA_IND_LEN_ZERo)), "BadRLP");
         if (m_data.size() > 1) {
             CHECK_STATE2(!(m_data[1] == 0), "BadRLP");
         }
-        unsigned lengthSize = n - c_rlpDataIndLenZero;
+        unsigned lengthSize = n - RLP_DATA_IND_LEN_ZERo;
         // We did not check, but would most probably not fit in our memory.
         CHECK_STATE2 (!(lengthSize > sizeof(ret)), "UndersizeRLP");
         // No leading zeroes.
@@ -173,11 +173,11 @@ size_t RLP::length() const {
         for (unsigned i = 0; i < lengthSize; ++i)
             ret = (ret << 8) | m_data[i + 1];
         // Must be greater than the limit.
-        CHECK_STATE2 (!(ret < c_rlpListStart - c_rlpDataImmLenStart - c_rlpMaxLengthBytes), "BadRLP");
-    } else if (n <= c_rlpListIndLenZero)
-        return n - c_rlpListStart;
+        CHECK_STATE2 (!(ret < RLP_LIST_START - RLP_DATA_IMM_LEN_START - RLP_MAX_LENGTH_BYTES), "BadRLP");
+    } else if (n <= RLP_LIST_IND_LEN_ZERO)
+        return n - RLP_LIST_START;
     else {
-        unsigned lengthSize = n - c_rlpListIndLenZero;
+        unsigned lengthSize = n - RLP_LIST_IND_LEN_ZERO;
         CHECK_STATE2 (!(m_data.size() <= lengthSize), "BadRLP");
         if (m_data.size() > 1) {
             CHECK_STATE2 (!(m_data[1] == 0), "BadRLP");
@@ -186,7 +186,7 @@ size_t RLP::length() const {
         CHECK_STATE2 (m_data[1], "BadRLP");
         for (unsigned i = 0; i < lengthSize; ++i)
             ret = (ret << 8) | m_data[i + 1];
-        CHECK_STATE2 (!(ret < 0x100 - c_rlpListStart - c_rlpMaxLengthBytes), "BadRLP");
+        CHECK_STATE2 (!(ret < 0x100 - RLP_LIST_START - RLP_MAX_LENGTH_BYTES), "BadRLP");
     }
     // We have to be able to add payloadOffset to length without overflow.
     // This rejects roughly 4GB-sized vector<RLP> on some platforms.
@@ -205,13 +205,13 @@ size_t RLP::items() const {
     return 0;
 }
 
-RLPStream & RLPStream::appendRaw(vector_ref<uint8_t const> _s, size_t _itemCount) {
+RLPOutputStream & RLPOutputStream::appendRaw(vector_ref<uint8_t const> _s, size_t _itemCount) {
     m_out.insert(m_out.end(), _s.begin(), _s.end());
     noteAppended(_itemCount);
     return *this;
 }
 
-void RLPStream::noteAppended(size_t _itemCount) {
+void RLPOutputStream::noteAppended(size_t _itemCount) {
     if (!_itemCount)
         return;
     //	cdebug << "noteAppended(" << _itemCount << ")";
@@ -225,14 +225,14 @@ void RLPStream::noteAppended(size_t _itemCount) {
             m_listStack.pop_back();
             size_t s = m_out.size() - p;  // list size
             auto brs = bytesRequired(s);
-            unsigned encodeSize = s < c_rlpListImmLenCount ? 1 : (1 + brs);
+            unsigned encodeSize = s < RLP_LIST_IMM_LEN_COUNT ? 1 : (1 + brs);
             auto os = m_out.size();
             m_out.resize(os + encodeSize);
             memmove(m_out.data() + p + encodeSize, m_out.data() + p, os - p);
-            if (s < c_rlpListImmLenCount)
-                m_out[p] = (uint8_t) (c_rlpListStart + s);
-            else if (c_rlpListIndLenZero + brs <= 0xff) {
-                m_out[p] = (uint8_t) (c_rlpListIndLenZero + brs);
+            if (s < RLP_LIST_IMM_LEN_COUNT)
+                m_out[p] = (uint8_t) (RLP_LIST_START + s);
+            else if (RLP_LIST_IND_LEN_ZERO + brs <= 0xff) {
+                m_out[p] = (uint8_t) (RLP_LIST_IND_LEN_ZERO + brs);
                 uint8_t *b = &(m_out[p + brs]);
                 for (; s; s >>= 8)
                     *(b--) = (uint8_t) s;
@@ -245,7 +245,7 @@ void RLPStream::noteAppended(size_t _itemCount) {
     }
 }
 
-RLPStream &RLPStream::appendList(size_t _items) {
+RLPOutputStream &RLPOutputStream::appendList(size_t _items) {
     //	cdebug << "appendList(" << _items << ")";
     if (_items)
         m_listStack.push_back(make_pair(_items, m_out.size()));
@@ -254,48 +254,48 @@ RLPStream &RLPStream::appendList(size_t _items) {
     return *this;
 }
 
-RLPStream &RLPStream::appendList(vector_ref<uint8_t const> _rlp) {
-    if (_rlp.size() < c_rlpListImmLenCount)
-        m_out.push_back((uint8_t) (_rlp.size() + c_rlpListStart));
+RLPOutputStream &RLPOutputStream::appendList(vector_ref<uint8_t const> _rlp) {
+    if (_rlp.size() < RLP_LIST_IMM_LEN_COUNT)
+        m_out.push_back((uint8_t) (_rlp.size() + RLP_LIST_START));
     else
-        pushCount(_rlp.size(), c_rlpListIndLenZero);
+        pushCount(_rlp.size(), RLP_LIST_IND_LEN_ZERO);
     appendRaw(_rlp, 1);
     return *this;
 }
 
-RLPStream &RLPStream::append(vector_ref<uint8_t const> _s, bool _compact) {
+RLPOutputStream &RLPOutputStream::append(vector_ref<uint8_t const> _s, bool _compact) {
     size_t s = _s.size();
     uint8_t const *d = _s.data();
     if (_compact)
         for (size_t i = 0; i < _s.size() && !*d; ++i, --s, ++d) {
         }
 
-    if (s == 1 && *d < c_rlpDataImmLenStart)
+    if (s == 1 && *d < RLP_DATA_IMM_LEN_START)
         m_out.push_back(*d);
     else {
-        if (s < c_rlpDataImmLenCount)
-            m_out.push_back((uint8_t) (s + c_rlpDataImmLenStart));
+        if (s < RLP_DATA_IMM_LEN_COUNT)
+            m_out.push_back((uint8_t) (s + RLP_DATA_IMM_LEN_START));
         else
-            pushCount(s, c_rlpDataIndLenZero);
+            pushCount(s, RLP_DATA_IND_LEN_ZERo);
         appendRaw(vector_ref<uint8_t const>(d, s), 0);
     }
     noteAppended();
     return *this;
 }
 
-RLPStream &RLPStream::append(bigint _i) {
+RLPOutputStream &RLPOutputStream::append(bigint _i) {
     if (!_i)
-        m_out.push_back(c_rlpDataImmLenStart);
-    else if (_i < c_rlpDataImmLenStart)
+        m_out.push_back(RLP_DATA_IMM_LEN_START);
+    else if (_i < RLP_DATA_IMM_LEN_START)
         m_out.push_back((uint8_t) _i);
     else {
         unsigned br = bytesRequired(_i);
-        if (br < c_rlpDataImmLenCount)
-            m_out.push_back((uint8_t) (br + c_rlpDataImmLenStart));
+        if (br < RLP_DATA_IMM_LEN_COUNT)
+            m_out.push_back((uint8_t) (br + RLP_DATA_IMM_LEN_START));
         else {
             auto brbr = bytesRequired(br);
-            CHECK_STATE2(!(c_rlpDataIndLenZero + brbr > 0xff), "RLP exception Number too large for RLP");
-            m_out.push_back((uint8_t) (c_rlpDataIndLenZero + brbr));
+            CHECK_STATE2(!(RLP_DATA_IND_LEN_ZERo + brbr > 0xff), "RLP exception Number too large for RLP");
+            m_out.push_back((uint8_t) (RLP_DATA_IND_LEN_ZERo + brbr));
             pushInt(br, brbr);
         }
         pushInt(_i, br);
@@ -304,7 +304,7 @@ RLPStream &RLPStream::append(bigint _i) {
     return *this;
 }
 
-void RLPStream::pushCount(size_t _count, uint8_t _base) {
+void RLPOutputStream::pushCount(size_t _count, uint8_t _base) {
     auto br = bytesRequired(_count);
     CHECK_STATE2(int( br ) +_base <= 0xff, "Count too large for RLP");
     m_out.push_back((uint8_t) (br + _base));  // max 8 bytes.
