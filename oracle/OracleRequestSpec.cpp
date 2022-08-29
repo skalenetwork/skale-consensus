@@ -122,17 +122,7 @@ OracleRequestSpec::OracleRequestSpec(const string &_spec) : spec(_spec) {
     }
 
 
-    RLPOutputStream stream(6);
-    stream.append(chainid); //1
-    stream.append(uri);//2
-    stream.append(time); //3
-    stream.append(jsps); // 4
-    stream.append(trims); //5
-    stream.append((uint8_t)isPost); //6
-    auto rlpEncoding = stream.out();
-    auto hex = Utils::carray2Hex(rlpEncoding.data(), rlpEncoding.size());
-    cerr << hex << endl;
-    exit(75);
+
 }
 
 const string &OracleRequestSpec::getSpec() const {

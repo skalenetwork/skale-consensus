@@ -50,8 +50,8 @@
       <change beforePath="$PROJECT_DIR$/libBLS/deps/zlib/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/deps/zlib/Makefile" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libBLS/deps/zlib/zconf.h" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/deps/zlib/zconf.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/oracle/OracleRequestSpec.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/oracle/OracleRequestSpec.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/rlp/RLP.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/rlp/RLP.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/rlp/RLP.h" beforeDir="false" afterPath="$PROJECT_DIR$/rlp/RLP.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/oracle/OracleRequestSpec.h" beforeDir="false" afterPath="$PROJECT_DIR$/oracle/OracleRequestSpec.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/oracle/OracleResult.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/oracle/OracleResult.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -444,7 +444,8 @@
       <workItem from="1661277923861" duration="4191000" />
       <workItem from="1661433152015" duration="2000" />
       <workItem from="1661433796500" duration="2000" />
-      <workItem from="1661434620997" duration="2495000" />
+      <workItem from="1661434620997" duration="3392000" />
+      <workItem from="1661438449341" duration="2035000" />
     </task>
     <task id="LOCAL-00093" summary="bug/SKALE-4352">
       <created>1634133299846</created>

@@ -6,10 +6,12 @@
 #include "thirdparty/json.hpp"
 #include "thirdparty/rapidjson/prettywriter.h" // for stringify JSON
 
-
 #include "SkaleCommon.h"
 #include "Log.h"
+#include "rlp/RLP.h"
+#include "network/Utils.h"
 #include "OracleResult.h"
+
 
 
 OracleResult::OracleResult(string &_result) : oracleResult(_result) {
@@ -119,6 +121,24 @@ OracleResult::OracleResult(string &_result) : oracleResult(_result) {
 
 
     ORACLE_CHECK_STATE2(results.size() == trims.size(), "hsps array size not equal trims array size");
+
+    RLPOutputStream stream(7);
+    stream.append(chainId); //1
+    stream.append(uri);//2
+    stream.append(time); //3
+    stream.append(jsps); // 4
+    stream.append(trims); //5
+    stream.append((uint8_t)isPost); //6
+
+
+    stream.append((uint8_t)isPost); //7
+
+
+
+    auto rlpEncoding = stream.out();
+    auto hex = Utils::carray2Hex(rlpEncoding.data(), rlpEncoding.size());
+    cerr << "Oracle result" << hex << endl;
+    exit(75);
 
 
 }

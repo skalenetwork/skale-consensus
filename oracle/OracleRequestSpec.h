@@ -17,6 +17,7 @@ class OracleRequestSpec {
     uint64_t time;
     uint64_t pow;
     bool isPost = false;
+    string encoding = "json";
     string postStr = "";
 
 public:
