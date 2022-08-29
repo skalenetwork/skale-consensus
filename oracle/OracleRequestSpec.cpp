@@ -26,53 +26,53 @@ OracleRequestSpec::OracleRequestSpec(const string &_spec) : spec(_spec) {
     rapidjson::Document d;
     spec.erase(std::remove_if(spec.begin(), spec.end(), ::isspace), spec.end());
     d.Parse(spec.data());
-    ORACLE_CHECK_STATE2(!d.HasParseError(), "Unparsable Oracle spec:" + _spec);
+    CHECK_STATE2(!d.HasParseError(), "Unparsable Oracle spec:" + _spec);
 
-    ORACLE_CHECK_STATE2(d.HasMember("cid"), "No chainid in Oracle spec:" + _spec);
+    CHECK_STATE2(d.HasMember("cid"), "No chainid in Oracle spec:" + _spec);
 
 
 
-    ORACLE_CHECK_STATE2(d["cid"].IsUint64(), "ChainId in Oracle spec is not uint64_t" + _spec);
+    CHECK_STATE2(d["cid"].IsUint64(), "ChainId in Oracle spec is not uint64_t" + _spec);
 
     chainid = d["cid"].GetUint64();
 
 
 
-    ORACLE_CHECK_STATE2(d.HasMember("uri"), "No URI in Oracle spec:" + _spec);
+    CHECK_STATE2(d.HasMember("uri"), "No URI in Oracle spec:" + _spec);
 
-    ORACLE_CHECK_STATE2(d["uri"].IsString(), "Uri in Oracle spec is not string:" + _spec);
+    CHECK_STATE2(d["uri"].IsString(), "Uri in Oracle spec is not string:" + _spec);
 
     uri = d["uri"].GetString();
 
 
-    ORACLE_CHECK_STATE(uri.size() > 5);
+    CHECK_STATE(uri.size() > 5);
 
-    ORACLE_CHECK_STATE2(d.HasMember("jsps"), "No json pointer in Oracle spec:" + _spec);
+    CHECK_STATE2(d.HasMember("jsps"), "No json pointer in Oracle spec:" + _spec);
 
-    ORACLE_CHECK_STATE2(d["jsps"].IsArray(), "Jsps in Oracle spec is not array:" + _spec);
+    CHECK_STATE2(d["jsps"].IsArray(), "Jsps in Oracle spec is not array:" + _spec);
 
-    ORACLE_CHECK_STATE2(d.HasMember("time"), "No time pointer in Oracle spec:" + _spec);
+    CHECK_STATE2(d.HasMember("time"), "No time pointer in Oracle spec:" + _spec);
 
-    ORACLE_CHECK_STATE2(d["time"].IsUint64(), "time in Oracle spec is not uint64:" + _spec)
+    CHECK_STATE2(d["time"].IsUint64(), "time in Oracle spec is not uint64:" + _spec)
 
     time = d["time"].GetUint64();
 
 
-    ORACLE_CHECK_STATE(time > 0);
+    CHECK_STATE(time > 0);
 
-    ORACLE_CHECK_STATE2(d.HasMember("pow"), "No  pow in Oracle spec:" + _spec);
+    CHECK_STATE2(d.HasMember("pow"), "No  pow in Oracle spec:" + _spec);
 
-    ORACLE_CHECK_STATE2(d["pow"].IsUint64(), "Pow in Oracle spec is not uint64:" + _spec);
+    CHECK_STATE2(d["pow"].IsUint64(), "Pow in Oracle spec is not uint64:" + _spec);
 
     pow = d["pow"].GetUint64();
 
     auto array = d["jsps"].GetArray();
 
 
-    ORACLE_CHECK_STATE2(!array.Empty(), "Jsps array is empty.:" + _spec);
+    CHECK_STATE2(!array.Empty(), "Jsps array is empty.:" + _spec);
 
     for (auto &&item: array) {
-        ORACLE_CHECK_STATE2(item.IsString(), "Jsps array item is not string:" + _spec);
+        CHECK_STATE2(item.IsString(), "Jsps array item is not string:" + _spec);
         jsps.push_back(item.GetString());
     }
 
@@ -80,11 +80,11 @@ OracleRequestSpec::OracleRequestSpec(const string &_spec) : spec(_spec) {
     if (d.HasMember("trims")) {
         auto trimArray = d["trims"].GetArray();
         for (auto &&item: trimArray) {
-            ORACLE_CHECK_STATE2(item.IsUint64(), "Trims array item is uint64 :" + _spec);
+            CHECK_STATE2(item.IsUint64(), "Trims array item is uint64 :" + _spec);
             trims.push_back(item.GetUint64());
         }
 
-        ORACLE_CHECK_STATE2(jsps.size() == trims.size(), "hsps array size not equal trims array size");
+        CHECK_STATE2(jsps.size() == trims.size(), "hsps array size not equal trims array size");
     } else {
         for (uint64_t i = 0; i < jsps.size(); i++) {
             trims.push_back(0);
@@ -95,7 +95,7 @@ OracleRequestSpec::OracleRequestSpec(const string &_spec) : spec(_spec) {
 
     if (d.HasMember("post")) {
         isPost = true;
-        ORACLE_CHECK_STATE2(d["post"].IsString(), "Post in Oracle spec is not string:" + _spec);
+        CHECK_STATE2(d["post"].IsString(), "Post in Oracle spec is not string:" + _spec);
         postStr = d["post"].GetString();
     }
 
@@ -105,11 +105,11 @@ OracleRequestSpec::OracleRequestSpec(const string &_spec) : spec(_spec) {
         rapidjson::Document d2;
         postStr.erase(std::remove_if(postStr.begin(), postStr.end(), ::isspace), postStr.end());
         d2.Parse(postStr.data());
-        ORACLE_CHECK_STATE2(!d2.HasParseError(), "Unparsable geth Oracle post:" + postStr);
+        CHECK_STATE2(!d2.HasParseError(), "Unparsable geth Oracle post:" + postStr);
 
-        ORACLE_CHECK_STATE2(d2.HasMember("method"), "No JSON-RPC method in geth Oracle post:" + postStr);
+        CHECK_STATE2(d2.HasMember("method"), "No JSON-RPC method in geth Oracle post:" + postStr);
 
-        ORACLE_CHECK_STATE2(d2["method"].IsString(), "method in Oracle post is not string:" + postStr)
+        CHECK_STATE2(d2["method"].IsString(), "method in Oracle post is not string:" + postStr)
 
         auto meth  = d2["method"].GetString();
 
@@ -117,7 +117,7 @@ OracleRequestSpec::OracleRequestSpec(const string &_spec) : spec(_spec) {
             meth == string("eth_gasPrice") || meth == string("eth_blockNumber") ||
                     meth == string("eth_getBlockByNumber") ||
                     meth == string("eth_getBlockByHash") ) {} else {
-            ORACLE_CHECK_STATE2(false, "Geth Method not allowed:" + meth);
+            CHECK_STATE2(false, "Geth Method not allowed:" + meth);
         }
     }
 

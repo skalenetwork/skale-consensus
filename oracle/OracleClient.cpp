@@ -49,8 +49,8 @@ OracleClient::OracleClient(Schain &_sChain) : ProtocolInstance(ORACLE, _sChain),
 
 uint64_t OracleClient::broadcastRequestAndReturnReceipt(ptr<OracleRequestBroadcastMessage> _msg, string &_receipt) {
 
-    ORACLE_CHECK_STATE(_msg)
-    ORACLE_CHECK_STATE(sChain)
+    CHECK_STATE(_msg)
+    CHECK_STATE(sChain)
     auto r = _msg->getParsedSpec()->getReceipt();
 
 
@@ -100,7 +100,7 @@ void OracleClient::sendTestRequestGet() {
 
     auto status = submitOracleRequest(spec, _receipt);
 
-    ORACLE_CHECK_STATE(status == ORACLE_SUCCESS);
+    CHECK_STATE(status == ORACLE_SUCCESS);
 
 
     std::thread t([this, _receipt]() {
@@ -144,7 +144,7 @@ void OracleClient::sendTestRequestPost() {
 
     auto status = submitOracleRequest(spec, _receipt);
 
-    ORACLE_CHECK_STATE(status == ORACLE_SUCCESS);
+    CHECK_STATE(status == ORACLE_SUCCESS);
 
     string result;
 }
@@ -154,11 +154,11 @@ uint64_t OracleClient::submitOracleRequest(const string& _spec, string &_receipt
 
     auto index = _spec.find_last_of(",");
 
-    ORACLE_CHECK_STATE2(index != string::npos, "No comma in request");
+    CHECK_STATE2(index != string::npos, "No comma in request");
 
     auto end = _spec.substr(index);
 
-    ORACLE_CHECK_STATE2(end.find_last_of("pow") != string::npos, "Request does not end with pow element");
+    CHECK_STATE2(end.find_last_of("pow") != string::npos, "Request does not end with pow element");
 
     auto msg = make_shared<OracleRequestBroadcastMessage>(_spec, sChain->getLastCommittedBlockID(),
                                                           Time::getCurrentTimeMs(),
@@ -168,14 +168,14 @@ uint64_t OracleClient::submitOracleRequest(const string& _spec, string &_receipt
 
 
 void OracleClient::processResponseMessage(const ptr<MessageEnvelope> &_me) {
-    ORACLE_CHECK_STATE(_me);
+    CHECK_STATE(_me);
     auto msg = dynamic_pointer_cast<OracleResponseMessage>(_me->getMessage());
 
-    ORACLE_CHECK_STATE(msg);
+    CHECK_STATE(msg);
 
     auto origin = (uint64_t) _me->getSrcSchainIndex();
 
-    ORACLE_CHECK_STATE(origin > 0 || origin <= getSchain()->getNodeCount());
+    CHECK_STATE(origin > 0 || origin <= getSchain()->getNodeCount());
 
     auto receipt = msg->getReceipt();
     auto unsignedResult = msg->getUnsignedOracleResultStr();

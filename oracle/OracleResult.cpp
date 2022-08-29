@@ -19,55 +19,55 @@ OracleResult::OracleResult(string &_result) : oracleResult(_result) {
     
     d.Parse(_result.data());
 
-    ORACLE_CHECK_STATE2(!d.HasParseError(), "Unparsable Oracle result:" + _result);
+    CHECK_STATE2(!d.HasParseError(), "Unparsable Oracle result:" + _result);
 
-    ORACLE_CHECK_STATE2(d.HasMember("cid"), "No chainid in Oracle  result:" + _result);
+    CHECK_STATE2(d.HasMember("cid"), "No chainid in Oracle  result:" + _result);
 
-    ORACLE_CHECK_STATE2(d["cid"].IsUint64(), "ChainId in Oracle result is not uint64_t" + _result);
+    CHECK_STATE2(d["cid"].IsUint64(), "ChainId in Oracle result is not uint64_t" + _result);
 
     chainId = d["cid"].GetUint64();
 
-    ORACLE_CHECK_STATE2(d.HasMember("uri"), "No URI in Oracle  result:" + _result);
+    CHECK_STATE2(d.HasMember("uri"), "No URI in Oracle  result:" + _result);
 
-    ORACLE_CHECK_STATE2(d["uri"].IsString(), "Uri in Oracle result is not string:" + _result);
+    CHECK_STATE2(d["uri"].IsString(), "Uri in Oracle result is not string:" + _result);
 
     uri = d["uri"].GetString();
 
-    ORACLE_CHECK_STATE(uri.size() > 5);
+    CHECK_STATE(uri.size() > 5);
 
-    ORACLE_CHECK_STATE2(d.HasMember("jsps"), "No json pointer in Oracle result:" + _result);
+    CHECK_STATE2(d.HasMember("jsps"), "No json pointer in Oracle result:" + _result);
 
-    ORACLE_CHECK_STATE2(d["jsps"].IsArray(), "Jsps in Oracle spec is not array:" + _result);
+    CHECK_STATE2(d["jsps"].IsArray(), "Jsps in Oracle spec is not array:" + _result);
 
-    ORACLE_CHECK_STATE2(d.HasMember("time"), "No time pointer in Oracle result:" + _result);
+    CHECK_STATE2(d.HasMember("time"), "No time pointer in Oracle result:" + _result);
 
-    ORACLE_CHECK_STATE2(d["time"].IsUint64(), "time in Oracle result is not uint64:" + _result)
+    CHECK_STATE2(d["time"].IsUint64(), "time in Oracle result is not uint64:" + _result)
 
     time = d["time"].GetUint64();
 
-    ORACLE_CHECK_STATE(time > 0);
+    CHECK_STATE(time > 0);
 
-    ORACLE_CHECK_STATE2(d.HasMember("sig"), "No sig in Oracle result:" + _result);
+    CHECK_STATE2(d.HasMember("sig"), "No sig in Oracle result:" + _result);
 
-    ORACLE_CHECK_STATE2(d["sig"].IsString(), "sig in Oracle result is not string:" + _result)
+    CHECK_STATE2(d["sig"].IsString(), "sig in Oracle result is not string:" + _result)
 
     sig = d["sig"].GetString();
 
     auto array = d["jsps"].GetArray();
 
     for (auto &&item: array) {
-        ORACLE_CHECK_STATE2(item.IsString(), "Jsp array item is not string:" + _result);
+        CHECK_STATE2(item.IsString(), "Jsp array item is not string:" + _result);
         jsps.push_back(item.GetString());
     }
 
     if (d.HasMember("trims")) {
         auto trimArray = d["trims"].GetArray();
         for (auto &&item: trimArray) {
-            ORACLE_CHECK_STATE2(item.IsUint64(), "Trims array item is not uint64 :" + _result);
+            CHECK_STATE2(item.IsUint64(), "Trims array item is not uint64 :" + _result);
             trims.push_back(item.GetUint64());
         }
 
-        ORACLE_CHECK_STATE2(jsps.size() == trims.size(), "hsps array size not equal trims array size");
+        CHECK_STATE2(jsps.size() == trims.size(), "hsps array size not equal trims array size");
     } else {
         for (uint64_t i = 0; i < jsps.size(); i++) {
             trims.push_back(0);
@@ -76,7 +76,7 @@ OracleResult::OracleResult(string &_result) : oracleResult(_result) {
 
 
     if (d.HasMember("err")) {
-        ORACLE_CHECK_STATE2(d["err"].IsUint64(), "Error is not uint64_t");
+        CHECK_STATE2(d["err"].IsUint64(), "Error is not uint64_t");
         error = d["err"].GetUint64();
         return;
     }
@@ -88,13 +88,13 @@ OracleResult::OracleResult(string &_result) : oracleResult(_result) {
         } else if (item.IsNull()) {
             results.push_back(nullptr);
         } else {
-            ORACLE_CHECK_STATE2(false, "Unknown item in results:" + _result)
+            CHECK_STATE2(false, "Unknown item in results:" + _result)
         }
     }
 
     if (d.HasMember("post")) {
         isPost = true;
-        ORACLE_CHECK_STATE2(d["post"].IsString(), "Post in Oracle result is not string:" + _result);
+        CHECK_STATE2(d["post"].IsString(), "Post in Oracle result is not string:" + _result);
         postStr = d["post"].GetString();
     }
 
@@ -103,11 +103,11 @@ OracleResult::OracleResult(string &_result) : oracleResult(_result) {
         rapidjson::Document d2;
         postStr.erase(std::remove_if(postStr.begin(), postStr.end(), ::isspace), postStr.end());
         d2.Parse(postStr.data());
-        ORACLE_CHECK_STATE2(!d2.HasParseError(), "Unparsable geth Oracle post:" + postStr);
+        CHECK_STATE2(!d2.HasParseError(), "Unparsable geth Oracle post:" + postStr);
 
-        ORACLE_CHECK_STATE2(d2.HasMember("method"), "No JSON-RPC method in geth Oracle post:" + postStr);
+        CHECK_STATE2(d2.HasMember("method"), "No JSON-RPC method in geth Oracle post:" + postStr);
 
-        ORACLE_CHECK_STATE2(d2["method"].IsString(), "method in Oracle post is not string:" + postStr)
+        CHECK_STATE2(d2["method"].IsString(), "method in Oracle post is not string:" + postStr)
 
         auto meth  = d2["method"].GetString();
 
@@ -115,12 +115,12 @@ OracleResult::OracleResult(string &_result) : oracleResult(_result) {
             meth == string("eth_gasPrice") || meth == string("eth_blockNumber") ||
             meth == string("eth_getBlockByNumber") ||
             meth == string("eth_getBlockByHash") ) {} else {
-            ORACLE_CHECK_STATE2(false, "Geth Method not allowed:" + meth);
+            CHECK_STATE2(false, "Geth Method not allowed:" + meth);
         }
     }
 
 
-    ORACLE_CHECK_STATE2(results.size() == trims.size(), "hsps array size not equal trims array size");
+    CHECK_STATE2(results.size() == trims.size(), "hsps array size not equal trims array size");
 
     RLPOutputStream stream(7);
     stream.append(chainId); //1

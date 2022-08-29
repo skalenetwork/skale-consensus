@@ -47,10 +47,10 @@ OracleResponseMessage::OracleResponseMessage(string& _oracleResult, string& _rec
     printPrefix = "r";
     oracleResult = OracleResult::parseResult(_oracleResult);
 
-    ORACLE_CHECK_STATE2(oracleResult->getChainId() == sourceProtocolInstance.getSchain()->getSchainID(),
+    CHECK_STATE2(oracleResult->getChainId() == sourceProtocolInstance.getSchain()->getSchainID(),
                  "Invalid schain id in oracle spec:" + to_string(oracleResult->getChainId()));
-    ORACLE_CHECK_STATE2(oracleResult->getTime() + ORACLE_TIMEOUT_MS > Time::getCurrentTimeMs(), "Result timeout")
-    ORACLE_CHECK_STATE(oracleResult->getTime() < Time::getCurrentTimeMs() + ORACLE_FUTURE_JITTER_MS)
+    CHECK_STATE2(oracleResult->getTime() + ORACLE_TIMEOUT_MS > Time::getCurrentTimeMs(), "Result timeout")
+    CHECK_STATE(oracleResult->getTime() < Time::getCurrentTimeMs() + ORACLE_FUTURE_JITTER_MS)
 
 }
 
@@ -67,8 +67,8 @@ OracleResponseMessage::OracleResponseMessage(string& _oracleResult, string& _rec
         _srcSchainIndex, _sChain->getCryptoManager()), oracleResultStr(_oracleResult), receipt(_receipt) {
     printPrefix = "r";
     oracleResult = OracleResult::parseResult(_oracleResult);
-    ORACLE_CHECK_STATE2(oracleResult->getTime() + ORACLE_TIMEOUT_MS > Time::getCurrentTimeMs(), "Result timeout")
-    ORACLE_CHECK_STATE(oracleResult->getTime()  < Time::getCurrentTimeMs() + ORACLE_FUTURE_JITTER_MS)
+    CHECK_STATE2(oracleResult->getTime() + ORACLE_TIMEOUT_MS > Time::getCurrentTimeMs(), "Result timeout")
+    CHECK_STATE(oracleResult->getTime()  < Time::getCurrentTimeMs() + ORACLE_FUTURE_JITTER_MS)
 };
 
 
@@ -110,7 +110,7 @@ const string &OracleResponseMessage::getOracleResultStr() const {
 
 const string OracleResponseMessage::getUnsignedOracleResultStr() const {
     auto commaPosition = oracleResultStr.find_last_of(",");
-    ORACLE_CHECK_STATE(commaPosition != string::npos);
+    CHECK_STATE(commaPosition != string::npos);
     auto res = oracleResultStr.substr(0, commaPosition + 1);
     return res;
 }
