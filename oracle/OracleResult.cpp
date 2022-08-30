@@ -43,9 +43,9 @@ OracleResult::OracleResult(string &_result) : oracleResult(_result) {
 
     CHECK_STATE2(d["time"].IsUint64(), "time in Oracle result is not uint64:" + _result)
 
-    time = d["time"].GetUint64();
+    requestTime = d["time"].GetUint64();
 
-    CHECK_STATE(time > 0);
+    CHECK_STATE(requestTime > 0);
 
     CHECK_STATE2(d.HasMember("sig"), "No sig in Oracle result:" + _result);
 
@@ -93,21 +93,19 @@ OracleResult::OracleResult(string &_result) : oracleResult(_result) {
     }
 
     if (d.HasMember("post")) {
-        isPost = true;
         CHECK_STATE2(d["post"].IsString(), "Post in Oracle result is not string:" + _result);
-        postStr = d["post"].GetString();
+        post = d["post"].GetString();
     }
 
 
     if (this->isGeth()) {
         rapidjson::Document d2;
-        postStr.erase(std::remove_if(postStr.begin(), postStr.end(), ::isspace), postStr.end());
-        d2.Parse(postStr.data());
-        CHECK_STATE2(!d2.HasParseError(), "Unparsable geth Oracle post:" + postStr);
+        d2.Parse(post.data());
+        CHECK_STATE2(!d2.HasParseError(), "Unparsable geth Oracle post:" + post);
 
-        CHECK_STATE2(d2.HasMember("method"), "No JSON-RPC method in geth Oracle post:" + postStr);
+        CHECK_STATE2(d2.HasMember("method"), "No JSON-RPC method in geth Oracle post:" + post);
 
-        CHECK_STATE2(d2["method"].IsString(), "method in Oracle post is not string:" + postStr)
+        CHECK_STATE2(d2["method"].IsString(), "method in Oracle post is not string:" + post)
 
         auto meth  = d2["method"].GetString();
 
@@ -122,16 +120,14 @@ OracleResult::OracleResult(string &_result) : oracleResult(_result) {
 
     CHECK_STATE2(results.size() == trims.size(), "hsps array size not equal trims array size");
 
-    RLPOutputStream stream(7);
+    RLPOutputStream stream(6);
     stream.append(chainId); //1
     stream.append(uri);//2
-    stream.append(time); //3
+    stream.append(requestTime); //3
     stream.append(jsps); // 4
     stream.append(trims); //5
-    stream.append((uint8_t)isPost); //6
+    stream.append(post); //6
 
-
-    stream.append((uint8_t)isPost); //7
 
 
 
@@ -143,13 +139,10 @@ OracleResult::OracleResult(string &_result) : oracleResult(_result) {
 
 }
 
-bool OracleResult::getPost() const {
-    return isPost;
+const string& OracleResult::getPost() const {
+    return post;
 }
 
-const string &OracleResult::getPostStr() const {
-    return postStr;
-}
 
 const string &OracleResult::getOracleResult() const {
     return oracleResult;
@@ -173,7 +166,7 @@ const string &OracleResult::getUri() const {
 
 
 uint64_t OracleResult::getTime() const {
-    return time;
+    return requestTime;
 }
 
 

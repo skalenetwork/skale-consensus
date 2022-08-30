@@ -222,15 +222,14 @@ ptr<OracleResponseMessage> OracleServerAgent::doEndpointRequestResponse(ptr<Orac
         )
     }
 
-    auto isPost = spec->getPost();
-    auto postString = spec->getPostStr();
+    auto postString = spec->getPost();
 
     string response;
 
     auto resultStr = _request->getRequestSpec();
 
 
-    auto status = curlHttp(uri, isPost, postString, response);
+    auto status = curlHttp(uri, spec->isPost(), postString, response);
 
 
     if (status != ORACLE_SUCCESS) {

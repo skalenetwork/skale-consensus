@@ -7,29 +7,26 @@
 
 
 class OracleResult {
-public:
-    const string &getSig() const;
-
-private:
 
     string oracleResult;
-    string uri;
 
+
+    uint64_t chainId;
+    string uri;
     vector<string> jsps;
     vector<uint64_t> trims;
-    uint64_t time;
+    uint64_t requestTime;
+    string post;
     uint64_t error = 0;
-    uint64_t chainId;
     vector<ptr<string>> results;
-    bool isPost;
-    string postStr;
+    string sig;
 
 public:
+
+    const string &getSig() const;
+
     uint64_t getChainId() const;
 
-private:
-    string sig;
-public:
 
     const vector<string> &getJsps() const;
 
@@ -51,9 +48,7 @@ public:
 
     const vector<ptr<string>> &getResults() const;
 
-    const string &getPostStr() const;
-
-    bool getPost() const;
+    const string& getPost() const;
 
     bool isGeth();
 

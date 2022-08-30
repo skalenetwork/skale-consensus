@@ -153,12 +153,14 @@ uint64_t OracleRequestSpec::getChainid() const {
     return chainid;
 }
 
-bool OracleRequestSpec::getPost() const {
-    return !post.empty();
+
+const string& OracleRequestSpec::getPost() const {
+    return post;
 }
 
-const string &OracleRequestSpec::getPostStr() const {
-    return post;
+
+bool OracleRequestSpec::isPost() {
+    return !post.empty();
 }
 
 bool OracleRequestSpec::isGeth() {

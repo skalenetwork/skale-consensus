@@ -21,9 +21,8 @@ class OracleRequestSpec {
 
 public:
 
-    bool getPost() const;
 
-    const string &getPostStr() const;
+    const string &getPost() const;
 
 
     const vector<string> &getJsps() const;
@@ -48,6 +47,7 @@ public:
     const vector<uint64_t> &getTrims() const;
 
     bool isGeth();
+    bool isPost();
 
     string getReceipt();
 
