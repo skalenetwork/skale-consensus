@@ -50,8 +50,6 @@
       <change beforePath="$PROJECT_DIR$/libBLS/deps/zlib/zconf.h" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/deps/zlib/zconf.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/oracle/OracleResult.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/oracle/OracleResult.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/oracle/OracleResult.h" beforeDir="false" afterPath="$PROJECT_DIR$/oracle/OracleResult.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/oracle/OracleServerAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/oracle/OracleServerAgent.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/oracle/OracleServerAgent.h" beforeDir="false" afterPath="$PROJECT_DIR$/oracle/OracleServerAgent.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -453,6 +451,7 @@
       <workItem from="1661862473275" duration="1223000" />
       <workItem from="1661898196158" duration="2000" />
       <workItem from="1661899188859" duration="2000" />
+      <workItem from="1661900263696" duration="2000" />
     </task>
     <task id="LOCAL-00093" summary="bug/SKALE-4352">
       <created>1634133299846</created>

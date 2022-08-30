@@ -82,11 +82,13 @@ OracleResult::OracleResult(string &_result) : oracleResult(_result) {
     }
 
     auto resultsArray = d["rslts"].GetArray();
+
+    results = make_shared<vector<ptr<string>>>();
     for (auto &&item: resultsArray) {
         if (item.IsString()) {
-            results.push_back(make_shared<string>(item.GetString()));
+            results->push_back(make_shared<string>(item.GetString()));
         } else if (item.IsNull()) {
-            results.push_back(nullptr);
+            results->push_back(nullptr);
         } else {
             CHECK_STATE2(false, "Unknown item in results:" + _result)
         }
@@ -119,7 +121,7 @@ OracleResult::OracleResult(string &_result) : oracleResult(_result) {
     }
 
 
-    CHECK_STATE2(results.size() == trims.size(), "hsps array size not equal trims array size");
+    CHECK_STATE2(results->size() == trims.size(), "hsps array size not equal trims array size");
 
     RLPOutputStream stream(6);
     stream.append(chainId); //1
@@ -153,7 +155,7 @@ uint64_t OracleResult::getError() const {
     return error;
 }
 
-const vector<ptr<string>> &OracleResult::getResults() const {
+const ptr<vector<ptr<string>>> OracleResult::getResults() const {
     return results;
 }
 
@@ -196,22 +198,24 @@ bool OracleResult::isGeth() {
     return (uri.find("geth://") == 0);
 }
 
+void OracleResult::trimResults() {
+    CHECK_STATE(results->size() == trims.size())
+    for (uint64_t i = 0; i < results->size(); i++) {
+        auto trim = trims.at(i);
+        auto res = results->at(i);
+        if (res && trim != 0) {
+            if (res->size() <= trim) {
+                res = make_shared<string>("");
+            } else {
+                res = make_shared<string>(res->substr(0, res->size() - trim));
+            }
+            (*results)[i] = res;
+        }
 
-OracleResult::OracleResult(ptr<OracleRequestSpec> _oracleSpec, uint64_t _status, string &_serverResponse) {
+    }
+}
 
-    CHECK_ARGUMENT(_oracleSpec);
-
-
-    chainId = _oracleSpec->getChainid();
-    uri = _oracleSpec->getUri();
-    jsps = _oracleSpec->getJsps();
-    trims = _oracleSpec->getTrims();
-    requestTime = _oracleSpec->getTime();
-    post = _oracleSpec->getPost();
-
-
-    oracleResult = "{";
-
+void OracleResult::appendElementsFromTheSpec() {
     oracleResult.append(string("\"cid\":") + to_string(chainId) + ",");
     oracleResult.append(string("\"uri\":\"") + uri + "\",");
     oracleResult.append(string("\"jsps\":["));
@@ -240,54 +244,20 @@ OracleResult::OracleResult(ptr<OracleRequestSpec> _oracleSpec, uint64_t _status,
     if (!post.empty()) {
         oracleResult.append(string("\"post\":") + post + ",");
     }
+}
 
-    if (_status != ORACLE_SUCCESS) {
-        oracleResult.append("\"err\":");
-        oracleResult.append(to_string(_status));
-        oracleResult.append(",");
-        return;
-    }
-
-    auto _results = extractResults(_serverResponse);
-
-
-    if (!_results) {
-        oracleResult.append("\"err\":");
-        oracleResult.append(to_string(ORACLE_INVALID_JSON_RESPONSE));
-        oracleResult.append(",");
-        return;
-    }
-
-
-    CHECK_STATE(_results->size() == trims.size())
-
-    // trim results
-
-    for (uint64_t i = 0; i < _results->size(); i++) {
-        auto trim = trims.at(i);
-        auto res = _results->at(i);
-        if (res && trim != 0) {
-            if (res->size() <= trim) {
-                res = make_shared<string>("");
-            } else {
-                res = make_shared<string>(res->substr(0, res->size() - trim));
-            }
-            (*_results)[i] = res;
-        }
-
-    }
-
+void OracleResult::appendResults() {
     // append results
     oracleResult.append("\"rslts\":[");
 
-    for (uint64_t i = 0; i < _results->size(); i++) {
+    for (uint64_t i = 0; i < results->size(); i++) {
         if (i != 0) {
             oracleResult.append(",");
         }
 
-        if (_results->at(i)) {
+        if (results->at(i)) {
             oracleResult.append("\"");
-            oracleResult.append(*_results->at(i));
+            oracleResult.append(*results->at(i));
             oracleResult.append("\"");
         } else {
             oracleResult.append("null");
@@ -296,6 +266,48 @@ OracleResult::OracleResult(ptr<OracleRequestSpec> _oracleSpec, uint64_t _status,
     }
 
     oracleResult.append("],");/**/
+}
+
+OracleResult::OracleResult(ptr<OracleRequestSpec> _oracleSpec, uint64_t _status, string &_serverResponse) {
+
+    CHECK_ARGUMENT(_oracleSpec);
+
+
+    chainId = _oracleSpec->getChainid();
+    uri = _oracleSpec->getUri();
+    jsps = _oracleSpec->getJsps();
+    trims = _oracleSpec->getTrims();
+    requestTime = _oracleSpec->getTime();
+    post = _oracleSpec->getPost();
+
+
+    oracleResult = "{";
+
+    appendElementsFromTheSpec();
+
+
+    if (_status != ORACLE_SUCCESS) {
+        oracleResult.append("\"err\":");
+        oracleResult.append(to_string(_status));
+        oracleResult.append(",");
+        return;
+    }
+
+    results = extractResults(_serverResponse);
+
+
+    if (!results) {
+        oracleResult.append("\"err\":");
+        oracleResult.append(to_string(ORACLE_INVALID_JSON_RESPONSE));
+        oracleResult.append(",");
+        return;
+    }
+
+
+    trimResults();
+
+    appendResults();
+
 }
 
 

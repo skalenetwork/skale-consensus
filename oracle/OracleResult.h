@@ -20,12 +20,17 @@ class OracleResult {
     uint64_t requestTime;
     string post;
     uint64_t error = 0;
-    vector<ptr<string>> results;
+    ptr<vector<ptr<string>>> results;
     string sig;
 
 
-
     ptr<vector<ptr<string>>> extractResults(string &_response);
+
+    void appendElementsFromTheSpec();
+
+    void trimResults();
+
+    void appendResults();
 
 public:
 
@@ -58,7 +63,7 @@ public:
 
     uint64_t getError() const;
 
-    const vector<ptr<string>> &getResults() const;
+    const ptr<vector<ptr<string>>> getResults() const;
 
     const string& getPost() const;
 
