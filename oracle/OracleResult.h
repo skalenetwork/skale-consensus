@@ -23,12 +23,16 @@ class OracleResult {
     vector<ptr<string>> results;
     string sig;
 
+
+
+    ptr<vector<ptr<string>>> extractResults(string &_response);
+
 public:
 
 
 
 
-    OracleResult(ptr<OracleRequestSpec> _spec, uint64_t _status, ptr<vector<ptr<string>>> _results);
+    OracleResult(ptr<OracleRequestSpec> _spec, uint64_t _status, string& _serverResponse);
 
 
     OracleResult(string& _oracleResult);

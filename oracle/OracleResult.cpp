@@ -197,7 +197,7 @@ bool OracleResult::isGeth() {
 }
 
 
-OracleResult::OracleResult(ptr<OracleRequestSpec> _oracleSpec, uint64_t _status, ptr<vector<ptr<string>>> _results) {
+OracleResult::OracleResult(ptr<OracleRequestSpec> _oracleSpec, uint64_t _status, string &_serverResponse) {
 
     CHECK_ARGUMENT(_oracleSpec);
 
@@ -208,7 +208,7 @@ OracleResult::OracleResult(ptr<OracleRequestSpec> _oracleSpec, uint64_t _status,
     trims = _oracleSpec->getTrims();
     requestTime = _oracleSpec->getTime();
     post = _oracleSpec->getPost();
-    CHECK_STATE(_status != 0 || _results)
+
 
     oracleResult = "{";
 
@@ -244,6 +244,16 @@ OracleResult::OracleResult(ptr<OracleRequestSpec> _oracleSpec, uint64_t _status,
     if (_status != ORACLE_SUCCESS) {
         oracleResult.append("\"err\":");
         oracleResult.append(to_string(_status));
+        oracleResult.append(",");
+        return;
+    }
+
+    auto _results = extractResults(_serverResponse);
+
+
+    if (!_results) {
+        oracleResult.append("\"err\":");
+        oracleResult.append(to_string(ORACLE_INVALID_JSON_RESPONSE));
         oracleResult.append(",");
         return;
     }
@@ -286,4 +296,47 @@ OracleResult::OracleResult(ptr<OracleRequestSpec> _oracleSpec, uint64_t _status,
     }
 
     oracleResult.append("],");/**/
+}
+
+
+ptr<vector<ptr<string>>> OracleResult::extractResults(
+        string &_response) {
+
+
+    auto rs = make_shared<vector<ptr<string>>>();
+
+
+    try {
+
+        auto j = nlohmann::json::parse(_response);
+        for (auto &&jsp: jsps) {
+            auto pointer = nlohmann::json::json_pointer(jsp);
+            try {
+                auto val = j.at(pointer);
+                CHECK_STATE(val.is_primitive());
+                string strVal;
+                if (val.is_string()) {
+                    strVal = val.get<string>();
+                } else if (val.is_number_integer()) {
+                    if (val.is_number_unsigned()) {
+                        strVal = to_string(val.get<uint64_t>());
+                    } else {
+                        strVal = to_string(val.get<int64_t>());
+                    }
+                } else if (val.is_number_float()) {
+                    strVal = to_string(val.get<double>());
+                } else if (val.is_boolean()) {
+                    strVal = to_string(val.get<bool>());
+                }
+                rs->push_back(make_shared<string>(strVal));
+            } catch (...) {
+                rs->push_back(nullptr);
+            }
+        }
+
+    } catch (...) {
+        return nullptr;
+    }
+
+    return rs;
 }

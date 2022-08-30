@@ -74,14 +74,9 @@ public:
 
     uint64_t curlHttp(const string &_uri, bool _isPost, string& _postString, string &_result);
 
-    ptr<vector<ptr<string>>> extractResults(
-            string& _response, vector<string> & _jsps) const;
+    static ptr<vector<ptr<string>>> extractResults(
+            string& _response, vector<string> & _jsps) ;
 
-    void trimResults(ptr<vector<ptr<string>>> &_results, vector<uint64_t> &_trims) const;
-
-    void appendResultsToSpec(string &_specStr, ptr<vector<ptr<string>>> &_results) const;
-
-    void appendErrorToSpec(string &specStr, uint64_t _error) const;
 
     void signResult(string &basicString);
 };

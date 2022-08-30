@@ -27,13 +27,10 @@
 
 #include "SkaleCommon.h"
 #include "Log.h"
-#include "exceptions/FatalError.h"
-#include "thirdparty/json.hpp"
 
 #include "blockfinalize/client/BlockFinalizeDownloader.h"
-#include "blockfinalize/client/BlockFinalizeDownloaderThreadPool.h"
+
 #include "blockproposal/pusher/BlockProposalClientAgent.h"
-#include "Agent.h"
 #include "chains/Schain.h"
 #include "crypto/BLAKE3Hash.h"
 #include "crypto/ThresholdSigShare.h"
@@ -45,19 +42,15 @@
 #include "db/BlockProposalDB.h"
 #include "db/BlockSigShareDB.h"
 #include "exceptions/ExitRequestedException.h"
-#include "exceptions/InvalidStateException.h"
+
 #include "messages/ConsensusProposalMessage.h"
 #include "messages/InternalMessageEnvelope.h"
-#include "messages/NetworkMessage.h"
+
 #include "messages/NetworkMessageEnvelope.h"
 #include "messages/ParentMessage.h"
 #include "network/Network.h"
-#include "node/Node.h"
+
 #include "node/NodeInfo.h"
-
-#include "pendingqueue/PendingTransactionsAgent.h"
-
-#include "thirdparty/lrucache.hpp"
 #include "third_party/json.hpp"
 
 #include "utils/Time.h"
@@ -67,7 +60,6 @@
 #include "OracleThreadPool.h"
 #include "OracleClient.h"
 #include "OracleRequestBroadcastMessage.h"
-#include "OracleRequestSpec.h"
 #include "OracleResponseMessage.h"
 #include "OracleResult.h"
 #include "OracleServerAgent.h"
@@ -231,18 +223,7 @@ ptr<OracleResponseMessage> OracleServerAgent::doEndpointRequestResponse(ptr<Orac
 
     ptr<OracleResult> oracleResult = nullptr;
 
-    if (status != ORACLE_SUCCESS) {
-        oracleResult = make_shared<OracleResult>(spec, status, nullptr);
-    } else {
-        auto jsps = spec->getJsps();
-        auto results = extractResults(response, jsps);
-        if (!results) {
-            oracleResult = make_shared<OracleResult>(spec, ORACLE_INVALID_JSON_RESPONSE, nullptr);
-        } else {
-            auto trims = spec->getTrims();
-            oracleResult = make_shared<OracleResult>(spec, ORACLE_SUCCESS,  results);
-        }
-    }
+    oracleResult = make_shared<OracleResult>(spec, status, response);
 
     auto resultStr = oracleResult->getResult();
 
@@ -259,107 +240,10 @@ ptr<OracleResponseMessage> OracleServerAgent::doEndpointRequestResponse(ptr<Orac
                                               *getSchain()->getOracleClient());
 }
 
-void OracleServerAgent::appendResultsToSpec(string &specStr, ptr<vector<ptr<string>>> &_results) const {
-    {
-
-        auto commaPosition = specStr.find_last_of(",");
-
-        CHECK_STATE(commaPosition != string::npos);
-
-        specStr = specStr.substr(0, commaPosition + 1);
-
-        specStr.append("\"rslts\":[");
-
-        for (uint64_t i = 0; i < _results->size(); i++) {
-            if (i != 0) {
-                specStr.append(",");
-            }
-
-            if (_results->at(i)) {
-                specStr.append("\"");
-                specStr.append(*_results->at(i));
-                specStr.append("\"");
-            } else {
-                specStr.append("null");
-            }
-
-        }
-
-        specStr.append("],");
-    }
-}
-
-void OracleServerAgent::appendErrorToSpec(string &specStr, uint64_t _error) const {
-    auto commaPosition = specStr.find_last_of(",");
-    CHECK_STATE(commaPosition != string::npos);
-    specStr = specStr.substr(0, commaPosition + 1);
-    specStr.append("\"err\":");
-    specStr.append(to_string(_error));
-    specStr.append(",");
-}
 
 
-void OracleServerAgent::trimResults(ptr<vector<ptr<string>>> &_results, vector<uint64_t> &_trims) const {
-
-    CHECK_STATE(_results->size() == _trims.size())
-
-    for (uint64_t i = 0; i < _results->size(); i++) {
-        auto trim = _trims.at(i);
-        auto res = _results->at(i);
-        if (res && trim != 0) {
-            if (res->size() <= trim) {
-                res = make_shared<string>("");
-            } else {
-                res = make_shared<string>(res->substr(0, res->size() - trim));
-            }
-            (*_results)[i] = res;
-        }
-
-    }
-}
-
-ptr<vector<ptr<string>>> OracleServerAgent::extractResults(
-        string &_response,
-        vector<string> &jsps) const {
 
 
-    auto rs = make_shared<vector<ptr<string>>>();
-
-
-    try {
-
-        auto j = json::parse(_response);
-        for (auto &&jsp: jsps) {
-            auto pointer = json::json_pointer(jsp);
-            try {
-                auto val = j.at(pointer);
-                CHECK_STATE(val.is_primitive());
-                string strVal;
-                if (val.is_string()) {
-                    strVal = val.get<string>();
-                } else if (val.is_number_integer()) {
-                    if (val.is_number_unsigned()) {
-                        strVal = to_string(val.get<uint64_t>());
-                    } else {
-                        strVal = to_string(val.get<int64_t>());
-                    }
-                } else if (val.is_number_float()) {
-                    strVal = to_string(val.get<double>());
-                } else if (val.is_boolean()) {
-                    strVal = to_string(val.get<bool>());
-                }
-                rs->push_back(make_shared<string>(strVal));
-            } catch (...) {
-                rs->push_back(nullptr);
-            }
-        }
-
-    } catch (...) {
-        return nullptr;
-    }
-
-    return rs;
-}
 
 uint64_t OracleServerAgent::curlHttp(const string &_uri, bool _isPost, string &_postString, string &_result) {
 
