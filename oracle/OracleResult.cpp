@@ -10,6 +10,7 @@
 #include "Log.h"
 #include "rlp/RLP.h"
 #include "network/Utils.h"
+#include "OracleRequestSpec.h"
 #include "OracleResult.h"
 
 
@@ -195,15 +196,20 @@ bool OracleResult::isGeth() {
     return (uri.find("geth://") == 0);
 }
 
-OracleResult::OracleResult(uint64_t _chainId, const string &_uri,
-                           const vector<string> &_jsps, const vector<uint64_t> &_trims, uint64_t _time,
-                           const string &_post) :
-        chainId(_chainId),
-        uri(_uri),
-        jsps(_jsps),
-        trims(_trims),
-        requestTime(_time),
-        post(_post) {
+
+OracleResult::OracleResult(ptr<OracleRequestSpec> _oracleSpec, uint64_t _status, ptr<vector<ptr<string>>> _results) {
+
+    CHECK_ARGUMENT(_oracleSpec);
+
+
+    chainId = _oracleSpec->getChainid();
+    uri = _oracleSpec->getUri();
+    jsps = _oracleSpec->getJsps();
+    trims = _oracleSpec->getTrims();
+    requestTime = _oracleSpec->getTime();
+    post = _oracleSpec->getPost();
+    CHECK_STATE(_status != 0 || _results)
+
     oracleResult = "{";
 
     oracleResult.append(string("\"cid\":") + to_string(chainId) + ",");
@@ -235,5 +241,49 @@ OracleResult::OracleResult(uint64_t _chainId, const string &_uri,
         oracleResult.append(string("\"post\":") + post + ",");
     }
 
+    if (_status != ORACLE_SUCCESS) {
+        oracleResult.append("\"err\":");
+        oracleResult.append(to_string(_status));
+        oracleResult.append(",");
+        return;
+    }
 
+
+    CHECK_STATE(_results->size() == trims.size())
+
+    // trim results
+
+    for (uint64_t i = 0; i < _results->size(); i++) {
+        auto trim = trims.at(i);
+        auto res = _results->at(i);
+        if (res && trim != 0) {
+            if (res->size() <= trim) {
+                res = make_shared<string>("");
+            } else {
+                res = make_shared<string>(res->substr(0, res->size() - trim));
+            }
+            (*_results)[i] = res;
+        }
+
+    }
+
+    // append results
+    oracleResult.append("\"rslts\":[");
+
+    for (uint64_t i = 0; i < _results->size(); i++) {
+        if (i != 0) {
+            oracleResult.append(",");
+        }
+
+        if (_results->at(i)) {
+            oracleResult.append("\"");
+            oracleResult.append(*_results->at(i));
+            oracleResult.append("\"");
+        } else {
+            oracleResult.append("null");
+        }
+
+    }
+
+    oracleResult.append("],");/**/
 }

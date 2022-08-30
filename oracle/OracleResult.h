@@ -6,6 +6,8 @@
 #define SKALED_ORACLERESULT_H
 
 
+class OracleRequestSpec;
+
 class OracleResult {
 
     string oracleResult;
@@ -23,9 +25,10 @@ class OracleResult {
 
 public:
 
-    OracleResult(uint64_t _chainId, const string &_uri,
-                               const vector<string> &_jsps, const vector<uint64_t> &_trims, uint64_t _time,
-                               const string &_post);
+
+
+
+    OracleResult(ptr<OracleRequestSpec> _spec, uint64_t _status, ptr<vector<ptr<string>>> _results);
 
 
     OracleResult(string& _oracleResult);

@@ -62,14 +62,14 @@
 
 #include "utils/Time.h"
 #include "protocols/ProtocolInstance.h"
+#include "OracleErrors.h"
 #include "OracleRequestSpec.h"
 #include "OracleThreadPool.h"
-
 #include "OracleClient.h"
 #include "OracleRequestBroadcastMessage.h"
 #include "OracleRequestSpec.h"
 #include "OracleResponseMessage.h"
-#include "OracleErrors.h"
+#include "OracleResult.h"
 #include "OracleServerAgent.h"
 
 OracleServerAgent::OracleServerAgent(Schain &_schain) : Agent(_schain, true), requestCounter(0), threadCounter(0) {
@@ -226,26 +226,25 @@ ptr<OracleResponseMessage> OracleServerAgent::doEndpointRequestResponse(ptr<Orac
 
     string response;
 
-    auto resultStr = _request->getRequestSpec();
-
 
     auto status = curlHttp(uri, spec->isPost(), postString, response);
 
+    ptr<OracleResult> oracleResult = nullptr;
 
     if (status != ORACLE_SUCCESS) {
-        appendErrorToSpec(resultStr, status);
+        oracleResult = make_shared<OracleResult>(spec, status, nullptr);
     } else {
         auto jsps = spec->getJsps();
         auto results = extractResults(response, jsps);
-
         if (!results) {
-            appendErrorToSpec(resultStr, ORACLE_INVALID_JSON_RESPONSE);
+            oracleResult = make_shared<OracleResult>(spec, ORACLE_INVALID_JSON_RESPONSE, nullptr);
         } else {
             auto trims = spec->getTrims();
-            trimResults(results, trims);
-            appendResultsToSpec(resultStr, results);
+            oracleResult = make_shared<OracleResult>(spec, ORACLE_SUCCESS,  results);
         }
     }
+
+    auto resultStr = oracleResult->getResult();
 
     this->signResult(resultStr);
 
