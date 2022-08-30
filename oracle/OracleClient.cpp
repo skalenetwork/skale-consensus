@@ -73,32 +73,21 @@ uint64_t OracleClient::broadcastRequestAndReturnReceipt(ptr<OracleRequestBroadca
 
 void OracleClient::sendTestRequestGet() {
 
-    string spec;
     string _receipt;
 
-    for (uint64_t i = 0; i < 1000000000; i++) {
+
+    auto cid = (uint64_t) getSchain()->getSchainID();
+    auto uri = "http://worldtimeapi.org/api/timezone/Europe/Kiev";
+    vector<string> jsps{"unixtime", "/day_of_year", "/xxx"};
+    vector<uint64_t> trims{1, 1, 1};
+    auto time = Time::getCurrentTimeMs();
+
+    auto os = make_shared<OracleRequestSpec>(cid, uri, jsps, trims, time, "", "");
+
+    CHECK_STATE(os->verifyPow());
 
 
-        string cid = "\"cid\":" +
-                     to_string((uint64_t) getSchain()->getSchainID());
-        string uri = "\"uri\":\"http://worldtimeapi.org/api/timezone/Europe/Kiev\"";
-        string jsps = "\"jsps\":[\"/unixtime\", \"/day_of_year\", \"/xxx\"]";
-        string trims = "\"trims\":[1,1,1]";
-        string time = "\"time\":" + to_string(Time::getCurrentTimeMs());
-        string pow = "\"pow\":" + to_string(i);
-
-        spec = "{" + cid + "," + uri + "," + jsps + "," + trims + "," + time + ","
-                + pow + "}";
-
-        auto os = make_shared<OracleRequestSpec>(spec);
-
-        if (os->verifyPow()) {
-            break;
-        }
-    }
-
-
-    auto status = submitOracleRequest(spec, _receipt);
+    auto status = submitOracleRequest(os->getSpec(), _receipt);
 
     CHECK_STATE(status == ORACLE_SUCCESS);
 
@@ -150,7 +139,7 @@ void OracleClient::sendTestRequestPost() {
 }
 
 
-uint64_t OracleClient::submitOracleRequest(const string& _spec, string &_receipt) {
+uint64_t OracleClient::submitOracleRequest(const string &_spec, string &_receipt) {
 
     auto index = _spec.find_last_of(",");
 

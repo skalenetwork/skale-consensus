@@ -11,14 +11,13 @@ class OracleRequestSpec {
     string spec;
     uint64_t chainid;
     string uri;
-
     vector<string> jsps;
     vector<uint64_t> trims;
-    uint64_t time;
+    uint64_t requestTime;
+    string post;
+    string encoding;
     uint64_t pow;
-    bool isPost = false;
-    string encoding = "json";
-    string postStr = "";
+
 
 public:
 
@@ -38,6 +37,9 @@ public:
     const uint64_t &getPow() const;
 
     OracleRequestSpec(const string& _spec);
+
+    OracleRequestSpec(uint64_t chainid, const string &uri, const vector<string> &jsps,
+                      const vector<uint64_t> &trims, uint64_t time, const string &postStr, const string &encoding);
 
     uint64_t getChainid() const;
 

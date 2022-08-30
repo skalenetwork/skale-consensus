@@ -79,7 +79,6 @@ OracleRequestBroadcastMessage::OracleRequestBroadcastMessage(const string& _requ
                  "Invalid schain id in oracle spec:" + to_string(_schainId));
     CHECK_STATE2(parsedSpec->getTime() + ORACLE_TIMEOUT_MS > Time::getCurrentTimeMs(), "Request timeout")
     CHECK_STATE(parsedSpec->getTime()  < Time::getCurrentTimeMs() + ORACLE_FUTURE_JITTER_MS)
-    CHECK_STATE2(parsedSpec->verifyPow(), "PoW did not verify");
 }
 
 void OracleRequestBroadcastMessage::updateWithChildHash(blake3_hasher& _hasher) {

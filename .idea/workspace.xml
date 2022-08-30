@@ -49,9 +49,11 @@
       <change beforePath="$PROJECT_DIR$/libBLS/deps/libff/depends/xbyak" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/deps/libff/depends/xbyak" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libBLS/deps/zlib/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/deps/zlib/Makefile" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libBLS/deps/zlib/zconf.h" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/deps/zlib/zconf.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/oracle/OracleClient.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/oracle/OracleClient.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/oracle/OracleRequestBroadcastMessage.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/oracle/OracleRequestBroadcastMessage.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/oracle/OracleRequestSpec.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/oracle/OracleRequestSpec.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/oracle/OracleRequestSpec.h" beforeDir="false" afterPath="$PROJECT_DIR$/oracle/OracleRequestSpec.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/oracle/OracleResult.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/oracle/OracleResult.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/oracle/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/oracle/README.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -146,6 +148,7 @@
     &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
     &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
     &quot;last_opened_file_path&quot;: &quot;/d/skaled&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
     &quot;settings.editor.selected.configurable&quot;: &quot;CMakeSettings&quot;
   }
 }</component>
@@ -446,6 +449,9 @@
       <workItem from="1661433796500" duration="2000" />
       <workItem from="1661434620997" duration="3392000" />
       <workItem from="1661438449341" duration="2035000" />
+      <workItem from="1661787387425" duration="613000" />
+      <workItem from="1661789247137" duration="5870000" />
+      <workItem from="1661796377275" duration="2301000" />
     </task>
     <task id="LOCAL-00093" summary="bug/SKALE-4352">
       <created>1634133299846</created>
