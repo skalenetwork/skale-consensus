@@ -32,12 +32,17 @@ class OracleResult {
 
     void appendResults();
 
+    void signResult(ptr<CryptoManager> _cryptoManager);
+
+    void appendError();
+
 public:
 
 
 
 
-    OracleResult(ptr<OracleRequestSpec> _spec, uint64_t _status, string& _serverResponse);
+    OracleResult(ptr<OracleRequestSpec> _spec, uint64_t _status, string& _serverResponse,
+                 ptr<CryptoManager> _cryptoManager);
 
 
     OracleResult(string& _oracleResult);
@@ -51,7 +56,7 @@ public:
 
     const vector<string> &getJsps() const;
 
-    const string &getResult() const;
+    const string &toString() const;
 
     const string &getUri() const;
 

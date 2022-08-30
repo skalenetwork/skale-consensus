@@ -168,7 +168,7 @@ bool OracleRequestSpec::isGeth() {
 }
 
 string OracleRequestSpec::getReceipt() {
-    return CryptoManager::hashForOracle(spec);
+    return CryptoManager::hashForOracle(spec.data(), spec.size());
 }
 
 
@@ -176,7 +176,7 @@ bool OracleRequestSpec::verifyPow() {
 
     try {
 
-        auto hash = CryptoManager::hashForOracle(spec);
+        auto hash = CryptoManager::hashForOracle(spec.data(), spec.size());
 
         u256 binaryHash("0x" + hash);
 

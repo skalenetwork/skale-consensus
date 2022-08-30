@@ -223,11 +223,9 @@ ptr<OracleResponseMessage> OracleServerAgent::doEndpointRequestResponse(ptr<Orac
 
     ptr<OracleResult> oracleResult = nullptr;
 
-    oracleResult = make_shared<OracleResult>(spec, status, response);
+    oracleResult = make_shared<OracleResult>(spec, status, response, getSchain()->getCryptoManager());
 
-    auto resultStr = oracleResult->getResult();
-
-    this->signResult(resultStr);
+    auto resultStr = oracleResult->toString();
 
     LOG(info, "Oracle request result: " + resultStr);
 

@@ -10,6 +10,7 @@
 #include "Log.h"
 #include "rlp/RLP.h"
 #include "network/Utils.h"
+#include "crypto/CryptoManager.h"
 #include "OracleRequestSpec.h"
 #include "OracleResult.h"
 
@@ -159,7 +160,7 @@ const ptr<vector<ptr<string>>> OracleResult::getResults() const {
     return results;
 }
 
-const string &OracleResult::getResult() const {
+const string &OracleResult::toString() const {
     return oracleResult;
 }
 
@@ -216,6 +217,7 @@ void OracleResult::trimResults() {
 }
 
 void OracleResult::appendElementsFromTheSpec() {
+    oracleResult = "{";
     oracleResult.append(string("\"cid\":") + to_string(chainId) + ",");
     oracleResult.append(string("\"uri\":\"") + uri + "\",");
     oracleResult.append(string("\"jsps\":["));
@@ -268,7 +270,26 @@ void OracleResult::appendResults() {
     oracleResult.append("],");/**/
 }
 
-OracleResult::OracleResult(ptr<OracleRequestSpec> _oracleSpec, uint64_t _status, string &_serverResponse) {
+
+void OracleResult::signResult(ptr<CryptoManager> _cryptoManager) {
+    CHECK_ARGUMENT(_cryptoManager)
+    CHECK_STATE(oracleResult.at(oracleResult.size() - 1) == ',')
+    sig = _cryptoManager->signOracleResult(oracleResult);
+    oracleResult.append("\"sig\":\"");
+    oracleResult.append(sig);
+    oracleResult.append("\"}");
+}
+
+
+void OracleResult::appendError() {
+    oracleResult.append("\"err\":");
+    oracleResult.append(to_string(error));
+    oracleResult.append(",");
+
+}
+
+OracleResult::OracleResult(ptr<OracleRequestSpec> _oracleSpec, uint64_t _status, string &_serverResponse,
+                           ptr<CryptoManager> _cryptoManager) {
 
     CHECK_ARGUMENT(_oracleSpec);
 
@@ -281,32 +302,33 @@ OracleResult::OracleResult(ptr<OracleRequestSpec> _oracleSpec, uint64_t _status,
     post = _oracleSpec->getPost();
 
 
-    oracleResult = "{";
 
     appendElementsFromTheSpec();
 
 
     if (_status != ORACLE_SUCCESS) {
-        oracleResult.append("\"err\":");
-        oracleResult.append(to_string(_status));
-        oracleResult.append(",");
-        return;
+        error = _status;
+        appendError();
+        goto sign;
     }
 
     results = extractResults(_serverResponse);
 
 
     if (!results) {
-        oracleResult.append("\"err\":");
-        oracleResult.append(to_string(ORACLE_INVALID_JSON_RESPONSE));
-        oracleResult.append(",");
-        return;
+        error = ORACLE_INVALID_JSON_RESPONSE;
+        appendError();
+        goto sign;
     }
 
 
     trimResults();
 
     appendResults();
+
+sign:
+    signResult(_cryptoManager);
+
 
 }
 

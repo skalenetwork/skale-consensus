@@ -462,7 +462,7 @@ string CryptoManager::sign( BLAKE3Hash& _hash ) {
 string CryptoManager::signOracleResult( string _text ) {
     string result;
 
-    auto hashStr = hashForOracle( _text );
+    auto hashStr = hashForOracle( _text.data(), _text.size() );
 
     if ( isSGXEnabled ) {
         CHECK_STATE( sgxECDSAKeyName != "" )
@@ -471,17 +471,19 @@ string CryptoManager::signOracleResult( string _text ) {
         result = hashStr;
     }
 
-
     return result;
 }
 
-string CryptoManager::hashForOracle( string& _text ) {
+
+string CryptoManager::hashForOracle( char* _data, size_t _size) {
+
+    CHECK_ARGUMENT(_data);
     try {
         CryptoPP::Keccak_256 hash;
         string digest;
 
 
-        hash.Update( ( const CryptoPP::byte* ) _text.data(), _text.size() );
+        hash.Update( ( const CryptoPP::byte* ) _data, _size );
         digest.resize( hash.DigestSize() );
         hash.Final( ( CryptoPP::byte* ) &digest[0] );
 

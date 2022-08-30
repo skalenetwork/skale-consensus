@@ -324,7 +324,7 @@ public:
 
     string signOracleResult(string _text);
 
-    static string hashForOracle(string &_text);
+    static string hashForOracle(char* _data, size_t _size);
 
     void checkZMQStatusIfUnknownECDSA(const string &_keyName);
 
