@@ -13,10 +13,9 @@
 #include "OracleResult.h"
 
 
-
 OracleResult::OracleResult(string &_result) : oracleResult(_result) {
     rapidjson::Document d;
-    
+
     d.Parse(_result.data());
 
     CHECK_STATE2(!d.HasParseError(), "Unparsable Oracle result:" + _result);
@@ -107,12 +106,13 @@ OracleResult::OracleResult(string &_result) : oracleResult(_result) {
 
         CHECK_STATE2(d2["method"].IsString(), "method in Oracle post is not string:" + post)
 
-        auto meth  = d2["method"].GetString();
+        auto meth = d2["method"].GetString();
 
         if (meth == string("eth_call") ||
             meth == string("eth_gasPrice") || meth == string("eth_blockNumber") ||
             meth == string("eth_getBlockByNumber") ||
-            meth == string("eth_getBlockByHash") ) {} else {
+            meth == string("eth_getBlockByHash")) {}
+        else {
             CHECK_STATE2(false, "Geth Method not allowed:" + meth);
         }
     }
@@ -139,7 +139,7 @@ OracleResult::OracleResult(string &_result) : oracleResult(_result) {
 
 }
 
-const string& OracleResult::getPost() const {
+const string &OracleResult::getPost() const {
     return post;
 }
 
@@ -195,3 +195,45 @@ bool OracleResult::isGeth() {
     return (uri.find("geth://") == 0);
 }
 
+OracleResult::OracleResult(uint64_t _chainId, const string &_uri,
+                           const vector<string> &_jsps, const vector<uint64_t> &_trims, uint64_t _time,
+                           const string &_post) :
+        chainId(_chainId),
+        uri(_uri),
+        jsps(_jsps),
+        trims(_trims),
+        requestTime(_time),
+        post(_post) {
+    oracleResult = "{";
+
+    oracleResult.append(string("\"cid\":") + to_string(chainId) + ",");
+    oracleResult.append(string("\"uri\":\"") + uri + "\",");
+    oracleResult.append(string("\"jsps\":["));
+
+    for (uint64_t j = 0; j < jsps.size(); j++) {
+        oracleResult.append("\"");
+        oracleResult.append(jsps.at(j));
+        oracleResult.append("\"");
+        if (j + 1 < jsps.size())
+            oracleResult.append(",");
+    }
+
+
+    oracleResult.append("],");
+    oracleResult.append("\"trims\":[");
+
+    for (uint64_t j = 0; j < trims.size(); j++) {
+        oracleResult.append(to_string(trims.at(j)));
+        if (j + 1 < trims.size())
+            oracleResult.append(",");
+    }
+
+    oracleResult.append("],");
+    oracleResult.append(string("\"time\":") + to_string(requestTime) + ",");
+
+    if (!post.empty()) {
+        oracleResult.append(string("\"post\":") + post + ",");
+    }
+
+
+}

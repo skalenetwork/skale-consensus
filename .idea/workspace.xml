@@ -49,11 +49,8 @@
       <change beforePath="$PROJECT_DIR$/libBLS/deps/libff/depends/xbyak" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/deps/libff/depends/xbyak" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libBLS/deps/zlib/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/deps/zlib/Makefile" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libBLS/deps/zlib/zconf.h" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/deps/zlib/zconf.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/oracle/OracleRequestSpec.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/oracle/OracleRequestSpec.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/oracle/OracleRequestSpec.h" beforeDir="false" afterPath="$PROJECT_DIR$/oracle/OracleRequestSpec.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/oracle/OracleResult.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/oracle/OracleResult.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/oracle/OracleResult.h" beforeDir="false" afterPath="$PROJECT_DIR$/oracle/OracleResult.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/oracle/OracleServerAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/oracle/OracleServerAgent.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -452,7 +449,7 @@
       <workItem from="1661787387425" duration="613000" />
       <workItem from="1661789247137" duration="5870000" />
       <workItem from="1661796377275" duration="3836000" />
-      <workItem from="1661862473275" duration="4000" />
+      <workItem from="1661862473275" duration="1223000" />
     </task>
     <task id="LOCAL-00093" summary="bug/SKALE-4352">
       <created>1634133299846</created>

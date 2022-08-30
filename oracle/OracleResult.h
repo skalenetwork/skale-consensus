@@ -23,6 +23,15 @@ class OracleResult {
 
 public:
 
+    OracleResult(uint64_t _chainId, const string &_uri,
+                               const vector<string> &_jsps, const vector<uint64_t> &_trims, uint64_t _time,
+                               const string &_post);
+
+
+    OracleResult(string& _oracleResult);
+
+    static ptr<OracleResult> parseResult(string& _oracleResult);
+
     const string &getSig() const;
 
     uint64_t getChainId() const;
@@ -35,10 +44,6 @@ public:
     const string &getUri() const;
 
     uint64_t getTime() const;
-
-    OracleResult(string& _oracleResult);
-
-    static ptr<OracleResult> parseResult(string& _oracleResult);
 
     const vector<uint64_t> &getTrims() const;
 
