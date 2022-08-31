@@ -5,7 +5,8 @@
 #ifndef CONSENSUS_ORACLERECEIVEDRESULTS_H
 #define CONSENSUS_ORACLERECEIVEDRESULTS_H
 
-
+class OracleResult;
+class OracleRequestSpec;
 class OracleReceivedResults {
     recursive_mutex m;
     uint64_t requiredConfirmations;
@@ -13,15 +14,17 @@ class OracleReceivedResults {
     uint64_t requestTime;
     ptr<map<uint64_t, string>> signaturesBySchainIndex;
     ptr<map<string, uint64_t>> resultsByCount;
-
+    ptr<OracleRequestSpec> requestSpec;
 
 public:
 
-    OracleReceivedResults(uint64_t _requiredSigners, uint64_t _nodeCount);
+    const ptr<OracleRequestSpec> &getRequestSpec() const;
+
+    OracleReceivedResults(ptr<OracleRequestSpec> _requestSpec, uint64_t _requiredSigners, uint64_t _nodeCount);
 
     uint64_t getRequestTime() const;
 
-    void insertIfDoesntExist(uint64_t _origin, string _unsignedResult, string _sig);
+    void insertIfDoesntExist(uint64_t _origin, ptr<OracleResult> _oracleResult);
 
     uint64_t tryGettingResult(string& _result);
 

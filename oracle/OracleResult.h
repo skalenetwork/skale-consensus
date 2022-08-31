@@ -7,6 +7,7 @@
 
 
 class OracleRequestSpec;
+class CryptoManager;
 
 class OracleResult {
 

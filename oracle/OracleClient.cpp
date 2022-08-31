@@ -47,26 +47,28 @@ OracleClient::OracleClient(Schain &_sChain) : ProtocolInstance(ORACLE, _sChain),
     }
 }
 
-uint64_t OracleClient::broadcastRequestAndReturnReceipt(ptr<OracleRequestBroadcastMessage> _msg, string &_receipt) {
+uint64_t OracleClient::broadcastRequest(ptr<OracleRequestBroadcastMessage> _msg) {
 
     CHECK_STATE(_msg)
     CHECK_STATE(sChain)
-    auto r = _msg->getParsedSpec()->getReceipt();
 
 
-    auto exists = receiptsMap.putIfDoesNotExist(r,
-                                                make_shared<OracleReceivedResults>(getSchain()->getRequiredSigners(),
+    auto receipt = _msg->getParsedSpec()->getReceipt();
+
+    auto exists = receiptsMap.putIfDoesNotExist(receipt,
+                                                make_shared<OracleReceivedResults>(
+                                                        _msg->getParsedSpec(), getSchain()->getRequiredSigners(),
                                                                                    (uint64_t) getSchain()->getNodeCount()));
 
     if (!exists) {
-        LOG(err, "Request exists:" + r);
+        LOG(err, "Request exists:" + receipt);
         return ORACLE_DUPLICATE_REQUEST;
     }
 
     LOCK(m);
 
     sChain->getNode()->getNetwork()->broadcastOracleRequestMessage(_msg);
-    _receipt = r;
+
     return ORACLE_SUCCESS;
 }
 
@@ -141,35 +143,27 @@ void OracleClient::sendTestRequestPost() {
 
 uint64_t OracleClient::submitOracleRequest(const string &_spec, string &_receipt) {
 
-    auto index = _spec.find_last_of(",");
-
-    CHECK_STATE2(index != string::npos, "No comma in request");
-
-    auto end = _spec.substr(index);
-
-    CHECK_STATE2(end.find_last_of("pow") != string::npos, "Request does not end with pow element");
-
     auto msg = make_shared<OracleRequestBroadcastMessage>(_spec, sChain->getLastCommittedBlockID(),
                                                           Time::getCurrentTimeMs(),
                                                           *sChain->getOracleClient());
-    return broadcastRequestAndReturnReceipt(msg, _receipt);
+    _receipt = msg->getParsedSpec()->getReceipt();
+
+    return broadcastRequest(msg);
 }
 
 
 void OracleClient::processResponseMessage(const ptr<MessageEnvelope> &_me) {
     CHECK_STATE(_me);
-    auto msg = dynamic_pointer_cast<OracleResponseMessage>(_me->getMessage());
-
-    CHECK_STATE(msg);
 
     auto origin = (uint64_t) _me->getSrcSchainIndex();
 
     CHECK_STATE(origin > 0 || origin <= getSchain()->getNodeCount());
 
+    auto msg = dynamic_pointer_cast<OracleResponseMessage>(_me->getMessage());
+
+    CHECK_STATE(msg);
+
     auto receipt = msg->getReceipt();
-    auto unsignedResult = msg->getOracleResult()->getUnsignedOracleResultStr();
-    auto sig = msg->getOracleResult()->getSig();
-    LOG(info, "Receiving oracle message from node:" + to_string(origin) + "; Data:" + unsignedResult);
 
     auto receivedResults = receiptsMap.getIfExists(receipt);
 
@@ -178,8 +172,8 @@ void OracleClient::processResponseMessage(const ptr<MessageEnvelope> &_me) {
         return;
     }
 
-    auto receipts = std::any_cast<ptr<OracleReceivedResults>>(receivedResults);
-    receipts->insertIfDoesntExist(origin, unsignedResult, sig);
+    auto rslts = std::any_cast<ptr<OracleReceivedResults>>(receivedResults);
+    rslts->insertIfDoesntExist(origin, msg->getOracleResult());
 }
 
 

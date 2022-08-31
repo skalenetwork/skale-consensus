@@ -17,6 +17,7 @@ class OracleRequestSpec {
     string post;
     string encoding;
     uint64_t pow;
+    string receipt;
 
 
 public:
@@ -47,6 +48,7 @@ public:
     const vector<uint64_t> &getTrims() const;
 
     bool isGeth();
+
     bool isPost();
 
     string getReceipt();

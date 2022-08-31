@@ -122,6 +122,8 @@ OracleRequestSpec::OracleRequestSpec(const string &_spec) : spec(_spec) {
 
     CHECK_STATE2(encoding.empty()  || encoding == "json" || encoding == "rlp", "Unknown encoding " + encoding);
     CHECK_STATE2(verifyPow(), "PoW did not verify");
+
+    receipt = CryptoManager::hashForOracle(spec.data(), spec.size());
 }
 
 const string &OracleRequestSpec::getSpec() const {
@@ -168,7 +170,7 @@ bool OracleRequestSpec::isGeth() {
 }
 
 string OracleRequestSpec::getReceipt() {
-    return CryptoManager::hashForOracle(spec.data(), spec.size());
+    return receipt;
 }
 
 
@@ -249,8 +251,10 @@ OracleRequestSpec::OracleRequestSpec(uint64_t _chainid, const string &_uri,
             break;
         }
 
+
     }
 
+    receipt = CryptoManager::hashForOracle(spec.data(), spec.size());
 }
 
 

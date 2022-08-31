@@ -140,7 +140,7 @@ OracleResult::OracleResult(string &_result) : oracleResult(_result) {
     auto rlpEncoding = stream.out();
     auto hex = Utils::carray2Hex(rlpEncoding.data(), rlpEncoding.size());
     cerr << "Oracle result" << hex << endl;
-    exit(75);
+    sleep(3);
 
 
 }
