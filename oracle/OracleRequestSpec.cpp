@@ -213,7 +213,9 @@ OracleRequestSpec::OracleRequestSpec(uint64_t _chainid, const string &_uri,
 
         for (uint64_t j = 0; j < jsps.size(); j++) {
             spec.append("\"");
-            spec.append(jsps.at(j));
+            string jsp  = jsps.at(j);
+            CHECK_STATE2(!jsp.empty() && jsp.front() == '/', "Invalid JSP pointer:" + jsp);
+            spec.append(jsp);
             spec.append("\"");
             if (j + 1 < jsps.size())
                 spec.append(",");

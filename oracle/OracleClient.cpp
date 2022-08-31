@@ -78,7 +78,7 @@ void OracleClient::sendTestRequestGet() {
 
     auto cid = (uint64_t) getSchain()->getSchainID();
     auto uri = "http://worldtimeapi.org/api/timezone/Europe/Kiev";
-    vector<string> jsps{"unixtime", "/day_of_year", "/xxx"};
+    vector<string> jsps{"/unixtime", "/day_of_year", "/xxx"};
     vector<uint64_t> trims{1, 1, 1};
     auto time = Time::getCurrentTimeMs();
 

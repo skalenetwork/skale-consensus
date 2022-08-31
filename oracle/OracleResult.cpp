@@ -58,7 +58,9 @@ OracleResult::OracleResult(string &_result) : oracleResult(_result) {
 
     for (auto &&item: array) {
         CHECK_STATE2(item.IsString(), "Jsp array item is not string:" + _result);
-        jsps.push_back(item.GetString());
+        string jsp  = item.GetString();
+        CHECK_STATE2(!jsp.empty() && jsp.front() == '/', "Invalid JSP pointer:" + jsp);
+        jsps.push_back(jsp);
     }
 
     if (d.HasMember("trims")) {
@@ -68,7 +70,7 @@ OracleResult::OracleResult(string &_result) : oracleResult(_result) {
             trims.push_back(item.GetUint64());
         }
 
-        CHECK_STATE2(jsps.size() == trims.size(), "hsps array size not equal trims array size");
+        CHECK_STATE2(jsps.size() == trims.size(), "jsps array size not equal trims array size");
     } else {
         for (uint64_t i = 0; i < jsps.size(); i++) {
             trims.push_back(0);
@@ -368,7 +370,10 @@ ptr<vector<ptr<string>>> OracleResult::extractResults(
             }
         }
 
-    } catch (...) {
+    } catch (exception& _e) {
+        return nullptr;
+    }
+    catch (...) {
         return nullptr;
     }
 

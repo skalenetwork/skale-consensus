@@ -21,7 +21,10 @@ class OracleResult {
     string post;
     uint64_t error = 0;
     ptr<vector<ptr<string>>> results;
+    string encoding;
+    ptr<vector<uint8_t>> rlp;
     string sig;
+
 
 
     ptr<vector<ptr<string>>> extractResults(string &_response);
@@ -42,7 +45,7 @@ public:
 
 
     OracleResult(ptr<OracleRequestSpec> _spec, uint64_t _status, string& _serverResponse,
-                 ptr<CryptoManager> _cryptoManager);
+                 ptr<CryptoManager> _cryptoManager );
 
 
     OracleResult(string& _oracleResult);
