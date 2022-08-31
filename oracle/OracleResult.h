@@ -42,7 +42,7 @@ class OracleResult {
 public:
 
 
-
+    const string getUnsignedOracleResultStr() const;
 
     OracleResult(ptr<OracleRequestSpec> _spec, uint64_t _status, string& _serverResponse,
                  ptr<CryptoManager> _cryptoManager );

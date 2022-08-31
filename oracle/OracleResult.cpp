@@ -379,3 +379,10 @@ ptr<vector<ptr<string>>> OracleResult::extractResults(
 
     return rs;
 }
+
+const string OracleResult::getUnsignedOracleResultStr() const {
+    auto commaPosition = oracleResult.find_last_of(",");
+    CHECK_STATE(commaPosition != string::npos);
+    auto res = oracleResult.substr(0, commaPosition + 1);
+    return res;
+}

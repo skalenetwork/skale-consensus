@@ -167,7 +167,7 @@ void OracleClient::processResponseMessage(const ptr<MessageEnvelope> &_me) {
     CHECK_STATE(origin > 0 || origin <= getSchain()->getNodeCount());
 
     auto receipt = msg->getReceipt();
-    auto unsignedResult = msg->getUnsignedOracleResultStr();
+    auto unsignedResult = msg->getOracleResult()->getUnsignedOracleResultStr();
     auto sig = msg->getOracleResult()->getSig();
     LOG(info, "Receiving oracle message from node:" + to_string(origin) + "; Data:" + unsignedResult);
 

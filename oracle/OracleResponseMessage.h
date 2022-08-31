@@ -52,9 +52,6 @@ public:
                                   msg_id _msgID, schain_index _srcSchainIndex, const string & _ecdsaSig,
                                   const string & _publicKey, const string & _pkSig, Schain* _sChain );
 
-    const string &getOracleResultStr() const;
-
-    const string getUnsignedOracleResultStr() const;
 
     const string &getReceipt() const;
 
