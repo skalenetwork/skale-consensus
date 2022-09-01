@@ -14,50 +14,49 @@
 #include "OracleRequestSpec.h"
 #include "OracleResult.h"
 
-
-OracleResult::OracleResult(string &_result) : oracleResult(_result) {
+void OracleResult::parseResultAsJson() {
     rapidjson::Document d;
 
-    d.Parse(_result.data());
+    d.Parse(oracleResult.data());
 
-    CHECK_STATE2(!d.HasParseError(), "Unparsable Oracle result:" + _result);
+    CHECK_STATE2(!d.HasParseError(), "Unparsable Oracle result:" + oracleResult);
 
-    CHECK_STATE2(d.HasMember("cid"), "No chainid in Oracle  result:" + _result);
+    CHECK_STATE2(d.HasMember("cid"), "No chainid in Oracle  result:" + oracleResult);
 
-    CHECK_STATE2(d["cid"].IsUint64(), "ChainId in Oracle result is not uint64_t" + _result);
+    CHECK_STATE2(d["cid"].IsUint64(), "ChainId in Oracle result is not uint64_t" + oracleResult);
 
     chainId = d["cid"].GetUint64();
 
-    CHECK_STATE2(d.HasMember("uri"), "No URI in Oracle  result:" + _result);
+    CHECK_STATE2(d.HasMember("uri"), "No URI in Oracle  result:" + oracleResult);
 
-    CHECK_STATE2(d["uri"].IsString(), "Uri in Oracle result is not string:" + _result);
+    CHECK_STATE2(d["uri"].IsString(), "Uri in Oracle result is not string:" + oracleResult);
 
     uri = d["uri"].GetString();
 
     CHECK_STATE(uri.size() > 5);
 
-    CHECK_STATE2(d.HasMember("jsps"), "No json pointer in Oracle result:" + _result);
+    CHECK_STATE2(d.HasMember("jsps"), "No json pointer in Oracle result:" + oracleResult);
 
-    CHECK_STATE2(d["jsps"].IsArray(), "Jsps in Oracle spec is not array:" + _result);
+    CHECK_STATE2(d["jsps"].IsArray(), "Jsps in Oracle spec is not array:" + oracleResult);
 
-    CHECK_STATE2(d.HasMember("time"), "No time pointer in Oracle result:" + _result);
+    CHECK_STATE2(d.HasMember("time"), "No time pointer in Oracle result:" + oracleResult);
 
-    CHECK_STATE2(d["time"].IsUint64(), "time in Oracle result is not uint64:" + _result)
+    CHECK_STATE2(d["time"].IsUint64(), "time in Oracle result is not uint64:" + oracleResult)
 
     requestTime = d["time"].GetUint64();
 
     CHECK_STATE(requestTime > 0);
 
-    CHECK_STATE2(d.HasMember("sig"), "No sig in Oracle result:" + _result);
+    CHECK_STATE2(d.HasMember("sig"), "No sig in Oracle result:" + oracleResult);
 
-    CHECK_STATE2(d["sig"].IsString(), "sig in Oracle result is not string:" + _result)
+    CHECK_STATE2(d["sig"].IsString(), "sig in Oracle result is not string:" + oracleResult)
 
     sig = d["sig"].GetString();
 
     auto array = d["jsps"].GetArray();
 
     for (auto &&item: array) {
-        CHECK_STATE2(item.IsString(), "Jsp array item is not string:" + _result);
+        CHECK_STATE2(item.IsString(), "Jsp array item is not string:" + oracleResult);
         string jsp  = item.GetString();
         CHECK_STATE2(!jsp.empty() && jsp.front() == '/', "Invalid JSP pointer:" + jsp);
         jsps.push_back(jsp);
@@ -66,7 +65,7 @@ OracleResult::OracleResult(string &_result) : oracleResult(_result) {
     if (d.HasMember("trims")) {
         auto trimArray = d["trims"].GetArray();
         for (auto &&item: trimArray) {
-            CHECK_STATE2(item.IsUint64(), "Trims array item is not uint64 :" + _result);
+            CHECK_STATE2(item.IsUint64(), "Trims array item is not uint64 :" + oracleResult);
             trims.push_back(item.GetUint64());
         }
 
@@ -93,15 +92,117 @@ OracleResult::OracleResult(string &_result) : oracleResult(_result) {
         } else if (item.IsNull()) {
             results->push_back(nullptr);
         } else {
-            CHECK_STATE2(false, "Unknown item in results:" + _result)
+            CHECK_STATE2(false, "Unknown item in results:" + oracleResult)
         }
     }
 
     if (d.HasMember("post")) {
-        CHECK_STATE2(d["post"].IsString(), "Post in Oracle result is not string:" + _result);
+        CHECK_STATE2(d["post"].IsString(), "Post in Oracle result is not string:" + oracleResult);
         post = d["post"].GetString();
     }
+}
 
+
+void OracleResult::parseResultAsRlp() {
+    rapidjson::Document d;
+
+    d.Parse(oracleResult.data());
+
+    CHECK_STATE2(!d.HasParseError(), "Unparsable Oracle result:" + oracleResult);
+
+    CHECK_STATE2(d.HasMember("cid"), "No chainid in Oracle  result:" + oracleResult);
+
+    CHECK_STATE2(d["cid"].IsUint64(), "ChainId in Oracle result is not uint64_t" + oracleResult);
+
+    chainId = d["cid"].GetUint64();
+
+    CHECK_STATE2(d.HasMember("uri"), "No URI in Oracle  result:" + oracleResult);
+
+    CHECK_STATE2(d["uri"].IsString(), "Uri in Oracle result is not string:" + oracleResult);
+
+    uri = d["uri"].GetString();
+
+    CHECK_STATE(uri.size() > 5);
+
+    CHECK_STATE2(d.HasMember("jsps"), "No json pointer in Oracle result:" + oracleResult);
+
+    CHECK_STATE2(d["jsps"].IsArray(), "Jsps in Oracle spec is not array:" + oracleResult);
+
+    CHECK_STATE2(d.HasMember("time"), "No time pointer in Oracle result:" + oracleResult);
+
+    CHECK_STATE2(d["time"].IsUint64(), "time in Oracle result is not uint64:" + oracleResult)
+
+    requestTime = d["time"].GetUint64();
+
+    CHECK_STATE(requestTime > 0);
+
+    CHECK_STATE2(d.HasMember("sig"), "No sig in Oracle result:" + oracleResult);
+
+    CHECK_STATE2(d["sig"].IsString(), "sig in Oracle result is not string:" + oracleResult)
+
+    sig = d["sig"].GetString();
+
+    auto array = d["jsps"].GetArray();
+
+    for (auto &&item: array) {
+        CHECK_STATE2(item.IsString(), "Jsp array item is not string:" + oracleResult);
+        string jsp  = item.GetString();
+        CHECK_STATE2(!jsp.empty() && jsp.front() == '/', "Invalid JSP pointer:" + jsp);
+        jsps.push_back(jsp);
+    }
+
+    if (d.HasMember("trims")) {
+        auto trimArray = d["trims"].GetArray();
+        for (auto &&item: trimArray) {
+            CHECK_STATE2(item.IsUint64(), "Trims array item is not uint64 :" + oracleResult);
+            trims.push_back(item.GetUint64());
+        }
+
+        CHECK_STATE2(jsps.size() == trims.size(), "jsps array size not equal trims array size");
+    } else {
+        for (uint64_t i = 0; i < jsps.size(); i++) {
+            trims.push_back(0);
+        }
+    }
+
+
+    if (d.HasMember("err")) {
+        CHECK_STATE2(d["err"].IsUint64(), "Error is not uint64_t");
+        error = d["err"].GetUint64();
+        return;
+    }
+
+    auto resultsArray = d["rslts"].GetArray();
+
+    results = make_shared<vector<ptr<string>>>();
+    for (auto &&item: resultsArray) {
+        if (item.IsString()) {
+            results->push_back(make_shared<string>(item.GetString()));
+        } else if (item.IsNull()) {
+            results->push_back(nullptr);
+        } else {
+            CHECK_STATE2(false, "Unknown item in results:" + oracleResult)
+        }
+    }
+
+    if (d.HasMember("post")) {
+        CHECK_STATE2(d["post"].IsString(), "Post in Oracle result is not string:" + oracleResult);
+        post = d["post"].GetString();
+    }
+}
+
+
+
+
+OracleResult::OracleResult(string &_result, string& _encoding) : oracleResult(_result) {
+
+
+    // now encode and sign result.
+    if (_encoding == "rlp") {
+        parseResultAsRlp();
+    } else {
+        parseResultAsJson();
+    }
 
     if (this->isGeth()) {
         rapidjson::Document d2;
@@ -184,8 +285,8 @@ const vector<uint64_t> &OracleResult::getTrims() const {
     return trims;
 }
 
-ptr<OracleResult> OracleResult::parseResult(string &_oracleResult) {
-    return make_shared<OracleResult>(_oracleResult);
+ptr<OracleResult> OracleResult::parseResult(string &_oracleResult, string& _encoding) {
+    return make_shared<OracleResult>(_oracleResult, _encoding);
 }
 
 const string &OracleResult::getSig() const {
@@ -218,7 +319,7 @@ void OracleResult::trimResults() {
     }
 }
 
-void OracleResult::appendElementsFromTheSpec() {
+void OracleResult::appendElementsFromTheSpecAsJson() {
     oracleResult = "{";
     oracleResult.append(string("\"cid\":") + to_string(chainId) + ",");
     oracleResult.append(string("\"uri\":\"") + uri + "\",");
@@ -250,7 +351,39 @@ void OracleResult::appendElementsFromTheSpec() {
     }
 }
 
-void OracleResult::appendResults() {
+void OracleResult::appendElementsFromTheSpecAsRlp() {
+    oracleResult = "{";
+    oracleResult.append(string("\"cid\":") + to_string(chainId) + ",");
+    oracleResult.append(string("\"uri\":\"") + uri + "\",");
+    oracleResult.append(string("\"jsps\":["));
+
+    for (uint64_t j = 0; j < jsps.size(); j++) {
+        oracleResult.append("\"");
+        oracleResult.append(jsps.at(j));
+        oracleResult.append("\"");
+        if (j + 1 < jsps.size())
+            oracleResult.append(",");
+    }
+
+
+    oracleResult.append("],");
+    oracleResult.append("\"trims\":[");
+
+    for (uint64_t j = 0; j < trims.size(); j++) {
+        oracleResult.append(to_string(trims.at(j)));
+        if (j + 1 < trims.size())
+            oracleResult.append(",");
+    }
+
+    oracleResult.append("],");
+    oracleResult.append(string("\"time\":") + to_string(requestTime) + ",");
+
+    if (!post.empty()) {
+        oracleResult.append(string("\"post\":") + post + ",");
+    }
+}
+
+void OracleResult::appendResultsAsJson() {
     // append results
     oracleResult.append("\"rslts\":[");
 
@@ -273,7 +406,40 @@ void OracleResult::appendResults() {
 }
 
 
-void OracleResult::signResult(ptr<CryptoManager> _cryptoManager) {
+void OracleResult::appendResultsAsRlp() {
+    // append results
+    oracleResult.append("\"rslts\":[");
+
+    for (uint64_t i = 0; i < results->size(); i++) {
+        if (i != 0) {
+            oracleResult.append(",");
+        }
+
+        if (results->at(i)) {
+            oracleResult.append("\"");
+            oracleResult.append(*results->at(i));
+            oracleResult.append("\"");
+        } else {
+            oracleResult.append("null");
+        }
+
+    }
+
+    oracleResult.append("],");/**/
+}
+
+
+
+void OracleResult::signResultAsJson(ptr<CryptoManager> _cryptoManager) {
+    CHECK_ARGUMENT(_cryptoManager)
+    CHECK_STATE(oracleResult.at(oracleResult.size() - 1) == ',')
+    sig = _cryptoManager->signOracleResult(oracleResult);
+    oracleResult.append("\"sig\":\"");
+    oracleResult.append(sig);
+    oracleResult.append("\"}");
+}
+
+void OracleResult::signResultAsRlp(ptr<CryptoManager> _cryptoManager) {
     CHECK_ARGUMENT(_cryptoManager)
     CHECK_STATE(oracleResult.at(oracleResult.size() - 1) == ',')
     sig = _cryptoManager->signOracleResult(oracleResult);
@@ -283,7 +449,14 @@ void OracleResult::signResult(ptr<CryptoManager> _cryptoManager) {
 }
 
 
-void OracleResult::appendError() {
+void OracleResult::appendErrorAsJson() {
+    oracleResult.append("\"err\":");
+    oracleResult.append(to_string(error));
+    oracleResult.append(",");
+
+}
+
+void OracleResult::appendErrorAsRlp() {
     oracleResult.append("\"err\":");
     oracleResult.append(to_string(error));
     oracleResult.append(",");
@@ -293,7 +466,10 @@ void OracleResult::appendError() {
 OracleResult::OracleResult(ptr<OracleRequestSpec> _oracleSpec, uint64_t _status, string &_serverResponse,
                            ptr<CryptoManager> _cryptoManager) {
 
+
+
     CHECK_ARGUMENT(_oracleSpec);
+
 
 
     chainId = _oracleSpec->getChainid();
@@ -302,37 +478,55 @@ OracleResult::OracleResult(ptr<OracleRequestSpec> _oracleSpec, uint64_t _status,
     trims = _oracleSpec->getTrims();
     requestTime = _oracleSpec->getTime();
     post = _oracleSpec->getPost();
+    error = _status;
 
-
-
-    appendElementsFromTheSpec();
-
-
-    if (_status != ORACLE_SUCCESS) {
-        error = _status;
-        appendError();
-        goto sign;
+    if (_status == ORACLE_SUCCESS) {
+        results = extractResults(_serverResponse);
     }
-
-    results = extractResults(_serverResponse);
-
 
     if (!results) {
         error = ORACLE_INVALID_JSON_RESPONSE;
-        appendError();
-        goto sign;
+    } else {
+        trimResults();
     }
 
 
-    trimResults();
-
-    appendResults();
-
-sign:
-    signResult(_cryptoManager);
-
+    // now encode and sign result.
+    if (_oracleSpec->getEncoding() == "rlp") {
+        encodeAndSignResultAsRlp(_cryptoManager);
+    } else {
+        encodeAndSignResultAsJson(_cryptoManager);
+    }
 
 }
+
+void OracleResult::encodeAndSignResultAsJson(ptr<CryptoManager> _cryptoManager) {
+
+    appendElementsFromTheSpecAsJson();
+
+    if (error != ORACLE_SUCCESS) {
+        appendErrorAsJson();
+    } else {
+        appendResultsAsJson();
+    }
+
+    signResultAsJson(_cryptoManager);
+
+}
+
+void OracleResult::encodeAndSignResultAsRlp(ptr<CryptoManager> _cryptoManager) {
+
+    appendElementsFromTheSpecAsRlp();
+
+    if (error != ORACLE_SUCCESS) {
+        appendErrorAsRlp();
+    } else {
+        appendResultsAsRlp();
+    }
+
+    signResultAsRlp(_cryptoManager);
+}
+
 
 
 ptr<vector<ptr<string>>> OracleResult::extractResults(

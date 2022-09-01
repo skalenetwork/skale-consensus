@@ -257,4 +257,8 @@ OracleRequestSpec::OracleRequestSpec(uint64_t _chainid, const string &_uri,
     receipt = CryptoManager::hashForOracle(spec.data(), spec.size());
 }
 
+const string &OracleRequestSpec::getEncoding() const {
+    return encoding;
+}
+
 

@@ -30,15 +30,34 @@ class OracleResult {
 
     ptr<vector<ptr<string>>> extractResults(string &_response);
 
-    void appendElementsFromTheSpec();
+
+    void parseResultAsJson();
+    void parseResultAsRlp();
+
+
 
     void trimResults();
 
-    void appendResults();
+    void appendElementsFromTheSpecAsJson();
 
-    void signResult(ptr<CryptoManager> _cryptoManager);
+    void appendResultsAsJson();
 
-    void appendError();
+    void signResultAsJson(ptr<CryptoManager> _cryptoManager);
+
+    void appendErrorAsJson();
+
+    void encodeAndSignResultAsJson(ptr<CryptoManager> _cryptoManager);
+
+    void encodeAndSignResultAsRlp(ptr<CryptoManager> _cryptoManager);
+
+    void appendElementsFromTheSpecAsRlp();
+
+    void appendResultsAsRlp();
+
+    void signResultAsRlp(ptr<CryptoManager> _cryptoManager);
+
+    void appendErrorAsRlp();
+
 
 public:
 
@@ -49,9 +68,9 @@ public:
                  ptr<CryptoManager> _cryptoManager );
 
 
-    OracleResult(string& _oracleResult);
+    OracleResult(string& _oracleResult, string& _encoding);
 
-    static ptr<OracleResult> parseResult(string& _oracleResult);
+    static ptr<OracleResult> parseResult(string& _oracleResult, string& _encoding);
 
     const string &getSig() const;
 

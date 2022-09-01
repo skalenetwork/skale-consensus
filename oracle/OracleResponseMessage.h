@@ -36,6 +36,8 @@ class OracleResponseMessage : public NetworkMessage {
     ptr<OracleResult> oracleResult;
     string receipt;
 
+    recursive_mutex m;
+
 protected:
 
     void updateWithChildHash(blake3_hasher& _hasher) override;
@@ -44,9 +46,11 @@ protected:
 
 
 public:
-    const ptr<OracleResult> &getOracleResult() const;
 
-    OracleResponseMessage(string& _oracleResult, string &_receipt, block_id _blockID, uint64_t _timeMs, OracleClient& sourceProtocolInstance );
+    ptr<OracleResult> &getOracleResult(string _encoding, schain_id _schaiId);
+
+    OracleResponseMessage(string& _oracleResult, string &_receipt, block_id _blockID, uint64_t _timeMs,
+                          OracleClient& sourceProtocolInstance );
 
     OracleResponseMessage(string& _oracleResult, string& _receipt, node_id _srcNodeID, block_id _blockID,  uint64_t _timeMs, schain_id _schainId,
                                   msg_id _msgID, schain_index _srcSchainIndex, const string & _ecdsaSig,

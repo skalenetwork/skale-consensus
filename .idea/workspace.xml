@@ -52,11 +52,10 @@
       <change beforePath="$PROJECT_DIR$/libjson-rpc-cpp" beforeDir="false" afterPath="$PROJECT_DIR$/libjson-rpc-cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libjson-rpc-cpp/CHANGELOG.md" beforeDir="false" afterPath="$PROJECT_DIR$/libjson-rpc-cpp/CHANGELOG.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/oracle/OracleClient.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/oracle/OracleClient.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/oracle/OracleClient.h" beforeDir="false" afterPath="$PROJECT_DIR$/oracle/OracleClient.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/oracle/OracleReceivedResults.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/oracle/OracleReceivedResults.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/oracle/OracleReceivedResults.h" beforeDir="false" afterPath="$PROJECT_DIR$/oracle/OracleReceivedResults.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/oracle/OracleRequestSpec.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/oracle/OracleRequestSpec.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/oracle/OracleRequestSpec.h" beforeDir="false" afterPath="$PROJECT_DIR$/oracle/OracleRequestSpec.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/oracle/OracleResponseMessage.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/oracle/OracleResponseMessage.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/oracle/OracleResponseMessage.h" beforeDir="false" afterPath="$PROJECT_DIR$/oracle/OracleResponseMessage.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/oracle/OracleResult.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/oracle/OracleResult.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/oracle/OracleResult.h" beforeDir="false" afterPath="$PROJECT_DIR$/oracle/OracleResult.h" afterDir="false" />
     </list>
@@ -464,6 +463,7 @@
       <workItem from="1661901257950" duration="3504000" />
       <workItem from="1661987356927" duration="541000" />
       <workItem from="1661989616562" duration="2000" />
+      <workItem from="1661994429765" duration="2000" />
     </task>
     <task id="LOCAL-00093" summary="bug/SKALE-4352">
       <created>1634133299846</created>
@@ -868,11 +868,6 @@
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
-        <line-breakpoint type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
-          <url>file://$PROJECT_DIR$/oracle/OracleResponseMessage.cpp</url>
-          <line>48</line>
-          <option name="timeStamp" value="32" />
-        </line-breakpoint>
         <line-breakpoint type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
           <url>file://$PROJECT_DIR$/messages/NetworkMessage.h</url>
           <line>28</line>

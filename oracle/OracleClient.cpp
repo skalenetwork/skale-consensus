@@ -173,7 +173,8 @@ void OracleClient::processResponseMessage(const ptr<MessageEnvelope> &_me) {
     }
 
     auto rslts = std::any_cast<ptr<OracleReceivedResults>>(receivedResults);
-    rslts->insertIfDoesntExist(origin, msg->getOracleResult());
+    rslts->insertIfDoesntExist(origin, msg->getOracleResult(rslts->getRequestSpec()->getEncoding(),
+                                                            getSchain()->getSchainID()));
 }
 
 

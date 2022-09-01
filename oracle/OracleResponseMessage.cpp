@@ -22,6 +22,7 @@
 */
 
 #include "SkaleCommon.h"
+#include "Log.h"
 
 #include "exceptions/FatalError.h"
 
@@ -45,13 +46,6 @@ OracleResponseMessage::OracleResponseMessage(string& _oracleResult, string& _rec
         : NetworkMessage(MSG_ORACLE_RSP, _blockID, 0, 0, 0, _timeMs,
                          sourceProtocolInstance), oracleResultStr(_oracleResult), receipt(_receipt)  {
     printPrefix = "r";
-    oracleResult = OracleResult::parseResult(_oracleResult);
-
-    CHECK_STATE2(oracleResult->getChainId() == sourceProtocolInstance.getSchain()->getSchainID(),
-                 "Invalid schain id in oracle spec:" + to_string(oracleResult->getChainId()));
-    CHECK_STATE2(oracleResult->getTime() + ORACLE_TIMEOUT_MS > Time::getCurrentTimeMs(), "Result timeout")
-    CHECK_STATE(oracleResult->getTime() < Time::getCurrentTimeMs() + ORACLE_FUTURE_JITTER_MS)
-
 }
 
 
@@ -66,9 +60,7 @@ OracleResponseMessage::OracleResponseMessage(string& _oracleResult, string& _rec
         "", _ecdsaSig, _publicKey, _pkSig,
         _srcSchainIndex, _sChain->getCryptoManager()), oracleResultStr(_oracleResult), receipt(_receipt) {
     printPrefix = "r";
-    oracleResult = OracleResult::parseResult(_oracleResult);
-    CHECK_STATE2(oracleResult->getTime() + ORACLE_TIMEOUT_MS > Time::getCurrentTimeMs(), "Result timeout")
-    CHECK_STATE(oracleResult->getTime()  < Time::getCurrentTimeMs() + ORACLE_FUTURE_JITTER_MS)
+
 };
 
 
@@ -100,7 +92,17 @@ const string &OracleResponseMessage::getReceipt() const {
     return receipt;
 }
 
-const ptr<OracleResult> &OracleResponseMessage::getOracleResult() const {
+ptr<OracleResult> &OracleResponseMessage::getOracleResult(string _encoding, schain_id _schaiId) {
+    LOCK(m)
+    if (!oracleResult) {
+        oracleResult = OracleResult::parseResult(oracleResultStr, _encoding);
+        CHECK_STATE2(oracleResult->getChainId() == _schaiId,
+                     "Invalid schain id in oracle spec:" + to_string(oracleResult->getChainId()));
+        CHECK_STATE2(oracleResult->getTime() + ORACLE_TIMEOUT_MS > Time::getCurrentTimeMs(), "Result timeout")
+        CHECK_STATE(oracleResult->getTime() < Time::getCurrentTimeMs() + ORACLE_FUTURE_JITTER_MS)
+    }
+
+
     return oracleResult;
 }
 

@@ -55,6 +55,7 @@ public:
 
     bool verifyPow();
 
+    const string &getEncoding() const;
 };
 
 
