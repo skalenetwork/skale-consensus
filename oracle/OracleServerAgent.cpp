@@ -90,23 +90,29 @@ OracleServerAgent::OracleServerAgent(Schain &_schain) : Agent(_schain, true), re
 void OracleServerAgent::routeAndProcessMessage(const ptr<MessageEnvelope> &_me) {
 
 
-    CHECK_ARGUMENT(_me);
+    try {
 
-    CHECK_ARGUMENT(_me->getMessage()->getBlockId() > 0);
+        CHECK_ARGUMENT(_me);
 
-    CHECK_STATE(_me->getMessage()->getMsgType() == MSG_ORACLE_REQ_BROADCAST ||
-                _me->getMessage()->getMsgType() == MSG_ORACLE_RSP);
+        CHECK_ARGUMENT(_me->getMessage()->getBlockId() > 0);
 
-    if (_me->getMessage()->getMsgType() == MSG_ORACLE_REQ_BROADCAST) {
+        CHECK_STATE(_me->getMessage()->getMsgType() == MSG_ORACLE_REQ_BROADCAST ||
+                    _me->getMessage()->getMsgType() == MSG_ORACLE_RSP);
 
-        auto value = requestCounter.fetch_add(1);
+        if (_me->getMessage()->getMsgType() == MSG_ORACLE_REQ_BROADCAST) {
 
-        this->incomingQueues.at(value % (uint64_t) NUM_ORACLE_THREADS)->enqueue(_me);
+            auto value = requestCounter.fetch_add(1);
 
-        return;
-    } else {
-        auto client = getSchain()->getOracleClient();
-        client->processResponseMessage(_me);
+            this->incomingQueues.at(value % (uint64_t) NUM_ORACLE_THREADS)->enqueue(_me);
+
+            return;
+        } else {
+            auto client = getSchain()->getOracleClient();
+            client->processResponseMessage(_me);
+        }
+
+    } catch (...) {
+        throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
     }
 
 }
@@ -239,10 +245,6 @@ ptr<OracleResponseMessage> OracleServerAgent::doEndpointRequestResponse(ptr<Orac
 }
 
 
-
-
-
-
 uint64_t OracleServerAgent::curlHttp(const string &_uri, bool _isPost, string &_postString, string &_result) {
 
 
@@ -299,16 +301,17 @@ uint64_t OracleServerAgent::curlHttp(const string &_uri, bool _isPost, string &_
 }
 
 void OracleServerAgent::sendOutResult(ptr<OracleResponseMessage> _msg, schain_index _destination) {
-    CHECK_STATE(_destination != 0)
 
-    getSchain()->getNode()->getNetwork()->sendOracleResponseMessage(_msg, _destination);
+    try {
+
+        CHECK_STATE(_destination != 0)
+
+        getSchain()->getNode()->getNetwork()->sendOracleResponseMessage(_msg, _destination);
+
+
+    } catch (...) {
+        throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
+    }
 
 }
 
-void OracleServerAgent::signResult(string &_result) {
-    CHECK_STATE(_result.at(_result.size() - 1) == ',')
-    auto sig = getSchain()->getCryptoManager()->signOracleResult(_result);
-    _result.append("\"sig\":\"");
-    _result.append(sig);
-    _result.append("\"}");
-}

@@ -27,99 +27,119 @@ uint64_t OracleReceivedResults::getRequestTime() const {
 
 void OracleReceivedResults::insertIfDoesntExist(uint64_t _origin, ptr<OracleResult> _oracleResult) {
 
-    CHECK_STATE(_oracleResult);
+    try {
 
 
+        CHECK_STATE(_oracleResult);
 
-    auto unsignedResult = _oracleResult->getUnsignedOracleResultStr();
-    auto sig  = _oracleResult->getSig();
 
-    LOCK(m)
+        auto unsignedResult = _oracleResult->getUnsignedOracleResultStr();
+        auto sig = _oracleResult->getSig();
 
-    if (signaturesBySchainIndex->count(_origin) > 0) {
-        LOG(warn, "Duplicate OracleResponseMessage for result:" + unsignedResult +
-                  "} index:" + to_string(_origin));
-        return;
-    }
+        LOCK(m)
 
-    signaturesBySchainIndex->insert({_origin, sig});
-    if (resultsByCount->count(unsignedResult) == 0) {
-        resultsByCount->insert({unsignedResult, 1});
-    } else {
-        auto count = resultsByCount->at(unsignedResult);
-        resultsByCount->insert_or_assign(unsignedResult, count + 1);
+        if (signaturesBySchainIndex->count(_origin) > 0) {
+            LOG(warn, "Duplicate OracleResponseMessage for result:" + unsignedResult +
+                      "} index:" + to_string(_origin));
+            return;
+        }
+
+        signaturesBySchainIndex->insert({_origin, sig});
+        if (resultsByCount->count(unsignedResult) == 0) {
+            resultsByCount->insert({unsignedResult, 1});
+        } else {
+            auto count = resultsByCount->at(unsignedResult);
+            resultsByCount->insert_or_assign(unsignedResult, count + 1);
+        }
+
+    } catch (...) {
+        throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
     }
 }
 
-string OracleReceivedResults::compileCompleteResultJson(string & _unsignedResult) {
-    uint64_t sigCount = 0;
-    auto completeResult = _unsignedResult;
-    completeResult.append("\"sigs\":[");
-    for (uint64_t i = 1; i <= nodeCount; i++) {
-        if (signaturesBySchainIndex->count(i) > 0 && sigCount < requiredConfirmations) {
-            completeResult.append("\"");
-            completeResult.append(signaturesBySchainIndex->at(i));
-            completeResult.append("\"");
-            sigCount++;
-        } else {
-            completeResult.append("null");
-        }
+string OracleReceivedResults::compileCompleteResultJson(string &_unsignedResult) {
 
-        if (i < nodeCount) {
-            completeResult.append(",");
-        } else {
-            completeResult.append("]}");
+    try {
+        uint64_t sigCount = 0;
+        auto completeResult = _unsignedResult;
+        completeResult.append("\"sigs\":[");
+        for (uint64_t i = 1; i <= nodeCount; i++) {
+            if (signaturesBySchainIndex->count(i) > 0 && sigCount < requiredConfirmations) {
+                completeResult.append("\"");
+                completeResult.append(signaturesBySchainIndex->at(i));
+                completeResult.append("\"");
+                sigCount++;
+            } else {
+                completeResult.append("null");
+            }
+
+            if (i < nodeCount) {
+                completeResult.append(",");
+            } else {
+                completeResult.append("]}");
+            }
         }
+        return completeResult;
+    } catch (...) {
+        throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
     }
-    return completeResult;
 }
 
 
-string OracleReceivedResults::compileCompleteResultRlp(string & _unsignedResult) {
-    uint64_t sigCount = 0;
-    auto completeResult = _unsignedResult;
-    completeResult.append("\"sigs\":[");
-    for (uint64_t i = 1; i <= nodeCount; i++) {
-        if (signaturesBySchainIndex->count(i) > 0 && sigCount < requiredConfirmations) {
-            completeResult.append("\"");
-            completeResult.append(signaturesBySchainIndex->at(i));
-            completeResult.append("\"");
-            sigCount++;
-        } else {
-            completeResult.append("null");
-        }
+string OracleReceivedResults::compileCompleteResultRlp(string &_unsignedResult) {
+    try {
+        uint64_t sigCount = 0;
+        auto completeResult = _unsignedResult;
+        completeResult.append("\"sigs\":[");
+        for (uint64_t i = 1; i <= nodeCount; i++) {
+            if (signaturesBySchainIndex->count(i) > 0 && sigCount < requiredConfirmations) {
+                completeResult.append("\"");
+                completeResult.append(signaturesBySchainIndex->at(i));
+                completeResult.append("\"");
+                sigCount++;
+            } else {
+                completeResult.append("null");
+            }
 
-        if (i < nodeCount) {
-            completeResult.append(",");
-        } else {
-            completeResult.append("]}");
+            if (i < nodeCount) {
+                completeResult.append(",");
+            } else {
+                completeResult.append("]}");
+            }
         }
+        return completeResult;
+    } catch (...) {
+        throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
     }
-    return completeResult;
 }
-
 
 
 uint64_t OracleReceivedResults::tryGettingResult(string &_result) {
-    if (getRequestTime() + ORACLE_TIMEOUT_MS < Time::getCurrentTimeMs())
-        return ORACLE_TIMEOUT;
 
-    LOCK(m)
+    try {
+        if (getRequestTime() + ORACLE_TIMEOUT_MS < Time::getCurrentTimeMs())
+            return ORACLE_TIMEOUT;
 
-    for (auto &&item: *resultsByCount) {
-        if (item.second >= requiredConfirmations) {
-            string unsignedResult = item.first;
-            if (requestSpec->getEncoding() == "rlp") {
-                _result = compileCompleteResultJson(unsignedResult);
-            } else {
-                _result = compileCompleteResultRlp(unsignedResult);
-            }
-            LOG(err, "ORACLE SUCCESS!");
-            return ORACLE_SUCCESS;
-        };
+        LOCK(m)
+
+        for (auto &&item: *resultsByCount) {
+            if (item.second >= requiredConfirmations) {
+                string unsignedResult = item.first;
+                if (requestSpec->getEncoding() == "rlp") {
+                    _result = compileCompleteResultJson(unsignedResult);
+                } else {
+                    _result = compileCompleteResultRlp(unsignedResult);
+                }
+                LOG(err, "ORACLE SUCCESS!");
+                return ORACLE_SUCCESS;
+            };
+        }
+
+        return ORACLE_RESULT_NOT_READY;
+
+    } catch (...) {
+        throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
     }
-
-    return ORACLE_RESULT_NOT_READY;
 
 }
 

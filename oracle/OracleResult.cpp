@@ -18,153 +18,208 @@ const uint64_t RLP_LIST_LEN = 8;
 
 
 void OracleResult::parseResultAsJson() {
-    rapidjson::Document d;
+    try {
+        rapidjson::Document d;
 
-    d.Parse(oracleResult.data());
+        d.Parse(oracleResult.data());
 
-    CHECK_STATE2(!d.HasParseError(), "Unparsable Oracle result:" + oracleResult);
+        CHECK_STATE2(!d.HasParseError(), "Unparsable Oracle result:" + oracleResult);
 
-    CHECK_STATE2(d.HasMember("cid"), "No chainid in Oracle  result:" + oracleResult);
+        CHECK_STATE2(d.HasMember("cid"), "No chainid in Oracle  result:" + oracleResult);
 
-    CHECK_STATE2(d["cid"].IsUint64(), "ChainId in Oracle result is not uint64_t" + oracleResult);
+        CHECK_STATE2(d["cid"].IsUint64(), "ChainId in Oracle result is not uint64_t" + oracleResult);
 
-    chainId = d["cid"].GetUint64();
+        chainId = d["cid"].GetUint64();
 
-    CHECK_STATE2(d.HasMember("uri"), "No URI in Oracle  result:" + oracleResult);
+        CHECK_STATE2(d.HasMember("uri"), "No URI in Oracle  result:" + oracleResult);
 
-    CHECK_STATE2(d["uri"].IsString(), "Uri in Oracle result is not string:" + oracleResult);
+        CHECK_STATE2(d["uri"].IsString(), "Uri in Oracle result is not string:" + oracleResult);
 
-    uri = d["uri"].GetString();
+        uri = d["uri"].GetString();
 
-    CHECK_STATE(uri.size() > 5);
+        CHECK_STATE(uri.size() > 5);
 
-    CHECK_STATE2(d.HasMember("jsps"), "No json pointer in Oracle result:" + oracleResult);
+        CHECK_STATE2(d.HasMember("jsps"), "No json pointer in Oracle result:" + oracleResult);
 
-    CHECK_STATE2(d["jsps"].IsArray(), "Jsps in Oracle spec is not array:" + oracleResult);
+        CHECK_STATE2(d["jsps"].IsArray(), "Jsps in Oracle spec is not array:" + oracleResult);
 
-    CHECK_STATE2(d.HasMember("time"), "No time pointer in Oracle result:" + oracleResult);
+        CHECK_STATE2(d.HasMember("time"), "No time pointer in Oracle result:" + oracleResult);
 
-    CHECK_STATE2(d["time"].IsUint64(), "time in Oracle result is not uint64:" + oracleResult)
+        CHECK_STATE2(d["time"].IsUint64(), "time in Oracle result is not uint64:" + oracleResult)
 
-    requestTime = d["time"].GetUint64();
+        requestTime = d["time"].GetUint64();
 
-    CHECK_STATE(requestTime > 0);
+        CHECK_STATE(requestTime > 0);
 
-    CHECK_STATE2(d.HasMember("sig"), "No sig in Oracle result:" + oracleResult);
+        CHECK_STATE2(d.HasMember("sig"), "No sig in Oracle result:" + oracleResult);
 
-    CHECK_STATE2(d["sig"].IsString(), "sig in Oracle result is not string:" + oracleResult)
+        CHECK_STATE2(d["sig"].IsString(), "sig in Oracle result is not string:" + oracleResult)
 
-    sig = d["sig"].GetString();
+        sig = d["sig"].GetString();
 
-    auto array = d["jsps"].GetArray();
+        auto array = d["jsps"].GetArray();
 
-    for (auto &&item: array) {
-        CHECK_STATE2(item.IsString(), "Jsp array item is not string:" + oracleResult);
-        string jsp  = item.GetString();
-        CHECK_STATE2(!jsp.empty() && jsp.front() == '/', "Invalid JSP pointer:" + jsp);
-        jsps.push_back(jsp);
-    }
-
-    if (d.HasMember("trims")) {
-        auto trimArray = d["trims"].GetArray();
-        for (auto &&item: trimArray) {
-            CHECK_STATE2(item.IsUint64(), "Trims array item is not uint64 :" + oracleResult);
-            trims.push_back(item.GetUint64());
+        for (auto &&item: array) {
+            CHECK_STATE2(item.IsString(), "Jsp array item is not string:" + oracleResult);
+            string jsp = item.GetString();
+            CHECK_STATE2(!jsp.empty() && jsp.front() == '/', "Invalid JSP pointer:" + jsp);
+            jsps.push_back(jsp);
         }
 
-        CHECK_STATE2(jsps.size() == trims.size(), "jsps array size not equal trims array size");
-    } else {
-        for (uint64_t i = 0; i < jsps.size(); i++) {
-            trims.push_back(0);
-        }
-    }
+        if (d.HasMember("trims")) {
+            auto trimArray = d["trims"].GetArray();
+            for (auto &&item: trimArray) {
+                CHECK_STATE2(item.IsUint64(), "Trims array item is not uint64 :" + oracleResult);
+                trims.push_back(item.GetUint64());
+            }
 
-
-    if (d.HasMember("err")) {
-        CHECK_STATE2(d["err"].IsUint64(), "Error is not uint64_t");
-        error = d["err"].GetUint64();
-        return;
-    }
-
-    auto resultsArray = d["rslts"].GetArray();
-
-    results = make_shared<vector<ptr<string>>>();
-    for (auto &&item: resultsArray) {
-        if (item.IsString()) {
-            results->push_back(make_shared<string>(item.GetString()));
-        } else if (item.IsNull()) {
-            results->push_back(nullptr);
+            CHECK_STATE2(jsps.size() == trims.size(), "jsps array size not equal trims array size");
         } else {
-            CHECK_STATE2(false, "Unknown item in results:" + oracleResult)
+            for (uint64_t i = 0; i < jsps.size(); i++) {
+                trims.push_back(0);
+            }
         }
-    }
 
-    if (d.HasMember("post")) {
-        CHECK_STATE2(d["post"].IsString(), "Post in Oracle result is not string:" + oracleResult);
-        post = d["post"].GetString();
+
+        if (d.HasMember("err")) {
+            CHECK_STATE2(d["err"].IsUint64(), "Error is not uint64_t");
+            error = d["err"].GetUint64();
+            return;
+        }
+
+        auto resultsArray = d["rslts"].GetArray();
+
+        results = make_shared<vector<ptr<string>>>();
+        for (auto &&item: resultsArray) {
+            if (item.IsString()) {
+                results->push_back(make_shared<string>(item.GetString()));
+            } else if (item.IsNull()) {
+                results->push_back(nullptr);
+            } else {
+                CHECK_STATE2(false, "Unknown item in results:" + oracleResult)
+            }
+        }
+
+        if (d.HasMember("post")) {
+            CHECK_STATE2(d["post"].IsString(), "Post in Oracle result is not string:" + oracleResult);
+            post = d["post"].GetString();
+        }
+    } catch (...) {
+        throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
     }
 }
 
 
 void OracleResult::parseResultAsRlp() {
 
-    vector<uint8_t> rawRLP(oracleResult.size() / 2);
+    try {
+        vector<uint8_t> rawRLP(oracleResult.size() / 2);
 
-    Utils::cArrayFromHex(oracleResult, rawRLP.data(), rawRLP.size());
+        Utils::cArrayFromHex(oracleResult, rawRLP.data(), rawRLP.size());
 
-    RLP parsedRLP(rawRLP);
+        RLP parsedRLP(rawRLP);
 
-    CHECK_STATE(parsedRLP.isList())
+        CHECK_STATE(parsedRLP.isList())
 
-    CHECK_STATE(parsedRLP.itemCount() == RLP_LIST_LEN);
+        auto list = parsedRLP.toList();
 
-    CHECK_STATE(uri.size() > 5);
+        CHECK_STATE(list.size() == RLP_LIST_LEN);
 
-    CHECK_STATE(requestTime > 0);
+        CHECK_STATE(list[0].isInt());
+
+        this->chainId = list[0].toInt<uint64_t>();
 
 
+        CHECK_STATE(list[1].isData())
 
+        this->uri = list[1].toStringStrict();
 
-    results = make_shared<vector<ptr<string>>>();
+        CHECK_STATE(uri.size() > 5);
 
+        CHECK_STATE(list[2].isList())
+
+        auto jspsList = list[2].toList();
+
+        for (auto &&jsp: jspsList) {
+            CHECK_STATE(jsp.isData())
+            jsps.push_back(jsp.toStringStrict());
+        }
+
+        auto trimsList = list[3].toList();
+
+        for (auto &&trim: trimsList) {
+            CHECK_STATE(trim.isInt())
+            trims.push_back(trim.toInt<uint64_t>());
+        }
+
+        CHECK_STATE(list[4].isInt());
+
+        requestTime = list[4].toInt<uint64_t>();
+
+        CHECK_STATE(requestTime > 0);
+
+        CHECK_STATE(list[5].isData());
+
+        post = list[5].toStringStrict();
+
+        CHECK_STATE(list[6].isInt());
+
+        error = list[6].toInt<uint64_t>();
+
+        results = make_shared<vector<ptr<string>>>();
+
+        if (error == ORACLE_SUCCESS) {
+            CHECK_STATE(list[7].isList())
+            auto resultsList = list[7].toList();
+            for (auto &&result: resultsList) {
+                CHECK_STATE(result.isData())
+                results->push_back(make_shared<string>(result.toStringStrict()));
+            }
+        }
+
+    } catch (...) {
+        throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
+    }
 }
 
 
+OracleResult::OracleResult(string &_result, string &_encoding) : oracleResult(_result), encoding(_encoding) {
+    try {
 
 
-OracleResult::OracleResult(string &_result, string& _encoding) : oracleResult(_result), encoding(_encoding) {
-
-    // now encode and sign result.
-    if (encoding == "rlp") {
-        parseResultAsRlp();
-    } else {
-        parseResultAsJson();
-    }
-
-    if (this->isGeth()) {
-        rapidjson::Document d2;
-        d2.Parse(post.data());
-        CHECK_STATE2(!d2.HasParseError(), "Unparsable geth Oracle post:" + post);
-
-        CHECK_STATE2(d2.HasMember("method"), "No JSON-RPC method in geth Oracle post:" + post);
-
-        CHECK_STATE2(d2["method"].IsString(), "method in Oracle post is not string:" + post)
-
-        auto meth = d2["method"].GetString();
-
-        if (meth == string("eth_call") ||
-            meth == string("eth_gasPrice") || meth == string("eth_blockNumber") ||
-            meth == string("eth_getBlockByNumber") ||
-            meth == string("eth_getBlockByHash")) {}
-        else {
-            CHECK_STATE2(false, "Geth Method not allowed:" + meth);
+        // now encode and sign result.
+        if (encoding == "rlp") {
+            parseResultAsRlp();
+        } else {
+            parseResultAsJson();
         }
+
+        if (this->isGeth()) {
+            rapidjson::Document d2;
+            d2.Parse(post.data());
+            CHECK_STATE2(!d2.HasParseError(), "Unparsable geth Oracle post:" + post);
+
+            CHECK_STATE2(d2.HasMember("method"), "No JSON-RPC method in geth Oracle post:" + post);
+
+            CHECK_STATE2(d2["method"].IsString(), "method in Oracle post is not string:" + post)
+
+            auto meth = d2["method"].GetString();
+
+            if (meth == string("eth_call") ||
+                meth == string("eth_gasPrice") || meth == string("eth_blockNumber") ||
+                meth == string("eth_getBlockByNumber") ||
+                meth == string("eth_getBlockByHash")) {}
+            else {
+                CHECK_STATE2(false, "Geth Method not allowed:" + meth);
+            }
+        }
+
+
+        CHECK_STATE2(results->size() == trims.size(), "hsps array size not equal trims array size");
+
+    } catch (...) {
+        throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
     }
-
-
-    CHECK_STATE2(results->size() == trims.size(), "hsps array size not equal trims array size");
-
-
 
 }
 
@@ -207,7 +262,7 @@ const vector<uint64_t> &OracleResult::getTrims() const {
     return trims;
 }
 
-ptr<OracleResult> OracleResult::parseResult(string &_oracleResult, string& _encoding) {
+ptr<OracleResult> OracleResult::parseResult(string &_oracleResult, string &_encoding) {
     return make_shared<OracleResult>(_oracleResult, _encoding);
 }
 
@@ -225,221 +280,273 @@ bool OracleResult::isGeth() {
 }
 
 void OracleResult::trimResults() {
-    CHECK_STATE(results->size() == trims.size())
-    for (uint64_t i = 0; i < results->size(); i++) {
-        auto trim = trims.at(i);
-        auto res = results->at(i);
-        if (res && trim != 0) {
-            if (res->size() <= trim) {
-                res = make_shared<string>("");
-            } else {
-                res = make_shared<string>(res->substr(0, res->size() - trim));
+    try {
+        CHECK_STATE(results->size() == trims.size())
+        for (uint64_t i = 0; i < results->size(); i++) {
+            auto trim = trims.at(i);
+            auto res = results->at(i);
+            if (res && trim != 0) {
+                if (res->size() <= trim) {
+                    res = make_shared<string>("");
+                } else {
+                    res = make_shared<string>(res->substr(0, res->size() - trim));
+                }
+                (*results)[i] = res;
             }
-            (*results)[i] = res;
-        }
 
+        }
+    } catch (...) {
+        throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
     }
 }
 
 void OracleResult::appendElementsFromTheSpecAsJson() {
-    oracleResult = "{";
-    oracleResult.append(string("\"cid\":") + to_string(chainId) + ",");
-    oracleResult.append(string("\"uri\":\"") + uri + "\",");
-    oracleResult.append(string("\"jsps\":["));
+    try {
+        oracleResult = "{";
+        oracleResult.append(string("\"cid\":") + to_string(chainId) + ",");
+        oracleResult.append(string("\"uri\":\"") + uri + "\",");
+        oracleResult.append(string("\"jsps\":["));
 
-    for (uint64_t j = 0; j < jsps.size(); j++) {
-        oracleResult.append("\"");
-        oracleResult.append(jsps.at(j));
-        oracleResult.append("\"");
-        if (j + 1 < jsps.size())
-            oracleResult.append(",");
-    }
+        for (uint64_t j = 0; j < jsps.size(); j++) {
+            oracleResult.append("\"");
+            oracleResult.append(jsps.at(j));
+            oracleResult.append("\"");
+            if (j + 1 < jsps.size())
+                oracleResult.append(",");
+        }
 
 
-    oracleResult.append("],");
-    oracleResult.append("\"trims\":[");
+        oracleResult.append("],");
+        oracleResult.append("\"trims\":[");
 
-    for (uint64_t j = 0; j < trims.size(); j++) {
-        oracleResult.append(to_string(trims.at(j)));
-        if (j + 1 < trims.size())
-            oracleResult.append(",");
-    }
+        for (uint64_t j = 0; j < trims.size(); j++) {
+            oracleResult.append(to_string(trims.at(j)));
+            if (j + 1 < trims.size())
+                oracleResult.append(",");
+        }
 
-    oracleResult.append("],");
-    oracleResult.append(string("\"time\":") + to_string(requestTime) + ",");
+        oracleResult.append("],");
+        oracleResult.append(string("\"time\":") + to_string(requestTime) + ",");
 
-    if (!post.empty()) {
-        oracleResult.append(string("\"post\":") + post + ",");
+        if (!post.empty()) {
+            oracleResult.append(string("\"post\":") + post + ",");
+        }
+    } catch (...) {
+        throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
     }
 }
 
 void OracleResult::appendElementsFromTheSpecAsRlp() {
+    try {
 
-    stream.append(chainId); //1
-    stream.append(uri);//2
-    stream.append(jsps); // 3
-    stream.append(trims); //4
-    stream.append(requestTime); //5
-    stream.append(post); //6
+        rlpStream.append(chainId); //1
+        rlpStream.append(uri);//2
+        rlpStream.append(jsps); // 3
+        rlpStream.append(trims); //4
+        rlpStream.append(requestTime); //5
+        rlpStream.append(post); //6
 
-
+    } catch (...) {
+        throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
+    }
 }
 
 void OracleResult::appendResultsAsJson() {
-    // append results
-    oracleResult.append("\"rslts\":[");
+    try {
+        // append results
+        oracleResult.append("\"rslts\":[");
 
-    for (uint64_t i = 0; i < results->size(); i++) {
-        if (i != 0) {
-            oracleResult.append(",");
+        for (uint64_t i = 0; i < results->size(); i++) {
+            if (i != 0) {
+                oracleResult.append(",");
+            }
+
+            if (results->at(i)) {
+                oracleResult.append("\"");
+                oracleResult.append(*results->at(i));
+                oracleResult.append("\"");
+            } else {
+                oracleResult.append("null");
+            }
+
         }
 
-        if (results->at(i)) {
-            oracleResult.append("\"");
-            oracleResult.append(*results->at(i));
-            oracleResult.append("\"");
-        } else {
-            oracleResult.append("null");
-        }
-
+        oracleResult.append("],");/**/
+    } catch (...) {
+        throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
     }
-
-    oracleResult.append("],");/**/
 }
 
 
 void OracleResult::appendResultsAsRlp() {
 
-    stream.append((uint64_t) ORACLE_SUCCESS);
-    stream.appendList(0);
-    auto rlpEncoding = stream.out();
-    oracleResult = Utils::carray2Hex(rlpEncoding.data(), rlpEncoding.size());
-    cerr << "Oracle result" << oracleResult << endl;
-    sleep(5);
+    try {
+
+        rlpStream.append((uint64_t) ORACLE_SUCCESS);
+        rlpStream.appendList(0);
+        auto rlpEncoding = rlpStream.out();
+        oracleResult = Utils::carray2Hex(rlpEncoding.data(), rlpEncoding.size());
+        cerr << "Oracle result" << oracleResult << endl;
+        sleep(5);
 
 
-    // append results
-    oracleResult.append("\"rslts\":[");
+        // append results
+        oracleResult.append("\"rslts\":[");
 
-    for (uint64_t i = 0; i < results->size(); i++) {
-        if (i != 0) {
-            oracleResult.append(",");
+        for (uint64_t i = 0; i < results->size(); i++) {
+            if (i != 0) {
+                oracleResult.append(",");
+            }
+
+            if (results->at(i)) {
+                oracleResult.append("\"");
+                oracleResult.append(*results->at(i));
+                oracleResult.append("\"");
+            } else {
+                oracleResult.append("null");
+            }
+
         }
 
-        if (results->at(i)) {
-            oracleResult.append("\"");
-            oracleResult.append(*results->at(i));
-            oracleResult.append("\"");
-        } else {
-            oracleResult.append("null");
-        }
+        oracleResult.append("],");/**/
 
+    } catch (...) {
+        throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
     }
-
-    oracleResult.append("],");/**/
 }
-
 
 
 void OracleResult::signResultAsJson(ptr<CryptoManager> _cryptoManager) {
-    CHECK_ARGUMENT(_cryptoManager)
-    CHECK_STATE(oracleResult.at(oracleResult.size() - 1) == ',')
-    sig = _cryptoManager->signOracleResult(oracleResult);
-    oracleResult.append("\"sig\":\"");
-    oracleResult.append(sig);
-    oracleResult.append("\"}");
+    try {
+        CHECK_ARGUMENT(_cryptoManager)
+        CHECK_STATE(oracleResult.at(oracleResult.size() - 1) == ',')
+        sig = _cryptoManager->signOracleResult(oracleResult);
+        oracleResult.append("\"sig\":\"");
+        oracleResult.append(sig);
+        oracleResult.append("\"}");
+    } catch (...) {
+        throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
+    }
 }
 
 void OracleResult::signResultAsRlp(ptr<CryptoManager> _cryptoManager) {
-    CHECK_ARGUMENT(_cryptoManager)
-    sig = _cryptoManager->signOracleResult(oracleResult);
+    try {
+        CHECK_ARGUMENT(_cryptoManager)
+        sig = _cryptoManager->signOracleResult(oracleResult);
+    } catch (...) {
+        throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
+    }
 }
 
 
 void OracleResult::appendErrorAsJson() {
-    oracleResult.append("\"err\":");
-    oracleResult.append(to_string(error));
-    oracleResult.append(",");
+    try {
+        oracleResult.append("\"err\":");
+        oracleResult.append(to_string(error));
+        oracleResult.append(",");
+    } catch (...) {
+        throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
+    }
 
 }
 
 void OracleResult::appendErrorAsRlp() {
-    stream.append(error);
-    // empty results
-    stream.appendList(0);
-    auto rlpEncoding = stream.out();
+    try {
+        rlpStream.append(error);
+        // empty results
+        rlpStream.appendList(0);
+        auto rlpEncoding = rlpStream.out();
 
 
-    oracleResult = Utils::carray2Hex(rlpEncoding.data(), rlpEncoding.size());
-    cerr << "Oracle result" << oracleResult << endl;
-    sleep(3);
+        oracleResult = Utils::carray2Hex(rlpEncoding.data(), rlpEncoding.size());
+        cerr << "Oracle result" << oracleResult << endl;
+        sleep(3);
+    } catch (...) {
+        throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
+    }
 }
 
 OracleResult::OracleResult(ptr<OracleRequestSpec> _oracleSpec, uint64_t _status, string &_serverResponse,
-                           ptr<CryptoManager> _cryptoManager) : stream(RLP_LIST_LEN){
+                           ptr<CryptoManager> _cryptoManager) : rlpStream(RLP_LIST_LEN) {
 
 
+    try {
 
-    CHECK_ARGUMENT(_oracleSpec);
+        CHECK_ARGUMENT(_oracleSpec);
 
-    encoding = _oracleSpec->getEncoding();
-
-
-    chainId = _oracleSpec->getChainid();
-    uri = _oracleSpec->getUri();
-    jsps = _oracleSpec->getJsps();
-    trims = _oracleSpec->getTrims();
-    requestTime = _oracleSpec->getTime();
-    post = _oracleSpec->getPost();
-    error = _status;
-
-    if (_status == ORACLE_SUCCESS) {
-        results = extractResults(_serverResponse);
-    }
-
-    if (!results) {
-        error = ORACLE_INVALID_JSON_RESPONSE;
-    } else {
-        trimResults();
-    }
+        encoding = _oracleSpec->getEncoding();
 
 
-    // now encode and sign result.
-    if (encoding == "rlp") {
-        encodeAndSignResultAsRlp(_cryptoManager);
-    } else {
-        encodeAndSignResultAsJson(_cryptoManager);
+        chainId = _oracleSpec->getChainid();
+        uri = _oracleSpec->getUri();
+        jsps = _oracleSpec->getJsps();
+        trims = _oracleSpec->getTrims();
+        requestTime = _oracleSpec->getTime();
+        post = _oracleSpec->getPost();
+        error = _status;
+
+        if (_status == ORACLE_SUCCESS) {
+            results = extractResults(_serverResponse);
+        }
+
+        if (!results) {
+            error = ORACLE_INVALID_JSON_RESPONSE;
+        } else {
+            trimResults();
+        }
+
+
+        // now encode and sign result.
+        if (encoding == "rlp") {
+            encodeAndSignResultAsRlp(_cryptoManager);
+        } else {
+            encodeAndSignResultAsJson(_cryptoManager);
+        }
+    } catch (...) {
+        throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
     }
 
 }
 
 void OracleResult::encodeAndSignResultAsJson(ptr<CryptoManager> _cryptoManager) {
 
-    appendElementsFromTheSpecAsJson();
+    try {
 
-    if (error != ORACLE_SUCCESS) {
-        appendErrorAsJson();
-    } else {
-        appendResultsAsJson();
+        appendElementsFromTheSpecAsJson();
+
+        if (error != ORACLE_SUCCESS) {
+            appendErrorAsJson();
+        } else {
+            appendResultsAsJson();
+        }
+
+        signResultAsJson(_cryptoManager);
+
+    } catch (...) {
+        throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
     }
-
-    signResultAsJson(_cryptoManager);
 
 }
 
 void OracleResult::encodeAndSignResultAsRlp(ptr<CryptoManager> _cryptoManager) {
 
-    appendElementsFromTheSpecAsRlp();
+    try {
 
-    if (error != ORACLE_SUCCESS) {
-        appendErrorAsRlp();
-    } else {
-        appendResultsAsRlp();
+        appendElementsFromTheSpecAsRlp();
+
+        if (error != ORACLE_SUCCESS) {
+            appendErrorAsRlp();
+        } else {
+            appendResultsAsRlp();
+        }
+
+        signResultAsRlp(_cryptoManager);
+
+    } catch (...) {
+        throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
     }
 
-    signResultAsRlp(_cryptoManager);
 }
-
 
 
 ptr<vector<ptr<string>>> OracleResult::extractResults(
@@ -477,7 +584,7 @@ ptr<vector<ptr<string>>> OracleResult::extractResults(
             }
         }
 
-    } catch (exception& _e) {
+    } catch (exception &_e) {
         return nullptr;
     }
     catch (...) {
@@ -488,8 +595,12 @@ ptr<vector<ptr<string>>> OracleResult::extractResults(
 }
 
 const string OracleResult::getUnsignedOracleResultStr() const {
-    auto commaPosition = oracleResult.find_last_of(",");
-    CHECK_STATE(commaPosition != string::npos);
-    auto res = oracleResult.substr(0, commaPosition + 1);
-    return res;
+    try {
+        auto commaPosition = oracleResult.find_last_of(",");
+        CHECK_STATE(commaPosition != string::npos);
+        auto res = oracleResult.substr(0, commaPosition + 1);
+        return res;
+    } catch (...) {
+        throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
+    }
 }

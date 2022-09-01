@@ -8,8 +8,8 @@
 #include "rlp/RLP.h"
 
 class OracleRequestSpec;
-class CryptoManager;
 
+class CryptoManager;
 
 
 class OracleResult {
@@ -30,15 +30,15 @@ class OracleResult {
     string sig;
 
 
-    RLPOutputStream stream;
+    RLPOutputStream rlpStream;
 
 
     ptr<vector<ptr<string>>> extractResults(string &_response);
 
 
     void parseResultAsJson();
-    void parseResultAsRlp();
 
+    void parseResultAsRlp();
 
 
     void trimResults();
@@ -69,13 +69,13 @@ public:
 
     const string getUnsignedOracleResultStr() const;
 
-    OracleResult(ptr<OracleRequestSpec> _spec, uint64_t _status, string& _serverResponse,
-                 ptr<CryptoManager> _cryptoManager );
+    OracleResult(ptr<OracleRequestSpec> _spec, uint64_t _status, string &_serverResponse,
+                 ptr<CryptoManager> _cryptoManager);
 
 
-    OracleResult(string& _oracleResult, string& _encoding);
+    OracleResult(string &_oracleResult, string &_encoding);
 
-    static ptr<OracleResult> parseResult(string& _oracleResult, string& _encoding);
+    static ptr<OracleResult> parseResult(string &_oracleResult, string &_encoding);
 
     const string &getSig() const;
 
@@ -98,7 +98,7 @@ public:
 
     const ptr<vector<ptr<string>>> getResults() const;
 
-    const string& getPost() const;
+    const string &getPost() const;
 
     bool isGeth();
 

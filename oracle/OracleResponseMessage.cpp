@@ -40,21 +40,22 @@
 
 #include "OracleResponseMessage.h"
 
-OracleResponseMessage::OracleResponseMessage(string& _oracleResult, string& _receipt, block_id _blockID,
+OracleResponseMessage::OracleResponseMessage(string &_oracleResult, string &_receipt, block_id _blockID,
                                              uint64_t _timeMs,
                                              OracleClient &sourceProtocolInstance)
         : NetworkMessage(MSG_ORACLE_RSP, _blockID, 0, 0, 0, _timeMs,
-                         sourceProtocolInstance), oracleResultStr(_oracleResult), receipt(_receipt)  {
+                         sourceProtocolInstance), oracleResultStr(_oracleResult), receipt(_receipt) {
     printPrefix = "r";
 }
 
 
-OracleResponseMessage::OracleResponseMessage(string& _oracleResult, string& _receipt, node_id _srcNodeID, block_id _blockID,
-                                                             uint64_t _timeMs,
-                                                             schain_id _schainId, msg_id _msgID,
-                                                             schain_index _srcSchainIndex,
-                                                             const string &_ecdsaSig, const string &_publicKey,
-                                                             const string &_pkSig, Schain *_sChain)
+OracleResponseMessage::OracleResponseMessage(string &_oracleResult, string &_receipt, node_id _srcNodeID,
+                                             block_id _blockID,
+                                             uint64_t _timeMs,
+                                             schain_id _schainId, msg_id _msgID,
+                                             schain_index _srcSchainIndex,
+                                             const string &_ecdsaSig, const string &_publicKey,
+                                             const string &_pkSig, Schain *_sChain)
         : NetworkMessage(
         MSG_ORACLE_RSP, _srcNodeID, _blockID, 0, 0, 0, _timeMs, _schainId, _msgID,
         "", _ecdsaSig, _publicKey, _pkSig,
@@ -64,7 +65,7 @@ OracleResponseMessage::OracleResponseMessage(string& _oracleResult, string& _rec
 };
 
 
-void OracleResponseMessage::serializeToStringChild(rapidjson::Writer<rapidjson::StringBuffer>& _writer) {
+void OracleResponseMessage::serializeToStringChild(rapidjson::Writer<rapidjson::StringBuffer> &_writer) {
     _writer.String("rslt");
     _writer.String(oracleResultStr.data(), oracleResultStr.size());
 
@@ -73,14 +74,14 @@ void OracleResponseMessage::serializeToStringChild(rapidjson::Writer<rapidjson::
 }
 
 
-void OracleResponseMessage::updateWithChildHash(blake3_hasher& _hasher) {
-    uint32_t  resultLen = oracleResultStr.size();
+void OracleResponseMessage::updateWithChildHash(blake3_hasher &_hasher) {
+    uint32_t resultLen = oracleResultStr.size();
     HASH_UPDATE(_hasher, resultLen)
     if (resultLen > 0) {
         blake3_hasher_update(&_hasher, (unsigned char *) oracleResultStr.data(), resultLen);
     }
 
-    uint32_t  receiptLen = receipt.size();
+    uint32_t receiptLen = receipt.size();
     HASH_UPDATE(_hasher, receiptLen)
     if (receiptLen > 0) {
         blake3_hasher_update(&_hasher, (unsigned char *) receipt.data(), receiptLen);

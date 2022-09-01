@@ -19,111 +19,119 @@
 
 
 ptr<OracleRequestSpec> OracleRequestSpec::parseSpec(const string &_spec) {
-    return make_shared<OracleRequestSpec>(_spec);
+    try {
+        return make_shared<OracleRequestSpec>(_spec);
+    } catch (...) {
+        throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
+    }
 }
 
 OracleRequestSpec::OracleRequestSpec(const string &_spec) : spec(_spec) {
-    rapidjson::Document d;
-    d.Parse(spec.data());
-    CHECK_STATE2(!d.HasParseError(), "Unparsable Oracle spec:" + _spec);
+    try {
+        rapidjson::Document d;
+        d.Parse(spec.data());
+        CHECK_STATE2(!d.HasParseError(), "Unparsable Oracle spec:" + _spec);
 
-    CHECK_STATE2(d.HasMember("cid"), "No chainid in Oracle spec:" + _spec);
-
-
-    CHECK_STATE2(d["cid"].IsUint64(), "ChainId in Oracle spec is not uint64_t" + _spec);
-
-    chainid = d["cid"].GetUint64();
+        CHECK_STATE2(d.HasMember("cid"), "No chainid in Oracle spec:" + _spec);
 
 
-    CHECK_STATE2(d.HasMember("uri"), "No URI in Oracle spec:" + _spec);
+        CHECK_STATE2(d["cid"].IsUint64(), "ChainId in Oracle spec is not uint64_t" + _spec);
 
-    CHECK_STATE2(d["uri"].IsString(), "Uri in Oracle spec is not string:" + _spec);
-
-    uri = d["uri"].GetString();
+        chainid = d["cid"].GetUint64();
 
 
-    CHECK_STATE(uri.size() > 5);
+        CHECK_STATE2(d.HasMember("uri"), "No URI in Oracle spec:" + _spec);
 
-    CHECK_STATE2(d.HasMember("jsps"), "No json pointer in Oracle spec:" + _spec);
+        CHECK_STATE2(d["uri"].IsString(), "Uri in Oracle spec is not string:" + _spec);
 
-    CHECK_STATE2(d["jsps"].IsArray(), "Jsps in Oracle spec is not array:" + _spec);
-
-    CHECK_STATE2(d.HasMember("time"), "No time pointer in Oracle spec:" + _spec);
-
-    CHECK_STATE2(d["time"].IsUint64(), "time in Oracle spec is not uint64:" + _spec)
-
-    requestTime = d["time"].GetUint64();
+        uri = d["uri"].GetString();
 
 
-    CHECK_STATE(requestTime > 0);
+        CHECK_STATE(uri.size() > 5);
 
-    CHECK_STATE2(d.HasMember("pow"), "No  pow in Oracle spec:" + _spec);
+        CHECK_STATE2(d.HasMember("jsps"), "No json pointer in Oracle spec:" + _spec);
 
-    CHECK_STATE2(d["pow"].IsUint64(), "Pow in Oracle spec is not uint64:" + _spec);
+        CHECK_STATE2(d["jsps"].IsArray(), "Jsps in Oracle spec is not array:" + _spec);
 
-    pow = d["pow"].GetUint64();
+        CHECK_STATE2(d.HasMember("time"), "No time pointer in Oracle spec:" + _spec);
 
-    auto array = d["jsps"].GetArray();
+        CHECK_STATE2(d["time"].IsUint64(), "time in Oracle spec is not uint64:" + _spec)
 
-
-    CHECK_STATE2(!array.Empty(), "Jsps array is empty.:" + _spec);
-
-    for (auto &&item: array) {
-        CHECK_STATE2(item.IsString(), "Jsps array item is not string:" + _spec);
-        jsps.push_back(item.GetString());
-    }
+        requestTime = d["time"].GetUint64();
 
 
-    if (d.HasMember("trims")) {
-        auto trimArray = d["trims"].GetArray();
-        for (auto &&item: trimArray) {
-            CHECK_STATE2(item.IsUint64(), "Trims array item is uint64 :" + _spec);
-            trims.push_back(item.GetUint64());
+        CHECK_STATE(requestTime > 0);
+
+        CHECK_STATE2(d.HasMember("pow"), "No  pow in Oracle spec:" + _spec);
+
+        CHECK_STATE2(d["pow"].IsUint64(), "Pow in Oracle spec is not uint64:" + _spec);
+
+        pow = d["pow"].GetUint64();
+
+        auto array = d["jsps"].GetArray();
+
+
+        CHECK_STATE2(!array.Empty(), "Jsps array is empty.:" + _spec);
+
+        for (auto &&item: array) {
+            CHECK_STATE2(item.IsString(), "Jsps array item is not string:" + _spec);
+            jsps.push_back(item.GetString());
         }
 
-        CHECK_STATE2(jsps.size() == trims.size(), "hsps array size not equal trims array size");
-    } else {
-        for (uint64_t i = 0; i < jsps.size(); i++) {
-            trims.push_back(0);
+
+        if (d.HasMember("trims")) {
+            auto trimArray = d["trims"].GetArray();
+            for (auto &&item: trimArray) {
+                CHECK_STATE2(item.IsUint64(), "Trims array item is uint64 :" + _spec);
+                trims.push_back(item.GetUint64());
+            }
+
+            CHECK_STATE2(jsps.size() == trims.size(), "hsps array size not equal trims array size");
+        } else {
+            for (uint64_t i = 0; i < jsps.size(); i++) {
+                trims.push_back(0);
+            }
         }
-    }
 
 
-    if (d.HasMember("post")) {
-        CHECK_STATE2(d["post"].IsString(), "Post in Oracle spec is not string:" + _spec);
-        post = d["post"].GetString();
-    }
-
-    if (d.HasMember("encoding")) {
-        CHECK_STATE2(d["encoding"].IsString(), "Encoding in Oracle spec is not string:" + _spec);
-        encoding = d["encoding"].GetString();
-    }
-
-
-    if (this->isGeth()) {
-        rapidjson::Document d2;
-        d2.Parse(post.data());
-        CHECK_STATE2(!d2.HasParseError(), "Unparsable geth Oracle post:" + post);
-
-        CHECK_STATE2(d2.HasMember("method"), "No JSON-RPC method in geth Oracle post:" + post);
-
-        CHECK_STATE2(d2["method"].IsString(), "method in Oracle post is not string:" + post)
-
-        auto meth = d2["method"].GetString();
-
-        if (meth == string("eth_call") ||
-            meth == string("eth_gasPrice") || meth == string("eth_blockNumber") ||
-            meth == string("eth_getBlockByNumber") ||
-            meth == string("eth_getBlockByHash")) {}
-        else {
-            CHECK_STATE2(false, "Geth Method not allowed:" + meth);
+        if (d.HasMember("post")) {
+            CHECK_STATE2(d["post"].IsString(), "Post in Oracle spec is not string:" + _spec);
+            post = d["post"].GetString();
         }
+
+        if (d.HasMember("encoding")) {
+            CHECK_STATE2(d["encoding"].IsString(), "Encoding in Oracle spec is not string:" + _spec);
+            encoding = d["encoding"].GetString();
+        }
+
+
+        if (this->isGeth()) {
+            rapidjson::Document d2;
+            d2.Parse(post.data());
+            CHECK_STATE2(!d2.HasParseError(), "Unparsable geth Oracle post:" + post);
+
+            CHECK_STATE2(d2.HasMember("method"), "No JSON-RPC method in geth Oracle post:" + post);
+
+            CHECK_STATE2(d2["method"].IsString(), "method in Oracle post is not string:" + post)
+
+            auto meth = d2["method"].GetString();
+
+            if (meth == string("eth_call") ||
+                meth == string("eth_gasPrice") || meth == string("eth_blockNumber") ||
+                meth == string("eth_getBlockByNumber") ||
+                meth == string("eth_getBlockByHash")) {}
+            else {
+                CHECK_STATE2(false, "Geth Method not allowed:" + meth);
+            }
+        }
+
+        CHECK_STATE2(encoding.empty() || encoding == "json" || encoding == "rlp", "Unknown encoding " + encoding);
+        CHECK_STATE2(verifyPow(), "PoW did not verify");
+
+        receipt = CryptoManager::hashForOracle(spec.data(), spec.size());
+    } catch (...) {
+        throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
     }
-
-    CHECK_STATE2(encoding.empty()  || encoding == "json" || encoding == "rlp", "Unknown encoding " + encoding);
-    CHECK_STATE2(verifyPow(), "PoW did not verify");
-
-    receipt = CryptoManager::hashForOracle(spec.data(), spec.size());
 }
 
 const string &OracleRequestSpec::getSpec() const {
@@ -156,7 +164,7 @@ uint64_t OracleRequestSpec::getChainid() const {
 }
 
 
-const string& OracleRequestSpec::getPost() const {
+const string &OracleRequestSpec::getPost() const {
     return post;
 }
 
@@ -205,56 +213,63 @@ OracleRequestSpec::OracleRequestSpec(uint64_t _chainid, const string &_uri,
         post(_post),
         encoding(_encoding) {
 
-    for (pow = 0;; pow++) {
 
-        spec = "{";
+    try {
 
-        spec.append(string("\"cid\":") + to_string(chainid) + ",");
-        spec.append(string("\"uri\":\"") + uri + "\",");
-        spec.append(string("\"jsps\":["));
+        for (pow = 0;; pow++) {
 
-        for (uint64_t j = 0; j < jsps.size(); j++) {
-            spec.append("\"");
-            string jsp  = jsps.at(j);
-            CHECK_STATE2(!jsp.empty() && jsp.front() == '/', "Invalid JSP pointer:" + jsp);
-            spec.append(jsp);
-            spec.append("\"");
-            if (j + 1 < jsps.size())
-                spec.append(",");
+            spec = "{";
+
+            spec.append(string("\"cid\":") + to_string(chainid) + ",");
+            spec.append(string("\"uri\":\"") + uri + "\",");
+            spec.append(string("\"jsps\":["));
+
+            for (uint64_t j = 0; j < jsps.size(); j++) {
+                spec.append("\"");
+                string jsp = jsps.at(j);
+                CHECK_STATE2(!jsp.empty() && jsp.front() == '/', "Invalid JSP pointer:" + jsp);
+                spec.append(jsp);
+                spec.append("\"");
+                if (j + 1 < jsps.size())
+                    spec.append(",");
+            }
+
+
+            spec.append("],");
+            spec.append("\"trims\":[");
+
+            for (uint64_t j = 0; j < trims.size(); j++) {
+                spec.append(to_string(trims.at(j)));
+                if (j + 1 < trims.size())
+                    spec.append(",");
+            }
+
+            spec.append("],");
+            spec.append(string("\"time\":") + to_string(requestTime) + ",");
+
+            if (!post.empty()) {
+                spec.append(string("\"post\":\"") + post + "\",");
+            }
+
+            if (!encoding.empty()) {
+                spec.append(string("\"encoding\":\"") + encoding + "\",");
+            }
+
+            spec.append(string("\"pow\":") + to_string(pow));
+            spec.append("}");
+
+            if (verifyPow()) {
+                break;
+            }
+
+
         }
 
+        receipt = CryptoManager::hashForOracle(spec.data(), spec.size());
 
-        spec.append("],");
-        spec.append("\"trims\":[");
-
-        for (uint64_t j = 0; j < trims.size(); j++) {
-            spec.append(to_string(trims.at(j)));
-            if (j + 1 < trims.size())
-                spec.append(",");
-        }
-
-        spec.append("],");
-        spec.append(string("\"time\":") + to_string(requestTime) + ",");
-
-        if (!post.empty()) {
-            spec.append(string("\"post\":\"") + post + "\",");
-        }
-
-        if (!encoding.empty()) {
-            spec.append(string("\"encoding\":\"") + encoding + "\",");
-        }
-
-        spec.append(string("\"pow\":") + to_string(pow));
-        spec.append("}");
-
-        if (verifyPow()) {
-            break;
-        }
-
-
+    } catch (...) {
+        throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
     }
-
-    receipt = CryptoManager::hashForOracle(spec.data(), spec.size());
 }
 
 const string &OracleRequestSpec::getEncoding() const {

@@ -6,7 +6,9 @@
 #define CONSENSUS_ORACLERECEIVEDRESULTS_H
 
 class OracleResult;
+
 class OracleRequestSpec;
+
 class OracleReceivedResults {
     recursive_mutex m;
     uint64_t requiredConfirmations;
@@ -26,11 +28,11 @@ public:
 
     void insertIfDoesntExist(uint64_t _origin, ptr<OracleResult> _oracleResult);
 
-    uint64_t tryGettingResult(string& _result);
+    uint64_t tryGettingResult(string &_result);
 
-    string compileCompleteResultJson(string& _unsignedResult);
+    string compileCompleteResultJson(string &_unsignedResult);
 
-    string compileCompleteResultRlp(string& _unsignedResult);
+    string compileCompleteResultRlp(string &_unsignedResult);
 
 };
 

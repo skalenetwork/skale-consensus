@@ -36,14 +36,14 @@ public:
 
     const uint64_t &getPow() const;
 
-    OracleRequestSpec(const string& _spec);
+    OracleRequestSpec(const string &_spec);
 
     OracleRequestSpec(uint64_t chainid, const string &uri, const vector<string> &jsps,
                       const vector<uint64_t> &trims, uint64_t time, const string &postStr, const string &encoding);
 
     uint64_t getChainid() const;
 
-    static ptr<OracleRequestSpec> parseSpec(const string& _spec);
+    static ptr<OracleRequestSpec> parseSpec(const string &_spec);
 
     const vector<uint64_t> &getTrims() const;
 

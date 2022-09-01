@@ -11,7 +11,8 @@
 #include "OracleResultAssemblyAgent.h"
 
 OracleResultAssemblyAgent::OracleResultAssemblyAgent(Schain &_sChain) : Agent(_sChain, true),
-                                                            oracleMessageThreadPool(new OracleMessageThreadPool(this)){
+                                                                        oracleMessageThreadPool(
+                                                                                new OracleMessageThreadPool(this)) {
     try {
         logThreadLocal_ = _sChain.getNode()->getLog();
         oracleMessageThreadPool->startService();
@@ -21,7 +22,7 @@ OracleResultAssemblyAgent::OracleResultAssemblyAgent(Schain &_sChain) : Agent(_s
 }
 
 
-void OracleResultAssemblyAgent::messageThreadProcessingLoop(OracleResultAssemblyAgent*_agent) {
+void OracleResultAssemblyAgent::messageThreadProcessingLoop(OracleResultAssemblyAgent *_agent) {
     CHECK_ARGUMENT(_agent);
 
     setThreadName("orclAssemblyLoop", _agent->getSchain()->getNode()->getConsensusEngine());
