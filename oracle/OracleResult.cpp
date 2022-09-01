@@ -226,21 +226,6 @@ OracleResult::OracleResult(string &_result, string& _encoding) : oracleResult(_r
 
     CHECK_STATE2(results->size() == trims.size(), "hsps array size not equal trims array size");
 
-    RLPOutputStream stream(6);
-    stream.append(chainId); //1
-    stream.append(uri);//2
-    stream.append(requestTime); //3
-    stream.append(jsps); // 4
-    stream.append(trims); //5
-    stream.append(post); //6
-
-
-
-
-    auto rlpEncoding = stream.out();
-    auto hex = Utils::carray2Hex(rlpEncoding.data(), rlpEncoding.size());
-    cerr << "Oracle result" << hex << endl;
-    sleep(3);
 
 
 }
@@ -351,35 +336,20 @@ void OracleResult::appendElementsFromTheSpecAsJson() {
 }
 
 void OracleResult::appendElementsFromTheSpecAsRlp() {
-    oracleResult = "{";
-    oracleResult.append(string("\"cid\":") + to_string(chainId) + ",");
-    oracleResult.append(string("\"uri\":\"") + uri + "\",");
-    oracleResult.append(string("\"jsps\":["));
 
-    for (uint64_t j = 0; j < jsps.size(); j++) {
-        oracleResult.append("\"");
-        oracleResult.append(jsps.at(j));
-        oracleResult.append("\"");
-        if (j + 1 < jsps.size())
-            oracleResult.append(",");
-    }
+    RLPOutputStream stream(6);
+    stream.append(chainId); //1
+    stream.append(uri);//2
+    stream.append(jsps); // 3
+    stream.append(trims); //4
+    stream.append(requestTime); //5
+    stream.append(post); //6
 
+    auto rlpEncoding = stream.out();
+    oracleResult = Utils::carray2Hex(rlpEncoding.data(), rlpEncoding.size());
+    cerr << "Oracle result" << hex << endl;
+    sleep(3);
 
-    oracleResult.append("],");
-    oracleResult.append("\"trims\":[");
-
-    for (uint64_t j = 0; j < trims.size(); j++) {
-        oracleResult.append(to_string(trims.at(j)));
-        if (j + 1 < trims.size())
-            oracleResult.append(",");
-    }
-
-    oracleResult.append("],");
-    oracleResult.append(string("\"time\":") + to_string(requestTime) + ",");
-
-    if (!post.empty()) {
-        oracleResult.append(string("\"post\":") + post + ",");
-    }
 }
 
 void OracleResult::appendResultsAsJson() {
