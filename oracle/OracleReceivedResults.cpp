@@ -51,7 +51,31 @@ void OracleReceivedResults::insertIfDoesntExist(uint64_t _origin, ptr<OracleResu
     }
 }
 
-string OracleReceivedResults::compileCompleteResult(string & _unsignedResult) {
+string OracleReceivedResults::compileCompleteResultJson(string & _unsignedResult) {
+    uint64_t sigCount = 0;
+    auto completeResult = _unsignedResult;
+    completeResult.append("\"sigs\":[");
+    for (uint64_t i = 1; i <= nodeCount; i++) {
+        if (signaturesBySchainIndex->count(i) > 0 && sigCount < requiredConfirmations) {
+            completeResult.append("\"");
+            completeResult.append(signaturesBySchainIndex->at(i));
+            completeResult.append("\"");
+            sigCount++;
+        } else {
+            completeResult.append("null");
+        }
+
+        if (i < nodeCount) {
+            completeResult.append(",");
+        } else {
+            completeResult.append("]}");
+        }
+    }
+    return completeResult;
+}
+
+
+string OracleReceivedResults::compileCompleteResultRlp(string & _unsignedResult) {
     uint64_t sigCount = 0;
     auto completeResult = _unsignedResult;
     completeResult.append("\"sigs\":[");
@@ -85,7 +109,11 @@ uint64_t OracleReceivedResults::tryGettingResult(string &_result) {
     for (auto &&item: *resultsByCount) {
         if (item.second >= requiredConfirmations) {
             string unsignedResult = item.first;
-            _result = compileCompleteResult(unsignedResult);
+            if (requestSpec->getEncoding() == "rlp") {
+                _result = compileCompleteResultJson(unsignedResult);
+            } else {
+                _result = compileCompleteResultRlp(unsignedResult);
+            }
             LOG(err, "ORACLE SUCCESS!");
             return ORACLE_SUCCESS;
         };

@@ -28,7 +28,9 @@ public:
 
     uint64_t tryGettingResult(string& _result);
 
-    string compileCompleteResult(string& _unsignedResult);
+    string compileCompleteResultJson(string& _unsignedResult);
+
+    string compileCompleteResultRlp(string& _unsignedResult);
 
 };
 

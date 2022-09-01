@@ -45,7 +45,6 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ec15c893-7f20-4493-be40-38b8f69efc54" name="Default Changelist" comment="#238 better log handling">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libBLS/deps/libff/depends/xbyak" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/deps/libff/depends/xbyak" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libBLS/deps/zlib/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/deps/zlib/Makefile" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libBLS/deps/zlib/zconf.h" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/deps/zlib/zconf.h" afterDir="false" />
@@ -459,7 +458,7 @@
       <workItem from="1661987356927" duration="541000" />
       <workItem from="1661989616562" duration="2000" />
       <workItem from="1661994429765" duration="3495000" />
-      <workItem from="1662043966927" duration="1437000" />
+      <workItem from="1662043966927" duration="2382000" />
     </task>
     <task id="LOCAL-00093" summary="bug/SKALE-4352">
       <created>1634133299846</created>
