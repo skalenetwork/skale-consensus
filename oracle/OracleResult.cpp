@@ -337,7 +337,6 @@ void OracleResult::appendElementsFromTheSpecAsJson() {
 
 void OracleResult::appendElementsFromTheSpecAsRlp() {
 
-    RLPOutputStream stream(6);
     stream.append(chainId); //1
     stream.append(uri);//2
     stream.append(jsps); // 3
@@ -345,10 +344,6 @@ void OracleResult::appendElementsFromTheSpecAsRlp() {
     stream.append(requestTime); //5
     stream.append(post); //6
 
-    auto rlpEncoding = stream.out();
-    oracleResult = Utils::carray2Hex(rlpEncoding.data(), rlpEncoding.size());
-    cerr << "Oracle result" << hex << endl;
-    sleep(3);
 
 }
 
@@ -376,6 +371,13 @@ void OracleResult::appendResultsAsJson() {
 
 
 void OracleResult::appendResultsAsRlp() {
+
+    stream.append(error);
+    auto rlpEncoding = stream.out();
+    oracleResult = Utils::carray2Hex(rlpEncoding.data(), rlpEncoding.size());
+    cerr << "Oracle result" << hex << endl;
+    sleep(3);
+
     // append results
     oracleResult.append("\"rslts\":[");
 
@@ -426,14 +428,15 @@ void OracleResult::appendErrorAsJson() {
 }
 
 void OracleResult::appendErrorAsRlp() {
-    oracleResult.append("\"err\":");
-    oracleResult.append(to_string(error));
-    oracleResult.append(",");
-
+    stream.append(error);
+    auto rlpEncoding = stream.out();
+    oracleResult = Utils::carray2Hex(rlpEncoding.data(), rlpEncoding.size());
+    cerr << "Oracle result" << hex << endl;
+    sleep(3);
 }
 
 OracleResult::OracleResult(ptr<OracleRequestSpec> _oracleSpec, uint64_t _status, string &_serverResponse,
-                           ptr<CryptoManager> _cryptoManager) {
+                           ptr<CryptoManager> _cryptoManager) : stream(7){
 
 
 

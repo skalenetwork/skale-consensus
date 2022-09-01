@@ -237,11 +237,11 @@ OracleRequestSpec::OracleRequestSpec(uint64_t _chainid, const string &_uri,
         spec.append(string("\"time\":") + to_string(requestTime) + ",");
 
         if (!post.empty()) {
-            spec.append(string("\"post\":") + post + ",");
+            spec.append(string("\"post\":\"") + post + "\",");
         }
 
         if (!encoding.empty()) {
-            spec.append(string("\"encoding\":") + encoding + ",");
+            spec.append(string("\"encoding\":\"") + encoding + "\",");
         }
 
         spec.append(string("\"pow\":") + to_string(pow));

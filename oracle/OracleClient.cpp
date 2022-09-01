@@ -83,8 +83,10 @@ void OracleClient::sendTestRequestGet() {
     vector<string> jsps{"/unixtime", "/day_of_year", "/xxx"};
     vector<uint64_t> trims{1, 1, 1};
     auto time = Time::getCurrentTimeMs();
+    auto encoding = "rlp";
 
-    auto os = make_shared<OracleRequestSpec>(cid, uri, jsps, trims, time, "", "");
+    auto os = make_shared<OracleRequestSpec>(cid, uri, jsps, trims, time, "",
+                                             encoding);
 
     CHECK_STATE(os->verifyPow());
 

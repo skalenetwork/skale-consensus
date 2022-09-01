@@ -5,9 +5,12 @@
 #ifndef SKALED_ORACLERESULT_H
 #define SKALED_ORACLERESULT_H
 
+#include "rlp/RLP.h"
 
 class OracleRequestSpec;
 class CryptoManager;
+
+
 
 class OracleResult {
 
@@ -26,6 +29,8 @@ class OracleResult {
     ptr<vector<uint8_t>> rlp;
     string sig;
 
+
+    RLPOutputStream stream;
 
 
     ptr<vector<ptr<string>>> extractResults(string &_response);
