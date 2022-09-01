@@ -12,6 +12,7 @@ class CryptoManager;
 class OracleResult {
 
     string oracleResult;
+    string encoding;
 
 
     uint64_t chainId;
@@ -22,7 +23,6 @@ class OracleResult {
     string post;
     uint64_t error = 0;
     ptr<vector<ptr<string>>> results;
-    string encoding;
     ptr<vector<uint8_t>> rlp;
     string sig;
 

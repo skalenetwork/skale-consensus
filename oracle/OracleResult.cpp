@@ -194,11 +194,10 @@ void OracleResult::parseResultAsRlp() {
 
 
 
-OracleResult::OracleResult(string &_result, string& _encoding) : oracleResult(_result) {
-
+OracleResult::OracleResult(string &_result, string& _encoding) : oracleResult(_result), encoding(_encoding) {
 
     // now encode and sign result.
-    if (_encoding == "rlp") {
+    if (encoding == "rlp") {
         parseResultAsRlp();
     } else {
         parseResultAsJson();
@@ -470,6 +469,7 @@ OracleResult::OracleResult(ptr<OracleRequestSpec> _oracleSpec, uint64_t _status,
 
     CHECK_ARGUMENT(_oracleSpec);
 
+    encoding = _oracleSpec->getEncoding();
 
 
     chainId = _oracleSpec->getChainid();
@@ -492,7 +492,7 @@ OracleResult::OracleResult(ptr<OracleRequestSpec> _oracleSpec, uint64_t _status,
 
 
     // now encode and sign result.
-    if (_oracleSpec->getEncoding() == "rlp") {
+    if (encoding == "rlp") {
         encodeAndSignResultAsRlp(_cryptoManager);
     } else {
         encodeAndSignResultAsJson(_cryptoManager);
