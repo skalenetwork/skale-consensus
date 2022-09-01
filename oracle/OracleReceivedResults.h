@@ -28,6 +28,7 @@ public:
 
     uint64_t tryGettingResult(string& _result);
 
+    string compileCompleteResult(string& _unsignedResult);
 
 };
 
