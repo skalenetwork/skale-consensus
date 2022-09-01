@@ -14,6 +14,9 @@
 #include "OracleRequestSpec.h"
 #include "OracleResult.h"
 
+const uint64_t RLP_LIST_LEN = 8;
+
+
 void OracleResult::parseResultAsJson() {
     rapidjson::Document d;
 
@@ -104,91 +107,26 @@ void OracleResult::parseResultAsJson() {
 
 
 void OracleResult::parseResultAsRlp() {
-    rapidjson::Document d;
 
-    d.Parse(oracleResult.data());
+    vector<uint8_t> rawRLP(oracleResult.size() / 2);
 
-    CHECK_STATE2(!d.HasParseError(), "Unparsable Oracle result:" + oracleResult);
+    Utils::cArrayFromHex(oracleResult, rawRLP.data(), rawRLP.size());
 
-    CHECK_STATE2(d.HasMember("cid"), "No chainid in Oracle  result:" + oracleResult);
+    RLP parsedRLP(rawRLP);
 
-    CHECK_STATE2(d["cid"].IsUint64(), "ChainId in Oracle result is not uint64_t" + oracleResult);
+    CHECK_STATE(parsedRLP.isList())
 
-    chainId = d["cid"].GetUint64();
-
-    CHECK_STATE2(d.HasMember("uri"), "No URI in Oracle  result:" + oracleResult);
-
-    CHECK_STATE2(d["uri"].IsString(), "Uri in Oracle result is not string:" + oracleResult);
-
-    uri = d["uri"].GetString();
+    CHECK_STATE(parsedRLP.itemCount() == RLP_LIST_LEN);
 
     CHECK_STATE(uri.size() > 5);
 
-    CHECK_STATE2(d.HasMember("jsps"), "No json pointer in Oracle result:" + oracleResult);
-
-    CHECK_STATE2(d["jsps"].IsArray(), "Jsps in Oracle spec is not array:" + oracleResult);
-
-    CHECK_STATE2(d.HasMember("time"), "No time pointer in Oracle result:" + oracleResult);
-
-    CHECK_STATE2(d["time"].IsUint64(), "time in Oracle result is not uint64:" + oracleResult)
-
-    requestTime = d["time"].GetUint64();
-
     CHECK_STATE(requestTime > 0);
 
-    CHECK_STATE2(d.HasMember("sig"), "No sig in Oracle result:" + oracleResult);
-
-    CHECK_STATE2(d["sig"].IsString(), "sig in Oracle result is not string:" + oracleResult)
-
-    sig = d["sig"].GetString();
-
-    auto array = d["jsps"].GetArray();
-
-    for (auto &&item: array) {
-        CHECK_STATE2(item.IsString(), "Jsp array item is not string:" + oracleResult);
-        string jsp  = item.GetString();
-        CHECK_STATE2(!jsp.empty() && jsp.front() == '/', "Invalid JSP pointer:" + jsp);
-        jsps.push_back(jsp);
-    }
-
-    if (d.HasMember("trims")) {
-        auto trimArray = d["trims"].GetArray();
-        for (auto &&item: trimArray) {
-            CHECK_STATE2(item.IsUint64(), "Trims array item is not uint64 :" + oracleResult);
-            trims.push_back(item.GetUint64());
-        }
-
-        CHECK_STATE2(jsps.size() == trims.size(), "jsps array size not equal trims array size");
-    } else {
-        for (uint64_t i = 0; i < jsps.size(); i++) {
-            trims.push_back(0);
-        }
-    }
 
 
-    if (d.HasMember("err")) {
-        CHECK_STATE2(d["err"].IsUint64(), "Error is not uint64_t");
-        error = d["err"].GetUint64();
-        return;
-    }
-
-    auto resultsArray = d["rslts"].GetArray();
 
     results = make_shared<vector<ptr<string>>>();
-    for (auto &&item: resultsArray) {
-        if (item.IsString()) {
-            results->push_back(make_shared<string>(item.GetString()));
-        } else if (item.IsNull()) {
-            results->push_back(nullptr);
-        } else {
-            CHECK_STATE2(false, "Unknown item in results:" + oracleResult)
-        }
-    }
 
-    if (d.HasMember("post")) {
-        CHECK_STATE2(d["post"].IsString(), "Post in Oracle result is not string:" + oracleResult);
-        post = d["post"].GetString();
-    }
 }
 
 
@@ -372,11 +310,13 @@ void OracleResult::appendResultsAsJson() {
 
 void OracleResult::appendResultsAsRlp() {
 
-    stream.append(error);
+    stream.append((uint64_t) ORACLE_SUCCESS);
+    stream.appendList(0);
     auto rlpEncoding = stream.out();
     oracleResult = Utils::carray2Hex(rlpEncoding.data(), rlpEncoding.size());
-    cerr << "Oracle result" << hex << endl;
-    sleep(3);
+    cerr << "Oracle result" << oracleResult << endl;
+    sleep(5);
+
 
     // append results
     oracleResult.append("\"rslts\":[");
@@ -412,11 +352,7 @@ void OracleResult::signResultAsJson(ptr<CryptoManager> _cryptoManager) {
 
 void OracleResult::signResultAsRlp(ptr<CryptoManager> _cryptoManager) {
     CHECK_ARGUMENT(_cryptoManager)
-    CHECK_STATE(oracleResult.at(oracleResult.size() - 1) == ',')
     sig = _cryptoManager->signOracleResult(oracleResult);
-    oracleResult.append("\"sig\":\"");
-    oracleResult.append(sig);
-    oracleResult.append("\"}");
 }
 
 
@@ -429,14 +365,18 @@ void OracleResult::appendErrorAsJson() {
 
 void OracleResult::appendErrorAsRlp() {
     stream.append(error);
+    // empty results
+    stream.appendList(0);
     auto rlpEncoding = stream.out();
+
+
     oracleResult = Utils::carray2Hex(rlpEncoding.data(), rlpEncoding.size());
-    cerr << "Oracle result" << hex << endl;
+    cerr << "Oracle result" << oracleResult << endl;
     sleep(3);
 }
 
 OracleResult::OracleResult(ptr<OracleRequestSpec> _oracleSpec, uint64_t _status, string &_serverResponse,
-                           ptr<CryptoManager> _cryptoManager) : stream(7){
+                           ptr<CryptoManager> _cryptoManager) : stream(RLP_LIST_LEN){
 
 
 
