@@ -105,7 +105,8 @@ void OracleResult::parseResultAsJson() {
             post = d["post"].GetString();
         }
     } catch (...) {
-        throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
+        throw_with_nested(InvalidStateException(string(__FUNCTION__) + "Could not parse JSON result:" +
+                oracleResult, __CLASS_NAME__));
     }
 }
 
@@ -118,6 +119,7 @@ void OracleResult::parseResultAsRlp() {
         Utils::cArrayFromHex(oracleResult, rawRLP.data(), rawRLP.size());
 
         RLP parsedRLP(rawRLP);
+
 
         CHECK_STATE(parsedRLP.isList())
 
@@ -144,6 +146,8 @@ void OracleResult::parseResultAsRlp() {
             CHECK_STATE(jsp.isData())
             jsps.push_back(jsp.toStringStrict());
         }
+
+        CHECK_STATE(list[3].isList())
 
         auto trimsList = list[3].toList();
 
@@ -172,13 +176,18 @@ void OracleResult::parseResultAsRlp() {
             CHECK_STATE(list[7].isList())
             auto resultsList = list[7].toList();
             for (auto &&result: resultsList) {
-                CHECK_STATE(result.isData())
-                results->push_back(make_shared<string>(result.toStringStrict()));
+                if (result.isList() && result.isEmpty()) {
+                    results->push_back(nullptr);
+                } else {
+                    CHECK_STATE(result.isData())
+                    results->push_back(make_shared<string>(result.toStringStrict()));
+                }
             }
         }
 
     } catch (...) {
-        throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
+        throw_with_nested(InvalidStateException(string(__FUNCTION__) + "Could not parse RLP result:" +
+                                                oracleResult, __CLASS_NAME__));
     }
 }
 
@@ -218,7 +227,7 @@ OracleResult::OracleResult(string &_result, string &_encoding) : oracleResult(_r
         CHECK_STATE2(results->size() == trims.size(), "hsps array size not equal trims array size");
 
     } catch (...) {
-        throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
 
 }
@@ -296,7 +305,7 @@ void OracleResult::trimResults() {
 
         }
     } catch (...) {
-        throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
 }
 
@@ -332,7 +341,7 @@ void OracleResult::appendElementsFromTheSpecAsJson() {
             oracleResult.append(string("\"post\":") + post + ",");
         }
     } catch (...) {
-        throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
 }
 
@@ -347,7 +356,7 @@ void OracleResult::appendElementsFromTheSpecAsRlp() {
         rlpStream.append(post); //6
 
     } catch (...) {
-        throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
 }
 
@@ -373,7 +382,7 @@ void OracleResult::appendResultsAsJson() {
 
         oracleResult.append("],");/**/
     } catch (...) {
-        throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
 }
 
@@ -383,35 +392,27 @@ void OracleResult::appendResultsAsRlp() {
     try {
 
         rlpStream.append((uint64_t) ORACLE_SUCCESS);
-        rlpStream.appendList(0);
+        rlpStream.appendList(results->size());
+
+
+        for (uint64_t i = 0; i < results->size(); i++) {
+
+            if (results->at(i)) {
+                rlpStream.append(*results->at(i));
+            } else {
+                rlpStream.appendList(0);
+            }
+
+        }
+
         auto rlpEncoding = rlpStream.out();
         oracleResult = Utils::carray2Hex(rlpEncoding.data(), rlpEncoding.size());
         cerr << "Oracle result" << oracleResult << endl;
         sleep(5);
 
 
-        // append results
-        oracleResult.append("\"rslts\":[");
-
-        for (uint64_t i = 0; i < results->size(); i++) {
-            if (i != 0) {
-                oracleResult.append(",");
-            }
-
-            if (results->at(i)) {
-                oracleResult.append("\"");
-                oracleResult.append(*results->at(i));
-                oracleResult.append("\"");
-            } else {
-                oracleResult.append("null");
-            }
-
-        }
-
-        oracleResult.append("],");/**/
-
     } catch (...) {
-        throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
 }
 
@@ -425,7 +426,7 @@ void OracleResult::signResultAsJson(ptr<CryptoManager> _cryptoManager) {
         oracleResult.append(sig);
         oracleResult.append("\"}");
     } catch (...) {
-        throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
 }
 
@@ -434,7 +435,7 @@ void OracleResult::signResultAsRlp(ptr<CryptoManager> _cryptoManager) {
         CHECK_ARGUMENT(_cryptoManager)
         sig = _cryptoManager->signOracleResult(oracleResult);
     } catch (...) {
-        throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
 }
 
@@ -445,7 +446,7 @@ void OracleResult::appendErrorAsJson() {
         oracleResult.append(to_string(error));
         oracleResult.append(",");
     } catch (...) {
-        throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
 
 }
@@ -462,7 +463,7 @@ void OracleResult::appendErrorAsRlp() {
         cerr << "Oracle result" << oracleResult << endl;
         sleep(3);
     } catch (...) {
-        throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
 }
 
@@ -503,7 +504,7 @@ OracleResult::OracleResult(ptr<OracleRequestSpec> _oracleSpec, uint64_t _status,
             encodeAndSignResultAsJson(_cryptoManager);
         }
     } catch (...) {
-        throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
 
 }
@@ -523,7 +524,7 @@ void OracleResult::encodeAndSignResultAsJson(ptr<CryptoManager> _cryptoManager) 
         signResultAsJson(_cryptoManager);
 
     } catch (...) {
-        throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
 
 }
@@ -543,7 +544,7 @@ void OracleResult::encodeAndSignResultAsRlp(ptr<CryptoManager> _cryptoManager) {
         signResultAsRlp(_cryptoManager);
 
     } catch (...) {
-        throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
 
 }
@@ -601,6 +602,6 @@ const string OracleResult::getUnsignedOracleResultStr() const {
         auto res = oracleResult.substr(0, commaPosition + 1);
         return res;
     } catch (...) {
-        throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
 }

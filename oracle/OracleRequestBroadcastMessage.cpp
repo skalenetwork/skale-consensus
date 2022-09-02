@@ -27,7 +27,7 @@
 
 #include "SkaleCommon.h"
 
-#include "exceptions/FatalError.h"
+#include "exceptions/InvalidStateException.h"
 
 #include "messages/NetworkMessage.h"
 

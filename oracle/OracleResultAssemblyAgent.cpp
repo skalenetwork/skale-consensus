@@ -17,7 +17,7 @@ OracleResultAssemblyAgent::OracleResultAssemblyAgent(Schain &_sChain) : Agent(_s
         logThreadLocal_ = _sChain.getNode()->getLog();
         oracleMessageThreadPool->startService();
     } catch (...) {
-        throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
 }
 
@@ -28,62 +28,55 @@ void OracleResultAssemblyAgent::messageThreadProcessingLoop(OracleResultAssembly
     setThreadName("orclAssemblyLoop", _agent->getSchain()->getNode()->getConsensusEngine());
 
     _agent->getSchain()->waitOnGlobalStartBarrier();
+    logThreadLocal_ = _agent->getSchain()->getNode()->getLog();
 
-    try {
+    queue<ptr<MessageEnvelope> > newQueue;
 
-        logThreadLocal_ = _agent->getSchain()->getNode()->getLog();
-
-        queue<ptr<MessageEnvelope> > newQueue;
-
-        while (!_agent->getSchain()->getNode()->isExitRequested()) {
-            {
-                unique_lock<mutex> mlock(_agent->messageMutex);
-                while (_agent->messageQueue.empty()) {
-                    _agent->messageCond.wait(mlock);
-                    if (_agent->getNode()->isExitRequested())
-                        return;
-                }
-
-                newQueue = _agent->messageQueue;
-
-                while (!_agent->messageQueue.empty()) {
-                    if (_agent->getNode()->isExitRequested())
-                        return;
-
-                    _agent->messageQueue.pop();
-                }
+    while (!_agent->getSchain()->getNode()->isExitRequested()) {
+        {
+            unique_lock<mutex> mlock(_agent->messageMutex);
+            while (_agent->messageQueue.empty()) {
+                _agent->messageCond.wait(mlock);
+                if (_agent->getNode()->isExitRequested())
+                    return;
             }
 
-            while (!newQueue.empty()) {
+            newQueue = _agent->messageQueue;
+
+            while (!_agent->messageQueue.empty()) {
                 if (_agent->getNode()->isExitRequested())
                     return;
 
-                ptr<MessageEnvelope> m = newQueue.front();
-                CHECK_STATE((uint64_t) m->getMessage()->getBlockId() != 0);
-
-                try {
-                    if (m->getMessage()->getMsgType() == MSG_ORACLE_REQ_BROADCAST ||
-                        m->getMessage()->getMsgType() == MSG_ORACLE_RSP) {
-                        _agent->getSchain()->getOracleInstance()->routeAndProcessMessage(m);
-                    } else {
-                        CHECK_STATE(false);
-                    }
-                } catch (exception &e) {
-                    LOG(err, "Exception in Schain::oracleAssemblylLoop");
-                    SkaleException::logNested(e);
-                    if (_agent->getNode()->isExitRequested())
-                        return;
-                }  // catch
-
-                newQueue.pop();
+                _agent->messageQueue.pop();
             }
         }
 
+        while (!newQueue.empty()) {
+            if (_agent->getNode()->isExitRequested())
+                return;
 
-    } catch (FatalError &e) {
-        SkaleException::logNested(e);
-        _agent->getSchain()->getNode()->exitOnFatalError(e.what());
+            ptr<MessageEnvelope> m = newQueue.front();
+            CHECK_STATE((uint64_t) m->getMessage()->getBlockId() != 0);
+
+            try {
+                if (m->getMessage()->getMsgType() == MSG_ORACLE_REQ_BROADCAST ||
+                    m->getMessage()->getMsgType() == MSG_ORACLE_RSP) {
+                    _agent->getSchain()->getOracleInstance()->routeAndProcessMessage(m);
+                } else {
+                    CHECK_STATE(false);
+                }
+            } catch (exception &e) {
+                LOG(err, "Exception in Schain::oracleAssemblylLoop");
+                SkaleException::logNested(e);
+                if (_agent->getNode()->isExitRequested())
+                    return;
+            }  // catch
+
+            newQueue.pop();
+        }
     }
+
+
 }
 
 void OracleResultAssemblyAgent::postMessage(const ptr<MessageEnvelope> &_me) {

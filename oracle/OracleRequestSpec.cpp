@@ -22,7 +22,7 @@ ptr<OracleRequestSpec> OracleRequestSpec::parseSpec(const string &_spec) {
     try {
         return make_shared<OracleRequestSpec>(_spec);
     } catch (...) {
-        throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
 }
 
@@ -130,7 +130,7 @@ OracleRequestSpec::OracleRequestSpec(const string &_spec) : spec(_spec) {
 
         receipt = CryptoManager::hashForOracle(spec.data(), spec.size());
     } catch (...) {
-        throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
 }
 
@@ -268,7 +268,7 @@ OracleRequestSpec::OracleRequestSpec(uint64_t _chainid, const string &_uri,
         receipt = CryptoManager::hashForOracle(spec.data(), spec.size());
 
     } catch (...) {
-        throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
 }
 

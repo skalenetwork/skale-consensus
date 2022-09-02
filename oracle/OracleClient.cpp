@@ -74,7 +74,7 @@ uint64_t OracleClient::broadcastRequest(ptr<OracleRequestBroadcastMessage> _msg)
         return ORACLE_SUCCESS;
 
     } catch (...) {
-        throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
 }
 
@@ -124,7 +124,7 @@ void OracleClient::sendTestRequestGet() {
         t.detach();
 
     } catch (...) {
-        throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
 };
 
@@ -155,7 +155,7 @@ void OracleClient::sendTestRequestPost() {
 
         string result;
     } catch (...) {
-        throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
 }
 
@@ -171,7 +171,7 @@ uint64_t OracleClient::submitOracleRequest(const string &_spec, string &_receipt
 
         return broadcastRequest(msg);
     } catch (...) {
-        throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
 }
 
@@ -201,7 +201,7 @@ void OracleClient::processResponseMessage(const ptr<MessageEnvelope> &_me) {
         rslts->insertIfDoesntExist(origin, msg->getOracleResult(rslts->getRequestSpec()->getEncoding(),
                                                                 getSchain()->getSchainID()));
     } catch (...) {
-        throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
 }
 
@@ -223,7 +223,7 @@ uint64_t OracleClient::checkOracleResult(const string &_receipt,
         return receipts->tryGettingResult(_result);
 
     } catch (...) {
-        throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
 
 }

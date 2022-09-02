@@ -53,7 +53,7 @@ void OracleReceivedResults::insertIfDoesntExist(uint64_t _origin, ptr<OracleResu
         }
 
     } catch (...) {
-        throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
 }
 
@@ -81,7 +81,7 @@ string OracleReceivedResults::compileCompleteResultJson(string &_unsignedResult)
         }
         return completeResult;
     } catch (...) {
-        throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
 }
 
@@ -109,7 +109,7 @@ string OracleReceivedResults::compileCompleteResultRlp(string &_unsignedResult) 
         }
         return completeResult;
     } catch (...) {
-        throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
 }
 
@@ -138,7 +138,7 @@ uint64_t OracleReceivedResults::tryGettingResult(string &_result) {
         return ORACLE_RESULT_NOT_READY;
 
     } catch (...) {
-        throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
 
 }

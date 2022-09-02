@@ -81,7 +81,7 @@ OracleServerAgent::OracleServerAgent(Schain &_schain) : Agent(_schain, true), re
     } catch (ExitRequestedException &) {
         throw;
     } catch (...) {
-        throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
 
 
@@ -112,7 +112,7 @@ void OracleServerAgent::routeAndProcessMessage(const ptr<MessageEnvelope> &_me) 
         }
 
     } catch (...) {
-        throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
 
 }
@@ -153,9 +153,6 @@ void OracleServerAgent::workerThreadItemSendLoop(OracleServerAgent *_agent) {
             auto msg = _agent->doEndpointRequestResponse(orclMsg);
 
             _agent->sendOutResult(msg, msge->getSrcSchainIndex());
-        } catch (FatalError &e) {
-            SkaleException::logNested(e);
-            agent->getNode()->exitOnFatalError(e.what());
         } catch (ExitRequestedException &e) {
         } catch (exception &e) {
             SkaleException::logNested(e);
@@ -310,7 +307,7 @@ void OracleServerAgent::sendOutResult(ptr<OracleResponseMessage> _msg, schain_in
 
 
     } catch (...) {
-        throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
 
 }

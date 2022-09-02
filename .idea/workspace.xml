@@ -51,28 +51,15 @@
       <change beforePath="$PROJECT_DIR$/libBLS/deps/zlib/zconf.h" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/deps/zlib/zconf.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libjson-rpc-cpp" beforeDir="false" afterPath="$PROJECT_DIR$/libjson-rpc-cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libjson-rpc-cpp/CHANGELOG.md" beforeDir="false" afterPath="$PROJECT_DIR$/libjson-rpc-cpp/CHANGELOG.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/network/Utils.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/network/Utils.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/oracle/OracleClient.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/oracle/OracleClient.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/oracle/OracleClient.h" beforeDir="false" afterPath="$PROJECT_DIR$/oracle/OracleClient.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/oracle/OracleErrors.h" beforeDir="false" afterPath="$PROJECT_DIR$/oracle/OracleErrors.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/oracle/OracleMessageThreadPool.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/oracle/OracleMessageThreadPool.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/oracle/OracleMessageThreadPool.h" beforeDir="false" afterPath="$PROJECT_DIR$/oracle/OracleMessageThreadPool.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/oracle/OracleReceivedResults.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/oracle/OracleReceivedResults.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/oracle/OracleReceivedResults.h" beforeDir="false" afterPath="$PROJECT_DIR$/oracle/OracleReceivedResults.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/oracle/OracleRequestBroadcastMessage.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/oracle/OracleRequestBroadcastMessage.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/oracle/OracleRequestBroadcastMessage.h" beforeDir="false" afterPath="$PROJECT_DIR$/oracle/OracleRequestBroadcastMessage.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/oracle/OracleRequestSpec.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/oracle/OracleRequestSpec.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/oracle/OracleRequestSpec.h" beforeDir="false" afterPath="$PROJECT_DIR$/oracle/OracleRequestSpec.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/oracle/OracleResponseMessage.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/oracle/OracleResponseMessage.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/oracle/OracleResponseMessage.h" beforeDir="false" afterPath="$PROJECT_DIR$/oracle/OracleResponseMessage.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/oracle/OracleResult.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/oracle/OracleResult.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/oracle/OracleResult.h" beforeDir="false" afterPath="$PROJECT_DIR$/oracle/OracleResult.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/oracle/OracleResultAssemblyAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/oracle/OracleResultAssemblyAgent.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/oracle/OracleResultAssemblyAgent.h" beforeDir="false" afterPath="$PROJECT_DIR$/oracle/OracleResultAssemblyAgent.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/oracle/OracleServerAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/oracle/OracleServerAgent.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/oracle/OracleServerAgent.h" beforeDir="false" afterPath="$PROJECT_DIR$/oracle/OracleServerAgent.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/oracle/OracleThreadPool.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/oracle/OracleThreadPool.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/oracle/OracleThreadPool.h" beforeDir="false" afterPath="$PROJECT_DIR$/oracle/OracleThreadPool.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/oracle/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/oracle/README.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -489,7 +476,9 @@
       <workItem from="1662071976087" duration="755000" />
       <workItem from="1662073078874" duration="352000" />
       <workItem from="1662073648216" duration="1435000" />
-      <workItem from="1662075621903" duration="2000" />
+      <workItem from="1662075621903" duration="680000" />
+      <workItem from="1662076899748" duration="2000" />
+      <workItem from="1662078087578" duration="2000" />
     </task>
     <task id="LOCAL-00093" summary="bug/SKALE-4352">
       <created>1634133299846</created>
@@ -903,46 +892,6 @@
           <url>file://$PROJECT_DIR$/oracle/OracleRequestBroadcastMessage.cpp</url>
           <line>23</line>
           <option name="timeStamp" value="34" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
-          <url>file://$PROJECT_DIR$/oracle/OracleResult.cpp</url>
-          <line>177</line>
-          <option name="timeStamp" value="44" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
-          <url>file://$PROJECT_DIR$/oracle/OracleResult.cpp</url>
-          <line>182</line>
-          <option name="timeStamp" value="46" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
-          <url>file://$PROJECT_DIR$/oracle/OracleResult.cpp</url>
-          <line>168</line>
-          <option name="timeStamp" value="47" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
-          <url>file://$PROJECT_DIR$/oracle/OracleResult.cpp</url>
-          <line>156</line>
-          <option name="timeStamp" value="48" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
-          <url>file://$PROJECT_DIR$/oracle/OracleResult.cpp</url>
-          <line>147</line>
-          <option name="timeStamp" value="49" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
-          <url>file://$PROJECT_DIR$/oracle/OracleResult.cpp</url>
-          <line>140</line>
-          <option name="timeStamp" value="50" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
-          <url>file://$PROJECT_DIR$/oracle/OracleResult.cpp</url>
-          <line>134</line>
-          <option name="timeStamp" value="51" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
-          <url>file://$PROJECT_DIR$/oracle/OracleResult.cpp</url>
-          <line>123</line>
-          <option name="timeStamp" value="52" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>
