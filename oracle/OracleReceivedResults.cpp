@@ -12,13 +12,14 @@
 #include "OracleReceivedResults.h"
 
 OracleReceivedResults::OracleReceivedResults(ptr<OracleRequestSpec> _requestSpec, uint64_t _requredSigners,
-                                             uint64_t _nodeCount) {
+                                             uint64_t _nodeCount, bool _isSgx) {
     requestSpec = _requestSpec;
     requiredConfirmations = (_requredSigners - 1) / 2 + 1;
     nodeCount = _nodeCount;
     requestTime = Time::getCurrentTimeMs();
     signaturesBySchainIndex = make_shared<map<uint64_t, string>>();
     resultsByCount = make_shared<map<string, uint64_t>>();
+    isSgx = _isSgx;
 }
 
 uint64_t OracleReceivedResults::getRequestTime() const {
@@ -33,7 +34,7 @@ void OracleReceivedResults::insertIfDoesntExist(uint64_t _origin, ptr<OracleResu
         CHECK_STATE(_oracleResult);
 
 
-        auto unsignedResult = _oracleResult->getUnsignedOracleResultStr();
+        auto unsignedResult = _oracleResult->getUnsignedOracleResult();
         auto sig = _oracleResult->getSig();
 
         LOCK(m)

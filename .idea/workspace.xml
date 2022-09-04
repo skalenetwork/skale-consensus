@@ -51,8 +51,11 @@
       <change beforePath="$PROJECT_DIR$/libBLS/deps/zlib/zconf.h" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/deps/zlib/zconf.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libjson-rpc-cpp" beforeDir="false" afterPath="$PROJECT_DIR$/libjson-rpc-cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libjson-rpc-cpp/CHANGELOG.md" beforeDir="false" afterPath="$PROJECT_DIR$/libjson-rpc-cpp/CHANGELOG.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/messages/NetworkMessage.h" beforeDir="false" afterPath="$PROJECT_DIR$/messages/NetworkMessage.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/oracle/OracleClient.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/oracle/OracleClient.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/oracle/OracleReceivedResults.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/oracle/OracleReceivedResults.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/oracle/OracleReceivedResults.h" beforeDir="false" afterPath="$PROJECT_DIR$/oracle/OracleReceivedResults.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/oracle/OracleResult.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/oracle/OracleResult.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/oracle/OracleResult.h" beforeDir="false" afterPath="$PROJECT_DIR$/oracle/OracleResult.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -230,6 +233,11 @@
       <envs>
         <env name="TEST_TIME_S" value="1000000000" />
       </envs>
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
@@ -474,6 +482,7 @@
       <workItem from="1662078087578" duration="3807000" />
       <workItem from="1662324007758" duration="1120000" />
       <workItem from="1662325635306" duration="866000" />
+      <workItem from="1662328451021" duration="475000" />
     </task>
     <task id="LOCAL-00093" summary="bug/SKALE-4352">
       <created>1634133299846</created>

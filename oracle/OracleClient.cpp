@@ -24,6 +24,7 @@
 #include "SkaleCommon.h"
 #include "Log.h"
 #include "chains/Schain.h"
+#include "node/Node.h"
 #include "messages/MessageEnvelope.h"
 #include "network/Network.h"
 #include "OracleResponseMessage.h"
@@ -57,10 +58,15 @@ uint64_t OracleClient::broadcastRequest(ptr<OracleRequestBroadcastMessage> _msg)
 
         auto receipt = _msg->getParsedSpec()->getReceipt();
 
+
+
+
+        auto results = make_shared<OracleReceivedResults>(
+                _msg->getParsedSpec(), getSchain()->getRequiredSigners(),
+                (uint64_t) getSchain()->getNodeCount(), getSchain()->getNode()->isSgxEnabled());
+
         auto exists = receiptsMap.putIfDoesNotExist(receipt,
-                                                    make_shared<OracleReceivedResults>(
-                                                            _msg->getParsedSpec(), getSchain()->getRequiredSigners(),
-                                                            (uint64_t) getSchain()->getNodeCount()));
+                                                    results );
 
         if (!exists) {
             LOG(err, "Request exists:" + receipt);

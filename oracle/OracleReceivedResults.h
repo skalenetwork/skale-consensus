@@ -17,12 +17,14 @@ class OracleReceivedResults {
     ptr<map<uint64_t, string>> signaturesBySchainIndex;
     ptr<map<string, uint64_t>> resultsByCount;
     ptr<OracleRequestSpec> requestSpec;
+    bool isSgx;
 
 public:
 
     const ptr<OracleRequestSpec> &getRequestSpec() const;
 
-    OracleReceivedResults(ptr<OracleRequestSpec> _requestSpec, uint64_t _requiredSigners, uint64_t _nodeCount);
+    OracleReceivedResults(ptr<OracleRequestSpec> _requestSpec, uint64_t _requiredSigners, uint64_t _nodeCount,
+                          bool _isMockup);
 
     uint64_t getRequestTime() const;
 

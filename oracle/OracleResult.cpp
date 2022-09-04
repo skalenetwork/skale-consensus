@@ -626,6 +626,6 @@ ptr<vector<ptr<string>>> OracleResult::extractResults(
     return rs;
 }
 
-const string OracleResult::getUnsignedOracleResultStr() const {
+const string OracleResult::getUnsignedOracleResult() const {
     return unsignedOracleResult;
 }
