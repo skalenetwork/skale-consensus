@@ -6,6 +6,7 @@
 #include "Log.h"
 
 #include "utils/Time.h"
+#include "network/Utils.h"
 #include "OracleErrors.h"
 #include "OracleRequestSpec.h"
 #include "OracleResult.h"
@@ -46,6 +47,7 @@ void OracleReceivedResults::insertIfDoesntExist(uint64_t _origin, ptr<OracleResu
         }
 
         signaturesBySchainIndex->insert({_origin, sig});
+
         if (resultsByCount->count(unsignedResult) == 0) {
             resultsByCount->insert({unsignedResult, 1});
         } else {
@@ -88,27 +90,28 @@ string OracleReceivedResults::compileCompleteResultJson(string &_unsignedResult)
 
 
 string OracleReceivedResults::compileCompleteResultRlp(string &_unsignedResult) {
+
+
+
+    RLPOutputStream resultWithSignaturesStream(1 + nodeCount);
+
+
     try {
         uint64_t sigCount = 0;
-        auto completeResult = _unsignedResult;
-        completeResult.append("\"sigs\":[");
+        resultWithSignaturesStream.append(_unsignedResult);
         for (uint64_t i = 1; i <= nodeCount; i++) {
             if (signaturesBySchainIndex->count(i) > 0 && sigCount < requiredConfirmations) {
-                completeResult.append("\"");
-                completeResult.append(signaturesBySchainIndex->at(i));
-                completeResult.append("\"");
+                resultWithSignaturesStream.append(signaturesBySchainIndex->at(i));
                 sigCount++;
             } else {
-                completeResult.append("null");
-            }
-
-            if (i < nodeCount) {
-                completeResult.append(",");
-            } else {
-                completeResult.append("]}");
+                resultWithSignaturesStream.append("");
             }
         }
-        return completeResult;
+
+        auto rawResult = resultWithSignaturesStream.out();
+
+        return Utils::carray2Hex(rawResult.data(), rawResult.size());
+
     } catch (...) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
