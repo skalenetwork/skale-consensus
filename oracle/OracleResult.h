@@ -14,6 +14,8 @@ class CryptoManager;
 
 class OracleResult {
 
+
+    string unsignedOracleResult; // this exactly the piece which is signed
     string oracleResult;
     string encoding;
 
@@ -30,7 +32,7 @@ class OracleResult {
     string sig;
 
 
-    RLPOutputStream rlpStream;
+    RLPOutputStream unsignedResultRlpStream;
 
 
     ptr<vector<ptr<string>>> extractResults(string &_response);

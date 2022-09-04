@@ -18,6 +18,17 @@ const uint64_t RLP_LIST_LEN = 8;
 
 
 void OracleResult::parseResultAsJson() {
+
+    // first get the piece which signed by ECDSA
+    try {
+        auto commaPosition = oracleResult.find_last_of(",");
+        CHECK_STATE(commaPosition != string::npos);
+        unsignedOracleResult = oracleResult.substr(0, commaPosition + 1);
+    } catch (...) {
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+    }
+
+
     try {
         rapidjson::Document d;
 
@@ -348,12 +359,12 @@ void OracleResult::appendElementsFromTheSpecAsJson() {
 void OracleResult::appendElementsFromTheSpecAsRlp() {
     try {
 
-        rlpStream.append(chainId); //1
-        rlpStream.append(uri);//2
-        rlpStream.append(jsps); // 3
-        rlpStream.append(trims); //4
-        rlpStream.append(requestTime); //5
-        rlpStream.append(post); //6
+        unsignedResultRlpStream.append(chainId); //1
+        unsignedResultRlpStream.append(uri);//2
+        unsignedResultRlpStream.append(jsps); // 3
+        unsignedResultRlpStream.append(trims); //4
+        unsignedResultRlpStream.append(requestTime); //5
+        unsignedResultRlpStream.append(post); //6
 
     } catch (...) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
@@ -391,26 +402,19 @@ void OracleResult::appendResultsAsRlp() {
 
     try {
 
-        rlpStream.append((uint64_t) ORACLE_SUCCESS);
-        rlpStream.appendList(results->size());
+        unsignedResultRlpStream.append((uint64_t) ORACLE_SUCCESS);
+        unsignedResultRlpStream.appendList(results->size());
 
 
         for (uint64_t i = 0; i < results->size(); i++) {
 
             if (results->at(i)) {
-                rlpStream.append(*results->at(i));
+                unsignedResultRlpStream.append(*results->at(i));
             } else {
-                rlpStream.appendList(0);
+                unsignedResultRlpStream.appendList(0);
             }
 
         }
-
-        auto rlpEncoding = rlpStream.out();
-        oracleResult = Utils::carray2Hex(rlpEncoding.data(), rlpEncoding.size());
-        cerr << "Oracle result" << oracleResult << endl;
-        sleep(5);
-
-
     } catch (...) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
@@ -421,7 +425,8 @@ void OracleResult::signResultAsJson(ptr<CryptoManager> _cryptoManager) {
     try {
         CHECK_ARGUMENT(_cryptoManager)
         CHECK_STATE(oracleResult.at(oracleResult.size() - 1) == ',')
-        sig = _cryptoManager->signOracleResult(oracleResult);
+        unsignedOracleResult = oracleResult;
+        sig = _cryptoManager->signOracleResult(unsignedOracleResult);
         oracleResult.append("\"sig\":\"");
         oracleResult.append(sig);
         oracleResult.append("\"}");
@@ -433,7 +438,27 @@ void OracleResult::signResultAsJson(ptr<CryptoManager> _cryptoManager) {
 void OracleResult::signResultAsRlp(ptr<CryptoManager> _cryptoManager) {
     try {
         CHECK_ARGUMENT(_cryptoManager)
-        sig = _cryptoManager->signOracleResult(oracleResult);
+        auto unsignedRlpEncodedResult = unsignedResultRlpStream.out();
+
+        unsignedOracleResult = string((char*)unsignedRlpEncodedResult.data(),
+                                                   unsignedRlpEncodedResult.size());
+
+        sig = _cryptoManager->signOracleResult(unsignedOracleResult);
+
+        RLPOutputStream resultWithSignatureStream(2);
+
+
+        resultWithSignatureStream.append(unsignedOracleResult);
+        resultWithSignatureStream.append(sig);
+
+        auto rawResult = resultWithSignatureStream.out();
+
+        oracleResult = Utils::carray2Hex(rawResult.data(), rawResult.size());
+
+        cerr << "Full Oracle Result" << oracleResult << endl;
+
+        exit(789);
+
     } catch (...) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
@@ -453,22 +478,16 @@ void OracleResult::appendErrorAsJson() {
 
 void OracleResult::appendErrorAsRlp() {
     try {
-        rlpStream.append(error);
+        unsignedResultRlpStream.append(error);
         // empty results
-        rlpStream.appendList(0);
-        auto rlpEncoding = rlpStream.out();
-
-
-        oracleResult = Utils::carray2Hex(rlpEncoding.data(), rlpEncoding.size());
-        cerr << "Oracle result" << oracleResult << endl;
-        sleep(3);
+        unsignedResultRlpStream.appendList(0);
     } catch (...) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
 }
 
 OracleResult::OracleResult(ptr<OracleRequestSpec> _oracleSpec, uint64_t _status, string &_serverResponse,
-                           ptr<CryptoManager> _cryptoManager) : rlpStream(RLP_LIST_LEN) {
+                           ptr<CryptoManager> _cryptoManager) : unsignedResultRlpStream(RLP_LIST_LEN) {
 
 
     try {
@@ -596,12 +615,5 @@ ptr<vector<ptr<string>>> OracleResult::extractResults(
 }
 
 const string OracleResult::getUnsignedOracleResultStr() const {
-    try {
-        auto commaPosition = oracleResult.find_last_of(",");
-        CHECK_STATE(commaPosition != string::npos);
-        auto res = oracleResult.substr(0, commaPosition + 1);
-        return res;
-    } catch (...) {
-        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
-    }
+    return unsignedOracleResult;
 }
