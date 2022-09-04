@@ -89,6 +89,49 @@ string OracleReceivedResults::compileCompleteResultJson(string &_unsignedResult)
 }
 
 
+vector<uint8_t>  OracleReceivedResults::ecdsaSigStringToByteArray(string& _sig ) {
+
+
+    if (this->isSgx) {
+
+        boost::char_separator< char > sep( ":");
+        boost::tokenizer tok {_sig, sep};
+        vector<string> tokens;
+
+        for ( const auto& it : tok) {
+            tokens.push_back((it));
+        }
+
+        CHECK_STATE(tokens.size() == 3)
+
+
+        string tmp = "0" + tokens[0];
+
+        for (uint64_t i = 0; i < 64 - tokens[1].size(); i++) {
+            tmp.append("0");
+        }
+
+        tmp.append(tokens[1]);
+
+        for (uint64_t i = 0; i < 64 - tokens[2].size(); i++) {
+            tmp.append("0");
+        }
+
+        tmp.append(tokens[2]);
+
+        CHECK_STATE(tmp.size() == 130);
+
+        vector<uint8_t> result(tmp.size() / 2);
+        Utils::cArrayFromHex(tmp, result.data(), result.size());
+        return result;
+    } else {
+        CHECK_STATE(_sig.size() % 2 == 0);
+        vector<uint8_t> result(_sig.size() / 2);
+        Utils::cArrayFromHex(_sig, result.data(), result.size());
+        return result;
+    }
+}
+
 string OracleReceivedResults::compileCompleteResultRlp(string &_unsignedResult) {
 
 
@@ -101,7 +144,7 @@ string OracleReceivedResults::compileCompleteResultRlp(string &_unsignedResult) 
         resultWithSignaturesStream.append(_unsignedResult);
         for (uint64_t i = 1; i <= nodeCount; i++) {
             if (signaturesBySchainIndex->count(i) > 0 && sigCount < requiredConfirmations) {
-                resultWithSignaturesStream.append(signaturesBySchainIndex->at(i));
+                resultWithSignaturesStream.append(ecdsaSigStringToByteArray(signaturesBySchainIndex->at(i)));
                 sigCount++;
             } else {
                 resultWithSignaturesStream.append("");
@@ -130,11 +173,10 @@ uint64_t OracleReceivedResults::tryGettingResult(string &_result) {
             if (item.second >= requiredConfirmations) {
                 string unsignedResult = item.first;
                 if (requestSpec->getEncoding() == "rlp") {
-                    _result = compileCompleteResultJson(unsignedResult);
-                } else {
                     _result = compileCompleteResultRlp(unsignedResult);
+                } else {
+                    _result = compileCompleteResultJson(unsignedResult);
                 }
-                LOG(err, "ORACLE SUCCESS!");
                 return ORACLE_SUCCESS;
             };
         }

@@ -19,6 +19,8 @@ class OracleReceivedResults {
     ptr<OracleRequestSpec> requestSpec;
     bool isSgx;
 
+    vector<uint8_t> ecdsaSigStringToByteArray(string& _sig );
+
 public:
 
     const ptr<OracleRequestSpec> &getRequestSpec() const;
