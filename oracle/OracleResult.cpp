@@ -25,7 +25,7 @@ void OracleResult::parseResultAsJson() {
         CHECK_STATE(commaPosition != string::npos);
         unsignedOracleResult = oracleResult.substr(0, commaPosition + 1);
     } catch (...) {
-        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+        throw_with_nested(InvalidStateException("Invalid oracle result" + oracleResult, __CLASS_NAME__));
     }
 
 
@@ -124,13 +124,29 @@ void OracleResult::parseResultAsJson() {
 
 void OracleResult::parseResultAsRlp() {
 
+    // first get the piece which signed by ECDSA
     try {
+
         vector<uint8_t> rawRLP(oracleResult.size() / 2);
-
         Utils::cArrayFromHex(oracleResult, rawRLP.data(), rawRLP.size());
-
         RLP parsedRLP(rawRLP);
 
+        CHECK_STATE(parsedRLP.isList())
+        auto list = parsedRLP.toList();
+
+        CHECK_STATE(list.size() == 2);
+        CHECK_STATE(list[0].isData());
+        unsignedOracleResult = list[0].toStringStrict();
+        CHECK_STATE(list[1].isData());
+        sig  = list[1].toStringStrict();
+    } catch (...) {
+        throw_with_nested(InvalidStateException("Invalid oracle result" + oracleResult, __CLASS_NAME__));
+    }
+
+    
+    try {
+
+        RLP parsedRLP(unsignedOracleResult);
 
         CHECK_STATE(parsedRLP.isList())
 
@@ -454,10 +470,6 @@ void OracleResult::signResultAsRlp(ptr<CryptoManager> _cryptoManager) {
         auto rawResult = resultWithSignatureStream.out();
 
         oracleResult = Utils::carray2Hex(rawResult.data(), rawResult.size());
-
-        cerr << "Full Oracle Result" << oracleResult << endl;
-
-        exit(789);
 
     } catch (...) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
