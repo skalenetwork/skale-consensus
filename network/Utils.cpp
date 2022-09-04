@@ -154,7 +154,7 @@ uint Utils::char2int(char _input) {
         return _input - 'A' + 10;
     if (_input >= 'a' && _input <= 'f')
         return _input - 'a' + 10;
-    BOOST_THROW_EXCEPTION(InvalidArgumentException("Invalid input string", __CLASS_NAME__));
+    BOOST_THROW_EXCEPTION(InvalidArgumentException(string("Invalid hex char:") + _input, __CLASS_NAME__));
 }
 
 void Utils::cArrayFromHex(const string &_hex, uint8_t *_data, size_t len) {

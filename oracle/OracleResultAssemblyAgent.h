@@ -30,6 +30,7 @@
 #include "messages/Message.h"
 
 class OracleAssemblyThreadPool;
+
 class LivelinessMonitor;
 
 class OracleResultAssemblyAgent : public Agent {

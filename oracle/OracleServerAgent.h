@@ -26,6 +26,7 @@
 class Schain;
 
 class OracleRequestBroadcastMessage;
+
 class CryptoManager;
 
 
@@ -39,8 +40,11 @@ class CryptoManager;
 using namespace moodycamel;
 
 class MessageEnvelope;
+
 class OracleResponseMessage;
+
 class OracleRequestBroadcastMessage;
+
 class OracleThreadPool;
 
 class OracleServerAgent : public Agent {
@@ -51,7 +55,7 @@ class OracleServerAgent : public Agent {
 
     atomic<uint64_t> threadCounter;
 
-    ptr <OracleThreadPool> oracleThreadPool = nullptr;
+    ptr<OracleThreadPool> oracleThreadPool = nullptr;
 
     string gethURL;
 
@@ -64,25 +68,19 @@ class OracleServerAgent : public Agent {
 
 public:
 
-    OracleServerAgent(Schain& _schain);
+    OracleServerAgent(Schain &_schain);
 
     virtual ~OracleServerAgent() {};
 
-    void routeAndProcessMessage(const ptr<MessageEnvelope>& _me );
+    void routeAndProcessMessage(const ptr<MessageEnvelope> &_me);
 
-    static void workerThreadItemSendLoop(OracleServerAgent* _agent );
+    static void workerThreadItemSendLoop(OracleServerAgent *_agent);
 
-    uint64_t curlHttp(const string &_uri, bool _isPost, string& _postString, string &_result);
+    uint64_t curlHttp(const string &_uri, bool _isPost, string &_postString, string &_result);
 
-    ptr<vector<ptr<string>>> extractResults(
-            string& _response, vector<string> & _jsps) const;
+    static ptr<vector<ptr<string>>> extractResults(
+            string &_response, vector<string> &_jsps);
 
-    void trimResults(ptr<vector<ptr<string>>> &_results, vector<uint64_t> &_trims) const;
 
-    void appendResultsToSpec(string &_specStr, ptr<vector<ptr<string>>> &_results) const;
-
-    void appendErrorToSpec(string &specStr, uint64_t _error) const;
-
-    void signResult(string &basicString);
 };
 

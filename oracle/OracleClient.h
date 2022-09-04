@@ -29,29 +29,29 @@
 #include "OracleReceivedResults.h"
 
 class Schain;
+
 class OracleRequestBroadcastMessage;
 
 class OracleClient : public ProtocolInstance {
 
     recursive_mutex m;
 
-    Schain* sChain = nullptr;
+    Schain *sChain = nullptr;
 
     cache::lru_cache<string, ptr<OracleReceivedResults>> receiptsMap;
 
     string gethURL;
 
-    uint64_t broadcastRequestAndReturnReceipt(ptr<OracleRequestBroadcastMessage> _msg, string& _receipt);
-
+    uint64_t broadcastRequest(ptr<OracleRequestBroadcastMessage> _msg);
 
 
 public:
 
-    explicit OracleClient(Schain& _sChain);
+    explicit OracleClient(Schain &_sChain);
 
-    uint64_t  checkOracleResult(const string& _receipt, string& _result);
+    uint64_t checkOracleResult(const string &_receipt, string &_result);
 
-    uint64_t submitOracleRequest(const string& _spec, string &_receipt);
+    uint64_t submitOracleRequest(const string &_spec, string &_receipt);
 
     void sendTestRequestGet();
 
@@ -60,10 +60,6 @@ public:
     void processResponseMessage(const ptr<MessageEnvelope> &_me);
 
 };
-
-
-
-
 
 
 #endif //SKALED_ORACLECLIENT_H

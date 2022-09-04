@@ -27,13 +27,10 @@
 
 #include "SkaleCommon.h"
 #include "Log.h"
-#include "exceptions/FatalError.h"
-#include "thirdparty/json.hpp"
 
 #include "blockfinalize/client/BlockFinalizeDownloader.h"
-#include "blockfinalize/client/BlockFinalizeDownloaderThreadPool.h"
+
 #include "blockproposal/pusher/BlockProposalClientAgent.h"
-#include "Agent.h"
 #include "chains/Schain.h"
 #include "crypto/BLAKE3Hash.h"
 #include "crypto/ThresholdSigShare.h"
@@ -45,31 +42,26 @@
 #include "db/BlockProposalDB.h"
 #include "db/BlockSigShareDB.h"
 #include "exceptions/ExitRequestedException.h"
-#include "exceptions/InvalidStateException.h"
+
 #include "messages/ConsensusProposalMessage.h"
 #include "messages/InternalMessageEnvelope.h"
-#include "messages/NetworkMessage.h"
+
 #include "messages/NetworkMessageEnvelope.h"
 #include "messages/ParentMessage.h"
 #include "network/Network.h"
-#include "node/Node.h"
+
 #include "node/NodeInfo.h"
-
-#include "pendingqueue/PendingTransactionsAgent.h"
-
-#include "thirdparty/lrucache.hpp"
 #include "third_party/json.hpp"
 
 #include "utils/Time.h"
 #include "protocols/ProtocolInstance.h"
+#include "OracleErrors.h"
 #include "OracleRequestSpec.h"
 #include "OracleThreadPool.h"
-
 #include "OracleClient.h"
 #include "OracleRequestBroadcastMessage.h"
-#include "OracleRequestSpec.h"
 #include "OracleResponseMessage.h"
-#include "OracleErrors.h"
+#include "OracleResult.h"
 #include "OracleServerAgent.h"
 
 OracleServerAgent::OracleServerAgent(Schain &_schain) : Agent(_schain, true), requestCounter(0), threadCounter(0) {
@@ -89,7 +81,7 @@ OracleServerAgent::OracleServerAgent(Schain &_schain) : Agent(_schain, true), re
     } catch (ExitRequestedException &) {
         throw;
     } catch (...) {
-        throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
 
 
@@ -98,32 +90,38 @@ OracleServerAgent::OracleServerAgent(Schain &_schain) : Agent(_schain, true), re
 void OracleServerAgent::routeAndProcessMessage(const ptr<MessageEnvelope> &_me) {
 
 
-    CHECK_ARGUMENT(_me);
+    try {
 
-    CHECK_ARGUMENT(_me->getMessage()->getBlockId() > 0);
+        CHECK_ARGUMENT(_me);
 
-    ORACLE_CHECK_STATE(_me->getMessage()->getMsgType() == MSG_ORACLE_REQ_BROADCAST ||
-                _me->getMessage()->getMsgType() == MSG_ORACLE_RSP);
+        CHECK_ARGUMENT(_me->getMessage()->getBlockId() > 0);
 
-    if (_me->getMessage()->getMsgType() == MSG_ORACLE_REQ_BROADCAST) {
+        CHECK_STATE(_me->getMessage()->getMsgType() == MSG_ORACLE_REQ_BROADCAST ||
+                    _me->getMessage()->getMsgType() == MSG_ORACLE_RSP);
 
-        auto value = requestCounter.fetch_add(1);
+        if (_me->getMessage()->getMsgType() == MSG_ORACLE_REQ_BROADCAST) {
 
-        this->incomingQueues.at(value % (uint64_t) NUM_ORACLE_THREADS)->enqueue(_me);
+            auto value = requestCounter.fetch_add(1);
 
-        return;
-    } else {
-        auto client = getSchain()->getOracleClient();
-        client->processResponseMessage(_me);
+            this->incomingQueues.at(value % (uint64_t) NUM_ORACLE_THREADS)->enqueue(_me);
+
+            return;
+        } else {
+            auto client = getSchain()->getOracleClient();
+            client->processResponseMessage(_me);
+        }
+
+    } catch (...) {
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
 
 }
 
 void OracleServerAgent::workerThreadItemSendLoop(OracleServerAgent *_agent) {
 
-    ORACLE_CHECK_STATE(_agent)
+    CHECK_STATE(_agent)
 
-    ORACLE_CHECK_STATE(_agent->threadCounter == 0);
+    CHECK_STATE(_agent->threadCounter == 0);
 
     LOG(info, "Thread counter is : " + to_string(_agent->threadCounter));
 
@@ -150,14 +148,11 @@ void OracleServerAgent::workerThreadItemSendLoop(OracleServerAgent *_agent) {
 
             auto orclMsg = dynamic_pointer_cast<OracleRequestBroadcastMessage>(msge->getMessage());
 
-            ORACLE_CHECK_STATE(orclMsg);
+            CHECK_STATE(orclMsg);
 
             auto msg = _agent->doEndpointRequestResponse(orclMsg);
 
             _agent->sendOutResult(msg, msge->getSrcSchainIndex());
-        } catch (FatalError &e) {
-            SkaleException::logNested(e);
-            agent->getNode()->exitOnFatalError(e.what());
         } catch (ExitRequestedException &e) {
         } catch (exception &e) {
             SkaleException::logNested(e);
@@ -181,7 +176,7 @@ WriteMemoryCallback(void *contents, size_t size, size_t nmemb, void *userp) {
     struct MemoryStruct *mem = (struct MemoryStruct *) userp;
 
     char *ptr = (char *) realloc(mem->memory, mem->size + realsize + 1);
-    ORACLE_CHECK_STATE(ptr);
+    CHECK_STATE(ptr);
     mem->memory = ptr;
     memcpy(&(mem->memory[mem->size]), contents, realsize);
     mem->size += realsize;
@@ -202,12 +197,12 @@ ptr<OracleResponseMessage> OracleServerAgent::doEndpointRequestResponse(ptr<Orac
         uri = gethURL + "/" + uri.substr(string("geth://").size());
     } else {
         auto result = LUrlParser::ParseURL::parseURL(uri);
-        ORACLE_CHECK_STATE2(result.isValid(), "URL invalid:" + uri);
-        ORACLE_CHECK_STATE2(result.userName_.empty(), "Non empty username");
-        ORACLE_CHECK_STATE2(result.password_.empty(), "Non empty password");
+        CHECK_STATE2(result.isValid(), "URL invalid:" + uri);
+        CHECK_STATE2(result.userName_.empty(), "Non empty username");
+        CHECK_STATE2(result.password_.empty(), "Non empty password");
         auto host = result.host_;
 
-        ORACLE_CHECK_STATE2(host.find("0.") != 0 &&
+        CHECK_STATE2(host.find("0.") != 0 &&
                      host.find("10.") != 0 &&
                      host.find("127.") != 0 &&
                      host.find("172.") != 0 &&
@@ -222,33 +217,18 @@ ptr<OracleResponseMessage> OracleServerAgent::doEndpointRequestResponse(ptr<Orac
         )
     }
 
-    auto isPost = spec->getPost();
-    auto postString = spec->getPostStr();
+    auto postString = spec->getPost();
 
     string response;
 
-    auto resultStr = _request->getRequestSpec();
 
+    auto status = curlHttp(uri, spec->isPost(), postString, response);
 
-    auto status = curlHttp(uri, isPost, postString, response);
+    ptr<OracleResult> oracleResult = nullptr;
 
+    oracleResult = make_shared<OracleResult>(spec, status, response, getSchain()->getCryptoManager());
 
-    if (status != ORACLE_SUCCESS) {
-        appendErrorToSpec(resultStr, status);
-    } else {
-        auto jsps = spec->getJsps();
-        auto results = extractResults(response, jsps);
-
-        if (!results) {
-            appendErrorToSpec(resultStr, ORACLE_INVALID_JSON_RESPONSE);
-        } else {
-            auto trims = spec->getTrims();
-            trimResults(results, trims);
-            appendResultsToSpec(resultStr, results);
-        }
-    }
-
-    this->signResult(resultStr);
+    auto resultStr = oracleResult->toString();
 
     LOG(info, "Oracle request result: " + resultStr);
 
@@ -261,107 +241,6 @@ ptr<OracleResponseMessage> OracleServerAgent::doEndpointRequestResponse(ptr<Orac
                                               *getSchain()->getOracleClient());
 }
 
-void OracleServerAgent::appendResultsToSpec(string &specStr, ptr<vector<ptr<string>>> &_results) const {
-    {
-
-        auto commaPosition = specStr.find_last_of(",");
-
-        ORACLE_CHECK_STATE(commaPosition != string::npos);
-
-        specStr = specStr.substr(0, commaPosition + 1);
-
-        specStr.append("\"rslts\":[");
-
-        for (uint64_t i = 0; i < _results->size(); i++) {
-            if (i != 0) {
-                specStr.append(",");
-            }
-
-            if (_results->at(i)) {
-                specStr.append("\"");
-                specStr.append(*_results->at(i));
-                specStr.append("\"");
-            } else {
-                specStr.append("null");
-            }
-
-        }
-
-        specStr.append("],");
-    }
-}
-
-void OracleServerAgent::appendErrorToSpec(string &specStr, uint64_t _error) const {
-    auto commaPosition = specStr.find_last_of(",");
-    ORACLE_CHECK_STATE(commaPosition != string::npos);
-    specStr = specStr.substr(0, commaPosition + 1);
-    specStr.append("\"err\":");
-    specStr.append(to_string(_error));
-    specStr.append(",");
-}
-
-
-void OracleServerAgent::trimResults(ptr<vector<ptr<string>>> &_results, vector<uint64_t> &_trims) const {
-
-    ORACLE_CHECK_STATE(_results->size() == _trims.size())
-
-    for (uint64_t i = 0; i < _results->size(); i++) {
-        auto trim = _trims.at(i);
-        auto res = _results->at(i);
-        if (res && trim != 0) {
-            if (res->size() <= trim) {
-                res = make_shared<string>("");
-            } else {
-                res = make_shared<string>(res->substr(0, res->size() - trim));
-            }
-            (*_results)[i] = res;
-        }
-
-    }
-}
-
-ptr<vector<ptr<string>>> OracleServerAgent::extractResults(
-        string &_response,
-        vector<string> &jsps) const {
-
-
-    auto rs = make_shared<vector<ptr<string>>>();
-
-
-    try {
-
-        auto j = json::parse(_response);
-        for (auto &&jsp: jsps) {
-            auto pointer = json::json_pointer(jsp);
-            try {
-                auto val = j.at(pointer);
-                ORACLE_CHECK_STATE(val.is_primitive());
-                string strVal;
-                if (val.is_string()) {
-                    strVal = val.get<string>();
-                } else if (val.is_number_integer()) {
-                    if (val.is_number_unsigned()) {
-                        strVal = to_string(val.get<uint64_t>());
-                    } else {
-                        strVal = to_string(val.get<int64_t>());
-                    }
-                } else if (val.is_number_float()) {
-                    strVal = to_string(val.get<double>());
-                } else if (val.is_boolean()) {
-                    strVal = to_string(val.get<bool>());
-                }
-                rs->push_back(make_shared<string>(strVal));
-            } catch (...) {
-                rs->push_back(nullptr);
-            }
-        }
-
-    } catch (...) {
-        return nullptr;
-    }
-
-    return rs;
-}
 
 uint64_t OracleServerAgent::curlHttp(const string &_uri, bool _isPost, string &_postString, string &_result) {
 
@@ -371,12 +250,12 @@ uint64_t OracleServerAgent::curlHttp(const string &_uri, bool _isPost, string &_
     CURLcode res;
     struct MemoryStruct chunk;
     chunk.memory = (char *) malloc(1);  /* will be grown as needed by the realloc above */
-    ORACLE_CHECK_STATE(chunk.memory);
+    CHECK_STATE(chunk.memory);
     chunk.size = 0;    /* no data at this point */
 
     curl = curl_easy_init();
 
-    ORACLE_CHECK_STATE2(curl, "Could not init curl object");
+    CHECK_STATE2(curl, "Could not init curl object");
 
     curl_easy_setopt(curl, CURLOPT_URL, _uri.c_str());
     curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
@@ -419,16 +298,17 @@ uint64_t OracleServerAgent::curlHttp(const string &_uri, bool _isPost, string &_
 }
 
 void OracleServerAgent::sendOutResult(ptr<OracleResponseMessage> _msg, schain_index _destination) {
-    ORACLE_CHECK_STATE(_destination != 0)
 
-    getSchain()->getNode()->getNetwork()->sendOracleResponseMessage(_msg, _destination);
+    try {
+
+        CHECK_STATE(_destination != 0)
+
+        getSchain()->getNode()->getNetwork()->sendOracleResponseMessage(_msg, _destination);
+
+
+    } catch (...) {
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+    }
 
 }
 
-void OracleServerAgent::signResult(string &_result) {
-    ORACLE_CHECK_STATE(_result.at(_result.size() - 1) == ',')
-    auto sig = getSchain()->getCryptoManager()->signOracleResult(_result);
-    _result.append("\"sig\":\"");
-    _result.append(sig);
-    _result.append("\"}");
-}

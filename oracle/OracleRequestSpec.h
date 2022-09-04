@@ -11,19 +11,19 @@ class OracleRequestSpec {
     string spec;
     uint64_t chainid;
     string uri;
-
     vector<string> jsps;
     vector<uint64_t> trims;
-    uint64_t time;
+    uint64_t requestTime;
+    string post;
+    string encoding;
     uint64_t pow;
-    bool isPost = false;
-    string postStr = "";
+    string receipt;
+
 
 public:
 
-    bool getPost() const;
 
-    const string &getPostStr() const;
+    const string &getPost() const;
 
 
     const vector<string> &getJsps() const;
@@ -36,20 +36,26 @@ public:
 
     const uint64_t &getPow() const;
 
-    OracleRequestSpec(const string& _spec);
+    OracleRequestSpec(const string &_spec);
+
+    OracleRequestSpec(uint64_t chainid, const string &uri, const vector<string> &jsps,
+                      const vector<uint64_t> &trims, uint64_t time, const string &postStr, const string &encoding);
 
     uint64_t getChainid() const;
 
-    static ptr<OracleRequestSpec> parseSpec(const string& _spec);
+    static ptr<OracleRequestSpec> parseSpec(const string &_spec);
 
     const vector<uint64_t> &getTrims() const;
 
     bool isGeth();
 
+    bool isPost();
+
     string getReceipt();
 
     bool verifyPow();
 
+    const string &getEncoding() const;
 };
 
 

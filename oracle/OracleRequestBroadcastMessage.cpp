@@ -27,7 +27,7 @@
 
 #include "SkaleCommon.h"
 
-#include "exceptions/FatalError.h"
+#include "exceptions/InvalidStateException.h"
 
 #include "messages/NetworkMessage.h"
 
@@ -39,7 +39,7 @@
 #include "OracleRequestSpec.h"
 #include "OracleRequestBroadcastMessage.h"
 
-OracleRequestBroadcastMessage::OracleRequestBroadcastMessage(const string& _requestSpec, block_id _blockID,
+OracleRequestBroadcastMessage::OracleRequestBroadcastMessage(const string &_requestSpec, block_id _blockID,
                                                              uint64_t _timeMs,
                                                              OracleClient &sourceProtocolInstance)
         : NetworkMessage(MSG_ORACLE_REQ_BROADCAST, _blockID, 0, 0, 0, _timeMs,
@@ -50,16 +50,17 @@ OracleRequestBroadcastMessage::OracleRequestBroadcastMessage(const string& _requ
     printPrefix = "o";
 
     parsedSpec = OracleRequestSpec::parseSpec(requestSpec);
-    ORACLE_CHECK_STATE2(parsedSpec->getChainid() == sourceProtocolInstance.getSchain()->getSchainID(),
+    CHECK_STATE2(parsedSpec->getChainid() == sourceProtocolInstance.getSchain()->getSchainID(),
                  "Invalid schain id in oracle spec:" + to_string(parsedSpec->getChainid()));
 
-    ORACLE_CHECK_STATE2(parsedSpec->getTime() + ORACLE_TIMEOUT_MS > Time::getCurrentTimeMs(), "Request timeout")
-    ORACLE_CHECK_STATE(parsedSpec->getTime()  < Time::getCurrentTimeMs() + ORACLE_FUTURE_JITTER_MS)
-    ORACLE_CHECK_STATE2(parsedSpec->verifyPow(), "PoW did not verify");
+    CHECK_STATE2(parsedSpec->getTime() + ORACLE_TIMEOUT_MS > Time::getCurrentTimeMs(), "Request timeout")
+    CHECK_STATE(parsedSpec->getTime() < Time::getCurrentTimeMs() + ORACLE_FUTURE_JITTER_MS)
+    CHECK_STATE2(parsedSpec->verifyPow(), "PoW did not verify");
 }
 
 
-OracleRequestBroadcastMessage::OracleRequestBroadcastMessage(const string& _requestSpec, node_id _srcNodeID, block_id _blockID,
+OracleRequestBroadcastMessage::OracleRequestBroadcastMessage(const string &_requestSpec, node_id _srcNodeID,
+                                                             block_id _blockID,
                                                              uint64_t _timeMs,
                                                              schain_id _schainId, msg_id _msgID,
                                                              schain_index _srcSchainIndex,
@@ -69,21 +70,20 @@ OracleRequestBroadcastMessage::OracleRequestBroadcastMessage(const string& _requ
         MSG_ORACLE_REQ_BROADCAST, _srcNodeID, _blockID, 0, 0, 0, _timeMs, _schainId, _msgID,
         "", _ecdsaSig, _publicKey, _pkSig,
         _srcSchainIndex, _sChain->getCryptoManager()), requestSpec(_requestSpec) {
-    ORACLE_CHECK_STATE(_requestSpec.front() == '{' && _requestSpec.back() == '}')
+    CHECK_STATE(_requestSpec.front() == '{' && _requestSpec.back() == '}')
     printPrefix = "o";
 
     requestSpec.erase(std::remove_if(requestSpec.begin(), requestSpec.end(), ::isspace), requestSpec.end());
 
     parsedSpec = OracleRequestSpec::parseSpec(requestSpec);
-    ORACLE_CHECK_STATE2(parsedSpec->getChainid() == _schainId,
+    CHECK_STATE2(parsedSpec->getChainid() == _schainId,
                  "Invalid schain id in oracle spec:" + to_string(_schainId));
-    ORACLE_CHECK_STATE2(parsedSpec->getTime() + ORACLE_TIMEOUT_MS > Time::getCurrentTimeMs(), "Request timeout")
-    ORACLE_CHECK_STATE(parsedSpec->getTime()  < Time::getCurrentTimeMs() + ORACLE_FUTURE_JITTER_MS)
-    ORACLE_CHECK_STATE2(parsedSpec->verifyPow(), "PoW did not verify");
+    CHECK_STATE2(parsedSpec->getTime() + ORACLE_TIMEOUT_MS > Time::getCurrentTimeMs(), "Request timeout")
+    CHECK_STATE(parsedSpec->getTime() < Time::getCurrentTimeMs() + ORACLE_FUTURE_JITTER_MS)
 }
 
-void OracleRequestBroadcastMessage::updateWithChildHash(blake3_hasher& _hasher) {
-    uint32_t  requestLen = requestSpec.size();
+void OracleRequestBroadcastMessage::updateWithChildHash(blake3_hasher &_hasher) {
+    uint32_t requestLen = requestSpec.size();
     HASH_UPDATE(_hasher, requestLen)
     if (requestLen > 0) {
         blake3_hasher_update(&_hasher, (unsigned char *) requestSpec.data(), requestLen);
@@ -91,7 +91,7 @@ void OracleRequestBroadcastMessage::updateWithChildHash(blake3_hasher& _hasher) 
 }
 
 
-void OracleRequestBroadcastMessage::serializeToStringChild(rapidjson::Writer<rapidjson::StringBuffer>& _writer) {
+void OracleRequestBroadcastMessage::serializeToStringChild(rapidjson::Writer<rapidjson::StringBuffer> &_writer) {
     _writer.String("spec");
     _writer.String(requestSpec.data(), requestSpec.size());
 }

@@ -46,14 +46,13 @@
   <component name="ChangeListManager">
     <list default="true" id="ec15c893-7f20-4493-be40-38b8f69efc54" name="Default Changelist" comment="#238 better log handling">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chains/Schain.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/chains/Schain.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/InternalInfoDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/InternalInfoDB.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/InternalInfoDB.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/InternalInfoDB.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/VersionUpdateHistory.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/VersionUpdateHistory.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/VersionUpdateHistory.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/VersionUpdateHistory.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libBLS/deps/libff/depends/xbyak" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/deps/libff/depends/xbyak" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libBLS/deps/zlib/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/deps/zlib/Makefile" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libBLS/deps/zlib/zconf.h" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/deps/zlib/zconf.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/libjson-rpc-cpp" beforeDir="false" afterPath="$PROJECT_DIR$/libjson-rpc-cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/libjson-rpc-cpp/CHANGELOG.md" beforeDir="false" afterPath="$PROJECT_DIR$/libjson-rpc-cpp/CHANGELOG.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/oracle/OracleReceivedResults.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/oracle/OracleReceivedResults.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/oracle/OracleReceivedResults.h" beforeDir="false" afterPath="$PROJECT_DIR$/oracle/OracleReceivedResults.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -147,17 +146,18 @@
     &quot;cf.advertisement.text.overridden&quot;: &quot;true&quot;,
     &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
     &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/d/skale-consensus/db&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;CMakeSettings&quot;
+    &quot;last_opened_file_path&quot;: &quot;/d/skaled&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;editor.preferences.fonts.default&quot;
   }
 }</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/rlp" />
       <recent name="$PROJECT_DIR$/db" />
       <recent name="$PROJECT_DIR$/oracle" />
       <recent name="$PROJECT_DIR$/oracle/" />
       <recent name="$PROJECT_DIR$/test" />
-      <recent name="$PROJECT_DIR$/test/fournodes" />
     </key>
   </component>
   <component name="RunManager" selected="CMake Application.consensust">
@@ -259,7 +259,7 @@
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="consensust" type="CMakeRunConfiguration" factoryName="Application" singleton="false" PROGRAM_PARAMS="[consensus-basic]" REDIRECT_INPUT="false" ELEVATE="true" USE_EXTERNAL_CONSOLE="false" WORKING_DIR="file://$PROJECT_DIR$/test/sixteennodes" PASS_PARENT_ENVS_2="true" PROJECT_NAME="consensus" TARGET_NAME="consensus" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="consensus" RUN_TARGET_NAME="consensust">
+    <configuration name="consensust" type="CMakeRunConfiguration" factoryName="Application" singleton="false" PROGRAM_PARAMS="[consensus-basic]" REDIRECT_INPUT="false" ELEVATE="true" USE_EXTERNAL_CONSOLE="false" WORKING_DIR="file://$PROJECT_DIR$/test/fournodes" PASS_PARENT_ENVS_2="true" PROJECT_NAME="consensus" TARGET_NAME="consensus" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="consensus" RUN_TARGET_NAME="consensust">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
@@ -441,6 +441,43 @@
       <workItem from="1660920452619" duration="3246000" />
       <workItem from="1660924306026" duration="490000" />
       <workItem from="1660926031359" duration="302000" />
+      <workItem from="1661256130399" duration="2000" />
+      <workItem from="1661258720961" duration="6107000" />
+      <workItem from="1661277923861" duration="4191000" />
+      <workItem from="1661433152015" duration="2000" />
+      <workItem from="1661433796500" duration="2000" />
+      <workItem from="1661434620997" duration="3392000" />
+      <workItem from="1661438449341" duration="2035000" />
+      <workItem from="1661787387425" duration="613000" />
+      <workItem from="1661789247137" duration="5870000" />
+      <workItem from="1661796377275" duration="3836000" />
+      <workItem from="1661862473275" duration="1223000" />
+      <workItem from="1661898196158" duration="2000" />
+      <workItem from="1661899188859" duration="2000" />
+      <workItem from="1661900263696" duration="2000" />
+      <workItem from="1661901257950" duration="3504000" />
+      <workItem from="1661987356927" duration="541000" />
+      <workItem from="1661989616562" duration="2000" />
+      <workItem from="1661994429765" duration="3495000" />
+      <workItem from="1662043966927" duration="2382000" />
+      <workItem from="1662051024586" duration="3661000" />
+      <workItem from="1662058577828" duration="2370000" />
+      <workItem from="1662065261867" duration="1893000" />
+      <workItem from="1662067697656" duration="2000" />
+      <workItem from="1662068720770" duration="1104000" />
+      <workItem from="1662070052867" duration="818000" />
+      <workItem from="1662071976087" duration="755000" />
+      <workItem from="1662073078874" duration="352000" />
+      <workItem from="1662073648216" duration="1435000" />
+      <workItem from="1662075621903" duration="680000" />
+      <workItem from="1662076899748" duration="2000" />
+      <workItem from="1662078087578" duration="3807000" />
+      <workItem from="1662324007758" duration="1120000" />
+      <workItem from="1662325635306" duration="866000" />
+      <workItem from="1662328451021" duration="475000" />
+      <workItem from="1662329461113" duration="1249000" />
+      <workItem from="1662330834450" duration="3292000" />
+      <workItem from="1662334321512" duration="421000" />
     </task>
     <task id="LOCAL-00093" summary="bug/SKALE-4352">
       <created>1634133299846</created>
@@ -846,11 +883,6 @@
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
-          <url>file://$PROJECT_DIR$/oracle/OracleResponseMessage.cpp</url>
-          <line>48</line>
-          <option name="timeStamp" value="32" />
-        </line-breakpoint>
-        <line-breakpoint type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
           <url>file://$PROJECT_DIR$/messages/NetworkMessage.h</url>
           <line>28</line>
           <option name="timeStamp" value="33" />
@@ -861,9 +893,9 @@
           <option name="timeStamp" value="34" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
-          <url>file://$PROJECT_DIR$/datastructures/CommittedBlock.cpp</url>
-          <line>262</line>
-          <option name="timeStamp" value="35" />
+          <url>file://$PROJECT_DIR$/oracle/OracleReceivedResults.cpp</url>
+          <line>121</line>
+          <option name="timeStamp" value="37" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>

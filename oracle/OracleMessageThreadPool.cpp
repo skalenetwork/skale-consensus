@@ -39,5 +39,5 @@ OracleMessageThreadPool::OracleMessageThreadPool(Agent *_agent) : WorkerThreadPo
 void OracleMessageThreadPool::createThread(uint64_t /*_threadNumber*/) {
     LOCK(threadPoolLock)
     threadpool.push_back(make_shared<thread>(OracleResultAssemblyAgent::messageThreadProcessingLoop,
-                                    reinterpret_cast < OracleResultAssemblyAgent * > ( agent )));
+                                             reinterpret_cast < OracleResultAssemblyAgent * > ( agent )));
 }
