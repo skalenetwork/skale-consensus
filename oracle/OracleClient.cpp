@@ -87,20 +87,31 @@ uint64_t OracleClient::broadcastRequest(ptr<OracleRequestBroadcastMessage> _msg)
 
 void OracleClient::sendTestRequestGet() {
 
+
+    auto cid = (uint64_t) getSchain()->getSchainID();
+    auto uri = "http://worldtimeapi.org/api/timezone/Europe/Kiev";
+    vector<string> jsps{"/unixtime", "/day_of_year", "/xxx"};
+    vector<uint64_t> trims{1, 1, 1};
+    string encoding = "rlp";
+    string post = "";
+
+    sendRequestAndWaitForResult(cid, uri, jsps, trims, post, encoding);
+}
+
+void OracleClient::sendRequestAndWaitForResult(uint64_t _cid, const char *_uri,
+                                               const vector<string> &_jsps,
+                                               const vector<uint64_t> &_trims,
+                                               string& _post,
+                                               string& _encoding) {
     try {
 
         string _receipt;
 
 
-        auto cid = (uint64_t) getSchain()->getSchainID();
-        auto uri = "http://worldtimeapi.org/api/timezone/Europe/Kiev";
-        vector<string> jsps{"/unixtime", "/day_of_year", "/xxx"};
-        vector<uint64_t> trims{1, 1, 1};
         auto time = Time::getCurrentTimeMs();
-        auto encoding = "rlp";
 
-        auto os = make_shared<OracleRequestSpec>(cid, uri, jsps, trims, time, "",
-                                                 encoding);
+        auto os = make_shared<OracleRequestSpec>(_cid, _uri, _jsps, _trims, time, _post,
+                                                 _encoding);
 
         CHECK_STATE(os->verifyPow());
 
@@ -110,7 +121,7 @@ void OracleClient::sendTestRequestGet() {
         CHECK_STATE(status == ORACLE_SUCCESS);
 
 
-        std::thread t([this, _receipt]() {
+        thread t([this, _receipt]() {
             while (true) {
                 string result;
                 string r = _receipt;
@@ -132,7 +143,7 @@ void OracleClient::sendTestRequestGet() {
     } catch (...) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
-};
+                       };
 
 void OracleClient::sendTestRequestPost() {
 

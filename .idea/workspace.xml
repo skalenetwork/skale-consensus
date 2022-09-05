@@ -49,10 +49,9 @@
       <change beforePath="$PROJECT_DIR$/libBLS/deps/libff/depends/xbyak" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/deps/libff/depends/xbyak" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libBLS/deps/zlib/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/deps/zlib/Makefile" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libBLS/deps/zlib/zconf.h" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/deps/zlib/zconf.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/libjson-rpc-cpp" beforeDir="false" afterPath="$PROJECT_DIR$/libjson-rpc-cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/libjson-rpc-cpp/CHANGELOG.md" beforeDir="false" afterPath="$PROJECT_DIR$/libjson-rpc-cpp/CHANGELOG.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/oracle/OracleReceivedResults.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/oracle/OracleReceivedResults.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/oracle/OracleReceivedResults.h" beforeDir="false" afterPath="$PROJECT_DIR$/oracle/OracleReceivedResults.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/oracle/OracleClient.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/oracle/OracleClient.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/oracle/OracleClient.h" beforeDir="false" afterPath="$PROJECT_DIR$/oracle/OracleClient.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/oracle/OracleRequestSpec.h" beforeDir="false" afterPath="$PROJECT_DIR$/oracle/OracleRequestSpec.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -478,6 +477,8 @@
       <workItem from="1662329461113" duration="1249000" />
       <workItem from="1662330834450" duration="3292000" />
       <workItem from="1662334321512" duration="421000" />
+      <workItem from="1662380198951" duration="1178000" />
+      <workItem from="1662382004454" duration="2000" />
     </task>
     <task id="LOCAL-00093" summary="bug/SKALE-4352">
       <created>1634133299846</created>

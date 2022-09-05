@@ -59,6 +59,9 @@ public:
 
     void processResponseMessage(const ptr<MessageEnvelope> &_me);
 
+    void
+    sendRequestAndWaitForResult(uint64_t _cid, const char *_uri, const vector<string> &_jsps,
+                                const vector<uint64_t> &_trims, string& _post, string& _encoding);
 };
 
 
