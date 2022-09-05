@@ -236,15 +236,19 @@ OracleRequestSpec::OracleRequestSpec(uint64_t _chainid, const string &_uri,
 
 
             spec.append("],");
-            spec.append("\"trims\":[");
 
-            for (uint64_t j = 0; j < trims.size(); j++) {
-                spec.append(to_string(trims.at(j)));
-                if (j + 1 < trims.size())
-                    spec.append(",");
+            if (trims.size() > 0) {
+
+                spec.append("\"trims\":[");
+
+                for (uint64_t j = 0; j < trims.size(); j++) {
+                    spec.append(to_string(trims.at(j)));
+                    if (j + 1 < trims.size())
+                        spec.append(",");
+                }
+
+                spec.append("],");
             }
-
-            spec.append("],");
             spec.append(string("\"time\":") + to_string(requestTime) + ",");
 
             if (!post.empty()) {

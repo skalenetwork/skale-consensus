@@ -59,14 +59,12 @@ uint64_t OracleClient::broadcastRequest(ptr<OracleRequestBroadcastMessage> _msg)
         auto receipt = _msg->getParsedSpec()->getReceipt();
 
 
-
-
         auto results = make_shared<OracleReceivedResults>(
                 _msg->getParsedSpec(), getSchain()->getRequiredSigners(),
                 (uint64_t) getSchain()->getNodeCount(), getSchain()->getNode()->isSgxEnabled());
 
         auto exists = receiptsMap.putIfDoesNotExist(receipt,
-                                                    results );
+                                                    results);
 
         if (!exists) {
             LOG(err, "Request exists:" + receipt);
@@ -88,22 +86,47 @@ uint64_t OracleClient::broadcastRequest(ptr<OracleRequestBroadcastMessage> _msg)
 void OracleClient::sendTestRequestGet() {
 
 
-    auto cid = (uint64_t) getSchain()->getSchainID();
-    auto uri = "http://worldtimeapi.org/api/timezone/Europe/Kiev";
+    string uri = "http://worldtimeapi.org/api/timezone/Europe/Kiev";
     vector<string> jsps{"/unixtime", "/day_of_year", "/xxx"};
     vector<uint64_t> trims{1, 1, 1};
     string encoding = "rlp";
     string post = "";
 
-    sendRequestAndWaitForResult(cid, uri, jsps, trims, post, encoding);
+    sendRequestAndWaitForResult(uri, jsps, trims, post, encoding);
 }
 
-void OracleClient::sendRequestAndWaitForResult(uint64_t _cid, const char *_uri,
+
+void OracleClient::sendTestRequestPost() {
+
+    try {
+
+        if (getSchain()->getSchainIndex() != 1) {
+            return;
+        }
+
+        string _receipt;
+        string uri = "https://reqres.in/api/users";
+        vector<string> jsps = {"/id"};
+        string post = "haha";
+        string encoding = "rlp";
+
+        sendRequestAndWaitForResult(uri, jsps, {}, post, encoding);
+    } catch (...) {
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+    }
+}
+
+
+void OracleClient::sendRequestAndWaitForResult(string &_uri,
                                                const vector<string> &_jsps,
                                                const vector<uint64_t> &_trims,
-                                               string& _post,
-                                               string& _encoding) {
+                                               string &_post,
+                                               string &_encoding) {
+
+
     try {
+
+        auto _cid = (uint64_t) getSchain()->getSchainID();
 
         string _receipt;
 
@@ -143,38 +166,7 @@ void OracleClient::sendRequestAndWaitForResult(uint64_t _cid, const char *_uri,
     } catch (...) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
-                       };
-
-void OracleClient::sendTestRequestPost() {
-
-    try {
-
-        if (getSchain()->getSchainIndex() != 1) {
-            return;
-        }
-
-        string _receipt;
-
-        string cid = "\"cid\":" +
-                     to_string((uint64_t) getSchain()->getSchainID());
-        string uri = "\"uri\":\"https://reqres.in/api/users\"";
-        string jsps = "\"jsps\":[\"/id\"]";
-        string time = "\"time\":" + to_string(Time::getCurrentTimeMs());
-        string pow = "\"pow\":" + string("\"0x0000\"");
-        string post = "\"post\":\"haha\"";
-
-        string spec = "{" + cid + "," + uri + "," + jsps + "," + time + "," + pow +
-                      +"," + post + "}";
-
-        auto status = submitOracleRequest(spec, _receipt);
-
-        CHECK_STATE(status == ORACLE_SUCCESS);
-
-        string result;
-    } catch (...) {
-        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
-    }
-}
+};
 
 
 uint64_t OracleClient::submitOracleRequest(const string &_spec, string &_receipt) {
