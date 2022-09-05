@@ -50,8 +50,6 @@
       <change beforePath="$PROJECT_DIR$/libBLS/deps/zlib/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/deps/zlib/Makefile" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libBLS/deps/zlib/zconf.h" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/deps/zlib/zconf.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/oracle/OracleClient.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/oracle/OracleClient.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/oracle/OracleClient.h" beforeDir="false" afterPath="$PROJECT_DIR$/oracle/OracleClient.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/oracle/OracleRequestSpec.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/oracle/OracleRequestSpec.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pendingqueue/TestMessageGeneratorAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/pendingqueue/TestMessageGeneratorAgent.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -480,7 +478,7 @@
       <workItem from="1662334321512" duration="421000" />
       <workItem from="1662380198951" duration="1178000" />
       <workItem from="1662382004454" duration="416000" />
-      <workItem from="1662384620129" duration="1445000" />
+      <workItem from="1662384620129" duration="2265000" />
     </task>
     <task id="LOCAL-00093" summary="bug/SKALE-4352">
       <created>1634133299846</created>

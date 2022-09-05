@@ -148,7 +148,7 @@ void OracleClient::sendRequestAndWaitForResult(string &_uri,
             while (true) {
                 string result;
                 string r = _receipt;
-                sleep(3);
+                sleep(1);
                 auto st = checkOracleResult(r, result);
                 cerr << "ORACLE_STATUS:" << st << endl;
                 if (st == ORACLE_SUCCESS) {

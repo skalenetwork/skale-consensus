@@ -81,11 +81,11 @@ ConsensusExtFace::transactions_vector TestMessageGeneratorAgent::pendingTransact
 
     if (iterations == getSchain()->getNodeCount() * 2) {
         LOG(info, "Sending Oracle test get ");
-        //getSchain()->getOracleClient()->sendTestRequestGet();
+        getSchain()->getOracleClient()->sendTestRequestGet();
         LOG(info, "Sent Oracle test get ");
 
         LOG(info, "Sending Oracle test post ");
-        getSchain()->getOracleClient()->sendTestRequestPost();
+        getSchain()->getOracleClient()->sendTestRequestGet();
         LOG(info, "Sent Oracle test post ");
     }
 
