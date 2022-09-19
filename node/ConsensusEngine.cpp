@@ -697,12 +697,12 @@ ConsensusEngine::ConsensusEngine(ConsensusExtFace &_extFace, uint64_t _lastCommi
         : prices(256), exitRequested(false) {
 
 
-
-    cout << "Constructing consensus engine:" << ""
-                                                "Last block in skaled:" << (uint64_t) _lastCommittedBlockID <<
-                                                "Last block in skaled timestamp:" << (uint64_t) _lastCommittedBlockTimeStamp <<
-                                                "Last block in skaled human readable timestamp:" << (uint64_t) _lastCommittedBlockTimeStamp <<
-                                                "\n Total storage limit for consensus:" << _totalStorageLimitBytes <<
+    std::time_t lastCommitedBlockTimestamp = _lastCommittedBlockTimeStamp;
+    cout << "Constructing consensus engine: " << ""
+                                                "Last block in skaled: " << (uint64_t) _lastCommittedBlockID << ' ' <<
+                                                "Last block in skaled timestamp: " << (uint64_t) _lastCommittedBlockTimeStamp << ' ' <<
+                                                "Last block in skaled human readable timestamp: " << std::asctime(std::gmtime(&lastCommitedBlockTimestamp)) <<
+                                                "\n Total storage limit for consensus: " << _totalStorageLimitBytes <<
                                                 endl;
 
 
