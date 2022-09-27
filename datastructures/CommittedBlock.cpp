@@ -284,7 +284,7 @@ void CommittedBlock::verifyDaSig(ptr<CryptoManager> _cryptoManager) {
 
     CHECK_STATE(_cryptoManager)
 
-    auto sig = getThresholdSig();
+    auto sig = getDaSig();
 
     auto hash = BLAKE3Hash::getBlockHash((uint64_t) getProposerIndex(),
                                          (uint64_t) getBlockID(),
