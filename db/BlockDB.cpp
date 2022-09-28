@@ -31,6 +31,49 @@
 
 #include "BlockDB.h"
 
+
+
+ptr<vector<uint8_t> > BlockDB::getSerializedBlocksFromLevelDB(block_id _startBlock, block_id _endBlock,
+                                                              ptr<list<uint64_t>> _blockSizes) {
+
+    CHECK_STATE(_blockSizes);
+
+    auto serializedBlocks = make_shared<vector<uint8_t>>();
+
+    serializedBlocks->push_back('[');
+
+    uint64_t totalSize = 0;
+
+    auto maxSize = getSchain()->getNode()->getMaxCatchupDownloadBytes();
+
+    for (uint64_t i = (uint64_t) _startBlock; i <= _endBlock; i++) {
+
+        auto serializedBlock = getSchain()->getNode()->getBlockDB()->getSerializedBlockFromLevelDB(i);
+
+        if (serializedBlock == nullptr) {
+            return nullptr;
+        }
+
+        totalSize += serializedBlock->size();
+
+        if (totalSize > maxSize)
+            break;
+
+        serializedBlocks->insert(serializedBlocks->end(), serializedBlock->begin(), serializedBlock->end());
+
+        _blockSizes->push_back(serializedBlock->size());
+
+    }
+
+    serializedBlocks->push_back(']');
+
+    return serializedBlocks;
+
+
+}
+
+
+
 ptr<vector<uint8_t> > BlockDB::getSerializedBlockFromLevelDB(block_id _blockID) {
 
     shared_lock<shared_mutex> lock(m);
