@@ -246,7 +246,7 @@ CommittedBlock::CommittedBlock(const schain_id &_schainId, const node_id &_propo
 }
 
 
-ptr<vector<uint8_t> > CommittedBlock::serializeBlock() {
+ptr<vector<uint8_t> > CommittedBlock::serialize() {
 
     LOCK(m)
 

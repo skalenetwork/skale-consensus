@@ -521,8 +521,8 @@ void CryptoManager::verifySessionEdDSASig(
             try {
                 pkey->verifySig( _sig, ( const char* ) _hash.data() );
             } catch ( ... ) {
-                LOG( err, "Could not verify EdDSA sig" );
-                throw_with_nested( InvalidStateException( __FUNCTION__, __CLASS_NAME__ ) );
+                throw_with_nested( InvalidStateException( __FUNCTION__, __CLASS_NAME__
+                    + string(" Could not verify EdDSA sig")));
             }
         } else if ( !getSchain()->getNode()->isSyncOnlyNode() ) {
             // mockup - used for testing

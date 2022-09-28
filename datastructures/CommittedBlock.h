@@ -90,7 +90,7 @@ public:
 
     static void serializedSanityCheck(const ptr<vector<uint8_t>> &_serializedBlock);
 
-    ptr<vector<uint8_t> > serializeBlock();
+    ptr<vector<uint8_t> > serialize();
 
 
     void verifyBlockSig(ptr<CryptoManager> _cryptoManager);
