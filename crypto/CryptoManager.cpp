@@ -140,12 +140,12 @@ pair< ptr< BLSPublicKey >, ptr< BLSPublicKey > > CryptoManager::getSgxBlsPublicK
         auto it = previousBlsPublicKeys->upper_bound( _timestamp );
 
         if ( it == previousBlsPublicKeys->begin() ) {
-            LOG( info, string( "Got first BLS public key " ) + blsKeyToString( ( *it ).second ) );
+            LOG( debug, string( "Got first BLS public key " ) + blsKeyToString( ( *it ).second ) );
             // if begin() then no previous groups for this key
             return { ( *it ).second, nullptr };
         }
 
-        LOG( info, string( "Got two BLS public keys " ) + blsKeyToString( ( *it ).second ) + " " +
+        LOG( debug, string( "Got two BLS public keys " ) + blsKeyToString( ( *it ).second ) + " " +
                        blsKeyToString( ( *std::prev( it ) ).second ) );
         return { ( *it ).second, ( *( --it ) ).second };
     }
