@@ -57,10 +57,10 @@ BlockSignBroadcastMessage::BlockSignBroadcastMessage(block_id _blockID, schain_i
     printPrefix = "f";
 
     auto schain = _sourceProtocolInstance.getSchain();
-    auto hash = BLAKE3Hash::getBlockHash(
-        (uint64_t ) getBlockProposerIndex(),
-        (uint64_t) _blockID,
-        (uint64_t) schain->getSchainID());
+    auto hash = BLAKE3Hash::getConsensusHash(
+            (uint64_t) getBlockProposerIndex(),
+            (uint64_t) _blockID,
+            (uint64_t) schain->getSchainID());
 
     this->sigShare = schain->getCryptoManager()->signBlockSigShare(hash, _blockID);
     this->sigShareString = sigShare->toString();

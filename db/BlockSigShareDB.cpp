@@ -56,8 +56,8 @@ BlockSigShareDB::checkAndSaveShareInMemory(const ptr<ThresholdSigShare>& _sigSha
 
 
 
-        auto hash = BLAKE3Hash::getBlockHash(
-                (uint64_t ) _proposer,
+        auto hash = BLAKE3Hash::getConsensusHash(
+                (uint64_t) _proposer,
                 (uint64_t) _sigShare->getBlockId(),
                 (uint64_t) getSchain()->getSchainID());
 

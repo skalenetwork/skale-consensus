@@ -270,9 +270,9 @@ void CommittedBlock::verifyBlockSig(ptr<CryptoManager> _cryptoManager) {
 
     auto sig = getThresholdSig();
 
-    auto hash = BLAKE3Hash::getBlockHash((uint64_t) getProposerIndex(),
-                                         (uint64_t) getBlockID(),
-                                         (uint64_t) getSchainID());
+    auto hash = BLAKE3Hash::getConsensusHash((uint64_t) getProposerIndex(),
+                                             (uint64_t) getBlockID(),
+                                             (uint64_t) getSchainID());
     try {
         _cryptoManager->verifyBlockSig(sig, getBlockID(), hash, getTimeStamp());
     } catch (InvalidSignatureException &) {
@@ -289,9 +289,8 @@ void CommittedBlock::verifyDaSig(ptr<CryptoManager> _cryptoManager) {
 
     auto sig = getDaSig();
 
-    auto hash = BLAKE3Hash::getBlockHash((uint64_t) getProposerIndex(),
-                                         (uint64_t) getBlockID(),
-                                         (uint64_t) getSchainID());
+    auto hash = getHash();
+
     try {
         _cryptoManager->verifyDAProofThresholdSig(hash, sig, getBlockID());
     } catch (InvalidSignatureException &) {
