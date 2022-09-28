@@ -38,8 +38,8 @@ public:
 
     OracleRequestSpec(const string &_spec);
 
-    OracleRequestSpec(uint64_t chainid, const string &uri, const vector<string> &jsps,
-                      const vector<uint64_t> &trims, uint64_t time, const string &postStr, const string &encoding);
+    OracleRequestSpec(uint64_t _chainid, const string &_uri, const vector<string> &_jsps,
+                      const vector<uint64_t> &_trims, uint64_t _time, const string& _post, const string &_encoding);
 
     uint64_t getChainid() const;
 

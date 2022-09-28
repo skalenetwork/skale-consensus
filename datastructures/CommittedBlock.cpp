@@ -196,16 +196,19 @@ ptr<CommittedBlock> CommittedBlock::deserialize(
     try {
         block->verifyBlockSig(_manager);
     } catch (...) {
-        LOG(err, "Block threshold signature did not verify in deserialization");
-        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+
+        throw_with_nested(InvalidStateException(__FUNCTION__,
+                                                __CLASS_NAME__ + string(
+                                                        " Block threshold signature did not verify in deserialization")));
     }
 
     try {
         if (!block->isLegacy())
             block->verifyDaSig(_manager);
     } catch (...) {
-        LOG(err, "Block threshold signature did not verify in deserialization");
-        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+        throw_with_nested(InvalidStateException(__FUNCTION__,
+                                                __CLASS_NAME__ +
+                                                string(" Block da signature did not verify in deserialization")));
     }
 
     return block;
@@ -243,7 +246,7 @@ CommittedBlock::CommittedBlock(const schain_id &_schainId, const node_id &_propo
 }
 
 
-ptr<vector<uint8_t> > CommittedBlock::serializeBlock() {
+ptr<vector<uint8_t> > CommittedBlock::serialize() {
 
     LOCK(m)
 
@@ -267,9 +270,9 @@ void CommittedBlock::verifyBlockSig(ptr<CryptoManager> _cryptoManager) {
 
     auto sig = getThresholdSig();
 
-    auto hash = BLAKE3Hash::getBlockHash((uint64_t) getProposerIndex(),
-                                         (uint64_t) getBlockID(),
-                                         (uint64_t) getSchainID());
+    auto hash = BLAKE3Hash::getConsensusHash((uint64_t) getProposerIndex(),
+                                             (uint64_t) getBlockID(),
+                                             (uint64_t) getSchainID());
     try {
         _cryptoManager->verifyBlockSig(sig, getBlockID(), hash, getTimeStamp());
     } catch (InvalidSignatureException &) {
@@ -284,11 +287,10 @@ void CommittedBlock::verifyDaSig(ptr<CryptoManager> _cryptoManager) {
 
     CHECK_STATE(_cryptoManager)
 
-    auto sig = getThresholdSig();
+    auto sig = getDaSig();
 
-    auto hash = BLAKE3Hash::getBlockHash((uint64_t) getProposerIndex(),
-                                         (uint64_t) getBlockID(),
-                                         (uint64_t) getSchainID());
+    auto hash = getHash();
+
     try {
         _cryptoManager->verifyDAProofThresholdSig(hash, sig, getBlockID());
     } catch (InvalidSignatureException &) {
