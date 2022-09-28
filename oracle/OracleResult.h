@@ -26,7 +26,7 @@ class OracleResult {
     vector<uint64_t> trims;
     uint64_t requestTime;
     string post;
-    uint64_t error = 0;
+    uint64_t error = ORACLE_SUCCESS;
     ptr<vector<ptr<string>>> results;
     ptr<vector<uint8_t>> rlp;
     string sig;

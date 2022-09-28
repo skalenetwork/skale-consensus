@@ -196,16 +196,19 @@ ptr<CommittedBlock> CommittedBlock::deserialize(
     try {
         block->verifyBlockSig(_manager);
     } catch (...) {
-        LOG(err, "Block threshold signature did not verify in deserialization");
-        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+
+        throw_with_nested(InvalidStateException(__FUNCTION__,
+                                                __CLASS_NAME__ + string(
+                                                        " Block threshold signature did not verify in deserialization")));
     }
 
     try {
         if (!block->isLegacy())
             block->verifyDaSig(_manager);
     } catch (...) {
-        LOG(err, "Block threshold signature did not verify in deserialization");
-        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+        throw_with_nested(InvalidStateException(__FUNCTION__,
+                                                __CLASS_NAME__ +
+                                                string(" Block da signature did not verify in deserialization")));
     }
 
     return block;

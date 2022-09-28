@@ -251,7 +251,8 @@ OracleResult::OracleResult(string &_result, string &_encoding) : oracleResult(_r
         }
 
 
-        CHECK_STATE2(results->size() == trims.size(), "hsps array size not equal trims array size");
+        CHECK_STATE2(results->size() == trims.size() || this->error != ORACLE_SUCCESS, "hsps array size not equal trims array size:" +
+           to_string(results->size()) + ":" + to_string(trims.size()));
 
     } catch (...) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
