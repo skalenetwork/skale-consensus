@@ -46,16 +46,14 @@
   <component name="ChangeListManager">
     <list default="true" id="ec15c893-7f20-4493-be40-38b8f69efc54" name="Default Changelist" comment="#238 better log handling">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crypto/BLAKE3Hash.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/crypto/BLAKE3Hash.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crypto/BLAKE3Hash.h" beforeDir="false" afterPath="$PROJECT_DIR$/crypto/BLAKE3Hash.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/datastructures/CommittedBlock.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/CommittedBlock.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/BlockSigShareDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/BlockSigShareDB.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libBLS/deps/libff/depends/xbyak" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/deps/libff/depends/xbyak" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libBLS/deps/zlib/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/deps/zlib/Makefile" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libBLS/deps/zlib/zconf.h" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/deps/zlib/zconf.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libjson-rpc-cpp" beforeDir="false" afterPath="$PROJECT_DIR$/libjson-rpc-cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libjson-rpc-cpp/CHANGELOG.md" beforeDir="false" afterPath="$PROJECT_DIR$/libjson-rpc-cpp/CHANGELOG.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/protocols/blockconsensus/BlockSignBroadcastMessage.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/protocols/blockconsensus/BlockSignBroadcastMessage.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/node/ConsensusEngine.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/node/ConsensusEngine.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/node/ConsensusEngine.h" beforeDir="false" afterPath="$PROJECT_DIR$/node/ConsensusEngine.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/node/Node.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/node/Node.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -74,7 +72,7 @@
     </option>
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="44_Arrays_In_Oracle" />
+        <entry key="$PROJECT_DIR$" value="develop" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -149,7 +147,7 @@
     &quot;cf.advertisement.text.overridden&quot;: &quot;true&quot;,
     &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
     &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/d/skaled&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/d/skale-consensus&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
     &quot;settings.editor.selected.configurable&quot;: &quot;editor.preferences.fonts.default&quot;
   }
@@ -237,6 +235,11 @@
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
+    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="all_bls_tests" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="consensus" TARGET_NAME="all_bls_tests" CONFIG_NAME="Debug">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -262,7 +265,7 @@
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="consensust" type="CMakeRunConfiguration" factoryName="Application" singleton="false" PROGRAM_PARAMS="[consensus-basic]" REDIRECT_INPUT="false" ELEVATE="true" USE_EXTERNAL_CONSOLE="false" WORKING_DIR="file://$PROJECT_DIR$/test/fournodes" PASS_PARENT_ENVS_2="true" PROJECT_NAME="consensus" TARGET_NAME="consensus" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="consensus" RUN_TARGET_NAME="consensust">
+    <configuration name="consensust" type="CMakeRunConfiguration" factoryName="Application" singleton="false" PROGRAM_PARAMS="[consensus-basic]" REDIRECT_INPUT="false" ELEVATE="true" USE_EXTERNAL_CONSOLE="false" WORKING_DIR="file://$PROJECT_DIR$/test/sixteennodes" PASS_PARENT_ENVS_2="true" PROJECT_NAME="consensus" TARGET_NAME="consensus" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="consensus" RUN_TARGET_NAME="consensust">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
@@ -492,6 +495,11 @@
       <workItem from="1664369937577" duration="2000" />
       <workItem from="1664371297998" duration="2000" />
       <workItem from="1664376942079" duration="951000" />
+      <workItem from="1664994427438" duration="3000" />
+      <workItem from="1664998071974" duration="1198000" />
+      <workItem from="1665408791451" duration="1095000" />
+      <workItem from="1666098457440" duration="1000" />
+      <workItem from="1666099714010" duration="1419000" />
     </task>
     <task id="LOCAL-00093" summary="bug/SKALE-4352">
       <created>1634133299846</created>

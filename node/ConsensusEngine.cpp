@@ -73,9 +73,11 @@
 #include "datastructures/TransactionList.h"
 
 #pragma GCC diagnostic pop
+
 #include "dirent.h"
 
 #define BOOST_STACKTRACE_USE_BACKTRACE
+
 #include "boost/stacktrace.hpp"
 #include <libBLS/bls/BLSPublicKeyShare.h>
 #include <boost/multiprecision/cpp_int.hpp>
@@ -119,7 +121,6 @@ atomic<uint64_t> ConsensusEngine::engineCounter;
 
 
 void ConsensusEngine::logInit() {
-
 
 
     engineID = ++engineCounter;
@@ -237,7 +238,7 @@ void ConsensusEngine::log(
 }
 
 
-void ConsensusEngine::parseFullConfigAndCreateNode(const string &configFileContents, const string& _gethURL) {
+void ConsensusEngine::parseFullConfigAndCreateNode(const string &configFileContents, const string &_gethURL) {
     try {
         nlohmann::json j = nlohmann::json::parse(configFileContents);
 
@@ -247,16 +248,13 @@ void ConsensusEngine::parseFullConfigAndCreateNode(const string &configFileConte
 
         string gethURL = _gethURL;
 
-        if (this->isSGXEnabled) {
-            node = JSONFactory::createNodeFromJsonObject(j["skaleConfig"]["nodeInfo"], dummy, this,
-                                                         true, sgxServerUrl, sgxSSLKeyFileFullPath,
-                                                         sgxSSLCertFileFullPath,
-                                                         getEcdsaKeyName(), ecdsaPublicKeys, getBlsKeyName(),
-                                                         blsPublicKeys, blsPublicKey, gethURL, previousBlsPublicKeys, historicECDSAPublicKeys, historicNodeGroups);
-        } else {
-            node = JSONFactory::createNodeFromJsonObject(j["skaleConfig"]["nodeInfo"], dummy, this,
-                                                         false, "", "", "", "", nullptr, "", nullptr, nullptr, gethURL, nullptr, nullptr, nullptr);
-        }
+
+        node = JSONFactory::createNodeFromJsonObject(j["skaleConfig"]["nodeInfo"], dummy, this,
+                                                     this->isSGXEnabled, sgxServerUrl, sgxSSLKeyFileFullPath,
+                                                     sgxSSLCertFileFullPath,
+                                                     ecdsaKeyName, ecdsaPublicKeys, blsKeyName,
+                                                     blsPublicKeys, blsPublicKey, gethURL, previousBlsPublicKeys,
+                                                     historicECDSAPublicKeys, historicNodeGroups);
 
         JSONFactory::createAndAddSChainFromJsonObject(node, j["skaleConfig"]["sChain"], this);
 
@@ -276,13 +274,13 @@ ptr<Node> ConsensusEngine::readNodeTestConfigFileAndCreateNode(const string path
                                                                string _blsKeyName,
                                                                ptr<vector<ptr<vector<string> > > > _blsPublicKeys,
                                                                ptr<BLSPublicKey> _blsPublicKey,
-                                                               ptr< map< uint64_t, ptr< BLSPublicKey > > > _previousBlsPublicKeys,
-                                                               ptr< map< uint64_t, string > > _historicECDSAPublicKeys,
-                                                               ptr< map< uint64_t, vector< uint64_t > > > _historicNodeGroups) {
+                                                               ptr<map<uint64_t, ptr<BLSPublicKey> > > _previousBlsPublicKeys,
+                                                               ptr<map<uint64_t, string> > _historicECDSAPublicKeys,
+                                                               ptr<map<uint64_t, vector<uint64_t> > > _historicNodeGroups) {
 
-    _previousBlsPublicKeys  = make_shared< map< uint64_t, ptr< BLSPublicKey > > >();
-    _historicECDSAPublicKeys = make_shared< map< uint64_t, string>>();
-    _historicNodeGroups = make_shared<map< uint64_t, vector< uint64_t>>>();
+    _previousBlsPublicKeys = make_shared<map<uint64_t, ptr<BLSPublicKey> > >();
+    _historicECDSAPublicKeys = make_shared<map<uint64_t, string>>();
+    _historicNodeGroups = make_shared<map<uint64_t, vector<uint64_t>>>();
 
     try {
         if (_useSGX) {
@@ -308,7 +306,8 @@ ptr<Node> ConsensusEngine::readNodeTestConfigFileAndCreateNode(const string path
                                                             _nodeIDs, this, _useSGX, _sgxSSLKeyFileFullPath,
                                                             _sgxSSLCertFileFullPath, _ecdsaKeyName,
                                                             _ecdsaPublicKeys, _blsKeyName, _blsPublicKeys,
-                                                            _blsPublicKey, _previousBlsPublicKeys, _historicECDSAPublicKeys, _historicNodeGroups);
+                                                            _blsPublicKey, _previousBlsPublicKeys,
+                                                            _historicECDSAPublicKeys, _historicNodeGroups);
 
 
         if (node == nullptr) {
@@ -665,11 +664,12 @@ void ConsensusEngine::init() {
 }
 
 
-ConsensusEngine::ConsensusEngine(block_id _lastId, uint64_t _totalStorageLimitBytes) : prices(256), exitRequested(false) {
+ConsensusEngine::ConsensusEngine(block_id _lastId, uint64_t _totalStorageLimitBytes) : prices(256),
+                                                                                       exitRequested(false) {
 
 
     cout << "Constructing consensus engine:LAST_BLOCK:" << (uint64_t) _lastId << ":TOTAL_STORAGE_LIMIT:" <<
-           _totalStorageLimitBytes << endl;
+         _totalStorageLimitBytes << endl;
 
 
     curl_global_init(CURL_GLOBAL_ALL);
@@ -699,11 +699,11 @@ ConsensusEngine::ConsensusEngine(ConsensusExtFace &_extFace, uint64_t _lastCommi
 
     std::time_t lastCommitedBlockTimestamp = _lastCommittedBlockTimeStamp;
     cout << "Constructing consensus engine: " << ""
-                                                "Last block in skaled: " << (uint64_t) _lastCommittedBlockID << ' ' <<
-                                                "Last block in skaled timestamp: " << (uint64_t) _lastCommittedBlockTimeStamp << ' ' <<
-                                                "Last block in skaled human readable timestamp: " << std::asctime(std::gmtime(&lastCommitedBlockTimestamp)) <<
-                                                "\n Total storage limit for consensus: " << _totalStorageLimitBytes <<
-                                                endl;
+                                                 "Last block in skaled: " << (uint64_t) _lastCommittedBlockID << ' ' <<
+         "Last block in skaled timestamp: " << (uint64_t) _lastCommittedBlockTimeStamp << ' ' <<
+         "Last block in skaled human readable timestamp: " << std::asctime(std::gmtime(&lastCommitedBlockTimestamp)) <<
+         "\n Total storage limit for consensus: " << _totalStorageLimitBytes <<
+         endl;
 
 
     storageLimits = make_shared<StorageLimits>(_totalStorageLimitBytes);
@@ -743,8 +743,6 @@ ConsensusExtFace *ConsensusEngine::getExtFace() const {
 
 
 void ConsensusEngine::exitGracefullyBlocking() {
-
-
 
 
     LOG(info, "Consensus engine exiting: exitGracefullyBlocking called by skaled");
@@ -978,7 +976,7 @@ void ConsensusEngine::setTestKeys(
 }
 
 void ConsensusEngine::setSGXKeyInfo(const string &_sgxServerURL, string &_sgxSSLKeyFileFullPath,
-                                    string &_sgxSSLCertFileFullPath, string &_ecdsaKeyName,string &_blsKeyName) {
+                                    string &_sgxSSLCertFileFullPath, string &_ecdsaKeyName, string &_blsKeyName) {
     CHECK_STATE(!_sgxServerURL.empty())
     CHECK_STATE(!_ecdsaKeyName.empty())
     CHECK_STATE(!_blsKeyName.empty())
@@ -994,9 +992,10 @@ void ConsensusEngine::setSGXKeyInfo(const string &_sgxServerURL, string &_sgxSSL
     sgxSSLKeyFileFullPath = _sgxSSLKeyFileFullPath;
 }
 
-void ConsensusEngine::setPublicKeyInfo( ptr<vector<string> > &_ecdsaPublicKeys,
-                                    ptr<vector<ptr<vector<string> > > > &_blsPublicKeyShares, uint64_t _requiredSigners,
-                                    uint64_t _totalSigners) {
+void ConsensusEngine::setPublicKeyInfo(ptr<vector<string> > &_ecdsaPublicKeys,
+                                       ptr<vector<ptr<vector<string> > > > &_blsPublicKeyShares,
+                                       uint64_t _requiredSigners,
+                                       uint64_t _totalSigners) {
 
     CHECK_STATE(_blsPublicKeyShares);
     CHECK_STATE(_ecdsaPublicKeys);
@@ -1024,34 +1023,32 @@ void ConsensusEngine::setPublicKeyInfo( ptr<vector<string> > &_ecdsaPublicKeys,
     blsPublicKey = make_shared<BLSPublicKey>(
             make_shared<map<size_t, shared_ptr<BLSPublicKeyShare> > >(blsPubKeyShares),
             _requiredSigners, _totalSigners);
-    
-}
 
+}
 
 
 void ConsensusEngine::setRotationHistory(ptr<map<uint64_t, vector<string>>> _previousBLSKeys,
                                          ptr<map<uint64_t, string>> _historicECDSAKeys,
-                                         ptr<map<uint64_t, vector<uint64_t>>>  _historicNodeGroups) {
+                                         ptr<map<uint64_t, vector<uint64_t>>> _historicNodeGroups) {
     CHECK_STATE(_previousBLSKeys);
     CHECK_STATE(_historicECDSAKeys);
     CHECK_STATE(_historicNodeGroups);
 
-    map< uint64_t, ptr< BLSPublicKey > > _previousBlsPublicKeys;
-    for (const auto& previousGroup: *_previousBLSKeys) {
-        _previousBlsPublicKeys[previousGroup.first] = make_shared<BLSPublicKey>(make_shared<vector<string>>(previousGroup.second));
+    map<uint64_t, ptr<BLSPublicKey> > _previousBlsPublicKeys;
+    for (const auto &previousGroup: *_previousBLSKeys) {
+        _previousBlsPublicKeys[previousGroup.first] = make_shared<BLSPublicKey>(
+                make_shared<vector<string>>(previousGroup.second));
     }
-    previousBlsPublicKeys = make_shared< map< uint64_t, ptr< BLSPublicKey > > >( _previousBlsPublicKeys );
+    previousBlsPublicKeys = make_shared<map<uint64_t, ptr<BLSPublicKey> > >(_previousBlsPublicKeys);
     historicECDSAPublicKeys = _historicECDSAKeys;
     historicNodeGroups = _historicNodeGroups;
 }
 
 const string ConsensusEngine::getEcdsaKeyName() const {
-    CHECK_STATE(!ecdsaKeyName.empty());
     return ecdsaKeyName;
 }
 
 const string ConsensusEngine::getBlsKeyName() const {
-    CHECK_STATE(!blsKeyName.empty());
     return blsKeyName;
 }
 
@@ -1066,7 +1063,6 @@ void ConsensusEngine::setBlsKeyName(const string &_blsKeyName) {
     CHECK_STATE(JSONFactory::splitString(_blsKeyName)->size() == 7);
     blsKeyName = _blsKeyName;
 }
-
 
 
 ptr<StorageLimits> ConsensusEngine::getStorageLimits() const {
@@ -1100,7 +1096,7 @@ ConsensusEngine::getBlock(block_id _blockId) {
 }
 
 
-uint64_t ConsensusEngine::submitOracleRequest(const string& _spec, string &_receipt) {
+uint64_t ConsensusEngine::submitOracleRequest(const string &_spec, string &_receipt) {
     CHECK_STATE(nodes.size() > 0)
     auto node = nodes.begin()->second;
     CHECK_STATE(node)
@@ -1120,7 +1116,7 @@ uint64_t ConsensusEngine::submitOracleRequest(const string& _spec, string &_rece
  */
 
 
-uint64_t  ConsensusEngine::checkOracleResult(const string& _receipt, string& _result) {
+uint64_t ConsensusEngine::checkOracleResult(const string &_receipt, string &_result) {
     CHECK_STATE(nodes.size() > 0)
     auto node = nodes.begin()->second;
     CHECK_STATE(node)

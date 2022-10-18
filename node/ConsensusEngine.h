@@ -67,6 +67,7 @@ class ConsensusEngine : public ConsensusInterface {
     bool useTestSGXKeys = false;
 
     bool isSGXEnabled = false;
+    bool verifyRealSignatures = false;
     
     string sgxServerUrl;
     string sgxSSLKeyFileFullPath;
