@@ -103,7 +103,18 @@ Node::Node(const nlohmann::json &_cfg, ConsensusEngine *_consensusEngine,
         gethURL = gethURL.substr(0, gethURL.size() - 1);
     }
 
-    if (_useSGX) {
+
+
+    ecdsaPublicKeys = _ecdsaPublicKeys;
+    blsPublicKeys = _blsPublicKeys;
+    blsPublicKey = _blsPublicKey;
+    previousBlsPublicKeys = _previousBlsPublicKeys;
+    historicECDSAPublicKeys = _historicECDSAPublicKeys;
+    historicNodeGroups = _historicNodeGroups;
+
+    sgxEnabled = _useSGX;
+
+    if (sgxEnabled) {
         CHECK_ARGUMENT(!_sgxURL.empty())
         if (_sgxURL.find("https:/") != string::npos) {
             CHECK_ARGUMENT(!_sgxSSLKeyFileFullPath.empty() )
@@ -116,21 +127,13 @@ Node::Node(const nlohmann::json &_cfg, ConsensusEngine *_consensusEngine,
         CHECK_ARGUMENT(_historicECDSAPublicKeys);
         CHECK_ARGUMENT(_historicNodeGroups);
 
-        sgxEnabled = true;
-
         CHECK_STATE(JSONFactory::splitString(_ecdsaKeyName)->size() == 2);
         CHECK_STATE(JSONFactory::splitString(_blsKeyName)->size() == 7);
 
         ecdsaKeyName = _ecdsaKeyName;
-        ecdsaPublicKeys = _ecdsaPublicKeys;
 
         blsKeyName = _blsKeyName;
-        blsPublicKeys = _blsPublicKeys;
-        blsPublicKey = _blsPublicKey;
 
-        previousBlsPublicKeys = _previousBlsPublicKeys;
-        historicECDSAPublicKeys = _historicECDSAPublicKeys;
-        historicNodeGroups = _historicNodeGroups;
 
         static string empty("");
 
