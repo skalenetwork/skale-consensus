@@ -404,4 +404,6 @@ public:
 
     bool isSyncOnlyNode() const;
 
+    bool verifyRealSignatures() const;
+
 };

@@ -133,6 +133,9 @@ class CryptoManager {
     uint64_t requiredSigners;
 
     bool isSGXEnabled = false;
+    bool isSyncNode = false;
+    bool verifyRealSignatures = false;
+
     bool isHTTPSEnabled = true;
     bool isSSLCertEnabled = false;
 
