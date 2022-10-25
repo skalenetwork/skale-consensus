@@ -909,6 +909,27 @@ u256 ConsensusEngine::getPriceForBlockId(uint64_t _blockId) const {
     throw std::invalid_argument("Price not found");
 }
 
+map< string, uint64_t > ConsensusEngine::getConsensusDbUsage() const {
+    auto node = nodes.begin()->second;
+
+    map< string, uint64_t > ret;
+    ret["blocks.db_disk_usage"] = node->getBlockDBSize();
+    ret["block_proposal.db_disk_usage"] = node->getBlockProposalDBSize();
+    ret["block_sigshare.db_disk_usage"] = node->getBlockSigShareDBSize();
+    ret["consensus_state.db_disk_usage"] = node->getConsensusStateDBSize();
+    ret["da_proof.db_disk_usage"] = node->getDaProofDBSize();
+    ret["da_sigshare.db_disk_usage"] = node->getDaSigShareDBSize();
+    ret["incoming_msg.db_disk_usage"] = node->getIncomingMsgDBSize();
+    ret["interna_info.db_disk_usage"] = node->getInternalInfoDBSize();
+    ret["outgoing_msg.db_disk_usage"] = node->getOutgoingMsgDBSize();
+    ret["price.db_disk_usage"] = node->getPriceDBSize();
+    ret["proposal_hash.db_disk_usage"] = node->getProposalHashDBSize();
+    ret["proposal_vector.db_disk_usage"] = node->getProposalVectorDBSize();
+    ret["random.db_disk_usage"] = node->getRandomDBSize();
+
+    return ret;
+}
+
 
 bool ConsensusEngine::onTravis = false;
 

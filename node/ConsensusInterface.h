@@ -28,6 +28,7 @@
 
 #include<boost/multiprecision/cpp_int.hpp>
 
+#include <map>
 #include <string>
 #include <vector>
 
@@ -72,6 +73,8 @@ public:
     virtual u256 getPriceForBlockId(uint64_t _blockId) const = 0;
 
     virtual u256 getRandomForBlockId(uint64_t _blockId) const = 0;
+
+    virtual map< string, uint64_t > getConsensusDbUsage() const = 0;
 
     virtual uint64_t getEmptyBlockIntervalMs() const { return -1; }
 
