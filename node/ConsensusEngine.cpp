@@ -912,22 +912,22 @@ u256 ConsensusEngine::getPriceForBlockId(uint64_t _blockId) const {
 map< string, uint64_t > ConsensusEngine::getConsensusDbUsage() const {
     auto node = nodes.begin()->second;
 
-    map< string, uint64_t > ret;
-    ret["blocks.db_disk_usage"] = node->getBlockDBSize();
-    ret["block_proposal.db_disk_usage"] = node->getBlockProposalDBSize();
-    ret["block_sigshare.db_disk_usage"] = node->getBlockSigShareDBSize();
-    ret["consensus_state.db_disk_usage"] = node->getConsensusStateDBSize();
-    ret["da_proof.db_disk_usage"] = node->getDaProofDBSize();
-    ret["da_sigshare.db_disk_usage"] = node->getDaSigShareDBSize();
-    ret["incoming_msg.db_disk_usage"] = node->getIncomingMsgDBSize();
-    ret["interna_info.db_disk_usage"] = node->getInternalInfoDBSize();
-    ret["outgoing_msg.db_disk_usage"] = node->getOutgoingMsgDBSize();
-    ret["price.db_disk_usage"] = node->getPriceDBSize();
-    ret["proposal_hash.db_disk_usage"] = node->getProposalHashDBSize();
-    ret["proposal_vector.db_disk_usage"] = node->getProposalVectorDBSize();
-    ret["random.db_disk_usage"] = node->getRandomDBSize();
+//    map< string, uint64_t > ret;
+//    ret["blocks.db_disk_usage"] = node->getBlockDB()->getActiveDBSize();
+//    ret["block_proposal.db_disk_usage"] = node->getBlockProposalDB()->getBlockProposalDBSize();
+//    ret["block_sigshare.db_disk_usage"] = node->getBlockSigShareDB()->getActiveDBSize();
+//    ret["consensus_state.db_disk_usage"] = node->getConsensusStateDB()->getActiveDBSize();
+//    ret["da_proof.db_disk_usage"] = node->getDaProofDB()->getDaProofDBSize();
+//    ret["da_sigshare.db_disk_usage"] = node->getDaSigShareDB()->getActiveDBSize();
+//    ret["incoming_msg.db_disk_usage"] = node->getIncomingMsgDB()->getActiveDBSize();
+//    ret["interna_info.db_disk_usage"] = node->getInternalInfoDB()->getActiveDBSize();
+//    ret["outgoing_msg.db_disk_usage"] = node->getOutgoingMsgDB()->getActiveDBSize();
+//    ret["price.db_disk_usage"] = node->getPriceDB()->getActiveDBSize();
+//    ret["proposal_hash.db_disk_usage"] = node->getProposalHashDB()->getProposalHashDBSize();
+//    ret["proposal_vector.db_disk_usage"] = node->getProposalVectorDB()->getActiveDBSize();
+//    ret["random.db_disk_usage"] = node->getRandomDB()->getActiveDBSize();
 
-    return ret;
+    return node->getDBUsage();
 }
 
 
