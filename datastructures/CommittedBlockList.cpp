@@ -59,9 +59,11 @@ CommittedBlockList::CommittedBlockList(const ptr< CryptoManager >& _cryptoManage
 
         blocks = make_shared< vector< ptr< CommittedBlock > > >();
 
-        LOG(info, "Deserializing " + to_string( _blockSizes->size() ) + " blocks from " +
-            string( _cryptoManager->getSchain()->getLastCommittedBlockID() + 1 ) + " to " +
-            string( _cryptoManager->getSchain()->getLastCommittedBlockID() + _blockSizes->size() ));
+        if ( _blockSizes->size() > 1 ) {
+            LOG(info, "Deserializing " + to_string( _blockSizes->size() ) + " blocks from " +
+                string( _cryptoManager->getSchain()->getLastCommittedBlockID() + 1 ) + " to " +
+                string( _cryptoManager->getSchain()->getLastCommittedBlockID() + _blockSizes->size() ));
+        }
 
         for ( auto&& size : *_blockSizes ) {
             endIndex = index + size;
@@ -83,8 +85,10 @@ CommittedBlockList::CommittedBlockList(const ptr< CryptoManager >& _cryptoManage
             counter++;
         }
     } catch ( ... ) {
-        LOG(err, "Successfully deserialized " + to_string(counter) + " blocks, got exception on block " +
-            to_string( _cryptoManager->getSchain()->getLastCommittedBlockID() + counter + 1 ));
+        if ( _blockSizes->size() > 1 ) {
+            LOG(err, "Successfully deserialized " + to_string(counter) + " blocks, got exception on block " +
+                to_string( _cryptoManager->getSchain()->getLastCommittedBlockID() + counter + 1 ));
+        }
         throw_with_nested( InvalidStateException(
             "Could not create block list. \n"
                 "LIST_SIZE:" + to_string(_blockSizes->size()) +
