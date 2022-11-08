@@ -18,7 +18,7 @@
 
     @file AUXBroadcastMessage.h
     @author Stan Kladko
-    @date 2018
+    @date 2018 -
 */
 
 #pragma  once
@@ -47,4 +47,5 @@ public:
  const string& _blsSigShare, schain_index _srcSchainIndex,
  const string& _ecdsaSig, const string& _pubKey, const string& _pkSig,  Schain *_sChain);
 
+    ptr< BLAKE3Hash > getCommonCoinHash();
 };

@@ -32,12 +32,16 @@
 #include <cryptopp/hex.h>
 #include <cryptopp/oids.h>
 
+#include <cryptopp/keccak.h>
 #include <cryptopp/sha.h>
 #include <cryptopp/sha3.h>
-#include <cryptopp/keccak.h>
+
+
+#pragma GCC diagnostic push
 
 #include "JsonStubClient.h"
 
+#pragma GCC diagnostic pop
 
 #include <jsonrpccpp/client/connectors/httpclient.h>
 
@@ -66,6 +70,7 @@
 
 #include "ConsensusEdDSASigShare.h"
 #include "bls/BLSPrivateKeyShare.h"
+#include "bls/BLSPublicKeyShare.h"
 #include "datastructures/CommittedBlock.h"
 #include "monitoring/LivelinessMonitor.h"
 #include "node/Node.h"
@@ -105,22 +110,27 @@ void CryptoManager::initSGXClient() {
     }
 }
 
-std::string blsKeyToString(ptr<BLSPublicKey> pk) {
-    auto vectorCoordinates = pk->toString();
+string blsKeyToString(ptr<BLSPublicKey> _pk) {
+    CHECK_ARGUMENT(_pk)
+    auto vectorCoordinates = _pk->toString();
+    CHECK_STATE(vectorCoordinates);
 
-    std::string str = "";
-    for ( const auto& coord : *vectorCoordinates ) {
-        str += coord;
-        str += ":";
+    string str;
+    for (const auto &coord: *vectorCoordinates) {
+        str.append(coord);
+        str.append(":");
     }
     return str;
 }
 
-pair<ptr< BLSPublicKey >, ptr< BLSPublicKey >> CryptoManager::getSgxBlsPublicKey( uint64_t _timestamp ) {
-    LOG(info, string("Looking for BLS public key for timestamp ") + std::to_string( _timestamp ) + string(" to verify a block came through catchup"));
-    if ( _timestamp == uint64_t( -1 ) || previousBlsPublicKeys->size() < 2 ) {
+pair<ptr<BLSPublicKey>, ptr<BLSPublicKey> > CryptoManager::getSgxBlsPublicKey(
+        uint64_t _timestamp) {
+    LOG(debug, string("Looking for BLS public key for timestamp ") +
+               std::to_string(_timestamp) +
+               string(" to verify a block came through catchup"));
+    if (_timestamp == uint64_t(-1) || previousBlsPublicKeys->size() < 2) {
         CHECK_STATE(sgxBLSPublicKey)
-        LOG(info, string("Got current BLS public key ") + blsKeyToString(sgxBLSPublicKey));
+        LOG(debug, string("Got current BLS public key ") + blsKeyToString(sgxBLSPublicKey));
         return {sgxBLSPublicKey, nullptr};
     } else {
         // second key is used when the sig corresponds
@@ -129,15 +139,16 @@ pair<ptr< BLSPublicKey >, ptr< BLSPublicKey >> CryptoManager::getSgxBlsPublicKey
 
         // could not return iterator to end()
         // because finish ts for the current group equals uint64_t(-1)
-        auto it = previousBlsPublicKeys->upper_bound( _timestamp );
+        auto it = previousBlsPublicKeys->upper_bound(_timestamp);
 
-        if ( it == previousBlsPublicKeys->begin() ) {
-            LOG(info, string("Got first BLS public key ") + blsKeyToString((*it).second));
+        if (it == previousBlsPublicKeys->begin()) {
+            LOG(debug, string("Got first BLS public key ") + blsKeyToString((*it).second));
             // if begin() then no previous groups for this key
             return {(*it).second, nullptr};
         }
 
-        LOG(info, string("Got two BLS public keys ") + blsKeyToString((*it).second) + " " + blsKeyToString((*std::prev(it)).second));
+        LOG(debug, string("Got two BLS public keys ") + blsKeyToString((*it).second) + " " +
+                   blsKeyToString((*std::prev(it)).second));
         return {(*it).second, (*(--it)).second};
     }
 }
@@ -152,6 +163,11 @@ CryptoManager::CryptoManager(uint64_t _totalSigners, uint64_t _requiredSigners, 
                              string _sgxEcdsaKeyName, ptr<vector<string> > _sgxEcdsaPublicKeys)
         : sessionKeys(SESSION_KEY_CACHE_SIZE), sessionPublicKeys(SESSION_PUBLIC_KEY_CACHE_SIZE) {
     CHECK_ARGUMENT(_totalSigners >= _requiredSigners);
+
+
+    historicECDSAPublicKeys = make_shared<map<uint64_t, string> >();
+    historicNodeGroups = make_shared<map<uint64_t, vector<uint64_t> > >();
+
     totalSigners = _totalSigners;
     requiredSigners = _requiredSigners;
 
@@ -170,8 +186,6 @@ CryptoManager::CryptoManager(uint64_t _totalSigners, uint64_t _requiredSigners, 
     }
 
     initSGXClient();
-
-
 }
 
 
@@ -218,10 +232,46 @@ CryptoManager::CryptoManager(Schain &_sChain)
     totalSigners = getSchain()->getTotalSigners();
     requiredSigners = getSchain()->getRequiredSigners();
 
+    historicECDSAPublicKeys = make_shared<map<uint64_t, string> >();
+
+
     CHECK_ARGUMENT(totalSigners >= requiredSigners);
 
     isSGXEnabled = _sChain.getNode()->isSgxEnabled();
+    LOG(info, "SGX Enabled:" + to_string(isSGXEnabled));
+    isSyncNode = _sChain.getNode()->isSyncOnlyNode();
+    LOG(info, "Is Sync Node:" + to_string(isSyncNode));
+    // we verify real signatures if sgx is enabled on a core node or if a sync node has
+    // bls public key
+    verifyRealSignatures = _sChain.getNode()->verifyRealSignatures();
+    LOG(info, "Verify real signatures:" + to_string(verifyRealSignatures));
 
+
+    // if we are going to verify ECDSA and BLS sigs we need to set up all coresponding objects
+    if (verifyRealSignatures) {
+
+        auto node = _sChain.getNode();
+        sgxECDSAPublicKeys = node->getEcdsaPublicKeys();
+        sgxBLSPublicKey = node->getBlsPublicKey();
+        previousBlsPublicKeys = node->getPreviousBLSPublicKeys();
+        historicECDSAPublicKeys = node->getHistoricECDSAPublicKeys();
+        historicNodeGroups = node->getHistoricNodeGroups();
+
+        CHECK_STATE(sgxECDSAPublicKeys);
+        CHECK_STATE(sgxBLSPublicKey);
+
+        // populate ecdsa key shares map
+        for (uint64_t i = 0; i < (uint64_t) getSchain()->getNodeCount(); i++) {
+            auto nodeId = getSchain()->getNode()->getNodeInfoByIndex(i + 1)->getNodeID();
+            ecdsaPublicKeyMap[(uint64_t) nodeId] = sgxECDSAPublicKeys->at(i);
+        }
+
+    }
+
+
+
+    // if we are on a core node and SGX is enabled we need to set up all objects
+    // required to interact with the SGX server
     if (isSGXEnabled) {
         auto node = _sChain.getNode();
         sgxURL = node->getSgxUrl();
@@ -229,22 +279,21 @@ CryptoManager::CryptoManager(Schain &_sChain)
             sgxURL = sgxURL.substr(0, sgxURL.size() - 1);
         }
 
+
+        tie(sgxDomainName, sgxPort) = parseSGXDomainAndPort(sgxURL);
+
+
         sgxSSLCertFileFullPath = node->getSgxSslCertFileFullPath();
         sgxSSLKeyFileFullPath = node->getSgxSslKeyFileFullPath();
         sgxECDSAKeyName = node->getEcdsaKeyName();
-        sgxECDSAPublicKeys = node->getEcdsaPublicKeys();
         sgxBlsKeyName = node->getBlsKeyName();
-        sgxBLSPublicKeys = node->getBlsPublicKeys();
-        sgxBLSPublicKey = node->getBlsPublicKey();
-        previousBlsPublicKeys = node->getPreviousBLSPublicKeys();
+        sgxBLSPublicKeyShares = node->getBlsPublicKeys();
         tie(sgxDomainName, sgxPort) = parseSGXDomainAndPort(sgxURL);
 
         CHECK_STATE(sgxURL != "");
         CHECK_STATE(sgxECDSAKeyName != "");
-        CHECK_STATE(sgxECDSAPublicKeys);
         CHECK_STATE(sgxBlsKeyName != "");
-        CHECK_STATE(sgxBLSPublicKeys);
-        CHECK_STATE(sgxBLSPublicKey);
+        CHECK_STATE(sgxBLSPublicKeyShares);
 
         CHECK_STATE(JSONFactory::splitString(sgxBlsKeyName)->size() == 7);
         CHECK_STATE(JSONFactory::splitString(sgxECDSAKeyName)->size() == 2);
@@ -256,23 +305,25 @@ CryptoManager::CryptoManager(Schain &_sChain)
 
         initSGXClient();
 
-        for (uint64_t i = 0; i < (uint64_t) getSchain()->getNodeCount(); i++) {
-            auto nodeId = getSchain()->getNode()->getNodeInfoByIndex(i + 1)->getNodeID();
-            ecdsaPublicKeyMap[(uint64_t) nodeId] = sgxECDSAPublicKeys->at(i);
-            blsPublicKeyMap[(uint64_t) nodeId] = sgxBLSPublicKeys->at(i);
 
-            if (nodeId == getSchain()->getThisNodeInfo()->getNodeID()) {
-                auto publicKey = getSGXEcdsaPublicKey(sgxECDSAKeyName, getSgxClient());
-                if (publicKey != sgxECDSAPublicKeys->at(i)) {
-                    BOOST_THROW_EXCEPTION(InvalidStateException(
-                                                  "Misconfiguration. \n Configured ECDSA public key for this node \n" +
-                                                  sgxECDSAPublicKeys->at(i) +
-                                                  " \n is not equal to the public key for \n " + sgxECDSAKeyName +
-                                                  "\n  on the SGX server: \n" + publicKey,
-                                                          __CLASS_NAME__ ));
-                };
-            }
+        // populate bls key shares map
+        for (uint64_t i = 0; i < (uint64_t) getSchain()->getNodeCount(); i++) {
+            blsPublicKeySharesMapByIndex[i + 1] = sgxBLSPublicKeyShares->at(i);
         }
+
+
+        // verify that the SGX ecdsa public key of the current node on SGX server equal to the key in config
+        auto ecdsaPublicKeyOnServer = getSGXEcdsaPublicKey(sgxECDSAKeyName, getSgxClient());
+        auto ecdsaPublicKeyInConfig = ecdsaPublicKeyMap.at((uint64_t) getSchain()->getNode()->getNodeID());
+        if (ecdsaPublicKeyOnServer != ecdsaPublicKeyInConfig) {
+            BOOST_THROW_EXCEPTION(InvalidStateException(
+                                          "Misconfiguration. \n Configured ECDSA public key for this node \n" +
+                                          ecdsaPublicKeyInConfig +
+                                          " \n is not equal to the public key for \n " + sgxECDSAKeyName +
+                                          "\n  on the SGX server: \n" + ecdsaPublicKeyOnServer,
+                                                  __CLASS_NAME__ ));
+        };
+
     }
 
 
@@ -281,6 +332,7 @@ CryptoManager::CryptoManager(Schain &_sChain)
     if (cfg.find("simulateBLSSigFailBlock") != cfg.end()) {
         simulateBLSSigFailBlock = cfg.at("simulateBLSSigFailBlock").get<uint64_t>();
     }
+
 
 }
 
@@ -294,13 +346,6 @@ void CryptoManager::setSGXKeyAndCert(
 Schain *CryptoManager::getSchain() const {
     return sChain;
 }
-
-
-#define ECDSA_SKEY_LEN 65
-#define ECDSA_SKEY_BASE 16
-
-#define BUF_SIZE 1024
-#define PUB_KEY_SIZE 64
 
 
 MPZNumber::MPZNumber() {
@@ -325,10 +370,8 @@ std::tuple<ptr<OpenSSLEdDSAKey>, string> CryptoManager::localGenerateFastKey() {
 }
 
 
-tuple<string, string, string> CryptoManager::sessionSignECDSA(
+tuple<string, string, string> CryptoManager::signSessionECDSA(
         BLAKE3Hash &_hash, block_id _blockID) {
-
-
     ptr<OpenSSLEdDSAKey> privateKey = nullptr;
     string publicKey = "";
     string pkSig = "";
@@ -363,8 +406,7 @@ tuple<string, string, string> CryptoManager::sessionSignECDSA(
     return {ret, publicKey, pkSig};
 }
 
-BLAKE3Hash CryptoManager::calculatePublicKeyHash(
-        const string publicKey, block_id _blockID) {
+BLAKE3Hash CryptoManager::calculatePublicKeyHash(const string publicKey, block_id _blockID) {
     auto bytesToHash = make_shared<vector<uint8_t> >();
 
     auto bId = (uint64_t) _blockID;
@@ -383,7 +425,6 @@ BLAKE3Hash CryptoManager::calculatePublicKeyHash(
 
 
 string CryptoManager::sgxSignECDSA(BLAKE3Hash &_hash, string &_keyName) {
-
     string ret;
 
 
@@ -391,21 +432,19 @@ string CryptoManager::sgxSignECDSA(BLAKE3Hash &_hash, string &_keyName) {
 
 
     // temporary solution to support old servers
-    if (zmqClient->getZMQStatus() == SgxZmqClient::TRUE ) {
-
-        ret = zmqClient->ecdsaSignMessageHash( 16, _keyName, _hash.toHex(), false );
+    if (zmqClient->getZMQStatus() == SgxZmqClient::TRUE) {
+        ret = zmqClient->ecdsaSignMessageHash(16, _keyName, _hash.toHex(), false);
     } else {
         Json::Value result;
         RETRY_BEGIN
-        getSchain()->getNode()->exitCheck();
-        result = getSgxClient()->ecdsaSignMessageHash( 16, _keyName, _hash.toHex() );
-        RETRY_END
-                JSONFactory::checkSGXStatus( result );
+                getSchain()->getNode()->exitCheck();
+                result = getSgxClient()->ecdsaSignMessageHash(16, _keyName, _hash.toHex());RETRY_END
+        JSONFactory::checkSGXStatus(result);
 
-        string r = JSONFactory::getString( result, "signature_r" );
-        string v = JSONFactory::getString( result, "signature_v" );
-        string s = JSONFactory::getString( result, "signature_s" );
-        ret = v + ":" + r.substr( 2 ) + ":" + s.substr( 2 );
+        string r = JSONFactory::getString(result, "signature_r");
+        string v = JSONFactory::getString(result, "signature_v");
+        string s = JSONFactory::getString(result, "signature_s");
+        ret = v + ":" + r.substr(2) + ":" + s.substr(2);
     }
 
 
@@ -413,15 +452,17 @@ string CryptoManager::sgxSignECDSA(BLAKE3Hash &_hash, string &_keyName) {
 }
 
 
-bool CryptoManager::verifyECDSA(
-        BLAKE3Hash &_hash, const string &_sig, const string &_publicKey) {
+void CryptoManager::verifyECDSA(BLAKE3Hash &_hash, const string &_sig, const string &_publicKey) {
     auto key = OpenSSLECDSAKey::importSGXPubKey(_publicKey);
 
-    return key->verifySGXSig(_sig, (const char *) _hash.data());
+    try {
+        key->verifySGXSig(_sig, (const char *) _hash.data());
+    } catch (...) {
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+    }
 }
 
 string CryptoManager::sign(BLAKE3Hash &_hash) {
-
     string result;
 
     uint64_t time = 0;
@@ -441,37 +482,33 @@ string CryptoManager::sign(BLAKE3Hash &_hash) {
         addECDSASignStats(Time::getCurrentTimeMs() - time);
 
     return result;
-
 }
 
 string CryptoManager::signOracleResult(string _text) {
-
     string result;
 
-    auto hashStr = hashForOracle(_text);
+    auto hashStr = hashForOracle(_text.data(), _text.size());
 
     if (isSGXEnabled) {
         CHECK_STATE(sgxECDSAKeyName != "")
-        result = zmqClient->ecdsaSignMessageHash(16,
-                                                 sgxECDSAKeyName,
-                                                 hashStr, true);
+        result = zmqClient->ecdsaSignMessageHash(16, sgxECDSAKeyName, hashStr, true);
     } else {
         result = hashStr;
     }
 
-
     return result;
-
 }
 
-string CryptoManager::hashForOracle(string &_text) {
 
+string CryptoManager::hashForOracle(char *_data, size_t _size) {
+
+    CHECK_ARGUMENT(_data);
     try {
         CryptoPP::Keccak_256 hash;
         string digest;
 
 
-        hash.Update((const CryptoPP::byte *) _text.data(), _text.size());
+        hash.Update((const CryptoPP::byte *) _data, _size);
         digest.resize(hash.DigestSize());
         hash.Final((CryptoPP::byte *) &digest[0]);
 
@@ -481,15 +518,13 @@ string CryptoManager::hashForOracle(string &_text) {
     }
 }
 
-tuple<string, string, string> CryptoManager::sessionSign(
-        BLAKE3Hash &_hash, block_id _blockId) {
-
+tuple<string, string, string> CryptoManager::signSession(BLAKE3Hash &_hash, block_id _blockId) {
     if (isSGXEnabled) {
         string signature = "";
         string pubKey = "";
         string pkSig = "";
 
-        tie(signature, pubKey, pkSig) = sessionSignECDSA(_hash, _blockId);
+        tie(signature, pubKey, pkSig) = signSessionECDSA(_hash, _blockId);
         CHECK_STATE(signature != "");
         CHECK_STATE(pubKey != "");
         CHECK_STATE(pkSig != "");
@@ -500,57 +535,70 @@ tuple<string, string, string> CryptoManager::sessionSign(
 }
 
 
-bool CryptoManager::sessionVerifyEdDSASig(
+void CryptoManager::verifySessionEdDSASig(
         BLAKE3Hash &_hash, const string &_sig, const string &_publicKey) {
+    try {
+        CHECK_ARGUMENT(_sig != "")
 
-    CHECK_ARGUMENT(_sig != "")
 
-    if (isSGXEnabled) {
-        auto pkey = OpenSSLEdDSAKey::importPubKey(_publicKey);
-        return pkey->verifySig(_sig, (const char *) _hash.data());
-    } else {
-        // mockup - used for testing
-        if (_sig.find(":") != string::npos) {
-            LOG(critical,
-                "Misconfiguration: this node is in mockup signature mode,"
-                "but other node sent a real signature ");
-            exit(-1);
+        if (isSGXEnabled) {
+            auto pkey = OpenSSLEdDSAKey::importPubKey(_publicKey);
+            try {
+                pkey->verifySig(_sig, (const char *) _hash.data());
+            } catch (...) {
+                throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__
+                                                                      + string(" Could not verify EdDSA sig")));
+            }
+        } else if (!getSchain()->getNode()->isSyncOnlyNode()) {
+            // mockup - used for testing
+            if (_sig.find(":") != string::npos) {
+                LOG(critical,
+                    "Misconfiguration: this node is in mockup signature mode,"
+                    "but other node sent a real signature ");
+                exit(-1);
+            }
+            CHECK_STATE2(_sig == _hash.toHex(), "Mockup signature verification failed");
         }
 
-        return _sig == _hash.toHex();
+    } catch (...) {
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
 }
 
 
-bool CryptoManager::verifyECDSASig(
-        BLAKE3Hash &_hash, const string &_sig, node_id _nodeId) {
-    CHECK_ARGUMENT(_sig != "")
+void CryptoManager::verifyECDSASig(
+        BLAKE3Hash &_hash, const string &_sig, node_id _nodeId, uint64_t _timeStamp) {
+    CHECK_ARGUMENT(!_sig.empty())
 
-    if (isSGXEnabled) {
-        string pubKey;
+    try {
+        if (isSGXEnabled) {
+            string pubKey;
 
-        pubKey = getECDSAPublicKeyForNodeId(_nodeId);
+            pubKey = getECDSAPublicKeyForNodeId(_nodeId, _timeStamp);
+
+            CHECK_STATE2(
+                    !pubKey.empty(), "Sig verification failed: could not find ECDSA key for nodeId");
+
+            try {
+                verifyECDSA(_hash, _sig, pubKey);
+            } catch (...) {
+                throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+            }
 
 
-        if (pubKey.empty())
-            return false;
-
-
-        auto result = verifyECDSA(_hash, _sig, pubKey);
-
-        return result;
-
-
-    } else {
-        // mockup - used for testing
-        if (_sig.find(":") != string::npos) {
-            LOG(critical,
-                "Misconfiguration: this node is in mockup signature mode,"
-                "but other node sent a real signature ");
-            exit(-1);
+        } else if (!getSchain()->getNode()->isSyncOnlyNode()) {
+            // mockup - used for testing
+            if (_sig.find(":") != string::npos) {
+                LOG(critical,
+                    "Misconfiguration: this node is in mockup signature mode,"
+                    "but other node sent a real signature ");
+                exit(-1);
+            }
+            CHECK_STATE2(_sig == _hash.toHex(), "Mockup signature verification failed");
         }
 
-        return _sig == (_hash.toHex());
+    } catch (...) {
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
 }
 
@@ -565,12 +613,10 @@ string CryptoManager::getECDSAPublicKeyForNodeId(const node_id &_nodeId, uint64_
 
         if (ecdsaPublicKeyMap.count((uint64_t) _nodeId) > 0) {
             // nodeId found in the current set of nodes
-             result = ecdsaPublicKeyMap.at((uint64_t) _nodeId);
-             return result;
+            result = ecdsaPublicKeyMap.at((uint64_t) _nodeId);
+            return result;
         }
-
     }
-
 
     // could not find nodeId in the current 16 node chain
     // this means the node was probably part of the chain before one of rotations
@@ -578,22 +624,38 @@ string CryptoManager::getECDSAPublicKeyForNodeId(const node_id &_nodeId, uint64_
     // get key from rotation history
     // return empty string if key is not found
 
-    return getECDSAHistoricPublicKeyForNodeId((uint64_t ) _nodeId, _timeStamp);
-
-    return result;
+    return getECDSAHistoricPublicKeyForNodeId((uint64_t) _nodeId, _timeStamp);
 }
 
 
 // get ECDSA public key for nodeID and time stamp. Time stamp (uint64_t)-1 is current time.
 // If not found, return empty string;
-string CryptoManager::getECDSAHistoricPublicKeyForNodeId(uint64_t
-                                                      //_nodeId,
-                                                        , uint64_t
-                                                      // _timeStamp
-                                                      ) {
-    // TO BE implemented
-    // return empty string for now
-    return "";
+string CryptoManager::getECDSAHistoricPublicKeyForNodeId(uint64_t _nodeId, uint64_t _timeStamp) {
+    LOCK(historicEcdsaPublicKeyMapLock);
+
+    vector<uint64_t> nodeIdsInGroup;
+    if (_timeStamp == uint64_t(-1)) {
+        if (historicNodeGroups->count(_timeStamp) > 0) {
+            nodeIdsInGroup = historicNodeGroups->at(_timeStamp);
+        } else {
+            LOG(err, "Could not find nodeIds for ECDSA");
+            return "";
+        }
+    } else {
+        nodeIdsInGroup = (*historicNodeGroups->upper_bound(_timeStamp)).second;
+    }
+
+    if (find(nodeIdsInGroup.begin(), nodeIdsInGroup.end(), _nodeId) == nodeIdsInGroup.end()) {
+        LOG(err, "Could not find node in the ECDSA group for this timeStamp");
+        return "";
+    }
+
+    if (historicECDSAPublicKeys->count(_nodeId) > 0) {
+        return historicECDSAPublicKeys->at(_nodeId);
+    } else {
+        LOG(err, "Could not find nodeId in historic ECDSA public keys");
+        return "";
+    }
 }
 
 
@@ -608,7 +670,7 @@ tuple<ptr<ThresholdSigShare>, string, string, string> CryptoManager::signDAProof
     CHECK_STATE(sigShare);
 
     auto combinedHash = BLAKE3Hash::merkleTreeMerge(_p->getHash(), sigShare->computeHash());
-    auto[ecdsaSig, pubKey, pubKeySig] = sessionSign(combinedHash, _p->getBlockID());
+    auto [ecdsaSig, pubKey, pubKeySig] = signSession(combinedHash, _p->getBlockID());
     return {sigShare, ecdsaSig, pubKey, pubKeySig};
 }
 
@@ -620,36 +682,30 @@ ptr<ThresholdSigShare> CryptoManager::signBinaryConsensusSigShare(
     return result;
 }
 
-ptr<ThresholdSigShare> CryptoManager::signBlockSigShare(
-        BLAKE3Hash &_hash, block_id _blockId) {
+ptr<ThresholdSigShare> CryptoManager::signBlockSigShare(BLAKE3Hash &_hash, block_id _blockId) {
     auto result = signSigShare(_hash, _blockId, false);
     CHECK_STATE(result);
     return result;
 }
 
 void CryptoManager::verifyBlockSig(
-        ptr<ThresholdSignature> _signature, BLAKE3Hash &_hash, const TimeStamp& _ts) {
-    CHECK_STATE(_signature);
-    verifyThresholdSig(_signature, _hash, false, _ts);
-}
-
-
-void CryptoManager::verifyBlockSig(
-        string &_sigStr, block_id _blockId, BLAKE3Hash &_hash, const TimeStamp& _ts) {
-
-    if (simulateBLSSigFailBlock > 0) {
-        if (simulateBLSSigFailBlock == (uint64_t) _blockId) {
-            throw InvalidSignatureException("Simulated sig fail", __CLASS_NAME__);
+        string &_sigStr, block_id _blockId, BLAKE3Hash &_hash, const TimeStamp &_ts) {
+    try {
+        if (simulateBLSSigFailBlock > 0) {
+            if (simulateBLSSigFailBlock == (uint64_t) _blockId) {
+                throw InvalidSignatureException("Simulated sig fail", __CLASS_NAME__);
+            }
         }
-    }
 
-    if (getSchain()->getNode()->isSgxEnabled() ||
-       (getSchain()->getNode()->isSyncOnlyNode() && sgxBLSPublicKey)) {
+        if (verifyRealSignatures) {
+            auto _signature = make_shared<ConsensusBLSSignature>(
+                    _sigStr, _blockId, totalSigners, requiredSigners);
 
-        auto _signature = make_shared<ConsensusBLSSignature>(_sigStr, _blockId,
-                                                             totalSigners, requiredSigners);
+            verifyThresholdSig(_signature, _hash, _ts);
+        }
 
-        verifyBlockSig(_signature, _hash, _ts);
+    } catch (...) {
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
 }
 
@@ -659,13 +715,13 @@ ptr<ThresholdSigShare> CryptoManager::signDAProofSigShare(
     MONITOR(__CLASS_NAME__, __FUNCTION__)
 
     if (getSchain()->getNode()->isSgxEnabled() && !_forceMockup) {
-        auto&&[sig, publicKey, pkSig] = this->sessionSignECDSA(_hash, _blockId);
+        auto &&[sig, publicKey, pkSig] = this->signSessionECDSA(_hash, _blockId);
 
         auto share = to_string((uint64_t) getSchain()->getSchainIndex()) + ";" + sig + ";" +
                      publicKey + ";" + pkSig;
 
         return make_shared<ConsensusEdDSASigShare>(share, sChain->getSchainID(), _blockId,
-                                                   sChain->getSchainIndex(), totalSigners, requiredSigners);
+                                                   totalSigners);
 
     } else {
         auto sigShare = _hash.toHex();
@@ -678,27 +734,34 @@ ptr<ThresholdSigShare> CryptoManager::signDAProofSigShare(
 void CryptoManager::verifyDAProofSigShare(ptr<ThresholdSigShare> _sigShare,
                                           schain_index _schainIndex, BLAKE3Hash &_hash, node_id _nodeId,
                                           bool _forceMockup) {
-
     MONITOR(__CLASS_NAME__, __FUNCTION__)
 
-    if (getSchain()->getNode()->isSgxEnabled() && !_forceMockup) {
-        auto sShare = dynamic_pointer_cast<ConsensusEdDSASigShare>(_sigShare);
+    try {
+        if (getSchain()->getNode()->isSgxEnabled() && !_forceMockup) {
+            auto sShare = dynamic_pointer_cast<ConsensusEdDSASigShare>(_sigShare);
 
-        CHECK_STATE(sShare);
+            CHECK_STATE(sShare);
 
-        sShare->verify(*this, _schainIndex, _hash, _nodeId);
+            CHECK_STATE2(sShare->getSignerIndex() == _schainIndex,
+                         "Incorrect schain index in sigShare:" + to_string(sShare->getSignerIndex()))
 
-        return;
+            sShare->verify(*this, _hash, _nodeId);
 
-    } else {
-        return;
+
+            return;
+
+        } else {
+            return;
+        }
+
+    } catch (...) {
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
 }
 
 
 ptr<ThresholdSigShare> CryptoManager::signSigShare(
         BLAKE3Hash &_hash, block_id _blockId, bool _forceMockup) {
-
     MONITOR(__CLASS_NAME__, __FUNCTION__)
 
     ptr<ThresholdSigShare> result = nullptr;
@@ -717,19 +780,17 @@ ptr<ThresholdSigShare> CryptoManager::signSigShare(
 
         checkZMQStatusIfUnknownBLS();
 
-        if (zmqClient->getZMQStatus() == SgxZmqClient::TRUE ) {
+        if (zmqClient->getZMQStatus() == SgxZmqClient::TRUE) {
             ret = zmqClient->blsSignMessageHash(
-                    getSgxBlsKeyName(), _hash.toHex(), requiredSigners, totalSigners,
-                    false);
+                    getSgxBlsKeyName(), _hash.toHex(), requiredSigners, totalSigners, false);
         } else {
             RETRY_BEGIN
                     getSchain()->getNode()->exitCheck();
                     jsonShare = getSgxClient()->blsSignMessageHash(
-                            getSgxBlsKeyName(), _hash.toHex(), requiredSigners, totalSigners );
-            RETRY_END
+                            getSgxBlsKeyName(), _hash.toHex(), requiredSigners, totalSigners);RETRY_END
 
-            JSONFactory::checkSGXStatus( jsonShare );
-            ret = JSONFactory::getString( jsonShare, "signatureShare" );
+            JSONFactory::checkSGXStatus(jsonShare);
+            ret = JSONFactory::getString(jsonShare, "signatureShare");
         }
 
         auto sigShare = make_shared<string>(ret);
@@ -751,53 +812,115 @@ ptr<ThresholdSigShare> CryptoManager::signSigShare(
     return result;
 }
 
-void CryptoManager::verifyThresholdSig(
-        ptr<ThresholdSignature> _signature, BLAKE3Hash &_hash, bool _forceMockup, const TimeStamp& _ts) {
+void CryptoManager::verifyThresholdSig(ptr<ThresholdSignature> _signature, BLAKE3Hash &_hash, const TimeStamp &_ts) {
+    try {
+        CHECK_STATE(_signature);
 
-    CHECK_STATE(_signature);
 
+        MONITOR(__CLASS_NAME__, __FUNCTION__)
+
+        if (verifyRealSignatures) {
+            auto blsSig = dynamic_pointer_cast<ConsensusBLSSignature>(_signature);
+
+            CHECK_STATE(blsSig);
+
+            auto blsKeys = getSgxBlsPublicKey(_ts.getS());
+
+            auto libBlsSig = blsSig->getBlsSig();
+
+
+            if (!blsKeys.first->VerifySig(
+                    make_shared<array<uint8_t, HASH_LEN> >(_hash.getHash()), libBlsSig)) {
+                LOG(err, "Could not BLS verify signature:" + _signature->toString() +
+                         string(":KEY:") + blsKeys.first->toString()->at(0) +
+                         ":HASH:" + _hash.toHex());
+
+                // second key is used when the sig corresponds
+                // to the last block before node rotation!
+                // in this case we use the key for the group before
+
+
+                CHECK_STATE2(blsKeys.second, "BLS signature verification failed");
+                CHECK_STATE2(
+                        blsKeys.second->VerifySig(
+                                make_shared<array<uint8_t, HASH_LEN> >(_hash.getHash()), libBlsSig),
+                        "BLS sig verification failed using both current and previous key");
+            }
+
+        } else {
+            // mockups sigs are not verified
+        }
+
+    } catch (...) {
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+    }
+}
+
+
+// Verify threshold sig share using the current set of BLS keys.
+// Since threshold sig shares are glued for the current block
+// historic keys are not needed in this case.
+// throw an exception if the share does not verify
+
+void CryptoManager::verifyThresholdSigShare(
+        ptr<ThresholdSigShare> _sigShare, BLAKE3Hash &_hash) {
+    CHECK_STATE(_sigShare);
+    // sync nodes do not do sig gluing
+    CHECK_STATE(!getSchain()->getNode()->isSyncOnlyNode())
 
     MONITOR(__CLASS_NAME__, __FUNCTION__)
 
-    if ((getSchain()->getNode()->isSgxEnabled() ||
-        (getSchain()->getNode()->isSyncOnlyNode() && sgxBLSPublicKey))
-        && !_forceMockup) {
-        auto blsSig = dynamic_pointer_cast<ConsensusBLSSignature>(_signature);
+    try {
+        if ((getSchain()->getNode()->isSgxEnabled())) {
+            auto consensusBlsSigShare = dynamic_pointer_cast<ConsensusBLSSigShare>(_sigShare);
 
-        CHECK_STATE(blsSig);
+            CHECK_STATE(consensusBlsSigShare);
 
-        auto blsKeys = getSgxBlsPublicKey( _ts.getS() );
+            ptr<BLSSigShare> blsSigShare = consensusBlsSigShare->getBlsSigShare();
 
-        auto libBlsSig = blsSig->getBlsSig();
+            verifyBlsSigShare(blsSigShare, _hash);
+
+        } else {
+            // mockup sigshares are not verified
+        }
+    } catch (...) {
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+    }
+}
 
 
-        if ( !blsKeys.first->VerifySig( make_shared<array<uint8_t, HASH_LEN>>(_hash.getHash()), libBlsSig ) ) {
-            LOG(err, "Could not BLS verify signature:" + _signature->toString() + string(":KEY:") + blsKeys.first->toString()->at(0)
-                               + ":HASH:" + _hash.toHex());
+// Verify BLS sig share using the current set of BLS keys.
+// Since threshold sig shares are glued for the current block
+// historic keys are not needed in this case.
+// throw an exception if the share does not verify
+void CryptoManager::verifyBlsSigShare(ptr<BLSSigShare> _sigShare, BLAKE3Hash &_hash) {
+    CHECK_STATE(_sigShare);
 
-            // second key is used when the sig corresponds
-            // to the last block before node rotation!
-            // in this case we use the key for the group before
+    try {
+        CHECK_STATE(blsPublicKeySharesMapByIndex.size() == getSchain()->getNodeCount());
+        CHECK_STATE(blsPublicKeySharesMapByIndex.count(_sigShare->getSignerIndex() > 0));
 
-            if (getSchain()->getSchainName() == "dazzling-gomeisa" && _signature->getBlockId() < (1100561 + 1000)) {
-                return;
-            }
 
-            if (getSchain()->getSchainName() == "plain-rotanev" && _signature->getBlockId() < (1366472 + 1000)) {
-                return;
-            }
+        auto blsPublicKeyShare =
+                BLSPublicKeyShare(blsPublicKeySharesMapByIndex.at(_sigShare->getSignerIndex()),
+                                  requiredSigners, totalSigners);
 
-            CHECK_STATE2(blsKeys.second, "BLS signature verification failed");
-            CHECK_STATE2(blsKeys.second->VerifySig(
-                make_shared<array<uint8_t, HASH_LEN>>(_hash.getHash()),
-                libBlsSig ), "BLS sig verification failed using both current and previous key");
+        bool res = false;
+
+        try {
+            res = blsPublicKeyShare.VerifySig(
+                    std::make_shared<std::array<uint8_t, 32> >(_hash.getHash()), _sigShare,
+                    requiredSigners, totalSigners);
+        } catch (...) {
+            LOG(err, "Bls sig share did not verify NODE_ID:" +
+                     to_string((uint64_t) _sigShare->getSignerIndex()));
+            throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
         }
 
-    } else {
-        // mockups sigs are not verified
+        CHECK_STATE(res);
+    } catch (...) {
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
-
-
 }
 
 
@@ -811,7 +934,8 @@ ptr<ThresholdSigShareSet> CryptoManager::createSigShareSet(block_id _blockId) {
 
 ptr<ThresholdSigShareSet> CryptoManager::createDAProofSigShareSet(block_id _blockId) {
     if (getSchain()->getNode()->isSgxEnabled()) {
-        return make_shared<ConsensusEdDSASigShareSet>(_blockId, totalSigners, requiredSigners);
+        return make_shared<ConsensusEdDSASigShareSet>(
+                getSchain()->getSchainID(), _blockId, totalSigners, requiredSigners);
     } else {
         return make_shared<MockupSigShareSet>(_blockId, totalSigners, requiredSigners);
     }
@@ -839,18 +963,17 @@ ptr<ThresholdSigShare> CryptoManager::createDAProofSigShare(const string &_sigSh
                                                             schain_id _schainID, block_id _blockID,
                                                             schain_index _signerIndex, bool _forceMockup) {
     CHECK_ARGUMENT(!_sigShare.empty());
-    CHECK_STATE(totalSigners >= requiredSigners);
-
 
     if (getSchain()->getNode()->isSgxEnabled() && !_forceMockup) {
         auto result = make_shared<ConsensusEdDSASigShare>(
-                _sigShare, _schainID, _blockID, _signerIndex, totalSigners, requiredSigners);
+                _sigShare, _schainID, _blockID, totalSigners);
 
         return result;
 
     } else {
         return make_shared<MockupSigShare>(
-                _sigShare, _schainID, _blockID, _signerIndex, totalSigners, requiredSigners);
+                _sigShare, _schainID, _blockID, _signerIndex,
+                totalSigners, requiredSigners);
     }
 }
 
@@ -868,26 +991,32 @@ void CryptoManager::signProposal(BlockProposal *_proposal) {
 tuple<string, string, string> CryptoManager::signNetworkMsg(NetworkMessage &_msg) {
     MONITOR(__CLASS_NAME__, __FUNCTION__);
     auto h = _msg.getHash();
-    auto&&[signature, publicKey, pkSig] = sessionSign(h, _msg.getBlockId());
+    auto &&[signature, publicKey, pkSig] = signSession(h, _msg.getBlockId());
     CHECK_STATE(signature != "");
     return {signature, publicKey, pkSig};
 }
 
 
-bool CryptoManager::verifyNetworkMsg(NetworkMessage &_msg) {
+void CryptoManager::verifyNetworkMsg(NetworkMessage &_msg) {
     auto sig = _msg.getECDSASig();
     auto hash = _msg.getHash();
     auto publicKey = _msg.getPublicKey();
     auto pkSig = _msg.getPkSig();
     auto blockId = _msg.getBlockID();
     auto nodeId = _msg.getSrcNodeID();
-    return sessionVerifySigAndKey(hash, sig, publicKey, pkSig, blockId, nodeId);
+    try {
+        verifySessionSigAndKey(hash, sig, publicKey, pkSig, blockId, nodeId,
+                               getSchain()->getLastCommittedBlockTimeStamp().getLinuxTimeMs());
+    } catch (...) {
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+    }
 }
 
 
-bool CryptoManager::sessionVerifySigAndKey(BLAKE3Hash &_hash, const string &_sig,
+void CryptoManager::verifySessionSigAndKey(BLAKE3Hash &_hash, const string &_sig,
                                            const string &_publicKey, const string &pkSig, block_id _blockID,
-                                           node_id _nodeId) {
+                                           node_id _nodeId,
+                                           uint64_t _timeStamp) {
     MONITOR(__CLASS_NAME__, __FUNCTION__);
 
 
@@ -899,52 +1028,49 @@ bool CryptoManager::sessionVerifySigAndKey(BLAKE3Hash &_hash, const string &_sig
 
         if (auto result = sessionPublicKeys.getIfExists(pkSig); result.has_value()) {
             auto publicKey2 = any_cast<string>(result);
-            if (publicKey2 != _publicKey)
-                return false;
+            CHECK_STATE(publicKey2 == _publicKey)
         } else {
             if (isSGXEnabled) {
                 auto pkeyHash = calculatePublicKeyHash(_publicKey, _blockID);
-                if (!verifyECDSASig(pkeyHash, pkSig, _nodeId)) {
-                    LOG(warn, "PubKey ECDSA sig did not verify");
-                    return false;
+                try {
+                    verifyECDSASig(pkeyHash, pkSig, _nodeId, _timeStamp);
+                } catch (...) {
+                    LOG(err, "PubKey ECDSA sig did not verify NODE_ID:" +
+                             to_string((uint64_t) _nodeId));
+                    throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
                 }
                 sessionPublicKeys.put(pkSig, _publicKey);
             }
         }
     }
 
-    if (!sessionVerifyEdDSASig(_hash, _sig, _publicKey)) {
-        LOG(warn, "ECDSA sig did not verify");
-        return false;
+    try {
+        verifySessionEdDSASig(_hash, _sig, _publicKey);
+    } catch (...) {
+        LOG(err, "verifySessionSigAndKey ECDSA sig did not verify");
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
-
-
-    return true;
 }
 
-bool CryptoManager::verifyProposalECDSA(
+void CryptoManager::verifyProposalECDSA(
         const ptr<BlockProposal> &_proposal, const string &_hashStr, const string &_signature) {
     CHECK_ARGUMENT(_proposal);
     CHECK_ARGUMENT(_hashStr != "")
     CHECK_ARGUMENT(_signature != "")
 
     // default proposal is not signed using ECDSA
-    if (_proposal->getProposerIndex() == 0) {
-        return true;
-    }
-
+    CHECK_STATE(_proposal->getProposerIndex() != 0);
     auto hash = _proposal->getHash();
 
-    if (hash.toHex() != _hashStr) {
-        LOG(warn, "Incorrect proposal hash");
-        return false;
-    }
+    CHECK_STATE2(hash.toHex() == _hashStr, "Incorrect proposal hash");
 
-    if (!verifyECDSASig(hash, _signature, _proposal->getProposerNodeID())) {
-        LOG(err, "ECDSA sig did not verify");
-        return false;
+    try {
+        verifyECDSASig(
+                hash, _signature, _proposal->getProposerNodeID(), _proposal->getTimeStampMs());
+    } catch (...) {
+        LOG(err, "verifyProposalECDSA:  ECDSA sig did not verify");
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
-    return true;
 }
 
 
@@ -955,21 +1081,27 @@ ptr<ThresholdSignature> CryptoManager::verifyDAProofThresholdSig(
 
     CHECK_ARGUMENT(!_signature.empty());
 
-    if (getSchain()->getNode()->isSgxEnabled()) {
-        auto sig = make_shared<ConsensusEdDSASignature>(
-                _signature, _blockId, totalSigners, requiredSigners);
+    try {
+        if (verifyRealSignatures) {
+            auto sig = make_shared<ConsensusEdDSASignature>(
+                    _signature, getSchain()->getSchainID(), _blockId, totalSigners,
+                    requiredSigners);
 
-        return sig;
+            sig->verify(*this, _hash);
 
-    } else {
-        auto sig =
-                make_shared<MockupSignature>(_signature, _blockId, requiredSigners, totalSigners);
+            return sig;
+        } else {
+            auto sig = make_shared<MockupSignature>(
+                    _signature, _blockId, totalSigners, requiredSigners);
 
-        if (sig->toString() != _hash.toHex()) {
-            BOOST_THROW_EXCEPTION(InvalidArgumentException(
-                                          "Mockup threshold signature did not verify", __CLASS_NAME__ ));
+            CHECK_STATE2(
+                    sig->toString() == _hash.toHex(), "Mockup threshold signature did not verify");
+
+            return sig;
         }
-        return sig;
+
+    } catch (...) {
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
 }
 
@@ -1176,16 +1308,16 @@ bool CryptoManager::isSGXServerDown() {
 
 void CryptoManager::checkZMQStatusIfUnknownECDSA(const string &_keyName) {
     if (zmqClient->getZMQStatus() == SgxZmqClient::UNKNOWN) {
-        static string sampleHash = "01020304050607080910111213141516171819202122232425262728"
-                                   "29303132";
+        static string sampleHash =
+                "01020304050607080910111213141516171819202122232425262728"
+                "29303132";
         try {
-            auto ret1 = zmqClient->ecdsaSignMessageHash(16, _keyName, sampleHash,
-                                                        true);
+            auto ret1 = zmqClient->ecdsaSignMessageHash(16, _keyName, sampleHash, true);
             zmqClient->setZmqStatus(SgxZmqClient::TRUE);
             LOG(info, "Successfully connected to SGX ZMQ API.");
         } catch (...) {
             zmqClient->setZmqStatus(SgxZmqClient::FALSE);
-            LOG(warn, "Could not connect SGX ZMQ API. Will fallback to HTTP(S)" );
+            LOG(warn, "Could not connect SGX ZMQ API. Will fallback to HTTP(S)");
         }
     }
 }
@@ -1193,17 +1325,17 @@ void CryptoManager::checkZMQStatusIfUnknownECDSA(const string &_keyName) {
 
 void CryptoManager::checkZMQStatusIfUnknownBLS() {
     if (zmqClient->getZMQStatus() == SgxZmqClient::UNKNOWN) {
-        static string sampleHash = "01020304050607080910111213141516171819202122232425262728"
-                                   "29303132";
+        static string sampleHash =
+                "01020304050607080910111213141516171819202122232425262728"
+                "29303132";
         try {
             auto ret1 = zmqClient->blsSignMessageHash(
-                    getSgxBlsKeyName(),
-                    sampleHash, requiredSigners, totalSigners, true);
+                    getSgxBlsKeyName(), sampleHash, requiredSigners, totalSigners, true);
             zmqClient->setZmqStatus(SgxZmqClient::TRUE);
             LOG(info, "Successfully connected to SGX ZMQ API.");
         } catch (...) {
             zmqClient->setZmqStatus(SgxZmqClient::FALSE);
-            LOG(warn, "Could not connect SGX ZMQ API. Will fallback to HTTP(S)" );
+            LOG(warn, "Could not connect SGX ZMQ API. Will fallback to HTTP(S)");
         };
     }
 }

@@ -48,7 +48,7 @@ public:
 
     block_id readLastCommittedBlockID();
 
-    const string& getFormatVersion();
+    const string& getFormatVersion() override;
 
     string createLastCommittedKey();
 
@@ -56,8 +56,8 @@ public:
 
     bool unfinishedBlockExists( block_id _blockID );
 
-    void recordBlockProcessingStart( block_id _blockID );
-
+    ptr<vector<uint8_t>> getSerializedBlocksFromLevelDB(block_id _startBlock, block_id _endBlock,
+                                                        ptr<list<uint64_t>> _blockSizes);
 };
 
 

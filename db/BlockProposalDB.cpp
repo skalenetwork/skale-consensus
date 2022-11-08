@@ -97,7 +97,7 @@ void BlockProposalDB::addBlockProposal(const ptr<BlockProposal>& _proposal) {
 
         ptr<vector<uint8_t> > serialized;
 
-        serialized = _proposal->serialize();
+        serialized = _proposal->serializeProposal();
         CHECK_STATE(serialized);
 
         this->writeByteArrayToSet((const char *) serialized->data(), serialized->size(), _proposal->getBlockID(),
@@ -116,7 +116,7 @@ BlockProposalDB::getMyProposalFromLevelDB(block_id _blockID, schain_index _propo
 
     try {
 
-        auto value = readStringFromBlockSet(_blockID, _proposerIndex);
+        auto value = readStringFromSet(_blockID, _proposerIndex);
 
         if (value != "") {
             auto serializedBlock = make_shared<vector<uint8_t>>();
@@ -157,7 +157,9 @@ ptr<BlockProposal> BlockProposalDB::getBlockProposal(block_id _blockID, schain_i
     if (serializedProposal == nullptr)
         return nullptr;
 
-    auto proposal = BlockProposal::deserialize(serializedProposal, getSchain()->getCryptoManager());
+
+    // dont check signatures on proposals stored in the db since they have already been verified
+    auto proposal = BlockProposal::deserialize(serializedProposal, getSchain()->getCryptoManager(), false);
 
     if (proposal == nullptr)
         return nullptr;

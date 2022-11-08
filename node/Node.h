@@ -56,6 +56,7 @@ class TestConfig;
 class BlockSigShareDB;
 class DASigShareDB;
 class DAProofDB;
+class InternalInfoDB;
 
 namespace leveldb {
 class DB;
@@ -132,6 +133,10 @@ class Node {
 
     ptr< map< uint64_t, ptr< BLSPublicKey > > > previousBlsPublicKeys;
 
+    ptr< map< uint64_t, string > > historicECDSAPublicKeys;
+
+    ptr< map< uint64_t, vector< uint64_t > > > historicNodeGroups;
+
     string sgxURL;
 
     string sgxSSLKeyFileFullPath;
@@ -160,6 +165,8 @@ class Node {
     ptr< DAProofDB > daProofDB;
 
     ptr< BlockProposalDB > blockProposalDB;
+
+    ptr< InternalInfoDB > internalInfoDB;
 
     uint64_t catchupIntervalMS = 0;
 
@@ -195,6 +202,7 @@ class Node {
     uint64_t randomDBSize = 0;
     uint64_t priceDBSize = 0;
     uint64_t blockProposalDBSize = 0;
+    uint64_t internalInfoDBSize = 0;
     uint64_t visualizationType = 0;
 
     string gethURL = "";
@@ -223,6 +231,10 @@ public:
 
     ptr< map< uint64_t, ptr< BLSPublicKey > > > getPreviousBLSPublicKeys();
 
+    ptr< map< uint64_t, string > > getHistoricECDSAPublicKeys();
+
+    ptr< map< uint64_t, vector< uint64_t > > > getHistoricNodeGroups();
+
     bool isSgxEnabled();
 
     [[nodiscard]] const ptr< TestConfig >& getTestConfig() const;
@@ -232,6 +244,8 @@ public:
     ptr< RandomDB > getRandomDB();
 
     ptr< PriceDB > getPriceDB() const;
+
+    ptr< InternalInfoDB > getInternalInfoDB() const;
 
     ptr< ProposalHashDB > getProposalHashDB();
 
@@ -266,6 +280,7 @@ public:
     uint64_t getDaSigShareDBSize() const;
     uint64_t getDaProofDBSize() const;
     uint64_t getBlockProposalDBSize() const;
+    uint64_t getInternalInfoDBSize() const;
     uint64_t getSimulateNetworkWriteDelayMs() const;
 
     ptr< BLSPublicKey > getBlsPublicKey() const;
@@ -282,6 +297,8 @@ public:
         string _blsKeyName, ptr< vector< ptr< vector<string>>>> _blsPublicKeys,
         ptr< BLSPublicKey > _blsPublicKey, string& _gethURL,
         ptr< map< uint64_t, ptr< BLSPublicKey > > > _previousBlsPublicKeys,
+        ptr< map< uint64_t, string > > _historicECDSAPublicKeys,
+        ptr< map< uint64_t, vector< uint64_t > > > _historicNodeGroups,
         bool _isSyncNode);
 
 
@@ -386,5 +403,7 @@ public:
     const string &getGethUrl() const;
 
     bool isSyncOnlyNode() const;
+
+    bool verifyRealSignatures() const;
 
 };

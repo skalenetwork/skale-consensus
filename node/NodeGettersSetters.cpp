@@ -248,6 +248,11 @@ ptr<PriceDB> Node::getPriceDB() const {
     return priceDB;
 }
 
+ptr<InternalInfoDB> Node::getInternalInfoDB() const {
+    CHECK_STATE(internalInfoDB)
+    return internalInfoDB;
+}
+
 
 uint64_t Node::getCatchupIntervalMs() {
     return catchupIntervalMS;
@@ -368,6 +373,11 @@ ptr<BlockProposalDB>  Node::getBlockProposalDB() const {
 uint64_t Node::getBlockProposalDBSize() const {
     return blockProposalDBSize;
 }
+
+uint64_t Node::getInternalInfoDBSize() const {
+    return internalInfoDBSize;
+}
+
 
 ConsensusEngine *Node::getConsensusEngine() const {
     CHECK_STATE(consensusEngine);

@@ -23,7 +23,11 @@
 
 
 #include <boost/iostreams/device/array.hpp>
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-copy"
 #include <boost/iostreams/stream.hpp>
+#pragma GCC diagnostic pop
 
 
 #include "SkaleCommon.h"
@@ -79,7 +83,7 @@ void BlockProposal::calculateHash() {
     // export into 8-bit unsigned values, most significant bit first:
     auto sr = Utils::u256ToBigEndianArray(getStateRoot());
     auto v = Utils::carray2Hex(sr->data(), sr->size());
-    blake3_hasher_update(&hasher,(unsigned char *) v.data(), v.size());
+    blake3_hasher_update(&hasher, (unsigned char *) v.data(), v.size());
 
     if (transactionList->size() > 0) {
         auto merkleRoot = transactionList->calculateTopMerkleRoot();
@@ -113,13 +117,12 @@ BlockProposal::BlockProposal(schain_id _sChainId, node_id _proposerNodeId, block
     }
 
 
-
     CHECK_STATE(timeStamp > MODERN_TIME);
 
     transactionCount = transactionList->getItems()->size();
     calculateHash();
 
-    if (_cryptoManager != nullptr) {
+    if (_cryptoManager) {
         _cryptoManager->signProposal(this);
     } else {
         CHECK_ARGUMENT(_signature != "");
@@ -204,44 +207,52 @@ string BlockProposal::getSignature() {
     return signature;
 }
 
-ptr<BlockProposalRequestHeader> BlockProposal::createBlockProposalHeader(Schain *_sChain,
-                                                                         const ptr<BlockProposal> &_proposal) {
+ptr<BlockProposalRequestHeader> BlockProposal::createProposalRequestHeader(Schain *_sChain) {
 
     CHECK_ARGUMENT(_sChain);
-    CHECK_ARGUMENT(_proposal);
 
-    LOCK(_proposal->m);
+    LOCK(m);
 
-    if (_proposal->header)
-        return _proposal->header;
+    if (!cachedProposalRequestHeader)
+        cachedProposalRequestHeader= make_shared<BlockProposalRequestHeader>(*_sChain, *this);
 
-    _proposal->header = make_shared<BlockProposalRequestHeader>(*_sChain, _proposal);
-
-    return _proposal->header;
+    return cachedProposalRequestHeader;
 
 }
 
 
-ptr<BasicHeader> BlockProposal::createHeader(uint64_t ) {
+ptr<BasicHeader> BlockProposal::createProposalHeader() {
     return make_shared<BlockProposalHeader>(*this);
 }
 
-ptr<vector<uint8_t> > BlockProposal::serialize(uint64_t _flags) {
+ptr<vector<uint8_t> > BlockProposal::serializeProposal() {
 
     LOCK(m)
 
-    if (serializedProposal != nullptr)
-        return serializedProposal;
+    if (cachedSerializedProposal)
+        return cachedSerializedProposal;
 
-    auto blockHeader = createHeader(_flags);
+    auto proposalHeader = createProposalHeader();
 
-    auto buf = blockHeader->toBuffer();
+    CHECK_STATE(proposalHeader);
+
+    cachedSerializedProposal = serializeTransactionsAndCompleteSerialization(proposalHeader);
+
+    CHECK_STATE(cachedSerializedProposal);
+
+    return cachedSerializedProposal;
+}
+
+ptr<vector<uint8_t>> BlockProposal::serializeTransactionsAndCompleteSerialization(ptr<BasicHeader> _blockHeader) {
+    CHECK_STATE(_blockHeader)
+    auto block = make_shared<vector<uint8_t> >();
+
+    auto buf = _blockHeader->toBuffer();
 
     CHECK_STATE(buf);
     CHECK_STATE(buf->getBuf()->at(sizeof(uint64_t)) == '{');
     CHECK_STATE(buf->getBuf()->at(buf->getCounter() - 1) == '}');
 
-    auto block = make_shared<vector<uint8_t> >();
 
     block->insert(
             block->end(), buf->getBuf()->begin(), buf->getBuf()->begin() + buf->getCounter());
@@ -264,17 +275,16 @@ ptr<vector<uint8_t> > BlockProposal::serialize(uint64_t _flags) {
 
     CHECK_STATE(block);
 
-    serializedProposal = block;
-
     CHECK_STATE(block->at(sizeof(uint64_t)) == '{');
     CHECK_STATE(block->back() == '>');
+
 
     return block;
 }
 
 
 ptr<BlockProposal> BlockProposal::deserialize(const ptr<vector<uint8_t> > &_serializedProposal,
-                                              const ptr<CryptoManager> &_manager) {
+                                              const ptr<CryptoManager> &_manager, bool _verifySig) {
 
     CHECK_ARGUMENT(_serializedProposal);
     CHECK_ARGUMENT(_manager);
@@ -306,10 +316,19 @@ ptr<BlockProposal> BlockProposal::deserialize(const ptr<vector<uint8_t> > &_seri
                                                list, blockHeader->getStateRoot(), blockHeader->getTimeStamp(),
                                                blockHeader->getTimeStampMs(),
                                                blockHeader->getSignature(), nullptr);
+    // default blocks are not ecdsa signed
+    if (_verifySig && (blockHeader->getProposerIndex() != 0)) {
+        try {
+            _manager->verifyProposalECDSA(proposal, blockHeader->getBlockHash(), blockHeader->getSignature());
+        } catch (...) {
+            LOG(err, "Block proposer ecdsa signature did not verify for" +
+                     to_string((uint64_t) proposal->getProposerIndex()));
+            throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+        }
+    }
 
-    _manager->verifyProposalECDSA(proposal, blockHeader->getBlockHash(), blockHeader->getSignature());
 
-    proposal->serializedProposal = _serializedProposal;
+    proposal->cachedSerializedProposal = _serializedProposal;
 
     return proposal;
 }
@@ -322,7 +341,7 @@ BlockProposal::defragment(const ptr<BlockProposalFragmentList> &_fragmentList,
     CHECK_ARGUMENT(_cryptoManager);
 
     try {
-        auto result = deserialize(_fragmentList->serialize(), _cryptoManager);
+        auto result = deserialize(_fragmentList->serialize(), _cryptoManager, true);
         CHECK_STATE(result);
         return result;
     } catch (exception &e) {
@@ -337,18 +356,18 @@ ptr<BlockProposalFragment> BlockProposal::getFragment(uint64_t _totalFragments, 
     CHECK_ARGUMENT(_index <= _totalFragments);
     LOCK(m)
 
-    auto serializedBlock = serialize(SERIALIZE_AS_PROPOSAL);
+    auto sp = serializeProposal();
 
-    CHECK_STATE(serializedBlock);
+    CHECK_STATE(sp);
 
-    auto blockSize = serializedBlock->size();
+    auto blockSize = sp->size();
 
     uint64_t fragmentStandardSize;
 
     if (blockSize % _totalFragments == 0) {
-        fragmentStandardSize = serializedBlock->size() / _totalFragments;
+        fragmentStandardSize = sp->size() / _totalFragments;
     } else {
-        fragmentStandardSize = serializedBlock->size() / _totalFragments + 1;
+        fragmentStandardSize = sp->size() / _totalFragments + 1;
     }
 
     auto startIndex = fragmentStandardSize * ((uint64_t) _index - 1);
@@ -360,17 +379,17 @@ ptr<BlockProposalFragment> BlockProposal::getFragment(uint64_t _totalFragments, 
     fragmentData->push_back('<');
 
     if (_index == _totalFragments) {
-        fragmentData->insert(fragmentData->begin() + 1, serializedBlock->begin() + startIndex,
-                             serializedBlock->end());
+        fragmentData->insert(fragmentData->begin() + 1, sp->begin() + startIndex,
+                             sp->end());
     } else {
-        fragmentData->insert(fragmentData->begin() + 1, serializedBlock->begin() + startIndex,
-                             serializedBlock->begin() + startIndex + fragmentStandardSize);
+        fragmentData->insert(fragmentData->begin() + 1, sp->begin() + startIndex,
+                             sp->begin() + startIndex + fragmentStandardSize);
     }
 
     fragmentData->push_back('>');
 
     return make_shared<BlockProposalFragment>(getBlockID(), _totalFragments, _index, fragmentData,
-                                              serializedBlock->size(), getHash().toHex());
+                                              sp->size(), getHash().toHex());
 }
 
 ptr<TransactionList> BlockProposal::deserializeTransactions(const ptr<BlockProposalHeader> &_header,
@@ -447,7 +466,7 @@ ptr<BlockProposalHeader> BlockProposal::parseBlockHeader(const string &_header) 
     CHECK_ARGUMENT2(
             _header.at(_header.size() - 1) == '}', "Block header does not end with }");
 
-    auto js = nlohmann::json::parse(_header );
+    auto js = nlohmann::json::parse(_header);
 
     return make_shared<BlockProposalHeader>(js);
 
@@ -456,7 +475,8 @@ ptr<BlockProposalHeader> BlockProposal::parseBlockHeader(const string &_header) 
 u256 BlockProposal::getStateRoot() const {
     return stateRoot;
 }
-TimeStamp  BlockProposal::getTimeStamp() const {
+
+TimeStamp BlockProposal::getTimeStamp() const {
     return TimeStamp(getTimeStampS(), getTimeStampMs());
 }
 

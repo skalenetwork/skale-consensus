@@ -160,7 +160,7 @@ pair< ConnectionStatus, ConnectionSubStatus > BlockProposalClientAgent::sendBloc
     LOG( trace, "Proposal step 0: Starting block proposal" );
 
 
-    ptr< Header > header = BlockProposal::createBlockProposalHeader( sChain, proposalCopy );
+    ptr< Header > header = proposalCopy->createProposalRequestHeader(sChain);
 
     CHECK_STATE( header );
 
@@ -324,7 +324,7 @@ pair< ConnectionStatus, ConnectionSubStatus > BlockProposalClientAgent::sendBloc
     auto h = _proposal->getHash();
 
     getSchain()->getCryptoManager()->verifyDAProofSigShare(
-        sigShare, _index, h, getSchain()->getNodeIDByIndex( _index ), false );
+        sigShare, _index, h, getSchain()->getNodeIDByIndex( _index ), false);
 
     CHECK_STATE( sigShare );
 
@@ -334,9 +334,16 @@ pair< ConnectionStatus, ConnectionSubStatus > BlockProposalClientAgent::sendBloc
 
     CHECK_STATE( nodeInfo );
 
-    CHECK_STATE( getSchain()->getCryptoManager()->sessionVerifySigAndKey( hash,
-        finalHeader->getSignature(), finalHeader->getPublicKey(), finalHeader->getPublicKeySig(),
-        _proposal->getBlockID(), nodeInfo->getNodeID() ) );
+    try {
+        getSchain()->getCryptoManager()->verifySessionSigAndKey(hash,
+                                                                finalHeader->getSignature(),
+                                                                finalHeader->getPublicKey(),
+                                                                finalHeader->getPublicKeySig(),
+                                                                _proposal->getBlockID(), nodeInfo->getNodeID(),
+                                                                _proposal->getTimeStampMs());
+    } catch (...) {
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+    }
 
     getSchain()->daProofSigShareArrived( sigShare, _proposal );
 

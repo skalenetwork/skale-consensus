@@ -1,10 +1,10 @@
-   # Dynamic Oracle API
-   
-The following two JSON-RPC calls impelemented by ```skaled``` agent provide access to Oracle.
+# Dynamic Oracle API
+
+The following two JSON-RPC calls are implemented by ```skaled```
 
 ## oracle_submitRequest
 
-This API call is used to submit Oracle request
+Submit Oracle request
 
 ### Parameters
 
@@ -12,8 +12,8 @@ This API call is used to submit Oracle request
 
 ### Parameters example 1
 
-HTTP get request that obtains current unix time and 
-day of year from worldtimeapi.org.
+HTTP get request that obtains current unix time and
+day of the year from worldtimeapi.org.
 
 ```json
     {
@@ -27,10 +27,13 @@ day of year from worldtimeapi.org.
 
 ```
 
-Human description: contact worldtimeapi.org endpoint. From the
-JSON result, pick ```unixtime```, ```day_of_year``` and ```xxx```
-elements. Convert each element to string. Trim one character
-from the end from each string.
+Description:
+
+- contact worldtimeapi.org endpoint.
+- From the JSON result, pick ```unixtime```, ```day_of_year``` and ```xxx```
+  elements.
+- Convert each element to string.
+- Trim one character from the end of each string.
 
 ### Parameters example 2
 
@@ -41,11 +44,12 @@ HTTP post request that posts some data to endpoint
     "cid": 1, "uri": "https://reqres.in/api/users", 
     "jsps":["/id"],   
     "time":9234567, 
-     "post":"some_data",
+     "post":"some data",
+     "encoding":"json",
      "pow":1735}
 ```
 
-### Parameters JSON elements description
+### Request JSON elements description
 
 Required elements:
 
@@ -53,29 +57,36 @@ Required elements:
 2. ```uri```, string - Oracle endpoint (http or https)
 3. ```time```, uint64 - Linux time of request in ms
 4. ```jsps```, array of strings - list of JSON pointer to the data elements to be picked from server response.
-5. ```pow```, string - uint64 proof of work that is used to protect against denial of service attacks 
+5. ```pow```, string - uint64 proof of work that is used to protect against denial of service attacks
 
-Please see https://json.nlohmann.me/features/json_pointer/ for intro to
+See https://json.nlohmann.me/features/json_pointer/ for intro to
 JSON pointers.
 
-Note: for each JSON pointer specified in the request, the Oracle 
-will pick the corresponding element from the endpoint response 
-and transform it to string. If no such element exists, ```null``` will
-be returned.
+Note: for each JSON pointer specified in the request, the Oracle
+will
+
+- pick the corresponding element from the endpoint response
+- transform it to a string.
+- If no such element exists, ```null``` will be returned.
 
 Optional elements:
 
-1. ```trims```, uint64 - this is an array of trim values. 
-It is used to trim endings of the strings in Oracle result.
-If ```trims``` array is provided, it has to provide trim value for
-each JSON pointer requested.
+1. ```trims```, uint64 array - this is an array of trim values.
+   It is used to trim endings of the strings in Oracle result.
+   If ```trims``` array is provided, it has to provide trim value for
+   each JSON pointer requested.
 
 
-1. ```post```, string - if this element is provided, the 
-Oracle with use HTTP POST instead of HTTP GET (default).
-The value of the ```post``` will be POSTed to the endpoint.
+1. ```post```, string - if this element is provided, the
+   Oracle with use HTTP POST instead of HTTP GET (default).
+   The value of the ```post``` element will be POSTed to the endpoint.
 
-## Returns
+
+1. ```encoding```, string - how to encode the result. Supported encodings
+   are ```json``` and ```rlp```. If the element is not provided, ```json``` encoding is
+   used.
+
+## Returned value
 
 When ```oracle_submitRequest``` completes it returns a receipt string
 that can be used to check later if the result is ready.
@@ -87,7 +98,6 @@ Here is an example of a receipt:
 ```
 ee188f09d94848ec07644e45bba4934d412f0bef7fa61a299e0b5fe3b2b703ec
 ```
-
 
 ### Proof of work
 
@@ -101,11 +111,14 @@ bool verifyPow() {
 }
 ```
 
-Here ~ is bitwise NOT and u256 is unsigned 256 bit number. 
+Here ~ is bitwise NOT and u256 is unsigned 256 bit number.
 
-### Geth 
+specStr is the full JSON spec string, starting from ```{``` and ending with
+```}```
 
-To get information from SKALE network geth servers, one need to 
+### Geth
+
+To get information from SKALE network geth servers, one need to
 use ```geth://``` in URI".
 
 The following JSON-RPC endpoint are available in the first release:
@@ -118,7 +131,6 @@ geth://eth_getBlockByNumber
 geth://eth_getBlockByHash
 ```
 
-
 ## oracle_checkResult
 
 Check if Oracle result has been derived. By default the result is signed
@@ -129,11 +141,9 @@ If no result has been derived yet, ```ORACLE_RESULT_NOT_READY``` is returned.
 
 The client is supposed to wait 1 second and try again.
 
-### Parameters 
+### Parameters
 
-
-1. ```receipt```, string - receipt, returned by a call to ```oracle_submitRequest``` 
-
+1. ```receipt```, string - receipt, returned by a call to ```oracle_submitRequest```
 
 ### Oracle Result JSON String
 
@@ -150,8 +160,7 @@ Oracle request spec, plus includes a set of additional elements
 1. ```rslts ``` - array of string results
 2. ```sigs``` - array of ECDSA signatures where ```t``` signatures are not null.
 
-
-### Oracle Result Example 
+### Oracle Result Example
 
 An example of Oracle result is provided below
 

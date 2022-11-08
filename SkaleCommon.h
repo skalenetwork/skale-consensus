@@ -82,9 +82,17 @@
 
 #include <boost/bind.hpp>
 #include <boost/thread/thread.hpp>
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-copy"
+#pragma GCC diagnostic ignored "-Wpessimizing-move"
 #include <boost/multiprecision/cpp_int.hpp>
+#pragma GCC diagnostic pop
+
 
 #include <boost/crc.hpp>
+
+#include "boost/lexical_cast.hpp"
+#include <boost/tokenizer.hpp>
 
 class ConsensusEngine;
 class SkaleLog;
@@ -211,6 +219,8 @@ static const int CONSENSUS_ZMQ_HWM = 32;
 
 static const int NODE_DEATH_INTERVAL_MS = 30000;
 
+static const string VERSION_STRING ("2.1");
+
 
 enum port_type {
     PROPOSAL = 0, CATCHUP = 1, RETRIEVE = 2, HTTP_JSON = 3, BINARY_CONSENSUS = 4, ZMQ_BROADCAST = 5,
@@ -333,7 +343,13 @@ static const uint64_t  ORACLE_FUTURE_JITTER_MS = 500;
 
 static const uint64_t SGX_REQUEST_TIMEOUT_MS  = 10000;
 
+static const uint64_t HEALTHCHECK_ON_START_RETRY_TIME_SEC = 1500;
 
+static const uint64_t  HEALTHCHECK_ON_START_TIME_BETWEEN_WARNINGS_SEC = 5 * 60;
+
+static const uint64_t  TIME_BETWEEN_STARTUP_HEALTHCHECK_RETRIES_SEC = 1;
+
+static const uint64_t  HEALTH_CHECK_TIME_TO_WAIT_FOR_ALL_NODES_SEC = 5;
 
 extern void setThreadName(std::string const &_n, ConsensusEngine* _engine);
 

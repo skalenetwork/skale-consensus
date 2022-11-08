@@ -16,36 +16,40 @@ SKALE Consensus uses an Asynchronous Binary Byzantine Agreement (ABBA) protocol.
 
 The SKALE consensus is still in active development and contains bugs. This software should be regarded as _alpha software_. Development is still subject to competing the specification, security hardening, further testing, and breaking changes.  **This consensus engine has not yet been reviewed or audited for security.** Please see [SECURITY.md](SECURITY.md) for reporting policies.
 
-## Roadmap
-
-_to be posted soon_
 
 ## Installation Requirements
 
-SKALE consensus has been built and tested on Ubuntu.
+SKALE consensus has been built and tested on Ubuntu 18.04 and later.
+
+The preferred build environment is currenty Ubuntu 22.04.
 
 Ensure that the required packages are installed by executing:
 
 ```bash
 sudo add-apt-repository ppa:ubuntu-toolchain-r/test
-sudo apt-get update
-sudo apt-get install -yq libprocps-dev gcc-9 g++-9 valgrind gawk sed libffi-dev ccache \
+sudo apt update
+sudo apt install -yq libprocps-dev gcc-9 g++-9 valgrind gawk sed libffi-dev ccache \
     libgoogle-perftools-dev flex bison yasm texinfo autotools-dev automake \
-    python python3-pip cmake libtool build-essential pkg-config autoconf wget \
+    python3 python3-pip cmake libtool build-essential pkg-config autoconf wget \
     git  libargtable2-dev libmicrohttpd-dev libhiredis-dev redis-server openssl \
-    libssl-dev doxygen
+    libssl-dev doxygen libgcrypt20-dev
 ```
 
 ### Building from source on Ubuntu (Development)
 
-Clone project and configure build:
+Steps to build from source:
 
 ```bash
+# clone repo
 git clone --recurse-submodules https://github.com/skalenetwork/skale-consensus.git
-# Configure the project and create a build directory.
-cd scripts; ./build_deps.sh # build dependencies
-cd ..; cmake . -Bbuild # Configure the build.
-cmake --build build -- -j$(nproc) # Build all default targets using all cores.
+# build dependencies
+cd scripts && ./build_deps.sh 
+ # Configure the Cmake build.
+cd .. && cmake . -Bbuild
+# now run hunter bug workaround
+mkdir -p "${HOME}"/.hunter/_Base/Download/crc32c/1.0.5/dc7fa8c/ && wget -O "${HOME}"/.hunter/_Base/Download/crc32c/1.0.5/dc7fa8c/hunter-1.0.5.tar.gz https://github.com/hunter-packages/crc32c/archive/refs/tags/hunter-1.0.5.tar.gz
+#  now build all targets using all available CPU cores
+cmake --build build -- -j$(nproc) 
 ```
 
 ### Running tests
@@ -54,7 +58,7 @@ Navigate to the testing directories and run `./consensusd .`
 
 ## Libraries
 
--   [libBLS by SKALE Labs](https://skalelabs.com/)
+-   [libBLS](https://github.com/skalenetwork/libBLS) by [SKALE Labs](https://skalelabs.com/)
 
 ## Contributing
 

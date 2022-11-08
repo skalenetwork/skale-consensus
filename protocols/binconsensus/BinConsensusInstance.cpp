@@ -39,6 +39,7 @@
 #include "crypto/BLAKE3Hash.h"
 #include "blockproposal/pusher/BlockProposalClientAgent.h"
 #include "chains/Schain.h"
+#include "crypto/MockupSigShare.h"
 #include "crypto/ConsensusBLSSigShare.h"
 #include "crypto/ConsensusBLSSignature.h"
 #include "crypto/ConsensusSigShareSet.h"
@@ -137,6 +138,8 @@ void BinConsensusInstance::processNetworkMessageImpl(const ptr<NetworkMessageEnv
     } else if (_me->getMessage()->getMsgType() == MSG_AUX_BROADCAST) {
         auto m = dynamic_pointer_cast<AUXBroadcastMessage>(_me->getMessage());
         CHECK_STATE(m);
+
+
         if (!auxVote(_me)) {
             // duplicate vote received
             return;
@@ -280,20 +283,31 @@ bool BinConsensusInstance::bvbVoteCore(const bin_consensus_round &_r, const bin_
 
 
 [[nodiscard]] bool BinConsensusInstance::auxVote(const ptr<MessageEnvelope>& _me) {
-    auto m = dynamic_pointer_cast<AUXBroadcastMessage>(_me->getMessage());
-    auto r = m->getRound();
-    bin_consensus_value v = m->getValue();
 
-    auto index = _me->getSrcSchainIndex();
+    try {
+        auto m = dynamic_pointer_cast< AUXBroadcastMessage >( _me->getMessage() );
+        auto r = m->getRound();
+        bin_consensus_value v = m->getValue();
+
+        auto index = _me->getSrcSchainIndex();
 
 
-    ptr<ThresholdSigShare> sigShare = nullptr;
+        ptr< ThresholdSigShare > sigShare = nullptr;
 
-    if (r >= COMMON_COIN_ROUND) {
-        sigShare = m->getSigShare();
+
+        if ( r >= COMMON_COIN_ROUND) {
+            sigShare = m->getSigShare();
+            CHECK_STATE( sigShare );
+            auto hash = m->getCommonCoinHash();
+            CHECK_STATE( hash );
+            getSchain()->getCryptoManager()->verifyThresholdSigShare( sigShare, *hash);
+        }
+
+        return auxVoteCore( r, v, index, sigShare );
+
+    } catch ( ... ) {
+        throw_with_nested( InvalidStateException( __FUNCTION__, __CLASS_NAME__ ) );
     }
-
-    return auxVoteCore(r, v, index, sigShare);
 }
 
 bool
@@ -323,6 +337,7 @@ void BinConsensusInstance::auxSelfVote(bin_consensus_round _r,
 
 
     addAUXSelfVoteToHistory(_r, _v);
+
 
     auxVoteCore(_r,  _v, getSchain()->getSchainIndex(), _sigShare);
 

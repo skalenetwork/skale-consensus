@@ -3,11 +3,17 @@
   <component name="AutoImportSettings">
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
-  <component name="CMakeRunConfigurationManager" shouldGenerate="true" shouldDeleteObsolete="true">
+  <component name="CMakePresetLoader">{
+  &quot;useNewFormat&quot;: true
+}</component>
+  <component name="CMakeReloadState">
+    <option name="reloaded" value="true" />
+  </component>
+  <component name="CMakeRunConfigurationManager">
     <generated>
+      <config projectName="consensus" targetName="dkg_attack" />
       <config projectName="consensus" targetName="dkg_glue" />
       <config projectName="consensus" targetName="generate_key_system" />
-      <config projectName="consensus" targetName="dkg_attack" />
       <config projectName="consensus" targetName="te" />
       <config projectName="consensus" targetName="consensus" />
       <config projectName="consensus" targetName="bls-format-check-changed" />
@@ -27,337 +33,28 @@
       <config projectName="consensus" targetName="bls_test" />
       <config projectName="consensus" targetName="te_test" />
       <config projectName="consensus" targetName="bls-format-check" />
-      <config projectName="consensus" targetName="consensust" />
+      <config projectName="consensus" targetName="te_sample_sgx" />
       <config projectName="consensus" targetName="te_unit_test" />
       <config projectName="consensus" targetName="dkg_unit_test" />
     </generated>
   </component>
   <component name="CMakeSettings" AUTO_RELOAD="true">
     <configurations>
-      <configuration PROFILE_NAME="Debug" ENABLED="true" CONFIG_NAME="Debug" />
+      <configuration PROFILE_NAME="Debug" ENABLED="true" CONFIG_NAME="Debug" BUILD_OPTIONS="-- -j4" />
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ec15c893-7f20-4493-be40-38b8f69efc54" name="Default Changelist" comment="88: Tuning chains">
-      <change afterPath="$PROJECT_DIR$/deps/BLAKE3/c/libblake3.a" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/argtable2/build/CMakeCache.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/argtable2/build/CMakeFiles/3.16.3/CMakeCCompiler.cmake" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/argtable2/build/CMakeFiles/3.16.3/CMakeCXXCompiler.cmake" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/argtable2/build/CMakeFiles/3.16.3/CMakeDetermineCompilerABI_C.bin" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/argtable2/build/CMakeFiles/3.16.3/CMakeDetermineCompilerABI_CXX.bin" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/argtable2/build/CMakeFiles/3.16.3/CMakeSystem.cmake" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/argtable2/build/CMakeFiles/3.16.3/CompilerIdC/CMakeCCompilerId.c" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/argtable2/build/CMakeFiles/3.16.3/CompilerIdC/a.out" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/argtable2/build/CMakeFiles/3.16.3/CompilerIdCXX/CMakeCXXCompilerId.cpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/argtable2/build/CMakeFiles/3.16.3/CompilerIdCXX/a.out" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/argtable2/build/CMakeFiles/CMakeDirectoryInformation.cmake" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/argtable2/build/CMakeFiles/Makefile.cmake" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/argtable2/build/CMakeFiles/Makefile2" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/argtable2/build/CMakeFiles/TargetDirectories.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/argtable2/build/CMakeFiles/cmake.check_cache" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/argtable2/build/CMakeFiles/progress.marks" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/argtable2/build/Makefile" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/argtable2/build/cmake_install.cmake" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/argtable2/build/install_manifest.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/argtable2/build/src/CMakeFiles/CMakeDirectoryInformation.cmake" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/argtable2/build/src/CMakeFiles/argtable2.dir/C.includecache" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/argtable2/build/src/CMakeFiles/argtable2.dir/DependInfo.cmake" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/argtable2/build/src/CMakeFiles/argtable2.dir/build.make" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/argtable2/build/src/CMakeFiles/argtable2.dir/cmake_clean.cmake" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/argtable2/build/src/CMakeFiles/argtable2.dir/cmake_clean_target.cmake" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/argtable2/build/src/CMakeFiles/argtable2.dir/depend.internal" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/argtable2/build/src/CMakeFiles/argtable2.dir/depend.make" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/argtable2/build/src/CMakeFiles/argtable2.dir/flags.make" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/argtable2/build/src/CMakeFiles/argtable2.dir/link.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/argtable2/build/src/CMakeFiles/argtable2.dir/progress.make" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/argtable2/build/src/CMakeFiles/progress.marks" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/argtable2/build/src/Makefile" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/argtable2/build/src/cmake_install.cmake" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/INSTALL" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/MHD_config.h" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/MHD_config.h.in" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/Makefile" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/Makefile.in" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/aclocal.m4" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/autom4te.cache/output.0" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/autom4te.cache/output.1" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/autom4te.cache/output.2" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/autom4te.cache/requests" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/autom4te.cache/traces.0" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/autom4te.cache/traces.1" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/autom4te.cache/traces.2" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/compile" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/config.guess" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/config.log" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/config.status" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/config.sub" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/configure" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/contrib/Makefile" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/contrib/Makefile.in" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/depcomp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/doc/Makefile" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/doc/Makefile.in" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/doc/doxygen/Makefile" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/doc/doxygen/Makefile.in" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/doc/examples/.deps/basicauthentication.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/doc/examples/.deps/hellobrowser.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/doc/examples/.deps/largepost.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/doc/examples/.deps/logging.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/doc/examples/.deps/responseheaders.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/doc/examples/.deps/sessions.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/doc/examples/.deps/simplepost.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/doc/examples/.deps/tlsauthentication.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/doc/examples/Makefile" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/doc/examples/Makefile.in" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/doc/examples/basicauthentication" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/doc/examples/basicauthentication.o" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/doc/examples/hellobrowser" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/doc/examples/hellobrowser.o" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/doc/examples/largepost" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/doc/examples/largepost.o" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/doc/examples/logging" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/doc/examples/logging.o" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/doc/examples/responseheaders" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/doc/examples/responseheaders.o" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/doc/examples/sessions" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/doc/examples/sessions.o" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/doc/examples/simplepost" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/doc/examples/simplepost.o" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/doc/examples/tlsauthentication" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/doc/examples/tlsauthentication.o" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/doc/libmicrohttpd-tutorial.info" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/doc/libmicrohttpd.info" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/doc/mdate-sh" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/doc/stamp-vti" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/doc/texinfo.tex" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/doc/version.texi" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/install-sh" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/libmicrohttpd.pc" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/libmicrospdy.pc" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/libtool" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/ltmain.sh" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/m4/Makefile" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/m4/Makefile.in" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/m4/libtool.m4" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/m4/ltoptions.m4" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/m4/ltsugar.m4" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/m4/ltversion.m4" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/m4/lt~obsolete.m4" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/missing" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/Makefile" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/Makefile.in" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/examples/.deps/authorization_example.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/examples/.deps/benchmark-benchmark.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/examples/.deps/benchmark_https-benchmark_https.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/examples/.deps/chunked_example.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/examples/.deps/demo-demo.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/examples/.deps/demo_https-demo_https.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/examples/.deps/digest_auth_example.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/examples/.deps/dual_stack_example.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/examples/.deps/fileserver_example.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/examples/.deps/fileserver_example_dirs.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/examples/.deps/fileserver_example_external_select.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/examples/.deps/https_fileserver_example-https_fileserver_example.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/examples/.deps/mhd2spdy.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/examples/.deps/mhd2spdy_http.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/examples/.deps/mhd2spdy_spdy.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/examples/.deps/mhd2spdy_structures.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/examples/.deps/minimal_example.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/examples/.deps/minimal_example_comet.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/examples/.deps/post_example.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/examples/.deps/querystring_example.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/examples/.deps/refuse_post_example.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/examples/.deps/spdy_event_loop.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/examples/.deps/spdy_fileserver.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/examples/.deps/spdy_response_with_callback.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/examples/Makefile" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/examples/Makefile.in" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/examples/authorization_example" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/examples/authorization_example.o" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/examples/benchmark" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/examples/benchmark-benchmark.o" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/examples/benchmark_https" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/examples/benchmark_https-benchmark_https.o" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/examples/chunked_example" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/examples/chunked_example.o" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/examples/digest_auth_example" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/examples/digest_auth_example.o" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/examples/dual_stack_example" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/examples/dual_stack_example.o" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/examples/fileserver_example" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/examples/fileserver_example.o" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/examples/fileserver_example_dirs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/examples/fileserver_example_dirs.o" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/examples/fileserver_example_external_select" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/examples/fileserver_example_external_select.o" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/examples/https_fileserver_example" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/examples/https_fileserver_example-https_fileserver_example.o" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/examples/minimal_example" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/examples/minimal_example.o" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/examples/minimal_example_comet" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/examples/minimal_example_comet.o" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/examples/post_example" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/examples/post_example.o" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/examples/querystring_example" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/examples/querystring_example.o" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/examples/refuse_post_example" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/examples/refuse_post_example.o" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/include/Makefile" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/include/Makefile.in" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/microhttpd/.deps/libmicrohttpd_la-base64.Plo" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/microhttpd/.deps/libmicrohttpd_la-basicauth.Plo" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/microhttpd/.deps/libmicrohttpd_la-connection.Plo" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/microhttpd/.deps/libmicrohttpd_la-connection_https.Plo" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/microhttpd/.deps/libmicrohttpd_la-daemon.Plo" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/microhttpd/.deps/libmicrohttpd_la-digestauth.Plo" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/microhttpd/.deps/libmicrohttpd_la-internal.Plo" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/microhttpd/.deps/libmicrohttpd_la-md5.Plo" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/microhttpd/.deps/libmicrohttpd_la-memorypool.Plo" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/microhttpd/.deps/libmicrohttpd_la-mhd_mono_clock.Plo" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/microhttpd/.deps/libmicrohttpd_la-postprocessor.Plo" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/microhttpd/.deps/libmicrohttpd_la-reason_phrase.Plo" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/microhttpd/.deps/libmicrohttpd_la-response.Plo" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/microhttpd/.deps/libmicrohttpd_la-tsearch.Plo" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/microhttpd/.deps/test_daemon.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/microhttpd/.deps/test_postprocessor-test_postprocessor.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/microhttpd/.deps/test_postprocessor_amp-test_postprocessor_amp.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/microhttpd/.deps/test_postprocessor_large-test_postprocessor_large.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/microhttpd/.libs/libmicrohttpd.a" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/microhttpd/.libs/libmicrohttpd.la" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/microhttpd/.libs/libmicrohttpd.lai" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/microhttpd/Makefile" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/microhttpd/Makefile.in" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/microhttpd/libmicrohttpd.la" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/microhttpd/libmicrohttpd_la-base64.lo" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/microhttpd/libmicrohttpd_la-base64.o" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/microhttpd/libmicrohttpd_la-basicauth.lo" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/microhttpd/libmicrohttpd_la-basicauth.o" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/microhttpd/libmicrohttpd_la-connection.lo" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/microhttpd/libmicrohttpd_la-connection.o" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/microhttpd/libmicrohttpd_la-connection_https.lo" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/microhttpd/libmicrohttpd_la-connection_https.o" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/microhttpd/libmicrohttpd_la-daemon.lo" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/microhttpd/libmicrohttpd_la-daemon.o" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/microhttpd/libmicrohttpd_la-digestauth.lo" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/microhttpd/libmicrohttpd_la-digestauth.o" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/microhttpd/libmicrohttpd_la-internal.lo" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/microhttpd/libmicrohttpd_la-internal.o" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/microhttpd/libmicrohttpd_la-md5.lo" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/microhttpd/libmicrohttpd_la-md5.o" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/microhttpd/libmicrohttpd_la-memorypool.lo" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/microhttpd/libmicrohttpd_la-memorypool.o" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/microhttpd/libmicrohttpd_la-mhd_mono_clock.lo" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/microhttpd/libmicrohttpd_la-mhd_mono_clock.o" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/microhttpd/libmicrohttpd_la-postprocessor.lo" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/microhttpd/libmicrohttpd_la-postprocessor.o" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/microhttpd/libmicrohttpd_la-reason_phrase.lo" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/microhttpd/libmicrohttpd_la-reason_phrase.o" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/microhttpd/libmicrohttpd_la-response.lo" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/microhttpd/libmicrohttpd_la-response.o" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/microhttpd/microhttpd_dll_res.rc" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/microspdy/.deps/libmicrospdy_la-alstructures.Plo" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/microspdy/.deps/libmicrospdy_la-applicationlayer.Plo" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/microspdy/.deps/libmicrospdy_la-compression.Plo" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/microspdy/.deps/libmicrospdy_la-daemon.Plo" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/microspdy/.deps/libmicrospdy_la-internal.Plo" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/microspdy/.deps/libmicrospdy_la-io.Plo" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/microspdy/.deps/libmicrospdy_la-io_openssl.Plo" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/microspdy/.deps/libmicrospdy_la-io_raw.Plo" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/microspdy/.deps/libmicrospdy_la-session.Plo" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/microspdy/.deps/libmicrospdy_la-stream.Plo" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/microspdy/.deps/libmicrospdy_la-structures.Plo" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/microspdy/Makefile" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/microspdy/Makefile.in" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/platform/.deps/libplatform_interface_la-w32functions.Plo" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/platform/Makefile" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/platform/Makefile.in" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/spdy2http/.deps/proxy.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/spdy2http/Makefile" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/spdy2http/Makefile.in" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/testcurl/.deps/curl_version_check.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/testcurl/.deps/perf_get.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/testcurl/.deps/perf_get_concurrent.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/testcurl/.deps/test_callback.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/testcurl/.deps/test_concurrent_stop.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/testcurl/.deps/test_digestauth.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/testcurl/.deps/test_digestauth_with_arguments.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/testcurl/.deps/test_get.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/testcurl/.deps/test_get_chunked.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/testcurl/.deps/test_get_response_cleanup.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/testcurl/.deps/test_get_sendfile.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/testcurl/.deps/test_iplimit.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/testcurl/.deps/test_large_put.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/testcurl/.deps/test_long_header.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/testcurl/.deps/test_options.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/testcurl/.deps/test_parse_cookies.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/testcurl/.deps/test_post.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/testcurl/.deps/test_post_loop.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/testcurl/.deps/test_postform.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/testcurl/.deps/test_process_arguments.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/testcurl/.deps/test_process_headers.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/testcurl/.deps/test_put.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/testcurl/.deps/test_put_chunked.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/testcurl/.deps/test_quiesce-test_quiesce.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/testcurl/.deps/test_start_stop.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/testcurl/.deps/test_termination.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/testcurl/.deps/test_timeout.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/testcurl/.deps/test_urlparse.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/testcurl/Makefile" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/testcurl/Makefile.in" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/testcurl/curl_version_check.o" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/testcurl/https/.deps/test_empty_response.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/testcurl/https/.deps/test_https_get.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/testcurl/https/.deps/test_https_get_parallel-test_https_get_parallel.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/testcurl/https/.deps/test_https_get_parallel-tls_test_common.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/testcurl/https/.deps/test_https_get_parallel_threads-test_https_get_parallel_threads.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/testcurl/https/.deps/test_https_get_parallel_threads-tls_test_common.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/testcurl/https/.deps/test_https_get_select.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/testcurl/https/.deps/test_https_multi_daemon.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/testcurl/https/.deps/test_https_session_info.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/testcurl/https/.deps/test_https_sni-test_https_sni.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/testcurl/https/.deps/test_https_sni-tls_test_common.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/testcurl/https/.deps/test_https_time_out.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/testcurl/https/.deps/test_tls_authentication.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/testcurl/https/.deps/test_tls_options.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/testcurl/https/.deps/tls_test_common.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/testcurl/https/Makefile" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/testcurl/https/Makefile.in" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/testcurl/libcurl_version_check.a" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/testcurl/test_options" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/testcurl/test_options.o" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/testspdy/.deps/common.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/testspdy/.deps/test_daemon_start_stop.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/testspdy/.deps/test_daemon_start_stop_many.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/testspdy/.deps/test_misc.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/testspdy/.deps/test_new_connection.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/testspdy/.deps/test_notls.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/testspdy/.deps/test_proxies.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/testspdy/.deps/test_request_response.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/testspdy/.deps/test_request_response_with_callback.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/testspdy/.deps/test_session_timeout.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/testspdy/.deps/test_struct_namevalue.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/testspdy/Makefile" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/testspdy/Makefile.in" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/testzzuf/.deps/test_get.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/testzzuf/.deps/test_get_chunked.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/testzzuf/.deps/test_long_header.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/testzzuf/.deps/test_post.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/testzzuf/.deps/test_post_form.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/testzzuf/.deps/test_put.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/testzzuf/.deps/test_put_chunked.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/testzzuf/.deps/test_put_large.Po" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/testzzuf/Makefile" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/src/testzzuf/Makefile.in" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/stamp-h1" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/test-driver" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deps/libmicrohttpd/w32/VS2013/microhttpd_dll_res_vc.rc" afterDir="false" />
+    <list default="true" id="ec15c893-7f20-4493-be40-38b8f69efc54" name="Default Changelist" comment="#238 better log handling">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/json/JSONFactory.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/json/JSONFactory.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/libBLS" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crypto/CryptoManager.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/crypto/CryptoManager.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crypto/CryptoManager.h" beforeDir="false" afterPath="$PROJECT_DIR$/crypto/CryptoManager.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libBLS/deps/libff/depends/xbyak" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/deps/libff/depends/xbyak" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/libBLS/deps/zlib/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/deps/zlib/Makefile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/libBLS/deps/zlib/zconf.h" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/deps/zlib/zconf.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/libjson-rpc-cpp" beforeDir="false" afterPath="$PROJECT_DIR$/libjson-rpc-cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/libjson-rpc-cpp/CHANGELOG.md" beforeDir="false" afterPath="$PROJECT_DIR$/libjson-rpc-cpp/CHANGELOG.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/node/Node.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/node/Node.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/node/Node.h" beforeDir="false" afterPath="$PROJECT_DIR$/node/Node.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sgxwallet" beforeDir="false" afterPath="$PROJECT_DIR$/sgxwallet" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -376,7 +73,7 @@
     </option>
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="amsterdam_fix" />
+        <entry key="$PROJECT_DIR$" value="develop" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -391,37 +88,45 @@
     </file-type-list>
   </component>
   <component name="HighlightingSettingsPerFile">
-    <setting file="file://$PROJECT_DIR$/sgxclient/SgxZmqClient.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/CMakeLists.txt" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Consensust.cpp" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/node/Node.h" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/libBLS/bls/BLSPublicKey.cpp" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/node/NodeGettersSetters.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/SkaleCommon.h" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/crypto/BLAKE3Hash.cpp" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/crypto/CryptoManager.h" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/catchup/client/CatchupClientAgent.cpp" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/network/IO.cpp" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/sgxclient/SgxZmqClient.cpp" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/crypto/CryptoManager.cpp" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/unittests/consensus_tests.cpp" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/network/ZMQSockets.h" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/monitoring/TimeoutAgent.cpp" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/crypto/BLAKE3Hash.h" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/libBLS/bls/BLSPublicKey.h" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/thirdparty/zguide/zhelpers.hpp" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/cppzmq/zmq.hpp" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file:///usr/include/x86_64-linux-gnu/bits/confname.h" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/network/Network.h" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/cmake/precompiledheader.cmake" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/blockproposal/pusher/BlockProposalClientAgent.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/catchup/client/CatchupClientAgent.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/chains/Schain.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/cmake/precompiledheader.cmake" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/cppzmq/zmq.hpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/crypto/BLAKE3Hash.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/crypto/BLAKE3Hash.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/crypto/CryptoManager.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/crypto/CryptoManager.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/json/JSONFactory.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/libBLS/bls/BLSPublicKey.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/libBLS/bls/BLSPublicKey.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/monitoring/TimeoutAgent.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/network/IO.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/network/Network.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/network/ZMQSockets.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/node/Node.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/node/NodeGettersSetters.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/sgxclient/SgxZmqClient.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/sgxclient/SgxZmqClient.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/test/fournodes/node1/Node.json" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/test/fournodes/node2/Node.json" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/test/fournodes/node3/Node.json" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/test/fournodes/node4/Node.json" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/thirdparty/zguide/zhelpers.hpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/unittests/consensus_tests.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file:///usr/include/x86_64-linux-gnu/bits/confname.h" root0="FORCE_HIGHLIGHTING" />
   </component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
   </component>
+  <component name="NamedScopeManager">
+    <scope name="Unnamed" pattern="file[mapreduce_consensus]:abstracttcpclient/*||file[mapreduce_consensus]:abstracttcpserver/*||file[mapreduce_consensus]:blockfinalize/*||file[mapreduce_consensus]:blockproposal/*||file[mapreduce_consensus]:abstracttcpclient//*||file[mapreduce_consensus]:abstracttcpserver//*||file[mapreduce_consensus]:blockfinalize//*||file[mapreduce_consensus]:blockproposal//*||file[mapreduce_consensus]:chains//*||file[mapreduce_consensus]:crypto//*||file[mapreduce_consensus]:datastructures//*||file[mapreduce_consensus]:db//*||file[mapreduce_consensus]:exceptions//*||file[mapreduce_consensus]:json//*||file[mapreduce_consensus]:catchup//*||file[mapreduce_consensus]:messages//*||file[mapreduce_consensus]:monitoring//*||file[mapreduce_consensus]:network//*||file[mapreduce_consensus]:node//*||file[mapreduce_consensus]:oracle//*||file[mapreduce_consensus]:pendingqueue//*||file[mapreduce_consensus]:pricing//*||file[mapreduce_consensus]:protocols//*||file[mapreduce_consensus]:sgxclient//*||file[mapreduce_consensus]:utils//*" />
+  </component>
   <component name="ProblemsViewState">
-    <option name="selectedIndex" value="1" />
+    <option name="selectedTabId" value="CurrentFile" />
   </component>
   <component name="ProjectId" id="1tLjZg8PrXyNb5KH1T9D17V0hIk" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
@@ -431,29 +136,30 @@
     <option name="showMembers" value="true" />
     <option name="showVisibilityIcons" value="true" />
   </component>
-  <component name="PropertiesComponent">
-    <property name="Git.Branch.Popup.ShowAllRepositories" value="true" />
-    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
-    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
-    <property name="RunOnceActivity.cidr.known.project.marker" value="true" />
-    <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="cf.advertisement.text.has.clang-format" value="true" />
-    <property name="cf.advertisement.text.overridden" value="true" />
-    <property name="cf.first.check.clang-format" value="false" />
-    <property name="cidr.known.project.marker" value="true" />
-    <property name="cmake.loaded.for.project" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/oracle" />
-    <property name="run.code.analysis.last.selected.profile" value="pProject Default" />
-    <property name="settings.editor.selected.configurable" value="CMakeSettings" />
-    <property name="structure.view.defaults.are.configured" value="true" />
-  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Git.Branch.Popup.ShowAllRemotes&quot;: &quot;true&quot;,
+    &quot;Git.Branch.Popup.ShowAllRepositories&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.cidr.known.project.marker&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;cf.advertisement.text.has.clang-format&quot;: &quot;true&quot;,
+    &quot;cf.advertisement.text.overridden&quot;: &quot;true&quot;,
+    &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
+    &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/d/skale-consensus&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;editor.preferences.fonts.default&quot;
+  }
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/rlp" />
+      <recent name="$PROJECT_DIR$/db" />
       <recent name="$PROJECT_DIR$/oracle" />
       <recent name="$PROJECT_DIR$/oracle/" />
       <recent name="$PROJECT_DIR$/test" />
-      <recent name="$PROJECT_DIR$/test/fournodes" />
-      <recent name="$PROJECT_DIR$/monitoring" />
     </key>
   </component>
   <component name="RunManager" selected="CMake Application.consensust">
@@ -498,12 +204,6 @@
         <option name="BeforeTestRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="consensust" type="CMakeCatchTestRunConfigurationType" factoryName="Catch Test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="consensus" TARGET_NAME="consensust" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="consensus" RUN_TARGET_NAME="consensust" TEST_MODE="SUITE_TEST">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-        <option name="BeforeTestRunTask" enabled="true" />
-      </method>
-    </configuration>
     <configuration name="1st-4 " type="CMakeRunConfiguration" factoryName="Application" singleton="false" PROGRAM_PARAMS="[consensus-basic]" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" WORKING_DIR="file://$PROJECT_DIR$/test/first_out_of_four" PASS_PARENT_ENVS_2="true" PROJECT_NAME="consensus" TARGET_NAME="consensus" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="consensus" RUN_TARGET_NAME="consensust">
       <envs>
         <env name="TEST_TIME_S" value="10000" />
@@ -536,11 +236,6 @@
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-      </method>
-    </configuration>
     <configuration name="all_bls_tests" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="consensus" TARGET_NAME="all_bls_tests" CONFIG_NAME="Debug">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -566,7 +261,7 @@
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="consensust" type="CMakeRunConfiguration" factoryName="Application" singleton="false" PROGRAM_PARAMS="[consensus-basic]" REDIRECT_INPUT="false" ELEVATE="true" USE_EXTERNAL_CONSOLE="false" WORKING_DIR="file://$PROJECT_DIR$/test/fournodes_one_read_only" PASS_PARENT_ENVS_2="true" PROJECT_NAME="consensus" TARGET_NAME="consensus" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="consensus" RUN_TARGET_NAME="consensust">
+    <configuration name="consensust" type="CMakeRunConfiguration" factoryName="Application" singleton="false" PROGRAM_PARAMS="[consensus-basic]" REDIRECT_INPUT="false" ELEVATE="true" USE_EXTERNAL_CONSOLE="false" WORKING_DIR="file://$PROJECT_DIR$/test/sixteennodes" PASS_PARENT_ENVS_2="true" PROJECT_NAME="consensus" TARGET_NAME="consensus" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="consensus" RUN_TARGET_NAME="consensust">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
@@ -606,6 +301,11 @@
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
+    <configuration name="te_sample_sgx" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="consensus" TARGET_NAME="te_sample_sgx" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="consensus" RUN_TARGET_NAME="te_sample_sgx">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="verify_bls" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="consensus" TARGET_NAME="verify_bls" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="consensus" RUN_TARGET_NAME="verify_bls">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -615,20 +315,15 @@
       <item itemvalue="Boost.Test.bls_test" />
       <item itemvalue="Boost.Test.bls_unit_test" />
       <item itemvalue="Boost.Test.dkg_unit_test" />
+      <item itemvalue="Boost.Test.utils_unit_test" />
       <item itemvalue="Boost.Test.te_test" />
       <item itemvalue="Boost.Test.te_unit_test" />
-      <item itemvalue="Boost.Test.utils_unit_test" />
-      <item itemvalue="Catch.consensust" />
-      <item itemvalue="CMake Application.consensust" />
-      <item itemvalue="CMake Application.dkg_attack" />
-      <item itemvalue="CMake Application.2-4" />
-      <item itemvalue="CMake Application.1st-4 " />
-      <item itemvalue="CMake Application.3d-4" />
-      <item itemvalue="CMake Application.2nd-4" />
       <item itemvalue="CMake Application.consensusd" />
+      <item itemvalue="CMake Application.consensust" />
       <item itemvalue="CMake Application.all_bls_tests" />
       <item itemvalue="CMake Application.bls" />
       <item itemvalue="CMake Application.bls_glue" />
+      <item itemvalue="CMake Application.dkg_attack" />
       <item itemvalue="CMake Application.dkg_glue" />
       <item itemvalue="CMake Application.dkg_keygen" />
       <item itemvalue="CMake Application.generate_key_system" />
@@ -637,6 +332,11 @@
       <item itemvalue="CMake Application.verify_bls" />
       <item itemvalue="CMake Application.all_te_tests" />
       <item itemvalue="CMake Application.te" />
+      <item itemvalue="CMake Application.te_sample_sgx" />
+      <item itemvalue="CMake Application.2-4" />
+      <item itemvalue="CMake Application.1st-4 " />
+      <item itemvalue="CMake Application.3d-4" />
+      <item itemvalue="CMake Application.2nd-4" />
     </list>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
@@ -692,27 +392,112 @@
       <workItem from="1651237158179" duration="9181000" />
       <workItem from="1651576809113" duration="6838000" />
       <workItem from="1651590595897" duration="2369000" />
-    </task>
-    <task id="LOCAL-00090" summary="bug/SKALE-4352">
-      <created>1634047014474</created>
-      <option name="number" value="00090" />
-      <option name="presentableId" value="LOCAL-00090" />
-      <option name="project" value="LOCAL" />
-      <updated>1634047014474</updated>
-    </task>
-    <task id="LOCAL-00091" summary="bug/SKALE-4352">
-      <created>1634116922965</created>
-      <option name="number" value="00091" />
-      <option name="presentableId" value="LOCAL-00091" />
-      <option name="project" value="LOCAL" />
-      <updated>1634116922965</updated>
-    </task>
-    <task id="LOCAL-00092" summary="bug/SKALE-4352">
-      <created>1634118969524</created>
-      <option name="number" value="00092" />
-      <option name="presentableId" value="LOCAL-00092" />
-      <option name="project" value="LOCAL" />
-      <updated>1634118969524</updated>
+      <workItem from="1653048605616" duration="3719000" />
+      <workItem from="1655923970673" duration="8553000" />
+      <workItem from="1655986844267" duration="396000" />
+      <workItem from="1655987280507" duration="417000" />
+      <workItem from="1655987766180" duration="2979000" />
+      <workItem from="1655991543493" duration="2326000" />
+      <workItem from="1655994065007" duration="364000" />
+      <workItem from="1656330209212" duration="1941000" />
+      <workItem from="1656333871922" duration="1716000" />
+      <workItem from="1656335760695" duration="513000" />
+      <workItem from="1656336306679" duration="317000" />
+      <workItem from="1656336738388" duration="995000" />
+      <workItem from="1656338109284" duration="1677000" />
+      <workItem from="1656341645683" duration="2225000" />
+      <workItem from="1656431721482" duration="1925000" />
+      <workItem from="1656433806143" duration="694000" />
+      <workItem from="1656434664493" duration="2287000" />
+      <workItem from="1657641718630" duration="5291000" />
+      <workItem from="1659353814347" duration="3000" />
+      <workItem from="1659358341874" duration="5164000" />
+      <workItem from="1659365739230" duration="390000" />
+      <workItem from="1660577749199" duration="861000" />
+      <workItem from="1660578848236" duration="1960000" />
+      <workItem from="1660584279398" duration="1714000" />
+      <workItem from="1660674877670" duration="598000" />
+      <workItem from="1660675858503" duration="3000" />
+      <workItem from="1660676082369" duration="17000" />
+      <workItem from="1660676110173" duration="3000" />
+      <workItem from="1660737079031" duration="1527000" />
+      <workItem from="1660739300530" duration="3300000" />
+      <workItem from="1660898748543" duration="2000" />
+      <workItem from="1660898861380" duration="1000" />
+      <workItem from="1660899163845" duration="1000" />
+      <workItem from="1660899328559" duration="1000" />
+      <workItem from="1660899587564" duration="36000" />
+      <workItem from="1660900014804" duration="2000" />
+      <workItem from="1660900144899" duration="729000" />
+      <workItem from="1660901159039" duration="1023000" />
+      <workItem from="1660903444667" duration="438000" />
+      <workItem from="1660903943580" duration="2000" />
+      <workItem from="1660904674103" duration="308000" />
+      <workItem from="1660905270211" duration="706000" />
+      <workItem from="1660908938149" duration="1000" />
+      <workItem from="1660909584456" duration="1000" />
+      <workItem from="1660910408550" duration="2000" />
+      <workItem from="1660911138524" duration="3246000" />
+      <workItem from="1660915330372" duration="324000" />
+      <workItem from="1660917160880" duration="2273000" />
+      <workItem from="1660920452619" duration="3246000" />
+      <workItem from="1660924306026" duration="490000" />
+      <workItem from="1660926031359" duration="302000" />
+      <workItem from="1661256130399" duration="2000" />
+      <workItem from="1661258720961" duration="6107000" />
+      <workItem from="1661277923861" duration="4191000" />
+      <workItem from="1661433152015" duration="2000" />
+      <workItem from="1661433796500" duration="2000" />
+      <workItem from="1661434620997" duration="3392000" />
+      <workItem from="1661438449341" duration="2035000" />
+      <workItem from="1661787387425" duration="613000" />
+      <workItem from="1661789247137" duration="5870000" />
+      <workItem from="1661796377275" duration="3836000" />
+      <workItem from="1661862473275" duration="1223000" />
+      <workItem from="1661898196158" duration="2000" />
+      <workItem from="1661899188859" duration="2000" />
+      <workItem from="1661900263696" duration="2000" />
+      <workItem from="1661901257950" duration="3504000" />
+      <workItem from="1661987356927" duration="541000" />
+      <workItem from="1661989616562" duration="2000" />
+      <workItem from="1661994429765" duration="3495000" />
+      <workItem from="1662043966927" duration="2382000" />
+      <workItem from="1662051024586" duration="3661000" />
+      <workItem from="1662058577828" duration="2370000" />
+      <workItem from="1662065261867" duration="1893000" />
+      <workItem from="1662067697656" duration="2000" />
+      <workItem from="1662068720770" duration="1104000" />
+      <workItem from="1662070052867" duration="818000" />
+      <workItem from="1662071976087" duration="755000" />
+      <workItem from="1662073078874" duration="352000" />
+      <workItem from="1662073648216" duration="1435000" />
+      <workItem from="1662075621903" duration="680000" />
+      <workItem from="1662076899748" duration="2000" />
+      <workItem from="1662078087578" duration="3807000" />
+      <workItem from="1662324007758" duration="1120000" />
+      <workItem from="1662325635306" duration="866000" />
+      <workItem from="1662328451021" duration="475000" />
+      <workItem from="1662329461113" duration="1249000" />
+      <workItem from="1662330834450" duration="3292000" />
+      <workItem from="1662334321512" duration="421000" />
+      <workItem from="1662380198951" duration="1178000" />
+      <workItem from="1662382004454" duration="416000" />
+      <workItem from="1662384620129" duration="2265000" />
+      <workItem from="1663773607574" duration="4285000" />
+      <workItem from="1664284940385" duration="3504000" />
+      <workItem from="1664364897256" duration="3000" />
+      <workItem from="1664365086914" duration="3000" />
+      <workItem from="1664365564615" duration="2545000" />
+      <workItem from="1664369937577" duration="2000" />
+      <workItem from="1664371297998" duration="2000" />
+      <workItem from="1664376942079" duration="951000" />
+      <workItem from="1664994427438" duration="3000" />
+      <workItem from="1664998071974" duration="1198000" />
+      <workItem from="1665408791451" duration="1095000" />
+      <workItem from="1666098457440" duration="1000" />
+      <workItem from="1666099714010" duration="1419000" />
+      <workItem from="1666268258256" duration="3426000" />
+      <workItem from="1666272430553" duration="347000" />
     </task>
     <task id="LOCAL-00093" summary="bug/SKALE-4352">
       <created>1634133299846</created>
@@ -1036,7 +821,28 @@
       <option name="project" value="LOCAL" />
       <updated>1651589171845</updated>
     </task>
-    <option name="localTasksCounter" value="139" />
+    <task id="LOCAL-00139" summary="#127 log tuneup">
+      <created>1653048784014</created>
+      <option name="number" value="00139" />
+      <option name="presentableId" value="LOCAL-00139" />
+      <option name="project" value="LOCAL" />
+      <updated>1653048784015</updated>
+    </task>
+    <task id="LOCAL-00140" summary="#127 log tuneup">
+      <created>1653050459265</created>
+      <option name="number" value="00140" />
+      <option name="presentableId" value="LOCAL-00140" />
+      <option name="project" value="LOCAL" />
+      <updated>1653050459265</updated>
+    </task>
+    <task id="LOCAL-00141" summary="#127 log tuneup">
+      <created>1653051040732</created>
+      <option name="number" value="00141" />
+      <option name="presentableId" value="LOCAL-00141" />
+      <option name="project" value="LOCAL" />
+      <updated>1653051040732</updated>
+    </task>
+    <option name="localTasksCounter" value="142" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -1066,7 +872,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="bug/SKALE-4263" />
     <MESSAGE value="ub/SKALE-2454-enable-bls-verification-in-catchup" />
     <MESSAGE value="bug/SKALE-4284-server-worker" />
     <MESSAGE value="bug/SKALE-4313-add-step-by-step-logs-to-exit" />
@@ -1090,16 +895,13 @@
     <MESSAGE value="bug/SKALE-4593" />
     <MESSAGE value="bug/SKALE-4616-oracle-mvp" />
     <MESSAGE value="88: Tuning chains" />
-    <option name="LAST_COMMIT_MESSAGE" value="88: Tuning chains" />
+    <MESSAGE value="#127 log tuneup" />
+    <MESSAGE value="#238 better log handling" />
+    <option name="LAST_COMMIT_MESSAGE" value="#238 better log handling" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
-        <line-breakpoint type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
-          <url>file://$PROJECT_DIR$/oracle/OracleResponseMessage.cpp</url>
-          <line>48</line>
-          <option name="timeStamp" value="32" />
-        </line-breakpoint>
         <line-breakpoint type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
           <url>file://$PROJECT_DIR$/messages/NetworkMessage.h</url>
           <line>28</line>
@@ -1110,6 +912,11 @@
           <line>23</line>
           <option name="timeStamp" value="34" />
         </line-breakpoint>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/oracle/OracleReceivedResults.cpp</url>
+          <line>121</line>
+          <option name="timeStamp" value="37" />
+        </line-breakpoint>
       </breakpoints>
       <default-breakpoints>
         <breakpoint type="python-exception">
@@ -1119,5 +926,9 @@
         </breakpoint>
       </default-breakpoints>
     </breakpoint-manager>
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
   </component>
 </project>

@@ -39,6 +39,7 @@ public:
 
     [[nodiscard ]] uint64_t getS() const;
     [[nodiscard ]] uint64_t getMs() const;
+    [[nodiscard ]] uint64_t getLinuxTimeMs() const;
 
     bool operator<(const TimeStamp& r) const;
 

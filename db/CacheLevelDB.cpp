@@ -99,7 +99,7 @@ string CacheLevelDB::createCounterKey(block_id _blockId) {
 }
 
 
-string CacheLevelDB::readStringFromBlockSet(block_id _blockId, schain_index _index) {
+string CacheLevelDB::readStringFromSet(block_id _blockId, schain_index _index) {
     auto key = createKey(_blockId, _index);
     return readString(key);
 }

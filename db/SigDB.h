@@ -36,7 +36,7 @@ class SigDB : public CacheLevelDB {
 
     node_id nodeId = 0;
 
-    const string& getFormatVersion();
+    const string& getFormatVersion() override;
 
 public:
 
@@ -44,9 +44,8 @@ public:
 
     void addSignature(block_id _blockId, const ptr<ThresholdSignature>& _sig);
 
-    uint64_t getCounter();
 
 };
 
 
-#endif //SKALED_BLOCKDB_H
+#endif

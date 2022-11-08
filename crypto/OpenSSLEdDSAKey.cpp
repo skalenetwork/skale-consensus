@@ -203,10 +203,8 @@ string OpenSSLEdDSAKey::serializePubKey() const {
     return result;
 }
 
-bool OpenSSLEdDSAKey::verifySig( const string& _encodedSignature, const char* _hash ) const {
+void OpenSSLEdDSAKey::verifySig( const string& _encodedSignature, const char* _hash ) const {
     CHECK_STATE( _hash );
-
-    bool result = false;
 
     EVP_MD_CTX *  verifyCtx = nullptr;
 
@@ -232,18 +230,13 @@ bool OpenSSLEdDSAKey::verifySig( const string& _encodedSignature, const char* _h
 
         CHECK_STATE( EVP_DigestVerify( verifyCtx, decodedSig.data(), 64,
                          ( const unsigned char* ) _hash, 32 ) == 1 );
-        result = true;
+
     } catch (...) {
-        if (!verifyCtx) { // out of memory
-            throw;
+        if (verifyCtx) {
+            EVP_MD_CTX_free(verifyCtx);
         }
+        throw_with_nested(InvalidStateException(__FUNCTION__ , __CLASS_NAME__));
     }
-
-    if (verifyCtx) {
-        EVP_MD_CTX_free(verifyCtx);
-    }
-
-    return result;
 
 }
 

@@ -44,4 +44,4 @@ public:
 };
 
 
-#endif //SKALED_RANDOMDB_H
+#endif

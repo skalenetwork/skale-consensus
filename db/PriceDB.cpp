@@ -76,7 +76,7 @@ void PriceDB::savePrice(const u256& _price, block_id _blockID) {
     try {
 
         auto key = createKey(_blockID);
-        CHECK_STATE(key != "");
+        CHECK_STATE(key != "")
 
         auto value = _price.str();
 

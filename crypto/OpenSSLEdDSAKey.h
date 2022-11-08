@@ -50,7 +50,7 @@ public:
 
     string sign(const char* hash);
 
-    bool verifySig( const string& _encodedSignature, const char* _hash ) const;
+    void verifySig( const string& _encodedSignature, const char* _hash ) const;
 
     static ptr< OpenSSLEdDSAKey > generateKey();
 };

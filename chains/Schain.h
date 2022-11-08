@@ -150,6 +150,7 @@ class Schain : public Agent {
 
     atomic< uint64_t > lastCommittedBlockID = 0;
     atomic< uint64_t > lastCommitTimeMs = 0;
+    atomic< uint64_t > lastCommittedBlockEvmProcessingTimeMs = 0;
     TimeStamp  lastCommittedBlockTimeStamp;
     mutex lastCommittedBlockInfoMutex;
     atomic<uint64_t> proposalReceiptTime = 0;
@@ -169,6 +170,8 @@ class Schain : public Agent {
 private:
     uint64_t blockTimeAverageMs = 0 ;
     uint64_t tpsAverage = 0 ;
+
+    atomic<bool> isStateInitialized = false;
 
     ptr< NodeInfo > thisNodeInfo = nullptr;
 
@@ -191,6 +194,9 @@ private:
 
     void saveToVisualization( ptr< CommittedBlock > _block, uint64_t _visualizationType );
 
+
+
+
 public:
 
     static void writeToVisualizationStream(string& _s);
@@ -212,7 +218,8 @@ public:
     bool isStartingFromCorruptState() const;
 
     void updateLastCommittedBlockInfo( uint64_t _lastCommittedBlockID,
-        TimeStamp& _lastCommittedBlockTimeStamp, uint64_t _blockSize );
+        TimeStamp& _lastCommittedBlockTimeStamp, uint64_t _blockSize,
+        uint64_t _lastCommittedBlockProcessingTimeMs);
 
     void initLastCommittedBlockInfo( uint64_t _lastCommittedBlockID,
                                        TimeStamp&  _lastCommittedBlockTimeStamp );
@@ -262,7 +269,7 @@ public:
     void blockProposalReceiptTimeoutArrived( block_id _blockID );
 
     void blockCommitArrived( block_id _committedBlockID, schain_index _proposerIndex,
-        const ptr< ThresholdSignature >& _thresholdSig );
+        const ptr< ThresholdSignature >& _thresholdSig, ptr<ThresholdSignature> _daSig );
 
 
     [[nodiscard]] uint64_t blockCommitsArrivedThroughCatchup( const ptr< CommittedBlockList >& _blockList );
@@ -356,5 +363,10 @@ public:
 
     const string &getSchainName() const;
 
+    const atomic<bool> &getIsStateInitialized() const;
+
+    bool isLegacy();
+
+    void updateInternalChainInfo(block_id _lastCommittedBlockID);
 };
 

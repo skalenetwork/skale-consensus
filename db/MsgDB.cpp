@@ -45,19 +45,19 @@ MsgDB::saveMsg(const ptr<NetworkMessage>& _msg) {
 
     static atomic<uint64_t> msgCounter = 0;
 
-    CHECK_ARGUMENT(_msg);
+    CHECK_ARGUMENT(_msg)
 
     try {
 
         auto serialized = _msg->serializeToString();
 
-        CHECK_STATE(!serialized.empty());
+        CHECK_STATE(!serialized.empty())
 
         auto currentCounter = msgCounter++;
 
         auto key = createKey(_msg->getBlockID(), currentCounter);
 
-        CHECK_STATE(!key.empty());
+        CHECK_STATE(!key.empty())
 
         auto previous = readString(key);
 

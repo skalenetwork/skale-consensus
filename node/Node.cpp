@@ -52,6 +52,7 @@
 #include "db/ConsensusStateDB.h"
 #include "db/DAProofDB.h"
 #include "db/DASigShareDB.h"
+#include "db/InternalInfoDB.h"
 #include "db/MsgDB.h"
 #include "db/PriceDB.h"
 #include "db/ProposalHashDB.h"
@@ -88,7 +89,12 @@ Node::Node(const nlohmann::json &_cfg, ConsensusEngine *_consensusEngine,
            ptr< vector< ptr< vector<string>>>> _blsPublicKeys,
            ptr< BLSPublicKey > _blsPublicKey, string & _gethURL,
            ptr< map< uint64_t, ptr< BLSPublicKey > > > _previousBlsPublicKeys,
+           ptr< map< uint64_t, string > > _historicECDSAPublicKeys,
+           ptr< map< uint64_t, vector< uint64_t > > > _historicNodeGroups,
            bool _isSyncNode) : gethURL(_gethURL), isSyncNode(_isSyncNode) {
+
+    historicECDSAPublicKeys = make_shared<map<uint64_t, string>>();
+    historicNodeGroups = make_shared<map<uint64_t, vector< uint64_t>>>();
 
 
 
@@ -97,7 +103,18 @@ Node::Node(const nlohmann::json &_cfg, ConsensusEngine *_consensusEngine,
         gethURL = gethURL.substr(0, gethURL.size() - 1);
     }
 
-    if (_useSGX) {
+
+
+    ecdsaPublicKeys = _ecdsaPublicKeys;
+    blsPublicKeys = _blsPublicKeys;
+    blsPublicKey = _blsPublicKey;
+    previousBlsPublicKeys = _previousBlsPublicKeys;
+    historicECDSAPublicKeys = _historicECDSAPublicKeys;
+    historicNodeGroups = _historicNodeGroups;
+
+    sgxEnabled = _useSGX;
+
+    if (sgxEnabled) {
         CHECK_ARGUMENT(!_sgxURL.empty())
         if (_sgxURL.find("https:/") != string::npos) {
             CHECK_ARGUMENT(!_sgxSSLKeyFileFullPath.empty() )
@@ -107,20 +124,16 @@ Node::Node(const nlohmann::json &_cfg, ConsensusEngine *_consensusEngine,
         CHECK_ARGUMENT(!_blsKeyName.empty() && _blsPublicKeys);
         CHECK_ARGUMENT(_blsPublicKey);
         CHECK_ARGUMENT(_previousBlsPublicKeys);
-
-        sgxEnabled = true;
+        CHECK_ARGUMENT(_historicECDSAPublicKeys);
+        CHECK_ARGUMENT(_historicNodeGroups);
 
         CHECK_STATE(JSONFactory::splitString(_ecdsaKeyName)->size() == 2);
         CHECK_STATE(JSONFactory::splitString(_blsKeyName)->size() == 7);
 
         ecdsaKeyName = _ecdsaKeyName;
-        ecdsaPublicKeys = _ecdsaPublicKeys;
 
         blsKeyName = _blsKeyName;
-        blsPublicKeys = _blsPublicKeys;
-        blsPublicKey = _blsPublicKey;
 
-        previousBlsPublicKeys = _previousBlsPublicKeys;
 
         static string empty("");
 
@@ -162,6 +175,7 @@ void Node::initLevelDBs() {
     string daSigShareDBPrefix = "/da_sigshares_" + to_string(nodeID) + ".db";
     string daProofDBPrefix = "/da_proofs_" + to_string(nodeID) + ".db";
     string blockProposalDBPrefix = "/block_proposals_" + to_string(nodeID) + ".db";
+    string internalInfoDBPrefix = "/internal_info_" + to_string(nodeID) + ".db";
 
 
     blockDB = make_shared<BlockDB>(getSchain(), dbDir, blockDBPrefix, getNodeID(), getBlockDBSize());
@@ -189,6 +203,10 @@ void Node::initLevelDBs() {
     daProofDB = make_shared<DAProofDB>(getSchain(), dbDir, daProofDBPrefix, getNodeID(), getDaProofDBSize());
     blockProposalDB = make_shared<BlockProposalDB>(getSchain(), dbDir, blockProposalDBPrefix, getNodeID(),
                                                    getBlockProposalDBSize());
+
+    internalInfoDB = make_shared<InternalInfoDB>(getSchain(), dbDir, internalInfoDBPrefix, getNodeID(),
+                                                   getInternalInfoDBSize());
+
 
 }
 
@@ -247,6 +265,7 @@ void Node::initParamsFromConfig() {
     randomDBSize = storageLimits->getRandomDbSize();
     priceDBSize = storageLimits->getPriceDbSize();
     blockProposalDBSize = storageLimits->getBlockProposalDbSize();
+    internalInfoDBSize = storageLimits->getInternalInfoDbSize();
 
     visualizationType = getParamUint64("visualizationType", 0);
 
@@ -581,6 +600,14 @@ ptr< map< uint64_t, ptr< BLSPublicKey > > > Node::getPreviousBLSPublicKeys() {
     CHECK_STATE(previousBlsPublicKeys);
     return previousBlsPublicKeys;
 }
+ptr< map< uint64_t, string > > Node::getHistoricECDSAPublicKeys() {
+    CHECK_STATE(historicECDSAPublicKeys);
+    return historicECDSAPublicKeys;
+}
+ptr< map< uint64_t, vector< uint64_t > > > Node::getHistoricNodeGroups() {
+    CHECK_STATE(historicNodeGroups);
+    return historicNodeGroups;
+}
 bool Node::isInited() const {
     return inited;
 }
@@ -589,3 +616,6 @@ bool Node::isSyncOnlyNode() const {
     return isSyncNode;
 }
 
+bool Node::verifyRealSignatures() const {
+    return sgxEnabled || (isSyncNode && blsPublicKey);
+}

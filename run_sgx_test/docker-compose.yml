@@ -19,4 +19,3 @@ services:
         max-file: "4"
     restart: unless-stopped
     command: -s -y -Tn  
-

@@ -108,7 +108,7 @@ const array<uint8_t, HASH_LEN>& BLAKE3Hash::getHash() const {
 
 
 
-BLAKE3Hash BLAKE3Hash::getBlockHash(uint64_t _blockProposerIndex, uint64_t _blockId, uint64_t _schainId) {
+BLAKE3Hash BLAKE3Hash::getConsensusHash(uint64_t _blockProposerIndex, uint64_t _blockId, uint64_t _schainId) {
     uint32_t msgType = MSG_BLOCK_SIGN_BROADCAST;
     BLAKE3Hash _hash;
     HASH_INIT(hashObj)

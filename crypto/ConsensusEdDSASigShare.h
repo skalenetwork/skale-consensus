@@ -29,16 +29,17 @@
 
 class ConsensusEdDSASigShare : public ThresholdSigShare {
 
-    string edDSASigShare;
+    string sigShare;
+    vector<string> tokens;
 
 public:
 
-    ConsensusEdDSASigShare(const string& _sigShare, schain_id _schainID, block_id _blockID, schain_index _signerIndex,
-                         uint64_t _totalSigners, uint64_t _requiredSigners);
+    ConsensusEdDSASigShare(const string& _sigShare, schain_id _schainId, block_id _blockId,
+        uint64_t _totalSigners);
 
     string toString() override;
 
-    void verify(CryptoManager& _cryptoManager, schain_index _signerIndex,
+    void verify(CryptoManager& _cryptoManager,
                 BLAKE3Hash& _hash, node_id _nodeId);
 
 };

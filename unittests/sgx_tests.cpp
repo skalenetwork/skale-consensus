@@ -45,7 +45,7 @@ TEST_CASE_METHOD( StartFromScratch, "Test sgx server connection", "[sgx]" ) {
     auto hash = BLAKE3Hash::calculateHash( msg );
     auto sig = cm.sgxSignECDSA( hash, keyNames->at(0) );
 
-    REQUIRE( cm.verifyECDSA( hash, sig, string( publicKeys->at( 0 ) ) ) );
+    cm.verifyECDSA( hash, sig, string( publicKeys->at( 0 ) ) );
 
     auto key = CryptoManager::decodeSGXPublicKey( string(publicKeys->at(0)) );
 

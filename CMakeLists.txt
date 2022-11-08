@@ -153,7 +153,7 @@ AUX_SOURCE_DIRECTORY(utils utils_src)
 AUX_SOURCE_DIRECTORY(statusserver statusserver_src)
 AUX_SOURCE_DIRECTORY(sgxclient sgxclient_src)
 AUX_SOURCE_DIRECTORY(oracle oracle_src)
-
+AUX_SOURCE_DIRECTORY(rlp rlp_src)
 
 
 SET(SRC_FILES
@@ -184,6 +184,7 @@ SET(SRC_FILES
         ${protocols_src}
         ${protocols_binconsensus_src}
         ${protocols_blockconsensus_src}
+        ${rlp_src}
         ${thirdparty_src}
         ${threads_src}
         ${json_src}
@@ -193,7 +194,7 @@ SET(SRC_FILES
         ${statusserver_src}
         ${sgxclient_src}
         Agent.h Agent.cpp SkaleCommon.cpp Log.cpp microprofile.cpp miniz.c
-        oracle/OracleClient.cpp oracle/OracleClient.h)
+        oracle/OracleClient.cpp oracle/OracleClient.h db/VersionUpdateHistory.cpp db/VersionUpdateHistory.h)
 
 
 include_directories(. spdlog/include ${BLS_INCLUDE_DIRS} ${DEPS_INSTALL_ROOT}/include libBLS/bls libBLS
@@ -218,6 +219,7 @@ endif ()
 
 
 SET(LINK_LIBRARIES
+        backtrace
         Threads::Threads
         ${BOOST_LIBS_4_CONSENSUS}
         ${LIB_NAME_cryptopp}

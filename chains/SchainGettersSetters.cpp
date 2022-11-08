@@ -305,11 +305,11 @@ void Schain::initLastCommittedBlockInfo( uint64_t _lastCommittedBlockID,
 
 void Schain::updateLastCommittedBlockInfo( uint64_t _lastCommittedBlockID,
                                    TimeStamp& _lastCommittedBlockTimeStamp,
-                                   uint64_t _blockSize){
+                                   uint64_t _blockSize, uint64_t _lastCommittedBlockProcessingTimeMs){
     lock_guard<mutex> lock(lastCommittedBlockInfoMutex);
     CHECK_STATE(
                 _lastCommittedBlockID == lastCommittedBlockID + 1)
-    if (_lastCommittedBlockTimeStamp < _lastCommittedBlockTimeStamp) {
+    if (_lastCommittedBlockTimeStamp < lastCommittedBlockTimeStamp) {
         LOG(err, "TimeStamp in the past:"+ lastCommittedBlockTimeStamp.toString() +
             ":"+ _lastCommittedBlockTimeStamp.toString());
     }
@@ -320,6 +320,7 @@ void Schain::updateLastCommittedBlockInfo( uint64_t _lastCommittedBlockID,
     lastCommittedBlockID = _lastCommittedBlockID;
     lastCommittedBlockTimeStamp = _lastCommittedBlockTimeStamp;
     lastCommitTimeMs = currentTime;
+    lastCommittedBlockEvmProcessingTimeMs = _lastCommittedBlockProcessingTimeMs;
 
     blockSizeAverage = (blockSizeAverage * (_lastCommittedBlockID - 1) + _blockSize) / _lastCommittedBlockID;
     blockTimeAverageMs = (currentTime - this->startTimeMs) / (_lastCommittedBlockID - this->bootstrapBlockID);

@@ -21,29 +21,68 @@
     @date 2020
 */
 
+#include <boost/tokenizer.hpp>
 
 #include "Log.h"
 #include "SkaleCommon.h"
 #include "network/Utils.h"
 #include "thirdparty/json.hpp"
 
+#include "chains/Schain.h"
+#include "ConsensusEdDSASigShare.h"
 #include "ConsensusEdDSASignature.h"
 #include "ThresholdSignature.h"
 
 
 ConsensusEdDSASignature::ConsensusEdDSASignature(
-    const string& _mergedSig, block_id _blockID, size_t _totalSigners, size_t _requiredSigners )
-    : ThresholdSignature( _blockID, _totalSigners, _requiredSigners ), mergedSig(_mergedSig) {
+    const string& _mergedSig, schain_id _schainId, block_id _blockId, size_t _totalSigners, size_t _requiredSigners )
+    : ThresholdSignature( _blockId, _totalSigners, _requiredSigners ), mergedSig(_mergedSig) {
 
     CHECK_ARGUMENT(!_mergedSig.empty());
 
-    if (!(_requiredSigners == 1))
-        CHECK_ARGUMENT(_mergedSig.find('*') != string::npos)
+    boost::char_separator< char > sep( "*" );
+    boost::tokenizer tok {_mergedSig, sep};
+
+    for ( const auto& it : tok) {
+        auto share = make_shared<ConsensusEdDSASigShare>(
+                                          it, _schainId, _blockId, _totalSigners);
+
+        auto index = share->getSignerIndex();
+
+        CHECK_STATE2(shares.count((uint64_t )index) == 0, "Duplicate shares in EdDsaThresholdSig");
+
+        shares.emplace(index, share);
+
+    }
+
+    CHECK_ARGUMENT2(shares.size() == _requiredSigners, "Incorrect shares count:" +
+        to_string(shares.size()));
+
+
+
+
 }
 
 string  ConsensusEdDSASignature::toString() {
     return mergedSig;
 };
+
+void ConsensusEdDSASignature::verify(
+    CryptoManager& _cryptoManager,
+    BLAKE3Hash& _hash) {
+
+    try {
+
+        for (auto & share: shares ) {
+            share.second->verify(_cryptoManager, _hash,
+                _cryptoManager.getSchain()->getNodeIDByIndex(share.first));
+        }
+
+    } catch (...) {
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+    }
+
+}
 
 
 
