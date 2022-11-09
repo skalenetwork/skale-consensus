@@ -57,6 +57,14 @@
 #include "messages/Message.h"
 
 #include "db/BlockDB.h"
+#include "db/BlockProposalDB.h"
+#include "db/BlockSigShareDB.h"
+#include "db/DAProofDB.h"
+#include "db/DASigShareDB.h"
+#include "db/InternalInfoDB.h"
+#include "db/MsgDB.h"
+#include "db/ProposalHashDB.h"
+#include "db/ProposalVectorDB.h"
 
 #include "db/ConsensusStateDB.h"
 #include "db/PriceDB.h"
@@ -141,27 +149,27 @@ node_id Node::getNodeID() const {
 }
 
 
-ptr<ProposalHashDB> Node::getProposalHashDB() {
+ptr<ProposalHashDB> Node::getProposalHashDB() const {
     CHECK_STATE(proposalHashDB);
     return proposalHashDB;
 }
 
-ptr<ProposalVectorDB> Node::getProposalVectorDB() {
+ptr<ProposalVectorDB> Node::getProposalVectorDB() const {
     CHECK_STATE(proposalVectorDB);
     return proposalVectorDB;
 }
 
-ptr<MsgDB> Node::getOutgoingMsgDB() {
+ptr<MsgDB> Node::getOutgoingMsgDB() const {
     CHECK_STATE(outgoingMsgDB);
     return outgoingMsgDB;
 }
 
-ptr<MsgDB> Node::getIncomingMsgDB() {
+ptr<MsgDB> Node::getIncomingMsgDB() const {
     CHECK_STATE(incomingMsgDB);
     return incomingMsgDB;
 }
 
-ptr<ConsensusStateDB> Node::getConsensusStateDB() {
+ptr<ConsensusStateDB> Node::getConsensusStateDB() const {
     CHECK_STATE(consensusStateDB);
     return consensusStateDB;
 }
@@ -233,12 +241,12 @@ ptr<NodeInfo> Node::getNodeInfoById(node_id _id) {
 }
 
 
-ptr<BlockDB> Node::getBlockDB() {
+ptr<BlockDB> Node::getBlockDB() const {
     CHECK_STATE(blockDB);
     return blockDB;
 }
 
-ptr<RandomDB> Node::getRandomDB() {
+ptr<RandomDB> Node::getRandomDB() const {
     CHECK_STATE(randomDB);
     return randomDB;
 }
@@ -323,9 +331,6 @@ bool Node::isExitRequested() {
     return exitRequested;
 }
 
-
-
-
 bool Node::isStarted() const {
     return startedServers;
 }
@@ -378,6 +383,24 @@ uint64_t Node::getInternalInfoDBSize() const {
     return internalInfoDBSize;
 }
 
+map< string, uint64_t > Node::getDBUsage() const {
+    map< string, uint64_t > ret;
+    ret["blocks.db_disk_usage"] = getBlockDB()->getActiveDBSize();
+    ret["block_proposal.db_disk_usage"] = getBlockProposalDB()->getActiveDBSize();
+    ret["block_sigshare.db_disk_usage"] = getBlockSigShareDB()->getActiveDBSize();
+    ret["consensus_state.db_disk_usage"] = getConsensusStateDB()->getActiveDBSize();
+    ret["da_proof.db_disk_usage"] = getDaProofDB()->getActiveDBSize();
+    ret["da_sigshare.db_disk_usage"] = getDaSigShareDB()->getActiveDBSize();
+    ret["incoming_msg.db_disk_usage"] = getIncomingMsgDB()->getActiveDBSize();
+    ret["interna_info.db_disk_usage"] = getInternalInfoDB()->getActiveDBSize();
+    ret["outgoing_msg.db_disk_usage"] = getOutgoingMsgDB()->getActiveDBSize();
+    ret["price.db_disk_usage"] = getPriceDB()->getActiveDBSize();
+    ret["proposal_hash.db_disk_usage"] = getProposalHashDB()->getActiveDBSize();
+    ret["proposal_vector.db_disk_usage"] = getProposalVectorDB()->getActiveDBSize();
+    ret["random.db_disk_usage"] = getRandomDB()->getActiveDBSize();
+
+    return ret;
+}
 
 ConsensusEngine *Node::getConsensusEngine() const {
     CHECK_STATE(consensusEngine);

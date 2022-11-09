@@ -257,6 +257,8 @@ public:
 
     u256 getRandomForBlockId( uint64_t _blockId ) const override;
 
+    map< string, uint64_t > getConsensusDbUsage() const override;
+
     void systemHealthCheck();
 
     static string getEngineVersion();

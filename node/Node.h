@@ -239,23 +239,23 @@ public:
 
     [[nodiscard]] const ptr< TestConfig >& getTestConfig() const;
 
-    ptr< BlockDB > getBlockDB();
+    ptr< BlockDB > getBlockDB() const;
 
-    ptr< RandomDB > getRandomDB();
+    ptr< RandomDB > getRandomDB() const;
 
     ptr< PriceDB > getPriceDB() const;
 
     ptr< InternalInfoDB > getInternalInfoDB() const;
 
-    ptr< ProposalHashDB > getProposalHashDB();
+    ptr< ProposalHashDB > getProposalHashDB() const;
 
-    ptr< ProposalVectorDB > getProposalVectorDB();
+    ptr< ProposalVectorDB > getProposalVectorDB() const;
 
-    ptr< MsgDB > getOutgoingMsgDB();
+    ptr< MsgDB > getOutgoingMsgDB() const;
 
-    ptr< MsgDB > getIncomingMsgDB();
+    ptr< MsgDB > getIncomingMsgDB() const;
 
-    ptr< ConsensusStateDB > getConsensusStateDB();
+    ptr< ConsensusStateDB > getConsensusStateDB() const;
 
     ptr< BlockSigShareDB > getBlockSigShareDB() const;
 
@@ -282,6 +282,8 @@ public:
     uint64_t getBlockProposalDBSize() const;
     uint64_t getInternalInfoDBSize() const;
     uint64_t getSimulateNetworkWriteDelayMs() const;
+
+    map< string, uint64_t > getDBUsage() const;
 
     ptr< BLSPublicKey > getBlsPublicKey() const;
 
