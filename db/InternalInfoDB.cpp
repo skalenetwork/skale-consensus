@@ -27,12 +27,14 @@
 #include "chains/Schain.h"
 #include "exceptions/InvalidStateException.h"
 #include "VersionUpdateHistory.h"
+#include "LevelDBOptions.h"
 #include "InternalInfoDB.h"
 
 
-InternalInfoDB::InternalInfoDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize)
-        : CacheLevelDB(_sChain, _dirName, _prefix,
-                       _nodeId, _maxDBSize, false) {
+InternalInfoDB::InternalInfoDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId,
+    uint64_t _maxDBSize)
+        : CacheLevelDB(_sChain, _dirName, _prefix, _nodeId, _maxDBSize,
+          LevelDBOptions::getInternalInfoDBOptions(), false) {
 }
 
 

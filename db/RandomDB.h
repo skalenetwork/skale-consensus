@@ -32,7 +32,8 @@ class RandomDB : public CacheLevelDB {
 
 public:
 
-    RandomDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize);
+    RandomDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId,
+        uint64_t _maxDBSize);
 
     uint64_t
     readRandom(const block_id &_blockId, const schain_index &_proposerIndex, const bin_consensus_round &_round);

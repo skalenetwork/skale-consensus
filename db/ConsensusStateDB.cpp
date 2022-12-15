@@ -28,7 +28,7 @@
 #include "chains/Schain.h"
 #include "crypto/CryptoManager.h"
 #include "datastructures/Transaction.h"
-
+#include "LevelDBOptions.h"
 #include "ConsensusStateDB.h"
 
 _Pragma("GCC diagnostic push")
@@ -36,8 +36,8 @@ _Pragma("GCC diagnostic ignored \"-Wunused-parameter\"")
 
 
 ConsensusStateDB::ConsensusStateDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId,
-                                   uint64_t _maxDBSize) : CacheLevelDB(_sChain, _dirName, _prefix, _nodeId,
-                                                                       _maxDBSize, false) {}
+     uint64_t _maxDBSize) : CacheLevelDB(_sChain, _dirName, _prefix, _nodeId,
+        _maxDBSize, LevelDBOptions::getConsensusStateDBOptions(), false) {}
 
 
 const string& ConsensusStateDB::getFormatVersion() {

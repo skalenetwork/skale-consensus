@@ -24,6 +24,7 @@
 #include "SkaleCommon.h"
 #include "Log.h"
 
+#include "LevelDBOptions.h"
 
 #include "RandomDB.h"
 #include "CacheLevelDB.h"
@@ -32,8 +33,10 @@
 _Pragma("GCC diagnostic push")
 _Pragma("GCC diagnostic ignored \"-Wunused-parameter\"")
 
-RandomDB::RandomDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize) :
-        CacheLevelDB(_sChain, _dirName, _prefix, _nodeId, _maxDBSize, false) {}
+RandomDB::RandomDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId,
+            uint64_t _maxDBSize) :
+        CacheLevelDB(_sChain, _dirName, _prefix, _nodeId, _maxDBSize,
+          LevelDBOptions::getRandomDBOptions(), false) {}
 
 
 const string& RandomDB::getFormatVersion() {

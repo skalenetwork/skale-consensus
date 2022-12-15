@@ -43,7 +43,8 @@ class DASigShareDB : public  CacheLevelDB {
 
 public:
 
-    explicit DASigShareDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize);
+    explicit DASigShareDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId,
+        uint64_t _maxDBSize);
 
     ptr<DAProof> addAndMergeSigShareAndVerifySig(const ptr<ThresholdSigShare>& _sigShare,
  const ptr<BlockProposal>& _proposal);

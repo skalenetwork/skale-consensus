@@ -21,7 +21,7 @@
     @date 2019
 */
 
-
+#include "thirdparty/json.hpp"
 #include "SkaleCommon.h"
 #include "Log.h"
 #include "chains/Schain.h"
@@ -35,14 +35,15 @@
 #include "exceptions/InvalidStateException.h"
 #include "node/Node.h"
 #include "node/NodeInfo.h"
-#include "thirdparty/json.hpp"
 
+
+#include "LevelDBOptions.h"
 #include "BlockSigShareDB.h"
 
 
 BlockSigShareDB::BlockSigShareDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId,
                                  uint64_t _maxDBSize)
-        : CacheLevelDB(_sChain, _dirName, _prefix, _nodeId, _maxDBSize, false),
+        : CacheLevelDB(_sChain, _dirName, _prefix, _nodeId, _maxDBSize, LevelDBOptions::getBlockSigShareDBOptions() , false),
       sigShares(256){
 }
 
