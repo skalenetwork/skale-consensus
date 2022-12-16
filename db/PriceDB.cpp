@@ -22,17 +22,20 @@
 */
 
 
-#include "PriceDB.h"
+
+
 #include "SkaleCommon.h"
 #include "Log.h"
 #include "chains/Schain.h"
 #include "exceptions/ExitRequestedException.h"
+#include "LevelDBOptions.h"
+#include "PriceDB.h"
 
-
-PriceDB::PriceDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize)
+PriceDB::PriceDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId,
+    uint64_t _maxDBSize)
         : CacheLevelDB(_sChain, _dirName, _prefix,
                        _nodeId,
-                       _maxDBSize, false) {}
+                       _maxDBSize, LevelDBOptions::getPriceDBOptions(), false) {}
 
 
 const string& PriceDB::getFormatVersion() {

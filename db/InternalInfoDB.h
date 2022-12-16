@@ -50,7 +50,8 @@ public:
     /**
      * Create DB
      */
-    InternalInfoDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize);
+    InternalInfoDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId,
+        uint64_t _maxDBSize);
 
 
     const string& getFormatVersion() override ;

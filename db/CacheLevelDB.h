@@ -25,22 +25,13 @@
 #ifndef SKALED_CACHELEVELDB_H
 #define SKALED_CACHELEVELDB_H
 
+#include "leveldb/db.h"
 #include "SkaleCommon.h"
 #include "thirdparty/lrucache.hpp"
 
 
 
 class Schain;
-
-namespace leveldb {
-class DB;
-
-class Status;
-
-class Slice;
-}  // namespace leveldb
-
-
 
 class CacheLevelDB {
 
@@ -54,6 +45,8 @@ class CacheLevelDB {
     static atomic<uint64_t> writeCounter;
 
     shared_timed_mutex m;
+
+    leveldb::Options options;
 
 protected:
 
@@ -126,7 +119,7 @@ protected:
 
 
     CacheLevelDB( Schain* _sChain, string& _dirName, string& _prefix, node_id _nodeId,
-                  uint64_t _maxDBSize, bool _isDuplicateAddOK = false );
+                  uint64_t _maxDBSize, leveldb::Options _options, bool _isDuplicateAddOK = false );
 
     static ptr< map< string, string > > readPrefixRangeFromDBUnsafe(
         string& _prefix, const ptr< leveldb::DB >& _db, bool lastOnly = false );

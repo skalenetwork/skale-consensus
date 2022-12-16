@@ -37,9 +37,13 @@ class BlockDB : public CacheLevelDB {
 
     void saveBlock2LevelDB(const ptr<CommittedBlock> &_block);
 
+    cache::lru_cache<uint64_t , ptr<vector<uint8_t>>> blockCache; // tsafe
+
 public:
 
-    BlockDB(Schain *_sChain, string &_dirname, string &_prefix, node_id _nodeId, uint64_t _maxDBSize);
+    BlockDB(Schain *_sChain, string &_dirname, string &_prefix, node_id _nodeId,
+        uint64_t _maxDBSize);
+
     ptr<vector<uint8_t >> getSerializedBlockFromLevelDB(block_id _blockID);
 
     void saveBlock(const ptr<CommittedBlock> &_block);

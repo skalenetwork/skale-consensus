@@ -23,7 +23,7 @@
 
 
 #ifndef SKALED_PROPOSAL_VECTOR_DB_H
-#define SKALED_PROPOSAL_VECTOR_DB_
+#define SKALED_PROPOSAL_VECTOR_DB_H
 
 
 #include "CacheLevelDB.h"

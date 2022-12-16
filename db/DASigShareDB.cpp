@@ -42,6 +42,7 @@
 #include "crypto/ThresholdSigShare.h"
 #include "datastructures/DAProof.h"
 
+#include "LevelDBOptions.h"
 #include "SigDB.h"
 #include "DASigShareDB.h"
 
@@ -49,8 +50,10 @@
 using namespace std;
 
 
-DASigShareDB::DASigShareDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize) :
-        CacheLevelDB(_sChain, _dirName, _prefix, _nodeId, _maxDBSize) {
+DASigShareDB::DASigShareDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId,
+    uint64_t _maxDBSize) :
+      CacheLevelDB(_sChain, _dirName, _prefix, _nodeId, _maxDBSize,
+          LevelDBOptions::getDASigShareDBOptions()) {
 };
 
 const string& DASigShareDB::getFormatVersion() {

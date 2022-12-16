@@ -41,14 +41,16 @@
 #include "leveldb/db.h"
 #include "crypto/ThresholdSigShare.h"
 #include "SigDB.h"
+#include "LevelDBOptions.h"
 #include "DAProofDB.h"
 
 
 using namespace std;
 
 
-DAProofDB::DAProofDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize) :
-        CacheLevelDB(_sChain, _dirName, _prefix, _nodeId, _maxDBSize, false) {
+DAProofDB::DAProofDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId,
+            uint64_t _maxDBSize) :
+        CacheLevelDB(_sChain, _dirName, _prefix, _nodeId, _maxDBSize, LevelDBOptions::getDAProofDBOptions(), false) {
 }
 
 const string& DAProofDB::getFormatVersion() {

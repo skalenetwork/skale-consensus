@@ -29,13 +29,15 @@
 #include "datastructures/CommittedBlock.h"
 #include "exceptions/InvalidStateException.h"
 
+#include "LevelDBOptions.h"
 #include "ProposalHashDB.h"
-#include "CacheLevelDB.h"
 
 
-ProposalHashDB::ProposalHashDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize)
+
+ProposalHashDB::ProposalHashDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId,
+    uint64_t _maxDBSize)
         : CacheLevelDB(_sChain, _dirName, _prefix,
-                       _nodeId, _maxDBSize, false) {
+                       _nodeId, _maxDBSize, LevelDBOptions::getProposalHashDBOptions(), false) {
 
     static string SCHAIN_INDEX = "schainIndex";
 

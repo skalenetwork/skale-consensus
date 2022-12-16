@@ -40,7 +40,7 @@
 #include "pendingqueue/PendingTransactionsAgent.h"
 #include "thirdparty/json.hpp"
 
-
+#include "LevelDBOptions.h"
 #include "BlockProposalDB.h"
 
 
@@ -50,7 +50,8 @@ using namespace std;
 
 BlockProposalDB::BlockProposalDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId,
                                  uint64_t _maxDBSize) :
-        CacheLevelDB(_sChain, _dirName, _prefix, _nodeId, _maxDBSize, true) {
+        CacheLevelDB(_sChain, _dirName, _prefix, _nodeId, _maxDBSize,
+          LevelDBOptions::getBlockProposalDBOptions(), true) {
     proposalCaches = make_shared<vector<ptr<cache::lru_cache<string, ptr<BlockProposal>>>>>();
 
     for (int i = 0; i < _sChain->getNodeCount(); i++) {

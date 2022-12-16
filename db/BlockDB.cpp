@@ -29,9 +29,11 @@
 #include "exceptions/InvalidStateException.h"
 #include "utils/Time.h"
 
+#include "LevelDBOptions.h"
 #include "BlockDB.h"
 
 
+constexpr uint64_t NUMBER_OF_BLOCKS_TO_CACHE  = 3;
 
 ptr<vector<uint8_t> > BlockDB::getSerializedBlocksFromLevelDB(block_id _startBlock, block_id _endBlock,
                                                               ptr<list<uint64_t>> _blockSizes) {
@@ -76,6 +78,16 @@ ptr<vector<uint8_t> > BlockDB::getSerializedBlocksFromLevelDB(block_id _startBlo
 
 ptr<vector<uint8_t> > BlockDB::getSerializedBlockFromLevelDB(block_id _blockID) {
 
+
+    // check if block is in the cache and return
+    // cache is already thread safe
+    auto result = blockCache.getIfExists((uint64_t) _blockID);
+    if (result.has_value()) {
+        auto block = std::any_cast<ptr<vector<uint8_t>>>(result);
+        CHECK_STATE(block)
+        return block;
+    }
+
     shared_lock<shared_mutex> lock(m);
 
     try {
@@ -99,8 +111,8 @@ ptr<vector<uint8_t> > BlockDB::getSerializedBlockFromLevelDB(block_id _blockID) 
 
 BlockDB::BlockDB(Schain *_sChain, string &_dirname, string &_prefix, node_id _nodeId, uint64_t _maxDBSize)
         : CacheLevelDB(_sChain, _dirname, _prefix,
-                       _nodeId, _maxDBSize, false) {
-}
+                       _nodeId, _maxDBSize, LevelDBOptions::getBlockDBOptions(), false),
+      blockCache(NUMBER_OF_BLOCKS_TO_CACHE) {}
 
 
 void BlockDB::saveBlock2LevelDB(const ptr<CommittedBlock> &_block) {
@@ -113,6 +125,9 @@ void BlockDB::saveBlock2LevelDB(const ptr<CommittedBlock> &_block) {
     try {
 
         auto serializedBlock = _block->serialize();
+
+        // put block into the cache
+        blockCache.put((uint64_t)_block->getBlockID(), serializedBlock);
 
         CHECK_STATE(serializedBlock)
 
