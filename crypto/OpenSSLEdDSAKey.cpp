@@ -238,6 +238,10 @@ void OpenSSLEdDSAKey::verifySig( const string& _encodedSignature, const char* _h
         throw_with_nested(InvalidStateException(__FUNCTION__ , __CLASS_NAME__));
     }
 
+
+    if (verifyCtx)
+        EVP_MD_CTX_free(verifyCtx);
+
 }
 
 
