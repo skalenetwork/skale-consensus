@@ -39,7 +39,8 @@ class ProposalHashDB : public CacheLevelDB {
 
 public:
 
-    ProposalHashDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize);
+    ProposalHashDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId,
+        uint64_t _maxDBSize);
 
     bool checkAndSaveHash(block_id _proposalBlockID, schain_index _proposerIndex, const string& _proposalHash);
 

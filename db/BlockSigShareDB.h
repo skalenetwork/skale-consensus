@@ -46,7 +46,7 @@ class BlockSigShareDB : public CacheLevelDB {
 
 public:
     BlockSigShareDB(
-        Schain* _sChain, string& _dirName, string& _prefix, node_id _nodeId, uint64_t _maxDBSize );
+        Schain* _sChain, string& _dirName, string& _prefix, node_id _nodeId, uint64_t _maxDBSize);
 
     ptr< ThresholdSignature > checkAndSaveShare1(
         const ptr< ThresholdSigShare >& _sigShare, const ptr< CryptoManager >& _cryptoManager );

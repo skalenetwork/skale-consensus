@@ -37,7 +37,8 @@ class MsgDB : public CacheLevelDB {
 
 public:
 
-    MsgDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize);
+    MsgDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId,
+        uint64_t _maxDBSize);
 
     bool saveMsg(const ptr<NetworkMessage>& _msg);
 

@@ -31,12 +31,14 @@
 
 #include "MsgDB.h"
 #include "network/Buffer.h"
+#include "LevelDBOptions.h"
 #include "CacheLevelDB.h"
 
 
-MsgDB::MsgDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize)
+MsgDB::MsgDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId,
+    uint64_t _maxDBSize)
         : CacheLevelDB(_sChain, _dirName, _prefix,
-                       _nodeId, _maxDBSize, false) {
+                       _nodeId, _maxDBSize, LevelDBOptions::getMsgDBOptions(), false) {
 }
 
 
