@@ -134,6 +134,7 @@ AUX_SOURCE_DIRECTORY(chains chains_src)
 AUX_SOURCE_DIRECTORY(crypto crypto_src)
 AUX_SOURCE_DIRECTORY(datastructures datastructures_src)
 AUX_SOURCE_DIRECTORY(db db_src)
+AUX_SOURCE_DIRECTORY(l1commitee l1commitee_src)
 AUX_SOURCE_DIRECTORY(log log_src)
 AUX_SOURCE_DIRECTORY(messages messages_src)
 AUX_SOURCE_DIRECTORY(network network_src)
@@ -174,6 +175,7 @@ SET(SRC_FILES
         ${datastructures_src}
         ${db_src}
         ${headers_src}
+        ${l1commitee_src}
         ${log_src}
         ${messages_src}
         ${network_src}
