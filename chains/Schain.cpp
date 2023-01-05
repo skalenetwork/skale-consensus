@@ -399,7 +399,7 @@ const atomic<bool> &Schain::getIsStateInitialized() const {
 }
 
 bool Schain::verifyDASigsPatch(uint64_t _blockTimeStampS) {
-    return _blockTimeStampS >= verifyDaSigsPatchTimestampS;
+    return  verifyDaSigsPatchTimestampS != 0 && _blockTimeStampS >= verifyDaSigsPatchTimestampS;
 }
 
 
