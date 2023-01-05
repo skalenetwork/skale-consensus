@@ -100,6 +100,9 @@ jobs:
           echo "Checking alternative for gcov-tool"
           which gcov-tool
           gcov-tool --version
+      - uses: actions/checkout@v1
+      - name: submodule update
+        run: git submodule update --init --recursive          
       - name: Build the Docker image(GH)
         run: |
           rm -rf ./build/*
