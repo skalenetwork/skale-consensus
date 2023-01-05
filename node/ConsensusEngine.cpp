@@ -664,8 +664,8 @@ void ConsensusEngine::init() {
 }
 
 
-ConsensusEngine::ConsensusEngine(block_id _lastId, uint64_t _totalStorageLimitBytes) : prices(256),
-                                                                                       exitRequested(false) {
+ConsensusEngine::ConsensusEngine(block_id _lastId, uint64_t _totalStorageLimitBytes)
+                   : prices(256), exitRequested(false){
 
 
     cout << "Constructing consensus engine:LAST_BLOCK:" << (uint64_t) _lastId << ":TOTAL_STORAGE_LIMIT:" <<
@@ -692,9 +692,9 @@ ConsensusEngine::ConsensusEngine(block_id _lastId, uint64_t _totalStorageLimitBy
 }
 
 ConsensusEngine::ConsensusEngine(ConsensusExtFace &_extFace, uint64_t _lastCommittedBlockID,
-                                 uint64_t _lastCommittedBlockTimeStamp, uint64_t _lastCommittedBlockTimeStampMs,
-                                 uint64_t _totalStorageLimitBytes)
-        : prices(256), exitRequested(false) {
+    uint64_t _lastCommittedBlockTimeStamp, uint64_t _lastCommittedBlockTimeStampMs,
+    map<string, uint64_t> _patchTimestamps, uint64_t _totalStorageLimitBytes)
+        : prices(256), exitRequested(false), patchTimestamps(_patchTimestamps)  {
 
 
     std::time_t lastCommitedBlockTimestamp = _lastCommittedBlockTimeStamp;
@@ -1144,4 +1144,8 @@ uint64_t ConsensusEngine::checkOracleResult(const string &_receipt, string &_res
     auto oracleClient = node->getSchain()->getOracleClient();
     CHECK_STATE(oracleClient);
     return oracleClient->checkOracleResult(_receipt, _result);
+}
+
+const map< string, uint64_t >& ConsensusEngine::getPatchTimestamps() const {
+    return patchTimestamps;
 }

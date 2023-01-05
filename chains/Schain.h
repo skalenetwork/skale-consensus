@@ -167,13 +167,14 @@ class Schain : public Agent {
     static ptr<ofstream> visualizationDataStream;
     static mutex vdsMutex;
 
-private:
     uint64_t blockTimeAverageMs = 0 ;
     uint64_t tpsAverage = 0 ;
 
     atomic<bool> isStateInitialized = false;
 
     ptr< NodeInfo > thisNodeInfo = nullptr;
+
+    uint64_t verifyDaSigsPatchTimestampS = 0;
 
     void proposeNextBlock();
 
@@ -248,7 +249,7 @@ public:
     uint64_t getMaxExternalBlockProcessingTime() const;
 
     Schain( weak_ptr< Node > _node, schain_index _schainIndex, const schain_id& _schainID,
-        ConsensusExtFace* _extFace, string& _schainName );
+        ConsensusExtFace* _extFace, string& _schainName);
 
     Schain();  // empty constructor is used for tests
 
@@ -365,7 +366,7 @@ public:
 
     const atomic<bool> &getIsStateInitialized() const;
 
-    bool isLegacy();
+    bool verifyDASigsPatch(uint64_t _blockTimeStampSec);
 
     void updateInternalChainInfo(block_id _lastCommittedBlockID);
 };

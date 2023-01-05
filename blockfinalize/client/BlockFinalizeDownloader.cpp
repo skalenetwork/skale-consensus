@@ -232,9 +232,6 @@ string BlockFinalizeDownloader::readBlockHash( nlohmann::json _responseHeader ) 
 string BlockFinalizeDownloader::readDAProofSig( nlohmann::json _responseHeader ) {
     auto result = Header::getString( _responseHeader, "daSig" );
 
-    if ( getSchain()->isLegacy() )
-        CHECK_STATE( !result.empty() );
-
     return result;
 }
 
@@ -418,7 +415,12 @@ schain_index BlockFinalizeDownloader::getProposerIndex() {
     return proposerIndex;
 }
 
-ptr<ThresholdSignature> BlockFinalizeDownloader::getDaSig()  {
+ptr<ThresholdSignature> BlockFinalizeDownloader::getDaSig(uint64_t _timeStampS)  {
+
+    if (getSchain()->verifyDASigsPatch(_timeStampS))
+        CHECK_STATE2(daSig, "BlockFinalizeDownloader: block did not include DA sig:"
+                                 + to_string(_timeStampS));
+
     if (daSig)
         return daSig;
     else

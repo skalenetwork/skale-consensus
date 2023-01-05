@@ -56,7 +56,7 @@ private:
 
 public:
 
-    ptr<ThresholdSignature> getDaSig();
+    ptr<ThresholdSignature> getDaSig(uint64_t _blockTimeStampS);
 
     ptr<BlockFinalizeDownloaderThreadPool> threadPool = nullptr;
 

@@ -75,8 +75,9 @@ CommittedBlockList::CommittedBlockList(const ptr< CryptoManager >& _cryptoManage
 
             auto block = CommittedBlock::deserialize( blockData, _cryptoManager, true );
 
-            if (!_cryptoManager->getSchain()->isLegacy())
-                CHECK_STATE(!block->getDaSig().empty())
+            if (_cryptoManager->getSchain()->verifyDASigsPatch(block->getTimeStampS()))
+                CHECK_STATE2(!block->getDaSig().empty(),
+                    "Catchup received a block withoout DA sig:" + to_string(block->getTimeStampS()));
 
             blocks->push_back(block);
 

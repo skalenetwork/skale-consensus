@@ -288,6 +288,13 @@ Schain::Schain(weak_ptr<Node> _node, schain_index _schainIndex, const schain_id 
         blockProposerTest = none;
 
         getNode()->registerAgent(this);
+
+
+        if (getNode()->getPatchTimestamps().count("verifyDaSigsPatchTimestamp") > 0) {
+            this->verifyDaSigsPatchTimestampS =
+                getNode()->getPatchTimestamps().at("verifyDaSigsPatchTimestamp");
+        }
+
     } catch (ExitRequestedException &) {
         throw;
     } catch (...) {
@@ -391,8 +398,8 @@ const atomic<bool> &Schain::getIsStateInitialized() const {
     return isStateInitialized;
 }
 
-bool Schain::isLegacy() {
-    return getNode()->getInternalInfoDB()->isLegacy() || getNode()->isSyncOnlyNode();
+bool Schain::verifyDASigsPatch(uint64_t _blockTimeStampS) {
+    return _blockTimeStampS >= verifyDaSigsPatchTimestampS;
 }
 
 
@@ -1187,7 +1194,7 @@ void Schain::finalizeDecidedAndSignedBlock(block_id _blockId, schain_index _prop
                 MONITOR(__CLASS_NAME__, msg.c_str());
                 // This will complete successfully also if block arrives through catchup
                 proposal = agent->downloadProposal();
-                daSig = agent->getDaSig();
+                daSig = agent->getDaSig(proposal->getTimeStampS());
             }
 
             if (proposal)  // Nullptr means catchup happened first
