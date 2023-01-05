@@ -211,6 +211,9 @@ class Node {
 
     bool inited = false;
 
+    map<string, uint64_t> patchTimestamps;
+
+
     void releaseGlobalServerBarrier();
 
     void releaseGlobalClientBarrier();
@@ -265,8 +268,6 @@ public:
 
     ptr< BlockProposalDB > getBlockProposalDB() const;
 
-
-public:
     uint64_t getVisualizationType() const;
     uint64_t getProposalHashDBSize() const;
     uint64_t getProposalVectorDBSize() const;
@@ -277,6 +278,7 @@ public:
     uint64_t getBlockSigShareDBSize() const;
     uint64_t getRandomDBSize() const;
     uint64_t getPriceDBSize() const;
+    const map< string, uint64_t >& getPatchTimestamps() const;
     uint64_t getDaSigShareDBSize() const;
     uint64_t getDaProofDBSize() const;
     uint64_t getBlockProposalDBSize() const;

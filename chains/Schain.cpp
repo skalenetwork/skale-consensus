@@ -288,6 +288,13 @@ Schain::Schain(weak_ptr<Node> _node, schain_index _schainIndex, const schain_id 
         blockProposerTest = none;
 
         getNode()->registerAgent(this);
+
+
+        if (getNode()->getPatchTimestamps().count("verifyDaSigsPatchTimestamp") > 0) {
+            this->verifyDaSigsPatchTimestampS =
+                getNode()->getPatchTimestamps().at("verifyDaSigsPatchTimestamp");
+        }
+
     } catch (ExitRequestedException &) {
         throw;
     } catch (...) {
@@ -392,7 +399,7 @@ const atomic<bool> &Schain::getIsStateInitialized() const {
 }
 
 bool Schain::verifyDASigsPatch(uint64_t _blockTimeStampS) {
-    return _blockTimeStampS >= verifyDaSigsPatchTimeStampS;
+    return _blockTimeStampS >= verifyDaSigsPatchTimestampS;
 }
 
 

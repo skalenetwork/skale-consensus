@@ -114,7 +114,13 @@ class ConsensusEngine : public ConsensusInterface {
 
     ptr< spdlog::sinks::sink > logRotatingFileSync;
 
+public:
+    const map< string, uint64_t >& getPatchTimestamps() const;
+
+private:
     ptr<StorageLimits> storageLimits = nullptr;
+
+    map<string, uint64_t> patchTimestamps;
 
 public:
 
@@ -205,12 +211,14 @@ public:
 
     block_id getLargestCommittedBlockIDInDb();
 
-    ConsensusEngine( block_id _lastId, uint64_t totalStorageLimitBytes = DEFAULT_DB_STORAGE_LIMIT);
+    ConsensusEngine( block_id _lastId,
+        uint64_t totalStorageLimitBytes = DEFAULT_DB_STORAGE_LIMIT);
 
     ~ConsensusEngine() override;
 
     ConsensusEngine( ConsensusExtFace& _extFace, uint64_t _lastCommittedBlockID,
         uint64_t _lastCommittedBlockTimeStamp,uint64_t _lastCommittedBlockTimeStampMs,
+       map<string, uint64_t> _patchTimestamps,
         uint64_t _totalStorageLimitBytes = DEFAULT_DB_STORAGE_LIMIT);
 
     [[nodiscard]] ConsensusExtFace* getExtFace() const;

@@ -91,7 +91,12 @@ Node::Node(const nlohmann::json &_cfg, ConsensusEngine *_consensusEngine,
            ptr< map< uint64_t, ptr< BLSPublicKey > > > _previousBlsPublicKeys,
            ptr< map< uint64_t, string > > _historicECDSAPublicKeys,
            ptr< map< uint64_t, vector< uint64_t > > > _historicNodeGroups,
-           bool _isSyncNode) : gethURL(_gethURL), isSyncNode(_isSyncNode) {
+           bool _isSyncNode) :
+               gethURL(_gethURL), isSyncNode(_isSyncNode) {
+
+    if (_consensusEngine) {
+        patchTimestamps = _consensusEngine->getPatchTimestamps();
+    }
 
     historicECDSAPublicKeys = make_shared<map<uint64_t, string>>();
     historicNodeGroups = make_shared<map<uint64_t, vector< uint64_t>>>();
@@ -140,7 +145,6 @@ Node::Node(const nlohmann::json &_cfg, ConsensusEngine *_consensusEngine,
         sgxURL = _sgxURL;
         sgxSSLKeyFileFullPath = _sgxSSLKeyFileFullPath;
         sgxSSLCertFileFullPath = _sgxSSLCertFileFullPath;
-
 
     }
 
@@ -394,7 +398,8 @@ void Node::setSchain(const ptr<Schain>& _schain) {
     this->inited = true;
 }
 
-void Node::initSchain(const ptr<Node>& _node, schain_index _schainIndex, schain_id _schainId, const vector<ptr<NodeInfo> > &remoteNodeInfos,
+void Node::initSchain(const ptr<Node>& _node, schain_index _schainIndex, schain_id _schainId,
+                      const vector<ptr<NodeInfo> > &remoteNodeInfos,
                       ConsensusExtFace *_extFace, string& _schainName) {
 
 
@@ -616,6 +621,10 @@ bool Node::isSyncOnlyNode() const {
     return isSyncNode;
 }
 
+
 bool Node::verifyRealSignatures() const {
     return sgxEnabled || (isSyncNode && blsPublicKey);
+}
+const map< string, uint64_t >& Node::getPatchTimestamps() const {
+    return patchTimestamps;
 }

@@ -171,17 +171,12 @@ ptr<Node> JSONFactory::createNodeFromJsonObject(const nlohmann::json &_j, set<no
 
     if (nodeIDs.empty() || nodeIDs.count(node_id(nodeID)) > 0) {
         try {
-
-
-            node = make_shared<Node>(_j, _engine, _useSGX,
-                                     _sgxURL,
-                                     sgxSSLKeyFileFullPathCopy,
-                                     sgxSSLCertFileFullPathCopy,
-                                     _ecdsaKeyName, _ecdsaPublicKeys,
-                                     _blsKeyName, _blsPublicKeys, _blsPublicKey, _gethURL, _previousBlsPublicKeys, _historicECDSAPublicKeys, _historicNodeGroups,
-                                     isSyncNode);
-        } catch (...) {
-            throw_with_nested(FatalError("Could not init node", __CLASS_NAME__));
+            node = make_shared< Node >( _j, _engine, _useSGX, _sgxURL, sgxSSLKeyFileFullPathCopy,
+                sgxSSLCertFileFullPathCopy, _ecdsaKeyName, _ecdsaPublicKeys, _blsKeyName,
+                _blsPublicKeys, _blsPublicKey, _gethURL, _previousBlsPublicKeys,
+                _historicECDSAPublicKeys, _historicNodeGroups, isSyncNode);
+        } catch ( ... ) {
+            throw_with_nested( FatalError( "Could not init node", __CLASS_NAME__ ) );
         }
     }
 
