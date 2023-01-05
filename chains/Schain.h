@@ -175,6 +175,8 @@ private:
 
     ptr< NodeInfo > thisNodeInfo = nullptr;
 
+    uint64_t verifyDaSigsPatchTimeStampS = 0;
+
     void proposeNextBlock();
 
     void processCommittedBlock( const ptr< CommittedBlock >& _block );
@@ -365,7 +367,7 @@ public:
 
     const atomic<bool> &getIsStateInitialized() const;
 
-    bool isLegacy();
+    bool verifyDASigsPatch(uint64_t _blockTimeStampSec);
 
     void updateInternalChainInfo(block_id _lastCommittedBlockID);
 };
