@@ -46,6 +46,7 @@
 #include "blockproposal/server/BlockProposalServerAgent.h"
 #include "catchup/server/CatchupServerAgent.h"
 #include "chains/Schain.h"
+#include "datastructures/CommittedBlock.h"
 #include "db/BlockDB.h"
 #include "db/BlockProposalDB.h"
 #include "db/BlockSigShareDB.h"
@@ -297,7 +298,26 @@ uint64_t Node::getIncomingMsgDBSize() const {
 Node::~Node() {}
 
 
-void Node::startServers() {
+void Node::startServers(ptr< vector< uint8_t > > _startingFromSnapshotWithThisAsLastBlock) {
+
+
+    // when starting from a snapshot, the blocksdb is initially empty and
+    // skaled will pass to consensus the last committed block coming from the snapshot
+
+    if (_startingFromSnapshotWithThisAsLastBlock) {
+        LOG(info, "Starting from a snapshot. Importing last block from the snapshot");
+        // deserialize block. This will verify sigs on it
+        // We do not sigs on it now since skaled is trusted
+        auto block = CommittedBlock::deserialize(_startingFromSnapshotWithThisAsLastBlock,
+            this->getSchain()->getCryptoManager(), true);
+        // now save the block into the blocks dd
+        getBlockDB()->saveBlock(block);
+        // now do a sanitity check, that the block was imported OK
+        CHECK_STATE2(block->getBlockID() == getBlockDB()->readLastCommittedBlockID(),
+            "Imported a block from a snapshot, but last committed block id in db did not update");
+        LOG(info, "Last block from the snapshot imported OK");
+    }
+
 
     CHECK_STATE(!startedServers);
 
