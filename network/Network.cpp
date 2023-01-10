@@ -149,7 +149,11 @@ void Network::broadcastMessageImpl(const ptr<NetworkMessage> &_msg, bool _isFirs
         if (_isFirstBroadcast) {
             // sign message before sending
             _msg->sign(getSchain()->getCryptoManager());
-            getSchain()->getNode()->getOutgoingMsgDB()->saveMsg(_msg);
+            try {
+                getSchain()->getNode()->getOutgoingMsgDB()->saveMsg(_msg);
+            } catch (exception &e) {
+                LOG(err, "Could not save outgoing message:" +  string(e.what()));
+            }
         }
 
 
