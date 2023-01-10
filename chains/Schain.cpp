@@ -1194,7 +1194,10 @@ void Schain::finalizeDecidedAndSignedBlock(block_id _blockId, schain_index _prop
                 MONITOR(__CLASS_NAME__, msg.c_str());
                 // This will complete successfully also if block arrives through catchup
                 proposal = agent->downloadProposal();
-                daSig = agent->getDaSig(proposal->getTimeStampS());
+                // if null is returned it means that catchup happened first and
+                // the block will be processed through catchup
+                if (proposal)
+                    daSig = agent->getDaSig(proposal->getTimeStampS());
             }
 
             if (proposal)  // Nullptr means catchup happened first
