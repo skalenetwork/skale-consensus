@@ -56,8 +56,6 @@
 using namespace leveldb;
 
 
-static WriteOptions writeOptions;  // NOLINT(cert-err58-cpp)
-static ReadOptions readOptions;    // NOLINT(cert-err58-cpp)
 
 string CacheLevelDB::index2Path( uint64_t index ) {
     return dirname + "/db." + to_string( index );
@@ -369,7 +367,6 @@ CacheLevelDB::CacheLevelDB( Schain* _sChain, string& _dirName, string& _prefix, 
     CHECK_ARGUMENT( _sChain );
     CHECK_ARGUMENT( _maxDBSize > 0 );
 
-
     this->sChain = _sChain;
     this->nodeId = _nodeId;
     this->prefix = _prefix;
@@ -378,6 +375,8 @@ CacheLevelDB::CacheLevelDB( Schain* _sChain, string& _dirName, string& _prefix, 
     this->dirname = _dirName + "/" + _prefix;
     this->maxDBSize = _maxDBSize;
     this->options = _options;
+    this->readOptions.fill_cache = false;
+    this->writeOptions.sync = true;
     this->isDuplicateAddOK = _isDuplicateAddOK;
 
     boost::filesystem::path path( dirname );
@@ -475,8 +474,7 @@ void CacheLevelDB::rotateDBsIfNeeded() {
             if ( getActiveDBSize() <= maxDBSize )
                 return;
 
-            LOG( info, "Rotating " + prefix +
-                           " database. Max DB size in bytes: " + to_string( maxDBSize ) );
+            LOG( info, "ROTATED_DATABASE: " + prefix + ":MAX_DB_SIZE:" + to_string( maxDBSize ) );
 
             auto newDB = openDB( highestDBIndex + 1 );
 
@@ -724,4 +722,16 @@ void CacheLevelDB::destroy() {
         db.at( i ) = nullptr;
         DestroyDB( index2Path( i ), leveldb::Options() );
     }
+}
+uint64_t CacheLevelDB::getMemoryUsed() {
+    uint totalMemory = 0;
+    checkForDeadLockRead( __FUNCTION__ );
+    shared_lock< shared_timed_mutex > lock( m );
+    for ( int i = LEVELDB_SHARDS - 1; i >= 0; i-- ) {
+        CHECK_STATE( db.at( i ) )
+        string usage;
+        db.at( i )->GetProperty("leveldb.approximate-memory-usage", &usage);
+        totalMemory += boost::lexical_cast<uint64_t>(usage);
+    }
+    return totalMemory;
 }

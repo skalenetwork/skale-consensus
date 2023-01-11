@@ -47,8 +47,6 @@ class BlockConsensusAgent : public ProtocolInstance {
 
     vector<ptr<cache::lru_cache<uint64_t, ptr<BinConsensusInstance>>>> children; // tsafe
 
-    ptr<FastMessageLedger> fastMessageLedger = nullptr;
-
     ptr<cache::lru_cache<uint64_t , ptr<map<schain_index, ptr<ChildBVDecidedMessage>>>>>
         trueDecisions;
     ptr<cache::lru_cache<uint64_t , ptr<map<schain_index, ptr<ChildBVDecidedMessage>>>>> falseDecisions;
@@ -90,11 +88,7 @@ public:
 
     void routeAndProcessMessage(const ptr<MessageEnvelope>& _me );
 
-    ptr<vector<ptr<Message>>> initFastLedgerAndReplayMessages(block_id _blockID);
 
-    void startNewBlock(block_id _blockID);
-
-    void destroyMessageLedger();
 
 };
 

@@ -233,14 +233,19 @@ ptr<CommittedBlockList> CatchupClientAgent::readMissingBlocks(
         blockList = CommittedBlockList::deserialize(
                 getSchain()->getCryptoManager(), blockSizes, serializedBlocks, 0);
         CHECK_STATE(blockList)
+
+
+        if (blockSizes->size() > 1 ) {
+            LOG(info, "CATCHUP_GOT_BLOCKS:COUNT:" + to_string(blockSizes->size() ) + ":STARTBLOCK:" +
+               string(blockList->getBlocks()->at(0)->getBlockID()) +
+               ":FROM_NODE:" + _socket->getIP());
+        }
     }
     catch (ExitRequestedException &) { throw; }
     catch (...) {
         throw_with_nested(
                 NetworkProtocolException("Could not process block list", __CLASS_NAME__));
     }
-
-
 
     return blockList;
 }

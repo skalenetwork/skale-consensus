@@ -298,7 +298,6 @@ void Schain::initLastCommittedBlockInfo( uint64_t _lastCommittedBlockID,
 
     if (getSchain()->getNode()->isSyncOnlyNode())
         return;
-    this->blockConsensusInstance->initFastLedgerAndReplayMessages(lastCommittedBlockID + 1);
 }
 
 
@@ -331,7 +330,6 @@ void Schain::updateLastCommittedBlockInfo( uint64_t _lastCommittedBlockID,
 
     if (getNode()->isSyncOnlyNode())
         return;
-    blockConsensusInstance->startNewBlock(lastCommittedBlockID + 1);
 }
 
 

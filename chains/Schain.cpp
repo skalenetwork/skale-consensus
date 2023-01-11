@@ -67,8 +67,11 @@
 #include "db/BlockProposalDB.h"
 #include "db/DAProofDB.h"
 #include "db/DASigShareDB.h"
+#include "db/BlockSigShareDB.h"
 #include "db/ProposalVectorDB.h"
 #include "db/InternalInfoDB.h"
+#include "db/RandomDB.h"
+#include "db/PriceDB.h"
 #include "exceptions/EngineInitException.h"
 #include "exceptions/ExitRequestedException.h"
 #include "exceptions/FatalError.h"
@@ -382,8 +385,8 @@ void Schain::checkForDeadLock(const char *_functionName) {
     uint64_t result = 0;
 
     if (committedIDOld < getLastCommittedBlockID()) {
-        LOG(info, "BLOCK_CATCHUP: " + to_string(getLastCommittedBlockID() - committedIDOld) +
-                  " BLOCKS");
+        LOG(info, "CATCHUP_PROCESSED_BLOCKS:COUNT: " +
+                       to_string(getLastCommittedBlockID() - committedIDOld));
         result = ((uint64_t) getLastCommittedBlockID()) - committedIDOld;
         if (!getNode()->isSyncOnlyNode())
             proposeNextBlock();
@@ -574,49 +577,54 @@ void Schain::printBlockLog(const ptr<CommittedBlock> &_block) {
 
     auto stamp = TimeStamp(_block->getTimeStampS(), _block->getTimeStampMs());
 
+    
+    stringstream output;
+    
+    output << "BLOCK_COMMITED: PRPSR:" << _block->getProposerIndex()
+                    << ":BID: " << _block->getBlockID() <<
+                    ":ROOT:" << _block->getStateRoot().convert_to<string>() << ":HASH:" << h <<
+                    ":BLOCK_TXS:" << _block->getTransactionCount() <<
+                    ":DMSG:" << getMessagesCount() <<
+                    ":MPRPS:" << MyBlockProposal::getTotalObjects() <<
+                    ":RPRPS:" << ReceivedBlockProposal::getTotalObjects() <<
+                    ":TXS:" << Transaction::getTotalObjects() <<
+                    ":TXLS:" << TransactionList::getTotalObjects() <<
+                    ":MGS:" << Message::getTotalObjects() <<
+                    ":INSTS:" << ProtocolInstance::getTotalObjects() <<
+                    ":BPS:" << BlockProposalSet::getTotalObjects() <<
+                    ":HDRS:" << Header::getTotalObjects() <<
+                    ":SOCK:" << ClientSocket::getTotalSockets() <<
+                    ":FDS:" << ConsensusEngine::getOpenDescriptors() << ":PRT:" <<
+                    proposalReceiptTime << ":BTA:" << blockTimeAverageMs <<
+                    ":BSA:" << blockSizeAverage << ":TPS:" << tpsAverage <<
+                    ":LWT:" << CacheLevelDB::getWriteStats() <<
+                    ":LRT:" << CacheLevelDB::getReadStats() <<
+                    ":LWC:" << CacheLevelDB::getWrites() <<
+                    ":LRC:" << CacheLevelDB::getReads();
 
-    string output = "BLOCK_COMMIT: PRPSR:" + to_string(_block->getProposerIndex()) +
-                    ":BID: " + to_string(_block->getBlockID()) +
-                    ":ROOT:" + _block->getStateRoot().convert_to<string>() + ":HASH:" + h +
-                    ":BLOCK_TXS:" + to_string(_block->getTransactionCount()) +
-                    ":DMSG:" + to_string(getMessagesCount()) +
-                    ":MPRPS:" + to_string(MyBlockProposal::getTotalObjects()) +
-                    ":RPRPS:" + to_string(ReceivedBlockProposal::getTotalObjects()) +
-                    ":TXS:" + to_string(Transaction::getTotalObjects()) +
-                    ":TXLS:" + to_string(TransactionList::getTotalObjects()) +
-                    ":MGS:" + to_string(Message::getTotalObjects()) +
-                    ":INSTS:" + to_string(ProtocolInstance::getTotalObjects()) +
-                    ":BPS:" + to_string(BlockProposalSet::getTotalObjects()) +
-                    ":HDRS:" + to_string(Header::getTotalObjects()) +
-                    ":SOCK:" + to_string(ClientSocket::getTotalSockets()) +
-                    ":FDS:" + to_string(ConsensusEngine::getOpenDescriptors()) + ":PRT:" +
-                    to_string(proposalReceiptTime) + ":BTA:" + to_string(blockTimeAverageMs) +
-                    ":BSA:" + to_string(blockSizeAverage) + ":TPS:" + to_string(tpsAverage) +
-                    ":LWT:" + to_string(CacheLevelDB::getWriteStats()) +
-                    ":LRT:" + to_string(CacheLevelDB::getReadStats()) +
-                    ":LWC:" + to_string(CacheLevelDB::getWrites()) +
-                    ":LRC:" + to_string(CacheLevelDB::getReads());
 
     if (!getNode()->isSyncOnlyNode()) {
-        output = output +
-                 ":KNWN:" + to_string(pendingTransactionsAgent->getKnownTransactionsSize()) +
-                 ":CONS:" + to_string(ServerConnection::getTotalObjects()) + ":DSDS:" +
-                 to_string(getSchain()->getNode()->getNetwork()->computeTotalDelayedSends()) +
-                 ":SET:" + to_string(CryptoManager::getEcdsaStats()) +
-                 ":SBT:" + to_string(CryptoManager::getBLSStats()) +
-                 ":SEC:" + to_string(CryptoManager::getECDSATotals()) +
-                 ":SBC:" + to_string(CryptoManager::getBLSTotals()) +
-                 ":ZSC:" + to_string(getCryptoManager()->getZMQSocketCount()) +
-                 ":EPT:" + to_string(lastCommittedBlockEvmProcessingTimeMs);
+        output <<
+                 ":KNWN:" << pendingTransactionsAgent->getKnownTransactionsSize() <<
+                 ":CONS:" << ServerConnection::getTotalObjects() << ":DSDS:" <<
+                 getSchain()->getNode()->getNetwork()->computeTotalDelayedSends() <<
+                 ":SET:" << CryptoManager::getEcdsaStats() <<
+                 ":SBT:" << CryptoManager::getBLSStats() <<
+                 ":SEC:" << CryptoManager::getECDSATotals() <<
+                 ":SBC:" << CryptoManager::getBLSTotals() <<
+                 ":ZSC:" << getCryptoManager()->getZMQSocketCount() <<
+                 ":EPT:" << lastCommittedBlockEvmProcessingTimeMs;
     }
 
-    output = output + ":STAMP:" + stamp.toString();
+    output << ":STAMP:" << stamp.toString();
 
-    LOG(info, output);
+    LOG(info, output.str());
 
-    //get malloc stats
-    static atomic<uint64_t> mallocCounter = 1;
-    if (mallocCounter % 1000 == 0) {
+    //get periodic stats
+    static atomic<uint64_t> counter = 1;
+    if (counter % 1000 == 0) {
+        // Print heap stats every 1000 blocks
+        LOG(info, "HEAP_STATS");
         char *bp = nullptr;
         size_t size = 0;
         FILE *stream = open_memstream(&bp, &size);
@@ -626,8 +634,27 @@ void Schain::printBlockLog(const ptr<CommittedBlock> &_block) {
         CHECK_STATE(bp);
         LOG(info, bp);
         free(bp);
+        LOG(info, "END_HEAP_STATS");
     }
-    mallocCounter.fetch_add(1);
+
+    if (counter % 100 == 0) {
+        output.str("");
+        output << "LEVELDB_MEM_STATS:BLOCKS:" << getNode()->getBlockDB()->getMemoryUsed();;
+        output << ":PROPS:" << getNode()->getBlockProposalDB()->getMemoryUsed();
+        output << ":DAPS:" << getNode()->getDaProofDB()->getMemoryUsed();
+        output << ":OMS:" << getNode()->getOutgoingMsgDB()->getMemoryUsed();
+        output << ":PHS:" << getNode()->getProposalHashDB()->getMemoryUsed();
+        output << ":PVS:" << getNode()->getProposalVectorDB()->getMemoryUsed();
+        output << ":BSS:" << getNode()->getBlockSigShareDB()->getMemoryUsed();
+        output << ":IMS:" << getNode()->getIncomingMsgDB()->getMemoryUsed();
+        output << ":RMS:" << getNode()->getRandomDB()->getMemoryUsed();
+        output << ":PCS:" << getNode()->getPriceDB()->getMemoryUsed();
+        output << ":IIN:" << getNode()->getInternalInfoDB()->getMemoryUsed();
+        output << ":DAS:" << getNode()->getDaSigShareDB()->getMemoryUsed();
+        LOG(info, output.str());
+    }
+
+    counter++;
 }
 
 void Schain::processCommittedBlock(const ptr<CommittedBlock> &_block) {
@@ -729,7 +756,7 @@ void Schain::startConsensus(
 
         checkForExit();
 
-        LOG(info, "BIN_CONSENSUS_START: PROPOSING: " + _proposalVector->toString());
+        LOG(info, "CONSENSUS_STARTED:PROPOSING: " + _proposalVector->toString());
 
         LOG(debug, "Got proposed block set for block:" + to_string(_blockID));
 
@@ -1145,9 +1172,6 @@ void Schain::finalizeDecidedAndSignedBlock(block_id _blockId, schain_index _prop
     }
 
 
-    LOG(info, "BLOCK_SIGNED: Now finalizing block ... BID:" + to_string(_blockId));
-
-
     try {
         if (_proposerIndex == 0) {
             // default empty block
@@ -1184,6 +1208,8 @@ void Schain::finalizeDecidedAndSignedBlock(block_id _blockId, schain_index _prop
             // did not receive proposal from the proposer, pull it in parallel from other hosts
             // Note that due to the BLS signature proof, 2t hosts out of 3t + 1 total are guaranteed
             // to posess the proposal
+
+            LOG(info, "FINALIZING_BLOCK:BID:" + to_string(_blockId));
 
             auto agent = make_unique<BlockFinalizeDownloader>(this, _blockId, _proposerIndex);
 

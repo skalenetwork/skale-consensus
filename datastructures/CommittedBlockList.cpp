@@ -59,12 +59,6 @@ CommittedBlockList::CommittedBlockList(const ptr< CryptoManager >& _cryptoManage
 
         blocks = make_shared< vector< ptr< CommittedBlock > > >();
 
-        if ( _blockSizes->size() > 1 ) {
-            LOG(info, "Deserializing " + to_string( _blockSizes->size() ) + " blocks from " +
-                string( _cryptoManager->getSchain()->getLastCommittedBlockID() + 1 ) + " to " +
-                string( _cryptoManager->getSchain()->getLastCommittedBlockID() + _blockSizes->size() ));
-        }
-
         for ( auto&& size : *_blockSizes ) {
             endIndex = index + size;
 
@@ -103,6 +97,7 @@ CommittedBlockList::CommittedBlockList(const ptr< CryptoManager >& _cryptoManage
 
 
 ptr< vector< ptr< CommittedBlock > > > CommittedBlockList::getBlocks() {
+    CHECK_STATE(blocks);
     return blocks;
 }
 
