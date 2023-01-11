@@ -168,6 +168,8 @@ public:
     void checkForDeadLock(const char *_functionName);
 
     void checkForDeadLockRead(const char *_functionName);
+
+    uint64_t getMemoryUsed();
 };
 
 

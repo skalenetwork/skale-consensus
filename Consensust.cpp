@@ -152,7 +152,11 @@ block_id basicRun(int64_t _lastId = 0) {
 
         uint64_t testRunningTimeMs = Consensust::getRunningTimeS();
 
-        usleep(testRunningTimeMs * 1000 * 1000);
+        while (true) {
+            try {
+                usleep( testRunningTimeMs * 1000 * 1000 );
+            } catch ( ... ) {};
+        }
 
         REQUIRE(engine->nodesCount() > 0);
         auto lastId = engine->getLargestCommittedBlockID();

@@ -162,10 +162,11 @@ void BlockConsensusAgent::decideBlock(block_id _blockId, schain_index _sChainInd
 
         BinConsensusInstance::logGlobalStats();
 
-
-        LOG(info, string("BLOCK_DECIDE: PRPSR:") + to_string(_sChainIndex) +
+        LOG(info, string("BLOCK_DECIDED:PROPOSER:") + to_string(_sChainIndex) +
 
                   ":BID:" + to_string(_blockId) + ":STATS:|" + _stats + "| Now signing block ...");
+
+
 
 
         auto msg = make_shared<BlockSignBroadcastMessage>(_blockId, _sChainIndex,
@@ -310,7 +311,7 @@ void BlockConsensusAgent::processBlockSignMessage(const ptr<BlockSignBroadcastMe
         auto proposer = _message->getBlockProposerIndex();
         auto blockId = _message->getBlockId();
 
-        LOG(info, string("BLOCK_DECIDE (GOT SIG): PRPSR:") + to_string(proposer) +
+        LOG(info, string("BLOCK_DECIDED_AND_SIGNED:PRPSR:") + to_string(proposer) +
                   ":BID:" + to_string(blockId) + ":SIG:" + signature->toString());
 
 
@@ -355,9 +356,6 @@ void BlockConsensusAgent::routeAndProcessMessage(const ptr<MessageEnvelope>& _me
             auto consensusProposalMessage =
                 dynamic_pointer_cast<ConsensusProposalMessage>( _me->getMessage());
 
-            if (fastMessageLedger)
-                fastMessageLedger->writeProposalMessage(consensusProposalMessage);
-
             this->startConsensusProposal(
                 _me->getMessage()->getBlockId(),
                                          consensusProposalMessage->getProposals());
@@ -370,9 +368,6 @@ void BlockConsensusAgent::routeAndProcessMessage(const ptr<MessageEnvelope>& _me
 
 
             CHECK_STATE(blockSignBroadcastMessage);
-
-            if (fastMessageLedger)
-                fastMessageLedger->writeNetworkMessage(blockSignBroadcastMessage);
 
             this->processBlockSignMessage(dynamic_pointer_cast<BlockSignBroadcastMessage>( _me->getMessage()));
             return;
@@ -516,54 +511,4 @@ string BlockConsensusAgent::buildStats(block_id _blockID) {
     return resultStr;
 
 }
-
-ptr<vector<ptr<Message>>> BlockConsensusAgent::initFastLedgerAndReplayMessages(block_id _blockID) {
-
-
-
-    LOG(info, "Initing fast message ledger with block ID:" + to_string((uint64_t) _blockID));
-
-    fastMessageLedger = make_shared<FastMessageLedger>(getSchain(),
-                                                       getSchain()->getNode()->getConsensusEngine()->getDbDir(), _blockID);
-
-    auto msgs = fastMessageLedger->retrieveAndClearPreviosRunMessages();
-
-    for (auto&& msg : *msgs) {
-
-        ptr<MessageEnvelope> me;
-
-        CHECK_STATE(getSchain());
-
-        if (dynamic_pointer_cast<NetworkMessage>(msg) != nullptr) {
-
-            auto nodeInfo = getSchain()->getNode()->getNodeInfoById(msg->getSrcNodeID());
-
-            CHECK_STATE(nodeInfo);
-
-            me = make_shared<NetworkMessageEnvelope>(
-                    dynamic_pointer_cast<NetworkMessage>(msg),nodeInfo->getSchainIndex());
-        } else {
-            me = make_shared<InternalMessageEnvelope>(ORIGIN_EXTERNAL,
-                                                      dynamic_pointer_cast<ConsensusProposalMessage>(msg), *getSchain());
-        }
-
-        getSchain()->postMessage(me);
-    }
-
-    LOG(info, "Inited fast message ledger with previous run messages:" + to_string(msgs->size()));
-
-    return msgs;
-}
-
-void BlockConsensusAgent::startNewBlock(block_id _blockID) {
-    CHECK_STATE(fastMessageLedger);
-    fastMessageLedger->startNewBlock(_blockID);
-}
-
-void BlockConsensusAgent::destroyMessageLedger() {
-    if (fastMessageLedger) {
-        fastMessageLedger->destroy();
-    }
-}
-
 

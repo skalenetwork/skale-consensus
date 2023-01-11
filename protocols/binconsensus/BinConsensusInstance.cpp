@@ -33,17 +33,17 @@
  */
 
 
-#include "SkaleCommon.h"
 #include "Log.h"
+#include "SkaleCommon.h"
 
-#include "crypto/BLAKE3Hash.h"
 #include "blockproposal/pusher/BlockProposalClientAgent.h"
 #include "chains/Schain.h"
-#include "crypto/MockupSigShare.h"
+#include "crypto/BLAKE3Hash.h"
 #include "crypto/ConsensusBLSSigShare.h"
 #include "crypto/ConsensusBLSSignature.h"
 #include "crypto/ConsensusSigShareSet.h"
 #include "crypto/CryptoManager.h"
+#include "crypto/MockupSigShare.h"
 #include "db/BlockProposalDB.h"
 #include "db/ConsensusStateDB.h"
 #include "db/RandomDB.h"
@@ -63,155 +63,151 @@
 #include "utils/Time.h"
 
 #include "AUXBroadcastMessage.h"
-#include "ChildBVDecidedMessage.h"
 #include "BVBroadcastMessage.h"
 #include "BinConsensusInstance.h"
+#include "ChildBVDecidedMessage.h"
 
 
 using namespace std;
 
 
-void BinConsensusInstance::processMessage(const ptr<MessageEnvelope>& _me ) {
-
+void BinConsensusInstance::processMessage( const ptr< MessageEnvelope >& _me ) {
     CHECK_ARGUMENT( _me );
     auto msg = _me->getMessage();
-    CHECK_STATE(msg);
+    CHECK_STATE( msg );
 
-    CHECK_STATE(msg->getBlockID() == getBlockID());
-    CHECK_STATE(msg->getBlockProposerIndex() == getBlockProposerIndex());
+    CHECK_STATE( msg->getBlockID() == getBlockID() );
+    CHECK_STATE( msg->getBlockProposerIndex() == getBlockProposerIndex() );
 
     auto msgType = _me->getMessage()->getMsgType();
 
     auto msgOrigin = _me->getOrigin();
 
-    if (msgOrigin == ORIGIN_NETWORK) {
-
-        if (msgType != MSG_BVB_BROADCAST && msgType != MSG_AUX_BROADCAST)
+    if ( msgOrigin == ORIGIN_NETWORK ) {
+        if ( msgType != MSG_BVB_BROADCAST && msgType != MSG_AUX_BROADCAST )
             return;
 
-        auto nwe = dynamic_pointer_cast<NetworkMessageEnvelope>( _me );
-        CHECK_STATE(nwe);
+        auto nwe = dynamic_pointer_cast< NetworkMessageEnvelope >( _me );
+        CHECK_STATE( nwe );
 
-        processNetworkMessageImpl(nwe);
+        processNetworkMessageImpl( nwe );
         return;
-    } else if (msgOrigin == ORIGIN_PARENT) {
-        auto ime = dynamic_pointer_cast<InternalMessageEnvelope>( _me );
-        CHECK_STATE(ime);
-        processParentProposal(ime);
+    } else if ( msgOrigin == ORIGIN_PARENT ) {
+        auto ime = dynamic_pointer_cast< InternalMessageEnvelope >( _me );
+        CHECK_STATE( ime );
+        processParentProposal( ime );
     }
 }
 
-void BinConsensusInstance::ifAlreadyDecidedSendDelayedEstimateForNextRound(bin_consensus_round _round) {
-    if (isDecided && _round == getCurrentRound() + 1 && isTwoThird(totalAUXVotes(getCurrentRound()))) {
-        LOG(debug,
-            to_string(getBlockProposerIndex()) + ":NEW_ROUND_REQUESTED:BLOCK:" + to_string(blockID) + ":ROUND:" + to_string(getCurrentRound() + 1));
-        proceedWithNextRound(decidedValue);
+void BinConsensusInstance::ifAlreadyDecidedSendDelayedEstimateForNextRound(
+    bin_consensus_round _round ) {
+    if ( isDecided && _round == getCurrentRound() + 1 &&
+         isTwoThird( totalAUXVotes( getCurrentRound() ) ) ) {
+        LOG( debug, to_string( getBlockProposerIndex() ) + ":NEW_ROUND_REQUESTED:BLOCK:" +
+                        to_string( blockID ) + ":ROUND:" + to_string( getCurrentRound() + 1 ) );
+        proceedWithNextRound( decidedValue );
     }
 }
 
 
-void BinConsensusInstance::processNetworkMessageImpl(const ptr<NetworkMessageEnvelope>& _me) {
-    CHECK_STATE(_me)
-    updateStats(_me);
+void BinConsensusInstance::processNetworkMessageImpl( const ptr< NetworkMessageEnvelope >& _me ) {
+    CHECK_STATE( _me )
+    updateStats( _me );
 
-    auto message = dynamic_pointer_cast<NetworkMessage>(_me->getMessage());
-    CHECK_STATE(message);
-    CHECK_STATE(blockConsensusInstance);
-     if (blockConsensusInstance->fastMessageLedger)
-         blockConsensusInstance->fastMessageLedger->writeNetworkMessage(message);
+    auto message = dynamic_pointer_cast< NetworkMessage >( _me->getMessage() );
+    CHECK_STATE( message );
+    CHECK_STATE( blockConsensusInstance );
+
 
     auto round = message->getRound();
-    addToHistory(message);
+    addToHistory( message );
 
-    CHECK_STATE2(round <= getCurrentRound() + 1, to_string(round) + ":" +
-    to_string(getCurrentRound()) + ":" + to_string(getBlockID())) ;
-    if (_me->getMessage()->getMsgType() == MSG_BVB_BROADCAST) {
-        auto m = dynamic_pointer_cast<BVBroadcastMessage>(_me->getMessage());
-        CHECK_STATE(m);
-        if (! bvbVote(_me)) {
+    CHECK_STATE2( round <= getCurrentRound() + 1, to_string( round ) + ":" +
+                                                      to_string( getCurrentRound() ) + ":" +
+                                                      to_string( getBlockID() ) );
+    if ( _me->getMessage()->getMsgType() == MSG_BVB_BROADCAST ) {
+        auto m = dynamic_pointer_cast< BVBroadcastMessage >( _me->getMessage() );
+        CHECK_STATE( m );
+        if ( !bvbVote( _me ) ) {
             // duplicate vote
             return;
         }
-        networkBroadcastValueIfThird(m);
-        ifAlreadyDecidedSendDelayedEstimateForNextRound(m->getRound());
-        addToBinValuesIfTwoThirds(m);
-    } else if (_me->getMessage()->getMsgType() == MSG_AUX_BROADCAST) {
-        auto m = dynamic_pointer_cast<AUXBroadcastMessage>(_me->getMessage());
-        CHECK_STATE(m);
+        networkBroadcastValueIfThird( m );
+        ifAlreadyDecidedSendDelayedEstimateForNextRound( m->getRound() );
+        addToBinValuesIfTwoThirds( m );
+    } else if ( _me->getMessage()->getMsgType() == MSG_AUX_BROADCAST ) {
+        auto m = dynamic_pointer_cast< AUXBroadcastMessage >( _me->getMessage() );
+        CHECK_STATE( m );
 
 
-        if (!auxVote(_me)) {
+        if ( !auxVote( _me ) ) {
             // duplicate vote received
             return;
         }
 
         // Decision lottery has not yet been done for this round.
-        if (m->getRound() == getCurrentRound())
-            proceedWithDecisionLotteryIfAUXTwoThird(m->getRound());
+        if ( m->getRound() == getCurrentRound() )
+            proceedWithDecisionLotteryIfAUXTwoThird( m->getRound() );
     }
 }
 
-void BinConsensusInstance::updateStats(const ptr<NetworkMessageEnvelope> &_me) {
-
-    CHECK_ARGUMENT(_me);
+void BinConsensusInstance::updateStats( const ptr< NetworkMessageEnvelope >& _me ) {
+    CHECK_ARGUMENT( _me );
 
     auto processingTime = Time::getCurrentTimeMs() - _me->getArrivalTime();
 
-    if (processingTime > maxProcessingTimeMs) {
+    if ( processingTime > maxProcessingTimeMs ) {
         maxProcessingTimeMs = processingTime;
     }
 
-    auto m = dynamic_pointer_cast<NetworkMessage>(_me->getMessage());
-    CHECK_STATE(m);
+    auto m = dynamic_pointer_cast< NetworkMessage >( _me->getMessage() );
+    CHECK_STATE( m );
 
-    auto latencyTime = (int64_t) _me->getArrivalTime() - (int64_t) m->getTimeMs();
-    if (latencyTime < 0)
+    auto latencyTime = ( int64_t ) _me->getArrivalTime() - ( int64_t ) m->getTimeMs();
+    if ( latencyTime < 0 )
         latencyTime = 0;
 
-    if (maxLatencyTimeMs < (uint64_t) latencyTime) {
-        maxLatencyTimeMs = (uint64_t) latencyTime;
+    if ( maxLatencyTimeMs < ( uint64_t ) latencyTime ) {
+        maxLatencyTimeMs = ( uint64_t ) latencyTime;
     }
 }
 
-void BinConsensusInstance::processParentProposal(const ptr<InternalMessageEnvelope>& _me) {
+void BinConsensusInstance::processParentProposal( const ptr< InternalMessageEnvelope >& _me ) {
+    auto m = dynamic_pointer_cast< BVBroadcastMessage >( _me->getMessage() );
 
+    addToHistory( dynamic_pointer_cast< NetworkMessage >( m ) );
 
-    auto m = dynamic_pointer_cast<BVBroadcastMessage>(_me->getMessage());
+    CHECK_STATE( m->getRound() == 0 );
 
-    addToHistory(dynamic_pointer_cast<NetworkMessage>(m));
+    setProposal( m->getRound(), m->getValue() );
 
-    CHECK_STATE(m->getRound() == 0);
+    networkBroadcastValue( m );
 
-    setProposal(m->getRound(), m->getValue());
+    addBVSelfVoteToHistory( m->getRound(), m->getValue() );
 
-    networkBroadcastValue(m);
+    bvbVote( _me );
 
-    addBVSelfVoteToHistory(m->getRound(), m->getValue());
-
-    bvbVote(_me);
-
-    addToBinValuesIfTwoThirds(m);
-
+    addToBinValuesIfTwoThirds( m );
 }
 
 
-void BinConsensusInstance::addToHistory(const ptr<NetworkMessage>&
+void BinConsensusInstance::addToHistory( const ptr< NetworkMessage >&
 #ifdef CONSENSUS_DEBUG
-                                        m
+        m
 #endif
 ) {
 
 #ifdef CONSENSUS_DEBUG
 
-    ASSERT(m);
+    ASSERT( m );
 
-    ASSERT(msgHistory);
+    ASSERT( msgHistory );
 
-    lock_guard<recursive_mutex> lock(historyMutex);
+    lock_guard< recursive_mutex > lock( historyMutex );
 
-    msgHistory->push_back(m);
+    msgHistory->push_back( m );
 
-    if (msgHistory->size() > MSG_HISTORY_SIZE) {
+    if ( msgHistory->size() > MSG_HISTORY_SIZE ) {
         msgHistory->pop_front();
     }
 
@@ -219,71 +215,64 @@ void BinConsensusInstance::addToHistory(const ptr<NetworkMessage>&
 }
 
 
-void BinConsensusInstance::addBVSelfVoteToHistory(bin_consensus_round _r, bin_consensus_value _v) {
-
-    addToHistory(dynamic_pointer_cast<NetworkMessage>(make_shared<HistoryBVSelfVoteMessage>(_r, _v, *this)));
-
+void BinConsensusInstance::addBVSelfVoteToHistory(
+    bin_consensus_round _r, bin_consensus_value _v ) {
+    addToHistory( dynamic_pointer_cast< NetworkMessage >(
+        make_shared< HistoryBVSelfVoteMessage >( _r, _v, *this ) ) );
 }
 
-void BinConsensusInstance::addAUXSelfVoteToHistory(bin_consensus_round _r, bin_consensus_value _v) {
-
-    addToHistory(dynamic_pointer_cast<NetworkMessage>(make_shared<HistoryAUXSelfVoteMessage>(_r, _v, *this)));
-
-}
-
-
-void BinConsensusInstance::addDecideToHistory(bin_consensus_round _r, bin_consensus_value _v) {
-
-
-    addToHistory(dynamic_pointer_cast<NetworkMessage>(make_shared<HistoryDecideMessage>(_r, _v, *this)));
-
+void BinConsensusInstance::addAUXSelfVoteToHistory(
+    bin_consensus_round _r, bin_consensus_value _v ) {
+    addToHistory( dynamic_pointer_cast< NetworkMessage >(
+        make_shared< HistoryAUXSelfVoteMessage >( _r, _v, *this ) ) );
 }
 
 
-void BinConsensusInstance::addNextRoundToHistory(bin_consensus_round _r, bin_consensus_value _v) {
-
-    addToHistory(dynamic_pointer_cast<NetworkMessage>(make_shared<HistoryNewRoundMessage>(_r, _v, *this)));
-
+void BinConsensusInstance::addDecideToHistory( bin_consensus_round _r, bin_consensus_value _v ) {
+    addToHistory( dynamic_pointer_cast< NetworkMessage >(
+        make_shared< HistoryDecideMessage >( _r, _v, *this ) ) );
 }
 
 
-void BinConsensusInstance::addCommonCoinToHistory(bin_consensus_round _r, bin_consensus_value _v) {
-
-    addToHistory(dynamic_pointer_cast<NetworkMessage>(make_shared<HistoryCommonCoinMessage>(_r, _v, *this)));
-
+void BinConsensusInstance::addNextRoundToHistory( bin_consensus_round _r, bin_consensus_value _v ) {
+    addToHistory( dynamic_pointer_cast< NetworkMessage >(
+        make_shared< HistoryNewRoundMessage >( _r, _v, *this ) ) );
 }
 
 
-[[nodiscard]] bool BinConsensusInstance::bvbVote(const ptr<MessageEnvelope>& _me) {
+void BinConsensusInstance::addCommonCoinToHistory(
+    bin_consensus_round _r, bin_consensus_value _v ) {
+    addToHistory( dynamic_pointer_cast< NetworkMessage >(
+        make_shared< HistoryCommonCoinMessage >( _r, _v, *this ) ) );
+}
 
-    auto m = dynamic_pointer_cast<BVBroadcastMessage>(_me->getMessage());
-    CHECK_STATE(m);
+
+[[nodiscard]] bool BinConsensusInstance::bvbVote( const ptr< MessageEnvelope >& _me ) {
+    auto m = dynamic_pointer_cast< BVBroadcastMessage >( _me->getMessage() );
+    CHECK_STATE( m );
     bin_consensus_round r = m->getRound();
     bin_consensus_value v = m->getValue();
 
     schain_index index = _me->getSrcSchainIndex();
 
-    getSchain()->getNode()->getConsensusStateDB()->writeBVBVote(getBlockID(),
-                                                                getBlockProposerIndex(), r, index, v);
+    getSchain()->getNode()->getConsensusStateDB()->writeBVBVote(
+        getBlockID(), getBlockProposerIndex(), r, index, v );
 
 
-    return bvbVoteCore(r, v, index);
-
+    return bvbVoteCore( r, v, index );
 }
 
-bool BinConsensusInstance::bvbVoteCore(const bin_consensus_round &_r, const bin_consensus_value &_v,
-                                       const schain_index &_index) {
-
-    if (_v) {
-        return bvbTrueVotes[_r].insert(_index).second;
+bool BinConsensusInstance::bvbVoteCore(
+    const bin_consensus_round& _r, const bin_consensus_value& _v, const schain_index& _index ) {
+    if ( _v ) {
+        return bvbTrueVotes[_r].insert( _index ).second;
     } else {
-        return bvbFalseVotes[_r].insert(_index).second;
+        return bvbFalseVotes[_r].insert( _index ).second;
     }
 }
 
 
-[[nodiscard]] bool BinConsensusInstance::auxVote(const ptr<MessageEnvelope>& _me) {
-
+[[nodiscard]] bool BinConsensusInstance::auxVote( const ptr< MessageEnvelope >& _me ) {
     try {
         auto m = dynamic_pointer_cast< AUXBroadcastMessage >( _me->getMessage() );
         auto r = m->getRound();
@@ -295,12 +284,12 @@ bool BinConsensusInstance::bvbVoteCore(const bin_consensus_round &_r, const bin_
         ptr< ThresholdSigShare > sigShare = nullptr;
 
 
-        if ( r >= COMMON_COIN_ROUND) {
+        if ( r >= COMMON_COIN_ROUND ) {
             sigShare = m->getSigShare();
             CHECK_STATE( sigShare );
             auto hash = m->getCommonCoinHash();
             CHECK_STATE( hash );
-            getSchain()->getCryptoManager()->verifyThresholdSigShare( sigShare, *hash);
+            getSchain()->getCryptoManager()->verifyThresholdSigShare( sigShare, *hash );
         }
 
         return auxVoteCore( r, v, index, sigShare );
@@ -310,300 +299,273 @@ bool BinConsensusInstance::bvbVoteCore(const bin_consensus_round &_r, const bin_
     }
 }
 
-bool
-BinConsensusInstance::auxVoteCore(const bin_consensus_round &_r, const bin_consensus_value &_v, const schain_index &_index,
-                                  const ptr<ThresholdSigShare> &_sigShare) {
-
-    if (_r >= COMMON_COIN_ROUND) {
-        CHECK_STATE(_sigShare);
+bool BinConsensusInstance::auxVoteCore( const bin_consensus_round& _r,
+    const bin_consensus_value& _v, const schain_index& _index,
+    const ptr< ThresholdSigShare >& _sigShare ) {
+    if ( _r >= COMMON_COIN_ROUND ) {
+        CHECK_STATE( _sigShare );
     } else {
-        CHECK_STATE(_sigShare == nullptr);
+        CHECK_STATE( _sigShare == nullptr );
     }
 
-    if (_v) {
-            return auxTrueVotes[_r].insert({_index, _sigShare}).second;
+    if ( _v ) {
+        return auxTrueVotes[_r].insert( { _index, _sigShare } ).second;
     } else {
-            return auxFalseVotes[_r].insert({_index, _sigShare}).second;
+        return auxFalseVotes[_r].insert( { _index, _sigShare } ).second;
     }
 }
 
 
-uint64_t BinConsensusInstance::totalAUXVotes(bin_consensus_round r) {
+uint64_t BinConsensusInstance::totalAUXVotes( bin_consensus_round r ) {
     return auxTrueVotes[r].size() + auxFalseVotes[r].size();
 }
 
-void BinConsensusInstance::auxSelfVote(bin_consensus_round _r,
-        bin_consensus_value _v, const ptr<ThresholdSigShare>& _sigShare) {
+void BinConsensusInstance::auxSelfVote(
+    bin_consensus_round _r, bin_consensus_value _v, const ptr< ThresholdSigShare >& _sigShare ) {
+    addAUXSelfVoteToHistory( _r, _v );
 
 
-    addAUXSelfVoteToHistory(_r, _v);
-
-
-    auxVoteCore(_r,  _v, getSchain()->getSchainIndex(), _sigShare);
-
+    auxVoteCore( _r, _v, getSchain()->getSchainIndex(), _sigShare );
 }
 
 
-node_count BinConsensusInstance::getBVBVoteCount(bin_consensus_value _v, bin_consensus_round _r) {
-    return node_count(((_v ? bvbTrueVotes[_r] : bvbFalseVotes[_r]).size()));
+node_count BinConsensusInstance::getBVBVoteCount( bin_consensus_value _v, bin_consensus_round _r ) {
+    return node_count( ( ( _v ? bvbTrueVotes[_r] : bvbFalseVotes[_r] ).size() ) );
 }
 
-node_count BinConsensusInstance::getAUXVoteCount(bin_consensus_value _v, bin_consensus_round _r) {
-    return node_count(((_v ? auxTrueVotes[_r] : auxFalseVotes[_r]).size()));
+node_count BinConsensusInstance::getAUXVoteCount( bin_consensus_value _v, bin_consensus_round _r ) {
+    return node_count( ( ( _v ? auxTrueVotes[_r] : auxFalseVotes[_r] ).size() ) );
 }
 
-bool BinConsensusInstance::isThird(node_count count) {
+bool BinConsensusInstance::isThird( node_count count ) {
     return count * 3 > getSchain()->getNodeCount();
 }
 
 
-bool BinConsensusInstance::isTwoThird(node_count count) {
-    return (uint64_t) count * 3 > 2 * getSchain()->getNodeCount();
+bool BinConsensusInstance::isTwoThird( node_count count ) {
+    return ( uint64_t ) count * 3 > 2 * getSchain()->getNodeCount();
 }
 
-bool BinConsensusInstance::isThirdVote(const ptr<BVBroadcastMessage>& _m) {
-    auto voteCount = getBVBVoteCount(_m->getValue(), _m->getRound());
-    return isThird(voteCount);
+bool BinConsensusInstance::isThirdVote( const ptr< BVBroadcastMessage >& _m ) {
+    auto voteCount = getBVBVoteCount( _m->getValue(), _m->getRound() );
+    return isThird( voteCount );
 }
 
 
-bool BinConsensusInstance::isTwoThirdVote(const ptr<BVBroadcastMessage>& _m) {
-    return isTwoThird(getBVBVoteCount(_m->getValue(), _m->getRound()));
+bool BinConsensusInstance::isTwoThirdVote( const ptr< BVBroadcastMessage >& _m ) {
+    return isTwoThird( getBVBVoteCount( _m->getValue(), _m->getRound() ) );
 }
 
-void BinConsensusInstance::insertIntoBinValues(bin_consensus_round _r, bin_consensus_value _v) {
-    getSchain()->getNode()->getConsensusStateDB()->writeBinValue(getBlockID(),
-            getBlockProposerIndex(), _r, _v);
-    binValues[_r].insert(_v);
+void BinConsensusInstance::insertIntoBinValues( bin_consensus_round _r, bin_consensus_value _v ) {
+    getSchain()->getNode()->getConsensusStateDB()->writeBinValue(
+        getBlockID(), getBlockProposerIndex(), _r, _v );
+    binValues[_r].insert( _v );
 }
 
-void BinConsensusInstance::addToBinValuesIfTwoThirds(const ptr<BVBroadcastMessage>& _m) {
-
+void BinConsensusInstance::addToBinValuesIfTwoThirds( const ptr< BVBroadcastMessage >& _m ) {
     auto r = _m->getRound();
     auto v = _m->getValue();
 
 
-
-    if (binValues[r].count(v)) {
+    if ( binValues[r].count( v ) ) {
         // bin values already includes the value in question
         return;
     }
 
-    if (isTwoThirdVote(_m)) {
-
+    if ( isTwoThirdVote( _m ) ) {
         // Section 3.2 (06) the value is not yet in bin values, and 2t+1 nodes voted for it. Insert.
-        insertIntoBinValues(r, v);
+        insertIntoBinValues( r, v );
 
         // Section 4.2 (04) The first time binValues is updated it is broadcast
         // Also the aux message needs to be added as self vote in
         // Section 4.2 (05)
         bool didAUXBroadcast = binValues[r].size() > 1;
-        if (!didAUXBroadcast) {
-            auxSelfVoteAndBroadcastValue(r, v);
+        if ( !didAUXBroadcast ) {
+            auxSelfVoteAndBroadcastValue( r, v );
         }
 
-        if (r == getCurrentRound()) {
+        if ( r == getCurrentRound() ) {
             // Section 4.2 steps (07, 08, 09, 10) have not yet been performed for
             // r. Do them if received TwoThird of AUX messages
             // Note that condition (05) can be fullfiled
             // (1) if a message is added to binValues
             // (2) if a new SUX messages comes.
             // The below check corresponds to case (1)
-            proceedWithDecisionLotteryIfAUXTwoThird(r);
+            proceedWithDecisionLotteryIfAUXTwoThird( r );
         }
-
     }
-
 }
 
 
-void BinConsensusInstance::networkBroadcastValueIfThird(const ptr<BVBroadcastMessage>& _m) {
-    if (isThirdVote(_m)) {
+void BinConsensusInstance::networkBroadcastValueIfThird( const ptr< BVBroadcastMessage >& _m ) {
+    if ( isThirdVote( _m ) ) {
         // Section 3.2 (02)(03)(04) BVB value has been received from 2 t + 1 nodes. Broadcast it
         // if it has not yet been broadcast
-        networkBroadcastValue(_m);
+        networkBroadcastValue( _m );
     }
 }
 
-void BinConsensusInstance::networkBroadcastValue(const ptr<BVBroadcastMessage>& _m) {
-
+void BinConsensusInstance::networkBroadcastValue( const ptr< BVBroadcastMessage >& _m ) {
     auto v = _m->getValue();
     auto r = _m->getRound();
 
-    if (broadcastValues[r].count(v) > 0)
+    if ( broadcastValues[r].count( v ) > 0 )
         return;
 
-    auto newMsg = make_shared<BVBroadcastMessage>(_m->getBlockID(), _m->getBlockProposerIndex(), _m->getRound(),
-                                                  _m->getValue(), Time::getCurrentTimeMs(),
-                                                  *this);
+    auto newMsg = make_shared< BVBroadcastMessage >( _m->getBlockID(), _m->getBlockProposerIndex(),
+        _m->getRound(), _m->getValue(), Time::getCurrentTimeMs(), *this );
 
-    getSchain()->getNode()->getNetwork()->broadcastMessage(newMsg);
+    getSchain()->getNode()->getNetwork()->broadcastMessage( newMsg );
 
-    broadcastValues[r].insert(bin_consensus_value(v == 1));
+    broadcastValues[r].insert( bin_consensus_value( v == 1 ) );
 }
 
 
-void BinConsensusInstance::auxSelfVoteAndBroadcastValue(bin_consensus_round _r, bin_consensus_value _v) {
+void BinConsensusInstance::auxSelfVoteAndBroadcastValue(
+    bin_consensus_round _r, bin_consensus_value _v ) {
+    auto m = make_shared< AUXBroadcastMessage >(
+        _r, _v, blockID, blockProposerIndex, Time::getCurrentTimeMs(), *this );
 
-    auto m = make_shared<AUXBroadcastMessage>(_r, _v, blockID, blockProposerIndex,
-            Time::getCurrentTimeMs(), *this);
-
-    if (_r >= COMMON_COIN_ROUND) {
+    if ( _r >= COMMON_COIN_ROUND ) {
         auxSelfVote( _r, _v, m->getSigShare() );
     } else {
-        auxSelfVote(_r, _v, nullptr);
+        auxSelfVote( _r, _v, nullptr );
     }
 
-    getSchain()->getNode()->getNetwork()->broadcastMessage(m);
-
+    getSchain()->getNode()->getNetwork()->broadcastMessage( m );
 }
 
 
-void BinConsensusInstance::proceedWithDecisionLotteryIfAUXTwoThird(bin_consensus_round _r) {
-
-    if (decided()) {
+void BinConsensusInstance::proceedWithDecisionLotteryIfAUXTwoThird( bin_consensus_round _r ) {
+    if ( decided() ) {
         // bin consensus has been decided. The only thing that
         // consensus will do after it has been decided is send the decided value in the next round.
         return;
     }
 
-    CHECK_STATE(_r == getCurrentRound());
+    CHECK_STATE( _r == getCurrentRound() );
 
     uint64_t verifiedValuesSize = 0;
 
     bool hasTrue = false;
     bool hasFalse = false;
 
-    if (binValues[_r].count(bin_consensus_value(true)) > 0 && auxTrueVotes[_r].size() > 0) {
+    if ( binValues[_r].count( bin_consensus_value( true ) ) > 0 && auxTrueVotes[_r].size() > 0 ) {
         verifiedValuesSize += auxTrueVotes[_r].size();
         hasTrue = true;
     }
 
-    if (binValues[_r].count(bin_consensus_value(false)) > 0 && auxFalseVotes[_r].size() > 0) {
+    if ( binValues[_r].count( bin_consensus_value( false ) ) > 0 && auxFalseVotes[_r].size() > 0 ) {
         verifiedValuesSize += auxFalseVotes[_r].size();
         hasFalse = true;
     }
 
-    if (isTwoThird(node_count(verifiedValuesSize))) {
+    if ( isTwoThird( node_count( verifiedValuesSize ) ) ) {
         // Section 4.2 (06)
-        auto randomN = computeRandom(_r);
+        auto randomN = computeRandom( _r );
 
 
         // Section 4.2 Lines (07)(08)(09)(10)
-        playDecisionLottery(hasTrue, hasFalse, randomN);
+        playDecisionLottery( hasTrue, hasFalse, randomN );
     }
-
 }
 
-uint64_t BinConsensusInstance::computeRandom(bin_consensus_round &_r) {
+uint64_t BinConsensusInstance::computeRandom( bin_consensus_round& _r ) {
     uint64_t randomN;
-    if (getSchain()->getNode()->isSgxEnabled() && ((uint64_t) _r) >= COMMON_COIN_ROUND) {
-        randomN = calculateBLSRandom(_r);
+    if ( getSchain()->getNode()->isSgxEnabled() && ( ( uint64_t ) _r ) >= COMMON_COIN_ROUND ) {
+        randomN = calculateBLSRandom( _r );
     } else {
+        string key = to_string( ( uint64_t ) getBlockID() ) + ":" + to_string( ( uint64_t ) _r ) +
+                     ":" + to_string( ( uint64_t ) getBlockProposerIndex() );
 
-        string key = to_string((uint64_t ) getBlockID()) + ":" +
-                     to_string((uint64_t)_r) + ":" +
-                     to_string((uint64_t) getBlockProposerIndex());
+        auto d = make_shared< vector< uint8_t > >();
 
-        auto  d = make_shared<vector<uint8_t>>();
-
-        for (uint64_t z = 0; z < key.length(); z++ ) {
-            d->push_back(key.at(z));
+        for ( uint64_t z = 0; z < key.length(); z++ ) {
+            d->push_back( key.at( z ) );
         }
-        auto hash = BLAKE3Hash::calculateHash(d);
-        randomN = *((uint64_t*) hash.data());
+        auto hash = BLAKE3Hash::calculateHash( d );
+        randomN = *( ( uint64_t* ) hash.data() );
     }
 
     auto randomDB = getSchain()->getNode()->getRandomDB();
 
-    randomDB->writeRandom(getBlockID(), getBlockProposerIndex(),
-                          _r, randomN);
+    randomDB->writeRandom( getBlockID(), getBlockProposerIndex(), _r, randomN );
 
 
     return randomN;
 }
 
 
-void BinConsensusInstance::playDecisionLottery(bool _hasTrue, bool _hasFalse, uint64_t _random) {
+void BinConsensusInstance::playDecisionLottery( bool _hasTrue, bool _hasFalse, uint64_t _random ) {
+    CHECK_STATE( !isDecided );
+
+    LOG( debug, to_string( getBlockProposerIndex() ) + "ROUND_COMPLETE:BLOCK:" +
+                    to_string( blockID ) + ":ROUND:" + to_string( getCurrentRound() ) );
+
+    bin_consensus_value common_coin_value( _random % 2 == 0 );
+
+    addCommonCoinToHistory( getCurrentRound(), common_coin_value );
 
 
-    CHECK_STATE(!isDecided);
-
-    LOG(debug,
-        to_string(getBlockProposerIndex()) + "ROUND_COMPLETE:BLOCK:" + to_string(blockID) + ":ROUND:" + to_string(getCurrentRound()));
-
-    bin_consensus_value common_coin_value(_random % 2 == 0);
-
-    addCommonCoinToHistory(getCurrentRound(), common_coin_value);
-
-
-    if (_hasTrue && _hasFalse) {
+    if ( _hasTrue && _hasFalse ) {
         // Section (4.2) (07) Got both values proceed with the next round
-        LOG(debug,
-            to_string(getBlockProposerIndex()) + ":NEW ROUND:BLOCK:" + to_string(blockID) + ":ROUND:" +
-                to_string(getCurrentRound() + 1));
+        LOG( debug, to_string( getBlockProposerIndex() ) + ":NEW ROUND:BLOCK:" +
+                        to_string( blockID ) + ":ROUND:" + to_string( getCurrentRound() + 1 ) );
         // Section 4.2 (10)
-        proceedWithNextRound(common_coin_value);
+        proceedWithNextRound( common_coin_value );
         return;
     } else {
-
         // Section 4.2 (08) Check if we are lucky
-        bin_consensus_value v(_hasTrue);
-        if (v == common_coin_value) {
+        bin_consensus_value v( _hasTrue );
+        if ( v == common_coin_value ) {
             // Lucky. Decide.
-            LOG(debug,
-                ":PROPOSER:" + to_string(getBlockProposerIndex()) + ":DECIDED VALUE" + to_string(v) + ":ROUND:" +
-                    to_string(getCurrentRound()));
-            decide(v);
+            LOG( debug, ":PROPOSER:" + to_string( getBlockProposerIndex() ) + ":DECIDED VALUE" +
+                            to_string( v ) + ":ROUND:" + to_string( getCurrentRound() ) );
+            decide( v );
         } else {
             // Unlucky. Next round.
-            LOG(debug,
-                to_string(getBlockProposerIndex()) +":NEW ROUND:BLOCK:" + to_string(v) + ":ROUND:" +
-                   to_string(getCurrentRound()));
-            proceedWithNextRound(v);
+            LOG( debug, to_string( getBlockProposerIndex() ) + ":NEW ROUND:BLOCK:" +
+                            to_string( v ) + ":ROUND:" + to_string( getCurrentRound() ) );
+            proceedWithNextRound( v );
         }
     }
-
 }
 
 
-void BinConsensusInstance::proceedWithNextRound(bin_consensus_value _value) {
+void BinConsensusInstance::proceedWithNextRound( bin_consensus_value _value ) {
+    CHECK_STATE( getCurrentRound() < 100 );
+    CHECK_STATE( isTwoThird( totalAUXVotes( getCurrentRound() ) ) );
 
-    CHECK_STATE(getCurrentRound() < 100);
-    CHECK_STATE(isTwoThird(totalAUXVotes(getCurrentRound())));
+    setCurrentRound( getCurrentRound() + 1 );
 
-    setCurrentRound(getCurrentRound() + 1);
+    setProposal( getCurrentRound(), _value );
 
-    setProposal(getCurrentRound(), _value);
+    addNextRoundToHistory( getCurrentRound(), _value );
 
-    addNextRoundToHistory(getCurrentRound(), _value);
+    auto m = make_shared< BVBroadcastMessage >( getBlockID(), getBlockProposerIndex(),
+        getCurrentRound(), _value, Time::getCurrentTimeMs(), *this );
 
-    auto m = make_shared<BVBroadcastMessage>(getBlockID(), getBlockProposerIndex(),
-                                             getCurrentRound(), _value,
-                                             Time::getCurrentTimeMs(), *this);
+    ptr< MessageEnvelope > me =
+        make_shared< MessageEnvelope >( ORIGIN_NETWORK, m, getSchain()->getSchainIndex() );
 
-    ptr<MessageEnvelope> me = make_shared<MessageEnvelope>(ORIGIN_NETWORK, m, getSchain()->getSchainIndex());
+    networkBroadcastValue( m );
 
-    networkBroadcastValue(m);
-
-    addBVSelfVoteToHistory(m->getRound(), m->getValue());
-    if (!bvbVote(me)) {
+    addBVSelfVoteToHistory( m->getRound(), m->getValue() );
+    if ( !bvbVote( me ) ) {
         // duplicate vote
         return;
     }
 
-    addToBinValuesIfTwoThirds(m);
-
+    addToBinValuesIfTwoThirds( m );
 }
 
 void BinConsensusInstance::printHistory() {
-
 #ifdef CONSENSUS_DEBUG
     cerr << "Proposer:" << getBlockProposerIndex() << "Nodecount:" << getNodeCount() << endl;
-    for (auto &&m: *msgHistory) {
-
-        if (m->getBlockProposerIndex() == getBlockProposerIndex() &&
-            m->getBlockID() == getBlockID() && m->getDstNodeID() == getSchain()->getNode()->getNodeID()) {
+    for ( auto&& m : *msgHistory ) {
+        if ( m->getBlockProposerIndex() == getBlockProposerIndex() &&
+             m->getBlockID() == getBlockID() &&
+             m->getDstNodeID() == getSchain()->getNode()->getNodeID() ) {
             m->printMessage();
         }
     };
@@ -613,78 +575,71 @@ void BinConsensusInstance::printHistory() {
 
 
 void BinConsensusInstance::logGlobalStats() {
-    string stats = "Decided round stats:";
-    for (uint64_t i = 0; i < globalDecidedRoundStats.size(); i++) {
-        stats.append(":");
-        stats.append(to_string(globalDecidedRoundStats.at(i)));
+    string stats = "CONSENSUS_COMPLETED:STATS:";
+    for ( uint64_t i = 0; i < globalDecidedRoundStats.size(); i++ ) {
+        stats.append( ":" );
+        stats.append( to_string( globalDecidedRoundStats.at( i ) ) );
     }
 
-    LOG(info, stats);
+    LOG( info, stats );
 }
 
-void BinConsensusInstance::addDecideToGlobalHistory(bin_consensus_round _r, bin_consensus_value _decidedValue) {
+void BinConsensusInstance::addDecideToGlobalHistory(
+    bin_consensus_round _r, bin_consensus_value _decidedValue ) {
+    lock_guard< recursive_mutex > lock( historyMutex );
 
-        lock_guard<recursive_mutex> lock(historyMutex);
+
+    if ( _r < globalDecidedRoundStats.size() ) {
+        globalDecidedRoundStats.at( ( uint64_t ) _r ) =
+            globalDecidedRoundStats.at( ( uint64_t ) _r ) + 1;
+    }
 
 
-        if (_r < globalDecidedRoundStats.size()) {
-            globalDecidedRoundStats.at( ( uint64_t ) _r ) =
-                globalDecidedRoundStats.at( ( uint64_t ) _r ) + 1;
+    auto trueCache = globalTrueDecisions->at( ( uint64_t ) getBlockProposerIndex() - 1 );
+    auto falseCache = globalFalseDecisions->at( ( uint64_t ) getBlockProposerIndex() - 1 );
+    auto child = getSchain()->getBlockConsensusInstance()->getChild( this->getProtocolKey() );
+
+    CHECK_STATE( child );
+    CHECK_STATE( trueCache );
+    CHECK_STATE( falseCache );
+
+    if ( _decidedValue ) {
+        if ( auto result = falseCache->getIfExists( ( ( uint64_t ) getBlockID() ) );
+             result.has_value() ) {
+            printHistory();
+            any_cast< ptr< BinConsensusInstance > >( result )->printHistory();
+            LOG( err, "Double decide 1" );
         }
-
-
-        auto trueCache = globalTrueDecisions->at((uint64_t)getBlockProposerIndex() - 1);
-        auto falseCache = globalFalseDecisions->at((uint64_t)getBlockProposerIndex() - 1);
-        auto child = getSchain()->getBlockConsensusInstance()->getChild(
-                this->getProtocolKey());
-
-        CHECK_STATE(child);
-        CHECK_STATE(trueCache);
-        CHECK_STATE(falseCache);
-
-        if (_decidedValue) {
-
-            if (auto result = falseCache->getIfExists(((uint64_t ) getBlockID()));
-                 result.has_value()) {
-                printHistory();
-                any_cast<ptr<BinConsensusInstance>>(result)->printHistory();
-                LOG(err, "Double decide 1");
-            }
-            trueCache->put((uint64_t) getBlockID(), child);
-        } else {
-
-            if (auto result = trueCache->getIfExists(((uint64_t ) getBlockID()));
-                result.has_value()) {
-                printHistory();
-                any_cast<ptr<BinConsensusInstance>>(result)->printHistory();
-                LOG(err, "Double decide 2");
-            }
-            falseCache->put((uint64_t) getBlockID(), child);
+        trueCache->put( ( uint64_t ) getBlockID(), child );
+    } else {
+        if ( auto result = trueCache->getIfExists( ( ( uint64_t ) getBlockID() ) );
+             result.has_value() ) {
+            printHistory();
+            any_cast< ptr< BinConsensusInstance > >( result )->printHistory();
+            LOG( err, "Double decide 2" );
         }
+        falseCache->put( ( uint64_t ) getBlockID(), child );
+    }
 }
 
-void BinConsensusInstance::decide(bin_consensus_value _b) {
+void BinConsensusInstance::decide( bin_consensus_value _b ) {
+    CHECK_STATE( !isDecided );
 
-    CHECK_STATE(!isDecided);
+    setDecidedRoundAndValue( getCurrentRound(), bin_consensus_value( _b ) );
 
-    setDecidedRoundAndValue(getCurrentRound(), bin_consensus_value(_b));
+    addDecideToGlobalHistory( getCurrentRound(), decidedValue );
 
-    addDecideToGlobalHistory(getCurrentRound(), decidedValue);
-
-    auto msg = make_shared<ChildBVDecidedMessage>((bool) _b, *this, this->getProtocolKey(),
-                                                  this->getCurrentRound(), maxProcessingTimeMs,
-                                                  maxLatencyTimeMs);
+    auto msg = make_shared< ChildBVDecidedMessage >( ( bool ) _b, *this, this->getProtocolKey(),
+        this->getCurrentRound(), maxProcessingTimeMs, maxLatencyTimeMs );
 
 
-    LOG(debug,
-        "Decided value: " + to_string(decidedValue) + " for blockid:" +
-               to_string(getBlockID()) + " proposer:" +
-               to_string(getBlockProposerIndex()));
+    LOG( debug, "Decided value: " + to_string( decidedValue ) +
+                    " for blockid:" + to_string( getBlockID() ) +
+                    " proposer:" + to_string( getBlockProposerIndex() ) );
 
-    auto envelope = make_shared<InternalMessageEnvelope>(ORIGIN_CHILD, msg, *getSchain());
+    auto envelope = make_shared< InternalMessageEnvelope >( ORIGIN_CHILD, msg, *getSchain() );
 
-    blockConsensusInstance->routeAndProcessMessage(envelope);
-
+    blockConsensusInstance->routeAndProcessMessage( envelope );
 }
 
 
@@ -697,85 +652,85 @@ const schain_index BinConsensusInstance::getBlockProposerIndex() const {
 }
 
 
-BinConsensusInstance::BinConsensusInstance(BlockConsensusAgent *_instance, block_id _blockId,
-                                           schain_index _blockProposerIndex, bool _initFromDB) :
-        ProtocolInstance(BIN_CONSENSUS, *_instance->getSchain()) ,
-        blockConsensusInstance(_instance), blockID(_blockId), blockProposerIndex(_blockProposerIndex),
-        nodeCount(_instance ? _instance->getSchain()->getNodeCount() : 0),
-        protocolKey(make_shared<ProtocolKey>(_blockId, _blockProposerIndex))
-         {
-    CHECK_ARGUMENT((uint64_t) _blockId > 0);
-    CHECK_ARGUMENT((uint64_t) _blockProposerIndex > 0);
-    CHECK_ARGUMENT(_instance);
+BinConsensusInstance::BinConsensusInstance( BlockConsensusAgent* _instance, block_id _blockId,
+    schain_index _blockProposerIndex, bool _initFromDB )
+    : ProtocolInstance( BIN_CONSENSUS, *_instance->getSchain() ),
+      blockConsensusInstance( _instance ),
+      blockID( _blockId ),
+      blockProposerIndex( _blockProposerIndex ),
+      nodeCount( _instance ? _instance->getSchain()->getNodeCount() : 0 ),
+      protocolKey( make_shared< ProtocolKey >( _blockId, _blockProposerIndex ) ) {
+    CHECK_ARGUMENT( ( uint64_t ) _blockId > 0 );
+    CHECK_ARGUMENT( ( uint64_t ) _blockProposerIndex > 0 );
+    CHECK_ARGUMENT( _instance );
 
 
-    if (_initFromDB) {
-        initFromDB(_instance);
+    if ( _initFromDB ) {
+        initFromDB( _instance );
     }
 }
 
-void BinConsensusInstance::initFromDB(const BlockConsensusAgent*
+void BinConsensusInstance::initFromDB( const BlockConsensusAgent*
 #ifdef CONSENSUS_STATE_PERSISTENCE
-                                            _instance
+        _instance
 #endif
-                                                             ) {
+) {
 #ifdef CONSENSUS_STATE_PERSISTENCE
     auto db = _instance->getSchain()->getNode()->getConsensusStateDB();
 
-    currentRound = db->readCR(blockID, blockProposerIndex);
-    auto result = db->readDR(blockID, blockProposerIndex);
+    currentRound = db->readCR( blockID, blockProposerIndex );
+    auto result = db->readDR( blockID, blockProposerIndex );
     isDecided = result.first;
 
-    if (isDecided) {
+    if ( isDecided ) {
         decidedRound = result.second;
-        decidedValue = db->readDV(blockID, blockProposerIndex);
+        decidedValue = db->readDV( blockID, blockProposerIndex );
     }
 
-    auto bvVotes = db->readBVBVotes(blockID, blockProposerIndex);
+    auto bvVotes = db->readBVBVotes( blockID, blockProposerIndex );
 
-    bvbTrueVotes.insert(bvVotes.first->begin(), bvVotes.first->end());
-    bvbFalseVotes.insert(bvVotes.second->begin(), bvVotes.second->end());
+    bvbTrueVotes.insert( bvVotes.first->begin(), bvVotes.first->end() );
+    bvbFalseVotes.insert( bvVotes.second->begin(), bvVotes.second->end() );
 
-    auto auxVotes = db->readAUXVotes(blockID, blockProposerIndex,
-                                     _instance->getSchain()->getCryptoManager());
+    auto auxVotes =
+        db->readAUXVotes( blockID, blockProposerIndex, _instance->getSchain()->getCryptoManager() );
 
-    auxTrueVotes.insert(auxVotes.first->begin(), auxVotes.first->end());
-    auxFalseVotes.insert(auxVotes.first->begin(), auxVotes.first->end());
+    auxTrueVotes.insert( auxVotes.first->begin(), auxVotes.first->end() );
+    auxFalseVotes.insert( auxVotes.first->begin(), auxVotes.first->end() );
 
-    auto bValues = db->readBinValues(blockID, blockProposerIndex);
+    auto bValues = db->readBinValues( blockID, blockProposerIndex );
 
-    binValues.insert(bValues->begin(), bValues->end());
+    binValues.insert( bValues->begin(), bValues->end() );
 
-    auto props = db->readPRs(blockID, blockProposerIndex);
+    auto props = db->readPRs( blockID, blockProposerIndex );
 
-    proposals.insert(props->begin(), props->end());
+    proposals.insert( props->begin(), props->end() );
 #endif
 }
 
 
-void BinConsensusInstance::initHistory(node_count _nodeCount) {
-
-    CHECK_ARGUMENT(_nodeCount > 0);
+void BinConsensusInstance::initHistory( node_count _nodeCount ) {
+    CHECK_ARGUMENT( _nodeCount > 0 );
 
     // if not already inited, init
 
-    if (globalTrueDecisions == nullptr) {
-        globalTrueDecisions =
-                make_shared<vector<ptr<cache::lru_cache<uint64_t, ptr<BinConsensusInstance>>>>>();
-        globalFalseDecisions =
-                make_shared<vector<ptr<cache::lru_cache<uint64_t, ptr<BinConsensusInstance>>>>>();
+    if ( globalTrueDecisions == nullptr ) {
+        globalTrueDecisions = make_shared<
+            vector< ptr< cache::lru_cache< uint64_t, ptr< BinConsensusInstance > > > > >();
+        globalFalseDecisions = make_shared<
+            vector< ptr< cache::lru_cache< uint64_t, ptr< BinConsensusInstance > > > > >();
 
-        for (uint64_t i = 0; i < (uint64_t) _nodeCount; i++) {
-            globalTrueDecisions->
-                    push_back(
-                    make_shared<cache::lru_cache<uint64_t, ptr<BinConsensusInstance>>>(MAX_CONSENSUS_HISTORY));
-            globalFalseDecisions->
-                    push_back(
-                    make_shared<cache::lru_cache<uint64_t, ptr<BinConsensusInstance>>>(MAX_CONSENSUS_HISTORY));
+        for ( uint64_t i = 0; i < ( uint64_t ) _nodeCount; i++ ) {
+            globalTrueDecisions->push_back(
+                make_shared< cache::lru_cache< uint64_t, ptr< BinConsensusInstance > > >(
+                    MAX_CONSENSUS_HISTORY ) );
+            globalFalseDecisions->push_back(
+                make_shared< cache::lru_cache< uint64_t, ptr< BinConsensusInstance > > >(
+                    MAX_CONSENSUS_HISTORY ) );
         }
 
 #ifdef CONSENSUS_DEBUG
-        msgHistory = make_shared<list<ptr<NetworkMessage>>>();
+        msgHistory = make_shared< list< ptr< NetworkMessage > > >();
 #endif
     }
 }
@@ -784,10 +739,10 @@ bin_consensus_round BinConsensusInstance::getCurrentRound() {
     return currentRound;
 }
 
-void BinConsensusInstance::setCurrentRound(bin_consensus_round _currentRound) {
+void BinConsensusInstance::setCurrentRound( bin_consensus_round _currentRound ) {
     currentRound = _currentRound;
-    getSchain()->getNode()->getConsensusStateDB()->writeCR(getBlockID(),
-                                                           blockProposerIndex, _currentRound);
+    getSchain()->getNode()->getConsensusStateDB()->writeCR(
+        getBlockID(), blockProposerIndex, _currentRound );
 }
 
 bool BinConsensusInstance::decided() const {
@@ -795,76 +750,73 @@ bool BinConsensusInstance::decided() const {
 }
 
 
-ptr<vector<ptr<cache::lru_cache<uint64_t, ptr<BinConsensusInstance>>>>> BinConsensusInstance::globalTrueDecisions = nullptr;
+ptr< vector< ptr< cache::lru_cache< uint64_t, ptr< BinConsensusInstance > > > > >
+    BinConsensusInstance::globalTrueDecisions = nullptr;
 
-ptr<vector<ptr<cache::lru_cache<uint64_t, ptr<BinConsensusInstance>>>>>  BinConsensusInstance::globalFalseDecisions = nullptr;
+ptr< vector< ptr< cache::lru_cache< uint64_t, ptr< BinConsensusInstance > > > > >
+    BinConsensusInstance::globalFalseDecisions = nullptr;
 
-vector<uint64_t> BinConsensusInstance::globalDecidedRoundStats(16,0);
-
-
+vector< uint64_t > BinConsensusInstance::globalDecidedRoundStats( 16, 0 );
 
 
 #ifdef CONSENSUS_DEBUG
-ptr<list<ptr<NetworkMessage>>> BinConsensusInstance::msgHistory = nullptr;
+ptr< list< ptr< NetworkMessage > > > BinConsensusInstance::msgHistory = nullptr;
 #endif
 
 
-const node_count &BinConsensusInstance::getNodeCount() const {
+const node_count& BinConsensusInstance::getNodeCount() const {
     return nodeCount;
 }
 
-uint64_t BinConsensusInstance::calculateBLSRandom(bin_consensus_round _r) {
+uint64_t BinConsensusInstance::calculateBLSRandom( bin_consensus_round _r ) {
+    auto shares = getSchain()->getCryptoManager()->createSigShareSet( getBlockID() );
 
-
-    auto shares = getSchain()->getCryptoManager()->createSigShareSet(getBlockID());
-
-    if (binValues[_r].count(bin_consensus_value(true)) > 0 && auxTrueVotes[_r].size() > 0) {
-        for (auto &&item: auxTrueVotes[_r]) {
-            CHECK_STATE(item.second);
-            shares->addSigShare(item.second);
-            if (shares->isEnough())
+    if ( binValues[_r].count( bin_consensus_value( true ) ) > 0 && auxTrueVotes[_r].size() > 0 ) {
+        for ( auto&& item : auxTrueVotes[_r] ) {
+            CHECK_STATE( item.second );
+            shares->addSigShare( item.second );
+            if ( shares->isEnough() )
                 break;
         }
     }
 
-    if (binValues[_r].count(bin_consensus_value(false)) > 0 && auxFalseVotes[_r].size() > 0) {
-        for (auto &&item: auxFalseVotes[_r]) {
-            CHECK_STATE(item.second);
-            shares->addSigShare(item.second);
-            if (shares->isEnough())
+    if ( binValues[_r].count( bin_consensus_value( false ) ) > 0 && auxFalseVotes[_r].size() > 0 ) {
+        for ( auto&& item : auxFalseVotes[_r] ) {
+            CHECK_STATE( item.second );
+            shares->addSigShare( item.second );
+            if ( shares->isEnough() )
                 break;
         }
     }
 
-    CHECK_STATE(shares->isEnough());
+    CHECK_STATE( shares->isEnough() );
 
     auto random = shares->mergeSignature()->getRandom();
 
-    LOG(debug,
-        to_string(getBlockProposerIndex()) +
-        ":Random for round: " + to_string(_r) + ":" + to_string(random));
+    LOG( debug, to_string( getBlockProposerIndex() ) + ":Random for round: " + to_string( _r ) +
+                    ":" + to_string( random ) );
 
     return random;
 }
 
-void BinConsensusInstance::setDecidedRoundAndValue(const bin_consensus_round &_decidedRound,
-                                                   const bin_consensus_value &_decidedValue) {
+void BinConsensusInstance::setDecidedRoundAndValue(
+    const bin_consensus_round& _decidedRound, const bin_consensus_value& _decidedValue ) {
     isDecided = true;
-    getSchain()->getNode()->getConsensusStateDB()->writeDR(getBlockID(), blockProposerIndex, _decidedRound);
-    getSchain()->getNode()->getConsensusStateDB()->writeDV(getBlockID(), blockProposerIndex, _decidedValue);
+    getSchain()->getNode()->getConsensusStateDB()->writeDR(
+        getBlockID(), blockProposerIndex, _decidedRound );
+    getSchain()->getNode()->getConsensusStateDB()->writeDV(
+        getBlockID(), blockProposerIndex, _decidedValue );
     decidedRound = _decidedRound;
     decidedValue = _decidedValue;
 
-    addDecideToHistory(decidedRound, decidedValue);
-
+    addDecideToHistory( decidedRound, decidedValue );
 }
 
-void BinConsensusInstance::setProposal(bin_consensus_round _r, bin_consensus_value _v) {
-    getSchain()->getNode()->getConsensusStateDB()->writePr(getBlockID(), blockProposerIndex,
-                                                           _r, _v);
+void BinConsensusInstance::setProposal( bin_consensus_round _r, bin_consensus_value _v ) {
+    getSchain()->getNode()->getConsensusStateDB()->writePr(
+        getBlockID(), blockProposerIndex, _r, _v );
     proposals[_r] = _v;
 }
-
 
 
 recursive_mutex BinConsensusInstance::historyMutex;
