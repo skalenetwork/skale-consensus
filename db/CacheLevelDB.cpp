@@ -56,8 +56,6 @@
 using namespace leveldb;
 
 
-static WriteOptions writeOptions;  // NOLINT(cert-err58-cpp)
-static ReadOptions readOptions;    // NOLINT(cert-err58-cpp)
 
 string CacheLevelDB::index2Path( uint64_t index ) {
     return dirname + "/db." + to_string( index );
@@ -369,7 +367,6 @@ CacheLevelDB::CacheLevelDB( Schain* _sChain, string& _dirName, string& _prefix, 
     CHECK_ARGUMENT( _sChain );
     CHECK_ARGUMENT( _maxDBSize > 0 );
 
-
     this->sChain = _sChain;
     this->nodeId = _nodeId;
     this->prefix = _prefix;
@@ -378,6 +375,8 @@ CacheLevelDB::CacheLevelDB( Schain* _sChain, string& _dirName, string& _prefix, 
     this->dirname = _dirName + "/" + _prefix;
     this->maxDBSize = _maxDBSize;
     this->options = _options;
+    this->readOptions.fill_cache = false;
+    this->writeOptions.sync = true;
     this->isDuplicateAddOK = _isDuplicateAddOK;
 
     boost::filesystem::path path( dirname );

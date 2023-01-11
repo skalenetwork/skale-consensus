@@ -42,7 +42,7 @@
 #include "crypto/BLAKE3Hash.h"
 
 #include "json/JSONFactory.h"
-
+#include "utils/Time.h"
 
 #include "Consensust.h"
 #include "JsonStubClient.h"
@@ -140,21 +140,20 @@ block_id basicRun(int64_t _lastId = 0) {
         engine = new ConsensusEngine(_lastId, 1000000000);
 
 
-
-
-
         engine->parseTestConfigsAndCreateAllNodes( Consensust::getConfigDirPath(), _lastId == -1 );
-
-
 
 
         engine->slowStartBootStrapTest();
 
-        uint64_t testRunningTimeMs = Consensust::getRunningTimeS();
+        uint64_t testRunningTimeS = Consensust::getRunningTimeS();
+
+        auto currentTime = Time::getCurrentTimeSec();
+        auto finishTime = testRunningTimeS + currentTime;
 
         while (true) {
             try {
-                usleep( testRunningTimeMs * 1000 * 1000 );
+                currentTime = Time::getCurrentTimeSec();
+                usleep((finishTime - currentTime) * 1000 * 1000 );
             } catch ( ... ) {};
         }
 

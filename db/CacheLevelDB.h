@@ -47,6 +47,8 @@ class CacheLevelDB {
     shared_timed_mutex m;
 
     leveldb::Options options;
+    leveldb::WriteOptions writeOptions;  // NOLINT(cert-err58-cpp)
+    leveldb::ReadOptions readOptions;    // NOLINT(cert-err58-cpp)
 
 protected:
 
@@ -121,7 +123,7 @@ protected:
     CacheLevelDB( Schain* _sChain, string& _dirName, string& _prefix, node_id _nodeId,
                   uint64_t _maxDBSize, leveldb::Options _options, bool _isDuplicateAddOK = false );
 
-    static ptr< map< string, string > > readPrefixRangeFromDBUnsafe(
+    ptr< map< string, string > > readPrefixRangeFromDBUnsafe(
         string& _prefix, const ptr< leveldb::DB >& _db, bool lastOnly = false );
 
 public:
