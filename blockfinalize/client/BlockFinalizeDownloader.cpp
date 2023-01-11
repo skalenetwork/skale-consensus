@@ -231,9 +231,11 @@ string BlockFinalizeDownloader::readBlockHash( nlohmann::json _responseHeader ) 
 }
 
 string BlockFinalizeDownloader::readDAProofSig( nlohmann::json _responseHeader ) {
-    auto result = Header::getString( _responseHeader, "daSig" );
-
-    return result;
+    if (getSchain()->verifyDASigsPatch(getSchain()->getLastCommittedBlockTimeStamp().getS())) {
+        return Header::getString( _responseHeader, "daSig" );
+    } else {
+        return Header::maybeGetString( _responseHeader, "daSig" );
+    }
 }
 
 
