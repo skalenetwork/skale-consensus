@@ -170,18 +170,28 @@ nlohmann::json CatchupClientAgent::readCatchupResponseHeader(const ptr<ClientSoc
 
 size_t CatchupClientAgent::parseBlockSizes(
         nlohmann::json _responseHeader, const ptr<vector<uint64_t>> &_blockSizes) {
+
+
+    if (_responseHeader.count("sizes") == 0) {
+        LOG(err, "Invalid response header:" + _responseHeader.dump());
+        BOOST_THROW_EXCEPTION(NetworkProtocolException("No json sizes element in response",
+            __CLASS_NAME__));
+    }
+
     nlohmann::json jsonSizes = _responseHeader["sizes"];
 
     CHECK_ARGUMENT(_blockSizes)
 
 
     if (!jsonSizes.is_array()) {
+        LOG(err, "Invalid catchup response header:" + _responseHeader.dump());
         BOOST_THROW_EXCEPTION(
                 NetworkProtocolException("JSON Sizes is not an array ", __CLASS_NAME__));
     }
 
 
-    if (jsonSizes.empty()) {
+    if (jsonSizes.size() == 0) {
+        LOG(err, "Invalid catchup response header:" + _responseHeader.dump());
         BOOST_THROW_EXCEPTION(NetworkProtocolException("JSON sizes is empty", __CLASS_NAME__));
     }
 
@@ -193,11 +203,13 @@ size_t CatchupClientAgent::parseBlockSizes(
     }
 
     if (totalSize < 4) {
+        LOG(err, "Invalid catchup response header:" + _responseHeader.dump());
         BOOST_THROW_EXCEPTION(NetworkProtocolException("TotalSize < 4", __CLASS_NAME__));
     }
 
 
     if (totalSize > getNode()->getMaxCatchupDownloadBytes()) {
+        LOG(err, "Invalid response header:" + _responseHeader.dump());
         BOOST_THROW_EXCEPTION(NetworkProtocolException(
                                       "totalSize > getNode()->getMaxCatchupDownloadBytes()", __CLASS_NAME__ ));
     }
