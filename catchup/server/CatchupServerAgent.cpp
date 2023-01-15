@@ -268,6 +268,8 @@ ptr<vector<uint8_t>> CatchupServerAgent::createBlockCatchupResponse(nlohmann::js
                 getSchain()->getNode()->getBlockDB()->getSerializedBlocksFromLevelDB((uint64_t) _blockID + 1,
                                                                                     committedBlockID, blockSizes);
 
+        CHECK_STATE(blockSizes->size() > 0);
+
 
         if (serializedBlocks == nullptr) {
             _responseHeader->setStatusSubStatus(CONNECTION_DISCONNECT, CONNECTION_CATCHUP_DONT_HAVE_THIS_BLOCK);
@@ -279,6 +281,8 @@ ptr<vector<uint8_t>> CatchupServerAgent::createBlockCatchupResponse(nlohmann::js
         _responseHeader->setStatusSubStatus(CONNECTION_PROCEED, CONNECTION_OK);
 
         _responseHeader->setBlockSizes(blockSizes);
+
+
 
         return serializedBlocks;
     } catch (ExitRequestedException &e) { throw; } catch (...) {
