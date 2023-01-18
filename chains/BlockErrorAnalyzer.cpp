@@ -16,31 +16,23 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file TestConfig.h
+    @file TestConfig.cpp
     @author Stan Kladko
     @date 2019
 */
-#ifndef SKALED_BLOCKERRORANALYZER_H
-#define SKALED_BLOCKERRORANALYZER_H
+
+#include "SkaleCommon.h"
+#include "Log.h"
+
+#include "datastructures/CommittedBlock.h"
+#include "BlockErrorAnalyzer.h"
 
 
-class CommittedBlock;
-
-/*
- * BlockAnalyzers run on demand at the end of each block to analyze errors that
- * happened during block execution
- */
-class BlockErrorAnalyzer {
-
-public:
-
-    // this function will typically print analysis into error log
-    // should not throw any exceptionsw
-
-    virtual void analyze(ptr<CommittedBlock> _block);
-
-    BlockErrorAnalyzer();
-
-};
-
-#endif
+void BlockErrorAnalyzer::analyze( ptr< CommittedBlock > _block ) {
+    // for now just print block up to 100 chars
+    auto serializedBlock = _block->serialize();
+    auto bytesToPrint = serializedBlock->size() > 100 ? 100 : serializedBlock->size();
+    LOG(err, string("Error in block:").append(string((const char*) serializedBlock->data(),
+        bytesToPrint)));
+}
+BlockErrorAnalyzer::BlockErrorAnalyzer() {}

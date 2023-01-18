@@ -262,7 +262,10 @@ ptr< BlockProposalFragment > BlockFinalizeDownloader::readBlockFragment(
         if (this->blockHash.empty()) {
             this->blockHash = h;
         } else {
-            CHECK_STATE( h == blockHash );
+            if (this->blockHash != h) {
+                getSchain()->addBlockErrorAnalyzer(make_shared<BlockErrorAnalyzer>());
+                CHECK_STATE( h == blockHash );
+            }
         }
 
         // if we did not received da sig yet, set it.
