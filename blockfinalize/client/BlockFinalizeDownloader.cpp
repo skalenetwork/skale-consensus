@@ -251,19 +251,27 @@ ptr< BlockProposalFragment > BlockFinalizeDownloader::readBlockFragment(
     auto fragmentSize = readFragmentSize( _responseHeader );
     auto blockSize = readBlockSize( _responseHeader );
     auto h = readBlockHash( _responseHeader );
+    CHECK_STATE(!h.empty())
     auto sig = readDAProofSig( _responseHeader );
 
     {
         LOCK( m )
-        if ( !this->daSig && !sig.empty()) {
-            auto blakeHash = BLAKE3Hash::fromHex( h );
-            this->daSig = getSchain()->getCryptoManager()->verifyDAProofThresholdSig( blakeHash, sig, blockId );
+
+
+        // if we did not receive block hash yet, set it. Otherwise, compare it to the known hash
+        if (this->blockHash.empty()) {
             this->blockHash = h;
         } else {
             CHECK_STATE( h == blockHash );
         }
-    }
 
+        // if we did not received da sig yet, set it.
+        if ( !this->daSig && !sig.empty()) {
+            auto blakeHash = BLAKE3Hash::fromHex( h );
+            this->daSig = getSchain()->getCryptoManager()->verifyDAProofThresholdSig( blakeHash, sig, blockId );
+        }
+
+    }
 
     auto serializedFragment = make_shared< vector< uint8_t > >( fragmentSize );
 
