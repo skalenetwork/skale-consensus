@@ -81,13 +81,12 @@ BlockFinalizeDownloader::BlockFinalizeDownloader(
       blockId( _blockId ),
       proposerIndex( _proposerIndex ),
       fragmentList( _blockId, ( uint64_t ) _sChain->getNodeCount() - 1 ) {
-
     CHECK_ARGUMENT( _sChain )
 
     CHECK_STATE( _sChain->getNodeCount() > 1 )
 
-    if (_proposerIndex == _sChain->getSchainIndex()) {
-        LOG(err, "Finalizing own proposal");
+    if ( _proposerIndex == _sChain->getSchainIndex() ) {
+        LOG( err, "Finalizing own proposal" );
     }
 
     try {
@@ -166,7 +165,7 @@ uint64_t BlockFinalizeDownloader::downloadFragment(
 
         if ( status == CONNECTION_DISCONNECT ) {
             LOG( debug, "BLCK_FRG_DWNLD:NO_FRG:" + to_string( _fragmentIndex ) + ":" +
-                           to_string( _dstIndex ) );
+                            to_string( _dstIndex ) );
             return 0;
         }
 
@@ -231,7 +230,7 @@ string BlockFinalizeDownloader::readBlockHash( nlohmann::json _responseHeader ) 
 }
 
 string BlockFinalizeDownloader::readDAProofSig( nlohmann::json _responseHeader ) {
-    if (getSchain()->verifyDASigsPatch(getSchain()->getLastCommittedBlockTimeStamp().getS())) {
+    if ( getSchain()->verifyDASigsPatch( getSchain()->getLastCommittedBlockTimeStamp().getS() ) ) {
         return Header::getString( _responseHeader, "daSig" );
     } else {
         return Header::maybeGetString( _responseHeader, "daSig" );
@@ -251,7 +250,7 @@ ptr< BlockProposalFragment > BlockFinalizeDownloader::readBlockFragment(
     auto fragmentSize = readFragmentSize( _responseHeader );
     auto blockSize = readBlockSize( _responseHeader );
     auto h = readBlockHash( _responseHeader );
-    CHECK_STATE(!h.empty())
+    CHECK_STATE( !h.empty() )
     auto sig = readDAProofSig( _responseHeader );
 
     {
@@ -259,21 +258,21 @@ ptr< BlockProposalFragment > BlockFinalizeDownloader::readBlockFragment(
 
 
         // if we did not receive block hash yet, set it. Otherwise, compare it to the known hash
-        if (this->blockHash.empty()) {
+        if ( this->blockHash.empty() ) {
             this->blockHash = h;
         } else {
-            if (this->blockHash != h) {
-                getSchain()->addBlockErrorAnalyzer(make_shared<BlockErrorAnalyzer>());
+            if ( this->blockHash != h ) {
+                getSchain()->addBlockErrorAnalyzer( make_shared< BlockErrorAnalyzer >() );
                 CHECK_STATE( h == blockHash );
             }
         }
 
         // if we did not received da sig yet, set it.
-        if ( !this->daSig && !sig.empty()) {
+        if ( !this->daSig && !sig.empty() ) {
             auto blakeHash = BLAKE3Hash::fromHex( h );
-            this->daSig = getSchain()->getCryptoManager()->verifyDAProofThresholdSig( blakeHash, sig, blockId );
+            this->daSig = getSchain()->getCryptoManager()->verifyDAProofThresholdSig(
+                blakeHash, sig, blockId );
         }
-
     }
 
     auto serializedFragment = make_shared< vector< uint8_t > >( fragmentSize );
@@ -429,15 +428,14 @@ schain_index BlockFinalizeDownloader::getProposerIndex() {
     return proposerIndex;
 }
 
-ptr<ThresholdSignature> BlockFinalizeDownloader::getDaSig(uint64_t _timeStampS)  {
+ptr< ThresholdSignature > BlockFinalizeDownloader::getDaSig( uint64_t _timeStampS ) {
+    if ( getSchain()->verifyDASigsPatch( _timeStampS ) )
+        CHECK_STATE2( daSig,
+            "BlockFinalizeDownloader: block did not include DA sig:" + to_string( _timeStampS ) );
 
-    if (getSchain()->verifyDASigsPatch(_timeStampS))
-        CHECK_STATE2(daSig, "BlockFinalizeDownloader: block did not include DA sig:"
-                                 + to_string(_timeStampS));
-
-    if (daSig)
+    if ( daSig )
         return daSig;
     else
-        return make_shared<TrivialSignature>(getBlockId(), getSchain()->getTotalSigners(),
-                                             getSchain()->getRequiredSigners());
+        return make_shared< TrivialSignature >(
+            getBlockId(), getSchain()->getTotalSigners(), getSchain()->getRequiredSigners() );
 }
