@@ -1075,7 +1075,7 @@ void CryptoManager::verifyProposalECDSA(
 
 
 ptr<ThresholdSignature> CryptoManager::verifyDAProofThresholdSig(
-        BLAKE3Hash &_hash, const string &_signature, block_id _blockId) {
+    BLAKE3Hash &_hash, const string &_signature, block_id _blockId) {
     MONITOR(__CLASS_NAME__, __FUNCTION__)
 
 
@@ -1091,11 +1091,20 @@ ptr<ThresholdSignature> CryptoManager::verifyDAProofThresholdSig(
 
             return sig;
         } else {
+
             auto sig = make_shared<MockupSignature>(
                     _signature, _blockId, totalSigners, requiredSigners);
 
-            CHECK_STATE2(
-                    sig->toString() == _hash.toHex(), "Mockup threshold signature did not verify");
+            // if we have a syncnode and verifyRealSignatures is false
+            // we do not verify anything
+            // if we have a core node and verifyRealSignatures is false
+            // its means that we are running a test chain with mockup signatures
+            // so we verify mockup signatures
+            if (!this->isSyncNode) {
+                CHECK_STATE2( sig->toString() == _hash.toHex(),
+                    "Mockup da signature did not verify:SYNC_NODE:" +
+                        to_string( this->isSyncNode ) + ":VRS:" + to_string(verifyRealSignatures));
+            }
 
             return sig;
         }
