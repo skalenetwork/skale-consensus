@@ -25,9 +25,10 @@
 
 #pragma once
 
-
 #include "Agent.h"
-#include <jsonrpccpp/server/connectors/httpserver.h>
+#include "BlockErrorAnalyzer.h"
+#include "boost/lockfree/queue.hpp"
+#include "jsonrpccpp/server/connectors/httpserver.h"
 #include "statusserver/StatusServer.h"
 
 class ThresholdSignature;
@@ -90,7 +91,6 @@ class OracleClient;
 class OracleResultAssemblyAgent;
 
 class Schain : public Agent {
-
     queue< ptr< MessageEnvelope > > messageQueue;
 
     timed_mutex blockProcessMutex;
@@ -105,8 +105,8 @@ class Schain : public Agent {
     schain_id schainID = 0;
     string schainName;
 
-    ptr<jsonrpc::HttpServer> httpserver;
-    ptr<StatusServer> s;
+    ptr< jsonrpc::HttpServer > httpserver;
+    ptr< StatusServer > s;
 
 
     ptr< TestMessageGeneratorAgent > testMessageGeneratorAgent;
@@ -134,7 +134,7 @@ class Schain : public Agent {
     ptr< SchainMessageThreadPool > consensusMessageThreadPool;
 
 
-    ptr<OracleResultAssemblyAgent> oracleResultAssemblyAgent;
+    ptr< OracleResultAssemblyAgent > oracleResultAssemblyAgent;
 
 
     ptr< IO > io;
@@ -151,9 +151,9 @@ class Schain : public Agent {
     atomic< uint64_t > lastCommittedBlockID = 0;
     atomic< uint64_t > lastCommitTimeMs = 0;
     atomic< uint64_t > lastCommittedBlockEvmProcessingTimeMs = 0;
-    TimeStamp  lastCommittedBlockTimeStamp;
+    TimeStamp lastCommittedBlockTimeStamp;
     mutex lastCommittedBlockInfoMutex;
-    atomic<uint64_t> proposalReceiptTime = 0;
+    atomic< uint64_t > proposalReceiptTime = 0;
 
 
     atomic< uint64_t > bootstrapBlockID = 0;
@@ -161,20 +161,26 @@ class Schain : public Agent {
 
     uint64_t blockSizeAverage = 0;
 
-    unordered_map <uint64_t, uint64_t> deadNodes;
+    unordered_map< uint64_t, uint64_t > deadNodes;
     mutex deadNodesLock;
 
-    static ptr<ofstream> visualizationDataStream;
+    static ptr< ofstream > visualizationDataStream;
     static mutex vdsMutex;
 
-    uint64_t blockTimeAverageMs = 0 ;
-    uint64_t tpsAverage = 0 ;
+    uint64_t blockTimeAverageMs = 0;
+    uint64_t tpsAverage = 0;
 
-    atomic<bool> isStateInitialized = false;
+    atomic< bool > isStateInitialized = false;
 
     ptr< NodeInfo > thisNodeInfo = nullptr;
 
     uint64_t verifyDaSigsPatchTimestampS = 0;
+
+    // If a BlockError analyzer is added to the queue
+    // its analyze(CommittedBlock _block) function will be run on commit
+    // and then t will be removed from the queue
+    recursive_mutex blockErrorAnalyzersMutex;
+    vector< ptr< BlockErrorAnalyzer > > blockErrorAnalyzers;
 
     void proposeNextBlock();
 
@@ -195,22 +201,25 @@ class Schain : public Agent {
 
     void saveToVisualization( ptr< CommittedBlock > _block, uint64_t _visualizationType );
 
-
+    // run on each block commmit to analyze errors if they happened
+    void analyzeErrors( ptr< CommittedBlock > _block );
 
 
 public:
 
-    static void writeToVisualizationStream(string& _s);
+    void addBlockErrorAnalyzer( ptr<BlockErrorAnalyzer> _blockErrorAnalyzer );
+
+    static void writeToVisualizationStream( string& _s );
 
 
     void checkForExit();
 
 
-    void addDeadNode(uint64_t _schainIndex, uint64_t timeMs);
+    void addDeadNode( uint64_t _schainIndex, uint64_t timeMs );
 
-    uint64_t getDeathTimeMs(uint64_t  _schainIndex);
+    uint64_t getDeathTimeMs( uint64_t _schainIndex );
 
-    void markAliveNode(uint64_t  _schainIndex);
+    void markAliveNode( uint64_t _schainIndex );
 
     uint64_t getBlockSizeAverage() const;
     uint64_t getBlockTimeAverageMs() const;
@@ -220,10 +229,10 @@ public:
 
     void updateLastCommittedBlockInfo( uint64_t _lastCommittedBlockID,
         TimeStamp& _lastCommittedBlockTimeStamp, uint64_t _blockSize,
-        uint64_t _lastCommittedBlockProcessingTimeMs);
+        uint64_t _lastCommittedBlockProcessingTimeMs );
 
-    void initLastCommittedBlockInfo( uint64_t _lastCommittedBlockID,
-                                       TimeStamp&  _lastCommittedBlockTimeStamp );
+    void initLastCommittedBlockInfo(
+        uint64_t _lastCommittedBlockID, TimeStamp& _lastCommittedBlockTimeStamp );
 
 
     uint64_t getLastCommitTimeMs();
@@ -249,7 +258,7 @@ public:
     uint64_t getMaxExternalBlockProcessingTime() const;
 
     Schain( weak_ptr< Node > _node, schain_index _schainIndex, const schain_id& _schainID,
-        ConsensusExtFace* _extFace, string& _schainName);
+        ConsensusExtFace* _extFace, string& _schainName );
 
     Schain();  // empty constructor is used for tests
 
@@ -257,7 +266,7 @@ public:
 
     static void messageThreadProcessingLoop( Schain* _sChain );
 
-    TimeStamp  getLastCommittedBlockTimeStamp();
+    TimeStamp getLastCommittedBlockTimeStamp();
 
     void setBlockProposerTest( const string& _blockProposerTest );
 
@@ -270,10 +279,11 @@ public:
     void blockProposalReceiptTimeoutArrived( block_id _blockID );
 
     void blockCommitArrived( block_id _committedBlockID, schain_index _proposerIndex,
-        const ptr< ThresholdSignature >& _thresholdSig, ptr<ThresholdSignature> _daSig );
+        const ptr< ThresholdSignature >& _thresholdSig, ptr< ThresholdSignature > _daSig );
 
 
-    [[nodiscard]] uint64_t blockCommitsArrivedThroughCatchup( const ptr< CommittedBlockList >& _blockList );
+    [[nodiscard]] uint64_t blockCommitsArrivedThroughCatchup(
+        const ptr< CommittedBlockList >& _blockList );
 
     void daProofSigShareArrived(
         const ptr< ThresholdSigShare >& _sigShare, const ptr< BlockProposal >& _proposal );
@@ -282,7 +292,7 @@ public:
 
     void postMessage( const ptr< MessageEnvelope >& _me );
 
-    const ptr<OracleResultAssemblyAgent> &getOracleResultAssemblyAgent() const;
+    const ptr< OracleResultAssemblyAgent >& getOracleResultAssemblyAgent() const;
 
     ptr< PendingTransactionsAgent > getPendingTransactionsAgent() const;
 
@@ -352,22 +362,21 @@ public:
 
     block_id readLastCommittedBlockIDFromDb();
 
-    void checkForDeadLock(const char* _functionName);
+    void checkForDeadLock( const char* _functionName );
 
-    void printBlockLog(const ptr< CommittedBlock >& _block);
+    void printBlockLog( const ptr< CommittedBlock >& _block );
 
     void createOracleInstance();
 
-    u256 getRandomForBlockId(block_id _blockid);
+    u256 getRandomForBlockId( block_id _blockid );
 
-    const ptr<OracleClient> getOracleClient() const;
+    const ptr< OracleClient > getOracleClient() const;
 
-    const string &getSchainName() const;
+    const string& getSchainName() const;
 
-    const atomic<bool> &getIsStateInitialized() const;
+    const atomic< bool >& getIsStateInitialized() const;
 
-    bool verifyDASigsPatch(uint64_t _blockTimeStampSec);
+    bool verifyDASigsPatch( uint64_t _blockTimeStampSec );
 
-    void updateInternalChainInfo(block_id _lastCommittedBlockID);
+    void updateInternalChainInfo( block_id _lastCommittedBlockID );
 };
-

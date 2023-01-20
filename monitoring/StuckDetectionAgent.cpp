@@ -259,5 +259,4 @@ void StuckDetectionAgent::cleanupState() {
     getSchain()->getNode()->getConsensusStateDB()->destroy();
     getSchain()->getNode()->getProposalVectorDB()->destroy();
     getSchain()->getNode()->getRandomDB()->destroy();
-    getSchain()->getBlockConsensusInstance()->destroyMessageLedger();
 }

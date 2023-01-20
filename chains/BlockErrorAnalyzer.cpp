@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2018-2019 SKALE Labs
+    Copyright (C) 2019 SKALE Labs
 
     This file is part of skale-consensus.
 
@@ -16,40 +16,23 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file ConsensusTest.h
+    @file TestConfig.cpp
     @author Stan Kladko
-    @date 2018
+    @date 2019
 */
 
-#pragma once
+#include "SkaleCommon.h"
+#include "Log.h"
 
-#define DEFAULT_RUNNING_TIME_S 500
-#define STUCK_TEST_TIME 5
-
-class Consensust {
-
-    static uint64_t runningTimeS;
-    static fs_path configDirPath;
-
-public:
-    static const fs_path &getConfigDirPath();
-
-    static void setConfigDirPath(const fs_path &_configDirPath);
-
-    static void useCorruptConfigs();
-
-    static uint64_t getRunningTimeS();
+#include "datastructures/CommittedBlock.h"
+#include "BlockErrorAnalyzer.h"
 
 
-    static void testInit();
-
-    static void testFinalize();
-
-
-
-};
-
-
-
-
-
+void BlockErrorAnalyzer::analyze( ptr< CommittedBlock > _block ) {
+    // for now just print block up to 100 chars
+    auto serializedBlock = _block->serialize();
+    auto bytesToPrint = serializedBlock->size() > 100 ? 100 : serializedBlock->size();
+    LOG(err, string("Error in block:").append(string((const char*) serializedBlock->data(),
+        bytesToPrint)));
+}
+BlockErrorAnalyzer::BlockErrorAnalyzer() {}

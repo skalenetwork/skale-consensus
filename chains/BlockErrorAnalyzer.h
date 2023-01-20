@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2018-2019 SKALE Labs
+    Copyright (C) 2019 SKALE Labs
 
     This file is part of skale-consensus.
 
@@ -16,40 +16,31 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file ConsensusTest.h
+    @file TestConfig.h
     @author Stan Kladko
-    @date 2018
+    @date 2019
 */
+#ifndef SKALED_BLOCKERRORANALYZER_H
+#define SKALED_BLOCKERRORANALYZER_H
 
-#pragma once
 
-#define DEFAULT_RUNNING_TIME_S 500
-#define STUCK_TEST_TIME 5
+class CommittedBlock;
 
-class Consensust {
-
-    static uint64_t runningTimeS;
-    static fs_path configDirPath;
+/*
+ * BlockAnalyzers run on demand at the end of each block to analyze errors that
+ * happened during block execution
+ */
+class BlockErrorAnalyzer {
 
 public:
-    static const fs_path &getConfigDirPath();
 
-    static void setConfigDirPath(const fs_path &_configDirPath);
+    // this function will typically print analysis into error log
+    // should not throw any exceptionsw
 
-    static void useCorruptConfigs();
+    virtual void analyze(ptr<CommittedBlock> _block);
 
-    static uint64_t getRunningTimeS();
-
-
-    static void testInit();
-
-    static void testFinalize();
-
-
+    BlockErrorAnalyzer();
 
 };
 
-
-
-
-
+#endif

@@ -58,7 +58,11 @@ ptr<vector<uint8_t> > BlockDB::getSerializedBlocksFromLevelDB(block_id _startBlo
 
         totalSize += serializedBlock->size();
 
-        if (totalSize > maxSize)
+
+        // we allow the catchup bytes to be up to maxBytes, but at least one block
+        // it means that if blocksize is more than one size catchup will still happen
+        // otherwise the system could stuck forever
+        if (totalSize > maxSize && _blockSizes->size() > 0)
             break;
 
         serializedBlocks->insert(serializedBlocks->end(), serializedBlock->begin(), serializedBlock->end());
@@ -69,8 +73,11 @@ ptr<vector<uint8_t> > BlockDB::getSerializedBlocksFromLevelDB(block_id _startBlo
 
     serializedBlocks->push_back(']');
 
-    return serializedBlocks;
 
+    // a simple sanity check
+    CHECK_STATE(_blockSizes->size() > 0);
+
+    return serializedBlocks;
 
 }
 
