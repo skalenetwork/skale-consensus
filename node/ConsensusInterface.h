@@ -52,7 +52,7 @@ public:
     // If starting from a snapshot, start all will pass to consensus the last comitted
     // block coming from the snapshot. Normally, nullptr is passed.
     virtual void startAll(std::shared_ptr< std::vector< std::uint8_t > >
-                _startingFromSnapshotWithThisAsLastBlock) = 0;
+                _startingFromSnapshotWithThisAsLastBlock = nullptr) = 0;
 
     virtual void bootStrapAll() = 0;
 
