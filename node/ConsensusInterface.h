@@ -48,7 +48,11 @@ public:
     virtual void parseFullConfigAndCreateNode(const std::string &fullPathToConfigFile,
                                               const string& gethURL) = 0;
 
-    virtual void startAll() = 0;
+
+    // If starting from a snapshot, start all will pass to consensus the last comitted
+    // block coming from the snapshot. Normally, nullptr is passed.
+    virtual void startAll(std::shared_ptr< std::vector< std::uint8_t > >
+                _startingFromSnapshotWithThisAsLastBlock = nullptr) = 0;
 
     virtual void bootStrapAll() = 0;
 
@@ -111,6 +115,14 @@ public:
 
 
     virtual uint64_t  checkOracleResult(const string& _receipt, string& _result) = 0;
+
+
+    /*
+     * This will return a consensus block serialized as byte array from consensus db.
+     * Returns nullptr if the block is not in consensus DB
+     */
+    virtual std::shared_ptr<std::vector<std::uint8_t>> getSerializedBlock(
+        std::uint64_t _blockNumber)  = 0;
 
 };
 
