@@ -1374,6 +1374,9 @@ void Schain::analyzeErrors( ptr< CommittedBlock > _block ) {
     }
 
 }
+uint64_t Schain::getVerifyDaSigsPatchTimestampS() const {
+    return verifyDaSigsPatchTimestampS;
+}
 
 
 mutex Schain::vdsMutex;

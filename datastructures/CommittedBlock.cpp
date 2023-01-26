@@ -287,6 +287,10 @@ void CommittedBlock::verifyDaSig(ptr<CryptoManager> _cryptoManager) {
 
     CHECK_STATE(_cryptoManager)
 
+    // a default block has a zero proposer index and no DA sig
+    if (this->getProposerIndex() == 0)
+        return;
+
     auto sig = getDaSig();
 
     auto hash = getHash();
