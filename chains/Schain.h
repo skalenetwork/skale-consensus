@@ -225,6 +225,7 @@ public:
     uint64_t getBlockTimeAverageMs() const;
     uint64_t getTpsAverage() const;
 
+
     bool isStartingFromCorruptState() const;
 
     void updateLastCommittedBlockInfo( uint64_t _lastCommittedBlockID,
@@ -342,6 +343,11 @@ public:
     u256 getPriceForBlockId( uint64_t _blockId );
 
     ptr< CryptoManager > getCryptoManager() const;
+
+
+    uint64_t getVerifyDaSigsPatchTimestampS() const;
+
+
 
     void finalizeDecidedAndSignedBlock( block_id _blockId, schain_index _proposerIndex,
         const ptr< ThresholdSignature >& _thresholdSig );

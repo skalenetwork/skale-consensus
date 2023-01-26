@@ -69,9 +69,18 @@ CommittedBlockList::CommittedBlockList(const ptr< CryptoManager >& _cryptoManage
 
             auto block = CommittedBlock::deserialize( blockData, _cryptoManager, true );
 
-            if (_cryptoManager->getSchain()->verifyDASigsPatch(block->getTimeStampS()))
-                CHECK_STATE2(!block->getDaSig().empty(),
-                    "Catchup received a block withoout DA sig:" + to_string(block->getTimeStampS()));
+            if (_cryptoManager->getSchain()->verifyDASigsPatch(block->getTimeStampS())) {
+                // a default block has a zero proposer index and no DA sig
+                if (block->getProposerIndex() != 0 && block->getDaSig().empty()) {
+                    LOG(err, "EMPTY_DA_SIG_ON_CATCHUP:BLOCK_STAMP:" +
+                       to_string(block->getTimeStampS()) + ":PATCH_STAMP:"  +
+                       to_string(_cryptoManager->getSchain()->getVerifyDaSigsPatchTimestampS()) +
+                        ":PRPS:" + to_string(block->getProposerIndex()));
+
+                    CHECK_STATE2(
+                        !block->getDaSig().empty(), "Catchup received a block without DA sig:");
+                }
+            }
 
             blocks->push_back(block);
 
