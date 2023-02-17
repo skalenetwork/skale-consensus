@@ -5,7 +5,7 @@
 
 Each consensus block proposal includes 
 
-$$ EcdsaProposerSignature = EcdsaSign(ProposerNodeEcdsaKey, Proposal) $$
+$$ EcdsaProposerSignature = EcdsaSign_{ProposerNodeEcdsaKey}, Proposal) $$
 
 The proposal of signed by the ECDSA private key of the node that made the proposal.
 
