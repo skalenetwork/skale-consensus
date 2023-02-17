@@ -37,7 +37,7 @@ When a block proposer receives 11 such signature shares  (including its own sign
 
 The object proves the fact that the proposal has been distributed to at least 11 out of 16 nodes. It also proves the fact, that the proposal is unique, since an honest receiving node will only sign a single proposal for a given block number and proposer index.
 
-## 2.2 Distribution of block proposals.
+### 2.2 Distribution of block proposals.
 
 A proposer will distribute its proposal to other nodes using the following  steps:
 
@@ -52,7 +52,7 @@ A proposer will distribute its proposal to other nodes using the following  step
 Node, that a node will not vote for consensus for a particular proposal, unless it received both the proposal itself and its DaThresholdSignature.
 
 
-## 2.3 Algorithm used by DaThresholdSignature.
+### 2.3 Algorithm used by DaThresholdSignature.
 
 A DaThresholdSignature of the proposal is simply 11 EdDSA signatures of the proposal. For each signature, a session EdDSA key is used instead of SGX key.
 to improve performance.
