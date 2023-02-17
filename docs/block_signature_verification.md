@@ -5,7 +5,7 @@
 
 Each consensus block proposal includes 
 
-$ ECDSA_PROPOSER_SIGNATURE = ECDSA_SIGN(PROPOSER_NODE_ECDSA_KEY, PROPOSAL)$
+$$ ECDSA_PROPOSER_SIGNATURE = ECDSA_SIGN(PROPOSER_NODE_ECDSA_KEY, PROPOSAL) $$
 
 The proposal of signed by the ECDSA private key of the node that made the proposal.
 
@@ -23,7 +23,7 @@ be able to collect DA_THRESHOLD_SIGNATURE for two different proposals. This guar
 
 
 
-* DA_SIGNATURE (Data Availability) 11-out-16 threshold signature of the proposal.
+$$ DA_SIGNATURE (Data Availability) 11-out-16 threshold signature of the proposal.
 
 The DA 
 
