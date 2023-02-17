@@ -1,7 +1,7 @@
 # Consensus block signature verification.
 
 
-## Block proposal ECDSA_PROPOSER_SIGNATURE
+## Block proposal EcdsaProposerSignature
 
 Each consensus block proposal includes EcdsaProposerSignature object.
 
@@ -11,7 +11,9 @@ $$ EcdsaProposerSignature = EcdsaSign(ProposerNodeEcdsaKey, Proposal) $$
 
 
 
-## Block proposal DA_THRESHOLD_SIGNATURE
+## Block proposal DaThresholdSignature
+
+Each consensus block proposal includes DaThresholdSignature object.
 
 The purpose of DA (Data Availability) threshoold signature is to guarantee that the proposal has been distributed by the 
 node to at least 11 nodes (including itself), before the consensus starts. 
