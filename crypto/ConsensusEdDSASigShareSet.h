@@ -36,11 +36,12 @@ class  BLAKE3Hash;
 class ConsensusEdDSASigShareSet : public ThresholdSigShareSet {
 
     schain_id schainId;
+    uint64_t timestamp;
     map<uint64_t, string> edDSASet; // thread-safe
     recursive_mutex edDSASetLock;
 
 public:
-    ConsensusEdDSASigShareSet(schain_id _schainId, block_id _blockId, size_t _totalSigners, size_t _requiredSigners );
+    ConsensusEdDSASigShareSet(schain_id _schainId, block_id _blockId, uint64_t _timestamp, size_t _totalSigners, size_t _requiredSigners );
 
     ptr<ThresholdSignature> mergeSignature() override;
 

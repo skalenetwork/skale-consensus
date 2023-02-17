@@ -658,6 +658,37 @@ string CryptoManager::getECDSAHistoricPublicKeyForNodeId(uint64_t _nodeId, uint6
     }
 }
 
+pair<node_id, node_id> CryptoManager::getHistoricNodeIDByIndex(uint64_t schain_id, uint64_t _timeStamp) {
+    schain_id = _timeStamp;
+    _timeStamp = schain_id;
+
+    LOG(debug, string("Looking for historic nodeId by index") + std::to_string(schain_id) +
+               string(" for timestamp ") + std::to_string(_timeStamp) +
+               string(" to verify a block came through catchup"));
+    if (_timeStamp == uint64_t(-1) || historicNodeGroups->size() < 2) {
+        //LOG(debug, string("Got current BLS public key ") + std::to_string(getSchain()->getNodeIDByIndex(schain_id)));
+        return {getSchain()->getNodeIDByIndex(schain_id), uint64_t(-1)};
+    } else {
+        // second key is used when the sig corresponds
+        // to the last block before node rotation!
+        // in this case we use the key for the group before
+
+        // could not return iterator to end()
+        // because finish ts for the current group equals uint64_t(-1)
+        auto it = historicNodeGroups->upper_bound(_timeStamp);
+
+        if (it == historicNodeGroups->begin()) {
+//            LOG(debug, string("Got first BLS public key ") + blsKeyToString((*it).second));
+            // if begin() then no previous groups for this key
+            return {(*it).second[schain_id], uint64_t(-1)};
+        }
+
+  //      LOG(debug, string("Got two BLS public keys ") + blsKeyToString((*it).second) + " " +
+  //                 blsKeyToString((*std::prev(it)).second));
+        return {(*it).second[schain_id], (*(--it)).second[schain_id]};
+    }
+}
+
 
 tuple<ptr<ThresholdSigShare>, string, string, string> CryptoManager::signDAProof(
         const ptr<BlockProposal> &_p) {
@@ -666,7 +697,7 @@ tuple<ptr<ThresholdSigShare>, string, string, string> CryptoManager::signDAProof
 
     auto h = _p->getHash();
 
-    auto sigShare = signDAProofSigShare(h, _p->getBlockID(), false);
+    auto sigShare = signDAProofSigShare(h, _p->getBlockID(), _p->getTimeStampS(), false);
     CHECK_STATE(sigShare);
 
     auto combinedHash = BLAKE3Hash::merkleTreeMerge(_p->getHash(), sigShare->computeHash());
@@ -711,7 +742,7 @@ void CryptoManager::verifyBlockSig(
 
 
 ptr<ThresholdSigShare> CryptoManager::signDAProofSigShare(
-        BLAKE3Hash &_hash, block_id _blockId, bool _forceMockup) {
+        BLAKE3Hash &_hash, block_id _blockId, uint64_t _timestamp, bool _forceMockup) {
     MONITOR(__CLASS_NAME__, __FUNCTION__)
 
     if (getSchain()->getNode()->isSgxEnabled() && !_forceMockup) {
@@ -721,7 +752,7 @@ ptr<ThresholdSigShare> CryptoManager::signDAProofSigShare(
                      publicKey + ";" + pkSig;
 
         return make_shared<ConsensusEdDSASigShare>(share, sChain->getSchainID(), _blockId,
-                                                   totalSigners);
+                                                   _timestamp, totalSigners);
 
     } else {
         auto sigShare = _hash.toHex();
@@ -932,10 +963,10 @@ ptr<ThresholdSigShareSet> CryptoManager::createSigShareSet(block_id _blockId) {
     }
 }
 
-ptr<ThresholdSigShareSet> CryptoManager::createDAProofSigShareSet(block_id _blockId) {
+ptr<ThresholdSigShareSet> CryptoManager::createDAProofSigShareSet(block_id _blockId, uint64_t _timestamp) {
     if (getSchain()->getNode()->isSgxEnabled()) {
         return make_shared<ConsensusEdDSASigShareSet>(
-                getSchain()->getSchainID(), _blockId, totalSigners, requiredSigners);
+                getSchain()->getSchainID(), _blockId, _timestamp, totalSigners, requiredSigners);
     } else {
         return make_shared<MockupSigShareSet>(_blockId, totalSigners, requiredSigners);
     }
@@ -961,12 +992,13 @@ ptr<ThresholdSigShare> CryptoManager::createSigShare(const string &_sigShare,
 
 ptr<ThresholdSigShare> CryptoManager::createDAProofSigShare(const string &_sigShare,
                                                             schain_id _schainID, block_id _blockID,
-                                                            schain_index _signerIndex, bool _forceMockup) {
+                                                            schain_index _signerIndex, uint64_t _timestamp,
+                                                            bool _forceMockup) {
     CHECK_ARGUMENT(!_sigShare.empty());
 
     if (getSchain()->getNode()->isSgxEnabled() && !_forceMockup) {
         auto result = make_shared<ConsensusEdDSASigShare>(
-                _sigShare, _schainID, _blockID, totalSigners);
+                _sigShare, _schainID, _blockID, _timestamp, totalSigners);
 
         return result;
 
@@ -1005,7 +1037,7 @@ void CryptoManager::verifyNetworkMsg(NetworkMessage &_msg) {
     auto blockId = _msg.getBlockID();
     auto nodeId = _msg.getSrcNodeID();
     try {
-        verifySessionSigAndKey(hash, sig, publicKey, pkSig, blockId, nodeId,
+        verifySessionSigAndKey(hash, sig, publicKey, pkSig, blockId, {nodeId, node_id(-1)},
                                getSchain()->getLastCommittedBlockTimeStamp().getLinuxTimeMs());
     } catch (...) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
@@ -1015,7 +1047,7 @@ void CryptoManager::verifyNetworkMsg(NetworkMessage &_msg) {
 
 void CryptoManager::verifySessionSigAndKey(BLAKE3Hash &_hash, const string &_sig,
                                            const string &_publicKey, const string &pkSig, block_id _blockID,
-                                           node_id _nodeId,
+                                           pair<node_id, node_id> _nodeId,
                                            uint64_t _timeStamp) {
     MONITOR(__CLASS_NAME__, __FUNCTION__);
 
@@ -1033,11 +1065,17 @@ void CryptoManager::verifySessionSigAndKey(BLAKE3Hash &_hash, const string &_sig
             if (isSGXEnabled) {
                 auto pkeyHash = calculatePublicKeyHash(_publicKey, _blockID);
                 try {
-                    verifyECDSASig(pkeyHash, pkSig, _nodeId, _timeStamp);
+                    verifyECDSASig(pkeyHash, pkSig, _nodeId.first, _timeStamp);
                 } catch (...) {
                     LOG(err, "PubKey ECDSA sig did not verify NODE_ID:" +
-                             to_string((uint64_t) _nodeId));
-                    throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+                             to_string((uint64_t) _nodeId.first) + string(" .Probably because of rotation, trying second key"));
+                    try {
+                        verifyECDSASig(pkeyHash, pkSig, _nodeId.first, _timeStamp);
+                    } catch (...) {
+                        LOG(err, "PubKey ECDSA sig did not verify NODE_ID:" +
+                                 to_string((uint64_t) _nodeId.second) + string(". Pubkey ECDSA wasn't verified."));
+                        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+                    }
                 }
                 sessionPublicKeys.put(pkSig, _publicKey);
             }
@@ -1075,7 +1113,7 @@ void CryptoManager::verifyProposalECDSA(
 
 
 ptr<ThresholdSignature> CryptoManager::verifyDAProofThresholdSig(
-    BLAKE3Hash &_hash, const string &_signature, block_id _blockId) {
+    BLAKE3Hash &_hash, const string &_signature, block_id _blockId, uint64_t _timestamp) {
     MONITOR(__CLASS_NAME__, __FUNCTION__)
 
 
@@ -1084,7 +1122,7 @@ ptr<ThresholdSignature> CryptoManager::verifyDAProofThresholdSig(
     try {
         if (verifyRealSignatures) {
             auto sig = make_shared<ConsensusEdDSASignature>(
-                    _signature, getSchain()->getSchainID(), _blockId, totalSigners,
+                    _signature, getSchain()->getSchainID(), _blockId, _timestamp, totalSigners,
                     requiredSigners);
 
             sig->verify(*this, _hash);
