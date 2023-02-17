@@ -9,12 +9,11 @@ $EcdsaProposerSignature$ is a signature of the proposal using the ECDSA private 
 
 ### 1.1 Computing  EcdsaProposerSignature
 
-$EcdsaProposerSignature$ is computed using formula (1)
+$EcdsaProposerSignature$ is computed as follows
 
-$$ EcdsaProposerSignature = EcdsaSign(ProposerNodeEcdsaKey, Proposal) (1) $$
+$$ EcdsaProposerSignature = EcdsaSign(ProposerNodeEcdsaKey, BLAKE3Hash(Proposal)) $$
 
-Here $BLAKE3_HASH$ is used to hash the proposal before signing it.
-
+Here Blake3Hash is 256-bit version of Blake3 hash algorithm.
 
 ## Block proposal DaThresholdSignature
 
