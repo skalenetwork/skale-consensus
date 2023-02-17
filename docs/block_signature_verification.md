@@ -20,7 +20,9 @@ Here $Blake3Hash$ is 256-bit version of Blake3 hash algorithm.
 
 ### 1.3 BlockProposalGeneration.
 
-During the proposal phase, the block proposer first generates an unsigned proposal, including proposal JSON header and the list of binary transactions.
+During the proposal phase, the block proposer first generates an unsigned proposal.
+
+The unsigned proposal is composed of proposal JSON header and the list of binary transactions.
 
 Once the unsigned proposal is generated, the block proposer will compute EcdsaProposerSignature and add it to proposal JSON header.
 
