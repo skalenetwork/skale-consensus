@@ -1,17 +1,17 @@
 # Consensus block signature verification.
 
 
-## Block proposal EcdsaProposerSignature
+## 1 Block proposal EcdsaProposerSignature
 
 Each consensus block proposal includes $EcdsaProposerSignature$ object.
 
 $EcdsaProposerSignature$ is a signature of the proposal using the ECDSA private key of the node that made the proposal 
 
-### Computing  EcdsaProposerSignature
+### 1.1 Computing  EcdsaProposerSignature
 
-$EcdsaProposerSignature$ 
+$EcdsaProposerSignature$ is computed using formula (1)
 
-$$ EcdsaProposerSignature = EcdsaSign(ProposerNodeEcdsaKey, Proposal) $$
+$$ EcdsaProposerSignature = EcdsaSign(ProposerNodeEcdsaKey, Proposal) (1) $$
 
 Here $BLAKE3_HASH$ is used to hash the proposal before signing it.
 
