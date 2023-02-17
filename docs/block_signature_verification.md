@@ -1,4 +1,4 @@
-# Consensus block signature verification.
+# Consensus block signatures spec.
 
 
 ## 1 Block proposal EcdsaProposerSignature
