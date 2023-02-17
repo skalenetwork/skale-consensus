@@ -319,7 +319,7 @@ pair< ConnectionStatus, ConnectionSubStatus > BlockProposalClientAgent::sendBloc
 
     auto sigShare =
         getSchain()->getCryptoManager()->createDAProofSigShare( finalHeader->getSigShare(),
-            _proposal->getSchainID(), _proposal->getBlockID(), _index, false );
+            _proposal->getSchainID(), _proposal->getBlockID(), _index, _proposal->getTimeStampS(), false );
 
     auto h = _proposal->getHash();
 
@@ -339,7 +339,7 @@ pair< ConnectionStatus, ConnectionSubStatus > BlockProposalClientAgent::sendBloc
                                                                 finalHeader->getSignature(),
                                                                 finalHeader->getPublicKey(),
                                                                 finalHeader->getPublicKeySig(),
-                                                                _proposal->getBlockID(), nodeInfo->getNodeID(),
+                                                                _proposal->getBlockID(), {nodeInfo->getNodeID(), node_id(-1)},
                                                                 _proposal->getTimeStampMs());
     } catch (...) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
