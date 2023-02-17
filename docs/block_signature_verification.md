@@ -37,15 +37,17 @@ When a block proposer receives 11 such signature shares  (including its own sign
 
 The object proves the fact that the proposal has been distributed to at least 11 out of 16 nodes. It also proves the fact, that the proposal is unique, since an honest receiving node will only sign a single proposal for a given block number and proposer index.
 
-## 2.2 Two step distribution of block proposals.
+## 2.2 Distribution of block proposals.
 
-A proposer will distribute its proposal to other nodes in two steps:
+A proposer will distribute its proposal to other nodes using the following  steps:
 
-1. Distribute the proposal to at least 11 nodes, including itself.
+1. Distribute the proposal to at least 11 nodes, including itself. 
 
-2. Create a DaThresholdSignature by gluing the 11 signature shares it received back.
+2. Receive 11 signature shares back.
 
-3. Distribute DaThresholdSignature to at least 11 out of 16 nodes.
+3. Create  $DaThresholdSignature$ object by gluing the 11 signature shares.
+
+3. Distribute $DaThresholdSignature$ to at least 11 out of 16 nodes.
 
 Node, that a node will not vote for consensus for a particular proposal, unless it received both the proposal itself and its DaThresholdSignature.
 
