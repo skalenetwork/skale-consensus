@@ -18,13 +18,13 @@ $$ EcdsaProposerSignature = EcdsaSign(ProposerNodeEcdsaKey, BLAKE3Hash(Proposal)
 
 Here $Blake3Hash$ is 256-bit version of Blake3 hash algorithm.
 
-### 1.3 BlockProposalGeneration.
+### 1.3 BlockProposal generation algorithm.
 
-During the proposal phase, the block proposer first generates an unsigned proposal.
+During the proposal phase, the block proposer will:
 
-The unsigned proposal is composed of proposal JSON header and the list of binary transactions.
-
-Once the unsigned proposal is generated, the block proposer will compute EcdsaProposerSignature and add it to proposal JSON header.
+* generates an unsigned proposal. The unsigned proposal is composed of proposal JSON header and the list of binary transactions.
+* compute $EcdsaProposerSignature$ of the proposal 
+* add it to proposal JSON header.
 
 
 ## 2 Block proposal DaThresholdSignature
