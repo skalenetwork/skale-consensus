@@ -5,9 +5,11 @@
 
 Each consensus block proposal includes EcdsaProposerSignature object.
 
+EcdsaProposerSignature is a signature of the proposal using the ECDSA private key of the node that made the proposal.
+
 $$ EcdsaProposerSignature = EcdsaSign(ProposerNodeEcdsaKey, Proposal) $$
 
-The proposal of signed by the ECDSA private key of the node that made the proposal.
+
 
 ## Block proposal DA_THRESHOLD_SIGNATURE
 
