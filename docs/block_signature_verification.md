@@ -5,7 +5,7 @@
 
 Each consensus block proposal includes $EcdsaProposerSignature$ object.
 
-$EcdsaProposerSignature$ is a signature of the proposal using the ECDSA private key of the node that made the proposal 
+$EcdsaProposerSignature$ is a signature of the proposal using the ECDSA private key $ ProposerNodeEcdsaKey$ of the node that made the proposal 
 
 ### 1.1 Computing  EcdsaProposerSignature
 
@@ -13,7 +13,7 @@ $EcdsaProposerSignature$ is computed as follows
 
 $$ EcdsaProposerSignature = EcdsaSign(ProposerNodeEcdsaKey, BLAKE3Hash(Proposal)) $$
 
-Here Blake3Hash is 256-bit version of Blake3 hash algorithm.
+Here $Blake3Hash$ is 256-bit version of Blake3 hash algorithm.
 
 ## Block proposal DaThresholdSignature
 
