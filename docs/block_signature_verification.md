@@ -3,7 +3,7 @@
 
 ## Block proposal ECDSA_PROPOSER_SIGNATURE
 
-Each consensus block proposal includes $$EcdsaProposerSignature$$ object.
+Each consensus block proposal includes EcdsaProposerSignature object.
 
 $$ EcdsaProposerSignature = EcdsaSign(ProposerNodeEcdsaKey, Proposal) $$
 
