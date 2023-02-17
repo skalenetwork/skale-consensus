@@ -3,7 +3,7 @@
 
 ## Block proposal EcdsaProposerSignature
 
-Each consensus block proposal includes EcdsaProposerSignature object.
+Each consensus block proposal includes $EcdsaProposerSignature$ object.
 
 EcdsaProposerSignature is a signature of the proposal using the ECDSA private key of the node that made the proposal.
 
