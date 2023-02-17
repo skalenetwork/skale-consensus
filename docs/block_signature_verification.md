@@ -52,7 +52,13 @@ A proposer will distribute its proposal to other nodes using the following  step
 Node, that a node will not vote for consensus for a particular proposal, unless it received both the proposal itself and its DaThresholdSignature.
 
 
-### 2.3 Algorithm used by DaThresholdSignature.
+### 2.3 Computing DaThresholdSignature.
+
+A DaThresholdSignature of the proposal is simply 11 EdDSA signatures of the proposal. For each signature, a session EdDSA key is used instead of SGX key.
+to improve performance.
+
+
+### 2.3 Computing DaThresholdSignature
 
 A DaThresholdSignature of the proposal is simply 11 EdDSA signatures of the proposal. For each signature, a session EdDSA key is used instead of SGX key.
 to improve performance.
