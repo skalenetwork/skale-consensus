@@ -9,9 +9,25 @@ EcdsaProposerSignature is a signature of the proposal using the ECDSA private ke
 
 $$ EcdsaProposerSignature = EcdsaSign(ProposerNodeEcdsaKey, Proposal) $$
 
-
-
 ## Block proposal DaThresholdSignature
+
+During the block proposal phase, each time a node receives a proposal from another node, it will sign and return to the proposer node a signature share that verifies receipt.
+
+When a block proposer receives 11 such signature shares  (including its own signature share), it will combine the  shares into an object DaThresholdSignature.
+
+The object proves the fact that the proposal has been distributed to at least 11 out of 16 nodes. It also proves the fact, that the proposal is unique, since a receiving node will only sign a single proposal for a given block number and proposer index.
+
+## Two step distribution of block proposals.
+
+A proposer will distribute its proposal to other nodes in two steps:
+
+1. Distribute the proposal to at least 11 nodes, including itself.
+
+2. Create a DaThresholdSignature by gluing the 11 signature shares it received back.
+
+3. Distribute DaThresholdSignature to at least 11 out of 16 nodes.
+
+Node, that a node will not vote for consensus for a particular proposal, unless it received both the proposal itself and its DaThresholdSignature.
 
 Each consensus block proposal includes DaThresholdSignature object.
 
