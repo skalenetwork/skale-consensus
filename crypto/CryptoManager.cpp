@@ -659,9 +659,6 @@ string CryptoManager::getECDSAHistoricPublicKeyForNodeId(uint64_t _nodeId, uint6
 }
 
 pair<node_id, node_id> CryptoManager::getHistoricNodeIDByIndex(uint64_t schain_id, uint64_t _timeStamp) {
-    schain_id = _timeStamp;
-    _timeStamp = schain_id;
-
     LOG(debug, string("Looking for historic nodeId by index") + std::to_string(schain_id) +
                string(" for timestamp ") + std::to_string(_timeStamp) +
                string(" to verify a block came through catchup"));
