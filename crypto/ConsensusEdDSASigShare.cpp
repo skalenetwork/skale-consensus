@@ -67,13 +67,13 @@ string ConsensusEdDSASigShare::toString() {
 
 void ConsensusEdDSASigShare::verify(
     CryptoManager& _cryptoManager,
-    BLAKE3Hash& _hash, node_id _nodeId) {
+    BLAKE3Hash& _hash, schain_index _schainIndex) {
 
 
     try {
         // EdDSA sig shares are always verified using the current set of ecdsa keys
         _cryptoManager.verifySessionSigAndKey(_hash, tokens.at(1), tokens.at(2),
-                                              tokens.at(3), blockId, _cryptoManager.getHistoricNodeIDByIndex(uint64_t(_nodeId), timestamp), timestamp);
+                                              tokens.at(3), blockId, _cryptoManager.getHistoricNodeIDByIndex(uint64_t(_schainIndex), timestamp), timestamp);
     } catch (...) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }

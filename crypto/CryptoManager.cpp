@@ -763,7 +763,7 @@ ptr<ThresholdSigShare> CryptoManager::signDAProofSigShare(
 }
 
 void CryptoManager::verifyDAProofSigShare(ptr<ThresholdSigShare> _sigShare,
-                                          schain_index _schainIndex, BLAKE3Hash &_hash, node_id _nodeId,
+                                          schain_index _schainIndex, BLAKE3Hash &_hash, node_id,
                                           bool _forceMockup) {
     MONITOR(__CLASS_NAME__, __FUNCTION__)
 
@@ -776,7 +776,7 @@ void CryptoManager::verifyDAProofSigShare(ptr<ThresholdSigShare> _sigShare,
             CHECK_STATE2(sShare->getSignerIndex() == _schainIndex,
                          "Incorrect schain index in sigShare:" + to_string(sShare->getSignerIndex()))
 
-            sShare->verify(*this, _hash, _nodeId);
+            sShare->verify(*this, _hash, _schainIndex);
 
 
             return;

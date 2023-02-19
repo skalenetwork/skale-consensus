@@ -41,7 +41,7 @@ public:
     string toString() override;
 
     void verify(CryptoManager& _cryptoManager,
-                BLAKE3Hash& _hash, node_id _nodeId);
+                BLAKE3Hash& _hash, schain_index _schainIndex);
 
 };
 
