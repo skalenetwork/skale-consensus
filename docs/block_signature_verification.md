@@ -82,11 +82,10 @@ A block is committed by signing it using $BLSThresholdSignature$.
 
 ## 3.2 BLSThresholdSignatureShare creation and broadcast.
 
-Each time when consensus completes on a particular node and a winning block proposer is determined, the node
-signs a message specifying the winning block proposer index and the blockID using $BLSKeyShare$ of the node, to create
-$BLSThresholdSignatureShare$.
-
-It will then send $BLSThresholdSignatureShare$ to all other nodes.
+Each time when consensus completes on a particular node and a winning block proposer is determined, the node will
+* signs a message specifying the winning block proposer index and the blockID using $BLSKeyShare$ of the node, to create
+$BLSThresholdSignatureShare
+* send $BLSThresholdSignatureShare$ to all other nodes.
 
 ## 3.3 BLSThresholdSignatureShare collection and BLSThresholdSignature assembly.
 
