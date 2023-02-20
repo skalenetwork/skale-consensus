@@ -94,4 +94,12 @@ When a node collects 11 $BLSThresholdSignatureShare$ objects, it will:
 
 
 
+## 3.4 Computing BLSThresholdSignatureShare
+
+
+$EcdsaProposerSignature$ is computed as follows
+
+$$ EcdsaProposerSignature = EcdsaSign(ProposerNodeEcdsaKey, BLAKE3Hash(proposerIndex, blockId, chainId)) $$
+
+
 
