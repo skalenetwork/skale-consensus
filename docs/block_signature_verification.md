@@ -41,24 +41,13 @@ During the block proposal phase:
 * when the proposer node receives $2t+1$(11) such signature shares, including its own share, it will combine the  shares into $DaThresholdSignature$.
 * the proposer will then send the $DaThresholdSignature$ to all other nodes.
 
-### 2.1 DaThresholdSignature description.
+### 2.1 DaThresholdSignature meaning.
 
-it also proves the fact, that the proposal is unique, since an honest receiving node will only sign a single proposal for a given block number and proposer index.
+* $DaThresholdSignature$ proves data availability of the proposal. In other words, it proves that the proposal has been distributed to at least 11 out of 16 nodes.
 
-### 2.2 Distribution of block proposals.
+* $DaThresholdSignature$ also proves uniqueness of the proposal for a given $blockId$ and proposer. This comes from the fact, that an honest node will only sign a single proposal for a given proposer and block number.
 
-A proposer will distribute its proposal to other nodes using the following  steps:
-
-1. Distribute the proposal to at least 11 nodes, including itself. 
-
-2. Receive 11 signature shares back.
-
-3. Create  $DaThresholdSignature$ object by gluing the 11 signature shares.
-
-3. Distribute $DaThresholdSignature$ to at least 11 out of 16 nodes.
-
-Node, that a node will not vote for consensus for a particular proposal, unless it received both the proposal itself and its DaThresholdSignature.
-
+$DaThresholdSignature$ is required for consensus, meaning that a node votes $0$ in consensus if it did not receive $DaThresholdSignature$. This means, that a proposal that wins consensus is guranteeed to have $DaThresholdSignature$
 
 ### 2.3 Computing DaThresholdSignatureShare.
 
