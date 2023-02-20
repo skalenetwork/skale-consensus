@@ -88,7 +88,7 @@ $BLSThresholdSignatureShare$.
 
 It will then send $BLSThresholdSignatureShare$ to all other nodes.
 
-## 3.3 BLSThresholdSignatureShare collection and $ assembly.
+## 3.3 BLSThresholdSignatureShare collection and BLSThresholdSignature assembly.
 
 When a node collects 11 $BLSThresholdSignatureShare$ objects, it will glue them into $BLSThresholdSignature$ and add this signature to the block proposal, turning it into a committed block.
 
