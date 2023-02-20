@@ -38,7 +38,7 @@ During the block proposal phase:
 * when a receiving node receives a proposal, it will:
   * sign it, creating $DaThresholdSignatureShare$
   * return $DaThresholdSignatureShare$ to the proposer node.
-* when the proposer node receives $2t+1$(11) such signature shares, including its owen share,it will combine the  shares into $DaThresholdSignature$.
+* when the proposer node receives $2t+1$(11) such signature shares, including its owen share, it will combine the  shares into $DaThresholdSignature$.
 * the proposer will then send the $DaThresholdSignature$ to all other nodes.
 
 ### 2.1 DaThresholdSignature description.
