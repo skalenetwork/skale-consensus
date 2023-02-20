@@ -90,7 +90,7 @@ $BLSThresholdSignatureShare$
 ## 3.3 BLSThresholdSignatureShare collection and BLSThresholdSignature assembly.
 
 When a node collects 11 $BLSThresholdSignatureShare$ objects, it will:
-* glue BLSThresholdSignatureShares into $BLSThresholdSignature$ 
+* glue $BLSThresholdSignatureShares$ into $BLSThresholdSignature$ 
 * add $BLSThresholdSignature$ this signature to the block proposal, turning it into a committed block.
 
 
