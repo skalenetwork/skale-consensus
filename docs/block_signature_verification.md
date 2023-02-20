@@ -1,7 +1,6 @@
 
 # Consensus block signatures spec.
 
-
 ## 1 Block proposal EcdsaProposerSignature
 
 ### 1.1 EcdsaProposerSignature description.
