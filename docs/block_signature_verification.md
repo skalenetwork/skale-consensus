@@ -1,5 +1,6 @@
 # Consensus block signatures spec.
 
+[TOC]
 
 ## 1 Block proposal EcdsaProposerSignature
 
