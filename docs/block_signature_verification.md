@@ -114,7 +114,7 @@ Note that if no proposal won (consessus returned default block), then $proposerI
 Each block proposal will include $ProposerSignature$ and $DaThresholdSignature$.
 
 
-## 4.1 Committed block signatures.
+## 4.2 Committed block signatures.
 
 if a committed block is created from a winning proposal, it will include $ProposerSignature$, $DaThresholdSignature$, and $BLSThresholdSignatureShare$.
 
