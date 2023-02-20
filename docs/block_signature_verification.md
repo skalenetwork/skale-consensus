@@ -23,8 +23,8 @@ Here $Blake3Hash$ is 256-bit version of Blake3 hash algorithm.
 During the proposal phase, the block proposer will:
 
 * generate an unsigned proposal. The unsigned proposal is composed of 
-- proposal JSON header and the list of binary transactions.
-- the list of binary transactions.
+  * proposal JSON header and the list of binary transactions.
+  * the list of binary transactions.
 * compute $EcdsaProposerSignature$ of the proposal 
 * add it to proposal JSON header.
 
