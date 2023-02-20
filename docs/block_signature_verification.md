@@ -121,6 +121,22 @@ if a committed block is created from a winning proposal, it will include $Propos
 If a committed block is a default block (no proposal won), it will only include $BLSThresholdSignature$.
 
 
+## 5. Block signature verification during catchup.
+
+During catchup for each block the following is done:
+
+* first, the correct set of verification keys is determined based on block timestamp. This takes into account the fact, that during node rotation, keys change.
+* second, all signatures of the block are verified.
+
+
+
+
+
+
+
+
+
+
 
 
 
