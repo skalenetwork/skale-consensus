@@ -74,8 +74,21 @@ This is done to prove that a particular $EdDSASessionKey$ belongs to a particula
 A $DaThresholdSignature$ of the proposal is simply composed of 11 $DaThresholdSignatureShare$s of the proposal.
 
 
+## 3 Committed block BLSThresholdSignature.
 
+## 3.1 Committed block BLSThresholdSignature.
 
+A block is committed by signing it using $BLSThresholdSignature$.
 
+## 3.2 BLSThresholdSignatureShare creation and broadcast.
 
+Each time when consensus completes on a particular node and a winning block proposer is determined, the node
+signs a message specifying the winning block proposer index and the blockID using $BLSKeyShare$ of the node, to create
+$BLSThresholdSignatureShare$.
+
+It will then send $BLSThresholdSignatureShare$ to all other nodes.
+
+## 3.3 BLSThresholdSignatureShare collection and $ assembly.
+
+When a node collects 11 $BLSThresholdSignatureShare$ objects, it will glue them into $BLSThresholdSignature$ and add this signature to the block proposal, turning it into a committed block.
 
