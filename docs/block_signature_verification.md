@@ -3,7 +3,6 @@
 
 ## 1 Block proposal EcdsaProposerSignature
 
-
 ### 1.1 EcdsaProposerSignature description.
 
 Each consensus block proposal includes $EcdsaProposerSignature$ object.
@@ -33,11 +32,18 @@ During the proposal phase, the block proposer will:
 
 ### 2.1 DaThresholdSignature description.
 
-During the block proposal phase, each time a node receives a proposal from another node, it will sign and return to the proposer node a signature share that verifies receipt.
+During the block proposal phase:
 
-When a block proposer receives 11 such signature shares  (including its own signature share), it will combine the  shares into an object DaThresholdSignature.
+* proposal node will submit the proposal to all other nodes
+* when a receiving node receives a proposal, it will:
+  * sign it, creating $DaThresholdSignatureShare$
+  * return $DaThresholdSignatureShare$ to the proposer node.
+* when the proposer node receives $2t+1$(11) such signature shares, including its owen share,it will combine the  shares into $DaThresholdSignature$.
+* the proposer will then send the $DaThresholdSignature$ to all other nodes.
 
-The object proves the fact that the proposal has been distributed to at least 11 out of 16 nodes. It also proves the fact, that the proposal is unique, since an honest receiving node will only sign a single proposal for a given block number and proposer index.
+### 2.1 DaThresholdSignature description.
+
+it also proves the fact, that the proposal is unique, since an honest receiving node will only sign a single proposal for a given block number and proposer index.
 
 ### 2.2 Distribution of block proposals.
 
