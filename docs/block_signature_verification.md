@@ -78,7 +78,7 @@ A $DaThresholdSignature$ of the proposal is simply composed of 11 $DaThresholdSi
 
 ## 3.1 Committed block BLSThresholdSignature.
 
-A block is committed by signing it using $BLSThresholdSignature$.
+A block is committed by signing it using $BLSThresholdSignature$ algorithm.
 
 ## 3.2 BLSThresholdSignatureShare creation and broadcast.
 
