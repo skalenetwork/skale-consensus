@@ -99,7 +99,11 @@ When a node collects 11 $BLSThresholdSignatureShare$ objects, it will:
 
 $EcdsaProposerSignature$ is computed as follows
 
-$$ EcdsaProposerSignature = EcdsaSign(ProposerNodeEcdsaKey, BLAKE3Hash(proposerIndex, blockId, chainId)) $$
+$$ EcdsaProposerSignature = EcdsaSign(ProposerNodeEcdsaKey, BLAKE3Hash(CommitMessage)) $$
 
+Here $CommitMessage$ is a JSON object that includes $chainId$, $blockId$, and winning $proposerIndex$.
 
+$CommitMessage$ states that a particular proposer won for a given $blockNumber$ and $chainId$.
+
+Note that if no proposal won (consessus returned default block), then $proposerIndex$ is set to $0$.
 
