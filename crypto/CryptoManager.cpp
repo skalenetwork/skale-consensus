@@ -1101,7 +1101,7 @@ void CryptoManager::verifyProposalECDSA(
 
     try {
         verifyECDSASig(
-                hash, _signature, _proposal->getProposerNodeID(), _proposal->getTimeStampMs());
+                hash, _signature, _proposal->getProposerNodeID(), _proposal->getTimeStampS());
     } catch (...) {
         LOG(err, "verifyProposalECDSA:  ECDSA sig did not verify");
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));

@@ -339,7 +339,7 @@ pair< ConnectionStatus, ConnectionSubStatus > BlockProposalClientAgent::sendBloc
                                                                 finalHeader->getPublicKey(),
                                                                 finalHeader->getPublicKeySig(),
                                                                 _proposal->getBlockID(), {nodeInfo->getNodeID(), node_id(-1)},
-                                                                _proposal->getTimeStampMs());
+                                                                _proposal->getTimeStampS());
     } catch (...) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
