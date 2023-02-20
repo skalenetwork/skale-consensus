@@ -101,9 +101,7 @@ $EcdsaProposerSignature$ is computed as follows
 
 $$ EcdsaProposerSignature = EcdsaSign(ProposerNodeEcdsaKey, BLAKE3Hash(CommitMessage)) $$
 
-Here $CommitMessage$ is a JSON object that includes $chainId$, $blockId$, and winning $proposerIndex$.
-
-$CommitMessage$ states that a particular proposer won for a given $blockNumber$ and $chainId$.
+Here $CommitMessage$ is a JSON object that includes $chainId$, $blockId$, and winning $proposerIndex$. 
 
 Note that if no proposal won (consessus returned default block), then $proposerIndex$ is set to $0$.
 
