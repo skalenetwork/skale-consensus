@@ -105,3 +105,25 @@ Here $CommitMessage$ is a JSON object that includes $chainId$, $blockId$, and wi
 
 Note that if no proposal won (consessus returned default block), then $proposerIndex$ is set to $0$.
 
+
+
+## 4. Summary of signatures. 
+
+## 4.1 BlockProposal signatures.
+
+Each block proposal will include $ProposerSignature$ and $DaThresholdSignature$.
+
+
+## 4.1 Committed block signatures.
+
+if a committed block is created from a winning proposal, it will include $ProposerSignature$, $DaThresholdSignature$, and $BLSThresholdSignatureShare$.
+
+If a committed block is a default block (no proposal won), it will only include $BLSThresholdSignature$.
+
+
+
+
+
+
+
+
