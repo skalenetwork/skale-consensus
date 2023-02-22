@@ -28,7 +28,24 @@ ptr<OracleRequestSpec> OracleRequestSpec::parseSpec(const string &_spec) {
 
 
 void OracleRequestSpec::checkEncoding(const string & _encoding) {
-    CHECK_STATE2(_encoding.empty() || _encoding == "json" || _encoding == "rlp", "Unknown encoding " + encoding);
+    CHECK_STATE2(_encoding == "json" || _encoding == "rlp", "Unknown encoding " + encoding);
+}
+
+
+void OracleRequestSpec::checkEthApi(const string& _ethApi) {
+    if (_ethApi == string("eth_call") ||
+        _ethApi == string("eth_gasPrice") || _ethApi == string("eth_blockNumber")) {}
+    else {
+        CHECK_STATE2(false, "Eth Method is not supported:" + _ethApi);
+    }
+}
+
+void OracleRequestSpec::checkURI(const string& _uri) {
+    CHECK_STATE2(uri.size() > 5, "Uri too short:" + uri);
+    CHECK_STATE2(uri.size() <= ORACLE_MAX_URI_SIZE,"Uri too long:" + _uri);
+    CHECK_STATE2(uri.find(ORACLE_HTTP_START) == 0 ||
+                 uri.find(ORACLE_HTTPS_START == 0 ||
+                 uri == ORACLE_ETH_URL), "Invalid URI:" + _uri);
 }
 
 OracleRequestSpec::OracleRequestSpec(const string &_spec) : spec(_spec) {
@@ -37,65 +54,71 @@ OracleRequestSpec::OracleRequestSpec(const string &_spec) : spec(_spec) {
         d.Parse(spec.data());
         CHECK_STATE2(!d.HasParseError(), "Unparsable Oracle spec:" + _spec);
 
+
+        // first check elements required for all calls
+
         CHECK_STATE2(d.HasMember("cid"), "No chainid in Oracle spec:" + _spec);
-
-
         CHECK_STATE2(d["cid"].IsUint64(), "ChainId in Oracle spec is not uint64_t" + _spec);
-
         chainid = d["cid"].GetUint64();
 
         CHECK_STATE2(d.HasMember("uri"), "No URI in Oracle spec:" + _spec);
-
         CHECK_STATE2(d["uri"].IsString(), "Uri in Oracle spec is not string:" + _spec);
-
         uri = d["uri"].GetString();
-
-        CHECK_STATE(uri.size() > 5);
-
-        CHECK_STATE(uri.size() <= ORACLE_MAX_URI_SIZE);
-
-        CHECK_STATE2(d.HasMember("jsps"), "No json pointer in Oracle spec:" + _spec);
-
-        CHECK_STATE2(d["jsps"].IsArray(), "Jsps in Oracle spec is not array:" + _spec);
+        checkURI(uri);
 
         CHECK_STATE2(d.HasMember("time"), "No time pointer in Oracle spec:" + _spec);
-
         CHECK_STATE2(d["time"].IsUint64(), "time in Oracle spec is not uint64:" + _spec)
-
         requestTime = d["time"].GetUint64();
-
 
         CHECK_STATE(requestTime > 0);
 
         CHECK_STATE2(d.HasMember("pow"), "No  pow in Oracle spec:" + _spec);
-
         CHECK_STATE2(d["pow"].IsUint64(), "Pow in Oracle spec is not uint64:" + _spec);
-
         pow = d["pow"].GetUint64();
 
+        CHECK_STATE2(verifyPow(), "PoW did not verify");
+        receipt = CryptoManager::hashForOracle(spec.data(), spec.size());
+
+        // no check if ETH or WEB call
+
+        if (d.HasMember("ethApi")) {
+            CHECK_STATE2(d["ethApi"].IsString(), "ethAPI in Oracle spec is not string:" + _spec);
+            ethApi = d["ethApi"].GetString();
+            checkEthApi(ethApi);
+        }
+
+        if (d.HasMember("encoding")) {
+            CHECK_STATE2(d["encoding"].IsString(), "Encoding in Oracle spec is not string:" + _spec);
+            encoding = d["encoding"].GetString();
+            checkEncoding(encoding);
+        }
+
+
+
+        CHECK_STATE2(d.HasMember("jsps"), "No json pointer in Oracle spec:" + _spec);
+        CHECK_STATE2(d["jsps"].IsArray(), "Jsps in Oracle spec is not array:" + _spec);
+
         auto array = d["jsps"].GetArray();
-
-
         CHECK_STATE2(!array.Empty(), "Jsps array is empty.:" + _spec);
-
-        CHECK_STATE(array.Size() <= ORACLE_MAX_JSPS);
+        CHECK_STATE2(array.Size() <= ORACLE_MAX_JSPS, "Too many elements in JSP array:" + _spec);
 
         for (auto &&item: array) {
             CHECK_STATE2(item.IsString(), "Jsps array item is not string:" + _spec);
             auto jsp = (string) item.GetString();
-            CHECK_STATE(jsp.size() <= ORACLE_MAX_JSP_SIZE);
+            CHECK_STATE2(jsp.size() <= ORACLE_MAX_JSP_SIZE, "JSP too long:" + _spec);
             jsps.push_back(jsp);
         }
+
+        // now check optional elements
 
 
         if (d.HasMember("trims")) {
             auto trimArray = d["trims"].GetArray();
             for (auto &&item: trimArray) {
-                CHECK_STATE2(item.IsUint64(), "Trims array item is uint64 :" + _spec);
+                CHECK_STATE2(item.IsUint64(), "Trims array item is uint64:" + _spec);
                 trims.push_back(item.GetUint64());
             }
-
-            CHECK_STATE2(jsps.size() == trims.size(), "hsps array size not equal tp trims array size");
+            CHECK_STATE2(jsps.size() == trims.size(), "hsps array size not equal tp trims array size:" + _spec);
         } else {
             for (uint64_t i = 0; i < jsps.size(); i++) {
                 trims.push_back(0);
@@ -111,16 +134,10 @@ OracleRequestSpec::OracleRequestSpec(const string &_spec) : spec(_spec) {
 
 
 
-        if (d.HasMember("encoding")) {
-            CHECK_STATE2(d["encoding"].IsString(), "Encoding in Oracle spec is not string:" + _spec);
-            encoding = d["encoding"].GetString();
-        }
 
 
-        checkEncoding(encoding);
 
 
-        if (this->isGeth()) {
             rapidjson::Document d2;
             d2.Parse(post.data());
             CHECK_STATE2(!d2.HasParseError(), "Unparsable geth Oracle post:" + post);
@@ -131,18 +148,8 @@ OracleRequestSpec::OracleRequestSpec(const string &_spec) : spec(_spec) {
 
             auto meth = d2["method"].GetString();
 
-            if (meth == string("eth_call") ||
-                meth == string("eth_gasPrice") || meth == string("eth_blockNumber") ||
-                meth == string("eth_getBlockByNumber") ||
-                meth == string("eth_getBlockByHash")) {}
-            else {
-                CHECK_STATE2(false, "Geth Method not allowed:" + meth);
-            }
-        }
 
-        CHECK_STATE2(verifyPow(), "PoW did not verify");
 
-        receipt = CryptoManager::hashForOracle(spec.data(), spec.size());
     } catch (...) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
@@ -187,8 +194,8 @@ bool OracleRequestSpec::isPost() {
     return !post.empty();
 }
 
-bool OracleRequestSpec::isGeth() {
-    return (uri.find("geth://") == 0);
+bool OracleRequestSpec::isEthApi() {
+    return (!ethApi.empty());
 }
 
 string OracleRequestSpec::getReceipt() {
@@ -302,4 +309,12 @@ const string &OracleRequestSpec::getEncoding() const {
     return encoding;
 }
 
+
+bool OracleRequestSpec::isEthMainnet() const {
+    return uri == "eth://";
+}
+
+const string &OracleRequestSpec::getEthApi() const {
+    return ethApi;
+}
 

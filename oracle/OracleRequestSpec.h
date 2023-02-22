@@ -2,11 +2,16 @@
 // Created by kladko on 11.01.22.
 //
 
+
 #ifndef SKALED_ORACLEREQUESTSPEC_H
 #define SKALED_ORACLEREQUESTSPEC_H
 
 constexpr const char* ORACLE_ENCODING_RLP = "rlp";
 constexpr const char* ORACLE_ENCODING_JSON = "json";
+constexpr const char* ORACLE_HTTP_START = "http://";
+constexpr const char* ORACLE_HTTPS_START = "https://";
+constexpr const char* ORACLE_ETH_URL = "eth://";
+
 constexpr uint64_t ORACLE_MAX_URI_SIZE = 1024;
 constexpr uint64_t ORACLE_MAX_POST_SIZE = 1024;
 constexpr uint64_t ORACLE_MAX_JSPS = 32;
@@ -25,9 +30,12 @@ class OracleRequestSpec {
     string encoding;
     uint64_t pow;
     string receipt;
+    string ethApi;
 
 
     void checkEncoding(const string & _encoding);
+    void checkURI(const string & _uri);
+    void checkEthApi(const string& _api);
 
 public:
 
@@ -56,7 +64,7 @@ public:
 
     const vector<uint64_t> &getTrims() const;
 
-    bool isGeth();
+    bool isEthApi();
 
     bool isPost();
 
@@ -65,6 +73,12 @@ public:
     bool verifyPow();
 
     const string &getEncoding() const;
+
+    const string &getEthApi() const;
+
+    bool isEthMainnet() const;
+
+
 };
 
 

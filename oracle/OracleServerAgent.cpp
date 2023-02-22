@@ -193,8 +193,8 @@ ptr<OracleResponseMessage> OracleServerAgent::doEndpointRequestResponse(ptr<Orac
     auto spec = _request->getParsedSpec();
 
     auto uri = spec->getUri();
-    if (spec->isGeth()) {
-        uri = gethURL + "/" + uri.substr(string("geth://").size());
+    if (spec->isEthMainnet()) {
+        uri = gethURL + "/" + spec->getEthApi();
     } else {
         auto result = LUrlParser::ParseURL::parseURL(uri);
         CHECK_STATE2(result.isValid(), "URL invalid:" + uri);
