@@ -55,12 +55,12 @@ public:
 
     OracleRequestSpec(const string &_spec);
 
-    OracleRequestSpec(uint64_t _chainId, const string &_uri, const vector<string> &_jsps,
+    static ptr<OracleRequestSpec> makeSpec(uint64_t _chainId, const string &_uri, const vector<string> &_jsps,
                       const vector<uint64_t> &_trims, uint64_t _time, const string& _post, const string &_encoding);
 
     uint64_t getChainid() const;
 
-    static ptr<OracleRequestSpec> parseSpec(const string &_spec);
+    static ptr<OracleRequestSpec> parseSpec(const string &_spec, uint64_t _chainId);
 
     const vector<uint64_t> &getTrims() const;
 
@@ -70,7 +70,7 @@ public:
 
     string getReceipt();
 
-    bool verifyPow();
+    static bool verifyPow(string& _spec);
 
     const string &getEncoding() const;
 

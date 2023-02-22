@@ -15,25 +15,30 @@
 #include "network/Utils.h"
 
 #include "rlp/RLP.h"
-
+#include "utils/Time.h"
 #include "OracleRequestSpec.h"
 
 
-ptr<OracleRequestSpec> OracleRequestSpec::parseSpec(const string &_spec) {
+ptr<OracleRequestSpec> OracleRequestSpec::parseSpec(const string &_spec, uint64_t  _chainId){
     try {
-        return make_shared<OracleRequestSpec>(_spec);
+        auto spec =  make_shared<OracleRequestSpec>(_spec);
+        CHECK_STATE2(spec->getChainid() == _chainId,
+                     "Invalid schain id in oracle spec:" + to_string(spec->getChainid()));
+
+        CHECK_STATE2(spec->getTime() + ORACLE_TIMEOUT_MS > Time::getCurrentTimeMs(), "Request timeout")
+        CHECK_STATE(spec->getTime() < Time::getCurrentTimeMs() + ORACLE_FUTURE_JITTER_MS);
     } catch (...) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
 }
 
 
-void OracleRequestSpec::checkEncoding(const string & _encoding) {
+void OracleRequestSpec::checkEncoding(const string &_encoding) {
     CHECK_STATE2(_encoding == "json" || _encoding == "rlp", "Unknown encoding " + encoding);
 }
 
 
-void OracleRequestSpec::checkEthApi(const string& _ethApi) {
+void OracleRequestSpec::checkEthApi(const string &_ethApi) {
     if (_ethApi == string("eth_call") ||
         _ethApi == string("eth_gasPrice") || _ethApi == string("eth_blockNumber")) {}
     else {
@@ -41,12 +46,12 @@ void OracleRequestSpec::checkEthApi(const string& _ethApi) {
     }
 }
 
-void OracleRequestSpec::checkURI(const string& _uri) {
+void OracleRequestSpec::checkURI(const string &_uri) {
     CHECK_STATE2(_uri.size() > 5, "Uri too short:" + _uri);
-    CHECK_STATE2(_uri.size() <= ORACLE_MAX_URI_SIZE,"Uri too long:" + _uri);
+    CHECK_STATE2(_uri.size() <= ORACLE_MAX_URI_SIZE, "Uri too long:" + _uri);
     CHECK_STATE2(_uri.find(ORACLE_HTTP_START) == 0 ||
                  _uri.find(ORACLE_HTTPS_START == 0 ||
-                 _uri == ORACLE_ETH_URL), "Invalid URI:" + _uri);
+                           _uri == ORACLE_ETH_URL), "Invalid URI:" + _uri);
     if (_uri != "geth://") {
         auto result = LUrlParser::ParseURL::parseURL(uri);
         CHECK_STATE2(result.isValid(), "URL invalid:" + uri);
@@ -98,7 +103,7 @@ OracleRequestSpec::OracleRequestSpec(const string &_spec) : spec(_spec) {
         CHECK_STATE2(d["pow"].IsUint64(), "Pow in Oracle spec is not uint64:" + _spec);
         pow = d["pow"].GetUint64();
 
-        CHECK_STATE2(verifyPow(), "PoW did not verify");
+        CHECK_STATE2(verifyPow(spec), "PoW did not verify");
         receipt = CryptoManager::hashForOracle(spec.data(), spec.size());
 
         // no check if ETH or WEB call
@@ -114,7 +119,6 @@ OracleRequestSpec::OracleRequestSpec(const string &_spec) : spec(_spec) {
             encoding = d["encoding"].GetString();
             checkEncoding(encoding);
         }
-
 
 
         CHECK_STATE2(d.HasMember("jsps"), "No json pointer in Oracle spec:" + _spec);
@@ -155,21 +159,12 @@ OracleRequestSpec::OracleRequestSpec(const string &_spec) : spec(_spec) {
         }
 
 
+        rapidjson::Document d2;
+        d2.Parse(post.data());
+        CHECK_STATE2(!d2.HasParseError(), "Unparsable geth Oracle post:" + post);
 
 
-
-
-
-            rapidjson::Document d2;
-            d2.Parse(post.data());
-            CHECK_STATE2(!d2.HasParseError(), "Unparsable geth Oracle post:" + post);
-
-            CHECK_STATE2(d2.HasMember("method"), "No JSON-RPC method in geth Oracle post:" + post);
-
-            CHECK_STATE2(d2["method"].IsString(), "method in Oracle post is not string:" + post)
-
-            auto meth = d2["method"].GetString();
-
+        receipt = CryptoManager::hashForOracle(spec.data(), spec.size());
 
 
     } catch (...) {
@@ -225,11 +220,11 @@ string OracleRequestSpec::getReceipt() {
 }
 
 
-bool OracleRequestSpec::verifyPow() {
+bool OracleRequestSpec::verifyPow(string&_spec) {
 
     try {
 
-        auto hash = CryptoManager::hashForOracle(spec.data(), spec.size());
+        auto hash = CryptoManager::hashForOracle(_spec.data(), _spec.size());
 
         u256 binaryHash("0x" + hash);
 
@@ -245,82 +240,68 @@ bool OracleRequestSpec::verifyPow() {
     }
 }
 
-OracleRequestSpec::OracleRequestSpec(uint64_t _chainId, const string &_uri,
+ptr<OracleRequestSpec> OracleRequestSpec::makeSpec(uint64_t _chainId, const string &_uri,
                                      const vector<string> &_jsps, const vector<uint64_t> &_trims, uint64_t _time,
-                                     const string &_post, const string &_encoding) :
-        chainid(_chainId),
-        uri(_uri),
-        jsps(_jsps),
-        trims(_trims),
-        requestTime(_time),
-        post(_post),
-        encoding(_encoding) {
+                                     const string &_post, const string &_encoding) {
 
-
-    checkEncoding(_encoding);
-    CHECK_STATE(uri.size() <= ORACLE_MAX_URI_SIZE);
-
-
+    string spec;
 
     try {
 
-        for (pow = 0;; pow++) {
+        for (::uint64_t pow = 0;; pow++) {
 
             spec = "{";
 
-            spec.append(string("\"cid\":") + to_string(chainid) + ",");
-            spec.append(string("\"uri\":\"") + uri + "\",");
+            spec.append(string("\"cid\":") + to_string(_chainId) + ",");
+            spec.append(string("\"uri\":\"") + _uri + "\",");
             spec.append(string("\"jsps\":["));
 
-            for (uint64_t j = 0; j < jsps.size(); j++) {
+            for (uint64_t j = 0; j < _jsps.size(); j++) {
                 spec.append("\"");
-                string jsp = jsps.at(j);
-                CHECK_STATE(jsp.size() <= ORACLE_MAX_JSP_SIZE);
-                CHECK_STATE2(!jsp.empty() && jsp.front() == '/', "Invalid JSP pointer:" + jsp);
+                string jsp = _jsps.at(j);
                 spec.append(jsp);
                 spec.append("\"");
-                if (j + 1 < jsps.size())
+                if (j + 1 < _jsps.size())
                     spec.append(",");
             }
 
 
             spec.append("],");
 
-            if (trims.size() > 0) {
+            if (_trims.size() > 0) {
 
                 CHECK_STATE(_trims.size() == _jsps.size());
 
                 spec.append("\"trims\":[");
 
-                for (uint64_t j = 0; j < trims.size(); j++) {
-                    spec.append(to_string(trims.at(j)));
-                    if (j + 1 < trims.size())
+                for (uint64_t j = 0; j < _trims.size(); j++) {
+                    spec.append(to_string(_trims.at(j)));
+                    if (j + 1 < _trims.size())
                         spec.append(",");
                 }
 
                 spec.append("],");
             }
-            spec.append(string("\"time\":") + to_string(requestTime) + ",");
+            spec.append(string("\"time\":") + to_string(_time) + ",");
 
-            if (!post.empty()) {
-                spec.append(string("\"post\":\"") + post + "\",");
+            if (!_post.empty()) {
+                spec.append(string("\"post\":\"") + _post + "\",");
             }
 
-            if (!encoding.empty()) {
-                spec.append(string("\"encoding\":\"") + encoding + "\",");
+            if (!_encoding.empty()) {
+                spec.append(string("\"encoding\":\"") + _encoding + "\",");
             }
 
             spec.append(string("\"pow\":") + to_string(pow));
             spec.append("}");
 
-            if (verifyPow()) {
+            if (verifyPow(spec)) {
                 break;
             }
-
-
         }
 
-        receipt = CryptoManager::hashForOracle(spec.data(), spec.size());
+        return make_shared<OracleRequestSpec>(spec);
+
 
     } catch (...) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));

@@ -136,10 +136,8 @@ void OracleClient::sendRequestAndWaitForResult(string &_uri,
 
         auto time = Time::getCurrentTimeMs();
 
-        auto os = make_shared<OracleRequestSpec>(_cid, _uri, _jsps, _trims, time, _post,
-                                                 _encoding);
-
-        CHECK_STATE(os->verifyPow());
+        auto os = OracleRequestSpec::makeSpec(_cid, _uri, _jsps, _trims,
+                                              time, _post, _encoding);
 
 
         auto status = submitOracleRequest(os->getSpec(), _receipt);
