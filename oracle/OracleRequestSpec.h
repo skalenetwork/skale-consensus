@@ -6,6 +6,8 @@
 #ifndef SKALED_ORACLEREQUESTSPEC_H
 #define SKALED_ORACLEREQUESTSPEC_H
 
+#include "thirdparty/rapidjson/document.h"
+
 constexpr const char* ORACLE_ENCODING_RLP = "rlp";
 constexpr const char* ORACLE_ENCODING_JSON = "json";
 constexpr const char* ORACLE_HTTP_START = "http://";
@@ -36,6 +38,10 @@ class OracleRequestSpec {
     void checkEncoding(const string & _encoding);
     void checkURI(const string & _uri);
     void checkEthApi(const string& _api);
+
+    void  parseWebRequestSpec(rapidjson::Document& d, const string&  _spec);
+    void  parseEthApiRequestSpec(rapidjson::Document& d, const string&  _spec);
+
 
 public:
 
@@ -77,6 +83,8 @@ public:
     const string &getEthApi() const;
 
     bool isEthMainnet() const;
+
+
 
 
 };

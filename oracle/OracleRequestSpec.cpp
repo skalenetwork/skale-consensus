@@ -2,7 +2,7 @@
 // Created by kladko on 11.01.22.
 //
 
-#include "thirdparty/rapidjson/document.h"
+
 #include "thirdparty/json.hpp"
 #include "thirdparty/rapidjson/prettywriter.h" // for stringify JSON
 #include "thirdparty/LUrlParser.h"
@@ -27,6 +27,7 @@ ptr<OracleRequestSpec> OracleRequestSpec::parseSpec(const string &_spec, uint64_
 
         CHECK_STATE2(spec->getTime() + ORACLE_TIMEOUT_MS > Time::getCurrentTimeMs(), "Request timeout")
         CHECK_STATE(spec->getTime() < Time::getCurrentTimeMs() + ORACLE_FUTURE_JITTER_MS);
+        return spec;
     } catch (...) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
@@ -77,6 +78,13 @@ void OracleRequestSpec::checkURI(const string &_uri) {
 
 OracleRequestSpec::OracleRequestSpec(const string &_spec) : spec(_spec) {
     try {
+
+
+        // generate receipt
+        receipt = CryptoManager::hashForOracle(spec.data(), spec.size());
+
+        // no parse
+
         rapidjson::Document d;
         d.Parse(spec.data());
         CHECK_STATE2(!d.HasParseError(), "Unparsable Oracle spec:" + _spec);
@@ -121,54 +129,92 @@ OracleRequestSpec::OracleRequestSpec(const string &_spec) : spec(_spec) {
         }
 
 
-        CHECK_STATE2(d.HasMember("jsps"), "No json pointer in Oracle spec:" + _spec);
-        CHECK_STATE2(d["jsps"].IsArray(), "Jsps in Oracle spec is not array:" + _spec);
-
-        auto array = d["jsps"].GetArray();
-        CHECK_STATE2(!array.Empty(), "Jsps array is empty.:" + _spec);
-        CHECK_STATE2(array.Size() <= ORACLE_MAX_JSPS, "Too many elements in JSP array:" + _spec);
-
-        for (auto &&item: array) {
-            CHECK_STATE2(item.IsString(), "Jsps array item is not string:" + _spec);
-            auto jsp = (string) item.GetString();
-            CHECK_STATE2(jsp.size() <= ORACLE_MAX_JSP_SIZE, "JSP too long:" + _spec);
-            jsps.push_back(jsp);
-        }
-
-        // now check optional elements
-
-
-        if (d.HasMember("trims")) {
-            auto trimArray = d["trims"].GetArray();
-            for (auto &&item: trimArray) {
-                CHECK_STATE2(item.IsUint64(), "Trims array item is uint64:" + _spec);
-                trims.push_back(item.GetUint64());
-            }
-            CHECK_STATE2(jsps.size() == trims.size(), "hsps array size not equal tp trims array size:" + _spec);
+        if (isEthApi()) {
+            parseEthApiRequestSpec(d, _spec);
         } else {
-            for (uint64_t i = 0; i < jsps.size(); i++) {
-                trims.push_back(0);
-            }
+            parseWebRequestSpec(d, _spec);
         }
-
-
-        if (d.HasMember("post")) {
-            CHECK_STATE2(d["post"].IsString(), "Post in Oracle spec is not a string:" + _spec);
-            post = d["post"].GetString();
-            CHECK_STATE2(post.size() <= ORACLE_MAX_POST_SIZE, "Post string is larger than max allowed:" + _spec);
-        }
-
-
-        rapidjson::Document d2;
-        d2.Parse(post.data());
-        CHECK_STATE2(!d2.HasParseError(), "Unparsable geth Oracle post:" + post);
-
-
-        receipt = CryptoManager::hashForOracle(spec.data(), spec.size());
-
 
     } catch (...) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+    }
+}
+
+
+void OracleRequestSpec::parseWebRequestSpec(rapidjson::Document& d, const string&  _spec) {
+    CHECK_STATE2(d.HasMember("jsps"), "No json pointer in Oracle spec:" + _spec);
+    CHECK_STATE2(d["jsps"].IsArray(), "Jsps in Oracle spec is not array:" + _spec);
+
+    auto array = d["jsps"].GetArray();
+    CHECK_STATE2(!array.Empty(), "Jsps array is empty.:" + _spec);
+    CHECK_STATE2(array.Size() <= ORACLE_MAX_JSPS, "Too many elements in JSP array:" + _spec);
+
+    for (auto &&item: array) {
+        CHECK_STATE2(item.IsString(), "Jsps array item is not string:" + _spec);
+        auto jsp = (string) item.GetString();
+        CHECK_STATE2(jsp.size() <= ORACLE_MAX_JSP_SIZE, "JSP too long:" + _spec);
+        jsps.push_back(jsp);
+    }
+
+    // now check optional elements
+
+
+    if (d.HasMember("trims")) {
+        auto trimArray = d["trims"].GetArray();
+        for (auto &&item: trimArray) {
+            CHECK_STATE2(item.IsUint64(), "Trims array item is uint64:" + _spec);
+            trims.push_back(item.GetUint64());
+        }
+        CHECK_STATE2(jsps.size() == trims.size(), "hsps array size not equal tp trims array size:" + _spec);
+    } else {
+        for (uint64_t i = 0; i < jsps.size(); i++) {
+            trims.push_back(0);
+        }
+    }
+
+    if (d.HasMember("post")) {
+        CHECK_STATE2(d["post"].IsString(), "Post in Oracle spec is not a string:" + _spec);
+        post = d["post"].GetString();
+        CHECK_STATE2(post.size() <= ORACLE_MAX_POST_SIZE, "Post string is larger than max allowed:" + _spec);
+    }
+}
+
+
+void OracleRequestSpec::parseEthApiRequestSpec(rapidjson::Document& d, const string&  _spec) {
+    CHECK_STATE2(d.HasMember("jsps"), "No json pointer in Oracle spec:" + _spec);
+    CHECK_STATE2(d["jsps"].IsArray(), "Jsps in Oracle spec is not array:" + _spec);
+
+    auto array = d["jsps"].GetArray();
+    CHECK_STATE2(!array.Empty(), "Jsps array is empty.:" + _spec);
+    CHECK_STATE2(array.Size() <= ORACLE_MAX_JSPS, "Too many elements in JSP array:" + _spec);
+
+    for (auto &&item: array) {
+        CHECK_STATE2(item.IsString(), "Jsps array item is not string:" + _spec);
+        auto jsp = (string) item.GetString();
+        CHECK_STATE2(jsp.size() <= ORACLE_MAX_JSP_SIZE, "JSP too long:" + _spec);
+        jsps.push_back(jsp);
+    }
+
+    // now check optional elements
+
+
+    if (d.HasMember("trims")) {
+        auto trimArray = d["trims"].GetArray();
+        for (auto &&item: trimArray) {
+            CHECK_STATE2(item.IsUint64(), "Trims array item is uint64:" + _spec);
+            trims.push_back(item.GetUint64());
+        }
+        CHECK_STATE2(jsps.size() == trims.size(), "hsps array size not equal tp trims array size:" + _spec);
+    } else {
+        for (uint64_t i = 0; i < jsps.size(); i++) {
+            trims.push_back(0);
+        }
+    }
+
+    if (d.HasMember("post")) {
+        CHECK_STATE2(d["post"].IsString(), "Post in Oracle spec is not a string:" + _spec);
+        post = d["post"].GetString();
+        CHECK_STATE2(post.size() <= ORACLE_MAX_POST_SIZE, "Post string is larger than max allowed:" + _spec);
     }
 }
 
