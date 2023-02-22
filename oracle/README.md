@@ -39,6 +39,16 @@ Optional elements:
    are ```json``` and ```rlp```. JSON encoding is easy to analyze while rlp encoding is more efficient 
    from the point of view of Solidity verification. Is the element is not present, RLP encoding is used.
    
+* ```method``` - Ethereum API method to call. Must be set if ```eth:``` URI is used. Valid values are:
+
+```
+eth_call
+eth_gasPrice
+eth_blockNumber
+eth_getBalance
+```
+
+   
 * ```params```, string - if ```eth_call``` or ```eth_getBalance``` are used, this element is required to provide params as described [here](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_call)
    
    
@@ -53,12 +63,6 @@ The following ETH API calls are supported
 
 
 
-```
-eth_call
-eth_gasPrice
-eth_blockNumber
-eth_getBalance
-```
 
 
 
