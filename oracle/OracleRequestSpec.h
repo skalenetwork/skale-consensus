@@ -10,7 +10,7 @@ constexpr const char* ORACLE_ENCODING_JSON = "json";
 constexpr uint64_t ORACLE_MAX_URI_SIZE = 1024;
 constexpr uint64_t ORACLE_MAX_POST_SIZE = 1024;
 constexpr uint64_t ORACLE_MAX_JSPS = 32;
-constexpr uint64_t ORACLE_MAX_JSPS = 32;
+constexpr uint64_t ORACLE_MAX_JSP_SIZE = 1024;
 
 
 class OracleRequestSpec {
