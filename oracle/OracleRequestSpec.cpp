@@ -95,7 +95,7 @@ OracleRequestSpec::OracleRequestSpec(const string &_spec) : spec(_spec) {
                 trims.push_back(item.GetUint64());
             }
 
-            CHECK_STATE2(jsps.size() == trims.size(), "hsps array size not equal trims array size");
+            CHECK_STATE2(jsps.size() == trims.size(), "hsps array size not equal tp trims array size");
         } else {
             for (uint64_t i = 0; i < jsps.size(); i++) {
                 trims.push_back(0);
@@ -106,7 +106,10 @@ OracleRequestSpec::OracleRequestSpec(const string &_spec) : spec(_spec) {
         if (d.HasMember("post")) {
             CHECK_STATE2(d["post"].IsString(), "Post in Oracle spec is not a string:" + _spec);
             post = d["post"].GetString();
+            CHECK_STATE2(post.size() <= ORACLE_MAX_POST_SIZE, "Post string is larger than max allowed:" + _spec);
         }
+
+
 
         if (d.HasMember("encoding")) {
             CHECK_STATE2(d["encoding"].IsString(), "Encoding in Oracle spec is not string:" + _spec);
