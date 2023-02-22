@@ -32,7 +32,7 @@ Optional elements:
 
 * ```post```, string - if this element is provided, the
    Oracle with use HTTP POST instead of HTTP GET (default).
-   The value of the ```post``` element will be POSTed to the endpoint.
+   The value of the ```post``` element will be POSTed to the endpoint. Max length 1024 bytes.
 
 
 * ```encoding```, string - how to encode the result. Supported encodings
