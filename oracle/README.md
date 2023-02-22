@@ -39,7 +39,7 @@ Optional elements:
    are ```json``` and ```rlp```. JSON encoding is easy to analyze while rlp encoding is more efficient 
    from the point of view of Solidity verification. Is the element is not present, RLP encoding is used.
    
-* ```method``` - Ethereum API method to call. Must be set if ```eth:``` URI is used. Valid values are:
+* ```method``` - Ethereum API method to call. Must be set if ```eth://``` URI type is used. Valid values are:
 
 ```
 eth_call
