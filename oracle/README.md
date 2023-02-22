@@ -13,7 +13,7 @@ It has the following parameters:
 Required elements:
 
 * ```cid```, uint64 - chain ID
-* ```uri```, string - Oracle endpoint (must start with http:// or https:// or geth://). Max length 1024 bytes.
+* ```uri```, string - Oracle endpoint (must start with http:// or https:// or eth://). Max length 1024 bytes. See a separate section for uri format.
 * ```time```, uint64 - Linux time of request in ms
 * ```jsps```, array of strings - list of string JSON pointers to the data elements to be picked from server response. Must have from 1 to 32 elements. Max length of each pointer 1024 bytes.
 * ```pow```, string - uint64 proof of work that is used to protect against denial of service attacks
@@ -38,6 +38,22 @@ Optional elements:
 * ```encoding```, string - how to encode the result. Supported encodings
    are ```json``` and ```rlp```. JSON encoding is easy to analyze while rlp encoding is more efficient 
    from the point of view of Solidity verification. Is the element is not present, RLP encoding is used.
+   
+* ```params```, string - if ```eth_call``` is used, this element is required to provide parameters for ```eth_call``` as described [here](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_call)
+   
+   
+### URI element
+
+* If ```uri``` element in the spec starts with ```http://``` or ```https://```, Oracle will retrieve information by doing a http or https to a web endpoint specified by the uri. The endpoint must return a JSON string as a result.
+
+* If ```uri``` element in the spec starts with ```eth://``` Oracle will perform a request to the endpoint assuming that endpoint belongs to an eth compatible node. 
+
+```
+eth://eth_call
+eth://eth_gasPrice
+eth://eth_blockNumber
+```
+
 
 
 ## oracle_submitRequest
@@ -133,13 +149,6 @@ use ```geth://``` in URI".
 
 The following JSON-RPC endpoint are available in the first release:
 
-```
-geth://eth_call
-geth://eth_gasPrice
-geth://eth_blockNumber
-geth://eth_getBlockByNumber
-geth://eth_getBlockByHash
-```
 
 ## oracle_checkResult
 
