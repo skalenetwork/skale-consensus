@@ -634,6 +634,7 @@ string CryptoManager::getECDSAHistoricPublicKeyForNodeId(uint64_t _nodeId, uint6
     LOCK(historicEcdsaPublicKeyMapLock);
 
     vector<uint64_t> nodeIdsInGroup;
+    map<uint64_t, std::vector<uint64_t> >::iterator it = historicNodeGroups->begin();
     if (_timeStamp == uint64_t(-1)) {
         if (historicNodeGroups->count(_timeStamp) > 0) {
             nodeIdsInGroup = historicNodeGroups->at(_timeStamp);
@@ -642,12 +643,21 @@ string CryptoManager::getECDSAHistoricPublicKeyForNodeId(uint64_t _nodeId, uint6
             return "";
         }
     } else {
-        nodeIdsInGroup = (*historicNodeGroups->upper_bound(_timeStamp)).second;
+        it = historicNodeGroups->upper_bound(_timeStamp);
+        nodeIdsInGroup = (*it).second;
     }
 
     if (find(nodeIdsInGroup.begin(), nodeIdsInGroup.end(), _nodeId) == nodeIdsInGroup.end()) {
-        LOG(err, "Could not find node in the ECDSA group for this timeStamp");
-        return "";
+        if ( it != historicNodeGroups->begin() ) {
+            nodeIdsInGroup = (*(--it)).second;
+            if (find(nodeIdsInGroup.begin(), nodeIdsInGroup.end(), _nodeId) == nodeIdsInGroup.end()) {
+                LOG(err, "Could not find node in the ECDSA groups for this timeStamp");
+                return "";
+            }
+        } else {
+            LOG(err, "Could not find node in the ECDSA group for this timeStamp");
+            return "";
+        }
     }
 
     if (historicECDSAPublicKeys->count(_nodeId) > 0) {
