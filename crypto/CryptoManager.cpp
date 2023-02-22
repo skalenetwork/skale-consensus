@@ -659,7 +659,7 @@ string CryptoManager::getECDSAHistoricPublicKeyForNodeId(uint64_t _nodeId, uint6
 }
 
 pair<node_id, node_id> CryptoManager::getHistoricNodeIDByIndex(uint64_t schain_id, uint64_t _timeStamp) {
-    LOG(debug, string("Looking for historic nodeId by index") + std::to_string(schain_id) +
+    LOG(debug, string("Looking for historic nodeId by index ") + std::to_string(schain_id) +
                string(" for timestamp ") + std::to_string(_timeStamp) +
                string(" to verify a block came through catchup"));
     if (_timeStamp == uint64_t(-1) || historicNodeGroups->size() < 2) {
@@ -677,16 +677,16 @@ pair<node_id, node_id> CryptoManager::getHistoricNodeIDByIndex(uint64_t schain_i
         auto it = historicNodeGroups->upper_bound(_timeStamp);
 
         if (it == historicNodeGroups->begin()) {
-            node_id nodeId = (*it).second[schain_id];
+            node_id nodeId = (*it).second[schain_id - 1];
             LOG(debug, string("Got node id ") + std::to_string(uint64_t(nodeId)) +
                 string(" for index ") + std::to_string(schain_id) + string(" and timestamp ") +
                 std::to_string(_timeStamp));
             // if begin() then no previous groups for this key
-            return {(*it).second[schain_id], uint64_t(-1)};
+            return {(*it).second[schain_id - 1], uint64_t(-1)};
         }
 
-        node_id nodeId1 = (*it).second[schain_id];
-        node_id nodeId2 = (*(--it)).second[schain_id];
+        node_id nodeId1 = (*it).second[schain_id - 1];
+        node_id nodeId2 = (*(--it)).second[schain_id - 1];
         LOG(debug, string("Got two node ids ") + std::to_string(uint64_t(nodeId1)) + " " +
             std::to_string(uint64_t(nodeId2)) + string(" for index ") + std::to_string(schain_id) +
             string(" and timestamp ") + std::to_string(_timeStamp));
