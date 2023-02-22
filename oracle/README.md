@@ -12,11 +12,11 @@ It has the following parameters:
 
 Required elements:
 
-1. ```cid```, uint64 - chain ID
-2. ```uri```, string - Oracle endpoint (http or https or geth)
-3. ```time```, uint64 - Linux time of request in ms
-4. ```jsps```, array of strings - list of JSON pointer to the data elements to be picked from server response.
-5. ```pow```, string - uint64 proof of work that is used to protect against denial of service attacks
+* ```cid```, uint64 - chain ID
+* ```uri```, string - Oracle endpoint (http or https or geth). Max length 1024 bytes.
+* ```time```, uint64 - Linux time of request in ms
+* ```jsps```, array of strings - list of string JSON pointers to the data elements to be picked from server response. Must have from 1 to 32 elements. Max length of each pointer 1024 bytes.
+* ```pow```, string - uint64 proof of work that is used to protect against denial of service attacks
 
 See https://json.nlohmann.me/features/json_pointer/ for intro to
 JSON pointers.
@@ -91,8 +91,8 @@ Optional elements:
 
 
 1. ```encoding```, string - how to encode the result. Supported encodings
-   are ```json``` and ```rlp```. If the element is not provided, ```json``` encoding is
-   used.
+   are ```json``` and ```rlp```. JSON encoding is easy to analyze while rlp encoding is more efficient 
+   from the point of view of Solidity verification. Is the element is not present, RLP encoding is used.
 
 ## Returned value
 
