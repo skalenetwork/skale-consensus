@@ -39,7 +39,7 @@ Optional elements:
    are ```json``` and ```rlp```. JSON encoding is easy to analyze while rlp encoding is more efficient 
    from the point of view of Solidity verification. Is the element is not present, RLP encoding is used.
    
-* ```method``` - Ethereum API method to call. Must be set if ```eth://``` URI type is used. Valid values are:
+* ```ethapi``` - Ethereum API method to call.  If this element is present, an eth API call will be performed against the endpoint. Valid values for this element are:
 
 ```
 eth_call
@@ -56,13 +56,7 @@ eth_getBalance
 
 * If ```uri``` element in the spec starts with ```http://``` or ```https://```, Oracle will retrieve information by doing a http or https to a web endpoint specified by the uri. The endpoint must return a JSON string as a result.
 
-* If ```uri``` element in the spec starts with ```eth://``` Oracle will perform a request to the endpoint assuming that endpoint belongs to an eth compatible node. 
-
-
-The following ETH API calls are supported
-
-
-
+* If ```uri``` element in the spec is equal to with ```eth://``` Oracle will perform a request against ethereum mainnet.   For this each SKALE node will use the Ethereum mainnet node is is connected to.
 
 
 
