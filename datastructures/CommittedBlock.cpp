@@ -299,7 +299,7 @@ void CommittedBlock::verifyDaSig(ptr<CryptoManager> _cryptoManager) {
         _cryptoManager->verifyDAProofThresholdSig(hash, sig, getBlockID(), getTimeStampS());
     } catch (InvalidSignatureException &) {
         throw_with_nested(
-                InvalidStateException("Could not verify block BLS sig:", __CLASS_NAME__)
+                InvalidStateException("Could not verify block DA sig:", __CLASS_NAME__)
         );
     }
 

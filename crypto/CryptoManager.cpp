@@ -1074,11 +1074,15 @@ void CryptoManager::verifySessionSigAndKey(BLAKE3Hash &_hash, const string &_sig
                 } catch (...) {
                     LOG(err, "PubKey ECDSA sig did not verify NODE_ID:" +
                              to_string((uint64_t) _nodeId.first) + string(". Probably because of rotation, trying second key"));
-                    try {
-                        verifyECDSASig(pkeyHash, pkSig, _nodeId.second, _timeStamp);
-                    } catch (...) {
-                        LOG(err, "PubKey ECDSA sig did not verify NODE_ID:" +
-                                 to_string((uint64_t) _nodeId.second) + string(". Pubkey ECDSA wasn't verified."));
+                    if ( _nodeId.second != node_id(-1) ) { // default value
+                        try {
+                            verifyECDSASig(pkeyHash, pkSig, _nodeId.second, _timeStamp);
+                        } catch (...) {
+                            LOG(err, "PubKey ECDSA sig did not verify NODE_ID:" +
+                                     to_string((uint64_t) _nodeId.second) + string(". Pubkey ECDSA wasn't verified."));
+                            throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+                        }
+                    } else {
                         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
                     }
                 }
