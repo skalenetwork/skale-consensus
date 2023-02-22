@@ -1,10 +1,31 @@
-# Dynamic Oracle API
+# Oracle API
 
 The following two JSON-RPC calls are implemented by ```skaled```
 
+## OracleRequestSpec.
+
+### Oracle request spec description
+
+$OracleRequestSpec$ is a JSON string that is used by client to initiate an Oracle request.
+
+It has the following parameters:
+
+Required elements:
+
+1. ```cid```, uint64 - chain ID
+2. ```uri```, string - Oracle endpoint (http or https or geth)
+3. ```time```, uint64 - Linux time of request in ms
+4. ```jsps```, array of strings - list of JSON pointer to the data elements to be picked from server response.
+5. ```pow```, string - uint64 proof of work that is used to protect against denial of service attacks
+
+See https://json.nlohmann.me/features/json_pointer/ for intro to
+JSON pointers.
+
+
 ## oracle_submitRequest
 
-Submit Oracle request
+To submit an Oracle request to a SKALE node, the client submits a string spec 
+to oracle_submitRequest API.
 
 ### Parameters
 
@@ -22,9 +43,6 @@ day of the year from worldtimeapi.org.
     "trims":[1,1,1],
     "time":9234567,
     "pow":53458}
-
-
-
 ```
 
 Description:
@@ -49,18 +67,8 @@ HTTP post request that posts some data to endpoint
      "pow":1735}
 ```
 
-### Request JSON elements description
 
-Required elements:
 
-1. ```cid```, uint64 - chain ID
-2. ```uri```, string - Oracle endpoint (http or https)
-3. ```time```, uint64 - Linux time of request in ms
-4. ```jsps```, array of strings - list of JSON pointer to the data elements to be picked from server response.
-5. ```pow```, string - uint64 proof of work that is used to protect against denial of service attacks
-
-See https://json.nlohmann.me/features/json_pointer/ for intro to
-JSON pointers.
 
 Note: for each JSON pointer specified in the request, the Oracle
 will
