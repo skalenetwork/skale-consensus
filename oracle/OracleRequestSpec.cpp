@@ -26,6 +26,11 @@ ptr<OracleRequestSpec> OracleRequestSpec::parseSpec(const string &_spec) {
     }
 }
 
+
+void OracleRequestSpec::checkEncoding(const string & _encoding) {
+    CHECK_STATE2(_encoding.empty() || _encoding == "json" || _encoding == "rlp", "Unknown encoding " + encoding);
+}
+
 OracleRequestSpec::OracleRequestSpec(const string &_spec) : spec(_spec) {
     try {
         rapidjson::Document d;
@@ -39,15 +44,15 @@ OracleRequestSpec::OracleRequestSpec(const string &_spec) : spec(_spec) {
 
         chainid = d["cid"].GetUint64();
 
-
         CHECK_STATE2(d.HasMember("uri"), "No URI in Oracle spec:" + _spec);
 
         CHECK_STATE2(d["uri"].IsString(), "Uri in Oracle spec is not string:" + _spec);
 
         uri = d["uri"].GetString();
 
-
         CHECK_STATE(uri.size() > 5);
+
+        CHECK_STATE(uri.size() <= ORACLE_MAX_URI_SIZE);
 
         CHECK_STATE2(d.HasMember("jsps"), "No json pointer in Oracle spec:" + _spec);
 
@@ -73,9 +78,13 @@ OracleRequestSpec::OracleRequestSpec(const string &_spec) : spec(_spec) {
 
         CHECK_STATE2(!array.Empty(), "Jsps array is empty.:" + _spec);
 
+        CHECK_STATE(array.Size() <= ORACLE_MAX_JSPS);
+
         for (auto &&item: array) {
             CHECK_STATE2(item.IsString(), "Jsps array item is not string:" + _spec);
-            jsps.push_back(item.GetString());
+            auto jsp = (string) item.GetString();
+            CHECK_STATE(jsp.size() <= ORACLE_MAX_JSP_SIZE);
+            jsps.push_back(jsp);
         }
 
 
@@ -95,7 +104,7 @@ OracleRequestSpec::OracleRequestSpec(const string &_spec) : spec(_spec) {
 
 
         if (d.HasMember("post")) {
-            CHECK_STATE2(d["post"].IsString(), "Post in Oracle spec is not string:" + _spec);
+            CHECK_STATE2(d["post"].IsString(), "Post in Oracle spec is not a string:" + _spec);
             post = d["post"].GetString();
         }
 
@@ -103,6 +112,9 @@ OracleRequestSpec::OracleRequestSpec(const string &_spec) : spec(_spec) {
             CHECK_STATE2(d["encoding"].IsString(), "Encoding in Oracle spec is not string:" + _spec);
             encoding = d["encoding"].GetString();
         }
+
+
+        checkEncoding(encoding);
 
 
         if (this->isGeth()) {
@@ -125,7 +137,6 @@ OracleRequestSpec::OracleRequestSpec(const string &_spec) : spec(_spec) {
             }
         }
 
-        CHECK_STATE2(encoding.empty() || encoding == "json" || encoding == "rlp", "Unknown encoding " + encoding);
         CHECK_STATE2(verifyPow(), "PoW did not verify");
 
         receipt = CryptoManager::hashForOracle(spec.data(), spec.size());
@@ -202,16 +213,21 @@ bool OracleRequestSpec::verifyPow() {
     }
 }
 
-OracleRequestSpec::OracleRequestSpec(uint64_t _chainid, const string &_uri,
+OracleRequestSpec::OracleRequestSpec(uint64_t _chainId, const string &_uri,
                                      const vector<string> &_jsps, const vector<uint64_t> &_trims, uint64_t _time,
                                      const string &_post, const string &_encoding) :
-        chainid(_chainid),
+        chainid(_chainId),
         uri(_uri),
         jsps(_jsps),
         trims(_trims),
         requestTime(_time),
         post(_post),
         encoding(_encoding) {
+
+
+    checkEncoding(_encoding);
+    CHECK_STATE(uri.size() <= ORACLE_MAX_URI_SIZE);
+
 
 
     try {
@@ -227,6 +243,7 @@ OracleRequestSpec::OracleRequestSpec(uint64_t _chainid, const string &_uri,
             for (uint64_t j = 0; j < jsps.size(); j++) {
                 spec.append("\"");
                 string jsp = jsps.at(j);
+                CHECK_STATE(jsp.size() <= ORACLE_MAX_JSP_SIZE);
                 CHECK_STATE2(!jsp.empty() && jsp.front() == '/', "Invalid JSP pointer:" + jsp);
                 spec.append(jsp);
                 spec.append("\"");
@@ -238,6 +255,8 @@ OracleRequestSpec::OracleRequestSpec(uint64_t _chainid, const string &_uri,
             spec.append("],");
 
             if (trims.size() > 0) {
+
+                CHECK_STATE(_trims.size() == _jsps.size());
 
                 spec.append("\"trims\":[");
 

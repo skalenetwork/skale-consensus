@@ -89,9 +89,12 @@ void OracleClient::sendTestRequestGet() {
     string uri = "http://worldtimeapi.org/api/timezone/Europe/Kiev";
     vector<string> jsps{"/unixtime", "/day_of_year", "/xxx"};
     vector<uint64_t> trims{1, 1, 1};
-    string encoding = "rlp";
     string post = "";
+    string encoding;
 
+    encoding = ORACLE_ENCODING_RLP;
+    sendRequestAndWaitForResult(uri, jsps, trims, post, encoding);
+    encoding = ORACLE_ENCODING_JSON;
     sendRequestAndWaitForResult(uri, jsps, trims, post, encoding);
 }
 

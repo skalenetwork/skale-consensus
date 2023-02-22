@@ -5,6 +5,13 @@
 #ifndef SKALED_ORACLEREQUESTSPEC_H
 #define SKALED_ORACLEREQUESTSPEC_H
 
+constexpr const char* ORACLE_ENCODING_RLP = "rlp";
+constexpr const char* ORACLE_ENCODING_JSON = "json";
+constexpr uint64_t ORACLE_MAX_URI_SIZE = 1024;
+constexpr uint64_t ORACLE_MAX_POST_SIZE = 1024;
+constexpr uint64_t ORACLE_MAX_JSPS = 32;
+constexpr uint64_t ORACLE_MAX_JSPS = 32;
+
 
 class OracleRequestSpec {
 
@@ -19,6 +26,8 @@ class OracleRequestSpec {
     uint64_t pow;
     string receipt;
 
+
+    void checkEncoding(const string & _encoding);
 
 public:
 
@@ -38,7 +47,7 @@ public:
 
     OracleRequestSpec(const string &_spec);
 
-    OracleRequestSpec(uint64_t _chainid, const string &_uri, const vector<string> &_jsps,
+    OracleRequestSpec(uint64_t _chainId, const string &_uri, const vector<string> &_jsps,
                       const vector<uint64_t> &_trims, uint64_t _time, const string& _post, const string &_encoding);
 
     uint64_t getChainid() const;
