@@ -23,7 +23,7 @@
 
 #include <curl/curl.h>
 
-#include "thirdparty/LUrlParser.h"
+
 
 #include "SkaleCommon.h"
 #include "Log.h"
@@ -195,26 +195,6 @@ ptr<OracleResponseMessage> OracleServerAgent::doEndpointRequestResponse(ptr<Orac
     auto uri = spec->getUri();
     if (spec->isEthMainnet()) {
         uri = gethURL + "/" + spec->getEthApi();
-    } else {
-        auto result = LUrlParser::ParseURL::parseURL(uri);
-        CHECK_STATE2(result.isValid(), "URL invalid:" + uri);
-        CHECK_STATE2(result.userName_.empty(), "Non empty username");
-        CHECK_STATE2(result.password_.empty(), "Non empty password");
-        auto host = result.host_;
-
-        CHECK_STATE2(host.find("0.") != 0 &&
-                     host.find("10.") != 0 &&
-                     host.find("127.") != 0 &&
-                     host.find("172.") != 0 &&
-                     host.find("192.168.") != 0 &&
-                     host.find("169.254.") != 0 &&
-                     host.find("192.0.0") != 0 &&
-                     host.find("192.0.2") != 0 &&
-                     host.find("192.0.2") != 0 &&
-                     host.find("198.18") != 0 &&
-                     host.find("198.19") != 0,
-                     "Private IPs not allowed in Oracle"
-        )
     }
 
     auto postString = spec->getPost();
