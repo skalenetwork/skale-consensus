@@ -663,8 +663,10 @@ pair<node_id, node_id> CryptoManager::getHistoricNodeIDByIndex(uint64_t schain_i
                string(" for timestamp ") + std::to_string(_timeStamp) +
                string(" to verify a block came through catchup"));
     if (_timeStamp == uint64_t(-1) || historicNodeGroups->size() < 2) {
-        //LOG(debug, string("Got current BLS public key ") + std::to_string(getSchain()->getNodeIDByIndex(schain_id)));
-        return {getSchain()->getNodeIDByIndex(schain_id), uint64_t(-1)};
+        node_id nodeId = getSchain()->getNodeIDByIndex(schain_id);
+        LOG(debug, string("Got current node id ") + std::to_string(uint64_t(nodeId)) + string(" for index ") +
+            std::to_string(schain_id) + string(" and timestamp ") + std::to_string(_timeStamp));
+        return {nodeId, uint64_t(-1)};
     } else {
         // second key is used when the sig corresponds
         // to the last block before node rotation!
@@ -675,14 +677,20 @@ pair<node_id, node_id> CryptoManager::getHistoricNodeIDByIndex(uint64_t schain_i
         auto it = historicNodeGroups->upper_bound(_timeStamp);
 
         if (it == historicNodeGroups->begin()) {
-//            LOG(debug, string("Got first BLS public key ") + blsKeyToString((*it).second));
+            node_id nodeId = (*it).second[schain_id];
+            LOG(debug, string("Got node id ") + std::to_string(uint64_t(nodeId)) +
+                string(" for index ") + std::to_string(schain_id) + string(" and timestamp ") +
+                std::to_string(_timeStamp));
             // if begin() then no previous groups for this key
             return {(*it).second[schain_id], uint64_t(-1)};
         }
 
-  //      LOG(debug, string("Got two BLS public keys ") + blsKeyToString((*it).second) + " " +
-  //                 blsKeyToString((*std::prev(it)).second));
-        return {(*it).second[schain_id], (*(--it)).second[schain_id]};
+        node_id nodeId1 = (*it).second[schain_id];
+        node_id nodeId2 = (*(--it)).second[schain_id];
+        LOG(debug, string("Got two node ids ") + std::to_string(uint64_t(nodeId1)) + " " +
+            std::to_string(uint64_t(nodeId2)) + string(" for index ") + std::to_string(schain_id) +
+            string(" and timestamp ") + std::to_string(_timeStamp));
+        return {nodeId1, nodeId2};
     }
 }
 
@@ -1065,9 +1073,9 @@ void CryptoManager::verifySessionSigAndKey(BLAKE3Hash &_hash, const string &_sig
                     verifyECDSASig(pkeyHash, pkSig, _nodeId.first, _timeStamp);
                 } catch (...) {
                     LOG(err, "PubKey ECDSA sig did not verify NODE_ID:" +
-                             to_string((uint64_t) _nodeId.first) + string(" .Probably because of rotation, trying second key"));
+                             to_string((uint64_t) _nodeId.first) + string(". Probably because of rotation, trying second key"));
                     try {
-                        verifyECDSASig(pkeyHash, pkSig, _nodeId.first, _timeStamp);
+                        verifyECDSASig(pkeyHash, pkSig, _nodeId.second, _timeStamp);
                     } catch (...) {
                         LOG(err, "PubKey ECDSA sig did not verify NODE_ID:" +
                                  to_string((uint64_t) _nodeId.second) + string(". Pubkey ECDSA wasn't verified."));

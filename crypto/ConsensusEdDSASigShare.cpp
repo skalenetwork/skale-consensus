@@ -72,6 +72,7 @@ void ConsensusEdDSASigShare::verify(
 
     try {
         // EdDSA sig shares are always verified using the current set of ecdsa keys
+        LOG(debug, std::string("Share's signer index is " + std::to_string(uint64_t(signerIndex))));
         _cryptoManager.verifySessionSigAndKey(_hash, tokens.at(1), tokens.at(2),
                                               tokens.at(3), blockId, _cryptoManager.getHistoricNodeIDByIndex(uint64_t(_schainIndex), timestamp), timestamp);
     } catch (...) {
