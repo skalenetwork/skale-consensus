@@ -39,7 +39,7 @@ Optional elements:
    are ```json``` and ```rlp```. JSON encoding is easy to analyze while rlp encoding is more efficient 
    from the point of view of Solidity verification. Is the element is not present, RLP encoding is used.
    
-* ```params```, string - if ```eth_call``` is used, this element is required to provide parameters for ```eth_call``` as described [here](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_call)
+* ```params```, string - if ```eth_call``` or ```eth_getBalance``` are used, this element is required to provide params as described [here](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_call)
    
    
 ### URI element
@@ -48,10 +48,16 @@ Optional elements:
 
 * If ```uri``` element in the spec starts with ```eth://``` Oracle will perform a request to the endpoint assuming that endpoint belongs to an eth compatible node. 
 
+
+The following ETH API calls are supported
+
+
+
 ```
-eth://eth_call
-eth://eth_gasPrice
-eth://eth_blockNumber
+eth_call
+eth_gasPrice
+eth_blockNumber
+eth_getBalance
 ```
 
 
