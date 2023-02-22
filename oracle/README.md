@@ -22,6 +22,24 @@ See https://json.nlohmann.me/features/json_pointer/ for intro to
 JSON pointers.
 
 
+Optional elements:
+
+* ```trims```, uint64 array - this is an array of trim values.
+   It is used to trim endings of the strings in Oracle result.
+   If ```trims``` array is provided, it has to provide trim value for
+   each JSON pointer requested. Therefore, the array size needs to be identical to ```jsps``` array size.
+
+
+* ```post```, string - if this element is provided, the
+   Oracle with use HTTP POST instead of HTTP GET (default).
+   The value of the ```post``` element will be POSTed to the endpoint.
+
+
+* ```encoding```, string - how to encode the result. Supported encodings
+   are ```json``` and ```rlp```. JSON encoding is easy to analyze while rlp encoding is more efficient 
+   from the point of view of Solidity verification. Is the element is not present, RLP encoding is used.
+
+
 ## oracle_submitRequest
 
 To submit an Oracle request to a SKALE node, the client submits a string spec 
@@ -77,22 +95,6 @@ will
 - transform it to a string.
 - If no such element exists, ```null``` will be returned.
 
-Optional elements:
-
-1. ```trims```, uint64 array - this is an array of trim values.
-   It is used to trim endings of the strings in Oracle result.
-   If ```trims``` array is provided, it has to provide trim value for
-   each JSON pointer requested.
-
-
-1. ```post```, string - if this element is provided, the
-   Oracle with use HTTP POST instead of HTTP GET (default).
-   The value of the ```post``` element will be POSTed to the endpoint.
-
-
-1. ```encoding```, string - how to encode the result. Supported encodings
-   are ```json``` and ```rlp```. JSON encoding is easy to analyze while rlp encoding is more efficient 
-   from the point of view of Solidity verification. Is the element is not present, RLP encoding is used.
 
 ## Returned value
 
