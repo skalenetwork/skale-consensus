@@ -13,7 +13,7 @@ It has the following parameters:
 Required elements:
 
 * ```cid```, uint64 - chain ID
-* ```uri```, string - Oracle endpoint (http or https or geth). Max length 1024 bytes.
+* ```uri```, string - Oracle endpoint (must start with http:// or https:// or geth://). Max length 1024 bytes.
 * ```time```, uint64 - Linux time of request in ms
 * ```jsps```, array of strings - list of string JSON pointers to the data elements to be picked from server response. Must have from 1 to 32 elements. Max length of each pointer 1024 bytes.
 * ```pow```, string - uint64 proof of work that is used to protect against denial of service attacks
