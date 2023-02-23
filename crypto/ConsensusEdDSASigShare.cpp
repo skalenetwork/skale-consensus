@@ -35,8 +35,8 @@
 #include "ConsensusEdDSASigShare.h"
 
 ConsensusEdDSASigShare::ConsensusEdDSASigShare(const string& _sigShare, schain_id _schainID, block_id _blockID,
-    uint64_t _totalSigners)
-    : ThresholdSigShare(_schainID, _blockID, 0), sigShare(_sigShare) {
+    uint64_t _timestamp, uint64_t _totalSigners)
+    : ThresholdSigShare(_schainID, _blockID, 0), sigShare(_sigShare), timestamp(_timestamp) {
 
 
 
@@ -67,13 +67,14 @@ string ConsensusEdDSASigShare::toString() {
 
 void ConsensusEdDSASigShare::verify(
     CryptoManager& _cryptoManager,
-    BLAKE3Hash& _hash, node_id _nodeId) {
+    BLAKE3Hash& _hash, schain_index _schainIndex) {
 
 
     try {
         // EdDSA sig shares are always verified using the current set of ecdsa keys
+        LOG(debug, std::string("Share's signer index is " + std::to_string(uint64_t(signerIndex))));
         _cryptoManager.verifySessionSigAndKey(_hash, tokens.at(1), tokens.at(2),
-                                              tokens.at(3), blockId, _nodeId, uint64_t(-1));
+                                              tokens.at(3), blockId, _cryptoManager.getHistoricNodeIDByIndex(uint64_t(_schainIndex), timestamp), timestamp);
     } catch (...) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }

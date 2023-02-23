@@ -35,10 +35,12 @@ class ConsensusEdDSASignature : public ThresholdSignature {
 
     map<uint64_t, ptr<ConsensusEdDSASigShare>> shares;
 
+    uint64_t timestamp;
+
 public:
 
     ConsensusEdDSASignature(
-        const string& _sig, schain_id _schainId, block_id _blockID, size_t _totalSigners, size_t _requiredSigners );
+        const string& _sig, schain_id _schainId, block_id _blockID, uint64_t timestamp, size_t _totalSigners, size_t _requiredSigners );
 
     string toString() override;
 

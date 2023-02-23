@@ -173,7 +173,7 @@ class CryptoManager {
             BLAKE3Hash &_hash, block_id _blockId, bool _forceMockup);
 
     ptr<ThresholdSigShare> signDAProofSigShare(
-            BLAKE3Hash &_hash, block_id _blockId, bool _forceMockup);
+            BLAKE3Hash &_hash, block_id _blockId, uint64_t _timestamp,  bool _forceMockup);
 
 
     void initSGXClient();
@@ -218,7 +218,7 @@ public:
 
 
     ptr<ThresholdSignature> verifyDAProofThresholdSig(
-            BLAKE3Hash &_hash, const string &_signature, block_id _blockId);
+            BLAKE3Hash &_hash, const string &_signature, block_id _blockId, uint64_t _timestamp);
 
     void verifyProposalECDSA(
             const ptr<BlockProposal> &_proposal, const string &_hashStr, const string &_signature);
@@ -227,7 +227,7 @@ public:
             BLAKE3Hash &_hash, const string &_sig, const string &_publicKey);
 
     void verifySessionSigAndKey(BLAKE3Hash &_hash, const string &_sig,
-                                const string &_publicKey, const string &pkSig, block_id _blockID, node_id _nodeId,
+                                const string &_publicKey, const string &pkSig, block_id _blockID, pair<node_id, node_id> _nodeId,
                                 uint64_t _timeStamp);
 
 
@@ -237,13 +237,13 @@ public:
 
     ptr<ThresholdSigShareSet> createSigShareSet(block_id _blockId);
 
-    ptr<ThresholdSigShareSet> createDAProofSigShareSet(block_id _blockId);
+    ptr<ThresholdSigShareSet> createDAProofSigShareSet(block_id _blockId, uint64_t _timestamp);
 
     ptr<ThresholdSigShare> createSigShare(const string &_sigShare, schain_id _schainID,
                                           block_id _blockID, schain_index _signerIndex, bool _forceMockup);
 
     ptr<ThresholdSigShare> createDAProofSigShare(const string &_sigShare, schain_id _schainID,
-                                                 block_id _blockID, schain_index _signerIndex, bool _forceMockup);
+                                                 block_id _blockID, schain_index _signerIndex, uint64_t _timestamp, bool _forceMockup);
 
     void signProposal(BlockProposal *_proposal);
 
@@ -336,6 +336,8 @@ public:
     string getECDSAPublicKeyForNodeId(const node_id &_nodeId, uint64_t _timeStamp);
 
     string getECDSAHistoricPublicKeyForNodeId(uint64_t _nodeId, uint64_t _timeStamp);
+
+    pair<node_id, node_id> getHistoricNodeIDByIndex(uint64_t schain_id, uint64_t _timeStamp);
 };
 
 #define RETRY_BEGIN \

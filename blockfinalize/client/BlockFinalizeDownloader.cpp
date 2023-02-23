@@ -271,7 +271,7 @@ ptr< BlockProposalFragment > BlockFinalizeDownloader::readBlockFragment(
         if ( !this->daSig && !sig.empty() ) {
             auto blakeHash = BLAKE3Hash::fromHex( h );
             this->daSig = getSchain()->getCryptoManager()->verifyDAProofThresholdSig(
-                blakeHash, sig, blockId );
+                blakeHash, sig, blockId, uint64_t(-1));
         }
     }
 
