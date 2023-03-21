@@ -70,6 +70,7 @@ day of the year from worldtimeapi.org.
     "jsps":["/unixtime", "/day_of_year", "/xxx"],
     "trims":[1,1,1],
     "time":9234567,
+    "encoding":"json",
     "pow":53458}
 ```
 

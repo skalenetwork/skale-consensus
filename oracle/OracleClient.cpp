@@ -92,8 +92,8 @@ void OracleClient::sendTestRequestGet() {
     string post = "";
     string encoding;
 
-    encoding = ORACLE_ENCODING_RLP;
-    sendRequestAndWaitForResult(uri, jsps, trims, post, encoding);
+    //encoding = ORACLE_ENCODING_ABI;
+    //sendRequestAndWaitForResult(uri, jsps, trims, post, encoding);
     encoding = ORACLE_ENCODING_JSON;
     sendRequestAndWaitForResult(uri, jsps, trims, post, encoding);
 }

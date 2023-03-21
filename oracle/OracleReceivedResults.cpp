@@ -174,9 +174,9 @@ uint64_t OracleReceivedResults::tryGettingResult(string &_result) {
                 auto encoding = requestSpec->getEncoding();
                 if (encoding == ORACLE_ENCODING_JSON) {
                     _result = compileCompleteResultJson(unsignedResult);
-                } else if (encoding == ORACLE_ENCODING_RLP|| encoding.empty()){
-                    // JSON by default
-                    _result = compileCompleteResultJson(unsignedResult);
+//                } else if (encoding == ORACLE_ENCODING_ABI|| encoding.empty()){
+//                    // JSON by default
+//                    _result = compileCompleteResultAbi(unsignedResult);
                 } else {
                     // should never get to this line
                     CHECK_STATE(false);
