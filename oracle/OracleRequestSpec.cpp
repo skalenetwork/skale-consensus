@@ -35,13 +35,12 @@ ptr<OracleRequestSpec> OracleRequestSpec::parseSpec(const string &_spec, uint64_
 
 
 void OracleRequestSpec::checkEncoding(const string &_encoding) {
-    CHECK_STATE2(_encoding == "json" || _encoding == "rlp", "Unknown encoding " + encoding);
+    CHECK_STATE2(_encoding == "json" || _encoding == "abi", "Unknown encoding " + encoding);
 }
 
 
 void OracleRequestSpec::checkEthApi(const string &_ethApi) {
-    if (_ethApi == string("eth_call") ||
-        _ethApi == string("eth_gasPrice") || _ethApi == string("eth_blockNumber")) {}
+    if (_ethApi == string("eth_call") {}
     else {
         CHECK_STATE2(false, "Eth Method is not supported:" + _ethApi);
     }

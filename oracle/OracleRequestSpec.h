@@ -8,7 +8,7 @@
 
 #include "thirdparty/rapidjson/document.h"
 
-constexpr const char* ORACLE_ENCODING_RLP = "rlp";
+constexpr const char* ORACLE_ENCODING_ABI = "abi";
 constexpr const char* ORACLE_ENCODING_JSON = "json";
 constexpr const char* ORACLE_HTTP_START = "http://";
 constexpr const char* ORACLE_HTTPS_START = "https://";
