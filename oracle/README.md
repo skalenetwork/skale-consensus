@@ -1,10 +1,69 @@
-# Dynamic Oracle API
+# Oracle API
 
 The following two JSON-RPC calls are implemented by ```skaled```
 
+## OracleRequestSpec.
+
+### Oracle request spec description
+
+$OracleRequestSpec$ is a JSON string that is used by client to initiate an Oracle request.
+
+It has the following parameters:
+
+Required elements:
+
+* ```cid```, uint64 - chain ID
+* ```uri```, string - Oracle endpoint (must start with http:// or https:// or eth://). Max length 1024 bytes. See a separate section for uri format.
+* ```time```, uint64 - Linux time of request in ms
+* ```jsps```, array of strings - list of string JSON pointers to the data elements to be picked from server response. Must have from 1 to 32 elements. Max length of each pointer 1024 bytes.
+* ```pow```, string - uint64 proof of work that is used to protect against denial of service attacks
+
+See https://json.nlohmann.me/features/json_pointer/ for intro to
+JSON pointers.
+
+
+Optional elements:
+
+* ```trims```, uint64 array - this is an array of trim values.
+   It is used to trim endings of the strings in Oracle result.
+   If ```trims``` array is provided, it has to provide trim value for
+   each JSON pointer requested. Therefore, the array size needs to be identical to ```jsps``` array size.
+
+
+* ```post```, string - if this element is provided, the
+   Oracle with use HTTP POST instead of HTTP GET (default).
+   The value of the ```post``` element will be POSTed to the endpoint. Max length 1024 bytes.
+
+
+* ```encoding```, string - how to encode the result. Supported encodings
+   are ```json``` and ```abi```. JSON encoding is easy to analyze while abi encoding is more efficient 
+   from the point of view of Solidity verification. Is the element is not present, RLP encoding is used.
+   
+* ```ethApi``` - Ethereum API method to call.  If this element is present, an eth API call will be performed against the endpoint. Valid values for this element are:
+
+```
+eth_call
+eth_gasPrice
+eth_blockNumber
+eth_getBalance
+```
+
+   
+* ```params```, string - if ```eth_call``` or ```eth_getBalance``` are used, this element is required to provide params as described [here](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_call)
+   
+   
+### URI element
+
+* If ```uri``` element in the spec starts with ```http://``` or ```https://```, Oracle will retrieve information by doing a http or https to a web endpoint specified by the uri. The endpoint must return a JSON string as a result.
+
+* If ```uri``` element in the spec is equal to with ```eth://``` Oracle will perform a request against ethereum mainnet.   For this each SKALE node will use the Ethereum mainnet node is is connected to.
+
+
+
 ## oracle_submitRequest
 
-Submit Oracle request
+To submit an Oracle request to a SKALE node, the client submits a string spec 
+to oracle_submitRequest API.
 
 ### Parameters
 
@@ -22,9 +81,6 @@ day of the year from worldtimeapi.org.
     "trims":[1,1,1],
     "time":9234567,
     "pow":53458}
-
-
-
 ```
 
 Description:
@@ -49,18 +105,8 @@ HTTP post request that posts some data to endpoint
      "pow":1735}
 ```
 
-### Request JSON elements description
 
-Required elements:
 
-1. ```cid```, uint64 - chain ID
-2. ```uri```, string - Oracle endpoint (http or https)
-3. ```time```, uint64 - Linux time of request in ms
-4. ```jsps```, array of strings - list of JSON pointer to the data elements to be picked from server response.
-5. ```pow```, string - uint64 proof of work that is used to protect against denial of service attacks
-
-See https://json.nlohmann.me/features/json_pointer/ for intro to
-JSON pointers.
 
 Note: for each JSON pointer specified in the request, the Oracle
 will
@@ -69,22 +115,6 @@ will
 - transform it to a string.
 - If no such element exists, ```null``` will be returned.
 
-Optional elements:
-
-1. ```trims```, uint64 array - this is an array of trim values.
-   It is used to trim endings of the strings in Oracle result.
-   If ```trims``` array is provided, it has to provide trim value for
-   each JSON pointer requested.
-
-
-1. ```post```, string - if this element is provided, the
-   Oracle with use HTTP POST instead of HTTP GET (default).
-   The value of the ```post``` element will be POSTed to the endpoint.
-
-
-1. ```encoding```, string - how to encode the result. Supported encodings
-   are ```json``` and ```rlp```. If the element is not provided, ```json``` encoding is
-   used.
 
 ## Returned value
 
@@ -123,13 +153,6 @@ use ```geth://``` in URI".
 
 The following JSON-RPC endpoint are available in the first release:
 
-```
-geth://eth_call
-geth://eth_gasPrice
-geth://eth_blockNumber
-geth://eth_getBlockByNumber
-geth://eth_getBlockByHash
-```
 
 ## oracle_checkResult
 

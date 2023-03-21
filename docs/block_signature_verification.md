@@ -106,7 +106,6 @@ Here $CommitMessage$ is a JSON object that includes $chainId$, $blockId$, and wi
 Note that if no proposal won (consessus returned default block), then $proposerIndex$ is set to $0$.
 
 
-
 ## 4. Summary of signatures. 
 
 ## 4.1 BlockProposal signatures.
@@ -127,19 +126,3 @@ During catchup for each block the following is done:
 
 * first, the correct set of verification keys is determined based on block timestamp. This takes into account the fact, that during node rotation, keys change.
 * second, all signatures of the block are verified.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
