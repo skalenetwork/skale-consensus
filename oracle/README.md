@@ -36,7 +36,7 @@ Optional elements:
 
 
 * ```encoding```, string - how to encode the result. Supported encodings
-   are ```json``` and ```rlp```. JSON encoding is easy to analyze while rlp encoding is more efficient 
+   are ```json``` and ```abi```. JSON encoding is easy to analyze while abi encoding is more efficient 
    from the point of view of Solidity verification. Is the element is not present, RLP encoding is used.
    
 * ```ethApi``` - Ethereum API method to call.  If this element is present, an eth API call will be performed against the endpoint. Valid values for this element are:
