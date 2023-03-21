@@ -33,25 +33,16 @@ Optional elements:
 * ```post```, string - if this element is provided, the
    Oracle with use HTTP POST instead of HTTP GET (default).
    The value of the ```post``` element will be POSTed to the endpoint. Max length 1024 bytes.
-
-
-* ```encoding```, string - how to encode the result. Supported encodings
-   are ```json``` and ```abi```. JSON encoding is easy to analyze while abi encoding is more efficient 
-   from the point of view of Solidity verification. Is the element is not present, RLP encoding is used.
+   if ```eth_call``` or ```eth_getBalance``` are used, this element is required to provide params as described [here](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_call)
    
 * ```ethApi``` - Ethereum API method to call.  If this element is present, an eth API call will be performed against the endpoint. Valid values for this element are:
 
 ```
 eth_call
 eth_gasPrice
-eth_blockNumber
 eth_getBalance
 ```
 
-   
-* ```params```, string - if ```eth_call``` or ```eth_getBalance``` are used, this element is required to provide params as described [here](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_call)
-   
-   
 ### URI element
 
 * If ```uri``` element in the spec starts with ```http://``` or ```https://```, Oracle will retrieve information by doing a http or https to a web endpoint specified by the uri. The endpoint must return a JSON string as a result.
@@ -149,7 +140,7 @@ specStr is the full JSON spec string, starting from ```{``` and ending with
 ### Geth
 
 To get information from SKALE network geth servers, one need to
-use ```geth://``` in URI".
+use ```eth://``` in URI".
 
 The following JSON-RPC endpoint are available in the first release:
 
