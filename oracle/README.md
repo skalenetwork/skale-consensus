@@ -175,7 +175,7 @@ An example of Oracle result is provided below
 {"cid":1,
  "uri":"http://worldtimeapi.org/api/timezone/Europe/Kiev",
   "jsps":["/unixtime", "/day_of_year", "/xxx"],
-  "trims":[1,1,1],"time":1642521456593,
+  "trims":[1,1,1],"time":1642521456593, "encoding":"json",
   "rslts":["164252145","1",null],
    "sigs":["6d50daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f",
            "7d50daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f",
