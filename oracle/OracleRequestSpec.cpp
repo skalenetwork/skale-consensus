@@ -19,9 +19,9 @@
 #include "OracleRequestSpec.h"
 
 
-ptr<OracleRequestSpec> OracleRequestSpec::parseSpec(const string &_spec, uint64_t  _chainId){
+ptr<OracleRequestSpec> OracleRequestSpec::parseSpec(const string &_spec, uint64_t _chainId) {
     try {
-        auto spec =  make_shared<OracleRequestSpec>(_spec);
+        auto spec = make_shared<OracleRequestSpec>(_spec);
         CHECK_STATE2(spec->getChainid() == _chainId,
                      "Invalid schain id in oracle spec:" + to_string(spec->getChainid()));
 
@@ -40,7 +40,7 @@ void OracleRequestSpec::checkEncoding(const string &_encoding) {
 
 
 void OracleRequestSpec::checkEthApi(const string &_ethApi) {
-    if (_ethApi == string("eth_call") {}
+    if (_ethApi == string("eth_call")) {}
     else {
         CHECK_STATE2(false, "Eth Method is not supported:" + _ethApi);
     }
@@ -140,7 +140,7 @@ OracleRequestSpec::OracleRequestSpec(const string &_spec) : spec(_spec) {
 }
 
 
-void OracleRequestSpec::parseWebRequestSpec(rapidjson::Document& d, const string&  _spec) {
+void OracleRequestSpec::parseWebRequestSpec(rapidjson::Document &d, const string &_spec) {
     CHECK_STATE2(d.HasMember("jsps"), "No json pointer in Oracle spec:" + _spec);
     CHECK_STATE2(d["jsps"].IsArray(), "Jsps in Oracle spec is not array:" + _spec);
 
@@ -179,7 +179,7 @@ void OracleRequestSpec::parseWebRequestSpec(rapidjson::Document& d, const string
 }
 
 
-void OracleRequestSpec::parseEthApiRequestSpec(rapidjson::Document& d, const string&  _spec) {
+void OracleRequestSpec::parseEthApiRequestSpec(rapidjson::Document &d, const string &_spec) {
     CHECK_STATE2(d.HasMember("jsps"), "No json pointer in Oracle spec:" + _spec);
     CHECK_STATE2(d["jsps"].IsArray(), "Jsps in Oracle spec is not array:" + _spec);
 
@@ -265,7 +265,7 @@ string OracleRequestSpec::getReceipt() {
 }
 
 
-bool OracleRequestSpec::verifyPow(string&_spec) {
+bool OracleRequestSpec::verifyPow(string &_spec) {
 
     try {
 
@@ -286,8 +286,9 @@ bool OracleRequestSpec::verifyPow(string&_spec) {
 }
 
 ptr<OracleRequestSpec> OracleRequestSpec::makeSpec(uint64_t _chainId, const string &_uri,
-                                     const vector<string> &_jsps, const vector<uint64_t> &_trims, uint64_t _time,
-                                     const string &_post, const string &_encoding) {
+                                                   const vector<string> &_jsps, const vector<uint64_t> &_trims,
+                                                   uint64_t _time,
+                                                   const string &_post, const string &_encoding) {
 
     string spec;
 
