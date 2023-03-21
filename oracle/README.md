@@ -16,6 +16,7 @@ Required elements:
 * ```uri```, string - Oracle endpoint (must start with http:// or https:// or eth://). Max length 1024 bytes. See a separate section for uri format.
 * ```time```, uint64 - Linux time of request in ms
 * ```jsps```, array of strings - list of string JSON pointers to the data elements to be picked from server response. Must have from 1 to 32 elements. Max length of each pointer 1024 bytes.
+* * ```encoding```, string - the only currently supported encoding is "json". "abi" will be supported in future releases. 
 * ```pow```, string - uint64 proof of work that is used to protect against denial of service attacks
 
 See https://json.nlohmann.me/features/json_pointer/ for intro to
@@ -32,8 +33,8 @@ Optional elements:
 
 * ```post```, string - if this element is provided, the
    Oracle with use HTTP POST instead of HTTP GET (default).
-   The value of the ```post``` element will be POSTed to the endpoint. Max length 1024 bytes.
-   if ```eth_call``` or ```eth_getBalance``` are used, this element is required to provide params as described [here](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_call)
+   The value of the ```post``` element will be posted to the endpoint. Max length 1024 bytes.
+   if ```eth_call``` or ```eth_getBalance``` are used, the "post" element is required to provide params as described [here](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_call)
    
 * ```ethApi``` - Ethereum API method to call.  If this element is present, an eth API call will be performed against the endpoint. Valid values for this element are:
 
@@ -48,8 +49,6 @@ eth_getBalance
 * If ```uri``` element in the spec starts with ```http://``` or ```https://```, Oracle will retrieve information by doing a http or https to a web endpoint specified by the uri. The endpoint must return a JSON string as a result.
 
 * If ```uri``` element in the spec is equal to with ```eth://``` Oracle will perform a request against ethereum mainnet.   For this each SKALE node will use the Ethereum mainnet node is is connected to.
-
-
 
 ## oracle_submitRequest
 
@@ -136,13 +135,6 @@ Here ~ is bitwise NOT and u256 is unsigned 256 bit number.
 
 specStr is the full JSON spec string, starting from ```{``` and ending with
 ```}```
-
-### Geth
-
-To get information from SKALE network geth servers, one need to
-use ```eth://``` in URI".
-
-The following JSON-RPC endpoint are available in the first release:
 
 
 ## oracle_checkResult
