@@ -33,10 +33,10 @@ Optional elements:
    If ```trims``` array is provided, it has to provide trim value for
    each JSON pointer requested. The array size is then identical to ```jsps``` array size. For each ```jsp``` the trim value specifies how many characters are trimmed from the end of the string returned.
 
-* ```post```, string - 
+* ```post```, string
 _if this element is provided and the uri starts with http:// and https://, then Oracle with use HTTP POST instead of HTTP GET (default).
    The value of the post element will be posted to the endpoint.
-   if eth_call or eth_getBalance are used, the post element will params as described [here](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_call)
+   if eth_call or eth_getBalance are used, the post element will params as described [here](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_call)_
    
 * ```ethApi``` - Ethereum API method to call.  If this element is present, an eth API call will be performed against the endpoint. Valid values for this element are:
 
