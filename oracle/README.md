@@ -50,7 +50,7 @@ eth_getBalance
 
 * If ```uri``` element in the spec starts with ```http://``` or ```https://```, Oracle will retrieve information by doing a http or https to a web endpoint specified by the uri. The endpoint must return a JSON string as a result.
 
-* If ```uri``` element in the spec is equal to with ```eth://``` Oracle will perform a request against Ethereum mainnet.   For this each SKALE node will use the Ethereum mainnet node is is connected to.
+* If ```uri``` element in the spec is equal to with ```eth://```, Oracle will perform a request against Ethereum mainnet.   For this each SKALE node will use the Ethereum mainnet node is is connected to.
 
 ## oracle_submitRequest
 
