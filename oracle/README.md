@@ -15,10 +15,10 @@ Required elements:
 * ```cid```, uint64 - chain ID
 * ```uri```, string - Oracle endpoint.
 _If uri starts with http:// or https:// then the information is obtained from the corresponding http:// or https:// endpoint_. 
-_If uri is eth:// then information is obtained from the geth server that the node is connected to_
- _Max length of uri is 1024 bytes._
-* ```time```, uint64 - Linux time of request in ms
-* ```jsps```, array of strings - list of string JSON pointers to the data elements to be picked from server response. Must have from 1 to 32 elements. Max length of each pointer 1024 bytes.
+_If uri is eth:// then information is obtained from the geth server that the node is connected to_.
+ _Max length of uri string is 1024 bytes._
+* ```time```, uint64 - Linux time of request in ms.
+* ```jsps```, array of strings - list of string JSON pointers to the data elements to be picked from server response. The array must have from 1 to 32 elements. Max length of each pointer 1024 bytes.
 * ```encoding```, string - the only currently supported encoding is "json". "abi" will be supported in future releases. 
 * ```pow```, string - uint64 proof of work that is used to protect against denial of service attacks
 
