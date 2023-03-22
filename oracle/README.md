@@ -19,11 +19,11 @@ _If uri is eth:// then information is obtained from the geth server that the nod
  _Max length of uri string is 1024 bytes._
 * ```time```, uint64 - Linux time of request in ms.
 * ```jsps```, array of strings - list of string JSON pointers to the data elements to be picked from server response. The array must have from 1 to 32 elements. Max length of each pointer 1024 bytes.
+_ See https://json.nlohmann.me/features/json_pointer/ for intro to JSON pointers._
 * ```encoding```, string - the only currently supported encoding is```json```. ```abi``` will be supported in future releases. 
 * ```pow```, string - uint64 proof of work that is used to protect against denial of service attacks
 
-See https://json.nlohmann.me/features/json_pointer/ for intro to
-JSON pointers.
+
 
 
 Optional elements:
