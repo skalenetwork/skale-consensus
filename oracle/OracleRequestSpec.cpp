@@ -188,8 +188,12 @@ void OracleRequestSpec::parseEthApiRequestSpec(rapidjson::Document &d, const str
 
     CHECK_STATE2(!d.HasMember("trims"), "trims element should not be present in eth_call request" + _spec);
 
-    CHECK_STATE2(d.HasMember("post"),
-                 "eth_call request shall include post element, which could be an empty string");
+    CHECK_STATE2(d.HasMember("params"),
+                 "eth_call request shall include params element, which could be an empty array" + _spec);
+
+    CHECK_STATE2(d["params"].IsArray(),  "eth_call request shall include params element, which could be an empty array"
+         + _spec);
+
 }
 
 const string &OracleRequestSpec::getSpec() const {
