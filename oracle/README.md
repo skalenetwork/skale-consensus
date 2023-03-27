@@ -13,14 +13,17 @@ It has the following parameters:
 Required elements:
 
 * ```cid```, uint64 - chain ID
-* ```uri```, string - Oracle endpoint (must start with http:// or https:// or eth://). Max length 1024 bytes. See a separate section for uri format.
-* ```time```, uint64 - Linux time of request in ms
-* ```jsps```, array of strings - list of string JSON pointers to the data elements to be picked from server response. Must have from 1 to 32 elements. Max length of each pointer 1024 bytes.
-* * ```encoding```, string - the only currently supported encoding is "json". "abi" will be supported in future releases. 
+* ```uri```, string - Oracle endpoint.
+_If uri starts with http:// or https:// then the information is obtained from the corresponding http:// or https:// endpoint_. 
+_If uri is eth:// then information is obtained from the geth server that the node is connected to_.
+ _Max length of uri string is 1024 bytes._
+* ```time```, uint64 - Linux time of request in ms.
+* ```jsps```, array of strings - list of string JSON pointers to the data elements to be picked from server response. The array must have from 1 to 32 elements. Max length of each pointer 1024 bytes.
+_See https://json.nlohmann.me/features/json_pointer/ for intro to JSON pointers._
+* ```encoding```, string - the only currently supported encoding is```json```. ```abi``` will be supported in future releases. 
 * ```pow```, string - uint64 proof of work that is used to protect against denial of service attacks
 
-See https://json.nlohmann.me/features/json_pointer/ for intro to
-JSON pointers.
+
 
 
 Optional elements:
@@ -28,13 +31,13 @@ Optional elements:
 * ```trims```, uint64 array - this is an array of trim values.
    It is used to trim endings of the strings in Oracle result.
    If ```trims``` array is provided, it has to provide trim value for
-   each JSON pointer requested. Therefore, the array size needs to be identical to ```jsps``` array size.
+   each JSON pointer requested. The array size is then identical to ```jsps``` array size. For each ```jsp``` the trim value specifies how many characters are trimmed from the end of the string returned.
 
+* ```post```, string
 
-* ```post```, string - if this element is provided, the
-   Oracle with use HTTP POST instead of HTTP GET (default).
-   The value of the ```post``` element will be posted to the endpoint. Max length 1024 bytes.
-   if ```eth_call``` or ```eth_getBalance``` are used, the "post" element is required to provide params as described [here](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_call)
+_if this element is provided and the uri starts with http:// and https://, then Oracle with use HTTP POST instead of HTTP GET (default).
+   The value of the post element will be posted to the endpoint. If the uri is eth:// and
+   if eth_call or eth_getBalance are used, the post element will params as described [here](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_call)_
    
 * ```ethApi``` - Ethereum API method to call.  If this element is present, an eth API call will be performed against the endpoint. Valid values for this element are:
 
@@ -48,7 +51,7 @@ eth_getBalance
 
 * If ```uri``` element in the spec starts with ```http://``` or ```https://```, Oracle will retrieve information by doing a http or https to a web endpoint specified by the uri. The endpoint must return a JSON string as a result.
 
-* If ```uri``` element in the spec is equal to with ```eth://``` Oracle will perform a request against ethereum mainnet.   For this each SKALE node will use the Ethereum mainnet node is is connected to.
+* If ```uri``` element in the spec is equal to with ```eth://```, Oracle will perform a request against Ethereum mainnet.   For this each SKALE node will use the Ethereum mainnet node is is connected to.
 
 ## oracle_submitRequest
 
