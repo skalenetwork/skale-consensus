@@ -328,7 +328,6 @@ ptr<OracleRequestSpec> OracleRequestSpec::makeSpec(uint64_t _chainId, const stri
 
                 spec.append("],");
             }
-            spec.append(string("\"time\":") + to_string(_time) + ",");
 
             if (!_post.empty()) {
                 spec.append(string("\"post\":\"") + _post + "\",");
@@ -337,6 +336,8 @@ ptr<OracleRequestSpec> OracleRequestSpec::makeSpec(uint64_t _chainId, const stri
             if (!_encoding.empty()) {
                 spec.append(string("\"encoding\":\"") + _encoding + "\",");
             }
+
+            spec.append(string("\"time\":") + to_string(_time) + ",");
 
             spec.append(string("\"pow\":") + to_string(pow));
             spec.append("}");
