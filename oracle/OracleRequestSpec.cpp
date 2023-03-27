@@ -35,7 +35,9 @@ ptr<OracleRequestSpec> OracleRequestSpec::parseSpec(const string &_spec, uint64_
 
 
 void OracleRequestSpec::checkEncoding(const string &_encoding) {
-    CHECK_STATE2(_encoding == "json" || _encoding == "abi", "Unknown encoding " + encoding);
+    CHECK_STATE2(_encoding == "json",
+        /// || _encoding == "abi",
+        "Unknown encoding " + encoding);
 }
 
 
@@ -52,7 +54,7 @@ void OracleRequestSpec::checkURI(const string &_uri) {
     CHECK_STATE2(_uri.find(ORACLE_HTTP_START) == 0 ||
                  _uri.find(ORACLE_HTTPS_START == 0 ||
                            _uri == ORACLE_ETH_URL), "Invalid URI:" + _uri);
-    if (_uri != "geth://") {
+    if (_uri != "eth://") {
         auto result = LUrlParser::ParseURL::parseURL(uri);
         CHECK_STATE2(result.isValid(), "URL invalid:" + uri);
         CHECK_STATE2(result.userName_.empty(), "Non empty username");
@@ -121,11 +123,11 @@ OracleRequestSpec::OracleRequestSpec(const string &_spec) : spec(_spec) {
             checkEthApi(ethApi);
         }
 
-        if (d.HasMember("encoding")) {
-            CHECK_STATE2(d["encoding"].IsString(), "Encoding in Oracle spec is not string:" + _spec);
-            encoding = d["encoding"].GetString();
-            checkEncoding(encoding);
-        }
+        CHECK_STATE2(d.HasMember("encoding"), "No encoding in Oracle spec:" + _spec);
+
+        CHECK_STATE2(d["encoding"].IsString(), "Encoding in Oracle spec is not string:" + _spec);
+        encoding = d["encoding"].GetString();
+        checkEncoding(encoding);
 
 
         if (isEthApi()) {
