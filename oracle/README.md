@@ -18,8 +18,10 @@ _If uri starts with http:// or https:// then the information is obtained from th
 _If uri is eth:// then information is obtained from the geth server that the node is connected to_.
  _Max length of uri string is 1024 bytes._
 * ```time```, uint64 - Linux time of request in ms.
-* ```jsps```, array of strings - list of string JSON pointers to the data elements to be picked from server response. The array must have from 1 to 32 elements. Max length of each pointer 1024 bytes.
-_See https://json.nlohmann.me/features/json_pointer/ for intro to JSON pointers._
+  * ```jsps```, array of strings - list of string JSON pointers to the data elements to be picked from server response. 
+                The array must have from 1 to 32 elements. Max length of each pointer 1024 bytes.
+                 Note: this element is required for web requests, and shall not be present for EthAPI requests.  
+  _See https://json.nlohmann.me/features/json_pointer/ for intro to JSON pointers._
 * ```encoding```, string - the only currently supported encoding is```json```. ```abi``` will be supported in future releases. 
 * ```pow```, string - uint64 proof of work that is used to protect against denial of service attacks
 
@@ -34,17 +36,17 @@ Optional elements:
    each JSON pointer requested. The array size is then identical to ```jsps``` array size. For each ```jsp``` the trim value specifies how many characters are trimmed from the end of the string returned.
 
 * ```post```, string
+_if this element, then Oracle with use HTTP POST instead of HTTP GET (default).
+   The value of the post element will be posted to the endpoint. This element shall not be present in ethApi calls_ 
 
-_if this element is provided and the uri starts with http:// and https://, then Oracle with use HTTP POST instead of HTTP GET (default).
-   The value of the post element will be posted to the endpoint. If the uri is eth:// and
-   if eth_call or eth_getBalance are used, the post element will params as described [here](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_call)_
+* ```params```, string array
+  _this element shall only be present if eth_call is used. It specifies ```params``` element for ```eth_call```.
+   See  [here for more info ](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_call)_
    
-* ```ethApi``` - Ethereum API method to call.  If this element is present, an eth API call will be performed against the endpoint. Valid values for this element are:
+* ```ethApi``` - Ethereum API method to call.  If this element is present, an eth API RPC call will be performed against the endpoint. Valid values for this element are:
 
 ```
 eth_call
-eth_gasPrice
-eth_getBalance
 ```
 
 ### URI element
@@ -167,7 +169,8 @@ This result can then be provided to a smartcontract for verification.
 Oracle result repeats JSON elements from the corresponding
 Oracle request spec, plus includes a set of additional elements
 
-1. ```rslts ``` - array of string results
+1. ```rslts ``` - array of string results. Note for "eth_call" ```results``` is a single element array that includes
+                  the hex encoded ```DATA``` string which is returned by eth_call. 
 2. ```sigs``` - array of ECDSA signatures where ```t``` signatures are not null.
 
 ### Oracle Result Example

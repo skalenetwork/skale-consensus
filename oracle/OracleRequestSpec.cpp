@@ -133,6 +133,7 @@ OracleRequestSpec::OracleRequestSpec(const string &_spec) : spec(_spec) {
         if (isEthApi()) {
             parseEthApiRequestSpec(d, _spec);
         } else {
+            CHECK_STATE2(uri != "eth://", "No valid eth API method is provided for eth:// URI");
             parseWebRequestSpec(d, _spec);
         }
 
@@ -143,6 +144,7 @@ OracleRequestSpec::OracleRequestSpec(const string &_spec) : spec(_spec) {
 
 
 void OracleRequestSpec::parseWebRequestSpec(rapidjson::Document &d, const string &_spec) {
+
     CHECK_STATE2(d.HasMember("jsps"), "No json pointer in Oracle spec:" + _spec);
     CHECK_STATE2(d["jsps"].IsArray(), "Jsps in Oracle spec is not array:" + _spec);
 
@@ -182,41 +184,12 @@ void OracleRequestSpec::parseWebRequestSpec(rapidjson::Document &d, const string
 
 
 void OracleRequestSpec::parseEthApiRequestSpec(rapidjson::Document &d, const string &_spec) {
-    CHECK_STATE2(d.HasMember("jsps"), "No json pointer in Oracle spec:" + _spec);
-    CHECK_STATE2(d["jsps"].IsArray(), "Jsps in Oracle spec is not array:" + _spec);
+    CHECK_STATE2(!d.HasMember("jsps"), "jsps element should not be present in eth_call request" + _spec);
 
-    auto array = d["jsps"].GetArray();
-    CHECK_STATE2(!array.Empty(), "Jsps array is empty.:" + _spec);
-    CHECK_STATE2(array.Size() <= ORACLE_MAX_JSPS, "Too many elements in JSP array:" + _spec);
+    CHECK_STATE2(!d.HasMember("trims"), "trims element should not be present in eth_call request" + _spec);
 
-    for (auto &&item: array) {
-        CHECK_STATE2(item.IsString(), "Jsps array item is not string:" + _spec);
-        auto jsp = (string) item.GetString();
-        CHECK_STATE2(jsp.size() <= ORACLE_MAX_JSP_SIZE, "JSP too long:" + _spec);
-        jsps.push_back(jsp);
-    }
-
-    // now check optional elements
-
-
-    if (d.HasMember("trims")) {
-        auto trimArray = d["trims"].GetArray();
-        for (auto &&item: trimArray) {
-            CHECK_STATE2(item.IsUint64(), "Trims array item is uint64:" + _spec);
-            trims.push_back(item.GetUint64());
-        }
-        CHECK_STATE2(jsps.size() == trims.size(), "hsps array size not equal tp trims array size:" + _spec);
-    } else {
-        for (uint64_t i = 0; i < jsps.size(); i++) {
-            trims.push_back(0);
-        }
-    }
-
-    if (d.HasMember("post")) {
-        CHECK_STATE2(d["post"].IsString(), "Post in Oracle spec is not a string:" + _spec);
-        post = d["post"].GetString();
-        CHECK_STATE2(post.size() <= ORACLE_MAX_POST_SIZE, "Post string is larger than max allowed:" + _spec);
-    }
+    CHECK_STATE2(d.HasMember("post"),
+                 "eth_call request shall include post element, which could be an empty string");
 }
 
 const string &OracleRequestSpec::getSpec() const {
