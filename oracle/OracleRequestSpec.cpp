@@ -331,7 +331,12 @@ string OracleRequestSpec::tryMakingSpec(uint64_t _chainId, const string &_uri, c
 void
 OracleRequestSpec::appendEthCallPart( string &_specStr,
         const string &_from, const string &_to, const string &_data) {
-    cerr << _specStr << _from << _to << _data;
+    _specStr.append("\"params\":[{");
+    _specStr.append("\"from\":\"" + _from + "\",");
+    _specStr.append("\"to\":\"" + _to + "\",");
+    _specStr.append("\"to\":\"" + _data);
+    _specStr.append("},\"latest\"");
+    _specStr.append("]");
 }
 
 void
