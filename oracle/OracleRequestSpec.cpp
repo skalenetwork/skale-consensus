@@ -36,8 +36,8 @@ ptr<OracleRequestSpec> OracleRequestSpec::parseSpec(const string &_spec, uint64_
 
 void OracleRequestSpec::checkEncoding(const string &_encoding) {
     CHECK_STATE2(_encoding == "json",
-        /// || _encoding == "abi",
-        "Unknown encoding " + encoding);
+    /// || _encoding == "abi",
+                 "Unknown encoding " + encoding);
 }
 
 
@@ -191,8 +191,21 @@ void OracleRequestSpec::parseEthApiRequestSpec(rapidjson::Document &d, const str
     CHECK_STATE2(d.HasMember("params"),
                  "eth_call request shall include params element, which could be an empty array" + _spec);
 
-    CHECK_STATE2(d["params"].IsArray(),  "eth_call request shall include params element, which could be an empty array"
-         + _spec);
+    CHECK_STATE2(d["params"].IsArray(), "eth_call request shall include params element, which could be an empty array"
+                                        + _spec);
+
+    auto params = d["params"].GetArray();
+
+    CHECK_STATE2(params.Size() == 2, "Params array size must be 2 " + _spec);
+
+    CHECK_STATE2(params[0].IsObject(), "The first element in params array must be object");
+    CHECK_STATE2(params[0].HasMember("to"), "The first element in params array must include to field");
+    CHECK_STATE2(params[0].HasMember("from"), "The first element in params array must include from field");
+    CHECK_STATE2(params[0].HasMember("data"), "The first element in params array must include data field");
+    CHECK_STATE2(params[0].MemberCount() == 3, "The first element in params array must be three key value pairs"
+                                               " from, to, and data");
+    CHECK_STATE2(params[1].IsString(), "The second element in params array must be string");
+
 
 }
 
@@ -266,72 +279,113 @@ bool OracleRequestSpec::verifyPow(string &_spec) {
 
 ptr<OracleRequestSpec> OracleRequestSpec::makeSpec(uint64_t _chainId, const string &_uri,
                                                    const vector<string> &_jsps, const vector<uint64_t> &_trims,
-                                                   uint64_t _time,
-                                                   const string &_post, const string &_encoding) {
+                                                   const string &_post, const string &_ethApi,
+                                                   const string &_from, const string &_to, const string &_data,
+                                                   const string &_encoding,
+                                                   uint64_t _time) {
+
 
     string spec;
 
     try {
 
-        for (::uint64_t pow = 0;; pow++) {
-
-            spec = "{";
-
-            spec.append(string("\"cid\":") + to_string(_chainId) + ",");
-            spec.append(string("\"uri\":\"") + _uri + "\",");
-            spec.append(string("\"jsps\":["));
-
-            for (uint64_t j = 0; j < _jsps.size(); j++) {
-                spec.append("\"");
-                string jsp = _jsps.at(j);
-                spec.append(jsp);
-                spec.append("\"");
-                if (j + 1 < _jsps.size())
-                    spec.append(",");
-            }
-
-
-            spec.append("],");
-
-            if (_trims.size() > 0) {
-
-                CHECK_STATE(_trims.size() == _jsps.size());
-
-                spec.append("\"trims\":[");
-
-                for (uint64_t j = 0; j < _trims.size(); j++) {
-                    spec.append(to_string(_trims.at(j)));
-                    if (j + 1 < _trims.size())
-                        spec.append(",");
-                }
-
-                spec.append("],");
-            }
-
-            if (!_post.empty()) {
-                spec.append(string("\"post\":\"") + _post + "\",");
-            }
-
-            if (!_encoding.empty()) {
-                spec.append(string("\"encoding\":\"") + _encoding + "\",");
-            }
-
-            spec.append(string("\"time\":") + to_string(_time) + ",");
-
-            spec.append(string("\"pow\":") + to_string(pow));
-            spec.append("}");
-
+        // iterate over pow until you get the correct number
+        for (uint64_t pow = 0;; pow++) {
+            spec = tryMakingSpec(_chainId, _uri, _jsps, _trims, _post, _ethApi,
+                                 _from, _to, _data, _encoding, _time, pow);
             if (verifyPow(spec)) {
-                break;
+                // found the correct value of pow. return spec object
+                return make_shared<OracleRequestSpec>(spec);
             }
         }
-
-        return make_shared<OracleRequestSpec>(spec);
-
 
     } catch (...) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
+}
+
+string OracleRequestSpec::tryMakingSpec(uint64_t _chainId, const string &_uri, const vector<string> &_jsps,
+                                        const vector<uint64_t> &_trims, const string &_post,
+                                        const string &_ethApi,
+                                        const string &_from, const string &_to, const string &_data,
+                                        const string &_encoding,
+                                        uint64_t _time,
+                                        uint64_t _pow) {
+    auto specStr = makeSpecStart(_chainId, _uri);
+
+    if (_ethApi.empty()) {
+        // web spec
+        appendWebPart(specStr, _jsps, _trims, _post);
+    } else {
+        // ethApi
+        CHECK_STATE(_ethApi == "eth_call")
+        specStr.append(string("\"ethApi\":\"") + _ethApi + "\",");
+        appendEthCallPart(specStr, _from, _to, _data);
+    }
+
+    appendSpecEnd(specStr, _encoding, _time, _pow);
+
+    return specStr;
+}
+
+void
+OracleRequestSpec::appendEthCallPart( string &_specStr,
+        const string &_from, const string &_to, const string &_data) {
+    cerr << _specStr << _from << _to << _data;
+}
+
+void
+OracleRequestSpec::appendWebPart(string &_specStr, const vector<string> &_jsps, const vector<uint64_t> &_trims,
+                                 const string &_post) {
+    _specStr.append(string("\"jsps\":["));
+
+    for (uint64_t j = 0; j < _jsps.size(); j++) {
+        _specStr.append("\"");
+        string jsp = _jsps.at(j);
+        _specStr.append(jsp);
+        _specStr.append("\"");
+
+        // dont append comma to the last element
+        if (j + 1 < _jsps.size()) {
+            _specStr.append(",");
+        }
+    }
+
+    _specStr.append("],");
+
+    if (_trims.size() > 0) {
+
+        CHECK_STATE(_trims.size() == _jsps.size());
+
+        _specStr.append("\"trims\":[");
+
+        for (uint64_t j = 0; j < _trims.size(); j++) {
+            _specStr.append(to_string(_trims.at(j)));
+            // dont append comma to the last element
+            if (j + 1 < _trims.size())
+                _specStr.append(",");
+        }
+
+        _specStr.append("],");
+    }
+
+    if (!_post.empty()) {
+        _specStr.append(string("\"post\":\"") + _post + "\",");
+    }
+}
+
+void OracleRequestSpec::appendSpecEnd(string &specStr, const string &_encoding, uint64_t _time, uint64_t _pow) {
+    specStr.append(string("\"encoding\":\"") + _encoding + "\",");
+    specStr.append(string("\"time\":") + to_string(_time) + ",");
+    specStr.append(string("\"pow\":") + to_string(_pow));
+    specStr.append("}");
+}
+
+string OracleRequestSpec::makeSpecStart(uint64_t _chainId, const string &_uri) {
+    string specStr("{");
+    specStr.append(string("\"cid\":") + to_string(_chainId) + ",");
+    specStr.append(string("\"uri\":\"") + _uri + "\",");
+    return specStr;
 }
 
 const string &OracleRequestSpec::getEncoding() const {
@@ -345,5 +399,12 @@ bool OracleRequestSpec::isEthMainnet() const {
 
 const string &OracleRequestSpec::getEthApi() const {
     return ethApi;
+}
+
+ptr<OracleRequestSpec>
+OracleRequestSpec::makeWebSpec(uint64_t _chainId, const string &_uri, const vector<string> &_jsps,
+                               const vector<uint64_t> &_trims, const string &_post,
+                               const string &_encoding, uint64_t _time) {
+    return makeSpec(_chainId, _uri, _jsps, _trims, _post, "", "", "", "", _encoding, _time);
 }
 

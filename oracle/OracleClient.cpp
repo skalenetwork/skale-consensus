@@ -93,9 +93,9 @@ void OracleClient::sendTestRequestGet() {
     string encoding;
 
     //encoding = ORACLE_ENCODING_ABI;
-    //sendRequestAndWaitForResult(uri, jsps, trims, post, encoding);
+    //sendTestWebRequestAndWaitForResult(uri, jsps, trims, post, encoding);
     encoding = ORACLE_ENCODING_JSON;
-    sendRequestAndWaitForResult(uri, jsps, trims, post, encoding);
+    sendTestWebRequestAndWaitForResult(uri, jsps, trims, post, encoding);
 }
 
 
@@ -113,18 +113,18 @@ void OracleClient::sendTestRequestPost() {
         string post = "haha";
         string encoding = "rlp";
 
-        sendRequestAndWaitForResult(uri, jsps, {}, post, encoding);
+        sendTestWebRequestAndWaitForResult(uri, jsps, {}, post, encoding);
     } catch (...) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
 }
 
 
-void OracleClient::sendRequestAndWaitForResult(string &_uri,
-                                               const vector<string> &_jsps,
-                                               const vector<uint64_t> &_trims,
-                                               string &_post,
-                                               string &_encoding) {
+void OracleClient::sendTestWebRequestAndWaitForResult(string &_uri,
+                                                      const vector<string> &_jsps,
+                                                      const vector<uint64_t> &_trims,
+                                                      string &_post,
+                                                      string &_encoding) {
 
 
     try {
@@ -136,8 +136,7 @@ void OracleClient::sendRequestAndWaitForResult(string &_uri,
 
         auto time = Time::getCurrentTimeMs();
 
-        auto os = OracleRequestSpec::makeSpec(_cid, _uri, _jsps, _trims,
-                                              time, _post, _encoding);
+        auto os = OracleRequestSpec::makeWebSpec(_cid, _uri, _jsps, _trims, _post, _encoding, time);
 
 
         auto status = submitOracleRequest(os->getSpec(), _receipt);

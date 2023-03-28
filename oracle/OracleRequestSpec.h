@@ -9,10 +9,10 @@
 #include "thirdparty/rapidjson/document.h"
 
 //constexpr const char* ORACLE_ENCODING_ABI = "abi";
-constexpr const char* ORACLE_ENCODING_JSON = "json";
-constexpr const char* ORACLE_HTTP_START = "http://";
-constexpr const char* ORACLE_HTTPS_START = "https://";
-constexpr const char* ORACLE_ETH_URL = "eth://";
+constexpr const char *ORACLE_ENCODING_JSON = "json";
+constexpr const char *ORACLE_HTTP_START = "http://";
+constexpr const char *ORACLE_HTTPS_START = "https://";
+constexpr const char *ORACLE_ETH_URL = "eth://";
 
 constexpr uint64_t ORACLE_MAX_URI_SIZE = 1024;
 constexpr uint64_t ORACLE_MAX_POST_SIZE = 1024;
@@ -29,19 +29,49 @@ class OracleRequestSpec {
     vector<uint64_t> trims;
     uint64_t requestTime;
     string post;
+    string from;
+    string to;
+    string data;
+    string block;
     string encoding;
+    string ethApi;
     uint64_t pow;
     string receipt;
-    string ethApi;
 
 
-    void checkEncoding(const string & _encoding);
-    void checkURI(const string & _uri);
-    void checkEthApi(const string& _api);
+    void checkEncoding(const string &_encoding);
 
-    void  parseWebRequestSpec(rapidjson::Document& d, const string&  _spec);
-    void  parseEthApiRequestSpec(rapidjson::Document& d, const string&  _spec);
+    void checkURI(const string &_uri);
 
+    void checkEthApi(const string &_api);
+
+    void parseWebRequestSpec(rapidjson::Document &d, const string &_spec);
+
+    void parseEthApiRequestSpec(rapidjson::Document &d, const string &_spec);
+
+    static ptr<OracleRequestSpec> makeSpec(uint64_t _chainId, const string &_uri,
+                                           const vector<string> &_jsps, const vector<uint64_t> &_trims,
+                                           const string &_post,
+                                           const string &_ethApi,
+                                           const string &_from, const string &_to, const string &_data,
+                                           const string &_encoding, uint64_t _time);
+
+
+    static string makeSpecStart(uint64_t _chainId, const string &_uri);
+
+    static void appendSpecEnd(string &specStr, const string &_encoding, uint64_t _time, uint64_t _pow);
+
+    static void
+    appendWebPart(string &_specStr, const vector<string> &_jsps, const vector<uint64_t> &_trims, const string &_post);
+
+    static string
+    tryMakingSpec(uint64_t _chainId, const string &_uri, const vector<string> &_jsps, const vector<uint64_t> &_trims,
+                  const string &_post,
+                  const string &_ethApi, const string &_from, const string &_to, const string &_data,
+                  const string &_encoding, uint64_t _time, uint64_t _pow);
+
+    static void
+    appendEthCallPart(string &_specStr, const string &_from, const string &_to, const string &_data);
 
 public:
 
@@ -61,8 +91,6 @@ public:
 
     OracleRequestSpec(const string &_spec);
 
-    static ptr<OracleRequestSpec> makeSpec(uint64_t _chainId, const string &_uri, const vector<string> &_jsps,
-                      const vector<uint64_t> &_trims, uint64_t _time, const string& _post, const string &_encoding);
 
     uint64_t getChainid() const;
 
@@ -76,7 +104,7 @@ public:
 
     string getReceipt();
 
-    static bool verifyPow(string& _spec);
+    static bool verifyPow(string &_spec);
 
     const string &getEncoding() const;
 
@@ -84,8 +112,10 @@ public:
 
     bool isEthMainnet() const;
 
-
-
+    static ptr<OracleRequestSpec> makeWebSpec(uint64_t _chainId, const string &_uri,
+                                              const vector<string> &_jsps, const vector<uint64_t> &_trims,
+                                              const string &_post,
+                                              const string &_encoding, uint64_t _time);
 
 };
 

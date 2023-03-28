@@ -60,8 +60,8 @@ public:
     void processResponseMessage(const ptr<MessageEnvelope> &_me);
 
     void
-    sendRequestAndWaitForResult(string& _uri, const vector<string> &_jsps,
-                                const vector<uint64_t> &_trims, string& _post, string& _encoding);
+    sendTestWebRequestAndWaitForResult(string& _uri, const vector<string> &_jsps,
+                                       const vector<uint64_t> &_trims, string& _post, string& _encoding);
 };
 
 
