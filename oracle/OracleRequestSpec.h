@@ -81,7 +81,7 @@ class OracleRequestSpec {
                       const string &_gas, const string &_blockId);
 
     static string checkAndGetParamsField(const rapidjson::GenericValue<rapidjson::UTF8<>>::Array &params,
-                                  const string& _fieldName);
+                                  const string& _fieldName, const string& _spec);
 
     static bool isValidEthHexAddressString(const string &_address);
 

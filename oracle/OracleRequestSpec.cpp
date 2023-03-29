@@ -232,16 +232,16 @@ void OracleRequestSpec::parseEthApiRequestSpec(rapidjson::Document &d, const str
 
     CHECK_STATE2(params[0].IsObject(), "The first element in params array must be object " + _spec);
 
-    this->from = checkAndGetParamsField(params, "from");
+    this->from = checkAndGetParamsField(params, "from", _spec);
     CHECK_STATE2(isValidEthHexAddressString(from), "From in params array is not a valid Eth address string "
                                                    + _spec);
-    this->to = checkAndGetParamsField(params, "to");
+    this->to = checkAndGetParamsField(params, "to", _spec);
     CHECK_STATE2(isValidEthHexAddressString(from), "To in params array is not a valid Eth address string " +
                                                    _spec);
 
-    this->data = checkAndGetParamsField(params, "data");
+    this->data = checkAndGetParamsField(params, "data", _spec);
 
-    this->gas = checkAndGetParamsField(params, "gas");
+    this->gas = checkAndGetParamsField(params, "gas", _spec);
     CHECK_STATE2(isHexEncodedUInt64(gas), "Gas in params array is not a valid hex encoded uint64_t string " + _spec);
 
     CHECK_STATE2(params[0].MemberCount() == 4, "The first element in params array must be four elements:"
@@ -256,10 +256,10 @@ void OracleRequestSpec::parseEthApiRequestSpec(rapidjson::Document &d, const str
 }
 
 string OracleRequestSpec::checkAndGetParamsField(const rapidjson::GenericValue<rapidjson::UTF8<>>::Array &params,
-                                                 const string &_fieldName) {
+                                                 const string &_fieldName, const string& _spec) {
     CHECK_STATE2(params[0].HasMember(_fieldName.c_str()), "The first element in params array must include "
-                                                          + _fieldName + " field");
-    CHECK_STATE2(params[0][_fieldName.c_str()].IsString(), _fieldName + " field must be string");
+                                                          + _fieldName + " field " + _spec);
+    CHECK_STATE2(params[0][_fieldName.c_str()].IsString(), _fieldName + " field must be string " + _spec);
     return params[0][_fieldName.c_str()].GetString();
 }
 
