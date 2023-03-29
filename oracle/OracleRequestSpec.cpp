@@ -281,6 +281,7 @@ ptr<OracleRequestSpec> OracleRequestSpec::makeSpec(uint64_t _chainId, const stri
                                                    const vector<string> &_jsps, const vector<uint64_t> &_trims,
                                                    const string &_post, const string &_ethApi,
                                                    const string &_from, const string &_to, const string &_data,
+                                                   const string &_gas, const string &_blockId,
                                                    const string &_encoding,
                                                    uint64_t _time) {
 
@@ -292,7 +293,7 @@ ptr<OracleRequestSpec> OracleRequestSpec::makeSpec(uint64_t _chainId, const stri
         // iterate over pow until you get the correct number
         for (uint64_t pow = 0;; pow++) {
             spec = tryMakingSpec(_chainId, _uri, _jsps, _trims, _post, _ethApi,
-                                 _from, _to, _data, _encoding, _time, pow);
+                                 _from, _to, _data, _gas, _blockId, _encoding, _time, pow);
             if (verifyPow(spec)) {
                 // found the correct value of pow. return spec object
                 return make_shared<OracleRequestSpec>(spec);
@@ -307,7 +308,8 @@ ptr<OracleRequestSpec> OracleRequestSpec::makeSpec(uint64_t _chainId, const stri
 string OracleRequestSpec::tryMakingSpec(uint64_t _chainId, const string &_uri, const vector<string> &_jsps,
                                         const vector<uint64_t> &_trims, const string &_post,
                                         const string &_ethApi,
-                                        const string &_from, const string &_to, const string &_data,
+                                        const string &_from, const string &_to, const string &_data, const string& _gas,
+                                        const string & _blockId,
                                         const string &_encoding,
                                         uint64_t _time,
                                         uint64_t _pow) {
@@ -319,8 +321,8 @@ string OracleRequestSpec::tryMakingSpec(uint64_t _chainId, const string &_uri, c
     } else {
         // ethApi
         CHECK_STATE(_ethApi == "eth_call")
-        specStr.append(string("\"ethApi\":\"") + _ethApi + "\",");
-        appendEthCallPart(specStr, _from, _to, _data);
+        specStr.append(string(+"\"ethApi\":\"") + _ethApi + "\",");
+        appendEthCallPart(specStr, _from, _to, _data, _gas, _blockId);
     }
 
     appendSpecEnd(specStr, _encoding, _time, _pow);
@@ -330,12 +332,14 @@ string OracleRequestSpec::tryMakingSpec(uint64_t _chainId, const string &_uri, c
 
 void
 OracleRequestSpec::appendEthCallPart( string &_specStr,
-        const string &_from, const string &_to, const string &_data) {
+        const string &_from, const string &_to, const string &_gas, const string &_data,
+        const string& _blockId) {
     _specStr.append("\"params\":[{");
     _specStr.append("\"from\":\"" + _from + "\",");
     _specStr.append("\"to\":\"" + _to + "\",");
-    _specStr.append("\"to\":\"" + _data);
-    _specStr.append("},\"latest\"");
+    _specStr.append("\"data\":\"" + _data + "\",");
+    _specStr.append("\"gas\":\"" + _gas  );
+    _specStr.append("},\"" + _blockId + "\"");
     _specStr.append("]");
 }
 
@@ -410,6 +414,6 @@ ptr<OracleRequestSpec>
 OracleRequestSpec::makeWebSpec(uint64_t _chainId, const string &_uri, const vector<string> &_jsps,
                                const vector<uint64_t> &_trims, const string &_post,
                                const string &_encoding, uint64_t _time) {
-    return makeSpec(_chainId, _uri, _jsps, _trims, _post, "", "", "", "", _encoding, _time);
+    return makeSpec(_chainId, _uri, _jsps, _trims, _post, "", "", "", "", "", "", _encoding, _time);
 }
 

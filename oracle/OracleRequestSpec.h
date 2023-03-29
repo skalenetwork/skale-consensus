@@ -32,6 +32,7 @@ class OracleRequestSpec {
     string from;
     string to;
     string data;
+    string gas;
     string block;
     string encoding;
     string ethApi;
@@ -53,7 +54,10 @@ class OracleRequestSpec {
                                            const vector<string> &_jsps, const vector<uint64_t> &_trims,
                                            const string &_post,
                                            const string &_ethApi,
-                                           const string &_from, const string &_to, const string &_data,
+                                           const string &_from, const string &_to,
+                                           const string &_data,
+                                           const string &_gas,
+                                           const string &_blockId,
                                            const string &_encoding, uint64_t _time);
 
 
@@ -68,10 +72,13 @@ class OracleRequestSpec {
     tryMakingSpec(uint64_t _chainId, const string &_uri, const vector<string> &_jsps, const vector<uint64_t> &_trims,
                   const string &_post,
                   const string &_ethApi, const string &_from, const string &_to, const string &_data,
+                  const string &_gas,
+                  const string &_blockId,
                   const string &_encoding, uint64_t _time, uint64_t _pow);
 
     static void
-    appendEthCallPart(string &_specStr, const string &_from, const string &_to, const string &_data);
+    appendEthCallPart(string &_specStr, const string &_from, const string &_to, const string &_data,
+                      const string &_gas, const string &_blockId);
 
 public:
 
