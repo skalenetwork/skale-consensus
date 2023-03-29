@@ -115,14 +115,6 @@ OracleRequestSpec::OracleRequestSpec(const string &_spec) : spec(_spec) {
         CHECK_STATE2(verifyPow(spec), "PoW did not verify");
         receipt = CryptoManager::hashForOracle(spec.data(), spec.size());
 
-        // no check if ETH or WEB call
-
-        if (d.HasMember("ethApi")) {
-            CHECK_STATE2(d["ethApi"].IsString(), "ethAPI in Oracle spec is not string:" + _spec);
-            ethApi = d["ethApi"].GetString();
-            checkEthApi(ethApi);
-        }
-
         CHECK_STATE2(d.HasMember("encoding"), "No encoding in Oracle spec:" + _spec);
 
         CHECK_STATE2(d["encoding"].IsString(), "Encoding in Oracle spec is not string:" + _spec);
@@ -130,13 +122,17 @@ OracleRequestSpec::OracleRequestSpec(const string &_spec) : spec(_spec) {
         checkEncoding(encoding);
 
 
-        if (isEthApi()) {
+        // no check if ETH or WEB call
+
+        if (d.HasMember("ethApi")) {
+            CHECK_STATE2(d["ethApi"].IsString(), "ethAPI in Oracle spec is not string:" + _spec);
+            ethApi = d["ethApi"].GetString();
+            checkEthApi(ethApi);
             parseEthApiRequestSpec(d, _spec);
         } else {
             CHECK_STATE2(uri != "eth://", "No valid eth API method is provided for eth:// URI");
             parseWebRequestSpec(d, _spec);
         }
-
     } catch (...) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
@@ -183,10 +179,45 @@ void OracleRequestSpec::parseWebRequestSpec(rapidjson::Document &d, const string
 }
 
 
-void OracleRequestSpec::parseEthApiRequestSpec(rapidjson::Document &d, const string &_spec) {
-    CHECK_STATE2(!d.HasMember("jsps"), "jsps element should not be present in eth_call request" + _spec);
+bool OracleRequestSpec::isHexEncodedUInt64(const string &_s) {
 
-    CHECK_STATE2(!d.HasMember("trims"), "trims element should not be present in eth_call request" + _spec);
+    if (_s.size() < 3 || _s.size() > 18) {
+        return false;
+    }
+
+
+    if (_s.substr(0, 2) != "0x") {
+        return false;
+    }
+
+    auto tmp = _s.substr(2);
+
+    for (const auto &c: tmp) {
+        if (!std::isxdigit(c)) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+
+bool OracleRequestSpec::isValidEthHexAddressString(const string &_address) {
+    if (_address.size() != 42 || _address.substr(0, 2) != "0x") {
+        return false;
+    }
+
+    for (size_t i = 2; i < _address.size(); ++i) {
+        if (!std::isxdigit(_address[i])) {
+            return false;
+        }
+    }
+
+    return true;
+
+}
+
+void OracleRequestSpec::parseEthApiRequestSpec(rapidjson::Document &d, const string &_spec) {
 
     CHECK_STATE2(d.HasMember("params"),
                  "eth_call request shall include params element, which could be an empty array" + _spec);
@@ -198,15 +229,38 @@ void OracleRequestSpec::parseEthApiRequestSpec(rapidjson::Document &d, const str
 
     CHECK_STATE2(params.Size() == 2, "Params array size must be 2 " + _spec);
 
-    CHECK_STATE2(params[0].IsObject(), "The first element in params array must be object");
-    CHECK_STATE2(params[0].HasMember("to"), "The first element in params array must include to field");
-    CHECK_STATE2(params[0].HasMember("from"), "The first element in params array must include from field");
-    CHECK_STATE2(params[0].HasMember("data"), "The first element in params array must include data field");
-    CHECK_STATE2(params[0].MemberCount() == 3, "The first element in params array must be three key value pairs"
-                                               " from, to, and data");
-    CHECK_STATE2(params[1].IsString(), "The second element in params array must be string");
 
+    CHECK_STATE2(params[0].IsObject(), "The first element in params array must be object " + _spec);
 
+    this->from = checkAndGetParamsField(params, "from");
+    CHECK_STATE2(isValidEthHexAddressString(from), "From in params array is not a valid Eth address string "
+                                                   + _spec);
+    this->to = checkAndGetParamsField(params, "to");
+    CHECK_STATE2(isValidEthHexAddressString(from), "To in params array is not a valid Eth address string " +
+                                                   _spec);
+
+    this->data = checkAndGetParamsField(params, "data");
+
+    this->gas = checkAndGetParamsField(params, "gas");
+    CHECK_STATE2(isHexEncodedUInt64(gas), "Gas in params array is not a valid hex encoded uint64_t string " + _spec);
+
+    CHECK_STATE2(params[0].MemberCount() == 4, "The first element in params array must be four elements:"
+                                               " from, to, data and gas");
+    CHECK_STATE2(params[1].IsString(),
+                 "The second element in params array must be a string block number" + _spec);
+    this->blockId = params[1].GetString();
+    if (blockId != "latest") {
+        CHECK_STATE2(isHexEncodedUInt64(blockId),
+                     "The second element in params array must be a hex string block number or latest" + _spec);
+    }
+}
+
+string OracleRequestSpec::checkAndGetParamsField(const rapidjson::GenericValue<rapidjson::UTF8<>>::Array &params,
+                                                 const string &_fieldName) {
+    CHECK_STATE2(params[0].HasMember(_fieldName.c_str()), "The first element in params array must include "
+                                                          + _fieldName + " field");
+    CHECK_STATE2(params[0][_fieldName.c_str()].IsString(), _fieldName + " field must be string");
+    return params[0][_fieldName.c_str()].GetString();
 }
 
 const string &OracleRequestSpec::getSpec() const {
@@ -308,8 +362,8 @@ ptr<OracleRequestSpec> OracleRequestSpec::makeSpec(uint64_t _chainId, const stri
 string OracleRequestSpec::tryMakingSpec(uint64_t _chainId, const string &_uri, const vector<string> &_jsps,
                                         const vector<uint64_t> &_trims, const string &_post,
                                         const string &_ethApi,
-                                        const string &_from, const string &_to, const string &_data, const string& _gas,
-                                        const string & _blockId,
+                                        const string &_from, const string &_to, const string &_data, const string &_gas,
+                                        const string &_blockId,
                                         const string &_encoding,
                                         uint64_t _time,
                                         uint64_t _pow) {
@@ -331,14 +385,14 @@ string OracleRequestSpec::tryMakingSpec(uint64_t _chainId, const string &_uri, c
 }
 
 void
-OracleRequestSpec::appendEthCallPart( string &_specStr,
-        const string &_from, const string &_to, const string &_gas, const string &_data,
-        const string& _blockId) {
+OracleRequestSpec::appendEthCallPart(string &_specStr,
+                                     const string &_from, const string &_to, const string &_gas, const string &_data,
+                                     const string &_blockId) {
     _specStr.append("\"params\":[{");
     _specStr.append("\"from\":\"" + _from + "\",");
     _specStr.append("\"to\":\"" + _to + "\",");
     _specStr.append("\"data\":\"" + _data + "\",");
-    _specStr.append("\"gas\":\"" + _gas  );
+    _specStr.append("\"gas\":\"" + _gas);
     _specStr.append("},\"" + _blockId + "\"");
     _specStr.append("]");
 }

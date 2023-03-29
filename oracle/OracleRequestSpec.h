@@ -33,7 +33,7 @@ class OracleRequestSpec {
     string to;
     string data;
     string gas;
-    string block;
+    string blockId;
     string encoding;
     string ethApi;
     uint64_t pow;
@@ -79,6 +79,15 @@ class OracleRequestSpec {
     static void
     appendEthCallPart(string &_specStr, const string &_from, const string &_to, const string &_data,
                       const string &_gas, const string &_blockId);
+
+    static string checkAndGetParamsField(const rapidjson::GenericValue<rapidjson::UTF8<>>::Array &params,
+                                  const string& _fieldName);
+
+    static bool isValidEthHexAddressString(const string &_address);
+
+
+    static bool isHexEncodedUInt64(const string& _s);
+
 
 public:
 
