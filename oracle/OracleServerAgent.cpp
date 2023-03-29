@@ -150,7 +150,7 @@ void OracleServerAgent::workerThreadItemSendLoop(OracleServerAgent *_agent) {
 
             CHECK_STATE(orclMsg);
 
-            auto msg = _agent->doEndpointRequestResponse(orclMsg);
+            auto msg = _agent->doEndpointRequestResponse(orclMsg->getParsedSpec());
 
             _agent->sendOutResult(msg, msge->getSrcSchainIndex());
         } catch (ExitRequestedException &e) {
@@ -187,32 +187,36 @@ WriteMemoryCallback(void *contents, size_t size, size_t nmemb, void *userp) {
 
 using namespace nlohmann;
 
-ptr<OracleResponseMessage> OracleServerAgent::doEndpointRequestResponse(ptr<OracleRequestBroadcastMessage> _request) {
-    CHECK_ARGUMENT(_request)
+ptr<OracleResponseMessage> OracleServerAgent::doEndpointRequestResponse(ptr<OracleRequestSpec> _requestSpec) {
+    CHECK_ARGUMENT(_requestSpec)
 
-    auto spec = _request->getParsedSpec();
 
-    auto uri = spec->getUri();
-    if (spec->isEthMainnet()) {
-        uri = gethURL + "/" + spec->getEthApi();
+    string endpointUri;
+    if (_requestSpec->isEthMainnet()) {
+        endpointUri = gethURL;
+    } else {
+        endpointUri = _requestSpec->getUri();
     }
 
-    auto postString = spec->getPost();
+    if (_requestSpec->isEthApi()) {
+        endpointUri = endpointUri + "/" + _requestSpec->getEthApi();
+    }
+
+    auto postString = _requestSpec->getPost();
 
     string response;
 
-
-    auto status = curlHttp(uri, spec->isPost(), postString, response);
+    auto status = curlHttp(endpointUri, _requestSpec->isPost(), postString, response);
 
     ptr<OracleResult> oracleResult = nullptr;
 
-    oracleResult = make_shared<OracleResult>(spec, status, response, getSchain()->getCryptoManager());
+    oracleResult = make_shared<OracleResult>(_requestSpec, status, response, getSchain()->getCryptoManager());
 
     auto resultStr = oracleResult->toString();
 
     LOG(info, "Oracle request result: " + resultStr);
 
-    string receipt = _request->getParsedSpec()->getReceipt();
+    string receipt = _requestSpec->getReceipt();
 
     return make_shared<OracleResponseMessage>(resultStr,
                                               receipt,
