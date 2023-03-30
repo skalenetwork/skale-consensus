@@ -88,6 +88,8 @@ class OracleRequestSpec {
 
     static bool isHexEncodedUInt64(const string& _s);
 
+    atomic<uint64_t> ethCallCounter = 0;
+
 
 public:
 
@@ -117,6 +119,10 @@ public:
     bool isEthApi();
 
     bool isPost();
+
+    string whatToPost();
+
+    string createEthCallPostString();
 
     string getReceipt();
 

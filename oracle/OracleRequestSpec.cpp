@@ -297,9 +297,18 @@ const string &OracleRequestSpec::getPost() const {
     return post;
 }
 
+string OracleRequestSpec::whatToPost() {
+    if (isEthApi()) {
+        return createEthCallPostString();
+    } else {
+        return post;
+    }
+}
+
+
 
 bool OracleRequestSpec::isPost() {
-    return !post.empty();
+    return (isEthApi() || !post.empty());
 }
 
 bool OracleRequestSpec::isEthApi() {
@@ -396,6 +405,16 @@ OracleRequestSpec::appendEthCallPart(string &_specStr,
     _specStr.append("},\"" + _blockId + "\"");
     _specStr.append("]");
 }
+
+string
+OracleRequestSpec::createEthCallPostString() {
+    string postString = "{\"jsonrpc\":\"2.0\",\"method\":\"eth_call\",\"params\":";
+    appendEthCallPart( postString, from, to, gas, data, blockId);
+    ethCallCounter++;
+    postString.append(",\"id\":" + to_string(ethCallCounter) + "}");
+    return postString;
+}
+
 
 void
 OracleRequestSpec::appendWebPart(string &_specStr, const vector<string> &_jsps, const vector<uint64_t> &_trims,

@@ -198,11 +198,7 @@ ptr<OracleResponseMessage> OracleServerAgent::doEndpointRequestResponse(ptr<Orac
         endpointUri = _requestSpec->getUri();
     }
 
-    if (_requestSpec->isEthApi()) {
-        endpointUri = endpointUri + "/" + _requestSpec->getEthApi();
-    }
-
-    auto postString = _requestSpec->getPost();
+    auto postString = _requestSpec->whatToPost();
 
     string response;
 
