@@ -248,32 +248,26 @@ void OracleResult::extractEthCallResults( std::string& _response ) {
     results = make_shared< vector< ptr< string > > >();
 
     try {
-        auto j = nlohmann::json::parse( _response );
-        for ( auto&& jsp : oracleRequestSpec->getJsps() ) {
-            auto pointer = nlohmann::json::json_pointer( jsp );
-            try {
-                auto val = j.at( pointer );
-                CHECK_STATE( val.is_primitive() );
-                string strVal;
-                if ( val.is_string() ) {
-                    strVal = val.get< string >();
-                } else if ( val.is_number_integer() ) {
-                    if ( val.is_number_unsigned() ) {
-                        strVal = to_string( val.get< uint64_t >() );
-                    } else {
-                        strVal = to_string( val.get< int64_t >() );
-                    }
-                } else if ( val.is_number_float() ) {
-                    strVal = to_string( val.get< double >() );
-                } else if ( val.is_boolean() ) {
-                    strVal = to_string( val.get< bool >() );
-                }
-                results->push_back( make_shared< string >( strVal ) );
-            } catch ( ... ) {
-                results->push_back( nullptr );
-            }
-        }
 
+        rapidjson::Document d;
+
+        d.Parse( _response.data() );
+
+        CHECK_STATE2( !d.HasParseError(), "Unparsable response:" + _response);
+
+        CHECK_STATE2(d.HasMember("result") || d.HasMember("error"),
+            "No result or error in response:" + _response);
+
+        if (d.HasMember("result")) {
+            CHECK_STATE2(d["result"].IsString(), "Result shall be string in response:" + _response);
+            results->push_back(make_shared<string> (d["result"].GetString()));
+        } else { // error
+            CHECK_STATE2(d["error"].IsObject(), "Error shall be object in response:" + _response);
+            CHECK_STATE2(d["error"]["code"].IsInt64(), "Code shall be Int64 in response" +
+                                          _response);
+            error = d["error"]["code"].GetInt64();
+            results = nullptr;
+        }
     } catch ( exception& _e ) {
         results = nullptr;
         error = ORACLE_INVALID_JSON_RESPONSE;
@@ -283,7 +277,6 @@ void OracleResult::extractEthCallResults( std::string& _response ) {
         error = ORACLE_INVALID_JSON_RESPONSE;
         return;
     }
-
 }
 
 
