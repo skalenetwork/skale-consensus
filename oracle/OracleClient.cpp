@@ -207,7 +207,7 @@ void OracleClient::processResponseMessage(const ptr<MessageEnvelope> &_me) {
         }
 
         auto rslts = std::any_cast<ptr<OracleReceivedResults>>(receivedResults);
-        rslts->insertIfDoesntExist(origin, msg->getOracleResult(rslts->getRequestSpec()->getEncoding(),
+        rslts->insertIfDoesntExist(origin, msg->getOracleResult(rslts->getRequestSpec(),
                                                                 getSchain()->getSchainID()));
     } catch (...) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));

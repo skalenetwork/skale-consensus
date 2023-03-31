@@ -110,7 +110,7 @@ public:
     OracleRequestSpec(const string &_spec);
 
 
-    uint64_t getChainid() const;
+    uint64_t getChainId() const;
 
     static ptr<OracleRequestSpec> parseSpec(const string &_spec, uint64_t _chainId);
 

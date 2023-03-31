@@ -5,8 +5,7 @@
 #ifndef SKALED_ORACLERESULT_H
 #define SKALED_ORACLERESULT_H
 
-#include "rlp/RLP.h"
-
+#include "SkaleCommon.h"
 class OracleRequestSpec;
 
 class CryptoManager;
@@ -15,24 +14,19 @@ class CryptoManager;
 class OracleResult {
 
 
+    ptr<OracleRequestSpec> oracleRequestSpec;
+
+public:
+    const ptr< OracleRequestSpec >& getOracleRequestSpec() const;
+
+private:
     string unsignedOracleResult; // this exactly the piece which is signed
     string oracleResult;
-    string encoding;
 
-
-    uint64_t chainId;
-    string uri;
-    vector<string> jsps;
-    vector<uint64_t> trims;
-    uint64_t requestTime;
-    string post;
     uint64_t error = ORACLE_SUCCESS;
     ptr<vector<ptr<string>>> results;
-    ptr<vector<uint8_t>> rlp;
     string sig;
 
-
-    RLPOutputStream unsignedResultRlpStream;
 
 
     ptr<vector<ptr<string>>> extractResults(string &_response);
@@ -40,7 +34,7 @@ class OracleResult {
 
     void parseResultAsJson();
 
-    void parseResultAsRlp();
+    //void parseResultAsAbi();
 
 
     void trimResults();
@@ -55,16 +49,6 @@ class OracleResult {
 
     void encodeAndSignResultAsJson(ptr<CryptoManager> _cryptoManager);
 
-    void encodeAndSignResultAsRlp(ptr<CryptoManager> _cryptoManager);
-
-    void appendElementsFromTheSpecAsRlp();
-
-    void appendResultsAsRlp();
-
-    void signResultAsRlp(ptr<CryptoManager> _cryptoManager);
-
-    void appendErrorAsRlp();
-
 
 public:
 
@@ -75,24 +59,20 @@ public:
                  ptr<CryptoManager> _cryptoManager);
 
 
-    OracleResult(string &_oracleResult, string &_encoding);
+    OracleResult(string &_oracleResult,  ptr<OracleRequestSpec>
+                                             _requestSpec);
 
-    static ptr<OracleResult> parseResult(string &_oracleResult, string &_encoding);
+    static ptr<OracleResult> parseResult(string &_oracleResult, ptr<OracleRequestSpec>
+        _requestSpec);
 
     const string &getSig() const;
 
-    uint64_t getChainId() const;
-
-
-    const vector<string> &getJsps() const;
 
     const string &toString() const;
 
-    const string &getUri() const;
 
     uint64_t getTime() const;
 
-    const vector<uint64_t> &getTrims() const;
 
     const string &getOracleResult() const;
 
@@ -100,7 +80,6 @@ public:
 
     const ptr<vector<ptr<string>>> getResults() const;
 
-    const string &getPost() const;
 
     bool isGeth();
 

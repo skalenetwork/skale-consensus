@@ -22,8 +22,8 @@
 ptr<OracleRequestSpec> OracleRequestSpec::parseSpec(const string &_spec, uint64_t _chainId) {
     try {
         auto spec = make_shared<OracleRequestSpec>(_spec);
-        CHECK_STATE2(spec->getChainid() == _chainId,
-                     "Invalid schain id in oracle spec:" + to_string(spec->getChainid()));
+        CHECK_STATE2( spec->getChainId() == _chainId,
+                     "Invalid schain id in oracle spec:" + to_string( spec->getChainId()));
 
         CHECK_STATE2(spec->getTime() + ORACLE_TIMEOUT_MS > Time::getCurrentTimeMs(), "Request timeout")
         CHECK_STATE(spec->getTime() < Time::getCurrentTimeMs() + ORACLE_FUTURE_JITTER_MS);
@@ -288,7 +288,7 @@ const vector<uint64_t> &OracleRequestSpec::getTrims() const {
     return trims;
 }
 
-uint64_t OracleRequestSpec::getChainid() const {
+uint64_t OracleRequestSpec::getChainId() const {
     return chainid;
 }
 

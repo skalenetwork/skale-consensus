@@ -133,32 +133,6 @@ vector<uint8_t>  OracleReceivedResults::ecdsaSigStringToByteArray(string& _sig )
     }
 }
 
-string OracleReceivedResults::compileCompleteResultRlp(string &_unsignedResult) {
-
-    RLPOutputStream resultWithSignaturesStream(1 + nodeCount);
-
-
-    try {
-        uint64_t sigCount = 0;
-        resultWithSignaturesStream.append(_unsignedResult);
-        for (uint64_t i = 1; i <= nodeCount; i++) {
-            if (signaturesBySchainIndex->count(i) > 0 && sigCount < requiredConfirmations) {
-                resultWithSignaturesStream.append(ecdsaSigStringToByteArray(signaturesBySchainIndex->at(i)));
-                sigCount++;
-            } else {
-                resultWithSignaturesStream.append("");
-            }
-        }
-
-        auto rawResult = resultWithSignaturesStream.out();
-
-        return Utils::carray2Hex(rawResult.data(), rawResult.size());
-
-    } catch (...) {
-        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
-    }
-}
-
 
 uint64_t OracleReceivedResults::tryGettingResult(string &_result) {
 
