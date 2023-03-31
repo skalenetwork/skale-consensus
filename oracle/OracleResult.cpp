@@ -134,37 +134,9 @@ void OracleResult::trimResults() {
 
 void OracleResult::appendElementsFromTheSpecAsJson() {
     try {
-        oracleResult = "{";
-        oracleResult.append(
-            string( "\"cid\":" ) + to_string( oracleRequestSpec->getChainId() ) + "," );
-        oracleResult.append( string( "\"uri\":\"" ) + oracleRequestSpec->getUri() + "\"," );
-        oracleResult.append( string( "\"jsps\":[" ) );
-
-        for ( uint64_t j = 0; j < oracleRequestSpec->getJsps().size(); j++ ) {
-            oracleResult.append( "\"" );
-            oracleResult.append( oracleRequestSpec->getJsps().at( j ) );
-            oracleResult.append( "\"" );
-            if ( j + 1 < oracleRequestSpec->getJsps().size() )
-                oracleResult.append( "," );
-        }
-
-
-        oracleResult.append( "]," );
-        oracleResult.append( "\"trims\":[" );
-
-        for ( uint64_t j = 0; j < oracleRequestSpec->getTrims().size(); j++ ) {
-            oracleResult.append( to_string( oracleRequestSpec->getTrims().at( j ) ) );
-            if ( j + 1 < oracleRequestSpec->getTrims().size() )
-                oracleResult.append( "," );
-        }
-
-        oracleResult.append( "]," );
-        oracleResult.append(
-            string( "\"time\":" ) + to_string( oracleRequestSpec->getTime() ) + "," );
-
-        if ( !oracleRequestSpec->getPost().empty() ) {
-            oracleResult.append( string( "\"post\":" ) + oracleRequestSpec->getPost() + "," );
-        }
+        oracleResult = oracleRequestSpec->getSpec();
+        // Replace last } with comma
+        oracleResult.back() = ',';
     } catch ( ... ) {
         throw_with_nested( InvalidStateException( __FUNCTION__, __CLASS_NAME__ ) );
     }
