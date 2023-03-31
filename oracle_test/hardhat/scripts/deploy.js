@@ -6,7 +6,7 @@
 // global scope, and execute the script.
 
 
-WALLETS_COUNT = 10;
+WALLETS_COUNT = 1;
 OWNER_ADDRESS = "0x907cd0881E50d359bb9Fd120B1A5A143b1C97De6";
 ZERO_ADDRESS =  "0xO000000000000000000000000000000000000000";
 INITIAL_MINT = 10000000000000000000000000000000000000000;
@@ -117,53 +117,10 @@ async function deployContractsProxy() {
 
     console.log(`Deploying ...`);
 
-    const currentTimestampInSeconds = Math.round(Date.now() / 1000);
-
-    //const lockedAmount = hre.ethers.utils.parseEther("10");
-
-    console.log(`Testing deploy transfer`);
-
-    const Lock = await hre.ethers.getContractFactory("Lock");
-    const lock = await hre.upgrades.deployProxy(Lock);
-    lockContract = await lock.deployed();
-
-    deployBn = await hre.ethers.provider.getBlockNumber();
-
-    console.log(`Lock deployed to ${lockContract.address} at block ${deployBn}`);
-
-    previousBlock = await waitUntilNextBlock();
-    previousBlock = await waitUntilNextBlock();
-
-//   b = await lockContract.balanceOf(OWNER_ADDRESS, {blockTag : previousBlock});
-  //  owner = await lockContract.owner({blockTag : previousBlock});
-  //  console.log(`Contract owner is ${owner}`);
-
- //   CHECK(b == INITIAL_MINT)
-
-
-    console.log(`Now testing transfer`);
-
-    transferReceipt = await lockContract.transfer("0x690b9a9e9aa1c9db991c7721a92d351db4fac990", 0x02);
-    await transferReceipt.wait();
-
-    previousBlock =  await waitUntilNextBlock();
-
-    owner = await lockContract.owner({blockTag : previousBlock});
-    console.log(`Contract owner is ${owner}`);
-
-    b = await lockContract.balanceOf(OWNER_ADDRESS, {blockTag : previousBlock});
-
-    console.log(`Balance after transfer ${b}`);
-
-    CHECK(b  == INITIAL_MINT - 0x02)
-    console.log(`PASSED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!`);
-
-
     const MultiSend = await hre.ethers.getContractFactory("MultiSend");
-    const multiSend = await MultiSend.deploy({value: ethers.utils.parseEther("100000")});
+    const multiSend = await MultiSend.deploy({value: ethers.utils.parseEther("1")});
     multiSendContract = await multiSend.deployed();
     console.log(`Multisend deployed to ${multiSend.address}`);
-
 
 }
 
@@ -182,43 +139,7 @@ async function main() {
 
     await generateOrReadKeys();
 
-
     await deployContractsProxy();
-
-
-    await multisend();
-
-
-    currentTime = Date.now();
-    for (let i = 0; i < 10000000; i++) {
-        console.log("Sending batch of transactions  ...");
-
-        promises = [];
-
-        for (let k = 0; k < WALLETS_COUNT; k++) {
-            promises.push(lockContract.connect(wallets[k]).store());
-        }
-
-        console.log("Sent");
-
-
-        for (let k = 0; k < WALLETS_COUNT; k++) {
-            await promises[k];
-        }
-
-        NUMBER_OF_READS = 100;
-
-        console.log(`Calling block number ${NUMBER_OF_READS} times  ...`);
-        for (let j = 0; j < 1; j++) {
-            //await hre.ethers.provider.getBlockNumber();
-            balance = await wallets[0].getBalance();
-            //await lockContract.blockNumber();
-        }
-
-
-        console.log("Execution time:" + (Date.now() - currentTime))
-        currentTime = Date.now();
-    }
 
 
 }
