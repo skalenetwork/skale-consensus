@@ -138,8 +138,9 @@ void OracleClient::sendTestRequestEthCall() {
         string encoding = ORACLE_ENCODING_JSON;
 
         sendTestEthCallRequestAndWaitForResult(uri, from, to, data, gas, block,  encoding);
-    } catch (...) {
-        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+    } catch (exception& e) {
+        LOG(err, "Exception in sentTestEthCall:" + string(e.what()));
+        exit(-1);
     }
 }
 
