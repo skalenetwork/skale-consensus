@@ -20,14 +20,12 @@ public:
     const ptr< OracleRequestSpec >& getOracleRequestSpec() const;
 
 private:
-    string unsignedOracleResult; // this exactly the piece which is signed
+    string unsignedOracleResult; // this is exactly the piece which is signed
     string oracleResult;
 
-    uint64_t error = ORACLE_SUCCESS;
+    int64_t error = ORACLE_SUCCESS;
     ptr<vector<ptr<string>>> results;
     string sig;
-
-
 
     ptr<vector<ptr<string>>> extractResults(string &_response);
 
@@ -35,7 +33,6 @@ private:
     void parseResultAsJson();
 
     //void parseResultAsAbi();
-
 
     void trimResults();
 
@@ -76,7 +73,7 @@ public:
 
     const string &getOracleResult() const;
 
-    uint64_t getError() const;
+    int64_t getError() const;
 
     const ptr<vector<ptr<string>>> getResults() const;
 

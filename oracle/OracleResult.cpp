@@ -34,6 +34,14 @@ void OracleResult::parseResultAsJson() {
 
         CHECK_STATE2( !d.HasParseError(), "Unparsable Oracle result:" + oracleResult );
 
+
+        CHECK_STATE2(d.HasMember("sig"), "No sig in Oracle result:" + oracleResult);
+
+        sig = d["sig"].GetString();
+
+        CHECK_STATE2(d.HasMember("rslts") ||
+            d.HasMember("err"), "No rslts or err in Oracle result:" + oracleResult);
+
         if ( d.HasMember( "err" ) ) {
             CHECK_STATE2( d["err"].IsInt64(), "Error is not int64_t" );
             error = d["err"].GetInt64();
@@ -87,7 +95,7 @@ const string& OracleResult::getOracleResult() const {
     return oracleResult;
 }
 
-uint64_t OracleResult::getError() const {
+int64_t OracleResult::getError() const {
     return error;
 }
 
@@ -107,6 +115,7 @@ ptr< OracleResult > OracleResult::parseResult(
 }
 
 const string& OracleResult::getSig() const {
+    CHECK_STATE(!sig.empty())
     return sig;
 }
 
