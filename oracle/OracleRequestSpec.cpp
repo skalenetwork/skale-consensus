@@ -102,24 +102,32 @@ OracleRequestSpec::OracleRequestSpec(const string &_spec) : spec(_spec) {
         uri = d["uri"].GetString();
         checkURI(uri);
 
-        CHECK_STATE2(d.HasMember("time"), "No time pointer in Oracle spec:" + _spec);
-        CHECK_STATE2(d["time"].IsUint64(), "time in Oracle spec is not uint64:" + _spec)
-        requestTime = d["time"].GetUint64();
-
-        CHECK_STATE(requestTime > 0);
-
-        CHECK_STATE2(d.HasMember("pow"), "No  pow in Oracle spec:" + _spec);
-        CHECK_STATE2(d["pow"].IsUint64(), "Pow in Oracle spec is not uint64:" + _spec);
-        pow = d["pow"].GetUint64();
-
-        CHECK_STATE2(verifyPow(spec), "PoW did not verify");
-        receipt = CryptoManager::hashForOracle(spec.data(), spec.size());
 
         CHECK_STATE2(d.HasMember("encoding"), "No encoding in Oracle spec:" + _spec);
 
         CHECK_STATE2(d["encoding"].IsString(), "Encoding in Oracle spec is not string:" + _spec);
         encoding = d["encoding"].GetString();
         checkEncoding(encoding);
+
+
+        CHECK_STATE2(d.HasMember("time"), "No time pointer in Oracle spec:" + _spec);
+        CHECK_STATE2(d["time"].IsUint64(), "time in Oracle spec is not uint64:" + _spec)
+        requestTime = d["time"].GetUint64();
+
+        CHECK_STATE(requestTime > 0);
+
+
+
+        CHECK_STATE2(d.HasMember("pow"), "No  pow in Oracle spec:" + _spec);
+        CHECK_STATE2(d["pow"].IsUint64(), "Pow in Oracle spec is not uint64:" + _spec);
+        pow = d["pow"].GetUint64();
+
+
+
+        CHECK_STATE2(verifyPow(spec), "PoW did not verify");
+        receipt = CryptoManager::hashForOracle(spec.data(), spec.size());
+
+
 
 
         // no check if ETH or WEB call

@@ -34,10 +34,9 @@ void OracleResult::parseResultAsJson() {
 
         CHECK_STATE2( !d.HasParseError(), "Unparsable Oracle result:" + oracleResult );
 
-
         if ( d.HasMember( "err" ) ) {
-            CHECK_STATE2( d["err"].IsUint64(), "Error is not uint64_t" );
-            error = d["err"].GetUint64();
+            CHECK_STATE2( d["err"].IsInt64(), "Error is not int64_t" );
+            error = d["err"].GetInt64();
             return;
         }
 
@@ -135,8 +134,17 @@ void OracleResult::trimResults() {
 void OracleResult::appendElementsFromTheSpecAsJson() {
     try {
         oracleResult = oracleRequestSpec->getSpec();
-        // Replace last } with comma
-        oracleResult.back() = ',';
+
+        // remove the last element, which is PoW
+        try {
+            auto commaPosition = oracleResult.find_last_of( "," );
+            CHECK_STATE( commaPosition != string::npos );
+            oracleResult = oracleResult.substr( 0, commaPosition + 1 );
+        } catch ( ... ) {
+            throw_with_nested(
+                InvalidStateException( "Invalid oracle result" + oracleResult, __CLASS_NAME__ ) );
+        }
+
     } catch ( ... ) {
         throw_with_nested( InvalidStateException( __FUNCTION__, __CLASS_NAME__ ) );
     }

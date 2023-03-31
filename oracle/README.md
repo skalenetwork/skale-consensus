@@ -23,7 +23,8 @@ _If uri is eth:// then information is obtained from the geth server that the nod
                  Note: this element is required for web requests, and shall not be present for EthAPI requests.  
   _See https://json.nlohmann.me/features/json_pointer/ for intro to JSON pointers._
 * ```encoding```, string - the only currently supported encoding is```json```. ```abi``` will be supported in future releases. 
-* ```pow```, string - uint64 proof of work that is used to protect against denial of service attacks
+* ```pow```, string - uint64 proof of work that is used to protect against denial of service attacks. 
+  _Note: PoW must be the last element in JSON_
 
 
 
