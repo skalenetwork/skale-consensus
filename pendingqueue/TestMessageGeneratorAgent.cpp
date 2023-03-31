@@ -84,9 +84,9 @@ ConsensusExtFace::transactions_vector TestMessageGeneratorAgent::pendingTransact
         getSchain()->getOracleClient()->sendTestRequestGet();
         LOG(info, "Sent Oracle test get ");
 
-        LOG(info, "Sending Oracle test post ");
-        getSchain()->getOracleClient()->sendTestRequestGet();
-        LOG(info, "Sent Oracle test post ");
+        LOG(info, "Sending Oracle test eth_call ");
+        getSchain()->getOracleClient()->sendTestRequestEthCall();
+        LOG(info, "Sent Oracle eth_call request");
     }
 
     iterations++;

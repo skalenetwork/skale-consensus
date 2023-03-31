@@ -55,6 +55,8 @@ public:
 
     void sendTestRequestPost();
 
+    void sendTestRequestEthCall();
+
     void processResponseMessage( const ptr< MessageEnvelope >& _me );
 
     void sendTestWebRequestAndWaitForResult( const string& _uri, const vector< string >& _jsps,

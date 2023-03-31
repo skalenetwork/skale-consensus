@@ -388,7 +388,7 @@ void OracleRequestSpec::appendEthCallPart( string& _specStr, const string& _from
     _specStr.append( "\"data\":\"" + _data + "\"," );
     _specStr.append( "\"gas\":\"" + _gas );
     _specStr.append( "},\"" + _blockId + "\"" );
-    _specStr.append( "]" );
+    _specStr.append( "]," );
 }
 
 string OracleRequestSpec::createEthCallPostString() {
