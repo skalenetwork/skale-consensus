@@ -120,11 +120,11 @@ void OracleClient::sendTestRequestPost() {
 }
 
 
-void OracleClient::sendTestWebRequestAndWaitForResult(string &_uri,
+void OracleClient::sendTestWebRequestAndWaitForResult(const string &_uri,
                                                       const vector<string> &_jsps,
                                                       const vector<uint64_t> &_trims,
-                                                      string &_post,
-                                                      string &_encoding) {
+                                                      const string &_post,
+                                                      const string &_encoding) {
 
 
     try {
@@ -167,6 +167,61 @@ void OracleClient::sendTestWebRequestAndWaitForResult(string &_uri,
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
 };
+
+
+void OracleClient::sendTestEthCallRequestAndWaitForResult(
+    const string &_uri,
+    const string& _from,
+    const string& _to,
+    const string& _data,
+    const string& _gas,
+    const string& _block,
+    const string &_encoding) {
+
+
+    try {
+
+        auto _cid = (uint64_t) getSchain()->getSchainID();
+
+        string _receipt;
+
+
+        auto time = Time::getCurrentTimeMs();
+
+        auto os = OracleRequestSpec::makeEthCallSpec(_cid, _uri, _from, _to,
+            _data, _gas, _block, _encoding, time);
+
+
+        auto status = submitOracleRequest(os->getSpec(), _receipt);
+
+        CHECK_STATE(status == ORACLE_SUCCESS);
+
+
+        thread t([this, _receipt]() {
+            while (true) {
+                string result;
+                string r = _receipt;
+                sleep(1);
+                auto st = checkOracleResult(r, result);
+                cerr << "ORACLE_STATUS:" << st << endl;
+                if (st == ORACLE_SUCCESS) {
+                    cerr << result << endl;
+                    return;
+                }
+
+                if (st != ORACLE_RESULT_NOT_READY) {
+                    return;
+                }
+            }
+        });
+        t.detach();
+
+    } catch (...) {
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+    }
+};
+
+
 
 
 uint64_t OracleClient::submitOracleRequest(const string &_spec, string &_receipt) {

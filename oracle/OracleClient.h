@@ -25,44 +25,45 @@
 #ifndef SKALED_ORACLECLIENT_H
 #define SKALED_ORACLECLIENT_H
 
-#include "protocols/ProtocolInstance.h"
 #include "OracleReceivedResults.h"
+#include "protocols/ProtocolInstance.h"
 
 class Schain;
 
 class OracleRequestBroadcastMessage;
 
 class OracleClient : public ProtocolInstance {
-
     recursive_mutex m;
 
-    Schain *sChain = nullptr;
+    Schain* sChain = nullptr;
 
-    cache::lru_cache<string, ptr<OracleReceivedResults>> receiptsMap;
+    cache::lru_cache< string, ptr< OracleReceivedResults > > receiptsMap;
 
     string gethURL;
 
-    uint64_t broadcastRequest(ptr<OracleRequestBroadcastMessage> _msg);
+    uint64_t broadcastRequest( ptr< OracleRequestBroadcastMessage > _msg );
 
 
 public:
+    explicit OracleClient( Schain& _sChain );
 
-    explicit OracleClient(Schain &_sChain);
+    uint64_t checkOracleResult( const string& _receipt, string& _result );
 
-    uint64_t checkOracleResult(const string &_receipt, string &_result);
-
-    uint64_t submitOracleRequest(const string &_spec, string &_receipt);
+    uint64_t submitOracleRequest( const string& _spec, string& _receipt );
 
     void sendTestRequestGet();
 
     void sendTestRequestPost();
 
-    void processResponseMessage(const ptr<MessageEnvelope> &_me);
+    void processResponseMessage( const ptr< MessageEnvelope >& _me );
 
-    void
-    sendTestWebRequestAndWaitForResult(string& _uri, const vector<string> &_jsps,
-                                       const vector<uint64_t> &_trims, string& _post, string& _encoding);
+    void sendTestWebRequestAndWaitForResult( const string& _uri, const vector< string >& _jsps,
+        const vector< uint64_t >& _trims,  const string& _post,  const string& _encoding );
+
+    void sendTestEthCallRequestAndWaitForResult( const string& _uri, const string& _from,
+        const string& _to, const string& _data, const string& _gas ,
+        const string& _block, const string& _encoding );
 };
 
 
-#endif //SKALED_ORACLECLIENT_H
+#endif  // SKALED_ORACLECLIENT_H
