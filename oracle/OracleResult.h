@@ -27,14 +27,16 @@ private:
     ptr<vector<ptr<string>>> results;
     string sig;
 
-    ptr<vector<ptr<string>>> extractResults(string &_response);
+    void extractWebResults(string &_response);
+
+    void extractEthCallResults(string &_response);
 
 
     void parseResultAsJson();
 
     //void parseResultAsAbi();
 
-    void trimResults();
+    void trimWebResults();
 
     void appendElementsFromTheSpecAsJson();
 
@@ -52,7 +54,7 @@ public:
 
     const string getUnsignedOracleResult() const;
 
-    OracleResult(ptr<OracleRequestSpec> _spec, uint64_t _status, string &_serverResponse,
+    OracleResult(ptr<OracleRequestSpec> _oracleSpec, int64_t _status, string &_serverResponse,
                  ptr<CryptoManager> _cryptoManager);
 
 
@@ -70,12 +72,6 @@ public:
 
     uint64_t getTime() const;
 
-
-    const string &getOracleResult() const;
-
-    int64_t getError() const;
-
-    const ptr<vector<ptr<string>>> getResults() const;
 
 
     bool isGeth();
