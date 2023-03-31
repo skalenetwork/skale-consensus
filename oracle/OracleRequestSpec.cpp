@@ -81,7 +81,7 @@ OracleRequestSpec::OracleRequestSpec( const string& _spec ) : spec( _spec ) {
 
         rapidjson::Document d;
         d.Parse( spec.data() );
-        CHECK_STATE2( !d.HasParseError(), "Unparsable Oracle spec:" + _spec );
+        CHECK_STATE2(!d.HasParseError(), "Unparsable Oracle spec:" + _spec );
 
 
         // first check elements required for all calls
@@ -386,7 +386,7 @@ void OracleRequestSpec::appendEthCallPart( string& _specStr, const string& _from
     _specStr.append( "\"from\":\"" + _from + "\"," );
     _specStr.append( "\"to\":\"" + _to + "\"," );
     _specStr.append( "\"data\":\"" + _data + "\"," );
-    _specStr.append( "\"gas\":\"" + _gas );
+    _specStr.append( "\"gas\":\"" + _gas + "\"");
     _specStr.append( "},\"" + _blockId + "\"" );
     _specStr.append( "]," );
 }

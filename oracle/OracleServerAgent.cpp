@@ -210,7 +210,7 @@ ptr<OracleResponseMessage> OracleServerAgent::doEndpointRequestResponse(ptr<Orac
 
     auto resultStr = oracleResult->toString();
 
-    LOG(info, "Oracle request result: " + resultStr);
+    LOG(debug, "Oracle request result: " + resultStr);
 
     string receipt = _requestSpec->getReceipt();
 
