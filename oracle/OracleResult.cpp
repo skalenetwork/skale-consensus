@@ -208,9 +208,7 @@ OracleResult::OracleResult( ptr< OracleRequestSpec > _oracleSpec, int64_t _statu
             } else {
                 extractWebResults( _serverResponse );
             }
-            if ( !results ) {
-                error = ORACLE_INVALID_JSON_RESPONSE;
-            }
+
         } else {
             error = _status;
         }
@@ -246,8 +244,8 @@ void OracleResult::encodeAndSignResultAsJson( ptr< CryptoManager > _cryptoManage
     }
 }
 
-void OracleResult::extractEthCallResults( string& _response ) {
-    auto rs = make_shared< vector< ptr< string > > >();
+void OracleResult::extractEthCallResults( std::string& _response ) {
+    results = make_shared< vector< ptr< string > > >();
 
     try {
         auto j = nlohmann::json::parse( _response );
@@ -270,25 +268,27 @@ void OracleResult::extractEthCallResults( string& _response ) {
                 } else if ( val.is_boolean() ) {
                     strVal = to_string( val.get< bool >() );
                 }
-                rs->push_back( make_shared< string >( strVal ) );
+                results->push_back( make_shared< string >( strVal ) );
             } catch ( ... ) {
-                rs->push_back( nullptr );
+                results->push_back( nullptr );
             }
         }
 
     } catch ( exception& _e ) {
-        rs =  nullptr;
+        results = nullptr;
+        error = ORACLE_INVALID_JSON_RESPONSE;
+        return;
     } catch ( ... ) {
-        rs =  nullptr;
+        results = nullptr;
+        error = ORACLE_INVALID_JSON_RESPONSE;
+        return;
     }
 
-    results = rs;
 }
 
 
 void OracleResult::extractWebResults( string& _response ) {
-    auto rs = make_shared< vector< ptr< string > > >();
-
+    results = make_shared< vector< ptr< string > > >();
 
     try {
         auto j = nlohmann::json::parse( _response );
@@ -311,19 +311,22 @@ void OracleResult::extractWebResults( string& _response ) {
                 } else if ( val.is_boolean() ) {
                     strVal = to_string( val.get< bool >() );
                 }
-                rs->push_back( make_shared< string >( strVal ) );
+                results->push_back( make_shared< string >( strVal ) );
             } catch ( ... ) {
-                rs->push_back( nullptr );
+                results->push_back( nullptr );
             }
         }
 
     } catch ( exception& _e ) {
-        rs = nullptr;
+        results = nullptr;
+        error = ORACLE_INVALID_JSON_RESPONSE;
+        return;
     } catch ( ... ) {
-        rs = nullptr;
+        results = nullptr;
+        error = ORACLE_INVALID_JSON_RESPONSE;
+        return;
     }
 
-    results =  rs;
     trimWebResults();
 }
 
