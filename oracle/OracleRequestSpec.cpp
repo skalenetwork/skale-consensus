@@ -393,7 +393,7 @@ void OracleRequestSpec::appendEthCallPart( string& _specStr, const string& _from
 }
 
 string OracleRequestSpec::createEthCallPostString() {
-    string postString = "{\"jsonrpc\":\"2.0\",\"method\":\"eth_call\",\"params\":";
+    string postString = "{\"jsonrpc\":\"2.0\",\"method\":\"eth_call\",";
     appendEthCallPart( postString, from, to, gas, data, blockId );
     ethCallCounter++;
     postString.append( ",\"id\":" + to_string( ethCallCounter ) + "}" );
