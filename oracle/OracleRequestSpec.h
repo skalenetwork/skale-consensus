@@ -37,6 +37,7 @@ class OracleRequestSpec {
     string ethApi;
     uint64_t pow;
     string receipt;
+    static bool testMode;
 
 
     void checkEncoding( const string& _encoding );
@@ -135,6 +136,8 @@ public:
         const string& _block, const string& _encoding, uint64_t _time );
 
     static bool isIpAddress(const string& _address);
+
+    static void setTestMode();
 
 };
 

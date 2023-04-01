@@ -59,16 +59,17 @@ bool OracleRequestSpec::isIpAddress(const string& _address) {
 void OracleRequestSpec::checkURI( const string& _uri ) {
     CHECK_STATE2( _uri.size() > 5, "Uri too short:" + _uri );
     CHECK_STATE2( _uri.size() <= ORACLE_MAX_URI_SIZE, "Uri too long:" + _uri );
+    // allow IP based URIs on test networks where real crypto is not used
+
     CHECK_STATE2( _uri.find( ORACLE_HTTP_START ) == 0 ||
                       _uri.find( ORACLE_HTTPS_START == 0 || _uri == ORACLE_ETH_URL ),
         "Invalid URI:" + _uri );
-    if ( _uri != "eth://" ) {
+    if ( _uri != "eth://" && !testMode) {
         auto result = LUrlParser::ParseURL::parseURL( uri );
         CHECK_STATE2( result.isValid(), "URL invalid:" + uri );
         CHECK_STATE2( result.userName_.empty(), "Non empty username" );
         CHECK_STATE2( result.password_.empty(), "Non empty password" );
         auto host = result.host_;
-
         CHECK_STATE2(isIpAddress(host), "IP addresses not allowed in Oracle uris" + _uri );
     }
 }
@@ -382,7 +383,7 @@ string OracleRequestSpec::tryMakingSpec( uint64_t _chainId, const string& _uri,
 }
 
 void OracleRequestSpec::appendEthCallPart( string& _specStr, const string& _from, const string& _to,
-    const string& _gas, const string& _data, const string& _blockId ) {
+    const string& _data, const string& _gas, const string& _blockId ) {
     _specStr.append( "\"params\":[{" );
     _specStr.append( "\"from\":\"" + _from + "\"," );
     _specStr.append( "\"to\":\"" + _to + "\"," );
@@ -394,9 +395,9 @@ void OracleRequestSpec::appendEthCallPart( string& _specStr, const string& _from
 
 string OracleRequestSpec::createEthCallPostString() {
     string postString = "{\"jsonrpc\":\"2.0\",\"method\":\"eth_call\",";
-    appendEthCallPart( postString, from, to, gas, data, blockId );
+    appendEthCallPart( postString, from, to, data, gas, blockId );
     ethCallCounter++;
-    postString.append( ",\"id\":" + to_string( ethCallCounter ) + "}" );
+    postString.append( "\"id\":" + to_string( ethCallCounter ) + "}" );
     return postString;
 }
 
@@ -484,4 +485,10 @@ ptr< OracleRequestSpec > OracleRequestSpec::makeEthCallSpec( uint64_t _chainId, 
     static vector< uint64_t > dummyTrims;
     return makeSpec( _chainId, _uri, dummyJsps, dummyTrims, "", "eth_call", _from, _to, _data, _gas,
         _block, _encoding, _time );
+}
+
+bool OracleRequestSpec::testMode = false;
+
+void OracleRequestSpec::setTestMode() {
+    testMode = true;
 }

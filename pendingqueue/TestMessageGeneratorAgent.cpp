@@ -78,7 +78,7 @@ ConsensusExtFace::transactions_vector TestMessageGeneratorAgent::pendingTransact
     static atomic< uint64_t > iterations = 0;
     // send oracle test once from schain index 1
 
-    if ( getSchain()->getSchainIndex() == 1 ) {
+    if (getSchain()->getNode()->isTestNet() && getSchain()->getSchainIndex() == 1 ) {
         if ( iterations.fetch_add( 1 ) == 2 ) {
             LOG( info, "Sending Oracle test eth_call " );
             sendTestRequestEthCall();
@@ -134,7 +134,7 @@ void TestMessageGeneratorAgent::sendTestRequestEthCall() {
         string from = "0x9876543210987654321098765432109876543210";
         string to = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
         string data = "0x893d20e8";
-        string gas = "1000000";
+        string gas = "0x100000";
         string block = "latest";
         string encoding = "json";
 

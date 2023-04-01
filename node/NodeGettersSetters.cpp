@@ -421,3 +421,7 @@ string Node::getSgxSslCertFileFullPath() {
 uint64_t Node::getVisualizationType() const {
     return visualizationType;
 }
+
+bool Node::isTestNet() const {
+    return testNet;
+}

@@ -3,5 +3,6 @@
   "nodeID": 1115,
   "bindIP": "127.0.0.4",
   "basePort":1231,
-  "simulateNetworkWriteDelayMs": 100
+  "simulateNetworkWriteDelayMs": 100,
+  "isTestNet": 1
 }

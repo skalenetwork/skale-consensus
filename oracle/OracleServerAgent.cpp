@@ -66,6 +66,12 @@
 
 OracleServerAgent::OracleServerAgent(Schain &_schain) : Agent(_schain, true), requestCounter(0), threadCounter(0) {
 
+
+    if (_schain.getNode()->isTestNet()) {
+        // allow things like IP based URLS for tests
+        OracleRequestSpec::setTestMode();
+    }
+
     gethURL = getSchain()->getNode()->getGethUrl();
 
     for (int i = 0; i < NUM_ORACLE_THREADS; i++) {
@@ -224,7 +230,6 @@ ptr<OracleResponseMessage> OracleServerAgent::doEndpointRequestResponse(ptr<Orac
 
 uint64_t OracleServerAgent::curlHttp(const string &_uri, bool _isPost, string &_postString, string &_result) {
 
-
     uint64_t status = ORACLE_UNKNOWN_ERROR;
     CURL *curl;
     CURLcode res;
@@ -238,7 +243,7 @@ uint64_t OracleServerAgent::curlHttp(const string &_uri, bool _isPost, string &_
     CHECK_STATE2(curl, "Could not init curl object");
 
     curl_easy_setopt(curl, CURLOPT_URL, _uri.c_str());
-    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
+    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 1L);
 
     string pagedata;
 
