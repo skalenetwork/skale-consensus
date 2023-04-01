@@ -55,12 +55,7 @@ public:
 
     void processResponseMessage( const ptr< MessageEnvelope >& _me );
 
-    void sendTestWebRequestAndWaitForResult( const string& _uri, const vector< string >& _jsps,
-        const vector< uint64_t >& _trims,  const string& _post,  const string& _encoding );
-
-    void sendTestEthCallRequestAndWaitForResult( const string& _uri, const string& _from,
-        const string& _to, const string& _data, const string& _gas ,
-        const string& _block, const string& _encoding );
+    void sendTestRequestAndWaitForResult(ptr<OracleRequestSpec> _spec);
 };
 
 

@@ -21,7 +21,7 @@
     @date 2018
 */
 
-#include "pendingqueue/TestMessageGeneratorAgent.h"
+#include "thirdparty/json.hpp"
 #include "Log.h"
 #include "PendingTransactionsAgent.h"
 #include "SkaleCommon.h"
@@ -31,7 +31,10 @@
 #include "exceptions/FatalError.h"
 #include "node/ConsensusEngine.h"
 #include "oracle/OracleClient.h"
-#include "thirdparty/json.hpp"
+#include "oracle/OracleRequestSpec.h"
+#include "utils/Time.h"
+#include "pendingqueue/TestMessageGeneratorAgent.h"
+
 
 
 TestMessageGeneratorAgent::TestMessageGeneratorAgent( Schain& _sChain_ )
@@ -88,16 +91,17 @@ ConsensusExtFace::transactions_vector TestMessageGeneratorAgent::pendingTransact
 
 
 void TestMessageGeneratorAgent::sendTestRequestGet() {
-    string uri = "http://worldtimeapi.org/api/timezone/Europe/Kiev";
+    string uri = "https://worldtimeapi.org/api/timezone/Europe/Kiev";
     vector< string > jsps{ "/unixtime", "/day_of_year", "/xxx" };
     vector< uint64_t > trims{ 1, 1, 1 };
     string post = "";
-    string encoding;
+    string encoding = "json";
 
+    auto cid = (uint64_t) getSchain()->getSchainID();
+    auto time = Time::getCurrentTimeMs();
+    auto os = OracleRequestSpec::makeWebSpec(cid, uri, jsps, trims, post, encoding, time);
 
-    encoding = "json";
-    getSchain()->getOracleClient()->sendTestWebRequestAndWaitForResult(
-        uri, jsps, trims, post, encoding );
+    getSchain()->getOracleClient()->sendTestRequestAndWaitForResult( os );
 }
 
 
@@ -110,9 +114,12 @@ void TestMessageGeneratorAgent::sendTestRequestPost() {
         vector< string > jsps = { "/id" };
         string post = "haha";
         string encoding = "json";
+        auto cid = (uint64_t) getSchain()->getSchainID();
+        auto time = Time::getCurrentTimeMs();
+        auto os = OracleRequestSpec::makeWebSpec(cid, uri, jsps, {}, post, encoding, time);
 
-        getSchain()->getOracleClient()->sendTestWebRequestAndWaitForResult(
-            uri, jsps, {}, post, encoding );
+        getSchain()->getOracleClient()->sendTestRequestAndWaitForResult( os );
+
     } catch ( ... ) {
         throw_with_nested( InvalidStateException( __FUNCTION__, __CLASS_NAME__ ) );
     }
@@ -131,8 +138,15 @@ void TestMessageGeneratorAgent::sendTestRequestEthCall() {
         string block = "latest";
         string encoding = "json";
 
-        getSchain()->getOracleClient()->sendTestEthCallRequestAndWaitForResult(
-            uri, from, to, data, gas, block, encoding );
+        auto _cid = (uint64_t) getSchain()->getSchainID();
+
+        auto time = Time::getCurrentTimeMs();
+
+        auto os = OracleRequestSpec::makeEthCallSpec(_cid, uri, from, to, data, gas, block,
+            encoding, time);
+
+        getSchain()->getOracleClient()->sendTestRequestAndWaitForResult( os );
+
     } catch ( exception& e ) {
         throw_with_nested( InvalidStateException( __FUNCTION__, __CLASS_NAME__ ) );
     }
