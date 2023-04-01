@@ -217,9 +217,9 @@ public:
     ~ConsensusEngine() override;
 
     ConsensusEngine( ConsensusExtFace& _extFace, uint64_t _lastCommittedBlockID,
-        uint64_t _lastCommittedBlockTimeStamp,uint64_t _lastCommittedBlockTimeStampMs,
-       map<string, uint64_t> _patchTimestamps,
-        uint64_t _totalStorageLimitBytes = DEFAULT_DB_STORAGE_LIMIT);
+        uint64_t _lastCommittedBlockTimeStamp, uint64_t _lastCommittedBlockTimeStampMs,
+        map< string, uint64_t > _patchTimestamps,
+        uint64_t _totalStorageLimitBytes = DEFAULT_DB_STORAGE_LIMIT );
 
     [[nodiscard]] ConsensusExtFace* getExtFace() const;
 
@@ -227,7 +227,9 @@ public:
     [[nodiscard]] uint64_t getEngineID() const;
 
 
-    void startAll() override;
+    // If starting from a snapshot, start all will pass to consensus the last comitted
+    // block coming from the snapshot
+    void startAll(ptr< vector< uint8_t > > _startingFromSnapshotWithThisAsLastBlock) override;
 
     void parseFullConfigAndCreateNode( const string& fullPathToConfigFile, const string& _gethURL) override;
 
@@ -302,5 +304,10 @@ public:
 
 
     uint64_t  checkOracleResult(const string& _receipt, string& _result) override;
+
+
+    std::shared_ptr<std::vector<std::uint8_t>> getSerializedBlock(
+        std::uint64_t _blockNumber)  override;
+
 
 };

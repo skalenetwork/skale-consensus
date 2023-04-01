@@ -23,7 +23,7 @@
 
 #include <curl/curl.h>
 
-#include "thirdparty/LUrlParser.h"
+
 
 #include "SkaleCommon.h"
 #include "Log.h"
@@ -65,6 +65,12 @@
 #include "OracleServerAgent.h"
 
 OracleServerAgent::OracleServerAgent(Schain &_schain) : Agent(_schain, true), requestCounter(0), threadCounter(0) {
+
+
+    if (_schain.getNode()->isTestNet()) {
+        // allow things like IP based URLS for tests
+        OracleRequestSpec::setTestMode();
+    }
 
     gethURL = getSchain()->getNode()->getGethUrl();
 
@@ -150,7 +156,7 @@ void OracleServerAgent::workerThreadItemSendLoop(OracleServerAgent *_agent) {
 
             CHECK_STATE(orclMsg);
 
-            auto msg = _agent->doEndpointRequestResponse(orclMsg);
+            auto msg = _agent->doEndpointRequestResponse(orclMsg->getParsedSpec());
 
             _agent->sendOutResult(msg, msge->getSrcSchainIndex());
         } catch (ExitRequestedException &e) {
@@ -187,52 +193,32 @@ WriteMemoryCallback(void *contents, size_t size, size_t nmemb, void *userp) {
 
 using namespace nlohmann;
 
-ptr<OracleResponseMessage> OracleServerAgent::doEndpointRequestResponse(ptr<OracleRequestBroadcastMessage> _request) {
-    CHECK_ARGUMENT(_request)
+ptr<OracleResponseMessage> OracleServerAgent::doEndpointRequestResponse(ptr<OracleRequestSpec> _requestSpec) {
+    CHECK_ARGUMENT(_requestSpec)
 
-    auto spec = _request->getParsedSpec();
 
-    auto uri = spec->getUri();
-    if (spec->isGeth()) {
-        uri = gethURL + "/" + uri.substr(string("geth://").size());
+    string endpointUri;
+    if (_requestSpec->isEthMainnet()) {
+        endpointUri = gethURL;
     } else {
-        auto result = LUrlParser::ParseURL::parseURL(uri);
-        CHECK_STATE2(result.isValid(), "URL invalid:" + uri);
-        CHECK_STATE2(result.userName_.empty(), "Non empty username");
-        CHECK_STATE2(result.password_.empty(), "Non empty password");
-        auto host = result.host_;
-
-        CHECK_STATE2(host.find("0.") != 0 &&
-                     host.find("10.") != 0 &&
-                     host.find("127.") != 0 &&
-                     host.find("172.") != 0 &&
-                     host.find("192.168.") != 0 &&
-                     host.find("169.254.") != 0 &&
-                     host.find("192.0.0") != 0 &&
-                     host.find("192.0.2") != 0 &&
-                     host.find("192.0.2") != 0 &&
-                     host.find("198.18") != 0 &&
-                     host.find("198.19") != 0,
-                     "Private IPs not allowed in Oracle"
-        )
+        endpointUri = _requestSpec->getUri();
     }
 
-    auto postString = spec->getPost();
+    auto postString = _requestSpec->whatToPost();
 
     string response;
 
-
-    auto status = curlHttp(uri, spec->isPost(), postString, response);
+    auto status = curlHttp(endpointUri, _requestSpec->isPost(), postString, response);
 
     ptr<OracleResult> oracleResult = nullptr;
 
-    oracleResult = make_shared<OracleResult>(spec, status, response, getSchain()->getCryptoManager());
+    oracleResult = make_shared<OracleResult>(_requestSpec, status, response, getSchain()->getCryptoManager());
 
     auto resultStr = oracleResult->toString();
 
-    LOG(info, "Oracle request result: " + resultStr);
+    LOG(debug, "Oracle request result: " + resultStr);
 
-    string receipt = _request->getParsedSpec()->getReceipt();
+    string receipt = _requestSpec->getReceipt();
 
     return make_shared<OracleResponseMessage>(resultStr,
                                               receipt,
@@ -243,7 +229,6 @@ ptr<OracleResponseMessage> OracleServerAgent::doEndpointRequestResponse(ptr<Orac
 
 
 uint64_t OracleServerAgent::curlHttp(const string &_uri, bool _isPost, string &_postString, string &_result) {
-
 
     uint64_t status = ORACLE_UNKNOWN_ERROR;
     CURL *curl;
@@ -258,7 +243,7 @@ uint64_t OracleServerAgent::curlHttp(const string &_uri, bool _isPost, string &_
     CHECK_STATE2(curl, "Could not init curl object");
 
     curl_easy_setopt(curl, CURLOPT_URL, _uri.c_str());
-    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
+    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 1L);
 
     string pagedata;
 

@@ -46,6 +46,7 @@ class OracleResponseMessage;
 class OracleRequestBroadcastMessage;
 
 class OracleThreadPool;
+class OracleRequestSpec;
 
 class OracleServerAgent : public Agent {
 
@@ -60,10 +61,10 @@ class OracleServerAgent : public Agent {
     string gethURL;
 
 
-    ptr<OracleResponseMessage> doEndpointRequestResponse(ptr<OracleRequestBroadcastMessage> /* _request */);
+    ptr<OracleResponseMessage> doEndpointRequestResponse(ptr<OracleRequestSpec> _requestSpec);
 
 
-    void sendOutResult(ptr<OracleResponseMessage> _msg, schain_index /* _destination*/);
+    void sendOutResult(ptr<OracleResponseMessage> _msg, schain_index _destination);
 
 
 public:
@@ -76,7 +77,7 @@ public:
 
     static void workerThreadItemSendLoop(OracleServerAgent *_agent);
 
-    uint64_t curlHttp(const string &_uri, bool _isPost, string &_postString, string &_result);
+    static uint64_t curlHttp(const string &_uri, bool _isPost, string &_postString, string &_result);
 
     static ptr<vector<ptr<string>>> extractResults(
             string &_response, vector<string> &_jsps);

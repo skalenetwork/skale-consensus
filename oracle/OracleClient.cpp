@@ -82,64 +82,16 @@ uint64_t OracleClient::broadcastRequest(ptr<OracleRequestBroadcastMessage> _msg)
     }
 }
 
+void OracleClient::sendTestRequestAndWaitForResult(
+    ptr<OracleRequestSpec> _spec) {
 
-void OracleClient::sendTestRequestGet() {
-
-
-    string uri = "http://worldtimeapi.org/api/timezone/Europe/Kiev";
-    vector<string> jsps{"/unixtime", "/day_of_year", "/xxx"};
-    vector<uint64_t> trims{1, 1, 1};
-    string encoding = "rlp";
-    string post = "";
-
-    sendRequestAndWaitForResult(uri, jsps, trims, post, encoding);
-}
-
-
-void OracleClient::sendTestRequestPost() {
+    CHECK_STATE(_spec);
 
     try {
 
-        if (getSchain()->getSchainIndex() != 1) {
-            return;
-        }
-
-        string _receipt;
-        string uri = "https://reqres.in/api/users";
-        vector<string> jsps = {"/id"};
-        string post = "haha";
-        string encoding = "rlp";
-
-        sendRequestAndWaitForResult(uri, jsps, {}, post, encoding);
-    } catch (...) {
-        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
-    }
-}
-
-
-void OracleClient::sendRequestAndWaitForResult(string &_uri,
-                                               const vector<string> &_jsps,
-                                               const vector<uint64_t> &_trims,
-                                               string &_post,
-                                               string &_encoding) {
-
-
-    try {
-
-        auto _cid = (uint64_t) getSchain()->getSchainID();
-
         string _receipt;
 
-
-        auto time = Time::getCurrentTimeMs();
-
-        auto os = make_shared<OracleRequestSpec>(_cid, _uri, _jsps, _trims, time, _post,
-                                                 _encoding);
-
-        CHECK_STATE(os->verifyPow());
-
-
-        auto status = submitOracleRequest(os->getSpec(), _receipt);
+        auto status = submitOracleRequest(_spec->getSpec(), _receipt);
 
         CHECK_STATE(status == ORACLE_SUCCESS);
 
@@ -167,6 +119,8 @@ void OracleClient::sendRequestAndWaitForResult(string &_uri,
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
 };
+
+
 
 
 uint64_t OracleClient::submitOracleRequest(const string &_spec, string &_receipt) {
@@ -207,7 +161,7 @@ void OracleClient::processResponseMessage(const ptr<MessageEnvelope> &_me) {
         }
 
         auto rslts = std::any_cast<ptr<OracleReceivedResults>>(receivedResults);
-        rslts->insertIfDoesntExist(origin, msg->getOracleResult(rslts->getRequestSpec()->getEncoding(),
+        rslts->insertIfDoesntExist(origin, msg->getOracleResult(rslts->getRequestSpec(),
                                                                 getSchain()->getSchainID()));
     } catch (...) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));

@@ -49,13 +49,8 @@ OracleRequestBroadcastMessage::OracleRequestBroadcastMessage(const string &_requ
 
     printPrefix = "o";
 
-    parsedSpec = OracleRequestSpec::parseSpec(requestSpec);
-    CHECK_STATE2(parsedSpec->getChainid() == sourceProtocolInstance.getSchain()->getSchainID(),
-                 "Invalid schain id in oracle spec:" + to_string(parsedSpec->getChainid()));
+    parsedSpec = OracleRequestSpec::parseSpec(requestSpec, (uint64_t) sourceProtocolInstance.getSchain()->getSchainID());
 
-    CHECK_STATE2(parsedSpec->getTime() + ORACLE_TIMEOUT_MS > Time::getCurrentTimeMs(), "Request timeout")
-    CHECK_STATE(parsedSpec->getTime() < Time::getCurrentTimeMs() + ORACLE_FUTURE_JITTER_MS)
-    CHECK_STATE2(parsedSpec->verifyPow(), "PoW did not verify");
 }
 
 
@@ -75,11 +70,8 @@ OracleRequestBroadcastMessage::OracleRequestBroadcastMessage(const string &_requ
 
     requestSpec.erase(std::remove_if(requestSpec.begin(), requestSpec.end(), ::isspace), requestSpec.end());
 
-    parsedSpec = OracleRequestSpec::parseSpec(requestSpec);
-    CHECK_STATE2(parsedSpec->getChainid() == _schainId,
-                 "Invalid schain id in oracle spec:" + to_string(_schainId));
-    CHECK_STATE2(parsedSpec->getTime() + ORACLE_TIMEOUT_MS > Time::getCurrentTimeMs(), "Request timeout")
-    CHECK_STATE(parsedSpec->getTime() < Time::getCurrentTimeMs() + ORACLE_FUTURE_JITTER_MS)
+    parsedSpec = OracleRequestSpec::parseSpec(requestSpec, (uint64_t) _schainId);
+
 }
 
 void OracleRequestBroadcastMessage::updateWithChildHash(blake3_hasher &_hasher) {

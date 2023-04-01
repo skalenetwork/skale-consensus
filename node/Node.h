@@ -206,6 +206,8 @@ class Node {
     uint64_t visualizationType = 0;
 
     string gethURL = "";
+    bool testNet = false;
+
 
     bool isSyncNode = false;
 
@@ -239,6 +241,8 @@ public:
     ptr< map< uint64_t, vector< uint64_t > > > getHistoricNodeGroups();
 
     bool isSgxEnabled();
+
+    bool isTestNet() const;
 
     [[nodiscard]] const ptr< TestConfig >& getTestConfig() const;
 
@@ -308,14 +312,15 @@ public:
 
     ~Node();
 
-    void startServers();
+    // if the node starts from a snapshot, we will pass the last consensus block which is
+    // coming from the snapshot. Normally we will pass nullptr
+    void startServers(ptr< vector< uint8_t > > _startingFromSnapshotWithThisAsLastBlock);
 
     void exit();
 
     void exitOnFatalError( const string& message );
 
     void setSchain(const ptr< Schain >& _schain );
-
 
     static void initSchain(const ptr<Node>& _node, schain_index _schainIndex, schain_id _schainId,
                           const vector<ptr<NodeInfo> > &remoteNodeInfos,

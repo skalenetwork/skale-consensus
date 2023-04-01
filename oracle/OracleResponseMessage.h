@@ -30,6 +30,7 @@
 class OracleProtocolInstance;
 
 class OracleResult;
+class OracleRequestSpec;
 
 class OracleResponseMessage : public NetworkMessage {
 
@@ -48,7 +49,7 @@ protected:
 
 public:
 
-    ptr<OracleResult> &getOracleResult(string _encoding, schain_id _schaiId);
+    ptr<OracleResult> &getOracleResult(ptr<OracleRequestSpec> _spec, schain_id _schaiId);
 
     OracleResponseMessage(string &_oracleResult, string &_receipt, block_id _blockID, uint64_t _timeMs,
                           OracleClient &sourceProtocolInstance);

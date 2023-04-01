@@ -44,11 +44,10 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ec15c893-7f20-4493-be40-38b8f69efc54" name="Default Changelist" comment="#636 skaled stuck">
+    <list default="true" id="ec15c893-7f20-4493-be40-38b8f69efc54" name="Default Changelist" comment="709 Complete Oracle: add spec verification">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/catchup/client/CatchupClientAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/catchup/client/CatchupClientAgent.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/catchup/client/CatchupClientAgent.h" beforeDir="false" afterPath="$PROJECT_DIR$/catchup/client/CatchupClientAgent.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libjson-rpc-cpp" beforeDir="false" afterPath="$PROJECT_DIR$/libjson-rpc-cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/oracle/OracleResult.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/oracle/OracleResult.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -142,7 +141,7 @@
     &quot;cf.advertisement.text.overridden&quot;: &quot;true&quot;,
     &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
     &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/d/skale-consensus/test/seven_one_catchup&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/d/skale-consensus&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
@@ -500,34 +499,10 @@
       <workItem from="1673376105647" duration="1281000" />
       <workItem from="1673401189746" duration="2000" />
       <workItem from="1673443336376" duration="23557000" />
-    </task>
-    <task id="LOCAL-00096" summary="bug/SKALE-4352">
-      <created>1634141146057</created>
-      <option name="number" value="00096" />
-      <option name="presentableId" value="LOCAL-00096" />
-      <option name="project" value="LOCAL" />
-      <updated>1634141146057</updated>
-    </task>
-    <task id="LOCAL-00097" summary="bug/SKALE-4352">
-      <created>1634309105352</created>
-      <option name="number" value="00097" />
-      <option name="presentableId" value="LOCAL-00097" />
-      <option name="project" value="LOCAL" />
-      <updated>1634309105352</updated>
-    </task>
-    <task id="LOCAL-00098" summary="bug/SKALE-4352">
-      <created>1634559136431</created>
-      <option name="number" value="00098" />
-      <option name="presentableId" value="LOCAL-00098" />
-      <option name="project" value="LOCAL" />
-      <updated>1634559136431</updated>
-    </task>
-    <task id="LOCAL-00099" summary="bug/SKALE-4352">
-      <created>1634560051993</created>
-      <option name="number" value="00099" />
-      <option name="presentableId" value="LOCAL-00099" />
-      <option name="project" value="LOCAL" />
-      <updated>1634560051993</updated>
+      <workItem from="1676916164267" duration="9896000" />
+      <workItem from="1680171967918" duration="4000" />
+      <workItem from="1680172553777" duration="4927000" />
+      <workItem from="1680282100830" duration="3952000" />
     </task>
     <task id="LOCAL-00100" summary="bug/SKALE-4352">
       <created>1634562684276</created>
@@ -844,11 +819,45 @@
       <option name="project" value="LOCAL" />
       <updated>1673554716233</updated>
     </task>
-    <option name="localTasksCounter" value="145" />
+    <task id="LOCAL-00145" summary="709 Complete Oracle: add spec verification">
+      <created>1677070444371</created>
+      <option name="number" value="00145" />
+      <option name="presentableId" value="LOCAL-00145" />
+      <option name="project" value="LOCAL" />
+      <updated>1677070444371</updated>
+    </task>
+    <task id="LOCAL-00146" summary="709 Complete Oracle: add spec verification">
+      <created>1677070900038</created>
+      <option name="number" value="00146" />
+      <option name="presentableId" value="LOCAL-00146" />
+      <option name="project" value="LOCAL" />
+      <updated>1677070900038</updated>
+    </task>
+    <task id="LOCAL-00147" summary="709 Complete Oracle: add spec verification">
+      <created>1680174959938</created>
+      <option name="number" value="00147" />
+      <option name="presentableId" value="LOCAL-00147" />
+      <option name="project" value="LOCAL" />
+      <updated>1680174959938</updated>
+    </task>
+    <task id="LOCAL-00148" summary="709 Complete Oracle: add spec verification">
+      <created>1680285522171</created>
+      <option name="number" value="00148" />
+      <option name="presentableId" value="LOCAL-00148" />
+      <option name="project" value="LOCAL" />
+      <updated>1680285522172</updated>
+    </task>
+    <option name="localTasksCounter" value="149" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="VCPKGProject">
+    <isAutomaticEditVcpkgJson value="false" />
+    <isAutomaticCheckingOnLaunch value="false" />
+    <isAutomaticFoundErrors value="true" />
+    <isAutomaticFoundErrors value="true" />
   </component>
   <component name="Vcs.Log.History.Properties">
     <option name="COLUMN_ID_ORDER">
@@ -885,7 +894,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="bug/SKALE-4357-restructure-schain-bootstrap" />
     <MESSAGE value="bug/SKALE-4386-save-visualization" />
     <MESSAGE value="task/SKALE-4386-save-visualization" />
     <MESSAGE value="bug/SKALE-4440-sgx" />
@@ -910,7 +918,8 @@
     <MESSAGE value="#636 new node needs to OK old node not sending the signature" />
     <MESSAGE value="#636 skaled stuck" />
     <MESSAGE value="640 block rotation does not work" />
-    <option name="LAST_COMMIT_MESSAGE" value="640 block rotation does not work" />
+    <MESSAGE value="709 Complete Oracle: add spec verification" />
+    <option name="LAST_COMMIT_MESSAGE" value="709 Complete Oracle: add spec verification" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -927,8 +936,13 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
           <url>file://$PROJECT_DIR$/oracle/OracleReceivedResults.cpp</url>
-          <line>121</line>
+          <line>122</line>
           <option name="timeStamp" value="37" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/node/ConsensusInterface.h</url>
+          <line>64</line>
+          <option name="timeStamp" value="38" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>

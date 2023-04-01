@@ -1,10 +1,65 @@
-# Dynamic Oracle API
+# Oracle API
 
 The following two JSON-RPC calls are implemented by ```skaled```
 
+## OracleRequestSpec.
+
+### Oracle request spec description
+
+$OracleRequestSpec$ is a JSON string that is used by client to initiate an Oracle request.
+
+It has the following parameters:
+
+Required elements:
+
+* ```cid```, uint64 - chain ID
+* ```uri```, string - Oracle endpoint.
+_If uri starts with http:// or https:// then the information is obtained from the corresponding http:// or https:// endpoint_. 
+_If uri is eth:// then information is obtained from the geth server that the node is connected to_.
+ _Max length of uri string is 1024 bytes._
+* ```time```, uint64 - Linux time of request in ms.
+  * ```jsps```, array of strings - list of string JSON pointers to the data elements to be picked from server response. 
+                The array must have from 1 to 32 elements. Max length of each pointer 1024 bytes.
+                 Note: this element is required for web requests, and shall not be present for EthAPI requests.  
+  _See https://json.nlohmann.me/features/json_pointer/ for intro to JSON pointers._
+* ```encoding```, string - the only currently supported encoding is```json```. ```abi``` will be supported in future releases. 
+* ```pow```, string - uint64 proof of work that is used to protect against denial of service attacks. 
+  _Note: PoW must be the last element in JSON_
+
+
+
+
+Optional elements:
+
+* ```trims```, uint64 array - this is an array of trim values.
+   It is used to trim endings of the strings in Oracle result.
+   If ```trims``` array is provided, it has to provide trim value for
+   each JSON pointer requested. The array size is then identical to ```jsps``` array size. For each ```jsp``` the trim value specifies how many characters are trimmed from the end of the string returned.
+
+* ```post```, string
+_if this element, then Oracle with use HTTP POST instead of HTTP GET (default).
+   The value of the post element will be posted to the endpoint. This element shall not be present in ethApi calls_ 
+
+* ```params```, string array
+  _this element shall only be present if eth_call is used. It specifies ```params``` element for ```eth_call```.
+   See  [here for more info ](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_call)_
+   
+* ```ethApi``` - Ethereum API method to call.  If this element is present, an eth API RPC call will be performed against the endpoint. Valid values for this element are:
+
+```
+eth_call
+```
+
+### URI element
+
+* If ```uri``` element in the spec starts with ```http://``` or ```https://```, Oracle will retrieve information by doing a http or https to a web endpoint specified by the uri. The endpoint must return a JSON string as a result.
+
+* If ```uri``` element in the spec is equal to with ```eth://```, Oracle will perform a request against Ethereum mainnet.   For this each SKALE node will use the Ethereum mainnet node is is connected to.
+
 ## oracle_submitRequest
 
-Submit Oracle request
+To submit an Oracle request to a SKALE node, the client submits a string spec 
+to oracle_submitRequest API.
 
 ### Parameters
 
@@ -21,10 +76,8 @@ day of the year from worldtimeapi.org.
     "jsps":["/unixtime", "/day_of_year", "/xxx"],
     "trims":[1,1,1],
     "time":9234567,
+    "encoding":"json",
     "pow":53458}
-
-
-
 ```
 
 Description:
@@ -49,18 +102,8 @@ HTTP post request that posts some data to endpoint
      "pow":1735}
 ```
 
-### Request JSON elements description
 
-Required elements:
 
-1. ```cid```, uint64 - chain ID
-2. ```uri```, string - Oracle endpoint (http or https)
-3. ```time```, uint64 - Linux time of request in ms
-4. ```jsps```, array of strings - list of JSON pointer to the data elements to be picked from server response.
-5. ```pow```, string - uint64 proof of work that is used to protect against denial of service attacks
-
-See https://json.nlohmann.me/features/json_pointer/ for intro to
-JSON pointers.
 
 Note: for each JSON pointer specified in the request, the Oracle
 will
@@ -69,22 +112,6 @@ will
 - transform it to a string.
 - If no such element exists, ```null``` will be returned.
 
-Optional elements:
-
-1. ```trims```, uint64 array - this is an array of trim values.
-   It is used to trim endings of the strings in Oracle result.
-   If ```trims``` array is provided, it has to provide trim value for
-   each JSON pointer requested.
-
-
-1. ```post```, string - if this element is provided, the
-   Oracle with use HTTP POST instead of HTTP GET (default).
-   The value of the ```post``` element will be POSTed to the endpoint.
-
-
-1. ```encoding```, string - how to encode the result. Supported encodings
-   are ```json``` and ```rlp```. If the element is not provided, ```json``` encoding is
-   used.
 
 ## Returned value
 
@@ -116,20 +143,6 @@ Here ~ is bitwise NOT and u256 is unsigned 256 bit number.
 specStr is the full JSON spec string, starting from ```{``` and ending with
 ```}```
 
-### Geth
-
-To get information from SKALE network geth servers, one need to
-use ```geth://``` in URI".
-
-The following JSON-RPC endpoint are available in the first release:
-
-```
-geth://eth_call
-geth://eth_gasPrice
-geth://eth_blockNumber
-geth://eth_getBlockByNumber
-geth://eth_getBlockByHash
-```
 
 ## oracle_checkResult
 
@@ -157,7 +170,8 @@ This result can then be provided to a smartcontract for verification.
 Oracle result repeats JSON elements from the corresponding
 Oracle request spec, plus includes a set of additional elements
 
-1. ```rslts ``` - array of string results
+1. ```rslts ``` - array of string results. Note for "eth_call" ```results``` is a single element array that includes
+                  the hex encoded ```DATA``` string which is returned by eth_call. 
 2. ```sigs``` - array of ECDSA signatures where ```t``` signatures are not null.
 
 ### Oracle Result Example
@@ -168,7 +182,7 @@ An example of Oracle result is provided below
 {"cid":1,
  "uri":"http://worldtimeapi.org/api/timezone/Europe/Kiev",
   "jsps":["/unixtime", "/day_of_year", "/xxx"],
-  "trims":[1,1,1],"time":1642521456593,
+  "trims":[1,1,1],"time":1642521456593, "encoding":"json",
   "rslts":["164252145","1",null],
    "sigs":["6d50daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f",
            "7d50daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f",
