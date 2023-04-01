@@ -75,10 +75,12 @@ ConsensusExtFace::transactions_vector TestMessageGeneratorAgent::pendingTransact
     static atomic< uint64_t > iterations = 0;
     // send oracle test once from schain index 1
 
-    if ( iterations.fetch_add( 1 ) == getSchain()->getNodeCount() * 2 ) {
-        LOG( info, "Sending Oracle test eth_call " );
-        sendTestRequestEthCall();
-        LOG( info, "Sent Oracle eth_call request" );
+    if ( getSchain()->getSchainIndex() == 1 ) {
+        if ( iterations.fetch_add( 1 ) == 2 ) {
+            LOG( info, "Sending Oracle test eth_call " );
+            sendTestRequestEthCall();
+            LOG( info, "Sent Oracle eth_call request" );
+        }
     }
 
     return result;
@@ -92,8 +94,7 @@ void TestMessageGeneratorAgent::sendTestRequestGet() {
     string post = "";
     string encoding;
 
-    // encoding = ORACLE_ENCODING_ABI;
-    // sendTestWebRequestAndWaitForResult(uri, jsps, trims, post, encoding);
+
     encoding = "json";
     getSchain()->getOracleClient()->sendTestWebRequestAndWaitForResult(
         uri, jsps, trims, post, encoding );
@@ -102,9 +103,7 @@ void TestMessageGeneratorAgent::sendTestRequestGet() {
 
 void TestMessageGeneratorAgent::sendTestRequestPost() {
     try {
-        if ( getSchain()->getSchainIndex() != 1 ) {
-            return;
-        }
+
 
         string _receipt;
         string uri = "https://reqres.in/api/users";
@@ -122,9 +121,6 @@ void TestMessageGeneratorAgent::sendTestRequestPost() {
 
 void TestMessageGeneratorAgent::sendTestRequestEthCall() {
     try {
-        if ( getSchain()->getSchainIndex() != 1 ) {
-            return;
-        }
 
         string _receipt;
         string uri = "http://127.0.0.1:8545/";
@@ -138,7 +134,6 @@ void TestMessageGeneratorAgent::sendTestRequestEthCall() {
         getSchain()->getOracleClient()->sendTestEthCallRequestAndWaitForResult(
             uri, from, to, data, gas, block, encoding );
     } catch ( exception& e ) {
-        LOG( err, "Exception in sentTestEthCall:" + string( e.what() ) );
-        exit( -1 );
+        throw_with_nested( InvalidStateException( __FUNCTION__, __CLASS_NAME__ ) );
     }
 }

@@ -133,6 +133,9 @@ public:
     static ptr< OracleRequestSpec > makeEthCallSpec( uint64_t _chainId, const string& _uri,
         const string& _from, const string& _to, const string& _data, const string& _gas,
         const string& _block, const string& _encoding, uint64_t _time );
+
+    static bool isIpAddress(const string& _address);
+
 };
 
 

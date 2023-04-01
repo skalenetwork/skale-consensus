@@ -49,6 +49,13 @@ void OracleRequestSpec::checkEthApi( const string& _ethApi ) {
     }
 }
 
+
+bool OracleRequestSpec::isIpAddress(const string& _address) {
+    struct in_addr addr;
+    int result = inet_pton(AF_INET, _address.c_str(), &addr);
+    return (result == 1);
+}
+
 void OracleRequestSpec::checkURI( const string& _uri ) {
     CHECK_STATE2( _uri.size() > 5, "Uri too short:" + _uri );
     CHECK_STATE2( _uri.size() <= ORACLE_MAX_URI_SIZE, "Uri too long:" + _uri );
@@ -62,13 +69,7 @@ void OracleRequestSpec::checkURI( const string& _uri ) {
         CHECK_STATE2( result.password_.empty(), "Non empty password" );
         auto host = result.host_;
 
-        CHECK_STATE2( host.find( "0." ) != 0 && host.find( "10." ) != 0 &&
-                          host.find( "127." ) != 0 && host.find( "172." ) != 0 &&
-                          host.find( "192.168." ) != 0 && host.find( "169.254." ) != 0 &&
-                          host.find( "192.0.0" ) != 0 && host.find( "192.0.2" ) != 0 &&
-                          host.find( "192.0.2" ) != 0 && host.find( "198.18" ) != 0 &&
-                          host.find( "198.19" ) != 0,
-            "Private IPs not allowed in Oracle:" + _uri )
+        CHECK_STATE2(isIpAddress(host), "IP addresses not allowed in Oracle uris" + _uri );
     }
 }
 
