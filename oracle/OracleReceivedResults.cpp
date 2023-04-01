@@ -12,6 +12,7 @@
 #include "OracleResult.h"
 #include "OracleReceivedResults.h"
 
+
 OracleReceivedResults::OracleReceivedResults(ptr<OracleRequestSpec> _requestSpec, uint64_t _requredSigners,
                                              uint64_t _nodeCount, bool _isSgx) {
     requestSpec = _requestSpec;
@@ -132,34 +133,6 @@ vector<uint8_t>  OracleReceivedResults::ecdsaSigStringToByteArray(string& _sig )
     }
 }
 
-string OracleReceivedResults::compileCompleteResultRlp(string &_unsignedResult) {
-
-
-
-    RLPOutputStream resultWithSignaturesStream(1 + nodeCount);
-
-
-    try {
-        uint64_t sigCount = 0;
-        resultWithSignaturesStream.append(_unsignedResult);
-        for (uint64_t i = 1; i <= nodeCount; i++) {
-            if (signaturesBySchainIndex->count(i) > 0 && sigCount < requiredConfirmations) {
-                resultWithSignaturesStream.append(ecdsaSigStringToByteArray(signaturesBySchainIndex->at(i)));
-                sigCount++;
-            } else {
-                resultWithSignaturesStream.append("");
-            }
-        }
-
-        auto rawResult = resultWithSignaturesStream.out();
-
-        return Utils::carray2Hex(rawResult.data(), rawResult.size());
-
-    } catch (...) {
-        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
-    }
-}
-
 
 uint64_t OracleReceivedResults::tryGettingResult(string &_result) {
 
@@ -172,10 +145,15 @@ uint64_t OracleReceivedResults::tryGettingResult(string &_result) {
         for (auto &&item: *resultsByCount) {
             if (item.second >= requiredConfirmations) {
                 string unsignedResult = item.first;
-                if (requestSpec->getEncoding() == "rlp") {
-                    _result = compileCompleteResultRlp(unsignedResult);
-                } else {
+                auto encoding = requestSpec->getEncoding();
+                if (encoding == ORACLE_ENCODING_JSON) {
                     _result = compileCompleteResultJson(unsignedResult);
+//                } else if (encoding == ORACLE_ENCODING_ABI|| encoding.empty()){
+//                    // JSON by default
+//                    _result = compileCompleteResultAbi(unsignedResult);
+                } else {
+                    // should never get to this line
+                    CHECK_STATE(false);
                 }
                 return ORACLE_SUCCESS;
             };
