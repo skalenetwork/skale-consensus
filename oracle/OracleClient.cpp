@@ -83,68 +83,6 @@ uint64_t OracleClient::broadcastRequest(ptr<OracleRequestBroadcastMessage> _msg)
 }
 
 
-void OracleClient::sendTestRequestGet() {
-
-
-    string uri = "http://worldtimeapi.org/api/timezone/Europe/Kiev";
-    vector<string> jsps{"/unixtime", "/day_of_year", "/xxx"};
-    vector<uint64_t> trims{1, 1, 1};
-    string post = "";
-    string encoding;
-
-    //encoding = ORACLE_ENCODING_ABI;
-    //sendTestWebRequestAndWaitForResult(uri, jsps, trims, post, encoding);
-    encoding = ORACLE_ENCODING_JSON;
-    sendTestWebRequestAndWaitForResult(uri, jsps, trims, post, encoding);
-}
-
-
-void OracleClient::sendTestRequestPost() {
-
-    try {
-
-        if (getSchain()->getSchainIndex() != 1) {
-            return;
-        }
-
-        string _receipt;
-        string uri = "https://reqres.in/api/users";
-        vector<string> jsps = {"/id"};
-        string post = "haha";
-        string encoding = ORACLE_ENCODING_JSON;
-
-        sendTestWebRequestAndWaitForResult(uri, jsps, {}, post, encoding);
-    } catch (...) {
-        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
-    }
-}
-
-
-void OracleClient::sendTestRequestEthCall() {
-
-    try {
-
-        if (getSchain()->getSchainIndex() != 1) {
-            return;
-        }
-
-        string _receipt;
-        string uri = "http://127.0.0.1:8545/";
-        string from = "0x9876543210987654321098765432109876543210";
-        string to = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
-        string data = "0x893d20e8";
-        string gas = "1000000";
-        string block = "latest";
-        string encoding = ORACLE_ENCODING_JSON;
-
-        sendTestEthCallRequestAndWaitForResult(uri, from, to, data, gas, block,  encoding);
-    } catch (exception& e) {
-        LOG(err, "Exception in sentTestEthCall:" + string(e.what()));
-        exit(-1);
-    }
-}
-
-
 void OracleClient::sendTestWebRequestAndWaitForResult(const string &_uri,
                                                       const vector<string> &_jsps,
                                                       const vector<uint64_t> &_trims,

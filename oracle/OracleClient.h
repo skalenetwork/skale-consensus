@@ -51,11 +51,7 @@ public:
 
     uint64_t submitOracleRequest( const string& _spec, string& _receipt );
 
-    void sendTestRequestGet();
 
-    void sendTestRequestPost();
-
-    void sendTestRequestEthCall();
 
     void processResponseMessage( const ptr< MessageEnvelope >& _me );
 
