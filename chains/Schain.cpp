@@ -1183,7 +1183,7 @@ void Schain::finalizeDecidedAndSignedBlock( block_id _blockId, schain_index _pro
             if ( !downloadProposal ) {
                 auto hash = proposal->getHash();
                 daSig = getSchain()->getCryptoManager()->verifyDAProofThresholdSig(
-                    hash, daProofSig, _blockId );
+                    hash, daProofSig, _blockId, proposal->getTimeStampS() );
             }
         } else {
             downloadProposal = true;

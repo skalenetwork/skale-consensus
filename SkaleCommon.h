@@ -318,7 +318,9 @@ static const num_threads NUM_DISPATCH_THREADS = num_threads(1);
 static const num_threads NUM_ORACLE_THREADS = num_threads(1);
 
 static const uint64_t  ORACLE_QUEUE_TIMEOUT_MS = 1000;
-static const uint64_t  ORACLE_TIMEOUT_MS = 20000;
+static const uint64_t  ORACLE_TIMEOUT_MS = 30000;
+static const uint64_t  ORACLE_REQUEST_AGE_ON_RECEIPT_MS = 10000;
+
 
 static const uint64_t DEFAULT_DB_STORAGE_LIMIT = 5000000000; // 5Gbyte
 
@@ -340,7 +342,7 @@ static const uint64_t COMMON_COIN_ROUND = 4;
 
 static const uint64_t  ORACLE_RECEIPTS_MAP_SIZE = 100000;
 
-static const uint64_t  ORACLE_FUTURE_JITTER_MS = 500;
+static const uint64_t ORACLE_REQUEST_FUTURE_JITTER_MS = 1000;
 
 static const uint64_t SGX_REQUEST_TIMEOUT_MS  = 10000;
 

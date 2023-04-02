@@ -81,7 +81,7 @@ ConsensusExtFace::transactions_vector TestMessageGeneratorAgent::pendingTransact
     if (getSchain()->getNode()->isTestNet() && getSchain()->getSchainIndex() == 1 ) {
         if ( iterations.fetch_add( 1 ) == 2 ) {
             LOG( info, "Sending Oracle test eth_call " );
-            sendTestRequestEthCall();
+            sendTestRequestGet();
             LOG( info, "Sent Oracle eth_call request" );
         }
     }

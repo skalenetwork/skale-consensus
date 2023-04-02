@@ -19,15 +19,10 @@
 #include "utils/Time.h"
 
 
-ptr< OracleRequestSpec > OracleRequestSpec::parseSpec( const string& _spec, uint64_t _chainId ) {
+ptr< OracleRequestSpec > OracleRequestSpec::parseSpec( const string& _spec ) {
     try {
         auto spec = make_shared< OracleRequestSpec >( _spec );
-        CHECK_STATE2( spec->getChainId() == _chainId,
-            "Invalid schain id in oracle spec:" + to_string( spec->getChainId() ) );
 
-        CHECK_STATE2(
-            spec->getTime() + ORACLE_TIMEOUT_MS > Time::getCurrentTimeMs(), "Request timeout" )
-        CHECK_STATE( spec->getTime() < Time::getCurrentTimeMs() + ORACLE_FUTURE_JITTER_MS );
         return spec;
     } catch ( ... ) {
         throw_with_nested( InvalidStateException( __FUNCTION__, __CLASS_NAME__ ) );

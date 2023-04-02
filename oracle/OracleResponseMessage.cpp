@@ -106,7 +106,7 @@ ptr<OracleResult> &OracleResponseMessage::getOracleResult(ptr<OracleRequestSpec>
         CHECK_STATE2(oracleResult->getOracleRequestSpec()->getTime() +
                               ORACLE_TIMEOUT_MS > Time::getCurrentTimeMs(), "Result timeout")
         CHECK_STATE(oracleResult->getOracleRequestSpec()->getTime() <
-                     Time::getCurrentTimeMs() + ORACLE_FUTURE_JITTER_MS)
+                     Time::getCurrentTimeMs() + ORACLE_REQUEST_FUTURE_JITTER_MS )
     }
 
 

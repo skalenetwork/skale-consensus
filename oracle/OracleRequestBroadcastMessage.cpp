@@ -49,7 +49,7 @@ OracleRequestBroadcastMessage::OracleRequestBroadcastMessage(const string &_requ
 
     printPrefix = "o";
 
-    parsedSpec = OracleRequestSpec::parseSpec(requestSpec, (uint64_t) sourceProtocolInstance.getSchain()->getSchainID());
+    parsedSpec = OracleRequestSpec::parseSpec( requestSpec );
 
 }
 
@@ -70,7 +70,7 @@ OracleRequestBroadcastMessage::OracleRequestBroadcastMessage(const string &_requ
 
     requestSpec.erase(std::remove_if(requestSpec.begin(), requestSpec.end(), ::isspace), requestSpec.end());
 
-    parsedSpec = OracleRequestSpec::parseSpec(requestSpec, (uint64_t) _schainId);
+    parsedSpec = OracleRequestSpec::parseSpec( requestSpec );
 
 }
 
@@ -89,6 +89,7 @@ void OracleRequestBroadcastMessage::serializeToStringChild(rapidjson::Writer<rap
 }
 
 const ptr<OracleRequestSpec> &OracleRequestBroadcastMessage::getParsedSpec() const {
+    CHECK_STATE(parsedSpec);
     return parsedSpec;
 }
 
