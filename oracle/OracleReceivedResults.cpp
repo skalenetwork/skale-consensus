@@ -152,8 +152,8 @@ uint64_t OracleReceivedResults::tryGettingResult(string &_result) {
 //                    // JSON by default
 //                    _result = compileCompleteResultAbi(unsignedResult);
                 } else {
-                    // should never get to this line
-                    CHECK_STATE(false);
+                    LOG(err, "Unknown encoding in tryGettingTesult");
+                    return ORACLE_INTERNAL_SERVER_ERROR;
                 }
                 return ORACLE_SUCCESS;
             };
@@ -161,8 +161,12 @@ uint64_t OracleReceivedResults::tryGettingResult(string &_result) {
 
         return ORACLE_RESULT_NOT_READY;
 
-    } catch (...) {
-        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+    } catch (exception& e) {
+        SkaleException::logNested(e, err);
+        return ORACLE_INTERNAL_SERVER_ERROR;
+    } catch(...) {
+        LOG(err, "Unknown exception in tryGettingResult");
+        return ORACLE_INTERNAL_SERVER_ERROR;
     }
 
 }

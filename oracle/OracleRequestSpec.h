@@ -104,7 +104,7 @@ public:
 
     uint64_t getChainId() const;
 
-    static ptr< OracleRequestSpec > parseSpec( const string& _spec, uint64_t _chainId );
+    static ptr< OracleRequestSpec > parseSpec( const string& _spec );
 
     const vector< uint64_t >& getTrims() const;
 
