@@ -388,6 +388,7 @@ ptr<NetworkMessage> NetworkMessage::parseMessage(const string &_header, Schain *
                                                                 schain_id(sChainID), msg_id(msgID),
                                                                 srcSchainIndex, ecdsaSig, publicKey, pkSig,
                                                                 _sChain);
+
         } else if (type == BasicHeader::ORACLE_RESPONSE) {
             string result = getStringRapid(d, "rslt");
             CHECK_STATE(!result.empty())

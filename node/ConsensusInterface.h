@@ -95,11 +95,18 @@ public:
 #define ORACLE_DUPLICATE_REQUEST 6
 #define ORACLE_COULD_NOT_CONNECT_TO_ENDPOINT 7
 #define ORACLE_INVALID_JSON_RESPONSE 8
+#define ORACLE_INTERNAL_SERVER_ERROR 9
+#define ORACLE_INVALID_JSON_REQUEST 10
+#define ORACLE_TIME_IN_REQUEST_SPEC_TOO_OLD 11
+#define ORACLE_TIME_IN_REQUEST_SPEC_IN_THE_FUTURE 11
+#define ORACLE_INVALID_CHAIN_ID 12
 
 
     /*
      * Submit Oracle Request. This will return ORACLE_SUCCESS and a string receipt if everything
      * is. In case of an error, a non-zero error will be returned.
+     * Note: this functions is guaranteed to not throw exceptions
+     *  Error values are enumerated above
      */
 
     virtual uint64_t submitOracleRequest(const string& _spec, string &_receipt) = 0;
@@ -111,6 +118,8 @@ public:
      * If no result has been derived yet, ORACLE_RESULT_NOT_READY is returned.
      *
      * In case of an error, an error is returned.
+     * Note: this functions is guaranteed to not throw exceptions
+     * Error values are enumerated above
      */
 
 
