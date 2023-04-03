@@ -133,32 +133,6 @@ vector<uint8_t>  OracleReceivedResults::ecdsaSigStringToByteArray(string& _sig )
     }
 }
 
-string OracleReceivedResults::compileCompleteResultRlp(string &_unsignedResult) {
-
-    RLPOutputStream resultWithSignaturesStream(1 + nodeCount);
-
-
-    try {
-        uint64_t sigCount = 0;
-        resultWithSignaturesStream.append(_unsignedResult);
-        for (uint64_t i = 1; i <= nodeCount; i++) {
-            if (signaturesBySchainIndex->count(i) > 0 && sigCount < requiredConfirmations) {
-                resultWithSignaturesStream.append(ecdsaSigStringToByteArray(signaturesBySchainIndex->at(i)));
-                sigCount++;
-            } else {
-                resultWithSignaturesStream.append("");
-            }
-        }
-
-        auto rawResult = resultWithSignaturesStream.out();
-
-        return Utils::carray2Hex(rawResult.data(), rawResult.size());
-
-    } catch (...) {
-        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
-    }
-}
-
 
 uint64_t OracleReceivedResults::tryGettingResult(string &_result) {
 
@@ -178,8 +152,8 @@ uint64_t OracleReceivedResults::tryGettingResult(string &_result) {
 //                    // JSON by default
 //                    _result = compileCompleteResultAbi(unsignedResult);
                 } else {
-                    // should never get to this line
-                    CHECK_STATE(false);
+                    LOG(err, "Unknown encoding in tryGettingTesult");
+                    return ORACLE_INTERNAL_SERVER_ERROR;
                 }
                 return ORACLE_SUCCESS;
             };
@@ -187,8 +161,12 @@ uint64_t OracleReceivedResults::tryGettingResult(string &_result) {
 
         return ORACLE_RESULT_NOT_READY;
 
-    } catch (...) {
-        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+    } catch (exception& e) {
+        SkaleException::logNested(e, err);
+        return ORACLE_INTERNAL_SERVER_ERROR;
+    } catch(...) {
+        LOG(err, "Unknown exception in tryGettingResult");
+        return ORACLE_INTERNAL_SERVER_ERROR;
     }
 
 }

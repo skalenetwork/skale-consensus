@@ -34,11 +34,11 @@
 #include "Agent.h"
 #include "Log.h"
 #include "SkaleCommon.h"
+#include "datastructures/CommittedBlock.h"
 #include "exceptions/FatalError.h"
 #include "node/Node.h"
 #include "oracle/OracleClient.h"
 #include "thirdparty/json.hpp"
-#include "datastructures/CommittedBlock.h"
 #include "threads/GlobalThreadRegistry.h"
 
 
@@ -492,8 +492,8 @@ void ConsensusEngine::parseTestConfigsAndCreateAllNodes(
 
 // If starting from a snapshot, start all will pass to consensus the last comitted
 // block coming from the snapshot.
-void ConsensusEngine::startAll()  {
 
+void ConsensusEngine::startAll()  {
 
     cout << "Starting consensus engine ...";
 
@@ -503,6 +503,7 @@ void ConsensusEngine::startAll()  {
                 return;
             }
             CHECK_STATE( it.second );
+
 
             it.second->startServers(nullptr);
             LOG( info, "Started servers" + to_string( it.second->getNodeID() ) );
@@ -537,7 +538,7 @@ void ConsensusEngine::startAll()  {
 void ConsensusEngine::slowStartBootStrapTest() {
     for ( auto&& it : nodes ) {
         CHECK_STATE( it.second );
-        it.second->startServers(nullptr);
+        it.second->startServers( nullptr );
     }
 
     for ( auto&& it : nodes ) {
@@ -687,11 +688,8 @@ ConsensusEngine::ConsensusEngine( block_id _lastId, uint64_t _totalStorageLimitB
 
 ConsensusEngine::ConsensusEngine( ConsensusExtFace& _extFace, uint64_t _lastCommittedBlockID,
     uint64_t _lastCommittedBlockTimeStamp, uint64_t _lastCommittedBlockTimeStampMs,
-    map< string, uint64_t > _patchTimestamps,
-    uint64_t _totalStorageLimitBytes )
+    map< string, uint64_t > _patchTimestamps, uint64_t _totalStorageLimitBytes )
     : prices( 256 ), exitRequested( false ), patchTimestamps( _patchTimestamps ) {
-
-
     std::time_t lastCommitedBlockTimestamp = _lastCommittedBlockTimeStamp;
     cout << "Constructing consensus engine: "
          << ""
@@ -1103,13 +1101,33 @@ ConsensusEngine::getBlock( block_id _blockId ) {
 
 
 uint64_t ConsensusEngine::submitOracleRequest( const string& _spec, string& _receipt ) {
-    CHECK_STATE( nodes.size() > 0 )
+    if ( nodes.size() == 0 ) {
+        LOG( err, string( "Empty nodes in " ) + __FUNCTION__ );
+        return ORACLE_INTERNAL_SERVER_ERROR;
+    }
     auto node = nodes.begin()->second;
-    CHECK_STATE( node )
-    auto oracleClient = node->getSchain()->getOracleClient();
 
-    CHECK_STATE( oracleClient );
-    return oracleClient->submitOracleRequest( _spec, _receipt );
+    if ( !node ) {
+        LOG( err, string( "Null node in " ) + __FUNCTION__ );
+        return ORACLE_INTERNAL_SERVER_ERROR;
+    }
+
+    try {
+        auto oracleClient = node->getSchain()->getOracleClient();
+        if ( !oracleClient ) {
+            LOG( err, string( "Null oracle client in " ) + __FUNCTION__ );
+            return ORACLE_INTERNAL_SERVER_ERROR;
+        }
+
+        return oracleClient->submitOracleRequest( _spec, _receipt );
+
+    } catch ( exception& e ) {
+        LOG( err, e.what() + string( " in " ) + __FUNCTION__ );
+        return ORACLE_INTERNAL_SERVER_ERROR;
+    } catch ( ... ) {
+        LOG(err, string("Unknown exception in") +  __FUNCTION__);
+        return ORACLE_INTERNAL_SERVER_ERROR;
+    }
 }
 
 /*
@@ -1123,12 +1141,29 @@ uint64_t ConsensusEngine::submitOracleRequest( const string& _spec, string& _rec
 
 
 uint64_t ConsensusEngine::checkOracleResult( const string& _receipt, string& _result ) {
-    CHECK_STATE( nodes.size() > 0 )
-    auto node = nodes.begin()->second;
-    CHECK_STATE( node )
-    auto oracleClient = node->getSchain()->getOracleClient();
-    CHECK_STATE( oracleClient );
-    return oracleClient->checkOracleResult( _receipt, _result );
+    try {
+        if ( nodes.size() == 0 ) {
+            LOG( err, string( "Empty nodes in " ) + __FUNCTION__ );
+            return ORACLE_INTERNAL_SERVER_ERROR;
+        }
+        auto node = nodes.begin()->second;
+        if ( !node ) {
+            LOG( err, string( "Null node in " ) + __FUNCTION__ );
+            return ORACLE_INTERNAL_SERVER_ERROR;
+        }
+        auto oracleClient = node->getSchain()->getOracleClient();
+        if ( !oracleClient ) {
+            LOG( err, string( "Null oracleClient in " ) + __FUNCTION__ );
+            return ORACLE_INTERNAL_SERVER_ERROR;
+        }
+        return oracleClient->checkOracleResult( _receipt, _result );
+    } catch ( exception& e ) {
+        SkaleException::logNested(e, err);
+        return ORACLE_INTERNAL_SERVER_ERROR;
+    } catch ( ... ) {
+        LOG(err, string("Unknown exception in ") +  __FUNCTION__);
+        return ORACLE_INTERNAL_SERVER_ERROR;
+    }
 }
 
 
@@ -1137,11 +1172,10 @@ ptr< vector< uint8_t > > ConsensusEngine::getSerializedBlock( std::uint64_t _blo
 
     for ( auto&& item : nodes ) {
         CHECK_STATE( item.second );
-        return item.second->getBlockDB()->getSerializedBlockFromLevelDB(_blockNumber);
+        return item.second->getBlockDB()->getSerializedBlockFromLevelDB( _blockNumber );
     }
     return nullptr;  // make compiler happy
 }
-
 
 
 const map< string, uint64_t >& ConsensusEngine::getPatchTimestamps() const {

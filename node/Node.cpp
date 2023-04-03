@@ -256,7 +256,7 @@ void Node::initParamsFromConfig() {
     maxCatchupDownloadBytes = getParamUint64("maxCatchupDownloadBytes", MAX_CATCHUP_DOWNLOAD_BYTES);
     maxTransactionsPerBlock = getParamUint64("maxTransactionsPerBlock", MAX_TRANSACTIONS_PER_BLOCK);
     minBlockIntervalMs = getParamUint64("minBlockIntervalMs", MIN_BLOCK_INTERVAL_MS);
-
+    testNet = (getParamUint64("isTestNet", 0) > 0);
 
     blockDBSize = storageLimits->getBlockDbSize();
     proposalHashDBSize = storageLimits->getProposalHashDbSize();

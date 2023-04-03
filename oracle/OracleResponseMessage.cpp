@@ -35,6 +35,7 @@
 #include "protocols/binconsensus/BinConsensusInstance.h"
 #include "OracleClient.h"
 #include "OracleResult.h"
+#include "OracleRequestSpec.h"
 #include "OracleServerAgent.h"
 
 
@@ -93,14 +94,19 @@ const string &OracleResponseMessage::getReceipt() const {
     return receipt;
 }
 
-ptr<OracleResult> &OracleResponseMessage::getOracleResult(string _encoding, schain_id _schaiId) {
+ptr<OracleResult> &OracleResponseMessage::getOracleResult(ptr<OracleRequestSpec> _spec,
+    schain_id _schaiId) {
+    CHECK_STATE(_spec);
     LOCK(m)
     if (!oracleResult) {
-        oracleResult = OracleResult::parseResult(oracleResultStr, _encoding);
-        CHECK_STATE2(oracleResult->getChainId() == _schaiId,
-                     "Invalid schain id in oracle spec:" + to_string(oracleResult->getChainId()));
-        CHECK_STATE2(oracleResult->getTime() + ORACLE_TIMEOUT_MS > Time::getCurrentTimeMs(), "Result timeout")
-        CHECK_STATE(oracleResult->getTime() < Time::getCurrentTimeMs() + ORACLE_FUTURE_JITTER_MS)
+        oracleResult = OracleResult::parseResult(oracleResultStr, _spec);
+        CHECK_STATE2( oracleResult->getOracleRequestSpec()->getChainId() == _schaiId,
+                     "Invalid schain id in oracle spec:" +
+                to_string( oracleResult->getOracleRequestSpec()->getChainId()));
+        CHECK_STATE2(oracleResult->getOracleRequestSpec()->getTime() +
+                              ORACLE_TIMEOUT_MS > Time::getCurrentTimeMs(), "Result timeout")
+        CHECK_STATE(oracleResult->getOracleRequestSpec()->getTime() <
+                     Time::getCurrentTimeMs() + ORACLE_REQUEST_FUTURE_JITTER_MS )
     }
 
 

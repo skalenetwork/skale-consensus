@@ -23,7 +23,8 @@ _If uri is eth:// then information is obtained from the geth server that the nod
                  Note: this element is required for web requests, and shall not be present for EthAPI requests.  
   _See https://json.nlohmann.me/features/json_pointer/ for intro to JSON pointers._
 * ```encoding```, string - the only currently supported encoding is```json```. ```abi``` will be supported in future releases. 
-* ```pow```, string - uint64 proof of work that is used to protect against denial of service attacks
+* ```pow```, string - uint64 proof of work that is used to protect against denial of service attacks. 
+  _Note: PoW must be the last element in JSON_
 
 
 
@@ -195,6 +196,7 @@ An example of Oracle result is provided below
 # List of Oracle error codes.
 
 ```
+#define ORACLE_SUCCESS  0
 #define ORACLE_UNKNOWN_RECEIPT  1
 #define ORACLE_TIMEOUT 2
 #define ORACLE_NO_CONSENSUS  3
@@ -203,5 +205,9 @@ An example of Oracle result is provided below
 #define ORACLE_DUPLICATE_REQUEST 6
 #define ORACLE_COULD_NOT_CONNECT_TO_ENDPOINT 7
 #define ORACLE_INVALID_JSON_RESPONSE 8
-#define ORACLE_REQUEST_TIMESTAMP_IN_THE_FUTURE 9
+#define ORACLE_INTERNAL_SERVER_ERROR 9
+#define ORACLE_INVALID_JSON_REQUEST 10
+#define ORACLE_TIME_IN_REQUEST_SPEC_TOO_OLD 11
+#define ORACLE_TIME_IN_REQUEST_SPEC_IN_THE_FUTURE 11
+#define ORACLE_INVALID_CHAIN_ID 12
 ```

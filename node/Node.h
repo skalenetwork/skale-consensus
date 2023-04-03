@@ -206,6 +206,8 @@ class Node {
     uint64_t visualizationType = 0;
 
     string gethURL = "";
+    bool testNet = false;
+
 
     bool isSyncNode = false;
 
@@ -239,6 +241,8 @@ public:
     ptr< map< uint64_t, vector< uint64_t > > > getHistoricNodeGroups();
 
     bool isSgxEnabled();
+
+    bool isTestNet() const;
 
     [[nodiscard]] const ptr< TestConfig >& getTestConfig() const;
 

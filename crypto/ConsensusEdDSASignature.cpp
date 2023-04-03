@@ -35,8 +35,9 @@
 
 
 ConsensusEdDSASignature::ConsensusEdDSASignature(
-    const string& _mergedSig, schain_id _schainId, block_id _blockId, size_t _totalSigners, size_t _requiredSigners )
-    : ThresholdSignature( _blockId, _totalSigners, _requiredSigners ), mergedSig(_mergedSig) {
+    const string& _mergedSig, schain_id _schainId, block_id _blockId, uint64_t _timestamp,
+        size_t _totalSigners, size_t _requiredSigners )
+    : ThresholdSignature( _blockId, _totalSigners, _requiredSigners ), mergedSig(_mergedSig), timestamp(_timestamp) {
 
     CHECK_ARGUMENT(!_mergedSig.empty());
 
@@ -45,7 +46,7 @@ ConsensusEdDSASignature::ConsensusEdDSASignature(
 
     for ( const auto& it : tok) {
         auto share = make_shared<ConsensusEdDSASigShare>(
-                                          it, _schainId, _blockId, _totalSigners);
+                                          it, _schainId, _blockId, timestamp, _totalSigners);
 
         auto index = share->getSignerIndex();
 
@@ -74,8 +75,7 @@ void ConsensusEdDSASignature::verify(
     try {
 
         for (auto & share: shares ) {
-            share.second->verify(_cryptoManager, _hash,
-                _cryptoManager.getSchain()->getNodeIDByIndex(share.first));
+                share.second->verify(_cryptoManager, _hash, share.first);
         }
 
     } catch (...) {

@@ -10,5 +10,6 @@
     { "nodeID": 1116, "ip": "127.0.0.6", "basePort":1231, "schainIndex" : 6},
     { "nodeID": 1117, "ip": "127.0.0.7", "basePort":1231, "schainIndex" : 7}
   ],
-  "blockProposalTest": "SLOW"
+  "blockProposalTest": "SLOW",
+  "isTestNet": 1
 }

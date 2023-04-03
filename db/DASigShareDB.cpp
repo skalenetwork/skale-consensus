@@ -78,11 +78,11 @@ ptr<DAProof> DASigShareDB::addAndMergeSigShareAndVerifySig(const ptr<ThresholdSi
 
     if (result != nullptr) {
 
-        auto set = sChain->getCryptoManager()->createDAProofSigShareSet(_sigShare->getBlockId());
+        auto set = sChain->getCryptoManager()->createDAProofSigShareSet(_sigShare->getBlockId(), _proposal->getTimeStampS());
 
         for (auto && entry : *result) {
             auto share = sChain->getCryptoManager()->createDAProofSigShare(
-                entry.second, sChain->getSchainID(), _proposal->getBlockID(), entry.first, false );
+                entry.second, sChain->getSchainID(), _proposal->getBlockID(), entry.first, _proposal->getTimeStampS(), false );
 
             set->addSigShare(share);
         }
@@ -97,7 +97,7 @@ ptr<DAProof> DASigShareDB::addAndMergeSigShareAndVerifySig(const ptr<ThresholdSi
         auto h = _proposal->getHash();
 
         sChain->getCryptoManager()->verifyDAProofThresholdSig(
-                h, sig->toString(), _sigShare->getBlockId());
+                h, sig->toString(), _sigShare->getBlockId(), _proposal->getTimeStampS());
         auto proof = make_shared<DAProof>(_proposal, sig);
         return proof;
     }
