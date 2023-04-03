@@ -129,8 +129,8 @@ public:
      * This will return a consensus block serialized as byte array from consensus db.
      * Returns nullptr if the block is not in consensus DB
      */
-    virtual std::shared_ptr<std::vector<std::uint8_t>> getSerializedBlock(
-        std::uint64_t _blockNumber)  = 0;
+    //virtual std::shared_ptr<std::vector<std::uint8_t>> getSerializedBlock(
+      //  std::uint64_t _blockNumber)  = 0;
 
 };
 
