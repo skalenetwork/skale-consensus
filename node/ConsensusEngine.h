@@ -307,7 +307,7 @@ public:
 
 
     std::shared_ptr<std::vector<std::uint8_t>> getSerializedBlock(
-        std::uint64_t _blockNumber)  override;
+        std::uint64_t _blockNumber);
 
 
 };
