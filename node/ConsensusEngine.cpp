@@ -492,7 +492,7 @@ void ConsensusEngine::parseTestConfigsAndCreateAllNodes(
 
 // If starting from a snapshot, start all will pass to consensus the last comitted
 // block coming from the snapshot.
-void ConsensusEngine::startAll( ptr< vector< uint8_t > > _startingFromSnapshotWithThisAsLastBlock)  {
+void ConsensusEngine::startAll()  {
 
 
     cout << "Starting consensus engine ...";
@@ -504,7 +504,7 @@ void ConsensusEngine::startAll( ptr< vector< uint8_t > > _startingFromSnapshotWi
             }
             CHECK_STATE( it.second );
 
-            it.second->startServers(_startingFromSnapshotWithThisAsLastBlock);
+            it.second->startServers(nullptr);
             LOG( info, "Started servers" + to_string( it.second->getNodeID() ) );
         }
 

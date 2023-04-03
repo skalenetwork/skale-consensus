@@ -229,7 +229,7 @@ public:
 
     // If starting from a snapshot, start all will pass to consensus the last comitted
     // block coming from the snapshot
-    void startAll(ptr< vector< uint8_t > > _startingFromSnapshotWithThisAsLastBlock) override;
+    void startAll() override;
 
     void parseFullConfigAndCreateNode( const string& fullPathToConfigFile, const string& _gethURL) override;
 
