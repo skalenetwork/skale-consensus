@@ -65,7 +65,7 @@ void OracleRequestSpec::checkURI( const string& _uri ) {
         CHECK_STATE2( result.userName_.empty(), "Non empty username" );
         CHECK_STATE2( result.password_.empty(), "Non empty password" );
         auto host = result.host_;
-        CHECK_STATE2(isIpAddress(host), "IP addresses not allowed in Oracle uris" + _uri );
+        CHECK_STATE2(!isIpAddress(host), "IP addresses not allowed in Oracle uris" + _uri );
     }
 }
 
