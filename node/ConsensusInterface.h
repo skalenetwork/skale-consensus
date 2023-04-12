@@ -153,7 +153,7 @@ public:
      *  Error values are enumerated above
      */
 
-    virtual uint64_t submitOracleRequest(const string& _spec, string &_receipt) = 0;
+    virtual uint64_t submitOracleRequest(const string& _spec, string &_receipt, string& _errorMessage) = 0;
 
     /*
      * Check if Oracle result has been derived.  This will return ORACLE_SUCCESS if

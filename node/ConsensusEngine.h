@@ -300,7 +300,7 @@ public:
 
     static int getOpenDescriptors();
 
-    uint64_t submitOracleRequest(const string& _spec, string &_receipt) override;
+    uint64_t submitOracleRequest(const string& _spec, string &_receipt, string& _errorMessage) override;
 
 
     uint64_t  checkOracleResult(const string& _receipt, string& _result) override;
