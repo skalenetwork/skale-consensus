@@ -41,6 +41,7 @@
 #include "db/BlockProposalDB.h"
 #include "db/BlockSigShareDB.h"
 #include "exceptions/ExitRequestedException.h"
+#include "exceptions/OracleException.h"
 
 #include "messages/ConsensusProposalMessage.h"
 #include "messages/InternalMessageEnvelope.h"
@@ -223,8 +224,14 @@ ptr< OracleResponseMessage > OracleServerAgent::doEndpointRequestResponse(
 
     ptr< OracleResult > oracleResult = nullptr;
 
-    oracleResult = make_shared< OracleResult >(
-        _requestSpec, status, response, getSchain()->getCryptoManager() );
+    try {
+        oracleResult = make_shared<OracleResult>(
+                _requestSpec, status, response, getSchain()->getCryptoManager());
+    } catch (OracleException& e) {
+        static string EMPTY = "";
+        oracleResult = make_shared<OracleResult>(
+                _requestSpec, e.getError(), EMPTY, getSchain()->getCryptoManager());
+    }
 
     auto resultStr = oracleResult->toString();
 

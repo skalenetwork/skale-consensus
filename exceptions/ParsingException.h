@@ -26,6 +26,7 @@
 #include "Log.h"
 
 class ParsingException : public SkaleException  {
+
 public:
     ParsingException(const std::string &_message,  const string& _className);
 };

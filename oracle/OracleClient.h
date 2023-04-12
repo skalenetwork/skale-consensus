@@ -49,7 +49,7 @@ public:
 
     uint64_t checkOracleResult( const string& _receipt, string& _result );
 
-    uint64_t submitOracleRequest( const string& _spec, string& _receipt );
+    pair<uint64_t, string> submitOracleRequest( const string& _spec, string& _receipt );
 
 
 

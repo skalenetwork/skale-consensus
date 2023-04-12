@@ -69,6 +69,9 @@ void OracleResult::parseResultAsJson() {
 
 OracleResult::OracleResult( string& _result, ptr< OracleRequestSpec > _oracleRequestSpec )
     : oracleRequestSpec( _oracleRequestSpec ), oracleResult( _result ) {
+
+    results = make_shared< vector< ptr< string > > >();
+
     try {
         // now encode and sign result.
 
@@ -117,6 +120,7 @@ void OracleResult::trimWebResults() {
                 } else {
                     res = make_shared< string >( res->substr( 0, res->size() - trim ) );
                 }
+                CHECK_STATE(results);
                 ( *results )[i] = res;
             }
         }
@@ -149,10 +153,13 @@ void OracleResult::appendResultsAsJson() {
         // append results
         oracleResult.append( "\"rslts\":[" );
 
+        CHECK_STATE(results);
+
         for ( uint64_t i = 0; i < results->size(); i++ ) {
             if ( i != 0 ) {
                 oracleResult.append( "," );
             }
+
 
             if ( results->at( i ) ) {
                 oracleResult.append( "\"" );
@@ -197,6 +204,9 @@ void OracleResult::appendErrorAsJson() {
 OracleResult::OracleResult( ptr< OracleRequestSpec > _oracleSpec, int64_t _status,
     string& _serverResponse, ptr< CryptoManager > _cryptoManager )
     : oracleRequestSpec( _oracleSpec ) {
+
+    results = make_shared< vector< ptr< string > > >();
+
     try {
         CHECK_ARGUMENT( _oracleSpec );
 
@@ -238,6 +248,8 @@ void OracleResult::encodeAndSignResultAsJson( ptr< CryptoManager > _cryptoManage
         }
 
         signResultAsJson( _cryptoManager );
+        ORACLE_CHECK_STATE3(oracleResult.size() <= MAX_ORACLE_RESULT_LEN, "Oracle result too large:" + oracleResult,
+                            ORACLE_RESULT_TOO_LARGE);
 
     } catch ( ... ) {
         throw_with_nested( InvalidStateException( __FUNCTION__, __CLASS_NAME__ ) );
@@ -266,15 +278,15 @@ void OracleResult::extractEthCallResults( std::string& _response ) {
             CHECK_STATE2(d["error"]["code"].IsInt64(), "Code shall be Int64 in response" +
                                           _response);
             error = d["error"]["code"].GetInt64();
-            results = nullptr;
+            results->clear();
         }
     } catch ( exception& _e ) {
-        results = nullptr;
-        error = ORACLE_INVALID_JSON_RESPONSE;
+        results->clear();
+        error = ORACLE_ENDPOINT_JSON_RESPONSE_COULD_NOT_BE_PARSED;
         return;
     } catch ( ... ) {
-        results = nullptr;
-        error = ORACLE_INVALID_JSON_RESPONSE;
+        results->clear();
+        error = ORACLE_ENDPOINT_JSON_RESPONSE_COULD_NOT_BE_PARSED;
         return;
     }
 }
@@ -283,8 +295,21 @@ void OracleResult::extractEthCallResults( std::string& _response ) {
 void OracleResult::extractWebResults( string& _response ) {
     results = make_shared< vector< ptr< string > > >();
 
+    if (_response.empty()) {
+        error = ORACLE_EMPTY_JSON_RESPONSE;
+        return;
+    }
+
+    nlohmann::json j;
+
     try {
-        auto j = nlohmann::json::parse( _response );
+        j = nlohmann::json::parse(_response);
+    } catch (exception& e) {
+        LOG(err, _response + " " +  e.what());
+        error = ORACLE_ENDPOINT_JSON_RESPONSE_COULD_NOT_BE_PARSED;
+    }
+
+    try {
         for ( auto&& jsp : oracleRequestSpec->getJsps() ) {
             auto pointer = nlohmann::json::json_pointer( jsp );
             try {
@@ -311,12 +336,13 @@ void OracleResult::extractWebResults( string& _response ) {
         }
 
     } catch ( exception& _e ) {
-        results = nullptr;
-        error = ORACLE_INVALID_JSON_RESPONSE;
+        results->clear();
+        error = ORACLE_COULD_NOT_PROCESS_JSPS_IN_JSON_RESPONSE;
+        LOG(err, "Invalid server response:" +  _response + " " + _e.what());
         return;
     } catch ( ... ) {
-        results = nullptr;
-        error = ORACLE_INVALID_JSON_RESPONSE;
+        results->clear();
+        error = ORACLE_COULD_NOT_PROCESS_JSPS_IN_JSON_RESPONSE;
         return;
     }
 
