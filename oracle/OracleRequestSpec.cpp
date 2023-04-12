@@ -20,6 +20,7 @@
 
 
 ptr< OracleRequestSpec > OracleRequestSpec::parseSpec( const string& _spec ) {
+
     try {
         auto spec = make_shared< OracleRequestSpec >( _spec );
 
@@ -31,16 +32,16 @@ ptr< OracleRequestSpec > OracleRequestSpec::parseSpec( const string& _spec ) {
 
 
 void OracleRequestSpec::checkEncoding( const string& _encoding ) {
-    CHECK_STATE2( _encoding == "json",
+    ORACLE_CHECK_STATE3( _encoding == "json",
         /// || _encoding == "abi",
-        "Unknown encoding " + encoding );
+        "Unknown encoding " + encoding, ORACLE_UNKNOWN_ENCODING );
 }
 
 
 void OracleRequestSpec::checkEthApi( const string& _ethApi ) {
     if ( _ethApi == string( "eth_call" ) ) {
     } else {
-        CHECK_STATE2( false, "Eth Method is not supported:" + _ethApi );
+        ORACLE_CHECK_STATE3( false, "Eth Method is not supported:" + _ethApi, ORACLE_ETH_METHOD_NOT_SUPPORTED );
     }
 }
 
@@ -52,25 +53,30 @@ bool OracleRequestSpec::isIpAddress(const string& _address) {
 }
 
 void OracleRequestSpec::checkURI( const string& _uri ) {
-    CHECK_STATE2( _uri.size() > 5, "Uri too short:" + _uri );
-    CHECK_STATE2( _uri.size() <= ORACLE_MAX_URI_SIZE, "Uri too long:" + _uri );
+    ORACLE_CHECK_STATE3( _uri.size() > 5, "Uri too short:" + _uri, ORACLE_URI_TOO_SHORT );
+    ORACLE_CHECK_STATE3( _uri.size() <= ORACLE_MAX_URI_SIZE, "Uri too long:" + _uri, ORACLE_URI_TOO_LONG );
     // allow IP based URIs on test networks where real crypto is not used
 
-    CHECK_STATE2( _uri.find( ORACLE_HTTP_START ) == 0 ||
-                      _uri.find( ORACLE_HTTPS_START == 0 || _uri == ORACLE_ETH_URL ),
-        "Invalid URI:" + _uri );
+    ORACLE_CHECK_STATE3( _uri.find( ORACLE_HTTP_START ) == 0 ||
+                      _uri.find( ORACLE_HTTPS_START == 0 || _uri == ORACLE_ETH_URL),
+        "Invalid URI:" + _uri, ORACLE_INVALID_URI_START);
     if ( _uri != "eth://" && !testMode) {
         auto result = LUrlParser::ParseURL::parseURL( uri );
-        CHECK_STATE2( result.isValid(), "URL invalid:" + uri );
-        CHECK_STATE2( result.userName_.empty(), "Non empty username" );
-        CHECK_STATE2( result.password_.empty(), "Non empty password" );
+        ORACLE_CHECK_STATE3( result.isValid(), "URI invalid:" + uri, ORACLE_INVALID_URI );
+        ORACLE_CHECK_STATE3( result.userName_.empty(), "Non empty username", ORACLE_USERNAME_IN_URI );
+        ORACLE_CHECK_STATE3( result.password_.empty(), "Non empty password", ORACLE_PASSWORD_IN_URI );
         auto host = result.host_;
-        CHECK_STATE2(!isIpAddress(host), "IP addresses not allowed in Oracle uris" + _uri );
+        ORACLE_CHECK_STATE3(!isIpAddress(host), "IP addresses not allowed in Oracle uris" + _uri,
+                            ORACLE_IP_ADDRESS_IN_URI);
     }
 }
 
 OracleRequestSpec::OracleRequestSpec( const string& _spec ) : spec( _spec ) {
     try {
+
+        ORACLE_CHECK_STATE3(_spec.size() <= MAX_ORACLE_SPEC_LEN, "Oracle spec too large:" + _spec,
+             ORACLE_SPEC_TOO_LARGE);
+
         // generate receipt
         receipt = CryptoManager::hashForOracle( spec.data(), spec.size() );
 
@@ -78,53 +84,64 @@ OracleRequestSpec::OracleRequestSpec( const string& _spec ) : spec( _spec ) {
 
         rapidjson::Document d;
         d.Parse( spec.data() );
-        CHECK_STATE2(!d.HasParseError(), "Unparsable Oracle spec:" + _spec );
+        ORACLE_CHECK_STATE3(!d.HasParseError(), "Unparsable Oracle spec:" + _spec, ORACLE_UNPARSABLE_SPEC );
 
 
         // first check elements required for all calls
 
-        CHECK_STATE2( d.HasMember( "cid" ), "No chainid in Oracle spec:" + _spec );
-        CHECK_STATE2( d["cid"].IsUint64(), "ChainId in Oracle spec is not uint64_t" + _spec );
+        ORACLE_CHECK_STATE3( d.HasMember( "cid" ), "No chainid in Oracle spec:" + _spec,
+                             ORACLE_NO_CHAIN_ID_IN_SPEC);
+        ORACLE_CHECK_STATE3( d["cid"].IsUint64(), "ChainId in Oracle spec is not uint64_t" + _spec,
+                             ORACLE_NON_UINT64__CHAIN_ID_IN_SPEC);
         chainid = d["cid"].GetUint64();
 
-        CHECK_STATE2( d.HasMember( "uri" ), "No URI in Oracle spec:" + _spec );
-        CHECK_STATE2( d["uri"].IsString(), "Uri in Oracle spec is not string:" + _spec );
+        ORACLE_CHECK_STATE3( d.HasMember( "uri" ), "No URI in Oracle spec:" + _spec,
+                             ORACLE_NO_URI_IN_SPEC);
+        ORACLE_CHECK_STATE3( d["uri"].IsString(), "Uri in Oracle spec is not string:" + _spec,
+                             ORACLE_NON_STRING_URI_IN_SPEC);
         uri = d["uri"].GetString();
         checkURI( uri );
 
 
-        CHECK_STATE2( d.HasMember( "encoding" ), "No encoding in Oracle spec:" + _spec );
+        ORACLE_CHECK_STATE3( d.HasMember( "encoding" ), "No encoding in Oracle spec:" + _spec,
+                             ORACLE_NO_ENCODING_IN_SPEC);
 
-        CHECK_STATE2( d["encoding"].IsString(), "Encoding in Oracle spec is not string:" + _spec );
+        ORACLE_CHECK_STATE3( d["encoding"].IsString(), "Encoding in Oracle spec is not string:" + _spec,
+                             ORACLE_NON_STRING_ENCODING_IN_SPEC);
         encoding = d["encoding"].GetString();
         checkEncoding( encoding );
 
 
-        CHECK_STATE2( d.HasMember( "time" ), "No time pointer in Oracle spec:" + _spec );
-        CHECK_STATE2( d["time"].IsUint64(), "time in Oracle spec is not uint64:" + _spec )
+        ORACLE_CHECK_STATE3( d.HasMember( "time" ), "No time pointer in Oracle spec:" + _spec,
+                             ORACLE_NO_TIME_IN_SPEC);
+        ORACLE_CHECK_STATE3( d["time"].IsUint64(), "time in Oracle spec is not uint64:" + _spec,
+                             ORACLE_TIME_IN_SPEC_NO_UINT64)
         requestTime = d["time"].GetUint64();
 
-        CHECK_STATE( requestTime > 0 );
+        ORACLE_CHECK_STATE( requestTime > 0 );
 
 
-        CHECK_STATE2( d.HasMember( "pow" ), "No  pow in Oracle spec:" + _spec );
-        CHECK_STATE2( d["pow"].IsUint64(), "Pow in Oracle spec is not uint64:" + _spec );
+        ORACLE_CHECK_STATE3( d.HasMember( "pow" ), "No  pow in Oracle spec:" + _spec,
+                             ORACLE_NO_POW_IN_SPEC);
+        ORACLE_CHECK_STATE3( d["pow"].IsUint64(), "Pow in Oracle spec is not uint64:" + _spec,
+                             ORACLE_POW_IN_SPEC_NO_UINT64);
         pow = d["pow"].GetUint64();
 
 
-        CHECK_STATE2( verifyPow( spec ), "PoW did not verify" );
-        receipt = CryptoManager::hashForOracle( spec.data(), spec.size() );
+        ORACLE_CHECK_STATE3( verifyPow( spec ), "PoW did not verify", ORACLE_POW_DID_NOT_VERIFY );
 
 
         // no check if ETH or WEB call
 
         if ( d.HasMember( "ethApi" ) ) {
-            CHECK_STATE2( d["ethApi"].IsString(), "ethAPI in Oracle spec is not string:" + _spec );
+            ORACLE_CHECK_STATE3( d["ethApi"].IsString(), "ethAPI in Oracle spec is not string:" + _spec,
+                                 ORACLE_ETH_API_NOT_STRING);
             ethApi = d["ethApi"].GetString();
             checkEthApi( ethApi );
             parseEthApiRequestSpec( d, _spec );
         } else {
-            CHECK_STATE2( uri != "eth://", "No valid eth API method is provided for eth:// URI" );
+            ORACLE_CHECK_STATE3( uri != "eth://", "No valid eth API method is provided for eth:// URI",
+                                 ORACLE_ETH_API_NOT_PROVIDED);
             parseWebRequestSpec( d, _spec );
         }
     } catch ( ... ) {
@@ -134,17 +151,23 @@ OracleRequestSpec::OracleRequestSpec( const string& _spec ) : spec( _spec ) {
 
 
 void OracleRequestSpec::parseWebRequestSpec( rapidjson::Document& d, const string& _spec ) {
-    CHECK_STATE2( d.HasMember( "jsps" ), "No json pointer in Oracle spec:" + _spec );
-    CHECK_STATE2( d["jsps"].IsArray(), "Jsps in Oracle spec is not array:" + _spec );
+    ORACLE_CHECK_STATE3( d.HasMember( "jsps" ), "No json pointer in Oracle spec:" + _spec,
+                         ORACLE_JSPS_NOT_PROVIDED);
+    ORACLE_CHECK_STATE3( d["jsps"].IsArray(), "Jsps in Oracle spec is not array:" + _spec,
+                         ORACLE_JSPS_NOT_ARRAY);
 
     auto array = d["jsps"].GetArray();
-    CHECK_STATE2( !array.Empty(), "Jsps array is empty.:" + _spec );
-    CHECK_STATE2( array.Size() <= ORACLE_MAX_JSPS, "Too many elements in JSP array:" + _spec );
+    ORACLE_CHECK_STATE3( !array.Empty(), "Jsps array is empty.:" + _spec,
+                         ORACLE_JSPS_EMPTY);
+    ORACLE_CHECK_STATE3( array.Size() <= ORACLE_MAX_JSPS, "Too many elements in JSP array:" + _spec,
+                         ORACLE_TOO_MANY_JSPS);
 
     for ( auto&& item : array ) {
-        CHECK_STATE2( item.IsString(), "Jsps array item is not string:" + _spec );
+        ORACLE_CHECK_STATE3( item.IsString(), "Jsps array item is not string:" + _spec,
+                             ORACLE_JSP_NOT_STRING);
         auto jsp = ( string ) item.GetString();
-        CHECK_STATE2( jsp.size() <= ORACLE_MAX_JSP_SIZE, "JSP too long:" + _spec );
+        ORACLE_CHECK_STATE3( jsp.size() <= ORACLE_MAX_JSP_SIZE, "JSP too long:" + _spec,
+                             ORACLE_JSP_TOO_LONG);
         jsps.push_back( jsp );
     }
 
@@ -154,11 +177,13 @@ void OracleRequestSpec::parseWebRequestSpec( rapidjson::Document& d, const strin
     if ( d.HasMember( "trims" ) ) {
         auto trimArray = d["trims"].GetArray();
         for ( auto&& item : trimArray ) {
-            CHECK_STATE2( item.IsUint64(), "Trims array item is uint64:" + _spec );
+            ORACLE_CHECK_STATE3( item.IsUint64(), "Trims array item is not uint64:" + _spec,
+                                 ORACLE_TRIMS_ITEM_NOT_STRING);
             trims.push_back( item.GetUint64() );
         }
-        CHECK_STATE2(
-            jsps.size() == trims.size(), "hsps array size not equal tp trims array size:" + _spec );
+        ORACLE_CHECK_STATE3(
+            jsps.size() == trims.size(), "hsps array size not equal tp trims array size:" + _spec,
+                ORACLE_HSPS_TRIMS_SIZE_NOT_EQUAL);
     } else {
         for ( uint64_t i = 0; i < jsps.size(); i++ ) {
             trims.push_back( 0 );
@@ -166,10 +191,11 @@ void OracleRequestSpec::parseWebRequestSpec( rapidjson::Document& d, const strin
     }
 
     if ( d.HasMember( "post" ) ) {
-        CHECK_STATE2( d["post"].IsString(), "Post in Oracle spec is not a string:" + _spec );
+        ORACLE_CHECK_STATE3( d["post"].IsString(), "Post in Oracle spec is not a string:" + _spec,
+                             ORACLE_POST_NOT_STRING);
         post = d["post"].GetString();
-        CHECK_STATE2( post.size() <= ORACLE_MAX_POST_SIZE,
-            "Post string is larger than max allowed:" + _spec );
+        ORACLE_CHECK_STATE3( post.size() <= ORACLE_MAX_POST_SIZE,
+            "Post string is larger than max allowed:" + _spec, ORACLE_POST_STRING_TOO_LARGE );
     }
 }
 
@@ -211,53 +237,63 @@ bool OracleRequestSpec::isValidEthHexAddressString( const string& _address ) {
 }
 
 void OracleRequestSpec::parseEthApiRequestSpec( rapidjson::Document& d, const string& _spec ) {
-    CHECK_STATE2( d.HasMember( "params" ),
-        "eth_call request shall include params element, which could be an empty array" + _spec );
+    ORACLE_CHECK_STATE3( d.HasMember( "params" ),
+        "eth_call request shall include params element, which could be an empty array" + _spec,
+        ORACLE_NO_PARAMS_ETH_CALL);
 
-    CHECK_STATE2( d["params"].IsArray(),
-        "eth_call request shall include params element, which could be an empty array" + _spec );
+    ORACLE_CHECK_STATE3( d["params"].IsArray(),
+        "eth_call request params element is not array" + _spec, ORACLE_PARAMS_NO_ARRAY);
 
     auto params = d["params"].GetArray();
 
-    CHECK_STATE2( params.Size() == 2, "Params array size must be 2 " + _spec );
+    ORACLE_CHECK_STATE3( params.Size() == 2, "Params array size must be 2 " + _spec ,
+                         ORACLE_PARAMS_ARRAY_INCORRECT_SIZE);
 
 
-    CHECK_STATE2(
-        params[0].IsObject(), "The first element in params array must be object " + _spec );
+    ORACLE_CHECK_STATE3(
+        params[0].IsObject(), "The first element in params array must be object " + _spec,
+        ORACLE_PARAMS_ARRAY_FIRST_ELEMENT_NOT_OBJECT);
 
     this->from = checkAndGetParamsField( params, "from", _spec );
-    CHECK_STATE2( isValidEthHexAddressString( from ),
-        "From in params array is not a valid Eth address string " + _spec );
+    ORACLE_CHECK_STATE3( isValidEthHexAddressString( from ),
+        "From in params array is not a valid Eth address string " + _spec,
+                         ORACLE_PARAMS_INVALID_FROM_ADDRESS);
     this->to = checkAndGetParamsField( params, "to", _spec );
-    CHECK_STATE2( isValidEthHexAddressString( from ),
-        "To in params array is not a valid Eth address string " + _spec );
+    ORACLE_CHECK_STATE3( isValidEthHexAddressString( from ),
+        "To in params array is not a valid Eth address string " + _spec,
+                         ORACLE_PARAMS_INVALID_TO_ADDRESS);
 
     this->data = checkAndGetParamsField( params, "data", _spec );
 
     this->gas = checkAndGetParamsField( params, "gas", _spec );
-    CHECK_STATE2( isHexEncodedUInt64( gas ),
-        "Gas in params array is not a valid hex encoded uint64_t string " + _spec );
 
-    CHECK_STATE2( params[0].MemberCount() == 4,
+    ORACLE_CHECK_STATE3( isHexEncodedUInt64( gas ),
+        "Gas in params array is not a valid hex encoded uint64_t string " + _spec,
+                         ORACLE_PARAMS_GAS_NOT_UINT64);
+
+    ORACLE_CHECK_STATE3( params[0].MemberCount() == 4,
         "The first element in params array must be four elements:"
-        " from, to, data and gas" );
-    CHECK_STATE2( params[1].IsString(),
-        "The second element in params array must be a string block number" + _spec );
+        " from, to, data and gas", ORACLE_PARAMS_ARRAY_INCORRECT_COUNT );
+    ORACLE_CHECK_STATE3( params[1].IsString(),
+        "The second element in params array must be a string block number" + _spec,
+        ORACLE_BLOCK_NUMBER_NOT_STRING);
     this->blockId = params[1].GetString();
     if ( blockId != "latest" ) {
-        CHECK_STATE2( isHexEncodedUInt64( blockId ),
+        ORACLE_CHECK_STATE3( isHexEncodedUInt64( blockId ),
             "The second element in params array must be a hex string block number or latest" +
-                _spec );
+                _spec, ORACLE_INVALID_BLOCK_NUMBER);
     }
 }
 
 string OracleRequestSpec::checkAndGetParamsField(
     const rapidjson::GenericValue< rapidjson::UTF8<> >::Array& params, const string& _fieldName,
     const string& _spec ) {
-    CHECK_STATE2( params[0].HasMember( _fieldName.c_str() ),
-        "The first element in params array must include " + _fieldName + " field " + _spec );
-    CHECK_STATE2(
-        params[0][_fieldName.c_str()].IsString(), _fieldName + " field must be string " + _spec );
+    ORACLE_CHECK_STATE3( params[0].HasMember( _fieldName.c_str() ),
+        "The first element in params array must include " + _fieldName + " field " + _spec,
+             ORACLE_MISSING_FIELD );
+    ORACLE_CHECK_STATE3(
+        params[0][_fieldName.c_str()].IsString(), _fieldName + " field must be string " + _spec,
+        ORACLE_INVALID_FIELD);
     return params[0][_fieldName.c_str()].GetString();
 }
 
@@ -416,7 +452,7 @@ void OracleRequestSpec::appendWebPart( string& _specStr, const vector< string >&
     _specStr.append( "]," );
 
     if ( _trims.size() > 0 ) {
-        CHECK_STATE( _trims.size() == _jsps.size() );
+        CHECK_STATE2( _trims.size() == _jsps.size(), "Trims and jsps size are not equal");
 
         _specStr.append( "\"trims\":[" );
 

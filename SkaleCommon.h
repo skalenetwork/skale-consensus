@@ -222,6 +222,10 @@ static const int NODE_DEATH_INTERVAL_MS = 30000;
 
 static const string VERSION_STRING ("2.1");
 
+static constexpr uint64_t MAX_CONSENSUS_MESSAGE_LEN = 4096;
+static constexpr uint64_t MAX_ORACLE_SPEC_LEN = 1024;
+static constexpr uint64_t MAX_ORACLE_RESULT_LEN = 3072 * 3;
+
 
 enum port_type {
     PROPOSAL = 0, CATCHUP = 1, RETRIEVE = 2, HTTP_JSON = 3, BINARY_CONSENSUS = 4, ZMQ_BROADCAST = 5,
@@ -393,7 +397,7 @@ extern std::string getThreadName();
         auto __msg__ = string("Check failed::") + #_EXPRESSION_ +  " " + string(__FILE__) + ":" + to_string(__LINE__); \
         throw InvalidStateException(__msg__ + ":" + _MSG_, __CLASS_NAME__);}
 
-#define ORACLE_CHECK_STATE2(_EXPRESSION_, _MSG_) \
+#define ORACLE_CHECK_STATE3(_EXPRESSION_, _MSG_, _ERROR) \
     if (!(_EXPRESSION_)) { \
         auto __msg__ = string("Oracle check failed: ") + _MSG_; \
         throw InvalidStateException(__msg__, ""); }

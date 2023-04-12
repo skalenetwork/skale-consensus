@@ -67,7 +67,6 @@ bool ZMQNetwork::sendMessage(
 
 uint64_t ZMQNetwork::interruptableRecv( void* _socket, void* _buf, size_t _len ) {
 
-
     int rc;
 
 
@@ -163,6 +162,8 @@ uint64_t ZMQNetwork::readMessageFromNetwork( const ptr< Buffer > buf ) {
     }
 
     auto s = sChain->getNode()->getSockets()->consensusZMQSockets->getReceiveSocket();
+
+    CHECK_STATE(buf->getBuf()->size() >= MAX_CONSENSUS_MESSAGE_LEN);
 
     auto rc = interruptableRecv( s, buf->getBuf()->data(), MAX_CONSENSUS_MESSAGE_LEN );
 
