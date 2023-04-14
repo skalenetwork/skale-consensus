@@ -2,54 +2,66 @@
 
 ## 1. Intro
 
-SKALE Oracle is used to retrieve trusted info from websites and blockchains. 
+SKL Oracle is used to retrieve trusted info from websites and blockchains.
+
+When a user submit an Oracle request to retrieve data from a network endpoint:
+
+* all nodes in a SKL chain issue request to retrieve data
+* nodes compare data received and verify it is identical
+* node create an OracleResult object
+* at least 6 nodes need to sign the object
+* OracleResult object is returned to the user (typically browser or mobile app)
+* OracleResult object can then be submitted to SKL chain and verified in Solidity.
 
 The following two JSON-RPC calls are implemented by ```skaled```
 
-```oracle_submitRequest``` - this one is used to submit the initial initial Oracle request. 
+* ```oracle_submitRequest``` - this one is used to submit the initial initial Oracle request. 
 It returns a receipt object. 
 
-```oracle_checkResult``` - this should be called periodically by passing the receipt 
+* ```oracle_checkResult``` - this should be called periodically by passing the receipt 
 (we recommend once per second) to check if the result is ready.
 
 ## 2. JSON-API oracle_submitRequest
 
 ```string oracle_submitRequest( string oracleRequestSpect )```
 
-This API call takes OracleRequestSpec string as input, and returns a string receipt, that
-can be used in ```oracle_checkResult```
-
-In case of an error, an error is returned (see Appendix A Errors)
+This API call:
+* takes OracleRequestSpec string as input
+* returns a string receipt, that  can be used in ```oracle_checkResult```
+* In case of an error, an error is returned (see Appendix A Errors)
 
 ## 3. JSON-API oracle_checkResult
 
 ```string oracle_checkResult( string receipt )```
 
 This API call takes string receipt as result, and return a OracleResult
-string if the result is ready. 
+string if the result is ready.
+
+Otherwise, one of the following errors is returned
 
 
-```ORACLE_RESULT_NOT_READY``` error is returned if result if not ready 
+* ```ORACLE_RESULT_NOT_READY``` error is returned if result if not ready 
 
-```ORACLE_TIMEOUT``` is returned if the result could not be obtained 
+* ```ORACLE_TIMEOUT``` is returned if the result could not be obtained 
 from the endpoint and the timeout was reached
 
 
-```ORACLE_NO_CONSENSUS``` is returned is the endpoint returned different
-values to different SKALE nodes, so no consensus could be reached on the value
+* ```ORACLE_NO_CONSENSUS``` is returned is the endpoint returned different
+values to different SKL nodes, so no consensus could be reached on the value
 
 ## 4. OracleRequestSpec JSON format.
 
 ```OracleRequestSpec``` is a JSON string that is used by client to initiate an Oracle request.
 
-There are two types of request specs. Web spec is used to retrieve info from
-web endpoints (http or https), while EthApi spec is used to retrieve info 
-from EthApi.
+There are two types of request specs. 
+
+* Web spec is used to retrieve info from
+web endpoints (http or https), 
+* EthApi spec is used to retrieve info from Ethereum API.
 
 ### 4.1.1 Web request spec
 
-Web request spec is a JSON string that has the following parameters
-
+Web request spec is a JSON string that has the following elements
 
 Required elements:
 
@@ -64,11 +76,6 @@ _If uri is eth:// then information is obtained from the geth server that the SKA
                Note: this element is required for web requests, and shall not be present for EthAPI requests.  
 _See https://json.nlohmann.me/features/json_pointer/ for intro to JSON pointers._
 * ```encoding```, string - the only currently supported encoding is```json```. ```abi``` will be supported in future releases. 
-* ```pow```, string - uint64 proof of work that is used to protect against denial of service attacks. 
-  _Note: PoW must be the last element in JSON_
-
-
-
 
 Optional elements:
 
@@ -79,25 +86,20 @@ Optional elements:
 
 * ```post```, string
 _if this element, then Oracle with use HTTP POST instead of HTTP GET (default).
-   The value of the post element will be posted to the endpoint. This element shall not be present in ethApi calls_ 
+   The value of the post element will be posted to the endpoint. 
 
-* ```params```, string array
-  _this element shall only be present if eth_call is used. It specifies ```params``` element for ```eth_call```.
-   See  [here for more info ](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_call)_
-   
-* ```ethApi``` - Ethereum API method to call.  If this element is present, an eth API RPC call will be performed against the endpoint. Valid values for this element are:
 
-```
-eth_call
-```
+The SPEC shall also include the following element which must be the last element.
+
+* ```pow```, string - uint64 proof of work that is used to protect against denial of service attacks.
+
 
 ### 4.1.2 EthApi request spec
 
-EthApi request spec represents a JSON-API request to Eth API. 
+EthApi request spec represents a JSON-API request to Ethereum API. 
 Currently only ```eth_call``` is supported.
 
-EthApi spec is a JSON string that has the following parameters
-
+EthApi request spec is a JSON string that has the following elements
 
 Required elements:
 
@@ -113,6 +115,11 @@ Required elements:
 * ```encoding```, string - the only currently supported encoding is```json```. ```abi``` will be supported in future releases.
 * ```pow```, string - uint64 proof of work that is used to protect against denial of service attacks.
   _Note: PoW must be the last element in JSON_
+
+
+The SPEC shall also include the following element which must be the last element.
+
+* ```pow```, string - uint64 proof of work that is used to protect against denial of service attacks.
 
 
 ## 5. Examples
