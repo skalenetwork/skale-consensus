@@ -1,7 +1,6 @@
 # Oracle API
 
-
-## Intro
+## 1. Intro
 
 SKALE Oracle is used to retrieve trusted info from websites and blockchains. 
 
@@ -13,7 +12,7 @@ It returns a receipt object.
 ```oracle_checkResult``` - this should be called periodically by passing the receipt 
 (we recommend once per second) to check if the result is ready.
 
-## oracle_submitRequest
+## 2. JSON-API oracle_submitRequest
 
 ```string oracle_submitRequest( string oracleRequestSpect )```
 
@@ -22,8 +21,7 @@ can be used in ```oracle_checkResult```
 
 In case of an error, an error is returned (see Appendix A Errors)
 
-## oracle_checkResult
-
+## 3. JSON-API oracle_checkResult
 
 ```string oracle_checkResult( string receipt )```
 
@@ -40,7 +38,7 @@ from the endpoint and the timeout was reached
 ```ORACLE_NO_CONSENSUS``` is returned is the endpoint returned different
 values to different SKALE nodes, so no consensus could be reached on the value
 
-## OracleRequestSpec.
+## 4. OracleRequestSpec JSON format.
 
 ```OracleRequestSpec``` is a JSON string that is used by client to initiate an Oracle request.
 
@@ -48,7 +46,7 @@ There are two types of request specs. Web spec is used to retrieve info from
 web endpoints (http or https), while EthApi spec is used to retrieve info 
 from EthApi.
 
-### Web request spec
+### 4.1.1 Web request spec
 
 Web request spec is a JSON string that has the following parameters
 
@@ -93,7 +91,7 @@ _if this element, then Oracle with use HTTP POST instead of HTTP GET (default).
 eth_call
 ```
 
-### EthApi request spec
+### 4.1.2 EthApi request spec
 
 EthApi request spec represents a JSON-API request to Eth API. 
 Currently only ```eth_call``` is supported.
@@ -117,8 +115,9 @@ Required elements:
   _Note: PoW must be the last element in JSON_
 
 
+## 5. Examples
 
-### Web request example 1
+### 5.1 Web request example 1
 
 HTTP get request that obtains current unix time and
 day of the year from worldtimeapi.org.
@@ -141,7 +140,7 @@ Description:
 - Convert each element to string.
 - Trim one character from the end of each string.
 
-### Web request example 2
+### 5.2 Web request example 2
 
 HTTP post request that posts some data to endpoint
 
@@ -155,9 +154,6 @@ HTTP post request that posts some data to endpoint
      "pow":1735}
 ```
 
-
-
-
 Note: for each JSON pointer specified in the request, the Oracle
 will
 
@@ -165,7 +161,7 @@ will
 - transform it to a string.
 - If no such element exists, ```null``` will be returned.
 
-### Proof of work
+## 6. Proof of work computation
 
 The proof of work is an integer value that is selected by
 iterating from 0 until the following pseudocode returns true
@@ -183,7 +179,7 @@ specStr is the full JSON spec string, starting from ```{``` and ending with
 ```}```
 
 
-## OracleResult JSON String
+## OracleResult format
 
 A JSON string ```ORACLE_RESULT``` is returned, which provides
 result signed by ```t + 1``` nodes.
