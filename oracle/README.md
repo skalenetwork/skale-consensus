@@ -48,24 +48,23 @@ There are two types of request specs. Web spec is used to retrieve info from
 web endpoints (http or https), while EthApi spec is used to retrieve info 
 from EthApi.
 
-### Oracle request spec description
+### Web request spec
 
+Web request spec is a JSON string that has the following parameters
 
-
-It has the following parameters:
 
 Required elements:
 
 * ```cid```, uint64 - chain ID
-* ```uri```, string - Oracle endpoint.
+* ```uri```, string - Oracle endpoint. Needs to start with "http://" or "https"
 _If uri starts with http:// or https:// then the information is obtained from the corresponding http:// or https:// endpoint_. 
 _If uri is eth:// then information is obtained from the geth server that the SKALE node is connected to_.
  _Max length of uri string is 1024 bytes._
 * ```time```, uint64 - Linux time of request in ms.
-  * ```jsps```, array of strings - list of string JSON pointers to the data elements to be picked from server response. 
-                The array must have from 1 to 32 elements. Max length of each pointer 1024 bytes.
-                 Note: this element is required for web requests, and shall not be present for EthAPI requests.  
-  _See https://json.nlohmann.me/features/json_pointer/ for intro to JSON pointers._
+* ```jsps```, array of strings - list of string JSON pointers to the data elements to be picked from server response. 
+              The array must have from 1 to 32 elements. Max length of each pointer 1024 bytes.
+               Note: this element is required for web requests, and shall not be present for EthAPI requests.  
+_See https://json.nlohmann.me/features/json_pointer/ for intro to JSON pointers._
 * ```encoding```, string - the only currently supported encoding is```json```. ```abi``` will be supported in future releases. 
 * ```pow```, string - uint64 proof of work that is used to protect against denial of service attacks. 
   _Note: PoW must be the last element in JSON_
@@ -94,22 +93,32 @@ _if this element, then Oracle with use HTTP POST instead of HTTP GET (default).
 eth_call
 ```
 
-### URI element
+### EthApi request spec
 
-* If ```uri``` element in the spec starts with ```http://``` or ```https://```, Oracle will retrieve information by doing a http or https to a web endpoint specified by the uri. The endpoint must return a JSON string as a result.
+EthApi request spec represents a JSON-API request to Eth API. 
+Currently only ```eth_call``` is supported.
 
-* If ```uri``` element in the spec is equal to with ```eth://```, Oracle will perform a request against Ethereum mainnet.   For this each SKALE node will use the Ethereum mainnet node is is connected to.
+EthApi spec is a JSON string that has the following parameters
 
-## oracle_submitRequest
 
-To submit an Oracle request to a SKALE node, the client submits a string spec 
-to oracle_submitRequest API.
+Required elements:
 
-### Parameters
+* ```cid```, uint64 - chain ID
+* ```uri```, string - Oracle endpoint.
+  _If uri starts with http:// or https:// then the information is obtained from the corresponding
+   network endpoint. It is assumed that it supports ETH Api.
+  _If uri is eth:// then information is obtained from the geth server that the SKALE node is connected to_.
+  _Max length of uri string is 1024 bytes._
+* ```time```, uint64 - Linux time of request in ms.
+* ```ethApi```, string - this has to have value ```eth_call```
+* ```params```, string - these are params to ```eth_call```
+* ```encoding```, string - the only currently supported encoding is```json```. ```abi``` will be supported in future releases.
+* ```pow```, string - uint64 proof of work that is used to protect against denial of service attacks.
+  _Note: PoW must be the last element in JSON_
 
-1. ```SPEC```, string - request specification
 
-### Parameters example 1
+
+### Web request example 1
 
 HTTP get request that obtains current unix time and
 day of the year from worldtimeapi.org.
@@ -132,7 +141,7 @@ Description:
 - Convert each element to string.
 - Trim one character from the end of each string.
 
-### Parameters example 2
+### Web request example 2
 
 HTTP post request that posts some data to endpoint
 
@@ -156,20 +165,6 @@ will
 - transform it to a string.
 - If no such element exists, ```null``` will be returned.
 
-
-## Returned value
-
-When ```oracle_submitRequest``` completes it returns a receipt string
-that can be used to check later if the result is ready.
-
-### Receipt example
-
-Here is an example of a receipt:
-
-```
-ee188f09d94848ec07644e45bba4934d412f0bef7fa61a299e0b5fe3b2b703ec
-```
-
 ### Proof of work
 
 The proof of work is an integer value that is selected by
@@ -186,7 +181,6 @@ Here ~ is bitwise NOT and u256 is unsigned 256 bit number.
 
 specStr is the full JSON spec string, starting from ```{``` and ending with
 ```}```
-
 
 
 ## OracleResult JSON String
@@ -227,69 +221,68 @@ An example of Oracle result is provided below
 # Appendix A list of Oracle error codes.
 
 ```
-
-#define ORACLE_SUCCESS  0
-#define ORACLE_UNKNOWN_RECEIPT  1
-#define ORACLE_TIMEOUT 2
-#define ORACLE_NO_CONSENSUS  3
-#define ORACLE_UNKNOWN_ERROR  4
-#define ORACLE_RESULT_NOT_READY 5
-#define ORACLE_DUPLICATE_REQUEST 6
-#define ORACLE_COULD_NOT_CONNECT_TO_ENDPOINT 7
-#define ORACLE_ENDPOINT_JSON_RESPONSE_COULD_NOT_BE_PARSED 8
-#define ORACLE_INTERNAL_SERVER_ERROR 9
-#define ORACLE_INVALID_JSON_REQUEST 10
-#define ORACLE_TIME_IN_REQUEST_SPEC_TOO_OLD 11
-#define ORACLE_TIME_IN_REQUEST_SPEC_IN_THE_FUTURE 11
-#define ORACLE_INVALID_CHAIN_ID 12
-#define ORACLE_REQUEST_TOO_LARGE 13
-#define ORACLE_RESULT_TOO_LARGE 14
-#define ORACLE_ETH_METHOD_NOT_SUPPORTED 15
-#define ORACLE_URI_TOO_SHORT 16
-#define ORACLE_URI_TOO_LONG 17
-#define ORACLE_UNKNOWN_ENCODING 18
-#define ORACLE_INVALID_URI_START 19
-#define ORACLE_INVALID_URI 20
-#define ORACLE_USERNAME_IN_URI 21
-#define ORACLE_PASSWORD_IN_URI 22
-#define ORACLE_IP_ADDRESS_IN_URI 23
-#define ORACLE_UNPARSABLE_SPEC 24
-#define ORACLE_NO_CHAIN_ID_IN_SPEC 25
-#define ORACLE_NON_UINT64_CHAIN_ID_IN_SPEC 26
-#define ORACLE_NO_URI_IN_SPEC 27
-#define ORACLE_NON_STRING_URI_IN_SPEC 28
-#define ORACLE_NO_ENCODING_IN_SPEC 29
-#define ORACLE_NON_STRING_ENCODING_IN_SPEC 30
-#define ORACLE_TIME_IN_SPEC_NO_UINT64 31
-#define ORACLE_POW_IN_SPEC_NO_UINT64 32
-#define ORACLE_POW_DID_NOT_VERIFY 33
-#define ORACLE_ETH_API_NOT_STRING 34
-#define ORACLE_ETH_API_NOT_PROVIDED 35
-#define ORACLE_JSPS_NOT_PROVIDED  36
-#define ORACLE_JSPS_NOT_ARRAY  37
-#define ORACLE_JSPS_EMPTY  38
-#define ORACLE_TOO_MANY_JSPS  39
-#define ORACLE_JSP_TOO_LONG  40
-#define ORACLE_JSP_NOT_STRING  41
-#define ORACLE_TRIMS_ITEM_NOT_STRING  42
-#define ORACLE_JSPS_TRIMS_SIZE_NOT_EQUAL 43
-#define ORACLE_POST_NOT_STRING 44
-#define ORACLE_POST_STRING_TOO_LARGE 45
-#define ORACLE_NO_PARAMS_ETH_CALL 46
-#define ORACLE_PARAMS_ARRAY_INCORRECT_SIZE 47
-#define ORACLE_PARAMS_ARRAY_FIRST_ELEMENT_NOT_OBJECT 48
-#define ORACLE_PARAMS_INVALID_FROM_ADDRESS 49
-#define ORACLE_PARAMS_INVALID_TO_ADDRESS 50
-#define  ORACLE_PARAMS_ARRAY_INCORRECT_COUNT 51
-#define ORACLE_BLOCK_NUMBER_NOT_STRING 52
-#define ORACLE_INVALID_BLOCK_NUMBER 53
-#define ORACLE_MISSING_FIELD 54
-#define ORACLE_INVALID_FIELD 55
-#define ORACLE_EMPTY_JSON_RESPONSE 56
-#define ORACLE_COULD_NOT_PROCESS_JSPS_IN_JSON_RESPONSE 57
-#define ORACLE_NO_TIME_IN_SPEC 58
-#define ORACLE_NO_POW_IN_SPEC 59
-#define ORACLE_HSPS_TRIMS_SIZE_NOT_EQUAL 60
-#define ORACLE_PARAMS_NO_ARRAY 61
-#define ORACLE_PARAMS_GAS_NOT_UINT64 62
+ ORACLE_SUCCESS  0
+ ORACLE_UNKNOWN_RECEIPT  1
+ ORACLE_TIMEOUT 2
+ ORACLE_NO_CONSENSUS  3
+ ORACLE_UNKNOWN_ERROR  4
+ ORACLE_RESULT_NOT_READY 5
+ ORACLE_DUPLICATE_REQUEST 6
+ ORACLE_COULD_NOT_CONNECT_TO_ENDPOINT 7
+ ORACLE_ENDPOINT_JSON_RESPONSE_COULD_NOT_BE_PARSED 8
+ ORACLE_INTERNAL_SERVER_ERROR 9
+ ORACLE_INVALID_JSON_REQUEST 10
+ ORACLE_TIME_IN_REQUEST_SPEC_TOO_OLD 11
+ ORACLE_TIME_IN_REQUEST_SPEC_IN_THE_FUTURE 11
+ ORACLE_INVALID_CHAIN_ID 12
+ ORACLE_REQUEST_TOO_LARGE 13
+ ORACLE_RESULT_TOO_LARGE 14
+ ORACLE_ETH_METHOD_NOT_SUPPORTED 15
+ ORACLE_URI_TOO_SHORT 16
+ ORACLE_URI_TOO_LONG 17
+ ORACLE_UNKNOWN_ENCODING 18
+ ORACLE_INVALID_URI_START 19
+ ORACLE_INVALID_URI 20
+ ORACLE_USERNAME_IN_URI 21
+ ORACLE_PASSWORD_IN_URI 22
+ ORACLE_IP_ADDRESS_IN_URI 23
+ ORACLE_UNPARSABLE_SPEC 24
+ ORACLE_NO_CHAIN_ID_IN_SPEC 25
+ ORACLE_NON_UINT64_CHAIN_ID_IN_SPEC 26
+ ORACLE_NO_URI_IN_SPEC 27
+ ORACLE_NON_STRING_URI_IN_SPEC 28
+ ORACLE_NO_ENCODING_IN_SPEC 29
+ ORACLE_NON_STRING_ENCODING_IN_SPEC 30
+ ORACLE_TIME_IN_SPEC_NO_UINT64 31
+ ORACLE_POW_IN_SPEC_NO_UINT64 32
+ ORACLE_POW_DID_NOT_VERIFY 33
+ ORACLE_ETH_API_NOT_STRING 34
+ ORACLE_ETH_API_NOT_PROVIDED 35
+ ORACLE_JSPS_NOT_PROVIDED  36
+ ORACLE_JSPS_NOT_ARRAY  37
+ ORACLE_JSPS_EMPTY  38
+ ORACLE_TOO_MANY_JSPS  39
+ ORACLE_JSP_TOO_LONG  40
+ ORACLE_JSP_NOT_STRING  41
+ ORACLE_TRIMS_ITEM_NOT_STRING  42
+ ORACLE_JSPS_TRIMS_SIZE_NOT_EQUAL 43
+ ORACLE_POST_NOT_STRING 44
+ ORACLE_POST_STRING_TOO_LARGE 45
+ ORACLE_NO_PARAMS_ETH_CALL 46
+ ORACLE_PARAMS_ARRAY_INCORRECT_SIZE 47
+ ORACLE_PARAMS_ARRAY_FIRST_ELEMENT_NOT_OBJECT 48
+ ORACLE_PARAMS_INVALID_FROM_ADDRESS 49
+ ORACLE_PARAMS_INVALID_TO_ADDRESS 50
+  ORACLE_PARAMS_ARRAY_INCORRECT_COUNT 51
+ ORACLE_BLOCK_NUMBER_NOT_STRING 52
+ ORACLE_INVALID_BLOCK_NUMBER 53
+ ORACLE_MISSING_FIELD 54
+ ORACLE_INVALID_FIELD 55
+ ORACLE_EMPTY_JSON_RESPONSE 56
+ ORACLE_COULD_NOT_PROCESS_JSPS_IN_JSON_RESPONSE 57
+ ORACLE_NO_TIME_IN_SPEC 58
+ ORACLE_NO_POW_IN_SPEC 59
+ ORACLE_HSPS_TRIMS_SIZE_NOT_EQUAL 60
+ ORACLE_PARAMS_NO_ARRAY 61
+ ORACLE_PARAMS_GAS_NOT_UINT64 62
 ```
