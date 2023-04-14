@@ -1,19 +1,21 @@
-# Oracle API
+# Dynamic Oracle API
 
 ## 1. Intro
 
-SKL Oracle is used to retrieve trusted info from websites and blockchains.
+Dynamic Oracle is used to retrieve trusted data from websites and blockchains.
+The data is signed by multiple SKL nodes.
+
 
 When a user submit an Oracle request to retrieve data from a network endpoint:
 
-* all nodes in a SKL chain issue request to retrieve data
+* all nodes in a SKL chain issue requests to retrieve data
 * nodes compare data received and verify it is identical
 * node create an OracleResult object
-* at least 6 nodes need to sign the object
+* at least 6 nodes must to sign the object
 * OracleResult object is returned to the user (typically browser or mobile app)
-* OracleResult object can then be submitted to SKL chain and verified in Solidity.
+* OracleResult can then be submitted to the SKL chain and verified in Solidity.
 
-The following two JSON-RPC calls are implemented by ```skaled```
+The following two JSON-RPC calls are implemented by SKL node
 
 * ```oracle_submitRequest``` - this one is used to submit the initial initial Oracle request. 
 It returns a receipt object. 
@@ -27,31 +29,34 @@ It returns a receipt object.
 
 This API call:
 * takes OracleRequestSpec string as input
-* returns a string receipt, that  can be used in ```oracle_checkResult```
+* returns a string receipt, that shall be used in ```oracle_checkResult```
 * In case of an error, an error is returned (see Appendix A Errors)
 
 ## 3. JSON-API oracle_checkResult
 
 ```string oracle_checkResult( string receipt )```
 
-This API call takes string receipt as result, and return a OracleResult
-string if the result is ready.
+This API call
+
+* takes string receipt as input
+* returns OracleResult string if the result is ready
 
 Otherwise, one of the following errors is returned
 
 
-* ```ORACLE_RESULT_NOT_READY``` error is returned if result if not ready 
+* ```ORACLE_RESULT_NOT_READY``` - OracleResult has not yet been produced 
 
-* ```ORACLE_TIMEOUT``` is returned if the result could not be obtained 
-from the endpoint and the timeout was reached
+* ```ORACLE_TIMEOUT``` OracleResult could not be obtained from the endpoint 
+* and the timeout was reached
 
 
-* ```ORACLE_NO_CONSENSUS``` is returned is the endpoint returned different
-values to different SKL nodes, so no consensus could be reached on the value
+* ```ORACLE_NO_CONSENSUS``` - the endpoint returned different
+data to different SKL nodes, so no consensus could be reached on the data
 
 ## 4. OracleRequestSpec JSON format.
 
-```OracleRequestSpec``` is a JSON string that is used by client to initiate an Oracle request.
+```OracleRequestSpec``` is a JSON string that is used by the client to 
+initiate an Oracle request to a SKL node.
 
 There are two types of request specs. 
 
