@@ -224,7 +224,7 @@ static const string VERSION_STRING ("2.1");
 
 static constexpr uint64_t MAX_CONSENSUS_MESSAGE_LEN = 4096;
 static constexpr uint64_t MAX_ORACLE_SPEC_LEN = 1024;
-static constexpr uint64_t MAX_ORACLE_RESULT_LEN = 3072 * 3;
+static constexpr uint64_t MAX_ORACLE_RESULT_LEN = 1024 * 3;
 
 
 enum port_type {
@@ -397,10 +397,10 @@ extern std::string getThreadName();
         auto __msg__ = string("Check failed::") + #_EXPRESSION_ +  " " + string(__FILE__) + ":" + to_string(__LINE__); \
         throw InvalidStateException(__msg__ + ":" + _MSG_, __CLASS_NAME__);}
 
-#define ORACLE_CHECK_STATE3(_EXPRESSION_, _MSG_, _ERROR) \
+#define ORACLE_CHECK_STATE3(_EXPRESSION_, _MSG_, _ERROR_) \
     if (!(_EXPRESSION_)) { \
         auto __msg__ = string("Oracle check failed: ") + _MSG_; \
-        throw InvalidStateException(__msg__, ""); }
+        throw OracleException(__msg__, "", _ERROR_); }
 
 #define INJECT_TEST(__TEST_NAME__, __TEST_CODE__) \
  { static bool __TEST_NAME__ = (getenv(#__TEST_NAME__) != nullptr); \
