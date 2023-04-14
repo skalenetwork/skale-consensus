@@ -44,7 +44,7 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ec15c893-7f20-4493-be40-38b8f69efc54" name="Default Changelist" comment="#636 skaled stuck">
+    <list default="true" id="ec15c893-7f20-4493-be40-38b8f69efc54" name="Default Changelist" comment="oracle doc">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libjson-rpc-cpp" beforeDir="false" afterPath="$PROJECT_DIR$/libjson-rpc-cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/oracle/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/oracle/README.md" afterDir="false" />
@@ -504,48 +504,6 @@
       <workItem from="1680172553777" duration="4927000" />
       <workItem from="1680282100830" duration="3952000" />
     </task>
-    <task id="LOCAL-00101" summary="bug/SKALE-4352">
-      <created>1634568938458</created>
-      <option name="number" value="00101" />
-      <option name="presentableId" value="LOCAL-00101" />
-      <option name="project" value="LOCAL" />
-      <updated>1634568938458</updated>
-    </task>
-    <task id="LOCAL-00102" summary="bug/SKALE-4352">
-      <created>1634570796553</created>
-      <option name="number" value="00102" />
-      <option name="presentableId" value="LOCAL-00102" />
-      <option name="project" value="LOCAL" />
-      <updated>1634570796553</updated>
-    </task>
-    <task id="LOCAL-00103" summary="bug/SKALE-4352">
-      <created>1634631931278</created>
-      <option name="number" value="00103" />
-      <option name="presentableId" value="LOCAL-00103" />
-      <option name="project" value="LOCAL" />
-      <updated>1634631931278</updated>
-    </task>
-    <task id="LOCAL-00104" summary="bug/SKALE-4352">
-      <created>1634632211049</created>
-      <option name="number" value="00104" />
-      <option name="presentableId" value="LOCAL-00104" />
-      <option name="project" value="LOCAL" />
-      <updated>1634632211049</updated>
-    </task>
-    <task id="LOCAL-00105" summary="bug/SKALE-4352">
-      <created>1634634932195</created>
-      <option name="number" value="00105" />
-      <option name="presentableId" value="LOCAL-00105" />
-      <option name="project" value="LOCAL" />
-      <updated>1634634932196</updated>
-    </task>
-    <task id="LOCAL-00106" summary="bug/SKALE-4352">
-      <created>1634635052040</created>
-      <option name="number" value="00106" />
-      <option name="presentableId" value="LOCAL-00106" />
-      <option name="project" value="LOCAL" />
-      <updated>1634635052040</updated>
-    </task>
     <task id="LOCAL-00107" summary="bug/SKALE-4352">
       <created>1634636114378</created>
       <option name="number" value="00107" />
@@ -847,7 +805,49 @@
       <option name="project" value="LOCAL" />
       <updated>1681488430569</updated>
     </task>
-    <option name="localTasksCounter" value="150" />
+    <task id="LOCAL-00150" summary="#636 skaled stuck">
+      <created>1681489591842</created>
+      <option name="number" value="00150" />
+      <option name="presentableId" value="LOCAL-00150" />
+      <option name="project" value="LOCAL" />
+      <updated>1681489591842</updated>
+    </task>
+    <task id="LOCAL-00151" summary="oracle doc">
+      <created>1681489737399</created>
+      <option name="number" value="00151" />
+      <option name="presentableId" value="LOCAL-00151" />
+      <option name="project" value="LOCAL" />
+      <updated>1681489737399</updated>
+    </task>
+    <task id="LOCAL-00152" summary="oracle doc">
+      <created>1681490282089</created>
+      <option name="number" value="00152" />
+      <option name="presentableId" value="LOCAL-00152" />
+      <option name="project" value="LOCAL" />
+      <updated>1681490282089</updated>
+    </task>
+    <task id="LOCAL-00153" summary="oracle doc">
+      <created>1681490493847</created>
+      <option name="number" value="00153" />
+      <option name="presentableId" value="LOCAL-00153" />
+      <option name="project" value="LOCAL" />
+      <updated>1681490493847</updated>
+    </task>
+    <task id="LOCAL-00154" summary="oracle doc">
+      <created>1681491548283</created>
+      <option name="number" value="00154" />
+      <option name="presentableId" value="LOCAL-00154" />
+      <option name="project" value="LOCAL" />
+      <updated>1681491548283</updated>
+    </task>
+    <task id="LOCAL-00155" summary="oracle doc">
+      <created>1681492168205</created>
+      <option name="number" value="00155" />
+      <option name="presentableId" value="LOCAL-00155" />
+      <option name="project" value="LOCAL" />
+      <updated>1681492168205</updated>
+    </task>
+    <option name="localTasksCounter" value="156" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -894,7 +894,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="task/SKALE-4386-save-visualization" />
     <MESSAGE value="bug/SKALE-4440-sgx" />
     <MESSAGE value="bug/SKALE-4440-sgx cherrypick" />
     <MESSAGE value="bug/SKALE-4400&#10;Added basic stuck detection classes." />
@@ -915,11 +914,12 @@
     <MESSAGE value="#238 better log handling" />
     <MESSAGE value="MEMORY_CHECKS" />
     <MESSAGE value="#636 new node needs to OK old node not sending the signature" />
-    <MESSAGE value="#636 skaled stuck" />
     <MESSAGE value="640 block rotation does not work" />
     <MESSAGE value="709 Complete Oracle: add spec verification" />
     <MESSAGE value="Oracle doc impovements" />
-    <option name="LAST_COMMIT_MESSAGE" value="Oracle doc impovements" />
+    <MESSAGE value="#636 skaled stuck" />
+    <MESSAGE value="oracle doc" />
+    <option name="LAST_COMMIT_MESSAGE" value="oracle doc" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

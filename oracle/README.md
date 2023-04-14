@@ -5,6 +5,7 @@
 Dynamic Oracle is used to retrieve trusted data from websites and blockchains.
 The data is signed by multiple SKL nodes.
 
+### 1.1  Oracle request flow
 
 When a user submit an Oracle request to retrieve data from a network endpoint:
 
@@ -15,6 +16,8 @@ When a user submit an Oracle request to retrieve data from a network endpoint:
 * OracleResult object is returned to the user (typically browser or mobile app)
 * OracleResult can then be submitted to the SKL chain and verified in Solidity.
 
+### 1.2 JSON-RPC calls
+
 The following two JSON-RPC calls are implemented by SKL node
 
 * ```oracle_submitRequest``` - this one is used to submit the initial initial Oracle request. 
@@ -23,7 +26,7 @@ It returns a receipt object.
 * ```oracle_checkResult``` - this should be called periodically by passing the receipt 
 (we recommend once per second) to check if the result is ready.
 
-## 2. JSON-API oracle_submitRequest
+## 2. oracle_submitRequest
 
 ```string oracle_submitRequest( string oracleRequestSpect )```
 
@@ -32,7 +35,7 @@ This API call:
 * returns a string receipt, that shall be used in ```oracle_checkResult```
 * In case of an error, an error is returned (see Appendix A Errors)
 
-## 3. JSON-API oracle_checkResult
+## 3. oracle_checkResult
 
 ```string oracle_checkResult( string receipt )```
 
@@ -126,10 +129,17 @@ The SPEC shall also include the following element which must be the last element
 
 * ```pow```, string - uint64 proof of work that is used to protect against denial of service attacks.
 
+Note: the ```params``` element  must consist of the following four elements:
 
-## 5. Examples
+* ```from``` - from address
+* ```to``` - to address
+* ```data``` - data
+* ```gas``` - gas limit
 
-### 5.1 Web request example 1
+
+## 5. Examples of request specs
+
+### 5.1 Web request using http GET 
 
 HTTP get request that obtains current unix time and
 day of the year from worldtimeapi.org.
@@ -152,7 +162,7 @@ Description:
 - Convert each element to string.
 - Trim one character from the end of each string.
 
-### 5.2 Web request example 2
+### 5.2 Web request using http POST
 
 HTTP post request that posts some data to endpoint
 
