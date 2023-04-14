@@ -1,6 +1,17 @@
 # Oracle API
 
+
+## Intro
+
+SKALE Oracle is used to retrieve trusted info from websites and blockchains. 
+
 The following two JSON-RPC calls are implemented by ```skaled```
+
+```oracle_submitRequest``` - this one is used to submit the initial initial Oracle request. 
+It returns a receipt object. 
+
+```oracle_checkResult``` - this should be called periodically by passing the receipt 
+(we recommend once per second) to check if the result is ready.
 
 ## OracleRequestSpec.
 
