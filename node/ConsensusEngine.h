@@ -229,7 +229,7 @@ public:
 
     // If starting from a snapshot, start all will pass to consensus the last comitted
     // block coming from the snapshot
-    void startAll(ptr< vector< uint8_t > > _startingFromSnapshotWithThisAsLastBlock) override;
+    void startAll() override;
 
     void parseFullConfigAndCreateNode( const string& fullPathToConfigFile, const string& _gethURL) override;
 
@@ -300,14 +300,14 @@ public:
 
     static int getOpenDescriptors();
 
-    uint64_t submitOracleRequest(const string& _spec, string &_receipt) override;
+    uint64_t submitOracleRequest(const string& _spec, string &_receipt, string& _errorMessage) override;
 
 
     uint64_t  checkOracleResult(const string& _receipt, string& _result) override;
 
 
     std::shared_ptr<std::vector<std::uint8_t>> getSerializedBlock(
-        std::uint64_t _blockNumber)  override;
+        std::uint64_t _blockNumber);
 
 
 };

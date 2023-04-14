@@ -492,8 +492,9 @@ void ConsensusEngine::parseTestConfigsAndCreateAllNodes(
 
 // If starting from a snapshot, start all will pass to consensus the last comitted
 // block coming from the snapshot.
-void ConsensusEngine::startAll(
-    ptr< vector< uint8_t > > _startingFromSnapshotWithThisAsLastBlock ) {
+
+void ConsensusEngine::startAll()  {
+
     cout << "Starting consensus engine ...";
 
     try {
@@ -503,7 +504,8 @@ void ConsensusEngine::startAll(
             }
             CHECK_STATE( it.second );
 
-            it.second->startServers( _startingFromSnapshotWithThisAsLastBlock );
+
+            it.second->startServers(nullptr);
             LOG( info, "Started servers" + to_string( it.second->getNodeID() ) );
         }
 
@@ -1098,7 +1100,7 @@ ConsensusEngine::getBlock( block_id _blockId ) {
 }
 
 
-uint64_t ConsensusEngine::submitOracleRequest( const string& _spec, string& _receipt ) {
+uint64_t ConsensusEngine::submitOracleRequest( const string& _spec, string& _receipt, string& _errorMessage ) {
     if ( nodes.size() == 0 ) {
         LOG( err, string( "Empty nodes in " ) + __FUNCTION__ );
         return ORACLE_INTERNAL_SERVER_ERROR;
@@ -1117,13 +1119,17 @@ uint64_t ConsensusEngine::submitOracleRequest( const string& _spec, string& _rec
             return ORACLE_INTERNAL_SERVER_ERROR;
         }
 
-        return oracleClient->submitOracleRequest( _spec, _receipt );
+        auto result = oracleClient->submitOracleRequest( _spec, _receipt );
+        _errorMessage = result.second;
+        return result.first;
 
     } catch ( exception& e ) {
-        LOG( err, e.what() + string( " in " ) + __FUNCTION__ );
+        _errorMessage = e.what() + string( " in " ) + __FUNCTION__;
+        LOG( err, _errorMessage );
         return ORACLE_INTERNAL_SERVER_ERROR;
     } catch ( ... ) {
-        LOG(err, string("Unknown exception in") +  __FUNCTION__);
+        _errorMessage = string("Unknown exception in") +  __FUNCTION__;
+        LOG(err, _errorMessage);
         return ORACLE_INTERNAL_SERVER_ERROR;
     }
 }

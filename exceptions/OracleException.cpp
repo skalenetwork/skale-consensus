@@ -16,17 +16,23 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file ParsingException.h
+    @file OracleException.cpp
     @author Stan Kladko
-    @date 2018
+    @date 2023
 */
 
-#pragma once
-#include "SkaleException.h"
+
+#include "SkaleCommon.h"
 #include "Log.h"
+#include "OracleException.h"
 
-class ParsingException : public SkaleException  {
+OracleException::OracleException(const std::string &_message,  const string& _className, int64_t _error)
+    : SkaleException(_message, _className), error(_error)   {
+    CHECK_STATE(error != ORACLE_SUCCESS)
+}
 
-public:
-    ParsingException(const std::string &_message,  const string& _className);
-};
+
+
+int64_t OracleException::getError() const {
+    return error;
+}

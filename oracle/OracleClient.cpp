@@ -38,6 +38,7 @@
 #include "node/Node.h"
 #include "protocols/ProtocolInstance.h"
 #include "utils/Time.h"
+#include "exceptions/OracleException.h"
 
 
 OracleClient::OracleClient( Schain& _sChain )
@@ -90,9 +91,10 @@ void OracleClient::sendTestRequestAndWaitForResult( ptr< OracleRequestSpec > _sp
     try {
         string _receipt;
 
+
         auto status = submitOracleRequest( _spec->getSpec(), _receipt );
 
-        CHECK_STATE( status == ORACLE_SUCCESS );
+        CHECK_STATE( status.first == ORACLE_SUCCESS );
 
 
         thread t( [this, _receipt]() {
@@ -101,7 +103,6 @@ void OracleClient::sendTestRequestAndWaitForResult( ptr< OracleRequestSpec > _sp
                 string r = _receipt;
                 sleep( 1 );
                 auto st = checkOracleResult( r, result );
-                cerr << "ORACLE_STATUS:" << st << endl;
                 if ( st == ORACLE_SUCCESS ) {
                     cerr << result << endl;
                     return;
@@ -120,7 +121,7 @@ void OracleClient::sendTestRequestAndWaitForResult( ptr< OracleRequestSpec > _sp
 };
 
 
-uint64_t OracleClient::submitOracleRequest( const string& _spec, string& _receipt ) {
+pair<uint64_t,string> OracleClient::submitOracleRequest( const string& _spec, string& _receipt ) {
     ptr< OracleRequestBroadcastMessage > msg = nullptr;
 
     try {
@@ -131,59 +132,73 @@ uint64_t OracleClient::submitOracleRequest( const string& _spec, string& _receip
         auto spec = msg->getParsedSpec();
 
         if ( !spec ) {
-            LOG( err, "Null spec in submitOracleRequest" );
-            return ORACLE_INTERNAL_SERVER_ERROR;
+            auto message = "Null spec in submitOracleRequest";
+            LOG( err, message );
+            return { ORACLE_INTERNAL_SERVER_ERROR, message};
         }
 
         if ( msg->getParsedSpec()->getChainId() != this->getSchain()->getSchainID() ) {
-            LOG( err, string( "Invalid schain id in oracle spec:" +
-                              to_string( msg->getParsedSpec()->getChainId() ) ) );
-            return ORACLE_INVALID_CHAIN_ID;
+            auto message = string( "Invalid schain id in oracle spec:" +
+                                   to_string( msg->getParsedSpec()->getChainId() ) );
+            LOG( err, message );
+            return { ORACLE_INVALID_CHAIN_ID, message};
         }
 
         if ( spec->getTime() + ORACLE_REQUEST_AGE_ON_RECEIPT_MS < Time::getCurrentTimeMs() ) {
-            LOG( err, string( "Received old request with age:" ) +
-                          to_string( Time::getCurrentTimeMs() - spec->getTime() ) );
-            return ORACLE_TIME_IN_REQUEST_SPEC_TOO_OLD;
+            auto message = string( "Received old request with age:" ) +
+                           to_string( Time::getCurrentTimeMs() - spec->getTime() );
+            LOG( err, message );
+            return { ORACLE_TIME_IN_REQUEST_SPEC_TOO_OLD, message};
         }
 
         if ( spec->getTime() > Time::getCurrentTimeMs() + ORACLE_REQUEST_FUTURE_JITTER_MS ) {
-            LOG( err, string( "Received oracle request with time in the future age:" ) +
-                          to_string( spec->getTime() - Time::getCurrentTimeMs() ) );
-            return ORACLE_TIME_IN_REQUEST_SPEC_IN_THE_FUTURE;
+            auto message = string( "Received oracle request with time in the future age:" ) +
+            to_string( spec->getTime() - Time::getCurrentTimeMs() );
+            LOG( err, message );
+            return {ORACLE_TIME_IN_REQUEST_SPEC_IN_THE_FUTURE, message};
         }
 
+    } catch (OracleException& e) {
+        auto message = string( "Invalid oracle spec in submitOracleRequest " ) + e.what();
+        LOG( err, message );
+        return {e.getError(), message};
     } catch ( exception& e ) {
-        LOG( err, string( "Invalid oracle spec in submitOracleRequest " ) + e.what() );
-        return ORACLE_INVALID_JSON_REQUEST;
+        auto message = string( "Invalid oracle spec in submitOracleRequest " ) + e.what();
+        LOG( err, message );
+        return {ORACLE_INVALID_JSON_REQUEST, message};
     } catch ( ... ) {
-        LOG( err, string( "Unknown exception in " ) + __FUNCTION__ );
-        return ORACLE_INTERNAL_SERVER_ERROR;
+        auto message = string( "Unknown exception in " ) + __FUNCTION__ ;
+        LOG( err, message);
+        return { ORACLE_INTERNAL_SERVER_ERROR, message};
     }
-
 
     try {
         _receipt = msg->getParsedSpec()->getReceipt();
         if ( _receipt.empty() ) {
-            LOG( err, string( "Could not compute oracle receipt " ) );
-            return ORACLE_INTERNAL_SERVER_ERROR;
+            auto message = "Could not compute oracle receipt ";
+            LOG( err, message);
+            return {ORACLE_INTERNAL_SERVER_ERROR, message};
         }
     } catch ( exception& e ) {
-        LOG( err, string( "Exception computing receipt " ) + e.what() );
-        return ORACLE_INTERNAL_SERVER_ERROR;
+        auto message = string( "Exception computing receipt " ) + e.what();
+        LOG( err, message);
+        return {ORACLE_INTERNAL_SERVER_ERROR, message};
     } catch ( ... ) {
-        LOG( err, string( "Unknown Exception computing receipt " ) );
-        return ORACLE_INTERNAL_SERVER_ERROR;
+        auto message = string( "Unknown Exception computing receipt " );
+        LOG( err, message);
+        return {ORACLE_INTERNAL_SERVER_ERROR, message};
     }
 
     try {
-        return broadcastRequest( msg );
+        return {broadcastRequest( msg ), ""};
     } catch ( exception& e ) {
-        LOG( err, string( "Exception broadcasting message " ) + e.what() );
-        return ORACLE_INTERNAL_SERVER_ERROR;
+        auto message = string( "Exception broadcasting message " ) + e.what();
+        LOG( err, message);
+        return {ORACLE_INTERNAL_SERVER_ERROR, message};
     } catch ( ... ) {
-        LOG( err, "Internal server error in submitOracleRequest " );
-        return ORACLE_INTERNAL_SERVER_ERROR;
+        auto message = "Internal server error in submitOracleRequest ";
+        LOG( err, message);
+        return {ORACLE_INTERNAL_SERVER_ERROR, message};
     }
 }
 

@@ -51,8 +51,7 @@ public:
 
     // If starting from a snapshot, start all will pass to consensus the last comitted
     // block coming from the snapshot. Normally, nullptr is passed.
-    virtual void startAll(std::shared_ptr< std::vector< std::uint8_t > >
-                _startingFromSnapshotWithThisAsLastBlock = nullptr) = 0;
+    virtual void startAll() = 0;
 
     virtual void bootStrapAll() = 0;
 
@@ -94,12 +93,57 @@ public:
 #define ORACLE_RESULT_NOT_READY 5
 #define ORACLE_DUPLICATE_REQUEST 6
 #define ORACLE_COULD_NOT_CONNECT_TO_ENDPOINT 7
-#define ORACLE_INVALID_JSON_RESPONSE 8
+#define ORACLE_ENDPOINT_JSON_RESPONSE_COULD_NOT_BE_PARSED 8
 #define ORACLE_INTERNAL_SERVER_ERROR 9
 #define ORACLE_INVALID_JSON_REQUEST 10
 #define ORACLE_TIME_IN_REQUEST_SPEC_TOO_OLD 11
 #define ORACLE_TIME_IN_REQUEST_SPEC_IN_THE_FUTURE 11
 #define ORACLE_INVALID_CHAIN_ID 12
+#define ORACLE_REQUEST_TOO_LARGE 13
+#define ORACLE_RESULT_TOO_LARGE 14
+#define ORACLE_ETH_METHOD_NOT_SUPPORTED 15
+#define ORACLE_URI_TOO_SHORT 16
+#define ORACLE_URI_TOO_LONG 17
+#define ORACLE_UNKNOWN_ENCODING 18
+#define ORACLE_INVALID_URI_START 19
+#define ORACLE_INVALID_URI 20
+#define ORACLE_USERNAME_IN_URI 21
+#define ORACLE_PASSWORD_IN_URI 22
+#define ORACLE_IP_ADDRESS_IN_URI 23
+#define ORACLE_UNPARSABLE_SPEC 24
+#define ORACLE_NO_CHAIN_ID_IN_SPEC 25
+#define ORACLE_NON_UINT64_CHAIN_ID_IN_SPEC 26
+#define ORACLE_NO_URI_IN_SPEC 27
+#define ORACLE_NON_STRING_URI_IN_SPEC 28
+#define ORACLE_NO_ENCODING_IN_SPEC 29
+#define ORACLE_NON_STRING_ENCODING_IN_SPEC 30
+#define ORACLE_TIME_IN_SPEC_NO_UINT64 31
+#define ORACLE_POW_IN_SPEC_NO_UINT64 32
+#define ORACLE_POW_DID_NOT_VERIFY 33
+#define ORACLE_ETH_API_NOT_STRING 34
+#define ORACLE_ETH_API_NOT_PROVIDED 35
+#define ORACLE_JSPS_NOT_PROVIDED  36
+#define ORACLE_JSPS_NOT_ARRAY  37
+#define ORACLE_JSPS_EMPTY  38
+#define ORACLE_TOO_MANY_JSPS  39
+#define ORACLE_JSP_TOO_LONG  40
+#define ORACLE_JSP_NOT_STRING  41
+#define ORACLE_TRIMS_ITEM_NOT_STRING  42
+#define ORACLE_JSPS_TRIMS_SIZE_NOT_EQUAL 43
+#define ORACLE_POST_NOT_STRING 44
+#define ORACLE_POST_STRING_TOO_LARGE 45
+#define ORACLE_NO_PARAMS_ETH_CALL 46
+#define ORACLE_PARAMS_ARRAY_INCORRECT_SIZE 47
+#define ORACLE_PARAMS_ARRAY_FIRST_ELEMENT_NOT_OBJECT 48
+#define ORACLE_PARAMS_INVALID_FROM_ADDRESS 49
+#define ORACLE_PARAMS_INVALID_TO_ADDRESS 50
+#define  ORACLE_PARAMS_ARRAY_INCORRECT_COUNT 51
+#define ORACLE_BLOCK_NUMBER_NOT_STRING 52
+#define ORACLE_INVALID_BLOCK_NUMBER 53
+#define ORACLE_MISSING_FIELD 54
+#define ORACLE_INVALID_FIELD 55
+#define ORACLE_EMPTY_JSON_RESPONSE 56
+#define ORACLE_COULD_NOT_PROCESS_JSPS_IN_JSON_RESPONSE 57
 
 
     /*
@@ -109,7 +153,7 @@ public:
      *  Error values are enumerated above
      */
 
-    virtual uint64_t submitOracleRequest(const string& _spec, string &_receipt) = 0;
+    virtual uint64_t submitOracleRequest(const string& _spec, string &_receipt, string& _errorMessage) = 0;
 
     /*
      * Check if Oracle result has been derived.  This will return ORACLE_SUCCESS if
@@ -130,8 +174,8 @@ public:
      * This will return a consensus block serialized as byte array from consensus db.
      * Returns nullptr if the block is not in consensus DB
      */
-    virtual std::shared_ptr<std::vector<std::uint8_t>> getSerializedBlock(
-        std::uint64_t _blockNumber)  = 0;
+    //virtual std::shared_ptr<std::vector<std::uint8_t>> getSerializedBlock(
+      //  std::uint64_t _blockNumber)  = 0;
 
 };
 
