@@ -42,9 +42,15 @@ values to different SKALE nodes, so no consensus could be reached on the value
 
 ## OracleRequestSpec.
 
+```OracleRequestSpec``` is a JSON string that is used by client to initiate an Oracle request.
+
+There are two types of request specs. Web spec is used to retrieve info from
+web endpoints (http or https), while EthApi spec is used to retrieve info 
+from EthApi.
+
 ### Oracle request spec description
 
-```OracleRequestSpec``` is a JSON string that is used by client to initiate an Oracle request.
+
 
 It has the following parameters:
 
