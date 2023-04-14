@@ -1,55 +1,77 @@
-# Oracle API
+# Dynamic Oracle API
 
 ## 1. Intro
 
-SKALE Oracle is used to retrieve trusted info from websites and blockchains. 
+Dynamic Oracle is used to retrieve trusted data from websites and blockchains.
+The data is signed by multiple SKL nodes.
 
-The following two JSON-RPC calls are implemented by ```skaled```
+### 1.1  Oracle request flow
 
-```oracle_submitRequest``` - this one is used to submit the initial initial Oracle request. 
+When a user submit an Oracle request to retrieve data from a network endpoint:
+
+* all nodes in a SKL chain issue requests to retrieve data
+* nodes compare data received and verify it is identical
+* node create an OracleResult object
+* at least 6 nodes must to sign the object
+* OracleResult object is returned to the user (typically browser or mobile app)
+* OracleResult can then be submitted to the SKL chain and verified in Solidity.
+
+### 1.2 JSON-RPC calls
+
+The following two JSON-RPC calls are implemented by SKL node
+
+* ```oracle_submitRequest``` - this one is used to submit the initial initial Oracle request. 
 It returns a receipt object. 
 
-```oracle_checkResult``` - this should be called periodically by passing the receipt 
+* ```oracle_checkResult``` - this should be called periodically by passing the receipt 
 (we recommend once per second) to check if the result is ready.
 
-## 2. JSON-API oracle_submitRequest
+## 2. oracle_submitRequest
 
 ```string oracle_submitRequest( string oracleRequestSpect )```
 
-This API call takes OracleRequestSpec string as input, and returns a string receipt, that
-can be used in ```oracle_checkResult```
+This API call:
+* takes OracleRequestSpec string as input
+* returns a string receipt, that shall be used in ```oracle_checkResult```
+* In case of an error, an error is returned (see Appendix A Errors)
 
-In case of an error, an error is returned (see Appendix A Errors)
-
-## 3. JSON-API oracle_checkResult
+## 3. oracle_checkResult
 
 ```string oracle_checkResult( string receipt )```
 
-This API call takes string receipt as result, and return a OracleResult
-string if the result is ready. 
+This API call
+
+* takes string receipt as input
+* returns OracleResult string if the result is ready
+
+Otherwise, one of the following errors is returned
 
 
-```ORACLE_RESULT_NOT_READY``` error is returned if result if not ready 
+* ```ORACLE_RESULT_NOT_READY``` - OracleResult has not yet been produced 
 
-```ORACLE_TIMEOUT``` is returned if the result could not be obtained 
-from the endpoint and the timeout was reached
+* ```ORACLE_TIMEOUT``` OracleResult could not be obtained from the endpoint 
+* and the timeout was reached
 
 
-```ORACLE_NO_CONSENSUS``` is returned is the endpoint returned different
-values to different SKALE nodes, so no consensus could be reached on the value
+* ```ORACLE_NO_CONSENSUS``` - the endpoint returned different
+data to different SKL nodes, so no consensus could be reached on the data
 
 ## 4. OracleRequestSpec JSON format.
 
-```OracleRequestSpec``` is a JSON string that is used by client to initiate an Oracle request.
+```OracleRequestSpec``` is a JSON string that is used by the client to 
+initiate an Oracle request to a SKL node.
 
-There are two types of request specs. Web spec is used to retrieve info from
-web endpoints (http or https), while EthApi spec is used to retrieve info 
-from EthApi.
+There are two types of request specs. 
+
+* Web spec is used to retrieve info from
+web endpoints (http or https), 
+* EthApi spec is used to retrieve info from Ethereum API.
+
+Max size of OracleRequestSpec is 1024 bytes.
 
 ### 4.1.1 Web request spec
 
-Web request spec is a JSON string that has the following parameters
-
+Web request spec is a JSON string that has the following elements
 
 Required elements:
 
@@ -60,15 +82,11 @@ _If uri is eth:// then information is obtained from the geth server that the SKA
  _Max length of uri string is 1024 bytes._
 * ```time```, uint64 - Linux time of request in ms.
 * ```jsps```, array of strings - list of string JSON pointers to the data elements to be picked from server response. 
-              The array must have from 1 to 32 elements. Max length of each pointer 1024 bytes.
-               Note: this element is required for web requests, and shall not be present for EthAPI requests.  
-_See https://json.nlohmann.me/features/json_pointer/ for intro to JSON pointers._
+              The array must have from 1 to 32 elements. Max length of each pointer 1024 bytes. 
+_See https://json.nlohmann.me/features/json_pointer/ for intro to JSON pointers.
+
+
 * ```encoding```, string - the only currently supported encoding is```json```. ```abi``` will be supported in future releases. 
-* ```pow```, string - uint64 proof of work that is used to protect against denial of service attacks. 
-  _Note: PoW must be the last element in JSON_
-
-
-
 
 Optional elements:
 
@@ -79,25 +97,29 @@ Optional elements:
 
 * ```post```, string
 _if this element, then Oracle with use HTTP POST instead of HTTP GET (default).
-   The value of the post element will be posted to the endpoint. This element shall not be present in ethApi calls_ 
+   The value of the post element will be posted to the endpoint. 
 
-* ```params```, string array
-  _this element shall only be present if eth_call is used. It specifies ```params``` element for ```eth_call```.
-   See  [here for more info ](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_call)_
-   
-* ```ethApi``` - Ethereum API method to call.  If this element is present, an eth API RPC call will be performed against the endpoint. Valid values for this element are:
 
-```
-eth_call
-```
+
+The SPEC shall also include the following element which must be the last element.
+
+* ```pow```, string - uint64 proof of work that is used to protect against denial of service attacks.
+
+
+
+Note: for each JSON pointer specified in the request, the Oracle
+will
+
+- pick the corresponding element from the endpoint response
+- transform it to a string.
+- If no such element exists, ```null``` will be returned.
 
 ### 4.1.2 EthApi request spec
 
-EthApi request spec represents a JSON-API request to Eth API. 
+EthApi request spec represents a JSON-API request to Ethereum API. 
 Currently only ```eth_call``` is supported.
 
-EthApi spec is a JSON string that has the following parameters
-
+EthApi request spec is a JSON string that has the following elements
 
 Required elements:
 
@@ -115,21 +137,48 @@ Required elements:
   _Note: PoW must be the last element in JSON_
 
 
-## 5. Examples
+The SPEC shall also include the following element which must be the last element.
 
-### 5.1 Web request example 1
+* ```pow```, string - uint64 proof of work that is used to protect against denial of service attacks.
+
+Note: the ```params``` element  is a json array of two elements 
+
+The first element of this array is an object
+that must consist of the following four elements:
+
+* ```from``` - from address
+* ```to``` - to address
+* ```data``` - data
+* ```gas``` - gas limit
+
+The second element of the array is string block number, which can
+eiher be ```latest``` or a hex string
+
+Here is an example of ```params``` element
+
+```
+"params":[{"to":"0x5FbDB2315678afecb367f032d93F642f64180aa3",
+"from":"0x9876543210987654321098765432109876543210",
+"data":"0x893d20e8", "gas":0x100000},"latest"]
+```
+
+
+## 5. Examples of request specs
+
+### 5.1 Web request using http GET 
 
 HTTP get request that obtains current unix time and
 day of the year from worldtimeapi.org.
 
 ```json
-    {
+{
     "cid": 1, "uri": "http://worldtimeapi.org/api/timezone/Europe/Kiev",
     "jsps":["/unixtime", "/day_of_year", "/xxx"],
     "trims":[1,1,1],
     "time":9234567,
     "encoding":"json",
-    "pow":53458}
+    "pow":53458
+}
 ```
 
 Description:
@@ -140,26 +189,42 @@ Description:
 - Convert each element to string.
 - Trim one character from the end of each string.
 
-### 5.2 Web request example 2
+### 5.2 Web request using http POST
 
 HTTP post request that posts some data to endpoint
 
 ```json
-    {
+{
     "cid": 1, "uri": "https://reqres.in/api/users", 
     "jsps":["/id"],   
     "time":9234567, 
      "post":"some data",
      "encoding":"json",
-     "pow":1735}
+     "pow":1735
+}
 ```
 
-Note: for each JSON pointer specified in the request, the Oracle
-will
 
-- pick the corresponding element from the endpoint response
-- transform it to a string.
-- If no such element exists, ```null``` will be returned.
+### 5.3 EthApi request 
+
+EthApi request doing ```eth_call``` on a smart contract
+
+```json
+{
+   "cid":1,
+   "uri":"https://mygeth.com:1234",
+   "ethApi":"eth_call",
+   "params":[{"from":"0x9876543210987654321098765432109876543210",
+              "to":"0x5FbDB2315678afecb367f032d93F642f64180aa3",
+              "data":"0x893d20e8",
+              "gas":"0x100000"},
+              "latest"],
+    "encoding":"json",
+    "time":1681494451895,
+    "pow":61535
+}
+```    
+
 
 ## 6. Proof of work computation
 
@@ -179,29 +244,28 @@ specStr is the full JSON spec string, starting from ```{``` and ending with
 ```}```
 
 
-## OracleResult format
+## 7. OracleResult format
 
-A JSON string ```ORACLE_RESULT``` is returned, which provides
-result signed by ```t + 1``` nodes.
+OracleResult copies JSON elements from the corresponding
+OracleRequestSpec, stripping away the ```pow``` element.
 
-This result can then be provided to a smartcontract for verification.
+It then appends to the following elements
 
-### Oracle Result JSON elements
-
-Oracle result repeats JSON elements from the corresponding
-Oracle request spec, plus includes a set of additional elements
-
-1. ```rslts ``` - array of string results. Note for "eth_call" ```results``` is a single element array that includes
+1. ```rslts ``` - array of string results. Note for EthAPI ```results``` is a single element array that includes
                   the hex encoded ```DATA``` string which is returned by eth_call. 
 2. ```sigs``` - array of ECDSA signatures where ```t``` signatures are not null.
 
-### Oracle Result Example
+
+Max size of OracleResult is 3072 bytes.
+
+### 7.1 OracleResult example for Web request. 
 
 An example of Oracle result is provided below
 
-```
-{"cid":1,
- "uri":"http://worldtimeapi.org/api/timezone/Europe/Kiev",
+```json
+{
+  "cid":1, 
+  "uri":"http://worldtimeapi.org/api/timezone/Europe/Kiev",
   "jsps":["/unixtime", "/day_of_year", "/xxx"],
   "trims":[1,1,1],"time":1642521456593, "encoding":"json",
   "rslts":["164252145","1",null],
@@ -211,10 +275,35 @@ An example of Oracle result is provided below
            "9d50daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f",
            "1050daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f",
            "6d50daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f",
-          null,null,null,null,null,null,null,null,null,null]}
+          null,null,null,null,null,null,null,null,null,null]
+}
 ```
 
-# Appendix A list of Oracle error codes.
+### 7.1 OracleResult example for EthApi request.
+```JSON
+{
+  "cid":1,
+  "uri":"https://mygeth.com:1234",,
+  "ethApi":"eth_call",
+  "params":[
+    { "from":"0x9876543210987654321098765432109876543210",
+      "to":"0x5FbDB2315678afecb367f032d93F642f64180aa3",
+      "data":"0x893d20e8",
+      "gas":"0x100000"},
+    "latest"],
+  "encoding":"json",
+  "time":1681494451895, 
+  "rslts":["0x000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266"],
+  "sigs":["6d50daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f",
+    "7d50daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f",
+    "8d50daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f",
+    "9d50daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f",
+    "1050daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f",
+    "6d50daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f",
+    null,null,null,null,null,null,null,null,null,null]
+}
+```
+# Appendix A: list of Oracle error codes.
 
 ```
  ORACLE_SUCCESS  0
