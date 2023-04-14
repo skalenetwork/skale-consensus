@@ -67,6 +67,8 @@ There are two types of request specs.
 web endpoints (http or https), 
 * EthApi spec is used to retrieve info from Ethereum API.
 
+Max size of OracleRequestSpec is 1024 bytes.
+
 ### 4.1.1 Web request spec
 
 Web request spec is a JSON string that has the following elements
@@ -253,13 +255,17 @@ It then appends to the following elements
                   the hex encoded ```DATA``` string which is returned by eth_call. 
 2. ```sigs``` - array of ECDSA signatures where ```t``` signatures are not null.
 
+
+Max size of OracleResult is 3072 bytes.
+
 ### 7.1 OracleResult example for Web request. 
 
 An example of Oracle result is provided below
 
-```
-{"cid":1,
- "uri":"http://worldtimeapi.org/api/timezone/Europe/Kiev",
+```json
+{
+  "cid":1, 
+  "uri":"http://worldtimeapi.org/api/timezone/Europe/Kiev",
   "jsps":["/unixtime", "/day_of_year", "/xxx"],
   "trims":[1,1,1],"time":1642521456593, "encoding":"json",
   "rslts":["164252145","1",null],
@@ -269,10 +275,35 @@ An example of Oracle result is provided below
            "9d50daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f",
            "1050daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f",
            "6d50daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f",
-          null,null,null,null,null,null,null,null,null,null]}
+          null,null,null,null,null,null,null,null,null,null]
+}
 ```
 
-# Appendix A list of Oracle error codes.
+### 7.1 OracleResult example for EthApi request.
+```JSON
+{
+  "cid":1,
+  "uri":"https://mygeth.com:1234",,
+  "ethApi":"eth_call",
+  "params":[
+    { "from":"0x9876543210987654321098765432109876543210",
+      "to":"0x5FbDB2315678afecb367f032d93F642f64180aa3",
+      "data":"0x893d20e8",
+      "gas":"0x100000"},
+    "latest"],
+  "encoding":"json",
+  "time":1681494451895, 
+  "rslts":["0x000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266"],
+  "sigs":["6d50daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f",
+    "7d50daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f",
+    "8d50daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f",
+    "9d50daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f",
+    "1050daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f",
+    "6d50daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f",
+    null,null,null,null,null,null,null,null,null,null]
+}
+```
+# Appendix A: list of Oracle error codes.
 
 ```
  ORACLE_SUCCESS  0
