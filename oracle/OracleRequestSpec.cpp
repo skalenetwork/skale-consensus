@@ -20,13 +20,9 @@
 
 
 ptr< OracleRequestSpec > OracleRequestSpec::parseSpec( const string& _spec ) {
-    try {
-        auto spec = make_shared< OracleRequestSpec >( _spec );
+    auto spec = make_shared< OracleRequestSpec >( _spec );
 
-        return spec;
-    } catch ( ... ) {
-        throw_with_nested( InvalidStateException( __FUNCTION__, __CLASS_NAME__ ) );
-    }
+    return spec;
 }
 
 

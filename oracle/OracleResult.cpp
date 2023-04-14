@@ -231,7 +231,9 @@ OracleResult::OracleResult( ptr< OracleRequestSpec > _oracleSpec, int64_t _statu
         // else {
         //    encodeAndSignResultAsAbi(_cryptoManager);
         //}
-    } catch ( ... ) {
+    } catch (OracleException) {
+        throw;
+    }( catch ( ... ) {
         throw_with_nested( InvalidStateException( __FUNCTION__, __CLASS_NAME__ ) );
     }
 }
