@@ -2,8 +2,8 @@
 
 ## 1. Intro
 
-Dynamic Oracle is used to retrieve trusted data from websites and blockchains.
-The data is signed by multiple SKL nodes.
+Dynamic Oracle is implemented by each SKL chain. It is used to retrieve trusted data from websites and blockchains,
+and then sign this data by multiple SKL nodes.
 
 ### 1.1  Oracle request flow
 
@@ -77,9 +77,10 @@ Required elements:
 
 * ```cid```, uint64 - chain ID
 * ```uri```, string - Oracle endpoint. Needs to start with "http://" or "https"
-_If uri starts with http:// or https:// then the information is obtained from the corresponding http:// or https:// endpoint_. 
-_If uri is eth:// then information is obtained from the geth server that the SKALE node is connected to_.
- _Max length of uri string is 1024 bytes._
+
+If uri starts with http:// or https:// then the information is obtained from the corresponding http:// or https:// endpoint. 
+If uri is eth:// then information is obtained from the geth server that the SKALE node is connected to.
+Max length of uri  is 1024 bytes.
 * ```time```, uint64 - Linux time of request in ms.
 * ```jsps```, array of strings - list of string JSON pointers to the data elements to be picked from server response. 
               The array must have from 1 to 32 elements. Max length of each pointer 1024 bytes. 
@@ -97,15 +98,11 @@ Optional elements:
 
 * ```post```, string
 _if this element, then Oracle with use HTTP POST instead of HTTP GET (default).
-   The value of the post element will be posted to the endpoint. 
-
-
+   The value of the post element will be posted to the endpoint.
 
 The SPEC shall also include the following element which must be the last element.
 
 * ```pow```, string - uint64 proof of work that is used to protect against denial of service attacks.
-
-
 
 Note: for each JSON pointer specified in the request, the Oracle
 will
