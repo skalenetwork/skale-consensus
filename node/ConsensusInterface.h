@@ -144,7 +144,11 @@ public:
 #define ORACLE_INVALID_FIELD 55
 #define ORACLE_EMPTY_JSON_RESPONSE 56
 #define ORACLE_COULD_NOT_PROCESS_JSPS_IN_JSON_RESPONSE 57
-
+#define ORACLE_NO_TIME_IN_SPEC 58
+#define ORACLE_NO_POW_IN_SPEC 59
+#define ORACLE_HSPS_TRIMS_SIZE_NOT_EQUAL 60
+#define ORACLE_PARAMS_NO_ARRAY 61
+#define ORACLE_PARAMS_GAS_NOT_UINT64 62
 
     /*
      * Submit Oracle Request. This will return ORACLE_SUCCESS and a string receipt if everything
