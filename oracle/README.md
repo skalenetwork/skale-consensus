@@ -169,13 +169,14 @@ HTTP get request that obtains current unix time and
 day of the year from worldtimeapi.org.
 
 ```json
-    {
+{
     "cid": 1, "uri": "http://worldtimeapi.org/api/timezone/Europe/Kiev",
     "jsps":["/unixtime", "/day_of_year", "/xxx"],
     "trims":[1,1,1],
     "time":9234567,
     "encoding":"json",
-    "pow":53458}
+    "pow":53458
+}
 ```
 
 Description:
@@ -191,13 +192,14 @@ Description:
 HTTP post request that posts some data to endpoint
 
 ```json
-    {
+{
     "cid": 1, "uri": "https://reqres.in/api/users", 
     "jsps":["/id"],   
     "time":9234567, 
      "post":"some data",
      "encoding":"json",
-     "pow":1735}
+     "pow":1735
+}
 ```
 
 
@@ -205,8 +207,9 @@ HTTP post request that posts some data to endpoint
 
 EthApi request doing ```eth_call``` on a smart contract
 
-```
-``{"cid":1,
+```json
+{
+   "cid":1,
    "uri":"https://mygeth.com:1234",
    "ethApi":"eth_call",
    "params":[{"from":"0x9876543210987654321098765432109876543210",
@@ -216,7 +219,8 @@ EthApi request doing ```eth_call``` on a smart contract
               "latest"],
     "encoding":"json",
     "time":1681494451895,
-    "pow":1735}
+    "pow":61535
+}
 ```    
 
 
