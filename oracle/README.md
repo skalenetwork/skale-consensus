@@ -129,12 +129,26 @@ The SPEC shall also include the following element which must be the last element
 
 * ```pow```, string - uint64 proof of work that is used to protect against denial of service attacks.
 
-Note: the ```params``` element  must consist of the following four elements:
+Note: the ```params``` element  is a json array of two elements 
+
+The first element of this array is an object
+that must consist of the following four elements:
 
 * ```from``` - from address
 * ```to``` - to address
 * ```data``` - data
 * ```gas``` - gas limit
+
+The second element of the array is string block number, which can
+eiher be ```latest``` or a hex string
+
+Here is an example of ```params``` element
+
+```
+"params":[{"to":"0x5FbDB2315678afecb367f032d93F642f64180aa3",
+"from":"0x9876543210987654321098765432109876543210",
+"data":"0x893d20e8", "gas":0x100000},"latest"]
+```
 
 
 ## 5. Examples of request specs
