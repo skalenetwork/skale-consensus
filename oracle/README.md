@@ -215,23 +215,18 @@ specStr is the full JSON spec string, starting from ```{``` and ending with
 ```}```
 
 
-## OracleResult format
+## 7. OracleResult format
 
-A JSON string ```ORACLE_RESULT``` is returned, which provides
-result signed by ```t + 1``` nodes.
+OracleResult copies JSON elements from the corresponding
+OracleRequestSpec, stripping away the ```pow``` element.
 
-This result can then be provided to a smartcontract for verification.
+It then appends to the following elements
 
-### Oracle Result JSON elements
-
-Oracle result repeats JSON elements from the corresponding
-Oracle request spec, plus includes a set of additional elements
-
-1. ```rslts ``` - array of string results. Note for "eth_call" ```results``` is a single element array that includes
+1. ```rslts ``` - array of string results. Note for EthAPI ```results``` is a single element array that includes
                   the hex encoded ```DATA``` string which is returned by eth_call. 
 2. ```sigs``` - array of ECDSA signatures where ```t``` signatures are not null.
 
-### Oracle Result Example
+### 7.1 OracleResult example for Web request. 
 
 An example of Oracle result is provided below
 
