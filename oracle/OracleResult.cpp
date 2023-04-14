@@ -231,9 +231,9 @@ OracleResult::OracleResult( ptr< OracleRequestSpec > _oracleSpec, int64_t _statu
         // else {
         //    encodeAndSignResultAsAbi(_cryptoManager);
         //}
-    } catch (OracleException) {
+    } catch ( OracleException& ) {
         throw;
-    }( catch ( ... ) {
+    } catch ( ... ) {
         throw_with_nested( InvalidStateException( __FUNCTION__, __CLASS_NAME__ ) );
     }
 }
@@ -252,12 +252,11 @@ void OracleResult::encodeAndSignResultAsJson( ptr< CryptoManager > _cryptoManage
         ORACLE_CHECK_STATE3( oracleResult.size() <= MAX_ORACLE_RESULT_LEN,
             "Oracle result too large:" + oracleResult, ORACLE_RESULT_TOO_LARGE );
 
-    } catch ( OracleException ) {
+    } catch ( OracleException& ) {
         throw;
     } catch ( ... ) {
         throw_with_nested( InvalidStateException( __FUNCTION__, __CLASS_NAME__ ) );
     }
-}
 }
 
 void OracleResult::extractEthCallResults( std::string& _response ) {
