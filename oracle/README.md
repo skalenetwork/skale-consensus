@@ -80,9 +80,10 @@ _If uri is eth:// then information is obtained from the geth server that the SKA
  _Max length of uri string is 1024 bytes._
 * ```time```, uint64 - Linux time of request in ms.
 * ```jsps```, array of strings - list of string JSON pointers to the data elements to be picked from server response. 
-              The array must have from 1 to 32 elements. Max length of each pointer 1024 bytes.
-               Note: this element is required for web requests, and shall not be present for EthAPI requests.  
-_See https://json.nlohmann.me/features/json_pointer/ for intro to JSON pointers._
+              The array must have from 1 to 32 elements. Max length of each pointer 1024 bytes. 
+_See https://json.nlohmann.me/features/json_pointer/ for intro to JSON pointers.
+
+
 * ```encoding```, string - the only currently supported encoding is```json```. ```abi``` will be supported in future releases. 
 
 Optional elements:
@@ -97,10 +98,19 @@ _if this element, then Oracle with use HTTP POST instead of HTTP GET (default).
    The value of the post element will be posted to the endpoint. 
 
 
+
 The SPEC shall also include the following element which must be the last element.
 
 * ```pow```, string - uint64 proof of work that is used to protect against denial of service attacks.
 
+
+
+Note: for each JSON pointer specified in the request, the Oracle
+will
+
+- pick the corresponding element from the endpoint response
+- transform it to a string.
+- If no such element exists, ```null``` will be returned.
 
 ### 4.1.2 EthApi request spec
 
@@ -190,12 +200,25 @@ HTTP post request that posts some data to endpoint
      "pow":1735}
 ```
 
-Note: for each JSON pointer specified in the request, the Oracle
-will
 
-- pick the corresponding element from the endpoint response
-- transform it to a string.
-- If no such element exists, ```null``` will be returned.
+### 5.3 EthApi request 
+
+EthApi request doing ```eth_call``` on a smart contract
+
+```
+``{"cid":1,
+   "uri":"https://mygeth.com:1234",
+   "ethApi":"eth_call",
+   "params":[{"from":"0x9876543210987654321098765432109876543210",
+              "to":"0x5FbDB2315678afecb367f032d93F642f64180aa3",
+              "data":"0x893d20e8",
+              "gas":"0x100000"},
+              "latest"],
+    "encoding":"json",
+    "time":1681494451895,
+    "pow":1735}
+```    
+
 
 ## 6. Proof of work computation
 
