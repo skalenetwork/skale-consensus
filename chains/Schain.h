@@ -247,8 +247,6 @@ public:
 
     void joinMonitorAndTimeoutThreads();
 
-    ptr< BlockProposal > getBlockProposal( block_id _blockID, schain_index _schainIndex );
-
     void constructServers( const ptr< Sockets >& _sockets );
 
     void healthCheck();

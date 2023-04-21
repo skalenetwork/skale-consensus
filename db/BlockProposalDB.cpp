@@ -57,7 +57,7 @@ BlockProposalDB::BlockProposalDB(
 
     for ( int i = 0; i < _sChain->getNodeCount(); i++ ) {
         auto emptyCache =
-            make_shared< cache::lru_cache< string, ptr< BlockProposal > > >( PROPOSAL_CACHE_SIZE );
+            make_shared< cache::lru_cache< string, ptr< BlockProposal > > >( 1 );
 
         proposalCaches->push_back( emptyCache );
     }

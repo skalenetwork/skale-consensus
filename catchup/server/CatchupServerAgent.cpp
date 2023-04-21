@@ -59,10 +59,11 @@
 #include "network/ServerConnection.h"
 #include "network/Sockets.h"
 
-#include "CatchupServerAgent.h"
+
 #include "datastructures/BlockProposalFragment.h"
 #include "datastructures/CommittedBlock.h"
-
+#include "db/BlockProposalDB.h"
+#include "CatchupServerAgent.h"
 
 CatchupServerAgent::CatchupServerAgent( Schain& _schain, const ptr< TCPServerSocket >& _s )
     : AbstractServerAgent( "CatchupServer", _schain, _s ) {
@@ -313,7 +314,8 @@ ptr< vector< uint8_t > > CatchupServerAgent::createBlockFinalizeResponse(
         }
 
 
-        auto proposal = getSchain()->getBlockProposal( _blockID, proposerIndex );
+        auto proposal = getSchain()->getNode()->getBlockProposalDB()->getBlockProposal(
+            _blockID, proposerIndex );
 
         if ( proposal == nullptr ) {
             LOG( debug, "No proposal in finalization:" + to_string( proposerIndex ) );
