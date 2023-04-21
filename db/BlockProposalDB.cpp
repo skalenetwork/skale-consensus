@@ -52,14 +52,10 @@ BlockProposalDB::BlockProposalDB(
     Schain* _sChain, string& _dirName, string& _prefix, node_id _nodeId, uint64_t _maxDBSize )
     : CacheLevelDB( _sChain, _dirName, _prefix, _nodeId, _maxDBSize,
           LevelDBOptions::getBlockProposalDBOptions(), true ) {
-    proposalCaches =
-        make_shared< vector< ptr< cache::lru_cache< string, ptr< BlockProposal > > > > >();
+    proposalCaches = make_shared< vector< ptr< BlockProposal > > >();
 
     for ( int i = 0; i < _sChain->getNodeCount(); i++ ) {
-        auto emptyCache =
-            make_shared< cache::lru_cache< string, ptr< BlockProposal > > >( 1 );
-
-        proposalCaches->push_back( emptyCache );
+        proposalCaches->push_back( nullptr );
     }
 };
 
@@ -80,21 +76,41 @@ void BlockProposalDB::addBlockProposal( const ptr< BlockProposal > _proposal ) {
     LOG( trace, "addBlockProposal blockID_=" + to_string( _proposal->getBlockID() ) +
                     " proposerIndex=" + to_string( _proposal->getProposerIndex() ) );
 
-    addProposalToCacheIfDoesNotExist( _proposal, proposerIndex );
+    addProposalToCacheIfDoesNotExist( _proposal );
 
     // save own proposal to levelDB
     if ( _proposal->getProposerIndex() == getSchain()->getSchainIndex() ) {
         serializeProposalAndSaveItToLevelDB( _proposal );
     }
 }
-void BlockProposalDB::addProposalToCacheIfDoesNotExist(
-    const ptr< BlockProposal > _proposal, const schain_index proposerIndex ) {
+void BlockProposalDB::addProposalToCacheIfDoesNotExist( const ptr< BlockProposal > _proposal ) {
     auto key = createKey( _proposal->getBlockID(), _proposal->getProposerIndex() );
 
+    auto proposerIndex = (uint64_t ) _proposal->getProposerIndex();
+
     CHECK_STATE( proposalCaches )
-    auto cache = proposalCaches->at( ( uint64_t ) proposerIndex - 1 );
-    CHECK_STATE( cache );
-    cache->putIfDoesNotExist( key, _proposal );
+    CHECK_STATE( proposerIndex > 0 );
+    CHECK_STATE( proposerIndex <= proposalCaches->size() )
+
+    {
+        WRITE_LOCK( proposalCacheMutex )
+        auto previousProposal = proposalCaches->at( ( uint64_t ) proposerIndex - 1 );
+        if ( previousProposal ) {
+            if ( previousProposal->getBlockID() > ( uint64_t ) _proposal->getBlockID() ) {
+                LOG( warn,
+                    "Trying to add a proposal with smaller block id:" + _proposal->getBlockID() );
+                return;
+            }
+
+            if ( previousProposal->getBlockID() > ( uint64_t ) _proposal->getBlockID() ) {
+                LOG( warn,
+                    "Trying to add a proposal with same block id:" + _proposal->getBlockID() );
+                return;
+            }
+        }
+
+        proposalCaches->at( ( uint64_t ) proposerIndex - 1 ) = _proposal;
+    }
 }
 void BlockProposalDB::serializeProposalAndSaveItToLevelDB( const ptr< BlockProposal > _proposal ) {
     CHECK_STATE( _proposal );
@@ -145,15 +161,16 @@ ptr< BlockProposal > BlockProposalDB::getBlockProposal(
     auto key = createKey( _blockID, _proposerIndex );
 
     CHECK_STATE( proposalCaches )
-    auto cache = proposalCaches->at( ( uint64_t ) _proposerIndex - 1 );
-    CHECK_STATE( cache );
 
-    if ( auto result = cache->getIfExists( key ); result.has_value() ) {
-        p = any_cast< ptr< BlockProposal > >( result );
-    }
+    {
+        READ_LOCK( proposalCacheMutex )
+        auto cachedProposal = proposalCaches->at( ( uint64_t ) _proposerIndex - 1 );
 
-    if ( p ) {
-        return p;
+        if ( cachedProposal ) {
+            if ( cachedProposal->getBlockID() == ( uint64_t ) _blockID ) {
+                return cachedProposal;
+            }
+        }
     }
 
     if ( getSchain()->getSchainIndex() != _proposerIndex ) {
@@ -171,11 +188,11 @@ ptr< BlockProposal > BlockProposalDB::getBlockProposal(
     auto proposal =
         BlockProposal::deserialize( serializedProposal, getSchain()->getCryptoManager(), false );
 
-    if (!proposal)
+    if ( !proposal )
         return nullptr;
 
 
-    cache->putIfDoesNotExist( key, proposal );
+    addProposalToCacheIfDoesNotExist( proposal );
 
     CHECK_STATE( !proposal->getSignature().empty() );
 

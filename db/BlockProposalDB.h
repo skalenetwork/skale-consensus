@@ -33,16 +33,17 @@ class BooleanProposalVector;
 #include "thirdparty/lrucache.hpp"
 
 class BlockProposalDB : public CacheLevelDB {
-    ptr< vector< ptr< cache::lru_cache< string, ptr< BlockProposal > > > > >
+    ptr< vector< ptr< BlockProposal > > >
         proposalCaches;  // tsafe
+
+    shared_mutex proposalCacheMutex;
 
     ptr< vector< uint8_t > > getMyProposalFromLevelDB(
         block_id _blockID, schain_index _proposerIndex );
 
     void serializeProposalAndSaveItToLevelDB( const ptr< BlockProposal > _proposal );
 
-    void addProposalToCacheIfDoesNotExist(
-        const ptr< BlockProposal > _proposal, const schain_index proposerIndex );
+    void addProposalToCacheIfDoesNotExist( const ptr< BlockProposal > _proposal );
 
 public:
 
